@@ -16,5 +16,10 @@ setup(name='eko',
           'Programming Language :: Python :: 3',
           'Topic :: Scientific/Engineering',
           'Topic :: Scientific/Engineering :: Physics',
-      ]
+      ],
+      install_requires=[
+          'numpy',
+          'numba',
+      ],
+      python_requires='>=3.6'
 )
