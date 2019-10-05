@@ -110,9 +110,9 @@ script:
      then docker exec build bash -c "cd /eko/; .ciscripts/build-deploy-linux.sh";
      fi
 
-#jobs:
-#  include:
-#    - stage: sphinx
-#      os: linux
-#      if: branch = master
-#      script: docker exec build bash -c "cd /nnpdf/; .ciscripts/deploy-documentation.sh";
+jobs:
+  include:
+    - stage: sphinx
+      os: linux
+      #if: branch = master
+      script: docker exec build bash -c "cd /eko/; .ciscripts/deploy-documentation.sh";
