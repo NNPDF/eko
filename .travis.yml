@@ -47,7 +47,7 @@ before_install:
      fi
     - >
      if [[ "$TRAVIS_OS_NAME" == "linux" ]];
-     then docker cp ../nnpdf build:/;
+     then docker cp ../eko build:/;
      fi
     - >
      if [[ "$TRAVIS_OS_NAME" == "linux" ]];
@@ -108,7 +108,7 @@ script:
      fi
     - >
      if [[ "$TRAVIS_OS_NAME" == "linux" ]];
-     then docker exec build bash -c "cd /nnpdf/; .ciscripts/build-deploy-linux.sh";
+     then docker exec build bash -c "cd /eko/; .ciscripts/build-deploy-linux.sh";
      fi
 
 #jobs:
