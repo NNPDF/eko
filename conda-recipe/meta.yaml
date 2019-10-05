@@ -1,0 +1,40 @@
+package:
+    name: eko
+    version: "{{ GIT_DESCRIBE_TAG }}.{{ GIT_DESCRIBE_NUMBER }}+{{ GIT_DESCRIBE_HASH }}"
+
+source:
+    git_url: ../
+
+requirements:
+    host:
+        - python
+        - numpy
+        - numba
+    run:
+        - numpy
+        - python
+        - numba
+        - sphinx # documentation
+        - recommonmark
+        - sphinx_rtd_theme
+
+test:
+    requires:
+        - hypothesis
+        - pytest
+        - coverage
+
+    source_files:
+        - "*"
+
+build:
+    number: 0
+    detect_binary_files_with_prefix: True
+    # import CONDA_BUILD_SYSROOT from env variable for osx
+    script_env:
+      - CONDA_BUILD_SYSROOT # [osx]
+
+about:
+    home: https://github.com/N3PDF/eko
+    license: GPLv3
+    summary: "Evolution kernel operator"
