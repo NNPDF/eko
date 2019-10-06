@@ -114,5 +114,5 @@ jobs:
   include:
     - stage: sphinx
       os: linux
-      #if: branch = master
+      if: branch = master
       script: docker exec build bash -c "cd /eko/; .ciscripts/deploy-documentation.sh";
