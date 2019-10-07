@@ -1,0 +1,5 @@
+#For some reason the resolver decides to use an old version of numpy
+#without this
+numpy:
+    - 1.14
+
