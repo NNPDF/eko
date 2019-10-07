@@ -24,3 +24,7 @@ help:
 .PHONY: rsync
 rsync: html
 	rsync -avzr ./build/html/ nnpdf@vp.nnpdf.science:WEB/sphinx-docs/eko
+
+.PHONY: view
+view: html
+	$(BROWSER) $(BUILDDIR)/html/index.html
