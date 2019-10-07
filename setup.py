@@ -20,6 +20,7 @@ setup(name='eko',
       install_requires=[
           'numpy',
           'numba',
+          'sphinx_rtd_theme',
       ],
       python_requires='>=3.6'
 )
