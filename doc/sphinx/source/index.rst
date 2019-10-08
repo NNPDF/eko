@@ -4,7 +4,11 @@ EKO documentation
 ===================
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 4
+
+.. automodule:: eko
+    :members:
+    :noindex:
 
 
 Indices and tables

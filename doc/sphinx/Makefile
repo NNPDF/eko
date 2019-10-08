@@ -11,20 +11,17 @@ BUILDDIR      = build
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help Makefile
+.PHONY: help html view clean cleanall
 
-# Catch-all target: route all unknown targets to Sphinx using the new
-# "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
-	@if test $@ != "clean"; then \
-		sphinx-apidoc -o ./source/modules/eko ../../src/eko/ ; \
-	fi
+html:
+	sphinx-apidoc -o ./source/modules/eko ../../src/eko/
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: rsync
-rsync: html
-	rsync -avzr ./build/html/ nnpdf@vp.nnpdf.science:WEB/sphinx-docs/eko
-
-.PHONY: view
 view: html
 	$(BROWSER) $(BUILDDIR)/html/index.html
+
+clean:
+	rm -rf build
+
+cleanall: clean
+	rm -rf $(SOURCEDIR)/modules
