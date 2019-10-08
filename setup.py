@@ -21,7 +21,6 @@ setup(name='eko',
           'numpy',
           'numba',
           'sphinx_rtd_theme',
-          'numpydoc',
           'recommonmark'
       ],
       python_requires='>=3.6'

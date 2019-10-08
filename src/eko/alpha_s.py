@@ -25,15 +25,9 @@ References
          In: Phys. Rev. Lett. 118.8 (2017), p. 082002. doi: 10.1103/PhysRevLett.118.082002.
          arXiv: 1606.08659 [hep-ph].
 """
+from eko import t_float
 
-# TODO move global color constants + dtype outside
-NC = 3.
-CA = NC
-CF = (NC*NC - 1.)/(2. * NC)
-Tf = 1./2.
-dtype = float
-
-def beta_0(nf : int, CA : dtype, CF : dtype, Tf : dtype): # pylint: disable=unused-argument
+def beta_0(nf : int, CA : t_float, CF : t_float, Tf : t_float): # pylint: disable=unused-argument
     """Computes the first coefficient of the QCD beta function
 
     Implements Eq. (3.1) of [1]_. For the conventions on normalization see header comment.
@@ -43,21 +37,21 @@ def beta_0(nf : int, CA : dtype, CF : dtype, Tf : dtype): # pylint: disable=unus
     ----------
     nf : int
        number of active flavours
-    CA : dtype
+    CA : t_float
        Casimir constant of adjoint representation
-    CF : dtype
-       Casimir constant of fundamental representation (which is actually not used for here)
-    Tf : dtype
+    CF : t_float
+       Casimir constant of fundamental representation (which is actually not used here)
+    Tf : t_float
        fundamental normalization factor
 
     Returns
     -------
-    beta_0 : dtype
+    beta_0 : t_float
        first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
     """
     return 11./3. * CA - 4./3. * Tf * nf
 
-def beta_1(nf : int, CA : dtype, CF : dtype, Tf : dtype):
+def beta_1(nf : int, CA : t_float, CF : t_float, Tf : t_float):
     """Computes the second coefficient of the QCD beta function
 
     Implements Eq. (3.2) of [1]_. For the conventions on normalization see header comment.
@@ -66,23 +60,23 @@ def beta_1(nf : int, CA : dtype, CF : dtype, Tf : dtype):
     ----------
     nf : int
        number of active flavours
-    CA : dtype
+    CA : t_float
        Casimir constant of adjoint representation
-    CF : dtype
+    CF : t_float
        Casimir constant of fundamental representation
-    Tf : dtype
+    Tf : t_float
        fundamental normalization factor
 
     Returns
     -------
-    beta_1 : dtype
+    beta_1 : t_float
        second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
     """
     return 34./3. * CA*CA \
          - 20./3. * CA * Tf * nf \
          - 4.     * CF * Tf * nf
 
-def beta_2(nf : int, CA : dtype, CF : dtype, Tf : dtype):
+def beta_2(nf : int, CA : t_float, CF : t_float, Tf : t_float):
     """Computes the third coefficient of the QCD beta function
 
     Implements Eq. (3.3) of [1]_. For the conventions on normalization see header comment.
@@ -91,16 +85,16 @@ def beta_2(nf : int, CA : dtype, CF : dtype, Tf : dtype):
     ----------
     nf : int
        number of active flavours.
-    CA : dtype
+    CA : t_float
        Casimir constant of adjoint representation.
-    CF : dtype
+    CF : t_float
        Casimir constant of fundamental representation.
-    Tf : dtype
+    Tf : t_float
        fundamental normalization factor.
 
     Returns
     -------
-    beta_2 : dtype
+    beta_2 : t_float
        third coefficient of the QCD beta function :math:`\\beta_2^{n_f}`
     """
     return 2857./54. * CA*CA*CA \
@@ -115,12 +109,12 @@ def alpha_s():
 
     Parameters
     ----------
-    alpha_s_ref : dtype
+    alpha_s_ref : t_float
         alpha_s at the reference scale
 
     Returns
     -------
-    alpha_s : dtype
+    alpha_s : t_float
       strong coupling alpha_s
     """
     # TODO implement actual running (we may take a glimpse into LHAPDF)
