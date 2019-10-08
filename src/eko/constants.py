@@ -10,10 +10,20 @@ class Constants:
     Upon initialization all constants are set and a `lock` variable is put is place.
     As long as the `lock` variable is active, setting attributes of this class will result
     in an attributeError exception.
+
+    Attributes
+    ----------
+    NC: int
+    TF: float
+
+    Methods
+    -------
+    dict()
+        Returns constants as dictionary
     """
     _lock = False
     def __init__(self):
-        self.NC = 3.0
+        self.NC = 3
         self.TF = 1./2.
         self.CA = self.NC
         # Lock the class
@@ -36,7 +46,7 @@ class Constants:
         In practicse: returns the __dict__ attribute of the class without the
         protected variables
 
-        Returns:
+        Returns
         -------
         out_dict: dictionary
             dictionary with the attributes of the class

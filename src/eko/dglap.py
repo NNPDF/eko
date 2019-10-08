@@ -11,12 +11,12 @@ def run_dglap(setup):
     """This function takes a DGLAP theory configuration dictionary
     and performs the solution of the DGLAP equations.
 
-    Parameters:
+    Parameters
     ----------
     setup: dict
         a dictionary with the theory parameters for the DGLAP
 
-    Returns:
+    Returns
     -------
     kernel: array
         a tensor operator in x-space.
