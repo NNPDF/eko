@@ -49,7 +49,8 @@ def beta_0(nf : int, CA : t_float, CF : t_float, Tf : t_float): # pylint: disabl
     beta_0 : t_float
        first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
     """
-    return 11./3. * CA - 4./3. * Tf * nf
+    beta_0 = 11./3. * CA - 4./3. * Tf * nf
+    return beta_0
 
 def beta_1(nf : int, CA : t_float, CF : t_float, Tf : t_float):
     """Computes the second coefficient of the QCD beta function
@@ -125,3 +126,9 @@ def alpha_s():
     #   - method? such as diff_eq, analytic
     # return fixed value for now
     return 0.118
+
+if __name__ == "__main__":
+    from eko.constants import Constants
+    c = Constants()
+    a = beta_0(4, c.CA, c.CF, c.TF)
+    
