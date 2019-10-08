@@ -34,15 +34,9 @@ Tf = 1./2.
 dtype = float
 
 def beta_0(nf : int, CA : dtype, CF : dtype, Tf : dtype): # pylint: disable=unused-argument
-    r"""Computes the first coefficient of the QCD beta function
+    """Computes the first coefficient of the QCD beta function
 
-    Implements Eq. (3.1) of [1]_.
-    Normalization is given by
-
-    .. math::
-         \frac{da}{d\ln\mu^2} = \beta(a) \
-         = - \sum\limits_{n=0} \beta_n a^{n+2} \quad \text{with}~a = \frac{\alpha_s(\mu^2)}{4\pi}
-
+    Implements Eq. (3.1) of [1]_. For the conventions on normalization see header comment.
     For the sake of unification we keep a unique function signature for *all* coefficients.
 
     Parameters
@@ -59,19 +53,14 @@ def beta_0(nf : int, CA : dtype, CF : dtype, Tf : dtype): # pylint: disable=unus
     Returns
     -------
     beta_0 : dtype
-       first coefficient of the QCD beta function :math:`\beta_0^{n_f}`
+       first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
     """
     return 11./3. * CA - 4./3. * Tf * nf
 
 def beta_1(nf : int, CA : dtype, CF : dtype, Tf : dtype):
-    r"""Computes the second coefficient of the QCD beta function
+    """Computes the second coefficient of the QCD beta function
 
-    Implements Eq. (3.2) of [1]_.
-    Normalization is given by
-
-    .. math::
-         \frac{da}{d\ln\mu^2} = \beta(a) \
-         = - \sum\limits_{n=0} \beta_n a^{n+2} \quad \text{with}~a = \frac{\alpha_s(\mu^2)}{4\pi}
+    Implements Eq. (3.2) of [1]_. For the conventions on normalization see header comment.
 
     Parameters
     ----------
@@ -87,20 +76,16 @@ def beta_1(nf : int, CA : dtype, CF : dtype, Tf : dtype):
     Returns
     -------
     beta_1 : dtype
-       second coefficient of the QCD beta function :math:`\beta_1^{n_f}`
+       second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
     """
     return 34./3. * CA*CA \
-         - 20./3.  * CA * Tf * nf \
-         - 4.      * CF * Tf * nf
+         - 20./3. * CA * Tf * nf \
+         - 4.     * CF * Tf * nf
 
 def beta_2(nf : int, CA : dtype, CF : dtype, Tf : dtype):
-    r"""Computes the third coefficient of the QCD beta function
-    Implements Eq. (3.3) of [1]_.
-    Normalization is given by
+    """Computes the third coefficient of the QCD beta function
 
-    .. math::
-         \frac{da}{d\ln\mu^2} = \beta(a) \
-         = - \sum\limits_{n=0} \beta_n a^{n+2} \quad \text{with}~a = \frac{\alpha_s(\mu^2)}{4\pi}
+    Implements Eq. (3.3) of [1]_. For the conventions on normalization see header comment.
 
     Parameters
     ----------
@@ -116,7 +101,7 @@ def beta_2(nf : int, CA : dtype, CF : dtype, Tf : dtype):
     Returns
     -------
     beta_2 : dtype
-       third coefficient of the QCD beta function :math:`\beta_2^{n_f}`
+       third coefficient of the QCD beta function :math:`\\beta_2^{n_f}`
     """
     return 2857./54. * CA*CA*CA \
          - 1415./27. * CA*CA * Tf * nf \
