@@ -17,6 +17,7 @@ requirements:
         - sphinx # documentation
         - recommonmark
         - sphinx_rtd_theme
+        - numpydoc
 
 test:
     requires:
