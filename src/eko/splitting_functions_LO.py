@@ -25,7 +25,12 @@ from scipy.special import digamma
 from eko import t_float, t_complex
 
 def _S1(N : t_complex):
-    """Computes the simple harmonic sum
+    r"""Computes the simple harmonic sum
+
+    .. math::
+      S_1(N) = \sum\limits_{j=0}^N \frac 1 j = \psi(N+1)+\gamma_E
+
+    with :math:`\psi(M)` the digamma function and :math:`\gamma_E` the Euler-Mascheroni constant
 
     Parameters
     ----------
@@ -35,7 +40,7 @@ def _S1(N : t_complex):
     Returns
     -------
       S : t_complex
-        Harmonic sum up to N :math:`S_1(N)`
+        (simple) Harmonic sum up to N :math:`S_1(N)`
     """
     return digamma(N + 1) + euler_gamma
 

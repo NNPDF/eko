@@ -25,7 +25,9 @@ References
          In: Phys. Rev. Lett. 118.8 (2017), p. 082002. doi: 10.1103/PhysRevLett.118.082002.
          arXiv: 1606.08659 [hep-ph].
 """
+import numpy as np
 from eko import t_float
+from eko.constants import Constants
 
 def beta_0(nf : int, CA : t_float, CF : t_float, Tf : t_float): # pylint: disable=unused-argument
     """Computes the first coefficient of the QCD beta function
@@ -105,24 +107,36 @@ def beta_2(nf : int, CA : t_float, CF : t_float, Tf : t_float):
          + 44./9.    * CF * Tf*Tf * nf*nf \
          + 158./27.  * CA * Tf*Tf * nf*nf
 
-def alpha_s():
-    """Computes the running coupling of QCD
+def alpha_s(order : int, alpha_s_ref : t_float, scale_ref : t_float, scale_to : t_float, nf : int, \
+            method : str): # pylint: disable=unused-argument
+    """Evolves the running coupling of QCD.
+
+    For the conventions on normalization see header comment. Note that both scale parameters, \
+    :math:`\\mu_0^2` and :math:`Q^2`, have to be given as squared values.
 
     Parameters
     ----------
-    alpha_s_ref : t_float
-        alpha_s at the reference scale
+      order : int
+         evaluated order of beta function
+      alpha_s_ref : t_float
+         alpha_s at the reference scale :math:`\\alpha_s(\\mu_0^2)`
+      scale_ref : t_float
+         reference scale :math:`\\mu_0^2`
+      scale_to : t_float
+         final scale to evolve to :math:`Q^2`
+      nf : int
+         Number of active flavours (is passed to the beta function)
+      method : {"analytic"}
+         Applied method to solve the beta function
 
     Returns
     -------
     alpha_s : t_float
-      strong coupling alpha_s
+      strong coupling :math:`\\alpha_s(Q^2)`
     """
-    # TODO implement actual running (we may take a glimpse into LHAPDF)
-    # TODO determine actual arguments; they should include
-    #   - perturbation order
-    #   - renormalization scale
-    #   - number of active flavours
-    #   - method? such as diff_eq, analytic
-    # return fixed value for now
-    return 0.118
+    # TODO implement more complex runnings (we may take a glimpse into LHAPDF)
+    # LO analytic
+    c = Constants()
+    beta0 = beta_0(nf, c.CA, c.CF, c.TF)
+    L = np.log(scale_to/scale_ref)
+    return alpha_s_ref / (1 + beta0 * alpha_s_ref * L)

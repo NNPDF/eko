@@ -11,7 +11,6 @@ CF = constants.CF
 Tf = constants.TF
 
 # for the isinstance-tests to work, keep in mind that in Python3 the default precision is np.float64
-
 def test_beta_0():
     """Test first beta function coefficient"""
     for ngen in range(8):

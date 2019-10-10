@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Testing the loading functions
 from eko.dglap import run_dglap
 
@@ -49,4 +50,4 @@ def test_loader():
     # esecute DGLAP
     result = run_dglap(theory)
 
-    assert(result == 0)
+    assert result == 0
