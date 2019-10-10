@@ -1,4 +1,6 @@
 import numpy as np
 
+# default in Python3 is np.float64
+# so any raw number, such as 11./3., is given in 64bit and determines thus the precision
 t_float = np.float64
 t_complex = np.complex64

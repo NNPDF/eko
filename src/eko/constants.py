@@ -21,10 +21,10 @@ class Constants:
       TF: t_float
         normalization of fundamental generators = 1/2
 
-      CA : f_float
+      CA : t_float
         second Casimir constant in adjoint representation = NC
 
-      CF : f_float
+      CF : t_float
         second Casimir constant in fundamental representation = (NC^2 - 1)/(2 NC)
 
     """

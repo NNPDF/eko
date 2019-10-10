@@ -126,9 +126,3 @@ def alpha_s():
     #   - method? such as diff_eq, analytic
     # return fixed value for now
     return 0.118
-
-if __name__ == "__main__":
-    from eko.constants import Constants
-    c = Constants()
-    a = beta_0(4, c.CA, c.CF, c.TF)
-    
