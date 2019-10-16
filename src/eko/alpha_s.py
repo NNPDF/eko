@@ -107,7 +107,7 @@ def beta_2(nf : int, CA : t_float, CF : t_float, Tf : t_float):
          + 44./9.    * CF * Tf*Tf * nf*nf \
          + 158./27.  * CA * Tf*Tf * nf*nf
 
-def alpha_s(order : int, alpha_s_ref : t_float, scale_ref : t_float, scale_to : t_float, nf : int, \
+def a_s(order : int, alpha_s_ref : t_float, scale_ref : t_float, scale_to : t_float, nf : int, \
             method : str): # pylint: disable=unused-argument
     """Evolves the running coupling of QCD.
 
@@ -131,12 +131,13 @@ def alpha_s(order : int, alpha_s_ref : t_float, scale_ref : t_float, scale_to : 
 
     Returns
     -------
-    alpha_s : t_float
-      strong coupling :math:`\\alpha_s(Q^2)`
+    a_s : t_float
+      strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
     """
     # TODO implement more complex runnings (we may take a glimpse into LHAPDF)
-    # LO analytic
+    # TODO change reference arguments of a_s also to a_s (instead of alpha_s_ref)?
+    # for now: LO analytic
     c = Constants()
     beta0 = beta_0(nf, c.CA, c.CF, c.TF)
     L = np.log(scale_to/scale_ref)
-    return alpha_s_ref / (1 + beta0 * alpha_s_ref * L)
+    return alpha_s_ref / (4.*np.pi + beta0 * alpha_s_ref * L)
