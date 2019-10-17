@@ -2,11 +2,6 @@
 r"""
 This file contains the implementation of the inverse Mellin transformation
 
-.. math::
-      \mathcal{M}^{-1}[f(N)](x) = \frac{1}{2\pi i} \int\limits_{c-i\infty}^{c+i\infty} x^{-N} f(N)
-
-References
-----------
 """
 
 import numpy as np
@@ -16,11 +11,12 @@ from eko import t_float
 
 # TODO make this module numba/C-save
 
+# TODO replace inversion with something better?
 def inverse_Mellin_transform(f, path, jac, x, cut : t_float = 0.):
     """Inverse Mellin transformation
 
-    Paramters
-    ---------
+    Parameters
+    ----------
       f : function
         Integration kernel
       path : function

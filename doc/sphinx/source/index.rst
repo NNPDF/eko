@@ -6,6 +6,8 @@ EKO documentation
 .. toctree::
     :maxdepth: 4
 
+    DGLAP
+
 .. automodule:: eko
     :members:
     :noindex:

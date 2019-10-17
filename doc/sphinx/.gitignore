@@ -1,2 +1,4 @@
 # Ignore auto generated module references
 source/modules
+# ignore temporary build files
+_build/

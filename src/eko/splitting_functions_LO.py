@@ -12,13 +12,10 @@ Normalization is given by
 
 References
 ----------
-  The 3-loop references are for the non-singlet [4]_ and singlet [5]_ case given below.
+  The 3-loop references are for the non-singlet :cite:`Moch:2004pa`
+  and singlet :cite:`Vogt:2004mw` case.
   They also contain the lower order results
 
-  .. [4] S. Moch et al. "The Three loop splitting functions in QCD: The Nonsinglet case"
-     in Nucl.Phys. B688 (2004), p. 101. doi: 10.1016/j.nuclphysb.2004.03.030. arxiv: hep-ph/0403192
-  .. [5] A. Vogt et al. "The Three-loop splitting functions in QCD: The Singlet case"
-     in Nucl.Phys. B691 (2004), p. 129. doi: 10.1016/j.nuclphysb.2004.04.024. arxiv: hep-ph/0404111
 """
 from numpy import euler_gamma
 from scipy.special import digamma
@@ -47,7 +44,7 @@ def _S1(N : t_complex):
 def gamma_ns_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: disable=unused-argument
     """Computes the leading-order non-singlet anomalous dimension.
 
-    Implements Eq. (3.4) of [4]_.
+    Implements Eq. (3.4) of :cite:`Moch:2004pa`.
     For the sake of unification we keep a unique function signature for *all* coefficients.
 
     Parameters
@@ -72,7 +69,7 @@ def gamma_ns_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: d
 def gamma_ps_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: disable=unused-argument
     """Computes the leading-order pure-singlet anomalous dimension
 
-    Implements Eq. (3.5) of [5]_.
+    Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
     For the sake of unification we keep a unique function signature for *all* coefficients.
 
     Parameters
@@ -96,7 +93,7 @@ def gamma_ps_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: d
 def gamma_qg_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: disable=unused-argument
     """Computes the leading-order quark-gluon anomalous dimension
 
-    Implements Eq. (3.5) of [5]_.
+    Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
     For the sake of unification we keep a unique function signature for *all* coefficients.
 
     Parameters
@@ -121,7 +118,7 @@ def gamma_qg_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: d
 def gamma_gq_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: disable=unused-argument
     """Computes the leading-order gluon-quark anomalous dimension
 
-    Implements Eq. (3.5) of [5]_.
+    Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
     For the sake of unification we keep a unique function signature for *all* coefficients.
 
     Parameters
@@ -146,7 +143,7 @@ def gamma_gq_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: d
 def gamma_gg_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: disable=unused-argument
     """Computes the leading-order gluon-gluon anomalous dimension
 
-    Implements Eq. (3.5) of [5]_.
+    Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
     For the sake of unification we keep a unique function signature for *all* coefficients.
 
     Parameters

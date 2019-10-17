@@ -21,7 +21,8 @@ setup(name='eko',
           'numpy',
           'numba',
           'sphinx_rtd_theme',
-          'recommonmark'
+          'recommonmark',
+          'sphinxcontrib-bibtex'
       ],
       python_requires='>=3.6'
 )
