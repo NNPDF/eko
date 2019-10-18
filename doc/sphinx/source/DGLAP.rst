@@ -6,7 +6,7 @@ We are solving the DGLAP equations given by
 
 .. math::
     \frac{d}{d\ln(\mu_F^2)} \mathbf{f}(x,\mu_F^2) =
-        \int\limits_0^1\!dy\, \mathbf{P}(y/x) \cdot \mathbf{f}(y,\mu_F^2)
+        \int\limits_x^1\!\frac{dy}{y}\, \mathbf{P}(x/y) \cdot \mathbf{f}(y,\mu_F^2)
 
 The Altarelli-Parisi splitting kernels can be expanded in powers of the strong
 coupling :math:`a_s(\mu_F^2)` given by :cite:`Moch:2004pa` :cite:`Vogt:2004mw`
@@ -28,7 +28,7 @@ The non-siglet case can be solved in a linear way:
 
 .. math::
     \frac{d f_{ns}(x,\mu_F^2)}{d\ln(\mu_F^2)} =
-        \int\limits_0^1\!dy\, P_{ns}(y/x) \cdot f_{ns}(y,\mu_F^2)
+        \int\limits_x^1\!\frac{dy}{y}\, P_{ns}(y/x) \cdot f_{ns}(y,\mu_F^2)
 
 We solve the equations in Mellin-space as there convolution is mapped onto
 a normal multiplication and thus the integro-differential equations are instead
@@ -83,6 +83,8 @@ coincident with the interpolation grid :math:`\{x_j\}`. Now, we have
 
 .. math::
     f^{(0)}(x_k,t_1) = \hat O_{k,j}^{(0)}(t_1,t_0) f^{(0)}(x_j,t_0)
+
+The benchmarking LHA reference is given by :cite:`Giele:2002hx`.
 
 References
 ----------

@@ -29,18 +29,16 @@ def run_dglap(setup):
     ret: dict
         a dictionary with a defined set of keys
     """
-    constants = Constants()
 
     # print theory id setup
     logObj.info(setup)
-    # print constants
-    logObj.info(constants)
 
     # return dictionay
     ret = {}
 
     # setup constants
     nf = setup["NfFF"]
+    constants = Constants()
     beta0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
     # setup inital+final scale
     a0 = alpha_s.a_s(setup["PTO"],setup["alphas"],
@@ -57,32 +55,35 @@ def run_dglap(setup):
     targetgrid = xgrid if not "targetgrid" in setup else setup["targetgrid"]
     targetgrid_size = len(targetgrid)
 
+    # prepare return of operators
     ret["operators"] = {"NS": 0}
     ret["operator_errors"] = {"NS": 0}
+
+    # prepare non-siglet evolution
+    def get_kernel_ns(j,t1=t1,t0=t0,
+                       g_ns_0=sf_LO.gamma_ns_0,nf=nf,constants=constants,beta0=beta0,
+                       pN=interpolation.get_Lagrange_iterpolators_N,xgrid=xgrid):
+        """return non-siglet integration kernel"""
+        delta_t = t1 - t0
+        def ker(N):
+            """non-siglet integration kernel"""
+            ln = delta_t * g_ns_0(N,nf,constants.CF,constants.CF) / beta0
+            return np.exp(ln) * pN(N,xgrid,j)
+        return ker
     # perform non-singlet evolution
     op_ns = np.zeros((targetgrid_size,xgrid_size),dtype=t_float)
     op_ns_err = np.zeros((targetgrid_size,xgrid_size),dtype=t_float)
     path,jac = Mellin.get_path_Talbot()
     for j in range(xgrid_size):
         for k in range(targetgrid_size):
-            res = Mellin.inverse_Mellin_transform(
-                lambda N,t1=t1,t0=t0,
-                       g_ns_0=sf_LO.gamma_ns_0,nf=nf,constants=constants,beta0=beta0,
-                       pN=interpolation.get_Lagrange_iterpolators_N,j=j,xgrid=xgrid :
-                           np.exp(
-                            (t1-t0) * g_ns_0(N,nf,constants.CF,constants.CF) / beta0
-                           ) * pN(N,xgrid,j),
-                path,jac,targetgrid[k],1e-2
-            )
+            res = Mellin.inverse_Mellin_transform(get_kernel_ns(j),path,jac,targetgrid[k],1e-2)
             op_ns[k,j] = res[0]
             op_ns_err[k,j] = res[1]
-
+    # insert operators
     ret["operators"]["NS"] = op_ns
     ret["operator_errors"]["NS"] = op_ns_err
 
 #   Points to be implemented:
-#   TODO allocate splittings, running
-#   TODO solve DGLAP in N-space
-#   TODO perform Mellin inverse
-#   TODO return the kernel operator in x-space
+#   TODO implement siglet case
+#   TODO implement NLO
     return ret

@@ -12,7 +12,7 @@ from eko import t_float
 def _special_beta(alpha, beta):
     return special.gamma(alpha)*special.gamma(beta)/special.gamma(alpha+beta)
 
-def get_xgrid_linear_at_id(grid_size : int, xmin : t_float, xmax : t_float = 1.):
+def get_xgrid_linear_at_id(grid_size : int, xmin : t_float = 0., xmax : t_float = 1.):
     """Computes a linear grid on true x - corresponds to the flag `linear@id`
 
     This function is mainly for testing purpuse, as it is not physically relevant.
@@ -22,7 +22,7 @@ def get_xgrid_linear_at_id(grid_size : int, xmin : t_float, xmax : t_float = 1.)
       grid_size : int
         The total size of the grid.
       xmin : t_float
-        The minimum x value.
+        The minimum x value. Default is 0.
       xmax : t_float
         The maximum x value. Default is 1.
 
@@ -33,7 +33,7 @@ def get_xgrid_linear_at_id(grid_size : int, xmin : t_float, xmax : t_float = 1.)
     """
     return np.linspace(xmin,xmax,num=grid_size,dtype=t_float)
 
-def get_xgrid_Chebyshev_at_id(grid_size : int, xmin : t_float = 0, xmax : t_float = 1.):
+def get_xgrid_Chebyshev_at_id(grid_size : int, xmin : t_float = 0., xmax : t_float = 1.):
     """Computes a Chebyshev-like spaced grid on true x - corresponds to the flag `Chebyshev@id`
 
     Parameters
@@ -50,8 +50,9 @@ def get_xgrid_Chebyshev_at_id(grid_size : int, xmin : t_float = 0, xmax : t_floa
       xgrid : array
         List of grid points in x-space
     """
-    return [t_float(.5)*(xmax + xmin) - .5*(xmax - xmin)*np.cos((2.*j+1)/(2.*grid_size)*np.pi)
-            for j in range(grid_size)]
+    return np.array([t_float(.5)*(xmax + xmin)
+                      - .5*(xmax - xmin)*np.cos((2.*j+1)/(2.*grid_size)*np.pi)
+            for j in range(grid_size)],dtype=t_float)
 
 def get_xgrid_linear_at_log10(grid_size : int, xmin : t_float, xmax : t_float = 1.):
     """Computes a linear grid on log10(x) - corresponds to the flag `linear@log10`
@@ -71,6 +72,27 @@ def get_xgrid_linear_at_log10(grid_size : int, xmin : t_float, xmax : t_float = 
         List of grid points in x-space
     """
     return np.logspace(np.log10(xmin),np.log10(xmax),num=grid_size,dtype=t_float)
+
+def get_xgrid_Chebyshev_at_log10(grid_size : int, xmin : t_float, xmax : t_float = 1.):
+    """Computes a Chebyshev-like spaced grid on log10(x) - corresponds to the flag `Chebyshev@log10`
+
+    Parameters
+    ----------
+      grid_size : int
+        The total size of the grid.
+      xmin : t_float
+        The minimum x value.
+      xmax : t_float
+        The maximum x value. Default is 1.
+
+    Returns
+    -------
+      xgrid : array
+        List of grid points in x-space
+    """
+    l = get_xgrid_Chebyshev_at_id(grid_size)
+    r = [10**(np.log10(xmin) + j * (np.log10(xmax) - np.log10(xmin))) for j in l]
+    return r
 
 def get_Lagrange_iterpolators_x(x : t_float, xgrid, j : int):
     """Get a single Lagrange interpolator in x-space
