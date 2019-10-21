@@ -35,7 +35,7 @@ a normal multiplication and thus the integro-differential equations are instead
 just normal differential equations. The Mellin transformation is given by
 
 .. math::
-    \tilde g(N) = \mathcal{M}[g(x)](N) = \int\limits_{0}^{1} x^{N} g(x)\,dx
+    \tilde g(N) = \mathcal{M}[g(x)](N) = \int\limits_{0}^{1} x^{N-1} g(x)\,dx
 
 where we will denote all objects in Mellin-space with an additional tilde.
 The inverse Mellin transformation is given by

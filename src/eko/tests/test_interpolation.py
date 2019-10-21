@@ -3,12 +3,10 @@
 import numpy as np
 from numpy.polynomial import Chebyshev as T
 import scipy.integrate as integrate
-import scipy.special as special
 
 from eko import t_float
 from eko.interpolation import get_xgrid_linear_at_id,get_xgrid_linear_at_log10,\
-    get_xgrid_Chebyshev_at_id, get_Lagrange_iterpolators_x, get_Lagrange_iterpolators_N,\
-    _special_beta
+    get_xgrid_Chebyshev_at_id, get_Lagrange_iterpolators_x, get_Lagrange_iterpolators_N
 
 # for the numeric comparision to work, keep in mind that in Python3 the default precision is
 # np.float64
@@ -49,15 +47,15 @@ def test__Mellin_transform():
         assert np.abs(e-a[0]) < 1e-6
         assert np.abs(a[1]) < 1e-6
 
-def test__special_beta():
-    """test reimplementation of beta"""
-    # built in only work on real arguments
-    for ab in [(1,1),(1,2),(2,1),(np.pi,np.pi)]:
-        a,b = ab
-        actual = _special_beta(a,b)
-        # ??? why does complain pylint ???
-        expected = special.beta(a,b) # pylint: disable=no-member
-        assert np.abs(actual - expected) < 1e-6
+#def test__special_beta():
+#    """test reimplementation of beta"""
+#    # built in only work on real arguments
+#    for ab in [(1,1),(1,2),(2,1),(np.pi,np.pi)]:
+#        a,b = ab
+#        actual = _special_beta(a,b)
+#        # ??? why does complain pylint ???
+#        expected = special.beta(a,b) # pylint: disable=no-member
+#        assert np.abs(actual - expected) < 1e-6
 
 def test_get_Lagrange_iterpolators_xN():
     """test correspondence of get_Lagrange_iterpolators_[x|N]"""

@@ -50,7 +50,7 @@ def run_dglap(setup):
     t1 = np.log(1./a1)
     # setup grid
     xgrid_size = setup["xgrid_size"]
-    xgrid = interpolation.get_xgrid_Chebyshev_at_id(xgrid_size)
+    xgrid = interpolation.get_xgrid_Chebyshev_at_log10(xgrid_size,1e-7)
     ret["xgrid"] = xgrid
     targetgrid = xgrid if not "targetgrid" in setup else setup["targetgrid"]
     targetgrid_size = len(targetgrid)
@@ -62,12 +62,12 @@ def run_dglap(setup):
     # prepare non-siglet evolution
     def get_kernel_ns(j,t1=t1,t0=t0,
                        g_ns_0=sf_LO.gamma_ns_0,nf=nf,constants=constants,beta0=beta0,
-                       pN=interpolation.get_Lagrange_iterpolators_N,xgrid=xgrid):
+                       pN=interpolation.get_Lagrange_iterpolators_log_N,xgrid=xgrid):
         """return non-siglet integration kernel"""
         delta_t = t1 - t0
         def ker(N):
             """non-siglet integration kernel"""
-            ln = delta_t * g_ns_0(N,nf,constants.CF,constants.CF) / beta0
+            ln = - delta_t * g_ns_0(N,nf,constants.CF,constants.CF) / beta0
             return np.exp(ln) * pN(N,xgrid,j)
         return ker
     # perform non-singlet evolution
