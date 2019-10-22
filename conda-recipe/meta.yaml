@@ -8,8 +8,6 @@ source:
 requirements:
     host:
         - python
-        - numpy
-        - numba
     run:
         - numpy
         - python
@@ -17,6 +15,7 @@ requirements:
         - sphinx # documentation
         - recommonmark
         - sphinx_rtd_theme
+        - scipy
 
 test:
     requires:
