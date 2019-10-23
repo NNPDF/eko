@@ -12,12 +12,16 @@ from eko import t_float
 # can they be used with numba?? We'll see in the future
 def check_xgrid(function_in):
     """ Check whether the argument xgrid is valud """
+
     def decorated_fun(*args, **kwargs):
-        get_all_args = inspect.getcallargs(function_in, *args, **kwargs) # TODO use signature
-        xgrid = get_all_args['xgrid']
+        get_all_args = inspect.getcallargs(
+            function_in, *args, **kwargs
+        )  # TODO use signature
+        xgrid = get_all_args["xgrid"]
         if len(xgrid) < 2:
             raise ValueError("The xgrid argument needs at least two values")
         return function_in(*args, **kwargs)
+
     return decorated_fun
 
 
@@ -91,7 +95,6 @@ def get_xgrid_linear_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.0):
     return np.logspace(np.log10(xmin), np.log10(xmax), num=grid_size, dtype=t_float)
 
 
-
 def get_xgrid_Chebyshev_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.0):
     """Computes a Chebyshev-like spaced grid on log(x) - corresponds to the flag `Chebyshev@log`
 
@@ -110,9 +113,10 @@ def get_xgrid_Chebyshev_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.
         List of grid points in x-space
     """
     cheb_grid = get_xgrid_Chebyshev_at_id(grid_size)
-    exp_arg = np.log(xmin) + cheb_grid*(np.log(xmax) - np.log(xmin))
+    exp_arg = np.log(xmin) + cheb_grid * (np.log(xmax) - np.log(xmin))
     xgrid = np.exp(exp_arg)
     return xgrid
+
 
 @check_xgrid
 def get_Lagrange_interpolators_x(x: t_float, xgrid, j: int):
@@ -144,7 +148,7 @@ def get_Lagrange_interpolators_x(x: t_float, xgrid, j: int):
             continue
         num = x - k
         den = jgrid - k
-        result *= num/den
+        result *= num / den
     return result
 
 
@@ -175,11 +179,11 @@ def get_Lagrange_interpolators_N(N, xgrid, j):
     for i, k in enumerate(xgrid):
         if i != j:
             den *= jgrid - k
-            num *= P( [-k, 1] )
+            num *= P([-k, 1])
     n = 0.0
     for i in range(len(xgrid)):
-        n += num.coef[i] / (N+i)
-    return n/den
+        n += num.coef[i] / (N + i)
+    return n / den
 
 
 @check_xgrid
@@ -240,10 +244,10 @@ def get_Lagrange_interpolators_log_N(N, xgrid, j):
     for i, k in enumerate(log_xgrid):
         if i != j:
             den *= jgrid - k
-            num *= P( [-k, 1] )
+            num *= P([-k, 1])
     n = 0.0
     for i in range(len(log_xgrid)):
-        ifac = np.math.factorial(i)/N
-        powi = pow( -1.0/ N, i )
+        ifac = np.math.factorial(i) / N
+        powi = pow(-1.0 / N, i)
         n += num.coef[i] * ifac * powi
-    return n/den
+    return n / den
