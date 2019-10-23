@@ -3,12 +3,12 @@
 from numpy.testing import assert_approx_equal, assert_almost_equal
 
 from eko.constants import Constants
+
 import eko.splitting_functions_LO as spf_LO
 
 constants = Constants()
 CA = constants.CA
 CF = constants.CF
-Tf = constants.TF
 NF = 5
 
 
@@ -19,7 +19,6 @@ def check_values(function, inputs, known_values):
         result = function(N, NF, CA, CF)
         assert_almost_equal(result, val)
 
-
 def test__S1():
     """test harmonic sum _S1"""
     # test on real axis
@@ -28,6 +27,20 @@ def test__S1():
         result = spf_LO._S1(1 + i)
         assert_approx_equal(result, val, significant=8)
 
+
+def test_number_momentum_conservation():
+    """test number/momentum conservation"""
+    c = Constants()
+    nf = 4
+    # number
+    zero = spf_LO.gamma_ns_0(1,nf,c.CA,c.CF)
+    assert np.abs(0. - zero) < 1e-6
+    # quark momentum
+    zero = spf_LO.gamma_ns_0(2,nf,c.CA,c.CF) + spf_LO.gamma_gq_0(2,nf,c.CA,c.CF)
+    assert np.abs(0. - zero) < 1e-6
+    # gluon momentum
+    zero = spf_LO.gamma_qg_0(2,nf,c.CA,c.CF) + spf_LO.gamma_gg_0(2,nf,c.CA,c.CF)
+    assert np.abs(0. - zero) < 1e-6
 
 def test_gamma_ns_0():
     """test gamma_ns_0"""

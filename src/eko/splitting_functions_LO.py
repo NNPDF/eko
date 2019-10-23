@@ -5,16 +5,16 @@ This file contains the Altarelli-Parisi splitting kernels.
 Normalization is given by
 
 .. math::
-      \frac{dq_{ns}^i}{d\ln\mu^2}
-      = - \sum\limits_{n=0} a^{n+1} P_{ns}^{(n),i} q_{ns}^i \
-          \quad \text{with}~ a = \frac{\alpha_S1(\mu^2)}{4\pi}
+  \mathbf{P}(x) = - \sum\limits_{n=0} a_s^{n+1} \mathbf P^{(n)}(x)
 
+with :math:`a_s = \frac{\alpha_S(\mu^2)}{4\pi}`.
+The 3-loop references are given for the non-singlet :cite:`Moch:2004pa`
+and singlet :cite:`Vogt:2004mw` case, which contain also the lower
+order results. The results are also determined in Mellin space in
+terms of the anomalous dimensions (note the additional sign!)
 
-References
-----------
-  The 3-loop references are for the non-singlet :cite:`Moch:2004pa`
-  and singlet :cite:`Vogt:2004mw` case.
-  They also contain the lower order results
+.. math::
+  \gamma(N) = - \mathcal{M}[\mathbf{P}(x)](N)
 
 """
 from numpy import euler_gamma
@@ -36,7 +36,7 @@ def _S1(N : t_complex):
 
     Returns
     -------
-      S : t_complex
+      S_1 : t_complex
         (simple) Harmonic sum up to N :math:`S_1(N)`
     """
     return digamma(N + 1) + euler_gamma
