@@ -19,7 +19,10 @@ import numpy as np
 from eko import t_float
 from eko.constants import Constants
 
-def beta_0(nf : int, CA : t_float, CF : t_float, Tf : t_float): # pylint: disable=unused-argument
+
+def beta_0(
+    nf: int, CA: t_float, CF: t_float, Tf: t_float
+):  # pylint: disable=unused-argument
     """Computes the first coefficient of the QCD beta function
 
     Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
@@ -41,10 +44,11 @@ def beta_0(nf : int, CA : t_float, CF : t_float, Tf : t_float): # pylint: disabl
     beta_0 : t_float
        first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
     """
-    beta_0 = 11./3. * CA - 4./3. * Tf * nf
+    beta_0 = 11.0 / 3.0 * CA - 4.0 / 3.0 * Tf * nf
     return beta_0
 
-def beta_1(nf : int, CA : t_float, CF : t_float, Tf : t_float):
+
+def beta_1(nf: int, CA: t_float, CF: t_float, Tf: t_float):
     """Computes the second coefficient of the QCD beta function
 
     Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
@@ -65,11 +69,14 @@ def beta_1(nf : int, CA : t_float, CF : t_float, Tf : t_float):
     beta_1 : t_float
        second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
     """
-    return 34./3. * CA*CA \
-         - 20./3. * CA * Tf * nf \
-         - 4.     * CF * Tf * nf
+    b_ca2 = 34.0 / 3.0 * CA * CA
+    b_ca = -20.0 / 3.0 * CA * Tf * nf
+    b_cf = -4.0 * CF * Tf * nf
+    beta_1 = b_ca2 + b_ca + b_cf
+    return beta_1
 
-def beta_2(nf : int, CA : t_float, CF : t_float, Tf : t_float):
+
+def beta_2(nf: int, CA: t_float, CF: t_float, Tf: t_float):
     """Computes the third coefficient of the QCD beta function
 
     Implements Eq. (3.3) of :cite:`Herzog:2017ohr`.
@@ -90,15 +97,25 @@ def beta_2(nf : int, CA : t_float, CF : t_float, Tf : t_float):
     beta_2 : t_float
        third coefficient of the QCD beta function :math:`\\beta_2^{n_f}`
     """
-    return 2857./54. * CA*CA*CA \
-         - 1415./27. * CA*CA * Tf * nf \
-         - 205./9.   * CF * CA * Tf * nf \
-         + 2.        * CF*CF * Tf * nf \
-         + 44./9.    * CF * Tf*Tf * nf*nf \
-         + 158./27.  * CA * Tf*Tf * nf*nf
+    beta_2 = (
+        2857.0 / 54.0 * CA * CA * CA
+        - 1415.0 / 27.0 * CA * CA * Tf * nf
+        - 205.0 / 9.0 * CF * CA * Tf * nf
+        + 2.0 * CF * CF * Tf * nf
+        + 44.0 / 9.0 * CF * Tf * Tf * nf * nf
+        + 158.0 / 27.0 * CA * Tf * Tf * nf * nf
+    )
+    return beta_2
 
-def a_s(order : int, alpha_s_ref : t_float, scale_ref : t_float, scale_to : t_float, nf : int, \
-            method : str): # pylint: disable=unused-argument
+
+def a_s(
+    order: int,
+    alpha_s_ref: t_float,
+    scale_ref: t_float,
+    scale_to: t_float,
+    nf: int,
+    method: str,
+):  # pylint: disable=unused-argument
     """Evolves the running coupling of QCD.
 
     Note that both scale parameters, :math:`\\mu_0^2` and :math:`Q^2`,
@@ -126,8 +143,9 @@ def a_s(order : int, alpha_s_ref : t_float, scale_ref : t_float, scale_to : t_fl
     """
     # TODO implement more complex runnings (we may take a glimpse into LHAPDF)
     # TODO change reference arguments of a_s also to a_s (instead of alpha_s_ref)?
+    # TODO constants have to come from the outside, otherwise it defeats the purpose
     # for now: LO analytic
     c = Constants()
     beta0 = beta_0(nf, c.CA, c.CF, c.TF)
-    L = np.log(scale_to/scale_ref)
-    return alpha_s_ref / (4.*np.pi + beta0 * alpha_s_ref * L)
+    L = np.log(scale_to / scale_ref)
+    return alpha_s_ref / (4.0 * np.pi + beta0 * alpha_s_ref * L)
