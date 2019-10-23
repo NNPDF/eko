@@ -150,7 +150,7 @@ def run_dglap(setup):
     # prepare non-siglet evolution
     def get_kernel_ns(j,delta_t=delta_t,
                        g_ns_0=sf_LO.gamma_ns_0,nf=nf,constants=constants,beta0=beta0,
-                       pN=interpolation.get_Lagrange_iterpolators_log_N,xgrid=xgrid):
+                       pN=interpolation.get_Lagrange_interpolators_log_N,xgrid=xgrid):
         """return non-siglet integration kernel"""
         def ker(N):
             """non-siglet integration kernel"""

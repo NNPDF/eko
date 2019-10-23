@@ -3,16 +3,25 @@
 This file provides all necessary tools for PDF interpolation.
 
 """
+import inspect
 import numpy as np
 from numpy.polynomial import Polynomial as P
 from eko import t_float
 
-# rebuild beta function as default implementation in scipy does not allow complex arguments
-#import scipy.special as special
-#def _special_beta(alpha, beta):
-#    return special.gamma(alpha)*special.gamma(beta)/special.gamma(alpha+beta)
+# Decorators
+# can they be used with numba?? We'll see in the future
+def check_xgrid(function_in):
+    """ Check whether the argument xgrid is valud """
+    def decorated_fun(*args, **kwargs):
+        get_all_args = inspect.getcallargs(function_in, *args, **kwargs) # TODO use signature
+        xgrid = get_all_args['xgrid']
+        if len(xgrid) < 2:
+            raise ValueError("The xgrid argument needs at least two values")
+        return function_in(*args, **kwargs)
+    return decorated_fun
 
-def get_xgrid_linear_at_id(grid_size : int, xmin : t_float = 0., xmax : t_float = 1.):
+
+def get_xgrid_linear_at_id(grid_size: int, xmin: t_float = 0.0, xmax: t_float = 1.0):
     """Computes a linear grid on true x - corresponds to the flag `linear@id`
 
     This function is mainly for testing purpuse, as it is not physically relevant.
@@ -31,9 +40,10 @@ def get_xgrid_linear_at_id(grid_size : int, xmin : t_float = 0., xmax : t_float 
       xgrid : array
         List of grid points in x-space
     """
-    return np.linspace(xmin,xmax,num=grid_size,dtype=t_float)
+    return np.linspace(xmin, xmax, num=grid_size, dtype=t_float)
 
-def get_xgrid_Chebyshev_at_id(grid_size : int, xmin : t_float = 0., xmax : t_float = 1.):
+
+def get_xgrid_Chebyshev_at_id(grid_size: int, xmin: t_float = 0.0, xmax: t_float = 1.0):
     """Computes a Chebyshev-like spaced grid on true x - corresponds to the flag `Chebyshev@id`
 
     Parameters
@@ -50,11 +60,18 @@ def get_xgrid_Chebyshev_at_id(grid_size : int, xmin : t_float = 0., xmax : t_flo
       xgrid : array
         List of grid points in x-space
     """
-    return np.array([t_float(.5)*(xmax + xmin)
-                      - .5*(xmax - xmin)*np.cos((2.*j+1)/(2.*grid_size)*np.pi)
-            for j in range(grid_size)],dtype=t_float)
+    twox = (xmax + xmin) / 2.0
+    deltax = (xmax - xmin) / 2.0
+    grid_points = []
+    for j in range(grid_size):
+        cos_arg = (2.0 * j + 1) / (2.0 * grid_size) * np.pi
+        new_point = twox - deltax * np.cos(cos_arg)
+        grid_points.append(new_point)
+    xgrid = np.array(grid_points, dtype=t_float)
+    return xgrid
 
-def get_xgrid_linear_at_log(grid_size : int, xmin : t_float, xmax : t_float = 1.):
+
+def get_xgrid_linear_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.0):
     """Computes a linear grid on log(x) - corresponds to the flag `linear@log`
 
     Parameters
@@ -71,9 +88,11 @@ def get_xgrid_linear_at_log(grid_size : int, xmin : t_float, xmax : t_float = 1.
       xgrid : array
         List of grid points in x-space
     """
-    return np.logspace(np.log10(xmin),np.log10(xmax),num=grid_size,dtype=t_float)
+    return np.logspace(np.log10(xmin), np.log10(xmax), num=grid_size, dtype=t_float)
 
-def get_xgrid_Chebyshev_at_log(grid_size : int, xmin : t_float, xmax : t_float = 1.):
+
+
+def get_xgrid_Chebyshev_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.0):
     """Computes a Chebyshev-like spaced grid on log(x) - corresponds to the flag `Chebyshev@log`
 
     Parameters
@@ -90,11 +109,13 @@ def get_xgrid_Chebyshev_at_log(grid_size : int, xmin : t_float, xmax : t_float =
       xgrid : array
         List of grid points in x-space
     """
-    l = get_xgrid_Chebyshev_at_id(grid_size)
-    r = [np.exp(np.log(xmin) + j * (np.log(xmax) - np.log(xmin))) for j in l]
-    return np.array(r)
+    cheb_grid = get_xgrid_Chebyshev_at_id(grid_size)
+    exp_arg = np.log(xmin) + cheb_grid*(np.log(xmax) - np.log(xmin))
+    xgrid = np.exp(exp_arg)
+    return xgrid
 
-def get_Lagrange_iterpolators_x(x : t_float, xgrid, j : int):
+@check_xgrid
+def get_Lagrange_interpolators_x(x: t_float, xgrid, j: int):
     """Get a single Lagrange interpolator in true x-space  - corresponds to the flag `Lagrange@id`
 
     Lagragrange interpolation polynoms are defined by
@@ -116,14 +137,19 @@ def get_Lagrange_iterpolators_x(x : t_float, xgrid, j : int):
       p_j(x) : t_float
         Evaluated jth-polynom at x
     """
-    l = len(xgrid)
-    if l < 2 :
-        raise "need at least 2 points"
-    d = np.prod([1 if j == k else xgrid[j] - xgrid[k] for k in range(l)])
-    n = np.prod([1 if j == k else x - xgrid[k] for k in range(l)])
-    return n/d
+    jgrid = xgrid[j]
+    result = 1.0
+    for i, k in enumerate(xgrid):
+        if i == j:
+            continue
+        num = x - k
+        den = jgrid - k
+        result *= num/den
+    return result
 
-def get_Lagrange_iterpolators_N(N,xgrid,j):
+
+@check_xgrid
+def get_Lagrange_interpolators_N(N, xgrid, j):
     """Get a single Lagrange interpolator in N-space - corresponds to the flag `Lagrange@id`
 
     .. math::
@@ -143,15 +169,21 @@ def get_Lagrange_iterpolators_N(N,xgrid,j):
       p_j(N) : t_float
         Evaluated jth-polynom at N
     """
-    l = len(xgrid)
-    if l < 2 :
-        raise "need at least 2 points"
-    d = np.prod([1 if j == k else xgrid[j] - xgrid[k] for k in range(l)])
-    nx = np.prod([P([1]) if j == k else P([- xgrid[k],1]) for k in range(l)])
-    n = np.sum([nx.coef[k]/(N+k) for k in range(l)])
-    return n/d
+    jgrid = xgrid[j]
+    num = 1.0
+    den = 1.0
+    for i, k in enumerate(xgrid):
+        if i != j:
+            den *= jgrid - k
+            num *= P( [-k, 1] )
+    n = 0.0
+    for i in range(len(xgrid)):
+        n += num.coef[i] / (N+i)
+    return n/den
 
-def get_Lagrange_iterpolators_log_x(x,xgrid,j):
+
+@check_xgrid
+def get_Lagrange_interpolators_log_x(x, xgrid, j):
     """Get a single Lagrange interpolator in logarithmic x-space\
        - corresponds to the flag `Lagrange@log`
 
@@ -175,16 +207,12 @@ def get_Lagrange_iterpolators_log_x(x,xgrid,j):
       p_j(x) : t_float
         Evaluated jth-polynom at x
     """
-    l = len(xgrid)
-    x = np.log(x)
-    xgrid = np.log(np.array(xgrid))
-    if l < 2 :
-        raise "need at least 2 points"
-    d = np.prod([1 if j == k else xgrid[j] - xgrid[k] for k in range(l)])
-    n = np.prod([1 if j == k else x - xgrid[k] for k in range(l)])
-    return n/d
+    log_xgrid = np.log(xgrid)
+    logx = np.log(x)
+    return get_Lagrange_interpolators_x(logx, log_xgrid, j)
 
-def get_Lagrange_iterpolators_log_N(N,xgrid,j):
+
+def get_Lagrange_interpolators_log_N(N, xgrid, j):
     """Get a single, logarithmic Lagrange interpolator in N-space\
        - corresponds to the flag `Lagrange@log`
 
@@ -205,11 +233,17 @@ def get_Lagrange_iterpolators_log_N(N,xgrid,j):
       p_j(N) : t_float
         Evaluated jth-polynom at N
     """
-    l = len(xgrid)
-    xgrid = np.log(np.array(xgrid))
-    if l < 2 :
-        raise "need at least 2 points"
-    d = np.prod([1 if j == k else xgrid[j] - xgrid[k] for k in range(l)])
-    nx = np.prod([P([1]) if j == k else P([- xgrid[k],1]) for k in range(l)])
-    n = np.sum([nx.coef[k]*(np.math.factorial(k))/N*(-1./N)**k for k in range(l)])
-    return n/d
+    log_xgrid = np.log(xgrid)
+    jgrid = log_xgrid[j]
+    num = 1.0
+    den = 1.0
+    for i, k in enumerate(log_xgrid):
+        if i != j:
+            den *= jgrid - k
+            num *= P( [-k, 1] )
+    n = 0.0
+    for i in range(len(log_xgrid)):
+        ifac = np.math.factorial(i)/N
+        powi = pow( -1.0/ N, i )
+        n += num.coef[i] * ifac * powi
+    return n/den
