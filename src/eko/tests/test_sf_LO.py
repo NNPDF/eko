@@ -1,30 +1,73 @@
 # -*- coding: utf-8 -*-
 # Test splitting functions
-import numpy as np
+from numpy.testing import assert_approx_equal, assert_almost_equal
 
 from eko.constants import Constants
-from eko.splitting_functions_LO import _S1,gamma_ns_0,gamma_gg_0,gamma_qg_0,gamma_gq_0
+
+import eko.splitting_functions_LO as spf_LO
+
+constants = Constants()
+CA = constants.CA
+CF = constants.CF
+NF = 5
+
+
+def check_values(function, inputs, known_values):
+    """ Takes advantages of the unified signature for all coefficients
+    to check the value for N == `N1` """
+    for N, val in zip(inputs, known_values):
+        result = function(N, NF, CA, CF)
+        assert_almost_equal(result, val)
 
 def test__S1():
     """test harmonic sum _S1"""
     # test on real axis
-    r = [1., 1.+1./2., 1.+1./2.+1./3.]
-    l = len(r) # trick pylint
-    for j in range(l):
-        a = _S1(1+j)
-        e = r[j]
-        assert np.abs(a-e) < 1e-6
+    known_vals = [1.0, 1.0 + 1.0 / 2.0, 1.0 + 1.0 / 2.0 + 1.0 / 3.0]
+    for i, val in enumerate(known_vals):
+        result = spf_LO._S1(1 + i)
+        assert_approx_equal(result, val, significant=8)
+
 
 def test_number_momentum_conservation():
     """test number/momentum conservation"""
     c = Constants()
     nf = 4
     # number
-    zero = gamma_ns_0(1,nf,c.CA,c.CF)
+    zero = spf_LO.gamma_ns_0(1,nf,c.CA,c.CF)
     assert np.abs(0. - zero) < 1e-6
     # quark momentum
-    zero = gamma_ns_0(2,nf,c.CA,c.CF) + gamma_gq_0(2,nf,c.CA,c.CF)
+    zero = spf_LO.gamma_ns_0(2,nf,c.CA,c.CF) + spf_LO.gamma_gq_0(2,nf,c.CA,c.CF)
     assert np.abs(0. - zero) < 1e-6
     # gluon momentum
-    zero = gamma_qg_0(2,nf,c.CA,c.CF) + gamma_gg_0(2,nf,c.CA,c.CF)
+    zero = spf_LO.gamma_qg_0(2,nf,c.CA,c.CF) + spf_LO.gamma_gg_0(2,nf,c.CA,c.CF)
     assert np.abs(0. - zero) < 1e-6
+
+def test_gamma_ns_0():
+    """test gamma_ns_0"""
+    # momentum conservation
+    input_N = [complex(1.0, 0.0)]
+    known_vals = [complex(0.0, 0.0)]
+    check_values(spf_LO.gamma_ns_0, input_N, known_vals)
+
+
+def test_gamma_ps_0():
+    input_N = [complex(1.0, 0.0)]
+    known_vals = [complex(0.0, 0.0)]
+    check_values(spf_LO.gamma_ps_0, input_N, known_vals)
+
+def test_gamma_qg_0():
+    input_N = [complex(1.0, 0.0)]
+    known_vals = [complex(-20.0/3.0, 0.0)]
+    check_values(spf_LO.gamma_qg_0, input_N, known_vals)
+
+
+def test_gamma_gq_0():
+    input_N = [complex(0.0, 1.0)]
+    known_vals = [complex(4.0,-4.0)/3.0]
+    check_values(spf_LO.gamma_gq_0, input_N, known_vals)
+
+
+def test_gamma_gg_0():
+    input_N = [complex(0.0, 1.0)]
+    known_vals = [complex(5.195725159621,10.52008856962)]
+    check_values(spf_LO.gamma_gg_0, input_N, known_vals)
