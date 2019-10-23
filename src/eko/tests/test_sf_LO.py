@@ -3,7 +3,7 @@
 import numpy as np
 
 from eko.constants import Constants
-from eko.splitting_functions_LO import _S1,gamma_ns_0
+from eko.splitting_functions_LO import _S1,gamma_ns_0,gamma_gg_0,gamma_qg_0,gamma_gq_0
 
 def test__S1():
     """test harmonic sum _S1"""
@@ -15,9 +15,16 @@ def test__S1():
         e = r[j]
         assert np.abs(a-e) < 1e-6
 
-def test_gamma_ns_0():
-    """test gamma_ns_0"""
+def test_number_momentum_conservation():
+    """test number/momentum conservation"""
     c = Constants()
-    # momentum conservation
-    zero = gamma_ns_0(1,4,c.CA,c.CF)
+    nf = 4
+    # number
+    zero = gamma_ns_0(1,nf,c.CA,c.CF)
+    assert np.abs(0. - zero) < 1e-6
+    # quark momentum
+    zero = gamma_ns_0(2,nf,c.CA,c.CF) + gamma_gq_0(2,nf,c.CA,c.CF)
+    assert np.abs(0. - zero) < 1e-6
+    # gluon momentum
+    zero = gamma_qg_0(2,nf,c.CA,c.CF) + gamma_gg_0(2,nf,c.CA,c.CF)
     assert np.abs(0. - zero) < 1e-6
