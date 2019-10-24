@@ -21,7 +21,8 @@ from numpy import euler_gamma
 from scipy.special import digamma
 from eko import t_float, t_complex
 
-def _S1(N : t_complex):
+
+def _S1(N: t_complex):
     r"""Computes the simple harmonic sum
 
     .. math::
@@ -41,7 +42,10 @@ def _S1(N : t_complex):
     """
     return digamma(N + 1) + euler_gamma
 
-def gamma_ns_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: disable=unused-argument
+
+def gamma_ns_0(
+    N: t_complex, nf: int, CA: t_float, CF: t_float
+):  # pylint: disable=unused-argument
     """Computes the leading-order non-singlet anomalous dimension.
 
     Implements Eq. (3.4) of :cite:`Moch:2004pa`.
@@ -63,10 +67,14 @@ def gamma_ns_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: d
       gamma_ns_0 : t_complex
         Leading-order non-singlet anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    f = 2*(_S1(N-1) + _S1(N+1)) - 3
-    return CF * f
+    gamma = 2 * (_S1(N - 1) + _S1(N + 1)) - 3
+    result = CF * gamma
+    return result
 
-def gamma_ps_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: disable=unused-argument
+
+def gamma_ps_0(
+    N: t_complex, nf: int, CA: t_float, CF: t_float
+):  # pylint: disable=unused-argument
     """Computes the leading-order pure-singlet anomalous dimension
 
     Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
@@ -88,9 +96,12 @@ def gamma_ps_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: d
       gamma_ps_0 : t_complex
         Leading-order pure-singlet anomalous dimension :math:`\\gamma_{ps}^{(0)}(N)`
     """
-    return 0.
+    return 0.0
 
-def gamma_qg_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: disable=unused-argument
+
+def gamma_qg_0(
+    N: t_complex, nf: int, CA: t_float, CF: t_float
+):  # pylint: disable=unused-argument
     """Computes the leading-order quark-gluon anomalous dimension
 
     Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
@@ -112,10 +123,14 @@ def gamma_qg_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: d
       gamma_qg_0 : t_complex
         Leading-order quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
-    f = _S1(N-1)+ 4.*_S1(N+1) - 2.*_S1(N+2) - 3.*_S1(N)
-    return 2.*nf*f
+    gamma = _S1(N - 1) + 4.0 * _S1(N + 1) - 2.0 * _S1(N + 2) - 3.0 * _S1(N)
+    result = 2.0 * nf * gamma
+    return result
 
-def gamma_gq_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: disable=unused-argument
+
+def gamma_gq_0(
+    N: t_complex, nf: int, CA: t_float, CF: t_float
+):  # pylint: disable=unused-argument
     """Computes the leading-order gluon-quark anomalous dimension
 
     Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
@@ -137,10 +152,14 @@ def gamma_gq_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: d
       gamma_qg_0 : t_complex
         Leading-order gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
     """
-    f = 2.*_S1(N-2) - 4.*_S1(N-1) - _S1(N+1) + 3.*_S1(N)
-    return 2.*CF*f
+    gamma = 2.0 * _S1(N - 2) - 4.0 * _S1(N - 1) - _S1(N + 1) + 3.0 * _S1(N)
+    result = 2.0 * CF * gamma
+    return result
 
-def gamma_gg_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: disable=unused-argument
+
+def gamma_gg_0(
+    N: t_complex, nf: int, CA: t_float, CF: t_float
+):  # pylint: disable=unused-argument
     """Computes the leading-order gluon-gluon anomalous dimension
 
     Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
@@ -162,5 +181,6 @@ def gamma_gg_0(N : t_complex, nf : int, CA : t_float, CF : t_float): # pylint: d
       gamma_qg_0 : t_complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    f = _S1(N-2) - 2.*_S1(N-1) - 2.*_S1(N+1) + _S1(N+2) + 3.*_S1(N)
-    return CA * (4. * f - 11./3.) + 2./3. * nf
+    gamma = _S1(N - 2) - 2.0 * _S1(N - 1) - 2.0 * _S1(N + 1) + _S1(N + 2) + 3.0 * _S1(N)
+    result = CA * (4.0 * gamma - 11.0 / 3.0) + 2.0 / 3.0 * nf
+    return result
