@@ -15,6 +15,7 @@ from eko.constants import Constants
 
 logObj = logging.getLogger(__name__)
 
+
 def _get_xgrid(setup):
     """Compute input grid
 
@@ -30,17 +31,18 @@ def _get_xgrid(setup):
     """
     # read params
     xgrid_size = setup["xgrid_size"]
-    xgrid_min = 1e-7 if not "xgrid_min" in setup else setup["xgrid_min"]
-    xgrid_type = "Chebyshev@log" if not "xgrid_type" in setup else setup["xgrid_type"]
+    xgrid_min = setup.get("xgrid_min", 1e-7)
+    xgrid_type = setup.get("xgrid_type", "Chebyshev@log")
     # generate
     xgrid = np.array([])
     if xgrid_type == "Chebyshev@log":
-        xgrid = interpolation.get_xgrid_Chebyshev_at_log(xgrid_size,xgrid_min)
+        xgrid = interpolation.get_xgrid_Chebyshev_at_log(xgrid_size, xgrid_min)
     elif xgrid_type == "linear@log":
-        xgrid = interpolation.get_xgrid_linear_at_log(xgrid_size,xgrid_min)
+        xgrid = interpolation.get_xgrid_linear_at_log(xgrid_size, xgrid_min)
     else:
         raise ValueError("Unkonwn 'xgrid_type'")
     return xgrid
+
 
 def _get_evoultion_params(setup):
     """Compute evolution parameters
@@ -62,14 +64,16 @@ def _get_evoultion_params(setup):
     nf = setup["NfFF"]
     # setup inital+final scale
     # TODO iterate Q2grid
-    a0 = alpha_s.a_s(setup["PTO"],setup["alphas"],
-                     setup["Qref"]**2,setup["Q0"]**2,nf,"analytic")
-    a1 = alpha_s.a_s(setup["PTO"],setup["alphas"],
-                     setup["Qref"]**2,setup["Q2grid"][0],nf,"analytic")
+    qref2 = setup["Qref"] ** 2
+    pto = setup["PTO"]
+    alphas = setup["alphas"]
+    a0 = alpha_s.a_s(pto, alphas, qref2, setup["Q0"] ** 2, nf, "analytic")
+    a1 = alpha_s.a_s(pto, alphas, qref2, setup["Q2grid"][0], nf, "analytic")
     # evolution parameters
-    t0 = np.log(1./a0)
-    t1 = np.log(1./a1)
-    return t0,t1
+    t0 = np.log(1.0 / a0)
+    t1 = np.log(1.0 / a1)
+    return t0, t1
+
 
 def run_dglap(setup):
     r"""This function takes a DGLAP theory configuration dictionary
@@ -127,14 +131,14 @@ def run_dglap(setup):
     ret = {}
 
     # evolution parameters
-    t0,t1 = _get_evoultion_params(setup)
+    t0, t1 = _get_evoultion_params(setup)
 
     # setup input grid: xgrid
-    xgrid =_get_xgrid(setup)
+    xgrid = _get_xgrid(setup)
     ret["xgrid"] = xgrid
 
     # setup output grid: targetgrid
-    targetgrid = xgrid if not "targetgrid" in setup else setup["targetgrid"]
+    targetgrid = setup.get("targetgrid", xgrid)
     targetgrid_size = len(targetgrid)
     ret["targetgrid"] = targetgrid
 
@@ -147,31 +151,36 @@ def run_dglap(setup):
     constants = Constants()
     beta0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
     delta_t = t1 - t0
+
     # prepare non-siglet evolution
-    def get_kernel_ns(j,delta_t=delta_t,
-                       g_ns_0=sf_LO.gamma_ns_0,nf=nf,constants=constants,beta0=beta0,
-                       pN=interpolation.get_Lagrange_interpolators_log_N,xgrid=xgrid):
+    def get_kernel_ns(j):
         """return non-siglet integration kernel"""
+
         def ker(N):
             """non-siglet integration kernel"""
-            ln = - delta_t * g_ns_0(N,nf,constants.CA,constants.CF) / beta0
-            return np.exp(ln) * pN(N,xgrid,j)
+            ln = -delta_t * sf_LO.gamma_ns_0(N, nf, constants.CA, constants.CF) / beta0
+            interpoln = interpolation.get_Lagrange_interpolators_log_N(N, xgrid, j)
+            return np.exp(ln) * interpoln
+
         return ker
+
     # perform non-singlet evolution
     xgrid_size = len(xgrid)
-    op_ns = np.zeros((targetgrid_size,xgrid_size),dtype=t_float)
-    op_ns_err = np.zeros((targetgrid_size,xgrid_size),dtype=t_float)
-    path,jac = mellin.get_path_Talbot()
+    op_ns = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
+    op_ns_err = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
+    path, jac = mellin.get_path_Talbot()
     for j in range(xgrid_size):
         for k in range(targetgrid_size):
-            res = mellin.inverse_mellin_transform(get_kernel_ns(j),path,jac,targetgrid[k],1e-2)
-            op_ns[k,j] = res[0]
-            op_ns_err[k,j] = res[1]
+            res = mellin.inverse_mellin_transform(
+                get_kernel_ns(j), path, jac, targetgrid[k], 1e-2
+            )
+            op_ns[k, j] = res[0]
+            op_ns_err[k, j] = res[1]
     # insert operators
     ret["operators"]["NS"] = op_ns
     ret["operator_errors"]["NS"] = op_ns_err
 
-#   Points to be implemented:
-#   TODO implement singlet case
-#   TODO implement NLO
+    #   Points to be implemented:
+    #   TODO implement singlet case
+    #   TODO implement NLO
     return ret
