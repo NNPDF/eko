@@ -10,7 +10,7 @@ from eko import t_float
 import eko.alpha_s as alpha_s
 import eko.splitting_functions_LO as sf_LO
 import eko.interpolation as interpolation
-import eko.Mellin as Mellin
+import eko.mellin as mellin
 from eko.constants import Constants
 
 logObj = logging.getLogger(__name__)
@@ -161,10 +161,10 @@ def run_dglap(setup):
     xgrid_size = len(xgrid)
     op_ns = np.zeros((targetgrid_size,xgrid_size),dtype=t_float)
     op_ns_err = np.zeros((targetgrid_size,xgrid_size),dtype=t_float)
-    path,jac = Mellin.get_path_Talbot()
+    path,jac = mellin.get_path_Talbot()
     for j in range(xgrid_size):
         for k in range(targetgrid_size):
-            res = Mellin.inverse_Mellin_transform(get_kernel_ns(j),path,jac,targetgrid[k],1e-2)
+            res = mellin.inverse_mellin_transform(get_kernel_ns(j),path,jac,targetgrid[k],1e-2)
             op_ns[k,j] = res[0]
             op_ns_err[k,j] = res[1]
     # insert operators

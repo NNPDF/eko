@@ -17,7 +17,7 @@ from eko import t_float,t_complex
 # TODO make this module numba/C-save
 
 # TODO replace inversion with something better? (t_float!)
-def inverse_Mellin_transform(f, path, jac, x, cut : t_float = 0.):
+def inverse_mellin_transform(f, path, jac, x, cut : t_float = 0.):
     """Inverse Mellin transformation
 
     Parameters
@@ -38,14 +38,16 @@ def inverse_Mellin_transform(f, path, jac, x, cut : t_float = 0.):
     -------
       res : float
     """
-    # integrate.quad can only do float, as it links to QUADPACK
-    return integrate.quad(lambda u,f=f,path=path,jac=jac,x=x:
-                # cast to real to allow integrate.quad
-                np.real(
-                    # prefactor                   * x^-N                       * f(N)
-                    np.complex(0.,-1./(2.*np.pi)) * np.exp(-path(u)*np.log(x)) * f(path(u)) * jac(u)
-                ),
-                cut, 1.-cut)
+    def integrand(u):
+        pathu = path(u)
+        prefactor = t_complex(complex(0.0, -1/2/np.pi))
+        xexp = np.exp(- pathu*np.log(x))
+        fofn = f(pathu)*jac(u)
+        # integrate.quad can only do float, as it links to QUADPACK
+        result = np.real(prefactor*xexp*fofn)
+        return result
+    result = integrate.quad(integrand, cut, 1.0-cut)
+    return result
 
 def get_path_Talbot(r : t_float = 1.):
     """get Talbot path
@@ -97,7 +99,7 @@ def get_path_line(m : t_float, c : t_float =1):
       lambda t,max=m:     t_complex(np.complex(0,max* 2     ))
     )
 
-def get_path_edge(m,c=1.0):
+def get_path_edge(m:t_float,c:t_float=1.0):
     """Get edged path with an angle of 45°
 
     Parameters
