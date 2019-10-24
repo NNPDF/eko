@@ -14,23 +14,6 @@ import scipy.integrate as integrate
 
 from eko import t_float,t_complex
 
-# citing https://arxiv.org/pdf/1910.07049.pdf p.5 below eq. 15
-# Thanks to the analytic continuation of Eq. (15) in theregion of the complex plane with Re(N)<0,
-# when PDFs are expressed with this form, the integration contour in Eq. (12) can be optimised
-# by bending towards negative values of Re(N), as depicted schematically in Figure 2, allowing
-# for a faster convergence of the Mellin inversion integral. Such a strategy is adopted in
-# DYRes and in Refs. [94,95]. As a drawback, PDFs need to be parameterised as in Eq. (14), or an
-# approximation of the PDFs that follows this form has to be evaluated, which is significantly
-# time consuming. In DYTurbo,the Mellin moments of PDFs are evaluated numerically,by using
-# Gauss-Legendre quadrature to calculate the integrals of Eq. (13). However these integrals can
-# be evaluated numerically only for Re(N)>0. As a consequence the integration contour of the
-# inverse Mellin transform cannot be bent towards negative values of Re(N), and a standard contour
-# along the straight line [c−i∞,c+i∞] is used (see Figure 2). This procedure results in a slower
-# convergence of the integration in Eq. (12), for which about twice as many function evaluations
-# are required, but it has the great advantage of allowing usage of PDFs with arbitrary
-# parameterisation, without requiring knowledge of their functional form, and without requiring any
-# time consuming evaluation of an approximation of PDFs in the form of Eq. (14).
-
 # TODO make this module numba/C-save
 
 # TODO replace inversion with something better? (t_float!)
@@ -113,3 +96,27 @@ def get_path_line(m : t_float, c : t_float =1):
       lambda t,max=m,c=c: t_complex(np.complex(c,max*(2*t-1))),
       lambda t,max=m:     t_complex(np.complex(0,max* 2     ))
     )
+
+def get_path_edge(m,c=1.0):
+    """Get edged path with an angle of 45°
+
+    Parameters
+    ----------
+      m : t_float
+        half length of the path
+      c : t_float
+        intersection of path with real axis
+
+    Returns
+    -------
+      path : function
+        edged path :math:`p_{\\text{edge}}(t)`
+      jac : function
+        derivative of edged path
+        :math:`j_{\\text{edge}}(t) = \\frac{dp_{\\text{edge}}(t)}{dt}`
+    """
+    return (lambda t,max=m,c=c: c + (.5-t)*max*np.exp(np.complex(0,-np.pi*2./3.)) if t < .5 else
+                                c + (t-.5)*max*np.exp(np.complex(0, np.pi*2./3.)),
+            lambda t,max=m:            -max*np.exp(np.complex(0,-np.pi*2./3.)) if t < .5 else
+                                        max*np.exp(np.complex(0, np.pi*2./3.))
+            )

@@ -2,6 +2,9 @@
 """
 This file provides all necessary tools for PDF interpolation.
 
+The files provides the tools for generating grids and the
+Lagrange interpolation polynomials
+
 """
 import inspect
 import numpy as np
@@ -64,12 +67,12 @@ def get_xgrid_Chebyshev_at_id(grid_size: int, xmin: t_float = 0.0, xmax: t_float
       xgrid : array
         List of grid points in x-space
     """
-    twox = (xmax + xmin) / 2.0
+    avgx = (xmax + xmin) / 2.0
     deltax = (xmax - xmin) / 2.0
     grid_points = []
     for j in range(grid_size):
         cos_arg = (2.0 * j + 1) / (2.0 * grid_size) * np.pi
-        new_point = twox - deltax * np.cos(cos_arg)
+        new_point = avgx - deltax * np.cos(cos_arg)
         grid_points.append(new_point)
     xgrid = np.array(grid_points, dtype=t_float)
     return xgrid
@@ -141,13 +144,13 @@ def get_Lagrange_interpolators_x(x: t_float, xgrid, j: int):
       p_j(x) : t_float
         Evaluated jth-polynom at x
     """
-    jgrid = xgrid[j]
+    xj = xgrid[j]
     result = 1.0
-    for i, k in enumerate(xgrid):
-        if i == j:
+    for k, xk in enumerate(xgrid):
+        if k == j:
             continue
-        num = x - k
-        den = jgrid - k
+        num = x - xk
+        den = xj - xk
         result *= num / den
     return result
 
@@ -173,16 +176,16 @@ def get_Lagrange_interpolators_N(N, xgrid, j):
       p_j(N) : t_float
         Evaluated jth-polynom at N
     """
-    jgrid = xgrid[j]
+    xj = xgrid[j]
     num = 1.0
     den = 1.0
-    for i, k in enumerate(xgrid):
-        if i != j:
-            den *= jgrid - k
-            num *= P([-k, 1])
+    for k, xk in enumerate(xgrid):
+        if k != j:
+            den *= xj - xk
+            num *= P([-xk, 1.0])
     n = 0.0
-    for i in range(len(xgrid)):
-        n += num.coef[i] / (N + i)
+    for k in range(len(xgrid)):
+        n += num.coef[k] / (N + k)
     return n / den
 
 
@@ -238,16 +241,16 @@ def get_Lagrange_interpolators_log_N(N, xgrid, j):
         Evaluated jth-polynom at N
     """
     log_xgrid = np.log(xgrid)
-    jgrid = log_xgrid[j]
+    xj = log_xgrid[j]
     num = 1.0
     den = 1.0
-    for i, k in enumerate(log_xgrid):
-        if i != j:
-            den *= jgrid - k
-            num *= P([-k, 1])
+    for k, xk in enumerate(log_xgrid):
+        if k != j:
+            den *= xj - xk
+            num *= P([-xk, 1])
     n = 0.0
-    for i in range(len(log_xgrid)):
-        ifac = np.math.factorial(i) / N
-        powi = pow(-1.0 / N, i)
-        n += num.coef[i] * ifac * powi
+    for k in range(len(log_xgrid)):
+        ifac = np.math.factorial(k) / N
+        powi = pow(-1.0 / N, k)
+        n += num.coef[k] * ifac * powi
     return n / den

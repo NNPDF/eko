@@ -21,7 +21,8 @@ from eko.interpolation import (
 # for the numeric comparision to work, keep in mind that in Python3 the default precision is
 # np.float64
 
-def check_is_tfloat(function, grid_size = 3, xmin=0.0, xmax=1.0):
+
+def check_is_tfloat(function, grid_size=3, xmin=0.0, xmax=1.0):
     """ Checks all members of the return value of function are of type t_float """
     result = function(grid_size, xmin, xmax)
     for i in result:
@@ -29,17 +30,18 @@ def check_is_tfloat(function, grid_size = 3, xmin=0.0, xmax=1.0):
     return result
 
 
-def check_xgrid(function, grid, grid_size = 3, xmin=0.0, xmax=1.0):
+def check_xgrid(function, grid, grid_size=3, xmin=0.0, xmax=1.0):
     """ Checks the grid that function returns correspond to `grid` """
     result = function(grid_size, xmin, xmax)
     assert_allclose(result, grid)
     return result
 
-def check_interpolator(function, points, values, xmin = 0.0, j = 3):
+
+def check_interpolator(function, points, values, xmin=0.0, j=3):
     arr = np.linspace(xmin, 1, 5)
     for x, val in zip(points, values):
         result = function(x, arr, j)
-        assert_almost_equal(result, val, decimal = 4)
+        assert_almost_equal(result, val, decimal=4)
 
 
 def test_get_xgrid_linear_at_id():
@@ -48,13 +50,15 @@ def test_get_xgrid_linear_at_id():
     check_xgrid(get_xgrid_linear_at_id, grid_result)
     check_is_tfloat(get_xgrid_linear_at_id)
 
+
 def test_get_xgrid_Chebyshev_at_id():
     """test get_xgrid_Chebyshev_at_id"""
     for n in [3, 5, 7]:
         check_is_tfloat(get_xgrid_Chebyshev_at_id, grid_size=n)
         # test that grid points correspond indeed to nodes of the polynomial
-        cheb_n = Chebyshev(np.append(np.zeros(n), 1), domain = [0, 1])
+        cheb_n = Chebyshev(np.append(np.zeros(n), 1), domain=[0, 1])
         check_xgrid(get_xgrid_Chebyshev_at_id, cheb_n.roots(), grid_size=n)
+
 
 def test_get_xgrid_linear_at_log10():
     """test linear@log10 grids"""
@@ -62,43 +66,47 @@ def test_get_xgrid_linear_at_log10():
     check_is_tfloat(get_xgrid_linear_at_log, xmin=1e-2)
     check_xgrid(get_xgrid_linear_at_log, grid_result, xmin=1e-2)
 
+
 def test_get_xgrid_Chebyshev_at_log():
     xmin = 1e-2
     for n in [3, 5, 7]:
-        check_is_tfloat(get_xgrid_Chebyshev_at_log, grid_size=n, xmin = xmin)
-        cheb_n = Chebyshev(np.append(np.zeros(n), 1), domain=[0,1])
-        exp_arg = np.log(xmin) - cheb_n.roots()*np.log(xmin)
+        check_is_tfloat(get_xgrid_Chebyshev_at_log, grid_size=n, xmin=xmin)
+        cheb_n = Chebyshev(np.append(np.zeros(n), 1), domain=[0, 1])
+        exp_arg = np.log(xmin) - cheb_n.roots() * np.log(xmin)
         nodes = np.exp(exp_arg)
         check_xgrid(get_xgrid_Chebyshev_at_log, nodes, grid_size=n, xmin=xmin)
+
 
 def test_get_Lagrange_interpolators_x():
     # TODO: this assumes implementation at f61b238602db5a43f1945fb015dbc88cdfee0dd0 is ok
     # try some external way?
     points = [0.3]
-    values = [-504/5625]
+    values = [-504 / 5625]
     check_interpolator(get_Lagrange_interpolators_x, points, values)
+
 
 def test_get_Lagrange_interpolators_N():
     # TODO: this assumes implementation at f61b238602db5a43f1945fb015dbc88cdfee0dd0 is ok
     # try some external way?
     points = [complex(0.5, 0.5)]
-    values = [complex(0.381839,-0.1408880)]
+    values = [complex(0.381839, -0.1408880)]
     check_interpolator(get_Lagrange_interpolators_N, points, values)
+
 
 def test_get_Lagrange_interpolators_log_x():
     # TODO: this assumes implementation at f61b238602db5a43f1945fb015dbc88cdfee0dd0 is ok
     # try some external way?
     points = [0.3]
     values = [-0.6199271485409041]
-    check_interpolator(get_Lagrange_interpolators_log_x, points, values, xmin = 1e-2)
+    check_interpolator(get_Lagrange_interpolators_log_x, points, values, xmin=1e-2)
+
 
 def test_get_Lagrange_interpolators_log_N():
     # TODO: this assumes implementation at f61b238602db5a43f1945fb015dbc88cdfee0dd0 is ok
     # try some external way?
     points = [complex(0.5, 0.5)]
-    values = [complex(-42.24104240911104,-120.36554908750743)]
-    check_interpolator(get_Lagrange_interpolators_log_N, points, values, xmin = 1e-2)
-
+    values = [complex(-42.24104240911104, -120.36554908750743)]
+    check_interpolator(get_Lagrange_interpolators_log_N, points, values, xmin=1e-2)
 
 
 def _Mellin_transform(f, N):
@@ -115,9 +123,8 @@ def test__Mellin_transform():
     for N in [1.0, 1.0 + 1j, 0.5 - 2j]:
         e = g(N)
         a = _Mellin_transform(f, N)
-        assert np.abs(e - a[0]) < 1e-6
-        assert np.abs(a[1]) < 1e-6
-
+        assert_almost_equal(e, a[0])
+        assert_almost_equal(0.0, a[1])
 
 
 def test_f_xN():
@@ -136,8 +143,8 @@ def test_f_xN():
             for N in [1.0, 1.0 + 1j, 0.5 - 2j]:
                 a = fN(N, g, j)
                 e = _Mellin_transform(lambda y, fx=fx, g=g, j=j: fx(y, g, j), N)
-                assert np.abs(a - e[0]) < 1e-6
-                assert np.abs(e[1]) < 1e-6
+                assert_almost_equal(a, e[0])
+                assert_almost_equal(0.0, e[1])
 
 
 def test_is_interpolators_x():
@@ -151,7 +158,7 @@ def test_is_interpolators_x():
         # sum needs to be one
         for x in [1e-4, 1e-2, 0.2, 0.4, 0.6, 0.8]:
             s = np.sum([f(x, g, j) for j in range(l)])
-            assert np.abs(1.0 - s) < 1e-6
+            assert_almost_equal(1.0, s)
         # polynoms need to be "orthogonal" at grid points
         for j in range(l):
             one = f(g[j], g, j)
@@ -160,4 +167,4 @@ def test_is_interpolators_x():
                 if j == k:
                     continue
                 zero = f(g[k], g, j)
-                assert np.abs(0.0 - zero) < 1e-6
+                assert_almost_equal(0.0, zero)
