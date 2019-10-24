@@ -6,7 +6,7 @@ import numpy as np
 import scipy.integrate as integrate
 
 
-from eko import t_float
+from eko import t_float, t_complex
 from eko.interpolation import (
     get_xgrid_linear_at_id,
     get_xgrid_linear_at_log,
@@ -21,7 +21,7 @@ from eko.interpolation import (
 # for the numeric comparision to work, keep in mind that in Python3 the default precision is
 # np.float64
 
-
+# Checking utilities
 def check_is_tfloat(function, grid_size=3, xmin=0.0, xmax=1.0):
     """ Checks all members of the return value of function are of type t_float """
     result = function(grid_size, xmin, xmax)
@@ -44,6 +44,54 @@ def check_interpolator(function, points, values, xmin=0.0, j=3):
         assert_almost_equal(result, val, decimal=4)
 
 
+def _Mellin_transform(f, N):  # TODO move to utilities
+    """straight implementation of the Mellin transform"""
+
+    def integrand(x):
+        xton = pow(x, N - 1) * f(x)
+        return xton
+
+    r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1)
+    i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1)
+    result = t_complex(complex(r, i))
+    error = t_complex(complex(re, ie))
+    return result, error
+
+
+def check_is_interpolator(inter_x, xgrid):
+    """ Check whether the function `inter_x` is indeed an interpolator """
+    values = [1e-4, 1e-2, 0.2, 0.4, 0.6, 0.8]
+    for v in values:
+        one = 0.0
+        # Check it sums to one
+        for j in range(len(xgrid)):
+            one += inter_x(v, xgrid, j)
+        assert_almost_equal(one, 1.0)
+
+    # polynoms need to be "orthogonal" at grid points
+    for j, x in enumerate(xgrid):
+        one = inter_x(x, xgrid, j)
+        assert_almost_equal(one, 1.0)
+
+        for k, y in enumerate(xgrid):
+            if j == k:
+                continue
+            zero = inter_x(y, xgrid, j)
+            assert_almost_equal(zero, 0.0)
+
+
+def check_correspondence_interpolators(inter_x, inter_N, xgrid):
+    """ Check the correspondece between x and N space of the interpolators
+    inter_x and inter_N"""
+    ngrid = [complex(1.0), complex(1.0 + 1j), t_complex(0.5 - 2j)]
+    for j in range(len(xgrid)):
+        for N in ngrid:
+            result_N = inter_N(N, xgrid, j)
+            result_x = _Mellin_transform(lambda x: inter_x(x, xgrid, j), N)
+            assert_almost_equal(result_x[0], result_N)
+
+
+# TEST functions
 def test_get_xgrid_linear_at_id():
     """test linear@id grids"""
     grid_result = np.array([0.0, 0.5, 1.0])
@@ -83,6 +131,7 @@ def test_get_Lagrange_interpolators_x():
     points = [0.3]
     values = [-504 / 5625]
     check_interpolator(get_Lagrange_interpolators_x, points, values)
+    check_is_interpolator(get_Lagrange_interpolators_x, [0.0, 0.5, 1.0])
 
 
 def test_get_Lagrange_interpolators_N():
@@ -93,12 +142,20 @@ def test_get_Lagrange_interpolators_N():
     check_interpolator(get_Lagrange_interpolators_N, points, values)
 
 
+def test_correspondence_lagrange_xN():
+    """test correspondence of interpolators in x- and N-space"""
+    check_correspondence_interpolators(
+        get_Lagrange_interpolators_x, get_Lagrange_interpolators_N, [0.0, 0.5, 1.0]
+    )
+
+
 def test_get_Lagrange_interpolators_log_x():
     # TODO: this assumes implementation at f61b238602db5a43f1945fb015dbc88cdfee0dd0 is ok
     # try some external way?
     points = [0.3]
     values = [-0.6199271485409041]
     check_interpolator(get_Lagrange_interpolators_log_x, points, values, xmin=1e-2)
+    check_is_interpolator(get_Lagrange_interpolators_log_x, [1e-4, 1e-2, 1.0])
 
 
 def test_get_Lagrange_interpolators_log_N():
@@ -109,62 +166,25 @@ def test_get_Lagrange_interpolators_log_N():
     check_interpolator(get_Lagrange_interpolators_log_N, points, values, xmin=1e-2)
 
 
-def _Mellin_transform(f, N):
-    """straight implementation of the Mellin transform"""
-    r, re = integrate.quad(lambda x, f=f, N=N: np.real(x ** (N - 1) * f(x)), 0, 1)
-    i, ie = integrate.quad(lambda x, f=f, N=N: np.imag(x ** (N - 1) * f(x)), 0, 1)
-    return np.complex(r, i), np.complex(re, ie)
+def test_correspondence_lagrange_log_xN():
+    check_correspondence_interpolators(
+        get_Lagrange_interpolators_log_x,
+        get_Lagrange_interpolators_log_N,
+        [1e-4, 1e-2, 1.0],
+    )
 
 
-def test__Mellin_transform():
-    """prevent circular reasoning"""
-    f = lambda x: x
-    g = lambda N: 1.0 / (N + 1.0)
-    for N in [1.0, 1.0 + 1j, 0.5 - 2j]:
-        e = g(N)
-        a = _Mellin_transform(f, N)
-        assert_almost_equal(e, a[0])
-        assert_almost_equal(0.0, a[1])
-
-
-def test_f_xN():
-    """test correspondence of interpolators in x- and N-space"""
-    for fxfNg in [
-        (get_Lagrange_interpolators_x, get_Lagrange_interpolators_N, [0.0, 0.5, 1.0]),
-        (
-            get_Lagrange_interpolators_log_x,
-            get_Lagrange_interpolators_log_N,
-            [1e-4, 1e-2, 1.0],
-        ),
-    ]:
-        fx, fN, g = fxfNg
-        l = len(g)
-        for j in range(l):
-            for N in [1.0, 1.0 + 1j, 0.5 - 2j]:
-                a = fN(N, g, j)
-                e = _Mellin_transform(lambda y, fx=fx, g=g, j=j: fx(y, g, j), N)
-                assert_almost_equal(a, e[0])
-                assert_almost_equal(0.0, e[1])
-
-
-def test_is_interpolators_x():
-    """test that the interpolator functions are indeed interpolators"""
-    for fg in [
-        (get_Lagrange_interpolators_x, [0.0, 0.5, 1.0]),
-        (get_Lagrange_interpolators_log_x, [1e-4, 1e-2, 1.0]),
-    ]:
-        f, g = fg
-        l = len(g)
-        # sum needs to be one
-        for x in [1e-4, 1e-2, 0.2, 0.4, 0.6, 0.8]:
-            s = np.sum([f(x, g, j) for j in range(l)])
-            assert_almost_equal(1.0, s)
-        # polynoms need to be "orthogonal" at grid points
-        for j in range(l):
-            one = f(g[j], g, j)
-            assert np.abs(1.0 - one) < 1e-6
-            for k in range(l):
-                if j == k:
-                    continue
-                zero = f(g[k], g, j)
-                assert_almost_equal(0.0, zero)
+# TODO What function is this testing?
+# if the answer is "_Mellin_transform" this
+# means Mellin_transform is
+# a function that should be in a "utilities" module instead
+#
+# def test__Mellin_transform():
+#     """prevent circular reasoning"""
+#     f = lambda x: x
+#     g = lambda N: 1.0 / (N + 1.0)
+#     for N in [1.0, 1.0 + 1j, 0.5 - 2j]:
+#         e = g(N)
+#         a = _Mellin_transform(f, N)
+#         assert_almost_equal(e, a[0])
+#         assert_almost_equal(0.0, a[1])
