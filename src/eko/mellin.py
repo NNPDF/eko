@@ -12,12 +12,12 @@ might be interesting.
 import numpy as np
 import scipy.integrate as integrate
 
-from eko import t_float,t_complex
+from eko import t_float, t_complex
 
 # TODO make this module numba/C-save
 
 # TODO replace inversion with something better? (t_float!)
-def inverse_mellin_transform(f, path, jac, x, cut : t_float = 0.):
+def inverse_mellin_transform(f, path, jac, x, cut: t_float = 0.0):
     """Inverse Mellin transformation
 
     Parameters
@@ -38,18 +38,21 @@ def inverse_mellin_transform(f, path, jac, x, cut : t_float = 0.):
     -------
       res : float
     """
+
     def integrand(u):
         pathu = path(u)
-        prefactor = t_complex(complex(0.0, -1/2/np.pi))
-        xexp = np.exp(- pathu*np.log(x))
-        fofn = f(pathu)*jac(u)
+        prefactor = t_complex(complex(0.0, -1 / 2 / np.pi))
+        xexp = np.exp(-pathu * np.log(x))
+        fofn = f(pathu) * jac(u)
         # integrate.quad can only do float, as it links to QUADPACK
-        result = np.real(prefactor*xexp*fofn)
+        result = np.real(prefactor * xexp * fofn)
         return result
-    result = integrate.quad(integrand, cut, 1.0-cut)
+
+    result = integrate.quad(integrand, cut, 1.0 - cut)
     return result
 
-def get_path_Talbot(r : t_float = 1.):
+
+def get_path_Talbot(r: t_float = 1.0):
     """get Talbot path
 
     Parameters
@@ -67,16 +70,31 @@ def get_path_Talbot(r : t_float = 1.):
         derivative of Talbot path :math:`j_{\\text{Talbot}}(t) = \\frac{dp_{\\text{Talbot}}(t)}{dt}`
     """
     return (
-        lambda t: r*t_complex(np.complex(
-                    1 if t == 0.5 else np.pi*(2.*t-1.)/np.tan(np.pi*(2.*t-1.)),
-                    np.pi*(2.*t-1.))),
-        lambda t: r*np.pi*2.*t_complex(np.complex(
-                    0 if t == 0.5 else 1./np.tan(np.pi*(2.*t-1.))
-                                        - np.pi*(2.*t-1.)/(np.sin(np.pi*(2.*t-1.)))**2,
-                    1.))
+        lambda t: r
+        * t_complex(
+            np.complex(
+                1
+                if t == 0.5
+                else np.pi * (2.0 * t - 1.0) / np.tan(np.pi * (2.0 * t - 1.0)),
+                np.pi * (2.0 * t - 1.0),
+            )
+        ),
+        lambda t: r
+        * np.pi
+        * 2.0
+        * t_complex(
+            np.complex(
+                0
+                if t == 0.5
+                else 1.0 / np.tan(np.pi * (2.0 * t - 1.0))
+                - np.pi * (2.0 * t - 1.0) / (np.sin(np.pi * (2.0 * t - 1.0))) ** 2,
+                1.0,
+            )
+        ),
     )
 
-def get_path_line(m : t_float, c : t_float =1):
+
+def get_path_line(m: t_float, c: t_float = 1):
     """Get textbook path, i.e. a straight line parallel to imaginary axis
 
     Parameters
@@ -95,11 +113,12 @@ def get_path_line(m : t_float, c : t_float =1):
         :math:`j_{\\text{line}}(t) = \\frac{dp_{\\text{line}}(t)}{dt} = 2m`
     """
     return (
-      lambda t,max=m,c=c: t_complex(np.complex(c,max*(2*t-1))),
-      lambda t,max=m:     t_complex(np.complex(0,max* 2     ))
+        lambda t, max=m, c=c: t_complex(np.complex(c, max * (2 * t - 1))),
+        lambda t, max=m: t_complex(np.complex(0, max * 2)),
     )
 
-def get_path_edge(m:t_float,c:t_float=1.0):
+
+def get_path_edge(m: t_float, c: t_float = 1.0):
     """Get edged path with an angle of 45°
 
     Parameters
@@ -117,8 +136,12 @@ def get_path_edge(m:t_float,c:t_float=1.0):
         derivative of edged path
         :math:`j_{\\text{edge}}(t) = \\frac{dp_{\\text{edge}}(t)}{dt}`
     """
-    return (lambda t,max=m,c=c: c + (.5-t)*max*np.exp(np.complex(0,-np.pi*2./3.)) if t < .5 else
-                                c + (t-.5)*max*np.exp(np.complex(0, np.pi*2./3.)),
-            lambda t,max=m:            -max*np.exp(np.complex(0,-np.pi*2./3.)) if t < .5 else
-                                        max*np.exp(np.complex(0, np.pi*2./3.))
-            )
+    return (
+        lambda t, max=m, c=c: c
+        + (0.5 - t) * max * np.exp(np.complex(0, -np.pi * 2.0 / 3.0))
+        if t < 0.5
+        else c + (t - 0.5) * max * np.exp(np.complex(0, np.pi * 2.0 / 3.0)),
+        lambda t, max=m: -max * np.exp(np.complex(0, -np.pi * 2.0 / 3.0))
+        if t < 0.5
+        else max * np.exp(np.complex(0, np.pi * 2.0 / 3.0)),
+    )
