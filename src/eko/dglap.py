@@ -29,19 +29,28 @@ def _get_xgrid(setup):
         xgrid : array
             input grid
     """
-    # read params
-    xgrid_size = setup["xgrid_size"]
-    xgrid_min = setup.get("xgrid_min", 1e-7)
-    xgrid_type = setup.get("xgrid_type", "Chebyshev@log")
-    # generate
     xgrid = np.array([])
-    if xgrid_type == "Chebyshev@log":
-        xgrid = interpolation.get_xgrid_Chebyshev_at_log(xgrid_size, xgrid_min)
-    elif xgrid_type == "linear@log":
-        xgrid = interpolation.get_xgrid_linear_at_log(xgrid_size, xgrid_min)
-    else:
-        raise ValueError("Unkonwn 'xgrid_type'")
-    return xgrid
+    # grid type
+    xgrid_type = setup.get("xgrid_type", "Chebyshev@log")
+    if xgrid_type == "custom": # custom grid
+        if "xgrid_custom" not in setup:
+            raise ValueError("'xgrid_type' is 'custom', but 'xgrid_custom' is not given")
+        xgrid = np.array(setup["xgrid_custom"])
+    else: # auto-generated grid
+        # read params
+        xgrid_size = setup["xgrid_size"]
+        xgrid_min = setup.get("xgrid_min", 1e-7)
+        # generate
+        if xgrid_type == "Chebyshev@log":
+            xgrid = interpolation.get_xgrid_Chebyshev_at_log(xgrid_size, xgrid_min)
+        elif xgrid_type == "linear@log":
+            xgrid = interpolation.get_xgrid_linear_at_log(xgrid_size, xgrid_min)
+        else:
+            raise ValueError("Unkonwn 'xgrid_type'")
+    unique_xgrid = np.unique(xgrid)
+    if not len(unique_xgrid) == len(xgrid):
+        raise ValueError("given 'xgrid' is not unique!") # relax to warning?
+    return unique_xgrid
 
 
 def _get_evoultion_params(setup):
@@ -118,8 +127,9 @@ def run_dglap(setup):
     -----
 
     * xgrid_type
-        - ``Chebyshev@log`` (default)
-        - ``linear@log``
+        - ``Chebyshev@log`` (default): nodes distributed along Chebyshev-roots in log-space
+        - ``linear@log``: nodes distributed linear in log-space
+        - ``custom``: custom xgrid, supplied by the key ``xgrid_custom``
 
     """
 
