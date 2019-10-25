@@ -3,7 +3,6 @@
 from numpy.polynomial import Chebyshev
 from numpy.testing import assert_allclose, assert_almost_equal
 import numpy as np
-import scipy.integrate as integrate
 
 
 from eko import t_float, t_complex
@@ -17,6 +16,7 @@ from eko.interpolation import (
     get_Lagrange_interpolators_log_x,
     get_Lagrange_interpolators_log_N,
 )
+import eko.mellin as mellin
 
 # for the numeric comparision to work, keep in mind that in Python3 the default precision is
 # np.float64
@@ -42,20 +42,6 @@ def check_interpolator(function, points, values, xmin=0.0, j=3):
     for x, val in zip(points, values):
         result = function(x, arr, j)
         assert_almost_equal(result, val, decimal=4)
-
-
-def _Mellin_transform(f, N):  # TODO move to utilities
-    """straight implementation of the Mellin transform"""
-
-    def integrand(x):
-        xton = pow(x, N - 1) * f(x)
-        return xton
-
-    r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1)
-    i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1)
-    result = t_complex(complex(r, i))
-    error = t_complex(complex(re, ie))
-    return result, error
 
 
 def check_is_interpolator(inter_x, xgrid):
@@ -85,9 +71,11 @@ def check_correspondence_interpolators(inter_x, inter_N, xgrid):
     inter_x and inter_N"""
     ngrid = [complex(1.0), complex(1.0 + 1j), t_complex(0.5 - 2j)]
     for j in range(len(xgrid)):
+        def ker(x):
+            return inter_x(x, xgrid, j)
         for N in ngrid:
             result_N = inter_N(N, xgrid, j)
-            result_x = _Mellin_transform(lambda x: inter_x(x, xgrid, j), N)
+            result_x = mellin.mellin_transform(ker, N)
             assert_almost_equal(result_x[0], result_N)
 
 
@@ -172,19 +160,3 @@ def test_correspondence_lagrange_log_xN():
         get_Lagrange_interpolators_log_N,
         [1e-4, 1e-2, 1.0],
     )
-
-
-# TODO What function is this testing?
-# if the answer is "_Mellin_transform" this
-# means Mellin_transform is
-# a function that should be in a "utilities" module instead
-#
-# def test__Mellin_transform():
-#     """prevent circular reasoning"""
-#     f = lambda x: x
-#     g = lambda N: 1.0 / (N + 1.0)
-#     for N in [1.0, 1.0 + 1j, 0.5 - 2j]:
-#         e = g(N)
-#         a = _Mellin_transform(f, N)
-#         assert_almost_equal(e, a[0])
-#         assert_almost_equal(0.0, a[1])

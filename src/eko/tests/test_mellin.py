@@ -6,7 +6,7 @@ import numpy as np
 import eko.mellin as mellin
 
 
-def check_talbot(path, jacobian):
+def check_path_derivation(path, jacobian):
     """ Check the derivatives of the path """
     epss = [1e-2, 1e-3, 1e-4, 1e-5]
     for t0 in [0.2, 0.4, 0.6, 0.8]:  # avoid 0.5 due to Talbot+edge
@@ -42,18 +42,28 @@ def test_get_path_Talbot():
     scales = [1, 2]
     for s in scales:
         path, jacobian = mellin.get_path_Talbot(s)
-        check_talbot(path, jacobian)
+        check_path_derivation(path, jacobian)
 
 
 def test_get_path_line():
     params = [(1, 1), (2, 2)]
     for m, c in params:
         path, jacobian = mellin.get_path_line(m, c)
-        check_talbot(path, jacobian)
+        check_path_derivation(path, jacobian)
 
 
 def test_get_path_edge():
     params = [(2, 1), (2, 2)]
     for m, c in params:
         path, jacobian = mellin.get_path_line(m, c)
-        check_talbot(path, jacobian)
+        check_path_derivation(path, jacobian)
+
+def test__Mellin_transform():
+    """prevent circular reasoning"""
+    f = lambda x: x
+    g = lambda N: 1.0 / (N + 1.0)
+    for N in [1.0, 1.0 + 1j, 0.5 - 2j]:
+        e = g(N)
+        a = mellin.mellin_transform(f, N)
+        assert_almost_equal(e, a[0])
+        assert_almost_equal(0.0, a[1])

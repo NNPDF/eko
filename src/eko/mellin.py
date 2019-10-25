@@ -37,6 +37,7 @@ def inverse_mellin_transform(f, path, jac, x, cut: t_float = 0.0):
     Returns
     -------
       res : float
+        computed point
     """
 
     def integrand(u):
@@ -69,32 +70,32 @@ def get_path_Talbot(r: t_float = 1.0):
       jac : function
         derivative of Talbot path :math:`j_{\\text{Talbot}}(t) = \\frac{dp_{\\text{Talbot}}(t)}{dt}`
     """
-    return (
-        lambda t: r
-        * t_complex(
-            np.complex(
-                1
-                if t == 0.5
-                else np.pi * (2.0 * t - 1.0) / np.tan(np.pi * (2.0 * t - 1.0)),
-                np.pi * (2.0 * t - 1.0),
-            )
-        ),
-        lambda t: r
-        * np.pi
-        * 2.0
-        * t_complex(
-            np.complex(
-                0
-                if t == 0.5
-                else 1.0 / np.tan(np.pi * (2.0 * t - 1.0))
-                - np.pi * (2.0 * t - 1.0) / (np.sin(np.pi * (2.0 * t - 1.0))) ** 2,
-                1.0,
-            )
-        ),
-    )
+
+    def path(t):
+        theta = np.pi * (2.0 * t - 1.0)
+        re = 0.0
+        if t == 0.5:  # treat singular point seperately
+            re = 1.0
+        else:
+            re = theta / np.tan(theta)
+        im = theta
+        return r * t_complex(np.complex(re, im))
+
+    def jac(t):
+        theta = np.pi * (2.0 * t - 1.0)
+        re = 0.0
+        if t == 0.5:  # treat singular point seperately
+            re = 0.0
+        else:
+            re = 1.0 / np.tan(theta)
+            re -= theta / (np.sin(theta)) ** 2
+        im = 1.0
+        return r * np.pi * 2.0 * t_complex(np.complex(re, im))
+
+    return path, jac
 
 
-def get_path_line(m: t_float, c: t_float = 1):
+def get_path_line(path_len: t_float, c: t_float = 1):
     """Get textbook path, i.e. a straight line parallel to imaginary axis
 
     Parameters
@@ -112,10 +113,14 @@ def get_path_line(m: t_float, c: t_float = 1):
         derivative of textbook path
         :math:`j_{\\text{line}}(t) = \\frac{dp_{\\text{line}}(t)}{dt} = 2m`
     """
-    return (
-        lambda t, max=m, c=c: t_complex(np.complex(c, max * (2 * t - 1))),
-        lambda t, max=m: t_complex(np.complex(0, max * 2)),
-    )
+
+    def path(t):
+        return t_complex(np.complex(c, path_len * (2 * t - 1)))
+
+    def jac(j):  # pylint: disable=unused-argument
+        return t_complex(np.complex(0, path_len * 2))
+
+    return path, jac
 
 
 def get_path_edge(m: t_float, c: t_float = 1.0):
@@ -136,12 +141,44 @@ def get_path_edge(m: t_float, c: t_float = 1.0):
         derivative of edged path
         :math:`j_{\\text{edge}}(t) = \\frac{dp_{\\text{edge}}(t)}{dt}`
     """
-    return (
-        lambda t, max=m, c=c: c
-        + (0.5 - t) * max * np.exp(np.complex(0, -np.pi * 2.0 / 3.0))
-        if t < 0.5
-        else c + (t - 0.5) * max * np.exp(np.complex(0, np.pi * 2.0 / 3.0)),
-        lambda t, max=m: -max * np.exp(np.complex(0, -np.pi * 2.0 / 3.0))
-        if t < 0.5
-        else max * np.exp(np.complex(0, np.pi * 2.0 / 3.0)),
-    )
+
+    def path(t):
+        if t < 0.5:  # turning point: path is not differentiable in this point
+            return c + (0.5 - t) * m * np.exp(np.complex(0, -np.pi * 2.0 / 3.0))
+        else:
+            return c + (t - 0.5) * m * np.exp(np.complex(0, +np.pi * 2.0 / 3.0))
+
+    def jac(t):
+        if t < 0.5:  # turning point: jacobian is not continuous here
+            return -m * np.exp(np.complex(0, -np.pi * 2.0 / 3.0))
+        else:
+            return +m * np.exp(np.complex(0, np.pi * 2.0 / 3.0))
+
+    return path, jac
+
+# TODO if we keep this function open, we might also think about an implementation (t_float)
+def mellin_transform(f, N: t_complex):
+    """Mellin transformation
+
+    Parameters
+    ----------
+      f : function
+        integration kernel :math:`f(x)`
+      N : t_complex
+        transformation point
+
+    Returns
+    -------
+      res : t_complex
+        computed point
+    """
+
+    def integrand(x):
+        xton = pow(x, N - 1) * f(x)
+        return xton
+
+    r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1)
+    i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1)
+    result = t_complex(complex(r, i))
+    error = t_complex(complex(re, ie))
+    return result, error
