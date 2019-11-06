@@ -10,7 +10,7 @@
 from numpy.testing import assert_approx_equal
 
 from eko import t_float
-from eko.alpha_s import beta_0, beta_1, beta_2, a_s
+from eko.alpha_s import beta_0, beta_1, beta_2, alpha_s_generator
 from eko.constants import Constants
 
 # the test will only pass for the default set of constants
@@ -27,7 +27,6 @@ def flav_test(function):
     for nf in range(5):
         result = function(nf, CA, CF, Tf)
         assert result > 0.0
-        assert isinstance(result, t_float)
 
 
 def check_result(function, value):
@@ -63,6 +62,7 @@ def test_a_s():
     ref_as = 0.1181
     ref_mu = 90
     ask_q2 = 125
+    alpha_s_function = alpha_s_generator(ref_as, ref_mu, NF, "None")
     for order in range(1):
-        result = a_s(order, ref_as, ref_mu, ask_q2, NF, "None")
+        result = alpha_s_function(order, ask_q2)
         assert_approx_equal(result, known_vals[order], significant=7)
