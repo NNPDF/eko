@@ -6,9 +6,15 @@ source:
     git_url: ../
 
 requirements:
+    build:
+        - {{ compiler("c") }}
     host:
+        - numpy
         - python
+        - numba
+        - scipy      
         - cffi
+        - gsl
     run:
         - numpy
         - python
