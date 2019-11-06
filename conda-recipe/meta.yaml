@@ -16,6 +16,7 @@ requirements:
         - recommonmark
         - sphinx_rtd_theme
         - scipy
+        - cffi
 
 test:
     requires:
