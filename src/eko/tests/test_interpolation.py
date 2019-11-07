@@ -15,6 +15,7 @@ from eko.interpolation import (
     get_Lagrange_interpolators_N,
     get_Lagrange_interpolators_log_x,
     get_Lagrange_interpolators_log_N,
+    InterpolatorDispatcher,
 )
 import eko.mellin as mellin
 
@@ -37,48 +38,52 @@ def check_xgrid(function, grid, grid_size=3, xmin=0.0, xmax=1.0):
     return result
 
 
-def check_interpolator(function, points, values, xmin=0.0, j=3):
+def check_interpolator_with_cache(
+    interpolator, variable, points, values, xmin=0.0, j=3
+):
     arr = np.linspace(xmin, 1, 5)
+    function = InterpolatorDispatcher(interpolator, variable, arr)
     for x, val in zip(points, values):
-        result = function(x, arr, j)
+        result = function(x, j)
         assert_almost_equal(result, val, decimal=4)
 
 
-def check_is_interpolator(inter_x, xgrid):
+def check_is_interpolator(interpolator, variable, xgrid):
     """ Check whether the function `inter_x` is indeed an interpolator """
-    # Ensure that the entry is an array
-    xgrid = np.array(xgrid)
+    inter_x = InterpolatorDispatcher(interpolator, variable, xgrid)
     values = [1e-4, 1e-2, 0.2, 0.4, 0.6, 0.8]
     for v in values:
         one = 0.0
         # Check it sums to one
         for j in range(len(xgrid)):
-            one += inter_x(v, xgrid, j)
+            one += inter_x(v, j)
         assert_almost_equal(one, 1.0)
 
     # polynoms need to be "orthogonal" at grid points
     for j, x in enumerate(xgrid):
-        one = inter_x(x, xgrid, j)
+        one = inter_x(x, j)
         assert_almost_equal(one, 1.0)
 
         for k, y in enumerate(xgrid):
             if j == k:
                 continue
-            zero = inter_x(y, xgrid, j)
+            zero = inter_x(y, j)
             assert_almost_equal(zero, 0.0)
 
 
-def check_correspondence_interpolators(inter_x, inter_N, xgrid):
+def check_correspondence_interpolators(interpolator, mode, xgrid):
     """ Check the correspondece between x and N space of the interpolators
     inter_x and inter_N"""
-    # Ensure that the entry is an array
-    xgrid = np.array(xgrid)
+    inter_N = InterpolatorDispatcher(interpolator, f"{mode}N", xgrid)
+    inter_x = InterpolatorDispatcher(interpolator, f"{mode}x", xgrid)
     ngrid = [complex(1.0), complex(1.0 + 1j), t_complex(0.5 - 2j)]
     for j in range(len(xgrid)):
+
         def ker(x):
-            return inter_x(x, xgrid, j)
+            return inter_x(x, j)
+
         for N in ngrid:
-            result_N = inter_N(N, xgrid, j)
+            result_N = inter_N(N, j)
             result_x = mellin.mellin_transform(ker, N)
             assert_almost_equal(result_x[0], result_N)
 
@@ -122,8 +127,8 @@ def test_get_Lagrange_interpolators_x():
     # try some external way?
     points = [0.3]
     values = [-504 / 5625]
-    check_interpolator(get_Lagrange_interpolators_x, points, values)
-    check_is_interpolator(get_Lagrange_interpolators_x, [0.0, 0.5, 1.0])
+    check_interpolator_with_cache("Lagrange", "x", points, values)
+    check_is_interpolator("Lagrange", "x", [0.0, 0.5, 1.0])
 
 
 def test_get_Lagrange_interpolators_N():
@@ -131,14 +136,12 @@ def test_get_Lagrange_interpolators_N():
     # try some external way?
     points = [complex(0.5, 0.5)]
     values = [complex(0.381839, -0.1408880)]
-    check_interpolator(get_Lagrange_interpolators_N, points, values)
+    check_interpolator_with_cache("Lagrange", "N", points, values)
 
 
 def test_correspondence_lagrange_xN():
     """test correspondence of interpolators in x- and N-space"""
-    check_correspondence_interpolators(
-        get_Lagrange_interpolators_x, get_Lagrange_interpolators_N, [0.0, 0.5, 1.0]
-    )
+    check_correspondence_interpolators("Lagrange", "", [0.0, 0.5, 1.0])
 
 
 def test_get_Lagrange_interpolators_log_x():
@@ -146,8 +149,8 @@ def test_get_Lagrange_interpolators_log_x():
     # try some external way?
     points = [0.3]
     values = [-0.6199271485409041]
-    check_interpolator(get_Lagrange_interpolators_log_x, points, values, xmin=1e-2)
-    check_is_interpolator(get_Lagrange_interpolators_log_x, [1e-4, 1e-2, 1.0])
+    check_interpolator_with_cache("Lagrange", "logx", points, values, xmin=1e-2)
+    check_is_interpolator("Lagrange", "logx", [1e-4, 1e-2, 1.0])
 
 
 def test_get_Lagrange_interpolators_log_N():
@@ -155,12 +158,8 @@ def test_get_Lagrange_interpolators_log_N():
     # try some external way?
     points = [complex(0.5, 0.5)]
     values = [complex(-42.24104240911104, -120.36554908750743)]
-    check_interpolator(get_Lagrange_interpolators_log_N, points, values, xmin=1e-2)
+    check_interpolator_with_cache("Lagrange", "logN", points, values, xmin=1e-2)
 
 
 def test_correspondence_lagrange_log_xN():
-    check_correspondence_interpolators(
-        get_Lagrange_interpolators_log_x,
-        get_Lagrange_interpolators_log_N,
-        [1e-4, 1e-2, 1.0],
-    )
+    check_correspondence_interpolators("Lagrange", "log", [1e-4, 1e-2, 1.0])
