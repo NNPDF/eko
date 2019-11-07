@@ -8,6 +8,7 @@ Lagrange interpolation polynomials
 """
 import inspect
 import numpy as np
+import numba as nb
 from numpy.polynomial import Polynomial as P
 from eko import t_float
 
@@ -15,19 +16,24 @@ from eko import t_float
 # can they be used with numba?? We'll see in the future
 def check_xgrid(function_in):
     """ Check whether the argument xgrid is valud """
-
+    #TODO Testing is needed to learn whether this makes numba useless
     def decorated_fun(*args, **kwargs):
-        get_all_args = inspect.getcallargs(
-            function_in, *args, **kwargs
-        )  # TODO use signature
+        try:
+            get_all_args = inspect.getcallargs(function_in, *args, **kwargs)
+            function_out = function_in
+            # TODO use signature
+        except TypeError:
+            get_all_args = inspect.getcallargs(function_in.py_func, *args, **kwargs)
+            function_out = function_in.py_func
         xgrid = get_all_args["xgrid"]
         if len(xgrid) < 2:
             raise ValueError("The xgrid argument needs at least two values")
-        return function_in(*args, **kwargs)
+        return function_out(*args, **kwargs)
 
     return decorated_fun
 
 
+@nb.njit
 def get_xgrid_linear_at_id(grid_size: int, xmin: t_float = 0.0, xmax: t_float = 1.0):
     """Computes a linear grid on true x - corresponds to the flag `linear@id`
 
@@ -47,9 +53,11 @@ def get_xgrid_linear_at_id(grid_size: int, xmin: t_float = 0.0, xmax: t_float = 
       xgrid : array
         List of grid points in x-space
     """
-    return np.linspace(xmin, xmax, num=grid_size, dtype=t_float)
+    # numba does not accept to set the type of the grid
+    xgrid = np.linspace(xmin, xmax, grid_size)
+    return xgrid
 
-
+@nb.njit(parallel = True)
 def get_xgrid_Chebyshev_at_id(grid_size: int, xmin: t_float = 0.0, xmax: t_float = 1.0):
     """Computes a Chebyshev-like spaced grid on true x - corresponds to the flag `Chebyshev@id`
 
@@ -70,14 +78,14 @@ def get_xgrid_Chebyshev_at_id(grid_size: int, xmin: t_float = 0.0, xmax: t_float
     avgx = (xmax + xmin) / 2.0
     deltax = (xmax - xmin) / 2.0
     grid_points = []
-    for j in range(grid_size):
+    for j in nb.prange(grid_size):
         cos_arg = (2.0 * j + 1) / (2.0 * grid_size) * np.pi
         new_point = avgx - deltax * np.cos(cos_arg)
         grid_points.append(new_point)
     xgrid = np.array(grid_points, dtype=t_float)
     return xgrid
 
-
+@nb.jit(forceobj=True) # due to np.logspace
 def get_xgrid_linear_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.0):
     """Computes a linear grid on log(x) - corresponds to the flag `linear@log`
 
@@ -97,7 +105,7 @@ def get_xgrid_linear_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.0):
     """
     return np.logspace(np.log10(xmin), np.log10(xmax), num=grid_size, dtype=t_float)
 
-
+@nb.jit
 def get_xgrid_Chebyshev_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.0):
     """Computes a Chebyshev-like spaced grid on log(x) - corresponds to the flag `Chebyshev@log`
 
@@ -122,6 +130,7 @@ def get_xgrid_Chebyshev_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.
 
 
 @check_xgrid
+@nb.njit
 def get_Lagrange_interpolators_x(x: t_float, xgrid, j: int):
     """Get a single Lagrange interpolator in true x-space  - corresponds to the flag `Lagrange@id`
 
@@ -154,8 +163,8 @@ def get_Lagrange_interpolators_x(x: t_float, xgrid, j: int):
         result *= num / den
     return result
 
-
 @check_xgrid
+@nb.jit(forceobj=True) # Due to the usage of polynomial
 def get_Lagrange_interpolators_N(N, xgrid, j):
     """Get a single Lagrange interpolator in N-space - corresponds to the flag `Lagrange@id`
 
@@ -184,12 +193,12 @@ def get_Lagrange_interpolators_N(N, xgrid, j):
             den *= xj - xk
             num *= P([-xk, 1.0])
     n = 0.0
-    for k in range(len(xgrid)):
+    for k in nb.prange(len(xgrid)):
         n += num.coef[k] / (N + k)
     return n / den
 
-
 @check_xgrid
+@nb.njit
 def get_Lagrange_interpolators_log_x(x, xgrid, j):
     """Get a single Lagrange interpolator in logarithmic x-space\
        - corresponds to the flag `Lagrange@log`
@@ -218,7 +227,8 @@ def get_Lagrange_interpolators_log_x(x, xgrid, j):
     logx = np.log(x)
     return get_Lagrange_interpolators_x(logx, log_xgrid, j)
 
-
+@check_xgrid
+@nb.jit(forceobj=True)
 def get_Lagrange_interpolators_log_N(N, xgrid, j):
     """Get a single, logarithmic Lagrange interpolator in N-space\
        - corresponds to the flag `Lagrange@log`
@@ -249,7 +259,7 @@ def get_Lagrange_interpolators_log_N(N, xgrid, j):
             den *= xj - xk
             num *= P([-xk, 1])
     n = 0.0
-    for k in range(len(log_xgrid)):
+    for k in nb.prange(len(log_xgrid)):
         ifac = np.math.factorial(k) / N
         powi = pow(-1.0 / N, k)
         n += num.coef[k] * ifac * powi

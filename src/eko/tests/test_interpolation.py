@@ -46,6 +46,8 @@ def check_interpolator(function, points, values, xmin=0.0, j=3):
 
 def check_is_interpolator(inter_x, xgrid):
     """ Check whether the function `inter_x` is indeed an interpolator """
+    # Ensure that the entry is an array
+    xgrid = np.array(xgrid)
     values = [1e-4, 1e-2, 0.2, 0.4, 0.6, 0.8]
     for v in values:
         one = 0.0
@@ -69,6 +71,8 @@ def check_is_interpolator(inter_x, xgrid):
 def check_correspondence_interpolators(inter_x, inter_N, xgrid):
     """ Check the correspondece between x and N space of the interpolators
     inter_x and inter_N"""
+    # Ensure that the entry is an array
+    xgrid = np.array(xgrid)
     ngrid = [complex(1.0), complex(1.0 + 1j), t_complex(0.5 - 2j)]
     for j in range(len(xgrid)):
         def ker(x):
