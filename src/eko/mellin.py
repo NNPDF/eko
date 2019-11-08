@@ -49,7 +49,7 @@ def inverse_mellin_transform(f, path, jac, x, cut: t_float = 0.0):
         result = np.real(prefactor * xexp * fofn)
         return result
 
-    result = integrate.quad(integrand, cut, 1.0 - cut)
+    result = integrate.quad(integrand, cut, 1.0 - cut,epsabs=1e-11,epsrel=1e-11,limit=100)
     return result
 
 
@@ -95,7 +95,7 @@ def get_path_Talbot(r: t_float = 1.0):
     return path, jac
 
 
-def get_path_line(path_len: t_float, c: t_float = 1):
+def get_path_line(path_len: t_float, c: t_float = 1.0):
     """Get textbook path, i.e. a straight line parallel to imaginary axis
 
     Parameters
@@ -153,6 +153,37 @@ def get_path_edge(m: t_float, c: t_float = 1.0):
             return -m * np.exp(np.complex(0, -np.pi * 2.0 / 3.0))
         else:
             return +m * np.exp(np.complex(0, np.pi * 2.0 / 3.0))
+
+    return path, jac
+
+def get_path_Cauchy_tan(g: t_float = 1.0, re_offset = 0.0):
+    """Get
+
+    Parameters
+    ----------
+      g : t_float
+        intersection of path with real axis
+
+    Returns
+    -------
+      path : function
+        edged path :math:`p_{\\text{c}}(t)`
+      jac : function
+        derivative of edged path
+        :math:`j_{\\text{c}}(t) = \\frac{dp_{\\text{c}}(t)}{dt}`
+    """
+
+    def path(t):
+        u = np.tan(np.pi * (2.0 * t - 1.0) / 2.0)
+        re = g / (u*u + g*g)
+        return np.complex(re_offset + re, u)
+
+    def jac(t):
+        arg = np.pi * (2.0 * t - 1.0) / 2.0
+        u = np.tan(arg)
+        dre = -2.0 * g * u / (u*u + g*g)**2
+        du = np.pi / np.cos(arg)**2
+        return np.complex(dre * du, du)
 
     return path, jac
 

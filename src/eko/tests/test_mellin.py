@@ -37,13 +37,11 @@ def test_inverse_mellin_transform():
         assert_almost_equal(xresult, nresult[0])
         assert_almost_equal(0.0, nresult[1])
 
-
 def test_get_path_Talbot():
     scales = [1, 2]
     for s in scales:
         path, jacobian = mellin.get_path_Talbot(s)
         check_path_derivation(path, jacobian)
-
 
 def test_get_path_line():
     params = [(1, 1), (2, 2)]
@@ -51,11 +49,16 @@ def test_get_path_line():
         path, jacobian = mellin.get_path_line(m, c)
         check_path_derivation(path, jacobian)
 
-
 def test_get_path_edge():
     params = [(2, 1), (2, 2)]
     for m, c in params:
         path, jacobian = mellin.get_path_line(m, c)
+        check_path_derivation(path, jacobian)
+
+def test_get_path_Cauchy_tan():
+    params = [(1, 1), (2, 2)]
+    for c,o in params:
+        path, jacobian = mellin.get_path_Cauchy_tan(c,o)
         check_path_derivation(path, jacobian)
 
 def test__Mellin_transform():

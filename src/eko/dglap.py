@@ -181,11 +181,19 @@ def run_dglap(setup):
     op_ns = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
     op_ns_err = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
     #path, jac = mellin.get_path_Talbot()
-    path,jac = mellin.get_path_line(15.0)
     for j in range(xgrid_size):
         for k in range(targetgrid_size):
+            xk = targetgrid[k]
+            #path,jac = mellin.get_path_line(path_length)
+            if xk < 1e-3:
+                cut = 0.1
+                gamma = 2.0
+            else:
+                cut = 1e-2
+                gamma = 1.0
+            path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
             res = mellin.inverse_mellin_transform(
-                get_kernel_ns(j), path, jac, targetgrid[k], 1e-2
+                get_kernel_ns(j), path, jac, xk, cut
             )
             op_ns[k, j] = res[0]
             op_ns_err[k, j] = res[1]
