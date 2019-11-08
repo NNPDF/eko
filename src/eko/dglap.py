@@ -146,6 +146,7 @@ def run_dglap(setup):
     # setup input grid: xgrid
     xgrid = _get_xgrid(setup)
     ret["xgrid"] = xgrid
+    basis_function_coeffs = interpolation.get_Lagrange_basis_functions(xgrid,4)
 
     # setup output grid: targetgrid
     targetgrid = setup.get("targetgrid", xgrid)
@@ -169,7 +170,8 @@ def run_dglap(setup):
         def ker(N):
             """non-siglet integration kernel"""
             ln = -delta_t * sf_LO.gamma_ns_0(N, nf, constants.CA, constants.CF) / beta0
-            interpoln = interpolation.get_Lagrange_interpolators_log_N(N, xgrid, j)
+            #interpoln = interpolation.get_Lagrange_interpolators_log_N(N, xgrid, j)
+            interpoln = interpolation.evaluate_Lagrange_basis_function_N(N,basis_function_coeffs[j])
             return np.exp(ln) * interpoln
 
         return ker
@@ -178,7 +180,8 @@ def run_dglap(setup):
     xgrid_size = len(xgrid)
     op_ns = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
     op_ns_err = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
-    path, jac = mellin.get_path_Talbot()
+    #path, jac = mellin.get_path_Talbot()
+    path,jac = mellin.get_path_line(15.0)
     for j in range(xgrid_size):
         for k in range(targetgrid_size):
             res = mellin.inverse_mellin_transform(

@@ -254,3 +254,88 @@ def get_Lagrange_interpolators_log_N(N, xgrid, j):
         powi = pow(-1.0 / N, k)
         n += num.coef[k] * ifac * powi
     return n / den
+
+def get_Lagrange_basis_functions(xgrid_in, polynom_rank : int):
+    # setup params
+    xgrid = np.unique(xgrid_in)
+    xgrid_size = len(xgrid)
+    if not len(xgrid_in)  == xgrid_size:
+        raise ValueError("xgrid is not unique")
+    if xgrid_size < 2:
+        raise ValueError("xgrid needs at least 2 points")
+    if polynom_rank < 1:
+        raise ValueError("need at least linear interpolation")
+    if xgrid_size < polynom_rank:
+        raise ValueError(f"to interpolate with rank {polynom_rank} we need at least that much points")
+
+    # create blocks
+    list_of_blocks = []
+    for j in range(xgrid_size-1):
+        kmin = max(0,j-polynom_rank//2) # borders are (]
+        kmax = kmin + polynom_rank
+        if kmax >= xgrid_size:
+            kmax = xgrid_size - 1
+            kmin = kmax - polynom_rank
+        list_of_blocks.append((kmin,kmax))
+
+    # setup basis functions
+    list_of_basis_functions = [{"polynom_number": j, "areas": [{"lower_index": k, "reference_indices": None} for k in range(xgrid_size-1)]} for j in range(xgrid_size)]
+    for j,current_block in enumerate(list_of_blocks):
+        for k in range(current_block[0], current_block[1] + 1):
+            list_of_basis_functions[k]["areas"][j]["reference_indices"] = current_block
+    # compute
+    def is_not_zero_sector(e):
+        return not None == e["reference_indices"]
+    for j,current_polynom in enumerate(list_of_basis_functions):
+        # clean up zero sectors
+        current_polynom["areas"] = list(filter(is_not_zero_sector,current_polynom["areas"]))
+        # precompute coefficients
+        xj = xgrid[j]
+        for current_area in current_polynom["areas"]:
+            denominator = 1.0
+            coeffs = np.array([1])
+            for k in range(current_area["reference_indices"][0],current_area["reference_indices"][1]+1):
+                if k == j:
+                    continue
+                xk = xgrid[k]
+                # Lagrange interpolation formula
+                denominator *= (xj - xk)
+                x_coeffs = np.insert(coeffs,0,0)
+                Mxk_coeffs = -xk * coeffs
+                Mxk_coeffs = np.append(Mxk_coeffs,np.zeros(len(x_coeffs)-len(Mxk_coeffs)))
+                coeffs = x_coeffs + Mxk_coeffs
+            # apply common denominator
+            coeffs = coeffs / denominator
+            current_area["coeffs"] = coeffs
+            current_area["xmin"] = xgrid[current_area["lower_index"]]
+            current_area["xmax"] = xgrid[current_area["lower_index"]+1]
+            # clean up
+            #del current_area["reference_indices"]
+            #del current_area["lower_index"]
+    # return
+    return list_of_basis_functions
+
+def evaluate_Lagrange_basis_function_x(x,conf):
+    if not "areas" in conf or len(conf["areas"]) <= 0:
+        raise ValueError("need some areas to explore")
+    for current_area in conf["areas"]:
+        if x <= current_area["xmin"] or x > current_area["xmax"]: # borders are (]
+            continue
+        polynom_rank = len(current_area["coeffs"])
+        powers_in_x = np.array([x**k for k in range(polynom_rank)])
+        return np.dot(current_area["coeffs"],powers_in_x)
+    return 0.0
+
+def evaluate_Lagrange_basis_function_N(N,conf):
+    if not "areas" in conf or len(conf["areas"]) <= 0:
+        raise ValueError("need some areas to explore")
+    res = 0.0
+    polynom_rank = len(conf["areas"][0]["coeffs"])
+    for current_area in conf["areas"]:
+        powers_x = []
+        for j in range(polynom_rank):
+            low = 0.0 if 0.0 == current_area["xmin"] else current_area["xmin"]**(N + j)
+            up = current_area["xmax"]**(N + j)
+            powers_x.append((up - low)/(N+j))
+        res += np.dot(current_area["coeffs"],powers_x)
+    return res
