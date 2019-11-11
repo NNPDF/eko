@@ -16,10 +16,12 @@ References
   We use the Herzog paper :cite:`Herzog:2017ohr` as our main reference.
 """
 import numpy as np
+import numba as nb
 from eko import t_float
 from eko.constants import Constants
 
 
+@nb.njit
 def beta_0(
     nf: int, CA: t_float, CF: t_float, Tf: t_float
 ):  # pylint: disable=unused-argument
@@ -48,6 +50,7 @@ def beta_0(
     return beta_0
 
 
+@nb.njit
 def beta_1(nf: int, CA: t_float, CF: t_float, Tf: t_float):
     """Computes the second coefficient of the QCD beta function
 
@@ -76,6 +79,7 @@ def beta_1(nf: int, CA: t_float, CF: t_float, Tf: t_float):
     return beta_1
 
 
+@nb.njit
 def beta_2(nf: int, CA: t_float, CF: t_float, Tf: t_float):
     """Computes the third coefficient of the QCD beta function
 
@@ -108,6 +112,61 @@ def beta_2(nf: int, CA: t_float, CF: t_float, Tf: t_float):
     return beta_2
 
 
+def alpha_s_generator(alpha_s_ref: t_float, scale_ref: t_float, nf: int, method: str):
+    """
+    Generates the alpha_s functions for a given number of flavours for a given method
+    for a given reference scale
+
+    Note that all scale parameters, :math:`\\mu_0^2` and :math:`Q^2`,
+    have to be given as squared values.
+
+    Parameters
+    ----------
+    alpha_s_ref : t_float
+        alpha_s at the reference scale :math:`\\alpha_s(\\mu_0^2)`
+    scale_ref : t_float
+        reference scale :math:`\\mu_0^2`
+    nf : int
+        Number of active flavours (is passed to the beta function)
+    method : {"analytic"}
+        Applied method to solve the beta function
+
+    Returns
+    -------
+    alpha_s: function
+        function(order, scale_to) which computes alpha_s for a given order at a given scale
+    """  # pylint: disable=unused-argument
+    # TODO implement more complex runnings (we may take a glimpse into LHAPDF)
+    # TODO change reference arguments of a_s also to a_s (instead of alpha_s_ref)?
+    # TODO constants have to come from the outside, otherwise it defeats the purpose
+    c = Constants()
+    beta0 = beta_0(nf, c.CA, c.CF, c.TF)
+
+    @nb.njit
+    def alpha_s(order: int, scale_to: t_float):
+        """
+        Parameters
+        ----------
+        order : int
+            evaluated order of beta function
+        scale_to : t_float
+            final scale to evolve to :math:`Q^2`
+
+        Returns
+        -------
+        a_s : t_float
+            strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
+        """
+        L = np.log(scale_to / scale_ref)
+        if order == 0:
+            return alpha_s_ref / (4.0 * np.pi + beta0 * alpha_s_ref * L)
+        else:
+            raise NotImplementedError("Alpha_s beyond LO not implemented")
+
+    return alpha_s
+
+
+# TOBEREMOVED
 def a_s(
     order: int,
     alpha_s_ref: t_float,
@@ -115,37 +174,7 @@ def a_s(
     scale_to: t_float,
     nf: int,
     method: str,
-):  # pylint: disable=unused-argument
-    """Evolves the running coupling of QCD.
-
-    Note that both scale parameters, :math:`\\mu_0^2` and :math:`Q^2`,
-    have to be given as squared values.
-
-    Parameters
-    ----------
-      order : int
-         evaluated order of beta function
-      alpha_s_ref : t_float
-         alpha_s at the reference scale :math:`\\alpha_s(\\mu_0^2)`
-      scale_ref : t_float
-         reference scale :math:`\\mu_0^2`
-      scale_to : t_float
-         final scale to evolve to :math:`Q^2`
-      nf : int
-         Number of active flavours (is passed to the beta function)
-      method : {"analytic"}
-         Applied method to solve the beta function
-
-    Returns
-    -------
-    a_s : t_float
-      strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
-    """
-    # TODO implement more complex runnings (we may take a glimpse into LHAPDF)
-    # TODO change reference arguments of a_s also to a_s (instead of alpha_s_ref)?
-    # TODO constants have to come from the outside, otherwise it defeats the purpose
-    # for now: LO analytic
-    c = Constants()
-    beta0 = beta_0(nf, c.CA, c.CF, c.TF)
-    L = np.log(scale_to / scale_ref)
-    return alpha_s_ref / (4.0 * np.pi + beta0 * alpha_s_ref * L)
+):  # for now: LO analytic
+    # TODO: legacy wrap
+    afun = alpha_s_generator(alpha_s_ref, scale_ref, nf, method)
+    return afun(order, scale_to)

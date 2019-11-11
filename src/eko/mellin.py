@@ -10,6 +10,7 @@ might be interesting.
 """
 
 import numpy as np
+import numba as nb
 import scipy.integrate as integrate
 
 from eko import t_float, t_complex
@@ -39,7 +40,7 @@ def inverse_mellin_transform(f, path, jac, x, cut: t_float = 0.0):
       res : float
         computed point
     """
-
+    @nb.jit(forceobj=True) # due to the integration kernel not being necessarily numba
     def integrand(u):
         pathu = path(u)
         prefactor = t_complex(complex(0.0, -1 / 2 / np.pi))
@@ -70,7 +71,7 @@ def get_path_Talbot(r: t_float = 1.0):
       jac : function
         derivative of Talbot path :math:`j_{\\text{Talbot}}(t) = \\frac{dp_{\\text{Talbot}}(t)}{dt}`
     """
-
+    @nb.njit
     def path(t):
         theta = np.pi * (2.0 * t - 1.0)
         re = 0.0
@@ -81,6 +82,7 @@ def get_path_Talbot(r: t_float = 1.0):
         im = theta
         return r * t_complex(np.complex(re, im))
 
+    @nb.njit
     def jac(t):
         theta = np.pi * (2.0 * t - 1.0)
         re = 0.0
@@ -114,9 +116,11 @@ def get_path_line(path_len: t_float, c: t_float = 1.0):
         :math:`j_{\\text{line}}(t) = \\frac{dp_{\\text{line}}(t)}{dt} = 2m`
     """
 
+    @nb.njit
     def path(t):
         return t_complex(np.complex(c, path_len * (2 * t - 1)))
 
+    @nb.njit
     def jac(j):  # pylint: disable=unused-argument
         return t_complex(np.complex(0, path_len * 2))
 
@@ -142,12 +146,14 @@ def get_path_edge(m: t_float, c: t_float = 1.0):
         :math:`j_{\\text{edge}}(t) = \\frac{dp_{\\text{edge}}(t)}{dt}`
     """
 
+    @nb.njit
     def path(t):
         if t < 0.5:  # turning point: path is not differentiable in this point
             return c + (0.5 - t) * m * np.exp(np.complex(0, -np.pi * 2.0 / 3.0))
         else:
             return c + (t - 0.5) * m * np.exp(np.complex(0, +np.pi * 2.0 / 3.0))
 
+    @nb.njit
     def jac(t):
         if t < 0.5:  # turning point: jacobian is not continuous here
             return -m * np.exp(np.complex(0, -np.pi * 2.0 / 3.0))
@@ -204,6 +210,7 @@ def mellin_transform(f, N: t_complex):
         computed point
     """
 
+    @nb.jit(forceobj=True) # due to the integration kernel not being necessarily numba
     def integrand(x):
         xton = pow(x, N - 1) * f(x)
         return xton

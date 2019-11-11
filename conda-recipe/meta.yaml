@@ -6,8 +6,15 @@ source:
     git_url: ../
 
 requirements:
+    build:
+        - {{ compiler("c") }}
     host:
+        - numpy
         - python
+        - numba
+        - scipy      
+        - cffi
+        - gsl
     run:
         - numpy
         - python
@@ -16,6 +23,8 @@ requirements:
         - recommonmark
         - sphinx_rtd_theme
         - scipy
+        - cffi
+        - gsl
 
 test:
     requires:

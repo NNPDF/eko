@@ -17,11 +17,15 @@ terms of the anomalous dimensions (note the additional sign!)
   \gamma(N) = - \mathcal{M}[\mathbf{P}(x)](N)
 
 """
-from numpy import euler_gamma
-from scipy.special import digamma
+import numpy as np
+import numba as nb
 from eko import t_float, t_complex
+from _gsl_digamma import lib
 
-
+# Everything from this point will compile in object mode because of numba
+# not being able to deal with struct in nopython mode
+# we can deal with that problem in the future
+@nb.jit(forceobj=True)
 def _S1(N: t_complex):
     r"""Computes the simple harmonic sum
 
@@ -40,9 +44,14 @@ def _S1(N: t_complex):
       S_1 : t_complex
         (simple) Harmonic sum up to N :math:`S_1(N)`
     """
-    return digamma(N + 1) + euler_gamma
+    r = np.real(N) + 1
+    i = np.imag(N)
+    c_result = lib.digamma(r, i)
+    result = np.complex(c_result.r, c_result.i)
+    return result + np.euler_gamma
 
 
+@nb.jit(forceobj=True)
 def gamma_ns_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -72,6 +81,7 @@ def gamma_ns_0(
     return result
 
 
+@nb.jit(forceobj=True)
 def gamma_ps_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -99,6 +109,7 @@ def gamma_ps_0(
     return 0.0
 
 
+@nb.jit(forceobj=True)
 def gamma_qg_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -128,6 +139,7 @@ def gamma_qg_0(
     return result
 
 
+@nb.jit(forceobj=True)
 def gamma_gq_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -157,6 +169,7 @@ def gamma_gq_0(
     return result
 
 
+@nb.jit(forceobj=True)
 def gamma_gg_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument

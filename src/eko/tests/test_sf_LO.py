@@ -5,6 +5,7 @@ from numpy.testing import assert_approx_equal, assert_almost_equal
 from eko.constants import Constants
 
 import eko.splitting_functions_LO as spf_LO
+from eko import t_complex
 
 constants = Constants()
 CA = constants.CA
@@ -25,8 +26,9 @@ def test__S1():
     # test on real axis
     known_vals = [1.0, 1.0 + 1.0 / 2.0, 1.0 + 1.0 / 2.0 + 1.0 / 3.0]
     for i, val in enumerate(known_vals):
+        cval = t_complex(val)
         result = spf_LO._S1(1 + i)  # pylint: disable=protected-access
-        assert_approx_equal(result, val, significant=8)
+        assert_almost_equal(result, cval)
 
 
 def test_number_momentum_conservation():

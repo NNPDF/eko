@@ -76,8 +76,10 @@ def _get_evoultion_params(setup):
     qref2 = setup["Qref"] ** 2
     pto = setup["PTO"]
     alphas = setup["alphas"]
-    a0 = alpha_s.a_s(pto, alphas, qref2, setup["Q0"] ** 2, nf, "analytic")
-    a1 = alpha_s.a_s(pto, alphas, qref2, setup["Q2grid"][0], nf, "analytic")
+    # Generate the alpha_s functions
+    a_s = alpha_s.alpha_s_generator(alphas, qref2, nf, "analytic")
+    a0 = a_s(0, setup["Q0"]**2)
+    a1 = a_s(0, setup["Q2grid"][0])
     # evolution parameters
     t0 = np.log(1.0 / a0)
     t1 = np.log(1.0 / a1)
