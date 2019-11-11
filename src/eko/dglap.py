@@ -3,6 +3,7 @@
 This file contains the main loop for the DGLAP calculations.
 
 """
+import sys
 import logging
 import numpy as np
 
@@ -134,7 +135,7 @@ def run_dglap(setup):
     """
 
     # print theory id setup
-    logObj.info(setup)
+    logObj.info("setup: %s",setup)
 
     # return dictionay
     # TODO decide on which level to iterate Q2
@@ -181,8 +182,10 @@ def run_dglap(setup):
     op_ns = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
     op_ns_err = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
     #path, jac = mellin.get_path_Talbot()
-    for j in range(xgrid_size):
-        for k in range(targetgrid_size):
+    logPre = "computing NS operator - "
+    logObj.info(logPre+"...")
+    for k in range(targetgrid_size):
+        for j in range(xgrid_size):
             xk = targetgrid[k]
             #path,jac = mellin.get_path_line(path_length)
             if xk < 1e-3:
@@ -197,6 +200,9 @@ def run_dglap(setup):
             )
             op_ns[k, j] = res[0]
             op_ns_err[k, j] = res[1]
+        logObj.info(logPre+" %d/%d",k+1,targetgrid_size)
+    logObj.info(logPre+"done.")
+    
     # insert operators
     ret["operators"]["NS"] = op_ns
     ret["operator_errors"]["NS"] = op_ns_err

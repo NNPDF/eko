@@ -46,10 +46,10 @@ def inverse_mellin_transform(f, path, jac, x, cut: t_float = 0.0):
         xexp = np.exp(-pathu * np.log(x))
         fofn = f(pathu) * jac(u)
         # integrate.quad can only do float, as it links to QUADPACK
-        result = np.real(prefactor * xexp * fofn)
+        result = 2.0 * np.real(prefactor * xexp * fofn)
         return result
 
-    result = integrate.quad(integrand, cut, 1.0 - cut,epsabs=1e-11,epsrel=1e-11,limit=100)
+    result = integrate.quad(integrand, 0.5, 1.0 - cut,epsabs=1e-11,epsrel=1e-11,limit=100)
     return result
 
 
