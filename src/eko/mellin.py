@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-r"""
-This file contains the implementation of the inverse Mellin transformation
+"""
+This file contains the implementations of the Mellin transformation and its inverse transformation
 
-It contains the actual transformation itself, as well as the necessary tools
+It contains the actual transformations itself, as well as the necessary tools
 such as the definition of paths.
 
-The discussion in https://arxiv.org/pdf/1910.07049.pdf on p.5 below eq. 15
-might be interesting.
 """
 
 import numpy as np
@@ -18,8 +16,10 @@ from eko import t_float, t_complex
 # TODO make this module numba/C-save
 
 # TODO replace inversion with something better? (t_float!)
-def inverse_mellin_transform(f, path, jac, x, cut: t_float = 0.0):
-    """Inverse Mellin transformation
+def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0):
+    """Inverse Mellin transformation.
+    Note that the inversion factor :math:`x^{-N}` has already to be INCLUDED in f(N).
+    This conventions usually improves the convergence of the integral.
 
     Parameters
     ----------
@@ -29,8 +29,6 @@ def inverse_mellin_transform(f, path, jac, x, cut: t_float = 0.0):
         Integration path as a function :math:`p(t) : [0,1] \\to \\mathcal C : t \\to p(t)`
       jac : function
         Jacobian of integration path :math:`j(t) = \\frac{dp(t)}{dt}`
-      x : float
-        requested point in x-space
       cut : t_float
         Numeric cut-off parameter to the integration, the actual integration borders are
         determied by :math:`t\\in [c : 1-c]`
@@ -42,17 +40,15 @@ def inverse_mellin_transform(f, path, jac, x, cut: t_float = 0.0):
     """
     @nb.jit(forceobj=True) # due to the integration kernel not being necessarily numba
     def integrand(u):
-        pathu = path(u)
-        prefactor = t_complex(complex(0.0, -1 / 2 / np.pi))
-        xexp = np.exp(-pathu * np.log(x))
-        fofn = f(pathu) * jac(u)
+        N = path(u)
+        prefactor = t_complex(complex(0.0, -1.0 / 2.0 / np.pi))
+        # xexp = np.exp(-pathu * np.log(x)) - this has to be INCLUDED in f(N)
         # integrate.quad can only do float, as it links to QUADPACK
-        result = 2.0 * np.real(prefactor * xexp * fofn)
+        result = 2.0 * np.real(prefactor * f(N) * jac(u))
         return result
 
     result = integrate.quad(integrand, 0.5, 1.0 - cut,epsabs=1e-11,epsrel=1e-11,limit=100)
     return result
-
 
 def get_path_Talbot(r: t_float = 1.0):
     """get Talbot path
@@ -96,7 +92,6 @@ def get_path_Talbot(r: t_float = 1.0):
 
     return path, jac
 
-
 def get_path_line(path_len: t_float, c: t_float = 1.0):
     """Get textbook path, i.e. a straight line parallel to imaginary axis
 
@@ -125,7 +120,6 @@ def get_path_line(path_len: t_float, c: t_float = 1.0):
         return t_complex(np.complex(0, path_len * 2))
 
     return path, jac
-
 
 def get_path_edge(m: t_float, c: t_float = 1.0):
     """Get edged path with an angle of 45°
@@ -179,11 +173,13 @@ def get_path_Cauchy_tan(g: t_float = 1.0, re_offset = 0.0):
         :math:`j_{\\text{c}}(t) = \\frac{dp_{\\text{c}}(t)}{dt}`
     """
 
+    @nb.njit
     def path(t):
         u = np.tan(np.pi * (2.0 * t - 1.0) / 2.0)
         re = g / (u*u + g*g)
         return np.complex(re_offset + re, u)
 
+    @nb.njit
     def jac(t):
         arg = np.pi * (2.0 * t - 1.0) / 2.0
         u = np.tan(arg)
@@ -212,9 +208,9 @@ def mellin_transform(f, N: t_complex):
 
     @nb.jit(forceobj=True) # due to the integration kernel not being necessarily numba
     def integrand(x):
-        xton = pow(x, N - 1) * f(x)
-        return xton
-
+        xToN = pow(x, N - 1) * f(x)
+        return xToN
+    # do real + imaginary part seperately
     r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1)
     i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1)
     result = t_complex(complex(r, i))

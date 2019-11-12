@@ -26,14 +26,16 @@ def test_inverse_mellin_transform():
     def function_x(x):
         return x
 
-    def function_N(N):
-        return 1.0 / (N + 1)
+    def get_function_N(lnx):
+        def function_N(N):
+            return np.exp(- N * lnx) / (N + 1)
+        return function_N
 
     xgrid = [0.1, 0.3, 0.5, 0.7]
     p, j = mellin.get_path_Talbot()
     for x in xgrid:
         xresult = function_x(x)
-        nresult = mellin.inverse_mellin_transform(function_N, p, j, x, 1e-2)
+        nresult = mellin.inverse_mellin_transform(get_function_N(np.log(x)), p, j, 1e-2)
         assert_almost_equal(xresult, nresult[0])
         assert_almost_equal(0.0, nresult[1])
 
@@ -61,8 +63,7 @@ def test_get_path_Cauchy_tan():
         path, jacobian = mellin.get_path_Cauchy_tan(c,o)
         check_path_derivation(path, jacobian)
 
-def test__Mellin_transform():
-    """prevent circular reasoning"""
+def test_Mellin_transform():
     f = lambda x: x
     g = lambda N: 1.0 / (N + 1.0)
     for N in [1.0, 1.0 + 1j, 0.5 - 2j]:

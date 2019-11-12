@@ -3,7 +3,6 @@
 This file contains the main loop for the DGLAP calculations.
 
 """
-import sys
 import logging
 import numpy as np
 
@@ -15,7 +14,6 @@ import eko.mellin as mellin
 from eko.constants import Constants
 
 logObj = logging.getLogger(__name__)
-
 
 def _get_xgrid(setup):
     """Compute input grid
@@ -79,8 +77,8 @@ def _get_evoultion_params(setup):
     alphas = setup["alphas"]
     # Generate the alpha_s functions
     a_s = alpha_s.alpha_s_generator(alphas, qref2, nf, "analytic")
-    a0 = a_s(0, setup["Q0"]**2)
-    a1 = a_s(0, setup["Q2grid"][0])
+    a0 = a_s(pto, setup["Q0"]**2)
+    a1 = a_s(pto, setup["Q2grid"][0])
     # evolution parameters
     t0 = np.log(1.0 / a0)
     t1 = np.log(1.0 / a1)
@@ -149,7 +147,13 @@ def run_dglap(setup):
     # setup input grid: xgrid
     xgrid = _get_xgrid(setup)
     ret["xgrid"] = xgrid
-    basis_function_coeffs = interpolation.get_Lagrange_basis_functions(xgrid,4)
+    polynom_rank = setup.get("xgrid_polynom_rank",4)
+    is_log_interpolation = not setup.get("xgrid_interpolation","log") == "id"
+    if is_log_interpolation:
+        basis_function_coeffs = interpolation.get_Lagrange_basis_functions_log(xgrid,polynom_rank)
+    else:
+        basis_function_coeffs = interpolation.get_Lagrange_basis_functions(xgrid,polynom_rank)
+    logObj.info("is_log_interpolation = %d",1 if is_log_interpolation else 0)
 
     # setup output grid: targetgrid
     targetgrid = setup.get("targetgrid", xgrid)
@@ -167,14 +171,18 @@ def run_dglap(setup):
     delta_t = t1 - t0
 
     # prepare non-siglet evolution
-    def get_kernel_ns(j):
+    def get_kernel_ns(j,lnx):
         """return non-siglet integration kernel"""
-
+        current_coeff = basis_function_coeffs[j]
+        if is_log_interpolation:
+            fN = interpolation.evaluate_Lagrange_basis_function_log_N
+        else:
+            fN = interpolation.evaluate_Lagrange_basis_function_N
         def ker(N):
             """non-siglet integration kernel"""
             ln = -delta_t * sf_LO.gamma_ns_0(N, nf, constants.CA, constants.CF) / beta0
             #interpoln = interpolation.get_Lagrange_interpolators_log_N(N, xgrid, j)
-            interpoln = interpolation.evaluate_Lagrange_basis_function_N(N,basis_function_coeffs[j])
+            interpoln = fN(N,current_coeff,lnx)
             return np.exp(ln) * interpoln
 
         return ker
@@ -187,24 +195,24 @@ def run_dglap(setup):
     logPre = "computing NS operator - "
     logObj.info(logPre+"...")
     for k in range(targetgrid_size):
+        xk = targetgrid[k]
+        #path,jac = mellin.get_path_line(path_length)
+        if False and xk < 1e-3:
+            cut = 0.1
+            gamma = 2.0
+        else:
+            cut = 1e-2
+            gamma = 1.0
+        path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
         for j in range(xgrid_size):
-            xk = targetgrid[k]
-            #path,jac = mellin.get_path_line(path_length)
-            if xk < 1e-3:
-                cut = 0.1
-                gamma = 2.0
-            else:
-                cut = 1e-2
-                gamma = 1.0
-            path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
             res = mellin.inverse_mellin_transform(
-                get_kernel_ns(j), path, jac, xk, cut
+                get_kernel_ns(j,np.log(xk)), path, jac, cut
             )
             op_ns[k, j] = res[0]
             op_ns_err[k, j] = res[1]
         logObj.info(logPre+" %d/%d",k+1,targetgrid_size)
     logObj.info(logPre+"done.")
-    
+
     # insert operators
     ret["operators"]["NS"] = op_ns
     ret["operator_errors"]["NS"] = op_ns_err
