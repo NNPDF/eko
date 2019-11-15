@@ -197,3 +197,89 @@ def gamma_gg_0(
     gamma = _S1(N - 2) - 2.0 * _S1(N - 1) - 2.0 * _S1(N + 1) + _S1(N + 2) + 3.0 * _S1(N)
     result = CA * (4.0 * gamma - 11.0 / 3.0) + 2.0 / 3.0 * nf
     return result
+
+def get_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_float):
+    r"""Computes the leading-order singlet anomalous dimension matrix
+
+    .. math::
+        \gamma_S^{(0)} = \left(\begin{array}
+          \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
+          \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
+        \end{array}\right)
+
+    Parameters
+    ----------
+      N : t_complex
+        Mellin moment
+      nf : int
+        Number of active flavours
+      CA : t_float
+       Casimir constant of adjoint representation
+      CF : t_float
+       Casimir constant of fundamental representation (which is actually not used here)
+
+    Returns
+    -------
+      gamma_S_0 : np.array
+        Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
+
+    See Also
+    --------
+      - gamma_ns_0
+      - gamma_ps_0
+      - gamma_qg_0
+      - gamma_gq_0
+      - gamma_gg_0
+    """
+    gamma_qq_0 = gamma_ns_0(N,nf,CA,CF) + gamma_ps_0(N,nf,CA,CF)
+    gamma_S_0 = np.array([
+      [gamma_qq_0, gamma_qg_0(N,nf,CA,CF)],
+      [gamma_gq_0(N,nf,CA,CF), gamma_gg_0(N,nf,CA,CF)]
+    ])
+    return gamma_S_0
+
+def get_Eigensystem_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_float):
+    r"""Computes the Eigensystem of the leading-order singlet anomalous dimension matrix
+
+    Parameters
+    ----------
+      N : t_complex
+        Mellin moment
+      nf : int
+        Number of active flavours
+      CA : t_float
+       Casimir constant of adjoint representation
+      CF : t_float
+       Casimir constant of fundamental representation (which is actually not used here)
+
+    Returns
+    -------
+      lambda_p : t_complex
+        positive eigenvalue of the Leading-order singlet anomalous dimension matrix
+        :math:`\gamma_{S}^{(0)}(N)`
+      lambda_m : t_complex
+        negative eigenvalue of the Leading-order singlet anomalous dimension matrix
+        :math:`\gamma_{S}^{(0)}(N)`
+      e_p : np.array
+        projector for the positive eigenvalue of the Leading-order singlet anomalous
+        dimension matrix :math:`\gamma_{S}^{(0)}(N)`
+      e_m : np.array
+        projector for the negative eigenvalue of the Leading-order singlet anomalous
+        dimension matrix :math:`\gamma_{S}^{(0)}(N)`
+    """
+    gamma_S_0 = get_gamma_singlet_0(N,nf,CA,CF)
+    # compute eigenvalues
+    gamma_qq = gamma_S_0[0][0]
+    gamma_qg = gamma_S_0[0][1]
+    gamma_gq = gamma_S_0[1][0]
+    gamma_gg = gamma_S_0[1][1]
+    b = (gamma_qq + gamma_gg) / 2.0
+    det = np.sqrt((gamma_qq - gamma_gg)**2 + 4*gamma_qg*gamma_gq) / 2.0
+    lambda_p = b + det
+    lambda_m = b - det
+    # compute projectors
+    identity = np.identity(2,dtype=t_complex)
+    c = 1.0 / (lambda_p - lambda_m)
+    e_p = c * (gamma_S_0 - lambda_m * identity)
+    e_m = - c * (gamma_S_0 - lambda_p * identity)
+    return lambda_p,lambda_m,e_p,e_m

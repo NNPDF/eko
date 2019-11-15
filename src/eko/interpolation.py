@@ -243,6 +243,7 @@ def evaluate_Lagrange_basis_function_log_N(N, conf, lnx):
     if not "areas" in conf or len(conf["areas"]) <= 0:
         raise ValueError("need some areas to explore")
 
+    # helper functions
     def get1(j, u):
         s = 0.0
         for k in range(0, j + 1):
@@ -252,6 +253,7 @@ def evaluate_Lagrange_basis_function_log_N(N, conf, lnx):
     def get2(j, lnxminmax):
         return np.exp(N * (lnxminmax - lnx)) * get1(j, N * lnxminmax)
 
+    # sum all areas
     res = 0.0
     for current_area in conf["areas"]:
         for j, coeff in enumerate(current_area["coeffs"]):

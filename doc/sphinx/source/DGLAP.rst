@@ -2,18 +2,25 @@
 Physics documentation
 =====================
 
-We are solving the DGLAP equations given by
+Mathematical ingredients
+------------------------
+
+We solve the equations in Mellin-space as there multiplicative convolution is
+mapped onto a normal multiplication and thus the integro-differential equations
+are instead just normal differential equations.
+The Mellin transformation is given by
 
 .. math::
-    \frac{d}{d\ln(\mu_F^2)} \mathbf{f}(x,\mu_F^2) =
-        \int\limits_x^1\!\frac{dy}{y}\, \mathbf{P}(x/y) \cdot \mathbf{f}(y,\mu_F^2)
+    \tilde g(N) = \mathcal{M}[g(x)](N) = \int\limits_{0}^{1} x^{N-1} g(x)\,dx
 
-The Altarelli-Parisi splitting kernels can be expanded in powers of the strong
-coupling :math:`a_s(\mu_F^2)` given by :cite:`Moch:2004pa` :cite:`Vogt:2004mw`
+where we will denote all objects in Mellin-space with an additional tilde.
+The inverse Mellin transformation is given by
 
 .. math::
-    \mathbf{P}(x)
-        = - \sum\limits_{n=0} a_s^{n+1} \mathbf P^{(n)}(x)
+    g(x) = \mathcal{M}^{-1}[\tilde g(N)](x) = \frac{1}{2\pi i} \int\limits_{c-i\infty}^{c+i\infty} x^{-N} \tilde g(N)\,dN
+
+QCD ingredients
+---------------
 
 
 The running coupling :math:`a_s(\mu_F^2) = \alpha_s(\mu_F^2)/(4\pi)`
@@ -24,24 +31,29 @@ is given by :cite:`Herzog:2017ohr` :cite:`Luthe:2016ima` :cite:`Baikov:2016tgj`
       = - \sum\limits_{n=0} \beta_n a_s^{n+2}
 
 
+The Altarelli-Parisi splitting kernels can be expanded in powers of the strong
+coupling :math:`a_s(\mu_F^2)` given by :cite:`Moch:2004pa` :cite:`Vogt:2004mw`
+
+.. math::
+    \mathbf{P}(x)
+        = - \sum\limits_{n=0} a_s^{n+1} \mathbf P^{(n)}(x)
+
+
+Solving DGLAP
+-------------
+
+We are solving the DGLAP equations given by
+
+.. math::
+    \frac{d}{d\ln(\mu_F^2)} \mathbf{f}(x,\mu_F^2) =
+        \int\limits_x^1\!\frac{dy}{y}\, \mathbf{P}(x/y) \cdot \mathbf{f}(y,\mu_F^2)
+
+
 The non-siglet case can be solved in a linear way:
 
 .. math::
     \frac{d f_{ns}(x,\mu_F^2)}{d\ln(\mu_F^2)} =
         \int\limits_x^1\!\frac{dy}{y}\, P_{ns}(y/x) \cdot f_{ns}(y,\mu_F^2)
-
-We solve the equations in Mellin-space as there convolution is mapped onto
-a normal multiplication and thus the integro-differential equations are instead
-just normal differential equations. The Mellin transformation is given by
-
-.. math::
-    \tilde g(N) = \mathcal{M}[g(x)](N) = \int\limits_{0}^{1} x^{N-1} g(x)\,dx
-
-where we will denote all objects in Mellin-space with an additional tilde.
-The inverse Mellin transformation is given by
-
-.. math::
-    g(x) = \mathcal{M}^{-1}[\tilde g(N)](x) = \frac{1}{2\pi i} \int\limits_{c-i\infty}^{c+i\infty} x^{-N} \tilde g(N)\,dN
 
 We can thus write the non-siglet equations in N-space by
 

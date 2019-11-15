@@ -18,13 +18,16 @@ from eko import t_float, t_complex
 # TODO replace inversion with something better? (t_float!)
 def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0):
     """Inverse Mellin transformation.
+
     Note that the inversion factor :math:`x^{-N}` has already to be INCLUDED in f(N).
-    This conventions usually improves the convergence of the integral.
+    This convention usually improves the convergence of the integral. Typical kernels
+    will already naturally develop similar factors to which the conversion factor can
+    be joined.
 
     Parameters
     ----------
       f : function
-        Integration kernel
+        Integration kernel including x^(-N)
       path : function
         Integration path as a function :math:`p(t) : [0,1] \\to \\mathcal C : t \\to p(t)`
       jac : function
