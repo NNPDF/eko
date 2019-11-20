@@ -103,7 +103,7 @@ def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_function_
     """
     # setup constants
     xgrid = ret["xgrid"]
-    targetgrid = ret["targetgrid"] 
+    targetgrid = ret["targetgrid"]
     targetgrid_size = len(targetgrid)
     nf = setup["NfFF"]
     beta0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
@@ -178,7 +178,7 @@ def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_function_coe
     """
     # setup constants
     xgrid = ret["xgrid"]
-    targetgrid = ret["targetgrid"] 
+    targetgrid = ret["targetgrid"]
     targetgrid_size = len(targetgrid)
     nf = setup["NfFF"]
     beta0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
@@ -195,10 +195,10 @@ def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_function_coe
             def ker(N):
                 """singlet integration kernel"""
                 l_p,l_m,e_p,e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N,nf,constants.CA,constants.CF)
-                ln_p = - delta_t * l_p * e_p[k][l] / beta0
-                ln_m = - delta_t * l_m * e_m[k][l] / beta0
+                ln_p = - delta_t * l_p  / beta0
+                ln_m = - delta_t * l_m  / beta0
                 interpoln = fN(N,current_coeff,lnx)
-                return (np.exp(ln_p) + np.exp(ln_m)) * interpoln
+                return (e_p[k][l] * np.exp(ln_p) + e_m[k][l] * np.exp(ln_m)) * interpoln
             return ker
 
         return get_ker(0,0), get_ker(0,1), get_ker(1,0), get_ker(1,1)
@@ -237,7 +237,7 @@ def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_function_coe
                 op[k, j] = res[0]
                 op_err[k, j] = res[1]
         logObj.info(logPre+" %d/%d",k+1,targetgrid_size)
-    logObj.info(logPre+"done.")
+    logObj.info(logPre,"done.")
 
     # insert operators
     ret["operators"]["S_qq"] = op_s_qq
