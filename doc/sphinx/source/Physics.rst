@@ -1,6 +1,5 @@
-
 Physics documentation
-=====================
+======================
 
 Mathematical ingredients
 ------------------------
@@ -17,11 +16,22 @@ where we will denote all objects in Mellin-space with an additional tilde.
 The inverse Mellin transformation is given by
 
 .. math::
-    g(x) = \mathcal{M}^{-1}[\tilde g(N)](x) = \frac{1}{2\pi i} \int\limits_{c-i\infty}^{c+i\infty} x^{-N} \tilde g(N)\,dN
+    g(x) = \mathcal{M}^{-1}[\tilde g(N)](x) = \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x^{-N} \tilde g(N)\,dN
+
+for a suitable path :math:`\mathcal{P}(t)`.
+
+We will also use approximation theory, i.e., we interpolate the unkown PDF as a
+weighted sum of polynomials
+
+.. math::
+    f(x,t_0) = \sum_{j=1}^{N_{grid}} f(x_j,t_0) \cdot p_j(x)
+
+The current implementation uses a grid :math:`\{x_j\}` defined by the user and
+a Lagrange interpolation using the nearest :math:`k` points. Thus the
+interpolation polynomials :math:`\{p_j(x)\}` are all of degree :math:`(k-1)`.
 
 QCD ingredients
 ---------------
-
 
 The running coupling :math:`a_s(\mu_F^2) = \alpha_s(\mu_F^2)/(4\pi)`
 is given by :cite:`Herzog:2017ohr` :cite:`Luthe:2016ima` :cite:`Baikov:2016tgj`
@@ -79,19 +89,15 @@ which is solved by
 .. math::
     \tilde f^{(0)}(N,t_1) = \exp((t_1-t_0) \tilde P_{ns}^{(0)}(N)/\beta_0 ) \cdot \tilde f_{ns}^{(0)}(N,t_0)
 
-We will now assume further, that we can write the initial state as
-a superposition of weighted polynomials:
+Using the interpolation basis on out inital state PDF, we can define our EKO
+:math:`\hat O` by
 
 .. math::
-    f(x,t_0) = \sum_{j=1}^{N_{grid}} f(x_j,t_0) \cdot p_j(x)
+    \hat O_{k,j}^{ns,(0)}(t_1,t_0) = \mathcal{M}^{-1}\left[\exp((t_1-t_0)\tilde P_{ns}^{(0)}(N)/\beta_0)\tilde p_j(N)\right](x_k')
 
-We can thus define our EKO :math:`\hat O` by
-
-.. math::
-    \hat O_{k,j}^{(0)}(t_1,t_0) = \mathcal{M}^{-1}\left[\exp((t_1-t_0)\tilde P_{ns}^{(0)}(N)/\beta_0)\tilde p_j(N)\right](x_k')
-
-where the grid points :math:`\{x_k'\}` do not necessarily have to
-coincident with the interpolation grid :math:`\{x_j\}`. Now, we have
+where the (target-) grid points :math:`\{x_k'\}` do not necessarily have to
+coincident with the interpolation grid :math:`\{x_j\}`. Now, we can write the
+solution to DGLAP in a true matrix operator scheme and find
 
 .. math::
     f^{(0)}(x_k,t_1) = \hat O_{k,j}^{(0)}(t_1,t_0) f^{(0)}(x_j,t_0)

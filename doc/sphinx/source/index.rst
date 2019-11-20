@@ -6,7 +6,7 @@ EKO documentation
 .. toctree::
     :maxdepth: 4
 
-    DGLAP
+    Physics
 
 .. automodule:: eko
     :members:

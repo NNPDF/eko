@@ -20,7 +20,7 @@ terms of the anomalous dimensions (note the additional sign!)
 import numpy as np
 import numba as nb
 from eko import t_float, t_complex
-from _gsl_digamma import lib
+from _gsl_digamma import lib #pylint: disable=no-name-in-module
 
 # Everything from this point will compile in object mode because of numba
 # not being able to deal with struct in nopython mode

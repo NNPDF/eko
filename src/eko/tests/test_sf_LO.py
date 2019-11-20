@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Test splitting functions
-from numpy.testing import assert_approx_equal, assert_almost_equal
+from numpy.testing import assert_almost_equal
 
 from eko.constants import Constants
 
@@ -37,21 +37,21 @@ def test_number_momentum_conservation():
     input_N = [complex(1.0, 0.0)]
     known_vals = [complex(0.0, 0.0)]
     check_values(spf_LO.gamma_ns_0, input_N, known_vals)
+
     # quark momentum
     input_N = [complex(2.0, 0.0)]
     known_vals = [complex(0.0, 0.0)]
 
     def _sum(*args):
-        return spf_LO.gamma_ns_0(*args) + spf_LO.gamma_gq_0(
-            *args
-        )  # pylint: disable=no-value-for-parameter
+        return spf_LO.gamma_ns_0(*args)\
+               + spf_LO.gamma_gq_0(*args)  # pylint: disable=no-value-for-parameter
 
     check_values(_sum, input_N, known_vals)
+
     # gluon momentum
     def _sum(*args):
-        return spf_LO.gamma_qg_0(*args) + spf_LO.gamma_gg_0(
-            *args
-        )  # pylint: disable=no-value-for-parameter
+        return spf_LO.gamma_qg_0(*args)\
+             + spf_LO.gamma_gg_0(*args)  # pylint: disable=no-value-for-parameter
 
     check_values(_sum, input_N, known_vals)
 
