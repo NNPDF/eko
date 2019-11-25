@@ -8,7 +8,6 @@ Lagrange interpolation polynomials
 """
 import numpy as np
 import numba as nb
-from numpy.polynomial import Polynomial as P
 from eko import t_float
 
 
@@ -59,9 +58,11 @@ def get_Lagrange_basis_functions(xgrid_in, polynom_rank: int):
         for k in range(xgrid_size - 1):
             areas.append({"lower_index": k, "reference_indices": None})
         list_of_basis_functions.append({"polynom_number": j, "areas": areas})
+
     for j, current_block in enumerate(list_of_blocks):
         for k in range(current_block[0], current_block[1] + 1):
             list_of_basis_functions[k]["areas"][j]["reference_indices"] = current_block
+
     # compute coefficients
     def is_not_zero_sector(e):
         return not e["reference_indices"] is None
@@ -69,8 +70,8 @@ def get_Lagrange_basis_functions(xgrid_in, polynom_rank: int):
     for j, current_polynom in enumerate(list_of_basis_functions):
         # clean up zero sectors
         current_polynom["areas"] = list(
-            filter(is_not_zero_sector, current_polynom["areas"])
-        )
+                filter(is_not_zero_sector, current_polynom["areas"])
+                )
         # precompute coefficients
         xj = xgrid[j]
         for current_area in current_polynom["areas"]:
@@ -98,122 +99,9 @@ def get_Lagrange_basis_functions(xgrid_in, polynom_rank: int):
             current_area["xmin"] = xgrid[current_area["lower_index"]]
             current_area["xmax"] = xgrid[current_area["lower_index"] + 1]
             # clean up
-            del current_area["reference_indices"]
-            del current_area["lower_index"]
             # we still need polynom_number as the first polynom has borders [], to allow for testing
     # return all functions
     return list_of_basis_functions
-
-
-def evaluate_Lagrange_basis_function_x(x, conf):
-    """Get a single Lagrange interpolator in x-space
-
-    .. math::
-      \\tilde P(x)
-
-    Parameters
-    ----------
-      x : t_float
-        Evaluated point
-      conf : dict
-        dictionary of values for the coefficients of the interpolator
-
-    Returns
-    -------
-      p(x) : t_float
-        Evaluated polynom at x
-    """
-    if not "areas" in conf or len(conf["areas"]) <= 0:
-        raise ValueError("need some areas to explore")
-    # search
-    for current_area in conf["areas"]:
-        # borders are usually (] - except for the first
-        if conf["polynom_number"] == 0:
-            if x < current_area["xmin"]:
-                continue
-        else:
-            if x <= current_area["xmin"]:
-                continue
-        if x > current_area["xmax"]:
-            continue
-        # match found
-        res = 0.0
-        for k, coeff in enumerate(current_area["coeffs"]):
-            res += coeff * x ** k
-        return res
-    # no match
-    return 0.0
-
-
-def evaluate_Lagrange_basis_function_N(N, conf, lnx):
-    """Get a single Lagrange interpolator in N-space multiplied
-    by the Mellin-inversion factor.
-
-    .. math::
-      \\tilde P^{\\ln}(N)*exp(- N * log(x))
-
-    The polynomials contain naturally factors of :math:`exp(N * j * log(x_{min/max}))`
-    which can be joined with the Mellin inversion factor.
-
-    Parameters
-    ----------
-      N : t_float
-        Evaluated point in N-space
-      conf : dict
-        dictionary of values for the coefficients of the interpolator
-      lnx : t_float
-        Mellin-inversion point :math:`log(x)`
-
-    Returns
-    -------
-      p(N)*x^{-N} : t_complex
-        Evaluated polynom at N times x^{-N}
-    """
-    if not "areas" in conf or len(conf["areas"]) <= 0:
-        raise ValueError("need some areas to explore")
-    res = 0.0
-    for current_area in conf["areas"]:
-        for j, coeff in enumerate(current_area["coeffs"]):
-            if current_area["xmin"] == 0.0:
-                low = 0.0
-            else:
-                lnxmin = np.log(current_area["xmin"])
-                low = np.exp(N * (lnxmin - lnx) + j * lnxmin)
-            lnxmax = np.log(current_area["xmax"])
-            up = np.exp(N * (lnxmax - lnx) + j * lnxmax)
-            res += coeff * (up - low) / (N + j)
-    return res
-
-
-def get_Lagrange_basis_functions_log(xgrid_in, polynom_rank: int):
-    """Setup all basis function for logarithmic interpolation
-
-    See Also
-    --------
-      get_Lagrange_basis_functions
-    """
-    return get_Lagrange_basis_functions(np.log(xgrid_in), polynom_rank)
-
-
-def evaluate_Lagrange_basis_function_log_x(x, conf):
-    """Get a single, logarithmic Lagrange interpolator in x-space
-
-    .. math::
-      \\tilde P^{\\ln}(x)
-
-    Parameters
-    ----------
-      x : t_float
-        Evaluated point
-      conf : dict
-        dictionary of values for the coefficients of the interpolator
-
-    Returns
-    -------
-      p(x) : t_float
-        Evaluated polynom at x
-    """
-    return evaluate_Lagrange_basis_function_x(np.log(x), conf)
 
 
 def evaluate_Lagrange_basis_function_log_N(N, conf, lnx):
@@ -264,7 +152,6 @@ def evaluate_Lagrange_basis_function_log_N(N, conf, lnx):
     return res
 
 
-@nb.njit
 def get_xgrid_linear_at_id(grid_size: int, xmin: t_float = 0.0, xmax: t_float = 1.0):
     """Computes a linear grid on true x - corresponds to the flag `linear@id`
 
@@ -289,7 +176,6 @@ def get_xgrid_linear_at_id(grid_size: int, xmin: t_float = 0.0, xmax: t_float = 
     return xgrid
 
 
-@nb.jit(forceobj=True)  # due to np.logspace
 def get_xgrid_linear_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.0):
     """Computes a linear grid on log(x) - corresponds to the flag `linear@log`
 
@@ -308,3 +194,238 @@ def get_xgrid_linear_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.0):
         List of grid points in x-space
     """
     return np.logspace(np.log10(xmin), np.log10(xmax), num=grid_size, dtype=t_float)
+
+
+class Area:
+
+    def __init__(self, lower_index, polynom_number, block, xgrid):
+        self.poly_number = polynom_number
+        self._reference_indices = block
+        self.kmin = block[0]
+        self.kmax = block[1]
+        self.coefs = self.compute_coefs(xgrid)
+        self.xmin = xgrid[lower_index]
+        self.xmax = xgrid[lower_index+1]
+
+    @property
+    def reference_indices(self):
+        return self._reference_indices
+
+    @reference_indices.getter
+    def reference_indices(self):
+        for k in range(self.kmin, self.kmax+1):
+            if k != self.poly_number:
+                yield k
+
+    def compute_coefs(self, xgrid):
+        denominator = 1.0
+        coeffs = np.ones(1)
+        xj = xgrid[self.poly_number]
+        for s, k in enumerate(self.reference_indices):
+            xk = xgrid[k]
+            denominator *= xj - xk
+            Mxk_coeffs = -xk * coeffs
+            coeffs = np.concatenate(([0.0], coeffs))
+            coeffs[:s++1] += Mxk_coeffs
+        coeffs /= denominator
+        return coeffs
+
+    def __iter__(self):
+        for coef in self.coefs:
+            yield coef
+
+
+class BasisFunction:
+    """
+        Object containing
+        a list of areas for a given polynomial number
+        defined by (xmin-xmax) and containing a list
+        of coefficients.
+    """
+
+    def __init__(self, poly_number, list_of_blocks, xgrid):
+        self.poly_number = poly_number
+        self.areas = []
+
+        for i, block in enumerate(list_of_blocks):
+            if block[0] <= poly_number <= block[1]:
+                new_area = Area(i, self.poly_number, block, xgrid)
+                self.areas.append(new_area)
+
+    def __iter__(self):
+        for area in self.areas:
+            yield area
+
+
+
+
+
+class InterpolatorDispatcher:
+
+    def __init__(self, xgrid, polynom_rank, log = False):
+
+        # TODO: copy the checks here
+
+        if log:
+            xgrid = np.log(xgrid)
+
+        # Save the different variables
+        self.xgrid = xgrid
+        self.polynom_rank = polynom_rank
+        self.log = log
+
+        # Define some useful libraries
+        xgrid_size = len(xgrid)
+
+
+        # Create blocks
+        list_of_blocks = []
+        po2 = polynom_rank // 2
+        for i in range(xgrid_size-1):
+            kmin = max(0, i - po2)
+            kmax = kmin + polynom_rank
+            if kmax >= xgrid_size:
+                kmax = xgrid_size - 1
+                kmin = kmax - polynom_rank
+            list_of_blocks.append((kmin, kmax))
+
+        # Generate the basis functions
+        basis_functions = []
+        for i in range(xgrid_size):
+            new_basis = BasisFunction(i, list_of_blocks, xgrid)
+            basis_functions.append(new_basis)
+        self.basis = basis_functions
+
+
+
+
+
+# Not used at the moment
+def evaluate_Lagrange_basis_function_x(x, conf):
+    """Get a single Lagrange interpolator in x-space
+
+    .. math::
+      \\tilde P(x)
+
+    Parameters
+    ----------
+      x : t_float
+        Evaluated point
+      conf : dict
+        dictionary of values for the coefficients of the interpolator
+
+    Returns
+    -------
+      p(x) : t_float
+        Evaluated polynom at x
+    """
+    if not "areas" in conf or len(conf["areas"]) <= 0:
+        raise ValueError("need some areas to explore")
+    # search
+    for current_area in conf["areas"]:
+        # borders are usually (] - except for the first
+        if conf["polynom_number"] == 0:
+            if x < current_area["xmin"]:
+                continue
+        else:
+            if x <= current_area["xmin"]:
+                continue
+        if x > current_area["xmax"]:
+            continue
+        # match found
+        res = 0.0
+        for k, coeff in enumerate(current_area["coeffs"]):
+            res += coeff * x ** k
+        return res
+    # no match
+    return 0.0
+
+def evaluate_Lagrange_basis_function_N(N, conf, lnx):
+    """Get a single Lagrange interpolator in N-space multiplied
+    by the Mellin-inversion factor.
+
+    .. math::
+      \\tilde P^{\\ln}(N)*exp(- N * log(x))
+
+    The polynomials contain naturally factors of :math:`exp(N * j * log(x_{min/max}))`
+    which can be joined with the Mellin inversion factor.
+
+    Parameters
+    ----------
+      N : t_float
+        Evaluated point in N-space
+      conf : dict
+        dictionary of values for the coefficients of the interpolator
+      lnx : t_float
+        Mellin-inversion point :math:`log(x)`
+
+    Returns
+    -------
+      p(N)*x^{-N} : t_complex
+        Evaluated polynom at N times x^{-N}
+    """
+    if not "areas" in conf or len(conf["areas"]) <= 0:
+        raise ValueError("need some areas to explore")
+    res = 0.0
+    for current_area in conf["areas"]:
+        for j, coeff in enumerate(current_area["coeffs"]):
+            if current_area["xmin"] == 0.0:
+                low = 0.0
+            else:
+                lnxmin = np.log(current_area["xmin"])
+                low = np.exp(N * (lnxmin - lnx) + j * lnxmin)
+            lnxmax = np.log(current_area["xmax"])
+            up = np.exp(N * (lnxmax - lnx) + j * lnxmax)
+            res += coeff * (up - low) / (N + j)
+    return res
+
+def get_Lagrange_basis_functions_log(xgrid_in, polynom_rank: int):
+    """Setup all basis function for logarithmic interpolation
+
+    See Also
+    --------
+      get_Lagrange_basis_functions
+    """
+    return get_Lagrange_basis_functions(np.log(xgrid_in), polynom_rank)
+
+
+def evaluate_Lagrange_basis_function_log_x(x, conf):
+    """Get a single, logarithmic Lagrange interpolator in x-space
+
+    .. math::
+      \\tilde P^{\\ln}(x)
+
+    Parameters
+    ----------
+      x : t_float
+        Evaluated point
+      conf : dict
+        dictionary of values for the coefficients of the interpolator
+
+    Returns
+    -------
+      p(x) : t_float
+        Evaluated polynom at x
+    """
+    return evaluate_Lagrange_basis_function_x(np.log(x), conf)
+
+if __name__ == "__main__":
+    xgrid = np.logspace(-3, 0, 10)
+    polrank = 4
+
+    reference = get_Lagrange_basis_functions(xgrid, polrank)
+    mine = InterpolatorDispatcher(xgrid, polrank, False)
+
+    for ref, new in zip(reference, mine.basis):
+        assert ref['polynom_number'] == new.poly_number
+        ref_areas = ref['areas']
+        for ref_area, new_area in zip(ref_areas, new):
+            assert ref_area['xmin'] == new_area.xmin
+            assert ref_area['xmax'] == new_area.xmax
+            for ref_coef, new_coef in zip(ref_area['coeffs'], new_area):
+                assert ref_coef == new_coef
+
+
+
+
+

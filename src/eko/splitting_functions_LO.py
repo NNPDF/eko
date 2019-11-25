@@ -198,6 +198,7 @@ def gamma_gg_0(
     result = CA * (4.0 * gamma - 11.0 / 3.0) + 2.0 / 3.0 * nf
     return result
 
+@nb.jit(forceobj=True)
 def get_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_float):
     r"""Computes the leading-order singlet anomalous dimension matrix
 
@@ -238,6 +239,7 @@ def get_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_float):
     ])
     return gamma_S_0
 
+@nb.jit(forceobj=True)
 def get_Eigensystem_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_float):
     r"""Computes the Eigensystem of the leading-order singlet anomalous dimension matrix
 
