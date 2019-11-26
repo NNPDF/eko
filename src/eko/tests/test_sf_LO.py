@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Test splitting functions
+import numpy as np
 from numpy.testing import assert_almost_equal
 
 from eko.constants import Constants
@@ -19,6 +20,17 @@ def check_values(function, inputs, known_values):
     for N, val in zip(inputs, known_values):
         result = function(N, NF, CA, CF)
         assert_almost_equal(result, val)
+
+
+def test_gsl_digamma():
+    """ test the cffi implementation of digamma """
+    from scipy.special import digamma as scipy_digamma
+
+    for r, i in np.random.rand(4, 2):
+        test_val = np.complex(r, i)
+        scipy_result = scipy_digamma(test_val)
+        gsl_result = spf_LO.gsl_digamma(test_val)
+        assert_almost_equal(scipy_result, gsl_result)
 
 
 def test__S1():
@@ -43,15 +55,17 @@ def test_number_momentum_conservation():
     known_vals = [complex(0.0, 0.0)]
 
     def _sum(*args):
-        return spf_LO.gamma_ns_0(*args)\
-               + spf_LO.gamma_gq_0(*args)  # pylint: disable=no-value-for-parameter
+        return spf_LO.gamma_ns_0(*args) + spf_LO.gamma_gq_0(
+            *args
+        )  # pylint: disable=no-value-for-parameter
 
     check_values(_sum, input_N, known_vals)
 
     # gluon momentum
     def _sum(*args):
-        return spf_LO.gamma_qg_0(*args)\
-             + spf_LO.gamma_gg_0(*args)  # pylint: disable=no-value-for-parameter
+        return spf_LO.gamma_qg_0(*args) + spf_LO.gamma_gg_0(
+            *args
+        )  # pylint: disable=no-value-for-parameter
 
     check_values(_sum, input_N, known_vals)
 

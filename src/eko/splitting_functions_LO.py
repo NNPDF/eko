@@ -19,13 +19,23 @@ terms of the anomalous dimensions (note the additional sign!)
 """
 import numpy as np
 import numba as nb
+from numba import cffi_support
+import _gsl_digamma
 from eko import t_float, t_complex
-from _gsl_digamma import lib #pylint: disable=no-name-in-module
+# Prepare the cffi functions to be used within numba
+cffi_support.register_module(_gsl_digamma)
+c_digamma = _gsl_digamma.lib.digamma #pylint: disable=c-extension-no-member
 
-# Everything from this point will compile in object mode because of numba
-# not being able to deal with struct in nopython mode
-# we can deal with that problem in the future
-@nb.jit(forceobj=True)
+@nb.njit
+def gsl_digamma(N: t_complex):
+    r = np.real(N)
+    i = np.imag(N)
+    out = np.empty(2)
+    c_digamma(r, i, _gsl_digamma.ffi.from_buffer(out)) #pylint: disable=c-extension-no-member
+    result = np.complex(out[0], out[1])
+    return result
+
+@nb.njit
 def _S1(N: t_complex):
     r"""Computes the simple harmonic sum
 
@@ -44,14 +54,11 @@ def _S1(N: t_complex):
       S_1 : t_complex
         (simple) Harmonic sum up to N :math:`S_1(N)`
     """
-    r = np.real(N) + 1
-    i = np.imag(N)
-    c_result = lib.digamma(r, i)
-    result = np.complex(c_result.r, c_result.i)
+    result = gsl_digamma(N + 1)
     return result + np.euler_gamma
 
 
-@nb.jit(forceobj=True)
+@nb.njit
 def gamma_ns_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -81,7 +88,7 @@ def gamma_ns_0(
     return result
 
 
-@nb.jit(forceobj=True)
+@nb.njit
 def gamma_ps_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -109,7 +116,7 @@ def gamma_ps_0(
     return 0.0
 
 
-@nb.jit(forceobj=True)
+@nb.njit
 def gamma_qg_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -139,7 +146,7 @@ def gamma_qg_0(
     return result
 
 
-@nb.jit(forceobj=True)
+@nb.njit
 def gamma_gq_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -169,7 +176,7 @@ def gamma_gq_0(
     return result
 
 
-@nb.jit(forceobj=True)
+@nb.njit
 def gamma_gg_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -198,7 +205,7 @@ def gamma_gg_0(
     result = CA * (4.0 * gamma - 11.0 / 3.0) + 2.0 / 3.0 * nf
     return result
 
-@nb.jit(forceobj=True)
+@nb.njit
 def get_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_float):
     r"""Computes the leading-order singlet anomalous dimension matrix
 
@@ -239,7 +246,7 @@ def get_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_float):
     ])
     return gamma_S_0
 
-@nb.jit(forceobj=True)
+@nb.njit
 def get_Eigensystem_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_float):
     r"""Computes the Eigensystem of the leading-order singlet anomalous dimension matrix
 
@@ -285,3 +292,13 @@ def get_Eigensystem_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_f
     e_p = c * (gamma_S_0 - lambda_m * identity)
     e_m = - c * (gamma_S_0 - lambda_p * identity)
     return lambda_p,lambda_m,e_p,e_m
+
+if __name__ == "__main__":
+    from scipy.special import digamma
+    test_number = complex(0.4, 0.3)
+    my_s1 = _S1(test_number)
+    def pyt(c):
+        n = c+1
+        c_res = digamma(n)
+        return c_res + np.euler_gamma
+    np.testing.assert_almost_equal(my_s1, pyt(test_number))
