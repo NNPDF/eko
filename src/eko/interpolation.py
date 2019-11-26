@@ -11,6 +11,8 @@ import numpy as np
 import numba as nb
 from eko import t_float
 
+#nb.njit = lambda x: x
+
 #TODO deprecated
 def get_Lagrange_basis_functions(xgrid_in, polynom_rank: int):
     """Setup all basis function for the interpolation
@@ -197,7 +199,7 @@ def get_xgrid_linear_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.0):
     return np.logspace(np.log10(xmin), np.log10(xmax), num=grid_size, dtype=t_float)
 
 # Compiled functions
-#@nb.njit
+@nb.njit
 def helper_evaluate_N(i, x, xref, N):
     exp_arg = N*(xref - x)
     exp_val = np.exp(exp_arg)
@@ -267,12 +269,45 @@ class BasisFunction:
                 new_area = Area(i, self.poly_number, block, xgrid)
                 self.areas.append(new_area)
 
+        self.callable = None
+        self.compile()
+
+
+    def get_limits(self):
+        limits = []
+        for area in self:
+            limits.append( (area.xmin, area.xmax) )
+        return limits
+
+    def get_coefs(self):
+        coefs = []
+        for area in self:
+            coefs.append( area.coefs )
+        return coefs
+
+    def areas_to_const(self):
+        area_list = []
+        for area in self:
+            area_list.append( (area.xmin, area.xmax, area.coefs) )
+        return tuple(area_list)
+
+    def compile(self):
+        area_list = self.areas_to_const()
+        def evaluate_Nx(N, x):
+            res = 0.0
+            for xmin, xmax, coefs in area_list:
+                for i, coef in enumerate(coefs):
+                    c = helper_evaluate_N(i, x, xmax, N) - helper_evaluate_N(i, x, xmin, N)
+                    res += coef*c / pow(N, 1+i)
+            return res
+        self.callable = nb.njit(evaluate_Nx)
+
     def __iter__(self):
         for area in self.areas:
             yield area
 
-
-
+    def __call__(self, N, x):
+        return self.callable(N, x)
 
 
 class InterpolatorDispatcher:
@@ -311,18 +346,9 @@ class InterpolatorDispatcher:
             basis_functions.append(new_basis)
         self.basis = basis_functions
 
-
-    def evaluate_N(self, N, j, x):
-        res = 0.0
-        basis = self.basis[j]
-        for area in basis:
-            logxmax = area.xmax
-            logxmin = area.xmin
-            for i, coef in enumerate(area):
-                c = helper_evaluate_N(i, x, logxmax, N) - helper_evaluate_N(i, x, logxmin, N)
-                res += coef * c / pow(N, 1+i)
-        return res
-
+    def __iter__(self):
+        for basis in self.basis:
+            yield basis
 
 
 
@@ -476,7 +502,7 @@ if __name__ == "__main__":
     for i,j in np.random.rand(10, 2):
         N = complex(i,0.0)
         for lnx in np.random.rand(10):
-            for p, ref_poly in enumerate(reference):
+            for ref_poly, new_poly in zip(reference, mine):
                 ref_res = evaluate_Lagrange_basis_function_log_N(N, ref_poly, lnx)
-                new_res = mine.evaluate_N(N, p, lnx)
-                np.testing.assert_allclose((ref_res), (new_res))
+                new_res = new_poly(N, lnx)
+                np.testing.assert_allclose(np.real(ref_res), np.real(new_res), rtol=1e-4)

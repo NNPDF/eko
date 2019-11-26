@@ -81,7 +81,7 @@ def _get_evoultion_params(setup):
     t1 = np.log(1.0 / a1)
     return t1 - t0
 
-def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_function_coeffs,ret):
+def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_functions,ret):
     """Solves the non-singlet case.
 
     This method updates the `ret` parameter instead of returning something.
@@ -109,19 +109,12 @@ def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_function_
     beta0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
 
     # prepare
-    def get_kernel_ns(j,lnx):
+    def get_kernel_ns(basis, lnx):
         """return non-siglet integration kernel"""
-        current_coeff = basis_function_coeffs.basis[j]
-#         if is_log_interpolation:
-#             fN = interpolation.evaluate_Lagrange_basis_function_log_N
-#         else:
-#             fN = interpolation.evaluate_Lagrange_basis_function_N
         def ker(N):
             """non-siglet integration kernel"""
             ln = -delta_t * sf_LO.gamma_ns_0(N, nf, constants.CA, constants.CF) / beta0
-            #interpoln = interpolation.get_Lagrange_interpolators_log_N(N, xgrid, j)
-            interpoln = current_coeff.evaluate_N(N, j, lnx)
-#             fN(N,current_coeff,lnx)
+            interpoln = basis.callable(N, lnx)
             return np.exp(ln) * interpoln
 
         return ker
@@ -143,10 +136,10 @@ def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_function_
             cut = 1e-2
             gamma = 1.0
         path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
-        for j in range(xgrid_size):
+        for j, basis in enumerate(basis_functions):
             res = mellin.inverse_mellin_transform(
-                get_kernel_ns(j,np.log(xk)), path, jac, cut
-            )
+                    get_kernel_ns(basis,np.log(xk)), path, jac, cut
+                    )
             op_ns[k, j] = res[0]
             op_ns_err[k, j] = res[1]
         logObj.info(logPre+" %d/%d",k+1,targetgrid_size)
@@ -157,7 +150,7 @@ def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_function_
     ret["operator_errors"]["NS"] = op_ns_err
 
 
-def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_function_coeffs,ret):
+def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_functions,ret):
     """Solves the singlet case.
 
     This method updates the `ret` parameter instead of returning something.
@@ -185,20 +178,15 @@ def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_function_coe
     beta0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
 
     # prepare
-    def get_kernels_s(j,lnx):
+    def get_kernels_s(basis,lnx):
         """return siglet integration kernels"""
-        current_coeff = basis_function_coeffs[j]
-        if is_log_interpolation:
-            fN = interpolation.evaluate_Lagrange_basis_function_log_N
-        else:
-            fN = interpolation.evaluate_Lagrange_basis_function_N
         def get_ker(k,l):
             def ker(N):
                 """singlet integration kernel"""
                 l_p,l_m,e_p,e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N,nf,constants.CA,constants.CF)
                 ln_p = - delta_t * l_p  / beta0
                 ln_m = - delta_t * l_m  / beta0
-                interpoln = fN(N,current_coeff,lnx)
+                interpoln = basis.callable(N,lnx)
                 return (e_p[k][l] * np.exp(ln_p) + e_m[k][l] * np.exp(ln_m)) * interpoln
             return ker
 
@@ -227,13 +215,13 @@ def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_function_coe
             cut = 1e-2
             gamma = 1.0
         path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
-        for j in range(xgrid_size):
+        for j, basis in enumerate(basis_functions):
             # iterate all matrix elements
-            ker_qq,ker_qg,ker_gq,ker_gg = get_kernels_s(j,np.log(xk))
+            ker_qq,ker_qg,ker_gq,ker_gg = get_kernels_s(basis,np.log(xk))
             for ker,op,op_err in [
                     (ker_qq,op_s_qq,op_s_qq_err),(ker_qg,op_s_qg,op_s_qg_err),
                     (ker_gq,op_s_gq,op_s_gq_err),(ker_gg,op_s_gg,op_s_gg_err)
-                ]:
+                    ]:
                 res = mellin.inverse_mellin_transform(ker, path, jac, cut)
                 op[k, j] = res[0]
                 op_err[k, j] = res[1]
@@ -314,10 +302,6 @@ def run_dglap(setup):
     polynom_rank = setup.get("xgrid_polynom_rank",4)
     is_log_interpolation = not setup.get("xgrid_interpolation","log") == "id"
     basis_function_dispatcher = interpolation.InterpolatorDispatcher(xgrid, polynom_rank, is_log_interpolation)
-    if is_log_interpolation:
-        basis_function_coeffs = interpolation.get_Lagrange_basis_functions_log(xgrid,polynom_rank)
-    else:
-        basis_function_coeffs = interpolation.get_Lagrange_basis_functions(xgrid,polynom_rank)
     logObj.info("is_log_interpolation = %s",is_log_interpolation)
 
     # setup output grid: targetgrid
@@ -335,8 +319,32 @@ def run_dglap(setup):
     _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_function_dispatcher,ret)
 
     # run singlet
-    _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_function_coeffs,ret)
+    _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_function_dispatcher,ret)
 
     #   Points to be implemented:
     #   TODO implement NLO
     return ret
+
+if __name__ == "__main__":
+    n = 3
+    xgrid_low = interpolation.get_xgrid_linear_at_log(n,1e-7,0.1)
+    xgrid_mid = interpolation.get_xgrid_linear_at_id(n,0.1,1.0)
+    xgrid_high = np.array([])#1.0-interpolation.get_xgrid_linear_at_log(10,1e-3,1.0 - 0.9)
+    xgrid = np.unique(np.concatenate((xgrid_low,xgrid_mid,xgrid_high)))
+    polynom_rank = 4
+    toy_xgrid = np.array([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,.1,.3,.5,.7,.9])[-3:]
+
+    ret1 = run_dglap({
+        "PTO": 0,
+        'alphas': 0.35,
+        'Qref': np.sqrt(2),
+        'Q0': np.sqrt(2),
+        'NfFF': 4,
+
+        "xgrid_type": "custom",
+        "xgrid_custom": xgrid,
+        "xgrid_polynom_rank": polynom_rank,
+        "xgrid_interpolation": "log",
+        "targetgrid": toy_xgrid,
+        "Q2grid": [1e4]
+        })
