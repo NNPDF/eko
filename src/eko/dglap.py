@@ -111,16 +111,17 @@ def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_function_
     # prepare
     def get_kernel_ns(j,lnx):
         """return non-siglet integration kernel"""
-        current_coeff = basis_function_coeffs[j]
-        if is_log_interpolation:
-            fN = interpolation.evaluate_Lagrange_basis_function_log_N
-        else:
-            fN = interpolation.evaluate_Lagrange_basis_function_N
+        current_coeff = basis_function_coeffs.basis[j]
+#         if is_log_interpolation:
+#             fN = interpolation.evaluate_Lagrange_basis_function_log_N
+#         else:
+#             fN = interpolation.evaluate_Lagrange_basis_function_N
         def ker(N):
             """non-siglet integration kernel"""
             ln = -delta_t * sf_LO.gamma_ns_0(N, nf, constants.CA, constants.CF) / beta0
             #interpoln = interpolation.get_Lagrange_interpolators_log_N(N, xgrid, j)
-            interpoln = fN(N,current_coeff,lnx)
+            interpoln = current_coeff.evaluate_N(N, j, lnx)
+#             fN(N,current_coeff,lnx)
             return np.exp(ln) * interpoln
 
         return ker
@@ -312,6 +313,7 @@ def run_dglap(setup):
     ret["xgrid"] = xgrid
     polynom_rank = setup.get("xgrid_polynom_rank",4)
     is_log_interpolation = not setup.get("xgrid_interpolation","log") == "id"
+    basis_function_dispatcher = interpolation.InterpolatorDispatcher(xgrid, polynom_rank, is_log_interpolation)
     if is_log_interpolation:
         basis_function_coeffs = interpolation.get_Lagrange_basis_functions_log(xgrid,polynom_rank)
     else:
@@ -330,7 +332,7 @@ def run_dglap(setup):
     constants = Constants()
 
     # run non-singlet
-    _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_function_coeffs,ret)
+    _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_function_dispatcher,ret)
 
     # run singlet
     _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_function_coeffs,ret)

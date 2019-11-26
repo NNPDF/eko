@@ -6,11 +6,12 @@ The files provides the tools for generating grids and the
 Lagrange interpolation polynomials
 
 """
+import math
 import numpy as np
 import numba as nb
 from eko import t_float
 
-
+#TODO deprecated
 def get_Lagrange_basis_functions(xgrid_in, polynom_rank: int):
     """Setup all basis function for the interpolation
 
@@ -103,7 +104,7 @@ def get_Lagrange_basis_functions(xgrid_in, polynom_rank: int):
     # return all functions
     return list_of_basis_functions
 
-
+#TODO: deprecated
 def evaluate_Lagrange_basis_function_log_N(N, conf, lnx):
     """Get a single, logarithmic Lagrange interpolator in N-space multiplied
     by the Mellin-inversion factor.
@@ -195,7 +196,21 @@ def get_xgrid_linear_at_log(grid_size: int, xmin: t_float, xmax: t_float = 1.0):
     """
     return np.logspace(np.log10(xmin), np.log10(xmax), num=grid_size, dtype=t_float)
 
+# Compiled functions
+#@nb.njit
+def helper_evaluate_N(i, x, xref, N):
+    exp_arg = N*(xref - x)
+    exp_val = np.exp(exp_arg)
+    facti = math.gamma(i+1)
+    # Aux values
+    u = -N*xref
+    res_sum = 0.0
+    for k in range(i+1):
+        res_sum += pow(u,k) / math.gamma(k+1)*facti
+    res_sum *= pow(-1, i)
+    return exp_val * res_sum
 
+# Interpolator Classes
 class Area:
 
     def __init__(self, lower_index, polynom_number, block, xgrid):
@@ -295,6 +310,38 @@ class InterpolatorDispatcher:
             new_basis = BasisFunction(i, list_of_blocks, xgrid)
             basis_functions.append(new_basis)
         self.basis = basis_functions
+
+
+    def evaluate_N(self, N, j, x):
+        res = 0.0
+        basis = self.basis[j]
+        for area in basis:
+            logxmax = area.xmax
+            logxmin = area.xmin
+            for i, coef in enumerate(area):
+                c = helper_evaluate_N(i, x, logxmax, N) - helper_evaluate_N(i, x, logxmin, N)
+                res += coef * c / pow(N, 1+i)
+        return res
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -416,6 +463,7 @@ if __name__ == "__main__":
     reference = get_Lagrange_basis_functions(xgrid, polrank)
     mine = InterpolatorDispatcher(xgrid, polrank, False)
 
+    # Check that the basis is the same
     for ref, new in zip(reference, mine.basis):
         assert ref['polynom_number'] == new.poly_number
         ref_areas = ref['areas']
@@ -424,8 +472,11 @@ if __name__ == "__main__":
             assert ref_area['xmax'] == new_area.xmax
             for ref_coef, new_coef in zip(ref_area['coeffs'], new_area):
                 assert ref_coef == new_coef
-
-
-
-
-
+    # Check that the results are the same
+    for i,j in np.random.rand(10, 2):
+        N = complex(i,0.0)
+        for lnx in np.random.rand(10):
+            for p, ref_poly in enumerate(reference):
+                ref_res = evaluate_Lagrange_basis_function_log_N(N, ref_poly, lnx)
+                new_res = mine.evaluate_N(N, p, lnx)
+                np.testing.assert_allclose((ref_res), (new_res))
