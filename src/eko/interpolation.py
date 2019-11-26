@@ -302,11 +302,20 @@ class BasisFunction:
             return res
         self.callable = nb.njit(evaluate_Nx)
 
+    def generate_callable(self, x):
+        evaluate_Nx = self.callable
+
+        @nb.njit
+        def evaluate_N(N):
+            return evaluate_Nx(N, x)
+
+        return evaluate_N
+
     def __iter__(self):
         for area in self.areas:
             yield area
 
-    def __call__(self, N, x):
+    def __call__(self, N, x = None):
         return self.callable(N, x)
 
 
@@ -499,10 +508,11 @@ if __name__ == "__main__":
             for ref_coef, new_coef in zip(ref_area['coeffs'], new_area):
                 assert ref_coef == new_coef
     # Check that the results are the same
-    for i,j in np.random.rand(10, 2):
-        N = complex(i,0.0)
+    for ref_poly, new_poly in zip(reference, mine):
         for lnx in np.random.rand(10):
-            for ref_poly, new_poly in zip(reference, mine):
+            callable = new_poly.generate_callable(lnx)
+            for i,j in np.random.rand(10, 2):
+                N = complex(i,0.0)
                 ref_res = evaluate_Lagrange_basis_function_log_N(N, ref_poly, lnx)
-                new_res = new_poly(N, lnx)
+                new_res = callable(N)
                 np.testing.assert_allclose(np.real(ref_res), np.real(new_res), rtol=1e-4)

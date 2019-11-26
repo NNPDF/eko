@@ -13,8 +13,6 @@ import scipy.integrate as integrate
 
 from eko import t_float, t_complex
 
-# TODO make this module numba/C-save
-
 # TODO replace inversion with something better? (t_float!)
 def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0):
     """Inverse Mellin transformation.
@@ -41,7 +39,6 @@ def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0):
       res : float
         computed point
     """
-    @nb.jit(forceobj=True) # due to the integration kernel not being necessarily numba
     def integrand(u):
         N = path(u)
         prefactor = t_complex(complex(0.0, -1.0 / 2.0 / np.pi))
@@ -50,7 +47,10 @@ def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0):
         result = 2.0 * np.real(prefactor * f(N) * jac(u))
         return result
 
-    result = integrate.quad(integrand, 0.5, 1.0 - cut,epsabs=1e-11,epsrel=1e-11,limit=100)
+    # TODO: check if the function that entered are numba safe before doing this
+    integrand = nb.njit(integrand)
+
+    result = integrate.quad(integrand, 0.5, 1.0 - cut, epsrel=1e-8,limit=100)
     return result
 
 def get_path_Talbot(r: t_float = 1.0):

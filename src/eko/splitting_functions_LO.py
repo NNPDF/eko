@@ -287,7 +287,7 @@ def get_Eigensystem_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_f
     lambda_p = b + det
     lambda_m = b - det
     # compute projectors
-    identity = np.identity(2,dtype=t_complex)
+    identity = np.identity(2)
     c = 1.0 / (lambda_p - lambda_m)
     e_p = c * (gamma_S_0 - lambda_m * identity)
     e_m = - c * (gamma_S_0 - lambda_p * identity)
@@ -302,3 +302,16 @@ if __name__ == "__main__":
         c_res = digamma(n)
         return c_res + np.euler_gamma
     np.testing.assert_almost_equal(my_s1, pyt(test_number))
+    res = get_Eigensystem_gamma_singlet_0(3, 5, 3, 4/3)
+    lambda_p = np.complex(12.273612971466964, 0)
+    lambda_m = np.complex(5.015275917421917, 0)
+    e_p = np.array([[ 0.07443573+0.j, -0.32146941+0.j],
+               [-0.21431294+0.j,  0.92556427+0.j]])
+    e_m = np.array([[0.92556427+0.j, 0.32146941+0.j],
+               [0.21431294+0.j, 0.07443573+0.j]])
+    np.testing.assert_almost_equal(lambda_p, res[0])
+    np.testing.assert_almost_equal(lambda_m, res[1])
+    np.testing.assert_allclose(e_p, res[2])
+    np.testing.assert_allclose(e_m, res[3])
+
+

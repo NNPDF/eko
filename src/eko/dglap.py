@@ -4,7 +4,9 @@ This file contains the main loop for the DGLAP calculations.
 
 """
 import logging
+import joblib
 import numpy as np
+import numba as nb
 
 from eko import t_float
 import eko.alpha_s as alpha_s
@@ -14,6 +16,14 @@ import eko.mellin as mellin
 from eko.constants import Constants
 
 logObj = logging.getLogger(__name__)
+
+def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs = -1):
+    out = joblib.Parallel(n_jobs = n_jobs)(
+            joblib.delayed(pfunction)(basis, xk)
+            for basis in basis_functions
+            )
+    return out
+
 
 def _get_xgrid(setup):
     """Compute input grid
@@ -107,47 +117,53 @@ def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_functions
     targetgrid_size = len(targetgrid)
     nf = setup["NfFF"]
     beta0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
+    CA = constants.CA
+    CF = constants.CF
 
     # prepare
     def get_kernel_ns(basis, lnx):
         """return non-siglet integration kernel"""
+        basis_function = basis.generate_callable(lnx)
+
+        @nb.njit
         def ker(N):
             """non-siglet integration kernel"""
-            ln = -delta_t * sf_LO.gamma_ns_0(N, nf, constants.CA, constants.CF) / beta0
-            interpoln = basis.callable(N, lnx)
+            ln = -delta_t * sf_LO.gamma_ns_0(N, nf, CA, CF) / beta0
+            interpoln = basis_function(N)
             return np.exp(ln) * interpoln
 
         return ker
 
     # perform
     xgrid_size = len(xgrid)
-    void = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
-    op_ns = np.copy(void)
-    op_ns_err = np.copy(void)
+    op_ns = np.empty( (targetgrid_size, xgrid_size) )
+    op_ns_err = np.empty( (targetgrid_size, xgrid_size) )
     #path, jac = mellin.get_path_Talbot()
-    logPre = "computing NS operator - "
-    logObj.info(logPre+"...")
-    for k,xk in enumerate(targetgrid):
-        #path,jac = mellin.get_path_line(path_length)
-        if False and xk < 1e-3:
-            cut = 0.1
-            gamma = 2.0
-        else:
-            cut = 1e-2
-            gamma = 1.0
-        path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
-        for j, basis in enumerate(basis_functions):
-            res = mellin.inverse_mellin_transform(
-                    get_kernel_ns(basis,np.log(xk)), path, jac, cut
-                    )
-            op_ns[k, j] = res[0]
-            op_ns_err[k, j] = res[1]
-        logObj.info(logPre+" %d/%d",k+1,targetgrid_size)
-    logObj.info(logPre+"done.")
+    logPre = "computing NS operator - %s " # TODO: add a logger prefix
+
+    gamma = 1.0
+    cut = 1e-2
+    path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
+    def run_thread(basis, xk):
+        res = mellin.inverse_mellin_transform(
+                get_kernel_ns(basis,np.log(xk)), path, jac, cut
+                )
+        return res
+
+    logObj.info(logPre, "...")
+    operators = []
+    operator_errors = []
+    for k, xk in enumerate(targetgrid):
+        out = _parallelize_on_basis(basis_functions, run_thread, xk)
+        operators.append(np.array(out)[:,0])
+        operator_errors.append(np.array(out)[:,1])
+        log_text = f"{k+1}/{targetgrid_size}"
+        logObj.info(logPre, log_text)
+    logObj.info(logPre, "done.")
 
     # insert operators
-    ret["operators"]["NS"] = op_ns
-    ret["operator_errors"]["NS"] = op_ns_err
+    ret["operators"]["NS"] = np.array(operators)
+    ret["operator_errors"]["NS"] = np.array(operator_errors)
 
 
 def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_functions,ret):
@@ -176,18 +192,24 @@ def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_functions,re
     targetgrid_size = len(targetgrid)
     nf = setup["NfFF"]
     beta0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
+    CA = constants.CA
+    CF = constants.CF
 
     # prepare
     def get_kernels_s(basis,lnx):
         """return siglet integration kernels"""
+        basis_function = basis.generate_callable(lnx)
         def get_ker(k,l):
+
+            @nb.njit
             def ker(N):
                 """singlet integration kernel"""
-                l_p,l_m,e_p,e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N,nf,constants.CA,constants.CF)
+                l_p,l_m,e_p,e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N,nf,CA,CF)
                 ln_p = - delta_t * l_p  / beta0
                 ln_m = - delta_t * l_m  / beta0
-                interpoln = basis.callable(N,lnx)
+                interpoln = basis_function(N)
                 return (e_p[k][l] * np.exp(ln_p) + e_m[k][l] * np.exp(ln_m)) * interpoln
+
             return ker
 
         return get_ker(0,0), get_ker(0,1), get_ker(1,0), get_ker(1,1)
@@ -206,37 +228,40 @@ def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_functions,re
     #path, jac = mellin.get_path_Talbot()
     logPre = "computing singlet operator - "
     logObj.info(logPre+"...")
-    for k,xk in enumerate(targetgrid):
-        #path,jac = mellin.get_path_line(path_length)
-        if False and xk < 1e-3:
-            cut = 0.1
-            gamma = 2.0
-        else:
-            cut = 1e-2
-            gamma = 1.0
-        path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
-        for j, basis in enumerate(basis_functions):
-            # iterate all matrix elements
-            ker_qq,ker_qg,ker_gq,ker_gg = get_kernels_s(basis,np.log(xk))
-            for ker,op,op_err in [
-                    (ker_qq,op_s_qq,op_s_qq_err),(ker_qg,op_s_qg,op_s_qg_err),
-                    (ker_gq,op_s_gq,op_s_gq_err),(ker_gg,op_s_gg,op_s_gg_err)
-                    ]:
-                res = mellin.inverse_mellin_transform(ker, path, jac, cut)
-                op[k, j] = res[0]
-                op_err[k, j] = res[1]
+
+    cut = 1e-2
+    gamma = 1.0
+    path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
+
+    def run_thread(basis, logx):
+        """ The output of this function is a list of tuple (result, error)
+        for qq, qg, gq, gg in that order """
+        kernels = get_kernels_s(basis, logx)
+        all_res = []
+        for ker in kernels:
+            result = mellin.inverse_mellin_transform(ker, path, jac, cut)
+            all_res.append(result)
+        return all_res
+
+
+    all_output = []
+    for k, xk in enumerate(targetgrid):
+        out = _parallelize_on_basis(basis_functions, run_thread, np.log(xk))
+        all_output.append(out)
         logObj.info(logPre+" %d/%d",k+1,targetgrid_size)
     logObj.info(logPre,"done.")
 
+    output_array = np.array(all_output)
+
     # insert operators
-    ret["operators"]["S_qq"] = op_s_qq
-    ret["operators"]["S_qg"] = op_s_qg
-    ret["operators"]["S_gq"] = op_s_gq
-    ret["operators"]["S_gg"] = op_s_gg
-    ret["operator_errors"]["S_qq"] = op_s_qq_err
-    ret["operator_errors"]["S_qg"] = op_s_qg_err
-    ret["operator_errors"]["S_gq"] = op_s_gq_err
-    ret["operator_errors"]["S_gg"] = op_s_gg_err
+    ret["operators"]["S_qq"] = output_array[:, :, 0, 0]
+    ret["operators"]["S_qg"] = output_array[:, :, 1, 0]
+    ret["operators"]["S_gq"] = output_array[:, :, 2, 0]
+    ret["operators"]["S_gg"] = output_array[:, :, 3, 0]
+    ret["operator_errors"]["S_qq"] = output_array[:, :, 0, 0]
+    ret["operator_errors"]["S_qg"] = output_array[:, :, 1, 0]
+    ret["operator_errors"]["S_gq"] = output_array[:, :, 2, 0]
+    ret["operator_errors"]["S_gg"] = output_array[:, :, 3, 0]
 
 def run_dglap(setup):
     r"""This function takes a DGLAP theory configuration dictionary
@@ -326,7 +351,7 @@ def run_dglap(setup):
     return ret
 
 if __name__ == "__main__":
-    n = 3
+    n = 15
     xgrid_low = interpolation.get_xgrid_linear_at_log(n,1e-7,0.1)
     xgrid_mid = interpolation.get_xgrid_linear_at_id(n,0.1,1.0)
     xgrid_high = np.array([])#1.0-interpolation.get_xgrid_linear_at_log(10,1e-3,1.0 - 0.9)
