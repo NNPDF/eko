@@ -293,18 +293,7 @@ def get_Eigensystem_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_f
     e_m = - c * (gamma_S_0 - lambda_p * identity)
     return lambda_p,lambda_m,e_p,e_m
 
-def get_Eigensystem_gamma_singlet_0ij(nf, CA, CF, i, j, delta_t, beta0):
 
-    @nb.njit
-    def simple_function(N):
-        l_p, l_m, e_p, e_m = get_Eigensystem_gamma_singlet_0(N, nf, CA, CF)
-        ln_p = - delta_t * l_p  / beta0
-        ln_m = - delta_t * l_m  / beta0
-        pside = np.exp(ln_p) * e_p[i][j]
-        mside = np.exp(ln_m) * e_m[i][j]
-        return pside + mside
-
-    return simple_function
 
 if __name__ == "__main__":
     from scipy.special import digamma

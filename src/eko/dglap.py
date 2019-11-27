@@ -262,10 +262,10 @@ def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_functions,re
     ret["operators"]["S_qg"] = output_array[:, :, 1, 0]
     ret["operators"]["S_gq"] = output_array[:, :, 2, 0]
     ret["operators"]["S_gg"] = output_array[:, :, 3, 0]
-    ret["operator_errors"]["S_qq"] = output_array[:, :, 0, 0]
-    ret["operator_errors"]["S_qg"] = output_array[:, :, 1, 0]
-    ret["operator_errors"]["S_gq"] = output_array[:, :, 2, 0]
-    ret["operator_errors"]["S_gg"] = output_array[:, :, 3, 0]
+    ret["operator_errors"]["S_qq"] = output_array[:, :, 0, 1]
+    ret["operator_errors"]["S_qg"] = output_array[:, :, 1, 1]
+    ret["operator_errors"]["S_gq"] = output_array[:, :, 2, 1]
+    ret["operator_errors"]["S_gg"] = output_array[:, :, 3, 1]
 
 def run_dglap(setup):
     r"""This function takes a DGLAP theory configuration dictionary
@@ -355,7 +355,7 @@ def run_dglap(setup):
     return ret
 
 if __name__ == "__main__":
-    n = 15
+    n = 3
     xgrid_low = interpolation.get_xgrid_linear_at_log(n,1e-7,0.1)
     xgrid_mid = interpolation.get_xgrid_linear_at_id(n,0.1,1.0)
     xgrid_high = np.array([])#1.0-interpolation.get_xgrid_linear_at_log(10,1e-3,1.0 - 0.9)

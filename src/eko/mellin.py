@@ -22,8 +22,8 @@ def compile_integrand(f, path, jac):
         return result
     return integrand
 
-def inverse_mellin_transform_simple(integrand, cut, extra_args = (), epsrel = 1e-8, limit = 100):
-    result = integrate.quad(integrand, 0.5, 1.0 - cut, args = extra_args, epsrel=epsrel,limit=limit)
+def inverse_mellin_transform_simple(integrand, cut, extra_args = (), epsrel = 1e-12, limit = 100):
+    result = integrate.quad(integrand, 0.5, 1.0 - cut, args = extra_args, epsabs=epsrel, epsrel=epsrel,limit=limit)
     return result
 
 # TODO replace inversion with something better? (t_float!)
@@ -52,6 +52,7 @@ def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0, extra_args = ()):
       res : float
         computed point
     """
+    raise Exception("Deprecated")
     def integrand(u, extra_args):
         N = path(u)
         prefactor = t_complex(complex(0.0, -1.0 / 2.0 / np.pi))
