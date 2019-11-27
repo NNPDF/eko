@@ -13,8 +13,21 @@ import scipy.integrate as integrate
 
 from eko import t_float, t_complex
 
+def compile_integrand(f, path, jac):
+    @nb.njit
+    def integrand(u, extra_args):
+        N = path(u)
+        prefactor = np.complex(0.0, -0.5/np.pi)
+        result = 2.0*np.real(prefactor*f(N, extra_args)*jac(u))
+        return result
+    return integrand
+
+def inverse_mellin_transform_simple(integrand, cut, extra_args = (), epsrel = 1e-8, limit = 100):
+    result = integrate.quad(integrand, 0.5, 1.0 - cut, args = extra_args, epsrel=epsrel,limit=limit)
+    return result
+
 # TODO replace inversion with something better? (t_float!)
-def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0):
+def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0, extra_args = ()):
     """Inverse Mellin transformation.
 
     Note that the inversion factor :math:`x^{-N}` has already to be INCLUDED in f(N).
@@ -39,18 +52,18 @@ def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0):
       res : float
         computed point
     """
-    def integrand(u):
+    def integrand(u, extra_args):
         N = path(u)
         prefactor = t_complex(complex(0.0, -1.0 / 2.0 / np.pi))
         # xexp = np.exp(-pathu * np.log(x)) - this has to be INCLUDED in f(N)
         # integrate.quad can only do float, as it links to QUADPACK
-        result = 2.0 * np.real(prefactor * f(N) * jac(u))
+        result = 2.0 * np.real(prefactor * f(N, extra_args) * jac(u))
         return result
 
     # TODO: check if the function that entered are numba safe before doing this
     integrand = nb.njit(integrand)
 
-    result = integrate.quad(integrand, 0.5, 1.0 - cut, epsrel=1e-8,limit=100)
+    result = integrate.quad(integrand, 0.5, 1.0 - cut, args = extra_args, epsrel=1e-8,limit=100)
     return result
 
 def get_path_Talbot(r: t_float = 1.0):

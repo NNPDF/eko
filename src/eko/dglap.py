@@ -17,10 +17,10 @@ from eko.constants import Constants
 
 logObj = logging.getLogger(__name__)
 
-def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs = -1):
+def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs = 1):
     out = joblib.Parallel(n_jobs = n_jobs)(
-            joblib.delayed(pfunction)(basis, xk)
-            for basis in basis_functions
+            joblib.delayed(pfunction)(fun, xk)
+            for fun in basis_functions
             )
     return out
 
@@ -121,18 +121,19 @@ def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_functions
     CF = constants.CF
 
     # prepare
-    def get_kernel_ns(basis, lnx):
+    def get_kernel_ns(basis_function):
         """return non-siglet integration kernel"""
-        basis_function = basis.generate_callable(lnx)
 
         @nb.njit
-        def ker(N):
+        def ker(N, lnx):
             """non-siglet integration kernel"""
             ln = -delta_t * sf_LO.gamma_ns_0(N, nf, CA, CF) / beta0
-            interpoln = basis_function(N)
+            interpoln = basis_function(N, lnx)
             return np.exp(ln) * interpoln
 
         return ker
+
+
 
     # perform
     xgrid_size = len(xgrid)
@@ -144,17 +145,23 @@ def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_functions
     gamma = 1.0
     cut = 1e-2
     path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
-    def run_thread(basis, xk):
-        res = mellin.inverse_mellin_transform(
-                get_kernel_ns(basis,np.log(xk)), path, jac, cut
-                )
+
+    # Generate integrands
+    integrands = []
+    for basis_function in basis_functions:
+        ker = get_kernel_ns(basis_function.callable)
+        integrands.append(mellin.compile_integrand(ker, path, jac))
+
+
+    def run_thread(integrand, logx):
+        res = mellin.inverse_mellin_transform_simple(integrand, cut, extra_args = logx)
         return res
 
     logObj.info(logPre, "...")
     operators = []
     operator_errors = []
     for k, xk in enumerate(targetgrid):
-        out = _parallelize_on_basis(basis_functions, run_thread, xk)
+        out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
         operators.append(np.array(out)[:,0])
         operator_errors.append(np.array(out)[:,1])
         log_text = f"{k+1}/{targetgrid_size}"
@@ -196,36 +203,25 @@ def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_functions,re
     CF = constants.CF
 
     # prepare
-    def get_kernels_s(basis,lnx):
+    def get_kernels_s(basis_function):
         """return siglet integration kernels"""
-        basis_function = basis.generate_callable(lnx)
+
         def get_ker(k,l):
 
-            @nb.njit
-            def ker(N):
+            @nb.njit # TODO here we are repeating too many things!
+            def ker(N, lnx):
                 """singlet integration kernel"""
                 l_p,l_m,e_p,e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N,nf,CA,CF)
                 ln_p = - delta_t * l_p  / beta0
                 ln_m = - delta_t * l_m  / beta0
-                interpoln = basis_function(N)
+                interpoln = basis_function(N, lnx)
                 return (e_p[k][l] * np.exp(ln_p) + e_m[k][l] * np.exp(ln_m)) * interpoln
-
             return ker
 
         return get_ker(0,0), get_ker(0,1), get_ker(1,0), get_ker(1,1)
 
     # perform
     xgrid_size = len(xgrid)
-    void = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
-    op_s_qq = np.copy(void)
-    op_s_qg = np.copy(void)
-    op_s_gq = np.copy(void)
-    op_s_gg = np.copy(void)
-    op_s_qq_err = np.copy(void)
-    op_s_qg_err = np.copy(void)
-    op_s_gq_err = np.copy(void)
-    op_s_gg_err = np.copy(void)
-    #path, jac = mellin.get_path_Talbot()
     logPre = "computing singlet operator - "
     logObj.info(logPre+"...")
 
@@ -233,20 +229,28 @@ def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_functions,re
     gamma = 1.0
     path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
 
-    def run_thread(basis, logx):
+    integrands = []
+    for basis_function in basis_functions:
+        kernels = get_kernels_s(basis_function.callable)
+        kernel_int = []
+        for ker in kernels:
+            kernel_int.append(mellin.compile_integrand(
+                ker, path, jac))
+        integrands.append(kernel_int)
+
+    def run_thread(integrands, logx):
         """ The output of this function is a list of tuple (result, error)
         for qq, qg, gq, gg in that order """
-        kernels = get_kernels_s(basis, logx)
         all_res = []
-        for ker in kernels:
-            result = mellin.inverse_mellin_transform(ker, path, jac, cut)
+        for integrand in integrands:
+            result = mellin.inverse_mellin_transform_simple(integrand, cut, logx)
             all_res.append(result)
         return all_res
 
 
     all_output = []
     for k, xk in enumerate(targetgrid):
-        out = _parallelize_on_basis(basis_functions, run_thread, np.log(xk))
+        out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
         all_output.append(out)
         logObj.info(logPre+" %d/%d",k+1,targetgrid_size)
     logObj.info(logPre,"done.")
