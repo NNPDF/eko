@@ -19,43 +19,8 @@ terms of the anomalous dimensions (note the additional sign!)
 """
 import numpy as np
 import numba as nb
-from numba import cffi_support
-import _gsl_digamma
 from eko import t_float, t_complex
-# Prepare the cffi functions to be used within numba
-cffi_support.register_module(_gsl_digamma)
-c_digamma = _gsl_digamma.lib.digamma #pylint: disable=c-extension-no-member
-
-@nb.njit
-def gsl_digamma(N: t_complex):
-    r = np.real(N)
-    i = np.imag(N)
-    out = np.empty(2)
-    c_digamma(r, i, _gsl_digamma.ffi.from_buffer(out)) #pylint: disable=c-extension-no-member
-    result = np.complex(out[0], out[1])
-    return result
-
-@nb.njit
-def _S1(N: t_complex):
-    r"""Computes the simple harmonic sum
-
-    .. math::
-      S_1(N) = \sum\limits_{j=0}^N \frac 1 j = \psi(N+1)+\gamma_E
-
-    with :math:`\psi(M)` the digamma function and :math:`\gamma_E` the Euler-Mascheroni constant
-
-    Parameters
-    ----------
-      N : t_complex
-        Mellin moment
-
-    Returns
-    -------
-      S_1 : t_complex
-        (simple) Harmonic sum up to N :math:`S_1(N)`
-    """
-    result = gsl_digamma(N + 1)
-    return result + np.euler_gamma
+from eko import ekomath
 
 
 @nb.njit
@@ -83,7 +48,7 @@ def gamma_ns_0(
       gamma_ns_0 : t_complex
         Leading-order non-singlet anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    gamma = 2 * (_S1(N - 1) + _S1(N + 1)) - 3
+    gamma = 2 * (ekomath.harmonic_S1(N - 1) + ekomath.harmonic_S1(N + 1)) - 3
     result = CF * gamma
     return result
 
@@ -141,7 +106,7 @@ def gamma_qg_0(
       gamma_qg_0 : t_complex
         Leading-order quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
-    gamma = _S1(N - 1) + 4.0 * _S1(N + 1) - 2.0 * _S1(N + 2) - 3.0 * _S1(N)
+    gamma = ekomath.harmonic_S1(N - 1) + 4.0 * ekomath.harmonic_S1(N + 1) - 2.0 * ekomath.harmonic_S1(N + 2) - 3.0 * ekomath.harmonic_S1(N)
     result = 2.0 * nf * gamma
     return result
 
@@ -171,7 +136,7 @@ def gamma_gq_0(
       gamma_qg_0 : t_complex
         Leading-order gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
     """
-    gamma = 2.0 * _S1(N - 2) - 4.0 * _S1(N - 1) - _S1(N + 1) + 3.0 * _S1(N)
+    gamma = 2.0 * ekomath.harmonic_S1(N - 2) - 4.0 * ekomath.harmonic_S1(N - 1) - ekomath.harmonic_S1(N + 1) + 3.0 * ekomath.harmonic_S1(N)
     result = 2.0 * CF * gamma
     return result
 
@@ -201,7 +166,7 @@ def gamma_gg_0(
       gamma_qg_0 : t_complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    gamma = _S1(N - 2) - 2.0 * _S1(N - 1) - 2.0 * _S1(N + 1) + _S1(N + 2) + 3.0 * _S1(N)
+    gamma = ekomath.harmonic_S1(N - 2) - 2.0 * ekomath.harmonic_S1(N - 1) - 2.0 * ekomath.harmonic_S1(N + 1) + ekomath.harmonic_S1(N + 2) + 3.0 * ekomath.harmonic_S1(N)
     result = CA * (4.0 * gamma - 11.0 / 3.0) + 2.0 / 3.0 * nf
     return result
 
@@ -298,7 +263,7 @@ def get_Eigensystem_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_f
 if __name__ == "__main__":
     from scipy.special import digamma
     test_number = complex(0.4, 0.3)
-    my_s1 = _S1(test_number)
+    my_s1 = ekomath.harmonic_S1(test_number)
     def pyt(c):
         n = c+1
         c_res = digamma(n)

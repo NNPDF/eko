@@ -22,26 +22,6 @@ def check_values(function, inputs, known_values):
         assert_almost_equal(result, val)
 
 
-def test_gsl_digamma():
-    """ test the cffi implementation of digamma """
-    from scipy.special import digamma as scipy_digamma
-
-    for r, i in np.random.rand(4, 2):
-        test_val = np.complex(r, i)
-        scipy_result = scipy_digamma(test_val)
-        gsl_result = spf_LO.gsl_digamma(test_val)
-        assert_almost_equal(scipy_result, gsl_result)
-
-
-def test__S1():
-    """test harmonic sum _S1"""
-    # test on real axis
-    known_vals = [1.0, 1.0 + 1.0 / 2.0, 1.0 + 1.0 / 2.0 + 1.0 / 3.0]
-    for i, val in enumerate(known_vals):
-        cval = t_complex(val)
-        result = spf_LO._S1(1 + i)  # pylint: disable=protected-access
-        assert_almost_equal(result, cval)
-
 
 def test_number_momentum_conservation():
     """test number/momentum conservation"""
