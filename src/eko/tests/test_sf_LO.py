@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Test splitting functions
 import numpy as np
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_allclose
 
 from eko.constants import Constants
 
@@ -20,7 +20,6 @@ def check_values(function, inputs, known_values):
     for N, val in zip(inputs, known_values):
         result = function(N, NF, CA, CF)
         assert_almost_equal(result, val)
-
 
 
 def test_number_momentum_conservation():
@@ -72,3 +71,16 @@ def test_gamma_gg_0():
     input_N = [complex(0.0, 1.0)]
     known_vals = [complex(5.195725159621, 10.52008856962)]
     check_values(spf_LO.gamma_gg_0, input_N, known_vals)
+
+def test_get_Eigensystem_gamma_singlet_0():
+    res = spf_LO.get_Eigensystem_gamma_singlet_0(3, NF, CA, CF)
+    lambda_p = np.complex(12.273612971466964, 0)
+    lambda_m = np.complex(5.015275917421917, 0)
+    e_p = np.array([[ 0.07443573+0.j, -0.32146941+0.j],
+               [-0.21431294+0.j,  0.92556427+0.j]])
+    e_m = np.array([[0.92556427+0.j, 0.32146941+0.j],
+               [0.21431294+0.j, 0.07443573+0.j]])
+    np.testing.assert_almost_equal(lambda_p, res[0])
+    np.testing.assert_almost_equal(lambda_m, res[1])
+    np.testing.assert_allclose(e_p, res[2])
+    np.testing.assert_allclose(e_m, res[3])
