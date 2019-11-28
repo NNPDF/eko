@@ -2,6 +2,7 @@
 # Test Mellin stuff
 from numpy.testing import assert_almost_equal
 
+import numba as nb
 import numpy as np
 import eko.mellin as mellin
 
@@ -26,16 +27,16 @@ def test_inverse_mellin_transform():
     def function_x(x):
         return x
 
-    def get_function_N(lnx):
-        def function_N(N):
-            return np.exp(- N * lnx) / (N + 1)
-        return function_N
+    @nb.njit
+    def function_N(N, lnx):
+        return np.exp(- N * lnx) / (N + 1)
 
     xgrid = [0.1, 0.3, 0.5, 0.7]
     p, j = mellin.get_path_Talbot()
     for x in xgrid:
         xresult = function_x(x)
-        nresult = mellin.inverse_mellin_transform(get_function_N(np.log(x)), p, j, 1e-2)
+        integrand = mellin.compile_integrand(function_N, p, j)
+        nresult = mellin.inverse_mellin_transform(integrand, 1e-2, extra_args = np.log(x))
         assert_almost_equal(xresult, nresult[0])
         assert_almost_equal(0.0, nresult[1])
 

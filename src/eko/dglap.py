@@ -154,7 +154,7 @@ def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_functions
 
 
     def run_thread(integrand, logx):
-        res = mellin.inverse_mellin_transform_simple(integrand, cut, extra_args = logx)
+        res = mellin.inverse_mellin_transform(integrand, cut, extra_args = logx)
         return res
 
     logObj.info(logPre, "...")
@@ -243,7 +243,7 @@ def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_functions,re
         for qq, qg, gq, gg in that order """
         all_res = []
         for integrand in integrands:
-            result = mellin.inverse_mellin_transform_simple(integrand, cut, logx)
+            result = mellin.inverse_mellin_transform(integrand, cut, logx)
             all_res.append(result)
         return all_res
 

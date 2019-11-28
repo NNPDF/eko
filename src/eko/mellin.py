@@ -13,21 +13,37 @@ import scipy.integrate as integrate
 
 from eko import t_float, t_complex
 
-def compile_integrand(f, path, jac):
-    @nb.njit
+
+def compile_integrand(iker, path, jac, do_numba=True):
+    """
+    Prepares the integration kernel `iker` to be integrated by the
+    inverse mellin transform wrapper.
+
+    Parameters
+    ----------
+        iker : function
+            Integration kernel including x^(-N)
+        path : function
+            Integration path as a function :math:`p(t) : [0,1] \\to \\mathcal C : t \\to p(t)`
+        jac : function
+            Jacobian of integration path :math:`j(t) = \\frac{dp(t)}{dt}`
+        do_numba: bool
+            Boolean flag to return a numba compiled function (default: true)
+    """
+
     def integrand(u, extra_args):
         N = path(u)
-        prefactor = np.complex(0.0, -0.5/np.pi)
-        result = 2.0*np.real(prefactor*f(N, extra_args)*jac(u))
+        prefactor = np.complex(0.0, -0.5 / np.pi)
+        result = 2.0 * np.real(prefactor * iker(N, extra_args) * jac(u))
         return result
-    return integrand
 
-def inverse_mellin_transform_simple(integrand, cut, extra_args = (), epsrel = 1e-12, limit = 100):
-    result = integrate.quad(integrand, 0.5, 1.0 - cut, args = extra_args, epsabs=epsrel, epsrel=epsrel,limit=limit, full_output=1)
-    return result[:2]
+    if do_numba:
+        return nb.njit(integrand)
+    else:
+        return integrand
 
-# TODO replace inversion with something better? (t_float!)
-def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0, extra_args = ()):
+
+def inverse_mellin_transform(integrand, cut, extra_args=(), eps=1e-12):
     """Inverse Mellin transformation.
 
     Note that the inversion factor :math:`x^{-N}` has already to be INCLUDED in f(N).
@@ -37,35 +53,36 @@ def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0, extra_args = ()):
 
     Parameters
     ----------
-      f : function
-        Integration kernel including x^(-N)
-      path : function
-        Integration path as a function :math:`p(t) : [0,1] \\to \\mathcal C : t \\to p(t)`
-      jac : function
-        Jacobian of integration path :math:`j(t) = \\frac{dp(t)}{dt}`
-      cut : t_float
-        Numeric cut-off parameter to the integration, the actual integration borders are
-        determied by :math:`t\\in [c : 1-c]`
+        integrand: function
+            Integrand to be passed to the integration routine.
+            The integrand can be generated with the `compile_integrand` function.
+        cut : t_float
+            Numeric cut-off parameter to the integration, the actual integration borders are
+            determied by :math:`t\\in [c : 1-c]`
+        extra_args: any
+            Extra arguments to be passed to the integrand beyond the integration variable
+        eps: t_float
+            Error tolerance (relative and absolute) of the integration
+
 
     Returns
     -------
       res : float
         computed point
     """
-    raise Exception("Deprecated")
-    def integrand(u, extra_args):
-        N = path(u)
-        prefactor = t_complex(complex(0.0, -1.0 / 2.0 / np.pi))
-        # xexp = np.exp(-pathu * np.log(x)) - this has to be INCLUDED in f(N)
-        # integrate.quad can only do float, as it links to QUADPACK
-        result = 2.0 * np.real(prefactor * f(N, extra_args) * jac(u))
-        return result
+    LIMIT = 100
+    result = integrate.quad(
+        integrand,
+        0.5,
+        1.0 - cut,
+        args=extra_args,
+        epsabs=eps,
+        epsrel=eps,
+        limit=LIMIT,
+        full_output=1,
+    )
+    return result[:2]
 
-    # TODO: check if the function that entered are numba safe before doing this
-    integrand = nb.njit(integrand)
-
-    result = integrate.quad(integrand, 0.5, 1.0 - cut, args = extra_args, epsrel=1e-8,limit=100)
-    return result
 
 def get_path_Talbot(r: t_float = 1.0):
     """get Talbot path
@@ -84,6 +101,7 @@ def get_path_Talbot(r: t_float = 1.0):
       jac : function
         derivative of Talbot path :math:`j_{\\text{Talbot}}(t) = \\frac{dp_{\\text{Talbot}}(t)}{dt}`
     """
+
     @nb.njit
     def path(t):
         theta = np.pi * (2.0 * t - 1.0)
@@ -108,6 +126,7 @@ def get_path_Talbot(r: t_float = 1.0):
         return r * np.pi * 2.0 * t_complex(np.complex(re, im))
 
     return path, jac
+
 
 def get_path_line(path_len: t_float, c: t_float = 1.0):
     """Get textbook path, i.e. a straight line parallel to imaginary axis
@@ -137,6 +156,7 @@ def get_path_line(path_len: t_float, c: t_float = 1.0):
         return t_complex(np.complex(0, path_len * 2))
 
     return path, jac
+
 
 def get_path_edge(m: t_float, c: t_float = 1.0):
     """Get edged path with an angle of 45°
@@ -173,7 +193,8 @@ def get_path_edge(m: t_float, c: t_float = 1.0):
 
     return path, jac
 
-def get_path_Cauchy_tan(g: t_float = 1.0, re_offset = 0.0):
+
+def get_path_Cauchy_tan(g: t_float = 1.0, re_offset=0.0):
     """Get
 
     Parameters
@@ -193,18 +214,19 @@ def get_path_Cauchy_tan(g: t_float = 1.0, re_offset = 0.0):
     @nb.njit
     def path(t):
         u = np.tan(np.pi * (2.0 * t - 1.0) / 2.0)
-        re = g / (u*u + g*g)
+        re = g / (u * u + g * g)
         return np.complex(re_offset + re, u)
 
     @nb.njit
     def jac(t):
         arg = np.pi * (2.0 * t - 1.0) / 2.0
         u = np.tan(arg)
-        dre = -2.0 * g * u / (u*u + g*g)**2
-        du = np.pi / np.cos(arg)**2
+        dre = -2.0 * g * u / (u * u + g * g) ** 2
+        du = np.pi / np.cos(arg) ** 2
         return np.complex(dre * du, du)
 
     return path, jac
+
 
 # TODO if we keep this function open, we might also think about an implementation (t_float)
 def mellin_transform(f, N: t_complex):
@@ -223,10 +245,11 @@ def mellin_transform(f, N: t_complex):
         computed point
     """
 
-    @nb.jit(forceobj=True) # due to the integration kernel not being necessarily numba
+    @nb.jit(forceobj=True)  # due to the integration kernel not being necessarily numba
     def integrand(x):
         xToN = pow(x, N - 1) * f(x)
         return xToN
+
     # do real + imaginary part seperately
     r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1)
     i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1)
