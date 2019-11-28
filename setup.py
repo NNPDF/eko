@@ -25,6 +25,7 @@ setup(name='eko',
           'sphinx_rtd_theme',
           'recommonmark',
           'sphinxcontrib-bibtex'
+          'joblib',
       ],
       setup_requires=[
           "cffi>1.0.0"

@@ -355,7 +355,7 @@ def run_dglap(setup):
     return ret
 
 if __name__ == "__main__":
-    n = 3
+    n = 15
     xgrid_low = interpolation.get_xgrid_linear_at_log(n,1e-7,0.1)
     xgrid_mid = interpolation.get_xgrid_linear_at_id(n,0.1,1.0)
     xgrid_high = np.array([])#1.0-interpolation.get_xgrid_linear_at_log(10,1e-3,1.0 - 0.9)

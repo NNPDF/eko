@@ -23,8 +23,8 @@ def compile_integrand(f, path, jac):
     return integrand
 
 def inverse_mellin_transform_simple(integrand, cut, extra_args = (), epsrel = 1e-12, limit = 100):
-    result = integrate.quad(integrand, 0.5, 1.0 - cut, args = extra_args, epsabs=epsrel, epsrel=epsrel,limit=limit)
-    return result
+    result = integrate.quad(integrand, 0.5, 1.0 - cut, args = extra_args, epsabs=epsrel, epsrel=epsrel,limit=limit, full_output=1)
+    return result[:2]
 
 # TODO replace inversion with something better? (t_float!)
 def inverse_mellin_transform(f, path, jac, cut: t_float = 0.0, extra_args = ()):
