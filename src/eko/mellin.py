@@ -251,8 +251,8 @@ def mellin_transform(f, N: t_complex):
         return xToN
 
     # do real + imaginary part seperately
-    r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1)
-    i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1)
+    r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1, full_output=1)[:2]
+    i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1, full_output=1)[:2]
     result = t_complex(complex(r, i))
     error = t_complex(complex(re, ie))
     return result, error

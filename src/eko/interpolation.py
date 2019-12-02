@@ -68,8 +68,7 @@ def get_xgrid_linear_at_log(
 
 #### Interpolation
 # Compiled auxiliary function
-@nb.njit
-def helper_evaluate_N(i, x, xref, N):
+def helper_evaluate_N(i, x, xref, N):  # TODO remove
     """ Helper function for the evaluation of the Lagrange
     interpolator in N """
     exp_arg = N * (xref - x)
@@ -162,11 +161,22 @@ class BasisFunction:
         mode_log: bool (default: True)
         mode_N: bool (default: True)
             if true compiles the function on N, otherwise compiles x
+        numba_it: bool (default: True)
+            if true, the functions are passed through `numba.njit`
     """
 
-    def __init__(self, xgrid, poly_number, list_of_blocks, mode_log=True, mode_N=True):
+    def __init__(
+        self,
+        xgrid,
+        poly_number,
+        list_of_blocks,
+        mode_log=True,
+        mode_N=True,
+        numba_it=True,
+    ):
         self.poly_number = poly_number
         self.areas = []
+        self.numba_it = numba_it
 
         for i, block in enumerate(list_of_blocks):
             if block[0] <= poly_number <= block[1]:
@@ -220,7 +230,7 @@ class BasisFunction:
         def evaluate_x(x, null=None):
             """Get a single Lagrange interpolator in x-space  """
             res = 0.0
-            for j, xmin, xmax, coefs in enumerate(area_list):
+            for j, (xmin, xmax, coefs) in enumerate(area_list):
                 if xmin < x <= xmax or (j == 0 and x == xmin):
                     for i, coef in enumerate(coefs):
                         res += coef * pow(x, i)
@@ -228,14 +238,16 @@ class BasisFunction:
 
             return res
 
+        nb_eval_x = self.njit(evaluate_x)
+
         def log_evaluate_x(x, null=None):
             """Get a single Lagrange interpolator in x-space  """
-            return evaluate_x(np.log(x))
+            return nb_eval_x(np.log(x))
 
         if mode_log:
-            self.callable = nb.njit(log_evaluate_x)
+            self.callable = self.njit(log_evaluate_x)
         else:
-            self.callable = nb.njit(evaluate_x)
+            self.callable = self.njit(evaluate_x)
 
     def compile_N(self, mode_log=True):
         """ Compiles the function to evaluate the interpolator
@@ -270,34 +282,49 @@ class BasisFunction:
             """Get a single Lagrange interpolator in N-space multiplied
             by the Mellin-inversion factor. """
             res = 0.0
+            global_coef = np.exp(-N * logx)
             for xmin, xmax, coefs in area_list:
+                umax = N * xmax
+                umin = N * xmin
+                emax = np.exp(umax)
+                emin = np.exp(umin)
                 for i, coef in enumerate(coefs):
-                    c = helper_evaluate_N(i, logx, xmax, N) - helper_evaluate_N(
-                        i, logx, xmin, N
-                    )
-                    res += coef * c / pow(N, 1 + i)
-            return res
+                    tmp = 0.0
+                    facti = math.gamma(i + 1) * pow(-1, i) / pow(N, i + 1)
+                    for k in range(i + 1):
+                        factk = 1.0 / math.gamma(k + 1)
+                        pmax = pow(-umax, k) * emax
+                        pmin = pow(-umin, k) * emin
+                        tmp += factk * (pmax - pmin)
+                    res += coef * facti * tmp
+            return res * global_coef
 
         def evaluate_Nx(N, logx):
             """Get a single Lagrange interpolator in N-space multiplied
             by the Mellin-inversion factor. """
             res = 0.0
             for xmin, xmax, coefs in area_list:
-                if xmin == 0.0:
-                    low = 0.0
-                else:
-                    low = np.log(xmin)
                 lnxmax = np.log(xmax)
                 for i, coef in enumerate(coefs):
-                    lnxmin = np.exp(N * (lnxmin - lnx) + i * lnxmin)
-                    up = np.exp(N * (lnxmax - lnx) + i * lnxmax)
-                    re += coef * (up - low) / (N + i)
+                    if xmin == 0.0:
+                        low = 0.0
+                    else:
+                        lnxmin = np.log(xmin)
+                        low = np.exp(N * (lnxmin - logx) + i * lnxmin)
+                    up = np.exp(N * (lnxmax - logx) + i * lnxmax)
+                    res += coef * (up - low) / (N + i)
             return res
 
         if mode_log:
-            self.callable = nb.njit(log_evaluate_Nx)
+            self.callable = self.njit(log_evaluate_Nx)
         else:
-            self.callable = nb.njit(evaluate_Nx)
+            self.callable = self.njit(evaluate_Nx)
+
+    def njit(self, function):
+        if self.numba_it:
+            return nb.njit(function)
+        else:
+            return function
 
     def __iter__(self):
         for area in self.areas:
@@ -325,9 +352,11 @@ class InterpolatorDispatcher:
             degree of the interpolation polynomial
         log: bool
             Whether it is a log or linear interpolator
+        mode_N: bool (default: True)
+            if true compiles the function on N, otherwise compiles x
     """
 
-    def __init__(self, xgrid, polynom_rank, log=False):
+    def __init__(self, xgrid, polynom_rank, log=False, mode_N=True):
 
         xgrid_size = len(xgrid)
 
@@ -364,13 +393,18 @@ class InterpolatorDispatcher:
         # Generate the basis functions
         basis_functions = []
         for i in range(xgrid_size):
-            new_basis = BasisFunction(xgrid, i, list_of_blocks, mode_log=log)
+            new_basis = BasisFunction(
+                xgrid, i, list_of_blocks, mode_log=log, mode_N=mode_N
+            )
             basis_functions.append(new_basis)
         self.basis = basis_functions
 
     def __iter__(self):
         for basis in self.basis:
             yield basis
+
+    def __getitem__(self, item):
+        return self.basis[item]
 
 
 # if __name__ == "__main__":

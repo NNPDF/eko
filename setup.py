@@ -9,6 +9,10 @@ setup(name='eko',
       url='https://github.com/N3PDF/eko',
       package_dir={'': 'src'},
       packages=find_packages('src'),
+      package_data = {
+          '' : ['*.json'],
+          'tests/regressions':['*'],
+          },
       zip_safe=False,
       classifiers=[
           'Operating System :: Unix',
@@ -24,7 +28,7 @@ setup(name='eko',
           'cffi',
           'sphinx_rtd_theme',
           'recommonmark',
-          'sphinxcontrib-bibtex'
+          'sphinxcontrib-bibtex',
           'joblib',
       ],
       setup_requires=[
