@@ -12,7 +12,6 @@ import eko.interpolation as interpolation
 import eko.mellin as mellin
 from eko.kernel_generation import KernelDispatcher
 from eko.constants import Constants
-import sys
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +133,7 @@ def _run_singlet(kernel_dispatcher, targetgrid, ret):
         integrands.append(kernel_int)
 
     # perform
-    log_prefix = "computing singlet operator - "
+    log_prefix = "computing singlet operator - %s"
     logger.info(log_prefix, "kernel compiled")
 
     def run_thread(integrands, logx):
@@ -200,13 +199,14 @@ def run_dglap(setup):
     ret: dict
         a dictionary with a defined set of keys
 
-        ============  ============================================================================
-        key           description
-        ============  ============================================================================
-        'xgrid'       list of x-values which build the support of the interpolation
-        'targetgrid'  list of x-values which are computed
-        'operators'   list of computed operators
-        ============  ============================================================================
+        =================  ============================================================================
+        key                description
+        =================  ============================================================================
+        'xgrid'            list of x-values which build the support of the interpolation
+        'targetgrid'       list of x-values which are computed
+        'operators'        list of computed operators
+        'operator_errors'  list of integration errors associated to the operators
+        =================  ============================================================================
 
     Notes
     -----
