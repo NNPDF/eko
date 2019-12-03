@@ -20,7 +20,7 @@ terms of the anomalous dimensions (note the additional sign!)
 import numpy as np
 import numba as nb
 from eko import t_float, t_complex
-from eko import ekomath
+from eko.ekomath import harmonic_S1 as S1
 
 
 @nb.njit
@@ -48,7 +48,7 @@ def gamma_ns_0(
       gamma_ns_0 : t_complex
         Leading-order non-singlet anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    gamma = 2 * (ekomath.harmonic_S1(N - 1) + ekomath.harmonic_S1(N + 1)) - 3
+    gamma = 2 * (S1(N - 1) + S1(N + 1)) - 3
     result = CF * gamma
     return result
 
@@ -106,12 +106,7 @@ def gamma_qg_0(
       gamma_qg_0 : t_complex
         Leading-order quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
-    gamma = (
-        ekomath.harmonic_S1(N - 1)
-        + 4.0 * ekomath.harmonic_S1(N + 1)
-        - 2.0 * ekomath.harmonic_S1(N + 2)
-        - 3.0 * ekomath.harmonic_S1(N)
-    )
+    gamma = S1(N - 1) + 4.0 * S1(N + 1) - 2.0 * S1(N + 2) - 3.0 * S1(N)
     result = 2.0 * nf * gamma
     return result
 
@@ -141,12 +136,7 @@ def gamma_gq_0(
       gamma_qg_0 : t_complex
         Leading-order gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
     """
-    gamma = (
-        2.0 * ekomath.harmonic_S1(N - 2)
-        - 4.0 * ekomath.harmonic_S1(N - 1)
-        - ekomath.harmonic_S1(N + 1)
-        + 3.0 * ekomath.harmonic_S1(N)
-    )
+    gamma = 2.0 * S1(N - 2) - 4.0 * S1(N - 1) - S1(N + 1) + 3.0 * S1(N)
     result = 2.0 * CF * gamma
     return result
 
@@ -176,13 +166,7 @@ def gamma_gg_0(
       gamma_qg_0 : t_complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    gamma = (
-        ekomath.harmonic_S1(N - 2)
-        - 2.0 * ekomath.harmonic_S1(N - 1)
-        - 2.0 * ekomath.harmonic_S1(N + 1)
-        + ekomath.harmonic_S1(N + 2)
-        + 3.0 * ekomath.harmonic_S1(N)
-    )
+    gamma = S1(N - 2) - 2.0 * S1(N - 1) - 2.0 * S1(N + 1) + S1(N + 2) + 3.0 * S1(N)
     result = CA * (4.0 * gamma - 11.0 / 3.0) + 2.0 / 3.0 * nf
     return result
 
@@ -225,11 +209,9 @@ def get_gamma_singlet_0(N: t_complex, nf: int, CA: t_float, CF: t_float):
     gamma_qg = gamma_qg_0(N, nf, CA, CF)
     gamma_gq = gamma_gq_0(N, nf, CA, CF)
     gamma_gg = gamma_gg_0(N, nf, CA, CF)
-    gamma_S_0 = np.array([
-        [gamma_qq, gamma_qg],
-        [gamma_gq, gamma_gg],
-    ])
+    gamma_S_0 = np.array([[gamma_qq, gamma_qg], [gamma_gq, gamma_gg]])
     return gamma_S_0
+
 
 @nb.njit
 def get_Eigensystem_gamma_singlet_0(N: t_complex, nf: int, CA: t_float, CF: t_float):
@@ -267,29 +249,6 @@ def get_Eigensystem_gamma_singlet_0(N: t_complex, nf: int, CA: t_float, CF: t_fl
     # compute projectors
     identity = np.identity(2)
     c = 1.0 / (lambda_p - lambda_m)
-    e_p = c * (gamma_S_0 - lambda_m * identity)
+    e_p = +c * (gamma_S_0 - lambda_m * identity)
     e_m = -c * (gamma_S_0 - lambda_p * identity)
     return lambda_p, lambda_m, e_p, e_m
-
-if __name__ == "__main__":
-    from scipy.special import digamma
-    test_number = complex(0.4, 0.3)
-    my_s1 = ekomath.harmonic_S1(test_number)
-    def pyt(c):
-        n = c+1
-        c_res = digamma(n)
-        return c_res + np.euler_gamma
-    np.testing.assert_almost_equal(my_s1, pyt(test_number))
-    res = get_Eigensystem_gamma_singlet_0(3, 5, 3, 4/3)
-    lambda_p = np.complex(12.273612971466964, 0)
-    lambda_m = np.complex(5.015275917421917, 0)
-    e_p = np.array([[ 0.07443573+0.j, -0.32146941+0.j],
-               [-0.21431294+0.j,  0.92556427+0.j]])
-    e_m = np.array([[0.92556427+0.j, 0.32146941+0.j],
-               [0.21431294+0.j, 0.07443573+0.j]])
-    np.testing.assert_almost_equal(lambda_p, res[0])
-    np.testing.assert_almost_equal(lambda_m, res[1])
-    np.testing.assert_allclose(e_p, res[2])
-    np.testing.assert_allclose(e_m, res[3])
-
-
