@@ -87,21 +87,6 @@ def test_get_xgrid_linear_at_log10():
     check_xgrid(interpolation.get_xgrid_linear_at_log, grid_result, xmin=1e-2)
 
 
-def test_helper_evaluate_N():
-    """ test the auxiliary function for the
-    evaluation of N """
-    i = 3
-    x = 0.4
-    xref = 0.3
-    val_checks = [
-        (complex(0.4, 0.3), (-5.076191227834695 + 0.6121406129425868j)),
-        (complex(4.0, 0.0), (-0.9330855040816106 + 1.0166091220114454e-15j)),
-    ]
-    for N, res in val_checks:
-        check = interpolation.helper_evaluate_N(i, x, xref, N)
-        assert_almost_equal(check, res)
-
-
 def test_Lagrange_interpolation_basis():
     """ test the InterpolatorDispatcher
     for the evaluation of N by checking the coefficients are

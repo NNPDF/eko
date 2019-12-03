@@ -17,7 +17,7 @@ import numpy as np
 import numba as nb
 from eko import t_float
 
-# Grid generation functions
+#### Grid generation functions
 def get_xgrid_linear_at_id(
     grid_size: int, xmin: t_float = 0.0, xmax: t_float = 1.0, **kwargs
 ):
@@ -65,25 +65,44 @@ def get_xgrid_linear_at_log(
     """
     return np.logspace(np.log10(xmin), np.log10(xmax), num=grid_size, **kwargs)
 
+def generate_xgrid(xgrid_type = "log", xgrid_size = 10, xgrid_min = 1e-7, xgrid = None, **kwargs):
+    """ Generates input xgrid
+
+    Parameters
+    ----------
+        xgrid_type : str
+            choose between the different grid generations implemented
+        xgrid_size : int
+            size of the grid to be generated
+        xgrid_min : float
+            minimum of the grid to be generated
+        xgrid : array
+            if `xgrid_type` == `custom`, a `xgrid` must be provided
+            which will be outputed after checking for uniqueness
+
+    Returns
+    -------
+        xgrid : array
+            input grid
+    """
+    if xgrid_type.lower() == "log":
+        xgrid = get_xgrid_linear_at_log(xgrid_size, xgrid_min)
+    elif xgrid_type.lower() == "linear":
+        xgrid = get_xgrid_linear_at_id(xgrid_size, xgrid_min)
+    elif xgrid_type.lower() == "custom":
+        # if the grid given is custom, it means it comes in the input, but check to be sure
+        if xgrid is None:
+            raise ValueError(f"xgrid_type {xgrid_type} was chosen, but no xgrid was given")
+        # check for uniqueness
+        unique_xgrid = np.unique(xgrid)
+        if not len(unique_xgrid) == len(xgrid):
+            raise ValueError(f"The given grid is not unique: {xgrid}")
+        xgrid = unique_xgrid
+    else:
+        raise NotImplementedError(f"xgrid_typr {xgrid_type} not implemented")
+    return xgrid
 
 #### Interpolation
-# Compiled auxiliary function
-def helper_evaluate_N(i, x, xref, N):  # TODO remove
-    """ Helper function for the evaluation of the Lagrange
-    interpolator in N """
-    exp_arg = N * (xref - x)
-    exp_val = np.exp(exp_arg)
-    facti = math.gamma(i + 1)
-    # Aux values
-    u = -N * xref
-    res_sum = 0.0
-    for k in range(i + 1):
-        res_sum += pow(u, k) / math.gamma(k + 1) * facti
-    res_sum *= pow(-1, i)
-    return exp_val * res_sum
-
-
-# Interpolator Classes
 class Area:
     """ Class that define each of the area
     of each of the subgrid interpolators

@@ -104,131 +104,132 @@ def plot_initial_scale():
 
     plt.show()
 
-xgrid_low = interpolation.get_xgrid_linear_at_log(35,1e-7,0.1)
-xgrid_mid = interpolation.get_xgrid_linear_at_id(15,0.1,1.0)
-xgrid_high = np.array([])#1.0-interpolation.get_xgrid_linear_at_log(10,1e-3,1.0 - 0.9)
-xgrid = np.unique(np.concatenate((xgrid_low,xgrid_mid,xgrid_high)))
-polynom_rank = 4
+if __name__ == "__main__":
+    xgrid_low = interpolation.get_xgrid_linear_at_log(35,1e-7,0.1)
+    xgrid_mid = interpolation.get_xgrid_linear_at_id(15,0.1,1.0)
+    xgrid_high = np.array([])#1.0-interpolation.get_xgrid_linear_at_log(10,1e-3,1.0 - 0.9)
+    xgrid = np.unique(np.concatenate((xgrid_low,xgrid_mid,xgrid_high)))
+    polynom_rank = 4
 
-logStdout = logging.StreamHandler(sys.stdout)
-logStdout.setLevel(logging.INFO)
-logStdout.setFormatter(logging.Formatter('%(message)s'))
-logging.getLogger("eko.dglap").handlers = []
-logging.getLogger("eko.dglap").addHandler(logStdout)
-logging.getLogger("eko.dglap").setLevel(logging.DEBUG)
+    logStdout = logging.StreamHandler(sys.stdout)
+    logStdout.setLevel(logging.INFO)
+    logStdout.setFormatter(logging.Formatter('%(message)s'))
+    logging.getLogger("eko.dglap").handlers = []
+    logging.getLogger("eko.dglap").addHandler(logStdout)
+    logging.getLogger("eko.dglap").setLevel(logging.DEBUG)
 
-ret1 = dglap.run_dglap({
-    "PTO": 0,
-    'alphas': 0.35,
-    'Qref': np.sqrt(2),
-    'Q0': np.sqrt(2),
-    'NfFF': 4,
+    ret1 = dglap.run_dglap({
+        "PTO": 0,
+        'alphas': 0.35,
+        'Qref': np.sqrt(2),
+        'Q0': np.sqrt(2),
+        'NfFF': 4,
 
-    "xgrid_type": "custom",
-    "xgrid_custom": xgrid,
-    "xgrid_polynom_rank": polynom_rank,
-    "xgrid_interpolation": "log",
-    "targetgrid": toy_xgrid,
-    "Q2grid": [1e4]
-})
+        "xgrid_type": "custom",
+        "xgrid_custom": xgrid,
+        "xgrid_polynom_rank": polynom_rank,
+        "xgrid_interpolation": "log",
+        "targetgrid": toy_xgrid,
+        "Q2grid": [1e4]
+    })
 
 # check table 2 part 2 of arXiv:hep-ph/0204316
-def save_table2_2_to_pdf(path, ret1):
-    pp = PdfPages(path)
+    def save_table2_2_to_pdf(path, ret1):
+        pp = PdfPages(path)
 
-    toy_uv1_xgrid = np.array([toy_uv0(x) for x in ret1["xgrid"]])
-    toy_uv1_grid = np.dot(ret1["operators"]["NS"],toy_uv1_xgrid)
-    toy_xuv1_grid_ref = np.array([5.7722e-5,3.3373e-4,1.8724e-3,1.0057e-2,5.0392e-2,2.1955e-1,5.7267e-1,3.7925e-1,1.3476e-1,2.3123e-2,4.3443e-4])
-    plot_dist(toy_xgrid,toy_xgrid*toy_uv1_grid,toy_xuv1_grid_ref,title="xu_v(x,µ_F^2 = 10^4 GeV^2)")
-    pp.savefig()
+        toy_uv1_xgrid = np.array([toy_uv0(x) for x in ret1["xgrid"]])
+        toy_uv1_grid = np.dot(ret1["operators"]["NS"],toy_uv1_xgrid)
+        toy_xuv1_grid_ref = np.array([5.7722e-5,3.3373e-4,1.8724e-3,1.0057e-2,5.0392e-2,2.1955e-1,5.7267e-1,3.7925e-1,1.3476e-1,2.3123e-2,4.3443e-4])
+        plot_dist(toy_xgrid,toy_xgrid*toy_uv1_grid,toy_xuv1_grid_ref,title="xu_v(x,µ_F^2 = 10^4 GeV^2)")
+        pp.savefig()
 
-    toy_dv1_xgrid = np.array([toy_dv0(x) for x in ret1["xgrid"]])
-    toy_dv1_grid = np.dot(ret1["operators"]["NS"],toy_dv1_xgrid)
-    toy_xdv1_grid_ref = np.array([3.4343e-5,1.9800e-4,1.1065e-3,5.9076e-3,2.9296e-2,1.2433e-1,2.8413e-1,1.4186e-1,3.5364e-2,3.5943e-3,2.2287e-5])
-    plot_dist(toy_xgrid,toy_xgrid*toy_dv1_grid,toy_xdv1_grid_ref,title="xd_v(x,µ_F^2 = 10^4 GeV^2)")
-    pp.savefig()
+        toy_dv1_xgrid = np.array([toy_dv0(x) for x in ret1["xgrid"]])
+        toy_dv1_grid = np.dot(ret1["operators"]["NS"],toy_dv1_xgrid)
+        toy_xdv1_grid_ref = np.array([3.4343e-5,1.9800e-4,1.1065e-3,5.9076e-3,2.9296e-2,1.2433e-1,2.8413e-1,1.4186e-1,3.5364e-2,3.5943e-3,2.2287e-5])
+        plot_dist(toy_xgrid,toy_xgrid*toy_dv1_grid,toy_xdv1_grid_ref,title="xd_v(x,µ_F^2 = 10^4 GeV^2)")
+        pp.savefig()
 
-    toy_T31_xgrid = np.array([toy_T30(x) for x in ret1["xgrid"]])
-    toy_T31_grid = np.dot(ret1["operators"]["NS"],toy_T31_xgrid)
-    toy_xLm1_grid_ref = np.array([7.6527e-7,5.0137e-6,3.1696e-5,1.9071e-4,1.0618e-3,4.9731e-3,1.0470e-2,3.3029e-3,4.2815e-4,1.5868e-5,1.1042e-8])
-    toy_xT31_grid_ref = -2.0 * toy_xLm1_grid_ref + toy_xuv1_grid_ref - toy_xdv1_grid_ref
-    plot_dist(toy_xgrid,toy_xgrid*toy_T31_grid,toy_xT31_grid_ref,title="xT_3(x,µ_F^2 = 10^4 GeV^2)")
-    pp.savefig()
+        toy_T31_xgrid = np.array([toy_T30(x) for x in ret1["xgrid"]])
+        toy_T31_grid = np.dot(ret1["operators"]["NS"],toy_T31_xgrid)
+        toy_xLm1_grid_ref = np.array([7.6527e-7,5.0137e-6,3.1696e-5,1.9071e-4,1.0618e-3,4.9731e-3,1.0470e-2,3.3029e-3,4.2815e-4,1.5868e-5,1.1042e-8])
+        toy_xT31_grid_ref = -2.0 * toy_xLm1_grid_ref + toy_xuv1_grid_ref - toy_xdv1_grid_ref
+        plot_dist(toy_xgrid,toy_xgrid*toy_T31_grid,toy_xT31_grid_ref,title="xT_3(x,µ_F^2 = 10^4 GeV^2)")
+        pp.savefig()
 
-    toy_T81_xgrid = np.array([toy_T80(x) for x in ret1["xgrid"]])
-    toy_T81_grid = np.dot(ret1["operators"]["NS"],toy_T81_xgrid)
-    toy_xLp1_grid_ref = np.array([9.9465e+1,5.0259e+1,2.4378e+1,1.1323e+1,5.0324e+0,2.0433e+0,4.0832e-1,4.0165e-2,2.8624e-3,6.8961e-5,3.6293e-8])
-    toy_xsp1_grid_ref = np.array([4.8642e+1,2.4263e+1,1.1501e+1,5.1164e+0,2.0918e+0,7.2814e-1,1.1698e-1,1.0516e-2,7.3138e-4,1.7725e-5,1.0192e-8])
-    toy_xT81_grid_ref = toy_xLp1_grid_ref + toy_xuv1_grid_ref + toy_xdv1_grid_ref - 2.0 * toy_xsp1_grid_ref
-    plot_dist(toy_xgrid,toy_xgrid*toy_T81_grid,toy_xT81_grid_ref,title="xT_8(x,µ_F^2 = 10^4 GeV^2)")
-    pp.savefig()
+        toy_T81_xgrid = np.array([toy_T80(x) for x in ret1["xgrid"]])
+        toy_T81_grid = np.dot(ret1["operators"]["NS"],toy_T81_xgrid)
+        toy_xLp1_grid_ref = np.array([9.9465e+1,5.0259e+1,2.4378e+1,1.1323e+1,5.0324e+0,2.0433e+0,4.0832e-1,4.0165e-2,2.8624e-3,6.8961e-5,3.6293e-8])
+        toy_xsp1_grid_ref = np.array([4.8642e+1,2.4263e+1,1.1501e+1,5.1164e+0,2.0918e+0,7.2814e-1,1.1698e-1,1.0516e-2,7.3138e-4,1.7725e-5,1.0192e-8])
+        toy_xT81_grid_ref = toy_xLp1_grid_ref + toy_xuv1_grid_ref + toy_xdv1_grid_ref - 2.0 * toy_xsp1_grid_ref
+        plot_dist(toy_xgrid,toy_xgrid*toy_T81_grid,toy_xT81_grid_ref,title="xT_8(x,µ_F^2 = 10^4 GeV^2)")
+        pp.savefig()
 
-    toy_T151_xgrid = np.array([toy_S0(x) for x in ret1["xgrid"]])
-    toy_T151_grid = np.dot(ret1["operators"]["NS"],toy_T151_xgrid)
-    toy_xcp1_grid_ref = np.array([4.7914e+1,2.3685e+1,1.1042e+1,4.7530e+0,1.8089e+0,5.3247e-1,5.8864e-2,4.1379e-3,2.6481e-4,6.5549e-6,4.8893e-9])
-    toy_T151_grid_ref = toy_xLp1_grid_ref + toy_xuv1_grid_ref + toy_xdv1_grid_ref + toy_xsp1_grid_ref - 3.0 * toy_xcp1_grid_ref
-    plot_dist(toy_xgrid,toy_xgrid*toy_T151_grid,toy_T151_grid_ref,title="xT_15(x,µ_F^2 = 10^4 GeV^2)")
-    pp.savefig()
+        toy_T151_xgrid = np.array([toy_S0(x) for x in ret1["xgrid"]])
+        toy_T151_grid = np.dot(ret1["operators"]["NS"],toy_T151_xgrid)
+        toy_xcp1_grid_ref = np.array([4.7914e+1,2.3685e+1,1.1042e+1,4.7530e+0,1.8089e+0,5.3247e-1,5.8864e-2,4.1379e-3,2.6481e-4,6.5549e-6,4.8893e-9])
+        toy_T151_grid_ref = toy_xLp1_grid_ref + toy_xuv1_grid_ref + toy_xdv1_grid_ref + toy_xsp1_grid_ref - 3.0 * toy_xcp1_grid_ref
+        plot_dist(toy_xgrid,toy_xgrid*toy_T151_grid,toy_T151_grid_ref,title="xT_15(x,µ_F^2 = 10^4 GeV^2)")
+        pp.savefig()
 
-    toy_S1_xgrid = np.array([toy_S0(x) for x in ret1["xgrid"]])
-    toy_g1_xgrid = np.array([toy_g0(x) for x in ret1["xgrid"]])
-    toy_S1_grid = np.dot(ret1["operators"]["S_qq"],toy_S1_xgrid) + np.dot(ret1["operators"]["S_qg"],toy_g1_xgrid)
-    toy_g1_grid = np.dot(ret1["operators"]["S_gq"],toy_S1_xgrid) + np.dot(ret1["operators"]["S_gg"],toy_S1_xgrid)
-    toy_xg1_grid_ref = np.array([1.3162e+3,6.0008e+2,2.5419e+2,9.7371e+1,3.2078e+1,8.0546e+0,8.8766e-1,8.2676e-2,7.9240e-3,3.7311e-4,1.0918e-6])
-    toy_xS1_grid_ref = toy_xuv1_grid_ref + toy_xdv1_grid_ref + toy_xLp1_grid_ref + toy_xsp1_grid_ref + toy_xcp1_grid_ref
-    plot_dist(toy_xgrid,toy_xgrid*toy_S1_grid,toy_xS1_grid_ref,title="xSigma(x,µ_F^2 = 10^4 GeV^2)")
-    pp.savefig()
-    plot_dist(toy_xgrid,toy_xgrid*toy_g1_grid,toy_xg1_grid_ref,title="xg(x,µ_F^2 = 10^4 GeV^2)")
-    pp.savefig()
-    # close
-    pp.close()
-    
-save_table2_2_to_pdf("LHA-LO-FFNS-plots.pdf",ret1)
+        toy_S1_xgrid = np.array([toy_S0(x) for x in ret1["xgrid"]])
+        toy_g1_xgrid = np.array([toy_g0(x) for x in ret1["xgrid"]])
+        toy_S1_grid = np.dot(ret1["operators"]["S_qq"],toy_S1_xgrid) + np.dot(ret1["operators"]["S_qg"],toy_g1_xgrid)
+        toy_g1_grid = np.dot(ret1["operators"]["S_gq"],toy_S1_xgrid) + np.dot(ret1["operators"]["S_gg"],toy_S1_xgrid)
+        toy_xg1_grid_ref = np.array([1.3162e+3,6.0008e+2,2.5419e+2,9.7371e+1,3.2078e+1,8.0546e+0,8.8766e-1,8.2676e-2,7.9240e-3,3.7311e-4,1.0918e-6])
+        toy_xS1_grid_ref = toy_xuv1_grid_ref + toy_xdv1_grid_ref + toy_xLp1_grid_ref + toy_xsp1_grid_ref + toy_xcp1_grid_ref
+        plot_dist(toy_xgrid,toy_xgrid*toy_S1_grid,toy_xS1_grid_ref,title="xSigma(x,µ_F^2 = 10^4 GeV^2)")
+        pp.savefig()
+        plot_dist(toy_xgrid,toy_xgrid*toy_g1_grid,toy_xg1_grid_ref,title="xg(x,µ_F^2 = 10^4 GeV^2)")
+        pp.savefig()
+        # close
+        pp.close()
+        
+    save_table2_2_to_pdf("LHA-LO-FFNS-plots.pdf",ret1)
 
 # plot operators
-def plot_operator(ret,var_name="NS",log_operator=True,abs_operator=False):
-    fig = plt.figure(figsize=(25,5))
-    fig.suptitle(var_name)
+    def plot_operator(ret,var_name="NS",log_operator=True,abs_operator=False):
+        fig = plt.figure(figsize=(25,5))
+        fig.suptitle(var_name)
 
-    ax = plt.subplot(1,3,1)
-    if abs_operator:
-        plt.title("|operator|")
-    else:
-        plt.title("operator")
-    norm = matplotlib.colors.LogNorm() if log_operator else None
-    op = ret["operators"][var_name]
-    if abs_operator:
-        op = np.abs(op)
-    im = plt.imshow(op,norm=norm,aspect='auto')
-    plt.colorbar(im,ax=ax,fraction=0.034, pad=0.04)
+        ax = plt.subplot(1,3,1)
+        if abs_operator:
+            plt.title("|operator|")
+        else:
+            plt.title("operator")
+        norm = matplotlib.colors.LogNorm() if log_operator else None
+        op = ret["operators"][var_name]
+        if abs_operator:
+            op = np.abs(op)
+        im = plt.imshow(op,norm=norm,aspect='auto')
+        plt.colorbar(im,ax=ax,fraction=0.034, pad=0.04)
 
-    ax = plt.subplot(1,3,2)
-    plt.title("operator_error")
-    im = plt.imshow(ret["operator_errors"][var_name],norm=matplotlib.colors.LogNorm(),aspect='auto')
-    plt.colorbar(im,ax=ax,fraction=0.034, pad=0.04)
+        ax = plt.subplot(1,3,2)
+        plt.title("operator_error")
+        im = plt.imshow(ret["operator_errors"][var_name],norm=matplotlib.colors.LogNorm(),aspect='auto')
+        plt.colorbar(im,ax=ax,fraction=0.034, pad=0.04)
 
-    ax = plt.subplot(1,3,3)
-    plt.title("|error/value|")
-    err_to_val = np.abs(ret["operator_errors"][var_name]/ret["operators"][var_name])
-    im = plt.imshow(err_to_val,norm=matplotlib.colors.LogNorm(),aspect='auto')
-    plt.colorbar(im,ax=ax,fraction=0.034, pad=0.04)
-    return fig
+        ax = plt.subplot(1,3,3)
+        plt.title("|error/value|")
+        err_to_val = np.abs(ret["operator_errors"][var_name]/ret["operators"][var_name])
+        im = plt.imshow(err_to_val,norm=matplotlib.colors.LogNorm(),aspect='auto')
+        plt.colorbar(im,ax=ax,fraction=0.034, pad=0.04)
+        return fig
 
-def save_all_operators_to_pdf(path,ret1):
-    pp = PdfPages(path)
-    # NS
-    plot_operator(ret1,log_operator=False)
-    pp.savefig()
-    plot_operator(ret1,abs_operator=True)
-    pp.savefig()
-    # Singlet
-    plot_operator(ret1,"S_qq")
-    pp.savefig()
-    plot_operator(ret1,"S_qg")
-    pp.savefig()
-    plot_operator(ret1,"S_gq")
-    pp.savefig()
-    plot_operator(ret1,"S_gg")
-    pp.savefig()
-    # close
-    pp.close()
+    def save_all_operators_to_pdf(path,ret1):
+        pp = PdfPages(path)
+        # NS
+        plot_operator(ret1,log_operator=False)
+        pp.savefig()
+        plot_operator(ret1,abs_operator=True)
+        pp.savefig()
+        # Singlet
+        plot_operator(ret1,"S_qq")
+        pp.savefig()
+        plot_operator(ret1,"S_qg")
+        pp.savefig()
+        plot_operator(ret1,"S_gq")
+        pp.savefig()
+        plot_operator(ret1,"S_gg")
+        pp.savefig()
+        # close
+        pp.close()
