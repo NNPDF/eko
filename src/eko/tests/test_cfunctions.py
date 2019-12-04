@@ -10,14 +10,22 @@ c_digamma = _gsl_digamma.lib.digamma
 
 
 def compare_functions(function_custom, function_ext, values):
+    customs = []
+    externs = []
     for value in values:
         custom = function_custom(value)
         extern = function_ext(value)
-        np.testing.assert_approx_equal(custom, extern, significant=8)
-
+        customs.append(custom)
+        externs.append(extern)
+    np.testing.assert_allclose(customs, externs)
 
 def test_digamma():
-    values = [t_float(1.3), t_float(0.56), t_complex(0.3 + 0.4j)]
+    values = []
+    for i,j in np.random.rand(20, 2):
+        if np.random.rand() < 0.25:
+            values.append(t_float(i+j))
+        else:
+            values.append(t_complex(complex(i,j)))
 
     def customfun(x):
         out = (np.empty(2))
