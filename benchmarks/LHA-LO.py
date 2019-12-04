@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""Benchmark EKO to :cite:`Giele:2002hx`
+"""
 import logging
 import sys
 import pathlib
@@ -52,6 +54,14 @@ def toy_sp0(x):
     return toy_s0(x) + toy_sbar0(x)
 
 
+def toy_cp0(x):  # pylint: disable=unused-argument
+    return 0
+
+
+def toy_bp0(x):  # pylint: disable=unused-argument
+    return 0
+
+
 def toy_T30(x):
     return -2.0 * toy_Lm0(x) + toy_uv0(x) - toy_dv0(x)
 
@@ -60,367 +70,136 @@ def toy_T80(x):
     return toy_Lp0(x) + toy_uv0(x) + toy_dv0(x) - 2.0 * toy_sp0(x)
 
 
+def toy_T150(x):
+    return toy_Lp0(x) + toy_uv0(x) + toy_dv0(x) + toy_sp0(x) - 3.0 * toy_cp0(x)
+
+
 def toy_S0(x):
     return toy_uv0(x) + toy_dv0(x) + toy_Lp0(x) + toy_sp0(x)
 
 
+# list
+raw_label_list = ["u_v", "d_v", "L_-", "L_+", "s_+", "c_+", "b_+", "g"]
+rot_label_list = ["u_v", "d_v", "T_3", "T_8", "T_15", "Sigma", "g"]
+rot_func_list = [toy_uv0, toy_dv0, toy_T30, toy_T80, toy_T150, toy_S0, toy_g0]
+
+# fmt: off
+# inital reference grid = table 2 part 1
+void = np.zeros(len(toy_xgrid))
+LHA_init_grid_ref = np.array([
+    [1.2829e-5,8.0943e-5,5.1070e-4,3.2215e-3,2.0271e-2,1.2448e-1,5.9008e-1,6.6861e-1,3.6666e-1,1.0366e-1,4.6944e-3], # u_v # pylint: disable=line-too-long
+    [7.6972e-6,4.8566e-5,3.0642e-4,1.9327e-3,1.2151e-2,7.3939e-2,3.1864e-1,2.8082e-1,1.1000e-1,1.8659e-2,2.8166e-4], # d_v # pylint: disable=line-too-long
+    [9.7224e-8,7.7227e-7,6.1341e-6,4.8698e-5,3.8474e-4,2.8946e-3,1.2979e-2,7.7227e-3,1.6243e-3,1.0259e-4,1.7644e-7], # L_- # pylint: disable=line-too-long
+    [3.8890e+0,3.0891e+0,2.4536e+0,1.9478e+0,1.5382e+0,1.1520e+0,4.9319e-1,8.7524e-2,9.7458e-3,3.8103e-4,4.3129e-7], # L_+ # pylint: disable=line-too-long
+    [7.7779e-1,6.1782e-1,4.9072e-1,3.8957e-1,3.0764e-1,2.3041e-1,9.8638e-2,1.7505e-2,1.9492e-3,7.6207e-5,8.6259e-8], # s_+ # pylint: disable=line-too-long
+    void, # c_+
+    void, # b_+
+    [8.5202e+0,6.7678e+0,5.3756e+0,4.2681e+0,3.3750e+0,2.5623e+0,1.2638e+0,3.2228e-1,5.6938e-2,4.2810e-3,1.7180e-5], # g # pylint: disable=line-too-long
+])
+# my/exact initial grid
+LHA_init_grid = []
+for f in [toy_uv0, toy_dv0, toy_Lm0, toy_Lp0, toy_sp0, toy_cp0, toy_bp0, toy_g0]:
+    LHA_init_grid.append(f(toy_xgrid))
+LHA_init_grid = np.array(LHA_init_grid)
+
+# final reference grid = table 2 part 2
+LHA_final_grid_ref = np.array([
+    [5.7722e-5,3.3373e-4,1.8724e-3,1.0057e-2,5.0392e-2,2.1955e-1,5.7267e-1,3.7925e-1,1.3476e-1,2.3123e-2,4.3443e-4], # u_v # pylint: disable=line-too-long
+    [3.4343e-5,1.9800e-4,1.1065e-3,5.9076e-3,2.9296e-2,1.2433e-1,2.8413e-1,1.4186e-1,3.5364e-2,3.5943e-3,2.2287e-5], # d_v # pylint: disable=line-too-long
+    [7.6527e-7,5.0137e-6,3.1696e-5,1.9071e-4,1.0618e-3,4.9731e-3,1.0470e-2,3.3029e-3,4.2815e-4,1.5868e-5,1.1042e-8], # L_- # pylint: disable=line-too-long
+    [9.9465e+1,5.0259e+1,2.4378e+1,1.1323e+1,5.0324e+0,2.0433e+0,4.0832e-1,4.0165e-2,2.8624e-3,6.8961e-5,3.6293e-8], # L_+ # pylint: disable=line-too-long
+    [4.8642e+1,2.4263e+1,1.1501e+1,5.1164e+0,2.0918e+0,7.2814e-1,1.1698e-1,1.0516e-2,7.3138e-4,1.7725e-5,1.0192e-8], # s_+ # pylint: disable=line-too-long
+    [4.7914e+1,2.3685e+1,1.1042e+1,4.7530e+0,1.8089e+0,5.3247e-1,5.8864e-2,4.1379e-3,2.6481e-4,6.5549e-6,4.8893e-9], # c_+ # pylint: disable=line-too-long
+    void, # b_+
+    [1.3162e+3,6.0008e+2,2.5419e+2,9.7371e+1,3.2078e+1,8.0546e+0,8.8766e-1,8.2676e-2,7.9240e-3,3.7311e-4,1.0918e-6], # g # pylint: disable=line-too-long
+])
+
+# rotation matrix
+LHA_flavour_rotate = np.array([
+    # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
+    [   1,   0,   0,   0,   0,   0,   0,   0], # u_v
+    [   0,   1,   0,   0,   0,   0,   0,   0], # d_v
+    [   1,  -1,  -2,   0,   0,   0,   0,   0], # T_3
+    [   1,   1,   0,   1,  -2,   0,   0,   0], # T_8
+    [   1,   1,   0,   1,   1,  -3,   0,   0], # T_15
+    [   1,   1,   0,   1,   1,   1,   1,   0], # S
+    [   0,   0,   0,   0,   0,   0,   0,   1], # g
+])
+# fmt: on
+
+# rotate basis
+LHA_init_grid_rot = np.dot(LHA_init_grid.T, LHA_flavour_rotate.T).T
+LHA_final_grid_ref_rot = np.dot(LHA_final_grid_ref.T, LHA_flavour_rotate.T).T
+
+
 def save_initial_scale_plots_to_pdf(path):
+    """Check all PDFs at the inital scale.
+
+    The reference values are given in Table 2 part 1 of :cite:`Giele:2002hx`.
+
+    This excercise was usfull in order to detect the missing 2 in the definition of
+    :math:`L_+ = 2(\\bar u + \\bar d)`
+
+    Parameters
+    ----------
+        path : string
+            output path
+    """
     pp = PdfPages(path)
-    # check table 2 part 1 of arXiv:hep-ph/0204316
-    toy_uv0_grid = np.array([toy_uv0(x) for x in toy_xgrid])
-    toy_xuv0_grid_ref = np.array(
-        [
-            1.2829e-5,
-            8.0943e-5,
-            5.1070e-4,
-            3.2215e-3,
-            2.0271e-2,
-            1.2448e-1,
-            5.9008e-1,
-            6.6861e-1,
-            3.6666e-1,
-            1.0366e-1,
-            4.6944e-3,
-        ]
-    )
-    plot_dist(
-        toy_xgrid,
-        toy_xgrid * toy_uv0_grid,
-        toy_xuv0_grid_ref,
-        title="xu_v(x,µ_F^2 = 2 GeV^2)",
-    )
-    pp.savefig()
-
-    toy_dv0_grid = np.array([toy_dv0(x) for x in toy_xgrid])
-    toy_xdv0_grid_ref = np.array(
-        [
-            7.6972e-6,
-            4.8566e-5,
-            3.0642e-4,
-            1.9327e-3,
-            1.2151e-2,
-            7.3939e-2,
-            3.1864e-1,
-            2.8082e-1,
-            1.1000e-1,
-            1.8659e-2,
-            2.8166e-4,
-        ]
-    )
-    plot_dist(
-        toy_xgrid,
-        toy_xgrid * toy_dv0_grid,
-        toy_xdv0_grid_ref,
-        title="xd_v(x,µ_F^2 = 2 GeV^2)",
-    )
-    pp.savefig()
-
-    toy_Lm0_grid = np.array([toy_Lm0(x) for x in toy_xgrid])
-    toy_xLm0_grid_ref = np.array(
-        [
-            9.7224e-8,
-            7.7227e-7,
-            6.1341e-6,
-            4.8698e-5,
-            3.8474e-4,
-            2.8946e-3,
-            1.2979e-2,
-            7.7227e-3,
-            1.6243e-3,
-            1.0259e-4,
-            1.7644e-7,
-        ]
-    )
-    plot_dist(
-        toy_xgrid,
-        toy_xgrid * toy_Lm0_grid,
-        toy_xLm0_grid_ref,
-        title="xL_-(x,µ_F^2 = 2 GeV^2)",
-    )
-    pp.savefig()
-
-    toy_Lp0_grid = np.array([toy_Lp0(x) for x in toy_xgrid])
-    toy_xLp0_grid_ref = np.array(
-        [
-            3.8890e0,
-            3.0891e0,
-            2.4536e0,
-            1.9478e0,
-            1.5382e0,
-            1.1520e0,
-            4.9319e-1,
-            8.7524e-2,
-            9.7458e-3,
-            3.8103e-4,
-            4.3129e-7,
-        ]
-    )
-    plot_dist(
-        toy_xgrid,
-        toy_xgrid * toy_Lp0_grid,
-        toy_xLp0_grid_ref,
-        title="xL_+(x,µ_F^2 = 2 GeV^2)",
-    )
-    pp.savefig()
-
-    toy_sp0_grid = np.array([toy_sp0(x) for x in toy_xgrid])
-    toy_xsp0_grid_ref = np.array(
-        [
-            7.7779e-1,
-            6.1782e-1,
-            4.9072e-1,
-            3.8957e-1,
-            3.0764e-1,
-            2.3041e-1,
-            9.8638e-2,
-            1.7505e-2,
-            1.9492e-3,
-            7.6207e-5,
-            8.6259e-8,
-        ]
-    )
-    plot_dist(
-        toy_xgrid,
-        toy_xgrid * toy_sp0_grid,
-        toy_xsp0_grid_ref,
-        title="xs_+(x,µ_F^2 = 2 GeV^2)",
-    )
-    pp.savefig()
-
-    toy_g0_grid = np.array([toy_g0(x) for x in toy_xgrid])
-    toy_xg0_grid_ref = np.array(
-        [
-            8.5202e0,
-            6.7678e0,
-            5.3756e0,
-            4.2681e0,
-            3.3750e0,
-            2.5623e0,
-            1.2638e0,
-            3.2228e-1,
-            5.6938e-2,
-            4.2810e-3,
-            1.7180e-5,
-        ]
-    )
-    plot_dist(
-        toy_xgrid,
-        toy_xgrid * toy_g0_grid,
-        toy_xg0_grid_ref,
-        title="xg(x,µ_F^2 = 2 GeV^2)",
-    )
-    pp.savefig()
-
+    # iterate all raw labels
+    for j, label in enumerate(raw_label_list):
+        # skip trivial plots
+        if label in ["c_+", "b_+"]:
+            continue
+        me = LHA_init_grid[j]
+        ref = LHA_init_grid_ref[j]
+        plot_dist(toy_xgrid, toy_xgrid * me, ref, title=f"x{label}(x,µ_F^2 = 2 GeV^2)")
+        pp.savefig()
     # close
     pp.close()
 
 
-# check table 2 part 2 of arXiv:hep-ph/0204316
-def save_table2_2_to_pdf(path, ret1):
+def save_final_scale_plots_to_pdf(path, ret):
+    """Check all PDFs at the final scale.
+
+    The reference values are given in Table 2 part 2 of :cite:`Giele:2002hx`.
+
+    Parameters
+    ----------
+        path : string
+            output path
+        ret : dict
+            DGLAP result
+    """
     pp = PdfPages(path)
-
-    # u_v
-    toy_uv1_xgrid = np.array([toy_uv0(x) for x in ret1["xgrid"]])
-    toy_uv1_grid = np.dot(ret1["operators"]["NS"], toy_uv1_xgrid)
-    toy_xuv1_grid_ref = np.array(
-        [
-            5.7722e-5,
-            3.3373e-4,
-            1.8724e-3,
-            1.0057e-2,
-            5.0392e-2,
-            2.1955e-1,
-            5.7267e-1,
-            3.7925e-1,
-            1.3476e-1,
-            2.3123e-2,
-            4.3443e-4,
-        ]
-    )
+    # iterate all rotated NS labels
+    for j, label in enumerate(rot_label_list[:-2]):
+        init = rot_func_list[j](ret["xgrid"])
+        me = np.dot(ret["operators"]["NS"], init)
+        ref = LHA_final_grid_ref_rot[j]  # pylint: disable=unsubscriptable-object
+        plot_dist(
+            toy_xgrid, toy_xgrid * me, ref, title=f"x{label}(x,µ_F^2 = 10^4 GeV^2)"
+        )
+        pp.savefig()
+    # compare singlet + gluon
+    init_S = rot_func_list[-2](ret["xgrid"])
+    init_g = rot_func_list[-1](ret["xgrid"])
+    # fmt: off
+    me_S = np.dot(ret["operators"]["S_qq"], init_S) + np.dot(ret["operators"]["S_qg"], init_g)
+    me_g = np.dot(ret["operators"]["S_gq"], init_S) + np.dot(ret["operators"]["S_gg"], init_g)
+    # fmt: on
     plot_dist(
         toy_xgrid,
-        toy_xgrid * toy_uv1_grid,
-        toy_xuv1_grid_ref,
-        title="xu_v(x,µ_F^2 = 10^4 GeV^2)",
-    )
-    pp.savefig()
-
-    # d_v
-    toy_dv1_xgrid = np.array([toy_dv0(x) for x in ret1["xgrid"]])
-    toy_dv1_grid = np.dot(ret1["operators"]["NS"], toy_dv1_xgrid)
-    toy_xdv1_grid_ref = np.array(
-        [
-            3.4343e-5,
-            1.9800e-4,
-            1.1065e-3,
-            5.9076e-3,
-            2.9296e-2,
-            1.2433e-1,
-            2.8413e-1,
-            1.4186e-1,
-            3.5364e-2,
-            3.5943e-3,
-            2.2287e-5,
-        ]
-    )
-    plot_dist(
-        toy_xgrid,
-        toy_xgrid * toy_dv1_grid,
-        toy_xdv1_grid_ref,
-        title="xd_v(x,µ_F^2 = 10^4 GeV^2)",
-    )
-    pp.savefig()
-
-    # T3, i.e. L-
-    toy_T31_xgrid = np.array([toy_T30(x) for x in ret1["xgrid"]])
-    toy_T31_grid = np.dot(ret1["operators"]["NS"], toy_T31_xgrid)
-    toy_xLm1_grid_ref = np.array(
-        [
-            7.6527e-7,
-            5.0137e-6,
-            3.1696e-5,
-            1.9071e-4,
-            1.0618e-3,
-            4.9731e-3,
-            1.0470e-2,
-            3.3029e-3,
-            4.2815e-4,
-            1.5868e-5,
-            1.1042e-8,
-        ]
-    )
-    toy_xT31_grid_ref = -2.0 * toy_xLm1_grid_ref + toy_xuv1_grid_ref - toy_xdv1_grid_ref
-    plot_dist(
-        toy_xgrid,
-        toy_xgrid * toy_T31_grid,
-        toy_xT31_grid_ref,
-        title="xT_3(x,µ_F^2 = 10^4 GeV^2)",
-    )
-    pp.savefig()
-
-    # T8, i.e. s+
-    toy_T81_xgrid = np.array([toy_T80(x) for x in ret1["xgrid"]])
-    toy_T81_grid = np.dot(ret1["operators"]["NS"], toy_T81_xgrid)
-    toy_xLp1_grid_ref = np.array(
-        [
-            9.9465e1,
-            5.0259e1,
-            2.4378e1,
-            1.1323e1,
-            5.0324e0,
-            2.0433e0,
-            4.0832e-1,
-            4.0165e-2,
-            2.8624e-3,
-            6.8961e-5,
-            3.6293e-8,
-        ]
-    )
-    toy_xsp1_grid_ref = np.array(
-        [
-            4.8642e1,
-            2.4263e1,
-            1.1501e1,
-            5.1164e0,
-            2.0918e0,
-            7.2814e-1,
-            1.1698e-1,
-            1.0516e-2,
-            7.3138e-4,
-            1.7725e-5,
-            1.0192e-8,
-        ]
-    )
-    toy_xT81_grid_ref = (
-        toy_xLp1_grid_ref
-        + toy_xuv1_grid_ref
-        + toy_xdv1_grid_ref
-        - 2.0 * toy_xsp1_grid_ref
-    )
-    plot_dist(
-        toy_xgrid,
-        toy_xgrid * toy_T81_grid,
-        toy_xT81_grid_ref,
-        title="xT_8(x,µ_F^2 = 10^4 GeV^2)",
-    )
-    pp.savefig()
-
-    # T15, i.e. c+
-    toy_T151_xgrid = np.array([toy_S0(x) for x in ret1["xgrid"]])
-    toy_T151_grid = np.dot(ret1["operators"]["NS"], toy_T151_xgrid)
-    toy_xcp1_grid_ref = np.array(
-        [
-            4.7914e1,
-            2.3685e1,
-            1.1042e1,
-            4.7530e0,
-            1.8089e0,
-            5.3247e-1,
-            5.8864e-2,
-            4.1379e-3,
-            2.6481e-4,
-            6.5549e-6,
-            4.8893e-9,
-        ]
-    )
-    toy_T151_grid_ref = (
-        toy_xLp1_grid_ref
-        + toy_xuv1_grid_ref
-        + toy_xdv1_grid_ref
-        + toy_xsp1_grid_ref
-        - 3.0 * toy_xcp1_grid_ref
-    )
-    plot_dist(
-        toy_xgrid,
-        toy_xgrid * toy_T151_grid,
-        toy_T151_grid_ref,
-        title="xT_15(x,µ_F^2 = 10^4 GeV^2)",
-    )
-    pp.savefig()
-
-    # Singlet + gluon
-    toy_S1_xgrid = np.array([toy_S0(x) for x in ret1["xgrid"]])
-    toy_g1_xgrid = np.array([toy_g0(x) for x in ret1["xgrid"]])
-    toy_S1_grid = np.dot(ret1["operators"]["S_qq"], toy_S1_xgrid) + np.dot(
-        ret1["operators"]["S_qg"], toy_g1_xgrid
-    )
-    toy_g1_grid = np.dot(ret1["operators"]["S_gq"], toy_S1_xgrid) + np.dot(
-        ret1["operators"]["S_gg"], toy_g1_xgrid
-    )
-    toy_xg1_grid_ref = np.array(
-        [
-            1.3162e3,
-            6.0008e2,
-            2.5419e2,
-            9.7371e1,
-            3.2078e1,
-            8.0546e0,
-            8.8766e-1,
-            8.2676e-2,
-            7.9240e-3,
-            3.7311e-4,
-            1.0918e-6,
-        ]
-    )
-    toy_xS1_grid_ref = (
-        toy_xuv1_grid_ref
-        + toy_xdv1_grid_ref
-        + toy_xLp1_grid_ref
-        + toy_xsp1_grid_ref
-        + toy_xcp1_grid_ref
-    )
-    plot_dist(
-        toy_xgrid,
-        toy_xgrid * toy_S1_grid,
-        toy_xS1_grid_ref,
-        title="xSigma(x,µ_F^2 = 10^4 GeV^2)",
+        toy_xgrid * me_S,
+        LHA_final_grid_ref_rot[-2],  # pylint: disable=unsubscriptable-object
+        title="x%s(x,µ_F^2 = 10^4 GeV^2)" % rot_label_list[-2],
     )
     pp.savefig()
     plot_dist(
         toy_xgrid,
-        toy_xgrid * toy_g1_grid,
-        toy_xg1_grid_ref,
-        title="xg(x,µ_F^2 = 10^4 GeV^2)",
+        toy_xgrid * me_g,
+        LHA_final_grid_ref_rot[-1],  # pylint: disable=unsubscriptable-object
+        title="x%s(x,µ_F^2 = 10^4 GeV^2)" % rot_label_list[-1],
     )
     pp.savefig()
     # close
@@ -468,5 +247,5 @@ if __name__ == "__main__":
     # compare and save
     print("compare and save to file ...")
     # save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
-    save_table2_2_to_pdf(assets_path / f"LHA-LO-FFNS-plots-{flag}.pdf", ret)
+    save_final_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-plots-{flag}.pdf", ret)
     save_all_operators_to_pdf(assets_path / f"LHA-LO-FFNS-ops-{flag}.pdf", ret)

@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 import eko.dglap as dglap
 import eko.interpolation as interpolation
@@ -91,6 +92,7 @@ def check_operator(operators, xgrid, toy_xgrid):
             op_val += np.dot(op, toy_fun(xgrid))*toy_xgrid
         np.testing.assert_allclose(grid, op_val, atol=3e-1)
 
+@pytest.mark.skip(reason="too time consuming for now")
 def test_dglap_lo():
     """
         Checks table 2 part 2 of arXiv:hep-ph/0204316
