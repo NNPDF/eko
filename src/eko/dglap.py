@@ -16,9 +16,9 @@ from eko.alpha_s import Alphas_Dispatcher
 logger = logging.getLogger(__name__)
 
 
-def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
+def _parallelize_on_basis(basis_functions, pfunction, logx, n_jobs=1):
     out = joblib.Parallel(n_jobs=n_jobs)(
-        joblib.delayed(pfunction)(fun, xk) for fun in basis_functions
+        joblib.delayed(pfunction)(fun, logx) for fun in basis_functions
     )
     return out
 
@@ -56,7 +56,7 @@ def compute_deltas(alpha_s, q0, q2grid):
     return tf - ti
 
 
-def compute_operators(kernel_dispatcher, targetgrid, ret, gamma=1.0, cut=1e-2):
+def compute_operators(kernel_dispatcher, delta_tgrid, targetgrid, ret, gamma=1.0, cut=1e-2):
     """ Solves the non-singet and the singlet cases """
     # Setup the path
     path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
@@ -88,27 +88,44 @@ def compute_operators(kernel_dispatcher, targetgrid, ret, gamma=1.0, cut=1e-2):
             all_res.append(result)
         return all_res
 
+    def run_thread_q2(integrands, logx):
+        """ The output of this function is a
+            list of lists of tuples where the index are
+            [q2grid][qq, qg, gq, gg, NS](result, error)
+        """
+        all_q = []
+        for delta_t in delta_tgrid:
+            all_res = []
+            for integrand in integrands:
+                extra_info = (logx, delta_t)
+                result = mellin.inverse_mellin_transform(integrand, cut, extra_info)
+                all_res.append(result)
+            all_q.append(all_res)
+        return all_q
+
     all_output = []
     targetgrid_size = len(targetgrid)
     for k, xk in enumerate(targetgrid):
-        out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
+        out = _parallelize_on_basis(integrands, run_thread_q2, np.log(xk))
         all_output.append(out)
         log_text = f"{k+1}/{targetgrid_size}"
         logger.info(log_prefix, log_text)
     logger.info(log_prefix, "done.")
 
     output_array = np.array(all_output)
+    # The indices of output_array are:
+    # [targetgrid][interpolation][q2grid] [qq, qg, gq, gg, NS][(result, error)]
 
-    ret["operators"]["S_qq"] = output_array[:, :, 0, 0]
-    ret["operators"]["S_qg"] = output_array[:, :, 1, 0]
-    ret["operators"]["S_gq"] = output_array[:, :, 2, 0]
-    ret["operators"]["S_gg"] = output_array[:, :, 3, 0]
-    ret["operator_errors"]["S_qq"] = output_array[:, :, 0, 1]
-    ret["operator_errors"]["S_qg"] = output_array[:, :, 1, 1]
-    ret["operator_errors"]["S_gq"] = output_array[:, :, 2, 1]
-    ret["operator_errors"]["S_gg"] = output_array[:, :, 3, 1]
-    ret["operators"]["NS"] = output_array[:, :, 4, 0]
-    ret["operator_errors"]["NS"] = output_array[:, :, 4, 1]
+    ret["operators"]["S_qq"] = output_array[:, :, :, 0, 0]
+    ret["operators"]["S_qg"] = output_array[:, :, :, 1, 0]
+    ret["operators"]["S_gq"] = output_array[:, :, :, 2, 0]
+    ret["operators"]["S_gg"] = output_array[:, :, :, 3, 0]
+    ret["operator_errors"]["S_qq"] = output_array[:, :, :, 0, 1]
+    ret["operator_errors"]["S_qg"] = output_array[:, :, :, 1, 1]
+    ret["operator_errors"]["S_gq"] = output_array[:, :, :, 2, 1]
+    ret["operator_errors"]["S_gg"] = output_array[:, :, :, 3, 1]
+    ret["operators"]["NS"] = output_array[:, :, :, 4, 0]
+    ret["operator_errors"]["NS"] = output_array[:, :, :, 4, 1]
 
 
 def run_dglap(setup):
@@ -175,7 +192,7 @@ def run_dglap(setup):
         constants, alphas, pow(qref, 2), nf, order=pto
     )
 
-    delta_t = compute_deltas(alphas_dispatcher, setup["Q0"], setup["Q2grid"])[0]
+    delta_tgrid = compute_deltas(alphas_dispatcher, setup["Q0"], setup["Q2grid"])
 
     # Setup interpolation
     xgrid = interpolation.generate_xgrid(**setup)
@@ -199,11 +216,9 @@ def run_dglap(setup):
     }
 
     # Setup the kernel dispatcher
-    kernel_dispatcher = KernelDispatcher(
-        basis_function_dispatcher, constants, nf, delta_t
-    )
+    kernel_dispatcher = KernelDispatcher(basis_function_dispatcher, constants, nf)
 
-    compute_operators(kernel_dispatcher, targetgrid, ret)
+    compute_operators(kernel_dispatcher, delta_tgrid, targetgrid, ret)
 
     return ret
 
@@ -233,6 +248,6 @@ if __name__ == "__main__":
             "xgrid_polynom_rank": polynom_rank,
             "xgrid_interpolation": "log",
             "targetgrid": toy_xgrid,
-            "Q2grid": [1e4],
+            "Q2grid": [1e4, 1e3, 1e2, 1e1],
         }
     )

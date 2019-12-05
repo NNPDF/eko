@@ -18,12 +18,12 @@ import eko.alpha_s as alpha_s
 import eko.splitting_functions_LO as sf_LO
 
 
-def get_kernel_ns(basis_function, nf, constants, beta_0, delta_t):
+def get_kernel_ns(basis_function, nf, constants, beta_0):
     """ Returns a non-singlet integration kernel """
     CA = constants.CA
     CF = constants.CF
 
-    def ker(n, lnx):
+    def ker(n, lnx, delta_t):
         """non-siglet integration kernel"""
         ln = -delta_t * sf_LO.gamma_ns_0(n, nf, CA, CF) / beta_0
         interpoln = basis_function(n, lnx)
@@ -32,7 +32,7 @@ def get_kernel_ns(basis_function, nf, constants, beta_0, delta_t):
     return ker
 
 
-def get_kernels_s(basis_function, nf, constants, beta_0, delta_t):
+def get_kernels_s(basis_function, nf, constants, beta_0):
     """return all singlet integration kernels"""
     CA = constants.CA
     CF = constants.CF
@@ -40,7 +40,7 @@ def get_kernels_s(basis_function, nf, constants, beta_0, delta_t):
     def get_ker(k, l):
         """compute one singlet kernel"""
 
-        def ker(N, lnx):  # TODO here we are repeating too many things!
+        def ker(N, lnx, delta_t):  # TODO here we are repeating too many things!
             """a singlet integration kernel"""
             l_p, l_m, e_p, e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N, nf, CA, CF)
             ln_p = -delta_t * l_p / beta_0
@@ -68,15 +68,12 @@ class KernelDispatcher:
                 An instance of the Constants class
             nf: float
                 Number of flavour to consider
-            delta_t: float
-                Value of delta_t for this kernel
             numba_it: bool
                 If true, the functions will be `numba` compiled (default: True)
     """
 
-    def __init__(self, interpol_dispatcher, constants, nf, delta_t, numba_it=True):
+    def __init__(self, interpol_dispatcher, constants, nf, numba_it=True):
         self.interpol_dispatcher = interpol_dispatcher
-        self.delta_t = delta_t
         self.nf = nf
         self.constants = constants
         self.beta_0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
@@ -94,7 +91,6 @@ class KernelDispatcher:
                 self.nf,
                 self.constants,
                 self.beta_0,
-                self.delta_t,
             )
             kernels.append(self.njit(new_ker))
         return kernels
