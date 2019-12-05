@@ -62,7 +62,7 @@ def reference_values():
     ret.update(singlets)
     return ret
 
-def check_operator(operators, xgrid, toy_xgrid):
+def check_operator(operators, xgrid, toy_xgrid, qindex = 0):
     """ Runs through the reference values and gets the appropiate
     operators from the operators dictionary.
     Checks how separated are the reference values from the ones
@@ -72,7 +72,7 @@ def check_operator(operators, xgrid, toy_xgrid):
 
     # Check non-singlet side
     ref_ns = reference["NS"]
-    op_ns = operators["NS"]
+    op_ns = operators["NS"][:,:, qindex]
     for grid, function in ref_ns:
         toy_val = function(xgrid)
         op_val = np.dot(op_ns, toy_val)*toy_xgrid
@@ -85,14 +85,13 @@ def check_operator(operators, xgrid, toy_xgrid):
     # Check singlet side
     ref_s = reference["singlets"]
     for keys, item in ref_s.items():
-        ops = [operators[key] for key in keys]
+        ops = [operators[key][:,:,qindex] for key in keys]
         grid = item[0]
         op_val = np.zeros_like(toy_xgrid)
         for op, toy_fun in zip(ops, item[1]):
             op_val += np.dot(op, toy_fun(xgrid))*toy_xgrid
         np.testing.assert_allclose(grid, op_val, atol=3e-1)
 
-@pytest.mark.skip(reason="too time consuming for now")
 def test_dglap_lo():
     """
         Checks table 2 part 2 of arXiv:hep-ph/0204316
@@ -123,4 +122,4 @@ def test_dglap_lo():
         }
 
     return_dictionary = dglap.run_dglap(setup)
-    check_operator(return_dictionary["operators"], xgrid, toy_xgrid)
+    check_operator(return_dictionary["operators"], xgrid, toy_xgrid, qindex = 0)

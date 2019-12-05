@@ -28,7 +28,7 @@ def test_inverse_mellin_transform():
         return x
 
     @nb.njit
-    def function_N(N, lnx):
+    def function_N(N, lnx, q2):
         return np.exp(- N * lnx) / (N + 1)
 
     xgrid = [0.1, 0.3, 0.5, 0.7]
@@ -36,7 +36,7 @@ def test_inverse_mellin_transform():
     for x in xgrid:
         xresult = function_x(x)
         integrand = mellin.compile_integrand(function_N, p, j)
-        nresult = mellin.inverse_mellin_transform(integrand, 1e-2, extra_args = np.log(x))
+        nresult = mellin.inverse_mellin_transform(integrand, 1e-2, extra_args = (np.log(x), 0.0))
         assert_almost_equal(xresult, nresult[0])
         assert_almost_equal(0.0, nresult[1])
 
