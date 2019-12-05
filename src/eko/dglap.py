@@ -51,94 +51,33 @@ def _get_evoultion_params(setup):
     return t1 - t0
 
 
-def _run_nonsinglet(kernel_dispatcher, targetgrid, ret):
-    """Solves the non-singlet case.
-
-    This method updates the `ret` parameter instead of returning something.
-
-    Parameters
-    ----------
-        kernel_dispatcher:
-            instance of kerneldispatcher from which compiled kernels can be
-            obtained
-        targetgrid:
-            list of x-values which are computed
-        ret : dict
-            a dictionary for the output
-    """
-    # Receive all precompiled kernels
-    kernels = kernel_dispatcher.compile_nonsinglet()
-
-    # Setup path
-    gamma = 1.0
-    cut = 1e-2
+def compute_operators(kernel_dispatcher, targetgrid, ret, gamma = 1.0, cut = 1e-2):
+    """ Solves the non-singet and the singlet cases """
+    # Setup the path
     path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
 
-    # Generate integrands
+    # Get all precompiled kernels
+    kernel_nonsinglet = kernel_dispatcher.compile_nonsinglet()
+    kernel_singlet = kernel_dispatcher.compile_singlet()
+
+    # Generate all integrands
     integrands = []
-    for kernel in kernels:
-        kernel_int = mellin.compile_integrand(kernel, path, jac)
-        integrands.append(kernel_int)
+    for ker_ns, kers_s in zip(kernel_nonsinglet, kernel_singlet):
+        compiled_kernels = []
+        for ker in kers_s:
+            comp_ker = mellin.compile_integrand(ker, path, jac)
+            compiled_kernels.append(comp_ker)
+        compiled_kernels.append(mellin.compile_integrand(ker_ns, path, jac))
+        integrands.append(compiled_kernels)
 
-    def run_thread(integrand, logx):
-        result = mellin.inverse_mellin_transform(integrand, cut, logx)
-        return result
+    # Log
+    log_prefix = "Computing operators - %s"
+    logger.info(log_prefix, "kernels compiled")
 
-    log_prefix = "computing NS operator - %s"
-    logger.info(log_prefix, "kernel compiled")
-    operators = []
-    operator_errors = []
-
-    targetgrid_size = len(targetgrid)
-    for k, xk in enumerate(targetgrid):
-        out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
-        operators.append(np.array(out)[:, 0])
-        operator_errors.append(np.array(out)[:, 1])
-        log_text = f"{k+1}/{targetgrid_size}"
-        logger.info(log_prefix, log_text)
-    logger.info(log_prefix, "done.")
-
-    # insert operators #TODO return the operators instead
-    ret["operators"]["NS"] = np.array(operators)
-    ret["operator_errors"]["NS"] = np.array(operator_errors)
-
-
-def _run_singlet(kernel_dispatcher, targetgrid, ret):
-    """Solves the singlet case.
-
-    Parameters
-    ----------
-        kernel_dispatcher:
-            instance of kerneldispatcher from which compiled kernels can be
-            obtained
-        targetgrid:
-            list of x-values which are computed
-        ret : dict
-            a dictionary for the output
-    """
-    # Receive all precompiled kernels
-    kernels = kernel_dispatcher.compile_singlet()
-
-    # Setup path
-    cut = 1e-2
-    gamma = 1.0
-    path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
-
-    # Generate integrands
-    integrands = []
-    for kernel_set in kernels:
-        kernel_int = []
-        for ker in kernel_set:
-            kernel_int.append(mellin.compile_integrand(ker, path, jac))
-        integrands.append(kernel_int)
-
-    # perform
-    log_prefix = "computing singlet operator - %s"
-    logger.info(log_prefix, "kernel compiled")
 
     def run_thread(integrands, logx):
         """ The output of this function is a list of tuple (result, error)
-        for qq, qg, gq, gg in that order """
+        for qq, qg, gq, gg, NS in that order """
         all_res = []
         for integrand in integrands:
             result = mellin.inverse_mellin_transform(integrand, cut, logx)
@@ -156,7 +95,6 @@ def _run_singlet(kernel_dispatcher, targetgrid, ret):
 
     output_array = np.array(all_output)
 
-    # insert operators
     ret["operators"]["S_qq"] = output_array[:, :, 0, 0]
     ret["operators"]["S_qg"] = output_array[:, :, 1, 0]
     ret["operators"]["S_gq"] = output_array[:, :, 2, 0]
@@ -165,6 +103,8 @@ def _run_singlet(kernel_dispatcher, targetgrid, ret):
     ret["operator_errors"]["S_qg"] = output_array[:, :, 1, 1]
     ret["operator_errors"]["S_gq"] = output_array[:, :, 2, 1]
     ret["operator_errors"]["S_gg"] = output_array[:, :, 3, 1]
+    ret["operators"]["NS"] = output_array[:,:,4,0]
+    ret["operator_errors"]["NS"] = output_array[:,:,4,1]
 
 
 def run_dglap(setup):
@@ -252,11 +192,7 @@ def run_dglap(setup):
         basis_function_dispatcher, constants, nf, delta_t
     )
 
-    # run non-singlet
-    _run_nonsinglet(kernel_dispatcher, targetgrid, ret)
-
-    # run singlet
-    _run_singlet(kernel_dispatcher, targetgrid, ret)
+    compute_operators(kernel_dispatcher, targetgrid, ret)
 
     return ret
 
