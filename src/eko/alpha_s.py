@@ -112,7 +112,7 @@ def beta_2(nf: int, CA: t_float, CF: t_float, Tf: t_float):
     return beta_2
 
 
-def alpha_s_generator(alpha_s_ref: t_float, scale_ref: t_float, nf: int, method: str):
+class Alphas_Dispatcher:
     """
     Generates the alpha_s functions for a given number of flavours for a given method
     for a given reference scale
@@ -120,46 +120,61 @@ def alpha_s_generator(alpha_s_ref: t_float, scale_ref: t_float, nf: int, method:
     Note that all scale parameters, :math:`\\mu_0^2` and :math:`Q^2`,
     have to be given as squared values.
 
+    This class is callable with a signature (q0: double, q2: array/double)
+
+
     Parameters
     ----------
-    alpha_s_ref : t_float
-        alpha_s at the reference scale :math:`\\alpha_s(\\mu_0^2)`
-    scale_ref : t_float
-        reference scale :math:`\\mu_0^2`
-    nf : int
-        Number of active flavours (is passed to the beta function)
-    method : {"analytic"}
-        Applied method to solve the beta function
+        constants:
+            An instance of the Constants class
+        alpha_s_ref : t_float
+            alpha_s at the reference scale :math:`\\alpha_s(\\mu_0^2)`
+        scale_ref : t_float
+            reference scale :math:`\\mu_0^2`
+        nf : int
+            Number of active flavours (is passed to the beta function)
+        method : {"analytic"}
+            Applied method to solve the beta function
+        order: int (default = 0)
+            Evaluated order of the beta function
+    """
 
-    Returns
-    -------
-    alpha_s: function
-        function(order, scale_to) which computes alpha_s for a given order at a given scale
-    """  # pylint: disable=unused-argument
-    # TODO implement more complex runnings (we may take a glimpse into LHAPDF)
-    # TODO constants have to come from the outside, otherwise it defeats the purpose
-    c = Constants()
-    beta0 = beta_0(nf, c.CA, c.CF, c.TF)
+    def __init__(
+        self, constants, alpha_s_ref, scale_ref, nf, method="analytic", order=0
+    ):
+        self.beta = None
+        self.order = order
+        self.set_order(constants, nf)
+        self.scale_ref = scale_ref
+        self.alpha_s_ref = alpha_s_ref
 
-    @nb.njit
-    def alpha_s(order: int, scale_to: t_float):
+    def set_order(self, constants, nf):
         """
         Parameters
         ----------
-        order : int
-            evaluated order of beta function
-        scale_to : t_float
-            final scale to evolve to :math:`Q^2`
-
-        Returns
-        -------
-        a_s : t_float
-            strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
+            constants:
+                An instance of the Constants class
+            nf : int
+                Number of active flavours (is passed to the beta function)
         """
-        L = np.log(scale_to / scale_ref)
-        if order == 0:
-            return alpha_s_ref / (4.0 * np.pi + beta0 * alpha_s_ref * L)
+        if self.order == 0:
+            self.beta = beta_0(nf, constants.CA, constants.CF, constants.TF)
         else:
             raise NotImplementedError("Alpha_s beyond LO not implemented")
 
-    return alpha_s
+    def __call__(self, scale_to):
+        """
+        Parameters
+        ----------
+            scale_to : t_float (or array)
+                final scale to evolve to :math:`Q^2`
+
+        Returns
+        -------
+            a_s : t_float (or array)
+                strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
+        """
+        L = np.log(scale_to / self.scale_ref)
+        fpi = 4.0 * np.pi
+        result = self.alpha_s_ref / (fpi + self.beta * self.alpha_s_ref * L)
+        return result

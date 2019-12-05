@@ -7,13 +7,14 @@ import logging
 import joblib
 import numpy as np
 
-import eko.alpha_s as alpha_s
 import eko.interpolation as interpolation
 import eko.mellin as mellin
 from eko.kernel_generation import KernelDispatcher
 from eko.constants import Constants
+from eko.alpha_s import Alphas_Dispatcher
 
 logger = logging.getLogger(__name__)
+
 
 def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
     out = joblib.Parallel(n_jobs=n_jobs)(
@@ -22,36 +23,40 @@ def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
     return out
 
 
-def _get_evoultion_params(setup):
-    """Compute evolution parameters
+def compute_deltas(alpha_s, q0, q2grid):
+    """
+    Compute evolution parameters
 
     Parameters
     ----------
-    setup: dict
-        a dictionary with the theory parameters for the evolution
+        `alpha_s`: Alphas_Dispatcher
+            dispatcher of alpha_s
+        `Qref`: t_float
+            reference scale for alpha_s
+        `Q2grid`: array
+            scales to compute
 
-    Returns
-    -------
-        delta_t : t_float
-            scale difference
+    Return
+    ------
+        deltas: array
+            scale differences from `Q0` to all scales in `Q2grid`
     """
-    # setup constants
-    nf = setup["NfFF"]
-    # setup inital+final scale
-    qref2 = setup["Qref"] ** 2
-    pto = setup["PTO"]
-    alphas = setup["alphas"]
-    # Generate the alpha_s functions
-    a_s = alpha_s.alpha_s_generator(alphas, qref2, nf, "analytic")
-    a0 = a_s(pto, setup["Q0"] ** 2)
-    a1 = a_s(pto, setup["Q2grid"][0])
-    # evolution parameters
-    t0 = np.log(1.0 / a0)
-    t1 = np.log(1.0 / a1)
-    return t1 - t0
+    # Ensure q2grid is an array
+    q2grid = np.array(q2grid)
+
+    # Generate the alpha_s values
+    alphas_0 = alpha_s(pow(q0, 2))
+    alphas_grid = alpha_s(q2grid)
+
+    # Generate the array of evolution parameters
+    ti = np.log(1.0 / alphas_0)
+    tf = np.log(1.0 / alphas_grid)
+
+    # Return the delta array
+    return tf - ti
 
 
-def compute_operators(kernel_dispatcher, targetgrid, ret, gamma = 1.0, cut = 1e-2):
+def compute_operators(kernel_dispatcher, targetgrid, ret, gamma=1.0, cut=1e-2):
     """ Solves the non-singet and the singlet cases """
     # Setup the path
     path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
@@ -73,7 +78,6 @@ def compute_operators(kernel_dispatcher, targetgrid, ret, gamma = 1.0, cut = 1e-
     # Log
     log_prefix = "Computing operators - %s"
     logger.info(log_prefix, "kernels compiled")
-
 
     def run_thread(integrands, logx):
         """ The output of this function is a list of tuple (result, error)
@@ -103,8 +107,8 @@ def compute_operators(kernel_dispatcher, targetgrid, ret, gamma = 1.0, cut = 1e-
     ret["operator_errors"]["S_qg"] = output_array[:, :, 1, 1]
     ret["operator_errors"]["S_gq"] = output_array[:, :, 2, 1]
     ret["operator_errors"]["S_gg"] = output_array[:, :, 3, 1]
-    ret["operators"]["NS"] = output_array[:,:,4,0]
-    ret["operator_errors"]["NS"] = output_array[:,:,4,1]
+    ret["operators"]["NS"] = output_array[:, :, 4, 0]
+    ret["operator_errors"]["NS"] = output_array[:, :, 4, 1]
 
 
 def run_dglap(setup):
@@ -164,7 +168,14 @@ def run_dglap(setup):
     # Load constants and compute parameters
     constants = Constants()
     nf = setup["NfFF"]
-    delta_t = _get_evoultion_params(setup)
+    pto = setup["PTO"]
+    alphas = setup["alphas"]
+    qref = setup["Qref"]
+    alphas_dispatcher = Alphas_Dispatcher(
+        constants, alphas, pow(qref, 2), nf, order=pto
+    )
+
+    delta_t = compute_deltas(alphas_dispatcher, setup["Q0"], setup["Q2grid"])[0]
 
     # Setup interpolation
     xgrid = interpolation.generate_xgrid(**setup)
