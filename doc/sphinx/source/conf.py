@@ -52,7 +52,8 @@ extensions = [
     # https://recommonmark.readthedocs.io/en/latest/#linking-to-headings-in-other-files
     'sphinx.ext.autosectionlabel',
     'recommonmark',
-    'numpydoc'
+    'sphinx.ext.napoleon',
+    'sphinxcontrib.bibtex'
 ]
 
 # Add any paths that contain templates here, relative to this directory.

@@ -5,6 +5,9 @@
     Done in this way to allow for future extension to config files or other different choices.
 """
 
+from eko import t_float
+
+
 class Constants:
     """
     Upon initialization all constants are set and a `lock` variable is put is place.
@@ -13,28 +16,37 @@ class Constants:
 
     Attributes
     ----------
-    NC: int
-    TF: float
+      NC: int
+        Number of colors = 3
 
-    Methods
-    -------
-    dict()
-        Returns constants as dictionary
+      TF: t_float
+        normalization of fundamental generators = 1/2
+
+      CA : t_float
+        second Casimir constant in adjoint representation = NC
+
+      CF : t_float
+        second Casimir constant in fundamental representation = (NC^2 - 1)/(2 NC)
+
     """
+
     _lock = False
+
     def __init__(self):
         self.NC = 3
-        self.TF = 1./2.
-        self.CA = self.NC
+        self.TF = t_float(1.0 / 2.0)
+        self.CA = t_float(self.NC)
+        self.CF = t_float((self.NC * self.NC - 1.0) / (2.0 * self.NC))
         # Lock the class
         self.lock = True
 
     @property
     def lock(self):
         return self._lock
+
     @lock.setter
     def lock(self, value):
-        self.__dict__["_lock"] = value # Set like this otherwise lock locks the lock
+        self.__dict__["_lock"] = value  # Set like this otherwise lock locks the lock
 
     def __setattr__(self, name, value):
         if self.lock:

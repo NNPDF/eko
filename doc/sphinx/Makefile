@@ -22,6 +22,7 @@ view: html
 
 clean:
 	rm -rf build
+	rm -rf _build
 
 cleanall: clean
 	rm -rf $(SOURCEDIR)/modules

@@ -9,6 +9,10 @@ setup(name='eko',
       url='https://github.com/N3PDF/eko',
       package_dir={'': 'src'},
       packages=find_packages('src'),
+      package_data = {
+          '' : ['*.json'],
+          'tests/regressions':['*'],
+          },
       zip_safe=False,
       classifiers=[
           'Operating System :: Unix',
@@ -19,10 +23,17 @@ setup(name='eko',
       ],
       install_requires=[
           'numpy',
+          'scipy',
           'numba',
+          'cffi',
           'sphinx_rtd_theme',
-          'numpydoc',
-          'recommonmark'
+          'recommonmark',
+          'sphinxcontrib-bibtex',
+          'joblib',
       ],
+      setup_requires=[
+          "cffi>1.0.0"
+          ],
+      cffi_modules=["src/cfunctions/digamma.py:ffibuilder"],
       python_requires='>=3.6'
 )

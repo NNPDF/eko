@@ -5,6 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
+_gsl*
 
 # Distribution / packaging
 .Python
@@ -93,6 +94,9 @@ venv.bak/
 # Spyder project settings
 .spyderproject
 .spyproject
+
+# VS Code
+.vscode
 
 # Rope project settings
 .ropeproject
