@@ -10,7 +10,7 @@
 from numpy.testing import assert_approx_equal
 
 from eko import t_float
-from eko.alpha_s import beta_0, beta_1, beta_2, alpha_s_generator
+from eko.alpha_s import beta_0, beta_1, beta_2, Alphas_Dispatcher 
 from eko.constants import Constants
 
 # the test will only pass for the default set of constants
@@ -62,7 +62,7 @@ def test_a_s():
     ref_as = 0.1181
     ref_mu = 90
     ask_q2 = 125
-    alpha_s_function = alpha_s_generator(ref_as, ref_mu, NF, "None")
+    alpha_s = Alphas_Dispatcher(constants, ref_as, ref_mu, NF, method = "None", order = 0)
     for order in range(1):
-        result = alpha_s_function(order, ask_q2)
+        result = alpha_s(ask_q2)
         assert_approx_equal(result, known_vals[order], significant=7)
