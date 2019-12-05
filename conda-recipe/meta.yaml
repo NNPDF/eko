@@ -25,6 +25,7 @@ requirements:
         - scipy
         - cffi
         - gsl
+        - joblib
 
 test:
     requires:

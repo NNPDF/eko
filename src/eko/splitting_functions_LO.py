@@ -20,38 +20,10 @@ terms of the anomalous dimensions (note the additional sign!)
 import numpy as np
 import numba as nb
 from eko import t_float, t_complex
-from _gsl_digamma import lib #pylint: disable=no-name-in-module
-
-# Everything from this point will compile in object mode because of numba
-# not being able to deal with struct in nopython mode
-# we can deal with that problem in the future
-@nb.jit(forceobj=True)
-def _S1(N: t_complex):
-    r"""Computes the simple harmonic sum
-
-    .. math::
-      S_1(N) = \sum\limits_{j=0}^N \frac 1 j = \psi(N+1)+\gamma_E
-
-    with :math:`\psi(M)` the digamma function and :math:`\gamma_E` the Euler-Mascheroni constant
-
-    Parameters
-    ----------
-      N : t_complex
-        Mellin moment
-
-    Returns
-    -------
-      S_1 : t_complex
-        (simple) Harmonic sum up to N :math:`S_1(N)`
-    """
-    r = np.real(N) + 1
-    i = np.imag(N)
-    c_result = lib.digamma(r, i)
-    result = np.complex(c_result.r, c_result.i)
-    return result + np.euler_gamma
+from eko.ekomath import harmonic_S1 as S1
 
 
-@nb.jit(forceobj=True)
+@nb.njit
 def gamma_ns_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -76,12 +48,12 @@ def gamma_ns_0(
       gamma_ns_0 : t_complex
         Leading-order non-singlet anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    gamma = 2 * (_S1(N - 1) + _S1(N + 1)) - 3
+    gamma = 2 * (S1(N - 1) + S1(N + 1)) - 3
     result = CF * gamma
     return result
 
 
-@nb.jit(forceobj=True)
+@nb.njit
 def gamma_ps_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -109,7 +81,7 @@ def gamma_ps_0(
     return 0.0
 
 
-@nb.jit(forceobj=True)
+@nb.njit
 def gamma_qg_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -134,12 +106,12 @@ def gamma_qg_0(
       gamma_qg_0 : t_complex
         Leading-order quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
-    gamma = _S1(N - 1) + 4.0 * _S1(N + 1) - 2.0 * _S1(N + 2) - 3.0 * _S1(N)
+    gamma = S1(N - 1) + 4.0 * S1(N + 1) - 2.0 * S1(N + 2) - 3.0 * S1(N)
     result = 2.0 * nf * gamma
     return result
 
 
-@nb.jit(forceobj=True)
+@nb.njit
 def gamma_gq_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -164,12 +136,12 @@ def gamma_gq_0(
       gamma_qg_0 : t_complex
         Leading-order gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
     """
-    gamma = 2.0 * _S1(N - 2) - 4.0 * _S1(N - 1) - _S1(N + 1) + 3.0 * _S1(N)
+    gamma = 2.0 * S1(N - 2) - 4.0 * S1(N - 1) - S1(N + 1) + 3.0 * S1(N)
     result = 2.0 * CF * gamma
     return result
 
 
-@nb.jit(forceobj=True)
+@nb.njit
 def gamma_gg_0(
     N: t_complex, nf: int, CA: t_float, CF: t_float
 ):  # pylint: disable=unused-argument
@@ -194,11 +166,13 @@ def gamma_gg_0(
       gamma_qg_0 : t_complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    gamma = _S1(N - 2) - 2.0 * _S1(N - 1) - 2.0 * _S1(N + 1) + _S1(N + 2) + 3.0 * _S1(N)
+    gamma = S1(N - 2) - 2.0 * S1(N - 1) - 2.0 * S1(N + 1) + S1(N + 2) + 3.0 * S1(N)
     result = CA * (4.0 * gamma - 11.0 / 3.0) + 2.0 / 3.0 * nf
     return result
 
-def get_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_float):
+
+@nb.njit
+def get_gamma_singlet_0(N: t_complex, nf: int, CA: t_float, CF: t_float):
     r"""Computes the leading-order singlet anomalous dimension matrix
 
     .. math::
@@ -231,14 +205,16 @@ def get_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_float):
       - gamma_gq_0
       - gamma_gg_0
     """
-    gamma_qq_0 = gamma_ns_0(N,nf,CA,CF) + gamma_ps_0(N,nf,CA,CF)
-    gamma_S_0 = np.array([
-      [gamma_qq_0, gamma_qg_0(N,nf,CA,CF)],
-      [gamma_gq_0(N,nf,CA,CF), gamma_gg_0(N,nf,CA,CF)]
-    ])
+    gamma_qq = gamma_ns_0(N, nf, CA, CF) + gamma_ps_0(N, nf, CA, CF)
+    gamma_qg = gamma_qg_0(N, nf, CA, CF)
+    gamma_gq = gamma_gq_0(N, nf, CA, CF)
+    gamma_gg = gamma_gg_0(N, nf, CA, CF)
+    gamma_S_0 = np.array([[gamma_qq, gamma_qg], [gamma_gq, gamma_gg]])
     return gamma_S_0
 
-def get_Eigensystem_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_float):
+
+@nb.njit
+def get_Eigensystem_gamma_singlet_0(N: t_complex, nf: int, CA: t_float, CF: t_float):
     r"""Computes the Eigensystem of the leading-order singlet anomalous dimension matrix
 
     Parameters
@@ -267,19 +243,12 @@ def get_Eigensystem_gamma_singlet_0(N : t_complex, nf: int, CA: t_float, CF: t_f
         projector for the negative eigenvalue of the Leading-order singlet anomalous
         dimension matrix :math:`\gamma_{S}^{(0)}(N)`
     """
-    gamma_S_0 = get_gamma_singlet_0(N,nf,CA,CF)
+    gamma_S_0 = get_gamma_singlet_0(N, nf, CA, CF)
     # compute eigenvalues
-    gamma_qq = gamma_S_0[0][0]
-    gamma_qg = gamma_S_0[0][1]
-    gamma_gq = gamma_S_0[1][0]
-    gamma_gg = gamma_S_0[1][1]
-    b = (gamma_qq + gamma_gg) / 2.0
-    det = np.sqrt((gamma_qq - gamma_gg)**2 + 4*gamma_qg*gamma_gq) / 2.0
-    lambda_p = b + det
-    lambda_m = b - det
+    lambda_m, lambda_p = np.linalg.eigvals(gamma_S_0)
     # compute projectors
-    identity = np.identity(2,dtype=t_complex)
+    identity = np.identity(2)
     c = 1.0 / (lambda_p - lambda_m)
-    e_p = c * (gamma_S_0 - lambda_m * identity)
-    e_m = - c * (gamma_S_0 - lambda_p * identity)
-    return lambda_p,lambda_m,e_p,e_m
+    e_p = +c * (gamma_S_0 - lambda_m * identity)
+    e_m = -c * (gamma_S_0 - lambda_p * identity)
+    return lambda_p, lambda_m, e_p, e_m

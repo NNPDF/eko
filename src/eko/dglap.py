@@ -4,52 +4,22 @@ This file contains the main loop for the DGLAP calculations.
 
 """
 import logging
+import joblib
 import numpy as np
 
-from eko import t_float
 import eko.alpha_s as alpha_s
-import eko.splitting_functions_LO as sf_LO
 import eko.interpolation as interpolation
 import eko.mellin as mellin
+from eko.kernel_generation import KernelDispatcher
 from eko.constants import Constants
 
-logObj = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-def _get_xgrid(setup):
-    """Compute input grid
-
-    Parameters
-    ----------
-    setup : dict
-        a dictionary with the theory parameters for the evolution
-
-    Returns
-    -------
-        xgrid : array
-            input grid
-    """
-    xgrid = np.array([])
-    # grid type
-    xgrid_type = setup.get("xgrid_type", "Chebyshev@log")
-    if xgrid_type == "custom": # custom grid
-        if "xgrid_custom" not in setup:
-            raise ValueError("'xgrid_type' is 'custom', but 'xgrid_custom' is not given")
-        xgrid = np.array(setup["xgrid_custom"])
-    else: # auto-generated grid
-        # read params
-        xgrid_size = setup["xgrid_size"]
-        xgrid_min = setup.get("xgrid_min", 1e-7)
-        # generate
-        if xgrid_type == "Chebyshev@log":
-            xgrid = interpolation.get_xgrid_Chebyshev_at_log(xgrid_size, xgrid_min)
-        elif xgrid_type == "linear@log":
-            xgrid = interpolation.get_xgrid_linear_at_log(xgrid_size, xgrid_min)
-        else:
-            raise ValueError("Unkonwn 'xgrid_type'")
-    unique_xgrid = np.unique(xgrid)
-    if not len(unique_xgrid) == len(xgrid):
-        raise ValueError("given 'xgrid' is not unique!") # relax to warning?
-    return unique_xgrid
+def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
+    out = joblib.Parallel(n_jobs=n_jobs)(
+        joblib.delayed(pfunction)(fun, xk) for fun in basis_functions
+    )
+    return out
 
 
 def _get_evoultion_params(setup):
@@ -68,186 +38,134 @@ def _get_evoultion_params(setup):
     # setup constants
     nf = setup["NfFF"]
     # setup inital+final scale
-    # TODO iterate Q2grid
     qref2 = setup["Qref"] ** 2
     pto = setup["PTO"]
     alphas = setup["alphas"]
     # Generate the alpha_s functions
     a_s = alpha_s.alpha_s_generator(alphas, qref2, nf, "analytic")
-    a0 = a_s(pto, setup["Q0"]**2)
+    a0 = a_s(pto, setup["Q0"] ** 2)
     a1 = a_s(pto, setup["Q2grid"][0])
     # evolution parameters
     t0 = np.log(1.0 / a0)
     t1 = np.log(1.0 / a1)
     return t1 - t0
 
-def _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_function_coeffs,ret):
+
+def _run_nonsinglet(kernel_dispatcher, targetgrid, ret):
     """Solves the non-singlet case.
 
     This method updates the `ret` parameter instead of returning something.
 
     Parameters
     ----------
-        setup : dict
-            a dictionary with the theory parameters for the evolution
-        constants : Constants
-            used set of constants
-        delta_t : t_float
-            evolution step
-        is_log_interpolation : bool
-            use a logarithmic interpolation
-        basis_function_coeffs : array
-            coefficient list for the basis functions
+        kernel_dispatcher:
+            instance of kerneldispatcher from which compiled kernels can be
+            obtained
+        targetgrid:
+            list of x-values which are computed
         ret : dict
             a dictionary for the output
     """
-    # setup constants
-    xgrid = ret["xgrid"]
-    targetgrid = ret["targetgrid"]
+    # Receive all precompiled kernels
+    kernels = kernel_dispatcher.compile_nonsinglet()
+
+    # Setup path
+    gamma = 1.0
+    cut = 1e-2
+    path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
+
+    # Generate integrands
+    integrands = []
+    for kernel in kernels:
+        kernel_int = mellin.compile_integrand(kernel, path, jac)
+        integrands.append(kernel_int)
+
+    def run_thread(integrand, logx):
+        result = mellin.inverse_mellin_transform(integrand, cut, logx)
+        return result
+
+    log_prefix = "computing NS operator - %s"
+    logger.info(log_prefix, "kernel compiled")
+    operators = []
+    operator_errors = []
+
     targetgrid_size = len(targetgrid)
-    nf = setup["NfFF"]
-    beta0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
+    for k, xk in enumerate(targetgrid):
+        out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
+        operators.append(np.array(out)[:, 0])
+        operator_errors.append(np.array(out)[:, 1])
+        log_text = f"{k+1}/{targetgrid_size}"
+        logger.info(log_prefix, log_text)
+    logger.info(log_prefix, "done.")
 
-    # prepare
-    def get_kernel_ns(j,lnx):
-        """return non-siglet integration kernel"""
-        current_coeff = basis_function_coeffs[j]
-        if is_log_interpolation:
-            fN = interpolation.evaluate_Lagrange_basis_function_log_N
-        else:
-            fN = interpolation.evaluate_Lagrange_basis_function_N
-        def ker(N):
-            """non-siglet integration kernel"""
-            ln = -delta_t * sf_LO.gamma_ns_0(N, nf, constants.CA, constants.CF) / beta0
-            #interpoln = interpolation.get_Lagrange_interpolators_log_N(N, xgrid, j)
-            interpoln = fN(N,current_coeff,lnx)
-            return np.exp(ln) * interpoln
-
-        return ker
-
-    # perform
-    xgrid_size = len(xgrid)
-    void = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
-    op_ns = np.copy(void)
-    op_ns_err = np.copy(void)
-    #path, jac = mellin.get_path_Talbot()
-    logPre = "computing NS operator - "
-    logObj.info(logPre+"...")
-    for k,xk in enumerate(targetgrid):
-        #path,jac = mellin.get_path_line(path_length)
-        if False and xk < 1e-3:
-            cut = 0.1
-            gamma = 2.0
-        else:
-            cut = 1e-2
-            gamma = 1.0
-        path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
-        for j in range(xgrid_size):
-            res = mellin.inverse_mellin_transform(
-                get_kernel_ns(j,np.log(xk)), path, jac, cut
-            )
-            op_ns[k, j] = res[0]
-            op_ns_err[k, j] = res[1]
-        logObj.info(logPre+" %d/%d",k+1,targetgrid_size)
-    logObj.info(logPre+"done.")
-
-    # insert operators
-    ret["operators"]["NS"] = op_ns
-    ret["operator_errors"]["NS"] = op_ns_err
+    # insert operators #TODO return the operators instead
+    ret["operators"]["NS"] = np.array(operators)
+    ret["operator_errors"]["NS"] = np.array(operator_errors)
 
 
-def _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_function_coeffs,ret):
+def _run_singlet(kernel_dispatcher, targetgrid, ret):
     """Solves the singlet case.
-
-    This method updates the `ret` parameter instead of returning something.
 
     Parameters
     ----------
-        setup : dict
-            a dictionary with the theory parameters for the evolution
-        constants : Constants
-            used set of constants
-        delta_t : t_float
-            evolution step
-        is_log_interpolation : bool
-            use a logarithmic interpolation
-        basis_function_coeffs : array
-            coefficient list for the basis functions
+        kernel_dispatcher:
+            instance of kerneldispatcher from which compiled kernels can be
+            obtained
+        targetgrid:
+            list of x-values which are computed
         ret : dict
             a dictionary for the output
     """
-    # setup constants
-    xgrid = ret["xgrid"]
-    targetgrid = ret["targetgrid"]
-    targetgrid_size = len(targetgrid)
-    nf = setup["NfFF"]
-    beta0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
+    # Receive all precompiled kernels
+    kernels = kernel_dispatcher.compile_singlet()
 
-    # prepare
-    def get_kernels_s(j,lnx):
-        """return siglet integration kernels"""
-        current_coeff = basis_function_coeffs[j]
-        if is_log_interpolation:
-            fN = interpolation.evaluate_Lagrange_basis_function_log_N
-        else:
-            fN = interpolation.evaluate_Lagrange_basis_function_N
-        def get_ker(k,l):
-            def ker(N):
-                """singlet integration kernel"""
-                l_p,l_m,e_p,e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N,nf,constants.CA,constants.CF)
-                ln_p = - delta_t * l_p  / beta0
-                ln_m = - delta_t * l_m  / beta0
-                interpoln = fN(N,current_coeff,lnx)
-                return (e_p[k][l] * np.exp(ln_p) + e_m[k][l] * np.exp(ln_m)) * interpoln
-            return ker
+    # Setup path
+    cut = 1e-2
+    gamma = 1.0
+    path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
 
-        return get_ker(0,0), get_ker(0,1), get_ker(1,0), get_ker(1,1)
+    # Generate integrands
+    integrands = []
+    for kernel_set in kernels:
+        kernel_int = []
+        for ker in kernel_set:
+            kernel_int.append(mellin.compile_integrand(ker, path, jac))
+        integrands.append(kernel_int)
 
     # perform
-    xgrid_size = len(xgrid)
-    void = np.zeros((targetgrid_size, xgrid_size), dtype=t_float)
-    op_s_qq = np.copy(void)
-    op_s_qg = np.copy(void)
-    op_s_gq = np.copy(void)
-    op_s_gg = np.copy(void)
-    op_s_qq_err = np.copy(void)
-    op_s_qg_err = np.copy(void)
-    op_s_gq_err = np.copy(void)
-    op_s_gg_err = np.copy(void)
-    #path, jac = mellin.get_path_Talbot()
-    logPre = "computing singlet operator - "
-    logObj.info(logPre+"...")
-    for k,xk in enumerate(targetgrid):
-        #path,jac = mellin.get_path_line(path_length)
-        if False and xk < 1e-3:
-            cut = 0.1
-            gamma = 2.0
-        else:
-            cut = 1e-2
-            gamma = 1.0
-        path,jac = mellin.get_path_Cauchy_tan(gamma,1.0)
-        for j in range(xgrid_size):
-            # iterate all matrix elements
-            ker_qq,ker_qg,ker_gq,ker_gg = get_kernels_s(j,np.log(xk))
-            for ker,op,op_err in [
-                    (ker_qq,op_s_qq,op_s_qq_err),(ker_qg,op_s_qg,op_s_qg_err),
-                    (ker_gq,op_s_gq,op_s_gq_err),(ker_gg,op_s_gg,op_s_gg_err)
-                ]:
-                res = mellin.inverse_mellin_transform(ker, path, jac, cut)
-                op[k, j] = res[0]
-                op_err[k, j] = res[1]
-        logObj.info(logPre+" %d/%d",k+1,targetgrid_size)
-    logObj.info(logPre,"done.")
+    log_prefix = "computing singlet operator - %s"
+    logger.info(log_prefix, "kernel compiled")
+
+    def run_thread(integrands, logx):
+        """ The output of this function is a list of tuple (result, error)
+        for qq, qg, gq, gg in that order """
+        all_res = []
+        for integrand in integrands:
+            result = mellin.inverse_mellin_transform(integrand, cut, logx)
+            all_res.append(result)
+        return all_res
+
+    all_output = []
+    targetgrid_size = len(targetgrid)
+    for k, xk in enumerate(targetgrid):
+        out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
+        all_output.append(out)
+        log_text = f"{k+1}/{targetgrid_size}"
+        logger.info(log_prefix, log_text)
+    logger.info(log_prefix, "done.")
+
+    output_array = np.array(all_output)
 
     # insert operators
-    ret["operators"]["S_qq"] = op_s_qq
-    ret["operators"]["S_qg"] = op_s_qg
-    ret["operators"]["S_gq"] = op_s_gq
-    ret["operators"]["S_gg"] = op_s_gg
-    ret["operator_errors"]["S_qq"] = op_s_qq_err
-    ret["operator_errors"]["S_qg"] = op_s_qg_err
-    ret["operator_errors"]["S_gq"] = op_s_gq_err
-    ret["operator_errors"]["S_gg"] = op_s_gg_err
+    ret["operators"]["S_qq"] = output_array[:, :, 0, 0]
+    ret["operators"]["S_qg"] = output_array[:, :, 1, 0]
+    ret["operators"]["S_gq"] = output_array[:, :, 2, 0]
+    ret["operators"]["S_gg"] = output_array[:, :, 3, 0]
+    ret["operator_errors"]["S_qq"] = output_array[:, :, 0, 1]
+    ret["operator_errors"]["S_qg"] = output_array[:, :, 1, 1]
+    ret["operator_errors"]["S_gq"] = output_array[:, :, 2, 1]
+    ret["operator_errors"]["S_gg"] = output_array[:, :, 3, 1]
+
 
 def run_dglap(setup):
     r"""This function takes a DGLAP theory configuration dictionary
@@ -272,6 +190,7 @@ def run_dglap(setup):
         'xgrid_size'    size of the interpolation grid
         'xgrid_min'     lower boundry of the interpolation grid - defaults to ``1e-7``
         'xgrid_type'    generating function for the interpolation grid - see below
+        'log_interpol'  boolean, whether it is log interpolation or not, defaults to `True`
         'targetgrid'    list of x-values which are computed - defaults to ``xgrid``, if not given
         =============== ==========================================================================
 
@@ -280,61 +199,93 @@ def run_dglap(setup):
     ret: dict
         a dictionary with a defined set of keys
 
-        ============  ============================================================================
-        key           description
-        ============  ============================================================================
-        'xgrid'       list of x-values which build the support of the interpolation
-        'targetgrid'  list of x-values which are computed
-        'operators'   list of computed operators
-        ============  ============================================================================
+        =================  ============================================================================
+        key                description
+        =================  ============================================================================
+        'xgrid'            list of x-values which build the support of the interpolation
+        'targetgrid'       list of x-values which are computed
+        'operators'        list of computed operators
+        'operator_errors'  list of integration errors associated to the operators
+        =================  ============================================================================
 
     Notes
     -----
 
     * xgrid_type
-        - ``linear@log``: nodes distributed linear in log-space
-        - ``custom``: custom xgrid, supplied by the key ``xgrid_custom``
+        - ``linear``: nodes distributed linear in linear-space
+        - ``log``: nodes distributed linear in log-space
+        - ``custom``: custom xgrid, supplied by the key ``xgrid``
 
     """
 
-    # print theory id setup
-    logObj.info("setup: %s",setup)
+    # Print theory id setup
+    logger.info("Setup: %s", setup)
 
-    # return dictionay
-    # TODO decide on which level to iterate Q2
-    ret = {}
-
-    # evolution parameters
+    # Load constants and compute parameters
+    constants = Constants()
+    nf = setup["NfFF"]
     delta_t = _get_evoultion_params(setup)
 
-    # setup input grid: xgrid
-    xgrid = _get_xgrid(setup)
-    ret["xgrid"] = xgrid
-    polynom_rank = setup.get("xgrid_polynom_rank",4)
-    is_log_interpolation = not setup.get("xgrid_interpolation","log") == "id"
-    if is_log_interpolation:
-        basis_function_coeffs = interpolation.get_Lagrange_basis_functions_log(xgrid,polynom_rank)
-    else:
-        basis_function_coeffs = interpolation.get_Lagrange_basis_functions(xgrid,polynom_rank)
-    logObj.info("is_log_interpolation = %s",is_log_interpolation)
-
-    # setup output grid: targetgrid
+    # Setup interpolation
+    xgrid = interpolation.generate_xgrid(**setup)
+    is_log_interpolation = setup.get("log_interpol", True)
+    polynom_rank = setup.get("xgrid_polynom_rank", 4)
+    logger.info(
+        "Interpolation mode: %s", setup["xgrid_type"],
+    )
+    logger.info("Log interpolation: %s", is_log_interpolation)
     targetgrid = setup.get("targetgrid", xgrid)
-    ret["targetgrid"] = targetgrid
+    basis_function_dispatcher = interpolation.InterpolatorDispatcher(
+        xgrid, polynom_rank, log=is_log_interpolation
+    )
 
-    # prepare return of operators
-    ret["operators"] = {"NS": None,"S_qq": None,"S_qg": None,"S_gq": None,"S_gg": None}
-    ret["operator_errors"] = {"NS": None,"S_qq": None,"S_qg": None,"S_gq": None,"S_gg": None}
+    # Start filling the output dictionary
+    ret = {
+        "xgrid": xgrid,
+        "targetgrid": targetgrid,
+        "operators": {},
+        "operator_errors": {},
+    }
 
-    # load constants
-    constants = Constants()
+    # Setup the kernel dispatcher
+    kernel_dispatcher = KernelDispatcher(
+        basis_function_dispatcher, constants, nf, delta_t
+    )
 
     # run non-singlet
-    _run_nonsinglet(setup,constants,delta_t,is_log_interpolation,basis_function_coeffs,ret)
+    _run_nonsinglet(kernel_dispatcher, targetgrid, ret)
 
     # run singlet
-    _run_singlet(setup,constants,delta_t,is_log_interpolation,basis_function_coeffs,ret)
+    _run_singlet(kernel_dispatcher, targetgrid, ret)
 
-    #   Points to be implemented:
-    #   TODO implement NLO
     return ret
+
+
+if __name__ == "__main__":
+    n = 3
+    xgrid_low = interpolation.get_xgrid_linear_at_log(n, 1e-7, 0.1)
+    xgrid_mid = interpolation.get_xgrid_linear_at_id(n, 0.1, 1.0)
+    xgrid_high = np.array(
+        []
+    )  # 1.0-interpolation.get_xgrid_linear_at_log(10,1e-3,1.0 - 0.9)
+    xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
+    polynom_rank = 4
+    toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])[
+        -3:
+    ]
+
+    ret1 = run_dglap(
+        {
+            "PTO": 0,
+            "alphas": 0.35,
+            "Qref": np.sqrt(2),
+            "Q0": np.sqrt(2),
+            "NfFF": 4,
+            "xgrid_type": "custom",
+            "xgrid": xgrid,
+            "xgrid_polynom_rank": polynom_rank,
+            "xgrid_interpolation": "log",
+            "targetgrid": toy_xgrid,
+            "Q2grid": [1e4],
+        }
+    )

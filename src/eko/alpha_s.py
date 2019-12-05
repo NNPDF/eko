@@ -137,7 +137,6 @@ def alpha_s_generator(alpha_s_ref: t_float, scale_ref: t_float, nf: int, method:
         function(order, scale_to) which computes alpha_s for a given order at a given scale
     """  # pylint: disable=unused-argument
     # TODO implement more complex runnings (we may take a glimpse into LHAPDF)
-    # TODO change reference arguments of a_s also to a_s (instead of alpha_s_ref)?
     # TODO constants have to come from the outside, otherwise it defeats the purpose
     c = Constants()
     beta0 = beta_0(nf, c.CA, c.CF, c.TF)
@@ -164,17 +163,3 @@ def alpha_s_generator(alpha_s_ref: t_float, scale_ref: t_float, nf: int, method:
             raise NotImplementedError("Alpha_s beyond LO not implemented")
 
     return alpha_s
-
-
-# TOBEREMOVED
-def a_s(
-    order: int,
-    alpha_s_ref: t_float,
-    scale_ref: t_float,
-    scale_to: t_float,
-    nf: int,
-    method: str,
-):  # for now: LO analytic
-    # TODO: legacy wrap
-    afun = alpha_s_generator(alpha_s_ref, scale_ref, nf, method)
-    return afun(order, scale_to)
