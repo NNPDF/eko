@@ -56,14 +56,34 @@ def compute_deltas(alpha_s, q0, q2grid):
     return tf - ti
 
 
-def compute_operators(kernel_dispatcher, delta_tgrid, targetgrid, ret, gamma=1.0, cut=1e-2):
-    """ Solves the non-singet and the singlet cases """
+def compute_operators(
+    ker_dispatcher, delta_tgrid, targetgrid, ret, gamma=1.0, cut=1e-2, jobs=1
+):
+    """ Solves the non-singet and the singlet cases 
+
+    Updates the `ret` dictionary
+
+    Parameters
+    ----------
+        ker_dispatcher: KernelDispatcher
+            holds all information about the kernels ready to be compiled
+        delta_tgrid: array
+            list of `delta_t` (one for each value of `q^2`
+        ret: dict
+            dictionary to be filled with the values of the operator and their errors
+        gamma: t_float
+            intersection of path with real axis
+        cut: t_float
+            integration limit
+        jobs: int
+            number of jobs to multithread on
+    """
     # Setup the path
     path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
 
     # Get all precompiled kernels
-    kernel_nonsinglet = kernel_dispatcher.compile_nonsinglet()
-    kernel_singlet = kernel_dispatcher.compile_singlet()
+    kernel_nonsinglet = ker_dispatcher.compile_nonsinglet()
+    kernel_singlet = ker_dispatcher.compile_singlet()
 
     # Generate all integrands
     integrands = []
@@ -78,15 +98,6 @@ def compute_operators(kernel_dispatcher, delta_tgrid, targetgrid, ret, gamma=1.0
     # Log
     log_prefix = "Computing operators - %s"
     logger.info(log_prefix, "kernels compiled")
-
-    def run_thread(integrands, logx):
-        """ The output of this function is a list of tuple (result, error)
-        for qq, qg, gq, gg, NS in that order """
-        all_res = []
-        for integrand in integrands:
-            result = mellin.inverse_mellin_transform(integrand, cut, logx)
-            all_res.append(result)
-        return all_res
 
     def run_thread_q2(integrands, logx):
         """ The output of this function is a
@@ -106,7 +117,7 @@ def compute_operators(kernel_dispatcher, delta_tgrid, targetgrid, ret, gamma=1.0
     all_output = []
     targetgrid_size = len(targetgrid)
     for k, xk in enumerate(targetgrid):
-        out = _parallelize_on_basis(integrands, run_thread_q2, np.log(xk))
+        out = _parallelize_on_basis(integrands, run_thread_q2, np.log(xk), n_jobs=jobs)
         all_output.append(out)
         log_text = f"{k+1}/{targetgrid_size}"
         logger.info(log_prefix, log_text)
@@ -218,7 +229,8 @@ def run_dglap(setup):
     # Setup the kernel dispatcher
     kernel_dispatcher = KernelDispatcher(basis_function_dispatcher, constants, nf)
 
-    compute_operators(kernel_dispatcher, delta_tgrid, targetgrid, ret)
+    jobs = setup.get("jobs", 1)
+    compute_operators(kernel_dispatcher, delta_tgrid, targetgrid, ret, jobs=jobs)
 
     return ret
 
