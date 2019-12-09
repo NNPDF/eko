@@ -62,17 +62,20 @@ def toy_bp0(x):  # pylint: disable=unused-argument
     return 0
 
 
+def toy_V0(x):
+    return toy_uv0(x) + toy_dv0(x)
+
+def toy_V30(x):
+    return toy_uv0(x) - toy_dv0(x)
+
 def toy_T30(x):
     return -2.0 * toy_Lm0(x) + toy_uv0(x) - toy_dv0(x)
-
 
 def toy_T80(x):
     return toy_Lp0(x) + toy_uv0(x) + toy_dv0(x) - 2.0 * toy_sp0(x)
 
-
 def toy_T150(x):
     return toy_Lp0(x) + toy_uv0(x) + toy_dv0(x) + toy_sp0(x) - 3.0 * toy_cp0(x)
-
 
 def toy_S0(x):
     return toy_uv0(x) + toy_dv0(x) + toy_Lp0(x) + toy_sp0(x)
@@ -80,8 +83,8 @@ def toy_S0(x):
 
 # list
 raw_label_list = ["u_v", "d_v", "L_-", "L_+", "s_+", "c_+", "b_+", "g"]
-rot_label_list = ["u_v", "d_v", "T_3", "T_8", "T_15", "Sigma", "g"]
-rot_func_list = [toy_uv0, toy_dv0, toy_T30, toy_T80, toy_T150, toy_S0, toy_g0]
+rot_label_list = ["V", "V_3", "T_3", "T_8", "T_15", "Sigma", "g"]
+rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_T150, toy_S0, toy_g0]
 
 # fmt: off
 # inital reference grid = table 2 part 1
@@ -117,8 +120,8 @@ LHA_final_grid_ref = np.array([
 # rotation matrix
 LHA_flavour_rotate = np.array([
     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
-    [   1,   0,   0,   0,   0,   0,   0,   0], # u_v
-    [   0,   1,   0,   0,   0,   0,   0,   0], # d_v
+    [   1,   1,   0,   0,   0,   0,   0,   0], # V
+    [   1,  -1,   0,   0,   0,   0,   0,   0], # V_3
     [   1,  -1,  -2,   0,   0,   0,   0,   0], # T_3
     [   1,   1,   0,   1,  -2,   0,   0,   0], # T_8
     [   1,   1,   0,   1,   1,  -3,   0,   0], # T_15
@@ -235,6 +238,7 @@ if __name__ == "__main__":
             "alphas": 0.35,
             "Qref": np.sqrt(2),
             "Q0": np.sqrt(2),
+            "FNS": "FFNS",
             "NfFF": 4,
             "xgrid_type": "custom",
             "xgrid": xgrid,

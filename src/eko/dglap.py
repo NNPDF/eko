@@ -13,22 +13,47 @@ import eko.mellin as mellin
 from eko.kernel_generation import KernelDispatcher
 from eko.constants import Constants
 
+# List of all evolution basis elements
+evolution_basis_label_list = ["V","T3","V3","T8","V8","T15","V15","T24","V24","T35","V35","S_qq","S_qg","S_gq","S_gg","g"]
+
 logger = logging.getLogger(__name__)
 
 def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
+    """Provide parallization over all basis functions
+    
+    Parameters
+    ----------
+        basis_functions : list
+            basis list
+        pfunction : function
+            executed function
+        xk : t_float
+            Mellin inversion point
+        n_jobs : int
+            number of parallel jobs
+        
+    Returns
+    -------
+        out : list
+            output list for all jobs
+    """
     out = joblib.Parallel(n_jobs=n_jobs)(
         joblib.delayed(pfunction)(fun, xk) for fun in basis_functions
     )
     return out
 
 
-def _get_evoultion_params(setup):
+def _get_evoultion_params(setup, mu2init, mu2final):
     """Compute evolution parameters
 
     Parameters
     ----------
     setup: dict
         a dictionary with the theory parameters for the evolution
+    mu2init : float
+        initial scale
+    mu2final : flaot
+        final scale
 
     Returns
     -------
@@ -43,28 +68,28 @@ def _get_evoultion_params(setup):
     alphas = setup["alphas"]
     # Generate the alpha_s functions
     a_s = alpha_s.alpha_s_generator(alphas, qref2, nf, "analytic")
-    a0 = a_s(pto, setup["Q0"] ** 2)
-    a1 = a_s(pto, setup["Q2grid"][0])
+    a0 = a_s(pto, mu2init)
+    a1 = a_s(pto, mu2final)
     # evolution parameters
     t0 = np.log(1.0 / a0)
     t1 = np.log(1.0 / a1)
     return t1 - t0
 
 
-def _run_nonsinglet(kernel_dispatcher, targetgrid, ret):
+def _run_nonsinglet(kernel_dispatcher, targetgrid):
     """Solves the non-singlet case.
-
-    This method updates the `ret` parameter instead of returning something.
 
     Parameters
     ----------
-        kernel_dispatcher:
-            instance of kerneldispatcher from which compiled kernels can be
-            obtained
-        targetgrid:
+        kernel_dispatcher: KernelDispatcher
+            instance of kerneldispatcher from which compiled kernels can be obtained
+        targetgrid: array
             list of x-values which are computed
+
+    Returns
+    -------
         ret : dict
-            a dictionary for the output
+            dictionary containing the keys `operators` and `operator_errors`
     """
     # Receive all precompiled kernels
     kernels = kernel_dispatcher.compile_nonsinglet()
@@ -98,23 +123,31 @@ def _run_nonsinglet(kernel_dispatcher, targetgrid, ret):
         logger.info(log_prefix, log_text)
     logger.info(log_prefix, "done.")
 
-    # insert operators #TODO return the operators instead
-    ret["operators"]["NS"] = np.array(operators)
-    ret["operator_errors"]["NS"] = np.array(operator_errors)
+    ret = {
+        "operators" : {
+            "NS" : np.array(operators)
+        },
+        "operator_errors" : {
+            "NS" : np.array(operator_errors)
+        }
+    }
+    return ret
 
 
-def _run_singlet(kernel_dispatcher, targetgrid, ret):
+def _run_singlet(kernel_dispatcher, targetgrid):
     """Solves the singlet case.
 
     Parameters
     ----------
-        kernel_dispatcher:
-            instance of kerneldispatcher from which compiled kernels can be
-            obtained
-        targetgrid:
+        kernel_dispatcher: KernelDispatcher
+            instance of kerneldispatcher from which compiled kernels can be obtained
+        targetgrid: array
             list of x-values which are computed
+
+    Returns
+    -------
         ret : dict
-            a dictionary for the output
+            dictionary containing the keys `operators` and `operator_errors`
     """
     # Receive all precompiled kernels
     kernels = kernel_dispatcher.compile_singlet()
@@ -157,6 +190,12 @@ def _run_singlet(kernel_dispatcher, targetgrid, ret):
     output_array = np.array(all_output)
 
     # insert operators
+    ret = {
+        "operators" : {
+        },
+        "operator_errors" : {
+        }
+    }
     ret["operators"]["S_qq"] = output_array[:, :, 0, 0]
     ret["operators"]["S_qg"] = output_array[:, :, 1, 0]
     ret["operators"]["S_gq"] = output_array[:, :, 2, 0]
@@ -165,6 +204,141 @@ def _run_singlet(kernel_dispatcher, targetgrid, ret):
     ret["operator_errors"]["S_qg"] = output_array[:, :, 1, 1]
     ret["operator_errors"]["S_gq"] = output_array[:, :, 2, 1]
     ret["operator_errors"]["S_gg"] = output_array[:, :, 3, 1]
+
+    return ret
+
+# https://stackoverflow.com/a/7205107
+# from functools import reduce
+# reduce(merge, [dict1, dict2, dict3...])
+def _merge_dicts(a, b, path=None):
+    "merges b into a"
+    if path is None: path = []
+    for key in b:
+        if key in a:
+            if isinstance(a[key], dict) and isinstance(b[key], dict):
+                _merge_dicts(a[key], b[key], path + [str(key)])
+            elif a[key] == b[key]:
+                pass # same leaf value
+            else:
+                raise Exception('Conflict at %s' % '.'.join(path + [str(key)]))
+        else:
+            a[key] = b[key]
+    return a
+
+def _run_step(setup,constants,basis_function_dispatcher,targetgrid,nf,mu2init,mu2final):
+    """Do a single convolution step in a fixed parameter configuration
+    
+    Parameters
+    ----------
+    setup: dict
+        a dictionary with the theory parameters for the evolution
+    constants : Constants
+        physical constants
+    targetgrid : array
+        output grid
+    nf : int
+        number of active flavours
+    mu2init : float
+        initial scale
+    mu2final : flaot
+        final scale
+
+    Returns
+    -------
+        ret : dict
+            output dictionary
+    """
+    # Setup the kernel dispatcher
+    delta_t = _get_evoultion_params(setup, mu2init, mu2final)
+    kernel_dispatcher = KernelDispatcher(
+        basis_function_dispatcher, constants, nf, delta_t
+    )
+
+    # run non-singlet
+    raw_ret_ns = _run_nonsinglet(kernel_dispatcher, targetgrid)
+    op_ns = raw_ret_ns["operators"]["NS"]
+    op_err_ns = raw_ret_ns["operator_errors"]["NS"]
+    ret_ns = {"operators": {}, "operator_errors": {}}
+    for label in ["V","T3","V3","T8","V8","T15","V15","T24","V24","T35","V35"]:
+        ret_ns["operators"][label] = op_ns.copy()
+        ret_ns["operator_errors"][label] = op_err_ns.copy()
+
+    # run singlet
+    ret_s = _run_singlet(kernel_dispatcher, targetgrid)
+    # join elements
+    ret = _merge_dicts(ret_ns,ret_s)
+    return ret
+
+def _run_FFNS(setup,constants,basis_function_dispatcher,targetgrid):
+    """Run the FFNS configuration.
+    
+    Parameters
+    ----------
+    setup: dict
+        a dictionary with the theory parameters for the evolution
+    constants : Constants
+        physical constants
+    targetgrid : array
+        output grid
+
+    Returns
+    -------
+        ret : dict
+            output dictionary
+    """
+    # do everything in one simple step
+    ret = _run_step(setup,constants,basis_function_dispatcher,targetgrid,setup["NfFF"],setup["Q0"] ** 2, setup["Q2grid"][0])
+    # TODO drop again all keys < n_f?
+    return ret
+
+
+def _run_ZM_VFNS(setup,constants,basis_function_dispatcher,xgrid,targetgrid):
+    """Run the ZM-VFNS configuration.
+    
+    Parameters
+    ----------
+    setup: dict
+        a dictionary with the theory parameters for the evolution
+    constants : Constants
+        physical constants
+    targetgrid : array
+        output grid
+
+    Returns
+    -------
+        ret : dict
+            output dictionary
+    """
+    mu2init = setup["Q0"] ** 2
+    mu2final = setup["Q2grid"][0]
+    # collect HQ masses
+    mH2s = []
+    Qmc = setup.get("Qmc",None)
+    mH2s.append(Qmc*Qmc)
+    Qmb = setup.get("Qmb",None)
+    mH2s.append(Qmb*Qmb)
+    Qmt = setup.get("Qmt",None)
+    mH2s.append(Qmt*Qmt)
+    # prepare output
+    targetgrid_size = len(targetgrid)
+    identity = np.identity((targetgrid_size,targetgrid_size))
+    void = np.zeros((targetgrid_size,targetgrid_size))
+    ret = {"operators":{},"operator_errors": {}}
+    for label in evolution_basis_label_list:
+        ret["operators"][label] = identity.copy()
+        ret["operator_erros"][label] = void.copy()
+    mu2low = mu2init
+    # mu -> mc
+    if (mu2final > mH2s[0]):
+        ret_step = _run_step(setup,constants,basis_function_dispatcher,targetgrid,3,mu2low, mH2s[0])
+        # update all elements
+        for label in evolution_basis_label_list:
+            old_op = ret["operators"][label]
+            new_op = ret_step["operators"][label]
+            ret["operators"][label] = np.dot(old_op,new_op)
+        mu2low = mH2s[0]
+    # TODO drop again all keys < n_f?
+    return ret
 
 
 def run_dglap(setup):
@@ -199,14 +373,14 @@ def run_dglap(setup):
     ret: dict
         a dictionary with a defined set of keys
 
-        =================  ============================================================================
+        =================  =========================================================================
         key                description
-        =================  ============================================================================
+        =================  =========================================================================
         'xgrid'            list of x-values which build the support of the interpolation
         'targetgrid'       list of x-values which are computed
         'operators'        list of computed operators
         'operator_errors'  list of integration errors associated to the operators
-        =================  ============================================================================
+        =================  =========================================================================
 
     Notes
     -----
@@ -223,8 +397,6 @@ def run_dglap(setup):
 
     # Load constants and compute parameters
     constants = Constants()
-    nf = setup["NfFF"]
-    delta_t = _get_evoultion_params(setup)
 
     # Setup interpolation
     xgrid = interpolation.generate_xgrid(**setup)
@@ -247,17 +419,16 @@ def run_dglap(setup):
         "operator_errors": {},
     }
 
-    # Setup the kernel dispatcher
-    kernel_dispatcher = KernelDispatcher(
-        basis_function_dispatcher, constants, nf, delta_t
-    )
-
-    # run non-singlet
-    _run_nonsinglet(kernel_dispatcher, targetgrid, ret)
-
-    # run singlet
-    _run_singlet(kernel_dispatcher, targetgrid, ret)
-
+    # check FNS and split
+    FNS = setup["FNS"]
+    if FNS == "FFNS":
+        ret_ops = _run_FFNS(setup,constants,basis_function_dispatcher,targetgrid)
+    elif FNS == "ZM-VFNS":
+        ret_ops = _run_ZM_VFNS(setup,constants,basis_function_dispatcher,xgrid,targetgrid)
+    else:
+        raise ValueError(f"Unknown FNS: {FNS}")
+    # join operators
+    ret = _merge_dicts(ret,ret_ops)
     return ret
 
 
