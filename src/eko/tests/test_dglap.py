@@ -38,16 +38,16 @@ def reference_values():
     table 2 part 2 of arXiv:hep-ph/0204316
     """
     # fmt: off
-    xuv1 = np.array([5.7722e-5,3.3373e-4,1.8724e-3,1.0057e-2,5.0392e-2,2.1955e-1,5.7267e-1,3.7925e-1,1.3476e-1,2.3123e-2,4.3443e-4])
-    xdv1 = np.array([3.4343e-5,1.9800e-4,1.1065e-3,5.9076e-3,2.9296e-2,1.2433e-1,2.8413e-1,1.4186e-1,3.5364e-2,3.5943e-3,2.2287e-5])
-    xLm1_aux = np.array([7.6527e-7,5.0137e-6,3.1696e-5,1.9071e-4,1.0618e-3,4.9731e-3,1.0470e-2,3.3029e-3,4.2815e-4,1.5868e-5,1.1042e-8])
+    xuv1 = np.array([5.7722e-5,3.3373e-4,1.8724e-3,1.0057e-2,5.0392e-2,2.1955e-1,5.7267e-1,3.7925e-1,1.3476e-1,2.3123e-2,4.3443e-4]) # pylint: disable=line-too-long
+    xdv1 = np.array([3.4343e-5,1.9800e-4,1.1065e-3,5.9076e-3,2.9296e-2,1.2433e-1,2.8413e-1,1.4186e-1,3.5364e-2,3.5943e-3,2.2287e-5]) # pylint: disable=line-too-long
+    xLm1_aux = np.array([7.6527e-7,5.0137e-6,3.1696e-5,1.9071e-4,1.0618e-3,4.9731e-3,1.0470e-2,3.3029e-3,4.2815e-4,1.5868e-5,1.1042e-8]) # pylint: disable=line-too-long
     xT31 = -2.0 * xLm1_aux + xuv1 - xdv1
-    xLp1_aux = np.array([9.9465e+1,5.0259e+1,2.4378e+1,1.1323e+1,5.0324e+0,2.0433e+0,4.0832e-1,4.0165e-2,2.8624e-3,6.8961e-5,3.6293e-8])
-    xsp1_aux = np.array([4.8642e+1,2.4263e+1,1.1501e+1,5.1164e+0,2.0918e+0,7.2814e-1,1.1698e-1,1.0516e-2,7.3138e-4,1.7725e-5,1.0192e-8])
+    xLp1_aux = np.array([9.9465e+1,5.0259e+1,2.4378e+1,1.1323e+1,5.0324e+0,2.0433e+0,4.0832e-1,4.0165e-2,2.8624e-3,6.8961e-5,3.6293e-8]) # pylint: disable=line-too-long
+    xsp1_aux = np.array([4.8642e+1,2.4263e+1,1.1501e+1,5.1164e+0,2.0918e+0,7.2814e-1,1.1698e-1,1.0516e-2,7.3138e-4,1.7725e-5,1.0192e-8]) # pylint: disable=line-too-long
     xT81 = xLp1_aux + xuv1 + xdv1 - 2.0 * xsp1_aux
-    xcp1_aux = np.array([4.7914e+1,2.3685e+1,1.1042e+1,4.7530e+0,1.8089e+0,5.3247e-1,5.8864e-2,4.1379e-3,2.6481e-4,6.5549e-6,4.8893e-9])
+    xcp1_aux = np.array([4.7914e+1,2.3685e+1,1.1042e+1,4.7530e+0,1.8089e+0,5.3247e-1,5.8864e-2,4.1379e-3,2.6481e-4,6.5549e-6,4.8893e-9]) # pylint: disable=line-too-long
     T151 = xLp1_aux + xuv1 + xdv1 + xsp1_aux - 3.0 * xcp1_aux
-    xg1 = np.array([1.3162e+3,6.0008e+2,2.5419e+2,9.7371e+1,3.2078e+1,8.0546e+0,8.8766e-1,8.2676e-2,7.9240e-3,3.7311e-4,1.0918e-6])
+    xg1 = np.array([1.3162e+3,6.0008e+2,2.5419e+2,9.7371e+1,3.2078e+1,8.0546e+0,8.8766e-1,8.2676e-2,7.9240e-3,3.7311e-4,1.0918e-6]) # pylint: disable=line-too-long
     xS1 = xuv1 + xdv1 + xLp1_aux + xsp1_aux + xcp1_aux
     # fmt: on
     non_singlet = [
@@ -130,8 +130,8 @@ import pprint
 def test_dglap_prod():
     """check multiplication"""
     # Prepare a custom grid
-    xgrid_low = interpolation.get_xgrid_linear_at_log(10,1e-7,0.1)
-    xgrid_mid = interpolation.get_xgrid_linear_at_id(5,0.1,1.0)
+    xgrid_low = interpolation.get_xgrid_linear_at_log(35,1e-7,0.1)
+    xgrid_mid = interpolation.get_xgrid_linear_at_id(15,0.1,1.0)
     polynom_rank = 4
     xgrid = np.unique(np.concatenate((xgrid_low,xgrid_mid)))
     # Prepare a setup dictionary
@@ -166,12 +166,17 @@ def test_dglap_prod():
     setup["Q2grid"] = [Q2final]
     ret12 = dglap.run_dglap(setup)
     # check
-    for label in dglap.evolution_basis_label_list:
+    for label in ["NS","S_qq","S_qg","S_gq","S_gg","g"]:
         print(label)
         pprint.pprint(ret1["operators"][label])
         pprint.pprint(ret2["operators"][label])
+        mult = np.matmul(ret2["operators"][label],ret1["operators"][label])
+        pprint.pprint(mult)
         pprint.pprint(ret12["operators"][label])
-        mult = np.dot(ret1["operators"][label],ret2["operators"][label])
         ref = ret12["operators"][label]
-        np.testing.assert_allclose(mult, ref, atol=3e-1)
+        try:
+            np.testing.assert_allclose(mult, ref, atol=3e-1)
+        except:
+            import pdb
+            pdb.set_trace()
         print("------------\n")

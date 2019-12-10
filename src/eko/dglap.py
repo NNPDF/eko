@@ -13,14 +13,11 @@ import eko.mellin as mellin
 from eko.kernel_generation import KernelDispatcher
 from eko.constants import Constants
 
-# List of all evolution basis elements
-evolution_basis_label_list = ["V","T3","V3","T8","V8","T15","V15","T24","V24","T35","V35","S_qq","S_qg","S_gq","S_gg","g"]
-
 logger = logging.getLogger(__name__)
 
 def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
     """Provide parallization over all basis functions
-    
+
     Parameters
     ----------
         basis_functions : list
@@ -31,7 +28,7 @@ def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
             Mellin inversion point
         n_jobs : int
             number of parallel jobs
-        
+
     Returns
     -------
         out : list
@@ -43,13 +40,15 @@ def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
     return out
 
 
-def _get_evoultion_params(setup, mu2init, mu2final):
+def _get_evoultion_params(setup, nf, mu2init, mu2final):
     """Compute evolution parameters
 
     Parameters
     ----------
     setup: dict
         a dictionary with the theory parameters for the evolution
+    nf : int
+        number of active flavours
     mu2init : float
         initial scale
     mu2final : flaot
@@ -60,9 +59,7 @@ def _get_evoultion_params(setup, mu2init, mu2final):
         delta_t : t_float
             scale difference
     """
-    # setup constants
-    nf = setup["NfFF"]
-    # setup inital+final scale
+    # setup params
     qref2 = setup["Qref"] ** 2
     pto = setup["PTO"]
     alphas = setup["alphas"]
@@ -212,7 +209,8 @@ def _run_singlet(kernel_dispatcher, targetgrid):
 # reduce(merge, [dict1, dict2, dict3...])
 def _merge_dicts(a, b, path=None):
     "merges b into a"
-    if path is None: path = []
+    if path is None:
+        path = []
     for key in b:
         if key in a:
             if isinstance(a[key], dict) and isinstance(b[key], dict):
@@ -227,7 +225,7 @@ def _merge_dicts(a, b, path=None):
 
 def _run_step(setup,constants,basis_function_dispatcher,targetgrid,nf,mu2init,mu2final):
     """Do a single convolution step in a fixed parameter configuration
-    
+
     Parameters
     ----------
     setup: dict
@@ -249,20 +247,13 @@ def _run_step(setup,constants,basis_function_dispatcher,targetgrid,nf,mu2init,mu
             output dictionary
     """
     # Setup the kernel dispatcher
-    delta_t = _get_evoultion_params(setup, mu2init, mu2final)
+    delta_t = _get_evoultion_params(setup, nf, mu2init, mu2final)
     kernel_dispatcher = KernelDispatcher(
         basis_function_dispatcher, constants, nf, delta_t
     )
 
     # run non-singlet
-    raw_ret_ns = _run_nonsinglet(kernel_dispatcher, targetgrid)
-    op_ns = raw_ret_ns["operators"]["NS"]
-    op_err_ns = raw_ret_ns["operator_errors"]["NS"]
-    ret_ns = {"operators": {}, "operator_errors": {}}
-    for label in ["V","T3","V3","T8","V8","T15","V15","T24","V24","T35","V35"]:
-        ret_ns["operators"][label] = op_ns.copy()
-        ret_ns["operator_errors"][label] = op_err_ns.copy()
-
+    ret_ns = _run_nonsinglet(kernel_dispatcher, targetgrid)
     # run singlet
     ret_s = _run_singlet(kernel_dispatcher, targetgrid)
     # join elements
@@ -271,7 +262,7 @@ def _run_step(setup,constants,basis_function_dispatcher,targetgrid,nf,mu2init,mu
 
 def _run_FFNS(setup,constants,basis_function_dispatcher,targetgrid):
     """Run the FFNS configuration.
-    
+
     Parameters
     ----------
     setup: dict
@@ -287,20 +278,23 @@ def _run_FFNS(setup,constants,basis_function_dispatcher,targetgrid):
             output dictionary
     """
     # do everything in one simple step
-    ret = _run_step(setup,constants,basis_function_dispatcher,targetgrid,setup["NfFF"],setup["Q0"] ** 2, setup["Q2grid"][0])
-    # TODO drop again all keys < n_f?
+    logger.info("FFNS: nf=%d, evolve [GeV^2] %e -> %e",setup["NfFF"],setup["Q0"] ** 2, setup["Q2grid"][0])
+    ret = _run_step(setup,constants,basis_function_dispatcher,targetgrid,setup["NfFF"],
+                    setup["Q0"] ** 2, setup["Q2grid"][0])
     return ret
 
 
 def _run_ZM_VFNS(setup,constants,basis_function_dispatcher,xgrid,targetgrid):
     """Run the ZM-VFNS configuration.
-    
+
     Parameters
     ----------
-    setup: dict
+    setup : dict
         a dictionary with the theory parameters for the evolution
     constants : Constants
         physical constants
+    xgrid : array
+        grid used for intermediate steps
     targetgrid : array
         output grid
 
@@ -319,25 +313,41 @@ def _run_ZM_VFNS(setup,constants,basis_function_dispatcher,xgrid,targetgrid):
     mH2s.append(Qmb*Qmb)
     Qmt = setup.get("Qmt",None)
     mH2s.append(Qmt*Qmt)
-    # prepare output
-    targetgrid_size = len(targetgrid)
-    identity = np.identity((targetgrid_size,targetgrid_size))
-    void = np.zeros((targetgrid_size,targetgrid_size))
+    # add infinity for convenience
+    mH2s.append(np.inf)
     ret = {"operators":{},"operator_errors": {}}
-    for label in evolution_basis_label_list:
-        ret["operators"][label] = identity.copy()
-        ret["operator_erros"][label] = void.copy()
+    # interate regions:
+    # Q0^2 < R0 <= m_c^2 < R1 <= m_b^2 < R2 <= m_t^2 < R3
     mu2low = mu2init
-    # mu -> mc
-    if (mu2final > mH2s[0]):
-        ret_step = _run_step(setup,constants,basis_function_dispatcher,targetgrid,3,mu2low, mH2s[0])
-        # update all elements
-        for label in evolution_basis_label_list:
-            old_op = ret["operators"][label]
-            new_op = ret_step["operators"][label]
-            ret["operators"][label] = np.dot(old_op,new_op)
-        mu2low = mH2s[0]
-    # TODO drop again all keys < n_f?
+    for k, mH2 in enumerate(mH2s):
+        mu2high = np.min([mu2final,mH2])
+        # avoid backward evolution # TODO relax this in the future?
+        if mu2low >= mu2high:
+            continue
+        # use input grid or final grid?
+        if mu2final == mu2high:
+            grid = targetgrid
+        else:
+            grid = xgrid
+        # make step
+        logger.info("ZM-VFNS: nf=%d, evolve [GeV^2] %e -> %e",3+k,mu2low,mu2high)
+        ret_step = _run_step(setup,constants,basis_function_dispatcher,grid,3+k,mu2low,mu2high)
+        # update operators + errors
+        for label in ["NS","S_qq","S_qg","S_gq","S_gg"]:
+            if label not in ret["operators"]:
+                ret["operators"][label] = ret_step["operators"][label]
+                ret["operator_errors"][label] = ret_step["operator_errors"][label]
+            else:
+                old_op = ret["operators"][label]
+                new_op = ret_step["operators"][label]
+                ret["operators"][label] = np.matmul(new_op,old_op)
+                old_op_err = ret["operator_errors"][label]
+                new_op_err = ret_step["operator_errors"][label]
+                ret["operator_errors"][label] = np.matmul(new_op,old_op_err) + np.matmul(new_op_err,old_op)
+        mu2low = mu2high
+        # finished?
+        if mu2final == mu2high:
+            break
     return ret
 
 
