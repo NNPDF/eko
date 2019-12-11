@@ -5,6 +5,7 @@ This file contains the main loop for the DGLAP calculations.
 """
 import logging
 import joblib
+from collections.abc import Iterable
 import numpy as np
 
 import eko.alpha_s as alpha_s
@@ -120,12 +121,20 @@ def _run_nonsinglet(kernel_dispatcher, targetgrid):
         logger.info(log_prefix, log_text)
     logger.info(log_prefix, "done.")
 
+    op = np.array(operators)
+    op_err = np.array(operator_errors)
+
+    # in LO v=+=-
     ret = {
         "operators" : {
-            "NS" : np.array(operators)
+            "NS_+" :  op.copy(),
+            "NS_-" :  op.copy(),
+            "NS_v" :  op.copy()
         },
         "operator_errors" : {
-            "NS" : np.array(operator_errors)
+            "NS_+" :  op_err.copy(),
+            "NS_-" :  op_err.copy(),
+            "NS_v" :  op_err.copy()
         }
     }
     return ret
@@ -283,6 +292,68 @@ def _run_FFNS(setup,constants,basis_function_dispatcher,targetgrid):
                     setup["Q0"] ** 2, setup["Q2grid"][0])
     return ret
 
+def _run_ZMVFNS_1threshold(setup,constants,basis_function_dispatcher,xgrid,targetgrid,m2Threshold,nf_init):
+    # setup
+    mu2init = setup["Q0"] ** 2
+    mu2final = setup["Q2grid"][0]
+    # step one
+    logger.info("ZM-VFNS: nf=%d, evolve [GeV^2] %e -> %e",nf_init,mu2init,m2Threshold)
+    step1 = _run_step(setup,constants,basis_function_dispatcher,xgrid,nf_init,mu2init,m2Threshold)
+    # step two
+    logger.info("ZM-VFNS: nf=%d, evolve [GeV^2] %e -> %e",nf_init+1,m2Threshold,mu2final)
+    step2 = _run_step(setup,constants,basis_function_dispatcher,targetgrid,nf_init+1,m2Threshold,mu2final)
+    # join elements
+    ret = {"operators":{},"operator_errors": {}}
+    def multiplication_helper(to,from2,from1):
+        # force lists
+        if not isinstance(from2,Iterable):
+            from2l = (from2)
+        else:
+            from2l = from2
+        if not isinstance(from1,Iterable):
+            from1l = (from1)
+        else:
+            from1l = from1
+        # iterate
+        op = 0
+        op_err = 0
+        for a,b in zip(from2l,from1l):
+            op += np.matmul(step2["operators"][a],step1["operators"][b])
+            op_err += np.matmul(step2["operator_errors"][a],step1["operators"][b]) \
+                    + np.matmul(step2["operators"][a],step1["operator_errors"][b])
+        ret["operators"][to] = op
+        ret["operator_errors"][to] = op_err
+    # join quarks flavors
+    Vs = ["V3","V8","V15","V24","V35"]
+    Ts = ["T3","T8","T15","T24","T35"]
+    # v.v = V
+    multiplication_helper("V.V","NS_v","NS_v")
+    # -.-
+    for b in Vs[:nf_init-1]:
+        multiplication_helper(f"{b}.{b}","NS_-","NS_-")
+    # -.v
+    b = Vs[nf_init-1]
+    multiplication_helper(f"{b}.V","NS_-","NS_v")
+    # v.v for higher combinations
+    for b in Vs[nf_init:]:
+        multiplication_helper(f"{b}.V","NS_v","NS_v")
+    # +.+
+    for b in Ts[:nf_init-1]:
+        multiplication_helper(f"{b}.{b}","NS_+","NS_+")
+    # +.S
+    b = Ts[nf_init-1]
+    multiplication_helper(f"{b}.S","NS_+","S_qq")
+    multiplication_helper(f"{b}.g","NS_+","S_qg")
+    # S.S
+    for b in Ts[nf_init:]:
+        multiplication_helper(f"{b}.S",["S_qq","S_qg"],["S_qq","S_gq"])
+        multiplication_helper(f"{b}.g",["S_qq","S_qg"],["S_qg","S_gg"])
+    # Singlet + gluon
+    multiplication_helper("S.S",["S_qq","S_qg"],["S_qq","S_gq"])
+    multiplication_helper("g.g",["S_qq","S_qg"],["S_qg","S_gg"])
+
+    return ret
+
 
 def _run_ZM_VFNS(setup,constants,basis_function_dispatcher,xgrid,targetgrid):
     """Run the ZM-VFNS configuration.
@@ -316,38 +387,7 @@ def _run_ZM_VFNS(setup,constants,basis_function_dispatcher,xgrid,targetgrid):
     # add infinity for convenience
     mH2s.append(np.inf)
     ret = {"operators":{},"operator_errors": {}}
-    # interate regions:
-    # Q0^2 < R0 <= m_c^2 < R1 <= m_b^2 < R2 <= m_t^2 < R3
-    mu2low = mu2init
-    for k, mH2 in enumerate(mH2s):
-        mu2high = np.min([mu2final,mH2])
-        # avoid backward evolution # TODO relax this in the future?
-        if mu2low >= mu2high:
-            continue
-        # use input grid or final grid?
-        if mu2final == mu2high:
-            grid = targetgrid
-        else:
-            grid = xgrid
-        # make step
-        logger.info("ZM-VFNS: nf=%d, evolve [GeV^2] %e -> %e",3+k,mu2low,mu2high)
-        ret_step = _run_step(setup,constants,basis_function_dispatcher,grid,3+k,mu2low,mu2high)
-        # update operators + errors
-        for label in ["NS","S_qq","S_qg","S_gq","S_gg"]:
-            if label not in ret["operators"]:
-                ret["operators"][label] = ret_step["operators"][label]
-                ret["operator_errors"][label] = ret_step["operator_errors"][label]
-            else:
-                old_op = ret["operators"][label]
-                new_op = ret_step["operators"][label]
-                ret["operators"][label] = np.matmul(new_op,old_op)
-                old_op_err = ret["operator_errors"][label]
-                new_op_err = ret_step["operator_errors"][label]
-                ret["operator_errors"][label] = np.matmul(new_op,old_op_err) + np.matmul(new_op_err,old_op)
-        mu2low = mu2high
-        # finished?
-        if mu2final == mu2high:
-            break
+    
     return ret
 
 

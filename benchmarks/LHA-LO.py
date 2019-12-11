@@ -204,8 +204,8 @@ def save_final_scale_plots_to_pdf(path, ret, ref):
     # iterate all rotated NS labels
     for j, label in enumerate(rot_label_list[:-2]):
         init = rot_func_list[j](ret["xgrid"])
-        me = np.matmul(ret["operators"]["NS"], init)
-        me_err = np.matmul(ret["operator_errors"]["NS"], init)
+        me = np.matmul(ret["operators"]["NS_-"], init)
+        me_err = np.matmul(ret["operator_errors"]["NS_-"], init)
         fig = plot_dist(
             toy_xgrid,
             toy_xgrid * me,
@@ -251,11 +251,11 @@ assets_path = pathlib.Path(__file__).with_name("assets")
 
 if __name__ == "__main__":
     # setup
-    n_low = 30
-    n_mid = 20
+    n_low = 10
+    n_mid = 5
     polynom_rank = 4
     run_init = False
-    run_FFNS = True
+    run_FFNS = False
     run_ZMVFNS = True
     plot_PDF = True
     plot_operator = True
