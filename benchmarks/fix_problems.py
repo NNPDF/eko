@@ -109,7 +109,7 @@ def run_test(nl, nm, nh):
     all_s = []
     all_g = []
     for i, q2 in enumerate(q2grid):
-        print(f"Checking {i/len(q2grid)} {q2=}")
+        print(f"Checking {i}/{len(q2grid)} {q2=}")
         gg = op["operators"]["S_gg"][:,:,i]
         qg = op["operators"]["S_qg"][:,:,i]
         gq = op["operators"]["S_gq"][:,:,i]
