@@ -1,4 +1,5 @@
 import platform
+import pprint
 import numpy as np
 import pytest
 
@@ -126,7 +127,6 @@ def test_dglap_ffns_lo():
     return_dictionary = dglap.run_dglap(setup)
     check_operator(return_dictionary["operators"], xgrid, toy_xgrid)
 
-import pprint
 @pytest.mark.skipif(platform.node() == "FHe19b",reason="too time consuming for now")
 def test_dglap_prod():
     """check multiplication"""
@@ -181,3 +181,63 @@ def test_dglap_prod():
             import pdb
             pdb.set_trace()
         print("------------\n")
+
+def test_get_singlet_paths():
+    # trivial solution
+    a = dglap.get_singlet_paths("q","q",1)
+    assert a == [["S_qq"]]
+    # level 2
+    b = dglap.get_singlet_paths("q","g",2)
+    assert b == [["S_qq","S_qg"],["S_qg","S_gg"]]
+    # level 4
+    c = dglap.get_singlet_paths("g","g",4)
+    assert(len(c) == 2**3)
+    for path in c:
+        # check start + end
+        assert path[0][-2] == "g"
+        assert path[-1][-1] == "g"
+        # check concatenation
+        for k,el in enumerate(path[:-1]):
+            assert el[-1] == path[k+1][-2]
+
+def test_operator_product_helper():
+    # setup test: q from g via 1 step in between
+    paths = dglap.get_singlet_paths("q","g",2)
+    print("paths = ",paths)
+    # i.e., in step 1, we can do g -> g or g -> q, as we start from g
+    ls = np.random.rand(8,2,2)
+    S_gg_1,S_gg_1_err = ls[0],ls[1]
+    S_qg_1,S_qg_1_err = ls[2],ls[3]
+    step1 = {
+        "operators": {
+            "S_gg": S_qg_1,
+            "S_qg": S_qg_1_err,
+        },
+        "operator_errors": {
+            "S_gg": S_gg_1_err,
+            "S_qg": S_qg_1_err,
+        },
+    }
+    # then, in step 2, we do q -> q or g -> q, as we finish in q
+    S_qg_2,S_qg_2_err = ls[4],ls[5]
+    S_qq_2,S_qq_2_err = ls[6],ls[7]
+    step2 = {
+        "operators": {
+            "S_qg": S_qg_2,
+            "S_qq": S_qq_2,
+        },
+        "operator_errors": {
+            "S_qg": S_qg_2_err,
+            "S_qq": S_qq_2_err,
+        },
+    }
+    # setup target
+    target_op = np.matmul(S_qg_2,S_gg_1) + np.matmul(S_qq_2,S_qg_1)
+    target_op_err = np.matmul(S_qg_2,S_gg_1_err) + np.matmul(S_qg_2_err,S_gg_1) + np.matmul(S_qq_2_err,S_qg_1) + np.matmul(S_qq_2,S_qg_1_err)
+    # run
+    tot_op, tot_op_err = dglap.operator_product_helper([step1,step2],paths)
+    # test
+    pprint.pprint(tot_op)
+    pprint.pprint(tot_op_err)
+    np.testing.assert_array_equal(tot_op,target_op)
+    np.testing.assert_array_equal(tot_op_err,target_op_err)

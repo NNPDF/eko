@@ -380,6 +380,41 @@ def _run_ZMVFNS_0threshold(
 
     return ret
 
+def get_singlet_paths(to, fromm, depth):
+    """Compute all possible path in the singlet sector to reach `to` starting from  `fromm`.
+    
+    Parameters
+    ----------
+        to : 'q' or 'g'
+            final point
+        fromm : 'q' or 'g'
+            starting point
+        depth : int
+            nesting level; 1 corresponds to the trivial first step
+
+    Returns
+    -------
+        ls : list
+            list of all possible paths
+    """
+    if depth < 1:
+        raise ValueError(f"Invalid arguments: depth >= 1, but got {depth}")
+    if to not in ["q","g"]:
+        raise ValueError(f"Invalid arguments: to in [q,g], but got {to}")
+    if fromm not in ["q","g"]:
+        raise ValueError(f"Invalid arguments: fromm in [q,g], but got {fromm}")
+    # trivial?
+    if depth == 1:
+        return [[f"S_{to}{fromm}"]]
+    # do recursion
+    qs = get_singlet_paths(to,"q",depth - 1)
+    for q in qs:
+        q.append(f"S_q{fromm}")
+    gs = get_singlet_paths(to,"g",depth - 1)
+    for g in gs:
+        g.append(f"S_g{fromm}")
+    return qs + gs
+
 
 def _run_ZMVFNS_1threshold(
     setup, constants, basis_function_dispatcher, xgrid, targetgrid, m2Threshold, nf_init
@@ -487,6 +522,58 @@ def _run_ZMVFNS_1threshold(
     multiplication_helper("g.S", ["S_gq", "S_gg"], ["S_qq", "S_gq"])
     multiplication_helper("g.g", ["S_gq", "S_gg"], ["S_qg", "S_gg"])
     return ret
+
+def operator_product_helper(rev_steps, paths):
+    """Joins all matrix elements given by paths.
+    
+    Parameters
+    ----------
+        rev_steps : array
+            list of evolution steps in increasing order
+        paths : array
+            list of all necessary path
+
+    Returns
+    -------
+        tot_op : array
+            joined operator
+        tot_op_err : array
+            combined error for operator
+
+    """
+    # setup
+    len_steps = len(rev_steps)
+    # collect all paths
+    tot_op = 0
+    tot_op_err = 0
+    for k,e in enumerate(rev_steps):
+        print(k,"->",e["operators"].keys())
+    for path in paths:
+        # init multiplications with a 1
+        cur_op = None
+        cur_op_err = None
+        # check length
+        if len(path) != len_steps:
+            raise ValueError("Number of steps and number of elements in a path do not match!")
+        print("path = ",path)
+        # iterate steps
+        for k,el in enumerate(path[::-1]):
+            print("k,el = ",k,el)
+            print(rev_steps[k]["operators"].keys())
+            op = rev_steps[k]["operators"][el]
+            op_err = rev_steps[k]["operator_errors"][el]
+            if cur_op is None:
+                cur_op = op
+                cur_op_err = op_err
+            else:
+                old_op = cur_op.copy() # make copy for error determination
+                cur_op = np.matmul(op,cur_op)
+                cur_op_err = np.matmul(op_err,old_op) + np.matmul(op,cur_op_err)
+        # add up
+        tot_op += cur_op
+        tot_op_err += cur_op_err
+
+    return tot_op, tot_op_err
 
 
 def _run_ZMVFNS_2thresholds(
