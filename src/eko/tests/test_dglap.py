@@ -58,8 +58,8 @@ def reference_values():
             (T151 , toy_S0)
                 ]
     singlets = {
-            ("S_qq", "S_qg"): (xS1 , [toy_S0, toy_g0]),
-            ("S_gq", "S_gg"): (xg1 , [toy_S0, toy_g0]),
+            ("S.S", "S.g"): (xS1 , [toy_S0, toy_g0]),
+            ("g.S", "g.g"): (xg1 , [toy_S0, toy_g0]),
             }
     ret = { "NS"  : non_singlet, "singlets" : singlets }
     ret.update(singlets)
@@ -75,7 +75,7 @@ def check_operator(operators, xgrid, toy_xgrid):
 
     # Check non-singlet side
     ref_ns = reference["NS"]
-    op_ns = operators["NS"]
+    op_ns = operators["V.V"]
     for grid, function in ref_ns:
         toy_val = function(xgrid)
         op_val = np.dot(op_ns, toy_val)*toy_xgrid
@@ -127,6 +127,7 @@ def test_dglap_ffns_lo():
     check_operator(return_dictionary["operators"], xgrid, toy_xgrid)
 
 import pprint
+@pytest.mark.skipif(platform.node() == "FHe19b",reason="too time consuming for now")
 def test_dglap_prod():
     """check multiplication"""
     # Prepare a custom grid

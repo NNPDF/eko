@@ -80,18 +80,25 @@ def toy_T80(x):
     return toy_Lp0(x) + toy_uv0(x) + toy_dv0(x) - 2.0 * toy_sp0(x)
 
 
-def toy_T150(x):
-    return toy_Lp0(x) + toy_uv0(x) + toy_dv0(x) + toy_sp0(x) - 3.0 * toy_cp0(x)
-
-
 def toy_S0(x):
     return toy_uv0(x) + toy_dv0(x) + toy_Lp0(x) + toy_sp0(x)
 
 
+# collect pdfs
+LHA_init_pdfs = {
+    "V": toy_V0,
+    "V3": toy_V30,
+    "T3": toy_T30,
+    "T8": toy_T80,
+    "T15": toy_S0,
+    "S": toy_S0,
+    "g": toy_g0,
+}
+
 # list
 raw_label_list = ["u_v", "d_v", "L_-", "L_+", "s_+", "c_+", "b_+", "g"]
-rot_label_list = ["V", "V_3", "T_3", "T_8", "T_15", "Sigma", "g"]
-rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_T150, toy_S0, toy_g0]
+rot_label_list = ["V", "V_3", "T_3", "T_8", "T_15", "T_24", "Sigma", "g"]
+rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
 
 # fmt: off
 # inital reference grid = table 2 part 1
@@ -140,18 +147,27 @@ LHA_final_grid_ZMVFNS_ref = np.array([
 LHA_flavour_rotate = np.array([
     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
     [   1,   1,   0,   0,   0,   0,   0,   0], # V
-    [   1,  -1,   0,   0,   0,   0,   0,   0], # V_3
-    [   1,  -1,  -2,   0,   0,   0,   0,   0], # T_3
-    [   1,   1,   0,   1,  -2,   0,   0,   0], # T_8
-    [   1,   1,   0,   1,   1,  -3,   0,   0], # T_15
+    [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
+    [   1,  -1,  -2,   0,   0,   0,   0,   0], # T3
+    [   1,   1,   0,   1,  -2,   0,   0,   0], # T8
+    [   1,   1,   0,   1,   1,  -3,   0,   0], # T15
+    [   1,   1,   0,   1,   1,   1,  -4,   0], # T24
     [   1,   1,   0,   1,   1,   1,   1,   0], # S
     [   0,   0,   0,   0,   0,   0,   0,   1], # g
 ])
 # fmt: on
 
 # rotate basis
-LHA_init_grid_rot = np.dot(LHA_init_grid.T, LHA_flavour_rotate.T).T
-LHA_final_grid_FFNS_ref_rot = np.dot(LHA_final_grid_FFNS_ref.T, LHA_flavour_rotate.T).T
+def rotate_and_dict(inp):
+    rot = np.dot(LHA_flavour_rotate, inp)
+    out = {}
+    for k, n in enumerate(["V", "V3", "T3", "T8", "T15", "T24", "S", "g"]):
+        out[n] = rot[k]
+    return out
+
+
+LHA_final_dict_FFNS_ref = rotate_and_dict(LHA_final_grid_FFNS_ref)
+LHA_final_dict_ZMVFNS_ref = rotate_and_dict(LHA_final_grid_ZMVFNS_ref)
 
 
 def save_initial_scale_plots_to_pdf(path):
@@ -191,7 +207,7 @@ def save_initial_scale_plots_to_pdf(path):
 def save_final_scale_plots_to_pdf(path, ret, ref):
     """Check all PDFs at the final scale.
 
-    The reference values are given in Table 2 part 2 of :cite:`Giele:2002hx`.
+    The reference values are given in Table 2 part 2,3 of :cite:`Giele:2002hx`.
 
     Parameters
     ----------
@@ -199,49 +215,27 @@ def save_final_scale_plots_to_pdf(path, ret, ref):
             output path
         ret : dict
             DGLAP result
+        ref : dict
+            reference result
     """
     pp = PdfPages(path)
-    # iterate all rotated NS labels
-    for j, label in enumerate(rot_label_list[:-2]):
-        init = rot_func_list[j](ret["xgrid"])
-        me = np.matmul(ret["operators"]["NS_-"], init)
-        me_err = np.matmul(ret["operator_errors"]["NS_-"], init)
+    # get
+    my_pdfs, my_pdf_errs = dglap.apply_operator(ret, LHA_init_pdfs)
+    # iterate all pdf
+    for key in my_pdfs:
+        # skip trivial plots
+        if key in ["V8", "V15", "V24", "V35", "T35"]:
+            continue
+        # plot
         fig = plot_dist(
             toy_xgrid,
-            toy_xgrid * me,
-            toy_xgrid * me_err,
-            ref[j],
-            title=f"x{label}(x,µ_F^2 = 10^4 GeV^2)",
+            toy_xgrid * my_pdfs[key],
+            toy_xgrid * my_pdf_errs[key],
+            ref[key],
+            title="x%s(x,µ_F^2 = 10^4 GeV^2)" % key,
         )
         pp.savefig()
         plt.close(fig)
-    # compare singlet + gluon
-    init_S = rot_func_list[-2](ret["xgrid"])
-    init_g = rot_func_list[-1](ret["xgrid"])
-    # fmt: off
-    me_S = np.matmul(ret["operators"]["S_qq"], init_S) + np.matmul(ret["operators"]["S_qg"], init_g)
-    me_g = np.matmul(ret["operators"]["S_gq"], init_S) + np.matmul(ret["operators"]["S_gg"], init_g)
-    me_S_err = np.matmul(ret["operator_errors"]["S_qq"], init_S) + np.matmul(ret["operator_errors"]["S_qg"], init_g)
-    me_g_err = np.matmul(ret["operator_errors"]["S_gq"], init_S) + np.matmul(ret["operator_errors"]["S_gg"], init_g)
-    # fmt: on
-    fig = plot_dist(
-        toy_xgrid,
-        toy_xgrid * me_S,
-        toy_xgrid * me_S_err,
-        ref[-2],
-        title="x%s(x,µ_F^2 = 10^4 GeV^2)" % rot_label_list[-2],
-    )
-    pp.savefig()
-    plt.close(fig)
-    fig = plot_dist(
-        toy_xgrid,
-        toy_xgrid * me_g,
-        toy_xgrid * me_g_err,
-        ref[-1],
-        title="x%s(x,µ_F^2 = 10^4 GeV^2)" % rot_label_list[-1],
-    )
-    pp.savefig()
-    plt.close(fig)
     # close
     pp.close()
 
@@ -300,7 +294,7 @@ if __name__ == "__main__":
             save_final_scale_plots_to_pdf(
                 assets_path / f"LHA-LO-FFNS-plots-{flag}.pdf",
                 ret,
-                LHA_final_grid_FFNS_ref_rot,
+                LHA_final_dict_FFNS_ref,
             )
         if plot_operator:
             save_all_operators_to_pdf(assets_path / f"LHA-LO-FFNS-ops-{flag}.pdf", ret)
@@ -327,7 +321,7 @@ if __name__ == "__main__":
             save_final_scale_plots_to_pdf(
                 assets_path / f"LHA-LO-ZMVFNS-plots-{flag}.pdf",
                 ret,
-                LHA_final_grid_ZMVFNS_ref,
+                LHA_final_dict_ZMVFNS_ref,
             )
         if plot_operator:
             save_all_operators_to_pdf(
