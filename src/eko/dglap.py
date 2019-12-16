@@ -10,6 +10,7 @@ import numpy as np
 import eko.alpha_s as alpha_s
 import eko.interpolation as interpolation
 import eko.mellin as mellin
+import eko.utils as utils
 from eko.kernel_generation import KernelDispatcher
 from eko.constants import Constants
 
@@ -43,39 +44,6 @@ def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
         joblib.delayed(pfunction)(fun, xk) for fun in basis_functions
     )
     return out
-
-
-def _get_evoultion_params(setup, nf, mu2init, mu2final):
-    """Compute evolution parameters
-
-    Parameters
-    ----------
-    setup: dict
-        a dictionary with the theory parameters for the evolution
-    nf : int
-        number of active flavours
-    mu2init : float
-        initial scale
-    mu2final : flaot
-        final scale
-
-    Returns
-    -------
-        delta_t : t_float
-            scale difference
-    """
-    # setup params
-    qref2 = setup["Qref"] ** 2
-    pto = setup["PTO"]
-    alphas = setup["alphas"]
-    # Generate the alpha_s functions
-    a_s = alpha_s.alpha_s_generator(alphas, qref2, nf, "analytic")
-    a0 = a_s(pto, mu2init)
-    a1 = a_s(pto, mu2final)
-    # evolution parameters
-    t0 = np.log(1.0 / a0)
-    t1 = np.log(1.0 / a1)
-    return t1 - t0
 
 
 def _run_nonsinglet(kernel_dispatcher, targetgrid):
@@ -209,26 +177,6 @@ def _run_singlet(kernel_dispatcher, targetgrid):
     return ret
 
 
-# https://stackoverflow.com/a/7205107
-# from functools import reduce
-# reduce(merge, [dict1, dict2, dict3...])
-def _merge_dicts(a, b, path=None):
-    "merges b into a"
-    if path is None:
-        path = []
-    for key in b:
-        if key in a:
-            if isinstance(a[key], dict) and isinstance(b[key], dict):
-                _merge_dicts(a[key], b[key], path + [str(key)])
-            elif a[key] == b[key]:
-                pass  # same leaf value
-            else:
-                raise Exception("Conflict at %s" % ".".join(path + [str(key)]))
-        else:
-            a[key] = b[key]
-    return a
-
-
 def _run_step(
     setup, constants, basis_function_dispatcher, targetgrid, nf, mu2init, mu2final
 ):
@@ -254,8 +202,9 @@ def _run_step(
         ret : dict
             output dictionary
     """
+    logger.info("evolve [GeV^2] %e -> %e with nf=%d flavors", mu2init, mu2final, nf)
     # Setup the kernel dispatcher
-    delta_t = _get_evoultion_params(setup, nf, mu2init, mu2final)
+    delta_t = alpha_s.get_evolution_params(setup, constants, nf, mu2init, mu2final)
     kernel_dispatcher = KernelDispatcher(
         basis_function_dispatcher, constants, nf, delta_t
     )
@@ -265,7 +214,7 @@ def _run_step(
     # run singlet
     ret_s = _run_singlet(kernel_dispatcher, targetgrid)
     # join elements
-    ret = _merge_dicts(ret_ns, ret_s)
+    ret = utils.merge_dicts(ret_ns, ret_s)
     return ret
 
 
@@ -288,9 +237,6 @@ def _run_FFNS(setup, constants, basis_function_dispatcher, targetgrid):
     """
     nf = setup["NfFF"]
     # do everything in one simple step
-    logger.info(
-        "FFNS: nf=%d, evolve [GeV^2] %e -> %e", nf, setup["Q0"] ** 2, setup["Q2grid"][0]
-    )
     ret_step = _run_step(
         setup,
         constants,
@@ -319,9 +265,8 @@ def _run_FFNS(setup, constants, basis_function_dispatcher, targetgrid):
     set_helper("g.g", "S_gg")
     return ret
 
-def _run_ZMVFNS_0threshold(
-    setup, constants, basis_function_dispatcher, targetgrid, nf
-):
+
+def _run_ZMVFNS_0threshold(setup, constants, basis_function_dispatcher, targetgrid, nf):
     """Run the ZM-VFNS with 0 crossed threshold.
 
     Parameters
@@ -343,17 +288,8 @@ def _run_ZMVFNS_0threshold(
     mu2init = setup["Q0"] ** 2
     mu2final = setup["Q2grid"][0]
     # step one
-    logger.info(
-        "ZM-VFNS: nf=%d, evolve [GeV^2] %e -> %e", nf, mu2init, mu2final
-    )
     step = _run_step(
-        setup,
-        constants,
-        basis_function_dispatcher,
-        targetgrid,
-        nf,
-        mu2init,
-        mu2final,
+        setup, constants, basis_function_dispatcher, targetgrid, nf, mu2init, mu2final
     )
     # join elements
     ret = {"operators": {}, "operator_errors": {}}
@@ -364,11 +300,11 @@ def _run_ZMVFNS_0threshold(
 
     # join quarks flavors
     # v.v = V
-    set_helper("V.V","NS_v")
-    for v, t in list(zip(Vs, Ts))[: nf - 1]: # already there
+    set_helper("V.V", "NS_v")
+    for v, t in list(zip(Vs, Ts))[: nf - 1]:  # already there
         set_helper(f"{v}.{v}", "NS_-")
         set_helper(f"{t}.{t}", "NS_+")
-    for v, t in list(zip(Vs, Ts))[nf - 1:]: # generate dynamically
+    for v, t in list(zip(Vs, Ts))[nf - 1 :]:  # generate dynamically
         set_helper(f"{v}.V", "NS_v")
         set_helper(f"{t}.S", "S_qq")
         set_helper(f"{t}.S", "S_qg")
@@ -379,41 +315,6 @@ def _run_ZMVFNS_0threshold(
     set_helper("g.g", "S_gg")
 
     return ret
-
-def get_singlet_paths(to, fromm, depth):
-    """Compute all possible path in the singlet sector to reach `to` starting from  `fromm`.
-    
-    Parameters
-    ----------
-        to : 'q' or 'g'
-            final point
-        fromm : 'q' or 'g'
-            starting point
-        depth : int
-            nesting level; 1 corresponds to the trivial first step
-
-    Returns
-    -------
-        ls : list
-            list of all possible paths
-    """
-    if depth < 1:
-        raise ValueError(f"Invalid arguments: depth >= 1, but got {depth}")
-    if to not in ["q","g"]:
-        raise ValueError(f"Invalid arguments: to in [q,g], but got {to}")
-    if fromm not in ["q","g"]:
-        raise ValueError(f"Invalid arguments: fromm in [q,g], but got {fromm}")
-    # trivial?
-    if depth == 1:
-        return [[f"S_{to}{fromm}"]]
-    # do recursion
-    qs = get_singlet_paths(to,"q",depth - 1)
-    for q in qs:
-        q.append(f"S_q{fromm}")
-    gs = get_singlet_paths(to,"g",depth - 1)
-    for g in gs:
-        g.append(f"S_g{fromm}")
-    return qs + gs
 
 
 def _run_ZMVFNS_1threshold(
@@ -444,9 +345,6 @@ def _run_ZMVFNS_1threshold(
     mu2init = setup["Q0"] ** 2
     mu2final = setup["Q2grid"][0]
     # step one
-    logger.info(
-        "ZM-VFNS: nf=%d, evolve [GeV^2] %e -> %e", nf_init, mu2init, m2Threshold
-    )
     step1 = _run_step(
         setup,
         constants,
@@ -457,9 +355,6 @@ def _run_ZMVFNS_1threshold(
         m2Threshold,
     )
     # step two
-    logger.info(
-        "ZM-VFNS: nf=%d, evolve [GeV^2] %e -> %e", nf_init + 1, m2Threshold, mu2final
-    )
     step2 = _run_step(
         setup,
         constants,
@@ -472,112 +367,55 @@ def _run_ZMVFNS_1threshold(
     # join elements
     ret = {"operators": {}, "operator_errors": {}}
 
-    def multiplication_helper(to, from2, from1):
-        # force lists
-        if not isinstance(from2, list):
-            from2l = [from2]
-        else:
-            from2l = from2
-        if not isinstance(from1, list):
-            from1l = [from1]
-        else:
-            from1l = from1
-        # iterate
-        op = 0
-        op_err = 0
-        for a, b in zip(from2l, from1l):
-            op += np.matmul(step2["operators"][a], step1["operators"][b])
-            op_err += np.matmul(
-                step2["operator_errors"][a], step1["operators"][b]
-            ) + np.matmul(step2["operators"][a], step1["operator_errors"][b])
+    # supply short wrapper
+    def set_helper(to, paths):
+        op, op_err = utils.operator_product_helper([step2, step1], paths)
         ret["operators"][to] = op
         ret["operator_errors"][to] = op_err
 
     # join quarks flavors
     # v.v = V
-    multiplication_helper("V.V", "NS_v", "NS_v")
+    set_helper("V.V", [["NS_v", "NS_v"]])
     # -.-
     for b in Vs[: nf_init - 1]:
-        multiplication_helper(f"{b}.{b}", "NS_-", "NS_-")
+        set_helper(f"{b}.{b}", [["NS_-", "NS_-"]])
     # -.v
     b = Vs[nf_init - 1]
-    multiplication_helper(f"{b}.V", "NS_-", "NS_v")
+    set_helper(f"{b}.V", [["NS_-", "NS_v"]])
     # v.v for higher combinations
     for b in Vs[nf_init:]:
-        multiplication_helper(f"{b}.V", "NS_v", "NS_v")
+        set_helper(f"{b}.V", [["NS_v", "NS_v"]])
     # +.+
     for b in Ts[: nf_init - 1]:
-        multiplication_helper(f"{b}.{b}", "NS_+", "NS_+")
+        set_helper(f"{b}.{b}", [["NS_+", "NS_+"]])
     # +.S
     b = Ts[nf_init - 1]
-    multiplication_helper(f"{b}.S", "NS_+", "S_qq")
-    multiplication_helper(f"{b}.g", "NS_+", "S_qg")
+    set_helper(f"{b}.S", [["NS_+", "S_qq"]])
+    set_helper(f"{b}.g", [["NS_+", "S_qg"]])
     # S.S
+    paths_qq = utils.get_singlet_paths("q", "q", 2)
+    paths_qg = utils.get_singlet_paths("q", "g", 2)
     for b in Ts[nf_init:]:
-        multiplication_helper(f"{b}.S", ["S_qq", "S_qg"], ["S_qq", "S_gq"])
-        multiplication_helper(f"{b}.g", ["S_qq", "S_qg"], ["S_qg", "S_gg"])
+        set_helper(f"{b}.S", paths_qq)
+        set_helper(f"{b}.g", paths_qg)
+
     # Singlet + gluon
-    multiplication_helper("S.S", ["S_qq", "S_qg"], ["S_qq", "S_gq"])
-    multiplication_helper("S.g", ["S_qq", "S_qg"], ["S_qg", "S_gg"])
-    multiplication_helper("g.S", ["S_gq", "S_gg"], ["S_qq", "S_gq"])
-    multiplication_helper("g.g", ["S_gq", "S_gg"], ["S_qg", "S_gg"])
+    set_helper("S.S", paths_qq)
+    set_helper("S.g", paths_qg)
+    set_helper("g.S", utils.get_singlet_paths("g", "q", 2))
+    set_helper("g.g", utils.get_singlet_paths("g", "g", 2))
     return ret
-
-def operator_product_helper(rev_steps, paths):
-    """Joins all matrix elements given by paths.
-    
-    Parameters
-    ----------
-        rev_steps : array
-            list of evolution steps in increasing order
-        paths : array
-            list of all necessary path
-
-    Returns
-    -------
-        tot_op : array
-            joined operator
-        tot_op_err : array
-            combined error for operator
-
-    """
-    # setup
-    len_steps = len(rev_steps)
-    # collect all paths
-    tot_op = 0
-    tot_op_err = 0
-    for k,e in enumerate(rev_steps):
-        print(k,"->",e["operators"].keys())
-    for path in paths:
-        # init multiplications with a 1
-        cur_op = None
-        cur_op_err = None
-        # check length
-        if len(path) != len_steps:
-            raise ValueError("Number of steps and number of elements in a path do not match!")
-        print("path = ",path)
-        # iterate steps
-        for k,el in enumerate(path[::-1]):
-            print("k,el = ",k,el)
-            print(rev_steps[k]["operators"].keys())
-            op = rev_steps[k]["operators"][el]
-            op_err = rev_steps[k]["operator_errors"][el]
-            if cur_op is None:
-                cur_op = op
-                cur_op_err = op_err
-            else:
-                old_op = cur_op.copy() # make copy for error determination
-                cur_op = np.matmul(op,cur_op)
-                cur_op_err = np.matmul(op_err,old_op) + np.matmul(op,cur_op_err)
-        # add up
-        tot_op += cur_op
-        tot_op_err += cur_op_err
-
-    return tot_op, tot_op_err
 
 
 def _run_ZMVFNS_2thresholds(
-    setup, constants, basis_function_dispatcher, xgrid, targetgrid, m2Threshold1, m2Threshold2, nf_init
+    setup,
+    constants,
+    basis_function_dispatcher,
+    xgrid,
+    targetgrid,
+    m2Threshold1,
+    m2Threshold2,
+    nf_init,
 ):
     """Run the ZM-VFNS with 2 crossed threshold.
 
@@ -606,9 +444,6 @@ def _run_ZMVFNS_2thresholds(
     mu2init = setup["Q0"] ** 2
     mu2final = setup["Q2grid"][0]
     # step one
-    logger.info(
-        "ZM-VFNS: nf=%d, evolve [GeV^2] %e -> %e", nf_init, mu2init, m2Threshold1
-    )
     step1 = _run_step(
         setup,
         constants,
@@ -619,9 +454,6 @@ def _run_ZMVFNS_2thresholds(
         m2Threshold1,
     )
     # step two
-    logger.info(
-        "ZM-VFNS: nf=%d, evolve [GeV^2] %e -> %e", nf_init + 1, m2Threshold1, m2Threshold2
-    )
     step2 = _run_step(
         setup,
         constants,
@@ -632,9 +464,6 @@ def _run_ZMVFNS_2thresholds(
         m2Threshold2,
     )
     # step three
-    logger.info(
-        "ZM-VFNS: nf=%d, evolve [GeV^2] %e -> %e", nf_init + 2, m2Threshold2, mu2final
-    )
     step3 = _run_step(
         setup,
         constants,
@@ -647,85 +476,151 @@ def _run_ZMVFNS_2thresholds(
     # join elements
     ret = {"operators": {}, "operator_errors": {}}
 
-    def multiplication_helper(to, from3, from2, from1):
-        # force lists
-        if not isinstance(from3, list):
-            from3l = [from3]
-        else:
-            from3l = from3
-        if not isinstance(from2, list):
-            from2l = [from2]
-        else:
-            from2l = from2
-        if not isinstance(from1, list):
-            from1l = [from1]
-        else:
-            from1l = from1
-        # iterate
-        op = 0
-        op_err = 0
-        for a, b, c in zip(from3l,from2l, from1l):
-            # join bc
-            op_bc = np.matmul(step2["operators"][b], step1["operators"][c])
-            op_err_bc = np.matmul(
-                step2["operator_errors"][b], step1["operators"][c]
-            ) + np.matmul(step2["operators"][c], step1["operator_errors"][c])
-            # rest
-            op += np.matmul(step3["operators"][a], op_bc)
-            op_err += np.matmul(
-                step3["operator_errors"][a], op_bc
-            ) + np.matmul(step3["operators"][a], op_err_bc)
+    # supply short wrapper
+    def set_helper(to, paths):
+        op, op_err = utils.operator_product_helper([step3, step2, step1], paths)
         ret["operators"][to] = op
         ret["operator_errors"][to] = op_err
 
     # join quarks flavors
     # v.v.v = V
-    multiplication_helper("V.V", "NS_v", "NS_v", "NS_v")
+    set_helper("V.V", [["NS_v", "NS_v", "NS_v"]])
     # -.-.-
-    for v in Vs[:nf_init-1]:
-        multiplication_helper(f"{v}.{v}", "NS_-", "NS_-", "NS_-")
+    for v in Vs[: nf_init - 1]:
+        set_helper(f"{v}.{v}", [["NS_-", "NS_-", "NS_-"]])
     # -.-.v
-    b = Vs[nf_init-1]
-    multiplication_helper(f"{b}.V", "NS_-", "NS_-", "NS_v")
+    b = Vs[nf_init - 1]
+    set_helper(f"{b}.V", [["NS_-", "NS_-", "NS_v"]])
     # -.v.v
     b = Vs[nf_init]
-    multiplication_helper(f"{b}.V", "NS_-", "NS_v", "NS_v")
+    set_helper(f"{b}.V", [["NS_-", "NS_v", "NS_v"]])
     # v.v.v for higher combinations
-    for b in Vs[nf_init+1:]:
-        multiplication_helper(f"{b}.V", "NS_v", "NS_v", "NS_v")
+    for b in Vs[nf_init + 1 :]:
+        set_helper(f"{b}.V", [["NS_v", "NS_v", "NS_v"]])
     # +.+.+
     for b in Ts[: nf_init - 1]:
-        multiplication_helper(f"{b}.{b}", "NS_+", "NS_+", "NS_+")
+        set_helper(f"{b}.{b}", [["NS_+", "NS_+", "NS_+"]])
     # +.+.S
-    b = Ts[nf_init-1]
-    multiplication_helper(f"{b}.S", "NS_+", "NS_+", "S_qq")
+    b = Ts[nf_init - 1]
+    set_helper(f"{b}.S", [["NS_+", "NS_+", "S_qq"]])
     # +.S.S
     b = Ts[nf_init]
-    multiplication_helper(f"{b}.S", ["NS_+","NS_+"], ["S_qq","S_qg"], ["S_qq","S_gq"])
-    # fmt: off
+    paths_qq_2 = utils.get_singlet_paths("q", "q", 2)
+    for p in paths_qq_2:
+        p.insert(0, "NS_+")
+    set_helper(f"{b}.S", paths_qq_2)
     # S.S.S
-    for b in Ts[nf_init+1:]:
-        multiplication_helper(f"{b}.S", ["S_qq","S_qg","S_qq","S_qg"],
-                                        ["S_qq","S_gq","S_qg","S_gg"],
-                                        ["S_qq","S_qq","S_gq","S_gq"])
-        multiplication_helper(f"{b}.g", ["S_qq","S_qg","S_qq","S_qg"],
-                                        ["S_qg","S_gg","S_qq","S_gq"],
-                                        ["S_gg","S_gg","S_qg","S_qg"])
+    paths_qq_3 = utils.get_singlet_paths("q", "q", 3)
+    paths_qg_3 = utils.get_singlet_paths("q", "g", 3)
+    for b in Ts[nf_init + 1 :]:
+        set_helper(f"{b}.S", paths_qq_3)
+        set_helper(f"{b}.g", paths_qg_3)
 
     # Singlet + gluon
-    multiplication_helper("S.S", ["S_qq","S_qg","S_qq","S_qg"],
-                                 ["S_qq","S_gq","S_qg","S_gg"],
-                                 ["S_qq","S_qq","S_gq","S_gq"])
-    multiplication_helper("S.g", ["S_qq","S_qg","S_qq","S_qg"],
-                                 ["S_qg","S_gg","S_qq","S_gq"],
-                                 ["S_gg","S_gg","S_qg","S_qg"])
-    multiplication_helper("g.S", ["S_gq","S_gg","S_gq","S_gg"],
-                                 ["S_qq","S_gq","S_qg","S_gg"],
-                                 ["S_qq","S_qq","S_gq","S_gq"])
-    multiplication_helper("g.g", ["S_gq","S_gg","S_gq","S_gg"],
-                                 ["S_qg","S_gg","S_qq","S_gq"],
-                                 ["S_gg","S_gg","S_qg","S_qg"])
-    # fmt: on 
+    set_helper("S.S", paths_qq_3)
+    set_helper("S.g", paths_qg_3)
+    set_helper("g.S", utils.get_singlet_paths("g", "q", 3))
+    set_helper("g.g", utils.get_singlet_paths("g", "g", 3))
+    return ret
+
+
+def _run_ZMVFNS_3thresholds(
+    setup, constants, basis_function_dispatcher, xgrid, targetgrid, m2c, m2b, m2t
+):
+    """Run the ZM-VFNS with 3 crossed threshold.
+
+    Assumes nf_init = 3.
+
+    Parameters
+    ----------
+    setup : dict
+        a dictionary with the theory parameters for the evolution
+    constants : Constants
+        physical constants
+    xgrid : array
+        grid used for intermediate steps
+    targetgrid : array
+        output grid
+    m2c : t_float
+        first threshold mass that is crossed = charm mass
+    m2b : t_float
+        second threshold mass that is crossed = bottom mass
+    m2t : t_float
+        third threshold mass that is crossed = top mass
+
+    Returns
+    -------
+        ret : dict
+            output dictionary
+    """
+    # setup
+    mu2init = setup["Q0"] ** 2
+    mu2final = setup["Q2grid"][0]
+    # step one
+    step1 = _run_step(
+        setup, constants, basis_function_dispatcher, xgrid, 3, mu2init, m2c
+    )
+    # step two
+    step2 = _run_step(
+        setup, constants, basis_function_dispatcher, targetgrid, 4, m2c, m2b
+    )
+    # step three
+    step3 = _run_step(
+        setup, constants, basis_function_dispatcher, targetgrid, 5, m2b, m2t
+    )
+    # step four
+    step4 = _run_step(
+        setup, constants, basis_function_dispatcher, targetgrid, 6, m2t, mu2final
+    )
+    # join elements
+    ret = {"operators": {}, "operator_errors": {}}
+
+    # supply short wrapper
+    def set_helper(to, paths):
+        op, op_err = utils.operator_product_helper([step4, step3, step2, step1], paths)
+        ret["operators"][to] = op
+        ret["operator_errors"][to] = op_err
+
+    # join quarks flavors
+    # v.v.v.v = V
+    set_helper("V.V", [["NS_v", "NS_v", "NS_v", "NS_v"]])
+    # -.-.-.- = V3,V8
+    for v in Vs[:2]:
+        set_helper(f"{v}.{v}", [["NS_-", "NS_-", "NS_-", "NS_-"]])
+    # -.-.-.v = V15
+    b = Vs[3]
+    set_helper(f"{b}.V", [["NS_-", "NS_-", "NS_-", "NS_v"]])
+    # -.-.v.v = V24
+    b = Vs[4]
+    set_helper(f"{b}.V", [["NS_-", "NS_-", "NS_v", "NS_v"]])
+    # -.v.v.v = V35
+    b = Vs[5]
+    set_helper(f"{b}.V", [["NS_-", "NS_v", "NS_v", "NS_v"]])
+    # +.+.+.+ = T3,T8
+    for b in Ts[:2]:
+        set_helper(f"{b}.{b}", [["NS_+", "NS_+", "NS_+", "NS_+"]])
+    # +.+.+.S = T15
+    b = Ts[2]
+    set_helper(f"{b}.S", [["NS_+", "NS_+", "NS_+", "S_qq"]])
+    # +.+.S.S = T24
+    b = Ts[3]
+    paths_qq_2 = utils.get_singlet_paths("q", "q", 2)
+    for p in paths_qq_2:
+        p.insert(0, "NS_+")
+        p.insert(0, "NS_+")
+    set_helper(f"{b}.S", paths_qq_2)
+    # +.S.S.S = T35
+    b = Ts[4]
+    paths_qq_3 = utils.get_singlet_paths("q", "q", 3)
+    for p in paths_qq_3:
+        p.insert(0, "NS_+")
+    set_helper(f"{b}.S", paths_qq_3)
+
+    # Singlet + gluon
+    set_helper("S.S", utils.get_singlet_paths("q", "q", 4))
+    set_helper("S.g", utils.get_singlet_paths("q", "g", 4))
+    set_helper("g.S", utils.get_singlet_paths("g", "q", 4))
+    set_helper("g.g", utils.get_singlet_paths("g", "g", 4))
     return ret
 
 
@@ -750,13 +645,16 @@ def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid, targetgrid)
     """
     mu2init = setup["Q0"] ** 2
     mu2final = setup["Q2grid"][0]
-    # collect HQ masses - add 0 as init
-    mH2s = [0]
+    # collect HQ masses
     Qmc = setup.get("Qmc", 0)
-    mH2s.append(Qmc * Qmc)
     Qmb = setup.get("Qmb", 0)
-    mH2s.append(Qmb * Qmb)
     Qmt = setup.get("Qmt", 0)
+    # check
+    if Qmc > Qmb or Qmb > Qmt:
+        raise ValueError("Quark masses are not in c < b < t order!")
+    mH2s = [0]  # add 0 as init
+    mH2s.append(Qmc * Qmc)
+    mH2s.append(Qmb * Qmb)
     mH2s.append(Qmt * Qmt)
     # add infinity
     mH2s.append(np.inf)
@@ -765,16 +663,12 @@ def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid, targetgrid)
     for k in range(1, 5):
         if mH2s[k - 1] <= mu2init <= mu2final <= mH2s[k]:
             return _run_ZMVFNS_0threshold(
-                setup,
-                constants,
-                basis_function_dispatcher,
-                targetgrid,
-                2 + k,
+                setup, constants, basis_function_dispatcher, targetgrid, 2 + k
             )
 
     # 1 threshold
     for k in range(1, 4):
-        if mH2s[k - 1] <= mu2init < mH2s[k] <= mu2final < mH2s[k + 1]:
+        if mH2s[k - 1] <= mu2init < mH2s[k] <= mu2final <= mH2s[k + 1]:
             return _run_ZMVFNS_1threshold(
                 setup,
                 constants,
@@ -784,7 +678,39 @@ def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid, targetgrid)
                 mH2s[k],
                 2 + k,
             )
-    raise NotImplementedError("TODO")
+
+    # 2 thresholds
+    for k in range(1, 3):
+        if mH2s[k - 1] <= mu2init < mH2s[k] < mH2s[k + 1] <= mu2final <= mH2s[k + 2]:
+            return _run_ZMVFNS_2thresholds(
+                setup,
+                constants,
+                basis_function_dispatcher,
+                xgrid,
+                targetgrid,
+                mH2s[k],
+                mH2s[k + 1],
+                2 + k,
+            )
+
+    # 3 thresholds
+    if mu2final < mH2s[1] < mH2s[2] < mH2s[3] < mu2final:
+        return _run_ZMVFNS_3thresholds(
+            setup,
+            constants,
+            basis_function_dispatcher,
+            xgrid,
+            targetgrid,
+            mH2s[1],
+            mH2s[2],
+            mH2s[3],
+        )
+
+    # dead end
+    raise NotImplementedError(
+        "Unknown threshold configuration: m_c^2=%e, m_b^2=%e, m_t^2=%e; mu_init^2=%e, mu_final^2=%e"
+        % (mH2s[1], mH2s[2], mH2s[3], mu2init, mu2final)
+    )
 
 
 def run_dglap(setup):
@@ -874,7 +800,7 @@ def run_dglap(setup):
     else:
         raise ValueError(f"Unknown FNS: {FNS}")
     # join operators
-    ret = _merge_dicts(ret, ret_ops)
+    ret = utils.merge_dicts(ret, ret_ops)
     return ret
 
 

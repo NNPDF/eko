@@ -112,7 +112,9 @@ def beta_2(nf: int, CA: t_float, CF: t_float, Tf: t_float):
     return beta_2
 
 
-def alpha_s_generator(alpha_s_ref: t_float, scale_ref: t_float, nf: int, method: str):
+def alpha_s_generator(
+    c: Constants, alpha_s_ref: t_float, scale_ref: t_float, nf: int, method: str #pylint: disable=unused-argument
+):
     """
     Generates the alpha_s functions for a given number of flavours for a given method
     for a given reference scale
@@ -122,6 +124,8 @@ def alpha_s_generator(alpha_s_ref: t_float, scale_ref: t_float, nf: int, method:
 
     Parameters
     ----------
+    constants : Constants
+        physical constants
     alpha_s_ref : t_float
         alpha_s at the reference scale :math:`\\alpha_s(\\mu_0^2)`
     scale_ref : t_float
@@ -135,14 +139,12 @@ def alpha_s_generator(alpha_s_ref: t_float, scale_ref: t_float, nf: int, method:
     -------
     alpha_s: function
         function(order, scale_to) which computes alpha_s for a given order at a given scale
-    """  # pylint: disable=unused-argument
+    """
     # TODO implement more complex runnings (we may take a glimpse into LHAPDF)
-    # TODO constants have to come from the outside, otherwise it defeats the purpose
-    c = Constants()
     beta0 = beta_0(nf, c.CA, c.CF, c.TF)
 
     @nb.njit
-    def alpha_s(order: int, scale_to: t_float):
+    def a_s(order: int, scale_to: t_float):
         """
         Parameters
         ----------
@@ -162,4 +164,41 @@ def alpha_s_generator(alpha_s_ref: t_float, scale_ref: t_float, nf: int, method:
         else:
             raise NotImplementedError("Alpha_s beyond LO not implemented")
 
-    return alpha_s
+    return a_s
+
+
+def get_evolution_params(
+    setup: dict, constants: Constants, nf: t_float, mu2init: t_float, mu2final: t_float
+):
+    """Compute evolution parameters
+
+    Parameters
+    ----------
+    setup: dict
+        a dictionary with the theory parameters for the evolution
+    constants : Constants
+        physical constants
+    nf : int
+        number of active flavours
+    mu2init : float
+        initial scale
+    mu2final : flaot
+        final scale
+
+    Returns
+    -------
+        delta_t : t_float
+            scale difference
+    """
+    # setup params
+    qref2 = setup["Qref"] ** 2
+    pto = setup["PTO"]
+    alphas = setup["alphas"]
+    # Generate the alpha_s functions
+    a_s = alpha_s_generator(constants, alphas, qref2, nf, "analytic")
+    a0 = a_s(pto, mu2init)
+    a1 = a_s(pto, mu2final)
+    # evolution parameters
+    t0 = np.log(1.0 / a0)
+    t1 = np.log(1.0 / a1)
+    return t1 - t0

@@ -22,8 +22,8 @@ def gsl_digamma(N: t_complex):
     i = np.imag(N)
     out = np.empty(2)
     c_digamma(
-        r, i, _gsl_digamma.ffi.from_buffer(out)
-    )  # pylint: disable=c-extension-no-member
+        r, i, _gsl_digamma.ffi.from_buffer(out) # pylint: disable=c-extension-no-member
+    )
     result = np.complex(out[0], out[1])
     return result
 

@@ -62,7 +62,8 @@ def test_a_s():
     ref_as = 0.1181
     ref_mu = 90
     ask_q2 = 125
-    alpha_s_function = alpha_s_generator(ref_as, ref_mu, NF, "None")
+    c = Constants()
+    alpha_s_function = alpha_s_generator(c, ref_as, ref_mu, NF, "None")
     for order in range(1):
         result = alpha_s_function(order, ask_q2)
         assert_approx_equal(result, known_vals[order], significant=7)
