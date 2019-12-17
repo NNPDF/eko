@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 import eko.dglap as dglap
+import eko.alpha_s as alpha_s
 import eko.interpolation as interpolation
 from tools import plot_dist, save_all_operators_to_pdf
 
