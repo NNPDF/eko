@@ -10,7 +10,7 @@ import eko.alpha_s as alpha_s
 from eko.kernel_generation import KernelDispatcher
 from eko.constants import Constants
 
-def get_plot(k, lnx, ker,reDelta=0.03,imDelta=0.06,reMin=0.01,reMax=3.,imMin=0.1,imMax=6.,title=None):
+def get_plot(k, lnx, ker,reDelta=0.03,imDelta=0.06,reMin=0.01,reMax=3.,imMin=0.1,imMax=6.,title=None, plot_ReIm = True):
     # generate 2 2d grids for the x & y bounds
     res, ims = np.mgrid[slice(reMin, reMax + reDelta, reDelta),slice(imMin, imMax + imDelta, imDelta)]
     Ns = res + ims*1j
@@ -25,27 +25,29 @@ def get_plot(k, lnx, ker,reDelta=0.03,imDelta=0.06,reMin=0.01,reMax=3.,imMin=0.1
     # # x and y are bounds, so z should be the value *inside* those bounds.
     # Therefore, remove the last value from the z array.
     vals = vals[:-1, :-1]
-    fig = plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(10,10 if plot_ReIm else 5))
     if title is not None:
         t = fig.suptitle(title)
         t.set_in_layout(False)
 
-    ax1 = plt.subplot(2,2,1)
-    im0 = ax1.pcolormesh(res,ims,np.real(vals))
-    fig.colorbar(im0, ax=ax1)
-    ax1.set_title('Re')
+    n_rows = 2 if plot_ReIm else 1
+    if plot_ReIm:
+        ax1 = plt.subplot(n_rows,2,1)
+        im0 = ax1.pcolormesh(res,ims,np.real(vals))
+        fig.colorbar(im0, ax=ax1)
+        ax1.set_title('Re')
 
-    ax2 = plt.subplot(2,2,2)
-    im1 = ax2.pcolormesh(res,ims,np.imag(vals))
-    fig.colorbar(im1, ax=ax2)
-    ax2.set_title('Im')
+        ax2 = plt.subplot(n_rows,2,2)
+        im1 = ax2.pcolormesh(res,ims,np.imag(vals))
+        fig.colorbar(im1, ax=ax2)
+        ax2.set_title('Im')
 
-    ax3 = plt.subplot(2,2,3)
+    ax3 = plt.subplot(n_rows,2,n_rows*2-1)
     im0 = ax3.pcolormesh(res,ims,np.log(np.abs(vals)))
     fig.colorbar(im0, ax=ax3)
     ax3.set_title('Log(Abs)')
 
-    ax4 = plt.subplot(2,2,4)
+    ax4 = plt.subplot(n_rows,2,2*n_rows)
     im0 = ax4.pcolormesh(res,ims,np.angle(vals),cmap=plt.get_cmap("hsv"))
     fig.colorbar(im0, ax=ax4)
     ax4.set_title('Angle')
@@ -113,7 +115,7 @@ if __name__ == "__main__":
      # Receive all precompiled kernels
     kernels = kernel_dispatcher.compile_nonsinglet()
 
-    run_imgs = True
+    run_imgs = False
     run_join_imgs = True
 
     ks = [2,4,6,8,10,12]
@@ -121,23 +123,28 @@ if __name__ == "__main__":
     # build all imgs
     if run_imgs:
         for k in ks:
+            xk = xgrid[k]
             bf = basis_function_dispatcher[k]
             areas = bf.areas_to_const()
             xmin = np.exp(areas[0][0])
             xmax = np.exp(areas[-1][1])
-            reMax = 4.
-            reDelta = .04
             for j,xInv in enumerate(xInvs):
                 print(f"k={k}, j={j}")
-                title = f"k={k}->[{xmin:.2e},{xmax:.2e}], xInf={xInv:.2e}"
-                fig = get_plot(k,np.log(xInv),kernels[k],reMax=reMax,reDelta=reDelta,title=title)
+                title = f"k={k}->[{xmin:.2e}<-{xk:.2e}->{xmax:.2e}], xInf={xInv:.2e}"
+                fig = get_plot(k,np.log(xInv),kernels[k],reMin=-2,reMax=4,reDelta=.06,title=title,plot_ReIm=False)
                 fig.savefig(f"plot-{k}-{j}.png")
                 plt.close(fig)
     # join all imgs
     if run_join_imgs:
-        dst = Image.new('RGB',(1005*len(ks),1005*len(xInvs)))
+        # determine size
+        i0 = Image.open(f"plot-{ks[0]}-0.png")
+        w0, h0 = i0.width, i0.height
+        # recombine
+        pad = 5
+        w, h = w0+pad, h0+pad
+        dst = Image.new('RGB',(w*len(ks),h*len(xInvs)))
         for nk,k in enumerate(ks):
             for j,xInv in enumerate(xInvs):
                 i1 = Image.open(f"plot-{k}-{j}.png")
-                dst.paste(i1,(1005*nk,1005*j))
+                dst.paste(i1,(w*nk,h*j))
         dst.save("tot.png")
