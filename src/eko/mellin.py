@@ -158,15 +158,20 @@ def get_path_line(path_len: t_float, c: t_float = 1.0):
     return path, jac
 
 
-def get_path_edge(m: t_float, c: t_float = 1.0):
-    """Get edged path with an angle of 45°
+def get_path_edge(m: t_float, c: t_float = 1.0, phi: t_complex = np.pi * 2.0 / 3.0):
+    """Get edged path with an angle.
+
+    .. math::
+        p_{\\text{edge}}(t) = c + m|t - \\frac 1 2|\\exp(i\\phi)
 
     Parameters
     ----------
       m : t_float
         half length of the path
-      c : t_float
-        intersection of path with real axis
+      c : t_float, optional
+        intersection of path with real axis - defaults to 1
+      a : t_complex, optional
+        bended angle - defaults to 135° with respect to positive x axis
 
     Returns
     -------
@@ -180,27 +185,34 @@ def get_path_edge(m: t_float, c: t_float = 1.0):
     @nb.njit
     def path(t):
         if t < 0.5:  # turning point: path is not differentiable in this point
-            return c + (0.5 - t) * m * np.exp(np.complex(0, -np.pi * 2.0 / 3.0))
+            return c + (0.5 - t) * m * np.exp(np.complex(0, -phi))
         else:
-            return c + (t - 0.5) * m * np.exp(np.complex(0, +np.pi * 2.0 / 3.0))
+            return c + (t - 0.5) * m * np.exp(np.complex(0, +phi))
 
     @nb.njit
     def jac(t):
         if t < 0.5:  # turning point: jacobian is not continuous here
-            return -m * np.exp(np.complex(0, -np.pi * 2.0 / 3.0))
+            return -m * np.exp(np.complex(0, -phi))
         else:
-            return +m * np.exp(np.complex(0, np.pi * 2.0 / 3.0))
+            return +m * np.exp(np.complex(0, phi))
 
     return path, jac
 
 
 def get_path_Cauchy_tan(g: t_float = 1.0, re_offset=0.0):
-    """Get
+    """Get Cauchy-distribution like path - extended wia tan to the infinite domain.
+
+    .. math::
+        p_{\\text{c}}(t) = o + \\frac{\\gamma}{u^2 + \\gamma^2} + u\\cdot i
+
+    with :math:`u = \\tan(\\pi \\cdot (2t - 1)/2)`
 
     Parameters
     ----------
       g : t_float
-        intersection of path with real axis
+        Cauchy scale parameter
+      re_offset
+        real offset (offset to intersection of path with real axis)
 
     Returns
     -------

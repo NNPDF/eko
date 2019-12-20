@@ -1,15 +1,18 @@
+# -*- coding: utf-8 -*-
 """
-    This module contains functions that generate other functions
-    All functions will receive a set of parameters so that the output
-    function can be always numba compilable
+This module contains functions that generate other functions
+All functions will receive a set of parameters so that the output
+function can be always numba compilable.
 
-    The generator functions `get_kernel_{kernel_type}` have as signature
-    the following parameters:
-        `basis_function`: a callable function with a (N, lnx) signature
-        `nf` : number of flavours
-        `constants`: an instance of the Constants class
-        `beta_0` : value of beta_0
-        `delta_t`: value of `delta_t`
+The generator functions `get_kernel_{kernel_type}` have as signature
+the following parameters:
+
+ * `basis_function`: a callable function with a (N, lnx) signature
+ * `nf` : number of flavours
+ * `constants`: an instance of the Constants class
+ * `beta_0` : value of beta_0
+ * `delta_t`: value of `delta_t`
+
 """
 from collections import abc
 import numpy as np

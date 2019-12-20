@@ -127,9 +127,9 @@ def _run_singlet(kernel_dispatcher, targetgrid):
     kernels = kernel_dispatcher.compile_singlet()
 
     # Setup path
+    gamma = 0.5
     cut = 1e-2
-    gamma = 1.0
-    path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
+    path, jac = mellin.get_path_edge(10,2.,np.pi/3) #mellin.get_path_Cauchy_tan(gamma, 0.0)
 
     # Generate integrands
     integrands = []

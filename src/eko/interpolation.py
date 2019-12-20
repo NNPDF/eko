@@ -4,11 +4,12 @@ Library providing all necessary tools for PDF interpolation.
 
 This library provides a number of functions for generating grids
 as `numpy` arrays:
-    `get_xgrid_linear_at_id`
-    `get_xgrid_linear_at_log`
 
-This library also provides a class to generate an interpolator
-    `InterpolatorDispatcher`
+ * `get_xgrid_linear_at_id`
+ * `get_xgrid_linear_at_log`
+
+
+This library also provides a class to generate an interpolator `InterpolatorDispatcher`.
 Upon construction the dispatcher generates a number of functions
 to evaluate the interpolator.
 """
@@ -226,28 +227,32 @@ class BasisFunction:
 
     def compile_X(self, mode_log=True):
         """ Compiles the function to evaluate the interpolator
-        in x space
+        in x space.
 
         .. math::
-        \\tilde P^{\\ln}(x)
+            \\tilde P^{\\ln}(x)
 
         Parameters
         ----------
-        x : t_float
-            Evaluated point
-        conf : dict
-            dictionary of values for the coefficients of the interpolator
-
-        Returns
-        -------
-        p(x) : t_float
-            Evaluated polynom at x
+            mode_log : bool, optional
+                use logarithmic mode?
         """
 
         area_list = self.areas_to_const()
 
         def evaluate_x(x, null=None):
-            """Get a single Lagrange interpolator in x-space  """
+            """Get a single Lagrange interpolator in x-space
+
+            Parameters
+            ----------
+                x : t_float
+                    Evaluated point
+
+            Returns
+            -------
+                res : t_float
+                    p(x)
+            """
             res = 0.0
             for j, (xmin, xmax, coefs) in enumerate(area_list):
                 if xmin < x <= xmax or (j == 0 and x == xmin):
@@ -260,7 +265,18 @@ class BasisFunction:
         nb_eval_x = self.njit(evaluate_x)
 
         def log_evaluate_x(x, null=None):
-            """Get a single Lagrange interpolator in x-space  """
+            """Get a single Lagrange interpolator in logarithmic x-space
+
+            Parameters
+            ----------
+            x : t_float
+                Evaluated point
+
+            Returns
+            -------
+                res : t_float
+                    p(x)
+            """
             return nb_eval_x(np.log(x))
 
         if mode_log:
@@ -269,30 +285,27 @@ class BasisFunction:
             self.callable = self.njit(evaluate_x)
 
     def compile_N(self, mode_log=True):
-        """ Compiles the function to evaluate the interpolator
-        in N space
+        """Compiles the function to evaluate the interpolator in N space.
 
-        Returns a function `evaluate_Nx` with a (N, x) signature
+        Returns a function `evaluate_Nx` with a (N, x) signature `evaluate_Nx(N, logx)`:
 
-        `evaluate_Nx`(N, logx):
-            .. math::
+        .. math::
             \\tilde P^{\\ln}(N)*exp(- N * log(x))
 
-            The polynomials contain naturally factors of :math:`exp(N * j * log(x_{min/max}))`
-            which can be joined with the Mellin inversion factor.
+        The polynomials contain naturally factors of :math:`exp(N * j * log(x_{min/max}))`
+        which can be joined with the Mellin inversion factor.
 
-            Parameters
-            ----------
-            N : t_float
-                Evaluated point in N-space
-            logx : t_float
-                Mellin-inversion point :math:`log(x)`
+        Parameters
+        ----------
+        N : t_float
+            Evaluated point in N-space
+        logx : t_float
+            Mellin-inversion point :math:`log(x)`
 
-            Returns
-            -------
-            p(N)*x^{-N} : t_complex
+        Returns
+        -------
+        p(N)*x^{-N} : t_complex
                 Evaluated polynom at N times x^{-N}
-
 
         """
         area_list = self.areas_to_const()
@@ -424,31 +437,3 @@ class InterpolatorDispatcher:
 
     def __getitem__(self, item):
         return self.basis[item]
-
-
-# if __name__ == "__main__":
-#     xgrid = np.logspace(-3, 0, 10)
-#     polrank = 4
-#
-#     reference = get_Lagrange_basis_functions(xgrid, polrank)
-#     mine = InterpolatorDispatcher(xgrid, polrank, False)
-#
-#     # Check that the basis is the same
-#     for ref, new in zip(reference, mine.basis):
-#         assert ref["polynom_number"] == new.poly_number
-#         ref_areas = ref["areas"]
-#         for ref_area, new_area in zip(ref_areas, new):
-#             assert ref_area["xmin"] == new_area.xmin
-#             assert ref_area["xmax"] == new_area.xmax
-#             for ref_coef, new_coef in zip(ref_area["coeffs"], new_area):
-#                 assert ref_coef == new_coef
-#     # Check that the results are the same
-#     for ref_poly, new_poly in zip(reference, mine):
-#         for lnx in np.random.rand(10):
-#             for i, j in np.random.rand(10, 2):
-#                 N = complex(i, 0.0)
-#                 ref_res = evaluate_Lagrange_basis_function_log_N(N, ref_poly, lnx)
-#                 new_res = new_poly.callable(N, lnx)
-#                 np.testing.assert_allclose(
-#                     np.real(ref_res), np.real(new_res), rtol=1e-4
-#                 )
