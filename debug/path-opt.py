@@ -145,6 +145,8 @@ class PathOpt:
                     reMin=-2,
                     reMax=4,
                     reDelta=0.06,
+                    imMax=12,
+                    imDelta=0.12,
                     title=title,
                     plot_ReIm=False,
                 )
@@ -210,14 +212,11 @@ if __name__ == "__main__":
     n_low = 10
     n_mid = 5
     polynom_rank = 4
-    run_init = False
-    run_FFNS = False
-    run_ZMVFNS = True
     plot_PDF = True
     plot_operator = True
 
     # combine grid
-    flag = f"l{n_low}m{n_mid}r{polynom_rank}"
+    #flag = f"l{n_low}m{n_mid}r{polynom_rank}"
     xgrid_low = interpolation.get_xgrid_linear_at_log(n_low, 1e-7, 0.1)
     xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
     xgrid_high = np.array([])
@@ -249,7 +248,7 @@ if __name__ == "__main__":
 
     app = PathOpt(setup)
 
-    run_imgs = False
+    run_imgs = True
     run_join_imgs = True
     ks = [2, 4, 6, 8, 10, 12]
     xInvs = [1e-4, 1e-3, 1e-2, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9]

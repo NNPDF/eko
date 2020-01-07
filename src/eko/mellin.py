@@ -85,7 +85,10 @@ def inverse_mellin_transform(integrand, cut, extra_args=(), eps=1e-12):
 
 
 def get_path_Talbot(r: t_float = 1.0):
-    """get Talbot path
+    """Get Talbot path.
+
+    .. math::
+        p_{\\text{Talbot}}(t) = \\pi*(2t-1) * cot(\\pi*(2t-1)) + i\\cdot\\pi*(2t-1)
 
     Parameters
     ----------
@@ -96,10 +99,9 @@ def get_path_Talbot(r: t_float = 1.0):
     Returns
     -------
       path : function
-        Talbot path function
-        :math:`p_{\\text{Talbot}}(t) = \\pi*(2t-1) * cot(\\pi*(2t-1)) + i\\cdot\\pi*(2t-1)`
+        path :math:`p_{\\text{Talbot}}(t)`
       jac : function
-        derivative of Talbot path :math:`j_{\\text{Talbot}}(t) = \\frac{dp_{\\text{Talbot}}(t)}{dt}`
+        derivative of path :math:`j_{\\text{Talbot}}(t) = \\frac{dp_{\\text{Talbot}}(t)}{dt}`
     """
 
     @nb.njit
@@ -128,8 +130,11 @@ def get_path_Talbot(r: t_float = 1.0):
     return path, jac
 
 
-def get_path_line(path_len: t_float, c: t_float = 1.0):
-    """Get textbook path, i.e. a straight line parallel to imaginary axis
+def get_path_line(m: t_float, c: t_float = 1.0):
+    """Get textbook path, i.e. a straight line parallel to imaginary axis.
+
+    .. math::
+        p_{\\text{line}}(t) = c + m \\cdot (2t - 1)
 
     Parameters
     ----------
@@ -141,25 +146,24 @@ def get_path_line(path_len: t_float, c: t_float = 1.0):
     Returns
     -------
       path : function
-        textbook path :math:`p_{\\text{line}}(t) = c + m \\cdot (2t - 1)`
+        path :math:`p_{\\text{line}}(t)`
       jac : function
-        derivative of textbook path
-        :math:`j_{\\text{line}}(t) = \\frac{dp_{\\text{line}}(t)}{dt} = 2m`
+        derivative of path :math:`j_{\\text{line}}(t) = \\frac{dp_{\\text{line}}(t)}{dt} = 2m`
     """
 
     @nb.njit
     def path(t):
-        return t_complex(np.complex(c, path_len * (2 * t - 1)))
+        return t_complex(np.complex(c, m * (2 * t - 1)))
 
     @nb.njit
     def jac(j):  # pylint: disable=unused-argument
-        return t_complex(np.complex(0, path_len * 2))
+        return t_complex(np.complex(0, m * 2))
 
     return path, jac
 
 
 def get_path_edge(m: t_float, c: t_float = 1.0, phi: t_complex = np.pi * 2.0 / 3.0):
-    """Get edged path with an angle.
+    """Get edged path with a given angle.
 
     .. math::
         p_{\\text{edge}}(t) = c + m|t - \\frac 1 2|\\exp(i\\phi)
@@ -176,9 +180,9 @@ def get_path_edge(m: t_float, c: t_float = 1.0, phi: t_complex = np.pi * 2.0 / 3
     Returns
     -------
       path : function
-        edged path :math:`p_{\\text{edge}}(t)`
+        path :math:`p_{\\text{edge}}(t)`
       jac : function
-        derivative of edged path
+        derivative of path
         :math:`j_{\\text{edge}}(t) = \\frac{dp_{\\text{edge}}(t)}{dt}`
     """
 
@@ -211,15 +215,15 @@ def get_path_Cauchy_tan(g: t_float = 1.0, re_offset=0.0):
     ----------
       g : t_float
         Cauchy scale parameter
-      re_offset
+      re_offset : t_float
         real offset (offset to intersection of path with real axis)
 
     Returns
     -------
       path : function
-        edged path :math:`p_{\\text{c}}(t)`
+        path :math:`p_{\\text{c}}(t)`
       jac : function
-        derivative of edged path
+        derivative of path
         :math:`j_{\\text{c}}(t) = \\frac{dp_{\\text{c}}(t)}{dt}`
     """
 

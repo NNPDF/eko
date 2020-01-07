@@ -64,6 +64,14 @@ def test_get_path_Cauchy_tan():
         path, jacobian = mellin.get_path_Cauchy_tan(c,o)
         check_path_derivation(path, jacobian)
 
+def test_path_similarity():
+    # these two should be identical
+    p1,j1 = mellin.get_path_line(10.0,1.0)
+    p2,j2 = mellin.get_path_edge(10.0,1.0,np.pi/2.0)
+    for t in [0.1,0.2,0.3,0.4,0.6]:
+        assert_almost_equal(p1(t),p2(t))
+        assert_almost_equal(j1(t),j2(t))
+
 def test_Mellin_transform():
     f = lambda x: x
     g = lambda N: 1.0 / (N + 1.0)
