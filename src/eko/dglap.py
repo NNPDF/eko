@@ -127,24 +127,17 @@ def _run_singlet(kernel_dispatcher, targetgrid):
     kernels = kernel_dispatcher.compile_singlet()
 
     # Setup path
-    gamma = 20.0
+    #gamma = 20.0
     cut = 1e-2
-    path, jac = mellin.get_path_line(30.0,2.0)
+    #path, jac = mellin.get_path_line(30.0,4.0)
     # mellin.get_path_line(30.0,2.0) seems to improve Sigma at large x
     # mellin.get_path_Cauchy_tan(gamma, 1.5)
     # mellin.get_path_edge(10,2.,np.pi/3) #
 
-    # Generate integrands
-    integrands = []
-    for kernel_set in kernels:
-        kernel_int = []
-        for ker in kernel_set:
-            kernel_int.append(mellin.compile_integrand(ker, path, jac))
-        integrands.append(kernel_int)
 
     # perform
-    log_prefix = "computing singlet operator - %s"
-    logger.info(log_prefix, "kernel compiled")
+    log_prefix = "singlet operator - %s"
+    #logger.info(log_prefix, "kernel compiled")
 
     def run_thread(integrands, logx):
         """ The output of this function is a list of tuple (result, error)
@@ -157,11 +150,25 @@ def _run_singlet(kernel_dispatcher, targetgrid):
 
     all_output = []
     targetgrid_size = len(targetgrid)
+    # compute targetgrid
     for k, xk in enumerate(targetgrid):
+        log_text = f"{k+1}/{targetgrid_size}"
+
+        path, jac = mellin.get_path_Cauchy_tan(3.5 + np.log(xk)/8.0, 3.5 + np.log(xk)/8.0)
+        # mellin.get_path_Cauchy_tan(3.5 + np.log(xk)/8.0, 3.5 + np.log(xk)/8.0) = Cauchy2
+        # mellin.get_path_Cauchy_tan(0.5 - 17.0/np.log(xk), 4.0 + np.log(xk)/8.0) = Cachy1
+        # mellin.get_path_line(30.0,4.0 + np.log(xk)/8.0) = line
+        # Generate integrands
+        integrands = []
+        for kernel_set in kernels:
+            kernel_int = []
+            for ker in kernel_set:
+                kernel_int.append(mellin.compile_integrand(ker, path, jac))
+            integrands.append(kernel_int)
+
         out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
         all_output.append(out)
-        log_text = f"{k+1}/{targetgrid_size}"
-        logger.info(log_prefix, log_text)
+        logger.info(log_prefix, "computed "+log_text)
     logger.info(log_prefix, "done.")
 
     output_array = np.array(all_output)
