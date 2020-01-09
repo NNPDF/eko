@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import logging
 import sys
+from collections import abc
 import numpy as np
+from scipy.optimize import minimize
 import matplotlib.pyplot as plt
 from PIL import Image
 
@@ -11,7 +13,7 @@ from eko.kernel_generation import KernelDispatcher
 from eko.constants import Constants
 
 
-def get_plot(
+def get_area_plot(
     lnx,
     ker,
     reDelta=0.03,
@@ -21,9 +23,9 @@ def get_plot(
     imMin=0.1,
     imMax=6.0,
     title=None,
-    plot_ReIm=True,
+    plot_ReIm=False,
 ):
-    """Plot kernel at inversion point
+    """Plot kernel in N-space at given inversion point
 
     Parameters
     ---------
@@ -85,16 +87,59 @@ def get_plot(
     return fig
 
 
+def get_re_plot(
+    lnx,
+    ker,
+    reDelta=0.01,
+    reMin=1.1,
+    reMax=10.0,
+    title=None
+):
+    """Plot kernel on real axis at given inversion point
+
+    Parameters
+    ---------
+        lnx : float
+            logarithm of inversion point
+        ker : callable
+            plotted kernel
+
+    Returns
+    -------
+        fig : plt.Figure
+            generated figure
+    """
+    # generate data
+    res = np.arange(reMin, reMax+reDelta, reDelta)
+    vals = []
+    for r in res:
+        vals.append(ker(r, lnx))
+    vals = np.real(np.array(vals))
+    # plot
+    fig = plt.figure(figsize=(5,5))
+    if title is not None:
+        t = fig.suptitle(title)
+        t.set_in_layout(False)
+    plt.loglog(res,vals)
+    plt.loglog(res,0.0-vals)
+    #fig.tight_layout()
+    return fig
+
+
 class PathOpt:
     """Helper class"""
 
-    def __init__(self, setup):
+    def __init__(self, setup, ks, xInvs):
         """Constructor
 
         Parameters
         -----------
             setup : dict
                 DGLAP setup dictionary
+            ks : array
+                list of basis function numbers
+            xInvs : array
+                list of inversion points
         """
         self.setup = setup
         # run
@@ -108,112 +153,175 @@ class PathOpt:
         )
         delta_t = alpha_s.get_evolution_params(setup, constants, nf, mu2init, mu2final)
         kernel_dispatcher = KernelDispatcher(
-            self.basis_function_dispatcher, constants, nf, delta_t, False
+            self.basis_function_dispatcher, constants, nf, delta_t, numba_it=False
         )
         # Receive all precompiled kernels
         self.kernels_ns = kernel_dispatcher.compile_nonsinglet()
         self.kernels_s = kernel_dispatcher.compile_singlet()
+        # set params
+        self.ks = ks
+        self.xInvs = xInvs
 
-    def _save_plots_var(self, ks, kers, xInvs, path):
-        """Plot N-space for given basis functions at given inversion points.
+    def _get_kers(self, op_name):
+        """Collect all kernels for operator
 
         Parameters
         -----------
-            ks : array
-                list of basis function numbers
+            op_name : string
+                plotted operator
+
+        Returns
+        --------
             kers : array
                 list of kernels
-            xInvs : array
-                list of inversion points
+        """
+        kers = None
+        singlet_keys = ["S.S", "S.g", "g.S", "g.g"]
+        if op_name == "V.V":
+            kers = self.kernels_ns
+        elif op_name in singlet_keys:
+            indx = singlet_keys.index(op_name)
+            kers = [kers[indx] for kers in self.kernels_s]
+        else:
+            raise ValueError(f"Unkown operator '{op_name}'!")
+        return kers
+
+    def save_plots(self, op_name, path, plot_type):
+        """Plots all kernels.
+
+        Parameters
+        -----------
+            op_name : string
+                plotted operator
             path : string
                 path prefix
+            plot_type : {'area', 're'}
+                diagram type
         """
+        # collect kernels
+        kers = self._get_kers(op_name)
+
+        print(f"plotting {plot_type} ...")
         # iterate basis functions
-        for k in ks:
+        for k in self.ks:
             xk = self.setup["xgrid"][k]
             bf = self.basis_function_dispatcher[k]
             areas = bf.areas_to_const()
             xmin = np.exp(areas[0][0])
             xmax = np.exp(areas[-1][1])
             # iterate inversion points
-            for j, xInv in enumerate(xInvs):
+            for j, xInv in enumerate(self.xInvs):
                 print(f"k={k}, j={j}")
-                title = f"k={k}->[{xmin:.2e}<-{xk:.2e}->{xmax:.2e}], xInf={xInv:.2e}"
-                fig = get_plot(
-                    np.log(xInv),
-                    kers[k],
-                    reMin=-2,
-                    reMax=14,
-                    reDelta=0.16,
-                    imMax=12,
-                    imDelta=0.12,
-                    title=title,
-                    plot_ReIm=False,
-                )
-                fig.savefig(path + f"plot-{k}-{j}.png")
+                title = f"k={k}->[{xmin:.2e}<-{xk:.2e}->{xmax:.2e}], xInv={xInv:.2e}"
+                fig = None
+                out_name = None
+                # run
+                if plot_type == "area":
+                    fig = get_area_plot(
+                        np.log(xInv),
+                        kers[k],
+                        reMin=-2,
+                        reMax=14,
+                        reDelta=0.16,
+                        imMax=12,
+                        imDelta=0.12,
+                        title=title,
+                        plot_ReIm=False,
+                    )
+                    out_name = f"area-{k}-{j}.png"
+                elif plot_type == "re":
+                    fig = get_re_plot(
+                        np.log(xInv),
+                        kers[k],
+                        title=title,
+                        reMin=1.1,
+                        reMax=50,
+                        reDelta=0.5
+                    )
+                    out_name = f"re-{k}-{j}.png"
+                else:
+                    raise ValueError(f"Unknown plot type '{plot_type}'!")
+                # write
+                fig.savefig(path + out_name)
                 plt.close(fig)
 
-    def save_plots(self, ks, xInvs, var, path):
-        """Plots a kernel in N-space for a given set of basis functions
-        at a given set of inversion points.
-
-        Parameters
-        -----------
-            ks : array
-                list of basis function numbers
-            xInvs : array
-                list of inversion points
-            var : string
-                plotted kernel
-            path : string
-                path prefix
-        """
-        kers = None
-        singlet_keys = ["S.S", "S.g", "g.S", "g.g"]
-        if var == "V.V":
-            kers = self.kernels_ns
-        elif var in singlet_keys:
-            indx = singlet_keys.index(var)
-            kers = [kers[indx] for kers in self.kernels_s]
-        else:
-            raise ValueError("Unkown variable name!")
-        self._save_plots_var(ks, kers, xInvs, path)
-
-    def join_plots(self, ks, xInvs, path, totName):
-        """Join all plots.
+    def join_plots(self, path, totName, plot_type):
+        """Joins all plots.
 
         Parameters
         ---------
-            ks : array
-                list of basis function numbers
-            xInvs : array
-                list of inversion points
             path : string
                 path prefix
             totName : string
                 output file name
+            plot_type : {'area', 're'}
+                diagram type
         """
+        fn = None
+        if plot_type == "area":
+            fn = "area-{k}-{j}.png"
+        elif plot_type == "re":
+            fn = "re-{k}-{j}.png"
+        else:
+            raise ValueError(f"Unknown plot type '{plot_type}'!")
         # determine size
-        i0 = Image.open(path + f"plot-{ks[0]}-0.png")
+        k0 = self.ks[0]
+        i0 = Image.open(path + fn.format(k=k0,j=0))
         w0, h0 = i0.width, i0.height
         # recombine
         pad = 5
         w, h = w0 + pad, h0 + pad
-        dst = Image.new("RGB", (w * len(ks), h * len(xInvs)))
-        for nk, k in enumerate(ks):
-            for j in range(len(xInvs)):
-                i1 = Image.open(path + f"plot-{k}-{j}.png")
+        dst = Image.new("RGB", (w * len(ks), h * len(self.xInvs)))
+        for nk, k in enumerate(self.ks):
+            for j in range(len(self.xInvs)):
+                i1 = Image.open(path + fn.format(k=k,j=j))
                 dst.paste(i1, (w * nk, h * j))
         dst.save(path + totName)
 
+    def plot_mins(self, op_name, out_name):
+        """Plots all minima
+
+        Parameters
+        -----------
+            op_name : string
+                plotted operator
+            out_name : string
+                output file name
+        """
+        # collect kernels
+        kers = self._get_kers(op_name)
+        print(f"searching minima of {op_name}")
+        # iterate basis functions
+        for k in self.ks:
+            bf = self.basis_function_dispatcher[k]
+            areas = bf.areas_to_const()
+            xmax = np.exp(areas[-1][1])
+            # iterate inversion points
+            for j, xInv in enumerate(self.xInvs):
+                # skip?
+                if xInv >= xmax:
+                    continue
+                # find minimum
+                def f(r):
+                    if isinstance(r,abc.Iterable):
+                        return np.array([f(e) for e in r])
+                    return np.real(kers[k](r,np.log(xInv)))
+                print(k,j)
+                mi = minimize(f,2,bounds=[(1e-4 if op_name == "V.V" else 1+1e-4,50)])
+                print(mi.x," -> ",mi.fun)
+                if not mi.success:
+                    print(mi)
 
 if __name__ == "__main__":
     # setup
     n_low = 10
     n_mid = 5
     polynom_rank = 4
-    run_imgs = True
-    run_join_imgs = True
+    run_area_imgs = False
+    run_re_imgs = False
+    run_join_area_imgs = False
+    run_join_re_imgs = False
+    run_mins = True
     ks = [2, 4, 6, 8, 10, 12]
     xInvs = [1e-4, 1e-3, 1e-2, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9]
 
@@ -248,7 +356,7 @@ if __name__ == "__main__":
         "Q2grid": [1e4],
     }
 
-    app = PathOpt(setup)
+    app = PathOpt(setup, ks, xInvs)
 
     # iterate all operators
     for op_name, path in [
@@ -258,10 +366,17 @@ if __name__ == "__main__":
         ("g.S", "S_gq/"),
         ("g.g", "S_gg/"),
     ]:
-        print(f"write {op_name} to '{path}'")
+        print(f"run {op_name} with '{path}'")
         # build all imgs
-        if run_imgs:
-            app.save_plots(ks, xInvs, op_name, path)
+        if run_area_imgs:
+            app.save_plots(op_name, path, "area")
+        if run_re_imgs:
+            app.save_plots(op_name, path, "re")
         # join all imgs
-        if run_join_imgs:
-            app.join_plots(ks, xInvs, path, path[:-1] + ".png")
+        if run_join_area_imgs:
+            app.join_plots(path, "area-"+path[:-1] + ".png", "area")
+        if run_join_re_imgs:
+            app.join_plots(path, "re-"+path[:-1] + ".png", "re")
+        # minima
+        if run_mins:
+            app.plot_mins(op_name, "mins-"+path[:-1]+".png")
