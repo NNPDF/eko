@@ -212,6 +212,22 @@ class BasisFunction:
         else:
             self.compile_X(mode_log)
 
+    def is_below_x(self, x):
+        """Are all areas below x?
+
+        Parameters
+        ----------
+            x : float
+                reference value
+
+        Returns
+        --------
+            is_below_x : bool
+                highest area <= x?
+        """
+        # note that ordering is important!
+        return self.areas[-1].xmax <= x
+
     def areas_to_const(self):
         """
         Retruns a tuple of tuples, one for each area
@@ -315,7 +331,12 @@ class BasisFunction:
             by the Mellin-inversion factor. """
             res = 0.0
             global_coef = np.exp(-N * logx)
+            # skip polynom?
+            #if logx >= area_list[-1][1]:
+            #    return 0.0
             for xmin, xmax, coefs in area_list:
+                #if logx >= xmax:
+                #    continue
                 umax = N * xmax
                 umin = N * xmin
                 emax = np.exp(umax)
@@ -382,13 +403,13 @@ class InterpolatorDispatcher:
             Grid in x-space from which the interpolators are constructed
         polynom_rank : int
             degree of the interpolation polynomial
-        log: bool
+        log: bool (default: True)
             Whether it is a log or linear interpolator
         mode_N: bool (default: True)
             if true compiles the function on N, otherwise compiles x
     """
 
-    def __init__(self, xgrid, polynom_rank, log=False, mode_N=True):
+    def __init__(self, xgrid, polynom_rank, log=True, mode_N=True):
 
         xgrid_size = len(xgrid)
 

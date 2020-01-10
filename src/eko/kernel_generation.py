@@ -103,7 +103,7 @@ class KernelDispatcher:
         return kernels
 
     def compile_singlet(self):
-        """ Returns a singlet integration kernel for each basis """
+        """ Returns the singlet integration kernels for each basis """
         return self._compiler(get_kernels_s)
 
     def compile_nonsinglet(self):

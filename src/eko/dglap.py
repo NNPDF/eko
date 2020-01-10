@@ -4,8 +4,10 @@ This file contains the main loop for the DGLAP calculations.
 
 """
 import logging
+from collections import abc
 import joblib
 import numpy as np
+from scipy.optimize import minimize
 
 import eko.alpha_s as alpha_s
 import eko.interpolation as interpolation
@@ -46,7 +48,7 @@ def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
     return out
 
 
-def _run_nonsinglet(kernel_dispatcher, targetgrid):
+def _run_nonsinglet(basis_function_dispatcher, kernel_dispatcher, targetgrid):
     """Solves the non-singlet case.
 
     Parameters
@@ -64,16 +66,7 @@ def _run_nonsinglet(kernel_dispatcher, targetgrid):
     # Receive all precompiled kernels
     kernels = kernel_dispatcher.compile_nonsinglet()
 
-    # Setup path
-    gamma = 1.0
     cut = 1e-2
-    path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
-
-    # Generate integrands
-    integrands = []
-    for kernel in kernels:
-        kernel_int = mellin.compile_integrand(kernel, path, jac)
-        integrands.append(kernel_int)
 
     def run_thread(integrand, logx):
         result = mellin.inverse_mellin_transform(integrand, cut, logx)
@@ -86,13 +79,46 @@ def _run_nonsinglet(kernel_dispatcher, targetgrid):
 
     targetgrid_size = len(targetgrid)
     for k, xk in enumerate(targetgrid):
-        out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
+        lnxk = np.log(xk)
+        # skip some basis functions
+        j_min = 0
+        #for basis_function in basis_function_dispatcher:
+        #    if basis_function.is_below_x(lnxk):
+        #        j_min += 1
+        #    else: # note that ordering matters!
+        #        break
+        # Generate integrands
+        integrands = []
+        for j,kernel in enumerate(kernels[j_min:]):
+            # Setup path
+            r_min = 0.01
+            r_max = 20.0+50.0*np.exp(1.5*lnxk)
+            def f(r,ker,lnx):
+                if isinstance(r,abc.Iterable):
+                    return np.array([f(e,ker,lnx) for e in r])
+                return np.abs(ker(r,lnx))
+            mi = minimize(f,1,args=(kernel,lnxk,),bounds=[(r_min,r_max)])
+            c0 = 1
+            if not mi.success:
+                print(mi)
+            else:
+                c0 = mi.x[0]
+            #gamma = 1.0
+            print(f"setup path for k={k},j={j_min+j} in ({r_min},{r_max}) found {c0}")
+            path, jac = mellin.get_path_line(30,c0) #mellin.get_path_Cauchy_tan(10.0, c0)
+            kernel_int = mellin.compile_integrand(kernel, path, jac)
+            integrands.append(kernel_int)
+        # run integration
+        out = _parallelize_on_basis(integrands, run_thread, lnxk)
+        # add zeros back
+        out = [(0,0)]*j_min + out
+        # assign
         operators.append(np.array(out)[:, 0])
         operator_errors.append(np.array(out)[:, 1])
         log_text = f"{k+1}/{targetgrid_size}"
         logger.info(log_prefix, log_text)
     logger.info(log_prefix, "done.")
-
+    #raise "Bla"
     op = np.array(operators)
     op_err = np.array(operator_errors)
 
@@ -154,7 +180,7 @@ def _run_singlet(kernel_dispatcher, targetgrid):
     for k, xk in enumerate(targetgrid):
         log_text = f"{k+1}/{targetgrid_size}"
 
-        path, jac = mellin.get_path_Cauchy_tan(3.5 + np.log(xk)/8.0, 3.5 + np.log(xk)/8.0)
+        path, jac = mellin.get_path_Cauchy_tan(30.0,1.3 + np.power(xk,1.5)*25)
         # mellin.get_path_Cauchy_tan(3.5 + np.log(xk)/8.0, 3.5 + np.log(xk)/8.0) = Cauchy2
         # mellin.get_path_Cauchy_tan(0.5 - 17.0/np.log(xk), 4.0 + np.log(xk)/8.0) = Cachy1
         # mellin.get_path_line(30.0,4.0 + np.log(xk)/8.0) = line
@@ -204,7 +230,7 @@ def _run_step(
         number of active flavours
     mu2init : float
         initial scale
-    mu2final : flaot
+    mu2final : float
         final scale
 
     Returns
@@ -220,7 +246,7 @@ def _run_step(
     )
 
     # run non-singlet
-    ret_ns = _run_nonsinglet(kernel_dispatcher, targetgrid)
+    ret_ns = _run_nonsinglet(basis_function_dispatcher, kernel_dispatcher, targetgrid)
     # run singlet
     ret_s = _run_singlet(kernel_dispatcher, targetgrid)
     # join elements

@@ -90,7 +90,7 @@ def get_area_plot(
 def get_re_plot(
     lnx,
     ker,
-    reDelta=0.01,
+    reN=100,
     reMin=1.1,
     reMax=10.0,
     title=None
@@ -110,7 +110,7 @@ def get_re_plot(
             generated figure
     """
     # generate data
-    res = np.arange(reMin, reMax+reDelta, reDelta)
+    res = np.logspace(np.log10(reMin),np.log10(reMax),num=reN) #np.arange(reMin, reMax+reDelta, reDelta)
     vals = []
     for r in res:
         vals.append(ker(r, lnx))
@@ -234,9 +234,9 @@ class PathOpt:
                         np.log(xInv),
                         kers[k],
                         title=title,
-                        reMin=1.1,
-                        reMax=50,
-                        reDelta=0.5
+                        reMin=0.2 if op_name == "V.V" else 1.1,
+                        reMax=40,
+                        reN=100
                     )
                     out_name = f"re-{k}-{j}.png"
                 else:
@@ -291,26 +291,44 @@ class PathOpt:
         # collect kernels
         kers = self._get_kers(op_name)
         print(f"searching minima of {op_name}")
+        fig = plt.figure(figsize=(7,7))
+        plt.suptitle(f"minima of {op_name} along real axis")
         # iterate basis functions
         for k in self.ks:
             bf = self.basis_function_dispatcher[k]
             areas = bf.areas_to_const()
-            xmax = np.exp(areas[-1][1])
+            lnxmax = areas[-1][1]
+            xmax = np.exp(lnxmax)
+            x_mins = []
             # iterate inversion points
             for j, xInv in enumerate(self.xInvs):
+                lnxInv = np.log(xInv)
                 # skip?
-                if xInv >= xmax:
+                if xInv >= xmax or lnxInv >= lnxmax:
                     continue
                 # find minimum
-                def f(r):
+                def f(r,lnx):
                     if isinstance(r,abc.Iterable):
-                        return np.array([f(e) for e in r])
-                    return np.real(kers[k](r,np.log(xInv)))
-                print(k,j)
-                mi = minimize(f,2,bounds=[(1e-4 if op_name == "V.V" else 1+1e-4,50)])
-                print(mi.x," -> ",mi.fun)
+                        return np.array([f(e,lnx) for e in r])
+                    return np.real(kers[k](r,lnx))
+                r_min = 0 if op_name == "V.V" else 1
+                r_min += 0.1
+                r_max = 6.+2.6*(10.+lnxInv)
+                mi = minimize(f,2,args=(lnxInv,),bounds=[(r_min,r_max)])
                 if not mi.success:
                     print(mi)
+                    x_mins.append(np.NaN)
+                else:
+                    x_mins.append(mi.x[0])
+            plt.semilogx(self.xInvs[:len(x_mins)],np.array(x_mins),marker="o")
+            print(x_mins)
+        def guess(x):
+            return 1.3 + np.power(x,1.5)*25
+        plt.semilogx(self.xInvs,guess(self.xInvs),color="black")
+        # write
+        plt.xlabel("Inversion point")
+        fig.savefig(out_name)
+        plt.close(fig)
 
 if __name__ == "__main__":
     # setup
@@ -318,10 +336,10 @@ if __name__ == "__main__":
     n_mid = 5
     polynom_rank = 4
     run_area_imgs = False
-    run_re_imgs = False
+    run_re_imgs = True
     run_join_area_imgs = False
-    run_join_re_imgs = False
-    run_mins = True
+    run_join_re_imgs = True
+    run_mins = False
     ks = [2, 4, 6, 8, 10, 12]
     xInvs = [1e-4, 1e-3, 1e-2, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9]
 
@@ -333,6 +351,8 @@ if __name__ == "__main__":
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
     print("xgrid = ", xgrid, " [", len(xgrid), "]")
     targetgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
+    ks = list(range(len(xgrid)))
+    xInvs = targetgrid
 
     # activate logging
     logStdout = logging.StreamHandler(sys.stdout)
@@ -365,7 +385,7 @@ if __name__ == "__main__":
         ("S.g", "S_qg/"),
         ("g.S", "S_gq/"),
         ("g.g", "S_gg/"),
-    ]:
+    ][:1]:
         print(f"run {op_name} with '{path}'")
         # build all imgs
         if run_area_imgs:
