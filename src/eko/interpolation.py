@@ -100,7 +100,7 @@ def generate_xgrid(xgrid_type = "log", xgrid_size = 10, xgrid_min = 1e-7, xgrid 
             raise ValueError(f"The given grid is not unique: {xgrid}")
         xgrid = unique_xgrid
     else:
-        raise NotImplementedError(f"xgrid_typr {xgrid_type} not implemented")
+        raise NotImplementedError(f"xgrid_type {xgrid_type} not implemented")
     return xgrid
 
 #### Interpolation
@@ -256,7 +256,7 @@ class BasisFunction:
 
         area_list = self.areas_to_const()
 
-        def evaluate_x(x, null=None):
+        def evaluate_x(x):
             """Get a single Lagrange interpolator in x-space
 
             Parameters
@@ -280,7 +280,7 @@ class BasisFunction:
 
         nb_eval_x = self.njit(evaluate_x)
 
-        def log_evaluate_x(x, null=None):
+        def log_evaluate_x(x):
             """Get a single Lagrange interpolator in logarithmic x-space
 
             Parameters
@@ -313,16 +313,15 @@ class BasisFunction:
 
         Parameters
         ----------
-        N : t_float
-            Evaluated point in N-space
-        logx : t_float
-            Mellin-inversion point :math:`log(x)`
+            N : t_float
+                Evaluated point in N-space
+            logx : t_float
+                Mellin-inversion point :math:`log(x)`
 
         Returns
         -------
-        p(N)*x^{-N} : t_complex
+            p(N)*x^{-N} : t_complex
                 Evaluated polynom at N times x^{-N}
-
         """
         area_list = self.areas_to_const()
 
@@ -330,17 +329,18 @@ class BasisFunction:
             """Get a single Lagrange interpolator in N-space multiplied
             by the Mellin-inversion factor. """
             res = 0.0
-            global_coef = np.exp(-N * logx)
+            global_coef = 1#np.exp(-N * logx)
             # skip polynom?
             #if logx >= area_list[-1][1]:
             #    return 0.0
-            for xmin, xmax, coefs in area_list:
-                #if logx >= xmax:
-                #    continue
-                umax = N * xmax
-                umin = N * xmin
-                emax = np.exp(umax)
-                emin = np.exp(umin)
+            for logxmin, logxmax, coefs in area_list:
+                # skip area?
+                if logx >= logxmax:
+                    continue
+                umax = N * logxmax
+                umin = N * logxmin
+                emax = np.exp(N*(logxmax - logx))#umax)
+                emin = np.exp(N*(logxmin - logx))#umin)
                 for i, coef in enumerate(coefs):
                     tmp = 0.0
                     facti = math.gamma(i + 1) * pow(-1, i) / pow(N, i + 1)
@@ -386,6 +386,29 @@ class BasisFunction:
     def __call__(self, *args, **kwargs):
         return self.callable(*args, **kwargs)
 
+    def log_evaluate_Nx_2(self, N, logx):
+        res = []
+        global_coef = 1#np.exp(-N * logx)
+        # skip polynom?
+        #if logx >= area_list[-1][1]:
+        #    return 0.0
+        for xmin, xmax, coefs in self.areas_to_const():
+            if logx >= xmax:
+                continue
+            umax = N * xmax
+            umin = N * xmin
+            emax = np.exp(N*(xmax - logx))#umax)
+            emin = np.exp(N*(xmin - logx))#umin)
+            for i, coef in enumerate(coefs):
+                tmp = []
+                facti = math.gamma(i + 1) * pow(-1, i) / pow(N, i + 1)
+                for k in range(i + 1):
+                    factk = 1.0 / math.gamma(k + 1)
+                    pmax = pow(-umax, k) * emax
+                    pmin = pow(-umin, k) * emin
+                    tmp +=[ factk * pmax, -  factk * pmin]
+                res += [(coef * facti, tmp)]
+        return res * global_coef
 
 class InterpolatorDispatcher:
     """ Setups the interpolator
@@ -399,7 +422,7 @@ class InterpolatorDispatcher:
 
     Parameters
     ----------
-        xgrid_in : array
+        xgrid : array
             Grid in x-space from which the interpolators are constructed
         polynom_rank : int
             degree of the interpolation polynomial

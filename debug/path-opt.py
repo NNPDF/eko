@@ -276,6 +276,7 @@ class PathOpt:
             for j in range(len(self.xInvs)):
                 i1 = Image.open(path + fn.format(k=k,j=j))
                 dst.paste(i1, (w * nk, h * j))
+                i1.close()
         dst.save(path + totName)
 
     def plot_mins(self, op_name, out_name):
@@ -312,40 +313,62 @@ class PathOpt:
                         return np.array([f(e,lnx) for e in r])
                     return np.real(kers[k](r,lnx))
                 r_min = 0 if op_name == "V.V" else 1
-                r_min += 0.1
-                r_max = 6.+2.6*(10.+lnxInv)
-                mi = minimize(f,2,args=(lnxInv,),bounds=[(r_min,r_max)])
+                r_min += 0.01
+                r_max = 20.0+50.0*np.exp(1.5*lnxInv)
+                mi = minimize(f,1 if op_name == "V.V" else 2,args=(lnxInv,),bounds=[(r_min,r_max)])
                 if not mi.success:
                     print(mi)
                     x_mins.append(np.NaN)
                 else:
                     x_mins.append(mi.x[0])
-            plt.semilogx(self.xInvs[:len(x_mins)],np.array(x_mins),marker="o")
-            print(x_mins)
+            plt.loglog(self.xInvs[:len(x_mins)],np.array(x_mins),marker="o")
+            print(f"k={k}:",x_mins)
         def guess(x):
             return 1.3 + np.power(x,1.5)*25
-        plt.semilogx(self.xInvs,guess(self.xInvs),color="black")
+        plt.loglog(self.xInvs,guess(self.xInvs),color="black")
         # write
         plt.xlabel("Inversion point")
         fig.savefig(out_name)
         plt.close(fig)
 
+    def test_pos(self,op_name):
+        # iterate basis functions
+        kers = self._get_kers(op_name)
+        for k in self.ks:
+            bf = self.basis_function_dispatcher[k]
+            for j, xInv in enumerate(self.xInvs):
+                lnxInv = np.log(xInv)
+                ls = bf.log_evaluate_Nx_2(4.,lnxInv)
+                print(f"k={k}, j={j}")
+                t = []
+                for e in ls:
+                    print("%+.2e"%e[0],"-> [",("%+.1e, "*len(e[1]))%tuple(e[1]),"]")
+                    tt = 0.0
+                    for f in e[1]:
+                        tt += e[0]*f
+                    t += [tt]
+                print("%+.3e"%np.sum(t)," = [",("%+.1e, "*len(t))%tuple(t),"]")
+                print()
+            print()
+
 if __name__ == "__main__":
     # setup
     n_low = 10
     n_mid = 5
-    polynom_rank = 4
+    polynom_rank = 2
     run_area_imgs = False
-    run_re_imgs = True
+    run_re_imgs = False
     run_join_area_imgs = False
-    run_join_re_imgs = True
+    run_join_re_imgs = False
     run_mins = False
-    ks = [2, 4, 6, 8, 10, 12]
-    xInvs = [1e-4, 1e-3, 1e-2, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9]
+    run_test_pos = True
+    #ks = [2, 4, 6, 8, 10, 12]
+    #ks = [1,2,10,11,20,21,30,31,37,38,]
+    #xInvs = [1e-4, 1e-3, 1e-2, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9]
 
     # combine grid
-    #flag = f"l{n_low}m{n_mid}r{polynom_rank}"
-    xgrid_low = interpolation.get_xgrid_linear_at_log(n_low, 1e-7, 0.1)
+    flag = f"l{n_low}m{n_mid}r{polynom_rank}"
+    xgrid_low = interpolation.get_xgrid_linear_at_log(n_low, 1e-7, 1.0 if n_mid == 0 else 0.1)
     xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
     xgrid_high = np.array([])
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
@@ -394,9 +417,12 @@ if __name__ == "__main__":
             app.save_plots(op_name, path, "re")
         # join all imgs
         if run_join_area_imgs:
-            app.join_plots(path, "area-"+path[:-1] + ".png", "area")
+            app.join_plots(path, "area-"+path[:-1] + f"-{flag}.png", "area")
         if run_join_re_imgs:
-            app.join_plots(path, "re-"+path[:-1] + ".png", "re")
+            app.join_plots(path, "re-"+path[:-1] + f"-{flag}.png", "re")
         # minima
         if run_mins:
-            app.plot_mins(op_name, "mins-"+path[:-1]+".png")
+            app.plot_mins(op_name, "mins-"+path[:-1]+f"-{flag}.png")
+
+        if run_test_pos:
+            app.test_pos(op_name)
