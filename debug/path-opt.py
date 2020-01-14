@@ -149,7 +149,7 @@ class PathOpt:
         constants = Constants()
 
         self.basis_function_dispatcher = interpolation.InterpolatorDispatcher(
-            setup["xgrid"], setup["xgrid_polynom_rank"], log=True
+            setup["xgrid"], setup["xgrid_polynom_rank"], log=True, is_log_inv_mode=False
         )
         delta_t = alpha_s.get_evolution_params(setup, constants, nf, mu2init, mu2final)
         kernel_dispatcher = KernelDispatcher(
@@ -331,21 +331,20 @@ class PathOpt:
         fig.savefig(out_name)
         plt.close(fig)
 
-    def test_pos(self,op_name):
+    def test_pos(self):
         # iterate basis functions
-        kers = self._get_kers(op_name)
         for k in self.ks:
             bf = self.basis_function_dispatcher[k]
             for j, xInv in enumerate(self.xInvs):
                 lnxInv = np.log(xInv)
-                ls = bf.log_evaluate_Nx_2(4.,lnxInv)
+                ls = bf.evaluate_log_Nx_2(4.,lnxInv)
                 print(f"k={k}, j={j}")
                 t = []
                 for e in ls:
-                    print("%+.2e"%e[0],"-> [",("%+.1e, "*len(e[1]))%tuple(e[1]),"]")
+                    print("%+.2e"%e[0],"*%+.2e"%e[1],"-> [",("%+.1e, "*len(e[2]))%tuple(e[2]),"]")
                     tt = 0.0
-                    for f in e[1]:
-                        tt += e[0]*f
+                    for f in e[2]:
+                        tt += e[0]*e[1]*f
                     t += [tt]
                 print("%+.3e"%np.sum(t)," = [",("%+.1e, "*len(t))%tuple(t),"]")
                 print()
@@ -357,11 +356,11 @@ if __name__ == "__main__":
     n_mid = 5
     polynom_rank = 2
     run_area_imgs = False
-    run_re_imgs = False
+    run_re_imgs = True
     run_join_area_imgs = False
-    run_join_re_imgs = False
+    run_join_re_imgs = True
     run_mins = False
-    run_test_pos = True
+    run_test_pos = False
     #ks = [2, 4, 6, 8, 10, 12]
     #ks = [1,2,10,11,20,21,30,31,37,38,]
     #xInvs = [1e-4, 1e-3, 1e-2, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9]
@@ -425,4 +424,4 @@ if __name__ == "__main__":
             app.plot_mins(op_name, "mins-"+path[:-1]+f"-{flag}.png")
 
         if run_test_pos:
-            app.test_pos(op_name)
+            app.test_pos()

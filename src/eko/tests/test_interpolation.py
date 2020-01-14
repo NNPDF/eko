@@ -2,12 +2,8 @@
 # Test interpolation
 import json
 import pathlib
-from numpy.polynomial import Chebyshev
-from numpy.testing import assert_allclose, assert_almost_equal
 import numpy as np
-import numba as nb
-import math
-
+from numpy.testing import assert_allclose, assert_almost_equal
 
 from eko import t_float, t_complex
 from eko import interpolation
@@ -63,13 +59,9 @@ def check_correspondence_interpolators(inter_x, inter_N):
     inter_x and inter_N"""
     ngrid = [t_complex(1.0), t_complex(1.0 + 1j), t_complex(2.5 - 2j)]
     for fun_x, fun_N in zip(inter_x, inter_N):
-
-        def ker(x):
-            return fun_x(x)
-
         for N in ngrid:
             result_N = fun_N(N, 0)
-            result_x = mellin.mellin_transform(ker, N)
+            result_x = mellin.mellin_transform(fun_x, N)
             assert_almost_equal(result_x[0], result_N)
 
 
@@ -109,7 +101,7 @@ def test_Lagrange_interpolation_basis():
 
 
 def test_Lagrange_interpolation_log():
-    """ Test several points of the Lagrange interpolator """
+    """ Test logarithmic Lagrange interpolator """
     xgrid = np.linspace(1e-2, 1, 10)
     polrank = 4
     inter_x = interpolation.InterpolatorDispatcher(
@@ -121,6 +113,18 @@ def test_Lagrange_interpolation_log():
     )
     check_correspondence_interpolators(inter_x, inter_N)
 
+def test_Lagrange_interpolation_log_inv():
+    """ Test logarithmic inverse Lagrange interpolator """
+    xgrid = np.linspace(1e-2, 1, 10)
+    polrank = 4
+    inter_x = interpolation.InterpolatorDispatcher(
+        xgrid, polrank, log=True, is_log_inv_mode=True, mode_N=False
+    )
+    check_is_interpolator(inter_x, xgrid)
+    inter_N = interpolation.InterpolatorDispatcher(
+        xgrid, polrank, log=True, is_log_inv_mode=True, mode_N=True
+    )
+    check_correspondence_interpolators(inter_x, inter_N)
 
 def test_Lagrange_interpolation():
     """ Test several points of the Lagrange interpolator """

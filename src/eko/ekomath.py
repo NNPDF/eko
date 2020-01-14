@@ -15,8 +15,19 @@ c_digamma = _gsl_digamma.lib.digamma  # pylint: disable=c-extension-no-member
 
 @nb.njit
 def gsl_digamma(N: t_complex):
-    """ Wrapper around the cffi implementation of the digamma function
-    So it can take a complex both as input and output
+    """
+      Wrapper around the cffi implementation of the digamma function,
+      so it can take a complex both as input and output.
+
+      Parameters
+      ----------
+        N : t_complex
+          input number
+      
+      Returns
+      -------
+        psi0 : t_complex
+          :math:`\\psi_0(N)`
     """
     r = np.real(N)
     i = np.imag(N)
@@ -30,22 +41,23 @@ def gsl_digamma(N: t_complex):
 
 @nb.njit
 def harmonic_S1(N: t_complex):
-    r"""Computes the simple harmonic sum
+    r"""
+      Computes the simple harmonic sum
 
-    .. math::
-      S_1(N) = \sum\limits_{j=0}^N \frac 1 j = \psi(N+1)+\gamma_E
+      .. math::
+        S_1(N) = \sum\limits_{j=1}^N \frac 1 j = \psi(N+1)+\gamma_E
 
-    with :math:`\psi(M)` the digamma function and :math:`\gamma_E` the Euler-Mascheroni constant
+      with :math:`\psi(M)` the digamma function and :math:`\gamma_E` the Euler-Mascheroni constant
 
-    Parameters
-    ----------
-      N : t_complex
-        Mellin moment
+      Parameters
+      ----------
+        N : t_complex
+          Mellin moment
 
-    Returns
-    -------
-      S_1 : t_complex
-        (simple) Harmonic sum up to N :math:`S_1(N)`
+      Returns
+      -------
+        S_1 : t_complex
+          (simple) Harmonic sum up to N :math:`S_1(N)`
     """
     result = gsl_digamma(N + 1)
     return result + np.euler_gamma

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-Library providing all necessary tools for PDF interpolation.
+    Library providing all necessary tools for PDF interpolation.
 
-This library provides a number of functions for generating grids
-as `numpy` arrays:
+    This library provides a number of functions for generating grids
+    as `numpy` arrays:
 
- * `get_xgrid_linear_at_id`
- * `get_xgrid_linear_at_log`
+    * `get_xgrid_linear_at_id`
+    * `get_xgrid_linear_at_log`
 
 
-This library also provides a class to generate an interpolator `InterpolatorDispatcher`.
-Upon construction the dispatcher generates a number of functions
-to evaluate the interpolator.
+    This library also provides a class to generate an interpolator `InterpolatorDispatcher`.
+    Upon construction the dispatcher generates a number of functions
+    to evaluate the interpolator.
 """
 import math
 import numpy as np
@@ -66,25 +66,26 @@ def get_xgrid_linear_at_log(
     """
     return np.logspace(np.log10(xmin), np.log10(xmax), num=grid_size, **kwargs)
 
-def generate_xgrid(xgrid_type = "log", xgrid_size = 10, xgrid_min = 1e-7, xgrid = None, **kwargs):
-    """ Generates input xgrid
+def generate_xgrid(xgrid_type = "log", xgrid_size = 10, xgrid_min = 1e-7, xgrid = None):
+    """
+        Generates input xgrid
 
-    Parameters
-    ----------
-        xgrid_type : str
-            choose between the different grid generations implemented
-        xgrid_size : int
-            size of the grid to be generated
-        xgrid_min : float
-            minimum of the grid to be generated
-        xgrid : array
-            if `xgrid_type` == `custom`, a `xgrid` must be provided
-            which will be outputed after checking for uniqueness
+        Parameters
+        ----------
+            xgrid_type : str
+                choose between the different grid generations implemented
+            xgrid_size : int
+                size of the grid to be generated
+            xgrid_min : float
+                minimum of the grid to be generated
+            xgrid : array
+                if `xgrid_type` == `custom`, a `xgrid` must be provided
+                which will be outputed after checking for uniqueness
 
-    Returns
-    -------
-        xgrid : array
-            input grid
+        Returns
+        -------
+            xgrid : array
+                input grid
     """
     if xgrid_type.lower() == "log":
         xgrid = get_xgrid_linear_at_log(xgrid_size, xgrid_min)
@@ -105,21 +106,22 @@ def generate_xgrid(xgrid_type = "log", xgrid_size = 10, xgrid_min = 1e-7, xgrid 
 
 #### Interpolation
 class Area:
-    """ Class that define each of the area
-    of each of the subgrid interpolators
+    """
+        Class that define each of the area
+        of each of the subgrid interpolators
 
-    Upon construction an array of coefficients
-    is generated
+        Upon construction an array of coefficients
+        is generated
 
-    Parameters
-    ----------
-        lower_index: int
-            lower index of the area
-        polynom_number: int
-            degree of the interpolation polynomial
-        block: tuple(int, int)
-            kmin and kmax
-        xgrid: array
+        Parameters
+        ----------
+            lower_index: int
+                lower index of the area
+            polynom_number: int
+                degree of the interpolation polynomial
+            block: tuple(int, int)
+                kmin and kmax
+            xgrid: array
             Grid in x-space from which the interpolators are constructed
     """
 
@@ -164,25 +166,25 @@ class Area:
 
 class BasisFunction:
     """
-    Object containing a list of areas for a given polynomial number
-    defined by (xmin-xmax) and containing a list of coefficients.
+        Object containing a list of areas for a given polynomial number
+        defined by (xmin-xmax) and containing a list of coefficients.
 
-    Upon construction will generate all areas and generate and compile
-    a function to evaluate in N (or x) the iterpolator
+        Upon construction will generate all areas and generate and compile
+        a function to evaluate in N (or x) the iterpolator
 
-    Parameters
-    ----------
-        xgrid_in : array
-            Grid in x-space from which the interpolators are constructed
-        polynom_rank : int
-            degree of the interpolation polynomial
-        list_of_blocks: list(tuple(int, int))
-            list of tuples with the (kmin, kmax) values for each area
-        mode_log: bool (default: True)
-        mode_N: bool (default: True)
-            if true compiles the function on N, otherwise compiles x
-        numba_it: bool (default: True)
-            if true, the functions are passed through `numba.njit`
+        Parameters
+        ----------
+            xgrid_in : array
+                Grid in x-space from which the interpolators are constructed
+            polynom_rank : int
+                degree of the interpolation polynomial
+            list_of_blocks: list(tuple(int, int))
+                list of tuples with the (kmin, kmax) values for each area
+            is_log_mode: bool (default: True)
+            is_mode_N: bool (default: True)
+                if true compiles the function on N, otherwise compiles x
+            numba_it: bool (default: True)
+                if true, the functions are passed through `numba.njit`
     """
 
     def __init__(
@@ -190,49 +192,52 @@ class BasisFunction:
         xgrid,
         poly_number,
         list_of_blocks,
-        mode_log=True,
-        mode_N=True,
+        is_log_mode=True,
+        is_log_inv_mode=False,
+        is_mode_N=True,
         numba_it=True,
     ):
         self.poly_number = poly_number
         self.areas = []
         self.numba_it = numba_it
 
+        # create areas
         for i, block in enumerate(list_of_blocks):
             if block[0] <= poly_number <= block[1]:
                 new_area = Area(i, self.poly_number, block, xgrid)
                 self.areas.append(new_area)
-
         if not self.areas:
             raise ValueError("Error: no areas were generated")
 
+        # compile
         self.callable = None
-        if mode_N:
-            self.compile_N(mode_log)
+        if is_mode_N:
+            self.compile_N(is_log_mode, is_log_inv_mode)
         else:
-            self.compile_X(mode_log)
+            self.compile_X(is_log_mode, is_log_inv_mode)
 
     def is_below_x(self, x):
-        """Are all areas below x?
+        """
+            Are all areas below x?
 
-        Parameters
-        ----------
-            x : float
-                reference value
+            Parameters
+            ----------
+                x : float
+                    reference value
 
-        Returns
-        --------
-            is_below_x : bool
-                highest area <= x?
+            Returns
+            --------
+                is_below_x : bool
+                    highest area <= x?
         """
         # note that ordering is important!
         return self.areas[-1].xmax <= x
 
     def areas_to_const(self):
         """
-        Retruns a tuple of tuples, one for each area
-        each containing
-        (`xmin`, `xmax`, `numpy.array` of coefficients)
+            Retruns a tuple of tuples, one for each area
+            each containing
+            (`xmin`, `xmax`, `numpy.array` of coefficients)
         """
         # This is necessary as numba will ask for everything
         # to be inmutable
@@ -241,33 +246,26 @@ class BasisFunction:
             area_list.append((area.xmin, area.xmax, area.coefs))
         return tuple(area_list)
 
-    def compile_X(self, mode_log=True):
-        """ Compiles the function to evaluate the interpolator
-        in x space.
+    def compile_X(self, is_log_mode, is_log_inv_mode):
+        """
+            Compiles the function to evaluate the interpolator in x space.
 
-        .. math::
-            \\tilde P^{\\ln}(x)
+            .. math::
+                P_j(x)
 
-        Parameters
-        ----------
-            mode_log : bool, optional
-                use logarithmic mode?
+            Parameters
+            ----------
+                is_log_mode : bool
+                    use logarithmic mode?
+                is_log_inv_mode : bool
+                    use logarithmic inverse mode?
         """
 
         area_list = self.areas_to_const()
 
         def evaluate_x(x):
-            """Get a single Lagrange interpolator in x-space
-
-            Parameters
-            ----------
-                x : t_float
-                    Evaluated point
-
-            Returns
-            -------
-                res : t_float
-                    p(x)
+            """
+                Get a single Lagrange interpolator in x-space
             """
             res = 0.0
             for j, (xmin, xmax, coefs) in enumerate(area_list):
@@ -275,57 +273,61 @@ class BasisFunction:
                     for i, coef in enumerate(coefs):
                         res += coef * pow(x, i)
                     return res
+            return res
+        # cast to reuse
+        eval_x = self.njit(evaluate_x)
 
+        def evaluate_log_x(x):
+            """
+                Get a single Lagrange interpolator in logarithmic x-space
+            """
+            return eval_x(np.log(x))
+
+        def evaluate_log_inv_x(x):
+            """
+                Get a single Lagrange interpolator in logarithmic inverse x-space
+            """
+            xx = np.log(1.0/x)
+            res = 0.0
+            for j, (xmin, xmax, coefs) in enumerate(area_list):
+                # the ordering is inversed here so, we can't use evaluate_x
+                if xmin > xx >= xmax or (j == 0 and xx == xmin):
+                    for i, coef in enumerate(coefs):
+                        res += coef * pow(xx, i)
+                    return res
             return res
 
-        nb_eval_x = self.njit(evaluate_x)
-
-        def log_evaluate_x(x):
-            """Get a single Lagrange interpolator in logarithmic x-space
-
-            Parameters
-            ----------
-            x : t_float
-                Evaluated point
-
-            Returns
-            -------
-                res : t_float
-                    p(x)
-            """
-            return nb_eval_x(np.log(x))
-
-        if mode_log:
-            self.callable = self.njit(log_evaluate_x)
+        if is_log_mode:
+            if is_log_inv_mode:
+                self.callable = self.njit(evaluate_log_inv_x)
+            else:
+                self.callable = self.njit(evaluate_log_x)
         else:
             self.callable = self.njit(evaluate_x)
 
-    def compile_N(self, mode_log=True):
-        """Compiles the function to evaluate the interpolator in N space.
-
-        Returns a function `evaluate_Nx` with a (N, x) signature `evaluate_Nx(N, logx)`:
-
-        .. math::
-            \\tilde P^{\\ln}(N)*exp(- N * log(x))
-
-        The polynomials contain naturally factors of :math:`exp(N * j * log(x_{min/max}))`
-        which can be joined with the Mellin inversion factor.
-
-        Parameters
-        ----------
-            N : t_float
-                Evaluated point in N-space
-            logx : t_float
-                Mellin-inversion point :math:`log(x)`
-
-        Returns
-        -------
-            p(N)*x^{-N} : t_complex
-                Evaluated polynom at N times x^{-N}
+    def compile_N(self, is_log_mode, is_log_inv_mode):
         """
+            Compiles the function to evaluate the interpolator in N space.
+
+            Generates a function `evaluate_Nx` with a (N, x) signature `evaluate_Nx(N, logx)`:
+
+            .. math::
+                \\tilde P(N)*exp(- N * log(x))
+
+            The polynomials contain naturally factors of :math:`exp(N * j * log(x_{min/max}))`
+            which can be joined with the Mellin inversion factor.
+
+            Parameters
+            ----------
+                is_log_mode : bool
+                    use logarithmic mode?
+                is_log_inv_mode : bool
+                    use logarithmic inverse mode?
+        """
+        # compile areas
         area_list = self.areas_to_const()
 
-        def log_evaluate_Nx(N, logx):
+        def evaluate_log_Nx(N, logx):
             """Get a single Lagrange interpolator in N-space multiplied
             by the Mellin-inversion factor. """
             res = 0.0
@@ -335,8 +337,8 @@ class BasisFunction:
             #    return 0.0
             for logxmin, logxmax, coefs in area_list:
                 # skip area?
-                if logx >= logxmax:
-                    continue
+                #if logx >= logxmax:
+                #    continue
                 umax = N * logxmax
                 umin = N * logxmin
                 emax = np.exp(N*(logxmax - logx))#umax)
@@ -368,12 +370,57 @@ class BasisFunction:
                     res += coef * (up - low) / (N + i)
             return res
 
-        if mode_log:
-            self.callable = self.njit(log_evaluate_Nx)
+        def evaluate_log_inv_Nx(N, logx):
+            """Get a single Lagrange interpolator in N-space multiplied
+            by the Mellin-inversion factor. """
+            loginvx = -logx
+            res = 0.0
+            global_coef = 1#np.exp(-N * logx)
+            # skip polynom?
+            #if logx >= area_list[-1][1]:
+            #    return 0.0
+            for loginvxmin, loginvxmax, coefs in area_list:
+                # skip area?
+                #if logx >= logxmax:
+                #    continue
+                umax = N * loginvxmax
+                umin = N * loginvxmin
+                emax = np.exp(N*(loginvx - loginvxmax))#umax)
+                emin = np.exp(N*(loginvx - loginvxmin))#umin)
+                for i, coef in enumerate(coefs):
+                    tmp = 0.0
+                    facti = math.gamma(i + 1) / pow(N, i + 1)
+                    for k in range(i + 1):
+                        factk = 1.0 / math.gamma(k + 1)
+                        pmax = pow(umax, k) * emax
+                        pmin = pow(umin, k) * emin
+                        tmp += factk * (pmax - pmin)
+                    res += coef * facti * tmp
+            return res * global_coef
+
+        # compile and set function
+        if is_log_mode:
+            if is_log_inv_mode:
+                self.callable = self.njit(evaluate_log_inv_Nx)
+            else:
+                self.callable = self.njit(evaluate_log_Nx)
         else:
             self.callable = self.njit(evaluate_Nx)
 
     def njit(self, function):
+        """
+            Compile function to Numba if necessary
+
+            Parameters
+            ----------
+                function : function
+                    input function
+
+            Returns
+            -------
+                function : function
+                    evetually compiled output function
+        """
         if self.numba_it:
             return nb.njit(function)
         else:
@@ -386,15 +433,15 @@ class BasisFunction:
     def __call__(self, *args, **kwargs):
         return self.callable(*args, **kwargs)
 
-    def log_evaluate_Nx_2(self, N, logx):
+    def evaluate_log_Nx_2(self, N, logx):
         res = []
         global_coef = 1#np.exp(-N * logx)
         # skip polynom?
         #if logx >= area_list[-1][1]:
         #    return 0.0
         for xmin, xmax, coefs in self.areas_to_const():
-            if logx >= xmax:
-                continue
+            #if logx >= xmax:
+            #    continue
             umax = N * xmax
             umin = N * xmin
             emax = np.exp(N*(xmax - logx))#umax)
@@ -407,32 +454,60 @@ class BasisFunction:
                     pmax = pow(-umax, k) * emax
                     pmin = pow(-umin, k) * emin
                     tmp +=[ factk * pmax, -  factk * pmin]
-                res += [(coef * facti, tmp)]
+                res += [(coef, facti, tmp)]
+        return res * global_coef
+
+    def evaluate_log_inv_Nx_2(self, N, logx):
+        loginvx = -logx
+        res = []
+        global_coef = 1#np.exp(-N * logx)
+        # skip polynom?
+        #if logx >= area_list[-1][1]:
+        #    return 0.0
+        for loginvxmin, loginvxmax, coefs in self.areas_to_const():
+            # skip area?
+            #if logx >= logxmax:
+            #    continue
+            umax = N * loginvxmax
+            umin = N * loginvxmin
+            emax = np.exp(N*(loginvx - loginvxmax))#umax)
+            emin = np.exp(N*(loginvx - loginvxmin))#umin)
+            for i, coef in enumerate(coefs):
+                tmp = []
+                facti = math.gamma(i + 1) / pow(N, i + 1)
+                for k in range(i + 1):
+                    factk = 1.0 / math.gamma(k + 1)
+                    pmax = pow(umax, k) * emax
+                    pmin = pow(umin, k) * emin
+                    tmp += [factk * pmax,  - factk * pmin]
+                res += [(coef, facti, tmp)]
         return res * global_coef
 
 class InterpolatorDispatcher:
-    """ Setups the interpolator
+    """
+        Setups the interpolators.
 
-    Upon construction will generate a list of `BasisFunction`
-    objects.
-    Each of these `BasisFunction` objects exponses a `callable`
-    method (also accessible as the `__call__` method of the class)
-    which will be numba-compiled.
+        Upon construction will generate a list of `BasisFunction` objects.
+        Each of these `BasisFunction` objects exponses a `callable`
+        method (also accessible as the `__call__` method of the class)
+        which will be numba-compiled.
 
 
-    Parameters
-    ----------
-        xgrid : array
-            Grid in x-space from which the interpolators are constructed
-        polynom_rank : int
-            degree of the interpolation polynomial
-        log: bool (default: True)
-            Whether it is a log or linear interpolator
-        mode_N: bool (default: True)
-            if true compiles the function on N, otherwise compiles x
+        Parameters
+        ----------
+            xgrid : array
+                Grid in x-space from which the interpolators are constructed
+            polynom_degree : int
+                degree of the interpolation polynomial
+            log: bool (default: True)
+                use logarithmic interpolation?
+            is_log_inv_mode: bool (default: False)
+                use logarithmic inverse interpolation?
+            mode_N: bool (default: True)
+                if true compiles the function on N, otherwise compiles x
     """
 
-    def __init__(self, xgrid, polynom_rank, log=True, mode_N=True):
+    def __init__(self, xgrid, polynomial_degree, log=True, is_log_inv_mode=False, mode_N=True, ):
 
         xgrid_size = len(xgrid)
 
@@ -440,37 +515,41 @@ class InterpolatorDispatcher:
             raise ValueError(f"xgrid is not unique: {xgrid}")
         if xgrid_size < 2:
             raise ValueError(f"xgrid needs at least 2 points, received {xgrid_size}")
-        if polynom_rank < 1:
-            raise ValueError(f"need at least polynom_rank 1, received {polynom_rank}")
-        if xgrid_size < polynom_rank:
+        if polynomial_degree < 1:
+            raise ValueError(f"need at least polynomial_degree 1, received {polynomial_degree}")
+        if xgrid_size < polynomial_degree:
             raise ValueError(
-                f"to interpolate with rank {polynom_rank} we need at least that much points"
+                f"to interpolate with degree {polynomial_degree} we need at least that much points"
             )
 
         if log:
-            xgrid = np.log(xgrid)
+            if is_log_inv_mode:
+                xgrid = np.log(1.0/xgrid)
+            else:
+                xgrid = np.log(xgrid)
 
         # Save the different variables
         self.xgrid = xgrid
-        self.polynom_rank = polynom_rank
+        self.polynomial_degree = polynomial_degree
         self.log = log
 
         # Create blocks
         list_of_blocks = []
-        po2 = polynom_rank // 2
+        po2 = polynomial_degree // 2
         for i in range(xgrid_size - 1):
             kmin = max(0, i - po2)
-            kmax = kmin + polynom_rank
+            kmax = kmin + polynomial_degree
             if kmax >= xgrid_size:
                 kmax = xgrid_size - 1
-                kmin = kmax - polynom_rank
+                kmin = kmax - polynomial_degree
             list_of_blocks.append((kmin, kmax))
 
         # Generate the basis functions
         basis_functions = []
         for i in range(xgrid_size):
             new_basis = BasisFunction(
-                xgrid, i, list_of_blocks, mode_log=log, mode_N=mode_N
+                xgrid, i, list_of_blocks,
+                is_log_mode=log, is_log_inv_mode=is_log_inv_mode, is_mode_N=mode_N,
             )
             basis_functions.append(new_basis)
         self.basis = basis_functions
