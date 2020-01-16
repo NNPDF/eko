@@ -256,7 +256,7 @@ if __name__ == "__main__":
 
     # combine grid
     flag = f"l{n_low}m{n_mid}r{polynom_rank}-p"
-    xgrid_low = interpolation.get_xgrid_linear_at_log(n_low, 1e-7, 0.1)
+    xgrid_low = interpolation.get_xgrid_linear_at_log(n_low, 1e-7, 1.0 if n_mid == 0 else 0.1)
     xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
     xgrid_high = np.array([])
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))

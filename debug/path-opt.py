@@ -78,8 +78,11 @@ def get_area_plot(
     ax3.set_title("Log(Abs)")
 
     ax4 = plt.subplot(n_rows, 2, 2 * n_rows)
-    im0 = ax4.pcolormesh(res, ims, np.angle(vals), cmap=plt.get_cmap("hsv"))
-    fig.colorbar(im0, ax=ax4)
+    im0 = ax4.pcolormesh(res, ims, np.angle(vals), cmap=plt.get_cmap("hsv",))
+    im0.set_clim(-np.pi,np.pi)
+    cbar = fig.colorbar(im0, ax=ax4, ticks=[-np.pi,-np.pi/2.0, 0, np.pi/2.0, np.pi])
+    cbar.ax.set_yticklabels(["-π","-π/2", "0", "π/2","π"])
+
     ax4.set_title("Angle")
 
     fig.tight_layout()
@@ -220,11 +223,11 @@ class PathOpt:
                     fig = get_area_plot(
                         np.log(xInv),
                         kers[k],
-                        reMin=-2,
-                        reMax=14,
-                        reDelta=0.16,
-                        imMax=12,
-                        imDelta=0.12,
+                        reMin=-10,
+                        reMax=10,
+                        reDelta=0.1,
+                        imMax=10,
+                        imDelta=0.1,
                         title=title,
                         plot_ReIm=False,
                     )
@@ -234,7 +237,7 @@ class PathOpt:
                         np.log(xInv),
                         kers[k],
                         title=title,
-                        reMin=0.2 if op_name == "V.V" else 1.1,
+                        reMin=0.01 if op_name == "V.V" else 1.1,
                         reMax=40,
                         reN=100
                     )
@@ -332,37 +335,42 @@ class PathOpt:
         plt.close(fig)
 
     def test_pos(self):
+        pd = self.setup["xgrid_polynom_rank"]
         # iterate basis functions
         for k in self.ks:
             bf = self.basis_function_dispatcher[k]
             for j, xInv in enumerate(self.xInvs):
                 lnxInv = np.log(xInv)
-                ls = bf.evaluate_log_Nx_2(4.,lnxInv)
-                print(f"k={k}, j={j}")
+                xk = self.setup["xgrid"][k]
+                ls = bf.evaluate_log_Nx_2(3.0,lnxInv)
+                print(f"k={k},xk={xk}; j={j},xInv={xInv}")
                 t = []
                 for e in ls:
-                    print("%+.2e"%e[0],"*%+.2e"%e[1],"-> [",("%+.1e, "*len(e[2]))%tuple(e[2]),"]")
+                    print(f"{e[0]:+.2e}*{e[1]:+.2e}={e[0]*e[1]:+.2e} -> [",("%+.1e, "*len(e[2]))%tuple(e[2]),"]")
                     tt = 0.0
                     for f in e[2]:
                         tt += e[0]*e[1]*f
                     t += [tt]
-                print("%+.3e"%np.sum(t)," = [",("%+.1e, "*len(t))%tuple(t),"]")
+                tsub = []
+                for l in range(0,len(t),pd+1):
+                    tsub.append(np.sum(t[l:l+pd+1]))
+                print("%+.3e"%np.sum(t)," = [",("%+.2e, "*len(tsub))%tuple(tsub),"]"," = [",("%+.2e, "*len(t))%tuple(t),"]")
                 print()
             print()
 
 if __name__ == "__main__":
     # setup
-    n_low = 10
-    n_mid = 5
-    polynom_rank = 2
-    run_area_imgs = False
-    run_re_imgs = True
-    run_join_area_imgs = False
-    run_join_re_imgs = True
+    n_low = 15
+    n_mid = 0
+    polynom_rank = 4
+    run_area_imgs = True
+    run_re_imgs = False
+    run_join_area_imgs = True
+    run_join_re_imgs = False
     run_mins = False
     run_test_pos = False
     #ks = [2, 4, 6, 8, 10, 12]
-    #ks = [1,2,10,11,20,21,30,31,37,38,]
+    #ks = [32,33,34,35,36,37,38,]
     #xInvs = [1e-4, 1e-3, 1e-2, 0.1, 0.2, 0.4, 0.6, 0.8, 0.9]
 
     # combine grid
@@ -371,10 +379,12 @@ if __name__ == "__main__":
     xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
     xgrid_high = np.array([])
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
-    print("xgrid = ", xgrid, " [", len(xgrid), "]")
     targetgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
+    #xgrid=np.array([1e-2,1e-1,1e-0])
+    #xInvs=xgrid
     ks = list(range(len(xgrid)))
     xInvs = targetgrid
+    print("xgrid = ", xgrid, " [", len(xgrid), "]")
 
     # activate logging
     logStdout = logging.StreamHandler(sys.stdout)

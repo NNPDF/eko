@@ -82,30 +82,31 @@ def _run_nonsinglet(basis_function_dispatcher, kernel_dispatcher, targetgrid):
         lnxk = np.log(xk)
         # skip some basis functions
         j_min = 0
-        #for basis_function in basis_function_dispatcher:
-        #    if basis_function.is_below_x(lnxk):
-        #        j_min += 1
-        #    else: # note that ordering matters!
-        #        break
+        for basis_function in basis_function_dispatcher:
+            if basis_function.is_below_x(lnxk):
+                j_min += 1
+            else: # note that ordering matters!
+                break
         # Generate integrands
         integrands = []
         for j,kernel in enumerate(kernels[j_min:]):
             # Setup path
-            r_min = 0.01
-            r_max = 20.0+50.0*np.exp(1.5*lnxk)
-            def f(r,ker,lnx):
-                if isinstance(r,abc.Iterable):
-                    return np.array([f(e,ker,lnx) for e in r])
-                return np.abs(ker(r,lnx))
-            mi = minimize(f,1,args=(kernel,lnxk,),bounds=[(r_min,r_max)])
-            c0 = 1
-            if not mi.success:
-                print(mi)
-            else:
-                c0 = mi.x[0]
+            #r_min = 0.01
+            #r_max = 20.0+50.0*np.exp(1.5*lnxk)
+            #def f(r,ker,lnx):
+            #    if isinstance(r,abc.Iterable):
+            #        return np.array([f(e,ker,lnx) for e in r])
+            #    return np.abs(ker(r,lnx))
+            #mi = minimize(f,1,args=(kernel,lnxk,),bounds=[(r_min,r_max)])
+            #c0 = 1
+            #if not mi.success:
+            #    print(mi)
+            #else:
+            #    c0 = mi.x[0]
             #gamma = 1.0
-            print(f"setup path for k={k},j={j_min+j} in ({r_min},{r_max}) found {c0}")
-            path, jac = mellin.get_path_line(30,c0) #mellin.get_path_Cauchy_tan(10.0, c0)
+            #print(f"setup path for k={k},j={j_min+j} in ({r_min},{r_max}) found {c0}")
+            #path, jac = mellin.get_path_line(30,c0) #mellin.get_path_Cauchy_tan(10.0, c0)
+            path, jac = mellin.get_path_edge(100.,1.0, np.pi/2+0.1)
             kernel_int = mellin.compile_integrand(kernel, path, jac)
             integrands.append(kernel_int)
         # run integration

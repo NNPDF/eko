@@ -66,7 +66,7 @@ def get_xgrid_linear_at_log(
     """
     return np.logspace(np.log10(xmin), np.log10(xmax), num=grid_size, **kwargs)
 
-def generate_xgrid(xgrid_type = "log", xgrid_size = 10, xgrid_min = 1e-7, xgrid = None):
+def generate_xgrid(xgrid_type = "log", xgrid_size = 10, xgrid_min = 1e-7, xgrid = None, **kwargs):
     """
         Generates input xgrid
 
@@ -337,8 +337,8 @@ class BasisFunction:
             #    return 0.0
             for logxmin, logxmax, coefs in area_list:
                 # skip area?
-                #if logx >= logxmax:
-                #    continue
+                if logx >= logxmax:
+                    continue
                 umax = N * logxmax
                 umin = N * logxmin
                 emax = np.exp(N*(logxmax - logx))#umax)
@@ -440,8 +440,8 @@ class BasisFunction:
         #if logx >= area_list[-1][1]:
         #    return 0.0
         for xmin, xmax, coefs in self.areas_to_const():
-            #if logx >= xmax:
-            #    continue
+            if logx >= xmax:
+                continue
             umax = N * xmax
             umin = N * xmin
             emax = np.exp(N*(xmax - logx))#umax)
