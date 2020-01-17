@@ -303,7 +303,7 @@ class BasisFunction:
             res = 0.0
             global_coef = 1#np.exp(-N * logx)
             for logxmin, logxmax, coefs in area_list:
-                # skip area?
+                # skip area completely?
                 if logx >= logxmax:
                     continue
                 umax = N * logxmax
@@ -316,6 +316,7 @@ class BasisFunction:
                     for k in range(i + 1):
                         factk = 1.0 / math.gamma(k + 1)
                         pmax = pow(-umax, k) * emax
+                        # drop factor by analytics?
                         if logx >= logxmin:
                             pmin = 0
                         else:
@@ -430,31 +431,3 @@ class InterpolatorDispatcher:
 
     def __getitem__(self, item):
         return self.basis[item]
-
-
-# if __name__ == "__main__":
-#     xgrid = np.logspace(-3, 0, 10)
-#     polrank = 4
-#
-#     reference = get_Lagrange_basis_functions(xgrid, polrank)
-#     mine = InterpolatorDispatcher(xgrid, polrank, False)
-#
-#     # Check that the basis is the same
-#     for ref, new in zip(reference, mine.basis):
-#         assert ref["polynom_number"] == new.poly_number
-#         ref_areas = ref["areas"]
-#         for ref_area, new_area in zip(ref_areas, new):
-#             assert ref_area["xmin"] == new_area.xmin
-#             assert ref_area["xmax"] == new_area.xmax
-#             for ref_coef, new_coef in zip(ref_area["coeffs"], new_area):
-#                 assert ref_coef == new_coef
-#     # Check that the results are the same
-#     for ref_poly, new_poly in zip(reference, mine):
-#         for lnx in np.random.rand(10):
-#             for i, j in np.random.rand(10, 2):
-#                 N = complex(i, 0.0)
-#                 ref_res = evaluate_Lagrange_basis_function_log_N(N, ref_poly, lnx)
-#                 new_res = new_poly.callable(N, lnx)
-#                 np.testing.assert_allclose(
-#                     np.real(ref_res), np.real(new_res), rtol=1e-4
-#                 )

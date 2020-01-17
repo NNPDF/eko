@@ -113,7 +113,7 @@ def get_re_plot(
             generated figure
     """
     # generate data
-    res = np.logspace(np.log10(reMin),np.log10(reMax),num=reN) #np.arange(reMin, reMax+reDelta, reDelta)
+    res = np.logspace(np.log10(reMin),np.log10(reMax),num=reN)
     vals = []
     for r in res:
         vals.append(ker(r, lnx))
@@ -300,6 +300,7 @@ class PathOpt:
         # iterate basis functions
         for k in self.ks:
             bf = self.basis_function_dispatcher[k]
+            ker = kers[k]
             areas = bf.areas_to_const()
             lnxmax = areas[-1][1]
             xmax = np.exp(lnxmax)
@@ -314,13 +315,13 @@ class PathOpt:
                 def f(r,lnx):
                     if isinstance(r,abc.Iterable):
                         return np.array([f(e,lnx) for e in r])
-                    return np.real(kers[k](r,lnx))
+                    return np.real(ker(r,lnx))
                 r_min = 0 if op_name == "V.V" else 1
                 r_min += 0.01
                 r_max = 20.0+50.0*np.exp(1.5*lnxInv)
                 mi = minimize(f,1 if op_name == "V.V" else 2,args=(lnxInv,),bounds=[(r_min,r_max)])
                 if not mi.success:
-                    print(mi)
+                    print(j,mi)
                     x_mins.append(np.NaN)
                 else:
                     x_mins.append(mi.x[0])
