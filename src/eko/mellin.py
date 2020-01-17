@@ -84,7 +84,7 @@ def inverse_mellin_transform(integrand, cut, extra_args=(), eps=1e-12):
     return result[:2]
 
 
-def get_path_Talbot(r: t_float = 1.0):
+def get_path_Talbot(r: t_float = 1.0, o: t_float = 0.0):
     """get Talbot path
 
     Parameters
@@ -111,7 +111,7 @@ def get_path_Talbot(r: t_float = 1.0):
         else:
             re = theta / np.tan(theta)
         im = theta
-        return r * t_complex(np.complex(re, im))
+        return o + r * t_complex(np.complex(re, im))
 
     @nb.njit
     def jac(t):

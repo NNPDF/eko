@@ -303,8 +303,8 @@ class BasisFunction:
             res = 0.0
             global_coef = 1#np.exp(-N * logx)
             for logxmin, logxmax, coefs in area_list:
-                # skip area
-                if logx < logxmin:
+                # skip area?
+                if logx >= logxmax:
                     continue
                 umax = N * logxmax
                 umin = N * logxmin
@@ -315,11 +315,11 @@ class BasisFunction:
                     facti = math.gamma(i + 1) * pow(-1, i) / pow(N, i + 1)
                     for k in range(i + 1):
                         factk = 1.0 / math.gamma(k + 1)
-                        if logx < logxmax:
-                            pmax = 0
+                        pmax = pow(-umax, k) * emax
+                        if logx >= logxmin:
+                            pmin = 0
                         else:
-                            pmax = pow(-umax, k) * emax
-                        pmin = pow(-umin, k) * emin
+                            pmin = pow(-umin, k) * emin
                         tmp += factk * (pmax - pmin)
                     res += coef * facti * tmp
             return res * global_coef

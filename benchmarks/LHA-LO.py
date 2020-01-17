@@ -245,8 +245,8 @@ assets_path = pathlib.Path(__file__).with_name("assets")
 
 if __name__ == "__main__":
     # setup
-    n_low = 10
-    n_mid = 5
+    n_low = 30
+    n_mid = 20
     polynom_rank = 4
     run_init = False
     run_FFNS = True
@@ -255,8 +255,8 @@ if __name__ == "__main__":
     plot_operator = True
 
     # combine grid
-    flag = f"l{n_low}m{n_mid}r{polynom_rank}-z-org"
-    xgrid_low = interpolation.get_xgrid_linear_at_log(n_low, 1e-7, 0.1)
+    flag = f"l{n_low}m{n_mid}r{polynom_rank}-tbf-pT1"
+    xgrid_low = interpolation.get_xgrid_linear_at_log(n_low, 1e-7, 1.0 if n_mid == 0 else 0.1)
     xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
     xgrid_high = np.array([])
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))

@@ -109,6 +109,10 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
     fig = plt.figure(figsize=(25, 5))
     fig.suptitle(var_name)
 
+    # empty?
+    if np.max(op) == 0.0:
+        return fig
+
     ax = plt.subplot(1, 3, 1)
     if abs_operator:
         plt.title("|operator|")
