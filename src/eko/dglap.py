@@ -128,16 +128,6 @@ def _run_singlet(kernel_dispatcher, targetgrid):
 
     # Setup path
     cut = 1e-2
-    gamma = 1.0
-    path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
-
-    # Generate integrands
-    integrands = []
-    for kernel_set in kernels:
-        kernel_int = []
-        for ker in kernel_set:
-            kernel_int.append(mellin.compile_integrand(ker, path, jac))
-        integrands.append(kernel_int)
 
     # perform
     log_prefix = "computing singlet operator - %s"
@@ -155,6 +145,17 @@ def _run_singlet(kernel_dispatcher, targetgrid):
     all_output = []
     targetgrid_size = len(targetgrid)
     for k, xk in enumerate(targetgrid):
+        # Setup path
+        path, jac = mellin.get_path_Cauchy_tan(3.5 + np.log(xk)/8.0, 3.5 + np.log(xk)/8.0)
+
+        # Generate integrands
+        integrands = []
+        for kernel_set in kernels:
+            kernel_int = []
+            for ker in kernel_set:
+                kernel_int.append(mellin.compile_integrand(ker, path, jac))
+            integrands.append(kernel_int)
+
         out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
         all_output.append(out)
         log_text = f"{k+1}/{targetgrid_size}"
