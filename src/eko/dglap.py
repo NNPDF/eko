@@ -67,7 +67,7 @@ def _run_nonsinglet(kernel_dispatcher, targetgrid):
     # Setup path
     gamma = 1.0
     cut = 1e-2
-    path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
+    path, jac = mellin.get_path_Cauchy_tan(gamma,1.0)
 
     # Generate integrands
     integrands = []

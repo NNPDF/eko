@@ -301,18 +301,24 @@ class BasisFunction:
             """Get a single Lagrange interpolator in N-space multiplied
             by the Mellin-inversion factor. """
             res = 0.0
-            global_coef = np.exp(-N * logx)
-            for xmin, xmax, coefs in area_list:
-                umax = N * xmax
-                umin = N * xmin
-                emax = np.exp(umax)
-                emin = np.exp(umin)
+            global_coef = 1#np.exp(-N * logx)
+            for logxmin, logxmax, coefs in area_list:
+                # skip area
+                if logx < logxmin:
+                    continue
+                umax = N * logxmax
+                umin = N * logxmin
+                emax = np.exp(N * (logxmax - logx))
+                emin = np.exp(N * (logxmin - logx))
                 for i, coef in enumerate(coefs):
                     tmp = 0.0
                     facti = math.gamma(i + 1) * pow(-1, i) / pow(N, i + 1)
                     for k in range(i + 1):
                         factk = 1.0 / math.gamma(k + 1)
-                        pmax = pow(-umax, k) * emax
+                        if logx < logxmax:
+                            pmax = 0
+                        else:
+                            pmax = pow(-umax, k) * emax
                         pmin = pow(-umin, k) * emin
                         tmp += factk * (pmax - pmin)
                     res += coef * facti * tmp

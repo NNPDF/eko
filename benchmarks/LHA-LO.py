@@ -249,13 +249,13 @@ if __name__ == "__main__":
     n_mid = 5
     polynom_rank = 4
     run_init = False
-    run_FFNS = False
-    run_ZMVFNS = True
+    run_FFNS = True
+    run_ZMVFNS = False
     plot_PDF = True
     plot_operator = True
 
     # combine grid
-    flag = f"l{n_low}m{n_mid}r{polynom_rank}"
+    flag = f"l{n_low}m{n_mid}r{polynom_rank}-z-org"
     xgrid_low = interpolation.get_xgrid_linear_at_log(n_low, 1e-7, 0.1)
     xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
     xgrid_high = np.array([])
