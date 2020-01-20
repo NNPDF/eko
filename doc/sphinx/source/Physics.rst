@@ -5,8 +5,8 @@ Mathematical ingredients
 ------------------------
 
 We solve the equations in Mellin-space as there multiplicative convolution is
-mapped onto a normal multiplication and thus the integro-differential equations
-are instead just normal differential equations.
+mapped onto a normal multiplication and thus integro-differential equations,
+such as DGLAP equations, are instead just normal differential equations.
 The Mellin transformation is given by
 
 .. math::
@@ -27,8 +27,9 @@ weighted sum of polynomials
     f(x,t_0) = \sum_{j=1}^{N_{grid}} f(x_j,t_0) \cdot p_j(x)
 
 The current implementation uses a grid :math:`\{x_j\}` defined by the user and
-a Lagrange interpolation using the nearest :math:`k` points. Thus the
-interpolation polynomials :math:`\{p_j(x)\}` are all of degree :math:`(k-1)`.
+a Lagrange interpolation in :math:`\log(x)` using the nearest :math:`k` points.
+Thus the interpolation polynomials :math:`\{p_j(x)\}` are all of degree
+:math:`(k-1)`.
 
 QCD ingredients
 ---------------

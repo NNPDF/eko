@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Benchmark EKO to :cite:`Giele:2002hx`
+"""
+    Benchmark EKO to :cite:`Giele:2002hx`
 """
 import logging
 import sys
