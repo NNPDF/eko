@@ -10,24 +10,20 @@ from eko import t_float
 
 class Constants:
     """
-    Upon initialization all constants are set and a `lock` variable is put is place.
-    As long as the `lock` variable is active, setting attributes of this class will result
-    in an attributeError exception.
+        Upon initialization all constants are set and a `lock` variable is put is place.
+        As long as the `lock` variable is active, setting attributes of this class will result
+        in an attributeError exception.
 
-    Attributes
-    ----------
-      NC: int
-        Number of colors = 3
-
-      TF: t_float
-        normalization of fundamental generators = 1/2
-
-      CA : t_float
-        second Casimir constant in adjoint representation = NC
-
-      CF : t_float
-        second Casimir constant in fundamental representation = (NC^2 - 1)/(2 NC)
-
+        Attributes
+        ----------
+            NC : int
+                Number of colors = 3
+            TF : t_float
+                normalization of fundamental generators = 1/2
+            CA : t_float
+                second Casimir constant in adjoint representation = NC
+            CF : t_float
+                second Casimir constant in fundamental representation = (NC^2 - 1)/(2 NC)
     """
 
     _lock = False
@@ -54,14 +50,15 @@ class Constants:
         super().__setattr__(name, value)
 
     def dict(self):
-        """ Returns the constants class in the form of a dictionary.
-        In practicse: returns the __dict__ attribute of the class without the
-        protected variables
+        """
+            Returns the constants class in the form of a dictionary.
+            In practicse: returns the __dict__ attribute of the class without the
+            protected variables
 
-        Returns
-        -------
-        out_dict: dictionary
-            dictionary with the attributes of the class
+            Returns
+            -------
+                out_dict : dictionary
+                    dictionary with the attributes of the class
         """
         out_dict = {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
         return out_dict

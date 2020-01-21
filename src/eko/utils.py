@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-This file contains several utility functions
-
+    This file contains several utility functions
 """
+
 import numpy as np
 
 
@@ -10,22 +10,22 @@ import numpy as np
 # from functools import reduce
 # reduce(merge, [dict1, dict2, dict3...])
 def merge_dicts(a: dict, b: dict, path=None):
-    """Merges b into a.
+    """
+        Merges b into a.
 
-    Parameters
-    ----------
-        a : dict
-            target dictionary (modified)
-        b : dict
-            update
-        path : array
-            recursion track
+        Parameters
+        ----------
+            a : dict
+                target dictionary (modified)
+            b : dict
+                update
+            path : array
+                recursion track
 
-    Returns
-    -------
-        a : dict
-            updated dictionary
-
+        Returns
+        -------
+            a : dict
+                updated dictionary
     """
     if path is None:
         path = []
@@ -43,22 +43,23 @@ def merge_dicts(a: dict, b: dict, path=None):
 
 
 def get_singlet_paths(to, fromm, depth):
-    """Compute all possible path in the singlet sector to reach `to` starting from  `fromm`.
+    """
+        Compute all possible path in the singlet sector to reach `to` starting from  `fromm`.
 
-    Parameters
-    ----------
-        to : 'q' or 'g'
-            final point
-        fromm : 'q' or 'g'
-            starting point
-        depth : int
-            nesting level; 1 corresponds to the trivial first step
+        Parameters
+        ----------
+            to : 'q' or 'g'
+                final point
+            fromm : 'q' or 'g'
+                starting point
+            depth : int
+                nesting level; 1 corresponds to the trivial first step
 
-    Returns
-    -------
-        ls : list
-            list of all possible paths, where each path is in increasing order, e.g.
-            [P1(c <- a), P2(c <- a), ...] and P1(c <- a) = [(c <- b), (b <- a)]
+        Returns
+        -------
+            ls : list
+                list of all possible paths, where each path is in increasing order, e.g.
+                [P1(c <- a), P2(c <- a), ...] and P1(c <- a) = [(c <- b), (b <- a)]
     """
     if depth < 1:
         raise ValueError(f"Invalid arguments: depth >= 1, but got {depth}")
@@ -80,22 +81,23 @@ def get_singlet_paths(to, fromm, depth):
 
 
 def operator_product_helper(steps, paths):
-    """Joins all matrix elements given by paths.
+    """
+        Joins all matrix elements given by paths.
 
-    Parameters
-    ----------
-        steps : array
-            list of evolution steps in increasing order, e.g.
-            [..., O(c <- b), O(b <- a)]
-        paths : array
-            list of all possible paths: [P1(c <- a), P2(c <- a), ...]
+        Parameters
+        ----------
+            steps : array
+                list of evolution steps in increasing order, e.g.
+                [..., O(c <- b), O(b <- a)]
+            paths : array
+                list of all possible paths: [P1(c <- a), P2(c <- a), ...]
 
-    Returns
-    -------
-        tot_op : array
-            joined operator
-        tot_op_err : array
-            combined error for operator
+        Returns
+        -------
+            tot_op : array
+                joined operator
+            tot_op_err : array
+                combined error for operator
     """
     # setup
     len_steps = len(steps)

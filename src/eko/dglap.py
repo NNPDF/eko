@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This file contains the main loop for the DGLAP calculations.
-
+    This file contains the main loop for the DGLAP calculations.
 """
 import logging
 import joblib
@@ -22,22 +21,23 @@ Ts = ["T3", "T8", "T15", "T24", "T35"]
 
 
 def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
-    """Provide parallization over all basis functions
+    """
+        Provide parallization over all basis functions
 
-    Parameters
-    ----------
-        basis_functions : list
-            basis list
-        pfunction : function
-            executed function
-        xk : t_float
-            Mellin inversion point
-        n_jobs : int
-            number of parallel jobs
+        Parameters
+        ----------
+            basis_functions : list
+                basis list
+            pfunction : function
+                executed function
+            xk : t_float
+                Mellin inversion point
+            n_jobs : int
+                number of parallel jobs
 
-    Returns
-    -------
-        out : list
+        Returns
+        -------
+            out : list
             output list for all jobs
     """
     out = joblib.Parallel(n_jobs=n_jobs)(
@@ -47,27 +47,27 @@ def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
 
 
 def _run_nonsinglet(kernel_dispatcher, targetgrid):
-    """Solves the non-singlet case.
+    """
+        Solves the non-singlet case.
 
-    Parameters
-    ----------
-        kernel_dispatcher: KernelDispatcher
-            instance of kerneldispatcher from which compiled kernels can be obtained
-        targetgrid: array
-            list of x-values which are computed
+        Parameters
+        ----------
+            kernel_dispatcher: KernelDispatcher
+                instance of KernelDispatcher from which compiled kernels can be obtained
+            targetgrid: array
+                list of x-values which are computed
 
-    Returns
-    -------
-        ret : dict
-            dictionary containing the keys `operators` and `operator_errors`
+        Returns
+        -------
+            ret : dict
+                dictionary containing the keys `operators` and `operator_errors`
     """
     # Receive all precompiled kernels
     kernels = kernel_dispatcher.compile_nonsinglet()
 
     # Setup path
-    gamma = 1.0
     cut = 1e-2
-    path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
+    path, jac = mellin.get_path_Talbot(1.0)
 
     # Generate integrands
     integrands = []
@@ -109,27 +109,27 @@ def _run_nonsinglet(kernel_dispatcher, targetgrid):
 
 
 def _run_singlet(kernel_dispatcher, targetgrid):
-    """Solves the singlet case.
+    """
+        Solves the singlet case.
 
-    Parameters
-    ----------
-        kernel_dispatcher: KernelDispatcher
-            instance of kerneldispatcher from which compiled kernels can be obtained
-        targetgrid: array
-            list of x-values which are computed
+        Parameters
+        ----------
+            kernel_dispatcher: KernelDispatcher
+                instance of KernelDispatcher from which compiled kernels can be obtained
+            targetgrid: array
+                list of x-values which are computed
 
-    Returns
-    -------
-        ret : dict
-            dictionary containing the keys `operators` and `operator_errors`
+        Returns
+        -------
+            ret : dict
+                dictionary containing the keys `operators` and `operator_errors`
     """
     # Receive all precompiled kernels
     kernels = kernel_dispatcher.compile_singlet()
 
     # Setup path
     cut = 1e-2
-    gamma = 1.0
-    path, jac = mellin.get_path_Cauchy_tan(gamma, 1.0)
+    path, jac = mellin.get_path_Talbot(1.0, 1.0)
 
     # Generate integrands
     integrands = []
@@ -180,27 +180,30 @@ def _run_singlet(kernel_dispatcher, targetgrid):
 def _run_step(
     setup, constants, basis_function_dispatcher, targetgrid, nf, mu2init, mu2final
 ):
-    """Do a single convolution step in a fixed parameter configuration
+    """
+        Do a single convolution step in a fixed parameter configuration
 
-    Parameters
-    ----------
-    setup: dict
-        a dictionary with the theory parameters for the evolution
-    constants : Constants
-        physical constants
-    targetgrid : array
-        output grid
-    nf : int
-        number of active flavours
-    mu2init : float
-        initial scale
-    mu2final : flaot
-        final scale
+        Parameters
+        ----------
+            setup: dict
+                a dictionary with the theory parameters for the evolution
+            constants : Constants
+                physical constants
+            basis_function_dispatcher : InterpolatorDispatcher
+                basis functions
+            targetgrid : array
+                output grid
+            nf : int
+                number of active flavours
+            mu2init : float
+                initial scale
+            mu2final : float
+                final scale
 
-    Returns
-    -------
-        ret : dict
-            output dictionary
+        Returns
+        -------
+            ret : dict
+                output dictionary
     """
     logger.info("evolve [GeV^2] %e -> %e with nf=%d flavors", mu2init, mu2final, nf)
     # Setup the kernel dispatcher
@@ -219,21 +222,24 @@ def _run_step(
 
 
 def _run_FFNS(setup, constants, basis_function_dispatcher, targetgrid):
-    """Run the FFNS configuration.
+    """
+        Run the FFNS configuration.
 
-    Parameters
-    ----------
-    setup: dict
-        a dictionary with the theory parameters for the evolution
-    constants : Constants
-        physical constants
-    targetgrid : array
-        output grid
+        Parameters
+        ----------
+            setup: dict
+                a dictionary with the theory parameters for the evolution
+            constants : Constants
+                physical constants
+            basis_function_dispatcher : InterpolatorDispatcher
+                basis functions
+            targetgrid : array
+                output grid
 
-    Returns
-    -------
-        ret : dict
-            output dictionary
+        Returns
+        -------
+            ret : dict
+                output dictionary
     """
     nf = setup["NfFF"]
     # do everything in one simple step
@@ -267,23 +273,26 @@ def _run_FFNS(setup, constants, basis_function_dispatcher, targetgrid):
 
 
 def _run_ZMVFNS_0threshold(setup, constants, basis_function_dispatcher, targetgrid, nf):
-    """Run the ZM-VFNS with 0 crossed threshold.
-
-    Parameters
-    ----------
-    setup : dict
-        a dictionary with the theory parameters for the evolution
-    constants : Constants
-        physical constants
-    targetgrid : array
-        output grid
-    nf : int
-        number of light flavors, i.e., before the threshold
-    Returns
-    -------
-        ret : dict
-            output dictionary
     """
+        Run the ZM-VFNS with 0 crossed threshold.
+
+        Parameters
+        ----------
+        setup : dict
+            a dictionary with the theory parameters for the evolution
+        constants : Constants
+            physical constants
+        basis_function_dispatcher : InterpolatorDispatcher
+            basis functions
+        targetgrid : array
+            output grid
+        nf : int
+            number of light flavors, i.e., before the threshold
+        Returns
+        -------
+            ret : dict
+                output dictionary
+"""
     # setup
     mu2init = setup["Q0"] ** 2
     mu2final = setup["Q2grid"][0]
@@ -320,26 +329,29 @@ def _run_ZMVFNS_0threshold(setup, constants, basis_function_dispatcher, targetgr
 def _run_ZMVFNS_1threshold(
     setup, constants, basis_function_dispatcher, xgrid, targetgrid, m2Threshold, nf_init
 ):
-    """Run the ZM-VFNS with 1 crossed threshold.
+    """
+        Run the ZM-VFNS with 1 crossed threshold.
 
-    Parameters
-    ----------
-    setup : dict
-        a dictionary with the theory parameters for the evolution
-    constants : Constants
-        physical constants
-    xgrid : array
-        grid used for intermediate steps
-    targetgrid : array
-        output grid
-    m2Threshold : t_float
-        threshold mass that is crossed
-    nf_init : int
-        number of light flavors, i.e., before the threshold
-    Returns
-    -------
-        ret : dict
-            output dictionary
+        Parameters
+        ----------
+            setup : dict
+                a dictionary with the theory parameters for the evolution
+            constants : Constants
+                physical constants
+            basis_function_dispatcher : InterpolatorDispatcher
+                basis functions
+            xgrid : array
+                grid used for intermediate steps
+            targetgrid : array
+                output grid
+            m2Threshold : t_float
+                threshold mass that is crossed
+            nf_init : int
+                number of light flavors, i.e., before the threshold
+        Returns
+        -------
+            ret : dict
+                output dictionary
     """
     # setup
     mu2init = setup["Q0"] ** 2
@@ -417,28 +429,31 @@ def _run_ZMVFNS_2thresholds(
     m2Threshold2,
     nf_init,
 ):
-    """Run the ZM-VFNS with 2 crossed threshold.
+    """
+        Run the ZM-VFNS with 2 crossed threshold.
 
-    Parameters
-    ----------
-    setup : dict
-        a dictionary with the theory parameters for the evolution
-    constants : Constants
-        physical constants
-    xgrid : array
-        grid used for intermediate steps
-    targetgrid : array
-        output grid
-    m2Threshold1 : t_float
-        first threshold mass that is crossed
-    m2Threshold2 : t_float
-        second threshold mass that is crossed
-    nf_init : int
-        number of light flavors, i.e., before any threshold
-    Returns
-    -------
-        ret : dict
-            output dictionary
+        Parameters
+        ----------
+            setup : dict
+                a dictionary with the theory parameters for the evolution
+            constants : Constants
+                physical constants
+            basis_function_dispatcher : InterpolatorDispatcher
+                basis functions
+            xgrid : array
+                grid used for intermediate steps
+            targetgrid : array
+                output grid
+            m2Threshold1 : t_float
+                first threshold mass that is crossed
+            m2Threshold2 : t_float
+                second threshold mass that is crossed
+            nf_init : int
+                number of light flavors, i.e., before any threshold
+        Returns
+        -------
+            ret : dict
+                output dictionary
     """
     # setup
     mu2init = setup["Q0"] ** 2
@@ -527,31 +542,34 @@ def _run_ZMVFNS_2thresholds(
 def _run_ZMVFNS_3thresholds(
     setup, constants, basis_function_dispatcher, xgrid, targetgrid, m2c, m2b, m2t
 ):
-    """Run the ZM-VFNS with 3 crossed threshold.
+    """
+        Run the ZM-VFNS with 3 crossed threshold.
 
-    Assumes nf_init = 3.
+        Assumes nf_init = 3.
 
-    Parameters
-    ----------
-    setup : dict
-        a dictionary with the theory parameters for the evolution
-    constants : Constants
-        physical constants
-    xgrid : array
-        grid used for intermediate steps
-    targetgrid : array
-        output grid
-    m2c : t_float
-        first threshold mass that is crossed = charm mass
-    m2b : t_float
-        second threshold mass that is crossed = bottom mass
-    m2t : t_float
-        third threshold mass that is crossed = top mass
+        Parameters
+        ----------
+            setup : dict
+                a dictionary with the theory parameters for the evolution
+            constants : Constants
+                physical constants
+            basis_function_dispatcher : InterpolatorDispatcher
+                basis functions
+            xgrid : array
+                grid used for intermediate steps
+            targetgrid : array
+                output grid
+            m2c : t_float
+                first threshold mass that is crossed = charm mass
+            m2b : t_float
+                second threshold mass that is crossed = bottom mass
+            m2t : t_float
+                third threshold mass that is crossed = top mass
 
-    Returns
-    -------
-        ret : dict
-            output dictionary
+        Returns
+        -------
+            ret : dict
+                output dictionary
     """
     # setup
     mu2init = setup["Q0"] ** 2
@@ -625,23 +643,26 @@ def _run_ZMVFNS_3thresholds(
 
 
 def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid, targetgrid):
-    """Run the ZM-VFNS configuration.
+    """
+        Run the ZM-VFNS configuration.
 
-    Parameters
-    ----------
-    setup : dict
-        a dictionary with the theory parameters for the evolution
-    constants : Constants
-        physical constants
-    xgrid : array
-        grid used for intermediate steps
-    targetgrid : array
-        output grid
+        Parameters
+        ----------
+            setup : dict
+                a dictionary with the theory parameters for the evolution
+            constants : Constants
+                physical constants
+            basis_function_dispatcher : InterpolatorDispatcher
+                basis functions
+            xgrid : array
+                grid used for intermediate steps
+            targetgrid : array
+                output grid
 
-    Returns
-    -------
-        ret : dict
-            output dictionary
+        Returns
+        -------
+            ret : dict
+                output dictionary
     """
     mu2init = setup["Q0"] ** 2
     mu2final = setup["Q2grid"][0]
@@ -714,54 +735,54 @@ def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid, targetgrid)
 
 
 def run_dglap(setup):
-    r"""This function takes a DGLAP theory configuration dictionary
-    and performs the solution of the DGLAP equations.
+    r"""
+        This function takes a DGLAP theory configuration dictionary
+        and performs the solution of the DGLAP equations.
 
-    The EKO :math:`\hat O_{k,j}^{(0)}(t_1,t_0)` is determined in order
-    to fullfill the following evolution
+        The EKO :math:`\hat O_{k,j}^{(0)}(t_1,t_0)` is determined in order
+        to fullfill the following evolution
 
-    .. math::
-        f^{(0)}(x_k,t_1) = \hat O_{k,j}^{(0)}(t_1,t_0) f^{(0)}(x_j,t_0)
+        .. math::
+            f^{(0)}(x_k,t_1) = \hat O_{k,j}^{(0)}(t_1,t_0) f^{(0)}(x_j,t_0)
 
-    Parameters
-    ----------
-    setup: dict
-        a dictionary with the theory parameters for the evolution
+        Parameters
+        ----------
+        setup: dict
+            a dictionary with the theory parameters for the evolution
 
-        =============== ==========================================================================
-        key             description
-        =============== ==========================================================================
-        'PTO'           order of perturbation theory: ``0`` = LO, ...
-        'alphas'        reference value of the strong coupling :math:`\alpha_s(\mu_0^2)`
-        'xgrid_size'    size of the interpolation grid
-        'xgrid_min'     lower boundry of the interpolation grid - defaults to ``1e-7``
-        'xgrid_type'    generating function for the interpolation grid - see below
-        'log_interpol'  boolean, whether it is log interpolation or not, defaults to `True`
-        'targetgrid'    list of x-values which are computed - defaults to ``xgrid``, if not given
-        =============== ==========================================================================
+            =============== ==========================================================================
+            key             description
+            =============== ==========================================================================
+            'PTO'           order of perturbation theory: ``0`` = LO, ...
+            'alphas'        reference value of the strong coupling :math:`\alpha_s(\mu_0^2)`
+            'xgrid_size'    size of the interpolation grid
+            'xgrid_min'     lower boundry of the interpolation grid - defaults to ``1e-7``
+            'xgrid_type'    generating function for the interpolation grid - see below
+            'log_interpol'  boolean, whether it is log interpolation or not, defaults to `True`
+            'targetgrid'    list of x-values which are computed - defaults to ``xgrid``, if not given
+            =============== ==========================================================================
 
-    Returns
-    -------
-    ret: dict
-        a dictionary with a defined set of keys
+        Returns
+        -------
+        ret: dict
+            a dictionary with a defined set of keys
 
-        =================  =========================================================================
-        key                description
-        =================  =========================================================================
-        'xgrid'            list of x-values which build the support of the interpolation
-        'targetgrid'       list of x-values which are computed
-        'operators'        list of computed operators
-        'operator_errors'  list of integration errors associated to the operators
-        =================  =========================================================================
+            =================  =========================================================================
+            key                description
+            =================  =========================================================================
+            'xgrid'            list of x-values which build the support of the interpolation
+            'targetgrid'       list of x-values which are computed
+            'operators'        list of computed operators
+            'operator_errors'  list of integration errors associated to the operators
+            =================  =========================================================================
 
-    Notes
-    -----
+        Notes
+        -----
 
-    * xgrid_type
-        - ``linear``: nodes distributed linear in linear-space
-        - ``log``: nodes distributed linear in log-space
-        - ``custom``: custom xgrid, supplied by the key ``xgrid``
-
+        * xgrid_type
+            - ``linear``: nodes distributed linear in linear-space
+            - ``log``: nodes distributed linear in log-space
+            - ``custom``: custom xgrid, supplied by the key ``xgrid``
     """
 
     # Print theory id setup
@@ -805,21 +826,22 @@ def run_dglap(setup):
 
 
 def apply_operator(ret, inputs):
-    """Apply all available operators to the input PDFs.
+    """
+        Apply all available operators to the input PDFs.
 
-    Parameters
-    ----------
-        ret : dict
-            operator definitions - return value of `run_dglap`
-        inputs : dict
-            input PDFs
+        Parameters
+        ----------
+            ret : dict
+                operator definitions - return value of `run_dglap`
+            inputs : dict
+                input PDFs
 
-    Returns
-    ---------
-        outs : dict
-            output PDFs
-        out_errors : dict
-            associated error to the output PDFs
+        Returns
+        ---------
+            outs : dict
+                output PDFs
+            out_errors : dict
+                associated error to the output PDFs
     """
     # TODO rotation from the evolution basis to flavor basis? if yes, here!
     # turn inputs into lists

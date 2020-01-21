@@ -14,7 +14,7 @@ help:
 .PHONY: help html view clean cleanall
 
 html:
-	sphinx-apidoc -o ./source/modules/eko ../../src/eko/
+	sphinx-apidoc -o ./source/modules/eko ../../src/eko/ ../../src/eko/tests
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 view: html
