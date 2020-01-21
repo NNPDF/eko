@@ -12,4 +12,5 @@ python setup.py install
 The documentation style of this code follows closely the [numpy documentation guide](https://numpydoc.readthedocs.io/en/latest/format.html).
 
 ## Scope of the project
+
 The unique scope and aim of this code is (see above)
