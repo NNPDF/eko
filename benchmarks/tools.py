@@ -137,15 +137,15 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
     return fig
 
 
-def save_all_operators_to_pdf(path, ret):
+def save_all_operators_to_pdf(ret, path):
     """Output all operator heatmaps to PDF.
 
     Parameters
     ----------
-        path : string
-            target file name
         ret : dict
             DGLAP result
+        path : string
+            target file name
     """
     pp = PdfPages(path)
     # NS

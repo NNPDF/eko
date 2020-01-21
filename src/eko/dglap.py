@@ -3,8 +3,10 @@
     This file contains the main loop for the DGLAP calculations.
 """
 import logging
+import copy
 import joblib
 import numpy as np
+from yaml import dump
 
 import eko.alpha_s as alpha_s
 import eko.interpolation as interpolation
@@ -750,31 +752,32 @@ def run_dglap(setup):
         setup: dict
             a dictionary with the theory parameters for the evolution
 
-            =============== ==========================================================================
+            =============== ========================================================================
             key             description
-            =============== ==========================================================================
+            =============== ========================================================================
             'PTO'           order of perturbation theory: ``0`` = LO, ...
             'alphas'        reference value of the strong coupling :math:`\alpha_s(\mu_0^2)`
             'xgrid_size'    size of the interpolation grid
             'xgrid_min'     lower boundry of the interpolation grid - defaults to ``1e-7``
             'xgrid_type'    generating function for the interpolation grid - see below
             'log_interpol'  boolean, whether it is log interpolation or not, defaults to `True`
-            'targetgrid'    list of x-values which are computed - defaults to ``xgrid``, if not given
-            =============== ==========================================================================
+            'targetgrid'    list of x-values which are computed - defaults to ``xgrid``, if not
+                            given
+            =============== ========================================================================
 
         Returns
         -------
         ret: dict
             a dictionary with a defined set of keys
 
-            =================  =========================================================================
+            =================  ====================================================================
             key                description
-            =================  =========================================================================
+            =================  ====================================================================
             'xgrid'            list of x-values which build the support of the interpolation
             'targetgrid'       list of x-values which are computed
             'operators'        list of computed operators
             'operator_errors'  list of integration errors associated to the operators
-            =================  =========================================================================
+            =================  ====================================================================
 
         Notes
         -----
@@ -878,6 +881,23 @@ def apply_operator(ret, inputs):
             out_errors[out_key] += np.matmul(op_err, input_lists[in_key])
 
     return outs, out_errors
+
+
+def get_YAML(ret, stream = None):
+    # copy as we will change things
+    out = copy.deepcopy(ret)
+    # make raw list - we might want to do somthing more numerical here
+    for k in ["xgrid","targetgrid"]:
+        out[k]  = out[k].tolist()
+    for k in out["operators"]:
+        out["operators"][k] = out["operators"][k].tolist()
+        out["operator_errors"][k] = out["operator_errors"][k].tolist()
+    return dump(out,stream)
+
+def write_YAML_to_file(ret, filename):
+    with open(filename,"w") as f:
+        ret = get_YAML(ret,f)
+    return ret
 
 
 if __name__ == "__main__":
