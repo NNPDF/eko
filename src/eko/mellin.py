@@ -134,7 +134,7 @@ def get_path_Talbot(r: t_float = 1.0, o: t_float = 0.0):
     return path, jac
 
 
-def get_path_line(path_len: t_float, c: t_float = 1.0):
+def get_path_line(m: t_float, c: t_float = 1.0):
     """
         Textbook path, i.e. a straight line parallel to the imaginary axis.
 
@@ -158,11 +158,11 @@ def get_path_line(path_len: t_float, c: t_float = 1.0):
 
     @nb.njit
     def path(t):
-        return t_complex(np.complex(c, path_len * (2 * t - 1)))
+        return t_complex(np.complex(c, m * (2 * t - 1)))
 
     @nb.njit
     def jac(j):  # pylint: disable=unused-argument
-        return t_complex(np.complex(0, path_len * 2))
+        return t_complex(np.complex(0, m * 2))
 
     return path, jac
 

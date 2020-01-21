@@ -105,7 +105,7 @@ def generate_xgrid(
             raise ValueError(f"The given grid is not unique: {xgrid}")
         xgrid = unique_xgrid
     else:
-        raise NotImplementedError(f"xgrid_typr {xgrid_type} not implemented")
+        raise NotImplementedError(f"xgrid_type {xgrid_type} not implemented")
     return xgrid
 
 
@@ -179,13 +179,14 @@ class BasisFunction:
 
         Parameters
         ----------
-            xgrid_in : array
+            xgrid : array
                 Grid in x-space from which the interpolators are constructed
-            polynom_rank : int
-                degree of the interpolation polynomial
+            poly_number : int
+                number of polynomial
             list_of_blocks: list(tuple(int, int))
                 list of tuples with the (kmin, kmax) values for each area
             mode_log: bool (default: True)
+                use logarithmic interpolation?
             mode_N: bool (default: True)
                 if true compiles the function on N, otherwise compiles x
             numba_it: bool (default: True)
@@ -205,25 +206,42 @@ class BasisFunction:
         self.areas = []
         self.numba_it = numba_it
 
+        # create areas
         for i, block in enumerate(list_of_blocks):
             if block[0] <= poly_number <= block[1]:
                 new_area = Area(i, self.poly_number, block, xgrid)
                 self.areas.append(new_area)
-
         if not self.areas:
             raise ValueError("Error: no areas were generated")
 
+        # compile
         self.callable = None
         if mode_N:
             self.compile_N(mode_log)
         else:
             self.compile_X(mode_log)
 
+    def is_below_x(self, x):
+        """
+            Are all areas below x?
+
+            Parameters
+            ----------
+                x : float
+                    reference value
+            Returns
+            --------
+                is_below_x : bool
+                    xmax of highest area <= x?
+        """
+        # note that ordering is important!
+        return self.areas[-1].xmax <= x
+
     def areas_to_const(self):
         """
-        Retruns a tuple of tuples, one for each area
-        each containing
-        (`xmin`, `xmax`, `numpy.array` of coefficients)
+            Retruns a tuple of tuples, one for each area
+            each containing
+            (`xmin`, `xmax`, `numpy.array` of coefficients)
         """
         # This is necessary as numba will ask for everything
         # to be inmutable
@@ -282,7 +300,7 @@ class BasisFunction:
         """
             Compiles the function to evaluate the interpolator in N space.
 
-            Returns a function `evaluate_Nx` with a (N, x) signature `evaluate_Nx(N, logx)`
+            Generates a function `evaluate_Nx` with a (N, x) signature `evaluate_Nx(N, logx)`.
 
             .. math::
                 \\tilde p(N)*exp(- N * log(x))
@@ -308,7 +326,6 @@ class BasisFunction:
             """Get a single Lagrange interpolator in N-space multiplied
             by the Mellin-inversion factor. """
             res = 0.0
-            global_coef = 1  # np.exp(-N * logx)
             for logxmin, logxmax, coefs in area_list:
                 # skip area completely?
                 if logx >= logxmax:
@@ -330,7 +347,7 @@ class BasisFunction:
                             pmin = pow(-umin, k) * emin
                         tmp += factk * (pmax - pmin)
                     res += coef * facti * tmp
-            return res * global_coef
+            return res
 
         def evaluate_Nx(N, logx):
             """Get a single Lagrange interpolator in N-space multiplied
@@ -384,8 +401,7 @@ class InterpolatorDispatcher:
     """
         Setups the interpolator.
 
-        Upon construction will generate a list of `BasisFunction`
-        objects.
+        Upon construction will generate a list of `BasisFunction` objects.
         Each of these `BasisFunction` objects exponses a `callable`
         method (also accessible as the `__call__` method of the class)
         which will be numba-compiled.
@@ -395,7 +411,7 @@ class InterpolatorDispatcher:
         ----------
             xgrid_in : array
                 Grid in x-space from which the interpolators are constructed
-            polynom_rank : int
+            polynomial_degree : int
                 degree of the interpolation polynomial
             log: bool  (default: True)
                 Whether it is a log or linear interpolator
@@ -403,19 +419,21 @@ class InterpolatorDispatcher:
                 if true compiles the function on N, otherwise compiles x
     """
 
-    def __init__(self, xgrid, polynom_rank, log=True, mode_N=True):
+    def __init__(self, xgrid, polynomial_degree, log=True, mode_N=True):
 
         xgrid_size = len(xgrid)
 
-        if xgrid_size != len(np.unique(xgrid)):
+        ugrid = np.unique(xgrid)
+        if xgrid_size != len(ugrid):
             raise ValueError(f"xgrid is not unique: {xgrid}")
+        xgrid = ugrid
         if xgrid_size < 2:
             raise ValueError(f"xgrid needs at least 2 points, received {xgrid_size}")
-        if polynom_rank < 1:
-            raise ValueError(f"need at least polynom_rank 1, received {polynom_rank}")
-        if xgrid_size < polynom_rank:
+        if polynomial_degree < 1:
+            raise ValueError(f"need at least polynomial_degree 1, received {polynomial_degree}")
+        if xgrid_size < polynomial_degree:
             raise ValueError(
-                f"to interpolate with rank {polynom_rank} we need at least that much points"
+                f"to interpolate with degree {polynomial_degree} we need at least that much points"
             )
 
         if log:
@@ -423,18 +441,18 @@ class InterpolatorDispatcher:
 
         # Save the different variables
         self.xgrid = xgrid
-        self.polynom_rank = polynom_rank
+        self.polynomial_degree = polynomial_degree
         self.log = log
 
         # Create blocks
         list_of_blocks = []
-        po2 = polynom_rank // 2
+        po2 = polynomial_degree // 2
         for i in range(xgrid_size - 1):
             kmin = max(0, i - po2)
-            kmax = kmin + polynom_rank
+            kmax = kmin + polynomial_degree
             if kmax >= xgrid_size:
                 kmax = xgrid_size - 1
-                kmin = kmax - polynom_rank
+                kmin = kmax - polynomial_degree
             list_of_blocks.append((kmin, kmax))
 
         # Generate the basis functions

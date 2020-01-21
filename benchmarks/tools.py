@@ -91,7 +91,7 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
         ret : dict
             DGLAP result
         var_name : string
-            variable name: NS,S_qq,S_qg,S_gq,S_gg
+            operator name
         log_operator : bool, optional
             plot on logarithmic scale
         abs_operator : bool, optional

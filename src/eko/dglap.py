@@ -197,7 +197,7 @@ def _run_step(
                 number of active flavours
             mu2init : float
                 initial scale
-            mu2final : flaot
+            mu2final : float
                 final scale
 
         Returns
