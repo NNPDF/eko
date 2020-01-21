@@ -98,10 +98,10 @@ def _run_nonsinglet(kernel_dispatcher, targetgrid):
 
     # in LO v=+=-
     ret = {
-        "operators": {"NS_+": op.copy(), "NS_-": op.copy(), "NS_v": op.copy()},
+        "operators": {"NS_p": op.copy(), "NS_m": op.copy(), "NS_v": op.copy()},
         "operator_errors": {
-            "NS_+": op_err.copy(),
-            "NS_-": op_err.copy(),
+            "NS_p": op_err.copy(),
+            "NS_m": op_err.copy(),
             "NS_v": op_err.copy(),
         },
     }
@@ -262,8 +262,8 @@ def _run_FFNS(setup, constants, basis_function_dispatcher, targetgrid):
     # join quarks flavors
     set_helper("V.V", "NS_v")
     for v, t in list(zip(Vs, Ts))[: nf - 1]:  # provide only computations up to nf
-        set_helper(f"{v}.{v}", "NS_-")
-        set_helper(f"{t}.{t}", "NS_+")
+        set_helper(f"{v}.{v}", "NS_m")
+        set_helper(f"{t}.{t}", "NS_p")
     # Singlet + gluon
     set_helper("S.S", "S_qq")
     set_helper("S.g", "S_qg")
@@ -292,11 +292,11 @@ def _run_ZMVFNS_0threshold(setup, constants, basis_function_dispatcher, targetgr
         -------
             ret : dict
                 output dictionary
-"""
+    """
     # setup
     mu2init = setup["Q0"] ** 2
     mu2final = setup["Q2grid"][0]
-    # step one
+    # step one: mu^2_init -> mu^2_final
     step = _run_step(
         setup, constants, basis_function_dispatcher, targetgrid, nf, mu2init, mu2final
     )
@@ -311,8 +311,8 @@ def _run_ZMVFNS_0threshold(setup, constants, basis_function_dispatcher, targetgr
     # v.v = V
     set_helper("V.V", "NS_v")
     for v, t in list(zip(Vs, Ts))[: nf - 1]:  # already there
-        set_helper(f"{v}.{v}", "NS_-")
-        set_helper(f"{t}.{t}", "NS_+")
+        set_helper(f"{v}.{v}", "NS_m")
+        set_helper(f"{t}.{t}", "NS_p")
     for v, t in list(zip(Vs, Ts))[nf - 1 :]:  # generate dynamically
         set_helper(f"{v}.V", "NS_v")
         set_helper(f"{t}.S", "S_qq")
@@ -356,7 +356,7 @@ def _run_ZMVFNS_1threshold(
     # setup
     mu2init = setup["Q0"] ** 2
     mu2final = setup["Q2grid"][0]
-    # step one
+    # step one: mu^2_init -> m^2_q
     step1 = _run_step(
         setup,
         constants,
@@ -366,7 +366,7 @@ def _run_ZMVFNS_1threshold(
         mu2init,
         m2Threshold,
     )
-    # step two
+    # step two: m^2_q -> mu^2_final
     step2 = _run_step(
         setup,
         constants,
@@ -390,20 +390,20 @@ def _run_ZMVFNS_1threshold(
     set_helper("V.V", [["NS_v", "NS_v"]])
     # -.-
     for b in Vs[: nf_init - 1]:
-        set_helper(f"{b}.{b}", [["NS_-", "NS_-"]])
+        set_helper(f"{b}.{b}", [["NS_m", "NS_m"]])
     # -.v
     b = Vs[nf_init - 1]
-    set_helper(f"{b}.V", [["NS_-", "NS_v"]])
+    set_helper(f"{b}.V", [["NS_m", "NS_v"]])
     # v.v for higher combinations
     for b in Vs[nf_init:]:
         set_helper(f"{b}.V", [["NS_v", "NS_v"]])
     # +.+
     for b in Ts[: nf_init - 1]:
-        set_helper(f"{b}.{b}", [["NS_+", "NS_+"]])
+        set_helper(f"{b}.{b}", [["NS_p", "NS_p"]])
     # +.S
     b = Ts[nf_init - 1]
-    set_helper(f"{b}.S", [["NS_+", "S_qq"]])
-    set_helper(f"{b}.g", [["NS_+", "S_qg"]])
+    set_helper(f"{b}.S", [["NS_p", "S_qq"]])
+    set_helper(f"{b}.g", [["NS_p", "S_qg"]])
     # S.S
     paths_qq = utils.get_singlet_paths("q", "q", 2)
     paths_qg = utils.get_singlet_paths("q", "g", 2)
@@ -458,7 +458,7 @@ def _run_ZMVFNS_2thresholds(
     # setup
     mu2init = setup["Q0"] ** 2
     mu2final = setup["Q2grid"][0]
-    # step one
+    # step one: mu^2_init -> m^2_q1
     step1 = _run_step(
         setup,
         constants,
@@ -468,7 +468,7 @@ def _run_ZMVFNS_2thresholds(
         mu2init,
         m2Threshold1,
     )
-    # step two
+    # step two: m^2_q1 -> m^2_q2
     step2 = _run_step(
         setup,
         constants,
@@ -478,7 +478,7 @@ def _run_ZMVFNS_2thresholds(
         m2Threshold1,
         m2Threshold2,
     )
-    # step three
+    # step three: m^2_q2 -> mu^2_final
     step3 = _run_step(
         setup,
         constants,
@@ -502,27 +502,27 @@ def _run_ZMVFNS_2thresholds(
     set_helper("V.V", [["NS_v", "NS_v", "NS_v"]])
     # -.-.-
     for v in Vs[: nf_init - 1]:
-        set_helper(f"{v}.{v}", [["NS_-", "NS_-", "NS_-"]])
+        set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m"]])
     # -.-.v
     b = Vs[nf_init - 1]
-    set_helper(f"{b}.V", [["NS_-", "NS_-", "NS_v"]])
+    set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_v"]])
     # -.v.v
     b = Vs[nf_init]
-    set_helper(f"{b}.V", [["NS_-", "NS_v", "NS_v"]])
+    set_helper(f"{b}.V", [["NS_m", "NS_v", "NS_v"]])
     # v.v.v for higher combinations
     for b in Vs[nf_init + 1 :]:
         set_helper(f"{b}.V", [["NS_v", "NS_v", "NS_v"]])
     # +.+.+
     for b in Ts[: nf_init - 1]:
-        set_helper(f"{b}.{b}", [["NS_+", "NS_+", "NS_+"]])
+        set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p"]])
     # +.+.S
     b = Ts[nf_init - 1]
-    set_helper(f"{b}.S", [["NS_+", "NS_+", "S_qq"]])
+    set_helper(f"{b}.S", [["NS_p", "NS_p", "S_qq"]])
     # +.S.S
     b = Ts[nf_init]
     paths_qq_2 = utils.get_singlet_paths("q", "q", 2)
     for p in paths_qq_2:
-        p.insert(0, "NS_+")
+        p.insert(0, "NS_p")
     set_helper(f"{b}.S", paths_qq_2)
     # S.S.S
     paths_qq_3 = utils.get_singlet_paths("q", "q", 3)
@@ -574,19 +574,19 @@ def _run_ZMVFNS_3thresholds(
     # setup
     mu2init = setup["Q0"] ** 2
     mu2final = setup["Q2grid"][0]
-    # step one
+    # step one: mu^2_init -> m^2_c
     step1 = _run_step(
         setup, constants, basis_function_dispatcher, xgrid, 3, mu2init, m2c
     )
-    # step two
+    # step two: m^2_c -> m^2_b
     step2 = _run_step(
         setup, constants, basis_function_dispatcher, targetgrid, 4, m2c, m2b
     )
-    # step three
+    # step three: m^2_b -> m^2_t
     step3 = _run_step(
         setup, constants, basis_function_dispatcher, targetgrid, 5, m2b, m2t
     )
-    # step four
+    # step four: m^2_t -> mu^2_final
     step4 = _run_step(
         setup, constants, basis_function_dispatcher, targetgrid, 6, m2t, mu2final
     )
@@ -604,34 +604,34 @@ def _run_ZMVFNS_3thresholds(
     set_helper("V.V", [["NS_v", "NS_v", "NS_v", "NS_v"]])
     # -.-.-.- = V3,V8
     for v in Vs[:2]:
-        set_helper(f"{v}.{v}", [["NS_-", "NS_-", "NS_-", "NS_-"]])
+        set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m", "NS_m"]])
     # -.-.-.v = V15
     b = Vs[3]
-    set_helper(f"{b}.V", [["NS_-", "NS_-", "NS_-", "NS_v"]])
+    set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_m", "NS_v"]])
     # -.-.v.v = V24
     b = Vs[4]
-    set_helper(f"{b}.V", [["NS_-", "NS_-", "NS_v", "NS_v"]])
+    set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_v", "NS_v"]])
     # -.v.v.v = V35
     b = Vs[5]
-    set_helper(f"{b}.V", [["NS_-", "NS_v", "NS_v", "NS_v"]])
+    set_helper(f"{b}.V", [["NS_m", "NS_v", "NS_v", "NS_v"]])
     # +.+.+.+ = T3,T8
     for b in Ts[:2]:
-        set_helper(f"{b}.{b}", [["NS_+", "NS_+", "NS_+", "NS_+"]])
+        set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p", "NS_p"]])
     # +.+.+.S = T15
     b = Ts[2]
-    set_helper(f"{b}.S", [["NS_+", "NS_+", "NS_+", "S_qq"]])
+    set_helper(f"{b}.S", [["NS_p", "NS_p", "NS_p", "S_qq"]])
     # +.+.S.S = T24
     b = Ts[3]
     paths_qq_2 = utils.get_singlet_paths("q", "q", 2)
     for p in paths_qq_2:
-        p.insert(0, "NS_+")
-        p.insert(0, "NS_+")
+        p.insert(0, "NS_p")
+        p.insert(0, "NS_p")
     set_helper(f"{b}.S", paths_qq_2)
     # +.S.S.S = T35
     b = Ts[4]
     paths_qq_3 = utils.get_singlet_paths("q", "q", 3)
     for p in paths_qq_3:
-        p.insert(0, "NS_+")
+        p.insert(0, "NS_p")
     set_helper(f"{b}.S", paths_qq_3)
 
     # Singlet + gluon
@@ -677,10 +677,10 @@ def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid, targetgrid)
     mH2s.append(Qmc * Qmc)
     mH2s.append(Qmb * Qmb)
     mH2s.append(Qmt * Qmt)
-    # add infinity
+    # add infinity as final
     mH2s.append(np.inf)
 
-    # 0 threshold
+    # 0 thresholds
     for k in range(1, 5):
         if mH2s[k - 1] <= mu2init <= mu2final <= mH2s[k]:
             return _run_ZMVFNS_0threshold(
