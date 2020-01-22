@@ -131,7 +131,7 @@ def _run_singlet(kernel_dispatcher, targetgrid):
 
     # Setup path
     cut = 1e-2
-    path, jac = mellin.get_path_Talbot(1.0, 1.0)
+    """path, jac = mellin.get_path_Talbot(1.0, 1.0)
 
     # Generate integrands
     integrands = []
@@ -139,7 +139,7 @@ def _run_singlet(kernel_dispatcher, targetgrid):
         kernel_int = []
         for ker in kernel_set:
             kernel_int.append(mellin.compile_integrand(ker, path, jac))
-        integrands.append(kernel_int)
+        integrands.append(kernel_int)"""
 
     # perform
     log_prefix = "computing singlet operator - %s"
@@ -157,6 +157,15 @@ def _run_singlet(kernel_dispatcher, targetgrid):
     all_output = []
     targetgrid_size = len(targetgrid)
     for k, xk in enumerate(targetgrid):
+        path, jac = mellin.get_path_Talbot(1.0, 0.5 + np.power(xk,1.5)*25)
+        # Generate integrands
+        integrands = []
+        for kernel_set in kernels:
+            kernel_int = []
+            for ker in kernel_set:
+                kernel_int.append(mellin.compile_integrand(ker, path, jac))
+            integrands.append(kernel_int)
+        
         out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
         all_output.append(out)
         log_text = f"{k+1}/{targetgrid_size}"
@@ -883,7 +892,70 @@ def apply_operator(ret, inputs):
     return outs, out_errors
 
 
+def multiply_operators(step2, step1):
+    """
+        Multiplies two operators in given order, i.e. step2 > step1.
+
+        Note that the arguments have to be given in decreasing order, i.e.
+        for :math:`Q_3^2 > Q_2^2 > Q_1^2` the steps have to be: `step2` (first
+        argument) evolves :math:`Q_2^2 \\to Q_3^2` and `step1` (second
+        argument)  evolves :math:`Q_1^2 \\to Q_2^2`.
+
+        Parameters
+        ----------
+            step2 : dict
+                last evolution step
+            step1 : dict
+                first evolution step
+
+        Returns
+        -------
+            joined : dict
+                combined evolution `step2 * step1`
+    """
+    # check compatibility
+    if not len(step2["xgrid"]) == len(step1["targetgrid"]) or not np.allclose(step2["xgrid"],step1["targetgrid"]):
+        raise ValueError("Intermediate grids do not match.")
+    # rebuild
+    joined = {
+        "xgrid": step1["xgrid"],
+        "targetgrid": step2["targetgrid"],
+        "operators": {},
+        "operator_errors": {},
+    }
+    # search elements
+    keys1 = step1["operators"].keys()
+    for k2 in step2["operators"].keys():
+        to2, fromm2 = k2.split(".")
+        for k1 in keys1:
+            to1, fromm1 = k1.split(".")
+            # match?
+            if fromm2 == to1:
+                # join
+                newk = f"{to2}.{fromm1}"
+                op,op_err = utils.operator_product_helper([step2,step1],[[k2,k1]])
+                joined["operators"][newk] = op
+                joined["operator_errors"][newk] = op_err
+    return joined
+
+
 def get_YAML(ret, stream = None):
+    """
+        Serialize result as YAML.
+
+        Parameters
+        ----------
+            ret : dict
+                DGLAP result
+            stream : (Default: None)
+                if given, is written on
+
+        Returns
+        -------
+            dump :
+                result of dump(output, stream), i.e. a string, if no stream is given or
+                the Null, if output is written sucessfully to stream
+    """
     # copy as we will change things
     out = copy.deepcopy(ret)
     # make raw list - we might want to do somthing more numerical here
@@ -894,7 +966,23 @@ def get_YAML(ret, stream = None):
         out["operator_errors"][k] = out["operator_errors"][k].tolist()
     return dump(out,stream)
 
+
 def write_YAML_to_file(ret, filename):
+    """
+        Writes YAML representation to a file.
+
+        Parameters
+        ----------
+            ret : dict
+                DGLAP result
+            filename : string
+                target file name
+
+        Returns
+        -------
+            ret :
+                result of dump(output, stream), i.e. Null if written sucessfully
+    """
     with open(filename,"w") as f:
         ret = get_YAML(ret,f)
     return ret

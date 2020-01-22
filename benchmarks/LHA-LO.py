@@ -246,8 +246,8 @@ assets_path = pathlib.Path(__file__).with_name("assets")
 
 if __name__ == "__main__":
     # setup
-    n_low = 10
-    n_mid = 5
+    n_low = 30
+    n_mid = 20
     polynom_rank = 4
     run_init = False
     run_FFNS = False
@@ -258,7 +258,7 @@ if __name__ == "__main__":
     write_operator = True
 
     # combine grid
-    flag = f"l{n_low}m{n_mid}r{polynom_rank}"
+    flag = f"l{n_low}m{n_mid}r{polynom_rank}-p1"
     xgrid_low = interpolation.get_xgrid_linear_at_log(n_low, 1e-7, 1.0 if n_mid == 0 else 0.1)
     xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
     xgrid_high = np.array([])
@@ -301,6 +301,8 @@ if __name__ == "__main__":
             )
         if plot_operator:
             save_all_operators_to_pdf(ret, assets_path / f"LHA-LO-FFNS-ops-{flag}.pdf")
+        if write_operator:
+            dglap.write_YAML_to_file(ret, assets_path / f"LHA-LO-FFNS-ops-{flag}.yaml")
     # do two steps
     if run_FFNS_twostep:
         setup = {
@@ -330,20 +332,39 @@ if __name__ == "__main__":
         # step 2
         setup["Q0"] = np.sqrt(Q2mid)
         setup["Q2grid"] = [Q2final]
+        setup["targetgrid"] = toy_xgrid
         ret2 = dglap.run_dglap(setup)
         if write_operator:
             dglap.write_YAML_to_file(ret2, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2.yaml")
         if plot_operator:
             save_all_operators_to_pdf(ret2, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2.pdf")
-        # join 1+2
+        # join 2*1
+        ret2t1 = dglap.multiply_operators(ret2,ret1)
+        if write_operator:
+            dglap.write_YAML_to_file(ret2t1, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2t1.yaml")
+        if plot_operator:
+            save_all_operators_to_pdf(ret2t1, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2t1.pdf")
+        if plot_PDF:
+            save_final_scale_plots_to_pdf(
+                assets_path / f"LHA-LO-FFNS-twostep-plots-{flag}-step2t1.pdf",
+                ret2t1,
+                LHA_final_dict_ZMVFNS_ref,
+            )
         # do step 1+2 as a single operation
         setup["Q0"] = np.sqrt(Q2init)
         setup["Q2grid"] = [Q2final]
+        setup["targetgrid"] = toy_xgrid
         ret12 = dglap.run_dglap(setup)
         if write_operator:
             dglap.write_YAML_to_file(ret12, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step12.yaml")
         if plot_operator:
             save_all_operators_to_pdf(ret12, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step12.pdf")
+        if plot_PDF:
+            save_final_scale_plots_to_pdf(
+                assets_path / f"LHA-LO-FFNS-twostep-plots-{flag}-step12.pdf",
+                ret12,
+                LHA_final_dict_ZMVFNS_ref,
+            )
     # check ZM-VFNS
     if run_ZMVFNS:
         ret = dglap.run_dglap(
@@ -373,3 +394,5 @@ if __name__ == "__main__":
             save_all_operators_to_pdf(
                 ret, assets_path / f"LHA-LO-ZMVFNS-ops-{flag}.pdf"
             )
+        if write_operator:
+            dglap.write_YAML_to_file(ret, assets_path / f"LHA-LO-ZMVFNS-ops-{flag}.yaml")

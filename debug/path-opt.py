@@ -341,10 +341,10 @@ if __name__ == "__main__":
     n_low = 15
     n_mid = 0
     polynom_rank = 4
-    run_area_imgs = True
-    run_re_imgs = False
-    run_join_area_imgs = True
-    run_join_re_imgs = False
+    run_area_imgs = False
+    run_re_imgs = True
+    run_join_area_imgs = False
+    run_join_re_imgs = True
     run_mins = False
     #ks = [2, 4, 6, 8, 10, 12]
     #ks = [32,33,34,35,36,37,38,]

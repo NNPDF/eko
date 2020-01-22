@@ -87,7 +87,7 @@ def operator_product_helper(steps, paths):
         Parameters
         ----------
             steps : array
-                list of evolution steps in increasing order, e.g.
+                list of evolution steps in decreasing order, e.g.
                 [..., O(c <- b), O(b <- a)]
             paths : array
                 list of all possible paths: [P1(c <- a), P2(c <- a), ...]
