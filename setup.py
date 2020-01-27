@@ -30,7 +30,7 @@ setup(name='eko',
           'recommonmark',
           'sphinxcontrib-bibtex',
           'joblib',
-          'pyyaml',
+          'PyYAML',
       ],
       setup_requires=[
           "cffi>1.0.0"

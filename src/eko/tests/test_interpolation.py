@@ -128,3 +128,14 @@ def test_Lagrange_interpolation():
         xgrid, polrank, log=False, mode_N=True
     )
     check_correspondence_interpolators(inter_x, inter_N)
+
+def test_eq():
+    a = interpolation.InterpolatorDispatcher(np.linspace(0, 1, 10), 4, log=False, mode_N=False)
+    b = interpolation.InterpolatorDispatcher(np.linspace(0, 1,  9), 4, log=False, mode_N=False)
+    assert a != b
+    c = interpolation.InterpolatorDispatcher(np.linspace(0, 1, 10), 3, log=False, mode_N=False)
+    assert a != c
+    d = interpolation.InterpolatorDispatcher(np.linspace(0, 1, 10), 4, log=True,  mode_N=False)
+    assert a != d
+    e = interpolation.InterpolatorDispatcher(np.linspace(0, 1, 10), 4, log=False, mode_N=False)
+    assert a == e

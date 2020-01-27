@@ -4,7 +4,7 @@
 
     This library provides a number of functions for generating grids
     as `numpy` arrays:
-    
+
         - `get_xgrid_linear_at_id`
         - `get_xgrid_linear_at_log`
 
@@ -296,6 +296,26 @@ class BasisFunction:
         else:
             self.callable = self.njit(evaluate_x)
 
+    def evaluate_x(self, x):
+        """
+            Evaluate basis function in x-space.
+
+            Parameters
+            ----------
+                x : t_float
+                    evaluated point
+
+            Returns
+            -------
+                res : t_float
+                    p(x)
+        """
+        old_call = self.callable
+        self.compile_X()
+        res = self.callable(x)
+        self.callable = old_call
+        return res
+
     def compile_N(self, mode_log=True):
         """
             Compiles the function to evaluate the interpolator in N space.
@@ -372,7 +392,7 @@ class BasisFunction:
 
     def njit(self, function):
         """
-            Numba compile function if necessary.
+            Compiles the function to Numba, if necessary.
 
             Parameters
             -----------
@@ -382,7 +402,7 @@ class BasisFunction:
             Returns
             -------
                 function : function
-                    compiled function if needed
+                    compiled function, if needed
         """
         if self.numba_it:
             return nb.njit(function)
@@ -436,6 +456,7 @@ class InterpolatorDispatcher:
                 f"to interpolate with degree {polynomial_degree} we need at least that much points"
             )
 
+        self.xgrid_raw = xgrid
         if log:
             xgrid = np.log(xgrid)
 
@@ -464,9 +485,43 @@ class InterpolatorDispatcher:
             basis_functions.append(new_basis)
         self.basis = basis_functions
 
+    def __eq__(self,other):
+        checks = [
+            len(self.xgrid_raw) == len(other.xgrid_raw),
+            self.log == other.log,
+            self.polynomial_degree == other.polynomial_degree
+        ]
+        # check elements after shape
+        return all(checks) and np.allclose(self.xgrid_raw, other.xgrid_raw)
+
     def __iter__(self):
         for basis in self.basis:
             yield basis
 
     def __getitem__(self, item):
         return self.basis[item]
+
+    def get_interpolation(self, targetgrid):
+        """
+            Computes interpolation matrix between `targetgrid` and `xgrid`.
+
+            .. math::
+                f(targetgrid) = R \\cdot f(xgrid)
+
+            Parameters
+            ----------
+                targetgrid : array
+                    grid to interpolate to
+
+            Returns
+            -------
+                R : array
+                    interpolation matrix, do be multiplied from the left(!)
+        """
+        out = []
+        for x in targetgrid:
+            l = []
+            for b in self.basis:
+                l.append(b.evaluate_x(x))
+            out.append(l)
+        return np.array(out)

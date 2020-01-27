@@ -3,7 +3,6 @@
     This file contains the main loop for the DGLAP calculations.
 """
 import logging
-import copy
 import joblib
 import numpy as np
 from yaml import dump
@@ -48,7 +47,7 @@ def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
     return out
 
 
-def _run_nonsinglet(kernel_dispatcher, targetgrid):
+def _run_nonsinglet(kernel_dispatcher, xgrid):
     """
         Solves the non-singlet case.
 
@@ -56,7 +55,7 @@ def _run_nonsinglet(kernel_dispatcher, targetgrid):
         ----------
             kernel_dispatcher: KernelDispatcher
                 instance of KernelDispatcher from which compiled kernels can be obtained
-            targetgrid: array
+            xgrid: array
                 list of x-values which are computed
 
         Returns
@@ -86,12 +85,12 @@ def _run_nonsinglet(kernel_dispatcher, targetgrid):
     operators = []
     operator_errors = []
 
-    targetgrid_size = len(targetgrid)
-    for k, xk in enumerate(targetgrid):
+    grid_size = len(xgrid)
+    for k, xk in enumerate(xgrid):
         out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
         operators.append(np.array(out)[:, 0])
         operator_errors.append(np.array(out)[:, 1])
-        log_text = f"{k+1}/{targetgrid_size}"
+        log_text = f"{k+1}/{grid_size}"
         logger.info(log_prefix, log_text)
     logger.info(log_prefix, "done.")
 
@@ -110,7 +109,7 @@ def _run_nonsinglet(kernel_dispatcher, targetgrid):
     return ret
 
 
-def _run_singlet(kernel_dispatcher, targetgrid):
+def _run_singlet(kernel_dispatcher, xgrid):
     """
         Solves the singlet case.
 
@@ -118,7 +117,7 @@ def _run_singlet(kernel_dispatcher, targetgrid):
         ----------
             kernel_dispatcher: KernelDispatcher
                 instance of KernelDispatcher from which compiled kernels can be obtained
-            targetgrid: array
+            xgrid: array
                 list of x-values which are computed
 
         Returns
@@ -155,8 +154,8 @@ def _run_singlet(kernel_dispatcher, targetgrid):
         return all_res
 
     all_output = []
-    targetgrid_size = len(targetgrid)
-    for k, xk in enumerate(targetgrid):
+    grid_size = len(xgrid)
+    for k, xk in enumerate(xgrid):
         path, jac = mellin.get_path_Talbot(1.0, 0.5 + np.power(xk,1.5)*25)
         # Generate integrands
         integrands = []
@@ -165,10 +164,10 @@ def _run_singlet(kernel_dispatcher, targetgrid):
             for ker in kernel_set:
                 kernel_int.append(mellin.compile_integrand(ker, path, jac))
             integrands.append(kernel_int)
-        
+
         out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
         all_output.append(out)
-        log_text = f"{k+1}/{targetgrid_size}"
+        log_text = f"{k+1}/{grid_size}"
         logger.info(log_prefix, log_text)
     logger.info(log_prefix, "done.")
 
@@ -189,7 +188,7 @@ def _run_singlet(kernel_dispatcher, targetgrid):
 
 
 def _run_step(
-    setup, constants, basis_function_dispatcher, targetgrid, nf, mu2init, mu2final
+    setup, constants, basis_function_dispatcher, xgrid, nf, mu2init, mu2final
 ):
     """
         Do a single convolution step in a fixed parameter configuration
@@ -202,7 +201,7 @@ def _run_step(
                 physical constants
             basis_function_dispatcher : InterpolatorDispatcher
                 basis functions
-            targetgrid : array
+            xgrid : array
                 output grid
             nf : int
                 number of active flavours
@@ -224,15 +223,15 @@ def _run_step(
     )
 
     # run non-singlet
-    ret_ns = _run_nonsinglet(kernel_dispatcher, targetgrid)
+    ret_ns = _run_nonsinglet(kernel_dispatcher, xgrid)
     # run singlet
-    ret_s = _run_singlet(kernel_dispatcher, targetgrid)
+    ret_s = _run_singlet(kernel_dispatcher, xgrid)
     # join elements
     ret = utils.merge_dicts(ret_ns, ret_s)
     return ret
 
 
-def _run_FFNS(setup, constants, basis_function_dispatcher, targetgrid):
+def _run_FFNS(setup, constants, basis_function_dispatcher, xgrid):
     """
         Run the FFNS configuration.
 
@@ -244,7 +243,7 @@ def _run_FFNS(setup, constants, basis_function_dispatcher, targetgrid):
                 physical constants
             basis_function_dispatcher : InterpolatorDispatcher
                 basis functions
-            targetgrid : array
+            xgrid : array
                 output grid
 
         Returns
@@ -258,7 +257,7 @@ def _run_FFNS(setup, constants, basis_function_dispatcher, targetgrid):
         setup,
         constants,
         basis_function_dispatcher,
-        targetgrid,
+        xgrid,
         nf,
         setup["Q0"] ** 2,
         setup["Q2grid"][0],
@@ -283,7 +282,7 @@ def _run_FFNS(setup, constants, basis_function_dispatcher, targetgrid):
     return ret
 
 
-def _run_ZMVFNS_0threshold(setup, constants, basis_function_dispatcher, targetgrid, nf):
+def _run_ZMVFNS_0threshold(setup, constants, basis_function_dispatcher, xgrid, nf):
     """
         Run the ZM-VFNS with 0 crossed threshold.
 
@@ -295,7 +294,7 @@ def _run_ZMVFNS_0threshold(setup, constants, basis_function_dispatcher, targetgr
             physical constants
         basis_function_dispatcher : InterpolatorDispatcher
             basis functions
-        targetgrid : array
+        xgrid : array
             output grid
         nf : int
             number of light flavors, i.e., before the threshold
@@ -309,7 +308,7 @@ def _run_ZMVFNS_0threshold(setup, constants, basis_function_dispatcher, targetgr
     mu2final = setup["Q2grid"][0]
     # step one: mu^2_init -> mu^2_final
     step = _run_step(
-        setup, constants, basis_function_dispatcher, targetgrid, nf, mu2init, mu2final
+        setup, constants, basis_function_dispatcher, xgrid, nf, mu2init, mu2final
     )
     # join elements
     ret = {"operators": {}, "operator_errors": {}}
@@ -338,7 +337,7 @@ def _run_ZMVFNS_0threshold(setup, constants, basis_function_dispatcher, targetgr
 
 
 def _run_ZMVFNS_1threshold(
-    setup, constants, basis_function_dispatcher, xgrid, targetgrid, m2Threshold, nf_init
+    setup, constants, basis_function_dispatcher, xgrid, m2Threshold, nf_init
 ):
     """
         Run the ZM-VFNS with 1 crossed threshold.
@@ -353,8 +352,6 @@ def _run_ZMVFNS_1threshold(
                 basis functions
             xgrid : array
                 grid used for intermediate steps
-            targetgrid : array
-                output grid
             m2Threshold : t_float
                 threshold mass that is crossed
             nf_init : int
@@ -382,7 +379,7 @@ def _run_ZMVFNS_1threshold(
         setup,
         constants,
         basis_function_dispatcher,
-        targetgrid,
+        xgrid,
         nf_init + 1,
         m2Threshold,
         mu2final,
@@ -435,7 +432,6 @@ def _run_ZMVFNS_2thresholds(
     constants,
     basis_function_dispatcher,
     xgrid,
-    targetgrid,
     m2Threshold1,
     m2Threshold2,
     nf_init,
@@ -453,8 +449,6 @@ def _run_ZMVFNS_2thresholds(
                 basis functions
             xgrid : array
                 grid used for intermediate steps
-            targetgrid : array
-                output grid
             m2Threshold1 : t_float
                 first threshold mass that is crossed
             m2Threshold2 : t_float
@@ -484,7 +478,7 @@ def _run_ZMVFNS_2thresholds(
         setup,
         constants,
         basis_function_dispatcher,
-        targetgrid,
+        xgrid,
         nf_init + 1,
         m2Threshold1,
         m2Threshold2,
@@ -494,7 +488,7 @@ def _run_ZMVFNS_2thresholds(
         setup,
         constants,
         basis_function_dispatcher,
-        targetgrid,
+        xgrid,
         nf_init + 2,
         m2Threshold2,
         mu2final,
@@ -551,7 +545,7 @@ def _run_ZMVFNS_2thresholds(
 
 
 def _run_ZMVFNS_3thresholds(
-    setup, constants, basis_function_dispatcher, xgrid, targetgrid, m2c, m2b, m2t
+    setup, constants, basis_function_dispatcher, xgrid, m2c, m2b, m2t
 ):
     """
         Run the ZM-VFNS with 3 crossed threshold.
@@ -568,8 +562,6 @@ def _run_ZMVFNS_3thresholds(
                 basis functions
             xgrid : array
                 grid used for intermediate steps
-            targetgrid : array
-                output grid
             m2c : t_float
                 first threshold mass that is crossed = charm mass
             m2b : t_float
@@ -590,16 +582,12 @@ def _run_ZMVFNS_3thresholds(
         setup, constants, basis_function_dispatcher, xgrid, 3, mu2init, m2c
     )
     # step two: m^2_c -> m^2_b
-    step2 = _run_step(
-        setup, constants, basis_function_dispatcher, targetgrid, 4, m2c, m2b
-    )
+    step2 = _run_step(setup, constants, basis_function_dispatcher, xgrid, 4, m2c, m2b)
     # step three: m^2_b -> m^2_t
-    step3 = _run_step(
-        setup, constants, basis_function_dispatcher, targetgrid, 5, m2b, m2t
-    )
+    step3 = _run_step(setup, constants, basis_function_dispatcher, xgrid, 5, m2b, m2t)
     # step four: m^2_t -> mu^2_final
     step4 = _run_step(
-        setup, constants, basis_function_dispatcher, targetgrid, 6, m2t, mu2final
+        setup, constants, basis_function_dispatcher, xgrid, 6, m2t, mu2final
     )
     # join elements
     ret = {"operators": {}, "operator_errors": {}}
@@ -653,7 +641,7 @@ def _run_ZMVFNS_3thresholds(
     return ret
 
 
-def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid, targetgrid):
+def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid):
     """
         Run the ZM-VFNS configuration.
 
@@ -667,8 +655,6 @@ def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid, targetgrid)
                 basis functions
             xgrid : array
                 grid used for intermediate steps
-            targetgrid : array
-                output grid
 
         Returns
         -------
@@ -695,20 +681,14 @@ def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid, targetgrid)
     for k in range(1, 5):
         if mH2s[k - 1] <= mu2init <= mu2final <= mH2s[k]:
             return _run_ZMVFNS_0threshold(
-                setup, constants, basis_function_dispatcher, targetgrid, 2 + k
+                setup, constants, basis_function_dispatcher, xgrid, 2 + k
             )
 
     # 1 threshold
     for k in range(1, 4):
         if mH2s[k - 1] <= mu2init < mH2s[k] <= mu2final <= mH2s[k + 1]:
             return _run_ZMVFNS_1threshold(
-                setup,
-                constants,
-                basis_function_dispatcher,
-                xgrid,
-                targetgrid,
-                mH2s[k],
-                2 + k,
+                setup, constants, basis_function_dispatcher, xgrid, mH2s[k], 2 + k
             )
 
     # 2 thresholds
@@ -719,7 +699,6 @@ def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid, targetgrid)
                 constants,
                 basis_function_dispatcher,
                 xgrid,
-                targetgrid,
                 mH2s[k],
                 mH2s[k + 1],
                 2 + k,
@@ -732,7 +711,6 @@ def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid, targetgrid)
             constants,
             basis_function_dispatcher,
             xgrid,
-            targetgrid,
             mH2s[1],
             mH2s[2],
             mH2s[3],
@@ -770,8 +748,6 @@ def run_dglap(setup):
             'xgrid_min'     lower boundry of the interpolation grid - defaults to ``1e-7``
             'xgrid_type'    generating function for the interpolation grid - see below
             'log_interpol'  boolean, whether it is log interpolation or not, defaults to `True`
-            'targetgrid'    list of x-values which are computed - defaults to ``xgrid``, if not
-                            given
             =============== ========================================================================
 
         Returns
@@ -809,7 +785,6 @@ def run_dglap(setup):
     polynom_rank = setup.get("xgrid_polynom_rank", 4)
     logger.info("Interpolation mode: %s", setup["xgrid_type"])
     logger.info("Log interpolation: %s", is_log_interpolation)
-    targetgrid = setup.get("targetgrid", xgrid)
     basis_function_dispatcher = interpolation.InterpolatorDispatcher(
         xgrid, polynom_rank, log=is_log_interpolation
     )
@@ -817,7 +792,7 @@ def run_dglap(setup):
     # Start filling the output dictionary
     ret = {
         "xgrid": xgrid,
-        "targetgrid": targetgrid,
+        "basis": basis_function_dispatcher,
         "operators": {},
         "operator_errors": {},
     }
@@ -825,11 +800,9 @@ def run_dglap(setup):
     # check FNS and split
     FNS = setup["FNS"]
     if FNS == "FFNS":
-        ret_ops = _run_FFNS(setup, constants, basis_function_dispatcher, targetgrid)
+        ret_ops = _run_FFNS(setup, constants, basis_function_dispatcher, xgrid)
     elif FNS == "ZM-VFNS":
-        ret_ops = _run_ZM_VFNS(
-            setup, constants, basis_function_dispatcher, xgrid, targetgrid
-        )
+        ret_ops = _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid)
     else:
         raise ValueError(f"Unknown FNS: {FNS}")
     # join operators
@@ -837,7 +810,7 @@ def run_dglap(setup):
     return ret
 
 
-def apply_operator(ret, inputs):
+def apply_operator(ret, inputs, targetgrid=None):
     """
         Apply all available operators to the input PDFs.
 
@@ -846,7 +819,9 @@ def apply_operator(ret, inputs):
             ret : dict
                 operator definitions - return value of `run_dglap`
             inputs : dict
-                input PDFs
+                input PDFs as dictionary name -> function
+            targetgrid : array
+                if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
 
         Returns
         ---------
@@ -888,7 +863,12 @@ def apply_operator(ret, inputs):
             # else add to it
             outs[out_key] += np.matmul(op, input_lists[in_key])
             out_errors[out_key] += np.matmul(op_err, input_lists[in_key])
-
+    # interpolate to target grid
+    if targetgrid is not None:
+        rot = ret["basis"].get_interpolation(targetgrid)
+        for k in outs:
+            outs[k] = np.matmul(rot, outs[k])
+            out_errors[k] = np.matmul(rot, out_errors[k])
     return outs, out_errors
 
 
@@ -914,12 +894,13 @@ def multiply_operators(step2, step1):
                 combined evolution `step2 * step1`
     """
     # check compatibility
-    if not len(step2["xgrid"]) == len(step1["targetgrid"]) or not np.allclose(step2["xgrid"],step1["targetgrid"]):
-        raise ValueError("Intermediate grids do not match.")
+    # TODO we should really also test on (full) setup
+    if step1["basis"] != step2["basis"]:
+        raise ValueError("basis functions do not match.")
     # rebuild
     joined = {
         "xgrid": step1["xgrid"],
-        "targetgrid": step2["targetgrid"],
+        "basis": step1["basis"],
         "operators": {},
         "operator_errors": {},
     }
@@ -933,13 +914,13 @@ def multiply_operators(step2, step1):
             if fromm2 == to1:
                 # join
                 newk = f"{to2}.{fromm1}"
-                op,op_err = utils.operator_product_helper([step2,step1],[[k2,k1]])
+                op, op_err = utils.operator_product_helper([step2, step1], [[k2, k1]])
                 joined["operators"][newk] = op
                 joined["operator_errors"][newk] = op_err
     return joined
 
 
-def get_YAML(ret, stream = None):
+def get_YAML(ret, stream=None):
     """
         Serialize result as YAML.
 
@@ -956,15 +937,14 @@ def get_YAML(ret, stream = None):
                 result of dump(output, stream), i.e. a string, if no stream is given or
                 the Null, if output is written sucessfully to stream
     """
-    # copy as we will change things
-    out = copy.deepcopy(ret)
-    # make raw list - we might want to do somthing more numerical here
-    for k in ["xgrid","targetgrid"]:
-        out[k]  = out[k].tolist()
-    for k in out["operators"]:
-        out["operators"][k] = out["operators"][k].tolist()
-        out["operator_errors"][k] = out["operator_errors"][k].tolist()
-    return dump(out,stream)
+    out = {"operators": {}, "operator_errors": {}}
+    # make raw lists - we might want to do somthing more numerical here
+    for k in ["xgrid"]:
+        out[k] = ret[k].tolist()
+    for k in ret["operators"]:
+        out["operators"][k] = ret["operators"][k].tolist()
+        out["operator_errors"][k] = ret["operator_errors"][k].tolist()
+    return dump(out, stream)
 
 
 def write_YAML_to_file(ret, filename):
@@ -983,36 +963,6 @@ def write_YAML_to_file(ret, filename):
             ret :
                 result of dump(output, stream), i.e. Null if written sucessfully
     """
-    with open(filename,"w") as f:
-        ret = get_YAML(ret,f)
+    with open(filename, "w") as f:
+        ret = get_YAML(ret, f)
     return ret
-
-
-if __name__ == "__main__":
-    n = 3
-    xgrid_low = interpolation.get_xgrid_linear_at_log(n, 1e-7, 0.1)
-    xgrid_mid = interpolation.get_xgrid_linear_at_id(n, 0.1, 1.0)
-    xgrid_high = np.array(
-        []
-    )  # 1.0-interpolation.get_xgrid_linear_at_log(10,1e-3,1.0 - 0.9)
-    xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
-    polynom_rank = 4
-    toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])[
-        -3:
-    ]
-
-    ret1 = run_dglap(
-        {
-            "PTO": 0,
-            "alphas": 0.35,
-            "Qref": np.sqrt(2),
-            "Q0": np.sqrt(2),
-            "NfFF": 4,
-            "xgrid_type": "custom",
-            "xgrid": xgrid,
-            "xgrid_polynom_rank": polynom_rank,
-            "xgrid_interpolation": "log",
-            "targetgrid": toy_xgrid,
-            "Q2grid": [1e4],
-        }
-    )

@@ -381,7 +381,6 @@ if __name__ == "__main__":
         "xgrid_type": "custom",
         "xgrid": xgrid,
         "xgrid_polynom_rank": polynom_rank,
-        "targetgrid": targetgrid,
         "Q2grid": [1e4],
     }
 
