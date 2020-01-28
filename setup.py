@@ -31,6 +31,7 @@ setup(name='eko',
           'sphinxcontrib-bibtex',
           'joblib',
           'PyYAML',
+          'mpmath',
       ],
       setup_requires=[
           "cffi>1.0.0"
