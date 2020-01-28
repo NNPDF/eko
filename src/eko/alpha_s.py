@@ -17,11 +17,12 @@ r"""
 """
 import numpy as np
 import numba as nb
+import mpmath as mp
 from eko import t_float
 from eko.constants import Constants
 
 
-@nb.njit
+#@nb.njit
 def beta_0(
     nf: int, CA: t_float, CF: t_float, Tf: t_float
 ):  # pylint: disable=unused-argument
@@ -47,7 +48,7 @@ def beta_0(
             beta_0 : t_float
                 first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
     """
-    beta_0 = 11.0 / 3.0 * CA - 4.0 / 3.0 * Tf * nf
+    beta_0 = mp.mpf('11.0') / mp.mpf('3.0') * CA - mp.mpf('4.0') / mp.mpf('3.0') * Tf * nf
     return beta_0
 
 
@@ -149,7 +150,7 @@ def alpha_s_generator(
     # TODO implement more complex runnings (we may take a glimpse into LHAPDF)
     beta0 = beta_0(nf, c.CA, c.CF, c.TF)
 
-    @nb.njit
+    #@nb.njit
     def a_s(order: int, scale_to: t_float):
         """
             Evalute :math:`a_s`.
@@ -166,9 +167,9 @@ def alpha_s_generator(
                 a_s : t_float
                     strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
         """
-        L = np.log(scale_to / scale_ref)
+        L = mp.log(mp.convert(scale_to) / mp.convert(scale_ref))
         if order == 0:
-            return alpha_s_ref / (4.0 * np.pi + beta0 * alpha_s_ref * L)
+            return mp.convert(alpha_s_ref) / (4.0 * mp.pi + beta0 * alpha_s_ref * L)
         else:
             raise NotImplementedError("Alpha_s beyond LO not implemented")
 
@@ -208,6 +209,6 @@ def get_evolution_params(
     a0 = a_s(pto, mu2init)
     a1 = a_s(pto, mu2final)
     # evolution parameters
-    t0 = np.log(1.0 / a0)
-    t1 = np.log(1.0 / a1)
+    t0 = mp.log(1.0 / a0)
+    t1 = mp.log(1.0 / a1)
     return t1 - t0

@@ -10,11 +10,12 @@
 import numpy as np
 import numba as nb
 import scipy.integrate as integrate
+import mpmath as mp
 
 from eko import t_float, t_complex
 
 
-def compile_integrand(iker, path, jac, do_numba=True):
+def compile_integrand(iker, path, jac, do_numba=False):
     """
         Prepares the integration kernel `iker` to be integrated by the
         inverse mellin transform wrapper.
@@ -33,8 +34,8 @@ def compile_integrand(iker, path, jac, do_numba=True):
 
     def integrand(u, extra_args):
         N = path(u)
-        prefactor = np.complex(0.0, -0.5 / np.pi)
-        result = 2.0 * np.real(prefactor * iker(N, extra_args) * jac(u))
+        prefactor = mp.mpc(0.0, -0.5) / mp.pi
+        result = 2.0 * prefactor * iker(N, extra_args) * jac(u)
         return result
 
     if do_numba:
@@ -71,7 +72,7 @@ def inverse_mellin_transform(integrand, cut, extra_args=(), eps=1e-12):
             res : float
                 computed point
     """
-    LIMIT = 100
+    """LIMIT = 100
     result = integrate.quad(
         integrand,
         0.5,
@@ -82,7 +83,13 @@ def inverse_mellin_transform(integrand, cut, extra_args=(), eps=1e-12):
         limit=LIMIT,
         full_output=1,
     )
-    return result[:2]
+    return result[:2]"""
+
+    mp.mp.prec = 15
+    def f(t):
+        return mp.re(integrand(t,extra_args))
+    v,e = mp.quad(f,[0.5, 1.0],error=True)
+    return (float(v),float(e))
 
 
 def get_path_Talbot(r: t_float = 1.0, o: t_float = 0.0):
@@ -108,28 +115,28 @@ def get_path_Talbot(r: t_float = 1.0, o: t_float = 0.0):
                 derivative of Talbot path
     """
 
-    @nb.njit
+    #@nb.njit
     def path(t):
-        theta = np.pi * (2.0 * t - 1.0)
+        theta = mp.pi * (2.0 * t - 1.0)
         re = 0.0
         if t == 0.5:  # treat singular point seperately
             re = 1.0
         else:
-            re = theta / np.tan(theta)
+            re = theta / mp.tan(theta)
         im = theta
-        return o + r * t_complex(np.complex(re, im))
+        return o + r * mp.mpc(re, im)
 
-    @nb.njit
+    #@nb.njit
     def jac(t):
-        theta = np.pi * (2.0 * t - 1.0)
+        theta = mp.pi * (2.0 * t - 1.0)
         re = 0.0
         if t == 0.5:  # treat singular point seperately
             re = 0.0
         else:
-            re = 1.0 / np.tan(theta)
-            re -= theta / (np.sin(theta)) ** 2
+            re = 1.0 / mp.tan(theta)
+            re -= theta / (mp.sin(theta)) ** 2
         im = 1.0
-        return r * np.pi * 2.0 * t_complex(np.complex(re, im))
+        return r * mp.pi * 2.0 * mp.mpc(re, im)
 
     return path, jac
 

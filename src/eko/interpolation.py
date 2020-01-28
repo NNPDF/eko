@@ -14,6 +14,7 @@
 """
 import math
 import numpy as np
+import mpmath as mp
 import numba as nb
 from eko import t_float
 
@@ -200,7 +201,7 @@ class BasisFunction:
         list_of_blocks,
         mode_log=True,
         mode_N=True,
-        numba_it=True,
+        numba_it=False,
     ):
         self.poly_number = poly_number
         self.areas = []
@@ -352,19 +353,19 @@ class BasisFunction:
                     continue
                 umax = N * logxmax
                 umin = N * logxmin
-                emax = np.exp(N * (logxmax - logx))
-                emin = np.exp(N * (logxmin - logx))
+                emax = mp.exp(N * (logxmax - logx))
+                emin = mp.exp(N * (logxmin - logx))
                 for i, coef in enumerate(coefs):
-                    tmp = 0.0
-                    facti = math.gamma(i + 1) * pow(-1, i) / pow(N, i + 1)
+                    tmp = mp.mpf(0.0)
+                    facti = mp.fac(i) * pow(-1, i) / mp.power(N, i + 1)
                     for k in range(i + 1):
-                        factk = 1.0 / math.gamma(k + 1)
-                        pmax = pow(-umax, k) * emax
+                        factk = 1.0 / mp.fac(k)
+                        pmax = mp.power(-umax, k) * emax
                         # drop factor by analytics?
                         if logx >= logxmin:
                             pmin = 0
                         else:
-                            pmin = pow(-umin, k) * emin
+                            pmin = mp.power(-umin, k) * emin
                         tmp += factk * (pmax - pmin)
                     res += coef * facti * tmp
             return res

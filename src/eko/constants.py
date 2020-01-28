@@ -6,6 +6,7 @@
 """
 
 from eko import t_float
+import mpmath as mp
 
 
 class Constants:
@@ -29,9 +30,9 @@ class Constants:
     _lock = False
 
     def __init__(self):
-        self.NC = 3
-        self.TF = t_float(1.0 / 2.0)
-        self.CA = t_float(self.NC)
+        self.NC = mp.mpf('3')
+        self.TF = mp.mpf(1.0 / 2.0)
+        self.CA = mp.mpf(self.NC)
         self.CF = t_float((self.NC * self.NC - 1.0) / (2.0 * self.NC))
         # Lock the class
         self.lock = True

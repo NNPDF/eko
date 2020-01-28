@@ -246,19 +246,19 @@ assets_path = pathlib.Path(__file__).with_name("assets")
 
 if __name__ == "__main__":
     # setup
-    n_low = 30
-    n_mid = 20
+    n_low = 20
+    n_mid = 10
     polynom_rank = 4
     run_init = False
-    run_FFNS = False
-    run_FFNS_twostep = True
+    run_FFNS = True
+    run_FFNS_twostep = False
     run_ZMVFNS = False
     plot_PDF = True
     plot_operator = True
     write_operator = True
 
     # combine grid
-    flag = f"l{n_low}m{n_mid}r{polynom_rank}-r-p1"
+    flag = f"l{n_low}m{n_mid}r{polynom_rank}-mpm15-p1"
     xgrid_low = interpolation.get_xgrid_linear_at_log(
         n_low, 1e-7, 1.0 if n_mid == 0 else 0.1
     )

@@ -16,6 +16,7 @@
 
 from collections import abc
 import numpy as np
+import mpmath as mp
 import numba as nb
 
 import eko.alpha_s as alpha_s
@@ -31,7 +32,7 @@ def get_kernel_ns(basis_function, nf, constants, beta_0, delta_t):
         """true non-siglet integration kernel"""
         ln = -delta_t * sf_LO.gamma_ns_0(n, nf, CA, CF) / beta_0
         interpoln = basis_function(n, lnx)
-        return np.exp(ln) * interpoln
+        return mp.exp(ln) * interpoln
 
     return ker
 
@@ -50,7 +51,7 @@ def get_kernels_s(basis_function, nf, constants, beta_0, delta_t):
             ln_p = -delta_t * l_p / beta_0
             ln_m = -delta_t * l_m / beta_0
             interpoln = basis_function(N, lnx)
-            return (e_p[k][l] * np.exp(ln_p) + e_m[k][l] * np.exp(ln_m)) * interpoln
+            return (e_p[k,l] * mp.exp(ln_p) + e_m[k,l] * mp.exp(ln_m)) * interpoln
 
         return ker
 
@@ -78,7 +79,7 @@ class KernelDispatcher:
                 If true, the functions will be `numba` compiled
     """
 
-    def __init__(self, interpol_dispatcher, constants, nf, delta_t, numba_it=True):
+    def __init__(self, interpol_dispatcher, constants, nf, delta_t, numba_it=False):
         self.interpol_dispatcher = interpol_dispatcher
         self.delta_t = delta_t
         self.nf = nf
