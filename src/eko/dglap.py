@@ -108,6 +108,20 @@ def _run_nonsinglet(kernel_dispatcher, xgrid):
     }
     return ret
 
+def _run_nonsinglet_new(bf, constants, nf, delta_t):
+    op, op_err = bf.get_ns(constants, nf, delta_t)
+
+    # in LO v=+=-
+    ret = {
+        "operators": {"NS_p": op.copy(), "NS_m": op.copy(), "NS_v": op.copy()},
+        "operator_errors": {
+            "NS_p": op_err.copy(),
+            "NS_m": op_err.copy(),
+            "NS_v": op_err.copy(),
+        },
+    }
+    return ret
+
 
 def _run_singlet(kernel_dispatcher, xgrid):
     """
@@ -139,8 +153,7 @@ def _run_singlet(kernel_dispatcher, xgrid):
         for ker in kernel_set:
             kernel_int.append(mellin.compile_integrand(ker, path, jac))
         integrands.append(kernel_int)"""
-
-    # perform
+# perform
     log_prefix = "computing singlet operator - %s"
     logger.info(log_prefix, "kernel compiled")
 
@@ -153,7 +166,8 @@ def _run_singlet(kernel_dispatcher, xgrid):
             all_res.append(result)
         return all_res
 
-    all_output = []
+    
+    """all_output = []
     grid_size = len(xgrid)
     for k, xk in enumerate(xgrid):
         path, jac = mellin.get_path_Talbot(1.0, 0.5 + np.power(xk,1.5)*25)
@@ -171,18 +185,20 @@ def _run_singlet(kernel_dispatcher, xgrid):
         logger.info(log_prefix, log_text)
     logger.info(log_prefix, "done.")
 
-    output_array = np.array(all_output)
+    output_array = np.array(all_output)"""
+    grid_size = len(xgrid)
+    zeros = np.zeros((grid_size,grid_size))
 
     # insert operators
     ret = {"operators": {}, "operator_errors": {}}
-    ret["operators"]["S_qq"] = output_array[:, :, 0, 0]
-    ret["operators"]["S_qg"] = output_array[:, :, 1, 0]
-    ret["operators"]["S_gq"] = output_array[:, :, 2, 0]
-    ret["operators"]["S_gg"] = output_array[:, :, 3, 0]
-    ret["operator_errors"]["S_qq"] = output_array[:, :, 0, 1]
-    ret["operator_errors"]["S_qg"] = output_array[:, :, 1, 1]
-    ret["operator_errors"]["S_gq"] = output_array[:, :, 2, 1]
-    ret["operator_errors"]["S_gg"] = output_array[:, :, 3, 1]
+    ret["operators"]["S_qq"] = zeros#output_array[:, :, 0, 0]
+    ret["operators"]["S_qg"] = zeros#output_array[:, :, 1, 0]
+    ret["operators"]["S_gq"] = zeros#output_array[:, :, 2, 0]
+    ret["operators"]["S_gg"] = zeros#output_array[:, :, 3, 0]
+    ret["operator_errors"]["S_qq"] = zeros#output_array[:, :, 0, 1]
+    ret["operator_errors"]["S_qg"] = zeros#output_array[:, :, 1, 1]
+    ret["operator_errors"]["S_gq"] = zeros#output_array[:, :, 2, 1]
+    ret["operator_errors"]["S_gg"] = zeros#output_array[:, :, 3, 1]
 
     return ret
 
@@ -221,9 +237,10 @@ def _run_step(
     kernel_dispatcher = KernelDispatcher(
         basis_function_dispatcher, constants, nf, delta_t
     )
-
+    print("delta_t = ",delta_t)
     # run non-singlet
-    ret_ns = _run_nonsinglet(kernel_dispatcher, xgrid)
+    #ret_ns = _run_nonsinglet(kernel_dispatcher, xgrid)
+    ret_ns = _run_nonsinglet_new(basis_function_dispatcher, constants, nf, delta_t)
     # run singlet
     ret_s = _run_singlet(kernel_dispatcher, xgrid)
     # join elements

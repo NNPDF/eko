@@ -68,8 +68,8 @@ if __name__ == "__main__":
     f = get_kernel_ns()
     f_p = get_kernel_ns_p()
     #xs = np.logspace(-3,0,3)
-    lnxm = -.1
-    lnx = -10.
+    lnxm = -14.
+    lnx = -16.
     omega = lnxm - lnx
     n_steps = 5
     r_steps = np.pi/omega
@@ -105,7 +105,7 @@ if __name__ == "__main__":
             print(i_mp_s[0:2])
         print("itot=",itot_mp," -> ",itot_mp/i_mp)
     
-    if i_mp != 0:
+    if i_mp > 0 or i_mp < 0:
         print("r=",i[0]/i_mp)
 
     if True:

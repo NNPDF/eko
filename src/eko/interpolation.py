@@ -14,8 +14,12 @@
 """
 import math
 import numpy as np
+import scipy.integrate as integrate
 import numba as nb
+
 from eko import t_float
+import eko.splitting_functions_LO as sf_LO
+import eko.alpha_s as alpha_s
 
 #### Grid generation functions
 def get_xgrid_linear_at_id(
@@ -135,6 +139,7 @@ class Area:
         self._reference_indices = block
         self.kmin = block[0]
         self.kmax = block[1]
+        self.lower_index = lower_index
         self.coefs = self.compute_coefs(xgrid)
         self.xmin = xgrid[lower_index]
         self.xmax = xgrid[lower_index + 1]
@@ -417,6 +422,35 @@ class BasisFunction:
         return self.callable(*args, **kwargs)
 
 
+class MellinPrimitive:
+    """
+        Represents a single grid point primitive.
+
+        Parameters
+        ----------
+            x : t_float
+                grid point
+            polynomial_degree : int
+                degree of interpolation polynomial
+    """
+    def __init__(self,lnx,polynomial_degree):
+        self._lnx = lnx
+        self._polynomial_degree = polynomial_degree
+
+    def get_polynomials_generator(self):
+        """
+            Returns the generator for all polynomials
+        """
+        lnx = self._lnx
+        def p(k,im,re=1):
+            N = re + 1j*im
+            res = 0
+            for l in range(k+1):
+                res += np.power(-lnx*N,l)/math.gamma(l+1)
+            res *= math.gamma(k+1) / np.power(N,k+1) * np.power(-1,k)
+            return res
+        return nb.njit(p)
+
 class InterpolatorDispatcher:
     """
         Setups the interpolator.
@@ -525,3 +559,80 @@ class InterpolatorDispatcher:
                 l.append(b.evaluate_x(x))
             out.append(l)
         return np.array(out)
+
+    def get_ns_ker(self, constants, nf, delta_t,j,k,poly_power):
+        """
+            Returns non-singlet intergration kernel.
+        """
+        CA = constants.CA
+        CF = constants.CF
+        beta_0 = alpha_s.beta_0(nf, CA, CF, constants.TF)
+        lnxj = self.xgrid[j]
+        lnxk = self.xgrid[k]
+        omega = lnxj - lnxk
+        raw = MellinPrimitive(lnxj, self.polynomial_degree)
+        p = raw.get_polynomials_generator()
+        def ker(im, re=1):
+            """true non-siglet integration kernel"""
+            N = re + 1j*im
+            lnE = -delta_t * sf_LO.gamma_ns_0(N, nf, CA, CF) / beta_0
+            interpoln = p(poly_power,im,re) * np.exp(re * omega)
+            return np.real(np.exp(lnE) * interpoln) / np.pi
+        return nb.njit(ker)
+
+    def get_raw_ns(self, constants, nf, delta_t):
+        """
+            Computes raw operator.
+        """
+        raw = []
+        raw_errors = []
+        for j,lnxj in enumerate(self.xgrid):
+            line = []
+            line_err = []
+            for k,lnxk in enumerate(self.xgrid):
+                elem = []
+                elem_err = []
+                if k >= j:
+                    elem = [0]*(self.polynomial_degree+1)
+                    elem_err = [0]*(self.polynomial_degree+1)
+                else:
+                    omega = lnxj - lnxk
+                    for poly_power in range(self.polynomial_degree +1):
+                        ker = self.get_ns_ker(constants, nf, delta_t,j,k,poly_power)
+                        i,err = integrate.quad(ker,0,np.inf,weight='cos',wvar=omega,epsabs=1e-25,epsrel=1e-6,limlst=100,limit=100)
+                        print(f"{j: 2d} {k: 2d} {poly_power} with {lnxj:.3e},{lnxk:.3e}->{omega:.3e} => {i:+.5e}+-{err:.3e}")
+                        elem.append(i)
+                        elem_err.append(err)
+                line.append(elem)
+                line_err.append(elem_err)
+            raw.append(line)
+            raw_errors.append(line_err)
+        return np.array(raw), np.array(raw_errors)
+
+    def get_ns(self, constants, nf, delta_t):
+        """
+            Computes non-singlet operator.
+        """
+        raw, raw_err = self.get_raw_ns(constants,nf,delta_t)
+        op = []
+        op_err = []
+        for j in range(len(self.xgrid)):
+            line = []
+            line_err = []
+            bf = self.basis[j]
+            for k in range(len(self.xgrid)):
+                el = 0
+                el_err = 0
+                for A in bf.areas:
+                    Amax = A.lower_index + 1
+                    Amin = A.lower_index
+                    cs = A.coefs
+                    polys = raw[Amax][k] - raw[Amin][k]
+                    polys_err = raw_err[Amax][k] - raw_err[Amin][k]
+                    el += np.matmul(cs,polys)
+                    el_err += np.matmul(cs,polys_err)
+                line.append(el)
+                line_err.append(np.abs(el_err))
+            op.append(line)
+            op_err.append(line_err)
+        return np.array(op).T, np.array(op_err).T
