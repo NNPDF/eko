@@ -109,7 +109,12 @@ def _run_nonsinglet(kernel_dispatcher, xgrid):
     return ret
 
 def _run_nonsinglet_new(bf, constants, nf, delta_t):
-    op, op_err = bf.get_ns(constants, nf, delta_t)
+    raw, raw_err = bf.get_raw_ns(constants,nf,delta_t)
+    op, op_err = bf.rotate_raw(raw, raw_err)
+    #grid_size = len(bf.xgrid)
+    #zeros = np.zeros((grid_size,grid_size))
+    #op=zeros
+    #op_err = zeros
 
     # in LO v=+=-
     ret = {
@@ -122,6 +127,20 @@ def _run_nonsinglet_new(bf, constants, nf, delta_t):
     }
     return ret
 
+def _run_singlet_new(bf, constants, nf, delta_t):
+    ret = {
+        "operators": {},
+        "operator_errors": {},
+    }
+    for to in ["q","g"]:
+        for fromm in ["q","g"]:
+            summ = to+fromm
+            logger.info("computing S_%s",summ)
+            raw, raw_err = bf.get_raw_singlet(summ,constants,nf,delta_t)
+            op, op_err = bf.rotate_raw(raw, raw_err)
+            ret["operators"]["S_"+summ] = op
+            ret["operator_errors"]["S_"+summ] = op_err
+    return ret
 
 def _run_singlet(kernel_dispatcher, xgrid):
     """
@@ -153,7 +172,7 @@ def _run_singlet(kernel_dispatcher, xgrid):
         for ker in kernel_set:
             kernel_int.append(mellin.compile_integrand(ker, path, jac))
         integrands.append(kernel_int)"""
-# perform
+    # perform
     log_prefix = "computing singlet operator - %s"
     logger.info(log_prefix, "kernel compiled")
 
@@ -231,18 +250,18 @@ def _run_step(
             ret : dict
                 output dictionary
     """
-    logger.info("evolve [GeV^2] %e -> %e with nf=%d flavors", mu2init, mu2final, nf)
     # Setup the kernel dispatcher
     delta_t = alpha_s.get_evolution_params(setup, constants, nf, mu2init, mu2final)
-    kernel_dispatcher = KernelDispatcher(
-        basis_function_dispatcher, constants, nf, delta_t
-    )
-    print("delta_t = ",delta_t)
+    logger.info("evolve [GeV^2] %e -> %e (delta_t=%.3g) with nf=%d flavors", mu2init, mu2final, delta_t, nf)
+    #kernel_dispatcher = KernelDispatcher(
+    #    basis_function_dispatcher, constants, nf, delta_t
+    #)
     # run non-singlet
     #ret_ns = _run_nonsinglet(kernel_dispatcher, xgrid)
     ret_ns = _run_nonsinglet_new(basis_function_dispatcher, constants, nf, delta_t)
     # run singlet
-    ret_s = _run_singlet(kernel_dispatcher, xgrid)
+    #ret_s = _run_singlet(kernel_dispatcher, xgrid)
+    ret_s = _run_singlet_new(basis_function_dispatcher, constants, nf, delta_t)
     # join elements
     ret = utils.merge_dicts(ret_ns, ret_s)
     return ret

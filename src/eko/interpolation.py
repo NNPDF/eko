@@ -442,12 +442,12 @@ class MellinPrimitive:
             Returns the generator for all polynomials
         """
         lnx = self._lnx
-        def p(k,im,re=1):
+        def p(k,im,re=1.8):
             N = re + 1j*im
             res = 0
             for l in range(k+1):
-                res += np.power(-lnx*N,l)/math.gamma(l+1)
-            res *= math.gamma(k+1) / np.power(N,k+1) * np.power(-1,k)
+                res += np.power(-lnx,l)/math.gamma(l+1) / np.power(N,1+k-l)
+            res *= math.gamma(k+1) * np.power(-1,k)
             return res
         return nb.njit(p)
 
@@ -560,7 +560,7 @@ class InterpolatorDispatcher:
             out.append(l)
         return np.array(out)
 
-    def get_ns_ker(self, constants, nf, delta_t,j,k,poly_power):
+    def get_ns_ker(self, constants, nf, delta_t,j,poly_power,re):
         """
             Returns non-singlet intergration kernel.
         """
@@ -568,21 +568,75 @@ class InterpolatorDispatcher:
         CF = constants.CF
         beta_0 = alpha_s.beta_0(nf, CA, CF, constants.TF)
         lnxj = self.xgrid[j]
-        lnxk = self.xgrid[k]
-        omega = lnxj - lnxk
         raw = MellinPrimitive(lnxj, self.polynomial_degree)
         p = raw.get_polynomials_generator()
-        def ker(im, re=1):
+        def ker(im, re=re):
             """true non-siglet integration kernel"""
             N = re + 1j*im
             lnE = -delta_t * sf_LO.gamma_ns_0(N, nf, CA, CF) / beta_0
-            interpoln = p(poly_power,im,re) * np.exp(re * omega)
-            return np.real(np.exp(lnE) * interpoln) / np.pi
+            interpoln = p(poly_power,im,re)
+            res = np.exp(lnE) * interpoln
+            return 2.0 * np.real(res) / np.pi
         return nb.njit(ker)
+
+    def get_get_singlet_ker(self,kk,ll):
+        """
+            Returns the getter of a singlet integration kernel
+        """
+        def get_singlet_ker(constants, nf, delta_t,j,poly_power,re):
+            """Returns one singlet integration kernel"""
+            CA = constants.CA
+            CF = constants.CF
+            beta_0 = alpha_s.beta_0(nf, CA, CF, constants.TF)
+            lnxj = self.xgrid[j]
+            raw = MellinPrimitive(lnxj, self.polynomial_degree)
+            p = raw.get_polynomials_generator()
+            def ker(im, re=re):  # TODO here we are repeating too many things!
+                """true singlet kernel"""
+                N = re + 1j*im
+                l_p, l_m, e_p, e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N, nf, CA, CF)
+                ln_p = -delta_t * l_p / beta_0
+                ln_m = -delta_t * l_m / beta_0
+                interpoln = p(poly_power,im,re)
+                res = (e_p[kk][ll] * np.exp(ln_p) + e_m[kk][ll] * np.exp(ln_m)) * interpoln
+                return 2.0 * np.real(res) / np.pi
+            return nb.njit(ker)
+        return get_singlet_ker
 
     def get_raw_ns(self, constants, nf, delta_t):
         """
-            Computes raw operator.
+            Computes raw non-singlet operator
+        """
+        return self.get_raw(self.get_ns_ker, constants, nf, delta_t, 1.0)
+
+    def get_raw_singlet(self, label, constants, nf, delta_t):
+        """
+            Computes raw singlet_qq operator
+        """
+        # first element
+        var = []
+        to = label[0]
+        if to == "q":
+            var.append(0)
+        elif to == "g":
+            var.append(1)
+        else:
+            raise ValueError(f"Invalid label {label}")
+        # second element
+        fromm = label[1]
+        if fromm == "q":
+            var.append(0)
+        elif fromm == "g":
+            var.append(1)
+        else:
+            raise ValueError(f"Invalid label {label}")
+
+        return self.get_raw(self.get_get_singlet_ker(*var), constants, nf, delta_t, 2.0)
+
+
+    def get_raw(self, fnc, constants, nf, delta_t,re):
+        """
+            Computes a raw operator.
         """
         raw = []
         raw_errors = []
@@ -598,9 +652,22 @@ class InterpolatorDispatcher:
                 else:
                     omega = lnxj - lnxk
                     for poly_power in range(self.polynomial_degree +1):
-                        ker = self.get_ns_ker(constants, nf, delta_t,j,k,poly_power)
-                        i,err = integrate.quad(ker,0,np.inf,weight='cos',wvar=omega,epsabs=1e-25,epsrel=1e-6,limlst=100,limit=100)
-                        print(f"{j: 2d} {k: 2d} {poly_power} with {lnxj:.3e},{lnxk:.3e}->{omega:.3e} => {i:+.5e}+-{err:.3e}")
+                        ker = fnc(constants, nf, delta_t,j,poly_power,re)
+                        i_full = integrate.quad(ker,0,np.inf,weight='cos',wvar=omega,epsabs=1e-5*np.exp(-re * omega),full_output=1)
+                        expo = np.exp(re * omega)
+                        i = expo*i_full[0]
+                        err = expo*i_full[1]
+                        msg = i_full[-2] if len(i_full) > 3 else ""
+                        print(f"{j:02d} {k:02d} {poly_power} with {omega:.3f} => {i:+.3e}+-{err:.2e} {msg:.33}")
+                        if len(i_full) > 3:
+                            Kf = i_full[2]["lst"]
+                            rslst = i_full[2]["rslst"][0:Kf]
+                            erlst = i_full[2]["erlst"][0:Kf]
+                            ierlst = i_full[2]["ierlst"][0:Kf]
+                            print(Kf)
+                            print(rslst)
+                            print(erlst)
+                            print(ierlst)
                         elem.append(i)
                         elem_err.append(err)
                 line.append(elem)
@@ -609,11 +676,10 @@ class InterpolatorDispatcher:
             raw_errors.append(line_err)
         return np.array(raw), np.array(raw_errors)
 
-    def get_ns(self, constants, nf, delta_t):
+    def rotate_raw(self, raw, raw_err):
         """
             Computes non-singlet operator.
         """
-        raw, raw_err = self.get_raw_ns(constants,nf,delta_t)
         op = []
         op_err = []
         for j in range(len(self.xgrid)):
