@@ -583,7 +583,7 @@ class InterpolatorDispatcher:
         """
             Returns the getter of a singlet integration kernel
         """
-        def get_singlet_ker(constants, nf, delta_t,j,poly_power,re):
+        def get_singlet_ker(constants, nf, delta_t,j):
             """Returns one singlet integration kernel"""
             CA = constants.CA
             CF = constants.CF
@@ -591,7 +591,7 @@ class InterpolatorDispatcher:
             lnxj = self.xgrid[j]
             raw = MellinPrimitive(lnxj, self.polynomial_degree)
             p = raw.get_polynomials_generator()
-            def ker(im, re=re):  # TODO here we are repeating too many things!
+            def ker(im, re,poly_power):  # TODO here we are repeating too many things!
                 """true singlet kernel"""
                 N = re + 1j*im
                 l_p, l_m, e_p, e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N, nf, CA, CF)
