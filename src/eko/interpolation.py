@@ -560,7 +560,7 @@ class InterpolatorDispatcher:
             out.append(l)
         return np.array(out)
 
-    def get_ns_ker(self, constants, nf, delta_t,j,poly_power,re):
+    def get_ns_ker(self, constants, nf, delta_t,j):
         """
             Returns non-singlet intergration kernel.
         """
@@ -570,7 +570,7 @@ class InterpolatorDispatcher:
         lnxj = self.xgrid[j]
         raw = MellinPrimitive(lnxj, self.polynomial_degree)
         p = raw.get_polynomials_generator()
-        def ker(im, re=re):
+        def ker(im, re, poly_power):
             """true non-siglet integration kernel"""
             N = re + 1j*im
             lnE = -delta_t * sf_LO.gamma_ns_0(N, nf, CA, CF) / beta_0
@@ -643,6 +643,7 @@ class InterpolatorDispatcher:
         for j,lnxj in enumerate(self.xgrid):
             line = []
             line_err = []
+            ker = fnc(constants, nf, delta_t,j)
             for k,lnxk in enumerate(self.xgrid):
                 elem = []
                 elem_err = []
@@ -652,8 +653,8 @@ class InterpolatorDispatcher:
                 else:
                     omega = lnxj - lnxk
                     for poly_power in range(self.polynomial_degree +1):
-                        ker = fnc(constants, nf, delta_t,j,poly_power,re)
-                        i_full = integrate.quad(ker,0,np.inf,weight='cos',wvar=omega,epsabs=1e-5*np.exp(-re * omega),full_output=1)
+                        extra_args = (re, poly_power)
+                        i_full = integrate.quad(ker,0,np.inf,weight='cos',wvar=omega,epsabs=1e-5*np.exp(-re * omega),full_output=1,args = extra_args)
                         expo = np.exp(re * omega)
                         i = expo*i_full[0]
                         err = expo*i_full[1]
