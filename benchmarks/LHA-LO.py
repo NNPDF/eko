@@ -258,7 +258,7 @@ if __name__ == "__main__":
     write_operator = True
 
     # combine grid
-    flag = f"l{n_low}m{n_mid}r{polynom_rank}-r-p1"
+    flag = f"l{n_low}m{n_mid}r{polynom_rank}-p1-sc"
     xgrid_low = interpolation.get_xgrid_linear_at_log(
         n_low, 1e-7, 1.0 if n_mid == 0 else 0.1
     )

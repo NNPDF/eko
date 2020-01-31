@@ -32,9 +32,9 @@ def compile_integrand(iker, path, jac, do_numba=True):
     """
 
     def integrand(u, extra_args):
-        N = path(u)
+        N = path(u,extra_args[1:])
         prefactor = np.complex(0.0, -0.5 / np.pi)
-        result = 2.0 * np.real(prefactor * iker(N, extra_args) * jac(u))
+        result = 2.0 * np.real(prefactor * iker(N, extra_args[0]) * jac(u,extra_args[1:]))
         return result
 
     if do_numba:
@@ -43,7 +43,7 @@ def compile_integrand(iker, path, jac, do_numba=True):
         return integrand
 
 
-def inverse_mellin_transform(integrand, cut, extra_args=(), eps=1e-12):
+def inverse_mellin_transform(integrand, cut, extra_args, eps=1e-12):
     """
         Inverse Mellin transformation.
 
@@ -85,12 +85,12 @@ def inverse_mellin_transform(integrand, cut, extra_args=(), eps=1e-12):
     return result[:2]
 
 
-def get_path_Talbot(r: t_float = 1.0, o: t_float = 0.0):
+def get_path_Talbot():
     """
         Talbot path.
 
         .. math::
-            p_{\\text{Talbot}}(t) =  \\theta \\cdot \\cot(\\theta) + i\\theta, \\theta = \\pi(2t-1)
+            p_{\\text{Talbot}}(t) =  o + r \\cdot \\theta \\cot(\\theta) + i\\theta, \\theta = \\pi(2t-1)
 
         Parameters
         ----------
@@ -109,7 +109,8 @@ def get_path_Talbot(r: t_float = 1.0, o: t_float = 0.0):
     """
 
     @nb.njit
-    def path(t):
+    def path(t,extra_args):
+        r,o = extra_args
         theta = np.pi * (2.0 * t - 1.0)
         re = 0.0
         if t == 0.5:  # treat singular point seperately
@@ -120,7 +121,8 @@ def get_path_Talbot(r: t_float = 1.0, o: t_float = 0.0):
         return o + r * t_complex(np.complex(re, im))
 
     @nb.njit
-    def jac(t):
+    def jac(t,extra_args):
+        r,o = extra_args # pylint: disable=unused-variable
         theta = np.pi * (2.0 * t - 1.0)
         re = 0.0
         if t == 0.5:  # treat singular point seperately

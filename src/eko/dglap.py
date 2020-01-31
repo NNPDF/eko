@@ -5,6 +5,7 @@
 import logging
 import joblib
 import numpy as np
+import numba as nb
 from yaml import dump
 
 import eko.alpha_s as alpha_s
@@ -68,26 +69,31 @@ def _run_nonsinglet(kernel_dispatcher, xgrid):
 
     # Setup path
     cut = 1e-2
-    path, jac = mellin.get_path_Talbot(1.0)
+    path, jac = mellin.get_path_Talbot()
+    log_prefix = "computing NS operator - %s"
 
     # Generate integrands
+    logger.info(log_prefix, "compiling kernels")
     integrands = []
     for kernel in kernels:
         kernel_int = mellin.compile_integrand(kernel, path, jac)
         integrands.append(kernel_int)
+    logger.info(log_prefix, "compilation done")
 
-    def run_thread(integrand, logx):
-        result = mellin.inverse_mellin_transform(integrand, cut, logx)
+    def run_thread(integrand, extra_args):
+        result = mellin.inverse_mellin_transform(integrand, cut, extra_args)
         return result
 
-    log_prefix = "computing NS operator - %s"
-    logger.info(log_prefix, "kernel compiled")
     operators = []
     operator_errors = []
 
     grid_size = len(xgrid)
     for k, xk in enumerate(xgrid):
-        out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
+        extra_args = nb.typed.List()
+        extra_args.append(np.log(xk))
+        extra_args.append(1.0)
+        extra_args.append(0.0)
+        out = _parallelize_on_basis(integrands, run_thread, extra_args)
         operators.append(np.array(out)[:, 0])
         operator_errors.append(np.array(out)[:, 1])
         log_text = f"{k+1}/{grid_size}"
@@ -130,42 +136,38 @@ def _run_singlet(kernel_dispatcher, xgrid):
 
     # Setup path
     cut = 1e-2
-    """path, jac = mellin.get_path_Talbot(1.0, 1.0)
+    path, jac = mellin.get_path_Talbot()
 
+    log_prefix = "computing singlet operator - %s"
+    logger.info(log_prefix, "compiling kernels")
     # Generate integrands
     integrands = []
     for kernel_set in kernels:
         kernel_int = []
         for ker in kernel_set:
             kernel_int.append(mellin.compile_integrand(ker, path, jac))
-        integrands.append(kernel_int)"""
+        integrands.append(kernel_int)
+    logger.info(log_prefix, "compilation done")
 
-    # perform
-    log_prefix = "computing singlet operator - %s"
-    logger.info(log_prefix, "kernel compiled")
-
-    def run_thread(integrands, logx):
+    def run_thread(integrands, extra_args):
         """ The output of this function is a list of tuple (result, error)
         for qq, qg, gq, gg in that order """
         all_res = []
         for integrand in integrands:
-            result = mellin.inverse_mellin_transform(integrand, cut, logx)
+            result = mellin.inverse_mellin_transform(integrand, cut, extra_args)
             all_res.append(result)
         return all_res
 
+    # perform
     all_output = []
     grid_size = len(xgrid)
     for k, xk in enumerate(xgrid):
-        path, jac = mellin.get_path_Talbot(1.0, 0.5 + np.power(xk,1.5)*25)
-        # Generate integrands
-        integrands = []
-        for kernel_set in kernels:
-            kernel_int = []
-            for ker in kernel_set:
-                kernel_int.append(mellin.compile_integrand(ker, path, jac))
-            integrands.append(kernel_int)
+        extra_args = nb.typed.List()
+        extra_args.append(np.log(xk))
+        extra_args.append(1.0)
+        extra_args.append(0.5 + np.power(xk,1.5)*25)
 
-        out = _parallelize_on_basis(integrands, run_thread, np.log(xk))
+        out = _parallelize_on_basis(integrands, run_thread, extra_args)
         all_output.append(out)
         log_text = f"{k+1}/{grid_size}"
         logger.info(log_prefix, log_text)
@@ -915,8 +917,12 @@ def multiply_operators(step2, step1):
                 # join
                 newk = f"{to2}.{fromm1}"
                 op, op_err = utils.operator_product_helper([step2, step1], [[k2, k1]])
-                joined["operators"][newk] = op
-                joined["operator_errors"][newk] = op_err
+                if newk not in joined["operators"]:
+                    joined["operators"][newk] = op
+                    joined["operator_errors"][newk] = op_err
+                else:
+                    joined["operators"][newk] += op
+                    joined["operator_errors"][newk] += op_err
     return joined
 
 
