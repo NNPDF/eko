@@ -304,7 +304,9 @@ if __name__ == "__main__":
         if plot_operator:
             save_all_operators_to_pdf(ret, assets_path / f"LHA-LO-FFNS-ops-{flag}.pdf")
         if write_operator:
-            dglap.write_YAML_to_file(ret, assets_path / f"LHA-LO-FFNS-ops-{flag}.yaml")
+            path = assets_path / f"LHA-LO-FFNS-ops-{flag}.yaml"
+            print(f"write YAML to {path}")
+            dglap.write_YAML_to_file(ret, path)
     # do two steps
     if run_FFNS_twostep:
         setup = {
@@ -328,9 +330,9 @@ if __name__ == "__main__":
         setup["Q2grid"] = [Q2mid]
         ret1 = dglap.run_dglap(setup)
         if write_operator:
-            dglap.write_YAML_to_file(
-                ret1, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step1.yaml"
-            )
+            path = assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step1.yaml"
+            print(f"write YAML to {path}")
+            dglap.write_YAML_to_file(ret1, path)
         if plot_operator:
             save_all_operators_to_pdf(
                 ret1, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step1.pdf"
@@ -340,9 +342,9 @@ if __name__ == "__main__":
         setup["Q2grid"] = [Q2final]
         ret2 = dglap.run_dglap(setup)
         if write_operator:
-            dglap.write_YAML_to_file(
-                ret2, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2.yaml"
-            )
+            path = assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2.yaml"
+            print(f"write YAML to {path}")
+            dglap.write_YAML_to_file(ret2, path)
         if plot_operator:
             save_all_operators_to_pdf(
                 ret2, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2.pdf"
@@ -350,9 +352,9 @@ if __name__ == "__main__":
         # join 2*1
         ret2t1 = dglap.multiply_operators(ret2, ret1)
         if write_operator:
-            dglap.write_YAML_to_file(
-                ret2t1, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2t1.yaml"
-            )
+            path = assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2t1.yaml"
+            print(f"write YAML to {path}")
+            dglap.write_YAML_to_file(ret2t1, path)
         if plot_operator:
             save_all_operators_to_pdf(
                 ret2t1, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2t1.pdf"
@@ -369,9 +371,9 @@ if __name__ == "__main__":
         setup["Q2grid"] = [Q2final]
         ret12 = dglap.run_dglap(setup)
         if write_operator:
-            dglap.write_YAML_to_file(
-                ret12, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step12.yaml"
-            )
+            path = assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step12.yaml"
+            print(f"write YAML to {path}")
+            dglap.write_YAML_to_file(ret12, path)
         if plot_operator:
             save_all_operators_to_pdf(
                 ret12, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step12.pdf"

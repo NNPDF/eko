@@ -421,35 +421,28 @@ class BasisFunction:
     def __call__(self, *args, **kwargs):
         return self.callable(*args, **kwargs)
 
-
-class MellinPrimitive:
+@nb.njit
+def Mellin_log_primitive(lnx,k,im,re):
     """
         Represents a single grid point primitive.
 
         Parameters
         ----------
-            x : t_float
+            lnx : t_float
                 grid point
-            polynomial_degree : int
-                degree of interpolation polynomial
+            k : int
+                power of log
+            im : t_float
+                imaginary part of N
+            re : t_float
+                real part of N
     """
-    def __init__(self,lnx,polynomial_degree):
-        self._lnx = lnx
-        self._polynomial_degree = polynomial_degree
-
-    def get_polynomials_generator(self):
-        """
-            Returns the generator for all polynomials
-        """
-        lnx = self._lnx
-        def p(k,im,re=1.8):
-            N = re + 1j*im
-            res = 0
-            for l in range(k+1):
-                res += np.power(-lnx,l)/math.gamma(l+1) / np.power(N,1+k-l)
-            res *= math.gamma(k+1) * np.power(-1,k)
-            return res
-        return nb.njit(p)
+    N = re + 1j*im
+    res = 0
+    for l in range(k+1):
+        res += np.power(-lnx,l) / math.gamma(l+1) / np.power(N,1+k-l)
+    res *= math.gamma(k+1) * np.power(-1,k)
+    return res
 
 class InterpolatorDispatcher:
     """
@@ -560,21 +553,18 @@ class InterpolatorDispatcher:
             out.append(l)
         return np.array(out)
 
-    def get_ns_ker(self, constants, nf, delta_t,j):
+    def get_ns_ker(self, constants, nf, delta_t):
         """
             Returns non-singlet intergration kernel.
         """
         CA = constants.CA
         CF = constants.CF
         beta_0 = alpha_s.beta_0(nf, CA, CF, constants.TF)
-        lnxj = self.xgrid[j]
-        raw = MellinPrimitive(lnxj, self.polynomial_degree)
-        p = raw.get_polynomials_generator()
-        def ker(im, re, poly_power):
+        def ker(im, re, lnx, poly_power):
             """true non-siglet integration kernel"""
             N = re + 1j*im
             lnE = -delta_t * sf_LO.gamma_ns_0(N, nf, CA, CF) / beta_0
-            interpoln = p(poly_power,im,re)
+            interpoln = Mellin_log_primitive(lnx, poly_power,im,re)
             res = np.exp(lnE) * interpoln
             return 2.0 * np.real(res) / np.pi
         return nb.njit(ker)
@@ -583,21 +573,18 @@ class InterpolatorDispatcher:
         """
             Returns the getter of a singlet integration kernel
         """
-        def get_singlet_ker(constants, nf, delta_t,j):
+        def get_singlet_ker(constants, nf, delta_t):
             """Returns one singlet integration kernel"""
             CA = constants.CA
             CF = constants.CF
             beta_0 = alpha_s.beta_0(nf, CA, CF, constants.TF)
-            lnxj = self.xgrid[j]
-            raw = MellinPrimitive(lnxj, self.polynomial_degree)
-            p = raw.get_polynomials_generator()
-            def ker(im, re,poly_power):  # TODO here we are repeating too many things!
+            def ker(im, re, lnx, poly_power):  # TODO here we are repeating too many things!
                 """true singlet kernel"""
                 N = re + 1j*im
                 l_p, l_m, e_p, e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N, nf, CA, CF)
                 ln_p = -delta_t * l_p / beta_0
                 ln_m = -delta_t * l_m / beta_0
-                interpoln = p(poly_power,im,re)
+                interpoln = Mellin_log_primitive(lnx, poly_power,im,re)
                 res = (e_p[kk][ll] * np.exp(ln_p) + e_m[kk][ll] * np.exp(ln_m)) * interpoln
                 return 2.0 * np.real(res) / np.pi
             return nb.njit(ker)
@@ -631,36 +618,40 @@ class InterpolatorDispatcher:
         else:
             raise ValueError(f"Invalid label {label}")
 
-        return self.get_raw(self.get_get_singlet_ker(*var), constants, nf, delta_t, 2.0)
+        ker = self.get_get_singlet_ker(*var) # pylint: disable=no-value-for-parameter
+        return self.get_raw(ker, constants, nf, delta_t, 2.0)
 
 
     def get_raw(self, fnc, constants, nf, delta_t,re):
         """
             Computes a raw operator.
         """
+        # compile kernel
+        ker = fnc(constants, nf, delta_t)
+        # run
         raw = []
         raw_errors = []
         for j,lnxj in enumerate(self.xgrid):
             line = []
             line_err = []
-            ker = fnc(constants, nf, delta_t,j)
             for k,lnxk in enumerate(self.xgrid):
                 elem = []
                 elem_err = []
-                if k >= j:
+                if k >= j: # trivial?
                     elem = [0]*(self.polynomial_degree+1)
                     elem_err = [0]*(self.polynomial_degree+1)
                 else:
+                    # collect all exponents
                     omega = lnxj - lnxk
                     for poly_power in range(self.polynomial_degree +1):
-                        extra_args = (re, poly_power)
-                        i_full = integrate.quad(ker,0,np.inf,weight='cos',wvar=omega,epsabs=1e-5*np.exp(-re * omega),full_output=1,args = extra_args)
+                        extra_args = (re, lnxj, poly_power)
+                        i_full = integrate.quad(ker,0,np.inf,weight='cos',wvar=omega,epsabs=1e-7*np.exp(-re * omega),full_output=1,args = extra_args)
                         expo = np.exp(re * omega)
                         i = expo*i_full[0]
                         err = expo*i_full[1]
-                        msg = i_full[-2] if len(i_full) > 3 else ""
-                        print(f"{j:02d} {k:02d} {poly_power} with {omega:.3f} => {i:+.3e}+-{err:.2e} {msg:.33}")
-                        if len(i_full) > 3:
+                        if np.abs(err/i) > .1 and len(i_full) > 3:
+                            msg = i_full[-2] if len(i_full) > 3 else ""
+                            print(f"{j:02d} {k:02d} {poly_power} with {omega:.3f} => {i:+.3e}+-{err:.2e} {msg:.33}")
                             Kf = i_full[2]["lst"]
                             rslst = i_full[2]["rslst"][0:Kf]
                             erlst = i_full[2]["erlst"][0:Kf]
@@ -675,11 +666,26 @@ class InterpolatorDispatcher:
                 line_err.append(elem_err)
             raw.append(line)
             raw_errors.append(line_err)
+            print(f"raw {j} ...")
         return np.array(raw), np.array(raw_errors)
 
     def rotate_raw(self, raw, raw_err):
         """
-            Computes non-singlet operator.
+            Rotates a raw operator into the basis functions.
+
+            Parameters
+            ----------
+                raw : np.array
+                    raw operator
+                raw_err : np.array
+                    errors of raw operator
+            
+            Returns
+            -------
+                op : np.array
+                    true operator
+                op_err : np.array
+                    errors of true operator
         """
         op = []
         op_err = []
@@ -690,14 +696,38 @@ class InterpolatorDispatcher:
             for k in range(len(self.xgrid)):
                 el = 0
                 el_err = 0
+                # recombine
                 for A in bf.areas:
                     Amax = A.lower_index + 1
                     Amin = A.lower_index
                     cs = A.coefs
                     polys = raw[Amax][k] - raw[Amin][k]
+                    # this is not really correct ...
                     polys_err = raw_err[Amax][k] - raw_err[Amin][k]
                     el += np.matmul(cs,polys)
                     el_err += np.matmul(cs,polys_err)
+
+                if False and np.abs(el_err/el) > .7:
+                    iel = 0
+                    iel_err = 0
+                    for l,A in enumerate(bf.areas):
+                        Amax = A.lower_index + 1
+                        Amin = A.lower_index
+                        cs = A.coefs
+                        polys = raw[Amax][k] - raw[Amin][k]
+                        # this is not really correct ...
+                        polys_err = raw_err[Amax][k] - raw_err[Amin][k]
+                        iiel = np.matmul(cs,polys)
+                        iiel_err = np.matmul(cs,polys_err)
+                        print(j,k,l)
+                        print(cs,polys,polys_err)
+                        print("max = ",raw[Amax][k],"+-",raw_err[Amax][k])
+                        print("min = ",raw[Amin][k],"+-",raw_err[Amin][k])
+                        print("e_l = ",iiel,"+-",iiel_err)
+                        iel += iiel
+                        iel_err += iiel_err
+                        print("sum = ",iel,"+-",iel_err)
+
                 line.append(el)
                 line_err.append(np.abs(el_err))
             op.append(line)

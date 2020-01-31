@@ -259,6 +259,7 @@ def _run_step(
     # run non-singlet
     #ret_ns = _run_nonsinglet(kernel_dispatcher, xgrid)
     ret_ns = _run_nonsinglet_new(basis_function_dispatcher, constants, nf, delta_t)
+    #raise "blub"
     # run singlet
     #ret_s = _run_singlet(kernel_dispatcher, xgrid)
     ret_s = _run_singlet_new(basis_function_dispatcher, constants, nf, delta_t)
@@ -951,8 +952,12 @@ def multiply_operators(step2, step1):
                 # join
                 newk = f"{to2}.{fromm1}"
                 op, op_err = utils.operator_product_helper([step2, step1], [[k2, k1]])
-                joined["operators"][newk] = op
-                joined["operator_errors"][newk] = op_err
+                if newk not in joined["operators"]:
+                    joined["operators"][newk] = op
+                    joined["operator_errors"][newk] = op_err
+                else:
+                    joined["operators"][newk] += op
+                    joined["operator_errors"][newk] += op_err
     return joined
 
 
