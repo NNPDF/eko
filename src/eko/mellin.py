@@ -90,7 +90,8 @@ def get_path_Talbot():
         Talbot path.
 
         .. math::
-            p_{\\text{Talbot}}(t) =  o + r \\cdot \\theta \\cot(\\theta) + i\\theta, \\theta = \\pi(2t-1)
+            p_{\\text{Talbot}}(t) =  o + r \\cdot \\theta \\cot(\\theta) + i\\theta,
+            \\theta = \\pi(2t-1)
 
         Parameters
         ----------
@@ -136,7 +137,7 @@ def get_path_Talbot():
     return path, jac
 
 
-def get_path_line(m: t_float, c: t_float = 1.0):
+def get_path_line():
     """
         Textbook path, i.e. a straight line parallel to the imaginary axis.
 
@@ -159,17 +160,19 @@ def get_path_line(m: t_float, c: t_float = 1.0):
     """
 
     @nb.njit
-    def path(t):
+    def path(t, extra_args):
+        m,c = extra_args
         return t_complex(np.complex(c, m * (2 * t - 1)))
 
     @nb.njit
-    def jac(j):  # pylint: disable=unused-argument
+    def jac(j, extra_args):  # pylint: disable=unused-argument
+        m,c = extra_args # pylint: disable=unused-variable
         return t_complex(np.complex(0, m * 2))
 
     return path, jac
 
 
-def get_path_edge(m: t_float, c: t_float = 1.0, phi: t_complex = np.pi * 2.0 / 3.0):
+def get_path_edge():
     """
         Edged path with a given angle.
 
@@ -193,14 +196,16 @@ def get_path_edge(m: t_float, c: t_float = 1.0, phi: t_complex = np.pi * 2.0 / 3
     """
 
     @nb.njit
-    def path(t):
+    def path(t,extra_args):
+        m,c,phi = extra_args
         if t < 0.5:  # turning point: path is not differentiable in this point
             return c + (0.5 - t) * m * np.exp(np.complex(0, -phi))
         else:
             return c + (t - 0.5) * m * np.exp(np.complex(0, +phi))
 
     @nb.njit
-    def jac(t):
+    def jac(t,extra_args):
+        m,c,phi = extra_args # pylint: disable=unused-variable
         if t < 0.5:  # turning point: jacobian is not continuous here
             return -m * np.exp(np.complex(0, -phi))
         else:
@@ -209,7 +214,7 @@ def get_path_edge(m: t_float, c: t_float = 1.0, phi: t_complex = np.pi * 2.0 / 3
     return path, jac
 
 
-def get_path_Cauchy_tan(g: t_float = 1.0, re_offset=0.0):
+def get_path_Cauchy_tan():
     """
         Cauchy-distribution like path, extended with tan to infinity.
 
@@ -230,13 +235,15 @@ def get_path_Cauchy_tan(g: t_float = 1.0, re_offset=0.0):
     """
 
     @nb.njit
-    def path(t):
+    def path(t, extra_args):
+        g, re_offset = extra_args
         u = np.tan(np.pi * (2.0 * t - 1.0) / 2.0)
         re = g / (u * u + g * g)
         return np.complex(re_offset + re, u)
 
     @nb.njit
-    def jac(t):
+    def jac(t, extra_args):
+        g, re_offset = extra_args # pylint: disable=unused-variable
         arg = np.pi * (2.0 * t - 1.0) / 2.0
         u = np.tan(arg)
         dre = -2.0 * g * u / (u * u + g * g) ** 2

@@ -91,7 +91,7 @@ def _run_nonsinglet(kernel_dispatcher, xgrid):
     for k, xk in enumerate(xgrid):
         extra_args = nb.typed.List()
         extra_args.append(np.log(xk))
-        extra_args.append(1.0)
+        extra_args.append(0.5)
         extra_args.append(0.0)
         out = _parallelize_on_basis(integrands, run_thread, extra_args)
         operators.append(np.array(out)[:, 0])
@@ -164,10 +164,15 @@ def _run_singlet(kernel_dispatcher, xgrid):
     for k, xk in enumerate(xgrid):
         extra_args = nb.typed.List()
         extra_args.append(np.log(xk))
+        # p3: 1.0, 0.5 + np.power(xk,1.5)*25
+        # p4: 0.5, 0.0
+        # p5: -0.4*16/(-1+lnxk), 1.0
+        # p6: -0.4*18/(-0.5+lnxk), 1.0
+        # p7: -0.4*32/(-0.5+lnxk), 1.0
+        extra_args.append(-0.4*16/(-1.0+np.log(xk)))
         extra_args.append(1.0)
-        extra_args.append(0.5 + np.power(xk,1.5)*25)
-
         out = _parallelize_on_basis(integrands, run_thread, extra_args)
+        #out = [[[0,0]]*4]*grid_size
         all_output.append(out)
         log_text = f"{k+1}/{grid_size}"
         logger.info(log_prefix, log_text)

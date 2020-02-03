@@ -4,6 +4,7 @@
 """
 import logging
 import sys
+import copy
 import pathlib
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,6 +12,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 import eko.dglap as dglap
 import eko.interpolation as interpolation
+import eko.utils as utils
+
 from tools import plot_dist, save_all_operators_to_pdf
 
 # xgrid
@@ -98,7 +101,6 @@ LHA_init_pdfs = {
 
 # list
 raw_label_list = ["u_v", "d_v", "L_-", "L_+", "s_+", "c_+", "b_+", "g"]
-rot_label_list = ["V", "V_3", "T_3", "T_8", "T_15", "T_24", "Sigma", "g"]
 rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
 
 # fmt: off
@@ -170,19 +172,198 @@ def rotate_and_dict(inp):
 LHA_final_dict_FFNS_ref = rotate_and_dict(LHA_final_grid_FFNS_ref)
 LHA_final_dict_ZMVFNS_ref = rotate_and_dict(LHA_final_grid_ZMVFNS_ref)
 
+# output path
+assets_path = pathlib.Path(__file__).with_name("assets")
+
+class LHABenchmarks():
+
+    def __init__(self, xgrid, polynomial_degree, flag):
+        self._xgrid = xgrid
+        self._polynomial_degree = polynomial_degree
+        self._flag = flag
+        # default config for post processing
+        self.post_process_config = {
+            "plot_PDF": True,
+            "plot_operator": True,
+            "write_operator": True,
+        }
+        # default setup
+        self._Q2init = 2
+        self._Q2final = 1e4
+        self._setup = {
+            "PTO": 0,
+            "alphas": 0.35,
+            "Qref": np.sqrt(2),
+            "Qmc": np.sqrt(self._Q2init),
+            "Qmb": 4.5,
+            "Qmt": 175.0,
+            "xgrid_type": "custom",
+            "xgrid": xgrid,
+            "xgrid_polynom_rank": polynom_rank,
+        }
+
+    def _post_process(self, ret, ref, tag):
+        """
+            Handles the post processing of the run
+
+            Parameters
+            ----------
+                ret : dict
+                    DGLAP result
+                tag : string
+                    file tag
+        """
+        if self.post_process_config["plot_PDF"]:
+            self._save_final_scale_plots_to_pdf(
+                assets_path / f"LHA-LO-{tag}-plots-{flag}.pdf",
+                ret,
+                ref,
+            )
+        if self.post_process_config["plot_operator"]:
+            save_all_operators_to_pdf(ret, assets_path / f"LHA-LO-{tag}-ops-{flag}.pdf")
+        if self.post_process_config["write_operator"]:
+            dglap.write_YAML_to_file(ret, assets_path / f"LHA-LO-{tag}-ops-{flag}.yaml")
+
+    def _run_FFNS_raw(self, tag, Q2init, Q2final):
+        """
+            Runs a fixed-flavor-number-scheme configuration.
+
+            Parameters
+            ----------
+                tag : string
+                    file tag
+                Q2init : t_flaot
+                    init scale squared
+                Q2final : t_flaot
+                    final scale squared
+
+            Returns
+            -------
+                ret : dict
+                    DGLAP result
+        """
+        add_setup = {
+            "FNS": "FFNS",
+            "NfFF": 4,
+            "Q0": np.sqrt(Q2init),
+            "Q2grid": [Q2final],
+        }
+        # xgrid can be a copy, so we don't need a deep copy here
+        setup = utils.merge_dicts(copy.copy(self._setup), add_setup)
+        ret = dglap.run_dglap(setup)
+        self._post_process(ret,LHA_final_dict_FFNS_ref,tag)
+        return ret
+
+    def run_FFNS(self):
+        """
+            Runs the fixed-flavor-number-scheme configuration.
+
+            Returns
+            -------
+                ret : dict
+                    DGLAP result
+        """
+        ret = self._run_FFNS_raw("FFNS",self._Q2init,self._Q2final)
+        return ret
+
+    def run_FFNS_twostep(self, Q2mid):
+        """
+            Runs the fixed-flavor-number-scheme configuration with a step in the middle.
+
+            Parameters
+            ----------
+                Q2mid : t_float
+                    break point
+
+            Returns
+            -------
+                ret2t1 : dict
+                    DGLAP result
+        """
+        # suppress PDF plots for single steps
+        plot_PDF = self.post_process_config["plot_PDF"]
+        self.post_process_config["plot_PDF"] = False
+        # step 1
+        step1 = self._run_FFNS_raw("FFNS-twostep-step1", self._Q2init, Q2mid)
+        # step 2
+        step2 = self._run_FFNS_raw("FFNS-twostep-step2", Q2mid, self._Q2final)
+        # join 2*1
+        self.post_process_config["plot_PDF"] = plot_PDF
+        ret2t1 = dglap.multiply_operators(step2, step1)
+        self._post_process(ret2t1,LHA_final_dict_FFNS_ref,"FFNS-twostep-step2t1")
+        return ret2t1
+
+
+    def run_ZMVFNS(self):
+        """
+            Runs Zero-mass variable-flavor-number-scheme configuration.
+
+            Returns
+            -------
+                ret : dict
+                    DGLAP result
+        """
+        add_setup = {
+            "FNS": "ZM-VFNS",
+            "Q0": np.sqrt(self._Q2init),
+            "Q2grid": [self._Q2final],
+        }
+        # xgrid can be copy, so we don't need a deep copy
+        setup = utils.merge_dicts(copy.copy(self._setup), add_setup)
+        ret = dglap.run_dglap(setup)
+        self._post_process(ret,LHA_final_dict_ZMVFNS_ref,"ZMVFNS")
+        return ret
+
+    def _save_final_scale_plots_to_pdf(self, path, ret, ref):
+        """
+            Plots all PDFs at the final scale.
+
+            The reference values are given in Table 2 part 2,3 of :cite:`Giele:2002hx`.
+
+            Parameters
+            ----------
+                path : string
+                    output path
+                ret : dict
+                    DGLAP result
+                ref : dict
+                    reference result
+        """
+        pp = PdfPages(path)
+        # get
+        my_pdfs, my_pdf_errs = dglap.apply_operator(ret, LHA_init_pdfs, toy_xgrid)
+        # iterate all pdf
+        for key in my_pdfs:
+            # skip trivial plots
+            if key in ["V8", "V15", "V24", "V35", "T35"]:
+                continue
+            # plot
+            fig = plot_dist(
+                toy_xgrid,
+                toy_xgrid * my_pdfs[key],
+                toy_xgrid * my_pdf_errs[key],
+                ref[key],
+                title=f"x{key}(x,µ_F^2 = 10^4 GeV^2)",
+            )
+            pp.savefig()
+            plt.close(fig)
+        # close
+        pp.close()
+
 
 def save_initial_scale_plots_to_pdf(path):
-    """Check all PDFs at the inital scale.
+    """
+        Plots all PDFs at the inital scale.
 
-    The reference values are given in Table 2 part 1 of :cite:`Giele:2002hx`.
+        The reference values are given in Table 2 part 1 of :cite:`Giele:2002hx`.
 
-    This excercise was usfull in order to detect the missing 2 in the definition of
-    :math:`L_+ = 2(\\bar u + \\bar d)`
+        This excercise was usfull in order to detect the missing 2 in the definition of
+        :math:`L_+ = 2(\\bar u + \\bar d)`
 
-    Parameters
-    ----------
-        path : string
-            output path
+        Parameters
+        ----------
+            path : string
+                output path
     """
     pp = PdfPages(path)
     # iterate all raw labels
@@ -205,60 +386,14 @@ def save_initial_scale_plots_to_pdf(path):
     pp.close()
 
 
-def save_final_scale_plots_to_pdf(path, ret, targetgrid, ref):
-    """Check all PDFs at the final scale.
-
-    The reference values are given in Table 2 part 2,3 of :cite:`Giele:2002hx`.
-
-    Parameters
-    ----------
-        path : string
-            output path
-        ret : dict
-            DGLAP result
-        ref : dict
-            reference result
-    """
-    pp = PdfPages(path)
-    # get
-    my_pdfs, my_pdf_errs = dglap.apply_operator(ret, LHA_init_pdfs, targetgrid)
-    # iterate all pdf
-    for key in my_pdfs:
-        # skip trivial plots
-        if key in ["V8", "V15", "V24", "V35", "T35"]:
-            continue
-        # plot
-        fig = plot_dist(
-            toy_xgrid,
-            toy_xgrid * my_pdfs[key],
-            toy_xgrid * my_pdf_errs[key],
-            ref[key],
-            title="x%s(x,µ_F^2 = 10^4 GeV^2)" % key,
-        )
-        pp.savefig()
-        plt.close(fig)
-    # close
-    pp.close()
-
-
-# output path
-assets_path = pathlib.Path(__file__).with_name("assets")
-
 if __name__ == "__main__":
     # setup
     n_low = 30
     n_mid = 20
     polynom_rank = 4
-    run_init = False
-    run_FFNS = False
-    run_FFNS_twostep = True
-    run_ZMVFNS = False
-    plot_PDF = True
-    plot_operator = True
-    write_operator = True
 
     # combine grid
-    flag = f"l{n_low}m{n_mid}r{polynom_rank}-p1-sc"
+    flag = f"l{n_low}m{n_mid}r{polynom_rank}-p5"
     xgrid_low = interpolation.get_xgrid_linear_at_log(
         n_low, 1e-7, 1.0 if n_mid == 0 else 0.1
     )
@@ -275,144 +410,12 @@ if __name__ == "__main__":
     logging.getLogger("eko.dglap").setLevel(logging.DEBUG)
 
     # run
+    app = LHABenchmarks(xgrid, polynom_rank, flag)
     # check input scale
-    if run_init:
-        save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
+    #save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
     # check fixed flavours
-    if run_FFNS:
-        ret = dglap.run_dglap(
-            {
-                "PTO": 0,
-                "alphas": 0.35,
-                "Qref": np.sqrt(2),
-                "Q0": np.sqrt(2),
-                "FNS": "FFNS",
-                "NfFF": 4,
-                "xgrid_type": "custom",
-                "xgrid": xgrid,
-                "xgrid_polynom_rank": polynom_rank,
-                "Q2grid": [1e4],
-            }
-        )
-        if plot_PDF:
-            save_final_scale_plots_to_pdf(
-                assets_path / f"LHA-LO-FFNS-plots-{flag}.pdf",
-                ret,
-                toy_xgrid,
-                LHA_final_dict_FFNS_ref,
-            )
-        if plot_operator:
-            save_all_operators_to_pdf(ret, assets_path / f"LHA-LO-FFNS-ops-{flag}.pdf")
-        if write_operator:
-            dglap.write_YAML_to_file(ret, assets_path / f"LHA-LO-FFNS-ops-{flag}.yaml")
+    #app.run_FFNS()
     # do two steps
-    if run_FFNS_twostep:
-        setup = {
-            "PTO": 0,
-            "alphas": 0.35,
-            "Qref": np.sqrt(2),
-            "Q0": np.sqrt(2),
-            "FNS": "FFNS",
-            "NfFF": 4,
-            "xgrid_type": "custom",
-            "xgrid": xgrid,
-            "xgrid_polynom_rank": polynom_rank,
-            "Q2grid": [1e4],
-        }
-        # check 0 -> 1 -> 2 = 0 -> 2
-        Q2init = 2
-        Q2mid = 1e2
-        Q2final = 1e4
-        # step 1
-        setup["Q0"] = np.sqrt(Q2init)
-        setup["Q2grid"] = [Q2mid]
-        ret1 = dglap.run_dglap(setup)
-        if write_operator:
-            dglap.write_YAML_to_file(
-                ret1, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step1.yaml"
-            )
-        if plot_operator:
-            save_all_operators_to_pdf(
-                ret1, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step1.pdf"
-            )
-        # step 2
-        setup["Q0"] = np.sqrt(Q2mid)
-        setup["Q2grid"] = [Q2final]
-        ret2 = dglap.run_dglap(setup)
-        if write_operator:
-            dglap.write_YAML_to_file(
-                ret2, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2.yaml"
-            )
-        if plot_operator:
-            save_all_operators_to_pdf(
-                ret2, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2.pdf"
-            )
-        # join 2*1
-        ret2t1 = dglap.multiply_operators(ret2, ret1)
-        if write_operator:
-            dglap.write_YAML_to_file(
-                ret2t1, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2t1.yaml"
-            )
-        if plot_operator:
-            save_all_operators_to_pdf(
-                ret2t1, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step2t1.pdf"
-            )
-        if plot_PDF:
-            save_final_scale_plots_to_pdf(
-                assets_path / f"LHA-LO-FFNS-twostep-plots-{flag}-step2t1.pdf",
-                ret2t1,
-                toy_xgrid,
-                LHA_final_dict_ZMVFNS_ref,
-            )
-        # do step 1+2 as a single operation
-        setup["Q0"] = np.sqrt(Q2init)
-        setup["Q2grid"] = [Q2final]
-        ret12 = dglap.run_dglap(setup)
-        if write_operator:
-            dglap.write_YAML_to_file(
-                ret12, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step12.yaml"
-            )
-        if plot_operator:
-            save_all_operators_to_pdf(
-                ret12, assets_path / f"LHA-LO-FFNS-twostep-ops-{flag}-step12.pdf"
-            )
-        if plot_PDF:
-            save_final_scale_plots_to_pdf(
-                assets_path / f"LHA-LO-FFNS-twostep-plots-{flag}-step12.pdf",
-                ret12,
-                toy_xgrid,
-                LHA_final_dict_ZMVFNS_ref,
-            )
+    app.run_FFNS_twostep(1e2)
     # check ZM-VFNS
-    if run_ZMVFNS:
-        ret = dglap.run_dglap(
-            {
-                "PTO": 0,
-                "alphas": 0.35,
-                "Qref": np.sqrt(2),
-                "Q0": np.sqrt(2),
-                "FNS": "ZM-VFNS",
-                "Qmc": np.sqrt(2),
-                "Qmb": 4.5,
-                "Qmt": 175.0,
-                "xgrid_type": "custom",
-                "xgrid": xgrid,
-                "xgrid_polynom_rank": polynom_rank,
-                "Q2grid": [1e4],
-            }
-        )
-        if plot_PDF:
-            save_final_scale_plots_to_pdf(
-                assets_path / f"LHA-LO-ZMVFNS-plots-{flag}.pdf",
-                ret,
-                toy_xgrid,
-                LHA_final_dict_ZMVFNS_ref,
-            )
-        if plot_operator:
-            save_all_operators_to_pdf(
-                ret, assets_path / f"LHA-LO-ZMVFNS-ops-{flag}.pdf"
-            )
-        if write_operator:
-            dglap.write_YAML_to_file(
-                ret, assets_path / f"LHA-LO-ZMVFNS-ops-{flag}.yaml"
-            )
+    #app.run_ZMVFNS()
