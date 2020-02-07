@@ -97,7 +97,7 @@ We can thus write the non-siglet equations in N-space by
 
 We also change the evolution variable to
 :math:`t(\mu_F^2) = \ln(1/a_s(\mu_F^2))`
-and differential equations to solve is given by
+and then the differential equations to solve is given by
 
 .. math::
     \frac{d\tilde f_{ns}(N,\mu_F^2)}{dt}
@@ -126,7 +126,8 @@ find
 .. math::
     f^{(0)}(x_k,t_1) = \hat O_{k,j}^{(0)}(t_1,t_0) f^{(0)}(x_j,t_0)
 
-The benchmarking LHA reference is given by :cite:`Giele:2002hx`.
+The benchmarking LHA reference is given by :cite:`Giele:2002hx`
+and :cite:`Dittmar:2005ed`.
 
 References
 ----------

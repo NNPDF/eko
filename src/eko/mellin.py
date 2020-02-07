@@ -11,7 +11,7 @@ import numpy as np
 import numba as nb
 import scipy.integrate as integrate
 
-from eko import t_float, t_complex
+from eko import t_complex
 
 
 def compile_integrand(iker, path, jac, do_numba=True):
@@ -43,7 +43,7 @@ def compile_integrand(iker, path, jac, do_numba=True):
         return integrand
 
 
-def inverse_mellin_transform(integrand, cut, extra_args, eps=1e-12):
+def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12,epsrel=1e-8):
     """
         Inverse Mellin transformation.
 
@@ -77,11 +77,13 @@ def inverse_mellin_transform(integrand, cut, extra_args, eps=1e-12):
         0.5,
         1.0 - cut,
         args=extra_args,
-        epsabs=eps,
-        epsrel=eps,
+        epsabs=epsabs,
+        epsrel=epsrel,
         limit=LIMIT,
         full_output=1,
     )
+    #if len(result) > 3:
+    #    print(result)
     return result[:2]
 
 

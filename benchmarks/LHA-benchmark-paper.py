@@ -175,8 +175,20 @@ LHA_final_dict_ZMVFNS_ref = rotate_and_dict(LHA_final_grid_ZMVFNS_ref)
 # output path
 assets_path = pathlib.Path(__file__).with_name("assets")
 
-class LHABenchmarks():
 
+class LHABenchmarkPaper:
+    """
+        Compares to the LHA benchmark paper :cite:`Giele:2002hx`.
+
+        Parameters
+        ----------
+            xgrid : array
+                basis grid
+            polynomial_degree : int
+                degree of interpolation polynomial
+            flag : string
+                output file tag
+    """
     def __init__(self, xgrid, polynomial_degree, flag):
         self._xgrid = xgrid
         self._polynomial_degree = polynomial_degree
@@ -215,9 +227,7 @@ class LHABenchmarks():
         """
         if self.post_process_config["plot_PDF"]:
             self._save_final_scale_plots_to_pdf(
-                assets_path / f"LHA-LO-{tag}-plots-{flag}.pdf",
-                ret,
-                ref,
+                assets_path / f"LHA-LO-{tag}-plots-{flag}.pdf", ret, ref
             )
         if self.post_process_config["plot_operator"]:
             save_all_operators_to_pdf(ret, assets_path / f"LHA-LO-{tag}-ops-{flag}.pdf")
@@ -251,7 +261,7 @@ class LHABenchmarks():
         # xgrid can be a copy, so we don't need a deep copy here
         setup = utils.merge_dicts(copy.copy(self._setup), add_setup)
         ret = dglap.run_dglap(setup)
-        self._post_process(ret,LHA_final_dict_FFNS_ref,tag)
+        self._post_process(ret, LHA_final_dict_FFNS_ref, tag)
         return ret
 
     def run_FFNS(self):
@@ -263,7 +273,7 @@ class LHABenchmarks():
                 ret : dict
                     DGLAP result
         """
-        ret = self._run_FFNS_raw("FFNS",self._Q2init,self._Q2final)
+        ret = self._run_FFNS_raw("FFNS", self._Q2init, self._Q2final)
         return ret
 
     def run_FFNS_twostep(self, Q2mid):
@@ -290,9 +300,8 @@ class LHABenchmarks():
         # join 2*1
         self.post_process_config["plot_PDF"] = plot_PDF
         ret2t1 = dglap.multiply_operators(step2, step1)
-        self._post_process(ret2t1,LHA_final_dict_FFNS_ref,"FFNS-twostep-step2t1")
+        self._post_process(ret2t1, LHA_final_dict_FFNS_ref, "FFNS-twostep-step2t1")
         return ret2t1
-
 
     def run_ZMVFNS(self):
         """
@@ -311,7 +320,7 @@ class LHABenchmarks():
         # xgrid can be copy, so we don't need a deep copy
         setup = utils.merge_dicts(copy.copy(self._setup), add_setup)
         ret = dglap.run_dglap(setup)
-        self._post_process(ret,LHA_final_dict_ZMVFNS_ref,"ZMVFNS")
+        self._post_process(ret, LHA_final_dict_ZMVFNS_ref, "ZMVFNS")
         return ret
 
     def _save_final_scale_plots_to_pdf(self, path, ret, ref):
@@ -410,12 +419,12 @@ if __name__ == "__main__":
     logging.getLogger("eko.dglap").setLevel(logging.DEBUG)
 
     # run
-    app = LHABenchmarks(xgrid, polynom_rank, flag)
+    app = LHABenchmarkPaper(xgrid, polynom_rank, flag)
     # check input scale
     #save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
     # check fixed flavours
     #app.run_FFNS()
     # do two steps
-    app.run_FFNS_twostep(1e2)
+    #app.run_FFNS_twostep(1e2)
     # check ZM-VFNS
-    #app.run_ZMVFNS()
+    app.run_ZMVFNS()

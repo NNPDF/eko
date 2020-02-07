@@ -195,7 +195,7 @@ def _run_singlet(kernel_dispatcher, xgrid):
 
 
 def _run_step(
-    setup, constants, basis_function_dispatcher, xgrid, nf, mu2init, mu2final
+    setup, constants, basis_function_dispatcher, xgrid, nf, mu2init, mu2final, mu2step=None
 ):
     """
         Do a single convolution step in a fixed parameter configuration
@@ -224,7 +224,7 @@ def _run_step(
     """
     logger.info("evolve [GeV^2] %e -> %e with nf=%d flavors", mu2init, mu2final, nf)
     # Setup the kernel dispatcher
-    delta_t = alpha_s.get_evolution_params(setup, constants, nf, mu2init, mu2final)
+    delta_t = alpha_s.get_evolution_params(setup, constants, nf, mu2init, mu2final,mu2step)
     kernel_dispatcher = KernelDispatcher(
         basis_function_dispatcher, constants, nf, delta_t
     )
@@ -788,7 +788,7 @@ def run_dglap(setup):
 
     # Setup interpolation
     xgrid = interpolation.generate_xgrid(**setup)
-    is_log_interpolation = setup.get("log_interpol", True)
+    is_log_interpolation = bool(setup.get("log_interpol", True))
     polynom_rank = setup.get("xgrid_polynom_rank", 4)
     logger.info("Interpolation mode: %s", setup["xgrid_type"])
     logger.info("Log interpolation: %s", is_log_interpolation)
@@ -799,6 +799,8 @@ def run_dglap(setup):
     # Start filling the output dictionary
     ret = {
         "xgrid": xgrid,
+        "polynomial_degree": polynom_rank,
+        "log": is_log_interpolation,
         "basis": basis_function_dispatcher,
         "operators": {},
         "operator_errors": {},
@@ -948,7 +950,12 @@ def get_YAML(ret, stream=None):
                 result of dump(output, stream), i.e. a string, if no stream is given or
                 the Null, if output is written sucessfully to stream
     """
-    out = {"operators": {}, "operator_errors": {}}
+    out = {
+        "polynomial_degree": ret["polynomial_degree"],
+        "log": ret["log"],
+        "operators": {},
+        "operator_errors": {}
+    }
     # make raw lists - we might want to do somthing more numerical here
     for k in ["xgrid"]:
         out[k] = ret[k].tolist()

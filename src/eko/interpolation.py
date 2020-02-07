@@ -311,9 +311,12 @@ class BasisFunction:
                     p(x)
         """
         old_call = self.callable
+        old_numba = self.numba_it
+        self.numba_it = False
         self.compile_X()
         res = self.callable(x)
         self.callable = old_call
+        self.numba_it = old_numba
         return res
 
     def compile_N(self, mode_log=True):
@@ -518,6 +521,10 @@ class InterpolatorDispatcher:
                 R : array
                     interpolation matrix, do be multiplied from the left(!)
         """
+        # trivial?
+        if len(targetgrid) == len(self.xgrid_raw) and np.allclose(targetgrid,self.xgrid_raw):
+            return np.eye(len(self.xgrid_raw))
+        # compute map
         out = []
         for x in targetgrid:
             l = []
