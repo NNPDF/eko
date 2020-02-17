@@ -242,7 +242,7 @@ class StrongCoupling:
                 }
                 self._configs.append(c)
             # fill downstairs
-            for k in range(0, self._configs[0]["nf"] - 3):
+            for k in range(self._configs[0]["nf"] - 4, -1, -1):
                 high = self._configs[0]
                 as_thres = self._compute(high, thresh_p[k + 1])
                 c = {

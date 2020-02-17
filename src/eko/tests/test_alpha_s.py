@@ -9,6 +9,7 @@ from numpy.testing import assert_approx_equal
 from eko.alpha_s import beta_0, beta_1, beta_2, StrongCoupling
 from eko.constants import Constants
 
+# TODO @JCM+@SC: you may want to add your match here
 use_LHAPDF = platform.node() in ["FHe19b"]
 if use_LHAPDF:
     import lhapdf
@@ -87,35 +88,117 @@ def test_LHA_benchmark_paper():
 
 def _get_Lambda2_LO(as_ref, scale_ref, nf):
     """Transformation to Lambda_QCD"""
-    beta0 = beta_0(nf,CA,CF,TF)
-    return scale_ref * np.exp(-1.0/(as_ref * beta0))
+    beta0 = beta_0(nf, CA, CF, TF)
+    return scale_ref * np.exp(-1.0 / (as_ref * beta0))
 
 
-def test_lhapdf():
-    """test towards LHAPDF"""
-    Q2s = [1,1e1,1e2,1e3,1e4]
-    as_ref = 0.118/(4.0*np.pi)
-    scale_ref = 91.0**2
+def test_lhapdf_ffns_lo():
+    """test FFNS LO towards LHAPDF"""
+    Q2s = [1, 1e1, 1e2, 1e3, 1e4]
+    alphas_ref = 0.118
+    scale_ref = 91.0 ** 2
     nf = 4
-    as_FFNS_LO = StrongCoupling(constants, as_ref*4*np.pi, scale_ref, 0, "FFNS", nf=nf, method="analytic")
+    # collect my values
+    as_FFNS_LO = StrongCoupling(
+        constants, alphas_ref, scale_ref, 0, "FFNS", nf=nf, method="analytic"
+    )
     my_vals = []
     for Q2 in Q2s:
         my_vals.append(as_FFNS_LO.a_s(Q2))
-    print(my_vals)
-    #lhapdf_vals = [0.31145233053669075,0.20076769332053362,0.15014705262149175,0.12048646995455557,0.10084143813676005]
+    # LHAPDF cache
+    lhapdf_vals = np.array(
+        [
+            0.031934929816669545,
+            0.019801241565290697,
+            0.01434924187307247,
+            0.01125134004424113,
+            0.009253560493881005,
+        ]
+    )
     if use_LHAPDF:
+        # run lhapdf
         as_lhapdf = lhapdf.mkBareAlphaS("analytic")
-        as_lhapdf.setOrderQCD(0)
-        as_lhapdf.setFlavorScheme("FIXED",nf)
-        Lambda2 = _get_Lambda2_LO(as_ref,scale_ref,nf)
+        as_lhapdf.setOrderQCD(1)
+        as_lhapdf.setFlavorScheme("FIXED", nf)
+        Lambda2 = _get_Lambda2_LO(alphas_ref / (4.0 * np.pi), scale_ref, nf)
         as_lhapdf.setLambda(nf, np.sqrt(Lambda2))
+        # collect a_s
         lhapdf_vals_cur = []
         for Q2 in Q2s:
-            lhapdf_vals_cur.append(as_lhapdf.alphasQ2(Q2)/(4.0*np.pi))
-        print(lhapdf_vals_cur)
-        #np.assert_approx_equal(lhapdf_vals,lhapdf_vals_cur)
-    print(np.array(my_vals)/np.array(lhapdf_vals_cur))
+            lhapdf_vals_cur.append(as_lhapdf.alphasQ2(Q2) / (4.0 * np.pi))
+        # print(lhapdf_vals_cur)
+        np.testing.assert_allclose(lhapdf_vals, np.array(lhapdf_vals_cur))
+    # check
+    np.testing.assert_allclose(lhapdf_vals, np.array(my_vals))
+
+
+def test_lhapdf_zmvfns_lo():
+    """test ZM-VFNS LO towards LHAPDF"""
+    Q2s = [1, 1e1, 1e2, 1e3, 1e4]
+    alphas_ref = 0.118
+    scale_ref = 900
+    m2c = 2
+    m2b = 25
+    m2t = 1500
+    thresholds = [m2c, m2b, m2t]
+    # compute all Lambdas
+    Lambda2_5 = _get_Lambda2_LO(alphas_ref / (4.0 * np.pi), scale_ref, 5)
+    as_FFNS_LO_5 = StrongCoupling(
+        constants, alphas_ref, scale_ref, 0, "FFNS", nf=5, method="analytic"
+    )
+    Lambda2_6 = _get_Lambda2_LO(as_FFNS_LO_5.a_s(m2t), m2t, 6)
+    as_b = as_FFNS_LO_5.a_s(m2b)
+    Lambda2_4 = _get_Lambda2_LO(as_b, m2b, 4)
+    as_FFNS_LO_4 = StrongCoupling(
+        constants, as_b * 4.0 * np.pi, m2b, 0, "FFNS", nf=4, method="analytic"
+    )
+    Lambda2_3 = _get_Lambda2_LO(as_FFNS_LO_4.a_s(m2c), m2c, 3)
+
+    # collect my values
+    as_VFNS_LO = StrongCoupling(
+        constants,
+        alphas_ref,
+        scale_ref,
+        0,
+        "VFNS",
+        thresholds=thresholds,
+        method="analytic",
+    )
+    my_vals = []
+    for Q2 in Q2s:
+        my_vals.append(as_VFNS_LO.a_s(Q2))
+    # LHAPDF cache
+    lhapdf_vals = np.array(
+        [
+            0.019329289989575976,
+            0.014008493223162779,
+            0.011154579541207629,
+            0.009319453421070689,
+            0.008084673312501225,
+        ]
+    )
+    if use_LHAPDF:
+        # run lhapdf
+        as_lhapdf = lhapdf.mkBareAlphaS("analytic")
+        as_lhapdf.setOrderQCD(1)
+        as_lhapdf.setFlavorScheme("VARIABLE", -1)
+        for k in range(3):
+            as_lhapdf.setQuarkMass(1 + k, 0)
+        for k, m2 in enumerate(thresholds):
+            as_lhapdf.setQuarkMass(4 + k, np.sqrt(m2))
+        as_lhapdf.setLambda(3, np.sqrt(Lambda2_3))
+        as_lhapdf.setLambda(4, np.sqrt(Lambda2_4))
+        as_lhapdf.setLambda(5, np.sqrt(Lambda2_5))
+        as_lhapdf.setLambda(6, np.sqrt(Lambda2_6))
+        # collect a_s
+        lhapdf_vals_cur = []
+        for Q2 in Q2s:
+            lhapdf_vals_cur.append(as_lhapdf.alphasQ2(Q2) / (4.0 * np.pi))
+        # print(lhapdf_vals_cur)
+        np.testing.assert_allclose(lhapdf_vals, np.array(lhapdf_vals_cur))
+    # check
+    np.testing.assert_allclose(lhapdf_vals_cur, np.array(my_vals))
 
 
 if __name__ == "__main__":
-    test_lhapdf()
+    test_lhapdf_zmvfns_lo()
