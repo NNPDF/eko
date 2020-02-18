@@ -7,6 +7,7 @@ import numpy as np
 from numpy.testing import assert_approx_equal
 
 from eko.alpha_s import beta_0, beta_1, beta_2, StrongCoupling
+from eko.thresholds import Threshold
 from eko.constants import Constants
 
 # TODO @JCM+@SC: you may want to add your match here
@@ -62,9 +63,11 @@ def test_a_s():
     ref_as = 0.1181
     ref_mu = 90
     ask_q2 = 125
-    as_FFNS_LO = StrongCoupling(constants, ref_as, ref_mu, 0, "FFNS", nf=5)
+    setup = { 'Q0' : pow(ref_mu, 2), 'NfFF' : 5 }
+    threshold_holder = Threshold(setup, scheme = "FFNS")
+    as_FFNS_LO = StrongCoupling(constants, ref_as, ref_mu, threshold_holder, order = 0)
     for order in range(1):
-        result = as_FFNS_LO.a_s(ask_q2)
+        result = as_FFNS_LO(ask_q2)
         assert_approx_equal(result, known_vals[order], significant=7)
 
 
@@ -73,15 +76,17 @@ def test_LHA_benchmark_paper():
     # LO - FFNS
     # note that the LO-FFNS value reported in :cite:`Giele:2002hx`
     # was corrected in :cite:`Dittmar:2005ed`
-    as_FFNS_LO = StrongCoupling(constants, 0.35, 2, 0, "FFNS", nf=4)
+    setup = { 'Q0' : 2, 'NfFF' : 4 }
+    threshold_holder = Threshold(setup, scheme = "FFNS")
+    as_FFNS_LO = StrongCoupling(constants, 0.35, 2, threshold_holder, order = 0)
     me = as_FFNS_LO.a_s(1e4) * 4 * np.pi
     ref = 0.117574
     assert_approx_equal(me, ref, significant=6)
     # LO - VFNS
-    as_VFNS_LO = StrongCoupling(
-        constants, 0.35, 2, 0, "VFNS", thresholds=[2, 4.5 ** 2, 175 ** 2]
-    )
-    me = as_VFNS_LO.a_s(1e4) * 4 * np.pi
+    setup = { 'Q0' : 2, 'Qmc' : np.sqrt(2), 'Qmb' : 4.5, 'Qmt' : 175 }
+    threshold_holder = Threshold(setup, scheme = "VFNS")
+    as_VFNS_LO = StrongCoupling(constants, 0.35, 2, threshold_holder, order = 0)
+    me = as_VFNS_LO(1e4) * 4 * np.pi
     ref = 0.122306
     assert_approx_equal(me, ref, significant=6)
 
@@ -99,9 +104,9 @@ def test_lhapdf_ffns_lo():
     scale_ref = 91.0 ** 2
     nf = 4
     # collect my values
-    as_FFNS_LO = StrongCoupling(
-        constants, alphas_ref, scale_ref, 0, "FFNS", nf=nf, method="analytic"
-    )
+    setup = { 'Q0' : scale_ref, 'NfFF' : nf }
+    threshold_holder = Threshold(setup, scheme = "FFNS")
+    as_FFNS_LO = StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder, order = 0)
     my_vals = []
     for Q2 in Q2s:
         my_vals.append(as_FFNS_LO.a_s(Q2))
@@ -155,18 +160,12 @@ def test_lhapdf_zmvfns_lo():
     #Lambda2_3 = _get_Lambda2_LO(as_FFNS_LO_4.a_s(m2c), m2c, 3)
 
     # collect my values
-    as_VFNS_LO = StrongCoupling(
-        constants,
-        alphas_ref,
-        scale_ref,
-        0,
-        "VFNS",
-        thresholds=thresholds,
-        method="analytic",
-    )
+    setup = { 'Q0' : scale_ref, 'Qmc' : np.sqrt(m2c), 'Qmb' : np.sqrt(m2b), 'Qmt' : np.sqrt(m2t) }
+    threshold_holder = Threshold(setup, scheme = "VFNS")
+    as_VFNS_LO = StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder, order = 0)
     my_vals = []
     for Q2 in Q2s:
-        my_vals.append(as_VFNS_LO.a_s(Q2))
+        my_vals.append(as_VFNS_LO(Q2))
     # LHAPDF cache
     lhapdf_vals = np.array(
         [

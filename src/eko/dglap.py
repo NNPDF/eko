@@ -13,7 +13,9 @@ import eko.interpolation as interpolation
 import eko.mellin as mellin
 import eko.utils as utils
 from eko.kernel_generation import KernelDispatcher
+from eko.thresholds import Threshold
 from eko.constants import Constants
+from eko.alpha_s import StrongCoupling
 
 logger = logging.getLogger(__name__)
 
@@ -729,7 +731,6 @@ def _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid):
         % (mH2s[1], mH2s[2], mH2s[3], mu2init, mu2final)
     )
 
-
 def run_dglap(setup):
     r"""
         This function takes a DGLAP theory configuration dictionary
@@ -795,6 +796,16 @@ def run_dglap(setup):
     basis_function_dispatcher = interpolation.InterpolatorDispatcher(
         xgrid, polynom_rank, log=is_log_interpolation
     )
+
+    # Get the scheme and set up the thresholds
+    FNS = setup["FNS"]
+    threshold_holder = Threshold(setup, scheme = FNS)
+
+    # Now generate the operator alpha_s class
+    alpha_ref = setup['alphas']
+    q_ref = setup["Qref"]
+
+    alpha_s = StrongCoupling(constants, alpha_ref, q_ref, threshold_holder) 
 
     # Start filling the output dictionary
     ret = {

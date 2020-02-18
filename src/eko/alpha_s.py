@@ -160,103 +160,36 @@ class StrongCoupling:
         constants,
         alpha_s_ref,
         scale_ref,
-        order,
-        number_scheme,
-        nf=None,
-        thresholds=None,
+        threshold_holder,
+        order=0,
         method="analytic",
     ):
-        self._constants = constants
-        self._scale_ref = scale_ref
-        self._as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
-        if order not in [0]:
-            raise NotImplementedError("a_s beyond LO is not implemented")
-        self._order = order
+        # Sanity checks
         if method not in ["analytic"]:
             raise ValueError(f"Unknown method {method}")
         self._method = method
-        # setup number scheme
-        self._set_number_scheme(number_scheme, nf, thresholds)
+        if order not in [0]:
+            raise NotImplementedError("a_s beyond LO is not implemented")
+        self._order = order
 
-    def _set_number_scheme(self, number_scheme, nf, thresholds):
-        """
-            Sets the necessary configurations for the number scheme.
+        self._constants = constants
+        # Move alpha_s from qref to q0
+        area_path = threshold_holder.get_path_from_q0(scale_ref)
+        # Now run through the list in reverse to set the alpha at q0
+        input_as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
+        for area in reversed(area_path):
+            scale_to = area.qref
+            area_nf = area.nf
+            new_alpha_s = self._compute(input_as_ref, area_nf, scale_ref, scale_to)
+            scale_ref = scale_to
+            input_as_ref = new_alpha_s
 
-            Parameters
-            ----------
-                number_scheme: {"FFNS", "VFNS"}
-                    number scheme
-                nf : int
-                    number of flavors (if necessary)
-                threshold : array
-                    threshold list (if necessary)
-        """
-        # FFNS -> one for all
-        if number_scheme == "FFNS":
-            if not isinstance(nf, int) or nf < 3 or nf > 6:
-                raise ValueError(f"Needs nf in [3..6] for FFNS - got {nf}")
-            self._configs = [
-                {
-                    "mu2min": 0,
-                    "mu2max": np.inf,
-                    "as_ref": self._as_ref,
-                    "scale_ref": self._scale_ref,
-                    "nf": nf,
-                }
-            ]
-        # VFNS -> need to resort
-        elif number_scheme == "VFNS":
-            if not isinstance(thresholds, list) or len(thresholds) != 3:
-                raise ValueError(
-                    "For VFNS needs list with thresholds with exact 3 entries"
-                )
-            # update threshold list
-            thresh_p = [0] + thresholds + [np.inf]
-            # find initial step
-            self._configs = []
-            for k, __ in enumerate(thresh_p):
-                if thresh_p[k] <= self._scale_ref <= thresh_p[k + 1]:
-                    c = {
-                        "mu2min": thresh_p[k],
-                        "mu2max": thresh_p[k + 1],
-                        "as_ref": self._as_ref,
-                        "scale_ref": self._scale_ref,
-                        "nf": 3 + k,
-                    }
-                    self._configs.append(c)
-                    break
-            if len(self._configs) == 0:
-                raise ValueError(
-                    "Couldn't find a correct matching of the reference values"
-                )
-            # fill upstairs
-            for k in range(self._configs[0]["nf"] - 2, 4):
-                low = self._configs[-1]
-                as_thres = self._compute(low, thresh_p[k])
-                c = {
-                    "mu2min": thresh_p[k],
-                    "mu2max": thresh_p[k + 1],
-                    "as_ref": as_thres,
-                    "scale_ref": thresh_p[k],
-                    "nf": 3 + k,
-                }
-                self._configs.append(c)
-            # fill downstairs
-            for k in range(self._configs[0]["nf"] - 4, -1, -1):
-                high = self._configs[0]
-                as_thres = self._compute(high, thresh_p[k + 1])
-                c = {
-                    "mu2min": thresh_p[k],
-                    "mu2max": thresh_p[k + 1],
-                    "as_ref": as_thres,
-                    "scale_ref": thresh_p[k + 1],
-                    "nf": 3 + k,
-                }
-                self._configs = [c] + self._configs
-        else:
-            raise ValueError(f"Unknown number scheme {number_scheme}")
+        # At this point we moved the value of alpha_s down to q0, store
+        self._ref_alpha = new_alpha_s
+        self._threshold_holder = threshold_holder
 
-    def _compute_analytic(self, conf, scale_to):
+    # Hidden computation functions
+    def _compute_analytic(self, as_ref, nf, scale_from, scale_to):
         """
             Compute via analytic expression.
 
@@ -272,25 +205,25 @@ class StrongCoupling:
                 a_s : t_float
                     coupling at target scale
         """
-        beta0 = beta_0(
-            conf["nf"], self._constants.CA, self._constants.CF, self._constants.TF
-        )
-        L = np.log(scale_to / conf["scale_ref"])
-        as_ref = conf["as_ref"]
+        beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
+        L = np.log(scale_to / scale_from)
         result = as_ref / (1.0 + beta0 * as_ref * L)
         # add higher orders ...
         return result
 
-    def _compute(self, conf, scale_to):
+    def _compute(self, *args):
         """
-            Computes  for a given config according to method.
+            Wrapper in order to pass the computation to the corresponding
+            method (depending on the calculation method).
+            This function has no knowledge of the incoming parameters
+            as they are defined in the respective computation methods
 
             Parameters
             ----------
-                conf : dict
-                    active configuration
-                scale_to : t_float
-                    final scale to evolve to :math:`Q^2`
+                `*args`: tuple
+                    List of arguments accepted by the computational
+                    method defined by self._method
+                
 
             Returns
             -------
@@ -298,10 +231,10 @@ class StrongCoupling:
                     strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
         """
         if self._method == "analytic":
-            return self._compute_analytic(conf, scale_to)
+            return self._compute_analytic(*args)
         raise ValueError(f"Unknown method {self._method}")
 
-    def a_s(self, scale_to):
+    def __call__(self, scale_to):
         """
             Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
 
@@ -315,16 +248,21 @@ class StrongCoupling:
                 a_s : t_float
                     strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
         """
-        # find configuration
-        conf = None
-        for c in self._configs:
-            if c["mu2min"] <= scale_to <= c["mu2max"]:
-                conf = c
-                break
-        if conf is None:
-            raise ValueError(f"Couldn't find a valid configuration for {scale_to}")
-        # compute
-        return self._compute(conf, scale_to)
+        # Set up the path to follow in order to go from q0 to qref
+        final_alpha = self._ref_alpha
+        area_path = self._threshold_holder.get_path_from_q0(scale_to)
+        # TODO set up a cache system here
+        for area in area_path:
+            q_from = area.qref
+            q_to = area.q_towards(scale_to)
+            if np.isclose(q_from, q_to):
+                continue
+            area_nf = area.nf
+            final_alpha = self._compute(final_alpha, area_nf, q_from, q_to)
+        return final_alpha
+
+    def a_s(self, *args):
+        return self(*args)
 
     def t(self, scale_to):
         """
