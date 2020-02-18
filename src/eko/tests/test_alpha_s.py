@@ -202,7 +202,7 @@ def test_lhapdf_zmvfns_lo():
     # check - tolerance is determined from
     # Max absolute difference: 2.58611282e-06
     # Max relative difference: 0.00013379
-    np.testing.assert_allclose(lhapdf_vals_cur, np.array(my_vals), rtol=1.5e-4)
+    np.testing.assert_allclose(lhapdf_vals, np.array(my_vals), rtol=1.5e-4)
 
 
 if __name__ == "__main__":
