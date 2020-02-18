@@ -5,7 +5,7 @@ from matplotlib.colors import LogNorm
 from matplotlib.backends.backend_pdf import PdfPages
 
 
-def plot_dist(x, y, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
+def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
     """Compare two distributions.
 
     Generates a plot with 3 areas:
@@ -19,6 +19,8 @@ def plot_dist(x, y, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
             list of abscisses
         y : array
             computed list of ordinates
+        yerr : array
+            list of ordinate errors
         yref : array
             reference list of ordinates
 
@@ -44,30 +46,39 @@ def plot_dist(x, y, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
     ax1 = plt.subplot(2, 3, 1)
     plt.setp(ax1.get_xticklabels(), visible=False)
     plt.title("small x")
-    plt.loglog(x, y, "o")
+    ax1.set_xscale("log", nonposx="clip")
+    ax1.set_yscale("log", nonposy="clip")
+    plt.errorbar(x, y, yerr=yerr, fmt="o")
     plt.loglog(x, yref, "x")
-    plt.subplot(2, 3, 4, sharex=ax1)
-    plt.loglog(x, np.abs((y - yref) / yref), "x")
+    ax1b = plt.subplot(2, 3, 4, sharex=ax1)
+    ax1b.set_xscale("log", nonposx="clip")
+    ax1b.set_yscale("log", nonposy="clip")
+    plt.errorbar(x, np.abs((y - yref) / yref), yerr=np.abs(yerr / yref), fmt="s")
     plt.xlabel("x")
     # linear x
     ax2 = plt.subplot(2, 3, 2)
     plt.setp(ax2.get_xticklabels(), visible=False)
     plt.title("linear x")
-    plt.plot(x, y, "o")
+    plt.errorbar(x, y, yerr=yerr, fmt="o")
     plt.plot(x, yref, "x")
-    plt.subplot(2, 3, 5, sharex=ax2)
-    plt.semilogy(x, np.abs((y - yref) / yref), "x")
+    ax2b = plt.subplot(2, 3, 5, sharex=ax2)
+    ax2b.set_yscale("log", nonposy="clip")
+    plt.errorbar(x, np.abs((y - yref) / yref), yerr=np.abs(yerr / yref), fmt="s")
     plt.xlabel("x")
     # large x
     ax3 = plt.subplot(2, 3, 3)
+    ax3.set_xscale("log", nonposx="clip")
+    ax3.set_yscale("log", nonposy="clip")
     oMx = 1.0 - x
     plt.setp(ax3.get_xticklabels(), visible=False)
     ax3.set_xlim(oMx_min, oMx_max)
     plt.title("large x, i.e. small (1-x)")
-    plt.loglog(oMx, y, "o")
+    plt.errorbar(oMx, y, yerr=yerr, fmt="o")
     plt.loglog(oMx, yref, "x")
-    plt.subplot(2, 3, 6, sharex=ax3)
-    plt.loglog(oMx, np.abs((y - yref) / yref), "x")
+    ax3b = plt.subplot(2, 3, 6, sharex=ax3)
+    ax3b.set_xscale("log", nonposx="clip")
+    ax3b.set_yscale("log", nonposy="clip")
+    plt.errorbar(oMx, np.abs((y - yref) / yref), yerr=np.abs(yerr / yref), fmt="s")
     plt.xlabel("1-x")
     return fig
 
@@ -80,7 +91,7 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
         ret : dict
             DGLAP result
         var_name : string
-            variable name: NS,S_qq,S_qg,S_gq,S_gg
+            operator name
         log_operator : bool, optional
             plot on logarithmic scale
         abs_operator : bool, optional
@@ -97,6 +108,10 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
 
     fig = plt.figure(figsize=(25, 5))
     fig.suptitle(var_name)
+
+    # empty?
+    if np.max(op) == 0.0:
+        return fig
 
     ax = plt.subplot(1, 3, 1)
     if abs_operator:
@@ -122,30 +137,36 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
     return fig
 
 
-def save_all_operators_to_pdf(path, ret):
+def save_all_operators_to_pdf(ret, path):
     """Output all operator heatmaps to PDF.
 
     Parameters
     ----------
-        path : string
-            target file name
         ret : dict
             DGLAP result
+        path : string
+            target file name
     """
     pp = PdfPages(path)
     # NS
-    plot_operator(ret, "NS", log_operator=False)
+    fig = plot_operator(ret, "V.V", log_operator=False)
     pp.savefig()
-    plot_operator(ret, "NS", abs_operator=True)
+    plt.close(fig)
+    fig = plot_operator(ret, "V.V", abs_operator=True)
     pp.savefig()
+    plt.close(fig)
     # Singlet
-    plot_operator(ret, "S_qq")
+    fig = plot_operator(ret, "S.S")
     pp.savefig()
-    plot_operator(ret, "S_qg")
+    plt.close(fig)
+    fig = plot_operator(ret, "S.g")
     pp.savefig()
-    plot_operator(ret, "S_gq")
+    plt.close(fig)
+    fig = plot_operator(ret, "g.S")
     pp.savefig()
-    plot_operator(ret, "S_gg")
+    plt.close(fig)
+    fig = plot_operator(ret, "g.g")
     pp.savefig()
+    plt.close(fig)
     # close
     pp.close()

@@ -6,7 +6,7 @@ import scipy.special
 import numpy as np
 from eko import t_float, t_complex
 import _gsl_digamma
-c_digamma = _gsl_digamma.lib.digamma
+c_digamma = _gsl_digamma.lib.digamma # pylint: disable=no-member
 
 
 def compare_functions(function_custom, function_ext, values):

@@ -30,10 +30,11 @@ setup(name='eko',
           'recommonmark',
           'sphinxcontrib-bibtex',
           'joblib',
+          'pyyaml',
       ],
       setup_requires=[
           "cffi>1.0.0"
-          ],
+      ],
       cffi_modules=["src/cfunctions/digamma.py:ffibuilder"],
       python_requires='>=3.6'
 )

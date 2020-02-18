@@ -5,26 +5,30 @@
 
     The generator functions `get_kernel_{kernel_type}` have as signature
     the following parameters:
-        `basis_function`: a callable function with a (N, lnx) signature
-        `nf` : number of flavours
-        `constants`: an instance of the Constants class
-        `beta_0` : value of beta_0
-        `delta_t`: value of `delta_t`
+
+        - `basis_function`: a callable function with a (N, lnx) signature
+        - `nf` : number of flavours
+        - `constants`: an instance of the Constants class
+        - `beta_0` : value of `beta_0`
+        - `delta_t`: value of `delta_t`
+
 """
+
 from collections import abc
 import numpy as np
 import numba as nb
+
 import eko.alpha_s as alpha_s
 import eko.splitting_functions_LO as sf_LO
 
 
 def get_kernel_ns(basis_function, nf, constants, beta_0, delta_t):
-    """ Returns a non-singlet integration kernel """
+    """Returns the non-singlet integration kernel"""
     CA = constants.CA
     CF = constants.CF
 
     def ker(n, lnx):
-        """non-siglet integration kernel"""
+        """true non-siglet integration kernel"""
         ln = -delta_t * sf_LO.gamma_ns_0(n, nf, CA, CF) / beta_0
         interpoln = basis_function(n, lnx)
         return np.exp(ln) * interpoln
@@ -33,12 +37,12 @@ def get_kernel_ns(basis_function, nf, constants, beta_0, delta_t):
 
 
 def get_kernels_s(basis_function, nf, constants, beta_0, delta_t):
-    """return all singlet integration kernels"""
+    """Return all singlet integration kernels"""
     CA = constants.CA
     CF = constants.CF
 
     def get_ker(k, l):
-        """compute one singlet kernel"""
+        """true singlet kernel"""
 
         def ker(N, lnx):  # TODO here we are repeating too many things!
             """a singlet integration kernel"""
@@ -62,16 +66,16 @@ class KernelDispatcher:
 
         Parameters
         ----------
-            interpol_dispatcher :
+            interpol_dispatcher : InterpolatorDispatcher
                 An instance of the InterpolatorDispatcher class
-            constants:
+            constants : Constants
                 An instance of the Constants class
-            nf: float
+            nf : float
                 Number of flavour to consider
-            delta_t: float
+            delta_t : float
                 Value of delta_t for this kernel
-            numba_it: bool
-                If true, the functions will be `numba` compiled (default: True)
+            numba_it : bool  (default: True)
+                If true, the functions will be `numba` compiled
     """
 
     def __init__(self, interpol_dispatcher, constants, nf, delta_t, numba_it=True):
@@ -100,16 +104,28 @@ class KernelDispatcher:
         return kernels
 
     def compile_singlet(self):
-        """ Returns a singlet integration kernel for each basis """
+        """Compiles the singlet integration kernels for each basis """
         return self._compiler(get_kernels_s)
 
     def compile_nonsinglet(self):
-        """ Returns a non-singlet integration kernel for each basis """
+        """Compiles the non-singlet integration kernel for each basis """
         return self._compiler(get_kernel_ns)
 
     def njit(self, function):
-        """ Do nb.njit to the function if the `numba_it` flag is set to True
-        Check whether this is a list of functions
+        """
+            Do nb.njit to the function if the `numba_it` flag is set to True.
+
+            Check whether a list of functions is passed.
+
+            Parameters
+            ---------
+                function : function
+                    input function
+
+            Returns
+            -------
+                funciton : function
+                    compiled function
         """
         if isinstance(function, abc.Iterable):
             return [self.njit(f) for f in function]

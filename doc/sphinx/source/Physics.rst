@@ -5,8 +5,8 @@ Mathematical ingredients
 ------------------------
 
 We solve the equations in Mellin-space as there multiplicative convolution is
-mapped onto a normal multiplication and thus the integro-differential equations
-are instead just normal differential equations.
+mapped onto a normal multiplication and thus integro-differential equations,
+such as DGLAP equations, are instead just normal differential equations.
 The Mellin transformation is given by
 
 .. math::
@@ -18,7 +18,8 @@ The inverse Mellin transformation is given by
 .. math::
     g(x) = \mathcal{M}^{-1}[\tilde g(N)](x) = \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x^{-N} \tilde g(N)\,dN
 
-for a suitable path :math:`\mathcal{P}(t)`.
+for a suitable path :math:`\mathcal{P}(t)`. The textbook path is given by
+:math:`\mathcal{P}(t) = c + i t`
 
 We will also use approximation theory, i.e., we interpolate the unkown PDF as a
 weighted sum of polynomials
@@ -27,14 +28,38 @@ weighted sum of polynomials
     f(x,t_0) = \sum_{j=1}^{N_{grid}} f(x_j,t_0) \cdot p_j(x)
 
 The current implementation uses a grid :math:`\{x_j\}` defined by the user and
-a Lagrange interpolation using the nearest :math:`k` points. Thus the
-interpolation polynomials :math:`\{p_j(x)\}` are all of degree :math:`(k-1)`.
+a Lagrange interpolation in :math:`\log(x)` using the nearest :math:`k` points.
+Thus the interpolation polynomials :math:`\{p_j(x)\}` are all of degree
+:math:`(k-1)`.
+
+The multiplicative convolution integral runs from :math:`x` to 1, thus only
+basis functions which have support above :math:`x` may contribute to the
+integral. This information is encoded in N-space in the following way: Due
+to the Mellin kernel :math:`x^{N-1}` any piecewise polynomial, such as we
+are doing, are proportional to
+:math:`x_{\text{min/max}}^N = \exp(N\ln(x_{\text{min/max}}))`. When
+multiplied with the inverse Mellin kernel :math:`x^{-N}` this leads to an
+expresion which is propotional to
+
+.. math::
+    \exp(N(\ln(x_{\text{min/max}})-\ln(x)))\,.
+
+Thus, if
+
+.. math::
+    \ln(x_{\text{min/max}})-\ln(x) <= 0 \Leftrightarrow x_{\text{min/max}} - x <= 0
+
+we can integrate these terms with their own contour. We can choose the textbook
+contour with :math:`Re(\mathcal P(t)) \to \infty` and thus these terms get
+exponentially suppressed. In the limit these terms vanish exactly and thus we
+exclude them from our numerical kernels.
 
 QCD ingredients
 ---------------
 
-The running coupling :math:`a_s(\mu_F^2) = \alpha_s(\mu_F^2)/(4\pi)`
-is given by :cite:`Herzog:2017ohr` :cite:`Luthe:2016ima` :cite:`Baikov:2016tgj`
+We use perturbative QCD with the running coupling
+:math:`a_s(\mu_F^2) = \alpha_s(\mu_F^2)/(4\pi)` given by
+:cite:`Herzog:2017ohr` :cite:`Luthe:2016ima` :cite:`Baikov:2016tgj`
 
 .. math::
       \frac{da_s}{d\ln\mu^2} = \beta(a) \
@@ -42,11 +67,11 @@ is given by :cite:`Herzog:2017ohr` :cite:`Luthe:2016ima` :cite:`Baikov:2016tgj`
 
 
 The Altarelli-Parisi splitting kernels can be expanded in powers of the strong
-coupling :math:`a_s(\mu_F^2)` given by :cite:`Moch:2004pa` :cite:`Vogt:2004mw`
+coupling :math:`a_s(\mu^2)` and are given by
+:cite:`Moch:2004pa` :cite:`Vogt:2004mw`
 
 .. math::
-    \mathbf{P}(x)
-        = - \sum\limits_{n=0} a_s^{n+1} \mathbf P^{(n)}(x)
+    \mathbf{P}(x,\mu^2)  = - \sum\limits_{n=0} a_s^{n+1}(\mu^2) \mathbf P^{(n)}(x)
 
 
 Solving DGLAP
@@ -72,7 +97,7 @@ We can thus write the non-siglet equations in N-space by
 
 We also change the evolution variable to
 :math:`t(\mu_F^2) = \ln(1/a_s(\mu_F^2))`
-and differential equations to solve is given by
+and then the differential equations to solve is given by
 
 .. math::
     \frac{d\tilde f_{ns}(N,\mu_F^2)}{dt}
@@ -89,20 +114,20 @@ which is solved by
 .. math::
     \tilde f^{(0)}(N,t_1) = \exp((t_1-t_0) \tilde P_{ns}^{(0)}(N)/\beta_0 ) \cdot \tilde f_{ns}^{(0)}(N,t_0)
 
-Using the interpolation basis on out inital state PDF, we can define our EKO
-:math:`\hat O` by
+Using the interpolation basis on the inital state PDF, we can define the
+evolution kernel operator :math:`\hat O` by
 
 .. math::
     \hat O_{k,j}^{ns,(0)}(t_1,t_0) = \mathcal{M}^{-1}\left[\exp((t_1-t_0)\tilde P_{ns}^{(0)}(N)/\beta_0)\tilde p_j(N)\right](x_k')
 
-where the (target-) grid points :math:`\{x_k'\}` do not necessarily have to
-coincident with the interpolation grid :math:`\{x_j\}`. Now, we can write the
-solution to DGLAP in a true matrix operator scheme and find
+Now, we can write the solution to DGLAP in a true matrix operator scheme and
+find
 
 .. math::
     f^{(0)}(x_k,t_1) = \hat O_{k,j}^{(0)}(t_1,t_0) f^{(0)}(x_j,t_0)
 
-The benchmarking LHA reference is given by :cite:`Giele:2002hx`.
+The benchmarking LHA reference is given by :cite:`Giele:2002hx`
+and :cite:`Dittmar:2005ed`.
 
 References
 ----------

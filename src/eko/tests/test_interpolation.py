@@ -2,11 +2,8 @@
 # Test interpolation
 import json
 import pathlib
-from numpy.polynomial import Chebyshev
-from numpy.testing import assert_allclose, assert_almost_equal
 import numpy as np
-import numba as nb
-import math
+from numpy.testing import assert_allclose, assert_almost_equal
 
 
 from eko import t_float, t_complex
@@ -62,14 +59,11 @@ def check_correspondence_interpolators(inter_x, inter_N):
     """ Check the correspondece between x and N space of the interpolators
     inter_x and inter_N"""
     ngrid = [t_complex(1.0), t_complex(1.0 + 1j), t_complex(2.5 - 2j)]
+    logxinv = np.log(.9e-2) # < 1e-2, to trick skipping
     for fun_x, fun_N in zip(inter_x, inter_N):
-
-        def ker(x):
-            return fun_x(x)
-
         for N in ngrid:
-            result_N = fun_N(N, 0)
-            result_x = mellin.mellin_transform(ker, N)
+            result_N = fun_N(N, logxinv) * np.exp(N*logxinv)
+            result_x = mellin.mellin_transform(fun_x, N)
             assert_almost_equal(result_x[0], result_N)
 
 
@@ -134,3 +128,14 @@ def test_Lagrange_interpolation():
         xgrid, polrank, log=False, mode_N=True
     )
     check_correspondence_interpolators(inter_x, inter_N)
+
+def test_eq():
+    a = interpolation.InterpolatorDispatcher(np.linspace(0.1, 1, 10), 4, log=False, mode_N=False)
+    b = interpolation.InterpolatorDispatcher(np.linspace(0.1, 1,  9), 4, log=False, mode_N=False)
+    assert a != b
+    c = interpolation.InterpolatorDispatcher(np.linspace(0.1, 1, 10), 3, log=False, mode_N=False)
+    assert a != c
+    d = interpolation.InterpolatorDispatcher(np.linspace(0.1, 1, 10), 4, log=True,  mode_N=False)
+    assert a != d
+    e = interpolation.InterpolatorDispatcher(np.linspace(0.1, 1, 10), 4, log=False, mode_N=False)
+    assert a == e
