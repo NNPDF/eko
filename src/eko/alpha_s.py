@@ -280,6 +280,24 @@ class StrongCoupling:
         """
         return np.log(1.0 / self.a_s(scale_to))
 
+    def delta_t(self, scale_from, scale_to):
+        """ Compute evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2) = t(Q_1^2)-t(Q_0^2)`
+
+            Parameters
+            ----------
+                scale_from : t_float
+                    scale to evolve from :math:`Q^2`
+                scale_to : t_float
+                    final scale to evolve to :math:`Q^2`
+
+            Returns
+            -------
+                delta : t_float
+                    evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2)`
+        """
+        delta = self.t(scale_to) - self.t(scale_from)
+        return delta
+
 
 def alpha_s_generator(
     c: Constants,

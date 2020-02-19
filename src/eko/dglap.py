@@ -14,6 +14,7 @@ import eko.mellin as mellin
 import eko.utils as utils
 from eko.kernel_generation import KernelDispatcher
 from eko.thresholds import Threshold
+from eko.operator_grid import OperatorGrid
 from eko.constants import Constants
 from eko.alpha_s import StrongCoupling
 
@@ -797,15 +798,31 @@ def run_dglap(setup):
         xgrid, polynom_rank, log=is_log_interpolation
     )
 
-    # Get the scheme and set up the thresholds
+    # Get the scheme and set up the thresholds if any
+    # TODO the setup dictionary is a mess tbh
     FNS = setup["FNS"]
-    threshold_holder = Threshold(setup, scheme = FNS)
+    qref = pow(setup["Q0"],2)
+    if FNS != "FFNS":
+        qmc = setup['Qmc']
+        qmb = setup['Qmb']
+        qmt = setup['Qmt']
+        threshold_list = pow(np.array([qmc, qmb, qmt]), 2)
+        nf = None
+    else:
+        nf = setup["NfFF"]
+        threshold_list = None
+    # TODO
+    threshold_holder = Threshold(qref = qref, scheme = FNS, threshold_list=threshold_list, nf=nf)
 
     # Now generate the operator alpha_s class
     alpha_ref = setup['alphas']
-    q_ref = setup["Qref"]
+    q_ref = pow(setup["Qref"],2)
+    alpha_s = StrongCoupling(constants, alpha_ref, q_ref, threshold_holder)
 
-    alpha_s = StrongCoupling(constants, alpha_ref, q_ref, threshold_holder) 
+    # And now compute the grid
+    op_grid = OperatorGrid(threshold_holder, alpha_s)
+    qgrid = [1, 10, 100]
+    op_grid.compute_qgrid(qgrid)
 
     # Start filling the output dictionary
     ret = {

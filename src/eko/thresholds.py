@@ -71,6 +71,7 @@ class Threshold:
             )
         # Initial values
         self.q0 = qref
+        self._threshold_list = []
         self._areas = []
         self._area_walls = []
         self._area_ref = 0
@@ -98,6 +99,10 @@ class Threshold:
             raise NotImplementedError(
                 f"The scheme {scheme} not implemented in eko.dglap.py"
             )
+
+    @property
+    def qref(self):
+        return self.q0
 
     def _setup_vfns(self, threshold_list):
         """ Receives a list of thresholds and sets up the vfns scheme
@@ -163,8 +168,24 @@ class Threshold:
                 list with the indices of the corresponding areas for qarr
         """
         # Ensure qarr is an array
-        if isinstance(qarr, (float, int)):
+        if isinstance(qarr, (np.float, np.int)):
             qarr = np.array([qarr])
         # Check in which area is every q
         areas_idx = np.digitize(qarr, self._area_walls)
         return areas_idx
+
+    def get_areas(self, qarr):
+        """ Returns the Areas in which each value of qarr falls
+
+        Parameters
+        ----------
+            `qarr`: np.array
+                array of values of q
+        Returns
+        -------
+            `areas`: list
+                list with the areas for qarr
+        """
+        idx = self.get_areas_idx(qarr)
+        area_list = np.array(self._areas)[idx]
+        return list(area_list)
