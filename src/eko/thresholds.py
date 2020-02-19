@@ -5,10 +5,13 @@
 """
 import numpy as np
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 class Area:
     """ Sets up an area """
+
     def __init__(self, qmin, qmax, q0, nf):
         self.qmin = qmin
         self.qmax = qmax
@@ -44,6 +47,7 @@ class Area:
         """ Checks whether q is contained in the area """
         return self.qmin <= q <= self.qmax
 
+
 class Threshold:
     """ The threshold class holds information about the thresholds any
     Q has to pass in order to get there from a given q0 and scheme.
@@ -59,9 +63,12 @@ class Threshold:
         `nf`: int
             Number of flavour for the FFNS (default 5)
     """
-    def __init__(self, qref = None, scheme = "FFNS", threshold_list = None, nf = None):
+
+    def __init__(self, qref=None, scheme="FFNS", threshold_list=None, nf=None):
         if qref is None:
-            raise ValueError("The threshold class needs to know about the reference q^{2}")
+            raise ValueError(
+                "The threshold class needs to know about the reference q^{2}"
+            )
         # Initial values
         self.q0 = qref
         self._areas = []
@@ -70,19 +77,27 @@ class Threshold:
 
         if scheme == "FFNS":
             if nf is None:
-                logger.warning("No value for nf in the FFNS was received, defaulting to 5")
+                logger.warning(
+                    "No value for nf in the FFNS was received, defaulting to 5"
+                )
                 nf = 5
             if threshold_list is not None:
                 raise ValueError("The FFNS does not accept any thresholds")
             self._areas = [Area(0, np.inf, self.q0, nf)]
         elif scheme in ["VFNS", "ZM-VFNS"]:
             if nf is not None:
-                logger.warning("The VFNS configures its own value for nf, ignoring input nf=%d", nf)
+                logger.warning(
+                    "The VFNS configures its own value for nf, ignoring input nf=%d", nf
+                )
             if threshold_list is None:
-                raise ValueError("The VFNS scheme was selected but no thresholds were input")
+                raise ValueError(
+                    "The VFNS scheme was selected but no thresholds were input"
+                )
             self._setup_vfns(threshold_list)
         else:
-            raise NotImplementedError(f"The scheme {scheme} not implemented in eko.dglap.py")
+            raise NotImplementedError(
+                f"The scheme {scheme} not implemented in eko.dglap.py"
+            )
 
     def _setup_vfns(self, threshold_list):
         """ Receives a list of thresholds and sets up the vfns scheme
@@ -127,7 +142,9 @@ class Threshold:
             rc = -1
         else:
             rc = 1
-        area_path = [self._areas[i] for i in range(self._area_ref, current_area +rc ,rc)]
+        area_path = [
+            self._areas[i] for i in range(self._area_ref, current_area + rc, rc)
+        ]
         return area_path
 
     def get_areas_idx(self, qarr):
@@ -146,7 +163,7 @@ class Threshold:
                 list with the indices of the corresponding areas for qarr
         """
         # Ensure qarr is an array
-        if isinstance(qarr, (float,int)):
+        if isinstance(qarr, (float, int)):
             qarr = np.array([qarr])
         # Check in which area is every q
         areas_idx = np.digitize(qarr, self._area_walls)

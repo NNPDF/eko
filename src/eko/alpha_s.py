@@ -143,14 +143,10 @@ class StrongCoupling:
                 alpha_s(!) at the reference scale :math:`\\alpha_s(\\mu_0^2)`
             scale_ref : t_float
                 reference scale :math:`\\mu_0^2`
+            threshold_holder : eko.thresholds.Threshold
+                instance of the Threshold class
             order: int
                 Evaluated order of the beta function
-            number_scheme : {"FFNS", "VFNS"}
-                number scheme
-            nf : int
-                Number of active flavours, if FFNS
-            thresholds : list
-                list of quark thresholds with {mc2,mb2,mt2}, if VFNS
             method : {"analytic"}
                 Applied method to solve the beta function
     """
@@ -195,8 +191,12 @@ class StrongCoupling:
 
             Parameters
             ----------
-                conf : dict
-                    configuration
+                as_ref: t_float
+                    reference alpha_s
+                nf: int
+                    value of nf for computing alpha_s
+                scale_from: t_float
+                    reference scale
                 scale_to : t_float
                     target scale
 
@@ -207,9 +207,9 @@ class StrongCoupling:
         """
         beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
         L = np.log(scale_to / scale_from)
-        result = as_ref / (1.0 + beta0 * as_ref * L)
+        a_s = as_ref / (1.0 + beta0 * as_ref * L)
         # add higher orders ...
-        return result
+        return a_s
 
     def _compute(self, *args):
         """
