@@ -22,13 +22,15 @@ import eko.alpha_s as alpha_s
 import eko.splitting_functions_LO as sf_LO
 
 
-def get_kernel_ns(basis_function, nf, constants, beta_0, delta_t):
+def get_kernel_ns(basis_function, nf, constants, beta_0, legacy_delta_t):
     """Returns the non-singlet integration kernel"""
     CA = constants.CA
     CF = constants.CF
 
-    def ker(n, lnx):
+    def ker(n, lnx, delta_t = None):
         """true non-siglet integration kernel"""
+        if delta_t is None:
+            delta_t = legacy_delta_t
         ln = -delta_t * sf_LO.gamma_ns_0(n, nf, CA, CF) / beta_0
         interpoln = basis_function(n, lnx)
         return np.exp(ln) * interpoln
@@ -36,7 +38,7 @@ def get_kernel_ns(basis_function, nf, constants, beta_0, delta_t):
     return ker
 
 
-def get_kernels_s(basis_function, nf, constants, beta_0, delta_t):
+def get_kernels_s(basis_function, nf, constants, beta_0, legacy_delta_t):
     """Return all singlet integration kernels"""
     CA = constants.CA
     CF = constants.CF
@@ -44,8 +46,10 @@ def get_kernels_s(basis_function, nf, constants, beta_0, delta_t):
     def get_ker(k, l):
         """true singlet kernel"""
 
-        def ker(N, lnx):  # TODO here we are repeating too many things!
+        def ker(N, lnx, delta_t = None):  # TODO here we are repeating too many things!
             """a singlet integration kernel"""
+            if delta_t is None:
+                delta_t = legacy_delta_t
             l_p, l_m, e_p, e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N, nf, CA, CF)
             ln_p = -delta_t * l_p / beta_0
             ln_m = -delta_t * l_m / beta_0

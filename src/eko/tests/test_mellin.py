@@ -32,7 +32,7 @@ def test_inverse_mellin_transform():
         return x
 
     @nb.njit
-    def function_N(N, lnx):
+    def function_N(N, lnx, delta_t = None):
         return np.exp(- N * lnx) / (N + 1)
 
     xgrid = [0.1, 0.3, 0.5, 0.7]
