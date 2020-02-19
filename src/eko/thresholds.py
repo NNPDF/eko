@@ -168,7 +168,7 @@ class Threshold:
                 list with the indices of the corresponding areas for qarr
         """
         # Ensure qarr is an array
-        if isinstance(qarr, (np.float, np.int)):
+        if isinstance(qarr, (np.float, np.int, np.integer)):
             qarr = np.array([qarr])
         # Check in which area is every q
         areas_idx = np.digitize(qarr, self._area_walls)

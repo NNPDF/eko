@@ -21,9 +21,10 @@ class OperatorGrid:
                 Instance of the StrongCoupling class able to generate a_s for any q
     """
 
-    def __init__(self, threshold_holder, alpha_generator):
+    def __init__(self, threshold_holder, alpha_generator, kernel_dispatcher):
         self._threshold_holder = threshold_holder
         self._alpha_gen = alpha_generator
+        self._kernels = kernel_dispatcher
         self._threshold_operators = {}
         self._op_grid = {}
         self.qmax = -1
@@ -40,8 +41,8 @@ class OperatorGrid:
             new_op = (q_from, q_to)
             if new_op not in self._threshold_operators:
                 nf = area.nf
-                delta_t = self._alpha_gen(q_from, q_to)
-                self._threshold_operators[new_op] = Operator(q_from, q_to, delta_t, nf)
+                delta_t = self._alpha_gen.delta_t(q_from, q_to)
+                self._threshold_operators[new_op] = Operator(q_from, q_to, delta_t, nf, None)
             q_from = q_to
 
     def set_q_limits(self, qmin, qmax):
@@ -76,11 +77,14 @@ class OperatorGrid:
                 List of q^2
         """
         area_list = self._threshold_holder.get_areas(qgrid)
+        # Ensure that the kernels are compiled for all possible values of nf
+        nf_values = [a.nf for a in set(area_list)]
+        self._kernels.set_up_all_integrands(nf_values)
         for area, q in zip(area_list, qgrid):
             q_from = area.qref
             nf = area.nf
-            delta_t = self._alpha_gen(q_from, q)
-            self._op_grid[q] = Operator(q_from, q, delta_t, nf)
+            delta_t = self._alpha_gen.delta_t(q_from, q)
+            self._op_grid[q] = Operator(q_from, q, delta_t, nf, None)
 
     def compute_qgrid(self, qgrid):
         """ Receives a grid in q^2 and computes all operations necessary

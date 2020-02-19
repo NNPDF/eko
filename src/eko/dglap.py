@@ -794,9 +794,13 @@ def run_dglap(setup):
     polynom_rank = setup.get("xgrid_polynom_rank", 4)
     logger.info("Interpolation mode: %s", setup["xgrid_type"])
     logger.info("Log interpolation: %s", is_log_interpolation)
+
+    # Generate the dispatcher for the basis functions
     basis_function_dispatcher = interpolation.InterpolatorDispatcher(
         xgrid, polynom_rank, log=is_log_interpolation
     )
+    # Generate the dispatcher for the Kernel functions
+    kernel_dispatcher = KernelDispatcher(basis_function_dispatcher, constants)
 
     # Get the scheme and set up the thresholds if any
     # TODO the setup dictionary is a mess tbh
@@ -820,7 +824,7 @@ def run_dglap(setup):
     alpha_s = StrongCoupling(constants, alpha_ref, q_ref, threshold_holder)
 
     # And now compute the grid
-    op_grid = OperatorGrid(threshold_holder, alpha_s)
+    op_grid = OperatorGrid(threshold_holder, alpha_s, kernel_dispatcher)
     qgrid = [1, 10, 100]
     op_grid.compute_qgrid(qgrid)
 
