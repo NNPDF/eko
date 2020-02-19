@@ -1,14 +1,11 @@
 """
     This module holds the classes that define the FNS
+
+    Inside this class q is always treated as a q^2
 """
 import numpy as np
-
-class EvolutionParams:
-    """ Holds evolution parameters """
-    def __init__(self, qini, qfin, nf):
-        self.qini = qini
-        self.qfin = qfin
-        self.nf = nf
+import logging
+logger = logging.getLogger(__name__)
 
 class Area:
     """ Sets up an area """
@@ -26,20 +23,6 @@ class Area:
             self.has_q0 = True
             self.qref = q0
 
-    def get_to(self, area_target):
-        """ Returns the evolution necessary in order
-        to get from this area to the target area.
-        Target area should always be adjacent, but we deal with this later"""
-        if area_target > self:
-            go_to = area_target.qmin
-        else:
-            go_to = area_target.qmax
-
-        if go_to == self.qref:
-            return None
-        else:
-            return (self.qref, go_to)
-
     def q_towards(self, q):
         """ Return qmin or qmax depending on whether
         we are going towards the max or the min or q
@@ -52,12 +35,13 @@ class Area:
             return q
 
     def __gt__(self, target_area):
-        return target_area.qmin >= self.qmax
+        return self.qmin >= target_area.qmax
 
     def __lt__(self, target_area):
-        return target_area.qmax <= self.qmin
-    
+        return self.qmax <= target_area.qmin
+
     def __call__(self, q):
+        """ Checks whether q is contained in the area """
         return self.qmin <= q <= self.qmax
 
 class Threshold:
@@ -66,43 +50,60 @@ class Threshold:
 
     Parameters
     ----------
-        `setup`: dict
-            Setup dictionary
+        `qref` : float
+            Reference q^2
         `scheme`: str
-            Scheme definition
+            Choice of scheme (default FFNS)
+        `threshold_list`: list
+            List of q^2 thresholds should the scheme accept it
+        `nf`: int
+            Number of flavour for the FFNS (default 5)
     """
-    def __init__(self, setup, scheme = None):
-        if scheme is None:
-            scheme = setup.get("FNS", 'FFNS')
-        self.q0 = setup["Q0"]
-        self.areas = []
-        self.bins = []
-        self.area_q0 = 0
-        if scheme == 'FFNS':
-            nf = setup["NfFF"]
-            self.areas = [Area(0, np.inf, self.q0, nf)]
-        elif scheme == 'VFNS' or scheme == 'ZM-VFNS':
-            self._setup_zm_vfns(setup)
+    def __init__(self, qref = None, scheme = "FFNS", threshold_list = None, nf = None):
+        if qref is None:
+            raise ValueError("The threshold class needs to know about the reference q^{2}")
+        # Initial values
+        self.q0 = qref
+        self._areas = []
+        self._area_walls = []
+        self._area_ref = 0
+
+        if scheme == "FFNS":
+            if nf is None:
+                logger.warning("No value for nf in the FFNS was received, defaulting to 5")
+                nf = 5
+            if threshold_list is not None:
+                raise ValueError("The FFNS does not accept any thresholds")
+            self._areas = [Area(0, np.inf, self.q0, nf)]
+        elif scheme in ["VFNS", "ZM-VFNS"]:
+            if nf is not None:
+                logger.warning("The VFNS configures its own value for nf, ignoring input nf=%d", nf)
+            if threshold_list is None:
+                raise ValueError("The VFNS scheme was selected but no thresholds were input")
+            self._setup_vfns(threshold_list)
         else:
             raise NotImplementedError(f"The scheme {scheme} not implemented in eko.dglap.py")
 
-    def _setup_zm_vfns(self, setup):
-        """ Receives the setup dictionary and sets up the zm_vfns scheme """
-        Qmc = pow(setup.get("Qmc", 0),2)
-        Qmb = pow(setup.get("Qmb", 0),2)
-        Qmt = pow(setup.get("Qmt", 0),2)
-        if Qmc > Qmb or Qmb > Qmt:
-            raise ValueError("Quark masses are not in c < b < t order!")
-        # Generate areas
-        self.bins = [Qmc, Qmb, Qmt]
-        self.areas = []
+    def _setup_vfns(self, threshold_list):
+        """ Receives a list of thresholds and sets up the vfns scheme
+
+        Parameters
+        ----------
+            `threshold_list`: list
+                List of q^2 thresholds
+        """
         nf = 3
+        # Force sorting
+        self._area_walls = sorted(threshold_list)
+        # Generate areas
+        self._areas = []
         qmin = 0
-        for i, qmax in enumerate(self.bins + [np.inf]):
-            new_area = Area(qmin, qmax, self.q0, nf)
+        qref = self.q0
+        for i, qmax in enumerate(self._area_walls + [np.inf]):
+            new_area = Area(qmin, qmax, qref, nf)
             if new_area.has_q0:
-                self.area_q0 = i
-            self.areas.append( new_area )
+                self._area_ref = i
+            self._areas.append(new_area)
             nf += 1
             qmin = qmax
 
@@ -122,11 +123,11 @@ class Threshold:
                 last one contains q
         """
         current_area = self.get_areas_idx(q)[0]
-        if current_area < self.area_q0:
+        if current_area < self._area_ref:
             rc = -1
         else:
             rc = 1
-        area_path = [self.areas[i] for i in range(self.area_q0, current_area +rc ,rc)]
+        area_path = [self._areas[i] for i in range(self._area_ref, current_area +rc ,rc)]
         return area_path
 
     def get_areas_idx(self, qarr):
@@ -148,26 +149,5 @@ class Threshold:
         if isinstance(qarr, (float,int)):
             qarr = np.array([qarr])
         # Check in which area is every q
-        areas_idx = np.digitize(qarr, self.bins)
+        areas_idx = np.digitize(qarr, self._area_walls)
         return areas_idx
-
-    def get_areas_q(self, qarr):
-        """
-        Returns the initial q for the area in which each value of qarr
-        falls
-
-        Parameters
-        ----------
-            `qarr`: np.array
-                array of values of q
-
-        Returns
-        -------
-            `areas_q`: list
-                list of the reference area for each q
-        """
-        areas_idx = self.get_areas_idx(qarr)
-        areas_q = [self.areas[i] for i in areas_idx]
-        return areas_q
-
-
