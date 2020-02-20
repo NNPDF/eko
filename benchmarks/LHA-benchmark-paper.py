@@ -414,16 +414,16 @@ if __name__ == "__main__":
     logStdout = logging.StreamHandler(sys.stdout)
     logStdout.setLevel(logging.INFO)
     logStdout.setFormatter(logging.Formatter("%(message)s"))
-    logging.getLogger("eko.dglap").handlers = []
-    logging.getLogger("eko.dglap").addHandler(logStdout)
-    logging.getLogger("eko.dglap").setLevel(logging.DEBUG)
+    logging.getLogger("eko.operator").handlers = []
+    logging.getLogger("eko.operator").addHandler(logStdout)
+    logging.getLogger("eko.operator").setLevel(logging.DEBUG)
 
     # run
     app = LHABenchmarkPaper(xgrid, polynom_rank, flag)
     # check input scale
     #save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
     # check fixed flavours
-#     app.run_fFNS()
+    app.run_FFNS()
     # do two steps
     #app.run_FFNS_twostep(1e2)
     # check ZM-VFNS

@@ -81,6 +81,7 @@ def get_singlet_paths(to, fromm, depth):
 
 
 def operator_product_helper(steps, paths):
+    # Move to the operator class
     """
         Joins all matrix elements given by paths.
 

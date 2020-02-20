@@ -75,6 +75,7 @@ class Threshold:
         self._areas = []
         self._area_walls = []
         self._area_ref = 0
+        self._scheme = scheme
         self.max_nf = None
         self.min_nf = None
 

@@ -182,12 +182,14 @@ class OperatorGrid:
         # TODO: do this in a more elegant way
         number_of_thresholds = len(operators_to_q0)
         if number_of_thresholds == 0:
-            return operator.ret
+            return operator.pdf_space(self._threshold_holder._scheme)
 
         # If we have to go through some threshold, prepare the operations
         nf_init = operator.nf - number_of_thresholds
         # Operators to multiply
-        op_to_multiplty = [i.ret for i in reversed(operators_to_q0 + [operator])]
+        op_to_multiplty = [i._internal_ret for i in reversed(operators_to_q0 + [operator])]
+
+        # TODO everything here should be written much more concise
 
         ret = {"operators": {}, "operator_errors": {}}
         def set_helper(to, paths):
@@ -312,4 +314,3 @@ class OperatorGrid:
             set_helper("g.S", utils.get_singlet_paths("g", "q", 4))
             set_helper("g.g", utils.get_singlet_paths("g", "g", 4))
             return ret
-
