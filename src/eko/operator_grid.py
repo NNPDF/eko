@@ -6,6 +6,39 @@
 import numpy as np
 from eko.operator import Operator
 
+class OperatorMaster:
+    """
+        The OperatorMaster is instantiated for a given set of parameters
+        And informs the generation of operators
+    """
+
+    def __init__(self, alpha_generator, kernel_dispatcher, xgrid, nf):
+        # Get all the integrands necessary for singlet and not singlet for nf
+        self._kernel_dispatcher = kernel_dispatcher
+        self._alpha_gen = alpha_generator
+        self._xgrid = xgrid
+        self._nf = nf
+        self._integrands_ns = None
+        self._integrands_s = None
+
+    def _compile(self):
+        self._integrands_ns = self._kernel_dispatcher.get_non_singlet_for_nf(self._nf)
+        self._integrands_s = self._kernel_dispatcher.get_singlet_for_nf(self._nf)
+
+    def get_op(self, q_from, q_to):
+        if self._integrands_s is None or self._integrands_ns is None:
+            self._compile()
+        # Generate the metadata for this operator
+        metadata = {
+                'q' : q_to,
+                'qref' : q_from,
+                'nf' : self._nf
+                }
+        # Generate the necessary parameters to compute the operator
+        delta_t = self._alpha_gen.delta_t(q_from, q_to)
+        return Operator(delta_t, self._xgrid, self._integrands_ns, self._integrands_s, metadata)
+
+
 class OperatorGrid:
     """
         The operator grid is the driver class of the evolution.
@@ -21,8 +54,11 @@ class OperatorGrid:
                 Instance of the StrongCoupling class able to generate a_s for any q
     """
 
-    def __init__(self, threshold_holder, alpha_generator, kernel_dispatcher):
+    def __init__(self, threshold_holder, alpha_generator, kernel_dispatcher, xgrid):
         self._threshold_holder = threshold_holder
+        self._op_masters = {}
+        for nf in threshold_holder.nf_range():
+            self._op_masters[nf] = OperatorMaster(alpha_generator, kernel_dispatcher, xgrid, nf)
         self._alpha_gen = alpha_generator
         self._kernels = kernel_dispatcher
         self._threshold_operators = {}
@@ -41,8 +77,7 @@ class OperatorGrid:
             new_op = (q_from, q_to)
             if new_op not in self._threshold_operators:
                 nf = area.nf
-                delta_t = self._alpha_gen.delta_t(q_from, q_to)
-                self._threshold_operators[new_op] = Operator(q_from, q_to, delta_t, nf, None)
+                self._threshold_operators[new_op] = self._op_masters[nf].get_op(q_from, q_to)
             q_from = q_to
 
     def set_q_limits(self, qmin, qmax):
@@ -83,8 +118,10 @@ class OperatorGrid:
         for area, q in zip(area_list, qgrid):
             q_from = area.qref
             nf = area.nf
-            delta_t = self._alpha_gen.delta_t(q_from, q)
-            self._op_grid[q] = Operator(q_from, q, delta_t, nf, None)
+            self._op_grid[q] = self._op_masters[nf].get_op(q_from, q)
+        # Now perform the computation, everything in parallel
+        for _, op in self._op_grid.items():
+            op.compute()
 
     def compute_qgrid(self, qgrid):
         """ Receives a grid in q^2 and computes all operations necessary
@@ -95,7 +132,7 @@ class OperatorGrid:
             qgrid: list
                 List of q^2
         """
-        if isinstance(qgrid, (np.float, np.int)):
+        if isinstance(qgrid, (np.float, np.int, np.integer)):
             qgrid = [qgrid]
         # Check max and min of the grid and reset the limits if necessary
         qmax = np.max(qgrid)

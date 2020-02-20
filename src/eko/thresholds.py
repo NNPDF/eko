@@ -75,6 +75,8 @@ class Threshold:
         self._areas = []
         self._area_walls = []
         self._area_ref = 0
+        self.max_nf = None
+        self.min_nf = None
 
         if scheme == "FFNS":
             if nf is None:
@@ -85,6 +87,8 @@ class Threshold:
             if threshold_list is not None:
                 raise ValueError("The FFNS does not accept any thresholds")
             self._areas = [Area(0, np.inf, self.q0, nf)]
+            self.max_nf = nf
+            self.min_nf = nf
         elif scheme in ["VFNS", "ZM-VFNS"]:
             if nf is not None:
                 logger.warning(
@@ -104,6 +108,9 @@ class Threshold:
     def qref(self):
         return self.q0
 
+    def nf_range(self):
+        return range(self.min_nf, self.max_nf+1)
+
     def _setup_vfns(self, threshold_list):
         """ Receives a list of thresholds and sets up the vfns scheme
 
@@ -119,6 +126,7 @@ class Threshold:
         self._areas = []
         qmin = 0
         qref = self.q0
+        self.min_nf = nf
         for i, qmax in enumerate(self._area_walls + [np.inf]):
             new_area = Area(qmin, qmax, qref, nf)
             if new_area.has_q0:
@@ -126,6 +134,7 @@ class Threshold:
             self._areas.append(new_area)
             nf += 1
             qmin = qmax
+        self.max_nf = nf
 
     def get_path_from_q0(self, q):
         """ Get the Area path from q0 to q.

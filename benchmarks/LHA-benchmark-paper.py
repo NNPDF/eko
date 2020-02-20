@@ -423,8 +423,8 @@ if __name__ == "__main__":
     # check input scale
     #save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
     # check fixed flavours
-    #app.run_FFNS()
+    app.run_FFNS()
     # do two steps
     #app.run_FFNS_twostep(1e2)
     # check ZM-VFNS
-    app.run_ZMVFNS()
+#     app.run_ZMVFNS()

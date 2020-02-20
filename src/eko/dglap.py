@@ -824,9 +824,12 @@ def run_dglap(setup):
     alpha_s = StrongCoupling(constants, alpha_ref, q_ref, threshold_holder)
 
     # And now compute the grid
-    op_grid = OperatorGrid(threshold_holder, alpha_s, kernel_dispatcher)
-    qgrid = [1, 10, 100]
+    op_grid = OperatorGrid(threshold_holder, alpha_s, kernel_dispatcher, xgrid)
+    qgrid = [setup["Q2grid"][0]]
     op_grid.compute_qgrid(qgrid)
+
+    # For comparison do this
+    ret_ops = _run_FFNS(setup, constants, basis_function_dispatcher, xgrid)
 
     # Start filling the output dictionary
     ret = {
