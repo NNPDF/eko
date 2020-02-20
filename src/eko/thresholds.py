@@ -57,7 +57,7 @@ class Threshold:
         `qref` : float
             Reference q^2
         `scheme`: str
-            Choice of scheme (default FFNS)
+            Choice of scheme 
         `threshold_list`: list
             List of q^2 thresholds should the scheme accept it
         `nf`: int
@@ -107,6 +107,10 @@ class Threshold:
     @property
     def qref(self):
         return self.q0
+
+    @property
+    def nf_ref(self):
+        return self._areas[self._area_ref].nf
 
     def nf_range(self):
         return range(self.min_nf, self.max_nf+1)

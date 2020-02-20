@@ -24,6 +24,8 @@ logger = logging.getLogger(__name__)
 Vs = ["V3", "V8", "V15", "V24", "V35"]
 Ts = ["T3", "T8", "T15", "T24", "T35"]
 
+save_rets = []
+
 
 def _parallelize_on_basis(basis_functions, pfunction, xk, n_jobs=1):
     """
@@ -394,6 +396,8 @@ def _run_ZMVFNS_1threshold(
         m2Threshold,
         mu2final,
     )
+    save_rets.append(step1)
+    save_rets.append(step2)
     # join elements
     ret = {"operators": {}, "operator_errors": {}}
 
@@ -827,14 +831,7 @@ def run_dglap(setup):
     op_grid = OperatorGrid(threshold_holder, alpha_s, kernel_dispatcher, xgrid)
     qgrid = [setup["Q2grid"][0]]
     op_grid.compute_qgrid(qgrid)
-    new_ops = op_grid._op_grid[setup["Q2grid"][0]].ret['operators']
-
-    # For comparison do this
-    ret_ops = _run_FFNS(setup, constants, basis_function_dispatcher, xgrid)
-    import ipdb
-    ipdb.set_trace()
-
-    # Start filling the output dictionary
+    new_ret = op_grid.get_op_at_Q(setup["Q2grid"][0])
     ret = {
         "xgrid": xgrid,
         "polynomial_degree": polynom_rank,
@@ -843,18 +840,31 @@ def run_dglap(setup):
         "operators": {},
         "operator_errors": {},
     }
-
-    # check FNS and split
-    FNS = setup["FNS"]
-    if FNS == "FFNS":
-        ret_ops = _run_FFNS(setup, constants, basis_function_dispatcher, xgrid)
-    elif FNS == "ZM-VFNS":
-        ret_ops = _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid)
-    else:
-        raise ValueError(f"Unknown FNS: {FNS}")
-    # join operators
-    ret = utils.merge_dicts(ret, ret_ops)
+    ret = utils.merge_dicts(ret, new_ret)
     return ret
+
+# #     # Start filling the output dictionary
+#     ret = {
+#         "xgrid": xgrid,
+#         "polynomial_degree": polynom_rank,
+#         "log": is_log_interpolation,
+#         "basis": basis_function_dispatcher,
+#         "operators": {},
+#         "operator_errors": {},
+#     }
+#     #ret = utils.merge_dicts(ret, new_ret)
+# 
+#     # check FNS and split
+#     FNS = setup["FNS"]
+#     if FNS == "FFNS":
+#         ret_ops = _run_FFNS(setup, constants, basis_function_dispatcher, xgrid)
+#     elif FNS == "ZM-VFNS":
+#         ret_ops = _run_ZM_VFNS(setup, constants, basis_function_dispatcher, xgrid)
+#     else:
+#         raise ValueError(f"Unknown FNS: {FNS}")
+#     # join operators
+#     ret = utils.merge_dicts(ret, ret_ops)
+#     return ret
 
 
 def apply_operator(ret, inputs, targetgrid=None):

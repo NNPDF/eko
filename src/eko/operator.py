@@ -107,6 +107,7 @@ class Operator:
         singlet, nons = _run_kernel_integrands(integrands_s, integrands_ns, delta_t, xgrid)
         self._compute_singlet = singlet
         self._compute_nonsinglet = nons
+        self.ret = None
 
     @property
     def nf(self):
@@ -121,32 +122,59 @@ class Operator:
         return self._metadata['q']
 
 
+
     def compute(self):
         ret_ns = self._compute_nonsinglet()
         ret_s = self._compute_singlet()
         self._computed = True
+        # TODO do this with more elegance
+        step = merge_dicts(ret_ns, ret_s)
 
-        ####
-        ret_step = merge_dicts(ret_ns, ret_s)
-
+        # join elements
         ret = {"operators": {}, "operator_errors": {}}
 
-        def set_helper(a, b):
-            ret["operators"][a] = ret_step["operators"][b]
-            ret["operator_errors"][a] = ret_step["operator_errors"][b]
+        def set_helper(to, from1):
+            # Save everything twice for now for some reason
+            ret["operators"][from1] = step["operators"][from1]
+            ret["operator_errors"][from1] = step["operator_errors"][from1]
+            ret["operators"][to] = step["operators"][from1]
+            ret["operator_errors"][to] = step["operator_errors"][from1]
 
         # join quarks flavors
+        # v.v = V
         set_helper("V.V", "NS_v")
-        for v, t in list(zip(Vs, Ts))[: self.nf - 1]:  # provide only computations up to nf
+        for v, t in list(zip(Vs, Ts))[: self.nf - 1]:  # already there
             set_helper(f"{v}.{v}", "NS_m")
             set_helper(f"{t}.{t}", "NS_p")
+        for v, t in list(zip(Vs, Ts))[self.nf - 1 :]:  # generate dynamically
+            set_helper(f"{v}.V", "NS_v")
+            set_helper(f"{t}.S", "S_qq")
+            set_helper(f"{t}.S", "S_qg")
         # Singlet + gluon
         set_helper("S.S", "S_qq")
         set_helper("S.g", "S_qg")
         set_helper("g.S", "S_gq")
         set_helper("g.g", "S_gg")
         self.ret = ret
-        ####
+# 
+#         ret = {"operators": {}, "operator_errors": {}}
+# 
+#         def set_helper(a, b):
+#             ret["operators"][a] = ret_step["operators"][b]
+#             ret["operator_errors"][a] = ret_step["operator_errors"][b]
+# 
+#         # join quarks flavors
+#         set_helper("V.V", "NS_v")
+#         for v, t in list(zip(Vs, Ts))[: self.nf - 1]:  # provide only computations up to nf
+#             set_helper(f"{v}.{v}", "NS_m")
+#             set_helper(f"{t}.{t}", "NS_p")
+#         # Singlet + gluon
+#         set_helper("S.S", "S_qq")
+#         set_helper("S.g", "S_qg")
+#         set_helper("g.S", "S_gq")
+#         set_helper("g.g", "S_gg")
+#         self.ret = ret
+#         ####
 
 
     def __mul__(self, operator):

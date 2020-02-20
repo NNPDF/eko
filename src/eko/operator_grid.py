@@ -5,6 +5,12 @@
 
 import numpy as np
 from eko.operator import Operator
+import eko.utils as utils
+import logging
+logger = logging.getLogger(__name__)
+# evolution basis names
+Vs = ["V3", "V8", "V15", "V24", "V35"]
+Ts = ["T3", "T8", "T15", "T24", "T35"]
 
 class OperatorMaster:
     """
@@ -25,7 +31,7 @@ class OperatorMaster:
         self._integrands_ns = self._kernel_dispatcher.get_non_singlet_for_nf(self._nf)
         self._integrands_s = self._kernel_dispatcher.get_singlet_for_nf(self._nf)
 
-    def get_op(self, q_from, q_to):
+    def get_op(self, q_from, q_to, generate = False):
         if self._integrands_s is None or self._integrands_ns is None:
             self._compile()
         # Generate the metadata for this operator
@@ -36,7 +42,10 @@ class OperatorMaster:
                 }
         # Generate the necessary parameters to compute the operator
         delta_t = self._alpha_gen.delta_t(q_from, q_to)
-        return Operator(delta_t, self._xgrid, self._integrands_ns, self._integrands_s, metadata)
+        op = Operator(delta_t, self._xgrid, self._integrands_ns, self._integrands_s, metadata)
+        if generate:
+            op.compute()
+        return op
 
 
 class OperatorGrid:
@@ -58,6 +67,9 @@ class OperatorGrid:
         self._threshold_holder = threshold_holder
         self._op_masters = {}
         for nf in threshold_holder.nf_range():
+            # Compile the kernels for each nf
+            kernel_dispatcher.set_up_all_integrands(nf)
+            # Set up the OP Master for each nf
             self._op_masters[nf] = OperatorMaster(alpha_generator, kernel_dispatcher, xgrid, nf)
         self._alpha_gen = alpha_generator
         self._kernels = kernel_dispatcher
@@ -70,15 +82,30 @@ class OperatorGrid:
         """ Generate the threshold operators """
         # Get unique areas
         q_from = self._threshold_holder.qref
+        nf = self._threshold_holder.nf_ref
         for area in area_list:
             q_to = area.qref
             if q_to == q_from:
                 continue
             new_op = (q_from, q_to)
             if new_op not in self._threshold_operators:
-                nf = area.nf
-                self._threshold_operators[new_op] = self._op_masters[nf].get_op(q_from, q_to)
+                self._threshold_operators[new_op] = self._op_masters[nf].get_op(q_from, q_to, generate=True)
+
+            nf = area.nf
             q_from = q_to
+
+    def _get_jumps(self, q):
+        """ Receives a value of q and generates a list of operators to multiply for in order to get
+        down to q0 """
+        full_area_path = self._threshold_holder.get_path_from_q0(q)
+        # The last one is where q resides so it is not needed
+        area_path = full_area_path[:-1]
+        op_list = []
+        for area in area_path:
+            q_from = area.qref
+            q_to = area.q_towards(q)
+            op_list.append(self._threshold_operators[(q_from, q_to)])
+        return op_list
 
     def set_q_limits(self, qmin, qmax):
         """ Sets up the limits of the grid in q^2 to be computed by the OperatorGrid
@@ -112,14 +139,11 @@ class OperatorGrid:
                 List of q^2
         """
         area_list = self._threshold_holder.get_areas(qgrid)
-        # Ensure that the kernels are compiled for all possible values of nf
-        nf_values = [a.nf for a in set(area_list)]
-        self._kernels.set_up_all_integrands(nf_values)
         for area, q in zip(area_list, qgrid):
             q_from = area.qref
             nf = area.nf
             self._op_grid[q] = self._op_masters[nf].get_op(q_from, q)
-        # Now perform the computation, everything in parallel
+        # Now perform the computation, TODO everything in parallel
         for _, op in self._op_grid.items():
             op.compute()
 
@@ -141,20 +165,151 @@ class OperatorGrid:
         # Now compute all raw operators
         self._compute_raw_grid(qgrid)
 
+    def get_op_at_Q(self, q):
+        """
+            Return the operator at Q
+        """
+        # Check the path to q0 for this operator
+        if q in self._op_grid:
+            operator = self._op_grid[q]
+        else:
+            self.compute_qgrid(q)
+            logger.warning("Q=%f not found in the grid, computing...", q)
+            operator = self._op_grid[q]
+        qref = operator.qref
+        # Check the path the operator has to go through
+        operators_to_q0 = self._get_jumps(qref)
+        # TODO: do this in a more elegant way
+        number_of_thresholds = len(operators_to_q0)
+        if number_of_thresholds == 0:
+            return operator.ret
 
-#     def get_op_at_Q(self, q):
-#         """
-#             Return the operator at Q
-#         """
-#         # Check the path to q0 for this operator
-#         operator = self._op_grid.get(q)
-#         if operator is None:
-#             raise ValueError(f"The operator for q={q} is not registered in the grid")
-#         qref = operator.qref
-#         path_to_q0 = self._threshold_holder.get_path_from_q0(qref)
-#         # Now get the operators from _threshold_op and multiply them
-#         for th_op in path_to_q0:
-#             operator = operator*th_op
-#         # Now do the multiplication of these operators
-#         return operator
-# 
+        # If we have to go through some threshold, prepare the operations
+        nf_init = operator.nf - number_of_thresholds
+        # Operators to multiply
+        op_to_multiplty = [i.ret for i in reversed(operators_to_q0 + [operator])]
+
+        ret = {"operators": {}, "operator_errors": {}}
+        def set_helper(to, paths):
+            op, op_err = utils.operator_product_helper(op_to_multiplty, paths)
+            ret["operators"][to] = op
+            ret["operator_errors"][to] = op_err
+
+
+        if number_of_thresholds == 1:
+            # join quarks flavors
+            # v.v = V
+            set_helper("V.V", [["NS_v", "NS_v"]])
+            # -.-
+            for b in Vs[: nf_init - 1]:
+                set_helper(f"{b}.{b}", [["NS_m", "NS_m"]])
+            # -.v
+            b = Vs[nf_init - 1]
+            set_helper(f"{b}.V", [["NS_m", "NS_v"]])
+            # v.v for higher combinations
+            for b in Vs[nf_init:]:
+                set_helper(f"{b}.V", [["NS_v", "NS_v"]])
+            # +.+
+            for b in Ts[: nf_init - 1]:
+                set_helper(f"{b}.{b}", [["NS_p", "NS_p"]])
+            # +.S
+            b = Ts[nf_init - 1]
+            set_helper(f"{b}.S", [["NS_p", "S_qq"]])
+            set_helper(f"{b}.g", [["NS_p", "S_qg"]])
+            # S.S
+            paths_qq = utils.get_singlet_paths("q", "q", 2)
+            paths_qg = utils.get_singlet_paths("q", "g", 2)
+            for b in Ts[nf_init:]:
+                set_helper(f"{b}.S", paths_qq)
+                set_helper(f"{b}.g", paths_qg)
+
+            # Singlet + gluon
+            set_helper("S.S", paths_qq)
+            set_helper("S.g", paths_qg)
+            set_helper("g.S", utils.get_singlet_paths("g", "q", 2))
+            set_helper("g.g", utils.get_singlet_paths("g", "g", 2))
+            return ret
+        elif number_of_thresholds == 2:
+            # join quarks flavors
+            # v.v.v = V
+            set_helper("V.V", [["NS_v", "NS_v", "NS_v"]])
+            # -.-.-
+            for v in Vs[: nf_init - 1]:
+                set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m"]])
+            # -.-.v
+            b = Vs[nf_init - 1]
+            set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_v"]])
+            # -.v.v
+            b = Vs[nf_init]
+            set_helper(f"{b}.V", [["NS_m", "NS_v", "NS_v"]])
+            # v.v.v for higher combinations
+            for b in Vs[nf_init + 1 :]:
+                set_helper(f"{b}.V", [["NS_v", "NS_v", "NS_v"]])
+            # +.+.+
+            for b in Ts[: nf_init - 1]:
+                set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p"]])
+            # +.+.S
+            b = Ts[nf_init - 1]
+            set_helper(f"{b}.S", [["NS_p", "NS_p", "S_qq"]])
+            # +.S.S
+            b = Ts[nf_init]
+            paths_qq_2 = utils.get_singlet_paths("q", "q", 2)
+            for p in paths_qq_2:
+                p.insert(0, "NS_p")
+            set_helper(f"{b}.S", paths_qq_2)
+            # S.S.S
+            paths_qq_3 = utils.get_singlet_paths("q", "q", 3)
+            paths_qg_3 = utils.get_singlet_paths("q", "g", 3)
+            for b in Ts[nf_init + 1 :]:
+                set_helper(f"{b}.S", paths_qq_3)
+                set_helper(f"{b}.g", paths_qg_3)
+
+            # Singlet + gluon
+            set_helper("S.S", paths_qq_3)
+            set_helper("S.g", paths_qg_3)
+            set_helper("g.S", utils.get_singlet_paths("g", "q", 3))
+            set_helper("g.g", utils.get_singlet_paths("g", "g", 3))
+            return ret
+        elif number_of_thresholds == 3:
+            # join quarks flavors
+            # v.v.v.v = V
+            set_helper("V.V", [["NS_v", "NS_v", "NS_v", "NS_v"]])
+            # -.-.-.- = V3,V8
+            for v in Vs[:2]:
+                set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m", "NS_m"]])
+            # -.-.-.v = V15
+            b = Vs[3]
+            set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_m", "NS_v"]])
+            # -.-.v.v = V24
+            b = Vs[4]
+            set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_v", "NS_v"]])
+            # -.v.v.v = V35
+            b = Vs[5]
+            set_helper(f"{b}.V", [["NS_m", "NS_v", "NS_v", "NS_v"]])
+            # +.+.+.+ = T3,T8
+            for b in Ts[:2]:
+                set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p", "NS_p"]])
+            # +.+.+.S = T15
+            b = Ts[2]
+            set_helper(f"{b}.S", [["NS_p", "NS_p", "NS_p", "S_qq"]])
+            # +.+.S.S = T24
+            b = Ts[3]
+            paths_qq_2 = utils.get_singlet_paths("q", "q", 2)
+            for p in paths_qq_2:
+                p.insert(0, "NS_p")
+                p.insert(0, "NS_p")
+            set_helper(f"{b}.S", paths_qq_2)
+            # +.S.S.S = T35
+            b = Ts[4]
+            paths_qq_3 = utils.get_singlet_paths("q", "q", 3)
+            for p in paths_qq_3:
+                p.insert(0, "NS_p")
+            set_helper(f"{b}.S", paths_qq_3)
+
+            # Singlet + gluon
+            set_helper("S.S", utils.get_singlet_paths("q", "q", 4))
+            set_helper("S.g", utils.get_singlet_paths("q", "g", 4))
+            set_helper("g.S", utils.get_singlet_paths("g", "q", 4))
+            set_helper("g.g", utils.get_singlet_paths("g", "g", 4))
+            return ret
+

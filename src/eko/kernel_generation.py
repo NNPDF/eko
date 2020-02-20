@@ -148,6 +148,8 @@ class KernelDispatcher:
 
     def set_up_all_integrands(self, nf_values):
         """ Compiles singlet and non-singlet integration kernel for each basis """
+        if isinstance(nf_values, (np.int, np.integer)):
+            nf_values = [nf_values]
         # Setup path
         path, jac = mellin.get_path_Talbot()
         for nf in nf_values:
