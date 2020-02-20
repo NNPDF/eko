@@ -64,7 +64,7 @@ class Threshold:
             Number of flavour for the FFNS (default 5)
     """
 
-    def __init__(self, qref=None, scheme="FFNS", threshold_list=None, nf=None):
+    def __init__(self, qref=None, scheme=None, threshold_list=None, nf=None):
         if qref is None:
             raise ValueError(
                 "The threshold class needs to know about the reference q^{2}"

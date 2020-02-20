@@ -827,9 +827,12 @@ def run_dglap(setup):
     op_grid = OperatorGrid(threshold_holder, alpha_s, kernel_dispatcher, xgrid)
     qgrid = [setup["Q2grid"][0]]
     op_grid.compute_qgrid(qgrid)
+    new_ops = op_grid._op_grid[setup["Q2grid"][0]].ret['operators']
 
     # For comparison do this
     ret_ops = _run_FFNS(setup, constants, basis_function_dispatcher, xgrid)
+    import ipdb
+    ipdb.set_trace()
 
     # Start filling the output dictionary
     ret = {

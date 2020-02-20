@@ -9,6 +9,10 @@ from eko.utils import merge_dicts
 import logging
 logger = logging.getLogger(__name__)
 
+# evolution basis names
+Vs = ["V3", "V8", "V15", "V24", "V35"]
+Ts = ["T3", "T8", "T15", "T24", "T35"]
+
 def _run_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, xgrid):
     # Generic parameters
     cut = 1e-2
@@ -68,7 +72,6 @@ def _run_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             extra_args.append(0.0)
 
             results = []
-            cut = 1e-2
             for integrand in nonsinglet_integrands:
                 result = mellin.inverse_mellin_transform(integrand, cut, extra_args)
                 results.append(result)
@@ -122,7 +125,29 @@ class Operator:
         ret_ns = self._compute_nonsinglet()
         ret_s = self._compute_singlet()
         self._computed = True
-        self.ret = merge_dicts(ret_ns, ret_s)
+
+        ####
+        ret_step = merge_dicts(ret_ns, ret_s)
+
+        ret = {"operators": {}, "operator_errors": {}}
+
+        def set_helper(a, b):
+            ret["operators"][a] = ret_step["operators"][b]
+            ret["operator_errors"][a] = ret_step["operator_errors"][b]
+
+        # join quarks flavors
+        set_helper("V.V", "NS_v")
+        for v, t in list(zip(Vs, Ts))[: self.nf - 1]:  # provide only computations up to nf
+            set_helper(f"{v}.{v}", "NS_m")
+            set_helper(f"{t}.{t}", "NS_p")
+        # Singlet + gluon
+        set_helper("S.S", "S_qq")
+        set_helper("S.g", "S_qg")
+        set_helper("g.S", "S_gq")
+        set_helper("g.g", "S_gg")
+        self.ret = ret
+        ####
+
 
     def __mul__(self, operator):
         """ Does the internal product of two operators """
