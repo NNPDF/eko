@@ -27,27 +27,34 @@ class FlavourTarget:
                 original flavour name (or names if the result is a combination)
             `nf_min`: int
                 minimal nf for which this flavour is active
-            `protected`: bool
-                whether flavours beyond the given nf can be obtained
     """
-    def __init__(self, name, path, original = None, nf_min = None, protected = False):
+    def __init__(self, name, path, original = None, nf_min = None):
         self.name = name
-        self.path = path
+        self._path = path
         self.nf_0 = MINIMAL_NF
-        self.protected = protected
         if nf_min is None:
             nf_min = self.nf_0
         if original is None:
             original = name
         self.nf_min = nf_min
         # In the most general case, the original input can be a combination
-        self.original = original
+        self.base_flavour = original
         # And, actually, gluon and singlet are two special cases
         # TODO this is just a hack because I'm not clever enough to generalize this part
         if name in ['S', 'g']:
             self.force_combination = True
         else:
             self.force_combination = False
+
+    def _path_from_nf(self, nf_target, n_thres):
+        """ Generate the path array from the known nf target
+        Taking into account nf target == self.nf_0 would be
+        the last member of the array
+        """
+        max_nns = len(self._path) + self.nf_0 - 1
+        idx_ini = max_nns - nf_target
+        idx_fin = idx_ini + n_thres + 1
+        return self._path[idx_ini:idx_fin]
 
     def get_path(self, nf_target, n_thresholds):
         """ Get the path to a given value of nf
@@ -66,38 +73,39 @@ class FlavourTarget:
                 a dictonary whose keys are the incoming flavour
                 and whose items are the corresponding path
         """
-        # First check whether this flavour can be obtained
-        if self.protected and nf_target < self.nf_min:
-            return None
-        # Check what was the original flavour is for this case
-        original_nf = nf_target - n_thresholds
-        if original_nf < self.nf_0:
+        # Check from what nf we are coming from
+        nf_from = nf_target - n_thresholds
+        if nf_from < self.nf_0:
             raise ValueError(f"Physical configurations with less than {self.nf_0} were not considered")
-        if original_nf < self.nf_min or self.force_combination:
-            original_flavour = self.original
+        # Now check from which flavour are we coming from
+        if nf_from < self.nf_min or self.force_combination:
+            flavour_from = self.base_flavour
         else:
-            original_flavour = self.name
-        # Now check whether the path is direct or combinatorial
-        idx_ini = original_nf - self.nf_0
-        idx_fin = nf_target - self.nf_0 + 1
-        if isinstance(original_flavour, str):
+            flavour_from = self.name
+        import ipdb
+        ipdb.set_trace()
+        # And now check whether this is a single flavour or a combination
+        if isinstance(flavour_from, str):
             # Good, trivial
-            return_path = [self.path[idx_ini:idx_fin]]
-            instructions = { original_flavour : return_path }
+            return_path = [self._path_from_nf(nf_target, n_thresholds)]
+            instructions = { flavour_from : return_path }
         else: # oh, no...
             # Compute the depth of the singlet part of the path
+            max_depth = n_thresholds + 1
             if self.force_combination:
-                depth = n_thresholds + 1
+                depth = max_depth
             else:
-                depth = self.nf_min - original_nf
+                depth = min(max_depth, self.nf_min - nf_from)
             # Find out the NS part of the path
-            ns_path = self.path[idx_ini: idx_fin-depth]
+            shift_th = n_thresholds - depth
+            shift_nf = nf_target - depth
+            ns_path = self._path_from_nf(shift_nf, shift_th)
             if self.name == 'g':
                 target_f = 'g'
             else:
                 target_f = 'q'
             instructions = {}
-            for flav in original_flavour:
+            for flav in flavour_from:
                 if flav == 'S':
                     from_f = 'q'
                 elif flav == 'g':
@@ -206,10 +214,7 @@ class Threshold:
 
         if scheme == "FFNS":
             if nf is None:
-                logger.warning(
-                    "No value for nf in the FFNS was received, defaulting to 5"
-                )
-                nf = 5
+                raise ValueError("No value for nf in the FFNS was received")
             if threshold_list is not None:
                 raise ValueError("The FFNS does not accept any thresholds")
             self._areas = [Area(0, np.inf, self.q0, nf)]
@@ -233,18 +238,20 @@ class Threshold:
 
 
         for flavour, data in VFNS.items():
+            # Get the path
             path = data[0]
+            base_flavour = None
+            min_nf = None
+            # Get the base_flavour if it is not itself
             if len(data) > 1:
-                original = data[1]
-            else:
-                original = None
+                base_flavour = data[1]
+            # Check at what nf this flavour enters for the first time
             if len(data) > 2:
-                nf = data[2]
-            else:
-                nf = None
-            flt = FlavourTarget(flavour, path, original=original, nf_min=nf, protected=protection)
-            if flavour == 'g':
-                flt.get_path(5,1)
+                min_nf = data[2]
+                if protection and min_nf > nf:
+                    # Skip impossible values
+                    continue
+            flt = FlavourTarget(flavour, path, original=base_flavour, nf_min=min_nf)
             self._operator_paths.append(flt)
 
     @property

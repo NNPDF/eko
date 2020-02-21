@@ -184,6 +184,8 @@ class OperatorGrid:
         if number_of_thresholds == 0:
             return operator.pdf_space(self._threshold_holder._scheme)
 
+        number_of_thresholds = 2
+
         # If we have to go through some threshold, prepare the operations
         nf_init = operator.nf - number_of_thresholds
         # Operators to multiply
@@ -198,8 +200,11 @@ class OperatorGrid:
             new_op = utils.operator_product(op_to_multiply, paths)
             new_op.name = name
             return new_op
-        def set_helper(a,b):
-            raise Exception("jo")
+        
+        def set_helper(name, path):
+            path_setup[name] = path
+            return None
+
 
 
 
@@ -272,19 +277,23 @@ class OperatorGrid:
                     print(key)
                     print(f"ORIGINAL: {path_setup[key]}")
                     print(f"COMPUTED: {path}")
-                    print(path == path_setup[key])
+                    print( path == path_setup[key] )
 
+            import ipdb
+            ipdb.set_trace()
 
+            print("---------------------------------------")
         elif number_of_thresholds == 2:
+            path_setup = {}
             # join quarks flavors
             # v.v.v = V
-#             set_helper("V.V", [["NS_v", "NS_v", "NS_v"]])
+            set_helper("V.V", [["NS_v", "NS_v", "NS_v"]])
             # -.-.-
-#             for v in Vs[: nf_init - 1]:
-#                 set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m"]])
+            for v in Vs[: nf_init - 1]:
+                set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m"]])
             # -.-.v
-#             b = Vs[nf_init - 1]
-#             set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_v"]])
+            b = Vs[nf_init - 1]
+            set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_v"]])
             # -.v.v = V24
             b = Vs[nf_init]
             set_helper(f"{b}.V", [["NS_m", "NS_v", "NS_v"]])
@@ -292,11 +301,11 @@ class OperatorGrid:
             for b in Vs[nf_init + 1 :]:
                 set_helper(f"{b}.V", [["NS_v", "NS_v", "NS_v"]]) # TODO
             # +.+.+
-#             for b in Ts[: nf_init - 1]:
-#                 set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p"]])
+            for b in Ts[: nf_init - 1]:
+                set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p"]])
             # +.+.S
-#             b = Ts[nf_init - 1]
-#             set_helper(f"{b}.S", [["NS_p", "NS_p", "S_qq"]])
+            b = Ts[nf_init - 1]
+            set_helper(f"{b}.S", [["NS_p", "NS_p", "S_qq"]])
             # +.S.S
             b = Ts[nf_init]
             paths_qq_2 = utils.get_singlet_paths("q", "q", 2)
@@ -311,21 +320,50 @@ class OperatorGrid:
                 set_helper(f"{b}.g", paths_qg_3)
 
             # Singlet + gluon
-#             set_helper("S.S", paths_qq_3)
-#             set_helper("S.g", paths_qg_3)
-#             set_helper("g.S", utils.get_singlet_paths("g", "q", 3))
-#             set_helper("g.g", utils.get_singlet_paths("g", "g", 3))
+            set_helper("S.S", paths_qq_3)
+            set_helper("S.g", paths_qg_3)
+            set_helper("g.S", utils.get_singlet_paths("g", "q", 3))
+            set_helper("g.g", utils.get_singlet_paths("g", "g", 3))
+
+            # Problems with
+            probems = ["V15.V", "T15.S", "T15.g",
+                    "T24.g", "T35.g"]
+            #depth is wrong also here
+            errors = ["T24.S", 
+                "T35.S",]
+
+
+            print("Initiating test")
+            for operator_path in self._threshold_holder._operator_paths:
+                where = operator_path.name
+                paths = operator_path.get_path(operator.nf, number_of_thresholds)
+                for origin, path in paths.items():
+                    key = f'{where}.{origin}'
+                    print(key)
+                    try:
+                        print(f"ORIGINAL: {path_setup[key]}")
+                        print(f"COMPUTED: {path}")
+                        print(path == path_setup[key])
+                    except:
+                        print(f" > > Problem with {key}")
+            print("Finalising test")
+
+            import ipdb
+            ipdb.set_trace()
+
+
             return ret
         elif number_of_thresholds == 3:
+            path_setup = {}
             # join quarks flavors
             # v.v.v.v = V
-#             set_helper("V.V", [["NS_v", "NS_v", "NS_v", "NS_v"]])
+            set_helper("V.V", [["NS_v", "NS_v", "NS_v", "NS_v"]])
             # -.-.-.- = V3,V8
-#             for v in Vs[:2]:
-#                 set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m", "NS_m"]])
+            for v in Vs[:2]:
+                set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m", "NS_m"]])
             # -.-.-.v = V15
-#             b = Vs[2]
-#             set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_m", "NS_v"]])
+            b = Vs[2]
+            set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_m", "NS_v"]])
             # -.-.v.v = V24
             b = Vs[4]
             set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_v", "NS_v"]])
@@ -333,11 +371,11 @@ class OperatorGrid:
             b = Vs[5]
             set_helper(f"{b}.V", [["NS_m", "NS_v", "NS_v", "NS_v"]])
             # +.+.+.+ = T3,T8
-#             for b in Ts[:2]:
-#                 set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p", "NS_p"]])
+            for b in Ts[:2]:
+                set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p", "NS_p"]])
             # +.+.+.S = T15
-#             b = Ts[2]
-#             set_helper(f"{b}.S", [["NS_p", "NS_p", "NS_p", "S_qq"]])
+            b = Ts[2]
+            set_helper(f"{b}.S", [["NS_p", "NS_p", "NS_p", "S_qq"]])
             # +.+.S.S = T24
             b = Ts[3]
             paths_qq_2 = utils.get_singlet_paths("q", "q", 2)
@@ -353,10 +391,23 @@ class OperatorGrid:
             set_helper(f"{b}.S", paths_qq_3)
 
             # Singlet + gluon
-#             set_helper("S.S", utils.get_singlet_paths("q", "q", 4))
-#             set_helper("S.g", utils.get_singlet_paths("q", "g", 4))
-#             set_helper("g.S", utils.get_singlet_paths("g", "q", 4))
-#             set_helper("g.g", utils.get_singlet_paths("g", "g", 4))
+            set_helper("S.S", utils.get_singlet_paths("q", "q", 4))
+            set_helper("S.g", utils.get_singlet_paths("q", "g", 4))
+            set_helper("g.S", utils.get_singlet_paths("g", "q", 4))
+            set_helper("g.g", utils.get_singlet_paths("g", "g", 4))
+
+            for operator_path in self._threshold_holder._operator_paths:
+                where = operator_path.name
+                paths = operator_path.get_path(operator.nf, number_of_thresholds)
+                for origin, path in paths.items():
+                    key = f'{where}.{origin}'
+                    print(key)
+                    print(f"ORIGINAL: {path_setup[key]}")
+                    print(f"COMPUTED: {path}")
+                    print( path == path_setup[key] )
+
+            import ipdb
+            ipdb.set_trace()
             return ret
 
             for operator_path in self._threshold_holder._operator_paths:
