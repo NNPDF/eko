@@ -4,7 +4,7 @@
 """
 
 import numpy as np
-from eko.operator import Operator
+from eko.operator import Operator, OperatorMember
 import eko.utils as utils
 import logging
 logger = logging.getLogger(__name__)
@@ -188,71 +188,106 @@ class OperatorGrid:
         nf_init = operator.nf - number_of_thresholds
         # Operators to multiply
         op_to_multiplty = [i._internal_ret for i in reversed(operators_to_q0 + [operator])]
+        op_to_multiply = [i._internal_ops for i in reversed(operators_to_q0 + [operator])]
+        return_dictionary = {}
 
         # TODO everything here should be written much more concise
 
         ret = {"operators": {}, "operator_errors": {}}
-        def set_helper(to, paths):
-            op, op_err = utils.operator_product_helper(op_to_multiplty, paths)
-            ret["operators"][to] = op
-            ret["operator_errors"][to] = op_err
+        def good_helper(name, paths):
+            new_op = utils.operator_product(op_to_multiply, paths)
+            new_op.name = name
+            return new_op
+        def set_helper(a,b):
+            raise Exception("jo")
+
+
+
+        # Generic fill up
+        nfmo = nf_init - 1
+        an = number_of_thresholds+1 # Number of areas to pass
+        anmo = number_of_thresholds
+        path_setup = {
+                "V.V"           : [an*["NS_v"]], # V = \mul v
+                f"{Vs[nfmo]}.V" : [anmo*["NS_m"] + ["NS_v"]], # (\mul -)*v = V15
+                f"{Ts[nfmo]}.S" : [anmo*["NS_p"] + ["S_qq"]], # (\mul +)*v = T15_u
+                f"{Ts[nfmo]}.g" : [anmo*["NS_p"] + ["S_qg"]], # (\mul +)*v = T15_d
+                }
+
+        # Dynamical fill up
+        # (\mul -) = V3, V8
+        for b in Vs[:nfmo]:
+            path_setup[f"{b}.{b}"] = [an*["NS_m"]]
+        # (\mul +) = T3, T8
+        for b in Ts[:nfmo]:
+            path_setup[f"{b}.{b}"] = [an*["NS_p"]]
+
+        # Generate complicated paths
+        paths_qq = utils.get_singlet_paths("q", "q", an)
+        paths_qg = utils.get_singlet_paths("q", "g", an)
+
+        # Singlet + gluon
+        path_setup["S.S"]= paths_qq
+        path_setup["S.g"]= paths_qg
+        path_setup["g.S"]= utils.get_singlet_paths("g", "q", an)
+        path_setup["g.g"]= utils.get_singlet_paths("g", "g", an)
 
 
         if number_of_thresholds == 1:
-            # join quarks flavors
-            # v.v = V
-            set_helper("V.V", [["NS_v", "NS_v"]])
+            # Setup all final results and their respective arrival paths
+#             nfmo = nf_init - 1
+#             path_setup = {
+#                     "V.V": [["NS_v", "NS_v"]], # v.v = V
+#                     f"{Vs[nfmo]}.V" : [["NS_m", "NS_v"]], # -.v
+#                     f"{Ts[nfmo]}.S" : [["NS_p", "S_qq"]], # +.S
+#                     f"{Ts[nfmo]}.g" : [["NS_p", "S_qg"]], # +.S
+#                     }
+            # Dynamical fill up
             # -.-
-            for b in Vs[: nf_init - 1]:
-                set_helper(f"{b}.{b}", [["NS_m", "NS_m"]])
-            # -.v
-            b = Vs[nf_init - 1]
-            set_helper(f"{b}.V", [["NS_m", "NS_v"]])
+#             for b in Vs[:nfmo]:
+#                 path_setup[f"{b}.{b}"] = [["NS_m", "NS_m"]]
             # v.v for higher combinations
             for b in Vs[nf_init:]:
-                set_helper(f"{b}.V", [["NS_v", "NS_v"]])
+                path_setup[f"{b}.V"] = [["NS_v", "NS_v"]]
             # +.+
-            for b in Ts[: nf_init - 1]:
-                set_helper(f"{b}.{b}", [["NS_p", "NS_p"]])
-            # +.S
-            b = Ts[nf_init - 1]
-            set_helper(f"{b}.S", [["NS_p", "S_qq"]])
-            set_helper(f"{b}.g", [["NS_p", "S_qg"]])
+#             for b in Ts[: nf_init - 1]:
+#                 path_setup[f"{b}.{b}"] = [["NS_p", "NS_p"]]
             # S.S
             paths_qq = utils.get_singlet_paths("q", "q", 2)
             paths_qg = utils.get_singlet_paths("q", "g", 2)
             for b in Ts[nf_init:]:
-                set_helper(f"{b}.S", paths_qq)
-                set_helper(f"{b}.g", paths_qg)
-
+                path_setup[f"{b}.S"] = paths_qq
+                path_setup[f"{b}.g"] = paths_qg
             # Singlet + gluon
-            set_helper("S.S", paths_qq)
-            set_helper("S.g", paths_qg)
-            set_helper("g.S", utils.get_singlet_paths("g", "q", 2))
-            set_helper("g.g", utils.get_singlet_paths("g", "g", 2))
-            return ret
+#             path_setup["S.S"]= paths_qq
+#             path_setup["S.g"]= paths_qg
+#             path_setup["g.S"]= utils.get_singlet_paths("g", "q", 2)
+#             path_setup["g.g"]= utils.get_singlet_paths("g", "g", 2)
+
+
+
         elif number_of_thresholds == 2:
             # join quarks flavors
             # v.v.v = V
-            set_helper("V.V", [["NS_v", "NS_v", "NS_v"]])
+#             set_helper("V.V", [["NS_v", "NS_v", "NS_v"]])
             # -.-.-
-            for v in Vs[: nf_init - 1]:
-                set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m"]])
+#             for v in Vs[: nf_init - 1]:
+#                 set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m"]])
             # -.-.v
-            b = Vs[nf_init - 1]
-            set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_v"]])
-            # -.v.v
+#             b = Vs[nf_init - 1]
+#             set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_v"]])
+            # -.v.v = V24
             b = Vs[nf_init]
             set_helper(f"{b}.V", [["NS_m", "NS_v", "NS_v"]])
             # v.v.v for higher combinations
             for b in Vs[nf_init + 1 :]:
-                set_helper(f"{b}.V", [["NS_v", "NS_v", "NS_v"]])
+                set_helper(f"{b}.V", [["NS_v", "NS_v", "NS_v"]]) # TODO
             # +.+.+
-            for b in Ts[: nf_init - 1]:
-                set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p"]])
+#             for b in Ts[: nf_init - 1]:
+#                 set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p"]])
             # +.+.S
-            b = Ts[nf_init - 1]
-            set_helper(f"{b}.S", [["NS_p", "NS_p", "S_qq"]])
+#             b = Ts[nf_init - 1]
+#             set_helper(f"{b}.S", [["NS_p", "NS_p", "S_qq"]])
             # +.S.S
             b = Ts[nf_init]
             paths_qq_2 = utils.get_singlet_paths("q", "q", 2)
@@ -267,21 +302,21 @@ class OperatorGrid:
                 set_helper(f"{b}.g", paths_qg_3)
 
             # Singlet + gluon
-            set_helper("S.S", paths_qq_3)
-            set_helper("S.g", paths_qg_3)
-            set_helper("g.S", utils.get_singlet_paths("g", "q", 3))
-            set_helper("g.g", utils.get_singlet_paths("g", "g", 3))
+#             set_helper("S.S", paths_qq_3)
+#             set_helper("S.g", paths_qg_3)
+#             set_helper("g.S", utils.get_singlet_paths("g", "q", 3))
+#             set_helper("g.g", utils.get_singlet_paths("g", "g", 3))
             return ret
         elif number_of_thresholds == 3:
             # join quarks flavors
             # v.v.v.v = V
-            set_helper("V.V", [["NS_v", "NS_v", "NS_v", "NS_v"]])
+#             set_helper("V.V", [["NS_v", "NS_v", "NS_v", "NS_v"]])
             # -.-.-.- = V3,V8
-            for v in Vs[:2]:
-                set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m", "NS_m"]])
+#             for v in Vs[:2]:
+#                 set_helper(f"{v}.{v}", [["NS_m", "NS_m", "NS_m", "NS_m"]])
             # -.-.-.v = V15
-            b = Vs[3]
-            set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_m", "NS_v"]])
+#             b = Vs[2]
+#             set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_m", "NS_v"]])
             # -.-.v.v = V24
             b = Vs[4]
             set_helper(f"{b}.V", [["NS_m", "NS_m", "NS_v", "NS_v"]])
@@ -289,11 +324,11 @@ class OperatorGrid:
             b = Vs[5]
             set_helper(f"{b}.V", [["NS_m", "NS_v", "NS_v", "NS_v"]])
             # +.+.+.+ = T3,T8
-            for b in Ts[:2]:
-                set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p", "NS_p"]])
+#             for b in Ts[:2]:
+#                 set_helper(f"{b}.{b}", [["NS_p", "NS_p", "NS_p", "NS_p"]])
             # +.+.+.S = T15
-            b = Ts[2]
-            set_helper(f"{b}.S", [["NS_p", "NS_p", "NS_p", "S_qq"]])
+#             b = Ts[2]
+#             set_helper(f"{b}.S", [["NS_p", "NS_p", "NS_p", "S_qq"]])
             # +.+.S.S = T24
             b = Ts[3]
             paths_qq_2 = utils.get_singlet_paths("q", "q", 2)
@@ -309,8 +344,18 @@ class OperatorGrid:
             set_helper(f"{b}.S", paths_qq_3)
 
             # Singlet + gluon
-            set_helper("S.S", utils.get_singlet_paths("q", "q", 4))
-            set_helper("S.g", utils.get_singlet_paths("q", "g", 4))
-            set_helper("g.S", utils.get_singlet_paths("g", "q", 4))
-            set_helper("g.g", utils.get_singlet_paths("g", "g", 4))
+#             set_helper("S.S", utils.get_singlet_paths("q", "q", 4))
+#             set_helper("S.g", utils.get_singlet_paths("q", "g", 4))
+#             set_helper("g.S", utils.get_singlet_paths("g", "q", 4))
+#             set_helper("g.g", utils.get_singlet_paths("g", "g", 4))
             return ret
+
+        # Now create the results
+        for name, path in path_setup.items():
+            return_dictionary[name] = good_helper(name, path)
+
+        for key, item in return_dictionary.items():
+            ret["operators"][key] = item.value
+            ret["operator_errors"][key] = item.error
+
+        return ret

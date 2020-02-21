@@ -8,6 +8,50 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+class FlavourTarger:
+    """
+        Defines the scheme
+
+        Parameters
+        ----------
+            `name`: str
+                name of the flavour target (T8, V8, etc)
+            `path`: list(str)
+                path to get to the target from the origin at the minimum possible nf
+            `original`: str
+                original flavour name name
+            `nf_min`: int
+                minimal nf for which this flavour is active
+            `protected`: bool
+                whether flavours beyond the given nf can be obtained
+    """
+    def __init__(self, name, path, original, nf_min, protected = False):
+        self.name = name
+        self.path = path
+        self.original = original
+        self.nf_min = nf_min
+        self.protected = protected
+
+    def get_path(self, nf_target, thresholds):
+        """ Get the path to a given value of nf
+        given a number of thresholds to be crossed
+        """
+        # First check whether this flavour can be obtained
+        if self.protected and nf_target < self.nf_min:
+            return None
+        # Check what the original flavour is for this case
+        original_nf = nf_target - thresholds
+
+
+
+##### Threshold scheme definition
+# syntax:
+# 
+vfns = {
+        'V' : ['NS_v', 'NS_v', 'NS_v', 'NS_v'],
+
+        }
+
 
 class Area:
     """ Sets up an area """

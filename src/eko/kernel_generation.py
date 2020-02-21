@@ -124,7 +124,6 @@ class KernelDispatcher:
                 nf,
                 self.constants,
                 beta_0,
-                self.delta_t,
             )
             kernels.append(self.njit(new_ker))
         return kernels

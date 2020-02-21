@@ -14,6 +14,7 @@ Vs = ["V3", "V8", "V15", "V24", "V35"]
 Ts = ["T3", "T8", "T15", "T24", "T35"]
 
 def _run_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, xgrid):
+    # TODO: move to the OpMaster
     # Generic parameters
     cut = 1e-2
     grid_size = len(xgrid)
@@ -42,8 +43,15 @@ def _run_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             log_text = f"{k+1}/{grid_size}"
             logger.info(log_prefix, log_text)
         logger.info(log_prefix, "done.")
-
         output_array = np.array(all_output)
+
+        singlet_names = ["S_qq", "S_qg", "S_gq", "S_gg"]
+        op_dict = {}
+        for i, name in enumerate(singlet_names):
+            op = output_array[:, :, i,0]
+            er = output_array[:, :, i,1]
+            new_op = OperatorMember(op, er, name)
+            op_dict[name] = new_op
 
         # insert operators
         ret = {"operators": {}, "operator_errors": {}}
@@ -56,7 +64,7 @@ def _run_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
         ret["operator_errors"]["S_gq"] = output_array[:, :, 2, 1]
         ret["operator_errors"]["S_gg"] = output_array[:, :, 3, 1]
 
-        return ret
+        return ret, op_dict
 
     def run_nonsinglet():
         print("Starting non-singlet")
@@ -80,8 +88,13 @@ def _run_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             log_text = f"{k+1}/{grid_size}"
             logger.info(log_prefix, log_text)
 
-        op = np.array(operators)
-        op_err = np.array(operator_errors)
+        ns_names = ["NS_p", "NS_m", "NS_v"]
+        op_dict = {}
+        for _, name in enumerate(ns_names):
+            op = np.array(operators)
+            op_err = np.array(operator_errors)
+            new_op = OperatorMember(op, op_err, name)
+            op_dict[name] = new_op
 
         # in LO v=+=-
         ret = {
@@ -92,9 +105,75 @@ def _run_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
                 "NS_v": op_err.copy(),
             },
         }
-        return ret
+        return ret, op_dict
 
     return run_singlet, run_nonsinglet
+
+class OperatorMember:
+    """ Operator members """
+
+    def __init__(self, value, error, name):
+        self.value = value
+        self.error = error
+        self._name = name
+
+    @property
+    def name(self):
+        return self._name
+    @name.setter
+    def name(self, new_name):
+        self._name = new_name
+
+    def __str__(self):
+        return self.name
+
+    def __mul__(self, operator_member):
+        if isinstance(operator_member, (np.int, np.float, np.integer)):
+            rval = operator_member
+            rerror = 0.0
+            new_name = self.name
+        elif isinstance(operator_member, OperatorMember):
+            rval = operator_member.value
+            rerror = operator_member.error
+            new_name = f"{self.name}.{operator_member.name}"
+        else:
+            raise NotImplementedError(f"Can't multiply OperatorMember and {type(operator_member)}")
+        lval = self.value
+        ler = self.error
+        new_val = np.matmul(lval, rval)
+        new_err = np.sqrt(np.matmul(lval, rerror) + np.matmul(rval, ler))
+        return OperatorMember(new_val, new_err, new_name)
+
+    def __add__(self, operator_member):
+        if isinstance(operator_member, (np.int, np.float, np.integer)):
+            rval = operator_member
+            rerror = 0.0
+            new_name = self.name
+        elif isinstance(operator_member, OperatorMember):
+            rval = operator_member.value
+            rerror = operator_member.error
+            new_name = f"{self.name}+{operator_member.name}"
+        else:
+            raise NotImplementedError(f"Can't sum OperatorMember and {type(operator_member)}")
+        new_val = self.value + rval
+        new_err = np.sqrt(pow(self.error,2)+pow(rerror,2))
+        return OperatorMember(new_val, new_err, new_name)
+
+    def __sub__(self, operator_member):
+        self.__add__(-operator_member)
+
+    # These are necessary to deal with python operators such as sum
+    def __radd__(self, operator_member):
+        if isinstance(operator_member, OperatorMember):
+            return operator_member.__add__(self)
+        else:
+            return self.__add__(operator_member)
+
+    def __rsub__(self, operator_member):
+        return self.__radd__(-operator_member)
+
+    def __eq__(self, operator_member):
+        return np.allclose(self.value, operator_member.value)
 
 
 class Operator:
@@ -108,6 +187,7 @@ class Operator:
         self._compute_singlet = singlet
         self._compute_nonsinglet = nons
         self._internal_ret = None
+        self._internal_ops = {}
 
     @property
     def nf(self):
@@ -142,7 +222,7 @@ class Operator:
             for v, t in list(zip(Vs, Ts))[self.nf - 1 :]:  # generate dynamically
                 set_helper(f"{v}.V", "NS_v")
                 set_helper(f"{t}.S", "S_qq")
-                set_helper(f"{t}.S", "S_qg")
+                set_helper(f"{t}.g", "S_qg")
         # Singlet + gluon
         set_helper("S.S", "S_qq")
         set_helper("S.g", "S_qg")
@@ -150,19 +230,22 @@ class Operator:
         set_helper("g.g", "S_gg")
         return ret
 
-
     def compute(self):
-        ret_ns = self._compute_nonsinglet()
-        ret_s = self._compute_singlet()
+        ret_ns, op_members_ns = self._compute_nonsinglet()
+        ret_s, op_members_s = self._compute_singlet()
         self._computed = True
         step = merge_dicts(ret_ns, ret_s)
+        self._internal_ops.update(op_members_s)
+        self._internal_ops.update(op_members_ns)
         self._internal_ret = step
 
+    def __mul__(self, pdf_object):
+        """ The multiplication operator needs to act on a pdf object
+        This pdf object can be a LHAPDF array or a NNPDF array or
+        whatever """
+        if pdf_object == "nnpdf":
+            return self._multiply_nnpdf(pdf_object)
 
-
-    def __mul__(self, operator):
-        """ Does the internal product of two operators """
-        # Check that the operators are compatible
-
-    def __add__(self, operator):
-        """ Does the summation of two operators """
+    def multiply_nnpdf(self, nnpdf_object):
+        """ Act on a NNPDF pdf object """
+        return nnpdf_object 

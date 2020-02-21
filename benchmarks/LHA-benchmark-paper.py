@@ -401,6 +401,10 @@ if __name__ == "__main__":
     n_mid = 20
     polynom_rank = 4
 
+#     n_low = 5
+#     n_mid = 5
+#     polynom_rank = 3
+
     # combine grid
     flag = f"l{n_low}m{n_mid}r{polynom_rank}-p5"
     xgrid_low = interpolation.get_xgrid_linear_at_log(
@@ -423,7 +427,7 @@ if __name__ == "__main__":
     # check input scale
     #save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
     # check fixed flavours
-    app.run_FFNS()
+    # app.run_FFNS()
     # do two steps
     #app.run_FFNS_twostep(1e2)
     # check ZM-VFNS
