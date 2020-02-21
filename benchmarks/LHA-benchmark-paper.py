@@ -397,13 +397,13 @@ def save_initial_scale_plots_to_pdf(path):
 
 if __name__ == "__main__":
     # setup
-#     n_low = 30
-#     n_mid = 20
-#     polynom_rank = 4
+    n_low = 30
+    n_mid = 20
+    polynom_rank = 4
 
-    n_low = 2
-    n_mid = 2
-    polynom_rank = 2
+#     n_low = 2
+#     n_mid = 2
+#     polynom_rank = 2
 
     # combine grid
     flag = f"l{n_low}m{n_mid}r{polynom_rank}-p5"

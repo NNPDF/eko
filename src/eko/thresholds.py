@@ -40,7 +40,7 @@ class FlavourTarget:
         # In the most general case, the original input can be a combination
         self.base_flavour = original
         # And, actually, gluon and singlet are two special cases
-        # TODO this is just a hack because I'm not clever enough to generalize this part
+        # TODO this is just a hack because I'm not able to generalize this part
         if name in ['S', 'g']:
             self.force_combination = True
         else:
@@ -73,6 +73,7 @@ class FlavourTarget:
                 a dictonary whose keys are the incoming flavour
                 and whose items are the corresponding path
         """
+        # TODO can this be made more concise, or is this really the best that can be done?
         # Check from what nf we are coming from
         nf_from = nf_target - n_thresholds
         if nf_from < self.nf_0:
@@ -82,8 +83,6 @@ class FlavourTarget:
             flavour_from = self.base_flavour
         else:
             flavour_from = self.name
-        import ipdb
-        ipdb.set_trace()
         # And now check whether this is a single flavour or a combination
         if isinstance(flavour_from, str):
             # Good, trivial
@@ -290,7 +289,6 @@ class Threshold:
             qmin = qmax
         self.max_nf = nf
 
-
     def get_path_from_q0(self, q):
         """ Get the Area path from q0 to q.
 
@@ -315,6 +313,16 @@ class Threshold:
             self._areas[i] for i in range(self._area_ref, current_area + rc, rc)
         ]
         return area_path
+
+    def get_path_and_instructions_from_q0(self, q, nf):
+        """ """
+        area_path = self.get_path_from_q0(q)
+        n_thresholds = len(area_path)
+        def instructions():
+            for fvpath in self._operator_paths:
+                yield fvpath.get_path(nf, n_thresholds)
+        return area_path, instructions
+
 
     def get_areas_idx(self, qarr):
         """
