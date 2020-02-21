@@ -3,12 +3,17 @@
 
     Inside this class q is always treated as a q^2
 """
+# TODO there are still a few hard-coded things in this class
+# it would be nice to make it even more general
 import numpy as np
 import logging
+from eko.utils import get_singlet_paths
 
 logger = logging.getLogger(__name__)
 
-class FlavourTarger:
+MINIMAL_NF = 3 # Should this be a parameter or can it be hardcoded?
+
+class FlavourTarget:
     """
         Defines the scheme
 
@@ -18,40 +23,114 @@ class FlavourTarger:
                 name of the flavour target (T8, V8, etc)
             `path`: list(str)
                 path to get to the target from the origin at the minimum possible nf
-            `original`: str
-                original flavour name name
+            `original`: str or list(str)
+                original flavour name (or names if the result is a combination)
             `nf_min`: int
                 minimal nf for which this flavour is active
             `protected`: bool
                 whether flavours beyond the given nf can be obtained
     """
-    def __init__(self, name, path, original, nf_min, protected = False):
+    def __init__(self, name, path, original = None, nf_min = None, protected = False):
         self.name = name
         self.path = path
-        self.original = original
-        self.nf_min = nf_min
+        self.nf_0 = MINIMAL_NF
         self.protected = protected
+        if nf_min is None:
+            nf_min = self.nf_0
+        if original is None:
+            original = name
+        self.nf_min = nf_min
+        # In the most general case, the original input can be a combination
+        self.original = original
+        # And, actually, gluon and singlet are two special cases
+        # TODO this is just a hack because I'm not clever enough to generalize this part
+        if name in ['S', 'g']:
+            self.force_combination = True
+        else:
+            self.force_combination = False
 
-    def get_path(self, nf_target, thresholds):
+    def get_path(self, nf_target, n_thresholds):
         """ Get the path to a given value of nf
         given a number of thresholds to be crossed
+
+        Parameters
+        ----------
+            `nf_target`: int
+                nf value of the target flavour
+            `threshold`: int
+                number of thresholds which are going to be crossed
+
+        Returns
+        -------
+            `instructions`: dict
+                a dictonary whose keys are the incoming flavour
+                and whose items are the corresponding path
         """
         # First check whether this flavour can be obtained
         if self.protected and nf_target < self.nf_min:
             return None
-        # Check what the original flavour is for this case
-        original_nf = nf_target - thresholds
+        # Check what was the original flavour is for this case
+        original_nf = nf_target - n_thresholds
+        if original_nf < self.nf_0:
+            raise ValueError(f"Physical configurations with less than {self.nf_0} were not considered")
+        if original_nf < self.nf_min or self.force_combination:
+            original_flavour = self.original
+        else:
+            original_flavour = self.name
+        # Now check whether the path is direct or combinatorial
+        idx_ini = original_nf - self.nf_0
+        idx_fin = nf_target - self.nf_0 + 1
+        if isinstance(original_flavour, str):
+            # Good, trivial
+            return_path = [self.path[idx_ini:idx_fin]]
+            instructions = { original_flavour : return_path }
+        else: # oh, no...
+            # Compute the depth of the singlet part of the path
+            if self.force_combination:
+                depth = n_thresholds + 1
+            else:
+                depth = self.nf_min - original_nf
+            # Find out the NS part of the path
+            ns_path = self.path[idx_ini: idx_fin-depth]
+            if self.name == 'g':
+                target_f = 'g'
+            else:
+                target_f = 'q'
+            instructions = {}
+            for flav in original_flavour:
+                if flav == 'S':
+                    from_f = 'q'
+                elif flav == 'g':
+                    from_f = 'g'
+                paths = get_singlet_paths(target_f, from_f, depth)
+                # Now insert in the paths the 'trivial' part
+                for p in paths:
+                    for extra in ns_path:
+                        p.insert(0, extra)
+                instructions[flav] = paths
+        return instructions
 
-
-
-##### Threshold scheme definition
-# syntax:
-# 
-vfns = {
-        'V' : ['NS_v', 'NS_v', 'NS_v', 'NS_v'],
-
+##### This can go to a separate file but for now it is ok here
+# These are basically the parameters of the FlavourTarget class
+# When nothing is given it is assumed nf_min = 3 and original == name
+NSV = 'NS_v'
+NSP = 'NS_p'
+NSM = 'NS_m'
+VFNS = {
+        'V' : (4*[NSV],),
+        'V3' : (4*[NSM],),
+        'V8' : (4*[NSM],),
+        'V15' : (3*[NSM] + [NSV], 'V', 4),
+        'V24' : (2*[NSM] + 2*[NSV], 'V', 5),
+        'V35' : ([NSM] + 3*[NSV], 'V', 6),
+        'T3' : (4*[NSP],),
+        'T8' : (4*[NSP],),
+        'T15' : (3*[NSP], ['S', 'g'], 4),
+        'T24' : (2*[NSP], ['S', 'g'], 5),
+        'T35' : ([NSP], ['S', 'g'], 6),
+        'S' : ([], ['S', 'g']),
+        'g' : ([], ['S', 'g']),
         }
-
 
 class Area:
     """ Sets up an area """
@@ -122,6 +201,8 @@ class Threshold:
         self._scheme = scheme
         self.max_nf = None
         self.min_nf = None
+        self._operator_paths = []
+        protection = False
 
         if scheme == "FFNS":
             if nf is None:
@@ -134,6 +215,7 @@ class Threshold:
             self._areas = [Area(0, np.inf, self.q0, nf)]
             self.max_nf = nf
             self.min_nf = nf
+            protection = True
         elif scheme in ["VFNS", "ZM-VFNS"]:
             if nf is not None:
                 logger.warning(
@@ -148,6 +230,22 @@ class Threshold:
             raise NotImplementedError(
                 f"The scheme {scheme} not implemented in eko.dglap.py"
             )
+
+
+        for flavour, data in VFNS.items():
+            path = data[0]
+            if len(data) > 1:
+                original = data[1]
+            else:
+                original = None
+            if len(data) > 2:
+                nf = data[2]
+            else:
+                nf = None
+            flt = FlavourTarget(flavour, path, original=original, nf_min=nf, protected=protection)
+            if flavour == 'g':
+                flt.get_path(5,1)
+            self._operator_paths.append(flt)
 
     @property
     def qref(self):
@@ -184,6 +282,7 @@ class Threshold:
             nf += 1
             qmin = qmax
         self.max_nf = nf
+
 
     def get_path_from_q0(self, q):
         """ Get the Area path from q0 to q.

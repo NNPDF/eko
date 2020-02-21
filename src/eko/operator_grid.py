@@ -264,6 +264,15 @@ class OperatorGrid:
 #             path_setup["g.S"]= utils.get_singlet_paths("g", "q", 2)
 #             path_setup["g.g"]= utils.get_singlet_paths("g", "g", 2)
 
+            for operator_path in self._threshold_holder._operator_paths:
+                where = operator_path.name
+                paths = operator_path.get_path(operator.nf, number_of_thresholds)
+                for origin, path in paths.items():
+                    key = f'{where}.{origin}'
+                    print(key)
+                    print(f"ORIGINAL: {path_setup[key]}")
+                    print(f"COMPUTED: {path}")
+                    print(path == path_setup[key])
 
 
         elif number_of_thresholds == 2:
@@ -350,9 +359,25 @@ class OperatorGrid:
 #             set_helper("g.g", utils.get_singlet_paths("g", "g", 4))
             return ret
 
-        # Now create the results
-        for name, path in path_setup.items():
-            return_dictionary[name] = good_helper(name, path)
+            for operator_path in self._threshold_holder._operator_paths:
+                where = operator_path.name
+                paths = operator_path.get_path(operator.nf, number_of_thresholds)
+                for origin, path in paths.items():
+                    key = f'{where}.{origin}'
+                    print(f"ORIGINAL: {path_setup[key]}")
+                    print(f"COMPUTED: {path}")
+                    print(path == path_setup[key])
+
+        for operator_path in self._threshold_holder._operator_paths:
+            where = operator_path.name
+            paths = operator_path.get_path(operator.nf, number_of_thresholds)
+            for origin, path in paths.items():
+                name = f'{where}.{origin}'
+                return_dictionary[name] = good_helper(name, path)
+
+#         # Now create the results
+#         for name, path in path_setup.items():
+#             return_dictionary[name] = good_helper(name, path)
 
         for key, item in return_dictionary.items():
             ret["operators"][key] = item.value
