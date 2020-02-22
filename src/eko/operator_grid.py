@@ -4,13 +4,9 @@
 """
 
 import numpy as np
-from eko.operator import Operator, OperatorMember
-import eko.utils as utils
+from eko.operator import Operator
 import logging
 logger = logging.getLogger(__name__)
-# evolution basis names
-Vs = ["V3", "V8", "V15", "V24", "V35"]
-Ts = ["T3", "T8", "T15", "T24", "T35"]
 
 class OperatorMaster:
     """
@@ -165,6 +161,11 @@ class OperatorGrid:
         self.set_q_limits(qmin, qmax)
         # Now compute all raw operators
         self._compute_raw_grid(qgrid)
+        # And now return the grid
+        grid_return = []
+        for q in qgrid:
+            grid_return.append(self.get_op_at_Q(q))
+        return grid_return
 
     def get_op_at_Q(self, q):
         """
@@ -178,19 +179,11 @@ class OperatorGrid:
             logger.warning("Q=%f not found in the grid, computing...", q)
             operator = self._op_grid[q]
         qref = operator.qref
-        # Check the path the operator has to go through
+        nf = operator.nf
+        # Prepare the path for the composition of the operator
         operators_to_q0 = self._get_jumps(qref)
-        # TODO: do this in a more elegant way
         number_of_thresholds = len(operators_to_q0)
-        op_to_multiply = [i._internal_ops for i in reversed(operators_to_q0 + [operator])]
-
-        ret = {"operators": {}, "operator_errors": {}}
-        for operator_path in self._threshold_holder._operator_paths:
-            where = operator_path.name
-            path_instructions = operator_path.get_path(operator.nf, number_of_thresholds)
-            for origin, paths in path_instructions.items():
-                new_op = utils.operator_product(op_to_multiply, paths)
-                key = f'{where}.{origin}'
-                ret["operators"][key] = new_op.value
-                ret["operator_errors"][key] = new_op.error
-        return ret
+        instruction_set = self._threshold_holder.get_composition_path(nf, number_of_thresholds)
+        # Compose and return
+        final_op = operator.compose(operators_to_q0, instruction_set)
+        return final_op.ret

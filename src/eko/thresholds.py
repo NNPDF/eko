@@ -314,15 +314,9 @@ class Threshold:
         ]
         return area_path
 
-    def get_path_and_instructions_from_q0(self, q, nf):
-        """ """
-        area_path = self.get_path_from_q0(q)
-        n_thresholds = len(area_path)
-        def instructions():
-            for fvpath in self._operator_paths:
-                yield fvpath.get_path(nf, n_thresholds)
-        return area_path, instructions
-
+    def get_composition_path(self, nf, n_thres):
+        for flavour in self._operator_paths:
+            yield flavour.name, flavour.get_path(nf, n_thres)
 
     def get_areas_idx(self, qarr):
         """
