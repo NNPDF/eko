@@ -21,8 +21,6 @@ import numpy as np
 import numba as nb
 
 from eko import t_float
-from eko.constants import Constants
-
 
 @nb.njit
 def beta_0(
@@ -134,6 +132,18 @@ class StrongCoupling:
             = - \sum\limits_{n=0} \beta_n a_s^{n+2} \quad
             \text{with}~ a_s = \frac{\alpha_s(\mu^2)}{4\pi}
 
+        Example of usage:
+        >>> c = Constants()
+        >>> alpha_ref = 0.35
+        >>> scale_ref = 2
+        >>> threshold_holder = Threshold( .. )
+        >>> alpha_s = StrongCoupling(c, alpha_ref, scale_ref, threshold_holder)
+        >>> q2 = 91.1
+        >>> alpha_s(q2)
+        0.118
+        >>> q02 = 50.0
+        >>> alpha_s.delta_t(q02, q2)
+        0.54
 
         Parameters
         ----------
@@ -206,8 +216,8 @@ class StrongCoupling:
                     coupling at target scale
         """
         beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
-        L = np.log(scale_to / scale_from)
-        a_s = as_ref / (1.0 + beta0 * as_ref * L)
+        lmu = np.log(scale_to / scale_from)
+        a_s = as_ref / (1.0 + beta0 * as_ref * lmu)
         # add higher orders ...
         return a_s
 
@@ -223,7 +233,6 @@ class StrongCoupling:
                 `*args`: tuple
                     List of arguments accepted by the computational
                     method defined by self._method
-                
 
             Returns
             -------
@@ -235,19 +244,6 @@ class StrongCoupling:
         raise ValueError(f"Unknown method {self._method}")
 
     def __call__(self, scale_to):
-        """
-            Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
-
-            Parameters
-            ----------
-                scale_to : t_float
-                    final scale to evolve to :math:`Q^2`
-
-            Returns
-            -------
-                a_s : t_float
-                    strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
-        """
         # Set up the path to follow in order to go from q0 to qref
         final_alpha = self._ref_alpha
         area_path = self._threshold_holder.get_path_from_q0(scale_to)
@@ -262,9 +258,22 @@ class StrongCoupling:
         return final_alpha
 
     def a_s(self, *args):
+        """
+            Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
+
+            Parameters
+            ----------
+                scale_to : t_float
+                    final scale to evolve to :math:`Q^2`
+
+            Returns
+            -------
+                a_s : t_float
+                    strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
+        """
         return self(*args)
 
-    def t(self, scale_to):
+    def _param_t(self, scale_to):
         """
             Computes evolution parameter :math:`t(Q^2) = \\log(1/a_s(Q^2))`.
 
@@ -278,7 +287,7 @@ class StrongCoupling:
                 t : t_float
                     evolution parameter :math:`t(Q^2) = \\log(1/a_s(Q^2))`
         """
-        return np.log(1.0 / self.a_s(scale_to))
+        return np.log(1.0 / self(scale_to))
 
     def delta_t(self, scale_from, scale_to):
         """ Compute evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2) = t(Q_1^2)-t(Q_0^2)`
@@ -295,125 +304,5 @@ class StrongCoupling:
                 delta : t_float
                     evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2)`
         """
-        delta = self.t(scale_to) - self.t(scale_from)
+        delta = self._param_t(scale_to) - self._param_t(scale_from)
         return delta
-
-
-def alpha_s_generator(
-    c: Constants,
-    alpha_s_ref: t_float,
-    scale_ref: t_float,
-    nf: int,
-    method: str,  # pylint: disable=unused-argument
-):
-    """
-        Generates the :math:`a_s` functions for a given configuration.
-
-        Note that all scale parameters, :math:`\\mu_0^2` and :math:`Q^2`,
-        have to be given as squared values.
-
-        Parameters
-        ----------
-            constants : Constants
-                physical constants
-            alpha_s_ref : t_float
-                alpha_s(!) at the reference scale :math:`\\alpha_s(\\mu_0^2)`
-            scale_ref : t_float
-                reference scale :math:`\\mu_0^2`
-            nf : int
-                Number of active flavours (is passed to the beta function)
-            method : {"analytic"}
-                Applied method to solve the beta function
-
-        Returns
-        -------
-            a_s: function
-                function(order, scale_to) which computes a_s for a given order at a given scale
-    """
-    # TODO implement more complex runnings (we may take a glimpse into LHAPDF)
-    beta0 = beta_0(nf, c.CA, c.CF, c.TF)
-
-    @nb.njit
-    def a_s(order: int, scale_to: t_float):
-        """
-            Evalute :math:`a_s`.
-
-            Parameters
-            ----------
-                order : int
-                    evaluated order of beta function
-                scale_to : t_float
-                    final scale to evolve to :math:`Q^2`
-
-            Returns
-            -------
-                a_s : t_float
-                    strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
-        """
-        L = np.log(scale_to / scale_ref)
-        if order == 0:
-            return alpha_s_ref / (4.0 * np.pi + beta0 * alpha_s_ref * L)
-        else:
-            raise NotImplementedError("Alpha_s beyond LO not implemented")
-
-    return a_s
-
-
-def get_evolution_params(
-    setup: dict,
-    constants: Constants,
-    nf: t_float,
-    mu2init: t_float,
-    mu2final: t_float,
-    mu2step=None,
-):
-    """
-        Compute evolution parameters
-
-        Parameters
-        ----------
-            setup: dict
-                a dictionary with the theory parameters for the evolution
-            constants : Constants
-                physical constants
-            nf : int
-                number of active flavours
-            mu2init : float
-                initial scale
-            mu2final : flaot
-                final scale
-
-        Returns
-        -------
-            delta_t : t_float
-                scale difference
-    """
-    # setup params
-    qref2 = setup["Qref"] ** 2
-    pto = setup["PTO"]
-    alphas = setup["alphas"]
-    # Generate the alpha_s functions
-    a_s = alpha_s_generator(constants, alphas, qref2, nf, "analytic")
-    print("mu2init=", mu2init, "mu2final=", mu2final, "mu2step=", mu2step)
-    print("nf=", nf)
-    if False and mu2step is not None:
-        a_s_low = alpha_s_generator(constants, alphas, qref2, nf - 1, "analytic")
-        a_ref_low = a_s_low(pto, mu2step)
-        print("a_ref_low = ", a_ref_low)
-        print("a0_old = ", a_s(pto, mu2init))
-        print("a1_old = ", a_s(pto, mu2final))
-        a_s = alpha_s_generator(
-            constants, a_ref_low * 4.0 * np.pi, mu2step, nf, "analytic"
-        )
-        print("a0_new = ", a_s(pto, mu2init))
-        print("a1_new = ", a_s(pto, mu2final))
-    a0 = a_s(pto, mu2init)
-    a1 = a_s(pto, mu2final)
-    # as0 = 0.23171656287356338/4/np.pi
-    # as1 = 0.18837996737403412/4/np.pi
-    # print("a0 = ",a0,"alpha_s_0 = ",a0*4*np.pi)
-    # print("a0 = ",a1,"alpha_s_0 = ",a1*4*np.pi)
-    # evolution parameters
-    t0 = np.log(1.0 / a0)
-    t1 = np.log(1.0 / a1)
-    return t1 - t0
