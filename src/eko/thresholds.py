@@ -52,7 +52,7 @@ class FlavourTarget:
         the last member of the array
         """
         max_nns = len(self._path) + self.nf_0 - 1
-        idx_ini = max_nns - nf_target
+        idx_ini = max(max_nns - nf_target, 0)
         idx_fin = idx_ini + n_thres + 1
         return self._path[idx_ini:idx_fin]
 

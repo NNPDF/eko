@@ -103,7 +103,6 @@ def run_dglap(setup):
     else:
         nf = setup["NfFF"]
         threshold_list = None
-    # TODO
     threshold_holder = Threshold(qref = qref, scheme = FNS, threshold_list=threshold_list, nf=nf)
 
     # Now generate the operator alpha_s class
@@ -113,21 +112,17 @@ def run_dglap(setup):
 
     # And now compute the grid
     op_grid = OperatorGrid(threshold_holder, alpha_s, kernel_dispatcher, xgrid)
-    qgrid = [setup["Q2grid"][0]]
-    op_grid.compute_qgrid(qgrid)
-    new_ret = op_grid.get_op_at_Q(setup["Q2grid"][0])
-    ret = {
-        "xgrid": xgrid,
-        "polynomial_degree": polynom_rank,
-        "log": is_log_interpolation,
-        "basis": basis_function_dispatcher,
-        "operators": {},
-        "operator_errors": {},
-    }
-    ret = utils.merge_dicts(ret, new_ret)
+    qgrid = setup["Q2grid"]
+    operators = op_grid.compute_qgrid(qgrid)
+
+    # TODO: LEGACY RETURN
+    ret = operators[0].ret
+    ret["basis"] = basis_function_dispatcher
+    ret["polynomial_degree"] = polynom_rank
+    ret["log"] = is_log_interpolation
     return ret
 
-def apply_operator(ret, inputs, targetgrid=None):
+def apply_operator(ret, input_pdfs, targetgrid=None):
     # TODO: move to the operator class
     """
         Apply all available operators to the input PDFs.
@@ -136,8 +131,8 @@ def apply_operator(ret, inputs, targetgrid=None):
         ----------
             ret : dict
                 operator definitions - return value of `run_dglap`
-            inputs : dict
-                input PDFs as dictionary name -> function
+            input_pdfs : dict
+                input PDFs as dictionary {name: PDF}
             targetgrid : array
                 if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
 
@@ -149,12 +144,12 @@ def apply_operator(ret, inputs, targetgrid=None):
                 associated error to the output PDFs
     """
     # TODO rotation from the evolution basis to flavor basis? if yes, here!
-    # turn inputs into lists
+    # turn input_pdfs into lists
     input_lists = {}
-    for k in inputs:
+    for k in input_pdfs:
         l = []
         for x in ret["xgrid"]:
-            l.append(inputs[k](x))
+            l.append(input_pdfs[k](x))
         input_lists[k] = np.array(l)
     # build output
     outs = {}
@@ -162,7 +157,7 @@ def apply_operator(ret, inputs, targetgrid=None):
     for k in ret["operators"]:
         out_key, in_key = k.split(".")
         # basis vector available?
-        if in_key not in inputs:
+        if in_key not in input_pdfs:
             # thus can I not complete the calculation for this out_key?
             if out_key in outs:
                 outs[out_key] = None
@@ -188,59 +183,6 @@ def apply_operator(ret, inputs, targetgrid=None):
             outs[k] = np.matmul(rot, outs[k])
             out_errors[k] = np.matmul(rot, out_errors[k])
     return outs, out_errors
-
-
-def multiply_operators(step2, step1):
-    # TODO move to the operator class
-    """
-        Multiplies two operators in given order, i.e. step2 > step1.
-
-        Note that the arguments have to be given in decreasing order, i.e.
-        for :math:`Q_3^2 > Q_2^2 > Q_1^2` the steps have to be: `step2` (first
-        argument) evolves :math:`Q_2^2 \\to Q_3^2` and `step1` (second
-        argument)  evolves :math:`Q_1^2 \\to Q_2^2`.
-
-        Parameters
-        ----------
-            step2 : dict
-                last evolution step
-            step1 : dict
-                first evolution step
-
-        Returns
-        -------
-            joined : dict
-                combined evolution `step2 * step1`
-    """
-    # check compatibility
-    # TODO we should really also test on (full) setup
-    if step1["basis"] != step2["basis"]:
-        raise ValueError("basis functions do not match.")
-    # rebuild
-    joined = {
-        "xgrid": step1["xgrid"],
-        "basis": step1["basis"],
-        "operators": {},
-        "operator_errors": {},
-    }
-    # search elements
-    keys1 = step1["operators"].keys()
-    for k2 in step2["operators"].keys():
-        to2, fromm2 = k2.split(".")
-        for k1 in keys1:
-            to1, fromm1 = k1.split(".")
-            # match?
-            if fromm2 == to1:
-                # join
-                newk = f"{to2}.{fromm1}"
-                op, op_err = utils.operator_product_helper([step2, step1], [[k2, k1]])
-                if newk not in joined["operators"]:
-                    joined["operators"][newk] = op
-                    joined["operator_errors"][newk] = op_err
-                else:
-                    joined["operators"][newk] += op
-                    joined["operator_errors"][newk] += op_err
-    return joined
 
 
 def get_YAML(ret, stream=None):

@@ -3,6 +3,10 @@
     q inside this class refers always to q^{2}
 """
 
+# TODO:
+# 1 - the operator grid should have a "save" and "load" method which will 
+# allow to store the full grid
+
 import numpy as np
 from eko.operator import Operator
 import logging
@@ -186,4 +190,4 @@ class OperatorGrid:
         instruction_set = self._threshold_holder.get_composition_path(nf, number_of_thresholds)
         # Compose and return
         final_op = operator.compose(operators_to_q0, instruction_set)
-        return final_op.ret
+        return final_op

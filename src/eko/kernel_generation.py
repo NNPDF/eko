@@ -47,7 +47,7 @@ def get_kernels_s(basis_function, nf, constants, beta_0):
     def get_ker(k, l):
         """true singlet kernel"""
 
-        def ker(N, lnx, delta_t):  # TODO here we are repeating too many things!
+        def ker(N, lnx, delta_t):
             """a singlet integration kernel"""
             l_p, l_m, e_p, e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N, nf, CA, CF)
             ln_p = -delta_t * l_p / beta_0

@@ -3,44 +3,6 @@
     This file contains several utility functions
 """
 
-import numpy as np
-
-# https://stackoverflow.com/a/7205107
-# from functools import reduce
-# reduce(merge, [dict1, dict2, dict3...])
-def merge_dicts(a: dict, b: dict, path=None):
-    """
-        Merges b into a.
-
-        Parameters
-        ----------
-            a : dict
-                target dictionary (modified)
-            b : dict
-                update
-            path : array
-                recursion track
-
-        Returns
-        -------
-            a : dict
-                updated dictionary
-    """
-    if path is None:
-        path = []
-    for key in b:
-        if key in a:
-            if isinstance(a[key], dict) and isinstance(b[key], dict):
-                merge_dicts(a[key], b[key], path + [str(key)])
-            elif a[key] == b[key]:
-                pass  # same leaf value
-            else:
-                raise Exception("Conflict at %s" % ".".join(path + [str(key)]))
-        else:
-            a[key] = b[key]
-    return a
-
-
 def get_singlet_paths(to, fromm, depth):
     """
         Compute all possible path in the singlet sector to reach `to` starting from  `fromm`.
@@ -79,7 +41,6 @@ def get_singlet_paths(to, fromm, depth):
     return qs + gs
 
 def operator_product(steps, list_of_paths):
-    partial_op = []
     final_op = 0
     for path in list_of_paths:
         cur_op = None

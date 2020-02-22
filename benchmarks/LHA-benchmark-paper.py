@@ -12,9 +12,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 import eko.dglap as dglap
 import eko.interpolation as interpolation
-import eko.utils as utils
 
-from tools import plot_dist, save_all_operators_to_pdf
+from tools import plot_dist, save_all_operators_to_pdf, merge_dicts
 
 # xgrid
 toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
@@ -259,7 +258,7 @@ class LHABenchmarkPaper:
             "Q2grid": [Q2final],
         }
         # xgrid can be a copy, so we don't need a deep copy here
-        setup = utils.merge_dicts(copy.copy(self._setup), add_setup)
+        setup = merge_dicts(copy.copy(self._setup), add_setup)
         ret = dglap.run_dglap(setup)
         self._post_process(ret, LHA_final_dict_FFNS_ref, tag)
         return ret
@@ -290,6 +289,7 @@ class LHABenchmarkPaper:
                 ret2t1 : dict
                     DGLAP result
         """
+        raise Exception("JCM: This cannot be done now")
         # suppress PDF plots for single steps
         plot_PDF = self.post_process_config["plot_PDF"]
         self.post_process_config["plot_PDF"] = False
@@ -318,7 +318,7 @@ class LHABenchmarkPaper:
             "Q2grid": [self._Q2final],
         }
         # xgrid can be copy, so we don't need a deep copy
-        setup = utils.merge_dicts(copy.copy(self._setup), add_setup)
+        setup = merge_dicts(copy.copy(self._setup), add_setup)
         ret = dglap.run_dglap(setup)
         self._post_process(ret, LHA_final_dict_ZMVFNS_ref, "ZMVFNS")
         return ret

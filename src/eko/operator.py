@@ -152,14 +152,26 @@ class OperatorMember:
         return np.allclose(self.value, operator_member.value)
 
 class PhysicalOperator:
-    """ """
+    """ Physical Operator exposed to the outside world
+    This operator is computed via the composition method of the
+    Operator class.
 
-    def __init__(self, op_members):
+    This operator can act on PDFs through the __call__ method
+    """
+
+    def __init__(self, op_members, xgrid):
         self.op_members = op_members
+        self.xgrid = xgrid
 
+    def __call__(self, pdf):
+        """ pdf """
+        # TODO fill this up, check whether flavour or evol basis
+        # and act depending on that
+
+    # TODO this is a legacy wrapper as the benchmark files use this dictionary
     @property
     def ret(self):
-        ret = { "operators" : {}, "operator_errors" : {} }
+        ret = { "operators" : {}, "operator_errors" : {}, "xgrid" : self.xgrid }
         for key, new_op in self.op_members.items():
             ret["operators"][key] = new_op.value
             ret["operator_errors"][key] = new_op.error
@@ -171,6 +183,7 @@ class Operator:
     def __init__(self, delta_t, xgrid, integrands_ns, integrands_s, metadata):
         # Save the metadata
         self._metadata = metadata
+        self._xgrid = xgrid
         # Get ready for the computation
         singlet, nons = _run_kernel_integrands(integrands_s, integrands_ns, delta_t, xgrid)
         self._compute_singlet = singlet
@@ -190,6 +203,10 @@ class Operator:
     def q(self):
         return self._metadata['q']
 
+    @property
+    def xgrid(self):
+        return self._xgrid
+
     def compose(self, op_list, instruction_set):
         if not self._computed:
             self.compute()
@@ -199,8 +216,7 @@ class Operator:
             for origin, paths in instructions.items():
                 key = f'{name}.{origin}'
                 new_op[key] = operator_product(op_to_compose, paths)
-        return PhysicalOperator(new_op)
-
+        return PhysicalOperator(new_op, self.xgrid)
 
     def compute(self):
         op_members_ns = self._compute_nonsinglet()
