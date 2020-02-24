@@ -15,8 +15,8 @@ from eko.thresholds import Threshold
 from eko.kernel_generation import KernelDispatcher
 from eko.operator_grid import OperatorGrid        
                                                   
-N_LOW = 10               
-N_MID = 10
+N_LOW = 3          
+N_MID = 3
                                                   
 def generate_fake_pdf():                           
     basis = ['V', 'V3', 'V8', 'V15', 'T3', 'T15', 'S', 'g']
@@ -96,6 +96,7 @@ def test_grid_computation_VFNS():
     operators = opgrid.compute_qgrid(qgrid_check)
     assert len(operators) == len(qgrid_check)
     # Check that the operators can act on pdfs
+    pdf = generate_fake_pdf()
     return_1 = operators[0](pdf)
     return_2 = operators[1](pdf)
 
