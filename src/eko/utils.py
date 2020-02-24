@@ -40,7 +40,7 @@ def get_singlet_paths(to, fromm, depth):
         g.append(f"S_g{fromm}")
     return qs + gs
 
-def operator_product(steps, list_of_paths):
+def operator_product(steps, list_of_paths, name = None):
     final_op = 0
     for path in list_of_paths:
         cur_op = None
@@ -51,4 +51,6 @@ def operator_product(steps, list_of_paths):
             else:
                 cur_op = cur_op*new_op
         final_op += cur_op
+    if name is not None:
+        final_op.name = name
     return final_op

@@ -205,7 +205,7 @@ class Threshold:
         self._areas = []
         self._area_walls = []
         self._area_ref = 0
-        self._scheme = scheme
+        self.scheme = scheme
         self.max_nf = None
         self.min_nf = None
         self._operator_paths = []
@@ -281,11 +281,11 @@ class Threshold:
         qref = self.q0
         self.min_nf = nf
         for i, qmax in enumerate(self._area_walls + [np.inf]):
+            nf = self.min_nf + i
             new_area = Area(qmin, qmax, qref, nf)
             if new_area.has_q0:
                 self._area_ref = i
             self._areas.append(new_area)
-            nf += 1
             qmin = qmax
         self.max_nf = nf
 

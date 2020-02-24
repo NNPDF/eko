@@ -100,6 +100,27 @@ class OperatorMember:
     def name(self, new_name):
         self._name = new_name
 
+    @property
+    def target(self):
+        name_spl = self._name.split(".")
+        if len(name_spl) != 2:
+            raise TypeError("This operator is not defining any targets")
+        return name_spl[1]
+
+    @property
+    def input(self):
+        name_spl = self._name.split(".")
+        if len(name_spl) != 2:
+            raise TypeError("This operator is not defining any input")
+        return name_spl[0]
+
+    def __call__(self, pdf_member):
+        """ The operator member can act on a pdf member """
+        result = np.dot(self.value, pdf_member)
+        error = np.dot(self.error, pdf_member)
+        return result, error
+
+
     def __str__(self):
         return self.name
 
@@ -163,8 +184,44 @@ class PhysicalOperator:
         self.op_members = op_members
         self.xgrid = xgrid
 
+    def _get_corresponding_op(self, input_pdf_name):
+        # TODO change how this work internally
+        active_op = []
+        for _, op in self.op_members.items():
+            if op.input == input_pdf_name:
+                active_op.append(op)
+        return active_op
+
+    def _apply_evolution_basis(self, pdf):
+        """ Apply the operator on the evolution basis
+        Assumes pdf is a dictionary with:
+            pdf = {
+            'metadata' : some info,
+            'members' : {
+                'V' : tensor,
+                'g' : tensor,
+                }
+            }
+        """
+        # Generate the return pdf as a copy of the original one
+        # with all members set to 0
+        return_members = {}
+        for member, item in pdf['members'].items():
+            return_members[member] = np.zeros_like(item)
+        for member_name, value in pdf['members'].items():
+            act_ops = self._get_corresponding_op(member_name)
+            for op in act_ops:
+                res, err = op(value)
+                return_members[op.target] += res
+        return_pdf = {
+                'metadata' : pdf['metadata'],
+                'members' : return_members
+                }
+        return return_pdf
+
     def __call__(self, pdf):
         """ pdf """
+        return self._apply_evolution_basis(pdf)
         # TODO fill this up, check whether flavour or evol basis
         # and act depending on that
 
@@ -215,7 +272,7 @@ class Operator:
         for name, instructions in instruction_set:
             for origin, paths in instructions.items():
                 key = f'{name}.{origin}'
-                new_op[key] = operator_product(op_to_compose, paths)
+                new_op[key] = operator_product(op_to_compose, paths, key)
         return PhysicalOperator(new_op, self.xgrid)
 
     def compute(self):

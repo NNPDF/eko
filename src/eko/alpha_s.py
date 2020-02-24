@@ -194,6 +194,13 @@ class StrongCoupling:
         self._ref_alpha = new_alpha_s
         self._threshold_holder = threshold_holder
 
+    @property
+    def ref(self):
+        return self._ref_alpha
+    @property
+    def qref(self):
+        return self._threshold_holder.qref
+
     # Hidden computation functions
     def _compute_analytic(self, as_ref, nf, scale_from, scale_to):
         """
