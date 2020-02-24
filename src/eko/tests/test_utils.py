@@ -24,3 +24,4 @@ def test_get_singlet_paths():
 
 def test_operator_product():
     # TODO add test here
+    pass
