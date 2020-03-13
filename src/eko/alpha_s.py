@@ -179,12 +179,12 @@ class StrongCoupling:
         self._order = order
 
         self._constants = constants
-        # Move alpha_s from qref to q0
-        area_path = threshold_holder.get_path_from_q0(scale_ref)
+        # Move alpha_s from q2_ref to scale_ref
+        area_path = threshold_holder.get_path_from_q2_ref(scale_ref)
         # Now run through the list in reverse to set the alpha at q0
         input_as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
         for area in reversed(area_path):
-            scale_to = area.qref
+            scale_to = area.q2_ref
             area_nf = area.nf
             new_alpha_s = self._compute(input_as_ref, area_nf, scale_ref, scale_to)
             scale_ref = scale_to
@@ -199,7 +199,7 @@ class StrongCoupling:
         return self._ref_alpha
     @property
     def qref(self):
-        return self._threshold_holder.qref
+        return self._threshold_holder.q2_ref
 
     # Hidden computation functions
     def _compute_analytic(self, as_ref, nf, scale_from, scale_to):
@@ -251,20 +251,6 @@ class StrongCoupling:
         raise ValueError(f"Unknown method {self._method}")
 
     def __call__(self, scale_to):
-        # Set up the path to follow in order to go from q0 to qref
-        final_alpha = self._ref_alpha
-        area_path = self._threshold_holder.get_path_from_q0(scale_to)
-        # TODO set up a cache system here
-        for area in area_path:
-            q_from = area.qref
-            q_to = area.q_towards(scale_to)
-            if np.isclose(q_from, q_to):
-                continue
-            area_nf = area.nf
-            final_alpha = self._compute(final_alpha, area_nf, q_from, q_to)
-        return final_alpha
-
-    def a_s(self, *args):
         """
             Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
 
@@ -278,7 +264,34 @@ class StrongCoupling:
                 a_s : t_float
                     strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
         """
-        return self(*args)
+        # Set up the path to follow in order to go from q2_0 to q2_ref
+        final_alpha = self._ref_alpha
+        area_path = self._threshold_holder.get_path_from_q2_ref(scale_to)
+        # TODO set up a cache system here
+        for area in area_path:
+            q2_from = area.q2_ref
+            q2_to = area.q2_towards(scale_to)
+            if np.isclose(q2_from, q2_to):
+                continue
+            area_nf = area.nf
+            final_alpha = self._compute(final_alpha, area_nf, q2_from, q2_to)
+        return final_alpha
+
+    def a_s(self, scale_to):
+        """
+            Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
+
+            Parameters
+            ----------
+                scale_to : t_float
+                    final scale to evolve to :math:`Q^2`
+
+            Returns
+            -------
+                a_s : t_float
+                    strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
+        """
+        return self(scale_to)
 
     def _param_t(self, scale_to):
         """

@@ -2,11 +2,11 @@
     This module contains the operator class
 """
 
+import logging
 import numpy as np
 import numba as nb
 import eko.mellin as mellin
 from eko.utils import operator_product
-import logging
 logger = logging.getLogger(__name__)
 
 def _run_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, xgrid):

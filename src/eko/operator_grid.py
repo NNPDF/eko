@@ -9,13 +9,11 @@
     q inside this class refers always to q^{2}
 """
 
-# TODO:
-# 1 - the operator grid should have a "save" and "load" method which will
-# allow to store the full grid
+# TODO the operator grid should have a "save" and "load" method which will allow to store the full grid
 
+import logging
 import numpy as np
 from eko.operator import Operator
-import logging
 logger = logging.getLogger(__name__)
 
 class OperatorMaster:
@@ -59,7 +57,7 @@ class OperatorMaster:
         Note: this method is just for convenience and so this method cannot check
         that no thresholds are crossed in order to go from q_from to q_to.
         This is the responsability of the calling function.
-        
+
 
         Parameters
         ----------
@@ -146,100 +144,104 @@ class OperatorGrid:
                 value of q for which the OperatorGrid will need to pass thresholds
         """
         # The lists of areas as produced by the self._threshold_holder
-        area_list = self._threshold_holder.get_path_from_q0(to_q2)
+        area_list = self._threshold_holder.get_path_from_q2_ref(to_q2)
         # The base area is always that of the reference q
-        q_from = self._threshold_holder.qref
+        q2_from = self._threshold_holder.q2_ref
         nf = self._threshold_holder.nf_ref
         for area in area_list:
-            q_to = area.qref
-            if q_to == q_from:
+            q2_to = area.q2_ref
+            if q2_to == q2_from:
                 continue
-            new_op = (q_from, q_to)
+            new_op = (q2_from, q2_to)
             if new_op not in self._threshold_operators:
                 # Compute the operator in place and store it
-                op_th = self._op_masters[nf].get_op(q_from, q_to, generate=True)
+                op_th = self._op_masters[nf].get_op(q2_from, q2_to, generate=True)
                 self._threshold_operators[new_op] = op_th
             nf = area.nf
-            q_from = q_to
+            q2_from = q2_to
 
     def _get_jumps(self, qsq):
-        """ Given a value of q^2, generates the list of operators that need to be
-        composed in order to get there from q0^2
+        """
+            Given a value of q^2, generates the list of operators that need to be
+            composed in order to get there from q0^2
 
-        Parameters
-        ----------
-            qsq: float
-                Target value of q^2
+            Parameters
+            ----------
+                qsq: float
+                    Target value of q^2
 
-        Returns
-        -------
-            op_list: list
-                List of threhsold operators
+            Returns
+            -------
+                op_list: list
+                    List of threhsold operators
         """
         # Get the list of areas to be crossed
-        full_area_path = self._threshold_holder.get_path_from_q0(qsq)
+        full_area_path = self._threshold_holder.get_path_from_q2_ref(qsq)
         # The last one is where q resides so it is not needed
         area_path = full_area_path[:-1]
         op_list = []
         # Now loop over the areas to collect the necessary threshold operators
         for area in area_path:
-            q_from = area.qref
-            q_to = area.q_towards(qsq)
-            op_list.append(self._threshold_operators[(q_from, q_to)])
+            q2_from = area.q2_ref
+            q2_to = area.q2_towards(qsq)
+            op_list.append(self._threshold_operators[(q2_from, q2_to)])
         return op_list
 
-    def set_q_limits(self, qmin, qmax):
-        """ Sets up the limits of the grid in q^2 to be computed by the OperatorGrid
+    def set_q_limits(self, q2min, q2max):
+        """
+            Sets up the limits of the grid in q^2 to be computed by the OperatorGrid
 
-        This function is a wrapper to compute the necessary operators to go between areas
+            This function is a wrapper to compute the necessary operators to go between areas
 
-        Parameters
-        ----------
-            qmin: float
-                Minimum value of q that will be computed
-            qmax: float
-                Maximum value of q that will be computed
+            Parameters
+            ----------
+                q2min: float
+                    Minimum value of q^2 that will be computed
+                q2max: float
+                    Maximum value of q^2 that will be computed
         """
         # Sanity checks
-        if qmin <= 0.0 or qmax <= 0.0:
-            raise ValueError(f"Values of q below 0.0 are not accepted, received [{qmin},{qmax}")
-        if qmin > qmax:
-            raise ValueError(f"Minimum q is above maximum q (error: {qmax} < {qmin})")
-        # Ensure we have all the necessary operators to go from qref to qmin and qmax
-        self._generate_thresholds_op(qmin)
-        self._generate_thresholds_op(qmax)
+        if q2min <= 0.0 or q2max <= 0.0:
+            raise ValueError(f"Values of q below 0.0 are not accepted, received [{q2min},{q2max}")
+        if q2min > q2max:
+            raise ValueError(f"Minimum q is above maximum q (error: {q2max} < {q2min})")
+        # Ensure we have all the necessary operators to go from qref to q2min and qmax
+        self._generate_thresholds_op(q2min)
+        self._generate_thresholds_op(q2max)
 
-    def _compute_raw_grid(self, qgrid):
-        """ Receives a grid in q^2 and computes each opeator inside its
-        area with reference value the q_ref of its area
-
-        Parameters
-        ----------
-            qgrid: list
-                List of q^2
+    def _compute_raw_grid(self, q2grid):
         """
-        area_list = self._threshold_holder.get_areas(qgrid)
-        for area, q in zip(area_list, qgrid):
-            q_from = area.qref
+            Receives a grid in q^2 and computes each opeator inside its
+            area with reference value the q_ref of its area
+
+            Parameters
+            ----------
+                q2grid: list
+                    List of q^2
+        """
+        area_list = self._threshold_holder.get_areas(q2grid)
+        for area, q2 in zip(area_list, q2grid):
+            q2_from = area.q2_ref
             nf = area.nf
-            self._op_grid[q] = self._op_masters[nf].get_op(q_from, q)
+            self._op_grid[q2] = self._op_masters[nf].get_op(q2_from, q2)
         # Now perform the computation, TODO everything in parallel
         for _, op in self._op_grid.items():
             op.compute()
 
     def compute_qgrid(self, qgrid):
-        """ Receives a grid in q^2 and computes all operations necessary
-        to return any operator at any given q for the evolution between qref and qgrid
+        """
+            Receives a grid in q^2 and computes all operations necessary
+            to return any operator at any given q for the evolution between qref and qgrid
 
-        Parameters
-        ----------
-            qgrid: list
-                List of q^2
+            Parameters
+            ----------
+                qgrid: list
+                    List of q^2
 
-        Returns
-        -------
-            grid_return: list
-                List of PhysicalOperator for each value of q^2
+            Returns
+            -------
+                grid_return: list
+                    List of PhysicalOperator for each value of q^2
         """
         if isinstance(qgrid, (np.float, np.int, np.integer)):
             qgrid = [qgrid]
@@ -256,18 +258,19 @@ class OperatorGrid:
         return grid_return
 
     def get_op_at_Q(self, qsq):
-        """ Given a value of q^2, returns the PhysicalOperator to get
-        to q^2 from q0^2
+        """
+            Given a value of q^2, returns the PhysicalOperator to get
+            to q^2 from q0^2
 
-        Parameters
-        ----------
-            qsq: float
-                Target value of q^2
+            Parameters
+            ----------
+                qsq: float
+                    Target value of q^2
 
-        Returns
-        -------
-            final_op: eko.operators.PhysicalOperator
-                Op(q0^2 -> q^2)
+            Returns
+            -------
+                final_op: eko.operators.PhysicalOperator
+                    Op(q0^2 -> q^2)
         """
         # Check the path to q0 for this operator
         if qsq in self._op_grid:

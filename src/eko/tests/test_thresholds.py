@@ -7,33 +7,33 @@ from eko.thresholds import Threshold, Area
 
 def test_ffns():
     # Check the setup for FFNS produces the correct thing
-    tholder = Threshold(scheme="FFNS", nf=4, qref=4.5)
-    assert len(tholder._areas) == 1
-    area_path = tholder.get_path_from_q0(87.4)
+    tholder = Threshold(scheme="FFNS", nf=4, q2_ref=4.5)
+    assert len(tholder._areas) == 1 # pylint: disable=protected-access
+    area_path = tholder.get_path_from_q2_ref(87.4)
     assert len(area_path) == 1
     area = area_path[0]
-    assert area.qmin == 0.0
-    assert area.qmax == np.inf
+    assert area.q2_min == 0.0
+    assert area.q2_max == np.inf
 
 
 def test_vnfs():
     # Tests the setup for VFNS
     th_list = [5, 50]
     qfin = 42
-    for qref in [2, 8, 61]:
-        tholder = Threshold(scheme="VFNS", threshold_list=th_list, qref=qref)
-        assert len(tholder._areas) == (len(th_list) + 1)
-        area_path = tholder.get_path_from_q0(qfin)
-        # The first area should contain qref and the last qfin
-        assert area_path[0](qref)
+    for q2_ref in [2, 8, 61]:
+        tholder = Threshold(scheme="VFNS", threshold_list=th_list, q2_ref=q2_ref)
+        assert len(tholder._areas) == (len(th_list) + 1) # pylint: disable=protected-access
+        area_path = tholder.get_path_from_q2_ref(qfin)
+        # The first area should contain q2_ref and the last qfin
+        assert area_path[0](q2_ref)
         assert area_path[-1](qfin)
 
 
-def get_areas(qref=42.0, nf=4):
-    q_change = qref - qref * 0.01
-    area_left = Area(0.0, q_change, qref, nf)
-    area_right = Area(q_change, qref * 2, qref, nf)
-    area_far = Area(qref * 4, qref * 5, qref, nf)
+def get_areas(q2_ref=42.0, nf=4):
+    q2_change = q2_ref * 0.99
+    area_left = Area(0.0, q2_change, q2_ref, nf)
+    area_right = Area(q2_change, q2_ref * 2, q2_ref, nf)
+    area_far = Area(q2_ref * 4, q2_ref * 5, q2_ref, nf)
     return area_left, area_right, area_far
 
 
@@ -45,9 +45,9 @@ def test_area_order():
     assert area_far > area_left
 
 
-def test_area_q_towards():
-    qref = 42
-    area_left, area_right, area_far = get_areas(qref)
-    assert area_left.q_towards(qref) == area_left.qmax
-    assert area_far.q_towards(qref) == area_far.qmin
-    assert area_right.q_towards(qref) == qref
+def test_area_q2_towards():
+    q2_ref = 42
+    area_left, area_right, area_far = get_areas(q2_ref)
+    assert area_left.q2_towards(q2_ref) == area_left.q2_max
+    assert area_far.q2_towards(q2_ref) == area_far.q2_min
+    assert area_right.q2_towards(q2_ref) == q2_ref

@@ -63,7 +63,7 @@ def test_a_s():
     ref_as = 0.1181
     ref_mu = 90
     ask_q2 = 125
-    threshold_holder = Threshold(scheme = "FFNS", nf = 5, qref = pow(ref_mu, 2))
+    threshold_holder = Threshold(scheme = "FFNS", nf = 5, q2_ref = pow(ref_mu, 2))
     as_FFNS_LO = StrongCoupling(constants, ref_as, ref_mu, threshold_holder, order = 0)
     for order in range(1):
         result = as_FFNS_LO(ask_q2)
@@ -75,14 +75,14 @@ def test_LHA_benchmark_paper():
     # LO - FFNS
     # note that the LO-FFNS value reported in :cite:`Giele:2002hx`
     # was corrected in :cite:`Dittmar:2005ed`
-    threshold_holder = Threshold(scheme = "FFNS", nf = 4, qref = 2)
+    threshold_holder = Threshold(scheme = "FFNS", nf = 4, q2_ref = 2)
     as_FFNS_LO = StrongCoupling(constants, 0.35, 2, threshold_holder, order = 0)
     me = as_FFNS_LO.a_s(1e4) * 4 * np.pi
     ref = 0.117574
     assert_approx_equal(me, ref, significant=6)
     # LO - VFNS
     threshold_list = [2, pow(4.5,2), pow(175,2)]
-    threshold_holder = Threshold(qref = 2, scheme = "VFNS", threshold_list=threshold_list)
+    threshold_holder = Threshold(q2_ref = 2, scheme = "VFNS", threshold_list=threshold_list)
     as_VFNS_LO = StrongCoupling(constants, 0.35, 2, threshold_holder, order = 0)
     me = as_VFNS_LO(1e4) * 4 * np.pi
     ref = 0.122306
@@ -102,7 +102,7 @@ def test_lhapdf_ffns_lo():
     scale_ref = 91.0 ** 2
     nf = 4
     # collect my values
-    threshold_holder = Threshold(scheme = "FFNS", qref = scale_ref, nf = nf)
+    threshold_holder = Threshold(scheme = "FFNS", q2_ref = scale_ref, nf = nf)
     as_FFNS_LO = StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder, order = 0)
     my_vals = []
     for Q2 in Q2s:
@@ -157,7 +157,7 @@ def test_lhapdf_zmvfns_lo():
     #Lambda2_3 = _get_Lambda2_LO(as_FFNS_LO_4.a_s(m2c), m2c, 3)
 
     # collect my values
-    threshold_holder = Threshold(qref = scale_ref, scheme = "VFNS", threshold_list=thresholds)
+    threshold_holder = Threshold(q2_ref = scale_ref, scheme = "VFNS", threshold_list=thresholds)
     as_VFNS_LO = StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder, order = 0)
     my_vals = []
     for Q2 in Q2s:
