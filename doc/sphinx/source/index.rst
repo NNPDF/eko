@@ -7,6 +7,8 @@ EKO documentation
     :maxdepth: 4
 
     Physics
+    modules/eko/modules
+    code_todos
 
 .. automodule:: eko
     :members:

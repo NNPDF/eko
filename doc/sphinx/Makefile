@@ -14,6 +14,9 @@ help:
 .PHONY: help html view clean cleanall
 
 html:
+	# generate TODOs
+	python generate_code_todos.py ../../src/eko ./source/code_todos.rst
+	# sphinx
 	sphinx-apidoc -o ./source/modules/eko ../../src/eko/ ../../src/eko/tests
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
@@ -23,6 +26,7 @@ view: html
 clean:
 	rm -rf build
 	rm -rf _build
+	rm ./source/code_todos.rst
 
 cleanall: clean
 	rm -rf $(SOURCEDIR)/modules
