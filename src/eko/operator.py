@@ -1,5 +1,9 @@
 """
-    This module contains the operator class
+    This module contains all operator classes.
+
+    The classes are nested as follows:
+    :class:`PhysicalOperator` <-:class:`Operator` <= :class:`OperatorMember`.
+    Only a single instance of :class:`PhysicalOperator` will be exposed for each Q2 to the user.
 """
 
 import logging
@@ -10,14 +14,35 @@ from eko.utils import operator_product
 logger = logging.getLogger(__name__)
 
 def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, xgrid):
+    """
+        Return actual integration kernels
+
+        Paramaters
+        ----------
+            singlet_integrands : list
+                kernels for singlet integrations
+            nonsinglet_integrands : list
+                kernels for non-singlet integrations
+            delta_t : float
+                evolution distance
+            xgrid : np.array
+                basis grid
+
+        Returns
+        -------
+            run_singlet : function
+                singlet integration routine
+            run_nonsinglet : function
+                non-singlet integration routine
+    """
     # Generic parameters
-    cut = 1e-2
+    cut = 1e-2 # TODO make 'cut' external parameter?
     grid_size = len(xgrid)
     grid_logx = np.log(xgrid)
 
     def run_singlet():
         # perform
-        print("Starting singlet")
+        print("Starting singlet") # TODO delegate to logger?
         all_output = []
         log_prefix = "computing Singlet operator - %s"
         for k, logx in enumerate(grid_logx):
@@ -52,7 +77,7 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
         return op_dict
 
     def run_nonsinglet():
-        print("Starting non-singlet")
+        print("Starting non-singlet") # TODO delegate to logger?
         operators = []
         operator_errors = []
         log_prefix = "computing NS operator - %s"
@@ -87,8 +112,23 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
     return run_singlet, run_nonsinglet
 
 class OperatorMember:
-    """ Operator members """
+    """
+        A single operator for a specific element in evolution basis.
 
+        The :class:`OperatorMember` provide some basic mathematical operations such as products.
+        It can also be applied to a pdf vector by the `__call__` method.
+        This class will never be exposed to the outside, but will be an internal member
+        of the PhysicalOperator instances.
+
+        Parameters
+        ----------
+            value : np.array
+                operator matrix
+            error : np.array
+                operator error matrix
+            name : str
+                operator name
+    """
     def __init__(self, value, error, name):
         self.value = value
         self.error = error
@@ -96,6 +136,7 @@ class OperatorMember:
 
     @property
     def name(self):
+        """ full operator name """
         return self._name
     @name.setter
     def name(self, new_name):
@@ -103,6 +144,7 @@ class OperatorMember:
 
     @property
     def target(self):
+        """ target flavour name (given by the second part of the name) """
         name_spl = self._name.split(".")
         if len(name_spl) != 2:
             raise TypeError("This operator is not defining any targets")
@@ -110,13 +152,28 @@ class OperatorMember:
 
     @property
     def input(self):
+        """ input flavour name (given by the first part of the name) """
         name_spl = self._name.split(".")
         if len(name_spl) != 2:
             raise TypeError("This operator is not defining any input")
         return name_spl[0]
 
     def __call__(self, pdf_member):
-        """ The operator member can act on a pdf member """
+        """
+            The operator member can act on a pdf member.
+
+            Parameters
+            ----------
+                pdf_member : np.array
+                    pdf vector
+
+            Returns
+            -------
+                result : float
+                    higher scale pdf
+                error : float
+                    evolution uncertainty to pdf at higher scale
+        """
         result = np.dot(self.value, pdf_member)
         error = np.dot(self.error, pdf_member)
         return result, error
@@ -126,10 +183,12 @@ class OperatorMember:
         return self.name
 
     def __mul__(self, operator_member):
+        # scalar multiplication
         if isinstance(operator_member, (np.int, np.float, np.integer)):
             rval = operator_member
             rerror = 0.0
             new_name = self.name
+        # matrix multiplication
         elif isinstance(operator_member, OperatorMember):
             rval = operator_member.value
             rerror = operator_member.error
@@ -143,7 +202,10 @@ class OperatorMember:
         new_err = np.abs(np.matmul(lval, rerror) + np.matmul(rval, ler))
         return OperatorMember(new_val, new_err, new_name)
 
-    def __add__(self, operator_member):
+    # TODO @JCM: if you want to implement addition, please give me a use case.
+    # this should never happen, because the only mathematical sensible operation
+    # is (matrix) multiplication.
+    """def __add__(self, operator_member):
         if isinstance(operator_member, (np.int, np.float, np.integer)):
             rval = operator_member
             rerror = 0.0
@@ -170,41 +232,77 @@ class OperatorMember:
             return self.__add__(operator_member)
 
     def __rsub__(self, operator_member):
-        return self.__radd__(-operator_member)
+        return self.__radd__(-operator_member)"""
 
     def __eq__(self, operator_member):
         return np.allclose(self.value, operator_member.value)
 
 class PhysicalOperator:
-    """ Physical Operator exposed to the outside world
-    This operator is computed via the composition method of the
-    Operator class.
-
-    This operator can act on PDFs through the __call__ method
     """
+        PhysicalOperator is exposed to the outside world.
 
+        This operator is computed via the composition method of the
+        Operator class.
+
+        This operator can act on PDFs through the `__call__` method.
+        Assumes as input a pdf as dictionary with:
+
+        .. code-block:: python
+
+            pdf = {
+                'metadata' : some info,
+                'members' : {
+                    'V' : list,
+                    'g' : list,
+                    }
+            }
+
+
+        Parameters
+        ----------
+            op_members : dict
+                list of all members
+            xgrid : np.array
+                list of basis x points
+    """
     def __init__(self, op_members, xgrid):
         self.op_members = op_members
         self.xgrid = xgrid
 
-    def _get_corresponding_op(self, input_pdf_name):
+    def _get_corresponding_operators(self, input_pdf_name):
+        """
+            Searches all operators, that are generated by `input_pdf_name`.
+
+            Parameters
+            ----------
+                input_pdf_name : str
+                    input name
+
+            Returns
+            -------
+                active_ops : list
+                    list with relevant operators
+        """
         # TODO change how this work internally
-        active_op = []
+        active_ops = []
         for _, op in self.op_members.items():
             if op.input == input_pdf_name:
-                active_op.append(op)
-        return active_op
+                active_ops.append(op)
+        return active_ops
 
     def _apply_evolution_basis(self, pdf):
-        """ Apply the operator on the evolution basis
-        Assumes pdf is a dictionary with:
-            pdf = {
-            'metadata' : some info,
-            'members' : {
-                'V' : tensor,
-                'g' : tensor,
-                }
-            }
+        """
+            Apply the operator on the evolution basis.
+
+            Parameters
+            ----------
+                pdf : dict
+                    input pdf
+
+            Returns
+            -------
+                return_pdf : dict
+                    target pdf
         """
         # Generate the return pdf as a copy of the original one
         # with all members set to 0
@@ -212,7 +310,7 @@ class PhysicalOperator:
         for member, item in pdf['members'].items():
             return_members[member] = np.zeros_like(item)
         for member_name, value in pdf['members'].items():
-            act_ops = self._get_corresponding_op(member_name)
+            act_ops = self._get_corresponding_operators(member_name)
             for op in act_ops:
                 res, err = op(value)
                 return_members[op.target] += res
@@ -223,10 +321,22 @@ class PhysicalOperator:
         return return_pdf
 
     def __call__(self, pdf):
-        """ pdf """
-        return self._apply_evolution_basis(pdf)
+        """
+            Apply operator to input pdf
+
+            Parameters
+            ----------
+                pdf : dict
+                    input pdf
+
+            Returns
+            -------
+                return_pdf : dict
+                    target pdf
+        """
         # TODO fill this up, check whether flavour or evol basis
         # and act depending on that
+        return self._apply_evolution_basis(pdf)
 
     # TODO this is a legacy wrapper as the benchmark files use this dictionary
     @property
@@ -238,8 +348,26 @@ class PhysicalOperator:
         return ret
 
 class Operator:
-    """ Computed only upon calling compute """
+    """
+        Internal representation of a single EKO.
 
+        The actual matrices are computed only upon calling :meth:`compute`.
+        :meth:`compose` will generate the :class:`PhysicalOperator` for the outside world.
+        If not computed yet, :meth:`compose` will call :meth:`compute`.
+
+        Parameters
+        ----------
+            delta_t : float
+                Evolution distance
+            xgrid : np.array
+                basis interpolation grid
+            integrands_ns : list(function)
+                list of non-singlet kernels
+            integrands_s : list(function)
+                list of singlet kernels
+            metadata : dict
+                metadata with keys `nf`,`q2ref` and `q2`
+    """
     def __init__(self, delta_t, xgrid, integrands_ns, integrands_s, metadata):
         # Save the metadata
         self._metadata = metadata
@@ -253,14 +381,17 @@ class Operator:
 
     @property
     def nf(self):
+        """ number of active flavours """
         return self._metadata['nf']
 
     @property
     def q2ref(self):
+        """ scale reference point """
         return self._metadata['q2ref']
 
     @property
     def q2(self):
+        """ actual scale """
         return self._metadata['q2']
 
     @property
@@ -268,8 +399,27 @@ class Operator:
         return self._xgrid
 
     def compose(self, op_list, instruction_set):
+        """
+            Compose all :class:`Operator` together.
+
+            Calls :meth:`compute`, if necessary.
+
+            Parameters
+            ----------
+                op_list : list(Operator)
+                    list of operators to merge
+                instruction_set : dict
+                    list of instructions (generated by :class:`eko.thresholds.FlavourTarget`)
+
+            Returns
+            -------
+                op : PhysicalOperator
+                    final operator
+        """
+        # compute?
         if not self._computed:
             self.compute()
+        # join
         op_to_compose = [self.op_members] + [i.op_members for i in reversed(op_list)]
         new_op = {}
         for name, instructions in instruction_set:
@@ -279,6 +429,7 @@ class Operator:
         return PhysicalOperator(new_op, self.xgrid)
 
     def compute(self):
+        """ compute the actual operators (i.e. run the integrations) """
         op_members_ns = self._compute_nonsinglet()
         op_members_s = self._compute_singlet()
         self._computed = True
