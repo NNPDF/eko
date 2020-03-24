@@ -78,22 +78,22 @@ def test_sanity():
     nregs = len(opgrid._op_masters)
     assert nregs == len(thresholds)+1
     # Check that the errors work
-    with pytest.raises(ValueError) as vexp:
-        opgrid.set_q_limits(-1, 4)
-    with pytest.raises(ValueError) as vexp:
-        opgrid.set_q_limits(-1, -4)
-    with pytest.raises(ValueError) as vexp:
-        opgrid.set_q_limits(4, 1)
-    with pytest.raises(ValueError) as vexp:
+    with pytest.raises(ValueError) as _:
+        opgrid.set_q2_limits(-1, 4)
+    with pytest.raises(ValueError) as _:
+        opgrid.set_q2_limits(-1, -4)
+    with pytest.raises(ValueError) as _:
+        opgrid.set_q2_limits(4, 1)
+    with pytest.raises(ValueError) as _:
         bad_grid = [100, -6, 3]
-        _ = opgrid.compute_qgrid(bad_grid)
+        _ = opgrid.compute_q2grid(bad_grid)
 
 def test_grid_computation_VFNS():
     """ Checks that the grid can be computed """
     thresholds = [4, 15]
     opgrid = generate_fake_grid(thresholds=thresholds)
     qgrid_check = [0.3, 5]
-    operators = opgrid.compute_qgrid(qgrid_check)
+    operators = opgrid.compute_q2grid(qgrid_check)
     assert len(operators) == len(qgrid_check)
     # Check that the operators can act on pdfs
     pdf = generate_fake_pdf()

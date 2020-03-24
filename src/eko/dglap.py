@@ -3,15 +3,10 @@
     This file contains the main loop for the DGLAP calculations.
 """
 import logging
-import joblib
 import numpy as np
-import numba as nb
 from yaml import dump
 
-import eko.alpha_s as alpha_s
 import eko.interpolation as interpolation
-import eko.mellin as mellin
-import eko.utils as utils
 from eko.kernel_generation import KernelDispatcher
 from eko.thresholds import Threshold
 from eko.operator_grid import OperatorGrid
@@ -19,6 +14,7 @@ from eko.constants import Constants
 from eko.alpha_s import StrongCoupling
 
 logger = logging.getLogger(__name__)
+
 
 def run_dglap(setup):
     r"""
@@ -33,41 +29,32 @@ def run_dglap(setup):
 
         Parameters
         ----------
-        setup: dict
-            a dictionary with the theory parameters for the evolution
+            setup: dict
+                a dictionary with the theory parameters for the evolution
 
-            =============== ========================================================================
-            key             description
-            =============== ========================================================================
-            'PTO'           order of perturbation theory: ``0`` = LO, ...
-            'alphas'        reference value of the strong coupling :math:`\alpha_s(\mu_0^2)`
-            'xgrid_size'    size of the interpolation grid
-            'xgrid_min'     lower boundry of the interpolation grid - defaults to ``1e-7``
-            'xgrid_type'    generating function for the interpolation grid - see below
-            'log_interpol'  boolean, whether it is log interpolation or not, defaults to `True`
-            =============== ========================================================================
+                =============== ===================================================================
+                key             description
+                =============== ===================================================================
+                'PTO'           order of perturbation theory: ``0`` = LO, ...
+                'alphas'        reference value of the strong coupling :math:`\alpha_s(\mu_0^2)`
+                'xgrid'         the interpolation grid
+                'xgrid_type'    generating function for the interpolation grid - see below
+                'log_interpol'  boolean, whether it is log interpolation or not, defaults to `True`
+                =============== ===================================================================
 
         Returns
         -------
-        ret: dict
-            a dictionary with a defined set of keys
+            ret: dict
+                a dictionary with a defined set of keys
 
-            =================  ====================================================================
-            key                description
-            =================  ====================================================================
-            'xgrid'            list of x-values which build the support of the interpolation
-            'targetgrid'       list of x-values which are computed
-            'operators'        list of computed operators
-            'operator_errors'  list of integration errors associated to the operators
-            =================  ====================================================================
+                =================  ================================================================
+                key                description
+                =================  ================================================================
+                =================  ================================================================
 
         Notes
         -----
 
-        * xgrid_type
-            - ``linear``: nodes distributed linear in linear-space
-            - ``log``: nodes distributed linear in log-space
-            - ``custom``: custom xgrid, supplied by the key ``xgrid``
     """
 
     # Print theory id setup
@@ -93,27 +80,29 @@ def run_dglap(setup):
     # Get the scheme and set up the thresholds if any
     # TODO the setup dictionary is a mess tbh
     FNS = setup["FNS"]
-    qref = pow(setup["Q0"],2)
+    q2_ref = pow(setup["Q0"], 2)
     if FNS != "FFNS":
-        qmc = setup['Qmc']
-        qmb = setup['Qmb']
-        qmt = setup['Qmt']
+        qmc = setup["Qmc"]
+        qmb = setup["Qmb"]
+        qmt = setup["Qmt"]
         threshold_list = pow(np.array([qmc, qmb, qmt]), 2)
         nf = None
     else:
         nf = setup["NfFF"]
         threshold_list = None
-    threshold_holder = Threshold(qref = qref, scheme = FNS, threshold_list=threshold_list, nf=nf)
+    threshold_holder = Threshold(
+        q2_ref=q2_ref, scheme=FNS, threshold_list=threshold_list, nf=nf
+    )
 
     # Now generate the operator alpha_s class
-    alpha_ref = setup['alphas']
-    q_ref = pow(setup["Qref"],2)
-    alpha_s = StrongCoupling(constants, alpha_ref, q_ref, threshold_holder)
+    alpha_ref = setup["alphas"]
+    q2_alpha = pow(setup["Qref"], 2)
+    alpha_s = StrongCoupling(constants, alpha_ref, q2_alpha, threshold_holder)
 
     # And now compute the grid
     op_grid = OperatorGrid(threshold_holder, alpha_s, kernel_dispatcher, xgrid)
-    qgrid = setup["Q2grid"]
-    operators = op_grid.compute_qgrid(qgrid)
+    q2grid = setup["Q2grid"]
+    operators = op_grid.compute_q2grid(q2grid)
 
     # TODO: LEGACY RETURN
     ret = operators[0].ret
@@ -122,8 +111,9 @@ def run_dglap(setup):
     ret["log"] = is_log_interpolation
     return ret
 
+
+# TODO: move to the operator class
 def apply_operator(ret, input_pdfs, targetgrid=None):
-    # TODO: move to the operator class
     """
         Apply all available operators to the input PDFs.
 
@@ -206,7 +196,7 @@ def get_YAML(ret, stream=None):
         "polynomial_degree": ret["polynomial_degree"],
         "log": ret["log"],
         "operators": {},
-        "operator_errors": {}
+        "operator_errors": {},
     }
     # make raw lists - we might want to do somthing more numerical here
     for k in ["xgrid"]:

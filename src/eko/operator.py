@@ -9,7 +9,7 @@ import eko.mellin as mellin
 from eko.utils import operator_product
 logger = logging.getLogger(__name__)
 
-def _run_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, xgrid):
+def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, xgrid):
     # Generic parameters
     cut = 1e-2
     grid_size = len(xgrid)
@@ -24,6 +24,7 @@ def _run_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             extra_args = nb.typed.List()
             extra_args.append(logx)
             extra_args.append(delta_t)
+            # Path parameters
             extra_args.append(-0.4*16/(-1.0+logx))
             extra_args.append(1.0)
             results = []
@@ -138,7 +139,8 @@ class OperatorMember:
         lval = self.value
         ler = self.error
         new_val = np.matmul(lval, rval)
-        new_err = np.sqrt(np.matmul(lval, rerror) + np.matmul(rval, ler))
+        # TODO check error propagation
+        new_err = np.abs(np.matmul(lval, rerror) + np.matmul(rval, ler))
         return OperatorMember(new_val, new_err, new_name)
 
     def __add__(self, operator_member):
@@ -153,6 +155,7 @@ class OperatorMember:
         else:
             raise NotImplementedError(f"Can't sum OperatorMember and {type(operator_member)}")
         new_val = self.value + rval
+        # TODO check error propagation
         new_err = np.sqrt(pow(self.error,2)+pow(rerror,2))
         return OperatorMember(new_val, new_err, new_name)
 
@@ -242,7 +245,7 @@ class Operator:
         self._metadata = metadata
         self._xgrid = xgrid
         # Get ready for the computation
-        singlet, nons = _run_kernel_integrands(integrands_s, integrands_ns, delta_t, xgrid)
+        singlet, nons = _get_kernel_integrands(integrands_s, integrands_ns, delta_t, xgrid)
         self._compute_singlet = singlet
         self._compute_nonsinglet = nons
         self._computed = False
@@ -253,12 +256,12 @@ class Operator:
         return self._metadata['nf']
 
     @property
-    def qref(self):
-        return self._metadata['qref']
+    def q2ref(self):
+        return self._metadata['q2ref']
 
     @property
-    def q(self):
-        return self._metadata['q']
+    def q2(self):
+        return self._metadata['q2']
 
     @property
     def xgrid(self):

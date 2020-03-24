@@ -19,13 +19,13 @@ class FlavourTarget:
 
         Parameters
         ----------
-            `name`: str
+            name: str
                 name of the flavour target (T8, V8, etc)
-            `path`: list(str)
+            path: list(str)
                 path to get to the target from the origin at the minimum possible nf
-            `original`: str or list(str)
+            original: str or list(str)
                 original flavour name (or names if the result is a combination)
-            `nf_min`: int
+            nf_min: int
                 minimal nf for which this flavour is active
     """
 
@@ -77,14 +77,14 @@ class FlavourTarget:
 
             Parameters
             ----------
-                `nf_target`: int
+                nf_target: int
                     nf value of the target flavour
-                `threshold`: int
+                threshold: int
                     number of thresholds which are going to be crossed
 
             Returns
             -------
-                `instructions`: dict
+                instructions: dict
                     a dictonary whose keys are the incoming flavour
                     and whose items are the corresponding path
         """
@@ -160,7 +160,7 @@ VFNS = {
 
 class Area:
     """
-        Sets up a single threhold area
+        Sets up a single threhold area with a fixed configuration.
 
         Parameters
         ----------
@@ -169,7 +169,7 @@ class Area:
             q2_max : float
                 upper bound of the area
             q2_0 : float
-                reference point of the area (can be somewhere in the area)
+                reference point of the area (can be anywhere in the area)
             nf : float
                 number of flavours in the area
     """
@@ -243,13 +243,13 @@ class Threshold:
 
         Parameters
         ----------
-            `q2_ref` : float
+            q2_ref : float
                 Reference q^2
-            `scheme`: str
+            scheme: str
                 Choice of scheme
-            `threshold_list`: list
+            threshold_list: list
                 List of q^2 thresholds should the scheme accept it
-            `nf`: int
+            nf: int
                 Number of flavour for the FFNS
     """
 
@@ -314,6 +314,7 @@ class Threshold:
 
     @property
     def nf_ref(self):
+        """ Number of flavours in the reference area """
         return self._areas[self._area_ref].nf
 
     def nf_range(self):
@@ -333,7 +334,7 @@ class Threshold:
 
             Parameters
             ----------
-                `threshold_list`: list
+                threshold_list: list
                     List of q^2 thresholds
         """
         nf = 3
@@ -359,12 +360,12 @@ class Threshold:
 
             Parameters
             ----------
-                `q2`: float
+                q2: float
                     Target value of q2
 
             Returns
             -------
-                `area_path`: list
+                area_path: list
                     List of Areas to go through in order to get from q2_ref
                     to q2. The first one is the one containg q2_ref while the
                     last one contains q2
@@ -385,9 +386,9 @@ class Threshold:
 
             Parameters
             ----------
-                `nf_target`: int
+                nf_target: int
                     nf value of the target flavour
-                `threshold`: int
+                threshold: int
                     number of thresholds which are going to be crossed
 
             Yields
@@ -406,12 +407,12 @@ class Threshold:
 
             Parameters
             ----------
-                `q2arr`: np.array
+                q2arr: np.array
                     array of values of q2
 
             Returns
             -------
-                `areas_idx`: list
+                areas_idx: list
                     list with the indices of the corresponding areas for q2arr
         """
         # Ensure q2arr is an array
@@ -427,12 +428,12 @@ class Threshold:
 
             Parameters
             ----------
-                `q2arr`: np.array
+                q2arr: np.array
                     array of values of q2
 
             Returns
             -------
-                `areas`: list
+                areas: list
                     list with the areas for q2arr
         """
         idx = self.get_areas_idx(q2arr)
