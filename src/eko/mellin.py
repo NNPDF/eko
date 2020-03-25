@@ -30,11 +30,14 @@ def compile_integrand(iker, path, jac, do_numba=True):
             do_numba: bool
                 Boolean flag to return a numba compiled function (default: true)
     """
-
     def integrand(u, extra_args):
-        N = path(u,extra_args[1:])
+        # Make the extra arguments explicit
+        logx = extra_args[0]
+        delta_t = extra_args[1]
+        path_param = extra_args[2:]
+        N = path(u,path_param)
         prefactor = np.complex(0.0, -0.5 / np.pi)
-        result = 2.0 * np.real(prefactor * iker(N, extra_args[0]) * jac(u,extra_args[1:]))
+        result = 2.0 * np.real(prefactor * iker(N, logx, delta_t) * jac(u, path_param))
         return result
 
     if do_numba:

@@ -17,7 +17,7 @@ import eko.dglap as dglap
 import eko.interpolation as interpolation
 import eko.utils as utils
 
-from tools import plot_dist, save_all_operators_to_pdf
+from tools import plot_dist, save_all_operators_to_pdf, merge_dicts
 
 
 # output path
@@ -137,7 +137,7 @@ class LHAPDFBenchmark:
         else:
             add_setup = {"Q0": np.sqrt(self._Q2init), "Q2grid": [self._Q2final]}
             # xgrid can be a copy, so we don't need a deep copy here
-            setup = utils.merge_dicts(copy.copy(self._setup), add_setup)
+            setup = merge_dicts(copy.copy(self._setup), add_setup)
             ret = dglap.run_dglap(setup)
         self._post_process(ret)
         return ret
@@ -227,9 +227,12 @@ class LHAPDFBenchmark:
 
 if __name__ == "__main__":
     # setup
-    n_low = 40
-    n_mid = 30
+    n_low = 30
+    n_mid = 20
     polynom_rank = 4
+#     n_low = 5
+#     n_mid = 5
+#     polynom_rank = 4
 
     # combine grid
     flag = f"l{n_low}m{n_mid}r{polynom_rank}"
@@ -248,5 +251,15 @@ if __name__ == "__main__":
     logging.getLogger("eko.dglap").setLevel(logging.DEBUG)
 
     # run
-    app = LHAPDFBenchmark("NNPDF31_lo_as_0118", 0, xgrid, polynom_rank, flag)
+    print("DOING NF 3")
+    app = LHAPDFBenchmark("CT14llo_NF3", 0, xgrid, polynom_rank, flag)
+    app.run_FFNS(25, 1e4)
+    print("DOING NF 4")
+    app = LHAPDFBenchmark("CT14llo_NF4", 0, xgrid, polynom_rank, flag)
+    app.run_FFNS(25, 1e4)
+    print("DOING NF 5")
+    app = LHAPDFBenchmark("CT14llo", 0, xgrid, polynom_rank, flag)
+    app.run_FFNS(25, 1e4)
+    print("DOING NF 6")
+    app = LHAPDFBenchmark("CT14llo_NF6", 0, xgrid, polynom_rank, flag)
     app.run_FFNS(25, 1e4)

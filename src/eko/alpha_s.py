@@ -21,8 +21,6 @@ import numpy as np
 import numba as nb
 
 from eko import t_float
-from eko.constants import Constants
-
 
 @nb.njit
 def beta_0(
@@ -134,6 +132,18 @@ class StrongCoupling:
             = - \sum\limits_{n=0} \beta_n a_s^{n+2} \quad
             \text{with}~ a_s = \frac{\alpha_s(\mu^2)}{4\pi}
 
+        Example of usage:
+        >>> c = Constants()
+        >>> alpha_ref = 0.35
+        >>> scale_ref = 2
+        >>> threshold_holder = Threshold( .. )
+        >>> alpha_s = StrongCoupling(c, alpha_ref, scale_ref, threshold_holder)
+        >>> q2 = 91.1
+        >>> alpha_s(q2)
+        0.118
+        >>> q02 = 50.0
+        >>> alpha_s.delta_t(q02, q2)
+        0.54
 
         Parameters
         ----------
@@ -143,14 +153,10 @@ class StrongCoupling:
                 alpha_s(!) at the reference scale :math:`\\alpha_s(\\mu_0^2)`
             scale_ref : t_float
                 reference scale :math:`\\mu_0^2`
+            threshold_holder : eko.thresholds.Threshold
+                instance of the Threshold class
             order: int
                 Evaluated order of the beta function
-            number_scheme : {"FFNS", "VFNS"}
-                number scheme
-            nf : int
-                Number of active flavours, if FFNS
-            thresholds : list
-                list of quark thresholds with {mc2,mb2,mt2}, if VFNS
             method : {"analytic"}
                 Applied method to solve the beta function
     """
@@ -160,110 +166,54 @@ class StrongCoupling:
         constants,
         alpha_s_ref,
         scale_ref,
-        order,
-        number_scheme,
-        nf=None,
-        thresholds=None,
+        threshold_holder,
+        order=0,
         method="analytic",
     ):
-        self._constants = constants
-        self._scale_ref = scale_ref
-        self._as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
-        if order not in [0]:
-            raise NotImplementedError("a_s beyond LO is not implemented")
-        self._order = order
+        # Sanity checks
         if method not in ["analytic"]:
             raise ValueError(f"Unknown method {method}")
         self._method = method
-        # setup number scheme
-        self._set_number_scheme(number_scheme, nf, thresholds)
+        if order not in [0]:
+            raise NotImplementedError("a_s beyond LO is not implemented")
+        self._order = order
 
-    def _set_number_scheme(self, number_scheme, nf, thresholds):
-        """
-            Sets the necessary configurations for the number scheme.
+        self._constants = constants
+        # Move alpha_s from q2_ref to scale_ref
+        area_path = threshold_holder.get_path_from_q2_ref(scale_ref)
+        # Now run through the list in reverse to set the alpha at q0
+        input_as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
+        for area in reversed(area_path):
+            scale_to = area.q2_ref
+            area_nf = area.nf
+            new_alpha_s = self._compute(input_as_ref, area_nf, scale_ref, scale_to)
+            scale_ref = scale_to
+            input_as_ref = new_alpha_s
 
-            Parameters
-            ----------
-                number_scheme: {"FFNS", "VFNS"}
-                    number scheme
-                nf : int
-                    number of flavors (if necessary)
-                threshold : array
-                    threshold list (if necessary)
-        """
-        # FFNS -> one for all
-        if number_scheme == "FFNS":
-            if not isinstance(nf, int) or nf < 3 or nf > 6:
-                raise ValueError(f"Needs nf in [3..6] for FFNS - got {nf}")
-            self._configs = [
-                {
-                    "mu2min": 0,
-                    "mu2max": np.inf,
-                    "as_ref": self._as_ref,
-                    "scale_ref": self._scale_ref,
-                    "nf": nf,
-                }
-            ]
-        # VFNS -> need to resort
-        elif number_scheme == "VFNS":
-            if not isinstance(thresholds, list) or len(thresholds) != 3:
-                raise ValueError(
-                    "For VFNS needs list with thresholds with exact 3 entries"
-                )
-            # update threshold list
-            thresh_p = [0] + thresholds + [np.inf]
-            # find initial step
-            self._configs = []
-            for k, __ in enumerate(thresh_p):
-                if thresh_p[k] <= self._scale_ref <= thresh_p[k + 1]:
-                    c = {
-                        "mu2min": thresh_p[k],
-                        "mu2max": thresh_p[k + 1],
-                        "as_ref": self._as_ref,
-                        "scale_ref": self._scale_ref,
-                        "nf": 3 + k,
-                    }
-                    self._configs.append(c)
-                    break
-            if len(self._configs) == 0:
-                raise ValueError(
-                    "Couldn't find a correct matching of the reference values"
-                )
-            # fill upstairs
-            for k in range(self._configs[0]["nf"] - 2, 4):
-                low = self._configs[-1]
-                as_thres = self._compute(low, thresh_p[k])
-                c = {
-                    "mu2min": thresh_p[k],
-                    "mu2max": thresh_p[k + 1],
-                    "as_ref": as_thres,
-                    "scale_ref": thresh_p[k],
-                    "nf": 3 + k,
-                }
-                self._configs.append(c)
-            # fill downstairs
-            for k in range(self._configs[0]["nf"] - 4, -1, -1):
-                high = self._configs[0]
-                as_thres = self._compute(high, thresh_p[k + 1])
-                c = {
-                    "mu2min": thresh_p[k],
-                    "mu2max": thresh_p[k + 1],
-                    "as_ref": as_thres,
-                    "scale_ref": thresh_p[k + 1],
-                    "nf": 3 + k,
-                }
-                self._configs = [c] + self._configs
-        else:
-            raise ValueError(f"Unknown number scheme {number_scheme}")
+        # At this point we moved the value of alpha_s down to q0, store
+        self._ref_alpha = new_alpha_s
+        self._threshold_holder = threshold_holder
 
-    def _compute_analytic(self, conf, scale_to):
+    @property
+    def ref(self):
+        return self._ref_alpha
+    @property
+    def qref(self):
+        return self._threshold_holder.q2_ref
+
+    # Hidden computation functions
+    def _compute_analytic(self, as_ref, nf, scale_from, scale_to):
         """
             Compute via analytic expression.
 
             Parameters
             ----------
-                conf : dict
-                    configuration
+                as_ref: t_float
+                    reference alpha_s
+                nf: int
+                    value of nf for computing alpha_s
+                scale_from: t_float
+                    reference scale
                 scale_to : t_float
                     target scale
 
@@ -272,23 +222,40 @@ class StrongCoupling:
                 a_s : t_float
                     coupling at target scale
         """
-        beta0 = beta_0(
-            conf["nf"], self._constants.CA, self._constants.CF, self._constants.TF
-        )
-        L = np.log(scale_to / conf["scale_ref"])
-        as_ref = conf["as_ref"]
-        result = as_ref / (1.0 + beta0 * as_ref * L)
+        beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
+        lmu = np.log(scale_to / scale_from)
+        a_s = as_ref / (1.0 + beta0 * as_ref * lmu)
         # add higher orders ...
-        return result
+        return a_s
 
-    def _compute(self, conf, scale_to):
+    def _compute(self, *args):
         """
-            Computes  for a given config according to method.
+            Wrapper in order to pass the computation to the corresponding
+            method (depending on the calculation method).
+            This function has no knowledge of the incoming parameters
+            as they are defined in the respective computation methods
 
             Parameters
             ----------
-                conf : dict
-                    active configuration
+                `*args`: tuple
+                    List of arguments accepted by the computational
+                    method defined by self._method
+
+            Returns
+            -------
+                a_s : t_float
+                    strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
+        """
+        if self._method == "analytic":
+            return self._compute_analytic(*args)
+        raise ValueError(f"Unknown method {self._method}")
+
+    def __call__(self, scale_to):
+        """
+            Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
+
+            Parameters
+            ----------
                 scale_to : t_float
                     final scale to evolve to :math:`Q^2`
 
@@ -297,9 +264,18 @@ class StrongCoupling:
                 a_s : t_float
                     strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
         """
-        if self._method == "analytic":
-            return self._compute_analytic(conf, scale_to)
-        raise ValueError(f"Unknown method {self._method}")
+        # Set up the path to follow in order to go from q2_0 to q2_ref
+        final_alpha = self._ref_alpha
+        area_path = self._threshold_holder.get_path_from_q2_ref(scale_to)
+        # TODO set up a cache system here
+        for area in area_path:
+            q2_from = area.q2_ref
+            q2_to = area.q2_towards(scale_to)
+            if np.isclose(q2_from, q2_to):
+                continue
+            area_nf = area.nf
+            final_alpha = self._compute(final_alpha, area_nf, q2_from, q2_to)
+        return final_alpha
 
     def a_s(self, scale_to):
         """
@@ -315,18 +291,9 @@ class StrongCoupling:
                 a_s : t_float
                     strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
         """
-        # find configuration
-        conf = None
-        for c in self._configs:
-            if c["mu2min"] <= scale_to <= c["mu2max"]:
-                conf = c
-                break
-        if conf is None:
-            raise ValueError(f"Couldn't find a valid configuration for {scale_to}")
-        # compute
-        return self._compute(conf, scale_to)
+        return self(scale_to)
 
-    def t(self, scale_to):
+    def _param_t(self, scale_to):
         """
             Computes evolution parameter :math:`t(Q^2) = \\log(1/a_s(Q^2))`.
 
@@ -340,124 +307,22 @@ class StrongCoupling:
                 t : t_float
                     evolution parameter :math:`t(Q^2) = \\log(1/a_s(Q^2))`
         """
-        return np.log(1.0 / self.a_s(scale_to))
+        return np.log(1.0 / self(scale_to))
 
-
-def alpha_s_generator(
-    c: Constants,
-    alpha_s_ref: t_float,
-    scale_ref: t_float,
-    nf: int,
-    method: str,  # pylint: disable=unused-argument
-):
-    """
-        Generates the :math:`a_s` functions for a given configuration.
-
-        Note that all scale parameters, :math:`\\mu_0^2` and :math:`Q^2`,
-        have to be given as squared values.
-
-        Parameters
-        ----------
-            constants : Constants
-                physical constants
-            alpha_s_ref : t_float
-                alpha_s(!) at the reference scale :math:`\\alpha_s(\\mu_0^2)`
-            scale_ref : t_float
-                reference scale :math:`\\mu_0^2`
-            nf : int
-                Number of active flavours (is passed to the beta function)
-            method : {"analytic"}
-                Applied method to solve the beta function
-
-        Returns
-        -------
-            a_s: function
-                function(order, scale_to) which computes a_s for a given order at a given scale
-    """
-    # TODO implement more complex runnings (we may take a glimpse into LHAPDF)
-    beta0 = beta_0(nf, c.CA, c.CF, c.TF)
-
-    @nb.njit
-    def a_s(order: int, scale_to: t_float):
-        """
-            Evalute :math:`a_s`.
+    def delta_t(self, scale_from, scale_to):
+        """ Compute evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2) = t(Q_1^2)-t(Q_0^2)`
 
             Parameters
             ----------
-                order : int
-                    evaluated order of beta function
+                scale_from : t_float
+                    scale to evolve from :math:`Q^2`
                 scale_to : t_float
                     final scale to evolve to :math:`Q^2`
 
             Returns
             -------
-                a_s : t_float
-                    strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
+                delta : t_float
+                    evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2)`
         """
-        L = np.log(scale_to / scale_ref)
-        if order == 0:
-            return alpha_s_ref / (4.0 * np.pi + beta0 * alpha_s_ref * L)
-        else:
-            raise NotImplementedError("Alpha_s beyond LO not implemented")
-
-    return a_s
-
-
-def get_evolution_params(
-    setup: dict,
-    constants: Constants,
-    nf: t_float,
-    mu2init: t_float,
-    mu2final: t_float,
-    mu2step=None,
-):
-    """
-        Compute evolution parameters
-
-        Parameters
-        ----------
-            setup: dict
-                a dictionary with the theory parameters for the evolution
-            constants : Constants
-                physical constants
-            nf : int
-                number of active flavours
-            mu2init : float
-                initial scale
-            mu2final : flaot
-                final scale
-
-        Returns
-        -------
-            delta_t : t_float
-                scale difference
-    """
-    # setup params
-    qref2 = setup["Qref"] ** 2
-    pto = setup["PTO"]
-    alphas = setup["alphas"]
-    # Generate the alpha_s functions
-    a_s = alpha_s_generator(constants, alphas, qref2, nf, "analytic")
-    print("mu2init=", mu2init, "mu2final=", mu2final, "mu2step=", mu2step)
-    print("nf=", nf)
-    if False and mu2step is not None:
-        a_s_low = alpha_s_generator(constants, alphas, qref2, nf - 1, "analytic")
-        a_ref_low = a_s_low(pto, mu2step)
-        print("a_ref_low = ", a_ref_low)
-        print("a0_old = ", a_s(pto, mu2init))
-        print("a1_old = ", a_s(pto, mu2final))
-        a_s = alpha_s_generator(
-            constants, a_ref_low * 4.0 * np.pi, mu2step, nf, "analytic"
-        )
-        print("a0_new = ", a_s(pto, mu2init))
-        print("a1_new = ", a_s(pto, mu2final))
-    a0 = a_s(pto, mu2init)
-    a1 = a_s(pto, mu2final)
-    # as0 = 0.23171656287356338/4/np.pi
-    # as1 = 0.18837996737403412/4/np.pi
-    # print("a0 = ",a0,"alpha_s_0 = ",a0*4*np.pi)
-    # print("a0 = ",a1,"alpha_s_0 = ",a1*4*np.pi)
-    # evolution parameters
-    t0 = np.log(1.0 / a0)
-    t1 = np.log(1.0 / a1)
-    return t1 - t0
+        delta = self._param_t(scale_to) - self._param_t(scale_from)
+        return delta

@@ -3,45 +3,6 @@
     This file contains several utility functions
 """
 
-import numpy as np
-
-
-# https://stackoverflow.com/a/7205107
-# from functools import reduce
-# reduce(merge, [dict1, dict2, dict3...])
-def merge_dicts(a: dict, b: dict, path=None):
-    """
-        Merges b into a.
-
-        Parameters
-        ----------
-            a : dict
-                target dictionary (modified)
-            b : dict
-                update
-            path : array
-                recursion track
-
-        Returns
-        -------
-            a : dict
-                updated dictionary
-    """
-    if path is None:
-        path = []
-    for key in b:
-        if key in a:
-            if isinstance(a[key], dict) and isinstance(b[key], dict):
-                merge_dicts(a[key], b[key], path + [str(key)])
-            elif a[key] == b[key]:
-                pass  # same leaf value
-            else:
-                raise Exception("Conflict at %s" % ".".join(path + [str(key)]))
-        else:
-            a[key] = b[key]
-    return a
-
-
 def get_singlet_paths(to, fromm, depth):
     """
         Compute all possible path in the singlet sector to reach `to` starting from  `fromm`.
@@ -79,55 +40,17 @@ def get_singlet_paths(to, fromm, depth):
         g.append(f"S_g{fromm}")
     return qs + gs
 
-
-def operator_product_helper(steps, paths):
-    """
-        Joins all matrix elements given by paths.
-
-        Parameters
-        ----------
-            steps : array
-                list of evolution steps in decreasing order, e.g.
-                [..., O(c <- b), O(b <- a)]
-            paths : array
-                list of all possible paths: [P1(c <- a), P2(c <- a), ...]
-
-        Returns
-        -------
-            tot_op : array
-                joined operator
-            tot_op_err : array
-                combined error for operator
-    """
-    # setup
-    len_steps = len(steps)
-    # collect all paths
-    tot_op = 0
-    tot_op_err = 0
-    for path in paths:
-        # init product
+def operator_product(steps, list_of_paths, name = None):
+    final_op = 0
+    for path in list_of_paths:
         cur_op = None
-        cur_op_err = None
-        # check length
-        if len(path) != len_steps:
-            raise ValueError(
-                "Number of steps and number of elements in a path do not match!"
-            )
-        # iterate steps
-        for k, el in enumerate(path):
-            new_op = steps[k]["operators"][el]
-            new_op_err = steps[k]["operator_errors"][el]
+        for step, member in zip(steps, path):
+            new_op = step[member]
             if cur_op is None:
                 cur_op = new_op
-                cur_op_err = new_op_err
             else:
-                old_op = cur_op.copy()  # make copy for error determination
-                cur_op = np.matmul(cur_op, new_op)
-                cur_op_err = np.matmul(old_op, new_op_err) + np.matmul(
-                    cur_op_err, new_op
-                )
-        # add up
-        tot_op += cur_op
-        tot_op_err += cur_op_err
-
-    return tot_op, tot_op_err
+                cur_op = cur_op*new_op
+        final_op += cur_op
+    if name is not None:
+        final_op.name = name
+    return final_op

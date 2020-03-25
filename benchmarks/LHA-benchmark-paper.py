@@ -12,9 +12,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 import eko.dglap as dglap
 import eko.interpolation as interpolation
-import eko.utils as utils
 
-from tools import plot_dist, save_all_operators_to_pdf
+from tools import plot_dist, save_all_operators_to_pdf, merge_dicts
 
 # xgrid
 toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
@@ -259,7 +258,7 @@ class LHABenchmarkPaper:
             "Q2grid": [Q2final],
         }
         # xgrid can be a copy, so we don't need a deep copy here
-        setup = utils.merge_dicts(copy.copy(self._setup), add_setup)
+        setup = merge_dicts(copy.copy(self._setup), add_setup)
         ret = dglap.run_dglap(setup)
         self._post_process(ret, LHA_final_dict_FFNS_ref, tag)
         return ret
@@ -290,6 +289,7 @@ class LHABenchmarkPaper:
                 ret2t1 : dict
                     DGLAP result
         """
+        raise Exception("JCM: This cannot be done now")
         # suppress PDF plots for single steps
         plot_PDF = self.post_process_config["plot_PDF"]
         self.post_process_config["plot_PDF"] = False
@@ -318,7 +318,7 @@ class LHABenchmarkPaper:
             "Q2grid": [self._Q2final],
         }
         # xgrid can be copy, so we don't need a deep copy
-        setup = utils.merge_dicts(copy.copy(self._setup), add_setup)
+        setup = merge_dicts(copy.copy(self._setup), add_setup)
         ret = dglap.run_dglap(setup)
         self._post_process(ret, LHA_final_dict_ZMVFNS_ref, "ZMVFNS")
         return ret
@@ -401,6 +401,10 @@ if __name__ == "__main__":
     n_mid = 20
     polynom_rank = 4
 
+#     n_low = 2
+#     n_mid = 2
+#     polynom_rank = 2
+
     # combine grid
     flag = f"l{n_low}m{n_mid}r{polynom_rank}-p5"
     xgrid_low = interpolation.get_xgrid_linear_at_log(
@@ -414,16 +418,16 @@ if __name__ == "__main__":
     logStdout = logging.StreamHandler(sys.stdout)
     logStdout.setLevel(logging.INFO)
     logStdout.setFormatter(logging.Formatter("%(message)s"))
-    logging.getLogger("eko.dglap").handlers = []
-    logging.getLogger("eko.dglap").addHandler(logStdout)
-    logging.getLogger("eko.dglap").setLevel(logging.DEBUG)
+    logging.getLogger("eko.operator").handlers = []
+    logging.getLogger("eko.operator").addHandler(logStdout)
+    logging.getLogger("eko.operator").setLevel(logging.DEBUG)
 
     # run
     app = LHABenchmarkPaper(xgrid, polynom_rank, flag)
     # check input scale
     #save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
     # check fixed flavours
-    #app.run_FFNS()
+    # app.run_FFNS()
     # do two steps
     #app.run_FFNS_twostep(1e2)
     # check ZM-VFNS

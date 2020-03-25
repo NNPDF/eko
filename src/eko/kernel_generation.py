@@ -20,14 +20,17 @@ import numba as nb
 
 import eko.alpha_s as alpha_s
 import eko.splitting_functions_LO as sf_LO
+import eko.mellin as mellin
 
+import logging
+logger = logging.getLogger(__name__)
 
-def get_kernel_ns(basis_function, nf, constants, beta_0, delta_t):
+def get_kernel_ns(basis_function, nf, constants, beta_0):
     """Returns the non-singlet integration kernel"""
     CA = constants.CA
     CF = constants.CF
 
-    def ker(n, lnx):
+    def ker(n, lnx, delta_t):
         """true non-siglet integration kernel"""
         ln = -delta_t * sf_LO.gamma_ns_0(n, nf, CA, CF) / beta_0
         interpoln = basis_function(n, lnx)
@@ -36,7 +39,7 @@ def get_kernel_ns(basis_function, nf, constants, beta_0, delta_t):
     return ker
 
 
-def get_kernels_s(basis_function, nf, constants, beta_0, delta_t):
+def get_kernels_s(basis_function, nf, constants, beta_0):
     """Return all singlet integration kernels"""
     CA = constants.CA
     CF = constants.CF
@@ -44,7 +47,7 @@ def get_kernels_s(basis_function, nf, constants, beta_0, delta_t):
     def get_ker(k, l):
         """true singlet kernel"""
 
-        def ker(N, lnx):  # TODO here we are repeating too many things!
+        def ker(N, lnx, delta_t):
             """a singlet integration kernel"""
             l_p, l_m, e_p, e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N, nf, CA, CF)
             ln_p = -delta_t * l_p / beta_0
@@ -55,6 +58,28 @@ def get_kernels_s(basis_function, nf, constants, beta_0, delta_t):
         return ker
 
     return get_ker(0, 0), get_ker(0, 1), get_ker(1, 0), get_ker(1, 1)
+
+def prepare_singlet(kernels, path, jac):
+    """ Return a list of integrands prepare to be run """
+    integrands = []
+    logger.info("Singlet operator: kernel compilation started")
+    for kernel_set in kernels:
+        kernel_int = []
+        for ker in kernel_set:
+            kernel_int.append(mellin.compile_integrand(ker, path, jac))
+        integrands.append(kernel_int)
+    logger.info("Singlet operator: kernel compilation finished")
+    return integrands
+
+def prepare_non_singlet(kernels, path, jac):
+    """ Return a list of integrands prepare to be run """
+    integrands = []
+    logger.info("Non-singlet operator: kernel compilation started")
+    for ker in kernels:
+        kernel_int = mellin.compile_integrand(ker, path, jac)
+        integrands.append(kernel_int)
+    logger.info("Non-singlet operator: kernel compilation finished")
+    return integrands
 
 
 class KernelDispatcher:
@@ -78,38 +103,66 @@ class KernelDispatcher:
                 If true, the functions will be `numba` compiled
     """
 
-    def __init__(self, interpol_dispatcher, constants, nf, delta_t, numba_it=True):
+    def __init__(self, interpol_dispatcher, constants, delta_t = None, numba_it=True):
         self.interpol_dispatcher = interpol_dispatcher
-        self.delta_t = delta_t
-        self.nf = nf
         self.constants = constants
-        self.beta_0 = alpha_s.beta_0(nf, constants.CA, constants.CF, constants.TF)
         self.numba_it = numba_it
+        self.integrands_ns = {}
+        self.integrands_s = {}
+        self.delta_t = delta_t
 
-    def _compiler(self, generating_function):
+    def _compiler(self, generating_function, nf):
         """
             Call `generating_function` with the appropiate parameters
             and pass the output through numba
         """
+        beta_0 = alpha_s.beta_0(nf, self.constants.CA, self.constants.CF, self.constants.TF)
         kernels = []
         for basis_function in self.interpol_dispatcher:
             new_ker = generating_function(
                 basis_function.callable,
-                self.nf,
+                nf,
                 self.constants,
-                self.beta_0,
-                self.delta_t,
+                beta_0,
             )
             kernels.append(self.njit(new_ker))
         return kernels
 
-    def compile_singlet(self):
+    def compile_singlet(self, nf):
         """Compiles the singlet integration kernels for each basis """
-        return self._compiler(get_kernels_s)
+        ker = self._compiler(get_kernels_s, nf)
+        return ker
 
-    def compile_nonsinglet(self):
+    def compile_nonsinglet(self, nf):
         """Compiles the non-singlet integration kernel for each basis """
-        return self._compiler(get_kernel_ns)
+        ker = self._compiler(get_kernel_ns, nf)
+        return ker
+
+    def set_up_all_integrands(self, nf_values):
+        """ Compiles singlet and non-singlet integration kernel for each basis """
+        if isinstance(nf_values, (np.int, np.integer)):
+            nf_values = [nf_values]
+        # Setup path
+        path, jac = mellin.get_path_Talbot()
+        for nf in nf_values:
+            if nf not in self.integrands_s:
+                self.integrands_s[nf] = prepare_singlet(self.compile_singlet(nf), path, jac)
+            if nf not in self.integrands_ns:
+                self.integrands_ns[nf] = prepare_non_singlet(self.compile_nonsinglet(nf), path, jac)
+
+    def get_singlet_for_nf(self, nf):
+        integrands = self.integrands_s.get(nf)
+        if integrands is None:
+            self.set_up_all_integrands([nf])
+            integrands = self.integrands_s[nf]
+        return integrands
+
+    def get_non_singlet_for_nf(self, nf):
+        integrands = self.integrands_ns.get(nf)
+        if integrands is None:
+            self.set_up_all_integrands([nf])
+            integrands = self.integrands_ns[nf]
+        return integrands
 
     def njit(self, function):
         """
