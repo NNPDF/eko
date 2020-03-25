@@ -202,10 +202,7 @@ class OperatorMember:
         new_err = np.abs(np.matmul(lval, rerror) + np.matmul(rval, ler))
         return OperatorMember(new_val, new_err, new_name)
 
-    # TODO @JCM: if you want to implement addition, please give me a use case.
-    # this should never happen, because the only mathematical sensible operation
-    # is (matrix) multiplication.
-    """def __add__(self, operator_member):
+    def __add__(self, operator_member):
         if isinstance(operator_member, (np.int, np.float, np.integer)):
             rval = operator_member
             rerror = 0.0
@@ -232,7 +229,7 @@ class OperatorMember:
             return self.__add__(operator_member)
 
     def __rsub__(self, operator_member):
-        return self.__radd__(-operator_member)"""
+        return self.__radd__(-operator_member)
 
     def __eq__(self, operator_member):
         return np.allclose(self.value, operator_member.value)
