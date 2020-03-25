@@ -1,11 +1,56 @@
 # -*- coding: utf-8 -*-
-"""
-    This file contains the implementations of the Mellin transformation and its inverse
-    transformation.
+r"""
+    This module contains the implementation of the
+    `inverse Mellin transformation <https://en.wikipedia.org/wiki/Mellin_inversion_theorem>`_.
 
     It contains the actual transformations itself, as well as the necessary tools
     such as the definition of paths.
-"""
+
+    .. math::
+
+        g(x) = \mathcal{M}^{-1}[\tilde g(N)](x)
+             = \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x^{-N} \tilde g(N)\,dN
+
+    In the following we will assume that the integration path :math:`\mathcal P` is given by
+
+    .. math::
+        \mathcal P : [0:1] \to \mathcal C : t \to \mathcal P(t)\quad
+            \text{with}~\mathcal P(1/2-t) = \mathcal P^*(1/2+t)
+
+    where :math:`\mathcal P^*` denotes complex conjugation. Assuming further :math:`\tilde g`
+    to be a holomorphic function along the path, we can rewrite the inversion integral by
+
+    .. math::
+
+        g(x) &= \frac{1}{2\pi i} \int\limits_{0}^{1} x^{-\mathcal{P}(t)} \tilde g(\mathcal{P}(t)) \frac{d\mathcal{P}(t)}{dt} \,dt\\
+             &= \frac{1}{\pi} \int\limits_{1/2}^{1} \Re \left(  x^{-\mathcal{P}(t)} \tilde g(\mathcal{P}(t)) \frac 1 i \frac{d\mathcal{P}(t)}{dt} \right) \,dt
+
+    Although this module provides four different path implementations (:meth:`get_path_Talbot`,
+    :meth:`get_path_line`, :meth:`get_path_edge`, :meth:`get_path_Cauchy_tan`) in practice
+    only the Talbot path :cite:`Abate`
+
+    .. math::
+        p_{\text{Talbot}}(t) =  o + r \cdot ( \theta \cot(\theta) + i\theta)\quad
+            \text{with}~\theta = \pi(2t-1)
+
+    is used, as it results in the most efficient convergence. The default values
+    for the parameters :math:`r,o` are given by :math:`r = 1/2, o = 0` for
+    the non-singlet integrals and by :math:`r = \frac{2}{5} \frac{16}{1 - \ln(x)}, o = 1`
+    for the singlet sector. Note that the non-singlet kernels evolve poles only up to
+    :math:`N=1` whereas the singlet kernels have poles up to :math:`N=1`.
+
+    If the integration kernel :math:`\tilde g(N)` can be factorized
+
+    .. math::
+        \tilde g(N) = x_0^N \cdot \tilde h(N)
+    
+    with :math:`x_0` a fixed number in :math:`[0:1]` and :math:`\lim_{N\to\infty}h(N)\to 0`,
+    the inversion can be simplified if the inversion point :math:`x_i` is **above** :math:`x_0`.
+
+    .. math::
+        g(x_i) = \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x_i^{-N} x_0^N \tilde h(N)\,dN
+
+"""#pylint:disable=line-too-long
 
 import numpy as np
 import numba as nb
@@ -15,7 +60,7 @@ from eko import t_complex
 
 
 def compile_integrand(iker, path, jac, do_numba=True):
-    """
+    r"""
         Prepares the integration kernel `iker` to be integrated by the
         inverse mellin transform wrapper.
 
@@ -24,7 +69,8 @@ def compile_integrand(iker, path, jac, do_numba=True):
             iker : function
                 Integration kernel including x^(-N)
             path : function
-                Integration path as a function :math:`p(t) : [0,1] \\to \\mathcal C : t \\to p(t)`
+                Integration path as a function
+                :math:`\mathcal P : [0:1] \to \mathcal C : t \to \mathcal P(t)`
             jac : function
                 Jacobian of integration path :math:`j(t) = \\frac{dp(t)}{dt}`
             do_numba: bool
@@ -36,8 +82,8 @@ def compile_integrand(iker, path, jac, do_numba=True):
         delta_t = extra_args[1]
         path_param = extra_args[2:]
         N = path(u,path_param)
-        prefactor = np.complex(0.0, -0.5 / np.pi)
-        result = 2.0 * np.real(prefactor * iker(N, logx, delta_t) * jac(u, path_param))
+        prefactor = np.complex(0.0, -1.0 / np.pi)
+        result = np.real(prefactor * iker(N, logx, delta_t) * jac(u, path_param))
         return result
 
     if do_numba:
@@ -95,7 +141,7 @@ def get_path_Talbot():
         Talbot path.
 
         .. math::
-            p_{\\text{Talbot}}(t) =  o + r \\cdot \\theta \\cot(\\theta) + i\\theta,
+            p_{\\text{Talbot}}(t) =  o + r \\cdot ( \\theta \\cot(\\theta) + i\\theta ),
             \\theta = \\pi(2t-1)
 
         Parameters

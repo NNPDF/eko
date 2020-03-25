@@ -8,6 +8,8 @@ SOURCEDIR     = source
 BUILDDIR      = build
 
 EKODIR = ../src/eko
+EKOTESTDIR = ../src/eko/tests
+
 TODOOUTFILE = ./source/code_todos.rst
 
 # Put it first so that "make" without argument is like "make help".
@@ -18,7 +20,7 @@ help:
 
 # sphinx
 html: todos
-	sphinx-apidoc -o ./source/modules/eko "$(EKODIR)" ../../src/eko/tests
+	sphinx-apidoc -o ./source/modules/eko "$(EKODIR)" "$(EKOTESTDIR)"
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 view: html

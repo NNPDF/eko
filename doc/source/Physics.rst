@@ -19,7 +19,8 @@ The inverse Mellin transformation is given by
     g(x) = \mathcal{M}^{-1}[\tilde g(N)](x) = \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x^{-N} \tilde g(N)\,dN
 
 for a suitable path :math:`\mathcal{P}(t)`. The textbook path is given by
-:math:`\mathcal{P}(t) = c + i t`
+:math:`p(t) = c + i t`. In the code the more efficient Talbot
+path :cite:`Abate` is used.
 
 We will also use approximation theory, i.e., we interpolate the unkown PDF as a
 weighted sum of polynomials

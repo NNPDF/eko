@@ -62,7 +62,7 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             extra_args.append(logx)
             extra_args.append(delta_t)
             # Path parameters
-            extra_args.append(-0.4*16/(-1.0+logx))
+            extra_args.append(0.4 * 16 / (1.0 - logx))
             extra_args.append(1.0)
             results = []
             for integrand_set in singlet_integrands:

@@ -122,16 +122,16 @@ class Area:
         ----------
             lower_index: int
                 lower index of the area
-            polynom_number: int
-                degree of the interpolation polynomial
+            poly_number: int
+                number of polynomial
             block: tuple(int, int)
                 kmin and kmax
             xgrid: array
                 Grid in x-space from which the interpolators are constructed
     """
 
-    def __init__(self, lower_index, polynom_number, block, xgrid):
-        self.poly_number = polynom_number
+    def __init__(self, lower_index, poly_number, block, xgrid):
+        self.poly_number = poly_number
         self._reference_indices = block
         self.kmin = block[0]
         self.kmax = block[1]
@@ -498,6 +498,7 @@ class InterpolatorDispatcher:
         return all(checks) and np.allclose(self.xgrid_raw, other.xgrid_raw)
 
     def __iter__(self):
+        # return iter(self.basis)
         for basis in self.basis:
             yield basis
 
