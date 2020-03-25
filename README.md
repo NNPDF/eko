@@ -1,3 +1,7 @@
+<p align="center">
+  <a href="https://github.com/N3PDF/eko/actions?query=workflow%3A%22eko%22"><img alt="Tests" src="https://github.com/N3PDF/eko/workflows/eko/badge.svg" /></a>
+</p>
+
 # EKO
 Evolution Kernel Operator
 --
