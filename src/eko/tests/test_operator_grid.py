@@ -78,13 +78,13 @@ def test_sanity():
     nregs = len(opgrid._op_masters)
     assert nregs == len(thresholds)+1
     # Check that the errors work
-    with pytest.raises(ValueError) as _:
+    with pytest.raises(ValueError):
         opgrid.set_q2_limits(-1, 4)
-    with pytest.raises(ValueError) as _:
+    with pytest.raises(ValueError):
         opgrid.set_q2_limits(-1, -4)
-    with pytest.raises(ValueError) as _:
+    with pytest.raises(ValueError):
         opgrid.set_q2_limits(4, 1)
-    with pytest.raises(ValueError) as _:
+    with pytest.raises(ValueError):
         bad_grid = [100, -6, 3]
         _ = opgrid.compute_q2grid(bad_grid)
 

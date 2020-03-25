@@ -37,5 +37,6 @@ def test_digamma():
             i = np.imag(x)
             c_digamma(r, i, _gsl_digamma.ffi.from_buffer(out))
             return t_complex(np.complex(out[0], out[1]))
+        raise ValueError(f"unknown x = {x}")
 
     compare_functions(customfun, scipy.special.digamma, values)
