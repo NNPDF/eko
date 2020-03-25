@@ -7,7 +7,7 @@ SPHINXBUILD   = sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
 
-EKODIR = ../../src/eko
+EKODIR = ../src/eko
 TODOOUTFILE = ./source/code_todos.rst
 
 # Put it first so that "make" without argument is like "make help".
