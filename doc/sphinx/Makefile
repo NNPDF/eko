@@ -7,17 +7,18 @@ SPHINXBUILD   = sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
 
+EKODIR = ../../src/eko
+TODOOUTFILE = ./source/code_todos.rst
+
 # Put it first so that "make" without argument is like "make help".
 help:
 	@$(SPHINXBUILD) -M help "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-.PHONY: help html view clean cleanall
+.PHONY: help html view clean cleanall todos clean-todos
 
-html:
-	# generate TODOs
-	python generate_code_todos.py ../../src/eko ./source/code_todos.rst
-	# sphinx
-	sphinx-apidoc -o ./source/modules/eko ../../src/eko/ ../../src/eko/tests
+# sphinx
+html: todos
+	sphinx-apidoc -o ./source/modules/eko "$(EKODIR)" ../../src/eko/tests
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 view: html
@@ -26,7 +27,13 @@ view: html
 clean:
 	rm -rf build
 	rm -rf _build
-	rm ./source/code_todos.rst
 
-cleanall: clean
+cleanall: clean clean-todos
 	rm -rf $(SOURCEDIR)/modules
+
+# TODOs
+todos:
+	python generate_code_todos.py "$(EKODIR)" "$(TODOOUTFILE)"
+
+clean-todos:
+	rm "$(TODOOUTFILE)"

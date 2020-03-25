@@ -1,8 +1,16 @@
-"""
-    This module contains all operator classes.
+r"""
+    This module contains all evolution operator classes.
 
     The classes are nested as follows:
-    :class:`PhysicalOperator` <-:class:`Operator` <= :class:`OperatorMember`.
+    :class:`PhysicalOperator` <- :class:`Operator` <= :class:`OperatorMember`.
+    The central class :class:`Operator` consists of several :class:`OperatorMember`.
+    One instance of :class:`OperatorMember` governs the evolution of a single flavour combination.
+    Inside :class:`Operator` they refer to the "raw" elements
+
+    .. math::
+
+        \Gamma_{NS}^{v}, \Gamma_{NS}^{+}, \Gamma_{NS}^{-}, \mathbf\Gamma_S
+
     Only a single instance of :class:`PhysicalOperator` will be exposed for each Q2 to the user.
 """
 
@@ -15,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, xgrid):
     """
-        Return actual integration kernels
+        Return actual integration kernels.
 
         Paramaters
         ----------

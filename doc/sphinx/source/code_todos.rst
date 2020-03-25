@@ -15,23 +15,21 @@ TODOs from source code
 
 `operator.py <file:///home/felix/Physik/N3PDF/EKO/eko/src/eko/operator.py>`_
 
-.. warning:: #39 make 'cut' external parameter?
+.. warning:: #47 make 'cut' external parameter?
 
-.. warning:: #45 delegate to logger?
+.. warning:: #53 delegate to logger?
 
-.. warning:: #80 delegate to logger?
+.. warning:: #88 delegate to logger?
 
-.. warning:: #201 check error propagation
+.. warning:: #209 check error propagation
 
-.. warning:: #205 @JCM: if you want to implement addition, please give me a use case.
+.. warning:: #225 check error propagation
 
-.. warning:: #220 check error propagation
+.. warning:: #291 change how this work internally
 
-.. warning:: #286 change how this work internally
+.. warning:: #342 fill this up, check whether flavour or evol basis
 
-.. warning:: #337 fill this up, check whether flavour or evol basis
-
-.. warning:: #341 this is a legacy wrapper as the benchmark files use this dictionary
+.. warning:: #346 this is a legacy wrapper as the benchmark files use this dictionary
 
 
 

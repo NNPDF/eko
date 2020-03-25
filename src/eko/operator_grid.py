@@ -11,7 +11,7 @@
 
 import logging
 import numpy as np
-from eko.operator import Operator
+from eko.evolution_operator import Operator
 
 logger = logging.getLogger(__name__)
 
