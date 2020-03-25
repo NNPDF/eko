@@ -13,26 +13,6 @@ TODOs from source code
 
 
 
-`operator.py <file:///home/felix/Physik/N3PDF/EKO/eko/src/eko/operator.py>`_
-
-.. warning:: #47 make 'cut' external parameter?
-
-.. warning:: #53 delegate to logger?
-
-.. warning:: #88 delegate to logger?
-
-.. warning:: #209 check error propagation
-
-.. warning:: #225 check error propagation
-
-.. warning:: #291 change how this work internally
-
-.. warning:: #342 fill this up, check whether flavour or evol basis
-
-.. warning:: #346 this is a legacy wrapper as the benchmark files use this dictionary
-
-
-
 `operator_grid.py <file:///home/felix/Physik/N3PDF/EKO/eko/src/eko/operator_grid.py>`_
 
 .. warning:: #10 the operator grid should have a "save" and "load" method which will allow to store the full grid
@@ -58,6 +38,26 @@ TODOs from source code
 `mellin.py <file:///home/felix/Physik/N3PDF/EKO/eko/src/eko/mellin.py>`_
 
 .. warning:: #261 if we keep this function open, we might also think about an implementation (t_float)
+
+
+
+`evolution_operator.py <file:///home/felix/Physik/N3PDF/EKO/eko/src/eko/evolution_operator.py>`_
+
+.. warning:: #51 make 'cut' external parameter?
+
+.. warning:: #56 delegate to logger?
+
+.. warning:: #93 delegate to logger?
+
+.. warning:: #216 check error propagation
+
+.. warning:: #232 check error propagation
+
+.. warning:: #298 change how this work internally
+
+.. warning:: #349 fill this up, check whether flavour or evol basis
+
+.. warning:: #353 this is a legacy wrapper as the benchmark files use this dictionary
 
 
 

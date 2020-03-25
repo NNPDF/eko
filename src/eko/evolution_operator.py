@@ -3,7 +3,8 @@ r"""
 
     The classes are nested as follows:
     :class:`PhysicalOperator` <- :class:`Operator` <= :class:`OperatorMember`.
-    The central class :class:`Operator` consists of several :class:`OperatorMember`.
+    The central class :class:`Operator` lives at given :math:`Q^2` and
+    consists of several :class:`OperatorMember`.
     One instance of :class:`OperatorMember` governs the evolution of a single flavour combination.
     Inside :class:`Operator` they refer to the "raw" elements
 
@@ -11,7 +12,9 @@ r"""
 
         \Gamma_{NS}^{v}, \Gamma_{NS}^{+}, \Gamma_{NS}^{-}, \mathbf\Gamma_S
 
-    Only a single instance of :class:`PhysicalOperator` will be exposed for each Q2 to the user.
+    :class:`Operator` manages the correct handling and recombination of the various
+    :class:`OperatorMember`. In the end a single instance of :class:`PhysicalOperator`
+    is computed and will be exposed for each :math:`Q^2` to the user.
 """
 
 import logging
@@ -19,13 +22,14 @@ import numpy as np
 import numba as nb
 import eko.mellin as mellin
 from eko.utils import operator_product
+
 logger = logging.getLogger(__name__)
 
 def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, xgrid):
     """
         Return actual integration kernels.
 
-        Paramaters
+        Parameters
         ----------
             singlet_integrands : list
                 kernels for singlet integrations
@@ -49,10 +53,10 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
     grid_logx = np.log(xgrid)
 
     def run_singlet():
-        # perform
         print("Starting singlet") # TODO delegate to logger?
         all_output = []
         log_prefix = "computing Singlet operator - %s"
+        # iterate output grid
         for k, logx in enumerate(grid_logx):
             extra_args = nb.typed.List()
             extra_args.append(logx)
@@ -74,6 +78,7 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
         logger.info(log_prefix, "done.")
         output_array = np.array(all_output)
 
+        # resort
         singlet_names = ["S_qq", "S_qg", "S_gq", "S_gg"]
         op_dict = {}
         for i, name in enumerate(singlet_names):
@@ -89,6 +94,7 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
         operators = []
         operator_errors = []
         log_prefix = "computing NS operator - %s"
+        # iterate output grid
         for k, logx in enumerate(grid_logx):
             extra_args = nb.typed.List()
             extra_args.append(logx)
@@ -106,6 +112,7 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             log_text = f"{k+1}/{grid_size}"
             logger.info(log_prefix, log_text)
 
+        # resort
         # in LO v=+=-
         ns_names = ["NS_p", "NS_m", "NS_v"]
         op_dict = {}
@@ -126,7 +133,7 @@ class OperatorMember:
         The :class:`OperatorMember` provide some basic mathematical operations such as products.
         It can also be applied to a pdf vector by the `__call__` method.
         This class will never be exposed to the outside, but will be an internal member
-        of the PhysicalOperator instances.
+        of the :class:`Operator` and :class:`PhysicalOperator` instances.
 
         Parameters
         ----------
@@ -346,6 +353,11 @@ class PhysicalOperator:
     # TODO this is a legacy wrapper as the benchmark files use this dictionary
     @property
     def ret(self):
+        """
+            LEGACY WRAPPER
+
+            .. todo:: remove
+        """
         ret = { "operators" : {}, "operator_errors" : {}, "xgrid" : self.xgrid }
         for key, new_op in self.op_members.items():
             ret["operators"][key] = new_op.value
@@ -371,7 +383,7 @@ class Operator:
             integrands_s : list(function)
                 list of singlet kernels
             metadata : dict
-                metadata with keys `nf`,`q2ref` and `q2`
+                metadata with keys `nf`, `q2ref` and `q2`
     """
     def __init__(self, delta_t, xgrid, integrands_ns, integrands_s, metadata):
         # Save the metadata
@@ -401,6 +413,7 @@ class Operator:
 
     @property
     def xgrid(self):
+        """ underlying basis grid """
         return self._xgrid
 
     def compose(self, op_list, instruction_set):
