@@ -1,5 +1,10 @@
 """
-    Implements mathematical functions
+    Implements the cffi ports from gsl for higher mathematical functions.
+
+    Used libraries:
+
+      - `cffi <https://cffi.readthedocs.io/en/latest/>`_
+      - `gsl <https://www.gnu.org/software/gsl/doc/html/index.html>`_
 """
 
 import numpy as np
@@ -12,13 +17,15 @@ from eko import t_complex
 cffi_support.register_module(_gsl_digamma)
 c_digamma = _gsl_digamma.lib.digamma  # pylint: disable=no-member
 
-
 @nb.njit
 def gsl_digamma(N: t_complex):
     """
-      Wrapper around the cffi implementation of the digamma function.
+      Wrapper around the gsl implementation via cffi of the
+      `digamma function <https://en.wikipedia.org/wiki/Digamma_function>`_.
 
-      So it can take a complex both as input and output.
+      The wrapper allows both input and output to be complex.
+      Note that the `SciPy implementation <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.digamma.html>`_
+      does not allow for complex inputs.
 
       Parameters
       ----------
@@ -28,8 +35,15 @@ def gsl_digamma(N: t_complex):
       Returns
       -------
         psi : t_complex
-          psi(N)
-    """
+          digamma function :math:`\\psi_0(N)`
+
+      Notes
+      -----
+        `GSL documentation <https://www.gnu.org/software/gsl/doc/html/specfunc.html#psi-digamma-function>`_
+
+        Note that, although not listed in the documentation, there **is** a
+        `complex version <http://git.savannah.gnu.org/cgit/gsl.git/tree/specfunc/gsl_sf_psi.h#n76>`_
+    """#pylint: disable=line-too-long
     r = np.real(N)
     i = np.imag(N)
     out = np.empty(2)
@@ -43,12 +57,13 @@ def gsl_digamma(N: t_complex):
 @nb.njit
 def harmonic_S1(N: t_complex):
     r"""
-      Computes the simple harmonic sum
+      Computes the simple harmonic sum.
 
       .. math::
-        S_1(N) = \sum\limits_{j=0}^N \frac 1 j = \psi(N+1)+\gamma_E
+        S_1(N) = \sum\limits_{j=1}^N \frac 1 j = \psi_0(N+1)+\gamma_E
 
-      with :math:`\psi(M)` the digamma function and :math:`\gamma_E` the Euler-Mascheroni constant
+      with :math:`\psi_0(N)` the digamma function and :math:`\gamma_E` the
+      Euler-Mascheroni constant.
 
       Parameters
       ----------
@@ -58,7 +73,11 @@ def harmonic_S1(N: t_complex):
       Returns
       -------
         S_1 : t_complex
-          (simple) Harmonic sum up to N :math:`S_1(N)`
+          (simple) Harmonic sum :math:`S_1(N)`
+
+      See Also
+      --------
+        gsl_digamma :
     """
     result = gsl_digamma(N + 1)
     return result + np.euler_gamma
