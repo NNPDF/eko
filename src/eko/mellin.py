@@ -6,15 +6,22 @@ r"""
     It contains the actual transformations itself, as well as the necessary tools
     such as the definition of paths.
 
+    Definition
+    ----------
+
+    The inverse Mellin transformation :math:`g(x)` of a function :math:`\tilde g(N)` is given by
+
     .. math::
 
         g(x) = \mathcal{M}^{-1}[\tilde g(N)](x)
              = \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x^{-N} \tilde g(N)\,dN
 
-    In the following we will assume that the integration path :math:`\mathcal P` is given by
+    for a suitable integration path :math:`\mathcal P` which runs to the right to the right-most
+    pole of :math:`\tilde g(N)`. For the implementation we will assume that the integration path
+    :math:`\mathcal P` is given by
 
     .. math::
-        \mathcal P : [0:1] \to \mathcal C : t \to \mathcal P(t)\quad
+        \mathcal P : [0:1] \to \mathbb C : t \to \mathcal P(t)\quad
             \text{with}~\mathcal P(1/2-t) = \mathcal P^*(1/2+t)
 
     where :math:`\mathcal P^*` denotes complex conjugation. Assuming further :math:`\tilde g`
@@ -24,6 +31,9 @@ r"""
 
         g(x) &= \frac{1}{2\pi i} \int\limits_{0}^{1} x^{-\mathcal{P}(t)} \tilde g(\mathcal{P}(t)) \frac{d\mathcal{P}(t)}{dt} \,dt\\
              &= \frac{1}{\pi} \int\limits_{1/2}^{1} \Re \left(  x^{-\mathcal{P}(t)} \tilde g(\mathcal{P}(t)) \frac 1 i \frac{d\mathcal{P}(t)}{dt} \right) \,dt
+
+    Integration Paths
+    -----------------
 
     Although this module provides four different path implementations (:meth:`get_path_Talbot`,
     :meth:`get_path_line`, :meth:`get_path_edge`, :meth:`get_path_Cauchy_tan`) in practice
@@ -37,19 +47,28 @@ r"""
     for the parameters :math:`r,o` are given by :math:`r = 1/2, o = 0` for
     the non-singlet integrals and by :math:`r = \frac{2}{5} \frac{16}{1 - \ln(x)}, o = 1`
     for the singlet sector. Note that the non-singlet kernels evolve poles only up to
-    :math:`N=1` whereas the singlet kernels have poles up to :math:`N=1`.
+    :math:`N=0` whereas the singlet kernels have poles up to :math:`N=1`.
+
+    Inversion of Factorizable Kernels
+    ---------------------------------
 
     If the integration kernel :math:`\tilde g(N)` can be factorized
 
     .. math::
         \tilde g(N) = x_0^N \cdot \tilde h(N)
-    
+
     with :math:`x_0` a fixed number in :math:`[0:1]` and :math:`\lim_{N\to\infty}h(N)\to 0`,
     the inversion can be simplified if the inversion point :math:`x_i` is **above** :math:`x_0`.
 
     .. math::
-        g(x_i) = \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x_i^{-N} x_0^N \tilde h(N)\,dN
+        g(x_i) &= \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x_i^{-N} x_0^N \tilde h(N)\,dN \\
+            &= \frac{1}{2\pi i} \int\limits_{\mathcal{P}} \exp(-N(\ln(x_i)-\ln(x_0))) \tilde h(N)\,dN
 
+    Now, take the textbook path :math:`p : \mathbb R \to \mathbb C : t \to p(t) = c + i t` and
+    shift the parameter :math:`c \to \infty`. As :math:`x_i > x_0` it follows immediately
+    :math:`\ln(x_i)-\ln(x_0) > 0` and thus :math:`|\exp(-N(\ln(x_i)-\ln(x_0)))| \to 0`.
+    Together with the assumed vanishing of :math:`\tilde h(N)` we can conclude
+    :math:`g(x_i) = 0`.
 """#pylint:disable=line-too-long
 
 import numpy as np
@@ -64,15 +83,18 @@ def compile_integrand(iker, path, jac, do_numba=True):
         Prepares the integration kernel `iker` to be integrated by the
         inverse mellin transform wrapper.
 
+        It adds the correct prefactor, resolves the path, adds the jacobian
+        and applies the real part.
+
         Parameters
         ----------
             iker : function
-                Integration kernel including x^(-N)
+                Integration kernel including :math:`x^(-N)`
             path : function
                 Integration path as a function
-                :math:`\mathcal P : [0:1] \to \mathcal C : t \to \mathcal P(t)`
+                :math:`p : [0:1] \to \mathbb C : t \to p(t)`
             jac : function
-                Jacobian of integration path :math:`j(t) = \\frac{dp(t)}{dt}`
+                Jacobian of integration path :math:`j(t) = \frac{dp(t)}{dt}`
             do_numba: bool
                 Boolean flag to return a numba compiled function (default: true)
     """
@@ -106,13 +128,15 @@ def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12,epsrel=1e-
             integrand: function
                 Integrand to be passed to the integration routine.
                 The integrand can be generated with the `compile_integrand` function.
-            cut : t_float
+            cut : float
                 Numeric cut-off parameter to the integration, the actual integration borders are
                 determied by :math:`t\\in [c : 1-c]`
             extra_args: any
                 Extra arguments to be passed to the integrand beyond the integration variable
-            eps: t_float
-                Error tolerance (relative and absolute) of the integration
+            epsabs: float
+                absolute error tolerance of the integration
+            epsrel: float
+                relative error tolerance of the integration
 
 
         Returns
@@ -144,8 +168,11 @@ def get_path_Talbot():
             p_{\\text{Talbot}}(t) =  o + r \\cdot ( \\theta \\cot(\\theta) + i\\theta ),
             \\theta = \\pi(2t-1)
 
-        Parameters
-        ----------
+        Returns the path and its derivative which then have to be called with the arguments
+        listed under `Other Parameters`.
+
+        Other Parameters
+        -----------------
             r : t_float
                 scaling parameter - effectivly corresponds to the intersection of the path with the
                 real axis
@@ -195,8 +222,11 @@ def get_path_line():
         .. math::
             p_{\\text{line}}(t) = c + m \\cdot (2t - 1)
 
-        Parameters
-        ----------
+        Returns the path and its derivative which then have to be called with the arguments
+        listed under `Other Parameters`.
+
+        Other Parameters
+        ----------------
             m : t_float
                 half length of the path
             c : t_float
@@ -230,8 +260,11 @@ def get_path_edge():
         .. math::
             p_{\\text{edge}}(t) = c + m\\left|t - \\frac 1 2\\right|\\exp(i\\phi)
 
-        Parameters
-        ----------
+        Returns the path and its derivative which then have to be called with the arguments
+        listed under `Other Parameters`.
+
+        Other Parameters
+        ----------------
             m : t_float
                 length of the path
             c : t_float, optional
@@ -272,17 +305,20 @@ def get_path_Cauchy_tan():
         .. math::
             p_{\\text{Cauchy}}(t) = \\frac{\\gamma}{u^2 + \\gamma^2} + i u, u = \\tan(\\pi(2t-1)/2)
 
-        Parameters
-        ----------
-        g : t_float
-            intersection of path with real axis
+        Returns the path and its derivative which then have to be called with the arguments
+        listed under `Other Parameters`.
+
+        Other Parameters
+        ---------------
+            gamma : t_float
+                intersection of path with real axis
 
         Returns
         -------
-        path : function
-            Cauchy path
-        jac : function
-            derivative of Cauchy path
+            path : function
+                Cauchy path
+            jac : function
+                derivative of Cauchy path
     """
 
     @nb.njit
@@ -305,21 +341,21 @@ def get_path_Cauchy_tan():
 
 
 # TODO if we keep this function open, we might also think about an implementation (t_float)
-def mellin_transform(f, N: t_complex):
+def mellin_transform(f, N: complex):
     """
         Mellin transformation
 
         Parameters
         ----------
-        f : function
-            integration kernel :math:`f(x)`
-        N : t_complex
-            transformation point
+            f : function
+                integration kernel :math:`f(x)`
+            N : complex
+                transformation point
 
         Returns
         -------
-        res : t_complex
-            computed point
+            res : complex
+                computed point
     """
 
     @nb.jit(forceobj=True)  # due to the integration kernel not being necessarily numba
