@@ -59,8 +59,13 @@ def write_output(fn, file_list):
     """
     with open(fn,"w") as o:
         # head
-        o.write("TODOs from source code\n")
-        o.write("="*22+"\n\n")
+        o.write("TODOs\n")
+        o.write("="*5+"\n\n")
+        o.write("Fom Docstrings\n")
+        o.write("-"*14+"\n\n")
+        o.write(".. todolist ::\n\n")
+        o.write("Fom Source Code\n")
+        o.write("-"*15+"\n\n")
         for path,todos in file_list:
             # file head
             # TODO use something better then file://? but this should never appear in production

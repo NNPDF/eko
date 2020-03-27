@@ -32,6 +32,8 @@ r"""
         g(x) &= \frac{1}{2\pi i} \int\limits_{0}^{1} x^{-\mathcal{P}(t)} \tilde g(\mathcal{P}(t)) \frac{d\mathcal{P}(t)}{dt} \,dt\\
              &= \frac{1}{\pi} \int\limits_{1/2}^{1} \Re \left(  x^{-\mathcal{P}(t)} \tilde g(\mathcal{P}(t)) \frac 1 i \frac{d\mathcal{P}(t)}{dt} \right) \,dt
 
+    The integral routine is provided by `scipy.integrate.quad <https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.quad.html?highlight=quad#scipy.integrate.quad>`_
+
     Integration Paths
     -----------------
 

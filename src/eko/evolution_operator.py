@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 r"""
     This module contains all evolution operator classes.
 
@@ -21,7 +22,6 @@ import logging
 import numpy as np
 import numba as nb
 import eko.mellin as mellin
-from eko.utils import operator_product
 
 logger = logging.getLogger(__name__)
 
@@ -437,14 +437,46 @@ class Operator:
         # compute?
         if not self._computed:
             self.compute()
-        # join
+        # prepare operators
         op_to_compose = [self.op_members] + [i.op_members for i in reversed(op_list)]
-        new_op = {}
+        # iterate operators
+        new_ops = {}
         for name, instructions in instruction_set:
             for origin, paths in instructions.items():
                 key = f'{name}.{origin}'
-                new_op[key] = operator_product(op_to_compose, paths, key)
-        return PhysicalOperator(new_op, self.xgrid)
+                new_ops[key] = self.join_members(op_to_compose, paths, key)
+        return PhysicalOperator(new_ops, self.xgrid)
+
+    def join_members(self, steps, list_of_paths, name):
+        """
+            Multiply a list of :class:`OperatorMember` using the given paths.
+
+            Parameters
+            ----------
+                steps : list(OperatorMember)
+                    list of raw operators, with the lowest scale to the right
+                list_of_paths : list(list(str))
+                    list of paths
+                name : str
+                    final name
+
+            Returns
+            -------
+                final_op : OperatorMember
+                    joined operator
+        """
+        final_op = 0
+        for path in list_of_paths:
+            cur_op = None
+            for step, member in zip(steps, path):
+                new_op = step[member]
+                if cur_op is None:
+                    cur_op = new_op
+                else:
+                    cur_op = cur_op*new_op
+            final_op += cur_op
+        final_op.name = name
+        return final_op
 
     def compute(self):
         """ compute the actual operators (i.e. run the integrations) """

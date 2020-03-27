@@ -3,7 +3,7 @@ r"""
     This file contains the QCD beta function coefficients and the handling of the running
     coupling :math:`\alpha_s`.
 
-    Normalization is given by :cite:`Herzog:2017ohr`
+    Normalization is given by :cite:`Herzog:2017ohr`.
 
     .. math::
         \frac{da_s}{d\ln\mu^2} = \beta(a_s) \
@@ -27,7 +27,7 @@ def beta_0(
     nf: int, CA: t_float, CF: t_float, TF: t_float
 ):  # pylint: disable=unused-argument
     """
-        Computes the first coefficient of the QCD beta function
+        Computes the first coefficient of the QCD beta function.
 
         Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
         For the sake of unification we keep a unique function signature for *all* coefficients.
@@ -55,7 +55,7 @@ def beta_0(
 @nb.njit
 def beta_1(nf: int, CA: t_float, CF: t_float, TF: t_float):
     """
-        Computes the second coefficient of the QCD beta function
+        Computes the second coefficient of the QCD beta function.
 
         Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
 
@@ -72,8 +72,8 @@ def beta_1(nf: int, CA: t_float, CF: t_float, TF: t_float):
 
         Returns
         -------
-        beta_1 : t_float
-            second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
+            beta_1 : t_float
+                second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
     """
     b_ca2 = 34.0 / 3.0 * CA * CA
     b_ca = -20.0 / 3.0 * CA * TF * nf
@@ -91,19 +91,19 @@ def beta_2(nf: int, CA: t_float, CF: t_float, TF: t_float):
 
         Parameters
         ----------
-        nf : int
-            number of active flavours.
-        CA : t_float
-            Casimir constant of adjoint representation.
-        CF : t_float
-            Casimir constant of fundamental representation.
-        TF : t_float
-            fundamental normalization factor.
+            nf : int
+                number of active flavours.
+            CA : t_float
+                Casimir constant of adjoint representation.
+            CF : t_float
+                Casimir constant of fundamental representation.
+            TF : t_float
+                fundamental normalization factor.
 
         Returns
         -------
-        beta_2 : t_float
-            third coefficient of the QCD beta function :math:`\\beta_2^{n_f}`
+            beta_2 : t_float
+                third coefficient of the QCD beta function :math:`\\beta_2^{n_f}`
     """
     beta_2 = (
         2857.0 / 54.0 * CA * CA * CA
@@ -132,33 +132,35 @@ class StrongCoupling:
             = - \sum\limits_{n=0} \beta_n a_s^{n+2} \quad
             \text{with}~ a_s = \frac{\alpha_s(\mu^2)}{4\pi}
 
-        Example of usage:
-        >>> c = Constants()
-        >>> alpha_ref = 0.35
-        >>> scale_ref = 2
-        >>> threshold_holder = Threshold( .. )
-        >>> alpha_s = StrongCoupling(c, alpha_ref, scale_ref, threshold_holder)
-        >>> q2 = 91.1
-        >>> alpha_s(q2)
-        0.118
-        >>> q02 = 50.0
-        >>> alpha_s.delta_t(q02, q2)
-        0.54
 
         Parameters
         ----------
             constants: Constants
                 An instance of the Constants class
             alpha_s_ref : t_float
-                alpha_s(!) at the reference scale :math:`\\alpha_s(\\mu_0^2)`
+                alpha_s(!) at the reference scale :math:`\alpha_s(\mu_0^2)`
             scale_ref : t_float
-                reference scale :math:`\\mu_0^2`
+                reference scale :math:`\mu_0^2`
             threshold_holder : eko.thresholds.Threshold
                 instance of the Threshold class
             order: int
                 Evaluated order of the beta function
             method : {"analytic"}
                 Applied method to solve the beta function
+
+        Examples
+        --------
+            >>> c = Constants()
+            >>> alpha_ref = 0.35
+            >>> scale_ref = 2
+            >>> threshold_holder = Threshold( .. )
+            >>> alpha_s = StrongCoupling(c, alpha_ref, scale_ref, threshold_holder)
+            >>> q2 = 91.1
+            >>> alpha_s(q2)
+            0.118
+            >>> q02 = 50.0
+            >>> alpha_s.delta_t(q02, q2)
+            0.54
     """
 
     def __init__(
@@ -196,9 +198,12 @@ class StrongCoupling:
 
     @property
     def ref(self):
+        """ reference value """
         return self._ref_alpha
+
     @property
     def qref(self):
+        """ reference scale """
         return self._threshold_holder.q2_ref
 
     # Hidden computation functions
@@ -225,7 +230,7 @@ class StrongCoupling:
         beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
         lmu = np.log(scale_to / scale_from)
         a_s = as_ref / (1.0 + beta0 * as_ref * lmu)
-        # add higher orders ...
+        # TODO add higher orders ...
         return a_s
 
     def _compute(self, *args):
@@ -310,14 +315,15 @@ class StrongCoupling:
         return np.log(1.0 / self(scale_to))
 
     def delta_t(self, scale_from, scale_to):
-        """ Compute evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2) = t(Q_1^2)-t(Q_0^2)`
+        """
+            Compute evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2) = t(Q_1^2)-t(Q_0^2)`
 
             Parameters
             ----------
                 scale_from : t_float
-                    scale to evolve from :math:`Q^2`
+                    scale to evolve from :math:`Q_0^2`
                 scale_to : t_float
-                    final scale to evolve to :math:`Q^2`
+                    final scale to evolve to :math:`Q_1^2`
 
             Returns
             -------
