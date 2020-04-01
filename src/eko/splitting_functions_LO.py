@@ -101,9 +101,9 @@ def gamma_qg_0(
         nf : int
           Number of active flavours
         CA : t_float
-        Casimir constant of adjoint representation (which is actually not used here)
+          Casimir constant of adjoint representation (which is actually not used here)
         CF : t_float
-        Casimir constant of fundamental representation (which is actually not used here)
+          Casimir constant of fundamental representation (which is actually not used here)
 
       Returns
       -------

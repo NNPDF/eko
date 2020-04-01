@@ -209,6 +209,16 @@ intersphinx_mapping = {'https://docs.python.org/3/': None}
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
+mathjax_config = {
+    "TeX": {"Macros":{
+        "SingletVec": r"{\begin{pmatrix}\tilde \Sigma\\\tilde g\end{pmatrix}}",
+        "ES": [r"{\tilde{\bf{E}}_S({#1}\leftarrow {#2})}",2],
+        "Ev": [r"{\tilde{E}_{ns}^v({#1}\leftarrow {#2})}",2],
+        "Ep": [r"{\tilde{E}_{ns}^+({#1}\leftarrow {#2})}",2],
+        "Em": [r"{\tilde{E}_{ns}^-({#1}\leftarrow {#2})}",2],
+    }}
+}
+
 # Adapted this from
 # https://github.com/readthedocs/recommonmark/blob/ddd56e7717e9745f11300059e4268e204138a6b1/docs/conf.py
 # app setup hook
