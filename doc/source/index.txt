@@ -6,7 +6,8 @@ EKO documentation
 .. toctree::
     :maxdepth: 4
 
-    Physics
+    Physics/index
+    
     modules/eko/modules
     code_todos
 

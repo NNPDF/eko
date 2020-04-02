@@ -66,7 +66,7 @@ templates_path = ['_templates']
 #
 source_suffix = {
     '.rst': 'restructuredtext',
-    '.txt': 'markdown',
+    '.txt': 'restructuredtext',
     '.md': 'markdown',
 }
 
@@ -211,7 +211,10 @@ todo_include_todos = True
 
 mathjax_config = {
     "TeX": {"Macros":{
-        "SingletVec": r"{\begin{pmatrix}\tilde \Sigma\\\tilde g\end{pmatrix}}",
+        "dSV": [r"{{\begin{pmatrix}\tilde \Sigma\\\tilde g\end{pmatrix}}^{(#1)}(#2)}",2],
+        "dVf": [r"{\tilde{V}^{(#1)}(#2)}",2],
+        "dVj": [r"{\tilde{V_{#1}}^{(#2)}(#3)}",3],
+        "dTj": [r"{\tilde{T_{#1}}^{(#2)}(#3)}",3],
         "ES": [r"{\tilde{\bf{E}}_S({#1}\leftarrow {#2})}",2],
         "Ev": [r"{\tilde{E}_{ns}^v({#1}\leftarrow {#2})}",2],
         "Ep": [r"{\tilde{E}_{ns}^+({#1}\leftarrow {#2})}",2],

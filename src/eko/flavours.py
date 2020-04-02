@@ -41,69 +41,6 @@ r"""
     :math:`j` follow the common group-theoretical notation :math:`j = n_f^2 - 1`
     where :math:`n_f` denotes the incorporated number of quark flavours.
 
-
-    Matching Conditions on Crossing Thresholds
-    ------------------------------------------
-    The :class:`FlavourTarget` class is used to provide a consistent transition in the Variable
-    Flavour Number Scheme (VFNS) of the various distributions across the mass thresholds provided by
-    the :class:`eko.thresholds.Threshold` class.
-    We denote the solution of the DGLAP equation in Mellin space as
-
-    .. math ::
-        \tilde f_j(Q^2_1)= \tilde E_{jk}(Q^2_1\leftarrow Q^2_0) \tilde f_k(Q^2_0)
-
-    For the singlet sector, we define the singlet evolution kernel matrix
-
-    .. math ::
-        \ES{Q_1^2}{Q_0^2} = \begin{pmatrix}
-         \tilde E_{qq} & \tilde E_{qg}\\
-         \tilde E_{gq} & \tilde E_{gg}
-        \end{pmatrix}(Q_1^2\leftarrow Q_0^2)
-
-    which is the only coupled system amongst the DGLAP equations.
-
-    Next, we list the matching conditions for the different evolution distributions up to LO.
-    Note, that the non-trivial matching of the discontinuities only enters at NNLO.
-
-    Zero Thresholds
-    ^^^^^^^^^^^^^^^
-    Here, we consider :math:`m_{q}^2 < Q_0^2 < Q_1^2 < m_{q+1}^2` and we assume that
-    :math:`m_q` is the mass of the :math:`n_f`-th flavour. This configuration corresponds
-    effectivelyto a Fixed Flavour Number Scheme (FFNS).
-    Here all distributions simply evolve with their associated operator.
-    The singlet sector and the full valence distributions are given by
-
-    .. math ::
-         \SingletVec^{n_f} (Q_1^2) &= \ES{Q^2_1}{Q_0^2} \SingletVec^{n_f} (Q_0^2)\\
-          \tilde V^{n_f}(Q_1^2) &= \Ev{Q^2_1}{Q_0^2} \tilde V^{n_f}(Q_0^2)
-
-    If the valence-like/singlet-like non-singlet distributions are already active, i.e.
-    :math:`m_q` is the mass of the :math:`n_f`-th flavour, they keep evolving
-
-    .. math ::
-        \tilde V_{j}^{n_f}(Q_1^2) &= \Em{Q^2_1}{Q_0^2} \tilde V_j^{n_f}(Q_0^2) \quad \text{for }j=3,\ldots, n_f^2-1\\
-        \tilde T_{j}^{n_f}(Q_1^2) &= \Ep{Q^2_1}{Q_0^2} \tilde T_j^{n_f}(Q_0^2)
-
-    Otherwise, they are generated dynamically by the full valence distribution or the singlet
-    sector respectively
-
-    .. math ::
-        \tilde V_{k}^{n_f}(Q_1^2) &= \Ev{Q^2_1}{Q_0^2} \tilde V^{n_f}(Q_0^2) \quad \text{for }k=(n_f+1)^2-1, \ldots, 35\\
-        \tilde T_{k}^{n_f}(Q_1^2) &= \left(1, 0\right)\ES{Q_1^2}{Q_0^2}\SingletVec^{n_f}(Q_0^2)
-
-    and making the distributions thus linearly dependent :math:`V_k = V, T_k = \Sigma`
-    (as they should).
-
-    One Threshold
-    ^^^^^^^^^^^^^
-    Here, we consider :math:`m_q^2 < Q_0^2 < m_{q+1}^2 < Q_1^2 < m_{q+2}^2`. and we assume that
-    :math:`m_q` is the mass of the :math:`n_f`-th flavour.
-    The singlet sector and the full valence distributions are given by
-
-    .. math ::
-        \SingletVec^{n_f+1}(Q_1^2) &= \ES{Q^2_1}{m_{q+1}^2} \ES{m_{q+1}^2}{Q^2_0} \SingletVec^{n_f}(Q_0^2)\\
-        \tilde V^{n_f+1}(Q_1^2) &= \Ev{Q^2_1}{m_{q+1}^2} \Ev{m_{q+1}^2}{Q^2_0} \tilde V^{n_f}(Q_0^2)
-
 """ #pylint:disable=line-too-long
 
 MINIMAL_NF = 3  # TODO Should this be a parameter or can it be hardcoded?
