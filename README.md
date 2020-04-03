@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/N3PDF/eko/actions?query=workflow%3A%22eko%22"><img alt="Tests" src="https://github.com/N3PDF/eko/workflows/eko/badge.svg" /></a> <a href="https://n3pdf.github.io/dis/"><img alt="Docs" src="https://github.com/N3PDF/dis/workflows/docs/badge.svg"></a>
+  <a href="https://github.com/N3PDF/eko/actions?query=workflow%3A%22eko%22"><img alt="Tests" src="https://github.com/N3PDF/eko/workflows/eko/badge.svg" /></a> <a href="https://n3pdf.github.io/eko/"><img alt="Docs" src="https://github.com/N3PDF/eko/workflows/docs/badge.svg"></a>
 </p>
 </p>
 
