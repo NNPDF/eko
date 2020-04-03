@@ -41,6 +41,8 @@ r"""
     :math:`j` follow the common group-theoretical notation :math:`j = n_f^2 - 1`
     where :math:`n_f` denotes the incorporated number of quark flavours.
 
+    The write-up of the matching conditions is given in :doc:`Matching Conditions </Physics/Matching>`.
+
 """ #pylint:disable=line-too-long
 
 MINIMAL_NF = 3  # TODO Should this be a parameter or can it be hardcoded?

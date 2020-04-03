@@ -118,7 +118,7 @@ def test_Lagrange_interpolation_log():
 
 def test_Lagrange_interpolation():
     """ Test several points of the Lagrange interpolator """
-    xgrid = np.linspace(0, 1, 10)
+    xgrid = np.linspace(0.09, 1, 10)
     polrank = 4
     inter_x = interpolation.InterpolatorDispatcher(
         xgrid, polrank, log=False, mode_N=False

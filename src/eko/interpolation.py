@@ -204,6 +204,7 @@ class BasisFunction:
     ):
         self.poly_number = poly_number
         self.areas = []
+        self._mode_log = mode_log
         self.numba_it = numba_it
 
         # create areas
@@ -217,9 +218,9 @@ class BasisFunction:
         # compile
         self.callable = None
         if mode_N:
-            self.compile_N(mode_log)
+            self.compile_N()
         else:
-            self.compile_X(mode_log)
+            self.compile_X()
 
     def is_below_x(self, x):
         """
@@ -234,6 +235,9 @@ class BasisFunction:
                 is_below_x : bool
                     xmax of highest area <= x?
         """
+        # Log if needed
+        if self._mode_log:
+            x = np.log(x)
         # note that ordering is important!
         return self.areas[-1].xmax <= x
 
@@ -250,7 +254,7 @@ class BasisFunction:
             area_list.append((area.xmin, area.xmax, area.coefs))
         return tuple(area_list)
 
-    def compile_X(self, mode_log=True):
+    def compile_X(self):
         """
             Compiles the function to evaluate the interpolator
             in x space
@@ -291,7 +295,7 @@ class BasisFunction:
             """Get a single Lagrange interpolator in x-space  """
             return nb_eval_x(np.log(x))
 
-        if mode_log:
+        if self._mode_log:
             self.callable = self.njit(log_evaluate_x)
         else:
             self.callable = self.njit(evaluate_x)
@@ -319,7 +323,7 @@ class BasisFunction:
         self.numba_it = old_numba
         return res
 
-    def compile_N(self, mode_log=True):
+    def compile_N(self):
         """
             Compiles the function to evaluate the interpolator in N space.
 
@@ -378,6 +382,9 @@ class BasisFunction:
             res = 0.0
             for xmin, xmax, coefs in area_list:
                 lnxmax = np.log(xmax)
+                # skip area completely?
+                if logx >= lnxmax:
+                    continue
                 for i, coef in enumerate(coefs):
                     if xmin == 0.0:
                         low = 0.0
@@ -388,7 +395,7 @@ class BasisFunction:
                     res += coef * (up - low) / (N + i)
             return res
 
-        if mode_log:
+        if self._mode_log:
             self.callable = self.njit(log_evaluate_Nx)
         else:
             self.callable = self.njit(evaluate_Nx)

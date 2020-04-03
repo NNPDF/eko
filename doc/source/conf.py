@@ -20,7 +20,7 @@ from recommonmark.transform import AutoStructify
 # -- Project information -----------------------------------------------------
 
 project = 'EKO'
-copyright = '2019, the N3PDF team'
+copyright = '2019-2020, the N3PDF team'
 author = 'N3PDF team'
 
 # The short X.Y version
@@ -51,7 +51,7 @@ extensions = [
     # particularly in markdown. See
     # https://recommonmark.readthedocs.io/en/latest/#linking-to-headings-in-other-files
     'sphinx.ext.autosectionlabel',
-    'recommonmark',
+    #'recommonmark',
     'sphinx.ext.napoleon',
     'sphinxcontrib.bibtex'
 ]
@@ -67,7 +67,7 @@ templates_path = ['_templates']
 source_suffix = {
     '.rst': 'restructuredtext',
     '.txt': 'restructuredtext',
-    '.md': 'markdown',
+    #'.md': 'markdown',
 }
 
 autosectionlabel_prefix_document = True
@@ -211,10 +211,11 @@ todo_include_todos = True
 
 mathjax_config = {
     "TeX": {"Macros":{
+        # Physics/Matching
         "dSV": [r"{{\begin{pmatrix}\tilde \Sigma\\\tilde g\end{pmatrix}}^{(#1)}(#2)}",2],
         "dVf": [r"{\tilde{V}^{(#1)}(#2)}",2],
-        "dVj": [r"{\tilde{V_{#1}}^{(#2)}(#3)}",3],
-        "dTj": [r"{\tilde{T_{#1}}^{(#2)}(#3)}",3],
+        "dVj": [r"{\tilde{V}_{\!#1}^{(#2)}(#3)}",3],
+        "dTj": [r"{\tilde{T}_{\!#1}^{(#2)}(#3)}",3],
         "ES": [r"{\tilde{\bf{E}}_S({#1}\leftarrow {#2})}",2],
         "Ev": [r"{\tilde{E}_{ns}^v({#1}\leftarrow {#2})}",2],
         "Ep": [r"{\tilde{E}_{ns}^+({#1}\leftarrow {#2})}",2],
