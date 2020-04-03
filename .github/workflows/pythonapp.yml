@@ -21,6 +21,10 @@ jobs:
     - name: Lint with pylint
       run: |
         pip install pylint
+        # Search for actual errors
+        pylint src/*/*.py -E
+        # For warnings instead return always zero
+        pylint src/*/*.py --exit-zero
     - name: Test with pytest
       run: |
         pip install pytest
