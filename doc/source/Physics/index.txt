@@ -4,6 +4,7 @@ Physics documentation
 
 .. toctree::
     Math
+    Interpolation
     Matching
 
 References

@@ -1,0 +1,49 @@
+Interpolation
+=============
+
+In order to obtain the operators in an PDF independent way we use approximation theory.
+Therefore, we define the basis grid
+
+.. math ::
+    \mathbb G = \{ x_j : 0 < x_j <= 1, j=0,\ldots,N_{grid}-1 \}
+
+from which we define our interpolation
+
+.. math ::
+    f(x) \sim \bar f(x) \sum\limits_{j=0}^{N_{grid} - 1 } f(x_j) p_j(x)
+
+Thus each grid point :math:`x_j` has an associated interpolation polynomial :math:`p_j(x)`.
+We interpolate in :math:`\ln(x)` using Lagrange interpolation among the nearest
+:math:`N_{degree}+1` points, which renders the :math:`p_j(x)`: polynomials of order
+:math:`O(\ln^{N_{degree}}(x))`. The interpolation routine can be outlined by the following
+image:
+
+.. figure :: ../img/grid.png
+    :align: center
+
+    Example interpolation configuration with :math:`N_{grid}=9` points using a polynomial
+    of degree :math:`N_{degree}=3` to interpolate. It has 8 areas and 6 blocks.
+
+First, we split the interpolation region into several Areas (represented by
+:class:`eko.interpolation.Area`), which are bound by the grid points:
+
+.. math ::
+    A_j = (x_j,x_{j+1}], \quad \text{for}~j=0,\ldots,N_{grid}-2
+
+Note, that we include the right border point into the definition, but not the left: this
+keeps all Areas disjoint. This assumption is based on the physical fact, that PDFs do
+have a fixed upper bound (:math:`x=1`), but no lower bound.
+
+Second, we define the interpolation blocks, which will build the interpolation polynomials
+and contain the needed amount of points:
+
+.. math ::
+    B_j = \{x_j,\ldots,x_{j+N_{degree}+1}\}, \quad \text{for}~j=0,\ldots,N_{grid}-N_{degree}-2
+
+Now, we construct the interpolation in a bottom-up approach for a given point
+:math:`\bar x` for the interpolating function :math:`\bar f(\bar x)`
+
+    1. Determine the active relevant Area
+
+.. math ::
+    A(\bar x) = A_j : \bar x \in A_j
