@@ -9,12 +9,16 @@ EKO documentation
     Physics/index
     
     modules/eko/modules
-    code_todos
 
 .. automodule:: eko
     :members:
     :noindex:
 
+.. toctree::
+    :maxdepth: 4
+    :caption: Dev:
+    
+    code_todos
 
 Indices and tables
 ==================
