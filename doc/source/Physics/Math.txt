@@ -1,58 +1,3 @@
-
-Mathematical ingredients
-------------------------
-
-We solve the equations in Mellin-space as there multiplicative convolution is
-mapped onto a normal multiplication and thus integro-differential equations,
-such as DGLAP equations, are instead just normal differential equations.
-The Mellin transformation is given by
-
-.. math::
-    \tilde g(N) = \mathcal{M}[g(x)](N) = \int\limits_{0}^{1} x^{N-1} g(x)\,dx
-
-where we will denote all objects in Mellin-space with an additional tilde.
-The inverse Mellin transformation is given by
-
-.. math::
-    g(x) = \mathcal{M}^{-1}[\tilde g(N)](x) = \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x^{-N} \tilde g(N)\,dN
-
-for a suitable path :math:`\mathcal{P}(t)`. The textbook path is given by
-:math:`p(t) = c + i t`. In the code the more efficient Talbot
-path :cite:`Abate` is used.
-
-We will also use approximation theory, i.e., we interpolate the unkown PDF as a
-weighted sum of polynomials
-
-.. math::
-    f(x,t_0) = \sum_{j=1}^{N_{grid}} f(x_j,t_0) \cdot p_j(x)
-
-The current implementation uses a grid :math:`\{x_j\}` defined by the user and
-a Lagrange interpolation in :math:`\log(x)` using the nearest :math:`k` points.
-Thus the interpolation polynomials :math:`\{p_j(x)\}` are all of degree
-:math:`(k-1)`.
-
-The multiplicative convolution integral runs from :math:`x` to 1, thus only
-basis functions which have support above :math:`x` may contribute to the
-integral. This information is encoded in N-space in the following way: Due
-to the Mellin kernel :math:`x^{N-1}` any piecewise polynomial, such as we
-are doing, are proportional to
-:math:`x_{\text{min/max}}^N = \exp(N\ln(x_{\text{min/max}}))`. When
-multiplied with the inverse Mellin kernel :math:`x^{-N}` this leads to an
-expresion which is propotional to
-
-.. math::
-    \exp(N(\ln(x_{\text{min/max}})-\ln(x)))\,.
-
-Thus, if
-
-.. math::
-    \ln(x_{\text{min/max}})-\ln(x) <= 0 \Leftrightarrow x_{\text{min/max}} - x <= 0
-
-we can integrate these terms with their own contour. We can choose the textbook
-contour with :math:`Re(\mathcal P(t)) \to \infty` and thus these terms get
-exponentially suppressed. In the limit these terms vanish exactly and thus we
-exclude them from our numerical kernels.
-
 QCD ingredients
 ---------------
 
@@ -61,8 +6,8 @@ We use perturbative QCD with the running coupling
 :cite:`Herzog:2017ohr` :cite:`Luthe:2016ima` :cite:`Baikov:2016tgj`
 
 .. math::
-      \frac{da_s}{d\ln\mu^2} = \beta(a) \
-      = - \sum\limits_{n=0} \beta_n a_s^{n+2}
+      \frac{da_s}{d\ln\mu^2} = \beta(a_s) \
+      = - \sum\limits_{j=0} \beta_n a_s^{j+2}
 
 
 The Altarelli-Parisi splitting kernels can be expanded in powers of the strong
@@ -70,7 +15,8 @@ coupling :math:`a_s(\mu^2)` and are given by
 :cite:`Moch:2004pa` :cite:`Vogt:2004mw`
 
 .. math::
-    \mathbf{P}(x,\mu^2)  = - \sum\limits_{n=0} a_s^{n+1}(\mu^2) \mathbf P^{(n)}(x)
+    \mathbf{P}(x,\mu^2) &= \sum\limits_{j=0} a_s^{j+1}(\mu^2) \mathbf{P}^{(j)}(x) \\
+    \tilde{\gamma}^{(j)}(N) &= -\mathcal{M}[\mathbf{P}^{(j)}(x)](N)
 
 
 Solving DGLAP
@@ -92,7 +38,7 @@ The non-siglet case can be solved in a linear way:
 We can thus write the non-siglet equations in N-space by
 
 .. math::
-    \frac{d\tilde f_{ns}(N,\mu_F^2)}{d\ln(\mu_F^2)} = \tilde P_{ns}(N) \cdot \tilde f_{ns}(N,\mu_F^2)
+    \frac{d\tilde f_{ns}(N,\mu_F^2)}{d\ln(\mu_F^2)} = -\tilde \gamma_{ns}(N) \cdot \tilde f_{ns}(N,\mu_F^2)
 
 We also change the evolution variable to
 :math:`t(\mu_F^2) = \ln(1/a_s(\mu_F^2))`

@@ -6,32 +6,6 @@ r"""
     It contains the actual transformations itself, as well as the necessary tools
     such as the definition of paths.
 
-    Definition
-    ----------
-
-    The inverse Mellin transformation :math:`g(x)` of a function :math:`\tilde g(N)` is given by
-
-    .. math::
-
-        g(x) = \mathcal{M}^{-1}[\tilde g(N)](x)
-             = \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x^{-N} \tilde g(N)\,dN
-
-    for a suitable integration path :math:`\mathcal P` which runs to the right to the right-most
-    pole of :math:`\tilde g(N)`. For the implementation we will assume that the integration path
-    :math:`\mathcal P` is given by
-
-    .. math::
-        \mathcal P : [0:1] \to \mathbb C : t \to \mathcal P(t)\quad
-            \text{with}~\mathcal P(1/2-t) = \mathcal P^*(1/2+t)
-
-    where :math:`\mathcal P^*` denotes complex conjugation. Assuming further :math:`\tilde g`
-    to be a holomorphic function along the path, we can rewrite the inversion integral by
-
-    .. math::
-
-        g(x) &= \frac{1}{2\pi i} \int\limits_{0}^{1} x^{-\mathcal{P}(t)} \tilde g(\mathcal{P}(t)) \frac{d\mathcal{P}(t)}{dt} \,dt\\
-             &= \frac{1}{\pi} \int\limits_{1/2}^{1} \Re \left(  x^{-\mathcal{P}(t)} \tilde g(\mathcal{P}(t)) \frac 1 i \frac{d\mathcal{P}(t)}{dt} \right) \,dt
-
     The integral routine is provided by `scipy.integrate.quad <https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.quad.html?highlight=quad#scipy.integrate.quad>`_
 
     Integration Paths
@@ -51,26 +25,6 @@ r"""
     for the singlet sector. Note that the non-singlet kernels evolve poles only up to
     :math:`N=0` whereas the singlet kernels have poles up to :math:`N=1`.
 
-    Inversion of Factorizable Kernels
-    ---------------------------------
-
-    If the integration kernel :math:`\tilde g(N)` can be factorized
-
-    .. math::
-        \tilde g(N) = x_0^N \cdot \tilde h(N)
-
-    with :math:`x_0` a fixed number in :math:`[0:1]` and :math:`\lim_{N\to\infty}h(N)\to 0`,
-    the inversion can be simplified if the inversion point :math:`x_i` is **above** :math:`x_0`.
-
-    .. math::
-        g(x_i) &= \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x_i^{-N} x_0^N \tilde h(N)\,dN \\
-            &= \frac{1}{2\pi i} \int\limits_{\mathcal{P}} \exp(-N(\ln(x_i)-\ln(x_0))) \tilde h(N)\,dN
-
-    Now, take the textbook path :math:`p : \mathbb R \to \mathbb C : t \to p(t) = c + i t` and
-    shift the parameter :math:`c \to \infty`. As :math:`x_i > x_0` it follows immediately
-    :math:`\ln(x_i)-\ln(x_0) > 0` and thus :math:`|\exp(-N(\ln(x_i)-\ln(x_0)))| \to 0`.
-    Together with the assumed vanishing of :math:`\tilde h(N)` we can conclude
-    :math:`g(x_i) = 0`.
 """#pylint:disable=line-too-long
 
 import numpy as np
