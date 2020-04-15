@@ -3,12 +3,8 @@ Physics documentation
 #####################
 
 .. toctree::
-    Math
     Interpolation
     Mellin
+    pQCD
+    DGLAP
     Matching
-
-References
-----------
-
-.. bibliography:: ../refs.bib

@@ -8,6 +8,8 @@ EKO documentation
 
     Physics/index
     
+    zzz-refs
+    
     modules/eko/modules
 
 .. automodule:: eko

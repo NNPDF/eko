@@ -5,7 +5,7 @@ r"""
   Normalization is given by
 
   .. math::
-    \mathbf{P}(x) = - \sum\limits_{n=0} a_s^{n+1} \mathbf P^{(n)}(x)
+    \mathbf{P}(x) = \sum\limits_{j=0} a_s^{j+1} \mathbf P^{(j)}(x)
 
   with :math:`a_s = \frac{\alpha_S(\mu^2)}{4\pi}`.
   The 3-loop references are given for the non-singlet :cite:`Moch:2004pa`
@@ -41,9 +41,9 @@ def gamma_ns_0(
         nf : int
           Number of active flavours (which is actually not used here)
         CA : t_float
-        Casimir constant of adjoint representation (which is actually not used here)
+          Casimir constant of adjoint representation (which is actually not used here)
         CF : t_float
-        Casimir constant of fundamental representation
+          Casimir constant of fundamental representation
 
       Returns
       -------
@@ -72,9 +72,9 @@ def gamma_ps_0(
         nf : int
           Number of active flavours (which is actually not used here)
         CA : t_float
-        Casimir constant of adjoint representation (which is actually not used here)
+          Casimir constant of adjoint representation (which is actually not used here)
         CF : t_float
-        Casimir constant of fundamental representation (which is actually not used here)
+          Casimir constant of fundamental representation (which is actually not used here)
 
       Returns
       -------
@@ -132,9 +132,9 @@ def gamma_gq_0(
         nf : int
           Number of active flavours (which is actually not used here)
         CA : t_float
-        Casimir constant of adjoint representation (which is actually not used here)
+          Casimir constant of adjoint representation (which is actually not used here)
         CF : t_float
-        Casimir constant of fundamental representation
+          Casimir constant of fundamental representation
 
       Returns
       -------
@@ -163,9 +163,9 @@ def gamma_gg_0(
         nf : int
           Number of active flavours
         CA : t_float
-        Casimir constant of adjoint representation
+          Casimir constant of adjoint representation
         CF : t_float
-        Casimir constant of fundamental representation (which is actually not used here)
+          Casimir constant of fundamental representation (which is actually not used here)
 
       Returns
       -------
@@ -195,9 +195,9 @@ def get_gamma_singlet_0(N: t_complex, nf: int, CA: t_float, CF: t_float):
         nf : int
           Number of active flavours
         CA : t_float
-        Casimir constant of adjoint representation
+          Casimir constant of adjoint representation
         CF : t_float
-        Casimir constant of fundamental representation (which is actually not used here)
+          Casimir constant of fundamental representation (which is actually not used here)
 
       Returns
       -------
@@ -232,9 +232,9 @@ def get_Eigensystem_gamma_singlet_0(N: t_complex, nf: int, CA: t_float, CF: t_fl
         nf : int
           Number of active flavours
         CA : t_float
-        Casimir constant of adjoint representation
+          Casimir constant of adjoint representation
         CF : t_float
-        Casimir constant of fundamental representation (which is actually not used here)
+          Casimir constant of fundamental representation (which is actually not used here)
 
       Returns
       -------
