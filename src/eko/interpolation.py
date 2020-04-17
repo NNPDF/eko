@@ -447,9 +447,11 @@ class InterpolatorDispatcher:
                 Whether it is a log or linear interpolator
             mode_N: bool (default: True)
                 if true compiles the function on N, otherwise compiles x
+            numba_it : bool (default: True)
+                compile with numba?
     """
 
-    def __init__(self, xgrid, polynomial_degree, log=True, mode_N=True):
+    def __init__(self, xgrid, polynomial_degree, log=True, mode_N=True, numba_it = True):
 
         xgrid_size = len(xgrid)
 
@@ -490,7 +492,7 @@ class InterpolatorDispatcher:
         basis_functions = []
         for i in range(xgrid_size):
             new_basis = BasisFunction(
-                xgrid, i, list_of_blocks, mode_log=log, mode_N=mode_N
+                xgrid, i, list_of_blocks, mode_log=log, mode_N=mode_N, numba_it=numba_it
             )
             basis_functions.append(new_basis)
         self.basis = basis_functions
