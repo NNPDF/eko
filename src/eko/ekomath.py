@@ -9,12 +9,12 @@
 
 import numpy as np
 import numba as nb
-from numba import cffi_support
+from numba.core.typing import cffi_utils
 import _gsl_digamma
 from eko import t_complex
 
 # Prepare the cffi functions to be used within numba
-cffi_support.register_module(_gsl_digamma)
+cffi_utils.register_module(_gsl_digamma)
 c_digamma = _gsl_digamma.lib.digamma  # pylint: disable=no-member
 
 @nb.njit

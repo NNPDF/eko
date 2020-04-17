@@ -24,7 +24,7 @@ setup(name='eko',
       install_requires=[
           'numpy',
           'scipy',
-          'numba==0.48',
+          'numba',
           'cffi',
           'sphinx_rtd_theme',
           'recommonmark',
