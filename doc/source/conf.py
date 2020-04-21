@@ -53,7 +53,8 @@ extensions = [
     'sphinx.ext.autosectionlabel',
     #'recommonmark',
     'sphinx.ext.napoleon',
-    'sphinxcontrib.bibtex'
+    'sphinxcontrib.bibtex',
+    "sphinx.ext.graphviz",
 ]
 
 # Add any paths that contain templates here, relative to this directory.

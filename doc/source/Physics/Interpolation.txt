@@ -105,4 +105,4 @@ The generated polynomials then look like:
 .. todo ::
     - document grid generation
     - we seem to require a linear grid at large x
-    - given some hints about typical choices of N_grid/N_degree -> do we want to comment about benchmarks?
+    - given some hints about typical choices of N_grid/N_degree? see also :doc:`benchmarks </Physics/DGLAP>`

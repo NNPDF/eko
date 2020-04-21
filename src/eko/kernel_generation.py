@@ -15,14 +15,14 @@
 """
 
 from collections import abc
+import logging
+
 import numpy as np
 import numba as nb
 
 import eko.alpha_s as alpha_s
 import eko.splitting_functions_LO as sf_LO
 import eko.mellin as mellin
-
-import logging
 logger = logging.getLogger(__name__)
 
 def get_kernel_ns(basis_function, nf, constants, beta_0):

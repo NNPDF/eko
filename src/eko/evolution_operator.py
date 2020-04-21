@@ -11,11 +11,24 @@ r"""
 
     .. math::
 
-        \Gamma_{NS}^{v}, \Gamma_{NS}^{+}, \Gamma_{NS}^{-}, \mathbf\Gamma_S
+        \gamma_{ns,v}, \gamma_{ns,+}, \gamma_{ns,-}, \mathbf\gamma_S
 
     :class:`Operator` manages the correct handling and recombination of the various
     :class:`OperatorMember`. In the end a single instance of :class:`PhysicalOperator`
     is computed and will be exposed for each :math:`Q^2` to the user.
+
+    .. graphviz::
+        :name: structure
+        :caption: classes' structure
+        :align: center
+
+        digraph G {
+            bgcolor = transparent
+
+            node [shape=box]
+            Operator [label="Operator"]
+
+        }
 """
 
 import logging
