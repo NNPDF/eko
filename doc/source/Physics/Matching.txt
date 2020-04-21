@@ -4,7 +4,7 @@ Matching Conditions on Crossing Thresholds
 The :class:`eko.flavours.FlavourTarget` class is used to provide a consistent transition in the Variable
 Flavour Number Scheme (VFNS) of the various distributions across the mass thresholds provided by
 the :class:`eko.thresholds.Threshold` class.
-We denote the solution of the DGLAP equation in Mellin space as
+We denote the solution of the :doc:`DGLAP equation </Physics/DGLAP>` in :doc:`Mellin space </Physics/Mellin>` as
 
 .. math ::
     \tilde{f_j}(Q^2_1)= \tilde E_{jk}(Q^2_1\leftarrow Q^2_0) \tilde{f_k}(Q^2_0)

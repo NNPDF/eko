@@ -1,54 +1,98 @@
 Solving DGLAP
 =============
 
-We are solving the DGLAP equations given by
+We are solving the DGLAP equations given in x-space by
 
 .. math::
     \frac{d}{d\ln(\mu_F^2)} \mathbf{f}(x,\mu_F^2) =
         \int\limits_x^1\!\frac{dy}{y}\, \mathbf{P}(x/y) \cdot \mathbf{f}(y,\mu_F^2)
 
-
-The non-siglet case can be solved in a linear way:
-
-.. math::
-    \frac{d f_{ns}(x,\mu_F^2)}{d\ln(\mu_F^2)} =
-        \int\limits_x^1\!\frac{dy}{y}\, P_{ns}(y/x) \cdot f_{ns}(y,\mu_F^2)
-
-We can thus write the non-siglet equations in N-space by
+with :math:`\mathbf P` the Altarelli-Parisi splitting functions (see :doc:`/Physics/pQCD`).
+In :doc:`Mellin space </Physics/Mellin>` the DGLAP equations are just differential equations:
 
 .. math::
-    \frac{d\tilde f_{ns}(N,\mu_F^2)}{d\ln(\mu_F^2)} = -\tilde \gamma_{ns}(N) \cdot \tilde f_{ns}(N,\mu_F^2)
+    \frac{d}{d\ln(\mu_F^2)} \tilde{\mathbf{f}}(N,\mu_F^2) = -\tilde \gamma(N) \cdot \tilde{\mathbf{f}}(N,\mu_F^2)
 
-We also change the evolution variable to
-:math:`t(\mu_F^2) = \ln(1/a_s(\mu_F^2))`
-and then the differential equations to solve is given by
+(Note the additional minus in the definition for :math:`\tilde \gamma`).
 
-.. math::
-    \frac{d\tilde f_{ns}(N,\mu_F^2)}{dt}
-        = \frac{d\ln(\mu_F^2)}{dt} \cdot \frac{d\tilde f(N,\mu_F^2)}{d\ln(\mu_F^2)}
-        = - \frac{a_s(\mu_F^2)}{\beta(a_s(\mu_F^2))} \tilde P_{ns}(N) \cdot \tilde f_{ns}(N,\mu_F^2)
-
-Expanding the rhs to LO we get the final equation
+We change the evolution variable to :math:`t(\mu_F^2) = \ln(1/a_s(\mu_F^2))`
+and then the differential equations to solve are given by
 
 .. math::
-    \frac{d\tilde f^{(0)}(N,\mu_F^2)}{dt} = \frac{1}{\beta_0} \cdot \tilde P_{ns}^{(0)}(N) \cdot \tilde f_{ns}^{(0)}(N,\mu_F^2)
+    \frac{d}{dt} \tilde{\mathbf{f}}(N,t)
+        = \frac{d\ln(\mu_F^2)}{dt} \cdot \frac{d \tilde{\mathbf{f}}(N,\mu_F^2)}{d\ln(\mu_F^2)} 
+        = \frac{a_s(\mu_F^2)}{\beta(a_s(\mu_F^2))} \cdot \tilde \gamma(N) \cdot \tilde{\mathbf{f}}(N,t)
 
-which is solved by
+This transformation makes the equations explicitly independent of the :doc:`running coupling </Physics/pQCD>` at LO.
 
-.. math::
-    \tilde f^{(0)}(N,t_1) = \exp((t_1-t_0) \tilde P_{ns}^{(0)}(N)/\beta_0 ) \cdot \tilde f_{ns}^{(0)}(N,t_0)
-
-Using the interpolation basis on the inital state PDF, we can define the
-evolution kernel operator :math:`\hat O` by
+The solution can be written in terms of an evolution kernel operator :math:`\mathbf E`
 
 .. math::
-    \hat O_{k,j}^{ns,(0)}(t_1,t_0) = \mathcal{M}^{-1}\left[\exp((t_1-t_0)\tilde P_{ns}^{(0)}(N)/\beta_0)\tilde p_j(N)\right](x_k')
+    \tilde{\mathbf{f}}(N,t_1) = \tilde{\mathbf{E}}(t_1 \leftarrow t_0) \cdot \tilde{\mathbf{f}}(N,t_0)
 
-Now, we can write the solution to DGLAP in a true matrix operator scheme and
-find
+Using :doc:`Interpolation </Physics/Interpolation>` on both the inital and final PDF, we can then discretize the
+evolution kernel operator and define :math:`\hat{\mathbf{E}}` by
 
 .. math::
-    f^{(0)}(x_k,t_1) = \hat O_{k,j}^{(0)}(t_1,t_0) f^{(0)}(x_j,t_0)
+    \hat{\mathbf{E}}_{k,j}(t_1\leftarrow t_0) = \mathcal{M}^{-1}\left[\tilde{\mathbf{E}}(t_1 \leftarrow t_0)\tilde p_j(N)\right](x_k)
+
+Now, we can write the solution to DGLAP in a true matrix operator scheme and find
+
+.. math::
+    \mathbf{f}(x_k,t_1) = \hat{\mathbf{E}}_{k,j}(t_1\leftarrow t_0) \mathbf{f}(x_j,t_0)
+
+In the non-singlet sector the equations decouple and we do not need to worry about matrices.
+
+The issue of matching conditions when crossing flavor thresholds is dicussed in a seperate :doc:`document </Physics/Matching>`
+
+Leading Order
+-------------
+
+Non-Singlet Evolution
+^^^^^^^^^^^^^^^^^^^^^
+
+We find
+
+.. math::
+    \frac{d}{dt} \tilde f_{ns}^{(0)}(t) = -\frac{1}{\beta_0} \cdot \tilde \gamma_{ns}^{(0)}(N) \cdot \tilde f_{ns}^{(0)}(t)
+
+with :math:`\tilde \gamma_{ns}^{(0)} = \tilde\gamma_{ns,+}^{(0)} = \tilde\gamma_{ns,-}^{(0)} = \tilde\gamma_{ns,v}^{(0)}`.
+The solution is then given by a simple exponential :cite:`Vogt:2004ns`
+
+.. math::
+    \tilde E^{(0)}_{ns}(t_1\leftarrow t_0) = \exp(-(t_1-t_0) \tilde \gamma_{ns}^{(0)}(N)/\beta_0 )
+
+Singlet Evolution
+^^^^^^^^^^^^^^^^^
+
+We find
+
+.. math::
+    \frac{d}{dt} \dSV{0}{t} = -\frac{1}{\beta_0} \cdot \tilde{\gamma}_S^{(0)} \cdot \dSV{0}{t}
+
+with
+
+.. math ::
+    \tilde{\gamma}_S^{(0)} = \begin{pmatrix}
+                                \tilde \gamma_{qq}^{(0)} & \tilde \gamma_{qg}^{(0)}\\
+                                \tilde \gamma_{gq}^{(0)} & \tilde \gamma_{gg}^{(0)}
+                            \end{pmatrix}
+
+In order to expontiate this matrix, we decompose it
+:math:`\tilde \gamma_S^{(0)} = \lambda_+ \tilde {\bf e}_+ + \lambda_- \tilde {\bf e}_-` with
+the eigenvalues :math:`\lambda_{\pm}` and the projectors :math:`\tilde e_{\pm}` given by :cite:`Vogt:2004ns`
+
+.. math::
+    \lambda_{\pm} &= \frac 1 2 \left( \gamma_{qq}^{(0)} + \gamma_{gg}^{(0)} + \pm \sqrt{(\gamma_{qq}^{(0)}-\gamma_{gg}^{(0)})^2 + 4\gamma_{qg}^{(0)}\gamma_{gq}^{(0)}} \right)\\
+    \tilde {\bf e}_{\pm} &= \frac{1}{\lambda_{\pm} - \lambda_{\mp}} \left( \tilde \gamma_S^{(0)}  - \lambda_{\mp} \mathbf I \right)
+
+with :math:`\mathbf I` the identity matrix. The projectors obey the usual projector properties, i.e.
+
+.. math::
+    \tilde {\bf e}_{\pm} \cdot \tilde {\bf e}_{\pm} = \tilde {\bf e}_{\pm} \qquad \tilde {\bf e}_{\pm} \cdot \tilde {\bf e}_{\mp} = 0
+
+Benchmarks
+----------
 
 The benchmarking LHA reference is given by :cite:`Giele:2002hx`
 and :cite:`Dittmar:2005ed`.

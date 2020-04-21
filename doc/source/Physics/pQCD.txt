@@ -22,3 +22,5 @@ coupling :math:`a_s(\mu^2)` and are given by
 .. math::
     \mathbf{P}(x,\mu^2) &= \sum\limits_{j=0} a_s^{j+1}(\mu^2) \mathbf{P}^{(j)}(x) \\
     \tilde{\gamma}^{(j)}(N) &= -\mathcal{M}[\mathbf{P}^{(j)}(x)](N)
+
+Note the additional minus in the definition of :math:`\tilde \gamma`.
