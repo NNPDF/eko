@@ -3,7 +3,36 @@ r"""
     This module contains all evolution operator classes.
 
     The classes are nested as follows:
-    :class:`PhysicalOperator` <- :class:`Operator` <= :class:`OperatorMember`.
+
+    .. graphviz::
+        :name: operators
+        :caption: nesting of the operator classes: solid lines means "has many",
+                  dashed lines means "creates"
+        :align: center
+
+        digraph G {
+            bgcolor = transparent
+
+            node [shape=box]
+            OperatorGrid [label="OperatorGrid"];
+            OperatorMaster [label="OperatorMaster" ];
+            test, test1 [style=invis];
+            Operator [label="Operator" ];
+            PhysicalOperator [label="PhysicalOperator"];
+            OperatorMember [label="OperatorMember"];
+
+            {rank=same OperatorMaster test test1}
+            {rank=same Operator PhysicalOperator}
+
+            OperatorGrid -> OperatorMaster;
+            OperatorMaster -> Operator  [weight=1000];
+            Operator -> OperatorMember;
+            Operator -> PhysicalOperator [style=dashed len=10];
+            PhysicalOperator -> OperatorMember
+            OperatorMaster -> test -> test1 [style=invis];
+            test1 -> PhysicalOperator [weight=1000 style=invis];
+        }
+
     The central class :class:`Operator` lives at given :math:`Q^2` and
     consists of several :class:`OperatorMember`.
     One instance of :class:`OperatorMember` governs the evolution of a single flavour combination.
@@ -16,19 +45,6 @@ r"""
     :class:`Operator` manages the correct handling and recombination of the various
     :class:`OperatorMember`. In the end a single instance of :class:`PhysicalOperator`
     is computed and will be exposed for each :math:`Q^2` to the user.
-
-    .. graphviz::
-        :name: structure
-        :caption: classes' structure
-        :align: center
-
-        digraph G {
-            bgcolor = transparent
-
-            node [shape=box]
-            Operator [label="Operator"]
-
-        }
 """
 
 import logging
