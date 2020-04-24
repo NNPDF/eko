@@ -1,0 +1,14 @@
+Input & Output
+==============
+
+Input
+-----
+
+.. todo::
+    write smth about runcards
+
+Output
+------
+
+.. todo::
+    write smth about output

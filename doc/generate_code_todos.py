@@ -61,11 +61,11 @@ def write_output(fn, file_list):
         # head
         o.write("TODOs\n")
         o.write("="*5+"\n\n")
-        o.write("Fom Docstrings\n")
-        o.write("-"*14+"\n\n")
-        o.write(".. todolist ::\n\n")
-        o.write("Fom Source Code\n")
+        o.write("From Docstrings\n")
         o.write("-"*15+"\n\n")
+        o.write(".. todolist ::\n\n")
+        o.write("From Source Code\n")
+        o.write("-"*16+"\n\n")
         for path,todos in file_list:
             # file head
             # TODO use something better then file://? but this should never appear in production

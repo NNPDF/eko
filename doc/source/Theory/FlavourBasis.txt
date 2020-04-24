@@ -36,4 +36,4 @@ Note that the associated numbers to the valence-like and singlet-like non-single
 :math:`k` follow the common group-theoretical notation :math:`k = n_f^2 - 1`
 where :math:`n_f` denotes the incorporated number of quark flavours.
 
-The matching conditions when crossing flavour thresholds are given in :doc:`Matching Conditions </Physics/Matching>`.
+The matching conditions when crossing flavour thresholds are given in :doc:`Matching Conditions <Matching>`.

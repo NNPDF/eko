@@ -1,12 +1,12 @@
-Operators
-=========
+Operator Hierachy
+=================
 
 The classes are nested as follows:
 
 .. graphviz::
     :name: operators
     :caption: nesting of the operator classes: solid lines means "has many",
-                dashed lines means "creates"
+                dashed lines means "evolves into"
     :align: center
 
     digraph G {
@@ -32,14 +32,15 @@ The classes are nested as follows:
         test1 -> PhysicalOperator [weight=1000 style=invis];
     }
 
-- :class:`~eko.operator_grid.OperatorGrid`:
+- :class:`~eko.operator_grid.OperatorGrid`
 
     *  this is the master class which administrates all evolution kernel operator tasks
     *  it is instantiated once for each run
     *  it divides the given range of :math:`Q^2` into the necessary threshold crossings and
        creates a :class:`~eko.operator_grid.OperatorMaster` for each
     *  it recollects all necessary operators in the end to create the
-       :class:`~eko.evolution_operator.PhysicalOperator`
+       :class:`~eko.evolution_operator.PhysicalOperator` following the instructions of
+       :class:`~eko.flavours.FlavourTarget`
 
 - :class:`~eko.operator_grid.OperatorMaster`
 
@@ -66,5 +67,5 @@ The classes are nested as follows:
     * inside :class:`~eko.evolution_operator.Operator` they are in "raw" evolution basis, i.e.
       :math:`\tilde{\mathbf{E}}_S, \tilde{E}_{ns}^{\pm,v}`, and they never cross a threshold
     * inside :class:`~eko.evolution_operator.PhysicalOperator` they are in "true" evolution
-      basis, i.e. they evolve e.g. :math:`\tilde V, \tilde T_3` etc., so they are a evetually
-      a product of the "raw" basis (see :doc:`Matching Conditions </Physics/Matching>`)
+      basis, i.e. they evolve e.g. :math:`\tilde V, \tilde T_3` etc., so they are eventually
+      a product of the "raw" basis (see :doc:`Matching Conditions </Theory/Matching>`)

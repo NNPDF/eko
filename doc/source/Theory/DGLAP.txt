@@ -7,8 +7,8 @@ We are solving the DGLAP equations given in x-space by
     \frac{d}{d\ln(\mu_F^2)} \mathbf{f}(x,\mu_F^2) =
         \int\limits_x^1\!\frac{dy}{y}\, \mathbf{P}(x/y) \cdot \mathbf{f}(y,\mu_F^2)
 
-with :math:`\mathbf P` the Altarelli-Parisi splitting functions (see :doc:`/Physics/pQCD`).
-In :doc:`Mellin space </Physics/Mellin>` the DGLAP equations are just differential equations:
+with :math:`\mathbf P` the Altarelli-Parisi splitting functions (see :doc:`pQCD`).
+In :doc:`Mellin space <Mellin>` the DGLAP equations are just differential equations:
 
 .. math::
     \frac{d}{d\ln(\mu_F^2)} \tilde{\mathbf{f}}(N,\mu_F^2) = -\tilde \gamma(N) \cdot \tilde{\mathbf{f}}(N,\mu_F^2)
@@ -23,7 +23,7 @@ and then the differential equations to solve are given by
         = \frac{d\ln(\mu_F^2)}{dt} \cdot \frac{d \tilde{\mathbf{f}}(N,\mu_F^2)}{d\ln(\mu_F^2)} 
         = \frac{a_s(\mu_F^2)}{\beta(a_s(\mu_F^2))} \cdot \tilde \gamma(N) \cdot \tilde{\mathbf{f}}(N,t)
 
-This transformation makes the equations explicitly independent of the :doc:`running coupling </Physics/pQCD>` at LO.
+This transformation makes the equations explicitly independent of the :doc:`running coupling <pQCD>` at LO.
 
 The solution can be written in terms of an evolution kernel operator :math:`\mathbf E` (represented by
 :class:`~eko.evolution_operator.PhysicalOperator`)
@@ -31,7 +31,7 @@ The solution can be written in terms of an evolution kernel operator :math:`\mat
 .. math::
     \tilde{\mathbf{f}}(N,t_1) = \tilde{\mathbf{E}}(t_1 \leftarrow t_0) \cdot \tilde{\mathbf{f}}(N,t_0)
 
-Using :doc:`Interpolation </Physics/Interpolation>` on both the inital and final PDF, we can then discretize the
+Using :doc:`Interpolation <Interpolation>` on both the inital and final PDF, we can then discretize the
 evolution kernel operator and define :math:`\hat{\mathbf{E}}` by
 
 .. math::
@@ -44,7 +44,7 @@ Now, we can write the solution to DGLAP in a true matrix operator scheme and fin
 
 In the non-singlet sector the equations decouple and we do not need to worry about matrices.
 
-The issue of matching conditions when crossing flavor thresholds is dicussed in a seperate :doc:`document </Physics/Matching>`
+The issue of matching conditions when crossing flavor thresholds is dicussed in a seperate :doc:`document <Matching>`
 
 Leading Order
 -------------

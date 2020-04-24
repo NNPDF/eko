@@ -4,9 +4,9 @@ r"""
     related to the flavour combinations.
 
     The write-up of the matching conditions is given in
-    :doc:`Matching Conditions </Physics/Matching>`.
+    :doc:`Matching Conditions </Theory/Matching>`.
 
-""" #pylint:disable=line-too-long
+"""
 
 MINIMAL_NF = 3  # TODO Should this be a parameter or can it be hardcoded?
 
@@ -36,7 +36,9 @@ VFNS = {
 # it would be nice to make it even more general
 class FlavourTarget:
     """
-        Defines the scheme
+        Defines the path across the quark thresholds.
+
+        See :doc:`Matching Conditions </Theory/Matching>`.
 
         Parameters
         ----------
@@ -194,7 +196,7 @@ def get_singlet_paths(to, fromm, depth):
 
 def get_all_flavour_paths(nf):
     """
-        Builds all :class:`FlavourTarget`.
+        Builds all :class:`FlavourTarget` - see :doc:`Matching Conditions </Theory/Matching>`.
 
         Parameters
         ----------
