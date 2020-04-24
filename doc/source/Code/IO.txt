@@ -4,8 +4,15 @@ Input & Output
 Input
 -----
 
-.. todo::
-    write smth about runcards
+=============== ============ ================================================================
+key             type         description
+=============== ============ ================================================================
+'PTO'           integer      order of perturbation theory: ``0`` = LO, ...
+'alphas'        float        reference value of the strong coupling :math:`\alpha_s(\mu_0^2)`
+'xgrid'         array(float) the interpolation grid
+'xgrid_type'    string       generating function for the interpolation grid - see below
+'log_interpol'  boolean      whether it is log interpolation or not, defaults to `True`
+=============== ============ ================================================================
 
 Output
 ------

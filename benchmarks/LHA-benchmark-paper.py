@@ -215,12 +215,14 @@ class LHABenchmarkPaper:
 
     def _post_process(self, ret, ref, tag):
         """
-            Handles the post processing of the run
+            Handles the post processing of the run according to the configuration.
 
             Parameters
             ----------
                 ret : dict
-                    DGLAP result
+                    EKO result
+                ref : dict
+                    reference result
                 tag : string
                     file tag
         """
