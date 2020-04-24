@@ -15,57 +15,52 @@ from eko.alpha_s import StrongCoupling
 
 logger = logging.getLogger(__name__)
 
-class Runner():
+
+class Runner:
     """
         Represents a single input configuration.
+
+        For details about the configuration, see :doc:`here </Code/IO>`
 
         Parameters
         ----------
             setup : dict
                 input configurations
-
-        Notes
-        -----
-            the input configurations can contain the following keys
-            
-            =============== ===================================================================
-            key             description
-            =============== ===================================================================
-            'PTO'           order of perturbation theory: ``0`` = LO, ...
-            'alphas'        reference value of the strong coupling :math:`\alpha_s(\mu_0^2)`
-            'xgrid'         the interpolation grid
-            'xgrid_type'    generating function for the interpolation grid - see below
-            'log_interpol'  boolean, whether it is log interpolation or not, defaults to `True`
-            =============== ===================================================================
     """
 
     def __init__(self, setup):
         # Print theory id setup
-        logger.info("Setup: %s", setup)
+        logger.info("init Runner with %s", setup)
 
         # Load constants and compute parameters
         self._constants = Constants()
         # setup basis grid
         self.__init_grid(setup)
         # Generate the dispatcher for the kernels
-        kernel_dispatcher = KernelDispatcher(self._basis_function_dispatcher, self._constants)
+        kernel_dispatcher = KernelDispatcher(
+            self._basis_function_dispatcher, self._constants
+        )
         # FNS
         self.__init_FNS(setup)
 
         # setup operator grid
-        self._op_grid = OperatorGrid(self._threshold_holder, self._alpha_s, kernel_dispatcher, self._basis_function_dispatcher.xgrid_raw)
+        self._op_grid = OperatorGrid(
+            self._threshold_holder,
+            self._alpha_s,
+            kernel_dispatcher,
+            self._basis_function_dispatcher.xgrid_raw,
+        )
         self._q2grid = setup["Q2grid"]
 
     def __init_grid(self, setup):
         """
             Setup interpolation.
-        
+
             Parameters
             ----------
                 setup : dict
                     input configurations
         """
-        # 
         xgrid = interpolation.generate_xgrid(**setup)
         is_log_interpolation = bool(setup.get("log_interpol", True))
         polynom_rank = setup.get("xgrid_polynom_rank", 4)
@@ -80,7 +75,7 @@ class Runner():
     def __init_FNS(self, setup):
         """
             Get the scheme, i.e. and the thresholds and the strong coupling.
-        
+
             Parameters
             ----------
                 setup : dict
@@ -105,9 +100,32 @@ class Runner():
         # Now generate the operator alpha_s class
         alpha_ref = setup["alphas"]
         q2_alpha = pow(setup["Qref"], 2)
-        self._alpha_s = StrongCoupling(self._constants, alpha_ref, q2_alpha, self._threshold_holder)
+        self._alpha_s = StrongCoupling(
+            self._constants, alpha_ref, q2_alpha, self._threshold_holder
+        )
 
-    def get_operator(self):
+    def get_operators(self):
         """ compute the actual operators """
         operators = self._op_grid.compute_q2grid(self._q2grid)
         return operators
+
+    def get_output(self):
+        """
+            Collects all data for output (to run the evolution)
+
+            Returns
+            -------
+                ret : dict
+                    output
+        """
+        # propagate grid
+        ret = self._basis_function_dispatcher.get_grid_configuration()
+        # add all operators
+        ret["q2_ref"] = self._threshold_holder.q2_ref
+        q2_grid = {}
+        operators = self.get_operators()
+        for op in operators:
+            final_scale = op.q2_final
+            q2_grid[final_scale] = op.get_operator_matrices()
+        ret["q2_grid"] = q2_grid
+        return ret

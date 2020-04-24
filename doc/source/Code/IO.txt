@@ -4,15 +4,19 @@ Input & Output
 Input
 -----
 
-=============== ============ ================================================================
-key             type         description
-=============== ============ ================================================================
-'PTO'           integer      order of perturbation theory: ``0`` = LO, ...
-'alphas'        float        reference value of the strong coupling :math:`\alpha_s(\mu_0^2)`
-'xgrid'         array(float) the interpolation grid
-'xgrid_type'    string       generating function for the interpolation grid - see below
-'log_interpol'  boolean      whether it is log interpolation or not, defaults to `True`
-=============== ============ ================================================================
+The input run card may contain the following key-value pairs:
+
+- ``PTO`` - integer : order of perturbation theory: ``0`` = LO, ...
+- ``alphas`` - float : reference value of the strong coupling :math:`\alpha_s(\mu_0^2)` (Note that we have to use
+  :math:`\alpha_s(\mu_0^2)` here, instead of :math:`a_s(\mu_0^2)` for legacy reasons)
+- ``xgrid`` - array(float) : the interpolation grid
+- ``xgrid_type`` - str : generating function for the interpolation grid
+- ``xgrid_polynom_rank`` - integer(4) : polynomial degree of the interpolating function
+- ``log_interpol`` - boolean [True] : use logarithmic interpolation
+
+where we used the following convention:
+
+- ``key`` - type [default value, if available] : description
 
 Output
 ------

@@ -542,3 +542,20 @@ class InterpolatorDispatcher:
                 l.append(b.evaluate_x(x))
             out.append(l)
         return np.array(out)
+
+    def get_grid_configuration(self):
+        """
+            Returns the configuration for the underlying xgrid (from which the instance can
+            be created again).
+
+            Returns
+            -------
+                ret : dict
+                    full grid configuration
+        """
+        ret = {
+            "xgrid": self.xgrid_raw,
+            "polynomial_degree": self.polynomial_degree,
+            "is_log_interpolation": self.log
+        }
+        return ret

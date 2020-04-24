@@ -30,9 +30,11 @@ class OperatorMaster:
         Parameters
         ----------
             alpha_generator: eko.alpha_s.StrongCoupling
-                Instance of the :class:`~eko.alpha_s.StrongCoupling` class able to generate a_s for any q
+                Instance of the :class:`~eko.alpha_s.StrongCoupling` class able to
+                generate a_s for any q
             kernel_dispatcher: eko.kernels.KernelDispatcher
-                Instance of the :class:`~eko.kernels.KernelDispatcher` with the information about the kernels
+                Instance of the :class:`~eko.kernels.KernelDispatcher` with the information
+                about the kernels
             xgrid: np.array
                 Grid in x used to compute the operators
             nf: int
@@ -302,5 +304,5 @@ class OperatorGrid:
             nf, number_of_thresholds
         )
         # Compose and return
-        final_op = operator.compose(operators_to_q2, instruction_set)
+        final_op = operator.compose(operators_to_q2, instruction_set, qsq)
         return final_op

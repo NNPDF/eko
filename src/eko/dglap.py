@@ -105,7 +105,7 @@ def run_dglap(setup):
     operators = op_grid.compute_q2grid(q2grid)
 
     # TODO: LEGACY RETURN
-    ret = operators[0].ret
+    ret = operators[0].get_operator_matrices()
     ret["basis"] = basis_function_dispatcher
     ret["polynomial_degree"] = polynom_rank
     ret["log"] = is_log_interpolation
