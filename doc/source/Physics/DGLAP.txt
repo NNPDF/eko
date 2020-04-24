@@ -25,7 +25,8 @@ and then the differential equations to solve are given by
 
 This transformation makes the equations explicitly independent of the :doc:`running coupling </Physics/pQCD>` at LO.
 
-The solution can be written in terms of an evolution kernel operator :math:`\mathbf E`
+The solution can be written in terms of an evolution kernel operator :math:`\mathbf E` (represented by
+:class:`~eko.evolution_operator.PhysicalOperator`)
 
 .. math::
     \tilde{\mathbf{f}}(N,t_1) = \tilde{\mathbf{E}}(t_1 \leftarrow t_0) \cdot \tilde{\mathbf{f}}(N,t_0)

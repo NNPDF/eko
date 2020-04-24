@@ -7,4 +7,5 @@ Physics documentation
     Mellin
     pQCD
     DGLAP
+    FlavourBasis
     Matching

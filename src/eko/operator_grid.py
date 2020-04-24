@@ -1,10 +1,14 @@
 """
-    This module contains the OperatorGrid class
-    This is the driver class of eko as it is the one that collects all the
+    This module contains the :class:`OperatorGrid`  and the
+    :class:`OperatorMaster` class.
+
+    The first is the driver class of eko as it is the one that collects all the
     previously instantiated information and does the actual computation of the Qs
 
-    This class, however, has no knowledge about _what_ it does compute as
-    everything must always come in externally
+    The classes, however, have no knowledge about _what_ it does compute as
+    everything must always come in externally.
+
+    See :doc:`Operator overview </Code/Operators>`.
 """
 
 # TODO the operator grid should have a "save" and "load" method which will allow to store the full grid
@@ -18,21 +22,21 @@ logger = logging.getLogger(__name__)
 
 class OperatorMaster:
     """
-        The OperatorMaster is instantiated for a given set of parameters
+        The :class:`OperatorMaster` is instantiated for a given set of parameters
         And informs the generation of operators.
 
-        This class is just a convenience wrapper
+        This class is just a convenience wrapper.
 
         Parameters
         ----------
             alpha_generator: eko.alpha_s.StrongCoupling
-                Instance of the StrongCoupling class able to generate a_s for any q
+                Instance of the :class:`~eko.alpha_s.StrongCoupling` class able to generate a_s for any q
             kernel_dispatcher: eko.kernels.KernelDispatcher
-                Instance of the KernelDispatcher with the information about the kernels
+                Instance of the :class:`~eko.kernels.KernelDispatcher` with the information about the kernels
             xgrid: np.array
                 Grid in x used to compute the operators
             nf: int
-                Value of nf for this OperatorMaster
+                Value of nf for this :class:`OperatorMaster`
     """
 
     def __init__(self, alpha_generator, kernel_dispatcher, xgrid, nf):

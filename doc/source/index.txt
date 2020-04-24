@@ -1,16 +1,18 @@
 .. EKO documentation master file.
 
 EKO documentation
-===================
+=================
 
 .. toctree::
-    :maxdepth: 4
+    :maxdepth: 6
 
     Physics/index
+
+    Code/index
     
     zzz-refs
     
-    modules/eko/modules
+#    modules/eko/modules
 
 .. automodule:: eko
     :members:

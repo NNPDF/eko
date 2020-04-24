@@ -1,47 +1,10 @@
 # -*- coding: utf-8 -*-
 r"""
-    This module holds the class :class:`FlavourTarget` and the data
+    This module holds the :class:`FlavourTarget` class and the data
     related to the flavour combinations.
 
-
-    Evolution Basis
-    ---------------
-    The evolution flavours are
-
-    .. math ::
-        V, V_3, V_8, V_{15}, V_{24}, V_{35}, T_3, T_8, T_{15}, T_{24}, T_{35}, \Sigma, g
-
-    and they can be seperated into two major classes: the singlet sector, consisting of the
-    singlet distribution :math:`\Sigma` and the gluon distribution :math:`g`, and the non-singlet
-    sector. The non-singlet sector can be again subdivided into three groups: first the full
-    valence distribution :math:`V`, second the valence-like distributions
-    :math:`V_3 \ldots V_{35}`, and third the singlet like distributions :math:`T_3 \ldots T_{35}`.
-    The mapping between the Evolution Basis and the Flavour Basis is given by
-
-    .. math ::
-        \Sigma &= \sum\limits_{j} q_j^+\\
-        V &= \sum\limits_{j} q_j^-\\
-        V_3 &= u^- - d^-\\
-        V_8 &= u^- + d^- - 2 s^-\\
-        V_{15} &= u^- + d^- + s^- - 3 c^-\\
-        V_{24} &= u^- + d^- + s^- + c^- - 4 b^-\\
-        V_{35} &= u^- + d^- + s^- + c^- + b^- - 5 t^-\\
-        T_3 &= u^+ - d^+\\
-        T_8 &= u^+ + d^+ - 2 s^+\\
-        T_{15} &= u^+ + d^+ + s^+ - 3 c^+\\
-        T_{24} &= u^+ + d^+ + s^+ + c^+ - 4 b^+\\
-        T_{35} &= u^+ + d^+ + s^+ + c^+ + b^+ - 5 t^+
-
-    with
-
-    .. math ::
-        q^\pm = q \pm \bar q
-
-    Note that the associated numbers to the valence-like and singlet-like non-singlet distributions
-    :math:`j` follow the common group-theoretical notation :math:`j = n_f^2 - 1`
-    where :math:`n_f` denotes the incorporated number of quark flavours.
-
-    The write-up of the matching conditions is given in :doc:`Matching Conditions </Physics/Matching>`.
+    The write-up of the matching conditions is given in
+    :doc:`Matching Conditions </Physics/Matching>`.
 
 """ #pylint:disable=line-too-long
 
