@@ -33,18 +33,42 @@ r"""
             test1 -> PhysicalOperator [weight=1000 style=invis];
         }
 
-    The central class :class:`Operator` lives at given :math:`Q^2` and
-    consists of several :class:`OperatorMember`.
-    One instance of :class:`OperatorMember` governs the evolution of a single flavour combination.
-    Inside :class:`Operator` they refer to the "raw" elements
+    - :class:`~eko.operator_grid.OperatorGrid`:
 
-    .. math::
+        *  this is the master class which administrates all evolution kernel operator tasks
+        *  it is instantiated once for each run
+        *  it divides the given range of :math:`Q^2` into the necessary threshold crossings and
+           creates a :class:`~eko.operator_grid.OperatorMaster` for each
+        *  it recollects all necessary operators in the end to create the
+           :class:`~eko.evolution_operator.PhysicalOperator`
 
-        \gamma_{ns,v}, \gamma_{ns,+}, \gamma_{ns,-}, \mathbf\gamma_S
+    - :class:`~eko.operator_grid.OperatorMaster`
 
-    :class:`Operator` manages the correct handling and recombination of the various
-    :class:`OperatorMember`. In the end a single instance of :class:`PhysicalOperator`
-    is computed and will be exposed for each :math:`Q^2` to the user.
+        * this represents a configuration for a fixed number of flavours
+        * it creates an :class:`~eko.evolution_operator.Operator` for each final scale :math:`Q^2`
+
+    - :class:`~eko.evolution_operator.Operator`
+
+        * this represents a configuration for a fixed final scale :math:`Q^2`
+        * this class is only used *internally*
+        * its :class:`~eko.evolution_operator.OperatorMember` are only valid in the current
+          threshold area
+
+    - :class:`~eko.evolution_operator.PhysicalOperator`
+
+        * this is the exposed equivalent of :class:`~eko.evolution_operator.Operator`,
+          i.e. it also lives at at fixed final scale
+        * its :class:`~eko.evolution_operator.OperatorMember` are valid from the starting scale
+          to the final scale
+
+    - :class:`~eko.evolution_operator.OperatorMember`
+
+        * this represents a single evolution kernel operator
+        * inside :class:`~eko.evolution_operator.Operator` they are in "raw" evolution basis, i.e.
+          :math:`\tilde{\mathbf{E}}_S, \tilde{E}_{ns}^{\pm,v}`, and they never cross a threshold
+        * inside :class:`~eko.evolution_operator.PhysicalOperator` they are in "true" evolution
+          basis, i.e. they evolve e.g. :math:`\tilde V, \tilde T_3` etc., so they are a evetually
+          a product of the "raw" basis (see :doc:`Matching Conditions </Physics/Matching>`)
 """
 
 import logging
