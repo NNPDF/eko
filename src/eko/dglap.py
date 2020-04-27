@@ -6,12 +6,7 @@ import logging
 import numpy as np
 from yaml import dump
 
-import eko.interpolation as interpolation
-from eko.kernel_generation import KernelDispatcher
-from eko.thresholds import Threshold
-from eko.operator_grid import OperatorGrid
-from eko.constants import Constants
-from eko.alpha_s import StrongCoupling
+from eko.runner import Runner
 
 logger = logging.getLogger(__name__)
 
@@ -21,95 +16,25 @@ def run_dglap(setup):
         This function takes a DGLAP theory configuration dictionary
         and performs the solution of the DGLAP equations.
 
-        The EKO :math:`\hat O_{k,j}^{(0)}(t_1,t_0)` is determined in order
+        The EKO :math:`\hat E_{k,j}^{(0)}(t_1\leftarrow t_0)` is determined in order
         to fullfill the following evolution
 
         .. math::
-            f^{(0)}(x_k,t_1) = \hat O_{k,j}^{(0)}(t_1,t_0) f^{(0)}(x_j,t_0)
+            f^{(0)}(x_k,t_1) = \hat E_{k,j}^{(0)}(t_1\leftarrow t_0) f^{(0)}(x_j,t_0)
 
         Parameters
         ----------
-            setup: dict
-                a dictionary with the theory parameters for the evolution
-
-                =============== ===================================================================
-                key             description
-                =============== ===================================================================
-                'PTO'           order of perturbation theory: ``0`` = LO, ...
-                'alphas'        reference value of the strong coupling :math:`\alpha_s(\mu_0^2)`
-                'xgrid'         the interpolation grid
-                'xgrid_type'    generating function for the interpolation grid - see below
-                'log_interpol'  boolean, whether it is log interpolation or not, defaults to `True`
-                =============== ===================================================================
+            setup : dict
+                input card - see :doc:`/Code/IO`
 
         Returns
         -------
-            ret: dict
-                a dictionary with a defined set of keys
-
-                =================  ================================================================
-                key                description
-                =================  ================================================================
-                =================  ================================================================
-
-        Notes
-        -----
-
+            output : dict
+                output dictionary - see :doc:`/Code/IO`
     """
-
-    # Print theory id setup
-    logger.info("Setup: %s", setup)
-
-    # Load constants and compute parameters
-    constants = Constants()
-
-    # Setup interpolation
-    xgrid = interpolation.generate_xgrid(**setup)
-    is_log_interpolation = bool(setup.get("log_interpol", True))
-    polynom_rank = setup.get("xgrid_polynom_rank", 4)
-    logger.info("Interpolation mode: %s", setup["xgrid_type"])
-    logger.info("Log interpolation: %s", is_log_interpolation)
-
-    # Generate the dispatcher for the basis functions
-    basis_function_dispatcher = interpolation.InterpolatorDispatcher(
-        xgrid, polynom_rank, log=is_log_interpolation
-    )
-    # Generate the dispatcher for the Kernel functions
-    kernel_dispatcher = KernelDispatcher(basis_function_dispatcher, constants)
-
-    # Get the scheme and set up the thresholds if any
-    # TODO the setup dictionary is a mess tbh
-    FNS = setup["FNS"]
-    q2_ref = pow(setup["Q0"], 2)
-    if FNS != "FFNS":
-        qmc = setup["Qmc"]
-        qmb = setup["Qmb"]
-        qmt = setup["Qmt"]
-        threshold_list = pow(np.array([qmc, qmb, qmt]), 2)
-        nf = None
-    else:
-        nf = setup["NfFF"]
-        threshold_list = None
-    threshold_holder = Threshold(
-        q2_ref=q2_ref, scheme=FNS, threshold_list=threshold_list, nf=nf
-    )
-
-    # Now generate the operator alpha_s class
-    alpha_ref = setup["alphas"]
-    q2_alpha = pow(setup["Qref"], 2)
-    alpha_s = StrongCoupling(constants, alpha_ref, q2_alpha, threshold_holder)
-
-    # And now compute the grid
-    op_grid = OperatorGrid(threshold_holder, alpha_s, kernel_dispatcher, xgrid)
-    q2grid = setup["Q2grid"]
-    operators = op_grid.compute_q2grid(q2grid)
-
-    # TODO: LEGACY RETURN
-    ret = operators[0].get_operator_matrices()
-    ret["basis"] = basis_function_dispatcher
-    ret["polynomial_degree"] = polynom_rank
-    ret["log"] = is_log_interpolation
-    return ret
+    r = Runner(setup)
+    output = r.get_output()
+    return output
 
 
 # TODO: move to the operator class

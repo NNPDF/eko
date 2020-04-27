@@ -1,6 +1,10 @@
 Input & Output
 ==============
 
+For explaining the runcards we use the following convention:
+
+- ``key`` - type [default value, if available] : description
+
 Input
 -----
 
@@ -11,15 +15,15 @@ The input run card may contain the following key-value pairs:
   :math:`\alpha_s(\mu_0^2)` here, instead of :math:`a_s(\mu_0^2)` for legacy reasons)
 - ``xgrid`` - array(float) : the interpolation grid
 - ``xgrid_type`` - str : generating function for the interpolation grid
-- ``xgrid_polynom_rank`` - integer(4) : polynomial degree of the interpolating function
-- ``log_interpol`` - boolean [True] : use logarithmic interpolation
+- ``xgrid_polynom_rank`` - integer[4] : polynomial degree of the interpolating function
+- ``log_interpol`` - boolean [True] : use logarithmic interpolation?
 
-where we used the following convention:
-
-- ``key`` - type [default value, if available] : description
 
 Output
 ------
 
-.. todo::
-    write smth about output
+The output will contain the following key-value pairs:
+- ``xgrid`` - array(float) : the interpolation grid
+- ``polynomial_degree`` - integer : polynomial degree of the interpolating function
+- ``is_log_interpolation`` - boolean : use logarithmic interpolation?
+- ``q2_ref`` - float : starting scale
