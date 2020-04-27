@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+#pylint:disable=protected-access
 # Test interpolation
 import json
 import pathlib
 import numpy as np
 from numpy.testing import assert_allclose, assert_almost_equal
-
+import pytest
 
 from eko import t_float, t_complex
 from eko import interpolation
@@ -139,3 +140,43 @@ def test_eq():
     assert a != d
     e = interpolation.InterpolatorDispatcher(np.linspace(0.1, 1, 10), 4, log=False, mode_N=False)
     assert a == e
+
+def test_evaluate_x():
+    xgrid = np.linspace(0.1, 1, 10)
+    poly_degree = 4
+    for log in [True, False]:
+        inter_x = interpolation.InterpolatorDispatcher(
+            xgrid, poly_degree, log=log, mode_N=False
+        )
+        inter_N = interpolation.InterpolatorDispatcher(
+            xgrid, poly_degree, log=log, mode_N=True
+        )
+        for x in [.2,.5]:
+            for bx, bN in zip(inter_x,inter_N):
+                assert_almost_equal(bx.evaluate_x(x), bN.evaluate_x(x))
+
+def test_reference_indices():
+    xgrid = np.linspace(0.1, 1, 10)
+    # polynomial_degree = 2
+    a = interpolation.Area(0,0,(0,1),xgrid)
+    assert list(a._reference_indices()) == [1]
+    a = interpolation.Area(0,1,(0,1),xgrid)
+    assert list(a._reference_indices()) == [0]
+    # polynomial_degree = 3
+    a = interpolation.Area(0,0,(0,2),xgrid)
+    assert list(a._reference_indices()) == [1,2]
+    a = interpolation.Area(0,1,(0,2),xgrid)
+    assert list(a._reference_indices()) == [0,2]
+    a = interpolation.Area(0,2,(0,2),xgrid)
+    assert list(a._reference_indices()) == [0,1]
+    # error
+    with pytest.raises(ValueError):
+        a = interpolation.Area(0,3,(0,2),xgrid)
+
+def test_InterpolatorDispatcher_init():
+    with pytest.raises(ValueError):
+        interpolation.InterpolatorDispatcher([.1,.1,.2],1)
+    with pytest.raises(ValueError):
+        interpolation.InterpolatorDispatcher([.1],1)
+    with pytest.raises(ValueError):
+        interpolation.InterpolatorDispatcher([.1,.2],0)

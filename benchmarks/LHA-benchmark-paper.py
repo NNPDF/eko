@@ -230,10 +230,10 @@ class LHABenchmarkPaper:
             self._save_final_scale_plots_to_pdf(
                 assets_path / f"LHA-LO-{tag}-plots-{flag}.pdf", ret, ref
             )
-        if self.post_process_config["plot_operator"]:
-            save_all_operators_to_pdf(ret, assets_path / f"LHA-LO-{tag}-ops-{flag}.pdf")
-        if self.post_process_config["write_operator"]:
-            dglap.write_YAML_to_file(ret, assets_path / f"LHA-LO-{tag}-ops-{flag}.yaml")
+        #if self.post_process_config["plot_operator"]:
+        #    save_all_operators_to_pdf(ret, assets_path / f"LHA-LO-{tag}-ops-{flag}.pdf")
+        #if self.post_process_config["write_operator"]:
+        #    dglap.write_YAML_to_file(ret, assets_path / f"LHA-LO-{tag}-ops-{flag}.yaml")
 
     def _run_FFNS_raw(self, tag, Q2init, Q2final):
         """
@@ -403,12 +403,8 @@ if __name__ == "__main__":
     n_mid = 20
     polynom_rank = 4
 
-#     n_low = 2
-#     n_mid = 2
-#     polynom_rank = 2
-
     # combine grid
-    flag = f"l{n_low}m{n_mid}r{polynom_rank}-p5"
+    flag = f"l{n_low}m{n_mid}r{polynom_rank}"
     xgrid_low = interpolation.get_xgrid_linear_at_log(
         n_low, 1e-7, 1.0 if n_mid == 0 else 0.1
     )
@@ -420,17 +416,17 @@ if __name__ == "__main__":
     logStdout = logging.StreamHandler(sys.stdout)
     logStdout.setLevel(logging.INFO)
     logStdout.setFormatter(logging.Formatter("%(message)s"))
-    logging.getLogger("eko.operator").handlers = []
-    logging.getLogger("eko.operator").addHandler(logStdout)
-    logging.getLogger("eko.operator").setLevel(logging.DEBUG)
+    logging.getLogger("eko").handlers = []
+    logging.getLogger("eko").addHandler(logStdout)
+    logging.getLogger("eko").setLevel(logging.DEBUG)
 
     # run
     app = LHABenchmarkPaper(xgrid, polynom_rank, flag)
     # check input scale
     #save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
     # check fixed flavours
-    # app.run_FFNS()
+    app.run_FFNS()
     # do two steps
     #app.run_FFNS_twostep(1e2)
     # check ZM-VFNS
-    app.run_ZMVFNS()
+    # app.run_ZMVFNS()

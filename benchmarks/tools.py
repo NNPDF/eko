@@ -183,6 +183,7 @@ def save_all_operators_to_pdf(ret, path):
             target file name
     """
     pp = PdfPages(path)
+    ret = list(ret["q2_grid"].values())[0]
     # NS
     fig = plot_operator(ret, "V.V", log_operator=False)
     pp.savefig()

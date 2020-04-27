@@ -126,36 +126,35 @@ class Area:
                 number of polynomial
             block: tuple(int, int)
                 kmin and kmax
-            xgrid: array
+            xgrid: array(float)
                 Grid in x-space from which the interpolators are constructed
     """
 
     def __init__(self, lower_index, poly_number, block, xgrid):
-        self.poly_number = poly_number
-        self._reference_indices = block
-        self.kmin = block[0]
-        self.kmax = block[1]
-        self.coefs = self.compute_coefs(xgrid)
+        # check range
+        if poly_number < block[0] or block[1] < poly_number:
+            raise ValueError(
+                f"polynom #{poly_number} cannot be a part of the block which spans from {block[0]} to {block[1]}"
+            )
         self.xmin = xgrid[lower_index]
         self.xmax = xgrid[lower_index + 1]
+        self.poly_number = poly_number
+        self.kmin = block[0]
+        self.kmax = block[1]
+        self.coefs = self._compute_coefs(xgrid)
 
-    @property
-    def reference_indices(self):
-        return self._reference_indices
-
-    @reference_indices.getter
-    def reference_indices(self):
+    def _reference_indices(self):
+        """ Iterate over all indices which are part of the block """
         for k in range(self.kmin, self.kmax + 1):
             if k != self.poly_number:
                 yield k
 
-    def compute_coefs(self, xgrid):
-        """ Compute the coefficients for this area
-        given a grid on x """
+    def _compute_coefs(self, xgrid):
+        """ Compute the coefficients for this area given a grid on x """
         denominator = 1.0
         coeffs = np.ones(1)
         xj = xgrid[self.poly_number]
-        for s, k in enumerate(self.reference_indices):
+        for s, k in enumerate(self._reference_indices()):
             xk = xgrid[k]
             denominator *= xj - xk
             Mxk_coeffs = -xk * coeffs
@@ -165,6 +164,7 @@ class Area:
         return coeffs
 
     def __iter__(self):
+        """ Iterates the generated coefficients """
         for coef in self.coefs:
             yield coef
 
@@ -205,6 +205,7 @@ class BasisFunction:
         self.poly_number = poly_number
         self.areas = []
         self._mode_log = mode_log
+        self.mode_N = mode_N
         self.numba_it = numba_it
 
         # create areas
@@ -217,7 +218,7 @@ class BasisFunction:
 
         # compile
         self.callable = None
-        if mode_N:
+        if self.mode_N:
             self.compile_N()
         else:
             self.compile_X()
@@ -314,13 +315,16 @@ class BasisFunction:
                 res : t_float
                     p(x)
         """
-        old_call = self.callable
-        old_numba = self.numba_it
-        self.numba_it = False
-        self.compile_X()
-        res = self.callable(x)
-        self.callable = old_call
-        self.numba_it = old_numba
+        if self.mode_N:
+            old_call = self.callable
+            old_numba = self.numba_it
+            self.numba_it = False
+            self.compile_X()
+            res = self.callable(x)
+            self.callable = old_call
+            self.numba_it = old_numba
+        else:
+            res = self.callable(x)
         return res
 
     def compile_N(self):
@@ -451,7 +455,7 @@ class InterpolatorDispatcher:
                 compile with numba?
     """
 
-    def __init__(self, xgrid, polynomial_degree, log=True, mode_N=True, numba_it = True):
+    def __init__(self, xgrid, polynomial_degree, log=True, mode_N=True, numba_it=True):
 
         xgrid_size = len(xgrid)
 
@@ -462,10 +466,12 @@ class InterpolatorDispatcher:
         if xgrid_size < 2:
             raise ValueError(f"xgrid needs at least 2 points, received {xgrid_size}")
         if polynomial_degree < 1:
-            raise ValueError(f"need at least polynomial_degree 1, received {polynomial_degree}")
-        if xgrid_size < polynomial_degree:
             raise ValueError(
-                f"to interpolate with degree {polynomial_degree} we need at least that much points"
+                f"need at least polynomial_degree 1, received {polynomial_degree}"
+            )
+        if xgrid_size <= polynomial_degree:
+            raise ValueError(
+                f"to interpolate with degree {polynomial_degree} we need at least that much points + 1"
             )
 
         self.xgrid_raw = xgrid
@@ -497,11 +503,11 @@ class InterpolatorDispatcher:
             basis_functions.append(new_basis)
         self.basis = basis_functions
 
-    def __eq__(self,other):
+    def __eq__(self, other):
         checks = [
             len(self.xgrid_raw) == len(other.xgrid_raw),
             self.log == other.log,
-            self.polynomial_degree == other.polynomial_degree
+            self.polynomial_degree == other.polynomial_degree,
         ]
         # check elements after shape
         return all(checks) and np.allclose(self.xgrid_raw, other.xgrid_raw)
@@ -532,7 +538,9 @@ class InterpolatorDispatcher:
                     interpolation matrix, do be multiplied from the left(!)
         """
         # trivial?
-        if len(targetgrid) == len(self.xgrid_raw) and np.allclose(targetgrid,self.xgrid_raw):
+        if len(targetgrid) == len(self.xgrid_raw) and np.allclose(
+            targetgrid, self.xgrid_raw
+        ):
             return np.eye(len(self.xgrid_raw))
         # compute map
         out = []
@@ -556,6 +564,6 @@ class InterpolatorDispatcher:
         ret = {
             "xgrid": self.xgrid_raw,
             "polynomial_degree": self.polynomial_degree,
-            "is_log_interpolation": self.log
+            "is_log_interpolation": self.log,
         }
         return ret

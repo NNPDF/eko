@@ -115,10 +115,10 @@ class OperatorGrid:
 
     def __init__(self, threshold_holder, alpha_generator, kernel_dispatcher, xgrid):
         logger.info("Instantiating an operator grid:")
-        logger.info(" > Flavour scheme: %s", threshold_holder.scheme)
+        logger.info("Flavour scheme: %s", threshold_holder.scheme)
         self._threshold_holder = threshold_holder
         logger.info(
-            " > Reference alpha_s(Q^2=%f)=%f", alpha_generator.qref, alpha_generator.ref
+            "Reference alpha_s(Q^2=%f)=%f", alpha_generator.qref, alpha_generator.ref
         )
         self._alpha_gen = alpha_generator
         self._kernels = kernel_dispatcher
@@ -133,7 +133,7 @@ class OperatorGrid:
             )
         min_nf = threshold_holder.min_nf
         max_nf = threshold_holder.max_nf
-        logger.info(" > Accepted nf range: [%d, %d]", min_nf, max_nf)
+        logger.info("Accepted nf range: [%d, %d]", min_nf, max_nf)
         self._op_grid = {}
         self._threshold_operators = {}
 

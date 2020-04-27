@@ -7,6 +7,7 @@ import numpy as np
 from yaml import dump
 
 from eko.runner import Runner
+from eko.interpolation import InterpolatorDispatcher
 
 logger = logging.getLogger(__name__)
 
@@ -16,11 +17,11 @@ def run_dglap(setup):
         This function takes a DGLAP theory configuration dictionary
         and performs the solution of the DGLAP equations.
 
-        The EKO :math:`\hat E_{k,j}^{(0)}(t_1\leftarrow t_0)` is determined in order
+        The EKO :math:`\hat E_{k,j}(t_1\leftarrow t_0)` is determined in order
         to fullfill the following evolution
 
         .. math::
-            f^{(0)}(x_k,t_1) = \hat E_{k,j}^{(0)}(t_1\leftarrow t_0) f^{(0)}(x_j,t_0)
+            f(x_k,t_1) = \hat E_{k,j}(t_1\leftarrow t_0) f(x_j,t_0)
 
         Parameters
         ----------
@@ -69,7 +70,8 @@ def apply_operator(ret, input_pdfs, targetgrid=None):
     # build output
     outs = {}
     out_errors = {}
-    for k in ret["operators"]:
+    first_ret = list(ret["q2_grid"].values())[0]
+    for k in first_ret["operators"]:
         out_key, in_key = k.split(".")
         # basis vector available?
         if in_key not in input_pdfs:
@@ -77,8 +79,8 @@ def apply_operator(ret, input_pdfs, targetgrid=None):
             if out_key in outs:
                 outs[out_key] = None
             continue
-        op = ret["operators"][k]
-        op_err = ret["operator_errors"][k]
+        op = first_ret["operators"][k]
+        op_err = first_ret["operator_errors"][k]
         # is out_key new?
         if out_key not in outs:
             # set output
@@ -91,12 +93,15 @@ def apply_operator(ret, input_pdfs, targetgrid=None):
             # else add to it
             outs[out_key] += np.matmul(op, input_lists[in_key])
             out_errors[out_key] += np.matmul(op_err, input_lists[in_key])
+
     # interpolate to target grid
     if targetgrid is not None:
-        rot = ret["basis"].get_interpolation(targetgrid)
+        b = InterpolatorDispatcher(ret["xgrid"],ret["polynomial_degree"],ret["is_log_interpolation"],False)
+        rot = b.get_interpolation(targetgrid)
         for k in outs:
             outs[k] = np.matmul(rot, outs[k])
             out_errors[k] = np.matmul(rot, out_errors[k])
+
     return outs, out_errors
 
 
