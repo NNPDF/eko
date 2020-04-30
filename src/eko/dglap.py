@@ -96,7 +96,9 @@ def apply_operator(ret, input_pdfs, targetgrid=None):
 
     # interpolate to target grid
     if targetgrid is not None:
-        b = InterpolatorDispatcher(ret["xgrid"],ret["polynomial_degree"],ret["is_log_interpolation"],False)
+        b = InterpolatorDispatcher(
+            ret["xgrid"], ret["polynomial_degree"], ret["is_log_interpolation"], False
+        )
         rot = b.get_interpolation(targetgrid)
         for k in outs:
             outs[k] = np.matmul(rot, outs[k])
