@@ -87,14 +87,17 @@ class Output(dict):
                     result of dump(output, stream), i.e. a string, if no stream is given or
                     Null, self is written sucessfully to stream
         """
+        # prepare output dict
         out = {
-            "polynomial_degree": self["polynomial_degree"],
-            "is_log_interpolation": self["is_log_interpolation"],
             "q2_grid": {},
         }
-        # make raw lists - we might want to do somthing more numerical here
+        # dump raw elements
+        for f in ["polynomial_degree","is_log_interpolation","q2_ref"]:
+            out[f] = self[f]
+        # make raw lists
         for k in ["xgrid"]:
             out[k] = self[k].tolist()
+        # make operators raw
         for q2 in self["q2_grid"]:
             out_op = {
                 "operators": {},
@@ -105,6 +108,7 @@ class Output(dict):
                 out_op["operators"][k] = self["q2_grid"][q2]["operators"][k].tolist()
                 out_op["operator_errors"][k] = self["q2_grid"][q2]["operator_errors"][k].tolist()
             out["q2_grid"][q2] = out_op
+        # everything else is up to pyyaml
         return dump(out, stream)
 
 
