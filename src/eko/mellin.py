@@ -296,7 +296,6 @@ def get_path_Cauchy_tan():
     return path, jac
 
 
-# TODO if we keep this function open, we might also think about an implementation (t_float)
 def mellin_transform(f, N: complex):
     """
         Mellin transformation

@@ -62,23 +62,19 @@ def get_kernels_s(basis_function, nf, constants, beta_0):
 def prepare_singlet(kernels, path, jac):
     """ Return a list of integrands prepare to be run """
     integrands = []
-    logger.info("Singlet operator: kernel compilation started")
     for kernel_set in kernels:
         kernel_int = []
         for ker in kernel_set:
             kernel_int.append(mellin.compile_integrand(ker, path, jac))
         integrands.append(kernel_int)
-    logger.info("Singlet operator: kernel compilation finished")
     return integrands
 
 def prepare_non_singlet(kernels, path, jac):
     """ Return a list of integrands prepare to be run """
     integrands = []
-    logger.info("Non-singlet operator: kernel compilation started")
     for ker in kernels:
         kernel_int = mellin.compile_integrand(ker, path, jac)
         integrands.append(kernel_int)
-    logger.info("Non-singlet operator: kernel compilation finished")
     return integrands
 
 
