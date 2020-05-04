@@ -6,37 +6,38 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 
 def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
-    """Compare two distributions.
+    """
+        Compare two distributions.
 
-    Generates a plot with 3 areas:
-     - small x, i.e. log(x) as abscissa
-     - linear x, i.e. with id(x) as abscissa
-     - large x, i.e. with log(1-x) as abscissa
+        Generates a plot with 3 areas:
+        - small x, i.e. log(x) as abscissa
+        - linear x, i.e. with id(x) as abscissa
+        - large x, i.e. with log(1-x) as abscissa
 
-    Parameters
-    ----------
-        x : array
-            list of abscisses
-        y : array
-            computed list of ordinates
-        yerr : array
-            list of ordinate errors
-        yref : array
-            reference list of ordinates
+        Parameters
+        ----------
+            x : array
+                list of abscisses
+            y : array
+                computed list of ordinates
+            yerr : array
+                list of ordinate errors
+            yref : array
+                reference list of ordinates
 
-    Additional Parameters
-    ---------------------
-        title : string, optional
-            additional overall title
-        oMx_min : float
-            maximum value for the large x region, i.e. 1-x > 1 - `oMx_min`
-        oMx_max : float
-            minimum value for the large x region, i.e. 1 - `oMx_max` > 1-x
+        Additional Parameters
+        ---------------------
+            title : string, optional
+                additional overall title
+            oMx_min : float
+                maximum value for the large x region, i.e. 1-x > 1 - `oMx_min`
+            oMx_max : float
+                minimum value for the large x region, i.e. 1 - `oMx_max` > 1-x
 
-    Returns
-    -------
-        fig : matplotlib.pyplot.figure
-            created figure
+        Returns
+        -------
+            fig : matplotlib.pyplot.figure
+                created figure
     """
     fig = plt.figure(figsize=(15, 5))
     fig.subplots_adjust(hspace=0.05)
@@ -84,23 +85,24 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
 
 
 def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
-    """Plot a single operator as heat map.
+    """
+        Plot a single operator as heat map.
 
-    Parameters
-    ----------
-        ret : dict
-            DGLAP result
-        var_name : string
-            operator name
-        log_operator : bool, optional
-            plot on logarithmic scale
-        abs_operator : bool, optional
-            plot absolute value (instead of true value)
+        Parameters
+        ----------
+            ret : dict
+                DGLAP result
+            var_name : string
+                operator name
+            log_operator : bool, optional
+                plot on logarithmic scale
+            abs_operator : bool, optional
+                plot absolute value (instead of true value)
 
-    Returns
-    -------
-        fig : matplotlib.pyplot.figure
-            created figure
+        Returns
+        -------
+            fig : matplotlib.pyplot.figure
+                created figure
     """
     # get
     op = ret["operators"][var_name]
@@ -173,22 +175,25 @@ def merge_dicts(a: dict, b: dict, path=None):
 
 
 def save_all_operators_to_pdf(ret, path):
-    """Output all operator heatmaps to PDF.
+    """
+        Output all operator heatmaps to PDF.
 
-    Parameters
-    ----------
-        ret : dict
-            DGLAP result
-        path : string
-            target file name
+        Parameters
+        ----------
+            ret : dict
+                (single) operator matrices
+            path : string
+                target file name
     """
     pp = PdfPages(path)
-    ret = list(ret["q2_grid"].values())[0]
     # NS
-    fig = plot_operator(ret, "V.V", log_operator=False)
-    pp.savefig()
-    plt.close(fig)
-    fig = plot_operator(ret, "V.V", abs_operator=True)
+    #fig = plot_operator(ret, "V.V", log_operator=False)
+    #pp.savefig()
+    #plt.close(fig)
+    #fig = plot_operator(ret, "V.V", abs_operator=True)
+    #pp.savefig()
+    #plt.close(fig)
+    fig = plot_operator(ret, "V.V")
     pp.savefig()
     plt.close(fig)
     # Singlet

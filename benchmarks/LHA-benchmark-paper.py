@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-import eko.dglap as dglap
+from eko import run_dglap
 import eko.interpolation as interpolation
 
 from tools import plot_dist, save_all_operators_to_pdf, merge_dicts
@@ -213,27 +213,31 @@ class LHABenchmarkPaper:
             "xgrid_polynom_rank": polynom_rank,
         }
 
-    def _post_process(self, ret, ref, tag):
+    def _post_process(self, output, ref, tag):
         """
             Handles the post processing of the run according to the configuration.
 
             Parameters
             ----------
-                ret : dict
+                output : eko.output.Output
                     EKO result
                 ref : dict
                     reference result
                 tag : string
                     file tag
         """
+        # pdf comparison
         if self.post_process_config["plot_PDF"]:
             self._save_final_scale_plots_to_pdf(
-                assets_path / f"LHA-LO-{tag}-plots-{flag}.pdf", ret, ref
+                assets_path / f"LHA-LO-{tag}-plots-{flag}.pdf", output, ref
             )
-        #if self.post_process_config["plot_operator"]:
-        #    save_all_operators_to_pdf(ret, assets_path / f"LHA-LO-{tag}-ops-{flag}.pdf")
-        #if self.post_process_config["write_operator"]:
-        #    dglap.write_YAML_to_file(ret, assets_path / f"LHA-LO-{tag}-ops-{flag}.yaml")
+        # graphical representation of operators
+        if self.post_process_config["plot_operator"]:
+            first_ops = list(output["q2_grid"].values())[0]
+            save_all_operators_to_pdf(first_ops, assets_path / f"LHA-LO-{tag}-ops-{flag}.pdf")
+        # dump operators to file
+        if self.post_process_config["write_operator"]:
+            output.write_YAML_to_file(assets_path / f"LHA-LO-{tag}-ops-{flag}.yaml")
 
     def _run_FFNS_raw(self, tag, Q2init, Q2final):
         """
@@ -261,7 +265,7 @@ class LHABenchmarkPaper:
         }
         # xgrid can be a copy, so we don't need a deep copy here
         setup = merge_dicts(copy.copy(self._setup), add_setup)
-        ret = dglap.run_dglap(setup)
+        ret = run_dglap(setup)
         self._post_process(ret, LHA_final_dict_FFNS_ref, tag)
         return ret
 
@@ -292,18 +296,18 @@ class LHABenchmarkPaper:
                     DGLAP result
         """
         raise Exception("JCM: This cannot be done now")
-        # suppress PDF plots for single steps
-        plot_PDF = self.post_process_config["plot_PDF"]
-        self.post_process_config["plot_PDF"] = False
-        # step 1
-        step1 = self._run_FFNS_raw("FFNS-twostep-step1", self._Q2init, Q2mid)
-        # step 2
-        step2 = self._run_FFNS_raw("FFNS-twostep-step2", Q2mid, self._Q2final)
-        # join 2*1
-        self.post_process_config["plot_PDF"] = plot_PDF
-        ret2t1 = dglap.multiply_operators(step2, step1)
-        self._post_process(ret2t1, LHA_final_dict_FFNS_ref, "FFNS-twostep-step2t1")
-        return ret2t1
+        # # suppress PDF plots for single steps
+        # plot_PDF = self.post_process_config["plot_PDF"]
+        # self.post_process_config["plot_PDF"] = False
+        # # step 1
+        # step1 = self._run_FFNS_raw("FFNS-twostep-step1", self._Q2init, Q2mid)
+        # # step 2
+        # step2 = self._run_FFNS_raw("FFNS-twostep-step2", Q2mid, self._Q2final)
+        # # join 2*1
+        # self.post_process_config["plot_PDF"] = plot_PDF
+        # ret2t1 = dglap.multiply_operators(step2, step1)
+        # self._post_process(ret2t1, LHA_final_dict_FFNS_ref, "FFNS-twostep-step2t1")
+        # return ret2t1
 
     def run_ZMVFNS(self):
         """
@@ -321,11 +325,11 @@ class LHABenchmarkPaper:
         }
         # xgrid can be copy, so we don't need a deep copy
         setup = merge_dicts(copy.copy(self._setup), add_setup)
-        ret = dglap.run_dglap(setup)
+        ret = run_dglap(setup)
         self._post_process(ret, LHA_final_dict_ZMVFNS_ref, "ZMVFNS")
         return ret
 
-    def _save_final_scale_plots_to_pdf(self, path, ret, ref):
+    def _save_final_scale_plots_to_pdf(self, path, output, ref):
         """
             Plots all PDFs at the final scale.
 
@@ -335,14 +339,17 @@ class LHABenchmarkPaper:
             ----------
                 path : string
                     output path
-                ret : dict
+                output : eko.output.Output
                     DGLAP result
                 ref : dict
                     reference result
         """
         pp = PdfPages(path)
         # get
-        my_pdfs, my_pdf_errs = dglap.apply_operator(ret, LHA_init_pdfs, toy_xgrid)
+        pdf_grid = output.apply_PDF(LHA_init_pdfs, toy_xgrid)
+        first_res = list(pdf_grid.values())[0]
+        my_pdfs = first_res["pdfs"]
+        my_pdf_errs = first_res["errors"]
         # iterate all pdf
         for key in my_pdfs:
             # skip trivial plots

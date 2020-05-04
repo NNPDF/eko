@@ -4,7 +4,7 @@ from pprint import pprint
 import numpy as np
 import pytest
 
-import eko.dglap as dglap
+from eko import run_dglap
 import eko.interpolation as interpolation
 
 # implement Eq. 31 of arXiv:hep-ph/0204316
@@ -160,15 +160,15 @@ def test_dglap_prod():
     # step 1
     setup["Q0"] = np.sqrt(Q2init)
     setup["Q2grid"] = [Q2mid]
-    ret1 = dglap.run_dglap(setup)
+    ret1 = run_dglap(setup)
     # step 2
     setup["Q0"] = np.sqrt(Q2mid)
     setup["Q2grid"] = [Q2final]
-    ret2 = dglap.run_dglap(setup)
+    ret2 = run_dglap(setup)
     # step 1+2
     setup["Q0"] = np.sqrt(Q2init)
     setup["Q2grid"] = [Q2final]
-    ret12 = dglap.run_dglap(setup)
+    ret12 = run_dglap(setup)
     # check
     for label in ["V.V","S.S","S.g","g.S","g.g"]:
         print(label)

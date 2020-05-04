@@ -3,8 +3,8 @@
     This file contains the main application class of eko
 """
 import logging
+
 import numpy as np
-from yaml import dump
 
 import eko.interpolation as interpolation
 from eko.kernel_generation import KernelDispatcher
@@ -12,9 +12,9 @@ from eko.thresholds import Threshold
 from eko.operator_grid import OperatorGrid
 from eko.constants import Constants
 from eko.alpha_s import StrongCoupling
+from eko.output import Output
 
 logger = logging.getLogger(__name__)
-
 
 class Runner:
     """
@@ -115,11 +115,13 @@ class Runner:
 
             Returns
             -------
-                ret : dict
-                    output
+                ret : eko.output.Output
+                    output instance
         """
+        # TODO follow yadism and create an extra Output class?
         # propagate grid
-        ret = self._basis_function_dispatcher.get_grid_configuration()
+        ret = Output()
+        ret.update(self._basis_function_dispatcher.get_grid_configuration())
         # add all operators
         ret["q2_ref"] = self._threshold_holder.q2_ref
         q2_grid = {}
