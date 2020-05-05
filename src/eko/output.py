@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class Output(dict):
     """
         Wrapper for the output to help with application
-        to PDFs and dumping to file
+        to PDFs and dumping to file.
     """
 
     def apply_PDF(self, input_pdfs, targetgrid=None):
@@ -26,8 +26,8 @@ class Output(dict):
             Parameters
             ----------
                 input_pdfs : dict
-                    input PDFs as dictionary {name: PDF}
-                targetgrid : array
+                    input PDFs as dictionary {name: callable PDF}
+                targetgrid : list
                     if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
 
             Returns
@@ -72,20 +72,16 @@ class Output(dict):
         return out_grid
 
 
-    def dump_YAML(self, stream=None):
+    def get_raw(self):
         """
-            Serialize result as YAML.
+            Serialize result as dict/YAML.
 
-            Parameters
-            ----------
-                stream : (Default: None)
-                    if given, dump is written on it
+            This maps the original numpy matrices to lists.
 
             Returns
             -------
-                dump : Any
-                    result of dump(output, stream), i.e. a string, if no stream is given or
-                    Null, self is written sucessfully to stream
+                out : dict
+                    dictionary which will be written on output
         """
         # prepare output dict
         out = {
@@ -108,7 +104,25 @@ class Output(dict):
                 out_op["operators"][k] = self["q2_grid"][q2]["operators"][k].tolist()
                 out_op["operator_errors"][k] = self["q2_grid"][q2]["operator_errors"][k].tolist()
             out["q2_grid"][q2] = out_op
-        # everything else is up to pyyaml
+        return out
+
+
+    def dump_YAML(self, stream=None):
+        """
+            Serialize result as YAML.
+
+            Parameters
+            ----------
+                stream : (Default: None)
+                    if given, dump is written on it
+
+            Returns
+            -------
+                dump : any
+                    result of dump(output, stream), i.e. a string, if no stream is given or
+                    Null, if self is written sucessfully to stream
+        """
+        out = self.get_raw()
         return dump(out, stream)
 
 
@@ -123,9 +137,35 @@ class Output(dict):
 
             Returns
             -------
-                ret :
+                ret : any
                     result of dump(output, stream), i.e. Null if written sucessfully
         """
         with open(filename, "w") as f:
             ret = self.dump_YAML(f)
         return ret
+
+    def concat(self, other):
+        """
+            Concatenate (multiply) two outputs.
+
+            Parameters
+            ----------
+                other : Output
+                    other factor to be multiplied from the left, i.e. with *smaller* intial scale
+
+            Returns
+            -------
+                prod : Output
+                    self * other
+        """
+        # check type
+        if not isinstance(other, Output):
+            raise ValueError("can only concatenate two Output instances!")
+        # check parameters
+        for f in ["polynomial_degree","is_log_interpolation"]:
+            if not self[f] == other[f]:
+                raise ValueError(f"'{f}' of the two factors does not match: {self[f]} vs {other[f]}")
+        if not np.allclose(self["xgrid"],other["xgrid"]):
+            raise ValueError(f"'xgrid' of the two factors does not match")
+        # check matching
+        mid_scale = self["q2_ref"]

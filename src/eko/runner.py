@@ -118,7 +118,6 @@ class Runner:
                 ret : eko.output.Output
                     output instance
         """
-        # TODO follow yadism and create an extra Output class?
         # propagate grid
         ret = Output()
         ret.update(self._basis_function_dispatcher.get_grid_configuration())
