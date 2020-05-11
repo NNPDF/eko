@@ -121,12 +121,11 @@ class Runner:
         # propagate grid
         ret = Output()
         ret.update(self._basis_function_dispatcher.get_grid_configuration())
+        ret["q2_ref"] = float(self._threshold_holder.q2_ref)
         # add all operators
-        ret["q2_ref"] = self._threshold_holder.q2_ref
         q2_grid = {}
-        operators = self.get_operators()
-        for op in operators:
+        for op in self.get_operators():
             final_scale = op.q2_final
-            q2_grid[final_scale] = op.get_operator_matrices()
+            q2_grid[final_scale] = op.get_raw_operators()
         ret["q2_grid"] = q2_grid
         return ret

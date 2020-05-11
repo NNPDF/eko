@@ -11,8 +11,6 @@
     See :doc:`Operator overview </Code/Operators>`.
 """
 
-# TODO the operator grid should have a "save" and "load" method which will allow to store the full grid
-
 import logging
 import numpy as np
 from eko.evolution_operator import Operator
@@ -164,6 +162,7 @@ class OperatorGrid:
             if q2_to == q2_from:
                 continue
             new_op = (q2_from, q2_to)
+            logger.info("Compute threshold operator from %e to %e", q2_from, q2_to)
             if new_op not in self._threshold_operators:
                 # Compute the operator in place and store it
                 op_th = self._op_masters[nf].get_op(q2_from, q2_to, generate=True)
