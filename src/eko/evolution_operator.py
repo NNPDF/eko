@@ -6,8 +6,11 @@ r"""
 """
 
 import logging
+from numbers import Number
+
 import numpy as np
 import numba as nb
+
 import eko.mellin as mellin
 
 logger = logging.getLogger(__name__)
@@ -132,32 +135,28 @@ class OperatorMember:
     def __init__(self, value, error, name):
         self.value = np.array(value)
         self.error = np.array(error)
-        self._name = name
+        self.name = name
 
-    @property
-    def name(self):
-        """ full operator name """
-        return self._name
-
-    @name.setter
-    def name(self, new_name):
-        self._name = new_name
+    def _split_name(self):
+        """Splits the name according to target.input"""
+        name_spl = self.name.split(".")
+        if len(name_spl) != 2:
+            raise ValueError("The operator name is not valid format: target.input")
+        for k in [0,1]:
+            name_spl[k] = name_spl[k].strip()
+            if len(name_spl[k]) <= 0:
+                raise ValueError("The operator name is not valid format: target.input")
+        return name_spl
 
     @property
     def target(self):
-        """ target flavour name (given by the second part of the name) """
-        name_spl = self._name.split(".")
-        if len(name_spl) != 2:
-            raise TypeError("This operator is not defining any targets")
-        return name_spl[1]
+        """ target flavour name (given by the first part of the name) """
+        return self._split_name()[0]
 
     @property
     def input(self):
-        """ input flavour name (given by the first part of the name) """
-        name_spl = self._name.split(".")
-        if len(name_spl) != 2:
-            raise TypeError("This operator is not defining any input")
-        return name_spl[0]
+        """ input flavour name (given by the second part of the name) """
+        return self._split_name()[1]
 
     def __call__(self, pdf_member):
         """
@@ -184,7 +183,7 @@ class OperatorMember:
 
     def __mul__(self, operator_member):
         # scalar multiplication
-        if isinstance(operator_member, (np.int, np.float, np.integer)):
+        if isinstance(operator_member, Number):
             rval = operator_member
             rerror = 0.0
             new_name = self.name
@@ -201,25 +200,26 @@ class OperatorMember:
         ler = self.error
         new_val = np.matmul(lval, rval)
         # TODO check error propagation
-        new_err = np.abs(np.matmul(lval, rerror) + np.matmul(rval, ler))
+        new_err = np.abs(np.matmul(lval, rerror)) + np.abs(np.matmul(rval, ler))
         return OperatorMember(new_val, new_err, new_name)
 
     def __add__(self, operator_member):
-        if isinstance(operator_member, (np.int, np.float, np.integer)):
+        if isinstance(operator_member, Number):
             rval = operator_member
             rerror = 0.0
             new_name = self.name
         elif isinstance(operator_member, OperatorMember):
+            if operator_member.name != self.name:
+                raise ValueError(f"Can not sum {operator_member.name} and {self.name} OperatorMembers!")
             rval = operator_member.value
             rerror = operator_member.error
-            new_name = f"{self.name}+{operator_member.name}"
+            new_name = self.name
         else:
             raise NotImplementedError(
                 f"Can't sum OperatorMember and {type(operator_member)}"
             )
         new_val = self.value + rval
-        # TODO check error propagation
-        new_err = np.sqrt(pow(self.error, 2) + pow(rerror, 2))
+        new_err = self.error + rerror
         return OperatorMember(new_val, new_err, new_name)
 
     def __sub__(self, operator_member):
@@ -327,8 +327,8 @@ class PhysicalOperator:
         """
         # prepare paths
         instructions = {}
-        for my_op in self.op_members:
-            for other_op in other.op_members:
+        for my_op in self.op_members.values():
+            for other_op in other.op_members.values():
                 # ops match?
                 if my_op.input != other_op.target:
                     continue

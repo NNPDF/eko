@@ -205,9 +205,9 @@ class LHABenchmarkPaper:
             "PTO": 0,
             "alphas": 0.35,
             "Qref": np.sqrt(2),
-            "Qmc": np.sqrt(self._Q2init),
-            "Qmb": 4.5,
-            "Qmt": 175.0,
+            "mc": np.sqrt(self._Q2init),
+            "mb": 4.5,
+            "mt": 175.0,
             "xgrid_type": "custom",
             "xgrid": xgrid,
             "xgrid_polynom_rank": polynom_rank,
@@ -406,8 +406,8 @@ def save_initial_scale_plots_to_pdf(path):
 
 if __name__ == "__main__":
     # setup
-    n_low = 3
-    n_mid = 3
+    n_low = 30
+    n_mid = 20
     polynom_rank = 4
 
     # combine grid

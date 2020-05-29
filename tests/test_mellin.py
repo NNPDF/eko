@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-    Test Mellin stuff
-"""
+"""Test Mellin module"""
 
 from numpy.testing import assert_almost_equal
 

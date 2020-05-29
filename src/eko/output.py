@@ -217,6 +217,6 @@ class Output(dict):
             # multiply operators
             me = self.get_PhysicalOperator(q2)
             prod = me * other_op
-            out["q2_grid"][q2] = prod.get_operator_matrices()
+            out["q2_grid"][q2] = prod.get_raw_operators()
 
         return out

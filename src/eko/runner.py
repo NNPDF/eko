@@ -85,10 +85,10 @@ class Runner:
         FNS = setup["FNS"]
         q2_ref = pow(setup["Q0"], 2)
         if FNS != "FFNS":
-            qmc = setup["Qmc"]
-            qmb = setup["Qmb"]
-            qmt = setup["Qmt"]
-            threshold_list = pow(np.array([qmc, qmb, qmt]), 2)
+            mc = setup["mc"]
+            mb = setup["mb"]
+            mt = setup["mt"]
+            threshold_list = pow(np.array([mc, mb, mt]), 2)
             nf = None
         else:
             nf = setup["NfFF"]

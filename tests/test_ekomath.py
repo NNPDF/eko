@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 from numpy.testing import assert_almost_equal
 from scipy.special import digamma as scipy_digamma
@@ -15,7 +16,7 @@ def test_gsl_digamma():
 
 
 def test_harmonic_S1():
-    """test harmonic sum _S1"""
+    """test harmonic sum S1"""
     # test on real axis
     known_vals = [1.0, 1.0 + 1.0 / 2.0, 1.0 + 1.0 / 2.0 + 1.0 / 3.0]
     for i, val in enumerate(known_vals):
