@@ -1,6 +1,8 @@
 <p align="center">
-  <a href="https://github.com/N3PDF/eko/actions?query=workflow%3A%22eko%22"><img alt="Tests" src="https://github.com/N3PDF/eko/workflows/eko/badge.svg" /></a> <a href="https://n3pdf.github.io/eko/"><img alt="Docs" src="https://github.com/N3PDF/eko/workflows/docs/badge.svg"></a>
+  <a href="https://n3pdf.github.io/eko/"><img alt="EKO" src="doc/source/img/Logo.svg" width=600></a>
 </p>
+<p align="center">
+  <a href="https://github.com/N3PDF/eko/actions?query=workflow%3A%22eko%22"><img alt="Tests" src="https://github.com/N3PDF/eko/workflows/eko/badge.svg" /></a> <a href="https://n3pdf.github.io/eko/"><img alt="Docs" src="https://github.com/N3PDF/eko/workflows/docs/badge.svg"></a>
 </p>
 
 # EKO
