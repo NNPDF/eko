@@ -142,7 +142,7 @@ class OperatorMember:
         name_spl = self.name.split(".")
         if len(name_spl) != 2:
             raise ValueError("The operator name is not valid format: target.input")
-        for k in [0,1]:
+        for k in [0, 1]:
             name_spl[k] = name_spl[k].strip()
             if len(name_spl[k]) <= 0:
                 raise ValueError("The operator name is not valid format: target.input")
@@ -205,12 +205,20 @@ class OperatorMember:
 
     def __add__(self, operator_member):
         if isinstance(operator_member, Number):
+            # we only allow the integer 0 as alias for the true zero operator
+            if operator_member != 0:
+                raise ValueError(
+                    "The only integer we can sum to is 0 (as alias for the zero operator)"
+                )
             rval = operator_member
             rerror = 0.0
             new_name = self.name
         elif isinstance(operator_member, OperatorMember):
+            # check compatibility
             if operator_member.name != self.name:
-                raise ValueError(f"Can not sum {operator_member.name} and {self.name} OperatorMembers!")
+                raise ValueError(
+                    f"Can not sum {operator_member.name} and {self.name} OperatorMembers!"
+                )
             rval = operator_member.value
             rerror = operator_member.error
             new_name = self.name

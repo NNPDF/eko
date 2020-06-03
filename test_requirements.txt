@@ -1,0 +1,4 @@
+# file to be used by `pip install -r`
+pytest
+pytest-cov
+pyyaml

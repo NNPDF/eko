@@ -42,3 +42,13 @@ class TestOperatorMember:
         # non matching name
         with pytest.raises(ValueError):
             _ = a + OperatorMember(mb,mbe,"S.g")
+
+        # add to 0
+        c = 0 + a
+        assert_almost_equal(c.value, ma)
+        assert_almost_equal(c.error, mae)
+        assert c.name == "S.S"
+
+        # add to 1
+        with pytest.raises(ValueError):
+            _ = 1 + OperatorMember(mb,mbe,"S.g")
