@@ -184,14 +184,20 @@ class OperatorMember:
     def __mul__(self, operator_member):
         # scalar multiplication
         if isinstance(operator_member, Number):
-            rval = operator_member
-            rerror = 0.0
+            one = np.identity(len(self.value))
+            rval = operator_member * one
+            rerror = 0.0 * one
             new_name = self.name
         # matrix multiplication
         elif isinstance(operator_member, OperatorMember):
+            # check compatibility
+            if self.input != operator_member.target:
+                raise ValueError(
+                    f"Can not sum {operator_member.name} and {self.name} OperatorMembers!"
+                )
             rval = operator_member.value
             rerror = operator_member.error
-            new_name = f"{self.name}.{operator_member.name}"
+            new_name = f"{self.target}.{operator_member.input}"
         else:
             raise NotImplementedError(
                 f"Can't multiply OperatorMember and {type(operator_member)}"
@@ -200,7 +206,7 @@ class OperatorMember:
         ler = self.error
         new_val = np.matmul(lval, rval)
         # TODO check error propagation
-        new_err = np.abs(np.matmul(lval, rerror)) + np.abs(np.matmul(rval, ler))
+        new_err = np.abs(np.matmul(lval, rerror)) + np.abs(np.matmul(ler,rval))
         return OperatorMember(new_val, new_err, new_name)
 
     def __add__(self, operator_member):
@@ -230,21 +236,23 @@ class OperatorMember:
         new_err = self.error + rerror
         return OperatorMember(new_val, new_err, new_name)
 
-    def __sub__(self, operator_member):
-        self.__add__(-operator_member)
+    def __neg__(self):
+        return self.__mul__(-1)
 
-    # These are necessary to deal with python operators such as sum
+    def __eq__(self, operator_member):
+        return np.allclose(self.value, operator_member.value)
+
+    def __sub__(self, operator_member):
+        return self.__add__(-operator_member)
+
     def __radd__(self, operator_member):
-        if isinstance(operator_member, OperatorMember):
-            return operator_member.__add__(self)
-        else:
-            return self.__add__(operator_member)
+        return self.__add__(operator_member)
 
     def __rsub__(self, operator_member):
         return self.__radd__(-operator_member)
 
-    def __eq__(self, operator_member):
-        return np.allclose(self.value, operator_member.value)
+    def __rmul__(self, operator_member):
+        return self.__mul__(operator_member)
 
     @staticmethod
     def join(steps, list_of_paths, name):
@@ -253,7 +261,7 @@ class OperatorMember:
 
             Parameters
             ----------
-                steps : list(OperatorMember)
+                steps : list(list(OperatorMember))
                     list of raw operators, with the lowest scale to the right
                 list_of_paths : list(list(str))
                     list of paths
