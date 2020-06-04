@@ -346,7 +346,7 @@ class LHABenchmarkPaper:
         """
         pp = PdfPages(path)
         # get
-        pdf_grid = output.apply_PDF(LHA_init_pdfs, toy_xgrid)
+        pdf_grid = output.apply_pdf(LHA_init_pdfs, toy_xgrid)
         first_res = list(pdf_grid.values())[0]
         my_pdfs = first_res["pdfs"]
         my_pdf_errs = first_res["errors"]

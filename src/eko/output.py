@@ -20,7 +20,7 @@ class Output(dict):
         to PDFs and dumping to file.
     """
 
-    def apply_PDF(self, input_pdfs, targetgrid=None):
+    def apply_pdf(self, input_pdfs, targetgrid=None):
         """
             Apply all available operators to the input PDFs.
 
@@ -48,7 +48,7 @@ class Output(dict):
         # build output
         out_grid = {}
         for q2 in self["q2_grid"]:
-            pdfs, errs = self.get_PhysicalOperator(q2).apply_PDF(input_lists)
+            pdfs, errs = self.get_op(q2).apply_pdf(input_lists)
             out_grid[q2] = {"pdfs": pdfs, "errors": errs}
 
         # interpolate to target grid
@@ -95,7 +95,7 @@ class Output(dict):
             out[k] = self[k].tolist()
         # make operators raw
         for q2 in self["q2_grid"]:
-            out["q2_grid"][q2] = self.get_PhysicalOperator(q2).get_raw_operators()
+            out["q2_grid"][q2] = self.get_op(q2).get_raw_operators()
         return out
 
     def dump_yaml(self, stream=None):
@@ -154,7 +154,7 @@ class Output(dict):
             obj = yaml.safe_load(o)
         return obj
 
-    def get_PhysicalOperator(self, q2):
+    def get_op(self, q2):
         """
             Load a :class:`PhysicalOperator` from the raw data.
 
@@ -210,12 +210,12 @@ class Output(dict):
         if not mid_scale in other["q2_grid"]:
             raise ValueError("Operators can not be joined")
         # prepare output
-        other_op = other.get_PhysicalOperator(mid_scale)
+        other_op = other.get_op(mid_scale)
         out = copy.deepcopy(self)
         out["q2_ref"] = other["q2_ref"]
         for q2 in self["q2_grid"]:
             # multiply operators
-            me = self.get_PhysicalOperator(q2)
+            me = self.get_op(q2)
             prod = me * other_op
             out["q2_grid"][q2] = prod.get_raw_operators()
 

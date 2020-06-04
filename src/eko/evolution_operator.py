@@ -340,7 +340,7 @@ class PhysicalOperator:
                 out_errors : dict
                     associated errors of the evolved PDFs
         """
-        return self.apply_PDF(pdf_lists)
+        return self.apply_pdf(pdf_lists)
 
     def __mul__(self, other):
         """
@@ -397,7 +397,7 @@ class PhysicalOperator:
             ret["operator_errors"][name] = op.error.tolist()
         return ret
 
-    def apply_PDF(self, pdf_lists):
+    def apply_pdf(self, pdf_lists):
         """
             Apply PDFs to the EKOs.
 
