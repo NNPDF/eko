@@ -99,7 +99,7 @@ class LHAPDFBenchmark:
                 / f"LHAPDF-{self._pdfname}-{self._pdfmember}-ops-{self._flag}.pdf",
             )
         if self.post_process_config["write_operator"]:
-            dglap.write_YAML_to_file(ret, self._operator_path)
+            dglap.dump_yaml_to_file(ret, self._operator_path)
 
     def run_FFNS(self, Q2init, Q2final):
         """

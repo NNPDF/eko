@@ -237,7 +237,7 @@ class LHABenchmarkPaper:
             save_all_operators_to_pdf(first_ops, assets_path / f"LHA-LO-{tag}-ops-{flag}.pdf")
         # dump operators to file
         if self.post_process_config["write_operator"]:
-            output.write_yaml_to_file(assets_path / f"LHA-LO-{tag}-ops-{flag}.yaml")
+            output.dump_yaml_to_file(assets_path / f"LHA-LO-{tag}-ops-{flag}.yaml")
 
     def _run_FFNS_raw(self, tag, Q2init, Q2final):
         """

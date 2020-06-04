@@ -116,7 +116,7 @@ class Output(dict):
         out = self.get_raw()
         return yaml.dump(out, stream)
 
-    def write_yaml_to_file(self, filename):
+    def dump_yaml_to_file(self, filename):
         """
             Writes YAML representation to a file.
 
@@ -134,8 +134,26 @@ class Output(dict):
             ret = self.dump_yaml(f)
         return ret
 
-    @staticmethod
-    def load_yaml_from_file(filename):
+    @classmethod
+    def load_yaml(cls, stream):
+        """
+            Load YAML representation from stream
+
+            Parameters
+            ----------
+                stream : any
+                    source stream
+
+            Returns
+            -------
+                obj : output
+                    loaded object
+        """
+        obj = yaml.safe_load(stream)
+        return cls(obj)
+
+    @classmethod
+    def load_yaml_from_file(cls, filename):
         """
             Load YAML representation from file
 
@@ -151,7 +169,7 @@ class Output(dict):
         """
         obj = None
         with open(filename) as o:
-            obj = yaml.safe_load(o)
+            obj = Output.load_yaml(o)
         return obj
 
     def get_op(self, q2):

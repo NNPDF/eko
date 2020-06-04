@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import numba as nb
 from numpy.testing import assert_almost_equal
 from scipy.special import digamma as scipy_digamma
 
-from eko import ekomath
 from eko import t_complex
+
+# deactivate numba, otherwise the test does not count to the coverage
+# and this has to be done *before* the module is loaded
+nb.njit = lambda x: x
+from eko import ekomath  # pylint: disable=wrong-import-position
 
 
 def test_gsl_digamma():

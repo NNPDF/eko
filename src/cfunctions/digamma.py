@@ -1,5 +1,5 @@
-from cffi import FFI
-ffibuilder = FFI()
+import cffi
+ffibuilder = cffi.FFI()
 
 ffibuilder.set_source("_gsl_digamma",
    r""" // passed to the real C compiler,
