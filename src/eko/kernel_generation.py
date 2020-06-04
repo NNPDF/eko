@@ -23,7 +23,9 @@ import numba as nb
 import eko.alpha_s as alpha_s
 import eko.splitting_functions_LO as sf_LO
 import eko.mellin as mellin
+
 logger = logging.getLogger(__name__)
+
 
 def get_kernel_ns(basis_function, nf, constants, beta_0):
     """Returns the non-singlet integration kernel"""
@@ -59,6 +61,7 @@ def get_kernels_s(basis_function, nf, constants, beta_0):
 
     return get_ker(0, 0), get_ker(0, 1), get_ker(1, 0), get_ker(1, 1)
 
+
 def prepare_singlet(kernels, path, jac):
     """ Return a list of integrands prepare to be run """
     integrands = []
@@ -68,6 +71,7 @@ def prepare_singlet(kernels, path, jac):
             kernel_int.append(mellin.compile_integrand(ker, path, jac))
         integrands.append(kernel_int)
     return integrands
+
 
 def prepare_non_singlet(kernels, path, jac):
     """ Return a list of integrands prepare to be run """
@@ -99,7 +103,7 @@ class KernelDispatcher:
                 If true, the functions will be `numba` compiled
     """
 
-    def __init__(self, interpol_dispatcher, constants, delta_t = None, numba_it=True):
+    def __init__(self, interpol_dispatcher, constants, delta_t=None, numba_it=True):
         self.interpol_dispatcher = interpol_dispatcher
         self.constants = constants
         self.numba_it = numba_it
@@ -112,14 +116,13 @@ class KernelDispatcher:
             Call `generating_function` with the appropiate parameters
             and pass the output through numba
         """
-        beta_0 = alpha_s.beta_0(nf, self.constants.CA, self.constants.CF, self.constants.TF)
+        beta_0 = alpha_s.beta_0(
+            nf, self.constants.CA, self.constants.CF, self.constants.TF
+        )
         kernels = []
         for basis_function in self.interpol_dispatcher:
             new_ker = generating_function(
-                basis_function.callable,
-                nf,
-                self.constants,
-                beta_0,
+                basis_function.callable, nf, self.constants, beta_0,
             )
             kernels.append(self.njit(new_ker))
         return kernels
@@ -142,9 +145,13 @@ class KernelDispatcher:
         path, jac = mellin.get_path_Talbot()
         for nf in nf_values:
             if nf not in self.integrands_s:
-                self.integrands_s[nf] = prepare_singlet(self.compile_singlet(nf), path, jac)
+                self.integrands_s[nf] = prepare_singlet(
+                    self.compile_singlet(nf), path, jac
+                )
             if nf not in self.integrands_ns:
-                self.integrands_ns[nf] = prepare_non_singlet(self.compile_nonsinglet(nf), path, jac)
+                self.integrands_ns[nf] = prepare_non_singlet(
+                    self.compile_nonsinglet(nf), path, jac
+                )
 
     def get_singlet_for_nf(self, nf):
         integrands = self.integrands_s.get(nf)

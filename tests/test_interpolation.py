@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#pylint:disable=protected-access
+# pylint:disable=protected-access
 # Test interpolation
 import json
 import pathlib
@@ -60,10 +60,10 @@ def check_correspondence_interpolators(inter_x, inter_N):
     """ Check the correspondece between x and N space of the interpolators
     inter_x and inter_N"""
     ngrid = [t_complex(1.0), t_complex(1.0 + 1j), t_complex(2.5 - 2j)]
-    logxinv = np.log(.9e-2) # < 1e-2, to trick skipping
+    logxinv = np.log(0.9e-2)  # < 1e-2, to trick skipping
     for fun_x, fun_N in zip(inter_x, inter_N):
         for N in ngrid:
-            result_N = fun_N(N, logxinv) * np.exp(N*logxinv)
+            result_N = fun_N(N, logxinv) * np.exp(N * logxinv)
             result_x = mellin.mellin_transform(fun_x, N)
             assert_almost_equal(result_x[0], result_N)
 
@@ -130,16 +130,28 @@ def test_Lagrange_interpolation():
     )
     check_correspondence_interpolators(inter_x, inter_N)
 
+
 def test_eq():
-    a = interpolation.InterpolatorDispatcher(np.linspace(0.1, 1, 10), 4, log=False, mode_N=False)
-    b = interpolation.InterpolatorDispatcher(np.linspace(0.1, 1,  9), 4, log=False, mode_N=False)
+    a = interpolation.InterpolatorDispatcher(
+        np.linspace(0.1, 1, 10), 4, log=False, mode_N=False
+    )
+    b = interpolation.InterpolatorDispatcher(
+        np.linspace(0.1, 1, 9), 4, log=False, mode_N=False
+    )
     assert a != b
-    c = interpolation.InterpolatorDispatcher(np.linspace(0.1, 1, 10), 3, log=False, mode_N=False)
+    c = interpolation.InterpolatorDispatcher(
+        np.linspace(0.1, 1, 10), 3, log=False, mode_N=False
+    )
     assert a != c
-    d = interpolation.InterpolatorDispatcher(np.linspace(0.1, 1, 10), 4, log=True,  mode_N=False)
+    d = interpolation.InterpolatorDispatcher(
+        np.linspace(0.1, 1, 10), 4, log=True, mode_N=False
+    )
     assert a != d
-    e = interpolation.InterpolatorDispatcher(np.linspace(0.1, 1, 10), 4, log=False, mode_N=False)
+    e = interpolation.InterpolatorDispatcher(
+        np.linspace(0.1, 1, 10), 4, log=False, mode_N=False
+    )
     assert a == e
+
 
 def test_evaluate_x():
     xgrid = np.linspace(0.1, 1, 10)
@@ -151,32 +163,34 @@ def test_evaluate_x():
         inter_N = interpolation.InterpolatorDispatcher(
             xgrid, poly_degree, log=log, mode_N=True
         )
-        for x in [.2,.5]:
-            for bx, bN in zip(inter_x,inter_N):
+        for x in [0.2, 0.5]:
+            for bx, bN in zip(inter_x, inter_N):
                 assert_almost_equal(bx.evaluate_x(x), bN.evaluate_x(x))
+
 
 def test_reference_indices():
     xgrid = np.linspace(0.1, 1, 10)
     # polynomial_degree = 2
-    a = interpolation.Area(0,0,(0,1),xgrid)
+    a = interpolation.Area(0, 0, (0, 1), xgrid)
     assert list(a._reference_indices()) == [1]
-    a = interpolation.Area(0,1,(0,1),xgrid)
+    a = interpolation.Area(0, 1, (0, 1), xgrid)
     assert list(a._reference_indices()) == [0]
     # polynomial_degree = 3
-    a = interpolation.Area(0,0,(0,2),xgrid)
-    assert list(a._reference_indices()) == [1,2]
-    a = interpolation.Area(0,1,(0,2),xgrid)
-    assert list(a._reference_indices()) == [0,2]
-    a = interpolation.Area(0,2,(0,2),xgrid)
-    assert list(a._reference_indices()) == [0,1]
+    a = interpolation.Area(0, 0, (0, 2), xgrid)
+    assert list(a._reference_indices()) == [1, 2]
+    a = interpolation.Area(0, 1, (0, 2), xgrid)
+    assert list(a._reference_indices()) == [0, 2]
+    a = interpolation.Area(0, 2, (0, 2), xgrid)
+    assert list(a._reference_indices()) == [0, 1]
     # error
     with pytest.raises(ValueError):
-        a = interpolation.Area(0,3,(0,2),xgrid)
+        a = interpolation.Area(0, 3, (0, 2), xgrid)
+
 
 def test_InterpolatorDispatcher_init():
     with pytest.raises(ValueError):
-        interpolation.InterpolatorDispatcher([.1,.1,.2],1)
+        interpolation.InterpolatorDispatcher([0.1, 0.1, 0.2], 1)
     with pytest.raises(ValueError):
-        interpolation.InterpolatorDispatcher([.1],1)
+        interpolation.InterpolatorDispatcher([0.1], 1)
     with pytest.raises(ValueError):
-        interpolation.InterpolatorDispatcher([.1,.2],0)
+        interpolation.InterpolatorDispatcher([0.1, 0.2], 0)

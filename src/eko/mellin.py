@@ -25,7 +25,7 @@ r"""
     for the singlet sector. Note that the non-singlet kernels evolve poles only up to
     :math:`N=0` whereas the singlet kernels have poles up to :math:`N=1`.
 
-"""#pylint:disable=line-too-long
+"""  # pylint:disable=line-too-long
 
 import numpy as np
 import numba as nb
@@ -54,12 +54,13 @@ def compile_integrand(iker, path, jac, do_numba=True):
             do_numba: bool
                 Boolean flag to return a numba compiled function (default: true)
     """
+
     def integrand(u, extra_args):
         # Make the extra arguments explicit
         logx = extra_args[0]
         delta_t = extra_args[1]
         path_param = extra_args[2:]
-        N = path(u,path_param)
+        N = path(u, path_param)
         prefactor = np.complex(0.0, -1.0 / np.pi)
         result = np.real(prefactor * iker(N, logx, delta_t) * jac(u, path_param))
         return result
@@ -70,7 +71,7 @@ def compile_integrand(iker, path, jac, do_numba=True):
         return integrand
 
 
-def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12,epsrel=1e-8):
+def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e-8):
     """
         Inverse Mellin transformation.
 
@@ -111,7 +112,7 @@ def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12,epsrel=1e-
         limit=LIMIT,
         full_output=1,
     )
-    #if len(result) > 3:
+    # if len(result) > 3:
     #    print(result)
     return result[:2]
 
@@ -144,8 +145,8 @@ def get_path_Talbot():
     """
 
     @nb.njit
-    def path(t,extra_args):
-        r,o = extra_args
+    def path(t, extra_args):
+        r, o = extra_args
         theta = np.pi * (2.0 * t - 1.0)
         re = 0.0
         if t == 0.5:  # treat singular point seperately
@@ -156,8 +157,8 @@ def get_path_Talbot():
         return o + r * t_complex(np.complex(re, im))
 
     @nb.njit
-    def jac(t,extra_args):
-        r,o = extra_args # pylint: disable=unused-variable
+    def jac(t, extra_args):
+        r, o = extra_args  # pylint: disable=unused-variable
         theta = np.pi * (2.0 * t - 1.0)
         re = 0.0
         if t == 0.5:  # treat singular point seperately
@@ -198,12 +199,12 @@ def get_path_line():
 
     @nb.njit
     def path(t, extra_args):
-        m,c = extra_args
+        m, c = extra_args
         return t_complex(np.complex(c, m * (2 * t - 1)))
 
     @nb.njit
     def jac(j, extra_args):  # pylint: disable=unused-argument
-        m,c = extra_args # pylint: disable=unused-variable
+        m, c = extra_args  # pylint: disable=unused-variable
         return t_complex(np.complex(0, m * 2))
 
     return path, jac
@@ -236,16 +237,16 @@ def get_path_edge():
     """
 
     @nb.njit
-    def path(t,extra_args):
-        m,c,phi = extra_args
+    def path(t, extra_args):
+        m, c, phi = extra_args
         if t < 0.5:  # turning point: path is not differentiable in this point
             return c + (0.5 - t) * m * np.exp(np.complex(0, -phi))
         else:
             return c + (t - 0.5) * m * np.exp(np.complex(0, +phi))
 
     @nb.njit
-    def jac(t,extra_args):
-        m,c,phi = extra_args # pylint: disable=unused-variable
+    def jac(t, extra_args):
+        m, c, phi = extra_args  # pylint: disable=unused-variable
         if t < 0.5:  # turning point: jacobian is not continuous here
             return -m * np.exp(np.complex(0, -phi))
         else:
@@ -286,7 +287,7 @@ def get_path_Cauchy_tan():
 
     @nb.njit
     def jac(t, extra_args):
-        g, re_offset = extra_args # pylint: disable=unused-variable
+        g, re_offset = extra_args  # pylint: disable=unused-variable
         arg = np.pi * (2.0 * t - 1.0) / 2.0
         u = np.tan(arg)
         dre = -2.0 * g * u / (u * u + g * g) ** 2

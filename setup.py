@@ -36,5 +36,5 @@ setup(name='eko',
           "cffi>1.0.0"
       ],
       cffi_modules=["src/cfunctions/digamma.py:ffibuilder"],
-      python_requires='>=3.6'
+      python_requires='>=3.8'
 )

@@ -19,39 +19,42 @@ from eko.operator_grid import OperatorGrid
 N_LOW = 3
 N_MID = 3
 
+
 def generate_fake_pdf():
-    basis = ['V', 'V3', 'V8', 'V15', 'T3', 'T15', 'S', 'g']
-    len_grid = N_LOW+N_MID-1
+    basis = ["V", "V3", "V8", "V15", "T3", "T15", "S", "g"]
+    len_grid = N_LOW + N_MID - 1
     pdf_m = {}
     for i in basis:
         pdf_m[i] = np.random.rand(len_grid)
         pdf_m[i].sort()
-    pdf = {'metadata' : 'evolbasis', 'members': pdf_m}
+    pdf = {"metadata": "evolbasis", "members": pdf_m}
     return pdf
+
 
 def get_setup():
     n_low = N_LOW
     n_mid = N_MID
     xgrid_low = interpolation.get_xgrid_linear_at_log(
-            n_low, 1e-7, 1.0 if n_mid == 0 else 0.1
-        )
+        n_low, 1e-7, 1.0 if n_mid == 0 else 0.1
+    )
     xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
     xgrid_high = np.array([])
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
 
     setup = {
-            "alphas": 0.35,
-            "xgrid": xgrid,
-            "polynom_rank": 4,
-            }
+        "alphas": 0.35,
+        "xgrid": xgrid,
+        "polynom_rank": 4,
+    }
     return setup
 
-def generate_fake_grid(q2_ref = 2.0, q2alpha = None, thresholds = None):
+
+def generate_fake_grid(q2_ref=2.0, q2alpha=None, thresholds=None):
     if thresholds is None:
-        scheme = 'FFNS'
+        scheme = "FFNS"
         nf = 5
     else:
-        scheme = 'VFNS'
+        scheme = "VFNS"
         nf = None
     if q2alpha is None:
         q2alpha = q2_ref
@@ -60,16 +63,19 @@ def generate_fake_grid(q2_ref = 2.0, q2alpha = None, thresholds = None):
     xgrid = setup["xgrid"]
     polynom_rank = setup["polynom_rank"]
     basis_function_dispatcher = interpolation.InterpolatorDispatcher(
-            xgrid, polynom_rank, log=True
+        xgrid, polynom_rank, log=True
     )
     kernel_dispatcher = KernelDispatcher(basis_function_dispatcher, constants)
-    threshold_holder = Threshold(q2_ref = q2_ref, scheme = scheme, threshold_list=thresholds, nf=nf)
+    threshold_holder = Threshold(
+        q2_ref=q2_ref, scheme=scheme, threshold_list=thresholds, nf=nf
+    )
 
     # Now generate the operator alpha_s class
-    alpha_ref = setup['alphas']
+    alpha_ref = setup["alphas"]
     alpha_s = StrongCoupling(constants, alpha_ref, q2alpha, threshold_holder)
     opgrid = OperatorGrid(threshold_holder, alpha_s, kernel_dispatcher, xgrid)
     return opgrid
+
 
 def test_sanity():
     """ Sanity checks for the input"""
@@ -77,7 +83,7 @@ def test_sanity():
     opgrid = generate_fake_grid(thresholds=thresholds)
     # Check that an operator grid with the correct number of regions was created
     nregs = len(opgrid._op_masters)
-    assert nregs == len(thresholds)+1
+    assert nregs == len(thresholds) + 1
     # Check that the errors work
     with pytest.raises(ValueError):
         opgrid.set_q2_limits(-1, 4)
@@ -88,6 +94,7 @@ def test_sanity():
     with pytest.raises(ValueError):
         bad_grid = [100, -6, 3]
         _ = opgrid.compute_q2grid(bad_grid)
+
 
 def test_grid_computation_VFNS():
     """ Checks that the grid can be computed """
@@ -101,8 +108,9 @@ def test_grid_computation_VFNS():
     return_1 = operators[0](pdf)
     return_2 = operators[1](pdf)
 
+
 # TODO: for this test we have to use some more reasonable input
-#def test_grid_computation_FFNS():
+# def test_grid_computation_FFNS():
 #    """ Check that the results from the grid are consistent """
 #    pdf = generate_fake_pdf()
 #    ref_1 = 2
@@ -119,4 +127,4 @@ def test_grid_computation_VFNS():
 
 if __name__ == "__main__":
     pass
-    #test_grid_computation_FFNS()
+    # test_grid_computation_FFNS()

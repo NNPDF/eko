@@ -16,6 +16,7 @@ from eko.output import Output
 
 logger = logging.getLogger(__name__)
 
+
 class Runner:
     """
         Represents a single input configuration.

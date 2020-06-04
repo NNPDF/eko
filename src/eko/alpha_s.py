@@ -22,6 +22,7 @@ import numba as nb
 
 from eko import t_float
 
+
 @nb.njit
 def beta_0(
     nf: int, CA: t_float, CF: t_float, TF: t_float

@@ -141,24 +141,32 @@ class OperatorMember:
         """Splits the name according to target.input"""
         name_spl = self.name.split(".")
         if len(name_spl) != 2:
-            raise ValueError("The operator name is not valid format: target.input")
+            raise ValueError("The operator name has no valid format: target.input")
         for k in [0, 1]:
             name_spl[k] = name_spl[k].strip()
             if len(name_spl[k]) <= 0:
-                raise ValueError("The operator name is not valid format: target.input")
+                raise ValueError("The operator name has no valid format: target.input")
         return name_spl
 
     @property
     def target(self):
-        """ target flavour name (given by the first part of the name) """
+        """Returns target flavour name (given by the first part of the name)"""
         return self._split_name()[0]
 
     @property
     def input(self):
-        """ input flavour name (given by the second part of the name) """
+        """Returns input flavour name (given by the second part of the name)"""
         return self._split_name()[1]
 
-    def __call__(self, pdf_member):
+    @property
+    def is_physical(self):
+        """Lives inside a :class:`PhysicalOperator`? determined by name"""
+        for n in ["NS_p", "NS_m", "NS_v", "S_qq", "S_qg", "S_gq", "S_gg"]:
+            if self.name.find(n) >= 0:
+                return False
+        return True
+
+    def apply_pdf(self, pdf_member):
         """
             The operator member can act on a pdf member.
 
@@ -191,13 +199,18 @@ class OperatorMember:
         # matrix multiplication
         elif isinstance(operator_member, OperatorMember):
             # check compatibility
-            if self.input != operator_member.target:
-                raise ValueError(
-                    f"Can not sum {operator_member.name} and {self.name} OperatorMembers!"
-                )
+            if self.is_physical != operator_member.is_physical:
+                raise ValueError(f"Operators do not live in the same space!")
+            if self.is_physical:
+                if self.input != operator_member.target:
+                    raise ValueError(
+                        f"Can not sum {operator_member.name} and {self.name} OperatorMembers!"
+                    )
+                new_name = f"{self.target}.{operator_member.input}"
+            else:
+                new_name = f"{self.name}.{operator_member.name}"
             rval = operator_member.value
             rerror = operator_member.error
-            new_name = f"{self.target}.{operator_member.input}"
         else:
             raise NotImplementedError(
                 f"Can't multiply OperatorMember and {type(operator_member)}"
@@ -206,7 +219,7 @@ class OperatorMember:
         ler = self.error
         new_val = np.matmul(lval, rval)
         # TODO check error propagation
-        new_err = np.abs(np.matmul(lval, rerror)) + np.abs(np.matmul(ler,rval))
+        new_err = np.abs(np.matmul(lval, rerror)) + np.abs(np.matmul(ler, rval))
         return OperatorMember(new_val, new_err, new_name)
 
     def __add__(self, operator_member):
@@ -221,7 +234,9 @@ class OperatorMember:
             new_name = self.name
         elif isinstance(operator_member, OperatorMember):
             # check compatibility
-            if operator_member.name != self.name:
+            if self.is_physical != operator_member.is_physical:
+                raise ValueError(f"Operators do not live in the same space!")
+            if self.is_physical and operator_member.name != self.name:
                 raise ValueError(
                     f"Can not sum {operator_member.name} and {self.name} OperatorMembers!"
                 )
@@ -255,7 +270,7 @@ class OperatorMember:
         return self.__mul__(operator_member)
 
     @staticmethod
-    def join(steps, list_of_paths, name):
+    def join(steps, list_of_paths):
         """
             Multiply a list of :class:`OperatorMember` using the given paths.
 
@@ -265,8 +280,6 @@ class OperatorMember:
                     list of raw operators, with the lowest scale to the right
                 list_of_paths : list(list(str))
                     list of paths
-                name : str
-                    final name
 
             Returns
             -------
@@ -283,7 +296,6 @@ class OperatorMember:
                 else:
                     cur_op = cur_op * new_op
             final_op += cur_op
-        final_op.name = name
         return final_op
 
 
@@ -361,7 +373,7 @@ class PhysicalOperator:
         # iterate operators
         new_ops = {}
         for key, paths in instructions.items():
-            new_ops[key] = OperatorMember.join(op_to_compose, paths, key)
+            new_ops[key] = OperatorMember.join(op_to_compose, paths)
         return PhysicalOperator(new_ops, self.q2_final)
 
     def get_raw_operators(self):
@@ -390,7 +402,7 @@ class PhysicalOperator:
 
             .. code-block:: python
 
-                pdf = {
+                pdf_lists = {
                     'V' : list,
                     'g' : list,
                     # ...
@@ -417,26 +429,27 @@ class PhysicalOperator:
         # build output
         outs = {}
         out_errors = {}
-        for name, op in self.op_members.items():
-            out_key, in_key = name.split(".")
+        for op in self.op_members.values():
+            target, input_pdf = op.target, op.input
             # basis vector available?
-            if in_key not in pdf_lists:
-                # thus can I not complete the calculation for this out_key?
-                if out_key in outs:
-                    outs[out_key] = None
+            if input_pdf not in pdf_lists:
+                # thus can I not complete the calculation for this target
+                outs[target] = None
                 continue
-            # is out_key new?
-            if out_key not in outs:
+            # is target new?
+            if target not in outs:
                 # set output
-                outs[out_key] = np.matmul(op.value, pdf_lists[in_key])
-                out_errors[out_key] = np.matmul(op.error, pdf_lists[in_key])
+                outs[target], out_errors[target] = op.apply_pdf(pdf_lists[input_pdf])
             else:
-                # is out_key already blocked?
-                if outs[out_key] is None:
+                # is target already blocked?
+                if outs[target] is None:
                     continue
                 # else add to it
-                outs[out_key] += np.matmul(op.value, pdf_lists[in_key])
-                out_errors[out_key] += np.matmul(op.error, pdf_lists[in_key])
+                out, err = op.apply_pdf(pdf_lists[input_pdf])
+                outs[target] += out
+                out_errors[target] += err
+        # remove uncompleted
+        outs = {k: outs[k] for k in outs if not outs[k] is None}
         return outs, out_errors
 
 
@@ -525,7 +538,9 @@ class Operator:
         for name, instructions in instruction_set:
             for origin, paths in instructions.items():
                 key = f"{name}.{origin}"
-                new_ops[key] = OperatorMember.join(op_to_compose, paths, key)
+                op = OperatorMember.join(op_to_compose, paths)
+                op.name = key
+                new_ops[key] = op
         return PhysicalOperator(new_ops, q2_final)
 
     def compute(self):

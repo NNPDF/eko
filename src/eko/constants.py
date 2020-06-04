@@ -11,9 +11,10 @@ r"""
      - :math:`T_F` the normalization of fundamental generators - defaults to :math:`1/2`
      - :math:`C_A` second Casimir constant in the adjoint representation - defaults to :math:`N_C = 3`
      - :math:`C_F` second Casimir constant in the fundamental representation - defaults to :math:`\frac{N_C^2-1}{2N_C} = 4/3`
-"""#pylint: disable=line-too-long
+"""  # pylint: disable=line-too-long
 
 from eko import t_float
+
 
 class Constants:
     """

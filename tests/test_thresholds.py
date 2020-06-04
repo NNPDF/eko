@@ -8,7 +8,7 @@ from eko.thresholds import Threshold, Area
 def test_ffns():
     # Check the setup for FFNS produces the correct thing
     tholder = Threshold(scheme="FFNS", nf=4, q2_ref=4.5)
-    assert len(tholder._areas) == 1 # pylint: disable=protected-access
+    assert len(tholder._areas) == 1  # pylint: disable=protected-access
     area_path = tholder.get_path_from_q2_ref(87.4)
     assert len(area_path) == 1
     area = area_path[0]
@@ -22,7 +22,9 @@ def test_vnfs():
     qfin = 42
     for q2_ref in [2, 8, 61]:
         tholder = Threshold(scheme="VFNS", threshold_list=th_list, q2_ref=q2_ref)
-        assert len(tholder._areas) == (len(th_list) + 1) # pylint: disable=protected-access
+        assert len(tholder._areas) == (
+            len(th_list) + 1
+        )  # pylint: disable=protected-access
         area_path = tholder.get_path_from_q2_ref(qfin)
         # The first area should contain q2_ref and the last qfin
         assert area_path[0](q2_ref)

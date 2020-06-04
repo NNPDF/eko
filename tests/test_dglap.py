@@ -9,31 +9,56 @@ import eko.interpolation as interpolation
 
 # implement Eq. 31 of arXiv:hep-ph/0204316
 def toy_uv0(x):
-    return 5.107200 * x**(0.8) * (1.0 - x)**3 / x
+    return 5.107200 * x ** (0.8) * (1.0 - x) ** 3 / x
+
+
 def toy_dv0(x):
-    return 3.064320 * x**(0.8) * (1.0 - x)**4 / x
+    return 3.064320 * x ** (0.8) * (1.0 - x) ** 4 / x
+
+
 def toy_g0(x):
-    return 1.7 * x**(-0.1) * (1.0 - x)**5 / x
+    return 1.7 * x ** (-0.1) * (1.0 - x) ** 5 / x
+
+
 def toy_dbar0(x):
-    return 0.1939875 *  x**(-0.1) *  (1.0 - x)**6 / x
+    return 0.1939875 * x ** (-0.1) * (1.0 - x) ** 6 / x
+
+
 def toy_ubar0(x):
     return (1.0 - x) * toy_dbar0(x)
+
+
 def toy_s0(x):
     return 0.2 * (toy_ubar0(x) + toy_dbar0(x))
+
+
 def toy_sbar0(x):
     return toy_s0(x)
+
+
 def toy_Lm0(x):
     return toy_dbar0(x) - toy_ubar0(x)
+
+
 def toy_Lp0(x):
-    return (toy_dbar0(x) + toy_ubar0(x))*2.0 # 2 is missing in the paper!
+    return (toy_dbar0(x) + toy_ubar0(x)) * 2.0  # 2 is missing in the paper!
+
+
 def toy_sp0(x):
     return toy_s0(x) + toy_sbar0(x)
+
+
 def toy_T30(x):
     return -2.0 * toy_Lm0(x) + toy_uv0(x) - toy_dv0(x)
+
+
 def toy_T80(x):
-    return toy_Lp0(x) + toy_uv0(x) + toy_dv0(x) - 2.0*toy_sp0(x)
+    return toy_Lp0(x) + toy_uv0(x) + toy_dv0(x) - 2.0 * toy_sp0(x)
+
+
 def toy_S0(x):
     return toy_uv0(x) + toy_dv0(x) + toy_Lp0(x) + toy_sp0(x)
+
 
 def reference_values():
     """ Return a dictionary with the values from
@@ -53,19 +78,20 @@ def reference_values():
     xS1 = xuv1 + xdv1 + xLp1_aux + xsp1_aux + xcp1_aux
     # fmt: on
     non_singlet = [
-            (xuv1 , toy_uv0),
-            (xdv1 , toy_dv0),
-            (xT31 , toy_T30),
-            (xT81 , toy_T80),
-            (T151 , toy_S0)
-                ]
+        (xuv1, toy_uv0),
+        (xdv1, toy_dv0),
+        (xT31, toy_T30),
+        (xT81, toy_T80),
+        (T151, toy_S0),
+    ]
     singlets = {
-            ("S.S", "S.g"): (xS1 , [toy_S0, toy_g0]),
-            ("g.S", "g.g"): (xg1 , [toy_S0, toy_g0]),
-            }
-    ret = { "NS"  : non_singlet, "singlets" : singlets }
+        ("S.S", "S.g"): (xS1, [toy_S0, toy_g0]),
+        ("g.S", "g.g"): (xg1, [toy_S0, toy_g0]),
+    }
+    ret = {"NS": non_singlet, "singlets": singlets}
     ret.update(singlets)
     return ret
+
 
 def check_operator(operators, xgrid, toy_xgrid):
     """ Runs through the reference values and gets the appropiate
@@ -80,8 +106,8 @@ def check_operator(operators, xgrid, toy_xgrid):
     op_ns = operators["V.V"]
     for grid, function in ref_ns:
         toy_val = function(xgrid)
-        op_val = np.dot(op_ns, toy_val)*toy_xgrid
-        np.testing.assert_allclose(grid, op_val, atol = 2e-1)
+        op_val = np.dot(op_ns, toy_val) * toy_xgrid
+        np.testing.assert_allclose(grid, op_val, atol=2e-1)
         # Note: most pass with a tolerance below atol = 1e-4
         # but this bigger tolerance is needed for:
         # T_8 (one value)
@@ -94,30 +120,32 @@ def check_operator(operators, xgrid, toy_xgrid):
         grid = item[0]
         op_val = np.zeros_like(toy_xgrid)
         for op, toy_fun in zip(ops, item[1]):
-            op_val += np.dot(op, toy_fun(xgrid))*toy_xgrid
+            op_val += np.dot(op, toy_fun(xgrid)) * toy_xgrid
         np.testing.assert_allclose(grid, op_val, atol=3e-1)
 
-@pytest.mark.skipif(platform.node() == "FHe19b",reason="too time consuming for now")
+
+@pytest.mark.skipif(platform.node() == "FHe19b", reason="too time consuming for now")
 def test_dglap_ffns_lo():
     """Checks table 2 part 2 of :cite:`Giele:2002hx`"""
     # Prepare a custom grid
-    toy_xgrid = np.array([1e-7,1e-6,1e-5,1e-4,1e-3,1e-2,.1,.3,.5,.7,.9])
-    xgrid_low = interpolation.get_xgrid_linear_at_log(35,1e-7,0.1)
-    xgrid_mid = interpolation.get_xgrid_linear_at_id(15,0.1,1.0)
+    toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
+    xgrid_low = interpolation.get_xgrid_linear_at_log(35, 1e-7, 0.1)
+    xgrid_mid = interpolation.get_xgrid_linear_at_id(15, 0.1, 1.0)
     polynom_rank = 4
 
-    xgrid_high = np.array([])#1.0-interpolation.get_xgrid_linear_at_log(10,1e-3,1.0 - 0.9)
-    xgrid = np.unique(np.concatenate((xgrid_low,xgrid_mid,xgrid_high)))
+    xgrid_high = np.array(
+        []
+    )  # 1.0-interpolation.get_xgrid_linear_at_log(10,1e-3,1.0 - 0.9)
+    xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
 
     # Prepare a setup dictionary
     setup = {
         "PTO": 0,
-        'alphas': 0.35,
-        'Qref': np.sqrt(2),
-        'Q0': np.sqrt(2),
-        'NfFF': 4,
-        'FNS': 'FFNS',
-
+        "alphas": 0.35,
+        "Qref": np.sqrt(2),
+        "Q0": np.sqrt(2),
+        "NfFF": 4,
+        "FNS": "FFNS",
         "xgrid_type": "custom",
         "xgrid": xgrid,
         "xgrid_polynom_rank": polynom_rank,
@@ -126,27 +154,27 @@ def test_dglap_ffns_lo():
     }
 
     # TODO need to fix
-    #return_dictionary = dglap.run_dglap(setup)
-    #check_operator(return_dictionary["operators"], xgrid, toy_xgrid)
+    # return_dictionary = dglap.run_dglap(setup)
+    # check_operator(return_dictionary["operators"], xgrid, toy_xgrid)
 
-#@pytest.mark.skipif(platform.node() == "FHe19b",reason="too time consuming")
+
+# @pytest.mark.skipif(platform.node() == "FHe19b",reason="too time consuming")
 @pytest.mark.skip(reason="need to fix ...")
 def test_dglap_prod():
     """check multiplication"""
     # Prepare a custom grid
-    xgrid_low = interpolation.get_xgrid_linear_at_log(20,1e-7,0.1)
-    xgrid_mid = interpolation.get_xgrid_linear_at_id(10,0.1,1.0)
+    xgrid_low = interpolation.get_xgrid_linear_at_log(20, 1e-7, 0.1)
+    xgrid_mid = interpolation.get_xgrid_linear_at_id(10, 0.1, 1.0)
     polynom_rank = 4
-    xgrid = np.unique(np.concatenate((xgrid_low,xgrid_mid)))
+    xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid)))
     # Prepare a setup dictionary
     setup = {
         "PTO": 0,
-        'alphas': 0.35,
-        'Qref': np.sqrt(2),
-        'Q0': np.sqrt(2),
-        'NfFF': 4,
-        'FNS': 'FFNS',
-
+        "alphas": 0.35,
+        "Qref": np.sqrt(2),
+        "Q0": np.sqrt(2),
+        "NfFF": 4,
+        "FNS": "FFNS",
         "xgrid_type": "custom",
         "xgrid": xgrid,
         "xgrid_polynom_rank": polynom_rank,
@@ -170,20 +198,22 @@ def test_dglap_prod():
     setup["Q2grid"] = [Q2final]
     ret12 = run_dglap(setup)
     # check
-    for label in ["V.V","S.S","S.g","g.S","g.g"]:
+    for label in ["V.V", "S.S", "S.g", "g.S", "g.g"]:
         print(label)
-        #pprint(ret1["operators"][label])
-        #pprint(ret2["operators"][label])
-        mult = np.matmul(ret2["operators"][label],ret1["operators"][label])
-        #pprint(mult)
-        #pprint(ret12["operators"][label])
+        # pprint(ret1["operators"][label])
+        # pprint(ret2["operators"][label])
+        mult = np.matmul(ret2["operators"][label], ret1["operators"][label])
+        # pprint(mult)
+        # pprint(ret12["operators"][label])
         ref = ret12["operators"][label]
         try:
             np.testing.assert_allclose(mult, ref, rtol=0.3)
         except:
             import pdb
+
             pdb.set_trace()
         print("------------\n")
+
 
 # TODO check table 2 part 3 of :cite:`Giele:2002hx`
 

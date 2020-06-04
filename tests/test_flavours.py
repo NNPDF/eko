@@ -2,6 +2,7 @@
 
 from eko.flavours import get_singlet_paths
 
+
 def test_get_singlet_paths():
     # trivial solution
     a = get_singlet_paths("q", "q", 1)

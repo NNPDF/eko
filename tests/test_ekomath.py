@@ -6,6 +6,7 @@ from scipy.special import digamma as scipy_digamma
 from eko import ekomath
 from eko import t_complex
 
+
 def test_gsl_digamma():
     """ test the cffi implementation of digamma """
     for r, i in np.random.rand(4, 2):
