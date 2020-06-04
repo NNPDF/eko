@@ -16,15 +16,17 @@ import eko.mellin as mellin
 logger = logging.getLogger(__name__)
 
 
-def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, xgrid):
+def _get_kernel_integrands(
+    singlet_integrands, nonsinglet_integrands, delta_t, xgrid, cut=1e-2
+):
     """
         Return actual integration kernels.
 
         Parameters
         ----------
-            singlet_integrands : list
+            singlet_integrands : list(list(callable))
                 kernels for singlet integrations
-            nonsinglet_integrands : list
+            nonsinglet_integrands : list(callable)
                 kernels for non-singlet integrations
             delta_t : float
                 evolution distance
@@ -39,7 +41,6 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
                 non-singlet integration routine
     """
     # Generic parameters
-    cut = 1e-2  # TODO make 'cut' external parameter?
     grid_size = len(xgrid)
     grid_logx = np.log(xgrid)
 
@@ -54,6 +55,7 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             # Path parameters
             extra_args.append(0.4 * 16 / (1.0 - logx))
             extra_args.append(1.0)
+            # iterate (nested) kernels
             results = []
             for integrand_set in singlet_integrands:
                 all_res = []
@@ -66,7 +68,7 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             logger.info("computing Singlet operator - %d/%d", k + 1, grid_size)
         output_array = np.array(all_output)
 
-        # resort
+        # resort result: key -> op
         singlet_names = ["S_qq", "S_qg", "S_gq", "S_gg"]
         op_dict = {}
         for i, name in enumerate(singlet_names):
@@ -89,7 +91,7 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             # Path parameters
             extra_args.append(0.5)
             extra_args.append(0.0)
-
+            # iterate kernels
             results = []
             for integrand in nonsinglet_integrands:
                 result = mellin.inverse_mellin_transform(integrand, cut, extra_args)
@@ -98,7 +100,7 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             operator_errors.append(np.array(results)[:, 1])
             logger.info("computing NS operator - %d/%d", k + 1, grid_size)
 
-        # resort
+        # resort result: key -> op
         # in LO v=+=-
         ns_names = ["NS_p", "NS_m", "NS_v"]
         op_dict = {}
@@ -139,6 +141,7 @@ class OperatorMember:
 
     def _split_name(self):
         """Splits the name according to target.input"""
+        # we need to do this late, as in raw mode the name to not follow this principle
         name_spl = self.name.split(".")
         if len(name_spl) != 2:
             raise ValueError("The operator name has no valid format: target.input")
@@ -467,22 +470,27 @@ class Operator:
                 Evolution distance
             xgrid : np.array
                 basis interpolation grid
-            integrands_ns : list(function)
+            integrands_ns : list(callable)
                 list of non-singlet kernels
-            integrands_s : list(function)
+            integrands_s : list(list(callable))
                 list of singlet kernels
             metadata : dict
                 metadata with keys `nf`, `q2ref` and `q2`
+            mellin_cut : float
+                cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, delta_t, xgrid, integrands_ns, integrands_s, metadata):
+    def __init__(
+        self, delta_t, xgrid, integrands_ns, integrands_s, metadata, mellin_cut=1e-2
+    ):
         # Save the metadata
         self._metadata = metadata
         self._xgrid = xgrid
         # Get ready for the computation
         singlet, nons = _get_kernel_integrands(
-            integrands_s, integrands_ns, delta_t, xgrid
+            integrands_s, integrands_ns, delta_t, xgrid, cut=mellin_cut
         )
+        # TODO make 'cut' external parameter?
         self._compute_singlet = singlet
         self._compute_nonsinglet = nons
         self._computed = False
@@ -539,6 +547,7 @@ class Operator:
             for origin, paths in instructions.items():
                 key = f"{name}.{origin}"
                 op = OperatorMember.join(op_to_compose, paths)
+                # enforce new name
                 op.name = key
                 new_ops[key] = op
         return PhysicalOperator(new_ops, q2_final)

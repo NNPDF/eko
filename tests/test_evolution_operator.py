@@ -4,7 +4,13 @@ import numpy as np
 from numpy.testing import assert_almost_equal
 import pytest
 
-from eko.evolution_operator import OperatorMember, PhysicalOperator
+from eko.evolution_operator import (
+    OperatorMember,
+    PhysicalOperator,
+    Operator,
+    _get_kernel_integrands,
+)
+from eko.thresholds import Threshold
 
 
 def mkOM(name, shape):
@@ -33,8 +39,8 @@ class TestOperatorMember:
         for n in [".", "a.", ".b", "ab"]:
             with pytest.raises(ValueError):
                 a = OperatorMember(ma, mae, n)
-                a.input
-                a.target
+                _ = a.input
+                _ = a.target
 
     def test_add(self):
         a, ma, mae = self._mkOM("S.S")
@@ -59,6 +65,9 @@ class TestOperatorMember:
         # non-matching name
         with pytest.raises(ValueError):
             _ = a + OperatorMember(mb, mbe, "S.g")
+        # non-phyiscal
+        with pytest.raises(ValueError):
+            _ = a + OperatorMember(mb, mbe, "NS_v")
         # wrong other
         with pytest.raises(ValueError):
             _ = 1 + OperatorMember(mb, mbe, "S.g")
@@ -110,17 +119,30 @@ class TestOperatorMember:
         b, mb, mbe = self._mkOM("g.S")
         # plain product
         c = a * b
+        assert c.name == "S.S"
         assert_almost_equal(c.value, ma @ mb)
         assert_almost_equal(c.error, np.abs(mae @ mb) + np.abs(ma @ mbe))
         d = b * a
+        assert d.name == "g.g"
         assert_almost_equal(d.value, mb @ ma)
         assert_almost_equal(d.error, np.abs(mbe @ ma) + np.abs(mb @ mae))
         assert c != d
+
+        # non-physical case
+        e, me, mee = self._mkOM("NS_v")
+        f, mf, mfe = self._mkOM("NS_v")
+        g = e * f
+        assert g.name == "NS_v.NS_v"
+        assert_almost_equal(g.value, me @ mf)
+        assert_almost_equal(g.error, np.abs(mee @ mf) + np.abs(me @ mfe))
 
         # errors
         # div is useless
         with pytest.raises(TypeError):
             _ = c / d
+        # non-phyiscal
+        with pytest.raises(ValueError):
+            _ = a * OperatorMember(mb, mbe, "NS_v")
         # wrong name
         with pytest.raises(ValueError):
             _ = a * OperatorMember(mb, mbe, "S.S")
@@ -233,3 +255,68 @@ class TestPhysicalOperator:
         assert c.op_members["T3.S"] == T3T3h * T3Sl
         assert c.op_members["T3.g"] == T3T3h * T3gl
         assert c.op_members["S.S"] == SSh * SSl + Sgh * gSl
+
+
+# int_0.5^1 dz z^k = (1 - 0.5**(k+1))/(k+1)
+def get_ker(k):
+    def ker(z, args, k=k):
+        lnx = args[0]
+        return lnx * z ** k
+
+    return ker
+
+
+def get_res(k, xg, cut=0):
+    return [[x * ((1 - cut) ** (k + 1) - 0.5 ** (k + 1)) / (k + 1)] for x in np.log(xg)]
+
+
+def test_get_kernel_integrands():
+    xg = [np.exp(-1), 0.9]
+    dt = 1
+
+    ints_s, ints_ns = _get_kernel_integrands(
+        [[get_ker(2), get_ker(3), get_ker(4), get_ker(5)]], [get_ker(1)], dt, xg, cut=0
+    )
+    op_ns = ints_ns()
+    assert "NS_v" in op_ns
+    assert "NS_p" in op_ns
+    assert "NS_m" in op_ns
+    assert op_ns["NS_v"].value.shape == (len(xg), 1)
+    assert_almost_equal(op_ns["NS_v"].value, get_res(1, xg))
+    ops_s = ints_s()
+    assert_almost_equal(ops_s["S_qq"].value, get_res(2, xg))
+    assert_almost_equal(ops_s["S_qg"].value, get_res(3, xg))
+    assert_almost_equal(ops_s["S_gq"].value, get_res(4, xg))
+    assert_almost_equal(ops_s["S_gg"].value, get_res(5, xg))
+
+
+class TestOperator:
+    def test_meta(self):
+        dt = 1
+        xg = [0.5, 1.0]
+        meta = dict(nf=3, q2ref=1, q2=2)
+        op = Operator(dt, xg, [], [], meta)
+        assert op.nf == meta["nf"]
+        assert op.q2ref == meta["q2ref"]
+        assert op.q2 == meta["q2"]
+        assert_almost_equal(op.xgrid, xg)
+
+    def test_compose(self):
+        dt = 1
+        xg = [np.exp(-1), 0.9]
+        meta = dict(nf=3, q2ref=1, q2=2)
+        op1 = Operator(
+            dt,
+            xg,
+            [get_ker(1)],
+            [[get_ker(2), get_ker(3), get_ker(4), get_ker(5)]],
+            meta,
+            0,
+        )
+        # FFNS
+        t = Threshold(1, "FFNS", nf=3)
+        instruction_set = t.get_composition_path(3, 0)
+        ph = op1.compose([], instruction_set, 2)
+        assert isinstance(ph, PhysicalOperator)
+        # V.V is NS_v
+        assert_almost_equal(ph.op_members["V.V"].value, get_res(1, xg))
