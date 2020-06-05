@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import io
+import copy
 from unittest import mock
 
 import pytest
@@ -120,6 +121,69 @@ class TestOutput:
             np.testing.assert_almost_equal(
                 raw["operators"]["V.V"], q2_grid[q2]["operators"]["V.V"]
             )
-        # error
+        # errors
         with pytest.raises(KeyError):
             o.get_op(q2_out2 + 1)
+
+    def test_concat(self):
+        # build data
+        xgrid = np.array([0.5, 1.0])
+        polynomial_degree = 1
+        is_log_interpolation = False
+        q2_ref = 1
+        VVl, VVle = self.mkO()
+        q2_out = 2
+        q2_grid = {
+            q2_out: {"operators": {"V.V": VVl}, "operator_errors": {"V.V": VVle},}
+        }
+        d = dict(
+            xgrid=xgrid,
+            polynomial_degree=polynomial_degree,
+            is_log_interpolation=is_log_interpolation,
+            q2_ref=q2_ref,
+            q2_grid=q2_grid,
+        )
+        # create object
+        o1 = output.Output(d)
+        # prepare second
+        d2 = copy.deepcopy(d)
+        d2["q2_ref"] = q2_out
+        VVh, VVhe = self.mkO()
+        q2_final = 3
+        d2["q2_grid"] = {
+            q2_final: {"operators": {"V.V": VVh}, "operator_errors": {"V.V": VVhe},}
+        }
+        o2 = output.Output(d2)
+        # join
+        o21 = o2.concat(o1)
+        assert isinstance(o21, output.Output)
+        assert o21["q2_ref"] == q2_ref
+        assert o21["is_log_interpolation"] == o1["is_log_interpolation"]
+        assert q2_final in o21["q2_grid"]
+        np.testing.assert_almost_equal(
+            o21["q2_grid"][q2_final]["operators"]["V.V"], VVh @ VVl
+        )
+
+        # errors
+        with pytest.raises(ValueError):
+            o1.concat({})
+        with pytest.raises(ValueError):
+            dd = copy.deepcopy(d)
+            dd["polynomial_degree"] += 1
+            o1.concat(output.Output(dd))
+        with pytest.raises(ValueError):
+            dd = copy.deepcopy(d)
+            dd["is_log_interpolation"] = not dd["is_log_interpolation"]
+            o1.concat(output.Output(dd))
+        with pytest.raises(ValueError):
+            dd = copy.deepcopy(d)
+            dd["xgrid"] = dd["xgrid"][:-1]
+            o1.concat(output.Output(dd))
+        with pytest.raises(ValueError):
+            dd = copy.deepcopy(d)
+            dd["xgrid"] = dd["xgrid"][:-1] + [dd["xgrid"][-1] * 0.9]
+            o1.concat(output.Output(dd))
+        # will fail due to non-matching scales
+        with pytest.raises(ValueError):
+            dd = copy.deepcopy(d)
+            o1.concat(output.Output(dd))

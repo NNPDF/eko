@@ -28,8 +28,8 @@ r"""
 """  # pylint:disable=line-too-long
 
 import numpy as np
-import numba as nb
 import scipy.integrate as integrate
+import numba as nb
 
 from eko import t_complex
 
