@@ -5,11 +5,9 @@ from numpy.testing import assert_almost_equal
 from scipy.special import digamma as scipy_digamma
 
 from eko import t_complex
+from eko import ekomath
 
-# deactivate numba, otherwise the test does not count to the coverage
-# and this has to be done *before* the module is loaded
-nb.njit = lambda x: x
-from eko import ekomath  # pylint: disable=wrong-import-position
+# until https://github.com/numba/numba/pull/5660 is confirmed we need to deactivate numba prior running
 
 
 def test_gsl_digamma():

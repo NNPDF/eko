@@ -28,5 +28,7 @@ jobs:
     - name: Test with pytest
       run: |
         pip install pytest
+        # until https://github.com/numba/numba/pull/5660 is confirmed we need to deactivate numba prior running
+        export NUMBA_DISABLE_JIT=1
         pip install pytest-cov
         pytest
