@@ -20,7 +20,7 @@ import logging
 import numpy as np
 import numba as nb
 
-import eko.alpha_s as alpha_s
+import eko.strong_coupling as sc
 import eko.splitting_functions_LO as sf_LO
 import eko.mellin as mellin
 
@@ -116,7 +116,7 @@ class KernelDispatcher:
             Call `generating_function` with the appropiate parameters
             and pass the output through numba
         """
-        beta_0 = alpha_s.beta_0(
+        beta_0 = sc.beta_0(
             nf, self.constants.CA, self.constants.CF, self.constants.TF
         )
         kernels = []

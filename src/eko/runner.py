@@ -11,7 +11,7 @@ from eko.kernel_generation import KernelDispatcher
 from eko.thresholds import Threshold
 from eko.operator_grid import OperatorGrid
 from eko.constants import Constants
-from eko.alpha_s import StrongCoupling
+from eko.strong_coupling import StrongCoupling
 from eko.output import Output
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,7 @@ class Runner:
         # setup operator grid
         self._op_grid = OperatorGrid(
             self._threshold_holder,
-            self._alpha_s,
+            self._a_s,
             kernel_dispatcher,
             self._basis_function_dispatcher.xgrid_raw,
         )
@@ -98,12 +98,8 @@ class Runner:
             q2_ref=q2_ref, scheme=FNS, threshold_list=threshold_list, nf=nf
         )
 
-        # Now generate the operator alpha_s class
-        alpha_ref = setup["alphas"]
-        q2_alpha = pow(setup["Qref"], 2)
-        self._alpha_s = StrongCoupling(
-            self._constants, alpha_ref, q2_alpha, self._threshold_holder
-        )
+        # strong coupling
+        self._a_s = StrongCoupling.from_dict(setup,self._constants, self._threshold_holder)
 
     def get_operators(self):
         """ compute the actual operators """

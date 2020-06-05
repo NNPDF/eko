@@ -10,7 +10,7 @@
 import pytest
 import numpy as np
 import eko.interpolation as interpolation
-from eko.alpha_s import StrongCoupling
+from eko.strong_coupling import StrongCoupling
 from eko.constants import Constants
 from eko.thresholds import Threshold
 from eko.kernel_generation import KernelDispatcher
@@ -70,10 +70,10 @@ def generate_fake_grid(q2_ref=2.0, q2alpha=None, thresholds=None):
         q2_ref=q2_ref, scheme=scheme, threshold_list=thresholds, nf=nf
     )
 
-    # Now generate the operator alpha_s class
+    # Now generate the a_s class
     alpha_ref = setup["alphas"]
-    alpha_s = StrongCoupling(constants, alpha_ref, q2alpha, threshold_holder)
-    opgrid = OperatorGrid(threshold_holder, alpha_s, kernel_dispatcher, xgrid)
+    a_s = StrongCoupling(constants, alpha_ref, q2alpha, threshold_holder)
+    opgrid = OperatorGrid(threshold_holder, a_s, kernel_dispatcher, xgrid)
     return opgrid
 
 
@@ -82,7 +82,7 @@ def test_sanity():
     thresholds = [4, 15]
     opgrid = generate_fake_grid(thresholds=thresholds)
     # Check that an operator grid with the correct number of regions was created
-    nregs = len(opgrid._op_masters)
+    nregs = len(opgrid._op_masters) # pylint: disable=protected-access
     assert nregs == len(thresholds) + 1
     # Check that the errors work
     with pytest.raises(ValueError):
@@ -105,8 +105,8 @@ def test_grid_computation_VFNS():
     assert len(operators) == len(qgrid_check)
     # Check that the operators can act on pdfs
     pdf = generate_fake_pdf()
-    return_1 = operators[0](pdf)
-    return_2 = operators[1](pdf)
+    _return_1 = operators[0](pdf)
+    _return_2 = operators[1](pdf)
 
 
 # TODO: for this test we have to use some more reasonable input

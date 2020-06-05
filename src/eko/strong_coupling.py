@@ -21,6 +21,8 @@ import numpy as np
 import numba as nb
 
 from eko import t_float
+from eko import constants
+from eko import thresholds
 
 
 @nb.njit
@@ -166,7 +168,7 @@ class StrongCoupling:
 
     def __init__(
         self,
-        constants,
+        consts,
         alpha_s_ref,
         scale_ref,
         threshold_holder,
@@ -174,14 +176,22 @@ class StrongCoupling:
         method="analytic",
     ):
         # Sanity checks
-        if method not in ["analytic"]:
-            raise ValueError(f"Unknown method {method}")
-        self._method = method
+        if not isinstance(consts, constants.Constants):
+            raise ValueError("Needs a Constants instance")
+        if alpha_s_ref <= 0:
+            raise ValueError(f"alpha_s_ref has to be positive - got {alpha_s_ref}")
+        if scale_ref <= 0:
+            raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
+        if not isinstance(threshold_holder, thresholds.Threshold):
+            raise ValueError("Needs a Threshold instance")
         if order not in [0]:
             raise NotImplementedError("a_s beyond LO is not implemented")
         self._order = order
+        if method not in ["analytic"]:
+            raise ValueError(f"Unknown method {method}")
+        self._method = method
 
-        self._constants = constants
+        self._constants = consts
         # Move alpha_s from q2_ref to scale_ref
         area_path = threshold_holder.get_path_from_q2_ref(scale_ref)
         # Now run through the list in reverse to set the alpha at q0
@@ -189,23 +199,46 @@ class StrongCoupling:
         for area in reversed(area_path):
             scale_to = area.q2_ref
             area_nf = area.nf
-            new_alpha_s = self._compute(input_as_ref, area_nf, scale_ref, scale_to)
+            new_as = self._compute(input_as_ref, area_nf, scale_ref, scale_to)
             scale_ref = scale_to
-            input_as_ref = new_alpha_s
+            input_as_ref = new_as
 
         # At this point we moved the value of alpha_s down to q0, store
-        self._ref_alpha = new_alpha_s
+        self._as_ref = new_as
         self._threshold_holder = threshold_holder
 
     @property
-    def ref(self):
+    def as_ref(self):
         """ reference value """
-        return self._ref_alpha
+        return self._as_ref
 
     @property
-    def qref(self):
+    def q2_ref(self):
         """ reference scale """
         return self._threshold_holder.q2_ref
+
+    @classmethod
+    def from_dict(cls, setup, constants, thresholds):
+        """
+            Create object from theory dictionary
+
+            Parameters
+            ----------
+                setup : dict
+                    theory dictionary
+                constants : Constants
+                    Color constants
+                thresholds : Threshold
+                    threshold configuration
+
+            Returns
+            -------
+                cls : StrongCoupling
+                    created object
+        """
+        alpha_ref = setup["alphas"]
+        q2_alpha = pow(setup["Qref"], 2)
+        return cls(constants, alpha_ref, q2_alpha, thresholds)
 
     # Hidden computation functions
     def _compute_analytic(self, as_ref, nf, scale_from, scale_to):
@@ -231,7 +264,6 @@ class StrongCoupling:
         beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
         lmu = np.log(scale_to / scale_from)
         a_s = as_ref / (1.0 + beta0 * as_ref * lmu)
-        # TODO add higher orders ...
         return a_s
 
     def _compute(self, *args):
@@ -252,9 +284,8 @@ class StrongCoupling:
                 a_s : t_float
                     strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
         """
-        if self._method == "analytic":
-            return self._compute_analytic(*args)
-        raise ValueError(f"Unknown method {self._method}")
+        # at the moment everything is analytic - and type has been checked in the constructor
+        return self._compute_analytic(*args)
 
     def __call__(self, scale_to):
         """
@@ -271,7 +302,7 @@ class StrongCoupling:
                     strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
-        final_alpha = self._ref_alpha
+        final_alpha = self._as_ref
         area_path = self._threshold_holder.get_path_from_q2_ref(scale_to)
         # TODO set up a cache system here
         for area in area_path:
