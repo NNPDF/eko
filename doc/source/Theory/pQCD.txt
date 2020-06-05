@@ -12,6 +12,10 @@ We use perturbative QCD with the running coupling
       \frac{da_s}{d\ln\mu^2} = \beta(a_s) \
       = - \sum\limits_{j=0} \beta_n a_s^{j+2}
 
+Our main reference is :cite:`Herzog:2017ohr`.
+
+Implementation: :class:`~eko.strong_coupling.StrongCoupling`
+
 Splitting Functions
 -------------------
 

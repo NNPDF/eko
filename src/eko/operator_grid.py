@@ -108,9 +108,9 @@ class OperatorGrid:
             alpha_generator: eko.strong_coupling.StrongCoupling
                 Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
                 any q
-            kernel_dispatcher: eko.kernels.KernelDispatcher
-                Instance of the :class:`~eko.kernels.KernelDispatcher` with the information about
-                the kernels
+            kernel_dispatcher: eko.kernel_generation.KernelDispatcher
+                Instance of the :class:`~eko.kernel_generation.KernelDispatcher` with the
+                information about the kernels
             xgrid: np.array
                 Grid in x used to compute the operators
     """

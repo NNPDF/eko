@@ -3,18 +3,7 @@ r"""
     This file contains the QCD beta function coefficients and the handling of the running
     coupling :math:`\alpha_s`.
 
-    Normalization is given by :cite:`Herzog:2017ohr`.
-
-    .. math::
-        \frac{da_s}{d\ln\mu^2} = \beta(a_s) \
-        = - \sum\limits_{n=0} \beta_n a_s^{n+2} \quad
-        \text{with}~ a_s = \frac{\alpha_s(\mu^2)}{4\pi}
-
-    References
-    ----------
-        The 5-loop references are :cite:`Herzog:2017ohr`, :cite:`Luthe:2016ima`,
-        :cite:`Baikov:2016tgj` which also include the lower order results.
-        We use the Herzog paper :cite:`Herzog:2017ohr` as our main reference.
+    See :doc:`pQCD ingredients </Theory/pQCD>`.
 """
 
 import numpy as np
@@ -123,10 +112,13 @@ class StrongCoupling:
     r"""
         Computes strong coupling constant :math:`a_s`.
 
-        Note that all scale parameters, `scale_ref`, `scale_to`, `thresholds`,
-        have to be given as squared values. Although we only provide methods for
-        :math:`a_s = \frac{\alpha_s(\mu^2)}{4\pi}` the reference value has to be
-        given in terms of :math:`\alpha_s(\mu_0^2)`.
+        Note that
+
+        - all scale parameters, `scale_ref`, `scale_to`, `thresholds`,
+          have to be given as squared values
+        - although, we only provide methods for
+          :math:`a_s = \frac{\alpha_s(\mu^2)}{4\pi}` the reference value has to be
+          given in terms of :math:`\alpha_s(\mu_0^2)` due to legacy reasons
 
         Normalization is given by :cite:`Herzog:2017ohr`:
 
@@ -135,20 +127,21 @@ class StrongCoupling:
             = - \sum\limits_{n=0} \beta_n a_s^{n+2} \quad
             \text{with}~ a_s = \frac{\alpha_s(\mu^2)}{4\pi}
 
+        See :doc:`pQCD ingredients </Theory/pQCD>`.
 
         Parameters
         ----------
-            constants: Constants
-                An instance of the Constants class
+            constants: eko.constants.Constants
+                An instance of :class:`~eko.constants.Constants`
             alpha_s_ref : t_float
                 alpha_s(!) at the reference scale :math:`\alpha_s(\mu_0^2)`
             scale_ref : t_float
                 reference scale :math:`\mu_0^2`
             threshold_holder : eko.thresholds.Threshold
-                instance of the Threshold class
+                An instance of :class:`~eko.thresholds.Threshold`
             order: int
-                Evaluated order of the beta function
-            method : {"analytic"}
+                Evaluated order of the beta function: ``0`` = LO, ...
+            method : ["analytic"]
                 Applied method to solve the beta function
 
         Examples
@@ -156,7 +149,7 @@ class StrongCoupling:
             >>> c = Constants()
             >>> alpha_ref = 0.35
             >>> scale_ref = 2
-            >>> threshold_holder = Threshold( .. )
+            >>> threshold_holder = Threshold( ... )
             >>> alpha_s = StrongCoupling(c, alpha_ref, scale_ref, threshold_holder)
             >>> q2 = 91.1
             >>> alpha_s(q2)
@@ -349,6 +342,7 @@ class StrongCoupling:
     def delta_t(self, scale_from, scale_to):
         """
             Compute evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2) = t(Q_1^2)-t(Q_0^2)`
+            with :math:`t(Q^2) = log(1/a_s(Q^2))`.
 
             Parameters
             ----------
