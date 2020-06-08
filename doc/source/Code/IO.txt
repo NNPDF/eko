@@ -13,10 +13,9 @@ The input run card may contain the following key-value pairs:
 - ``PTO`` - *integer* : order of perturbation theory: ``0`` = LO, ...
 - ``alphas`` - *float* : reference value of the strong coupling :math:`\alpha_s(\mu_0^2)` (Note that we have to use
   :math:`\alpha_s(\mu_0^2)` here, instead of :math:`a_s(\mu_0^2)` for legacy reasons)
-- ``xgrid`` - *list(float)* : the interpolation grid
-- ``xgrid_type`` - *str* : generating function for the interpolation grid
-- ``xgrid_polynom_rank`` - *integer[4]* : polynomial degree of the interpolating function
-- ``log_interpol`` - *boolean [True]* : use logarithmic interpolation?
+- ``interpolation_xgrid`` - *list(float)* : the interpolation grid
+- ``interpolation_polynomial_degree`` - *integer[4]* : polynomial degree of the interpolating function
+- ``interpolation_is_log`` - *boolean [True]* : use logarithmic interpolation?
 - ``q2_grid`` - *list(float)* : the target grid in :math:`Q^2`
 
 

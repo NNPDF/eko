@@ -36,7 +36,7 @@ class Runner:
         # Load constants and compute parameters
         self._constants = Constants()
         # setup basis grid
-        self.__init_grid(setup)
+        self._basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(setup)
         # Generate the dispatcher for the kernels
         kernel_dispatcher = KernelDispatcher(
             self._basis_function_dispatcher, self._constants
@@ -52,26 +52,6 @@ class Runner:
             self._basis_function_dispatcher.xgrid_raw,
         )
         self._q2grid = setup["Q2grid"]
-
-    def __init_grid(self, setup):
-        """
-            Setup interpolation.
-
-            Parameters
-            ----------
-                setup : dict
-                    input configurations
-        """
-        xgrid = interpolation.generate_xgrid(**setup)
-        is_log_interpolation = bool(setup.get("log_interpol", True))
-        polynom_rank = setup.get("xgrid_polynom_rank", 4)
-        logger.info("Interpolation mode: %s", setup["xgrid_type"])
-        logger.info("Log interpolation: %s", is_log_interpolation)
-
-        # Generate the dispatcher for the basis functions
-        self._basis_function_dispatcher = interpolation.InterpolatorDispatcher(
-            xgrid, polynom_rank, log=is_log_interpolation
-        )
 
     def __init_FNS(self, setup):
         """

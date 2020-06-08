@@ -2,112 +2,17 @@
 """
     Library providing all necessary tools for PDF interpolation.
 
-    This library provides a number of functions for generating grids
-    as `numpy` arrays:
-
-        - `get_xgrid_linear_at_id`
-        - `get_xgrid_linear_at_log`
-
     This library also provides a class to generate the interpolator `InterpolatorDispatcher`.
     Upon construction the dispatcher generates a number of functions
     to evaluate the interpolator.
 """
+import logging
 import math
+
 import numpy as np
 import numba as nb
-from eko import t_float
 
-#### Grid generation functions
-def get_xgrid_linear_at_id(
-    grid_size: int, xmin: t_float = 0.0, xmax: t_float = 1.0, **kwargs
-):
-    """
-        Computes a linear grid on x, maps to `numpy.linspace`
-        corresponds to the flag `linear@id`
-
-        Parameters
-        ----------
-        grid_size : int
-            The total size of the grid.
-        xmin : t_float
-            The minimum x value. Default is 0.
-        xmax : t_float
-            The maximum x value. Default is 1.
-
-        Returns
-        -------
-        xgrid : array
-            List of grid points in x-space
-    """
-    return np.linspace(xmin, xmax, grid_size, **kwargs)
-
-
-def get_xgrid_linear_at_log(
-    grid_size: int, xmin: t_float, xmax: t_float = 1.0, **kwargs
-):
-    """
-        Computes a linear grid on log(x), maps to `numpy.logspace`
-        corresponds to the flag `linear@log`
-
-        Parameters
-        ----------
-        grid_size : int
-            The total size of the grid.
-        xmin : t_float
-            The minimum x value.
-        xmax : t_float
-            The maximum x value. Default is 1.
-
-        Returns
-        -------
-        xgrid : array
-            List of grid points in x-space
-    """
-    return np.logspace(np.log10(xmin), np.log10(xmax), num=grid_size, **kwargs)
-
-
-def generate_xgrid(
-    xgrid_type="log", xgrid_size=10, xgrid_min=1e-7, xgrid=None, **kwargs
-):
-    """
-        Generates input xgrid
-
-        Parameters
-        ----------
-            xgrid_type : str
-                choose between the different grid generations implemented
-            xgrid_size : int
-                size of the grid to be generated
-            xgrid_min : float
-                minimum of the grid to be generated
-            xgrid : array
-                if `xgrid_type` == `custom`, a `xgrid` must be provided
-                which will be outputed after checking for uniqueness
-
-        Returns
-        -------
-            xgrid : array
-                input grid
-    """
-    if xgrid_type.lower() == "log":
-        xgrid = get_xgrid_linear_at_log(xgrid_size, xgrid_min, **kwargs)
-    elif xgrid_type.lower() == "linear":
-        xgrid = get_xgrid_linear_at_id(xgrid_size, xgrid_min, **kwargs)
-    elif xgrid_type.lower() == "custom":
-        # if the grid given is custom, it means it comes in the input, but check to be sure
-        if xgrid is None:
-            raise ValueError(
-                f"xgrid_type {xgrid_type} was chosen, but no xgrid was given"
-            )
-        # check for uniqueness
-        unique_xgrid = np.unique(xgrid)
-        if not len(unique_xgrid) == len(xgrid):
-            raise ValueError(f"The given grid is not unique: {xgrid}")
-        xgrid = unique_xgrid
-    else:
-        raise NotImplementedError(f"xgrid_type {xgrid_type} not implemented")
-    return xgrid
-
+logger = logging.getLogger(__name__)
 
 #### Interpolation
 class Area:
@@ -134,7 +39,8 @@ class Area:
         # check range
         if poly_number < block[0] or block[1] < poly_number:
             raise ValueError(
-                f"polynom #{poly_number} cannot be a part of the block which spans from {block[0]} to {block[1]}"
+                f"polynom #{poly_number} cannot be a part of the block which"
+                f"spans from {block[0]} to {block[1]}"
             )
         self.xmin = xgrid[lower_index]
         self.xmax = xgrid[lower_index + 1]
@@ -456,9 +362,8 @@ class InterpolatorDispatcher:
     """
 
     def __init__(self, xgrid, polynomial_degree, log=True, mode_N=True, numba_it=True):
-
+        # sanity checks
         xgrid_size = len(xgrid)
-
         ugrid = np.unique(xgrid)
         if xgrid_size != len(ugrid):
             raise ValueError(f"xgrid is not unique: {xgrid}")
@@ -471,10 +376,15 @@ class InterpolatorDispatcher:
             )
         if xgrid_size <= polynomial_degree:
             raise ValueError(
-                f"to interpolate with degree {polynomial_degree} we need at least that much points + 1"
+                f"to interpolate with degree {polynomial_degree} "
+                " we need at least that much points + 1"
             )
-
+        logger.info("Log interpolation: %s", log)
+        # keep a true copy of grid
         self.xgrid_raw = xgrid
+        # henceforth xgrid might no longer be the input!
+        # which is ok, because for most of the code this is all we need to do
+        # to distinguish log and non-log
         if log:
             xgrid = np.log(xgrid)
 
@@ -486,13 +396,16 @@ class InterpolatorDispatcher:
         # Create blocks
         list_of_blocks = []
         po2 = polynomial_degree // 2
+        # iterate areas: there is 1 less then number of points
         for i in range(xgrid_size - 1):
             kmin = max(0, i - po2)
             kmax = kmin + polynomial_degree
             if kmax >= xgrid_size:
                 kmax = xgrid_size - 1
                 kmin = kmax - polynomial_degree
-            list_of_blocks.append((kmin, kmax))
+            b = (kmin, kmax)
+            list_of_blocks.append(b)
+        self.list_of_blocks = list_of_blocks
 
         # Generate the basis functions
         basis_functions = []
@@ -503,7 +416,31 @@ class InterpolatorDispatcher:
             basis_functions.append(new_basis)
         self.basis = basis_functions
 
+    @classmethod
+    def from_dict(cls, setup, mode_N=True, numba_it=True):
+        """
+            Create object from dictionary.
+
+            Read keys:
+
+                - interpolation_xgrid : required, basis grid
+                - interpolation_is_log : default=True, use logarithmic interpolation?
+                - interpolation_polynomial_degree : default=4, polynomial degree of interpolation
+
+            Parameters
+            ----------
+                setup : dict
+                    input configurations
+        """
+        xgrid = setup["interpolation_xgrid"]
+        is_log_interpolation = bool(setup.get("interpolation_is_log", True))
+        polynom_rank = setup.get("interpolation_polynomial_degree", 4)
+
+        # Generate the dispatcher for the basis functions
+        return cls(xgrid, polynom_rank, log=is_log_interpolation,mode_N=mode_N,numba_it=numba_it)
+
     def __eq__(self, other):
+        """Checks equality"""
         checks = [
             len(self.xgrid_raw) == len(other.xgrid_raw),
             self.log == other.log,
@@ -551,10 +488,12 @@ class InterpolatorDispatcher:
             out.append(l)
         return np.array(out)
 
-    def get_grid_configuration(self):
+    def to_dict(self):
         """
             Returns the configuration for the underlying xgrid (from which the instance can
             be created again).
+
+            The output dictionary contains a numpy array.
 
             Returns
             -------
@@ -562,8 +501,8 @@ class InterpolatorDispatcher:
                     full grid configuration
         """
         ret = {
-            "xgrid": self.xgrid_raw,
-            "polynomial_degree": self.polynomial_degree,
-            "is_log_interpolation": self.log,
+            "interpolation_xgrid": self.xgrid_raw,
+            "interpolation_polynomial_degree": self.polynomial_degree,
+            "interpolation_is_log": self.log,
         }
         return ret

@@ -34,10 +34,8 @@ def generate_fake_pdf():
 def get_setup():
     n_low = N_LOW
     n_mid = N_MID
-    xgrid_low = interpolation.get_xgrid_linear_at_log(
-        n_low, 1e-7, 1.0 if n_mid == 0 else 0.1
-    )
-    xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
+    xgrid_low = np.geomspace(1e-7, 1.0 if n_mid == 0 else 0.1, n_low)
+    xgrid_mid = np.linspace(0.1, 1.0, n_mid)
     xgrid_high = np.array([])
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
 

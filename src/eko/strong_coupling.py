@@ -213,7 +213,12 @@ class StrongCoupling:
     @classmethod
     def from_dict(cls, setup, constants, thresholds):
         """
-            Create object from theory dictionary
+            Create object from theory dictionary.
+
+            Read keys:
+
+                - alphas : required, reference value for  alpha_s (!)
+                - Qref : required, reference value in GeV (!)
 
             Parameters
             ----------

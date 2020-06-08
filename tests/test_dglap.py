@@ -129,13 +129,13 @@ def test_dglap_ffns_lo():
     """Checks table 2 part 2 of :cite:`Giele:2002hx`"""
     # Prepare a custom grid
     toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
-    xgrid_low = interpolation.get_xgrid_linear_at_log(35, 1e-7, 0.1)
-    xgrid_mid = interpolation.get_xgrid_linear_at_id(15, 0.1, 1.0)
+    xgrid_low = np.geomspace(1e-7, 0.1, 35)
+    xgrid_mid = np.linspace(0.1, 1.0, 15)
     polynom_rank = 4
 
     xgrid_high = np.array(
         []
-    )  # 1.0-interpolation.get_xgrid_linear_at_log(10,1e-3,1.0 - 0.9)
+    )  # 1.0-np.geomspace(1e-3,1.0 - 0.9,10)
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
 
     # Prepare a setup dictionary
@@ -146,10 +146,9 @@ def test_dglap_ffns_lo():
         "Q0": np.sqrt(2),
         "NfFF": 4,
         "FNS": "FFNS",
-        "xgrid_type": "custom",
-        "xgrid": xgrid,
-        "xgrid_polynom_rank": polynom_rank,
-        "log_interpol": True,
+        "interpolation_xgrid": xgrid,
+        "interpolation_polynomial_degree": polynom_rank,
+        "interpolation_is_log": True,
         "Q2grid": [1e4],
     }
 
@@ -163,8 +162,8 @@ def test_dglap_ffns_lo():
 def test_dglap_prod():
     """check multiplication"""
     # Prepare a custom grid
-    xgrid_low = interpolation.get_xgrid_linear_at_log(20, 1e-7, 0.1)
-    xgrid_mid = interpolation.get_xgrid_linear_at_id(10, 0.1, 1.0)
+    xgrid_low = np.geomspace(1e-7, 0.1, 20)
+    xgrid_mid = np.linspace(0.1, 1.0, 10)
     polynom_rank = 4
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid)))
     # Prepare a setup dictionary
@@ -175,10 +174,9 @@ def test_dglap_prod():
         "Q0": np.sqrt(2),
         "NfFF": 4,
         "FNS": "FFNS",
-        "xgrid_type": "custom",
-        "xgrid": xgrid,
-        "xgrid_polynom_rank": polynom_rank,
-        "log_interpol": True,
+        "interpolation_xgrid": xgrid,
+        "interpolation_polynomial_degree": polynom_rank,
+        "interpolation_is_log": True,
         "Q2grid": [1e4],
     }
     # check 0 -> 1 -> 2 = 0 -> 2

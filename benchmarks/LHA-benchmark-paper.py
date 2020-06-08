@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 from eko import run_dglap
-import eko.interpolation as interpolation
 
 from tools import plot_dist, save_all_operators_to_pdf, merge_dicts
 
@@ -208,9 +207,8 @@ class LHABenchmarkPaper:
             "mc": np.sqrt(self._Q2init),
             "mb": 4.5,
             "mt": 175.0,
-            "xgrid_type": "custom",
-            "xgrid": xgrid,
-            "xgrid_polynom_rank": polynom_rank,
+            "interpolation_xgrid": xgrid,
+            "interpolation_polynomial_degree": polynom_rank,
         }
 
     def _post_process(self, output, ref, tag):
@@ -412,10 +410,8 @@ if __name__ == "__main__":
 
     # combine grid
     flag = f"l{n_low}m{n_mid}r{polynom_rank}"
-    xgrid_low = interpolation.get_xgrid_linear_at_log(
-        n_low, 1e-7, 1.0 if n_mid == 0 else 0.1
-    )
-    xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
+    xgrid_low = np.geomspace(1e-7, 1.0 if n_mid == 0 else 0.1,n_low)
+    xgrid_mid = np.linspace(0.1, 1.0, n_mid)
     xgrid_high = np.array([])
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
 
