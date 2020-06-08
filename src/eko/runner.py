@@ -99,7 +99,9 @@ class Runner:
         )
 
         # strong coupling
-        self._a_s = StrongCoupling.from_dict(setup,self._constants, self._threshold_holder)
+        self._a_s = StrongCoupling.from_dict(
+            setup, self._constants, self._threshold_holder
+        )
 
     def get_operators(self):
         """ compute the actual operators """

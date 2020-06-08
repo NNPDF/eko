@@ -82,7 +82,7 @@ def test_sanity():
     thresholds = [4, 15]
     opgrid = generate_fake_grid(thresholds=thresholds)
     # Check that an operator grid with the correct number of regions was created
-    nregs = len(opgrid._op_masters) # pylint: disable=protected-access
+    nregs = len(opgrid._op_masters)  # pylint: disable=protected-access
     assert nregs == len(thresholds) + 1
     # Check that the errors work
     with pytest.raises(ValueError):

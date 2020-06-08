@@ -5,6 +5,7 @@ from numpy.testing import assert_almost_equal
 
 import numba as nb
 import numpy as np
+
 import eko.mellin as mellin
 
 
@@ -60,15 +61,12 @@ def test_inverse_mellin_transform():
     p, j = mellin.get_path_Talbot()
     for x in xgrid:
         xresult = function_x(x)
-        integrand = mellin.compile_integrand(function_N, p, j)
-        extra_args = nb.typed.List()
-        extra_args.append(np.log(x))
-        extra_args.append(0.0)
-        extra_args.append(1.0)
-        extra_args.append(0.0)
-        nresult = mellin.inverse_mellin_transform(integrand, 1e-2, extra_args)
-        assert_almost_equal(xresult, nresult[0])
-        assert_almost_equal(0.0, nresult[1])
+        for compile_numba in [True, False]:
+            integrand = mellin.compile_integrand(function_N, p, j, compile_numba)
+            extra_args = _numbify_list([np.log(x), 0.0, 1.0, 0.0])
+            nresult = mellin.inverse_mellin_transform(integrand, 1e-2, extra_args)
+            assert_almost_equal(xresult, nresult[0])
+            assert_almost_equal(0.0, nresult[1])
 
 
 def test_get_path_Talbot():
@@ -77,6 +75,12 @@ def test_get_path_Talbot():
         path, jacobian = mellin.get_path_Talbot()
         check_path_derivation(path, jacobian, p)
         check_path_symmetry(path, jacobian, p)
+        # assert special points
+        extra_args_nb = _numbify_list(p)
+        assert_almost_equal(path(0.5, extra_args_nb), p[0] + p[1])
+        assert_almost_equal(
+            jacobian(0.5, extra_args_nb), np.complex(0, p[0] * 2.0 * np.pi)
+        )
 
 
 def test_get_path_line():

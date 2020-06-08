@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
     This module contains functions that generate other functions
     All functions will receive a set of parameters so that the output
@@ -9,9 +10,6 @@
         - `basis_function`: a callable function with a (N, lnx) signature
         - `nf` : number of flavours
         - `constants`: an instance of the Constants class
-        - `beta_0` : value of `beta_0`
-        - `delta_t`: value of `delta_t`
-
 """
 
 from collections import abc
@@ -27,10 +25,29 @@ import eko.mellin as mellin
 logger = logging.getLogger(__name__)
 
 
-def get_kernel_ns(basis_function, nf, constants, beta_0):
-    """Returns the non-singlet integration kernel"""
+def get_kernel_ns(basis_function, nf, constants):
+    r"""
+        Returns the non-singlet integration kernel
+        :math:`\tilde E_{ns}(t_0 \leftarrow t_1)`.
+
+        Parameters
+        ----------
+            basis_function : callable
+                accompainging basis function
+            nf : int
+                number of active flavors
+            constants : eko.constants.Constants
+                active configuration
+
+        Returns
+        -------
+            ker : callable
+                (physical) kernel, which will be further modified for the
+                actual Mellin implementation
+    """
     CA = constants.CA
     CF = constants.CF
+    beta_0 = sc.beta_0(nf, constants.CA, constants.CF, constants.TF)
 
     def ker(n, lnx, delta_t):
         """true non-siglet integration kernel"""
@@ -41,13 +58,32 @@ def get_kernel_ns(basis_function, nf, constants, beta_0):
     return ker
 
 
-def get_kernels_s(basis_function, nf, constants, beta_0):
-    """Return all singlet integration kernels"""
+def get_kernels_s(basis_function, nf, constants):
+    r"""
+        Returns the singlet integration kernels
+        :math:`\ES{t_0}{t_1}`.
+
+        Parameters
+        ----------
+            basis_function : callable
+                accompainging basis function
+            nf : int
+                number of active flavors
+            constants : eko.constants.Constants
+                active configuration
+
+        Returns
+        -------
+            ker : list(callable)
+                (physical) kernels, which will be further modified for the
+                actual Mellin implementation
+    """
     CA = constants.CA
     CF = constants.CF
+    beta_0 = sc.beta_0(nf, constants.CA, constants.CF, constants.TF)
 
     def get_ker(k, l):
-        """true singlet kernel"""
+        """(k,l)-th element of singlet kernel matrix"""
 
         def ker(N, lnx, delta_t):
             """a singlet integration kernel"""
@@ -86,7 +122,7 @@ class KernelDispatcher:
     """
         The kernel dispatcher does the common preparation for the kernel functions
 
-        Upon calling the appropiate `compile_` method the dispatcher will return
+        Upon calling the appropiate `compile_*` method the dispatcher will return
         a `numba` compiled kernel.
 
         Parameters
@@ -97,48 +133,49 @@ class KernelDispatcher:
                 An instance of the Constants class
             nf : float
                 Number of flavour to consider
-            delta_t : float
-                Value of delta_t for this kernel
             numba_it : bool  (default: True)
                 If true, the functions will be `numba` compiled
     """
 
-    def __init__(self, interpol_dispatcher, constants, delta_t=None, numba_it=True):
+    def __init__(self, interpol_dispatcher, constants, numba_it=True):
         self.interpol_dispatcher = interpol_dispatcher
         self.constants = constants
         self.numba_it = numba_it
         self.integrands_ns = {}
         self.integrands_s = {}
-        self.delta_t = delta_t
 
     def _compiler(self, generating_function, nf):
         """
-            Call `generating_function` with the appropiate parameters
-            and pass the output through numba
+            Iterate `generating_function` alogn the basis functions, call with
+            the appropiate parameters and pass the output through numba.
+
+            Parameters
+            ----------
+                generating_function : callable
+                    getter for the actual kernel
+                nf : int
+                    number of active flavors
+
+            Returns
+            -------
+                kernels : list(callable)
+                    list of basis functions combined with input function
         """
-        beta_0 = sc.beta_0(
-            nf, self.constants.CA, self.constants.CF, self.constants.TF
-        )
         kernels = []
         for basis_function in self.interpol_dispatcher:
-            new_ker = generating_function(
-                basis_function.callable, nf, self.constants, beta_0,
-            )
+            new_ker = generating_function(basis_function.callable, nf, self.constants)
             kernels.append(self.njit(new_ker))
         return kernels
 
-    def compile_singlet(self, nf):
-        """Compiles the singlet integration kernels for each basis """
-        ker = self._compiler(get_kernels_s, nf)
-        return ker
-
-    def compile_nonsinglet(self, nf):
-        """Compiles the non-singlet integration kernel for each basis """
-        ker = self._compiler(get_kernel_ns, nf)
-        return ker
-
     def set_up_all_integrands(self, nf_values):
-        """ Compiles singlet and non-singlet integration kernel for each basis """
+        """
+            Compiles singlet and non-singlet integration kernel for each basis function.
+
+            Parameters
+            ----------
+                nf_values : int or list(int)
+                    (list of) number of active flavors
+        """
         if isinstance(nf_values, (np.int, np.integer)):
             nf_values = [nf_values]
         # Setup path
@@ -146,42 +183,28 @@ class KernelDispatcher:
         for nf in nf_values:
             if nf not in self.integrands_s:
                 self.integrands_s[nf] = prepare_singlet(
-                    self.compile_singlet(nf), path, jac
+                    self._compiler(get_kernels_s, nf), path, jac
                 )
             if nf not in self.integrands_ns:
                 self.integrands_ns[nf] = prepare_non_singlet(
-                    self.compile_nonsinglet(nf), path, jac
+                    self._compiler(get_kernel_ns, nf), path, jac
                 )
-
-    def get_singlet_for_nf(self, nf):
-        integrands = self.integrands_s.get(nf)
-        if integrands is None:
-            self.set_up_all_integrands([nf])
-            integrands = self.integrands_s[nf]
-        return integrands
-
-    def get_non_singlet_for_nf(self, nf):
-        integrands = self.integrands_ns.get(nf)
-        if integrands is None:
-            self.set_up_all_integrands([nf])
-            integrands = self.integrands_ns[nf]
-        return integrands
 
     def njit(self, function):
         """
             Do nb.njit to the function if the `numba_it` flag is set to True.
 
-            Check whether a list of functions is passed.
+            Checks whether a list of functions is passed.
 
             Parameters
             ---------
-                function : function
-                    input function
+                function : callable or list(callable)
+                    input (list of) function
 
             Returns
             -------
-                funciton : function
-                    compiled function
+                function : callable or list(callable)
+                    compiled (list of) function
         """
         if isinstance(function, abc.Iterable):
             return [self.njit(f) for f in function]

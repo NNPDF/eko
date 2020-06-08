@@ -11,8 +11,8 @@ class MockRunner:
         return "output"
 
 
-def test_run():
+def test_run(monkeypatch):
     # just test, that it is a shortcut to get_output
-    eko.runner.Runner = MockRunner
+    monkeypatch.setattr(eko.runner, "Runner", MockRunner)
     o = eko.run_dglap({})
     assert o == "output"

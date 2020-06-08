@@ -51,8 +51,8 @@ class OperatorMaster:
 
     def _compile(self):
         """ Compiles the kernels and make them become integrands """
-        self._integrands_ns = self._kernel_dispatcher.get_non_singlet_for_nf(self._nf)
-        self._integrands_s = self._kernel_dispatcher.get_singlet_for_nf(self._nf)
+        self._integrands_ns = self._kernel_dispatcher.integrands_ns[self._nf]
+        self._integrands_s = self._kernel_dispatcher.integrands_s[self._nf]
 
     def get_op(self, q2_from, q2_to, generate=False):
         """
@@ -129,7 +129,7 @@ class OperatorGrid:
         for nf in threshold_holder.nf_range():
             # Compile the kernels for each nf
             kernel_dispatcher.set_up_all_integrands(nf)
-            # Set up the OP Master for each nf
+            # Set up the OperatorMaster for each nf
             self._op_masters[nf] = OperatorMaster(
                 alpha_generator, kernel_dispatcher, xgrid, nf
             )
