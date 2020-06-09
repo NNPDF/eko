@@ -396,6 +396,11 @@ class InterpolatorDispatcher:
         # Create blocks
         list_of_blocks = []
         po2 = polynomial_degree // 2
+        # if degree is even, we can not split the block symmetric, e.g. deg=2 -> |-|-|
+        # so, in case of doubt use the block, which lays higher, i.e.
+        # we're not allowed to go so deep -> make po2 smaller
+        if polynomial_degree % 2 == 0:
+            po2 -= 1
         # iterate areas: there is 1 less then number of points
         for i in range(xgrid_size - 1):
             kmin = max(0, i - po2)
@@ -405,7 +410,6 @@ class InterpolatorDispatcher:
                 kmin = kmax - polynomial_degree
             b = (kmin, kmax)
             list_of_blocks.append(b)
-        self.list_of_blocks = list_of_blocks
 
         # Generate the basis functions
         basis_functions = []

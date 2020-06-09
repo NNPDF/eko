@@ -1,21 +1,16 @@
 # -*- coding: utf-8 -*-
-# pylint:disable=protected-access
-# Test interpolation
-import json
-import pathlib
 
 import numpy as np
-from numpy.testing import assert_allclose, assert_almost_equal
+from numpy.testing import assert_almost_equal
 import pytest
 
 from eko import t_complex
 from eko import interpolation
 import eko.mellin as mellin
 
-REGRESSION_FOLDER = pathlib.Path(__file__).with_name("regressions")
-
 # for the numeric comparision to work, keep in mind that in Python3 the default precision is
 # np.float64
+
 
 def check_is_interpolator(interpolator, xgrid):
     """ Check whether the functions are indeed interpolators"""
@@ -52,25 +47,6 @@ def check_correspondence_interpolators(inter_x, inter_N):
             result_x = mellin.mellin_transform(fun_x, N)
             assert_almost_equal(result_x[0], result_N)
 
-def test_Lagrange_interpolation_basis():
-    """ test the InterpolatorDispatcher
-    for the evaluation of N by checking the coefficients are
-    the same as before """
-    xgrid = np.logspace(-3, -1, 10)
-    xgrid_lin = np.exp(xgrid)
-    poly_deg = 4
-    # Read json file with the old values of the interpolator coefficients
-    regression_file = REGRESSION_FOLDER / "Lagrange_interpol.json"
-    with open(regression_file, "r") as f:
-        reference = json.load(f)
-    new_inter = interpolation.InterpolatorDispatcher(xgrid_lin, poly_deg, log=True)
-    for ref, new in zip(reference, new_inter.basis):
-        assert ref["polynom_number"] == new.poly_number
-        ref_areas = ref["areas"]
-        for ref_area, new_area in zip(ref_areas, new):
-            assert_almost_equal(ref_area["xmin"], new_area.xmin)
-            assert_almost_equal(ref_area["xmax"], new_area.xmax)
-            assert_allclose(ref_area["coeffs"], new_area.coefs)
 
 class TestInterpolatorDispatcher:
     def test_init(self):
@@ -106,24 +82,24 @@ class TestInterpolatorDispatcher:
         assert a == e
         # via dict
         dd = a.to_dict()
-        assert isinstance(dd,dict)
+        assert isinstance(dd, dict)
         assert a == interpolation.InterpolatorDispatcher.from_dict(dd)
 
     def test_iter(self):
         xgrid = np.linspace(0.1, 1, 10)
         poly_degree = 4
         inter_x = interpolation.InterpolatorDispatcher(xgrid, poly_degree)
-        for bf,k in zip(inter_x, range(len(xgrid))):
+        for bf, k in zip(inter_x, range(len(xgrid))):
             assert bf == inter_x[k]
 
     def test_get_interpolation(self):
         xg = [0.5, 1.0]
-        inter_x = interpolation.InterpolatorDispatcher(xg, 1,False,False)
+        inter_x = interpolation.InterpolatorDispatcher(xg, 1, False, False)
         i = inter_x.get_interpolation(xg)
-        np.testing.assert_array_almost_equal(i,np.eye(len(xg)))
+        np.testing.assert_array_almost_equal(i, np.eye(len(xg)))
         # .75 is exactly inbetween
         i = inter_x.get_interpolation([0.75])
-        np.testing.assert_array_almost_equal(i,[[0.5,0.5]])
+        np.testing.assert_array_almost_equal(i, [[0.5, 0.5]])
 
     def test_evaluate_x(self):
         xgrid = np.linspace(0.1, 1, 10)
@@ -153,32 +129,85 @@ class TestInterpolatorDispatcher:
             )
             check_correspondence_interpolators(inter_x, inter_N)
 
-@pytest.mark.skip # TODO will fix tomorrow
-class TestBasisFunction:
-    def test_is_below_x(self):
-        xgrid = [.1,.4,.7,1.0]
-        poly_deg = 2
-        for log in [False, True]:
-            inter_x = interpolation.InterpolatorDispatcher(
-                xgrid, poly_deg, log=log
-            )
-            for bf in inter_x:
-                assert bf.is_below_x(xgrid[0]) == (bf.poly_number == len(xgrid) - 1)
 
-def test_reference_indices():
-    xgrid = np.linspace(0.1, 1, 10)
-    # polynomial_degree = 2
-    a = interpolation.Area(0, 0, (0, 1), xgrid)
-    assert list(a._reference_indices()) == [1]
-    a = interpolation.Area(0, 1, (0, 1), xgrid)
-    assert list(a._reference_indices()) == [0]
-    # polynomial_degree = 3
-    a = interpolation.Area(0, 0, (0, 2), xgrid)
-    assert list(a._reference_indices()) == [1, 2]
-    a = interpolation.Area(0, 1, (0, 2), xgrid)
-    assert list(a._reference_indices()) == [0, 2]
-    a = interpolation.Area(0, 2, (0, 2), xgrid)
-    assert list(a._reference_indices()) == [0, 1]
-    # errors
-    with pytest.raises(ValueError):
-        a = interpolation.Area(0, 3, (0, 2), xgrid)
+class TestBasisFunction:
+    def test_init(self):
+        # errors
+        with pytest.raises(ValueError):
+            interpolation.BasisFunction([.1,1.],0,[])
+
+    def test_eval_N(self):
+        xg = [0., 1.]
+        inter_N = interpolation.InterpolatorDispatcher(xg,1,log=False)
+        # p_0(x) = 1-x -> \tilde p_0(N) = 1/N - 1/(N+1)
+        p0N = inter_N[0]
+        assert len(p0N.areas) == 1
+        p0_cs_ref = [1, -1]
+        for act_c, res_c in zip(p0N.areas[0], p0_cs_ref):
+            assert_almost_equal(act_c,res_c)
+        p0Nref = lambda N,lnx:(1/N-1/(N+1))*np.exp(-N*lnx)
+        #assert_almost_equal(p0N(1.,0),p0Nref(1.,0))
+        # p_1(x) = x -> \tilde p_1(N) = 1/(N+1)
+        p1N = inter_N[1]
+        assert len(p1N.areas) == 1
+        p1_cs_ref = [0,1]
+        for act_c, res_c in zip(p1N.areas[0], p1_cs_ref):
+            assert_almost_equal(act_c,res_c)
+        p1Nref = lambda N,lnx:(1/(N+1))*np.exp(-N*lnx)
+        assert_almost_equal(p1N(1.,0),p1Nref(1.,0))
+
+    def test_is_below_x(self):
+        for log in [False, True]:
+            for cfg in [
+                {"xg": [0.1, 0.2, 1.0], "pd": 1, "x": 0.2, "res": [True, False, False]},
+                {
+                    "xg": [0.1, 0.2, 1.0],
+                    "pd": 2,
+                    "x": 0.2,
+                    "res": [False, False, False],
+                },
+                {  # this tests the correct attributions of blocks
+                    # i.e. in case of doubt use the one higher
+                    # | | | | |
+                    # |B0-|
+                    #   |B1-|
+                    #     |B2-|
+                    # A0 -> B0, A1 -> B1, A2 -> B2, A3 -> B2
+                    "xg": [0.1, 0.2, 0.3, 0.4, 1.0],
+                    "pd": 2,
+                    "x": 0.35,  # -> A2
+                    "res": [True, True, False, False, False],
+                },
+            ]:
+                inter_x = interpolation.InterpolatorDispatcher(
+                    cfg["xg"], cfg["pd"], log=log
+                )
+                actual = [bf.is_below_x(cfg["x"]) for bf in inter_x]
+                assert actual == cfg["res"]
+
+class TestArea:
+    def test_iter(self):
+        xg = [.1, 1.]
+        a = interpolation.Area(0, 0, (0, 1), xg) # = p_0(x) with degree O(x)
+        # p_0(x) = 1/0.9(1-x) because p_0(.1)=.9/.9=1 and p_0(1) = 0
+        res_cs = [1/0.9, -1/0.9]
+        for act_c, res_c in zip(a, res_cs):
+            assert_almost_equal(act_c,res_c)
+
+    def test_reference_indices(self):
+        xgrid = np.linspace(0.1, 1, 10)
+        # polynomial_degree = 1
+        a = interpolation.Area(0, 0, (0, 1), xgrid)
+        assert list(a._reference_indices()) == [1] #pylint: disable=protected-access
+        a = interpolation.Area(0, 1, (0, 1), xgrid)
+        assert list(a._reference_indices()) == [0] #pylint: disable=protected-access
+        # polynomial_degree = 2
+        a = interpolation.Area(0, 0, (0, 2), xgrid)
+        assert list(a._reference_indices()) == [1, 2] #pylint: disable=protected-access
+        a = interpolation.Area(0, 1, (0, 2), xgrid)
+        assert list(a._reference_indices()) == [0, 2] #pylint: disable=protected-access
+        a = interpolation.Area(0, 2, (0, 2), xgrid)
+        assert list(a._reference_indices()) == [0, 1] #pylint: disable=protected-access
+        # errors
+        with pytest.raises(ValueError):
+            a = interpolation.Area(0, 3, (0, 2), xgrid)

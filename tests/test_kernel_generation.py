@@ -17,13 +17,17 @@ def fake_get_Eigensystem_gamma_singlet_0(*_args):
 
 
 class TestKernelDispatcher:
-    def test_full(self,monkeypatch):
+    def test_full(self, monkeypatch):
         # fake beta0 + anomalous dimension + mellin
         c = eko.constants.Constants()
-        monkeypatch.setattr(eko.strong_coupling,"beta_0",lambda *_args: 1)
-        monkeypatch.setattr(eko.splitting_functions_LO,"gamma_ns_0",lambda *_args: 1)
-        monkeypatch.setattr(eko.splitting_functions_LO,"get_Eigensystem_gamma_singlet_0",fake_get_Eigensystem_gamma_singlet_0)
-        monkeypatch.setattr(eko.mellin,"compile_integrand",lambda ker, *_args: ker)
+        monkeypatch.setattr(eko.strong_coupling, "beta_0", lambda *_args: 1)
+        monkeypatch.setattr(eko.splitting_functions_LO, "gamma_ns_0", lambda *_args: 1)
+        monkeypatch.setattr(
+            eko.splitting_functions_LO,
+            "get_Eigensystem_gamma_singlet_0",
+            fake_get_Eigensystem_gamma_singlet_0,
+        )
+        monkeypatch.setattr(eko.mellin, "compile_integrand", lambda ker, *_args: ker)
         # fake InterpolationDispatcher
         bfs = [FakeBF()]
         for numba_it in [True, False]:
@@ -44,4 +48,3 @@ class TestKernelDispatcher:
                     kd.integrands_s[nf][0][k](1, 1, 1), np.exp(-1)
                 )
         # reset
-

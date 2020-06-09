@@ -133,9 +133,7 @@ def test_dglap_ffns_lo():
     xgrid_mid = np.linspace(0.1, 1.0, 15)
     polynom_rank = 4
 
-    xgrid_high = np.array(
-        []
-    )  # 1.0-np.geomspace(1e-3,1.0 - 0.9,10)
+    xgrid_high = np.array([])  # 1.0-np.geomspace(1e-3,1.0 - 0.9,10)
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
 
     # Prepare a setup dictionary
