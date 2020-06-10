@@ -134,27 +134,73 @@ class TestBasisFunction:
     def test_init(self):
         # errors
         with pytest.raises(ValueError):
-            interpolation.BasisFunction([.1,1.],0,[])
+            interpolation.BasisFunction([0.1, 1.0], 0, [])
 
     def test_eval_N(self):
-        xg = [0., 1.]
-        inter_N = interpolation.InterpolatorDispatcher(xg,1,log=False)
+        xg = [0.0, 1.0]
+        inter_N = interpolation.InterpolatorDispatcher(xg, 1, log=False)
         # p_0(x) = 1-x -> \tilde p_0(N) = 1/N - 1/(N+1)
         p0N = inter_N[0]
         assert len(p0N.areas) == 1
         p0_cs_ref = [1, -1]
         for act_c, res_c in zip(p0N.areas[0], p0_cs_ref):
-            assert_almost_equal(act_c,res_c)
-        p0Nref = lambda N,lnx:(1/N-1/(N+1))*np.exp(-N*lnx)
-        #assert_almost_equal(p0N(1.,0),p0Nref(1.,0))
+            assert_almost_equal(act_c, res_c)
+        p0Nref = lambda N, lnx: (1 / N - 1 / (N + 1)) * np.exp(-N * lnx)
         # p_1(x) = x -> \tilde p_1(N) = 1/(N+1)
         p1N = inter_N[1]
         assert len(p1N.areas) == 1
-        p1_cs_ref = [0,1]
+        p1_cs_ref = [0, 1]
         for act_c, res_c in zip(p1N.areas[0], p1_cs_ref):
-            assert_almost_equal(act_c,res_c)
-        p1Nref = lambda N,lnx:(1/(N+1))*np.exp(-N*lnx)
-        assert_almost_equal(p1N(1.,0),p1Nref(1.,0))
+            assert_almost_equal(act_c, res_c)
+        p1Nref = lambda N, lnx: (1 / (N + 1)) * np.exp(-N * lnx)
+        # iterate configurations
+        for N in [1.0, 2.0, np.complex(1.0, 1.0)]:
+            # check skip
+            assert_almost_equal(p0N(N, 0), 0)
+            assert_almost_equal(p1N(N, 0), 0)
+            # check values
+            for lnx in [-2, -1]:
+                assert_almost_equal(p0N(N, lnx), p0Nref(N, lnx))
+                assert_almost_equal(p1N(N, lnx), p1Nref(N, lnx))
+
+    def test_log_eval_N(self):
+        xg = [np.exp(-1), 1.0]
+        inter_N = interpolation.InterpolatorDispatcher(xg, 1, log=True)
+        # p_0(x) = -ln(x)
+        p0N = inter_N[0]
+        assert len(p0N.areas) == 1
+        p0_cs_ref = [0, -1]
+        for act_c, res_c in zip(p0N.areas[0], p0_cs_ref):
+            assert_almost_equal(act_c, res_c)
+        # Full -> \tilde p_0(N) = exp(-N)(exp(N)-1-N)/N^2
+        # MMa: Integrate[x^(n-1) (-Log[x]),{x,1/E,1}]
+        p0Nref_full = lambda N, lnx: ((np.exp(N) - 1 - N) / N ** 2) * np.exp(
+            -N * (lnx + 1)
+        )
+        # partial = lower bound is neglected;
+        p0Nref_partial = lambda N, lnx: (1 / N ** 2) * np.exp(-N * lnx)
+        p1N = inter_N[1]
+        assert len(p1N.areas) == 1
+        p1_cs_ref = [1, 1]
+        for act_c, res_c in zip(p1N.areas[0], p1_cs_ref):
+            assert_almost_equal(act_c, res_c)
+        # p_1(x) = 1+\ln(x) -> \tilde p_1(N) = (exp(-N)-1+N)/N^2
+        # MMa: Integrate[x^(n-1) (1+Log[x]),{x,1/E,1}]
+        p1Nref_full = lambda N, lnx: ((np.exp(-N) - 1 + N) / N ** 2) * np.exp(-N * lnx)
+        p1Nref_partial = lambda N, lnx: (1 / N - 1 / N ** 2) * np.exp(-N * lnx)
+        # iterate configurations
+        for N in [1.0, 2.0, np.complex(1.0, 1.0)]:
+            # check skip
+            assert_almost_equal(p0N(N, 0), 0)
+            assert_almost_equal(p1N(N, 0), 0)
+            # check values for full
+            for lnx in [-1, -0.5]:
+                assert_almost_equal(p0N(N, lnx), p0Nref_partial(N, lnx))
+                assert_almost_equal(p1N(N, lnx), p1Nref_partial(N, lnx))
+            # check values for full
+            for lnx in [-2, -3]:
+                assert_almost_equal(p0N(N, lnx), p0Nref_full(N, lnx))
+                assert_almost_equal(p1N(N, lnx), p1Nref_full(N, lnx))
 
     def test_is_below_x(self):
         for log in [False, True]:
@@ -185,29 +231,39 @@ class TestBasisFunction:
                 actual = [bf.is_below_x(cfg["x"]) for bf in inter_x]
                 assert actual == cfg["res"]
 
+
 class TestArea:
     def test_iter(self):
-        xg = [.1, 1.]
-        a = interpolation.Area(0, 0, (0, 1), xg) # = p_0(x) with degree O(x)
+        xg = [0.1, 1.0]
+        a = interpolation.Area(0, 0, (0, 1), xg)  # = p_0(x) with degree O(x)
         # p_0(x) = 1/0.9(1-x) because p_0(.1)=.9/.9=1 and p_0(1) = 0
-        res_cs = [1/0.9, -1/0.9]
+        res_cs = [1 / 0.9, -1 / 0.9]
         for act_c, res_c in zip(a, res_cs):
-            assert_almost_equal(act_c,res_c)
+            assert_almost_equal(act_c, res_c)
 
     def test_reference_indices(self):
         xgrid = np.linspace(0.1, 1, 10)
         # polynomial_degree = 1
         a = interpolation.Area(0, 0, (0, 1), xgrid)
-        assert list(a._reference_indices()) == [1] #pylint: disable=protected-access
+        assert list(a._reference_indices()) == [1]  # pylint: disable=protected-access
         a = interpolation.Area(0, 1, (0, 1), xgrid)
-        assert list(a._reference_indices()) == [0] #pylint: disable=protected-access
+        assert list(a._reference_indices()) == [0]  # pylint: disable=protected-access
         # polynomial_degree = 2
         a = interpolation.Area(0, 0, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [1, 2] #pylint: disable=protected-access
+        assert list(a._reference_indices()) == [
+            1,
+            2,
+        ]  # pylint: disable=protected-access
         a = interpolation.Area(0, 1, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [0, 2] #pylint: disable=protected-access
+        assert list(a._reference_indices()) == [
+            0,
+            2,
+        ]  # pylint: disable=protected-access
         a = interpolation.Area(0, 2, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [0, 1] #pylint: disable=protected-access
+        assert list(a._reference_indices()) == [
+            0,
+            1,
+        ]  # pylint: disable=protected-access
         # errors
         with pytest.raises(ValueError):
             a = interpolation.Area(0, 3, (0, 2), xgrid)
