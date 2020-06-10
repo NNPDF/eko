@@ -6,7 +6,6 @@
     It does *not* test whether the result is correct, it can just test that it is sane
 """
 
-# TODO: regression tests
 import pytest
 import numpy as np
 import eko.interpolation as interpolation
@@ -105,24 +104,3 @@ def test_grid_computation_VFNS():
     pdf = generate_fake_pdf()
     _return_1 = operators[0](pdf)
     _return_2 = operators[1](pdf)
-
-
-# TODO: for this test we have to use some more reasonable input
-# def test_grid_computation_FFNS():
-#    """ Check that the results from the grid are consistent """
-#    pdf = generate_fake_pdf()
-#    ref_1 = 2
-#    ref_2 = 50
-#    opgrid_1 = generate_fake_grid(q2_ref=ref_1, q2alpha=ref_1)
-#    q2grid_1 = [ref_2,100]
-#    results_1 = opgrid_1.compute_qgrid(q2grid_1)
-#     opgrid_2 = generate_fake_grid(q2_ref=ref_2, q2alpha = ref_1)
-#     q2grid_2 = [100]
-#     results_2 = opgrid_2.compute_qgrid(q2grid_2)
-#     pdf_path_1 = results_1[1](pdf)['members']
-#     pdf_path_2 = results_2[0](results_1[0](pdf))['members']
-
-
-if __name__ == "__main__":
-    pass
-    # test_grid_computation_FFNS()

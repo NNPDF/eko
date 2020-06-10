@@ -99,7 +99,7 @@ class Runner:
         """
         # propagate grid
         ret = Output()
-        ret.update(self._basis_function_dispatcher.get_grid_configuration())
+        ret.update(self._basis_function_dispatcher.to_dict())
         ret["q2_ref"] = float(self._threshold_holder.q2_ref)
         # add all operators
         q2_grid = {}
