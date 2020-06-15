@@ -3,6 +3,6 @@ from bowler import Query
 
 q = (
     Query("src/eko/")
-    .select_module("alpha_s")
-    .rename("strong_coupling")
+    .select_class("Threshold")
+    .rename("ThresholdsConfig")
 )

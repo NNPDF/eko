@@ -10,7 +10,7 @@ from eko.evolution_operator import (
     Operator,
     _get_kernel_integrands,
 )
-from eko.thresholds import Threshold
+from eko import thresholds
 
 
 def mkOM(name, shape):
@@ -314,7 +314,7 @@ class TestOperator:
             0,
         )
         # FFNS
-        t = Threshold(1, "FFNS", nf=3)
+        t = thresholds.ThresholdsConfig(1, "FFNS", nf=3)
         instruction_set = t.get_composition_path(3, 0)
         ph = op1.compose([], instruction_set, 2)
         assert isinstance(ph, PhysicalOperator)

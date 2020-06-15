@@ -175,7 +175,7 @@ class StrongCoupling:
             raise ValueError(f"alpha_s_ref has to be positive - got {alpha_s_ref}")
         if scale_ref <= 0:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
-        if not isinstance(threshold_holder, thresholds.Threshold):
+        if not isinstance(threshold_holder, thresholds.ThresholdsConfig):
             raise ValueError("Needs a Threshold instance")
         if order not in [0]:
             raise NotImplementedError("a_s beyond LO is not implemented")

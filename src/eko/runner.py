@@ -4,11 +4,9 @@
 """
 import logging
 
-import numpy as np
-
 import eko.interpolation as interpolation
 from eko.kernel_generation import KernelDispatcher
-from eko.thresholds import Threshold
+from eko.thresholds import ThresholdsConfig
 from eko.operator_grid import OperatorGrid
 from eko.constants import Constants
 from eko.strong_coupling import StrongCoupling
@@ -36,13 +34,19 @@ class Runner:
         # Load constants and compute parameters
         self._constants = Constants()
         # setup basis grid
-        self._basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(setup)
+        self._basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
+            setup
+        )
         # Generate the dispatcher for the kernels
         kernel_dispatcher = KernelDispatcher(
             self._basis_function_dispatcher, self._constants
         )
         # FNS
-        self.__init_FNS(setup)
+        self._threshold_holder = ThresholdsConfig.from_dict(setup)
+        # strong coupling
+        self._a_s = StrongCoupling.from_dict(
+            setup, self._constants, self._threshold_holder
+        )
 
         # setup operator grid
         self._op_grid = OperatorGrid(
@@ -52,36 +56,6 @@ class Runner:
             self._basis_function_dispatcher.xgrid_raw,
         )
         self._q2grid = setup["Q2grid"]
-
-    def __init_FNS(self, setup):
-        """
-            Get the scheme, i.e. and the thresholds and the strong coupling.
-
-            Parameters
-            ----------
-                setup : dict
-                    input configurations
-        """
-        # TODO the setup dictionary is a mess tbh
-        FNS = setup["FNS"]
-        q2_ref = pow(setup["Q0"], 2)
-        if FNS != "FFNS":
-            mc = setup["mc"]
-            mb = setup["mb"]
-            mt = setup["mt"]
-            threshold_list = pow(np.array([mc, mb, mt]), 2)
-            nf = None
-        else:
-            nf = setup["NfFF"]
-            threshold_list = None
-        self._threshold_holder = Threshold(
-            q2_ref=q2_ref, scheme=FNS, threshold_list=threshold_list, nf=nf
-        )
-
-        # strong coupling
-        self._a_s = StrongCoupling.from_dict(
-            setup, self._constants, self._threshold_holder
-        )
 
     def get_operators(self):
         """ compute the actual operators """

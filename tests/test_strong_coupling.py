@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 from eko.strong_coupling import beta_0, beta_1, beta_2, StrongCoupling
-from eko.thresholds import Threshold
+from eko import thresholds
 from eko.constants import Constants
 
 try:
@@ -60,7 +60,7 @@ class TestStrongCoupling:
         alphas_ref = 0.118
         scale_ref = 91.0 ** 2
         nf = 4
-        threshold_holder = Threshold(scheme="FFNS", q2_ref=scale_ref, nf=nf)
+        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
         # create
         sc = StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder)
         assert sc.q2_ref == scale_ref
@@ -95,7 +95,7 @@ class TestStrongCoupling:
         alphas_ref = 0.118
         scale_ref = 91.0 ** 2
         for nf in [3, 4, 5]:
-            threshold_holder = Threshold(scheme="FFNS", q2_ref=scale_ref, nf=nf)
+            threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
             # create
             sc = StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder)
             np.testing.assert_approx_equal(sc(scale_ref), alphas_ref / 4.0 / np.pi)
@@ -111,7 +111,7 @@ class BenchmarkStrongCoupling:
         ref_alpha_s = 0.1181
         ref_mu2 = 90
         ask_q2 = 125
-        threshold_holder = Threshold(scheme="FFNS", nf=5, q2_ref=ref_mu2)
+        threshold_holder = thresholds.ThresholdsConfig(ref_mu2, "FFNS", nf=5)
         as_FFNS_LO = StrongCoupling(
             constants, ref_alpha_s, ref_mu2, threshold_holder, order=0
         )
@@ -137,15 +137,15 @@ class BenchmarkStrongCoupling:
         # LO - FFNS
         # note that the LO-FFNS value reported in :cite:`Giele:2002hx`
         # was corrected in :cite:`Dittmar:2005ed`
-        threshold_holder = Threshold(scheme="FFNS", nf=4, q2_ref=2)
+        threshold_holder = thresholds.ThresholdsConfig(2, "FFNS", nf=4)
         as_FFNS_LO = StrongCoupling(constants, 0.35, 2, threshold_holder, order=0)
         me = as_FFNS_LO.a_s(1e4) * 4 * np.pi
         ref = 0.117574
         np.testing.assert_approx_equal(me, ref, significant=6)
         # LO - VFNS
         threshold_list = [2, pow(4.5, 2), pow(175, 2)]
-        threshold_holder = Threshold(
-            q2_ref=2, scheme="VFNS", threshold_list=threshold_list
+        threshold_holder = thresholds.ThresholdsConfig(
+            2, "ZM-VFNS", threshold_list=threshold_list
         )
         as_VFNS_LO = StrongCoupling(constants, 0.35, 2, threshold_holder, order=0)
         me = as_VFNS_LO(1e4) * 4 * np.pi
@@ -164,7 +164,7 @@ class BenchmarkStrongCoupling:
         scale_ref = 91.0 ** 2
         nf = 4
         # collect my values
-        threshold_holder = Threshold(scheme="FFNS", q2_ref=scale_ref, nf=nf)
+        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
         as_FFNS_LO = StrongCoupling(
             constants, alphas_ref, scale_ref, threshold_holder, order=0
         )
@@ -205,7 +205,7 @@ class BenchmarkStrongCoupling:
         m2c = 2
         m2b = 25
         m2t = 1500
-        thresholds = [m2c, m2b, m2t]
+        threshold_list = [m2c, m2b, m2t]
         # compute all Lambdas
         # Lambda2_5 = self._get_Lambda2_LO(alphas_ref / (4.0 * np.pi), scale_ref, 5)
         # as_FFNS_LO_5 = StrongCoupling(
@@ -220,8 +220,8 @@ class BenchmarkStrongCoupling:
         # Lambda2_3 = self._get_Lambda2_LO(as_FFNS_LO_4.a_s(m2c), m2c, 3)
 
         # collect my values
-        threshold_holder = Threshold(
-            q2_ref=scale_ref, scheme="VFNS", threshold_list=thresholds
+        threshold_holder = thresholds.ThresholdsConfig(
+            scale_ref, "ZM-VFNS", threshold_list=threshold_list
         )
         as_VFNS_LO = StrongCoupling(
             constants, alphas_ref, scale_ref, threshold_holder, order=0
@@ -249,7 +249,7 @@ class BenchmarkStrongCoupling:
             as_lhapdf.setMZ(np.sqrt(scale_ref))
             for k in range(3):
                 as_lhapdf.setQuarkMass(1 + k, 0)
-            for k, m2 in enumerate(thresholds):
+            for k, m2 in enumerate(threshold_list):
                 as_lhapdf.setQuarkMass(4 + k, np.sqrt(m2))
             # as_lhapdf.setLambda(3, np.sqrt(Lambda2_3))
             # as_lhapdf.setLambda(4, np.sqrt(Lambda2_4))

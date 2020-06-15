@@ -441,7 +441,13 @@ class InterpolatorDispatcher:
         polynom_rank = setup.get("interpolation_polynomial_degree", 4)
 
         # Generate the dispatcher for the basis functions
-        return cls(xgrid, polynom_rank, log=is_log_interpolation,mode_N=mode_N,numba_it=numba_it)
+        return cls(
+            xgrid,
+            polynom_rank,
+            log=is_log_interpolation,
+            mode_N=mode_N,
+            numba_it=numba_it,
+        )
 
     def __eq__(self, other):
         """Checks equality"""
