@@ -177,8 +177,8 @@ class StrongCoupling:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
         if not isinstance(threshold_holder, thresholds.ThresholdsConfig):
             raise ValueError("Needs a Threshold instance")
-        if order not in [0]:
-            raise NotImplementedError("a_s beyond LO is not implemented")
+        if order not in [0,1]:
+            raise NotImplementedError("a_s beyond NLO is not implemented")
         self._order = order
         if method not in ["analytic"]:
             raise ValueError(f"Unknown method {method}")
@@ -261,8 +261,13 @@ class StrongCoupling:
         """
         beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
         lmu = np.log(scale_to / scale_from)
-        a_s = as_ref / (1.0 + beta0 * as_ref * lmu)
-        return a_s
+        den = (1.0 + beta0 * as_ref * lmu)
+        as_LO = as_ref / den
+        res = as_LO
+        if self._order >= 1:
+            beta1 = beta_1(nf, self._constants.CA, self._constants.CF, self._constants.TF)
+            res = as_LO * ( 1 - beta1 * as_LO * np.log(den) )
+        return res
 
     def _compute(self, *args):
         """
