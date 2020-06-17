@@ -4,7 +4,7 @@
 """
 import logging
 
-import eko.interpolation as interpolation
+from eko import interpolation
 from eko.kernel_generation import KernelDispatcher
 from eko.thresholds import ThresholdsConfig
 from eko.operator_grid import OperatorGrid
@@ -80,5 +80,5 @@ class Runner:
         for op in self.get_operators():
             final_scale = op.q2_final
             q2_grid[final_scale] = op.get_raw_operators()
-        ret["q2_grid"] = q2_grid
+        ret["Q2grid"] = q2_grid
         return ret
