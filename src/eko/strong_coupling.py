@@ -240,7 +240,8 @@ class StrongCoupling:
         """
         alpha_ref = setup["alphas"]
         q2_alpha = pow(setup["Qref"], 2)
-        return cls(constants, alpha_ref, q2_alpha, thresholds)
+        order = setup["PTO"]
+        return cls(constants, alpha_ref, q2_alpha, thresholds, order)
 
     # Hidden computation functions
     def _compute_analytic(self, as_ref, nf, scale_from, scale_to):
