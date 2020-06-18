@@ -12,6 +12,7 @@ def test_runner():
         "interpolation_polynomial_degree": 1,
         "interpolation_is_log": True,
         "alphas": 0.35,
+        "PTO": 0,
         "Qref": np.sqrt(2),
         "Q0": np.sqrt(2),
         "FNS": "FFNS",

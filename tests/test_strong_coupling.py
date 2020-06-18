@@ -74,7 +74,7 @@ class TestStrongCoupling:
         assert sc.as_ref == alphas_ref / 4.0 / np.pi
         # from theory dict
         sc2 = StrongCoupling.from_dict(
-            dict(alphas=alphas_ref, Qref=np.sqrt(scale_ref)),
+            dict(alphas=alphas_ref, Qref=np.sqrt(scale_ref),PTO=0),
             constants,
             threshold_holder,
         )
