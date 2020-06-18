@@ -17,6 +17,13 @@ try:
 except ImportError:
     use_LHAPDF = False
 
+try:
+    import apfel
+
+    use_APFEL = True
+except ImportError:
+    use_APFEL = False
+
 # these tests will only pass for the default set of constants
 constants = Constants()
 CA = constants.CA
@@ -83,8 +90,8 @@ class TestStrongCoupling:
             StrongCoupling(constants, alphas_ref, 0, threshold_holder)
         with pytest.raises(ValueError):
             StrongCoupling(constants, alphas_ref, scale_ref, None)
-        #with pytest.raises(NotImplementedError):
-        #    StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder, 1)
+        with pytest.raises(NotImplementedError):
+            StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder, 3)
         with pytest.raises(ValueError):
             StrongCoupling(
                 constants, alphas_ref, scale_ref, threshold_holder, method="ODE"
@@ -152,6 +159,67 @@ class BenchmarkStrongCoupling:
         ref = 0.122306
         np.testing.assert_approx_equal(me, ref, significant=6)
 
+    def benchmark_APFEL_ffns(self):
+        Q2s = [1e1, 1e2, 1e3, 1e4]
+        alphas_ref = 0.118
+        scale_ref = 91.0 ** 2
+        nf = 4
+        apfel_vals_dict = {
+            0: np.array(
+                [
+                    0.01980124164841284,
+                    0.014349241933308077,
+                    0.01125134009147229,
+                    0.009253560532725833,
+                ]
+            ),
+            1: np.array(
+                [
+                    0.021603236069744878,
+                    0.014887068327193985,
+                    0.01139235082295531,
+                    0.009245832041857378,
+                ]
+            ),
+            2: np.array(
+                [
+                    0.02204088975651748,
+                    0.014966690529271008,
+                    0.011406500825908607,
+                    0.009245271638953058,
+                ]
+            ),
+        }
+        # collect my values
+        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
+        for order in [0, 1, 2]:
+            as_FFNS = StrongCoupling(
+                constants, alphas_ref, scale_ref, threshold_holder, order=order
+            )
+            my_vals = []
+            for Q2 in Q2s:
+                my_vals.append(as_FFNS.a_s(Q2))
+            # get APFEL numbers - if available else use cache
+            apfel_vals = apfel_vals_dict[order]
+            if use_APFEL:
+                # run apfel
+                apfel.CleanUp()
+                apfel.SetTheory("QCD")
+                apfel.SetPerturbativeOrder(order)
+                apfel.SetAlphaEvolution("expanded")
+                apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                apfel.SetFFNS(nf)
+                apfel.SetRenFacRatio(1)
+                # collect a_s
+                apfel_vals_cur = []
+                for Q2 in Q2s:
+                    apfel_vals_cur.append(apfel.AlphaQCD(np.sqrt(Q2)) / (4.0 * np.pi))
+                # print(apfel_vals_cur)
+                np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
+            # check myself to LHAPDF
+            np.testing.assert_allclose(apfel_vals, np.array(my_vals))
+        # __import__("pdb").set_trace()
+
     def _get_Lambda2_LO(self, as_ref, scale_ref, nf):
         """Transformation to Lambda_QCD"""
         beta0 = beta_0(nf, CA, CF, TF)
@@ -165,8 +233,14 @@ class BenchmarkStrongCoupling:
         nf = 4
         # collect my values
         threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
-        # LHAPDF cache
-        lhapdf_vals_dict = {0 : np.array(
+        as_FFNS_LO = StrongCoupling(
+            constants, alphas_ref, scale_ref, threshold_holder, order=0
+        )
+        my_vals = []
+        for Q2 in Q2s:
+            my_vals.append(as_FFNS_LO.a_s(Q2))
+        # get LHAPDF numbers - if available else use cache
+        lhapdf_vals = np.array(
             [
                 0.031934929816669545,
                 0.019801241565290697,
@@ -174,49 +248,22 @@ class BenchmarkStrongCoupling:
                 0.01125134004424113,
                 0.009253560493881005,
             ]
-        ),
-        1 : np.array(
-            [0.03192686261387547, 0.01980099749592032, 0.014349225664700828, 0.011251339158063185, 0.009253560600120104]
-        )}
-        # iterate orders
-        for order in [0,1]:
-            as_FFNS_LO = StrongCoupling(
-                constants, alphas_ref, scale_ref, threshold_holder, order=order
-            )
-            my_vals = []
+        )
+        if use_LHAPDF:
+            # run lhapdf
+            as_lhapdf = lhapdf.mkBareAlphaS("analytic")
+            as_lhapdf.setOrderQCD(1)
+            as_lhapdf.setFlavorScheme("FIXED", nf)
+            Lambda2 = self._get_Lambda2_LO(alphas_ref / (4.0 * np.pi), scale_ref, nf)
+            as_lhapdf.setLambda(nf, np.sqrt(Lambda2))
+            # collect a_s
+            lhapdf_vals_cur = []
             for Q2 in Q2s:
-                my_vals.append(as_FFNS_LO.a_s(Q2))
-            # get LHAPDF numbers
-            lhapdf_vals = lhapdf_vals_dict[order]
-            if use_LHAPDF:
-                m2c = 2
-                m2b = 25
-                m2t = 1500
-                threshold_list = [m2c, m2b, m2t]
-                # run lhapdf
-                #as_lhapdf = lhapdf.mkBareAlphaS("analytic")
-                #as_lhapdf.setOrderQCD(1 + order)
-                #as_lhapdf.setFlavorScheme("FIXED", nf)
-                #Lambda2 = self._get_Lambda2_LO(alphas_ref / (4.0 * np.pi), scale_ref, nf)
-                #as_lhapdf.setLambda(nf, np.sqrt(Lambda2))
-                as_lhapdf = lhapdf.mkBareAlphaS("ODE")
-                as_lhapdf.setOrderQCD(1 + order)
-                as_lhapdf.setFlavorScheme("FIXED", nf)
-                #as_lhapdf.setFlavorScheme("VARIABLE", -1)
-                as_lhapdf.setAlphaSMZ(alphas_ref)
-                as_lhapdf.setMZ(np.sqrt(scale_ref))
-                #for k in range(3):
-                #    as_lhapdf.setQuarkMass(1 + k, 0)
-                #for k, m2 in enumerate(threshold_list):
-                #    as_lhapdf.setQuarkMass(4 + k, np.sqrt(m2))
-                # collect a_s
-                lhapdf_vals_cur = []
-                for Q2 in Q2s:
-                    lhapdf_vals_cur.append(as_lhapdf.alphasQ2(Q2) / (4.0 * np.pi))
-                # print(lhapdf_vals_cur)
-                np.testing.assert_allclose(lhapdf_vals, np.array(lhapdf_vals_cur),rtol=5e-4)
-            # check myself to LHAPDF
-            np.testing.assert_allclose(lhapdf_vals, np.array(my_vals),rtol=5e-4)
+                lhapdf_vals_cur.append(as_lhapdf.alphasQ2(Q2) / (4.0 * np.pi))
+            # print(lhapdf_vals_cur)
+            np.testing.assert_allclose(lhapdf_vals, np.array(lhapdf_vals_cur))
+        # check myself to LHAPDF
+        np.testing.assert_allclose(lhapdf_vals, np.array(my_vals), rtol=5e-4)
 
     def test_lhapdf_zmvfns_lo(self):
         """test ZM-VFNS LO towards LHAPDF"""
