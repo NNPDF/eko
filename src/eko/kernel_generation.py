@@ -199,12 +199,12 @@ class KernelDispatcher:
             Parameters
             ---------
                 function : callable or list(callable)
-                    input (list of) function
+                    input (list of) callable(s)
 
             Returns
             -------
                 function : callable or list(callable)
-                    compiled (list of) function
+                    compiled (list of) callable(s)
         """
         if isinstance(function, abc.Iterable):
             return [self.njit(f) for f in function]

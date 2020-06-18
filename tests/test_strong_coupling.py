@@ -105,7 +105,7 @@ class TestStrongCoupling:
             threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
             # create
             sc = StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder)
-            np.testing.assert_approx_equal(sc(scale_ref), alphas_ref / 4.0 / np.pi)
+            np.testing.assert_approx_equal(sc.a_s(scale_ref), alphas_ref / 4.0 / np.pi)
 
 
 class BenchmarkStrongCoupling:
@@ -123,9 +123,9 @@ class BenchmarkStrongCoupling:
             constants, ref_alpha_s, ref_mu2, threshold_holder, order=0
         )
         # check local
-        np.testing.assert_approx_equal(as_FFNS_LO(ref_mu2), ref_alpha_s / 4.0 / np.pi)
+        np.testing.assert_approx_equal(as_FFNS_LO.a_s(ref_mu2), ref_alpha_s / 4.0 / np.pi)
         # check high
-        result = as_FFNS_LO(ask_q2)
+        result = as_FFNS_LO.a_s(ask_q2)
         np.testing.assert_approx_equal(result, known_val, significant=7)
         # check t
         t0_ref = np.log(4.0 * np.pi / ref_alpha_s)
@@ -155,7 +155,7 @@ class BenchmarkStrongCoupling:
             2, "ZM-VFNS", threshold_list=threshold_list
         )
         as_VFNS_LO = StrongCoupling(constants, 0.35, 2, threshold_holder, order=0)
-        me = as_VFNS_LO(1e4) * 4 * np.pi
+        me = as_VFNS_LO.a_s(1e4) * 4 * np.pi
         ref = 0.122306
         np.testing.assert_approx_equal(me, ref, significant=6)
 
@@ -296,7 +296,7 @@ class BenchmarkStrongCoupling:
         )
         my_vals = []
         for Q2 in Q2s:
-            my_vals.append(as_VFNS_LO(Q2))
+            my_vals.append(as_VFNS_LO.a_s(Q2))
         # LHAPDF cache
         lhapdf_vals = np.array(
             [

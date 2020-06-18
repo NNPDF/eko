@@ -114,11 +114,15 @@ class StrongCoupling:
 
         Note that
 
-        - all scale parameters, `scale_ref`, `scale_to`, `thresholds`,
-          have to be given as squared values
+        - all scale parameters (``scale_ref`` and ``scale_to``),
+          have to be given as squared values, i.e. in units of :math:`\text{GeV}^2`
         - although, we only provide methods for
           :math:`a_s = \frac{\alpha_s(\mu^2)}{4\pi}` the reference value has to be
           given in terms of :math:`\alpha_s(\mu_0^2)` due to legacy reasons
+        - the ``order`` refers to the perturbative order of the beta function, thus
+          ``0`` means leading order beta function means evolution with :math:`\beta_0`
+          meas at 1-loop - so there is a natural mismatch between `order` and the
+          number of loop by one unit
 
         Normalization is given by :cite:`Herzog:2017ohr`:
 
@@ -137,8 +141,8 @@ class StrongCoupling:
                 alpha_s(!) at the reference scale :math:`\alpha_s(\mu_0^2)`
             scale_ref : t_float
                 reference scale :math:`\mu_0^2`
-            threshold_holder : eko.thresholds.Threshold
-                An instance of :class:`~eko.thresholds.Threshold`
+            threshold_holder : eko.thresholds.ThresholdsConfig
+                An instance of :class:`~eko.thresholds.ThresholdsConfig`
             order: int
                 Evaluated order of the beta function: ``0`` = LO, ...
             method : ["analytic"]
@@ -149,13 +153,13 @@ class StrongCoupling:
             >>> c = Constants()
             >>> alpha_ref = 0.35
             >>> scale_ref = 2
-            >>> threshold_holder = Threshold( ... )
-            >>> alpha_s = StrongCoupling(c, alpha_ref, scale_ref, threshold_holder)
+            >>> threshold_holder = ThresholdsConfig( ... )
+            >>> sc = StrongCoupling(c, alpha_ref, scale_ref, threshold_holder)
             >>> q2 = 91.1
-            >>> alpha_s(q2)
+            >>> sc.a_s(q2)
             0.118
             >>> q02 = 50.0
-            >>> alpha_s.delta_t(q02, q2)
+            >>> sc.delta_t(q02, q2)
             0.54
     """
 
@@ -224,9 +228,9 @@ class StrongCoupling:
             ----------
                 setup : dict
                     theory dictionary
-                constants : Constants
+                constants : eko.constants.Constants
                     Color constants
-                thresholds : Threshold
+                thresholds : eko.thresholds.ThresholdsConfig
                     threshold configuration
 
             Returns
@@ -309,7 +313,7 @@ class StrongCoupling:
         # at the moment everything is analytic - and type has been checked in the constructor
         return self._compute_analytic(*args)
 
-    def __call__(self, scale_to):
+    def a_s(self, scale_to):
         """
             Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
 
@@ -336,22 +340,6 @@ class StrongCoupling:
             final_alpha = self._compute(final_alpha, area_nf, q2_from, q2_to)
         return final_alpha
 
-    def a_s(self, scale_to):
-        """
-            Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
-
-            Parameters
-            ----------
-                scale_to : t_float
-                    final scale to evolve to :math:`Q^2`
-
-            Returns
-            -------
-                a_s : t_float
-                    strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
-        """
-        return self(scale_to)
-
     def _param_t(self, scale_to):
         """
             Computes evolution parameter :math:`t(Q^2) = \\log(1/a_s(Q^2))`.
@@ -366,7 +354,7 @@ class StrongCoupling:
                 t : t_float
                     evolution parameter :math:`t(Q^2) = \\log(1/a_s(Q^2))`
         """
-        return np.log(1.0 / self(scale_to))
+        return np.log(1.0 / self.a_s(scale_to))
 
     def delta_t(self, scale_from, scale_to):
         """
