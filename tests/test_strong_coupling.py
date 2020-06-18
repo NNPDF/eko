@@ -74,7 +74,7 @@ class TestStrongCoupling:
         assert sc.as_ref == alphas_ref / 4.0 / np.pi
         # from theory dict
         sc2 = StrongCoupling.from_dict(
-            dict(alphas=alphas_ref, Qref=np.sqrt(scale_ref),PTO=0),
+            dict(alphas=alphas_ref, Qref=np.sqrt(scale_ref), PTO=0),
             constants,
             threshold_holder,
         )
@@ -107,6 +107,37 @@ class TestStrongCoupling:
             sc = StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder)
             np.testing.assert_approx_equal(sc.a_s(scale_ref), alphas_ref / 4.0 / np.pi)
 
+    def test_boomerang(self):
+        alphas_ref = 0.118
+        as_ref = alphas_ref / (4 * np.pi)
+        scale_ref = 91.0 ** 2
+        nf = 3
+        order = 1
+        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
+        sc_down = StrongCoupling(
+            constants, alphas_ref, scale_ref, threshold_holder, order
+        )
+        scale_down = 1
+        alpha_down = sc_down.a_s(scale_down)
+        threshold_holder_down = thresholds.ThresholdsConfig(scale_down, "FFNS", nf=nf)
+        sc_up = StrongCoupling(
+            constants, alpha_down * 4 * np.pi, scale_down, threshold_holder_down, order
+        )
+        np.testing.assert_allclose(sc_up.a_s(scale_ref), as_ref, rtol=1e-4)
+
+    def test_ref(self):
+        # prepare
+        alphas_ref = 0.118
+        scale_ref = 91.0 ** 2
+        nf = 3
+        for order in [0, 1]:
+            threshold_holder = thresholds.ThresholdsConfig(1, "FFNS", nf=nf)
+            # create
+            sc = StrongCoupling(
+                constants, alphas_ref, scale_ref, threshold_holder, order
+            )
+            np.testing.assert_approx_equal(sc.a_s(scale_ref), alphas_ref / 4.0 / np.pi)
+
 
 class BenchmarkStrongCoupling:
     def test_a_s(self):
@@ -123,7 +154,9 @@ class BenchmarkStrongCoupling:
             constants, ref_alpha_s, ref_mu2, threshold_holder, order=0
         )
         # check local
-        np.testing.assert_approx_equal(as_FFNS_LO.a_s(ref_mu2), ref_alpha_s / 4.0 / np.pi)
+        np.testing.assert_approx_equal(
+            as_FFNS_LO.a_s(ref_mu2), ref_alpha_s / 4.0 / np.pi
+        )
         # check high
         result = as_FFNS_LO.a_s(ask_q2)
         np.testing.assert_approx_equal(result, known_val, significant=7)
