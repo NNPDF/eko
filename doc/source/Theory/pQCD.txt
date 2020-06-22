@@ -14,6 +14,8 @@ We use perturbative QCD with the running coupling
 
 Our main reference is :cite:`Herzog:2017ohr`.
 
+The matching conditions are given in :cite:`Chetyrkin:1997sg`.
+
 Implementation: :class:`~eko.strong_coupling.StrongCoupling`
 
 Splitting Functions

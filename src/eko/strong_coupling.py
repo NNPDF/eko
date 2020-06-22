@@ -155,22 +155,13 @@ class StrongCoupling:
             >>> scale_ref = 2
             >>> threshold_holder = ThresholdsConfig( ... )
             >>> sc = StrongCoupling(c, alpha_ref, scale_ref, threshold_holder)
-            >>> q2 = 91.1
+            >>> q2 = 91.1**2
             >>> sc.a_s(q2)
             0.118
-            >>> q02 = 50.0
-            >>> sc.delta_t(q02, q2)
-            0.54
     """
 
     def __init__(
-        self,
-        consts,
-        alpha_s_ref,
-        scale_ref,
-        threshold_holder,
-        order=0,
-        method="analytic",
+        self, consts, alpha_s_ref, scale_ref, thresh, order=0, method="analytic",
     ):
         # Sanity checks
         if not isinstance(consts, constants.Constants):
@@ -179,7 +170,7 @@ class StrongCoupling:
             raise ValueError(f"alpha_s_ref has to be positive - got {alpha_s_ref}")
         if scale_ref <= 0:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
-        if not isinstance(threshold_holder, thresholds.ThresholdsConfig):
+        if not isinstance(thresh, thresholds.ThresholdsConfig):
             raise ValueError("Needs a Threshold instance")
         if order not in [0, 1, 2]:
             raise NotImplementedError("a_s beyond NNLO is not implemented")
@@ -187,27 +178,18 @@ class StrongCoupling:
         if method not in ["analytic"]:
             raise ValueError(f"Unknown method {method}")
         self._method = method
-
         self._constants = consts
-        # Move alpha_s from q2_ref to scale_ref
-        area_path = threshold_holder.get_path_from_q2_ref(scale_ref)
-        # Now run through the list in reverse to set the alpha at q0
-        input_as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
-        for area in reversed(area_path):
-            scale_to = area.q2_ref
-            area_nf = area.nf
-            new_as = self._compute(input_as_ref, area_nf, scale_ref, scale_to)
-            scale_ref = scale_to
-            input_as_ref = new_as
 
-        # At this point we moved the value of alpha_s down to q0, store
-        self._as_ref = new_as
-        self._threshold_holder = threshold_holder
-
-    @property
-    def as_ref(self):
-        """ reference value """
-        return self._as_ref
+        # create new threshold object
+        self.as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
+        if thresh.scheme == "FFNS":
+            self._threshold_holder = thresholds.ThresholdsConfig(
+                scale_ref, thresh.scheme, nf=thresh.nf_ref
+            )
+        else:
+            self._threshold_holder = thresholds.ThresholdsConfig(
+                scale_ref, thresh.scheme, threshold_list=thresh._area_walls
+            )
 
     @property
     def q2_ref(self):
@@ -262,7 +244,7 @@ class StrongCoupling:
             Returns
             -------
                 a_s : t_float
-                    coupling at target scale
+                    coupling at target scale :math:`a_s(Q^2)`
         """
         # common vars
         beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
@@ -293,26 +275,30 @@ class StrongCoupling:
 
         return res
 
-    def _compute(self, *args):
+    def _compute(self, as_ref, nf, scale_from, scale_to):
         """
             Wrapper in order to pass the computation to the corresponding
             method (depending on the calculation method).
-            This function has no knowledge of the incoming parameters
-            as they are defined in the respective computation methods
 
             Parameters
             ----------
-                `*args`: tuple
-                    List of arguments accepted by the computational
-                    method defined by self._method
+                as_ref: t_float
+                    reference alpha_s
+                nf: int
+                    value of nf for computing alpha_s
+                scale_from: t_float
+                    reference scale
+                scale_to : t_float
+                    target scale
 
             Returns
             -------
                 a_s : t_float
-                    strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
+                    strong coupling at target scale :math:`a_s(Q^2)`
         """
+        # TODO set up a cache system here
         # at the moment everything is analytic - and type has been checked in the constructor
-        return self._compute_analytic(*args)
+        return self._compute_analytic(as_ref, nf, scale_from, scale_to)
 
     def a_s(self, scale_to):
         """
@@ -329,17 +315,35 @@ class StrongCoupling:
                     strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
-        final_alpha = self._as_ref
+        final_as = self.as_ref
         area_path = self._threshold_holder.get_path_from_q2_ref(scale_to)
-        # TODO set up a cache system here
-        for area in area_path:
+        __import__("pdb").set_trace()
+        for k, area in enumerate(area_path):
             q2_from = area.q2_ref
             q2_to = area.q2_towards(scale_to)
             if np.isclose(q2_from, q2_to):
                 continue
-            area_nf = area.nf
-            final_alpha = self._compute(final_alpha, area_nf, q2_from, q2_to)
-        return final_alpha
+            new_as = self._compute(final_as, area.nf, q2_from, q2_to)
+            # apply matching conditions: see hep-ph/9706430
+            # - if there is yet a step to go
+            if k < len(area_path) - 1:
+                next_nf_is_down = area_path[k + 1].nf < area.nf
+                # q2_to is the threshold value
+                L = np.log(scale_to / q2_to)
+                if next_nf_is_down:
+                    c1 = -4.0 / 3.0 * self._constants.TF * L
+                    # TODO recover color constants
+                    c2 = 4.0 / 9.0 * L ** 2 - 38.0 / 3.0 * L - 14.0 / 3.0
+                else:
+                    c1 = 4.0 / 3.0 * self._constants.TF * L
+                    c2 = 4.0 / 9.0 * L ** 2 + 38.0 / 3.0 * L + 14.0 / 3.0
+                # shift
+                if self._order == 1:
+                    new_as *= 1 + c1 * new_as
+                elif self._order == 2:
+                    new_as *= 1 + c1 * new_as + c2 * new_as ** 2
+            final_as = new_as
+        return final_as
 
     def _param_t(self, scale_to):
         """
