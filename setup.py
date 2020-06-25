@@ -15,7 +15,7 @@ setup(name='eko',
       package_dir={'': 'src'},
       packages=find_packages('src'),
       package_data = {
-          'doc/source/img' : ['Logo.svg'],
+          '' : ['doc/source/img/Logo.svg'],
       },
       zip_safe=False,
       classifiers=[
