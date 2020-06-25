@@ -130,7 +130,7 @@ class ThresholdsConfig:
             self.max_nf = nf
             self.min_nf = nf
             protection = True
-        elif scheme in ["ZM-VFNS"]:
+        elif scheme in ["ZM-VFNS", "FONLL-A", "FONLL-A'"]:
             if nf is not None:
                 logger.warning(
                     "The ZM-VFNS configures its own value for nf, ignoring input nf=%d",

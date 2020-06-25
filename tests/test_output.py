@@ -24,13 +24,13 @@ class TestOutput:
         q2_ref = 1
         VV, VVe = self.mkO()
         q2_out = 2
-        q2_grid = {q2_out: {"operators": {"V.V": VV}, "operator_errors": {"V.V": VVe},}}
+        Q2grid = {q2_out: {"operators": {"V.V": VV}, "operator_errors": {"V.V": VVe},}}
         d = dict(
             xgrid=xgrid,
             polynomial_degree=polynomial_degree,
             is_log_interpolation=is_log_interpolation,
             q2_ref=q2_ref,
-            q2_grid=q2_grid,
+            Q2grid=Q2grid,
         )
         # create object
         o1 = output.Output(d)
@@ -65,13 +65,13 @@ class TestOutput:
         q2_ref = 1
         VV, VVe = self.mkO()
         q2_out = 2
-        q2_grid = {q2_out: {"operators": {"V.V": VV}, "operator_errors": {"V.V": VVe},}}
+        Q2grid = {q2_out: {"operators": {"V.V": VV}, "operator_errors": {"V.V": VVe},}}
         d = dict(
             xgrid=xgrid,
             polynomial_degree=polynomial_degree,
             is_log_interpolation=is_log_interpolation,
             q2_ref=q2_ref,
-            q2_grid=q2_grid,
+            Q2grid=Q2grid,
         )
         # create object
         o = output.Output(d)
@@ -102,7 +102,7 @@ class TestOutput:
         q2_out1 = 2
         VV2, VVe2 = self.mkO()
         q2_out2 = 3
-        q2_grid = {
+        Q2grid = {
             q2_out1: {"operators": {"V.V": VV1}, "operator_errors": {"V.V": VVe1},},
             q2_out2: {"operators": {"V.V": VV2}, "operator_errors": {"V.V": VVe2},},
         }
@@ -111,7 +111,7 @@ class TestOutput:
             polynomial_degree=polynomial_degree,
             is_log_interpolation=is_log_interpolation,
             q2_ref=q2_ref,
-            q2_grid=q2_grid,
+            Q2grid=Q2grid,
         )
         # create object
         o = output.Output(d)
@@ -119,7 +119,7 @@ class TestOutput:
             ph = o.get_op(q2)
             raw = ph.get_raw_operators()
             np.testing.assert_almost_equal(
-                raw["operators"]["V.V"], q2_grid[q2]["operators"]["V.V"]
+                raw["operators"]["V.V"], Q2grid[q2]["operators"]["V.V"]
             )
         # errors
         with pytest.raises(KeyError):
@@ -133,7 +133,7 @@ class TestOutput:
         q2_ref = 1
         VVl, VVle = self.mkO()
         q2_out = 2
-        q2_grid = {
+        Q2grid = {
             q2_out: {"operators": {"V.V": VVl}, "operator_errors": {"V.V": VVle},}
         }
         d = dict(
@@ -141,7 +141,7 @@ class TestOutput:
             polynomial_degree=polynomial_degree,
             is_log_interpolation=is_log_interpolation,
             q2_ref=q2_ref,
-            q2_grid=q2_grid,
+            Q2grid=Q2grid,
         )
         # create object
         o1 = output.Output(d)
@@ -150,7 +150,7 @@ class TestOutput:
         d2["q2_ref"] = q2_out
         VVh, VVhe = self.mkO()
         q2_final = 3
-        d2["q2_grid"] = {
+        d2["Q2grid"] = {
             q2_final: {"operators": {"V.V": VVh}, "operator_errors": {"V.V": VVhe},}
         }
         o2 = output.Output(d2)
@@ -159,9 +159,9 @@ class TestOutput:
         assert isinstance(o21, output.Output)
         assert o21["q2_ref"] == q2_ref
         assert o21["is_log_interpolation"] == o1["is_log_interpolation"]
-        assert q2_final in o21["q2_grid"]
+        assert q2_final in o21["Q2grid"]
         np.testing.assert_almost_equal(
-            o21["q2_grid"][q2_final]["operators"]["V.V"], VVh @ VVl
+            o21["Q2grid"][q2_final]["operators"]["V.V"], VVh @ VVl
         )
 
         # errors

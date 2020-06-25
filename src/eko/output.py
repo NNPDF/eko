@@ -34,7 +34,7 @@ class Output(dict):
             Returns
             ---------
                 out_grid : dict
-                    output PDFs and their associated errors for the computed q2_grid
+                    output PDFs and their associated errors for the computed Q2grid
         """
         # TODO rotation from the evolution basis to flavor basis? if yes, here!
         # turn input_pdfs into lists
@@ -47,7 +47,7 @@ class Output(dict):
 
         # build output
         out_grid = {}
-        for q2 in self["q2_grid"]:
+        for q2 in self["Q2grid"]:
             pdfs, errs = self.get_op(q2).apply_pdf(input_lists)
             out_grid[q2] = {"pdfs": pdfs, "errors": errs}
 
@@ -85,7 +85,7 @@ class Output(dict):
         """
         # prepare output dict
         out = {
-            "q2_grid": {},
+            "Q2grid": {},
         }
         # dump raw elements
         for f in ["polynomial_degree", "is_log_interpolation", "q2_ref"]:
@@ -94,8 +94,8 @@ class Output(dict):
         for k in ["xgrid"]:
             out[k] = self[k].tolist()
         # make operators raw
-        for q2 in self["q2_grid"]:
-            out["q2_grid"][q2] = self.get_op(q2).get_raw_operators()
+        for q2 in self["Q2grid"]:
+            out["Q2grid"][q2] = self.get_op(q2).get_raw_operators()
         return out
 
     def dump_yaml(self, stream=None):
@@ -113,6 +113,7 @@ class Output(dict):
                     result of dump(output, stream), i.e. a string, if no stream is given or
                     Null, if self is written sucessfully to stream
         """
+        # TODO explicitly silence yaml
         out = self.get_raw()
         return yaml.dump(out, stream)
 
@@ -187,10 +188,10 @@ class Output(dict):
                     corresponding Operator
         """
         # check existence
-        if q2 not in self["q2_grid"]:
+        if q2 not in self["Q2grid"]:
             raise KeyError(f"q2={q2} not in grid")
         # compose
-        ops = self["q2_grid"][q2]
+        ops = self["Q2grid"][q2]
         op_members = {}
         for name in ops["operators"]:
             op_members[name] = OperatorMember(
@@ -225,16 +226,16 @@ class Output(dict):
             raise ValueError(f"'xgrid' of the two factors does not match")
         # check matching
         mid_scale = self["q2_ref"]
-        if not mid_scale in other["q2_grid"]:
+        if not mid_scale in other["Q2grid"]:
             raise ValueError("Operators can not be joined")
         # prepare output
         other_op = other.get_op(mid_scale)
         out = copy.deepcopy(self)
         out["q2_ref"] = other["q2_ref"]
-        for q2 in self["q2_grid"]:
+        for q2 in self["Q2grid"]:
             # multiply operators
             me = self.get_op(q2)
             prod = me * other_op
-            out["q2_grid"][q2] = prod.get_raw_operators()
+            out["Q2grid"][q2] = prod.get_raw_operators()
 
         return out

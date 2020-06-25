@@ -17,6 +17,13 @@ try:
 except ImportError:
     use_LHAPDF = False
 
+try:
+    import apfel
+
+    use_APFEL = True
+except ImportError:
+    use_APFEL = False
+
 # these tests will only pass for the default set of constants
 constants = Constants()
 CA = constants.CA
@@ -41,17 +48,20 @@ class TestBetaFunction:
     def test_beta_0(self):
         """Test first beta function coefficient"""
         self._flav_test(beta_0)
-        self._check_result(beta_0, 5, 23 / 3)
+        # from hep-ph/9706430
+        self._check_result(beta_0, 5, 4 * 23 / 12)
 
     def test_beta_1(self):
         """Test second beta function coefficient"""
         self._flav_test(beta_1)
-        self._check_result(beta_1, 5, 116 / 3)
+        # from hep-ph/9706430
+        self._check_result(beta_1, 5, 4 ** 2 * 29 / 12)
 
     def test_beta_2(self):
         """Test third beta function coefficient"""
         self._flav_test(beta_2)
-        self._check_result(beta_2, 5, 9769 / 54)
+        # from hep-ph/9706430
+        self._check_result(beta_2, 5, 4 ** 3 * 9769 / 3456)
 
 
 class TestStrongCoupling:
@@ -67,7 +77,7 @@ class TestStrongCoupling:
         assert sc.as_ref == alphas_ref / 4.0 / np.pi
         # from theory dict
         sc2 = StrongCoupling.from_dict(
-            dict(alphas=alphas_ref, Qref=np.sqrt(scale_ref)),
+            dict(alphas=alphas_ref, Qref=np.sqrt(scale_ref), PTO=0),
             constants,
             threshold_holder,
         )
@@ -84,7 +94,7 @@ class TestStrongCoupling:
         with pytest.raises(ValueError):
             StrongCoupling(constants, alphas_ref, scale_ref, None)
         with pytest.raises(NotImplementedError):
-            StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder, 1)
+            StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder, 3)
         with pytest.raises(ValueError):
             StrongCoupling(
                 constants, alphas_ref, scale_ref, threshold_holder, method="ODE"
@@ -98,7 +108,28 @@ class TestStrongCoupling:
             threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
             # create
             sc = StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder)
-            np.testing.assert_approx_equal(sc(scale_ref), alphas_ref / 4.0 / np.pi)
+            np.testing.assert_approx_equal(sc.a_s(scale_ref), alphas_ref / 4.0 / np.pi)
+
+    def test_ref(self):
+        # prepare
+        thresh_setups = [
+            {"FNS": "FFNS", "NfFF": 3},
+            {"FNS": "FFNS", "NfFF": 4},
+            {"FNS": "ZM-VFNS", "mc": 2, "mb": 4, "mt": 175},
+        ]
+        alphas_ref = 0.118
+        scale_ref = 91.0 ** 2
+        for thresh_setup in thresh_setups:
+            thresh_setup["Q0"] = 1
+            thresholds_conf = thresholds.ThresholdsConfig.from_dict(thresh_setup)
+            for order in [0, 1, 2]:
+                # create
+                sc = StrongCoupling(
+                    constants, alphas_ref, scale_ref, thresholds_conf, order
+                )
+                np.testing.assert_approx_equal(
+                    sc.a_s(scale_ref), alphas_ref / 4.0 / np.pi
+                )
 
 
 class BenchmarkStrongCoupling:
@@ -116,9 +147,11 @@ class BenchmarkStrongCoupling:
             constants, ref_alpha_s, ref_mu2, threshold_holder, order=0
         )
         # check local
-        np.testing.assert_approx_equal(as_FFNS_LO(ref_mu2), ref_alpha_s / 4.0 / np.pi)
+        np.testing.assert_approx_equal(
+            as_FFNS_LO.a_s(ref_mu2), ref_alpha_s / 4.0 / np.pi
+        )
         # check high
-        result = as_FFNS_LO(ask_q2)
+        result = as_FFNS_LO.a_s(ask_q2)
         np.testing.assert_approx_equal(result, known_val, significant=7)
         # check t
         t0_ref = np.log(4.0 * np.pi / ref_alpha_s)
@@ -148,9 +181,136 @@ class BenchmarkStrongCoupling:
             2, "ZM-VFNS", threshold_list=threshold_list
         )
         as_VFNS_LO = StrongCoupling(constants, 0.35, 2, threshold_holder, order=0)
-        me = as_VFNS_LO(1e4) * 4 * np.pi
+        me = as_VFNS_LO.a_s(1e4) * 4 * np.pi
         ref = 0.122306
         np.testing.assert_approx_equal(me, ref, significant=6)
+
+    def benchmark_APFEL_ffns(self):
+        Q2s = [1e1, 1e2, 1e3, 1e4]
+        alphas_ref = 0.118
+        scale_ref = 91.0 ** 2
+        nf = 4
+        apfel_vals_dict = {
+            0: np.array(
+                [
+                    0.01980124164841284,
+                    0.014349241933308077,
+                    0.01125134009147229,
+                    0.009253560532725833,
+                ]
+            ),
+            1: np.array(
+                [
+                    0.021603236069744878,
+                    0.014887068327193985,
+                    0.01139235082295531,
+                    0.009245832041857378,
+                ]
+            ),
+            2: np.array(
+                [
+                    0.02204088975651748,
+                    0.014966690529271008,
+                    0.011406500825908607,
+                    0.009245271638953058,
+                ]
+            ),
+        }
+        # collect my values
+        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
+        for order in [0, 1, 2]:
+            as_FFNS = StrongCoupling(
+                constants, alphas_ref, scale_ref, threshold_holder, order=order
+            )
+            my_vals = []
+            for Q2 in Q2s:
+                my_vals.append(as_FFNS.a_s(Q2))
+            # get APFEL numbers - if available else use cache
+            apfel_vals = apfel_vals_dict[order]
+            if use_APFEL:
+                # run apfel
+                apfel.CleanUp()
+                apfel.SetTheory("QCD")
+                apfel.SetPerturbativeOrder(order)
+                apfel.SetAlphaEvolution("expanded")
+                apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                apfel.SetFFNS(nf)
+                apfel.SetRenFacRatio(1)
+                # collect a_s
+                apfel_vals_cur = []
+                for Q2 in Q2s:
+                    apfel_vals_cur.append(apfel.AlphaQCD(np.sqrt(Q2)) / (4.0 * np.pi))
+                # print(apfel_vals_cur)
+                np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
+            # check myself to APFEL
+            np.testing.assert_allclose(apfel_vals, np.array(my_vals))
+
+    def benchmark_APFEL_vfns(self):
+        Q2s = [1, 2 ** 2, 3 ** 2, 90 ** 2, 100 ** 2]
+        alphas_ref = 0.118
+        scale_ref = 91.0 ** 2
+        threshold_list = np.power([2, 4, 175], 2)
+        apfel_vals_dict = {
+            0: np.array(
+                [
+                    0.028938898786215545,
+                    0.021262022520127353,
+                    0.018590827846469413,
+                    0.009405104970805002,
+                    0.00926434063784546,
+                ]
+            ),
+            1: np.array(
+                [
+                    0.035670881093047654,
+                    0.02337584106433519,
+                    0.01985110421500437,
+                    0.009405815313164215,
+                    0.009258502199861199,
+                ]
+            ),
+            2: np.array(
+                [
+                    0.03745593700854872,
+                    0.023692463391822537,
+                    0.019999870769373283,
+                    0.009405846627291407,
+                    0.009258253034683823,
+                ]
+            ),
+        }
+        # collect my values
+        threshold_holder = thresholds.ThresholdsConfig(
+            scale_ref, "ZM-VFNS", threshold_list=threshold_list
+        )
+        for order in [0, 1, 2]:
+            as_VFNS = StrongCoupling(
+                constants, alphas_ref, scale_ref, threshold_holder, order=order
+            )
+            my_vals = []
+            for Q2 in Q2s:
+                my_vals.append(as_VFNS.a_s(Q2))
+            # get APFEL numbers - if available else use cache
+            apfel_vals = apfel_vals_dict[order]
+            if use_APFEL:
+                # run apfel
+                apfel.CleanUp()
+                apfel.SetTheory("QCD")
+                apfel.SetPerturbativeOrder(order)
+                apfel.SetAlphaEvolution("expanded")
+                apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                apfel.SetVFNS()
+                apfel.SetPoleMasses(*np.sqrt(threshold_list))
+                apfel.SetRenFacRatio(1)
+                apfel.InitializeAPFEL()
+                # collect a_s
+                apfel_vals_cur = []
+                for Q2 in Q2s:
+                    apfel_vals_cur.append(apfel.AlphaQCD(np.sqrt(Q2)) / (4.0 * np.pi))
+                # print(apfel_vals_cur)
+                np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
+            # check myself to APFEL
+            np.testing.assert_allclose(apfel_vals, np.array(my_vals))
 
     def _get_Lambda2_LO(self, as_ref, scale_ref, nf):
         """Transformation to Lambda_QCD"""
@@ -171,7 +331,7 @@ class BenchmarkStrongCoupling:
         my_vals = []
         for Q2 in Q2s:
             my_vals.append(as_FFNS_LO.a_s(Q2))
-        # LHAPDF cache
+        # get LHAPDF numbers - if available else use cache
         lhapdf_vals = np.array(
             [
                 0.031934929816669545,
@@ -194,10 +354,10 @@ class BenchmarkStrongCoupling:
                 lhapdf_vals_cur.append(as_lhapdf.alphasQ2(Q2) / (4.0 * np.pi))
             # print(lhapdf_vals_cur)
             np.testing.assert_allclose(lhapdf_vals, np.array(lhapdf_vals_cur))
-        # check
-        np.testing.assert_allclose(lhapdf_vals, np.array(my_vals))
+        # check myself to LHAPDF
+        np.testing.assert_allclose(lhapdf_vals, np.array(my_vals), rtol=5e-4)
 
-    def test_lhapdf_zmvfns_lo(self):
+    def benchmark_lhapdf_zmvfns_lo(self):
         """test ZM-VFNS LO towards LHAPDF"""
         Q2s = [1, 1e1, 1e2, 1e3, 1e4]
         alphas_ref = 0.118
@@ -228,7 +388,7 @@ class BenchmarkStrongCoupling:
         )
         my_vals = []
         for Q2 in Q2s:
-            my_vals.append(as_VFNS_LO(Q2))
+            my_vals.append(as_VFNS_LO.a_s(Q2))
         # LHAPDF cache
         lhapdf_vals = np.array(
             [

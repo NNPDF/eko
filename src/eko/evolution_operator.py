@@ -356,6 +356,8 @@ class PhysicalOperator:
                 p : PhysicalOperator
                     self * other
         """
+        if not isinstance(other, PhysicalOperator):
+            raise ValueError("Can only multiply with another PhysicalOperator")
         # prepare paths
         instructions = {}
         for my_op in self.op_members.values():
@@ -377,7 +379,7 @@ class PhysicalOperator:
         new_ops = {}
         for key, paths in instructions.items():
             new_ops[key] = OperatorMember.join(op_to_compose, paths)
-        return PhysicalOperator(new_ops, self.q2_final)
+        return self.__class__(new_ops, self.q2_final)
 
     def get_raw_operators(self):
         """

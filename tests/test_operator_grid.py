@@ -20,6 +20,7 @@ class TestOperatorGrid:
     def _get_setup(self, use_FFNS):
         setup = {
             "alphas": 0.35,
+            "PTO": 0,
             "Qref": np.sqrt(2),
             "Q0": np.sqrt(2),
             "interpolation_xgrid": [0.1, 1.0],
