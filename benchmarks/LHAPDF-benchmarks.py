@@ -70,9 +70,8 @@ class LHAPDFBenchmark:
             "Qref": float(self._pdfset.get_entry("MZ")),
             "FNS": "FFNS",
             "NfFF": int(self._pdfset.get_entry("NumFlavors")),
-            "xgrid_type": "custom",
-            "xgrid": xgrid,
-            "xgrid_polynom_rank": polynom_rank,
+            "interpolation_xgrid": xgrid,
+            "interpolation_polynomial_degree": polynom_rank,
         }
         self._Q2init = None
         self._Q2final = None
@@ -99,7 +98,7 @@ class LHAPDFBenchmark:
                 / f"LHAPDF-{self._pdfname}-{self._pdfmember}-ops-{self._flag}.pdf",
             )
         if self.post_process_config["write_operator"]:
-            dglap.write_YAML_to_file(ret, self._operator_path)
+            dglap.dump_yaml_to_file(ret, self._operator_path)
 
     def run_FFNS(self, Q2init, Q2final):
         """
@@ -236,10 +235,8 @@ if __name__ == "__main__":
 
     # combine grid
     flag = f"l{n_low}m{n_mid}r{polynom_rank}"
-    xgrid_low = interpolation.get_xgrid_linear_at_log(
-        n_low, 1e-8, 1.0 if n_mid == 0 else 0.1
-    )
-    xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
+    xgrid_low = np.geomspace(1e-8, 1.0 if n_mid == 0 else 0.1,n_low)
+    xgrid_mid = np.linspace(0.1, 1.0, n_mid)
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid)))
 
     # activate logging

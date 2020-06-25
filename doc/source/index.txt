@@ -1,3 +1,8 @@
+.. image:: img/Logo.svg
+  :width: 300
+  :align: center
+  :alt: EKO logo
+
 EKO documentation
 =================
 

@@ -6,21 +6,27 @@ r"""
 """
 
 import logging
+from numbers import Number
+
 import numpy as np
 import numba as nb
+
 import eko.mellin as mellin
 
 logger = logging.getLogger(__name__)
 
-def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, xgrid):
+
+def _get_kernel_integrands(
+    singlet_integrands, nonsinglet_integrands, delta_t, xgrid, cut=1e-2
+):
     """
         Return actual integration kernels.
 
         Parameters
         ----------
-            singlet_integrands : list
+            singlet_integrands : list(list(callable))
                 kernels for singlet integrations
-            nonsinglet_integrands : list
+            nonsinglet_integrands : list(callable)
                 kernels for non-singlet integrations
             delta_t : float
                 evolution distance
@@ -35,14 +41,12 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
                 non-singlet integration routine
     """
     # Generic parameters
-    cut = 1e-2 # TODO make 'cut' external parameter?
     grid_size = len(xgrid)
     grid_logx = np.log(xgrid)
 
     def run_singlet():
-        print("Starting singlet") # TODO delegate to logger?
+        logger.info("Starting singlet")
         all_output = []
-        log_prefix = "computing Singlet operator - %s"
         # iterate output grid
         for k, logx in enumerate(grid_logx):
             extra_args = nb.typed.List()
@@ -51,6 +55,7 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             # Path parameters
             extra_args.append(0.4 * 16 / (1.0 - logx))
             extra_args.append(1.0)
+            # iterate (nested) kernels
             results = []
             for integrand_set in singlet_integrands:
                 all_res = []
@@ -58,29 +63,26 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
                     result = mellin.inverse_mellin_transform(integrand, cut, extra_args)
                     all_res.append(result)
                 results.append(all_res)
-            #out = [[[0,0]]*4]*grid_size
+            # out = [[[0,0]]*4]*grid_size
             all_output.append(results)
-            log_text = f"{k+1}/{grid_size}"
-            logger.info(log_prefix, log_text)
-        logger.info(log_prefix, "done.")
+            logger.info("computing Singlet operator - %d/%d", k + 1, grid_size)
         output_array = np.array(all_output)
 
-        # resort
+        # resort result: key -> op
         singlet_names = ["S_qq", "S_qg", "S_gq", "S_gg"]
         op_dict = {}
         for i, name in enumerate(singlet_names):
-            op = output_array[:, :, i,0]
-            er = output_array[:, :, i,1]
+            op = output_array[:, :, i, 0]
+            er = output_array[:, :, i, 1]
             new_op = OperatorMember(op, er, name)
             op_dict[name] = new_op
 
         return op_dict
 
     def run_nonsinglet():
-        print("Starting non-singlet") # TODO delegate to logger?
+        logger.info("Starting non-singlet")
         operators = []
         operator_errors = []
-        log_prefix = "computing NS operator - %s"
         # iterate output grid
         for k, logx in enumerate(grid_logx):
             extra_args = nb.typed.List()
@@ -89,17 +91,16 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
             # Path parameters
             extra_args.append(0.5)
             extra_args.append(0.0)
-
+            # iterate kernels
             results = []
             for integrand in nonsinglet_integrands:
                 result = mellin.inverse_mellin_transform(integrand, cut, extra_args)
                 results.append(result)
             operators.append(np.array(results)[:, 0])
             operator_errors.append(np.array(results)[:, 1])
-            log_text = f"{k+1}/{grid_size}"
-            logger.info(log_prefix, log_text)
+            logger.info("computing NS operator - %d/%d", k + 1, grid_size)
 
-        # resort
+        # resort result: key -> op
         # in LO v=+=-
         ns_names = ["NS_p", "NS_m", "NS_v"]
         op_dict = {}
@@ -112,6 +113,7 @@ def _get_kernel_integrands(singlet_integrands, nonsinglet_integrands, delta_t, x
         return op_dict
 
     return run_singlet, run_nonsinglet
+
 
 class OperatorMember:
     """
@@ -131,36 +133,43 @@ class OperatorMember:
             name : str
                 operator name
     """
-    def __init__(self, value, error, name):
-        self.value = value
-        self.error = error
-        self._name = name
 
-    @property
-    def name(self):
-        """ full operator name """
-        return self._name
-    @name.setter
-    def name(self, new_name):
-        self._name = new_name
+    def __init__(self, value, error, name):
+        self.value = np.array(value)
+        self.error = np.array(error)
+        self.name = name
+
+    def _split_name(self):
+        """Splits the name according to target.input"""
+        # we need to do this late, as in raw mode the name to not follow this principle
+        name_spl = self.name.split(".")
+        if len(name_spl) != 2:
+            raise ValueError("The operator name has no valid format: target.input")
+        for k in [0, 1]:
+            name_spl[k] = name_spl[k].strip()
+            if len(name_spl[k]) <= 0:
+                raise ValueError("The operator name has no valid format: target.input")
+        return name_spl
 
     @property
     def target(self):
-        """ target flavour name (given by the second part of the name) """
-        name_spl = self._name.split(".")
-        if len(name_spl) != 2:
-            raise TypeError("This operator is not defining any targets")
-        return name_spl[1]
+        """Returns target flavour name (given by the first part of the name)"""
+        return self._split_name()[0]
 
     @property
     def input(self):
-        """ input flavour name (given by the first part of the name) """
-        name_spl = self._name.split(".")
-        if len(name_spl) != 2:
-            raise TypeError("This operator is not defining any input")
-        return name_spl[0]
+        """Returns input flavour name (given by the second part of the name)"""
+        return self._split_name()[1]
 
-    def __call__(self, pdf_member):
+    @property
+    def is_physical(self):
+        """Lives inside a :class:`PhysicalOperator`? determined by name"""
+        for n in ["NS_p", "NS_m", "NS_v", "S_qq", "S_qg", "S_gq", "S_gg"]:
+            if self.name.find(n) >= 0:
+                return False
+        return True
+
+    def apply_pdf(self, pdf_member):
         """
             The operator member can act on a pdf member.
 
@@ -180,61 +189,118 @@ class OperatorMember:
         error = np.dot(self.error, pdf_member)
         return result, error
 
-
     def __str__(self):
         return self.name
 
     def __mul__(self, operator_member):
         # scalar multiplication
-        if isinstance(operator_member, (np.int, np.float, np.integer)):
-            rval = operator_member
-            rerror = 0.0
+        if isinstance(operator_member, Number):
+            one = np.identity(len(self.value))
+            rval = operator_member * one
+            rerror = 0.0 * one
             new_name = self.name
         # matrix multiplication
         elif isinstance(operator_member, OperatorMember):
+            # check compatibility
+            if self.is_physical != operator_member.is_physical:
+                raise ValueError(f"Operators do not live in the same space!")
+            if self.is_physical:
+                if self.input != operator_member.target:
+                    raise ValueError(
+                        f"Can not sum {operator_member.name} and {self.name} OperatorMembers!"
+                    )
+                new_name = f"{self.target}.{operator_member.input}"
+            else:
+                new_name = f"{self.name}.{operator_member.name}"
             rval = operator_member.value
             rerror = operator_member.error
-            new_name = f"{self.name}.{operator_member.name}"
         else:
-            raise NotImplementedError(f"Can't multiply OperatorMember and {type(operator_member)}")
+            raise NotImplementedError(
+                f"Can't multiply OperatorMember and {type(operator_member)}"
+            )
         lval = self.value
         ler = self.error
         new_val = np.matmul(lval, rval)
         # TODO check error propagation
-        new_err = np.abs(np.matmul(lval, rerror) + np.matmul(rval, ler))
+        new_err = np.abs(np.matmul(lval, rerror)) + np.abs(np.matmul(ler, rval))
         return OperatorMember(new_val, new_err, new_name)
 
     def __add__(self, operator_member):
-        if isinstance(operator_member, (np.int, np.float, np.integer)):
+        if isinstance(operator_member, Number):
+            # we only allow the integer 0 as alias for the true zero operator
+            if operator_member != 0:
+                raise ValueError(
+                    "The only integer we can sum to is 0 (as alias for the zero operator)"
+                )
             rval = operator_member
             rerror = 0.0
             new_name = self.name
         elif isinstance(operator_member, OperatorMember):
+            # check compatibility
+            if self.is_physical != operator_member.is_physical:
+                raise ValueError(f"Operators do not live in the same space!")
+            if self.is_physical and operator_member.name != self.name:
+                raise ValueError(
+                    f"Can not sum {operator_member.name} and {self.name} OperatorMembers!"
+                )
             rval = operator_member.value
             rerror = operator_member.error
-            new_name = f"{self.name}+{operator_member.name}"
+            new_name = self.name
         else:
-            raise NotImplementedError(f"Can't sum OperatorMember and {type(operator_member)}")
+            raise NotImplementedError(
+                f"Can't sum OperatorMember and {type(operator_member)}"
+            )
         new_val = self.value + rval
-        # TODO check error propagation
-        new_err = np.sqrt(pow(self.error,2)+pow(rerror,2))
+        new_err = self.error + rerror
         return OperatorMember(new_val, new_err, new_name)
 
-    def __sub__(self, operator_member):
-        self.__add__(-operator_member)
+    def __neg__(self):
+        return self.__mul__(-1)
 
-    # These are necessary to deal with python operators such as sum
+    def __eq__(self, operator_member):
+        return np.allclose(self.value, operator_member.value)
+
+    def __sub__(self, operator_member):
+        return self.__add__(-operator_member)
+
     def __radd__(self, operator_member):
-        if isinstance(operator_member, OperatorMember):
-            return operator_member.__add__(self)
-        else:
-            return self.__add__(operator_member)
+        return self.__add__(operator_member)
 
     def __rsub__(self, operator_member):
         return self.__radd__(-operator_member)
 
-    def __eq__(self, operator_member):
-        return np.allclose(self.value, operator_member.value)
+    def __rmul__(self, operator_member):
+        return self.__mul__(operator_member)
+
+    @staticmethod
+    def join(steps, list_of_paths):
+        """
+            Multiply a list of :class:`OperatorMember` using the given paths.
+
+            Parameters
+            ----------
+                steps : list(list(OperatorMember))
+                    list of raw operators, with the lowest scale to the right
+                list_of_paths : list(list(str))
+                    list of paths
+
+            Returns
+            -------
+                final_op : OperatorMember
+                    joined operator
+        """
+        final_op = 0
+        for path in list_of_paths:
+            cur_op = None
+            for step, member in zip(steps, path):
+                new_op = step[member]
+                if cur_op is None:
+                    cur_op = new_op
+                else:
+                    cur_op = cur_op * new_op
+            final_op += cur_op
+        return final_op
+
 
 class PhysicalOperator:
     """
@@ -250,14 +316,12 @@ class PhysicalOperator:
         ----------
             op_members : dict
                 list of all members
-            xgrid : np.array
-                list of basis x points
             q2_final : float
                 final scale
     """
-    def __init__(self, op_members, xgrid, q2_final):
+
+    def __init__(self, op_members, q2_final):
         self.op_members = op_members
-        self.xgrid = xgrid
         self.q2_final = q2_final
 
     def __call__(self, pdf_lists):
@@ -276,12 +340,50 @@ class PhysicalOperator:
                 out_errors : dict
                     associated errors of the evolved PDFs
         """
-        ops = self.get_operator_matrices()
-        return apply_PDF_to_operator(ops,pdf_lists)
+        return self.apply_pdf(pdf_lists)
 
-    def get_operator_matrices(self):
+    def __mul__(self, other):
         """
-            Returns the matrix representation of all members and their errors
+            Multiply ``other`` to self.
+
+            Parameters
+            ----------
+                other : PhysicalOperator
+                    second factor with a lower initial scale
+
+            Returns
+            -------
+                p : PhysicalOperator
+                    self * other
+        """
+        if not isinstance(other, PhysicalOperator):
+            raise ValueError("Can only multiply with another PhysicalOperator")
+        # prepare paths
+        instructions = {}
+        for my_op in self.op_members.values():
+            for other_op in other.op_members.values():
+                # ops match?
+                if my_op.input != other_op.target:
+                    continue
+                new_key = my_op.target + "." + other_op.input
+                path = [my_op.name, other_op.name]
+                # new?
+                if not new_key in instructions:
+                    instructions[new_key] = [path]
+                else:  # add element
+                    instructions[new_key].append(path)
+
+        # prepare operators
+        op_to_compose = [self.op_members] + [other.op_members]
+        # iterate operators
+        new_ops = {}
+        for key, paths in instructions.items():
+            new_ops[key] = OperatorMember.join(op_to_compose, paths)
+        return self.__class__(new_ops, self.q2_final)
+
+    def get_raw_operators(self):
+        """
+            Returns serializable matrix representation of all members and their errors
 
             Returns
             -------
@@ -290,71 +392,71 @@ class PhysicalOperator:
                     errors under the ``operator_errors`` key. They are labeled as
                     ``{outputPDF}.{inputPDF}``.
         """
-        # add matrices
-        ret = { "operators" : {}, "operator_errors" : {} }
-        for key, new_op in self.op_members.items():
-            ret["operators"][key] = new_op.value
-            ret["operator_errors"][key] = new_op.error
+        # map matrices
+        ret = {"operators": {}, "operator_errors": {}}
+        for name, op in self.op_members.items():
+            ret["operators"][name] = op.value.tolist()
+            ret["operator_errors"][name] = op.error.tolist()
         return ret
 
-def apply_PDF_to_operator(ret, pdf_lists):
-    """
-        Apply PDFs to the EKOs provided by :meth:`PhysicalOperator.get_operator_matrices`.
+    def apply_pdf(self, pdf_lists):
+        """
+            Apply PDFs to the EKOs.
 
-        It assumes as input the PDFs as dictionary in evolution basis with:
+            It assumes as input the PDFs as dictionary in evolution basis with:
 
-        .. code-block:: python
+            .. code-block:: python
 
-            pdf = {
-                'V' : list,
-                'g' : list,
-                # ...
-            }
+                pdf_lists = {
+                    'V' : list,
+                    'g' : list,
+                    # ...
+                }
 
-        Each member has to be evaluated on the corresponding xgrid (which
-        is tracked by :class:`~eko.operator_grid.OperatorGrid` and not
-        :class:`PhysicalOperator`)
+            Each member has to be evaluated on the corresponding xgrid (which
+            is tracked by :class:`~eko.operator_grid.OperatorGrid` and not
+            :class:`PhysicalOperator`)
 
-        Parameters
-        ----------
-            ret : dict
-                operator matrices of :class:`PhysicalOperator`
-            pdf_lists : dict
-                PDFs in evolution basis as list on the corresponding xgrid
+            Parameters
+            ----------
+                ret : dict
+                    operator matrices of :class:`PhysicalOperator`
+                pdf_lists : dict
+                    PDFs in evolution basis as list on the corresponding xgrid
 
-        Returns
-        -------
-            out : dict
-                evolved PDFs
-            out_errors : dict
-                associated errors of the evolved PDFs
-    """
-    # build output
-    outs = {}
-    out_errors = {}
-    for k in ret["operators"]:
-        out_key, in_key = k.split(".")
-        # basis vector available?
-        if in_key not in pdf_lists:
-            # thus can I not complete the calculation for this out_key?
-            if out_key in outs:
-                outs[out_key] = None
-            continue
-        op = ret["operators"][k]
-        op_err = ret["operator_errors"][k]
-        # is out_key new?
-        if out_key not in outs:
-            # set output
-            outs[out_key] = np.matmul(op, pdf_lists[in_key])
-            out_errors[out_key] = np.matmul(op_err, pdf_lists[in_key])
-        else:
-            # is out_key already blocked?
-            if outs[out_key] is None:
+            Returns
+            -------
+                out : dict
+                    evolved PDFs
+                out_errors : dict
+                    associated errors of the evolved PDFs
+        """
+        # build output
+        outs = {}
+        out_errors = {}
+        for op in self.op_members.values():
+            target, input_pdf = op.target, op.input
+            # basis vector available?
+            if input_pdf not in pdf_lists:
+                # thus can I not complete the calculation for this target
+                outs[target] = None
                 continue
-            # else add to it
-            outs[out_key] += np.matmul(op, pdf_lists[in_key])
-            out_errors[out_key] += np.matmul(op_err, pdf_lists[in_key])
-    return outs, out_errors
+            # is target new?
+            if target not in outs:
+                # set output
+                outs[target], out_errors[target] = op.apply_pdf(pdf_lists[input_pdf])
+            else:
+                # is target already blocked?
+                if outs[target] is None:
+                    continue
+                # else add to it
+                out, err = op.apply_pdf(pdf_lists[input_pdf])
+                outs[target] += out
+                out_errors[target] += err
+        # remove uncompleted
+        outs = {k: outs[k] for k in outs if not outs[k] is None}
+        return outs, out_errors
+
 
 class Operator:
     """
@@ -370,19 +472,27 @@ class Operator:
                 Evolution distance
             xgrid : np.array
                 basis interpolation grid
-            integrands_ns : list(function)
+            integrands_ns : list(callable)
                 list of non-singlet kernels
-            integrands_s : list(function)
+            integrands_s : list(list(callable))
                 list of singlet kernels
             metadata : dict
                 metadata with keys `nf`, `q2ref` and `q2`
+            mellin_cut : float
+                cut to the upper limit in the mellin inversion
     """
-    def __init__(self, delta_t, xgrid, integrands_ns, integrands_s, metadata):
+
+    def __init__(
+        self, delta_t, xgrid, integrands_ns, integrands_s, metadata, mellin_cut=1e-2
+    ):
         # Save the metadata
         self._metadata = metadata
         self._xgrid = xgrid
         # Get ready for the computation
-        singlet, nons = _get_kernel_integrands(integrands_s, integrands_ns, delta_t, xgrid)
+        singlet, nons = _get_kernel_integrands(
+            integrands_s, integrands_ns, delta_t, xgrid, cut=mellin_cut
+        )
+        # TODO make 'cut' external parameter?
         self._compute_singlet = singlet
         self._compute_nonsinglet = nons
         self._computed = False
@@ -391,17 +501,17 @@ class Operator:
     @property
     def nf(self):
         """ number of active flavours """
-        return self._metadata['nf']
+        return self._metadata["nf"]
 
     @property
     def q2ref(self):
         """ scale reference point """
-        return self._metadata['q2ref']
+        return self._metadata["q2ref"]
 
     @property
     def q2(self):
         """ actual scale """
-        return self._metadata['q2']
+        return self._metadata["q2"]
 
     @property
     def xgrid(self):
@@ -437,40 +547,12 @@ class Operator:
         new_ops = {}
         for name, instructions in instruction_set:
             for origin, paths in instructions.items():
-                key = f'{name}.{origin}'
-                new_ops[key] = self.join_members(op_to_compose, paths, key)
-        return PhysicalOperator(new_ops, self.xgrid, q2_final)
-
-    def join_members(self, steps, list_of_paths, name):
-        """
-            Multiply a list of :class:`OperatorMember` using the given paths.
-
-            Parameters
-            ----------
-                steps : list(OperatorMember)
-                    list of raw operators, with the lowest scale to the right
-                list_of_paths : list(list(str))
-                    list of paths
-                name : str
-                    final name
-
-            Returns
-            -------
-                final_op : OperatorMember
-                    joined operator
-        """
-        final_op = 0
-        for path in list_of_paths:
-            cur_op = None
-            for step, member in zip(steps, path):
-                new_op = step[member]
-                if cur_op is None:
-                    cur_op = new_op
-                else:
-                    cur_op = cur_op*new_op
-            final_op += cur_op
-        final_op.name = name
-        return final_op
+                key = f"{name}.{origin}"
+                op = OperatorMember.join(op_to_compose, paths)
+                # enforce new name
+                op.name = key
+                new_ops[key] = op
+        return PhysicalOperator(new_ops, q2_final)
 
     def compute(self):
         """ compute the actual operators (i.e. run the integrations) """

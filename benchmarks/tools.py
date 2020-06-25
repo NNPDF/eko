@@ -133,7 +133,7 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
 
     ax = plt.subplot(1, 3, 3)
     plt.title("|error/value|")
-    err_to_val = np.abs(op_err / op)
+    err_to_val = np.abs(np.array(op_err) / np.array(op))
     im = plt.imshow(err_to_val, norm=LogNorm(), aspect="auto")
     plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
     return fig

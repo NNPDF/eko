@@ -1,9 +1,14 @@
+# -*- coding: utf-8 -*-
 import numpy as np
+import numba as nb
 from numpy.testing import assert_almost_equal
 from scipy.special import digamma as scipy_digamma
 
-from eko import ekomath
 from eko import t_complex
+from eko import ekomath
+
+# until https://github.com/numba/numba/pull/5660 is confirmed we need to deactivate numba prior running
+
 
 def test_gsl_digamma():
     """ test the cffi implementation of digamma """
@@ -15,7 +20,7 @@ def test_gsl_digamma():
 
 
 def test_harmonic_S1():
-    """test harmonic sum _S1"""
+    """test harmonic sum S1"""
     # test on real axis
     known_vals = [1.0, 1.0 + 1.0 / 2.0, 1.0 + 1.0 / 2.0 + 1.0 / 3.0]
     for i, val in enumerate(known_vals):

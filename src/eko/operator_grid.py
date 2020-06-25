@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
     This module contains the :class:`OperatorGrid`  and the
     :class:`OperatorMaster` class.
@@ -10,8 +11,6 @@
 
     See :doc:`Operator overview </Code/Operators>`.
 """
-
-# TODO the operator grid should have a "save" and "load" method which will allow to store the full grid
 
 import logging
 import numpy as np
@@ -29,8 +28,8 @@ class OperatorMaster:
 
         Parameters
         ----------
-            alpha_generator: eko.alpha_s.StrongCoupling
-                Instance of the :class:`~eko.alpha_s.StrongCoupling` class able to
+            alpha_generator: eko.strong_coupling.StrongCoupling
+                Instance of the :class:`~eko.strong_coupling.StrongCoupling` class able to
                 generate a_s for any q
             kernel_dispatcher: eko.kernels.KernelDispatcher
                 Instance of the :class:`~eko.kernels.KernelDispatcher` with the information
@@ -52,8 +51,8 @@ class OperatorMaster:
 
     def _compile(self):
         """ Compiles the kernels and make them become integrands """
-        self._integrands_ns = self._kernel_dispatcher.get_non_singlet_for_nf(self._nf)
-        self._integrands_s = self._kernel_dispatcher.get_singlet_for_nf(self._nf)
+        self._integrands_ns = self._kernel_dispatcher.integrands_ns[self._nf]
+        self._integrands_s = self._kernel_dispatcher.integrands_s[self._nf]
 
     def get_op(self, q2_from, q2_to, generate=False):
         """
@@ -98,17 +97,20 @@ class OperatorGrid:
     """
         The operator grid is the driver class of the evolution.
 
-        It receives as input a threshold holder and a generator of alpha_s.
+        It receives as input a threshold holder and a generator of a_s.
         From that point onwards it can compute any operator at any q2.
 
         Parameters
         ----------
             threshold_holder: eko.thresholds.Threshold
-                Instance of the Threshold class containing information about the thresholds
-            alpha_generator: eko.alpha_s.StrongCoupling
-                Instance of the StrongCoupling class able to generate a_s for any q
-            kernel_dispatcher: eko.kernels.KernelDispatcher
-                Instance of the KernelDispatcher with the information about the kernels
+                Instance of :class:`~eko.thresholds.Threshold` containing information about the
+                thresholds
+            alpha_generator: eko.strong_coupling.StrongCoupling
+                Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
+                any q
+            kernel_dispatcher: eko.kernel_generation.KernelDispatcher
+                Instance of the :class:`~eko.kernel_generation.KernelDispatcher` with the
+                information about the kernels
             xgrid: np.array
                 Grid in x used to compute the operators
     """
@@ -118,7 +120,7 @@ class OperatorGrid:
         logger.info("Flavour scheme: %s", threshold_holder.scheme)
         self._threshold_holder = threshold_holder
         logger.info(
-            "Reference alpha_s(Q^2=%f)=%f", alpha_generator.qref, alpha_generator.ref
+            "Reference a_s(Q^2=%f)=%f", alpha_generator.q2_ref, alpha_generator.as_ref
         )
         self._alpha_gen = alpha_generator
         self._kernels = kernel_dispatcher
@@ -127,7 +129,7 @@ class OperatorGrid:
         for nf in threshold_holder.nf_range():
             # Compile the kernels for each nf
             kernel_dispatcher.set_up_all_integrands(nf)
-            # Set up the OP Master for each nf
+            # Set up the OperatorMaster for each nf
             self._op_masters[nf] = OperatorMaster(
                 alpha_generator, kernel_dispatcher, xgrid, nf
             )
@@ -164,6 +166,7 @@ class OperatorGrid:
             if q2_to == q2_from:
                 continue
             new_op = (q2_from, q2_to)
+            logger.info("Compute threshold operator from %e to %e", q2_from, q2_to)
             if new_op not in self._threshold_operators:
                 # Compute the operator in place and store it
                 op_th = self._op_masters[nf].get_op(q2_from, q2_to, generate=True)
@@ -220,7 +223,7 @@ class OperatorGrid:
             raise ValueError(
                 f"Minimum q^2 is above maximum q^2 (error: {q2max} < {q2min})"
             )
-        # Ensure we have all the necessary operators to go from qref to q2min and qmax
+        # Ensure we have all the necessary operators to go from q2ref to q2min and qmax
         self._generate_thresholds_op(q2min)
         self._generate_thresholds_op(q2max)
 
@@ -247,7 +250,7 @@ class OperatorGrid:
     def compute_q2grid(self, q2grid):
         """
             Receives a grid in q^2 and computes all operations necessary
-            to return any operator at any given q for the evolution between qref and qgrid
+            to return any operator at any given q for the evolution between q2ref and q2grid
 
             Parameters
             ----------

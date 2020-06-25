@@ -4,6 +4,8 @@ r"""
     Area
 """
 import logging
+import numbers
+
 import numpy as np
 
 from eko.flavours import get_all_flavour_paths
@@ -89,7 +91,7 @@ class Area:
         return self.q2_min <= q2 <= self.q2_max
 
 
-class Threshold:
+class ThresholdsConfig:
     """
         The threshold class holds information about the thresholds any
         Q2 has to pass in order to get there from a given q2_ref and scheme.
@@ -106,18 +108,14 @@ class Threshold:
                 Number of flavour for the FFNS
     """
 
-    def __init__(self, q2_ref=None, scheme=None, threshold_list=None, nf=None):
-        if q2_ref is None:
-            raise ValueError(
-                "The threshold class needs to know about the reference q^2"
-            )
+    def __init__(self, q2_ref, scheme, *, threshold_list=None, nf=None):
         # Initial values
         self.q2_ref = q2_ref
+        self.scheme = scheme
         self._threshold_list = []
         self._areas = []
         self._area_walls = []
         self._area_ref = 0
-        self.scheme = scheme
         self.max_nf = None
         self.min_nf = None
         self._operator_paths = []
@@ -132,26 +130,40 @@ class Threshold:
             self.max_nf = nf
             self.min_nf = nf
             protection = True
-        elif scheme in ["VFNS", "ZM-VFNS"]:
+        elif scheme in ["ZM-VFNS", "FONLL-A", "FONLL-A'"]:
             if nf is not None:
                 logger.warning(
-                    "The VFNS configures its own value for nf, ignoring input nf=%d", nf
+                    "The ZM-VFNS configures its own value for nf, ignoring input nf=%d",
+                    nf,
                 )
             if threshold_list is None:
                 raise ValueError(
-                    "The VFNS scheme was selected but no thresholds were input"
+                    "The ZM-VFN scheme was selected but no thresholds were given"
                 )
             self._setup_vfns(threshold_list)
         else:
-            raise NotImplementedError(
-                f"The scheme {scheme} not implemented in eko.dglap.py"
-            )
+            raise NotImplementedError(f"The scheme {scheme} is not implemented")
 
         # build flavour targets
         nf_protected = None
         if protection:
             nf_protected = nf
         self._operator_paths = get_all_flavour_paths(nf_protected)
+
+    @classmethod
+    def from_dict(cls, setup):
+        FNS = setup["FNS"]
+        q2_ref = pow(setup["Q0"], 2)
+        if FNS != "FFNS":  # setup ZM-VFNS
+            mc = setup["mc"]
+            mb = setup["mb"]
+            mt = setup["mt"]
+            threshold_list = pow(np.array([mc, mb, mt]), 2)
+            nf = None
+        else:  # here FFNS
+            nf = setup["NfFF"]
+            threshold_list = None
+        return cls(q2_ref, FNS, threshold_list=threshold_list, nf=nf)
 
     @property
     def nf_ref(self):
@@ -227,9 +239,9 @@ class Threshold:
 
             Parameters
             ----------
-                nf_target: int
+                nf: int
                     nf value of the target flavour
-                threshold: int
+                n_thres: int
                     number of thresholds which are going to be crossed
 
             Yields
@@ -257,7 +269,7 @@ class Threshold:
                     list with the indices of the corresponding areas for q2arr
         """
         # Ensure q2arr is an array
-        if isinstance(q2arr, (np.float, np.int, np.integer)):
+        if isinstance(q2arr, numbers.Number):
             q2arr = np.array([q2arr])
         # Check in which area is every q2
         areas_idx = np.digitize(q2arr, self._area_walls)

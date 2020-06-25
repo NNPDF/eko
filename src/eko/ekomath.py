@@ -17,6 +17,7 @@ from eko import t_complex
 cffi_utils.register_module(_gsl_digamma)
 c_digamma = _gsl_digamma.lib.digamma  # pylint: disable=no-member
 
+
 @nb.njit
 def gsl_digamma(N: t_complex):
     """
@@ -43,13 +44,11 @@ def gsl_digamma(N: t_complex):
 
         Note that, although not listed in the documentation, there **is** a
         `complex version <http://git.savannah.gnu.org/cgit/gsl.git/tree/specfunc/gsl_sf_psi.h#n76>`_
-    """#pylint: disable=line-too-long
+    """  # pylint: disable=line-too-long
     r = np.real(N)
     i = np.imag(N)
     out = np.empty(2)
-    c_digamma(
-        r, i, _gsl_digamma.ffi.from_buffer(out)
-    )
+    c_digamma(r, i, _gsl_digamma.ffi.from_buffer(out))
     result = np.complex(out[0], out[1])
     return result
 

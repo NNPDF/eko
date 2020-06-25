@@ -157,6 +157,7 @@ class FlavourTarget:
                 instructions[flav] = paths
         return instructions
 
+
 def get_singlet_paths(to, fromm, depth):
     """
         Compute all possible path in the singlet sector to reach `to` starting from  `fromm`.
@@ -193,6 +194,7 @@ def get_singlet_paths(to, fromm, depth):
     for g in gs:
         g.append(f"S_g{fromm}")
     return qs + gs
+
 
 def get_all_flavour_paths(nf):
     """

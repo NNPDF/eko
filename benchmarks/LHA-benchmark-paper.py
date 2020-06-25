@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 from eko import run_dglap
-import eko.interpolation as interpolation
 
 from tools import plot_dist, save_all_operators_to_pdf, merge_dicts
 
@@ -205,12 +204,11 @@ class LHABenchmarkPaper:
             "PTO": 0,
             "alphas": 0.35,
             "Qref": np.sqrt(2),
-            "Qmc": np.sqrt(self._Q2init),
-            "Qmb": 4.5,
-            "Qmt": 175.0,
-            "xgrid_type": "custom",
-            "xgrid": xgrid,
-            "xgrid_polynom_rank": polynom_rank,
+            "mc": np.sqrt(self._Q2init),
+            "mb": 4.5,
+            "mt": 175.0,
+            "interpolation_xgrid": xgrid,
+            "interpolation_polynomial_degree": polynom_rank,
         }
 
     def _post_process(self, output, ref, tag):
@@ -237,7 +235,7 @@ class LHABenchmarkPaper:
             save_all_operators_to_pdf(first_ops, assets_path / f"LHA-LO-{tag}-ops-{flag}.pdf")
         # dump operators to file
         if self.post_process_config["write_operator"]:
-            output.write_YAML_to_file(assets_path / f"LHA-LO-{tag}-ops-{flag}.yaml")
+            output.dump_yaml_to_file(assets_path / f"LHA-LO-{tag}-ops-{flag}.yaml")
 
     def _run_FFNS_raw(self, tag, Q2init, Q2final):
         """
@@ -295,19 +293,19 @@ class LHABenchmarkPaper:
                 ret2t1 : dict
                     DGLAP result
         """
-        raise Exception("JCM: This cannot be done now")
-        # # suppress PDF plots for single steps
-        # plot_PDF = self.post_process_config["plot_PDF"]
-        # self.post_process_config["plot_PDF"] = False
-        # # step 1
-        # step1 = self._run_FFNS_raw("FFNS-twostep-step1", self._Q2init, Q2mid)
-        # # step 2
-        # step2 = self._run_FFNS_raw("FFNS-twostep-step2", Q2mid, self._Q2final)
-        # # join 2*1
-        # self.post_process_config["plot_PDF"] = plot_PDF
-        # ret2t1 = dglap.multiply_operators(step2, step1)
-        # self._post_process(ret2t1, LHA_final_dict_FFNS_ref, "FFNS-twostep-step2t1")
-        # return ret2t1
+        #raise Exception("JCM: This cannot be done now")
+        # suppress PDF plots for single steps
+        plot_PDF = self.post_process_config["plot_PDF"]
+        self.post_process_config["plot_PDF"] = False
+        # step 1
+        step1 = self._run_FFNS_raw("FFNS-twostep-step1", self._Q2init, Q2mid)
+        # step 2
+        step2 = self._run_FFNS_raw("FFNS-twostep-step2", Q2mid, self._Q2final)
+        # join 2*1
+        self.post_process_config["plot_PDF"] = plot_PDF
+        ret2t1 = step2.concat(step1)
+        self._post_process(ret2t1, LHA_final_dict_FFNS_ref, "FFNS-twostep-step2t1")
+        return ret2t1
 
     def run_ZMVFNS(self):
         """
@@ -346,7 +344,7 @@ class LHABenchmarkPaper:
         """
         pp = PdfPages(path)
         # get
-        pdf_grid = output.apply_PDF(LHA_init_pdfs, toy_xgrid)
+        pdf_grid = output.apply_pdf(LHA_init_pdfs, toy_xgrid)
         first_res = list(pdf_grid.values())[0]
         my_pdfs = first_res["pdfs"]
         my_pdf_errs = first_res["errors"]
@@ -412,10 +410,8 @@ if __name__ == "__main__":
 
     # combine grid
     flag = f"l{n_low}m{n_mid}r{polynom_rank}"
-    xgrid_low = interpolation.get_xgrid_linear_at_log(
-        n_low, 1e-7, 1.0 if n_mid == 0 else 0.1
-    )
-    xgrid_mid = interpolation.get_xgrid_linear_at_id(n_mid, 0.1, 1.0)
+    xgrid_low = np.geomspace(1e-7, 1.0 if n_mid == 0 else 0.1,n_low)
+    xgrid_mid = np.linspace(0.1, 1.0, n_mid)
     xgrid_high = np.array([])
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
 
@@ -432,8 +428,8 @@ if __name__ == "__main__":
     # check input scale
     #save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
     # check fixed flavours
-    app.run_FFNS()
+    #app.run_FFNS()
     # do two steps
-    #app.run_FFNS_twostep(1e2)
+    app.run_FFNS_twostep(1e2)
     # check ZM-VFNS
-    # app.run_ZMVFNS()
+    #app.run_ZMVFNS()

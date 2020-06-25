@@ -2,7 +2,7 @@
 from setuptools import setup, find_packages
 
 setup(name='eko',
-      version='0.0.1',
+      version='0.2.0',
       description='Evolution Kernel Operator',
       author = 'S.Carrazza, J.Cruz-Martinez, F. Hekhorn',
       author_email='stefano.carrazza@cern.ch',
@@ -36,5 +36,5 @@ setup(name='eko',
           "cffi>1.0.0"
       ],
       cffi_modules=["src/cfunctions/digamma.py:ffibuilder"],
-      python_requires='>=3.6'
+      python_requires='>=3.7'
 )

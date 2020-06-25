@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from eko._parameters import t_float, t_complex
-from eko.runner import Runner
+import eko.runner
+
 
 def run_dglap(setup):
     r"""
@@ -24,6 +25,6 @@ def run_dglap(setup):
             output : dict
                 output dictionary - see :doc:`/Code/IO`
     """
-    r = Runner(setup)
+    r = eko.runner.Runner(setup)
     output = r.get_output()
     return output

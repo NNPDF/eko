@@ -6,7 +6,8 @@ import scipy.special
 import numpy as np
 from eko import t_float, t_complex
 import _gsl_digamma
-c_digamma = _gsl_digamma.lib.digamma # pylint: disable=no-member
+
+c_digamma = _gsl_digamma.lib.digamma  # pylint: disable=no-member
 
 
 def compare_functions(function_custom, function_ext, values):
@@ -19,16 +20,17 @@ def compare_functions(function_custom, function_ext, values):
         externs.append(extern)
     np.testing.assert_allclose(customs, externs)
 
+
 def test_digamma():
     values = []
-    for i,j in np.random.rand(20, 2):
+    for i, j in np.random.rand(20, 2):
         if np.random.rand() < 0.25:
-            values.append(t_float(i+j))
+            values.append(t_float(i + j))
         else:
-            values.append(t_complex(complex(i,j)))
+            values.append(t_complex(complex(i, j)))
 
     def customfun(x):
-        out = (np.empty(2))
+        out = np.empty(2)
         if isinstance(x, t_float):
             c_digamma(x, 0.0, _gsl_digamma.ffi.from_buffer(out))
             return out[0]
