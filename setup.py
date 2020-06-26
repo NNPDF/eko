@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 # Installation script for python
 from setuptools import setup, find_packages
 
+# paste Readme
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
@@ -9,7 +11,7 @@ setup(name='eko',
       description='Evolution Kernel Operator',
       long_description=long_description,
       long_description_content_type="text/markdown",
-      author = 'S.Carrazza, J.Cruz-Martinez, F. Hekhorn',
+      author = 'S. Carrazza, J. Cruz-Martinez, F. Hekhorn',
       author_email='stefano.carrazza@cern.ch',
       url='https://github.com/N3PDF/eko',
       package_dir={'': 'src'},

@@ -18,17 +18,17 @@ class TestOutput:
 
     def test_io(self):
         # build data
-        xgrid = np.array([0.5, 1.0])
-        polynomial_degree = 1
-        is_log_interpolation = False
+        interpolation_xgrid = np.array([0.5, 1.0])
+        interpolation_polynomial_degree = 1
+        interpolation_is_log = False
         q2_ref = 1
         VV, VVe = self.mkO()
         q2_out = 2
         Q2grid = {q2_out: {"operators": {"V.V": VV}, "operator_errors": {"V.V": VVe},}}
         d = dict(
-            xgrid=xgrid,
-            polynomial_degree=polynomial_degree,
-            is_log_interpolation=is_log_interpolation,
+            interpolation_xgrid=interpolation_xgrid,
+            interpolation_polynomial_degree=interpolation_polynomial_degree,
+            interpolation_is_log=interpolation_is_log,
             q2_ref=q2_ref,
             Q2grid=Q2grid,
         )
@@ -40,8 +40,8 @@ class TestOutput:
         # rewind and read again
         stream.seek(0)
         o2 = output.Output.load_yaml(stream)
-        np.testing.assert_almost_equal(o1["xgrid"], xgrid)
-        np.testing.assert_almost_equal(o2["xgrid"], xgrid)
+        np.testing.assert_almost_equal(o1["interpolation_xgrid"], interpolation_xgrid)
+        np.testing.assert_almost_equal(o2["interpolation_xgrid"], interpolation_xgrid)
         # fake output files
         m_out = mock.mock_open(read_data="")
         with mock.patch("builtins.open", m_out) as mock_file:
@@ -55,21 +55,21 @@ class TestOutput:
             fn = "test.yaml"
             o3 = output.Output.load_yaml_from_file(fn)
             mock_file.assert_called_with(fn)
-            np.testing.assert_almost_equal(o3["xgrid"], xgrid)
+            np.testing.assert_almost_equal(o3["interpolation_xgrid"], interpolation_xgrid)
 
     def test_apply(self):
         # build data
-        xgrid = np.array([0.5, 1.0])
-        polynomial_degree = 1
-        is_log_interpolation = False
+        interpolation_xgrid = np.array([0.5, 1.0])
+        interpolation_polynomial_degree = 1
+        interpolation_is_log = False
         q2_ref = 1
         VV, VVe = self.mkO()
         q2_out = 2
         Q2grid = {q2_out: {"operators": {"V.V": VV}, "operator_errors": {"V.V": VVe},}}
         d = dict(
-            xgrid=xgrid,
-            polynomial_degree=polynomial_degree,
-            is_log_interpolation=is_log_interpolation,
+            interpolation_xgrid=interpolation_xgrid,
+            interpolation_polynomial_degree=interpolation_polynomial_degree,
+            interpolation_is_log=interpolation_is_log,
             q2_ref=q2_ref,
             Q2grid=Q2grid,
         )
@@ -82,7 +82,7 @@ class TestOutput:
         assert len(pdf_grid) == 1
         pdfs = pdf_grid[q2_out]["pdfs"]
         assert list(pdfs.keys()) == ["V"]
-        np.testing.assert_almost_equal(pdfs["V"], VV @ V(xgrid))
+        np.testing.assert_almost_equal(pdfs["V"], VV @ V(interpolation_xgrid))
         # rotate to target_grid
         target_grid = [0.75]
         pdf_grid = o.apply_pdf({"V": V, "V3": V3}, target_grid)
@@ -90,13 +90,13 @@ class TestOutput:
         pdfs = pdf_grid[q2_out]["pdfs"]
         assert list(pdfs.keys()) == ["V"]
         # 0.75 is the the average of .5 and 1. -> mix equally
-        np.testing.assert_almost_equal(pdfs["V"], (VV @ V(xgrid)) @ [0.5, 0.5])
+        np.testing.assert_almost_equal(pdfs["V"], (VV @ V(interpolation_xgrid)) @ [0.5, 0.5])
 
     def test_get_op(self):
         # build data
-        xgrid = np.array([0.5, 1.0])
-        polynomial_degree = 1
-        is_log_interpolation = False
+        interpolation_xgrid = np.array([0.5, 1.0])
+        interpolation_polynomial_degree = 1
+        interpolation_is_log = False
         q2_ref = 1
         VV1, VVe1 = self.mkO()
         q2_out1 = 2
@@ -107,9 +107,9 @@ class TestOutput:
             q2_out2: {"operators": {"V.V": VV2}, "operator_errors": {"V.V": VVe2},},
         }
         d = dict(
-            xgrid=xgrid,
-            polynomial_degree=polynomial_degree,
-            is_log_interpolation=is_log_interpolation,
+            interpolation_xgrid=interpolation_xgrid,
+            interpolation_polynomial_degree=interpolation_polynomial_degree,
+            interpolation_is_log=interpolation_is_log,
             q2_ref=q2_ref,
             Q2grid=Q2grid,
         )
@@ -127,9 +127,9 @@ class TestOutput:
 
     def test_concat(self):
         # build data
-        xgrid = np.array([0.5, 1.0])
-        polynomial_degree = 1
-        is_log_interpolation = False
+        interpolation_xgrid = np.array([0.5, 1.0])
+        interpolation_polynomial_degree = 1
+        interpolation_is_log = False
         q2_ref = 1
         VVl, VVle = self.mkO()
         q2_out = 2
@@ -137,9 +137,9 @@ class TestOutput:
             q2_out: {"operators": {"V.V": VVl}, "operator_errors": {"V.V": VVle},}
         }
         d = dict(
-            xgrid=xgrid,
-            polynomial_degree=polynomial_degree,
-            is_log_interpolation=is_log_interpolation,
+            interpolation_xgrid=interpolation_xgrid,
+            interpolation_polynomial_degree=interpolation_polynomial_degree,
+            interpolation_is_log=interpolation_is_log,
             q2_ref=q2_ref,
             Q2grid=Q2grid,
         )
@@ -158,7 +158,7 @@ class TestOutput:
         o21 = o2.concat(o1)
         assert isinstance(o21, output.Output)
         assert o21["q2_ref"] == q2_ref
-        assert o21["is_log_interpolation"] == o1["is_log_interpolation"]
+        assert o21["interpolation_is_log"] == o1["interpolation_is_log"]
         assert q2_final in o21["Q2grid"]
         np.testing.assert_almost_equal(
             o21["Q2grid"][q2_final]["operators"]["V.V"], VVh @ VVl
@@ -169,19 +169,19 @@ class TestOutput:
             o1.concat({})
         with pytest.raises(ValueError):
             dd = copy.deepcopy(d)
-            dd["polynomial_degree"] += 1
+            dd["interpolation_polynomial_degree"] += 1
             o1.concat(output.Output(dd))
         with pytest.raises(ValueError):
             dd = copy.deepcopy(d)
-            dd["is_log_interpolation"] = not dd["is_log_interpolation"]
+            dd["interpolation_is_log"] = not dd["interpolation_is_log"]
             o1.concat(output.Output(dd))
         with pytest.raises(ValueError):
             dd = copy.deepcopy(d)
-            dd["xgrid"] = dd["xgrid"][:-1]
+            dd["interpolation_xgrid"] = dd["interpolation_xgrid"][:-1]
             o1.concat(output.Output(dd))
         with pytest.raises(ValueError):
             dd = copy.deepcopy(d)
-            dd["xgrid"] = dd["xgrid"][:-1] + [dd["xgrid"][-1] * 0.9]
+            dd["interpolation_xgrid"] = dd["interpolation_xgrid"][:-1] + [dd["interpolation_xgrid"][-1] * 0.9]
             o1.concat(output.Output(dd))
         # will fail due to non-matching scales
         with pytest.raises(ValueError):

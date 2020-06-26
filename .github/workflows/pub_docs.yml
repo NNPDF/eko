@@ -4,8 +4,7 @@ on:
   push:
     branches:
       - master
-      - '*deploy*'
-      - '*doc*'
+      - develop
 
 jobs:
   deploy-ghpages:

@@ -231,7 +231,7 @@ class LHABenchmarkPaper:
             )
         # graphical representation of operators
         if self.post_process_config["plot_operator"]:
-            first_ops = list(output["q2_grid"].values())[0]
+            first_ops = list(output["Q2grid"].values())[0]
             save_all_operators_to_pdf(first_ops, assets_path / f"LHA-LO-{tag}-ops-{flag}.pdf")
         # dump operators to file
         if self.post_process_config["write_operator"]:
@@ -428,8 +428,8 @@ if __name__ == "__main__":
     # check input scale
     #save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
     # check fixed flavours
-    #app.run_FFNS()
+    app.run_FFNS()
     # do two steps
-    app.run_FFNS_twostep(1e2)
+    #app.run_FFNS_twostep(1e2)
     # check ZM-VFNS
     #app.run_ZMVFNS()
