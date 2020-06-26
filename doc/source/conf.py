@@ -72,6 +72,7 @@ source_suffix = {
 }
 
 autosectionlabel_prefix_document = True
+#autosectionlabel_maxdepth = 10
 # Allow to embed rst syntax in  markdown files.
 enable_eval_rst = True
 

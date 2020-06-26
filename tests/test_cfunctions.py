@@ -32,12 +32,12 @@ def test_digamma():
     def customfun(x):
         out = np.empty(2)
         if isinstance(x, t_float):
-            c_digamma(x, 0.0, _gsl_digamma.ffi.from_buffer(out))
+            c_digamma(x, 0.0, _gsl_digamma.ffi.from_buffer("double[]",out))
             return out[0]
         elif isinstance(x, t_complex):
             r = np.real(x)
             i = np.imag(x)
-            c_digamma(r, i, _gsl_digamma.ffi.from_buffer(out))
+            c_digamma(r, i, _gsl_digamma.ffi.from_buffer("double[]",out))
             return t_complex(np.complex(out[0], out[1]))
         raise ValueError(f"unknown x = {x}")
 

@@ -19,7 +19,7 @@ import numpy as np
 import numba as nb
 
 import eko.strong_coupling as sc
-import eko.splitting_functions_LO as sf_LO
+import eko.anomalous_dimensions.lo as ad_lo
 import eko.mellin as mellin
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ def get_kernel_ns(basis_function, nf, constants):
 
     def ker(n, lnx, delta_t):
         """true non-siglet integration kernel"""
-        ln = -delta_t * sf_LO.gamma_ns_0(n, nf, CA, CF) / beta_0
+        ln = -delta_t * ad_lo.gamma_ns_0(n, nf, CA, CF) / beta_0
         interpoln = basis_function(n, lnx)
         return np.exp(ln) * interpoln
 
@@ -87,7 +87,7 @@ def get_kernels_s(basis_function, nf, constants):
 
         def ker(N, lnx, delta_t):
             """a singlet integration kernel"""
-            l_p, l_m, e_p, e_m = sf_LO.get_Eigensystem_gamma_singlet_0(N, nf, CA, CF)
+            l_p, l_m, e_p, e_m = ad_lo.get_Eigensystem_gamma_singlet_0(N, nf, CA, CF)
             ln_p = -delta_t * l_p / beta_0
             ln_m = -delta_t * l_m / beta_0
             interpoln = basis_function(N, lnx)

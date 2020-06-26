@@ -301,7 +301,7 @@ class StrongCoupling:
         # at the moment everything is analytic - and type has been checked in the constructor
         return self._compute_analytic(as_ref, nf, scale_from, scale_to)
 
-    def a_s(self, scale_to, fact_scale = None):
+    def a_s(self, scale_to, fact_scale=None):
         """
             Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
 
@@ -332,7 +332,7 @@ class StrongCoupling:
             if k < len(area_path) - 1:
                 next_nf_is_down = area_path[k + 1].nf < area.nf
                 # q2_to is the threshold value
-                L = np.log(scale_to / fact_scale) # TODO why fact_scale instead of m2
+                L = np.log(scale_to / fact_scale)  # TODO why fact_scale instead of m2
                 if next_nf_is_down:
                     c1 = -4.0 / 3.0 * self._constants.TF * L
                     # TODO recover color constants

@@ -4,7 +4,7 @@ import numpy as np
 from numpy.testing import assert_almost_equal, assert_allclose
 
 from eko.constants import Constants
-import eko.splitting_functions_LO as spf_LO
+import eko.anomalous_dimensions.lo as ad_lo
 
 constants = Constants()
 CA = constants.CA
@@ -25,16 +25,16 @@ def test_number_momentum_conservation():
     # number
     input_N = [complex(1.0, 0.0)]
     known_vals = [complex(0.0, 0.0)]
-    check_values(spf_LO.gamma_ns_0, input_N, known_vals)
+    check_values(ad_lo.gamma_ns_0, input_N, known_vals)
 
     # quark momentum
     input_N = [complex(2.0, 0.0)]
     known_vals = [complex(0.0, 0.0)]
 
     def _sum(*args):
-        return spf_LO.gamma_ns_0(
+        return ad_lo.gamma_ns_0( # pylint: disable=no-value-for-parameter
             *args
-        ) + spf_LO.gamma_gq_0(  # pylint: disable=no-value-for-parameter
+        ) + ad_lo.gamma_gq_0(  # pylint: disable=no-value-for-parameter
             *args
         )
 
@@ -42,9 +42,9 @@ def test_number_momentum_conservation():
 
     # gluon momentum
     def _sum(*args):
-        return spf_LO.gamma_qg_0(
+        return ad_lo.gamma_qg_0( # pylint: disable=no-value-for-parameter
             *args
-        ) + spf_LO.gamma_gg_0(  # pylint: disable=no-value-for-parameter
+        ) + ad_lo.gamma_gg_0(  # pylint: disable=no-value-for-parameter
             *args
         )
 
@@ -54,29 +54,29 @@ def test_number_momentum_conservation():
 def test_gamma_ps_0():
     input_N = [complex(1.0, 0.0)]
     known_vals = [complex(0.0, 0.0)]
-    check_values(spf_LO.gamma_ps_0, input_N, known_vals)
+    check_values(ad_lo.gamma_ps_0, input_N, known_vals)
 
 
 def test_gamma_qg_0():
     input_N = [complex(1.0, 0.0)]
     known_vals = [complex(-20.0 / 3.0, 0.0)]
-    check_values(spf_LO.gamma_qg_0, input_N, known_vals)
+    check_values(ad_lo.gamma_qg_0, input_N, known_vals)
 
 
 def test_gamma_gq_0():
     input_N = [complex(0.0, 1.0)]
     known_vals = [complex(4.0, -4.0) / 3.0]
-    check_values(spf_LO.gamma_gq_0, input_N, known_vals)
+    check_values(ad_lo.gamma_gq_0, input_N, known_vals)
 
 
 def test_gamma_gg_0():
     input_N = [complex(0.0, 1.0)]
     known_vals = [complex(5.195725159621, 10.52008856962)]
-    check_values(spf_LO.gamma_gg_0, input_N, known_vals)
+    check_values(ad_lo.gamma_gg_0, input_N, known_vals)
 
 
 def test_get_Eigensystem_gamma_singlet_0_values():
-    res = spf_LO.get_Eigensystem_gamma_singlet_0(3, NF, CA, CF)
+    res = ad_lo.get_Eigensystem_gamma_singlet_0(3, NF, CA, CF)
     lambda_p = np.complex(12.273612971466964, 0)
     lambda_m = np.complex(5.015275917421917, 0)
     e_p = np.array(
@@ -96,12 +96,12 @@ def test_get_Eigensystem_gamma_singlet_0_values():
 
 def test_get_Eigensystem_gamma_singlet_0_projectors_EV():
     for N in [1, 3, 4]:  # N=2 seems close to 0, so test fails
-        l_p, l_m, e_p, e_m = spf_LO.get_Eigensystem_gamma_singlet_0(N, NF, CA, CF)
+        l_p, l_m, e_p, e_m = ad_lo.get_Eigensystem_gamma_singlet_0(N, NF, CA, CF)
         # projectors behave as P_a . P_b = delta_ab P_a
         assert_allclose(np.dot(e_p, e_p), e_p)
         assert_almost_equal(np.dot(e_p, e_m), np.zeros((2, 2)))
         assert_allclose(np.dot(e_m, e_m), e_m)
         # check EVs
-        gamma_S = spf_LO.get_gamma_singlet_0(N, NF, CA, CF)
+        gamma_S = ad_lo.get_gamma_singlet_0(N, NF, CA, CF)
         assert_allclose(np.dot(e_p, gamma_S), l_p * e_p)
         assert_allclose(np.dot(e_m, gamma_S), l_m * e_m)

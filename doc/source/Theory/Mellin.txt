@@ -106,4 +106,4 @@ integral. This information is encoded in N-space in the following way: Due
 to the Mellin kernel :math:`x^{N-1}` any piecewise polynomial, such as we
 are doing, are proportional to
 :math:`x_{\text{min/max}}^N = \exp(N\ln(x_{\text{min/max}}))`
-(see Examples). They are thus factorizable is the above sense.
+(see :ref:`theory/mellin:important examples`). They are thus factorizable is the above sense.

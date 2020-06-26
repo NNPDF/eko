@@ -255,6 +255,9 @@ class TestPhysicalOperator:
         assert c.op_members["T3.S"] == T3T3h * T3Sl
         assert c.op_members["T3.g"] == T3T3h * T3gl
         assert c.op_members["S.S"] == SSh * SSl + Sgh * gSl
+        # errors
+        with pytest.raises(ValueError):
+            _ = a * {}
 
 
 # int_0.5^1 dz z^k = (1 - 0.5**(k+1))/(k+1)

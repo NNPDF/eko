@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
     Implements the cffi ports from gsl for higher mathematical functions.
 
@@ -5,6 +6,8 @@
 
       - `cffi <https://cffi.readthedocs.io/en/latest/>`_
       - `gsl <https://www.gnu.org/software/gsl/doc/html/index.html>`_
+
+    The functions are need in :doc:`Mellin space </Theory/Mellin>`.
 """
 
 import numpy as np
@@ -48,7 +51,7 @@ def gsl_digamma(N: t_complex):
     r = np.real(N)
     i = np.imag(N)
     out = np.empty(2)
-    c_digamma(r, i, _gsl_digamma.ffi.from_buffer(out))
+    c_digamma(r, i, _gsl_digamma.ffi.from_buffer("double[]",out))
     result = np.complex(out[0], out[1])
     return result
 
