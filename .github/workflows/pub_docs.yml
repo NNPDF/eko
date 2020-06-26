@@ -11,9 +11,9 @@ jobs:
   deploy-ghpages:
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 2
+#      max-parallel: 2
       matrix:
-        python-version: [3.7]
+        python-version: [3.7, 3.8]
       fail-fast: false
 
     steps:
@@ -36,6 +36,8 @@ jobs:
           # install eko
           ls -la
           pip install .
+          # add docs packages
+          pip install -r docs_requirements.txt
       - name: Build 🔨
         run: |
           cd doc/
