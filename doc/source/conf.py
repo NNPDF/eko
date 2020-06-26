@@ -15,7 +15,6 @@
 # import sys
 #
 #
-from recommonmark.transform import AutoStructify
 
 # -- Project information -----------------------------------------------------
 
@@ -24,9 +23,9 @@ copyright = '2019-2020, the N3PDF team'
 author = 'N3PDF team'
 
 # The short X.Y version
-version = ''
+version = '0.2'
 # The full version, including alpha/beta/rc tags
-release = ''
+release = 'v0.2.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -47,11 +46,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
-    # To generate section headings,
-    # particularly in markdown. See
-    # https://recommonmark.readthedocs.io/en/latest/#linking-to-headings-in-other-files
     'sphinx.ext.autosectionlabel',
-    #'recommonmark',
     'sphinx.ext.napoleon',
     'sphinxcontrib.bibtex',
     "sphinx.ext.graphviz",
@@ -224,13 +219,3 @@ mathjax_config = {
         "Em": [r"{\tilde{E}_{ns}^-({#1}\leftarrow {#2})}",2],
     }}
 }
-
-# Adapted this from
-# https://github.com/readthedocs/recommonmark/blob/ddd56e7717e9745f11300059e4268e204138a6b1/docs/conf.py
-# app setup hook
-def setup(app):
-    app.add_config_value('recommonmark_config', {
-        #'url_resolver': lambda url: github_doc_root + url,
-        'enable_eval_rst': True,
-    }, True)
-    app.add_transform(AutoStructify)
