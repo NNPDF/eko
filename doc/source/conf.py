@@ -23,9 +23,9 @@ copyright = '2019-2020, the N3PDF team'
 author = 'N3PDF team'
 
 # The short X.Y version
-version = '0.2'
+version = '0.3'
 # The full version, including alpha/beta/rc tags
-release = 'v0.2.0'
+release = 'v0.3.0'
 
 
 # -- General configuration ---------------------------------------------------
