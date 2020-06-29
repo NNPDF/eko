@@ -13,7 +13,6 @@ EKO is available via PyPI: <a href="https://img.shields.io/pypi/v/eko"><img alt=
 ```bash
 pip install eko
 ```
-EKO requires [GSL](https://www.gnu.org/software/gsl/) to be installed.
 
 If you want to install from source you can run
 ```bash

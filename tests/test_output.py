@@ -55,7 +55,9 @@ class TestOutput:
             fn = "test.yaml"
             o3 = output.Output.load_yaml_from_file(fn)
             mock_file.assert_called_with(fn)
-            np.testing.assert_almost_equal(o3["interpolation_xgrid"], interpolation_xgrid)
+            np.testing.assert_almost_equal(
+                o3["interpolation_xgrid"], interpolation_xgrid
+            )
 
     def test_apply(self):
         # build data
@@ -90,7 +92,9 @@ class TestOutput:
         pdfs = pdf_grid[q2_out]["pdfs"]
         assert list(pdfs.keys()) == ["V"]
         # 0.75 is the the average of .5 and 1. -> mix equally
-        np.testing.assert_almost_equal(pdfs["V"], (VV @ V(interpolation_xgrid)) @ [0.5, 0.5])
+        np.testing.assert_almost_equal(
+            pdfs["V"], (VV @ V(interpolation_xgrid)) @ [0.5, 0.5]
+        )
 
     def test_get_op(self):
         # build data
@@ -181,7 +185,9 @@ class TestOutput:
             o1.concat(output.Output(dd))
         with pytest.raises(ValueError):
             dd = copy.deepcopy(d)
-            dd["interpolation_xgrid"] = dd["interpolation_xgrid"][:-1] + [dd["interpolation_xgrid"][-1] * 0.9]
+            dd["interpolation_xgrid"] = dd["interpolation_xgrid"][:-1] + [
+                dd["interpolation_xgrid"][-1] * 0.9
+            ]
             o1.concat(output.Output(dd))
         # will fail due to non-matching scales
         with pytest.raises(ValueError):

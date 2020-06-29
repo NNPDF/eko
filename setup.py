@@ -19,7 +19,6 @@ setup(name='eko',
       package_data = {
           '' : ['doc/source/img/Logo.svg'],
       },
-      zip_safe=False,
       classifiers=[
           'Operating System :: Unix',
           'Programming Language :: Python',
@@ -32,13 +31,8 @@ setup(name='eko',
           'numpy',
           'scipy',
           'numba',
-          'cffi',
           'joblib',
           'pyyaml',
       ],
-      setup_requires=[
-          "cffi>1.0.0"
-      ],
-      cffi_modules=["src/cfunctions/digamma.py:ffibuilder"],
       python_requires='>=3.7'
 )

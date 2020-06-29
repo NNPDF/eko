@@ -3,11 +3,11 @@ r"""
   This file contains the next-to-leading-order Altarelli-Parisi splitting kernels.
 """
 
-import numpy as np
+#import numpy as np
 import numba as nb
 
 from eko import t_float, t_complex
-from eko.ekomath import harmonic_S1 as S1
+#from eko.ekomath import harmonic_S1 as S1
 
 
 @nb.njit

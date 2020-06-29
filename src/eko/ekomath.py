@@ -1,68 +1,27 @@
 # -*- coding: utf-8 -*-
 """
-    Implements the cffi ports from gsl for higher mathematical functions.
-
-    Used libraries:
-
-      - `cffi <https://cffi.readthedocs.io/en/latest/>`_
-      - `gsl <https://www.gnu.org/software/gsl/doc/html/index.html>`_
+    Implements higher mathematical functions.
 
     The functions are need in :doc:`Mellin space </Theory/Mellin>`.
 """
 
 import numpy as np
 import numba as nb
-from numba.core.typing import cffi_utils
-import _gsl_digamma
 from eko import t_complex
 
-# Prepare the cffi functions to be used within numba
-cffi_utils.register_module(_gsl_digamma)
-c_digamma = _gsl_digamma.lib.digamma  # pylint: disable=no-member
-
 
 @nb.njit
-def gsl_digamma(N: t_complex):
-    """
-      Wrapper around the gsl implementation via cffi of the
-      `digamma function <https://en.wikipedia.org/wiki/Digamma_function>`_.
-
-      The wrapper allows both input and output to be complex.
-      Note that the `SciPy implementation <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.digamma.html>`_
-      does not allow for complex inputs.
-
-      Parameters
-      ----------
-        N : t_complex
-          input
-
-      Returns
-      -------
-        psi : t_complex
-          digamma function :math:`\\psi_0(N)`
-
-      Notes
-      -----
-        `GSL documentation <https://www.gnu.org/software/gsl/doc/html/specfunc.html#psi-digamma-function>`_
-
-        Note that, although not listed in the documentation, there **is** a
-        `complex version <http://git.savannah.gnu.org/cgit/gsl.git/tree/specfunc/gsl_sf_psi.h#n76>`_
-    """  # pylint: disable=line-too-long
-    r = np.real(N)
-    i = np.imag(N)
-    out = np.empty(2)
-    c_digamma(r, i, _gsl_digamma.ffi.from_buffer(out))
-    result = np.complex(out[0], out[1])
-    return result
-
-
-@nb.njit
-def cern_polygamma(Z: t_complex, K: int): # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+def cern_polygamma(
+    Z: t_complex, K: int
+):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     """
       Computes the polygamma functions :math:`\\psi_k(z)`.
 
       Reimplementation of ``WPSIPG`` (C317) in `CERNlib <http://cernlib.web.cern.ch/cernlib/>`_
       :cite:`KOLBIG1972221`.
+
+      Note that the `SciPy implementation <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.digamma.html>`_
+      does not allow for complex inputs.
 
       Parameters
       ----------
@@ -148,7 +107,7 @@ def cern_polygamma(Z: t_complex, K: int): # pylint: disable=too-many-locals,too-
         H=H+np.log(V)
     if X < 0:
         V=np.pi*U
-        X=V
+        X=np.real(V)
         Y=np.imag(V)
         A=np.sin(X)
         B=np.cos(X)
@@ -195,4 +154,4 @@ def harmonic_S1(N: t_complex):
       --------
         cern_polygamma :
     """
-    return cern_polygamma(N + 1.0,0) + np.euler_gamma
+    return cern_polygamma(N + 1.0, 0) + np.euler_gamma
