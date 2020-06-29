@@ -41,7 +41,7 @@ class Output(dict):
         input_lists = {}
         for k in input_pdfs:
             l = []
-            for x in self["xgrid"]:
+            for x in self["interpolation_xgrid"]:
                 l.append(input_pdfs[k](x))
             input_lists[k] = np.array(l)
 
@@ -53,13 +53,7 @@ class Output(dict):
 
         # interpolate to target grid
         if targetgrid is not None:
-            b = interpolation.InterpolatorDispatcher(
-                self["xgrid"],
-                self["polynomial_degree"],
-                self["is_log_interpolation"],
-                False,
-            )
-            # TODO do we really need numba for the rotation?
+            b = interpolation.InterpolatorDispatcher.from_dict(self, False)
             rot = b.get_interpolation(targetgrid)
             for q2 in out_grid:
                 for pdf_label in out_grid[q2]["pdfs"]:
@@ -88,10 +82,10 @@ class Output(dict):
             "Q2grid": {},
         }
         # dump raw elements
-        for f in ["polynomial_degree", "is_log_interpolation", "q2_ref"]:
+        for f in ["interpolation_polynomial_degree", "interpolation_is_log", "q2_ref"]:
             out[f] = self[f]
         # make raw lists
-        for k in ["xgrid"]:
+        for k in ["interpolation_xgrid"]:
             out[k] = self[k].tolist()
         # make operators raw
         for q2 in self["Q2grid"]:
@@ -217,13 +211,13 @@ class Output(dict):
         if not isinstance(other, Output):
             raise ValueError("can only concatenate two Output instances!")
         # check parameters
-        for f in ["polynomial_degree", "is_log_interpolation"]:
+        for f in ["interpolation_polynomial_degree", "interpolation_is_log"]:
             if not self[f] == other[f]:
                 raise ValueError(
                     f"'{f}' of the two factors does not match: {self[f]} vs {other[f]}"
                 )
-        if not np.allclose(self["xgrid"], other["xgrid"]):
-            raise ValueError(f"'xgrid' of the two factors does not match")
+        if not np.allclose(self["interpolation_xgrid"], other["interpolation_xgrid"]):
+            raise ValueError(f"'interpolation_xgrid' of the two factors does not match")
         # check matching
         mid_scale = self["q2_ref"]
         if not mid_scale in other["Q2grid"]:

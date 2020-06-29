@@ -20,20 +20,19 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        sudo apt-get install -y libgsl-dev
         python -m pip install --upgrade pip
         pip install .
     - name: Lint with pylint
       run: |
         pip install pylint
         # Search for actual errors
-        pylint src/*/*.py -E
+        pylint src/ -E
         # For warnings instead return always zero
-        pylint src/*/*.py --exit-zero
+        pylint src/ --exit-zero
     - name: Test with pytest
       run: |
-        pip install pytest
+        # add test packages
+        pip install -r test_requirements.txt
         # until https://github.com/numba/numba/pull/5660 is confirmed we need to deactivate numba prior running
         export NUMBA_DISABLE_JIT=1
-        pip install pytest-cov
         pytest

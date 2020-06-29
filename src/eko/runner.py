@@ -76,9 +76,9 @@ class Runner:
         ret.update(self._basis_function_dispatcher.to_dict())
         ret["q2_ref"] = float(self._threshold_holder.q2_ref)
         # add all operators
-        q2_grid = {}
+        Q2grid = {}
         for op in self.get_operators():
             final_scale = op.q2_final
-            q2_grid[final_scale] = op.get_raw_operators()
-        ret["Q2grid"] = q2_grid
+            Q2grid[final_scale] = op.get_raw_operators()
+        ret["Q2grid"] = Q2grid
         return ret

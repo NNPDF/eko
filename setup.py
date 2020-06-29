@@ -1,15 +1,17 @@
+# -*- coding: utf-8 -*-
 # Installation script for python
 from setuptools import setup, find_packages
 
+# paste Readme
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eko',
-      version='0.2.0',
+      version='0.3.0',
       description='Evolution Kernel Operator',
       long_description=long_description,
       long_description_content_type="text/markdown",
-      author = 'S.Carrazza, J.Cruz-Martinez, F. Hekhorn',
+      author = 'S. Carrazza, J. Cruz-Martinez, F. Hekhorn',
       author_email='stefano.carrazza@cern.ch',
       url='https://github.com/N3PDF/eko',
       package_dir={'': 'src'},
@@ -17,7 +19,6 @@ setup(name='eko',
       package_data = {
           '' : ['doc/source/img/Logo.svg'],
       },
-      zip_safe=False,
       classifiers=[
           'Operating System :: Unix',
           'Programming Language :: Python',
@@ -30,13 +31,8 @@ setup(name='eko',
           'numpy',
           'scipy',
           'numba',
-          'cffi',
           'joblib',
           'pyyaml',
       ],
-      setup_requires=[
-          "cffi>1.0.0"
-      ],
-      cffi_modules=["src/cfunctions/digamma.py:ffibuilder"],
       python_requires='>=3.7'
 )

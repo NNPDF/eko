@@ -21,9 +21,9 @@ class TestKernelDispatcher:
         # fake beta0 + anomalous dimension + mellin
         c = eko.constants.Constants()
         monkeypatch.setattr(eko.strong_coupling, "beta_0", lambda *_args: 1)
-        monkeypatch.setattr(eko.splitting_functions_LO, "gamma_ns_0", lambda *_args: 1)
+        monkeypatch.setattr(eko.anomalous_dimensions.lo, "gamma_ns_0", lambda *_args: 1)
         monkeypatch.setattr(
-            eko.splitting_functions_LO,
+            eko.anomalous_dimensions.lo,
             "get_Eigensystem_gamma_singlet_0",
             fake_get_Eigensystem_gamma_singlet_0,
         )
@@ -47,4 +47,3 @@ class TestKernelDispatcher:
                 np.testing.assert_almost_equal(
                     kd.integrands_s[nf][0][k](1, 1, 1), np.exp(-1)
                 )
-        # reset
