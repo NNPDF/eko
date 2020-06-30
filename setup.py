@@ -34,5 +34,8 @@ setup(name='eko',
           'joblib',
           'pyyaml',
       ],
+      setup_requires=[
+          'wheel'
+      ],
       python_requires='>=3.7'
 )
