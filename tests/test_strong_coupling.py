@@ -10,6 +10,7 @@ from eko.strong_coupling import beta_0, beta_1, beta_2, StrongCoupling
 from eko import thresholds
 from eko.constants import Constants
 
+# try to load LHAPDF - if not available, we'll use the cached values
 try:
     import lhapdf
 
@@ -17,6 +18,7 @@ try:
 except ImportError:
     use_LHAPDF = False
 
+# try to load APFEL - if not available, we'll use the cached values
 try:
     import apfel
 
@@ -129,6 +131,30 @@ class TestStrongCoupling:
                 )
                 np.testing.assert_approx_equal(
                     sc.a_s(scale_ref), alphas_ref / 4.0 / np.pi
+                )
+
+    def test_exact_LO(self):
+        # prepare
+        thresh_setups = [
+            {"FNS": "FFNS", "NfFF": 3},
+            {"FNS": "FFNS", "NfFF": 4},
+            {"FNS": "ZM-VFNS", "mc": 2, "mb": 4, "mt": 175},
+        ]
+        alphas_ref = 0.118
+        scale_ref = 91.0 ** 2
+        for thresh_setup in thresh_setups:
+            thresh_setup["Q0"] = 1
+            thresholds_conf = thresholds.ThresholdsConfig.from_dict(thresh_setup)
+            # in LO expanded  = exact
+            sc_expanded = StrongCoupling(
+                constants, alphas_ref, scale_ref, thresholds_conf, 0, "expanded"
+            )
+            sc_exact = StrongCoupling(
+                constants, alphas_ref, scale_ref, thresholds_conf, 0, "exact"
+            )
+            for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
+                np.testing.assert_allclose(
+                    sc_expanded.a_s(q2), sc_exact.a_s(q2), rtol=5e-4
                 )
 
 
@@ -357,6 +383,135 @@ class BenchmarkStrongCoupling:
         # check myself to LHAPDF
         np.testing.assert_allclose(lhapdf_vals, np.array(my_vals), rtol=5e-4)
 
+    def benchmark_apfel_exact(self):
+        """test exact towards APFEL"""
+        Q2s = [1e1, 1e2, 1e3, 1e4]
+        alphas_ref = 0.118
+        scale_ref = 90 ** 2
+        # collect my values
+        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=3)
+        # LHAPDF cache
+        apfel_vals_dict = {
+            0: np.array(
+                [
+                    0.021635019899707245,
+                    0.014937719308417242,
+                    0.01140668497649318,
+                    0.009225844999427163,
+                ]
+            ),
+            1: np.array(
+                [
+                    0.025027723843261098,
+                    0.015730685887616093,
+                    0.01159096381106341,
+                    0.009215179564010682,
+                ]
+            ),
+            2: np.array(
+                [
+                    0.025717091835015565,
+                    0.01583723253352162,
+                    0.011610857909393214,
+                    0.009214183434685514,
+                ]
+            ),
+        }
+        for order in range(2 + 1):
+            sc = StrongCoupling(
+                constants,
+                alphas_ref,
+                scale_ref,
+                threshold_holder,
+                order=order,
+                method="exact",
+            )
+            my_vals = []
+            for Q2 in Q2s:
+                my_vals.append(sc.a_s(Q2))
+            # get APFEL numbers - if available else use cache
+            apfel_vals = apfel_vals_dict[order]
+            if use_APFEL:
+                # run apfel
+                apfel.CleanUp()
+                apfel.SetTheory("QCD")
+                apfel.SetPerturbativeOrder(order)
+                apfel.SetAlphaEvolution("exact")
+                apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                apfel.SetFFNS(3)
+                apfel.SetRenFacRatio(1)
+                apfel.InitializeAPFEL()
+                # collect a_s
+                apfel_vals_cur = []
+                for Q2 in Q2s:
+                    apfel_vals_cur.append(apfel.AlphaQCD(np.sqrt(Q2)) / (4.0 * np.pi))
+                # print(apfel_vals_cur)
+                np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
+            # check myself to APFEL
+            np.testing.assert_allclose(apfel_vals, np.array(my_vals), rtol=2e-4)
+
+    def benchmark_lhapdf_exact(self):
+        """test exact towards LHAPDF"""
+        Q2s = [1e1, 1e2, 1e3, 1e4]
+        alphas_ref = 0.118
+        scale_ref = 90 ** 2
+        # collect my values
+        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=3)
+        # LHAPDF cache
+        lhapdf_vals_dict = {
+            0: np.array(
+                [
+                    0.021634715590772086,
+                    0.014937700253543466,
+                    0.011406683936848657,
+                    0.009225845071914008,
+                ]
+            ),
+            1: np.array(
+                [
+                    0.025027589743439077,
+                    0.015730666136188308,
+                    0.011590962671090168,
+                    0.009215179641099218,
+                ]
+            ),
+            2: np.array(
+                [
+                    0.02571700975829869,
+                    0.015837212322787945,
+                    0.011610856755395813,
+                    0.009214183512196827,
+                ]
+            ),
+        }
+        for order in range(2 + 1):
+            sc = StrongCoupling(
+                constants,
+                alphas_ref,
+                scale_ref,
+                threshold_holder,
+                order=order,
+                method="exact",
+            )
+            my_vals = []
+            for Q2 in Q2s:
+                my_vals.append(sc.a_s(Q2))
+            lhapdf_vals = lhapdf_vals_dict[order]
+            if use_LHAPDF:
+                as_lhapdf = lhapdf.mkBareAlphaS("ODE")
+                as_lhapdf.setOrderQCD(1 + order)
+                as_lhapdf.setFlavorScheme("FIXED", 3)
+                as_lhapdf.setAlphaSMZ(alphas_ref)
+                as_lhapdf.setMZ(np.sqrt(scale_ref))
+                # collect a_s
+                lhapdf_vals_cur = []
+                for Q2 in Q2s:
+                    lhapdf_vals_cur.append(as_lhapdf.alphasQ2(Q2) / (4.0 * np.pi))
+                # print(lhapdf_vals_cur)
+                np.testing.assert_allclose(lhapdf_vals, np.array(lhapdf_vals_cur))
+            # check
+            np.testing.assert_allclose(lhapdf_vals, np.array(my_vals), rtol=2e-4)
+
     def benchmark_lhapdf_zmvfns_lo(self):
         """test ZM-VFNS LO towards LHAPDF"""
         Q2s = [1, 1e1, 1e2, 1e3, 1e4]
@@ -369,13 +524,13 @@ class BenchmarkStrongCoupling:
         # compute all Lambdas
         # Lambda2_5 = self._get_Lambda2_LO(alphas_ref / (4.0 * np.pi), scale_ref, 5)
         # as_FFNS_LO_5 = StrongCoupling(
-        #    constants, alphas_ref, scale_ref, 0, "FFNS", nf=5, method="analytic"
+        #    constants, alphas_ref, scale_ref, 0, "FFNS", nf=5, method="expanded"
         # )
         # Lambda2_6 = self._get_Lambda2_LO(as_FFNS_LO_5.a_s(m2t), m2t, 6)
         # as_b = as_FFNS_LO_5.a_s(m2b)
         # Lambda2_4 = self._get_Lambda2_LO(as_b, m2b, 4)
         # as_FFNS_LO_4 = StrongCoupling(
-        #    constants, as_b * 4.0 * np.pi, m2b, 0, "FFNS", nf=4, method="analytic"
+        #    constants, as_b * 4.0 * np.pi, m2b, 0, "FFNS", nf=4, method="expanded"
         # )
         # Lambda2_3 = self._get_Lambda2_LO(as_FFNS_LO_4.a_s(m2c), m2c, 3)
 

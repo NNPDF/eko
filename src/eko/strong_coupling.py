@@ -7,6 +7,7 @@ r"""
 """
 
 import numpy as np
+import scipy
 import numba as nb
 
 from eko import t_float
@@ -145,7 +146,7 @@ class StrongCoupling:
                 An instance of :class:`~eko.thresholds.ThresholdsConfig`
             order: int
                 Evaluated order of the beta function: ``0`` = LO, ...
-            method : ["analytic"]
+            method : ["expanded", "exact"]
                 Applied method to solve the beta function
 
         Examples
@@ -161,7 +162,7 @@ class StrongCoupling:
     """
 
     def __init__(
-        self, consts, alpha_s_ref, scale_ref, thresh, order=0, method="analytic",
+        self, consts, alpha_s_ref, scale_ref, thresh, order=0, method="expanded",
     ):
         # Sanity checks
         if not isinstance(consts, constants.Constants):
@@ -175,7 +176,7 @@ class StrongCoupling:
         if order not in [0, 1, 2]:
             raise NotImplementedError("a_s beyond NNLO is not implemented")
         self._order = order
-        if method not in ["analytic"]:
+        if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
         self._method = method
         self._constants = consts
@@ -226,9 +227,9 @@ class StrongCoupling:
         return cls(constants, alpha_ref, q2_alpha, thresholds, order)
 
     # Hidden computation functions
-    def _compute_analytic(self, as_ref, nf, scale_from, scale_to):
+    def _compute_expanded(self, as_ref, nf, scale_from, scale_to):
         """
-            Compute via analytic expression.
+            Compute via expanded expression.
 
             Parameters
             ----------
@@ -276,6 +277,51 @@ class StrongCoupling:
 
         return res
 
+    def _compute_exact(self, as_ref, nf, scale_from, scale_to):
+        """
+            Compute via RGE.
+
+            Parameters
+            ----------
+                as_ref: t_float
+                    reference alpha_s
+                nf: int
+                    value of nf for computing alpha_s
+                scale_from: t_float
+                    reference scale
+                scale_to : t_float
+                    target scale
+
+            Returns
+            -------
+                a_s : t_float
+                    strong coupling at target scale :math:`a_s(Q^2)`
+        """
+        # u = beta0 * ln(scale_to/scale_from)
+        beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
+        u = beta0 * np.log(scale_to / scale_from)
+        b_vec = [1]
+        # NLO
+        if self._order >= 1:
+            beta1 = beta_1(
+                nf, self._constants.CA, self._constants.CF, self._constants.TF
+            )
+            b1 = beta1 / beta0
+            b_vec.append(b1)
+            # NNLO
+            if self._order >= 2:
+                beta2 = beta_2(
+                    nf, self._constants.CA, self._constants.CF, self._constants.TF
+                )
+                b2 = beta2 / beta0
+                b_vec.append(b2)
+
+        def rge(_t, a, b_vec):
+            return -(a ** 2) * np.sum([a ** k * b for k, b in enumerate(b_vec)])
+
+        res = scipy.integrate.solve_ivp(rge, (0, u), (as_ref,), args=[b_vec])
+        return res.y[0][-1]
+
     def _compute(self, as_ref, nf, scale_from, scale_to):
         """
             Wrapper in order to pass the computation to the corresponding
@@ -298,8 +344,12 @@ class StrongCoupling:
                     strong coupling at target scale :math:`a_s(Q^2)`
         """
         # TODO set up a cache system here
-        # at the moment everything is analytic - and type has been checked in the constructor
-        return self._compute_analytic(as_ref, nf, scale_from, scale_to)
+        # at the moment everything is expanded - and type has been checked in the constructor
+        if self._method == "exact":
+            as_new = self._compute_exact(as_ref, nf, scale_from, scale_to)
+        else:
+            as_new = self._compute_expanded(as_ref, nf, scale_from, scale_to)
+        return as_new
 
     def a_s(self, scale_to, fact_scale=None):
         """
@@ -332,7 +382,7 @@ class StrongCoupling:
             if k < len(area_path) - 1:
                 next_nf_is_down = area_path[k + 1].nf < area.nf
                 # q2_to is the threshold value
-                L = np.log(scale_to / fact_scale)  # TODO why fact_scale instead of m2
+                L = np.log(scale_to / fact_scale)
                 if next_nf_is_down:
                     c1 = -4.0 / 3.0 * self._constants.TF * L
                     # TODO recover color constants

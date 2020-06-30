@@ -32,7 +32,7 @@ make html
 ```
 
 ## Citation policy
-Please cite our DOI when using our code: <a href="https://doi.org/10.5281/zenodo.3874238"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.3874238.svg" alt="DOI"/></a>
+Please cite our DOI when using our code: <a href="https://doi.org/10.5281/zenodo.3874237"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.3874237.svg" alt="DOI"/></a>
 
 ## Contributing
 Your feedback is welcome! If you want to report a (possible) bug or want to ask for a new feature, please raise an issue: <a href="https://img.shields.io/github/issues/N3PDF/eko"><img alt="GitHub issues" src="https://img.shields.io/github/issues/N3PDF/eko"/></a>
