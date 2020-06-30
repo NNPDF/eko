@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from numpy.testing import assert_almost_equal
+import pytest
 
 from eko import t_complex
 from eko import ekomath
@@ -73,6 +74,12 @@ def test_cern_polygamma():
             me = ekomath.cern_polygamma(z, k)
             ref = fortran_ref[nk][nz]
             assert_almost_equal(me, ref)
+    # errors
+    with pytest.raises(NotImplementedError):
+        _ = ekomath.cern_polygamma(1, 5)
+    with pytest.raises(ValueError):
+        _ = ekomath.cern_polygamma(0, 0)
+
 
 
 def test_harmonic_S1():

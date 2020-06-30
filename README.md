@@ -4,6 +4,8 @@
 <p align="center">
   <a href="https://github.com/N3PDF/eko/actions?query=workflow%3A%22eko%22"><img alt="Tests" src="https://github.com/N3PDF/eko/workflows/eko/badge.svg" /></a>
   <a href="https://n3pdf.github.io/eko/"><img alt="Docs" src="https://github.com/N3PDF/eko/workflows/docs/badge.svg"></a>
+  <a href="https://codecov.io/gh/N3PDF/eko"><img src="https://codecov.io/gh/N3PDF/eko/branch/master/graph/badge.svg" /></a>
+  <a href="https://www.codefactor.io/repository/github/n3pdf/eko"><img src="https://www.codefactor.io/repository/github/n3pdf/eko/badge" alt="CodeFactor" /></a>
 </p>
 
 EKO is a Python module to solve the DGLAP equations in terms of Evolution Kernel Operators in x-space.
