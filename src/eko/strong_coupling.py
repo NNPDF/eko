@@ -224,7 +224,8 @@ class StrongCoupling:
         alpha_ref = setup["alphas"]
         q2_alpha = pow(setup["Qref"], 2)
         order = setup["PTO"]
-        return cls(constants, alpha_ref, q2_alpha, thresholds, order)
+        method = setup["ModEv"]
+        return cls(constants, alpha_ref, q2_alpha, thresholds, order, method)
 
     # Hidden computation functions
     def _compute_expanded(self, as_ref, nf, scale_from, scale_to):
