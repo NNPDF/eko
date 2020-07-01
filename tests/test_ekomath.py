@@ -81,7 +81,6 @@ def test_cern_polygamma():
         _ = ekomath.cern_polygamma(0, 0)
 
 
-
 def test_harmonic_S1():
     """test harmonic sum S1"""
     # test on real axis

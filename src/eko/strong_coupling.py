@@ -198,7 +198,7 @@ class StrongCoupling:
         return self._threshold_holder.q2_ref
 
     @classmethod
-    def from_dict(cls, setup, constants, thresholds):
+    def from_dict(cls, setup, thresholds_config=None, consts=None):
         """
             Create object from theory dictionary.
 
@@ -206,6 +206,8 @@ class StrongCoupling:
 
                 - alphas : required, reference value for  alpha_s (!)
                 - Qref : required, reference value in GeV (!)
+                - PTO : required, perturbative order
+                - ModEv : optional, method to solve RGE
 
             Parameters
             ----------
@@ -213,7 +215,7 @@ class StrongCoupling:
                     theory dictionary
                 constants : eko.constants.Constants
                     Color constants
-                thresholds : eko.thresholds.ThresholdsConfig
+                thresholds_config : eko.thresholds.ThresholdsConfig
                     threshold configuration
 
             Returns
@@ -221,17 +223,23 @@ class StrongCoupling:
                 cls : StrongCoupling
                     created object
         """
+        # read my values
         alpha_ref = setup["alphas"]
         q2_alpha = pow(setup["Qref"], 2)
         order = setup["PTO"]
-        mod_ev = setup["ModEv"]
+        mod_ev = setup.get("ModEv", "EXA")
         if mod_ev == "EXA":
             method = "exact"
         elif mod_ev in ["TRN", "EXP"]:
             method = "expanded"
         else:
             raise ValueError(f"Unknown evolution mode {mod_ev}")
-        return cls(constants, alpha_ref, q2_alpha, thresholds, order, method)
+        # eventually read my dependents
+        if consts is None:
+            consts = constants.Constants()
+        if thresholds_config is None:
+            thresholds_config = thresholds.ThresholdsConfig.from_dict(setup)
+        return cls(consts, alpha_ref, q2_alpha, thresholds_config, order, method)
 
     # Hidden computation functions
     def _compute_expanded(self, as_ref, nf, scale_from, scale_to):

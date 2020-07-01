@@ -45,7 +45,7 @@ class Runner:
         self._threshold_holder = ThresholdsConfig.from_dict(setup)
         # strong coupling
         self._a_s = StrongCoupling.from_dict(
-            setup, self._constants, self._threshold_holder
+            setup, self._threshold_holder, self._constants
         )
 
         # setup operator grid
