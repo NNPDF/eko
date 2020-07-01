@@ -224,7 +224,13 @@ class StrongCoupling:
         alpha_ref = setup["alphas"]
         q2_alpha = pow(setup["Qref"], 2)
         order = setup["PTO"]
-        method = setup["ModEv"]
+        mod_ev = setup["ModEv"]
+        if mod_ev == "EXA":
+            method = "exact"
+        elif mod_ev in ["TRN", "EXP"]:
+            method = "expanded"
+        else:
+            raise ValueError(f"Unknown evolution mode {mod_ev}")
         return cls(constants, alpha_ref, q2_alpha, thresholds, order, method)
 
     # Hidden computation functions
