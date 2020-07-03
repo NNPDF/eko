@@ -58,12 +58,12 @@ def toy_sp0(x):
     return toy_s0(x) + toy_sbar0(x)
 
 
-def toy_cp0(x):  # pylint: disable=unused-argument
-    return 0
+def toy_cp0(x):
+    return 0*x
 
 
-def toy_bp0(x):  # pylint: disable=unused-argument
-    return 0
+def toy_bp0(x):
+    return 0*x
 
 
 def toy_V0(x):
@@ -428,8 +428,8 @@ if __name__ == "__main__":
     # check input scale
     #save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
     # check fixed flavours
-    app.run_FFNS()
+    #app.run_FFNS()
     # do two steps
-    #app.run_FFNS_twostep(1e2)
+    app.run_FFNS_twostep(1e2)
     # check ZM-VFNS
     #app.run_ZMVFNS()

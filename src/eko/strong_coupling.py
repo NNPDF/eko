@@ -275,7 +275,6 @@ class StrongCoupling:
                 nf, self._constants.CA, self._constants.CF, self._constants.TF
             )
             b1 = beta1 / beta0
-            # TODO how can this be obtained from the Lambda-equivalent?
             as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
             res = as_NLO
             # NNLO

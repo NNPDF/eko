@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from numpy.testing import assert_almost_equal
+import numpy as np
 import pytest
 
-from eko import t_complex
 from eko import ekomath
 
 # until https://github.com/numba/numba/pull/5660 is confirmed
@@ -73,7 +72,7 @@ def test_cern_polygamma():
         for nz, z in enumerate(zs):
             me = ekomath.cern_polygamma(z, k)
             ref = fortran_ref[nk][nz]
-            assert_almost_equal(me, ref)
+            np.testing.assert_almost_equal(me, ref)
     # errors
     with pytest.raises(NotImplementedError):
         _ = ekomath.cern_polygamma(1, 5)
@@ -81,11 +80,12 @@ def test_cern_polygamma():
         _ = ekomath.cern_polygamma(0, 0)
 
 
-def test_harmonic_S1():
-    """test harmonic sum S1"""
+def test_harmonic_Sx():
+    """test harmonic sums S_x on real axis"""
     # test on real axis
-    known_vals = [1.0, 1.0 + 1.0 / 2.0, 1.0 + 1.0 / 2.0 + 1.0 / 3.0]
-    for i, val in enumerate(known_vals):
-        cval = t_complex(val)
-        result = ekomath.harmonic_S1(1 + i)
-        assert_almost_equal(result, cval)
+    def sx(n,m):
+        return np.sum([1/k**m for k in range(1,n+1)])
+    ls = [ekomath.harmonic_S1, ekomath.harmonic_S2, ekomath.harmonic_S3]
+    for k in range(1,3+1):
+        for n in range(1,4+1):
+            np.testing.assert_almost_equal(ls[k-1](n), sx(n,k))
