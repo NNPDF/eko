@@ -6,13 +6,12 @@ r"""
 import numpy as np
 import numba as nb
 
-from eko import t_float, t_complex
 from eko.ekomath import harmonic_S1 as S1
 
 
 @nb.njit
 def gamma_ns_0(
-    N: t_complex, nf: int, CA: t_float, CF: t_float
+    N, nf: int, CA: float, CF: float
 ):  # pylint: disable=unused-argument
     """
       Computes the leading-order non-singlet anomalous dimension.
@@ -22,18 +21,18 @@ def gamma_ns_0(
 
       Parameters
       ----------
-        N : t_complex
+        N : complex
           Mellin moment
         nf : int
           Number of active flavours (which is actually not used here)
-        CA : t_float
+        CA : float
           Casimir constant of adjoint representation (which is actually not used here)
-        CF : t_float
+        CF : float
           Casimir constant of fundamental representation
 
       Returns
       -------
-        gamma_ns_0 : t_complex
+        gamma_ns_0 : complex
           Leading-order non-singlet anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
     #gamma = 2 * (S1(N - 1) + S1(N + 1)) - 3
@@ -44,7 +43,7 @@ def gamma_ns_0(
 
 @nb.njit
 def gamma_qg_0(
-    N: t_complex, nf: int, CA: t_float, CF: t_float
+    N, nf: int, CA: float, CF: float
 ):  # pylint: disable=unused-argument
     """
       Computes the leading-order quark-gluon anomalous dimension
@@ -54,18 +53,18 @@ def gamma_qg_0(
 
       Parameters
       ----------
-        N : t_complex
+        N : complex
           Mellin moment
         nf : int
           Number of active flavours
-        CA : t_float
+        CA : float
           Casimir constant of adjoint representation (which is actually not used here)
-        CF : t_float
+        CF : float
           Casimir constant of fundamental representation (which is actually not used here)
 
       Returns
       -------
-        gamma_qg_0 : t_complex
+        gamma_qg_0 : complex
           Leading-order quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
     #gamma = S1(N - 1) + 4.0 * S1(N + 1) - 2.0 * S1(N + 2) - 3.0 * S1(N)
@@ -76,7 +75,7 @@ def gamma_qg_0(
 
 @nb.njit
 def gamma_gq_0(
-    N: t_complex, nf: int, CA: t_float, CF: t_float
+    N, nf: int, CA: float, CF: float
 ):  # pylint: disable=unused-argument
     """
       Computes the leading-order gluon-quark anomalous dimension
@@ -86,18 +85,18 @@ def gamma_gq_0(
 
       Parameters
       ----------
-        N : t_complex
+        N : complex
           Mellin moment
         nf : int
           Number of active flavours (which is actually not used here)
-        CA : t_float
+        CA : float
           Casimir constant of adjoint representation (which is actually not used here)
-        CF : t_float
+        CF : float
           Casimir constant of fundamental representation
 
       Returns
       -------
-        gamma_qg_0 : t_complex
+        gamma_qg_0 : complex
           Leading-order gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
     """
     #gamma = 2.0 * S1(N - 2) - 4.0 * S1(N - 1) - S1(N + 1) + 3.0 * S1(N)
@@ -108,7 +107,7 @@ def gamma_gq_0(
 
 @nb.njit
 def gamma_gg_0(
-    N: t_complex, nf: int, CA: t_float, CF: t_float
+    N, nf: int, CA: float, CF: float
 ):  # pylint: disable=unused-argument
     """
       Computes the leading-order gluon-gluon anomalous dimension
@@ -118,18 +117,18 @@ def gamma_gg_0(
 
       Parameters
       ----------
-        N : t_complex
+        N : complex
           Mellin moment
         nf : int
           Number of active flavours
-        CA : t_float
+        CA : float
           Casimir constant of adjoint representation
-        CF : t_float
+        CF : float
           Casimir constant of fundamental representation (which is actually not used here)
 
       Returns
       -------
-        gamma_qg_0 : t_complex
+        gamma_qg_0 : complex
           Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
     #gamma = S1(N - 2) - 2.0 * S1(N - 1) - 2.0 * S1(N + 1) + S1(N + 2) + 3.0 * S1(N)
@@ -139,7 +138,7 @@ def gamma_gg_0(
 
 
 @nb.njit
-def get_gamma_singlet_0(N: t_complex, nf: int, CA: t_float, CF: t_float):
+def get_gamma_singlet_0(N, nf: int, CA: float, CF: float):
     r"""
       Computes the leading-order singlet anomalous dimension matrix
 
@@ -151,18 +150,18 @@ def get_gamma_singlet_0(N: t_complex, nf: int, CA: t_float, CF: t_float):
 
       Parameters
       ----------
-        N : t_complex
+        N : complex
           Mellin moment
         nf : int
           Number of active flavours
-        CA : t_float
+        CA : float
           Casimir constant of adjoint representation
-        CF : t_float
+        CF : float
           Casimir constant of fundamental representation (which is actually not used here)
 
       Returns
       -------
-        gamma_S_0 : np.array
+        gamma_S_0 : np.ndarray
           Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
 
       See Also
@@ -181,27 +180,27 @@ def get_gamma_singlet_0(N: t_complex, nf: int, CA: t_float, CF: t_float):
 
 
 @nb.njit
-def get_Eigensystem_gamma_singlet_0(N: t_complex, nf: int, CA: t_float, CF: t_float):
+def get_Eigensystem_gamma_singlet_0(N, nf: int, CA: float, CF: float):
     r"""
       Computes the Eigensystem of the leading-order singlet anomalous dimension matrix
 
       Parameters
       ----------
-        N : t_complex
+        N : complex
           Mellin moment
         nf : int
           Number of active flavours
-        CA : t_float
+        CA : float
           Casimir constant of adjoint representation
-        CF : t_float
+        CF : float
           Casimir constant of fundamental representation (which is actually not used here)
 
       Returns
       -------
-        lambda_p : t_complex
+        lambda_p : complex
           positive eigenvalue of the Leading-order singlet anomalous dimension matrix
           :math:`\gamma_{S}^{(0)}(N)`
-        lambda_m : t_complex
+        lambda_m : complex
           negative eigenvalue of the Leading-order singlet anomalous dimension matrix
           :math:`\gamma_{S}^{(0)}(N)`
         e_p : np.array

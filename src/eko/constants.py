@@ -10,12 +10,11 @@ r"""
 
      - :math:`N_C` the number of colors - defaults to :math:`3`
      - :math:`T_F` the normalization of fundamental generators - defaults to :math:`1/2`
-     - :math:`C_A` second Casimir constant in the adjoint representation - defaults to :math:`N_C = 3`
-     - :math:`C_F` second Casimir constant in the fundamental representation - defaults to :math:`\frac{N_C^2-1}{2N_C} = 4/3`
-"""  # pylint: disable=line-too-long
-
-from eko import t_float
-
+     - :math:`C_A` second Casimir constant in the adjoint representation - defaults to
+       :math:`N_C = 3`
+     - :math:`C_F` second Casimir constant in the fundamental representation - defaults to
+       :math:`\frac{N_C^2-1}{2N_C} = 4/3`
+"""
 
 class Constants:
     """
@@ -27,11 +26,11 @@ class Constants:
         ----------
             NC : int
                 Number of colors = 3
-            TF : t_float
+            TF : float
                 normalization of fundamental generators = 1/2
-            CA : t_float
+            CA : float
                 second Casimir constant in the adjoint representation = NC
-            CF : t_float
+            CF : float
                 second Casimir constant in the fundamental representation = (NC^2 - 1)/(2 NC)
     """
 
@@ -39,9 +38,9 @@ class Constants:
 
     def __init__(self):
         self.NC = 3
-        self.TF = t_float(1.0 / 2.0)
-        self.CA = t_float(self.NC)
-        self.CF = t_float((self.NC * self.NC - 1.0) / (2.0 * self.NC))
+        self.TF = float(1.0 / 2.0)
+        self.CA = float(self.NC)
+        self.CF = float((self.NC * self.NC - 1.0) / (2.0 * self.NC))
         # Lock the class
         self.lock = True
 

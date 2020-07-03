@@ -8,13 +8,12 @@
 import numpy as np
 import scipy
 import numba as nb
-from eko import t_complex
 
 
 @nb.njit
 def cern_polygamma(
-    Z: t_complex, K: int
-):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-complex
+    Z, K: int
+):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     """
       Computes the polygamma functions :math:`\\psi_k(z)`.
 
@@ -26,14 +25,14 @@ def cern_polygamma(
 
       Parameters
       ----------
-        Z : t_complex
+        Z : complex
           argument of polygamma function
         K : int
           order of polygamma function
 
       Returns
       -------
-        H : t_complex
+        H : complex
           k-th polygamma function :math:`\\psi_k(z)`
     """
     # fmt: off
@@ -131,7 +130,7 @@ def cern_polygamma(
 
 
 @nb.njit
-def harmonic_S1(N: t_complex):
+def harmonic_S1(N):
     r"""
       Computes the harmonic sum :math:`S_1(N)`.
 
@@ -143,12 +142,12 @@ def harmonic_S1(N: t_complex):
 
       Parameters
       ----------
-        N : t_complex
+        N : complex
           Mellin moment
 
       Returns
       -------
-        S_1 : t_complex
+        S_1 : complex
           (simple) Harmonic sum :math:`S_1(N)`
 
       See Also
@@ -158,7 +157,7 @@ def harmonic_S1(N: t_complex):
     return cern_polygamma(N + 1.0, 0) + np.euler_gamma
 
 @nb.njit
-def harmonic_S2(N: t_complex):
+def harmonic_S2(N):
     r"""
       Computes the harmonic sum :math:`S_2(N)`.
 
@@ -170,12 +169,12 @@ def harmonic_S2(N: t_complex):
 
       Parameters
       ----------
-        N : t_complex
+        N : complex
           Mellin moment
 
       Returns
       -------
-        S_2 : t_complex
+        S_2 : complex
           Harmonic sum :math:`S_2(N)`
 
       See Also
@@ -185,7 +184,7 @@ def harmonic_S2(N: t_complex):
     return -cern_polygamma(N + 1.0, 1) + scipy.special.zeta(2)
 
 @nb.njit
-def harmonic_S3(N: t_complex):
+def harmonic_S3(N):
     r"""
       Computes the harmonic sum :math:`S_3(N)`.
 
@@ -197,12 +196,12 @@ def harmonic_S3(N: t_complex):
 
       Parameters
       ----------
-        N : t_complex
+        N : complex
           Mellin moment
 
       Returns
       -------
-        S_3 : t_complex
+        S_3 : complex
           Harmonic sum :math:`S_3(N)`
 
       See Also

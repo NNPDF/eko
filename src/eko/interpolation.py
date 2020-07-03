@@ -171,14 +171,14 @@ class BasisFunction:
 
             Parameters
             ----------
-                x : t_float
+                x : float
                     Evaluated point
                 conf : dict
                     dictionary of values for the coefficients of the interpolator
 
             Returns
             -------
-                p(x) : t_float
+                p(x) : float
                     Evaluated polynom at x
         """
 
@@ -213,12 +213,12 @@ class BasisFunction:
 
             Parameters
             ----------
-                x : t_float
+                x : float
                     evaluated point
 
             Returns
             -------
-                res : t_float
+                res : float
                     p(x)
         """
         if self.mode_N:
@@ -247,14 +247,14 @@ class BasisFunction:
 
             Parameters
             ----------
-                N : t_float
+                N : float
                     Evaluated point in N-space
-                logx : t_float
+                logx : float
                     Mellin-inversion point :math:`log(x)`
 
             Returns
             -------
-                p(N)*x^{-N} : t_complex
+                p(N)*x^{-N} : complex
                     Evaluated polynomial at N times x^{-N}
         """
         area_list = self.areas_to_const()

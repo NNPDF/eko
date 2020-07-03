@@ -285,7 +285,7 @@ class LHABenchmarkPaper:
 
             Parameters
             ----------
-                Q2mid : t_float
+                Q2mid : float
                     break point
 
             Returns

@@ -10,14 +10,13 @@ import numpy as np
 import scipy
 import numba as nb
 
-from eko import t_float
 from eko import constants
 from eko import thresholds
 
 
 @nb.njit
 def beta_0(
-    nf: int, CA: t_float, CF: t_float, TF: t_float
+    nf: int, CA: float, CF: float, TF: float
 ):  # pylint: disable=unused-argument
     """
         Computes the first coefficient of the QCD beta function.
@@ -29,16 +28,16 @@ def beta_0(
         ----------
             nf : int
                 number of active flavours
-            CA : t_float
+            CA : float
                 Casimir constant of adjoint representation
-            CF : t_float
+            CF : float
                 Casimir constant of fundamental representation (which is actually not used here)
-            TF : t_float
+            TF : float
                 fundamental normalization factor
 
         Returns
         -------
-            beta_0 : t_float
+            beta_0 : float
                 first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
     """
     beta_0 = 11.0 / 3.0 * CA - 4.0 / 3.0 * TF * nf
@@ -46,7 +45,7 @@ def beta_0(
 
 
 @nb.njit
-def beta_1(nf: int, CA: t_float, CF: t_float, TF: t_float):
+def beta_1(nf: int, CA: float, CF: float, TF: float):
     """
         Computes the second coefficient of the QCD beta function.
 
@@ -56,16 +55,16 @@ def beta_1(nf: int, CA: t_float, CF: t_float, TF: t_float):
         ----------
             nf : int
                 number of active flavours
-            CA : t_float
+            CA : float
                 Casimir constant of adjoint representation
-            CF : t_float
+            CF : float
                 Casimir constant of fundamental representation
-            TF : t_float
+            TF : float
                 fundamental normalization factor
 
         Returns
         -------
-            beta_1 : t_float
+            beta_1 : float
                 second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
     """
     b_ca2 = 34.0 / 3.0 * CA * CA
@@ -76,7 +75,7 @@ def beta_1(nf: int, CA: t_float, CF: t_float, TF: t_float):
 
 
 @nb.njit
-def beta_2(nf: int, CA: t_float, CF: t_float, TF: t_float):
+def beta_2(nf: int, CA: float, CF: float, TF: float):
     """
         Computes the third coefficient of the QCD beta function
 
@@ -86,16 +85,16 @@ def beta_2(nf: int, CA: t_float, CF: t_float, TF: t_float):
         ----------
             nf : int
                 number of active flavours.
-            CA : t_float
+            CA : float
                 Casimir constant of adjoint representation.
-            CF : t_float
+            CF : float
                 Casimir constant of fundamental representation.
-            TF : t_float
+            TF : float
                 fundamental normalization factor.
 
         Returns
         -------
-            beta_2 : t_float
+            beta_2 : float
                 third coefficient of the QCD beta function :math:`\\beta_2^{n_f}`
     """
     beta_2 = (
@@ -138,9 +137,9 @@ class StrongCoupling:
         ----------
             constants: eko.constants.Constants
                 An instance of :class:`~eko.constants.Constants`
-            alpha_s_ref : t_float
+            alpha_s_ref : float
                 alpha_s(!) at the reference scale :math:`\alpha_s(\mu_0^2)`
-            scale_ref : t_float
+            scale_ref : float
                 reference scale :math:`\mu_0^2`
             threshold_holder : eko.thresholds.ThresholdsConfig
                 An instance of :class:`~eko.thresholds.ThresholdsConfig`
@@ -248,18 +247,18 @@ class StrongCoupling:
 
             Parameters
             ----------
-                as_ref: t_float
+                as_ref: float
                     reference alpha_s
                 nf: int
                     value of nf for computing alpha_s
-                scale_from: t_float
+                scale_from: float
                     reference scale
-                scale_to : t_float
+                scale_to : float
                     target scale
 
             Returns
             -------
-                a_s : t_float
+                a_s : float
                     coupling at target scale :math:`a_s(Q^2)`
         """
         # common vars
@@ -297,18 +296,18 @@ class StrongCoupling:
 
             Parameters
             ----------
-                as_ref: t_float
+                as_ref: float
                     reference alpha_s
                 nf: int
                     value of nf for computing alpha_s
-                scale_from: t_float
+                scale_from: float
                     reference scale
-                scale_to : t_float
+                scale_to : float
                     target scale
 
             Returns
             -------
-                a_s : t_float
+                a_s : float
                     strong coupling at target scale :math:`a_s(Q^2)`
         """
         # u = beta0 * ln(scale_to/scale_from)
@@ -343,18 +342,18 @@ class StrongCoupling:
 
             Parameters
             ----------
-                as_ref: t_float
+                as_ref: float
                     reference alpha_s
                 nf: int
                     value of nf for computing alpha_s
-                scale_from: t_float
+                scale_from: float
                     reference scale
-                scale_to : t_float
+                scale_to : float
                     target scale
 
             Returns
             -------
-                a_s : t_float
+                a_s : float
                     strong coupling at target scale :math:`a_s(Q^2)`
         """
         # TODO set up a cache system here
@@ -371,12 +370,12 @@ class StrongCoupling:
 
             Parameters
             ----------
-                scale_to : t_float
+                scale_to : float
                     final scale to evolve to :math:`Q^2`
 
             Returns
             -------
-                a_s : t_float
+                a_s : float
                     strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
@@ -418,12 +417,12 @@ class StrongCoupling:
 
             Parameters
             ----------
-                scale_to : t_float
+                scale_to : float
                     final scale to evolve to :math:`Q^2`
 
             Returns
             -------
-                t : t_float
+                t : float
                     evolution parameter :math:`t(Q^2) = \\log(1/a_s(Q^2))`
         """
         return np.log(1.0 / self.a_s(scale_to))
@@ -435,14 +434,14 @@ class StrongCoupling:
 
             Parameters
             ----------
-                scale_from : t_float
+                scale_from : float
                     scale to evolve from :math:`Q_0^2`
-                scale_to : t_float
+                scale_to : float
                     final scale to evolve to :math:`Q_1^2`
 
             Returns
             -------
-                delta : t_float
+                delta : float
                     evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2)`
         """
         delta = self._param_t(scale_to) - self._param_t(scale_from)
