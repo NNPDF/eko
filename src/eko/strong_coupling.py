@@ -310,6 +310,10 @@ class StrongCoupling:
                 a_s : float
                     strong coupling at target scale :math:`a_s(Q^2)`
         """
+        # in LO fallback to expanded, as this is the full solution
+        if self._order == 0:
+            return self._compute_expanded(as_ref, nf, scale_from, scale_to)
+        # otherwise rescale the RGE to run in terms of
         # u = beta0 * ln(scale_to/scale_from)
         beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
         u = beta0 * np.log(scale_to / scale_from)
@@ -328,10 +332,10 @@ class StrongCoupling:
                 )
                 b2 = beta2 / beta0
                 b_vec.append(b2)
-
+        # integration kernel
         def rge(_t, a, b_vec):
             return -(a ** 2) * np.sum([a ** k * b for k, b in enumerate(b_vec)])
-
+        # let scipy solve
         res = scipy.integrate.solve_ivp(rge, (0, u), (as_ref,), args=[b_vec])
         return res.y[0][-1]
 
