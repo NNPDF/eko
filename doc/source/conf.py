@@ -19,7 +19,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'EKO'
-copyright = '2019-2020, the N3PDF team'
+copyright = '2019-2020, the N3PDF team' # pylint: disable=redefined-builtin
 author = 'N3PDF team'
 
 # The short X.Y version

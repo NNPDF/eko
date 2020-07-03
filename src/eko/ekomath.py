@@ -14,7 +14,7 @@ from eko import t_complex
 @nb.njit
 def cern_polygamma(
     Z: t_complex, K: int
-):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-complex
     """
       Computes the polygamma functions :math:`\\psi_k(z)`.
 
