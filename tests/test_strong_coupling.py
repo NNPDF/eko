@@ -78,13 +78,20 @@ class TestStrongCoupling:
         assert sc.q2_ref == scale_ref
         assert sc.as_ref == alphas_ref / 4.0 / np.pi
         # from theory dict
-        sc2 = StrongCoupling.from_dict(
-            dict(alphas=alphas_ref, Qref=np.sqrt(scale_ref), PTO=0),
-            constants,
-            threshold_holder,
-        )
-        assert sc2.q2_ref == scale_ref
-        assert sc2.as_ref == alphas_ref / 4.0 / np.pi
+        for ModEv in ["EXP", "EXA"]:
+            for PTO in range(2 + 1):
+                setup = dict(
+                    alphas=alphas_ref,
+                    Qref=np.sqrt(scale_ref),
+                    PTO=PTO,
+                    ModEv=ModEv,
+                    FNS="FFNS",
+                    NfFF=nf,
+                    Q0=2,
+                )
+                sc2 = StrongCoupling.from_dict(setup)
+                assert sc2.q2_ref == scale_ref
+                assert sc2.as_ref == alphas_ref / 4.0 / np.pi
 
         # errors
         with pytest.raises(ValueError):
@@ -100,6 +107,12 @@ class TestStrongCoupling:
         with pytest.raises(ValueError):
             StrongCoupling(
                 constants, alphas_ref, scale_ref, threshold_holder, method="ODE"
+            )
+        with pytest.raises(ValueError):
+            StrongCoupling.from_dict(
+                dict(alphas=alphas_ref, Qref=np.sqrt(scale_ref), PTO=0, ModEv="FAIL"),
+                threshold_holder,
+                constants,
             )
 
     def test_as(self):

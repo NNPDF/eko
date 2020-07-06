@@ -203,7 +203,7 @@ class OperatorMember:
         elif isinstance(operator_member, OperatorMember):
             # check compatibility
             if self.is_physical != operator_member.is_physical:
-                raise ValueError(f"Operators do not live in the same space!")
+                raise ValueError("Operators do not live in the same space!")
             if self.is_physical:
                 if self.input != operator_member.target:
                     raise ValueError(
@@ -238,7 +238,7 @@ class OperatorMember:
         elif isinstance(operator_member, OperatorMember):
             # check compatibility
             if self.is_physical != operator_member.is_physical:
-                raise ValueError(f"Operators do not live in the same space!")
+                raise ValueError("Operators do not live in the same space!")
             if self.is_physical and operator_member.name != self.name:
                 raise ValueError(
                     f"Can not sum {operator_member.name} and {self.name} OperatorMembers!"
@@ -489,10 +489,10 @@ class Operator:
         self._metadata = metadata
         self._xgrid = xgrid
         # Get ready for the computation
+        # TODO make 'cut' external parameter?
         singlet, nons = _get_kernel_integrands(
             integrands_s, integrands_ns, delta_t, xgrid, cut=mellin_cut
         )
-        # TODO make 'cut' external parameter?
         self._compute_singlet = singlet
         self._compute_nonsinglet = nons
         self._computed = False

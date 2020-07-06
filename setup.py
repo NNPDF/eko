@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='eko',
-      version='0.4.0',
+      version='0.4.1',
       description='Evolution Kernel Operator',
       long_description=long_description,
       long_description_content_type="text/markdown",
@@ -33,6 +33,9 @@ setup(name='eko',
           'numba',
           'joblib',
           'pyyaml',
+      ],
+      setup_requires=[
+          'wheel'
       ],
       python_requires='>=3.7'
 )

@@ -31,8 +31,6 @@ import numpy as np
 import scipy.integrate as integrate
 import numba as nb
 
-from eko import t_complex
-
 
 def compile_integrand(iker, path, jac, do_numba=True):
     r"""
@@ -130,10 +128,10 @@ def get_path_Talbot():
 
         Other Parameters
         -----------------
-            r : t_float
+            r : float
                 scaling parameter - effectivly corresponds to the intersection of the path with the
                 real axis
-            o : t_float
+            o : float
                 offset on real axis
 
         Returns
@@ -154,7 +152,7 @@ def get_path_Talbot():
         else:
             re = theta / np.tan(theta)
         im = theta
-        return o + r * t_complex(np.complex(re, im))
+        return o + r * np.complex(re, im)
 
     @nb.njit
     def jac(t, extra_args):
@@ -167,7 +165,7 @@ def get_path_Talbot():
             re = 1.0 / np.tan(theta)
             re -= theta / (np.sin(theta)) ** 2
         im = 1.0
-        return r * np.pi * 2.0 * t_complex(np.complex(re, im))
+        return r * np.pi * 2.0 * np.complex(re, im)
 
     return path, jac
 
@@ -184,9 +182,9 @@ def get_path_line():
 
         Other Parameters
         ----------------
-            m : t_float
+            m : float
                 half length of the path
-            c : t_float
+            c : float
                 intersection of path with real axis
 
         Returns
@@ -200,12 +198,12 @@ def get_path_line():
     @nb.njit
     def path(t, extra_args):
         m, c = extra_args
-        return t_complex(np.complex(c, m * (2 * t - 1)))
+        return np.complex(c, m * (2 * t - 1))
 
     @nb.njit
     def jac(j, extra_args):  # pylint: disable=unused-argument
         m, c = extra_args  # pylint: disable=unused-variable
-        return t_complex(np.complex(0, m * 2))
+        return np.complex(0, m * 2)
 
     return path, jac
 
@@ -222,11 +220,11 @@ def get_path_edge():
 
         Other Parameters
         ----------------
-            m : t_float
+            m : float
                 length of the path
-            c : t_float, optional
+            c : float, optional
                 intersection of path with real axis - defaults to 1
-            phi : t_complex, optional
+            phi : complex, optional
                 bended angle - defaults to +135° with respect to positive x axis
         Returns
         -------
@@ -267,7 +265,7 @@ def get_path_Cauchy_tan():
 
         Other Parameters
         ---------------
-            gamma : t_float
+            gamma : float
                 intersection of path with real axis
 
         Returns
@@ -297,7 +295,7 @@ def get_path_Cauchy_tan():
     return path, jac
 
 
-def mellin_transform(f, N: complex):
+def mellin_transform(f, N):
     """
         Mellin transformation
 
@@ -322,6 +320,6 @@ def mellin_transform(f, N: complex):
     # do real + imaginary part seperately
     r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1, full_output=1)[:2]
     i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1, full_output=1)[:2]
-    result = t_complex(complex(r, i))
-    error = t_complex(complex(re, ie))
+    result = np.complex(r, i)
+    error = np.complex(re, ie)
     return result, error

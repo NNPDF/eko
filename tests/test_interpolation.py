@@ -4,7 +4,6 @@ import numpy as np
 from numpy.testing import assert_almost_equal
 import pytest
 
-from eko import t_complex
 from eko import interpolation
 import eko.mellin as mellin
 
@@ -39,7 +38,7 @@ def check_is_interpolator(interpolator, xgrid):
 def check_correspondence_interpolators(inter_x, inter_N):
     """ Check the correspondece between x and N space of the interpolators
     inter_x and inter_N"""
-    ngrid = [t_complex(1.0), t_complex(1.0 + 1j), t_complex(2.5 - 2j)]
+    ngrid = [np.complex(1.0), np.complex(1.0 + 1j), np.complex(2.5 - 2j)]
     logxinv = np.log(0.9e-2)  # < 1e-2, to trick skipping
     for fun_x, fun_N in zip(inter_x, inter_N):
         for N in ngrid:

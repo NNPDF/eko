@@ -7,28 +7,39 @@ Running Coupling
 Implementation: :class:`~eko.strong_coupling.StrongCoupling`.
 
 We use perturbative QCD with the running coupling
-:math:`a_s(\mu_F^2) = \alpha_s(\mu_F^2)/(4\pi)` given by
+:math:`a_s(\mu_R^2) = \alpha_s(\mu_R^2)/(4\pi)` given at 5-loop by
 :cite:`Herzog:2017ohr` :cite:`Luthe:2016ima` :cite:`Baikov:2016tgj`
 
 .. math::
-      \frac{da_s}{d\ln\mu^2} = \beta(a_s) \
-      = - \sum\limits_{j=0} \beta_n a_s^{j+2}
+      \frac{da_s}{d\ln\mu_R^2} = \beta(a_s(\mu_R^2)) \
+      = - \sum\limits_{n=0} \beta_n a_s^{n+2}(\mu_R^2)
 
-Our main reference is :cite:`Herzog:2017ohr`.
+We implement two different strategies to solve the renormalization group equation (RGE):
 
-The matching conditions between different number of flavors are given in :cite:`Schroder:2005hy` :cite:`Chetyrkin:2005ia`.
+- ``method="exact"``: Solve using `scipy.integrate.solve_ivp <https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html>`_.
+  In LO we fall back to the expanded solution as this is already the true solution.
+- ``method="expanded"``: using approximate solutions:
 
-At the moment we only implement an approximate solution to the RGE.
+.. math::
+  a^{\text{LO}}_s(\mu_R^2)  &= \frac{a_s(\mu_0^2)}{1 + a_s(\mu_0^2) \beta_0 \ln(\mu_R^2/\mu_0^2)} \\
+  a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) &= a^{\text{LO}}_s(\mu_R^2)-b_1 \left[a^{\text{LO}}_s(\mu_R^2)\right]^2 \ln\left(1+a_s(\mu_0^2) \beta_0 \ln(\mu_R^2/\mu_0^2)\right) \\
+  a^{\text{NNLO}}_{s,\text{exp}}(\mu_R^2) &= a^{\text{LO}}_s(\mu_R^2)\left[1 + a^{\text{LO}}_s(\mu_R^2)\left(a^{\text{LO}}_s(\mu_R^2) - a_s(\mu_0^2)\right)(b_2 - b_1^2) \right.\\
+                                        & \hspace{60pt} \left. + a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) b_1 \ln\left(a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2)/a_s(\mu_0^2)\right)\right] \\
+
+with :math:`b_1 = \beta_1/\beta_0, b_2=\beta_2/\beta_0`.
+
+When the renormalization scale crosses a flavor threshold matching conditions have to be
+applied :cite:`Schroder:2005hy` :cite:`Chetyrkin:2005ia`.
 
 Splitting Functions
 -------------------
 
 The Altarelli-Parisi splitting kernels can be expanded in powers of the strong
-coupling :math:`a_s(\mu^2)` and are given by
-:cite:`Moch:2004pa` :cite:`Vogt:2004mw`
+coupling :math:`a_s(\mu^2)` and are given by :cite:`Moch:2004pa` :cite:`Vogt:2004mw`
 
 .. math::
     \mathbf{P}(x,\mu^2) &= \sum\limits_{j=0} a_s^{j+1}(\mu^2) \mathbf{P}^{(j)}(x) \\
     \tilde{\gamma}^{(j)}(N) &= -\mathcal{M}[\mathbf{P}^{(j)}(x)](N)
 
-Note the additional minus in the definition of :math:`\tilde \gamma`.
+Note the additional minus in the definition of :math:`\tilde \gamma` and that we denote objects
+in Mellin space with an tilde.

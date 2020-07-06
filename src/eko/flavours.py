@@ -8,7 +8,7 @@ r"""
 
 """
 
-MINIMAL_NF = 3  # TODO Should this be a parameter or can it be hardcoded?
+MINIMAL_NF = 3
 
 ##### This can go to a separate file but for now it is ok here
 # These are basically the parameters of the FlavourTarget class
@@ -32,8 +32,6 @@ VFNS = {
     "g": ([], ["S", "g"]),
 }
 
-# TODO there are still a few hard-coded things in this class
-# it would be nice to make it even more general
 class FlavourTarget:
     """
         Defines the path across the quark thresholds.

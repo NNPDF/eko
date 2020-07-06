@@ -56,7 +56,7 @@ class TestOperatorGrid:
         threshold_holder = ThresholdsConfig.from_dict(setup)
         constants = Constants()
         kernel_dispatcher = KernelDispatcher(basis_function_dispatcher, constants)
-        a_s = StrongCoupling.from_dict(setup, constants, threshold_holder)
+        a_s = StrongCoupling.from_dict(setup, threshold_holder, constants)
         return OperatorGrid(
             threshold_holder, a_s, kernel_dispatcher, setup["interpolation_xgrid"]
         )

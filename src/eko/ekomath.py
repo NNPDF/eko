@@ -6,13 +6,13 @@
 """
 
 import numpy as np
+import scipy
 import numba as nb
-from eko import t_complex
 
 
 @nb.njit
 def cern_polygamma(
-    Z: t_complex, K: int
+    Z, K: int
 ):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     """
       Computes the polygamma functions :math:`\\psi_k(z)`.
@@ -25,14 +25,14 @@ def cern_polygamma(
 
       Parameters
       ----------
-        Z : t_complex
+        Z : complex
           argument of polygamma function
         K : int
           order of polygamma function
 
       Returns
       -------
-        H : t_complex
+        H : complex
           k-th polygamma function :math:`\\psi_k(z)`
     """
     # fmt: off
@@ -130,9 +130,9 @@ def cern_polygamma(
 
 
 @nb.njit
-def harmonic_S1(N: t_complex):
+def harmonic_S1(N):
     r"""
-      Computes the simple harmonic sum.
+      Computes the harmonic sum :math:`S_1(N)`.
 
       .. math::
         S_1(N) = \sum\limits_{j=1}^N \frac 1 j = \psi_0(N+1)+\gamma_E
@@ -142,12 +142,12 @@ def harmonic_S1(N: t_complex):
 
       Parameters
       ----------
-        N : t_complex
+        N : complex
           Mellin moment
 
       Returns
       -------
-        S_1 : t_complex
+        S_1 : complex
           (simple) Harmonic sum :math:`S_1(N)`
 
       See Also
@@ -155,3 +155,57 @@ def harmonic_S1(N: t_complex):
         cern_polygamma :
     """
     return cern_polygamma(N + 1.0, 0) + np.euler_gamma
+
+@nb.njit
+def harmonic_S2(N):
+    r"""
+      Computes the harmonic sum :math:`S_2(N)`.
+
+      .. math::
+        S_2(N) = \sum\limits_{j=1}^N \frac 1 {j^2} = -\psi_1(N+1)+\zeta(2)
+
+      with :math:`\psi_1(N)` the trigamma function and :math:`\zeta` the
+      Riemann zeta function.
+
+      Parameters
+      ----------
+        N : complex
+          Mellin moment
+
+      Returns
+      -------
+        S_2 : complex
+          Harmonic sum :math:`S_2(N)`
+
+      See Also
+      --------
+        cern_polygamma :
+    """
+    return -cern_polygamma(N + 1.0, 1) + scipy.special.zeta(2)
+
+@nb.njit
+def harmonic_S3(N):
+    r"""
+      Computes the harmonic sum :math:`S_3(N)`.
+
+      .. math::
+        S_3(N) = \sum\limits_{j=1}^N \frac 1 {j^3} = \frac 1 2 \psi_2(N+1)+\zeta(3)
+
+      with :math:`\psi_3(N)` the 3rd-polygamma function and :math:`\zeta` the
+      Riemann zeta function.
+
+      Parameters
+      ----------
+        N : complex
+          Mellin moment
+
+      Returns
+      -------
+        S_3 : complex
+          Harmonic sum :math:`S_3(N)`
+
+      See Also
+      --------
+        cern_polygamma :
+    """
+    return 0.5 * cern_polygamma(N + 1.0, 2) + scipy.special.zeta(3)
