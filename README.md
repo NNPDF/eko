@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://n3pdf.github.io/eko/"><img alt="EKO" src="https://raw.githubusercontent.com/N3PDF/eko/master/doc/source/img/Logo.svg" width=300></a>
+  <a href="https://n3pdf.github.io/eko/"><img alt="EKO" src="https://raw.githubusercontent.com/N3PDF/eko/master/doc/source/img/Logo.png" width=300></a>
 </p>
 <p align="center">
   <a href="https://github.com/N3PDF/eko/actions?query=workflow%3A%22eko%22"><img alt="Tests" src="https://github.com/N3PDF/eko/workflows/eko/badge.svg" /></a>
