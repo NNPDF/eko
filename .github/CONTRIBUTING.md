@@ -17,6 +17,7 @@
 
 ### Python Styleguide
 - :art: Run [black](https://github.com/psf/black) to style your code
+- :blue_book: Use [numpy documentation guide](https://numpydoc.readthedocs.io/en/latest/format.html)
 
 ### Git
 - :octocat: Make sure the commit message is written properly ([This blogpost](https://chris.beams.io/posts/git-commit/) explains it nicely)
