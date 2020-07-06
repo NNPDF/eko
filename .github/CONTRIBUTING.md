@@ -18,5 +18,7 @@
 ### Python Styleguide
 - :art: Run [black](https://github.com/psf/black) to style your code
 
-### Git Commit Messages
+### Git
 - :octocat: Make sure the commit message is written properly (This blogpost explains it nicely: https://chris.beams.io/posts/git-commit/)
+- :sailboat: Use [git-flow](https://github.com/nvie/gitflow) - note there is a [cheat sheet](https://danielkummer.github.io/git-flow-cheatsheet/index.html)
+  and [shell completion](https://github.com/bobthecow/git-flow-completion)
