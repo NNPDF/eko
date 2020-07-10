@@ -11,7 +11,7 @@
 EKO is a Python module to solve the DGLAP equations in terms of Evolution Kernel Operators in x-space.
 
 ## Installation
-EKO is available via PyPI: <a href="https://img.shields.io/pypi/v/eko"><img alt="PyPI" src="https://img.shields.io/pypi/v/eko"/></a> - so you can simply run
+EKO is available via PyPI: <a href="https://pypi.org/project/eko/"><img alt="PyPI" src="https://img.shields.io/pypi/v/eko"/></a> - so you can simply run
 ```bash
 pip install eko
 ```
