@@ -1,4 +1,4 @@
-.. image:: img/Logo.svg
+.. image:: img/Logo.png
   :width: 300
   :align: center
   :alt: EKO logo
@@ -32,6 +32,7 @@ second, an overview of the implementation details, and, last, the available indi
 
     Code/Operators
     Code/IO
+    Code/Dependency
     
     modules/eko/modules
 

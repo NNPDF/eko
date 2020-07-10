@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://n3pdf.github.io/eko/"><img alt="EKO" src="https://raw.githubusercontent.com/N3PDF/eko/master/doc/source/img/Logo.svg" width=300></a>
+  <a href="https://n3pdf.github.io/eko/"><img alt="EKO" src="https://raw.githubusercontent.com/N3PDF/eko/master/doc/source/img/Logo.png" width=300></a>
 </p>
 <p align="center">
   <a href="https://github.com/N3PDF/eko/actions?query=workflow%3A%22eko%22"><img alt="Tests" src="https://github.com/N3PDF/eko/workflows/eko/badge.svg" /></a>
@@ -25,7 +25,6 @@ python setup.py install
 
 ## Documentation
 - The documentation is available here: <a href="https://n3pdf.github.io/eko/"><img alt="Docs" src="https://github.com/N3PDF/eko/workflows/docs/badge.svg"></a>
-- The documentation style of this code follows closely the [numpy documentation guide](https://numpydoc.readthedocs.io/en/latest/format.html)
 - To build the documentation from source install [graphviz](https://www.graphviz.org/) and run in addition to the installation commands
 ```bash
 pip install -r docs_requirements.txt
@@ -37,4 +36,6 @@ make html
 Please cite our DOI when using our code: <a href="https://doi.org/10.5281/zenodo.3874237"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.3874237.svg" alt="DOI"/></a>
 
 ## Contributing
-Your feedback is welcome! If you want to report a (possible) bug or want to ask for a new feature, please raise an issue: <a href="https://img.shields.io/github/issues/N3PDF/eko"><img alt="GitHub issues" src="https://img.shields.io/github/issues/N3PDF/eko"/></a>
+- Your feedback is welcome! If you want to report a (possible) bug or want to ask for a new feature, please raise an issue: <a href="https://img.shields.io/github/issues/N3PDF/eko"><img alt="GitHub issues" src="https://img.shields.io/github/issues/N3PDF/eko"/></a>
+- Please follow our [Code of Conduct](https://github.com/N3PDF/eko/blob/master/.github/CODE_OF_CONDUCT.md) and read the
+  [Contribution Guidlines](https://github.com/N3PDF/eko/blob/master/.github/CONTRIBUTING.md)
