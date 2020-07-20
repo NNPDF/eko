@@ -107,3 +107,7 @@ to the Mellin kernel :math:`x^{N-1}` any piecewise polynomial, such as we
 are doing, are proportional to
 :math:`x_{\text{min/max}}^N = \exp(N\ln(x_{\text{min/max}}))`
 (see :ref:`theory/mellin:important examples`). They are thus factorizable is the above sense.
+
+Harmonic Sums
+-------------
+A list of usefull relations can be found in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if`.

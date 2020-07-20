@@ -2,12 +2,15 @@
 """
     Implements higher mathematical functions.
 
-    The functions are need in :doc:`Mellin space </Theory/Mellin>`.
+    The functions are discribed in :doc:`Mellin space </Theory/Mellin>`.
 """
 
 import numpy as np
-import scipy
+import scipy.special
 import numba as nb
+
+zeta2 = scipy.special.zeta(2)
+zeta3 = scipy.special.zeta(3)
 
 
 @nb.njit
@@ -15,25 +18,25 @@ def cern_polygamma(
     Z, K: int
 ):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
     """
-      Computes the polygamma functions :math:`\\psi_k(z)`.
+        Computes the polygamma functions :math:`\\psi_k(z)`.
 
-      Reimplementation of ``WPSIPG`` (C317) in `CERNlib <http://cernlib.web.cern.ch/cernlib/>`_
-      :cite:`KOLBIG1972221`.
+        Reimplementation of ``WPSIPG`` (C317) in `CERNlib <http://cernlib.web.cern.ch/cernlib/>`_
+        :cite:`KOLBIG1972221`.
 
-      Note that the `SciPy implementation <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.digamma.html>`_
-      does not allow for complex inputs.
+        Note that the `SciPy implementation <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.digamma.html>`_
+        does not allow for complex inputs.
 
-      Parameters
-      ----------
-        Z : complex
-          argument of polygamma function
-        K : int
-          order of polygamma function
+        Parameters
+        ----------
+          Z : complex
+            argument of polygamma function
+          K : int
+            order of polygamma function
 
-      Returns
-      -------
-        H : complex
-          k-th polygamma function :math:`\\psi_k(z)`
+        Returns
+        -------
+          H : complex
+            k-th polygamma function :math:`\\psi_k(z)`
     """
     # fmt: off
     DELTA = 5e-13
@@ -132,80 +135,113 @@ def cern_polygamma(
 @nb.njit
 def harmonic_S1(N):
     r"""
-      Computes the harmonic sum :math:`S_1(N)`.
+        Computes the harmonic sum :math:`S_1(N)`.
 
-      .. math::
-        S_1(N) = \sum\limits_{j=1}^N \frac 1 j = \psi_0(N+1)+\gamma_E
+        .. math::
+          S_1(N) = \sum\limits_{j=1}^N \frac 1 j = \psi_0(N+1)+\gamma_E
 
-      with :math:`\psi_0(N)` the digamma function and :math:`\gamma_E` the
-      Euler-Mascheroni constant.
+        with :math:`\psi_0(N)` the digamma function and :math:`\gamma_E` the
+        Euler-Mascheroni constant.
 
-      Parameters
-      ----------
-        N : complex
-          Mellin moment
+        Parameters
+        ----------
+          N : complex
+            Mellin moment
 
-      Returns
-      -------
-        S_1 : complex
-          (simple) Harmonic sum :math:`S_1(N)`
+        Returns
+        -------
+          S_1 : complex
+            (simple) Harmonic sum :math:`S_1(N)`
 
-      See Also
-      --------
-        cern_polygamma :
+        See Also
+        --------
+          cern_polygamma :
     """
     return cern_polygamma(N + 1.0, 0) + np.euler_gamma
+
 
 @nb.njit
 def harmonic_S2(N):
     r"""
-      Computes the harmonic sum :math:`S_2(N)`.
+        Computes the harmonic sum :math:`S_2(N)`.
 
-      .. math::
-        S_2(N) = \sum\limits_{j=1}^N \frac 1 {j^2} = -\psi_1(N+1)+\zeta(2)
+        .. math::
+          S_2(N) = \sum\limits_{j=1}^N \frac 1 {j^2} = -\psi_1(N+1)+\zeta(2)
 
-      with :math:`\psi_1(N)` the trigamma function and :math:`\zeta` the
-      Riemann zeta function.
+        with :math:`\psi_1(N)` the trigamma function and :math:`\zeta` the
+        Riemann zeta function.
 
-      Parameters
-      ----------
-        N : complex
-          Mellin moment
+        Parameters
+        ----------
+          N : complex
+            Mellin moment
 
-      Returns
-      -------
-        S_2 : complex
-          Harmonic sum :math:`S_2(N)`
+        Returns
+        -------
+          S_2 : complex
+            Harmonic sum :math:`S_2(N)`
 
-      See Also
-      --------
-        cern_polygamma :
+        See Also
+        --------
+          cern_polygamma :
     """
-    return -cern_polygamma(N + 1.0, 1) + scipy.special.zeta(2)
+    return -cern_polygamma(N + 1.0, 1) + zeta2
+
 
 @nb.njit
 def harmonic_S3(N):
     r"""
-      Computes the harmonic sum :math:`S_3(N)`.
+        Computes the harmonic sum :math:`S_3(N)`.
 
-      .. math::
-        S_3(N) = \sum\limits_{j=1}^N \frac 1 {j^3} = \frac 1 2 \psi_2(N+1)+\zeta(3)
+        .. math::
+          S_3(N) = \sum\limits_{j=1}^N \frac 1 {j^3} = \frac 1 2 \psi_2(N+1)+\zeta(3)
 
-      with :math:`\psi_3(N)` the 3rd-polygamma function and :math:`\zeta` the
-      Riemann zeta function.
+        with :math:`\psi_3(N)` the 3rd-polygamma function and :math:`\zeta` the
+        Riemann zeta function.
 
-      Parameters
-      ----------
-        N : complex
-          Mellin moment
+        Parameters
+        ----------
+          N : complex
+            Mellin moment
 
-      Returns
-      -------
-        S_3 : complex
-          Harmonic sum :math:`S_3(N)`
+        Returns
+        -------
+          S_3 : complex
+            Harmonic sum :math:`S_3(N)`
 
-      See Also
-      --------
-        cern_polygamma :
+        See Also
+        --------
+          cern_polygamma :
     """
-    return 0.5 * cern_polygamma(N + 1.0, 2) + scipy.special.zeta(3)
+    return 0.5 * cern_polygamma(N + 1.0, 2) + zeta3
+
+
+@nb.njit
+def mellin_g3(N):
+    r"""
+        Computes the Mellin transform of :math:`\text{Li}_2(x)/(1+x)`.
+
+        This function appears in the analytic continuation of the harmonic sum
+        :math:`S_{-2,1}(N)` which appears in the NLO anomalous dimension.
+
+        Parameters
+        ----------
+          N : complex
+            Mellin moment
+
+        Returns
+        -------
+          mellin_g3 : complex
+            Mellin transform :math:`\mathcal{M}[\text{Li}_2(x)/(1+x)](N)`
+
+        Note
+        ----
+          We use the name from Muselli, but not his implementation - rather we use the Pegasus
+          implementation
+    """
+    cs = [1.0000e0, -0.9992e0, 0.9851e0, -0.9005e0, 0.6621e0, -0.3174e0, 0.0699e0]
+    g3 = 0
+    for j, c in enumerate(cs):
+        Nj = N + j
+        g3 += c * (zeta2 - harmonic_S1(Nj) / Nj) / Nj
+    return g3

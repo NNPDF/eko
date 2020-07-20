@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-r"""
+"""
   This file contains the leading-order Altarelli-Parisi splitting kernels.
 """
 
