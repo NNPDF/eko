@@ -48,7 +48,7 @@ def gamma_nsm_1(n, nf: int, CA: float, CF: float):
     gqq1m_cfcf = -32*g3n + (24 - n*(-32 + 3*n*(-8 + n*(3 + n)*(3 + np.power(n,2)))))/(2.*np.power(n,3)*np.power(1 + n,3)) + (12 - 8/n + 8/(1 + n))*S2 + S1*(-24/np.power(n,2) - 8/np.power(1 + n,2) + 16*S2 - 16*Sp2m) + (8*Sp2m)/(n + np.power(n,2)) - 4*Sp3m - 20*zeta3 + zeta2*(-32*S1 + 32*Sp1m + 32*(1/n + np.log(2))) # pylint: disable=line-too-long
     gqq1m_cfnf = (-12 + n*(20 + n*(47 + 3*n*(2 + n))))/(9.*np.power(n,2)*np.power(1 + n,2)) - (40*S1)/9. + (8*S2)/3. # pylint: disable=line-too-long
     # fmt: on
-    result = CF * CA * gqq1m_cfca + CF * CF * gqq1m_cfcf + CF * nf * gqq1m_cfnf
+    result = CF * (CA * gqq1m_cfca + CF * gqq1m_cfcf + nf * gqq1m_cfnf)
     return result
 
 
@@ -91,5 +91,40 @@ def gamma_nsp_1(n, nf: int, CA: float, CF: float):
     gqq1p_cfcf = 32*g3n - (8 + n*(32 + n*(40 + 3*n*(3 + n)*(3 + np.power(n,2)))))/(2.*np.power(n,3)*np.power(1 + n,3)) + (12 - 8/n + 8/(1 + n))*S2 + S1*(40/np.power(n,2) - 8/np.power(1 + n,2) + 16*S2 - 16*Sp2p) + (8*Sp2p)/(n + np.power(n,2)) - 4*Sp3p - 20*zeta3 + zeta2*(-32*S1 + 32*Sp1p + 32*(-(1/n) + np.log(2))) # pylint: disable=line-too-long
     gqq1p_cfnf = (-12 + n*(20 + n*(47 + 3*n*(2 + n))))/(9.*np.power(n,2)*np.power(1 + n,2)) - (40*S1)/9. + (8*S2)/3. # pylint: disable=line-too-long
     # fmt: on
-    result = CF * CA * gqq1p_cfca + CF * CF * gqq1p_cfcf + CF * nf * gqq1p_cfnf
+    result = CF * (CA * gqq1p_cfca + CF * gqq1p_cfcf + nf * gqq1p_cfnf)
+    return result
+
+
+@nb.njit
+def gamma_qg_1(n, nf: int, CA: float, CF: float):
+    """
+        Computes the next-to-leading-order quark-gluon-singlet anomalous dimension.
+
+        Implements Eq. (3.7) of :cite:`Vogt:2004mw`.
+
+        Parameters
+        ----------
+            n : complex
+                Mellin moment
+            nf : int
+                Number of active flavours
+            CA : float
+                Casimir constant of adjoint representation
+            CF : float
+                Casimir constant of fundamental representation
+
+        Returns
+        -------
+            gamma_qg_1 : complex
+                Next-to-leading-order squark-gluon-singlet anomalous dimension
+                :math:`\\gamma_{qg}^{(1)}(N)`
+    """
+    S1 = ekomath.harmonic_S1(n)
+    S2 = ekomath.harmonic_S2(n)
+    Sp2p = ekomath.harmonic_S2(n / 2)
+    # fmt: off
+    gqg1_nfca = (-4*(16 + n*(64 + n*(104 + n*(128 + n*(85 + n*(36 + n*(25 + n*(15 + n*(6 + n))))))))))/((-1 + n)*np.power(n,3)*np.power(1 + n,3)*np.power(2 + n,3)) - (16*(3 + 2*n)*S1)/np.power(2 + 3*n + np.power(n,2),2) + (4*(2 + n + np.power(n,2))*np.power(S1,2))/(n*(2 + 3*n + np.power(n,2))) - (4*(2 + n + np.power(n,2))*S2)/(n*(2 + 3*n + np.power(n,2))) + (4*(2 + n + np.power(n,2))*Sp2p)/(n*(2 + 3*n + np.power(n,2))) # pylint: disable=line-too-long
+    gqg1_nfcf = (-2*(4 + n*(8 + n*(1 + n)*(25 + n*(26 + 5*n*(2 + n))))))/(np.power(n,3)*np.power(1 + n,3)*(2 + n)) + (8*S1)/np.power(n,2) - (4*(2 + n + np.power(n,2))*np.power(S1,2))/(n*(2 + 3*n + np.power(n,2))) + (4*(2 + n + np.power(n,2))*S2)/(n*(2 + 3*n + np.power(n,2))) # pylint: disable=line-too-long
+    # fmt: on
+    result = nf * (CA * gqg1_nfca + CF * gqg1_nfcf)
     return result
