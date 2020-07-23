@@ -196,7 +196,7 @@ def harmonic_S3(N):
         .. math::
           S_3(N) = \sum\limits_{j=1}^N \frac 1 {j^3} = \frac 1 2 \psi_2(N+1)+\zeta(3)
 
-        with :math:`\psi_3(N)` the 3rd-polygamma function and :math:`\zeta` the
+        with :math:`\psi_2(N)` the 2nd-polygamma function and :math:`\zeta` the
         Riemann zeta function.
 
         Parameters
@@ -222,7 +222,8 @@ def mellin_g3(N):
         Computes the Mellin transform of :math:`\text{Li}_2(x)/(1+x)`.
 
         This function appears in the analytic continuation of the harmonic sum
-        :math:`S_{-2,1}(N)` which appears in the NLO anomalous dimension.
+        :math:`S_{-2,1}(N)` which in turn appears in the NLO anomalous dimension
+        (see :ref:`theory/mellin:harmonic sums`).
 
         Parameters
         ----------
@@ -232,12 +233,12 @@ def mellin_g3(N):
         Returns
         -------
           mellin_g3 : complex
-            Mellin transform :math:`\mathcal{M}[\text{Li}_2(x)/(1+x)](N)`
+            approximate Mellin transform :math:`\mathcal{M}[\text{Li}_2(x)/(1+x)](N)`
 
         Note
         ----
-          We use the name from Muselli, but not his implementation - rather we use the Pegasus
-          implementation
+          We use the name from :cite:`MuselliPhD`, but not his implementation - rather we use the
+          Pegasus :cite:`Vogt:2004ns` implementation
     """
     cs = [1.0000e0, -0.9992e0, 0.9851e0, -0.9005e0, 0.6621e0, -0.3174e0, 0.0699e0]
     g3 = 0

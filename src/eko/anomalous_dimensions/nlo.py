@@ -8,6 +8,7 @@ import numba as nb
 
 from eko import ekomath
 
+
 @nb.njit
 def gamma_nsm_1(n, nf: int, CA: float, CF: float):
     """
@@ -36,9 +37,9 @@ def gamma_nsm_1(n, nf: int, CA: float, CF: float):
     S2 = ekomath.harmonic_S2(n)
     # Here, Sp refers to S' ("s-prime") (german: "s-strich" or in Pegasus language: SSTR)
     # of :cite:`Gluck:1989ze` and NOT to the Spence function a.k.a. dilogarithm
-    Sp1m = ekomath.harmonic_S1((n-1)/2)
-    Sp2m = ekomath.harmonic_S2((n-1)/2)
-    Sp3m = ekomath.harmonic_S3((n-1)/2)
+    Sp1m = ekomath.harmonic_S1((n - 1) / 2)
+    Sp2m = ekomath.harmonic_S2((n - 1) / 2)
+    Sp3m = ekomath.harmonic_S3((n - 1) / 2)
     g3n = ekomath.mellin_g3(n)
     zeta2 = ekomath.zeta2
     zeta3 = ekomath.zeta3
@@ -49,6 +50,7 @@ def gamma_nsm_1(n, nf: int, CA: float, CF: float):
     # fmt: on
     result = CF * CA * gqq1m_cfca + CF * CF * gqq1m_cfcf + CF * nf * gqq1m_cfnf
     return result
+
 
 @nb.njit
 def gamma_nsp_1(n, nf: int, CA: float, CF: float):
@@ -78,9 +80,9 @@ def gamma_nsp_1(n, nf: int, CA: float, CF: float):
     S2 = ekomath.harmonic_S2(n)
     # Here, Sp refers to S' ("s-prime") (german: "s-strich" or in Pegasus language: SSTR)
     # of :cite:`Gluck:1989ze` and NOT to the Spence function a.k.a. dilogarithm
-    Sp1p = ekomath.harmonic_S1(n/2)
-    Sp2p = ekomath.harmonic_S2(n/2)
-    Sp3p = ekomath.harmonic_S3(n/2)
+    Sp1p = ekomath.harmonic_S1(n / 2)
+    Sp2p = ekomath.harmonic_S2(n / 2)
+    Sp3p = ekomath.harmonic_S3(n / 2)
     g3n = ekomath.mellin_g3(n)
     zeta2 = ekomath.zeta2
     zeta3 = ekomath.zeta3

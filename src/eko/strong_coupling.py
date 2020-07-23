@@ -15,9 +15,7 @@ from eko import thresholds
 
 
 @nb.njit
-def beta_0(
-    nf: int, CA: float, CF: float, TF: float
-):  # pylint: disable=unused-argument
+def beta_0(nf: int, CA: float, CF: float, TF: float):  # pylint: disable=unused-argument
     """
         Computes the first coefficient of the QCD beta function.
 
@@ -335,6 +333,7 @@ class StrongCoupling:
         # integration kernel
         def rge(_t, a, b_vec):
             return -(a ** 2) * np.sum([a ** k * b for k, b in enumerate(b_vec)])
+
         # let scipy solve
         res = scipy.integrate.solve_ivp(rge, (0, u), (as_ref,), args=[b_vec])
         return res.y[0][-1]

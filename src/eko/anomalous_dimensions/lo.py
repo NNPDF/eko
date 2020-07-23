@@ -10,9 +10,7 @@ from eko.ekomath import harmonic_S1 as S1
 
 
 @nb.njit
-def gamma_ns_0(
-    N, nf: int, CA: float, CF: float
-):  # pylint: disable=unused-argument
+def gamma_ns_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
     """
       Computes the leading-order non-singlet anomalous dimension.
 
@@ -35,16 +33,13 @@ def gamma_ns_0(
         gamma_ns_0 : complex
           Leading-order non-singlet anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    #gamma = 2 * (S1(N - 1) + S1(N + 1)) - 3
-    gamma = -(3 - 4*S1(N) + 2/N/(N+1))
+    gamma = -(3 - 4 * S1(N) + 2 / N / (N + 1))
     result = CF * gamma
     return result
 
 
 @nb.njit
-def gamma_qg_0(
-    N, nf: int, CA: float, CF: float
-):  # pylint: disable=unused-argument
+def gamma_qg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
     """
       Computes the leading-order quark-gluon anomalous dimension
 
@@ -67,16 +62,13 @@ def gamma_qg_0(
         gamma_qg_0 : complex
           Leading-order quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
-    #gamma = S1(N - 1) + 4.0 * S1(N + 1) - 2.0 * S1(N + 2) - 3.0 * S1(N)
-    gamma = -(N**2 + N + 2.0) / (N * (N+1) * (N+2))
+    gamma = -(N ** 2 + N + 2.0) / (N * (N + 1) * (N + 2))
     result = 2.0 * nf * gamma
     return result
 
 
 @nb.njit
-def gamma_gq_0(
-    N, nf: int, CA: float, CF: float
-):  # pylint: disable=unused-argument
+def gamma_gq_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
     """
       Computes the leading-order gluon-quark anomalous dimension
 
@@ -99,16 +91,13 @@ def gamma_gq_0(
         gamma_qg_0 : complex
           Leading-order gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
     """
-    #gamma = 2.0 * S1(N - 2) - 4.0 * S1(N - 1) - S1(N + 1) + 3.0 * S1(N)
-    gamma = -(N**2 + N + 2.0) / (N * (N+1.0) * (N-1.0))
+    gamma = -(N ** 2 + N + 2.0) / (N * (N + 1.0) * (N - 1.0))
     result = 2.0 * CF * gamma
     return result
 
 
 @nb.njit
-def gamma_gg_0(
-    N, nf: int, CA: float, CF: float
-):  # pylint: disable=unused-argument
+def gamma_gg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
     """
       Computes the leading-order gluon-gluon anomalous dimension
 
@@ -131,8 +120,7 @@ def gamma_gg_0(
         gamma_qg_0 : complex
           Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    #gamma = S1(N - 2) - 2.0 * S1(N - 1) - 2.0 * S1(N + 1) + S1(N + 2) + 3.0 * S1(N)
-    gamma = S1(N) - 1/N/(N-1) - 1/(N+1)/(N+2)
+    gamma = S1(N) - 1 / N / (N - 1) - 1 / (N + 1) / (N + 2)
     result = CA * (4.0 * gamma - 11.0 / 3.0) + 2.0 / 3.0 * nf
     return result
 

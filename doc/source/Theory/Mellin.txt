@@ -121,7 +121,7 @@ the Mellin inverse.
 
 .. math ::
     S_m(N) = \sum\limits_{j=1}^N \frac 1 {j^m} = \frac{(-1)^{m-1}}{(m-1)!} \psi_{m-1}(N+1)+c_m \quad
-    \text{with}\, c_m = \left\{\begin{array}{ll} \gamma_E, & m=0\\ \zeta(m), & m>0\end{array} \right.
+    \text{with}\, c_m = \left\{\begin{array}{ll} \gamma_E, & m=1\\ \zeta(m), & m>1\end{array} \right.
 
 and where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`eko.ekomath.cern_polygamma`)
 and :math:`\zeta` the Riemann zeta function (using :func:`scipy.special.zeta`).
@@ -136,10 +136,10 @@ and with -1 elsewise.
 
 - for the sums with greater depth we use the lists provided in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if`.
 - Note, however, that the formula for :math:`S_{-2,1}(N)` is neither correct in :cite:`Blumlein:1998if`
-  nor in :cite:`MuselliPhD` but in :cite:`Gluck:1989ze`:
+  nor in :cite:`MuselliPhD` but in :cite:`Gluck:1989ze` (where it is called :math:`\tilde S`):
 
 .. math ::
     S_{-2,1}(N) &= - \frac 5 8 \zeta(3) + \zeta(2)\left(S_{-1}(N) - \frac{\eta}{N} + \log(2)\right) + \eta\left(\frac{S_{1}(N)}{N^2} + g_3(N)\right)\\
     g_3(N) &= \mathcal M \left[\frac{\text{Li}_2(x)}{1+x}\right](N)
 
-where for :math:`g_3(N)` we use the parametrization of :cite:`Vogt:2004ns`.
+where for :math:`g_3(N)` we use the parametrization of :cite:`Vogt:2004ns` (implemented as :meth:`eko.ekomath.mellin_g3`).

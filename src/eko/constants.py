@@ -16,6 +16,7 @@ r"""
        :math:`\frac{N_C^2-1}{2N_C} = 4/3`
 """
 
+
 class Constants:
     """
         Upon initialization all constants are set and a `lock` variable is put is place.

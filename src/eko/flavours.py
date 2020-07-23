@@ -32,6 +32,7 @@ VFNS = {
     "g": ([], ["S", "g"]),
 }
 
+
 class FlavourTarget:
     """
         Defines the path across the quark thresholds.
