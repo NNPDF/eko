@@ -23,7 +23,7 @@ def cern_polygamma(
         Reimplementation of ``WPSIPG`` (C317) in `CERNlib <http://cernlib.web.cern.ch/cernlib/>`_
         :cite:`KOLBIG1972221`.
 
-        Note that the `SciPy implementation <https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.digamma.html>`_
+        Note that the SciPy implementation :data:`scipy.special.digamma`
         does not allow for complex inputs.
 
         Parameters

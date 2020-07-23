@@ -63,7 +63,6 @@ templates_path = ['_templates']
 source_suffix = {
     '.rst': 'restructuredtext',
     '.txt': 'restructuredtext',
-    #'.md': 'markdown',
 }
 
 autosectionlabel_prefix_document = True
@@ -122,7 +121,7 @@ html_static_path = []
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'EKODocumentationdoc'
+htmlhelp_basename = 'EKO Documentation'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -149,7 +148,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'EKODocumentation.tex', 'EKO Documentation Documentation',
+    (master_doc, 'EKODocumentation.tex', 'EKO Documentation',
      'N3PDF team', 'manual'),
 ]
 
@@ -159,7 +158,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'ekodocumentation', 'EKO Documentation Documentation',
+    (master_doc, 'ekodocumentation', 'EKO Documentation',
      [author], 1)
 ]
 
@@ -170,8 +169,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'EKODocumentation', 'EKO Documentation Documentation',
-     author, 'EKODocumentation', 'One line description of project.',
+    (master_doc, 'EKODocumentation', 'EKO Documentation',
+     author, 'EKODocumentation', 'EKO Documentation.',
      'Miscellaneous'),
 ]
 
@@ -199,7 +198,11 @@ epub_exclude_files = ['search.html']
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/3/': None}
+# Thanks https://github.com/bskinn/sphobjinv
+intersphinx_mapping = {
+    "python": ('https://docs.python.org/3/', "python.inv"),
+    "scipy": ('https://docs.scipy.org/doc/scipy/reference', "scipy.inv"),
+}
 
 # -- Options for todo extension ----------------------------------------------
 

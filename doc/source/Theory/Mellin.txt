@@ -58,10 +58,7 @@ Plus Distributions
 .. math ::
     \mathcal M[1/(1-x)_+](N) = S_1(N)
 
-whith the harmonic sum (implemented as :meth:`eko.ekomath.harmonic_S1`)
-
-.. math ::
-    S_1(N) = \sum\limits_{j=1}^N \frac 1 j = \psi_0(N+1)+\gamma_E
+whith the harmonic sum :math:`S_1` (see :ref:`theory/mellin:harmonic sums`).
 
 
 Inversion of Factorizable Kernels
@@ -110,4 +107,39 @@ are doing, are proportional to
 
 Harmonic Sums
 -------------
-A list of usefull relations can be found in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if`.
+In the computations of the anomalous dimensions (generalized) harmonic sums
+:cite:`Ablinger:2013hcp` appear naturally:
+
+.. math ::
+    S_{m}(N) &= \sum\limits_{j=1}^N \frac{(\text{sign}(m))^j}{j^{|m|}} \\
+    S_{m_0,m_1\ldots}(N) &= \sum\limits_{j=1}^N \frac{(\text{sign}(m_0))^j}{j^{|m_0|}} S_{m_1\ldots}(j)
+
+We then need to find an analytical continuation of these sums into the complex plain to perform
+the Mellin inverse.
+
+- the sums :math:`S_{m}(N)` for :math:`m > 0` do have a straight continuation:
+
+.. math ::
+    S_m(N) = \sum\limits_{j=1}^N \frac 1 {j^m} = \frac{(-1)^{m-1}}{(m-1)!} \psi_{m-1}(N+1)+c_m \quad
+    \text{with}\, c_m = \left\{\begin{array}{ll} \gamma_E, & m=0\\ \zeta(m), & m>0\end{array} \right.
+
+and where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`eko.ekomath.cern_polygamma`)
+and :math:`\zeta` the Riemann zeta function (using :func:`scipy.special.zeta`).
+
+- for the sums :math:`S_{-m}(N)` and :math:`m > 0` we use :cite:`Gluck:1989ze`
+
+.. math ::
+    S_m'(N) = 2^{m-1}(S_m(N) + S_{-m}(N)) = \frac{1+\eta}{2} S_m(N/2) + \frac{1-\eta}{2}S_m((N-1)/2)
+
+where formally :math:`\eta = (-1)^N` but in all singlet-like quantities it has to be analytically continued with 1
+and with -1 elsewise.
+
+- for the sums with greater depth we use the lists provided in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if`.
+- Note, however, that the formula for :math:`S_{-2,1}(N)` is neither correct in :cite:`Blumlein:1998if`
+  nor in :cite:`MuselliPhD` but in :cite:`Gluck:1989ze`:
+
+.. math ::
+    S_{-2,1}(N) &= - \frac 5 8 \zeta(3) + \zeta(2)\left(S_{-1}(N) - \frac{\eta}{N} + \log(2)\right) + \eta\left(\frac{S_{1}(N)}{N^2} + g_3(N)\right)\\
+    g_3(N) &= \mathcal M \left[\frac{\text{Li}_2(x)}{1+x}\right](N)
+
+where for :math:`g_3(N)` we use the parametrization of :cite:`Vogt:2004ns`.

@@ -16,7 +16,7 @@ We use perturbative QCD with the running coupling
 
 We implement two different strategies to solve the renormalization group equation (RGE):
 
-- ``method="exact"``: Solve using `scipy.integrate.solve_ivp <https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.solve_ivp.html>`_.
+- ``method="exact"``: Solve using :func:`scipy.integrate.solve_ivp`.
   In LO we fall back to the expanded solution as this is already the true solution.
 - ``method="expanded"``: using approximate solutions:
 

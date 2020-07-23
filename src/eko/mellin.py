@@ -6,7 +6,7 @@ r"""
     It contains the actual transformations itself, as well as the necessary tools
     such as the definition of paths.
 
-    The integral routine is provided by `scipy.integrate.quad <https://docs.scipy.org/doc/scipy/reference/generated/scipy.integrate.quad.html?highlight=quad#scipy.integrate.quad>`_
+    The integral routine is provided by :func:`scipy.integrate.quad`.
 
     Integration Paths
     -----------------
