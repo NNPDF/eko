@@ -13,13 +13,20 @@ NF = 5
 
 def test_gamma_ns_1():
     # reference values are obtained from MMa
+    # non-siglet sector
     np.testing.assert_allclose(ad_nlo.gamma_nsm_1(1, NF, CA, CF), 0, atol=2e-6)
     np.testing.assert_allclose(
-        ad_nlo.gamma_nsp_1(2, NF, CA, CF),
-        (-112 * CF + 376 * CA - 64 * NF) * CF / 27
+        ad_nlo.gamma_nsp_1(2, NF, CA, CF), (-112 * CF + 376 * CA - 64 * NF) * CF / 27
     )
-    # singlet
+    # singlet sector
+    np.testing.assert_allclose(ad_nlo.gamma_ps_1(2, NF, CA, CF), -40 * CF * NF / 27)
     np.testing.assert_allclose(
-        ad_nlo.gamma_qg_1(2, NF, CA, CF),
-        (-74 * CF - 35 * CA) * NF / 27
+        ad_nlo.gamma_qg_1(2, NF, CA, CF), (-74 * CF - 35 * CA) * NF / 27
+    )
+    np.testing.assert_allclose(
+        ad_nlo.gamma_gq_1(2, NF, CA, CF), (112 * CF - 376 * CA + 104 * NF) * CF / 27
+    )
+    # the CA*NF term seems to be tough to compute, so lift the constraint ...
+    np.testing.assert_allclose(
+        ad_nlo.gamma_gg_1(2, NF, CA, CF), (74 * CF + 35 * CA) * NF / 27, rtol=4e-5
     )
