@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
   This file contains the leading-order Altarelli-Parisi splitting kernels.
+
+  For the sake of unification we keep a unique function signature for *all* coefficients.
 """
 
 import numpy as np
@@ -15,16 +17,15 @@ def gamma_ns_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
       Computes the leading-order non-singlet anomalous dimension.
 
       Implements Eq. (3.4) of :cite:`Moch:2004pa`.
-      For the sake of unification we keep a unique function signature for *all* coefficients.
 
       Parameters
       ----------
         N : complex
           Mellin moment
         nf : int
-          Number of active flavours (which is actually not used here)
+          Number of active flavours
         CA : float
-          Casimir constant of adjoint representation (which is actually not used here)
+          Casimir constant of adjoint representation
         CF : float
           Casimir constant of fundamental representation
 
@@ -44,7 +45,6 @@ def gamma_qg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
       Computes the leading-order quark-gluon anomalous dimension
 
       Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
-      For the sake of unification we keep a unique function signature for *all* coefficients.
 
       Parameters
       ----------
@@ -53,9 +53,9 @@ def gamma_qg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
         nf : int
           Number of active flavours
         CA : float
-          Casimir constant of adjoint representation (which is actually not used here)
+          Casimir constant of adjoint representation
         CF : float
-          Casimir constant of fundamental representation (which is actually not used here)
+          Casimir constant of fundamental representation
 
       Returns
       -------
@@ -73,16 +73,15 @@ def gamma_gq_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
       Computes the leading-order gluon-quark anomalous dimension
 
       Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
-      For the sake of unification we keep a unique function signature for *all* coefficients.
 
       Parameters
       ----------
         N : complex
           Mellin moment
         nf : int
-          Number of active flavours (which is actually not used here)
+          Number of active flavours
         CA : float
-          Casimir constant of adjoint representation (which is actually not used here)
+          Casimir constant of adjoint representation
         CF : float
           Casimir constant of fundamental representation
 
@@ -102,7 +101,6 @@ def gamma_gg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
       Computes the leading-order gluon-gluon anomalous dimension
 
       Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
-      For the sake of unification we keep a unique function signature for *all* coefficients.
 
       Parameters
       ----------
@@ -113,7 +111,7 @@ def gamma_gg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
         CA : float
           Casimir constant of adjoint representation
         CF : float
-          Casimir constant of fundamental representation (which is actually not used here)
+          Casimir constant of fundamental representation
 
       Returns
       -------
@@ -131,7 +129,7 @@ def get_gamma_singlet_0(N, nf: int, CA: float, CF: float):
       Computes the leading-order singlet anomalous dimension matrix
 
       .. math::
-          \gamma_S^{(0)} = \left(\begin{array}
+          \gamma_S^{(0)} = \left(\begin{array}{cc}
             \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
             \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
           \end{array}\right)
@@ -145,7 +143,7 @@ def get_gamma_singlet_0(N, nf: int, CA: float, CF: float):
         CA : float
           Casimir constant of adjoint representation
         CF : float
-          Casimir constant of fundamental representation (which is actually not used here)
+          Casimir constant of fundamental representation
 
       Returns
       -------
@@ -181,7 +179,7 @@ def get_Eigensystem_gamma_singlet_0(N, nf: int, CA: float, CF: float):
         CA : float
           Casimir constant of adjoint representation
         CF : float
-          Casimir constant of fundamental representation (which is actually not used here)
+          Casimir constant of fundamental representation
 
       Returns
       -------

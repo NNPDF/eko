@@ -1,7 +1,9 @@
 Dependency Graph
 ================
 
+.. generating command: pydeps ../../../src/eko
 .. image:: /img/eko.svg
-  :width: 600
   :align: center
   :alt: dependency graph
+
+Generated using `pydeps <https://pydeps.readthedocs.io/en/latest/>`_.

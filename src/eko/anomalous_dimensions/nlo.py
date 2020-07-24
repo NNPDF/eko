@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 """
     This file contains the next-to-leading-order Altarelli-Parisi splitting kernels.
+
+    These expression have been obtained using the procedure described in the
+    `wiki <https://github.com/N3PDF/eko/wiki/Parse-NLO-expressions>`_
+    involving ``FormGet`` :cite:`Hahn:2016ebn`.
 """
 
 import numpy as np
@@ -31,7 +35,7 @@ def gamma_nsm_1(n, nf: int, CA: float, CF: float):
         -------
             gamma_nsm_1 : complex
                 Next-to-leading-order valence-like non-singlet anomalous dimension
-                :math:`\\gamma_{ns-}^{(1)}(N)`
+                :math:`\\gamma_{ns,-}^{(1)}(N)`
     """
     S1 = ekomath.harmonic_S1(n)
     S2 = ekomath.harmonic_S2(n)
@@ -74,7 +78,7 @@ def gamma_nsp_1(n, nf: int, CA: float, CF: float):
         -------
             gamma_nsp_1 : complex
                 Next-to-leading-order singlet-like non-singlet anomalous dimension
-                :math:`\\gamma_{ns+}^{(1)}(N)`
+                :math:`\\gamma_{ns,+}^{(1)}(N)`
     """
     S1 = ekomath.harmonic_S1(n)
     S2 = ekomath.harmonic_S2(n)

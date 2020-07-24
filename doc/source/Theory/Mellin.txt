@@ -10,8 +10,8 @@ The Mellin transformation is given by
 .. math::
     \tilde g(N) = \mathcal{M}[g(x)](N) = \int\limits_{0}^{1} x^{N-1} g(x)\,dx
 
-where we will denote all objects in Mellin-space with an additional tilde.
-The inverse Mellin transformation is given by
+We will denote objects in Mellin-space with an additional tilde if they may appear in
+both spaces. The inverse Mellin transformation is given by
 
 .. math::
     g(x) = \mathcal{M}^{-1}[\tilde g(N)](x) = \frac{1}{2\pi i} \int\limits_{\mathcal{P}} x^{-N} \tilde g(N)\,dN
