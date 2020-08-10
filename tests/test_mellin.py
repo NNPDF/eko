@@ -54,7 +54,7 @@ def test_inverse_mellin_transform():
         return x
 
     @nb.njit
-    def function_N(N, lnx, delta_t):  # pylint:disable=unused-argument
+    def function_N(N, lnx, a1, a0):  # pylint:disable=unused-argument
         return np.exp(-N * lnx) / (N + 1)
 
     xgrid = [0.1, 0.3, 0.5, 0.7]
@@ -63,7 +63,7 @@ def test_inverse_mellin_transform():
         xresult = function_x(x)
         for compile_numba in [True, False]:
             integrand = mellin.compile_integrand(function_N, p, j, compile_numba)
-            extra_args = _numbify_list([np.log(x), 0.0, 1.0, 0.0])
+            extra_args = _numbify_list([np.log(x), 0.0, 0.0, 1.0, 0.0])
             nresult = mellin.inverse_mellin_transform(integrand, 1e-2, extra_args)
             assert_almost_equal(xresult, nresult[0])
             assert_almost_equal(0.0, nresult[1])

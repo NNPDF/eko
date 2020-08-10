@@ -56,11 +56,12 @@ def compile_integrand(iker, path, jac, do_numba=True):
     def integrand(u, extra_args):
         # Make the extra arguments explicit
         logx = extra_args[0]
-        delta_t = extra_args[1]
-        path_param = extra_args[2:]
+        a1 = extra_args[1]
+        a0 = extra_args[2]
+        path_param = extra_args[3:]
         N = path(u, path_param)
         prefactor = np.complex(0.0, -1.0 / np.pi)
-        result = np.real(prefactor * iker(N, logx, delta_t) * jac(u, path_param))
+        result = np.real(prefactor * iker(N, logx, a1, a0) * jac(u, path_param))
         return result
 
     if do_numba:

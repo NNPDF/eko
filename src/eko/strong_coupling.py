@@ -413,39 +413,3 @@ class StrongCoupling:
                     new_as *= 1 + c1 * new_as + c2 * new_as ** 2
             final_as = new_as
         return final_as
-
-    def _param_t(self, scale_to):
-        """
-            Computes evolution parameter :math:`t(Q^2) = \\log(1/a_s(Q^2))`.
-
-            Parameters
-            ----------
-                scale_to : float
-                    final scale to evolve to :math:`Q^2`
-
-            Returns
-            -------
-                t : float
-                    evolution parameter :math:`t(Q^2) = \\log(1/a_s(Q^2))`
-        """
-        return np.log(1.0 / self.a_s(scale_to))
-
-    def delta_t(self, scale_from, scale_to):
-        """
-            Compute evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2) = t(Q_1^2)-t(Q_0^2)`
-            with :math:`t(Q^2) = log(1/a_s(Q^2))`.
-
-            Parameters
-            ----------
-                scale_from : float
-                    scale to evolve from :math:`Q_0^2`
-                scale_to : float
-                    final scale to evolve to :math:`Q_1^2`
-
-            Returns
-            -------
-                delta : float
-                    evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2)`
-        """
-        delta = self._param_t(scale_to) - self._param_t(scale_from)
-        return delta

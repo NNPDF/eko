@@ -275,10 +275,14 @@ def get_res(k, xg, cut=0):
 
 def test_get_kernel_integrands():
     xg = [np.exp(-1), 0.9]
-    dt = 1
 
     ints_s, ints_ns = _get_kernel_integrands(
-        [[get_ker(2), get_ker(3), get_ker(4), get_ker(5)]], [get_ker(1)], dt, xg, cut=0
+        [[get_ker(2), get_ker(3), get_ker(4), get_ker(5)]],
+        [get_ker(1)],
+        0.5,
+        1.0,
+        xg,
+        cut=0,
     )
     op_ns = ints_ns()
     assert "NS_v" in op_ns
@@ -295,21 +299,20 @@ def test_get_kernel_integrands():
 
 class TestOperator:
     def test_meta(self):
-        dt = 1
         xg = [0.5, 1.0]
         meta = dict(nf=3, q2ref=1, q2=2)
-        op = Operator(dt, xg, [], [], meta)
+        op = Operator(0.5, 1.0, xg, [], [], meta)
         assert op.nf == meta["nf"]
         assert op.q2ref == meta["q2ref"]
         assert op.q2 == meta["q2"]
         assert_almost_equal(op.xgrid, xg)
 
     def test_compose(self):
-        dt = 1
         xg = [np.exp(-1), 0.9]
         meta = dict(nf=3, q2ref=1, q2=2)
         op1 = Operator(
-            dt,
+            0.5,
+            1.0,
             xg,
             [get_ker(1)],
             [[get_ker(2), get_ker(3), get_ker(4), get_ker(5)]],

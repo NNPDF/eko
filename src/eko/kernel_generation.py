@@ -49,9 +49,9 @@ def get_kernel_ns(basis_function, nf, constants):
     CF = constants.CF
     beta_0 = sc.beta_0(nf, constants.CA, constants.CF, constants.TF)
 
-    def ker(n, lnx, delta_t):
+    def ker(n, lnx, a1, a0):
         """true non-siglet integration kernel"""
-        ln = -delta_t * ad_lo.gamma_ns_0(n, nf, CA, CF) / beta_0
+        ln = (np.log(a1) - np.log(a0)) * ad_lo.gamma_ns_0(n, nf, CA, CF) / beta_0
         interpoln = basis_function(n, lnx)
         return np.exp(ln) * interpoln
 
@@ -85,11 +85,11 @@ def get_kernels_s(basis_function, nf, constants):
     def get_ker(k, l):
         """(k,l)-th element of singlet kernel matrix"""
 
-        def ker(N, lnx, delta_t):
+        def ker(N, lnx, a1, a0):
             """a singlet integration kernel"""
             l_p, l_m, e_p, e_m = ad_lo.get_Eigensystem_gamma_singlet_0(N, nf, CA, CF)
-            ln_p = -delta_t * l_p / beta_0
-            ln_m = -delta_t * l_m / beta_0
+            ln_p = (np.log(a1) - np.log(a0)) * l_p / beta_0
+            ln_m = (np.log(a1) - np.log(a0)) * l_m / beta_0
             interpoln = basis_function(N, lnx)
             return (e_p[k][l] * np.exp(ln_p) + e_m[k][l] * np.exp(ln_m)) * interpoln
 

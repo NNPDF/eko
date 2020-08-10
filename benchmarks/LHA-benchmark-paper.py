@@ -430,6 +430,6 @@ if __name__ == "__main__":
     # check fixed flavours
     #app.run_FFNS()
     # do two steps
-    app.run_FFNS_twostep(1e2)
+    #app.run_FFNS_twostep(1e2)
     # check ZM-VFNS
-    #app.run_ZMVFNS()
+    app.run_ZMVFNS()

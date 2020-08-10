@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 def _get_kernel_integrands(
-    singlet_integrands, nonsinglet_integrands, delta_t, xgrid, cut=1e-2
+    singlet_integrands, nonsinglet_integrands, a1, a0, xgrid, cut=1e-2
 ):
     """
         Return actual integration kernels.
@@ -28,8 +28,10 @@ def _get_kernel_integrands(
                 kernels for singlet integrations
             nonsinglet_integrands : list(callable)
                 kernels for non-singlet integrations
-            delta_t : float
-                evolution distance
+            a1 : float
+                a_s at evolution target
+            a0 : float
+                a_s at evolution source
             xgrid : np.array
                 basis grid
 
@@ -51,7 +53,8 @@ def _get_kernel_integrands(
         for k, logx in enumerate(grid_logx):
             extra_args = nb.typed.List()
             extra_args.append(logx)
-            extra_args.append(delta_t)
+            extra_args.append(a1)
+            extra_args.append(a0)
             # Path parameters
             extra_args.append(0.4 * 16 / (1.0 - logx))
             extra_args.append(1.0)
@@ -87,7 +90,8 @@ def _get_kernel_integrands(
         for k, logx in enumerate(grid_logx):
             extra_args = nb.typed.List()
             extra_args.append(logx)
-            extra_args.append(delta_t)
+            extra_args.append(a1)
+            extra_args.append(a0)
             # Path parameters
             extra_args.append(0.5)
             extra_args.append(0.0)
@@ -468,8 +472,10 @@ class Operator:
 
         Parameters
         ----------
-            delta_t : float
-                Evolution distance
+            a1 : float
+                a_s at evolution target
+            a0 : float
+                a_s at evolution source
             xgrid : np.array
                 basis interpolation grid
             integrands_ns : list(callable)
@@ -483,7 +489,7 @@ class Operator:
     """
 
     def __init__(
-        self, delta_t, xgrid, integrands_ns, integrands_s, metadata, mellin_cut=1e-2
+        self, a1, a0, xgrid, integrands_ns, integrands_s, metadata, mellin_cut=1e-2
     ):
         # Save the metadata
         self._metadata = metadata
@@ -491,7 +497,7 @@ class Operator:
         # Get ready for the computation
         # TODO make 'cut' external parameter?
         singlet, nons = _get_kernel_integrands(
-            integrands_s, integrands_ns, delta_t, xgrid, cut=mellin_cut
+            integrands_s, integrands_ns, a1, a0, xgrid, cut=mellin_cut
         )
         self._compute_singlet = singlet
         self._compute_nonsinglet = nons

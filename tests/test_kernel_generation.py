@@ -42,8 +42,11 @@ class TestKernelDispatcher:
             for bf in kd.integrands_s[nf]:
                 assert len(bf) == 4
             # check value
-            np.testing.assert_almost_equal(kd.integrands_ns[nf][0](1, 1, 1), np.exp(-1))
+
+            np.testing.assert_almost_equal(
+                kd.integrands_ns[nf][0](1, 1, np.exp(-1), 1.0), np.exp(-1)
+            )
             for k in range(4):
                 np.testing.assert_almost_equal(
-                    kd.integrands_s[nf][0][k](1, 1, 1), np.exp(-1)
+                    kd.integrands_s[nf][0][k](1, 1, np.exp(-1), 1.0), np.exp(-1)
                 )

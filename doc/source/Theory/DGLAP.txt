@@ -5,42 +5,42 @@ We are solving the DGLAP equations given in x-space by
 
 .. math::
     \frac{d}{d\ln(\mu_F^2)} \mathbf{f}(x,\mu_F^2) =
-        \int\limits_x^1\!\frac{dy}{y}\, \mathbf{P}(x/y) \cdot \mathbf{f}(y,\mu_F^2)
+        \int\limits_x^1\!\frac{dy}{y}\, \mathbf{P}(x/y,a_s) \cdot \mathbf{f}(y,\mu_F^2)
 
 with :math:`\mathbf P` the Altarelli-Parisi splitting functions (see :doc:`pQCD`).
 In :doc:`Mellin space <Mellin>` the DGLAP equations are just differential equations:
 
 .. math::
-    \frac{d}{d\ln(\mu_F^2)} \tilde{\mathbf{f}}(N,\mu_F^2) = -\gamma(N) \cdot \tilde{\mathbf{f}}(N,\mu_F^2)
+    \frac{d}{d\ln(\mu_F^2)} \tilde{\mathbf{f}}(N,\mu_F^2) = -\gamma(N,a_s) \cdot \tilde{\mathbf{f}}(N,\mu_F^2)
 
 (Note the additional minus in the definition for :math:`\gamma`).
 
-We change the evolution variable to :math:`t(\mu_F^2) = \ln(1/a_s(\mu_F^2))`
+We change the evolution variable to :math:`a_s(\mu_F^2)`
 and then the differential equations to solve are given by
 
 .. math::
-    \frac{d}{dt} \tilde{\mathbf{f}}(N,t)
-        = \frac{d\ln(\mu_F^2)}{dt} \cdot \frac{d \tilde{\mathbf{f}}(N,\mu_F^2)}{d\ln(\mu_F^2)} 
-        = \frac{a_s(\mu_F^2)}{\beta(a_s(\mu_F^2))} \cdot \gamma(N) \cdot \tilde{\mathbf{f}}(N,t)
+    \frac{d}{da_s} \tilde{\mathbf{f}}(N,a_s)
+        = \frac{d\ln(\mu_F^2)}{da_s} \cdot \frac{d \tilde{\mathbf{f}}(N,\mu_F^2)}{d\ln(\mu_F^2)} 
+        = -\frac{1}{\beta(a_s)} \cdot \gamma(N,a_s) \cdot \tilde{\mathbf{f}}(N,a_s)
 
-This transformation makes the equations explicitly independent of the :doc:`running coupling <pQCD>` at LO.
-
-The solution can be written in terms of an evolution kernel operator :math:`\mathbf E` (represented by
-:class:`~eko.evolution_operator.PhysicalOperator`)
+The (formal) solution can then be written in terms of an evolution kernel operator (EKO) :math:`\mathbf E`
 
 .. math::
-    \tilde{\mathbf{f}}(N,t_1) = \tilde{\mathbf{E}}(t_1 \leftarrow t_0) \cdot \tilde{\mathbf{f}}(N,t_0)
+    \tilde{\mathbf{f}}(N,a_s^1) &= \tilde{\mathbf{E}}(a_s^1 \leftarrow a_s^0) \cdot \tilde{\mathbf{f}}(N,a_s^0)\\
+    \tilde{\mathbf{E}}(a_s^1 \leftarrow a_s^0) &= \exp\left[-\int\limits_{a_s^0}^{a_s^1} \frac{\gamma(N,a_s)}{\beta(a_s)} da_s \right]
 
 Using :doc:`Interpolation <Interpolation>` on both the inital and final PDF, we can then discretize the
-evolution kernel operator and define :math:`\hat{\mathbf{E}}_{k,j}` by
+EKO in x-space and define :math:`\hat{\mathbf{E}}_{k,j}` (represented by
+:class:`~eko.evolution_operator.PhysicalOperator`) by
 
 .. math::
-    \hat{\mathbf{E}}_{k,j}(t_1\leftarrow t_0) = \mathcal{M}^{-1}\left[\tilde{\mathbf{E}}(t_1 \leftarrow t_0)\tilde p_j(N)\right](x_k)
+    \hat{\mathbf{E}}_{k,j}(a_s^1 \leftarrow a_s^0) = \mathcal{M}^{-1}\left[\tilde{\mathbf{E}}(a_s^1 \leftarrow a_s^0)\tilde p_j(N)\right](x_k)
 
 Now, we can write the solution to DGLAP in a true matrix operator scheme and find
 
 .. math::
-    \mathbf{f}(x_k,t_1) = \hat{\mathbf{E}}_{k,j}(t_1\leftarrow t_0) \mathbf{f}(x_j,t_0)
+    \mathbf{f}(x_k,a_s^1) = \hat{\mathbf{E}}_{k,j}(a_s^1 \leftarrow a_s^0) \mathbf{f}(x_j,a_s^0)
+
 
 In the non-singlet sector the equations decouple and we do not need to worry about matrices.
 
@@ -55,14 +55,14 @@ Non-Singlet Evolution
 We find
 
 .. math::
-    \frac{d}{dt} \tilde f_{ns}^{(0)}(t) = -\frac{1}{\beta_0} \cdot \gamma_{ns}^{(0)}(N) \cdot \tilde f_{ns}^{(0)}(t)
+    \frac{d}{da_s} \tilde f_{ns}^{(0)}(a_s) = \frac{1}{\beta_0 a_s} \cdot \gamma_{ns}^{(0)}(N) \cdot \tilde f_{ns}^{(0)}(a_s)
 
 with :math:`\gamma_{ns}^{(0)} = \gamma_{ns,+}^{(0)} = \gamma_{ns,-}^{(0)} = \gamma_{ns,v}^{(0)} = \gamma_{qq}^{(0)}`.
 
-The evolution kernel operator is then given by a simple exponential :cite:`Vogt:2004ns`
+The EKO is then given by a simple exponential :cite:`Vogt:2004ns`
 
 .. math::
-    \tilde E^{(0)}_{ns}(t_1\leftarrow t_0) = \exp(-(t_1-t_0) \gamma_{ns}^{(0)}(N)/\beta_0 )
+    \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) = \exp\left[(\ln(a_s^1)-\ln(a_s^0)) \gamma_{ns}^{(0)}(N)/\beta_0 \right]
 
 Singlet Evolution
 ^^^^^^^^^^^^^^^^^
@@ -70,7 +70,7 @@ Singlet Evolution
 We find
 
 .. math::
-    \frac{d}{dt} \dSV{0}{t} = -\frac{1}{\beta_0} \cdot \gamma_S^{(0)} \cdot \dSV{0}{t}
+    \frac{d}{da_s} \dSV{0}{a_s} = \frac{1}{\beta_0 a_s} \cdot \gamma_S^{(0)} \cdot \dSV{0}{a_s}
 
 with
 
@@ -80,9 +80,9 @@ with
                                 \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
                             \end{pmatrix}
 
-In order to expontiate this matrix, we decompose it
+In order to exponentiate this matrix, we decompose it
 :math:`\gamma_S^{(0)} = \lambda_+ {\bf e}_+ + \lambda_- {\bf e}_-` with
-the eigenvalues :math:`\lambda_{\pm}` and the projectors :math:`e_{\pm}` given by :cite:`Vogt:2004ns`
+the eigenvalues :math:`\lambda_{\pm}` and the projectors :math:`\mathbf e_{\pm}` given by :cite:`Vogt:2004ns`
 
 .. math::
     \lambda_{\pm} &= \frac 1 2 \left( \gamma_{qq}^{(0)} + \gamma_{gg}^{(0)} + \pm \sqrt{(\gamma_{qq}^{(0)}-\gamma_{gg}^{(0)})^2 + 4\gamma_{qg}^{(0)}\gamma_{gq}^{(0)}} \right)\\
@@ -94,12 +94,12 @@ The projectors obey the usual properties, i.e.
 .. math::
     {\bf e}_{\pm} \cdot {\bf e}_{\pm} = {\bf e}_{\pm} \qquad {\bf e}_{\pm} \cdot {\bf e}_{\mp} = 0
 
-and thus the expontiation becomes easier again.
+and thus the exponentiation becomes easier again.
 
-The evolution kernel operator is then given by
+The EKO is then given by
 
 .. math::
-    \tilde {\mathbf{E}}^{(0)}_{S}(t_1\leftarrow t_0) = {\mathbf{e}}_-\exp(-(t_1-t_0) \lambda_{-}(N)/\beta_0 ) + {\mathbf{e}}_+\exp(-(t_1-t_0) \lambda_{+}(N)/\beta_0 )
+    \tilde {\mathbf{E}}^{(0)}_{S}(a_s^1 \leftarrow a_s^0) = {\mathbf{e}}_-\exp\left[(\ln(a_s^1)-\ln(a_s^0)) \lambda_{-}(N)/\beta_0 \right] + {\mathbf{e}}_+\exp\left[(\ln(a_s^1)-\ln(a_s^0)) \lambda_{+}(N)/\beta_0 \right]
 
 Benchmarks
 ----------

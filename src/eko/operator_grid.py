@@ -84,9 +84,10 @@ class OperatorMaster:
         # Generate the metadata for this operator
         metadata = {"q2": q2_to, "q2ref": q2_from, "nf": self._nf}
         # Generate the necessary parameters to compute the operator
-        delta_t = self._alpha_gen.delta_t(q2_from, q2_to)
+        a0 = self._alpha_gen.a_s(q2_from)
+        a1 = self._alpha_gen.a_s(q2_to)
         op = Operator(
-            delta_t, self._xgrid, self._integrands_ns, self._integrands_s, metadata
+            a1, a0, self._xgrid, self._integrands_ns, self._integrands_s, metadata
         )
         if generate:
             op.compute()
