@@ -18,12 +18,12 @@ ignore-patterns=
 #init-hook=
 
 # Use multiple processes to speed up Pylint.
-jobs=1
+jobs=1 # has to be 1 as pylint is NOT threadsafe
 
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
-load-plugins=pylint.extensions.mccabe
-max-complexity=20
+#load-plugins=pylint.extensions.mccabe
+#max-complexity=20
 
 # Pickle collected data for later comparisons.
 persistent=yes

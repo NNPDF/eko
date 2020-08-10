@@ -217,7 +217,7 @@ class Output(dict):
                     f"'{f}' of the two factors does not match: {self[f]} vs {other[f]}"
                 )
         if not np.allclose(self["interpolation_xgrid"], other["interpolation_xgrid"]):
-            raise ValueError(f"'interpolation_xgrid' of the two factors does not match")
+            raise ValueError("'interpolation_xgrid' of the two factors does not match")
         # check matching
         mid_scale = self["q2_ref"]
         if not mid_scale in other["Q2grid"]:
