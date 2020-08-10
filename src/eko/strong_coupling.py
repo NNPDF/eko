@@ -108,7 +108,7 @@ def beta_2(nf: int, CA: float, CF: float, TF: float):
 
 class StrongCoupling:
     r"""
-        Computes strong coupling constant :math:`a_s`.
+        Computes the strong coupling constant :math:`a_s`.
 
         Note that
 
@@ -118,15 +118,15 @@ class StrongCoupling:
           :math:`a_s = \frac{\alpha_s(\mu^2)}{4\pi}` the reference value has to be
           given in terms of :math:`\alpha_s(\mu_0^2)` due to legacy reasons
         - the ``order`` refers to the perturbative order of the beta function, thus
-          ``0`` means leading order beta function means evolution with :math:`\beta_0`
-          meas at 1-loop - so there is a natural mismatch between `order` and the
-          number of loop by one unit
+          ``order=0`` means leading order beta function, means evolution with :math:`\beta_0`,
+          means running at 1-loop - so there is a natural mismatch between ``order`` and the
+          number of loops by one unit
 
         Normalization is given by :cite:`Herzog:2017ohr`:
 
         .. math::
-            \frac{da_s}{d\ln\mu^2} = \beta(a_s) \
-            = - \sum\limits_{n=0} \beta_n a_s^{n+2} \quad
+            \frac{da_s(\mu^2)}{d\ln\mu^2} = \beta(a_s) \
+            = - \sum\limits_{n=0} \beta_n a_s^{n+2}(\mu^2) \quad
             \text{with}~ a_s = \frac{\alpha_s(\mu^2)}{4\pi}
 
         See :doc:`pQCD ingredients </Theory/pQCD>`.
@@ -159,7 +159,7 @@ class StrongCoupling:
     """
 
     def __init__(
-        self, consts, alpha_s_ref, scale_ref, thresh, order=0, method="expanded",
+        self, consts, alpha_s_ref, scale_ref, thresh, order=0, method="exact",
     ):
         # Sanity checks
         if not isinstance(consts, constants.Constants):

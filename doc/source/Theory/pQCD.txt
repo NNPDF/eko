@@ -1,8 +1,8 @@
 pQCD ingredients
 ================
 
-Running Coupling
-----------------
+Strong Coupling
+---------------
 
 Implementation: :class:`~eko.strong_coupling.StrongCoupling`.
 
@@ -14,6 +14,8 @@ We use perturbative QCD with the running coupling
       \frac{da_s(\mu_R^2)}{d\ln\mu_R^2} = \beta(a_s(\mu_R^2)) \
       = - \sum\limits_{n=0} \beta_n a_s^{n+2}(\mu_R^2)
 
+It is usefull to define in addition :math:`b_k = \beta_k/\beta_0, k>0`.
+
 We implement two different strategies to solve the renormalization group equation (RGE):
 
 - ``method="exact"``: Solve using :func:`scipy.integrate.solve_ivp`.
@@ -24,9 +26,7 @@ We implement two different strategies to solve the renormalization group equatio
   a^{\text{LO}}_s(\mu_R^2)  &= \frac{a_s(\mu_0^2)}{1 + a_s(\mu_0^2) \beta_0 \ln(\mu_R^2/\mu_0^2)} \\
   a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) &= a^{\text{LO}}_s(\mu_R^2)-b_1 \left[a^{\text{LO}}_s(\mu_R^2)\right]^2 \ln\left(1+a_s(\mu_0^2) \beta_0 \ln(\mu_R^2/\mu_0^2)\right) \\
   a^{\text{NNLO}}_{s,\text{exp}}(\mu_R^2) &= a^{\text{LO}}_s(\mu_R^2)\left[1 + a^{\text{LO}}_s(\mu_R^2)\left(a^{\text{LO}}_s(\mu_R^2) - a_s(\mu_0^2)\right)(b_2 - b_1^2) \right.\\
-                                        & \hspace{60pt} \left. + a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) b_1 \ln\left(a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2)/a_s(\mu_0^2)\right)\right] \\
-
-with :math:`b_1 = \beta_1/\beta_0, b_2=\beta_2/\beta_0`.
+                                        & \hspace{60pt} \left. + a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) b_1 \ln\left(a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2)/a_s(\mu_0^2)\right)\right]
 
 When the renormalization scale crosses a flavor threshold matching conditions have to be
 applied :cite:`Schroder:2005hy` :cite:`Chetyrkin:2005ia`.

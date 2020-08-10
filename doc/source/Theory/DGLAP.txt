@@ -15,8 +15,8 @@ In :doc:`Mellin space <Mellin>` the DGLAP equations are just differential equati
 
 (Note the additional minus in the definition for :math:`\gamma`).
 
-We change the evolution variable to :math:`a_s(\mu_F^2)`
-and then the differential equations to solve are given by
+We change the evolution variable to (monotonic) :ref:`theory/pQCD:strong coupling` :math:`a_s(\mu_F^2)`
+and the equations to solve become
 
 .. math::
     \frac{d}{da_s} \tilde{\mathbf{f}}(N,a_s)
@@ -49,28 +49,28 @@ The issue of matching conditions when crossing flavor thresholds is dicussed in 
 Leading Order
 -------------
 
-Non-Singlet Evolution
-^^^^^^^^^^^^^^^^^^^^^
+LO Non-Singlet Evolution
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 We find
 
 .. math::
-    \frac{d}{da_s} \tilde f_{ns}^{(0)}(a_s) = \frac{1}{\beta_0 a_s} \cdot \gamma_{ns}^{(0)}(N) \cdot \tilde f_{ns}^{(0)}(a_s)
+    \frac{d}{da_s} \tilde f_{ns}^{(0)}(a_s) = \frac{\gamma_{ns}^{(0)}}{\beta_0 a_s}  \cdot \tilde f_{ns}^{(0)}(a_s)
 
 with :math:`\gamma_{ns}^{(0)} = \gamma_{ns,+}^{(0)} = \gamma_{ns,-}^{(0)} = \gamma_{ns,v}^{(0)} = \gamma_{qq}^{(0)}`.
 
 The EKO is then given by a simple exponential :cite:`Vogt:2004ns`
 
 .. math::
-    \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) = \exp\left[(\ln(a_s^1)-\ln(a_s^0)) \gamma_{ns}^{(0)}(N)/\beta_0 \right]
+    \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) = \exp\left[\ln(a_s^1/a_s^0) \gamma_{ns}^{(0)}/\beta_0 \right]
 
-Singlet Evolution
-^^^^^^^^^^^^^^^^^
+LO Singlet Evolution
+^^^^^^^^^^^^^^^^^^^^
 
 We find
 
 .. math::
-    \frac{d}{da_s} \dSV{0}{a_s} = \frac{1}{\beta_0 a_s} \cdot \gamma_S^{(0)} \cdot \dSV{0}{a_s}
+    \frac{d}{da_s} \dSV{0}{a_s} = \frac{\gamma_S^{(0)}}{\beta_0 a_s} \cdot \dSV{0}{a_s}
 
 with
 
@@ -81,31 +81,54 @@ with
                             \end{pmatrix}
 
 In order to exponentiate this matrix, we decompose it
-:math:`\gamma_S^{(0)} = \lambda_+ {\bf e}_+ + \lambda_- {\bf e}_-` with
+:math:`\gamma_S^{(0)} = \lambda_+ {\mathbf e}_+ + \lambda_- {\mathbf e}_-` with
 the eigenvalues :math:`\lambda_{\pm}` and the projectors :math:`\mathbf e_{\pm}` given by :cite:`Vogt:2004ns`
 
 .. math::
     \lambda_{\pm} &= \frac 1 2 \left( \gamma_{qq}^{(0)} + \gamma_{gg}^{(0)} + \pm \sqrt{(\gamma_{qq}^{(0)}-\gamma_{gg}^{(0)})^2 + 4\gamma_{qg}^{(0)}\gamma_{gq}^{(0)}} \right)\\
-    {\bf e}_{\pm} &= \frac{1}{\lambda_{\pm} - \lambda_{\mp}} \left( \gamma_S^{(0)}  - \lambda_{\mp} \mathbf I \right)
+    {\mathbf e}_{\pm} &= \frac{1}{\lambda_{\pm} - \lambda_{\mp}} \left( \gamma_S^{(0)}  - \lambda_{\mp} \mathbf I \right)
 
 with :math:`\mathbf I` the 2x2 identity matrix in flavour space.
 The projectors obey the usual properties, i.e.
 
 .. math::
-    {\bf e}_{\pm} \cdot {\bf e}_{\pm} = {\bf e}_{\pm} \qquad {\bf e}_{\pm} \cdot {\bf e}_{\mp} = 0
+    {\mathbf e}_{\pm} \cdot {\mathbf e}_{\pm} = {\mathbf e}_{\pm} \qquad {\mathbf e}_{\pm} \cdot {\mathbf e}_{\mp} = 0
 
 and thus the exponentiation becomes easier again.
 
 The EKO is then given by
 
 .. math::
-    \tilde {\mathbf{E}}^{(0)}_{S}(a_s^1 \leftarrow a_s^0) = {\mathbf{e}}_-\exp\left[(\ln(a_s^1)-\ln(a_s^0)) \lambda_{-}(N)/\beta_0 \right] + {\mathbf{e}}_+\exp\left[(\ln(a_s^1)-\ln(a_s^0)) \lambda_{+}(N)/\beta_0 \right]
+    \tilde {\mathbf{E}}^{(0)}_{S}(a_s^1 \leftarrow a_s^0) = {\mathbf{e}}_-\exp\left[\ln(a_s^1/a_s^0) \lambda_{-}/\beta_0 \right] + {\mathbf{e}}_+\exp\left[\ln(a_s^1/a_s^0) \lambda_{+}/\beta_0 \right]
 
-Benchmarks
-----------
+Next-to-Leading Order
+---------------------
 
-The benchmarking LHA reference is given by :cite:`Giele:2002hx`
-and :cite:`Dittmar:2005ed`.
+NLO Non-Singlet Evolution
+^^^^^^^^^^^^^^^^^^^^^^^^^
+We find
 
-.. todo::
-    do we want to comment about benchmarks?
+.. math::
+    \frac{d}{da_s} \tilde f_{ns}^{(1)}(a_s) = \frac{\gamma_{ns}^{(0)} a_s + \gamma_{ns}^{(1)} a_s^2}{\beta_0 a_s^2 + \beta_1 a_s^3} \cdot \tilde f_{ns}^{(1)}(a_s)
+
+with :math:`\gamma_{ns} \in \{\gamma_{ns,+},\gamma_{ns,-}=\gamma_{ns,v}\}`.
+
+To solve this equation we provide the same strategies as :cite:`Vogt:2004ns` :
+
+- the *exact* solution to the EKO is given by the exponentials: :cite:`RuizArriola:1998er,Vogt:2004ns`
+
+.. math::
+    \tilde E^{(1),\text{exact}}_{ns}(a_s^1 \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) \exp\left[\ln\left(\frac{1+a_s^1 b_1}{1 + a_s^0 b_1}\right)\left(\frac{\gamma_{ns}^{(1)}}{\beta_1} - \frac{\gamma_{ns}^{(0)}}{\beta_0}\right) \right]
+
+- expanding the *argument* of the exponential of the new term we obtain:
+
+.. math::
+    \tilde E^{(1),\text{exact}'}_{ns}(a_s^1 \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) \exp\left[(a_s^1 - a_s^0) b_1 \left(\frac{\gamma_{ns}^{(1)}}{\beta_1} - \frac{\gamma_{ns}^{(0)}}{\beta_0}\right) \right]
+
+- expanding the *whole* exponential of the new term we obtain:
+
+.. math::
+    \tilde E^{(1),\text{expanded}}_{ns}(a_s^1 \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) \left[1 + (a_s^1 - a_s^0) b_1 \left(\frac{\gamma_{ns}^{(1)}}{\beta_1} - \frac{\gamma_{ns}^{(0)}}{\beta_0}\right) \right]
+
+NLO Singlet Evolution
+^^^^^^^^^^^^^^^^^^^^^
