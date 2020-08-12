@@ -46,13 +46,7 @@ class OperatorMaster:
         self._alpha_gen = alpha_generator
         self._xgrid = xgrid
         self._nf = nf
-        self._integrands_ns = None
-        self._integrands_s = None
-
-    def _compile(self):
-        """ Compiles the kernels and make them become integrands """
-        self._integrands_ns = self._kernel_dispatcher.integrands_ns[self._nf]
-        self._integrands_s = self._kernel_dispatcher.integrands_s[self._nf]
+        self._kernels = None
 
     def get_op(self, q2_from, q2_to, generate=False):
         """
@@ -79,15 +73,15 @@ class OperatorMaster:
                 op: eko.operators.Operator
                     operator to go from q2_from to q2_to
         """
-        if self._integrands_s is None or self._integrands_ns is None:
-            self._compile()
+        if self._kernels is None:
+            self._kernels = self._kernel_dispatcher.kernels[self._nf]
         # Generate the metadata for this operator
         metadata = {"q2": q2_to, "q2ref": q2_from, "nf": self._nf}
         # Generate the necessary parameters to compute the operator
         a0 = self._alpha_gen.a_s(q2_from)
         a1 = self._alpha_gen.a_s(q2_to)
         op = Operator(
-            a1, a0, self._xgrid, self._integrands_ns, self._integrands_s, metadata
+            a1, a0, self._xgrid, self._kernels, metadata
         )
         if generate:
             op.compute()

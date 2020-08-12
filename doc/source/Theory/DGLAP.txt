@@ -118,17 +118,18 @@ To solve this equation we provide the same strategies as :cite:`Vogt:2004ns` :
 - the *exact* solution to the EKO is given by the exponentials: :cite:`RuizArriola:1998er,Vogt:2004ns`
 
 .. math::
-    \tilde E^{(1),\text{exact}}_{ns}(a_s^1 \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) \exp\left[\ln\left(\frac{1+a_s^1 b_1}{1 + a_s^0 b_1}\right)\left(\frac{\gamma_{ns}^{(1)}}{\beta_1} - \frac{\gamma_{ns}^{(0)}}{\beta_0}\right) \right]
+    \tilde E^{(1),\text{exact}}_{ns}(a_s^1 \leftarrow a_s^0) &= \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) \exp\left[\ln\left(\frac{1+a_s^1 b_1}{1 + a_s^0 b_1}\right)\bar \gamma_{ns}^{(1)} \right] \\
+    \bar \gamma_{ns}^{(1)} &= \frac{\gamma_{ns}^{(1)}}{\beta_1} - \frac{\gamma_{ns}^{(0)}}{\beta_0}
 
 - expanding the *argument* of the exponential of the new term we obtain:
 
 .. math::
-    \tilde E^{(1),\text{exact}'}_{ns}(a_s^1 \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) \exp\left[(a_s^1 - a_s^0) b_1 \left(\frac{\gamma_{ns}^{(1)}}{\beta_1} - \frac{\gamma_{ns}^{(0)}}{\beta_0}\right) \right]
+    \tilde E^{(1),\text{LL}}_{ns}(a_s^1 \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) \exp\left[(a_s^1 - a_s^0) b_1 \bar \gamma_{ns}^{(1)} \right]
 
 - expanding the *whole* exponential of the new term we obtain:
 
 .. math::
-    \tilde E^{(1),\text{expanded}}_{ns}(a_s^1 \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) \left[1 + (a_s^1 - a_s^0) b_1 \left(\frac{\gamma_{ns}^{(1)}}{\beta_1} - \frac{\gamma_{ns}^{(0)}}{\beta_0}\right) \right]
+    \tilde E^{(1),\text{truncated}}_{ns}(a_s^1 \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) \left[1 + (a_s^1 - a_s^0) b_1 \bar \gamma_{ns}^{(1)} \right]
 
 NLO Singlet Evolution
 ^^^^^^^^^^^^^^^^^^^^^

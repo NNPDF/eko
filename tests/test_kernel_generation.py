@@ -31,22 +31,16 @@ class TestKernelDispatcher:
         # fake InterpolationDispatcher
         bfs = [FakeBF()]
         for numba_it in [True, False]:
-            kd = kg.KernelDispatcher(bfs, c, numba_it=numba_it)
+            kd = kg.KernelDispatcher(bfs, c, 0, "exact", numba_it=numba_it)
             nf = 3
             kd.set_up_all_integrands(nf)
             # check format
-            assert nf in kd.integrands_ns
-            assert len(kd.integrands_ns[nf]) == len(bfs)
-            assert nf in kd.integrands_s
-            assert len(kd.integrands_s[nf]) == len(bfs)
-            for bf in kd.integrands_s[nf]:
-                assert len(bf) == 4
+            assert nf in kd.kernels
+            assert len(kd.kernels[nf]) == len(bfs)
+            for bf in kd.kernels[nf]:
+                assert len(bf) == 4+1
             # check value
-
-            np.testing.assert_almost_equal(
-                kd.integrands_ns[nf][0](1, 1, np.exp(-1), 1.0), np.exp(-1)
-            )
-            for k in range(4):
+            for k in kd.kernels[nf][0].values():
                 np.testing.assert_almost_equal(
-                    kd.integrands_s[nf][0][k](1, 1, np.exp(-1), 1.0), np.exp(-1)
+                    k(1, 1, np.exp(-1), 1.0), np.exp(-1)
                 )

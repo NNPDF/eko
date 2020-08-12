@@ -204,7 +204,7 @@ class StrongCoupling:
                 - alphas : required, reference value for  alpha_s (!)
                 - Qref : required, reference value in GeV (!)
                 - PTO : required, perturbative order
-                - ModEv : optional, method to solve RGE
+                - ModEv : optional, method to solve RGE, default=EXA
 
             Parameters
             ----------

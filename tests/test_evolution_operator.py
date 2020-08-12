@@ -277,8 +277,7 @@ def test_get_kernel_integrands():
     xg = [np.exp(-1), 0.9]
 
     ints_s, ints_ns = _get_kernel_integrands(
-        [[get_ker(2), get_ker(3), get_ker(4), get_ker(5)]],
-        [get_ker(1)],
+        [dict(NS_p=get_ker(1),S_qq=get_ker(2),S_qg=get_ker(3),S_gq=get_ker(4),S_gg=get_ker(5))],
         0.5,
         1.0,
         xg,
@@ -301,7 +300,7 @@ class TestOperator:
     def test_meta(self):
         xg = [0.5, 1.0]
         meta = dict(nf=3, q2ref=1, q2=2)
-        op = Operator(0.5, 1.0, xg, [], [], meta)
+        op = Operator(0.5, 1.0, xg, [], meta)
         assert op.nf == meta["nf"]
         assert op.q2ref == meta["q2ref"]
         assert op.q2 == meta["q2"]
@@ -314,8 +313,7 @@ class TestOperator:
             0.5,
             1.0,
             xg,
-            [get_ker(1)],
-            [[get_ker(2), get_ker(3), get_ker(4), get_ker(5)]],
+            [dict(NS_p=get_ker(1),S_qq=get_ker(2),S_qg=get_ker(3),S_gq=get_ker(4),S_gg=get_ker(5))],
             meta,
             0,
         )

@@ -38,7 +38,7 @@ class Runner:
             setup
         )
         # Generate the dispatcher for the kernels
-        kernel_dispatcher = KernelDispatcher(
+        kernel_dispatcher = KernelDispatcher.from_dict(setup,
             self._basis_function_dispatcher, self._constants
         )
         # FNS

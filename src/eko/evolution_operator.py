@@ -17,17 +17,15 @@ logger = logging.getLogger(__name__)
 
 
 def _get_kernel_integrands(
-    singlet_integrands, nonsinglet_integrands, a1, a0, xgrid, cut=1e-2
+    kernels, a1, a0, xgrid, cut=1e-2
 ):
     """
         Return actual integration kernels.
 
         Parameters
         ----------
-            singlet_integrands : list(list(callable))
-                kernels for singlet integrations
-            nonsinglet_integrands : list(callable)
-                kernels for non-singlet integrations
+            kernels : list(callable)
+                kernels for integrations
             a1 : float
                 a_s at evolution target
             a0 : float
@@ -46,6 +44,7 @@ def _get_kernel_integrands(
     grid_size = len(xgrid)
     grid_logx = np.log(xgrid)
 
+    singlet_names = ["S_qq", "S_qg", "S_gq", "S_gg"]
     def run_singlet():
         logger.info("Starting singlet")
         all_output = []
@@ -60,10 +59,10 @@ def _get_kernel_integrands(
             extra_args.append(1.0)
             # iterate (nested) kernels
             results = []
-            for integrand_set in singlet_integrands:
+            for bf_kernels in kernels:
                 all_res = []
-                for integrand in integrand_set:
-                    result = mellin.inverse_mellin_transform(integrand, cut, extra_args)
+                for label in singlet_names:
+                    result = mellin.inverse_mellin_transform(bf_kernels[label], cut, extra_args)
                     all_res.append(result)
                 results.append(all_res)
             # out = [[[0,0]]*4]*grid_size
@@ -72,7 +71,6 @@ def _get_kernel_integrands(
         output_array = np.array(all_output)
 
         # resort result: key -> op
-        singlet_names = ["S_qq", "S_qg", "S_gq", "S_gg"]
         op_dict = {}
         for i, name in enumerate(singlet_names):
             op = output_array[:, :, i, 0]
@@ -97,8 +95,8 @@ def _get_kernel_integrands(
             extra_args.append(0.0)
             # iterate kernels
             results = []
-            for integrand in nonsinglet_integrands:
-                result = mellin.inverse_mellin_transform(integrand, cut, extra_args)
+            for bf_kernels in kernels:
+                result = mellin.inverse_mellin_transform(bf_kernels["NS_p"], cut, extra_args)
                 results.append(result)
             operators.append(np.array(results)[:, 0])
             operator_errors.append(np.array(results)[:, 1])
@@ -478,10 +476,8 @@ class Operator:
                 a_s at evolution source
             xgrid : np.array
                 basis interpolation grid
-            integrands_ns : list(callable)
-                list of non-singlet kernels
-            integrands_s : list(list(callable))
-                list of singlet kernels
+            kernels : list(list(callable))
+                list of kernels
             metadata : dict
                 metadata with keys `nf`, `q2ref` and `q2`
             mellin_cut : float
@@ -489,7 +485,7 @@ class Operator:
     """
 
     def __init__(
-        self, a1, a0, xgrid, integrands_ns, integrands_s, metadata, mellin_cut=1e-2
+        self, a1, a0, xgrid, kernels, metadata, mellin_cut=1e-2
     ):
         # Save the metadata
         self._metadata = metadata
@@ -497,7 +493,7 @@ class Operator:
         # Get ready for the computation
         # TODO make 'cut' external parameter?
         singlet, nons = _get_kernel_integrands(
-            integrands_s, integrands_ns, a1, a0, xgrid, cut=mellin_cut
+            kernels, a1, a0, xgrid, cut=mellin_cut
         )
         self._compute_singlet = singlet
         self._compute_nonsinglet = nons
