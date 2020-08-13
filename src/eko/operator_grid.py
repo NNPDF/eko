@@ -54,11 +54,6 @@ class OperatorMaster:
             If the `generate` flag is set to True, the operator will also be computed
             in place.
 
-            Note: this method is just for convenience and so this method cannot check
-            that no thresholds are crossed in order to go from q2_from to q2_to.
-            This is the responsability of the calling function.
-
-
             Parameters
             ----------
                 q2_from: float
@@ -81,7 +76,7 @@ class OperatorMaster:
         a0 = self._alpha_gen.a_s(q2_from)
         a1 = self._alpha_gen.a_s(q2_to)
         op = Operator(
-            a1, a0, self._xgrid, self._kernels, metadata
+            a1, a0, self._xgrid, self._kernels, metadata, self._kernel_dispatcher.order
         )
         if generate:
             op.compute()

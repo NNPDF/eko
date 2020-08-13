@@ -16,107 +16,6 @@ import eko.mellin as mellin
 logger = logging.getLogger(__name__)
 
 
-def _get_kernel_integrands(
-    kernels, a1, a0, xgrid, cut=1e-2
-):
-    """
-        Return actual integration kernels.
-
-        Parameters
-        ----------
-            kernels : list(callable)
-                kernels for integrations
-            a1 : float
-                a_s at evolution target
-            a0 : float
-                a_s at evolution source
-            xgrid : np.array
-                basis grid
-
-        Returns
-        -------
-            run_singlet : function
-                singlet integration routine
-            run_nonsinglet : function
-                non-singlet integration routine
-    """
-    # Generic parameters
-    grid_size = len(xgrid)
-    grid_logx = np.log(xgrid)
-
-    singlet_names = ["S_qq", "S_qg", "S_gq", "S_gg"]
-    def run_singlet():
-        logger.info("Starting singlet")
-        all_output = []
-        # iterate output grid
-        for k, logx in enumerate(grid_logx):
-            extra_args = nb.typed.List()
-            extra_args.append(logx)
-            extra_args.append(a1)
-            extra_args.append(a0)
-            # Path parameters
-            extra_args.append(0.4 * 16 / (1.0 - logx))
-            extra_args.append(1.0)
-            # iterate (nested) kernels
-            results = []
-            for bf_kernels in kernels:
-                all_res = []
-                for label in singlet_names:
-                    result = mellin.inverse_mellin_transform(bf_kernels[label], cut, extra_args)
-                    all_res.append(result)
-                results.append(all_res)
-            # out = [[[0,0]]*4]*grid_size
-            all_output.append(results)
-            logger.info("computing Singlet operator - %d/%d", k + 1, grid_size)
-        output_array = np.array(all_output)
-
-        # resort result: key -> op
-        op_dict = {}
-        for i, name in enumerate(singlet_names):
-            op = output_array[:, :, i, 0]
-            er = output_array[:, :, i, 1]
-            new_op = OperatorMember(op, er, name)
-            op_dict[name] = new_op
-
-        return op_dict
-
-    def run_nonsinglet():
-        logger.info("Starting non-singlet")
-        operators = []
-        operator_errors = []
-        # iterate output grid
-        for k, logx in enumerate(grid_logx):
-            extra_args = nb.typed.List()
-            extra_args.append(logx)
-            extra_args.append(a1)
-            extra_args.append(a0)
-            # Path parameters
-            extra_args.append(0.5)
-            extra_args.append(0.0)
-            # iterate kernels
-            results = []
-            for bf_kernels in kernels:
-                result = mellin.inverse_mellin_transform(bf_kernels["NS_p"], cut, extra_args)
-                results.append(result)
-            operators.append(np.array(results)[:, 0])
-            operator_errors.append(np.array(results)[:, 1])
-            logger.info("computing NS operator - %d/%d", k + 1, grid_size)
-
-        # resort result: key -> op
-        # in LO v=+=-
-        ns_names = ["NS_p", "NS_m", "NS_v"]
-        op_dict = {}
-        for _, name in enumerate(ns_names):
-            op = np.array(operators)
-            op_err = np.array(operator_errors)
-            new_op = OperatorMember(op, op_err, name)
-            op_dict[name] = new_op
-
-        return op_dict
-
-    return run_singlet, run_nonsinglet
-
-
 class OperatorMember:
     """
         A single operator for a specific element in evolution basis.
@@ -476,28 +375,26 @@ class Operator:
                 a_s at evolution source
             xgrid : np.array
                 basis interpolation grid
-            kernels : list(list(callable))
+            kernels : list(dict)
                 list of kernels
             metadata : dict
                 metadata with keys `nf`, `q2ref` and `q2`
+            order : int
+                order in perturbation theory - ``0`` is leading order
             mellin_cut : float
                 cut to the upper limit in the mellin inversion
     """
 
-    def __init__(
-        self, a1, a0, xgrid, kernels, metadata, mellin_cut=1e-2
-    ):
+    def __init__(self, a1, a0, xgrid, kernels, metadata, order, mellin_cut=1e-2):
         # Save the metadata
-        self._metadata = metadata
+        self._a1 = a1
+        self._a0 = a0
         self._xgrid = xgrid
-        # Get ready for the computation
-        # TODO make 'cut' external parameter?
-        singlet, nons = _get_kernel_integrands(
-            kernels, a1, a0, xgrid, cut=mellin_cut
-        )
-        self._compute_singlet = singlet
-        self._compute_nonsinglet = nons
-        self._computed = False
+        self._kernels = kernels
+        self._order = order
+        self._metadata = metadata
+        # TODO make 'cut' external parameter? - if so, attribute to KernelDispatcher
+        self._mellin_cut = mellin_cut
         self.op_members = {}
 
     @property
@@ -541,7 +438,7 @@ class Operator:
                     final operator
         """
         # compute?
-        if not self._computed:
+        if len(self.op_members.keys()) == 0:
             self.compute()
         # prepare operators
         op_to_compose = [self.op_members] + [i.op_members for i in reversed(op_list)]
@@ -558,8 +455,50 @@ class Operator:
 
     def compute(self):
         """ compute the actual operators (i.e. run the integrations) """
-        op_members_ns = self._compute_nonsinglet()
-        op_members_s = self._compute_singlet()
-        self._computed = True
-        self.op_members.update(op_members_s)
-        self.op_members.update(op_members_ns)
+        # Generic parameters
+        grid_size = len(self.xgrid)
+        grid_logx = np.log(self.xgrid)
+
+        # init all ops with zeros
+        singlet_names = ["S_qq", "S_qg", "S_gq", "S_gg"]
+        ns_names = ["NS_p", "NS_m", "NS_v"]
+        for n in singlet_names + ns_names:
+            self.op_members[n] = OperatorMember(
+                np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size)), n
+            )
+
+        # iterate output grid
+        logger.info("computing operators - 0/%d", grid_size)
+        for k, logx in enumerate(grid_logx):
+            # iterate basis functions
+            for l, bf_kernels in enumerate(self._kernels):
+                # iterate sectors
+                for label, ker in bf_kernels.items():
+                    extra_args = nb.typed.List()
+                    extra_args.append(logx)
+                    extra_args.append(self._a1)
+                    extra_args.append(self._a0)
+                    # Path parameters
+                    if label in singlet_names:
+                        extra_args.append(0.4 * 16 / (1.0 - logx))
+                        extra_args.append(1.0)
+                    else:
+                        extra_args.append(0.5)
+                        extra_args.append(0.0)
+                    # compute and set
+                    val, err = mellin.inverse_mellin_transform(
+                        ker, self._mellin_cut, extra_args
+                    )
+                    self.op_members[label].value[k][l] = val
+                    self.op_members[label].error[k][l] = err
+
+            logger.info("computing operators - %d/%d", k + 1, grid_size)
+
+        # copy non-singlet kernels, if necessary
+        if self._order == 0: # in LO +=-=v
+            for label in ["NS_v", "NS_m"]:
+                self.op_members[label].value = self.op_members["NS_p"].value.copy()
+                self.op_members[label].error = self.op_members["NS_p"].error.copy()
+        elif self._order == 1: # in NLO -=v
+            self.op_members["NS_v"].value = self.op_members["NS_m"].value.copy()
+            self.op_members["NS_v"].error = self.op_members["NS_m"].error.copy()

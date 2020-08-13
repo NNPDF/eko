@@ -98,7 +98,9 @@ def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e
         Returns
         -------
             res : float
-                computed point
+                integral
+            err : float
+                error estimate
     """
     LIMIT = 100
     result = integrate.quad(

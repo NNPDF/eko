@@ -38,8 +38,8 @@ class Runner:
             setup
         )
         # Generate the dispatcher for the kernels
-        kernel_dispatcher = KernelDispatcher.from_dict(setup,
-            self._basis_function_dispatcher, self._constants
+        kernel_dispatcher = KernelDispatcher.from_dict(
+            setup, self._basis_function_dispatcher, self._constants
         )
         # FNS
         self._threshold_holder = ThresholdsConfig.from_dict(setup)
