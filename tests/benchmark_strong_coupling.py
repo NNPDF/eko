@@ -109,7 +109,12 @@ class BenchmarkStrongCoupling:
         threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
         for order in [0, 1, 2]:
             as_FFNS = StrongCoupling(
-                constants, alphas_ref, scale_ref, threshold_holder, order=order, method="expanded"
+                constants,
+                alphas_ref,
+                scale_ref,
+                threshold_holder,
+                order=order,
+                method="expanded",
             )
             my_vals = []
             for Q2 in Q2s:
@@ -174,7 +179,12 @@ class BenchmarkStrongCoupling:
         )
         for order in [0, 1, 2]:
             as_VFNS = StrongCoupling(
-                constants, alphas_ref, scale_ref, threshold_holder, order=order, method="expanded"
+                constants,
+                alphas_ref,
+                scale_ref,
+                threshold_holder,
+                order=order,
+                method="expanded",
             )
             my_vals = []
             for Q2 in Q2s:

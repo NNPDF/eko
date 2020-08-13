@@ -38,9 +38,7 @@ class TestKernelDispatcher:
             assert nf in kd.kernels
             assert len(kd.kernels[nf]) == len(bfs)
             for bf in kd.kernels[nf]:
-                assert len(bf) == 4+1
+                assert len(bf) == 4 + 1
             # check value
             for k in kd.kernels[nf][0].values():
-                np.testing.assert_almost_equal(
-                    k(1, 1, np.exp(-1), 1.0), np.exp(-1)
-                )
+                np.testing.assert_almost_equal(k(1, 1, np.exp(-1), 1.0), np.exp(-1))

@@ -277,7 +277,15 @@ def test_get_kernel_integrands():
     xg = [np.exp(-1), 0.9]
 
     ints_s, ints_ns = _get_kernel_integrands(
-        [dict(NS_p=get_ker(1),S_qq=get_ker(2),S_qg=get_ker(3),S_gq=get_ker(4),S_gg=get_ker(5))],
+        [
+            dict(
+                NS_p=get_ker(1),
+                S_qq=get_ker(2),
+                S_qg=get_ker(3),
+                S_gq=get_ker(4),
+                S_gg=get_ker(5),
+            )
+        ],
         0.5,
         1.0,
         xg,
@@ -313,7 +321,15 @@ class TestOperator:
             0.5,
             1.0,
             xg,
-            [dict(NS_p=get_ker(1),S_qq=get_ker(2),S_qg=get_ker(3),S_gq=get_ker(4),S_gg=get_ker(5))],
+            [
+                dict(
+                    NS_p=get_ker(1),
+                    S_qq=get_ker(2),
+                    S_qg=get_ker(3),
+                    S_gq=get_ker(4),
+                    S_gg=get_ker(5),
+                )
+            ],
             meta,
             0,
         )

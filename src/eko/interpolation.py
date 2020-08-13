@@ -379,7 +379,6 @@ class InterpolatorDispatcher:
                 f"to interpolate with degree {polynomial_degree} "
                 " we need at least that much points + 1"
             )
-        logger.info("Log interpolation: %s", log)
         # keep a true copy of grid
         self.xgrid_raw = xgrid
         # henceforth xgrid might no longer be the input!
@@ -392,6 +391,9 @@ class InterpolatorDispatcher:
         self.xgrid = xgrid
         self.polynomial_degree = polynomial_degree
         self.log = log
+        logger.info("Interpolation: number of points = %d", xgrid_size)
+        logger.info("Interpolation: polynomial degree = %d", polynomial_degree)
+        logger.info("Interpolation: logarithmic = %s", log)
 
         # Create blocks
         list_of_blocks = []
