@@ -222,3 +222,27 @@ mathjax_config = {
         "Em": [r"{\tilde{E}_{ns}^-({#1}\leftarrow {#2})}",2],
     }}
 }
+
+# https://github.com/sphinx-doc/sphinx/issues/3783
+# https://github.com/duetosymmetry/qnm/blob/d286cad616a4abe5ff3b4e05adbfb4b0e305583e/docs/conf.py#L71-L93
+# -- Try to auto-generate numba-decorated signatures -----------------
+
+import numba
+import inspect
+
+def process_numba_docstring(app, what, name, obj, options, signature, return_annotation):
+    if type(obj) is not numba.targets.registry.CPUDispatcher:
+        return (signature, return_annotation)
+    else:
+        original = obj.py_func
+        orig_sig = inspect.signature(original)
+
+        if (orig_sig.return_annotation) is inspect._empty:
+            ret_ann = None
+        else:
+            ret_ann = orig_sig.return_annotation.__name__
+
+        return (str(orig_sig), ret_ann)
+
+def setup(app):
+    app.connect('autodoc-process-signature', process_numba_docstring)
