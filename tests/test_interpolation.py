@@ -249,20 +249,20 @@ class TestArea:
         assert list(a._reference_indices()) == [0]  # pylint: disable=protected-access
         # polynomial_degree = 2
         a = interpolation.Area(0, 0, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [
+        assert list(a._reference_indices()) == [ # pylint: disable=protected-access
             1,
             2,
-        ]  # pylint: disable=protected-access
+        ]
         a = interpolation.Area(0, 1, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [
+        assert list(a._reference_indices()) == [ # pylint: disable=protected-access
             0,
             2,
-        ]  # pylint: disable=protected-access
+        ]
         a = interpolation.Area(0, 2, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [
+        assert list(a._reference_indices()) == [ # pylint: disable=protected-access
             0,
             1,
-        ]  # pylint: disable=protected-access
+        ]
         # errors
         with pytest.raises(ValueError):
             a = interpolation.Area(0, 3, (0, 2), xgrid)

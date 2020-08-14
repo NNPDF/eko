@@ -8,7 +8,6 @@ from eko.evolution_operator import (
     OperatorMember,
     PhysicalOperator,
     Operator,
-    _get_kernel_integrands,
 )
 from eko import thresholds
 
@@ -270,52 +269,55 @@ def get_ker(k):
 
 
 def get_res(k, xg, cut=0):
-    return [[x * ((1 - cut) ** (k + 1) - 0.5 ** (k + 1)) / (k + 1)] for x in np.log(xg)]
-
-
-def test_get_kernel_integrands():
-    xg = [np.exp(-1), 0.9]
-
-    ints_s, ints_ns = _get_kernel_integrands(
-        [
-            dict(
-                NS_p=get_ker(1),
-                S_qq=get_ker(2),
-                S_qg=get_ker(3),
-                S_gq=get_ker(4),
-                S_gg=get_ker(5),
-            )
-        ],
-        0.5,
-        1.0,
-        xg,
-        cut=0,
-    )
-    op_ns = ints_ns()
-    assert "NS_v" in op_ns
-    assert "NS_p" in op_ns
-    assert "NS_m" in op_ns
-    assert op_ns["NS_v"].value.shape == (len(xg), 1)
-    assert_almost_equal(op_ns["NS_v"].value, get_res(1, xg))
-    ops_s = ints_s()
-    assert_almost_equal(ops_s["S_qq"].value, get_res(2, xg))
-    assert_almost_equal(ops_s["S_qg"].value, get_res(3, xg))
-    assert_almost_equal(ops_s["S_gq"].value, get_res(4, xg))
-    assert_almost_equal(ops_s["S_gg"].value, get_res(5, xg))
+    return [
+        [x * ((1 - cut) ** (k + 1) - 0.5 ** (k + 1)) / (k + 1), 0] for x in np.log(xg)
+    ]
 
 
 class TestOperator:
     def test_meta(self):
         xg = [0.5, 1.0]
         meta = dict(nf=3, q2ref=1, q2=2)
-        op = Operator(0.5, 1.0, xg, [], meta)
+        op = Operator(0.5, 1.0, xg, [], meta, 0)
         assert op.nf == meta["nf"]
         assert op.q2ref == meta["q2ref"]
         assert op.q2 == meta["q2"]
         assert_almost_equal(op.xgrid, xg)
 
+    def test_compute(self):
+        xg = [0.5, 1.0]
+        meta = dict(nf=3, q2ref=1, q2=2)
+        op = Operator(
+            0.5,
+            1.0,
+            xg,
+            [
+                dict(
+                    NS_p=get_ker(1),
+                    S_qq=get_ker(2),
+                    S_qg=get_ker(3),
+                    S_gq=get_ker(4),
+                    S_gg=get_ker(5),
+                )
+            ],
+            meta,
+            0,
+            0,
+        )
+        op.compute()
+
+        assert "NS_v" in op.op_members
+        assert "NS_p" in op.op_members
+        assert "NS_m" in op.op_members
+        assert op.op_members["NS_v"].value.shape == (len(xg), len(xg))
+        assert_almost_equal(op.op_members["NS_v"].value, get_res(1, xg))
+        assert_almost_equal(op.op_members["S_qq"].value, get_res(2, xg))
+        assert_almost_equal(op.op_members["S_qg"].value, get_res(3, xg))
+        assert_almost_equal(op.op_members["S_gq"].value, get_res(4, xg))
+        assert_almost_equal(op.op_members["S_gg"].value, get_res(5, xg))
+
     def test_compose(self):
-        xg = [np.exp(-1), 0.9]
+        xg = [0.5, 1.0]
         meta = dict(nf=3, q2ref=1, q2=2)
         op1 = Operator(
             0.5,
@@ -331,6 +333,7 @@ class TestOperator:
                 )
             ],
             meta,
+            0,
             0,
         )
         # FFNS
