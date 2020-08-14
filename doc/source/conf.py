@@ -230,19 +230,17 @@ mathjax_config = {
 import numba as nb
 import inspect
 
-def process_numba_docstring(app, what, name, obj, options, signature, return_annotation):
-    if type(obj) is not nb.core.registry.CPUDispatcher:
-        return (signature, return_annotation)
+
+def process_numba_docstring(app, what, name, obj, options, lines):
+    #import pdb; pdb.set_trace()
+    if not isinstance(obj,nb.core.registry.CPUDispatcher):
+        return
     else:
         original = obj.py_func
         orig_sig = inspect.signature(original)
 
-        if (orig_sig.return_annotation) is inspect._empty:
-            ret_ann = None
-        else:
-            ret_ann = orig_sig.return_annotation.__name__
-
-        return (str(orig_sig), ret_ann)
+        lines = orig_sig.__doc__
 
 def setup(app):
-    app.connect('autodoc-process-signature', process_numba_docstring)
+    app.setup_extension("sphinx.ext.autodoc")
+    app.connect('autodoc-process-docstring', process_numba_docstring)
