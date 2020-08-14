@@ -1,22 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-    Implements higher mathematical functions.
+  Implements higher mathematical functions.
 
-    The functions are discribed in :doc:`Mellin space </Theory/Mellin>`.
+  The functions are discribed in :doc:`Mellin space </Theory/Mellin>`.
 """
 
 import numpy as np
 import scipy.special
 import numba as nb
 
+# compute constants only once
 zeta2 = scipy.special.zeta(2)
 zeta3 = scipy.special.zeta(3)
 
 
 @nb.njit
-def cern_polygamma(
-    Z, K: int
-):  # pylint: disable=too-many-locals,too-many-branches,too-many-statements
+def cern_polygamma(Z, K: int):  # pylint: disable=all
     """
         Computes the polygamma functions :math:`\\psi_k(z)`.
 
@@ -155,7 +154,7 @@ def harmonic_S1(N):
 
         See Also
         --------
-          cern_polygamma :
+          cern_polygamma : :math:`\psi_0(N)`
     """
     return cern_polygamma(N + 1.0, 0) + np.euler_gamma
 
@@ -183,7 +182,7 @@ def harmonic_S2(N):
 
         See Also
         --------
-          cern_polygamma :
+          cern_polygamma : :math:`\psi_0(N)`
     """
     return -cern_polygamma(N + 1.0, 1) + zeta2
 
@@ -211,7 +210,7 @@ def harmonic_S3(N):
 
         See Also
         --------
-          cern_polygamma :
+          cern_polygamma : :math:`\psi_0(N)`
     """
     return 0.5 * cern_polygamma(N + 1.0, 2) + zeta3
 
@@ -238,7 +237,7 @@ def mellin_g3(N):
         Note
         ----
           We use the name from :cite:`MuselliPhD`, but not his implementation - rather we use the
-          Pegasus :cite:`Vogt:2004ns` implementation
+          Pegasus :cite:`Vogt:2004ns` implementation.
     """
     cs = [1.0000e0, -0.9992e0, 0.9851e0, -0.9005e0, 0.6621e0, -0.3174e0, 0.0699e0]
     g3 = 0

@@ -16,6 +16,9 @@
 #
 #
 
+import inspect
+import numba as nb
+
 # -- Project information -----------------------------------------------------
 
 project = 'EKO'
@@ -200,8 +203,9 @@ epub_exclude_files = ['search.html']
 # Example configuration for intersphinx: refer to the Python standard library.
 # Thanks https://github.com/bskinn/sphobjinv
 intersphinx_mapping = {
-    "python": ('https://docs.python.org/3/', "python.inv"),
-    "scipy": ('https://docs.scipy.org/doc/scipy/reference', "scipy.inv"),
+    "python": ('https://docs.python.org/3/', None),
+    "scipy": ('https://docs.scipy.org/doc/scipy/reference', None),
+    "numpy": ("https://numpy.org/doc/stable", None)
 }
 
 # -- Options for todo extension ----------------------------------------------
@@ -223,24 +227,22 @@ mathjax_config = {
     }}
 }
 
-# https://github.com/sphinx-doc/sphinx/issues/3783
+# I don't know where and when, but at some point sphinx stopped to detect the documentation
+# hidden below numba. This issue is discussed here https://github.com/sphinx-doc/sphinx/issues/3783
+# pointing to this conf.py:
 # https://github.com/duetosymmetry/qnm/blob/d286cad616a4abe5ff3b4e05adbfb4b0e305583e/docs/conf.py#L71-L93
-# -- Try to auto-generate numba-decorated signatures -----------------
-
-import numba as nb
-import inspect
-
-
-def process_numba_docstring(app, what, name, obj, options, lines):
-    #import pdb; pdb.set_trace()
+# However, it doesn't do the trick truly, but the idea is take from there ...
+# see also https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#docstring-preprocessing
+def process_numba_docstring(app, what, name, obj, options, lines): # pylint: disable=unused-argument
+    """Recover the docstring under numba, as the numba.njit decorator doesn't repeat the __doc__"""
     if not isinstance(obj,nb.core.registry.CPUDispatcher):
         return
     else:
         original = obj.py_func
         orig_sig = inspect.signature(original)
-
         lines = orig_sig.__doc__
 
 def setup(app):
+    """Configure Sphinx"""
     app.setup_extension("sphinx.ext.autodoc")
     app.connect('autodoc-process-docstring', process_numba_docstring)

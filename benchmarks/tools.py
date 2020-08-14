@@ -112,8 +112,13 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
     fig.suptitle(var_name)
 
     # empty?
-    if np.max(op) == 0.0:
+    if np.max(op) <= 0.0:
         return fig
+        
+    # TODO fix File "/usr/lib/python3/dist-packages/matplotlib/colors.py", line 1181, in _check_vmin_vmax
+    # raise ValueError("minvalue must be positive")
+    # ValueError: minvalue must be positive
+    import pdb; pdb.set_trace()
 
     ax = plt.subplot(1, 3, 1)
     if abs_operator:
@@ -186,28 +191,9 @@ def save_all_operators_to_pdf(ret, path):
                 target file name
     """
     pp = PdfPages(path)
-    # NS
-    #fig = plot_operator(ret, "V.V", log_operator=False)
-    #pp.savefig()
-    #plt.close(fig)
-    #fig = plot_operator(ret, "V.V", abs_operator=True)
-    #pp.savefig()
-    #plt.close(fig)
-    fig = plot_operator(ret, "V.V")
-    pp.savefig()
-    plt.close(fig)
-    # Singlet
-    fig = plot_operator(ret, "S.S")
-    pp.savefig()
-    plt.close(fig)
-    fig = plot_operator(ret, "S.g")
-    pp.savefig()
-    plt.close(fig)
-    fig = plot_operator(ret, "g.S")
-    pp.savefig()
-    plt.close(fig)
-    fig = plot_operator(ret, "g.g")
-    pp.savefig()
-    plt.close(fig)
+    for label in ret["operators"]:
+        fig = plot_operator(ret, label)
+        pp.savefig()
+        plt.close(fig)
     # close
     pp.close()

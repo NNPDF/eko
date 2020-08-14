@@ -237,3 +237,46 @@ def gamma_gg_1(n, nf: int, CA: float, CF: float):
     # fmt: on
     result = CA * CA * ggg1_caca + nf * (CA * ggg1_canf + CF * ggg1_cfnf)
     return result
+
+
+@nb.njit
+def gamma_singlet_1(N, nf: int, CA: float, CF: float):
+    r"""
+      Computes the next-leading-order singlet anomalous dimension matrix
+
+      .. math::
+          \gamma_S^{(1)} = \left(\begin{array}{cc}
+            \gamma_{qq}^{(1)} & \gamma_{qg}^{(1)}\\
+            \gamma_{gq}^{(1)} & \gamma_{gg}^{(1)}
+          \end{array}\right)
+
+      Parameters
+      ----------
+        N : complex
+          Mellin moment
+        nf : int
+          Number of active flavours
+        CA : float
+          Casimir constant of adjoint representation
+        CF : float
+          Casimir constant of fundamental representation
+
+      Returns
+      -------
+        gamma_S_1 : numpy.ndarray
+          Next-to-leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(1)}(N)`
+
+      See Also
+      --------
+        gamma_nsp_1 : :math:`\gamma_{qq}^{(1)}`
+        gamma_ps_1 : :math:`\gamma_{qq}^{(1)}`
+        gamma_qg_1 : :math:`\gamma_{qg}^{(1)}`
+        gamma_gq_1 : :math:`\gamma_{gq}^{(1)}`
+        gamma_gg_1 : :math:`\gamma_{gg}^{(1)}`
+    """
+    gamma_qq = gamma_nsp_1(N, nf, CA, CF) + gamma_ps_1(N, nf, CA, CF)
+    gamma_qg = gamma_qg_1(N, nf, CA, CF)
+    gamma_gq = gamma_gq_1(N, nf, CA, CF)
+    gamma_gg = gamma_gg_1(N, nf, CA, CF)
+    gamma_S_0 = np.array([[gamma_qq, gamma_qg], [gamma_gq, gamma_gg]])
+    return gamma_S_0

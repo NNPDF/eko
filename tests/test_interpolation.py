@@ -249,17 +249,17 @@ class TestArea:
         assert list(a._reference_indices()) == [0]  # pylint: disable=protected-access
         # polynomial_degree = 2
         a = interpolation.Area(0, 0, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [ # pylint: disable=protected-access
+        assert list(a._reference_indices()) == [  # pylint: disable=protected-access
             1,
             2,
         ]
         a = interpolation.Area(0, 1, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [ # pylint: disable=protected-access
+        assert list(a._reference_indices()) == [  # pylint: disable=protected-access
             0,
             2,
         ]
         a = interpolation.Area(0, 2, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [ # pylint: disable=protected-access
+        assert list(a._reference_indices()) == [  # pylint: disable=protected-access
             0,
             1,
         ]

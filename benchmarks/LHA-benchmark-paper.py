@@ -198,6 +198,11 @@ class LHABenchmarkPaper:
                     file tag
         """
         order = "N" * self._order + "LO"
+        # dump operators to file
+        if self.post_process_config["write_operator"]:
+            p = assets_path / f"LHA-{order}-{tag}-ops-{flag}.yaml"
+            output.dump_yaml_to_file(p)
+            print(f"write operator to {p}")
         # pdf comparison
         if self.post_process_config["plot_PDF"]:
             p = assets_path / f"LHA-{order}-{tag}-plots-{flag}.pdf"
@@ -209,11 +214,6 @@ class LHABenchmarkPaper:
             p = assets_path / f"LHA-{order}-{tag}-ops-{flag}.pdf"
             save_all_operators_to_pdf(first_ops, p)
             print(f"write operator plots to {p}")
-        # dump operators to file
-        if self.post_process_config["write_operator"]:
-            p = assets_path / f"LHA-{order}-{tag}-ops-{flag}.yaml"
-            output.dump_yaml_to_file(p)
-            print(f"write operator to {p}")
 
     def ref(self, fns):
         """
@@ -409,8 +409,8 @@ def save_initial_scale_plots_to_pdf(path):
 if __name__ == "__main__" and True:
     # setup
     order = 1
-    n_low = 30
-    n_mid = 20
+    n_low = 3
+    n_mid = 3
     polynom_rank = 4
 
     # combine grid

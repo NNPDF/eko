@@ -495,10 +495,10 @@ class Operator:
             logger.info("computing operators - %d/%d", k + 1, grid_size)
 
         # copy non-singlet kernels, if necessary
-        if self._order == 0: # in LO +=-=v
+        if self._order == 0:  # in LO +=-=v
             for label in ["NS_v", "NS_m"]:
                 self.op_members[label].value = self.op_members["NS_p"].value.copy()
                 self.op_members[label].error = self.op_members["NS_p"].error.copy()
-        elif self._order == 1: # in NLO -=v
+        elif self._order == 1:  # in NLO -=v
             self.op_members["NS_v"].value = self.op_members["NS_m"].value.copy()
             self.op_members["NS_v"].error = self.op_members["NS_m"].error.copy()

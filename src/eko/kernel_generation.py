@@ -119,13 +119,29 @@ class KernelDispatcher:
 
             def ker_s(N, lnx, a1, a0):
                 """a singlet integration kernel"""
-                l_p, l_m, e_p, e_m = ad_lo.get_Eigensystem_gamma_singlet_0(
-                    N, nf, CA, CF
-                )
-                ln_p = np.log(a1 / a0) * l_p / beta_0
-                ln_m = np.log(a1 / a0) * l_m / beta_0
+                # get and decompose
+                gamma_S_0 = ad_lo.gamma_singlet_0(N, nf, CA, CF)
+                l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(gamma_S_0)
+                # collect all variables
+                ln_a = np.log(a1 / a0)
+                r_p = -l_p / beta_0
+                r_m = -l_m / beta_0
+                exp_p = np.exp(-ln_a * r_p)
+                exp_m = np.exp(-ln_a * r_m)
+                # this is LO
+                e = e_p * exp_p + e_m * exp_m
+                # NLO
+                if order > 0:
+                    gamma_S_1 = ad_nlo.gamma_singlet_1(N, nf, CA, CF)
+                    r1 = -(gamma_S_1 / beta_0 - b1 * gamma_S_0)
+                    e += (a0 - a1) * exp_m * (e_m @ r1 @ e_m)
+                    e += (a0 - a1) * exp_p * (e_p @ r1 @ e_p)
+                    # fmt: off
+                    e -= exp_m * (a0 - a1 * np.exp(ln_a * (r_m - r_p)))/(r_p - r_m - 1) * (e_m @ r1 @ e_p)
+                    e -= exp_p * (a0 - a1 * np.exp(ln_a * (r_p - r_m)))/(r_m - r_p - 1) * (e_p @ r1 @ e_m)
+                    # fmt: on
                 pdf = basis_function(N, lnx)
-                return (e_p[k][l] * np.exp(ln_p) + e_m[k][l] * np.exp(ln_m)) * pdf
+                return e[k][l] * pdf
 
             return ker_s
 
@@ -140,7 +156,7 @@ class KernelDispatcher:
                 """true non-siglet integration kernel"""
                 # LO
                 gamma_bar_0 = ad_lo.gamma_ns_0(n, nf, CA, CF) / beta_0
-                ln_LO = np.log(a1 / a0) * gamma_bar_0
+                ln = np.log(a1 / a0) * gamma_bar_0
                 # NLO
                 if order > 0:
                     if mode == "p":
@@ -148,9 +164,9 @@ class KernelDispatcher:
                     elif mode == "m":
                         gamma_ns_1 = ad_nlo.gamma_nsm_1(n, nf, CA, CF)
                     gamma_bar_1 = gamma_ns_1 / beta_1 - gamma_bar_0
-                    ln_LO += np.log((1 + a1 * b1) / (1 + a0 * b1)) * gamma_bar_1
+                    ln += np.log((1 + a1 * b1) / (1 + a0 * b1)) * gamma_bar_1
                 pdf = basis_function(n, lnx)
-                return np.exp(ln_LO) * pdf
+                return np.exp(ln) * pdf
 
             return ker_ns
 

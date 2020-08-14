@@ -124,7 +124,7 @@ def gamma_gg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
 
 
 @nb.njit
-def get_gamma_singlet_0(N, nf: int, CA: float, CF: float):
+def gamma_singlet_0(N, nf: int, CA: float, CF: float):
     r"""
       Computes the leading-order singlet anomalous dimension matrix
 
@@ -147,15 +147,15 @@ def get_gamma_singlet_0(N, nf: int, CA: float, CF: float):
 
       Returns
       -------
-        gamma_S_0 : np.ndarray
+        gamma_S_0 : numpy.ndarray
           Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
 
       See Also
       --------
-        - gamma_ns_0
-        - gamma_qg_0
-        - gamma_gq_0
-        - gamma_gg_0
+        gamma_ns_0 : :math:`\gamma_{qq}^{(0)}`
+        gamma_qg_0 : :math:`\gamma_{qg}^{(0)}`
+        gamma_gq_0 : :math:`\gamma_{gq}^{(0)}`
+        gamma_gg_0 : :math:`\gamma_{gg}^{(0)}`
     """
     gamma_qq = gamma_ns_0(N, nf, CA, CF)
     gamma_qg = gamma_qg_0(N, nf, CA, CF)
@@ -166,20 +166,14 @@ def get_gamma_singlet_0(N, nf: int, CA: float, CF: float):
 
 
 @nb.njit
-def get_Eigensystem_gamma_singlet_0(N, nf: int, CA: float, CF: float):
+def eigensystem_gamma_singlet_0(gamma_S_0):
     r"""
       Computes the Eigensystem of the leading-order singlet anomalous dimension matrix
 
       Parameters
       ----------
-        N : complex
-          Mellin moment
-        nf : int
-          Number of active flavours
-        CA : float
-          Casimir constant of adjoint representation
-        CF : float
-          Casimir constant of fundamental representation
+        gamma_S_0 : numpy.ndarray
+          leading-order singlet anomalous dimension matrix
 
       Returns
       -------
@@ -195,13 +189,21 @@ def get_Eigensystem_gamma_singlet_0(N, nf: int, CA: float, CF: float):
         e_m : np.array
           projector for the negative eigenvalue of the Leading-order singlet anomalous
           dimension matrix :math:`\gamma_{S}^{(0)}(N)`
+
+      See Also
+      --------
+        gamma_singlet_0 : :math:`\gamma_{S}^{(0)}(N)`
     """
-    gamma_S_0 = get_gamma_singlet_0(N, nf, CA, CF)
     # compute eigenvalues
-    lambda_m, lambda_p = np.linalg.eigvals(gamma_S_0)
+    det = np.sqrt(
+        np.power(gamma_S_0[0, 0] - gamma_S_0[1, 1], 2)
+        + 4.0 * gamma_S_0[0, 1] * gamma_S_0[1, 0]
+    )
+    lambda_p = 1.0 / 2.0 * (gamma_S_0[0, 0] + gamma_S_0[1, 1] + det)
+    lambda_m = 1.0 / 2.0 * (gamma_S_0[0, 0] + gamma_S_0[1, 1] - det)
     # compute projectors
     identity = np.identity(2)
-    c = 1.0 / (lambda_p - lambda_m)
+    c = 1.0 / det
     e_p = +c * (gamma_S_0 - lambda_m * identity)
     e_m = -c * (gamma_S_0 - lambda_p * identity)
     return lambda_p, lambda_m, e_p, e_m

@@ -69,8 +69,9 @@ def test_gamma_gg_0():
     check_values(ad_lo.gamma_gg_0, input_N, known_vals)
 
 
-def test_get_Eigensystem_gamma_singlet_0_values():
-    res = ad_lo.get_Eigensystem_gamma_singlet_0(3, NF, CA, CF)
+def test_eigensystem_gamma_singlet_0_values():
+    gamma_S_0 = ad_lo.gamma_singlet_0(3, NF, CA, CF)
+    res = ad_lo.eigensystem_gamma_singlet_0(gamma_S_0)
     lambda_p = np.complex(12.273612971466964, 0)
     lambda_m = np.complex(5.015275917421917, 0)
     e_p = np.array(
@@ -88,14 +89,15 @@ def test_get_Eigensystem_gamma_singlet_0_values():
     assert_allclose(e_m, res[3])
 
 
-def test_get_Eigensystem_gamma_singlet_0_projectors_EV():
+def test_eigensystem_gamma_singlet_0_projectors_EV():
     for N in [3, 4]:  # N=2 seems close to 0, so test fails
-        l_p, l_m, e_p, e_m = ad_lo.get_Eigensystem_gamma_singlet_0(N, NF, CA, CF)
+        gamma_S_0 = ad_lo.gamma_singlet_0(N, NF, CA, CF)
+        l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(gamma_S_0)
         # projectors behave as P_a . P_b = delta_ab P_a
         assert_allclose(np.dot(e_p, e_p), e_p)
         assert_almost_equal(np.dot(e_p, e_m), np.zeros((2, 2)))
         assert_allclose(np.dot(e_m, e_m), e_m)
         # check EVs
-        gamma_S = ad_lo.get_gamma_singlet_0(N, NF, CA, CF)
+        gamma_S = ad_lo.gamma_singlet_0(N, NF, CA, CF)
         assert_allclose(np.dot(e_p, gamma_S), l_p * e_p)
         assert_allclose(np.dot(e_m, gamma_S), l_m * e_m)
