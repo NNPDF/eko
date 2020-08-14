@@ -227,11 +227,11 @@ mathjax_config = {
 # https://github.com/duetosymmetry/qnm/blob/d286cad616a4abe5ff3b4e05adbfb4b0e305583e/docs/conf.py#L71-L93
 # -- Try to auto-generate numba-decorated signatures -----------------
 
-import numba
+import numba as nb
 import inspect
 
 def process_numba_docstring(app, what, name, obj, options, signature, return_annotation):
-    if type(obj) is not numba.targets.registry.CPUDispatcher:
+    if type(obj) is not nb.core.registry.CPUDispatcher:
         return (signature, return_annotation)
     else:
         original = obj.py_func
