@@ -71,6 +71,11 @@ class KernelDispatcher:
                     An instance of the Constants class
                 numba_it : bool  (default: True)
                     If true, the functions will be `numba` compiled
+
+            Returns
+            -------
+                obj : cls
+                    created object
         """
         order = int(setup["PTO"])
         mod_ev = setup.get("ModEv", "EXA")
@@ -129,16 +134,23 @@ class KernelDispatcher:
                 exp_p = np.exp(-ln_a * r_p)
                 exp_m = np.exp(-ln_a * r_m)
                 # this is LO
-                e = e_p * exp_p + e_m * exp_m
+                e = e_m * exp_m + e_p * exp_p
                 # NLO
                 if order > 0:
                     gamma_S_1 = ad_nlo.gamma_singlet_1(N, nf, CA, CF)
                     r1 = -(gamma_S_1 / beta_0 - b1 * gamma_S_0)
-                    e += (a0 - a1) * exp_m * (e_m @ r1 @ e_m)
-                    e += (a0 - a1) * exp_p * (e_p @ r1 @ e_p)
+                    u1 = (
+                        -(e_m @ r1 @ e_m)
+                        - (e_p @ r1 @ e_p)
+                        + ((e_p @ r1 @ e_m) / (r_m - r_p - 1))
+                        + ((e_m @ r1 @ e_p) / (r_p - r_m - 1))
+                    )
+                    e += a1 * (u1 @ e) - a0 * (e @ u1)
+                    # e += exp_m * (a0 - a1) * (e_m @ r1 @ e_m)
+                    # e += exp_p * (a0 - a1) * (e_p @ r1 @ e_p)
                     # fmt: off
-                    e -= exp_m * (a0 - a1 * np.exp(ln_a * (r_m - r_p)))/(r_p - r_m - 1) * (e_m @ r1 @ e_p)
-                    e -= exp_p * (a0 - a1 * np.exp(ln_a * (r_p - r_m)))/(r_m - r_p - 1) * (e_p @ r1 @ e_m)
+                    # e -= exp_m * (a0 - a1 * np.exp(ln_a * (r_m - r_p))) * (e_m @ r1 @ e_p)/(r_p - r_m - 1)
+                    # e -= exp_p * (a0 - a1 * np.exp(ln_a * (r_p - r_m))) * (e_p @ r1 @ e_m)/(r_m - r_p - 1)
                     # fmt: on
                 pdf = basis_function(N, lnx)
                 return e[k][l] * pdf
@@ -170,8 +182,9 @@ class KernelDispatcher:
 
             return ker_ns
 
+        # in LO: +=-=v
         kers["NS_p"] = get_ker_ns("p")
-        if order > 0:
+        if order > 0:  # in NLO: -=v
             kers["NS_m"] = get_ker_ns("m")
         return kers
 

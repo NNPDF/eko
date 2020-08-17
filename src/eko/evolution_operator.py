@@ -225,24 +225,6 @@ class PhysicalOperator:
         self.op_members = op_members
         self.q2_final = q2_final
 
-    def __call__(self, pdf_lists):
-        """
-            Apply PDFs to the EKOs.
-
-            Parameters
-            ----------
-                pdf_lists : dict
-                    PDFs in evolution basis as list on the corresponding xgrid
-
-            Returns
-            -------
-                out : dict
-                    evolved PDFs
-                out_errors : dict
-                    associated errors of the evolved PDFs
-        """
-        return self.apply_pdf(pdf_lists)
-
     def __mul__(self, other):
         """
             Multiply ``other`` to self.
@@ -369,53 +351,31 @@ class Operator:
 
         Parameters
         ----------
-            a1 : float
-                a_s at evolution target
-            a0 : float
-                a_s at evolution source
-            xgrid : np.array
-                basis interpolation grid
-            kernels : list(dict)
-                list of kernels
-            metadata : dict
-                metadata with keys `nf`, `q2ref` and `q2`
-            order : int
-                order in perturbation theory - ``0`` is leading order
+            master : eko.operator_grid.OperatorMaster
+                the master instance
+            q2_from : float
+                evolution source
+            q2_to : float
+                evolution target
             mellin_cut : float
                 cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, a1, a0, xgrid, kernels, metadata, order, mellin_cut=1e-2):
+    def __init__(self, master, q2_from, q2_to, mellin_cut=1e-2):
         # Save the metadata
-        self._a1 = a1
-        self._a0 = a0
-        self._xgrid = xgrid
-        self._kernels = kernels
-        self._order = order
-        self._metadata = metadata
-        # TODO make 'cut' external parameter? - if so, attribute to KernelDispatcher
+        self.master = master
+        self.q2_from = q2_from
+        self.q2_to = q2_to
+        # TODO make 'cut' external parameter?
         self._mellin_cut = mellin_cut
         self.op_members = {}
 
     @property
-    def nf(self):
-        """ number of active flavours """
-        return self._metadata["nf"]
-
-    @property
-    def q2ref(self):
-        """ scale reference point """
-        return self._metadata["q2ref"]
-
-    @property
-    def q2(self):
-        """ actual scale """
-        return self._metadata["q2"]
-
-    @property
     def xgrid(self):
         """ underlying basis grid """
-        return self._xgrid
+        return self.master.grid.managers[
+            "kernel_dispatcher"
+        ].interpol_dispatcher.xgrid_raw
 
     def compose(self, op_list, instruction_set, q2_final):
         """
@@ -457,7 +417,6 @@ class Operator:
         """ compute the actual operators (i.e. run the integrations) """
         # Generic parameters
         grid_size = len(self.xgrid)
-        grid_logx = np.log(self.xgrid)
 
         # init all ops with zeros
         singlet_names = ["S_qq", "S_qg", "S_gq", "S_gg"]
@@ -469,15 +428,18 @@ class Operator:
 
         # iterate output grid
         logger.info("computing operators - 0/%d", grid_size)
-        for k, logx in enumerate(grid_logx):
+        sc = self.master.grid.managers["strong_coupling"]
+        a1 = sc.a_s(self.q2_to)
+        a0 = sc.a_s(self.q2_from)
+        for k, logx in enumerate(np.log(self.xgrid)):
             # iterate basis functions
-            for l, bf_kernels in enumerate(self._kernels):
+            for l, bf_kernels in enumerate(self.master.kernels):
                 # iterate sectors
                 for label, ker in bf_kernels.items():
                     extra_args = nb.typed.List()
                     extra_args.append(logx)
-                    extra_args.append(self._a1)
-                    extra_args.append(self._a0)
+                    extra_args.append(a1)
+                    extra_args.append(a0)
                     # Path parameters
                     if label in singlet_names:
                         extra_args.append(0.4 * 16 / (1.0 - logx))
@@ -495,10 +457,11 @@ class Operator:
             logger.info("computing operators - %d/%d", k + 1, grid_size)
 
         # copy non-singlet kernels, if necessary
-        if self._order == 0:  # in LO +=-=v
+        order = self.master.grid.managers["kernel_dispatcher"].order
+        if order == 0:  # in LO +=-=v
             for label in ["NS_v", "NS_m"]:
                 self.op_members[label].value = self.op_members["NS_p"].value.copy()
                 self.op_members[label].error = self.op_members["NS_p"].error.copy()
-        elif self._order == 1:  # in NLO -=v
+        elif order == 1:  # in NLO -=v
             self.op_members["NS_v"].value = self.op_members["NS_m"].value.copy()
             self.op_members["NS_v"].error = self.op_members["NS_m"].error.copy()

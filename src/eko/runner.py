@@ -32,34 +32,25 @@ class Runner:
         logger.info("init Runner with %s", setup)
 
         # Load constants and compute parameters
-        self._constants = Constants()
+        constants = Constants()
         # setup basis grid
         self._basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
             setup
         )
         # Generate the dispatcher for the kernels
-        kernel_dispatcher = KernelDispatcher.from_dict(
-            setup, self._basis_function_dispatcher, self._constants
+        kd = KernelDispatcher.from_dict(
+            setup, self._basis_function_dispatcher, constants
         )
         # FNS
         self._threshold_holder = ThresholdsConfig.from_dict(setup)
         # strong coupling
-        self._a_s = StrongCoupling.from_dict(
-            setup, self._threshold_holder, self._constants
-        )
-
+        sc = StrongCoupling.from_dict(setup, self._threshold_holder, constants)
         # setup operator grid
-        self._op_grid = OperatorGrid(
-            self._threshold_holder,
-            self._a_s,
-            kernel_dispatcher,
-            self._basis_function_dispatcher.xgrid_raw,
-        )
-        self._q2grid = setup["Q2grid"]
+        self._op_grid = OperatorGrid.from_dict(setup, self._threshold_holder, sc, kd,)
 
     def get_operators(self):
         """ compute the actual operators """
-        operators = self._op_grid.compute_q2grid(self._q2grid)
+        operators = self._op_grid.compute_q2grid()
         return operators
 
     def get_output(self):

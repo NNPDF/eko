@@ -105,7 +105,7 @@ class ThresholdsConfig:
             threshold_list: list
                 List of q^2 thresholds should the scheme accept it
             nf: int
-                Number of flavour for the FFNS
+                Number of flavors for the FFNS
     """
 
     def __init__(self, q2_ref, scheme, *, threshold_list=None, nf=None):
@@ -130,6 +130,7 @@ class ThresholdsConfig:
             self.max_nf = nf
             self.min_nf = nf
             protection = True
+            logger.info("Thresholds: Fixed flavor number scheme with %d flavors", nf)
         elif scheme in ["ZM-VFNS", "FONLL-A", "FONLL-A'"]:
             if nf is not None:
                 logger.warning(
@@ -141,6 +142,7 @@ class ThresholdsConfig:
                     "The ZM-VFN scheme was selected but no thresholds were given"
                 )
             self._setup_vfns(threshold_list)
+            logger.info("Thresholds: Variable flavor number scheme (%s)", scheme)
         else:
             raise NotImplementedError(f"The scheme {scheme} is not implemented")
 

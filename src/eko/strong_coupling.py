@@ -6,12 +6,16 @@ r"""
     See :doc:`pQCD ingredients </Theory/pQCD>`.
 """
 
+import logging
+
 import numpy as np
 import scipy
 import numba as nb
 
 from eko import constants
 from eko import thresholds
+
+logger = logging.getLogger(__name__)
 
 
 @nb.njit
@@ -188,6 +192,9 @@ class StrongCoupling:
             self._threshold_holder = thresholds.ThresholdsConfig(
                 scale_ref, thresh.scheme, threshold_list=thresh._area_walls
             )
+        logger.info(
+            "Strong Coupling: Reference a_s(Q^2=%f)=%f", self.q2_ref, self.as_ref
+        )
 
     @property
     def q2_ref(self):

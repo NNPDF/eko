@@ -408,7 +408,7 @@ def save_initial_scale_plots_to_pdf(path):
 
 if __name__ == "__main__" and True:
     # setup
-    order = 1
+    order = 0
     n_low = 3
     n_mid = 3
     polynom_rank = 4
@@ -426,7 +426,7 @@ if __name__ == "__main__" and True:
     logStdout.setFormatter(logging.Formatter("%(message)s"))
     logging.getLogger("eko").handlers = []
     logging.getLogger("eko").addHandler(logStdout)
-    logging.getLogger("eko").setLevel(logging.DEBUG)
+    logging.getLogger("eko").setLevel(logging.INFO)
 
     # run
     app = LHABenchmarkPaper(order, xgrid, polynom_rank, flag)
