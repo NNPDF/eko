@@ -281,7 +281,7 @@ class MockObj:
 
 @pytest.fixture
 def mock_OpMaster():
-    def _create(kers, order):
+    def _create(kers, order,skip=False):
         master = MockObj()
         grid = MockObj()
         sc = MockObj()
@@ -292,6 +292,7 @@ def mock_OpMaster():
         grid.managers = dict(
             strong_coupling=sc, kernel_dispatcher=kd
         )  # pylint: disable=attribute-defined-outside-init
+        grid.config = dict(debug_skip_singlet=skip,debug_skip_non_singlet=skip)
         sc.a_s = lambda q2: q2  # pylint: disable=attribute-defined-outside-init
         kd.interpol_dispatcher = bfd  # pylint: disable=attribute-defined-outside-init
         kd.order = order  # pylint: disable=attribute-defined-outside-init
@@ -325,6 +326,32 @@ class TestOperator:
         assert_almost_equal(op.op_members["S_qg"].value, get_res(3))
         assert_almost_equal(op.op_members["S_gq"].value, get_res(4))
         assert_almost_equal(op.op_members["S_gg"].value, get_res(5))
+
+    def test_skip(self, mock_OpMaster):
+        master = mock_OpMaster(
+            [
+                dict(
+                    NS_p=get_ker(1),
+                    S_qq=get_ker(2),
+                    S_qg=get_ker(3),
+                    S_gq=get_ker(4),
+                    S_gg=get_ker(5),
+                )
+            ],
+            0,
+            True,
+        )
+        op = Operator(master, 0.5, 1.0, 0)
+        op.compute()
+
+        zero = np.zeros((2,2))
+        assert_almost_equal(op.op_members["NS_p"].value, zero)
+        assert_almost_equal(op.op_members["NS_m"].value, zero)
+        assert_almost_equal(op.op_members["NS_v"].value, zero)
+        assert_almost_equal(op.op_members["S_qq"].value, zero)
+        assert_almost_equal(op.op_members["S_qg"].value, zero)
+        assert_almost_equal(op.op_members["S_gq"].value, zero)
+        assert_almost_equal(op.op_members["S_gg"].value, zero)
 
     def test_compute_NLO(self, mock_OpMaster):
         master = mock_OpMaster(

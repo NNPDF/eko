@@ -23,9 +23,11 @@ class TestOperatorGrid:
             "PTO": 0,
             "Qref": np.sqrt(2),
             "Q0": np.sqrt(2),
+            "Q2grid": [1, 10],
             "interpolation_xgrid": [0.1, 1.0],
             "interpolation_polynomial_degree": 1,
             "interpolation_is_log": True,
+            "debug_skip_singlet": True
         }
         if use_FFNS:
             setup["FNS"] = "FFNS"
@@ -55,11 +57,11 @@ class TestOperatorGrid:
         )
         threshold_holder = ThresholdsConfig.from_dict(setup)
         constants = Constants()
-        kernel_dispatcher = KernelDispatcher(
-            basis_function_dispatcher, constants, 0, "exact"
+        kernel_dispatcher = KernelDispatcher.from_dict(setup,
+            basis_function_dispatcher, constants
         )
         a_s = StrongCoupling.from_dict(setup, threshold_holder, constants)
-        return OperatorGrid([1, 10], threshold_holder, a_s, kernel_dispatcher)
+        return OperatorGrid.from_dict(setup, threshold_holder, a_s, kernel_dispatcher)
 
     def test_sanity(self):
         """ Sanity checks for the input"""
