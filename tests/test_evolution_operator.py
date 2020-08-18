@@ -287,13 +287,15 @@ def mock_OpMaster():
         sc = MockObj()
         kd = MockObj()
         bfd = MockObj()
-        master.grid = grid # pylint: disable=attribute-defined-outside-init
-        master.kernels = kers # pylint: disable=attribute-defined-outside-init
-        grid.managers = dict(strong_coupling=sc, kernel_dispatcher=kd) # pylint: disable=attribute-defined-outside-init
-        sc.a_s = lambda q2: q2 # pylint: disable=attribute-defined-outside-init
-        kd.interpol_dispatcher = bfd # pylint: disable=attribute-defined-outside-init
-        kd.order = order # pylint: disable=attribute-defined-outside-init
-        bfd.xgrid_raw = [0.5, 1.0] # pylint: disable=attribute-defined-outside-init
+        master.grid = grid  # pylint: disable=attribute-defined-outside-init
+        master.kernels = kers  # pylint: disable=attribute-defined-outside-init
+        grid.managers = dict(
+            strong_coupling=sc, kernel_dispatcher=kd
+        )  # pylint: disable=attribute-defined-outside-init
+        sc.a_s = lambda q2: q2  # pylint: disable=attribute-defined-outside-init
+        kd.interpol_dispatcher = bfd  # pylint: disable=attribute-defined-outside-init
+        kd.order = order  # pylint: disable=attribute-defined-outside-init
+        bfd.xgrid_raw = [0.5, 1.0]  # pylint: disable=attribute-defined-outside-init
         return master
 
     return _create

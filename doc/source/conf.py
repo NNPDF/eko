@@ -215,15 +215,20 @@ todo_include_todos = True
 
 mathjax_config = {
     "TeX": {"Macros":{
-        # Physics/Matching
-        "dSV": [r"{{\begin{pmatrix}\tilde \Sigma\\\tilde g\end{pmatrix}}^{(#1)}(#2)}",2],
+        # PDFs
+        "dSV": [r"{{\begin{pmatrix}\tilde \Sigma\\\tilde g\end{pmatrix}}^{(#1)}\!(#2)}",2],
         "dVf": [r"{\tilde{V}^{(#1)}(#2)}",2],
         "dVj": [r"{\tilde{V}_{\!#1}^{(#2)}(#3)}",3],
         "dTj": [r"{\tilde{T}_{\!#1}^{(#2)}(#3)}",3],
-        "ES": [r"{\tilde{\bf{E}}_S({#1}\leftarrow {#2})}",2],
-        "Ev": [r"{\tilde{E}_{ns}^v({#1}\leftarrow {#2})}",2],
-        "Ep": [r"{\tilde{E}_{ns}^+({#1}\leftarrow {#2})}",2],
-        "Em": [r"{\tilde{E}_{ns}^-({#1}\leftarrow {#2})}",2],
+        # EKOs
+        "ES": [r"{\tilde{\mathbf{E}}_S({#1}\leftarrow {#2})}",2],
+        "ESk": [r"{\tilde{\mathbf{E}}_S^{(#1)}({#2}\leftarrow {#3})}",3],
+        "Ensv": [r"{\tilde{E}_{ns}^v({#1}\leftarrow {#2})}",2],
+        "Ensp": [r"{\tilde{E}_{ns}^+({#1}\leftarrow {#2})}",2],
+        "Ensm": [r"{\tilde{E}_{ns}^-({#1}\leftarrow {#2})}",2],
+        # projectors
+        "em": [r"{\mathbf{e}}_-",0],
+        "ep": [r"{\mathbf{e}}_+",0],
     }}
 }
 

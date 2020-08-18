@@ -70,23 +70,24 @@ LO Singlet Evolution
 We find
 
 .. math::
-    \frac{d}{da_s} \dSV{0}{a_s} = \frac{\gamma_S^{(0)}}{\beta_0 a_s} \cdot \dSV{0}{a_s}
+    \frac{d}{da_s} \dSV{0}{a_s} = \frac{\mathbf R_0{a_s} \cdot \dSV{0}{a_s}
 
 with
 
 .. math ::
+    \mathbf R_0 = \frac{\gamma_S^{(0)}}{\beta_0}\,, \qquad
     \gamma_S^{(0)} = \begin{pmatrix}
                                 \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
                                 \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
                             \end{pmatrix}
 
 In order to exponentiate this matrix, we decompose it
-:math:`\gamma_S^{(0)} = \lambda_+ {\mathbf e}_+ + \lambda_- {\mathbf e}_-` with
+:math:`\mathbf R_0 = \lambda_+ {\mathbf e}_+ + \lambda_- {\mathbf e}_-` with
 the eigenvalues :math:`\lambda_{\pm}` and the projectors :math:`\mathbf e_{\pm}` given by :cite:`Vogt:2004ns`
 
 .. math::
-    \lambda_{\pm} &= \frac 1 2 \left( \gamma_{qq}^{(0)} + \gamma_{gg}^{(0)} + \pm \sqrt{(\gamma_{qq}^{(0)}-\gamma_{gg}^{(0)})^2 + 4\gamma_{qg}^{(0)}\gamma_{gq}^{(0)}} \right)\\
-    {\mathbf e}_{\pm} &= \frac{1}{\lambda_{\pm} - \lambda_{\mp}} \left( \gamma_S^{(0)}  - \lambda_{\mp} \mathbf I \right)
+    \lambda_{\pm} &= \frac 1 {2\beta_0} \left( \gamma_{qq}^{(0)} + \gamma_{gg}^{(0)} \pm \sqrt{(\gamma_{qq}^{(0)}-\gamma_{gg}^{(0)})^2 + 4\gamma_{qg}^{(0)}\gamma_{gq}^{(0)}} \right)\\
+    {\mathbf e}_{\pm} &= \frac{1}{\lambda_{\pm} - \lambda_{\mp}} \left( \mathbf R_0  - \lambda_{\mp} \mathbf I \right)
 
 with :math:`\mathbf I` the 2x2 identity matrix in flavour space.
 The projectors obey the usual properties, i.e.
@@ -99,7 +100,7 @@ and thus the exponentiation becomes easier again.
 The EKO is then given by
 
 .. math::
-    \tilde {\mathbf{E}}^{(0)}_{S}(a_s^1 \leftarrow a_s^0) = {\mathbf{e}}_-\exp\left[\ln(a_s^1/a_s^0) \lambda_{-}/\beta_0 \right] + {\mathbf{e}}_+\exp\left[\ln(a_s^1/a_s^0) \lambda_{+}/\beta_0 \right]
+    \ESk{0}{a_s^1}{a_s^0} = \em \exp\left[\ln(a_s^1/a_s^0) \lambda_{-} \right] + \ep \exp\left[\ln(a_s^1/a_s^0) \lambda_{+} \right]
 
 Next-to-Leading Order
 ---------------------
@@ -113,7 +114,7 @@ We find
 
 with :math:`\gamma_{ns} \in \{\gamma_{ns,+},\gamma_{ns,-}=\gamma_{ns,v}\}`.
 
-To solve this equation we provide the same strategies as :cite:`Vogt:2004ns` :
+To solve this equation we provide the same 4 strategies as :cite:`Vogt:2004ns` :
 
 - the *exact* solution to the EKO is given by the exponentials: :cite:`RuizArriola:1998er,Vogt:2004ns`
 
@@ -138,3 +139,36 @@ To solve this equation we provide the same strategies as :cite:`Vogt:2004ns` :
 
 NLO Singlet Evolution
 ^^^^^^^^^^^^^^^^^^^^^
+
+We find
+
+.. math::
+    \frac{d}{da_s} \dSV{1}{a_s} = \frac{\gamma_{S}^{(0)} a_s + \gamma_{S}^{(1)} a_s^2}{\beta_0 a_s^2 + \beta_1 a_s^3} \cdot \dSV{1}{a_s}
+
+with :math:`\gamma_{S}^{(0)} \gamma_{S}^{(1)} \neq \gamma_{S}^{(1)} \gamma_{S}^{(0)}`.
+
+We are seeking for an perturbative solution around the (exact) leading order operator: :cite:`Vogt:2004ns`
+
+.. math::
+    \frac{d}{da_s} \dSV{1}{a_s} = \frac{\mathbf R (a_s)}{a_s} \cdot \dSV{1}{a_s}\,, \quad
+    \mathbf R (a_s) = \sum\limits_{k=0} a_s^k \mathbf R_{k}
+
+where in NLO we find (in addition to the LO operator)
+
+.. math::
+    \mathbf R_1 = \gamma_{S}^{(1)}/\beta_0 - b_1 \gamma_{S}^{(0)}
+    \quad \text{and} \quad
+    \mathbf R_k = - b_1 \mathbf R_{k-1}\,\text{for}\,k>1
+
+Likewise for the solution we set
+
+.. math::
+    \dSV{1}{a_s^1} = \mathbf U (a_s^1) \ESk{1}{a_s^1}{a_s^0} {\mathbf U}^{-1} (a_s^0) \dSV{1}{a_s^0}\,, \quad
+    \mathbf U (a_s) = \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
+
+Using the LO projectors we can make an ansatz for the evolution operator coefficients :math:`\mathbf U_k`
+
+.. math::
+    \mathbf U_k = \em \mathbf U_k \em + \em \mathbf U_k \ep + \ep \mathbf U_k \em + \ep \mathbf U_k \ep
+
+and find:

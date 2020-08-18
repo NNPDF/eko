@@ -159,9 +159,22 @@ class LHABenchmarkPaper:
                 degree of interpolation polynomial
             flag : string
                 output file tag
+            debug_skip_singlet : bool
+                skip singlet integration
+            debug_skip_non_singlet : bool
+                skip singlet integration
     """
 
-    def __init__(self, order, xgrid, polynomial_degree, flag):
+    def __init__(
+        self,
+        order,
+        xgrid,
+        polynomial_degree,
+        flag,
+        *,
+        debug_skip_singlet=False,
+        debug_skip_non_singlet=False,
+    ):
         self._order = order
         self._flag = flag
         # default config for post processing
@@ -182,6 +195,8 @@ class LHABenchmarkPaper:
             "mt": 175.0,
             "interpolation_xgrid": xgrid,
             "interpolation_polynomial_degree": polynomial_degree,
+            "debug_skip_singlet": debug_skip_singlet,
+            "debug_skip_non_singlet": debug_skip_non_singlet,
         }
 
     def _post_process(self, output, ref, tag):
@@ -408,10 +423,12 @@ def save_initial_scale_plots_to_pdf(path):
 
 if __name__ == "__main__" and True:
     # setup
-    order = 0
-    n_low = 3
-    n_mid = 3
+    order = 1
+    n_low = 30
+    n_mid = 20
     polynom_rank = 4
+    debug_skip_singlet = True
+    debug_skip_non_singlet = False
 
     # combine grid
     flag = f"l{n_low}m{n_mid}r{polynom_rank}"
@@ -429,7 +446,14 @@ if __name__ == "__main__" and True:
     logging.getLogger("eko").setLevel(logging.INFO)
 
     # run
-    app = LHABenchmarkPaper(order, xgrid, polynom_rank, flag)
+    app = LHABenchmarkPaper(
+        order,
+        xgrid,
+        polynom_rank,
+        flag,
+        debug_skip_singlet=debug_skip_singlet,
+        debug_skip_non_singlet=debug_skip_non_singlet,
+    )
     # check input scale
     # save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
     # check fixed flavours
@@ -442,5 +466,10 @@ if __name__ == "__main__" and True:
 if __name__ == "__main__" and False:
     raw = """"""
     for r in raw:
-        r = r.replace("∗\n", "").replace(" −", "e-").replace(" +", "e+").replace("\n", ",")
-        print("["+r+"]")
+        r = (
+            r.replace("∗\n", "")
+            .replace(" −", "e-")
+            .replace(" +", "e+")
+            .replace("\n", ",")
+        )
+        print("[" + r + "]")

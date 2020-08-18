@@ -442,9 +442,15 @@ class Operator:
                     extra_args.append(a0)
                     # Path parameters
                     if label in singlet_names:
+                        # skip?
+                        if self.master.grid.config["debug_skip_singlet"]:
+                            continue
                         extra_args.append(0.4 * 16 / (1.0 - logx))
                         extra_args.append(1.0)
                     else:
+                        # skip?
+                        if self.master.grid.config["debug_skip_non_singlet"]:
+                            continue
                         extra_args.append(0.5)
                         extra_args.append(0.0)
                     # compute and set

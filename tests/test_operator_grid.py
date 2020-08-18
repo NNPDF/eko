@@ -59,15 +59,13 @@ class TestOperatorGrid:
             basis_function_dispatcher, constants, 0, "exact"
         )
         a_s = StrongCoupling.from_dict(setup, threshold_holder, constants)
-        return OperatorGrid(
-            [1,10],threshold_holder, a_s, kernel_dispatcher
-        )
+        return OperatorGrid([1, 10], threshold_holder, a_s, kernel_dispatcher)
 
     def test_sanity(self):
         """ Sanity checks for the input"""
         opgrid = self._get_operator_grid(False)
         # Check that an operator grid with the correct number of regions was created
-        opgrid._generate_masters()
+        opgrid._generate_masters()  # pylint: disable=protected-access
         nregs = len(opgrid._op_masters)  # pylint: disable=protected-access
         assert nregs == 3 + 1
         # errors

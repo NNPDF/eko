@@ -146,12 +146,6 @@ class KernelDispatcher:
                         + ((e_m @ r1 @ e_p) / (r_p - r_m - 1))
                     )
                     e += a1 * (u1 @ e) - a0 * (e @ u1)
-                    # e += exp_m * (a0 - a1) * (e_m @ r1 @ e_m)
-                    # e += exp_p * (a0 - a1) * (e_p @ r1 @ e_p)
-                    # fmt: off
-                    # e -= exp_m * (a0 - a1 * np.exp(ln_a * (r_m - r_p))) * (e_m @ r1 @ e_p)/(r_p - r_m - 1)
-                    # e -= exp_p * (a0 - a1 * np.exp(ln_a * (r_p - r_m))) * (e_p @ r1 @ e_m)/(r_m - r_p - 1)
-                    # fmt: on
                 pdf = basis_function(N, lnx)
                 return e[k][l] * pdf
 

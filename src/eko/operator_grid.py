@@ -95,6 +95,9 @@ class OperatorGrid:
             q2_grid=q2_grid,
             xgrid=kernel_dispatcher.interpol_dispatcher.xgrid_raw,
             order=kernel_dispatcher.order,
+            # debug options
+            debug_skip_singlet=False,
+            debug_skip_non_singlet=False,
         )
         self.managers = dict(
             thresholds_config=thresholds_config,
@@ -115,6 +118,8 @@ class OperatorGrid:
             Read keys:
 
                 - Q2grid : required, target grid
+                - debug_skip_singlet : optional, avoid singlet integrations?
+                - debug_skip_non_singlet : optional, avoid non-singlet integrations?
 
             Parameters
             ----------
@@ -133,7 +138,11 @@ class OperatorGrid:
                     created object
         """
         q2_grid = setup["Q2grid"]
-        obj = cls(q2_grid, thresholds_config, strong_coupling, kernel_dispatcher,)
+        obj = cls(q2_grid, thresholds_config, strong_coupling, kernel_dispatcher)
+        # set debug options
+        for op in ["debug_skip_singlet", "debug_skip_non_singlet"]:
+            if op in setup:
+                obj.config[op] = setup[op]
         return obj
 
     def _generate_masters(self):
