@@ -60,13 +60,14 @@ class TestOperatorGrid:
         )
         a_s = StrongCoupling.from_dict(setup, threshold_holder, constants)
         return OperatorGrid(
-            threshold_holder, a_s, kernel_dispatcher, setup["interpolation_xgrid"]
+            [1,10],threshold_holder, a_s, kernel_dispatcher
         )
 
     def test_sanity(self):
         """ Sanity checks for the input"""
         opgrid = self._get_operator_grid(False)
         # Check that an operator grid with the correct number of regions was created
+        opgrid._generate_masters()
         nregs = len(opgrid._op_masters)  # pylint: disable=protected-access
         assert nregs == 3 + 1
         # errors
@@ -96,4 +97,4 @@ class TestOperatorGrid:
         assert len(operators) == len(qgrid_check)
         # Check that the operators can act on pdfs
         pdf = self._get_pdf()
-        _return_1 = operators[0](pdf)
+        _return_1 = operators[0].apply_pdf(pdf)

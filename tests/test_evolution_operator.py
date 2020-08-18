@@ -209,7 +209,7 @@ class TestPhysicalOperator:
         # create pdfs
         V, V3, S, g = np.random.rand(4, self.shape[0])
         # check
-        target, errs = a({"V": V, "g": g, "S": S})
+        target, errs = a.apply_pdf({"V": V, "g": g, "S": S})
         # without providing V3 it will not be computed
         assert list(target.keys()) == ["V", "T24"]
         assert_almost_equal(target["V"], mVV @ V)
@@ -217,7 +217,7 @@ class TestPhysicalOperator:
         assert_almost_equal(target["T24"], mTS @ S + mTg @ g)
         assert_almost_equal(errs["T24"], mTSe @ S + mTge @ g)
         # whithout gluon we cannot compute T24
-        target, errs = a({"V": V, "V3": V3, "S": S})
+        target, errs = a.apply_pdf({"V": V, "V3": V3, "S": S})
         assert list(target.keys()) == ["V", "V3"]
 
     def test_get_raw_operators(self):
@@ -268,29 +268,40 @@ def get_ker(k):
     return ker
 
 
-def get_res(k, xg, cut=0):
+def get_res(k, cut=0):
     return [
-        [x * ((1 - cut) ** (k + 1) - 0.5 ** (k + 1)) / (k + 1), 0] for x in np.log(xg)
+        [x * ((1 - cut) ** (k + 1) - 0.5 ** (k + 1)) / (k + 1), 0]
+        for x in np.log([0.5, 1.0])
     ]
 
 
-class TestOperator:
-    def test_meta(self):
-        xg = [0.5, 1.0]
-        meta = dict(nf=3, q2ref=1, q2=2)
-        op = Operator(0.5, 1.0, xg, [], meta, 0)
-        assert op.nf == meta["nf"]
-        assert op.q2ref == meta["q2ref"]
-        assert op.q2 == meta["q2"]
-        assert_almost_equal(op.xgrid, xg)
+class MockObj:
+    pass
 
-    def test_compute_LO(self):
-        xg = [0.5, 1.0]
-        meta = dict(nf=3, q2ref=1, q2=2)
-        op = Operator(
-            0.5,
-            1.0,
-            xg,
+
+@pytest.fixture
+def mock_OpMaster():
+    def _create(kers, order):
+        master = MockObj()
+        grid = MockObj()
+        sc = MockObj()
+        kd = MockObj()
+        bfd = MockObj()
+        master.grid = grid # pylint: disable=attribute-defined-outside-init
+        master.kernels = kers # pylint: disable=attribute-defined-outside-init
+        grid.managers = dict(strong_coupling=sc, kernel_dispatcher=kd) # pylint: disable=attribute-defined-outside-init
+        sc.a_s = lambda q2: q2 # pylint: disable=attribute-defined-outside-init
+        kd.interpol_dispatcher = bfd # pylint: disable=attribute-defined-outside-init
+        kd.order = order # pylint: disable=attribute-defined-outside-init
+        bfd.xgrid_raw = [0.5, 1.0] # pylint: disable=attribute-defined-outside-init
+        return master
+
+    return _create
+
+
+class TestOperator:
+    def test_compute_LO(self, mock_OpMaster):
+        master = mock_OpMaster(
             [
                 dict(
                     NS_p=get_ker(1),
@@ -300,27 +311,21 @@ class TestOperator:
                     S_gg=get_ker(5),
                 )
             ],
-            meta,
-            0,
             0,
         )
+        op = Operator(master, 0.5, 1.0, 0)
         op.compute()
 
-        assert_almost_equal(op.op_members["NS_p"].value, get_res(1, xg))
-        assert_almost_equal(op.op_members["NS_m"].value, get_res(1, xg))
-        assert_almost_equal(op.op_members["NS_v"].value, get_res(1, xg))
-        assert_almost_equal(op.op_members["S_qq"].value, get_res(2, xg))
-        assert_almost_equal(op.op_members["S_qg"].value, get_res(3, xg))
-        assert_almost_equal(op.op_members["S_gq"].value, get_res(4, xg))
-        assert_almost_equal(op.op_members["S_gg"].value, get_res(5, xg))
+        assert_almost_equal(op.op_members["NS_p"].value, get_res(1))
+        assert_almost_equal(op.op_members["NS_m"].value, get_res(1))
+        assert_almost_equal(op.op_members["NS_v"].value, get_res(1))
+        assert_almost_equal(op.op_members["S_qq"].value, get_res(2))
+        assert_almost_equal(op.op_members["S_qg"].value, get_res(3))
+        assert_almost_equal(op.op_members["S_gq"].value, get_res(4))
+        assert_almost_equal(op.op_members["S_gg"].value, get_res(5))
 
-    def test_compute_NLO(self):
-        xg = [0.5, 1.0]
-        meta = dict(nf=3, q2ref=1, q2=2)
-        op = Operator(
-            0.5,
-            1.0,
-            xg,
+    def test_compute_NLO(self, mock_OpMaster):
+        master = mock_OpMaster(
             [
                 dict(
                     NS_p=get_ker(1),
@@ -331,27 +336,21 @@ class TestOperator:
                     S_gg=get_ker(6),
                 )
             ],
-            meta,
             1,
-            0,
         )
+        op = Operator(master, 0.5, 1.0, 0)
         op.compute()
 
-        assert_almost_equal(op.op_members["NS_p"].value, get_res(1, xg))
-        assert_almost_equal(op.op_members["NS_m"].value, get_res(2, xg))
-        assert_almost_equal(op.op_members["NS_v"].value, get_res(2, xg))
-        assert_almost_equal(op.op_members["S_qq"].value, get_res(3, xg))
-        assert_almost_equal(op.op_members["S_qg"].value, get_res(4, xg))
-        assert_almost_equal(op.op_members["S_gq"].value, get_res(5, xg))
-        assert_almost_equal(op.op_members["S_gg"].value, get_res(6, xg))
+        assert_almost_equal(op.op_members["NS_p"].value, get_res(1))
+        assert_almost_equal(op.op_members["NS_m"].value, get_res(2))
+        assert_almost_equal(op.op_members["NS_v"].value, get_res(2))
+        assert_almost_equal(op.op_members["S_qq"].value, get_res(3))
+        assert_almost_equal(op.op_members["S_qg"].value, get_res(4))
+        assert_almost_equal(op.op_members["S_gq"].value, get_res(5))
+        assert_almost_equal(op.op_members["S_gg"].value, get_res(6))
 
-    def test_compose(self):
-        xg = [0.5, 1.0]
-        meta = dict(nf=3, q2ref=1, q2=2)
-        op1 = Operator(
-            0.5,
-            1.0,
-            xg,
+    def test_compose(self, mock_OpMaster):
+        master = mock_OpMaster(
             [
                 dict(
                     NS_p=get_ker(1),
@@ -361,14 +360,13 @@ class TestOperator:
                     S_gg=get_ker(5),
                 )
             ],
-            meta,
-            0,
             0,
         )
+        op1 = Operator(master, 0.5, 1.0, 0)
         # FFNS
         t = thresholds.ThresholdsConfig(1, "FFNS", nf=3)
         instruction_set = t.get_composition_path(3, 0)
         ph = op1.compose([], instruction_set, 2)
         assert isinstance(ph, PhysicalOperator)
         # V.V is NS_v
-        assert_almost_equal(ph.op_members["V.V"].value, get_res(1, xg))
+        assert_almost_equal(ph.op_members["V.V"].value, get_res(1))
