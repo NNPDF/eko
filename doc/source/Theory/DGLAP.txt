@@ -70,11 +70,11 @@ LO Singlet Evolution
 We find
 
 .. math::
-    \frac{d}{da_s} \dSV{0}{a_s} = \frac{\mathbf R_0{a_s} \cdot \dSV{0}{a_s}
+    \frac{d}{da_s} \dSV{0}{a_s} = \frac{\mathbf R_0}{a_s} \cdot \dSV{0}{a_s}
 
 with
 
-.. math ::
+.. math::
     \mathbf R_0 = \frac{\gamma_S^{(0)}}{\beta_0}\,, \qquad
     \gamma_S^{(0)} = \begin{pmatrix}
                                 \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
