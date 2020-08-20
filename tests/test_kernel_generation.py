@@ -15,7 +15,7 @@ class FakeBF:
 
 # fake decomposition
 def fake_eigensystem_gamma_singlet_0(*_args):
-    return 1, 1, np.array([[1, 1], [0, 0]]), np.array([[0, 0], [1, 1]])
+    return 0, 0, np.array([[1, 1], [0, 0]]), np.array([[0, 0], [1, 1]])
 
 
 class TestKernelDispatcher:
@@ -35,7 +35,7 @@ class TestKernelDispatcher:
         c = eko.constants.Constants()
         monkeypatch.setattr(eko.strong_coupling, "beta_0", lambda *_args: 1)
         monkeypatch.setattr(eko.strong_coupling, "beta_1", lambda *_args: 1)
-        monkeypatch.setattr(eko.anomalous_dimensions.lo, "gamma_ns_0", lambda *_args: 1)
+        monkeypatch.setattr(eko.anomalous_dimensions.lo, "gamma_ns_0", lambda *_args: 0)
         monkeypatch.setattr(
             eko.anomalous_dimensions.nlo, "gamma_nsm_1", lambda *_args: 0
         )

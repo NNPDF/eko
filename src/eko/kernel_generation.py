@@ -112,40 +112,34 @@ class KernelDispatcher:
         CF = self.constants.CF
         beta_0 = sc.beta_0(nf, self.constants.CA, self.constants.CF, self.constants.TF)
         order = self.order
-        if order > 0:
+
+        # provide the integrals
+        j00 = self.njit(lambda a1, a0: np.log(a1 / a0) / beta_0)
+        if order > 0:  # NLO constants and integrals
             beta_1 = sc.beta_1(
                 nf, self.constants.CA, self.constants.CF, self.constants.TF
             )
             b1 = beta_1 / beta_0
+            j11 = self.njit(
+                lambda a1, a0: 1 / beta_1 * np.log((1 + a1 * b1) / (1 + a0 * b1))
+            )
+            j01 = self.njit(lambda a1, a0: j00(a1, a0) - b1 * j11(a1, a0))
 
         # singlet kernels
         def get_ker_s(k, l):
-            """(k,l)-th element of singlet kernel matrix"""
+            """getter for (k,l)-th element of singlet kernel matrix"""
 
             def ker_s(N, lnx, a1, a0):
                 """a singlet integration kernel"""
-                # get and decompose
+                # LO
                 gamma_S_0 = ad_lo.gamma_singlet_0(N, nf, CA, CF)
-                l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(gamma_S_0)
-                # collect all variables
-                ln_a = np.log(a1 / a0)
-                r_p = -l_p / beta_0
-                r_m = -l_m / beta_0
-                exp_p = np.exp(-ln_a * r_p)
-                exp_m = np.exp(-ln_a * r_m)
-                # this is LO
-                e = e_m * exp_m + e_p * exp_p
+                ln = gamma_S_0 * j00(a1, a0)
                 # NLO
                 if order > 0:
                     gamma_S_1 = ad_nlo.gamma_singlet_1(N, nf, CA, CF)
-                    r1 = -(gamma_S_1 / beta_0 - b1 * gamma_S_0)
-                    u1 = (
-                        -(e_m @ r1 @ e_m)
-                        - (e_p @ r1 @ e_p)
-                        + ((e_p @ r1 @ e_m) / (r_m - r_p - 1))
-                        + ((e_m @ r1 @ e_p) / (r_p - r_m - 1))
-                    )
-                    e += a1 * (u1 @ e) - a0 * (e @ u1)
+                    ln = gamma_S_0 * j01(a1, a0) + gamma_S_1 * j11(a1, a0)
+                l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(ln)
+                e = e_m * np.exp(l_m) + e_p * np.exp(l_p)
                 pdf = basis_function(N, lnx)
                 return e[k][l] * pdf
 
@@ -158,19 +152,20 @@ class KernelDispatcher:
 
         # non-singlet kernels
         def get_ker_ns(mode):
+            """getter for mode-flavored non-singlet kernel"""
+
             def ker_ns(n, lnx, a1, a0):
                 """true non-siglet integration kernel"""
                 # LO
-                gamma_bar_0 = ad_lo.gamma_ns_0(n, nf, CA, CF) / beta_0
-                ln = np.log(a1 / a0) * gamma_bar_0
+                gamma_ns_0 = ad_lo.gamma_ns_0(n, nf, CA, CF)
+                ln = gamma_ns_0 * j00(a1, a0)
                 # NLO
                 if order > 0:
                     if mode == "p":
                         gamma_ns_1 = ad_nlo.gamma_nsp_1(n, nf, CA, CF)
                     elif mode == "m":
                         gamma_ns_1 = ad_nlo.gamma_nsm_1(n, nf, CA, CF)
-                    gamma_bar_1 = gamma_ns_1 / beta_1 - gamma_bar_0
-                    ln += np.log((1 + a1 * b1) / (1 + a0 * b1)) * gamma_bar_1
+                    ln = gamma_ns_0 * j01(a1, a0) + gamma_ns_1 * j11(a1, a0)
                 pdf = basis_function(n, lnx)
                 return np.exp(ln) * pdf
 
@@ -212,17 +207,15 @@ class KernelDispatcher:
         """
             Do nb.njit to the function if the `numba_it` flag is set to True.
 
-            Checks whether a list of functions is passed.
-
             Parameters
             ---------
-                function : callable or list(callable)
-                    input (list of) callable(s)
+                function : callable
+                    input callable
 
             Returns
             -------
-                function : callable or list(callable)
-                    compiled (list of) callable(s)
+                function : callable
+                    compiled callable
         """
         if self.numba_it:
             return nb.njit(function)

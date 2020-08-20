@@ -281,7 +281,7 @@ class MockObj:
 
 @pytest.fixture
 def mock_OpMaster():
-    def _create(kers, order,skip=False):
+    def _create(kers, order, skip=False):
         master = MockObj()
         grid = MockObj()
         sc = MockObj()
@@ -292,7 +292,7 @@ def mock_OpMaster():
         grid.managers = dict(
             strong_coupling=sc, kernel_dispatcher=kd
         )  # pylint: disable=attribute-defined-outside-init
-        grid.config = dict(debug_skip_singlet=skip,debug_skip_non_singlet=skip)
+        grid.config = dict(debug_skip_singlet=skip, debug_skip_non_singlet=skip)
         sc.a_s = lambda q2: q2  # pylint: disable=attribute-defined-outside-init
         kd.interpol_dispatcher = bfd  # pylint: disable=attribute-defined-outside-init
         kd.order = order  # pylint: disable=attribute-defined-outside-init
@@ -344,7 +344,7 @@ class TestOperator:
         op = Operator(master, 0.5, 1.0, 0)
         op.compute()
 
-        zero = np.zeros((2,2))
+        zero = np.zeros((2, 2))
         assert_almost_equal(op.op_members["NS_p"].value, zero)
         assert_almost_equal(op.op_members["NS_m"].value, zero)
         assert_almost_equal(op.op_members["NS_v"].value, zero)

@@ -93,7 +93,7 @@ with :math:`\mathbf I` the 2x2 identity matrix in flavour space.
 The projectors obey the usual properties, i.e.
 
 .. math::
-    {\mathbf e}_{\pm} \cdot {\mathbf e}_{\pm} = {\mathbf e}_{\pm} \qquad {\mathbf e}_{\pm} \cdot {\mathbf e}_{\mp} = 0
+    {\mathbf e}_{\pm} \cdot {\mathbf e}_{\pm} = {\mathbf e}_{\pm}\,,\quad {\mathbf e}_{\pm} \cdot {\mathbf e}_{\mp} = 0\,,\quad \ep + \em = \mathbf I
 
 and thus the exponentiation becomes easier again.
 
@@ -166,9 +166,19 @@ Likewise for the solution we set
     \dSV{1}{a_s^1} = \mathbf U (a_s^1) \ESk{1}{a_s^1}{a_s^0} {\mathbf U}^{-1} (a_s^0) \dSV{1}{a_s^0}\,, \quad
     \mathbf U (a_s) = \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
 
-Using the LO projectors we can make an ansatz for the evolution operator coefficients :math:`\mathbf U_k`
+Inserting this ansatz into the differential equation and sorting by powers of :math:`a_s`, we
+obtain a recursive set of commutator relations:
+
+.. math::
+    [\mathbf U_1, \mathbf R_0] &= \mathbf R_1 - \mathbf U_1\\
+    [\mathbf U_k, \mathbf R_0] &= \mathbf R_k + \sum\limits_{j=1}^{k-1} \mathbf R_{k-j} \mathbf U_j - k \mathbf U_k = \mathbf{\tilde{R}}_k - k \mathbf U_k\,,k>1
+
+Multiplying these equations with :math:`\mathbf e_{\pm}` from left and right and using the identity
 
 .. math::
     \mathbf U_k = \em \mathbf U_k \em + \em \mathbf U_k \ep + \ep \mathbf U_k \em + \ep \mathbf U_k \ep
 
-and find:
+one can obtain the evolution operator coefficients :math:`\mathbf U_k` and find:
+
+.. math::
+    \mathbf U_k = \frac{ \em \mathbf{\tilde{R}}_k \em + \em \mathbf{\tilde{R}}_k \ep } k + \frac{\ep \mathbf{\tilde{R}}_k \em}{r_- - r_+ - k} + \frac{\ep \mathbf{\tilde{R}}_k \ep}{r_+ - r_- -k}

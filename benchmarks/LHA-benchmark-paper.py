@@ -424,10 +424,10 @@ def save_initial_scale_plots_to_pdf(path):
 if __name__ == "__main__" and True:
     # setup
     order = 1
-    n_low = 30
-    n_mid = 20
+    n_low = 40
+    n_mid = 30
     polynom_rank = 4
-    debug_skip_singlet = True
+    debug_skip_singlet = False
     debug_skip_non_singlet = False
 
     # combine grid
