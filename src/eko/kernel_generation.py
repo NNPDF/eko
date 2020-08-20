@@ -44,6 +44,13 @@ class KernelDispatcher:
     """
 
     def __init__(self, interpol_dispatcher, constants, order, method, numba_it=True):
+        # check
+        order = int(order)
+        if not method in ["exact", "LL", "truncated"]:
+            raise ValueError(f"Unknown evolution mode {method}")
+        if order == 0 and method != "exact":
+            logger.info("Kernels: In LO we use the exact solution always!")
+        # set
         self.interpol_dispatcher = interpol_dispatcher
         self.constants = constants
         self.order = order
@@ -86,7 +93,7 @@ class KernelDispatcher:
         elif mod_ev == "TRN":
             method = "truncated"
         else:
-            raise ValueError(f"Unknown evolution mode {mod_ev}")
+            method = None
         return cls(interpol_dispatcher, constants, order, method, numba_it)
 
     def collect_kers(self, nf, basis_function):
@@ -120,9 +127,14 @@ class KernelDispatcher:
                 nf, self.constants.CA, self.constants.CF, self.constants.TF
             )
             b1 = beta_1 / beta_0
-            j11 = self.njit(
-                lambda a1, a0: 1 / beta_1 * np.log((1 + a1 * b1) / (1 + a0 * b1))
-            )
+            if self.method == "LL":
+                j11 = self.njit(
+                    lambda a1, a0: 1 / beta_0 * (a1 - a0)
+                )
+            else:
+                j11 = self.njit(
+                    lambda a1, a0: 1 / beta_1 * np.log((1 + a1 * b1) / (1 + a0 * b1))
+                )
             j01 = self.njit(lambda a1, a0: j00(a1, a0) - b1 * j11(a1, a0))
 
         # singlet kernels

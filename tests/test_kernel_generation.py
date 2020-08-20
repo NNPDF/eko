@@ -62,17 +62,18 @@ class TestKernelDispatcher:
         bfs = [FakeBF()]
         for numba_it in [True, False]:
             for order in [0, 1]:
-                kd = kg.KernelDispatcher(bfs, c, order, "exact", numba_it=numba_it)
-                nf = 3
-                kd.set_up_all_integrands(nf)
-                # check format
-                assert nf in kd.kernels
-                assert len(kd.kernels[nf]) == len(bfs)
-                for bf in kd.kernels[nf]:
-                    assert len(bf) == 4 + 1 + order
-                # check value
-                for k in kd.kernels[nf][0].values():
-                    np.testing.assert_almost_equal(k(1, 1, 1, 1), 1)
-                # now it's cached
-                kd.set_up_all_integrands(nf)
-                assert nf in kd.kernels
+                for method in ["exact", "LL"]:
+                    kd = kg.KernelDispatcher(bfs, c, order, method, numba_it=numba_it)
+                    nf = 3
+                    kd.set_up_all_integrands(nf)
+                    # check format
+                    assert nf in kd.kernels
+                    assert len(kd.kernels[nf]) == len(bfs)
+                    for bf in kd.kernels[nf]:
+                        assert len(bf) == 4 + 1 + order
+                    # check value
+                    for k in kd.kernels[nf][0].values():
+                        np.testing.assert_almost_equal(k(1, 1, 1, 1), 1)
+                    # now it's cached
+                    kd.set_up_all_integrands(nf)
+                    assert nf in kd.kernels

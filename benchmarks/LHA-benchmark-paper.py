@@ -168,6 +168,7 @@ class LHABenchmarkPaper:
     def __init__(
         self,
         order,
+        mod_ev,
         xgrid,
         polynomial_degree,
         flag,
@@ -188,6 +189,7 @@ class LHABenchmarkPaper:
         self._Q2final = 1e4
         self._setup = {
             "PTO": self._order,
+            "ModEv": mod_ev,
             "alphas": 0.35,
             "Qref": np.sqrt(2),
             "mc": np.sqrt(self._Q2init),
@@ -212,21 +214,22 @@ class LHABenchmarkPaper:
                 tag : string
                     file tag
         """
-        order = "N" * self._order + "LO"
+        label_order = "N" * self._order + "LO"
+        label_mod_ev = self._setup["ModEv"]
         # dump operators to file
         if self.post_process_config["write_operator"]:
-            p = assets_path / f"LHA-{order}-{tag}-ops-{flag}.yaml"
+            p = assets_path / f"LHA-{label_order}-{label_mod_ev}-{tag}-ops-{flag}.yaml"
             output.dump_yaml_to_file(p)
             print(f"write operator to {p}")
         # pdf comparison
         if self.post_process_config["plot_PDF"]:
-            p = assets_path / f"LHA-{order}-{tag}-plots-{flag}.pdf"
+            p = assets_path / f"LHA-{label_order}-{label_mod_ev}-{tag}-plots-{flag}.pdf"
             self._save_final_scale_plots_to_pdf(p, output, ref)
             print(f"write pdf plots to {p}")
         # graphical representation of operators
         if self.post_process_config["plot_operator"]:
             first_ops = list(output["Q2grid"].values())[0]
-            p = assets_path / f"LHA-{order}-{tag}-ops-{flag}.pdf"
+            p = assets_path / f"LHA-{label_order}-{label_mod_ev}-{tag}-ops-{flag}.pdf"
             save_all_operators_to_pdf(first_ops, p)
             print(f"write operator plots to {p}")
 
@@ -424,8 +427,9 @@ def save_initial_scale_plots_to_pdf(path):
 if __name__ == "__main__" and True:
     # setup
     order = 1
-    n_low = 40
-    n_mid = 30
+    mod_ev = "EXP"
+    n_low = 3
+    n_mid = 3
     polynom_rank = 4
     debug_skip_singlet = False
     debug_skip_non_singlet = False
@@ -448,6 +452,7 @@ if __name__ == "__main__" and True:
     # run
     app = LHABenchmarkPaper(
         order,
+        mod_ev,
         xgrid,
         polynom_rank,
         flag,

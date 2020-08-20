@@ -215,6 +215,8 @@ todo_include_todos = True
 
 mathjax_config = {
     "TeX": {"Macros":{
+        # texts
+        "tLL": [r"\text{LL}",0],
         # PDFs
         "dSV": [r"{{\begin{pmatrix}\tilde \Sigma\\\tilde g\end{pmatrix}}^{(#1)}\!(#2)}",2],
         "dVf": [r"{\tilde{V}^{(#1)}(#2)}",2],
