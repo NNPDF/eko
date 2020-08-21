@@ -427,9 +427,9 @@ def save_initial_scale_plots_to_pdf(path):
 if __name__ == "__main__" and True:
     # setup
     order = 1
-    mod_ev = "EXP"
-    n_low = 3
-    n_mid = 3
+    mod_ev = "EXA"
+    n_low = 30
+    n_mid = 20
     polynom_rank = 4
     debug_skip_singlet = False
     debug_skip_non_singlet = False

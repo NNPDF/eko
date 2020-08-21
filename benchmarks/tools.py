@@ -114,7 +114,7 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
     # empty?
     if np.max(op) <= 0.0:
         return fig
-        
+
     # TODO fix File "/usr/lib/python3/dist-packages/matplotlib/colors.py", line 1181, in _check_vmin_vmax
     # raise ValueError("minvalue must be positive")
     # ValueError: minvalue must be positive
@@ -195,6 +195,8 @@ def save_all_operators_to_pdf(ret, path):
         try:
             fig = plot_operator(ret, label)
             pp.savefig()
+        except Exception:
+            pass
         finally:
             if fig:
                 plt.close(fig)

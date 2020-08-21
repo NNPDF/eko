@@ -53,8 +53,8 @@ Expanding the anomalous dimension :math:`\gamma(a_s)` and the beta function :mat
 to LO we obtain the (exact) EKO:
 
 .. math::
-    \ln \tilde {\mathbf E}^{(0)}(a_s^1 \leftarrow a_s^0) &= \gamma^{(0)}\int\limits_{a_s^0}^{a_s^1} \frac{1}{\beta_0 a_s} da_s = \gamma^{(0)} \cdot j^{(0,0)}(a_s^1,a_s^0)\\
-    j^{(0,0)}(a_s^1,a_s^0) &= \int\limits_{a_s^0}^{a_s^1} \frac{1}{\beta_0 a_s} = \frac{\ln(a_s^1/a_s^0)}{\beta_0}
+    \ln \tilde {\mathbf E}^{(0)}(a_s^1 \leftarrow a_s^0) &= \gamma^{(0)}\int\limits_{a_s^0}^{a_s^1} \frac{da_s}{\beta_0 a_s} = \gamma^{(0)} \cdot j^{(0,0)}(a_s^1,a_s^0)\\
+    j^{(0,0)}(a_s^1,a_s^0) &= \int\limits_{a_s^0}^{a_s^1} \frac{d a_s}{\beta_0 a_s} = \frac{\ln(a_s^1/a_s^0)}{\beta_0}
 
 In LO we always use the *exact* solution.
 
@@ -114,8 +114,8 @@ to NLO we obtain the (exact) EKO :cite:`RuizArriola:1998er,Vogt:2004ns`:
 
 .. math::
     \ln \mathbf{\tilde E}^{(1)}(a_s^1 \leftarrow a_s^0) &= \gamma^{(0)} \cdot j^{(0,1)}(a_s^1,a_s^0) + \gamma^{(1)} \cdot j^{(1,1)}(a_s^1,a_s^0)\\
-    j^{(1,1)}(a_s^1,a_s^0) &= \int\limits_{a_s^0}^{a_s^1} \frac{a_s^2}{\beta_0 a_s^2 + \beta_1 a_s^3} = \frac{1}{\beta_1}\ln\left(\frac{1+b_1 a_s^1}{1+b_1 a_s^0}\right)\\
-    j^{(0,1)}(a_s^1,a_s^0) &= \int\limits_{a_s^0}^{a_s^1} \frac{a_s}{\beta_0 a_s^2 + \beta_1 a_s^3} = j^{(0,0)}(a_s^1,a_s^0) - b_1 j^{(1,1)}(a_s^1,a_s^0)
+    j^{(1,1)}(a_s^1,a_s^0) &= \int\limits_{a_s^0}^{a_s^1}\!da_s\,\frac{a_s^2}{\beta_0 a_s^2 + \beta_1 a_s^3} = \frac{1}{\beta_1}\ln\left(\frac{1+b_1 a_s^1}{1+b_1 a_s^0}\right)\\
+    j^{(0,1)}(a_s^1,a_s^0) &= \int\limits_{a_s^0}^{a_s^1}\!da_s\,\frac{a_s}{\beta_0 a_s^2 + \beta_1 a_s^3} = j^{(0,0)}(a_s^1,a_s^0) - b_1 j^{(1,1)}(a_s^1,a_s^0)
 
 Note that we recover the LO solution:
 

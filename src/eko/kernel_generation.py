@@ -119,6 +119,7 @@ class KernelDispatcher:
         CF = self.constants.CF
         beta_0 = sc.beta_0(nf, self.constants.CA, self.constants.CF, self.constants.TF)
         order = self.order
+        method = self.method
 
         # provide the integrals
         j00 = self.njit(lambda a1, a0: np.log(a1 / a0) / beta_0)
@@ -127,14 +128,12 @@ class KernelDispatcher:
                 nf, self.constants.CA, self.constants.CF, self.constants.TF
             )
             b1 = beta_1 / beta_0
-            if self.method == "LL":
-                j11 = self.njit(
-                    lambda a1, a0: 1 / beta_0 * (a1 - a0)
-                )
-            else:
+            if self.method == "exact":
                 j11 = self.njit(
                     lambda a1, a0: 1 / beta_1 * np.log((1 + a1 * b1) / (1 + a0 * b1))
                 )
+            else:  # LL and truncated
+                j11 = self.njit(lambda a1, a0: 1 / beta_0 * (a1 - a0))
             j01 = self.njit(lambda a1, a0: j00(a1, a0) - b1 * j11(a1, a0))
 
         # singlet kernels
@@ -146,12 +145,28 @@ class KernelDispatcher:
                 # LO
                 gamma_S_0 = ad_lo.gamma_singlet_0(N, nf, CA, CF)
                 ln = gamma_S_0 * j00(a1, a0)
+                do_exp = True
                 # NLO
                 if order > 0:
                     gamma_S_1 = ad_nlo.gamma_singlet_1(N, nf, CA, CF)
-                    ln = gamma_S_0 * j01(a1, a0) + gamma_S_1 * j11(a1, a0)
-                l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(ln)
-                e = e_m * np.exp(l_m) + e_p * np.exp(l_p)
+                    if method == "truncated":
+                        l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(ln)
+                        r1 = gamma_S_1 / beta_0 - b1 * gamma_S_0
+                        u1 = (
+                            e_m @ r1 @ e_m
+                            + e_p @ r1 @ e_p
+                            + ((e_p @ r1 @ e_m) / (l_m - l_p - 1.0))
+                            + ((e_m @ r1 @ e_p) / (l_p - l_m - 1.0))
+                        )
+                        e0 = e_m * np.exp(l_m) + e_p * np.exp(l_p)
+                        e = e0 + a1 * u1 @ e0 - a0 * e0 @ u1
+                        do_exp = False
+                    else:  # exact and LL:
+                        ln = gamma_S_0 * j01(a1, a0) + gamma_S_1 * j11(a1, a0)
+                # for exact and LL we still need to exponentiate
+                if do_exp:
+                    l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(ln)
+                    e = e_m * np.exp(l_m) + e_p * np.exp(l_p)
                 pdf = basis_function(N, lnx)
                 return e[k][l] * pdf
 
@@ -171,15 +186,25 @@ class KernelDispatcher:
                 # LO
                 gamma_ns_0 = ad_lo.gamma_ns_0(n, nf, CA, CF)
                 ln = gamma_ns_0 * j00(a1, a0)
+                do_exp = True
                 # NLO
                 if order > 0:
                     if mode == "p":
                         gamma_ns_1 = ad_nlo.gamma_nsp_1(n, nf, CA, CF)
                     elif mode == "m":
                         gamma_ns_1 = ad_nlo.gamma_nsm_1(n, nf, CA, CF)
-                    ln = gamma_ns_0 * j01(a1, a0) + gamma_ns_1 * j11(a1, a0)
+                    if method == "truncated":
+                        e = np.exp(ln) * (
+                            1.0 + j11(a1, a0) * (gamma_ns_1 - b1 * gamma_ns_0)
+                        )
+                        do_exp = False
+                    else:  # exact and LL
+                        ln = gamma_ns_0 * j01(a1, a0) + gamma_ns_1 * j11(a1, a0)
+                # for exact and LL we still need to exponentiate
+                if do_exp:
+                    e = np.exp(ln)
                 pdf = basis_function(n, lnx)
-                return np.exp(ln) * pdf
+                return e * pdf
 
             return ker_ns
 
