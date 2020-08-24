@@ -46,7 +46,7 @@ class KernelDispatcher:
     def __init__(self, interpol_dispatcher, constants, order, method, numba_it=True):
         # check
         order = int(order)
-        if not method in ["exact", "LL", "truncated"]:
+        if not method in ["exact", "expanded", "truncated"]:
             raise ValueError(f"Unknown evolution mode {method}")
         if order == 0 and method != "exact":
             logger.info("Kernels: In LO we use the exact solution always!")
@@ -55,6 +55,7 @@ class KernelDispatcher:
         self.constants = constants
         self.order = order
         self.method = method
+        self.ev_op_max_order = 10
         self.numba_it = numba_it
         self.kernels = {}
 
@@ -86,14 +87,15 @@ class KernelDispatcher:
         """
         order = int(setup["PTO"])
         mod_ev = setup.get("ModEv", "EXA")
-        if mod_ev == "EXA":
-            method = "exact"
-        elif mod_ev == "EXP":
-            method = "LL"
-        elif mod_ev == "TRN":
-            method = "truncated"
-        else:
-            method = None
+        mod_ev2method = {
+            "EXA": "exact",
+            "EXP": "expanded",
+            "TRN": "truncated",
+            "DECEXA": "decompose-exact",
+            "DECEXP": "decompose-expanded",
+            "ORDTRN": "ordered-truncated",
+        }
+        method = mod_ev2method.get(mod_ev)
         return cls(interpol_dispatcher, constants, order, method, numba_it)
 
     def collect_kers(self, nf, basis_function):
@@ -120,6 +122,7 @@ class KernelDispatcher:
         beta_0 = sc.beta_0(nf, self.constants.CA, self.constants.CF, self.constants.TF)
         order = self.order
         method = self.method
+        ev_op_max_order = self.ev_op_max_order
 
         # provide the integrals
         j00 = self.njit(lambda a1, a0: np.log(a1 / a0) / beta_0)
@@ -128,11 +131,11 @@ class KernelDispatcher:
                 nf, self.constants.CA, self.constants.CF, self.constants.TF
             )
             b1 = beta_1 / beta_0
-            if self.method == "exact":
+            if method in ["exact", "decompose-exact"]:
                 j11 = self.njit(
                     lambda a1, a0: 1 / beta_1 * np.log((1 + a1 * b1) / (1 + a0 * b1))
                 )
-            else:  # LL and truncated
+            else:  # expanded and truncated
                 j11 = self.njit(lambda a1, a0: 1 / beta_0 * (a1 - a0))
             j01 = self.njit(lambda a1, a0: j00(a1, a0) - b1 * j11(a1, a0))
 
@@ -149,21 +152,47 @@ class KernelDispatcher:
                 # NLO
                 if order > 0:
                     gamma_S_1 = ad_nlo.gamma_singlet_1(N, nf, CA, CF)
-                    if method == "truncated":
-                        l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(ln)
-                        r1 = gamma_S_1 / beta_0 - b1 * gamma_S_0
-                        u1 = (
-                            e_m @ r1 @ e_m
-                            + e_p @ r1 @ e_p
-                            + ((e_p @ r1 @ e_m) / (l_m - l_p - 1.0))
-                            + ((e_m @ r1 @ e_p) / (l_p - l_m - 1.0))
-                        )
-                        e0 = e_m * np.exp(l_m) + e_p * np.exp(l_p)
-                        e = e0 + a1 * u1 @ e0 - a0 * e0 @ u1
-                        do_exp = False
-                    else:  # exact and LL:
+                    if method in ["decompose-exact", "decompose-expanded"]:
                         ln = gamma_S_0 * j01(a1, a0) + gamma_S_1 * j11(a1, a0)
-                # for exact and LL we still need to exponentiate
+                    else:
+                        l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(ln)
+                        e0 = e_m * np.exp(l_m) + e_p * np.exp(l_p)
+                        do_exp = False
+                        r1 = gamma_S_1 / beta_0 - b1 * gamma_S_0
+                        r_k = np.zeros((ev_op_max_order,2,2),dtype=np.complex) # k = 1 .. max_order
+                        u_k = np.zeros((ev_op_max_order+1,2,2),dtype=np.complex) # k = 0 .. max_order+1
+                        # init with NLO
+                        r_k[1-1] = r1
+                        u_k[0] = np.identity(2)
+                        # fill R_k
+                        if method == "exact":
+                            for kk in range(2,ev_op_max_order+1):
+                                r_k[kk-1] = -b1 * r1
+                        # compute R'_k and U_k (simultaneously)
+                        for kk in range(1,ev_op_max_order+1):
+                            # this command should be doable with tensordot, but I don't know how, yet
+                            rp_k = sum([r_k[l-1] @ u_k[kk -l] for l in range(kk,0,-1)])
+                            u_k[kk] = (
+                                (e_m @ rp_k @ e_m + e_p @ rp_k @ e_p) / kk
+                                + ((e_p @ rp_k @ e_m) / (l_m - l_p - k))
+                                + ((e_m @ rp_k @ e_p) / (l_p - l_m - k))
+                            )
+                        if method in ["truncated", "ordered-truncated"]:
+                            u1 = u_k[1]
+                            e = e0 + a1 * u1 @ e0 - a0 * e0 @ u1
+                        else:
+                            # U(a_s^1)
+                            a1powers = np.array([a1**kk for kk in range(ev_op_max_order+1)])
+                            uh = np.tensordot(u_k,a1powers,(0,0))
+                            # U(a_s^0)
+                            a0powers = np.array([a0**kk for kk in range(ev_op_max_order+1)])
+                            ul = np.tensordot(u_k,a0powers,(0,0))
+                            # inv(U(a_s^0))
+                            ul_det = ul[0,0] * ul[1,1] - ul[1,0]*ul[0,1]
+                            ul_inv = np.array([[ul[1,1],-ul[0,1]],[-ul[1,0],ul[0,0]]]) / ul_det
+                            e = uh @ e0 @ ul_inv
+
+                # for exact and expanded we still need to exponentiate
                 if do_exp:
                     l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(ln)
                     e = e_m * np.exp(l_m) + e_p * np.exp(l_p)
@@ -198,9 +227,14 @@ class KernelDispatcher:
                             1.0 + j11(a1, a0) * (gamma_ns_1 - b1 * gamma_ns_0)
                         )
                         do_exp = False
-                    else:  # exact and LL
+                    elif method == "ordered-truncated":
+                        e = np.exp(ln) * (
+                            1.0 + a1/beta_0 * (gamma_ns_1 - b1 * gamma_ns_0)
+                        ) / (1.0 + a0/beta_0 * (gamma_ns_1 - b1 * gamma_ns_0))
+                        do_exp = False
+                    else:  # exact and expanded
                         ln = gamma_ns_0 * j01(a1, a0) + gamma_ns_1 * j11(a1, a0)
-                # for exact and LL we still need to exponentiate
+                # for exact and expanded we still need to exponentiate
                 if do_exp:
                     e = np.exp(ln)
                 pdf = basis_function(n, lnx)

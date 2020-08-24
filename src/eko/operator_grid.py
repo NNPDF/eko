@@ -255,9 +255,14 @@ class OperatorGrid:
                     List of q^2
         """
         area_list = self.managers["thresholds_config"].get_areas(q2grid)
+        if self.config["debug_skip_singlet"]:
+            logger.warning("Evolution: skipping singlet sector")
+        if self.config["debug_skip_non_singlet"]:
+            logger.warning("Evolution: skipping non-singlet sector")
         for area, q2 in zip(area_list, q2grid):
             q2_from = area.q2_ref
             nf = area.nf
+            logger.info("Evolution: compute operators %e -> %e",q2_from,q2)
             self._op_grid[q2] = self._op_masters[nf].get_op(q2_from, q2)
         # Now perform the computation
         for op in self._op_grid.values():
@@ -318,7 +323,7 @@ class OperatorGrid:
         if qsq in self._op_grid:
             operator = self._op_grid[qsq]
         else:
-            logger.warning("Q2=%e not found in the grid, computing...", qsq)
+            logger.warning("Evolution: Q2=%e not found in the grid, computing...", qsq)
             self.compute_q2grid(qsq)
             operator = self._op_grid[qsq]
         # Prepare the path for the composition of the operator

@@ -427,7 +427,7 @@ class Operator:
             )
 
         # iterate output grid
-        logger.info("computing operators - 0/%d", grid_size)
+        logger.info("Evolution: computing operators - 0/%d", grid_size)
         sc = self.master.grid.managers["strong_coupling"]
         a1 = sc.a_s(self.q2_to)
         a0 = sc.a_s(self.q2_from)
@@ -460,7 +460,7 @@ class Operator:
                     self.op_members[label].value[k][l] = val
                     self.op_members[label].error[k][l] = err
 
-            logger.info("computing operators - %d/%d", k + 1, grid_size)
+            logger.info("Evolution: computing operators - %d/%d", k + 1, grid_size)
 
         # copy non-singlet kernels, if necessary
         order = self.master.grid.managers["kernel_dispatcher"].order
