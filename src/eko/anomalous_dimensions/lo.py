@@ -6,6 +6,7 @@
 """
 
 import numpy as np
+
 import numba as nb
 
 from eko.ekomath import harmonic_S1 as S1
@@ -87,7 +88,7 @@ def gamma_gq_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
 
       Returns
       -------
-        gamma_qg_0 : complex
+        gamma_gq_0 : complex
           Leading-order gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
     """
     gamma = -(N ** 2 + N + 2.0) / (N * (N + 1.0) * (N - 1.0))
@@ -115,7 +116,7 @@ def gamma_gg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
 
       Returns
       -------
-        gamma_qg_0 : complex
+        gamma_gg_0 : complex
           Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
     gamma = S1(N) - 1 / N / (N - 1) - 1 / (N + 1) / (N + 2)
@@ -163,47 +164,3 @@ def gamma_singlet_0(N, nf: int, CA: float, CF: float):
     gamma_gg = gamma_gg_0(N, nf, CA, CF)
     gamma_S_0 = np.array([[gamma_qq, gamma_qg], [gamma_gq, gamma_gg]])
     return gamma_S_0
-
-
-@nb.njit
-def eigensystem_gamma_singlet_0(gamma_S_0):
-    r"""
-      Computes the Eigensystem of the leading-order singlet anomalous dimension matrix
-
-      Parameters
-      ----------
-        gamma_S_0 : numpy.ndarray
-          leading-order singlet anomalous dimension matrix
-
-      Returns
-      -------
-        lambda_p : complex
-          positive eigenvalue of the Leading-order singlet anomalous dimension matrix
-          :math:`\gamma_{S}^{(0)}(N)`
-        lambda_m : complex
-          negative eigenvalue of the Leading-order singlet anomalous dimension matrix
-          :math:`\gamma_{S}^{(0)}(N)`
-        e_p : np.array
-          projector for the positive eigenvalue of the Leading-order singlet anomalous
-          dimension matrix :math:`\gamma_{S}^{(0)}(N)`
-        e_m : np.array
-          projector for the negative eigenvalue of the Leading-order singlet anomalous
-          dimension matrix :math:`\gamma_{S}^{(0)}(N)`
-
-      See Also
-      --------
-        gamma_singlet_0 : :math:`\gamma_{S}^{(0)}(N)`
-    """
-    # compute eigenvalues
-    det = np.sqrt(
-        np.power(gamma_S_0[0, 0] - gamma_S_0[1, 1], 2)
-        + 4.0 * gamma_S_0[0, 1] * gamma_S_0[1, 0]
-    )
-    lambda_p = 1.0 / 2.0 * (gamma_S_0[0, 0] + gamma_S_0[1, 1] + det)
-    lambda_m = 1.0 / 2.0 * (gamma_S_0[0, 0] + gamma_S_0[1, 1] - det)
-    # compute projectors
-    identity = np.identity(2)
-    c = 1.0 / det
-    e_p = +c * (gamma_S_0 - lambda_m * identity)
-    e_m = -c * (gamma_S_0 - lambda_p * identity)
-    return lambda_p, lambda_m, e_p, e_m

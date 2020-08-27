@@ -18,6 +18,7 @@ import numpy as np
 import numba as nb
 
 import eko.strong_coupling as sc
+import eko.anomalous_dimensions as ad
 import eko.anomalous_dimensions.lo as ad_lo
 import eko.anomalous_dimensions.nlo as ad_nlo
 import eko.mellin as mellin
@@ -46,10 +47,10 @@ class KernelDispatcher:
     def __init__(self, interpol_dispatcher, constants, order, method, numba_it=True):
         # check
         order = int(order)
-        if not method in ["exact", "expanded", "truncated"]:
-            raise ValueError(f"Unknown evolution mode {method}")
+        #if not method in ["exact", "expanded", "truncated", "iterate-exact"]:
+        #    raise ValueError(f"Unknown evolution mode {method}")
         if order == 0 and method != "exact":
-            logger.info("Kernels: In LO we use the exact solution always!")
+            logger.warning("Kernels: In LO we use the exact solution always!")
         # set
         self.interpol_dispatcher = interpol_dispatcher
         self.constants = constants
@@ -88,7 +89,7 @@ class KernelDispatcher:
         order = int(setup["PTO"])
         mod_ev = setup.get("ModEv", "EXA")
         mod_ev2method = {
-            "EXA": "exact",
+            "EXA": "iterate-exact",
             "EXP": "expanded",
             "TRN": "truncated",
             "DECEXA": "decompose-exact",
@@ -148,19 +149,30 @@ class KernelDispatcher:
                 # LO
                 gamma_S_0 = ad_lo.gamma_singlet_0(N, nf, CA, CF)
                 ln = gamma_S_0 * j00(a1, a0)
-                do_exp = True
+                e0, l_p, l_m, e_p, e_m = ad.exp_singlet(ln)
+                e = e0
                 # NLO
                 if order > 0:
                     gamma_S_1 = ad_nlo.gamma_singlet_1(N, nf, CA, CF)
                     if method in ["decompose-exact", "decompose-expanded"]:
                         ln = gamma_S_0 * j01(a1, a0) + gamma_S_1 * j11(a1, a0)
+                        e = ad.exp_singlet(ln)[0]
+                    elif method in ["iterate-exact"]:
+                        n_iter = 16
+                        delta_a = (a1 - a0) / n_iter
+                        e = np.identity(2,dtype=np.complex_)
+                        for kk in range(n_iter):
+                            #al = a0 + k*delta_a
+                            #ah = a0 + (k+1)*delta_a
+                            #ln = gamma_S_0 * j01(ah, al) + gamma_S_1 * j11(ah, al)
+                            a_half = a0 + (kk + 0.5) * delta_a
+                            ln = (gamma_S_0 * a_half + gamma_S_1 * a_half**2 ) / (beta_0 * a_half**2 + beta_1 * a_half**3) * delta_a
+                            ek = ad.exp_singlet(ln)[0]
+                            e = ek @ e
                     else:
-                        l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(ln)
-                        e0 = e_m * np.exp(l_m) + e_p * np.exp(l_p)
-                        do_exp = False
                         r1 = gamma_S_1 / beta_0 - b1 * gamma_S_0
-                        r_k = np.zeros((ev_op_max_order,2,2),dtype=np.complex) # k = 1 .. max_order
-                        u_k = np.zeros((ev_op_max_order+1,2,2),dtype=np.complex) # k = 0 .. max_order+1
+                        r_k = np.zeros((ev_op_max_order,2,2),dtype=np.complex_) # k = 1 .. max_order-1
+                        u_k = np.zeros((ev_op_max_order+1,2,2),dtype=np.complex_) # k = 0 .. max_order
                         # init with NLO
                         r_k[1-1] = r1
                         u_k[0] = np.identity(2)
@@ -170,8 +182,10 @@ class KernelDispatcher:
                                 r_k[kk-1] = -b1 * r1
                         # compute R'_k and U_k (simultaneously)
                         for kk in range(1,ev_op_max_order+1):
-                            # this command should be doable with tensordot, but I don't know how, yet
-                            rp_k = sum([r_k[l-1] @ u_k[kk -l] for l in range(kk,0,-1)])
+                            rp_k_elems = np.zeros((kk+1,2,2),dtype=np.complex_)
+                            for ll in range(kk,0,-1):
+                                rp_k_elems[ll] = r_k[ll-1] @ u_k[kk -l]
+                            rp_k = np.sum(rp_k_elems,axis=0)
                             u_k[kk] = (
                                 (e_m @ rp_k @ e_m + e_p @ rp_k @ e_p) / kk
                                 + ((e_p @ rp_k @ e_m) / (l_m - l_p - k))
@@ -182,20 +196,21 @@ class KernelDispatcher:
                             e = e0 + a1 * u1 @ e0 - a0 * e0 @ u1
                         else:
                             # U(a_s^1)
-                            a1powers = np.array([a1**kk for kk in range(ev_op_max_order+1)])
-                            uh = np.tensordot(u_k,a1powers,(0,0))
+                            uh = np.zeros((2,2),dtype=np.complex_) # k = 0 .. max_order
+                            a1power = 1
+                            for kk in range(ev_op_max_order+1):
+                                uh += a1power * u_k[kk]
+                                a1power *= a1
                             # U(a_s^0)
-                            a0powers = np.array([a0**kk for kk in range(ev_op_max_order+1)])
-                            ul = np.tensordot(u_k,a0powers,(0,0))
+                            ul = np.zeros((2,2),dtype=np.complex_) # k = 0 .. max_order
+                            a0power = 1
+                            for kk in range(ev_op_max_order+1):
+                                ul += a0power * u_k[kk]
+                                a0power *= a0
                             # inv(U(a_s^0))
                             ul_det = ul[0,0] * ul[1,1] - ul[1,0]*ul[0,1]
                             ul_inv = np.array([[ul[1,1],-ul[0,1]],[-ul[1,0],ul[0,0]]]) / ul_det
                             e = uh @ e0 @ ul_inv
-
-                # for exact and expanded we still need to exponentiate
-                if do_exp:
-                    l_p, l_m, e_p, e_m = ad_lo.eigensystem_gamma_singlet_0(ln)
-                    e = e_m * np.exp(l_m) + e_p * np.exp(l_p)
                 pdf = basis_function(N, lnx)
                 return e[k][l] * pdf
 

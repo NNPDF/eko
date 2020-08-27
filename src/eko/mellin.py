@@ -113,12 +113,12 @@ def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e
         limit=LIMIT,
         full_output=1,
     )
-    print(result[:2],result[2]["neval"])
-    for n in [5,10,20,40,63]:
-        dt = (.5-cut)/n
-        ts = np.array([.5 + k*dt for k in range(n)])
-        res = np.sum([integrand(t,extra_args) for t in ts])*dt
-        print(res,n,(result[0] - res)/result[0])
+    #print(result[:2],result[2]["neval"])
+    #for n in [5,10,20,40,63]:
+    #    dt = (.5-cut)/n
+    #    ts = np.array([.5 + k*dt for k in range(n)])
+    #    res = np.sum([integrand(t,extra_args) for t in ts])*dt
+    #    print(res,n,(result[0] - res)/result[0])
     # if len(result) > 3:
     #    print(result)
     return result[:2]
