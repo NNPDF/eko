@@ -57,6 +57,7 @@ class KernelDispatcher:
         self.order = order
         self.method = method
         self.ev_op_max_order = 10
+        self.ev_op_iterations = 10
         self.numba_it = numba_it
         self.kernels = {}
 
@@ -124,6 +125,7 @@ class KernelDispatcher:
         order = self.order
         method = self.method
         ev_op_max_order = self.ev_op_max_order
+        ev_op_iterations = self.ev_op_iterations
 
         # provide the integrals
         j00 = self.njit(lambda a1, a0: np.log(a1 / a0) / beta_0)
@@ -157,35 +159,34 @@ class KernelDispatcher:
                     if method in ["decompose-exact", "decompose-expanded"]:
                         ln = gamma_S_0 * j01(a1, a0) + gamma_S_1 * j11(a1, a0)
                         e = ad.exp_singlet(ln)[0]
-                    elif method in ["iterate-exact"]:
-                        n_iter = 16
-                        delta_a = (a1 - a0) / n_iter
-                        e = np.identity(2,dtype=np.complex_)
-                        for kk in range(n_iter):
-                            #al = a0 + k*delta_a
-                            #ah = a0 + (k+1)*delta_a
-                            #ln = gamma_S_0 * j01(ah, al) + gamma_S_1 * j11(ah, al)
+                    elif method in ["iterate-exact", "iterate-expanded"]:
+                        delta_a = (a1 - a0) / ev_op_iterations
+                        e = np.identity(2, np.complex_)
+                        for kk in range(ev_op_iterations):
                             a_half = a0 + (kk + 0.5) * delta_a
                             ln = (gamma_S_0 * a_half + gamma_S_1 * a_half**2 ) / (beta_0 * a_half**2 + beta_1 * a_half**3) * delta_a
                             ek = ad.exp_singlet(ln)[0]
                             e = ek @ e
-                    else:
+                    else: # perturbative
                         r1 = gamma_S_1 / beta_0 - b1 * gamma_S_0
-                        r_k = np.zeros((ev_op_max_order,2,2),dtype=np.complex_) # k = 1 .. max_order-1
-                        u_k = np.zeros((ev_op_max_order+1,2,2),dtype=np.complex_) # k = 0 .. max_order
+                        r_k = np.zeros((ev_op_max_order,2,2),np.complex_) # k = 1 .. max_order-1
+                        u_k = np.zeros((ev_op_max_order+1,2,2),np.complex_) # k = 0 .. max_order
                         # init with NLO
                         r_k[1-1] = r1
-                        u_k[0] = np.identity(2)
+                        u_k[0] = np.identity(2, np.complex_)
                         # fill R_k
                         if method == "exact":
                             for kk in range(2,ev_op_max_order+1):
                                 r_k[kk-1] = -b1 * r1
                         # compute R'_k and U_k (simultaneously)
-                        for kk in range(1,ev_op_max_order+1):
-                            rp_k_elems = np.zeros((kk+1,2,2),dtype=np.complex_)
+                        max_order = ev_op_max_order
+                        if method in ["truncated", "ordered-truncated"]:
+                            max_order = 1
+                        for kk in range(1,max_order+1):
+                            rp_k_elems = np.zeros((kk+1,2,2),np.complex_)
                             for ll in range(kk,0,-1):
                                 rp_k_elems[ll] = r_k[ll-1] @ u_k[kk -l]
-                            rp_k = np.sum(rp_k_elems,axis=0)
+                            rp_k = np.sum(rp_k_elems,0)
                             u_k[kk] = (
                                 (e_m @ rp_k @ e_m + e_p @ rp_k @ e_p) / kk
                                 + ((e_p @ rp_k @ e_m) / (l_m - l_p - k))
@@ -193,23 +194,30 @@ class KernelDispatcher:
                             )
                         if method in ["truncated", "ordered-truncated"]:
                             u1 = u_k[1]
-                            e = e0 + a1 * u1 @ e0 - a0 * e0 @ u1
+                            n_iter = 8
+                            delta_a = (a1 - a0) / n_iter
+                            e = np.identity(2,np.complex_)
+                            for kk in range(n_iter):
+                                al = a0 + k * delta_a
+                                ah = al + delta_a
+                                ek = e0 + ah * u1 @ e0 - al * e0 @ u1
+                                e = ek @ e
                         else:
                             # U(a_s^1)
-                            uh = np.zeros((2,2),dtype=np.complex_) # k = 0 .. max_order
+                            uh = np.zeros((2,2),np.complex_) # k = 0 .. max_order
                             a1power = 1
                             for kk in range(ev_op_max_order+1):
                                 uh += a1power * u_k[kk]
                                 a1power *= a1
                             # U(a_s^0)
-                            ul = np.zeros((2,2),dtype=np.complex_) # k = 0 .. max_order
+                            ul = np.zeros((2,2),np.complex_) # k = 0 .. max_order
                             a0power = 1
                             for kk in range(ev_op_max_order+1):
                                 ul += a0power * u_k[kk]
                                 a0power *= a0
                             # inv(U(a_s^0))
                             ul_det = ul[0,0] * ul[1,1] - ul[1,0]*ul[0,1]
-                            ul_inv = np.array([[ul[1,1],-ul[0,1]],[-ul[1,0],ul[0,0]]]) / ul_det
+                            ul_inv = np.array([[ul[1,1],-ul[0,1]],[-ul[1,0],ul[0,0]]],np.complex_) / ul_det
                             e = uh @ e0 @ ul_inv
                 pdf = basis_function(N, lnx)
                 return e[k][l] * pdf

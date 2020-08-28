@@ -23,26 +23,27 @@ and the equations to solve become
         = \frac{d\ln(\mu_F^2)}{da_s} \cdot \frac{d \tilde{\mathbf{f}}(\mu_F^2)}{d\ln(\mu_F^2)} 
         = -\frac{\gamma(a_s)}{\beta(a_s)} \cdot \tilde{\mathbf{f}}(a_s)
 
-The (formal) solution can then be written in terms of an evolution kernel operator (EKO) :math:`\mathbf E`
+The (formal) solution can then be written in terms of an evolution kernel operator (EKO) :math:`\mathbf E` :cite:`Bonvini:2012sh`
 
 .. math::
-    \tilde{\mathbf{f}}(a_s^1) &= \tilde{\mathbf{E}}(a_s^1 \leftarrow a_s^0) \cdot \tilde{\mathbf{f}}(a_s^0)\\
-    \tilde{\mathbf{E}}(a_s^1 \leftarrow a_s^0) &= \exp\left[-\int\limits_{a_s^0}^{a_s^1} \frac{\gamma(a_s)}{\beta(a_s)} da_s \right]
+    \tilde{\mathbf{f}}(a_s) &= \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) \cdot \tilde{\mathbf{f}}(a_s^0)\\
+    \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) &= \mathcal P \exp\left[-\int\limits_{a_s^0}^{a_s} \frac{\gamma(a_s')}{\beta(a_s')} da_s' \right]
+
+with :math:`\mathcal P` the path-ordering operator. In the non-singlet sector the equations decouple and
+we do not need to worry about neither matrices nor the path-ordering.
 
 Using :doc:`Interpolation <Interpolation>` on both the inital and final PDF, we can then discretize the
 EKO in x-space and define :math:`{\mathbf{E}}_{k,j}` (represented by
 :class:`~eko.evolution_operator.PhysicalOperator`) by
 
 .. math::
-    {\mathbf{E}}_{k,j}(a_s^1 \leftarrow a_s^0) = \mathcal{M}^{-1}\left[\tilde{\mathbf{E}}(a_s^1 \leftarrow a_s^0)\tilde p_j\right](x_k)
+    {\mathbf{E}}_{k,j}(a_s \leftarrow a_s^0) = \mathcal{M}^{-1}\left[\tilde{\mathbf{E}}(a_s \leftarrow a_s^0)\tilde p_j\right](x_k)
 
 Now, we can write the solution to DGLAP in a true matrix operator scheme and find
 
 .. math::
-    \mathbf{f}(x_k,a_s^1) = {\mathbf{E}}_{k,j}(a_s^1 \leftarrow a_s^0) \mathbf{f}(x_j,a_s^0)
+    \mathbf{f}(x_k,a_s) = {\mathbf{E}}_{k,j}(a_s \leftarrow a_s^0) \mathbf{f}(x_j,a_s^0)
 
-
-In the non-singlet sector the equations decouple and we do not need to worry about matrices.
 
 The issue of matching conditions when crossing flavor thresholds is dicussed in a seperate :doc:`document <Matching>`
 
@@ -53,8 +54,8 @@ Expanding the anomalous dimension :math:`\gamma(a_s)` and the beta function :mat
 to LO we obtain the (exact) EKO:
 
 .. math::
-    \ln \tilde {\mathbf E}^{(0)}(a_s^1 \leftarrow a_s^0) &= \gamma^{(0)}\int\limits_{a_s^0}^{a_s^1} \frac{da_s}{\beta_0 a_s} = \gamma^{(0)} \cdot j^{(0,0)}(a_s^1,a_s^0)\\
-    j^{(0,0)}(a_s^1,a_s^0) &= \int\limits_{a_s^0}^{a_s^1} \frac{d a_s}{\beta_0 a_s} = \frac{\ln(a_s^1/a_s^0)}{\beta_0}
+    \ln \tilde {\mathbf E}^{(0)}(a_s \leftarrow a_s^0) &= \gamma^{(0)}\int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'} = \gamma^{(0)} \cdot j^{(0,0)}(a_s,a_s^0)\\
+    j^{(0,0)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'} = \frac{\ln(a_s/a_s^0)}{\beta_0}
 
 In LO we always use the *exact* solution.
 
@@ -71,7 +72,7 @@ with :math:`\gamma_{ns}^{(0)} = \gamma_{ns,+}^{(0)} = \gamma_{ns,-}^{(0)} = \gam
 The EKO is then given by a simple exponential :cite:`Vogt:2004ns`
 
 .. math::
-    \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) = \exp\left[\gamma_{ns}^{(0)} \ln(a_s^1/a_s^0)/\beta_0 \right]
+    \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) = \exp\left[\gamma_{ns}^{(0)} \ln(a_s/a_s^0)/\beta_0 \right]
 
 LO Singlet Evolution
 ^^^^^^^^^^^^^^^^^^^^
@@ -104,31 +105,10 @@ and thus the exponentiation becomes easier again.
 The EKO is then given by
 
 .. math::
-    \ESk{0}{a_s^1}{a_s^0} = \em \exp(\lambda_{-}) + \ep \exp(\lambda_{+})
+    \ESk{0}{a_s}{a_s^0} = \em \exp(\lambda_{-}) + \ep \exp(\lambda_{+})
 
 Next-to-Leading Order
 ---------------------
-
-Expanding the anomalous dimension :math:`\gamma(a_s)` and the beta function :math:`\beta(a_s)`
-to NLO we obtain the (exact) EKO :cite:`RuizArriola:1998er,Vogt:2004ns`:
-
-.. math::
-    \ln \mathbf{\tilde E}^{(1)}(a_s^1 \leftarrow a_s^0) &= \gamma^{(0)} \cdot j^{(0,1)}(a_s^1,a_s^0) + \gamma^{(1)} \cdot j^{(1,1)}(a_s^1,a_s^0)\\
-    j^{(1,1)}(a_s^1,a_s^0) &= \int\limits_{a_s^0}^{a_s^1}\!da_s\,\frac{a_s^2}{\beta_0 a_s^2 + \beta_1 a_s^3} = \frac{1}{\beta_1}\ln\left(\frac{1+b_1 a_s^1}{1+b_1 a_s^0}\right)\\
-    j^{(0,1)}(a_s^1,a_s^0) &= \int\limits_{a_s^0}^{a_s^1}\!da_s\,\frac{a_s}{\beta_0 a_s^2 + \beta_1 a_s^3} = j^{(0,0)}(a_s^1,a_s^0) - b_1 j^{(1,1)}(a_s^1,a_s^0)
-
-Note that we recover the LO solution:
-
-.. math::
-    \ln \mathbf{\tilde E}^{(1)}(a_s^1 \leftarrow a_s^0) = \ln \mathbf{\tilde E}^{(0)}(a_s^1 \leftarrow a_s^0) + j^{(1,1)}(a_s^1,a_s^0)(\gamma^{(1)} - b_1 \gamma^{(0)})
-
-In NLO we employ 3 different strategies to define the EKO:
-
-- ``method='exact'``: use the *exact* solution as defined above
-- ``method='LL'``: use the leading logarithmic approximation, i.e. use the *exact* LO solution and substitute
-  :math:`j^{(1,1)}(a_s^1,a_s^0) \to j^{(1,1)}_{\tLL}(a_s^1,a_s^0) = \frac 1 {\beta_0}(a_s^1 - a_s^0)`
-  and :math:`j^{(0,1)}(a_s^1,a_s^0) \to j^{(0,1)}_{\tLL}(a_s^1,a_s^0) = j^{(0,0)}(a_s^1,a_s^0) - b_1 j^{(1,1)}_{\tLL}(a_s^1,a_s^0)`
-- ``method='truncated'``: here the implementation depends on the sector
 
 NLO Non-Singlet Evolution
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -140,17 +120,33 @@ We find
 
 with :math:`\gamma_{ns} \in \{\gamma_{ns,+},\gamma_{ns,-}=\gamma_{ns,v}\}`.
 
-In addition to the exact and the LL solution we define the truncated solutions :cite:`Vogt:2004ns` :
-
-- expanding the *argument* of the exponential of the new term but keeping the order we obtain:
+We obtain the (exact) EKO :cite:`RuizArriola:1998er,Vogt:2004ns,Bonvini:2012sh`:
 
 .. math::
-    \tilde E^{(1),\text{truncated'}}_{ns}(a_s^1 \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) \frac{1 + a_s^1/\beta_0 (\gamma_{ns}^{(1)} - b_1 \gamma_{ns}^{(0)})}{1 + a_s^0/\beta_0 (\gamma_{ns}^{(1)} - b_1 \gamma_{ns}^{(0)})}
+    \tilde E^{(1)}_{ns}(a_s \leftarrow a_s^0) &= \gamma^{(0)} \cdot j^{(0,1)}(a_s,a_s^0) + \gamma^{(1)} \cdot j^{(1,1)}(a_s,a_s^0)\\
+    j^{(1,1)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3} = \frac{1}{\beta_1}\ln\left(\frac{1+b_1 a_s}{1+b_1 a_s^0}\right)\\
+    j^{(0,1)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3} = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}(a_s,a_s^0)
 
-- ``method='truncated'``: expanding the *whole* exponential of the new term we obtain:
+Note that we recover the LO solution:
 
 .. math::
-    \tilde E^{(1),\text{truncated}}_{ns}(a_s^1 \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s^1 \leftarrow a_s^0) \left[1 + (a_s^1 - a_s^0)/\beta_0 (\gamma_{ns}^{(1)} - b_1 \gamma_{ns}^{(0)}) \right]
+    \tilde E^{(1)}_{ns}(a_s \leftarrow a_s^0) = \ln \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) + j^{(1,1)}(a_s,a_s^0)(\gamma^{(1)} - b_1 \gamma^{(0)})
+
+In NLO we provide different strategies to define the EKO:
+
+- ``method in ['iterate-exact', 'decompose-exact', 'perturbative-exact']``: use the *exact* solution as defined above
+- ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* LO solution and substitute
+  :math:`j^{(1,1)}(a_s,a_s^0) \to j^{(1,1)}(a_s,a_s^0) = \frac 1 {\beta_0}(a_s - a_s^0)`
+  and :math:`j^{(0,1)}(a_s,a_s^0) \to j^{(0,1)}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}(a_s,a_s^0)`
+- ``method = 'ordered-truncated'``: expanding the *argument* of the exponential of the new term but keeping the order we obtain:
+
+.. math::
+    \tilde E^{(1)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \frac{1 + a_s/\beta_0 (\gamma_{ns}^{(1)} - b_1 \gamma_{ns}^{(0)})}{1 + a_s^0/\beta_0 (\gamma_{ns}^{(1)} - b_1 \gamma_{ns}^{(0)})}
+
+- ``method = 'truncated'``: expanding the *whole* exponential of the new term we obtain:
+
+.. math::
+    \tilde E^{(1)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \left[1 + (a_s - a_s^0)/\beta_0 (\gamma_{ns}^{(1)} - b_1 \gamma_{ns}^{(0)}) \right]
 
 NLO Singlet Evolution
 ^^^^^^^^^^^^^^^^^^^^^
@@ -162,11 +158,29 @@ We find
 
 with :math:`\gamma_{S}^{(0)} \gamma_{S}^{(1)} \neq \gamma_{S}^{(1)} \gamma_{S}^{(0)}`.
 
-For the exact and the LL solution we use again the decomposition defined in LO (now using
-:math:`\ln \tilde{\mathbf E}^{(1)}` of course).
+Here the strategies are:
 
-For ``method='truncated'`` we seek for an perturbative solution around the
-(exact) leading order operator: We set :cite:`Vogt:2004ns`
+For ``method in ['iterate-exact', 'iterate-expanded']`` we use a discretized path-ordering :cite:`Bonvini:2012sh`:
+
+.. math::
+    \ESk{1}{a_s}{a_s^0} = \prod\limits_{k=n}^{0} \ESk{1}{a_s^{k+1}}{a_s^{k}}\quad \text{with} a_s^{n+1} = a_s
+
+where the order of the product is such that later EKOs are to the left and
+
+.. math::
+    \ESk{1}{a_s^{k+1}}{a_s^{k}} &= \exp\left(-\frac{\gamma(a_s^{k+1/2})}{\beta(a_s^{k+1/2})} \Delta a_s \right) \\
+    a_s^{k+1/2} &= a_0 + \left(k+ \frac 1 2\right) \Delta a_s\\
+    \Delta a_s &= \frac{a_s - a_s^0}{n + 1}
+
+using the projector algebra from LO to exponentiate the single steps.
+
+For ``method in ['decompose-exact', 'decompose-expanded']``: use the exact or the approximate exact
+integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(1)}` - 
+this will neglect the non-commutativity of the singlet matrices.
+
+For ``method in ['perturbative-exact', 'perturbative-expanded', 'ordered-truncated', 'truncated']``
+we seek for an perturbative solution around the (exact) leading order operator:
+We set :cite:`Vogt:2004ns`
 
 .. math::
     \frac{d}{da_s} \dSV{1}{a_s} = \frac{\mathbf R (a_s)}{a_s} \cdot \dSV{1}{a_s}\,, \quad
@@ -177,13 +191,16 @@ where in NLO we find
 .. math::
     \mathbf R_0 = \gamma_{S}^{(0)}/\beta_0\,,\quad
     \mathbf R_1 = \gamma_{S}^{(1)}/\beta_0 - b_1 \gamma_{S}^{(0)}
-    \quad \text{and} \quad
-    \mathbf R_k = - b_1 \mathbf R_{k-1}\,\text{for}\,k>1
+
+and for the higher coefficients
+
+- ``method = 'perturbative-exact'``: :math:`\mathbf R_k = - b_1 \mathbf R_{k-1}\,\text{for}\,k>1`
+- ``method = 'perturbative-expanded'``: :math:`\mathbf R_k = 0\,\text{for}\,k>1`
 
 We make an ansatz for the solution
 
 .. math::
-    \ESk{1}{a_s^1}{a_s^0} = \mathbf U (a_s^1) \ESk{0}{a_s^1}{a_s^0} {\mathbf U}^{-1} (a_s^0), \quad
+    \ESk{1}{a_s}{a_s^0} = \mathbf U (a_s) \ESk{0}{a_s}{a_s^0} {\mathbf U}^{-1} (a_s^0), \quad
     \mathbf U (a_s) = \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
 
 Inserting this ansatz into the differential equation and sorting by powers of :math:`a_s`, we
@@ -204,7 +221,11 @@ we obtain the :math:`\mathbf U_k`:
 .. math::
     \mathbf U_k = \frac{ \em \mathbf{R}_k' \em + \em \mathbf{R}_k' \ep } k + \frac{\ep \mathbf{R}_k' \em}{r_- - r_+ - k} + \frac{\em \mathbf{R}_k' \ep}{r_+ - r_- -k}
 
-Now, we can define the truncated solution:
+So the strategies are
+
+- ``method in ['perturbative-exact', 'perturbative-expanded']``: approximate the full evolution
+  operator :math:`U(a_s)` with an expansion up to ``ev_op_max_order``
+- ``method in ['ordered-truncated', 'truncated']``: truncate the evolution operator :math:`U(a_s)` and use
 
 .. math::
-    \mathbf {\tilde E}^{(1),\text{truncated}}_{S}(a_s^1 \leftarrow a_s^0) = \mathbf{\tilde E}^{(0)}_{S}(a_s^1 \leftarrow a_s^0) + a_s^1 \mathbf U_1 \mathbf{\tilde E}^{(0)}_{S}(a_s^1 \leftarrow a_s^0) - a_s^0 \mathbf{\tilde E}^{(0)}_{S}(a_s^1 \leftarrow a_s^0) \mathbf U_1
+    \ESk{1}{a_s}{a_s^0} = \ESk{0}{a_s}{a_s^0} + a_s \mathbf U_1 \ESk{0}{a_s}{a_s^0} - a_s^0 \ESk{0}{a_s}{a_s^0} \mathbf U_1

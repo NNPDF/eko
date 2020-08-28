@@ -162,5 +162,5 @@ def gamma_singlet_0(N, nf: int, CA: float, CF: float):
     gamma_qg = gamma_qg_0(N, nf, CA, CF)
     gamma_gq = gamma_gq_0(N, nf, CA, CF)
     gamma_gg = gamma_gg_0(N, nf, CA, CF)
-    gamma_S_0 = np.array([[gamma_qq, gamma_qg], [gamma_gq, gamma_gg]])
+    gamma_S_0 = np.array([[gamma_qq, gamma_qg], [gamma_gq, gamma_gg]], np.complex_)
     return gamma_S_0

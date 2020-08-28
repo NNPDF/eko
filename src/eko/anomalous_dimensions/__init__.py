@@ -33,7 +33,7 @@ def exp_singlet(gamma_S):
 
       Returns
       -------
-        exp : np.ndarray
+        exp : numpy.ndarray
           exponential of the singlet anomalous dimension matrix :math:`\gamma_{S}(N)`
         lambda_p : complex
           positive eigenvalue of the singlet anomalous dimension matrix
@@ -41,10 +41,10 @@ def exp_singlet(gamma_S):
         lambda_m : complex
           negative eigenvalue of the singlet anomalous dimension matrix
           :math:`\gamma_{S}(N)`
-        e_p : np.ndarray
+        e_p : numpy.ndarray
           projector for the positive eigenvalue of the singlet anomalous
           dimension matrix :math:`\gamma_{S}(N)`
-        e_m : np.ndarray
+        e_m : numpy.ndarray
           projector for the negative eigenvalue of the singlet anomalous
           dimension matrix :math:`\gamma_{S}(N)`
 
@@ -61,7 +61,7 @@ def exp_singlet(gamma_S):
     lambda_p = 1.0 / 2.0 * (gamma_S[0, 0] + gamma_S[1, 1] + det)
     lambda_m = 1.0 / 2.0 * (gamma_S[0, 0] + gamma_S[1, 1] - det)
     # compute projectors
-    identity = np.identity(2)
+    identity = np.identity(2, np.complex_)
     c = 1.0 / det
     e_p = +c * (gamma_S - lambda_m * identity)
     e_m = -c * (gamma_S - lambda_p * identity)
