@@ -463,7 +463,7 @@ class Operator:
             logger.info("Evolution: computing operators - %d/%d", k + 1, grid_size)
 
         # copy non-singlet kernels, if necessary
-        order = self.master.grid.managers["kernel_dispatcher"].order
+        order = self.master.grid.managers["kernel_dispatcher"].config["order"]
         if order == 0:  # in LO +=-=v
             for label in ["NS_v", "NS_m"]:
                 self.op_members[label].value = self.op_members["NS_p"].value.copy()

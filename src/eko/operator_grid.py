@@ -94,7 +94,7 @@ class OperatorGrid:
         self.config = dict(
             q2_grid=q2_grid,
             xgrid=kernel_dispatcher.interpol_dispatcher.xgrid_raw,
-            order=kernel_dispatcher.order,
+            order=kernel_dispatcher.config["order"],
             # debug options
             debug_skip_singlet=False,
             debug_skip_non_singlet=False,
@@ -137,7 +137,7 @@ class OperatorGrid:
                 obj : cls
                     created object
         """
-        q2_grid = setup["Q2grid"]
+        q2_grid = np.array(setup["Q2grid"], np.float_)
         obj = cls(q2_grid, thresholds_config, strong_coupling, kernel_dispatcher)
         # set debug options
         for op in ["debug_skip_singlet", "debug_skip_non_singlet"]:

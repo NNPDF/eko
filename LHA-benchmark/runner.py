@@ -6,12 +6,15 @@ import logging
 import sys
 import copy
 import pathlib
+import pprint
+import io
+
 import yaml
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from tools import plot_dist, save_all_operators_to_pdf, merge_dicts
+from plots import plot_dist, plot_operator
 
 from eko import run_dglap
 
@@ -141,7 +144,7 @@ here = pathlib.Path(__file__).parent
 assets_path = here / "assets"
 
 # load data
-with open(here / "LHA-benchmark-paper.yaml") as o:
+with open(here / "data.yaml") as o:
     LHA_data = yaml.safe_load(o)
 
 
@@ -165,43 +168,21 @@ class LHABenchmarkPaper:
                 skip singlet integration
     """
 
-    def __init__(
-        self,
-        order,
-        mod_ev,
-        xgrid,
-        polynomial_degree,
-        flag,
-        *,
-        debug_skip_singlet=False,
-        debug_skip_non_singlet=False,
-    ):
-        self._order = order
-        self._flag = flag
+    def __init__(self, path):
+        print(path)
+        if not isinstance(path, pathlib.Path):
+            path = pathlib.Path(path)
+        self.path = path
+        with open(path, "r") as infile:
+            self.setup = yaml.safe_load(infile)
         # default config for post processing
         self.post_process_config = {
             "plot_PDF": True,
             "plot_operator": True,
             "write_operator": True,
         }
-        # default setup
-        self._Q2init = 2
-        self._Q2final = 1e4
-        self._setup = {
-            "PTO": self._order,
-            "ModEv": mod_ev,
-            "alphas": 0.35,
-            "Qref": np.sqrt(2),
-            "mc": np.sqrt(self._Q2init),
-            "mb": 4.5,
-            "mt": 175.0,
-            "interpolation_xgrid": xgrid,
-            "interpolation_polynomial_degree": polynomial_degree,
-            "debug_skip_singlet": debug_skip_singlet,
-            "debug_skip_non_singlet": debug_skip_non_singlet,
-        }
 
-    def _post_process(self, output, ref, tag):
+    def _post_process(self, output):
         """
             Handles the post processing of the run according to the configuration.
 
@@ -214,26 +195,23 @@ class LHABenchmarkPaper:
                 tag : string
                     file tag
         """
-        label_order = "N" * self._order + "LO"
-        label_mod_ev = self._setup["ModEv"]
         # dump operators to file
         if self.post_process_config["write_operator"]:
-            p = assets_path / f"LHA-{label_order}-{label_mod_ev}-{tag}-ops-{flag}.yaml"
+            p = assets_path / (self.path.stem + "-ops.yaml")
             output.dump_yaml_to_file(p)
             print(f"write operator to {p}")
         # pdf comparison
         if self.post_process_config["plot_PDF"]:
-            p = assets_path / f"LHA-{label_order}-{label_mod_ev}-{tag}-plots-{flag}.pdf"
-            self._save_final_scale_plots_to_pdf(p, output, ref)
+            p = assets_path / (self.path.stem + "-plots.pdf")
+            self.save_final_scale_plots_to_pdf(p, output)
             print(f"write pdf plots to {p}")
         # graphical representation of operators
         if self.post_process_config["plot_operator"]:
-            first_ops = list(output["Q2grid"].values())[0]
-            p = assets_path / f"LHA-{label_order}-{label_mod_ev}-{tag}-ops-{flag}.pdf"
-            save_all_operators_to_pdf(first_ops, p)
+            p = assets_path / (self.path.stem + "-ops.pdf")
+            self.save_all_operators_to_pdf(output, p)
             print(f"write operator plots to {p}")
 
-    def ref(self, fns):
+    def ref(self):
         """
             Load the reference data from the paper.
 
@@ -247,112 +225,87 @@ class LHABenchmarkPaper:
                 ref : dict
                     (rotated) reference data
         """
+        fns = self.setup["FNS"]
+        order = self.setup["PTO"]
         if fns == "FFNS":
-            if self._order == 0:
+            if order == 0:
                 return rotate_data(LHA_data["table2"]["part2"])
-            if self._order == 1:
+            if order == 1:
                 return rotate_data(LHA_data["table3"]["part1"])
-        if fns == "ZMVFNS":
-            if self._order == 0:
+        if fns == "ZM-VFNS":
+            if order == 0:
                 return rotate_data(LHA_data["table2"]["part3"])
-            if self._order == 1:
+            if order == 1:
                 return rotate_data(LHA_data["table4"]["part1"])
-        raise ValueError(f"unknown FNS {fns} or order {self._order}")
+        raise ValueError(f"unknown FNS {fns} or order {order}")
 
-    def _run_FFNS_raw(self, tag, Q2init, Q2final):
+    def run(self):
         """
-            Runs a fixed-flavor-number-scheme configuration.
+            Runs the input card
+
+            Returns
+            -------
+                ret : dict
+                    DGLAP result
+        """
+        ret = run_dglap(self.setup)
+        self._post_process(ret)
+        return ret
+
+    def input_figure(self, output):
+        """
+            Pretty-prints the setup to a figure
 
             Parameters
             ----------
-                tag : string
-                    file tag
-                Q2init : t_flaot
-                    init scale squared
-                Q2final : t_flaot
-                    final scale squared
+                output : eko.output.Output
+                    DGLAP result
 
             Returns
             -------
-                ret : dict
-                    DGLAP result
+                firstPage : matplotlib.pyplot.Figure
+                    figure
         """
-        add_setup = {
-            "FNS": "FFNS",
-            "NfFF": 4,
-            "Q0": np.sqrt(Q2init),
-            "Q2grid": [Q2final],
-        }
-        # xgrid can be a copy, so we don't need a deep copy here
-        setup = merge_dicts(copy.copy(self._setup), add_setup)
-        ret = run_dglap(setup)
-        self._post_process(ret, self.ref("FFNS"), tag)
-        return ret
+        firstPage = plt.figure(figsize=(10,8))
+        firstPage.text(0.,1, "Setup:", size=14, ha="left",va="top")
+        setup = copy.deepcopy(output)
+        del setup["Q2grid"]
+        str_stream = io.StringIO()
+        pprint.pprint(setup, stream=str_stream)
+        firstPage.text(0.,.95, str_stream.getvalue(), size=12, ha="left",va="top")
+        return firstPage
 
-    def run_FFNS(self):
+    def save_all_operators_to_pdf(self, output, path):
         """
-            Runs the fixed-flavor-number-scheme configuration.
-
-            Returns
-            -------
-                ret : dict
-                    DGLAP result
-        """
-        ret = self._run_FFNS_raw("FFNS", self._Q2init, self._Q2final)
-        return ret
-
-    def run_FFNS_twostep(self, Q2mid):
-        """
-            Runs the fixed-flavor-number-scheme configuration with a step in the middle.
+            Output all operator heatmaps to PDF.
 
             Parameters
             ----------
-                Q2mid : float
-                    break point
-
-            Returns
-            -------
-                ret2t1 : dict
+                output : eko.output.Output
                     DGLAP result
+                path : string
+                    target file name
         """
-        # suppress PDF plots for single steps
-        plot_PDF = self.post_process_config["plot_PDF"]
-        self.post_process_config["plot_PDF"] = False
-        # step 1
-        step1 = self._run_FFNS_raw("FFNS-twostep-step1", self._Q2init, Q2mid)
-        # step 2
-        step2 = self._run_FFNS_raw("FFNS-twostep-step2", Q2mid, self._Q2final)
-        # join 2*1
-        self.post_process_config["plot_PDF"] = plot_PDF
-        ret2t1 = step2.concat(step1)
-        self._post_process(ret2t1, self.ref("FFNS"), "FFNS-twostep-step2t1")
-        return ret2t1
+        first_ops = list(output["Q2grid"].values())[0]
+        with PdfPages(path) as pp:
+            # print setup
+            firstPage = self.input_figure(output)
+            pp.savefig()
+            plt.close(firstPage)
+            # print operators
+            for label in first_ops["operators"]:
+                try:
+                    fig = plot_operator(first_ops, label)
+                    pp.savefig()
+                finally:
+                    if fig:
+                        plt.close(fig)
 
-    def run_ZMVFNS(self):
-        """
-            Runs Zero-mass variable-flavor-number-scheme configuration.
-
-            Returns
-            -------
-                ret : dict
-                    DGLAP result
-        """
-        add_setup = {
-            "FNS": "ZM-VFNS",
-            "Q0": np.sqrt(self._Q2init),
-            "Q2grid": [self._Q2final],
-        }
-        # xgrid can be copy, so we don't need a deep copy
-        setup = merge_dicts(copy.copy(self._setup), add_setup)
-        ret = run_dglap(setup)
-        self._post_process(ret, self.ref("ZMVFNS"), "ZMVFNS")
-        return ret
-
-    def _save_final_scale_plots_to_pdf(self, path, output, ref):
+    def save_final_scale_plots_to_pdf(self, path, output):
         """
             Plots all PDFs at the final scale.
 
-            The reference values are given in Table 2 part 2,3 of :cite:`Giele:2002hx`.
+            The reference values by :cite:`Giele:2002hx`.
 
             Parameters
             ----------
@@ -360,33 +313,33 @@ class LHABenchmarkPaper:
                     output path
                 output : eko.output.Output
                     DGLAP result
-                ref : dict
-                    reference result
         """
-        pp = PdfPages(path)
         # get
         pdf_grid = output.apply_pdf(LHA_init_pdfs, toy_xgrid)
         first_res = list(pdf_grid.values())[0]
         my_pdfs = first_res["pdfs"]
         my_pdf_errs = first_res["errors"]
-        # iterate all pdf
-        for key in my_pdfs:
-            # skip trivial plots
-            if key in ["V8", "V15", "V24", "V35", "T35"]:
-                continue
-            # plot
-            fig = plot_dist(
-                toy_xgrid,
-                toy_xgrid * my_pdfs[key],
-                toy_xgrid * my_pdf_errs[key],
-                ref[key],
-                title=f"x{key}(x,µ_F^2 = 10^4 GeV^2)",
-            )
+        ref = self.ref()
+        with PdfPages(path) as pp:
+            # print setup
+            firstPage = self.input_figure(output)
             pp.savefig()
-            plt.close(fig)
-        # close
-        pp.close()
-
+            plt.close(firstPage)
+            # iterate all pdf
+            for key in my_pdfs:
+                # skip trivial plots
+                if key in ["V8", "V15", "V24", "V35", "T35"]:
+                    continue
+                # plot
+                fig = plot_dist(
+                    toy_xgrid,
+                    toy_xgrid * my_pdfs[key],
+                    toy_xgrid * my_pdf_errs[key],
+                    ref[key],
+                    title=f"x{key}(x,µ_F^2 = 10^4 GeV^2)",
+                )
+                pp.savefig()
+                plt.close(fig)
 
 def save_initial_scale_plots_to_pdf(path):
     """
@@ -402,44 +355,33 @@ def save_initial_scale_plots_to_pdf(path):
             path : string
                 output path
     """
-    pp = PdfPages(path)
     LHA_init_grid_ref = LHA_data["table2"]["part1"]
-    # iterate all raw labels
-    for j, label in enumerate(raw_label_list):
-        # skip trivial plots
-        if label in ["c_p", "b_p"]:
-            continue
-        me = LHA_init_grid[j]
-        ref = LHA_init_grid_ref[label]
-        fig = plot_dist(
-            toy_xgrid,
-            toy_xgrid * me,
-            np.zeros(len(me)),
-            ref,
-            title=f"x{label}(x,µ_F^2 = 2 GeV^2)",
-        )
-        pp.savefig()
-        plt.close(fig)
-    # close
-    pp.close()
+    with PdfPages(path) as pp:
+        # iterate all raw labels
+        for j, label in enumerate(raw_label_list):
+            # skip trivial plots
+            if label in ["c_p", "b_p"]:
+                continue
+            me = LHA_init_grid[j]
+            ref = LHA_init_grid_ref[label]
+            fig = plot_dist(
+                toy_xgrid,
+                toy_xgrid * me,
+                np.zeros(len(me)),
+                ref,
+                title=f"x{label}(x,µ_F^2 = 2 GeV^2)",
+            )
+            pp.savefig()
+            plt.close(fig)
+    print(f"Initial scale pdf plots written to {path}")
 
 
 if __name__ == "__main__" and True:
-    # setup
-    order = 1
-    mod_ev = "TRN"
-    n_low = 30
-    n_mid = 20
-    polynom_rank = 4
-    debug_skip_singlet = False
-    debug_skip_non_singlet = True
-
     # combine grid
-    flag = f"l{n_low}m{n_mid}r{polynom_rank}"
-    xgrid_low = np.geomspace(1e-7, 1.0 if n_mid == 0 else 0.1, n_low)
-    xgrid_mid = np.linspace(0.1, 1.0, n_mid)
-    xgrid_high = np.array([])
-    xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
+    #xgrid_low = np.geomspace(1e-7, 1.0 if n_mid == 0 else 0.1, n_low)
+    #xgrid_mid = np.linspace(0.1, 1.0, n_mid)
+    #xgrid_high = np.array([])
+    #xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
 
     # activate logging
     logStdout = logging.StreamHandler(sys.stdout)
@@ -450,23 +392,8 @@ if __name__ == "__main__" and True:
     logging.getLogger("eko").setLevel(logging.INFO)
 
     # run
-    app = LHABenchmarkPaper(
-        order,
-        mod_ev,
-        xgrid,
-        polynom_rank,
-        flag,
-        debug_skip_singlet=debug_skip_singlet,
-        debug_skip_non_singlet=debug_skip_non_singlet,
-    )
-    # check input scale
-    # save_initial_scale_plots_to_pdf(assets_path / f"LHA-LO-FFNS-init-{flag}.pdf")
-    # check fixed flavours
-    app.run_FFNS()
-    # do two steps
-    # app.run_FFNS_twostep(1e2)
-    # check ZM-VFNS
-    # app.run_ZMVFNS()
+    app = LHABenchmarkPaper(here / "input/default.yaml")
+    app.run()
 
 if __name__ == "__main__" and False:
     raw = """"""

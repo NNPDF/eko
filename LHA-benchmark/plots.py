@@ -2,7 +2,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
-from matplotlib.backends.backend_pdf import PdfPages
 
 
 def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
@@ -142,63 +141,3 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
     im = plt.imshow(err_to_val, norm=LogNorm(), aspect="auto")
     plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
     return fig
-
-# https://stackoverflow.com/a/7205107
-# from functools import reduce
-# reduce(merge, [dict1, dict2, dict3...])
-def merge_dicts(a: dict, b: dict, path=None):
-    """
-        Merges b into a.
-
-        Parameters
-        ----------
-            a : dict
-                target dictionary (modified)
-            b : dict
-                update
-            path : array
-                recursion track
-
-        Returns
-        -------
-            a : dict
-                updated dictionary
-    """
-    if path is None:
-        path = []
-    for key in b:
-        if key in a:
-            if isinstance(a[key], dict) and isinstance(b[key], dict):
-                merge_dicts(a[key], b[key], path + [str(key)])
-            elif a[key] == b[key]:
-                pass  # same leaf value
-            else:
-                raise Exception("Conflict at %s" % ".".join(path + [str(key)]))
-        else:
-            a[key] = b[key]
-    return a
-
-
-def save_all_operators_to_pdf(ret, path):
-    """
-        Output all operator heatmaps to PDF.
-
-        Parameters
-        ----------
-            ret : dict
-                (single) operator matrices
-            path : string
-                target file name
-    """
-    pp = PdfPages(path)
-    for label in ret["operators"]:
-        try:
-            fig = plot_operator(ret, label)
-            pp.savefig()
-        except Exception:
-            pass
-        finally:
-            if fig:
-                plt.close(fig)
-    # close
-    pp.close()

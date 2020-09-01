@@ -1,0 +1,22 @@
+FNS: 'FFNS'
+ModEv: 'EXA'
+NfFF: 4
+PTO: 0
+ev_op_max_order: 10
+ev_op_iterations: 10
+# interpolation
+interpolation_is_log: True
+interpolation_polynomial_degree: 1
+interpolation_xgrid: [1.00000000e-07, 1.00000000e-01, 1.00000000e+00]
+# fixed parameters
+Q0: 1.4142135623730951
+Qref: 1.4142135623730951
+alphas: 0.35
+mb: 4.5
+mc: 1.4142135623730951
+mt: 175.0
+Q2grid: [1.0e+4]
+# debug options
+debug_skip_non_singlet: True
+debug_skip_singlet: True
+keep_input: True

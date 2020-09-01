@@ -3,6 +3,7 @@
     This file contains the main application class of eko
 """
 import logging
+import copy
 
 from eko import interpolation
 from eko.kernel_generation import KernelDispatcher
@@ -30,23 +31,24 @@ class Runner:
     def __init__(self, setup):
         # Print theory id setup
         logger.info("init Runner with %s", setup)
+        self.out = Output()
+        if setup.get("keep_input",False):
+            self.out.update(setup)
 
         # Load constants and compute parameters
         constants = Constants()
         # setup basis grid
-        self._basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
-            setup
-        )
+        bfd = interpolation.InterpolatorDispatcher.from_dict(setup)
+        self.out.update(bfd.to_dict())
         # Generate the dispatcher for the kernels
-        kd = KernelDispatcher.from_dict(
-            setup, self._basis_function_dispatcher, constants
-        )
+        kd = KernelDispatcher.from_dict(setup, bfd, constants)
         # FNS
-        self._threshold_holder = ThresholdsConfig.from_dict(setup)
+        tc = ThresholdsConfig.from_dict(setup)
+        self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
-        sc = StrongCoupling.from_dict(setup, self._threshold_holder, constants)
+        sc = StrongCoupling.from_dict(setup, tc, constants)
         # setup operator grid
-        self._op_grid = OperatorGrid.from_dict(setup, self._threshold_holder, sc, kd,)
+        self._op_grid = OperatorGrid.from_dict(setup, tc, sc, kd,)
 
     def get_operators(self):
         """ compute the actual operators """
@@ -62,14 +64,10 @@ class Runner:
                 ret : eko.output.Output
                     output instance
         """
-        # propagate grid
-        ret = Output()
-        ret.update(self._basis_function_dispatcher.to_dict())
-        ret["q2_ref"] = float(self._threshold_holder.q2_ref)
         # add all operators
         Q2grid = {}
         for op in self.get_operators():
             final_scale = op.q2_final
             Q2grid[final_scale] = op.get_raw_operators()
-        ret["Q2grid"] = Q2grid
-        return ret
+        self.out["Q2grid"] = Q2grid
+        return copy.deepcopy(self.out)

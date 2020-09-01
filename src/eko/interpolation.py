@@ -518,3 +518,14 @@ class InterpolatorDispatcher:
             "interpolation_is_log": self.log,
         }
         return ret
+
+def make_grid(n_low, n_mid, n_high=0, x_min=1e-7,x_low=0.1, x_high=0.9, x_max=1.0-1e-4):
+    if n_mid == 0:
+        x_low = 1.0
+    xgrid_low = np.geomspace(x_min, x_low, n_low)
+    if n_high == 0:
+        x_high = 1.0
+    xgrid_mid = np.linspace(x_low, x_high, n_mid)
+    xgrid_high = 1.0 - np.geomspace(1- x_high, 1-x_max, n_high)
+    xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
+    return xgrid

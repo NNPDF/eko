@@ -44,20 +44,18 @@ class KernelDispatcher:
                 If true, the functions will be `numba` compiled
     """
 
-    def __init__(self, interpol_dispatcher, constants, order, method, numba_it=True):
+    def __init__(self, config, interpol_dispatcher, constants, numba_it=True):
         # check
-        order = int(order)
-        #if not method in ["exact", "expanded", "truncated", "iterate-exact"]:
-        #    raise ValueError(f"Unknown evolution mode {method}")
-        if order == 0 and method != "exact":
+        order = int(config["order"])
+        method = config["method"]
+        if not method in ["iterate-exact", "iterate-expanded", "truncated", "ordered-truncated", "decompose-exact", "decompose-expanded"]:
+            raise ValueError(f"Unknown evolution mode {method}")
+        if order == 0 and method != "iterate-exact":
             logger.warning("Kernels: In LO we use the exact solution always!")
         # set
         self.interpol_dispatcher = interpol_dispatcher
         self.constants = constants
-        self.order = order
-        self.method = method
-        self.ev_op_max_order = 10
-        self.ev_op_iterations = 10
+        self.config = config
         self.numba_it = numba_it
         self.kernels = {}
 
@@ -69,7 +67,7 @@ class KernelDispatcher:
             Read keys:
 
                 - PTO : required, perturbative order
-                - ModEv : optional, method to solve RGE, default=EXA
+                - ModEv : optional, method to solve RGE, default=EXA=iterate-exact
 
             Parameters
             ----------
@@ -87,18 +85,18 @@ class KernelDispatcher:
                 obj : cls
                     created object
         """
-        order = int(setup["PTO"])
+        config = {}
+        config["order"] = int(setup["PTO"])
         mod_ev = setup.get("ModEv", "EXA")
         mod_ev2method = {
             "EXA": "iterate-exact",
-            "EXP": "expanded",
+            "EXP": "iterate-expanded",
             "TRN": "truncated",
-            "DECEXA": "decompose-exact",
-            "DECEXP": "decompose-expanded",
-            "ORDTRN": "ordered-truncated",
         }
-        method = mod_ev2method.get(mod_ev)
-        return cls(interpol_dispatcher, constants, order, method, numba_it)
+        config["method"] = mod_ev2method.get(mod_ev)
+        config["ev_op_max_order"] = setup.get("ev_op_max_order",10)
+        config["ev_op_iterations"] = setup.get("ev_op_iterations",10)
+        return cls(config, interpol_dispatcher, constants, numba_it)
 
     def collect_kers(self, nf, basis_function):
         r"""
@@ -122,10 +120,10 @@ class KernelDispatcher:
         CA = self.constants.CA
         CF = self.constants.CF
         beta_0 = sc.beta_0(nf, self.constants.CA, self.constants.CF, self.constants.TF)
-        order = self.order
-        method = self.method
-        ev_op_max_order = self.ev_op_max_order
-        ev_op_iterations = self.ev_op_iterations
+        order = self.config["order"]
+        method = self.config["method"]
+        ev_op_max_order = self.config["ev_op_max_order"]
+        ev_op_iterations = self.config["ev_op_iterations"]
 
         # provide the integrals
         j00 = self.njit(lambda a1, a0: np.log(a1 / a0) / beta_0)
@@ -134,7 +132,7 @@ class KernelDispatcher:
                 nf, self.constants.CA, self.constants.CF, self.constants.TF
             )
             b1 = beta_1 / beta_0
-            if method in ["exact", "decompose-exact"]:
+            if method in ["iterate-exact", "decompose-exact"]:
                 j11 = self.njit(
                     lambda a1, a0: 1 / beta_1 * np.log((1 + a1 * b1) / (1 + a0 * b1))
                 )
@@ -194,10 +192,9 @@ class KernelDispatcher:
                             )
                         if method in ["truncated", "ordered-truncated"]:
                             u1 = u_k[1]
-                            n_iter = 8
-                            delta_a = (a1 - a0) / n_iter
+                            delta_a = (a1 - a0) / ev_op_iterations
                             e = np.identity(2,np.complex_)
-                            for kk in range(n_iter):
+                            for kk in range(ev_op_iterations):
                                 al = a0 + k * delta_a
                                 ah = al + delta_a
                                 ek = e0 + ah * u1 @ e0 - al * e0 @ u1
