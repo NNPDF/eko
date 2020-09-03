@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 # Test LO splitting functions
 import numpy as np
-from numpy.testing import assert_almost_equal, assert_allclose
 
-from eko.constants import Constants
+import eko.constants as consts
 import eko.anomalous_dimensions.lo as ad_lo
 
-constants = Constants()
+constants = consts.Constants()
 CA = constants.CA
 CF = constants.CF
 NF = 5
@@ -17,7 +16,7 @@ def check_values(function, inputs, known_values):
     to check the value for N == `N1`"""
     for N, val in zip(inputs, known_values):
         result = function(N, NF, CA, CF)
-        assert_almost_equal(result, val)
+        np.testing.assert_almost_equal(result, val)
 
 
 def test_number_momentum_conservation():

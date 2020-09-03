@@ -362,7 +362,6 @@ class Operator:
     """
 
     def __init__(self, master, q2_from, q2_to, mellin_cut=1e-2):
-        # Save the metadata
         self.master = master
         self.q2_from = q2_from
         self.q2_to = q2_to
