@@ -34,23 +34,23 @@ import numba as nb
 
 def compile_integrand(iker, path, jac, do_numba=True):
     r"""
-        Prepares the integration kernel `iker` to be integrated by the
-        inverse mellin transform wrapper.
+    Prepares the integration kernel `iker` to be integrated by the
+    inverse mellin transform wrapper.
 
-        It adds the correct prefactor, resolves the path, adds the jacobian
-        and applies the real part.
+    It adds the correct prefactor, resolves the path, adds the jacobian
+    and applies the real part.
 
-        Parameters
-        ----------
-            iker : function
-                Integration kernel including :math:`x^(-N)`
-            path : function
-                Integration path as a function
-                :math:`p : [0:1] \to \mathbb C : t \to p(t)`
-            jac : function
-                Jacobian of integration path :math:`j(t) = \frac{dp(t)}{dt}`
-            do_numba: bool
-                Boolean flag to return a numba compiled function (default: true)
+    Parameters
+    ----------
+        iker : function
+            Integration kernel including :math:`x^(-N)`
+        path : function
+            Integration path as a function
+            :math:`p : [0:1] \to \mathbb C : t \to p(t)`
+        jac : function
+            Jacobian of integration path :math:`j(t) = \frac{dp(t)}{dt}`
+        do_numba: bool
+            Boolean flag to return a numba compiled function (default: true)
     """
 
     def integrand(u, extra_args):
@@ -72,35 +72,35 @@ def compile_integrand(iker, path, jac, do_numba=True):
 
 def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e-5):
     """
-        Inverse Mellin transformation.
+    Inverse Mellin transformation.
 
-        Note that the inversion factor :math:`x^{-N}` has already to be *included* in f(N).
-        This convention usually improves the convergence of the integral. Typical kernels
-        will naturally develop similar factors to which the conversion factor can
-        be joined.
+    Note that the inversion factor :math:`x^{-N}` has already to be *included* in f(N).
+    This convention usually improves the convergence of the integral. Typical kernels
+    will naturally develop similar factors to which the conversion factor can
+    be joined.
 
-        Parameters
-        ----------
-            integrand: function
-                Integrand to be passed to the integration routine.
-                The integrand can be generated with the `compile_integrand` function.
-            cut : float
-                Numeric cut-off parameter to the integration, the actual integration borders are
-                determied by :math:`t\\in [c : 1-c]`
-            extra_args: any
-                Extra arguments to be passed to the integrand beyond the integration variable
-            epsabs: float
-                absolute error tolerance of the integration
-            epsrel: float
-                relative error tolerance of the integration
+    Parameters
+    ----------
+        integrand: function
+            Integrand to be passed to the integration routine.
+            The integrand can be generated with the `compile_integrand` function.
+        cut : float
+            Numeric cut-off parameter to the integration, the actual integration borders are
+            determied by :math:`t\\in [c : 1-c]`
+        extra_args: any
+            Extra arguments to be passed to the integrand beyond the integration variable
+        epsabs: float
+            absolute error tolerance of the integration
+        epsrel: float
+            relative error tolerance of the integration
 
 
-        Returns
-        -------
-            res : float
-                integral
-            err : float
-                error estimate
+    Returns
+    -------
+        res : float
+            integral
+        err : float
+            error estimate
     """
     LIMIT = 100
     result = integrate.quad(
@@ -113,8 +113,8 @@ def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e
         limit=LIMIT,
         full_output=1,
     )
-    #print(result[:2],result[2]["neval"])
-    #for n in [5,10,20,40,63]:
+    # print(result[:2],result[2]["neval"])
+    # for n in [5,10,20,40,63]:
     #    dt = (.5-cut)/n
     #    ts = np.array([.5 + k*dt for k in range(n)])
     #    res = np.sum([integrand(t,extra_args) for t in ts])*dt
@@ -126,29 +126,29 @@ def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e
 
 def get_path_Talbot():
     """
-        Talbot path.
+    Talbot path.
 
-        .. math::
-            p_{\\text{Talbot}}(t) =  o + r \\cdot ( \\theta \\cot(\\theta) + i\\theta ),
-            \\theta = \\pi(2t-1)
+    .. math::
+        p_{\\text{Talbot}}(t) =  o + r \\cdot ( \\theta \\cot(\\theta) + i\\theta ),
+        \\theta = \\pi(2t-1)
 
-        Returns the path and its derivative which then have to be called with the arguments
-        listed under `Other Parameters`.
+    Returns the path and its derivative which then have to be called with the arguments
+    listed under `Other Parameters`.
 
-        Other Parameters
-        -----------------
-            r : float
-                scaling parameter - effectivly corresponds to the intersection of the path with the
-                real axis
-            o : float
-                offset on real axis
+    Other Parameters
+    -----------------
+        r : float
+            scaling parameter - effectivly corresponds to the intersection of the path with the
+            real axis
+        o : float
+            offset on real axis
 
-        Returns
-        -------
-            path : function
-                Talbot path function
-            jac : function
-                derivative of Talbot path
+    Returns
+    -------
+        path : function
+            Talbot path function
+        jac : function
+            derivative of Talbot path
     """
 
     @nb.njit
@@ -181,27 +181,27 @@ def get_path_Talbot():
 
 def get_path_line():
     """
-        Textbook path, i.e. a straight line parallel to the imaginary axis.
+    Textbook path, i.e. a straight line parallel to the imaginary axis.
 
-        .. math::
-            p_{\\text{line}}(t) = c + m \\cdot (2t - 1)
+    .. math::
+        p_{\\text{line}}(t) = c + m \\cdot (2t - 1)
 
-        Returns the path and its derivative which then have to be called with the arguments
-        listed under `Other Parameters`.
+    Returns the path and its derivative which then have to be called with the arguments
+    listed under `Other Parameters`.
 
-        Other Parameters
-        ----------------
-            m : float
-                half length of the path
-            c : float
-                intersection of path with real axis
+    Other Parameters
+    ----------------
+        m : float
+            half length of the path
+        c : float
+            intersection of path with real axis
 
-        Returns
-        -------
-            path : function
-                textbook path
-            jac : function
-                derivative of textbook path
+    Returns
+    -------
+        path : function
+            textbook path
+        jac : function
+            derivative of textbook path
     """
 
     @nb.njit
@@ -219,28 +219,28 @@ def get_path_line():
 
 def get_path_edge():
     """
-        Edged path with a given angle.
+    Edged path with a given angle.
 
-        .. math::
-            p_{\\text{edge}}(t) = c + m\\left|t - \\frac 1 2\\right|\\exp(i\\phi)
+    .. math::
+        p_{\\text{edge}}(t) = c + m\\left|t - \\frac 1 2\\right|\\exp(i\\phi)
 
-        Returns the path and its derivative which then have to be called with the arguments
-        listed under `Other Parameters`.
+    Returns the path and its derivative which then have to be called with the arguments
+    listed under `Other Parameters`.
 
-        Other Parameters
-        ----------------
-            m : float
-                length of the path
-            c : float, optional
-                intersection of path with real axis - defaults to 1
-            phi : complex, optional
-                bended angle - defaults to +135° with respect to positive x axis
-        Returns
-        -------
-            path : function
-                Edged path
-            jac : function
-                derivative of edged path
+    Other Parameters
+    ----------------
+        m : float
+            length of the path
+        c : float, optional
+            intersection of path with real axis - defaults to 1
+        phi : complex, optional
+            bended angle - defaults to +135° with respect to positive x axis
+    Returns
+    -------
+        path : function
+            Edged path
+        jac : function
+            derivative of edged path
     """
 
     @nb.njit
@@ -264,25 +264,25 @@ def get_path_edge():
 
 def get_path_Cauchy_tan():
     """
-        Cauchy-distribution like path, extended with tan to infinity.
+    Cauchy-distribution like path, extended with tan to infinity.
 
-        .. math::
-            p_{\\text{Cauchy}}(t) = \\frac{\\gamma}{u^2 + \\gamma^2} + i u, u = \\tan(\\pi(2t-1)/2)
+    .. math::
+        p_{\\text{Cauchy}}(t) = \\frac{\\gamma}{u^2 + \\gamma^2} + i u, u = \\tan(\\pi(2t-1)/2)
 
-        Returns the path and its derivative which then have to be called with the arguments
-        listed under `Other Parameters`.
+    Returns the path and its derivative which then have to be called with the arguments
+    listed under `Other Parameters`.
 
-        Other Parameters
-        ---------------
-            gamma : float
-                intersection of path with real axis
+    Other Parameters
+    ---------------
+        gamma : float
+            intersection of path with real axis
 
-        Returns
-        -------
-            path : function
-                Cauchy path
-            jac : function
-                derivative of Cauchy path
+    Returns
+    -------
+        path : function
+            Cauchy path
+        jac : function
+            derivative of Cauchy path
     """
 
     @nb.njit
@@ -306,19 +306,19 @@ def get_path_Cauchy_tan():
 
 def mellin_transform(f, N):
     """
-        Mellin transformation
+    Mellin transformation
 
-        Parameters
-        ----------
-            f : function
-                integration kernel :math:`f(x)`
-            N : complex
-                transformation point
+    Parameters
+    ----------
+        f : function
+            integration kernel :math:`f(x)`
+        N : complex
+            transformation point
 
-        Returns
-        -------
-            res : complex
-                computed point
+    Returns
+    -------
+        res : complex
+            computed point
     """
 
     @nb.jit(forceobj=True)  # due to the integration kernel not being necessarily numba

@@ -18,21 +18,21 @@ logger = logging.getLogger(__name__)
 
 class Runner:
     """
-        Represents a single input configuration.
+    Represents a single input configuration.
 
-        For details about the configuration, see :doc:`here </Code/IO>`
+    For details about the configuration, see :doc:`here </Code/IO>`
 
-        Parameters
-        ----------
-            setup : dict
-                input configurations
+    Parameters
+    ----------
+        setup : dict
+            input configurations
     """
 
     def __init__(self, setup):
         # Print theory id setup
         logger.info("init Runner with %s", setup)
         self.out = Output()
-        if setup.get("keep_input",False):
+        if setup.get("keep_input", False):
             self.out.update(setup)
 
         # Load constants and compute parameters
@@ -48,7 +48,12 @@ class Runner:
         # strong coupling
         sc = StrongCoupling.from_dict(setup, tc, constants)
         # setup operator grid
-        self._op_grid = OperatorGrid.from_dict(setup, tc, sc, kd,)
+        self._op_grid = OperatorGrid.from_dict(
+            setup,
+            tc,
+            sc,
+            kd,
+        )
 
     def get_operators(self):
         """ compute the actual operators """
@@ -57,12 +62,12 @@ class Runner:
 
     def get_output(self):
         """
-            Collects all data for output (to run the evolution)
+        Collects all data for output (to run the evolution)
 
-            Returns
-            -------
-                ret : eko.output.Output
-                    output instance
+        Returns
+        -------
+            ret : eko.output.Output
+                output instance
         """
         # add all operators
         Q2grid = {}

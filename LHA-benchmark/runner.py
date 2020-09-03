@@ -150,22 +150,22 @@ with open(here / "data.yaml") as o:
 
 class LHABenchmarkPaper:
     """
-        Compares to the LHA benchmark paper :cite:`Giele:2002hx`.
+    Compares to the LHA benchmark paper :cite:`Giele:2002hx`.
 
-        Parameters
-        ----------
-            order : int
-                order of perturbation theory
-            xgrid : array
-                basis grid
-            polynomial_degree : int
-                degree of interpolation polynomial
-            flag : string
-                output file tag
-            debug_skip_singlet : bool
-                skip singlet integration
-            debug_skip_non_singlet : bool
-                skip singlet integration
+    Parameters
+    ----------
+        order : int
+            order of perturbation theory
+        xgrid : array
+            basis grid
+        polynomial_degree : int
+            degree of interpolation polynomial
+        flag : string
+            output file tag
+        debug_skip_singlet : bool
+            skip singlet integration
+        debug_skip_non_singlet : bool
+            skip singlet integration
     """
 
     def __init__(self, path):
@@ -184,16 +184,16 @@ class LHABenchmarkPaper:
 
     def _post_process(self, output):
         """
-            Handles the post processing of the run according to the configuration.
+        Handles the post processing of the run according to the configuration.
 
-            Parameters
-            ----------
-                output : eko.output.Output
-                    EKO result
-                ref : dict
-                    reference result
-                tag : string
-                    file tag
+        Parameters
+        ----------
+            output : eko.output.Output
+                EKO result
+            ref : dict
+                reference result
+            tag : string
+                file tag
         """
         # dump operators to file
         if self.post_process_config["write_operator"]:
@@ -213,17 +213,17 @@ class LHABenchmarkPaper:
 
     def ref(self):
         """
-            Load the reference data from the paper.
+        Load the reference data from the paper.
 
-            Parameters
-            ----------
-                fns : str
-                    flavor number scheme
+        Parameters
+        ----------
+            fns : str
+                flavor number scheme
 
-            Returns
-            -------
-                ref : dict
-                    (rotated) reference data
+        Returns
+        -------
+            ref : dict
+                (rotated) reference data
         """
         fns = self.setup["FNS"]
         order = self.setup["PTO"]
@@ -241,12 +241,12 @@ class LHABenchmarkPaper:
 
     def run(self):
         """
-            Runs the input card
+        Runs the input card
 
-            Returns
-            -------
-                ret : dict
-                    DGLAP result
+        Returns
+        -------
+            ret : dict
+                DGLAP result
         """
         ret = run_dglap(self.setup)
         self._post_process(ret)
@@ -254,37 +254,37 @@ class LHABenchmarkPaper:
 
     def input_figure(self, output):
         """
-            Pretty-prints the setup to a figure
+        Pretty-prints the setup to a figure
 
-            Parameters
-            ----------
-                output : eko.output.Output
-                    DGLAP result
+        Parameters
+        ----------
+            output : eko.output.Output
+                DGLAP result
 
-            Returns
-            -------
-                firstPage : matplotlib.pyplot.Figure
-                    figure
+        Returns
+        -------
+            firstPage : matplotlib.pyplot.Figure
+                figure
         """
-        firstPage = plt.figure(figsize=(10,8))
-        firstPage.text(0.,1, "Setup:", size=14, ha="left",va="top")
+        firstPage = plt.figure(figsize=(10, 8))
+        firstPage.text(0.0, 1, "Setup:", size=14, ha="left", va="top")
         setup = copy.deepcopy(output)
         del setup["Q2grid"]
         str_stream = io.StringIO()
         pprint.pprint(setup, stream=str_stream)
-        firstPage.text(0.,.95, str_stream.getvalue(), size=12, ha="left",va="top")
+        firstPage.text(0.0, 0.95, str_stream.getvalue(), size=12, ha="left", va="top")
         return firstPage
 
     def save_all_operators_to_pdf(self, output, path):
         """
-            Output all operator heatmaps to PDF.
+        Output all operator heatmaps to PDF.
 
-            Parameters
-            ----------
-                output : eko.output.Output
-                    DGLAP result
-                path : string
-                    target file name
+        Parameters
+        ----------
+            output : eko.output.Output
+                DGLAP result
+            path : string
+                target file name
         """
         first_ops = list(output["Q2grid"].values())[0]
         with PdfPages(path) as pp:
@@ -303,16 +303,16 @@ class LHABenchmarkPaper:
 
     def save_final_scale_plots_to_pdf(self, path, output):
         """
-            Plots all PDFs at the final scale.
+        Plots all PDFs at the final scale.
 
-            The reference values by :cite:`Giele:2002hx`.
+        The reference values by :cite:`Giele:2002hx`.
 
-            Parameters
-            ----------
-                path : string
-                    output path
-                output : eko.output.Output
-                    DGLAP result
+        Parameters
+        ----------
+            path : string
+                output path
+            output : eko.output.Output
+                DGLAP result
         """
         # get
         pdf_grid = output.apply_pdf(LHA_init_pdfs, toy_xgrid)
@@ -341,19 +341,20 @@ class LHABenchmarkPaper:
                 pp.savefig()
                 plt.close(fig)
 
+
 def save_initial_scale_plots_to_pdf(path):
     """
-        Plots all PDFs at the inital scale.
+    Plots all PDFs at the inital scale.
 
-        The reference values are given in Table 2 part 1 of :cite:`Giele:2002hx`.
+    The reference values are given in Table 2 part 1 of :cite:`Giele:2002hx`.
 
-        This excercise was usfull in order to detect the missing 2 in the definition of
-        :math:`L_+ = 2(\\bar u + \\bar d)`
+    This excercise was usfull in order to detect the missing 2 in the definition of
+    :math:`L_+ = 2(\\bar u + \\bar d)`
 
-        Parameters
-        ----------
-            path : string
-                output path
+    Parameters
+    ----------
+        path : string
+            output path
     """
     LHA_init_grid_ref = LHA_data["table2"]["part1"]
     with PdfPages(path) as pp:
@@ -385,7 +386,7 @@ if __name__ == "__main__" and True:
     logging.getLogger("eko").addHandler(logStdout)
     logging.getLogger("eko").setLevel(logging.INFO)
 
-    # run
+    # run as cli
     if len(sys.argv) == 2:
         app = LHABenchmarkPaper(sys.argv[1])
         app.run()
@@ -394,6 +395,7 @@ if __name__ == "__main__" and True:
         print(f"Usage: {me} path/to/input/card.yaml")
 
 if __name__ == "__main__" and False:
+    # helper to extract the numbers from the pdf
     raw = """"""
     for r in raw:
         r = (

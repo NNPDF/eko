@@ -20,17 +20,17 @@ logger = logging.getLogger(__name__)
 
 class OperatorMaster:
     """
-        The :class:`OperatorMaster` is instantiated for a given set of parameters
-        and informs the generation of operators.
+    The :class:`OperatorMaster` is instantiated for a given set of parameters
+    and informs the generation of operators.
 
-        Parameters
-        ----------
-            grid: OperatorGrid
-                Instance of :class:`OperatorGrid`
-            nf: int
-                Value of nf for this :class:`OperatorMaster`
-            kernels: list(dict)
-                list over basis functions containing all kernels
+    Parameters
+    ----------
+        grid: OperatorGrid
+            Instance of :class:`OperatorGrid`
+        nf: int
+            Value of nf for this :class:`OperatorMaster`
+        kernels: list(dict)
+            list over basis functions containing all kernels
     """
 
     def __init__(self, grid, nf, kernels):
@@ -40,23 +40,23 @@ class OperatorMaster:
 
     def get_op(self, q2_from, q2_to, generate=False):
         """
-            Given a q2_from and a q2_to, returns a raw operator.
-            If the `generate` flag is set to True, the operator will also be computed
-            in place.
+        Given a q2_from and a q2_to, returns a raw operator.
+        If the `generate` flag is set to True, the operator will also be computed
+        in place.
 
-            Parameters
-            ----------
-                q2_from: float
-                    Reference value of q^2
-                q2_to: float
-                    Target value of q^2
-                generate: bool
-                    Whether the operator should be computed (default = False)
+        Parameters
+        ----------
+            q2_from: float
+                Reference value of q^2
+            q2_to: float
+                Target value of q^2
+            generate: bool
+                Whether the operator should be computed (default = False)
 
-            Returns
-            -------
-                op: eko.evolution_operators.Operator
-                    operator to go from q2_from to q2_to
+        Returns
+        -------
+            op: eko.evolution_operators.Operator
+                operator to go from q2_from to q2_to
         """
         op = Operator(self, q2_from, q2_to)
         if generate:
@@ -66,30 +66,34 @@ class OperatorMaster:
 
 class OperatorGrid:
     """
-        The operator grid is the driver class of the evolution.
+    The operator grid is the driver class of the evolution.
 
-        It receives as input a threshold holder and a generator of a_s.
-        From that point onwards it can compute any operator at any q2.
+    It receives as input a threshold holder and a generator of a_s.
+    From that point onwards it can compute any operator at any q2.
 
-        Parameters
-        ----------
-            q2_grid: array
-                Grid in Q2 on where to to compute the operators
-            order: int
-                order in perturbation theory
-            thresholds_config: eko.thresholds.ThresholdsConfig
-                Instance of :class:`~eko.thresholds.Threshold` containing information about the
-                thresholds
-            strong_coupling: eko.strong_coupling.StrongCoupling
-                Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
-                any q
-            kernel_dispatcher: eko.kernel_generation.KernelDispatcher
-                Instance of the :class:`~eko.kernel_generation.KernelDispatcher` with the
-                information about the kernels
+    Parameters
+    ----------
+        q2_grid: array
+            Grid in Q2 on where to to compute the operators
+        order: int
+            order in perturbation theory
+        thresholds_config: eko.thresholds.ThresholdsConfig
+            Instance of :class:`~eko.thresholds.Threshold` containing information about the
+            thresholds
+        strong_coupling: eko.strong_coupling.StrongCoupling
+            Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
+            any q
+        kernel_dispatcher: eko.kernel_generation.KernelDispatcher
+            Instance of the :class:`~eko.kernel_generation.KernelDispatcher` with the
+            information about the kernels
     """
 
     def __init__(
-        self, q2_grid, thresholds_config, strong_coupling, kernel_dispatcher,
+        self,
+        q2_grid,
+        thresholds_config,
+        strong_coupling,
+        kernel_dispatcher,
     ):
         self.config = dict(
             q2_grid=q2_grid,
@@ -110,32 +114,36 @@ class OperatorGrid:
 
     @classmethod
     def from_dict(
-        cls, setup, thresholds_config, strong_coupling, kernel_dispatcher,
+        cls,
+        setup,
+        thresholds_config,
+        strong_coupling,
+        kernel_dispatcher,
     ):
         """
-            Create the object from the theory dictionary.
+        Create the object from the theory dictionary.
 
-            Read keys:
+        Read keys:
 
-                - Q2grid : required, target grid
-                - debug_skip_singlet : optional, avoid singlet integrations?
-                - debug_skip_non_singlet : optional, avoid non-singlet integrations?
+            - Q2grid : required, target grid
+            - debug_skip_singlet : optional, avoid singlet integrations?
+            - debug_skip_non_singlet : optional, avoid non-singlet integrations?
 
-            Parameters
-            ----------
-                setup : dict
-                    theory dictionary
-                thresholds_config : eko.thresholds.ThresholdsConfig
-                    An instance of the ThresholdsConfig class
-                strong_coupling : eko.strong_coupling.StrongCoupling
-                    An instance of the StrongCoupling class
-                kernel_dispatcher : eko.kernel_generation.KernelDispatcher
-                    An instance of the KernelDispatcher class
+        Parameters
+        ----------
+            setup : dict
+                theory dictionary
+            thresholds_config : eko.thresholds.ThresholdsConfig
+                An instance of the ThresholdsConfig class
+            strong_coupling : eko.strong_coupling.StrongCoupling
+                An instance of the StrongCoupling class
+            kernel_dispatcher : eko.kernel_generation.KernelDispatcher
+                An instance of the KernelDispatcher class
 
-            Returns
-            -------
-                obj : cls
-                    created object
+        Returns
+        -------
+            obj : cls
+                created object
         """
         q2_grid = np.array(setup["Q2grid"], np.float_)
         obj = cls(q2_grid, thresholds_config, strong_coupling, kernel_dispatcher)
@@ -147,7 +155,7 @@ class OperatorGrid:
 
     def _generate_masters(self):
         """
-            Creates all :class:`OperatorMaster` instances.
+        Creates all :class:`OperatorMaster` instances.
         """
         kd = self.managers["kernel_dispatcher"]
         for nf in self.managers["thresholds_config"].nf_range():
@@ -158,20 +166,20 @@ class OperatorGrid:
 
     def _generate_thresholds_op(self, to_q2):
         """
-            Generate the threshold operators
+        Generate the threshold operators
 
-            This method is called everytime the OperatorGrid is asked for a grid on Q^2
-            with a list of the relevant areas.
-            If new threshold operators need to be computed, they will be
-            cached in an internal dictionary.
+        This method is called everytime the OperatorGrid is asked for a grid on Q^2
+        with a list of the relevant areas.
+        If new threshold operators need to be computed, they will be
+        cached in an internal dictionary.
 
-            The internal dictionary is self._threshold_operators and its structure is:
-            (q2_from, q2_to) -> eko.operators.Operator
+        The internal dictionary is self._threshold_operators and its structure is:
+        (q2_from, q2_to) -> eko.operators.Operator
 
-            Parameters
-            ----------
-                to_q2: float
-                    value of q2 for which the OperatorGrid will need to pass thresholds
+        Parameters
+        ----------
+            to_q2: float
+                value of q2 for which the OperatorGrid will need to pass thresholds
         """
         # The lists of areas as produced by the thresholds
         area_list = self.managers["thresholds_config"].get_path_from_q2_ref(to_q2)
@@ -193,18 +201,18 @@ class OperatorGrid:
 
     def _get_jumps(self, qsq):
         """
-            Given a value of q^2, generates the list of operators that need to be
-            composed in order to get there from q0^2
+        Given a value of q^2, generates the list of operators that need to be
+        composed in order to get there from q0^2
 
-            Parameters
-            ----------
-                qsq: float
-                    Target value of q^2
+        Parameters
+        ----------
+            qsq: float
+                Target value of q^2
 
-            Returns
-            -------
-                op_list: list
-                    List of threshold operators
+        Returns
+        -------
+            op_list: list
+                List of threshold operators
         """
         # Get the list of areas to be crossed
         full_area_path = self.managers["thresholds_config"].get_path_from_q2_ref(qsq)
@@ -220,16 +228,16 @@ class OperatorGrid:
 
     def set_q2_limits(self, q2min, q2max):
         """
-            Sets up the limits of the grid in q^2 to be computed by the OperatorGrid
+        Sets up the limits of the grid in q^2 to be computed by the OperatorGrid
 
-            This function is a wrapper to compute the necessary operators to go between areas
+        This function is a wrapper to compute the necessary operators to go between areas
 
-            Parameters
-            ----------
-                q2min: float
-                    Minimum value of q^2 that will be computed
-                q2max: float
-                    Maximum value of q^2 that will be computed
+        Parameters
+        ----------
+            q2min: float
+                Minimum value of q^2 that will be computed
+            q2max: float
+                Maximum value of q^2 that will be computed
         """
         # Sanity checks
         if q2min <= 0.0 or q2max <= 0.0:
@@ -246,13 +254,13 @@ class OperatorGrid:
 
     def _compute_raw_grid(self, q2grid):
         """
-            Receives a grid in q^2 and computes each opeator inside its
-            area with reference value the q_ref of its area
+        Receives a grid in q^2 and computes each opeator inside its
+        area with reference value the q_ref of its area
 
-            Parameters
-            ----------
-                q2grid: list
-                    List of q^2
+        Parameters
+        ----------
+            q2grid: list
+                List of q^2
         """
         area_list = self.managers["thresholds_config"].get_areas(q2grid)
         if self.config["debug_skip_singlet"]:
@@ -262,7 +270,7 @@ class OperatorGrid:
         for area, q2 in zip(area_list, q2grid):
             q2_from = area.q2_ref
             nf = area.nf
-            logger.info("Evolution: compute operators %e -> %e",q2_from,q2)
+            logger.info("Evolution: compute operators %e -> %e", q2_from, q2)
             self._op_grid[q2] = self._op_masters[nf].get_op(q2_from, q2)
         # Now perform the computation
         for op in self._op_grid.values():
@@ -270,18 +278,18 @@ class OperatorGrid:
 
     def compute_q2grid(self, q2grid=None):
         """
-            Receives a grid in q^2 and computes all operations necessary
-            to return any operator at any given q for the evolution between q2ref and q2grid
+        Receives a grid in q^2 and computes all operations necessary
+        to return any operator at any given q for the evolution between q2ref and q2grid
 
-            Parameters
-            ----------
-                q2grid: list
-                    List of q^2
+        Parameters
+        ----------
+            q2grid: list
+                List of q^2
 
-            Returns
-            -------
-                grid_return: list
-                    List of PhysicalOperator for each value of q^2
+        Returns
+        -------
+            grid_return: list
+                List of PhysicalOperator for each value of q^2
         """
         # use input?
         if q2grid is None:
@@ -306,18 +314,18 @@ class OperatorGrid:
 
     def get_op_at_q2(self, qsq):
         """
-            Given a value of q^2, returns the PhysicalOperator to get
-            to q^2 from q0^2
+        Given a value of q^2, returns the PhysicalOperator to get
+        to q^2 from q0^2
 
-            Parameters
-            ----------
-                qsq: float
-                    Target value of q^2
+        Parameters
+        ----------
+            qsq: float
+                Target value of q^2
 
-            Returns
-            -------
-                final_op: eko.evolution_operator.PhysicalOperator
-                    Op(q^2 <- q_0^2)
+        Returns
+        -------
+            final_op: eko.evolution_operator.PhysicalOperator
+                Op(q^2 <- q_0^2)
         """
         # Check the path to q0 for this operator
         if qsq in self._op_grid:

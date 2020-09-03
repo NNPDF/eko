@@ -207,7 +207,7 @@ class BasisFunction:
         else:
             self.callable = self.njit(evaluate_x)
 
-    def evaluate_x(self, x, numba_it = False):
+    def evaluate_x(self, x, numba_it=False):
         """
         Evaluate basis function in x-space (regardless of the true space).
 

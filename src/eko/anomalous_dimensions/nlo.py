@@ -16,26 +16,26 @@ from eko import ekomath
 @nb.njit
 def gamma_nsm_1(n, nf: int, CA: float, CF: float):
     """
-        Computes the next-to-leading-order valence-like non-singlet anomalous dimension.
+    Computes the next-to-leading-order valence-like non-singlet anomalous dimension.
 
-        Implements Eq. (3.5) of :cite:`Moch:2004pa`.
+    Implements Eq. (3.5) of :cite:`Moch:2004pa`.
 
-        Parameters
-        ----------
-            n : complex
-                Mellin moment
-            nf : int
-                Number of active flavours
-            CA : float
-                Casimir constant of adjoint representation
-            CF : float
-                Casimir constant of fundamental representation
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        nf : int
+            Number of active flavours
+        CA : float
+            Casimir constant of adjoint representation
+        CF : float
+            Casimir constant of fundamental representation
 
-        Returns
-        -------
-            gamma_nsm_1 : complex
-                Next-to-leading-order valence-like non-singlet anomalous dimension
-                :math:`\\gamma_{ns,-}^{(1)}(N)`
+    Returns
+    -------
+        gamma_nsm_1 : complex
+            Next-to-leading-order valence-like non-singlet anomalous dimension
+            :math:`\\gamma_{ns,-}^{(1)}(N)`
     """
     S1 = ekomath.harmonic_S1(n)
     S2 = ekomath.harmonic_S2(n)
@@ -59,26 +59,26 @@ def gamma_nsm_1(n, nf: int, CA: float, CF: float):
 @nb.njit
 def gamma_nsp_1(n, nf: int, CA: float, CF: float):
     """
-        Computes the next-to-leading-order singlet-like non-singlet anomalous dimension.
+    Computes the next-to-leading-order singlet-like non-singlet anomalous dimension.
 
-        Implements Eq. (3.5) of :cite:`Moch:2004pa`.
+    Implements Eq. (3.5) of :cite:`Moch:2004pa`.
 
-        Parameters
-        ----------
-            n : complex
-                Mellin moment
-            nf : int
-                Number of active flavours
-            CA : float
-                Casimir constant of adjoint representation
-            CF : float
-                Casimir constant of fundamental representation
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        nf : int
+            Number of active flavours
+        CA : float
+            Casimir constant of adjoint representation
+        CF : float
+            Casimir constant of fundamental representation
 
-        Returns
-        -------
-            gamma_nsp_1 : complex
-                Next-to-leading-order singlet-like non-singlet anomalous dimension
-                :math:`\\gamma_{ns,+}^{(1)}(N)`
+    Returns
+    -------
+        gamma_nsp_1 : complex
+            Next-to-leading-order singlet-like non-singlet anomalous dimension
+            :math:`\\gamma_{ns,+}^{(1)}(N)`
     """
     S1 = ekomath.harmonic_S1(n)
     S2 = ekomath.harmonic_S2(n)
@@ -100,26 +100,26 @@ def gamma_nsp_1(n, nf: int, CA: float, CF: float):
 @nb.njit
 def gamma_ps_1(n, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
     """
-        Computes the next-to-leading-order pure-singlet quark-quark anomalous dimension.
+    Computes the next-to-leading-order pure-singlet quark-quark anomalous dimension.
 
-        Implements Eq. (3.6) of :cite:`Vogt:2004mw`.
+    Implements Eq. (3.6) of :cite:`Vogt:2004mw`.
 
-        Parameters
-        ----------
-            n : complex
-                Mellin moment
-            nf : int
-                Number of active flavours
-            CA : float
-                Casimir constant of adjoint representation
-            CF : float
-                Casimir constant of fundamental representation
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        nf : int
+            Number of active flavours
+        CA : float
+            Casimir constant of adjoint representation
+        CF : float
+            Casimir constant of fundamental representation
 
-        Returns
-        -------
-            gamma_ps_1 : complex
-                Next-to-leading-order pure-singlet quark-quark anomalous dimension
-                :math:`\\gamma_{ps}^{(1)}(N)`
+    Returns
+    -------
+        gamma_ps_1 : complex
+            Next-to-leading-order pure-singlet quark-quark anomalous dimension
+            :math:`\\gamma_{ps}^{(1)}(N)`
     """
     # fmt: off
     gqqps1_nfcf = (-4*(2 + n*(5 + n))*(4 + n*(4 + n*(7 + 5*n))))/((-1 + n)*np.power(n,3)*np.power(1 + n,3)*np.power(2 + n,2)) # pylint: disable=line-too-long
@@ -131,26 +131,26 @@ def gamma_ps_1(n, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
 @nb.njit
 def gamma_qg_1(n, nf: int, CA: float, CF: float):
     """
-        Computes the next-to-leading-order quark-gluon singlet anomalous dimension.
+    Computes the next-to-leading-order quark-gluon singlet anomalous dimension.
 
-        Implements Eq. (3.7) of :cite:`Vogt:2004mw`.
+    Implements Eq. (3.7) of :cite:`Vogt:2004mw`.
 
-        Parameters
-        ----------
-            n : complex
-                Mellin moment
-            nf : int
-                Number of active flavours
-            CA : float
-                Casimir constant of adjoint representation
-            CF : float
-                Casimir constant of fundamental representation
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        nf : int
+            Number of active flavours
+        CA : float
+            Casimir constant of adjoint representation
+        CF : float
+            Casimir constant of fundamental representation
 
-        Returns
-        -------
-            gamma_qg_1 : complex
-                Next-to-leading-order quark-gluon singlet anomalous dimension
-                :math:`\\gamma_{qg}^{(1)}(N)`
+    Returns
+    -------
+        gamma_qg_1 : complex
+            Next-to-leading-order quark-gluon singlet anomalous dimension
+            :math:`\\gamma_{qg}^{(1)}(N)`
     """
     S1 = ekomath.harmonic_S1(n)
     S2 = ekomath.harmonic_S2(n)
@@ -166,26 +166,26 @@ def gamma_qg_1(n, nf: int, CA: float, CF: float):
 @nb.njit
 def gamma_gq_1(n, nf: int, CA: float, CF: float):
     """
-        Computes the next-to-leading-order gluon-quark singlet anomalous dimension.
+    Computes the next-to-leading-order gluon-quark singlet anomalous dimension.
 
-        Implements Eq. (3.8) of :cite:`Vogt:2004mw`.
+    Implements Eq. (3.8) of :cite:`Vogt:2004mw`.
 
-        Parameters
-        ----------
-            n : complex
-                Mellin moment
-            nf : int
-                Number of active flavours
-            CA : float
-                Casimir constant of adjoint representation
-            CF : float
-                Casimir constant of fundamental representation
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        nf : int
+            Number of active flavours
+        CA : float
+            Casimir constant of adjoint representation
+        CF : float
+            Casimir constant of fundamental representation
 
-        Returns
-        -------
-            gamma_gq_1 : complex
-                Next-to-leading-order gluon-quark singlet anomalous dimension
-                :math:`\\gamma_{gq}^{(1)}(N)`
+    Returns
+    -------
+        gamma_gq_1 : complex
+            Next-to-leading-order gluon-quark singlet anomalous dimension
+            :math:`\\gamma_{gq}^{(1)}(N)`
     """
     S1 = ekomath.harmonic_S1(n)
     S2 = ekomath.harmonic_S2(n)
@@ -202,26 +202,26 @@ def gamma_gq_1(n, nf: int, CA: float, CF: float):
 @nb.njit
 def gamma_gg_1(n, nf: int, CA: float, CF: float):
     """
-        Computes the next-to-leading-order gluon-gluon singlet anomalous dimension.
+    Computes the next-to-leading-order gluon-gluon singlet anomalous dimension.
 
-        Implements Eq. (3.9) of :cite:`Vogt:2004mw`.
+    Implements Eq. (3.9) of :cite:`Vogt:2004mw`.
 
-        Parameters
-        ----------
-            n : complex
-                Mellin moment
-            nf : int
-                Number of active flavours
-            CA : float
-                Casimir constant of adjoint representation
-            CF : float
-                Casimir constant of fundamental representation
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        nf : int
+            Number of active flavours
+        CA : float
+            Casimir constant of adjoint representation
+        CF : float
+            Casimir constant of fundamental representation
 
-        Returns
-        -------
-            gamma_gg_1 : complex
-                Next-to-leading-order gluon-gluon singlet anomalous dimension
-                :math:`\\gamma_{gg}^{(1)}(N)`
+    Returns
+    -------
+        gamma_gg_1 : complex
+            Next-to-leading-order gluon-gluon singlet anomalous dimension
+            :math:`\\gamma_{gg}^{(1)}(N)`
     """
     S1 = ekomath.harmonic_S1(n)
     Sp1p = ekomath.harmonic_S1(n / 2)

@@ -1,4 +1,4 @@
-PTO: 0
+PTO: 1
 ModEv: 'EXA'
 ev_op_max_order: 10
 ev_op_iterations: 10
@@ -7,7 +7,7 @@ NfFF: 4
 # interpolation
 interpolation_is_log: True
 interpolation_polynomial_degree: 4
-interpolation_xgrid: ["make_grid", 10, 10]
+interpolation_xgrid: ["make_grid", 30, 20]
 # fixed parameters
 Q0: 1.4142135623730951
 Qref: 1.4142135623730951

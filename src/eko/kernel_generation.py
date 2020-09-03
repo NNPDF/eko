@@ -28,27 +28,34 @@ logger = logging.getLogger(__name__)
 
 class KernelDispatcher:
     """
-        Does the common preparation for the kernel functions.
+    Does the common preparation for the kernel functions.
 
-        Parameters
-        ----------
-            interpol_dispatcher : InterpolatorDispatcher
-                An instance of the InterpolatorDispatcher class
-            constants : Constants
-                An instance of the Constants class
-            order : int
-                order in perturbation theory - ``0`` is leading order
-            method : str
-                solution strategy
-            numba_it : bool  (default: True)
-                If true, the functions will be `numba` compiled
+    Parameters
+    ----------
+        interpol_dispatcher : InterpolatorDispatcher
+            An instance of the InterpolatorDispatcher class
+        constants : Constants
+            An instance of the Constants class
+        order : int
+            order in perturbation theory - ``0`` is leading order
+        method : str
+            solution strategy
+        numba_it : bool  (default: True)
+            If true, the functions will be `numba` compiled
     """
 
     def __init__(self, config, interpol_dispatcher, constants, numba_it=True):
         # check
         order = int(config["order"])
         method = config["method"]
-        if not method in ["iterate-exact", "iterate-expanded", "truncated", "ordered-truncated", "decompose-exact", "decompose-expanded"]:
+        if not method in [
+            "iterate-exact",
+            "iterate-expanded",
+            "truncated",
+            "ordered-truncated",
+            "decompose-exact",
+            "decompose-expanded",
+        ]:
             raise ValueError(f"Unknown evolution mode {method}")
         if order == 0 and method != "iterate-exact":
             logger.warning("Kernels: In LO we use the exact solution always!")
@@ -62,28 +69,28 @@ class KernelDispatcher:
     @classmethod
     def from_dict(cls, setup, interpol_dispatcher, constants, numba_it=True):
         """
-            Create the object from the theory dictionary.
+        Create the object from the theory dictionary.
 
-            Read keys:
+        Read keys:
 
-                - PTO : required, perturbative order
-                - ModEv : optional, method to solve RGE, default=EXA=iterate-exact
+            - PTO : required, perturbative order
+            - ModEv : optional, method to solve RGE, default=EXA=iterate-exact
 
-            Parameters
-            ----------
-                setup : dict
-                    theory dictionary
-                interpol_dispatcher : InterpolatorDispatcher
-                    An instance of the InterpolatorDispatcher class
-                constants : Constants
-                    An instance of the Constants class
-                numba_it : bool  (default: True)
-                    If true, the functions will be `numba` compiled
+        Parameters
+        ----------
+            setup : dict
+                theory dictionary
+            interpol_dispatcher : InterpolatorDispatcher
+                An instance of the InterpolatorDispatcher class
+            constants : Constants
+                An instance of the Constants class
+            numba_it : bool  (default: True)
+                If true, the functions will be `numba` compiled
 
-            Returns
-            -------
-                obj : cls
-                    created object
+        Returns
+        -------
+            obj : cls
+                created object
         """
         config = {}
         config["order"] = int(setup["PTO"])
@@ -94,27 +101,27 @@ class KernelDispatcher:
             "TRN": "truncated",
         }
         config["method"] = mod_ev2method.get(mod_ev)
-        config["ev_op_max_order"] = setup.get("ev_op_max_order",10)
-        config["ev_op_iterations"] = setup.get("ev_op_iterations",10)
+        config["ev_op_max_order"] = setup.get("ev_op_max_order", 10)
+        config["ev_op_iterations"] = setup.get("ev_op_iterations", 10)
         return cls(config, interpol_dispatcher, constants, numba_it)
 
     def collect_kers(self, nf, basis_function):
         r"""
-            Returns the integration kernels
-            :math:`\tilde {\mathbf E}_{ns}(a_s^1 \leftarrow a_s^0)`.
+        Returns the integration kernels
+        :math:`\tilde {\mathbf E}_{ns}(a_s^1 \leftarrow a_s^0)`.
 
-            Parameters
-            ----------
-                nf : int
-                    number of active flavors
-                basis_function : callable
-                    accompaying basis function
+        Parameters
+        ----------
+            nf : int
+                number of active flavors
+            basis_function : callable
+                accompaying basis function
 
-            Returns
-            -------
-                ker : dict
-                    (physical) kernels, which will be further modified for the
-                    actual Mellin implementation
+        Returns
+        -------
+            ker : dict
+                (physical) kernels, which will be further modified for the
+                actual Mellin implementation
         """
         kers = {}
         CA = self.constants.CA
@@ -162,29 +169,37 @@ class KernelDispatcher:
                         e = np.identity(2, np.complex_)
                         for kk in range(ev_op_iterations):
                             a_half = a0 + (kk + 0.5) * delta_a
-                            ln = (gamma_S_0 * a_half + gamma_S_1 * a_half**2 ) / (beta_0 * a_half**2 + beta_1 * a_half**3) * delta_a
+                            ln = (
+                                (gamma_S_0 * a_half + gamma_S_1 * a_half ** 2)
+                                / (beta_0 * a_half ** 2 + beta_1 * a_half ** 3)
+                                * delta_a
+                            )
                             ek = ad.exp_singlet(ln)[0]
                             e = ek @ e
-                    else: # perturbative
+                    else:  # perturbative
                         r1 = gamma_S_1 / beta_0 - b1 * gamma_S_0
-                        r_k = np.zeros((ev_op_max_order,2,2),np.complex_) # k = 1 .. max_order-1
-                        u_k = np.zeros((ev_op_max_order+1,2,2),np.complex_) # k = 0 .. max_order
+                        r_k = np.zeros(
+                            (ev_op_max_order, 2, 2), np.complex_
+                        )  # k = 1 .. max_order-1
+                        u_k = np.zeros(
+                            (ev_op_max_order + 1, 2, 2), np.complex_
+                        )  # k = 0 .. max_order
                         # init with NLO
-                        r_k[1-1] = r1
+                        r_k[1 - 1] = r1
                         u_k[0] = np.identity(2, np.complex_)
                         # fill R_k
                         if method == "exact":
-                            for kk in range(2,ev_op_max_order+1):
-                                r_k[kk-1] = -b1 * r1
+                            for kk in range(2, ev_op_max_order + 1):
+                                r_k[kk - 1] = -b1 * r1
                         # compute R'_k and U_k (simultaneously)
                         max_order = ev_op_max_order
                         if method in ["truncated", "ordered-truncated"]:
                             max_order = 1
-                        for kk in range(1,max_order+1):
-                            rp_k_elems = np.zeros((kk+1,2,2),np.complex_)
-                            for ll in range(kk,0,-1):
-                                rp_k_elems[ll] = r_k[ll-1] @ u_k[kk -l]
-                            rp_k = np.sum(rp_k_elems,0)
+                        for kk in range(1, max_order + 1):
+                            rp_k_elems = np.zeros((kk + 1, 2, 2), np.complex_)
+                            for ll in range(kk, 0, -1):
+                                rp_k_elems[ll] = r_k[ll - 1] @ u_k[kk - l]
+                            rp_k = np.sum(rp_k_elems, 0)
                             u_k[kk] = (
                                 (e_m @ rp_k @ e_m + e_p @ rp_k @ e_p) / kk
                                 + ((e_p @ rp_k @ e_m) / (l_m - l_p - k))
@@ -193,7 +208,7 @@ class KernelDispatcher:
                         if method in ["truncated", "ordered-truncated"]:
                             u1 = u_k[1]
                             delta_a = (a1 - a0) / ev_op_iterations
-                            e = np.identity(2,np.complex_)
+                            e = np.identity(2, np.complex_)
                             for kk in range(ev_op_iterations):
                                 al = a0 + k * delta_a
                                 ah = al + delta_a
@@ -201,20 +216,26 @@ class KernelDispatcher:
                                 e = ek @ e
                         else:
                             # U(a_s^1)
-                            uh = np.zeros((2,2),np.complex_) # k = 0 .. max_order
+                            uh = np.zeros((2, 2), np.complex_)  # k = 0 .. max_order
                             a1power = 1
-                            for kk in range(ev_op_max_order+1):
+                            for kk in range(ev_op_max_order + 1):
                                 uh += a1power * u_k[kk]
                                 a1power *= a1
                             # U(a_s^0)
-                            ul = np.zeros((2,2),np.complex_) # k = 0 .. max_order
+                            ul = np.zeros((2, 2), np.complex_)  # k = 0 .. max_order
                             a0power = 1
-                            for kk in range(ev_op_max_order+1):
+                            for kk in range(ev_op_max_order + 1):
                                 ul += a0power * u_k[kk]
                                 a0power *= a0
                             # inv(U(a_s^0))
-                            ul_det = ul[0,0] * ul[1,1] - ul[1,0]*ul[0,1]
-                            ul_inv = np.array([[ul[1,1],-ul[0,1]],[-ul[1,0],ul[0,0]]],np.complex_) / ul_det
+                            ul_det = ul[0, 0] * ul[1, 1] - ul[1, 0] * ul[0, 1]
+                            ul_inv = (
+                                np.array(
+                                    [[ul[1, 1], -ul[0, 1]], [-ul[1, 0], ul[0, 0]]],
+                                    np.complex_,
+                                )
+                                / ul_det
+                            )
                             e = uh @ e0 @ ul_inv
                 pdf = basis_function(N, lnx)
                 return e[k][l] * pdf
@@ -248,9 +269,11 @@ class KernelDispatcher:
                         )
                         do_exp = False
                     elif method == "ordered-truncated":
-                        e = np.exp(ln) * (
-                            1.0 + a1/beta_0 * (gamma_ns_1 - b1 * gamma_ns_0)
-                        ) / (1.0 + a0/beta_0 * (gamma_ns_1 - b1 * gamma_ns_0))
+                        e = (
+                            np.exp(ln)
+                            * (1.0 + a1 / beta_0 * (gamma_ns_1 - b1 * gamma_ns_0))
+                            / (1.0 + a0 / beta_0 * (gamma_ns_1 - b1 * gamma_ns_0))
+                        )
                         do_exp = False
                     else:  # exact and expanded
                         ln = gamma_ns_0 * j01(a1, a0) + gamma_ns_1 * j11(a1, a0)
@@ -270,12 +293,12 @@ class KernelDispatcher:
 
     def set_up_all_integrands(self, nf):
         """
-            Compiles singlet and non-singlet integration kernel for each basis function.
+        Compiles singlet and non-singlet integration kernel for each basis function.
 
-            Parameters
-            ----------
-                nf : int
-                    number of active flavors
+        Parameters
+        ----------
+            nf : int
+                number of active flavors
         """
         # nothing to do?
         if nf in self.kernels:
@@ -296,17 +319,17 @@ class KernelDispatcher:
 
     def njit(self, function):
         """
-            Do nb.njit to the function if the `numba_it` flag is set to True.
+        Do nb.njit to the function if the `numba_it` flag is set to True.
 
-            Parameters
-            ---------
-                function : callable
-                    input callable
+        Parameters
+        ---------
+            function : callable
+                input callable
 
-            Returns
-            -------
-                function : callable
-                    compiled callable
+        Returns
+        -------
+            function : callable
+                compiled callable
         """
         if self.numba_it:
             return nb.njit(function)

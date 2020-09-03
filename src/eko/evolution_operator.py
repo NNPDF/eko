@@ -18,21 +18,21 @@ logger = logging.getLogger(__name__)
 
 class OperatorMember:
     """
-        A single operator for a specific element in evolution basis.
+    A single operator for a specific element in evolution basis.
 
-        The :class:`OperatorMember` provide some basic mathematical operations such as products.
-        It can also be applied to a pdf vector by the `__call__` method.
-        This class will never be exposed to the outside, but will be an internal member
-        of the :class:`Operator` and :class:`PhysicalOperator` instances.
+    The :class:`OperatorMember` provide some basic mathematical operations such as products.
+    It can also be applied to a pdf vector by the `__call__` method.
+    This class will never be exposed to the outside, but will be an internal member
+    of the :class:`Operator` and :class:`PhysicalOperator` instances.
 
-        Parameters
-        ----------
-            value : np.array
-                operator matrix
-            error : np.array
-                operator error matrix
-            name : str
-                operator name
+    Parameters
+    ----------
+        value : np.array
+            operator matrix
+        error : np.array
+            operator error matrix
+        name : str
+            operator name
     """
 
     def __init__(self, value, error, name):
@@ -72,19 +72,19 @@ class OperatorMember:
 
     def apply_pdf(self, pdf_member):
         """
-            The operator member can act on a pdf member.
+        The operator member can act on a pdf member.
 
-            Parameters
-            ----------
-                pdf_member : np.array
-                    pdf vector
+        Parameters
+        ----------
+            pdf_member : np.array
+                pdf vector
 
-            Returns
-            -------
-                result : float
-                    higher scale pdf
-                error : float
-                    evolution uncertainty to pdf at higher scale
+        Returns
+        -------
+            result : float
+                higher scale pdf
+            error : float
+                evolution uncertainty to pdf at higher scale
         """
         result = np.dot(self.value, pdf_member)
         error = np.dot(self.error, pdf_member)
@@ -176,19 +176,19 @@ class OperatorMember:
     @staticmethod
     def join(steps, list_of_paths):
         """
-            Multiply a list of :class:`OperatorMember` using the given paths.
+        Multiply a list of :class:`OperatorMember` using the given paths.
 
-            Parameters
-            ----------
-                steps : list(list(OperatorMember))
-                    list of raw operators, with the lowest scale to the right
-                list_of_paths : list(list(str))
-                    list of paths
+        Parameters
+        ----------
+            steps : list(list(OperatorMember))
+                list of raw operators, with the lowest scale to the right
+            list_of_paths : list(list(str))
+                list of paths
 
-            Returns
-            -------
-                final_op : OperatorMember
-                    joined operator
+        Returns
+        -------
+            final_op : OperatorMember
+                joined operator
         """
         final_op = 0
         for path in list_of_paths:
@@ -205,20 +205,20 @@ class OperatorMember:
 
 class PhysicalOperator:
     """
-        This is exposed to the outside world.
+    This is exposed to the outside world.
 
-        This operator is computed via the composition method of the
-        :class:`Operator` class.
+    This operator is computed via the composition method of the
+    :class:`Operator` class.
 
-        This operator can act on PDFs through the `__call__` method.
+    This operator can act on PDFs through the `__call__` method.
 
 
-        Parameters
-        ----------
-            op_members : dict
-                list of all members
-            q2_final : float
-                final scale
+    Parameters
+    ----------
+        op_members : dict
+            list of all members
+        q2_final : float
+            final scale
     """
 
     def __init__(self, op_members, q2_final):
@@ -227,17 +227,17 @@ class PhysicalOperator:
 
     def __mul__(self, other):
         """
-            Multiply ``other`` to self.
+        Multiply ``other`` to self.
 
-            Parameters
-            ----------
-                other : PhysicalOperator
-                    second factor with a lower initial scale
+        Parameters
+        ----------
+            other : PhysicalOperator
+                second factor with a lower initial scale
 
-            Returns
-            -------
-                p : PhysicalOperator
-                    self * other
+        Returns
+        -------
+            p : PhysicalOperator
+                self * other
         """
         if not isinstance(other, PhysicalOperator):
             raise ValueError("Can only multiply with another PhysicalOperator")
@@ -266,14 +266,14 @@ class PhysicalOperator:
 
     def get_raw_operators(self):
         """
-            Returns serializable matrix representation of all members and their errors
+        Returns serializable matrix representation of all members and their errors
 
-            Returns
-            -------
-                ret : dict
-                    the members are stored under the ``operators`` key and their
-                    errors under the ``operator_errors`` key. They are labeled as
-                    ``{outputPDF}.{inputPDF}``.
+        Returns
+        -------
+            ret : dict
+                the members are stored under the ``operators`` key and their
+                errors under the ``operator_errors`` key. They are labeled as
+                ``{outputPDF}.{inputPDF}``.
         """
         # map matrices
         ret = {"operators": {}, "operator_errors": {}}
@@ -284,35 +284,35 @@ class PhysicalOperator:
 
     def apply_pdf(self, pdf_lists):
         """
-            Apply PDFs to the EKOs.
+        Apply PDFs to the EKOs.
 
-            It assumes as input the PDFs as dictionary in evolution basis with:
+        It assumes as input the PDFs as dictionary in evolution basis with:
 
-            .. code-block:: python
+        .. code-block:: python
 
-                pdf_lists = {
-                    'V' : list,
-                    'g' : list,
-                    # ...
-                }
+            pdf_lists = {
+                'V' : list,
+                'g' : list,
+                # ...
+            }
 
-            Each member has to be evaluated on the corresponding xgrid (which
-            is tracked by :class:`~eko.operator_grid.OperatorGrid` and not
-            :class:`PhysicalOperator`)
+        Each member has to be evaluated on the corresponding xgrid (which
+        is tracked by :class:`~eko.operator_grid.OperatorGrid` and not
+        :class:`PhysicalOperator`)
 
-            Parameters
-            ----------
-                ret : dict
-                    operator matrices of :class:`PhysicalOperator`
-                pdf_lists : dict
-                    PDFs in evolution basis as list on the corresponding xgrid
+        Parameters
+        ----------
+            ret : dict
+                operator matrices of :class:`PhysicalOperator`
+            pdf_lists : dict
+                PDFs in evolution basis as list on the corresponding xgrid
 
-            Returns
-            -------
-                out : dict
-                    evolved PDFs
-                out_errors : dict
-                    associated errors of the evolved PDFs
+        Returns
+        -------
+            out : dict
+                evolved PDFs
+            out_errors : dict
+                associated errors of the evolved PDFs
         """
         # build output
         outs = {}
@@ -343,22 +343,22 @@ class PhysicalOperator:
 
 class Operator:
     """
-        Internal representation of a single EKO.
+    Internal representation of a single EKO.
 
-        The actual matrices are computed only upon calling :meth:`compute`.
-        :meth:`compose` will generate the :class:`PhysicalOperator` for the outside world.
-        If not computed yet, :meth:`compose` will call :meth:`compute`.
+    The actual matrices are computed only upon calling :meth:`compute`.
+    :meth:`compose` will generate the :class:`PhysicalOperator` for the outside world.
+    If not computed yet, :meth:`compose` will call :meth:`compute`.
 
-        Parameters
-        ----------
-            master : eko.operator_grid.OperatorMaster
-                the master instance
-            q2_from : float
-                evolution source
-            q2_to : float
-                evolution target
-            mellin_cut : float
-                cut to the upper limit in the mellin inversion
+    Parameters
+    ----------
+        master : eko.operator_grid.OperatorMaster
+            the master instance
+        q2_from : float
+            evolution source
+        q2_to : float
+            evolution target
+        mellin_cut : float
+            cut to the upper limit in the mellin inversion
     """
 
     def __init__(self, master, q2_from, q2_to, mellin_cut=1e-2):
@@ -379,23 +379,23 @@ class Operator:
 
     def compose(self, op_list, instruction_set, q2_final):
         """
-            Compose all :class:`Operator` together.
+        Compose all :class:`Operator` together.
 
-            Calls :meth:`compute`, if necessary.
+        Calls :meth:`compute`, if necessary.
 
-            Parameters
-            ----------
-                op_list : list(Operator)
-                    list of operators to merge
-                instruction_set : dict
-                    list of instructions (generated by :class:`eko.thresholds.FlavourTarget`)
-                q2_final : float
-                    final scale
+        Parameters
+        ----------
+            op_list : list(Operator)
+                list of operators to merge
+            instruction_set : dict
+                list of instructions (generated by :class:`eko.thresholds.FlavourTarget`)
+            q2_final : float
+                final scale
 
-            Returns
-            -------
-                op : PhysicalOperator
-                    final operator
+        Returns
+        -------
+            op : PhysicalOperator
+                final operator
         """
         # compute?
         if len(self.op_members.keys()) == 0:

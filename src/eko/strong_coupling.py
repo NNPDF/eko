@@ -21,26 +21,26 @@ logger = logging.getLogger(__name__)
 @nb.njit
 def beta_0(nf: int, CA: float, CF: float, TF: float):  # pylint: disable=unused-argument
     """
-        Computes the first coefficient of the QCD beta function.
+    Computes the first coefficient of the QCD beta function.
 
-        Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
-        For the sake of unification we keep a unique function signature for *all* coefficients.
+    Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
+    For the sake of unification we keep a unique function signature for *all* coefficients.
 
-        Parameters
-        ----------
-            nf : int
-                number of active flavours
-            CA : float
-                Casimir constant of adjoint representation
-            CF : float
-                Casimir constant of fundamental representation (which is actually not used here)
-            TF : float
-                fundamental normalization factor
+    Parameters
+    ----------
+        nf : int
+            number of active flavours
+        CA : float
+            Casimir constant of adjoint representation
+        CF : float
+            Casimir constant of fundamental representation (which is actually not used here)
+        TF : float
+            fundamental normalization factor
 
-        Returns
-        -------
-            beta_0 : float
-                first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
+    Returns
+    -------
+        beta_0 : float
+            first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
     """
     beta_0 = 11.0 / 3.0 * CA - 4.0 / 3.0 * TF * nf
     return beta_0
@@ -49,25 +49,25 @@ def beta_0(nf: int, CA: float, CF: float, TF: float):  # pylint: disable=unused-
 @nb.njit
 def beta_1(nf: int, CA: float, CF: float, TF: float):
     """
-        Computes the second coefficient of the QCD beta function.
+    Computes the second coefficient of the QCD beta function.
 
-        Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
+    Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
 
-        Parameters
-        ----------
-            nf : int
-                number of active flavours
-            CA : float
-                Casimir constant of adjoint representation
-            CF : float
-                Casimir constant of fundamental representation
-            TF : float
-                fundamental normalization factor
+    Parameters
+    ----------
+        nf : int
+            number of active flavours
+        CA : float
+            Casimir constant of adjoint representation
+        CF : float
+            Casimir constant of fundamental representation
+        TF : float
+            fundamental normalization factor
 
-        Returns
-        -------
-            beta_1 : float
-                second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
+    Returns
+    -------
+        beta_1 : float
+            second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
     """
     b_ca2 = 34.0 / 3.0 * CA * CA
     b_ca = -20.0 / 3.0 * CA * TF * nf
@@ -79,25 +79,25 @@ def beta_1(nf: int, CA: float, CF: float, TF: float):
 @nb.njit
 def beta_2(nf: int, CA: float, CF: float, TF: float):
     """
-        Computes the third coefficient of the QCD beta function
+    Computes the third coefficient of the QCD beta function
 
-        Implements Eq. (3.3) of :cite:`Herzog:2017ohr`.
+    Implements Eq. (3.3) of :cite:`Herzog:2017ohr`.
 
-        Parameters
-        ----------
-            nf : int
-                number of active flavours.
-            CA : float
-                Casimir constant of adjoint representation.
-            CF : float
-                Casimir constant of fundamental representation.
-            TF : float
-                fundamental normalization factor.
+    Parameters
+    ----------
+        nf : int
+            number of active flavours.
+        CA : float
+            Casimir constant of adjoint representation.
+        CF : float
+            Casimir constant of fundamental representation.
+        TF : float
+            fundamental normalization factor.
 
-        Returns
-        -------
-            beta_2 : float
-                third coefficient of the QCD beta function :math:`\\beta_2^{n_f}`
+    Returns
+    -------
+        beta_2 : float
+            third coefficient of the QCD beta function :math:`\\beta_2^{n_f}`
     """
     beta_2 = (
         2857.0 / 54.0 * CA * CA * CA
@@ -163,7 +163,13 @@ class StrongCoupling:
     """
 
     def __init__(
-        self, consts, alpha_s_ref, scale_ref, thresh, order=0, method="exact",
+        self,
+        consts,
+        alpha_s_ref,
+        scale_ref,
+        thresh,
+        order=0,
+        method="exact",
     ):
         # Sanity checks
         if not isinstance(consts, constants.Constants):
@@ -204,28 +210,28 @@ class StrongCoupling:
     @classmethod
     def from_dict(cls, setup, thresholds_config=None, consts=None):
         """
-            Create object from theory dictionary.
+        Create object from theory dictionary.
 
-            Read keys:
+        Read keys:
 
-                - alphas : required, reference value for  alpha_s (!)
-                - Qref : required, reference value in GeV (!)
-                - PTO : required, perturbative order
-                - ModEv : optional, method to solve RGE, default=EXA
+            - alphas : required, reference value for  alpha_s (!)
+            - Qref : required, reference value in GeV (!)
+            - PTO : required, perturbative order
+            - ModEv : optional, method to solve RGE, default=EXA
 
-            Parameters
-            ----------
-                setup : dict
-                    theory dictionary
-                constants : eko.constants.Constants
-                    Color constants
-                thresholds_config : eko.thresholds.ThresholdsConfig
-                    threshold configuration
+        Parameters
+        ----------
+            setup : dict
+                theory dictionary
+            constants : eko.constants.Constants
+                Color constants
+            thresholds_config : eko.thresholds.ThresholdsConfig
+                threshold configuration
 
-            Returns
-            -------
-                cls : StrongCoupling
-                    created object
+        Returns
+        -------
+            cls : StrongCoupling
+                created object
         """
         # read my values
         alpha_ref = setup["alphas"]
@@ -248,23 +254,23 @@ class StrongCoupling:
     # Hidden computation functions
     def _compute_expanded(self, as_ref, nf, scale_from, scale_to):
         """
-            Compute via expanded expression.
+        Compute via expanded expression.
 
-            Parameters
-            ----------
-                as_ref: float
-                    reference alpha_s
-                nf: int
-                    value of nf for computing alpha_s
-                scale_from: float
-                    reference scale
-                scale_to : float
-                    target scale
+        Parameters
+        ----------
+            as_ref: float
+                reference alpha_s
+            nf: int
+                value of nf for computing alpha_s
+            scale_from: float
+                reference scale
+            scale_to : float
+                target scale
 
-            Returns
-            -------
-                a_s : float
-                    coupling at target scale :math:`a_s(Q^2)`
+        Returns
+        -------
+            a_s : float
+                coupling at target scale :math:`a_s(Q^2)`
         """
         # common vars
         beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
@@ -297,23 +303,23 @@ class StrongCoupling:
 
     def _compute_exact(self, as_ref, nf, scale_from, scale_to):
         """
-            Compute via RGE.
+        Compute via RGE.
 
-            Parameters
-            ----------
-                as_ref: float
-                    reference alpha_s
-                nf: int
-                    value of nf for computing alpha_s
-                scale_from: float
-                    reference scale
-                scale_to : float
-                    target scale
+        Parameters
+        ----------
+            as_ref: float
+                reference alpha_s
+            nf: int
+                value of nf for computing alpha_s
+            scale_from: float
+                reference scale
+            scale_to : float
+                target scale
 
-            Returns
-            -------
-                a_s : float
-                    strong coupling at target scale :math:`a_s(Q^2)`
+        Returns
+        -------
+            a_s : float
+                strong coupling at target scale :math:`a_s(Q^2)`
         """
         # in LO fallback to expanded, as this is the full solution
         if self._order == 0:
@@ -347,24 +353,24 @@ class StrongCoupling:
 
     def _compute(self, as_ref, nf, scale_from, scale_to):
         """
-            Wrapper in order to pass the computation to the corresponding
-            method (depending on the calculation method).
+        Wrapper in order to pass the computation to the corresponding
+        method (depending on the calculation method).
 
-            Parameters
-            ----------
-                as_ref: float
-                    reference alpha_s
-                nf: int
-                    value of nf for computing alpha_s
-                scale_from: float
-                    reference scale
-                scale_to : float
-                    target scale
+        Parameters
+        ----------
+            as_ref: float
+                reference alpha_s
+            nf: int
+                value of nf for computing alpha_s
+            scale_from: float
+                reference scale
+            scale_to : float
+                target scale
 
-            Returns
-            -------
-                a_s : float
-                    strong coupling at target scale :math:`a_s(Q^2)`
+        Returns
+        -------
+            a_s : float
+                strong coupling at target scale :math:`a_s(Q^2)`
         """
         # TODO set up a cache system here
         # at the moment everything is expanded - and type has been checked in the constructor
@@ -376,17 +382,17 @@ class StrongCoupling:
 
     def a_s(self, scale_to, fact_scale=None):
         """
-            Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
+        Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
 
-            Parameters
-            ----------
-                scale_to : float
-                    final scale to evolve to :math:`Q^2`
+        Parameters
+        ----------
+            scale_to : float
+                final scale to evolve to :math:`Q^2`
 
-            Returns
-            -------
-                a_s : float
-                    strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
+        Returns
+        -------
+            a_s : float
+                strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
         final_as = self.as_ref
