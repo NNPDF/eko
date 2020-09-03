@@ -377,12 +377,6 @@ def save_initial_scale_plots_to_pdf(path):
 
 
 if __name__ == "__main__" and True:
-    # combine grid
-    #xgrid_low = np.geomspace(1e-7, 1.0 if n_mid == 0 else 0.1, n_low)
-    #xgrid_mid = np.linspace(0.1, 1.0, n_mid)
-    #xgrid_high = np.array([])
-    #xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high)))
-
     # activate logging
     logStdout = logging.StreamHandler(sys.stdout)
     logStdout.setLevel(logging.INFO)
@@ -392,8 +386,12 @@ if __name__ == "__main__" and True:
     logging.getLogger("eko").setLevel(logging.INFO)
 
     # run
-    app = LHABenchmarkPaper(here / "input/default.yaml")
-    app.run()
+    if len(sys.argv) == 2:
+        app = LHABenchmarkPaper(sys.argv[1])
+        app.run()
+    else:
+        me = sys.argv[0]
+        print(f"Usage: {me} path/to/input/card.yaml")
 
 if __name__ == "__main__" and False:
     raw = """"""

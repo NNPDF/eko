@@ -36,7 +36,7 @@ def check_is_interpolator(interpolator, xgrid):
 
 
 def check_correspondence_interpolators(inter_x, inter_N):
-    """ Check the correspondece between x and N space of the interpolators
+    """Check the correspondece between x and N space of the interpolators
     inter_x and inter_N"""
     ngrid = [np.complex(1.0), np.complex(1.0 + 1j), np.complex(2.5 - 2j)]
     logxinv = np.log(0.9e-2)  # < 1e-2, to trick skipping
@@ -58,6 +58,18 @@ class TestInterpolatorDispatcher:
             interpolation.InterpolatorDispatcher([0.1, 0.2], 0)
         with pytest.raises(ValueError):
             interpolation.InterpolatorDispatcher([0.1, 0.2], 2)
+
+    def test_from_dict(self):
+        d = {
+            "interpolation_xgrid": ["make_grid", 3, 3],
+            "interpolation_is_log": False,
+            "interpolation_polynomial_degree": 1,
+        }
+        a = interpolation.InterpolatorDispatcher.from_dict(d)
+        np.testing.assert_array_almost_equal(
+            a.xgrid, np.array([1e-7, 1e-4, 1e-1, 0.55, 1.0])
+        )
+        assert a.polynomial_degree == 1
 
     def test_eq(self):
         a = interpolation.InterpolatorDispatcher(
@@ -266,3 +278,14 @@ class TestArea:
         # errors
         with pytest.raises(ValueError):
             a = interpolation.Area(0, 3, (0, 2), xgrid)
+
+
+def test_make_grid():
+    xg = interpolation.make_grid(3, 3)
+    np.testing.assert_array_almost_equal(xg, np.array([1e-7, 1e-4, 1e-1, 0.55, 1.0]))
+    xg = interpolation.make_grid(3, 3, 4)
+    np.testing.assert_array_almost_equal(
+        xg, np.array([1e-7, 1e-4, 1e-1, 0.5, 0.9, 0.99, 0.999, 0.9999, 1.0])
+    )
+    xg = interpolation.make_grid(3, 0, 0, 1e-2)
+    np.testing.assert_array_almost_equal(xg, np.array([1e-2, 1e-1, 1.0]))

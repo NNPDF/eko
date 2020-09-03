@@ -13,8 +13,8 @@ NF = 5
 
 
 def check_values(function, inputs, known_values):
-    """ Takes advantages of the unified signature for all coefficients
-    to check the value for N == `N1` """
+    """Takes advantages of the unified signature for all coefficients
+    to check the value for N == `N1`"""
     for N, val in zip(inputs, known_values):
         result = function(N, NF, CA, CF)
         assert_almost_equal(result, val)

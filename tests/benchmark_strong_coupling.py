@@ -34,7 +34,7 @@ TF = constants.TF
 
 class BenchmarkStrongCoupling:
     def test_a_s(self):
-        """ Tests the value of alpha_s (for now only at LO)
+        """Tests the value of alpha_s (for now only at LO)
         for a given set of parameters
         """
         # TODO @JCM: we need a source for this!

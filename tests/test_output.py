@@ -24,7 +24,12 @@ class TestOutput:
         q2_ref = 1
         VV, VVe = self.mkO()
         q2_out = 2
-        Q2grid = {q2_out: {"operators": {"V.V": VV}, "operator_errors": {"V.V": VVe},}}
+        Q2grid = {
+            q2_out: {
+                "operators": {"V.V": VV},
+                "operator_errors": {"V.V": VVe},
+            }
+        }
         d = dict(
             interpolation_xgrid=interpolation_xgrid,
             interpolation_polynomial_degree=interpolation_polynomial_degree,
@@ -67,7 +72,12 @@ class TestOutput:
         q2_ref = 1
         VV, VVe = self.mkO()
         q2_out = 2
-        Q2grid = {q2_out: {"operators": {"V.V": VV}, "operator_errors": {"V.V": VVe},}}
+        Q2grid = {
+            q2_out: {
+                "operators": {"V.V": VV},
+                "operator_errors": {"V.V": VVe},
+            }
+        }
         d = dict(
             interpolation_xgrid=interpolation_xgrid,
             interpolation_polynomial_degree=interpolation_polynomial_degree,
@@ -107,8 +117,14 @@ class TestOutput:
         VV2, VVe2 = self.mkO()
         q2_out2 = 3
         Q2grid = {
-            q2_out1: {"operators": {"V.V": VV1}, "operator_errors": {"V.V": VVe1},},
-            q2_out2: {"operators": {"V.V": VV2}, "operator_errors": {"V.V": VVe2},},
+            q2_out1: {
+                "operators": {"V.V": VV1},
+                "operator_errors": {"V.V": VVe1},
+            },
+            q2_out2: {
+                "operators": {"V.V": VV2},
+                "operator_errors": {"V.V": VVe2},
+            },
         }
         d = dict(
             interpolation_xgrid=interpolation_xgrid,
@@ -138,7 +154,10 @@ class TestOutput:
         VVl, VVle = self.mkO()
         q2_out = 2
         Q2grid = {
-            q2_out: {"operators": {"V.V": VVl}, "operator_errors": {"V.V": VVle},}
+            q2_out: {
+                "operators": {"V.V": VVl},
+                "operator_errors": {"V.V": VVle},
+            }
         }
         d = dict(
             interpolation_xgrid=interpolation_xgrid,
@@ -155,7 +174,10 @@ class TestOutput:
         VVh, VVhe = self.mkO()
         q2_final = 3
         d2["Q2grid"] = {
-            q2_final: {"operators": {"V.V": VVh}, "operator_errors": {"V.V": VVhe},}
+            q2_final: {
+                "operators": {"V.V": VVh},
+                "operator_errors": {"V.V": VVhe},
+            }
         }
         o2 = output.Output(d2)
         # join

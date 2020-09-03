@@ -19,15 +19,15 @@ TF = constants.TF
 
 class TestBetaFunction:
     def _flav_test(self, function):
-        """ Check that the given beta function `function` is valid
-        for any number of flavours up to 5 """
+        """Check that the given beta function `function` is valid
+        for any number of flavours up to 5"""
         for nf in range(5):
             result = function(nf, CA, CF, TF)
             assert result > 0.0
 
     def _check_result(self, function, NF, value):
-        """ Check that function evaluated in nf=5
-        returns the value `value` """
+        """Check that function evaluated in nf=5
+        returns the value `value`"""
         result = function(NF, CA, CF, TF)
         np.testing.assert_approx_equal(result, value, significant=5)
 
