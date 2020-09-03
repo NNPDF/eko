@@ -14,8 +14,14 @@ class FakeBF:
 
 
 # fake decomposition
-def fake_eigensystem_gamma_singlet_0(*_args):
-    return 0, 0, np.array([[1, 1], [0, 0]]), np.array([[0, 0], [1, 1]])
+def fake_exp_singlet(*_args):
+    return (
+        np.array([[1, 1], [1, 1]]),
+        0,
+        0,
+        np.array([[1, 1], [0, 0]]),
+        np.array([[0, 0], [1, 1]]),
+    )
 
 
 class TestKernelDispatcher:
@@ -23,10 +29,10 @@ class TestKernelDispatcher:
         c = eko.constants.Constants()
         bfs = [FakeBF()]
         for pto in [0, 1]:
-            for mod_ev, meth in [("EXA", "exact"), ("TRN", "truncated"), ("EXP", "LL")]:
+            for mod_ev, meth in [("EXA", "iterate-exact"), ("TRN", "truncated")]:
                 kd = kg.KernelDispatcher.from_dict(dict(PTO=pto, ModEv=mod_ev), bfs, c)
-                assert kd.order == pto
-                assert kd.method == meth
+                assert kd.config["order"] == pto
+                assert kd.config["method"] == meth
             with pytest.raises(ValueError):
                 _ = kg.KernelDispatcher.from_dict(dict(PTO=pto, ModEv="ERROR"), bfs, c)
 
@@ -53,17 +59,22 @@ class TestKernelDispatcher:
             lambda *_args: np.zeros((2, 2)),
         )
         monkeypatch.setattr(
-            eko.anomalous_dimensions.lo,
-            "eigensystem_gamma_singlet_0",
-            fake_eigensystem_gamma_singlet_0,
+            eko.anomalous_dimensions,
+            "exp_singlet",
+            fake_exp_singlet,
         )
         monkeypatch.setattr(eko.mellin, "compile_integrand", lambda ker, *_args: ker)
         # fake InterpolationDispatcher
         bfs = [FakeBF()]
         for numba_it in [True, False]:
             for order in [0, 1]:
-                for method in ["exact", "LL"]:
-                    kd = kg.KernelDispatcher(bfs, c, order, method, numba_it=numba_it)
+                for method in ["iterate-exact", "iterate-expanded"]:
+                    kd = kg.KernelDispatcher.from_dict(
+                        dict(PTO=order, ModEv=method, ev_op_iterations=1),
+                        bfs,
+                        c,
+                        numba_it=numba_it,
+                    )
                     nf = 3
                     kd.set_up_all_integrands(nf)
                     # check format

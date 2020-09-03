@@ -66,7 +66,7 @@ def test_inverse_mellin_transform():
             extra_args = _numbify_list([np.log(x), 0.0, 0.0, 1.0, 0.0])
             nresult = mellin.inverse_mellin_transform(integrand, 1e-2, extra_args)
             assert_almost_equal(xresult, nresult[0])
-            assert_almost_equal(0.0, nresult[1])
+            assert nresult[1] < 1e-5
 
 
 def test_get_path_Talbot():

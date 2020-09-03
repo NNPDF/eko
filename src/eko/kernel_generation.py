@@ -55,6 +55,8 @@ class KernelDispatcher:
             "ordered-truncated",
             "decompose-exact",
             "decompose-expanded",
+            "perturbative-exact",
+            "perturbative-expanded",
         ]:
             raise ValueError(f"Unknown evolution mode {method}")
         if order == 0 and method != "iterate-exact":
@@ -94,13 +96,14 @@ class KernelDispatcher:
         """
         config = {}
         config["order"] = int(setup["PTO"])
-        mod_ev = setup.get("ModEv", "EXA")
+        method = setup.get("ModEv", "EXA")
         mod_ev2method = {
             "EXA": "iterate-exact",
             "EXP": "iterate-expanded",
             "TRN": "truncated",
         }
-        config["method"] = mod_ev2method.get(mod_ev)
+        method = mod_ev2method.get(method, method)
+        config["method"] = method
         config["ev_op_max_order"] = setup.get("ev_op_max_order", 10)
         config["ev_op_iterations"] = setup.get("ev_op_iterations", 10)
         return cls(config, interpol_dispatcher, constants, numba_it)
@@ -188,7 +191,7 @@ class KernelDispatcher:
                         r_k[1 - 1] = r1
                         u_k[0] = np.identity(2, np.complex_)
                         # fill R_k
-                        if method == "exact":
+                        if method == "perturbative-exact":
                             for kk in range(2, ev_op_max_order + 1):
                                 r_k[kk - 1] = -b1 * r1
                         # compute R'_k and U_k (simultaneously)

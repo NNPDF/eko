@@ -73,6 +73,6 @@ class Runner:
         Q2grid = {}
         for op in self.get_operators():
             final_scale = op.q2_final
-            Q2grid[final_scale] = op.get_raw_operators()
+            Q2grid[float(final_scale)] = op.get_raw_operators()
         self.out["Q2grid"] = Q2grid
         return copy.deepcopy(self.out)
