@@ -151,7 +151,7 @@ class KernelDispatcher:
             j01 = self.njit(lambda a1, a0: j00(a1, a0) - b1 * j11(a1, a0))
 
         # singlet kernels
-        def get_ker_s(k, l):
+        def get_ker_s(s_k, s_l):
             """getter for (k,l)-th element of singlet kernel matrix"""
 
             def ker_s(N, lnx, a1, a0):
@@ -201,19 +201,19 @@ class KernelDispatcher:
                         for kk in range(1, max_order + 1):
                             rp_k_elems = np.zeros((kk + 1, 2, 2), np.complex_)
                             for ll in range(kk, 0, -1):
-                                rp_k_elems[ll] = r_k[ll - 1] @ u_k[kk - l]
+                                rp_k_elems[ll] = r_k[ll - 1] @ u_k[kk - ll]
                             rp_k = np.sum(rp_k_elems, 0)
                             u_k[kk] = (
                                 (e_m @ rp_k @ e_m + e_p @ rp_k @ e_p) / kk
-                                + ((e_p @ rp_k @ e_m) / (l_m - l_p - k))
-                                + ((e_m @ rp_k @ e_p) / (l_p - l_m - k))
+                                + ((e_p @ rp_k @ e_m) / (l_m - l_p - kk))
+                                + ((e_m @ rp_k @ e_p) / (l_p - l_m - kk))
                             )
                         if method in ["truncated", "ordered-truncated"]:
                             u1 = u_k[1]
                             delta_a = (a1 - a0) / ev_op_iterations
                             e = np.identity(2, np.complex_)
                             for kk in range(ev_op_iterations):
-                                al = a0 + k * delta_a
+                                al = a0 + kk * delta_a
                                 ah = al + delta_a
                                 ek = e0 + ah * u1 @ e0 - al * e0 @ u1
                                 e = ek @ e
@@ -241,7 +241,7 @@ class KernelDispatcher:
                             )
                             e = uh @ e0 @ ul_inv
                 pdf = basis_function(N, lnx)
-                return e[k][l] * pdf
+                return e[s_k][s_l] * pdf
 
             return ker_s
 
