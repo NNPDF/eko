@@ -158,8 +158,10 @@ class KernelDispatcher:
                 """a singlet integration kernel"""
                 # LO
                 gamma_S_0 = ad_lo.gamma_singlet_0(N, nf, CA, CF)
-                ln = gamma_S_0 * j00(a1, a0)
+                lo_j = j00(a1, a0)
+                ln = gamma_S_0 * lo_j
                 e0, l_p, l_m, e_p, e_m = ad.exp_singlet(ln)
+                exp_r, r_p, r_m, f_p, f_m = ad.exp_singlet(gamma_S_0 / beta_0)
                 e = e0
                 # NLO
                 if order > 0:
@@ -204,9 +206,12 @@ class KernelDispatcher:
                                 rp_k_elems[ll] = r_k[ll - 1] @ u_k[kk - ll]
                             rp_k = np.sum(rp_k_elems, 0)
                             u_k[kk] = (
-                                (e_m @ rp_k @ e_m + e_p @ rp_k @ e_p) / kk
-                                + ((e_p @ rp_k @ e_m) / (l_m - l_p - kk))
-                                + ((e_m @ rp_k @ e_p) / (l_p - l_m - kk))
+                                # (e_m @ rp_k @ e_m + e_p @ rp_k @ e_p) / kk
+                                # + ((e_p @ rp_k @ e_m) / ((l_m - l_p)/lo_j - kk))
+                                # + ((e_m @ rp_k @ e_p) / ((l_p - l_m)/lo_j - kk))
+                                (f_m @ rp_k @ f_m + f_p @ rp_k @ f_p) / kk
+                                + ((f_p @ rp_k @ f_m) / ((r_m - r_p) - kk))
+                                + ((f_m @ rp_k @ f_p) / ((r_p - r_m) - kk))
                             )
                         if method in ["truncated", "ordered-truncated"]:
                             u1 = u_k[1]

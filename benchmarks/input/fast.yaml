@@ -17,6 +17,6 @@ mc: 1.4142135623730951
 mt: 175.0
 Q2grid: [1.0e+4]
 # debug options
-debug_skip_non_singlet: True
-debug_skip_singlet: True
+debug_skip_non_singlet: False
+debug_skip_singlet: False
 keep_input: True

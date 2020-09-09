@@ -2,8 +2,7 @@
 """
     Benchmark EKO to :cite:`Giele:2002hx`
 """
-import logging
-import sys
+
 import copy
 import pathlib
 import pprint
@@ -14,102 +13,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from plots import plot_dist, plot_operator
-
 from eko import run_dglap
+from eko import basis_rotation as br
+
+from .toyLH import mkPDF
+from .plots import plot_dist, plot_operator
 
 # xgrid
 toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
 
-# implement Eq. 31 of arXiv:hep-ph/0204316
-def toy_uv0(x):
-    return 5.107200 * x ** (0.8) * (1.0 - x) ** 3 / x
-
-
-def toy_dv0(x):
-    return 3.064320 * x ** (0.8) * (1.0 - x) ** 4 / x
-
-
-def toy_g0(x):
-    return 1.7 * x ** (-0.1) * (1.0 - x) ** 5 / x
-
-
-def toy_dbar0(x):
-    return 0.1939875 * x ** (-0.1) * (1.0 - x) ** 6 / x
-
-
-def toy_ubar0(x):
-    return (1.0 - x) * toy_dbar0(x)
-
-
-def toy_s0(x):
-    return 0.2 * (toy_ubar0(x) + toy_dbar0(x))
-
-
-def toy_sbar0(x):
-    return toy_s0(x)
-
-
-def toy_Lm0(x):
-    return toy_dbar0(x) - toy_ubar0(x)
-
-
-def toy_Lp0(x):
-    return (toy_dbar0(x) + toy_ubar0(x)) * 2.0  # 2 is missing in the paper!
-
-
-def toy_sp0(x):
-    return toy_s0(x) + toy_sbar0(x)
-
-
-def toy_cp0(x):
-    return 0 * x
-
-
-def toy_bp0(x):
-    return 0 * x
-
-
-def toy_V0(x):
-    return toy_uv0(x) + toy_dv0(x)
-
-
-def toy_V30(x):
-    return toy_uv0(x) - toy_dv0(x)
-
-
-def toy_T30(x):
-    return -2.0 * toy_Lm0(x) + toy_uv0(x) - toy_dv0(x)
-
-
-def toy_T80(x):
-    return toy_Lp0(x) + toy_uv0(x) + toy_dv0(x) - 2.0 * toy_sp0(x)
-
-
-def toy_S0(x):
-    return toy_uv0(x) + toy_dv0(x) + toy_Lp0(x) + toy_sp0(x)
-
-
-# collect pdfs
-LHA_init_pdfs = {
-    "V": toy_V0,
-    "V3": toy_V30,
-    "T3": toy_T30,
-    "T8": toy_T80,
-    "T15": toy_S0,
-    "S": toy_S0,
-    "g": toy_g0,
-}
+# generate input pdfs
+LHA_init_pdfs = br.generate_input_from_lhapdf(mkPDF("", ""), 2)
 
 # list
 raw_label_list = ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"]
-rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
+#rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
 
 # my/exact initial grid
-LHA_init_grid = []
-for f in [toy_uv0, toy_dv0, toy_Lm0, toy_Lp0, toy_sp0, toy_cp0, toy_bp0, toy_g0]:
-    LHA_init_grid.append(f(toy_xgrid))
-LHA_init_grid = np.array(LHA_init_grid)
+#LHA_init_grid = []
+#for f in [toy_uv0, toy_dv0, toy_Lm0, toy_Lp0, toy_sp0, toy_cp0, toy_bp0, toy_g0]:
+#    LHA_init_grid.append(f(toy_xgrid))
+LHA_init_grid = np.array([])
 
 # fmt: off
 # rotation matrix
@@ -138,43 +62,31 @@ def rotate_data(raw):
         out[n] = rot[k]
     return out
 
-
-# output path
-here = pathlib.Path(__file__).parent
-assets_path = here / "assets"
-
-# load data
-with open(here / "data.yaml") as o:
-    LHA_data = yaml.safe_load(o)
-
-
 class LHABenchmarkPaper:
     """
     Compares to the LHA benchmark paper :cite:`Giele:2002hx`.
 
     Parameters
     ----------
-        order : int
-            order of perturbation theory
-        xgrid : array
-            basis grid
-        polynomial_degree : int
-            degree of interpolation polynomial
-        flag : string
-            output file tag
-        debug_skip_singlet : bool
-            skip singlet integration
-        debug_skip_non_singlet : bool
-            skip singlet integration
+        path : string or pathlib.Path
+            path to input card
+        data_dir : string
+            data directory
+        assets_dir : string
+            output directory
     """
 
-    def __init__(self, path):
-        print(path)
+    def __init__(self, path, data_dir, assets_dir):
         if not isinstance(path, pathlib.Path):
             path = pathlib.Path(path)
         self.path = path
         with open(path, "r") as infile:
             self.setup = yaml.safe_load(infile)
+        # load data
+        with open(data_dir / "LHA.yaml") as o:
+            self.data = yaml.safe_load(o)
+        # output dir
+        self.assets_dir = assets_dir
         # default config for post processing
         self.post_process_config = {
             "plot_PDF": True,
@@ -197,17 +109,17 @@ class LHABenchmarkPaper:
         """
         # dump operators to file
         if self.post_process_config["write_operator"]:
-            p = assets_path / (self.path.stem + "-ops.yaml")
+            p = self.assets_dir / (self.path.stem + "-ops.yaml")
             output.dump_yaml_to_file(p)
             print(f"write operator to {p}")
         # pdf comparison
         if self.post_process_config["plot_PDF"]:
-            p = assets_path / (self.path.stem + "-plots.pdf")
+            p = self.assets_dir / (self.path.stem + "-plots.pdf")
             self.save_final_scale_plots_to_pdf(p, output)
             print(f"write pdf plots to {p}")
         # graphical representation of operators
         if self.post_process_config["plot_operator"]:
-            p = assets_path / (self.path.stem + "-ops.pdf")
+            p = self.assets_dir / (self.path.stem + "-ops.pdf")
             self.save_all_operators_to_pdf(output, p)
             print(f"write operator plots to {p}")
 
@@ -229,14 +141,14 @@ class LHABenchmarkPaper:
         order = self.setup["PTO"]
         if fns == "FFNS":
             if order == 0:
-                return rotate_data(LHA_data["table2"]["part2"])
+                return rotate_data(self.data["table2"]["part2"])
             if order == 1:
-                return rotate_data(LHA_data["table3"]["part1"])
+                return rotate_data(self.data["table3"]["part1"])
         if fns == "ZM-VFNS":
             if order == 0:
-                return rotate_data(LHA_data["table2"]["part3"])
+                return rotate_data(self.data["table2"]["part3"])
             if order == 1:
-                return rotate_data(LHA_data["table4"]["part1"])
+                return rotate_data(self.data["table4"]["part1"])
         raise ValueError(f"unknown FNS {fns} or order {order}")
 
     def run(self):
@@ -341,67 +253,36 @@ class LHABenchmarkPaper:
                 pp.savefig()
                 plt.close(fig)
 
+    def save_initial_scale_plots_to_pdf(self, path):
+        """
+        Plots all PDFs at the inital scale.
 
-def save_initial_scale_plots_to_pdf(path):
-    """
-    Plots all PDFs at the inital scale.
+        The reference values are given in Table 2 part 1 of :cite:`Giele:2002hx`.
 
-    The reference values are given in Table 2 part 1 of :cite:`Giele:2002hx`.
+        This excercise was usfull in order to detect the missing 2 in the definition of
+        :math:`L_+ = 2(\\bar u + \\bar d)`
 
-    This excercise was usfull in order to detect the missing 2 in the definition of
-    :math:`L_+ = 2(\\bar u + \\bar d)`
-
-    Parameters
-    ----------
-        path : string
-            output path
-    """
-    LHA_init_grid_ref = LHA_data["table2"]["part1"]
-    with PdfPages(path) as pp:
-        # iterate all raw labels
-        for j, label in enumerate(raw_label_list):
-            # skip trivial plots
-            if label in ["c_p", "b_p"]:
-                continue
-            me = LHA_init_grid[j]
-            ref = LHA_init_grid_ref[label]
-            fig = plot_dist(
-                toy_xgrid,
-                toy_xgrid * me,
-                np.zeros(len(me)),
-                ref,
-                title=f"x{label}(x,µ_F^2 = 2 GeV^2)",
-            )
-            pp.savefig()
-            plt.close(fig)
-    print(f"Initial scale pdf plots written to {path}")
-
-
-if __name__ == "__main__" and True:
-    # activate logging
-    logStdout = logging.StreamHandler(sys.stdout)
-    logStdout.setLevel(logging.INFO)
-    logStdout.setFormatter(logging.Formatter("%(message)s"))
-    logging.getLogger("eko").handlers = []
-    logging.getLogger("eko").addHandler(logStdout)
-    logging.getLogger("eko").setLevel(logging.INFO)
-
-    # run as cli
-    if len(sys.argv) == 2:
-        app = LHABenchmarkPaper(sys.argv[1])
-        app.run()
-    else:
-        me = sys.argv[0]
-        print(f"Usage: {me} path/to/input/card.yaml")
-
-if __name__ == "__main__" and False:
-    # helper to extract the numbers from the pdf
-    raw = """"""
-    for r in raw:
-        r = (
-            r.replace("∗\n", "")
-            .replace(" −", "e-")
-            .replace(" +", "e+")
-            .replace("\n", ",")
-        )
-        print("[" + r + "]")
+        Parameters
+        ----------
+            path : string
+                output path
+        """
+        LHA_init_grid_ref = self.data["table2"]["part1"]
+        with PdfPages(path) as pp:
+            # iterate all raw labels
+            for j, label in enumerate(raw_label_list):
+                # skip trivial plots
+                if label in ["c_p", "b_p"]:
+                    continue
+                me = LHA_init_grid[j]
+                ref = LHA_init_grid_ref[label]
+                fig = plot_dist(
+                    toy_xgrid,
+                    toy_xgrid * me,
+                    np.zeros(len(me)),
+                    ref,
+                    title=f"x{label}(x,µ_F^2 = 2 GeV^2)",
+                )
+                pp.savefig()
+                plt.close(fig)
+        print(f"Initial scale pdf plots written to {path}")
