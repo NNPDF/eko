@@ -5,17 +5,17 @@ import eko
 
 def load_apfel(theory, pdf="ToyLH"):
     """
-        Set APFEL parameter from ``theory`` dictionary.
+    Set APFEL parameter from ``theory`` dictionary.
 
-        Parameters
-        ----------
-        theory : dict
-            theory and process parameters
+    Parameters
+    ----------
+    theory : dict
+        theory and process parameters
 
-        Returns
-        -------
-        module
-            loaded apfel wrapper
+    Returns
+    -------
+    module
+        loaded apfel wrapper
     """
     import apfel  # pylint:disable=import-outside-toplevel
 

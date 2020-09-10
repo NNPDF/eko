@@ -10,6 +10,7 @@ import yaml
 
 import eko.interpolation as interpolation
 from eko.evolution_operator import OperatorMember, PhysicalOperator
+import eko.basis_rotation as br
 
 logger = logging.getLogger(__name__)
 
@@ -20,30 +21,27 @@ class Output(dict):
     to PDFs and dumping to file.
     """
 
-    def apply_pdf(self, input_pdfs, targetgrid=None):
+    def apply_pdf(self, lhapdf_like, targetgrid=None, rotate_to_flavor_basis=True):
         """
         Apply all available operators to the input PDFs.
 
         Parameters
         ----------
-            input_pdfs : dict
-                input PDFs as dictionary {name: callable PDF}
+            lhapdf_like : object
+                object that provides an xfxQ2 callable (as lhapdf, ToyLH does) (and thus is
+                in flavor basis)
             targetgrid : list
                 if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
+            rotate_to_flavor_basis : boolean
+                rotate output back to flavor basis
 
         Returns
-        ---------
+        -------
             out_grid : dict
                 output PDFs and their associated errors for the computed Q2grid
         """
-        # TODO rotation from the evolution basis to flavor basis? if yes, here!
-        # turn input_pdfs into lists
-        input_lists = {}
-        for k in input_pdfs:
-            l = []
-            for x in self["interpolation_xgrid"]:
-                l.append(input_pdfs[k](x))
-            input_lists[k] = np.array(l)
+        # turn lhapdf_like into list
+        input_lists = br.generate_input_from_lhapdf(lhapdf_like, self["interpolation_xgrid"], self["q2_ref"])
 
         # build output
         out_grid = {}
@@ -63,7 +61,29 @@ class Output(dict):
                     out_grid[q2]["errors"][pdf_label] = np.matmul(
                         rot, out_grid[q2]["errors"][pdf_label]
                     )
+        # rotate?
+        if rotate_to_flavor_basis:
+            out_grid = self.rotate_pdfs_to_flavor_basis(out_grid)
+        return out_grid
 
+    @staticmethod
+    def rotate_pdfs_to_flavor_basis(in_grid):
+        """
+        Rotate all PDFs from evolution basis to flavor basis
+
+        Parameters
+        ----------
+            in_grid : dict
+                a map q2 to pdfs and their errors in evolution basis
+
+        Returns
+        -------
+            out_grid : dict
+                updated map
+        """
+        out_grid = {}
+        for q2, res in in_grid.items():
+            out_grid[q2] = {k: br.rotate_output(v) for k, v in res.items()}
         return out_grid
 
     def get_raw(self):

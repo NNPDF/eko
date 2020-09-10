@@ -61,7 +61,7 @@ rotate_flavor_to_evolution = np.array(
 rotate_evolution_to_flavor = np.linalg.inv(rotate_flavor_to_evolution)
 
 
-def generate_input_from_lhapdf(lhapdf, Q2init):
+def generate_input_from_lhapdf(lhapdf, xs, Q2init):
     """
     Rotate lhapdf-like input object from flavor space to evolution space
 
@@ -69,6 +69,8 @@ def generate_input_from_lhapdf(lhapdf, Q2init):
     ----------
         lhapdf : object
             lhapdf-like input object (i.e. an object with xfxQ2)
+        xs : list
+            input x values
         Q2init : float
             input scale
 
@@ -77,19 +79,29 @@ def generate_input_from_lhapdf(lhapdf, Q2init):
         input_dict : dict
             a mapping evolution element to callable
     """
+    # query all pdfs
+    flavor_list = []
+    empty_pids = []
+    for pid in flavor_basis_pids:
+        if lhapdf.hasFlavor(pid):
+            ls = [lhapdf.xfxQ2(pid, x, Q2init) / x for x in xs]
+        else:
+            ls = np.zeros(len(xs))
+            empty_pids.append(pid)
+        flavor_list.append(ls)
+    # iterate all pdfs
     input_dict = {}
     for j, evol in enumerate(evol_basis):
-
-        def f(x, j=j):
-            """factory function"""
-            evol_map = rotate_flavor_to_evolution[j]
-            flavor_list = np.array(
-                [lhapdf.xfxQ2(pid, x, Q2init) / x for pid in flavor_basis_pids]
-            )
-            return evol_map @ flavor_list
-
-        input_dict[evol] = f
+        # is it a quark pdf and is it trivial? then skip
+        if len(evol) > 1 and evol[0] in ["V", "T"]:
+            q = int(np.sqrt(int(evol[1:]) + 1))
+            if q in empty_pids and -q in empty_pids:
+                continue
+        # rotate
+        evol_map = rotate_flavor_to_evolution[j]
+        input_dict[evol] = evol_map @ flavor_list
     return input_dict
+
 
 def fill_trivial_dists(old_evols):
     """
@@ -133,6 +145,7 @@ def fill_trivial_dists(old_evols):
         trivial_dists.append(evol)
     return evols, trivial_dists
 
+
 def rotate_output(in_evols):
     """
     Rotate lists in evolution basis back to flavor basis.
@@ -152,7 +165,7 @@ def rotate_output(in_evols):
     evol_list = np.array([evols[evol] for evol in evol_basis])
     final_quark_pid = 6
     final_valence_pid = 6
-    for q in range(6,3,-1):
+    for q in range(6, 3, -1):
         if f"T{q*q-1}" in trivial_dists:
             final_quark_pid -= 1
             # assume Vxx too vanish
@@ -172,6 +185,6 @@ def rotate_output(in_evols):
         flavor_map = rotate_evolution_to_flavor[j]
         out[pid] = flavor_map @ evol_list
     # recover the bared distributions, e.g. tbar = t
-    for q in range(-final_quark_pid,-final_valence_pid):
+    for q in range(-final_quark_pid, -final_valence_pid):
         out[q] = out[-q]
     return out

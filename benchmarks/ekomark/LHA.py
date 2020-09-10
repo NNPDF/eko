@@ -22,16 +22,13 @@ from .plots import plot_dist, plot_operator
 # xgrid
 toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
 
-# generate input pdfs
-LHA_init_pdfs = br.generate_input_from_lhapdf(mkPDF("", ""), 2)
-
 # list
 raw_label_list = ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"]
-#rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
+# rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
 
 # my/exact initial grid
-#LHA_init_grid = []
-#for f in [toy_uv0, toy_dv0, toy_Lm0, toy_Lp0, toy_sp0, toy_cp0, toy_bp0, toy_g0]:
+# LHA_init_grid = []
+# for f in [toy_uv0, toy_dv0, toy_Lm0, toy_Lp0, toy_sp0, toy_cp0, toy_bp0, toy_g0]:
 #    LHA_init_grid.append(f(toy_xgrid))
 LHA_init_grid = np.array([])
 
@@ -61,6 +58,7 @@ def rotate_data(raw):
     for k, n in enumerate(["V", "V3", "T3", "T8", "T15", "T24", "S", "g"]):
         out[n] = rot[k]
     return out
+
 
 class LHABenchmarkPaper:
     """
@@ -227,7 +225,9 @@ class LHABenchmarkPaper:
                 DGLAP result
         """
         # get
-        pdf_grid = output.apply_pdf(LHA_init_pdfs, toy_xgrid)
+        pdf_grid = output.apply_pdf(
+            mkPDF("", ""), toy_xgrid, rotate_to_flavor_basis=False
+        )
         first_res = list(pdf_grid.values())[0]
         my_pdfs = first_res["pdfs"]
         my_pdf_errs = first_res["errors"]

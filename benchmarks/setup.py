@@ -9,10 +9,9 @@ setup(
     description="eko benchmark",
     # package_dir={"": "."},
     packages=find_packages("."),
-    install_requires=["rich"],
+    install_requires=["matplotlib", "pandas"],
     entry_points={
-        "console_scripts": [
-        ],
+        "console_scripts": [],
     },
     python_requires=">=3.7",
 )

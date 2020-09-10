@@ -8,7 +8,8 @@ which is supposed to be Q = sqrt(2) GeV.
 
 import atexit
 
-def toyLHPDFs(pid, x): # pylint: disable=too-many-locals
+
+def toyLHPDFs(pid, x):  # pylint: disable=too-many-locals
     N_uv = 5.107200e0
     auv = 0.8e0
     buv = 3e0
@@ -47,13 +48,13 @@ def toyLHPDFs(pid, x): # pylint: disable=too-many-locals
     xpdf[-1] = xdbar
     xpdf[-2] = xubar
     xpdf[-3] = xsbar
-    xpdf[22] = 0
 
     return xpdf[pid]
 
 
 class toyPDFSet:
     """Fake PDF set"""
+
     name = "ToyLH"
 
 
@@ -107,7 +108,7 @@ class toyPDF:
 
     def alphasQ(self, q):
         "Return alpha_s at q"
-        return self.alphasQ2(q**2)
+        return self.alphasQ2(q ** 2)
 
     def alphasQ2(self, _q2):
         "Return alpha_s at q2"
@@ -116,6 +117,10 @@ class toyPDF:
     def set(self):
         "Return the corresponding PDFSet"
         return toyPDFSet()
+
+    def hasFlavor(self, pid):
+        """Contains a pdf for pid?"""
+        return pid in [21] + list(range(-6, 6 + 1))
 
 
 def mkPDF(_setname, _member):
@@ -139,6 +144,7 @@ def mkPDF(_setname, _member):
 
     return toyPDF()
 
+
 def ciao():
     """Print at exit."""
     print(
@@ -146,5 +152,6 @@ def ciao():
         + "\t" * 7
         + "__Alessandro"
     )
+
 
 atexit.register(ciao)

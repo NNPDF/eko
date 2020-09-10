@@ -5,8 +5,6 @@
 import logging
 import sys
 
-import IPython
-
 import ekomark.apfel_benchmark
 
 if __name__ == "__main__" and True:
@@ -22,7 +20,6 @@ if __name__ == "__main__" and True:
     if len(sys.argv) == 2:
         app = ekomark.apfel_benchmark.ApfelBenchmark(sys.argv[1])
         app.run()
-        IPython.embed()
     else:
         me = sys.argv[0]
         print(f"Usage: {me} path/to/input/card.yaml")

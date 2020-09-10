@@ -45,7 +45,7 @@ Q2grid: [1.e+1]
 # interpolation
 interpolation_is_log: True
 interpolation_polynomial_degree: 4
-interpolation_xgrid: ["make_grid",3,3]
+interpolation_xgrid: ["make_grid",5,5]
 # debug options
 debug_skip_non_singlet: False
 debug_skip_singlet: False
