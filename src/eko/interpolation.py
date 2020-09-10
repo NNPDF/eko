@@ -364,7 +364,7 @@ class InterpolatorDispatcher:
     def __init__(self, xgrid, polynomial_degree, log=True, mode_N=True, numba_it=True):
         # sanity checks
         xgrid_size = len(xgrid)
-        ugrid = np.unique(xgrid)
+        ugrid = np.array(np.unique(xgrid),np.float_)
         if xgrid_size != len(ugrid):
             raise ValueError(f"xgrid is not unique: {xgrid}")
         xgrid = ugrid

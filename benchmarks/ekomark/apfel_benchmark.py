@@ -2,7 +2,7 @@
 """
     Benchmark EKO to APFEL
 """
-import pickle
+import pathlib
 import yaml
 import numpy as np
 import pandas as pd
@@ -24,6 +24,7 @@ class ApfelBenchmark:
             input card
     """
     def __init__(self, path):
+        self.path = pathlib.Path(path)
         with open(path, "r") as o:
             self.cfg = yaml.safe_load(o)
 
@@ -31,11 +32,11 @@ class ApfelBenchmark:
         """
         Run APFEL
         """
-        output_grid = [0.1, 0.5]
+        output_grid = eko.interpolation.make_grid(*self.cfg["interpolation_xgrid"][1:])
         # # compute our result
-        # eko_res = eko.run_dglap(self.cfg)
-        # eko_res.dump_yaml_to_file("assets/apf-fast-ops.yaml")
-        eko_res = eko.output.Output.load_yaml_from_file("assets/apf-fast-ops.yaml")
+        eko_res = eko.run_dglap(self.cfg)
+        eko_res.dump_yaml_to_file("assets/"+self.path.stem+".yaml")
+        #eko_res = eko.output.Output.load_yaml_from_file("assets/"+self.path.stem+".yaml")
         eko_pdf = eko_res.apply_pdf(mkPDF("", ""), output_grid)
         # compute APFEL reference
         apfel = load_apfel(self.cfg)

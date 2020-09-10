@@ -40,8 +40,8 @@ global_nx: 0
 EScaleVar: 1
 # eko stuff
 ev_op_max_order: 10
-ev_op_iterations: 10
-Q2grid: [1.e+4]
+ev_op_iterations: 2
+Q2grid: [10]
 # interpolation
 interpolation_is_log: True
 interpolation_polynomial_degree: 4

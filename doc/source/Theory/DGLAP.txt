@@ -220,7 +220,7 @@ Multiplying these equations with :math:`\mathbf e_{\pm}` from left and right and
 we obtain the :math:`\mathbf U_k`:
 
 .. math::
-    \mathbf U_k = \frac{ \em \mathbf{R}_k' \em + \ep \mathbf{R}_k' \ep } k + \frac{\ep \mathbf{R}_k' \em}{r_- - r_+ - k} + \frac{\em \mathbf{R}_k' \ep}{r_+ - r_- -k}
+    \mathbf U_k = \frac{ \em \mathbf{R}_k' \em + \ep \mathbf{R}_k' \ep } k + \frac{\ep \mathbf{R}_k' \em}{r_- - r_+ + k} + \frac{\em \mathbf{R}_k' \ep}{r_+ - r_- + k}
 
 So the strategies are
 

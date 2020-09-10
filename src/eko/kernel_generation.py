@@ -185,7 +185,7 @@ class KernelDispatcher:
                         r1 = gamma_S_1 / beta_0 - b1 * gamma_S_0
                         r_k = np.zeros(
                             (ev_op_max_order, 2, 2), np.complex_
-                        )  # k = 1 .. max_order-1
+                        )  # k = 1 .. max_order
                         u_k = np.zeros(
                             (ev_op_max_order + 1, 2, 2), np.complex_
                         )  # k = 0 .. max_order
@@ -194,24 +194,26 @@ class KernelDispatcher:
                         u_k[0] = np.identity(2, np.complex_)
                         # fill R_k
                         if method == "perturbative-exact":
-                            for kk in range(2, ev_op_max_order + 1):
-                                r_k[kk - 1] = -b1 * r1
+                            for kk in range(2, ev_op_max_order):
+                                r_k[kk - 1] = -b1 * r_k[kk-2]
                         # compute R'_k and U_k (simultaneously)
                         max_order = ev_op_max_order
                         if method in ["truncated", "ordered-truncated"]:
                             max_order = 1
                         for kk in range(1, max_order + 1):
-                            rp_k_elems = np.zeros((kk + 1, 2, 2), np.complex_)
-                            for ll in range(kk, 0, -1):
-                                rp_k_elems[ll] = r_k[ll - 1] @ u_k[kk - ll]
-                            rp_k = np.sum(rp_k_elems, 0)
+                            #rp_k_elems = np.zeros((kk, 2, 2), np.complex_)
+                            #for ll in range(kk, 0, -1):
+                            rp_k = np.zeros((2,2),np.complex_)
+                            for jj in range(kk):
+                                rp_k += r_k[kk - jj - 1] @ u_k[jj]
+                            #rp_k = np.sum(rp_k_elems, 0)
                             u_k[kk] = (
                                 # (e_m @ rp_k @ e_m + e_p @ rp_k @ e_p) / kk
                                 # + ((e_p @ rp_k @ e_m) / ((l_m - l_p)/lo_j - kk))
                                 # + ((e_m @ rp_k @ e_p) / ((l_p - l_m)/lo_j - kk))
                                 (f_m @ rp_k @ f_m + f_p @ rp_k @ f_p) / kk
-                                + ((f_p @ rp_k @ f_m) / ((r_m - r_p) - kk))
-                                + ((f_m @ rp_k @ f_p) / ((r_p - r_m) - kk))
+                                + ((f_p @ rp_k @ f_m) / ((r_m - r_p) + kk))
+                                + ((f_m @ rp_k @ f_p) / ((r_p - r_m) + kk))
                             )
                         if method in ["truncated", "ordered-truncated"]:
                             u1 = u_k[1]
@@ -236,14 +238,15 @@ class KernelDispatcher:
                                 ul += a0power * u_k[kk]
                                 a0power *= a0
                             # inv(U(a_s^0))
-                            ul_det = ul[0, 0] * ul[1, 1] - ul[1, 0] * ul[0, 1]
-                            ul_inv = (
-                                np.array(
-                                    [[ul[1, 1], -ul[0, 1]], [-ul[1, 0], ul[0, 0]]],
-                                    np.complex_,
-                                )
-                                / ul_det
-                            )
+                            # ul_det = ul[0, 0] * ul[1, 1] - ul[1, 0] * ul[0, 1]
+                            # ul_inv = (
+                            #     np.array(
+                            #         [[ul[1, 1], -ul[0, 1]], [-ul[1, 0], ul[0, 0]]],
+                            #         np.complex_,
+                            #     )
+                            #     / ul_det
+                            # )
+                            ul_inv = np.linalg.inv(ul)
                             e = uh @ e0 @ ul_inv
                 pdf = basis_function(N, lnx)
                 return e[s_k][s_l] * pdf
