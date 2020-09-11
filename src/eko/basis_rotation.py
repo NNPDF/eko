@@ -120,6 +120,11 @@ def fill_trivial_dists(old_evols):
             inserted elements
     """
     evols = copy.deepcopy(old_evols)
+    # check dependencies beforehand
+    if "S" not in evols:
+        raise KeyError("No S distribution available")
+    if "V" not in evols:
+        raise KeyError("No V distribution available")
     trivial_dists = []
     for evol in evol_basis:
         # only rotate in quark distributions
@@ -127,16 +132,12 @@ def fill_trivial_dists(old_evols):
             continue
         # are the target distributions there?
         if evol in ["S", "V"]:
-            if evol not in evols:
-                raise KeyError(f"No {evol} distribution available")
             continue
         # PDF is set?
         if evol in evols:
             continue
         # insert empty photon
         if evol == "ph":
-            if "S" not in evols:
-                raise KeyError("No S distribution available")
             evols[evol] = np.zeros(len(evols["S"]))
         # insert trivial value
         elif evol[0] == "V":
@@ -178,14 +179,12 @@ def rotate_output(in_evols):
     # rotate
     out = {}
     for j, pid in enumerate(flavor_basis_pids):
-        # skip empty quarks
-        if (6 >= pid > final_quark_pid) or (-6 <= pid < -final_valence_pid):
-            continue
-        # skip photon
-        if pid == 22 and "ph" in trivial_dists:
-            continue
-        flavor_map = rotate_evolution_to_flavor[j]
-        out[pid] = flavor_map @ evol_list
+        # do we actually have to do smth?
+        is_non_trivial_ph = (pid == 22 and "ph" not in trivial_dists)
+        is_non_trivial_q = (-final_valence_pid <= pid <= final_quark_pid)
+        if is_non_trivial_ph or is_non_trivial_q or pid == 21:
+            flavor_map = rotate_evolution_to_flavor[j]
+            out[pid] = flavor_map @ evol_list
     # recover the bared distributions, e.g. tbar = t
     for q in range(-final_quark_pid, -final_valence_pid):
         out[q] = out[-q]
