@@ -135,6 +135,8 @@ def fill_trivial_dists(old_evols):
             continue
         # insert empty photon
         if evol == "ph":
+            if "S" not in evols:
+                raise KeyError("No S distribution available")
             evols[evol] = np.zeros(len(evols["S"]))
         # insert trivial value
         elif evol[0] == "V":

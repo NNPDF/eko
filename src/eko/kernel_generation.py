@@ -195,18 +195,18 @@ class KernelDispatcher:
                         # fill R_k
                         if method == "perturbative-exact":
                             for kk in range(2, ev_op_max_order):
-                                r_k[kk - 1] = -b1 * r_k[kk-2]
+                                r_k[kk - 1] = -b1 * r_k[kk - 2]
                         # compute R'_k and U_k (simultaneously)
                         max_order = ev_op_max_order
                         if method in ["truncated", "ordered-truncated"]:
                             max_order = 1
                         for kk in range(1, max_order + 1):
-                            #rp_k_elems = np.zeros((kk, 2, 2), np.complex_)
-                            #for ll in range(kk, 0, -1):
-                            rp_k = np.zeros((2,2),np.complex_)
+                            # rp_k_elems = np.zeros((kk, 2, 2), np.complex_)
+                            # for ll in range(kk, 0, -1):
+                            rp_k = np.zeros((2, 2), np.complex_)
                             for jj in range(kk):
                                 rp_k += r_k[kk - jj - 1] @ u_k[jj]
-                            #rp_k = np.sum(rp_k_elems, 0)
+                            # rp_k = np.sum(rp_k_elems, 0)
                             u_k[kk] = (
                                 # (e_m @ rp_k @ e_m + e_p @ rp_k @ e_p) / kk
                                 # + ((e_p @ rp_k @ e_m) / ((l_m - l_p)/lo_j - kk))

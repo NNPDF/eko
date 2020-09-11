@@ -41,7 +41,9 @@ class Output(dict):
                 output PDFs and their associated errors for the computed Q2grid
         """
         # turn lhapdf_like into list
-        input_lists = br.generate_input_from_lhapdf(lhapdf_like, self["interpolation_xgrid"], self["q2_ref"])
+        input_lists = br.generate_input_from_lhapdf(
+            lhapdf_like, self["interpolation_xgrid"], self["q2_ref"]
+        )
 
         # build output
         out_grid = {}
