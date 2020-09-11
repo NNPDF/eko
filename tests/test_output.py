@@ -8,6 +8,11 @@ import numpy as np
 
 from eko import output
 
+class FakePDF:
+    def hasFlavor(self, *_args):
+        return True
+    def xfxQ2(self, _pid, x, _q2):
+        return x
 
 class TestOutput:
     shape = (2, 2)
@@ -16,20 +21,25 @@ class TestOutput:
         ma, mae = np.random.rand(2, *self.shape)
         return ma, mae
 
+    def mk_g(self, q2s):
+        Q2grid = {}
+        for q2 in q2s:
+            ops = {"operators":{},"operator_errors":{}}
+            for l in ["V.V","S.S", "S.g","g.S", "g.g"]:
+                o,oe = self.mkO()
+                ops["operators"][l] = o
+                ops["operator_errors"][l] = oe
+            Q2grid[q2] = ops
+        return Q2grid
+
     def test_io(self):
         # build data
         interpolation_xgrid = np.array([0.5, 1.0])
         interpolation_polynomial_degree = 1
         interpolation_is_log = False
         q2_ref = 1
-        VV, VVe = self.mkO()
         q2_out = 2
-        Q2grid = {
-            q2_out: {
-                "operators": {"V.V": VV},
-                "operator_errors": {"V.V": VVe},
-            }
-        }
+        Q2grid = self.mk_g([q2_out])
         d = dict(
             interpolation_xgrid=interpolation_xgrid,
             interpolation_polynomial_degree=interpolation_polynomial_degree,
@@ -70,14 +80,8 @@ class TestOutput:
         interpolation_polynomial_degree = 1
         interpolation_is_log = False
         q2_ref = 1
-        VV, VVe = self.mkO()
         q2_out = 2
-        Q2grid = {
-            q2_out: {
-                "operators": {"V.V": VV},
-                "operator_errors": {"V.V": VVe},
-            }
-        }
+        Q2grid = self.mk_g([q2_out])
         d = dict(
             interpolation_xgrid=interpolation_xgrid,
             interpolation_polynomial_degree=interpolation_polynomial_degree,
@@ -88,23 +92,23 @@ class TestOutput:
         # create object
         o = output.Output(d)
         # fake pdfs
-        V = lambda x: x
-        V3 = lambda x: x
-        pdf_grid = o.apply_pdf({"V": V, "V3": V3})
+        pdf = FakePDF()
+        pdf_grid = o.apply_pdf(pdf)
         assert len(pdf_grid) == 1
         pdfs = pdf_grid[q2_out]["pdfs"]
-        assert list(pdfs.keys()) == ["V"]
-        np.testing.assert_almost_equal(pdfs["V"], VV @ V(interpolation_xgrid))
+        assert list(pdfs.keys()) == [-3,-2,-1,21,1,2,3]
+        np.testing.assert_almost_equal(pdfs[1],pdfs[-1])
         # rotate to target_grid
         target_grid = [0.75]
-        pdf_grid = o.apply_pdf({"V": V, "V3": V3}, target_grid)
+        pdf_grid = o.apply_pdf(pdf, target_grid)
         assert len(pdf_grid) == 1
         pdfs = pdf_grid[q2_out]["pdfs"]
-        assert list(pdfs.keys()) == ["V"]
+        assert list(pdfs.keys()) == [-3,-2,-1,21,1,2,3]
+        np.testing.assert_almost_equal(pdfs[1],pdfs[-1])
         # 0.75 is the the average of .5 and 1. -> mix equally
-        np.testing.assert_almost_equal(
-            pdfs["V"], (VV @ V(interpolation_xgrid)) @ [0.5, 0.5]
-        )
+        #np.testing.assert_almost_equal(
+        #    pdfs["V"], (VV @ interpolation_xgrid) @ [0.5, 0.5]
+        #)
 
     def test_get_op(self):
         # build data
