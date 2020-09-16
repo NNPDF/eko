@@ -5,11 +5,11 @@ r"""
     See :doc:`Operator overview </Code/Operators>`.
 """
 
+import time
 import logging
 from numbers import Number
 
 import numpy as np
-import numba as nb
 
 import eko.mellin as mellin
 
@@ -431,12 +431,14 @@ class Operator:
         a1 = sc.a_s(self.q2_to)
         a0 = sc.a_s(self.q2_from)
         for k, logx in enumerate(np.log(self.xgrid)):
+            start_time = time.perf_counter()
             # iterate basis functions
             for l, bf_kernels in enumerate(self.master.kernels):
                 # iterate sectors
                 for label, ker in bf_kernels.items():
-                    extra_args = nb.typed.List()
+                    extra_args = []# nb.typed.List()
                     extra_args.append(logx)
+                    extra_args.append(self.master.grid.managers["kernel_dispatcher"].interpol_dispatcher[l].areas_to_const())
                     extra_args.append(a1)
                     extra_args.append(a0)
                     # Path parameters
@@ -459,7 +461,7 @@ class Operator:
                     self.op_members[label].value[k][l] = val
                     self.op_members[label].error[k][l] = err
 
-            logger.info("Evolution: computing operators - %d/%d", k + 1, grid_size)
+            logger.info("Evolution: computing operators - %d/%d took: %f s", k + 1, grid_size, time.perf_counter() - start_time)
 
         # copy non-singlet kernels, if necessary
         order = self.master.grid.managers["kernel_dispatcher"].config["order"]

@@ -53,15 +53,15 @@ def compile_integrand(iker, path, jac, do_numba=True):
             Boolean flag to return a numba compiled function (default: true)
     """
 
-    def integrand(u, extra_args):
+    def integrand(u, logx,areas,a1,a0,*path_param):
         # Make the extra arguments explicit
-        logx = extra_args[0]
-        a1 = extra_args[1]
-        a0 = extra_args[2]
-        path_param = extra_args[3:]
         N = path(u, path_param)
+        #logx = extra_args[0]
+        #areas = extra_args[1]
+        #a1 = extra_args[2]
+        #, a0, *path_param
         prefactor = np.complex(0.0, -1.0 / np.pi)
-        result = np.real(prefactor * iker(N, logx, a1, a0) * jac(u, path_param))
+        result = np.real(prefactor * iker(N, logx, areas, a1, a0) * jac(u, path_param))
         return result
 
     if do_numba:
@@ -107,7 +107,7 @@ def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e
         integrand,
         0.5,
         1.0 - cut,
-        args=extra_args,
+        args=tuple(extra_args),
         epsabs=epsabs,
         epsrel=epsrel,
         limit=LIMIT,

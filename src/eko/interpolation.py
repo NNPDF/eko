@@ -74,6 +74,53 @@ class Area:
         for coef in self.coefs:
             yield coef
 
+@nb.njit
+def log_evaluate_Nx(N, logx, area_list):
+    """Get a single Lagrange interpolator in N-space multiplied
+    by the Mellin-inversion factor."""
+    res = 0.0
+    for logxmin, logxmax, coefs in area_list:
+        # skip area completely?
+        if logx >= logxmax:
+            continue
+        umax = N * logxmax
+        umin = N * logxmin
+        emax = np.exp(N * (logxmax - logx))
+        emin = np.exp(N * (logxmin - logx))
+        for i, coef in enumerate(coefs):
+            tmp = 0.0
+            facti = math.gamma(i + 1) * pow(-1, i) / pow(N, i + 1)
+            for k in range(i + 1):
+                factk = 1.0 / math.gamma(k + 1)
+                pmax = pow(-umax, k) * emax
+                # drop factor by analytics?
+                if logx >= logxmin:
+                    pmin = 0
+                else:
+                    pmin = pow(-umin, k) * emin
+                tmp += factk * (pmax - pmin)
+            res += coef * facti * tmp
+    return res
+
+@nb.njit
+def evaluate_Nx(N, logx, area_list):
+    """Get a single Lagrange interpolator in N-space multiplied
+    by the Mellin-inversion factor."""
+    res = 0.0
+    for xmin, xmax, coefs in area_list:
+        lnxmax = np.log(xmax)
+        # skip area completely?
+        if logx >= lnxmax:
+            continue
+        for i, coef in enumerate(coefs):
+            if xmin == 0.0:
+                low = 0.0
+            else:
+                lnxmin = np.log(xmin)
+                low = np.exp(N * (lnxmin - logx) + i * lnxmin)
+            up = np.exp(N * (lnxmax - logx) + i * lnxmax)
+            res += coef * (up - low) / (N + i)
+    return res
 
 class BasisFunction:
     """
@@ -230,78 +277,19 @@ class BasisFunction:
         """
         Compiles the function to evaluate the interpolator in N space.
 
-        Generates a function `evaluate_Nx` with a (N, x) signature `evaluate_Nx(N, logx)`.
+        Generates a function `evaluate_Nx` with a (N, logx) signature.
 
         .. math::
             \\tilde p(N)*exp(- N * log(x))
 
         The polynomials contain naturally factors of :math:`exp(N * j * log(x_{min/max}))`
         which can be joined with the Mellin inversion factor.
-
-        Parameters
-        ----------
-            N : float
-                Evaluated point in N-space
-            logx : float
-                Mellin-inversion point :math:`log(x)`
-
-        Returns
-        -------
-            p(N)*x^{-N} : complex
-                Evaluated polynomial at N times x^{-N}
         """
-        area_list = self.areas_to_const()
-
-        def log_evaluate_Nx(N, logx, area_list=area_list):
-            """Get a single Lagrange interpolator in N-space multiplied
-            by the Mellin-inversion factor."""
-            res = 0.0
-            for logxmin, logxmax, coefs in area_list:
-                # skip area completely?
-                if logx >= logxmax:
-                    continue
-                umax = N * logxmax
-                umin = N * logxmin
-                emax = np.exp(N * (logxmax - logx))
-                emin = np.exp(N * (logxmin - logx))
-                for i, coef in enumerate(coefs):
-                    tmp = 0.0
-                    facti = math.gamma(i + 1) * pow(-1, i) / pow(N, i + 1)
-                    for k in range(i + 1):
-                        factk = 1.0 / math.gamma(k + 1)
-                        pmax = pow(-umax, k) * emax
-                        # drop factor by analytics?
-                        if logx >= logxmin:
-                            pmin = 0
-                        else:
-                            pmin = pow(-umin, k) * emin
-                        tmp += factk * (pmax - pmin)
-                    res += coef * facti * tmp
-            return res
-
-        def evaluate_Nx(N, logx,area_list=area_list):
-            """Get a single Lagrange interpolator in N-space multiplied
-            by the Mellin-inversion factor."""
-            res = 0.0
-            for xmin, xmax, coefs in area_list:
-                lnxmax = np.log(xmax)
-                # skip area completely?
-                if logx >= lnxmax:
-                    continue
-                for i, coef in enumerate(coefs):
-                    if xmin == 0.0:
-                        low = 0.0
-                    else:
-                        lnxmin = np.log(xmin)
-                        low = np.exp(N * (lnxmin - logx) + i * lnxmin)
-                    up = np.exp(N * (lnxmax - logx) + i * lnxmax)
-                    res += coef * (up - low) / (N + i)
-            return res
 
         if self._mode_log:
-            self.callable = nb.njit(log_evaluate_Nx)
+            self.callable = log_evaluate_Nx
         else:
-            self.callable = nb.njit(evaluate_Nx)
+            self.callable = evaluate_Nx
 
     def __iter__(self):
         for area in self.areas:

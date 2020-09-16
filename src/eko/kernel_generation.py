@@ -103,7 +103,7 @@ class KernelDispatcher:
         config["ev_op_iterations"] = setup.get("ev_op_iterations", 10)
         return cls(config, interpol_dispatcher, constants)
 
-    def collect_kers(self, nf, basis_function):
+    def collect_kers(self, nf):
         r"""
         Returns the integration kernels
         :math:`\tilde {\mathbf E}_{ns}(a_s^1 \leftarrow a_s^0)`.
@@ -149,7 +149,8 @@ class KernelDispatcher:
         def get_ker_s(s_k, s_l):
             """getter for (k,l)-th element of singlet kernel matrix"""
 
-            def ker_s(N, lnx, a1, a0):
+            @nb.njit
+            def ker_s(N, a1, a0, nf):
                 """a singlet integration kernel"""
                 # LO
                 gamma_S_0 = ad_lo.gamma_singlet_0(N, nf, CA, CF)
@@ -243,8 +244,7 @@ class KernelDispatcher:
                             # )
                             ul_inv = np.linalg.inv(ul)
                             e = uh @ e0 @ ul_inv
-                pdf = basis_function(N, lnx)
-                return e[s_k][s_l] * pdf
+                return e[s_k][s_l]
 
             return ker_s
 
@@ -257,7 +257,8 @@ class KernelDispatcher:
         def get_ker_ns(mode):
             """getter for mode-flavored non-singlet kernel"""
 
-            def ker_ns(n, lnx, a1, a0):
+            @nb.njit
+            def ker_ns(n, a1, a0, nf):
                 """true non-siglet integration kernel"""
                 # LO
                 gamma_ns_0 = ad_lo.gamma_ns_0(n, nf, CA, CF)
@@ -286,8 +287,7 @@ class KernelDispatcher:
                 # for exact and expanded we still need to exponentiate
                 if do_exp:
                     e = np.exp(ln)
-                pdf = basis_function(n, lnx)
-                return e * pdf
+                return e
 
             return ker_ns
 
@@ -313,12 +313,21 @@ class KernelDispatcher:
         path, jac = mellin.get_path_Talbot()
         # iterate all basis functions and collect all functions in the sectors
         kernels_nf = []
+
+        class KerObj():
+            def __call__(self,n, lnx, areas, a1, a0):
+                return self.ker(n,a1,a0,self.nf) * self.pdf(n,lnx,areas)
+        kero = KerObj()
+        kero.nf = nf
+        bf_kers = self.collect_kers(nf)
         for basis_function in self.interpol_dispatcher:
-            bf_kers = self.collect_kers(nf, basis_function.callable)
+            kero.pdf = basis_function.callable
             # compile
+            new_bf_kers = {}
             for label, ker in bf_kers.items():
-                bf_kers[label] = mellin.compile_integrand(
-                    nb.njit(ker), path, jac
+                kero.ker = ker
+                new_bf_kers[label] = mellin.compile_integrand(
+                    kero, path, jac, False
                 )
-            kernels_nf.append(bf_kers)
+            kernels_nf.append(new_bf_kers)
         self.kernels[nf] = kernels_nf

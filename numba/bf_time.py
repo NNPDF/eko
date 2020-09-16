@@ -16,7 +16,7 @@ def test_grid(n_low, n_mid, deg):
         bfd = eko.interpolation.InterpolatorDispatcher.from_dict(
             dict(interpolation_xgrid=xg, interpolation_polynomial_degree=deg)
         )
-        return [bf(1, np.log(1e-2)) for bf in bfd]
+        return [bf(1, np.log(1e-2),bf.areas_to_const()) for bf in bfd]
     t = timeit.repeat(f, number=1, repeat=5)
     t = np.array(t) / len(xg)
     return t.mean(), t.var()
