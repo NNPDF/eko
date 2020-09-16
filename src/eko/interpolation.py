@@ -76,8 +76,27 @@ class Area:
 
 @nb.njit
 def log_evaluate_Nx(N, logx, area_list):
-    """Get a single Lagrange interpolator in N-space multiplied
-    by the Mellin-inversion factor."""
+    """
+    Evaluates a single logarithmic Lagrange interpolator in N-space multiplied
+    by the Mellin-inversion factor.
+
+    .. math::
+        \\tilde p(N)*exp(- N * log(x))
+
+    Parameters
+    ----------
+        N : complex
+            Mellin variable
+        logx : float
+            logarithm of inversion point
+        area_list : list
+            area configuration of basis function
+
+    Returns
+    -------
+        res : float
+            kernel * inversion factor
+    """
     res = 0.0
     for logxmin, logxmax, coefs in area_list:
         # skip area completely?
@@ -104,8 +123,27 @@ def log_evaluate_Nx(N, logx, area_list):
 
 @nb.njit
 def evaluate_Nx(N, logx, area_list):
-    """Get a single Lagrange interpolator in N-space multiplied
-    by the Mellin-inversion factor."""
+    """
+    Evaluates a single linear Lagrange interpolator in N-space multiplied
+    by the Mellin-inversion factor.
+
+    .. math::
+        \\tilde p(N)*exp(- N * log(x))
+
+    Parameters
+    ----------
+        N : complex
+            Mellin variable
+        logx : float
+            logarithm of inversion point
+        area_list : list
+            area configuration of basis function
+
+    Returns
+    -------
+        res : float
+            basis function * inversion factor
+    """
     res = 0.0
     for xmin, xmax, coefs in area_list:
         lnxmax = np.log(xmax)
@@ -120,6 +158,65 @@ def evaluate_Nx(N, logx, area_list):
                 low = np.exp(N * (lnxmin - logx) + i * lnxmin)
             up = np.exp(N * (lnxmax - logx) + i * lnxmax)
             res += coef * (up - low) / (N + i)
+    return res
+
+@nb.njit
+def evaluate_x(x, area_list):
+    """
+    Get a single linear Lagrange interpolator in x-space
+
+    .. math::
+        p(x)
+
+    Parameters
+    ----------
+        x : float
+            interpolation point
+        area_list : list
+            area configuration of basis function
+
+    Returns
+    -------
+        res : float
+            basis function(x)
+    """
+    res = 0.0
+    for j, (xmin, xmax, coefs) in enumerate(area_list):
+        if xmin < x <= xmax or (j == 0 and x == xmin):
+            for i, coef in enumerate(coefs):
+                res += coef * pow(x, i)
+            return res
+
+    return res
+
+@nb.njit
+def log_evaluate_x(x, area_list):
+    """
+    Get a single logarithmic Lagrange interpolator in x-space
+
+    .. math::
+        p(x)
+
+    Parameters
+    ----------
+        x : float
+            interpolation point
+        area_list : list
+            area configuration of basis function
+
+    Returns
+    -------
+        res : float
+            basis function(x)
+    """
+    x = np.log(x)
+    res = 0.0
+    for j, (xmin, xmax, coefs) in enumerate(area_list):
+        if xmin < x <= xmax or (j == 0 and x == xmin):
+            for i, coef in enumerate(coefs):
+                res += coef * pow(x, i)
+            return res
+
     return res
 
 class BasisFunction:
@@ -166,6 +263,7 @@ class BasisFunction:
             raise ValueError("Error: no areas were generated")
 
         # compile
+        # TODO move this to InterpolatorDispatcher
         self.callable = None
         if self.mode_N:
             self.compile_n()
@@ -208,47 +306,11 @@ class BasisFunction:
         """
         Compiles the function to evaluate the interpolator
         in x space
-
-        .. math::
-            p(x)
-
-        Parameters
-        ----------
-            x : float
-                Evaluated point
-            conf : dict
-                dictionary of values for the coefficients of the interpolator
-
-        Returns
-        -------
-            p(x) : float
-                Evaluated polynom at x
         """
-
-        area_list = self.areas_to_const()
-
-        def evaluate_x(x):
-            """Get a single Lagrange interpolator in x-space  """
-            res = 0.0
-            for j, (xmin, xmax, coefs) in enumerate(area_list):
-                if xmin < x <= xmax or (j == 0 and x == xmin):
-                    for i, coef in enumerate(coefs):
-                        res += coef * pow(x, i)
-                    return res
-
-            return res
-
-        # parse to reuse it
-        nb_eval_x = nb.njit(evaluate_x)
-
-        def log_evaluate_x(x):
-            """Get a single Lagrange interpolator in x-space  """
-            return nb_eval_x(np.log(x))
-
         if self._mode_log:
-            self.callable = nb.njit(log_evaluate_x)
+            self.callable = log_evaluate_x
         else:
-            self.callable = nb.njit(evaluate_x)
+            self.callable = evaluate_x
 
     def evaluate_x(self, x):
         """
@@ -267,10 +329,10 @@ class BasisFunction:
         if self.mode_N:
             old_call = self.callable
             self.compile_x()
-            res = self.callable(x)
+            res = self.callable(x, self.areas_to_const())
             self.callable = old_call
         else:
-            res = self.callable(x)
+            res = self.callable(x, self.areas_to_const())
         return res
 
     def compile_n(self):

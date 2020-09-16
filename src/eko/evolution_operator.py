@@ -424,7 +424,7 @@ class Operator:
             self.op_members[n] = OperatorMember(
                 np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size)), n
             )
-
+        tot_start_time = time.perf_counter()
         # iterate output grid
         logger.info("Evolution: computing operators - 0/%d", grid_size)
         sc = self.master.grid.managers["strong_coupling"]
@@ -462,7 +462,6 @@ class Operator:
                     self.op_members[label].error[k][l] = err
 
             logger.info("Evolution: computing operators - %d/%d took: %f s", k + 1, grid_size, time.perf_counter() - start_time)
-
         # copy non-singlet kernels, if necessary
         order = self.master.grid.managers["kernel_dispatcher"].config["order"]
         if order == 0:  # in LO +=-=v
@@ -472,3 +471,5 @@ class Operator:
         elif order == 1:  # in NLO -=v
             self.op_members["NS_v"].value = self.op_members["NS_m"].value.copy()
             self.op_members["NS_v"].error = self.op_members["NS_m"].error.copy()
+        # closing comment
+        logger.info("Evolution: Total time %f s", time.perf_counter() - tot_start_time)

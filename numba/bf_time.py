@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import timeit
+import sys
 import numpy as np
 
 # import numba as nb
 # import scipy.integrate as sint
 # import scipy.special as sspec
-import eko
-import eko.interpolation
 
 
 def test_grid(n_low, n_mid, deg):
+    import eko.interpolation
     xg = eko.interpolation.make_grid(n_low, n_mid, x_min=1e-1)
     def f():
         xg = eko.interpolation.make_grid(n_low, n_mid, x_min=1e-1)
@@ -19,6 +19,7 @@ def test_grid(n_low, n_mid, deg):
         return [bf(1, np.log(1e-2),bf.areas_to_const()) for bf in bfd]
     t = timeit.repeat(f, number=1, repeat=5)
     t = np.array(t) / len(xg)
+    del sys.modules["eko.interpolation"]
     return t.mean(), t.var()
 
 

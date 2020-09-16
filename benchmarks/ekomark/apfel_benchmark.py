@@ -3,6 +3,7 @@
     Benchmark EKO to APFEL
 """
 import pathlib
+import time
 import yaml
 import numpy as np
 import pandas as pd
@@ -39,8 +40,11 @@ class ApfelBenchmark:
         #eko_res = eko.output.Output.load_yaml_from_file("assets/"+self.path.stem+".yaml")
         eko_pdf = eko_res.apply_pdf(mkPDF("", ""), output_grid)
         # compute APFEL reference
+        apf_start = time.perf_counter()
         apfel = load_apfel(self.cfg)
+        print("Loading APFEL took %f s"%(time.perf_counter() - apf_start))
         apfel.EvolveAPFEL(self.cfg["Q0"], np.sqrt(self.cfg["Q2grid"][0]))
+        print("Executing APFEL took %f s"%(time.perf_counter() - apf_start))
         apf_tabs = {}
         for q2, pdfs in eko_pdf.items():
             out = DFdict()
