@@ -259,7 +259,7 @@ class BasisFunction:
         """
         area_list = self.areas_to_const()
 
-        def log_evaluate_Nx(N, logx):
+        def log_evaluate_Nx(N, logx, area_list=area_list):
             """Get a single Lagrange interpolator in N-space multiplied
             by the Mellin-inversion factor."""
             res = 0.0
@@ -286,7 +286,7 @@ class BasisFunction:
                     res += coef * facti * tmp
             return res
 
-        def evaluate_Nx(N, logx):
+        def evaluate_Nx(N, logx,area_list=area_list):
             """Get a single Lagrange interpolator in N-space multiplied
             by the Mellin-inversion factor."""
             res = 0.0
