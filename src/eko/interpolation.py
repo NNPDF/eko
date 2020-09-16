@@ -95,8 +95,6 @@ class BasisFunction:
             use logarithmic interpolation?
         mode_N: bool (default: True)
             if true compiles the function on N, otherwise compiles x
-        numba_it: bool (default: True)
-            if true, the functions are passed through `numba.njit`
     """
 
     def __init__(
@@ -106,13 +104,11 @@ class BasisFunction:
         list_of_blocks,
         mode_log=True,
         mode_N=True,
-        numba_it=True,
     ):
         self.poly_number = poly_number
         self.areas = []
         self._mode_log = mode_log
         self.mode_N = mode_N
-        self.numba_it = numba_it
 
         # create areas
         for i, block in enumerate(list_of_blocks):
@@ -196,18 +192,18 @@ class BasisFunction:
             return res
 
         # parse to reuse it
-        nb_eval_x = self.njit(evaluate_x)
+        nb_eval_x = nb.njit(evaluate_x)
 
         def log_evaluate_x(x):
             """Get a single Lagrange interpolator in x-space  """
             return nb_eval_x(np.log(x))
 
         if self._mode_log:
-            self.callable = self.njit(log_evaluate_x)
+            self.callable = nb.njit(log_evaluate_x)
         else:
-            self.callable = self.njit(evaluate_x)
+            self.callable = nb.njit(evaluate_x)
 
-    def evaluate_x(self, x, numba_it=False):
+    def evaluate_x(self, x):
         """
         Evaluate basis function in x-space (regardless of the true space).
 
@@ -223,12 +219,9 @@ class BasisFunction:
         """
         if self.mode_N:
             old_call = self.callable
-            old_numba = self.numba_it
-            self.numba_it = numba_it
             self.compile_x()
             res = self.callable(x)
             self.callable = old_call
-            self.numba_it = old_numba
         else:
             res = self.callable(x)
         return res
@@ -306,28 +299,9 @@ class BasisFunction:
             return res
 
         if self._mode_log:
-            self.callable = self.njit(log_evaluate_Nx)
+            self.callable = nb.njit(log_evaluate_Nx)
         else:
-            self.callable = self.njit(evaluate_Nx)
-
-    def njit(self, function):
-        """
-        Compiles the function to Numba, if necessary.
-
-        Parameters
-        -----------
-            function : function
-                function to compile
-
-        Returns
-        -------
-            function : function
-                compiled function, if needed
-        """
-        if self.numba_it:
-            return nb.njit(function)
-        else:
-            return function
+            self.callable = nb.njit(evaluate_Nx)
 
     def __iter__(self):
         for area in self.areas:
@@ -357,11 +331,9 @@ class InterpolatorDispatcher:
             Whether it is a log or linear interpolator
         mode_N: bool (default: True)
             if true compiles the function on N, otherwise compiles x
-        numba_it : bool (default: True)
-            compile with numba?
     """
 
-    def __init__(self, xgrid, polynomial_degree, log=True, mode_N=True, numba_it=True):
+    def __init__(self, xgrid, polynomial_degree, log=True, mode_N=True):
         # sanity checks
         xgrid_size = len(xgrid)
         ugrid = np.array(np.unique(xgrid), np.float_)
@@ -417,13 +389,13 @@ class InterpolatorDispatcher:
         basis_functions = []
         for i in range(xgrid_size):
             new_basis = BasisFunction(
-                xgrid, i, list_of_blocks, mode_log=log, mode_N=mode_N, numba_it=numba_it
+                xgrid, i, list_of_blocks, mode_log=log, mode_N=mode_N
             )
             basis_functions.append(new_basis)
         self.basis = basis_functions
 
     @classmethod
-    def from_dict(cls, setup, mode_N=True, numba_it=True):
+    def from_dict(cls, setup, mode_N=True):
         """
         Create object from dictionary.
 
@@ -449,7 +421,6 @@ class InterpolatorDispatcher:
             polynom_rank,
             log=is_log_interpolation,
             mode_N=mode_N,
-            numba_it=numba_it,
         )
 
     def __eq__(self, other):

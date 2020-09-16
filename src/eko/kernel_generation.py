@@ -40,11 +40,9 @@ class KernelDispatcher:
             order in perturbation theory - ``0`` is leading order
         method : str
             solution strategy
-        numba_it : bool  (default: True)
-            If true, the functions will be `numba` compiled
     """
 
-    def __init__(self, config, interpol_dispatcher, constants, numba_it=True):
+    def __init__(self, config, interpol_dispatcher, constants):
         # check
         order = int(config["order"])
         method = config["method"]
@@ -65,11 +63,10 @@ class KernelDispatcher:
         self.interpol_dispatcher = interpol_dispatcher
         self.constants = constants
         self.config = config
-        self.numba_it = numba_it
         self.kernels = {}
 
     @classmethod
-    def from_dict(cls, setup, interpol_dispatcher, constants, numba_it=True):
+    def from_dict(cls, setup, interpol_dispatcher, constants):
         """
         Create the object from the theory dictionary.
 
@@ -86,8 +83,6 @@ class KernelDispatcher:
                 An instance of the InterpolatorDispatcher class
             constants : Constants
                 An instance of the Constants class
-            numba_it : bool  (default: True)
-                If true, the functions will be `numba` compiled
 
         Returns
         -------
@@ -106,7 +101,7 @@ class KernelDispatcher:
         config["method"] = method
         config["ev_op_max_order"] = setup.get("ev_op_max_order", 10)
         config["ev_op_iterations"] = setup.get("ev_op_iterations", 10)
-        return cls(config, interpol_dispatcher, constants, numba_it)
+        return cls(config, interpol_dispatcher, constants)
 
     def collect_kers(self, nf, basis_function):
         r"""
@@ -136,19 +131,19 @@ class KernelDispatcher:
         ev_op_iterations = self.config["ev_op_iterations"]
 
         # provide the integrals
-        j00 = self.njit(lambda a1, a0: np.log(a1 / a0) / beta_0)
+        j00 = nb.njit(lambda a1, a0: np.log(a1 / a0) / beta_0)
         if order > 0:  # NLO constants and integrals
             beta_1 = sc.beta_1(
                 nf, self.constants.CA, self.constants.CF, self.constants.TF
             )
             b1 = beta_1 / beta_0
             if method in ["iterate-exact", "decompose-exact"]:
-                j11 = self.njit(
+                j11 = nb.njit(
                     lambda a1, a0: 1 / beta_1 * np.log((1 + a1 * b1) / (1 + a0 * b1))
                 )
             else:  # expanded and truncated
-                j11 = self.njit(lambda a1, a0: 1 / beta_0 * (a1 - a0))
-            j01 = self.njit(lambda a1, a0: j00(a1, a0) - b1 * j11(a1, a0))
+                j11 = nb.njit(lambda a1, a0: 1 / beta_0 * (a1 - a0))
+            j01 = nb.njit(lambda a1, a0: j00(a1, a0) - b1 * j11(a1, a0))
 
         # singlet kernels
         def get_ker_s(s_k, s_l):
@@ -323,26 +318,7 @@ class KernelDispatcher:
             # compile
             for label, ker in bf_kers.items():
                 bf_kers[label] = mellin.compile_integrand(
-                    self.njit(ker), path, jac, self.numba_it
+                    nb.njit(ker), path, jac
                 )
             kernels_nf.append(bf_kers)
         self.kernels[nf] = kernels_nf
-
-    def njit(self, function):
-        """
-        Do nb.njit to the function if the `numba_it` flag is set to True.
-
-        Parameters
-        ---------
-            function : callable
-                input callable
-
-        Returns
-        -------
-            function : callable
-                compiled callable
-        """
-        if self.numba_it:
-            return nb.njit(function)
-        else:
-            return function
