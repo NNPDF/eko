@@ -13,7 +13,7 @@ from eko.ekomath import harmonic_S1 as S1
 
 
 @nb.njit
-def gamma_ns_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
+def gamma_ns_0(N, s1, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
     """
     Computes the leading-order non-singlet anomalous dimension.
 
@@ -35,7 +35,7 @@ def gamma_ns_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
       gamma_ns_0 : complex
         Leading-order non-singlet anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    gamma = -(3 - 4 * S1(N) + 2 / N / (N + 1))
+    gamma = -(3.0 - 4.0 * s1 + 2.0 / N / (N + 1.0))
     result = CF * gamma
     return result
 
@@ -63,7 +63,7 @@ def gamma_qg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
       gamma_qg_0 : complex
         Leading-order quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
-    gamma = -(N ** 2 + N + 2.0) / (N * (N + 1) * (N + 2))
+    gamma = -(N ** 2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
     result = 2.0 * nf * gamma
     return result
 
@@ -97,7 +97,7 @@ def gamma_gq_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
 
 
 @nb.njit
-def gamma_gg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
+def gamma_gg_0(N, s1, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
     """
     Computes the leading-order gluon-gluon anomalous dimension
 
@@ -119,13 +119,13 @@ def gamma_gg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
       gamma_gg_0 : complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    gamma = S1(N) - 1 / N / (N - 1) - 1 / (N + 1) / (N + 2)
+    gamma = s1 - 1.0 / N / (N - 1.0) - 1.0 / (N + 1.0) / (N + 2.0)
     result = CA * (4.0 * gamma - 11.0 / 3.0) + 2.0 / 3.0 * nf
     return result
 
 
 @nb.njit
-def gamma_singlet_0(N, nf: int, CA: float, CF: float):
+def gamma_singlet_0(N, s1, nf: int, CA: float, CF: float):
     r"""
       Computes the leading-order singlet anomalous dimension matrix
 
@@ -158,9 +158,9 @@ def gamma_singlet_0(N, nf: int, CA: float, CF: float):
         gamma_gq_0 : :math:`\gamma_{gq}^{(0)}`
         gamma_gg_0 : :math:`\gamma_{gg}^{(0)}`
     """
-    gamma_qq = gamma_ns_0(N, nf, CA, CF)
+    gamma_qq = gamma_ns_0(N, s1, nf, CA, CF)
     gamma_qg = gamma_qg_0(N, nf, CA, CF)
     gamma_gq = gamma_gq_0(N, nf, CA, CF)
-    gamma_gg = gamma_gg_0(N, nf, CA, CF)
+    gamma_gg = gamma_gg_0(N, s1, nf, CA, CF)
     gamma_S_0 = np.array([[gamma_qq, gamma_qg], [gamma_gq, gamma_gg]], np.complex_)
     return gamma_S_0

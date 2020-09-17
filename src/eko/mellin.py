@@ -32,45 +32,7 @@ import scipy.integrate as integrate
 import numba as nb
 
 
-def compile_integrand(iker, path, jac, do_numba=True):
-    r"""
-    Prepares the integration kernel `iker` to be integrated by the
-    inverse mellin transform wrapper.
-
-    It adds the correct prefactor, resolves the path, adds the jacobian
-    and applies the real part.
-
-    Parameters
-    ----------
-        iker : function
-            Integration kernel including :math:`x^(-N)`
-        path : function
-            Integration path as a function
-            :math:`p : [0:1] \to \mathbb C : t \to p(t)`
-        jac : function
-            Jacobian of integration path :math:`j(t) = \frac{dp(t)}{dt}`
-        do_numba: bool
-            Boolean flag to return a numba compiled function (default: true)
-    """
-
-    def integrand(u, logx,areas,a1,a0,*path_param):
-        # Make the extra arguments explicit
-        N = path(u, path_param)
-        #logx = extra_args[0]
-        #areas = extra_args[1]
-        #a1 = extra_args[2]
-        #, a0, *path_param
-        prefactor = np.complex(0.0, -1.0 / np.pi)
-        result = np.real(prefactor * iker(N, logx, areas, a1, a0) * jac(u, path_param))
-        return result
-
-    if do_numba:
-        return nb.njit(integrand)
-    else:
-        return integrand
-
-
-def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e-5):
+def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e-2):
     """
     Inverse Mellin transformation.
 
@@ -113,7 +75,7 @@ def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e
         limit=LIMIT,
         full_output=1,
     )
-    # print(result[:2],result[2]["neval"])
+    # print(result[2]['last'])
     # for n in [5,10,20,40,63]:
     #    dt = (.5-cut)/n
     #    ts = np.array([.5 + k*dt for k in range(n)])
@@ -122,6 +84,31 @@ def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e
     # if len(result) > 3:
     #    print(result)
     return result[:2]
+
+
+@nb.njit
+def Talbot_path(t, r, o):
+    theta = np.pi * (2.0 * t - 1.0)
+    re = 0.0
+    if t == 0.5:  # treat singular point seperately
+        re = 1.0
+    else:
+        re = theta / np.tan(theta)
+    im = theta
+    return o + r * np.complex(re, im)
+
+
+@nb.njit
+def Talbot_jac(t, r, o):  # pylint: disable=unused-argument
+    theta = np.pi * (2.0 * t - 1.0)
+    re = 0.0
+    if t == 0.5:  # treat singular point seperately
+        re = 0.0
+    else:
+        re = 1.0 / np.tan(theta)
+        re -= theta / (np.sin(theta)) ** 2
+    im = 1.0
+    return r * np.pi * 2.0 * np.complex(re, im)
 
 
 def get_path_Talbot():
@@ -151,32 +138,7 @@ def get_path_Talbot():
             derivative of Talbot path
     """
 
-    @nb.njit
-    def path(t, extra_args):
-        r, o = extra_args
-        theta = np.pi * (2.0 * t - 1.0)
-        re = 0.0
-        if t == 0.5:  # treat singular point seperately
-            re = 1.0
-        else:
-            re = theta / np.tan(theta)
-        im = theta
-        return o + r * np.complex(re, im)
-
-    @nb.njit
-    def jac(t, extra_args):
-        r, o = extra_args  # pylint: disable=unused-variable
-        theta = np.pi * (2.0 * t - 1.0)
-        re = 0.0
-        if t == 0.5:  # treat singular point seperately
-            re = 0.0
-        else:
-            re = 1.0 / np.tan(theta)
-            re -= theta / (np.sin(theta)) ** 2
-        im = 1.0
-        return r * np.pi * 2.0 * np.complex(re, im)
-
-    return path, jac
+    return Talbot_path, Talbot_jac
 
 
 def get_path_line():
@@ -302,33 +264,3 @@ def get_path_Cauchy_tan():
         return np.complex(dre * du, du)
 
     return path, jac
-
-
-def mellin_transform(f, N):
-    """
-    Mellin transformation
-
-    Parameters
-    ----------
-        f : function
-            integration kernel :math:`f(x)`
-        N : complex
-            transformation point
-
-    Returns
-    -------
-        res : complex
-            computed point
-    """
-
-    @nb.jit(forceobj=True)  # due to the integration kernel not being necessarily numba
-    def integrand(x):
-        xToN = pow(x, N - 1) * f(x)
-        return xToN
-
-    # do real + imaginary part seperately
-    r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1, full_output=1)[:2]
-    i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1, full_output=1)[:2]
-    result = np.complex(r, i)
-    error = np.complex(re, ie)
-    return result, error

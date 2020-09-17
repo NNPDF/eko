@@ -21,6 +21,9 @@ import numpy as np
 
 import numba as nb
 
+from . import lo
+from . import nlo
+
 
 @nb.njit
 def exp_singlet(gamma_S):
@@ -67,3 +70,15 @@ def exp_singlet(gamma_S):
     e_m = -c * (gamma_S - lambda_p * identity)
     exp = e_m * np.exp(lambda_m) + e_p * np.exp(lambda_p)
     return exp, lambda_p, lambda_m, e_p, e_m
+
+
+def gamma_ns(order, mode, n, s1, nf, CA, CF):
+    gamma_ns = []
+    gamma_ns.append(lo.gamma_ns_0(n, s1, nf, CA, CF))
+    if order > 0:
+        if mode == "p":
+            gamma_ns_1 = nlo.gamma_nsp_1(n, nf, CA, CF)
+        elif mode == "m":
+            gamma_ns_1 = nlo.gamma_nsm_1(n, nf, CA, CF)
+        gamma_ns.append(gamma_ns_1)
+    return gamma_ns

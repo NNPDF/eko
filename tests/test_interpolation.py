@@ -43,8 +43,38 @@ def check_correspondence_interpolators(inter_x, inter_N):
     for fun_x, fun_N in zip(inter_x, inter_N):
         for N in ngrid:
             result_N = fun_N(N, logxinv) * np.exp(N * logxinv)
-            result_x = mellin.mellin_transform(fun_x, N)
+            result_x = mellin_transform(fun_x, N)
             assert_almost_equal(result_x[0], result_N)
+
+
+def mellin_transform(f, N):
+    """
+    Mellin transformation
+
+    Parameters
+    ----------
+        f : function
+            integration kernel :math:`f(x)`
+        N : complex
+            transformation point
+
+    Returns
+    -------
+        res : complex
+            computed point
+    """
+
+    @nb.jit(forceobj=True)  # due to the integration kernel not being necessarily numba
+    def integrand(x):
+        xToN = pow(x, N - 1) * f(x)
+        return xToN
+
+    # do real + imaginary part seperately
+    r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1, full_output=1)[:2]
+    i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1, full_output=1)[:2]
+    result = np.complex(r, i)
+    error = np.complex(re, ie)
+    return result, error
 
 
 class TestInterpolatorDispatcher:

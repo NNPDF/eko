@@ -29,14 +29,11 @@ class OperatorMaster:
             Instance of :class:`OperatorGrid`
         nf: int
             Value of nf for this :class:`OperatorMaster`
-        kernels: list(dict)
-            list over basis functions containing all kernels
     """
 
-    def __init__(self, grid, nf, kernels):
+    def __init__(self, grid, nf):
         self.grid = grid
         self.nf = nf
-        self.kernels = kernels
 
     def get_op(self, q2_from, q2_to, generate=False):
         """
@@ -157,12 +154,9 @@ class OperatorGrid:
         """
         Creates all :class:`OperatorMaster` instances.
         """
-        kd = self.managers["kernel_dispatcher"]
         for nf in self.managers["thresholds_config"].nf_range():
-            # Compile the kernels for each nf
-            kd.set_up_all_integrands(nf)
             # Set up the OperatorMaster for each nf
-            self._op_masters[nf] = OperatorMaster(self, nf, kd.kernels[nf])
+            self._op_masters[nf] = OperatorMaster(self, nf)
 
     def _generate_thresholds_op(self, to_q2):
         """

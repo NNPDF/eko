@@ -121,13 +121,3 @@ def test_path_similarity():
     for t in [0.1, 0.2, 0.3, 0.4, 0.6]:
         assert_almost_equal(p1(t, a1), p2(t, a2))
         assert_almost_equal(j1(t, a1), j2(t, a2))
-
-
-def test_Mellin_transform():
-    f = lambda x: x
-    g = lambda N: 1.0 / (N + 1.0)
-    for N in [1.0, 1.0 + 1j, 0.5 - 2j]:
-        e = g(N)
-        a = mellin.mellin_transform(f, N)
-        assert_almost_equal(e, a[0])
-        assert_almost_equal(0.0, a[1])

@@ -74,6 +74,7 @@ class Area:
         for coef in self.coefs:
             yield coef
 
+
 @nb.njit
 def log_evaluate_Nx(N, logx, area_list):
     """
@@ -121,6 +122,7 @@ def log_evaluate_Nx(N, logx, area_list):
             res += coef * facti * tmp
     return res
 
+
 @nb.njit
 def evaluate_Nx(N, logx, area_list):
     """
@@ -160,6 +162,7 @@ def evaluate_Nx(N, logx, area_list):
             res += coef * (up - low) / (N + i)
     return res
 
+
 @nb.njit
 def evaluate_x(x, area_list):
     """
@@ -188,6 +191,7 @@ def evaluate_x(x, area_list):
             return res
 
     return res
+
 
 @nb.njit
 def log_evaluate_x(x, area_list):
@@ -218,6 +222,7 @@ def log_evaluate_x(x, area_list):
             return res
 
     return res
+
 
 class BasisFunction:
     """
@@ -261,6 +266,7 @@ class BasisFunction:
                 self.areas.append(new_area)
         if not self.areas:
             raise ValueError("Error: no areas were generated")
+        self.areas_representation = self.areas_to_const()
 
         # compile
         # TODO move this to InterpolatorDispatcher
@@ -329,10 +335,10 @@ class BasisFunction:
         if self.mode_N:
             old_call = self.callable
             self.compile_x()
-            res = self.callable(x, self.areas_to_const())
+            res = self.callable(x, self.areas_representation)
             self.callable = old_call
         else:
-            res = self.callable(x, self.areas_to_const())
+            res = self.callable(x, self.areas_representation)
         return res
 
     def compile_n(self):

@@ -430,38 +430,44 @@ class Operator:
         sc = self.master.grid.managers["strong_coupling"]
         a1 = sc.a_s(self.q2_to)
         a0 = sc.a_s(self.q2_from)
+        kd = self.master.grid.managers["kernel_dispatcher"]
+        kd.init_loops(self.master.nf, a1, a0)
         for k, logx in enumerate(np.log(self.xgrid)):
             start_time = time.perf_counter()
+            kd.var["logx"] = logx
             # iterate basis functions
-            for l, bf_kernels in enumerate(self.master.kernels):
+            for l, bf in enumerate(kd.interpol_dispatcher):
+                kd.var["areas"] = bf.areas_representation
                 # iterate sectors
-                for label, ker in bf_kernels.items():
-                    extra_args = []# nb.typed.List()
-                    extra_args.append(logx)
-                    extra_args.append(self.master.grid.managers["kernel_dispatcher"].interpol_dispatcher[l].areas_to_const())
-                    extra_args.append(a1)
-                    extra_args.append(a0)
-                    # Path parameters
-                    if label in singlet_names:
-                        # skip?
-                        if self.master.grid.config["debug_skip_singlet"]:
-                            continue
-                        extra_args.append(0.4 * 16 / (1.0 - logx))
-                        extra_args.append(1.0)
-                    else:
-                        # skip?
-                        if self.master.grid.config["debug_skip_non_singlet"]:
-                            continue
-                        extra_args.append(0.5)
-                        extra_args.append(0.0)
+                for label in ["NS_p", "S_qq", "S_qg", "S_gq", "S_gg"]:
+                    kd.obj.mode = label
+                    # # Path parameters
+                    # if label in singlet_names:
+                    #     # skip?
+                    #     if self.master.grid.config["debug_skip_singlet"]:
+                    #         continue
+                    #     extra_args.append(0.4 * 16 / (1.0 - logx))
+                    #     extra_args.append(1.0)
+                    # else:
+                    #     # skip?
+                    #     if self.master.grid.config["debug_skip_non_singlet"]:
+                    #         continue
+                    #     extra_args.append(0.5)
+                    #     extra_args.append(0.0)
                     # compute and set
                     val, err = mellin.inverse_mellin_transform(
-                        ker, self._mellin_cut, extra_args
+                        kd.obj, self._mellin_cut, []
                     )
                     self.op_members[label].value[k][l] = val
                     self.op_members[label].error[k][l] = err
 
-            logger.info("Evolution: computing operators - %d/%d took: %f s", k + 1, grid_size, time.perf_counter() - start_time)
+            logger.info(
+                "Evolution: computing operators - %d/%d took: %f s",
+                k + 1,
+                grid_size,
+                time.perf_counter() - start_time,
+            )
+
         # copy non-singlet kernels, if necessary
         order = self.master.grid.managers["kernel_dispatcher"].config["order"]
         if order == 0:  # in LO +=-=v
