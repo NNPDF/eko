@@ -2,9 +2,13 @@
 
 import numpy as np
 
+import numba as nb
+
 from eko import strong_coupling as sc
 from . import evolution_integrals as ei
 
+
+@nb.njit
 def lo_exact(gamma_ns, a1, a0, nf):
     """
     Non-singlet leading order exact EKO
@@ -22,6 +26,7 @@ def lo_exact(gamma_ns, a1, a0, nf):
     return np.exp(gamma_ns[0] * ei.j00(a1, a0, nf))
 
 
+@nb.njit
 def nlo_exact(gamma_ns, a1, a0, nf):
     """
     Non-singlet next-to-leading order exact EKO
@@ -41,6 +46,7 @@ def nlo_exact(gamma_ns, a1, a0, nf):
     )
 
 
+@nb.njit
 def nlo_expanded(gamma_ns, a1, a0, nf):
     """
     Non-singlet next-to-leading order expanded EKO
@@ -61,6 +67,7 @@ def nlo_expanded(gamma_ns, a1, a0, nf):
     )
 
 
+@nb.njit
 def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
     Non-singlet next-to-leading order truncated EKO
@@ -115,13 +122,15 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
         al = ah
     return e
 
+
 def dispatcher_lo(_method):
     return lo_exact
 
+
 def dispatcher_nlo(method):
-    if method in ["iterate-exact","decompose-exact","perturbative-exact"]:
+    if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
         return nlo_exact
-    if method in ["iterate-expanded","decompose-expanded","perturbative-expanded"]:
+    if method in ["iterate-expanded", "decompose-expanded", "perturbative-expanded"]:
         return nlo_expanded
     if method == "truncated":
         return nlo_truncated

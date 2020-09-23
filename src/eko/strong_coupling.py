@@ -93,13 +93,10 @@ def beta_2(nf: int):
     return beta_2
 
 
-# cache
-__betas = {}
-
-
+@nb.njit
 def beta(k, nf):
     """
-    Compute (cached) value of a beta coefficients
+    Compute value of a beta coefficients
 
     Parameters
     ----------
@@ -113,10 +110,6 @@ def beta(k, nf):
         beta : float
             beta_k(nf)
     """
-    try:
-        return __betas[(k, nf)]
-    except KeyError:
-        pass
     beta_ = 0
     if k == 0:
         beta_ = beta_0(nf)
@@ -126,10 +119,10 @@ def beta(k, nf):
         beta_ = beta_2(nf)
     else:
         raise ValueError("Beta coefficients beyond NNLO are not implemented!")
-    __betas[(k, nf)] = beta_
     return beta_
 
 
+@nb.njit
 def b(k, nf):
     """
     Compute b coefficient.

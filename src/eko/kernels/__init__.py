@@ -12,6 +12,7 @@ import eko.anomalous_dimensions as ad
 from eko import mellin
 
 from . import non_singlet as ns
+from . import singlet as s
 
 logger = logging.getLogger(__name__)
 
@@ -59,11 +60,24 @@ class IntegrationKernelObject:
         """shortcut to the parent config"""
         return self.kernel_dispatcher.config[name]
 
-    def extra_args(self):
+    def extra_args_ns(self):
         order = self.config("order")
         method = self.config("method")
         args = []
         if order == 1 and method in ["truncated", "ordered-truncated"]:
+            args.append(self.config("ev_op_iterations"))
+        return args
+
+    def extra_args_s(self):
+        order = self.config("order")
+        method = self.config("method")
+        args = []
+        if order == 1 and method in [
+            "truncated",
+            "ordered-truncated",
+            "iterate-exact",
+            "iterate-expanded",
+        ]:
             args.append(self.config("ev_op_iterations"))
         return args
 
@@ -95,23 +109,13 @@ class IntegrationKernelObject:
             fnc = ns.dispatcher_lo(method)
         elif order == 1:
             fnc = ns.dispatcher_nlo(method)
-        return fnc(gamma_ns,self.var("a1"),self.var("a0"),self.var("nf"),*self.extra_args())
-
-    def s_lo_exact(self, gamma_singlet):
-        """
-        Singlet leading order exact EKO
-
-        Parameters
-        ----------
-            gamma_singlet : list(numpy.ndarray)
-                singlet anomalous dimensions matrices
-
-        Returns
-        -------
-            e_s^0 : float
-                singlet leading order exact EKO
-        """
-        return ad.exp_singlet(gamma_singlet[0] * self.var("j00"))[0]
+        return fnc(
+            gamma_ns,
+            self.var("a1"),
+            self.var("a0"),
+            self.var("nf"),
+            *self.extra_args_ns(),
+        )
 
     def compute_singlet(self, n):
         """
@@ -132,7 +136,21 @@ class IntegrationKernelObject:
             n,
             self.var("nf"),
         )
-        return self.s_lo_exact(gamma_singlet)
+        order = self.config("order")
+        if order == 0:
+            return s.lo_exact(
+                gamma_singlet,
+                self.var("a1"),
+                self.var("a0"),
+                self.var("nf"),
+            )
+        return s.nlo_iterate(
+            gamma_singlet,
+            self.var("a1"),
+            self.var("a0"),
+            self.var("nf"),
+            *self.extra_args_s(),
+        )
 
     def __call__(self, u):
         """

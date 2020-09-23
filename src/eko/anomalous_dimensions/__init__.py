@@ -104,7 +104,7 @@ def gamma_ns(order, mode, n, nf):
         elif mode == "m":
             gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
         gamma_ns.append(gamma_ns_1)
-    return gamma_ns
+    return np.array(gamma_ns)
 
 
 def gamma_singlet(order, n, nf):
@@ -131,4 +131,4 @@ def gamma_singlet(order, n, nf):
     gamma_singlet.append(lo.gamma_singlet_0(n, s1, nf))
     if order > 0:
         gamma_singlet.append(nlo.gamma_singlet_1(n, nf))
-    return gamma_singlet
+    return np.array(gamma_singlet)
