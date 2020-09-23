@@ -364,6 +364,8 @@ class BasisFunction:
             yield area
 
     def __call__(self, *args, **kwargs):
+        args = list(args)
+        args.append(self.areas_representation)
         return self.callable(*args, **kwargs)
 
 

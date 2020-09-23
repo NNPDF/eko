@@ -18,16 +18,24 @@ import numpy as np
 
 import eko.strong_coupling as sc
 import eko.anomalous_dimensions as ad
-import eko.anomalous_dimensions.lo as ad_lo
-import eko.anomalous_dimensions.nlo as ad_nlo
 from eko import mellin
-from eko import ekomath
 
 
 logger = logging.getLogger(__name__)
 
 
 class IntegrationKernelObject:
+    """
+    Actual integration kernel.
+
+    The object gets adjusted for each inversion point, basis function or sector.
+
+    Parameters
+    ----------
+        kernel_dispatcher : eko.kernel_generation.KernelDispatcher
+            parent dispatcher
+    """
+
     def __init__(self, kernel_dispatcher):
         self.kernel_dispatcher = kernel_dispatcher
         self.pdf = self.kernel_dispatcher.interpol_dispatcher[0].callable
@@ -35,67 +43,167 @@ class IntegrationKernelObject:
 
     @property
     def is_singlet(self):
+        """Are we currently in the singlet sector?"""
         return self.mode[0] == "S"
 
     def get_path_params(self):
+        """
+        Determine the Talbot parameters.
+
+        Returns
+        -------
+            r,o : tuple(float)
+                Talbot parameters
+        """
         if self.is_singlet:
             return 0.4 * 16.0 / (1.0 - self.var("logx")), 1.0
         return 0.5, 0.0
 
-    def fnc(self, name):
-        return self.kernel_dispatcher.fnc[name]
-
     def var(self, name):
+        """shortcut to the parent variables"""
         return self.kernel_dispatcher.var[name]
 
-    def compute_ns(self, n, s1):
-        gamma_ns = ad.gamma_ns(
-            self.kernel_dispatcher.config["order"],
-            self.kernel_dispatcher.config["mode"],
-            n,
-            s1,
-            self.var("nf"),
-            self.kernel_dispatcher.constants.CA,
-            self.kernel_dispatcher.constants.CF,
-        )
-        # TODO improve IntKerObj
-        # - make ker_gen a package
-        # - add a ns module
-        # - 1 fnc per method per order
-        # - provide map[method][order](bla)
+    def config(self, name):
+        """shortcut to the parent config"""
+        return self.kernel_dispatcher.config[name]
+
+    def ns_lo_exact(self, gamma_ns):
+        """
+        Non-singlet leading order exact EKO
+
+        Parameters
+        ----------
+            gamma_ns : list(complex)
+                non-singlet anomalous dimensions
+
+        Returns
+        -------
+            e_ns^0 : complex
+                non-singlet leading order exact EKO
+        """
         return np.exp(gamma_ns[0] * self.var("j00"))
 
-    def compute_singlet(self, n, s1):
-        gamma_S_0 = ad_lo.gamma_singlet_0(
+    def ns_nlo_exact(self, gamma_ns):
+        """
+        Non-singlet next-to-leading order exact EKO
+
+        Parameters
+        ----------
+            gamma_ns : list(complex)
+                non-singlet anomalous dimensions
+
+        Returns
+        -------
+            e_ns^1 : complex
+                non-singlet next-to-leading order exact EKO
+        """
+        return np.exp(gamma_ns[0] * self.var("j01") + gamma_ns[1] * self.var("j11"))
+
+    def ns_nlo_trunctated(self, gamma_ns):
+        pass
+
+    #    beta_0 = self.var("beta_0")
+    #    b1 = self.var("b1")
+    #    np.exp(ln) * (
+    #                         1.0 + j11(a1, a0) * (gamma_ns_1 - b1 * gamma_ns_0)
+    #                     )
+
+    def compute_ns(self, n):
+        """
+        Computes the non-singlet EKO
+
+        Parameters
+        ----------
+            n : complex
+                Mellin moment
+
+        Returns
+        -------
+            e_ns : complex
+                non-singlet EKO
+        """
+        order = self.config("order")
+        # load data
+        gamma_ns = ad.gamma_ns(
+            order,
+            self.mode[-1],
             n,
-            s1,
             self.var("nf"),
-            self.kernel_dispatcher.constants.CA,
-            self.kernel_dispatcher.constants.CF,
         )
-        return ad.exp_singlet(gamma_S_0 * self.var("j00"))[0]
+        # switch order and method
+        if order > 0:
+            return self.ns_nlo_exact(gamma_ns)
+        return self.ns_lo_exact(gamma_ns)
+
+    def s_lo_exact(self, gamma_singlet):
+        """
+        Singlet leading order exact EKO
+
+        Parameters
+        ----------
+            gamma_singlet : list(numpy.ndarray)
+                singlet anomalous dimensions matrices
+
+        Returns
+        -------
+            e_s^0 : float
+                singlet leading order exact EKO
+        """
+        return ad.exp_singlet(gamma_singlet[0] * self.var("j00"))[0]
+
+    def compute_singlet(self, n):
+        """
+        Computes the singlet EKO
+
+        Parameters
+        ----------
+            n : complex
+                Mellin moment
+
+        Returns
+        -------
+            e_s : numpy.ndarray
+                singlet EKO
+        """
+        gamma_singlet = ad.gamma_singlet(
+            self.config("order"),
+            n,
+            self.var("nf"),
+        )
+        return self.s_lo_exact(gamma_singlet)
 
     def __call__(self, u):
+        """
+        Called function under the integral.
+
+        Parameters
+        ----------
+            u : float
+                integration variable
+
+        Returns
+        -------
+            ker : float
+                kernel evaluated at `u`
+        """
         # get transformation to N integral
         path_params = self.get_path_params()
-        n = self.fnc("path")(u, *path_params)
-        jac = self.fnc("jac")(u, *path_params)
+        n = mellin.Talbot_path(u, *path_params)
+        jac = mellin.Talbot_jac(u, *path_params)
         # check PDF is active
         pj = self.pdf(n, self.var("logx"), self.var("areas"))
         # print(self.pdf.inspect_types())
         if pj == 0.0:
             return 0.0
-        # cache the s-es
-        s1 = ekomath.harmonic_S1(n)
         # compute the actual evolution kernel
         if self.is_singlet:
-            ker = self.compute_singlet(n, s1)
+            ker = self.compute_singlet(n)
             # select element of matrix
             k = 0 if self.mode[2] == "q" else 1
             l = 0 if self.mode[3] == "q" else 1
             ker = ker[k, l]
         else:
-            ker = self.compute_ns(n, s1)
+            ker = self.compute_ns(n)
         # recombine everthing
         mellin_prefactor = np.complex(0.0, -1.0 / np.pi)
         return np.real(mellin_prefactor * ker * pj * jac)
@@ -111,11 +219,9 @@ class KernelDispatcher:
             configuration
         interpol_dispatcher : InterpolatorDispatcher
             An instance of the InterpolatorDispatcher class
-        constants : Constants
-            An instance of the Constants class
     """
 
-    def __init__(self, config, interpol_dispatcher, constants):
+    def __init__(self, config, interpol_dispatcher):
         # check
         order = int(config["order"])
         method = config["method"]
@@ -135,18 +241,12 @@ class KernelDispatcher:
         self.config = config
         # set managers
         self.interpol_dispatcher = interpol_dispatcher
-        self.constants = constants
         # init objects
-        self.fnc = {}
         self.var = {}
-        # integration stuff
-        path, jac = mellin.get_path_Talbot()
-        self.fnc["path"] = path
-        self.fnc["jac"] = jac
         self.obj = IntegrationKernelObject(self)
 
     @classmethod
-    def from_dict(cls, setup, interpol_dispatcher, constants):
+    def from_dict(cls, setup, interpol_dispatcher):
         """
         Create the object from the theory dictionary.
 
@@ -161,8 +261,6 @@ class KernelDispatcher:
                 theory dictionary
             interpol_dispatcher : InterpolatorDispatcher
                 An instance of the InterpolatorDispatcher class
-            constants : Constants
-                An instance of the Constants class
 
         Returns
         -------
@@ -171,7 +269,7 @@ class KernelDispatcher:
         """
         config = {}
         config["order"] = int(setup["PTO"])
-        method = setup.get("ModEv", "EXA")
+        method = setup.get("ModEv", "iterate-exact")
         mod_ev2method = {
             "EXA": "iterate-exact",
             "EXP": "iterate-expanded",
@@ -181,7 +279,31 @@ class KernelDispatcher:
         config["method"] = method
         config["ev_op_max_order"] = setup.get("ev_op_max_order", 10)
         config["ev_op_iterations"] = setup.get("ev_op_iterations", 10)
-        return cls(config, interpol_dispatcher, constants)
+        return cls(config, interpol_dispatcher)
+
+    def init_lo(self):
+        """Setup LO variables."""
+        beta_0 = sc.beta_0(self.var["nf"])
+        self.var["beta_0"] = beta_0
+        self.var["j00"] = np.log(self.var["a1"] / self.var["a0"]) / beta_0
+
+    def init_nlo(self):
+        """Setup NLO variables."""
+        beta_0 = self.var["beta_0"]
+        beta_1 = sc.beta_1(self.var["nf"])
+        self.var["beta_1"] = beta_1
+        b1 = beta_1 / beta_0
+        self.var["b1"] = b1
+        if self.config["method"] in ["iterate-exact", "decompose-exact"]:
+            self.var["j11"] = (1.0 / beta_1) * np.log(
+                (1.0 + self.var["a1"] * b1) / (1.0 + self.var["a0"] * b1)
+            )
+        else:  # expanded and truncated
+            self.var["j11"] = 1.0 / beta_0 * (self.var["a1"] - self.var["a0"])
+        self.var["j01"] = self.var["j00"] - b1 * self.var["j11"]
+        self.var["as"] = np.geomspace(
+            self.var["a0"], self.var["a1"], self.config["ev_op_iterations"]
+        )
 
     def init_loops(self, nf, a1, a0):
         """
@@ -197,23 +319,11 @@ class KernelDispatcher:
                 strong coupling at initial scale
         """
         self.var["nf"] = nf
-        beta_0 = sc.beta_0(nf, self.constants.CA, self.constants.CF, self.constants.TF)
-        self.var["beta_0"] = beta_0
         self.var["a1"] = a1
         self.var["a0"] = a0
-        self.var["j00"] = np.log(a1 / a0) / beta_0
+        self.init_lo()
         if self.config["order"] > 0:
-            # TODO reshuffle inits by order
-            beta_1 = sc.beta_1(
-                nf, self.constants.CA, self.constants.CF, self.constants.TF
-            )
-            self.var["beta_1"] = beta_1
-            b1 = beta_1 / beta_0
-            if self.config["method"] in ["iterate-exact", "decompose-exact"]:
-                self.var["j11"] = 1 / beta_1 * np.log((1 + a1 * b1) / (1 + a0 * b1))
-            else:  # expanded and truncated
-                self.var["j11"] = 1 / beta_0 * (a1 - a0)
-            self.var["j01"] = self.var["j00"] - b1 * self.var["j11"]
+            self.init_nlo()
 
     # def collect_kers(self, nf):
     #     r"""

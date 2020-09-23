@@ -76,7 +76,7 @@ class OperatorMember:
 
         Parameters
         ----------
-            pdf_member : np.array
+            pdf_member : numpy.ndarray
                 pdf vector
 
         Returns
@@ -412,6 +412,27 @@ class Operator:
                 new_ops[key] = op
         return PhysicalOperator(new_ops, q2_final)
 
+    def labels(self):
+        """
+        Compute necessary sector labels to compute.
+
+        Returns
+        -------
+            labels : list(str)
+                sector labels
+        """
+        order = self.master.grid.managers["kernel_dispatcher"].config["order"]
+        labels = []
+        # NS sector is dynamic
+        if not self.master.grid.config["debug_skip_non_singlet"]:
+            labels.append("NS_p")
+            if order > 0:
+                labels.append("NS_m")
+        # singlet sector is fixed
+        if not self.master.grid.config["debug_skip_singlet"]:
+            labels.extend(["S_qq", "S_qg", "S_gq", "S_gg"])
+        return labels
+
     def compute(self):
         """ compute the actual operators (i.e. run the integrations) """
         # Generic parameters
@@ -425,13 +446,16 @@ class Operator:
                 np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size)), n
             )
         tot_start_time = time.perf_counter()
-        # iterate output grid
+        # setup KernelDispatcher
         logger.info("Evolution: computing operators - 0/%d", grid_size)
         sc = self.master.grid.managers["strong_coupling"]
         a1 = sc.a_s(self.q2_to)
         a0 = sc.a_s(self.q2_from)
         kd = self.master.grid.managers["kernel_dispatcher"]
         kd.init_loops(self.master.nf, a1, a0)
+        # determine labels
+        labels = self.labels()
+        # iterate output grid
         for k, logx in enumerate(np.log(self.xgrid)):
             start_time = time.perf_counter()
             kd.var["logx"] = logx
@@ -439,21 +463,8 @@ class Operator:
             for l, bf in enumerate(kd.interpol_dispatcher):
                 kd.var["areas"] = bf.areas_representation
                 # iterate sectors
-                for label in ["NS_p", "S_qq", "S_qg", "S_gq", "S_gg"]:
+                for label in labels:
                     kd.obj.mode = label
-                    # # Path parameters
-                    # if label in singlet_names:
-                    #     # skip?
-                    #     if self.master.grid.config["debug_skip_singlet"]:
-                    #         continue
-                    #     extra_args.append(0.4 * 16 / (1.0 - logx))
-                    #     extra_args.append(1.0)
-                    # else:
-                    #     # skip?
-                    #     if self.master.grid.config["debug_skip_non_singlet"]:
-                    #         continue
-                    #     extra_args.append(0.5)
-                    #     extra_args.append(0.0)
                     # compute and set
                     val, err = mellin.inverse_mellin_transform(
                         kd.obj, self._mellin_cut, []
@@ -469,7 +480,7 @@ class Operator:
             )
 
         # copy non-singlet kernels, if necessary
-        order = self.master.grid.managers["kernel_dispatcher"].config["order"]
+        order = kd.config["order"]
         if order == 0:  # in LO +=-=v
             for label in ["NS_v", "NS_m"]:
                 self.op_members[label].value = self.op_members["NS_p"].value.copy()
