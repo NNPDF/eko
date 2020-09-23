@@ -74,7 +74,7 @@ def beta_2(nf: int):
     Parameters
     ----------
         nf : int
-            number of active flavours.
+            number of active flavours
 
     Returns
     -------
@@ -91,6 +91,62 @@ def beta_2(nf: int):
         + 158.0 / 27.0 * constants.CA * TF * TF
     )
     return beta_2
+
+
+# cache
+__betas = {}
+
+
+def beta(k, nf):
+    """
+    Compute (cached) value of a beta coefficients
+
+    Parameters
+    ----------
+        k : int
+            perturbative orde
+        nf : int
+            number of active flavours
+
+    Returns
+    -------
+        beta : float
+            beta_k(nf)
+    """
+    try:
+        return __betas[(k, nf)]
+    except KeyError:
+        pass
+    beta_ = 0
+    if k == 0:
+        beta_ = beta_0(nf)
+    elif k == 1:
+        beta_ = beta_1(nf)
+    elif k == 2:
+        beta_ = beta_2(nf)
+    else:
+        raise ValueError("Beta coefficients beyond NNLO are not implemented!")
+    __betas[(k, nf)] = beta_
+    return beta_
+
+
+def b(k, nf):
+    """
+    Compute b coefficient.
+
+    Parameters
+    ----------
+        k : int
+            perturbative orde
+        nf : int
+            number of active flavours
+
+    Returns
+    -------
+        b : float
+            b_k(nf)
+    """
+    return beta(k, nf) / beta(0, nf)
 
 
 class StrongCoupling:
@@ -246,7 +302,7 @@ class StrongCoupling:
                 coupling at target scale :math:`a_s(Q^2)`
         """
         # common vars
-        beta0 = beta_0(nf)
+        beta0 = beta(0, nf)
         lmu = np.log(scale_to / scale_from)
         den = 1.0 + beta0 * as_ref * lmu
         # LO
@@ -254,13 +310,13 @@ class StrongCoupling:
         res = as_LO
         # NLO
         if self._order >= 1:
-            beta1 = beta_1(nf)
+            beta1 = beta(1, nf)
             b1 = beta1 / beta0
             as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
             res = as_NLO
             # NNLO
             if self._order == 2:
-                beta2 = beta_2(nf)
+                beta2 = beta(2, nf)
                 b2 = beta2 / beta0
                 res = as_LO * (
                     1.0
@@ -295,17 +351,17 @@ class StrongCoupling:
             return self._compute_expanded(as_ref, nf, scale_from, scale_to)
         # otherwise rescale the RGE to run in terms of
         # u = beta0 * ln(scale_to/scale_from)
-        beta0 = beta_0(nf)
+        beta0 = beta(0, nf)
         u = beta0 * np.log(scale_to / scale_from)
         b_vec = [1]
         # NLO
         if self._order >= 1:
-            beta1 = beta_1(nf)
+            beta1 = beta(1, nf)
             b1 = beta1 / beta0
             b_vec.append(b1)
             # NNLO
             if self._order >= 2:
-                beta2 = beta_2(nf)
+                beta2 = beta(2, nf)
                 b2 = beta2 / beta0
                 b_vec.append(b2)
         # integration kernel

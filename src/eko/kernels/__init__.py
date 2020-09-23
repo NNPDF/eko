@@ -1,15 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    This module contains functions that generate other functions
-    All functions will receive a set of parameters so that the output
-    function can be always numba compilable
-
-    The generator functions `get_kernel_{kernel_type}` have as signature
-    the following parameters:
-
-        - `basis_function`: a callable function with a (N, lnx) signature
-        - `nf` : number of flavours
-        - `constants`: an instance of the Constants class
+This module defines the actual evolution kernels as they appear under the Mellin inversion interal
 """
 
 import logging
@@ -20,6 +11,7 @@ import eko.strong_coupling as sc
 import eko.anomalous_dimensions as ad
 from eko import mellin
 
+from . import non_singlet as ns
 
 logger = logging.getLogger(__name__)
 
@@ -67,46 +59,13 @@ class IntegrationKernelObject:
         """shortcut to the parent config"""
         return self.kernel_dispatcher.config[name]
 
-    def ns_lo_exact(self, gamma_ns):
-        """
-        Non-singlet leading order exact EKO
-
-        Parameters
-        ----------
-            gamma_ns : list(complex)
-                non-singlet anomalous dimensions
-
-        Returns
-        -------
-            e_ns^0 : complex
-                non-singlet leading order exact EKO
-        """
-        return np.exp(gamma_ns[0] * self.var("j00"))
-
-    def ns_nlo_exact(self, gamma_ns):
-        """
-        Non-singlet next-to-leading order exact EKO
-
-        Parameters
-        ----------
-            gamma_ns : list(complex)
-                non-singlet anomalous dimensions
-
-        Returns
-        -------
-            e_ns^1 : complex
-                non-singlet next-to-leading order exact EKO
-        """
-        return np.exp(gamma_ns[0] * self.var("j01") + gamma_ns[1] * self.var("j11"))
-
-    def ns_nlo_trunctated(self, gamma_ns):
-        pass
-
-    #    beta_0 = self.var("beta_0")
-    #    b1 = self.var("b1")
-    #    np.exp(ln) * (
-    #                         1.0 + j11(a1, a0) * (gamma_ns_1 - b1 * gamma_ns_0)
-    #                     )
+    def extra_args(self):
+        order = self.config("order")
+        method = self.config("method")
+        args = []
+        if order == 1 and method in ["truncated", "ordered-truncated"]:
+            args.append(self.config("ev_op_iterations"))
+        return args
 
     def compute_ns(self, n):
         """
@@ -131,9 +90,12 @@ class IntegrationKernelObject:
             self.var("nf"),
         )
         # switch order and method
-        if order > 0:
-            return self.ns_nlo_exact(gamma_ns)
-        return self.ns_lo_exact(gamma_ns)
+        method = self.config("method")
+        if order == 0:
+            fnc = ns.dispatcher_lo(method)
+        elif order == 1:
+            fnc = ns.dispatcher_nlo(method)
+        return fnc(gamma_ns,self.var("a1"),self.var("a0"),self.var("nf"),*self.extra_args())
 
     def s_lo_exact(self, gamma_singlet):
         """
@@ -217,7 +179,7 @@ class KernelDispatcher:
     ----------
         config : dict
             configuration
-        interpol_dispatcher : InterpolatorDispatcher
+        interpol_dispatcher : eko.interpolation.InterpolatorDispatcher
             An instance of the InterpolatorDispatcher class
     """
 
@@ -283,14 +245,14 @@ class KernelDispatcher:
 
     def init_lo(self):
         """Setup LO variables."""
-        beta_0 = sc.beta_0(self.var["nf"])
+        beta_0 = sc.beta(0, self.var["nf"])
         self.var["beta_0"] = beta_0
         self.var["j00"] = np.log(self.var["a1"] / self.var["a0"]) / beta_0
 
     def init_nlo(self):
         """Setup NLO variables."""
         beta_0 = self.var["beta_0"]
-        beta_1 = sc.beta_1(self.var["nf"])
+        beta_1 = sc.beta(1, self.var["nf"])
         self.var["beta_1"] = beta_1
         b1 = beta_1 / beta_0
         self.var["b1"] = b1

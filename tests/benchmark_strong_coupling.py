@@ -213,7 +213,7 @@ class BenchmarkStrongCoupling:
 
     def _get_Lambda2_LO(self, as_ref, scale_ref, nf):
         """Transformation to Lambda_QCD"""
-        beta0 = beta_0(nf, CA, CF, TF)
+        beta0 = beta(0,nf)
         return scale_ref * np.exp(-1.0 / (as_ref * beta0))
 
     def benchmark_lhapdf_ffns_lo(self):
