@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 r"""
-    This file contains the QCD beta function coefficients and the handling of the running
-    coupling :math:`\alpha_s`.
+This file contains the QCD beta function coefficients and the handling of the running
+coupling :math:`\alpha_s`.
 
-    See :doc:`pQCD ingredients </Theory/pQCD>`.
+See :doc:`pQCD ingredients </Theory/pQCD>`.
 """
 
 import logging
@@ -19,35 +19,28 @@ logger = logging.getLogger(__name__)
 
 
 @nb.njit
-def beta_0(nf: int, CA: float, CF: float, TF: float):  # pylint: disable=unused-argument
+def beta_0(nf: int):
     """
     Computes the first coefficient of the QCD beta function.
 
     Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
-    For the sake of unification we keep a unique function signature for *all* coefficients.
 
     Parameters
     ----------
         nf : int
             number of active flavours
-        CA : float
-            Casimir constant of adjoint representation
-        CF : float
-            Casimir constant of fundamental representation (which is actually not used here)
-        TF : float
-            fundamental normalization factor
 
     Returns
     -------
         beta_0 : float
             first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
     """
-    beta_0 = 11.0 / 3.0 * CA - 4.0 / 3.0 * TF * nf
+    beta_0 = 11.0 / 3.0 * constants.CA - 4.0 / 3.0 * constants.TR * nf
     return beta_0
 
 
 @nb.njit
-def beta_1(nf: int, CA: float, CF: float, TF: float):
+def beta_1(nf: int):
     """
     Computes the second coefficient of the QCD beta function.
 
@@ -57,27 +50,22 @@ def beta_1(nf: int, CA: float, CF: float, TF: float):
     ----------
         nf : int
             number of active flavours
-        CA : float
-            Casimir constant of adjoint representation
-        CF : float
-            Casimir constant of fundamental representation
-        TF : float
-            fundamental normalization factor
 
     Returns
     -------
         beta_1 : float
             second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
     """
-    b_ca2 = 34.0 / 3.0 * CA * CA
-    b_ca = -20.0 / 3.0 * CA * TF * nf
-    b_cf = -4.0 * CF * TF * nf
+    TF = constants.TR * nf
+    b_ca2 = 34.0 / 3.0 * constants.CA * constants.CA
+    b_ca = -20.0 / 3.0 * constants.CA * TF
+    b_cf = -4.0 * constants.CF * TF
     beta_1 = b_ca2 + b_ca + b_cf
     return beta_1
 
 
 @nb.njit
-def beta_2(nf: int, CA: float, CF: float, TF: float):
+def beta_2(nf: int):
     """
     Computes the third coefficient of the QCD beta function
 
@@ -86,28 +74,72 @@ def beta_2(nf: int, CA: float, CF: float, TF: float):
     Parameters
     ----------
         nf : int
-            number of active flavours.
-        CA : float
-            Casimir constant of adjoint representation.
-        CF : float
-            Casimir constant of fundamental representation.
-        TF : float
-            fundamental normalization factor.
+            number of active flavours
 
     Returns
     -------
         beta_2 : float
             third coefficient of the QCD beta function :math:`\\beta_2^{n_f}`
     """
+    TF = constants.TR * nf
     beta_2 = (
-        2857.0 / 54.0 * CA * CA * CA
-        - 1415.0 / 27.0 * CA * CA * TF * nf
-        - 205.0 / 9.0 * CF * CA * TF * nf
-        + 2.0 * CF * CF * TF * nf
-        + 44.0 / 9.0 * CF * TF * TF * nf * nf
-        + 158.0 / 27.0 * CA * TF * TF * nf * nf
+        2857.0 / 54.0 * constants.CA * constants.CA * constants.CA
+        - 1415.0 / 27.0 * constants.CA * constants.CA * TF
+        - 205.0 / 9.0 * constants.CF * constants.CA * TF
+        + 2.0 * constants.CF * constants.CF * TF
+        + 44.0 / 9.0 * constants.CF * TF * TF
+        + 158.0 / 27.0 * constants.CA * TF * TF
     )
     return beta_2
+
+
+@nb.njit
+def beta(k, nf):
+    """
+    Compute value of a beta coefficients
+
+    Parameters
+    ----------
+        k : int
+            perturbative orde
+        nf : int
+            number of active flavours
+
+    Returns
+    -------
+        beta : float
+            beta_k(nf)
+    """
+    beta_ = 0
+    if k == 0:
+        beta_ = beta_0(nf)
+    elif k == 1:
+        beta_ = beta_1(nf)
+    elif k == 2:
+        beta_ = beta_2(nf)
+    else:
+        raise ValueError("Beta coefficients beyond NNLO are not implemented!")
+    return beta_
+
+
+@nb.njit
+def b(k, nf):
+    """
+    Compute b coefficient.
+
+    Parameters
+    ----------
+        k : int
+            perturbative orde
+        nf : int
+            number of active flavours
+
+    Returns
+    -------
+        b : float
+            b_k(nf)
+    """
+    return beta(k, nf) / beta(0, nf)
 
 
 class StrongCoupling:
@@ -137,8 +169,6 @@ class StrongCoupling:
 
         Parameters
         ----------
-            constants: eko.constants.Constants
-                An instance of :class:`~eko.constants.Constants`
             alpha_s_ref : float
                 alpha_s(!) at the reference scale :math:`\alpha_s(\mu_0^2)`
             scale_ref : float
@@ -152,11 +182,10 @@ class StrongCoupling:
 
         Examples
         --------
-            >>> c = Constants()
             >>> alpha_ref = 0.35
             >>> scale_ref = 2
             >>> threshold_holder = ThresholdsConfig( ... )
-            >>> sc = StrongCoupling(c, alpha_ref, scale_ref, threshold_holder)
+            >>> sc = StrongCoupling(alpha_ref, scale_ref, threshold_holder)
             >>> q2 = 91.1**2
             >>> sc.a_s(q2)
             0.118
@@ -164,7 +193,6 @@ class StrongCoupling:
 
     def __init__(
         self,
-        consts,
         alpha_s_ref,
         scale_ref,
         thresh,
@@ -172,8 +200,6 @@ class StrongCoupling:
         method="exact",
     ):
         # Sanity checks
-        if not isinstance(consts, constants.Constants):
-            raise ValueError("Needs a Constants instance")
         if alpha_s_ref <= 0:
             raise ValueError(f"alpha_s_ref has to be positive - got {alpha_s_ref}")
         if scale_ref <= 0:
@@ -186,7 +212,6 @@ class StrongCoupling:
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
         self._method = method
-        self._constants = consts
 
         # create new threshold object
         self.as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
@@ -208,7 +233,7 @@ class StrongCoupling:
         return self._threshold_holder.q2_ref
 
     @classmethod
-    def from_dict(cls, setup, thresholds_config=None, consts=None):
+    def from_dict(cls, setup, thresholds_config=None):
         """
         Create object from theory dictionary.
 
@@ -223,8 +248,6 @@ class StrongCoupling:
         ----------
             setup : dict
                 theory dictionary
-            constants : eko.constants.Constants
-                Color constants
             thresholds_config : eko.thresholds.ThresholdsConfig
                 threshold configuration
 
@@ -234,22 +257,29 @@ class StrongCoupling:
                 created object
         """
         # read my values
+        # TODO cast to a_s here
         alpha_ref = setup["alphas"]
         q2_alpha = pow(setup["Qref"], 2)
         order = setup["PTO"]
         mod_ev = setup.get("ModEv", "EXA")
-        if mod_ev == "EXA":
+        if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
             method = "exact"
-        elif mod_ev in ["TRN", "EXP"]:
+        elif mod_ev in [
+            "TRN",
+            "truncated",
+            "ordered-truncated",
+            "EXP",
+            "iterate-expanded",
+            "decompose-expanded",
+            "perturbative-expanded",
+        ]:
             method = "expanded"
         else:
             raise ValueError(f"Unknown evolution mode {mod_ev}")
         # eventually read my dependents
-        if consts is None:
-            consts = constants.Constants()
         if thresholds_config is None:
             thresholds_config = thresholds.ThresholdsConfig.from_dict(setup)
-        return cls(consts, alpha_ref, q2_alpha, thresholds_config, order, method)
+        return cls(alpha_ref, q2_alpha, thresholds_config, order, method)
 
     # Hidden computation functions
     def _compute_expanded(self, as_ref, nf, scale_from, scale_to):
@@ -273,7 +303,7 @@ class StrongCoupling:
                 coupling at target scale :math:`a_s(Q^2)`
         """
         # common vars
-        beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
+        beta0 = beta(0, nf)
         lmu = np.log(scale_to / scale_from)
         den = 1.0 + beta0 * as_ref * lmu
         # LO
@@ -281,20 +311,16 @@ class StrongCoupling:
         res = as_LO
         # NLO
         if self._order >= 1:
-            beta1 = beta_1(
-                nf, self._constants.CA, self._constants.CF, self._constants.TF
-            )
+            beta1 = beta(1, nf)
             b1 = beta1 / beta0
             as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
             res = as_NLO
             # NNLO
             if self._order == 2:
-                beta2 = beta_2(
-                    nf, self._constants.CA, self._constants.CF, self._constants.TF
-                )
+                beta2 = beta(2, nf)
                 b2 = beta2 / beta0
                 res = as_LO * (
-                    1
+                    1.0
                     + as_LO * (as_LO - as_ref) * (b2 - b1 ** 2)
                     + as_NLO * b1 * np.log(as_NLO / as_ref)
                 )
@@ -326,21 +352,17 @@ class StrongCoupling:
             return self._compute_expanded(as_ref, nf, scale_from, scale_to)
         # otherwise rescale the RGE to run in terms of
         # u = beta0 * ln(scale_to/scale_from)
-        beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
+        beta0 = beta(0, nf)
         u = beta0 * np.log(scale_to / scale_from)
         b_vec = [1]
         # NLO
         if self._order >= 1:
-            beta1 = beta_1(
-                nf, self._constants.CA, self._constants.CF, self._constants.TF
-            )
+            beta1 = beta(1, nf)
             b1 = beta1 / beta0
             b_vec.append(b1)
             # NNLO
             if self._order >= 2:
-                beta2 = beta_2(
-                    nf, self._constants.CA, self._constants.CF, self._constants.TF
-                )
+                beta2 = beta(2, nf)
                 b2 = beta2 / beta0
                 b_vec.append(b2)
         # integration kernel
@@ -413,11 +435,11 @@ class StrongCoupling:
                 # q2_to is the threshold value
                 L = np.log(scale_to / fact_scale)
                 if next_nf_is_down:
-                    c1 = -4.0 / 3.0 * self._constants.TF * L
+                    c1 = -4.0 / 3.0 * constants.TR * L
                     # TODO recover color constants
                     c2 = 4.0 / 9.0 * L ** 2 - 38.0 / 3.0 * L - 14.0 / 3.0
                 else:
-                    c1 = 4.0 / 3.0 * self._constants.TF * L
+                    c1 = 4.0 / 3.0 * constants.TR * L
                     c2 = 4.0 / 9.0 * L ** 2 + 38.0 / 3.0 * L + 14.0 / 3.0
                 # shift
                 if self._order == 1:

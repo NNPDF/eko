@@ -1,10 +1,10 @@
 # Theory
 ID: 22
-PTO: 0
+PTO: 1
 FNS: "FFNS"
 DAMP: 0
 IC: 0
-ModEv: "EXA"
+ModEv: "TRN"
 XIR: 1.0
 XIF: 1.0
 NfFF: 4
@@ -41,11 +41,11 @@ EScaleVar: 1
 # eko stuff
 ev_op_max_order: 10
 ev_op_iterations: 10
-Q2grid: [1.e+1]
+Q2grid: [1.e+4]
 # interpolation
 interpolation_is_log: True
 interpolation_polynomial_degree: 4
-interpolation_xgrid: ["make_grid",5,5]
+interpolation_xgrid: ["make_grid",30,20]
 # debug options
 debug_skip_non_singlet: False
 debug_skip_singlet: False

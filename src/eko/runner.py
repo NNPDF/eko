@@ -6,10 +6,9 @@ import logging
 import copy
 
 from eko import interpolation
-from eko.kernel_generation import KernelDispatcher
+from eko import kernels
 from eko.thresholds import ThresholdsConfig
 from eko.operator_grid import OperatorGrid
-from eko.constants import Constants
 from eko.strong_coupling import StrongCoupling
 from eko.output import Output
 
@@ -35,18 +34,16 @@ class Runner:
         if setup.get("keep_input", False):
             self.out.update(setup)
 
-        # Load constants and compute parameters
-        constants = Constants()
         # setup basis grid
         bfd = interpolation.InterpolatorDispatcher.from_dict(setup)
         self.out.update(bfd.to_dict())
         # Generate the dispatcher for the kernels
-        kd = KernelDispatcher.from_dict(setup, bfd, constants)
+        kd = kernels.KernelDispatcher.from_dict(setup, bfd)
         # FNS
         tc = ThresholdsConfig.from_dict(setup)
         self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
-        sc = StrongCoupling.from_dict(setup, tc, constants)
+        sc = StrongCoupling.from_dict(setup, tc)
         # setup operator grid
         self._op_grid = OperatorGrid.from_dict(
             setup,

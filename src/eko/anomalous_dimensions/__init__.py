@@ -1,25 +1,30 @@
 # -*- coding: utf-8 -*-
 r"""
-  This module contains the Altarelli-Parisi splitting kernels.
+This module contains the Altarelli-Parisi splitting kernels.
 
-  Normalization is given by
+Normalization is given by
 
-  .. math::
+.. math::
     \mathbf{P}(x) = \sum\limits_{j=0} a_s^{j+1} \mathbf P^{(j)}(x)
 
-  with :math:`a_s = \frac{\alpha_S(\mu^2)}{4\pi}`.
-  The 3-loop references for the non-singlet :cite:`Moch:2004pa`
-  and singlet :cite:`Vogt:2004mw` case contain also the lower
-  order results. The results are also determined in Mellin space in
-  terms of the anomalous dimensions (note the additional sign!)
+with :math:`a_s = \frac{\alpha_S(\mu^2)}{4\pi}`.
+The 3-loop references for the non-singlet :cite:`Moch:2004pa`
+and singlet :cite:`Vogt:2004mw` case contain also the lower
+order results. The results are also determined in Mellin space in
+terms of the anomalous dimensions (note the additional sign!)
 
-  .. math::
+.. math::
     \gamma(N) = - \mathcal{M}[\mathbf{P}(x)](N)
 """
 
 import numpy as np
 
 import numba as nb
+
+from eko.ekomath import harmonic_S1 as S1
+
+from . import lo
+from . import nlo
 
 
 @nb.njit
@@ -29,30 +34,30 @@ def exp_singlet(gamma_S):
 
     Parameters
     ----------
-      gamma_S : numpy.ndarray
-        singlet anomalous dimension matrix
+        gamma_S : numpy.ndarray
+            singlet anomalous dimension matrix
 
     Returns
     -------
-      exp : numpy.ndarray
-        exponential of the singlet anomalous dimension matrix :math:`\gamma_{S}(N)`
-      lambda_p : complex
-        positive eigenvalue of the singlet anomalous dimension matrix
-        :math:`\gamma_{S}(N)`
-      lambda_m : complex
-        negative eigenvalue of the singlet anomalous dimension matrix
-        :math:`\gamma_{S}(N)`
-      e_p : numpy.ndarray
-        projector for the positive eigenvalue of the singlet anomalous
-        dimension matrix :math:`\gamma_{S}(N)`
-      e_m : numpy.ndarray
-        projector for the negative eigenvalue of the singlet anomalous
-        dimension matrix :math:`\gamma_{S}(N)`
+        exp : numpy.ndarray
+            exponential of the singlet anomalous dimension matrix :math:`\gamma_{S}(N)`
+        lambda_p : complex
+            positive eigenvalue of the singlet anomalous dimension matrix
+            :math:`\gamma_{S}(N)`
+        lambda_m : complex
+            negative eigenvalue of the singlet anomalous dimension matrix
+            :math:`\gamma_{S}(N)`
+        e_p : numpy.ndarray
+            projector for the positive eigenvalue of the singlet anomalous
+            dimension matrix :math:`\gamma_{S}(N)`
+        e_m : numpy.ndarray
+            projector for the negative eigenvalue of the singlet anomalous
+            dimension matrix :math:`\gamma_{S}(N)`
 
     See Also
     --------
-      eko.anomalous_dimensions.lo.gamma_singlet_0 : :math:`\gamma_{S}^{(0)}(N)`
-      eko.anomalous_dimensions.nlo.gamma_singlet_1 : :math:`\gamma_{S}^{(1)}(N)`
+        eko.anomalous_dimensions.lo.gamma_singlet_0 : :math:`\gamma_{S}^{(0)}(N)`
+        eko.anomalous_dimensions.nlo.gamma_singlet_1 : :math:`\gamma_{S}^{(1)}(N)`
     """
     # compute eigenvalues
     det = np.sqrt(
@@ -67,3 +72,63 @@ def exp_singlet(gamma_S):
     e_m = -c * (gamma_S - lambda_p * identity)
     exp = e_m * np.exp(lambda_m) + e_p * np.exp(lambda_p)
     return exp, lambda_p, lambda_m, e_p, e_m
+
+
+def gamma_ns(order, mode, n, nf):
+    """
+    Computes the tower of the non-singlet anomalous dimensions
+
+    Parameters
+    ----------
+        order : int
+            perturbative order
+        mode : "m" | "p" | "v"
+            sector identifier
+        n : complex
+            Mellin variable
+        nf : int
+            Number of active flavours
+
+    Returns
+    -------
+        gamma_ns : list(float)
+            non-singlet anomalous dimensions
+    """
+    # cache the s-es
+    s1 = S1(n)
+    gamma_ns = []
+    gamma_ns.append(lo.gamma_ns_0(n, s1))
+    if order > 0:
+        if mode == "p":
+            gamma_ns_1 = nlo.gamma_nsp_1(n, nf)
+        elif mode == "m":
+            gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
+        gamma_ns.append(gamma_ns_1)
+    return np.array(gamma_ns)
+
+
+def gamma_singlet(order, n, nf):
+    """
+    Computes the tower of the singlet anomalous dimensions matrices
+
+    Parameters
+    ----------
+        order : int
+            perturbative order
+        n : complex
+            Mellin variable
+        nf : int
+            Number of active flavours
+
+    Returns
+    -------
+        gamma_singlet : list(float)
+            non-singlet anomalous dimensions matrices
+    """
+    # cache the s-es
+    s1 = S1(n)
+    gamma_singlet = []
+    gamma_singlet.append(lo.gamma_singlet_0(n, s1, nf))
+    if order > 0:
+        gamma_singlet.append(nlo.gamma_singlet_1(n, nf))
+    return np.array(gamma_singlet)

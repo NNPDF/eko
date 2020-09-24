@@ -53,7 +53,7 @@ class Output(dict):
 
         # interpolate to target grid
         if targetgrid is not None:
-            b = interpolation.InterpolatorDispatcher.from_dict(self, False, False)
+            b = interpolation.InterpolatorDispatcher.from_dict(self, False)
             rot = b.get_interpolation(targetgrid)
             for q2 in out_grid:
                 for pdf_label in out_grid[q2]["pdfs"]:

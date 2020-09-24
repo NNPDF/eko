@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
-"""
-  This file contains the leading-order Altarelli-Parisi splitting kernels.
-
-  For the sake of unification we keep a unique function signature for *all* coefficients.
-"""
+"""This file contains the leading-order Altarelli-Parisi splitting kernels."""
 
 import numpy as np
 
 import numba as nb
 
-from eko.ekomath import harmonic_S1 as S1
+from eko import constants
 
 
 @nb.njit
-def gamma_ns_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
+def gamma_ns_0(N, s1):
     """
     Computes the leading-order non-singlet anomalous dimension.
 
@@ -23,25 +19,21 @@ def gamma_ns_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
     ----------
       N : complex
         Mellin moment
-      nf : int
-        Number of active flavours
-      CA : float
-        Casimir constant of adjoint representation
-      CF : float
-        Casimir constant of fundamental representation
+      s1 : complex
+        S1(N)
 
     Returns
     -------
       gamma_ns_0 : complex
         Leading-order non-singlet anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    gamma = -(3 - 4 * S1(N) + 2 / N / (N + 1))
-    result = CF * gamma
+    gamma = -(3.0 - 4.0 * s1 + 2.0 / N / (N + 1.0))
+    result = constants.CF * gamma
     return result
 
 
 @nb.njit
-def gamma_qg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
+def gamma_qg_0(N, nf: int):
     """
     Computes the leading-order quark-gluon anomalous dimension
 
@@ -53,23 +45,19 @@ def gamma_qg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
         Mellin moment
       nf : int
         Number of active flavours
-      CA : float
-        Casimir constant of adjoint representation
-      CF : float
-        Casimir constant of fundamental representation
 
     Returns
     -------
       gamma_qg_0 : complex
         Leading-order quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
-    gamma = -(N ** 2 + N + 2.0) / (N * (N + 1) * (N + 2))
-    result = 2.0 * nf * gamma
+    gamma = -(N ** 2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
+    result = 2.0 * constants.TR * 2.0 * nf * gamma
     return result
 
 
 @nb.njit
-def gamma_gq_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
+def gamma_gq_0(N):
     """
     Computes the leading-order gluon-quark anomalous dimension
 
@@ -79,12 +67,6 @@ def gamma_gq_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
     ----------
       N : complex
         Mellin moment
-      nf : int
-        Number of active flavours
-      CA : float
-        Casimir constant of adjoint representation
-      CF : float
-        Casimir constant of fundamental representation
 
     Returns
     -------
@@ -92,12 +74,12 @@ def gamma_gq_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
         Leading-order gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
     """
     gamma = -(N ** 2 + N + 2.0) / (N * (N + 1.0) * (N - 1.0))
-    result = 2.0 * CF * gamma
+    result = 2.0 * constants.CF * gamma
     return result
 
 
 @nb.njit
-def gamma_gg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
+def gamma_gg_0(N, s1, nf: int):
     """
     Computes the leading-order gluon-gluon anomalous dimension
 
@@ -107,25 +89,23 @@ def gamma_gg_0(N, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
     ----------
       N : complex
         Mellin moment
+      s1 : complex
+        S1(N)
       nf : int
         Number of active flavours
-      CA : float
-        Casimir constant of adjoint representation
-      CF : float
-        Casimir constant of fundamental representation
 
     Returns
     -------
       gamma_gg_0 : complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    gamma = S1(N) - 1 / N / (N - 1) - 1 / (N + 1) / (N + 2)
-    result = CA * (4.0 * gamma - 11.0 / 3.0) + 2.0 / 3.0 * nf
+    gamma = s1 - 1.0 / N / (N - 1.0) - 1.0 / (N + 1.0) / (N + 2.0)
+    result = constants.CA * (4.0 * gamma - 11.0 / 3.0) + 4.0 / 3.0 * constants.TR * nf
     return result
 
 
 @nb.njit
-def gamma_singlet_0(N, nf: int, CA: float, CF: float):
+def gamma_singlet_0(N, s1, nf: int):
     r"""
       Computes the leading-order singlet anomalous dimension matrix
 
@@ -139,12 +119,10 @@ def gamma_singlet_0(N, nf: int, CA: float, CF: float):
       ----------
         N : complex
           Mellin moment
+        s1 : complex
+          S1(N)
         nf : int
           Number of active flavours
-        CA : float
-          Casimir constant of adjoint representation
-        CF : float
-          Casimir constant of fundamental representation
 
       Returns
       -------
@@ -158,9 +136,9 @@ def gamma_singlet_0(N, nf: int, CA: float, CF: float):
         gamma_gq_0 : :math:`\gamma_{gq}^{(0)}`
         gamma_gg_0 : :math:`\gamma_{gg}^{(0)}`
     """
-    gamma_qq = gamma_ns_0(N, nf, CA, CF)
-    gamma_qg = gamma_qg_0(N, nf, CA, CF)
-    gamma_gq = gamma_gq_0(N, nf, CA, CF)
-    gamma_gg = gamma_gg_0(N, nf, CA, CF)
+    gamma_qq = gamma_ns_0(N, s1)
+    gamma_qg = gamma_qg_0(N, nf)
+    gamma_gq = gamma_gq_0(N)
+    gamma_gg = gamma_gg_0(N, s1, nf)
     gamma_S_0 = np.array([[gamma_qq, gamma_qg], [gamma_gq, gamma_gg]], np.complex_)
     return gamma_S_0

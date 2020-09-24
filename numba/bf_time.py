@@ -1,21 +1,26 @@
 # -*- coding: utf-8 -*-
 import timeit
+import sys
 import numpy as np
 
 # import numba as nb
 # import scipy.integrate as sint
 # import scipy.special as sspec
-import eko
-import eko.interpolation
 
 
 def test_grid(n_low, n_mid, deg):
+    import eko.interpolation
     xg = eko.interpolation.make_grid(n_low, n_mid, x_min=1e-1)
-    bfd = eko.interpolation.InterpolatorDispatcher.from_dict(
-        dict(interpolation_xgrid=xg, interpolation_polynomial_degree=deg)
-    )
-    t = timeit.timeit(lambda: [bf(1, np.log(1e-2)) for bf in bfd], number=5)
-    return t / len(xg)
+    def f():
+        xg = eko.interpolation.make_grid(n_low, n_mid, x_min=1e-1)
+        bfd = eko.interpolation.InterpolatorDispatcher.from_dict(
+            dict(interpolation_xgrid=xg, interpolation_polynomial_degree=deg)
+        )
+        return [bf(1, np.log(1e-2),bf.areas_representation) for bf in bfd]
+    t = timeit.repeat(f, number=1, repeat=5)
+    t = np.array(t) / len(xg)
+    del sys.modules["eko.interpolation"]
+    return t.mean(), t.var()
 
 
 print("test distribution of points matters")

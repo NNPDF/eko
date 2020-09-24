@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 """
-    This file contains the next-to-leading-order Altarelli-Parisi splitting kernels.
+This file contains the next-to-leading-order Altarelli-Parisi splitting kernels.
 
-    These expression have been obtained using the procedure described in the
-    `wiki <https://github.com/N3PDF/eko/wiki/Parse-NLO-expressions>`_
-    involving ``FormGet`` :cite:`Hahn:2016ebn`.
+These expression have been obtained using the procedure described in the
+`wiki <https://github.com/N3PDF/eko/wiki/Parse-NLO-expressions>`_
+involving ``FormGet`` :cite:`Hahn:2016ebn`.
 """
 
 import numpy as np
 import numba as nb
 
 from eko import ekomath
+from eko import constants
 
 
 @nb.njit
-def gamma_nsm_1(n, nf: int, CA: float, CF: float):
+def gamma_nsm_1(n, nf: int):
     """
     Computes the next-to-leading-order valence-like non-singlet anomalous dimension.
 
@@ -26,10 +27,6 @@ def gamma_nsm_1(n, nf: int, CA: float, CF: float):
             Mellin moment
         nf : int
             Number of active flavours
-        CA : float
-            Casimir constant of adjoint representation
-        CF : float
-            Casimir constant of fundamental representation
 
     Returns
     -------
@@ -52,12 +49,16 @@ def gamma_nsm_1(n, nf: int, CA: float, CF: float):
     gqq1m_cfcf = -32*g3n + (24 - n*(-32 + 3*n*(-8 + n*(3 + n)*(3 + np.power(n,2)))))/(2.*np.power(n,3)*np.power(1 + n,3)) + (12 - 8/n + 8/(1 + n))*S2 + S1*(-24/np.power(n,2) - 8/np.power(1 + n,2) + 16*S2 - 16*Sp2m) + (8*Sp2m)/(n + np.power(n,2)) - 4*Sp3m - 20*zeta3 + zeta2*(-32*S1 + 32*Sp1m + 32*(1/n + np.log(2))) # pylint: disable=line-too-long
     gqq1m_cfnf = (-12 + n*(20 + n*(47 + 3*n*(2 + n))))/(9.*np.power(n,2)*np.power(1 + n,2)) - (40*S1)/9. + (8*S2)/3. # pylint: disable=line-too-long
     # fmt: on
-    result = CF * (CA * gqq1m_cfca + CF * gqq1m_cfcf + nf * gqq1m_cfnf)
+    result = constants.CF * (
+        (constants.CA * gqq1m_cfca)
+        + (constants.CF * gqq1m_cfcf)
+        + (2.0 * constants.TR * nf * gqq1m_cfnf)
+    )
     return result
 
 
 @nb.njit
-def gamma_nsp_1(n, nf: int, CA: float, CF: float):
+def gamma_nsp_1(n, nf: int):
     """
     Computes the next-to-leading-order singlet-like non-singlet anomalous dimension.
 
@@ -69,10 +70,6 @@ def gamma_nsp_1(n, nf: int, CA: float, CF: float):
             Mellin moment
         nf : int
             Number of active flavours
-        CA : float
-            Casimir constant of adjoint representation
-        CF : float
-            Casimir constant of fundamental representation
 
     Returns
     -------
@@ -93,12 +90,16 @@ def gamma_nsp_1(n, nf: int, CA: float, CF: float):
     gqq1p_cfcf = 32*g3n - (8 + n*(32 + n*(40 + 3*n*(3 + n)*(3 + np.power(n,2)))))/(2.*np.power(n,3)*np.power(1 + n,3)) + (12 - 8/n + 8/(1 + n))*S2 + S1*(40/np.power(n,2) - 8/np.power(1 + n,2) + 16*S2 - 16*Sp2p) + (8*Sp2p)/(n + np.power(n,2)) - 4*Sp3p - 20*zeta3 + zeta2*(-32*S1 + 32*Sp1p + 32*(-(1/n) + np.log(2))) # pylint: disable=line-too-long
     gqq1p_cfnf = (-12 + n*(20 + n*(47 + 3*n*(2 + n))))/(9.*np.power(n,2)*np.power(1 + n,2)) - (40*S1)/9. + (8*S2)/3. # pylint: disable=line-too-long
     # fmt: on
-    result = CF * (CA * gqq1p_cfca + CF * gqq1p_cfcf + nf * gqq1p_cfnf)
+    result = constants.CF * (
+        (constants.CA * gqq1p_cfca)
+        + (constants.CF * gqq1p_cfcf)
+        + (2.0 * constants.TR * nf * gqq1p_cfnf)
+    )
     return result
 
 
 @nb.njit
-def gamma_ps_1(n, nf: int, CA: float, CF: float):  # pylint: disable=unused-argument
+def gamma_ps_1(n, nf: int):
     """
     Computes the next-to-leading-order pure-singlet quark-quark anomalous dimension.
 
@@ -110,10 +111,6 @@ def gamma_ps_1(n, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
             Mellin moment
         nf : int
             Number of active flavours
-        CA : float
-            Casimir constant of adjoint representation
-        CF : float
-            Casimir constant of fundamental representation
 
     Returns
     -------
@@ -124,12 +121,12 @@ def gamma_ps_1(n, nf: int, CA: float, CF: float):  # pylint: disable=unused-argu
     # fmt: off
     gqqps1_nfcf = (-4*(2 + n*(5 + n))*(4 + n*(4 + n*(7 + 5*n))))/((-1 + n)*np.power(n,3)*np.power(1 + n,3)*np.power(2 + n,2)) # pylint: disable=line-too-long
     # fmt: on
-    result = nf * CF * gqqps1_nfcf
+    result = 2.0 * constants.TR * nf * constants.CF * gqqps1_nfcf
     return result
 
 
 @nb.njit
-def gamma_qg_1(n, nf: int, CA: float, CF: float):
+def gamma_qg_1(n, nf: int):
     """
     Computes the next-to-leading-order quark-gluon singlet anomalous dimension.
 
@@ -141,10 +138,6 @@ def gamma_qg_1(n, nf: int, CA: float, CF: float):
             Mellin moment
         nf : int
             Number of active flavours
-        CA : float
-            Casimir constant of adjoint representation
-        CF : float
-            Casimir constant of fundamental representation
 
     Returns
     -------
@@ -159,12 +152,14 @@ def gamma_qg_1(n, nf: int, CA: float, CF: float):
     gqg1_nfca = (-4*(16 + n*(64 + n*(104 + n*(128 + n*(85 + n*(36 + n*(25 + n*(15 + n*(6 + n))))))))))/((-1 + n)*np.power(n,3)*np.power(1 + n,3)*np.power(2 + n,3)) - (16*(3 + 2*n)*S1)/np.power(2 + 3*n + np.power(n,2),2) + (4*(2 + n + np.power(n,2))*np.power(S1,2))/(n*(2 + 3*n + np.power(n,2))) - (4*(2 + n + np.power(n,2))*S2)/(n*(2 + 3*n + np.power(n,2))) + (4*(2 + n + np.power(n,2))*Sp2p)/(n*(2 + 3*n + np.power(n,2))) # pylint: disable=line-too-long
     gqg1_nfcf = (-2*(4 + n*(8 + n*(1 + n)*(25 + n*(26 + 5*n*(2 + n))))))/(np.power(n,3)*np.power(1 + n,3)*(2 + n)) + (8*S1)/np.power(n,2) - (4*(2 + n + np.power(n,2))*np.power(S1,2))/(n*(2 + 3*n + np.power(n,2))) + (4*(2 + n + np.power(n,2))*S2)/(n*(2 + 3*n + np.power(n,2))) # pylint: disable=line-too-long
     # fmt: on
-    result = nf * (CA * gqg1_nfca + CF * gqg1_nfcf)
+    result = (
+        2.0 * constants.TR * nf * (constants.CA * gqg1_nfca + constants.CF * gqg1_nfcf)
+    )
     return result
 
 
 @nb.njit
-def gamma_gq_1(n, nf: int, CA: float, CF: float):
+def gamma_gq_1(n, nf: int):
     """
     Computes the next-to-leading-order gluon-quark singlet anomalous dimension.
 
@@ -176,10 +171,6 @@ def gamma_gq_1(n, nf: int, CA: float, CF: float):
             Mellin moment
         nf : int
             Number of active flavours
-        CA : float
-            Casimir constant of adjoint representation
-        CF : float
-            Casimir constant of fundamental representation
 
     Returns
     -------
@@ -195,12 +186,16 @@ def gamma_gq_1(n, nf: int, CA: float, CF: float):
     ggq1_cfca = (-4*(144 + n*(432 + n*(-152 + n*(-1304 + n*(-1031 + n*(695 + n*(1678 + n*(1400 + n*(621 + 109*n))))))))))/(9.*np.power(n,3)*np.power(1 + n,3)*np.power(-2 + n + np.power(n,2),2)) + (4*(-12 + n*(-22 + 41*n + 17*np.power(n,3)))*S1)/(3.*np.power(-1 + n,2)*np.power(n,2)*(1 + n)) + ((8 + 4*n + 4*np.power(n,2))*np.power(S1,2))/(n - np.power(n,3)) + ((8 + 4*n + 4*np.power(n,2))*S2)/(n - np.power(n,3)) + (4*(2 + n + np.power(n,2))*Sp2p)/(n*(-1 + np.power(n,2))) # pylint: disable=line-too-long
     ggq1_cfnf = (8*(16 + n*(27 + n*(13 + 8*n))))/(9.*(-1 + n)*n*np.power(1 + n,2)) - (8*(2 + n + np.power(n,2))*S1)/(3.*n*(-1 + np.power(n,2))) # pylint: disable=line-too-long
     # fmt: on
-    result = CF * (CA * ggq1_cfca + CF * ggq1_cfcf + nf * ggq1_cfnf)
+    result = constants.CF * (
+        (constants.CA * ggq1_cfca)
+        + (constants.CF * ggq1_cfcf)
+        + (2.0 * constants.TR * nf * ggq1_cfnf)
+    )
     return result
 
 
 @nb.njit
-def gamma_gg_1(n, nf: int, CA: float, CF: float):
+def gamma_gg_1(n, nf: int):
     """
     Computes the next-to-leading-order gluon-gluon singlet anomalous dimension.
 
@@ -212,10 +207,6 @@ def gamma_gg_1(n, nf: int, CA: float, CF: float):
             Mellin moment
         nf : int
             Number of active flavours
-        CA : float
-            Casimir constant of adjoint representation
-        CF : float
-            Casimir constant of fundamental representation
 
     Returns
     -------
@@ -235,12 +226,14 @@ def gamma_gg_1(n, nf: int, CA: float, CF: float):
     ggg1_canf = (8*(6 + n*(1 + n)*(28 + n*(1 + n)*(13 + 3*n*(1 + n)))))/(9.*np.power(n,2)*np.power(1 + n,2)*(-2 + n + np.power(n,2))) - (40*S1)/9. # pylint: disable=line-too-long
     ggg1_cfnf = (2*(-8 + n*(-8 + n*(-10 + n*(-22 + n*(-3 + n*(6 + n*(8 + n*(4 + n)))))))))/(np.power(n,3)*np.power(1 + n,3)*(-2 + n + np.power(n,2))) # pylint: disable=line-too-long
     # fmt: on
-    result = CA * CA * ggg1_caca + nf * (CA * ggg1_canf + CF * ggg1_cfnf)
+    result = constants.CA * constants.CA * ggg1_caca + 2.0 * constants.TR * nf * (
+        constants.CA * ggg1_canf + constants.CF * ggg1_cfnf
+    )
     return result
 
 
 @nb.njit
-def gamma_singlet_1(N, nf: int, CA: float, CF: float):
+def gamma_singlet_1(N, nf: int):
     r"""
       Computes the next-leading-order singlet anomalous dimension matrix
 
@@ -256,10 +249,6 @@ def gamma_singlet_1(N, nf: int, CA: float, CF: float):
           Mellin moment
         nf : int
           Number of active flavours
-        CA : float
-          Casimir constant of adjoint representation
-        CF : float
-          Casimir constant of fundamental representation
 
       Returns
       -------
@@ -274,9 +263,9 @@ def gamma_singlet_1(N, nf: int, CA: float, CF: float):
         gamma_gq_1 : :math:`\gamma_{gq}^{(1)}`
         gamma_gg_1 : :math:`\gamma_{gg}^{(1)}`
     """
-    gamma_qq = gamma_nsp_1(N, nf, CA, CF) + gamma_ps_1(N, nf, CA, CF)
-    gamma_qg = gamma_qg_1(N, nf, CA, CF)
-    gamma_gq = gamma_gq_1(N, nf, CA, CF)
-    gamma_gg = gamma_gg_1(N, nf, CA, CF)
+    gamma_qq = gamma_nsp_1(N, nf) + gamma_ps_1(N, nf)
+    gamma_qg = gamma_qg_1(N, nf)
+    gamma_gq = gamma_gq_1(N, nf)
+    gamma_gg = gamma_gg_1(N, nf)
     gamma_S_0 = np.array([[gamma_qq, gamma_qg], [gamma_gq, gamma_gg]], np.complex_)
     return gamma_S_0

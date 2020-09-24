@@ -180,8 +180,8 @@ def rotate_output(in_evols):
     out = {}
     for j, pid in enumerate(flavor_basis_pids):
         # do we actually have to do smth?
-        is_non_trivial_ph = (pid == 22 and "ph" not in trivial_dists)
-        is_non_trivial_q = (-final_valence_pid <= pid <= final_quark_pid)
+        is_non_trivial_ph = pid == 22 and "ph" not in trivial_dists
+        is_non_trivial_q = -final_valence_pid <= pid <= final_quark_pid
         if is_non_trivial_ph or is_non_trivial_q or pid == 21:
             flavor_map = rotate_evolution_to_flavor[j]
             out[pid] = flavor_map @ evol_list

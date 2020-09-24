@@ -5,11 +5,11 @@ r"""
     See :doc:`Operator overview </Code/Operators>`.
 """
 
+import time
 import logging
 from numbers import Number
 
 import numpy as np
-import numba as nb
 
 import eko.mellin as mellin
 
@@ -76,7 +76,7 @@ class OperatorMember:
 
         Parameters
         ----------
-            pdf_member : np.array
+            pdf_member : numpy.ndarray
                 pdf vector
 
         Returns
@@ -412,6 +412,27 @@ class Operator:
                 new_ops[key] = op
         return PhysicalOperator(new_ops, q2_final)
 
+    def labels(self):
+        """
+        Compute necessary sector labels to compute.
+
+        Returns
+        -------
+            labels : list(str)
+                sector labels
+        """
+        order = self.master.grid.managers["kernel_dispatcher"].config["order"]
+        labels = []
+        # NS sector is dynamic
+        if not self.master.grid.config["debug_skip_non_singlet"]:
+            labels.append("NS_p")
+            if order > 0:
+                labels.append("NS_m")
+        # singlet sector is fixed
+        if not self.master.grid.config["debug_skip_singlet"]:
+            labels.extend(["S_qq", "S_qg", "S_gq", "S_gg"])
+        return labels
+
     def compute(self):
         """ compute the actual operators (i.e. run the integrations) """
         # Generic parameters
@@ -424,45 +445,42 @@ class Operator:
             self.op_members[n] = OperatorMember(
                 np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size)), n
             )
-
-        # iterate output grid
+        tot_start_time = time.perf_counter()
+        # setup KernelDispatcher
         logger.info("Evolution: computing operators - 0/%d", grid_size)
         sc = self.master.grid.managers["strong_coupling"]
         a1 = sc.a_s(self.q2_to)
         a0 = sc.a_s(self.q2_from)
+        kd = self.master.grid.managers["kernel_dispatcher"]
+        kd.init_loops(self.master.nf, a1, a0)
+        # determine labels
+        labels = self.labels()
+        # iterate output grid
         for k, logx in enumerate(np.log(self.xgrid)):
+            start_time = time.perf_counter()
+            kd.var["logx"] = logx
             # iterate basis functions
-            for l, bf_kernels in enumerate(self.master.kernels):
+            for l, bf in enumerate(kd.interpol_dispatcher):
+                kd.var["areas"] = bf.areas_representation
                 # iterate sectors
-                for label, ker in bf_kernels.items():
-                    extra_args = nb.typed.List()
-                    extra_args.append(logx)
-                    extra_args.append(a1)
-                    extra_args.append(a0)
-                    # Path parameters
-                    if label in singlet_names:
-                        # skip?
-                        if self.master.grid.config["debug_skip_singlet"]:
-                            continue
-                        extra_args.append(0.4 * 16 / (1.0 - logx))
-                        extra_args.append(1.0)
-                    else:
-                        # skip?
-                        if self.master.grid.config["debug_skip_non_singlet"]:
-                            continue
-                        extra_args.append(0.5)
-                        extra_args.append(0.0)
+                for label in labels:
+                    kd.obj.mode = label
                     # compute and set
                     val, err = mellin.inverse_mellin_transform(
-                        ker, self._mellin_cut, extra_args
+                        kd.obj, self._mellin_cut, []
                     )
                     self.op_members[label].value[k][l] = val
                     self.op_members[label].error[k][l] = err
 
-            logger.info("Evolution: computing operators - %d/%d", k + 1, grid_size)
+            logger.info(
+                "Evolution: computing operators - %d/%d took: %f s",
+                k + 1,
+                grid_size,
+                time.perf_counter() - start_time,
+            )
 
         # copy non-singlet kernels, if necessary
-        order = self.master.grid.managers["kernel_dispatcher"].config["order"]
+        order = kd.config["order"]
         if order == 0:  # in LO +=-=v
             for label in ["NS_v", "NS_m"]:
                 self.op_members[label].value = self.op_members["NS_p"].value.copy()
@@ -470,3 +488,5 @@ class Operator:
         elif order == 1:  # in NLO -=v
             self.op_members["NS_v"].value = self.op_members["NS_m"].value.copy()
             self.op_members["NS_v"].error = self.op_members["NS_m"].error.copy()
+        # closing comment
+        logger.info("Evolution: Total time %f s", time.perf_counter() - tot_start_time)

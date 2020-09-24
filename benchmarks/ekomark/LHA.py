@@ -125,11 +125,6 @@ class LHABenchmarkPaper:
         """
         Load the reference data from the paper.
 
-        Parameters
-        ----------
-            fns : str
-                flavor number scheme
-
         Returns
         -------
             ref : dict
@@ -158,6 +153,9 @@ class LHABenchmarkPaper:
             ret : dict
                 DGLAP result
         """
+        Q2grid = self.setup["Q2grid"]
+        if not np.allclose(Q2grid, [1e4]):
+            raise ValueError("Q2grid has to be [1e4]")
         ret = run_dglap(self.setup)
         self._post_process(ret)
         return ret
@@ -176,12 +174,13 @@ class LHABenchmarkPaper:
             firstPage : matplotlib.pyplot.Figure
                 figure
         """
-        firstPage = plt.figure(figsize=(10, 8))
+        firstPage = plt.figure(figsize=(15, 12))
         firstPage.text(0.0, 1, "Setup:", size=14, ha="left", va="top")
         setup = copy.deepcopy(output)
+        # suppress the operators
         del setup["Q2grid"]
         str_stream = io.StringIO()
-        pprint.pprint(setup, stream=str_stream)
+        pprint.pprint(setup, stream=str_stream,width=380)
         firstPage.text(0.0, 0.95, str_stream.getvalue(), size=12, ha="left", va="top")
         return firstPage
 
