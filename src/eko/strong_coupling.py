@@ -264,7 +264,7 @@ class StrongCoupling:
         mod_ev = setup.get("ModEv", "EXA")
         if mod_ev == "EXA":
             method = "exact"
-        elif mod_ev in ["TRN", "EXP"]:
+        elif mod_ev in ["TRN", "EXP", "perturbative-expanded"]:
             method = "expanded"
         else:
             raise ValueError(f"Unknown evolution mode {mod_ev}")

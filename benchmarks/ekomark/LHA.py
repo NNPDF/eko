@@ -180,7 +180,7 @@ class LHABenchmarkPaper:
         # suppress the operators
         del setup["Q2grid"]
         str_stream = io.StringIO()
-        pprint.pprint(setup, stream=str_stream,width=280)
+        pprint.pprint(setup, stream=str_stream,width=380)
         firstPage.text(0.0, 0.95, str_stream.getvalue(), size=12, ha="left", va="top")
         return firstPage
 

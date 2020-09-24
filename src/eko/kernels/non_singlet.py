@@ -4,8 +4,10 @@ import numpy as np
 
 import numba as nb
 
-from eko import strong_coupling as sc
+from .. import strong_coupling as sc
+
 from . import evolution_integrals as ei
+from . import utils
 
 
 @nb.njit
@@ -15,7 +17,7 @@ def lo_exact(gamma_ns, a1, a0, nf):
 
     Parameters
     ----------
-        gamma_ns : list(complex)
+        gamma_ns : numpy.ndarray
             non-singlet anomalous dimensions
 
     Returns
@@ -33,7 +35,7 @@ def nlo_exact(gamma_ns, a1, a0, nf):
 
     Parameters
     ----------
-        gamma_ns : list(complex)
+        gamma_ns : numpy.ndarray
             non-singlet anomalous dimensions
 
     Returns
@@ -53,7 +55,7 @@ def nlo_expanded(gamma_ns, a1, a0, nf):
 
     Parameters
     ----------
-        gamma_ns : list(complex)
+        gamma_ns : numpy.ndarray
             non-singlet anomalous dimensions
 
     Returns
@@ -74,7 +76,7 @@ def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
 
     Parameters
     ----------
-        gamma_ns : list(complex)
+        gamma_ns : numpy.ndarray
             non-singlet anomalous dimensions
 
     Returns
@@ -82,12 +84,12 @@ def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
         e_ns^1 : complex
             non-singlet next-to-leading order truncated EKO
     """
-    a_steps = np.geomspace(a0, a1, ev_op_iterations)
+    a_steps = utils.geomspace(a0, a1, ev_op_iterations)
     b1 = sc.b(1, nf)
-    e0 = lo_exact(gamma_ns, a1, a0, nf)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:
+        e0 = lo_exact(gamma_ns, ah, al, nf)
         e *= e0 * (1.0 + ei.j11_expanded(ah, al, nf) * (gamma_ns[1] - b1 * gamma_ns[0]))
         al = ah
     return e
@@ -99,7 +101,7 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
 
     Parameters
     ----------
-        gamma_ns : list(complex)
+        gamma_ns : numpy.ndarray
             non-singlet anomalous dimensions
 
     Returns
@@ -107,13 +109,13 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
         e_ns^1 : complex
             non-singlet next-to-leading order ordered-truncated EKO
     """
-    a_steps = np.geomspace(a0, a1, ev_op_iterations)
+    a_steps = utils.geomspace(a0, a1, ev_op_iterations)
     beta0 = sc.beta(0, nf)
     b1 = sc.b(1, nf)
-    e0 = lo_exact(gamma_ns, a1, a0, nf)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:
+        e0 = lo_exact(gamma_ns, ah, al, nf)
         e *= (
             e0
             * (1.0 + ah / beta0 * (gamma_ns[1] - b1 * gamma_ns[0]))
