@@ -262,9 +262,17 @@ class StrongCoupling:
         q2_alpha = pow(setup["Qref"], 2)
         order = setup["PTO"]
         mod_ev = setup.get("ModEv", "EXA")
-        if mod_ev == "EXA":
+        if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
             method = "exact"
-        elif mod_ev in ["TRN", "EXP", "perturbative-expanded"]:
+        elif mod_ev in [
+            "TRN",
+            "truncated",
+            "ordered-truncated",
+            "EXP",
+            "iterate-expanded",
+            "decompose-expanded",
+            "perturbative-expanded",
+        ]:
             method = "expanded"
         else:
             raise ValueError(f"Unknown evolution mode {mod_ev}")

@@ -115,6 +115,7 @@ def nlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations):
         )
         ek = ad.exp_singlet(ln)[0]
         e = ek @ e
+        al = ah
     return e
 
 
