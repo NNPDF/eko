@@ -24,17 +24,11 @@ jobs:
         pip install .
     - name: Lint with pylint
       run: |
-        pip list
         pip install pylint
-        pip list
-        ls
-        ls src -la
         # Search for actual errors
         pylint src/eko -E
-        echo "bla"
-        pylint src/ -E
         # For warnings instead return always zero
-        pylint src/ --exit-zero
+        pylint src/eko --exit-zero
     - name: Test with pytest
       run: |
         # add test packages
