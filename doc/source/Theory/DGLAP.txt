@@ -137,8 +137,8 @@ In NLO we provide different strategies to define the EKO:
 
 - ``method in ['iterate-exact', 'decompose-exact', 'perturbative-exact']``: use the *exact* solution as defined above
 - ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* LO solution and substitute
-  :math:`j^{(1,1)}(a_s,a_s^0) \to j^{(1,1)}(a_s,a_s^0) = \frac 1 {\beta_0}(a_s - a_s^0)`
-  and :math:`j^{(0,1)}(a_s,a_s^0) \to j^{(0,1)}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}(a_s,a_s^0)`
+  :math:`j^{(1,1)}(a_s,a_s^0) \to j^{(1,1)}_{exp}(a_s,a_s^0) = \frac 1 {\beta_0}(a_s - a_s^0)`
+  and :math:`j^{(0,1)}(a_s,a_s^0) \to j^{(0,1)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}_{exp}(a_s,a_s^0)`
 - ``method = 'ordered-truncated'``: expanding the *argument* of the exponential of the new term but keeping the order we obtain:
 
 .. math::

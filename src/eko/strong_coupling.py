@@ -66,6 +66,8 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
             )
 
     return res
+
+
 class StrongCoupling:
     r"""
         Computes the strong coupling constant :math:`a_s`.
@@ -227,7 +229,7 @@ class StrongCoupling:
         """
         # in LO fallback to expanded, as this is the full solution
         if self._order == 0:
-            return as_expanded(self._order,as_ref, nf, scale_from, scale_to)
+            return as_expanded(self._order, as_ref, nf, scale_from, scale_to)
         # otherwise rescale the RGE to run in terms of
         # u = beta0 * ln(scale_to/scale_from)
         beta0 = beta(0, nf)
@@ -277,7 +279,7 @@ class StrongCoupling:
         if self._method == "exact":
             as_new = self._compute_exact(as_ref, nf, scale_from, scale_to)
         else:
-            as_new = as_expanded(self._order,as_ref, nf, scale_from, scale_to)
+            as_new = as_expanded(self._order, as_ref, nf, scale_from, scale_to)
         return as_new
 
     def a_s(self, scale_to, fact_scale=None):

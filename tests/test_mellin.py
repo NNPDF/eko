@@ -7,6 +7,7 @@ import numpy as np
 
 import eko.mellin as mellin
 
+
 def check_path_derivation(path, jacobian, extra_args):
     """ Check the derivatives of the path """
 
@@ -15,9 +16,9 @@ def check_path_derivation(path, jacobian, extra_args):
         # compute numeric derivative + extrapolation
         num = []
         for eps in epss:
-            derivative = (
-                path(t0 + eps, *extra_args) - path(t0 - eps, *extra_args)
-            ) / (2.0 * eps)
+            derivative = (path(t0 + eps, *extra_args) - path(t0 - eps, *extra_args)) / (
+                2.0 * eps
+            )
             num.append(derivative)
         ex = jacobian(t0, *extra_args)
         f = np.polyfit(epss, num, 2)
@@ -65,9 +66,7 @@ def test_get_path_Talbot():
         check_path_symmetry(path, jacobian, p)
         # assert special points
         assert_almost_equal(path(0.5, *p), p[0] + p[1])
-        assert_almost_equal(
-            jacobian(0.5, *p), np.complex(0, p[0] * 2.0 * np.pi)
-        )
+        assert_almost_equal(jacobian(0.5, *p), np.complex(0, p[0] * 2.0 * np.pi))
 
 
 def test_get_path_line():
@@ -89,9 +88,9 @@ def test_get_path_edge():
 def test_path_similarity():
     # these two should be identical
     p1, j1 = mellin.get_path_line()
-    a1 = [10.0,1.0]
+    a1 = [10.0, 1.0]
     p2, j2 = mellin.get_path_edge()
-    a2 = [20.0,1.0,np.pi / 2.0]
+    a2 = [20.0, 1.0, np.pi / 2.0]
     for t in [0.1, 0.2, 0.3, 0.4, 0.6]:
         assert_almost_equal(p1(t, *a1), p2(t, *a2))
         assert_almost_equal(j1(t, *a1), j2(t, *a2))

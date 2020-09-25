@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+"""Some utility functions"""
 
 import numpy as np
 
@@ -8,4 +8,21 @@ import numba as nb
 
 @nb.njit
 def geomspace(start, end, num):
+    """
+    Numba port of :func:`numpy.geomspace`.
+
+    Parameters
+    ----------
+        start : float
+            inital value
+        end : float
+            final value
+        num : int
+            steps
+
+    Returns
+    -------
+        geomspace : numpy.ndarray
+            logarithmic spaced list between `start` and `end`
+    """
     return np.exp(np.linspace(np.log(start), np.log(end), num))

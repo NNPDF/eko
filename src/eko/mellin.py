@@ -167,11 +167,11 @@ def get_path_line():
     """
 
     @nb.njit
-    def path(t, m,c):
+    def path(t, m, c):
         return np.complex(c, m * (2 * t - 1))
 
     @nb.njit
-    def jac(j, m,_c):
+    def jac(j, m, _c):
         return np.complex(0, m * 2)
 
     return path, jac

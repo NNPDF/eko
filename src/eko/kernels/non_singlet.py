@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Colletion of non-singlet EKOs.
+"""
 
 import numpy as np
 
@@ -19,6 +22,12 @@ def lo_exact(gamma_ns, a1, a0, nf):
     ----------
         gamma_ns : numpy.ndarray
             non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
 
     Returns
     -------
@@ -37,6 +46,12 @@ def nlo_exact(gamma_ns, a1, a0, nf):
     ----------
         gamma_ns : numpy.ndarray
             non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
 
     Returns
     -------
@@ -57,6 +72,12 @@ def nlo_expanded(gamma_ns, a1, a0, nf):
     ----------
         gamma_ns : numpy.ndarray
             non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
 
     Returns
     -------
@@ -78,6 +99,14 @@ def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     ----------
         gamma_ns : numpy.ndarray
             non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
 
     Returns
     -------
@@ -103,6 +132,14 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     ----------
         gamma_ns : numpy.ndarray
             non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
 
     Returns
     -------

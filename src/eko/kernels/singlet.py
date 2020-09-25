@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Colletion of singlet EKOs.
+"""
 
 import numpy as np
 
@@ -18,12 +21,18 @@ def lo_exact(gamma_singlet, a1, a0, nf):
 
     Parameters
     ----------
-        gamma_singlet : list(numpy.ndarray)
+        gamma_singlet : numpy.ndarray
             singlet anomalous dimensions matrices
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
 
     Returns
     -------
-        e_s^0 : float
+        e_s^0 : numpy.ndarray
             singlet leading order exact EKO
     """
     return ad.exp_singlet(gamma_singlet[0] * ei.j00(a1, a0, nf))[0]
@@ -38,11 +47,21 @@ def nlo_decompose(gamma_singlet, a1, a0, nf, j01, j11):
     ----------
         gamma_singlet : numpy.ndarray
             singlet anomalous dimensions matrices
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        j01 : float
+            LO-NLO evolution integral
+        j11 : float
+            NLO-NLO evolution integral
 
     Returns
     -------
-        e_s^1 : complex
-            non-singlet next-to-leading order decompose EKO
+        e_s^1 : numpy.ndarray
+            singlet next-to-leading order decompose EKO
     """
     return ad.exp_singlet(
         gamma_singlet[0] * j01(a1, a0, nf) + gamma_singlet[1] * j11(a1, a0, nf)
@@ -56,13 +75,19 @@ def nlo_decompose_exact(gamma_singlet, a1, a0, nf):
 
     Parameters
     ----------
-        gamma_singlet : list(numpy.ndarray)
+        gamma_singlet : numpy.ndarray
             singlet anomalous dimensions matrices
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
 
     Returns
     -------
-        e_s^1 : complex
-            non-singlet next-to-leading order decompose-exact EKO
+        e_s^1 : numpy.ndarray
+            singlet next-to-leading order decompose-exact EKO
     """
     return nlo_decompose(gamma_singlet, a1, a0, nf, ei.j01_exact, ei.j11_exact)
 
@@ -74,13 +99,19 @@ def nlo_decompose_expanded(gamma_singlet, a1, a0, nf):
 
     Parameters
     ----------
-        gamma_singlet : list(numpy.ndarray)
+        gamma_singlet : numpy.ndarray
             singlet anomalous dimensions matrices
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
 
     Returns
     -------
-        e_s^1 : complex
-            non-singlet next-to-leading order decompose-expanded EKO
+        e_s^1 : numpy.ndarray
+            singlet next-to-leading order decompose-expanded EKO
     """
     return nlo_decompose(gamma_singlet, a1, a0, nf, ei.j01_expanded, ei.j11_expanded)
 
@@ -92,13 +123,21 @@ def nlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations):
 
     Parameters
     ----------
-        gamma_singlet : list(numpy.ndarray)
+        gamma_singlet : numpy.ndarray
             singlet anomalous dimensions matrices
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
 
     Returns
     -------
         e_s^1 : complex
-            non-singlet next-to-leading order iterated (exact) EKO
+            singlet next-to-leading order iterated (exact) EKO
     """
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
     beta0 = beta.beta(0, nf)
@@ -120,14 +159,24 @@ def nlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations):
 
 
 @nb.njit
-def nlo_r(gamma_singlet, nf, ev_op_max_order, is_exact):
-    """
+def r_vec(gamma_singlet, nf, ev_op_max_order, is_exact):
+    r"""
     Compute singlet R vector for perturbative mode.
+
+    .. math::
+        \frac{d}{da_s} \dSV{1}{a_s} &= \frac{\mathbf R (a_s)}{a_s} \cdot \dSV{1}{a_s}\\
+        \mathbf R (a_s) &= \sum\limits_{k=0} a_s^k \mathbf R_{k}
 
     Parameters
     ----------
         gamma_singlet : numpy.ndarray
             singlet anomalous dimensions matrices
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
+        is_exact : boolean
+            fill up r-vector?
 
     Returns
     -------
@@ -156,13 +205,21 @@ def nlo_r_exact(gamma_singlet, nf, ev_op_max_order):
     ----------
         gamma_singlet : list(numpy.ndarray)
             singlet anomalous dimensions matrices
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
 
     Returns
     -------
         r : np.ndarray
             R vector
+
+    See Also
+    --------
+        r_vec : compute R vector
     """
-    return nlo_r(gamma_singlet, nf, ev_op_max_order, True)
+    return r_vec(gamma_singlet, nf, ev_op_max_order, True)
 
 
 @nb.njit
@@ -174,24 +231,38 @@ def nlo_r_expanded(gamma_singlet, nf, ev_op_max_order):
     ----------
         gamma_singlet : list(numpy.ndarray)
             singlet anomalous dimensions matrices
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
 
     Returns
     -------
         r : np.ndarray
             R vector
+
+    See Also
+    --------
+        r_vec : compute R vector
     """
-    return nlo_r(gamma_singlet, nf, ev_op_max_order, False)
+    return r_vec(gamma_singlet, nf, ev_op_max_order, False)
 
 
 @nb.njit
-def nlo_u_elems(r, ev_op_max_order):
-    """
+def u_vec(r, ev_op_max_order):
+    r"""
     Compute the elements of the singlet U vector.
+
+    .. math::
+        \ESk{n}{a_s}{a_s^0} &= \mathbf U (a_s) \ESk{0}{a_s}{a_s^0} {\mathbf U}^{-1} (a_s^0)\\
+        \mathbf U (a_s) &= \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
 
     Parameters
     ----------
         r : numpy.ndarray
             singlet R vector
+        ev_op_max_order : int
+            perturbative expansion order of U
 
     Returns
     -------
@@ -217,10 +288,29 @@ def nlo_u_elems(r, ev_op_max_order):
 
 
 @nb.njit
-def sum_u(u, a):
+def sum_u(uvec, a):
+    r"""
+    Sums up the actual U operator.
+
+
+    .. math::
+        \mathbf U (a_s) = \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
+
+    Parameters
+    ----------
+        uvec : numpy.ndarray
+            U vector (elements)
+        a : float
+            strong coupling
+
+    Returns
+    -------
+        u : numpy.ndarray
+            sum
+    """
     p = 1.0
     res = np.zeros((2, 2), np.complex_)
-    for uk in u:
+    for uk in uvec:
         res += p * uk
         p *= a
     # alternative implementation:
@@ -240,14 +330,26 @@ def nlo_perturbative(
     ----------
         gamma_singlet : numpy.ndarray
             singlet anomalous dimensions matrices
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
+        ev_op_max_order : int
+            perturbative expansion order of U
+        r_fnc : callable
+            getter for the R vector
 
     Returns
     -------
-        e_s^1 : complex
+        e_s^1 : numpy.ndarray
             singlet next-to-leading order perturbative EKO
     """
     r = r_fnc(gamma_singlet, nf, ev_op_max_order)
-    uk = nlo_u_elems(r, ev_op_max_order)
+    uk = u_vec(r, ev_op_max_order)
     e = np.identity(2, np.complex_)
     # iterate elements
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
@@ -272,13 +374,27 @@ def nlo_perturbative_exact(
 
     Parameters
     ----------
-        gamma_singlet : list(numpy.ndarray)
+        gamma_singlet : numpy.ndarray
             singlet anomalous dimensions matrices
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
+        ev_op_max_order : int
+            perturbative expansion order of U
 
     Returns
     -------
-        e_s^1 : complex
+        e_s^1 : numpy.ndarray
             singlet next-to-leading order perturbative-exact EKO
+
+    See Also
+    --------
+        nlo_perturbative : called function
     """
     return nlo_perturbative(
         gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, nlo_r_exact
@@ -296,11 +412,25 @@ def nlo_perturbative_expanded(
     ----------
         gamma_singlet : numpy.ndarray
             singlet anomalous dimensions matrices
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
+        ev_op_max_order : int
+            perturbative expansion order of U
 
     Returns
     -------
-        e_s^1 : complex
+        e_s^1 : numpy.ndarray
             singlet next-to-leading order perturbative-expanded EKO
+
+    See Also
+    --------
+        nlo_perturbative : called function
     """
     return nlo_perturbative(
         gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, nlo_r_expanded
@@ -316,14 +446,22 @@ def nlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations):
     ----------
         gamma_singlet : numpy.ndarray
             singlet anomalous dimensions matrices
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
 
     Returns
     -------
-        e_s^1 : complex
+        e_s^1 : numpy.ndarray
             singlet next-to-leading order truncated EKO
     """
     r = nlo_r_expanded(gamma_singlet, nf, 1)
-    u = nlo_u_elems(r, 1)
+    u = u_vec(r, 1)
     e = np.identity(2, np.complex_)
     # iterate elements
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)

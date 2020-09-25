@@ -61,6 +61,7 @@ class IntegrationKernelObject:
         return self.kernel_dispatcher.config[name]
 
     def extra_args_ns(self):
+        """additional arguments for the singlet EKO"""
         order = self.config("order")
         method = self.config("method")
         args = []
@@ -69,6 +70,7 @@ class IntegrationKernelObject:
         return args
 
     def extra_args_s(self):
+        """additional arguments for the non-singlet EKO"""
         order = self.config("order")
         method = self.config("method")
         args = []
@@ -204,7 +206,7 @@ class KernelDispatcher:
         config : dict
             configuration
         interpol_dispatcher : eko.interpolation.InterpolatorDispatcher
-            An instance of the InterpolatorDispatcher class
+            the basis functions
     """
 
     def __init__(self, config, interpol_dispatcher):
