@@ -7,7 +7,6 @@ import numpy as np
 
 from eko.strong_coupling import beta_0, StrongCoupling
 from eko import thresholds
-from eko.constants import Constants
 
 # try to load LHAPDF - if not available, we'll use the cached values
 try:
@@ -25,12 +24,6 @@ try:
 except ImportError:
     use_APFEL = False
 
-# these tests will only pass for the default set of constants
-constants = Constants()
-CA = constants.CA
-CF = constants.CF
-TF = constants.TF
-
 
 class BenchmarkStrongCoupling:
     def test_a_s(self):
@@ -43,9 +36,7 @@ class BenchmarkStrongCoupling:
         ref_mu2 = 90
         ask_q2 = 125
         threshold_holder = thresholds.ThresholdsConfig(ref_mu2, "FFNS", nf=5)
-        as_FFNS_LO = StrongCoupling(
-            constants, ref_alpha_s, ref_mu2, threshold_holder, order=0
-        )
+        as_FFNS_LO = StrongCoupling(ref_alpha_s, ref_mu2, threshold_holder, order=0)
         # check local
         np.testing.assert_approx_equal(
             as_FFNS_LO.a_s(ref_mu2), ref_alpha_s / 4.0 / np.pi
@@ -60,7 +51,7 @@ class BenchmarkStrongCoupling:
         # note that the LO-FFNS value reported in :cite:`Giele:2002hx`
         # was corrected in :cite:`Dittmar:2005ed`
         threshold_holder = thresholds.ThresholdsConfig(2, "FFNS", nf=4)
-        as_FFNS_LO = StrongCoupling(constants, 0.35, 2, threshold_holder, order=0)
+        as_FFNS_LO = StrongCoupling(0.35, 2, threshold_holder, order=0)
         me = as_FFNS_LO.a_s(1e4) * 4 * np.pi
         ref = 0.117574
         np.testing.assert_approx_equal(me, ref, significant=6)
@@ -69,7 +60,7 @@ class BenchmarkStrongCoupling:
         threshold_holder = thresholds.ThresholdsConfig(
             2, "ZM-VFNS", threshold_list=threshold_list
         )
-        as_VFNS_LO = StrongCoupling(constants, 0.35, 2, threshold_holder, order=0)
+        as_VFNS_LO = StrongCoupling(0.35, 2, threshold_holder, order=0)
         me = as_VFNS_LO.a_s(1e4) * 4 * np.pi
         ref = 0.122306
         np.testing.assert_approx_equal(me, ref, significant=6)
@@ -109,7 +100,6 @@ class BenchmarkStrongCoupling:
         threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
         for order in [0, 1, 2]:
             as_FFNS = StrongCoupling(
-                constants,
                 alphas_ref,
                 scale_ref,
                 threshold_holder,
@@ -179,7 +169,6 @@ class BenchmarkStrongCoupling:
         )
         for order in [0, 1, 2]:
             as_VFNS = StrongCoupling(
-                constants,
                 alphas_ref,
                 scale_ref,
                 threshold_holder,
@@ -213,7 +202,7 @@ class BenchmarkStrongCoupling:
 
     def _get_Lambda2_LO(self, as_ref, scale_ref, nf):
         """Transformation to Lambda_QCD"""
-        beta0 = beta(0,nf)
+        beta0 = beta(0, nf)
         return scale_ref * np.exp(-1.0 / (as_ref * beta0))
 
     def benchmark_lhapdf_ffns_lo(self):
@@ -224,9 +213,7 @@ class BenchmarkStrongCoupling:
         nf = 4
         # collect my values
         threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
-        as_FFNS_LO = StrongCoupling(
-            constants, alphas_ref, scale_ref, threshold_holder, order=0
-        )
+        as_FFNS_LO = StrongCoupling(alphas_ref, scale_ref, threshold_holder, order=0)
         my_vals = []
         for Q2 in Q2s:
             my_vals.append(as_FFNS_LO.a_s(Q2))
@@ -292,7 +279,6 @@ class BenchmarkStrongCoupling:
         }
         for order in range(2 + 1):
             sc = StrongCoupling(
-                constants,
                 alphas_ref,
                 scale_ref,
                 threshold_holder,
@@ -359,7 +345,6 @@ class BenchmarkStrongCoupling:
         }
         for order in range(2 + 1):
             sc = StrongCoupling(
-                constants,
                 alphas_ref,
                 scale_ref,
                 threshold_holder,
@@ -397,13 +382,13 @@ class BenchmarkStrongCoupling:
         # compute all Lambdas
         # Lambda2_5 = self._get_Lambda2_LO(alphas_ref / (4.0 * np.pi), scale_ref, 5)
         # as_FFNS_LO_5 = StrongCoupling(
-        #    constants, alphas_ref, scale_ref, 0, "FFNS", nf=5, method="expanded"
+        #    alphas_ref, scale_ref, 0, "FFNS", nf=5, method="expanded"
         # )
         # Lambda2_6 = self._get_Lambda2_LO(as_FFNS_LO_5.a_s(m2t), m2t, 6)
         # as_b = as_FFNS_LO_5.a_s(m2b)
         # Lambda2_4 = self._get_Lambda2_LO(as_b, m2b, 4)
         # as_FFNS_LO_4 = StrongCoupling(
-        #    constants, as_b * 4.0 * np.pi, m2b, 0, "FFNS", nf=4, method="expanded"
+        #    as_b * 4.0 * np.pi, m2b, 0, "FFNS", nf=4, method="expanded"
         # )
         # Lambda2_3 = self._get_Lambda2_LO(as_FFNS_LO_4.a_s(m2c), m2c, 3)
 
@@ -411,9 +396,7 @@ class BenchmarkStrongCoupling:
         threshold_holder = thresholds.ThresholdsConfig(
             scale_ref, "ZM-VFNS", threshold_list=threshold_list
         )
-        as_VFNS_LO = StrongCoupling(
-            constants, alphas_ref, scale_ref, threshold_holder, order=0
-        )
+        as_VFNS_LO = StrongCoupling(alphas_ref, scale_ref, threshold_holder, order=0)
         my_vals = []
         for Q2 in Q2s:
             my_vals.append(as_VFNS_LO.a_s(Q2))

@@ -8,13 +8,8 @@ import pytest
 
 from eko.strong_coupling import beta_0, beta_1, beta_2, StrongCoupling
 from eko import thresholds
-from eko.constants import Constants
 
-# these tests will only pass for the default set of constants
-constants = Constants()
-CA = constants.CA
-CF = constants.CF
-TF = constants.TF
+# from eko.constants import Constants
 
 
 class TestBetaFunction:
@@ -22,13 +17,13 @@ class TestBetaFunction:
         """Check that the given beta function `function` is valid
         for any number of flavours up to 5"""
         for nf in range(5):
-            result = function(nf, CA, CF, TF)
+            result = function(nf)
             assert result > 0.0
 
     def _check_result(self, function, NF, value):
         """Check that function evaluated in nf=5
         returns the value `value`"""
-        result = function(NF, CA, CF, TF)
+        result = function(NF)
         np.testing.assert_approx_equal(result, value, significant=5)
 
     def test_beta_0(self):
@@ -58,7 +53,7 @@ class TestStrongCoupling:
         nf = 4
         threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
         # create
-        sc = StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder)
+        sc = StrongCoupling(alphas_ref, scale_ref, threshold_holder)
         assert sc.q2_ref == scale_ref
         assert sc.as_ref == alphas_ref / 4.0 / np.pi
         # from theory dict
@@ -79,24 +74,19 @@ class TestStrongCoupling:
 
         # errors
         with pytest.raises(ValueError):
-            StrongCoupling(None, alphas_ref, scale_ref, threshold_holder)
+            StrongCoupling(0, scale_ref, threshold_holder)
         with pytest.raises(ValueError):
-            StrongCoupling(constants, 0, scale_ref, threshold_holder)
+            StrongCoupling(alphas_ref, 0, threshold_holder)
         with pytest.raises(ValueError):
-            StrongCoupling(constants, alphas_ref, 0, threshold_holder)
-        with pytest.raises(ValueError):
-            StrongCoupling(constants, alphas_ref, scale_ref, None)
+            StrongCoupling(alphas_ref, scale_ref, None)
         with pytest.raises(NotImplementedError):
-            StrongCoupling(constants, alphas_ref, scale_ref, threshold_holder, 3)
+            StrongCoupling(alphas_ref, scale_ref, threshold_holder, 3)
         with pytest.raises(ValueError):
-            StrongCoupling(
-                constants, alphas_ref, scale_ref, threshold_holder, method="ODE"
-            )
+            StrongCoupling(alphas_ref, scale_ref, threshold_holder, method="ODE")
         with pytest.raises(ValueError):
             StrongCoupling.from_dict(
                 dict(alphas=alphas_ref, Qref=np.sqrt(scale_ref), PTO=0, ModEv="FAIL"),
                 threshold_holder,
-                constants,
             )
 
     def test_ref(self):
@@ -115,7 +105,7 @@ class TestStrongCoupling:
                 for method in ["exact", "expanded"]:
                     # create
                     sc = StrongCoupling(
-                        constants, alphas_ref, scale_ref, thresholds_conf, order, method
+                        alphas_ref, scale_ref, thresholds_conf, order, method
                     )
                     np.testing.assert_approx_equal(
                         sc.a_s(scale_ref), alphas_ref / 4.0 / np.pi
@@ -135,10 +125,10 @@ class TestStrongCoupling:
             thresholds_conf = thresholds.ThresholdsConfig.from_dict(thresh_setup)
             # in LO expanded  = exact
             sc_expanded = StrongCoupling(
-                constants, alphas_ref, scale_ref, thresholds_conf, 0, "expanded"
+                alphas_ref, scale_ref, thresholds_conf, 0, "expanded"
             )
             sc_exact = StrongCoupling(
-                constants, alphas_ref, scale_ref, thresholds_conf, 0, "exact"
+                alphas_ref, scale_ref, thresholds_conf, 0, "exact"
             )
             for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
                 np.testing.assert_allclose(

@@ -2,10 +2,10 @@
 
 import numpy as np
 from numpy.testing import assert_almost_equal
+from scipy import integrate
 import pytest
 
 from eko import interpolation
-import eko.mellin as mellin
 
 # for the numeric comparision to work, keep in mind that in Python3 the default precision is
 # np.float64
@@ -64,7 +64,6 @@ def mellin_transform(f, N):
             computed point
     """
 
-    @nb.jit(forceobj=True)  # due to the integration kernel not being necessarily numba
     def integrand(x):
         xToN = pow(x, N - 1) * f(x)
         return xToN

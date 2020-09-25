@@ -126,10 +126,38 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
 
 
 def dispatcher_lo(_method):
+    """
+    Determine used kernel in LO.
+
+    In LO we will always use the exact solution.
+
+    Parameters
+    ----------
+        method : str
+            method
+
+    Returns
+    -------
+        ker : callable
+            kernel
+    """
     return lo_exact
 
 
 def dispatcher_nlo(method):
+    """
+    Determine used kernel in NLO.
+
+    Parameters
+    ----------
+        method : str
+            method
+
+    Returns
+    -------
+        ker : callable
+            kernel
+    """
     if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
         return nlo_exact
     if method in ["iterate-expanded", "decompose-expanded", "perturbative-expanded"]:

@@ -3,18 +3,17 @@
 import numpy as np
 from numpy.testing import assert_almost_equal, assert_allclose
 
-from eko.constants import Constants
-import eko.anomalous_dimensions as ad
-import eko.anomalous_dimensions.lo as ad_lo
+from eko import anomalous_dimensions as ad
+from eko.anomalous_dimensions import lo as ad_lo
+from eko import ekomath
 
-constants = Constants()
-CA = constants.CA
-CF = constants.CF
 NF = 5
 
 
 def test_eigensystem_gamma_singlet_0_values():
-    gamma_S_0 = ad_lo.gamma_singlet_0(3, NF, CA, CF)
+    n = 3
+    s1 = ekomath.harmonic_S1(n)
+    gamma_S_0 = ad_lo.gamma_singlet_0(3, s1, NF)
     res = ad.exp_singlet(gamma_S_0)
     lambda_p = np.complex(12.273612971466964, 0)
     lambda_m = np.complex(5.015275917421917, 0)
@@ -35,13 +34,14 @@ def test_eigensystem_gamma_singlet_0_values():
 
 def test_eigensystem_gamma_singlet_0_projectors_EV():
     for N in [3, 4]:  # N=2 seems close to 0, so test fails
-        gamma_S_0 = ad_lo.gamma_singlet_0(N, NF, CA, CF)
+        s1 = ekomath.harmonic_S1(N)
+        gamma_S_0 = ad_lo.gamma_singlet_0(N, s1, NF)
         _exp, l_p, l_m, e_p, e_m = ad.exp_singlet(gamma_S_0)
         # projectors behave as P_a . P_b = delta_ab P_a
         assert_allclose(np.dot(e_p, e_p), e_p)
         assert_almost_equal(np.dot(e_p, e_m), np.zeros((2, 2)))
         assert_allclose(np.dot(e_m, e_m), e_m)
         # check EVs
-        gamma_S = ad_lo.gamma_singlet_0(N, NF, CA, CF)
+        gamma_S = ad_lo.gamma_singlet_0(N, s1, NF)
         assert_allclose(np.dot(e_p, gamma_S), l_p * e_p)
         assert_allclose(np.dot(e_m, gamma_S), l_m * e_m)

@@ -10,9 +10,8 @@ import pytest
 import numpy as np
 import eko.interpolation as interpolation
 from eko.strong_coupling import StrongCoupling
-from eko.constants import Constants
 from eko.thresholds import ThresholdsConfig
-from eko.kernel_generation import KernelDispatcher
+from eko.kernels import KernelDispatcher
 from eko.operator_grid import OperatorGrid
 
 
@@ -56,11 +55,8 @@ class TestOperatorGrid:
             setup
         )
         threshold_holder = ThresholdsConfig.from_dict(setup)
-        constants = Constants()
-        kernel_dispatcher = KernelDispatcher.from_dict(
-            setup, basis_function_dispatcher, constants
-        )
-        a_s = StrongCoupling.from_dict(setup, threshold_holder, constants)
+        kernel_dispatcher = KernelDispatcher.from_dict(setup, basis_function_dispatcher)
+        a_s = StrongCoupling.from_dict(setup, threshold_holder)
         return OperatorGrid.from_dict(setup, threshold_holder, a_s, kernel_dispatcher)
 
     def test_sanity(self):

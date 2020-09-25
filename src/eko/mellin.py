@@ -167,13 +167,11 @@ def get_path_line():
     """
 
     @nb.njit
-    def path(t, extra_args):
-        m, c = extra_args
+    def path(t, m,c):
         return np.complex(c, m * (2 * t - 1))
 
     @nb.njit
-    def jac(j, extra_args):  # pylint: disable=unused-argument
-        m, c = extra_args  # pylint: disable=unused-variable
+    def jac(j, m,_c):
         return np.complex(0, m * 2)
 
     return path, jac
@@ -206,61 +204,17 @@ def get_path_edge():
     """
 
     @nb.njit
-    def path(t, extra_args):
-        m, c, phi = extra_args
+    def path(t, m, c, phi):
         if t < 0.5:  # turning point: path is not differentiable in this point
             return c + (0.5 - t) * m * np.exp(np.complex(0, -phi))
         else:
             return c + (t - 0.5) * m * np.exp(np.complex(0, +phi))
 
     @nb.njit
-    def jac(t, extra_args):
-        m, c, phi = extra_args  # pylint: disable=unused-variable
+    def jac(t, m, c, phi):
         if t < 0.5:  # turning point: jacobian is not continuous here
             return -m * np.exp(np.complex(0, -phi))
         else:
             return +m * np.exp(np.complex(0, phi))
-
-    return path, jac
-
-
-def get_path_Cauchy_tan():
-    """
-    Cauchy-distribution like path, extended with tan to infinity.
-
-    .. math::
-        p_{\\text{Cauchy}}(t) = \\frac{\\gamma}{u^2 + \\gamma^2} + i u, u = \\tan(\\pi(2t-1)/2)
-
-    Returns the path and its derivative which then have to be called with the arguments
-    listed under `Other Parameters`.
-
-    Other Parameters
-    ---------------
-        gamma : float
-            intersection of path with real axis
-
-    Returns
-    -------
-        path : function
-            Cauchy path
-        jac : function
-            derivative of Cauchy path
-    """
-
-    @nb.njit
-    def path(t, extra_args):
-        g, re_offset = extra_args
-        u = np.tan(np.pi * (2.0 * t - 1.0) / 2.0)
-        re = g / (u * u + g * g)
-        return np.complex(re_offset + re, u)
-
-    @nb.njit
-    def jac(t, extra_args):
-        g, re_offset = extra_args  # pylint: disable=unused-variable
-        arg = np.pi * (2.0 * t - 1.0) / 2.0
-        u = np.tan(arg)
-        dre = -2.0 * g * u / (u * u + g * g) ** 2
-        du = np.pi / np.cos(arg) ** 2
-        return np.complex(dre * du, du)
 
     return path, jac
