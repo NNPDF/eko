@@ -31,6 +31,7 @@ jobs:
         ls src -la
         # Search for actual errors
         pylint src/eko -E
+        echo "bla"
         pylint src/ -E
         # For warnings instead return always zero
         pylint src/ --exit-zero
