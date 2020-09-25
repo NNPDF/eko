@@ -4,7 +4,7 @@ import numpy as np
 
 import numba as nb
 
-from .. import strong_coupling as sc
+from .. import beta
 
 from . import evolution_integrals as ei
 from . import utils
@@ -85,7 +85,7 @@ def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
             non-singlet next-to-leading order truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
-    b1 = sc.b(1, nf)
+    b1 = beta.b(1, nf)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:
@@ -110,8 +110,8 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
             non-singlet next-to-leading order ordered-truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
-    beta0 = sc.beta(0, nf)
-    b1 = sc.b(1, nf)
+    beta0 = beta.beta(0, nf)
+    b1 = beta.b(1, nf)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:

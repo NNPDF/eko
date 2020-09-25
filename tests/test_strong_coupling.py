@@ -6,43 +6,8 @@
 import numpy as np
 import pytest
 
-from eko.strong_coupling import beta_0, beta_1, beta_2, StrongCoupling
+from eko.strong_coupling import StrongCoupling
 from eko import thresholds
-
-# from eko.constants import Constants
-
-
-class TestBetaFunction:
-    def _flav_test(self, function):
-        """Check that the given beta function `function` is valid
-        for any number of flavours up to 5"""
-        for nf in range(5):
-            result = function(nf)
-            assert result > 0.0
-
-    def _check_result(self, function, NF, value):
-        """Check that function evaluated in nf=5
-        returns the value `value`"""
-        result = function(NF)
-        np.testing.assert_approx_equal(result, value, significant=5)
-
-    def test_beta_0(self):
-        """Test first beta function coefficient"""
-        self._flav_test(beta_0)
-        # from hep-ph/9706430
-        self._check_result(beta_0, 5, 4 * 23 / 12)
-
-    def test_beta_1(self):
-        """Test second beta function coefficient"""
-        self._flav_test(beta_1)
-        # from hep-ph/9706430
-        self._check_result(beta_1, 5, 4 ** 2 * 29 / 12)
-
-    def test_beta_2(self):
-        """Test third beta function coefficient"""
-        self._flav_test(beta_2)
-        # from hep-ph/9706430
-        self._check_result(beta_2, 5, 4 ** 3 * 9769 / 3456)
 
 
 class TestStrongCoupling:

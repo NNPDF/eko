@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This module defines the actual evolution kernels as they appear under the Mellin inversion interal
+This module defines the KernelDispatcher and the actual integration kernel.
 """
 
 import logging

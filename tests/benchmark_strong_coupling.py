@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-"""
-    This module tests the implemented beta functions and the value
-    of alpha_s for different orders.
-"""
+"""This module benchmarks alpha_s against LHAPDF and APFEL."""
 import numpy as np
 
-from eko.strong_coupling import beta_0, StrongCoupling
+from eko.beta import beta
+from eko.strong_coupling import StrongCoupling
 from eko import thresholds
 
 # try to load LHAPDF - if not available, we'll use the cached values

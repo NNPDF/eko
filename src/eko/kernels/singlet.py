@@ -4,7 +4,7 @@ import numpy as np
 
 import numba as nb
 
-from .. import strong_coupling as sc
+from .. import beta
 from .. import anomalous_dimensions as ad
 
 from . import evolution_integrals as ei
@@ -101,8 +101,8 @@ def nlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations):
             non-singlet next-to-leading order iterated (exact) EKO
     """
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
-    beta0 = sc.beta(0, nf)
-    beta1 = sc.beta(1, nf)
+    beta0 = beta.beta(0, nf)
+    beta1 = beta.beta(1, nf)
     e = np.identity(2, np.complex_)
     al = a_steps[0]
     for ah in a_steps[1:]:
@@ -135,8 +135,8 @@ def nlo_r(gamma_singlet, nf, ev_op_max_order, is_exact):
             R vector
     """
     r = np.zeros((ev_op_max_order + 1, 2, 2), np.complex_)  # k = 0 .. max_order
-    beta0 = sc.beta(0, nf)
-    b1 = sc.b(1, nf)
+    beta0 = beta.beta(0, nf)
+    b1 = beta.b(1, nf)
     # fill explicit elements
     r[0] = gamma_singlet[0] / beta0
     r[1] = gamma_singlet[1] / beta0 - b1 * r[0]

@@ -12,136 +12,60 @@ import numpy as np
 import scipy
 import numba as nb
 
-from eko import constants
-from eko import thresholds
+from . import constants
+from . import thresholds
+from .beta import beta
 
 logger = logging.getLogger(__name__)
 
 
 @nb.njit
-def beta_0(nf: int):
+def as_expanded(order, as_ref, nf, scale_from, scale_to):
     """
-    Computes the first coefficient of the QCD beta function.
-
-    Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
+    Compute expanded expression.
 
     Parameters
     ----------
-        nf : int
-            number of active flavours
+        order: int
+            perturbation order
+        as_ref: float
+            reference alpha_s
+        nf: int
+            value of nf for computing alpha_s
+        scale_from: float
+            reference scale
+        scale_to : float
+            target scale
 
     Returns
     -------
-        beta_0 : float
-            first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
+        a_s : float
+            coupling at target scale :math:`a_s(Q^2)`
     """
-    beta_0 = 11.0 / 3.0 * constants.CA - 4.0 / 3.0 * constants.TR * nf
-    return beta_0
+    # common vars
+    beta0 = beta(0, nf)
+    lmu = np.log(scale_to / scale_from)
+    den = 1.0 + beta0 * as_ref * lmu
+    # LO
+    as_LO = as_ref / den
+    res = as_LO
+    # NLO
+    if order >= 1:
+        beta1 = beta(1, nf)
+        b1 = beta1 / beta0
+        as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
+        res = as_NLO
+        # NNLO
+        if order == 2:
+            beta2 = beta(2, nf)
+            b2 = beta2 / beta0
+            res = as_LO * (
+                1.0
+                + as_LO * (as_LO - as_ref) * (b2 - b1 ** 2)
+                + as_NLO * b1 * np.log(as_NLO / as_ref)
+            )
 
-
-@nb.njit
-def beta_1(nf: int):
-    """
-    Computes the second coefficient of the QCD beta function.
-
-    Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
-
-    Parameters
-    ----------
-        nf : int
-            number of active flavours
-
-    Returns
-    -------
-        beta_1 : float
-            second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
-    """
-    TF = constants.TR * nf
-    b_ca2 = 34.0 / 3.0 * constants.CA * constants.CA
-    b_ca = -20.0 / 3.0 * constants.CA * TF
-    b_cf = -4.0 * constants.CF * TF
-    beta_1 = b_ca2 + b_ca + b_cf
-    return beta_1
-
-
-@nb.njit
-def beta_2(nf: int):
-    """
-    Computes the third coefficient of the QCD beta function
-
-    Implements Eq. (3.3) of :cite:`Herzog:2017ohr`.
-
-    Parameters
-    ----------
-        nf : int
-            number of active flavours
-
-    Returns
-    -------
-        beta_2 : float
-            third coefficient of the QCD beta function :math:`\\beta_2^{n_f}`
-    """
-    TF = constants.TR * nf
-    beta_2 = (
-        2857.0 / 54.0 * constants.CA * constants.CA * constants.CA
-        - 1415.0 / 27.0 * constants.CA * constants.CA * TF
-        - 205.0 / 9.0 * constants.CF * constants.CA * TF
-        + 2.0 * constants.CF * constants.CF * TF
-        + 44.0 / 9.0 * constants.CF * TF * TF
-        + 158.0 / 27.0 * constants.CA * TF * TF
-    )
-    return beta_2
-
-
-@nb.njit
-def beta(k, nf):
-    """
-    Compute value of a beta coefficients
-
-    Parameters
-    ----------
-        k : int
-            perturbative orde
-        nf : int
-            number of active flavours
-
-    Returns
-    -------
-        beta : float
-            beta_k(nf)
-    """
-    beta_ = 0
-    if k == 0:
-        beta_ = beta_0(nf)
-    elif k == 1:
-        beta_ = beta_1(nf)
-    elif k == 2:
-        beta_ = beta_2(nf)
-    else:
-        raise ValueError("Beta coefficients beyond NNLO are not implemented!")
-    return beta_
-
-
-@nb.njit
-def b(k, nf):
-    """
-    Compute b coefficient.
-
-    Parameters
-    ----------
-        k : int
-            perturbative orde
-        nf : int
-            number of active flavours
-
-    Returns
-    -------
-        b : float
-            b_k(nf)
-    """
-    return beta(k, nf) / beta(0, nf)
-
-
+    return res
 class StrongCoupling:
     r"""
         Computes the strong coupling constant :math:`a_s`.
@@ -281,52 +205,6 @@ class StrongCoupling:
             thresholds_config = thresholds.ThresholdsConfig.from_dict(setup)
         return cls(alpha_ref, q2_alpha, thresholds_config, order, method)
 
-    # Hidden computation functions
-    def _compute_expanded(self, as_ref, nf, scale_from, scale_to):
-        """
-        Compute via expanded expression.
-
-        Parameters
-        ----------
-            as_ref: float
-                reference alpha_s
-            nf: int
-                value of nf for computing alpha_s
-            scale_from: float
-                reference scale
-            scale_to : float
-                target scale
-
-        Returns
-        -------
-            a_s : float
-                coupling at target scale :math:`a_s(Q^2)`
-        """
-        # common vars
-        beta0 = beta(0, nf)
-        lmu = np.log(scale_to / scale_from)
-        den = 1.0 + beta0 * as_ref * lmu
-        # LO
-        as_LO = as_ref / den
-        res = as_LO
-        # NLO
-        if self._order >= 1:
-            beta1 = beta(1, nf)
-            b1 = beta1 / beta0
-            as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
-            res = as_NLO
-            # NNLO
-            if self._order == 2:
-                beta2 = beta(2, nf)
-                b2 = beta2 / beta0
-                res = as_LO * (
-                    1.0
-                    + as_LO * (as_LO - as_ref) * (b2 - b1 ** 2)
-                    + as_NLO * b1 * np.log(as_NLO / as_ref)
-                )
-
-        return res
-
     def _compute_exact(self, as_ref, nf, scale_from, scale_to):
         """
         Compute via RGE.
@@ -349,7 +227,7 @@ class StrongCoupling:
         """
         # in LO fallback to expanded, as this is the full solution
         if self._order == 0:
-            return self._compute_expanded(as_ref, nf, scale_from, scale_to)
+            return as_expanded(self._order,as_ref, nf, scale_from, scale_to)
         # otherwise rescale the RGE to run in terms of
         # u = beta0 * ln(scale_to/scale_from)
         beta0 = beta(0, nf)
@@ -399,7 +277,7 @@ class StrongCoupling:
         if self._method == "exact":
             as_new = self._compute_exact(as_ref, nf, scale_from, scale_to)
         else:
-            as_new = self._compute_expanded(as_ref, nf, scale_from, scale_to)
+            as_new = as_expanded(self._order,as_ref, nf, scale_from, scale_to)
         return as_new
 
     def a_s(self, scale_to, fact_scale=None):
