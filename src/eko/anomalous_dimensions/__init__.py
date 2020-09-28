@@ -21,7 +21,7 @@ import numpy as np
 
 import numba as nb
 
-from eko.ekomath import harmonic_S1 as S1
+from ..ekomath import harmonic_S1 as S1
 
 from . import lo
 from . import nlo
@@ -74,8 +74,9 @@ def exp_singlet(gamma_S):
     return exp, lambda_p, lambda_m, e_p, e_m
 
 
+@nb.njit
 def gamma_ns(order, mode, n, nf):
-    """
+    r"""
     Computes the tower of the non-singlet anomalous dimensions
 
     Parameters
@@ -91,24 +92,31 @@ def gamma_ns(order, mode, n, nf):
 
     Returns
     -------
-        gamma_ns : list(float)
+        gamma_ns : numpy.ndarray
             non-singlet anomalous dimensions
+
+    See Also
+    --------
+        eko.anomalous_dimensions.lo.gamma_ns_0 : :math:`\gamma_{ns}^{(0)}(N)`
+        eko.anomalous_dimensions.nlo.gamma_nsp_1 : :math:`\gamma_{ns,+}^{(1)}(N)`
+        eko.anomalous_dimensions.nlo.gamma_nsm_1 : :math:`\gamma_{ns,-}^{(1)}(N)`
     """
     # cache the s-es
     s1 = S1(n)
-    gamma_ns = []
-    gamma_ns.append(lo.gamma_ns_0(n, s1))
+    gamma_ns = np.zeros(order + 1, np.complex_)
+    gamma_ns[0] = lo.gamma_ns_0(n, s1)
     if order > 0:
         if mode == "p":
             gamma_ns_1 = nlo.gamma_nsp_1(n, nf)
         elif mode == "m":
             gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
-        gamma_ns.append(gamma_ns_1)
-    return np.array(gamma_ns)
+        gamma_ns[1] = gamma_ns_1
+    return gamma_ns
 
 
+@nb.njit
 def gamma_singlet(order, n, nf):
-    """
+    r"""
     Computes the tower of the singlet anomalous dimensions matrices
 
     Parameters
@@ -122,13 +130,18 @@ def gamma_singlet(order, n, nf):
 
     Returns
     -------
-        gamma_singlet : list(float)
-            non-singlet anomalous dimensions matrices
+        gamma_singlet : numpy.ndarray
+            singlet anomalous dimensions matrices
+
+    See Also
+    --------
+        eko.anomalous_dimensions.lo.gamma_singlet_0 : :math:`\gamma_{S}^{(0)}(N)`
+        eko.anomalous_dimensions.nlo.gamma_singlet_1 : :math:`\gamma_{S}^{(1)}(N)`
     """
     # cache the s-es
     s1 = S1(n)
-    gamma_singlet = []
-    gamma_singlet.append(lo.gamma_singlet_0(n, s1, nf))
+    gamma_singlet = np.zeros((order + 1, 2, 2), np.complex_)
+    gamma_singlet[0] = lo.gamma_singlet_0(n, s1, nf)
     if order > 0:
-        gamma_singlet.append(nlo.gamma_singlet_1(n, nf))
-    return np.array(gamma_singlet)
+        gamma_singlet[1] = nlo.gamma_singlet_1(n, nf)
+    return gamma_singlet

@@ -10,8 +10,8 @@ involving ``FormGet`` :cite:`Hahn:2016ebn`.
 import numpy as np
 import numba as nb
 
-from eko import ekomath
-from eko import constants
+from .. import ekomath
+from .. import constants
 
 
 @nb.njit

@@ -124,6 +124,7 @@ def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     return e
 
 
+@nb.njit
 def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
     Non-singlet next-to-leading order ordered-truncated EKO
@@ -203,4 +204,4 @@ def dispatcher_nlo(method):
         return nlo_truncated
     if method == "ordered-truncated":
         return nlo_ordered_truncated
-    raise ValueError(f"Unknown method: {method}")
+    return nlo_exact

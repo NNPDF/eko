@@ -5,7 +5,9 @@
 """
 import numpy as np
 
-from eko.beta import beta_0, beta_1, beta_2
+import pytest
+
+from eko import beta
 
 
 def _flav_test(function):
@@ -18,20 +20,35 @@ def _flav_test(function):
 
 def test_beta_0():
     """Test first beta function coefficient"""
-    _flav_test(beta_0)
+    _flav_test(beta.beta_0)
     # from hep-ph/9706430
-    np.testing.assert_approx_equal(beta_0(5), 4 * 23 / 12)
+    np.testing.assert_approx_equal(beta.beta_0(5), 4 * 23 / 12)
 
 
 def test_beta_1():
     """Test second beta function coefficient"""
-    _flav_test(beta_1)
+    _flav_test(beta.beta_1)
     # from hep-ph/9706430
-    np.testing.assert_approx_equal(beta_1(5), 4 ** 2 * 29 / 12)
+    np.testing.assert_approx_equal(beta.beta_1(5), 4 ** 2 * 29 / 12)
 
 
 def test_beta_2():
     """Test third beta function coefficient"""
-    _flav_test(beta_2)
+    _flav_test(beta.beta_2)
     # from hep-ph/9706430
-    np.testing.assert_approx_equal(beta_2(5), 4 ** 3 * 9769 / 3456)
+    np.testing.assert_approx_equal(beta.beta_2(5), 4 ** 3 * 9769 / 3456)
+
+
+def test_beta():
+    """beta-wrapper"""
+    nf = 3
+    np.testing.assert_allclose(beta.beta(0, nf), beta.beta_0(nf))
+    np.testing.assert_allclose(beta.beta(1, nf), beta.beta_1(nf))
+    np.testing.assert_allclose(beta.beta(2, nf), beta.beta_2(nf))
+    with pytest.raises(ValueError):
+        beta.beta(3, 3)
+
+
+def test_b():
+    """b-wrapper"""
+    np.testing.assert_allclose(beta.b(0, 3), 1.0)
