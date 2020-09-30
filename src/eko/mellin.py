@@ -171,7 +171,7 @@ def get_path_line():
         return np.complex(c, m * (2 * t - 1))
 
     @nb.njit
-    def jac(j, m, _c):
+    def jac(_t, m, _c):
         return np.complex(0, m * 2)
 
     return path, jac
@@ -211,7 +211,7 @@ def get_path_edge():
             return c + (t - 0.5) * m * np.exp(np.complex(0, +phi))
 
     @nb.njit
-    def jac(t, m, c, phi):
+    def jac(t, m, _c, phi):
         if t < 0.5:  # turning point: jacobian is not continuous here
             return -m * np.exp(np.complex(0, -phi))
         else:

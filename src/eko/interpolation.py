@@ -14,7 +14,7 @@ import numba as nb
 
 logger = logging.getLogger(__name__)
 
-#### Interpolation
+
 class Area:
     """
     Class that define each of the area
@@ -99,7 +99,10 @@ def log_evaluate_Nx(N, logx, area_list):
             kernel * inversion factor
     """
     res = 0.0
-    for logxmin, logxmax, coefs in area_list:
+    for a in area_list:
+        logxmin = a[0]
+        logxmax = a[1]
+        coefs = a[2:]
         # skip area completely?
         if logx >= logxmax:
             continue
@@ -147,7 +150,10 @@ def evaluate_Nx(N, logx, area_list):
             basis function * inversion factor
     """
     res = 0.0
-    for xmin, xmax, coefs in area_list:
+    for a in area_list:
+        xmin = a[0]
+        xmax = a[1]
+        coefs = a[2:]
         lnxmax = np.log(xmax)
         # skip area completely?
         if logx >= lnxmax:
@@ -184,7 +190,10 @@ def evaluate_x(x, area_list):
             basis function(x)
     """
     res = 0.0
-    for j, (xmin, xmax, coefs) in enumerate(area_list):
+    for j, a in enumerate(area_list):
+        xmin = a[0]
+        xmax = a[1]
+        coefs = a[2:]
         if xmin < x <= xmax or (j == 0 and x == xmin):
             for i, coef in enumerate(coefs):
                 res += coef * pow(x, i)
@@ -214,14 +223,7 @@ def log_evaluate_x(x, area_list):
             basis function(x)
     """
     x = np.log(x)
-    res = 0.0
-    for j, (xmin, xmax, coefs) in enumerate(area_list):
-        if xmin < x <= xmax or (j == 0 and x == xmin):
-            for i, coef in enumerate(coefs):
-                res += coef * pow(x, i)
-            return res
-
-    return res
+    return evaluate_x(x, area_list)
 
 
 class BasisFunction:
@@ -305,8 +307,8 @@ class BasisFunction:
         # to be inmutable
         area_list = []
         for area in self:
-            area_list.append((area.xmin, area.xmax, area.coefs))
-        return tuple(area_list)
+            area_list.append([area.xmin, area.xmax, *area.coefs])
+        return np.array(area_list)
 
     def compile_x(self):
         """

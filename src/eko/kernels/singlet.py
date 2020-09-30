@@ -39,7 +39,7 @@ def lo_exact(gamma_singlet, a1, a0, nf):
 
 
 @nb.njit
-def nlo_decompose(gamma_singlet, a1, a0, nf, j01, j11):
+def nlo_decompose(gamma_singlet, j01, j11):
     """
     Singlet next-to-leading order decompose EKO
 
@@ -63,9 +63,7 @@ def nlo_decompose(gamma_singlet, a1, a0, nf, j01, j11):
         e_s^1 : numpy.ndarray
             singlet next-to-leading order decompose EKO
     """
-    return ad.exp_singlet(
-        gamma_singlet[0] * j01(a1, a0, nf) + gamma_singlet[1] * j11(a1, a0, nf)
-    )[0]
+    return ad.exp_singlet(gamma_singlet[0] * j01 + gamma_singlet[1] * j11)[0]
 
 
 @nb.njit
@@ -89,7 +87,9 @@ def nlo_decompose_exact(gamma_singlet, a1, a0, nf):
         e_s^1 : numpy.ndarray
             singlet next-to-leading order decompose-exact EKO
     """
-    return nlo_decompose(gamma_singlet, a1, a0, nf, ei.j01_exact, ei.j11_exact)
+    return nlo_decompose(
+        gamma_singlet, ei.j01_exact(a1, a0, nf), ei.j11_exact(a1, a0, nf)
+    )
 
 
 @nb.njit
@@ -113,7 +113,9 @@ def nlo_decompose_expanded(gamma_singlet, a1, a0, nf):
         e_s^1 : numpy.ndarray
             singlet next-to-leading order decompose-expanded EKO
     """
-    return nlo_decompose(gamma_singlet, a1, a0, nf, ei.j01_expanded, ei.j11_expanded)
+    return nlo_decompose(
+        gamma_singlet, ei.j01_expanded(a1, a0, nf), ei.j11_expanded(a1, a0, nf)
+    )
 
 
 @nb.njit
@@ -320,9 +322,7 @@ def sum_u(uvec, a):
 
 
 @nb.njit
-def nlo_perturbative(
-    gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r_fnc
-):
+def nlo_perturbative(gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r):
     """
     Singlet next-to-leading order pertubative EKO
 
@@ -348,7 +348,6 @@ def nlo_perturbative(
         e_s^1 : numpy.ndarray
             singlet next-to-leading order perturbative EKO
     """
-    r = r_fnc(gamma_singlet, nf, ev_op_max_order)
     uk = u_vec(r, ev_op_max_order)
     e = np.identity(2, np.complex_)
     # iterate elements
@@ -396,8 +395,9 @@ def nlo_perturbative_exact(
     --------
         nlo_perturbative : called function
     """
+    r = nlo_r_exact(gamma_singlet, nf, ev_op_max_order)
     return nlo_perturbative(
-        gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, nlo_r_exact
+        gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r
     )
 
 
@@ -432,8 +432,9 @@ def nlo_perturbative_expanded(
     --------
         nlo_perturbative : called function
     """
+    r = nlo_r_expanded(gamma_singlet, nf, ev_op_max_order)
     return nlo_perturbative(
-        gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, nlo_r_expanded
+        gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r
     )
 
 
@@ -474,49 +475,54 @@ def nlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations):
     return e
 
 
-def dispatcher_lo(_method):
+@nb.njit
+def dispatcher(  # pylint: disable=too-many-return-statements
+    order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
+):
     """
-    Determine used kernel in LO.
+    Determine used kernel and call it.
 
-    In LO we will always use the exact solution.
+    In LO we always use the exact solution.
 
     Parameters
     ----------
         method : str
             method
+        gamma_singlet : numpy.ndarray
+            singlet anomalous dimensions matrices
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
+        ev_op_max_order : int
+            perturbative expansion order of U
 
     Returns
     -------
-        ker : callable
-            kernel
+        e_s : numpy.ndarray
+            singlet EKO
     """
-    return lo_exact
-
-
-def dispatcher_nlo(method):
-    """
-    Determine used kernel in NLO.
-
-    Parameters
-    ----------
-        method : str
-            method
-
-    Returns
-    -------
-        ker : callable
-            kernel
-    """
-    if method in ["iterate-exact", "iterate-expanded"]:
-        return nlo_iterate
+    # use always exact in LO
+    if order == 0:
+        return lo_exact(gamma_singlet, a1, a0, nf)
+    # NLO
     if method == "decompose-exact":
-        return nlo_decompose_exact
+        return nlo_decompose_exact(gamma_singlet, a1, a0, nf)
     if method == "decompose-expanded":
-        return nlo_decompose_expanded
+        return nlo_decompose_expanded(gamma_singlet, a1, a0, nf)
     if method == "perturbative-exact":
-        return nlo_perturbative_exact
+        return nlo_perturbative_exact(
+            gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
+        )
     if method == "perturbative-expanded":
-        return nlo_perturbative_expanded
+        return nlo_perturbative_expanded(
+            gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
+        )
     if method in ["truncated", "ordered-truncated"]:
-        return nlo_truncated
-    raise ValueError(f"Unknown method: {method}")
+        return nlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations)
+    # if method in ["iterate-exact", "iterate-expanded"]:
+    return nlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations)

@@ -6,10 +6,12 @@ This module defines the KernelDispatcher and the actual integration kernel.
 import logging
 
 import numpy as np
+import numba as nb
 
-import eko.strong_coupling as sc
-import eko.anomalous_dimensions as ad
-from eko import mellin
+from .. import strong_coupling as sc
+from .. import anomalous_dimensions as ad
+from .. import mellin
+from .. import interpolation
 
 from . import non_singlet as ns
 from . import singlet as s
@@ -17,184 +19,173 @@ from . import singlet as s
 logger = logging.getLogger(__name__)
 
 
-class IntegrationKernelObject:
+@nb.njit
+def compute_ns(order, mode, method, n, a1, a0, nf, ev_op_iterations):
     """
-    Actual integration kernel.
-
-    The object gets adjusted for each inversion point, basis function or sector.
+    Computes the non-singlet EKO
 
     Parameters
     ----------
-        kernel_dispatcher : eko.kernel_generation.KernelDispatcher
-            parent dispatcher
+        order : int
+            perturbation order
+        method : str
+            method
+        mode : str
+            element in the non-singlet sector
+        n : complex
+            Mellin moment
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
+
+    Returns
+    -------
+        e_ns : complex
+            non-singlet EKO
     """
+    # load data
+    gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
+    # switch by order and method
+    return ns.dispatcher(
+        order,
+        method,
+        gamma_ns,
+        a1,
+        a0,
+        nf,
+        ev_op_iterations,
+    )
 
-    def __init__(self, kernel_dispatcher):
-        self.kernel_dispatcher = kernel_dispatcher
-        self.pdf = self.kernel_dispatcher.interpol_dispatcher[0].callable
-        self.mode = ""
 
-    @property
-    def is_singlet(self):
-        """Are we currently in the singlet sector?"""
-        return self.mode[0] == "S"
+@nb.njit
+def compute_singlet(
+    order, mode, method, n, a1, a0, nf, ev_op_iterations, ev_op_max_order
+):
+    """
+    Computes the singlet EKO
 
-    def get_path_params(self):
-        """
-        Determine the Talbot parameters.
+    Parameters
+    ----------
+        order : int
+            perturbation order
+        method : str
+            method
+        mode : str
+            element in the singlet sector
+        n : complex
+            Mellin moment
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
+        ev_op_max_order : int
+            perturbative expansion order of U
 
-        Returns
-        -------
-            r,o : tuple(float)
-                Talbot parameters
-        """
-        if self.is_singlet:
-            return 0.4 * 16.0 / (1.0 - self.var("logx")), 1.0
-        return 0.5, 0.0
+    Returns
+    -------
+        e_s : numpy.ndarray
+            singlet EKO
+    """
+    gamma_singlet = ad.gamma_singlet(
+        order,
+        n,
+        nf,
+    )
+    ker = s.dispatcher(
+        order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
+    )
+    # select element of matrix
+    k = 0 if mode[2] == "q" else 1
+    l = 0 if mode[3] == "q" else 1
+    ker = ker[k, l]
+    return ker
 
-    def var(self, name):
-        """shortcut to the parent variables"""
-        return self.kernel_dispatcher.var[name]
 
-    def config(self, name):
-        """shortcut to the parent config"""
-        return self.kernel_dispatcher.config[name]
+@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,u1,u4,u1)")
+def quad_ker(
+    u,
+    order,
+    mode,
+    method,
+    is_log,
+    logx,
+    areas,
+    a1,
+    a0,
+    nf,
+    ev_op_iterations,
+    ev_op_max_order,
+):
+    """
+    Raw kernel inside quad
 
-    def extra_args_ns(self):
-        """additional arguments for the singlet EKO"""
-        order = self.config("order")
-        method = self.config("method")
-        args = []
-        if order == 1 and method in ["truncated", "ordered-truncated"]:
-            args.append(self.config("ev_op_iterations"))
-        return args
+    Parameters
+    ----------
+        u : float
+            quad argument
+        order : int
+            perturbation order
+        method : str
+            method
+        mode : str
+            element in the singlet sector
+        is_log : boolean
+            logarithmic interpolation
+        logx : float
+            Mellin inversion point
+        areas : tuple
+            basis function configuration
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
+        ev_op_max_order : int
+            perturbative expansion order of U
 
-    def extra_args_s(self):
-        """additional arguments for the non-singlet EKO"""
-        order = self.config("order")
-        method = self.config("method")
-        args = []
-        if order == 1:
-            if method in [
-                "truncated",
-                "ordered-truncated",
-                "iterate-exact",
-                "iterate-expanded",
-                "perturbative-exact",
-                "perturbative-expanded",
-            ]:
-                args.append(self.config("ev_op_iterations"))
-            if method in [
-                "perturbative-exact",
-                "perturbative-expanded",
-            ]:
-                args.append(self.config("ev_op_max_order"))
-        return args
-
-    def compute_ns(self, n):
-        """
-        Computes the non-singlet EKO
-
-        Parameters
-        ----------
-            n : complex
-                Mellin moment
-
-        Returns
-        -------
-            e_ns : complex
-                non-singlet EKO
-        """
-        order = self.config("order")
-        # load data
-        gamma_ns = ad.gamma_ns(
-            order,
-            self.mode[-1],
-            n,
-            self.var("nf"),
+    Returns
+    -------
+        ker : float
+            evaluated integration kernel
+    """
+    is_singlet = mode[0] == "S"
+    # get transformation to N integral
+    if is_singlet:
+        r, o = 0.4 * 16.0 / (1.0 - logx), 1.0
+    else:
+        r, o = 0.5, 0.0
+    n = mellin.Talbot_path(u, r, o)
+    jac = mellin.Talbot_jac(u, r, o)
+    # check PDF is active
+    if is_log:
+        pj = interpolation.log_evaluate_Nx(n, logx, areas)
+    else:
+        pj = interpolation.evaluate_Nx(n, logx, areas)
+    if pj == 0.0:
+        return 0.0
+    # compute the actual evolution kernel
+    if is_singlet:
+        ker = compute_singlet(
+            order, mode, method, n, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
-        # switch order and method
-        method = self.config("method")
-        if order == 0:
-            fnc = ns.dispatcher_lo(method)
-        elif order == 1:
-            fnc = ns.dispatcher_nlo(method)
-        return fnc(
-            gamma_ns,
-            self.var("a1"),
-            self.var("a0"),
-            self.var("nf"),
-            *self.extra_args_ns(),
-        )
-
-    def compute_singlet(self, n):
-        """
-        Computes the singlet EKO
-
-        Parameters
-        ----------
-            n : complex
-                Mellin moment
-
-        Returns
-        -------
-            e_s : numpy.ndarray
-                singlet EKO
-        """
-        order = self.config("order")
-        gamma_singlet = ad.gamma_singlet(
-            order,
-            n,
-            self.var("nf"),
-        )
-        method = self.config("method")
-        if order == 0:
-            fnc = s.dispatcher_lo(method)
-        elif order == 1:
-            fnc = s.dispatcher_nlo(method)
-        return fnc(
-            gamma_singlet,
-            self.var("a1"),
-            self.var("a0"),
-            self.var("nf"),
-            *self.extra_args_s(),
-        )
-
-    def __call__(self, u):
-        """
-        Called function under the integral.
-
-        Parameters
-        ----------
-            u : float
-                integration variable
-
-        Returns
-        -------
-            ker : float
-                kernel evaluated at `u`
-        """
-        # get transformation to N integral
-        path_params = self.get_path_params()
-        n = mellin.Talbot_path(u, *path_params)
-        jac = mellin.Talbot_jac(u, *path_params)
-        # check PDF is active
-        pj = self.pdf(n, self.var("logx"), self.var("areas"))
-        # print(self.pdf.inspect_types())
-        if pj == 0.0:
-            return 0.0
-        # compute the actual evolution kernel
-        if self.is_singlet:
-            ker = self.compute_singlet(n)
-            # select element of matrix
-            k = 0 if self.mode[2] == "q" else 1
-            l = 0 if self.mode[3] == "q" else 1
-            ker = ker[k, l]
-        else:
-            ker = self.compute_ns(n)
-        # recombine everthing
-        mellin_prefactor = np.complex(0.0, -1.0 / np.pi)
-        return np.real(mellin_prefactor * ker * pj * jac)
+    else:
+        # ker = self.compute_ns(n)
+        ker = compute_ns(order, mode, method, n, a1, a0, nf, ev_op_iterations)
+    # recombine everthing
+    mellin_prefactor = np.complex(0.0, -1.0 / np.pi)
+    return np.real(mellin_prefactor * ker * pj * jac)
 
 
 class KernelDispatcher:
@@ -231,7 +222,6 @@ class KernelDispatcher:
         self.interpol_dispatcher = interpol_dispatcher
         # init objects
         self.var = {}
-        self.obj = IntegrationKernelObject(self)
 
     @classmethod
     def from_dict(cls, setup, interpol_dispatcher):
@@ -268,20 +258,3 @@ class KernelDispatcher:
         config["ev_op_max_order"] = setup.get("ev_op_max_order", 10)
         config["ev_op_iterations"] = setup.get("ev_op_iterations", 10)
         return cls(config, interpol_dispatcher)
-
-    def init_loops(self, nf, a1, a0):
-        """
-        Called before the heavy grid-basis-functions-sectors loops.
-
-        Parameters
-        ----------
-            nf : int
-                number of flavors
-            a1 : float
-                strong coupling at target scale
-            a0 : float
-                strong coupling at initial scale
-        """
-        self.var["nf"] = nf
-        self.var["a1"] = a1
-        self.var["a0"] = a0

@@ -163,45 +163,44 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     return e
 
 
-def dispatcher_lo(_method):
+@nb.njit
+def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):
     """
-    Determine used kernel in LO.
+    Determine used kernel and call it.
 
-    In LO we will always use the exact solution.
+    In LO we always use the exact solution.
 
     Parameters
     ----------
+        order : int
+            perturbation order
         method : str
             method
+        gamma_ns : numpy.ndarray
+            non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
 
     Returns
     -------
-        ker : callable
-            kernel
+        e_ns : complex
+            non-singlet EKO
     """
-    return lo_exact
-
-
-def dispatcher_nlo(method):
-    """
-    Determine used kernel in NLO.
-
-    Parameters
-    ----------
-        method : str
-            method
-
-    Returns
-    -------
-        ker : callable
-            kernel
-    """
-    if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
-        return nlo_exact
+    # use always exact in LO
+    if order == 0:
+        return lo_exact(gamma_ns, a1, a0, nf)
+    # NLO
     if method in ["iterate-expanded", "decompose-expanded", "perturbative-expanded"]:
-        return nlo_expanded
-    if method == "truncated":
-        return nlo_truncated
-    if method == "ordered-truncated":
-        return nlo_ordered_truncated
-    return nlo_exact
+        return nlo_expanded(gamma_ns, a1, a0, nf)
+    elif method == "truncated":
+        return nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
+    elif method == "ordered-truncated":
+        return nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
+    # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
+    return nlo_exact(gamma_ns, a1, a0, nf)
