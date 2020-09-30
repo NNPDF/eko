@@ -58,10 +58,10 @@ def check_path_symmetry(path, jac, extra_args):
 #             assert nresult[1] < 1e-5
 
 
-def test_get_path_Talbot():
+def test_Talbot():
     params = [[1, 0], [2, 0]]
     for p in params:
-        path, jacobian = mellin.get_path_Talbot()
+        path, jacobian = mellin.Talbot_path, mellin.Talbot_jac
         check_path_derivation(path, jacobian, p)
         check_path_symmetry(path, jacobian, p)
         # assert special points

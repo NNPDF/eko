@@ -3,11 +3,11 @@ from numbers import Number
 import numpy as np
 
 
-class OperatorMember:
+class OpMember:
     """
     A single operator for a specific element in evolution basis.
 
-    The :class:`OperatorMember` provide some basic mathematical operations such as products.
+    This class provide some basic mathematical operations such as products.
     It can also be applied to a pdf vector by the `__call__` method.
     This class will never be exposed to the outside, but will be an internal member
     of the :class:`Operator` and :class:`PhysicalOperator` instances.
@@ -88,14 +88,14 @@ class OperatorMember:
             rerror = 0.0 * one
             new_name = self.name
         # matrix multiplication
-        elif isinstance(operator_member, OperatorMember):
+        elif isinstance(operator_member, OpMember):
             # check compatibility
             if self.is_physical != operator_member.is_physical:
                 raise ValueError("Operators do not live in the same space!")
             if self.is_physical:
                 if self.input != operator_member.target:
                     raise ValueError(
-                        f"Can not sum {operator_member.name} and {self.name} OperatorMembers!"
+                        f"Can not sum {operator_member.name} and {self.name} OpMembers!"
                     )
                 new_name = f"{self.target}.{operator_member.input}"
             else:
@@ -104,14 +104,14 @@ class OperatorMember:
             rerror = operator_member.error
         else:
             raise NotImplementedError(
-                f"Can't multiply OperatorMember and {type(operator_member)}"
+                f"Can't multiply OpMember and {type(operator_member)}"
             )
         lval = self.value
         ler = self.error
         new_val = np.matmul(lval, rval)
         # TODO check error propagation
         new_err = np.abs(np.matmul(lval, rerror)) + np.abs(np.matmul(ler, rval))
-        return OperatorMember(new_val, new_err, new_name)
+        return OpMember(new_val, new_err, new_name)
 
     def __add__(self, operator_member):
         if isinstance(operator_member, Number):
@@ -123,24 +123,24 @@ class OperatorMember:
             rval = operator_member
             rerror = 0.0
             new_name = self.name
-        elif isinstance(operator_member, OperatorMember):
+        elif isinstance(operator_member, OpMember):
             # check compatibility
             if self.is_physical != operator_member.is_physical:
                 raise ValueError("Operators do not live in the same space!")
             if self.is_physical and operator_member.name != self.name:
                 raise ValueError(
-                    f"Can not sum {operator_member.name} and {self.name} OperatorMembers!"
+                    f"Can not sum {operator_member.name} and {self.name} OpMembers!"
                 )
             rval = operator_member.value
             rerror = operator_member.error
             new_name = self.name
         else:
             raise NotImplementedError(
-                f"Can't sum OperatorMember and {type(operator_member)}"
+                f"Can't sum OpMember and {type(operator_member)}"
             )
         new_val = self.value + rval
         new_err = self.error + rerror
-        return OperatorMember(new_val, new_err, new_name)
+        return OpMember(new_val, new_err, new_name)
 
     def __neg__(self):
         return self.__mul__(-1)
@@ -163,18 +163,18 @@ class OperatorMember:
     @staticmethod
     def join(steps, list_of_paths):
         """
-        Multiply a list of :class:`OperatorMember` using the given paths.
+        Multiply a list of :class:`OpMember` using the given paths.
 
         Parameters
         ----------
-            steps : list(list(OperatorMember))
+            steps : list(list(OpMember))
                 list of raw operators, with the lowest scale to the right
             list_of_paths : list(list(str))
                 list of paths
 
         Returns
         -------
-            final_op : OperatorMember
+            final_op : OpMember
                 joined operator
         """
         final_op = 0

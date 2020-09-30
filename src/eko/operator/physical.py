@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from .member import OperatorMember
+from .member import OpMember
 
 
 class PhysicalOperator:
@@ -60,7 +60,7 @@ class PhysicalOperator:
         # iterate operators
         new_ops = {}
         for key, paths in instructions.items():
-            new_ops[key] = OperatorMember.join(op_to_compose, paths)
+            new_ops[key] = OpMember.join(op_to_compose, paths)
         return self.__class__(new_ops, self.q2_final)
 
     def get_raw_operators(self):

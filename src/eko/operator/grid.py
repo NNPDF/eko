@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-    This module contains the :class:`OperatorGrid`  and the
-    :class:`OperatorMaster` class.
+This module contains the :class:`OperatorGrid`  and the
+:class:`OperatorMaster` class.
 
-    The first is the driver class of eko as it is the one that collects all the
-    previously instantiated information and does the actual computation of the Q2s.
-
-    See :doc:`Operator overview </Code/Operators>`.
+The first is the driver class of eko as it is the one that collects all the
+previously instantiated information and does the actual computation of the Q2s.
 """
 
 import logging
 import numbers
 
 import numpy as np
-from eko.evolution_operator import Operator
+from .operator import Operator
 
 logger = logging.getLogger(__name__)
 
@@ -87,23 +85,34 @@ class OperatorGrid:
 
     def __init__(
         self,
+        config,
         q2_grid,
         thresholds_config,
         strong_coupling,
-        kernel_dispatcher,
+        interpol_dispatcher,
     ):
-        self.config = dict(
-            q2_grid=q2_grid,
-            xgrid=kernel_dispatcher.interpol_dispatcher.xgrid_raw,
-            order=kernel_dispatcher.config["order"],
-            # debug options
-            debug_skip_singlet=False,
-            debug_skip_non_singlet=False,
-        )
+        # check
+        order = int(config["order"])
+        method = config["method"]
+        if not method in [
+            "iterate-exact",
+            "iterate-expanded",
+            "truncated",
+            "ordered-truncated",
+            "decompose-exact",
+            "decompose-expanded",
+            "perturbative-exact",
+            "perturbative-expanded",
+        ]:
+            raise ValueError(f"Unknown evolution mode {method}")
+        if order == 0 and method != "iterate-exact":
+            logger.warning("Evolution: In LO we use the exact solution always!")
+        self.config = config
+        self.q2_grid = q2_grid
         self.managers = dict(
             thresholds_config=thresholds_config,
             strong_coupling=strong_coupling,
-            kernel_dispatcher=kernel_dispatcher,
+            interpol_dispatcher=interpol_dispatcher,
         )
         self._op_masters = {}
         self._op_grid = {}
@@ -115,7 +124,7 @@ class OperatorGrid:
         setup,
         thresholds_config,
         strong_coupling,
-        kernel_dispatcher,
+        interpol_dispatcher,
     ):
         """
         Create the object from the theory dictionary.
@@ -142,13 +151,22 @@ class OperatorGrid:
             obj : cls
                 created object
         """
+        config = {}
+        config["order"] = int(setup["PTO"])
+        method = setup.get("ModEv", "iterate-exact")
+        mod_ev2method = {
+            "EXA": "iterate-exact",
+            "EXP": "iterate-expanded",
+            "TRN": "truncated",
+        }
+        method = mod_ev2method.get(method, method)
+        config["method"] = method
+        config["ev_op_max_order"] = setup.get("ev_op_max_order", 10)
+        config["ev_op_iterations"] = setup.get("ev_op_iterations", 10)
+        config["debug_skip_singlet"] = setup.get("debug_skip_singlet", False)
+        config["debug_skip_non_singlet"] = setup.get("debug_skip_non_singlet", False)
         q2_grid = np.array(setup["Q2grid"], np.float_)
-        obj = cls(q2_grid, thresholds_config, strong_coupling, kernel_dispatcher)
-        # set debug options
-        for op in ["debug_skip_singlet", "debug_skip_non_singlet"]:
-            if op in setup:
-                obj.config[op] = setup[op]
-        return obj
+        return cls(config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher)
 
     def _generate_masters(self):
         """
@@ -185,7 +203,7 @@ class OperatorGrid:
             if q2_to == q2_from:
                 continue
             new_op = (q2_from, q2_to)
-            logger.info("Compute threshold operator from %e to %e", q2_from, q2_to)
+            logger.info("Evolution: Compute threshold operator from %e to %e", q2_from, q2_to)
             if new_op not in self._threshold_operators:
                 # Compute the operator in place and store it
                 op_th = self._op_masters[nf].get_op(q2_from, q2_to, generate=True)
@@ -257,10 +275,6 @@ class OperatorGrid:
                 List of q^2
         """
         area_list = self.managers["thresholds_config"].get_areas(q2grid)
-        if self.config["debug_skip_singlet"]:
-            logger.warning("Evolution: skipping singlet sector")
-        if self.config["debug_skip_non_singlet"]:
-            logger.warning("Evolution: skipping non-singlet sector")
         for area, q2 in zip(area_list, q2grid):
             q2_from = area.q2_ref
             nf = area.nf
@@ -287,7 +301,7 @@ class OperatorGrid:
         """
         # use input?
         if q2grid is None:
-            q2grid = self.config["q2_grid"]
+            q2grid = self.q2_grid
         # normalize input
         if isinstance(q2grid, numbers.Number):
             q2grid = [q2grid]

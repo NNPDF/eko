@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import eko.runner
+from . import runner
 
 
 def run_dglap(setup):
@@ -24,6 +24,6 @@ def run_dglap(setup):
         output : dict
             output dictionary - see :doc:`/Code/IO`
     """
-    r = eko.runner.Runner(setup)
+    r = runner.Runner(setup)
     output = r.get_output()
     return output

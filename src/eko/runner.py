@@ -5,12 +5,12 @@
 import logging
 import copy
 
-from eko import interpolation
-from eko import kernels
-from eko.thresholds import ThresholdsConfig
-from eko.operator_grid import OperatorGrid
-from eko.strong_coupling import StrongCoupling
-from eko.output import Output
+from . import interpolation
+from . import kernels
+from .thresholds import ThresholdsConfig
+from .operator.grid import OperatorGrid
+from .strong_coupling import StrongCoupling
+from .output import Output
 
 logger = logging.getLogger(__name__)
 
@@ -32,13 +32,11 @@ class Runner:
         logger.info("init Runner with %s", setup)
         self.out = Output()
         if setup.get("keep_input", False):
-            self.out.update(setup)
+            self.out.update(copy.deepcopy(setup))
 
         # setup basis grid
         bfd = interpolation.InterpolatorDispatcher.from_dict(setup)
         self.out.update(bfd.to_dict())
-        # Generate the dispatcher for the kernels
-        kd = kernels.KernelDispatcher.from_dict(setup, bfd)
         # FNS
         tc = ThresholdsConfig.from_dict(setup)
         self.out["q2_ref"] = float(tc.q2_ref)
@@ -49,11 +47,11 @@ class Runner:
             setup,
             tc,
             sc,
-            kd,
+            bfd,
         )
 
     def get_operators(self):
-        """ compute the actual operators """
+        """compute the actual operators"""
         operators = self._op_grid.compute_q2grid()
         return operators
 

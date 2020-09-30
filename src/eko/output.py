@@ -8,9 +8,10 @@ import copy
 import numpy as np
 import yaml
 
-import eko.interpolation as interpolation
-from eko.evolution_operator import OperatorMember, PhysicalOperator
-import eko.basis_rotation as br
+from . import interpolation
+from .operator.member import OpMember
+from .operator.physical import PhysicalOperator
+from . import basis_rotation as br
 
 logger = logging.getLogger(__name__)
 
@@ -210,7 +211,7 @@ class Output(dict):
         ops = self["Q2grid"][q2]
         op_members = {}
         for name in ops["operators"]:
-            op_members[name] = OperatorMember(
+            op_members[name] = OpMember(
                 ops["operators"][name], ops["operator_errors"][name], name
             )
         return PhysicalOperator(op_members, q2)

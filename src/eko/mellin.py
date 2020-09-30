@@ -11,8 +11,7 @@ r"""
     Integration Paths
     -----------------
 
-    Although this module provides four different path implementations (:meth:`get_path_Talbot`,
-    :meth:`get_path_line`, :meth:`get_path_edge`, :meth:`get_path_Cauchy_tan`) in practice
+    Although this module provides four different path implementations in practice
     only the Talbot path :cite:`Abate`
 
     .. math::
@@ -86,8 +85,28 @@ def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e
     return result[:2]
 
 
-@nb.njit
+@nb.njit("c16(f8,f8,f8)")
 def Talbot_path(t, r, o):
+    """
+    Talbot path.
+
+    .. math::
+        p_{\\text{Talbot}}(t) =  o + r \\cdot ( \\theta \\cot(\\theta) + i\\theta ),
+        \\theta = \\pi(2t-1)
+
+    Parameters
+    ----------
+        r : float
+            scaling parameter - effectivly corresponds to the intersection of the path with the
+            real axis
+        o : float
+            offset on real axis
+
+    Returns
+    -------
+        path : complex
+            Talbot path
+    """
     theta = np.pi * (2.0 * t - 1.0)
     re = 0.0
     if t == 0.5:  # treat singular point seperately
@@ -98,8 +117,28 @@ def Talbot_path(t, r, o):
     return o + r * np.complex(re, im)
 
 
-@nb.njit
+@nb.njit("c16(f8,f8,f8)")
 def Talbot_jac(t, r, o):  # pylint: disable=unused-argument
+    """
+    Derivative of Talbot path.
+
+    .. math::
+        p_{\\text{Talbot}}(t) =  o + r \\cdot ( \\theta \\cot(\\theta) + i\\theta ),
+        \\theta = \\pi(2t-1)
+
+    Parameters
+    ----------
+        r : float
+            scaling parameter - effectivly corresponds to the intersection of the path with the
+            real axis
+        o : float
+            offset on real axis
+
+    Returns
+    -------
+        jac : complex
+            derivative of Talbot path
+    """
     theta = np.pi * (2.0 * t - 1.0)
     re = 0.0
     if t == 0.5:  # treat singular point seperately
@@ -109,36 +148,6 @@ def Talbot_jac(t, r, o):  # pylint: disable=unused-argument
         re -= theta / (np.sin(theta)) ** 2
     im = 1.0
     return r * np.pi * 2.0 * np.complex(re, im)
-
-
-def get_path_Talbot():
-    """
-    Talbot path.
-
-    .. math::
-        p_{\\text{Talbot}}(t) =  o + r \\cdot ( \\theta \\cot(\\theta) + i\\theta ),
-        \\theta = \\pi(2t-1)
-
-    Returns the path and its derivative which then have to be called with the arguments
-    listed under `Other Parameters`.
-
-    Other Parameters
-    -----------------
-        r : float
-            scaling parameter - effectivly corresponds to the intersection of the path with the
-            real axis
-        o : float
-            offset on real axis
-
-    Returns
-    -------
-        path : function
-            Talbot path function
-        jac : function
-            derivative of Talbot path
-    """
-
-    return Talbot_path, Talbot_jac
 
 
 def get_path_line():

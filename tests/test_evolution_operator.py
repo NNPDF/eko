@@ -5,7 +5,7 @@ from numpy.testing import assert_almost_equal
 import pytest
 
 from eko.evolution_operator import (
-    OperatorMember,
+    OpMember,
     PhysicalOperator,
     Operator,
 )
@@ -14,10 +14,10 @@ from eko import thresholds
 
 def mkOM(name, shape):
     ma, mae = np.random.rand(2, *shape)
-    return OperatorMember(ma, mae, name), ma, mae
+    return OpMember(ma, mae, name), ma, mae
 
 
-class TestOperatorMember:
+class TestOpMember:
     shape = (2, 2)
 
     def _mkOM(self, name):
@@ -28,7 +28,7 @@ class TestOperatorMember:
         for i in ["S", "g"]:
             for t in ["S", "g"]:
                 n = f"{t}.{i}"
-                a = OperatorMember(ma, mae, n)
+                a = OpMember(ma, mae, n)
                 # splitting
                 assert a.input == i
                 assert a.target == t
@@ -37,7 +37,7 @@ class TestOperatorMember:
         # check wrongs
         for n in [".", "a.", ".b", "ab"]:
             with pytest.raises(ValueError):
-                a = OperatorMember(ma, mae, n)
+                a = OpMember(ma, mae, n)
                 _ = a.input
                 _ = a.target
 
@@ -63,19 +63,19 @@ class TestOperatorMember:
         # errors:
         # non-matching name
         with pytest.raises(ValueError):
-            _ = a + OperatorMember(mb, mbe, "S.g")
+            _ = a + OpMember(mb, mbe, "S.g")
         # non-phyiscal
         with pytest.raises(ValueError):
-            _ = a + OperatorMember(mb, mbe, "NS_v")
+            _ = a + OpMember(mb, mbe, "NS_v")
         # wrong other
         with pytest.raises(ValueError):
-            _ = 1 + OperatorMember(mb, mbe, "S.g")
+            _ = 1 + OpMember(mb, mbe, "S.g")
         with pytest.raises(ValueError):
-            _ = OperatorMember(mb, mbe, "S.g") + 1
+            _ = OpMember(mb, mbe, "S.g") + 1
         with pytest.raises(NotImplementedError):
-            _ = [] + OperatorMember(mb, mbe, "S.g")
+            _ = [] + OpMember(mb, mbe, "S.g")
         with pytest.raises(NotImplementedError):
-            _ = OperatorMember(mb, mbe, "S.g") + []
+            _ = OpMember(mb, mbe, "S.g") + []
 
     def test_neg(self):
         a, ma, mae = self._mkOM("S.S")
@@ -108,7 +108,7 @@ class TestOperatorMember:
     def test_eq(self):
         a, ma, _mae = self._mkOM("S.S")
         b, _mb, mbe = self._mkOM("S.S")
-        c = OperatorMember(ma, mbe, "S.S")
+        c = OpMember(ma, mbe, "S.S")
 
         assert a != b
         assert a == c
@@ -141,10 +141,10 @@ class TestOperatorMember:
             _ = c / d
         # non-phyiscal
         with pytest.raises(ValueError):
-            _ = a * OperatorMember(mb, mbe, "NS_v")
+            _ = a * OpMember(mb, mbe, "NS_v")
         # wrong name
         with pytest.raises(ValueError):
-            _ = a * OperatorMember(mb, mbe, "S.S")
+            _ = a * OpMember(mb, mbe, "S.S")
         # wrong other
         with pytest.raises(NotImplementedError):
             _ = c * []
@@ -165,14 +165,14 @@ class TestOperatorMember:
         b, _, _ = self._mkOM("V.V")
         steps = [{a.name: a}, {b.name: b}]
         paths = [["V.V", "V.V"]]
-        j2 = OperatorMember.join(steps, paths)
+        j2 = OpMember.join(steps, paths)
         assert j2.name == "V.V"
         assert j2 == a * b
         # three steps
         c, _, _ = self._mkOM("V.V")
         steps = [{a.name: a}, {b.name: b}, {c.name: c}]
         paths = [["V.V", "V.V", "V.V"]]
-        j3 = OperatorMember.join(steps, paths)
+        j3 = OpMember.join(steps, paths)
         assert j3.name == "V.V"
         assert j3 == (a * b) * c
         assert j3 == a * (b * c)
@@ -186,7 +186,7 @@ class TestOperatorMember:
         gs1, _, _ = self._mkOM("g.S")
         steps = [{ss0.name: ss0, sg0.name: sg0}, {ss1.name: ss1, gs1.name: gs1}]
         paths = [["S.S", "S.S"], ["S.g", "g.S"]]
-        j2 = OperatorMember.join(steps, paths)
+        j2 = OpMember.join(steps, paths)
         assert j2.name == "S.S"
         assert j2 == ss0 * ss1 + sg0 * gs1
 
