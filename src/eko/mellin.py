@@ -31,7 +31,7 @@ import scipy.integrate as integrate
 import numba as nb
 
 
-def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e-2):
+def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e-5):
     """
     Inverse Mellin transformation.
 

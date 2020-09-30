@@ -9,9 +9,9 @@ previously instantiated information and does the actual computation of the Q2s.
 
 import logging
 import numbers
+import time
 
 import numpy as np
-from .operator import Operator
 
 logger = logging.getLogger(__name__)
 
@@ -29,8 +29,9 @@ class OperatorMaster:
             Value of nf for this :class:`OperatorMaster`
     """
 
-    def __init__(self, grid, nf):
-        self.grid = grid
+    def __init__(self, config, managers, nf):
+        self.config = config
+        self.managers = managers
         self.nf = nf
 
     def get_op(self, q2_from, q2_to, generate=False):
@@ -50,10 +51,19 @@ class OperatorMaster:
 
         Returns
         -------
-            op: eko.evolution_operators.Operator
+            op: eko.operators.Operator
                 operator to go from q2_from to q2_to
         """
-        op = Operator(self, q2_from, q2_to)
+        # import numba late - that is only here
+        start = time.perf_counter()
+        logger.info("Evolution: compiling Numba")
+        from .operator import Operator  # pylint: disable=import-outside-toplevel
+
+        logger.info(
+            "Evolution: compiling Numba - took %.1f s", time.perf_counter() - start
+        )
+        # now do the computation
+        op = Operator(self.config, self.managers, self.nf, q2_from, q2_to)
         if generate:
             op.compute()
         return op
@@ -143,8 +153,8 @@ class OperatorGrid:
                 An instance of the ThresholdsConfig class
             strong_coupling : eko.strong_coupling.StrongCoupling
                 An instance of the StrongCoupling class
-            kernel_dispatcher : eko.kernel_generation.KernelDispatcher
-                An instance of the KernelDispatcher class
+            interpol_dispatcher : eko.interpolation.InterpolatorDispatcher
+                An instance of the InterpolatorDispatcher class
 
         Returns
         -------
@@ -166,7 +176,9 @@ class OperatorGrid:
         config["debug_skip_singlet"] = setup.get("debug_skip_singlet", False)
         config["debug_skip_non_singlet"] = setup.get("debug_skip_non_singlet", False)
         q2_grid = np.array(setup["Q2grid"], np.float_)
-        return cls(config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher)
+        return cls(
+            config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher
+        )
 
     def _generate_masters(self):
         """
@@ -174,7 +186,11 @@ class OperatorGrid:
         """
         for nf in self.managers["thresholds_config"].nf_range():
             # Set up the OperatorMaster for each nf
-            self._op_masters[nf] = OperatorMaster(self, nf)
+            self._op_masters[nf] = OperatorMaster(
+                self.config,
+                {k: v for k, v in self.managers.items() if k != "thresholds_config"},
+                nf,
+            )
 
     def _generate_thresholds_op(self, to_q2):
         """
@@ -203,7 +219,9 @@ class OperatorGrid:
             if q2_to == q2_from:
                 continue
             new_op = (q2_from, q2_to)
-            logger.info("Evolution: Compute threshold operator from %e to %e", q2_from, q2_to)
+            logger.info(
+                "Evolution: Compute threshold operator from %e to %e", q2_from, q2_to
+            )
             if new_op not in self._threshold_operators:
                 # Compute the operator in place and store it
                 op_th = self._op_masters[nf].get_op(q2_from, q2_to, generate=True)
@@ -346,7 +364,7 @@ class OperatorGrid:
         operators_to_q2 = self._get_jumps(operator.q2_from)
         number_of_thresholds = len(operators_to_q2)
         instruction_set = self.managers["thresholds_config"].get_composition_path(
-            operator.master.nf, number_of_thresholds
+            operator.nf, number_of_thresholds
         )
         # Compose and return
         final_op = operator.compose(operators_to_q2, instruction_set, qsq)

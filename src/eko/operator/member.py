@@ -135,9 +135,7 @@ class OpMember:
             rerror = operator_member.error
             new_name = self.name
         else:
-            raise NotImplementedError(
-                f"Can't sum OpMember and {type(operator_member)}"
-            )
+            raise NotImplementedError(f"Can't sum OpMember and {type(operator_member)}")
         new_val = self.value + rval
         new_err = self.error + rerror
         return OpMember(new_val, new_err, new_name)

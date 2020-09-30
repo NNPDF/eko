@@ -6,7 +6,6 @@ import logging
 import copy
 
 from . import interpolation
-from . import kernels
 from .thresholds import ThresholdsConfig
 from .operator.grid import OperatorGrid
 from .strong_coupling import StrongCoupling

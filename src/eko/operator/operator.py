@@ -112,7 +112,7 @@ def compute_singlet(
     return ker
 
 
-@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,u1,u4,u1)")
+@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,u1,u4,u1)", cache=True)
 def quad_ker(
     u,
     order,
@@ -189,6 +189,7 @@ def quad_ker(
     mellin_prefactor = np.complex(0.0, -1.0 / np.pi)
     return np.real(mellin_prefactor * ker * pj * jac)
 
+
 class Operator:
     """
     Internal representation of a single EKO.
@@ -209,8 +210,10 @@ class Operator:
             cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, master, q2_from, q2_to, mellin_cut=1e-2):
-        self.master = master
+    def __init__(self, config, managers, nf, q2_from, q2_to, mellin_cut=1e-2):
+        self.config = config
+        self.managers = managers
+        self.nf = nf
         self.q2_from = q2_from
         self.q2_to = q2_to
         # TODO make 'cut' external parameter?
@@ -262,17 +265,17 @@ class Operator:
             labels : list(str)
                 sector labels
         """
-        order = self.master.grid.config["order"]
+        order = self.config["order"]
         labels = []
         # NS sector is dynamic
-        if self.master.grid.config["debug_skip_non_singlet"]:
+        if self.config["debug_skip_non_singlet"]:
             logger.warning("Evolution: skipping non-singlet sector")
         else:
             labels.append("NS_p")
             if order > 0:
                 labels.append("NS_m")
         # singlet sector is fixed
-        if self.master.grid.config["debug_skip_singlet"]:
+        if self.config["debug_skip_singlet"]:
             logger.warning("Evolution: skipping singlet sector")
         else:
             labels.extend(["S_qq", "S_qg", "S_gq", "S_gg"])
@@ -281,24 +284,21 @@ class Operator:
     def compute(self):
         """ compute the actual operators (i.e. run the integrations) """
         # Generic parameters
-        int_disp = self.master.grid.managers["interpol_dispatcher"]
+        int_disp = self.managers["interpol_dispatcher"]
         grid_size = len(int_disp.xgrid)
 
         # init all ops with zeros
-        singlet_names = ["S_qq", "S_qg", "S_gq", "S_gg"]
-        ns_names = ["NS_p", "NS_m", "NS_v"]
-        for n in singlet_names + ns_names:
+        labels = self.labels()
+        for n in ["S_qq", "S_qg", "S_gq", "S_gg", "NS_p", "NS_m", "NS_v"]:
             self.op_members[n] = OpMember(
                 np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size)), n
             )
         tot_start_time = time.perf_counter()
         # setup KernelDispatcher
         logger.info("Evolution: computing operators - 0/%d", grid_size)
-        sc = self.master.grid.managers["strong_coupling"]
+        sc = self.managers["strong_coupling"]
         a1 = sc.a_s(self.q2_to)
         a0 = sc.a_s(self.q2_from)
-        # determine labels
-        labels = self.labels()
         # iterate output grid
         for k, logx in enumerate(np.log(int_disp.xgrid_raw)):
             start_time = time.perf_counter()
@@ -311,17 +311,17 @@ class Operator:
                         quad_ker,
                         self._mellin_cut,
                         [
-                            self.master.grid.config["order"],
+                            self.config["order"],
                             label,
-                            self.master.grid.config["method"],
+                            self.config["method"],
                             int_disp.log,
                             logx,
                             bf.areas_representation,
                             a1,
                             a0,
-                            self.master.nf,
-                            self.master.grid.config["ev_op_iterations"],
-                            self.master.grid.config["ev_op_max_order"],
+                            self.nf,
+                            self.config["ev_op_iterations"],
+                            self.config["ev_op_max_order"],
                         ],
                     )
                     self.op_members[label].value[k][l] = val
@@ -334,8 +334,14 @@ class Operator:
                 time.perf_counter() - start_time,
             )
 
+        # closing comment
+        logger.info("Evolution: Total time %f s", time.perf_counter() - tot_start_time)
         # copy non-singlet kernels, if necessary
-        order = self.master.grid.config["order"]
+        self.copy_ns_ops()
+
+    def copy_ns_ops(self):
+        """Copy non-singlet kernels, if necessary"""
+        order = self.config["order"]
         if order == 0:  # in LO +=-=v
             for label in ["NS_v", "NS_m"]:
                 self.op_members[label].value = self.op_members["NS_p"].value.copy()
@@ -343,5 +349,3 @@ class Operator:
         elif order == 1:  # in NLO -=v
             self.op_members["NS_v"].value = self.op_members["NS_m"].value.copy()
             self.op_members["NS_v"].error = self.op_members["NS_m"].error.copy()
-        # closing comment
-        logger.info("Evolution: Total time %f s", time.perf_counter() - tot_start_time)
