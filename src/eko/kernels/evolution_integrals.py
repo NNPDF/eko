@@ -13,7 +13,7 @@ import numba as nb
 from .. import beta
 
 
-@nb.njit
+@nb.njit("f8(f8,f8,u1)")
 def j00(a1, a0, nf):
     r"""
     LO-LO exact evolution integral.
@@ -39,7 +39,7 @@ def j00(a1, a0, nf):
     return np.log(a1 / a0) / beta.beta(0, nf)
 
 
-@nb.njit
+@nb.njit("f8(f8,f8,u1)")
 def j11_exact(a1, a0, nf):
     r"""
     NLO-NLO exact evolution integral.
@@ -68,7 +68,7 @@ def j11_exact(a1, a0, nf):
     return (1.0 / beta_1) * np.log((1.0 + a1 * b1) / (1.0 + a0 * b1))
 
 
-@nb.njit
+@nb.njit("f8(f8,f8,u1)")
 def j11_expanded(a1, a0, nf):
     r"""
     NLO-NLO expanded evolution integral.
@@ -93,7 +93,7 @@ def j11_expanded(a1, a0, nf):
     return 1.0 / beta.beta(0, nf) * (a1 - a0)
 
 
-@nb.njit
+@nb.njit("f8(f8,f8,u1)")
 def j01_exact(a1, a0, nf):
     r"""
     LO-NLO exact evolution integral.
@@ -120,7 +120,7 @@ def j01_exact(a1, a0, nf):
     return j00(a1, a0, nf) - beta.b(1, nf) * j11_exact(a1, a0, nf)
 
 
-@nb.njit
+@nb.njit("f8(f8,f8,u1)")
 def j01_expanded(a1, a0, nf):
     r"""
     LO-NLO expanded evolution integral.

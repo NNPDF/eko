@@ -75,7 +75,7 @@ class Area:
             yield coef
 
 
-@nb.njit
+@nb.njit("c16(c16,f8,f8[:,:])")
 def log_evaluate_Nx(N, logx, area_list):
     """
     Evaluates a single logarithmic Lagrange interpolator in N-space multiplied
@@ -126,7 +126,7 @@ def log_evaluate_Nx(N, logx, area_list):
     return res
 
 
-@nb.njit
+@nb.njit("c16(c16,f8,f8[:,:])")
 def evaluate_Nx(N, logx, area_list):
     """
     Evaluates a single linear Lagrange interpolator in N-space multiplied
@@ -169,7 +169,7 @@ def evaluate_Nx(N, logx, area_list):
     return res
 
 
-@nb.njit
+@nb.njit("f8(f8,f8[:,:])")
 def evaluate_x(x, area_list):
     """
     Get a single linear Lagrange interpolator in x-space
@@ -202,7 +202,7 @@ def evaluate_x(x, area_list):
     return res
 
 
-@nb.njit
+@nb.njit("f8(f8,f8[:,:])")
 def log_evaluate_x(x, area_list):
     """
     Get a single logarithmic Lagrange interpolator in x-space

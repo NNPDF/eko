@@ -8,7 +8,7 @@ import numba as nb
 from eko import constants
 
 
-@nb.njit
+@nb.njit("c16(c16,c16)")
 def gamma_ns_0(N, s1):
     """
     Computes the leading-order non-singlet anomalous dimension.
@@ -32,7 +32,7 @@ def gamma_ns_0(N, s1):
     return result
 
 
-@nb.njit
+@nb.njit("c16(c16,u1)")
 def gamma_qg_0(N, nf: int):
     """
     Computes the leading-order quark-gluon anomalous dimension
@@ -56,7 +56,7 @@ def gamma_qg_0(N, nf: int):
     return result
 
 
-@nb.njit
+@nb.njit("c16(c16)")
 def gamma_gq_0(N):
     """
     Computes the leading-order gluon-quark anomalous dimension
@@ -78,7 +78,7 @@ def gamma_gq_0(N):
     return result
 
 
-@nb.njit
+@nb.njit("c16(c16,c16,u1)")
 def gamma_gg_0(N, s1, nf: int):
     """
     Computes the leading-order gluon-gluon anomalous dimension
@@ -104,7 +104,7 @@ def gamma_gg_0(N, s1, nf: int):
     return result
 
 
-@nb.njit
+@nb.njit("c16[:,:](c16,c16,u1)")
 def gamma_singlet_0(N, s1, nf: int):
     r"""
       Computes the leading-order singlet anomalous dimension matrix

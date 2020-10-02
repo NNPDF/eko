@@ -27,7 +27,7 @@ from . import lo
 from . import nlo
 
 
-@nb.njit
+@nb.njit("Tuple((c16[:,:],c16,c16,c16[:,:],c16[:,:]))(c16[:,:])")
 def exp_singlet(gamma_S):
     r"""
     Computes the exponential and the eigensystem of the singlet anomalous dimension matrix
@@ -74,7 +74,7 @@ def exp_singlet(gamma_S):
     return exp, lambda_p, lambda_m, e_p, e_m
 
 
-@nb.njit
+@nb.njit("c16[:](u1,string,c16,u1)")
 def gamma_ns(order, mode, n, nf):
     r"""
     Computes the tower of the non-singlet anomalous dimensions
@@ -114,7 +114,7 @@ def gamma_ns(order, mode, n, nf):
     return gamma_ns
 
 
-@nb.njit
+@nb.njit("c16[:,:,:](u1,c16,u1)")
 def gamma_singlet(order, n, nf):
     r"""
     Computes the tower of the singlet anomalous dimensions matrices

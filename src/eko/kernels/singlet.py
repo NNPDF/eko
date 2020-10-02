@@ -14,7 +14,7 @@ from . import evolution_integrals as ei
 from . import utils
 
 
-@nb.njit
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)")
 def lo_exact(gamma_singlet, a1, a0, nf):
     """
     Singlet leading order exact EKO
@@ -38,7 +38,7 @@ def lo_exact(gamma_singlet, a1, a0, nf):
     return ad.exp_singlet(gamma_singlet[0] * ei.j00(a1, a0, nf))[0]
 
 
-@nb.njit
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8)")
 def nlo_decompose(gamma_singlet, j01, j11):
     """
     Singlet next-to-leading order decompose EKO
@@ -66,7 +66,7 @@ def nlo_decompose(gamma_singlet, j01, j11):
     return ad.exp_singlet(gamma_singlet[0] * j01 + gamma_singlet[1] * j11)[0]
 
 
-@nb.njit
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)")
 def nlo_decompose_exact(gamma_singlet, a1, a0, nf):
     """
     Singlet next-to-leading order decompose-exact EKO
@@ -92,7 +92,7 @@ def nlo_decompose_exact(gamma_singlet, a1, a0, nf):
     )
 
 
-@nb.njit
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)")
 def nlo_decompose_expanded(gamma_singlet, a1, a0, nf):
     """
     Singlet next-to-leading order decompose-expanded EKO
@@ -118,7 +118,7 @@ def nlo_decompose_expanded(gamma_singlet, a1, a0, nf):
     )
 
 
-@nb.njit
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)")
 def nlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations):
     """
     Singlet next-to-leading order iterated (exact) EKO
@@ -138,7 +138,7 @@ def nlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations):
 
     Returns
     -------
-        e_s^1 : complex
+        e_s^1 : numpy.ndarray
             singlet next-to-leading order iterated (exact) EKO
     """
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
@@ -154,13 +154,13 @@ def nlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations):
             / (beta0 * a_half ** 2 + beta1 * a_half ** 3)
             * delta_a
         )
-        ek = ad.exp_singlet(ln)[0]
+        ek = np.ascontiguousarray(ad.exp_singlet(ln)[0])
         e = ek @ e
         al = ah
     return e
 
 
-@nb.njit
+@nb.njit("c16[:,:,:](c16[:,:,:],u1,u1,b1)")
 def r_vec(gamma_singlet, nf, ev_op_max_order, is_exact):
     r"""
     Compute singlet R vector for perturbative mode.
@@ -198,7 +198,7 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, is_exact):
     return r
 
 
-@nb.njit
+@nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)")
 def nlo_r_exact(gamma_singlet, nf, ev_op_max_order):
     """
     Compute singlet R vector for perturbative-exact mode.
@@ -224,7 +224,7 @@ def nlo_r_exact(gamma_singlet, nf, ev_op_max_order):
     return r_vec(gamma_singlet, nf, ev_op_max_order, True)
 
 
-@nb.njit
+@nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)")
 def nlo_r_expanded(gamma_singlet, nf, ev_op_max_order):
     """
     Compute singlet R vector for perturbative-expanded mode.
@@ -250,7 +250,7 @@ def nlo_r_expanded(gamma_singlet, nf, ev_op_max_order):
     return r_vec(gamma_singlet, nf, ev_op_max_order, False)
 
 
-@nb.njit
+@nb.njit("c16[:,:,:](c16[:,:,:],u1)")
 def u_vec(r, ev_op_max_order):
     r"""
     Compute the elements of the singlet U vector.
@@ -275,11 +275,13 @@ def u_vec(r, ev_op_max_order):
     # init
     u[0] = np.identity(2, np.complex_)
     _, r_p, r_m, e_p, e_m = ad.exp_singlet(r[0])
+    e_p = np.ascontiguousarray(e_p)
+    e_m = np.ascontiguousarray(e_m)
     for kk in range(1, ev_op_max_order + 1):
         # compute R'
         rp = np.zeros((2, 2), np.complex_)
         for jj in range(kk):
-            rp += r[kk - jj] @ u[jj]
+            rp += np.ascontiguousarray(r[kk - jj]) @ u[jj]
         # now compose U
         u[kk] = (
             (e_m @ rp @ e_m + e_p @ rp @ e_p) / kk
@@ -289,7 +291,7 @@ def u_vec(r, ev_op_max_order):
     return u
 
 
-@nb.njit
+@nb.njit("c16[:,:](c16[:,:,:],f8)")
 def sum_u(uvec, a):
     r"""
     Sums up the actual U operator.
@@ -321,7 +323,7 @@ def sum_u(uvec, a):
     return res
 
 
-@nb.njit
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1,c16[:,:,:])")
 def nlo_perturbative(gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r):
     """
     Singlet next-to-leading order pertubative EKO
@@ -340,8 +342,8 @@ def nlo_perturbative(gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_orde
             number of evolution steps
         ev_op_max_order : int
             perturbative expansion order of U
-        r_fnc : callable
-            getter for the R vector
+        r : numpy.ndarray
+            R vector
 
     Returns
     -------
@@ -358,13 +360,14 @@ def nlo_perturbative(gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_orde
         uh = sum_u(uk, ah)
         ul = sum_u(uk, al)
         # join elements
-        ek = uh @ e0 @ np.linalg.inv(ul)
+        ek = np.ascontiguousarray(uh) @ np.ascontiguousarray(e0) @ np.linalg.inv(ul)
+        #import pdb; pdb.set_trace()
         e = ek @ e
         al = ah
     return e
 
 
-@nb.njit
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1)")
 def nlo_perturbative_exact(
     gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
 ):
@@ -401,7 +404,7 @@ def nlo_perturbative_exact(
     )
 
 
-@nb.njit
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1)")
 def nlo_perturbative_expanded(
     gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
 ):
@@ -438,7 +441,7 @@ def nlo_perturbative_expanded(
     )
 
 
-@nb.njit
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)")
 def nlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations):
     """
     Singlet next-to-leading order truncated EKO
@@ -463,19 +466,20 @@ def nlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations):
     """
     r = nlo_r_expanded(gamma_singlet, nf, 1)
     u = u_vec(r, 1)
+    u1 = np.ascontiguousarray(u[1])
     e = np.identity(2, np.complex_)
     # iterate elements
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
     al = a_steps[0]
     for ah in a_steps[1:]:
-        e0 = lo_exact(gamma_singlet, ah, al, nf)
-        ek = e0 + ah * u[1] @ e0 - al * e0 @ u[1]
+        e0 = np.ascontiguousarray(lo_exact(gamma_singlet, ah, al, nf))
+        ek = e0 + ah * u1 @ e0 - al * e0 @ u1
         e = ek @ e
         al = ah
     return e
 
 
-@nb.njit
+@nb.njit("c16[:,:](u1,string,c16[:,:,:],f8,f8,u1,u4,u1)")
 def dispatcher(  # pylint: disable=too-many-return-statements
     order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
 ):

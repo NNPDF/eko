@@ -21,97 +21,6 @@ from .physical import PhysicalOperator
 logger = logging.getLogger(__name__)
 
 
-@nb.njit
-def compute_ns(order, mode, method, n, a1, a0, nf, ev_op_iterations):
-    """
-    Computes the non-singlet EKO
-
-    Parameters
-    ----------
-        order : int
-            perturbation order
-        method : str
-            method
-        mode : str
-            element in the non-singlet sector
-        n : complex
-            Mellin moment
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
-        ev_op_iterations : int
-            number of evolution steps
-
-    Returns
-    -------
-        e_ns : complex
-            non-singlet EKO
-    """
-    # load data
-    gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
-    # switch by order and method
-    return ns.dispatcher(
-        order,
-        method,
-        gamma_ns,
-        a1,
-        a0,
-        nf,
-        ev_op_iterations,
-    )
-
-
-@nb.njit
-def compute_singlet(
-    order, mode, method, n, a1, a0, nf, ev_op_iterations, ev_op_max_order
-):
-    """
-    Computes the singlet EKO
-
-    Parameters
-    ----------
-        order : int
-            perturbation order
-        method : str
-            method
-        mode : str
-            element in the singlet sector
-        n : complex
-            Mellin moment
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
-        ev_op_iterations : int
-            number of evolution steps
-        ev_op_max_order : int
-            perturbative expansion order of U
-
-    Returns
-    -------
-        e_s : numpy.ndarray
-            singlet EKO
-    """
-    gamma_singlet = ad.gamma_singlet(
-        order,
-        n,
-        nf,
-    )
-    ker = s.dispatcher(
-        order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
-    )
-    # select element of matrix
-    k = 0 if mode[2] == "q" else 1
-    l = 0 if mode[3] == "q" else 1
-    ker = ker[k, l]
-    return ker
-
-
 @nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,u1,u4,u1)", cache=True)
 def quad_ker(
     u,
@@ -179,12 +88,19 @@ def quad_ker(
         return 0.0
     # compute the actual evolution kernel
     if is_singlet:
-        ker = compute_singlet(
-            order, mode, method, n, a1, a0, nf, ev_op_iterations, ev_op_max_order
+        gamma_singlet = ad.gamma_singlet(order,n,nf,)
+        ker = s.dispatcher(
+            order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
+        # select element of matrix
+        k = 0 if mode[2] == "q" else 1
+        l = 0 if mode[3] == "q" else 1
+        ker = ker[k, l]
     else:
-        # ker = self.compute_ns(n)
-        ker = compute_ns(order, mode, method, n, a1, a0, nf, ev_op_iterations)
+        # load data
+        gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
+        # switch by order and method
+        ker = ns.dispatcher(order,method,gamma_ns,a1,a0,nf,ev_op_iterations,)
     # recombine everthing
     mellin_prefactor = np.complex(0.0, -1.0 / np.pi)
     return np.real(mellin_prefactor * ker * pj * jac)

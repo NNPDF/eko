@@ -13,7 +13,7 @@ from . import evolution_integrals as ei
 from . import utils
 
 
-@nb.njit
+@nb.njit("c16(c16[:],f8,f8,u1)")
 def lo_exact(gamma_ns, a1, a0, nf):
     """
     Non-singlet leading order exact EKO
@@ -37,7 +37,7 @@ def lo_exact(gamma_ns, a1, a0, nf):
     return np.exp(gamma_ns[0] * ei.j00(a1, a0, nf))
 
 
-@nb.njit
+@nb.njit("c16(c16[:],f8,f8,u1)")
 def nlo_exact(gamma_ns, a1, a0, nf):
     """
     Non-singlet next-to-leading order exact EKO
@@ -63,7 +63,7 @@ def nlo_exact(gamma_ns, a1, a0, nf):
     )
 
 
-@nb.njit
+@nb.njit("c16(c16[:],f8,f8,u1)")
 def nlo_expanded(gamma_ns, a1, a0, nf):
     """
     Non-singlet next-to-leading order expanded EKO
@@ -90,7 +90,7 @@ def nlo_expanded(gamma_ns, a1, a0, nf):
     )
 
 
-@nb.njit
+@nb.njit("c16(c16[:],f8,f8,u1,u4)")
 def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
     Non-singlet next-to-leading order truncated EKO
@@ -124,7 +124,7 @@ def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     return e
 
 
-@nb.njit
+@nb.njit("c16(c16[:],f8,f8,u1,u4)")
 def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
     Non-singlet next-to-leading order ordered-truncated EKO
@@ -163,7 +163,7 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     return e
 
 
-@nb.njit
+@nb.njit("c16(u1,string,c16[:],f8,f8,u1,u4)")
 def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):
     """
     Determine used kernel and call it.
