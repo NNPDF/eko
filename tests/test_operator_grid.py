@@ -11,8 +11,7 @@ import numpy as np
 import eko.interpolation as interpolation
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsConfig
-from eko.kernels import KernelDispatcher
-from eko.operator_grid import OperatorGrid
+from eko.operator.grid import OperatorGrid
 
 
 class TestOperatorGrid:
@@ -20,6 +19,7 @@ class TestOperatorGrid:
         setup = {
             "alphas": 0.35,
             "PTO": 0,
+            "ModEv": "TRN",
             "Qref": np.sqrt(2),
             "Q0": np.sqrt(2),
             "Q2grid": [1, 10],
@@ -55,9 +55,10 @@ class TestOperatorGrid:
             setup
         )
         threshold_holder = ThresholdsConfig.from_dict(setup)
-        kernel_dispatcher = KernelDispatcher.from_dict(setup, basis_function_dispatcher)
         a_s = StrongCoupling.from_dict(setup, threshold_holder)
-        return OperatorGrid.from_dict(setup, threshold_holder, a_s, kernel_dispatcher)
+        return OperatorGrid.from_dict(
+            setup, threshold_holder, a_s, basis_function_dispatcher
+        )
 
     def test_sanity(self):
         """ Sanity checks for the input"""
@@ -73,13 +74,27 @@ class TestOperatorGrid:
             opgrid.set_q2_limits(-1, -4)
         with pytest.raises(ValueError):
             opgrid.set_q2_limits(4, 1)
+        with pytest.raises(ValueError):
+            setup = self._get_setup(True)
+            basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
+                setup
+            )
+            threshold_holder = ThresholdsConfig.from_dict(setup)
+            a_s = StrongCoupling.from_dict(setup, threshold_holder)
+            setup.update({"ModEv": "wrong"})
+            OperatorGrid.from_dict(
+                setup, threshold_holder, a_s, basis_function_dispatcher
+            )
 
     def test_compute_q2grid(self):
         opgrid = self._get_operator_grid()
         # q2 has not be precomputed - but should work nevertheless
         opgrid.get_op_at_q2(3)
         # we can also pass a single number
-        opgrid.compute_q2grid(3)
+        opg = opgrid.compute_q2grid()
+        assert len(opg) == 2
+        opg = opgrid.compute_q2grid(3)
+        assert len(opg) == 1
         # errors
         with pytest.raises(ValueError):
             bad_grid = [100, -6, 3]

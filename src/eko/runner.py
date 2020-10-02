@@ -23,12 +23,19 @@ class Runner:
     def __init__(self, setup):
         # Print theory id setup
         logger.info("init Runner with %s", setup)
-        # defer numba compiling inside interpolation
-        from . import interpolation # pylint: disable=import-outside-toplevel
-        from .output import Output # pylint: disable=import-outside-toplevel
-        from .strong_coupling import StrongCoupling # pylint: disable=import-outside-toplevel
-        from .thresholds import ThresholdsConfig # pylint: disable=import-outside-toplevel
-        from .operator.grid import OperatorGrid # pylint: disable=import-outside-toplevel
+        # defer numba compilation
+        from . import interpolation  # pylint: disable=import-outside-toplevel
+        from .output import Output  # pylint: disable=import-outside-toplevel
+        from .strong_coupling import (
+            StrongCoupling,
+        )  # pylint: disable=import-outside-toplevel
+        from .thresholds import (
+            ThresholdsConfig,
+        )  # pylint: disable=import-outside-toplevel
+        from .operator.grid import (
+            OperatorGrid,
+        )  # pylint: disable=import-outside-toplevel
+
         self.out = Output()
         if setup.get("keep_input", False):
             self.out.update(copy.deepcopy(setup))

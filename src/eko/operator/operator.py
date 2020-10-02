@@ -88,7 +88,11 @@ def quad_ker(
         return 0.0
     # compute the actual evolution kernel
     if is_singlet:
-        gamma_singlet = ad.gamma_singlet(order,n,nf,)
+        gamma_singlet = ad.gamma_singlet(
+            order,
+            n,
+            nf,
+        )
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
@@ -100,7 +104,15 @@ def quad_ker(
         # load data
         gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
         # switch by order and method
-        ker = ns.dispatcher(order,method,gamma_ns,a1,a0,nf,ev_op_iterations,)
+        ker = ns.dispatcher(
+            order,
+            method,
+            gamma_ns,
+            a1,
+            a0,
+            nf,
+            ev_op_iterations,
+        )
     # recombine everthing
     mellin_prefactor = np.complex(0.0, -1.0 / np.pi)
     return np.real(mellin_prefactor * ker * pj * jac)

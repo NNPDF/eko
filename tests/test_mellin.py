@@ -42,7 +42,6 @@ def check_path_symmetry(path, jac, extra_args):
 #     def function_x(x):
 #         return x
 
-#     @nb.njit
 #     def function_N(N, lnx, a1, a0):  # pylint:disable=unused-argument
 #         return np.exp(-N * lnx) / (N + 1)
 
