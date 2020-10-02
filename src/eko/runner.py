@@ -26,15 +26,15 @@ class Runner:
         # defer numba compilation
         from . import interpolation  # pylint: disable=import-outside-toplevel
         from .output import Output  # pylint: disable=import-outside-toplevel
-        from .strong_coupling import (
+        from .strong_coupling import (  # pylint: disable=import-outside-toplevel
             StrongCoupling,
-        )  # pylint: disable=import-outside-toplevel
-        from .thresholds import (
+        )
+        from .thresholds import (  # pylint: disable=import-outside-toplevel
             ThresholdsConfig,
-        )  # pylint: disable=import-outside-toplevel
-        from .operator.grid import (
+        )
+        from .operator.grid import (  # pylint: disable=import-outside-toplevel
             OperatorGrid,
-        )  # pylint: disable=import-outside-toplevel
+        )
 
         self.out = Output()
         if setup.get("keep_input", False):
