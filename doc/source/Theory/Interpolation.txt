@@ -49,7 +49,7 @@ Now, we construct the interpolation in a bottom-up approach for a given point
 2. Determine the associated block :math:`\bar B(\bar A)` :
    Choose the block in which :math:`\bar A(\bar x)` is located most central.
    For an odd number of :math:`N_{degree}` choose the block which is
-   loacted higher, i.e. closer to :math:`x=1` (following the choice of borders
+   located higher, i.e. closer to :math:`x=1` (following the choice of borders
    for the areas). At the border of the grid, choose the "most central".
 
 3. Only the points and their associated polynomials which are in :math:`\bar B`
