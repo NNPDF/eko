@@ -171,6 +171,7 @@ class OperatorGrid:
         }
         method = mod_ev2method.get(method, method)
         config["method"] = method
+        config["log_fact_to_ren"] = np.log((setup["XIF"] / setup["XIR"])**2)
         config["ev_op_max_order"] = setup.get("ev_op_max_order", 10)
         config["ev_op_iterations"] = setup.get("ev_op_iterations", 10)
         config["debug_skip_singlet"] = setup.get("debug_skip_singlet", False)

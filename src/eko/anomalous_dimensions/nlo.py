@@ -14,7 +14,7 @@ from .. import ekomath
 from .. import constants
 
 
-@nb.njit("c16(c16,u1)")
+@nb.njit("c16(c16,u1)", cache=True)
 def gamma_nsm_1(n, nf: int):
     """
     Computes the next-to-leading-order valence-like non-singlet anomalous dimension.
@@ -57,7 +57,7 @@ def gamma_nsm_1(n, nf: int):
     return result
 
 
-@nb.njit("c16(c16,u1)")
+@nb.njit("c16(c16,u1)", cache=True)
 def gamma_nsp_1(n, nf: int):
     """
     Computes the next-to-leading-order singlet-like non-singlet anomalous dimension.
@@ -98,7 +98,7 @@ def gamma_nsp_1(n, nf: int):
     return result
 
 
-@nb.njit("c16(c16,u1)")
+@nb.njit("c16(c16,u1)", cache=True)
 def gamma_ps_1(n, nf: int):
     """
     Computes the next-to-leading-order pure-singlet quark-quark anomalous dimension.
@@ -125,7 +125,7 @@ def gamma_ps_1(n, nf: int):
     return result
 
 
-@nb.njit("c16(c16,u1)")
+@nb.njit("c16(c16,u1)", cache=True)
 def gamma_qg_1(n, nf: int):
     """
     Computes the next-to-leading-order quark-gluon singlet anomalous dimension.
@@ -158,7 +158,7 @@ def gamma_qg_1(n, nf: int):
     return result
 
 
-@nb.njit("c16(c16,u1)")
+@nb.njit("c16(c16,u1)", cache=True)
 def gamma_gq_1(n, nf: int):
     """
     Computes the next-to-leading-order gluon-quark singlet anomalous dimension.
@@ -194,7 +194,7 @@ def gamma_gq_1(n, nf: int):
     return result
 
 
-@nb.njit("c16(c16,u1)")
+@nb.njit("c16(c16,u1)", cache=True)
 def gamma_gg_1(n, nf: int):
     """
     Computes the next-to-leading-order gluon-gluon singlet anomalous dimension.
@@ -232,7 +232,7 @@ def gamma_gg_1(n, nf: int):
     return result
 
 
-@nb.njit("c16[:,:](c16,u1)")
+@nb.njit("c16[:,:](c16,u1)", cache=True)
 def gamma_singlet_1(N, nf: int):
     r"""
       Computes the next-leading-order singlet anomalous dimension matrix

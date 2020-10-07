@@ -12,6 +12,7 @@ import numba as nb
 from .. import mellin
 from .. import interpolation
 from .. import anomalous_dimensions as ad
+from .. import beta
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 
@@ -20,8 +21,14 @@ from .physical import PhysicalOperator
 
 logger = logging.getLogger(__name__)
 
+@nb.njit("c16[:](u1,string,c16,u1,f8)", cache=True)
+def gamma_ns_fact(order, mode, n, nf, L):
+    gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
+    if order > 0:
+        gamma_ns[1] -= beta.beta(0,nf) * gamma_ns[0] * L
+    return gamma_ns
 
-@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,u1,u4,u1)", cache=True)
+@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,u1,u4,u1)", cache=True)
 def quad_ker(
     u,
     order,
@@ -33,6 +40,7 @@ def quad_ker(
     a1,
     a0,
     nf,
+    L,
     ev_op_iterations,
     ev_op_max_order,
 ):
@@ -61,6 +69,8 @@ def quad_ker(
             initial coupling value
         nf : int
             number of active flavors
+        L : float
+            logarithmic ratio of factorization and renormalization scale
         ev_op_iterations : int
             number of evolution steps
         ev_op_max_order : int
@@ -102,7 +112,7 @@ def quad_ker(
         ker = ker[k, l]
     else:
         # load data
-        gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
+        gamma_ns = gamma_ns_fact(order,mode,n,nf,L)
         # switch by order and method
         ker = ns.dispatcher(
             order,
@@ -248,6 +258,7 @@ class Operator:
                             a1,
                             a0,
                             self.nf,
+                            self.config["log_fact_to_ren"],
                             self.config["ev_op_iterations"],
                             self.config["ev_op_max_order"],
                         ],

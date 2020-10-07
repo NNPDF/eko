@@ -136,11 +136,19 @@ class LHABenchmarkPaper:
             if order == 0:
                 return rotate_data(self.data["table2"]["part2"])
             if order == 1:
+                if np.isclose((self.setup["XIF"] / self.setup["XIR"])**2,2.):
+                    return rotate_data(self.data["table3"]["part3"])
+                if np.isclose((self.setup["XIF"] / self.setup["XIR"])**2,1./2.):
+                    return rotate_data(self.data["table3"]["part2"])
                 return rotate_data(self.data["table3"]["part1"])
         if fns == "ZM-VFNS":
             if order == 0:
                 return rotate_data(self.data["table2"]["part3"])
             if order == 1:
+                if np.isclose((self.setup["XIF"] / self.setup["XIR"])**2,2.):
+                    return rotate_data(self.data["table4"]["part3"])
+                if np.isclose((self.setup["XIF"] / self.setup["XIR"])**2,1./2.):
+                    return rotate_data(self.data["table4"]["part2"])
                 return rotate_data(self.data["table4"]["part1"])
         raise ValueError(f"unknown FNS {fns} or order {order}")
 
