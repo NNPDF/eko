@@ -32,12 +32,26 @@ class TestVersion:
         assert v.version == v.full_version.split("-")[0]
 
     def test_released(self):
+        # define release detectors
         release_branches = ["master", "release", "hotfix"]
+
+        def is_tag_branch(branch_name):
+            if branch_name[0] != "v":
+                return False
+
+            try:
+                semver.VersionInfo.parse(branch_name[1:])
+                return True
+            except ValueError:
+                return False
+
+        # get repo info
         branch_name = "/".join(repo.head.name.split("/")[2:])
 
         full_version = semver.VersionInfo.parse(v.full_version)
 
-        if branch_name.split("/")[0] in release_branches:
+        # perform checks
+        if branch_name.split("/")[0] in release_branches or is_tag_branch(branch_name):
             assert v.is_released
             assert full_version.prerelease is None
         else:
