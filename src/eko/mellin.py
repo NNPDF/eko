@@ -27,62 +27,7 @@ r"""
 """  # pylint:disable=line-too-long
 
 import numpy as np
-import scipy.integrate as integrate
 import numba as nb
-
-
-def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e-5):
-    """
-    Inverse Mellin transformation.
-
-    Note that the inversion factor :math:`x^{-N}` has already to be *included* in f(N).
-    This convention usually improves the convergence of the integral. Typical kernels
-    will naturally develop similar factors to which the conversion factor can
-    be joined.
-
-    Parameters
-    ----------
-        integrand: function
-            Integrand to be passed to the integration routine.
-            The integrand can be generated with the `compile_integrand` function.
-        cut : float
-            Numeric cut-off parameter to the integration, the actual integration borders are
-            determied by :math:`t\\in [c : 1-c]`
-        extra_args: any
-            Extra arguments to be passed to the integrand beyond the integration variable
-        epsabs: float
-            absolute error tolerance of the integration
-        epsrel: float
-            relative error tolerance of the integration
-
-
-    Returns
-    -------
-        res : float
-            integral
-        err : float
-            error estimate
-    """
-    LIMIT = 100
-    result = integrate.quad(
-        integrand,
-        0.5,
-        1.0 - cut,
-        args=tuple(extra_args),
-        epsabs=epsabs,
-        epsrel=epsrel,
-        limit=LIMIT,
-        full_output=1,
-    )
-    # print(result[2]['last'])
-    # for n in [5,10,20,40,63]:
-    #    dt = (.5-cut)/n
-    #    ts = np.array([.5 + k*dt for k in range(n)])
-    #    res = np.sum([integrand(t,extra_args) for t in ts])*dt
-    #    print(res,n,(result[0] - res)/result[0])
-    # if len(result) > 3:
-    #    print(result)
-    return result[:2]
 
 
 @nb.njit("c16(f8,f8,f8)", cache=True)

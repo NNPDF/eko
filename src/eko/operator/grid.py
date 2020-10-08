@@ -57,7 +57,7 @@ class OperatorMaster:
         # import numba late - that is only here
         start = time.perf_counter()
         logger.info("Evolution: compiling Numba")
-        from .operator import Operator  # pylint: disable=import-outside-toplevel
+        from . import Operator  # pylint: disable=import-outside-toplevel
 
         logger.info(
             "Evolution: compiling Numba - took %.1f s", time.perf_counter() - start
