@@ -5,8 +5,8 @@ from setuptools import setup, find_packages
 # write version on the fly - inspired by numpy
 MAJOR = 0
 MINOR = 5
-MICRO = 1
-ISRELEASED = False
+MICRO = 2
+ISRELEASED = True
 SHORT_VERSION = "%d.%d" % (MAJOR, MINOR)
 VERSION = "%d.%d.%d" % (MAJOR, MINOR, MICRO)
 
