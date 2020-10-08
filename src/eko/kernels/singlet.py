@@ -14,7 +14,7 @@ from . import evolution_integrals as ei
 from . import utils
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)")
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)",cache=True)
 def lo_exact(gamma_singlet, a1, a0, nf):
     """
     Singlet leading order exact EKO
@@ -38,7 +38,7 @@ def lo_exact(gamma_singlet, a1, a0, nf):
     return ad.exp_singlet(gamma_singlet[0] * ei.j00(a1, a0, nf))[0]
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8)")
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8)",cache=True)
 def nlo_decompose(gamma_singlet, j01, j11):
     """
     Singlet next-to-leading order decompose EKO
@@ -66,7 +66,7 @@ def nlo_decompose(gamma_singlet, j01, j11):
     return ad.exp_singlet(gamma_singlet[0] * j01 + gamma_singlet[1] * j11)[0]
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)")
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)",cache=True)
 def nlo_decompose_exact(gamma_singlet, a1, a0, nf):
     """
     Singlet next-to-leading order decompose-exact EKO
@@ -92,7 +92,7 @@ def nlo_decompose_exact(gamma_singlet, a1, a0, nf):
     )
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)")
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)",cache=True)
 def nlo_decompose_expanded(gamma_singlet, a1, a0, nf):
     """
     Singlet next-to-leading order decompose-expanded EKO
@@ -118,7 +118,7 @@ def nlo_decompose_expanded(gamma_singlet, a1, a0, nf):
     )
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)")
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)",cache=True)
 def nlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations):
     """
     Singlet next-to-leading order iterated (exact) EKO
@@ -160,7 +160,7 @@ def nlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations):
     return e
 
 
-@nb.njit("c16[:,:,:](c16[:,:,:],u1,u1,b1)")
+@nb.njit("c16[:,:,:](c16[:,:,:],u1,u1,b1)",cache=True)
 def r_vec(gamma_singlet, nf, ev_op_max_order, is_exact):
     r"""
     Compute singlet R vector for perturbative mode.
@@ -198,7 +198,7 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, is_exact):
     return r
 
 
-@nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)")
+@nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)",cache=True)
 def nlo_r_exact(gamma_singlet, nf, ev_op_max_order):
     """
     Compute singlet R vector for perturbative-exact mode.
@@ -224,7 +224,7 @@ def nlo_r_exact(gamma_singlet, nf, ev_op_max_order):
     return r_vec(gamma_singlet, nf, ev_op_max_order, True)
 
 
-@nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)")
+@nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)",cache=True)
 def nlo_r_expanded(gamma_singlet, nf, ev_op_max_order):
     """
     Compute singlet R vector for perturbative-expanded mode.
@@ -250,7 +250,7 @@ def nlo_r_expanded(gamma_singlet, nf, ev_op_max_order):
     return r_vec(gamma_singlet, nf, ev_op_max_order, False)
 
 
-@nb.njit("c16[:,:,:](c16[:,:,:],u1)")
+@nb.njit("c16[:,:,:](c16[:,:,:],u1)",cache=True)
 def u_vec(r, ev_op_max_order):
     r"""
     Compute the elements of the singlet U vector.
@@ -291,7 +291,7 @@ def u_vec(r, ev_op_max_order):
     return u
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8)")
+@nb.njit("c16[:,:](c16[:,:,:],f8)",cache=True)
 def sum_u(uvec, a):
     r"""
     Sums up the actual U operator.
@@ -323,7 +323,7 @@ def sum_u(uvec, a):
     return res
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1,c16[:,:,:])")
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1,c16[:,:,:])",cache=True)
 def nlo_perturbative(gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r):
     """
     Singlet next-to-leading order pertubative EKO
@@ -367,7 +367,7 @@ def nlo_perturbative(gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_orde
     return e
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1)")
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1)",cache=True)
 def nlo_perturbative_exact(
     gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
 ):
@@ -404,7 +404,7 @@ def nlo_perturbative_exact(
     )
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1)")
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1)",cache=True)
 def nlo_perturbative_expanded(
     gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
 ):
@@ -441,7 +441,7 @@ def nlo_perturbative_expanded(
     )
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)")
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)",cache=True)
 def nlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations):
     """
     Singlet next-to-leading order truncated EKO
@@ -479,7 +479,7 @@ def nlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations):
     return e
 
 
-@nb.njit("c16[:,:](u1,string,c16[:,:,:],f8,f8,u1,u4,u1)")
+@nb.njit("c16[:,:](u1,string,c16[:,:,:],f8,f8,u1,u4,u1)",cache=True)
 def dispatcher(  # pylint: disable=too-many-return-statements
     order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
 ):

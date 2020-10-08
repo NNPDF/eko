@@ -49,7 +49,7 @@ class Runner:
         # strong coupling
         sc = StrongCoupling.from_dict(setup, tc)
         # setup operator grid
-        self._op_grid = OperatorGrid.from_dict(
+        self.op_grid = OperatorGrid.from_dict(
             setup,
             tc,
             sc,
@@ -58,7 +58,7 @@ class Runner:
 
     def get_operators(self):
         """compute the actual operators"""
-        operators = self._op_grid.compute_q2grid()
+        operators = self.op_grid.compute_q2grid()
         return operators
 
     def get_output(self):
@@ -74,6 +74,6 @@ class Runner:
         Q2grid = {}
         for op in self.get_operators():
             final_scale = op.q2_final
-            Q2grid[float(final_scale)] = op.get_raw_operators()
+            Q2grid[float(final_scale)] = op.to_raw()
         self.out["Q2grid"] = Q2grid
         return copy.deepcopy(self.out)

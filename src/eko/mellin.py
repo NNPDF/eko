@@ -85,7 +85,7 @@ def inverse_mellin_transform(integrand, cut, extra_args, epsabs=1e-12, epsrel=1e
     return result[:2]
 
 
-@nb.njit("c16(f8,f8,f8)")
+@nb.njit("c16(f8,f8,f8)",cache=True)
 def Talbot_path(t, r, o):
     """
     Talbot path.
@@ -117,7 +117,7 @@ def Talbot_path(t, r, o):
     return o + r * np.complex(re, im)
 
 
-@nb.njit("c16(f8,f8,f8)")
+@nb.njit("c16(f8,f8,f8)",cache=True)
 def Talbot_jac(t, r, o):  # pylint: disable=unused-argument
     """
     Derivative of Talbot path.

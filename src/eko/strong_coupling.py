@@ -19,7 +19,7 @@ from .beta import beta
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("f8(u1,f8,u1,f8,f8)")
+@nb.njit("f8(u1,f8,u1,f8,f8)",cache=True)
 def as_expanded(order, as_ref, nf, scale_from, scale_to):
     """
     Compute expanded expression.
@@ -283,18 +283,18 @@ class StrongCoupling:
         return as_new
 
     def a_s(self, scale_to, fact_scale=None):
-        """
-        Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
+        r"""
+        Computes strong coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
 
         Parameters
         ----------
             scale_to : float
-                final scale to evolve to :math:`Q^2`
+                final scale to evolve to :math:`\mu_R^2`
 
         Returns
         -------
             a_s : float
-                strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
+                strong coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
         final_as = self.as_ref

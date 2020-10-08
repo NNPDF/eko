@@ -28,7 +28,14 @@ def gamma_ns_fact(order, mode, n, nf, L):
         gamma_ns[1] -= beta.beta(0,nf) * gamma_ns[0] * L
     return gamma_ns
 
-@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,u1,u4,u1)", cache=True)
+@nb.njit("c16[:,:,:](u1,c16,u1,f8)", cache=True)
+def gamma_singlet_fact(order, n, nf, L):
+    gamma_singlet = ad.gamma_singlet(order,n,nf,)
+    if order > 0:
+        gamma_singlet[1] -= beta.beta(0,nf) * gamma_singlet[0] * L
+    return gamma_singlet
+
+@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1)", cache=True)
 def quad_ker(
     u,
     order,
@@ -98,11 +105,7 @@ def quad_ker(
         return 0.0
     # compute the actual evolution kernel
     if is_singlet:
-        gamma_singlet = ad.gamma_singlet(
-            order,
-            n,
-            nf,
-        )
+        gamma_singlet = gamma_singlet_fact(order,n,nf,L)
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
@@ -235,8 +238,9 @@ class Operator:
         # setup KernelDispatcher
         logger.info("Evolution: computing operators - 0/%d", grid_size)
         sc = self.managers["strong_coupling"]
-        a1 = sc.a_s(self.q2_to)
-        a0 = sc.a_s(self.q2_from)
+        fact_to_ren = self.config["fact_to_ren"]
+        a1 = sc.a_s(self.q2_to / fact_to_ren, self.q2_to)
+        a0 = sc.a_s(self.q2_from / fact_to_ren, self.q2_from)
         # iterate output grid
         for k, logx in enumerate(np.log(int_disp.xgrid_raw)):
             start_time = time.perf_counter()
@@ -258,7 +262,7 @@ class Operator:
                             a1,
                             a0,
                             self.nf,
-                            self.config["log_fact_to_ren"],
+                            np.log(fact_to_ren),
                             self.config["ev_op_iterations"],
                             self.config["ev_op_max_order"],
                         ],

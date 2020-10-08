@@ -46,7 +46,7 @@ class TestPhysicalOperator:
         VV, _, _ = self._mkOM("V.V")
         V3V3, _, _ = self._mkOM("V3.V3")
         a = PhysicalOperator(self._dict([VV, V3V3]), 1)
-        raw = a.get_raw_operators()
+        raw = a.to_raw()
         for op_or_err in ["operators", "operator_errors"]:
             for op in raw[op_or_err].values():
                 # check list(list(float))

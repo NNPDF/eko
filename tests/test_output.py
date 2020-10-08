@@ -144,7 +144,7 @@ class TestOutput:
         o = output.Output(d)
         for q2 in [q2_out1, q2_out2]:
             ph = o.get_op(q2)
-            raw = ph.get_raw_operators()
+            raw = ph.to_raw()
             np.testing.assert_almost_equal(
                 raw["operators"]["V.V"], Q2grid[q2]["operators"]["V.V"]
             )

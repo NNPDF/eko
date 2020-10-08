@@ -80,6 +80,8 @@ class LHABenchmarkPaper:
         self.path = path
         with open(path, "r") as infile:
             self.setup = yaml.safe_load(infile)
+        if not np.isclose(self.setup["XIF"],1.):
+            raise ValueError("XIF has to be 1")
         # load data
         with open(data_dir / "LHA.yaml") as o:
             self.data = yaml.safe_load(o)
@@ -132,22 +134,23 @@ class LHABenchmarkPaper:
         """
         fns = self.setup["FNS"]
         order = self.setup["PTO"]
+        fact_to_ren = (self.setup["XIF"] / self.setup["XIR"])**2
         if fns == "FFNS":
             if order == 0:
                 return rotate_data(self.data["table2"]["part2"])
             if order == 1:
-                if np.isclose((self.setup["XIF"] / self.setup["XIR"])**2,2.):
+                if fact_to_ren > np.sqrt(2):
                     return rotate_data(self.data["table3"]["part3"])
-                if np.isclose((self.setup["XIF"] / self.setup["XIR"])**2,1./2.):
+                if fact_to_ren < np.sqrt(1./2.):
                     return rotate_data(self.data["table3"]["part2"])
                 return rotate_data(self.data["table3"]["part1"])
         if fns == "ZM-VFNS":
             if order == 0:
                 return rotate_data(self.data["table2"]["part3"])
             if order == 1:
-                if np.isclose((self.setup["XIF"] / self.setup["XIR"])**2,2.):
+                if fact_to_ren > np.sqrt(2):
                     return rotate_data(self.data["table4"]["part3"])
-                if np.isclose((self.setup["XIF"] / self.setup["XIR"])**2,1./2.):
+                if fact_to_ren < np.sqrt(1./2.):
                     return rotate_data(self.data["table4"]["part2"])
                 return rotate_data(self.data["table4"]["part1"])
         raise ValueError(f"unknown FNS {fns} or order {order}")
