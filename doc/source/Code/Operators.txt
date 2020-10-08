@@ -32,40 +32,40 @@ The classes are nested as follows:
         test1 -> PhysicalOperator [weight=1000 style=invis];
     }
 
-- :class:`~eko.operator_grid.OperatorGrid`
+- :class:`~eko.operator.grid.OperatorGrid`
 
     *  this is the master class which administrates all evolution kernel operator tasks
     *  it is instantiated once for each run
     *  it divides the given range of :math:`Q^2` into the necessary threshold crossings and
-       creates a :class:`~eko.operator_grid.OperatorMaster` for each
+       creates a :class:`~eko.operator.grid.OperatorMaster` for each
     *  it recollects all necessary operators in the end to create the
-       :class:`~eko.evolution_operator.PhysicalOperator` following the instructions of
+       :class:`~eko.operator.physical.PhysicalOperator` following the instructions of
        :class:`~eko.flavours.FlavourTarget`
 
-- :class:`~eko.operator_grid.OperatorMaster`
+- :class:`~eko.operator.grid.OperatorMaster`
 
     * this represents a configuration for a fixed number of flavours
-    * it creates an :class:`~eko.evolution_operator.Operator` for each final scale :math:`Q^2`
+    * it creates an :class:`~eko.operator.Operator` for each final scale :math:`Q^2`
 
-- :class:`~eko.evolution_operator.Operator`
+- :class:`~eko.operator.Operator`
 
     * this represents a configuration for a fixed final scale :math:`Q^2`
     * this class is only used *internally*
-    * its :class:`~eko.evolution_operator.OpMember` are only valid in the current
+    * its :class:`~eko.operator.member.OpMember` are only valid in the current
       threshold area
 
-- :class:`~eko.evolution_operator.PhysicalOperator`
+- :class:`~eko.operator.physical.PhysicalOperator`
 
-    * this is the exposed equivalent of :class:`~eko.evolution_operator.Operator`,
+    * this is the exposed equivalent of :class:`~eko.operator.Operator`,
       i.e. it also lives at at fixed final scale
-    * its :class:`~eko.evolution_operator.OpMember` are valid from the starting scale
+    * its :class:`~eko.operator.member.OpMember` are valid from the starting scale
       to the final scale
 
-- :class:`~eko.evolution_operator.OpMember`
+- :class:`~eko.operator.member.OpMember`
 
     * this represents a single evolution kernel operator
-    * inside :class:`~eko.evolution_operator.Operator` they are in "raw" evolution basis, i.e.
+    * inside :class:`~eko.operator.Operator` they are in "raw" evolution basis, i.e.
       :math:`\tilde{\mathbf{E}}_S, \tilde{E}_{ns}^{\pm,v}`, and they never cross a threshold
-    * inside :class:`~eko.evolution_operator.PhysicalOperator` they are in "true" evolution
+    * inside :class:`~eko.operator.physical.PhysicalOperator` they are in "true" evolution
       basis, i.e. they evolve e.g. :math:`\tilde V, \tilde T_3` etc., so they are eventually
       a product of the "raw" basis (see :doc:`Matching Conditions </Theory/Matching>`)

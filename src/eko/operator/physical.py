@@ -63,7 +63,7 @@ class PhysicalOperator:
             new_ops[key] = OpMember.join(op_to_compose, paths)
         return self.__class__(new_ops, self.q2_final)
 
-    def get_raw_operators(self):
+    def to_raw(self):
         """
         Returns serializable matrix representation of all members and their errors
 

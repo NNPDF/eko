@@ -24,6 +24,7 @@ class ApfelBenchmark:
         path : str
             input card
     """
+
     def __init__(self, path):
         self.path = pathlib.Path(path)
         with open(path, "r") as o:
@@ -36,15 +37,15 @@ class ApfelBenchmark:
         output_grid = eko.interpolation.make_grid(*self.cfg["interpolation_xgrid"][1:])
         # # compute our result
         eko_res = eko.run_dglap(self.cfg)
-        eko_res.dump_yaml_to_file("assets/"+self.path.stem+".yaml")
-        #eko_res = eko.output.Output.load_yaml_from_file("assets/"+self.path.stem+".yaml")
+        eko_res.dump_yaml_to_file("assets/" + self.path.stem + ".yaml")
+        # eko_res = eko.output.Output.load_yaml_from_file("assets/"+self.path.stem+".yaml")
         eko_pdf = eko_res.apply_pdf(mkPDF("", ""), output_grid)
         # compute APFEL reference
         apf_start = time.perf_counter()
         apfel = load_apfel(self.cfg)
-        print("Loading APFEL took %f s"%(time.perf_counter() - apf_start))
+        print("Loading APFEL took %f s" % (time.perf_counter() - apf_start))
         apfel.EvolveAPFEL(self.cfg["Q0"], np.sqrt(self.cfg["Q2grid"][0]))
-        print("Executing APFEL took %f s"%(time.perf_counter() - apf_start))
+        print("Executing APFEL took %f s" % (time.perf_counter() - apf_start))
         apf_tabs = {}
         for q2, pdfs in eko_pdf.items():
             out = DFdict()
@@ -58,13 +59,15 @@ class ApfelBenchmark:
                 eko_res = np.array(eko_res)
                 eko_error = np.array(pdfs["errors"][pid])
                 rel_err = (apf - eko_res) / apf * 100
-                out[pid] = pd.DataFrame(dict(
-                    x=output_grid,
-                    APFEL=apf,
-                    eko=eko_res,
-                    eko_error=eko_error,
-                    rel_err=rel_err,
-                ))
+                out[pid] = pd.DataFrame(
+                    dict(
+                        x=output_grid,
+                        APFEL=apf,
+                        eko=eko_res,
+                        eko_error=eko_error,
+                        rel_err=rel_err,
+                    )
+                )
             apf_tabs[q2] = out
         # output
         self.print(apf_tabs)
@@ -80,8 +83,8 @@ class ApfelBenchmark:
         """
         # iterate all values
         for q2, dfdict in apf_tabs.items():
-            print("-"*20)
+            print("-" * 20)
             print(f"Q2 = {q2} GeV^2 ")
-            print("-"*20)
+            print("-" * 20)
             print(dfdict)
-            print("-"*20)
+            print("-" * 20)

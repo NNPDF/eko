@@ -20,6 +20,8 @@ class TestOperatorGrid:
             "alphas": 0.35,
             "PTO": 0,
             "ModEv": "TRN",
+            "XIF": 1.0,
+            "XIR": 1.0,
             "Qref": np.sqrt(2),
             "Q0": np.sqrt(2),
             "Q2grid": [1, 10],

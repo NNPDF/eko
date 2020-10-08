@@ -4,7 +4,7 @@ import numpy as np
 from numpy.testing import assert_almost_equal
 import pytest
 
-from eko.operator.operator import Operator
+from eko.operator import Operator
 from eko import thresholds
 
 # int_0.5^1 dz z^k = (1 - 0.5**(k+1))/(k+1)

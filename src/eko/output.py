@@ -112,7 +112,7 @@ class Output(dict):
             out[k] = self[k].tolist()
         # make operators raw
         for q2 in self["Q2grid"]:
-            out["Q2grid"][q2] = self.get_op(q2).get_raw_operators()
+            out["Q2grid"][q2] = self.get_op(q2).to_raw()
         return out
 
     def dump_yaml(self, stream=None):
@@ -253,6 +253,6 @@ class Output(dict):
             # multiply operators
             me = self.get_op(q2)
             prod = me * other_op
-            out["Q2grid"][q2] = prod.get_raw_operators()
+            out["Q2grid"][q2] = prod.to_raw()
 
         return out

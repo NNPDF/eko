@@ -57,7 +57,7 @@ class OperatorMaster:
         # import numba late - that is only here
         start = time.perf_counter()
         logger.info("Evolution: compiling Numba")
-        from .operator import Operator  # pylint: disable=import-outside-toplevel
+        from . import Operator  # pylint: disable=import-outside-toplevel
 
         logger.info(
             "Evolution: compiling Numba - took %.1f s", time.perf_counter() - start
@@ -171,6 +171,7 @@ class OperatorGrid:
         }
         method = mod_ev2method.get(method, method)
         config["method"] = method
+        config["fact_to_ren"] = (setup["XIF"] / setup["XIR"]) ** 2
         config["ev_op_max_order"] = setup.get("ev_op_max_order", 10)
         config["ev_op_iterations"] = setup.get("ev_op_iterations", 10)
         config["debug_skip_singlet"] = setup.get("debug_skip_singlet", False)

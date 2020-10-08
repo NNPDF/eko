@@ -41,9 +41,6 @@ second, an overview of the implementation details, and, last, the available indi
     :members:
     :noindex:
 
-.. todo::
-    This section has to be removed in an production environment (maybe?)
-
 .. toctree::
     :maxdepth: 1
     :caption: Development:

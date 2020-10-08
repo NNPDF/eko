@@ -36,27 +36,6 @@ def check_path_symmetry(path, jac, extra_args):
         assert_almost_equal(jlow, -np.conjugate(jhigh))
 
 
-# def test_inverse_mellin_transform():
-#     """test inverse_mellin_transform"""
-
-#     def function_x(x):
-#         return x
-
-#     def function_N(N, lnx, a1, a0):  # pylint:disable=unused-argument
-#         return np.exp(-N * lnx) / (N + 1)
-
-#     xgrid = [0.1, 0.3, 0.5, 0.7]
-#     p, j = mellin.get_path_Talbot()
-#     for x in xgrid:
-#         xresult = function_x(x)
-#         for compile_numba in [True, False]:
-#             integrand = mellin.compile_integrand(function_N, p, j, compile_numba)
-#             extra_args = _numbify_list([np.log(x), 0.0, 0.0, 1.0, 0.0])
-#             nresult = mellin.inverse_mellin_transform(integrand, 1e-2, extra_args)
-#             assert_almost_equal(xresult, nresult[0])
-#             assert nresult[1] < 1e-5
-
-
 def test_Talbot():
     params = [[1, 0], [2, 0]]
     for p in params:
