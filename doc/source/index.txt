@@ -1,4 +1,4 @@
-.. image:: img/Logo.svg
+.. image:: img/Logo.png
   :width: 300
   :align: center
   :alt: EKO logo
@@ -23,6 +23,7 @@ second, an overview of the implementation details, and, last, the available indi
     Theory/DGLAP
     Theory/FlavourBasis
     Theory/Matching
+    Theory/Benchmarks
     
     zzz-refs
 
@@ -32,15 +33,13 @@ second, an overview of the implementation details, and, last, the available indi
 
     Code/Operators
     Code/IO
+    Code/Dependency
     
-    modules/eko/modules
+    API <modules/eko/modules>
 
 .. automodule:: eko
     :members:
     :noindex:
-
-.. todo::
-    This section has to be removed in an production environment (maybe?)
 
 .. toctree::
     :maxdepth: 1

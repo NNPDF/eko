@@ -3,82 +3,77 @@
     This file contains the main application class of eko
 """
 import logging
-
-from eko import interpolation
-from eko.kernel_generation import KernelDispatcher
-from eko.thresholds import ThresholdsConfig
-from eko.operator_grid import OperatorGrid
-from eko.constants import Constants
-from eko.strong_coupling import StrongCoupling
-from eko.output import Output
+import copy
 
 logger = logging.getLogger(__name__)
 
 
 class Runner:
     """
-        Represents a single input configuration.
+    Represents a single input configuration.
 
-        For details about the configuration, see :doc:`here </Code/IO>`
+    For details about the configuration, see :doc:`here </Code/IO>`
 
-        Parameters
-        ----------
-            setup : dict
-                input configurations
+    Parameters
+    ----------
+        setup : dict
+            input configurations
     """
 
     def __init__(self, setup):
         # Print theory id setup
         logger.info("init Runner with %s", setup)
+        # defer numba compilation
+        from . import interpolation  # pylint: disable=import-outside-toplevel
+        from .output import Output  # pylint: disable=import-outside-toplevel
+        from .strong_coupling import (  # pylint: disable=import-outside-toplevel
+            StrongCoupling,
+        )
+        from .thresholds import (  # pylint: disable=import-outside-toplevel
+            ThresholdsConfig,
+        )
+        from .operator.grid import (  # pylint: disable=import-outside-toplevel
+            OperatorGrid,
+        )
 
-        # Load constants and compute parameters
-        self._constants = Constants()
+        self.out = Output()
+        if setup.get("keep_input", False):
+            self.out.update(copy.deepcopy(setup))
+
         # setup basis grid
-        self._basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
-            setup
-        )
-        # Generate the dispatcher for the kernels
-        kernel_dispatcher = KernelDispatcher(
-            self._basis_function_dispatcher, self._constants
-        )
+        bfd = interpolation.InterpolatorDispatcher.from_dict(setup)
+        self.out.update(bfd.to_dict())
         # FNS
-        self._threshold_holder = ThresholdsConfig.from_dict(setup)
+        tc = ThresholdsConfig.from_dict(setup)
+        self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
-        self._a_s = StrongCoupling.from_dict(
-            setup, self._threshold_holder, self._constants
-        )
-
+        sc = StrongCoupling.from_dict(setup, tc)
         # setup operator grid
-        self._op_grid = OperatorGrid(
-            self._threshold_holder,
-            self._a_s,
-            kernel_dispatcher,
-            self._basis_function_dispatcher.xgrid_raw,
+        self.op_grid = OperatorGrid.from_dict(
+            setup,
+            tc,
+            sc,
+            bfd,
         )
-        self._q2grid = setup["Q2grid"]
 
     def get_operators(self):
-        """ compute the actual operators """
-        operators = self._op_grid.compute_q2grid(self._q2grid)
+        """compute the actual operators"""
+        operators = self.op_grid.compute_q2grid()
         return operators
 
     def get_output(self):
         """
-            Collects all data for output (to run the evolution)
+        Collects all data for output (to run the evolution)
 
-            Returns
-            -------
-                ret : eko.output.Output
-                    output instance
+        Returns
+        -------
+            ret : eko.output.Output
+                output instance
         """
-        # propagate grid
-        ret = Output()
-        ret.update(self._basis_function_dispatcher.to_dict())
-        ret["q2_ref"] = float(self._threshold_holder.q2_ref)
         # add all operators
         Q2grid = {}
         for op in self.get_operators():
             final_scale = op.q2_final
-            Q2grid[final_scale] = op.get_raw_operators()
-        ret["Q2grid"] = Q2grid
-        return ret
+            Q2grid[float(final_scale)] = op.to_raw()
+        self.out["Q2grid"] = Q2grid
+        return copy.deepcopy(self.out)

@@ -1,116 +1,76 @@
 # -*- coding: utf-8 -*-
 r"""
-    This file contains the QCD beta function coefficients and the handling of the running
-    coupling :math:`\alpha_s`.
+This file contains the QCD beta function coefficients and the handling of the running
+coupling :math:`\alpha_s`.
 
-    See :doc:`pQCD ingredients </Theory/pQCD>`.
+See :doc:`pQCD ingredients </Theory/pQCD>`.
 """
+
+import logging
 
 import numpy as np
 import scipy
 import numba as nb
 
-from eko import constants
-from eko import thresholds
+from . import constants
+from . import thresholds
+from .beta import beta
+
+logger = logging.getLogger(__name__)
 
 
-@nb.njit
-def beta_0(
-    nf: int, CA: float, CF: float, TF: float
-):  # pylint: disable=unused-argument
+@nb.njit("f8(u1,f8,u1,f8,f8)", cache=True)
+def as_expanded(order, as_ref, nf, scale_from, scale_to):
     """
-        Computes the first coefficient of the QCD beta function.
+    Compute expanded expression.
 
-        Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
-        For the sake of unification we keep a unique function signature for *all* coefficients.
+    Parameters
+    ----------
+        order: int
+            perturbation order
+        as_ref: float
+            reference alpha_s
+        nf: int
+            value of nf for computing alpha_s
+        scale_from: float
+            reference scale
+        scale_to : float
+            target scale
 
-        Parameters
-        ----------
-            nf : int
-                number of active flavours
-            CA : float
-                Casimir constant of adjoint representation
-            CF : float
-                Casimir constant of fundamental representation (which is actually not used here)
-            TF : float
-                fundamental normalization factor
-
-        Returns
-        -------
-            beta_0 : float
-                first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
+    Returns
+    -------
+        a_s : float
+            coupling at target scale :math:`a_s(Q^2)`
     """
-    beta_0 = 11.0 / 3.0 * CA - 4.0 / 3.0 * TF * nf
-    return beta_0
+    # common vars
+    beta0 = beta(0, nf)
+    lmu = np.log(scale_to / scale_from)
+    den = 1.0 + beta0 * as_ref * lmu
+    # LO
+    as_LO = as_ref / den
+    res = as_LO
+    # NLO
+    if order >= 1:
+        beta1 = beta(1, nf)
+        b1 = beta1 / beta0
+        as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
+        res = as_NLO
+        # NNLO
+        if order == 2:
+            beta2 = beta(2, nf)
+            b2 = beta2 / beta0
+            res = as_LO * (
+                1.0
+                + as_LO * (as_LO - as_ref) * (b2 - b1 ** 2)
+                + as_NLO * b1 * np.log(as_NLO / as_ref)
+            )
 
-
-@nb.njit
-def beta_1(nf: int, CA: float, CF: float, TF: float):
-    """
-        Computes the second coefficient of the QCD beta function.
-
-        Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
-
-        Parameters
-        ----------
-            nf : int
-                number of active flavours
-            CA : float
-                Casimir constant of adjoint representation
-            CF : float
-                Casimir constant of fundamental representation
-            TF : float
-                fundamental normalization factor
-
-        Returns
-        -------
-            beta_1 : float
-                second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
-    """
-    b_ca2 = 34.0 / 3.0 * CA * CA
-    b_ca = -20.0 / 3.0 * CA * TF * nf
-    b_cf = -4.0 * CF * TF * nf
-    beta_1 = b_ca2 + b_ca + b_cf
-    return beta_1
-
-
-@nb.njit
-def beta_2(nf: int, CA: float, CF: float, TF: float):
-    """
-        Computes the third coefficient of the QCD beta function
-
-        Implements Eq. (3.3) of :cite:`Herzog:2017ohr`.
-
-        Parameters
-        ----------
-            nf : int
-                number of active flavours.
-            CA : float
-                Casimir constant of adjoint representation.
-            CF : float
-                Casimir constant of fundamental representation.
-            TF : float
-                fundamental normalization factor.
-
-        Returns
-        -------
-            beta_2 : float
-                third coefficient of the QCD beta function :math:`\\beta_2^{n_f}`
-    """
-    beta_2 = (
-        2857.0 / 54.0 * CA * CA * CA
-        - 1415.0 / 27.0 * CA * CA * TF * nf
-        - 205.0 / 9.0 * CF * CA * TF * nf
-        + 2.0 * CF * CF * TF * nf
-        + 44.0 / 9.0 * CF * TF * TF * nf * nf
-        + 158.0 / 27.0 * CA * TF * TF * nf * nf
-    )
-    return beta_2
+    return res
 
 
 class StrongCoupling:
     r"""
-        Computes strong coupling constant :math:`a_s`.
+        Computes the strong coupling constant :math:`a_s`.
 
         Note that
 
@@ -120,23 +80,21 @@ class StrongCoupling:
           :math:`a_s = \frac{\alpha_s(\mu^2)}{4\pi}` the reference value has to be
           given in terms of :math:`\alpha_s(\mu_0^2)` due to legacy reasons
         - the ``order`` refers to the perturbative order of the beta function, thus
-          ``0`` means leading order beta function means evolution with :math:`\beta_0`
-          meas at 1-loop - so there is a natural mismatch between `order` and the
-          number of loop by one unit
+          ``order=0`` means leading order beta function, means evolution with :math:`\beta_0`,
+          means running at 1-loop - so there is a natural mismatch between ``order`` and the
+          number of loops by one unit
 
         Normalization is given by :cite:`Herzog:2017ohr`:
 
         .. math::
-            \frac{da_s}{d\ln\mu^2} = \beta(a_s) \
-            = - \sum\limits_{n=0} \beta_n a_s^{n+2} \quad
+            \frac{da_s(\mu^2)}{d\ln\mu^2} = \beta(a_s) \
+            = - \sum\limits_{n=0} \beta_n a_s^{n+2}(\mu^2) \quad
             \text{with}~ a_s = \frac{\alpha_s(\mu^2)}{4\pi}
 
         See :doc:`pQCD ingredients </Theory/pQCD>`.
 
         Parameters
         ----------
-            constants: eko.constants.Constants
-                An instance of :class:`~eko.constants.Constants`
             alpha_s_ref : float
                 alpha_s(!) at the reference scale :math:`\alpha_s(\mu_0^2)`
             scale_ref : float
@@ -150,22 +108,24 @@ class StrongCoupling:
 
         Examples
         --------
-            >>> c = Constants()
             >>> alpha_ref = 0.35
             >>> scale_ref = 2
             >>> threshold_holder = ThresholdsConfig( ... )
-            >>> sc = StrongCoupling(c, alpha_ref, scale_ref, threshold_holder)
+            >>> sc = StrongCoupling(alpha_ref, scale_ref, threshold_holder)
             >>> q2 = 91.1**2
             >>> sc.a_s(q2)
             0.118
     """
 
     def __init__(
-        self, consts, alpha_s_ref, scale_ref, thresh, order=0, method="expanded",
+        self,
+        alpha_s_ref,
+        scale_ref,
+        thresh,
+        order=0,
+        method="exact",
     ):
         # Sanity checks
-        if not isinstance(consts, constants.Constants):
-            raise ValueError("Needs a Constants instance")
         if alpha_s_ref <= 0:
             raise ValueError(f"alpha_s_ref has to be positive - got {alpha_s_ref}")
         if scale_ref <= 0:
@@ -178,7 +138,6 @@ class StrongCoupling:
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
         self._method = method
-        self._constants = consts
 
         # create new threshold object
         self.as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
@@ -190,6 +149,9 @@ class StrongCoupling:
             self._threshold_holder = thresholds.ThresholdsConfig(
                 scale_ref, thresh.scheme, threshold_list=thresh._area_walls
             )
+        logger.info(
+            "Strong Coupling: Reference a_s(Q^2=%f)=%f", self.q2_ref, self.as_ref
+        )
 
     @property
     def q2_ref(self):
@@ -197,190 +159,142 @@ class StrongCoupling:
         return self._threshold_holder.q2_ref
 
     @classmethod
-    def from_dict(cls, setup, thresholds_config=None, consts=None):
+    def from_dict(cls, setup, thresholds_config=None):
         """
-            Create object from theory dictionary.
+        Create object from theory dictionary.
 
-            Read keys:
+        Read keys:
 
-                - alphas : required, reference value for  alpha_s (!)
-                - Qref : required, reference value in GeV (!)
-                - PTO : required, perturbative order
-                - ModEv : optional, method to solve RGE
+            - alphas : required, reference value for  alpha_s (!)
+            - Qref : required, reference value in GeV (!)
+            - PTO : required, perturbative order
+            - ModEv : optional, method to solve RGE, default=EXA
 
-            Parameters
-            ----------
-                setup : dict
-                    theory dictionary
-                constants : eko.constants.Constants
-                    Color constants
-                thresholds_config : eko.thresholds.ThresholdsConfig
-                    threshold configuration
+        Parameters
+        ----------
+            setup : dict
+                theory dictionary
+            thresholds_config : eko.thresholds.ThresholdsConfig
+                threshold configuration
 
-            Returns
-            -------
-                cls : StrongCoupling
-                    created object
+        Returns
+        -------
+            cls : StrongCoupling
+                created object
         """
         # read my values
+        # TODO cast to a_s here
         alpha_ref = setup["alphas"]
         q2_alpha = pow(setup["Qref"], 2)
         order = setup["PTO"]
         mod_ev = setup.get("ModEv", "EXA")
-        if mod_ev == "EXA":
+        if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
             method = "exact"
-        elif mod_ev in ["TRN", "EXP"]:
+        elif mod_ev in [
+            "TRN",
+            "truncated",
+            "ordered-truncated",
+            "EXP",
+            "iterate-expanded",
+            "decompose-expanded",
+            "perturbative-expanded",
+        ]:
             method = "expanded"
         else:
             raise ValueError(f"Unknown evolution mode {mod_ev}")
         # eventually read my dependents
-        if consts is None:
-            consts = constants.Constants()
         if thresholds_config is None:
             thresholds_config = thresholds.ThresholdsConfig.from_dict(setup)
-        return cls(consts, alpha_ref, q2_alpha, thresholds_config, order, method)
-
-    # Hidden computation functions
-    def _compute_expanded(self, as_ref, nf, scale_from, scale_to):
-        """
-            Compute via expanded expression.
-
-            Parameters
-            ----------
-                as_ref: float
-                    reference alpha_s
-                nf: int
-                    value of nf for computing alpha_s
-                scale_from: float
-                    reference scale
-                scale_to : float
-                    target scale
-
-            Returns
-            -------
-                a_s : float
-                    coupling at target scale :math:`a_s(Q^2)`
-        """
-        # common vars
-        beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
-        lmu = np.log(scale_to / scale_from)
-        den = 1.0 + beta0 * as_ref * lmu
-        # LO
-        as_LO = as_ref / den
-        res = as_LO
-        # NLO
-        if self._order >= 1:
-            beta1 = beta_1(
-                nf, self._constants.CA, self._constants.CF, self._constants.TF
-            )
-            b1 = beta1 / beta0
-            as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
-            res = as_NLO
-            # NNLO
-            if self._order == 2:
-                beta2 = beta_2(
-                    nf, self._constants.CA, self._constants.CF, self._constants.TF
-                )
-                b2 = beta2 / beta0
-                res = as_LO * (
-                    1
-                    + as_LO * (as_LO - as_ref) * (b2 - b1 ** 2)
-                    + as_NLO * b1 * np.log(as_NLO / as_ref)
-                )
-
-        return res
+        return cls(alpha_ref, q2_alpha, thresholds_config, order, method)
 
     def _compute_exact(self, as_ref, nf, scale_from, scale_to):
         """
-            Compute via RGE.
+        Compute via RGE.
 
-            Parameters
-            ----------
-                as_ref: float
-                    reference alpha_s
-                nf: int
-                    value of nf for computing alpha_s
-                scale_from: float
-                    reference scale
-                scale_to : float
-                    target scale
+        Parameters
+        ----------
+            as_ref: float
+                reference alpha_s
+            nf: int
+                value of nf for computing alpha_s
+            scale_from: float
+                reference scale
+            scale_to : float
+                target scale
 
-            Returns
-            -------
-                a_s : float
-                    strong coupling at target scale :math:`a_s(Q^2)`
+        Returns
+        -------
+            a_s : float
+                strong coupling at target scale :math:`a_s(Q^2)`
         """
         # in LO fallback to expanded, as this is the full solution
         if self._order == 0:
-            return self._compute_expanded(as_ref, nf, scale_from, scale_to)
+            return as_expanded(self._order, as_ref, nf, scale_from, scale_to)
         # otherwise rescale the RGE to run in terms of
         # u = beta0 * ln(scale_to/scale_from)
-        beta0 = beta_0(nf, self._constants.CA, self._constants.CF, self._constants.TF)
+        beta0 = beta(0, nf)
         u = beta0 * np.log(scale_to / scale_from)
         b_vec = [1]
         # NLO
         if self._order >= 1:
-            beta1 = beta_1(
-                nf, self._constants.CA, self._constants.CF, self._constants.TF
-            )
+            beta1 = beta(1, nf)
             b1 = beta1 / beta0
             b_vec.append(b1)
             # NNLO
             if self._order >= 2:
-                beta2 = beta_2(
-                    nf, self._constants.CA, self._constants.CF, self._constants.TF
-                )
+                beta2 = beta(2, nf)
                 b2 = beta2 / beta0
                 b_vec.append(b2)
         # integration kernel
         def rge(_t, a, b_vec):
             return -(a ** 2) * np.sum([a ** k * b for k, b in enumerate(b_vec)])
+
         # let scipy solve
         res = scipy.integrate.solve_ivp(rge, (0, u), (as_ref,), args=[b_vec])
         return res.y[0][-1]
 
     def _compute(self, as_ref, nf, scale_from, scale_to):
         """
-            Wrapper in order to pass the computation to the corresponding
-            method (depending on the calculation method).
+        Wrapper in order to pass the computation to the corresponding
+        method (depending on the calculation method).
 
-            Parameters
-            ----------
-                as_ref: float
-                    reference alpha_s
-                nf: int
-                    value of nf for computing alpha_s
-                scale_from: float
-                    reference scale
-                scale_to : float
-                    target scale
+        Parameters
+        ----------
+            as_ref: float
+                reference alpha_s
+            nf: int
+                value of nf for computing alpha_s
+            scale_from: float
+                reference scale
+            scale_to : float
+                target scale
 
-            Returns
-            -------
-                a_s : float
-                    strong coupling at target scale :math:`a_s(Q^2)`
+        Returns
+        -------
+            a_s : float
+                strong coupling at target scale :math:`a_s(Q^2)`
         """
         # TODO set up a cache system here
         # at the moment everything is expanded - and type has been checked in the constructor
         if self._method == "exact":
             as_new = self._compute_exact(as_ref, nf, scale_from, scale_to)
         else:
-            as_new = self._compute_expanded(as_ref, nf, scale_from, scale_to)
+            as_new = as_expanded(self._order, as_ref, nf, scale_from, scale_to)
         return as_new
 
     def a_s(self, scale_to, fact_scale=None):
-        """
-            Computes strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`.
+        r"""
+        Computes strong coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
 
-            Parameters
-            ----------
-                scale_to : float
-                    final scale to evolve to :math:`Q^2`
+        Parameters
+        ----------
+            scale_to : float
+                final scale to evolve to :math:`\mu_R^2`
 
-            Returns
-            -------
-                a_s : float
-                    strong coupling :math:`a_s(Q^2) = \\frac{\\alpha_s(Q^2)}{4\\pi}`
+        Returns
+        -------
+            a_s : float
+                strong coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
         final_as = self.as_ref
@@ -401,11 +315,11 @@ class StrongCoupling:
                 # q2_to is the threshold value
                 L = np.log(scale_to / fact_scale)
                 if next_nf_is_down:
-                    c1 = -4.0 / 3.0 * self._constants.TF * L
+                    c1 = -4.0 / 3.0 * constants.TR * L
                     # TODO recover color constants
                     c2 = 4.0 / 9.0 * L ** 2 - 38.0 / 3.0 * L - 14.0 / 3.0
                 else:
-                    c1 = 4.0 / 3.0 * self._constants.TF * L
+                    c1 = 4.0 / 3.0 * constants.TR * L
                     c2 = 4.0 / 9.0 * L ** 2 + 38.0 / 3.0 * L + 14.0 / 3.0
                 # shift
                 if self._order == 1:
@@ -414,39 +328,3 @@ class StrongCoupling:
                     new_as *= 1 + c1 * new_as + c2 * new_as ** 2
             final_as = new_as
         return final_as
-
-    def _param_t(self, scale_to):
-        """
-            Computes evolution parameter :math:`t(Q^2) = \\log(1/a_s(Q^2))`.
-
-            Parameters
-            ----------
-                scale_to : float
-                    final scale to evolve to :math:`Q^2`
-
-            Returns
-            -------
-                t : float
-                    evolution parameter :math:`t(Q^2) = \\log(1/a_s(Q^2))`
-        """
-        return np.log(1.0 / self.a_s(scale_to))
-
-    def delta_t(self, scale_from, scale_to):
-        """
-            Compute evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2) = t(Q_1^2)-t(Q_0^2)`
-            with :math:`t(Q^2) = log(1/a_s(Q^2))`.
-
-            Parameters
-            ----------
-                scale_from : float
-                    scale to evolve from :math:`Q_0^2`
-                scale_to : float
-                    final scale to evolve to :math:`Q_1^2`
-
-            Returns
-            -------
-                delta : float
-                    evolution parameter :math:`\\Delta t(Q_0^2, Q_1^2)`
-        """
-        delta = self._param_t(scale_to) - self._param_t(scale_from)
-        return delta

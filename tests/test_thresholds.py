@@ -66,8 +66,9 @@ class TestThresholdsConfig:
         for q2_ref in [2, 8, 61]:
             tholder = ThresholdsConfig(q2_ref, "ZM-VFNS", threshold_list=th_list)
             assert (
-                len(tholder._areas) == len(th_list) + 1
-            )  # pylint: disable=protected-access
+                len(tholder._areas)
+                == len(th_list) + 1  # pylint: disable=protected-access
+            )
             area_path = tholder.get_path_from_q2_ref(q2fin)
             # The first area should contain q2_ref and the last q2fin
             assert area_path[0](q2_ref)

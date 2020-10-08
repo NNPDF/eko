@@ -1,3 +1,6 @@
 # file to be used by `pip install -r`
+pylint
 pytest
 pytest-cov
+pygit2
+semver

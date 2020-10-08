@@ -10,10 +10,8 @@ import pytest
 import numpy as np
 import eko.interpolation as interpolation
 from eko.strong_coupling import StrongCoupling
-from eko.constants import Constants
 from eko.thresholds import ThresholdsConfig
-from eko.kernel_generation import KernelDispatcher
-from eko.operator_grid import OperatorGrid
+from eko.operator.grid import OperatorGrid
 
 
 class TestOperatorGrid:
@@ -21,11 +19,16 @@ class TestOperatorGrid:
         setup = {
             "alphas": 0.35,
             "PTO": 0,
+            "ModEv": "TRN",
+            "XIF": 1.0,
+            "XIR": 1.0,
             "Qref": np.sqrt(2),
             "Q0": np.sqrt(2),
+            "Q2grid": [1, 10],
             "interpolation_xgrid": [0.1, 1.0],
             "interpolation_polynomial_degree": 1,
             "interpolation_is_log": True,
+            "debug_skip_singlet": True,
         }
         if use_FFNS:
             setup["FNS"] = "FFNS"
@@ -54,17 +57,16 @@ class TestOperatorGrid:
             setup
         )
         threshold_holder = ThresholdsConfig.from_dict(setup)
-        constants = Constants()
-        kernel_dispatcher = KernelDispatcher(basis_function_dispatcher, constants)
-        a_s = StrongCoupling.from_dict(setup, threshold_holder, constants)
-        return OperatorGrid(
-            threshold_holder, a_s, kernel_dispatcher, setup["interpolation_xgrid"]
+        a_s = StrongCoupling.from_dict(setup, threshold_holder)
+        return OperatorGrid.from_dict(
+            setup, threshold_holder, a_s, basis_function_dispatcher
         )
 
     def test_sanity(self):
         """ Sanity checks for the input"""
         opgrid = self._get_operator_grid(False)
         # Check that an operator grid with the correct number of regions was created
+        opgrid._generate_masters()  # pylint: disable=protected-access
         nregs = len(opgrid._op_masters)  # pylint: disable=protected-access
         assert nregs == 3 + 1
         # errors
@@ -74,13 +76,27 @@ class TestOperatorGrid:
             opgrid.set_q2_limits(-1, -4)
         with pytest.raises(ValueError):
             opgrid.set_q2_limits(4, 1)
+        with pytest.raises(ValueError):
+            setup = self._get_setup(True)
+            basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
+                setup
+            )
+            threshold_holder = ThresholdsConfig.from_dict(setup)
+            a_s = StrongCoupling.from_dict(setup, threshold_holder)
+            setup.update({"ModEv": "wrong"})
+            OperatorGrid.from_dict(
+                setup, threshold_holder, a_s, basis_function_dispatcher
+            )
 
     def test_compute_q2grid(self):
         opgrid = self._get_operator_grid()
         # q2 has not be precomputed - but should work nevertheless
         opgrid.get_op_at_q2(3)
         # we can also pass a single number
-        opgrid.compute_q2grid(3)
+        opg = opgrid.compute_q2grid()
+        assert len(opg) == 2
+        opg = opgrid.compute_q2grid(3)
+        assert len(opg) == 1
         # errors
         with pytest.raises(ValueError):
             bad_grid = [100, -6, 3]
@@ -94,4 +110,4 @@ class TestOperatorGrid:
         assert len(operators) == len(qgrid_check)
         # Check that the operators can act on pdfs
         pdf = self._get_pdf()
-        _return_1 = operators[0](pdf)
+        _return_1 = operators[0].apply_pdf(pdf)

@@ -13,16 +13,22 @@ def test_runner():
         "interpolation_is_log": True,
         "alphas": 0.35,
         "PTO": 0,
+        "XIF": 1.0,
+        "XIR": 1.0,
         "Qref": np.sqrt(2),
         "Q0": np.sqrt(2),
         "FNS": "FFNS",
         "NfFF": 3,
         "Q2grid": [10, 100],
+        "keep_input": True,
+        "debug_skip_singlet": True,
+        "debug_skip_non_singlet": True,
     }
     r = eko.runner.Runner(setup)
     o = r.get_output()
 
     # check output = input
+    assert o["keep_input"] == setup["keep_input"]
     np.testing.assert_allclose(o["interpolation_xgrid"], setup["interpolation_xgrid"])
     for k in ["interpolation_polynomial_degree", "interpolation_is_log"]:
         assert o[k] == setup[k]

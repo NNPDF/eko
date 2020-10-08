@@ -24,9 +24,9 @@ Output
 
 The :class:`~eko.output.Output` instance will contain the following key-value pairs:
 
-- ``xgrid`` - *list(float)* : the interpolation grid
-- ``polynomial_degree`` - *integer* : polynomial degree of the interpolating function
-- ``is_log_interpolation`` - *boolean* : use logarithmic interpolation?
+- ``interpolation_xgrid`` - *list(float)* : the interpolation grid
+- ``interpolation_polynomial_degree`` - *integer* : polynomial degree of the interpolating function
+- ``interpolation_is_log`` - *boolean* : use logarithmic interpolation?
 - ``q2_ref`` - *float* : starting scale
 - ``Q2grid`` - *dict* : all operators at the requested values of :math:`Q^2` represented by the key
 
@@ -41,9 +41,9 @@ Example Output dump
 ^^^^^^^^^^^^^^^^^^^
 .. code-block:: yaml
 
-  is_log_interpolation: true
-  polynomial_degree: 4
-  xgrid: [0.001 0.01 0.1 1.0]
+  interpolation_is_log: true
+  interpolation_polynomial_degree: 4
+  interpolation_xgrid: [0.01 0.1 1.0]
   q2_ref: 1.0
   Q2grid:
     1000.0:

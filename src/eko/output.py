@@ -8,42 +8,43 @@ import copy
 import numpy as np
 import yaml
 
-import eko.interpolation as interpolation
-from eko.evolution_operator import OperatorMember, PhysicalOperator
+from . import interpolation
+from .operator.member import OpMember
+from .operator.physical import PhysicalOperator
+from . import basis_rotation as br
 
 logger = logging.getLogger(__name__)
 
 
 class Output(dict):
     """
-        Wrapper for the output to help with application
-        to PDFs and dumping to file.
+    Wrapper for the output to help with application
+    to PDFs and dumping to file.
     """
 
-    def apply_pdf(self, input_pdfs, targetgrid=None):
+    def apply_pdf(self, lhapdf_like, targetgrid=None, rotate_to_flavor_basis=True):
         """
-            Apply all available operators to the input PDFs.
+        Apply all available operators to the input PDFs.
 
-            Parameters
-            ----------
-                input_pdfs : dict
-                    input PDFs as dictionary {name: callable PDF}
-                targetgrid : list
-                    if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
+        Parameters
+        ----------
+            lhapdf_like : object
+                object that provides an xfxQ2 callable (as lhapdf, ToyLH does) (and thus is
+                in flavor basis)
+            targetgrid : list
+                if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
+            rotate_to_flavor_basis : boolean
+                rotate output back to flavor basis
 
-            Returns
-            ---------
-                out_grid : dict
-                    output PDFs and their associated errors for the computed Q2grid
+        Returns
+        -------
+            out_grid : dict
+                output PDFs and their associated errors for the computed Q2grid
         """
-        # TODO rotation from the evolution basis to flavor basis? if yes, here!
-        # turn input_pdfs into lists
-        input_lists = {}
-        for k in input_pdfs:
-            l = []
-            for x in self["interpolation_xgrid"]:
-                l.append(input_pdfs[k](x))
-            input_lists[k] = np.array(l)
+        # turn lhapdf_like into list
+        input_lists = br.generate_input_from_lhapdf(
+            lhapdf_like, self["interpolation_xgrid"], self["q2_ref"]
+        )
 
         # build output
         out_grid = {}
@@ -63,19 +64,41 @@ class Output(dict):
                     out_grid[q2]["errors"][pdf_label] = np.matmul(
                         rot, out_grid[q2]["errors"][pdf_label]
                     )
+        # rotate?
+        if rotate_to_flavor_basis:
+            out_grid = self.rotate_pdfs_to_flavor_basis(out_grid)
+        return out_grid
 
+    @staticmethod
+    def rotate_pdfs_to_flavor_basis(in_grid):
+        """
+        Rotate all PDFs from evolution basis to flavor basis
+
+        Parameters
+        ----------
+            in_grid : dict
+                a map q2 to pdfs and their errors in evolution basis
+
+        Returns
+        -------
+            out_grid : dict
+                updated map
+        """
+        out_grid = {}
+        for q2, res in in_grid.items():
+            out_grid[q2] = {k: br.rotate_output(v) for k, v in res.items()}
         return out_grid
 
     def get_raw(self):
         """
-            Serialize result as dict/YAML.
+        Serialize result as dict/YAML.
 
-            This maps the original numpy matrices to lists.
+        This maps the original numpy matrices to lists.
 
-            Returns
-            -------
-                out : dict
-                    dictionary which will be written on output
+        Returns
+        -------
+            out : dict
+                dictionary which will be written on output
         """
         # prepare output dict
         out = {
@@ -89,23 +112,23 @@ class Output(dict):
             out[k] = self[k].tolist()
         # make operators raw
         for q2 in self["Q2grid"]:
-            out["Q2grid"][q2] = self.get_op(q2).get_raw_operators()
+            out["Q2grid"][q2] = self.get_op(q2).to_raw()
         return out
 
     def dump_yaml(self, stream=None):
         """
-            Serialize result as YAML.
+        Serialize result as YAML.
 
-            Parameters
-            ----------
-                stream : (Default: None)
-                    if given, dump is written on it
+        Parameters
+        ----------
+            stream : (Default: None)
+                if given, dump is written on it
 
-            Returns
-            -------
-                dump : any
-                    result of dump(output, stream), i.e. a string, if no stream is given or
-                    Null, if self is written sucessfully to stream
+        Returns
+        -------
+            dump : any
+                result of dump(output, stream), i.e. a string, if no stream is given or
+                Null, if self is written sucessfully to stream
         """
         # TODO explicitly silence yaml
         out = self.get_raw()
@@ -113,17 +136,17 @@ class Output(dict):
 
     def dump_yaml_to_file(self, filename):
         """
-            Writes YAML representation to a file.
+        Writes YAML representation to a file.
 
-            Parameters
-            ----------
-                filename : string
-                    target file name
+        Parameters
+        ----------
+            filename : string
+                target file name
 
-            Returns
-            -------
-                ret : any
-                    result of dump(output, stream), i.e. Null if written sucessfully
+        Returns
+        -------
+            ret : any
+                result of dump(output, stream), i.e. Null if written sucessfully
         """
         with open(filename, "w") as f:
             ret = self.dump_yaml(f)
@@ -132,17 +155,17 @@ class Output(dict):
     @classmethod
     def load_yaml(cls, stream):
         """
-            Load YAML representation from stream
+        Load YAML representation from stream
 
-            Parameters
-            ----------
-                stream : any
-                    source stream
+        Parameters
+        ----------
+            stream : any
+                source stream
 
-            Returns
-            -------
-                obj : output
-                    loaded object
+        Returns
+        -------
+            obj : output
+                loaded object
         """
         obj = yaml.safe_load(stream)
         return cls(obj)
@@ -150,17 +173,17 @@ class Output(dict):
     @classmethod
     def load_yaml_from_file(cls, filename):
         """
-            Load YAML representation from file
+        Load YAML representation from file
 
-            Parameters
-            ----------
-                filename : string
-                    source file name
+        Parameters
+        ----------
+            filename : string
+                source file name
 
-            Returns
-            -------
-                obj : output
-                    loaded object
+        Returns
+        -------
+            obj : output
+                loaded object
         """
         obj = None
         with open(filename) as o:
@@ -169,17 +192,17 @@ class Output(dict):
 
     def get_op(self, q2):
         """
-            Load a :class:`PhysicalOperator` from the raw data.
+        Load a :class:`PhysicalOperator` from the raw data.
 
-            Parameters
-            ----------
-                q2 : float
-                    target scale
+        Parameters
+        ----------
+            q2 : float
+                target scale
 
-            Returns
-            -------
-                op : PhysicalOperator
-                    corresponding Operator
+        Returns
+        -------
+            op : PhysicalOperator
+                corresponding Operator
         """
         # check existence
         if q2 not in self["Q2grid"]:
@@ -188,24 +211,24 @@ class Output(dict):
         ops = self["Q2grid"][q2]
         op_members = {}
         for name in ops["operators"]:
-            op_members[name] = OperatorMember(
+            op_members[name] = OpMember(
                 ops["operators"][name], ops["operator_errors"][name], name
             )
         return PhysicalOperator(op_members, q2)
 
     def concat(self, other):
         """
-            Concatenate (multiply) two outputs.
+        Concatenate (multiply) two outputs.
 
-            Parameters
-            ----------
-                other : Output
-                    other factor to be multiplied from the left, i.e. with *smaller* intial scale
+        Parameters
+        ----------
+            other : Output
+                other factor to be multiplied from the left, i.e. with *smaller* intial scale
 
-            Returns
-            -------
-                out : Output
-                    self * other
+        Returns
+        -------
+            out : Output
+                self * other
         """
         # check type
         if not isinstance(other, Output):
@@ -217,7 +240,7 @@ class Output(dict):
                     f"'{f}' of the two factors does not match: {self[f]} vs {other[f]}"
                 )
         if not np.allclose(self["interpolation_xgrid"], other["interpolation_xgrid"]):
-            raise ValueError(f"'interpolation_xgrid' of the two factors does not match")
+            raise ValueError("'interpolation_xgrid' of the two factors does not match")
         # check matching
         mid_scale = self["q2_ref"]
         if not mid_scale in other["Q2grid"]:
@@ -230,6 +253,6 @@ class Output(dict):
             # multiply operators
             me = self.get_op(q2)
             prod = me * other_op
-            out["Q2grid"][q2] = prod.get_raw_operators()
+            out["Q2grid"][q2] = prod.to_raw()
 
         return out

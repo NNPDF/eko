@@ -20,7 +20,7 @@ help:
 
 # sphinx
 html: todos
-	sphinx-apidoc -o ./source/modules/eko "$(EKODIR)" "$(EKOTESTDIR)"
+	sphinx-apidoc --module-first -o ./source/modules/eko "$(EKODIR)" "$(EKOTESTDIR)"
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 view: html

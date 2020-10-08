@@ -26,9 +26,9 @@ jobs:
       run: |
         pip install pylint
         # Search for actual errors
-        pylint src/ -E
+        pylint src/eko -E
         # For warnings instead return always zero
-        pylint src/ --exit-zero
+        pylint src/eko --exit-zero
     - name: Test with pytest
       run: |
         # add test packages

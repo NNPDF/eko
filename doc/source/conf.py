@@ -16,6 +16,11 @@
 #
 #
 
+import inspect
+import numba as nb
+
+import eko.version
+
 # -- Project information -----------------------------------------------------
 
 project = 'EKO'
@@ -23,10 +28,12 @@ copyright = '2019-2020, the N3PDF team' # pylint: disable=redefined-builtin
 author = 'N3PDF team'
 
 # The short X.Y version
-version = '0.4'
-# The full version, including alpha/beta/rc tags
-release = 'v0.4.1'
+version = eko.version.short_version
+if not eko.version.is_released:
+    version = "develop"
 
+# The full version, including alpha/beta/rc tags
+release = eko.version.full_version
 
 # -- General configuration ---------------------------------------------------
 
@@ -63,7 +70,6 @@ templates_path = ['_templates']
 source_suffix = {
     '.rst': 'restructuredtext',
     '.txt': 'restructuredtext',
-    #'.md': 'markdown',
 }
 
 autosectionlabel_prefix_document = True
@@ -122,7 +128,7 @@ html_static_path = []
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'EKODocumentationdoc'
+htmlhelp_basename = 'EKO Documentation'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -149,7 +155,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'EKODocumentation.tex', 'EKO Documentation Documentation',
+    (master_doc, 'EKODocumentation.tex', 'EKO Documentation',
      'N3PDF team', 'manual'),
 ]
 
@@ -159,7 +165,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'ekodocumentation', 'EKO Documentation Documentation',
+    (master_doc, 'ekodocumentation', 'EKO Documentation',
      [author], 1)
 ]
 
@@ -170,8 +176,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'EKODocumentation', 'EKO Documentation Documentation',
-     author, 'EKODocumentation', 'One line description of project.',
+    (master_doc, 'EKODocumentation', 'EKO Documentation',
+     author, 'EKODocumentation', 'EKO Documentation.',
      'Miscellaneous'),
 ]
 
@@ -199,7 +205,12 @@ epub_exclude_files = ['search.html']
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/3/': None}
+# Thanks https://github.com/bskinn/sphobjinv
+intersphinx_mapping = {
+    "python": ('https://docs.python.org/3/', None),
+    "scipy": ('https://docs.scipy.org/doc/scipy/reference', None),
+    "numpy": ("https://numpy.org/doc/stable", None)
+}
 
 # -- Options for todo extension ----------------------------------------------
 
@@ -208,14 +219,41 @@ todo_include_todos = True
 
 mathjax_config = {
     "TeX": {"Macros":{
-        # Physics/Matching
-        "dSV": [r"{{\begin{pmatrix}\tilde \Sigma\\\tilde g\end{pmatrix}}^{(#1)}(#2)}",2],
+        # texts
+        "tLL": [r"\text{LL}",0],
+        # PDFs
+        "dSV": [r"{{\begin{pmatrix}\tilde \Sigma\\\tilde g\end{pmatrix}}^{(#1)}\!(#2)}",2],
         "dVf": [r"{\tilde{V}^{(#1)}(#2)}",2],
         "dVj": [r"{\tilde{V}_{\!#1}^{(#2)}(#3)}",3],
         "dTj": [r"{\tilde{T}_{\!#1}^{(#2)}(#3)}",3],
-        "ES": [r"{\tilde{\bf{E}}_S({#1}\leftarrow {#2})}",2],
-        "Ev": [r"{\tilde{E}_{ns}^v({#1}\leftarrow {#2})}",2],
-        "Ep": [r"{\tilde{E}_{ns}^+({#1}\leftarrow {#2})}",2],
-        "Em": [r"{\tilde{E}_{ns}^-({#1}\leftarrow {#2})}",2],
+        # EKOs
+        "ES": [r"{\tilde{\mathbf{E}}_S({#1}\leftarrow {#2})}",2],
+        "ESk": [r"{\tilde{\mathbf{E}}_S^{(#1)}({#2}\leftarrow {#3})}",3],
+        "Ensv": [r"{\tilde{E}_{ns}^v({#1}\leftarrow {#2})}",2],
+        "Ensp": [r"{\tilde{E}_{ns}^+({#1}\leftarrow {#2})}",2],
+        "Ensm": [r"{\tilde{E}_{ns}^-({#1}\leftarrow {#2})}",2],
+        # projectors
+        "em": [r"{\mathbf{e}}_-",0],
+        "ep": [r"{\mathbf{e}}_+",0],
     }}
 }
+
+# I don't know where and when, but at some point sphinx stopped to detect the documentation
+# hidden below numba. This issue is discussed here https://github.com/sphinx-doc/sphinx/issues/3783
+# pointing to this conf.py:
+# https://github.com/duetosymmetry/qnm/blob/d286cad616a4abe5ff3b4e05adbfb4b0e305583e/docs/conf.py#L71-L93
+# However, it doesn't do the trick truly, but the idea is take from there ...
+# see also https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#docstring-preprocessing
+def process_numba_docstring(app, what, name, obj, options, lines): # pylint: disable=unused-argument
+    """Recover the docstring under numba, as the numba.njit decorator doesn't repeat the __doc__"""
+    if not isinstance(obj,nb.core.registry.CPUDispatcher):
+        return
+    else:
+        original = obj.py_func
+        orig_sig = inspect.signature(original)
+        lines = orig_sig.__doc__
+
+def setup(app):
+    """Configure Sphinx"""
+    app.setup_extension("sphinx.ext.autodoc")
+    app.connect('autodoc-process-docstring', process_numba_docstring)

@@ -32,22 +32,23 @@ VFNS = {
     "g": ([], ["S", "g"]),
 }
 
+
 class FlavourTarget:
     """
-        Defines the path across the quark thresholds.
+    Defines the path across the quark thresholds.
 
-        See :doc:`Matching Conditions </Theory/Matching>`.
+    See :doc:`Matching Conditions </Theory/Matching>`.
 
-        Parameters
-        ----------
-            name: str
-                name of the flavour target (T8, V8, etc)
-            path: list(str)
-                path to get to the target from the origin at the minimum possible nf
-            original: str or list(str)
-                original flavour name (or names if the result is a combination)
-            nf_min: int
-                minimal nf for which this flavour is active
+    Parameters
+    ----------
+        name: str
+            name of the flavour target (T8, V8, etc)
+        path: list(str)
+            path to get to the target from the origin at the minimum possible nf
+        original: str or list(str)
+            original flavour name (or names if the result is a combination)
+        nf_min: int
+            minimal nf for which this flavour is active
     """
 
     def __init__(self, name, path, original=None, nf_min=None):
@@ -70,21 +71,21 @@ class FlavourTarget:
 
     def _path_from_nf(self, nf_target, n_thres):
         """
-            Generate the path array from the known nf target
-            taking into account nf target == self.nf_0 would be
-            the last member of the array
+        Generate the path array from the known nf target
+        taking into account nf target == self.nf_0 would be
+        the last member of the array
 
-            Parameters
-            ----------
-                nf_target : int
-                    number of flavours at target scale
-                n_thres : int
-                    numbers of thresholds to cross
+        Parameters
+        ----------
+            nf_target : int
+                number of flavours at target scale
+            n_thres : int
+                numbers of thresholds to cross
 
-            Returns
-            -------
-                path : list
-                    path to get there
+        Returns
+        -------
+            path : list
+                path to get there
         """
         max_nns = len(self._path) + self.nf_0 - 1
         idx_ini = max(max_nns - nf_target, 0)
@@ -93,21 +94,21 @@ class FlavourTarget:
 
     def get_path(self, nf_target, n_thresholds):
         """
-            Get the path to a given value of nf
-            given a number of thresholds to be crossed
+        Get the path to a given value of nf
+        given a number of thresholds to be crossed
 
-            Parameters
-            ----------
-                nf_target : int
-                    nf value of the target flavour
-                n_thresholds : int
-                    number of thresholds which are going to be crossed
+        Parameters
+        ----------
+            nf_target : int
+                nf value of the target flavour
+            n_thresholds : int
+                number of thresholds which are going to be crossed
 
-            Returns
-            -------
-                instructions : dict
-                    a dictonary whose keys are the incoming flavour
-                    and whose items are the corresponding path
+        Returns
+        -------
+            instructions : dict
+                a dictonary whose keys are the incoming flavour
+                and whose items are the corresponding path
         """
         # TODO can this be made more concise, or is this really the best that can be done?
         # Check from what nf we are coming from
@@ -158,22 +159,22 @@ class FlavourTarget:
 
 def get_singlet_paths(to, fromm, depth):
     """
-        Compute all possible path in the singlet sector to reach `to` starting from  `fromm`.
+    Compute all possible path in the singlet sector to reach `to` starting from  `fromm`.
 
-        Parameters
-        ----------
-            to : 'q' or 'g'
-                final point
-            fromm : 'q' or 'g'
-                starting point
-            depth : int
-                nesting level; 1 corresponds to the trivial first step
+    Parameters
+    ----------
+        to : 'q' or 'g'
+            final point
+        fromm : 'q' or 'g'
+            starting point
+        depth : int
+            nesting level; 1 corresponds to the trivial first step
 
-        Returns
-        -------
-            ls : list(list(str))
-                list of all possible paths, where each path is in increasing order, e.g.
-                [P1(c <- a), P2(c <- a), ...] and P1(c <- a) = [(c <- b), (b <- a)]
+    Returns
+    -------
+        ls : list(list(str))
+            list of all possible paths, where each path is in increasing order, e.g.
+            [P1(c <- a), P2(c <- a), ...] and P1(c <- a) = [(c <- b), (b <- a)]
     """
     if depth < 1:
         raise ValueError(f"Invalid arguments: depth >= 1, but got {depth}")
@@ -196,17 +197,17 @@ def get_singlet_paths(to, fromm, depth):
 
 def get_all_flavour_paths(nf):
     """
-        Builds all :class:`FlavourTarget` - see :doc:`Matching Conditions </Theory/Matching>`.
+    Builds all :class:`FlavourTarget` - see :doc:`Matching Conditions </Theory/Matching>`.
 
-        Parameters
-        ----------
-            nf : None | int
-                if given, paths are filtered by beeing active for at least `nf` flavours
+    Parameters
+    ----------
+        nf : None | int
+            if given, paths are filtered by beeing active for at least `nf` flavours
 
-        Returns
-        -------
-            ls : list(FlavourTarget)
-                all instructions
+    Returns
+    -------
+        ls : list(FlavourTarget)
+            all instructions
     """
     ls = []
     # build flavour targets

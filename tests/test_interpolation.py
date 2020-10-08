@@ -2,10 +2,10 @@
 
 import numpy as np
 from numpy.testing import assert_almost_equal
+from scipy import integrate
 import pytest
 
 from eko import interpolation
-import eko.mellin as mellin
 
 # for the numeric comparision to work, keep in mind that in Python3 the default precision is
 # np.float64
@@ -36,15 +36,44 @@ def check_is_interpolator(interpolator, xgrid):
 
 
 def check_correspondence_interpolators(inter_x, inter_N):
-    """ Check the correspondece between x and N space of the interpolators
+    """Check the correspondece between x and N space of the interpolators
     inter_x and inter_N"""
     ngrid = [np.complex(1.0), np.complex(1.0 + 1j), np.complex(2.5 - 2j)]
     logxinv = np.log(0.9e-2)  # < 1e-2, to trick skipping
     for fun_x, fun_N in zip(inter_x, inter_N):
         for N in ngrid:
             result_N = fun_N(N, logxinv) * np.exp(N * logxinv)
-            result_x = mellin.mellin_transform(fun_x, N)
+            result_x = mellin_transform(fun_x, N)
             assert_almost_equal(result_x[0], result_N)
+
+
+def mellin_transform(f, N):
+    """
+    Mellin transformation
+
+    Parameters
+    ----------
+        f : function
+            integration kernel :math:`f(x)`
+        N : complex
+            transformation point
+
+    Returns
+    -------
+        res : complex
+            computed point
+    """
+
+    def integrand(x):
+        xToN = pow(x, N - 1) * f(x)
+        return xToN
+
+    # do real + imaginary part seperately
+    r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1, full_output=1)[:2]
+    i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1, full_output=1)[:2]
+    result = np.complex(r, i)
+    error = np.complex(re, ie)
+    return result, error
 
 
 class TestInterpolatorDispatcher:
@@ -58,6 +87,18 @@ class TestInterpolatorDispatcher:
             interpolation.InterpolatorDispatcher([0.1, 0.2], 0)
         with pytest.raises(ValueError):
             interpolation.InterpolatorDispatcher([0.1, 0.2], 2)
+
+    def test_from_dict(self):
+        d = {
+            "interpolation_xgrid": ["make_grid", 3, 3],
+            "interpolation_is_log": False,
+            "interpolation_polynomial_degree": 1,
+        }
+        a = interpolation.InterpolatorDispatcher.from_dict(d)
+        np.testing.assert_array_almost_equal(
+            a.xgrid, np.array([1e-7, 1e-4, 1e-1, 0.55, 1.0])
+        )
+        assert a.polynomial_degree == 1
 
     def test_eq(self):
         a = interpolation.InterpolatorDispatcher(
@@ -249,20 +290,31 @@ class TestArea:
         assert list(a._reference_indices()) == [0]  # pylint: disable=protected-access
         # polynomial_degree = 2
         a = interpolation.Area(0, 0, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [
+        assert list(a._reference_indices()) == [  # pylint: disable=protected-access
             1,
             2,
-        ]  # pylint: disable=protected-access
+        ]
         a = interpolation.Area(0, 1, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [
+        assert list(a._reference_indices()) == [  # pylint: disable=protected-access
             0,
             2,
-        ]  # pylint: disable=protected-access
+        ]
         a = interpolation.Area(0, 2, (0, 2), xgrid)
-        assert list(a._reference_indices()) == [
+        assert list(a._reference_indices()) == [  # pylint: disable=protected-access
             0,
             1,
-        ]  # pylint: disable=protected-access
+        ]
         # errors
         with pytest.raises(ValueError):
             a = interpolation.Area(0, 3, (0, 2), xgrid)
+
+
+def test_make_grid():
+    xg = interpolation.make_grid(3, 3)
+    np.testing.assert_array_almost_equal(xg, np.array([1e-7, 1e-4, 1e-1, 0.55, 1.0]))
+    xg = interpolation.make_grid(3, 3, 4)
+    np.testing.assert_array_almost_equal(
+        xg, np.array([1e-7, 1e-4, 1e-1, 0.5, 0.9, 0.99, 0.999, 0.9999, 1.0])
+    )
+    xg = interpolation.make_grid(3, 0, 0, 1e-2)
+    np.testing.assert_array_almost_equal(xg, np.array([1e-2, 1e-1, 1.0]))

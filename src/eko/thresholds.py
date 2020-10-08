@@ -15,18 +15,18 @@ logger = logging.getLogger(__name__)
 
 class Area:
     """
-        Sets up a single threhold area with a fixed configuration.
+    Sets up a single threhold area with a fixed configuration.
 
-        Parameters
-        ----------
-            q2_min : float
-                lower bound of the area
-            q2_max : float
-                upper bound of the area
-            q2_0 : float
-                reference point of the area (can be anywhere in the area)
-            nf : float
-                number of flavours in the area
+    Parameters
+    ----------
+        q2_min : float
+            lower bound of the area
+        q2_max : float
+            upper bound of the area
+        q2_0 : float
+            reference point of the area (can be anywhere in the area)
+        nf : float
+            number of flavours in the area
     """
 
     def __init__(self, q2_min, q2_max, q2_0, nf):
@@ -45,19 +45,19 @@ class Area:
 
     def q2_towards(self, q2):
         """
-            Return q2_min or q2_max depending on whether
-            we are going towards the max or the min or q2
-            if we are alreay in the correct area
+        Return q2_min or q2_max depending on whether
+        we are going towards the max or the min or q2
+        if we are alreay in the correct area
 
-            Parameters
-            ----------
-                q2 : float
-                    reference point
+        Parameters
+        ----------
+            q2 : float
+                reference point
 
-            Returns
-            -------
-                q2_next : float
-                    the closest point to q2 that is within the area
+        Returns
+        -------
+            q2_next : float
+                the closest point to q2 that is within the area
         """
         if q2 > self.q2_max:
             return self.q2_max
@@ -76,36 +76,36 @@ class Area:
 
     def __call__(self, q2):
         """
-            Checks whether q2 is contained in the area
+        Checks whether q2 is contained in the area
 
-            Parameters
-            ----------
-                q2 : float
-                    testing point
+        Parameters
+        ----------
+            q2 : float
+                testing point
 
-            Returns
-            -------
-                contained : bool
-                    is point contained?
+        Returns
+        -------
+            contained : bool
+                is point contained?
         """
         return self.q2_min <= q2 <= self.q2_max
 
 
 class ThresholdsConfig:
     """
-        The threshold class holds information about the thresholds any
-        Q2 has to pass in order to get there from a given q2_ref and scheme.
+    The threshold class holds information about the thresholds any
+    Q2 has to pass in order to get there from a given q2_ref and scheme.
 
-        Parameters
-        ----------
-            q2_ref : float
-                Reference q^2
-            scheme: str
-                Choice of scheme
-            threshold_list: list
-                List of q^2 thresholds should the scheme accept it
-            nf: int
-                Number of flavour for the FFNS
+    Parameters
+    ----------
+        q2_ref : float
+            Reference q^2
+        scheme: str
+            Choice of scheme
+        threshold_list: list
+            List of q^2 thresholds should the scheme accept it
+        nf: int
+            Number of flavors for the FFNS
     """
 
     def __init__(self, q2_ref, scheme, *, threshold_list=None, nf=None):
@@ -130,6 +130,7 @@ class ThresholdsConfig:
             self.max_nf = nf
             self.min_nf = nf
             protection = True
+            logger.info("Thresholds: Fixed flavor number scheme with %d flavors", nf)
         elif scheme in ["ZM-VFNS", "FONLL-A", "FONLL-A'"]:
             if nf is not None:
                 logger.warning(
@@ -141,6 +142,7 @@ class ThresholdsConfig:
                     "The ZM-VFN scheme was selected but no thresholds were given"
                 )
             self._setup_vfns(threshold_list)
+            logger.info("Thresholds: Variable flavor number scheme (%s)", scheme)
         else:
             raise NotImplementedError(f"The scheme {scheme} is not implemented")
 
@@ -172,23 +174,23 @@ class ThresholdsConfig:
 
     def nf_range(self):
         """
-            Iterate number of flavours, including min_nf *and* max_nf
+        Iterate number of flavours, including min_nf *and* max_nf
 
-            Yields
-            ------
-                nf : int
-                    number of flavour
+        Yields
+        ------
+            nf : int
+                number of flavour
         """
         return range(self.min_nf, self.max_nf + 1)
 
     def _setup_vfns(self, threshold_list):
         """
-            Receives a list of thresholds and sets up the vfns scheme
+        Receives a list of thresholds and sets up the vfns scheme
 
-            Parameters
-            ----------
-                threshold_list: list
-                    List of q^2 thresholds
+        Parameters
+        ----------
+            threshold_list: list
+                List of q^2 thresholds
         """
         nf = 3
         # Force sorting
@@ -209,19 +211,19 @@ class ThresholdsConfig:
 
     def get_path_from_q2_ref(self, q2):
         """
-            Get the Area path from q2_ref to q2.
+        Get the Area path from q2_ref to q2.
 
-            Parameters
-            ----------
-                q2: float
-                    Target value of q2
+        Parameters
+        ----------
+            q2: float
+                Target value of q2
 
-            Returns
-            -------
-                area_path: list
-                    List of Areas to go through in order to get from q2_ref
-                    to q2. The first one is the one containg q2_ref while the
-                    last one contains q2
+        Returns
+        -------
+            area_path: list
+                List of Areas to go through in order to get from q2_ref
+                to q2. The first one is the one containg q2_ref while the
+                last one contains q2
         """
         current_area = self.get_areas_idx(q2)[0]
         if current_area < self._area_ref:
@@ -235,38 +237,38 @@ class ThresholdsConfig:
 
     def get_composition_path(self, nf, n_thres):
         """
-            Iterates all flavour targets.
+        Iterates all flavour targets.
 
-            Parameters
-            ----------
-                nf: int
-                    nf value of the target flavour
-                n_thres: int
-                    number of thresholds which are going to be crossed
+        Parameters
+        ----------
+            nf: int
+                nf value of the target flavour
+            n_thres: int
+                number of thresholds which are going to be crossed
 
-            Yields
-            ------
-                name : string
-                    flavour name
-                path : list
-                    flavour path
+        Yields
+        ------
+            name : string
+                flavour name
+            path : list
+                flavour path
         """
         for flavour in self._operator_paths:
             yield flavour.name, flavour.get_path(nf, n_thres)
 
     def get_areas_idx(self, q2arr):
         """
-            Returns the index of the area in which each value of q2arr falls.
+        Returns the index of the area in which each value of q2arr falls.
 
-            Parameters
-            ----------
-                q2arr: np.array
-                    array of values of q2
+        Parameters
+        ----------
+            q2arr: np.array
+                array of values of q2
 
-            Returns
-            -------
-                areas_idx: list
-                    list with the indices of the corresponding areas for q2arr
+        Returns
+        -------
+            areas_idx: list
+                list with the indices of the corresponding areas for q2arr
         """
         # Ensure q2arr is an array
         if isinstance(q2arr, numbers.Number):
@@ -277,17 +279,17 @@ class ThresholdsConfig:
 
     def get_areas(self, q2arr):
         """
-            Returns the Areas in which each value of q2arr falls
+        Returns the Areas in which each value of q2arr falls
 
-            Parameters
-            ----------
-                q2arr: np.array
-                    array of values of q2
+        Parameters
+        ----------
+            q2arr: np.array
+                array of values of q2
 
-            Returns
-            -------
-                areas: list
-                    list with the areas for q2arr
+        Returns
+        -------
+            areas: list
+                list with the areas for q2arr
         """
         idx = self.get_areas_idx(q2arr)
         area_list = np.array(self._areas)[idx]
