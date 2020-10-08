@@ -43,7 +43,7 @@ Example Output dump
 
   interpolation_is_log: true
   interpolation_polynomial_degree: 4
-  interpolation_xgrid: [0.001 0.01 0.1 1.0]
+  interpolation_xgrid: [0.01 0.1 1.0]
   q2_ref: 1.0
   Q2grid:
     1000.0:
