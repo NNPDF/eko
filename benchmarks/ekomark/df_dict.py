@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 class DFdict(dict):
     """
     .. todo:: write the docs
@@ -22,7 +23,7 @@ class DFdict(dict):
         self.print(f"PID: {key}")
         self.print(value)
         self.print()
-        super(DFdict,self).__setitem__(key,value)
+        super(DFdict, self).__setitem__(key, value)
 
     def __repr__(self):
         return "".join([str(x) for x in self.msgs])

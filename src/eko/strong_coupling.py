@@ -19,7 +19,7 @@ from .beta import beta
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("f8(u1,f8,u1,f8,f8)",cache=True)
+@nb.njit("f8(u1,f8,u1,f8,f8)", cache=True)
 def as_expanded(order, as_ref, nf, scale_from, scale_to):
     """
     Compute expanded expression.

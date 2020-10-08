@@ -21,19 +21,26 @@ from .physical import PhysicalOperator
 
 logger = logging.getLogger(__name__)
 
+
 @nb.njit("c16[:](u1,string,c16,u1,f8)", cache=True)
 def gamma_ns_fact(order, mode, n, nf, L):
     gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
     if order > 0:
-        gamma_ns[1] -= beta.beta(0,nf) * gamma_ns[0] * L
+        gamma_ns[1] -= beta.beta(0, nf) * gamma_ns[0] * L
     return gamma_ns
+
 
 @nb.njit("c16[:,:,:](u1,c16,u1,f8)", cache=True)
 def gamma_singlet_fact(order, n, nf, L):
-    gamma_singlet = ad.gamma_singlet(order,n,nf,)
+    gamma_singlet = ad.gamma_singlet(
+        order,
+        n,
+        nf,
+    )
     if order > 0:
-        gamma_singlet[1] -= beta.beta(0,nf) * gamma_singlet[0] * L
+        gamma_singlet[1] -= beta.beta(0, nf) * gamma_singlet[0] * L
     return gamma_singlet
+
 
 @nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1)", cache=True)
 def quad_ker(
@@ -105,7 +112,7 @@ def quad_ker(
         return 0.0
     # compute the actual evolution kernel
     if is_singlet:
-        gamma_singlet = gamma_singlet_fact(order,n,nf,L)
+        gamma_singlet = gamma_singlet_fact(order, n, nf, L)
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
@@ -115,7 +122,7 @@ def quad_ker(
         ker = ker[k, l]
     else:
         # load data
-        gamma_ns = gamma_ns_fact(order,mode,n,nf,L)
+        gamma_ns = gamma_ns_fact(order, mode, n, nf, L)
         # switch by order and method
         ker = ns.dispatcher(
             order,

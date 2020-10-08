@@ -14,7 +14,7 @@ zeta2 = scipy.special.zeta(2)
 zeta3 = scipy.special.zeta(3)
 
 
-@nb.njit("c16(c16,u1)",cache=True)
+@nb.njit("c16(c16,u1)", cache=True)
 def cern_polygamma(Z, K: int):  # pylint: disable=all
     """
     Computes the polygamma functions :math:`\\psi_k(z)`.
@@ -131,7 +131,7 @@ def cern_polygamma(Z, K: int):  # pylint: disable=all
     # fmt: on
 
 
-@nb.njit("c16(c16)",cache=True)
+@nb.njit("c16(c16)", cache=True)
 def harmonic_S1(N):
     r"""
     Computes the harmonic sum :math:`S_1(N)`.
@@ -159,7 +159,7 @@ def harmonic_S1(N):
     return cern_polygamma(N + 1.0, 0) + np.euler_gamma
 
 
-@nb.njit("c16(c16)",cache=True)
+@nb.njit("c16(c16)", cache=True)
 def harmonic_S2(N):
     r"""
     Computes the harmonic sum :math:`S_2(N)`.
@@ -187,7 +187,7 @@ def harmonic_S2(N):
     return -cern_polygamma(N + 1.0, 1) + zeta2
 
 
-@nb.njit("c16(c16)",cache=True)
+@nb.njit("c16(c16)", cache=True)
 def harmonic_S3(N):
     r"""
     Computes the harmonic sum :math:`S_3(N)`.
@@ -215,7 +215,7 @@ def harmonic_S3(N):
     return 0.5 * cern_polygamma(N + 1.0, 2) + zeta3
 
 
-@nb.njit("c16(c16)",cache=True)
+@nb.njit("c16(c16)", cache=True)
 def mellin_g3(N):
     r"""
     Computes the Mellin transform of :math:`\text{Li}_2(x)/(1+x)`.

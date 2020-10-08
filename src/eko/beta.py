@@ -10,7 +10,7 @@ import numba as nb
 from eko import constants
 
 
-@nb.njit("f8(u1)",cache=True)
+@nb.njit("f8(u1)", cache=True)
 def beta_0(nf: int):
     """
     Computes the first coefficient of the QCD beta function.
@@ -31,7 +31,7 @@ def beta_0(nf: int):
     return beta_0
 
 
-@nb.njit("f8(u1)",cache=True)
+@nb.njit("f8(u1)", cache=True)
 def beta_1(nf: int):
     """
     Computes the second coefficient of the QCD beta function.
@@ -56,7 +56,7 @@ def beta_1(nf: int):
     return beta_1
 
 
-@nb.njit("f8(u1)",cache=True)
+@nb.njit("f8(u1)", cache=True)
 def beta_2(nf: int):
     """
     Computes the third coefficient of the QCD beta function
@@ -85,7 +85,7 @@ def beta_2(nf: int):
     return beta_2
 
 
-@nb.njit("f8(u1,u1)",cache=True)
+@nb.njit("f8(u1,u1)", cache=True)
 def beta(k, nf):
     """
     Compute value of a beta coefficients
@@ -114,7 +114,7 @@ def beta(k, nf):
     return beta_
 
 
-@nb.njit("f8(u1,u1)",cache=True)
+@nb.njit("f8(u1,u1)", cache=True)
 def b(k, nf):
     """
     Compute b coefficient.

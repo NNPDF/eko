@@ -13,6 +13,8 @@ def test_runner():
         "interpolation_is_log": True,
         "alphas": 0.35,
         "PTO": 0,
+        "XIF": 1.0,
+        "XIR": 1.0,
         "Qref": np.sqrt(2),
         "Q0": np.sqrt(2),
         "FNS": "FFNS",
