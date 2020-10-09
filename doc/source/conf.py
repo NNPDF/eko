@@ -19,7 +19,8 @@
 import inspect
 import numba as nb
 
-import eko.version
+# in CodeFactor there is no version, since it is generated upon installation
+import eko.version # pylint: disable=no-name-in-module
 
 # -- Project information -----------------------------------------------------
 

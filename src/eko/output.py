@@ -5,8 +5,8 @@
 import logging
 import copy
 
-import numpy as np
 import yaml
+import numpy as np
 
 from . import interpolation
 from .operator.member import OpMember

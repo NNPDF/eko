@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 from eko import run_dglap
-from eko import basis_rotation as br
 
 from .toyLH import mkPDF
 from .plots import plot_dist, plot_operator

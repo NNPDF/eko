@@ -116,7 +116,8 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
     if np.max(op) <= 0.0:
         return fig
 
-    # TODO fix File "/usr/lib/python3/dist-packages/matplotlib/colors.py", line 1181, in _check_vmin_vmax
+    # TODO fix File "/usr/lib/python3/dist-packages/matplotlib/colors.py",
+    # line 1181, in _check_vmin_vmax
     # raise ValueError("minvalue must be positive")
     # ValueError: minvalue must be positive
     # import pdb; pdb.set_trace()

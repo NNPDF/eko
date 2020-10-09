@@ -40,8 +40,12 @@ def test_gamma_singlet_fact(monkeypatch):
 
 
 def test_quad_ker(monkeypatch):
-    monkeypatch.setattr(mellin, "Talbot_path", lambda *args: 2) # N=2 is a safe evaluation point
-    monkeypatch.setattr(mellin, "Talbot_jac", lambda *args: np.complex(0, np.pi)) # negate mellin prefactor
+    monkeypatch.setattr(
+        mellin, "Talbot_path", lambda *args: 2
+    )  # N=2 is a safe evaluation point
+    monkeypatch.setattr(
+        mellin, "Talbot_jac", lambda *args: np.complex(0, np.pi)
+    )  # negate mellin prefactor
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(ns, "dispatcher", lambda *args: 1.0)
@@ -191,7 +195,6 @@ class TestOperator:
 
         def fake_compute(op):
             op.op_members = op_members
-            pass
 
         monkeypatch.setattr(Operator, "compute", fake_compute)
         op1 = Operator({}, {}, 3, 1, 2)
