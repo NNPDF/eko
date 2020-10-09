@@ -29,11 +29,11 @@ class Output(dict):
         Parameters
         ----------
             lhapdf_like : object
-                object that provides an xfxQ2 callable (as lhapdf, ToyLH does) (and thus is
-                in flavor basis)
+                object that provides an xfxQ2 callable (as `lhapdf <https://lhapdf.hepforge.org/>`_
+                and :class:`ekomark.toyLH.toyPDF` do) (and thus is in flavor basis)
             targetgrid : list
                 if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
-            rotate_to_flavor_basis : boolean
+            rotate_to_flavor_basis : bool
                 rotate output back to flavor basis
 
         Returns

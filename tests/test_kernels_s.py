@@ -93,3 +93,49 @@ def test_zero_nlo_decompose(monkeypatch):
             ),
             np.zeros((2, 2)),
         )
+
+
+def test_similarity():
+    """all methods should be similar"""
+    nf = 3
+    a0 = 0.1
+    delta_a = 1e-3
+    a1 = a0 + delta_a
+    ev_op_iterations = 10
+    ev_op_max_order = 10
+    gamma_s = np.random.rand(2, 2, 2)
+    for order in [0, 1]:
+        ref = s.dispatcher(
+            order,
+            "decompose-exact",
+            gamma_s,
+            a1,
+            a0,
+            nf,
+            ev_op_iterations,
+            ev_op_max_order,
+        )
+        for method in [
+            "iterate-expanded",
+            "decompose-expanded",
+            "perturbative-expanded",
+            "truncated",
+            "ordered-truncated",
+            "iterate-exact",
+            "decompose-exact",
+            "perturbative-exact",
+        ]:
+            np.testing.assert_allclose(
+                s.dispatcher(
+                    order,
+                    method,
+                    gamma_s,
+                    a1,
+                    a0,
+                    nf,
+                    ev_op_iterations,
+                    ev_op_max_order,
+                ),
+                ref,
+                atol=delta_a,
+            )
