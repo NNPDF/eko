@@ -2,7 +2,7 @@
 r"""
 This module contains the central operator classes.
 
-See :doc:`Operator overview </Code/Operators>`.
+See :doc:`Operator overview </code/Operators>`.
 """
 
 import time
@@ -277,11 +277,12 @@ class Operator:
                             self.config["ev_op_iterations"],
                             self.config["ev_op_max_order"],
                         ),
-                        epsabs=1e-12, epsrel=1e-5,
+                        epsabs=1e-12,
+                        epsrel=1e-5,
                         limit=100,
                         full_output=1,
                     )
-                    val,err = res[:2]
+                    val, err = res[:2]
                     self.op_members[label].value[k][l] = val
                     self.op_members[label].error[k][l] = err
 

@@ -2,7 +2,7 @@
 """
   Implements higher mathematical functions.
 
-  The functions are discribed in :doc:`Mellin space </Theory/Mellin>`.
+  The functions are discribed in :doc:`Mellin space </theory/Mellin>`.
 """
 
 import numpy as np

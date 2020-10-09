@@ -2,5 +2,6 @@
 source/code_todos.rst
 # Ignore auto generated module references
 source/modules
+source/development/ekomark
 # ignore temporary build files
 _build/

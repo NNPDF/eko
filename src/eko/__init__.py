@@ -17,12 +17,12 @@ def run_dglap(setup):
     Parameters
     ----------
         setup : dict
-            input card - see :doc:`/Code/IO`
+            input card - see :doc:`/code/IO`
 
     Returns
     -------
         output : dict
-            output dictionary - see :doc:`/Code/IO`
+            output dictionary - see :doc:`/code/IO`
     """
     r = runner.Runner(setup)
     output = r.get_output()

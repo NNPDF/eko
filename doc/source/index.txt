@@ -7,23 +7,23 @@ EKO documentation
 =================
 
 EKO solves the DGLAP equations in Mellin space and produces evolution kernel operators.
-It is thus PDF-independet and the operators can be computed for a given configuration
+It is thus PDF-independent and the operators can be computed for a given configuration
 once and be reused after.
 
-This documentation is organised in three sections: first, an quick overview on the theoretical ingredients is given,
-second, an overview of the implementation details, and, last, the available indices.
+This documentation is organised in four sections: first, an quick overview on the theoretical ingredients is given,
+second, an overview of the implementation details, third, an overview about the development tools, and, last, the available indices.
 
 .. toctree::
     :caption: Theory:
     :maxdepth: 1
 
-    Theory/Interpolation
-    Theory/Mellin
-    Theory/pQCD
-    Theory/DGLAP
-    Theory/FlavourBasis
-    Theory/Matching
-    Theory/Benchmarks
+    theory/Interpolation
+    theory/Mellin
+    theory/pQCD
+    theory/DGLAP
+    theory/FlavourBasis
+    theory/Matching
+    theory/Benchmarks
     
     zzz-refs
 
@@ -31,21 +31,17 @@ second, an overview of the implementation details, and, last, the available indi
     :maxdepth: 1
     :caption: Implementation:
 
-    Code/Operators
-    Code/IO
-    Code/Dependency
-    
-    API <modules/eko/modules>
-
-.. automodule:: eko
-    :members:
-    :noindex:
+    code/IO
+    API <modules/eko/eko>
+    code/Operators
+    code/Dependency
 
 .. toctree::
     :maxdepth: 1
     :caption: Development:
     
-    code_todos
+    ekomark <development/ekomark/ekomark>
+    development/code_todos
 
 Indices and tables
 ==================

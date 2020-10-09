@@ -2,7 +2,7 @@
 r"""
 This module contains the QCD beta function coefficients.
 
-See :doc:`pQCD ingredients </Theory/pQCD>`.
+See :doc:`pQCD ingredients </theory/pQCD>`.
 """
 
 import numba as nb

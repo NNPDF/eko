@@ -31,7 +31,7 @@ class Area:
             number of polynomial
         block: tuple(int, int)
             kmin and kmax
-        xgrid: array(float)
+        xgrid: numpy.ndarray
             Grid in x-space from which the interpolators are constructed
     """
 
@@ -77,12 +77,12 @@ class Area:
 
 @nb.njit("c16(c16,f8,f8[:,:])", cache=True)
 def log_evaluate_Nx(N, logx, area_list):
-    """
+    r"""
     Evaluates a single logarithmic Lagrange interpolator in N-space multiplied
     by the Mellin-inversion factor.
 
     .. math::
-        \\tilde p(N)*exp(- N * log(x))
+        \tilde p(N)*\exp(- N * \ln(x))
 
     Parameters
     ----------
@@ -128,12 +128,12 @@ def log_evaluate_Nx(N, logx, area_list):
 
 @nb.njit("c16(c16,f8,f8[:,:])", cache=True)
 def evaluate_Nx(N, logx, area_list):
-    """
+    r"""
     Evaluates a single linear Lagrange interpolator in N-space multiplied
     by the Mellin-inversion factor.
 
     .. math::
-        \\tilde p(N)*exp(- N * log(x))
+        \tilde p(N)*\exp(- N * \ln(x))
 
     Parameters
     ----------
@@ -236,15 +236,15 @@ class BasisFunction:
 
     Parameters
     ----------
-        xgrid : array
+        xgrid : numpy.ndarray
             Grid in x-space from which the interpolators are constructed
         poly_number : int
             number of polynomial
         list_of_blocks: list(tuple(int, int))
             list of tuples with the (kmin, kmax) values for each area
-        mode_log: bool (default: True)
+        mode_log: bool
             use logarithmic interpolation?
-        mode_N: bool (default: True)
+        mode_N: bool
             if true compiles the function on N, otherwise compiles x
     """
 
@@ -299,9 +299,13 @@ class BasisFunction:
 
     def areas_to_const(self):
         """
-        Retruns a tuple of tuples, one for each area
-        each containing
+        Returns an array containing all areas with
         (`xmin`, `xmax`, `numpy.array` of coefficients)
+
+        Returns
+        -------
+            numpy.ndarray
+                area config
         """
         # This is necessary as numba will ask for everything
         # to be inmutable
@@ -344,15 +348,15 @@ class BasisFunction:
         return res
 
     def compile_n(self):
-        """
+        r"""
         Compiles the function to evaluate the interpolator in N space.
 
         Generates a function `evaluate_Nx` with a (N, logx) signature.
 
         .. math::
-            \\tilde p(N)*exp(- N * log(x))
+            \tilde p(N)*\exp(- N * \ln(x))
 
-        The polynomials contain naturally factors of :math:`exp(N * j * log(x_{min/max}))`
+        The polynomials contain naturally factors of :math:`\exp(N * j * \ln(x_{min/max}))`
         which can be joined with the Mellin inversion factor.
         """
 
@@ -383,13 +387,13 @@ class InterpolatorDispatcher:
 
     Parameters
     ----------
-        xgrid_in : array
+        xgrid_in : numpy.ndarray
             Grid in x-space from which the interpolators are constructed
         polynomial_degree : int
             degree of the interpolation polynomial
-        log: bool  (default: True)
+        log: bool
             Whether it is a log or linear interpolator
-        mode_N: bool (default: True)
+        mode_N: bool
             if true compiles the function on N, otherwise compiles x
     """
 
@@ -459,11 +463,25 @@ class InterpolatorDispatcher:
         """
         Create object from dictionary.
 
-        Read keys:
+        .. list-table:: setup runcard parameters
+            :header-rows: 1
 
-            - interpolation_xgrid : required, basis grid
-            - interpolation_is_log : default=True, use logarithmic interpolation?
-            - interpolation_polynomial_degree : default=4, polynomial degree of interpolation
+            *   - Name
+                - Type
+                - default
+                - description
+            *   - ``interpolation_xgrid``
+                - :py:obj:`list(float)`
+                - [required]
+                - the interpolation grid
+            *   - ``interpolation_polynomial_degree``
+                - :py:obj:`int`
+                - ``4``
+                - polynomial degree of the interpolating function
+            *   - ``interpolation_is_log``
+                - :py:obj:`bool`
+                - ``True``
+                - use logarithmic interpolation?
 
         Parameters
         ----------

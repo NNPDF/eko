@@ -1,30 +1,22 @@
 # -*- coding: utf-8 -*-
 r"""
-    This module contains the implementation of the
-    `inverse Mellin transformation <https://en.wikipedia.org/wiki/Mellin_inversion_theorem>`_.
+This module contains the implementation of the
+`inverse Mellin transformation <https://en.wikipedia.org/wiki/Mellin_inversion_theorem>`_.
 
-    It contains the actual transformations itself, as well as the necessary tools
-    such as the definition of paths.
+Although this module provides three different path implementations in practice
+only the Talbot path :cite:`Abate`
 
-    The integral routine is provided by :func:`scipy.integrate.quad`.
+.. math::
+    p_{\text{Talbot}}(t) =  o + r \cdot ( \theta \cot(\theta) + i\theta)\quad
+        \text{with}~\theta = \pi(2t-1)
 
-    Integration Paths
-    -----------------
+is used, as it results in the most efficient convergence. The default values
+for the parameters :math:`r,o` are given by :math:`r = 1/2, o = 0` for
+the non-singlet integrals and by :math:`r = \frac{2}{5} \frac{16}{1 - \ln(x)}, o = 1`
+for the singlet sector. Note that the non-singlet kernels evolve poles only up to
+:math:`N=0` whereas the singlet kernels have poles up to :math:`N=1`.
 
-    Although this module provides four different path implementations in practice
-    only the Talbot path :cite:`Abate`
-
-    .. math::
-        p_{\text{Talbot}}(t) =  o + r \cdot ( \theta \cot(\theta) + i\theta)\quad
-            \text{with}~\theta = \pi(2t-1)
-
-    is used, as it results in the most efficient convergence. The default values
-    for the parameters :math:`r,o` are given by :math:`r = 1/2, o = 0` for
-    the non-singlet integrals and by :math:`r = \frac{2}{5} \frac{16}{1 - \ln(x)}, o = 1`
-    for the singlet sector. Note that the non-singlet kernels evolve poles only up to
-    :math:`N=0` whereas the singlet kernels have poles up to :math:`N=1`.
-
-"""  # pylint:disable=line-too-long
+"""
 
 import numpy as np
 import numba as nb
@@ -32,15 +24,17 @@ import numba as nb
 
 @nb.njit("c16(f8,f8,f8)", cache=True)
 def Talbot_path(t, r, o):
-    """
+    r"""
     Talbot path.
 
     .. math::
-        p_{\\text{Talbot}}(t) =  o + r \\cdot ( \\theta \\cot(\\theta) + i\\theta ),
-        \\theta = \\pi(2t-1)
+        p_{\text{Talbot}}(t) =  o + r \cdot ( \theta \cot(\theta) + i\theta ),
+        \theta = \pi(2t-1)
 
     Parameters
     ----------
+        t : float
+            way parameter
         r : float
             scaling parameter - effectivly corresponds to the intersection of the path with the
             real axis
@@ -64,15 +58,16 @@ def Talbot_path(t, r, o):
 
 @nb.njit("c16(f8,f8,f8)", cache=True)
 def Talbot_jac(t, r, o):  # pylint: disable=unused-argument
-    """
+    r"""
     Derivative of Talbot path.
 
     .. math::
-        p_{\\text{Talbot}}(t) =  o + r \\cdot ( \\theta \\cot(\\theta) + i\\theta ),
-        \\theta = \\pi(2t-1)
+        \frac{dp_{\text{Talbot}}(t)}{dt}
 
     Parameters
     ----------
+        t : float
+            way parameter
         r : float
             scaling parameter - effectivly corresponds to the intersection of the path with the
             real axis
@@ -95,80 +90,111 @@ def Talbot_jac(t, r, o):  # pylint: disable=unused-argument
     return r * np.pi * 2.0 * np.complex(re, im)
 
 
-def get_path_line():
-    """
+@nb.njit("c16(f8,f8,f8)", cache=True)
+def line_path(t, m, c):
+    r"""
     Textbook path, i.e. a straight line parallel to the imaginary axis.
 
     .. math::
-        p_{\\text{line}}(t) = c + m \\cdot (2t - 1)
+        p_{\text{line}}(t) = c + m \cdot (2t - 1)
 
-    Returns the path and its derivative which then have to be called with the arguments
-    listed under `Other Parameters`.
-
-    Other Parameters
-    ----------------
+    Parameters
+    ----------
+        t : float
+            way parameter
         m : float
-            half length of the path
+            scaling parameter
         c : float
-            intersection of path with real axis
+            offset on real axis
 
     Returns
     -------
-        path : function
-            textbook path
-        jac : function
-            derivative of textbook path
+        path : complex
+            Textbook path
     """
-
-    @nb.njit
-    def path(t, m, c):
-        return np.complex(c, m * (2 * t - 1))
-
-    @nb.njit
-    def jac(_t, m, _c):
-        return np.complex(0, m * 2)
-
-    return path, jac
+    return np.complex(c, m * (2 * t - 1))
 
 
-def get_path_edge():
+@nb.njit("c16(f8,f8,f8)", cache=True)
+def line_jac(_t, m, _c):
+    r"""
+    Derivative of Textbook path.
+
+    .. math::
+        \frac{dp_{\text{line}}(t)}{dt}
+
+    Parameters
+    ----------
+        t : float
+            way parameter
+        m : float
+            scaling parameter
+        o : float
+            offset on real axis
+
+    Returns
+    -------
+        jac : complex
+            derivative of Textbook path
     """
+    return np.complex(0, m * 2)
+
+
+@nb.njit("c16(f8,f8,f8,f8)", cache=True)
+def edge_path(t, m, c, phi):
+    r"""
     Edged path with a given angle.
 
     .. math::
-        p_{\\text{edge}}(t) = c + m\\left|t - \\frac 1 2\\right|\\exp(i\\phi)
+        p_{\text{edge}}(t) = c + m\left|t - \frac 1 2\right|\exp(i\phi)
 
-    Returns the path and its derivative which then have to be called with the arguments
-    listed under `Other Parameters`.
-
-    Other Parameters
-    ----------------
+    Parameters
+    ----------
+        t : float
+            way parameter
         m : float
             length of the path
         c : float, optional
-            intersection of path with real axis - defaults to 1
+            intersection of path with real axis
         phi : complex, optional
-            bended angle - defaults to +135° with respect to positive x axis
+            bended angle
+
     Returns
     -------
-        path : function
+        path : complex
             Edged path
-        jac : function
-            derivative of edged path
     """
+    if t < 0.5:  # turning point: path is not differentiable in this point
+        return c + (0.5 - t) * m * np.exp(np.complex(0, -phi))
+    else:
+        return c + (t - 0.5) * m * np.exp(np.complex(0, +phi))
 
-    @nb.njit
-    def path(t, m, c, phi):
-        if t < 0.5:  # turning point: path is not differentiable in this point
-            return c + (0.5 - t) * m * np.exp(np.complex(0, -phi))
-        else:
-            return c + (t - 0.5) * m * np.exp(np.complex(0, +phi))
 
-    @nb.njit
-    def jac(t, m, _c, phi):
-        if t < 0.5:  # turning point: jacobian is not continuous here
-            return -m * np.exp(np.complex(0, -phi))
-        else:
-            return +m * np.exp(np.complex(0, phi))
+@nb.njit("c16(f8,f8,f8,f8)", cache=True)
+def edge_jac(t, m, _c, phi):
+    r"""
+    Derivative of edged path
 
-    return path, jac
+    .. math::
+        \frac{dp_{\text{edge}}(t)}{dt}
+
+    Parameters
+    ----------
+        t : float
+            way parameter
+        m : float
+            length of the path
+        c : float, optional
+            intersection of path with real axis
+        phi : complex, optional
+            bended angle
+
+    Returns
+    -------
+        path : complex
+            Derivative of edged path
+    """
+    if t < 0.5:  # turning point: jacobian is not continuous here
+        return -m * np.exp(np.complex(0, -phi))
+    else:
+        return +m * np.exp(np.complex(0, phi))

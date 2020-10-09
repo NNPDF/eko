@@ -3,7 +3,7 @@ r"""
 This file contains the QCD beta function coefficients and the handling of the running
 coupling :math:`\alpha_s`.
 
-See :doc:`pQCD ingredients </Theory/pQCD>`.
+See :doc:`pQCD ingredients </theory/pQCD>`.
 """
 
 import logging
@@ -91,7 +91,7 @@ class StrongCoupling:
             = - \sum\limits_{n=0} \beta_n a_s^{n+2}(\mu^2) \quad
             \text{with}~ a_s = \frac{\alpha_s(\mu^2)}{4\pi}
 
-        See :doc:`pQCD ingredients </Theory/pQCD>`.
+        See :doc:`pQCD ingredients </theory/pQCD>`.
 
         Parameters
         ----------

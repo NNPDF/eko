@@ -68,4 +68,4 @@ The classes are nested as follows:
       :math:`\tilde{\mathbf{E}}_S, \tilde{E}_{ns}^{\pm,v}`, and they never cross a threshold
     * inside :class:`~eko.operator.physical.PhysicalOperator` they are in "true" evolution
       basis, i.e. they evolve e.g. :math:`\tilde V, \tilde T_3` etc., so they are eventually
-      a product of the "raw" basis (see :doc:`Matching Conditions </Theory/Matching>`)
+      a product of the "raw" basis (see :doc:`Matching Conditions </theory/Matching>`)

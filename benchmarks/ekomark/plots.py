@@ -9,9 +9,11 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
     Compare two distributions.
 
     Generates a plot with 3 areas:
+
     - small x, i.e. log(x) as abscissa
     - linear x, i.e. with id(x) as abscissa
     - large x, i.e. with log(1-x) as abscissa
+
 
     Parameters
     ----------
@@ -24,8 +26,8 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
         yref : numpy.ndarray
             reference list of ordinates
 
-    Additional Parameters
-    ---------------------
+    Other Parameters
+    ----------------
         title : string, optional
             additional overall title
         oMx_min : float

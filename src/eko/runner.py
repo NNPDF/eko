@@ -12,7 +12,7 @@ class Runner:
     """
     Represents a single input configuration.
 
-    For details about the configuration, see :doc:`here </Code/IO>`
+    For details about the configuration, see :doc:`here </code/IO>`
 
     Parameters
     ----------

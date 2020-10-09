@@ -50,24 +50,24 @@ def test_Talbot():
 def test_get_path_line():
     params = [[1, 1], [2, 2]]
     for p in params:
-        path, jacobian = mellin.get_path_line()
+        path, jacobian = mellin.line_path, mellin.line_jac
         check_path_derivation(path, jacobian, p)
         check_path_symmetry(path, jacobian, p)
 
 
 def test_get_path_edge():
-    params = [[2, 1], [2, 2]]
+    params = [[2, 1, np.pi / 2.0], [2, 2, np.pi / 2.0]]
     for p in params:
-        path, jacobian = mellin.get_path_line()
+        path, jacobian = mellin.edge_path, mellin.edge_jac
         check_path_derivation(path, jacobian, p)
         check_path_symmetry(path, jacobian, p)
 
 
 def test_path_similarity():
     # these two should be identical
-    p1, j1 = mellin.get_path_line()
+    p1, j1 = mellin.line_path, mellin.line_jac
     a1 = [10.0, 1.0]
-    p2, j2 = mellin.get_path_edge()
+    p2, j2 = mellin.edge_path, mellin.edge_jac
     a2 = [20.0, 1.0, np.pi / 2.0]
     for t in [0.1, 0.2, 0.3, 0.4, 0.6]:
         assert_almost_equal(p1(t, *a1), p2(t, *a2))
