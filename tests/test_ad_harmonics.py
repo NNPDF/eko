@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from eko import ekomath
+from eko.anomalous_dimensions import harmonics
 
 # until https://github.com/numba/numba/pull/5660 is confirmed
 # we need to deactivate numba prior running
@@ -70,14 +70,14 @@ def test_cern_polygamma():
     ]
     for nk, k in enumerate(ks):
         for nz, z in enumerate(zs):
-            me = ekomath.cern_polygamma(z, k)
+            me = harmonics.cern_polygamma(z, k)
             ref = fortran_ref[nk][nz]
             np.testing.assert_almost_equal(me, ref)
     # errors
     with pytest.raises(NotImplementedError):
-        _ = ekomath.cern_polygamma(1, 5)
+        _ = harmonics.cern_polygamma(1, 5)
     with pytest.raises(ValueError):
-        _ = ekomath.cern_polygamma(0, 0)
+        _ = harmonics.cern_polygamma(0, 0)
 
 
 def test_harmonic_Sx():
@@ -86,7 +86,7 @@ def test_harmonic_Sx():
     def sx(n, m):
         return np.sum([1 / k ** m for k in range(1, n + 1)])
 
-    ls = [ekomath.harmonic_S1, ekomath.harmonic_S2, ekomath.harmonic_S3]
+    ls = [harmonics.harmonic_S1, harmonics.harmonic_S2, harmonics.harmonic_S3]
     for k in range(1, 3 + 1):
         for n in range(1, 4 + 1):
             np.testing.assert_almost_equal(ls[k - 1](n), sx(n, k))
@@ -97,4 +97,4 @@ def test_melling_g3():
     # NIntegrate[x^({1, 2, 1 + I} - 1) PolyLog[2, x]/(1 + x), {x, 0, 1}]
     mma_ref_values = [0.3888958462, 0.2560382207, 0.3049381491 - 0.1589060625j]
     for n, r in zip(ns, mma_ref_values):
-        np.testing.assert_almost_equal(ekomath.mellin_g3(n), r, decimal=6)
+        np.testing.assert_almost_equal(harmonics.mellin_g3(n), r, decimal=6)

@@ -1,0 +1,31 @@
+.. list-table:: ThresholdConfig input runcard
+  :header-rows: 1
+
+  * - Name
+    - Type
+    - default
+    - description
+  * - ``FNS``
+    - :py:obj:`str`
+    - [required]
+    - possible values are `FFNS` - representing a fixed flavor number scheme, or, `ZM-VFNS`, `FONLL-A` - representing a variable flavor number scheme (VFNS)
+  * - ``Q0``
+    - :py:obj:`float`
+    - [required]
+    - reference scale from which to start
+  * - ``NfFF``
+    - :py:obj:`int`
+    - [required if in FFNS, ignored otherwise]
+    - number of fixed flavors if applicable
+  * - ``mc``
+    - :py:obj:`float`
+    - [required if in VFNS, ignored otherwise]
+    - charm mass in GeV
+  * - ``mb``
+    - :py:obj:`float`
+    - [required if in VFNS, ignored otherwise]
+    - bottom mass in GeV
+  * - ``mt``
+    - :py:obj:`float`
+    - [required if in VFNS, ignored otherwise]
+    - top mass in GeV

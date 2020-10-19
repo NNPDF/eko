@@ -123,7 +123,7 @@ the Mellin inverse.
     S_m(N) = \sum\limits_{j=1}^N \frac 1 {j^m} = \frac{(-1)^{m-1}}{(m-1)!} \psi_{m-1}(N+1)+c_m \quad
     \text{with}\, c_m = \left\{\begin{array}{ll} \gamma_E, & m=1\\ \zeta(m), & m>1\end{array} \right.
 
-and where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`eko.ekomath.cern_polygamma`)
+and where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`eko.ad.harmonics.cern_polygamma`)
 and :math:`\zeta` the Riemann zeta function (using :func:`scipy.special.zeta`).
 
 - for the sums :math:`S_{-m}(N)` and :math:`m > 0` we use :cite:`Gluck:1989ze`
@@ -142,4 +142,4 @@ and with -1 elsewise.
     S_{-2,1}(N) &= - \frac 5 8 \zeta(3) + \zeta(2)\left(S_{-1}(N) - \frac{\eta}{N} + \log(2)\right) + \eta\left(\frac{S_{1}(N)}{N^2} + g_3(N)\right)\\
     g_3(N) &= \mathcal M \left[\frac{\text{Li}_2(x)}{1+x}\right](N)
 
-where for :math:`g_3(N)` we use the parametrization of :cite:`Vogt:2004ns` (implemented as :meth:`eko.ekomath.mellin_g3`).
+where for :math:`g_3(N)` we use the parametrization of :cite:`Vogt:2004ns` (implemented as :meth:`eko.ad.harmonics.mellin_g3`).

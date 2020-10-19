@@ -34,6 +34,7 @@ second, an overview of the implementation details, third, an overview about the 
     code/IO
     API <modules/eko/eko>
     code/Operators
+    code/Utilities
     code/Dependency
 
 .. toctree::

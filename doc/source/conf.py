@@ -17,6 +17,9 @@
 #
 
 import inspect
+import pathlib
+import os
+
 import numba as nb
 
 # in CodeFactor there is no version, since it is generated upon installation
@@ -91,11 +94,14 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ["shared/*"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
+# A string to be included at the beginning of all files
+shared = pathlib.Path(__file__).absolute().parent / "shared"
+rst_prolog = "\n".join([open(x).read() for x in os.scandir(shared)])
 
 # -- Options for HTML output -------------------------------------------------
 

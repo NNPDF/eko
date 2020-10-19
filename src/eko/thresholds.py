@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 r"""
-    This module holds the classes that define the FNS: Threshold,
-    Area
+This module holds the classes that define the flavor number schemes (FNS).
+
+Run card parameters:
+
+.. include:: /code/IO-tabs/ThresholdConfig.txt
 """
 import logging
 import numbers
@@ -154,6 +157,19 @@ class ThresholdsConfig:
 
     @classmethod
     def from_dict(cls, setup):
+        """
+        Create the object from the run card.
+
+        Parameters
+        ----------
+            setup : dict
+                run card with the keys given at the head of the :mod:`module <eko.thresholds>`
+
+        Returns
+        -------
+            cls : ThresholdConfig
+                created object
+        """
         FNS = setup["FNS"]
         q2_ref = pow(setup["Q0"], 2)
         if FNS != "FFNS":  # setup ZM-VFNS

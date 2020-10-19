@@ -21,7 +21,7 @@ import numpy as np
 
 import numba as nb
 
-from ..ekomath import harmonic_S1 as S1
+from .harmonics import harmonic_S1 as S1
 
 from . import lo
 from . import nlo

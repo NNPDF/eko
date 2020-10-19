@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-  Implements higher mathematical functions.
+Implements higher mathematical functions.
 
-  The functions are discribed in :doc:`Mellin space </theory/Mellin>`.
+The functions are discribed in :doc:`Mellin space </theory/Mellin>`.
 """
 
 import numpy as np
@@ -27,15 +27,15 @@ def cern_polygamma(Z, K: int):  # pylint: disable=all
 
     Parameters
     ----------
-      Z : complex
-        argument of polygamma function
-      K : int
-        order of polygamma function
+        Z : complex
+            argument of polygamma function
+        K : int
+            order of polygamma function
 
     Returns
     -------
-      H : complex
-        k-th polygamma function :math:`\\psi_k(z)`
+        H : complex
+            k-th polygamma function :math:`\\psi_k(z)`
     """
     # fmt: off
     DELTA = 5e-13
@@ -144,17 +144,17 @@ def harmonic_S1(N):
 
     Parameters
     ----------
-      N : complex
-        Mellin moment
+        N : complex
+            Mellin moment
 
     Returns
     -------
-      S_1 : complex
-        (simple) Harmonic sum :math:`S_1(N)`
+        S_1 : complex
+            (simple) Harmonic sum :math:`S_1(N)`
 
     See Also
     --------
-      cern_polygamma : :math:`\psi_0(N)`
+        cern_polygamma : :math:`\psi_0(N)`
     """
     return cern_polygamma(N + 1.0, 0) + np.euler_gamma
 
@@ -172,17 +172,17 @@ def harmonic_S2(N):
 
     Parameters
     ----------
-      N : complex
-        Mellin moment
+        N : complex
+            Mellin moment
 
     Returns
     -------
-      S_2 : complex
-        Harmonic sum :math:`S_2(N)`
+        S_2 : complex
+            Harmonic sum :math:`S_2(N)`
 
     See Also
     --------
-      cern_polygamma : :math:`\psi_0(N)`
+        cern_polygamma : :math:`\psi_0(N)`
     """
     return -cern_polygamma(N + 1.0, 1) + zeta2
 
@@ -200,17 +200,17 @@ def harmonic_S3(N):
 
     Parameters
     ----------
-      N : complex
-        Mellin moment
+        N : complex
+            Mellin moment
 
     Returns
     -------
-      S_3 : complex
-        Harmonic sum :math:`S_3(N)`
+        S_3 : complex
+            Harmonic sum :math:`S_3(N)`
 
     See Also
     --------
-      cern_polygamma : :math:`\psi_0(N)`
+        cern_polygamma : :math:`\psi_0(N)`
     """
     return 0.5 * cern_polygamma(N + 1.0, 2) + zeta3
 
@@ -226,18 +226,18 @@ def mellin_g3(N):
 
     Parameters
     ----------
-      N : complex
-        Mellin moment
+        N : complex
+            Mellin moment
 
     Returns
     -------
-      mellin_g3 : complex
-        approximate Mellin transform :math:`\mathcal{M}[\text{Li}_2(x)/(1+x)](N)`
+        mellin_g3 : complex
+            approximate Mellin transform :math:`\mathcal{M}[\text{Li}_2(x)/(1+x)](N)`
 
     Note
     ----
-      We use the name from :cite:`MuselliPhD`, but not his implementation - rather we use the
-      Pegasus :cite:`Vogt:2004ns` implementation.
+        We use the name from :cite:`MuselliPhD`, but not his implementation - rather we use the
+        Pegasus :cite:`Vogt:2004ns` implementation.
     """
     cs = [1.0000e0, -0.9992e0, 0.9851e0, -0.9005e0, 0.6621e0, -0.3174e0, 0.0699e0]
     g3 = 0

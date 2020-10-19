@@ -1,4 +1,4 @@
-Operator Hierachy
+Operator Classes
 =================
 
 The classes are nested as follows:
