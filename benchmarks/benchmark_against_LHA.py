@@ -19,9 +19,9 @@ if __name__ == "__main__":
     logging.getLogger("eko").setLevel(logging.INFO)
 
     # run as cli
-    if len(sys.argv) == 2:
-        app = LHA.LHABenchmarkPaper(sys.argv[1], here / "data", here / "assets")
+    if len(sys.argv) == 3:
+        app = LHA.LHABenchmarkPaper(*sys.argv[1:3], here / "data", here / "assets")
         app.run()
     else:
         me = sys.argv[0]
-        print(f"Usage: {me} path/to/input/card.yaml")
+        print(f"Usage: {me} path/to/theory/card.yaml path/to/operators/card.yaml")

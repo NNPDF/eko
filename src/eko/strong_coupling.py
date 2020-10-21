@@ -159,7 +159,7 @@ class StrongCoupling:
         return self._threshold_holder.q2_ref
 
     @classmethod
-    def from_dict(cls, setup, thresholds_config=None):
+    def from_dict(cls, theory_card, thresholds_config=None):
         """
         Create object from theory dictionary.
 
@@ -172,7 +172,7 @@ class StrongCoupling:
 
         Parameters
         ----------
-            setup : dict
+            theory_card : dict
                 theory dictionary
             thresholds_config : eko.thresholds.ThresholdsConfig
                 threshold configuration
@@ -184,10 +184,10 @@ class StrongCoupling:
         """
         # read my values
         # TODO cast to a_s here
-        alpha_ref = setup["alphas"]
-        q2_alpha = pow(setup["Qref"], 2)
-        order = setup["PTO"]
-        mod_ev = setup.get("ModEv", "EXA")
+        alpha_ref = theory_card["alphas"]
+        q2_alpha = pow(theory_card["Qref"], 2)
+        order = theory_card["PTO"]
+        mod_ev = theory_card["ModEv"]
         if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
             method = "exact"
         elif mod_ev in [
@@ -204,7 +204,7 @@ class StrongCoupling:
             raise ValueError(f"Unknown evolution mode {mod_ev}")
         # eventually read my dependents
         if thresholds_config is None:
-            thresholds_config = thresholds.ThresholdsConfig.from_dict(setup)
+            thresholds_config = thresholds.ThresholdsConfig.from_dict(theory_card)
         return cls(alpha_ref, q2_alpha, thresholds_config, order, method)
 
     def _compute_exact(self, as_ref, nf, scale_from, scale_to):

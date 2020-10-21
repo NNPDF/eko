@@ -13,6 +13,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
+import eko
 from eko import run_dglap
 
 from .toyLH import mkPDF
@@ -73,13 +74,23 @@ class LHABenchmarkPaper:
             output directory
     """
 
-    def __init__(self, path, data_dir, assets_dir):
-        if not isinstance(path, pathlib.Path):
-            path = pathlib.Path(path)
-        self.path = path
-        with open(path, "r") as infile:
-            self.setup = yaml.safe_load(infile)
-        if not np.isclose(self.setup["XIF"], 1.0):
+    def __init__(self, theory_path, operators_path, data_dir, assets_dir):
+        self.output_path = ""
+
+        cards = []
+        for path in [theory_path, operators_path]:
+            if not isinstance(path, pathlib.Path):
+                path = pathlib.Path(path)
+
+            self.output_path += path.stem + "_"
+
+            with open(path, "r") as infile:
+                cards.append(yaml.safe_load(infile))
+
+        self.theory = cards[0]
+        self.operators = cards[1]
+
+        if not np.isclose(self.theory["XIF"], 1.0):
             raise ValueError("XIF has to be 1")
         # load data
         with open(data_dir / "LHA.yaml") as o:
@@ -90,7 +101,8 @@ class LHABenchmarkPaper:
         self.post_process_config = {
             "plot_PDF": True,
             "plot_operator": True,
-            "write_operator": True,
+            # "write_operator": True,
+            "write_operator": False,
         }
 
     def _post_process(self, output):
@@ -108,17 +120,17 @@ class LHABenchmarkPaper:
         """
         # dump operators to file
         if self.post_process_config["write_operator"]:
-            p = self.assets_dir / (self.path.stem + "-ops.yaml")
+            p = self.assets_dir / (self.output_path + "-ops.yaml")
             output.dump_yaml_to_file(p)
             print(f"write operator to {p}")
         # pdf comparison
         if self.post_process_config["plot_PDF"]:
-            p = self.assets_dir / (self.path.stem + "-plots.pdf")
+            p = self.assets_dir / (self.output_path + "-plots.pdf")
             self.save_final_scale_plots_to_pdf(p, output)
             print(f"write pdf plots to {p}")
         # graphical representation of operators
         if self.post_process_config["plot_operator"]:
-            p = self.assets_dir / (self.path.stem + "-ops.pdf")
+            p = self.assets_dir / (self.output_path + "-ops.pdf")
             self.save_all_operators_to_pdf(output, p)
             print(f"write operator plots to {p}")
 
@@ -131,9 +143,9 @@ class LHABenchmarkPaper:
             ref : dict
                 (rotated) reference data
         """
-        fns = self.setup["FNS"]
-        order = self.setup["PTO"]
-        fact_to_ren = (self.setup["XIF"] / self.setup["XIR"]) ** 2
+        fns = self.theory["FNS"]
+        order = self.theory["PTO"]
+        fact_to_ren = (self.theory["XIF"] / self.theory["XIR"]) ** 2
         if fns == "FFNS":
             if order == 0:
                 return rotate_data(self.data["table2"]["part2"])
@@ -163,14 +175,16 @@ class LHABenchmarkPaper:
             ret : dict
                 DGLAP result
         """
-        Q2grid = self.setup["Q2grid"]
+        Q2grid = self.operators["Q2grid"]
         if not np.allclose(Q2grid, [1e4]):
             raise ValueError("Q2grid has to be [1e4]")
-        ret = run_dglap(self.setup)
+        # ret = run_dglap(self.theory, self.operators)
+        with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
+            ret = eko.output.Output.load_yaml(o)
         self._post_process(ret)
         return ret
 
-    def input_figure(self, output):
+    def input_figure(self):
         """
         Pretty-prints the setup to a figure
 
@@ -184,14 +198,16 @@ class LHABenchmarkPaper:
             firstPage : matplotlib.pyplot.Figure
                 figure
         """
-        firstPage = plt.figure(figsize=(15, 12))
-        firstPage.text(0.0, 1, "Setup:", size=14, ha="left", va="top")
-        setup = copy.deepcopy(output)
+        firstPage = plt.figure(figsize=(13, 10))
+        firstPage.text(0.05, 0.97, "Theory:", size=20, ha="left", va="top")
         # suppress the operators
-        del setup["Q2grid"]
         str_stream = io.StringIO()
-        pprint.pprint(setup, stream=str_stream, width=380)
-        firstPage.text(0.0, 0.95, str_stream.getvalue(), size=12, ha="left", va="top")
+        pprint.pprint(self.theory, stream=str_stream, width=50)
+        firstPage.text(0.05, 0.92, str_stream.getvalue(), size=14, ha="left", va="top")
+        firstPage.text(0.55, 0.97, "Operators:", size=20, ha="left", va="top")
+        str_stream = io.StringIO()
+        pprint.pprint(self.operators, stream=str_stream, width=50)
+        firstPage.text(0.55, 0.92, str_stream.getvalue(), size=14, ha="left", va="top")
         return firstPage
 
     def save_all_operators_to_pdf(self, output, path):
@@ -208,7 +224,7 @@ class LHABenchmarkPaper:
         first_ops = list(output["Q2grid"].values())[0]
         with PdfPages(path) as pp:
             # print setup
-            firstPage = self.input_figure(output)
+            firstPage = self.input_figure()
             pp.savefig()
             plt.close(firstPage)
             # print operators
@@ -243,7 +259,7 @@ class LHABenchmarkPaper:
         ref = self.ref()
         with PdfPages(path) as pp:
             # print setup
-            firstPage = self.input_figure(output)
+            firstPage = self.input_figure()
             pp.savefig()
             plt.close(firstPage)
             # iterate all pdf

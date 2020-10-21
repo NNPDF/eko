@@ -71,25 +71,21 @@ oooooooooooo oooo    oooo  \\ .oooooo.
 o888ooooood8 o888o  o888o     `Y8bood8P'  
 """
 
-    def __init__(self, setup):
-        # Print theory id setup
-        logger.info("init Runner with %s", setup)
-
+    def __init__(self, theory_card, operators_card):
         self.out = Output()
-        if setup.get("keep_input", False):
-            self.out.update(copy.deepcopy(setup))
 
         # setup basis grid
-        bfd = interpolation.InterpolatorDispatcher.from_dict(setup)
+        bfd = interpolation.InterpolatorDispatcher.from_dict(operators_card)
         self.out.update(bfd.to_dict())
         # FNS
-        tc = ThresholdsConfig.from_dict(setup)
+        tc = ThresholdsConfig.from_dict(theory_card)
         self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
-        sc = StrongCoupling.from_dict(setup, tc)
+        sc = StrongCoupling.from_dict(theory_card, tc)
         # setup operator grid
         self.op_grid = OperatorGrid.from_dict(
-            setup,
+            theory_card,
+            operators_card,
             tc,
             sc,
             bfd,
