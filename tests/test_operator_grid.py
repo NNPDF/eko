@@ -16,7 +16,7 @@ from eko.operator.grid import OperatorGrid
 
 class TestOperatorGrid:
     def _get_setup(self, use_FFNS):
-        setup = {
+        theory_card = {
             "alphas": 0.35,
             "PTO": 0,
             "ModEv": "TRN",
@@ -24,25 +24,32 @@ class TestOperatorGrid:
             "XIR": 1.0,
             "Qref": np.sqrt(2),
             "Q0": np.sqrt(2),
+            "FNS": "FFNS",
+            "NfFF": 3,
+        }
+        operators_card = {
             "Q2grid": [1, 10],
             "interpolation_xgrid": [0.1, 1.0],
             "interpolation_polynomial_degree": 1,
             "interpolation_is_log": True,
             "debug_skip_singlet": True,
+            "debug_skip_non_singlet": False,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
         }
         if use_FFNS:
-            setup["FNS"] = "FFNS"
-            setup["NfFF"] = 3
+            theory_card["FNS"] = "FFNS"
+            theory_card["NfFF"] = 3
         else:
-            setup["FNS"] = "ZM-VFNS"
-            setup["mc"] = 2
-            setup["mb"] = 4
-            setup["mt"] = 100
-        return setup
+            theory_card["FNS"] = "ZM-VFNS"
+            theory_card["mc"] = 2
+            theory_card["mb"] = 4
+            theory_card["mt"] = 100
+        return theory_card, operators_card
 
     def _get_pdf(self):
         basis = ["V", "V3", "V8", "V15", "T3", "T15", "S", "g"]
-        len_grid = len(self._get_setup(True)["interpolation_xgrid"])
+        len_grid = len(self._get_setup(True)[1]["interpolation_xgrid"])
         pdf_m = {}
         for i in basis:
             pdf_m[i] = np.random.rand(len_grid)
@@ -51,15 +58,19 @@ class TestOperatorGrid:
         return pdf
 
     def _get_operator_grid(self, use_FFNS=True):
-        setup = self._get_setup(use_FFNS)
+        theory_card, operators_card = self._get_setup(use_FFNS)
         # create objects
         basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
-            setup
+            operators_card
         )
-        threshold_holder = ThresholdsConfig.from_dict(setup)
-        a_s = StrongCoupling.from_dict(setup, threshold_holder)
+        threshold_holder = ThresholdsConfig.from_dict(theory_card)
+        a_s = StrongCoupling.from_dict(theory_card, threshold_holder)
         return OperatorGrid.from_dict(
-            setup, threshold_holder, a_s, basis_function_dispatcher
+            theory_card,
+            operators_card,
+            threshold_holder,
+            a_s,
+            basis_function_dispatcher,
         )
 
     def test_sanity(self):
@@ -77,15 +88,19 @@ class TestOperatorGrid:
         with pytest.raises(ValueError):
             opgrid.set_q2_limits(4, 1)
         with pytest.raises(ValueError):
-            setup = self._get_setup(True)
+            theory_card, operators_card = self._get_setup(True)
             basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
-                setup
+                operators_card
             )
-            threshold_holder = ThresholdsConfig.from_dict(setup)
-            a_s = StrongCoupling.from_dict(setup, threshold_holder)
-            setup.update({"ModEv": "wrong"})
+            threshold_holder = ThresholdsConfig.from_dict(theory_card)
+            a_s = StrongCoupling.from_dict(theory_card, threshold_holder)
+            theory_card.update({"ModEv": "wrong"})
             OperatorGrid.from_dict(
-                setup, threshold_holder, a_s, basis_function_dispatcher
+                theory_card,
+                operators_card,
+                threshold_holder,
+                a_s,
+                basis_function_dispatcher,
             )
 
     def test_compute_q2grid(self):

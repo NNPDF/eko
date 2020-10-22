@@ -156,13 +156,13 @@ class ThresholdsConfig:
         self._operator_paths = get_all_flavour_paths(nf_protected)
 
     @classmethod
-    def from_dict(cls, setup):
+    def from_dict(cls, theory_card):
         """
         Create the object from the run card.
 
         Parameters
         ----------
-            setup : dict
+            theory_card : dict
                 run card with the keys given at the head of the :mod:`module <eko.thresholds>`
 
         Returns
@@ -170,16 +170,16 @@ class ThresholdsConfig:
             cls : ThresholdConfig
                 created object
         """
-        FNS = setup["FNS"]
-        q2_ref = pow(setup["Q0"], 2)
+        FNS = theory_card["FNS"]
+        q2_ref = pow(theory_card["Q0"], 2)
         if FNS != "FFNS":  # setup ZM-VFNS
-            mc = setup["mc"]
-            mb = setup["mb"]
-            mt = setup["mt"]
+            mc = theory_card["mc"]
+            mb = theory_card["mb"]
+            mt = theory_card["mt"]
             threshold_list = pow(np.array([mc, mb, mt]), 2)
             nf = None
         else:  # here FFNS
-            nf = setup["NfFF"]
+            nf = theory_card["NfFF"]
             threshold_list = None
         return cls(q2_ref, FNS, threshold_list=threshold_list, nf=nf)
 

@@ -141,7 +141,7 @@ class TestOperator:
 
     def test_compute(self, monkeypatch):
         # setup objs
-        setup = {
+        theory_card = {
             "alphas": 0.35,
             "PTO": 0,
             "ModEv": "TRN",
@@ -149,19 +149,25 @@ class TestOperator:
             "XIR": 1.0,
             "Qref": np.sqrt(2),
             "Q0": np.sqrt(2),
-            "Q2grid": [1, 10],
             "FNS": "FFNS",
             "NfFF": 3,
+        }
+        operators_card = {
+            "Q2grid": [1, 10],
             "interpolation_xgrid": [0.1, 1.0],
             "interpolation_polynomial_degree": 1,
             "interpolation_is_log": True,
             "debug_skip_singlet": True,
+            "debug_skip_non_singlet": False,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
         }
         g = OperatorGrid.from_dict(
-            setup,
-            ThresholdsConfig.from_dict(setup),
-            StrongCoupling.from_dict(setup),
-            InterpolatorDispatcher.from_dict(setup),
+            theory_card,
+            operators_card,
+            ThresholdsConfig.from_dict(theory_card),
+            StrongCoupling.from_dict(theory_card),
+            InterpolatorDispatcher.from_dict(operators_card),
         )
         m = OperatorMaster(g.config, g.managers, 3)
         o = m.get_op(1, 10)

@@ -2,5 +2,8 @@
 pylint
 pytest
 pytest-cov
+pytest-env
 pygit2
 semver
+#
+-e benchmarks/

@@ -131,7 +131,8 @@ class OperatorGrid:
     @classmethod
     def from_dict(
         cls,
-        setup,
+        theory_card,
+        operators_card,
         thresholds_config,
         strong_coupling,
         interpol_dispatcher,
@@ -162,8 +163,8 @@ class OperatorGrid:
                 created object
         """
         config = {}
-        config["order"] = int(setup["PTO"])
-        method = setup.get("ModEv", "iterate-exact")
+        config["order"] = int(theory_card["PTO"])
+        method = theory_card["ModEv"]
         mod_ev2method = {
             "EXA": "iterate-exact",
             "EXP": "iterate-expanded",
@@ -171,12 +172,12 @@ class OperatorGrid:
         }
         method = mod_ev2method.get(method, method)
         config["method"] = method
-        config["fact_to_ren"] = (setup["XIF"] / setup["XIR"]) ** 2
-        config["ev_op_max_order"] = setup.get("ev_op_max_order", 10)
-        config["ev_op_iterations"] = setup.get("ev_op_iterations", 10)
-        config["debug_skip_singlet"] = setup.get("debug_skip_singlet", False)
-        config["debug_skip_non_singlet"] = setup.get("debug_skip_non_singlet", False)
-        q2_grid = np.array(setup["Q2grid"], np.float_)
+        config["fact_to_ren"] = (theory_card["XIF"] / theory_card["XIR"]) ** 2
+        config["ev_op_max_order"] = operators_card["ev_op_max_order"]
+        config["ev_op_iterations"] = operators_card["ev_op_iterations"]
+        config["debug_skip_singlet"] = operators_card["debug_skip_singlet"]
+        config["debug_skip_non_singlet"] = operators_card["debug_skip_non_singlet"]
+        q2_grid = np.array(operators_card["Q2grid"], np.float_)
         return cls(
             config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher
         )

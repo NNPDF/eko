@@ -459,11 +459,11 @@ class InterpolatorDispatcher:
         self.basis = basis_functions
 
     @classmethod
-    def from_dict(cls, setup, mode_N=True):
+    def from_dict(cls, operators_card, mode_N=True):
         """
         Create object from dictionary.
 
-        .. list-table:: setup runcard parameters
+        .. list-table:: operators runcard parameters
             :header-rows: 1
 
             *   - Name
@@ -485,15 +485,15 @@ class InterpolatorDispatcher:
 
         Parameters
         ----------
-            setup : dict
+            operators_card : dict
                 input configurations
         """
         # load xgrid
-        xgrid = setup["interpolation_xgrid"]
+        xgrid = operators_card["interpolation_xgrid"]
         if xgrid[0] == "make_grid":
             xgrid = make_grid(*xgrid[1:])
-        is_log_interpolation = bool(setup.get("interpolation_is_log", True))
-        polynom_rank = setup.get("interpolation_polynomial_degree", 4)
+        is_log_interpolation = bool(operators_card["interpolation_is_log"])
+        polynom_rank = operators_card["interpolation_polynomial_degree"]
         return cls(
             xgrid,
             polynom_rank,
