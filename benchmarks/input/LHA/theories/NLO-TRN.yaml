@@ -1,6 +1,6 @@
 # Theory
 ID: 22
-PTO: 0
+PTO: 1
 FNS: "FFNS"
 DAMP: 0
 IC: 0
@@ -38,15 +38,3 @@ MP: 0.938
 Comments: ""
 global_nx: 0
 EScaleVar: 1
-# eko stuff
-ev_op_max_order: 10
-ev_op_iterations: 2
-Q2grid: [10]
-# interpolation
-interpolation_is_log: True
-interpolation_polynomial_degree: 4
-interpolation_xgrid: ["make_grid",30,20]
-# debug options
-debug_skip_non_singlet: False
-debug_skip_singlet: False
-keep_input: True
