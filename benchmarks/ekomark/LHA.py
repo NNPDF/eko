@@ -3,7 +3,6 @@
     Benchmark EKO to :cite:`Giele:2002hx`
 """
 
-import copy
 import pathlib
 import pprint
 import io
@@ -14,7 +13,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 import eko
-from eko import run_dglap
 
 from .toyLH import mkPDF
 from .plots import plot_dist, plot_operator
@@ -178,9 +176,9 @@ class LHABenchmarkPaper:
         Q2grid = self.operators["Q2grid"]
         if not np.allclose(Q2grid, [1e4]):
             raise ValueError("Q2grid has to be [1e4]")
-        # ret = run_dglap(self.theory, self.operators)
-        with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
-            ret = eko.output.Output.load_yaml(o)
+        eko.run_dglap(self.theory, self.operators)
+        # with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
+        # ret = eko.output.Output.load_yaml(o)
         self._post_process(ret)
         return ret
 
