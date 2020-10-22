@@ -176,7 +176,7 @@ class LHABenchmarkPaper:
         Q2grid = self.operators["Q2grid"]
         if not np.allclose(Q2grid, [1e4]):
             raise ValueError("Q2grid has to be [1e4]")
-        eko.run_dglap(self.theory, self.operators)
+        ret = eko.run_dglap(self.theory, self.operators)
         # with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
         # ret = eko.output.Output.load_yaml(o)
         self._post_process(ret)
