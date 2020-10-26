@@ -28,3 +28,8 @@
 
 .. |PDF| replace::
    :abbr:`PDF (Parton Distribution Function)`
+
+.. external
+
+.. |yadism| replace::
+   :yadism:`\ `

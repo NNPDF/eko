@@ -61,6 +61,7 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinxcontrib.bibtex',
     "sphinx.ext.graphviz",
+    "sphinx.ext.extlinks",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -102,6 +103,8 @@ pygments_style = None
 # A string to be included at the beginning of all files
 shared = pathlib.Path(__file__).absolute().parent / "shared"
 rst_prolog = "\n".join([open(x).read() for x in os.scandir(shared)])
+
+extlinks = {'yadism': ('https://n3pdf.github.io/yadism/%s', 'yadism')}
 
 # -- Options for HTML output -------------------------------------------------
 

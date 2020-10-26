@@ -10,6 +10,8 @@ EKO solves the |DGLAP| equations in Mellin space and produces evolution kernel o
 It is |PDF|-independent and the operators can be computed for a given configuration
 once and be reused after.
 
+The project is closely replated to |yadism|.
+
 .. toctree::
     :maxdepth: 1
     :caption: Overview:

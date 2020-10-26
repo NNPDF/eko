@@ -1,7 +1,7 @@
 Utility Classes
 ===============
 
-Apart from the :doc:`operator <Operators>` classes, `eko` also provides some utility classes which are e.g. used in `yadism <https://n3pdf.github.io/yadism/>`_:
+Apart from the :doc:`operator <Operators>` classes, `eko` also provides some utility classes which are e.g. used in |yadism|
 
 - :class:`eko.thresholds.ThresholdsConfig`
 
