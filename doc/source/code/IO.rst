@@ -29,31 +29,8 @@ The input is split into two runcard
     - reference value of the strong coupling :math:`\alpha_s(\mu_0^2)` (Note that we have to use
       :math:`\alpha_s(\mu_0^2)` here, instead of :math:`a_s(\mu_0^2)` for legacy reasons)
 
-.. include:: IO-tabs/ThresholdConfig.txt
-
-.. list-table:: operator input runcard
-  :header-rows: 1
-
-  * - Name
-    - Type
-    - default
-    - description
-  * - ``interpolation_xgrid``
-    - :py:obj:`list(float)`
-    - [required]
-    - the interpolation grid
-  * - ``interpolation_polynomial_degree``
-    - :py:obj:`int`
-    - ``4``
-    - polynomial degree of the interpolating function
-  * - ``interpolation_is_log``
-    - :py:obj:`bool`
-    - ``True``
-    - use logarithmic interpolation?
-  * - ``Q2grid``
-    - :py:obj:`list(float)`
-    - [required]
-    - the target grid in :math:`Q^2`
+.. include:: IO-tabs/ThresholdConfig.rst
+.. include:: IO-tabs/InterpolatorDispatcher.rst
 
 
 Output

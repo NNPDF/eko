@@ -4,7 +4,7 @@ This module holds the classes that define the flavor number schemes (FNS).
 
 Run card parameters:
 
-.. include:: /code/IO-tabs/ThresholdConfig.txt
+.. include:: /code/IO-tabs/ThresholdConfig.rst
 """
 import logging
 import numbers

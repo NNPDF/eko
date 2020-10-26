@@ -54,6 +54,43 @@ sector respectively
 and making the distributions thus linearly dependent :math:`V_k = V, T_k = \Sigma`
 (as they should).
 
+.. IC in FFNS
+    S.S = P_qq
+    S.g = P_qg
+    g.S = P_gq
+    g.g = P_gg
+    V.V = NS_v
+    V3.V3 = NS_m
+    V8.V8 = NS_m
+    T3.T3 = NS_p
+    T8.T8 = NS_p
+    c+.c+ = 1
+    c-.c- = 1
+.. IC in VFNS: q0 < q < mc
+    S3.S3 = P_qq
+    S.g = P_qg
+    g.S = P_gq
+    g.g = P_gg
+    V.V = NS_v
+    V3.V3 = NS_m
+    V8.V8 = NS_m
+    T3.T3 = NS_p
+    T8.T8 = NS_p
+    T15.S = P_qq
+    T15.g = P_qg
+    now add IC:
+    T15.c+ = -3
+    V15.c- = -3
+.. IC in VFNS: q0 < mc < q:
+    S.S = P_qq^4 @ P_qq^3 + P_qg^4 @ P_gq^3
+    ...
+    V.V = NS_v @ NS_v
+    ...
+    T15.S = NS_p^4 @ P_qq^3
+    T15.g = NS_p^4 @ P_qg^3
+    now add IC:
+    T15.c+ = -3 NS_p^4
+
 One Threshold
 -------------
 

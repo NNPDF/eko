@@ -9,7 +9,7 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
      the :class:`eko.strong_coupling.StrongCoupling` and the :doc:`operators <../theory/Matching>`
 
 
-.. include:: IO-tabs/ThresholdConfig.txt
+.. include:: IO-tabs/ThresholdConfig.rst
 
 
 - :class:`eko.strong_coupling.StrongCoupling` Implementation of the :ref:`theory/pQCD:strong coupling`
