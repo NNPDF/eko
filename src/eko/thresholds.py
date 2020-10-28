@@ -134,15 +134,15 @@ class ThresholdsConfig:
             self.min_nf = nf
             protection = True
             logger.info("Thresholds: Fixed flavor number scheme with %d flavors", nf)
-        elif scheme in ["ZM-VFNS", "FONLL-A", "FONLL-A'"]:
+        elif scheme in ["ZM-VFNS", "ZM-VFNS'", "FONLL-A", "FONLL-A'"]:
             if nf is not None:
                 logger.warning(
-                    "The ZM-VFNS configures its own value for nf, ignoring input nf=%d",
+                    "The VFNS configures its own value for nf, ignoring input nf=%d",
                     nf,
                 )
             if threshold_list is None:
                 raise ValueError(
-                    "The ZM-VFN scheme was selected but no thresholds were given"
+                    "The VFN scheme was selected but no thresholds were given"
                 )
             self._setup_vfns(threshold_list)
             logger.info("Thresholds: Variable flavor number scheme (%s)", scheme)

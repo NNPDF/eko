@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-    Benchmark EKO to APFEL
+Benchmark EKO to APFEL
 """
-import pathlib
 import time
-import yaml
 import numpy as np
 import pandas as pd
 
@@ -13,64 +11,56 @@ import eko
 from .toyLH import mkPDF
 from .apfel_utils import load_apfel
 from .df_dict import DFdict
+from .runner import Runner
 
 
-class ApfelBenchmark:
+class ApfelBenchmark(Runner):
     """
     Benchmark EKO to APFEL
 
     Parameters
     ----------
-        path : str
-            input card
+        theory_path : string or pathlib.Path
+            path to theory card
+        operators_path : string or pathlib.Path
+            path to operators card
+        assets_dir : string
+            output directory
     """
 
-    def __init__(self, path):
-        self.path = pathlib.Path(path)
-        with open(path, "r") as o:
-            self.cfg = yaml.safe_load(o)
+    def __init__(self, theory_path, operators_path, assets_dir):
+        super().__init__(theory_path, operators_path, assets_dir)
+        self.target_xgrid = eko.interpolation.make_grid(
+            *self.operators["interpolation_xgrid"][1:]
+        )
 
-    def run(self):
+    def ref(self):
+        return {
+            "target_xgrid": self.target_xgrid,
+            "values": {self.operators["Q2grid"][0]: self.ref_values()},
+            "src_pdf": "ToyLH",
+            "is_flavor_basis": True,
+            "skip_pdfs": [],
+        }
+
+    def ref_values(self):
         """
         Run APFEL
         """
-        output_grid = eko.interpolation.make_grid(*self.cfg["interpolation_xgrid"][1:])
-        # # compute our result
-        eko_res = eko.run_dglap(self.cfg)
-        eko_res.dump_yaml_to_file("assets/" + self.path.stem + ".yaml")
-        # eko_res = eko.output.Output.load_yaml_from_file("assets/"+self.path.stem+".yaml")
-        eko_pdf = eko_res.apply_pdf(mkPDF("", ""), output_grid)
         # compute APFEL reference
         apf_start = time.perf_counter()
-        apfel = load_apfel(self.cfg)
+        apfel = load_apfel(self.theory, self.operators, "ToyLH")
         print("Loading APFEL took %f s" % (time.perf_counter() - apf_start))
-        apfel.EvolveAPFEL(self.cfg["Q0"], np.sqrt(self.cfg["Q2grid"][0]))
+        apfel.EvolveAPFEL(self.theory["Q0"], np.sqrt(self.operators["Q2grid"][0]))
         print("Executing APFEL took %f s" % (time.perf_counter() - apf_start))
         apf_tabs = {}
-        for q2, pdfs in eko_pdf.items():
-            out = DFdict()
-            for pid, eko_res in pdfs["pdfs"].items():
-                # collect APFEL
-                apf = []
-                for x in output_grid:
-                    apf.append(apfel.xPDF(pid if pid < 21 else 0, x) / x)
-                apf = np.array(apf)
-                # collect our data
-                eko_res = np.array(eko_res)
-                eko_error = np.array(pdfs["errors"][pid])
-                rel_err = (apf - eko_res) / apf * 100
-                out[pid] = pd.DataFrame(
-                    dict(
-                        x=output_grid,
-                        APFEL=apf,
-                        eko=eko_res,
-                        eko_error=eko_error,
-                        rel_err=rel_err,
-                    )
-                )
-            apf_tabs[q2] = out
-        # output
-        self.print(apf_tabs)
+        for pid in [-4, -3, -2, -1, 21, 1, 2, 3, 4]:
+            # collect APFEL
+            apf = []
+            for x in self.target_xgrid:
+                apf.append(apfel.xPDF(pid if pid < 21 else 0, x))
+            apf_tabs[pid] = np.array(apf)
+        return apf_tabs
 
     def print(self, apf_tabs):
         """

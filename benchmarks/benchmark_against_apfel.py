@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    Benchmark EKO to :cite:`Giele:2002hx`
+    Benchmark EKO to APFEL
 """
 import logging
 import sys
 import pathlib
-from ekomark import LHA
+from ekomark import apfel_benchmark
 
 here = pathlib.Path(__file__).parent
 
@@ -20,11 +20,8 @@ if __name__ == "__main__":
 
     # run as cli
     if len(sys.argv) == 3:
-        app = LHA.LHABenchmarkPaper(
-            sys.argv[1],
-            sys.argv[2],
-            here / "assets" / "LHA",
-            here / "data",
+        app = apfel_benchmark.ApfelBenchmark(
+            sys.argv[1], sys.argv[2], here / "assets" / "APFEL"
         )
         app.run()
     else:

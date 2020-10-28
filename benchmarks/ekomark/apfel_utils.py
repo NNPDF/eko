@@ -3,7 +3,7 @@ import platform
 import eko
 
 
-def load_apfel(theory, pdf="ToyLH"):
+def load_apfel(theory, operators, pdf="ToyLH"):
     """
     Set APFEL parameter from ``theory`` dictionary.
 
@@ -126,7 +126,7 @@ def load_apfel(theory, pdf="ToyLH"):
     if platform.node() in ["FHe19b", "topolinia-arch"]:
         apfel.SetNumberOfGrids(1)
         # create a 'double *' using swig wrapper
-        yad_xgrid = theory["interpolation_xgrid"]
+        yad_xgrid = operators["interpolation_xgrid"]
         if yad_xgrid[0] == "make_grid":
             yad_xgrid = eko.interpolation.make_grid(*yad_xgrid[1:])
         xgrid = apfel.new_doubles(len(yad_xgrid))
@@ -135,7 +135,7 @@ def load_apfel(theory, pdf="ToyLH"):
         for j, x in enumerate(yad_xgrid):
             apfel.doubles_setitem(xgrid, j, x)
 
-        yad_deg = theory["interpolation_polynomial_degree"]
+        yad_deg = operators["interpolation_polynomial_degree"]
         # 1 = gridnumber
         apfel.SetExternalGrid(1, len(yad_xgrid) - 1, yad_deg, xgrid)
 

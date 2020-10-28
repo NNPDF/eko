@@ -109,7 +109,7 @@ class Output(dict):
             out[f] = self[f]
         # make raw lists
         for k in ["interpolation_xgrid"]:
-            out[k] = self[k].tolist()
+            out[k] = np.array(self[k]).tolist()
         # make operators raw
         for q2 in self["Q2grid"]:
             out["Q2grid"][q2] = self.get_op(q2).to_raw()

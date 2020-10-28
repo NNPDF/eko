@@ -20,6 +20,8 @@ import numpy as np
 
 flavor_basis_pids = [22] + list(range(-6, -1 + 1)) + [21] + list(range(1, 6 + 1))
 
+flavor_basis_names = ["ph", "tbar", "bbar", "cbar", "sbar","ubar", "dbar","g","d","u","s", "c","b","t"]
+
 evol_basis = [
     "ph",
     "S",
