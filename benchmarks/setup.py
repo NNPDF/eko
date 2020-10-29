@@ -13,6 +13,7 @@ setup(
     entry_points={
         "console_scripts": [
             "generate_theories=ekomark.data:generate_theories",
+            "generate_operators=ekomark.data:generate_operators",
         ],
     },
     python_requires=">=3.7",

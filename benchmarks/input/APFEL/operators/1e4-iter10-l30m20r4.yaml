@@ -8,4 +8,3 @@ interpolation_xgrid: ["make_grid", 30, 20]
 # debug options
 debug_skip_non_singlet: False
 debug_skip_singlet: False
-keep_input: True

@@ -9,6 +9,25 @@ modes:
       XIF: [0.5, 1.0, 2.0]
       NfFF: [3, 4, 5]
       FNS: ["FFNS", "ZM-VFNS", "FONLL-A"]
+  LHA:
+    external: LHA
+    input_db: lha.json
+    theories:
+      PTO: [0, 1]
+      XIR: [0.5, 1.0, 2.0]
+      XIF: [1.0]
+      NfFF: [4]
+      FNS: ["FFNS", "ZM-VFNS"]
+    operators:
+      matrix:
+        # interpolation
+        interpolation_is_log: [True]
+        interpolation_polynomial_degree: [4]
+        interpolation_xgrid: [["make_grid", 30, 20]]
+        # evolution config
+        ev_op_max_order: [10]
+        ev_op_iterations: [10]
+        Q2grid: [[1.e+4]]
   sandbox:
     external: null
     input_db: sandbox.json
@@ -18,3 +37,6 @@ modes:
       XIF: [0.5, 0.7, 1.0, 2.0]
       NfFF: [3, 4, 5]
       FNS: ["FFNS", "ZM-VFNS", "FONLL-A", "FONLL-A'"] # add new FNS
+    operators:
+      matrix:
+        Q2grid: []
