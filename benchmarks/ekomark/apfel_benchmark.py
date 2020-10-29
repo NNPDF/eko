@@ -4,13 +4,10 @@ Benchmark EKO to APFEL
 """
 import time
 import numpy as np
-import pandas as pd
 
 import eko
 
-from .toyLH import mkPDF
 from .apfel_utils import load_apfel
-from .df_dict import DFdict
 from .runner import Runner
 
 

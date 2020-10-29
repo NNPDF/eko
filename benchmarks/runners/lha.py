@@ -5,9 +5,12 @@
 import logging
 import sys
 import pathlib
-from ekomark import LHA
+from ekomark import lha
 
-here = pathlib.Path(__file__).parent
+here = pathlib.Path(__file__).parents[1]
+input_path = here / "input" / "LHA"
+theory_card = "LO-EXA.yaml"
+operators_card = "iter10-l30m20r4.yaml"
 
 if __name__ == "__main__":
     # activate logging
@@ -18,15 +21,10 @@ if __name__ == "__main__":
     logging.getLogger("eko").addHandler(logStdout)
     logging.getLogger("eko").setLevel(logging.INFO)
 
-    # run as cli
-    if len(sys.argv) == 3:
-        app = LHA.LHABenchmarkPaper(
-            sys.argv[1],
-            sys.argv[2],
-            here / "assets" / "LHA",
-            here / "data",
-        )
-        app.run()
-    else:
-        me = sys.argv[0]
-        print(f"Usage: {me} path/to/theory/card.yaml path/to/operators/card.yaml")
+    app = lha.LHABenchmarkPaper(
+        input_path / "theories" / theory_card,
+        input_path / "operators" / operators_card,
+        here / "assets" / "LHA",
+        here / "data",
+    )
+    app.run()

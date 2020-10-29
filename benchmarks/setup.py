@@ -9,9 +9,11 @@ setup(
     description="eko benchmark",
     # package_dir={"": "."},
     packages=find_packages("."),
-    install_requires=["matplotlib", "pandas"],
+    install_requires=["numpy","matplotlib", "pandas","banana-hep"],
     entry_points={
-        "console_scripts": [],
+        "console_scripts": [
+            "generate_theories=ekomark.data:generate_theories",
+        ],
     },
     python_requires=">=3.7",
 )
