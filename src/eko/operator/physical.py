@@ -9,8 +9,6 @@ class PhysicalOperator:
     This operator is computed via the composition method of the
     :class:`Operator` class.
 
-    This operator can act on PDFs through the `__call__` method.
-
 
     Parameters
     ----------

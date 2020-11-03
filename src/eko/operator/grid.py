@@ -9,9 +9,10 @@ previously instantiated information and does the actual computation of the Q2s.
 
 import logging
 import numbers
-import time
 
 import numpy as np
+
+from . import Operator
 
 logger = logging.getLogger(__name__)
 
@@ -54,14 +55,6 @@ class OperatorMaster:
             op: eko.operators.Operator
                 operator to go from q2_from to q2_to
         """
-        # import numba late - that is only here
-        start = time.perf_counter()
-        logger.info("Evolution: compiling Numba")
-        from . import Operator  # pylint: disable=import-outside-toplevel
-
-        logger.info(
-            "Evolution: compiling Numba - took %.1f s", time.perf_counter() - start
-        )
         # now do the computation
         op = Operator(self.config, self.managers, self.nf, q2_from, q2_to)
         if generate:
@@ -218,6 +211,7 @@ class OperatorGrid:
         nf = self.managers["thresholds_config"].nf_ref
         for area in area_list:
             q2_to = area.q2_ref
+            # TODO due to this continue we're actually seeing the area *one below*
             if q2_to == q2_from:
                 continue
             new_op = (q2_from, q2_to)
@@ -226,7 +220,8 @@ class OperatorGrid:
             )
             if new_op not in self._threshold_operators:
                 # Compute the operator in place and store it
-                op_th = self._op_masters[nf].get_op(q2_from, q2_to, generate=True)
+                op_th = Operator(self.config, self.managers,nf,q2_from, q2)
+                op_th.compute()
                 self._threshold_operators[new_op] = op_th
             nf = area.nf
             q2_from = q2_to
@@ -299,10 +294,9 @@ class OperatorGrid:
             q2_from = area.q2_ref
             nf = area.nf
             logger.info("Evolution: compute operators %e -> %e", q2_from, q2)
-            self._op_grid[q2] = self._op_masters[nf].get_op(q2_from, q2)
-        # Now perform the computation
-        for op in self._op_grid.values():
+            op = Operator(self.config, self.managers,nf,q2_from, q2)
             op.compute()
+            self._op_grid[q2] = op
 
     def compute_q2grid(self, q2grid=None):
         """
