@@ -11,7 +11,7 @@ import numbers
 
 import numpy as np
 
-from eko.flavours import get_all_flavour_paths
+from eko.operator.flavors import get_all_flavour_paths
 
 logger = logging.getLogger(__name__)
 
@@ -250,27 +250,6 @@ class ThresholdsConfig:
             self._areas[i] for i in range(self._area_ref, current_area + rc, rc)
         ]
         return area_path
-
-    def get_composition_path(self, nf, n_thres):
-        """
-        Iterates all flavour targets.
-
-        Parameters
-        ----------
-            nf: int
-                nf value of the target flavour
-            n_thres: int
-                number of thresholds which are going to be crossed
-
-        Yields
-        ------
-            name : string
-                flavour name
-            path : list
-                flavour path
-        """
-        for flavour in self._operator_paths:
-            yield flavour.name, flavour.get_path(nf, n_thres)
 
     def get_areas_idx(self, q2arr):
         """

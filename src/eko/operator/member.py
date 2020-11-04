@@ -8,7 +8,7 @@ class OpMember:
     A single operator for a specific element in evolution basis.
 
     This class provide some basic mathematical operations such as products.
-    It can also be applied to a pdf vector by the `__call__` method.
+    It can also be applied to a pdf vector via :meth:`apply_pdf`.
     This class will never be exposed to the outside, but will be an internal member
     of the :class:`Operator` and :class:`PhysicalOperator` instances.
 
@@ -26,6 +26,9 @@ class OpMember:
         self.value = np.array(value)
         self.error = np.array(error)
         self.name = name
+
+    def copy(self, new_name):
+        return self.__class__(self.value.copy(), self.error.copy(), new_name)
 
     def _split_name(self):
         """Splits the name according to target.input"""
@@ -80,32 +83,20 @@ class OpMember:
     def __str__(self):
         return self.name
 
-    def __mul__(self, operator_member):
-        # scalar multiplication
-        if isinstance(operator_member, Number):
-            one = np.identity(len(self.value))
-            rval = operator_member * one
-            rerror = 0.0 * one
-            new_name = self.name
-        # matrix multiplication
-        elif isinstance(operator_member, OpMember):
-            # check compatibility
-            if self.is_physical != operator_member.is_physical:
-                raise ValueError("Operators do not live in the same space!")
-            if self.is_physical:
-                if self.input != operator_member.target:
-                    raise ValueError(
-                        f"Can not sum {operator_member.name} and {self.name} OpMembers!"
-                    )
-                new_name = f"{self.target}.{operator_member.input}"
-            else:
-                new_name = f"{self.name}.{operator_member.name}"
-            rval = operator_member.value
-            rerror = operator_member.error
+    def __matmul__(self, operator_member):
+        # check compatibility
+        if self.is_physical != operator_member.is_physical:
+            raise ValueError("Operators do not live in the same space!")
+        if self.is_physical:
+            if self.input != operator_member.target:
+                raise ValueError(
+                    f"Can not sum {operator_member.name} and {self.name} OpMembers!"
+                )
+            new_name = f"{self.target}.{operator_member.input}"
         else:
-            raise NotImplementedError(
-                f"Can't multiply OpMember and {type(operator_member)}"
-            )
+            new_name = f"{self.name}.{operator_member.name}"
+        rval = operator_member.value
+        rerror = operator_member.error
         lval = self.value
         ler = self.error
         new_val = np.matmul(lval, rval)
@@ -141,7 +132,7 @@ class OpMember:
         return OpMember(new_val, new_err, new_name)
 
     def __neg__(self):
-        return self.__mul__(-1)
+        return self.__matmul__(-1)
 
     def __eq__(self, operator_member):
         return np.allclose(self.value, operator_member.value)
@@ -155,34 +146,9 @@ class OpMember:
     def __rsub__(self, operator_member):
         return self.__radd__(-operator_member)
 
-    def __rmul__(self, operator_member):
-        return self.__mul__(operator_member)
-
-    @staticmethod
-    def join(steps, list_of_paths):
-        """
-        Multiply a list of :class:`OpMember` using the given paths.
-
-        Parameters
-        ----------
-            steps : list(list(OpMember))
-                list of raw operators, with the lowest scale to the right
-            list_of_paths : list(list(str))
-                list of paths
-
-        Returns
-        -------
-            final_op : OpMember
-                joined operator
-        """
-        final_op = 0
-        for path in list_of_paths:
-            cur_op = None
-            for step, member in zip(steps, path):
-                new_op = step[member]
-                if cur_op is None:
-                    cur_op = new_op
-                else:
-                    cur_op = cur_op * new_op
-            final_op += cur_op
-        return final_op
+    def __rmatmul__(self, operator_member):
+        if isinstance(operator_member, Number):
+            return self.__matmul__(operator_member)
+        raise NotImplementedError(
+            f"Can't multiply OpMember and {type(operator_member)}"
+        )

@@ -8,6 +8,8 @@ r"""
 
 """
 
+import numpy as np
+
 MINIMAL_NF = 3
 
 ##### This can go to a separate file but for now it is ok here
@@ -229,63 +231,3 @@ def get_all_flavour_paths(nf):
         ls.append(flt)
     return ls
 
-# def to_evol(self):
-#     # evol-basis:
-#     S g V V3 T3 V8 T8
-#     * * 
-#     * *
-#         *
-#            *  
-#              * 
-#                 * 
-#                   *
-#     # 9 elem
-#     #--------
-#     # flav: (2*3+1)^2 = 49 elem ~ O(nf^2)
-
-#     d3 = { # Q0 -> mc , nf = 3 ,
-#         "S.S": "S_qq",
-#         "S.g": "S_qg",
-#         "g.g": "S_gg",
-#         "g.S": "S_gq",
-#         "V.V": "NS_v",
-#         "V3.V3": "NS_m",
-#         "T3.T3": "NS_p",
-#         "V8.V8": "NS_m",
-#         "T8.T8": "NS_p",
-
-#         if VFNS
-#             "T15.S": "S_qq",
-#             "T15.g": "S_qg",
-#             "V15.V": "NS_v",
-
-#         if IC:
-#             if Q0 -> mc
-#                 "S.c+": "id",
-#                 "V.c-": "id",
-#                 "T15.S": "S_qq",
-#                 "T15.g": "S_qg",
-#                 "V15.V": "NS_v",
-#                 "T15.c+": "-3id",
-#                 "V15.c-": "-3id"
-#             else:
-#                 "c+.c+": "id"
-
-#         "b+.b+": "id"
-#     }
-#     d4 = { # nf =4
-#         "S.S": "S_qq",
-#         "V.V": "NS_v",
-#         "T15.T15": "NS_p",
-#         "T24.S": "S_qq",
-#         "T24.b+": "id",
-#     }
-
-#     fin_op = {0}
-#     for high_key,h_op in d4:
-#         for low_key, l_op in d3:
-#             if h_key.form == low_key.to:
-#                 fin_op[h_key.to +.+ low_key.from] += h_op @ l_op
-
-#     for el in evol_to:
-#         for elp in evol

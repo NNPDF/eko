@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-from .member import OpMember
+import numpy as np
+
+from .. import basis_rotation as br
 
 
 class PhysicalOperator:
@@ -22,7 +24,127 @@ class PhysicalOperator:
         self.op_members = op_members
         self.q2_final = q2_final
 
-    def __mul__(self, other):
+    @classmethod
+    def ad_to_evol_map(cls, op_members, nf, q2_final, is_vfns, intrinsic_range=None):
+        """
+        Obtain map between the 3-dimensional anomalous dimension basis and the
+        4-dimensional evolution basis.
+
+        .. todo:: update docs, in VFNS sometimes IC is irrelevant if nf>=4
+                explain which to keep and which to hide
+
+        Parameters
+        ----------
+            op_members : dict
+                operator members in anomalous dimension basis
+            nf : int
+                number of active light flavors
+            is_vfns : bool
+                is |VFNS|?
+            intrinsic_range : sequence
+                intrinsic heavy flavours
+
+        Returns
+        -------
+            m : dict
+                map
+        """
+        # constant elements
+        m = {
+            "S.S": op_members["S_qq"],
+            "S.g": op_members["S_qg"],
+            "g.g": op_members["S_gg"],
+            "g.S": op_members["S_gq"],
+            "V.V": op_members["NS_v"],
+        }
+        # add elements which are already active
+        for f in range(2, nf + 1):
+            n = f ** 2 - 1
+            m[f"V{n}.V{n}"] = op_members["NS_m"]
+            m[f"T{n}.T{n}"] = op_members["NS_p"]
+        # activate one higher element, i.e. where the next heavy quark could participate,
+        # but actually it is trivial
+        if is_vfns:
+            n = (nf + 1) ** 2 - 1
+            # without this new heavy quark Vn = V and Tn = S
+            m[f"V{n}.V"] = op_members["NS_v"]
+            m[f"T{n}.S"] = op_members["S_qq"]
+            m[f"T{n}.g"] = op_members["S_qg"]
+        # deal with intrinsic heavy quark pdfs
+        if intrinsic_range is not None:
+            hqfl = "cbt"
+            for f in intrinsic_range:
+                hq = hqfl[f - 4]  # find name
+                # intrinsic means no evolution, i.e. they are evolving with the identity
+                op_id = np.eye(op_members["NS_v"].shape[0])
+                if f > nf + 1:  # keep the higher quarks as they are
+                    m[f"{hq}+.{hq}+"] = op_id
+                    m[f"{hq}-.{hq}-"] = op_id
+                elif f == nf + 1:  # next is comming hq?
+                    n = f ** 2 - 1
+                    if is_vfns:
+                        # e.g. T15 = (u+ + d+ + s+) - 3c+
+                        m[f"V{n}.{hq}-"] = -(f - 1) * op_id
+                        m[f"T{n}.{hq}+"] = -(f - 1) * op_id
+                    else:
+                        m[f"{hq}+.{hq}+"] = op_id
+                        m[f"{hq}-.{hq}-"] = op_id
+                else:  # f <= nf
+                    if not is_vfns:
+                        raise ValueError(
+                            f"{hq} is perturbative inside FFNS{nf} so can NOT be intrinsic"
+                        )
+        for k,v in m.items():
+            m[k] = v.copy(k)
+        return cls(m, q2_final)
+
+    def get_range(self):
+        """
+        Determine the number of light and heavy flavors participating in the input and output
+
+        Returns
+        -------
+            nf_in : int
+                number of light flavors in the input
+            nf_out : int
+                number of light flavors in the output
+            intrinsic_range_in : list(int)
+                list of heavy flavors in the input
+            intrinsic_range_out : list(int)
+                list of heavy flavors in the output
+        """
+        nf_in = 3
+        nf_out = 3
+        intrinsic_range_in = []
+        intrinsic_range_out = []
+        def update(label):
+            nf = 3
+            intrinsic_range = []
+            if label[0] == "T":
+                nf = round(np.sqrt(int(label[1:]) + 1))
+            elif label[1] in ["+", "-"]:
+                intrinsic_range.append(4+hqfl.index(label[0]))
+            return nf, intrinsic_range
+        hqfl = "cbt"
+        for op in self.op_members.values():
+            nf, intr = update(op.input)
+            nf_in = max(nf, nf_in)
+            intrinsic_range_in.extend(intr)
+            nf, intr = update(op.target)
+            nf_out = max(nf, nf_out)
+            intrinsic_range_out.extend(intr)
+
+        intrinsic_range_in.sort()
+        intrinsic_range_out.sort()
+        return nf_in, nf_out, intrinsic_range_in, intrinsic_range_out
+
+    def to_flavor_basis(self):
+        nf_in, nf_out, intrinsic_range_in, intrinsic_range_out = self.get_range()
+        # TODO
+
+#        br.rotate_flavor_to_evolution
+
+    def __matmul__(self, other):
         """
         Multiply ``other`` to self.
 
@@ -39,27 +161,19 @@ class PhysicalOperator:
         if not isinstance(other, PhysicalOperator):
             raise ValueError("Can only multiply with another PhysicalOperator")
         # prepare paths
-        instructions = {}
+        new_oms = {}
         for my_op in self.op_members.values():
             for other_op in other.op_members.values():
                 # ops match?
                 if my_op.input != other_op.target:
                     continue
                 new_key = my_op.target + "." + other_op.input
-                path = [my_op.name, other_op.name]
                 # new?
-                if not new_key in instructions:
-                    instructions[new_key] = [path]
+                if not new_key in new_oms:
+                    new_oms[new_key] = my_op @ other_op
                 else:  # add element
-                    instructions[new_key].append(path)
-
-        # prepare operators
-        op_to_compose = [self.op_members] + [other.op_members]
-        # iterate operators
-        new_ops = {}
-        for key, paths in instructions.items():
-            new_ops[key] = OpMember.join(op_to_compose, paths)
-        return self.__class__(new_ops, self.q2_final)
+                    new_oms[new_key] += my_op @ other_op
+        return self.__class__(new_oms, self.q2_final)
 
     def to_raw(self):
         """

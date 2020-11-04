@@ -13,53 +13,9 @@ import numbers
 import numpy as np
 
 from . import Operator
+from . import physical
 
 logger = logging.getLogger(__name__)
-
-
-class OperatorMaster:
-    """
-    The :class:`OperatorMaster` is instantiated for a given set of parameters
-    and informs the generation of operators.
-
-    Parameters
-    ----------
-        grid: OperatorGrid
-            Instance of :class:`OperatorGrid`
-        nf: int
-            Value of nf for this :class:`OperatorMaster`
-    """
-
-    def __init__(self, config, managers, nf):
-        self.config = config
-        self.managers = managers
-        self.nf = nf
-
-    def get_op(self, q2_from, q2_to, generate=False):
-        """
-        Given a q2_from and a q2_to, returns a raw operator.
-        If the `generate` flag is set to True, the operator will also be computed
-        in place.
-
-        Parameters
-        ----------
-            q2_from: float
-                Reference value of q^2
-            q2_to: float
-                Target value of q^2
-            generate: bool
-                Whether the operator should be computed (default = False)
-
-        Returns
-        -------
-            op: eko.operators.Operator
-                operator to go from q2_from to q2_to
-        """
-        # now do the computation
-        op = Operator(self.config, self.managers, self.nf, q2_from, q2_to)
-        if generate:
-            op.compute()
-        return op
 
 
 class OperatorGrid:
@@ -117,7 +73,6 @@ class OperatorGrid:
             strong_coupling=strong_coupling,
             interpol_dispatcher=interpol_dispatcher,
         )
-        self._op_masters = {}
         self._op_grid = {}
         self._threshold_operators = {}
 
@@ -175,18 +130,6 @@ class OperatorGrid:
             config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher
         )
 
-    def _generate_masters(self):
-        """
-        Creates all :class:`OperatorMaster` instances.
-        """
-        for nf in self.managers["thresholds_config"].nf_range():
-            # Set up the OperatorMaster for each nf
-            self._op_masters[nf] = OperatorMaster(
-                self.config,
-                {k: v for k, v in self.managers.items() if k != "thresholds_config"},
-                nf,
-            )
-
     def _generate_thresholds_op(self, to_q2):
         """
         Generate the threshold operators
@@ -214,15 +157,15 @@ class OperatorGrid:
             # TODO due to this continue we're actually seeing the area *one below*
             if q2_to == q2_from:
                 continue
-            new_op = (q2_from, q2_to)
+            new_op_key = (q2_from, q2_to)
             logger.info(
                 "Evolution: Compute threshold operator from %e to %e", q2_from, q2_to
             )
-            if new_op not in self._threshold_operators:
+            if new_op_key not in self._threshold_operators:
                 # Compute the operator in place and store it
-                op_th = Operator(self.config, self.managers,nf,q2_from, q2)
+                op_th = Operator(self.config, self.managers, nf, q2_from, q2_to)
                 op_th.compute()
-                self._threshold_operators[new_op] = op_th
+                self._threshold_operators[new_op_key] = op_th
             nf = area.nf
             q2_from = q2_to
 
@@ -294,7 +237,7 @@ class OperatorGrid:
             q2_from = area.q2_ref
             nf = area.nf
             logger.info("Evolution: compute operators %e -> %e", q2_from, q2)
-            op = Operator(self.config, self.managers,nf,q2_from, q2)
+            op = Operator(self.config, self.managers, nf, q2_from, q2)
             op.compute()
             self._op_grid[q2] = op
 
@@ -319,9 +262,6 @@ class OperatorGrid:
         # normalize input
         if isinstance(q2grid, numbers.Number):
             q2grid = [q2grid]
-        # build masters
-        if len(self._op_masters) <= 0:
-            self._generate_masters()
         # Check max and min of the grid and reset the limits if necessary
         q2max = np.max(q2grid)
         q2min = np.min(q2grid)
@@ -358,10 +298,10 @@ class OperatorGrid:
             operator = self._op_grid[qsq]
         # Prepare the path for the composition of the operator
         operators_to_q2 = self._get_jumps(operator.q2_from)
-        number_of_thresholds = len(operators_to_q2)
-        instruction_set = self.managers["thresholds_config"].get_composition_path(
-            operator.nf, number_of_thresholds
-        )
-        # Compose and return
-        final_op = operator.compose(operators_to_q2, instruction_set, qsq)
+        is_vfns = self.managers["thresholds_config"].scheme != "FFNS"
+        final_op = physical.PhysicalOperator.ad_to_evol_map(operator.op_members, operator.nf, operator.q2_to, is_vfns)
+        for op in reversed(operators_to_q2):
+            phys_op = physical.PhysicalOperator.ad_to_evol_map(op.op_members, op.nf, op.q2_to, is_vfns)
+            final_op = final_op @ phys_op
+        
         return final_op

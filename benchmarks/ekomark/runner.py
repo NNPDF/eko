@@ -103,9 +103,9 @@ class Runner(abc.ABC):
             ret : dict
                 DGLAP result
         """
-        # ret = eko.run_dglap(self.theory, self.operators)
-        with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
-            ret = eko.output.Output.load_yaml(o)
+        ret = eko.run_dglap(self.theory, self.operators)
+        #with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
+        #    ret = eko.output.Output.load_yaml(o)
         self._post_process(ret)
         return ret
 
@@ -199,7 +199,6 @@ class Runner(abc.ABC):
                 # skip trivial plots
                 if key in ref["skip_pdfs"]:
                     continue
-                print(xgrid * my_pdfs[key], ref_pdfs[key])
                 # plot
                 fig = plot_dist(
                     xgrid,
