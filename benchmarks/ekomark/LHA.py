@@ -10,6 +10,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 
 from .plots import plot_dist
 from .runner import Runner
+from eko.basis_rotation import flavor_basis_pids
 
 # xgrid
 toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
@@ -26,16 +27,33 @@ LHA_init_grid = np.array([])
 
 # fmt: off
 # rotation matrix
+# LHA_flavour_rotate = np.array([
+#     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
+#     [   1,   1,   0,   0,   0,   0,   0,   0], # V
+#     [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
+#     [   1,  -1,  -2,   0,   0,   0,   0,   0], # T3
+#     [   1,   1,   0,   1,  -2,   0,   0,   0], # T8
+#     [   1,   1,   0,   1,   1,  -3,   0,   0], # T15
+#     [   1,   1,   0,   1,   1,   1,  -4,   0], # T24
+#     [   1,   1,   0,   1,   1,   1,   1,   0], # S
+#     [   0,   0,   0,   0,   0,   0,   0,   1], # g
+# ])
 LHA_flavour_rotate = np.array([
     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
-    [   1,   1,   0,   0,   0,   0,   0,   0], # V
-    [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
-    [   1,  -1,  -2,   0,   0,   0,   0,   0], # T3
-    [   1,   1,   0,   1,  -2,   0,   0,   0], # T8
-    [   1,   1,   0,   1,   1,  -3,   0,   0], # T15
-    [   1,   1,   0,   1,   1,   1,  -4,   0], # T24
-    [   1,   1,   0,   1,   1,   1,   1,   0], # S
+    [   0,   0,   0,   0,   0,   0,   0,   0], # ph
+    [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
+    [   0,   0,   0,   0,   0,   0,   1,   0], # bbar
+    [   0,   0,   0,   0,   0,   1,   0,   0], # cbar
+    [   0,   0,   0,   0,   1,   0,   0,   0], # sbar
+    [  -1,   0,  -1,   2,   0,   0,   0,   0], # ubar
+    [   0,  -1,   1,   2,   0,   0,   0,   0], # dbar
     [   0,   0,   0,   0,   0,   0,   0,   1], # g
+    [   0,   1,   0,   0,   0,   0,   0,   0], # d
+    [   1,   0,   0,   0,   0,   0,   0,   0], # u
+    [   0,   0,   0,   0,   1,   0,   0,   0], # s
+    [   0,   0,   0,   0,   0,   1,   0,   0], # c
+    [   0,   0,   0,   0,   0,   0,   1,   0], # b
+    [   0,   0,   0,   0,   0,   0,   0,   0], # t
 ])
 # fmt: on
 
@@ -46,10 +64,7 @@ def rotate_data(raw):
         inp.append(raw[l])
     inp = np.array(inp)
     rot = np.dot(LHA_flavour_rotate, inp)
-    out = {}
-    for k, n in enumerate(["V", "V3", "T3", "T8", "T15", "T24", "S", "g"]):
-        out[n] = rot[k]
-    return out
+    return dict(zip(flavor_basis_pids, rot))
 
 
 class LHABenchmarkPaper(Runner):
@@ -111,12 +126,15 @@ class LHABenchmarkPaper(Runner):
         raise ValueError(f"unknown FNS {fns} or order {order}")
 
     def ref(self):
+        skip_pdfs = [22, -6, 6]
+        if self.theory["FNS"] == "FFNS":
+            skip_pdfs.extend([-5, 5])
         return {
             "target_xgrid": toy_xgrid,
             "values": {1e4: self.ref_values()},
             "src_pdf": "ToyLH",
             "is_flavor_basis": False,
-            "skip_pdfs": ["V8", "V15", "V24", "V35", "T35"],
+            "skip_pdfs": skip_pdfs,
         }
 
     def save_initial_scale_plots_to_pdf(self, path):

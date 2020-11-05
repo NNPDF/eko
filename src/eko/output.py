@@ -41,18 +41,28 @@ class Output(dict):
             out_grid : dict
                 output PDFs and their associated errors for the computed Q2grid
         """
-        # turn lhapdf_like into list
-        input_lists = br.generate_input_from_lhapdf(
-            lhapdf_like, self["interpolation_xgrid"], self["q2_ref"]
-        )
+
+        # create pdfs
+        pdfs = np.zeros((len(self["pids"]), len(self["interpolation_xgrid"])))
+        for pid in self["pids"]:
+            if not lhapdf_like.hasFlavor(pid):
+                continue
+            pdfs[self["pids"].index(pid)] = [
+                lhapdf_like.xfxQ2(pid, x, self["q2_ref"]) / x
+                for x in self["interpolation_xgrid"]
+            ]
 
         # build output
         out_grid = {}
-        for q2 in self["Q2grid"]:
-            pdfs, errs = self.get_op(q2).apply_pdf(input_lists)
-            out_grid[q2] = {"pdfs": pdfs, "errors": errs}
+        for q2, elem in self["Q2grid"].items():
+            pdf_final = np.einsum("ajbk,bk", elem["operators"], pdfs)
+            error_final = np.einsum("ajbk,bk", elem["operator_errors"], pdfs)
+            out_grid[q2] = {
+                "pdfs": dict(zip(self["pids"], pdf_final)),
+                "errors": dict(zip(self["pids"], error_final)),
+            }
 
-        # interpolate to target grid
+        # rotate/interpolate to target grid
         if targetgrid is not None:
             b = interpolation.InterpolatorDispatcher.from_dict(self, False)
             rot = b.get_interpolation(targetgrid)
@@ -64,9 +74,7 @@ class Output(dict):
                     out_grid[q2]["errors"][pdf_label] = np.matmul(
                         rot, out_grid[q2]["errors"][pdf_label]
                     )
-        # rotate?
-        if rotate_to_flavor_basis:
-            out_grid = self.rotate_pdfs_to_flavor_basis(out_grid)
+
         return out_grid
 
     @staticmethod
@@ -89,7 +97,7 @@ class Output(dict):
             out_grid[q2] = {k: br.rotate_output(v) for k, v in res.items()}
         return out_grid
 
-    def get_raw(self):
+    def get_raw(self, binarize=True):
         """
         Serialize result as dict/YAML.
 
@@ -105,14 +113,24 @@ class Output(dict):
             "Q2grid": {},
         }
         # dump raw elements
-        for f in ["interpolation_polynomial_degree", "interpolation_is_log", "q2_ref"]:
+        for f in [
+            "interpolation_polynomial_degree",
+            "interpolation_is_log",
+            "q2_ref",
+        ]:
             out[f] = self[f]
+        out["pids"] = list(self["pids"])
         # make raw lists
         for k in ["interpolation_xgrid"]:
-            out[k] = np.array(self[k]).tolist()
+            out[k] = self[k]
         # make operators raw
-        for q2 in self["Q2grid"]:
-            out["Q2grid"][q2] = self.get_op(q2).to_raw()
+        for q2, op in self["Q2grid"].items():
+            out["Q2grid"][q2] = dict()
+            for k, v in op.items():
+                if binarize:
+                    out["Q2grid"][q2][k] = v.tobytes()
+                else:
+                    out["Q2grid"][q2][k] = v.tolist()
         return out
 
     def dump_yaml(self, stream=None):
@@ -168,6 +186,20 @@ class Output(dict):
                 loaded object
         """
         obj = yaml.safe_load(stream)
+        len_pids = len(obj["pids"])
+        len_xgrid = len(obj["interpolation_xgrid"])
+        # make list numpy
+        for k in ["interpolation_xgrid"]:
+            obj[k] = np.array(obj[k])
+        # make operators numpy
+        for op in obj["Q2grid"].values():
+            for k, v in op.items():
+                if isinstance(v, list):
+                    v = np.array(v)
+                elif isinstance(v, bytes):
+                    v = np.frombuffer(v)
+                    v = v.reshape(len_pids, len_xgrid, len_pids, len_xgrid)
+                op[k] = v
         return cls(obj)
 
     @classmethod
@@ -190,69 +222,43 @@ class Output(dict):
             obj = Output.load_yaml(o)
         return obj
 
-    def get_op(self, q2):
-        """
-        Load a :class:`PhysicalOperator` from the raw data.
+    # def concat(self, other):
+    #     """
+    #     Concatenate (multiply) two outputs.
 
-        Parameters
-        ----------
-            q2 : float
-                target scale
+    #     Parameters
+    #     ----------
+    #         other : Output
+    #             other factor to be multiplied from the left, i.e. with *smaller* intial scale
 
-        Returns
-        -------
-            op : PhysicalOperator
-                corresponding Operator
-        """
-        # check existence
-        if q2 not in self["Q2grid"]:
-            raise KeyError(f"q2={q2} not in grid")
-        # compose
-        ops = self["Q2grid"][q2]
-        op_members = {}
-        for name in ops["operators"]:
-            op_members[name] = OpMember(
-                ops["operators"][name], ops["operator_errors"][name]
-            )
-        return PhysicalOperator(op_members, q2)
+    #     Returns
+    #     -------
+    #         out : Output
+    #             self * other
+    #     """
+    #     # check type
+    #     if not isinstance(other, Output):
+    #         raise ValueError("can only concatenate two Output instances!")
+    #     # check parameters
+    #     for f in ["interpolation_polynomial_degree", "interpolation_is_log"]:
+    #         if not self[f] == other[f]:
+    #             raise ValueError(
+    #                 f"'{f}' of the two factors does not match: {self[f]} vs {other[f]}"
+    #             )
+    #     if not np.allclose(self["interpolation_xgrid"], other["interpolation_xgrid"]):
+    #         raise ValueError("'interpolation_xgrid' of the two factors does not match")
+    #     # check matching
+    #     mid_scale = self["q2_ref"]
+    #     if not mid_scale in other["Q2grid"]:
+    #         raise ValueError("Operators can not be joined")
+    #     # prepare output
+    #     other_op = other.get_op(mid_scale)
+    #     out = copy.deepcopy(self)
+    #     out["q2_ref"] = other["q2_ref"]
+    #     for q2 in self["Q2grid"]:
+    #         # multiply operators
+    #         me = self.get_op(q2)
+    #         prod = me * other_op
+    #         out["Q2grid"][q2] = prod.to_raw()
 
-    def concat(self, other):
-        """
-        Concatenate (multiply) two outputs.
-
-        Parameters
-        ----------
-            other : Output
-                other factor to be multiplied from the left, i.e. with *smaller* intial scale
-
-        Returns
-        -------
-            out : Output
-                self * other
-        """
-        # check type
-        if not isinstance(other, Output):
-            raise ValueError("can only concatenate two Output instances!")
-        # check parameters
-        for f in ["interpolation_polynomial_degree", "interpolation_is_log"]:
-            if not self[f] == other[f]:
-                raise ValueError(
-                    f"'{f}' of the two factors does not match: {self[f]} vs {other[f]}"
-                )
-        if not np.allclose(self["interpolation_xgrid"], other["interpolation_xgrid"]):
-            raise ValueError("'interpolation_xgrid' of the two factors does not match")
-        # check matching
-        mid_scale = self["q2_ref"]
-        if not mid_scale in other["Q2grid"]:
-            raise ValueError("Operators can not be joined")
-        # prepare output
-        other_op = other.get_op(mid_scale)
-        out = copy.deepcopy(self)
-        out["q2_ref"] = other["q2_ref"]
-        for q2 in self["Q2grid"]:
-            # multiply operators
-            me = self.get_op(q2)
-            prod = me * other_op
-            out["Q2grid"][q2] = prod.to_raw()
-
-        return out
+    #     return out

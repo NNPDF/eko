@@ -10,6 +10,7 @@ from .output import Output
 from .strong_coupling import StrongCoupling
 from .thresholds import ThresholdsConfig
 from .operator.grid import OperatorGrid
+from . import basis_rotation as br
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +103,8 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         """
         # add all operators
         Q2grid = {}
+        self.out["pids"] = br.flavor_basis_pids
         for final_scale, op in self.op_grid.compute_q2grid().items():
-            Q2grid[float(final_scale)] = op.to_raw()
+            Q2grid[float(final_scale)] = op
         self.out["Q2grid"] = Q2grid
         return copy.deepcopy(self.out)

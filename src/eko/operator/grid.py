@@ -307,5 +307,5 @@ class OperatorGrid:
                 op.op_members, op.nf, op.q2_to, is_vfns
             )
             final_op = final_op @ phys_op
-        import pdb; pdb.set_trace()
-        return final_op.to_flavor_basis_tensor()
+        values, errors = final_op.to_flavor_basis_tensor()
+        return {"operators": values, "operator_errors": errors}

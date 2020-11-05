@@ -61,7 +61,7 @@ class Runner(abc.ABC):
         # default config for post processing
         self.post_process_config = {
             "plot_PDF": True,
-            "plot_operator": True,
+            "plot_operator": False,  # True,
             "write_operator": True,
         }
 
@@ -104,7 +104,7 @@ class Runner(abc.ABC):
                 DGLAP result
         """
         ret = eko.run_dglap(self.theory, self.operators)
-        #with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
+        # with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
         #    ret = eko.output.Output.load_yaml(o)
         self._post_process(ret)
         return ret

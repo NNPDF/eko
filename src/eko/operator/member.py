@@ -61,8 +61,7 @@ class OpMember:
         if not isinstance(other, Number):
             raise NotImplementedError(f"Can't multiply OpMember and {type(other)}")
         n = self.value.shape[0]
-        return self.__matmul__(self.__class__(other * np.eye(n),np.zeros((n,n))))
-
+        return self.__matmul__(self.__class__(other * np.eye(n), np.zeros((n, n))))
 
     def __add__(self, operator_member):
         if isinstance(operator_member, Number):

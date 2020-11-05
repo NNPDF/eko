@@ -102,7 +102,8 @@ class PhysicalOperator:
 
     def to_flavor_basis_tensor(self):
         """
-        Convert the computations into an rank 4 tensor over flavor operator space and momentum fraction operator space
+        Convert the computations into an rank 4 tensor over flavor operator space and
+        momentum fraction operator space
 
         Returns
         -------
@@ -113,20 +114,27 @@ class PhysicalOperator:
         len_pids = len(br.flavor_basis_pids)
         len_xgrid = list(self.op_members.values())[0].value.shape[0]
         # dimension will be pids^2 * xgrid^2
-        tensor = np.zeros((len_pids, len_pids, len_xgrid, len_xgrid))
+        value_tensor = np.zeros((len_pids, len_xgrid, len_pids, len_xgrid))
+        error_tensor = value_tensor.copy()
         for n, op in self.op_members.items():
             in_pids = flavors.pids_from_intrinsic_evol(n.input, nf_in)
             out_pids = flavors.pids_from_intrinsic_evol(n.target, nf_out)
             for out_pid, out_weight in out_pids.items():
                 for in_pid, in_weight in in_pids.items():
                     # keep the outer index to the left as we're mulitplying from the right
-                    tensor[
+                    value_tensor[
                         br.flavor_basis_pids.index(out_pid),
-                        br.flavor_basis_pids.index(in_pid),
                         :,  # output momentum fraction
-                        :,  # input    ""         ""
+                        br.flavor_basis_pids.index(in_pid),
+                        :,  # input momentum fraction
                     ] = out_weight * (op.value * in_weight)
-        return tensor
+                    error_tensor[
+                        br.flavor_basis_pids.index(out_pid),
+                        :,  # output momentum fraction
+                        br.flavor_basis_pids.index(in_pid),
+                        :,  # input momentum fraction
+                    ] = out_weight * (op.error * in_weight)
+        return value_tensor, error_tensor
 
     def __matmul__(self, other):
         """
@@ -158,79 +166,3 @@ class PhysicalOperator:
                 else:  # add element
                     new_oms[new_key] += my_op @ other_op
         return self.__class__(new_oms, self.q2_final)
-
-    def to_raw(self):
-        """
-        Returns serializable matrix representation of all members and their errors
-
-        Returns
-        -------
-            ret : dict
-                the members are stored under the ``operators`` key and their
-                errors under the ``operator_errors`` key. They are labeled as
-                ``{outputPDF}.{inputPDF}``.
-        """
-        # map matrices
-        ret = {"operators": {}, "operator_errors": {}}
-        for name, op in self.op_members.items():
-            ret["operators"][name] = op.value.tolist()
-            ret["operator_errors"][name] = op.error.tolist()
-        return ret
-
-    def apply_pdf(self, pdf_lists):
-        """
-        Apply PDFs to the EKOs.
-
-        It assumes as input the PDFs as dictionary in evolution basis with:
-
-        .. code-block:: python
-
-            pdf_lists = {
-                'V' : list,
-                'g' : list,
-                # ...
-            }
-
-        Each member has to be evaluated on the corresponding xgrid (which
-        is tracked by :class:`~eko.operator_grid.OperatorGrid` and not
-        :class:`PhysicalOperator`)
-
-        Parameters
-        ----------
-            ret : dict
-                operator matrices of :class:`PhysicalOperator`
-            pdf_lists : dict
-                PDFs in evolution basis as list on the corresponding xgrid
-
-        Returns
-        -------
-            out : dict
-                evolved PDFs
-            out_errors : dict
-                associated errors of the evolved PDFs
-        """
-        # build output
-        outs = {}
-        out_errors = {}
-        for op in self.op_members.values():
-            target, input_pdf = op.target, op.input
-            # basis vector available?
-            if input_pdf not in pdf_lists:
-                # thus can I not complete the calculation for this target
-                outs[target] = None
-                continue
-            # is target new?
-            if target not in outs:
-                # set output
-                outs[target], out_errors[target] = op.apply_pdf(pdf_lists[input_pdf])
-            else:
-                # is target already blocked?
-                if outs[target] is None:
-                    continue
-                # else add to it
-                out, err = op.apply_pdf(pdf_lists[input_pdf])
-                outs[target] += out
-                out_errors[target] += err
-        # remove uncompleted
-        outs = {k: outs[k] for k in outs if not outs[k] is None}
-        return outs, out_errors
