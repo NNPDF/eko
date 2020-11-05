@@ -303,5 +303,5 @@ class OperatorGrid:
         for op in reversed(operators_to_q2):
             phys_op = physical.PhysicalOperator.ad_to_evol_map(op.op_members, op.nf, op.q2_to, is_vfns)
             final_op = final_op @ phys_op
-        
+        # TODO rotate to flavor basis
         return final_op

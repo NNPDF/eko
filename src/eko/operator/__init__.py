@@ -20,13 +20,9 @@ from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 
 from .member import OpMember
+from .flavors import singlet_labels, full_labels
 
 logger = logging.getLogger(__name__)
-
-
-singlet_labels = ("S_qq", "S_qg", "S_gq", "S_gg")
-non_singlet_labels = ("NS_m", "NS_p", "NS_v")
-full_labels = (*singlet_labels, *non_singlet_labels)
 
 
 @nb.njit("c16[:](u1,string,c16,u1,f8)", cache=True)
@@ -209,7 +205,7 @@ class Operator:
         labels = self.labels()
         for n in full_labels:
             self.op_members[n] = OpMember(
-                np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size)), n
+                np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
             )
         tot_start_time = time.perf_counter()
         # setup KernelDispatcher

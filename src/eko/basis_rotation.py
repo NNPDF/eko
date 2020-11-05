@@ -18,9 +18,9 @@ import copy
 
 import numpy as np
 
-flavor_basis_pids = [22] + list(range(-6, -1 + 1)) + [21] + list(range(1, 6 + 1))
+flavor_basis_pids = tuple([22] + list(range(-6, -1 + 1)) + [21] + list(range(1, 6 + 1)))
 
-flavor_basis_names = [
+flavor_basis_names = (
     "ph",
     "tbar",
     "bbar",
@@ -35,9 +35,9 @@ flavor_basis_names = [
     "c",
     "b",
     "t",
-]
+)
 
-evol_basis = [
+evol_basis = (
     "ph",
     "S",
     "g",
@@ -52,7 +52,7 @@ evol_basis = [
     "T15",
     "T24",
     "T35",
-]
+)
 
 # Tranformation from physical basis to QCD evolution basis
 rotate_flavor_to_evolution = np.array(

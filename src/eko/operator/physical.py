@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from .. import basis_rotation as br
-
+from . import flavors
 
 class PhysicalOperator:
     """
@@ -94,52 +93,13 @@ class PhysicalOperator:
                         raise ValueError(
                             f"{hq} is perturbative inside FFNS{nf} so can NOT be intrinsic"
                         )
+        opms = {}
         for k,v in m.items():
-            m[k] = v.copy(k)
+            opms[flavors.MemberName(k)] = v.copy()
         return cls(m, q2_final)
 
-    def get_range(self):
-        """
-        Determine the number of light and heavy flavors participating in the input and output
-
-        Returns
-        -------
-            nf_in : int
-                number of light flavors in the input
-            nf_out : int
-                number of light flavors in the output
-            intrinsic_range_in : list(int)
-                list of heavy flavors in the input
-            intrinsic_range_out : list(int)
-                list of heavy flavors in the output
-        """
-        nf_in = 3
-        nf_out = 3
-        intrinsic_range_in = []
-        intrinsic_range_out = []
-        def update(label):
-            nf = 3
-            intrinsic_range = []
-            if label[0] == "T":
-                nf = round(np.sqrt(int(label[1:]) + 1))
-            elif label[1] in ["+", "-"]:
-                intrinsic_range.append(4+hqfl.index(label[0]))
-            return nf, intrinsic_range
-        hqfl = "cbt"
-        for op in self.op_members.values():
-            nf, intr = update(op.input)
-            nf_in = max(nf, nf_in)
-            intrinsic_range_in.extend(intr)
-            nf, intr = update(op.target)
-            nf_out = max(nf, nf_out)
-            intrinsic_range_out.extend(intr)
-
-        intrinsic_range_in.sort()
-        intrinsic_range_out.sort()
-        return nf_in, nf_out, intrinsic_range_in, intrinsic_range_out
-
     def to_flavor_basis(self):
-        nf_in, nf_out, intrinsic_range_in, intrinsic_range_out = self.get_range()
+        nf_in, nf_out, intrinsic_range_in, intrinsic_range_out = flavors.get_range(self.op_members.keys())
         # TODO
 
 #        br.rotate_flavor_to_evolution
