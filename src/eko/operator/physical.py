@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
+from .. import basis_rotation as br
 from . import flavors
+
 
 class PhysicalOperator:
     """
@@ -94,15 +96,37 @@ class PhysicalOperator:
                             f"{hq} is perturbative inside FFNS{nf} so can NOT be intrinsic"
                         )
         opms = {}
-        for k,v in m.items():
+        for k, v in m.items():
             opms[flavors.MemberName(k)] = v.copy()
-        return cls(m, q2_final)
+        return cls(opms, q2_final)
 
-    def to_flavor_basis(self):
-        nf_in, nf_out, intrinsic_range_in, intrinsic_range_out = flavors.get_range(self.op_members.keys())
-        # TODO
+    def to_flavor_basis_tensor(self):
+        """
+        Convert the computations into an rank 4 tensor over flavor operator space and momentum fraction operator space
 
-#        br.rotate_flavor_to_evolution
+        Returns
+        -------
+            tensor : numpy.ndarray
+                EKO
+        """
+        nf_in, nf_out = flavors.get_range(self.op_members.keys())
+        len_pids = len(br.flavor_basis_pids)
+        len_xgrid = list(self.op_members.values())[0].value.shape[0]
+        # dimension will be pids^2 * xgrid^2
+        tensor = np.zeros((len_pids, len_pids, len_xgrid, len_xgrid))
+        for n, op in self.op_members.items():
+            in_pids = flavors.pids_from_intrinsic_evol(n.input, nf_in)
+            out_pids = flavors.pids_from_intrinsic_evol(n.target, nf_out)
+            for out_pid, out_weight in out_pids.items():
+                for in_pid, in_weight in in_pids.items():
+                    # keep the outer index to the left as we're mulitplying from the right
+                    tensor[
+                        br.flavor_basis_pids.index(out_pid),
+                        br.flavor_basis_pids.index(in_pid),
+                        :,  # output momentum fraction
+                        :,  # input    ""         ""
+                    ] = out_weight * (op.value * in_weight)
+        return tensor
 
     def __matmul__(self, other):
         """
@@ -122,14 +146,14 @@ class PhysicalOperator:
             raise ValueError("Can only multiply with another PhysicalOperator")
         # prepare paths
         new_oms = {}
-        for my_op in self.op_members.values():
-            for other_op in other.op_members.values():
+        for my_key, my_op in self.op_members.items():
+            for other_key, other_op in other.op_members.items():
                 # ops match?
-                if my_op.input != other_op.target:
+                if my_key.input != other_key.target:
                     continue
-                new_key = my_op.target + "." + other_op.input
+                new_key = flavors.MemberName(my_key.target + "." + other_key.input)
                 # new?
-                if not new_key in new_oms:
+                if new_key not in new_oms:
                     new_oms[new_key] = my_op @ other_op
                 else:  # add element
                     new_oms[new_key] += my_op @ other_op

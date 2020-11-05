@@ -269,9 +269,9 @@ class OperatorGrid:
         # Now compute all raw operators
         self._compute_raw_grid(q2grid)
         # And now return the grid
-        grid_return = []
+        grid_return = {}
         for q2 in q2grid:
-            grid_return.append(self.get_op_at_q2(q2))
+            grid_return[q2] = self.get_op_at_q2(q2)
         return grid_return
 
     def get_op_at_q2(self, qsq):
@@ -299,9 +299,13 @@ class OperatorGrid:
         # Prepare the path for the composition of the operator
         operators_to_q2 = self._get_jumps(operator.q2_from)
         is_vfns = self.managers["thresholds_config"].scheme != "FFNS"
-        final_op = physical.PhysicalOperator.ad_to_evol_map(operator.op_members, operator.nf, operator.q2_to, is_vfns)
+        final_op = physical.PhysicalOperator.ad_to_evol_map(
+            operator.op_members, operator.nf, operator.q2_to, is_vfns
+        )
         for op in reversed(operators_to_q2):
-            phys_op = physical.PhysicalOperator.ad_to_evol_map(op.op_members, op.nf, op.q2_to, is_vfns)
+            phys_op = physical.PhysicalOperator.ad_to_evol_map(
+                op.op_members, op.nf, op.q2_to, is_vfns
+            )
             final_op = final_op @ phys_op
-        # TODO rotate to flavor basis
-        return final_op
+        import pdb; pdb.set_trace()
+        return final_op.to_flavor_basis_tensor()

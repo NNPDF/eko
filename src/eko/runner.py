@@ -91,11 +91,6 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
             bfd,
         )
 
-    def get_operators(self):
-        """compute the actual operators"""
-        operators = self.op_grid.compute_q2grid()
-        return operators
-
     def get_output(self):
         """
         Collects all data for output (to run the evolution)
@@ -107,8 +102,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         """
         # add all operators
         Q2grid = {}
-        for op in self.get_operators():
-            final_scale = op.q2_final
+        for final_scale, op in self.op_grid.compute_q2grid().items():
             Q2grid[float(final_scale)] = op.to_raw()
         self.out["Q2grid"] = Q2grid
         return copy.deepcopy(self.out)

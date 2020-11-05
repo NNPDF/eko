@@ -212,7 +212,7 @@ class Output(dict):
         op_members = {}
         for name in ops["operators"]:
             op_members[name] = OpMember(
-                ops["operators"][name], ops["operator_errors"][name], name
+                ops["operators"][name], ops["operator_errors"][name]
             )
         return PhysicalOperator(op_members, q2)
 

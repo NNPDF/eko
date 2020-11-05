@@ -78,6 +78,38 @@ rotate_flavor_to_evolution = np.array(
 rotate_evolution_to_flavor = np.linalg.inv(rotate_flavor_to_evolution)
 
 
+def rotate_pm_to_flavor(label):
+    """
+    Rotate from +- basis to flavor basis.
+
+    Parameters
+    ----------
+        label : str
+            label
+
+    Returns
+    -------
+        l : list(float)
+            list of weights
+    """
+    # g and ph are unaltered
+    if label in ["g", "ph"]:
+        return rotate_flavor_to_evolution[evol_basis.index(label)].copy()
+    # no it has to be a quark with + or - appended
+    if label[0] not in "duscbt" or label[1] not in ["+", "-"]:
+        raise ValueError(f"Invalid pm label: {label}")
+    l = np.zeros(len(flavor_basis_pids))
+    idx = flavor_basis_names.index(label[0])
+    pid = flavor_basis_pids[idx]
+    l[idx] = 1
+    # + is +, - is -
+    if label[1] == "+":
+        l[flavor_basis_pids.index(-pid)] = 1
+    else:
+        l[flavor_basis_pids.index(-pid)] = -1
+    return l
+
+
 def generate_input_from_lhapdf(lhapdf, xs, Q2init):
     """
     Rotate lhapdf-like input object from flavor space to evolution space
@@ -115,7 +147,7 @@ def generate_input_from_lhapdf(lhapdf, xs, Q2init):
             if q in empty_pids and -q in empty_pids:
                 continue
         # rotate
-        evol_map = rotate_flavor_to_evolution[j]
+        evol_map = rotate_flavor_to_evolution[j].copy()
         input_dict[evol] = evol_map @ flavor_list
     return input_dict
 

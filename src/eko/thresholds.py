@@ -11,8 +11,6 @@ import numbers
 
 import numpy as np
 
-from eko.operator.flavors import get_all_flavour_paths
-
 logger = logging.getLogger(__name__)
 
 
@@ -121,8 +119,6 @@ class ThresholdsConfig:
         self._area_ref = 0
         self.max_nf = None
         self.min_nf = None
-        self._operator_paths = []
-        protection = False
 
         if scheme == "FFNS":
             if nf is None:
@@ -132,7 +128,6 @@ class ThresholdsConfig:
             self._areas = [Area(0, np.inf, self.q2_ref, nf)]
             self.max_nf = nf
             self.min_nf = nf
-            protection = True
             logger.info("Thresholds: Fixed flavor number scheme with %d flavors", nf)
         elif scheme in ["ZM-VFNS", "ZM-VFNS'", "FONLL-A", "FONLL-A'"]:
             if nf is not None:
@@ -148,12 +143,6 @@ class ThresholdsConfig:
             logger.info("Thresholds: Variable flavor number scheme (%s)", scheme)
         else:
             raise NotImplementedError(f"The scheme {scheme} is not implemented")
-
-        # build flavour targets
-        nf_protected = None
-        if protection:
-            nf_protected = nf
-        self._operator_paths = get_all_flavour_paths(nf_protected)
 
     @classmethod
     def from_dict(cls, theory_card):

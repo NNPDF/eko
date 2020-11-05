@@ -2,6 +2,7 @@
 from numbers import Number
 import numpy as np
 
+
 class OpMember:
     """
     A single operator for a specific element in evolution basis.
@@ -56,6 +57,13 @@ class OpMember:
         new_err = np.abs(np.matmul(lval, rerror)) + np.abs(np.matmul(ler, rval))
         return OpMember(new_val, new_err)
 
+    def __mul__(self, other):
+        if not isinstance(other, Number):
+            raise NotImplementedError(f"Can't multiply OpMember and {type(other)}")
+        n = self.value.shape[0]
+        return self.__matmul__(self.__class__(other * np.eye(n),np.zeros((n,n))))
+
+
     def __add__(self, operator_member):
         if isinstance(operator_member, Number):
             # we only allow the integer 0 as alias for the true zero operator
@@ -88,3 +96,6 @@ class OpMember:
 
     def __rsub__(self, operator_member):
         return self.__radd__(-operator_member)
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
