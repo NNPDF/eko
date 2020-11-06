@@ -23,10 +23,6 @@ class TestOpMember:
         with pytest.raises(ValueError):
             _ = flavors.MemberName("bla").input
 
-    def test_is_physical(self):
-        assert not flavors.MemberName("NS_p").is_physical
-        assert flavors.MemberName("S.S").is_physical
-
 
 def test_pids_from_intrinsic_evol():
     raw = dict(zip(br.flavor_basis_pids, np.zeros(len(br.flavor_basis_pids))))

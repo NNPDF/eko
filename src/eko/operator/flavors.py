@@ -28,7 +28,7 @@ class MemberName:
     def __init__(self, name):
         self.name = name
 
-    def __str__(self):
+    def __repr__(self):
         return self.name
 
     def __eq__(self, other):
@@ -59,11 +59,6 @@ class MemberName:
         """Returns input flavour name (given by the second part of the name)"""
         return self._split_name()[1]
 
-    @property
-    def is_physical(self):
-        """Lives inside a :class:`PhysicalOperator`? determined by name"""
-        return self.name not in full_labels
-
 
 def pids_from_intrinsic_evol(label, nlf):
     """
@@ -92,7 +87,7 @@ def pids_from_intrinsic_evol(label, nlf):
                 weights[j] = 0
     else:
         weights = br.rotate_pm_to_flavor(label)
-    return dict(zip(br.flavor_basis_pids, weights))
+    return weights
 
 
 def get_range(evol_labels):

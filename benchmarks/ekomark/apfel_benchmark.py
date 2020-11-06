@@ -39,7 +39,6 @@ class ApfelBenchmark(Runner):
             "target_xgrid": self.target_xgrid,
             "values": {self.operators["Q2grid"][0]: self.ref_values()},
             "src_pdf": "ToyLH",
-            "is_flavor_basis": True,
             "skip_pdfs": [],
         }
 

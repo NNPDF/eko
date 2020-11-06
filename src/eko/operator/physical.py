@@ -110,30 +110,31 @@ class PhysicalOperator:
             tensor : numpy.ndarray
                 EKO
         """
+        # import pdb; pdb.set_trace()
         nf_in, nf_out = flavors.get_range(self.op_members.keys())
         len_pids = len(br.flavor_basis_pids)
         len_xgrid = list(self.op_members.values())[0].value.shape[0]
         # dimension will be pids^2 * xgrid^2
         value_tensor = np.zeros((len_pids, len_xgrid, len_pids, len_xgrid))
         error_tensor = value_tensor.copy()
-        for n, op in self.op_members.items():
-            in_pids = flavors.pids_from_intrinsic_evol(n.input, nf_in)
-            out_pids = flavors.pids_from_intrinsic_evol(n.target, nf_out)
-            for out_pid, out_weight in out_pids.items():
-                for in_pid, in_weight in in_pids.items():
+        for name, op in self.op_members.items():
+            in_pids = flavors.pids_from_intrinsic_evol(name.input, nf_in)
+            out_pids = flavors.pids_from_intrinsic_evol(name.target, nf_out)
+            for out_idx, out_weight in enumerate(out_pids):
+                for in_idx, in_weight in enumerate(in_pids):
                     # keep the outer index to the left as we're mulitplying from the right
                     value_tensor[
-                        br.flavor_basis_pids.index(out_pid),
+                        out_idx,  # output pid (position)
                         :,  # output momentum fraction
-                        br.flavor_basis_pids.index(in_pid),
+                        in_idx,  # input pid (position)
                         :,  # input momentum fraction
-                    ] = out_weight * (op.value * in_weight)
+                    ] += out_weight * (op.value * in_weight)
                     error_tensor[
-                        br.flavor_basis_pids.index(out_pid),
+                        out_idx,  # output pid (position)
                         :,  # output momentum fraction
-                        br.flavor_basis_pids.index(in_pid),
+                        in_idx,  # input pid (position)
                         :,  # input momentum fraction
-                    ] = out_weight * (op.error * in_weight)
+                    ] += out_weight * (op.error * in_weight)
         return value_tensor, error_tensor
 
     def __matmul__(self, other):

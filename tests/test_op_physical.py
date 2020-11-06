@@ -57,6 +57,45 @@ class TestPhysicalOperator:
         with pytest.raises(ValueError):
             _ = a @ {}
 
+    def test_to_flavor_basis_tensor_ss(self):
+        (SS,) = self._mkOM(1)
+        a = PhysicalOperator(
+            dict(
+                zip(
+                    self._mkNames(("S.S",)),
+                    (SS,),
+                )
+            ),
+            1,
+        )
+        vt, _ = a.to_flavor_basis_tensor()
+        np.testing.assert_allclose(vt[6, :, 6, :], vt[6, :, 5, :])
+        np.testing.assert_allclose(vt[6, :, 6, :], vt[5, :, 6, :])
+        np.testing.assert_allclose(vt[6, :, 6, :], SS.value[:, :])
+        np.testing.assert_allclose(vt[1, :, :, :], 0)
+        np.testing.assert_allclose(vt[:, :, 1, :], 0)
+        np.testing.assert_allclose(vt[7, :, :, :], 0)
+        np.testing.assert_allclose(vt[:, :, 7, :], 0)
+
+    def test_to_flavor_basis_tensor_gg(self):
+        (gg,) = self._mkOM(1)
+        a = PhysicalOperator(
+            dict(
+                zip(
+                    self._mkNames(("g.g",)),
+                    (gg,),
+                )
+            ),
+            1,
+        )
+        vt, _ = a.to_flavor_basis_tensor()
+        np.testing.assert_allclose(vt[6, :, 6, :], 0)
+        np.testing.assert_allclose(vt[7, :, 7, :], gg.value[:, :])
+        np.testing.assert_allclose(vt[1, :, :, :], 0)
+        np.testing.assert_allclose(vt[:, :, 1, :], 0)
+        np.testing.assert_allclose(vt[7, :, :7, :], 0)
+        np.testing.assert_allclose(vt[8:, :, 7, :], 0)
+
 
 def mk_op_members(shape=(2, 2)):
     m = np.random.rand(7, *shape)

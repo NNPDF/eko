@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import numpy as np
 import pytest
 
 import eko.basis_rotation as br
@@ -14,3 +15,11 @@ def test_rotate_pm_to_flavor():
     assert all(([0] + [-1] + [0] * (2 * 5 + 1) + [1]) == br.rotate_pm_to_flavor("t-"))
     with pytest.raises(ValueError):
         br.rotate_pm_to_flavor("cbar")
+
+
+def test_inv():
+    np.testing.assert_allclose(
+        br.rotate_evolution_to_flavor @ br.rotate_flavor_to_evolution,
+        np.eye(len(br.rotate_evolution_to_flavor)),
+        atol=1e-15,
+    )

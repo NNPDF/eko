@@ -103,9 +103,9 @@ class Runner(abc.ABC):
             ret : dict
                 DGLAP result
         """
-        ret = eko.run_dglap(self.theory, self.operators)
-        # with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
-        #    ret = eko.output.Output.load_yaml(o)
+        # ret = eko.run_dglap(self.theory, self.operators)
+        with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
+            ret = eko.output.Output.load_yaml(o)
         self._post_process(ret)
         return ret
 
@@ -184,7 +184,7 @@ class Runner(abc.ABC):
         pdf_grid = output.apply_pdf(
             toyLH.mkPDF(ref["src_pdf"], ""),
             xgrid,
-            rotate_to_flavor_basis=ref["is_flavor_basis"],
+            rotate_to_evolution_basis=ref["rotate_to_evolution_basis"]
         )
         first_res = list(pdf_grid.values())[0]
         my_pdfs = first_res["pdfs"]

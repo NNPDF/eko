@@ -8,6 +8,7 @@ import yaml
 import numpy as np
 
 from . import interpolation
+from . import basis_rotation as br
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ class Output(dict):
     to PDFs and dumping to file.
     """
 
-    def apply_pdf(self, lhapdf_like, targetgrid=None):
+    def apply_pdf(self, lhapdf_like, targetgrid=None, rotate_to_evolution_basis=False):
         """
         Apply all available operators to the input PDFs.
 
@@ -35,16 +36,17 @@ class Output(dict):
             out_grid : dict
                 output PDFs and their associated errors for the computed Q2grid
         """
-
         # create pdfs
         pdfs = np.zeros((len(self["pids"]), len(self["interpolation_xgrid"])))
-        for pid in self["pids"]:
+        for j, pid in enumerate(self["pids"]):
             if not lhapdf_like.hasFlavor(pid):
                 continue
-            pdfs[self["pids"].index(pid)] = [
-                lhapdf_like.xfxQ2(pid, x, self["q2_ref"]) / x
-                for x in self["interpolation_xgrid"]
-            ]
+            pdfs[j] = np.array(
+                [
+                    lhapdf_like.xfxQ2(pid, x, self["q2_ref"]) / x
+                    for x in self["interpolation_xgrid"]
+                ]
+            )
 
         # build output
         out_grid = {}
@@ -55,6 +57,18 @@ class Output(dict):
                 "pdfs": dict(zip(self["pids"], pdf_final)),
                 "errors": dict(zip(self["pids"], error_final)),
             }
+
+        # rotate to evolution basis
+        if rotate_to_evolution_basis:
+            for q2, op in out_grid.items():
+                pdf = br.rotate_flavor_to_evolution @ np.array(
+                    [op["pdfs"][pid] for pid in br.flavor_basis_pids]
+                )
+                errors = br.rotate_flavor_to_evolution @ np.array(
+                    [op["errors"][pid] for pid in br.flavor_basis_pids]
+                )
+                out_grid[q2]["pdfs"] = dict(zip(br.evol_basis, pdf))
+                out_grid[q2]["errors"] = dict(zip(br.evol_basis, errors))
 
         # rotate/interpolate to target grid
         if targetgrid is not None:

@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from eko.basis_rotation import flavor_basis_pids
+from eko import basis_rotation as br
 
 from .plots import plot_dist
 from .runner import Runner
@@ -20,6 +20,8 @@ toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.
 raw_label_list = ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"]
 # rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
 
+evol_label_list = ["V", "V3", "T3", "T8", "T15","T24","S", "g"]
+
 # my/exact initial grid
 # LHA_init_grid = []
 # for f in [toy_uv0, toy_dv0, toy_Lm0, toy_Lp0, toy_sp0, toy_cp0, toy_bp0, toy_g0]:
@@ -28,18 +30,18 @@ LHA_init_grid = np.array([])
 
 # fmt: off
 # rotation matrix
-# LHA_flavour_rotate = np.array([
-#     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
-#     [   1,   1,   0,   0,   0,   0,   0,   0], # V
-#     [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
-#     [   1,  -1,  -2,   0,   0,   0,   0,   0], # T3
-#     [   1,   1,   0,   1,  -2,   0,   0,   0], # T8
-#     [   1,   1,   0,   1,   1,  -3,   0,   0], # T15
-#     [   1,   1,   0,   1,   1,   1,  -4,   0], # T24
-#     [   1,   1,   0,   1,   1,   1,   1,   0], # S
-#     [   0,   0,   0,   0,   0,   0,   0,   1], # g
-# ])
-LHA_flavour_rotate = np.array([
+LHA_rotate_to_evolution = np.array([
+    # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
+    [   1,   1,   0,   0,   0,   0,   0,   0], # V
+    [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
+    [   1,  -1,  -2,   0,   0,   0,   0,   0], # T3
+    [   1,   1,   0,   1,  -2,   0,   0,   0], # T8
+    [   1,   1,   0,   1,   1,  -3,   0,   0], # T15
+    [   1,   1,   0,   1,   1,   1,  -4,   0], # T24
+    [   1,   1,   0,   1,   1,   1,   1,   0], # S
+    [   0,   0,   0,   0,   0,   0,   0,   1], # g
+])
+LHA_rotate_to_flavor = np.array([
     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
     [   0,   0,   0,   0,   0,   0,   0,   0], # ph
     [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
@@ -59,13 +61,17 @@ LHA_flavour_rotate = np.array([
 # fmt: on
 
 # rotate basis
-def rotate_data(raw):
+def rotate_data(raw, rotate_to_evolution_basis=False):
     inp = []
     for l in raw_label_list:
         inp.append(raw[l])
     inp = np.array(inp)
-    rot = np.dot(LHA_flavour_rotate, inp)
-    return dict(zip(flavor_basis_pids, rot))
+    if rotate_to_evolution_basis:
+        rot = np.dot(LHA_rotate_to_evolution, inp)
+        return dict(zip(evol_label_list, rot))
+    else:
+        rot = np.dot(LHA_rotate_to_flavor, inp)
+        return dict(zip(br.flavor_basis_pids, rot))
 
 
 class LHABenchmarkPaper(Runner):
@@ -84,6 +90,8 @@ class LHABenchmarkPaper(Runner):
 
     def __init__(self, theory_path, operators_path, assets_dir, data_dir):
         super().__init__(theory_path, operators_path, assets_dir)
+
+        self.rotate_to_evolution_basis = True
 
         if not np.isclose(self.theory["XIF"], 1.0):
             raise ValueError("XIF has to be 1")
@@ -108,34 +116,37 @@ class LHABenchmarkPaper(Runner):
         fact_to_ren = (self.theory["XIF"] / self.theory["XIR"]) ** 2
         if fns == "FFNS":
             if order == 0:
-                return rotate_data(self.data["table2"]["part2"])
+                return rotate_data(self.data["table2"]["part2"], self.rotate_to_evolution_basis)
             if order == 1:
                 if fact_to_ren > np.sqrt(2):
-                    return rotate_data(self.data["table3"]["part3"])
+                    return rotate_data(self.data["table3"]["part3"], self.rotate_to_evolution_basis)
                 if fact_to_ren < np.sqrt(1.0 / 2.0):
-                    return rotate_data(self.data["table3"]["part2"])
-                return rotate_data(self.data["table3"]["part1"])
+                    return rotate_data(self.data["table3"]["part2"], self.rotate_to_evolution_basis)
+                return rotate_data(self.data["table3"]["part1"], self.rotate_to_evolution_basis)
         if fns == "ZM-VFNS":
             if order == 0:
-                return rotate_data(self.data["table2"]["part3"])
+                return rotate_data(self.data["table2"]["part3"], self.rotate_to_evolution_basis)
             if order == 1:
                 if fact_to_ren > np.sqrt(2):
-                    return rotate_data(self.data["table4"]["part3"])
+                    return rotate_data(self.data["table4"]["part3"], self.rotate_to_evolution_basis)
                 if fact_to_ren < np.sqrt(1.0 / 2.0):
-                    return rotate_data(self.data["table4"]["part2"])
-                return rotate_data(self.data["table4"]["part1"])
+                    return rotate_data(self.data["table4"]["part2"], self.rotate_to_evolution_basis)
+                return rotate_data(self.data["table4"]["part1"], self.rotate_to_evolution_basis)
         raise ValueError(f"unknown FNS {fns} or order {order}")
 
     def ref(self):
-        skip_pdfs = [22, -6, 6]
+        """
+        Reference configuration
+        """
+        skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
         if self.theory["FNS"] == "FFNS":
-            skip_pdfs.extend([-5, 5])
+            skip_pdfs.extend([-5, 5, "T24"])
         return {
             "target_xgrid": toy_xgrid,
             "values": {1e4: self.ref_values()},
             "src_pdf": "ToyLH",
-            "is_flavor_basis": False,
             "skip_pdfs": skip_pdfs,
+            "rotate_to_evolution_basis": self.rotate_to_evolution_basis,
         }
 
     def save_initial_scale_plots_to_pdf(self, path):
