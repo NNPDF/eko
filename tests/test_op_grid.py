@@ -47,16 +47,6 @@ class TestOperatorGrid:
             theory_card["mt"] = 100
         return theory_card, operators_card
 
-    def _get_pdf(self):
-        basis = ["V", "V3", "V8", "V15", "T3", "T15", "S", "g"]
-        len_grid = len(self._get_setup(True)[1]["interpolation_xgrid"])
-        pdf_m = {}
-        for i in basis:
-            pdf_m[i] = np.random.rand(len_grid)
-            pdf_m[i].sort()
-        pdf = {"metadata": "evolbasis", "members": pdf_m}
-        return pdf
-
     def _get_operator_grid(self, use_FFNS=True):
         theory_card, operators_card = self._get_setup(use_FFNS)
         # create objects
@@ -76,10 +66,7 @@ class TestOperatorGrid:
     def test_sanity(self):
         """ Sanity checks for the input"""
         opgrid = self._get_operator_grid(False)
-        # Check that an operator grid with the correct number of regions was created
-        opgrid._generate_masters()  # pylint: disable=protected-access
-        nregs = len(opgrid._op_masters)  # pylint: disable=protected-access
-        assert nregs == 3 + 1
+
         # errors
         with pytest.raises(ValueError):
             opgrid.set_q2_limits(-1, 4)
@@ -123,6 +110,3 @@ class TestOperatorGrid:
         qgrid_check = [3, 5]
         operators = opgrid.compute_q2grid(qgrid_check)
         assert len(operators) == len(qgrid_check)
-        # Check that the operators can act on pdfs
-        pdf = self._get_pdf()
-        _return_1 = operators[0].apply_pdf(pdf)

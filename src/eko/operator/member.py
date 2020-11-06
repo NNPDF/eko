@@ -82,7 +82,7 @@ class OpMember:
         return OpMember(new_val, new_err)
 
     def __neg__(self):
-        return self.__matmul__(-1)
+        return OpMember(-self.value.copy(), self.error.copy())
 
     def __eq__(self, operator_member):
         return np.allclose(self.value, operator_member.value)
