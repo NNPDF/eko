@@ -97,7 +97,10 @@ def pids_from_intrinsic_evol(label, nlf):
 
 def get_range(evol_labels):
     """
-    Determine the number of light and heavy flavors participating in the input and output
+    Determine the number of light and heavy flavors participating in the input and output.
+
+    Here, we assume that the T distributions (e.g. T15) appears *always*
+    before the corresponding V distribution (e.g. V15).
 
     Returns
     -------

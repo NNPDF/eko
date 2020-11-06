@@ -1,17 +1,15 @@
 # -*- coding: utf-8 -*-
 import io
-import copy
 from unittest import mock
 
-import pytest
 import numpy as np
 
 from eko import output
 
 
 class FakePDF:
-    def hasFlavor(self, *_args):
-        return True
+    def hasFlavor(self, pid):
+        return pid == 1
 
     def xfxQ2(self, _pid, x, _q2):
         return x
@@ -85,6 +83,23 @@ class TestOutput:
                 o3["interpolation_xgrid"], d["interpolation_xgrid"]
             )
 
+    def test_io_bin(self):
+        d = self.fake_output()
+        # create object
+        o1 = output.Output(d)
+        # test streams
+        stream = io.StringIO()
+        o1.dump_yaml(stream, False)
+        # rewind and read again
+        stream.seek(0)
+        o2 = output.Output.load_yaml(stream)
+        np.testing.assert_almost_equal(
+            o1["interpolation_xgrid"], d["interpolation_xgrid"]
+        )
+        np.testing.assert_almost_equal(
+            o2["interpolation_xgrid"], d["interpolation_xgrid"]
+        )
+
     def test_apply(self):
         d = self.fake_output()
         q2_out = list(d["Q2grid"].keys())[0]
@@ -96,15 +111,9 @@ class TestOutput:
         assert len(pdf_grid) == 1
         pdfs = pdf_grid[q2_out]["pdfs"]
         assert list(pdfs.keys()) == d["pids"]
-        # np.testing.assert_almost_equal(pdfs[1], pdfs[-1])
         # rotate to target_grid
         target_grid = [0.75]
         pdf_grid = o.apply_pdf(pdf, target_grid)
         assert len(pdf_grid) == 1
         pdfs = pdf_grid[q2_out]["pdfs"]
         assert list(pdfs.keys()) == d["pids"]
-        # np.testing.assert_almost_equal(pdfs[1], pdfs[-1])
-        # 0.75 is the the average of .5 and 1. -> mix equally
-        # np.testing.assert_almost_equal(
-        #    pdfs["V"], (VV @ interpolation_xgrid) @ [0.5, 0.5]
-        # )
