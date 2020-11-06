@@ -9,17 +9,9 @@ From Docstrings
 From Source Code
 ----------------
 
-`flavours.py <file:///home/felix/Physik/N3PDF/EKO/eko/src/eko/flavours.py>`_
-
-.. warning:: #66 this is just a hack because I'm not able to generalize this part
-
-.. warning:: #113 can this be made more concise, or is this really the best that can be done?
-
-
-
 `output.py <file:///home/felix/Physik/N3PDF/EKO/eko/src/eko/output.py>`_
 
-.. warning:: #133 explicitly silence yaml
+.. warning:: #132 explicitly silence yaml
 
 
 
