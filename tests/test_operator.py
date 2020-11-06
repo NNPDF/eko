@@ -167,8 +167,8 @@ class TestOperator:
             StrongCoupling.from_dict(theory_card),
             InterpolatorDispatcher.from_dict(operators_card),
         )
-        g._compute_raw_grid([10])
-        o = g._op_grid[10]
+        g._compute_raw_grid([10])  # pylint: disable=protected-access
+        o = g._op_grid[10]  # pylint: disable=protected-access
         # fake quad
         monkeypatch.setattr(
             scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)

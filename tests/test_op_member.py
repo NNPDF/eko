@@ -96,7 +96,7 @@ class TestOpMember:
         a, ma, mae = self._mkOM()
         b = np.pi
         # plain product
-        c,d = a * b, b * a
+        c, d = a * b, b * a
         assert_almost_equal(c.value, ma * b)
         assert_almost_equal(c.error, mae * b)
         assert_almost_equal(d.value, ma * b)

@@ -124,9 +124,7 @@ def quad_ker(
         l = 0 if mode[3] == "q" else 1
         ker = ker[k, l]
     else:
-        # load data
         gamma_ns = gamma_ns_fact(order, mode, n, nf, L)
-        # switch by order and method
         ker = ns.dispatcher(
             order,
             method,

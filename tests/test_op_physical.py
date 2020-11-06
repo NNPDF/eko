@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from numpy.testing import assert_almost_equal
 import pytest
 
 from eko.operator.member import OpMember

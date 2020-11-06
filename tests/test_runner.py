@@ -3,7 +3,6 @@
 import numpy as np
 
 import eko
-from eko import basis_rotation as br
 
 
 def test_runner():

@@ -113,7 +113,6 @@ class ThresholdsConfig:
         # Initial values
         self.q2_ref = q2_ref
         self.scheme = scheme
-        self._threshold_list = []
         self._areas = []
         self._area_walls = []
         self._area_ref = 0

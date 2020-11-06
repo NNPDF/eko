@@ -8,9 +8,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
+from eko.basis_rotation import flavor_basis_pids
+
 from .plots import plot_dist
 from .runner import Runner
-from eko.basis_rotation import flavor_basis_pids
 
 # xgrid
 toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
