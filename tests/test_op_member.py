@@ -92,6 +92,16 @@ class TestOpMember:
         assert_almost_equal(d.error, np.abs(mbe @ ma) + np.abs(mb @ mae))
         assert c != d
 
+    def test_mul(self):
+        a, ma, mae = self._mkOM()
+        b = np.pi
+        # plain product
+        c,d = a * b, b * a
+        assert_almost_equal(c.value, ma * b)
+        assert_almost_equal(c.error, mae * b)
+        assert_almost_equal(d.value, ma * b)
+        assert_almost_equal(d.error, mae * b)
+
         # errors
         # div is useless
         with pytest.raises(TypeError):
@@ -101,3 +111,9 @@ class TestOpMember:
             _ = c * []
         with pytest.raises(NotImplementedError):
             _ = [] * c
+
+    def test_copy(self):
+        a, _, _ = self._mkOM()
+        b = a.copy()
+        assert_almost_equal(a.value, b.value)
+        assert_almost_equal(a.error, b.error)

@@ -27,26 +27,6 @@ class OpMember:
     def copy(self):
         return self.__class__(self.value.copy(), self.error.copy())
 
-    def apply_pdf(self, pdf_member):
-        """
-        The operator member can act on a pdf member.
-
-        Parameters
-        ----------
-            pdf_member : numpy.ndarray
-                pdf vector
-
-        Returns
-        -------
-            result : float
-                higher scale pdf
-            error : float
-                evolution uncertainty to pdf at higher scale
-        """
-        result = np.dot(self.value, pdf_member)
-        error = np.dot(self.error, pdf_member)
-        return result, error
-
     def __matmul__(self, operator_member):
         rval = operator_member.value
         rerror = operator_member.error
@@ -55,13 +35,12 @@ class OpMember:
         new_val = np.matmul(lval, rval)
         # TODO check error propagation
         new_err = np.abs(np.matmul(lval, rerror)) + np.abs(np.matmul(ler, rval))
-        return OpMember(new_val, new_err)
+        return self.__class__(new_val, new_err)
 
     def __mul__(self, other):
         if not isinstance(other, Number):
             raise NotImplementedError(f"Can't multiply OpMember and {type(other)}")
-        n = self.value.shape[0]
-        return self.__matmul__(self.__class__(other * np.eye(n), np.zeros((n, n))))
+        return self.__class__(other * self.value, other * self.error)
 
     def __add__(self, operator_member):
         if isinstance(operator_member, Number):
@@ -72,17 +51,17 @@ class OpMember:
                 )
             rval = operator_member
             rerror = 0.0
-        elif isinstance(operator_member, OpMember):
+        elif isinstance(operator_member, self.__class__):
             rval = operator_member.value
             rerror = operator_member.error
         else:
             raise NotImplementedError(f"Can't sum OpMember and {type(operator_member)}")
         new_val = self.value + rval
         new_err = self.error + rerror
-        return OpMember(new_val, new_err)
+        return self.__class__(new_val, new_err)
 
     def __neg__(self):
-        return OpMember(-self.value.copy(), self.error.copy())
+        return self.__class__(-self.value.copy(), self.error.copy())
 
     def __eq__(self, operator_member):
         return np.allclose(self.value, operator_member.value)
