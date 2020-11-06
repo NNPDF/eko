@@ -148,7 +148,7 @@ class PhysicalOperator:
         Returns
         -------
             p : PhysicalOperator
-                self * other
+                self @ other
         """
         if not isinstance(other, PhysicalOperator):
             raise ValueError("Can only multiply with another PhysicalOperator")

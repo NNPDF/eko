@@ -77,26 +77,6 @@ class Output(dict):
 
         return out_grid
 
-    @staticmethod
-    def rotate_pdfs_to_flavor_basis(in_grid):
-        """
-        Rotate all PDFs from evolution basis to flavor basis
-
-        Parameters
-        ----------
-            in_grid : dict
-                a map q2 to pdfs and their errors in evolution basis
-
-        Returns
-        -------
-            out_grid : dict
-                updated map
-        """
-        out_grid = {}
-        for q2, res in in_grid.items():
-            out_grid[q2] = {k: br.rotate_output(v) for k, v in res.items()}
-        return out_grid
-
     def get_raw(self, binarize=True):
         """
         Serialize result as dict/YAML.
@@ -122,7 +102,7 @@ class Output(dict):
         out["pids"] = list(self["pids"])
         # make raw lists
         for k in ["interpolation_xgrid"]:
-            out[k] = self[k]
+            out[k] = self[k].tolist()
         # make operators raw
         for q2, op in self["Q2grid"].items():
             out["Q2grid"][q2] = dict()
