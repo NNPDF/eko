@@ -98,11 +98,11 @@ def pids_from_intrinsic_evol(label, nlf, normalize):
             if nlf < abs(pid) <= 6:
                 weights[j] = 0
     else:
-        weights = br.rotate_pm_to_flavor(label)
+        weights = rotate_pm_to_flavor(label)
     # normalize?
     if normalize:
-        norm = weights@weights
-        weights = weights/norm
+        norm = weights @ weights
+        weights = weights / norm
     return weights
 
 
@@ -134,3 +134,35 @@ def get_range(evol_labels):
         nf_out = max(update(op.target), nf_out)
 
     return nf_in, nf_out
+
+
+def rotate_pm_to_flavor(label):
+    """
+    Rotate from +- basis to flavor basis.
+
+    Parameters
+    ----------
+        label : str
+            label
+
+    Returns
+    -------
+        l : list(float)
+            list of weights
+    """
+    # g and ph are unaltered
+    if label in ["g", "ph"]:
+        return br.rotate_flavor_to_evolution[br.evol_basis.index(label)].copy()
+    # no it has to be a quark with + or - appended
+    if label[0] not in "duscbt" or label[1] not in ["+", "-"]:
+        raise ValueError(f"Invalid pm label: {label}")
+    l = np.zeros(len(br.flavor_basis_pids))
+    idx = br.flavor_basis_names.index(label[0])
+    pid = br.flavor_basis_pids[idx]
+    l[idx] = 1
+    # + is +, - is -
+    if label[1] == "+":
+        l[br.flavor_basis_pids.index(-pid)] = 1
+    else:
+        l[br.flavor_basis_pids.index(-pid)] = -1
+    return l

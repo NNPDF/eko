@@ -20,7 +20,7 @@ toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.
 raw_label_list = ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"]
 # rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
 
-evol_label_list = ["V", "V3", "T3", "T8", "T15","T24","S", "g"]
+evol_label_list = ["V", "V3", "T3", "T8", "T15", "T24", "S", "g"]
 
 # my/exact initial grid
 # LHA_init_grid = []
@@ -93,7 +93,7 @@ class LHABenchmarkPaper(Runner):
     def __init__(self, theory_path, operators_path, assets_dir, data_dir):
         super().__init__(theory_path, operators_path, assets_dir)
 
-        self.rotate_to_evolution_basis = False#True
+        self.rotate_to_evolution_basis = False  # True
 
         if not np.isclose(self.theory["XIF"], 1.0):
             raise ValueError("XIF has to be 1")
@@ -118,22 +118,38 @@ class LHABenchmarkPaper(Runner):
         fact_to_ren = (self.theory["XIF"] / self.theory["XIR"]) ** 2
         if fns == "FFNS":
             if order == 0:
-                return rotate_data(self.data["table2"]["part2"], self.rotate_to_evolution_basis)
+                return rotate_data(
+                    self.data["table2"]["part2"], self.rotate_to_evolution_basis
+                )
             if order == 1:
                 if fact_to_ren > np.sqrt(2):
-                    return rotate_data(self.data["table3"]["part3"], self.rotate_to_evolution_basis)
+                    return rotate_data(
+                        self.data["table3"]["part3"], self.rotate_to_evolution_basis
+                    )
                 if fact_to_ren < np.sqrt(1.0 / 2.0):
-                    return rotate_data(self.data["table3"]["part2"], self.rotate_to_evolution_basis)
-                return rotate_data(self.data["table3"]["part1"], self.rotate_to_evolution_basis)
+                    return rotate_data(
+                        self.data["table3"]["part2"], self.rotate_to_evolution_basis
+                    )
+                return rotate_data(
+                    self.data["table3"]["part1"], self.rotate_to_evolution_basis
+                )
         if fns == "ZM-VFNS":
             if order == 0:
-                return rotate_data(self.data["table2"]["part3"], self.rotate_to_evolution_basis)
+                return rotate_data(
+                    self.data["table2"]["part3"], self.rotate_to_evolution_basis
+                )
             if order == 1:
                 if fact_to_ren > np.sqrt(2):
-                    return rotate_data(self.data["table4"]["part3"], self.rotate_to_evolution_basis)
+                    return rotate_data(
+                        self.data["table4"]["part3"], self.rotate_to_evolution_basis
+                    )
                 if fact_to_ren < np.sqrt(1.0 / 2.0):
-                    return rotate_data(self.data["table4"]["part2"], self.rotate_to_evolution_basis)
-                return rotate_data(self.data["table4"]["part1"], self.rotate_to_evolution_basis)
+                    return rotate_data(
+                        self.data["table4"]["part2"], self.rotate_to_evolution_basis
+                    )
+                return rotate_data(
+                    self.data["table4"]["part1"], self.rotate_to_evolution_basis
+                )
         raise ValueError(f"unknown FNS {fns} or order {order}")
 
     def ref(self):

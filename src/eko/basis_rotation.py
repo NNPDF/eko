@@ -71,35 +71,3 @@ rotate_flavor_to_evolution = np.array(
         [0, -5, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, -5],
     ]
 )
-
-
-def rotate_pm_to_flavor(label):
-    """
-    Rotate from +- basis to flavor basis.
-
-    Parameters
-    ----------
-        label : str
-            label
-
-    Returns
-    -------
-        l : list(float)
-            list of weights
-    """
-    # g and ph are unaltered
-    if label in ["g", "ph"]:
-        return rotate_flavor_to_evolution[evol_basis.index(label)].copy()
-    # no it has to be a quark with + or - appended
-    if label[0] not in "duscbt" or label[1] not in ["+", "-"]:
-        raise ValueError(f"Invalid pm label: {label}")
-    l = np.zeros(len(flavor_basis_pids))
-    idx = flavor_basis_names.index(label[0])
-    pid = flavor_basis_pids[idx]
-    l[idx] = 1
-    # + is +, - is -
-    if label[1] == "+":
-        l[flavor_basis_pids.index(-pid)] = 1
-    else:
-        l[flavor_basis_pids.index(-pid)] = -1
-    return l

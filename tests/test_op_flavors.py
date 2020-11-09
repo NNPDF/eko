@@ -70,3 +70,17 @@ def test_get_range():
     assert (4, 4) == flavors.get_range(
         [flavors.MemberName(n) for n in ["S.S", "V3.V3", "T15.T15"]]
     )
+
+
+def test_rotate_pm_to_flavor():
+    # g is still there
+    assert all(([0] * (1 + 6) + [1] + [0] * 6) == flavors.rotate_pm_to_flavor("g"))
+    # now t+ and t- are easiest
+    assert all(
+        ([0] + [1] + [0] * (2 * 5 + 1) + [1]) == flavors.rotate_pm_to_flavor("t+")
+    )
+    assert all(
+        ([0] + [-1] + [0] * (2 * 5 + 1) + [1]) == flavors.rotate_pm_to_flavor("t-")
+    )
+    with pytest.raises(ValueError):
+        flavors.rotate_pm_to_flavor("cbar")
