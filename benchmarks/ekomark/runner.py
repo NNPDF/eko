@@ -43,6 +43,7 @@ class Runner(abc.ABC):
     def __init__(self, theory_path, operators_path, assets_dir):
         self.output_path = ""
 
+        # read both cards
         cards = []
         for path in [theory_path, operators_path]:
             if not isinstance(path, pathlib.Path):
@@ -52,7 +53,6 @@ class Runner(abc.ABC):
 
             with open(path, "r") as infile:
                 cards.append(yaml.safe_load(infile))
-
         self.theory = cards[0]
         self.operators = cards[1]
 
@@ -103,9 +103,9 @@ class Runner(abc.ABC):
             ret : dict
                 DGLAP result
         """
-        ret = eko.run_dglap(self.theory, self.operators)
-        #with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
-        #    ret = eko.output.Output.load_yaml(o)
+        #ret = eko.run_dglap(self.theory, self.operators)
+        with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
+            ret = eko.output.Output.load_yaml(o)
         self._post_process(ret)
         return ret
 

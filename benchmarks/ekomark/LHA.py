@@ -41,21 +41,23 @@ LHA_rotate_to_evolution = np.array([
     [   1,   1,   0,   1,   1,   1,   1,   0], # S
     [   0,   0,   0,   0,   0,   0,   0,   1], # g
 ])
+# L+ = 2(ub + db) = u+ - u- + d+ - d-
+# L- = ub - db = ((u+-u-) - (d+ - d-))/2
 LHA_rotate_to_flavor = np.array([
     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
     [   0,   0,   0,   0,   0,   0,   0,   0], # ph
     [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
-    [   0,   0,   0,   0,   0,   0,   1,   0], # bbar
-    [   0,   0,   0,   0,   0,   1,   0,   0], # cbar
-    [   0,   0,   0,   0,   1,   0,   0,   0], # sbar
-    [  -1,   0,  -1,   2,   0,   0,   0,   0], # ubar
-    [   0,  -1,   1,   2,   0,   0,   0,   0], # dbar
+    [   0,   0,   0,   0,   0,   0, 1/2,   0], # bbar
+    [   0,   0,   0,   0,   0, 1/2,   0,   0], # cbar
+    [   0,   0,   0,   0, 1/2,   0,   0,   0], # sbar
+    [   0,   0, 1/2, 1/4,   0,   0,   0,   0], # ubar
+    [   0,   0,-1/2, 1/4,   0,   0,   0,   0], # dbar
     [   0,   0,   0,   0,   0,   0,   0,   1], # g
-    [   0,   1,   0,   0,   0,   0,   0,   0], # d
-    [   1,   0,   0,   0,   0,   0,   0,   0], # u
-    [   0,   0,   0,   0,   1,   0,   0,   0], # s
-    [   0,   0,   0,   0,   0,   1,   0,   0], # c
-    [   0,   0,   0,   0,   0,   0,   1,   0], # b
+    [   0,   1,-1/2, 1/4,   0,   0,   0,   0], # d
+    [   1,   0, 1/2, 1/4,   0,   0,   0,   0], # u
+    [   0,   0,   0,   0, 1/2,   0,   0,   0], # s
+    [   0,   0,   0,   0,   0, 1/2,   0,   0], # c
+    [   0,   0,   0,   0,   0,   0, 1/2,   0], # b
     [   0,   0,   0,   0,   0,   0,   0,   0], # t
 ])
 # fmt: on
@@ -91,7 +93,7 @@ class LHABenchmarkPaper(Runner):
     def __init__(self, theory_path, operators_path, assets_dir, data_dir):
         super().__init__(theory_path, operators_path, assets_dir)
 
-        self.rotate_to_evolution_basis = True
+        self.rotate_to_evolution_basis = False#True
 
         if not np.isclose(self.theory["XIF"], 1.0):
             raise ValueError("XIF has to be 1")

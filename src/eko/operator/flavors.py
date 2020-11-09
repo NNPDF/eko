@@ -85,7 +85,7 @@ def pids_from_intrinsic_evol(label, nlf, normalize):
 
     Returns
     -------
-        m : dict
+        m : list
     """
     try:
         evol_idx = br.evol_basis.index(label)
@@ -101,7 +101,8 @@ def pids_from_intrinsic_evol(label, nlf, normalize):
         weights = br.rotate_pm_to_flavor(label)
     # normalize?
     if normalize:
-        weights /= weights@weights
+        norm = weights@weights
+        weights = weights/norm
     return weights
 
 
