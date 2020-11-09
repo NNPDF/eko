@@ -103,9 +103,9 @@ class Runner(abc.ABC):
             ret : dict
                 DGLAP result
         """
-        # ret = eko.run_dglap(self.theory, self.operators)
-        with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
-            ret = eko.output.Output.load_yaml(o)
+        ret = eko.run_dglap(self.theory, self.operators)
+        #with open(self.assets_dir / (self.output_path + "-ops.yaml")) as o:
+        #    ret = eko.output.Output.load_yaml(o)
         self._post_process(ret)
         return ret
 

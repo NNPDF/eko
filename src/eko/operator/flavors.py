@@ -60,9 +60,19 @@ class MemberName:
         return self._split_name()[1]
 
 
-def pids_from_intrinsic_evol(label, nlf):
-    """
+def pids_from_intrinsic_evol(label, nlf, normalize):
+    r"""
     Obtain the list of pids with their corresponding weight, that are contributing to ``evol``
+
+    The normalization of the weights is only needed for the output rotation:
+
+    - if we want to build e.g. the singlet in the initial state we simply have to sum
+      to obtain :math:`S = u + \bar u + d + \bar d + \ldots`
+    - if we want to rotate back in the output we have to *normalize* the weights:
+      e.g. in nf=3 :math:`u = \frac 1 6 S + \frac 1 6 V + \ldots`
+
+    The normalization can only happen here since we're actively cutting out some
+    flavor (according to ``nlf``).
 
     Parameters
     ----------
@@ -70,6 +80,8 @@ def pids_from_intrinsic_evol(label, nlf):
             evolution label
         nlf : int
             maximum number of light flavors
+        normalize : bool
+            normalize output
 
     Returns
     -------
@@ -87,6 +99,9 @@ def pids_from_intrinsic_evol(label, nlf):
                 weights[j] = 0
     else:
         weights = br.rotate_pm_to_flavor(label)
+    # normalize?
+    if normalize:
+        weights /= weights@weights
     return weights
 
 

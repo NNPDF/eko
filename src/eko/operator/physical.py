@@ -120,6 +120,8 @@ class PhysicalOperator:
         for name, op in self.op_members.items():
             in_pids = flavors.pids_from_intrinsic_evol(name.input, nf_in)
             out_pids = flavors.pids_from_intrinsic_evol(name.target, nf_out)
+            # normalize rotation form evolution basis to flavor space in the output
+            norm = (out_pids @ out_pids)
             for out_idx, out_weight in enumerate(out_pids):
                 for in_idx, in_weight in enumerate(in_pids):
                     # keep the outer index to the left as we're mulitplying from the right
@@ -128,13 +130,13 @@ class PhysicalOperator:
                         :,  # output momentum fraction
                         in_idx,  # input pid (position)
                         :,  # input momentum fraction
-                    ] += out_weight * (op.value * in_weight)
+                    ] += out_weight * (op.value * in_weight) / norm
                     error_tensor[
                         out_idx,  # output pid (position)
                         :,  # output momentum fraction
                         in_idx,  # input pid (position)
                         :,  # input momentum fraction
-                    ] += out_weight * (op.error * in_weight)
+                    ] += out_weight * (op.error * in_weight) / norm
         return value_tensor, error_tensor
 
     def __matmul__(self, other):

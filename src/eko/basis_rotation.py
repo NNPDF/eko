@@ -72,9 +72,6 @@ rotate_flavor_to_evolution = np.array(
     ]
 )
 
-# inverse transformation
-rotate_evolution_to_flavor = np.linalg.inv(rotate_flavor_to_evolution)
-
 
 def rotate_pm_to_flavor(label):
     """
