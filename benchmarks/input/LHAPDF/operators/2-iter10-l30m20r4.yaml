@@ -1,6 +1,6 @@
 ev_op_max_order: 10
 ev_op_iterations: 10
-Q2grid: [1.e+4]
+Q2grid: [2.0001]
 # interpolation
 interpolation_is_log: True
 interpolation_polynomial_degree: 4

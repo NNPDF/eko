@@ -65,8 +65,8 @@ class ApfelBenchmark(Runner):
             apf = []
             for x in self.target_xgrid:
                 xf = apfel.xPDF(pid if pid != 21 else 0, x)
-                if pid == 4:
-                    print(pid,x,xf)
+                # if pid == 4:
+                #     print(pid,x,xf)
                 apf.append(xf)
             apf_tabs[pid] = np.array(apf)
         return apf_tabs

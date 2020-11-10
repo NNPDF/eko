@@ -126,6 +126,10 @@ class OperatorGrid:
         config["debug_skip_singlet"] = operators_card["debug_skip_singlet"]
         config["debug_skip_non_singlet"] = operators_card["debug_skip_non_singlet"]
         q2_grid = np.array(operators_card["Q2grid"], np.float_)
+        intrinsic_range = []
+        if int(theory_card["IC"]) == 1:
+            intrinsic_range.append(4)
+        config["intrinsic_range"] = intrinsic_range
         return cls(
             config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher
         )
@@ -300,11 +304,11 @@ class OperatorGrid:
         operators_to_q2 = self._get_jumps(operator.q2_from)
         is_vfns = self.managers["thresholds_config"].scheme != "FFNS"
         final_op = physical.PhysicalOperator.ad_to_evol_map(
-            operator.op_members, operator.nf, operator.q2_to, is_vfns
+            operator.op_members, operator.nf, operator.q2_to, is_vfns, self.config["intrinsic_range"]
         )
         for op in reversed(operators_to_q2):
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
-                op.op_members, op.nf, op.q2_to, is_vfns
+                op.op_members, op.nf, op.q2_to, is_vfns, self.config["intrinsic_range"]
             )
             final_op = final_op @ phys_op
         values, errors = final_op.to_flavor_basis_tensor()

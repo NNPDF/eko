@@ -3,6 +3,7 @@ import numpy as np
 
 from .. import basis_rotation as br
 from . import flavors
+from . import member
 
 
 class PhysicalOperator:
@@ -77,7 +78,8 @@ class PhysicalOperator:
             for f in intrinsic_range:
                 hq = hqfl[f - 4]  # find name
                 # intrinsic means no evolution, i.e. they are evolving with the identity
-                op_id = np.eye(op_members["NS_v"].shape[0])
+                len_xgrid = op_members["NS_v"].value.shape[0]
+                op_id = member.OpMember(np.eye(len_xgrid), np.zeros((len_xgrid,len_xgrid)))
                 if f > nf + 1:  # keep the higher quarks as they are
                     m[f"{hq}+.{hq}+"] = op_id
                     m[f"{hq}-.{hq}-"] = op_id
