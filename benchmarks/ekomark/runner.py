@@ -192,7 +192,9 @@ class Runner(abc.ABC):
                 DGLAP result
         """
         ref = self.ref()
-        path = self.assets_dir / (self.output_path + f"-{ref['src_pdf']}" + "-plots.pdf")
+        path = self.assets_dir / (
+            self.output_path + f"-{ref['src_pdf']}" + "-plots.pdf"
+        )
         print(f"write pdf plots to {path}")
         xgrid = ref["target_xgrid"]
         first_q2 = list(ref["values"].keys())[0]

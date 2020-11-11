@@ -32,7 +32,7 @@ class LHAPDFBenchmark(Runner):
             *self.operators["interpolation_xgrid"][1:]
         )
         self.src_pdf = pdf
-        self.skip_pdfs = [22,-6,-5,5,6]
+        self.skip_pdfs = [22, -6, -5, 5, 6]
         self.rotate_to_evolution_basis = True
 
     def ref(self):
@@ -62,7 +62,14 @@ class LHAPDFBenchmark(Runner):
             apf_tabs[pid] = np.array(apf)
         # rotate if needed
         if self.rotate_to_evolution_basis:
-            pdfs = np.array([apf_tabs[pid] if pid in apf_tabs else np.zeros(len(self.target_xgrid)) for pid in br.flavor_basis_pids])
+            pdfs = np.array(
+                [
+                    apf_tabs[pid]
+                    if pid in apf_tabs
+                    else np.zeros(len(self.target_xgrid))
+                    for pid in br.flavor_basis_pids
+                ]
+            )
             evol_pdf = br.rotate_flavor_to_evolution @ pdfs
             apf_tabs = dict(zip(br.evol_basis, evol_pdf))
         return apf_tabs

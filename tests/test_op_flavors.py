@@ -30,6 +30,7 @@ def test_pids_from_intrinsic_evol():
         for pid, w in d.items():
             raw[br.flavor_basis_pids.index(pid)] = w
         return raw
+
     # g
     g = get({21: 1})
     assert pytest.approx(g) == flavors.pids_from_intrinsic_evol("g", 3, False)

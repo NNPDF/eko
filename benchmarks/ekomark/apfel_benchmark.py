@@ -35,14 +35,15 @@ class ApfelBenchmark(Runner):
             *self.operators["interpolation_xgrid"][1:]
         )
         self.src_pdf = "CT14llo_NF4"
-        self.skip_pdfs = [22,-6,6]
+        self.skip_pdfs = [22, -6, 6, "ph", "T35", "V35"]
+        self.rotate_to_evolution_basis = True
 
     def ref(self):
         return {
             "target_xgrid": self.target_xgrid,
             "values": {self.operators["Q2grid"][0]: self.ref_values()},
             "src_pdf": self.src_pdf,
-            "rotate_to_evolution_basis": False,
+            "rotate_to_evolution_basis": self.rotate_to_evolution_basis,
             "skip_pdfs": self.skip_pdfs,
         }
 
@@ -69,6 +70,18 @@ class ApfelBenchmark(Runner):
                 #     print(pid,x,xf)
                 apf.append(xf)
             apf_tabs[pid] = np.array(apf)
+        # rotate if needed
+        if self.rotate_to_evolution_basis:
+            pdfs = np.array(
+                [
+                    apf_tabs[pid]
+                    if pid in apf_tabs
+                    else np.zeros(len(self.target_xgrid))
+                    for pid in br.flavor_basis_pids
+                ]
+            )
+            evol_pdf = br.rotate_flavor_to_evolution @ pdfs
+            apf_tabs = dict(zip(br.evol_basis, evol_pdf))
         return apf_tabs
 
     def print(self, apf_tabs):

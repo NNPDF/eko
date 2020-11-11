@@ -304,7 +304,11 @@ class OperatorGrid:
         operators_to_q2 = self._get_jumps(operator.q2_from)
         is_vfns = self.managers["thresholds_config"].scheme != "FFNS"
         final_op = physical.PhysicalOperator.ad_to_evol_map(
-            operator.op_members, operator.nf, operator.q2_to, is_vfns, self.config["intrinsic_range"]
+            operator.op_members,
+            operator.nf,
+            operator.q2_to,
+            is_vfns,
+            self.config["intrinsic_range"],
         )
         for op in reversed(operators_to_q2):
             phys_op = physical.PhysicalOperator.ad_to_evol_map(

@@ -79,7 +79,9 @@ class PhysicalOperator:
                 hq = hqfl[f - 4]  # find name
                 # intrinsic means no evolution, i.e. they are evolving with the identity
                 len_xgrid = op_members["NS_v"].value.shape[0]
-                op_id = member.OpMember(np.eye(len_xgrid), np.zeros((len_xgrid,len_xgrid)))
+                op_id = member.OpMember(
+                    np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid))
+                )
                 if f > nf + 1:  # keep the higher quarks as they are
                     m[f"{hq}+.{hq}+"] = op_id
                     m[f"{hq}-.{hq}-"] = op_id
