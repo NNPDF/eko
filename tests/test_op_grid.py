@@ -26,6 +26,7 @@ class TestOperatorGrid:
             "Q0": np.sqrt(2),
             "FNS": "FFNS",
             "NfFF": 3,
+            "IC": 1,
         }
         operators_card = {
             "Q2grid": [1, 10],

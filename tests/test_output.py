@@ -125,3 +125,26 @@ class TestOutput:
         assert len(pdf_grid) == 1
         pdfs = pdf_grid[q2_out]["pdfs"]
         assert list(pdfs.keys()) == d["pids"]
+
+    def test_apply_flavor(self, monkeypatch):
+        d = self.fake_output()
+        q2_out = list(d["Q2grid"].keys())[0]
+        # create object
+        o = output.Output(d)
+        # fake pdfs
+        pdf = FakePDF()
+        monkeypatch.setattr(
+            "eko.basis_rotation.rotate_flavor_to_evolution", np.ones((2, 2))
+        )
+        monkeypatch.setattr("eko.basis_rotation.flavor_basis_pids", d["pids"])
+        fake_evol_basis = ("a", "b")
+        monkeypatch.setattr("eko.basis_rotation.evol_basis", fake_evol_basis)
+        pdf_grid = o.apply_pdf(pdf, rotate_to_evolution_basis=True)
+        assert len(pdf_grid) == len(d["Q2grid"])
+        pdfs = pdf_grid[q2_out]["pdfs"]
+        assert list(pdfs.keys()) == list(fake_evol_basis)
+        ref_a = (
+            d["Q2grid"][q2_out]["operators"][0, :, 1, :]
+            + d["Q2grid"][q2_out]["operators"][1, :, 1, :]
+        ) @ np.ones(len(d["interpolation_xgrid"]))
+        np.testing.assert_allclose(pdfs["a"], ref_a)

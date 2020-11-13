@@ -71,7 +71,7 @@ class TestPhysicalOperator:
         vt, _ = a.to_flavor_basis_tensor()
         np.testing.assert_allclose(vt[6, :, 6, :], vt[6, :, 5, :])
         np.testing.assert_allclose(vt[6, :, 6, :], vt[5, :, 6, :])
-        np.testing.assert_allclose(vt[6, :, 6, :], SS.value[:, :])
+        np.testing.assert_allclose(vt[6, :, 6, :], SS.value[:, :] / (2 * 3))
         np.testing.assert_allclose(vt[1, :, :, :], 0)
         np.testing.assert_allclose(vt[:, :, 1, :], 0)
         np.testing.assert_allclose(vt[7, :, :, :], 0)
@@ -98,10 +98,11 @@ class TestPhysicalOperator:
 
 
 def mk_op_members(shape=(2, 2)):
-    m = np.random.rand(7, *shape)
+    m = np.random.rand(len(flavors.full_labels), *shape)
+    e = np.random.rand(len(flavors.full_labels), *shape)
     om = {}
     for j, l in enumerate(flavors.full_labels):
-        om[l] = m[j]
+        om[l] = OpMember(m[j], e[j])
     return om
 
 

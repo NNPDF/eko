@@ -149,6 +149,7 @@ class TestOperator:
             "Q0": np.sqrt(2),
             "FNS": "FFNS",
             "NfFF": 3,
+            "IC": 0,
         }
         operators_card = {
             "Q2grid": [1, 10],

@@ -33,11 +33,13 @@ def test_pids_from_intrinsic_evol():
 
     # g
     g = get({21: 1})
-    assert pytest.approx(g) == flavors.pids_from_intrinsic_evol("g", 3, False)
-    assert pytest.approx(g) == flavors.pids_from_intrinsic_evol("g", 4, False)
+    for norm in [True, False]:
+        assert pytest.approx(g) == flavors.pids_from_intrinsic_evol("g", 3, norm)
+        assert pytest.approx(g) == flavors.pids_from_intrinsic_evol("g", 4, norm)
     # S(nf=3) = u+ + d+ + s+
     S3 = get({1: 1, -1: 1, 2: 1, -2: 1, 3: 1, -3: 1})
     assert pytest.approx(S3) == flavors.pids_from_intrinsic_evol("S", 3, False)
+    assert pytest.approx(S3 / (2 * 3)) == flavors.pids_from_intrinsic_evol("S", 3, True)
     # S(nf=4) = u+ + d+ + s+
     S4 = get({1: 1, -1: 1, 2: 1, -2: 1, 3: 1, -3: 1, 4: 1, -4: 1})
     assert pytest.approx(S4) == flavors.pids_from_intrinsic_evol("S", 4, False)

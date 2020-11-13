@@ -17,6 +17,7 @@ def test_runner():
         "FNS": "FFNS",
         "NfFF": 3,
         "ModEv": "EXA",
+        "IC": 0,
     }
     operators_card = {
         "Q2grid": [10, 100],
