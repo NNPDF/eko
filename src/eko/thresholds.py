@@ -167,11 +167,12 @@ class ThresholdsConfig:
             heavy_flavors = "cbt"
             flavor = heavy_flavors[pid - 4]
             return pow(theory_card[f"m{flavor}"] * theory_card[f"k{flavor}Thr"], 2)
-
         if FNS in ["FONLL-A"]:
             nf = theory_card["NfFF"]
+            if nf <= 3:
+                raise ValueError("NfFF should point to the heavy quark! i.e. NfFF>3")
             threshold_list = [thres(nf)]
-            return cls(q2_ref, FNS, threshold_list=threshold_list, nf=nf)
+            return cls(q2_ref, FNS, threshold_list=threshold_list, nf=nf-1)
         # setup VFNS
         threshold_list = [thres(q) for q in range(4, 6 + 1)]
         return cls(q2_ref, FNS, threshold_list=threshold_list)
