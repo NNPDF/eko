@@ -27,11 +27,21 @@ class TestThresholdsConfig:
     def test_from_dict(self):
         # here it is ok to have *all* keys set
         tc_vfns = ThresholdsConfig.from_dict(
-            {"FNS": "ZM-VFNS", "NfFF": 3, "Q0": np.sqrt(2), "mc": 2, "mb": 4, "mt": 175}
+            {
+                "FNS": "ZM-VFNS",
+                "NfFF": 3,
+                "Q0": np.sqrt(2),
+                "mc": 2,
+                "mb": 4,
+                "mt": 175,
+                "kcThr": 1,
+                "kbThr": 1,
+                "ktThr": 1,
+            }
         )
         assert tc_vfns.scheme == "ZM-VFNS"
         tc_ffns = ThresholdsConfig.from_dict(
-            {"FNS": "FFNS", "NfFF": 3, "Q0": np.sqrt(2), "mc": 2, "mb": 4, "mt": 175}
+            {"FNS": "FFNS", "NfFF": 3, "Q0": np.sqrt(2)}
         )
         assert tc_ffns.scheme == "FFNS"
 

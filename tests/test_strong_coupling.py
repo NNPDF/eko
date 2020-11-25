@@ -59,7 +59,15 @@ class TestStrongCoupling:
         thresh_setups = [
             {"FNS": "FFNS", "NfFF": 3},
             {"FNS": "FFNS", "NfFF": 4},
-            {"FNS": "ZM-VFNS", "mc": 2, "mb": 4, "mt": 175},
+            {
+                "FNS": "ZM-VFNS",
+                "mc": 2,
+                "mb": 4,
+                "mt": 175,
+                "kcThr": 1,
+                "kbThr": 1,
+                "ktThr": 1,
+            },
         ]
         alphas_ref = 0.118
         scale_ref = 91.0 ** 2
@@ -81,7 +89,15 @@ class TestStrongCoupling:
         thresh_setups = [
             {"FNS": "FFNS", "NfFF": 3},
             {"FNS": "FFNS", "NfFF": 4},
-            {"FNS": "ZM-VFNS", "mc": 2, "mb": 4, "mt": 175},
+            {
+                "FNS": "ZM-VFNS",
+                "mc": 2,
+                "mb": 4,
+                "mt": 175,
+                "kcThr": 1,
+                "kbThr": 1,
+                "ktThr": 1,
+            },
         ]
         alphas_ref = 0.118
         scale_ref = 91.0 ** 2

@@ -127,9 +127,9 @@ class ThresholdsConfig:
             self._areas = [Area(0, np.inf, self.q2_ref, nf)]
             self.max_nf = nf
             self.min_nf = nf
-            logger.info("Thresholds: Fixed flavor number scheme with %d flavors", nf)
-        elif scheme in ["ZM-VFNS", "ZM-VFNS'", "FONLL-A", "FONLL-A'"]:
-            if nf is not None:
+            logger.info("Fixed flavor number scheme with %d flavors", nf)
+        elif scheme in ["ZM-VFNS", "FONLL-A", "FONLL-A'"]:
+            if scheme not in ["FONLL-A"] and nf is not None:
                 logger.warning(
                     "The VFNS configures its own value for nf, ignoring input nf=%d",
                     nf,
@@ -138,8 +138,8 @@ class ThresholdsConfig:
                 raise ValueError(
                     "The VFN scheme was selected but no thresholds were given"
                 )
-            self._setup_vfns(threshold_list)
-            logger.info("Thresholds: Variable flavor number scheme (%s)", scheme)
+            self._setup_vfns(threshold_list, nf)
+            logger.info("Variable flavor number scheme (%s)", scheme)
         else:
             raise NotImplementedError(f"The scheme {scheme} is not implemented")
 
@@ -160,16 +160,21 @@ class ThresholdsConfig:
         """
         FNS = theory_card["FNS"]
         q2_ref = pow(theory_card["Q0"], 2)
-        if FNS != "FFNS":  # setup ZM-VFNS
-            mc = theory_card["mc"]
-            mb = theory_card["mb"]
-            mt = theory_card["mt"]
-            threshold_list = pow(np.array([mc, mb, mt]), 2)
-            nf = None
-        else:  # here FFNS
+        if FNS == "FFNS":
+            return cls(q2_ref, FNS, threshold_list=None, nf=theory_card["NfFF"])
+        # the threshold value does not necessarily coincide with the mass
+        def thres(pid):
+            heavy_flavors = "cbt"
+            flavor = heavy_flavors[pid - 4]
+            return pow(theory_card[f"m{flavor}"] * theory_card[f"k{flavor}Thr"], 2)
+
+        if FNS in ["FONLL-A"]:
             nf = theory_card["NfFF"]
-            threshold_list = None
-        return cls(q2_ref, FNS, threshold_list=threshold_list, nf=nf)
+            threshold_list = [thres(nf)]
+            return cls(q2_ref, FNS, threshold_list=threshold_list, nf=nf)
+        # setup VFNS
+        threshold_list = [thres(q) for q in range(4, 6 + 1)]
+        return cls(q2_ref, FNS, threshold_list=threshold_list)
 
     @property
     def nf_ref(self):
@@ -187,7 +192,7 @@ class ThresholdsConfig:
         """
         return range(self.min_nf, self.max_nf + 1)
 
-    def _setup_vfns(self, threshold_list):
+    def _setup_vfns(self, threshold_list, nf=None):
         """
         Receives a list of thresholds and sets up the vfns scheme
 
@@ -196,7 +201,8 @@ class ThresholdsConfig:
             threshold_list: list
                 List of q^2 thresholds
         """
-        nf = 3
+        if nf is None:
+            nf = 3
         # Force sorting
         self._area_walls = sorted(threshold_list)
         # Generate areas

@@ -46,6 +46,9 @@ class TestOperatorGrid:
             theory_card["mc"] = 2
             theory_card["mb"] = 4
             theory_card["mt"] = 100
+            theory_card["kcThr"] = 1
+            theory_card["kbThr"] = 1
+            theory_card["ktThr"] = 1
         return theory_card, operators_card
 
     def _get_operator_grid(self, use_FFNS=True):
