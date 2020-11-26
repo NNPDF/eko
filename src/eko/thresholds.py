@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class Area:
     """
-    Sets up a single threhold area with a fixed configuration.
+    Sets up a single threshold area with a fixed configuration.
 
     Parameters
     ----------
@@ -24,73 +24,32 @@ class Area:
             lower bound of the area
         q2_max : float
             upper bound of the area
-        q2_0 : float
-            reference point of the area (can be anywhere in the area)
         nf : float
             number of flavours in the area
     """
 
-    def __init__(self, q2_min, q2_max, q2_0, nf):
+    def __init__(self, q2_min, q2_max, nf):
         self.q2_min = q2_min
         self.q2_max = q2_max
         self.nf = nf
-        self.has_q2_0 = False
-        # Now check which is the q2_ref for this area
-        if q2_0 > q2_max:
-            self.q2_ref = q2_max
-        elif q2_0 < q2_min:
-            self.q2_ref = q2_min
-        else:
-            self.has_q2_0 = True
-            self.q2_ref = q2_0
 
-    def q2_towards(self, q2):
-        """
-        Return q2_min or q2_max depending on whether
-        we are going towards the max or the min or q2
-        if we are alreay in the correct area
+class PathSegment:
+    """
+    Oriented path in the threshold area landscape.
 
-        Parameters
-        ----------
-            q2 : float
-                reference point
-
-        Returns
-        -------
-            q2_next : float
-                the closest point to q2 that is within the area
-        """
-        if q2 > self.q2_max:
-            return self.q2_max
-        elif q2 < self.q2_min:
-            return self.q2_min
-        else:
-            return q2
-
-    def __gt__(self, target_area):
-        """Compares q2 of areas"""
-        return self.q2_min >= target_area.q2_max
-
-    def __lt__(self, target_area):
-        """Compares q2 of areas"""
-        return self.q2_max <= target_area.q2_min
-
-    def __call__(self, q2):
-        """
-        Checks whether q2 is contained in the area
-
-        Parameters
-        ----------
-            q2 : float
-                testing point
-
-        Returns
-        -------
-            contained : bool
-                is point contained?
-        """
-        return self.q2_min <= q2 <= self.q2_max
-
+    Parameters
+    ----------
+        q2_from : float
+            starting point
+        q2_to : float
+            final point
+        area : Area
+            containing area
+    """
+    def __init__(self, q2_from, q2_to, area):
+        self.q2_from = q2_from
+        self.q2_to = q2_to
+        self.area = area
 
 class ThresholdsConfig:
     """
@@ -109,39 +68,18 @@ class ThresholdsConfig:
             Number of flavors for the FFNS
     """
 
-    def __init__(self, q2_ref, scheme, *, threshold_list=None, nf=None):
+    def __init__(self, area_walls, q2_ref = None):
         # Initial values
         self.q2_ref = q2_ref
-        self.scheme = scheme
-        self._areas = []
-        self._area_walls = []
-        self._area_ref = 0
-        self.max_nf = None
-        self.min_nf = None
-
-        if scheme == "FFNS":
-            if nf is None:
-                raise ValueError("No value for nf in the FFNS was received")
-            if threshold_list is not None:
-                raise ValueError("The FFNS does not accept any thresholds")
-            self._areas = [Area(0, np.inf, self.q2_ref, nf)]
-            self.max_nf = nf
-            self.min_nf = nf
-            logger.info("Fixed flavor number scheme with %d flavors", nf)
-        elif scheme in ["ZM-VFNS", "FONLL-A", "FONLL-A'"]:
-            if scheme not in ["FONLL-A"] and nf is not None:
-                logger.warning(
-                    "The VFNS configures its own value for nf, ignoring input nf=%d",
-                    nf,
-                )
-            if threshold_list is None:
-                raise ValueError(
-                    "The VFN scheme was selected but no thresholds were given"
-                )
-            self._setup_vfns(threshold_list, nf)
-            logger.info("Variable flavor number scheme (%s)", scheme)
-        else:
-            raise NotImplementedError(f"The scheme {scheme} is not implemented")
+        if area_walls != sorted(area_walls):
+            raise ValueError("area walls need to be sorted")
+        self.areas = []
+        q2_min = 0
+        for q2_max in area_walls + [np.inf]:
+            nf = nf + 1
+            new_area = Area(q2_min, q2_max, nf)
+            self.areas.append(new_area)
+            q2_min = q2_max
 
     @classmethod
     def from_dict(cls, theory_card):
@@ -181,44 +119,6 @@ class ThresholdsConfig:
     def nf_ref(self):
         """ Number of flavours in the reference area """
         return self._areas[self._area_ref].nf
-
-    def nf_range(self):
-        """
-        Iterate number of flavours, including min_nf *and* max_nf
-
-        Yields
-        ------
-            nf : int
-                number of flavour
-        """
-        return range(self.min_nf, self.max_nf + 1)
-
-    def _setup_vfns(self, threshold_list, nf=None):
-        """
-        Receives a list of thresholds and sets up the vfns scheme
-
-        Parameters
-        ----------
-            threshold_list: list
-                List of q^2 thresholds
-        """
-        if nf is None:
-            nf = 3
-        # Force sorting
-        self._area_walls = sorted(threshold_list)
-        # Generate areas
-        self._areas = []
-        q2_min = 0
-        q2_ref = self.q2_ref
-        self.min_nf = nf
-        for i, q2_max in enumerate(self._area_walls + [np.inf]):
-            nf = self.min_nf + i
-            new_area = Area(q2_min, q2_max, q2_ref, nf)
-            if new_area.has_q2_0:
-                self._area_ref = i
-            self._areas.append(new_area)
-            q2_min = q2_max
-        self.max_nf = nf
 
     def get_path_from_q2_ref(self, q2):
         """
