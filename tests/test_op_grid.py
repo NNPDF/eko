@@ -10,7 +10,7 @@ import pytest
 import numpy as np
 import eko.interpolation as interpolation
 from eko.strong_coupling import StrongCoupling
-from eko.thresholds import ThresholdsConfig
+from eko.thresholds import ThresholdsAtlas
 from eko.operator.grid import OperatorGrid
 
 
@@ -57,7 +57,7 @@ class TestOperatorGrid:
         basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
             operators_card
         )
-        threshold_holder = ThresholdsConfig.from_dict(theory_card)
+        threshold_holder = ThresholdsAtlas.from_dict(theory_card)
         a_s = StrongCoupling.from_dict(theory_card, threshold_holder)
         return OperatorGrid.from_dict(
             theory_card,
@@ -83,7 +83,7 @@ class TestOperatorGrid:
             basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
                 operators_card
             )
-            threshold_holder = ThresholdsConfig.from_dict(theory_card)
+            threshold_holder = ThresholdsAtlas.from_dict(theory_card)
             a_s = StrongCoupling.from_dict(theory_card, threshold_holder)
             theory_card.update({"ModEv": "wrong"})
             OperatorGrid.from_dict(

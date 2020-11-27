@@ -16,7 +16,7 @@ class TestStrongCoupling:
         alphas_ref = 0.118
         scale_ref = 91.0 ** 2
         nf = 4
-        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
+        threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         # create
         sc = StrongCoupling(alphas_ref, scale_ref, threshold_holder)
         assert sc.q2_ref == scale_ref
@@ -33,7 +33,7 @@ class TestStrongCoupling:
                     NfFF=nf,
                     Q0=2,
                 )
-                sc2 = StrongCoupling.from_dict(setup)
+                sc2 = StrongCoupling.from_dict(setup, threshold_holder)
                 assert sc2.q2_ref == scale_ref
                 assert sc2.as_ref == alphas_ref / 4.0 / np.pi
 
@@ -57,23 +57,14 @@ class TestStrongCoupling:
     def test_ref(self):
         # prepare
         thresh_setups = [
-            {"FNS": "FFNS", "NfFF": 3},
-            {"FNS": "FFNS", "NfFF": 4},
-            {
-                "FNS": "ZM-VFNS",
-                "mc": 2,
-                "mb": 4,
-                "mt": 175,
-                "kcThr": 1,
-                "kbThr": 1,
-                "ktThr": 1,
-            },
+            (np.inf, np.inf, np.inf),
+            (0, np.inf, np.inf),
+            (2, 4, 175),
         ]
         alphas_ref = 0.118
         scale_ref = 91.0 ** 2
         for thresh_setup in thresh_setups:
-            thresh_setup["Q0"] = 1
-            thresholds_conf = thresholds.ThresholdsConfig.from_dict(thresh_setup)
+            thresholds_conf = thresholds.ThresholdsAtlas(thresh_setup, 1)
             for order in [0, 1, 2]:
                 for method in ["exact", "expanded"]:
                     # create
@@ -87,23 +78,14 @@ class TestStrongCoupling:
     def test_exact_LO(self):
         # prepare
         thresh_setups = [
-            {"FNS": "FFNS", "NfFF": 3},
-            {"FNS": "FFNS", "NfFF": 4},
-            {
-                "FNS": "ZM-VFNS",
-                "mc": 2,
-                "mb": 4,
-                "mt": 175,
-                "kcThr": 1,
-                "kbThr": 1,
-                "ktThr": 1,
-            },
+            (np.inf, np.inf, np.inf),
+            (0, np.inf, np.inf),
+            (2, 4, 175),
         ]
         alphas_ref = 0.118
         scale_ref = 91.0 ** 2
         for thresh_setup in thresh_setups:
-            thresh_setup["Q0"] = 1
-            thresholds_conf = thresholds.ThresholdsConfig.from_dict(thresh_setup)
+            thresholds_conf = thresholds.ThresholdsAtlas(thresh_setup, 1)
             # in LO expanded  = exact
             sc_expanded = StrongCoupling(
                 alphas_ref, scale_ref, thresholds_conf, 0, "expanded"

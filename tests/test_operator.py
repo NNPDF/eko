@@ -5,7 +5,7 @@ import scipy.integrate
 
 from eko.operator import Operator, gamma_ns_fact, gamma_singlet_fact, quad_ker
 from eko.operator.grid import OperatorGrid
-from eko.thresholds import ThresholdsConfig
+from eko.thresholds import ThresholdsAtlas
 from eko.strong_coupling import StrongCoupling
 from eko.interpolation import InterpolatorDispatcher
 from eko import anomalous_dimensions as ad
@@ -164,7 +164,7 @@ class TestOperator:
         g = OperatorGrid.from_dict(
             theory_card,
             operators_card,
-            ThresholdsConfig.from_dict(theory_card),
+            ThresholdsAtlas.from_dict(theory_card),
             StrongCoupling.from_dict(theory_card),
             InterpolatorDispatcher.from_dict(operators_card),
         )

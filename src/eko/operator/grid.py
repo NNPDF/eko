@@ -31,7 +31,7 @@ class OperatorGrid:
             Grid in Q2 on where to to compute the operators
         order: int
             order in perturbation theory
-        thresholds_config: eko.thresholds.ThresholdsConfig
+        thresholds_config: eko.thresholds.ThresholdsAtlas
             Instance of :class:`~eko.thresholds.Threshold` containing information about the
             thresholds
         strong_coupling: eko.strong_coupling.StrongCoupling
@@ -98,8 +98,8 @@ class OperatorGrid:
         ----------
             setup : dict
                 theory dictionary
-            thresholds_config : eko.thresholds.ThresholdsConfig
-                An instance of the ThresholdsConfig class
+            thresholds_config : eko.thresholds.ThresholdsAtlas
+                An instance of the ThresholdsAtlas class
             strong_coupling : eko.strong_coupling.StrongCoupling
                 An instance of the StrongCoupling class
             interpol_dispatcher : eko.interpolation.InterpolatorDispatcher
@@ -152,26 +152,28 @@ class OperatorGrid:
                 value of q2 for which the OperatorGrid will need to pass thresholds
         """
         # The lists of areas as produced by the thresholds
-        area_list = self.managers["thresholds_config"].get_path_from_q2_ref(to_q2)
+        path = self.managers["thresholds_config"].path(to_q2)
         # The base area is always that of the reference q
-        q2_from = self.managers["thresholds_config"].q2_ref
-        nf = self.managers["thresholds_config"].nf_ref
-        for area in area_list:
-            q2_to = area.q2_ref
+        # q2_from = self.managers["thresholds_config"].q2_ref
+        # nf = self.managers["thresholds_config"].nf_ref
+        for seg in path[:-1]:
+            # q2_to = area.q2_ref
             # TODO due to this continue we're actually seeing the area *one below*
-            if q2_to == q2_from:
+            if seg.q2_to == seg.q2_from:
                 continue
-            new_op_key = (q2_from, q2_to)
+            new_op_key = (seg.q2_from, seg.q2_to)
             logger.info(
-                "Evolution: Compute threshold operator from %e to %e", q2_from, q2_to
+                "Evolution: Compute threshold operator from %e to %e",
+                seg.q2_from,
+                seg.q2_to,
             )
             if new_op_key not in self._threshold_operators:
                 # Compute the operator in place and store it
-                op_th = Operator(self.config, self.managers, nf, q2_from, q2_to)
+                op_th = Operator(
+                    self.config, self.managers, seg.nf, seg.q2_from, seg.q2_to
+                )
                 op_th.compute()
                 self._threshold_operators[new_op_key] = op_th
-            nf = area.nf
-            q2_from = q2_to
 
     def _get_jumps(self, qsq):
         """
@@ -189,15 +191,12 @@ class OperatorGrid:
                 List of threshold operators
         """
         # Get the list of areas to be crossed
-        full_area_path = self.managers["thresholds_config"].get_path_from_q2_ref(qsq)
+        path = self.managers["thresholds_config"].path(qsq)
         # The last one is where q resides so it is not needed
-        area_path = full_area_path[:-1]
         op_list = []
         # Now loop over the areas to collect the necessary threshold operators
-        for area in area_path:
-            q2_from = area.q2_ref
-            q2_to = area.q2_towards(qsq)
-            op_list.append(self._threshold_operators[(q2_from, q2_to)])
+        for seg in path[:-1]:
+            op_list.append(self._threshold_operators[(seg.q2_from, seg.q2_to)])
         return op_list
 
     def set_q2_limits(self, q2min, q2max):
@@ -236,10 +235,10 @@ class OperatorGrid:
             q2grid: list
                 List of q^2
         """
-        area_list = self.managers["thresholds_config"].get_areas(q2grid)
-        for area, q2 in zip(area_list, q2grid):
-            q2_from = area.q2_ref
-            nf = area.nf
+        for q2 in q2grid:
+            path = self.managers["thresholds_config"].path(q2)
+            q2_from = path[-1].q2_from
+            nf = path[-1].nf
             logger.info("Evolution: compute operators %e -> %e", q2_from, q2)
             op = Operator(self.config, self.managers, nf, q2_from, q2)
             op.compute()
@@ -302,7 +301,7 @@ class OperatorGrid:
             operator = self._op_grid[qsq]
         # Prepare the path for the composition of the operator
         operators_to_q2 = self._get_jumps(operator.q2_from)
-        is_vfns = self.managers["thresholds_config"].scheme != "FFNS"
+        is_vfns = True  # TODO #self.managers["thresholds_config"].scheme != "FFNS"
         final_op = physical.PhysicalOperator.ad_to_evol_map(
             operator.op_members,
             operator.nf,

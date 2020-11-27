@@ -93,7 +93,7 @@ class LHABenchmarkPaper(Runner):
     def __init__(self, theory_path, operators_path, assets_dir, data_dir):
         super().__init__(theory_path, operators_path, assets_dir)
 
-        self.rotate_to_evolution_basis = False  # True
+        self.rotate_to_evolution_basis = not True
 
         if not np.isclose(self.theory["XIF"], 1.0):
             raise ValueError("XIF has to be 1")

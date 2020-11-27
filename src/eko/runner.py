@@ -8,7 +8,7 @@ import copy
 from . import interpolation
 from .output import Output
 from .strong_coupling import StrongCoupling
-from .thresholds import ThresholdsConfig
+from .thresholds import ThresholdsAtlas
 from .operator.grid import OperatorGrid
 from . import basis_rotation as br
 
@@ -79,7 +79,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         bfd = interpolation.InterpolatorDispatcher.from_dict(operators_card)
         self.out.update(bfd.to_dict())
         # FNS
-        tc = ThresholdsConfig.from_dict(theory_card)
+        tc = ThresholdsAtlas.from_dict(theory_card)
         self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
         sc = StrongCoupling.from_dict(theory_card, tc)
