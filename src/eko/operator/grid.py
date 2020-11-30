@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This module contains the :class:`OperatorGrid`  and the
-:class:`OperatorMaster` class.
+This module contains the :class:`OperatorGrid` class.
 
 The first is the driver class of eko as it is the one that collects all the
 previously instantiated information and does the actual computation of the Q2s.
@@ -73,7 +72,6 @@ class OperatorGrid:
             strong_coupling=strong_coupling,
             interpol_dispatcher=interpol_dispatcher,
         )
-        self._op_grid = {}
         self._threshold_operators = {}
 
     @classmethod
@@ -88,15 +86,9 @@ class OperatorGrid:
         """
         Create the object from the theory dictionary.
 
-        Read keys:
-
-            - Q2grid : required, target grid
-            - debug_skip_singlet : optional, avoid singlet integrations?
-            - debug_skip_non_singlet : optional, avoid non-singlet integrations?
-
         Parameters
         ----------
-            setup : dict
+            theory_card : dict
                 theory dictionary
             thresholds_config : eko.thresholds.ThresholdsAtlas
                 An instance of the ThresholdsAtlas class
@@ -148,8 +140,8 @@ class OperatorGrid:
 
         Parameters
         ----------
-            to_q2: float
-                value of q2 for which the OperatorGrid will need to pass thresholds
+            path: list(PathSegment)
+                thresholds path
         """
         # The base area is always that of the reference q
         thr_ops = []
@@ -158,9 +150,10 @@ class OperatorGrid:
             if new_op_key not in self._threshold_operators:
                 # Compute the operator and store it
                 logger.info(
-                    "Evolution: Compute threshold operator from %e to %e",
+                    "Threshold operator: %e -> %e, nf=%d",
                     seg.q2_from,
                     seg.q2_to,
+                    seg.nf
                 )
                 op_th = Operator(
                     self.config, self.managers, seg.nf, seg.q2_from, seg.q2_to
@@ -208,7 +201,7 @@ class OperatorGrid:
         Returns
         -------
             final_op: dict
-                eko E(q^2 <- q_0^2) in flavor basis
+                eko E(q^2 <- q_0^2) in flavor basis as numpy array
         """
         # The lists of areas as produced by the thresholds
         path = self.managers["thresholds_config"].path(q2)
