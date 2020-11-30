@@ -18,6 +18,12 @@ def test_runner():
         "NfFF": 3,
         "ModEv": "EXA",
         "IC": 0,
+        "mc": 1.0,
+        "mb": 4.75,
+        "mt": 173.0,
+        "kcThr": 0,
+        "kbThr": np.inf,
+        "ktThr": np.inf,
     }
     operators_card = {
         "Q2grid": [10, 100],

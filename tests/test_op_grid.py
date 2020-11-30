@@ -27,6 +27,12 @@ class TestOperatorGrid:
             "FNS": "FFNS",
             "NfFF": 3,
             "IC": 1,
+            "mc": 1.0,
+            "mb": 4.75,
+            "mt": 173.0,
+            "kcThr": 0,
+            "kbThr": np.inf,
+            "ktThr": np.inf,
         }
         operators_card = {
             "Q2grid": [1, 10],
