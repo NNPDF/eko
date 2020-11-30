@@ -27,7 +27,7 @@ class PhysicalOperator:
         self.q2_final = q2_final
 
     @classmethod
-    def ad_to_evol_map(cls, op_members, nf, q2_final, is_vfns, intrinsic_range=None):
+    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range=None):
         """
         Obtain map between the 3-dimensional anomalous dimension basis and the
         4-dimensional evolution basis.
@@ -41,8 +41,6 @@ class PhysicalOperator:
                 operator members in anomalous dimension basis
             nf : int
                 number of active light flavors
-            is_vfns : bool
-                is |VFNS|?
             intrinsic_range : sequence
                 intrinsic heavy flavours
 
@@ -66,17 +64,16 @@ class PhysicalOperator:
             m[f"T{n}.T{n}"] = op_members["NS_p"]
         # activate one higher element, i.e. where the next heavy quark could participate,
         # but actually it is trivial
-        if is_vfns:
-            n = (nf + 1) ** 2 - 1
-            # without this new heavy quark Vn = V and Tn = S
-            m[f"V{n}.V"] = op_members["NS_v"]
-            m[f"T{n}.S"] = op_members["S_qq"]
-            m[f"T{n}.g"] = op_members["S_qg"]
+        n = (nf + 1) ** 2 - 1
+        # without this new heavy quark Vn = V and Tn = S
+        m[f"V{n}.V"] = op_members["NS_v"]
+        m[f"T{n}.S"] = op_members["S_qq"]
+        m[f"T{n}.g"] = op_members["S_qg"]
         # deal with intrinsic heavy quark pdfs
         if intrinsic_range is not None:
             hqfl = "cbt"
-            for f in intrinsic_range:
-                hq = hqfl[f - 4]  # find name
+            for intr_fl in intrinsic_range:
+                hq = hqfl[intr_fl - 4]  # find name
                 # intrinsic means no evolution, i.e. they are evolving with the identity
                 len_xgrid = op_members["NS_v"].value.shape[0]
                 op_id = member.OpMember(
@@ -87,18 +84,9 @@ class PhysicalOperator:
                     m[f"{hq}-.{hq}-"] = op_id
                 elif f == nf + 1:  # next is comming hq?
                     n = f ** 2 - 1
-                    if is_vfns:
-                        # e.g. T15 = (u+ + d+ + s+) - 3c+
-                        m[f"V{n}.{hq}-"] = -(f - 1) * op_id
-                        m[f"T{n}.{hq}+"] = -(f - 1) * op_id
-                    else:
-                        m[f"{hq}+.{hq}+"] = op_id
-                        m[f"{hq}-.{hq}-"] = op_id
-                else:  # f <= nf
-                    if not is_vfns:
-                        raise ValueError(
-                            f"{hq} is perturbative inside FFNS{nf} so can NOT be intrinsic"
-                        )
+                    # e.g. T15 = (u+ + d+ + s+) - 3c+
+                    m[f"V{n}.{hq}-"] = -(intr_fl - 1) * op_id
+                    m[f"T{n}.{hq}+"] = -(intr_fl - 1) * op_id
         opms = {}
         for k, v in m.items():
             opms[flavors.MemberName(k)] = v.copy()

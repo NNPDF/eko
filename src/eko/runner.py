@@ -104,7 +104,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         # add all operators
         Q2grid = {}
         self.out["pids"] = br.flavor_basis_pids
-        for final_scale, op in self.op_grid.compute_q2grid().items():
+        for final_scale, op in self.op_grid.compute().items():
             Q2grid[float(final_scale)] = op
         self.out["Q2grid"] = Q2grid
         return copy.deepcopy(self.out)

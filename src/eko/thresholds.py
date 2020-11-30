@@ -59,6 +59,10 @@ class PathSegment:
     def nf(self):
         return self._area.nf
 
+    @property
+    def tuple(self):
+        return (self.q2_from, self.q2_to)
+
     def __repr__(self):
         return f"PathSegment({self.q2_from} -> {self.q2_to}, nf={self.nf})"
 
@@ -175,4 +179,4 @@ class ThresholdsAtlas:
             PathSegment.intersect(q2_from, q2_to, self.areas[i - 1])
             for i in range(ref_idx, target_idx + rc, rc)
         ]
-        return list(filter(lambda s: not np.allclose(s.q2_from, q2_to), path))
+        return list(filter(lambda s: not np.allclose(s.q2_from, s.q2_to), path))
