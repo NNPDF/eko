@@ -298,11 +298,7 @@ class StrongCoupling:
         if fact_scale is None:
             fact_scale = scale_to
         for k, seg in enumerate(path):
-            q2_from = seg.q2_from
-            q2_to = seg.q2_to
-            if np.isclose(q2_from, q2_to):
-                continue
-            new_as = self._compute(final_as, seg.nf, q2_from, q2_to)
+            new_as = self._compute(final_as, seg.nf, seg.q2_from, seg.q2_to)
             # apply matching conditions: see hep-ph/9706430
             # - if there is yet a step to go
             if k < len(path) - 1:

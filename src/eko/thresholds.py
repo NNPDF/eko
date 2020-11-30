@@ -72,8 +72,8 @@ class PathSegment:
 
 class ThresholdsAtlas:
     """
-    The threshold class holds information about the thresholds any
-    Q2 has to pass in order to get there from a given q2_ref and scheme.
+    Holds information about the thresholds any Q2 has to pass in order to get
+    there from a given q2_ref.
 
     Parameters
     ----------
@@ -115,13 +115,17 @@ class ThresholdsAtlas:
 
     @classmethod
     def from_dict(cls, theory_card, prefix="k"):
-        """
+        r"""
         Create the object from the run card.
+
+        The thresholds are computed by :math:`(m_q \cdot k_q^{Thr})`.
 
         Parameters
         ----------
             theory_card : dict
                 run card with the keys given at the head of the :mod:`module <eko.thresholds>`
+            prefix : str
+                prefix for the ratio parameters
 
         Returns
         -------
@@ -167,7 +171,8 @@ class ThresholdsAtlas:
             rc = -1
         else:
             rc = 1
-        return [
+        path = [
             PathSegment.intersect(q2_from, q2_to, self.areas[i - 1])
             for i in range(ref_idx, target_idx + rc, rc)
         ]
+        return list(filter(lambda s: not np.allclose(s.q2_from, q2_to), path))

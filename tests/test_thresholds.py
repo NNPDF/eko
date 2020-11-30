@@ -100,3 +100,9 @@ class TestThresholdsConfig:
         assert len(p2) == 2
         assert p2[0].nf == 5
         assert p2[1].nf == 4
+
+    def test_path_filter(self):
+        ta1 = ThresholdsAtlas([0, 2, 3], 0.5)
+        assert len(ta1.path(2.5)) == 2
+        ta2 = ThresholdsAtlas([1, 2, 3], 0.5)
+        assert len(ta2.path(2.5)) == 3

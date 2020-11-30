@@ -136,7 +136,7 @@ class OperatorGrid:
 
     def _generate_thresholds_op(self, to_q2):
         """
-        Generate the threshold operators
+        Generate the threshold operators.
 
         This method is called everytime the OperatorGrid is asked for a grid on Q^2
         with a list of the relevant areas.
@@ -154,13 +154,7 @@ class OperatorGrid:
         # The lists of areas as produced by the thresholds
         path = self.managers["thresholds_config"].path(to_q2)
         # The base area is always that of the reference q
-        # q2_from = self.managers["thresholds_config"].q2_ref
-        # nf = self.managers["thresholds_config"].nf_ref
         for seg in path[:-1]:
-            # q2_to = area.q2_ref
-            # TODO due to this continue we're actually seeing the area *one below*
-            if seg.q2_to == seg.q2_from:
-                continue
             new_op_key = (seg.q2_from, seg.q2_to)
             logger.info(
                 "Evolution: Compute threshold operator from %e to %e",
@@ -246,18 +240,17 @@ class OperatorGrid:
 
     def compute_q2grid(self, q2grid=None):
         """
-        Receives a grid in q^2 and computes all operations necessary
-        to return any operator at any given q for the evolution between q2ref and q2grid
+        Computes all ekos for the q2grid.
 
         Parameters
         ----------
-            q2grid: list
+            q2grid: list(float)
                 List of q^2
 
         Returns
         -------
-            grid_return: list
-                List of PhysicalOperator for each value of q^2
+            grid_return: list(dict)
+                List of ekos for each value of q^2
         """
         # use input?
         if q2grid is None:
@@ -279,8 +272,7 @@ class OperatorGrid:
 
     def get_op_at_q2(self, qsq):
         """
-        Given a value of q^2, returns the PhysicalOperator to get
-        to q^2 from q0^2
+        Computes an single EKO.
 
         Parameters
         ----------
@@ -289,8 +281,8 @@ class OperatorGrid:
 
         Returns
         -------
-            final_op: eko.evolution_operator.PhysicalOperator
-                Op(q^2 <- q_0^2)
+            final_op: dict
+                eko E(q^2 <- q_0^2) in flavor basis
         """
         # Check the path to q0 for this operator
         if qsq in self._op_grid:
