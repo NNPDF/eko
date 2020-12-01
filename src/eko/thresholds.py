@@ -180,3 +180,20 @@ class ThresholdsAtlas:
             for i in range(ref_idx, target_idx + rc, rc)
         ]
         return list(filter(lambda s: not np.allclose(s.q2_from, s.q2_to), path))
+
+    def nf(self, q2):
+        """
+        Finds the number of flavor active at the given scale.
+
+        Parameters
+        ----------
+            q2 : float
+                reference scale
+
+        Returns
+        -------
+            nf : int
+                number of active flavors
+        """
+        ref_idx = np.digitize(q2, self.area_walls)
+        return self.areas[ref_idx - 1].nf
