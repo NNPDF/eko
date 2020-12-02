@@ -49,6 +49,15 @@ class TestPathSegment:
         p = PathSegment(0, 1, a)
         assert "nf=3" in str(p)
 
+    def test_tuple(self):
+        a = Area(0, 1, 3)
+        p = PathSegment(0, 1, a)
+        assert p.tuple == (0, 1)
+        # is hashable?
+        d = dict()
+        d[p.tuple] = 1
+        assert d[p.tuple] == 1
+
 
 class TestThresholdsConfig:
     def test_init(self):
