@@ -27,12 +27,9 @@ class TestOperatorGrid:
             "FNS": "FFNS",
             "NfFF": 3,
             "IC": 1,
-            "mc": 1.0,
-            "mb": 4.75,
-            "mt": 173.0,
-            "kcThr": 0,
-            "kbThr": np.inf,
-            "ktThr": np.inf,
+            "mc": 2.0,
+            "mb": 4.0,
+            "mt": 100.0,
         }
         operators_card = {
             "Q2grid": [1, 10],
@@ -47,11 +44,11 @@ class TestOperatorGrid:
         if use_FFNS:
             theory_card["FNS"] = "FFNS"
             theory_card["NfFF"] = 3
+            theory_card["kcThr"] = np.inf
+            theory_card["kbThr"] = np.inf
+            theory_card["ktThr"] = np.inf
         else:
             theory_card["FNS"] = "ZM-VFNS"
-            theory_card["mc"] = 2
-            theory_card["mb"] = 4
-            theory_card["mt"] = 100
             theory_card["kcThr"] = 1
             theory_card["kbThr"] = 1
             theory_card["ktThr"] = 1
@@ -79,12 +76,6 @@ class TestOperatorGrid:
 
         # errors
         with pytest.raises(ValueError):
-            opgrid.set_q2_limits(-1, 4)
-        with pytest.raises(ValueError):
-            opgrid.set_q2_limits(-1, -4)
-        with pytest.raises(ValueError):
-            opgrid.set_q2_limits(4, 1)
-        with pytest.raises(ValueError):
             theory_card, operators_card = self._get_setup(True)
             basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
                 operators_card
@@ -100,23 +91,23 @@ class TestOperatorGrid:
                 basis_function_dispatcher,
             )
 
-    def test_compute_q2grid(self):
-        opgrid = self._get_operator_grid()
-        # q2 has not be precomputed - but should work nevertheless
-        opgrid.get_op_at_q2(3)
-        # we can also pass a single number
-        opg = opgrid.compute_q2grid()
-        assert len(opg) == 2
-        opg = opgrid.compute_q2grid(3)
-        assert len(opg) == 1
-        # errors
-        with pytest.raises(ValueError):
-            bad_grid = [100, -6, 3]
-            _ = opgrid.compute_q2grid(bad_grid)
+    # def test_compute_q2grid(self):
+    #     opgrid = self._get_operator_grid()
+    #     # q2 has not be precomputed - but should work nevertheless
+    #     opgrid.get_op_at_q2(3)
+    #     # we can also pass a single number
+    #     opg = opgrid.compute_q2grid()
+    #     assert len(opg) == 2
+    #     opg = opgrid.compute_q2grid(3)
+    #     assert len(opg) == 1
+    #     # errors
+    #     with pytest.raises(ValueError):
+    #         bad_grid = [100, -6, 3]
+    #         _ = opgrid.compute_q2grid(bad_grid)
 
-    def test_grid_computation_VFNS(self):
-        """ Checks that the grid can be computed """
-        opgrid = self._get_operator_grid(False)
-        qgrid_check = [3, 5]
-        operators = opgrid.compute_q2grid(qgrid_check)
-        assert len(operators) == len(qgrid_check)
+    # def test_grid_computation_VFNS(self):
+    #     """ Checks that the grid can be computed """
+    #     opgrid = self._get_operator_grid(False)
+    #     qgrid_check = [3, 5]
+    #     operators = opgrid.compute_q2grid(qgrid_check)
+    #     assert len(operators) == len(qgrid_check)

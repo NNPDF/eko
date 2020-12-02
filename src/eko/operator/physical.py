@@ -79,11 +79,11 @@ class PhysicalOperator:
                 op_id = member.OpMember(
                     np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid))
                 )
-                if f > nf + 1:  # keep the higher quarks as they are
+                if intr_fl > nf + 1:  # keep the higher quarks as they are
                     m[f"{hq}+.{hq}+"] = op_id
                     m[f"{hq}-.{hq}-"] = op_id
-                elif f == nf + 1:  # next is comming hq?
-                    n = f ** 2 - 1
+                elif intr_fl == nf + 1:  # next is comming hq?
+                    n = intr_fl ** 2 - 1
                     # e.g. T15 = (u+ + d+ + s+) - 3c+
                     m[f"V{n}.{hq}-"] = -(intr_fl - 1) * op_id
                     m[f"T{n}.{hq}+"] = -(intr_fl - 1) * op_id

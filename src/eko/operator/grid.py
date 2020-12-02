@@ -153,7 +153,7 @@ class OperatorGrid:
                     "Threshold operator: %e -> %e, nf=%d",
                     seg.q2_from,
                     seg.q2_to,
-                    seg.nf
+                    seg.nf,
                 )
                 op_th = Operator(
                     self.config, self.managers, seg.nf, seg.q2_from, seg.q2_to

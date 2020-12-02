@@ -106,50 +106,28 @@ def mk_op_members(shape=(2, 2)):
     return om
 
 
-def get_ad_to_evol_map(nf, is_vfns, intrinsic_range=None):
+def get_ad_to_evol_map(nf, intrinsic_range=None):
     oms = mk_op_members()
-    m = PhysicalOperator.ad_to_evol_map(oms, nf, 1, is_vfns, intrinsic_range)
+    m = PhysicalOperator.ad_to_evol_map(oms, nf, 1, intrinsic_range)
     return sorted(map(str, m.op_members.keys()))
 
 
-def test_ad_to_evol_map_ffns():
+def test_ad_to_evol_map():
     triv_ops = ("S.S", "S.g", "g.S", "g.g", "V.V", "V3.V3", "T3.T3", "V8.V8", "T8.T8")
-    # FFNS3
-    assert sorted(triv_ops) == get_ad_to_evol_map(3, False)
-    # FFNS3 + IC
-    assert sorted([*triv_ops, "c+.c+", "c-.c-"]) == get_ad_to_evol_map(3, False, [4])
-    # FFNS3 + IC + IB
-    assert sorted(
-        [*triv_ops, "c+.c+", "c-.c-", "b+.b+", "b-.b-"]
-    ) == get_ad_to_evol_map(3, False, [4, 5])
-    # FFNS4 + IC + IB
-    with pytest.raises(ValueError):
-        get_ad_to_evol_map(4, False, [4, 5])
-    # FFNS4 + IB
-    assert sorted(
-        [*triv_ops, "V15.V15", "T15.T15", "b+.b+", "b-.b-"]
-    ) == get_ad_to_evol_map(4, False, [5])
-    # FFNS6
-    ks = get_ad_to_evol_map(6, False)
-    assert len(ks) == 4 + 1 + 2 * 5
-
-
-def test_ad_to_evol_map_vfns():
-    triv_ops = ("S.S", "S.g", "g.S", "g.g", "V.V", "V3.V3", "T3.T3", "V8.V8", "T8.T8")
-    # VFNS, nf=3 patch
-    assert sorted([*triv_ops, "V15.V", "T15.S", "T15.g"]) == get_ad_to_evol_map(3, True)
-    # VFNS, nf=3 patch + IC
+    # nf=3
+    assert sorted([*triv_ops, "V15.V", "T15.S", "T15.g"]) == get_ad_to_evol_map(3)
+    # nf=3 + IC
     assert sorted(
         [*triv_ops, "V15.V", "T15.S", "T15.g", "T15.c+", "V15.c-"]
-    ) == get_ad_to_evol_map(3, True, [4])
-    # VFNS, nf=3 patch + IC + IB
+    ) == get_ad_to_evol_map(3, [4])
+    # nf=3 + IC + IB
     assert sorted(
         [*triv_ops, "V15.V", "T15.S", "T15.g", "T15.c+", "V15.c-", "b+.b+", "b-.b-"]
-    ) == get_ad_to_evol_map(3, True, [4, 5])
-    # VFNS, nf=4 patch + IC + IB
+    ) == get_ad_to_evol_map(3, [4, 5])
+    # nf=4 + IC + IB
     ks = sorted(
         [*triv_ops, "V15.V15", "T15.T15", "V24.V", "T24.S", "T24.g", "T24.b+", "V24.b-"]
     )
-    assert ks == get_ad_to_evol_map(4, True, [4, 5])
-    # VFNS, nf=4 patch + IB
-    assert ks == get_ad_to_evol_map(4, True, [5])
+    assert ks == get_ad_to_evol_map(4, [4, 5])
+    # nf=4 + IB
+    assert ks == get_ad_to_evol_map(4, [5])

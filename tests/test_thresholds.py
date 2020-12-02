@@ -106,3 +106,11 @@ class TestThresholdsConfig:
         assert len(ta1.path(2.5)) == 2
         ta2 = ThresholdsAtlas([1, 2, 3], 0.5)
         assert len(ta2.path(2.5)) == 3
+
+    def test_nf(self):
+        nf4 = ThresholdsAtlas.ffns(4)
+        for q2 in [1.0, 1e1, 1e2, 1e3, 1e4]:
+            assert nf4.nf(q2) == 4
+        ta = ThresholdsAtlas([1, 2, 3], 0.5)
+        assert ta.nf(0.9) == 3
+        assert ta.nf(1.1) == 4
