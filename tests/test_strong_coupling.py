@@ -14,19 +14,19 @@ class TestStrongCoupling:
     def test_from_dict(self):
         d = {
             "alphas": 0.118,
-            "Qref": 91.,
+            "Qref": 91.0,
             "Q0": 1,
             "PTO": 0,
             "ModEv": "EXA",
-            "mc": 2.,
-            "mb": 4.,
-            "mt": 175.,
-            "kcThr": 1.,
-            "kbThr": 1.,
-            "ktThr": 1.,
+            "mc": 2.0,
+            "mb": 4.0,
+            "mt": 175.0,
+            "kcThr": 1.0,
+            "kbThr": 1.0,
+            "ktThr": 1.0,
         }
         sc = StrongCoupling.from_dict(d)
-        assert sc.a_s(d["Qref"]**2) == d["alphas"]/(4.*np.pi)
+        assert sc.a_s(d["Qref"] ** 2) == d["alphas"] / (4.0 * np.pi)
 
     def test_init(self):
         # prepare

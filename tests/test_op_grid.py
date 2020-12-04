@@ -72,8 +72,6 @@ class TestOperatorGrid:
 
     def test_sanity(self):
         """ Sanity checks for the input"""
-        opgrid = self._get_operator_grid(False)
-
         # errors
         with pytest.raises(ValueError):
             theory_card, operators_card = self._get_setup(True)
@@ -91,23 +89,19 @@ class TestOperatorGrid:
                 basis_function_dispatcher,
             )
 
-    # def test_compute_q2grid(self):
-    #     opgrid = self._get_operator_grid()
-    #     # q2 has not be precomputed - but should work nevertheless
-    #     opgrid.get_op_at_q2(3)
-    #     # we can also pass a single number
-    #     opg = opgrid.compute_q2grid()
-    #     assert len(opg) == 2
-    #     opg = opgrid.compute_q2grid(3)
-    #     assert len(opg) == 1
-    #     # errors
-    #     with pytest.raises(ValueError):
-    #         bad_grid = [100, -6, 3]
-    #         _ = opgrid.compute_q2grid(bad_grid)
+    def test_compute_q2grid(self):
+        opgrid = self._get_operator_grid()
+        # q2 has not be precomputed - but should work nevertheless
+        opgrid.compute(3)
+        # we can also pass a single number
+        opg = opgrid.compute()
+        assert len(opg) == 2
+        opg = opgrid.compute(3)
+        assert len(opg) == 1
 
-    # def test_grid_computation_VFNS(self):
-    #     """ Checks that the grid can be computed """
-    #     opgrid = self._get_operator_grid(False)
-    #     qgrid_check = [3, 5]
-    #     operators = opgrid.compute_q2grid(qgrid_check)
-    #     assert len(operators) == len(qgrid_check)
+    def test_grid_computation_VFNS(self):
+        """ Checks that the grid can be computed """
+        opgrid = self._get_operator_grid(False)
+        qgrid_check = [3, 5]
+        operators = opgrid.compute(qgrid_check)
+        assert len(operators) == len(qgrid_check)

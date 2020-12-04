@@ -137,62 +137,61 @@ class TestOperator:
         )
         assert sorted(o.labels()) == []
 
-    # def test_compute(self, monkeypatch):
-    #     # setup objs
-    #     theory_card = {
-    #         "alphas": 0.35,
-    #         "PTO": 0,
-    #         "ModEv": "TRN",
-    #         "XIF": 1.0,
-    #         "XIR": 1.0,
-    #         "Qref": np.sqrt(2),
-    #         "Q0": np.sqrt(2),
-    #         "FNS": "FFNS",
-    #         "NfFF": 3,
-    #         "IC": 0,
-    #         "mc": 1.0,
-    #         "mb": 4.75,
-    #         "mt": 173.0,
-    #         "kcThr": 0,
-    #         "kbThr": np.inf,
-    #         "ktThr": np.inf,
-    #     }
-    #     operators_card = {
-    #         "Q2grid": [1, 10],
-    #         "interpolation_xgrid": [0.1, 1.0],
-    #         "interpolation_polynomial_degree": 1,
-    #         "interpolation_is_log": True,
-    #         "debug_skip_singlet": True,
-    #         "debug_skip_non_singlet": False,
-    #         "ev_op_max_order": 1,
-    #         "ev_op_iterations": 1,
-    #     }
-    #     g = OperatorGrid.from_dict(
-    #         theory_card,
-    #         operators_card,
-    #         ThresholdsAtlas.from_dict(theory_card),
-    #         StrongCoupling.from_dict(theory_card),
-    #         InterpolatorDispatcher.from_dict(operators_card),
-    #     )
-    #     ops = g.compute([10])
-    #     o = ops[10]
-    #     # fake quad
-    #     monkeypatch.setattr(
-    #         scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
-    #     )
-    #     # LO
-    #     o.compute()
-    #     assert "NS_m" in o.op_members
-    #     np.testing.assert_allclose(
-    #         o.op_members["NS_m"].value, o.op_members["NS_p"].value
-    #     )
-    #     np.testing.assert_allclose(
-    #         o.op_members["NS_v"].value, o.op_members["NS_p"].value
-    #     )
-    #     # NLO
-    #     o.config["order"] = 1
-    #     o.compute()
-    #     assert not np.allclose(o.op_members["NS_p"].value, o.op_members["NS_m"].value)
-    #     np.testing.assert_allclose(
-    #         o.op_members["NS_v"].value, o.op_members["NS_m"].value
-    #     )
+    def test_compute(self, monkeypatch):
+        # setup objs
+        theory_card = {
+            "alphas": 0.35,
+            "PTO": 0,
+            "ModEv": "TRN",
+            "XIF": 1.0,
+            "XIR": 1.0,
+            "Qref": np.sqrt(2),
+            "Q0": np.sqrt(2),
+            "FNS": "FFNS",
+            "NfFF": 3,
+            "IC": 0,
+            "mc": 1.0,
+            "mb": 4.75,
+            "mt": 173.0,
+            "kcThr": np.inf,
+            "kbThr": np.inf,
+            "ktThr": np.inf,
+        }
+        operators_card = {
+            "Q2grid": [1, 10],
+            "interpolation_xgrid": [0.1, 1.0],
+            "interpolation_polynomial_degree": 1,
+            "interpolation_is_log": True,
+            "debug_skip_singlet": True,
+            "debug_skip_non_singlet": False,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
+        }
+        g = OperatorGrid.from_dict(
+            theory_card,
+            operators_card,
+            ThresholdsAtlas.from_dict(theory_card),
+            StrongCoupling.from_dict(theory_card),
+            InterpolatorDispatcher.from_dict(operators_card),
+        )
+        o = Operator(g.config, g.managers, 3, 2, 10)
+        # fake quad
+        monkeypatch.setattr(
+            scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
+        )
+        # LO
+        o.compute()
+        assert "NS_m" in o.op_members
+        np.testing.assert_allclose(
+            o.op_members["NS_m"].value, o.op_members["NS_p"].value
+        )
+        np.testing.assert_allclose(
+            o.op_members["NS_v"].value, o.op_members["NS_p"].value
+        )
+        # NLO
+        o.config["order"] = 1
+        o.compute()
+        assert not np.allclose(o.op_members["NS_p"].value, o.op_members["NS_m"].value)
+        np.testing.assert_allclose(
+            o.op_members["NS_v"].value, o.op_members["NS_m"].value
+        )
