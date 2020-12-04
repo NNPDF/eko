@@ -1,9 +1,8 @@
 Matching Conditions on Crossing Thresholds
 ==========================================
 
-The :class:`~eko.flavours.FlavourTarget` class is used to provide a consistent transition in the Variable
-Flavour Number Scheme (VFNS) of the :doc:`evolution distributions <FlavourBasis>` across the mass thresholds provided by
-the :class:`~eko.thresholds.Threshold` class.
+In a |VFNS| the :doc:`evolution distributions <FlavourBasis>` has to be matched across the mass thresholds provided by
+the :class:`~eko.thresholds.ThresholdsAtlas` class.
 We denote the solution of the :doc:`DGLAP equation <DGLAP>` in :doc:`Mellin space <Mellin>` as
 
 .. math ::
@@ -17,18 +16,18 @@ For the singlet sector, we define the singlet evolution kernel matrix
         \tilde E_{gq} & \tilde E_{gg}
     \end{pmatrix}(Q_1^2\leftarrow Q_0^2)
 
-which is the only coupled system amongst the DGLAP equations.
+which is the only coupled system amongst the |DGLAP| equations.
 
-Next, we list the matching conditions for the different evolution distributions up to LO.
-Note, that the non-trivial matching of the discontinuities only enters at NNLO.
+Next, we list the explicit matching conditions for the different evolution distributions up to |LO|.
+Note, that the non-trivial matching of the discontinuities only enters at |NNLO|.
 
 Zero Thresholds
 ---------------
 
-Here, we consider :math:`m_{q}^2 < Q_0^2 < Q_1^2 < m_{q+1}^2` and we assume that
-:math:`m_q` is the mass of the :math:`n_f`-th flavour. This configuration corresponds
-effectivelyto a Fixed Flavour Number Scheme (FFNS).
-Here all distributions simply evolve with their associated operator.
+Here, we consider :math:`\mu_{q}^2 < Q_0^2 < Q_1^2 < \mu_{q+1}^2` and we assume that
+:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavour. This configuration corresponds
+effectively to a |FFNS|.
+All distributions simply evolve with their associated operator.
 The singlet sector and the full valence distributions are given by
 
 .. math ::
@@ -36,7 +35,7 @@ The singlet sector and the full valence distributions are given by
         \dVf{n_f}{Q_1^2} &= \Ensv{Q^2_1}{Q_0^2} \dVf{n_f}{Q_0^2}
 
 If the valence-like/singlet-like non-singlet distributions are already active,
-they keep evolving from themselves
+they keep evolving from themselves:
 
 .. math ::
     \dVj{j}{n_f}{Q_1^2} &= \Ensm{Q^2_1}{Q_0^2} \dVj{j}{n_f}{Q_0^2} \\
@@ -44,7 +43,7 @@ they keep evolving from themselves
      &\text{for }j=3,\ldots, n_f^2-1
 
 Otherwise, they are generated dynamically by the full valence distribution or the singlet
-sector respectively
+sector respectively:
 
 .. math ::
     \dVj{k}{n_f}{Q_1^2} &= \Ensv{Q^2_1}{Q_0^2} \dVf{n_f}{Q_0^2} \\
@@ -54,48 +53,11 @@ sector respectively
 and making the distributions thus linearly dependent :math:`V_k = V, T_k = \Sigma`
 (as they should).
 
-.. IC in FFNS
-    S.S = P_qq
-    S.g = P_qg
-    g.S = P_gq
-    g.g = P_gg
-    V.V = NS_v
-    V3.V3 = NS_m
-    V8.V8 = NS_m
-    T3.T3 = NS_p
-    T8.T8 = NS_p
-    c+.c+ = 1
-    c-.c- = 1
-.. IC in VFNS: q0 < q < mc
-    S3.S3 = P_qq
-    S.g = P_qg
-    g.S = P_gq
-    g.g = P_gg
-    V.V = NS_v
-    V3.V3 = NS_m
-    V8.V8 = NS_m
-    T3.T3 = NS_p
-    T8.T8 = NS_p
-    T15.S = P_qq
-    T15.g = P_qg
-    now add IC:
-    T15.c+ = -3
-    V15.c- = -3
-.. IC in VFNS: q0 < mc < q:
-    S.S = P_qq^4 @ P_qq^3 + P_qg^4 @ P_gq^3
-    ...
-    V.V = NS_v @ NS_v
-    ...
-    T15.S = NS_p^4 @ P_qq^3
-    T15.g = NS_p^4 @ P_qg^3
-    now add IC:
-    T15.c+ = -3 NS_p^4
-
 One Threshold
 -------------
 
-Here, we consider :math:`m_q^2 < Q_0^2 < m_{q+1}^2 < Q_1^2 < m_{q+2}^2` and we assume that
-:math:`m_q` is the mass of the :math:`n_f`-th flavour.
+Here, we consider :math:`\mu_q^2 < Q_0^2 < \mu_{q+1}^2 < Q_1^2 < \mu_{q+2}^2` and we assume that
+:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavour.
 The singlet sector and the full valence distributions are given by
 
 .. math ::
@@ -128,8 +90,8 @@ The remaining distributions are generated again purely dynamically:
 Two Thresholds
 --------------
 
-Here, we consider :math:`m_q^2 < Q_0^2 < m_{q+1}^2 < m_{q+2}^2 < Q_1^2 < m_{q+3}^2` and we assume that
-:math:`m_q` is the mass of the :math:`n_f`-th flavour.
+Here, we consider :math:`\mu_q^2 < Q_0^2 < \mu_{q+1}^2 < \mu_{q+2}^2 < Q_1^2 < \mu_{q+3}^2` and we assume that
+:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavour.
 The singlet sector and the full valence distributions are given by
 
 .. math ::
@@ -170,7 +132,7 @@ If there is a distributions remaining it is generated again purely dynamically:
 Three Thresholds
 ----------------
 
-Here, we consider :math:`0 < Q_0^2 < m_{c}^2 < m_{b}^2 < m_{t}^2 < Q_1^2 < \infty`.
+Here, we consider :math:`0 < Q_0^2 < \mu_{c}^2 < \mu_{b}^2 < \mu_{t}^2 < Q_1^2 < \infty`.
 The singlet sector and the full valence distributions are given by
 
 .. math ::

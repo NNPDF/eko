@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 r"""
-This module holds the classes that define the flavor number schemes (FNS).
-
-Run card parameters:
-
-.. include:: /code/IO-tabs/ThresholdConfig.rst
+This module holds the classes that define the |FNS|.
 """
 import logging
 
@@ -46,7 +42,7 @@ class PathSegment:
             starting point
         q2_to : float
             final point
-        area : Area
+        area : eko.thresholds.Area
             containing area
     """
 
@@ -133,7 +129,7 @@ class ThresholdsAtlas:
 
         Returns
         -------
-            cls : ThresholdConfig
+            cls : ThresholdsAtlas
                 created object
         """
 

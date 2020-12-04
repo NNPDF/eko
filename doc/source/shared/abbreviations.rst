@@ -1,5 +1,8 @@
 .. FNS
 
+.. |FNS| replace::
+    :abbr:`FNS (Flavor Number Scheme)`
+
 .. |FFNS| replace::
     :abbr:`FFNS (Fixed Flavor Number Scheme)`
 
@@ -33,3 +36,12 @@
 
 .. |yadism| replace::
    :yadism:`\ `
+
+.. |banana| replace::
+   :banana:`\ `
+
+.. |pineappl| replace::
+   :pineappl:`\ `
+
+.. |pineko| replace::
+   :pineko:`\ `
