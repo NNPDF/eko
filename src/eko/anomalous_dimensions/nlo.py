@@ -26,7 +26,7 @@ def gamma_nsm_1(n, nf: int):
         n : complex
             Mellin moment
         nf : int
-            Number of active flavours
+            Number of active flavors
 
     Returns
     -------
@@ -69,7 +69,7 @@ def gamma_nsp_1(n, nf: int):
         n : complex
             Mellin moment
         nf : int
-            Number of active flavours
+            Number of active flavors
 
     Returns
     -------
@@ -110,7 +110,7 @@ def gamma_ps_1(n, nf: int):
         n : complex
             Mellin moment
         nf : int
-            Number of active flavours
+            Number of active flavors
 
     Returns
     -------
@@ -137,7 +137,7 @@ def gamma_qg_1(n, nf: int):
         n : complex
             Mellin moment
         nf : int
-            Number of active flavours
+            Number of active flavors
 
     Returns
     -------
@@ -170,7 +170,7 @@ def gamma_gq_1(n, nf: int):
         n : complex
             Mellin moment
         nf : int
-            Number of active flavours
+            Number of active flavors
 
     Returns
     -------
@@ -206,7 +206,7 @@ def gamma_gg_1(n, nf: int):
         n : complex
             Mellin moment
         nf : int
-            Number of active flavours
+            Number of active flavors
 
     Returns
     -------
@@ -248,7 +248,7 @@ def gamma_singlet_1(N, nf: int):
         N : complex
           Mellin moment
         nf : int
-          Number of active flavours
+          Number of active flavors
 
       Returns
       -------

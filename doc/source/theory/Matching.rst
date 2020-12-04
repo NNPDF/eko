@@ -25,7 +25,7 @@ Zero Thresholds
 ---------------
 
 Here, we consider :math:`\mu_{q}^2 < Q_0^2 < Q_1^2 < \mu_{q+1}^2` and we assume that
-:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavour. This configuration corresponds
+:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavor. This configuration corresponds
 effectively to a |FFNS|.
 All distributions simply evolve with their associated operator.
 The singlet sector and the full valence distributions are given by
@@ -57,7 +57,7 @@ One Threshold
 -------------
 
 Here, we consider :math:`\mu_q^2 < Q_0^2 < \mu_{q+1}^2 < Q_1^2 < \mu_{q+2}^2` and we assume that
-:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavour.
+:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavor.
 The singlet sector and the full valence distributions are given by
 
 .. math ::
@@ -91,7 +91,7 @@ Two Thresholds
 --------------
 
 Here, we consider :math:`\mu_q^2 < Q_0^2 < \mu_{q+1}^2 < \mu_{q+2}^2 < Q_1^2 < \mu_{q+3}^2` and we assume that
-:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavour.
+:math:`\mu_q` is the matching threshold of the :math:`n_f`-th r.
 The singlet sector and the full valence distributions are given by
 
 .. math ::
@@ -141,7 +141,7 @@ The singlet sector and the full valence distributions are given by
     \dVj{j}{6}{Q_1^2} &=      \Ensv{Q^2_1}{m_{t}^2}   \Ensv{m_{t}^2}{m_{b}^2} \\
                       & \quad \Ensv{m_{b}^2}{m_{c}^2} \Ensv{m_{c}^2}{Q^2_0} \dVf{3}{Q_0^2}
 
-The valence-like/singlet-like non-singlet distributions containing flavours up to strange,
+The valence-like/singlet-like non-singlet distributions containing flavors up to strange,
 they keep evolving from themselves
 
 .. math ::

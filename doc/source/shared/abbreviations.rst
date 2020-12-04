@@ -1,3 +1,6 @@
+.. |EKO| replace::
+   :abbr:`EKO (Evolution Kernel Operator)`
+
 .. FNS
 
 .. |FNS| replace::

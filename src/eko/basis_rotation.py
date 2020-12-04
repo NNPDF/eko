@@ -8,11 +8,12 @@ import numpy as np
 
 flavor_basis_pids = tuple([22] + list(range(-6, -1 + 1)) + [21] + list(range(1, 6 + 1)))
 r"""
-Sorted elements in flavor basis as |pid|.
+Sorted elements in Flavor Basis as |pid|.
 
-Definition: `here <https://pdg.lbl.gov/2019/reviews/rpp2019-rev-monte-carlo-numbering.pdf>`_.
+Definition: `here <https://pdg.lbl.gov/2019/reviews/rpp2019-rev-monte-carlo-numbering.pdf>`_
 
-corresponding |PDF| : :math:`\gamma, \bar t, \bar b, \bar c, \bar s, \bar u, \bar d, g, d, u, s, c, b, t`.
+corresponding |PDF| : :math:`\gamma, \bar t, \bar b, \bar c, \bar s, \bar u, \bar d, g,
+d, u, s, c, b, t`
 """
 
 flavor_basis_names = (
@@ -49,6 +50,14 @@ evol_basis = (
     "T24",
     "T35",
 )
+r"""
+Sorted elements in Evolution Basis as :obj:`str`.
+
+Definition: :ref:`here <theory/FlavorSpace:flavor basis>`.
+
+corresponding |PDF| : :math:`\gamma, \Sigma, g, V_{3}, V_{8}, V_{15}, V_{24},
+V_{35}, T_{3}, T_{8}, T_{15}, T_{24}, T_{35}`
+"""
 
 # Tranformation from physical basis to QCD evolution basis
 rotate_flavor_to_evolution = np.array(
@@ -69,3 +78,6 @@ rotate_flavor_to_evolution = np.array(
         [0, -5, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, -5],
     ]
 )
+"""
+Basis rotation matrix between :doc:`Flavor Basis and Evolution Basis </theory/FlavorSpace>`.
+"""

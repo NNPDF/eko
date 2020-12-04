@@ -88,7 +88,7 @@ def gamma_ns(order, mode, n, nf):
         n : complex
             Mellin variable
         nf : int
-            Number of active flavours
+            Number of active flavors
 
     Returns
     -------
@@ -126,7 +126,7 @@ def gamma_singlet(order, n, nf):
         n : complex
             Mellin variable
         nf : int
-            Number of active flavours
+            Number of active flavors
 
     Returns
     -------

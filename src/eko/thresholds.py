@@ -20,7 +20,7 @@ class Area:
         q2_max : float
             upper bound of the area
         nf : float
-            number of flavours in the area
+            number of flavors in the area
     """
 
     def __init__(self, q2_min, q2_max, nf):

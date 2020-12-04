@@ -94,7 +94,7 @@ the eigenvalues :math:`\lambda_{\pm}` and the projectors :math:`\mathbf e_{\pm}`
     \lambda_{\pm} &= \frac 1 {2} \left( \ln \tilde E_{qq}^{(0)} + \ln \tilde E_{gg}^{(0)} \pm \sqrt{(\ln \tilde E_{qq}^{(0)}-\ln \tilde E_{gg}^{(0)})^2 + 4\ln \tilde E_{qg}^{(0)}\ln \tilde E_{gq}^{(0)}} \right)\\
     {\mathbf e}_{\pm} &= \frac{1}{\lambda_{\pm} - \lambda_{\mp}} \left( \ln \mathbf{\tilde E}^{(0)}_S  - \lambda_{\mp} \mathbf I \right)
 
-with :math:`\mathbf I` the 2x2 identity matrix in flavour space and, e.g., :math:`\ln \tilde E_{qq}^{(0)} = \gamma_{qq}^{(0)}j^{(0,0)}(a_s,a_s^0)`.
+with :math:`\mathbf I` the 2x2 identity matrix in flavor space and, e.g., :math:`\ln \tilde E_{qq}^{(0)} = \gamma_{qq}^{(0)}j^{(0,0)}(a_s,a_s^0)`.
 
 The projectors obey the usual properties, i.e.
 

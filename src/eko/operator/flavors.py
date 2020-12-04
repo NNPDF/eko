@@ -51,12 +51,12 @@ class MemberName:
 
     @property
     def target(self):
-        """Returns target flavour name (given by the first part of the name)"""
+        """Returns target flavor name (given by the first part of the name)"""
         return self._split_name()[0]
 
     @property
     def input(self):
-        """Returns input flavour name (given by the second part of the name)"""
+        """Returns input flavor name (given by the second part of the name)"""
         return self._split_name()[1]
 
 

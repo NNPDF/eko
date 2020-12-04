@@ -42,7 +42,7 @@ class PhysicalOperator:
             nf : int
                 number of active light flavors
             intrinsic_range : sequence
-                intrinsic heavy flavours
+                intrinsic heavy flavors
 
         Returns
         -------
