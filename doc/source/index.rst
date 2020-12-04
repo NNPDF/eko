@@ -35,7 +35,7 @@ EKO is ...
     theory/Mellin
     theory/pQCD
     theory/DGLAP
-    theory/FlavourBasis
+    theory/FlavorSpace
     theory/Matching
     
     zzz-refs

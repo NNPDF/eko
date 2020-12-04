@@ -32,6 +32,11 @@
 .. |PDF| replace::
    :abbr:`PDF (Parton Distribution Function)`
 
+.. data
+
+.. |pid| replace::
+   :abbr:`pid ((Monte Carlo) parton identifier)`
+
 .. external
 
 .. |yadism| replace::
