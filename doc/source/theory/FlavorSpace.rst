@@ -3,7 +3,9 @@ Flavor Space
 
 An |EKO| is rank-4 operator both in flavor and momentum fraction space.
 By Flavor Space we mean the 13-dimensional function space that contains
-the different |PDF| flavor.
+the different |PDF| flavor. Note that there is an abiguity concerning the
+word "Flavor Basis" which is sometimes refered to as an *abstract* basis
+in the Flavor Space, but often the specific basis described here below is meant.
 
 Flavor Basis
 ------------
@@ -48,7 +50,7 @@ singlet distribution :math:`\Sigma` and the gluon distribution :math:`g`, and th
 sector. The non-singlet sector can be again subdivided into three groups: first the full
 valence distribution :math:`V`, second the valence-like distributions
 :math:`V_3 \ldots V_{35}`, and third the singlet like distributions :math:`T_3 \ldots T_{35}`.
-The mapping between the Evolution Basis and the Flavor Basis is given by
+The mapping between the Evolution Basis and the +/- Basis is given by
 
 .. math ::
     \Sigma &= \sum\limits_{j} q_j^+\\
@@ -75,7 +77,9 @@ The mapping between the Evolution Basis and the Flavor Basis is given by
 
 Other Bases
 -----------
-:cite:`Giele:2002hx` uses
+
+In an |PDF| fitting environment sometimes yet different bases are used to enforce or improve positivity
+of the |PDF| :cite:`Candido:2020yat`. E.g. :cite:`Giele:2002hx` uses
 
 .. math ::
     u_v = u^-, d_v = d^-, L_+ = 2(\bar u + \bar d), L_- = \bar d - \bar u, s^+, c^+, b^+, g
