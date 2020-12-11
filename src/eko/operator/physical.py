@@ -8,10 +8,12 @@ from . import member
 
 class PhysicalOperator:
     """
-    This is exposed to the outside world.
+    This joins several fixed flavor scheme operators together.
 
-    This operator is computed via the composition method of the
-    :class:`Operator` class.
+    - provides the connection between the 3-dimensional anomalous dimension
+      basis and the 4-dimensional evolution basis
+    - provides the connection between the 4-dimensional evolution basis
+      and the 4-dimensional flavor basis
 
 
     Parameters
@@ -32,8 +34,7 @@ class PhysicalOperator:
         Obtain map between the 3-dimensional anomalous dimension basis and the
         4-dimensional evolution basis.
 
-        .. todo:: update docs, in VFNS sometimes IC is irrelevant if nf>=4
-                explain which to keep and which to hide
+        .. todo:: in VFNS sometimes IC is irrelevant if nf>=4
 
         Parameters
         ----------

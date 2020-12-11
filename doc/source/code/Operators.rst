@@ -14,51 +14,38 @@ The classes are nested as follows:
 
         node [shape=box]
         OperatorGrid [label="OperatorGrid"];
-        OperatorMaster [label="OperatorMaster" ];
-        test, test1 [style=invis];
         Operator [label="Operator" ];
         PhysicalOperator [label="PhysicalOperator"];
         OpMember [label="OpMember"];
 
-        {rank=same OperatorMaster test test1}
-        {rank=same Operator PhysicalOperator}
-
-        OperatorGrid -> OperatorMaster;
-        OperatorMaster -> Operator  [weight=1000];
+        OperatorGrid -> Operator;
         Operator -> OpMember;
-        Operator -> PhysicalOperator [style=dashed len=10];
-        PhysicalOperator -> OpMember
-        OperatorMaster -> test -> test1 [style=invis];
-        test1 -> PhysicalOperator [weight=1000 style=invis];
+        Operator -> PhysicalOperator [style=dashed];
     }
 
 - :class:`~eko.operator.grid.OperatorGrid`
 
-    *  this is the master class which administrates all evolution kernel operator tasks
+    *  this is the master class which administrates all operator tasks
     *  it is instantiated once for each run
-    *  it divides the given range of :math:`Q^2` into the necessary threshold crossings 
-    *  it recollects all necessary operators in the end to create the
-       :class:`~eko.operator.physical.PhysicalOperator`
+    *  it divides the given range of :math:`Q^2` into the necessary threshold crossings
 
 - :class:`~eko.operator.Operator`
 
     * this represents a configuration for a fixed final scale :math:`Q^2`
-    * this class is only used *internally*
+    * this uses the 3-dimensional anomalous dimension basis
     * its :class:`~eko.operator.member.OpMember` are only valid in the current
       threshold area
 
 - :class:`~eko.operator.physical.PhysicalOperator`
 
-    * this is the exposed equivalent of :class:`~eko.operator.Operator`,
-      i.e. it also lives at at fixed final scale
-    * its :class:`~eko.operator.member.OpMember` are valid from the starting scale
-      to the final scale
+    * this is the connection of the :class:`~eko.operator.Operator`
+      between the different flavor bases
 
 - :class:`~eko.operator.member.OpMember`
 
-    * this represents a single evolution kernel operator
-    * inside :class:`~eko.operator.Operator` they are in "raw" evolution basis, i.e.
+    * this represents a single operator in Mellin space for a fixed flavor space operator
+    * inside :class:`~eko.operator.Operator` they are in anomalous dimension basis, i.e.
       :math:`\tilde{\mathbf{E}}_S, \tilde{E}_{ns}^{\pm,v}`, and they never cross a threshold
-    * inside :class:`~eko.operator.physical.PhysicalOperator` they are in "true" evolution
+    * inside :class:`~eko.operator.physical.PhysicalOperator` they are in evolution
       basis, i.e. they evolve e.g. :math:`\tilde V, \tilde T_3` etc., so they are eventually
-      a product of the "raw" basis (see :doc:`Matching Conditions </theory/Matching>`)
+      a product of the anomalous dimension basis (see :doc:`Matching Conditions </theory/Matching>`)

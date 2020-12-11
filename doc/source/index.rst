@@ -33,9 +33,9 @@ EKO is ...
 
     theory/Interpolation
     theory/Mellin
+    theory/FlavorSpace
     theory/pQCD
     theory/DGLAP
-    theory/FlavorSpace
     theory/Matching
     
     zzz-refs

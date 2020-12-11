@@ -1,8 +1,9 @@
 Flavor Space
 ============
 
-An |EKO| is a rank-4 operator acting both in flavor and momentum fraction space.
-By Flavor Space we mean the 13-dimensional function space that contains
+An |EKO| is a rank-4 operator acting both in Flavor Space :math:`\mathcal F`
+and momentum fraction space :math:`\mathcal X`.
+By Flavor Space :math:`\mathcal F` we mean the 13-dimensional function space that contains
 the different |PDF| flavor. Note that there is an abiguity concerning the
 word "Flavor Basis" which is sometimes refered to as an *abstract* basis
 in the Flavor Space, but often the specific basis described here below is meant.
@@ -14,7 +15,7 @@ Here we use the raw quark flavors along with the gluon as they correspond to the
 operator in the Lagrange density:
 
 .. math ::
-    g, u, \bar u, d, \bar d, s, \bar s, c, \bar c, b, \bar b, t, \bar t
+    \mathcal F = \text{span}(g, u, \bar u, d, \bar d, s, \bar s, c, \bar c, b, \bar b, t, \bar t)
 
 - we deliver the :class:`~eko.output.Output` in this basis, although the flavors are
   slightly differently arranged (Implementation: :data:`here <eko.basis_rotation.flavor_basis_pids>`).
@@ -34,9 +35,9 @@ that e.g. in the proton will carry most of the momentum at large x and :math:`q^
 sea quark distribution:
 
 .. math ::
-    g, u^+, u^-, d^+, d^-, s^+, s^-, c^+, c^-, b^+, b^-, t^+, t^-
+    \mathcal F \sim \text{span}(g, u^+, u^-, d^+, d^-, s^+, s^-, c^+, c^-, b^+, b^-, t^+, t^-)
 
-- this basis is *not* normalized with respect to the canonical flavor basis
+- this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation to the Flavor Basis is implemented in
   :meth:`~eko.operator.flavor.rotate_pm_to_flavor`
 
@@ -70,7 +71,7 @@ The mapping between the Evolution Basis and the +/- Basis is given by
 - the associated numbers to the valence-like and singlet-like non-singlet distributions
   :math:`k` follow the common group-theoretical notation :math:`k = n_f^2 - 1`
   where :math:`n_f` denotes the incorporated number of quark flavors
-- this basis is *not* normalized with respect to the canonical flavor basis, this means that in the
+- this basis is *not* normalized with respect to the canonical Flavor Basis, this means that in the
   final step before the :class:`~eko.output.Output` is created, the elements have to be normalized
 - the basis transformation from the Flavor Basis is implemented in
   :data:`~eko.basis_rotation.rotate_flavor_to_evolution`
@@ -83,3 +84,39 @@ of the |PDF| :cite:`Candido:2020yat`. E.g. :cite:`Giele:2002hx` uses
 
 .. math ::
     u_v = u^-, d_v = d^-, L_+ = 2(\bar u + \bar d), L_- = \bar d - \bar u, s^+, c^+, b^+, g
+
+Operator Bases
+--------------
+
+An |EKO| :math:`\mathbf E` is operator in the Flavor Space :math:`\mathcal F` mapping one vector onto an other:
+
+.. math ::
+    \mathbf E \in \mathcal F \otimes \mathcal F
+
+so to specify the basis for these operators we need to specify the basis for both the input and output space:
+
+Operator Flavor Basis
+^^^^^^^^^^^^^^^^^^^^^
+
+- here we mean :ref:`theory/FlavorSpace:Flavor Basis` both in the input and the output space
+- the :class:`~eko.output.Output` is delivered in this basis
+- this basis has :math:`(2n_f+ 1)^2 = 13^2 = 169` elements
+- this basis can span arbitrary thresholds
+
+Operator Anomalous Dimension Basis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- here we mean the true underlying physical basis where elements correspond to the different splitting functions,
+  i.e. :math:`\mathbf{E}_S, E_{ns,v}, E_{ns,+}, E_{ns,-}`
+- this basis has 4 elements in |LO|, 6 elements in |NLO| and its maximum 7 elemets after |NNLO|
+- this basis can *not* span any threshold but can only be used for a *fixed* number of flavors
+- all actual computations are done in this basis
+
+Operator Evolution Basis
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+- here we mean :ref:`theory/FlavorSpace:Evolution Basis` both in the input and the output space
+- this basis does **not** coincide with the :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis` as the decision on which operator of that
+  basis is used is a non-trivial decision - see :doc:`Matching`
+- this basis has :math:`2n_f+ 3 = 15` elements
+- this basis can span arbitrary thresholds
