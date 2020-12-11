@@ -3,7 +3,7 @@ Mellin Space and Transformations
 
 We solve the equations in Mellin-space as there multiplicative convolution is
 mapped onto a normal multiplication and thus integro-differential equations,
-such as DGLAP equations, are instead just normal differential equations.
+such as |DGLAP| equations, are instead just normal differential equations.
 
 The Mellin transformation is given by
 

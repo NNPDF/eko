@@ -1,14 +1,14 @@
 Solving DGLAP
 =============
 
-We are solving the DGLAP equations given in x-space by
+We are solving the |DGLAP| equations given in x-space by
 
 .. math::
     \frac{d}{d\ln(\mu_F^2)} \mathbf{f}(x,\mu_F^2) =
         \int\limits_x^1\!\frac{dy}{y}\, \mathbf{P}(x/y,a_s) \cdot \mathbf{f}(y,\mu_F^2)
 
 with :math:`\mathbf P` the Altarelli-Parisi splitting functions (see :doc:`pQCD`).
-In :doc:`Mellin space <Mellin>` the DGLAP equations are just differential equations:
+In :doc:`Mellin space <Mellin>` the |DGLAP| equations are just differential equations:
 
 .. math::
     \frac{d}{d\ln(\mu_F^2)} \tilde{\mathbf{f}}(\mu_F^2) = -\gamma(a_s) \cdot \tilde{\mathbf{f}}(\mu_F^2)
@@ -23,7 +23,11 @@ and the equations to solve become
         = \frac{d\ln(\mu_F^2)}{da_s} \cdot \frac{d \tilde{\mathbf{f}}(\mu_F^2)}{d\ln(\mu_F^2)} 
         = -\frac{\gamma(a_s)}{\beta(a_s)} \cdot \tilde{\mathbf{f}}(a_s)
 
-The (formal) solution can then be written in terms of an evolution kernel operator (EKO) :math:`\mathbf E` :cite:`Bonvini:2012sh`
+This assumes the factorization scale :math:`\mu_F^2` (the inherit scale of the |PDF|) and the
+renormalization scale :math:`\mu_R^2` (the inherit scale for the strong coupling) to be equal,
+but tis constraint can however be lifted (see :ref:`theory/pQCD:scale variations`).
+
+The (formal) solution can then be written in terms of an |EKO| :math:`\mathbf E` :cite:`Bonvini:2012sh`
 
 .. math::
     \tilde{\mathbf{f}}(a_s) &= \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) \cdot \tilde{\mathbf{f}}(a_s^0)\\
@@ -32,18 +36,19 @@ The (formal) solution can then be written in terms of an evolution kernel operat
 with :math:`\mathcal P` the path-ordering operator. In the non-singlet sector the equations decouple and
 we do not need to worry about neither matrices nor the path-ordering.
 
-Using :doc:`Interpolation <Interpolation>` on both the inital and final PDF, we can then discretize the
+Using :doc:`Interpolation <Interpolation>` on both the inital and final |PDF|, we can then discretize the
 |EKO| in x-space and define :math:`{\mathbf{E}}_{k,j}` (represented by
-:class:`~eko.evolution_operator.PhysicalOperator`) by
+:class:`~eko.operator.Operator`) by
 
 .. math::
     {\mathbf{E}}_{k,j}(a_s \leftarrow a_s^0) = \mathcal{M}^{-1}\left[\tilde{\mathbf{E}}(a_s \leftarrow a_s^0)\tilde p_j\right](x_k)
 
-Now, we can write the solution to DGLAP in a true matrix operator scheme and find
+Now, we can write the solution to |DGLAP| in a true matrix operator scheme and find
 
 .. math::
     \mathbf{f}(x_k,a_s) = {\mathbf{E}}_{k,j}(a_s \leftarrow a_s^0) \mathbf{f}(x_j,a_s^0)
 
+so the |EKO| is a rank-4 operator acting both in flavor and momentum fraction space. 
 
 The issue of matching conditions when crossing flavor thresholds is dicussed in a seperate :doc:`document <Matching>`
 
@@ -69,7 +74,7 @@ We find
 
 with :math:`\gamma_{ns}^{(0)} = \gamma_{ns,+}^{(0)} = \gamma_{ns,-}^{(0)} = \gamma_{ns,v}^{(0)} = \gamma_{qq}^{(0)}`.
 
-The EKO is then given by a simple exponential :cite:`Vogt:2004ns`
+The |EKO| is then given by a simple exponential :cite:`Vogt:2004ns`
 
 .. math::
     \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) = \exp\left[\gamma_{ns}^{(0)} \ln(a_s/a_s^0)/\beta_0 \right]
@@ -103,7 +108,7 @@ The projectors obey the usual properties, i.e.
 
 and thus the exponentiation becomes easier again.
 
-The EKO is then given by
+The |EKO| is then given by
 
 .. math::
     \ESk{0}{a_s}{a_s^0} = \ep \exp(\lambda_{+}) + \em \exp(\lambda_{-})
@@ -161,7 +166,7 @@ with :math:`\gamma_{S}^{(0)} \gamma_{S}^{(1)} \neq \gamma_{S}^{(1)} \gamma_{S}^{
 
 Here the strategies are:
 
-For ``method in ['iterate-exact', 'iterate-expanded']`` we use a discretized path-ordering :cite:`Bonvini:2012sh`:
+- for ``method in ['iterate-exact', 'iterate-expanded']`` we use a discretized path-ordering :cite:`Bonvini:2012sh`:
 
 .. math::
     \ESk{1}{a_s}{a_s^0} = \prod\limits_{k=n}^{0} \ESk{1}{a_s^{k+1}}{a_s^{k}}\quad \text{with} a_s^{n+1} = a_s
@@ -175,12 +180,13 @@ where the order of the product is such that later |EKO| are to the left and
 
 using the projector algebra from |LO| to exponentiate the single steps.
 
-For ``method in ['decompose-exact', 'decompose-expanded']``: use the exact or the approximate exact
-integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(1)}` - 
-this will neglect the non-commutativity of the singlet matrices.
+- for ``method in ['decompose-exact', 'decompose-expanded']``: use the exact or the approximate exact
+  integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(1)}` - 
+  this will neglect the non-commutativity of the singlet matrices.
 
-For ``method in ['perturbative-exact', 'perturbative-expanded', 'ordered-truncated', 'truncated']``
-we seek for an perturbative solution around the (exact) leading order operator:
+- for ``method in ['perturbative-exact', 'perturbative-expanded', 'ordered-truncated', 'truncated']``
+  we seek for an perturbative solution around the (exact) leading order operator:
+
 We set :cite:`Vogt:2004ns`
 
 .. math::

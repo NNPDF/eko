@@ -1,7 +1,7 @@
 Flavor Space
 ============
 
-An |EKO| is rank-4 operator both in flavor and momentum fraction space.
+An |EKO| is a rank-4 operator acting both in flavor and momentum fraction space.
 By Flavor Space we mean the 13-dimensional function space that contains
 the different |PDF| flavor. Note that there is an abiguity concerning the
 word "Flavor Basis" which is sometimes refered to as an *abstract* basis
