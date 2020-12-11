@@ -104,7 +104,12 @@ pygments_style = None
 shared = pathlib.Path(__file__).absolute().parent / "shared"
 rst_prolog = "\n".join([open(x).read() for x in os.scandir(shared)])
 
-extlinks = {'yadism': ('https://n3pdf.github.io/yadism/%s', 'yadism')}
+extlinks = {
+    'yadism': ('https://n3pdf.github.io/yadism/%s', 'yadism'),
+    'banana': ('https://n3pdf.github.io/banana/%s', 'banana'),
+    'pineappl': ('https://n3pdf.github.io/pineappl/%s', 'pineappl'),
+    'pineko': ('https://github.com/N3PDF/pineko/%s', 'pineko'),
+}
 
 # -- Options for HTML output -------------------------------------------------
 

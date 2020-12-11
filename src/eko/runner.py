@@ -8,8 +8,9 @@ import copy
 from . import interpolation
 from .output import Output
 from .strong_coupling import StrongCoupling
-from .thresholds import ThresholdsConfig
+from .thresholds import ThresholdsAtlas
 from .operator.grid import OperatorGrid
+from . import basis_rotation as br
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +79,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         bfd = interpolation.InterpolatorDispatcher.from_dict(operators_card)
         self.out.update(bfd.to_dict())
         # FNS
-        tc = ThresholdsConfig.from_dict(theory_card)
+        tc = ThresholdsAtlas.from_dict(theory_card)
         self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
         sc = StrongCoupling.from_dict(theory_card, tc)
@@ -91,11 +92,6 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
             bfd,
         )
 
-    def get_operators(self):
-        """compute the actual operators"""
-        operators = self.op_grid.compute_q2grid()
-        return operators
-
     def get_output(self):
         """
         Collects all data for output (to run the evolution)
@@ -107,8 +103,8 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         """
         # add all operators
         Q2grid = {}
-        for op in self.get_operators():
-            final_scale = op.q2_final
-            Q2grid[float(final_scale)] = op.to_raw()
+        self.out["pids"] = br.flavor_basis_pids
+        for final_scale, op in self.op_grid.compute().items():
+            Q2grid[float(final_scale)] = op
         self.out["Q2grid"] = Q2grid
         return copy.deepcopy(self.out)

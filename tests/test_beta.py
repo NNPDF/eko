@@ -12,7 +12,7 @@ from eko import beta
 
 def _flav_test(function):
     """Check that the given beta function `function` is valid
-    for any number of flavours up to 5"""
+    for any number of flavors up to 5"""
     for nf in range(5):
         result = function(nf)
         assert result > 0.0

@@ -1,24 +1,17 @@
 # -*- coding: utf-8 -*-
 r"""
-This module holds the classes that define the flavor number schemes (FNS).
-
-Run card parameters:
-
-.. include:: /code/IO-tabs/ThresholdConfig.rst
+This module holds the classes that define the |FNS|.
 """
 import logging
-import numbers
 
 import numpy as np
-
-from eko.flavours import get_all_flavour_paths
 
 logger = logging.getLogger(__name__)
 
 
 class Area:
     """
-    Sets up a single threhold area with a fixed configuration.
+    Sets up a single threshold area with a fixed configuration.
 
     Parameters
     ----------
@@ -26,287 +19,177 @@ class Area:
             lower bound of the area
         q2_max : float
             upper bound of the area
-        q2_0 : float
-            reference point of the area (can be anywhere in the area)
         nf : float
-            number of flavours in the area
+            number of flavors in the area
     """
 
-    def __init__(self, q2_min, q2_max, q2_0, nf):
+    def __init__(self, q2_min, q2_max, nf):
         self.q2_min = q2_min
         self.q2_max = q2_max
         self.nf = nf
-        self.has_q2_0 = False
-        # Now check which is the q2_ref for this area
-        if q2_0 > q2_max:
-            self.q2_ref = q2_max
-        elif q2_0 < q2_min:
-            self.q2_ref = q2_min
-        else:
-            self.has_q2_0 = True
-            self.q2_ref = q2_0
 
-    def q2_towards(self, q2):
-        """
-        Return q2_min or q2_max depending on whether
-        we are going towards the max or the min or q2
-        if we are alreay in the correct area
-
-        Parameters
-        ----------
-            q2 : float
-                reference point
-
-        Returns
-        -------
-            q2_next : float
-                the closest point to q2 that is within the area
-        """
-        if q2 > self.q2_max:
-            return self.q2_max
-        elif q2 < self.q2_min:
-            return self.q2_min
-        else:
-            return q2
-
-    def __gt__(self, target_area):
-        """Compares q2 of areas"""
-        return self.q2_min >= target_area.q2_max
-
-    def __lt__(self, target_area):
-        """Compares q2 of areas"""
-        return self.q2_max <= target_area.q2_min
-
-    def __call__(self, q2):
-        """
-        Checks whether q2 is contained in the area
-
-        Parameters
-        ----------
-            q2 : float
-                testing point
-
-        Returns
-        -------
-            contained : bool
-                is point contained?
-        """
-        return self.q2_min <= q2 <= self.q2_max
+    def __repr__(self):
+        return f"Area([{self.q2_min},{self.q2_max}], nf={self.nf})"
 
 
-class ThresholdsConfig:
+class PathSegment:
     """
-    The threshold class holds information about the thresholds any
-    Q2 has to pass in order to get there from a given q2_ref and scheme.
+    Oriented path in the threshold area landscape.
 
     Parameters
     ----------
-        q2_ref : float
-            Reference q^2
-        scheme: str
-            Choice of scheme
-        threshold_list: list
-            List of q^2 thresholds should the scheme accept it
-        nf: int
-            Number of flavors for the FFNS
+        q2_from : float
+            starting point
+        q2_to : float
+            final point
+        area : eko.thresholds.Area
+            containing area
     """
 
-    def __init__(self, q2_ref, scheme, *, threshold_list=None, nf=None):
-        # Initial values
-        self.q2_ref = q2_ref
-        self.scheme = scheme
-        self._threshold_list = []
-        self._areas = []
-        self._area_walls = []
-        self._area_ref = 0
-        self.max_nf = None
-        self.min_nf = None
-        self._operator_paths = []
-        protection = False
+    def __init__(self, q2_from, q2_to, area):
+        self.q2_from = q2_from
+        self.q2_to = q2_to
+        self._area = area
 
-        if scheme == "FFNS":
-            if nf is None:
-                raise ValueError("No value for nf in the FFNS was received")
-            if threshold_list is not None:
-                raise ValueError("The FFNS does not accept any thresholds")
-            self._areas = [Area(0, np.inf, self.q2_ref, nf)]
-            self.max_nf = nf
-            self.min_nf = nf
-            protection = True
-            logger.info("Thresholds: Fixed flavor number scheme with %d flavors", nf)
-        elif scheme in ["ZM-VFNS", "ZM-VFNS'", "FONLL-A", "FONLL-A'"]:
-            if nf is not None:
-                logger.warning(
-                    "The VFNS configures its own value for nf, ignoring input nf=%d",
-                    nf,
-                )
-            if threshold_list is None:
-                raise ValueError(
-                    "The VFN scheme was selected but no thresholds were given"
-                )
-            self._setup_vfns(threshold_list)
-            logger.info("Thresholds: Variable flavor number scheme (%s)", scheme)
-        else:
-            raise NotImplementedError(f"The scheme {scheme} is not implemented")
+    @property
+    def nf(self):
+        return self._area.nf
 
-        # build flavour targets
-        nf_protected = None
-        if protection:
-            nf_protected = nf
-        self._operator_paths = get_all_flavour_paths(nf_protected)
+    @property
+    def tuple(self):
+        return (self.q2_from, self.q2_to)
+
+    def __repr__(self):
+        return f"PathSegment({self.q2_from} -> {self.q2_to}, nf={self.nf})"
 
     @classmethod
-    def from_dict(cls, theory_card):
+    def intersect(cls, q2_from, q2_to, area):
+        if q2_from < q2_to:
+            return cls(max(q2_from, area.q2_min), min(q2_to, area.q2_max), area)
+        else:
+            return cls(min(q2_from, area.q2_max), max(q2_to, area.q2_min), area)
+
+
+class ThresholdsAtlas:
+    """
+    Holds information about the thresholds any Q2 has to pass in order to get
+    there from a given q2_ref.
+
+    Parameters
+    ----------
+        thresholds: list(float)
+            List of q^2 thresholds
+        q2_ref: float
+            reference scale
+    """
+
+    def __init__(self, thresholds, q2_ref=None):
+        # Initial values
+        self.q2_ref = q2_ref
+        thresholds = list(thresholds)
+        if thresholds != sorted(thresholds):
+            raise ValueError("thresholds need to be sorted")
+        self.areas = []
+        self.area_walls = [0] + thresholds + [np.inf]
+        q2_min = 0
+        nf = 3
+        for q2_max in self.area_walls[1:]:
+            new_area = Area(q2_min, q2_max, nf)
+            self.areas.append(new_area)
+            nf = nf + 1
+            q2_min = q2_max
+
+    @classmethod
+    def ffns(cls, nf, q2_ref=None):
         """
+        Create a |FFNS| setup.
+
+        Parameters
+        ----------
+            nf : int
+                number of light flavors
+            q2_ref : float
+                reference scale
+        """
+        return cls([0] * (nf - 3) + [np.inf] * (6 - nf), q2_ref)
+
+    @classmethod
+    def from_dict(cls, theory_card, prefix="k"):
+        r"""
         Create the object from the run card.
+
+        The thresholds are computed by :math:`(m_q \cdot k_q^{Thr})`.
 
         Parameters
         ----------
             theory_card : dict
                 run card with the keys given at the head of the :mod:`module <eko.thresholds>`
+            prefix : str
+                prefix for the ratio parameters
 
         Returns
         -------
-            cls : ThresholdConfig
+            cls : ThresholdsAtlas
                 created object
         """
-        FNS = theory_card["FNS"]
+
+        def thres(pid):
+            heavy_flavors = "cbt"
+            flavor = heavy_flavors[pid - 4]
+            return pow(
+                theory_card[f"m{flavor}"] * theory_card[f"{prefix}{flavor}Thr"], 2
+            )
+
+        thresholds = [thres(q) for q in range(4, 6 + 1)]
+        # preset ref scale
         q2_ref = pow(theory_card["Q0"], 2)
-        if FNS != "FFNS":  # setup ZM-VFNS
-            mc = theory_card["mc"]
-            mb = theory_card["mb"]
-            mt = theory_card["mt"]
-            threshold_list = pow(np.array([mc, mb, mt]), 2)
-            nf = None
-        else:  # here FFNS
-            nf = theory_card["NfFF"]
-            threshold_list = None
-        return cls(q2_ref, FNS, threshold_list=threshold_list, nf=nf)
+        return cls(thresholds, q2_ref)
 
-    @property
-    def nf_ref(self):
-        """ Number of flavours in the reference area """
-        return self._areas[self._area_ref].nf
-
-    def nf_range(self):
+    def path(self, q2_to, q2_from=None):
         """
-        Iterate number of flavours, including min_nf *and* max_nf
-
-        Yields
-        ------
-            nf : int
-                number of flavour
-        """
-        return range(self.min_nf, self.max_nf + 1)
-
-    def _setup_vfns(self, threshold_list):
-        """
-        Receives a list of thresholds and sets up the vfns scheme
+        Get path from q2_from to q2_to.
 
         Parameters
         ----------
-            threshold_list: list
-                List of q^2 thresholds
-        """
-        nf = 3
-        # Force sorting
-        self._area_walls = sorted(threshold_list)
-        # Generate areas
-        self._areas = []
-        q2_min = 0
-        q2_ref = self.q2_ref
-        self.min_nf = nf
-        for i, q2_max in enumerate(self._area_walls + [np.inf]):
-            nf = self.min_nf + i
-            new_area = Area(q2_min, q2_max, q2_ref, nf)
-            if new_area.has_q2_0:
-                self._area_ref = i
-            self._areas.append(new_area)
-            q2_min = q2_max
-        self.max_nf = nf
-
-    def get_path_from_q2_ref(self, q2):
-        """
-        Get the Area path from q2_ref to q2.
-
-        Parameters
-        ----------
-            q2: float
-                Target value of q2
+            q2_to: float
+                target value of q2
+            q2_from: float
+                starting value of q2
 
         Returns
         -------
-            area_path: list
-                List of Areas to go through in order to get from q2_ref
-                to q2. The first one is the one containg q2_ref while the
-                last one contains q2
+            path: list(PathSegment)
+                List of PathSegment to go through in order to get from q2_from
+                to q2_to.
         """
-        current_area = self.get_areas_idx(q2)[0]
-        if current_area < self._area_ref:
+        if q2_from is None:
+            q2_from = self.q2_ref
+
+        ref_idx = np.digitize(q2_from, self.area_walls)
+        target_idx = np.digitize(q2_to, self.area_walls)
+        if q2_to < q2_from:
             rc = -1
         else:
             rc = 1
-        area_path = [
-            self._areas[i] for i in range(self._area_ref, current_area + rc, rc)
+        path = [
+            PathSegment.intersect(q2_from, q2_to, self.areas[i - 1])
+            for i in range(ref_idx, target_idx + rc, rc)
         ]
-        return area_path
+        return list(filter(lambda s: not np.allclose(s.q2_from, s.q2_to), path))
 
-    def get_composition_path(self, nf, n_thres):
+    def nf(self, q2):
         """
-        Iterates all flavour targets.
+        Finds the number of flavor active at the given scale.
 
         Parameters
         ----------
-            nf: int
-                nf value of the target flavour
-            n_thres: int
-                number of thresholds which are going to be crossed
-
-        Yields
-        ------
-            name : string
-                flavour name
-            path : list
-                flavour path
-        """
-        for flavour in self._operator_paths:
-            yield flavour.name, flavour.get_path(nf, n_thres)
-
-    def get_areas_idx(self, q2arr):
-        """
-        Returns the index of the area in which each value of q2arr falls.
-
-        Parameters
-        ----------
-            q2arr: np.array
-                array of values of q2
+            q2 : float
+                reference scale
 
         Returns
         -------
-            areas_idx: list
-                list with the indices of the corresponding areas for q2arr
+            nf : int
+                number of active flavors
         """
-        # Ensure q2arr is an array
-        if isinstance(q2arr, numbers.Number):
-            q2arr = np.array([q2arr])
-        # Check in which area is every q2
-        areas_idx = np.digitize(q2arr, self._area_walls)
-        return areas_idx
-
-    def get_areas(self, q2arr):
-        """
-        Returns the Areas in which each value of q2arr falls
-
-        Parameters
-        ----------
-            q2arr: np.array
-                array of values of q2
-
-        Returns
-        -------
-            areas: list
-                list with the areas for q2arr
-        """
-        idx = self.get_areas_idx(q2arr)
-        area_list = np.array(self._areas)[idx]
-        return list(area_list)
+        ref_idx = np.digitize(q2, self.area_walls)
+        return self.areas[ref_idx - 1].nf

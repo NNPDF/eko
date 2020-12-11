@@ -20,7 +20,7 @@ def beta_0(nf: int):
     Parameters
     ----------
         nf : int
-            number of active flavours
+            number of active flavors
 
     Returns
     -------
@@ -41,7 +41,7 @@ def beta_1(nf: int):
     Parameters
     ----------
         nf : int
-            number of active flavours
+            number of active flavors
 
     Returns
     -------
@@ -66,7 +66,7 @@ def beta_2(nf: int):
     Parameters
     ----------
         nf : int
-            number of active flavours
+            number of active flavors
 
     Returns
     -------
@@ -95,7 +95,7 @@ def beta(k, nf):
         k : int
             perturbative order
         nf : int
-            number of active flavours
+            number of active flavors
 
     Returns
     -------
@@ -124,7 +124,7 @@ def b(k, nf):
         k : int
             perturbative order
         nf : int
-            number of active flavours
+            number of active flavors
 
     Returns
     -------

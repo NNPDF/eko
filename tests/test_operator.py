@@ -4,10 +4,8 @@ import numpy as np
 import scipy.integrate
 
 from eko.operator import Operator, gamma_ns_fact, gamma_singlet_fact, quad_ker
-from eko.operator.grid import OperatorGrid, OperatorMaster
-from eko.operator.member import OpMember
-from eko.operator.physical import PhysicalOperator
-from eko.thresholds import ThresholdsConfig
+from eko.operator.grid import OperatorGrid
+from eko.thresholds import ThresholdsAtlas
 from eko.strong_coupling import StrongCoupling
 from eko.interpolation import InterpolatorDispatcher
 from eko import anomalous_dimensions as ad
@@ -151,6 +149,13 @@ class TestOperator:
             "Q0": np.sqrt(2),
             "FNS": "FFNS",
             "NfFF": 3,
+            "IC": 0,
+            "mc": 1.0,
+            "mb": 4.75,
+            "mt": 173.0,
+            "kcThr": np.inf,
+            "kbThr": np.inf,
+            "ktThr": np.inf,
         }
         operators_card = {
             "Q2grid": [1, 10],
@@ -165,22 +170,21 @@ class TestOperator:
         g = OperatorGrid.from_dict(
             theory_card,
             operators_card,
-            ThresholdsConfig.from_dict(theory_card),
+            ThresholdsAtlas.from_dict(theory_card),
             StrongCoupling.from_dict(theory_card),
             InterpolatorDispatcher.from_dict(operators_card),
         )
-        m = OperatorMaster(g.config, g.managers, 3)
-        o = m.get_op(1, 10)
+        o = Operator(g.config, g.managers, 3, 2, 10)
         # fake quad
         monkeypatch.setattr(
             scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
         )
         # LO
         o.compute()
+        assert "NS_m" in o.op_members
         np.testing.assert_allclose(
             o.op_members["NS_m"].value, o.op_members["NS_p"].value
         )
-        assert o.op_members["NS_m"].name == "NS_m"
         np.testing.assert_allclose(
             o.op_members["NS_v"].value, o.op_members["NS_p"].value
         )
@@ -191,23 +195,3 @@ class TestOperator:
         np.testing.assert_allclose(
             o.op_members["NS_v"].value, o.op_members["NS_m"].value
         )
-
-    def test_compose(self, monkeypatch):
-        # fake compute
-        op_members = {}
-        shape = (2, 2)
-        for n in ["S_qq", "S_qg", "S_gq", "S_gg", "NS_p", "NS_m", "NS_v"]:
-            op_members[n] = OpMember(np.random.rand(*shape), np.random.rand(*shape), n)
-
-        def fake_compute(op):
-            op.op_members = op_members
-
-        monkeypatch.setattr(Operator, "compute", fake_compute)
-        op1 = Operator({}, {}, 3, 1, 2)
-        t = ThresholdsConfig(1, "FFNS", nf=3)
-        instruction_set = t.get_composition_path(3, 0)
-        ph = op1.compose([], instruction_set, 2)
-        assert isinstance(ph, PhysicalOperator)
-        # V.V is NS_v
-        np.testing.assert_allclose(ph.op_members["V.V"].value, op_members["NS_v"].value)
-        assert ph.op_members["V.V"].name == "V.V"

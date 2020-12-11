@@ -1,4 +1,10 @@
+.. |EKO| replace::
+   :abbr:`EKO (Evolution Kernel Operator)`
+
 .. FNS
+
+.. |FNS| replace::
+    :abbr:`FNS (Flavor Number Scheme)`
 
 .. |FFNS| replace::
     :abbr:`FFNS (Fixed Flavor Number Scheme)`
@@ -27,9 +33,23 @@
    :abbr:`DGLAP (Dokshitzer-Gribov-Lipatov-Altarelli-Parisi)`
 
 .. |PDF| replace::
-   :abbr:`PDF (Parton Distribution Function)`
+   :abbr:`PDF (Parton Distribution Function(s))`
+
+.. data
+
+.. |pid| replace::
+   :abbr:`pid ((Monte Carlo) parton identifier)`
 
 .. external
 
 .. |yadism| replace::
    :yadism:`\ `
+
+.. |banana| replace::
+   :banana:`\ `
+
+.. |pineappl| replace::
+   :pineappl:`\ `
+
+.. |pineko| replace::
+   :pineko:`\ `

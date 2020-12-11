@@ -36,16 +36,9 @@ The classes are nested as follows:
 
     *  this is the master class which administrates all evolution kernel operator tasks
     *  it is instantiated once for each run
-    *  it divides the given range of :math:`Q^2` into the necessary threshold crossings and
-       creates a :class:`~eko.operator.grid.OperatorMaster` for each
+    *  it divides the given range of :math:`Q^2` into the necessary threshold crossings 
     *  it recollects all necessary operators in the end to create the
-       :class:`~eko.operator.physical.PhysicalOperator` following the instructions of
-       :class:`~eko.flavours.FlavourTarget`
-
-- :class:`~eko.operator.grid.OperatorMaster`
-
-    * this represents a configuration for a fixed number of flavours
-    * it creates an :class:`~eko.operator.Operator` for each final scale :math:`Q^2`
+       :class:`~eko.operator.physical.PhysicalOperator`
 
 - :class:`~eko.operator.Operator`
 

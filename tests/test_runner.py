@@ -17,6 +17,13 @@ def test_runner():
         "FNS": "FFNS",
         "NfFF": 3,
         "ModEv": "EXA",
+        "IC": 0,
+        "mc": 1.0,
+        "mb": 4.75,
+        "mt": 173.0,
+        "kcThr": 0,
+        "kbThr": np.inf,
+        "ktThr": np.inf,
     }
     operators_card = {
         "Q2grid": [10, 100],
@@ -30,6 +37,9 @@ def test_runner():
     }
     r = eko.runner.Runner(theory_card, operators_card)
     o = r.get_output()
+    lpids = len(o["pids"])
+    lx = len(o["interpolation_xgrid"])
+    op_shape = (lpids, lx, lpids, lx)
 
     # check output = input
     np.testing.assert_allclose(
@@ -44,6 +54,5 @@ def test_runner():
     for ops in o["Q2grid"].values():
         assert "operators" in ops
         assert "operator_errors" in ops
-        names = ["V.V", "V3.V3", "V8.V8", "T3.T3", "T8.T8", "S.S", "S.g", "g.S", "g.g"]
-        assert list(ops["operators"].keys()) == names
-        assert list(ops["operator_errors"].keys()) == names
+        assert ops["operators"].shape == op_shape
+        assert ops["operator_errors"].shape == op_shape

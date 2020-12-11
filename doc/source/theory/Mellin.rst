@@ -135,8 +135,7 @@ where formally :math:`\eta = (-1)^N` but in all singlet-like quantities it has t
 and with -1 elsewise.
 
 - for the sums with greater depth we use the lists provided in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if`.
-- Note, however, that the formula for :math:`S_{-2,1}(N)` is neither correct in :cite:`Blumlein:1998if`
-  nor in :cite:`MuselliPhD` but in :cite:`Gluck:1989ze` (where it is called :math:`\tilde S`):
+- For :math:`S_{-2,1}(N)` we use the implementation of :cite:`Gluck:1989ze` (where it is called :math:`\tilde S`):
 
 .. math ::
     S_{-2,1}(N) &= - \frac 5 8 \zeta(3) + \zeta(2)\left(S_{-1}(N) - \frac{\eta}{N} + \log(2)\right) + \eta\left(\frac{S_{1}(N)}{N^2} + g_3(N)\right)\\

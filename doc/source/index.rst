@@ -7,15 +7,15 @@ Welcome to EKO!
   :alt: EKO logo
 
 EKO solves the |DGLAP| equations in Mellin space and produces evolution kernel operators (EKO).
-It is |PDF|-independent and the operators can be computed for a given configuration
+It is |PDF|-independent and the operators can be precomputed for a given configuration
 once and be reused after.
 
-The project is ... 
+EKO is ... 
 
 - open-source since the beginning - allowing a community effort for writing a new generation of code
 - written in Python - opting for a popular, high-level langauge to facilitate other authors to participate in the project
 - equipped with a continous integration / deployment - to allow a high coding standard and routinely checked code basis
-- closely related to |yadism|
+- part of the N3PDF software compendium: |yadism|, |banana|, |pineappl| and |pineko|
 
 .. toctree::
     :maxdepth: 1
@@ -35,7 +35,7 @@ The project is ...
     theory/Mellin
     theory/pQCD
     theory/DGLAP
-    theory/FlavourBasis
+    theory/FlavorSpace
     theory/Matching
     
     zzz-refs
