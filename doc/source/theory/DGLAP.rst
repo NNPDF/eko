@@ -33,7 +33,7 @@ with :math:`\mathcal P` the path-ordering operator. In the non-singlet sector th
 we do not need to worry about neither matrices nor the path-ordering.
 
 Using :doc:`Interpolation <Interpolation>` on both the inital and final PDF, we can then discretize the
-EKO in x-space and define :math:`{\mathbf{E}}_{k,j}` (represented by
+|EKO| in x-space and define :math:`{\mathbf{E}}_{k,j}` (represented by
 :class:`~eko.evolution_operator.PhysicalOperator`) by
 
 .. math::
@@ -51,13 +51,13 @@ Leading Order
 -------------
 
 Expanding the anomalous dimension :math:`\gamma(a_s)` and the beta function :math:`\beta(a_s)`
-to LO we obtain the (exact) EKO:
+to |LO| we obtain the (exact) |EKO|:
 
 .. math::
     \ln \tilde {\mathbf E}^{(0)}(a_s \leftarrow a_s^0) &= \gamma^{(0)}\int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'} = \gamma^{(0)} \cdot j^{(0,0)}(a_s,a_s^0)\\
     j^{(0,0)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'} = \frac{\ln(a_s/a_s^0)}{\beta_0}
 
-In LO we always use the *exact* solution.
+In |LO| we always use the *exact* solution.
 
 LO Non-Singlet Evolution
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -121,22 +121,22 @@ We find
 
 with :math:`\gamma_{ns} \in \{\gamma_{ns,+},\gamma_{ns,-}=\gamma_{ns,v}\}`.
 
-We obtain the (exact) EKO :cite:`RuizArriola:1998er,Vogt:2004ns,Bonvini:2012sh`:
+We obtain the (exact) |EKO| :cite:`RuizArriola:1998er,Vogt:2004ns,Bonvini:2012sh`:
 
 .. math::
     \ln \tilde E^{(1)}_{ns}(a_s \leftarrow a_s^0) &= \gamma^{(0)} \cdot j^{(0,1)}(a_s,a_s^0) + \gamma^{(1)} \cdot j^{(1,1)}(a_s,a_s^0)\\
     j^{(1,1)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3} = \frac{1}{\beta_1}\ln\left(\frac{1+b_1 a_s}{1+b_1 a_s^0}\right)\\
     j^{(0,1)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3} = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}(a_s,a_s^0)
 
-Note that we recover the LO solution:
+Note that we recover the |LO| solution:
 
 .. math::
     \ln \tilde E^{(1)}_{ns}(a_s \leftarrow a_s^0) = \ln \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) + j^{(1,1)}(a_s,a_s^0)(\gamma^{(1)} - b_1 \gamma^{(0)})
 
-In NLO we provide different strategies to define the EKO:
+In |NLO| we provide different strategies to define the |EKO|:
 
 - ``method in ['iterate-exact', 'decompose-exact', 'perturbative-exact']``: use the *exact* solution as defined above
-- ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* LO solution and substitute
+- ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and substitute
   :math:`j^{(1,1)}(a_s,a_s^0) \to j^{(1,1)}_{exp}(a_s,a_s^0) = \frac 1 {\beta_0}(a_s - a_s^0)`
   and :math:`j^{(0,1)}(a_s,a_s^0) \to j^{(0,1)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}_{exp}(a_s,a_s^0)`
 - ``method = 'ordered-truncated'``: expanding the *argument* of the exponential of the new term but keeping the order we obtain:
@@ -166,14 +166,14 @@ For ``method in ['iterate-exact', 'iterate-expanded']`` we use a discretized pat
 .. math::
     \ESk{1}{a_s}{a_s^0} = \prod\limits_{k=n}^{0} \ESk{1}{a_s^{k+1}}{a_s^{k}}\quad \text{with} a_s^{n+1} = a_s
 
-where the order of the product is such that later EKOs are to the left and
+where the order of the product is such that later |EKO| are to the left and
 
 .. math::
     \ESk{1}{a_s^{k+1}}{a_s^{k}} &= \exp\left(-\frac{\gamma(a_s^{k+1/2})}{\beta(a_s^{k+1/2})} \Delta a_s \right) \\
     a_s^{k+1/2} &= a_0 + \left(k+ \frac 1 2\right) \Delta a_s\\
     \Delta a_s &= \frac{a_s - a_s^0}{n + 1}
 
-using the projector algebra from LO to exponentiate the single steps.
+using the projector algebra from |LO| to exponentiate the single steps.
 
 For ``method in ['decompose-exact', 'decompose-expanded']``: use the exact or the approximate exact
 integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(1)}` - 
@@ -187,7 +187,7 @@ We set :cite:`Vogt:2004ns`
     \frac{d}{da_s} \dSV{1}{a_s} = \frac{\mathbf R (a_s)}{a_s} \cdot \dSV{1}{a_s}\,, \quad
     \mathbf R (a_s) = \sum\limits_{k=0} a_s^k \mathbf R_{k}
 
-where in NLO we find
+where in |NLO| we find
 
 .. math::
     \mathbf R_0 = \gamma_{S}^{(0)}/\beta_0\,,\quad

@@ -8,7 +8,7 @@ We denote the solution of the :doc:`DGLAP equation <DGLAP>` in :doc:`Mellin spac
 .. math ::
     \tilde{f_j}(Q^2_1)= \tilde E_{jk}(Q^2_1\leftarrow Q^2_0) \tilde{f_k}(Q^2_0)
 
-For the singlet sector, we define the singlet evolution kernel matrix
+For the singlet sector (:math:`\Sigma` and :math:`g`), we define the singlet evolution kernel matrix
 
 .. math ::
     \ES{Q_1^2}{Q_0^2} = \begin{pmatrix}
@@ -177,3 +177,20 @@ and then set themselves apart:
                        & \quad \Ensv{m_{b}^2}{m_{c}^2} \Ensv{m_{c}^2}{Q_0^2} \dVf{3}{Q_0^2} \\
     \dTj{35}{6}{Q_1^2} &=      \Ensp{Q^2_1}{m_{t}^2} \left(1,0\right) \ES{m_{t}^2}{m_{b}^2} \\
                        & \quad \ES{m_{b}^2}{m_{c}^2} \ES{m_{c}^2}{Q_0^2} \dSV{3}{Q_0^2}
+
+Intrinsic evolution
+-------------------
+
+We also consider the evolution of intrinsic heavy |PDF|. Since these are massive partons they can not
+split any collinear particles and thus they do not participate in the |DGLAP| evolution. Instead their
+evolution is simpliy an indentiy operation: e.g. for an intrinsic distribution we get for
+:math:`m_c^2 > Q_1^2 > Q_0^2`:
+
+.. math ::
+    \tilde c(Q_1^2) &= \tilde c(Q_0^2)\\
+    \tilde {\bar c}(Q_1^2) &= \tilde{\bar c}(Q_0^2)
+
+After crossing the mass threshold (charm in this example) the |PDF| can not be considered intrinsic
+any loger. Here they have to be rejoined with their evolution basis elements and take then again
+part in the ordinary collinear evolution. This twofold behavior leads in the context of the
+FONLL matching scheme :cite:`Forte:2010ta` to considerable simplifications :cite:`Ball:2015dpa`.

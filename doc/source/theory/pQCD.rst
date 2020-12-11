@@ -19,7 +19,7 @@ It is usefull to define in addition :math:`b_k = \beta_k/\beta_0, k>0`.
 We implement two different strategies to solve the renormalization group equation (RGE):
 
 - ``method="exact"``: Solve using :func:`scipy.integrate.solve_ivp`.
-  In LO we fall back to the expanded solution as this is already the true solution.
+  In |LO| we fall back to the expanded solution as this is already the true solution.
 - ``method="expanded"``: using approximate solutions:
 
 .. math::
