@@ -14,25 +14,37 @@ The classes are nested as follows:
 
         node [shape=box]
         OperatorGrid [label="OperatorGrid"];
+        test, test1, test2222, test3 [style=invis];
         Operator [label="Operator" ];
         PhysicalOperator [label="PhysicalOperator"];
         OpMember [label="OpMember"];
+        ndarray [label="np.ndarray"];
 
-        OperatorGrid -> Operator;
+        {rank=same OperatorGrid test test1, test2222, test3}
+        {rank=same Operator PhysicalOperator ndarray}
+
+        OperatorGrid -> Operator [weight=1000];
         Operator -> OpMember;
-        Operator -> PhysicalOperator [style=dashed];
+        Operator -> PhysicalOperator [style=dashed len=10];
+        PhysicalOperator -> ndarray [style=dashed len=10];
+        PhysicalOperator -> OpMember
+        OperatorGrid -> test -> test1 -> test2222 -> test3 [style=invis];
+        test1 -> PhysicalOperator [weight=1000 style=invis];
+        test3 -> ndarray [weight=1000 style=invis];
     }
 
 - :class:`~eko.operator.grid.OperatorGrid`
 
-    *  this is the master class which administrates all operator tasks
-    *  it is instantiated once for each run
-    *  it divides the given range of :math:`Q^2` into the necessary threshold crossings
+    * this is the master class which administrates all operator tasks
+    * it is instantiated once for each run
+    * it holds all necessary :doc:`configurations </code/IO>`
+    * it holds all necessary instances of the :doc:`/code/Utilities`
 
 - :class:`~eko.operator.Operator`
 
-    * this represents a configuration for a fixed final scale :math:`Q^2`
-    * this uses the 3-dimensional anomalous dimension basis
+    * this represents a configuration for a fixed final scale :math:`Q_1^2`
+    * this performs the actual :doc:`computation </theory/DGLAP>`
+    * this uses the 3-dimensional :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
     * its :class:`~eko.operator.member.OpMember` are only valid in the current
       threshold area
 
@@ -40,12 +52,13 @@ The classes are nested as follows:
 
     * this is the connection of the :class:`~eko.operator.Operator`
       between the different flavor bases
+    * it is initialized with the 3-dimensional :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
+    * it does recombine the operator in the :ref:`theory/FlavorSpace:Operator Evolution Basis`
+      (see :doc:`Matching Conditions </theory/Matching>`)
+    * it exports the operators to :ref:`theory/FlavorSpace:Operator Flavor Basis` in a :class:`~numpy.ndarray`
 
 - :class:`~eko.operator.member.OpMember`
 
-    * this represents a single operator in Mellin space for a fixed flavor space operator
-    * inside :class:`~eko.operator.Operator` they are in anomalous dimension basis, i.e.
-      :math:`\tilde{\mathbf{E}}_S, \tilde{E}_{ns}^{\pm,v}`, and they never cross a threshold
-    * inside :class:`~eko.operator.physical.PhysicalOperator` they are in evolution
-      basis, i.e. they evolve e.g. :math:`\tilde V, \tilde T_3` etc., so they are eventually
-      a product of the anomalous dimension basis (see :doc:`Matching Conditions </theory/Matching>`)
+    * this represents a single operator in Mellin space for a given element of the :ref:`theory/FlavorSpace:Operator Bases`
+    * inside :class:`~eko.operator.Operator` they are in :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
+    * inside :class:`~eko.operator.physical.PhysicalOperator` they are in :ref:`theory/FlavorSpace:Operator Evolution Basis`

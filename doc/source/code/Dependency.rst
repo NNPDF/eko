@@ -6,4 +6,4 @@ Dependency Graph
   :align: center
   :alt: dependency graph
 
-Generated using `pydeps <https://pydeps.readthedocs.io/en/latest/>`_.
+Generated using `pydeps <https://pydeps.readthedocs.io/en/latest/>`_. Please open the file seperately for a zoom in.
