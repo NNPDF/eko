@@ -115,7 +115,13 @@ def log_evaluate_Nx(N, logx, area_list):
             facti = math.gamma(i + 1) * pow(-1, i) / pow(N, i + 1)
             for k in range(i + 1):
                 factk = 1.0 / math.gamma(k + 1)
-                pmax = pow(-umax, k) * emax
+                # this condition is actually not necessary in python since
+                # there pow(0,0) == 1 and apparently this is inherited in
+                # Numba/C, however this is mathematically cleaner
+                if umax == 0.0 and k == 0:
+                    pmax = emax
+                else:
+                    pmax = pow(-umax, k) * emax
                 # drop factor by analytics?
                 if logx >= logxmin:
                     pmin = 0
