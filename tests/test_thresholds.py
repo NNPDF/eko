@@ -5,94 +5,121 @@
 import pytest
 import numpy as np
 
-from eko.thresholds import ThresholdsConfig, Area
+from eko.thresholds import ThresholdsAtlas, Area, PathSegment
+
+
+class TestPathSegment:
+    def test_intersect_fully_inside(self):
+        a = Area(0, 1, 3)
+        fwd = PathSegment.intersect(0.2, 0.8, a)
+        assert fwd.q2_from == 0.2
+        assert fwd.q2_to == 0.8
+        assert fwd._area == a  # pylint: disable=protected-access
+        bwd = PathSegment.intersect(0.8, 0.2, a)
+        assert bwd.q2_from == 0.8
+        assert bwd.q2_to == 0.2
+        assert bwd._area == a  # pylint: disable=protected-access
+
+    def test_intersect_too_low(self):
+        a = Area(0, 1, 3)
+        fwd = PathSegment.intersect(-0.2, 0.8, a)
+        assert fwd.q2_from == 0
+        assert fwd.q2_to == 0.8
+        assert fwd._area == a  # pylint: disable=protected-access
+        bwd = PathSegment.intersect(0.8, -0.2, a)
+        assert bwd.q2_from == 0.8
+        assert bwd.q2_to == 0.0
+        assert bwd._area == a  # pylint: disable=protected-access
+
+    def test_intersect_no_overlap(self):
+        a = Area(0, 1, 3)
+        fwd = PathSegment.intersect(-0.2, 1.8, a)
+        assert fwd.q2_from == 0
+        assert fwd.q2_to == 1
+        assert fwd._area == a  # pylint: disable=protected-access
+        bwd = PathSegment.intersect(1.8, -0.2, a)
+        assert bwd.q2_from == 1
+        assert bwd.q2_to == 0.0
+        assert bwd._area == a  # pylint: disable=protected-access
+
+    def test_print(self):
+        a = Area(0, 1, 3)
+        assert "nf=3" in str(a)
+
+        p = PathSegment(0, 1, a)
+        assert "nf=3" in str(p)
+
+    def test_tuple(self):
+        a = Area(0, 1, 3)
+        p = PathSegment(0, 1, a)
+        assert p.tuple == (0, 1)
+        # is hashable?
+        d = dict()
+        d[p.tuple] = 1
+        assert d[p.tuple] == 1
 
 
 class TestThresholdsConfig:
     def test_init(self):
-        # at the moment it is fine to have ZM-VFNS with NfFF set
-        _tc = ThresholdsConfig(2, "ZM-VFNS", threshold_list=[1, 2], nf=2)
+        # 3 thr
+        tc3 = ThresholdsAtlas([1, 2, 3])
+        assert tc3.area_walls == [0, 1, 2, 3, np.inf]
+        assert tc3.areas[0].nf == 3
+        assert tc3.areas[1].nf == 4
+        # 2 thr
+        tc2 = ThresholdsAtlas([0, 2, 3])
+        assert tc2.area_walls == [0, 0, 2, 3, np.inf]
+        assert tc2.areas[0].nf == 3
+        assert tc2.areas[1].nf == 4
+
         # errors
         with pytest.raises(ValueError):
-            ThresholdsConfig(2, "FFNS")
-        with pytest.raises(ValueError):
-            ThresholdsConfig(2, "FFNS", nf=2, threshold_list=[1.0, 2.0])
-        with pytest.raises(NotImplementedError):
-            ThresholdsConfig(
-                2, "VFNS"
-            )  # I enforced ZM-VFNS -> "explicit is better then implicit"
-        with pytest.raises(ValueError):
-            ThresholdsConfig(2, "ZM-VFNS")
+            ThresholdsAtlas([1.0, 0.0])
 
     def test_from_dict(self):
-        # here it is ok to have *all* keys set
-        tc_vfns = ThresholdsConfig.from_dict(
-            {"FNS": "ZM-VFNS", "NfFF": 3, "Q0": np.sqrt(2), "mc": 2, "mb": 4, "mt": 175}
+        tc = ThresholdsAtlas.from_dict(
+            {
+                "mc": 1.0,
+                "mb": 4.0,
+                "mt": 100.0,
+                "kcThr": 1,
+                "kbThr": 2.0,
+                "ktThr": np.inf,
+                "Q0": 1.0,
+            }
         )
-        assert tc_vfns.scheme == "ZM-VFNS"
-        tc_ffns = ThresholdsConfig.from_dict(
-            {"FNS": "FFNS", "NfFF": 3, "Q0": np.sqrt(2), "mc": 2, "mb": 4, "mt": 175}
-        )
-        assert tc_ffns.scheme == "FFNS"
-
-    def test_nf_range_nf_ref(self):
-        # FFNS
-        for nf in [3, 4, 5, 6]:
-            tc_ffns = ThresholdsConfig(2, "FFNS", nf=nf)
-            assert list(tc_ffns.nf_range()) == [nf]
-            assert tc_ffns.nf_ref == nf
-        # VFNS - 1 threshold
-        for k, q2_ref in enumerate([2, 4]):
-            tc_vfns1 = ThresholdsConfig(q2_ref, "ZM-VFNS", threshold_list=[3])
-            assert list(tc_vfns1.nf_range()) == [3, 4]
-            assert (
-                tc_vfns1.nf_ref == 3 + k
-            )  # = 3 if below and 4 if above the one threshold
+        assert tc.area_walls[1:-1] == [1.0, 64.0, np.inf]
+        assert tc.q2_ref == 1.0
 
     def test_ffns(self):
-        # Check the setup for FFNS produces the correct thing
-        tholder = ThresholdsConfig(4.5, "FFNS", nf=4)
-        assert len(tholder._areas) == 1  # pylint: disable=protected-access
-        area_path = tholder.get_path_from_q2_ref(87.4)
-        assert len(area_path) == 1
-        area = area_path[0]
-        assert area.q2_min == 0.0
-        assert area.q2_max == np.inf
+        tc3 = ThresholdsAtlas.ffns(3)
+        assert tc3.area_walls == [0] + [np.inf] * 4
+        tc4 = ThresholdsAtlas.ffns(4)
+        assert tc4.area_walls == [0] * 2 + [np.inf] * 3
 
-    def test_vnfs(self):
-        # Tests the setup for VFNS
-        th_list = [5, 50]
-        q2fin = 42
-        for q2_ref in [2, 8, 61]:
-            tholder = ThresholdsConfig(q2_ref, "ZM-VFNS", threshold_list=th_list)
-            assert (
-                len(tholder._areas)
-                == len(th_list) + 1  # pylint: disable=protected-access
-            )
-            area_path = tholder.get_path_from_q2_ref(q2fin)
-            # The first area should contain q2_ref and the last q2fin
-            assert area_path[0](q2_ref)
-            assert area_path[-1](q2fin)
+    def test_path_3thr(self):
+        tc = ThresholdsAtlas([1, 2, 3], 0.5)
+        p1 = tc.path(0.7)
+        assert len(p1) == 1
+        assert p1[0].q2_from == 0.5
+        assert p1[0].q2_to == 0.7
+        assert p1[0].nf == 3
 
+        p2 = tc.path(1.5, 2.5)
+        assert len(p2) == 2
+        assert p2[0].nf == 5
+        assert p2[1].nf == 4
 
-class TestAreas:
-    def _get_areas(self, q2_ref=42.0, nf=4):
-        q2_change = q2_ref * 0.99
-        area_left = Area(0.0, q2_change, q2_ref, nf)
-        area_right = Area(q2_change, q2_ref * 2, q2_ref, nf)
-        area_far = Area(q2_ref * 4, q2_ref * 5, q2_ref, nf)
-        return area_left, area_right, area_far
+    def test_path_filter(self):
+        ta1 = ThresholdsAtlas([0, 2, 3], 0.5)
+        assert len(ta1.path(2.5)) == 2
+        ta2 = ThresholdsAtlas([1, 2, 3], 0.5)
+        assert len(ta2.path(2.5)) == 3
 
-    def test_order(self):
-        # Checks that areas work
-        area_left, area_right, area_far = self._get_areas()
-        assert area_left < area_right
-        assert area_right > area_left
-        assert area_far > area_left
-
-    def test_q2_towards(self):
-        q2_ref = 42
-        area_left, area_right, area_far = self._get_areas(q2_ref)
-        assert area_left.q2_towards(q2_ref) == area_left.q2_max
-        assert area_far.q2_towards(q2_ref) == area_far.q2_min
-        assert area_right.q2_towards(q2_ref) == q2_ref
+    def test_nf(self):
+        nf4 = ThresholdsAtlas.ffns(4)
+        for q2 in [1.0, 1e1, 1e2, 1e3, 1e4]:
+            assert nf4.nf(q2) == 4
+        ta = ThresholdsAtlas([1, 2, 3], 0.5)
+        assert ta.nf(0.9) == 3
+        assert ta.nf(1.1) == 4

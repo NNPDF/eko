@@ -24,10 +24,13 @@ def test_zero():
     for order in [0, 1]:
         for method in methods:
             np.testing.assert_allclose(
-                ns.dispatcher(order, method, gamma_ns, 1, 1, nf, ev_op_iterations), 1.0
+                ns.dispatcher(order, method, gamma_ns, 1.0, 1.0, nf, ev_op_iterations),
+                1.0,
             )
             np.testing.assert_allclose(
-                ns.dispatcher(order, method, np.zeros(2), 2, 1, nf, ev_op_iterations),
+                ns.dispatcher(
+                    order, method, np.zeros(2), 2.0, 1.0, nf, ev_op_iterations
+                ),
                 1.0,
             )
 

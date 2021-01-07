@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-toyLHPDFs from APFEL:
---------------------
-This routine returns the toyLH PDFs at the intitial scale
+toyLH PDFs
+----------
+This routine returns the toyLH PDFs :cite:`Giele:2002hx` at the intitial scale
 which is supposed to be Q = sqrt(2) GeV.
 """
 
@@ -62,10 +62,8 @@ class toyPDF:
     """Imitates lhapdf"""
 
     def xfxQ2(self, pid, x, _Q2):
-        """Get the PDF xf(x) value at (x,q2) for the given PID.
-
-        Parameters
-        ----------
+        """
+        Get the PDF xf(x) value at (x,q2) for the given PID.
 
         Parameters
         ----------
@@ -79,8 +77,7 @@ class toyPDF:
         Returns
         -------
         float
-            The value of xf(x,q2).
-
+            The value of xf(x,q2)
         """
 
         return toyLHPDFs(pid, x)

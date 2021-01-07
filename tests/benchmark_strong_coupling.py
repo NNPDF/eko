@@ -33,7 +33,7 @@ class BenchmarkStrongCoupling:
         ref_alpha_s = 0.1181
         ref_mu2 = 90
         ask_q2 = 125
-        threshold_holder = thresholds.ThresholdsConfig(ref_mu2, "FFNS", nf=5)
+        threshold_holder = thresholds.ThresholdsAtlas([0, 0, np.inf], ref_mu2)
         as_FFNS_LO = StrongCoupling(ref_alpha_s, ref_mu2, threshold_holder, order=0)
         # check local
         np.testing.assert_approx_equal(
@@ -48,16 +48,14 @@ class BenchmarkStrongCoupling:
         # LO - FFNS
         # note that the LO-FFNS value reported in :cite:`Giele:2002hx`
         # was corrected in :cite:`Dittmar:2005ed`
-        threshold_holder = thresholds.ThresholdsConfig(2, "FFNS", nf=4)
+        threshold_holder = thresholds.ThresholdsAtlas((0, np.inf, np.inf))
         as_FFNS_LO = StrongCoupling(0.35, 2, threshold_holder, order=0)
         me = as_FFNS_LO.a_s(1e4) * 4 * np.pi
         ref = 0.117574
         np.testing.assert_approx_equal(me, ref, significant=6)
         # LO - VFNS
         threshold_list = [2, pow(4.5, 2), pow(175, 2)]
-        threshold_holder = thresholds.ThresholdsConfig(
-            2, "ZM-VFNS", threshold_list=threshold_list
-        )
+        threshold_holder = thresholds.ThresholdsAtlas(threshold_list)
         as_VFNS_LO = StrongCoupling(0.35, 2, threshold_holder, order=0)
         me = as_VFNS_LO.a_s(1e4) * 4 * np.pi
         ref = 0.122306
@@ -95,7 +93,7 @@ class BenchmarkStrongCoupling:
             ),
         }
         # collect my values
-        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
+        threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         for order in [0, 1, 2]:
             as_FFNS = StrongCoupling(
                 alphas_ref,
@@ -162,9 +160,7 @@ class BenchmarkStrongCoupling:
             ),
         }
         # collect my values
-        threshold_holder = thresholds.ThresholdsConfig(
-            scale_ref, "ZM-VFNS", threshold_list=threshold_list
-        )
+        threshold_holder = thresholds.ThresholdsAtlas(threshold_list)
         for order in [0, 1, 2]:
             as_VFNS = StrongCoupling(
                 alphas_ref,
@@ -210,7 +206,7 @@ class BenchmarkStrongCoupling:
         scale_ref = 91.0 ** 2
         nf = 4
         # collect my values
-        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=nf)
+        threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         as_FFNS_LO = StrongCoupling(alphas_ref, scale_ref, threshold_holder, order=0)
         my_vals = []
         for Q2 in Q2s:
@@ -247,7 +243,7 @@ class BenchmarkStrongCoupling:
         alphas_ref = 0.118
         scale_ref = 90 ** 2
         # collect my values
-        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=3)
+        threshold_holder = thresholds.ThresholdsAtlas.ffns(3)
         # LHAPDF cache
         apfel_vals_dict = {
             0: np.array(
@@ -313,7 +309,7 @@ class BenchmarkStrongCoupling:
         alphas_ref = 0.118
         scale_ref = 90 ** 2
         # collect my values
-        threshold_holder = thresholds.ThresholdsConfig(scale_ref, "FFNS", nf=3)
+        threshold_holder = thresholds.ThresholdsAtlas.ffns(3)
         # LHAPDF cache
         lhapdf_vals_dict = {
             0: np.array(
@@ -391,9 +387,7 @@ class BenchmarkStrongCoupling:
         # Lambda2_3 = self._get_Lambda2_LO(as_FFNS_LO_4.a_s(m2c), m2c, 3)
 
         # collect my values
-        threshold_holder = thresholds.ThresholdsConfig(
-            scale_ref, "ZM-VFNS", threshold_list=threshold_list
-        )
+        threshold_holder = thresholds.ThresholdsAtlas(threshold_list)
         as_VFNS_LO = StrongCoupling(alphas_ref, scale_ref, threshold_holder, order=0)
         my_vals = []
         for Q2 in Q2s:

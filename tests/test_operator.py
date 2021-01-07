@@ -1,122 +1,197 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from numpy.testing import assert_almost_equal
-import pytest
+import scipy.integrate
 
-from eko.operator import Operator
-from eko import thresholds
-
-# int_0.5^1 dz z^k = (1 - 0.5**(k+1))/(k+1)
-def get_ker(k):
-    def ker(z, args, k=k):
-        lnx = args[0]
-        return lnx * z ** k
-
-    return ker
-
-
-def get_res(k, cut=0):
-    return [
-        [x * ((1 - cut) ** (k + 1) - 0.5 ** (k + 1)) / (k + 1), 0]
-        for x in np.log([0.5, 1.0])
-    ]
+from eko.operator import Operator, gamma_ns_fact, gamma_singlet_fact, quad_ker
+from eko.operator.grid import OperatorGrid
+from eko.thresholds import ThresholdsAtlas
+from eko.strong_coupling import StrongCoupling
+from eko.interpolation import InterpolatorDispatcher
+from eko import anomalous_dimensions as ad
+from eko.kernels import non_singlet as ns
+from eko.kernels import singlet as s
+from eko import mellin
+from eko import interpolation
 
 
-# class TestOperator:
-#     def test_compute_LO(self, mock_OpMaster):
-#         master = mock_OpMaster(
-#             [
-#                 dict(
-#                     NS_p=get_ker(1),
-#                     S_qq=get_ker(2),
-#                     S_qg=get_ker(3),
-#                     S_gq=get_ker(4),
-#                     S_gg=get_ker(5),
-#                 )
-#             ],
-#             0,
-#         )
-#         op = Operator(master, 0.5, 1.0, 0)
-#         op.compute()
+def test_gamma_ns_fact(monkeypatch):
+    gamma_ns = np.array([1.0, 0.5])
+    monkeypatch.setattr(ad, "gamma_ns", lambda *args: gamma_ns.copy())
+    gamma_ns_LO_0 = gamma_ns_fact(0, "NS_p", 1, 3, 0)
+    np.testing.assert_allclose(gamma_ns_LO_0, gamma_ns)
+    gamma_ns_LO_1 = gamma_ns_fact(0, "NS_p", 1, 3, 1)
+    np.testing.assert_allclose(gamma_ns_LO_1, gamma_ns)
+    gamma_ns_NLO_1 = gamma_ns_fact(1, "NS_p", 1, 3, 1)
+    assert gamma_ns_NLO_1[1] < gamma_ns[1]
 
-#         assert_almost_equal(op.op_members["NS_p"].value, get_res(1))
-#         assert_almost_equal(op.op_members["NS_m"].value, get_res(1))
-#         assert_almost_equal(op.op_members["NS_v"].value, get_res(1))
-#         assert_almost_equal(op.op_members["S_qq"].value, get_res(2))
-#         assert_almost_equal(op.op_members["S_qg"].value, get_res(3))
-#         assert_almost_equal(op.op_members["S_gq"].value, get_res(4))
-#         assert_almost_equal(op.op_members["S_gg"].value, get_res(5))
 
-#     def test_skip(self, mock_OpMaster):
-#         master = mock_OpMaster(
-#             [
-#                 dict(
-#                     NS_p=get_ker(1),
-#                     S_qq=get_ker(2),
-#                     S_qg=get_ker(3),
-#                     S_gq=get_ker(4),
-#                     S_gg=get_ker(5),
-#                 )
-#             ],
-#             0,
-#             True,
-#         )
-#         op = Operator(master, 0.5, 1.0, 0)
-#         op.compute()
+def test_gamma_singlet_fact(monkeypatch):
+    gamma_s = np.array([1.0, 0.5])
+    monkeypatch.setattr(ad, "gamma_singlet", lambda *args: gamma_s.copy())
+    gamma_s_LO_0 = gamma_singlet_fact(0, 1, 3, 0)
+    np.testing.assert_allclose(gamma_s_LO_0, gamma_s)
+    gamma_s_LO_1 = gamma_singlet_fact(0, 1, 3, 1)
+    np.testing.assert_allclose(gamma_s_LO_1, gamma_s)
+    gamma_s_NLO_1 = gamma_singlet_fact(1, 1, 3, 1)
+    assert gamma_s_NLO_1[1] < gamma_s[1]
 
-#         zero = np.zeros((2, 2))
-#         assert_almost_equal(op.op_members["NS_p"].value, zero)
-#         assert_almost_equal(op.op_members["NS_m"].value, zero)
-#         assert_almost_equal(op.op_members["NS_v"].value, zero)
-#         assert_almost_equal(op.op_members["S_qq"].value, zero)
-#         assert_almost_equal(op.op_members["S_qg"].value, zero)
-#         assert_almost_equal(op.op_members["S_gq"].value, zero)
-#         assert_almost_equal(op.op_members["S_gg"].value, zero)
 
-#     def test_compute_NLO(self, mock_OpMaster):
-#         master = mock_OpMaster(
-#             [
-#                 dict(
-#                     NS_p=get_ker(1),
-#                     NS_m=get_ker(2),
-#                     S_qq=get_ker(3),
-#                     S_qg=get_ker(4),
-#                     S_gq=get_ker(5),
-#                     S_gg=get_ker(6),
-#                 )
-#             ],
-#             1,
-#         )
-#         op = Operator(master, 0.5, 1.0, 0)
-#         op.compute()
+def test_quad_ker(monkeypatch):
+    monkeypatch.setattr(
+        mellin, "Talbot_path", lambda *args: 2
+    )  # N=2 is a safe evaluation point
+    monkeypatch.setattr(
+        mellin, "Talbot_jac", lambda *args: np.complex(0, np.pi)
+    )  # negate mellin prefactor
+    monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 1)
+    monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
+    monkeypatch.setattr(ns, "dispatcher", lambda *args: 1.0)
+    monkeypatch.setattr(s, "dispatcher", lambda *args: np.identity(2))
+    for is_log in [True, False]:
+        res_ns = quad_ker(
+            u=0,
+            order=0,
+            mode="NS_p",
+            method="",
+            is_log=is_log,
+            logx=0.0,
+            areas=np.zeros(3),
+            a1=1,
+            a0=2,
+            nf=3,
+            L=0,
+            ev_op_iterations=0,
+            ev_op_max_order=0,
+        )
+        np.testing.assert_allclose(res_ns, 1.0)
+        res_s = quad_ker(
+            u=0,
+            order=0,
+            mode="S_qq",
+            method="",
+            is_log=is_log,
+            logx=0.0,
+            areas=np.zeros(3),
+            a1=1,
+            a0=2,
+            nf=3,
+            L=0,
+            ev_op_iterations=0,
+            ev_op_max_order=0,
+        )
+        np.testing.assert_allclose(res_s, 1.0)
+        res_s = quad_ker(
+            u=0,
+            order=0,
+            mode="S_qg",
+            method="",
+            is_log=is_log,
+            logx=0.0,
+            areas=np.zeros(3),
+            a1=1,
+            a0=2,
+            nf=3,
+            L=0,
+            ev_op_iterations=0,
+            ev_op_max_order=0,
+        )
+        np.testing.assert_allclose(res_s, 0.0)
+    monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
+    res_ns = quad_ker(
+        u=0,
+        order=0,
+        mode="NS_p",
+        method="",
+        is_log=True,
+        logx=0.0,
+        areas=np.zeros(3),
+        a1=1,
+        a0=2,
+        nf=3,
+        L=0,
+        ev_op_iterations=0,
+        ev_op_max_order=0,
+    )
+    np.testing.assert_allclose(res_ns, 0.0)
 
-#         assert_almost_equal(op.op_members["NS_p"].value, get_res(1))
-#         assert_almost_equal(op.op_members["NS_m"].value, get_res(2))
-#         assert_almost_equal(op.op_members["NS_v"].value, get_res(2))
-#         assert_almost_equal(op.op_members["S_qq"].value, get_res(3))
-#         assert_almost_equal(op.op_members["S_qg"].value, get_res(4))
-#         assert_almost_equal(op.op_members["S_gq"].value, get_res(5))
-#         assert_almost_equal(op.op_members["S_gg"].value, get_res(6))
 
-#     def test_compose(self, mock_OpMaster):
-#         master = mock_OpMaster(
-#             [
-#                 dict(
-#                     NS_p=get_ker(1),
-#                     S_qq=get_ker(2),
-#                     S_qg=get_ker(3),
-#                     S_gq=get_ker(4),
-#                     S_gg=get_ker(5),
-#                 )
-#             ],
-#             0,
-#         )
-#         op1 = Operator(master, 0.5, 1.0, 0)
-#         # FFNS
-#         t = thresholds.ThresholdsConfig(1, "FFNS", nf=3)
-#         instruction_set = t.get_composition_path(3, 0)
-#         ph = op1.compose([], instruction_set, 2)
-#         assert isinstance(ph, PhysicalOperator)
-#         # V.V is NS_v
-#         assert_almost_equal(ph.op_members["V.V"].value, get_res(1))
+class TestOperator:
+    def test_labels(self):
+        o = Operator(
+            dict(order=1, debug_skip_non_singlet=False, debug_skip_singlet=False),
+            {},
+            3,
+            1,
+            2,
+        )
+        assert sorted(o.labels()) == sorted(
+            ["NS_p", "NS_m", "S_qq", "S_qg", "S_gq", "S_gg"]
+        )
+        o = Operator(
+            dict(order=1, debug_skip_non_singlet=True, debug_skip_singlet=True),
+            {},
+            3,
+            1,
+            2,
+        )
+        assert sorted(o.labels()) == []
+
+    def test_compute(self, monkeypatch):
+        # setup objs
+        theory_card = {
+            "alphas": 0.35,
+            "PTO": 0,
+            "ModEv": "TRN",
+            "XIF": 1.0,
+            "XIR": 1.0,
+            "Qref": np.sqrt(2),
+            "Q0": np.sqrt(2),
+            "FNS": "FFNS",
+            "NfFF": 3,
+            "IC": 0,
+            "mc": 1.0,
+            "mb": 4.75,
+            "mt": 173.0,
+            "kcThr": np.inf,
+            "kbThr": np.inf,
+            "ktThr": np.inf,
+        }
+        operators_card = {
+            "Q2grid": [1, 10],
+            "interpolation_xgrid": [0.1, 1.0],
+            "interpolation_polynomial_degree": 1,
+            "interpolation_is_log": True,
+            "debug_skip_singlet": True,
+            "debug_skip_non_singlet": False,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
+        }
+        g = OperatorGrid.from_dict(
+            theory_card,
+            operators_card,
+            ThresholdsAtlas.from_dict(theory_card),
+            StrongCoupling.from_dict(theory_card),
+            InterpolatorDispatcher.from_dict(operators_card),
+        )
+        o = Operator(g.config, g.managers, 3, 2, 10)
+        # fake quad
+        monkeypatch.setattr(
+            scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
+        )
+        # LO
+        o.compute()
+        assert "NS_m" in o.op_members
+        np.testing.assert_allclose(
+            o.op_members["NS_m"].value, o.op_members["NS_p"].value
+        )
+        np.testing.assert_allclose(
+            o.op_members["NS_v"].value, o.op_members["NS_p"].value
+        )
+        # NLO
+        o.config["order"] = 1
+        o.compute()
+        assert not np.allclose(o.op_members["NS_p"].value, o.op_members["NS_m"].value)
+        np.testing.assert_allclose(
+            o.op_members["NS_v"].value, o.op_members["NS_m"].value
+        )

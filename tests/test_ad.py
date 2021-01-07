@@ -5,14 +5,14 @@ from numpy.testing import assert_almost_equal, assert_allclose
 
 from eko import anomalous_dimensions as ad
 from eko.anomalous_dimensions import lo as ad_lo
-from eko import ekomath
+from eko.anomalous_dimensions import harmonics
 
 NF = 5
 
 
 def test_eigensystem_gamma_singlet_0_values():
     n = 3
-    s1 = ekomath.harmonic_S1(n)
+    s1 = harmonics.harmonic_S1(n)
     gamma_S_0 = ad_lo.gamma_singlet_0(3, s1, NF)
     res = ad.exp_singlet(gamma_S_0)
     lambda_p = np.complex(12.273612971466964, 0)

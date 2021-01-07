@@ -3,7 +3,7 @@
 from . import runner
 
 
-def run_dglap(setup):
+def run_dglap(theory_card, operators_card):
     r"""
     This function takes a DGLAP theory configuration dictionary
     and performs the solution of the DGLAP equations.
@@ -17,13 +17,13 @@ def run_dglap(setup):
     Parameters
     ----------
         setup : dict
-            input card - see :doc:`/Code/IO`
+            input card - see :doc:`/code/IO`
 
     Returns
     -------
         output : dict
-            output dictionary - see :doc:`/Code/IO`
+            output dictionary - see :doc:`/code/IO`
     """
-    r = runner.Runner(setup)
+    r = runner.Runner(theory_card, operators_card)
     output = r.get_output()
     return output

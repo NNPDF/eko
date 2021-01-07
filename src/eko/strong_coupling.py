@@ -3,7 +3,7 @@ r"""
 This file contains the QCD beta function coefficients and the handling of the running
 coupling :math:`\alpha_s`.
 
-See :doc:`pQCD ingredients </Theory/pQCD>`.
+See :doc:`pQCD ingredients </theory/pQCD>`.
 """
 
 import logging
@@ -91,7 +91,7 @@ class StrongCoupling:
             = - \sum\limits_{n=0} \beta_n a_s^{n+2}(\mu^2) \quad
             \text{with}~ a_s = \frac{\alpha_s(\mu^2)}{4\pi}
 
-        See :doc:`pQCD ingredients </Theory/pQCD>`.
+        See :doc:`pQCD ingredients </theory/pQCD>`.
 
         Parameters
         ----------
@@ -99,8 +99,8 @@ class StrongCoupling:
                 alpha_s(!) at the reference scale :math:`\alpha_s(\mu_0^2)`
             scale_ref : float
                 reference scale :math:`\mu_0^2`
-            threshold_holder : eko.thresholds.ThresholdsConfig
-                An instance of :class:`~eko.thresholds.ThresholdsConfig`
+            threshold_holder : eko.thresholds.ThresholdsAtlas
+                An instance of :class:`~eko.thresholds.ThresholdsAtlas`
             order: int
                 Evaluated order of the beta function: ``0`` = LO, ...
             method : ["expanded", "exact"]
@@ -110,7 +110,7 @@ class StrongCoupling:
         --------
             >>> alpha_ref = 0.35
             >>> scale_ref = 2
-            >>> threshold_holder = ThresholdsConfig( ... )
+            >>> threshold_holder = ThresholdsAtlas( ... )
             >>> sc = StrongCoupling(alpha_ref, scale_ref, threshold_holder)
             >>> q2 = 91.1**2
             >>> sc.a_s(q2)
@@ -130,7 +130,7 @@ class StrongCoupling:
             raise ValueError(f"alpha_s_ref has to be positive - got {alpha_s_ref}")
         if scale_ref <= 0:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
-        if not isinstance(thresh, thresholds.ThresholdsConfig):
+        if not isinstance(thresh, thresholds.ThresholdsAtlas):
             raise ValueError("Needs a Threshold instance")
         if order not in [0, 1, 2]:
             raise NotImplementedError("a_s beyond NNLO is not implemented")
@@ -141,14 +141,9 @@ class StrongCoupling:
 
         # create new threshold object
         self.as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
-        if thresh.scheme == "FFNS":
-            self._threshold_holder = thresholds.ThresholdsConfig(
-                scale_ref, thresh.scheme, nf=thresh.nf_ref
-            )
-        else:
-            self._threshold_holder = thresholds.ThresholdsConfig(
-                scale_ref, thresh.scheme, threshold_list=thresh._area_walls
-            )
+        self._threshold_holder = thresholds.ThresholdsAtlas(
+            thresh.area_walls[1:-1], scale_ref
+        )
         logger.info(
             "Strong Coupling: Reference a_s(Q^2=%f)=%f", self.q2_ref, self.as_ref
         )
@@ -159,7 +154,7 @@ class StrongCoupling:
         return self._threshold_holder.q2_ref
 
     @classmethod
-    def from_dict(cls, setup, thresholds_config=None):
+    def from_dict(cls, theory_card, thresholds_config=None):
         """
         Create object from theory dictionary.
 
@@ -172,9 +167,9 @@ class StrongCoupling:
 
         Parameters
         ----------
-            setup : dict
+            theory_card : dict
                 theory dictionary
-            thresholds_config : eko.thresholds.ThresholdsConfig
+            thresholds_config : eko.thresholds.ThresholdsAtlas
                 threshold configuration
 
         Returns
@@ -184,10 +179,10 @@ class StrongCoupling:
         """
         # read my values
         # TODO cast to a_s here
-        alpha_ref = setup["alphas"]
-        q2_alpha = pow(setup["Qref"], 2)
-        order = setup["PTO"]
-        mod_ev = setup.get("ModEv", "EXA")
+        alpha_ref = theory_card["alphas"]
+        q2_alpha = pow(theory_card["Qref"], 2)
+        order = theory_card["PTO"]
+        mod_ev = theory_card["ModEv"]
         if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
             method = "exact"
         elif mod_ev in [
@@ -204,7 +199,7 @@ class StrongCoupling:
             raise ValueError(f"Unknown evolution mode {mod_ev}")
         # eventually read my dependents
         if thresholds_config is None:
-            thresholds_config = thresholds.ThresholdsConfig.from_dict(setup)
+            thresholds_config = thresholds.ThresholdsAtlas.from_dict(theory_card)
         return cls(alpha_ref, q2_alpha, thresholds_config, order, method)
 
     def _compute_exact(self, as_ref, nf, scale_from, scale_to):
@@ -298,20 +293,16 @@ class StrongCoupling:
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
         final_as = self.as_ref
-        area_path = self._threshold_holder.get_path_from_q2_ref(scale_to)
+        path = self._threshold_holder.path(scale_to)
         # as a default assume mu_F^2 = mu_R^2
         if fact_scale is None:
             fact_scale = scale_to
-        for k, area in enumerate(area_path):
-            q2_from = area.q2_ref
-            q2_to = area.q2_towards(scale_to)
-            if np.isclose(q2_from, q2_to):
-                continue
-            new_as = self._compute(final_as, area.nf, q2_from, q2_to)
+        for k, seg in enumerate(path):
+            new_as = self._compute(final_as, seg.nf, seg.q2_from, seg.q2_to)
             # apply matching conditions: see hep-ph/9706430
             # - if there is yet a step to go
-            if k < len(area_path) - 1:
-                next_nf_is_down = area_path[k + 1].nf < area.nf
+            if k < len(path) - 1:
+                next_nf_is_down = path[k + 1].nf < seg.nf
                 # q2_to is the threshold value
                 L = np.log(scale_to / fact_scale)
                 if next_nf_is_down:

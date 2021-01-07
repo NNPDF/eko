@@ -9,9 +9,11 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
     Compare two distributions.
 
     Generates a plot with 3 areas:
+
     - small x, i.e. log(x) as abscissa
     - linear x, i.e. with id(x) as abscissa
     - large x, i.e. with log(1-x) as abscissa
+
 
     Parameters
     ----------
@@ -24,8 +26,8 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
         yref : numpy.ndarray
             reference list of ordinates
 
-    Additional Parameters
-    ---------------------
+    Other Parameters
+    ----------------
         title : string, optional
             additional overall title
         oMx_min : float
@@ -114,7 +116,8 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
     if np.max(op) <= 0.0:
         return fig
 
-    # TODO fix File "/usr/lib/python3/dist-packages/matplotlib/colors.py", line 1181, in _check_vmin_vmax
+    # TODO fix File "/usr/lib/python3/dist-packages/matplotlib/colors.py",
+    # line 1181, in _check_vmin_vmax
     # raise ValueError("minvalue must be positive")
     # ValueError: minvalue must be positive
     # import pdb; pdb.set_trace()

@@ -1,76 +1,88 @@
 # -*- coding: utf-8 -*-
 """
-    Benchmark EKO to APFEL
+Benchmark EKO to APFEL
 """
-import pathlib
 import time
-import yaml
 import numpy as np
 import pandas as pd
 
 import eko
+from eko import basis_rotation as br
 
 from .toyLH import mkPDF
 from .apfel_utils import load_apfel
 from .df_dict import DFdict
+from .runner import Runner
 
 
-class ApfelBenchmark:
+class ApfelBenchmark(Runner):
     """
     Benchmark EKO to APFEL
 
     Parameters
     ----------
-        path : str
-            input card
+        theory_path : string or pathlib.Path
+            path to theory card
+        operators_path : string or pathlib.Path
+            path to operators card
+        assets_dir : string
+            output directory
     """
 
-    def __init__(self, path):
-        self.path = pathlib.Path(path)
-        with open(path, "r") as o:
-            self.cfg = yaml.safe_load(o)
+    def __init__(self, theory_path, operators_path, assets_dir):
+        super().__init__(theory_path, operators_path, assets_dir)
+        self.target_xgrid = eko.interpolation.make_grid(
+            *self.operators["interpolation_xgrid"][1:]
+        )
+        self.src_pdf = "CT14llo_NF4"
+        self.skip_pdfs = [22, -6, 6, "ph", "T35", "V35"]
+        self.rotate_to_evolution_basis = True
 
-    def run(self):
+    def ref(self):
+        return {
+            "target_xgrid": self.target_xgrid,
+            "values": {self.operators["Q2grid"][0]: self.ref_values()},
+            "src_pdf": self.src_pdf,
+            "rotate_to_evolution_basis": self.rotate_to_evolution_basis,
+            "skip_pdfs": self.skip_pdfs,
+        }
+
+    def ref_values(self):
         """
         Run APFEL
         """
-        output_grid = eko.interpolation.make_grid(*self.cfg["interpolation_xgrid"][1:])
-        # # compute our result
-        eko_res = eko.run_dglap(self.cfg)
-        eko_res.dump_yaml_to_file("assets/" + self.path.stem + ".yaml")
-        # eko_res = eko.output.Output.load_yaml_from_file("assets/"+self.path.stem+".yaml")
-        eko_pdf = eko_res.apply_pdf(mkPDF("", ""), output_grid)
         # compute APFEL reference
         apf_start = time.perf_counter()
-        apfel = load_apfel(self.cfg)
+        apfel = load_apfel(self.theory, self.operators, self.src_pdf)
         print("Loading APFEL took %f s" % (time.perf_counter() - apf_start))
-        apfel.EvolveAPFEL(self.cfg["Q0"], np.sqrt(self.cfg["Q2grid"][0]))
+        apfel.EvolveAPFEL(self.theory["Q0"], np.sqrt(self.operators["Q2grid"][0]))
         print("Executing APFEL took %f s" % (time.perf_counter() - apf_start))
         apf_tabs = {}
-        for q2, pdfs in eko_pdf.items():
-            out = DFdict()
-            for pid, eko_res in pdfs["pdfs"].items():
-                # collect APFEL
-                apf = []
-                for x in output_grid:
-                    apf.append(apfel.xPDF(pid if pid < 21 else 0, x) / x)
-                apf = np.array(apf)
-                # collect our data
-                eko_res = np.array(eko_res)
-                eko_error = np.array(pdfs["errors"][pid])
-                rel_err = (apf - eko_res) / apf * 100
-                out[pid] = pd.DataFrame(
-                    dict(
-                        x=output_grid,
-                        APFEL=apf,
-                        eko=eko_res,
-                        eko_error=eko_error,
-                        rel_err=rel_err,
-                    )
-                )
-            apf_tabs[q2] = out
-        # output
-        self.print(apf_tabs)
+        for pid in br.flavor_basis_pids:
+            # skip?
+            if pid in self.skip_pdfs:
+                continue
+            # collect APFEL
+            apf = []
+            for x in self.target_xgrid:
+                xf = apfel.xPDF(pid if pid != 21 else 0, x)
+                # if pid == 4:
+                #     print(pid,x,xf)
+                apf.append(xf)
+            apf_tabs[pid] = np.array(apf)
+        # rotate if needed
+        if self.rotate_to_evolution_basis:
+            pdfs = np.array(
+                [
+                    apf_tabs[pid]
+                    if pid in apf_tabs
+                    else np.zeros(len(self.target_xgrid))
+                    for pid in br.flavor_basis_pids
+                ]
+            )
+            evol_pdf = br.rotate_flavor_to_evolution @ pdfs
+            apf_tabs = dict(zip(br.evol_basis, evol_pdf))
+        return apf_tabs
 
     def print(self, apf_tabs):
         """

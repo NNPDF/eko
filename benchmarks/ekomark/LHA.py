@@ -3,21 +3,15 @@
     Benchmark EKO to :cite:`Giele:2002hx`
 """
 
-import copy
-import pathlib
-import pprint
-import io
-
 import yaml
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
-from eko import run_dglap
 from eko import basis_rotation as br
 
-from .toyLH import mkPDF
-from .plots import plot_dist, plot_operator
+from .plots import plot_dist
+from .runner import Runner
 
 # xgrid
 toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
@@ -25,6 +19,8 @@ toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.
 # list
 raw_label_list = ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"]
 # rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
+
+evol_label_list = ["V", "V3", "T3", "T8", "T15", "T24", "S", "g"]
 
 # my/exact initial grid
 # LHA_init_grid = []
@@ -34,7 +30,7 @@ LHA_init_grid = np.array([])
 
 # fmt: off
 # rotation matrix
-LHA_flavour_rotate = np.array([
+LHA_rotate_to_evolution = np.array([
     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
     [   1,   1,   0,   0,   0,   0,   0,   0], # V
     [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
@@ -45,22 +41,42 @@ LHA_flavour_rotate = np.array([
     [   1,   1,   0,   1,   1,   1,   1,   0], # S
     [   0,   0,   0,   0,   0,   0,   0,   1], # g
 ])
+# L+ = 2(ub + db) = u+ - u- + d+ - d-
+# L- = ub - db = ((u+-u-) - (d+ - d-))/2
+LHA_rotate_to_flavor = np.array([
+    # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
+    [   0,   0,   0,   0,   0,   0,   0,   0], # ph
+    [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
+    [   0,   0,   0,   0,   0,   0, 1/2,   0], # bbar
+    [   0,   0,   0,   0,   0, 1/2,   0,   0], # cbar
+    [   0,   0,   0,   0, 1/2,   0,   0,   0], # sbar
+    [   0,   0, 1/2, 1/4,   0,   0,   0,   0], # ubar
+    [   0,   0,-1/2, 1/4,   0,   0,   0,   0], # dbar
+    [   0,   0,   0,   0,   0,   0,   0,   1], # g
+    [   0,   1,-1/2, 1/4,   0,   0,   0,   0], # d
+    [   1,   0, 1/2, 1/4,   0,   0,   0,   0], # u
+    [   0,   0,   0,   0, 1/2,   0,   0,   0], # s
+    [   0,   0,   0,   0,   0, 1/2,   0,   0], # c
+    [   0,   0,   0,   0,   0,   0, 1/2,   0], # b
+    [   0,   0,   0,   0,   0,   0,   0,   0], # t
+])
 # fmt: on
 
 # rotate basis
-def rotate_data(raw):
+def rotate_data(raw, rotate_to_evolution_basis=False):
     inp = []
     for l in raw_label_list:
         inp.append(raw[l])
     inp = np.array(inp)
-    rot = np.dot(LHA_flavour_rotate, inp)
-    out = {}
-    for k, n in enumerate(["V", "V3", "T3", "T8", "T15", "T24", "S", "g"]):
-        out[n] = rot[k]
-    return out
+    if rotate_to_evolution_basis:
+        rot = np.dot(LHA_rotate_to_evolution, inp)
+        return dict(zip(evol_label_list, rot))
+    else:
+        rot = np.dot(LHA_rotate_to_flavor, inp)
+        return dict(zip(br.flavor_basis_pids, rot))
 
 
-class LHABenchmarkPaper:
+class LHABenchmarkPaper(Runner):
     """
     Compares to the LHA benchmark paper :cite:`Giele:2002hx`.
 
@@ -74,56 +90,21 @@ class LHABenchmarkPaper:
             output directory
     """
 
-    def __init__(self, path, data_dir, assets_dir):
-        if not isinstance(path, pathlib.Path):
-            path = pathlib.Path(path)
-        self.path = path
-        with open(path, "r") as infile:
-            self.setup = yaml.safe_load(infile)
-        if not np.isclose(self.setup["XIF"], 1.0):
+    def __init__(self, theory_path, operators_path, assets_dir, data_dir):
+        super().__init__(theory_path, operators_path, assets_dir)
+
+        self.rotate_to_evolution_basis = not True
+
+        if not np.isclose(self.theory["XIF"], 1.0):
             raise ValueError("XIF has to be 1")
+        Q2grid = self.operators["Q2grid"]
+        if not np.allclose(Q2grid, [1e4]):
+            raise ValueError("Q2grid has to be [1e4]")
         # load data
         with open(data_dir / "LHA.yaml") as o:
             self.data = yaml.safe_load(o)
-        # output dir
-        self.assets_dir = assets_dir
-        # default config for post processing
-        self.post_process_config = {
-            "plot_PDF": True,
-            "plot_operator": True,
-            "write_operator": True,
-        }
 
-    def _post_process(self, output):
-        """
-        Handles the post processing of the run according to the configuration.
-
-        Parameters
-        ----------
-            output : eko.output.Output
-                EKO result
-            ref : dict
-                reference result
-            tag : string
-                file tag
-        """
-        # dump operators to file
-        if self.post_process_config["write_operator"]:
-            p = self.assets_dir / (self.path.stem + "-ops.yaml")
-            output.dump_yaml_to_file(p)
-            print(f"write operator to {p}")
-        # pdf comparison
-        if self.post_process_config["plot_PDF"]:
-            p = self.assets_dir / (self.path.stem + "-plots.pdf")
-            self.save_final_scale_plots_to_pdf(p, output)
-            print(f"write pdf plots to {p}")
-        # graphical representation of operators
-        if self.post_process_config["plot_operator"]:
-            p = self.assets_dir / (self.path.stem + "-ops.pdf")
-            self.save_all_operators_to_pdf(output, p)
-            print(f"write operator plots to {p}")
-
-    def ref(self):
+    def ref_values(self):
         """
         Load the reference data from the paper.
 
@@ -132,136 +113,59 @@ class LHABenchmarkPaper:
             ref : dict
                 (rotated) reference data
         """
-        fns = self.setup["FNS"]
-        order = self.setup["PTO"]
-        fact_to_ren = (self.setup["XIF"] / self.setup["XIR"]) ** 2
+        fns = self.theory["FNS"]
+        order = self.theory["PTO"]
+        fact_to_ren = (self.theory["XIF"] / self.theory["XIR"]) ** 2
         if fns == "FFNS":
             if order == 0:
-                return rotate_data(self.data["table2"]["part2"])
+                return rotate_data(
+                    self.data["table2"]["part2"], self.rotate_to_evolution_basis
+                )
             if order == 1:
                 if fact_to_ren > np.sqrt(2):
-                    return rotate_data(self.data["table3"]["part3"])
+                    return rotate_data(
+                        self.data["table3"]["part3"], self.rotate_to_evolution_basis
+                    )
                 if fact_to_ren < np.sqrt(1.0 / 2.0):
-                    return rotate_data(self.data["table3"]["part2"])
-                return rotate_data(self.data["table3"]["part1"])
+                    return rotate_data(
+                        self.data["table3"]["part2"], self.rotate_to_evolution_basis
+                    )
+                return rotate_data(
+                    self.data["table3"]["part1"], self.rotate_to_evolution_basis
+                )
         if fns == "ZM-VFNS":
             if order == 0:
-                return rotate_data(self.data["table2"]["part3"])
+                return rotate_data(
+                    self.data["table2"]["part3"], self.rotate_to_evolution_basis
+                )
             if order == 1:
                 if fact_to_ren > np.sqrt(2):
-                    return rotate_data(self.data["table4"]["part3"])
+                    return rotate_data(
+                        self.data["table4"]["part3"], self.rotate_to_evolution_basis
+                    )
                 if fact_to_ren < np.sqrt(1.0 / 2.0):
-                    return rotate_data(self.data["table4"]["part2"])
-                return rotate_data(self.data["table4"]["part1"])
+                    return rotate_data(
+                        self.data["table4"]["part2"], self.rotate_to_evolution_basis
+                    )
+                return rotate_data(
+                    self.data["table4"]["part1"], self.rotate_to_evolution_basis
+                )
         raise ValueError(f"unknown FNS {fns} or order {order}")
 
-    def run(self):
+    def ref(self):
         """
-        Runs the input card
-
-        Returns
-        -------
-            ret : dict
-                DGLAP result
+        Reference configuration
         """
-        Q2grid = self.setup["Q2grid"]
-        if not np.allclose(Q2grid, [1e4]):
-            raise ValueError("Q2grid has to be [1e4]")
-        ret = run_dglap(self.setup)
-        self._post_process(ret)
-        return ret
-
-    def input_figure(self, output):
-        """
-        Pretty-prints the setup to a figure
-
-        Parameters
-        ----------
-            output : eko.output.Output
-                DGLAP result
-
-        Returns
-        -------
-            firstPage : matplotlib.pyplot.Figure
-                figure
-        """
-        firstPage = plt.figure(figsize=(15, 12))
-        firstPage.text(0.0, 1, "Setup:", size=14, ha="left", va="top")
-        setup = copy.deepcopy(output)
-        # suppress the operators
-        del setup["Q2grid"]
-        str_stream = io.StringIO()
-        pprint.pprint(setup, stream=str_stream, width=380)
-        firstPage.text(0.0, 0.95, str_stream.getvalue(), size=12, ha="left", va="top")
-        return firstPage
-
-    def save_all_operators_to_pdf(self, output, path):
-        """
-        Output all operator heatmaps to PDF.
-
-        Parameters
-        ----------
-            output : eko.output.Output
-                DGLAP result
-            path : string
-                target file name
-        """
-        first_ops = list(output["Q2grid"].values())[0]
-        with PdfPages(path) as pp:
-            # print setup
-            firstPage = self.input_figure(output)
-            pp.savefig()
-            plt.close(firstPage)
-            # print operators
-            for label in first_ops["operators"]:
-                try:
-                    fig = plot_operator(first_ops, label)
-                    pp.savefig()
-                finally:
-                    if fig:
-                        plt.close(fig)
-
-    def save_final_scale_plots_to_pdf(self, path, output):
-        """
-        Plots all PDFs at the final scale.
-
-        The reference values by :cite:`Giele:2002hx`.
-
-        Parameters
-        ----------
-            path : string
-                output path
-            output : eko.output.Output
-                DGLAP result
-        """
-        # get
-        pdf_grid = output.apply_pdf(
-            mkPDF("", ""), toy_xgrid, rotate_to_flavor_basis=False
-        )
-        first_res = list(pdf_grid.values())[0]
-        my_pdfs = first_res["pdfs"]
-        my_pdf_errs = first_res["errors"]
-        ref = self.ref()
-        with PdfPages(path) as pp:
-            # print setup
-            firstPage = self.input_figure(output)
-            pp.savefig()
-            plt.close(firstPage)
-            # iterate all pdf
-            for key in my_pdfs:
-                # skip trivial plots
-                if key in ["V8", "V15", "V24", "V35", "T35"]:
-                    continue
-                # plot
-                fig = plot_dist(
-                    toy_xgrid,
-                    toy_xgrid * my_pdfs[key],
-                    toy_xgrid * my_pdf_errs[key],
-                    ref[key],
-                    title=f"x{key}(x,µ_F^2 = 10^4 GeV^2)",
-                )
-                pp.savefig()
-                plt.close(fig)
+        skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
+        if self.theory["FNS"] == "FFNS":
+            skip_pdfs.extend([-5, 5, "T24"])
+        return {
+            "target_xgrid": toy_xgrid,
+            "values": {1e4: self.ref_values()},
+            "src_pdf": "ToyLH",
+            "skip_pdfs": skip_pdfs,
+            "rotate_to_evolution_basis": self.rotate_to_evolution_basis,
+        }
 
     def save_initial_scale_plots_to_pdf(self, path):
         """

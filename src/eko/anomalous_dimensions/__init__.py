@@ -21,7 +21,7 @@ import numpy as np
 
 import numba as nb
 
-from ..ekomath import harmonic_S1 as S1
+from .harmonics import harmonic_S1 as S1
 
 from . import lo
 from . import nlo
@@ -88,7 +88,7 @@ def gamma_ns(order, mode, n, nf):
         n : complex
             Mellin variable
         nf : int
-            Number of active flavours
+            Number of active flavors
 
     Returns
     -------
@@ -126,7 +126,7 @@ def gamma_singlet(order, n, nf):
         n : complex
             Mellin variable
         nf : int
-            Number of active flavours
+            Number of active flavors
 
     Returns
     -------

@@ -1,0 +1,10 @@
+ev_op_max_order: 10
+ev_op_iterations: 10
+Q2grid: [2.0001]
+# interpolation
+interpolation_is_log: True
+interpolation_polynomial_degree: 4
+interpolation_xgrid: ["make_grid", 30, 20]
+# debug options
+debug_skip_non_singlet: False
+debug_skip_singlet: False
