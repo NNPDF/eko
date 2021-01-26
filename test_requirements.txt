@@ -3,7 +3,6 @@ pylint
 pytest
 pytest-cov
 pytest-env
-pygit2
-semver
+packutil
 #
 -e benchmarks/
