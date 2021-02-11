@@ -1,0 +1,5 @@
+database_path: data/benchmark.db
+input_tables:
+ - theories
+ - observables
+ - cache
