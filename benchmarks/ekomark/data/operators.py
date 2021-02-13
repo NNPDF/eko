@@ -9,7 +9,7 @@ default_card = dict(
     interpolation_is_log=True,
     debug_skip_non_singlet=False,
     debug_skip_singlet=False,
-    ev_op_max_order=10,
+    ev_op_max_order=10, 
     ev_op_iterations=30,
     Q2grid=[1.e+4],
 )
@@ -17,7 +17,13 @@ default_card = dict(
 default_card = dict(sorted(default_card.items()))
 
 
-def build(update=None):
+# TODO: add  reasonable default ocards 
+default_config ={
+    0: {"ev_op_max_order":10, "ev_op_iterations":2, "Q2grid":[1.e+4] }
+}
+
+# TODO: add reasonable build if necessary
+def build( ev_op_max_order, ev_op_iterations, Q2grid, update=None):
     """
     Generate all operator card updates
 
@@ -60,6 +66,7 @@ def load(conn, updates):
     """
     # add hash
     raw_records, rf = sql.prepare_records(default_card, updates)
+    
     # insert new ones
     sql.insertnew(conn, "operators", rf)
     return raw_records

@@ -5,13 +5,11 @@
 
 import yaml
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
+import pathlib
 
 from eko import basis_rotation as br
 
-from .plots import plot_dist
-from .runner import Runner
+here = pathlib.Path(__file__).parents[0]
 
 # xgrid
 toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
@@ -76,98 +74,85 @@ def rotate_data(raw, rotate_to_evolution_basis=False):
         return dict(zip(br.flavor_basis_pids, rot))
 
 
-class LHABenchmarkPaper(Runner):
-    """
-    Compares to the LHA benchmark paper :cite:`Giele:2002hx`.
+def compute_LHA_data(theory, operators, pdf):
 
-    Parameters
-    ----------
-        path : string or pathlib.Path
-            path to input card
-        data_dir : string
-            data directory
-        assets_dir : string
-            output directory
-    """
+    # TODO: pass this as argument
+    rotate_to_evolution_basis = not True
 
-    def __init__(self, theory_path, operators_path, assets_dir, data_dir):
-        super().__init__(theory_path, operators_path, assets_dir)
+    if not np.isclose(theory["XIF"], 1.0):
+        raise ValueError("XIF has to be 1")
+    Q2grid = operators["Q2grid"]
+    if not np.allclose(Q2grid, [1e4]):
+        raise ValueError("Q2grid has to be [1e4]")
+    # load data
+    with open( here / "LHA.yaml") as o:
+        data = yaml.safe_load(o)
 
-        self.rotate_to_evolution_basis = not True
-
-        if not np.isclose(self.theory["XIF"], 1.0):
-            raise ValueError("XIF has to be 1")
-        Q2grid = self.operators["Q2grid"]
-        if not np.allclose(Q2grid, [1e4]):
-            raise ValueError("Q2grid has to be [1e4]")
-        # load data
-        with open(data_dir / "LHA.yaml") as o:
-            self.data = yaml.safe_load(o)
-
-    def ref_values(self):
-        """
-        Load the reference data from the paper.
-
-        Returns
-        -------
-            ref : dict
-                (rotated) reference data
-        """
-        fns = self.theory["FNS"]
-        order = self.theory["PTO"]
-        fact_to_ren = (self.theory["XIF"] / self.theory["XIR"]) ** 2
-        if fns == "FFNS":
-            if order == 0:
-                return rotate_data(
-                    self.data["table2"]["part2"], self.rotate_to_evolution_basis
+    fns = theory["FNS"]
+    order = theory["PTO"]
+    fact_to_ren = (theory["XIF"] / theory["XIR"]) ** 2
+    ref_values = []
+    if fns == "FFNS":
+        if order == 0:
+            ref_values =  rotate_data(
+                data["table2"]["part2"], rotate_to_evolution_basis
+            )
+        elif order == 1:
+            if fact_to_ren > np.sqrt(2):
+                ref_values =  rotate_data(
+                    data["table3"]["part3"], rotate_to_evolution_basis
                 )
-            if order == 1:
-                if fact_to_ren > np.sqrt(2):
-                    return rotate_data(
-                        self.data["table3"]["part3"], self.rotate_to_evolution_basis
-                    )
-                if fact_to_ren < np.sqrt(1.0 / 2.0):
-                    return rotate_data(
-                        self.data["table3"]["part2"], self.rotate_to_evolution_basis
-                    )
-                return rotate_data(
-                    self.data["table3"]["part1"], self.rotate_to_evolution_basis
+            elif fact_to_ren < np.sqrt(1.0 / 2.0):
+                ref_values =  rotate_data(
+                    data["table3"]["part2"], rotate_to_evolution_basis
                 )
-        if fns == "ZM-VFNS":
-            if order == 0:
-                return rotate_data(
-                    self.data["table2"]["part3"], self.rotate_to_evolution_basis
+                ref_values =  rotate_data(
+                    data["table3"]["part1"], rotate_to_evolution_basis
                 )
-            if order == 1:
-                if fact_to_ren > np.sqrt(2):
-                    return rotate_data(
-                        self.data["table4"]["part3"], self.rotate_to_evolution_basis
-                    )
-                if fact_to_ren < np.sqrt(1.0 / 2.0):
-                    return rotate_data(
-                        self.data["table4"]["part2"], self.rotate_to_evolution_basis
-                    )
-                return rotate_data(
-                    self.data["table4"]["part1"], self.rotate_to_evolution_basis
+    elif fns == "ZM-VFNS":
+        if order == 0:
+            ref_values =  rotate_data(
+                data["table2"]["part3"], rotate_to_evolution_basis
+            )
+        elif order == 1:
+            if fact_to_ren > np.sqrt(2):
+                ref_values =  rotate_data(
+                    data["table4"]["part3"], rotate_to_evolution_basis
                 )
+            elif fact_to_ren < np.sqrt(1.0 / 2.0):
+                ref_values =  rotate_data(
+                    data["table4"]["part2"], rotate_to_evolution_basis
+                )
+            ref_values =  rotate_data(
+                data["table4"]["part1"], rotate_to_evolution_basis
+            )
+    else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
 
-    def ref(self):
-        """
-        Reference configuration
-        """
-        skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
-        if self.theory["FNS"] == "FFNS":
-            skip_pdfs.extend([-5, 5, "T24"])
-        return {
-            "target_xgrid": toy_xgrid,
-            "values": {1e4: self.ref_values()},
-            "src_pdf": "ToyLH",
-            "skip_pdfs": skip_pdfs,
-            "rotate_to_evolution_basis": self.rotate_to_evolution_basis,
-        }
+    #Reference configuration
+    skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
+    if theory["FNS"] == "FFNS":
+        skip_pdfs.extend([-5, 5, "T24"])
+
+    ref =  {
+        "target_xgrid": toy_xgrid,
+        "values": {1e4: ref_values },
+        "src_pdf": pdf.set().name,
+        "skip_pdfs": skip_pdfs,
+        "rotate_to_evolution_basis": rotate_to_evolution_basis,
+    }
+
+    return ref
+
+    # TODO: this here??
 
     def save_initial_scale_plots_to_pdf(self, path):
+
+        import matplotlib.pyplot as plt
+        from matplotlib.backends.backend_pdf import PdfPages
+        from ekomark.plots import plot_dist
+
+
         """
         Plots all PDFs at the inital scale.
 
@@ -181,7 +166,7 @@ class LHABenchmarkPaper(Runner):
             path : string
                 output path
         """
-        LHA_init_grid_ref = self.data["table2"]["part1"]
+        LHA_init_grid_ref = data["table2"]["part1"]
         with PdfPages(path) as pp:
             # iterate all raw labels
             for j, label in enumerate(raw_label_list):

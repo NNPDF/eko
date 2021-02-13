@@ -1,5 +1,5 @@
-database_path: data/benchmark.db
+database_path: /Volumes/Git_Workspace/physicstools/NN3PDF/eko/benchmarks/data/benchmark.db
 input_tables:
  - theories
- - observables
+ - operators
  - cache
