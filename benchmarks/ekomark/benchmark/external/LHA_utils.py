@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-    Benchmark EKO to :cite:`Giele:2002hx`
-"""
-
 import yaml
 import numpy as np
 import pathlib
@@ -74,10 +70,27 @@ def rotate_data(raw, rotate_to_evolution_basis=False):
         return dict(zip(br.flavor_basis_pids, rot))
 
 
-def compute_LHA_data(theory, operators, pdf):
+def compute_LHA_data(theory, operators, pdf, rotate_to_evolution_basis=False):
 
-    # TODO: pass this as argument
-    rotate_to_evolution_basis = not True
+    """
+    Setup LHA benchmark :cite:`Giele:2002hx`
+
+    Parameters
+    ----------
+        theory : dict
+            theory card
+        operators : dict
+            operators card
+        pdf : lhapdf_type
+            pdf 
+        rotate_to_evolution_basis: bool 
+            rotate to evolution basis
+    
+    Returns
+    -------
+        ref : dict
+            output containing: target_xgrid, values, pdf settings  
+    """
 
     if not np.isclose(theory["XIF"], 1.0):
         raise ValueError("XIF has to be 1")
@@ -85,7 +98,7 @@ def compute_LHA_data(theory, operators, pdf):
     if not np.allclose(Q2grid, [1e4]):
         raise ValueError("Q2grid has to be [1e4]")
     # load data
-    with open( here / "LHA.yaml") as o:
+    with open(here / "LHA.yaml") as o:
         data = yaml.safe_load(o)
 
     fns = theory["FNS"]
@@ -94,49 +107,43 @@ def compute_LHA_data(theory, operators, pdf):
     ref_values = []
     if fns == "FFNS":
         if order == 0:
-            ref_values =  rotate_data(
-                data["table2"]["part2"], rotate_to_evolution_basis
-            )
+            ref_values = rotate_data(data["table2"]["part2"], rotate_to_evolution_basis)
         elif order == 1:
             if fact_to_ren > np.sqrt(2):
-                ref_values =  rotate_data(
+                ref_values = rotate_data(
                     data["table3"]["part3"], rotate_to_evolution_basis
                 )
             elif fact_to_ren < np.sqrt(1.0 / 2.0):
-                ref_values =  rotate_data(
+                ref_values = rotate_data(
                     data["table3"]["part2"], rotate_to_evolution_basis
                 )
-                ref_values =  rotate_data(
+                ref_values = rotate_data(
                     data["table3"]["part1"], rotate_to_evolution_basis
                 )
     elif fns == "ZM-VFNS":
         if order == 0:
-            ref_values =  rotate_data(
-                data["table2"]["part3"], rotate_to_evolution_basis
-            )
+            ref_values = rotate_data(data["table2"]["part3"], rotate_to_evolution_basis)
         elif order == 1:
             if fact_to_ren > np.sqrt(2):
-                ref_values =  rotate_data(
+                ref_values = rotate_data(
                     data["table4"]["part3"], rotate_to_evolution_basis
                 )
             elif fact_to_ren < np.sqrt(1.0 / 2.0):
-                ref_values =  rotate_data(
+                ref_values = rotate_data(
                     data["table4"]["part2"], rotate_to_evolution_basis
                 )
-            ref_values =  rotate_data(
-                data["table4"]["part1"], rotate_to_evolution_basis
-            )
+            ref_values = rotate_data(data["table4"]["part1"], rotate_to_evolution_basis)
     else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
 
-    #Reference configuration
+    # Reference configuration
     skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
     if theory["FNS"] == "FFNS":
         skip_pdfs.extend([-5, 5, "T24"])
 
-    ref =  {
+    ref = {
         "target_xgrid": toy_xgrid,
-        "values": {1e4: ref_values },
+        "values": {1e4: ref_values},
         "src_pdf": pdf.set().name,
         "skip_pdfs": skip_pdfs,
         "rotate_to_evolution_basis": rotate_to_evolution_basis,
@@ -144,14 +151,13 @@ def compute_LHA_data(theory, operators, pdf):
 
     return ref
 
-    # TODO: this here??
+    # TODO: keep this here?? move it in runner?
 
     def save_initial_scale_plots_to_pdf(self, path):
 
         import matplotlib.pyplot as plt
         from matplotlib.backends.backend_pdf import PdfPages
         from ekomark.plots import plot_dist
-
 
         """
         Plots all PDFs at the inital scale.

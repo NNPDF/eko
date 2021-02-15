@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+## -*- coding: utf-8 -*-
 """
-    Benchmark EKO to :cite:`Giele:2002hx`
+    Benchmark EKO to LHAPDF
 """
 import logging
 import sys
@@ -14,13 +14,13 @@ from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
 
-class LHABenchmark(Runner):
+class LHAPDFBenchmark(Runner):
 
     """
-    Globally set the external program to LHA
+    Globally set the external program to LHAPDF
     """
 
-    external = "LHA"
+    external = "LHAPDF"
 
     # selcet output type:
     post_process_config = {
@@ -40,18 +40,20 @@ class LHABenchmark(Runner):
     ref = {}
 
 
-class BenchmarkPlain(LHABenchmark):
-    """Possible basic checks"""
+class BenchmarkPlain(LHAPDFBenchmark):
+    """The most basic checks"""
 
     def benchmark_lo(self):
 
         theory_updates = {
             "PTO": [0],
-            "FNS": ["ZM-VFNS", "FFNS"],
+            "FNS": ["ZM-VFNS", "FNS"],
             "ModEv": ["EXA", "TRN"],
         }
         self.run(
-            power_set(theory_updates), operators.build(operators.lha_config), ["ToyLH"]
+            power_set(theory_updates),
+            operators.build(operators.lhapdf_config),
+            ["ToyLH"],
         )
 
     def benchmark_nlo(self):
@@ -59,7 +61,7 @@ class BenchmarkPlain(LHABenchmark):
         # TODO: other parameter to set as not default?
         theory_updates = {
             "PTO": [1],
-            "FNS": ["ZM-VFNS", "FFNS"],
+            "FNS": ["ZM-VFNS", "FNS"],
             "ModEv": [
                 "EXA",
                 "TRN",
@@ -71,20 +73,9 @@ class BenchmarkPlain(LHABenchmark):
             ],
         }
         self.run(
-            power_set(theory_updates), operators.build(operators.lha_config), ["ToyLH"]
-        )
-
-    def benchmark_sv(self):
-
-        # TODO: other parameter to set as not default?
-        theory_updates = {
-            "PTO": [1],
-            "FNS": ["ZM-VFNS", "FFNS"],
-            "ModEv": ["EXA",],
-            "XIR": [0.7071067811865475, 1.4142135623730951],
-        }
-        self.run(
-            power_set(theory_updates), operators.build(operators.lha_config), ["ToyLH"]
+            power_set(theory_updates),
+            operators.build(operators.lhapdf_config),
+            ["ToyLH"],
         )
 
 
@@ -98,7 +89,8 @@ if __name__ == "__main__":
     logging.getLogger("eko").addHandler(logStdout)
     logging.getLogger("eko").setLevel(logging.INFO)
 
-    lha = BenchmarkPlain()
-    lha.benchmark_lo()
-    lha.benchmark_nlo()
-    lha.benchmark_sv()
+    lhapdf = BenchmarkPlain()
+    lhapdf.benchmark_lo()
+    lhapdf.benchmark_nlo()
+
+    # TODO: other types of benchmark FNS, sv ??
