@@ -33,7 +33,6 @@ def compute_LHAPDF_data(theory, operators, pdf, rotate_to_evolution_basis=False)
     out_tabs = {}
     for pid in br.flavor_basis_pids:
 
-        # TODO: do we  need it??
         if pid in skip_pdfs:
             continue
 

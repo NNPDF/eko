@@ -33,11 +33,38 @@ class Runner(BenchmarkRunner):
 
     @staticmethod
     def init_ocards(conn):
+        """
+        Create opertors card
+
+        Parameters
+        ----------
+            conn : sqlite3.Connection
+                DB connection
+
+        Returns
+        -------
+
+        """
         with conn:
             conn.execute(sql.create_table("operators", operators.default_card))
 
     @staticmethod
     def load_ocards(conn, ocard_updates):
+        """
+        Load o-cards from the DB.
+
+        Parameters
+        ----------
+            conn : sqlite3.Connection
+                DB connection
+            ocard_updates : list(dict)
+                o-card configurations
+
+        Returns
+        -------
+            ocards : list(dict)
+                all requested o-cards
+        """
         return operators.load(conn, ocard_updates)
 
     def run_me(self, theory, ocard, pdf):
@@ -49,7 +76,9 @@ class Runner(BenchmarkRunner):
             theory : dict
                 theory card
             ocard : dict
-                ocard card
+                operator card
+            pdf : lhapdf_like
+                PDF set
 
         Returns
         -------
@@ -77,10 +106,25 @@ class Runner(BenchmarkRunner):
         return out
 
     def run_external(self, theory, ocard, pdf):
+        """
+        Run external program: LHA, LHAPDF, apfel
+
+        Parameters
+        ----------
+            theory : dict
+                theory card
+            ocard : dict
+                operator card
+            pdf : lhapdf_like
+                PDF set
+
+        Returns
+        -------
+            any : dict 
+                external dict results 
+        """        
 
         # TODO: add other theory checks, if necessary
-        # if theory["IC"] != 0 and theory["PTO"] > 0:
-        #   raise ValueError(f"{self.external} is currently not able to run")
 
         if self.external == "LHA":
             from .external import (  # pylint:disable=import-error,import-outside-toplevel
@@ -107,8 +151,12 @@ class Runner(BenchmarkRunner):
 
         Parameters
         ----------
-            output : eko.output.Output
-                DGLAP result
+            theory : dict
+                theory card
+            ops : dict
+                operator card
+            pdf_name : str
+                PDF name 
 
         Returns
         -------
@@ -131,18 +179,26 @@ class Runner(BenchmarkRunner):
         firstPage.text(0.55, 0.42, pdf_name, size=14, ha="left", va="top")
         return firstPage
 
-    def save_all_operators_to_pdf(self, theory, ops, pdf_name, me, path):
+    def save_all_operators_to_pdf(self, theory, ops, pdf_name, me):
         """
         Output all operator heatmaps to PDF.
 
         Parameters
         ----------
-            output : eko.output.Output
+            theory : dict
+                theory card
+            ops : dict
+                operator card
+            pdf_name : str
+                PDF name
+            me : eko.output.Output
                 DGLAP result
-            path : string
-                target file name
         """
         first_ops = list(me["Q2grid"].values())[0]
+        ops_id = f"o{ops['hash'].hex()[:7]}_t{theory['hash'].hex()[:7]}_{pdf_name}"
+        path = f"{self.output_path}/{ops_id}.pdf"
+        print(f"Writing operator plots to {ops_id}.pdf")
+
         with PdfPages(path) as pp:
             # print setup
             firstPage = self.input_figure(theory, ops, pdf_name)
@@ -152,7 +208,6 @@ class Runner(BenchmarkRunner):
             for label in first_ops["operators"]:
                 try:
                     fig = plot_operator(first_ops, label)
-
                     pp.savefig()
                 finally:
                     if fig:
@@ -164,17 +219,22 @@ class Runner(BenchmarkRunner):
 
         Parameters
         ----------
-            path : string
-                output path
+            theory : dict
+                theory card
+            ops : dict
+                oparator card
+            pdf : lhapdf_like
+                PDF set
             me : eko.output.Output
                 DGLAP result
+            ext : dict
+                external result
         """
         ref = ext
-        # TODO: impove the file name based on th ena ocard id
-        ops_id = f"iter{ops['ev_op_iterations']}"
-        path = f"{self.output_path}/{ref['src_pdf']}_{ops_id}_plots.pdf"
+        ops_id = f"o{ops['hash'].hex()[:7]}_t{theory['hash'].hex()[:7]}_{pdf.set().name}"
+        path = f"{self.output_path}/{ops_id}_plots.pdf"
+        print(f"Writing pdf plots to {ops_id}_plots.pdf")
 
-        print(f"write pdf plots to {path}")
         xgrid = ref["target_xgrid"]
         first_q2 = list(ref["values"].keys())[0]
         ref_pdfs = list(ref["values"].values())[0]
@@ -187,7 +247,7 @@ class Runner(BenchmarkRunner):
         my_pdf_errs = first_res["errors"]
         with PdfPages(path) as pp:
             # print setup
-            firstPage = self.input_figure(theory, ops, ref["src_pdf"])
+            firstPage = self.input_figure(theory, ops, pdf.set().name)
             pp.savefig()
             plt.close(firstPage)
             # iterate all pdf
@@ -209,26 +269,44 @@ class Runner(BenchmarkRunner):
     def log(self, theory, ocard, pdf, me, ext):
         """
         Handles the post processing of the run according to the configuration.
+        
+        Parameters
+        ----------
+            theory : dict
+                theory card
+            ocard : dict
+                operator card
+            pdf : lhapdf_like
+                PDF set
+            me : eko.output.Output
+                DGLAP result
+            ext : dict
+                external result
+        Returns
+        -------
+            log_tab: dfdict 
+                Log table
         """
 
-        # TODO: impove the card name based on th ena ocard id
-        ops_id = f"iter{ocard['ev_op_iterations']}"
-        p = f"{self.output_path}/{ops_id}.yaml"
+        pdf_name = pdf.set().name
 
         # TODO: do we want to keep this?
         # dump operators to file
-        # if self.post_process_config["write_operator"]:
-        #    me.dump_yaml_to_file(p, binarize=False)
-        #    print(f"write operator to {p}")
+        if self.post_process_config["write_operator"]:
+            ops_id = f"o{ocard['hash'].hex()[:7]}_t{theory['hash'].hex()[:7]}_{pdf_name}"
+            path = f"{self.output_path}/{ops_id}.yaml"
+            print(f"Writing operator to {ops_id}.yaml")
+            me.dump_yaml_to_file(path, binarize=False)   
 
+        # TODO: do we want to keep this?
         # pdf comparison
         if self.post_process_config["plot_PDF"]:
             self.save_final_scale_plots_to_pdf(theory, ocard, pdf, me, ext)
 
+        # TODO: do we want to keep this?
         # graphical representation of operators
         if self.post_process_config["plot_operator"]:
-            self.save_all_operators_to_pdf(theory, ocard, pdf.set().name, me, p)
-            print(f"write operator plots to {p}")
+            self.save_all_operators_to_pdf(theory, ocard, pdf_name, me)
 
         # return a proper log table
         log_tab = dfdict.DFdict()

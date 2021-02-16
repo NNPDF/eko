@@ -30,14 +30,14 @@ class LHABenchmark(Runner):
     }
 
     # output dir
-    output_path = f"{pathlib.Path(__file__).parents[0]}/{external}_bench"
+    output_path = (
+        f"{pathlib.Path(__file__).absolute().parents[1]}/data/{external}_bench"
+    )
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
     # Rotate to evolution basis
     rtevb = True
-
-    ref = {}
 
 
 class BenchmarkPlain(LHABenchmark):
@@ -100,5 +100,5 @@ if __name__ == "__main__":
 
     lha = BenchmarkPlain()
     lha.benchmark_lo()
-    #lha.benchmark_nlo()
-    #lha.benchmark_sv()
+    # lha.benchmark_nlo()
+    # lha.benchmark_sv()

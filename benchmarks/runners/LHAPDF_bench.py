@@ -30,14 +30,14 @@ class LHAPDFBenchmark(Runner):
     }
 
     # output dir
-    output_path = f"{pathlib.Path(__file__).parents[0]}/{external}_bench"
+    output_path = (
+        f"{pathlib.Path(__file__).absolute().parents[1]}/data/{external}_bench"
+    )
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
     # Rotate to evolution basis
     rtevb = True
-
-    ref = {}
 
 
 class BenchmarkPlain(LHAPDFBenchmark):
@@ -71,7 +71,7 @@ class BenchmarkPlain(LHAPDFBenchmark):
                 "perturbative-exact",
                 "perturbative-expanded",
             ],
-            "NfFF":[3,4]
+            "NfFF": [3, 4],
         }
         self.run(
             power_set(theory_updates),
@@ -92,6 +92,6 @@ if __name__ == "__main__":
 
     lhapdf = BenchmarkPlain()
     lhapdf.benchmark_lo()
-    #lhapdf.benchmark_nlo()
+    # lhapdf.benchmark_nlo()
 
     # TODO: other types of benchmark FNS, sv ??
