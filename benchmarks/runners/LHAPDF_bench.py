@@ -53,7 +53,7 @@ class BenchmarkPlain(LHAPDFBenchmark):
         self.run(
             power_set(theory_updates),
             operators.build(operators.lhapdf_config),
-            ["ToyLH"],
+            ["CT14llo_NF4"],
         )
 
     def benchmark_nlo(self):
@@ -71,11 +71,12 @@ class BenchmarkPlain(LHAPDFBenchmark):
                 "perturbative-exact",
                 "perturbative-expanded",
             ],
+            "NfFF":[3,4]
         }
         self.run(
             power_set(theory_updates),
             operators.build(operators.lhapdf_config),
-            ["ToyLH"],
+            ["CT14llo_NF4"],
         )
 
 
@@ -91,6 +92,6 @@ if __name__ == "__main__":
 
     lhapdf = BenchmarkPlain()
     lhapdf.benchmark_lo()
-    lhapdf.benchmark_nlo()
+    #lhapdf.benchmark_nlo()
 
     # TODO: other types of benchmark FNS, sv ??

@@ -24,11 +24,9 @@ lha_config = {
 }
 
 lhapdf_config = {
-    0: {
-        "ev_op_max_order": [10],
-        "ev_op_iterations": [2, 10, 30],
-        "Q2grid": [[2, 10, 1.0e3, 1.0e4]],
-    }
+    "ev_op_max_order": [10],
+    "ev_op_iterations": [2, 10, 30],
+    "Q2grid": [[2, 10, 1.0e3, 1.0e4]],
 }
 
 

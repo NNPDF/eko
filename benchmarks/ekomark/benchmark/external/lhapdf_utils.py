@@ -26,7 +26,7 @@ def compute_LHAPDF_data(theory, operators, pdf, rotate_to_evolution_basis=False)
             output containing: target_xgrid, values, pdf settings  
     """
 
-    target_xgrid = eko.interpolation.make_grid(*operators["interpolation_xgrid"][1:])
+    target_xgrid = operators["interpolation_xgrid"]
     src_pdf = pdf.set().name
     skip_pdfs = [22, -6, -5, 5, 6]
 

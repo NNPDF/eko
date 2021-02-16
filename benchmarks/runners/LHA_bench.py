@@ -41,7 +41,7 @@ class LHABenchmark(Runner):
 
 
 class BenchmarkPlain(LHABenchmark):
-    """Possible basic checks"""
+    """Vary PTO and scale variations """
 
     def benchmark_lo(self):
 
@@ -100,5 +100,5 @@ if __name__ == "__main__":
 
     lha = BenchmarkPlain()
     lha.benchmark_lo()
-    lha.benchmark_nlo()
-    lha.benchmark_sv()
+    #lha.benchmark_nlo()
+    #lha.benchmark_sv()
