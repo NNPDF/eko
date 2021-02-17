@@ -29,6 +29,12 @@ lhapdf_config = {
     "Q2grid": [[2, 10, 1.0e3, 1.0e4]],
 }
 
+apfel_config = {
+    "ev_op_max_order": [10],
+    "ev_op_iterations": [2, 10, 30],
+    "Q2grid": [[10, 1.0e4]],
+}
+
 
 def build(update=None):
     """

@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-    Benchmark EKO to :cite:`Giele:2002hx`
-"""
 import logging
 import sys
 import os
@@ -22,7 +19,7 @@ class Sandbox(Runner):
 
     external = "LHA"
     external = "LHAPDF"
-    # external = "apfel"
+    external = "apfel"
 
     # selcet output type:
     post_process_config = {

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-import eko
 from eko import basis_rotation as br
 
 
 def compute_LHAPDF_data(theory, operators, pdf, rotate_to_evolution_basis=False):
     """
-    Run LHAPDF
+    Run LHAPDF to compute operators.
 
     Parameters
     ----------
@@ -23,11 +22,10 @@ def compute_LHAPDF_data(theory, operators, pdf, rotate_to_evolution_basis=False)
     Returns
     -------
         ref : dict
-            output containing: target_xgrid, values, pdf settings  
+            output containing: target_xgrid, values, skip_pdfs
     """
 
     target_xgrid = operators["interpolation_xgrid"]
-    src_pdf = pdf.set().name
     skip_pdfs = [22, -6, -5, 5, 6]
 
     out_tabs = {}
@@ -57,8 +55,6 @@ def compute_LHAPDF_data(theory, operators, pdf, rotate_to_evolution_basis=False)
     ref = {
         "target_xgrid": target_xgrid,
         "values": {operators["Q2grid"][0]: out_tabs},
-        "src_pdf": src_pdf,
-        "rotate_to_evolution_basis": rotate_to_evolution_basis,
         "skip_pdfs": skip_pdfs,
     }
 

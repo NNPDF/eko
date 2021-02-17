@@ -70,7 +70,7 @@ def rotate_data(raw, rotate_to_evolution_basis=False):
         return dict(zip(br.flavor_basis_pids, rot))
 
 
-def compute_LHA_data(theory, operators, pdf, rotate_to_evolution_basis=False):
+def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
 
     """
     Setup LHA benchmark :cite:`Giele:2002hx`
@@ -81,15 +81,13 @@ def compute_LHA_data(theory, operators, pdf, rotate_to_evolution_basis=False):
             theory card
         operators : dict
             operators card
-        pdf : lhapdf_type
-            pdf 
         rotate_to_evolution_basis: bool 
             rotate to evolution basis
     
     Returns
     -------
         ref : dict
-            output containing: target_xgrid, values, pdf settings  
+            output containing: target_xgrid, values, skip_pdfs
     """
 
     if not np.isclose(theory["XIF"], 1.0):
@@ -144,14 +142,12 @@ def compute_LHA_data(theory, operators, pdf, rotate_to_evolution_basis=False):
     ref = {
         "target_xgrid": toy_xgrid,
         "values": {1e4: ref_values},
-        "src_pdf": pdf.set().name,
         "skip_pdfs": skip_pdfs,
-        "rotate_to_evolution_basis": rotate_to_evolution_basis,
     }
 
     return ref
 
-    # TODO: keep this here?? move it in runner?
+    # TODO: keep this in the runner ??
 
     def save_initial_scale_plots_to_pdf(self, path):
 

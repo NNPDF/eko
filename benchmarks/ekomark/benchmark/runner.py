@@ -21,6 +21,7 @@ import eko
 
 
 def pdfname(pid_or_name):
+    """ Return pdf name  """
     if isinstance(pid_or_name, int):
         return eko.basis_rotation.flavor_basis_names[
             eko.basis_rotation.flavor_basis_pids.index(pid_or_name)
@@ -33,38 +34,11 @@ class Runner(BenchmarkRunner):
 
     @staticmethod
     def init_ocards(conn):
-        """
-        Create opertors card
-
-        Parameters
-        ----------
-            conn : sqlite3.Connection
-                DB connection
-
-        Returns
-        -------
-
-        """
         with conn:
             conn.execute(sql.create_table("operators", operators.default_card))
 
     @staticmethod
     def load_ocards(conn, ocard_updates):
-        """
-        Load o-cards from the DB.
-
-        Parameters
-        ----------
-            conn : sqlite3.Connection
-                DB connection
-            ocard_updates : list(dict)
-                o-card configurations
-
-        Returns
-        -------
-            ocards : list(dict)
-                all requested o-cards
-        """
         return operators.load(conn, ocard_updates)
 
     def run_me(self, theory, ocard, pdf):
@@ -106,23 +80,6 @@ class Runner(BenchmarkRunner):
         return out
 
     def run_external(self, theory, ocard, pdf):
-        """
-        Run external program: LHA, LHAPDF, apfel
-
-        Parameters
-        ----------
-            theory : dict
-                theory card
-            ocard : dict
-                operator card
-            pdf : lhapdf_like
-                PDF set
-
-        Returns
-        -------
-            any : dict 
-                external dict results 
-        """        
 
         # TODO: add other theory checks, if necessary
 
@@ -131,8 +88,9 @@ class Runner(BenchmarkRunner):
                 LHA_utils,
             )
 
+            # here pdf is not needed
             return LHA_utils.compute_LHA_data(
-                theory, ocard, pdf, rotate_to_evolution_basis=self.rtevb
+                theory, ocard, rotate_to_evolution_basis=self.rtevb
             )
 
         if self.external == "LHAPDF":
@@ -143,6 +101,16 @@ class Runner(BenchmarkRunner):
             return lhapdf_utils.compute_LHAPDF_data(
                 theory, ocard, pdf, rotate_to_evolution_basis=self.rtevb
             )
+
+        if self.external == "apfel":
+            from .external import (  # pylint:disable=import-error,import-outside-toplevel
+                apfel_utils,
+            )
+
+            return apfel_utils.compute_apfel_data(
+                theory, ocard, pdf, rotate_to_evolution_basis=self.rtevb
+            )
+
         return {}
 
     def input_figure(self, theory, ops, pdf_name):
@@ -231,7 +199,9 @@ class Runner(BenchmarkRunner):
                 external result
         """
         ref = ext
-        ops_id = f"o{ops['hash'].hex()[:7]}_t{theory['hash'].hex()[:7]}_{pdf.set().name}"
+        ops_id = (
+            f"o{ops['hash'].hex()[:7]}_t{theory['hash'].hex()[:7]}_{pdf.set().name}"
+        )
         path = f"{self.output_path}/{ops_id}_plots.pdf"
         print(f"Writing pdf plots to {ops_id}_plots.pdf")
 
@@ -239,9 +209,7 @@ class Runner(BenchmarkRunner):
         first_q2 = list(ref["values"].keys())[0]
         ref_pdfs = list(ref["values"].values())[0]
 
-        pdf_grid = me.apply_pdf(
-            pdf, xgrid, rotate_to_evolution_basis=ref["rotate_to_evolution_basis"],
-        )
+        pdf_grid = me.apply_pdf(pdf, xgrid, rotate_to_evolution_basis=self.rtevb,)
         first_res = list(pdf_grid.values())[0]
         my_pdfs = first_res["pdfs"]
         my_pdf_errs = first_res["errors"]
@@ -267,36 +235,18 @@ class Runner(BenchmarkRunner):
                 plt.close(fig)
 
     def log(self, theory, ocard, pdf, me, ext):
-        """
-        Handles the post processing of the run according to the configuration.
-        
-        Parameters
-        ----------
-            theory : dict
-                theory card
-            ocard : dict
-                operator card
-            pdf : lhapdf_like
-                PDF set
-            me : eko.output.Output
-                DGLAP result
-            ext : dict
-                external result
-        Returns
-        -------
-            log_tab: dfdict 
-                Log table
-        """
 
         pdf_name = pdf.set().name
 
         # TODO: do we want to keep this?
         # dump operators to file
         if self.post_process_config["write_operator"]:
-            ops_id = f"o{ocard['hash'].hex()[:7]}_t{theory['hash'].hex()[:7]}_{pdf_name}"
+            ops_id = (
+                f"o{ocard['hash'].hex()[:7]}_t{theory['hash'].hex()[:7]}_{pdf_name}"
+            )
             path = f"{self.output_path}/{ops_id}.yaml"
             print(f"Writing operator to {ops_id}.yaml")
-            me.dump_yaml_to_file(path, binarize=False)   
+            me.dump_yaml_to_file(path, binarize=False)
 
         # TODO: do we want to keep this?
         # pdf comparison
@@ -313,9 +263,7 @@ class Runner(BenchmarkRunner):
         xgrid = ext["target_xgrid"]
         first_q2 = list(ext["values"].keys())[0]
         ref_pdfs = list(ext["values"].values())[0]
-        pdf_grid = me.apply_pdf(
-            pdf, xgrid, rotate_to_evolution_basis=ext["rotate_to_evolution_basis"],
-        )
+        pdf_grid = me.apply_pdf(pdf, xgrid, rotate_to_evolution_basis=self.rtevb,)
         first_res = list(pdf_grid.values())[0]
         my_pdfs = first_res["pdfs"]
         my_pdf_errs = first_res["errors"]

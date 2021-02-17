@@ -41,7 +41,7 @@ class LHAPDFBenchmark(Runner):
 
 
 class BenchmarkPlain(LHAPDFBenchmark):
-    """The most basic checks"""
+    """Benchmark lo, nlo"""
 
     def benchmark_lo(self):
 
