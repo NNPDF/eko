@@ -2,13 +2,9 @@
 """
     Benchmark EKO to Apfel
 """
-import logging
-import sys
-import os
 import pathlib
 
 from banana.data import power_set
-
 
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
@@ -33,8 +29,6 @@ class ApfelBenchmark(Runner):
     output_path = (
         f"{pathlib.Path(__file__).absolute().parents[1]}/data/{external}_bench"
     )
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
 
     # Rotate to evolution basis
     rtevb = True
@@ -117,14 +111,6 @@ class BenchmarkPlain(ApfelBenchmark):
 
 
 if __name__ == "__main__":
-
-    # activate logging
-    logStdout = logging.StreamHandler(sys.stdout)
-    logStdout.setLevel(logging.INFO)
-    logStdout.setFormatter(logging.Formatter("%(message)s"))
-    logging.getLogger("eko").handlers = []
-    logging.getLogger("eko").addHandler(logStdout)
-    logging.getLogger("eko").setLevel(logging.INFO)
 
     apfel = BenchmarkPlain()
     apfel.benchmark_lo()

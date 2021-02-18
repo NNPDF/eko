@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
-import logging
-import sys
-import os
 import pathlib
 
 from banana.data import power_set
-
 
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
@@ -19,22 +15,21 @@ class Sandbox(Runner):
 
     external = "LHA"
     external = "LHAPDF"
-    external = "apfel"
+    #external = "apfel"
 
     # selcet output type:
     post_process_config = {
         "plot_PDF": False,
         # TODO: fix this still not working!!! there are no labels in the output!!
-        "plot_operator": True,
+        "plot_operator": False,
         "write_operator": True,
     }
 
+    # TODO: better move this to the runner ?
     # output dir
     output_path = (
         f"{pathlib.Path(__file__).absolute().parents[1]}/data/{external}_bench"
     )
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
 
     # Rotate to evolution basis
     rtevb = True
@@ -44,7 +39,7 @@ class Sandbox(Runner):
 
         ops = {
             "ev_op_iterations": [2],
-            "Q2grid": [[10]],
+            "Q2grid": [[2,10]],
             "ev_op_max_order": [2],
         }
         return ops
@@ -68,14 +63,6 @@ class Sandbox(Runner):
 
 
 if __name__ == "__main__":
-
-    # activate logging
-    logStdout = logging.StreamHandler(sys.stdout)
-    logStdout.setLevel(logging.INFO)
-    logStdout.setFormatter(logging.Formatter("%(message)s"))
-    logging.getLogger("eko").handlers = []
-    logging.getLogger("eko").addHandler(logStdout)
-    logging.getLogger("eko").setLevel(logging.INFO)
 
     sand = Sandbox()
     sand._run()

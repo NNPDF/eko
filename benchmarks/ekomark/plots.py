@@ -71,7 +71,8 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
     ax3 = plt.subplot(2, 3, 3)
     ax3.set_xscale("log", nonpositive="clip")
     ax3.set_yscale("log", nonpositive="clip")
-    oMx = [1.0 - i for i in x]
+    x = np.array(x)
+    oMx = 1.0 - x 
     plt.setp(ax3.get_xticklabels(), visible=False)
     ax3.set_xlim(oMx_min, oMx_max)
     plt.title("large x, i.e. small (1-x)")

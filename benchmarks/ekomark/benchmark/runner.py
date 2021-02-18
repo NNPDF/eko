@@ -4,11 +4,13 @@ Abstract layer for running the benchmarks
 """
 import pprint
 import io
+import os
+import logging
+import sys
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-
 
 from banana.data import sql, dfdict
 from banana.benchmark.runner import BenchmarkRunner
@@ -76,6 +78,14 @@ class Runner(BenchmarkRunner):
         #    with open(target_path) as o:
         #        ret = eko.output.Output.load_yaml(o)
 
+        # activate logging
+        logStdout = logging.StreamHandler(sys.stdout)
+        logStdout.setLevel(logging.INFO)
+        logStdout.setFormatter(logging.Formatter("%(message)s"))
+        logging.getLogger("eko").handlers = []
+        logging.getLogger("eko").addHandler(logStdout)
+        logging.getLogger("eko").setLevel(logging.INFO)
+        
         out = eko.run_dglap(theory, ocard)
         return out
 
@@ -87,22 +97,19 @@ class Runner(BenchmarkRunner):
             from .external import (  # pylint:disable=import-error,import-outside-toplevel
                 LHA_utils,
             )
-
             # here pdf is not needed
             return LHA_utils.compute_LHA_data(
                 theory, ocard, rotate_to_evolution_basis=self.rtevb
             )
-
-        if self.external == "LHAPDF":
+        elif self.external == "LHAPDF":
             from .external import (  # pylint:disable=import-error,import-outside-toplevel
                 lhapdf_utils,
             )
-
             return lhapdf_utils.compute_LHAPDF_data(
                 theory, ocard, pdf, rotate_to_evolution_basis=self.rtevb
             )
 
-        if self.external == "apfel":
+        elif self.external == "apfel":
             from .external import (  # pylint:disable=import-error,import-outside-toplevel
                 apfel_utils,
             )
@@ -110,7 +117,9 @@ class Runner(BenchmarkRunner):
             return apfel_utils.compute_apfel_data(
                 theory, ocard, pdf, rotate_to_evolution_basis=self.rtevb
             )
-
+        else:
+            raise NotImplementedError(f"Benchmark against {self.external} is not implemented!")
+        
         return {}
 
     def input_figure(self, theory, ops, pdf_name):
@@ -237,6 +246,9 @@ class Runner(BenchmarkRunner):
     def log(self, theory, ocard, pdf, me, ext):
 
         pdf_name = pdf.set().name
+
+        if not os.path.exists(self.output_path):
+            os.makedirs(self.output_path)
 
         # TODO: do we want to keep this?
         # dump operators to file
