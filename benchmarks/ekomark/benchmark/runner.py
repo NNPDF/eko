@@ -62,7 +62,7 @@ class Runner(BenchmarkRunner):
                 DGLAP result
         """
 
-        # TODO: check cache using banana ?
+        # TODO: check cache using banana ? if sandbox check for cache. 
         # target_path = self.assets_dir / (self.output_path + "-ops.yaml")
         # rerun = True
         # if target_path.exists():
@@ -91,22 +91,20 @@ class Runner(BenchmarkRunner):
 
     def run_external(self, theory, ocard, pdf):
 
-        # TODO: add other theory checks, if necessary
-
         if self.external == "LHA":
             from .external import (  # pylint:disable=import-error,import-outside-toplevel
                 LHA_utils,
             )
             # here pdf is not needed
             return LHA_utils.compute_LHA_data(
-                theory, ocard, rotate_to_evolution_basis=self.rtevb
+                theory, ocard, self.skip_pdfs, rotate_to_evolution_basis=self.rotate_to_evolution_basis
             )
         elif self.external == "LHAPDF":
             from .external import (  # pylint:disable=import-error,import-outside-toplevel
                 lhapdf_utils,
             )
             return lhapdf_utils.compute_LHAPDF_data(
-                theory, ocard, pdf, rotate_to_evolution_basis=self.rtevb
+                theory, ocard, pdf, self.skip_pdfs, rotate_to_evolution_basis=self.rotate_to_evolution_basis
             )
 
         elif self.external == "apfel":
@@ -115,7 +113,7 @@ class Runner(BenchmarkRunner):
             )
 
             return apfel_utils.compute_apfel_data(
-                theory, ocard, pdf, rotate_to_evolution_basis=self.rtevb
+                theory, ocard, pdf, self.skip_pdfs, rotate_to_evolution_basis=self.rotate_to_evolution_basis
             )
         else:
             raise NotImplementedError(f"Benchmark against {self.external} is not implemented!")
@@ -140,20 +138,25 @@ class Runner(BenchmarkRunner):
             firstPage : matplotlib.pyplot.Figure
                 figure
         """
-        firstPage = plt.figure(figsize=(13, 10))
+        firstPage = plt.figure(figsize=(25, 15))
         # theory
         firstPage.text(0.05, 0.97, "Theory:", size=20, ha="left", va="top")
         str_stream = io.StringIO()
-        pprint.pprint(theory, stream=str_stream, width=50)
+        th_copy = theory.copy()
+        th_copy.pop("hash", None)
+        pprint.pprint(th_copy, stream=str_stream, width=50)
         firstPage.text(0.05, 0.92, str_stream.getvalue(), size=14, ha="left", va="top")
         # operators
-        firstPage.text(0.55, 0.97, "Operators:", size=20, ha="left", va="top")
+        firstPage.text(0.55, 0.87, "Operators:", size=20, ha="left", va="top")
         str_stream = io.StringIO()
-        pprint.pprint(ops, stream=str_stream, width=50)
-        firstPage.text(0.55, 0.92, str_stream.getvalue(), size=14, ha="left", va="top")
+        ops_copy = ops.copy()
+        ops_copy.pop("hash", None)
+        pprint.pprint(ops_copy, stream=str_stream, width=50)
+        firstPage.text(0.55, 0.82, str_stream.getvalue(), size=14, ha="left", va="top")
         # pdf
-        firstPage.text(0.55, 0.47, "source pdf:", size=20, ha="left", va="top")
-        firstPage.text(0.55, 0.42, pdf_name, size=14, ha="left", va="top")
+        firstPage.text(0.55, 0.97, "source pdf:", size=20, ha="left", va="top")
+        firstPage.text(0.55, 0.92, pdf_name, size=14, ha="left", va="top")
+        firstPage.tight_layout()
         return firstPage
 
     def save_all_operators_to_pdf(self, theory, ops, pdf_name, me):
@@ -171,7 +174,8 @@ class Runner(BenchmarkRunner):
             me : eko.output.Output
                 DGLAP result
         """
-        first_ops = list(me["Q2grid"].values())[0]
+
+        ops_names = list(me["pids"])
         ops_id = f"o{ops['hash'].hex()[:7]}_t{theory['hash'].hex()[:7]}_{pdf_name}"
         path = f"{self.output_path}/{ops_id}.pdf"
         print(f"Writing operator plots to {ops_id}.pdf")
@@ -182,13 +186,20 @@ class Runner(BenchmarkRunner):
             pp.savefig()
             plt.close(firstPage)
             # print operators
-            for label in first_ops["operators"]:
-                try:
-                    fig = plot_operator(first_ops, label)
-                    pp.savefig()
-                finally:
-                    if fig:
-                        plt.close(fig)
+            for q2 in me["Q2grid"].keys():
+                
+                ress=me["Q2grid"][q2]["operators"]
+                res_errs=me["Q2grid"][q2]["operator_errors"]
+
+                for label, res, res_err in zip(ops_names, ress, res_errs):
+                    if label in self.skip_pdfs:
+                        continue
+                    try:
+                        fig = plot_operator(me["Q2grid"], label)
+                        pp.savefig()
+                    finally:
+                        if fig:
+                            plt.close(fig)
 
     def save_final_scale_plots_to_pdf(self, theory, ops, pdf, me, ext):
         """
@@ -215,33 +226,38 @@ class Runner(BenchmarkRunner):
         print(f"Writing pdf plots to {ops_id}_plots.pdf")
 
         xgrid = ref["target_xgrid"]
-        first_q2 = list(ref["values"].keys())[0]
-        ref_pdfs = list(ref["values"].values())[0]
+        q2s = list(ext["values"].keys())
+        pdf_grid = me.apply_pdf(pdf, xgrid, rotate_to_evolution_basis=self.rotate_to_evolution_basis,)        
 
-        pdf_grid = me.apply_pdf(pdf, xgrid, rotate_to_evolution_basis=self.rtevb,)
-        first_res = list(pdf_grid.values())[0]
-        my_pdfs = first_res["pdfs"]
-        my_pdf_errs = first_res["errors"]
+        
         with PdfPages(path) as pp:
+            
             # print setup
             firstPage = self.input_figure(theory, ops, pdf.set().name)
             pp.savefig()
             plt.close(firstPage)
+
             # iterate all pdf
-            for key in my_pdfs:
-                # skip trivial plots
-                if key in ref["skip_pdfs"]:
-                    continue
-                # plot
-                fig = plot_dist(
-                    xgrid,
-                    xgrid * my_pdfs[key],
-                    xgrid * my_pdf_errs[key],
-                    ref_pdfs[key],
-                    title=f"x{pdfname(key)}(x,µ_F^2 = {first_q2} GeV^2)",
-                )
-                pp.savefig()
-                plt.close(fig)
+            for q2 in q2s:
+                res = pdf_grid[q2]
+                my_pdfs = res["pdfs"]
+                my_pdf_errs = res["errors"]
+                ref_pdfs = ext["values"][q2]
+
+                for key in my_pdfs:
+                    # skip trivial plots
+                    if key in self.skip_pdfs:
+                        continue
+                    # plot
+                    fig = plot_dist(
+                        xgrid,
+                        xgrid * my_pdfs[key],
+                        xgrid * my_pdf_errs[key],
+                        ref_pdfs[key],
+                        title=f"x{pdfname(key)}(x,µ_F^2 = {q2} GeV^2)",
+                    )
+                    pp.savefig()
+                    plt.close(fig)
 
     def log(self, theory, ocard, pdf, me, ext):
 
@@ -250,7 +266,7 @@ class Runner(BenchmarkRunner):
         if not os.path.exists(self.output_path):
             os.makedirs(self.output_path)
 
-        # TODO: do we want to keep this?
+        # TODO: do we want to keep this? run.me and only for sandbox.  
         # dump operators to file
         if self.post_process_config["write_operator"]:
             ops_id = (
@@ -260,41 +276,44 @@ class Runner(BenchmarkRunner):
             print(f"Writing operator to {ops_id}.yaml")
             me.dump_yaml_to_file(path, binarize=False)
 
-        # TODO: do we want to keep this?
+        # TODO: do we want to keep this? this goes to navigator. 
         # pdf comparison
         if self.post_process_config["plot_PDF"]:
             self.save_final_scale_plots_to_pdf(theory, ocard, pdf, me, ext)
 
-        # TODO: do we want to keep this?
+        # TODO: do we want to keep this? this to navigator as well. 
         # graphical representation of operators
         if self.post_process_config["plot_operator"]:
             self.save_all_operators_to_pdf(theory, ocard, pdf_name, me)
 
         # return a proper log table
-        log_tab = dfdict.DFdict()
+        log_tabs={}
         xgrid = ext["target_xgrid"]
-        first_q2 = list(ext["values"].keys())[0]
-        ref_pdfs = list(ext["values"].values())[0]
-        pdf_grid = me.apply_pdf(pdf, xgrid, rotate_to_evolution_basis=self.rtevb,)
-        first_res = list(pdf_grid.values())[0]
-        my_pdfs = first_res["pdfs"]
-        my_pdf_errs = first_res["errors"]
+        q2s = list(ext["values"].keys())
+        pdf_grid = me.apply_pdf(pdf, xgrid, rotate_to_evolution_basis=self.rotate_to_evolution_basis,)
+        for q2 in q2s:
+            
+            log_tab = dfdict.DFdict()
+            ref_pdfs = ext["values"][q2]
+            res = pdf_grid[q2]
+            my_pdfs = res["pdfs"]
+            my_pdf_errs = res["errors"]
+            
+            for key in my_pdfs:
 
-        tabs = []
-        for key in my_pdfs:
-            # skip trivial plots
-            if key in ext["skip_pdfs"]:
-                continue
+                if key in self.skip_pdfs:
+                    continue
 
-            # build table
-            tab = {}
-            tab["x"] = xgrid
-            tab["Eko pdf"] = f = xgrid * my_pdfs[key]
-            tab["Eko err"] = xgrid * my_pdf_errs[key]
-            tab[self.external] = r = ref_pdfs[key]
-            tab["percent_error"] = (f - r) / r * 100
+                # build table
+                tab = {}
+                tab["x"] = xgrid
+                tab["pdf"] = f = xgrid * my_pdfs[key]
+                tab["err"] = xgrid * my_pdf_errs[key]
+                tab[self.external] = r = ref_pdfs[key]
+                tab["percent_error"] = (f - r) / r * 100
 
-            tab = pd.DataFrame(tab)
-            log_tab[key] = tab
-
-        return log_tab
+                tab = pd.DataFrame(tab)
+                log_tab[key] = tab
+            log_tabs[q2] = log_tab
+                
+        return log_tabs

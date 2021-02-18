@@ -40,6 +40,7 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
         fig : matplotlib.pyplot.figure
             created figure
     """
+    np.seterr(divide='ignore', invalid='ignore')
     fig = plt.figure(figsize=(15, 5))
     fig.subplots_adjust(hspace=0.05)
     if title is not None:

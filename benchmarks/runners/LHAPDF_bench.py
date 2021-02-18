@@ -31,7 +31,10 @@ class LHAPDFBenchmark(Runner):
     )
 
     # Rotate to evolution basis
-    rtevb = True
+    rotate_to_evolution_basis = True
+
+    # pdf to skip
+    skip_pdfs = [22, -6, -5, 5, 6]
 
 
 class BenchmarkPlain(LHAPDFBenchmark):

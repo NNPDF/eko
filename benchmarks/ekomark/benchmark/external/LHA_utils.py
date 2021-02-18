@@ -70,7 +70,7 @@ def rotate_data(raw, rotate_to_evolution_basis=False):
         return dict(zip(br.flavor_basis_pids, rot))
 
 
-def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
+def compute_LHA_data(theory, operators, skip_pdfs, rotate_to_evolution_basis=False):
 
     """
     Setup LHA benchmark :cite:`Giele:2002hx`
@@ -81,13 +81,15 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
             theory card
         operators : dict
             operators card
+        skip_pdfs : list 
+            list of pdfs (pid or name) to skip
         rotate_to_evolution_basis: bool 
             rotate to evolution basis
     
     Returns
     -------
         ref : dict
-            output containing: target_xgrid, values, skip_pdfs
+            output containing: target_xgrid, values
     """
 
     if not np.isclose(theory["XIF"], 1.0):
@@ -135,19 +137,17 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
         raise ValueError(f"unknown FNS {fns} or order {order}")
 
     # Reference configuration
-    skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
     if theory["FNS"] == "FFNS":
         skip_pdfs.extend([-5, 5, "T24"])
 
     ref = {
         "target_xgrid": toy_xgrid,
         "values": {1e4: ref_values},
-        "skip_pdfs": skip_pdfs,
     }
 
     return ref
 
-    # TODO: keep this in the runner ??
+    # TODO: keep this in navigator ???
 
     def save_initial_scale_plots_to_pdf(self, path):
 

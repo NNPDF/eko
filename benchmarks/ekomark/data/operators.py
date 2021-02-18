@@ -4,8 +4,10 @@ from eko import interpolation
 from banana.data import power_set, sql
 
 default_card = dict(
-    interpolation_xgrid=interpolation.make_grid(30, 20).tolist(),
-    interpolation_polynomial_degree=4,
+    #interpolation_xgrid=interpolation.make_grid(30, 20).tolist(),
+    interpolation_xgrid=interpolation.make_grid(2, 2).tolist(),
+
+    interpolation_polynomial_degree=1,
     interpolation_is_log=True,
     debug_skip_non_singlet=False,
     debug_skip_singlet=False,
@@ -18,21 +20,21 @@ default_card = dict(sorted(default_card.items()))
 
 
 lha_config = {
-    "ev_op_max_order": [10],
-    "ev_op_iterations": [2, 10, 30],
+    #"ev_op_max_order": [10],
+    #"ev_op_iterations": [2, 10, 30],
     "Q2grid": [[1.0e4]],
 }
 
 lhapdf_config = {
-    "ev_op_max_order": [10],
-    "ev_op_iterations": [2, 10, 30],
-    "Q2grid": [[2, 10, 1.0e3, 1.0e4]],
+    #"ev_op_max_order": [10],
+    #"ev_op_iterations": [2, 10, 30],
+    "Q2grid": [[20, 1.0e2, 1.0e3, 1.0e4]],
 }
 
 apfel_config = {
     "ev_op_max_order": [10],
     "ev_op_iterations": [2, 10, 30],
-    "Q2grid": [[10, 1.0e4]],
+    "Q2grid": [[1.0e3, 1.0e4]],
 }
 
 

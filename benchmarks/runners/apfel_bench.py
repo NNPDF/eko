@@ -31,7 +31,10 @@ class ApfelBenchmark(Runner):
     )
 
     # Rotate to evolution basis
-    rtevb = True
+    rotate_to_evolution_basis = True
+
+    # pdf to skip
+    skip_pdfs = [22, -6, 6, "ph", "T35", "V35"]
 
 
 class BenchmarkPlain(ApfelBenchmark):

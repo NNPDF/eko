@@ -154,7 +154,7 @@ def load_apfel(theory, operators, pdf="ToyLH"):
     return apfel
 
 
-def compute_apfel_data(theory, operators, pdf, rotate_to_evolution_basis=False):
+def compute_apfel_data(theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False):
 
     """
     Run APFEL to compute operators.
@@ -167,18 +167,19 @@ def compute_apfel_data(theory, operators, pdf, rotate_to_evolution_basis=False):
             operators card
         pdf : lhapdf_type
             pdf 
+        skip_pdfs : list 
+            list of pdfs (pid or name) to skip
         rotate_to_evolution_basis: bool 
             rotate to evolution basis
     
     Returns
     -------
         ref : dict
-            output containing: target_xgrid, values, skip_pdfs 
+            output containing: target_xgrid, values 
     """
 
     target_xgrid = operators["interpolation_xgrid"]
     pdf_name = pdf.set().name
-    skip_pdfs = [22, -6, 6, "ph", "T35", "V35"]
 
     # Load apfel
     apf_start = time.perf_counter()
@@ -186,46 +187,43 @@ def compute_apfel_data(theory, operators, pdf, rotate_to_evolution_basis=False):
     print("Loading APFEL took %f s" % (time.perf_counter() - apf_start))
 
     # Run
-    apfel.EvolveAPFEL(theory["Q0"], np.sqrt(operators["Q2grid"][0]))
-    print("Executing APFEL took %f s" % (time.perf_counter() - apf_start))
     apf_tabs = {}
+    for q2 in operators["Q2grid"]:
+    
+        apfel.EvolveAPFEL(theory["Q0"], np.sqrt(q2))
+        print("Executing APFEL took %f s" % (time.perf_counter() - apf_start))
 
-    for pid in br.flavor_basis_pids:
+        tab={}
+        for pid in br.flavor_basis_pids:
 
-        if pid in skip_pdfs:
-            continue
-        # collect APFEL
-        apf = []
-        for x in target_xgrid:
-            xf = apfel.xPDF(pid if pid != 21 else 0, x)
-            # if pid == 4:
-            #     print(pid,x,xf)
-            apf.append(xf)
-        apf_tabs[pid] = np.array(apf)
+            if pid in skip_pdfs:
+                continue
+            
+            # collect APFEL
+            apf = []
+            for x in target_xgrid:
+                xf = apfel.xPDF(pid if pid != 21 else 0, x)
+                # if pid == 4:
+                #     print(pid,x,xf)
+                apf.append(xf)
+            tab[pid] = np.array(apf)
 
-    # rotate if needed
-    if rotate_to_evolution_basis:
-        pdfs = np.array(
-            [
-                apf_tabs[pid] if pid in apf_tabs else np.zeros(len(target_xgrid))
-                for pid in br.flavor_basis_pids
-            ]
-        )
-        evol_pdf = br.rotate_flavor_to_evolution @ pdfs
-        apf_tabs = dict(zip(br.evol_basis, evol_pdf))
+        # rotate if needed
+        if rotate_to_evolution_basis:
+            pdfs = np.array(
+                [
+                    tab[pid] if pid in apf_tabs else np.zeros(len(target_xgrid))
+                    for pid in br.flavor_basis_pids
+                ]
+            )
+            evol_pdf = br.rotate_flavor_to_evolution @ pdfs
+            tab = dict(zip(br.evol_basis, evol_pdf))
 
-    # iterate all values and print results
-    # for q2, dfdict in apf_tabs.items():
-    #    print("-" * 20)
-    #    print(f"Q2 = {q2} GeV^2 ")
-    #    print("-" * 20)
-    #    print(dfdict)
-    #    print("-" * 20)
+        apf_tabs[q2] = tab
 
     ref = {
         "target_xgrid": target_xgrid,
-        "values": {operators["Q2grid"][0]: apf_tabs},
-        "skip_pdfs": skip_pdfs,
+        "values": apf_tabs,
     }
 
     return ref

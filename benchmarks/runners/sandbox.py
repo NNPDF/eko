@@ -20,26 +20,30 @@ class Sandbox(Runner):
     # selcet output type:
     post_process_config = {
         "plot_PDF": False,
-        # TODO: fix this still not working!!! there are no labels in the output!!
-        "plot_operator": False,
-        "write_operator": True,
+        "plot_operator": True,
+        "write_operator": False,
     }
 
-    # TODO: better move this to the runner ?
+    # TODO: move to navigator
     # output dir
     output_path = (
         f"{pathlib.Path(__file__).absolute().parents[1]}/data/{external}_bench"
     )
 
-    # Rotate to evolution basis
-    rtevb = True
+    rotate_to_evolution_basis = True
+
+    # pdf to skip, for LHA there is a default 
+    skip_pdfs = [22, -6, 6,  "ph", "V35", "V24", "V15", "V8", "T35"]
+    if external == "LHA":
+        skip_pdfs =  [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
+
 
     @staticmethod
     def generate_operators():
 
         ops = {
             "ev_op_iterations": [2],
-            "Q2grid": [[2,10]],
+            "Q2grid": [[1.0e+4, 10]],
             "ev_op_max_order": [2],
         }
         return ops
