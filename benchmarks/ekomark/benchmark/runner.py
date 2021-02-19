@@ -62,7 +62,7 @@ class Runner(BenchmarkRunner):
                 DGLAP result
         """
 
-        # TODO: check cache using banana ? if sandbox check for cache. 
+        # TODO: check cache using banana ? if sandbox check for cache.
         # target_path = self.assets_dir / (self.output_path + "-ops.yaml")
         # rerun = True
         # if target_path.exists():
@@ -85,7 +85,7 @@ class Runner(BenchmarkRunner):
         logging.getLogger("eko").handlers = []
         logging.getLogger("eko").addHandler(logStdout)
         logging.getLogger("eko").setLevel(logging.INFO)
-        
+
         out = eko.run_dglap(theory, ocard)
         return out
 
@@ -95,16 +95,25 @@ class Runner(BenchmarkRunner):
             from .external import (  # pylint:disable=import-error,import-outside-toplevel
                 LHA_utils,
             )
+
             # here pdf is not needed
             return LHA_utils.compute_LHA_data(
-                theory, ocard, self.skip_pdfs, rotate_to_evolution_basis=self.rotate_to_evolution_basis
+                theory,
+                ocard,
+                self.skip_pdfs,
+                rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
         elif self.external == "LHAPDF":
             from .external import (  # pylint:disable=import-error,import-outside-toplevel
                 lhapdf_utils,
             )
+
             return lhapdf_utils.compute_LHAPDF_data(
-                theory, ocard, pdf, self.skip_pdfs, rotate_to_evolution_basis=self.rotate_to_evolution_basis
+                theory,
+                ocard,
+                pdf,
+                self.skip_pdfs,
+                rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
 
         elif self.external == "apfel":
@@ -113,11 +122,17 @@ class Runner(BenchmarkRunner):
             )
 
             return apfel_utils.compute_apfel_data(
-                theory, ocard, pdf, self.skip_pdfs, rotate_to_evolution_basis=self.rotate_to_evolution_basis
+                theory,
+                ocard,
+                pdf,
+                self.skip_pdfs,
+                rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
         else:
-            raise NotImplementedError(f"Benchmark against {self.external} is not implemented!")
-        
+            raise NotImplementedError(
+                f"Benchmark against {self.external} is not implemented!"
+            )
+
         return {}
 
     def input_figure(self, theory, ops, pdf_name):
@@ -187,19 +202,48 @@ class Runner(BenchmarkRunner):
             plt.close(firstPage)
             # print operators
             for q2 in me["Q2grid"].keys():
-                
-                ress=me["Q2grid"][q2]["operators"]
-                res_errs=me["Q2grid"][q2]["operator_errors"]
 
-                for label, res, res_err in zip(ops_names, ress, res_errs):
-                    if label in self.skip_pdfs:
+                ress = me["Q2grid"][q2]["operators"]
+                res_errs = me["Q2grid"][q2]["operator_errors"]
+
+                # loop on pids
+                for label_out, res, res_err in zip(ops_names, ress, res_errs):
+
+                    if label_out in self.skip_pdfs:
                         continue
-                    try:
-                        fig = plot_operator(me["Q2grid"], label)
-                        pp.savefig()
-                    finally:
-                        if fig:
-                            plt.close(fig)
+
+                    temp1 = {}
+                    err = {}
+                    # loop on xgrid point
+                    for j in range(len(me["interpolation_xgrid"])):
+
+                        # loop on pid in
+                        for label_in, op, op_err in zip(ops_names, res[j], res_err[j]):
+
+                            if label_in in self.skip_pdfs:
+                                continue
+                            if label_in not in temp1.keys():
+                                temp1[label_in] = []
+                                err[label_in] = []
+                            temp1[label_in].append(op)
+                            err[label_in].append(op_err)
+
+                    # temp[label_out] = temp1
+
+                    for label_in in ops_names:
+
+                        if label_in in self.skip_pdfs:
+                            continue
+                        try:
+                            fig = plot_operator(
+                                f"{label_in}_{label_out}_{q2}",
+                                temp1[label_in],
+                                err[label_in],
+                            )
+                            pp.savefig()
+                        finally:
+                            if fig:
+                                plt.close(fig)
 
     def save_final_scale_plots_to_pdf(self, theory, ops, pdf, me, ext):
         """
@@ -227,11 +271,12 @@ class Runner(BenchmarkRunner):
 
         xgrid = ref["target_xgrid"]
         q2s = list(ext["values"].keys())
-        pdf_grid = me.apply_pdf(pdf, xgrid, rotate_to_evolution_basis=self.rotate_to_evolution_basis,)        
+        pdf_grid = me.apply_pdf(
+            pdf, xgrid, rotate_to_evolution_basis=self.rotate_to_evolution_basis,
+        )
 
-        
         with PdfPages(path) as pp:
-            
+
             # print setup
             firstPage = self.input_figure(theory, ops, pdf.set().name)
             pp.savefig()
@@ -266,7 +311,7 @@ class Runner(BenchmarkRunner):
         if not os.path.exists(self.output_path):
             os.makedirs(self.output_path)
 
-        # TODO: do we want to keep this? run.me and only for sandbox.  
+        # TODO: do we want to keep this? run.me and only for sandbox.
         # dump operators to file
         if self.post_process_config["write_operator"]:
             ops_id = (
@@ -276,29 +321,31 @@ class Runner(BenchmarkRunner):
             print(f"Writing operator to {ops_id}.yaml")
             me.dump_yaml_to_file(path, binarize=False)
 
-        # TODO: do we want to keep this? this goes to navigator. 
+        # TODO: do we want to keep this? this goes to navigator.
         # pdf comparison
         if self.post_process_config["plot_PDF"]:
             self.save_final_scale_plots_to_pdf(theory, ocard, pdf, me, ext)
 
-        # TODO: do we want to keep this? this to navigator as well. 
+        # TODO: do we want to keep this? this to navigator as well.
         # graphical representation of operators
         if self.post_process_config["plot_operator"]:
             self.save_all_operators_to_pdf(theory, ocard, pdf_name, me)
 
         # return a proper log table
-        log_tabs={}
+        log_tabs = {}
         xgrid = ext["target_xgrid"]
         q2s = list(ext["values"].keys())
-        pdf_grid = me.apply_pdf(pdf, xgrid, rotate_to_evolution_basis=self.rotate_to_evolution_basis,)
+        pdf_grid = me.apply_pdf(
+            pdf, xgrid, rotate_to_evolution_basis=self.rotate_to_evolution_basis,
+        )
         for q2 in q2s:
-            
+
             log_tab = dfdict.DFdict()
             ref_pdfs = ext["values"][q2]
             res = pdf_grid[q2]
             my_pdfs = res["pdfs"]
             my_pdf_errs = res["errors"]
-            
+
             for key in my_pdfs:
 
                 if key in self.skip_pdfs:
@@ -315,5 +362,5 @@ class Runner(BenchmarkRunner):
                 tab = pd.DataFrame(tab)
                 log_tab[key] = tab
             log_tabs[q2] = log_tab
-                
+
         return log_tabs

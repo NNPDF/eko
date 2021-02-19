@@ -9,9 +9,7 @@ setup(
     description="eko benchmark",
     # package_dir={"": "."},
     packages=find_packages("."),
-    install_requires=["matplotlib", "pandas", "banana-hep","pyyaml"],
-    entry_points={
-        "console_scripts": [],
-    },
+    install_requires=["matplotlib", "pandas", "banana-hep", "pyyaml"],
+    entry_points={"console_scripts": [],},
     python_requires=">=3.7",
 )

@@ -154,7 +154,9 @@ def load_apfel(theory, operators, pdf="ToyLH"):
     return apfel
 
 
-def compute_apfel_data(theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False):
+def compute_apfel_data(
+    theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False
+):
 
     """
     Run APFEL to compute operators.
@@ -189,16 +191,16 @@ def compute_apfel_data(theory, operators, pdf, skip_pdfs, rotate_to_evolution_ba
     # Run
     apf_tabs = {}
     for q2 in operators["Q2grid"]:
-    
+
         apfel.EvolveAPFEL(theory["Q0"], np.sqrt(q2))
         print("Executing APFEL took %f s" % (time.perf_counter() - apf_start))
 
-        tab={}
+        tab = {}
         for pid in br.flavor_basis_pids:
 
             if pid in skip_pdfs:
                 continue
-            
+
             # collect APFEL
             apf = []
             for x in target_xgrid:

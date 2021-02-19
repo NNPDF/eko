@@ -40,7 +40,7 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
         fig : matplotlib.pyplot.figure
             created figure
     """
-    np.seterr(divide='ignore', invalid='ignore')
+    np.seterr(divide="ignore", invalid="ignore")
     fig = plt.figure(figsize=(15, 5))
     fig.subplots_adjust(hspace=0.05)
     if title is not None:
@@ -73,7 +73,7 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
     ax3.set_xscale("log", nonpositive="clip")
     ax3.set_yscale("log", nonpositive="clip")
     x = np.array(x)
-    oMx = 1.0 - x 
+    oMx = 1.0 - x
     plt.setp(ax3.get_xticklabels(), visible=False)
     ax3.set_xlim(oMx_min, oMx_max)
     plt.title("large x, i.e. small (1-x)")
@@ -87,7 +87,7 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
     return fig
 
 
-def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
+def plot_operator(var_name, op, op_err, log_operator=False, abs_operator=False):
     """
     Plot a single operator as heat map.
 
@@ -108,8 +108,8 @@ def plot_operator(ret, var_name, log_operator=True, abs_operator=False):
             created figure
     """
     # get
-    op = ret["operators"][var_name]
-    op_err = ret["operator_errors"][var_name]
+    # op = ret["operators"][var_name]
+    # op_err = ret["operator_errors"][var_name]
 
     fig = plt.figure(figsize=(25, 5))
     fig.suptitle(var_name)

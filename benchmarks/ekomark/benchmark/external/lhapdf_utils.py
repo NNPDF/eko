@@ -4,7 +4,9 @@ import numpy as np
 from eko import basis_rotation as br
 
 
-def compute_LHAPDF_data(theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False):
+def compute_LHAPDF_data(
+    theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False
+):
     """
     Run LHAPDF to compute operators.
 
@@ -28,11 +30,11 @@ def compute_LHAPDF_data(theory, operators, pdf, skip_pdfs, rotate_to_evolution_b
     """
 
     target_xgrid = operators["interpolation_xgrid"]
-    
-    out_tabs = {}
-    for q2 in  operators["Q2grid"]:
 
-        tab={}
+    out_tabs = {}
+    for q2 in operators["Q2grid"]:
+
+        tab = {}
         for pid in br.flavor_basis_pids:
 
             if pid in skip_pdfs:
@@ -44,7 +46,6 @@ def compute_LHAPDF_data(theory, operators, pdf, skip_pdfs, rotate_to_evolution_b
                 xf = pdf.xfxQ2(pid, x, q2)
                 me.append(xf)
             tab[pid] = np.array(me)
-        
 
         # rotate if needed
         if rotate_to_evolution_basis:
@@ -56,7 +57,7 @@ def compute_LHAPDF_data(theory, operators, pdf, skip_pdfs, rotate_to_evolution_b
             )
             evol_pdf = br.rotate_flavor_to_evolution @ pdfs
             tab = dict(zip(br.evol_basis, evol_pdf))
-        
+
         out_tabs[q2] = tab
 
     ref = {

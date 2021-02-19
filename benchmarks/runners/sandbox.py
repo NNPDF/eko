@@ -15,7 +15,7 @@ class Sandbox(Runner):
 
     external = "LHA"
     external = "LHAPDF"
-    #external = "apfel"
+    # external = "apfel"
 
     # selcet output type:
     post_process_config = {
@@ -32,19 +32,18 @@ class Sandbox(Runner):
 
     rotate_to_evolution_basis = True
 
-    # pdf to skip, for LHA there is a default 
-    skip_pdfs = [22, -6, 6,  "ph", "V35", "V24", "V15", "V8", "T35"]
+    # pdf to skip, for LHA there is a default
+    skip_pdfs = [22, -6, 6, -5, 5, -4, 4, "ph", "V35", "V24", "V15", "V8", "T35"]
     if external == "LHA":
-        skip_pdfs =  [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
-
+        skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
 
     @staticmethod
     def generate_operators():
 
         ops = {
-            "ev_op_iterations": [2],
-            "Q2grid": [[1.0e+4, 10]],
-            "ev_op_max_order": [2],
+            "ev_op_iterations": [10],
+            "Q2grid": [[100]],
+            "ev_op_max_order": [30],
         }
         return ops
 
