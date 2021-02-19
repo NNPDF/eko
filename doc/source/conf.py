@@ -28,7 +28,7 @@ import eko.version  # pylint: disable=no-name-in-module
 # -- Project information -----------------------------------------------------
 
 project = "EKO"
-copyright = "2019-2020, the N3PDF team"  # pylint: disable=redefined-builtin
+copyright = "2019-2021, the N3PDF team"  # pylint: disable=redefined-builtin
 author = "N3PDF team"
 
 # The short X.Y version
