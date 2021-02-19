@@ -5,6 +5,7 @@ import pandas as pd
 from banana import navigator as bnav
 from banana.data import dfdict
 
+
 class NavigatorApp(bnav.navigator.NavigatorApp):
     """
     Navigator base class holding all elementry operations.
@@ -84,6 +85,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             obj[f] = cac[f]
 
         q2s = []
+        ops = 0
         vals = cac["result"]["values"]
 
         for q2 in list(vals.keys()):
@@ -107,6 +109,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         """
 
         q2s = []
+        ops = 0
         for q2 in list(lg["log"].keys()):
 
             q2s.append(q2)
@@ -162,7 +165,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
 
     def log_as_dfd(self, doc_hash):
         """
-        Load all structure functions in log as DataFrame
+        Load all structure functions in log as dict of DataFrames
 
         Parameters
         ----------
@@ -175,17 +178,26 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
                 DataFrames
         """
         log = self.get(bnav.l, doc_hash)
-        dfd = dfdict.DFdict()
-        for sf in log["log"]:
+
+        q2s = []
+        dfds = dfdict.DFdict()
+        for q2 in list(log["log"].keys()):
+
+            dfd = dfdict.DFdict()
             dfd.print(
-                f"{sf} with theory={log['t_hash']}, "
-                + f"ops={log['o_hash']} "
+                f"Q^2 {q2}"
+                + f"with theory={log['t_hash']}, "
+                + f"operators={log['o_hash']} "
                 + f"using {log['pdf']}"
             )
-            dfd[sf] = pd.DataFrame(log["log"][sf])
-        return dfd
+            for op, tab in log["log"][q2].items():
+                dfd.print(f"Operator {op}")
+                dfd[op] = pd.DataFrame(tab)
+            dfds[q2] = dfd
+        return dfds
 
-    def subtract_tables(self, dfd1, dfd2):
+    # TODO: test this
+    def subtract_tables(self, hash1, hash2):
         """
         Subtract results in the second table from the first one,
         properly propagate the integration error and recompute the relative
@@ -193,29 +205,26 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
 
         Parameters
         ----------
-            dfd1 : dict or hash
+            hash1 : hash
                 if hash the doc_hash of the log to be loaded
-            dfd2 : dict or hash
+            hash2 : hash
                 if hash the doc_hash of the log to be loaded
 
         Returns
         -------
-            diffout : DFdict
+            diffsout : DFdict
                 created frames
         """
 
-        diffout = dfdict.DFdict()
+        diffsout = dfdict.DFdict()
 
         # load json documents
         logs = []
         ids = []
-        for dfd in [dfd1, dfd2]:
-            if isinstance(dfd, dfdict.DFdict):
-                logs.append(dfd.to_document())
-                ids.append("not-an-id")
-            else:
-                logs.append(self.log_as_dfd(dfd))
-                ids.append(dfd)
+        for h in [hash1, hash2]:
+            logs.append(self.log_as_dfd(h))
+            ids.append(h)
+
         log1, log2 = logs
         id1, id2 = ids
 
@@ -230,52 +239,54 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             raise ValueError(f"Log id: '{id2}' not found")
 
         # iterate operators
-        for ops in log1.keys():
-            if ops[0] == "_":
+        for q2 in log1.keys():
+            if q2[0] == "_":
                 continue
-            if ops not in log2:
-                print(f"{ops}: not matching in log2")
+            if q2 not in log2:
+                print(f"{q2}: not matching in log2")
                 continue
 
-            # load operators tables
-            table1 = pd.DataFrame(log1[ops])
-            table2 = pd.DataFrame(log2[ops])
-            table_out = table2.copy()
+            diffout = dfdict.DFdict()
+            for op, tab in log1[q2].items():
+                # load operators tables
+                table1 = pd.DataFrame(tab)
+                table2 = pd.DataFrame(log2[q2][op])
+                table_out = table2.copy()
 
-            # check for compatible kinematics
-            if any([any(table1[y] != table2[y]) for y in ["x", "Q2"]]):
-                raise ValueError("Cannot compare tables with different (x, Q2)")
+                # check for compatible kinematics
+                if any([any(table1[y] != table2[y]) for y in ["x", "Q2"]]):
+                    raise ValueError("Cannot compare tables with different (x, Q2)")
 
-            # subtract and propagate
-            known_col_set = set(["x", "Q2", "eko", "eko_error", "percent_error"])
-            t1_ext = list(set(table1.keys()) - known_col_set)[0]
-            t2_ext = list(set(table2.keys()) - known_col_set)[0]
-            if t1_ext == t2_ext:
-                tout_ext = t1_ext
-            else:
-                tout_ext = f"{t2_ext}-{t1_ext}"
-            table_out.rename(columns={t2_ext: tout_ext}, inplace=True)
-            table_out[tout_ext] = table2[t2_ext] - table1[t1_ext]
-            # subtract our values
-            table_out["eko"] -= table1["eko"]
-            table_out["eko_error"] += table1["eko_error"]
-
-            # compute relative error
-            def rel_err(row, tout_ext=tout_ext):
-                if row[tout_ext] == 0.0:
-                    if row["eko"] == 0.0:
-                        return 0.0
-                    return np.nan
+                # subtract and propagate
+                known_col_set = set(["x", "Q2", "eko", "eko_error", "percent_error"])
+                t1_ext = list(set(table1.keys()) - known_col_set)[0]
+                t2_ext = list(set(table2.keys()) - known_col_set)[0]
+                if t1_ext == t2_ext:
+                    tout_ext = t1_ext
                 else:
-                    return (row["eko"] / row[tout_ext] - 1.0) * 100
+                    tout_ext = f"{t2_ext}-{t1_ext}"
+                table_out.rename(columns={t2_ext: tout_ext}, inplace=True)
+                table_out[tout_ext] = table2[t2_ext] - table1[t1_ext]
+                # subtract our values
+                table_out["eko"] -= table1["eko"]
+                table_out["eko_error"] += table1["eko_error"]
 
-            table_out["percent_error"] = table_out.apply(rel_err, axis=1)
+                # compute relative error
+                def rel_err(row, tout_ext=tout_ext):
+                    if row[tout_ext] == 0.0:
+                        if row["eko"] == 0.0:
+                            return 0.0
+                        return np.nan
+                    else:
+                        return (row["eko"] / row[tout_ext] - 1.0) * 100
 
-            # dump results' table
-            diffout.print(ops, "-" * len(ops), sep="\n")
-            diffout[ops] = table_out
+                table_out["percent_error"] = table_out.apply(rel_err, axis=1)
 
-        return diffout
+                # dump results' table
+                diffout.print(op, "-" * len(op), sep="\n")
+                diffout[op] = table_out
+            diffsout[q2] = diffout
+        return diffsout
 
     def check_log(self, doc_hash, perc_thr=1, abs_thr=1e-6):
         """
@@ -287,14 +298,15 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
                 log hash
         """
         # TODO determine external, improve output
-        dfd = self.log_as_dfd(doc_hash)
-        for n, df in dfd.items():
-            for l in df.iloc:
-                if (
-                    abs(l["percent_error"]) > perc_thr
-                    and abs(l["apfel"] - l["eko"]) > abs_thr
-                ):
-                    print(n, l, sep="\n", end="\n\n")
+        dfds = self.log_as_dfd(doc_hash)
+        for q2 in dfds:
+            for op, df in dfds[q2].items():
+                for l in df.iloc:
+                    if (
+                        abs(l["percent_error"]) > perc_thr
+                        and abs(l["apfel"] - l["eko"]) > abs_thr
+                    ):
+                        print(op, l, sep="\n", end="\n\n")
 
     def crashed_log(self, doc_hash):
         """
@@ -311,21 +323,18 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
                 log without kinematics
         """
 
-        lg = self.get(bnav.l, doc_hash)
-        crash = lg.get("_crash", None)
-        if crash is None:
+        dfds = self.log_as_dfd(doc_hash)
+        if "_crash" not in dfds:
             raise ValueError("log didn't crash!")
-        else:
-            return
 
-        # TODO: improve this method ....
-        # dfd = self.log_as_dfd(doc_hash)
-        # for sf in dfd:
-        #     if on.ObservableName.is_valid(sf):
-        #         cdfd[sf] = f"{len(dfd[sf])} points"
-        #     else:
-        #         cdfd[sf] = dfd[sf]
-        # r eturn cdfd
+        cdfds = {}
+        for q2 in dfds:
+            cdfd = dfds[q2].copy()
+            for op, df in dfds[q2].items():
+                cdfd[op].pop("x")
+            cdfds[q2] = cdfd
+
+        return cdfds
 
     # def join(self, id1, id2):
     #     tabs = []
