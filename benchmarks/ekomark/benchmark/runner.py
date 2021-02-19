@@ -236,7 +236,7 @@ class Runner(BenchmarkRunner):
                             continue
                         try:
                             fig = plot_operator(
-                                f"{label_in}_{label_out}_{q2}",
+                                f"Operator ({label_in};{label_out}) µ_F^2 = {q2} GeV^2",
                                 temp1[label_in],
                                 err[label_in],
                             )
@@ -354,8 +354,8 @@ class Runner(BenchmarkRunner):
                 # build table
                 tab = {}
                 tab["x"] = xgrid
-                tab["pdf"] = f = xgrid * my_pdfs[key]
-                tab["err"] = xgrid * my_pdf_errs[key]
+                tab["eko"] = f = xgrid * my_pdfs[key]
+                tab["eko_error"] = xgrid * my_pdf_errs[key]
                 tab[self.external] = r = ref_pdfs[key]
                 tab["percent_error"] = (f - r) / r * 100
 
