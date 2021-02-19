@@ -33,6 +33,8 @@ def pdfname(pid_or_name):
 
 class Runner(BenchmarkRunner):
     banana_cfg = banana_cfg
+    rotate_to_evolution_basis = False
+    skip_pdfs = []
 
     @staticmethod
     def init_ocards(conn):
@@ -146,7 +148,7 @@ class Runner(BenchmarkRunner):
             ops : dict
                 operator card
             pdf_name : str
-                PDF name 
+                PDF name
 
         Returns
         -------
@@ -272,7 +274,9 @@ class Runner(BenchmarkRunner):
         xgrid = ref["target_xgrid"]
         q2s = list(ext["values"].keys())
         pdf_grid = me.apply_pdf(
-            pdf, xgrid, rotate_to_evolution_basis=self.rotate_to_evolution_basis,
+            pdf,
+            xgrid,
+            rotate_to_evolution_basis=self.rotate_to_evolution_basis,
         )
 
         with PdfPages(path) as pp:
@@ -336,7 +340,9 @@ class Runner(BenchmarkRunner):
         xgrid = ext["target_xgrid"]
         q2s = list(ext["values"].keys())
         pdf_grid = me.apply_pdf(
-            pdf, xgrid, rotate_to_evolution_basis=self.rotate_to_evolution_basis,
+            pdf,
+            xgrid,
+            rotate_to_evolution_basis=self.rotate_to_evolution_basis,
         )
         for q2 in q2s:
 

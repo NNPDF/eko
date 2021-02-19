@@ -4,6 +4,8 @@
 """
 import pathlib
 
+import yaml
+
 from banana.data import power_set
 
 from ekomark.benchmark.runner import Runner
@@ -31,55 +33,27 @@ class LHAPDFBenchmark(Runner):
     )
 
     # Rotate to evolution basis
-    rotate_to_evolution_basis = True
-
-    # pdf to skip
-    skip_pdfs = [22, -6, -5, 5, 6]
+    # rotate_to_evolution_basis = True
+    # TODO: rotate also lhapdf to evbasis
 
 
-class BenchmarkPlain(LHAPDFBenchmark):
+class BenchmarkCT14(LHAPDFBenchmark):
     """Benchmark lo, nlo"""
 
     def benchmark_lo(self):
-
-        theory_updates = {
-            "PTO": [0],
-            "FNS": ["ZM-VFNS", "FNS"],
-            "ModEv": ["EXA", "TRN"],
-        }
-        self.run(
-            power_set(theory_updates),
-            operators.build(operators.lhapdf_config),
-            ["CT14llo_NF4"],
+        pineko_data = (
+            pathlib.Path(__file__).absolute().parents[1] / "data" / "pineko_exercise"
         )
+        with open(pineko_data / "theory.yaml") as f:
+            theory_card = yaml.safe_load(f)
+        with open(pineko_data / "operator.yaml") as f:
+            operator_card = yaml.safe_load(f)
 
-    def benchmark_nlo(self):
-
-        # TODO: other parameter to set as not default?
-        theory_updates = {
-            "PTO": [1],
-            "FNS": ["ZM-VFNS", "FNS"],
-            "ModEv": [
-                "EXA",
-                "TRN",
-                "ordered-truncated",
-                "decompose-exact",
-                "decompose-expanded",
-                "perturbative-exact",
-                "perturbative-expanded",
-            ],
-            "NfFF": [3, 4],
-        }
-        self.run(
-            power_set(theory_updates),
-            operators.build(operators.lhapdf_config),
-            ["CT14llo_NF4"],
-        )
+        self.run([theory_card], [operator_card], ["CT14llo_NF4"])
 
 
 if __name__ == "__main__":
-
-    lhapdf = BenchmarkPlain()
+    lhapdf = BenchmarkCT14()
     lhapdf.benchmark_lo()
     # lhapdf.benchmark_nlo()
 
