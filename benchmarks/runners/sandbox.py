@@ -10,12 +10,11 @@ class Sandbox(Runner):
     """
     Globally set the external program
     """
+
     sandbox = True
 
-    # select here the external program
+    # select here the external program between LHA, LHAPDF, apfel
     external = "LHA"
-    external = "LHAPDF"
-    # external = "apfel"
 
     # select to plot operators
     plot_operator = True
@@ -32,17 +31,17 @@ class Sandbox(Runner):
 
         ops = {
             "ev_op_iterations": [10],
-            "Q2grid": [[100]],
             "ev_op_max_order": [10],
+            "Q2grid": [[10000]],
         }
         return ops
 
     def run_sand(self):
 
         theory_updates = {
-            "PTO": [0],
+            "PTO": [1],
             "FNS": ["FFNS",],
-            "NfFF": [3,],
+            "NfFF": [4,],
             "ModEv": ["EXA",],
             "XIR": [1.4142135623730951,],
             "alphas": [0.35],
@@ -53,6 +52,7 @@ class Sandbox(Runner):
             operators.build(self.generate_operators()),
             ["ToyLH"],
         )
+
 
 if __name__ == "__main__":
 

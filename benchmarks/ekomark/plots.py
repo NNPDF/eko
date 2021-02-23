@@ -25,7 +25,7 @@ def input_figure(theory, ops, pdf_name=None):
         firstPage : matplotlib.pyplot.Figure
             figure
     """
-    firstPage = plt.figure(figsize=(30, 15))
+    firstPage = plt.figure(figsize=(25, 20))
     # theory
     firstPage.text(0.05, 0.97, "Theory:", size=20, ha="left", va="top")
     str_stream = io.StringIO()

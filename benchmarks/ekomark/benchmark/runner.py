@@ -41,7 +41,7 @@ class Runner(BenchmarkRunner):
             ocard : dict
                 operator card
             pdf : lhapdf_type
-                pdf 
+                pdf
 
         Returns
         -------
@@ -99,15 +99,19 @@ class Runner(BenchmarkRunner):
     def run_external(self, theory, ocard, pdf):
 
         if self.external == "LHA":
+            
+            if theory["FNS"] == "FFNS":
+                # Reference configuration
+                self.skip_pdfs.extend([-5, 5, "T24"])
+            
             from .external import (  # pylint:disable=import-error,import-outside-toplevel
                 LHA_utils,
             )
 
-            # here pdf is not needed
+            # here pdf and skip_pdfs is not needed
             return LHA_utils.compute_LHA_data(
                 theory,
                 ocard,
-                self.skip_pdfs,
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
         elif self.external == "LHAPDF":
@@ -159,6 +163,7 @@ class Runner(BenchmarkRunner):
             my_pdfs = res["pdfs"]
             my_pdf_errs = res["errors"]
 
+            print(ref_pdfs)
             for key in my_pdfs:
 
                 if key in self.skip_pdfs:
@@ -169,6 +174,7 @@ class Runner(BenchmarkRunner):
                 tab["x"] = xgrid
                 tab["eko"] = f = xgrid * my_pdfs[key]
                 tab["eko_error"] = xgrid * my_pdf_errs[key]
+                print(key)
                 tab[self.external] = r = ref_pdfs[key]
                 tab["percent_error"] = (f - r) / r * 100
 

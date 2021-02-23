@@ -5,10 +5,11 @@
 import pathlib
 import yaml
 
-#from banana.data import power_set
+# from banana.data import power_set
 
 from ekomark.benchmark.runner import Runner
-#from ekomark.data import operators
+
+# from ekomark.data import operators
 
 
 class LHAPDFBenchmark(Runner):
@@ -43,5 +44,3 @@ if __name__ == "__main__":
     lhapdf = BenchmarkCT14()
     lhapdf.benchmark_lo()
     # lhapdf.benchmark_nlo()
-
-    # TODO: other types of benchmark FNS, sv ??

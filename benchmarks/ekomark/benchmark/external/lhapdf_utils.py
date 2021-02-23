@@ -15,7 +15,7 @@ def compute_LHAPDF_data(
         operators : dict
             operators card
         pdf : lhapdf_type
-            pdf 
+            pdf
         skip_pdfs : list
             list of pdfs (pid or name) to skip
         rotate_to_evolution_basis: bool
