@@ -1,7 +1,51 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import io
+import pprint
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+from matplotlib.backends.backend_pdf import PdfPages
+
+
+def input_figure(theory, ops, pdf_name=None):
+    """
+    Pretty-prints the setup to a figure
+
+    Parameters
+    ----------
+        theory : dict
+            theory card
+        ops : dict
+            operator card
+        pdf_name : str
+            PDF name
+
+    Returns
+    -------
+        firstPage : matplotlib.pyplot.Figure
+            figure
+    """
+    firstPage = plt.figure(figsize=(30, 15))
+    # theory
+    firstPage.text(0.05, 0.97, "Theory:", size=20, ha="left", va="top")
+    str_stream = io.StringIO()
+    th_copy = theory.copy()
+    th_copy.pop("hash", None)
+    pprint.pprint(th_copy, stream=str_stream, width=50)
+    firstPage.text(0.05, 0.92, str_stream.getvalue(), size=14, ha="left", va="top")
+    # operators
+    firstPage.text(0.55, 0.87, "Operators:", size=20, ha="left", va="top")
+    str_stream = io.StringIO()
+    ops_copy = ops.copy()
+    ops_copy.pop("hash", None)
+    pprint.pprint(ops_copy, stream=str_stream, width=50)
+    firstPage.text(0.55, 0.82, str_stream.getvalue(), size=14, ha="left", va="top")
+    # pdf
+    if pdf_name is not None:
+        firstPage.text(0.55, 0.97, "source pdf:", size=20, ha="left", va="top")
+        firstPage.text(0.55, 0.92, pdf_name, size=14, ha="left", va="top")
+        firstPage.tight_layout()
+    return firstPage
 
 
 def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
@@ -146,3 +190,71 @@ def plot_operator(var_name, op, op_err, log_operator=False, abs_operator=False):
     im = plt.imshow(err_to_val, norm=LogNorm(), aspect="auto")
     plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
     return fig
+
+
+def save_operators_to_pdf(path, theory, ops, me, skip_pdfs):
+    """
+        Output all operator heatmaps to PDF.
+
+    Parameters
+    ----------
+        path : str
+            path to the plot
+        theory : dict
+            theory card
+        ops : dict
+            operator card
+        me : eko.output.Output
+            DGLAP result
+        skip_pdfs : list
+            PDF to skip
+    """
+
+    ops_names = list(me["pids"])
+    ops_id = f"o{ops['hash'].hex()[:6]}_t{theory['hash'].hex()[:6]}"
+    path = f"{path}/{ops_id}.pdf"
+    print(f"Plotting operators plots to {path}")
+
+    with PdfPages(path) as pp:
+        # print setup
+        firstPage = input_figure(theory, ops)
+        pp.savefig()
+        plt.close(firstPage)
+
+        # plot the operators
+        # it's necessary to reshuffle the eko output
+        for q2 in me["Q2grid"]:
+            results = me["Q2grid"][q2]["operators"]
+            errors = me["Q2grid"][q2]["operator_errors"]
+
+            # loop on pids
+            for label_out, res, res_err in zip(ops_names, results, errors):
+                if label_out in skip_pdfs:
+                    continue
+                new_op = {}
+                new_op_err = {}
+                # loop on xgrid point
+                for j in range(len(me["interpolation_xgrid"])):
+                    # loop on pid in
+                    for label_in, val, val_err in zip(ops_names, res[j], res_err[j]):
+                        if label_in in skip_pdfs:
+                            continue
+                        if label_in not in new_op.keys():
+                            new_op[label_in] = []
+                            new_op_err[label_in] = []
+                        new_op[label_in].append(val)
+                        new_op_err[label_in].append(val_err)
+
+                for label_in in ops_names:
+                    if label_in in skip_pdfs:
+                        continue
+                    try:
+                        fig = plot_operator(
+                            f"Operator ({label_in};{label_out}) µ_F^2 = {q2} GeV^2",
+                            new_op[label_in],
+                            new_op_err[label_in],
+                        )
+                        pp.savefig()
+                    finally:
+                        if fig:
+                            plt.close(fig)

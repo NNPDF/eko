@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import pathlib
-
 from banana.data import power_set
 
 from ekomark.benchmark.runner import Runner
@@ -12,23 +10,15 @@ class Sandbox(Runner):
     """
     Globally set the external program 
     """
+    sandbox = True 
 
+    # select here the external program
     external = "LHA"
     external = "LHAPDF"
     # external = "apfel"
 
-    # selcet output type:
-    post_process_config = {
-        "plot_PDF": False,
-        "plot_operator": True,
-        "write_operator": False,
-    }
-
-    # TODO: move to navigator
-    # output dir
-    output_path = (
-        f"{pathlib.Path(__file__).absolute().parents[1]}/data/{external}_bench"
-    )
+    # select to plot operators
+    plot_operator = False
 
     rotate_to_evolution_basis = True
 
@@ -43,7 +33,7 @@ class Sandbox(Runner):
         ops = {
             "ev_op_iterations": [10],
             "Q2grid": [[100]],
-            "ev_op_max_order": [30],
+            "ev_op_max_order": [10],
         }
         return ops
 
@@ -63,7 +53,6 @@ class Sandbox(Runner):
             operators.build(self.generate_operators()),
             ["ToyLH"],
         )
-
 
 if __name__ == "__main__":
 

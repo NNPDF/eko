@@ -22,6 +22,7 @@ Available functions:
     diff(id,id) - subtractig logs
     check_log(id) - check logs passed
     crashed_log(id) - print crashed logs
+    plot_pdfs(id) - plot pdfs to final scale 
 """
         )
     elif len(args) == 1:
@@ -42,6 +43,7 @@ simlogs = app.list_all_similar_logs
 diff = app.subtract_tables
 check_log = app.check_log
 crashed_log = app.crashed_log
+plot_pdfs = app.plot_pdfs
 
 
 def launch_navigator():

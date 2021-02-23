@@ -1,9 +1,24 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 import pandas as pd
+import os
+from matplotlib.backends.backend_pdf import PdfPages
+import matplotlib.pyplot as plt
 
 from banana import navigator as bnav
 from banana.data import dfdict
+
+from ekomark.plots import input_figure, plot_dist
+from ekomark.banana_cfg import banana_cfg
+
+
+def pdfname(pid_or_name):
+    """ Return pdf name  """
+    if isinstance(pid_or_name, int):
+        return eko.basis_rotation.flavor_basis_names[
+            eko.basis_rotation.flavor_basis_pids.index(pid_or_name)
+        ]
+    return pid_or_name
 
 
 class NavigatorApp(bnav.navigator.NavigatorApp):
@@ -230,8 +245,8 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
 
         # print head
         msg = f"Subtracting id: '{id1}' - id: '{id2}', in table 'logs'"
-        diffout.print(msg, "=" * len(msg), sep="\n")
-        diffout.print()
+        diffsout.print(msg, "=" * len(msg), sep="\n")
+        diffsout.print()
 
         if log1 is None:
             raise ValueError(f"Log id: '{id1}' not found")
@@ -240,9 +255,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
 
         # iterate operators
         for q2 in log1.keys():
-            if q2[0] == "_":
-                continue
-            if q2 not in log2:
+            if q2 not in log2.keys():
                 print(f"{q2}: not matching in log2")
                 continue
 
@@ -254,11 +267,11 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
                 table_out = table2.copy()
 
                 # check for compatible kinematics
-                if any([any(table1[y] != table2[y]) for y in ["x", "Q2"]]):
-                    raise ValueError("Cannot compare tables with different (x, Q2)")
+                if any([any(table1[y] != table2[y]) for y in ["x"]]):
+                    raise ValueError("Cannot compare tables with different (x)")
 
                 # subtract and propagate
-                known_col_set = set(["x", "Q2", "eko", "eko_error", "percent_error"])
+                known_col_set = set(["x", "eko", "eko_error", "percent_error"])
                 t1_ext = list(set(table1.keys()) - known_col_set)[0]
                 t2_ext = list(set(table2.keys()) - known_col_set)[0]
                 if t1_ext == t2_ext:
@@ -297,14 +310,15 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             doc_hash : hash
                 log hash
         """
-        # TODO determine external, improve output
         dfds = self.log_as_dfd(doc_hash)
+        log = self.get(bnav.l, doc_hash)
+
         for q2 in dfds:
             for op, df in dfds[q2].items():
                 for l in df.iloc:
                     if (
                         abs(l["percent_error"]) > perc_thr
-                        and abs(l["apfel"] - l["eko"]) > abs_thr
+                        and abs(l[f"{log['external']}"] - l["eko"]) > abs_thr
                     ):
                         print(op, l, sep="\n", end="\n\n")
 
@@ -335,6 +349,50 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             cdfds[q2] = cdfd
 
         return cdfds
+
+    def plot_pdfs(self, doc_hash):
+        """
+        Plots all PDFs at the final scale.
+
+        Parameters
+        ----------
+            doc_hash : hash
+                log hash
+        """
+
+        dfds = self.log_as_dfd(doc_hash)
+        log = self.get(bnav.l, doc_hash)
+        path = f"{banana_cfg['database_path'].parents[0]}/{log['external']}_bench"
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        ops_id = f"o{log['o_hash'].hex()[:6]}_t{log['t_hash'].hex()[:6]}_{log['pdf']}"
+        path = f"{path}/{ops_id}_plots.pdf"
+        print(f"Writing pdf plots to {path}")
+
+        with PdfPages(path) as pp:
+
+            # print setup
+            theory = self.get(bnav.t, log["t_hash"].hex()[:6])
+            ops = self.get(bnav.o, log["o_hash"].hex()[:6])
+            firstPage = input_figure(theory, ops, pdf_name=log["pdf"])
+            pp.savefig()
+            plt.close(firstPage)
+
+            # iterate all pdf
+            for q2 in dfds:
+                for op, key in dfds[q2].items():
+                    # plot
+                    fig = plot_dist(
+                        key["x"],
+                        key["eko"],
+                        key["eko_error"],
+                        key[f"{log['external']}"],
+                        title=f"x{pdfname(op)}(x,µ_F^2 = {q2} GeV^2)",
+                    )
+                    pp.savefig()
+                    plt.close(fig)
 
     # def join(self, id1, id2):
     #     tabs = []
