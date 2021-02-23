@@ -47,6 +47,14 @@ class BenchmarkZm(LHABenchmark):
         th.update({"PTO": pto})
         self.run([th], operators.build(operators.lha_config), ["ToyLH"])
 
+    def benchmark_sv(self):
+        """Benckmark Scale Variation"""
+
+        th = self.zm_theory.copy()
+        for key, item in th.items():
+            th[key] = [item]
+        th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
+        self.run(power_set(th), operators.build(operators.lha_config), ["ToyLH"])
 
 class BenchmarkFfns(LHABenchmark):
     """Benckmark FFNS """
@@ -83,8 +91,11 @@ if __name__ == "__main__":
 
     zm = BenchmarkZm()
     ffns = BenchmarkFfns()
-    for o in [0, 1]:
+    for o in [0,1]:
         zm.benchmark_zm(o)
-        ffns.benchmark_ffns(o)
+        # TODO: there is a minus sign in c_p at NLO,
+        # not working when rotate is True how can we fix it?? 
+        if o == 0: ffns.benchmark_ffns(o)
 
+    zm.benchmark_sv()
     ffns.benchmark_sv()

@@ -91,7 +91,7 @@ class BenchmarkFfns(ApfelBenchmark):
         )
 
         self.run(
-            filter(lambda c: c["mc"] == c["Qmc"], power_set(theory_updates)),
+            filter(lambda c: c["mc"] == c["Qmc"], power_set(th)),
             operators.build(operators.apfel_config),
             ["ToyLH"],
         )

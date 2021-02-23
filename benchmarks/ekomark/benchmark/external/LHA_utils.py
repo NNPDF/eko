@@ -115,6 +115,7 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
                 ref_values = rotate_data(
                     data["table3"]["part2"], rotate_to_evolution_basis
                 )
+            else:
                 ref_values = rotate_data(
                     data["table3"]["part1"], rotate_to_evolution_basis
                 )
@@ -130,7 +131,8 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
                 ref_values = rotate_data(
                     data["table4"]["part2"], rotate_to_evolution_basis
                 )
-            ref_values = rotate_data(data["table4"]["part1"], rotate_to_evolution_basis)
+            else:
+                ref_values = rotate_data(data["table4"]["part1"], rotate_to_evolution_basis)
     else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
 

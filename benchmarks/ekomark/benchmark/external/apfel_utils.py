@@ -19,7 +19,7 @@ def load_apfel(theory, operators, pdf="ToyLH"):
     operators : dict
         operators card
     pdf : str
-        PDF name 
+        PDF name
     Returns
     -------
     module
