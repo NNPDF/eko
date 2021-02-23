@@ -22,7 +22,7 @@ Available functions:
     diff(id,id) - subtractig logs
     check_log(id) - check logs passed
     crashed_log(id) - print crashed logs
-    plot_pdfs(id) - plot pdfs to final scale 
+    plot_pdfs(id) - plot pdfs to final scale
 """
         )
     elif len(args) == 1:

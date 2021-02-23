@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import os
 import numpy as np
 import pandas as pd
-import os
-from matplotlib.backends.backend_pdf import PdfPages
+
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 
 from banana import navigator as bnav
 from banana.data import dfdict
@@ -11,12 +12,13 @@ from banana.data import dfdict
 from ekomark.plots import input_figure, plot_dist
 from ekomark.banana_cfg import banana_cfg
 
+from eko import basis_rotation as br
 
 def pdfname(pid_or_name):
     """ Return pdf name  """
     if isinstance(pid_or_name, int):
-        return eko.basis_rotation.flavor_basis_names[
-            eko.basis_rotation.flavor_basis_pids.index(pid_or_name)
+        return br.flavor_basis_names[
+            br.flavor_basis_pids.index(pid_or_name)
         ]
     return pid_or_name
 
@@ -194,7 +196,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         """
         log = self.get(bnav.l, doc_hash)
 
-        q2s = []
         dfds = dfdict.DFdict()
         for q2 in list(log["log"].keys()):
 
@@ -211,7 +212,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             dfds[q2] = dfd
         return dfds
 
-    # TODO: test this
     def subtract_tables(self, hash1, hash2):
         """
         Subtract results in the second table from the first one,
@@ -344,7 +344,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         cdfds = {}
         for q2 in dfds:
             cdfd = dfds[q2].copy()
-            for op, df in dfds[q2].items():
+            for op in dfds[q2].keys():
                 cdfd[op].pop("x")
             cdfds[q2] = cdfd
 

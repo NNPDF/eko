@@ -19,7 +19,7 @@ def load_apfel(theory, operators, pdf="ToyLH"):
     operators : dict
         operators card
     pdf : str
-        PDF name   
+        PDF name  
     Returns
     -------
     module
@@ -168,16 +168,16 @@ def compute_apfel_data(
         operators : dict
             operators card
         pdf : lhapdf_type
-            pdf 
-        skip_pdfs : list 
+            pdf
+        skip_pdfs : list
             list of pdfs (pid or name) to skip
-        rotate_to_evolution_basis: bool 
+        rotate_to_evolution_basis: bool
             rotate to evolution basis
-    
+
     Returns
     -------
         ref : dict
-            output containing: target_xgrid, values 
+            output containing: target_xgrid, values
     """
 
     target_xgrid = operators["interpolation_xgrid"]

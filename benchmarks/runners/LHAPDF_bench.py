@@ -3,13 +3,12 @@
     Benchmark EKO to LHAPDF
 """
 import pathlib
-
 import yaml
 
-from banana.data import power_set
+#from banana.data import power_set
 
 from ekomark.benchmark.runner import Runner
-from ekomark.data import operators
+#from ekomark.data import operators
 
 
 class LHAPDFBenchmark(Runner):
@@ -19,18 +18,6 @@ class LHAPDFBenchmark(Runner):
     """
 
     external = "LHAPDF"
-
-    # selcet output type:
-    post_process_config = {
-        "plot_PDF": True,
-        "plot_operator": False,
-        "write_operator": False,
-    }
-
-    # output dir
-    output_path = (
-        f"{pathlib.Path(__file__).absolute().parents[1]}/data/{external}_bench"
-    )
 
     # Rotate to evolution basis
     # rotate_to_evolution_basis = True

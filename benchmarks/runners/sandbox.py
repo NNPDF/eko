@@ -8,9 +8,9 @@ from ekomark.data import operators
 class Sandbox(Runner):
 
     """
-    Globally set the external program 
+    Globally set the external program
     """
-    sandbox = True 
+    sandbox = True
 
     # select here the external program
     external = "LHA"
@@ -18,7 +18,7 @@ class Sandbox(Runner):
     # external = "apfel"
 
     # select to plot operators
-    plot_operator = False
+    plot_operator = True
 
     rotate_to_evolution_basis = True
 
@@ -37,7 +37,7 @@ class Sandbox(Runner):
         }
         return ops
 
-    def _run(self):
+    def run_sand(self):
 
         theory_updates = {
             "PTO": [0],
@@ -57,4 +57,4 @@ class Sandbox(Runner):
 if __name__ == "__main__":
 
     sand = Sandbox()
-    sand._run()
+    sand.run_sand()

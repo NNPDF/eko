@@ -6,7 +6,6 @@ import os
 import logging
 import sys
 import pandas as pd
-import numpy as np
 
 from banana.data import sql, dfdict
 from banana.benchmark.runner import BenchmarkRunner
@@ -41,7 +40,8 @@ class Runner(BenchmarkRunner):
                 theory card
             ocard : dict
                 operator card
-            pdf : any
+            pdf : lhapdf_type
+                pdf 
 
         Returns
         -------
@@ -115,8 +115,8 @@ class Runner(BenchmarkRunner):
                 lhapdf_utils,
             )
 
+            # here theory card is not needed
             return lhapdf_utils.compute_LHAPDF_data(
-                theory,
                 ocard,
                 pdf,
                 self.skip_pdfs,

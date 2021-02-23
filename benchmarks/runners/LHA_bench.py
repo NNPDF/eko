@@ -2,7 +2,6 @@
 """
     Benchmark EKO to :cite:`Giele:2002hx`
 """
-import pathlib
 import numpy as np
 
 from banana.data import power_set
@@ -45,18 +44,6 @@ class LHABenchmark(Runner):
     """
 
     external = "LHA"
-
-    # selcet output type:
-    post_process_config = {
-        "plot_PDF": True,
-        "plot_operator": False,
-        "write_operator": False,
-    }
-
-    # output dir
-    output_path = (
-        f"{pathlib.Path(__file__).absolute().parents[1]}/data/{external}_bench"
-    )
 
     rotate_to_evolution_basis = True
 

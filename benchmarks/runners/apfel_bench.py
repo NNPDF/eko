@@ -2,8 +2,6 @@
 """
     Benchmark EKO to Apfel
 """
-import pathlib
-
 from banana.data import power_set
 
 from ekomark.benchmark.runner import Runner
@@ -17,18 +15,6 @@ class ApfelBenchmark(Runner):
     """
 
     external = "apfel"
-
-    # selcet output type:
-    post_process_config = {
-        "plot_PDF": True,
-        "plot_operator": False,
-        "write_operator": False,
-    }
-
-    # output dir
-    output_path = (
-        f"{pathlib.Path(__file__).absolute().parents[1]}/data/{external}_bench"
-    )
 
     # Rotate to evolution basis
     rotate_to_evolution_basis = True
@@ -107,7 +93,7 @@ class BenchmarkPlain(ApfelBenchmark):
             "Qmc": [1.4142135623730951, 2.0],
         }
         self.run(
-            filter(lambda c: c["mc"] == c["Qmc"], power_set(sv)),
+            filter(lambda c: c["mc"] == c["Qmc"], power_set(theory_updates)),
             operators.build(operators.apfel_config),
             ["ToyLH"],
         )

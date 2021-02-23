@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
+import pathlib
 import yaml
 import numpy as np
-import pathlib
 
 from eko import basis_rotation as br
 
@@ -81,11 +81,11 @@ def compute_LHA_data(theory, operators, skip_pdfs, rotate_to_evolution_basis=Fal
             theory card
         operators : dict
             operators card
-        skip_pdfs : list 
+        skip_pdfs : list
             list of pdfs (pid or name) to skip
-        rotate_to_evolution_basis: bool 
+        rotate_to_evolution_basis : bool
             rotate to evolution basis
-    
+
     Returns
     -------
         ref : dict
@@ -147,43 +147,42 @@ def compute_LHA_data(theory, operators, skip_pdfs, rotate_to_evolution_basis=Fal
 
     return ref
 
-    # TODO: keep this in navigator ???
+    # TODO: remove this ? 
+    #def save_initial_scale_plots_to_pdf(path):
 
-    def save_initial_scale_plots_to_pdf(self, path):
+    #    import matplotlib.pyplot as plt
+    #    from matplotlib.backends.backend_pdf import PdfPages
+    #    from ekomark.plots import plot_dist
 
-        import matplotlib.pyplot as plt
-        from matplotlib.backends.backend_pdf import PdfPages
-        from ekomark.plots import plot_dist
+    #    """
+    #    Plots all PDFs at the inital scale.
 
-        """
-        Plots all PDFs at the inital scale.
+    #    The reference values are given in Table 2 part 1 of :cite:`Giele:2002hx`.
 
-        The reference values are given in Table 2 part 1 of :cite:`Giele:2002hx`.
+    #    This excercise was usfull in order to detect the missing 2 in the definition of
+    #    :math:`L_+ = 2(\\bar u + \\bar d)`
 
-        This excercise was usfull in order to detect the missing 2 in the definition of
-        :math:`L_+ = 2(\\bar u + \\bar d)`
-
-        Parameters
-        ----------
-            path : string
-                output path
-        """
-        LHA_init_grid_ref = data["table2"]["part1"]
-        with PdfPages(path) as pp:
-            # iterate all raw labels
-            for j, label in enumerate(raw_label_list):
-                # skip trivial plots
-                if label in ["c_p", "b_p"]:
-                    continue
-                me = LHA_init_grid[j]
-                ref = LHA_init_grid_ref[label]
-                fig = plot_dist(
-                    toy_xgrid,
-                    toy_xgrid * me,
-                    np.zeros(len(me)),
-                    ref,
-                    title=f"x{label}(x,µ_F^2 = 2 GeV^2)",
-                )
-                pp.savefig()
-                plt.close(fig)
-        print(f"Initial scale pdf plots written to {path}")
+    #    Parameters
+    #    ----------
+    #        path : string
+    #            output path
+    #    """
+    #    LHA_init_grid_ref = data["table2"]["part1"]
+    #    with PdfPages(path) as pp:
+    #        # iterate all raw labels
+    #        for j, label in enumerate(raw_label_list):
+    #            # skip trivial plots
+    #            if label in ["c_p", "b_p"]:
+    #                continue
+    #            me = LHA_init_grid[j]
+    #            ref = LHA_init_grid_ref[label]
+    #            fig = plot_dist(
+    #                toy_xgrid,
+    #                toy_xgrid * me,
+    #                np.zeros(len(me)),
+    #                ref,
+    #                title=f"x{label}(x,µ_F^2 = 2 GeV^2)",
+    #            )
+    #            pp.savefig()
+    #            plt.close(fig)
+    #    print(f"Initial scale pdf plots written to {path}")

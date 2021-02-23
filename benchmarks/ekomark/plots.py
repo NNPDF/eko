@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-import numpy as np
 import io
 import pprint
+import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from matplotlib.backends.backend_pdf import PdfPages
@@ -181,13 +181,14 @@ def plot_operator(var_name, op, op_err, log_operator=False, abs_operator=False):
 
     ax = plt.subplot(1, 3, 2)
     plt.title("operator_error")
-    im = plt.imshow(op_err, norm=LogNorm(), aspect="auto")
+
+    im = plt.imshow(op_err, norm=norm, aspect="auto")
     plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
 
     ax = plt.subplot(1, 3, 3)
     plt.title("|error/value|")
     err_to_val = np.abs(np.array(op_err) / np.array(op))
-    im = plt.imshow(err_to_val, norm=LogNorm(), aspect="auto")
+    im = plt.imshow(err_to_val, norm=norm, aspect="auto")
     plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
     return fig
 

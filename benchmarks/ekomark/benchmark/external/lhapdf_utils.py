@@ -5,24 +5,22 @@ from eko import basis_rotation as br
 
 
 def compute_LHAPDF_data(
-    theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False
+    operators, pdf, skip_pdfs, rotate_to_evolution_basis=False
 ):
     """
     Run LHAPDF to compute operators.
 
     Parameters
     ----------
-        theory : dict
-            theory card
         operators : dict
             operators card
         pdf : lhapdf_type
             pdf 
-        skip_pdfs : list 
+        skip_pdfs : list
             list of pdfs (pid or name) to skip
-        rotate_to_evolution_basis: bool 
+        rotate_to_evolution_basis: bool
             rotate to evolution basis
-    
+
     Returns
     -------
         ref : dict
