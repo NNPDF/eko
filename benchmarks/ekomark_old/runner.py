@@ -205,7 +205,9 @@ class Runner(abc.ABC):
         else:
             pdf = lhapdf.mkPDF(ref["src_pdf"])
         pdf_grid = output.apply_pdf(
-            pdf, xgrid, rotate_to_evolution_basis=ref["rotate_to_evolution_basis"],
+            pdf,
+            xgrid,
+            rotate_to_evolution_basis=ref["rotate_to_evolution_basis"],
         )
         first_res = list(pdf_grid.values())[0]
         my_pdfs = first_res["pdfs"]

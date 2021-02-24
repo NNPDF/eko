@@ -153,7 +153,9 @@ class Runner(BenchmarkRunner):
         xgrid = ext["target_xgrid"]
         q2s = list(ext["values"].keys())
         pdf_grid = me.apply_pdf(
-            pdf, xgrid, rotate_to_evolution_basis=self.rotate_to_evolution_basis,
+            pdf,
+            xgrid,
+            rotate_to_evolution_basis=self.rotate_to_evolution_basis,
         )
         for q2 in q2s:
 

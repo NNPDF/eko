@@ -31,8 +31,8 @@ lhapdf_config = {
 }
 
 apfel_config = {
-    #"ev_op_max_order": [10],
-    #"ev_op_iterations": [2, 10, 30],
+    # "ev_op_max_order": [10],
+    # "ev_op_iterations": [2, 10, 30],
     "Q2grid": [[1.0e3, 1.0e4]],
 }
 

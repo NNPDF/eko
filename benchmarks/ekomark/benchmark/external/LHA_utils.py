@@ -133,7 +133,9 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
                     data["table4"]["part2"], rotate_to_evolution_basis
                 )
             else:
-                ref_values = rotate_data(data["table4"]["part1"], rotate_to_evolution_basis)
+                ref_values = rotate_data(
+                    data["table4"]["part1"], rotate_to_evolution_basis
+                )
     else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
 
@@ -144,8 +146,9 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
 
     return ref
 
+
 def save_initial_scale_plots_to_pdf(path):
-    
+
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
     from ekomark.plots import plot_dist
@@ -165,7 +168,7 @@ def save_initial_scale_plots_to_pdf(path):
     """
     LHA_init_grid_ref = data["table2"]["part1"]
     with PdfPages(path) as pp:
-    # iterate all raw labels
+        # iterate all raw labels
         for j, label in enumerate(raw_label_list):
             # skip trivial plots
             if label in ["c_p", "b_p"]:

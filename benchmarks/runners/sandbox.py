@@ -54,7 +54,9 @@ class Sandbox(Runner):
             "alphas": 0.35,
         }
         self.run(
-            [theory_updates], operators.build(self.generate_operators()), ["ToyLH"],
+            [theory_updates],
+            operators.build(self.generate_operators()),
+            ["ToyLH"],
         )
 
 

@@ -30,7 +30,11 @@ class BenchmarkZm(ApfelBenchmark):
 
     zm_theory = {
         "FNS": "ZM-VFNS",
-        "ModEv": ["EXA", "EXP", "TRN",],
+        "ModEv": [
+            "EXA",
+            "EXP",
+            "TRN",
+        ],
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
@@ -55,7 +59,11 @@ class BenchmarkFfns(ApfelBenchmark):
     ffns_theory = {
         "FNS": "FFNS",
         "NfFF": 4,
-        "ModEv": ["EXA", "EXP", "TRN",],
+        "ModEv": [
+            "EXA",
+            "EXP",
+            "TRN",
+        ],
         "kcThr": 0.0,
         "kbThr": np.inf,
         "ktThr": np.inf,

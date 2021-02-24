@@ -4,9 +4,7 @@ import numpy as np
 from eko import basis_rotation as br
 
 
-def compute_LHAPDF_data(
-    operators, pdf, skip_pdfs, rotate_to_evolution_basis=False
-):
+def compute_LHAPDF_data(operators, pdf, skip_pdfs, rotate_to_evolution_basis=False):
     """
     Run LHAPDF to compute operators.
 
