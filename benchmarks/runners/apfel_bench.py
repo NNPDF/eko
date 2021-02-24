@@ -43,9 +43,10 @@ class BenchmarkZm(ApfelBenchmark):
 
         th = self.zm_theory.copy()
         for key, item in th.items():
-            th[key] = [item]
-        th.update({"PTO": pto})
-        self.run([th], operators.build(operators.apfel_config), ["ToyLH"])
+            if type(item) != list:
+                th[key] = [item]
+        th.update({"PTO": [pto]})
+        self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
 
 
 class BenchmarkFfns(ApfelBenchmark):
@@ -63,15 +64,19 @@ class BenchmarkFfns(ApfelBenchmark):
     def benchmark_ffns(self, pto):
 
         th = self.ffns_theory.copy()
-        th.update({"PTO": pto})
-        self.run([th], operators.build(operators.apfel_config), ["ToyLH"])
+        for key, item in th.items():
+            if type(item) != list:
+                th[key] = [item]
+        th.update({"PTO": [pto]})
+        self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
 
     def benchmark_sv(self):
         """Benckmark Scale Variation"""
 
         th = self.ffns_theory.copy()
         for key, item in th.items():
-            th[key] = [item]
+            if type(item) != list:
+                th[key] = [item]
         th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
         self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
 

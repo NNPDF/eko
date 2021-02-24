@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import numpy as np
 from banana.data import power_set
+
 
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
@@ -17,7 +19,7 @@ class Sandbox(Runner):
     external = "LHA"
 
     # select to plot operators
-    plot_operator = True
+    plot_operator = False
 
     rotate_to_evolution_basis = True
 
@@ -39,16 +41,20 @@ class Sandbox(Runner):
     def run_sand(self):
 
         theory_updates = {
-            "PTO": [1],
-            "FNS": ["FFNS",],
-            "NfFF": [4,],
-            "ModEv": ["EXA",],
-            "XIR": [1.4142135623730951,],
-            "alphas": [0.35],
-            "Qref": [1.4142135623730951],
+            "PTO": 1,
+            "FNS": "FFNS",
+            "NfFF": 4,
+            "ModEv": "EXA",
+            "XIR": 1.4142135623730951,
+            "Q0": np.sqrt(2),
+            "kcThr": 0.0,
+            "kbThr": np.inf,
+            "ktThr": np.inf,
+            "Qref": np.sqrt(2.0),
+            "alphas": 0.35,
         }
         self.run(
-            power_set(theory_updates),
+            [theory_updates],
             operators.build(self.generate_operators()),
             ["ToyLH"],
         )

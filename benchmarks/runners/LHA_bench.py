@@ -9,7 +9,15 @@ from banana.data import power_set
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
-
+theory = {
+    "ModEv": "EXA",
+    "Q0": np.sqrt(2),
+    "mc": np.sqrt(2.0),
+    "mb": 4.5,
+    "mt": 175,
+    "Qref": np.sqrt(2.0),
+    "alphas": 0.35,
+}
 class LHABenchmark(Runner):
 
     """
@@ -24,22 +32,17 @@ class LHABenchmark(Runner):
     skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
 
 
-class BenchmarkZm(LHABenchmark):
+class BenchmarkZM(LHABenchmark):
     """Benckmark ZM-VFNS """
 
-    zm_theory = {
+    zm_theory = theory.copy()
+    zm_theory.update( {
         "FNS": "ZM-VFNS",
         "ModEv": "EXA",
-        "Q0": np.sqrt(2),
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
-        "mc": np.sqrt(2.0),
-        "mb": 4.5,
-        "mt": 175,
-        "Qref": np.sqrt(2.0),
-        "alphas": 0.35,
-    }
+    })
 
     def benchmark_zm(self, pto):
 
@@ -56,20 +59,17 @@ class BenchmarkZm(LHABenchmark):
         th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
         self.run(power_set(th), operators.build(operators.lha_config), ["ToyLH"])
 
-class BenchmarkFfns(LHABenchmark):
+class BenchmarkFFNS(LHABenchmark):
     """Benckmark FFNS """
 
-    ffns_theory = {
+    ffns_theory = theory.copy()
+    ffns_theory.update({
         "FNS": "FFNS",
         "NfFF": 4,
-        "ModEv": "EXA",
-        "Q0": np.sqrt(2),
         "kcThr": 0.0,
         "kbThr": np.inf,
         "ktThr": np.inf,
-        "Qref": np.sqrt(2.0),
-        "alphas": 0.35,
-    }
+    })
 
     def benchmark_ffns(self, pto):
 
@@ -89,13 +89,11 @@ class BenchmarkFfns(LHABenchmark):
 
 if __name__ == "__main__":
 
-    zm = BenchmarkZm()
-    ffns = BenchmarkFfns()
-    for o in [0,1]:
-        zm.benchmark_zm(o)
-        # TODO: there is a minus sign in c_p at NLO,
-        # not working when rotate is True how can we fix it?? 
-        if o == 0: ffns.benchmark_ffns(o)
+    zm = BenchmarkZM()
+    ffns = BenchmarkFFNS()
+    #for o in [1]:
+    #    zm.benchmark_zm(o)
+    #    ffns.benchmark_ffns(o)
 
     zm.benchmark_sv()
-    ffns.benchmark_sv()
+    #ffns.benchmark_sv()
