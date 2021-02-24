@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from banana.data import power_set
+from banana.data import cartesian_product
 
 
 from ekomark.benchmark.runner import Runner

@@ -4,7 +4,7 @@
 """
 import numpy as np
 
-from banana.data import power_set
+from banana.data import cartesian_product
 
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
@@ -50,7 +50,7 @@ class BenchmarkZm(ApfelBenchmark):
             if type(item) != list:
                 th[key] = [item]
         th.update({"PTO": [pto]})
-        self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
+        self.run(cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"])
 
 
 class BenchmarkFfns(ApfelBenchmark):
@@ -76,7 +76,7 @@ class BenchmarkFfns(ApfelBenchmark):
             if type(item) != list:
                 th[key] = [item]
         th.update({"PTO": [pto]})
-        self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
+        self.run(cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"])
 
     def benchmark_sv(self):
         """Benckmark Scale Variation"""
@@ -86,7 +86,7 @@ class BenchmarkFfns(ApfelBenchmark):
             if type(item) != list:
                 th[key] = [item]
         th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
-        self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
+        self.run(cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"])
 
     def benchmark_ic(self):
         """Benckmark Intrinsic Charm"""
@@ -104,7 +104,7 @@ class BenchmarkFfns(ApfelBenchmark):
         )
 
         self.run(
-            filter(lambda c: c["mc"] == c["Qmc"], power_set(th)),
+            filter(lambda c: c["mc"] == c["Qmc"], cartesian_product(th)),
             operators.build(operators.apfel_config),
             ["ToyLH"],
         )

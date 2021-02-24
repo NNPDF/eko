@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from banana.data import power_set, sql
+from banana.data import cartesian_product, sql
 
 from eko import interpolation
 
@@ -48,7 +48,7 @@ def build(update=None):
     cards = []
     if update is None:
         update = {}
-    for c in power_set(update):
+    for c in cartesian_product(update):
         card = dict()
         card.update(c)
         cards.append(card)

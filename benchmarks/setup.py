@@ -9,7 +9,14 @@ setup(
     description="eko benchmark",
     # package_dir={"": "."},
     packages=find_packages("."),
-    install_requires=["eko", "matplotlib", "pandas", "banana-hep", "pyyaml"],
+    install_requires=[
+        "eko",
+        "pandas",
+        "banana-hep",
+        "sqlalchemy",
+        "matplotlib",
+        "pyyaml",
+    ],
     entry_points={
         "console_scripts": [
             "ekonavigator=ekomark.navigator:launch_navigator",
