@@ -64,12 +64,13 @@ class PhysicalOperator:
             m[f"V{n}.V{n}"] = op_members["NS_m"]
             m[f"T{n}.T{n}"] = op_members["NS_p"]
         # activate one higher element, i.e. where the next heavy quark could participate,
-        # but actually it is trivial
-        n = (nf + 1) ** 2 - 1
-        # without this new heavy quark Vn = V and Tn = S
-        m[f"V{n}.V"] = op_members["NS_v"]
-        m[f"T{n}.S"] = op_members["S_qq"]
-        m[f"T{n}.g"] = op_members["S_qg"]
+        # but actually it might be trivial, if we can
+        if nf < 6:
+            n = (nf + 1) ** 2 - 1
+            # without this new heavy quark Vn = V and Tn = S
+            m[f"V{n}.V"] = op_members["NS_v"]
+            m[f"T{n}.S"] = op_members["S_qq"]
+            m[f"T{n}.g"] = op_members["S_qg"]
         # deal with intrinsic heavy quark pdfs
         if intrinsic_range is not None:
             hqfl = "cbt"
@@ -103,7 +104,6 @@ class PhysicalOperator:
             tensor : numpy.ndarray
                 EKO
         """
-        # import pdb; pdb.set_trace()
         nf_in, nf_out = flavors.get_range(self.op_members.keys())
         len_pids = len(br.flavor_basis_pids)
         len_xgrid = list(self.op_members.values())[0].value.shape[0]
