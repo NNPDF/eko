@@ -5,7 +5,6 @@ Benchmark to :cite:`Giele:2002hx`
 import numpy as np
 
 from ekomark.benchmark.runner import Runner
-from ekomark.data import operators
 
 base_theory = {
     "ModEv": "EXA",
@@ -43,12 +42,12 @@ class LHABenchmark(Runner):
 
         Returns
         -------
-            dict
-                theory update
+            list(dict)
+                theory updates
         """
         th = self.theory.copy()
         th.update({"PTO": pto})
-        return th
+        return [th]
 
     def sv_theories(self):
         """
@@ -60,9 +59,11 @@ class LHABenchmark(Runner):
                 theory updates
         """
         low = self.theory.copy()
-        low["XIR"] = 0.7071067811865475
+        low["PTO"] = 1
+        low["XIR"] = np.sqrt(1.0 / 2.0)
         high = self.theory.copy()
-        high["XIR"] = 1.4142135623730951
+        high["PTO"] = 1
+        high["XIR"] = np.sqrt(2.0)
         return [low, high]
 
     def run_lha(self, theory_updates):
@@ -74,22 +75,7 @@ class LHABenchmark(Runner):
             theory_updates : list(dict)
                 theory updates
         """
-        self.run(theory_updates, operators.build(operators.lha_config), ["ToyLH"])
-
-
-class BenchmarkVFNS(LHABenchmark):
-    """Variable Flavor Number Scheme"""
-
-    theory = base_theory.copy()
-    theory.update(
-        {
-            "FNS": "ZM-VFNS",
-            "ModEv": "EXA",
-            "kcThr": 1.0,
-            "kbThr": 1.0,
-            "ktThr": 1.0,
-        }
-    )
+        self.run(theory_updates, [{"Q2grid": [1e4]}], ["ToyLH"])
 
     def benchmark_plain(self, pto):
         """Plain configuration"""
@@ -100,13 +86,28 @@ class BenchmarkVFNS(LHABenchmark):
         self.run_lha(self.sv_theories())
 
 
+class BenchmarkVFNS(LHABenchmark):
+    """Variable Flavor Number Scheme"""
+
+    theory = base_theory.copy()
+    theory.update(
+        {
+            "FNS": "ZM-VFNS",  # ignored by eko, but needed by LHA_utils
+            "ModEv": "EXA",
+            "kcThr": 1.0,
+            "kbThr": 1.0,
+            "ktThr": 1.0,
+        }
+    )
+
+
 class BenchmarkFFNS(LHABenchmark):
     """Fixed Flavor Number Scheme"""
 
     theory = base_theory.copy()
     theory.update(
         {
-            "FNS": "FFNS",
+            "FNS": "FFNS",  # ignored by eko, but needed by LHA_utils
             "NfFF": 4,
             "kcThr": 0.0,
             "kbThr": np.inf,
@@ -114,22 +115,13 @@ class BenchmarkFFNS(LHABenchmark):
         }
     )
 
-    def benchmark_ffns(self, pto):
-        """Plain configuration"""
-        self.run_lha(self.plain_theory(pto))
-
-    def benchmark_sv(self):
-        """Scale Variation"""
-        self.run_lha(self.sv_theories())
-
 
 if __name__ == "__main__":
 
-    zm = BenchmarkVFNS()
+    vfns = BenchmarkVFNS()
     ffns = BenchmarkFFNS()
-    # for o in [1]:
-    #    zm.benchmark_zm(o)
-    #    ffns.benchmark_ffns(o)
 
-    zm.benchmark_sv()
+    # vfns.benchmark_plain(1)
+    # ffns.benchmark_plain(1)
+    vfns.benchmark_sv()
     # ffns.benchmark_sv()

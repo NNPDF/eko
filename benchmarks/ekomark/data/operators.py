@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-from eko import interpolation
 
 from banana.data import power_set, sql
+
+from eko import interpolation
 
 default_card = dict(
     interpolation_xgrid=interpolation.make_grid(30, 20).tolist(),
@@ -16,13 +17,6 @@ default_card = dict(
 )
 
 default_card = dict(sorted(default_card.items()))
-
-
-lha_config = {
-    # "ev_op_max_order": [10],
-    # "ev_op_iterations": [2, 10, 30],
-    "Q2grid": [[1.0e4]],
-}
 
 lhapdf_config = {
     # "ev_op_max_order": [10],
