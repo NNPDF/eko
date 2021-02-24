@@ -149,12 +149,7 @@ class OperatorGrid:
             new_op_key = seg.tuple
             if new_op_key not in self._threshold_operators:
                 # Compute the operator and store it
-                logger.info(
-                    "Threshold operator: %e -> %e, nf=%d",
-                    seg.q2_from,
-                    seg.q2_to,
-                    seg.nf,
-                )
+                logger.info("Prepare threshold operator")
                 op_th = Operator(
                     self.config, self.managers, seg.nf, seg.q2_from, seg.q2_to
                 )
