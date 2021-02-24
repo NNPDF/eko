@@ -18,6 +18,8 @@ theory = {
     "Qref": np.sqrt(2.0),
     "alphas": 0.35,
 }
+
+
 class LHABenchmark(Runner):
 
     """
@@ -36,13 +38,9 @@ class BenchmarkZM(LHABenchmark):
     """Benckmark ZM-VFNS """
 
     zm_theory = theory.copy()
-    zm_theory.update( {
-        "FNS": "ZM-VFNS",
-        "ModEv": "EXA",
-        "kcThr": 1.0,
-        "kbThr": 1.0,
-        "ktThr": 1.0,
-    })
+    zm_theory.update(
+        {"FNS": "ZM-VFNS", "ModEv": "EXA", "kcThr": 1.0, "kbThr": 1.0, "ktThr": 1.0,}
+    )
 
     def benchmark_zm(self, pto):
 
@@ -59,17 +57,14 @@ class BenchmarkZM(LHABenchmark):
         th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
         self.run(power_set(th), operators.build(operators.lha_config), ["ToyLH"])
 
+
 class BenchmarkFFNS(LHABenchmark):
     """Benckmark FFNS """
 
     ffns_theory = theory.copy()
-    ffns_theory.update({
-        "FNS": "FFNS",
-        "NfFF": 4,
-        "kcThr": 0.0,
-        "kbThr": np.inf,
-        "ktThr": np.inf,
-    })
+    ffns_theory.update(
+        {"FNS": "FFNS", "NfFF": 4, "kcThr": 0.0, "kbThr": np.inf, "ktThr": np.inf,}
+    )
 
     def benchmark_ffns(self, pto):
 
@@ -91,9 +86,9 @@ if __name__ == "__main__":
 
     zm = BenchmarkZM()
     ffns = BenchmarkFFNS()
-    #for o in [1]:
+    # for o in [1]:
     #    zm.benchmark_zm(o)
     #    ffns.benchmark_ffns(o)
 
     zm.benchmark_sv()
-    #ffns.benchmark_sv()
+    # ffns.benchmark_sv()

@@ -99,7 +99,7 @@ class Runner(BenchmarkRunner):
     def run_external(self, theory, ocard, pdf):
 
         if self.external == "LHA":
-        
+
             if theory["FNS"] == "FFNS":
                 # Reference configuration
                 self.skip_pdfs.extend([-5, 5, "T24"])

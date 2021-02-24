@@ -30,14 +30,14 @@ def input_figure(theory, ops, pdf_name=None):
     firstPage.text(0.05, 0.97, "Theory:", size=20, ha="left", va="top")
     str_stream = io.StringIO()
     th_copy = theory.copy()
-    th_copy.pop("hash", None)
+    th_copy.update({"hash": theory["hash"].hex()[:7]})
     pprint.pprint(th_copy, stream=str_stream, width=50)
     firstPage.text(0.05, 0.92, str_stream.getvalue(), size=14, ha="left", va="top")
     # operators
     firstPage.text(0.55, 0.87, "Operators:", size=20, ha="left", va="top")
     str_stream = io.StringIO()
     ops_copy = ops.copy()
-    ops_copy.pop("hash", None)
+    ops_copy.update({"hash": ops["hash"].hex()[:7]})
     pprint.pprint(ops_copy, stream=str_stream, width=50)
     firstPage.text(0.55, 0.82, str_stream.getvalue(), size=14, ha="left", va="top")
     # pdf

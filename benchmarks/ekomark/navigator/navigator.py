@@ -49,20 +49,16 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         for f in [
             "PTO",
             "XIR",
-            "NfFF",
-            "FNS",
             "ModEv",
             "Q0",
-            "kcThr",
-            "kbThr",
-            "ktThr",
-            "mc",
-            "mb",
-            "mt",
             "Qref",
             "alphas",
         ]:
             obj[f] = theo[f]
+        obj["kcThr_mc"] = theo["mc"] * theo["kcThr"]
+        obj["kbThr_mb"] = theo["mb"] * theo["kbThr"]
+        obj["ktThr_mt"] = theo["mt"] * theo["ktThr"]
+
 
     def fill_operators(self, op, obj):
         """
@@ -367,8 +363,8 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         if not os.path.exists(path):
             os.makedirs(path)
 
-        ops_id = f"o{log['o_hash'].hex()[:6]}_t{log['t_hash'].hex()[:6]}_{log['pdf']}"
-        path = f"{path}/{ops_id}_plots.pdf"
+        ops_id = f"{log['hash'].hex()[:6]}"
+        path = f"{path}/{ops_id}.pdf"
         print(f"Writing pdf plots to {path}")
 
         with PdfPages(path) as pp:
