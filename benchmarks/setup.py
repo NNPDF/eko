@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ekomark",
-    author="F. Hekhorn, A.Candido, G.Magni",
+    author="A.Candido, F. Hekhorn, G.Magni",
     version="0.1.0",
     description="eko benchmark",
     # package_dir={"": "."},
