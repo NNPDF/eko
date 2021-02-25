@@ -41,7 +41,7 @@ class Sandbox(Runner):
     def run_sand(self):
 
         theory_updates = {
-            "PTO": 1,
+            "PTO": 0,
             "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",

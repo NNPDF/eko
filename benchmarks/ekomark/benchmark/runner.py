@@ -17,7 +17,7 @@ import eko
 
 class Runner(BenchmarkRunner):
     banana_cfg = banana_cfg
-    db_base_class = db.Base
+    db_base_cls = db.Base
     rotate_to_evolution_basis = False
     skip_pdfs = []
     sandbox = False
@@ -57,14 +57,14 @@ class Runner(BenchmarkRunner):
         # and plot the operators
         if self.sandbox:
             rerun = True
-            ops_id = f"o{ocard['hash'].hex()[:6]}_t{theory['hash'].hex()[:6]}"
+            ops_id = f"o{ocard['hash'][:6]}_t{theory['hash'][:6]}"
             path = f"{banana_cfg['database_path'].parents[0]}/{ops_id}.yaml"
 
             if os.path.exists(path):
                 rerun = False
-                # ask = input("Use cached output? [Y/n]")
-                # if ask.lower() in ["n", "no"]:
-                #     rerun = True
+                ask = input("Use cached output? [Y/n]")
+                if ask.lower() in ["n", "no"]:
+                    rerun = True
 
             if rerun:
                 out = eko.run_dglap(theory, ocard)
@@ -72,7 +72,7 @@ class Runner(BenchmarkRunner):
                 out.dump_yaml_to_file(path, binarize=False)
             else:
                 # load
-                print("Using cached eko data")
+                print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
                 with open(path) as o:
                     out = eko.output.Output.load_yaml(o)
 
