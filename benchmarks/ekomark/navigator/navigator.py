@@ -14,6 +14,11 @@ from ekomark.banana_cfg import banana_cfg
 
 from eko import basis_rotation as br
 
+from ..data import db
+
+table_objects = bnav.table_objects
+table_objects["o"] = db.Operator
+
 
 def pdfname(pid_or_name):
     """ Return pdf name  """
@@ -33,6 +38,8 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         mode : string
             mode identifier
     """
+
+    table_objects = table_objects
 
     def fill_theories(self, theo, obj):
         """

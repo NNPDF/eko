@@ -4,6 +4,8 @@ from banana.data import cartesian_product, sql
 
 from eko import interpolation
 
+from . import db
+
 default_card = dict(
     interpolation_xgrid=interpolation.make_grid(30, 20).tolist(),
     # interpolation_xgrid=interpolation.make_grid(2, 2).tolist(),
@@ -56,25 +58,25 @@ def build(update=None):
 
 
 # db interface
-def load(conn, updates):
+def load(session, updates):
     """
     Load operator records from the DB.
 
     Parameters
     ----------
-        conn : sqlite3.Connection
-            DB connection
-        update : dict
-            modifiers
+    session : sqlalchemy.session.Session
+        DB ORM session
+    updates : dict
+        modifiers
 
     Returns
     -------
-        cards : list(dict)
-            list of records
+    cards : list(dict)
+        list of records
     """
     # add hash
-    raw_records, rf = sql.prepare_records(default_card, updates)
+    raw_records, df = sql.prepare_records(default_card, updates)
 
     # insert new ones
-    sql.insertnew(conn, "operators", rf)
+    sql.insertnew(session, db.Operator, df)
     return raw_records

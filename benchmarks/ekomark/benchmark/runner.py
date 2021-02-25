@@ -11,20 +11,16 @@ from banana.data import sql, dfdict
 from banana.benchmark.runner import BenchmarkRunner
 
 from ekomark.banana_cfg import banana_cfg
-from ekomark.data import operators
+from ekomark.data import operators, db
 import eko
 
 
 class Runner(BenchmarkRunner):
     banana_cfg = banana_cfg
+    db_base_class = db.Base
     rotate_to_evolution_basis = False
     skip_pdfs = []
     sandbox = False
-
-    @staticmethod
-    def init_ocards(conn):
-        with conn:
-            conn.execute(sql.create_table("operators", operators.default_card))
 
     @staticmethod
     def load_ocards(conn, ocard_updates):
