@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import platform
 import time
 import numpy as np
 
@@ -130,19 +129,18 @@ def load_apfel(theory, operators, pdf="ToyLH"):
     # apfel.SetGridParameters(3, 50, 3, 8e-1)
 
     # set APFEL grid to ours
-    if platform.node() in ["FHe19b", "topolinia-arch"]:
-        apfel.SetNumberOfGrids(1)
-        # create a 'double *' using swig wrapper
-        yad_xgrid = operators["interpolation_xgrid"]
-        xgrid = apfel.new_doubles(len(yad_xgrid))
+    apfel.SetNumberOfGrids(1)
+    # create a 'double *' using swig wrapper
+    yad_xgrid = operators["interpolation_xgrid"]
+    xgrid = apfel.new_doubles(len(yad_xgrid))
 
-        # fill the xgrid with
-        for j, x in enumerate(yad_xgrid):
-            apfel.doubles_setitem(xgrid, j, x)
+    # fill the xgrid with
+    for j, x in enumerate(yad_xgrid):
+        apfel.doubles_setitem(xgrid, j, x)
 
-        yad_deg = operators["interpolation_polynomial_degree"]
-        # 1 = gridnumber
-        apfel.SetExternalGrid(1, len(yad_xgrid) - 1, yad_deg, xgrid)
+    yad_deg = operators["interpolation_polynomial_degree"]
+    # 1 = gridnumber
+    apfel.SetExternalGrid(1, len(yad_xgrid) - 1, yad_deg, xgrid)
 
     # set DIS params
     apfel.SetPDFSet(pdf)
@@ -214,7 +212,7 @@ def compute_apfel_data(
         if rotate_to_evolution_basis:
             pdfs = np.array(
                 [
-                    tab[pid] if pid in apf_tabs else np.zeros(len(target_xgrid))
+                    tab[pid] if pid in tab else np.zeros(len(target_xgrid))
                     for pid in br.flavor_basis_pids
                 ]
             )
