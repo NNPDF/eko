@@ -11,7 +11,7 @@ from eko import interpolation
 # np.float64
 
 
-def check_is_interpolator(interpolator, xgrid):
+def check_is_interpolator(interpolator):
     """ Check whether the functions are indeed interpolators"""
     values = [0.1, 0.2, 0.4, 0.6, 0.8]
     # has to be in the range of the interpolation, but for the numerical integration of the
@@ -24,15 +24,25 @@ def check_is_interpolator(interpolator, xgrid):
         assert_almost_equal(one, 1.0)
 
     # polynoms need to be "orthogonal" at grid points
-    for j, (basis_j, xj) in enumerate(zip(interpolator, xgrid)):
+    for j, (basis_j, xj) in enumerate(zip(interpolator, interpolator.xgrid_raw)):
         one = basis_j(xj)
-        assert_almost_equal(one, 1.0)
+        assert_almost_equal(
+            one,
+            1.0,
+            err_msg=f"p_{{j={j}}}(x_{{j={j}}} = {xj}),"
+            + f" log={interpolator.log}, degree={interpolator.polynomial_degree}",
+        )
 
         for k, basis_k in enumerate(interpolator):
             if j == k:
                 continue
             zero = basis_k(xj)
-            assert_almost_equal(zero, 0.0)
+            assert_almost_equal(
+                zero,
+                0.0,
+                err_msg=f"p_{{k={k}}}(x_{{j={j}}} = {xj}),"
+                + f" log={interpolator.log}, degree={interpolator.polynomial_degree}",
+            )
 
 
 def check_correspondence_interpolators(inter_x, inter_N):
@@ -163,7 +173,7 @@ class TestInterpolatorDispatcher:
             inter_x = interpolation.InterpolatorDispatcher(
                 xgrid, poly_deg, log=log, mode_N=False
             )
-            check_is_interpolator(inter_x, xgrid)
+            check_is_interpolator(inter_x)
             inter_N = interpolation.InterpolatorDispatcher(
                 xgrid, poly_deg, log=log, mode_N=True
             )
