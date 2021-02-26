@@ -135,7 +135,7 @@ def quad_ker(
             ev_op_iterations,
         )
     # recombine everthing
-    mellin_prefactor = np.complex(0.0, -1.0 / np.pi)
+    mellin_prefactor = complex(0.0, -1.0 / np.pi)
     return np.real(mellin_prefactor * ker * pj * jac)
 
 

@@ -44,7 +44,7 @@ def test_Talbot():
         check_path_symmetry(path, jacobian, p)
         # assert special points
         assert_almost_equal(path(0.5, *p), p[0] + p[1])
-        assert_almost_equal(jacobian(0.5, *p), np.complex(0, p[0] * 2.0 * np.pi))
+        assert_almost_equal(jacobian(0.5, *p), complex(0, p[0] * 2.0 * np.pi))
 
 
 def test_get_path_line():
