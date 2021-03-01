@@ -64,7 +64,7 @@ Now, we construct the interpolation in a bottom-up approach for a given point
 4. The active polynomials build a Lagrange interpolation over their associated points
 
 .. math ::
-    p_j(\bar x) = \prod\limits_{j\neq k} \frac{\ln(x) - \ln(x_k)}{\ln(x_j) - \ln(x_k)} \quad \text{for}~j,k : x_{j,k} \in \bar B
+    p_j(\bar x) = \prod\limits_{j\neq k} \frac{\ln(\bar x) - \ln(x_k)}{\ln(x_j) - \ln(x_k)} \quad \text{for}~j,k : x_{j,k} \in \bar B
 
 The generated polynomials are orthonormal in the following sense
 
