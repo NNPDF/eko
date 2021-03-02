@@ -24,7 +24,7 @@ def pdfname(pid_or_name):
 def get_pdfs_q2s( vals ):
     """
     Get lenght of the pdfs and q2s given the log dict
-    
+
     Parameters
     ----------
         vals : dict
@@ -32,16 +32,16 @@ def get_pdfs_q2s( vals ):
     Returns
     -------
         q2s : list
-            q2s list 
+            q2s list
         pdfs: int
-            lenght of pdfs table in the log 
+            lenght of pdfs table in the log
     """
     q2s = []
     pdfs = 0
     for q2 in list(vals.keys()):
         q2s.append(q2)
         pdfs = len(vals[q2])
-    
+
     return pdfs, q2s
 
 class NavigatorApp(bnav.navigator.NavigatorApp):

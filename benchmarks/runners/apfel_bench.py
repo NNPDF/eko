@@ -51,6 +51,32 @@ class BenchmarkZM(ApfelBenchmark):
         th = self.zm_theory.copy()
         th.update({"PTO": [pto]})
         self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
+    
+    def benchmark_sv(self):
+        """Benckmark Scale Variation"""
+
+        th = self.zm_theory.copy()
+        th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
+        self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
+
+    def benchmark_ic(self):
+        """Benckmark Intrinsic Charm"""
+
+        th = self.zm_theory.copy()
+        th.update(
+            {
+                "PTO": [1],
+                "IC": [1],
+                "mc": [1.4142135623730951, 2.0],
+                "Qmc": [1.4142135623730951, 2.0],
+            }
+        )
+
+        self.run(
+            filter(lambda c: c["mc"] == c["Qmc"], power_set(th)),
+            operators.build(operators.apfel_config),
+            ["ToyLH"],
+        )
 
 
 class BenchmarkFFNS(ApfelBenchmark):
@@ -109,3 +135,5 @@ if __name__ == "__main__":
 
     ffns.benchmark_sv()
     ffns.benchmark_ic()
+    zm.benchmark_sv()
+    zm.benchmark_ic()
