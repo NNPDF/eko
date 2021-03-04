@@ -5,9 +5,11 @@ Abstract layer for running the benchmarks
 import os
 import logging
 import sys
+import functools
+
 import pandas as pd
 
-from banana.data import sql, dfdict
+from banana.data import dfdict
 from banana.benchmark.runner import BenchmarkRunner
 
 from ekomark.banana_cfg import banana_cfg
@@ -143,7 +145,6 @@ class Runner(BenchmarkRunner):
         return {}
 
     def log(self, theory, ocard, pdf, me, ext):
-
         # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]
@@ -169,13 +170,13 @@ class Runner(BenchmarkRunner):
                 # build table
                 tab = {}
                 tab["x"] = xgrid
+                tab["Q2"] = q2
                 tab["eko"] = f = xgrid * my_pdfs[key]
                 tab["eko_error"] = xgrid * my_pdf_errs[key]
                 tab[self.external] = r = ref_pdfs[key]
                 tab["percent_error"] = (f - r) / r * 100
 
-                tab = pd.DataFrame(tab)
-                log_tab[key] = tab
+                log_tab[key] = pd.DataFrame(tab)
             log_tabs[q2] = log_tab
 
-        return log_tabs
+        return functools.reduce(lambda dfd1, dfd2: dfd1.merge(dfd2), log_tabs.values())
