@@ -10,6 +10,14 @@ from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
 
+def tolist(input_dict):
+    output_dict = input_dict.copy()
+    for key, item in output_dict.items():
+        if not isinstance(item, list):
+            output_dict[key] = [item]
+    return output_dict
+
+
 class ApfelBenchmark(Runner):
 
     """
@@ -25,7 +33,7 @@ class ApfelBenchmark(Runner):
     skip_pdfs = [22, -6, 6, -5, 5, "ph", "T35", "V35"]
 
 
-class BenchmarkZm(ApfelBenchmark):
+class BenchmarkZM(ApfelBenchmark):
     """Benckmark ZM-VFNS """
 
     zm_theory = {
@@ -38,62 +46,81 @@ class BenchmarkZm(ApfelBenchmark):
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
-        "mc": np.sqrt(2.0),
-        "mb": 4.5,
-        "mt": 173,
     }
+    zm_theory = tolist(zm_theory)
 
     def benchmark_zm(self, pto):
+        """Benckmark ZM-VFNS, LO and NLO """
 
         th = self.zm_theory.copy()
-        for key, item in th.items():
-            if type(item) != list:
-                th[key] = [item]
         th.update({"PTO": [pto]})
-        self.run(cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"])
+        self.run(
+            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
+        )
+
+    def benchmark_sv(self):
+        """Benckmark Scale Variation"""
+
+        th = self.zm_theory.copy()
+        th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
+        self.run(
+            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
+        )
+
+    def benchmark_ic(self):
+        """Benckmark Intrinsic Charm"""
+
+        th = self.zm_theory.copy()
+        th.update(
+            {
+                "PTO": [1],
+                "IC": [1],
+                "mc": [1.4142135623730951, 2.0],
+                "Qmc": [1.4142135623730951, 2.0],
+            }
+        )
+
+        self.run(
+            filter(lambda c: c["mc"] == c["Qmc"], cartesian_product(th)),
+            operators.build(operators.apfel_config),
+            ["ToyLH"],
+        )
 
 
-class BenchmarkFfns(ApfelBenchmark):
+class BenchmarkFFNS(ApfelBenchmark):
     """Benckmark FFNS """
 
     ffns_theory = {
         "FNS": "FFNS",
         "NfFF": 4,
-        "ModEv": [
-            "EXA",
-            "EXP",
-            "TRN",
-        ],
         "kcThr": 0.0,
         "kbThr": np.inf,
         "ktThr": np.inf,
     }
+    ffns_theory = tolist(ffns_theory)
 
     def benchmark_ffns(self, pto):
+        """Benckmark FFNS, LO and NLO """
 
         th = self.ffns_theory.copy()
-        for key, item in th.items():
-            if type(item) != list:
-                th[key] = [item]
         th.update({"PTO": [pto]})
-        self.run(cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"])
+        self.run(
+            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
+        )
 
     def benchmark_sv(self):
         """Benckmark Scale Variation"""
 
         th = self.ffns_theory.copy()
-        for key, item in th.items():
-            if type(item) != list:
-                th[key] = [item]
         th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
-        self.run(cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"])
+        self.run(
+            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
+        )
 
     def benchmark_ic(self):
         """Benckmark Intrinsic Charm"""
 
         th = self.ffns_theory.copy()
-        for key, item in th.items():
-            th[key] = [item]
         th.update(
             {
                 "PTO": [1],
@@ -112,11 +139,13 @@ class BenchmarkFfns(ApfelBenchmark):
 
 if __name__ == "__main__":
 
-    zm = BenchmarkZm()
-    ffns = BenchmarkFfns()
+    zm = BenchmarkZM()
+    ffns = BenchmarkFFNS()
     for o in [0, 1]:
         zm.benchmark_zm(o)
         ffns.benchmark_ffns(o)
 
     ffns.benchmark_sv()
     ffns.benchmark_ic()
+    zm.benchmark_sv()
+    zm.benchmark_ic()

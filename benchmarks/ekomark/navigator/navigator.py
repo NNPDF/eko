@@ -26,6 +26,28 @@ def pdfname(pid_or_name):
         return br.flavor_basis_names[br.flavor_basis_pids.index(pid_or_name)]
     return pid_or_name
 
+def get_pdfs_q2s( vals ):
+    """
+    Get lenght of the pdfs and q2s given the log dict
+
+    Parameters
+    ----------
+        vals : dict
+            log dict
+    Returns
+    -------
+        q2s : list
+            q2s list
+        pdfs: int
+            lenght of pdfs table in the log
+    """
+    q2s = []
+    pdfs = 0
+    for q2 in list(vals.keys()):
+        q2s.append(q2)
+        pdfs = len(vals[q2])
+
+    return pdfs, q2s
 
 class NavigatorApp(bnav.navigator.NavigatorApp):
     """
@@ -102,17 +124,10 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         for f in ["external", "pdf"]:
             obj[f] = cac[f]
 
-        q2s = []
-        ops = 0
         vals = cac["result"]["values"]
+        pdfs, q2s = get_pdfs_q2s(vals)
 
-        for q2 in list(vals.keys()):
-
-            q2s.append(q2)
-            # all the q2s have the same number of operators
-            ops = len(vals[q2])
-
-        obj["operators"] = f"{ops} Operators @ Q^2 {q2s} Gev^2"
+        obj["operators"] = f"{pdfs} pdfs @ Q^2 {q2s} Gev^2"
 
     def fill_logs(self, lg, obj):
         """
@@ -126,17 +141,10 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
                 to be updated pandas record
         """
 
-        q2s = []
-        ops = 0
-        for q2 in list(lg["log"].keys()):
-
-            q2s.append(q2)
-            # all the q2s have the same number of operators
-            ops = len(lg["log"][q2].values())
-
+        pdfs, q2s = get_pdfs_q2s(lg["log"])
         crash = lg.get("_crash", None)
         if crash is None:
-            obj["operators"] = f"{ops}  Operators @ Q^2 {q2s} Gev^2"
+            obj["operators"] = f"{pdfs}  pdfs @ Q^2 {q2s} Gev^2"
         else:
             obj["operators"] = crash
 

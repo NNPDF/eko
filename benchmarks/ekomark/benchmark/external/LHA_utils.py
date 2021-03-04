@@ -3,7 +3,12 @@ import pathlib
 import yaml
 import numpy as np
 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+
 from eko import basis_rotation as br
+
+from ...plots import plot_dist
 
 here = pathlib.Path(__file__).parents[0]
 
@@ -71,7 +76,6 @@ def rotate_data(raw, rotate_to_evolution_basis=False):
 
 
 def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
-
     """
     Setup LHA benchmark :cite:`Giele:2002hx`
 
@@ -102,43 +106,36 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
     fns = theory["FNS"]
     order = theory["PTO"]
     fact_to_ren = (theory["XIF"] / theory["XIR"]) ** 2
-    ref_values = []
+    table = None
+    part = None
     if fns == "FFNS":
         if order == 0:
-            ref_values = rotate_data(data["table2"]["part2"], rotate_to_evolution_basis)
+            table = 2
+            part = 2
         elif order == 1:
+            table = 3
             # Switching at the intermediate point.
             if fact_to_ren > np.sqrt(2):
-                ref_values = rotate_data(
-                    data["table3"]["part3"], rotate_to_evolution_basis
-                )
+                part = 3
             elif fact_to_ren < np.sqrt(1.0 / 2.0):
-                ref_values = rotate_data(
-                    data["table3"]["part2"], rotate_to_evolution_basis
-                )
+                part = 2
             else:
-                ref_values = rotate_data(
-                    data["table3"]["part1"], rotate_to_evolution_basis
-                )
+                part = 1
     elif fns == "ZM-VFNS":
         if order == 0:
-            ref_values = rotate_data(data["table2"]["part3"], rotate_to_evolution_basis)
+            table = 2
+            part = 3
         elif order == 1:
+            table = 4
             if fact_to_ren > np.sqrt(2):
-                ref_values = rotate_data(
-                    data["table4"]["part3"], rotate_to_evolution_basis
-                )
+                part = 3
             elif fact_to_ren < np.sqrt(1.0 / 2.0):
-                ref_values = rotate_data(
-                    data["table4"]["part2"], rotate_to_evolution_basis
-                )
+                part = 2
             else:
-                ref_values = rotate_data(
-                    data["table4"]["part1"], rotate_to_evolution_basis
-                )
+                part = 1
     else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
-
+    ref_values = rotate_data(data[f"table{table}"][f"part{part}"], rotate_to_evolution_basis)
     ref = {
         "target_xgrid": toy_xgrid,
         "values": {1e4: ref_values},
@@ -148,11 +145,6 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
 
 
 def save_initial_scale_plots_to_pdf(path):
-
-    import matplotlib.pyplot as plt
-    from matplotlib.backends.backend_pdf import PdfPages
-    from ekomark.plots import plot_dist
-
     """
     Plots all PDFs at the inital scale.
 
@@ -166,6 +158,9 @@ def save_initial_scale_plots_to_pdf(path):
         path : string
         output path
     """
+    # load data
+    with open(here / "LHA.yaml") as o:
+        data = yaml.safe_load(o)
     LHA_init_grid_ref = data["table2"]["part1"]
     with PdfPages(path) as pp:
         # iterate all raw labels

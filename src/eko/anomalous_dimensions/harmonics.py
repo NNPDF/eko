@@ -114,7 +114,7 @@ def cern_polygamma(Z, K: int):  # pylint: disable=all
         A=np.sin(X)
         B=np.cos(X)
         T=np.tanh(Y)
-        P=np.complex(B,-A*T)/np.complex(A,B*T)
+        P=complex(B,-A*T)/complex(A,B*T)
         if K == 0:
             H=H+1/U+np.pi*P
         elif K == 1:

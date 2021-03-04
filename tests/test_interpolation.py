@@ -11,7 +11,7 @@ from eko import interpolation
 # np.float64
 
 
-def check_is_interpolator(interpolator, xgrid):
+def check_is_interpolator(interpolator):
     """ Check whether the functions are indeed interpolators"""
     values = [0.1, 0.2, 0.4, 0.6, 0.8]
     # has to be in the range of the interpolation, but for the numerical integration of the
@@ -24,21 +24,31 @@ def check_is_interpolator(interpolator, xgrid):
         assert_almost_equal(one, 1.0)
 
     # polynoms need to be "orthogonal" at grid points
-    for j, (basis, xj) in enumerate(zip(interpolator, xgrid)):
-        one = basis(xj)
-        assert_almost_equal(one, 1.0)
+    for j, (basis_j, xj) in enumerate(zip(interpolator, interpolator.xgrid_raw)):
+        one = basis_j(xj)
+        assert_almost_equal(
+            one,
+            1.0,
+            err_msg=f"p_{{j={j}}}(x_{{j={j}}} = {xj}),"
+            + f" log={interpolator.log}, degree={interpolator.polynomial_degree}",
+        )
 
-        for k, basis in enumerate(interpolator):
+        for k, basis_k in enumerate(interpolator):
             if j == k:
                 continue
-            zero = basis(xj)
-            assert_almost_equal(zero, 0.0)
+            zero = basis_k(xj)
+            assert_almost_equal(
+                zero,
+                0.0,
+                err_msg=f"p_{{k={k}}}(x_{{j={j}}} = {xj}),"
+                + f" log={interpolator.log}, degree={interpolator.polynomial_degree}",
+            )
 
 
 def check_correspondence_interpolators(inter_x, inter_N):
     """Check the correspondece between x and N space of the interpolators
     inter_x and inter_N"""
-    ngrid = [np.complex(1.0), np.complex(1.0 + 1j), np.complex(2.5 - 2j)]
+    ngrid = [complex(1.0), complex(1.0 + 1j), complex(2.5 - 2j)]
     logxinv = np.log(0.9e-2)  # < 1e-2, to trick skipping
     for fun_x, fun_N in zip(inter_x, inter_N):
         for N in ngrid:
@@ -71,8 +81,8 @@ def mellin_transform(f, N):
     # do real + imaginary part seperately
     r, re = integrate.quad(lambda x: np.real(integrand(x)), 0, 1, full_output=1)[:2]
     i, ie = integrate.quad(lambda x: np.imag(integrand(x)), 0, 1, full_output=1)[:2]
-    result = np.complex(r, i)
-    error = np.complex(re, ie)
+    result = complex(r, i)
+    error = complex(re, ie)
     return result, error
 
 
@@ -163,7 +173,7 @@ class TestInterpolatorDispatcher:
             inter_x = interpolation.InterpolatorDispatcher(
                 xgrid, poly_deg, log=log, mode_N=False
             )
-            check_is_interpolator(inter_x, xgrid)
+            check_is_interpolator(inter_x)
             inter_N = interpolation.InterpolatorDispatcher(
                 xgrid, poly_deg, log=log, mode_N=True
             )
@@ -194,7 +204,7 @@ class TestBasisFunction:
             assert_almost_equal(act_c, res_c)
         p1Nref = lambda N, lnx: (1 / (N + 1)) * np.exp(-N * lnx)
         # iterate configurations
-        for N in [1.0, 2.0, np.complex(1.0, 1.0)]:
+        for N in [1.0, 2.0, complex(1.0, 1.0)]:
             # check skip
             assert_almost_equal(p0N(N, 0), 0)
             assert_almost_equal(p1N(N, 0), 0)
@@ -229,7 +239,7 @@ class TestBasisFunction:
         p1Nref_full = lambda N, lnx: ((np.exp(-N) - 1 + N) / N ** 2) * np.exp(-N * lnx)
         p1Nref_partial = lambda N, lnx: (1 / N - 1 / N ** 2) * np.exp(-N * lnx)
         # iterate configurations
-        for N in [1.0, 2.0, np.complex(1.0, 1.0)]:
+        for N in [1.0, 2.0, complex(1.0, 1.0)]:
             # check skip
             assert_almost_equal(p0N(N, 0), 0)
             assert_almost_equal(p1N(N, 0), 0)

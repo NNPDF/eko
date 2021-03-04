@@ -15,8 +15,8 @@ def test_eigensystem_gamma_singlet_0_values():
     s1 = harmonics.harmonic_S1(n)
     gamma_S_0 = ad_lo.gamma_singlet_0(3, s1, NF)
     res = ad.exp_singlet(gamma_S_0)
-    lambda_p = np.complex(12.273612971466964, 0)
-    lambda_m = np.complex(5.015275917421917, 0)
+    lambda_p = complex(12.273612971466964, 0)
+    lambda_m = complex(5.015275917421917, 0)
     e_p = np.array(
         [
             [0.07443573 + 0.0j, -0.32146941 + 0.0j],

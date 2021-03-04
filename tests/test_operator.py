@@ -42,7 +42,7 @@ def test_quad_ker(monkeypatch):
         mellin, "Talbot_path", lambda *args: 2
     )  # N=2 is a safe evaluation point
     monkeypatch.setattr(
-        mellin, "Talbot_jac", lambda *args: np.complex(0, np.pi)
+        mellin, "Talbot_jac", lambda *args: complex(0, np.pi)
     )  # negate mellin prefactor
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
