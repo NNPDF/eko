@@ -14,6 +14,11 @@ from ekomark.banana_cfg import banana_cfg
 
 from eko import basis_rotation as br
 
+from ..data import db
+
+table_objects = bnav.table_objects
+table_objects["o"] = db.Operator
+
 
 def pdfname(pid_or_name):
     """ Return pdf name  """
@@ -21,28 +26,6 @@ def pdfname(pid_or_name):
         return br.flavor_basis_names[br.flavor_basis_pids.index(pid_or_name)]
     return pid_or_name
 
-def get_pdfs_q2s( vals ):
-    """
-    Get lenght of the pdfs and q2s given the log dict
-
-    Parameters
-    ----------
-        vals : dict
-            log dict
-    Returns
-    -------
-        q2s : list
-            q2s list
-        pdfs: int
-            lenght of pdfs table in the log
-    """
-    q2s = []
-    pdfs = 0
-    for q2 in list(vals.keys()):
-        q2s.append(q2)
-        pdfs = len(vals[q2])
-
-    return pdfs, q2s
 
 class NavigatorApp(bnav.navigator.NavigatorApp):
     """
@@ -55,6 +38,8 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         mode : string
             mode identifier
     """
+
+    table_objects = table_objects
 
     def fill_theories(self, theo, obj):
         """
@@ -114,13 +99,18 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             obj : dict
                 to be updated pandas record
         """
-        for f in ["external", "pdf"]:
-            obj[f] = cac[f]
-
         vals = cac["result"]["values"]
-        pdfs, q2s = get_pdfs_q2s(vals)
+        q2s = list(vals.keys())
+        # assume the vals are homogenous (true for bare eko results) and look
+        # only at the first one
+        pdfs = len(next(iter(vals.values())))
 
         obj["operators"] = f"{pdfs} pdfs @ Q^2 {q2s} Gev^2"
+
+        obj["theory"] = cac["t_hash"][: self.hash_len]
+        obj["observables"] = cac["o_hash"][: self.hash_len]
+        for f in ["pdf", "external"]:
+            obj[f] = cac[f]
 
     def fill_logs(self, lg, obj):
         """
@@ -133,86 +123,18 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             obj : dict
                 to be updated pandas record
         """
-
-        pdfs, q2s = get_pdfs_q2s(lg["log"])
+        q2s = lg["log"].q2s
+        pdfs = len(lg["log"])
         crash = lg.get("_crash", None)
         if crash is None:
             obj["operators"] = f"{pdfs}  pdfs @ Q^2 {q2s} Gev^2"
         else:
             obj["operators"] = crash
 
-        for f in ["external", "pdf"]:
+        obj["theory"] = lg["t_hash"][: self.hash_len]
+        obj["observables"] = lg["o_hash"][: self.hash_len]
+        for f in ["pdf", "external"]:
             obj[f] = lg[f]
-
-    def list_all_similar_logs(self, ref_hash):
-        """
-        Search logs which are similar to the one given, i.e., same theory and,
-        same operators, and same pdfset.
-
-        Parameters
-        ----------
-            ref_hash : hash
-                partial hash of the reference log
-
-        Returns
-        -------
-            df : pandas.DataFrame
-                created frame
-
-        Note
-        ----
-        The external it's not used to discriminate logs: even different
-        externals should return the same numbers, so it's relevant to keep all
-        of them.
-        """
-        # obtain reference log
-        ref_log = self.get(bnav.l, ref_hash)
-
-        related_logs = []
-        all_logs = self.get(bnav.l)
-
-        for lg in all_logs:
-            if lg["t_hash"] != ref_log["t_hash"]:
-                continue
-            if lg["o_hash"] != ref_log["o_hash"]:
-                continue
-            if lg["pdf"] != ref_log["pdf"]:
-                continue
-            related_logs.append(lg)
-
-        return self.list_all(bnav.l, related_logs)
-
-    def log_as_dfd(self, doc_hash):
-        """
-        Load all structure functions in log as dict of DataFrames
-
-        Parameters
-        ----------
-            doc_hash : hash
-                document hash
-
-        Returns
-        -------
-            log : DFdict
-                DataFrames
-        """
-        log = self.get(bnav.l, doc_hash)
-
-        dfds = dfdict.DFdict()
-        for q2 in list(log["log"].keys()):
-
-            dfd = dfdict.DFdict()
-            dfd.print(
-                f"Q^2 {q2}"
-                + f"with theory={log['t_hash']}, "
-                + f"operators={log['o_hash']} "
-                + f"using {log['pdf']}"
-            )
-            for op, tab in log["log"][q2].items():
-                dfd.print(f"Operator {op}")
-                dfd[op] = pd.DataFrame(tab)
-            dfds[q2] = dfd
-        return dfds
 
     def subtract_tables(self, hash1, hash2):
         """
@@ -324,34 +246,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
                     ):
                         print(op, l, sep="\n", end="\n\n")
 
-    def crashed_log(self, doc_hash):
-        """
-        Check if the log passed the default assertions
-
-        Paramters
-        ---------
-            doc_hash : hash
-                log hash
-
-        Returns
-        -------
-            cdfd : dict
-                log without kinematics
-        """
-
-        dfds = self.log_as_dfd(doc_hash)
-        if "_crash" not in dfds:
-            raise ValueError("log didn't crash!")
-
-        cdfds = {}
-        for q2 in dfds:
-            cdfd = dfds[q2].copy()
-            for op in dfds[q2].keys():
-                cdfd[op].pop("x")
-            cdfds[q2] = cdfd
-
-        return cdfds
-
     def plot_pdfs(self, doc_hash):
         """
         Plots all PDFs at the final scale.
@@ -361,30 +255,29 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             doc_hash : hash
                 log hash
         """
-
-        dfds = self.log_as_dfd(doc_hash)
         log = self.get(bnav.l, doc_hash)
+        dfd = log["log"]
         path = f"{banana_cfg['database_path'].parents[0]}/{log['external']}_bench"
 
         if not os.path.exists(path):
             os.makedirs(path)
 
-        ops_id = f"{log['hash'].hex()[:6]}"
+        ops_id = f"{log['hash'][:self.hash_len]}"
         path = f"{path}/{ops_id}.pdf"
         print(f"Writing pdf plots to {path}")
 
         with PdfPages(path) as pp:
 
             # print setup
-            theory = self.get(bnav.t, log["t_hash"].hex()[:6])
-            ops = self.get(bnav.o, log["o_hash"].hex()[:6])
+            theory = self.get(bnav.t, log["t_hash"][: self.hash_len])
+            ops = self.get(bnav.o, log["o_hash"][: self.hash_len])
             firstPage = input_figure(theory, ops, pdf_name=log["pdf"])
             pp.savefig()
             plt.close(firstPage)
 
             # iterate all pdf
-            for q2 in dfds:
-                for op, key in dfds[q2].items():
+            for q2 in dfd.q2s:
+                for op, key in dfd.q2_slice(q2).items():
                     # plot
                     fig = plot_dist(
                         key["x"],
@@ -395,6 +288,10 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
                     )
                     pp.savefig()
                     plt.close(fig)
+
+    @staticmethod
+    def is_valid_physical_object(name):
+        return name in br.evol_basis or name in br.flavor_basis_names
 
     # def join(self, id1, id2):
     #     tabs = []

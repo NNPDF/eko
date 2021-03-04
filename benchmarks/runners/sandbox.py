@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from banana.data import power_set
+from banana.data import cartesian_product
 
 
 from ekomark.benchmark.runner import Runner
@@ -41,7 +41,7 @@ class Sandbox(Runner):
     def run_sand(self):
 
         theory_updates = {
-            "PTO": 1,
+            "PTO": 0,
             "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",

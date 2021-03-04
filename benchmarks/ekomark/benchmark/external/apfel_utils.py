@@ -184,6 +184,28 @@ def compute_apfel_data(
     # Load apfel
     apf_start = time.perf_counter()
     apfel = load_apfel(theory, operators, pdf_name)
+
+    # Truncated Epsilon
+    # APFEL::SetEpsilonTruncation(1E-1);
+    #
+    # Set maximum scale
+    # APFEL::SetQLimits(theory.Q0, theory.QM );
+    #
+    # if (theory.SIA)
+    # {
+    #   APFEL::SetPDFSet("kretzer");
+    #   APFEL::SetTimeLikeEvolution(true);
+    # }
+
+    # Set APFEL interpolation grid
+    #
+    # apfel.SetNumberOfGrids(3)
+    # apfel.SetGridParameters(1, 50, 3, 1e-5)
+    # apfel.SetGridParameters(2, 50, 3, 2e-1)
+    # apfel.SetGridParameters(3, 50, 3, 8e-1)
+
+    # init evolution
+    apfel.InitializeAPFEL()
     print("Loading APFEL took %f s" % (time.perf_counter() - apf_start))
 
     # Run

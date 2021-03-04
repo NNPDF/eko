@@ -5,26 +5,24 @@ Abstract layer for running the benchmarks
 import os
 import logging
 import sys
+import functools
+
 import pandas as pd
 
-from banana.data import sql, dfdict
+from banana.data import dfdict
 from banana.benchmark.runner import BenchmarkRunner
 
 from ekomark.banana_cfg import banana_cfg
-from ekomark.data import operators
+from ekomark.data import operators, db
 import eko
 
 
 class Runner(BenchmarkRunner):
     banana_cfg = banana_cfg
+    db_base_cls = db.Base
     rotate_to_evolution_basis = False
     skip_pdfs = []
     sandbox = False
-
-    @staticmethod
-    def init_ocards(conn):
-        with conn:
-            conn.execute(sql.create_table("operators", operators.default_card))
 
     @staticmethod
     def load_ocards(conn, ocard_updates):
@@ -61,14 +59,14 @@ class Runner(BenchmarkRunner):
         # and plot the operators
         if self.sandbox:
             rerun = True
-            ops_id = f"o{ocard['hash'].hex()[:6]}_t{theory['hash'].hex()[:6]}"
+            ops_id = f"o{ocard['hash'][:6]}_t{theory['hash'][:6]}"
             path = f"{banana_cfg['database_path'].parents[0]}/{ops_id}.yaml"
 
             if os.path.exists(path):
                 rerun = False
-                # ask = input("Use cached output? [Y/n]")
-                # if ask.lower() in ["n", "no"]:
-                #     rerun = True
+                ask = input("Use cached output? [Y/n]")
+                if ask.lower() in ["n", "no"]:
+                    rerun = True
 
             if rerun:
                 out = eko.run_dglap(theory, ocard)
@@ -76,7 +74,7 @@ class Runner(BenchmarkRunner):
                 out.dump_yaml_to_file(path, binarize=False)
             else:
                 # load
-                print("Using cached eko data")
+                print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
                 with open(path) as o:
                     out = eko.output.Output.load_yaml(o)
 
@@ -147,7 +145,6 @@ class Runner(BenchmarkRunner):
         return {}
 
     def log(self, theory, ocard, pdf, me, ext):
-
         # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]
@@ -173,13 +170,13 @@ class Runner(BenchmarkRunner):
                 # build table
                 tab = {}
                 tab["x"] = xgrid
+                tab["Q2"] = q2
                 tab["eko"] = f = xgrid * my_pdfs[key]
                 tab["eko_error"] = xgrid * my_pdf_errs[key]
                 tab[self.external] = r = ref_pdfs[key]
                 tab["percent_error"] = (f - r) / r * 100
 
-                tab = pd.DataFrame(tab)
-                log_tab[key] = tab
+                log_tab[key] = pd.DataFrame(tab)
             log_tabs[q2] = log_tab
 
-        return log_tabs
+        return functools.reduce(lambda dfd1, dfd2: dfd1.merge(dfd2), log_tabs.values())

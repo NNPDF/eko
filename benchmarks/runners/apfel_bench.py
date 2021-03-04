@@ -4,7 +4,7 @@
 """
 import numpy as np
 
-from banana.data import power_set
+from banana.data import cartesian_product
 
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
@@ -38,7 +38,11 @@ class BenchmarkZM(ApfelBenchmark):
 
     zm_theory = {
         "FNS": "ZM-VFNS",
-        "ModEv": ["EXA", "EXP", "TRN",],
+        "ModEv": [
+            "EXA",
+            "EXP",
+            "TRN",
+        ],
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
@@ -50,14 +54,18 @@ class BenchmarkZM(ApfelBenchmark):
 
         th = self.zm_theory.copy()
         th.update({"PTO": [pto]})
-        self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
-    
+        self.run(
+            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
+        )
+
     def benchmark_sv(self):
         """Benckmark Scale Variation"""
 
         th = self.zm_theory.copy()
         th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
-        self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
+        self.run(
+            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
+        )
 
     def benchmark_ic(self):
         """Benckmark Intrinsic Charm"""
@@ -73,7 +81,7 @@ class BenchmarkZM(ApfelBenchmark):
         )
 
         self.run(
-            filter(lambda c: c["mc"] == c["Qmc"], power_set(th)),
+            filter(lambda c: c["mc"] == c["Qmc"], cartesian_product(th)),
             operators.build(operators.apfel_config),
             ["ToyLH"],
         )
@@ -96,14 +104,18 @@ class BenchmarkFFNS(ApfelBenchmark):
 
         th = self.ffns_theory.copy()
         th.update({"PTO": [pto]})
-        self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
+        self.run(
+            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
+        )
 
     def benchmark_sv(self):
         """Benckmark Scale Variation"""
 
         th = self.ffns_theory.copy()
         th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
-        self.run(power_set(th), operators.build(operators.apfel_config), ["ToyLH"])
+        self.run(
+            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
+        )
 
     def benchmark_ic(self):
         """Benckmark Intrinsic Charm"""
@@ -119,7 +131,7 @@ class BenchmarkFFNS(ApfelBenchmark):
         )
 
         self.run(
-            filter(lambda c: c["mc"] == c["Qmc"], power_set(th)),
+            filter(lambda c: c["mc"] == c["Qmc"], cartesian_product(th)),
             operators.build(operators.apfel_config),
             ["ToyLH"],
         )
