@@ -9,23 +9,15 @@ from matplotlib.backends.backend_pdf import PdfPages
 from banana import navigator as bnav
 from banana.data import dfdict
 
-from ekomark.plots import input_figure, plot_dist
-from ekomark.banana_cfg import banana_cfg
-
 from eko import basis_rotation as br
 
+from .. import pdfname
+from ..plots import input_figure, plot_dist
+from ..banana_cfg import banana_cfg
 from ..data import db
 
 table_objects = bnav.table_objects
 table_objects["o"] = db.Operator
-
-
-def pdfname(pid_or_name):
-    """ Return pdf name  """
-    if isinstance(pid_or_name, int):
-        return br.flavor_basis_names[br.flavor_basis_pids.index(pid_or_name)]
-    return pid_or_name
-
 
 class NavigatorApp(bnav.navigator.NavigatorApp):
     """

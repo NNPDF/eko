@@ -12,9 +12,11 @@ import pandas as pd
 from banana.data import dfdict
 from banana.benchmark.runner import BenchmarkRunner
 
-from ekomark.banana_cfg import banana_cfg
-from ekomark.data import operators, db
 import eko
+
+from ..banana_cfg import banana_cfg
+from ..data import operators, db
+from .. import pdfname
 
 
 class Runner(BenchmarkRunner):
@@ -23,10 +25,11 @@ class Runner(BenchmarkRunner):
     rotate_to_evolution_basis = False
     skip_pdfs = []
     sandbox = False
+    plot_operator = False
 
     @staticmethod
-    def load_ocards(conn, ocard_updates):
-        return operators.load(conn, ocard_updates)
+    def load_ocards(session, ocard_updates):
+        return operators.load(session, ocard_updates)
 
     def run_me(self, theory, ocard, pdf):
         """
@@ -137,12 +140,10 @@ class Runner(BenchmarkRunner):
                 self.skip_pdfs,
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
-        else:
-            raise NotImplementedError(
-                f"Benchmark against {self.external} is not implemented!"
-            )
 
-        return {}
+        raise NotImplementedError(
+            f"Benchmark against {self.external} is not implemented!"
+        )
 
     def log(self, theory, ocard, pdf, me, ext):
         # return a proper log table
@@ -176,7 +177,7 @@ class Runner(BenchmarkRunner):
                 tab[self.external] = r = ref_pdfs[key]
                 tab["percent_error"] = (f - r) / r * 100
 
-                log_tab[key] = pd.DataFrame(tab)
+                log_tab[pdfname(key)] = pd.DataFrame(tab)
             log_tabs[q2] = log_tab
 
         return functools.reduce(lambda dfd1, dfd2: dfd1.merge(dfd2), log_tabs.values())
