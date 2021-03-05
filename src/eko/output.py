@@ -195,7 +195,6 @@ class Output(dict):
                 if isinstance(v, list):
                     v = np.array(v)
                 elif isinstance(v, bytes):
-                    __import__("pdb").set_trace()
                     v = np.frombuffer(lz4.frame.decompress(v))
                     v = v.reshape(len_pids, len_xgrid, len_pids, len_xgrid)
                 op[k] = v
