@@ -5,6 +5,7 @@
 import logging
 
 import yaml
+import lz4.frame
 import numpy as np
 
 from . import interpolation
@@ -121,7 +122,7 @@ class Output(dict):
             out["Q2grid"][q2] = dict()
             for k, v in op.items():
                 if binarize:
-                    out["Q2grid"][q2][k] = v.tobytes()
+                    out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
                 else:
                     out["Q2grid"][q2][k] = v.tolist()
         return out
@@ -194,7 +195,8 @@ class Output(dict):
                 if isinstance(v, list):
                     v = np.array(v)
                 elif isinstance(v, bytes):
-                    v = np.frombuffer(v)
+                    __import__("pdb").set_trace()
+                    v = np.frombuffer(lz4.frame.decompress(v))
                     v = v.reshape(len_pids, len_xgrid, len_pids, len_xgrid)
                 op[k] = v
         return cls(obj)

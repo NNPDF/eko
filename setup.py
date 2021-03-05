@@ -52,6 +52,7 @@ def setup_package():
             "scipy",
             "numba",
             "pyyaml",
+            "lz4",
         ],
         setup_requires=["wheel"],
         python_requires=">=3.7",
