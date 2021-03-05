@@ -39,6 +39,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             mode identifier
     """
 
+    myname = "eko"
     table_objects = table_objects
 
     def fill_theories(self, theo, obj):
@@ -135,95 +136,6 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         obj["observables"] = lg["o_hash"][: self.hash_len]
         for f in ["pdf", "external"]:
             obj[f] = lg[f]
-
-    def subtract_tables(self, hash1, hash2):
-        """
-        Subtract results in the second table from the first one,
-        properly propagate the integration error and recompute the relative
-        error on the subtracted results.
-
-        Parameters
-        ----------
-            hash1 : hash
-                if hash the doc_hash of the log to be loaded
-            hash2 : hash
-                if hash the doc_hash of the log to be loaded
-
-        Returns
-        -------
-            diffsout : DFdict
-                created frames
-        """
-
-        diffsout = dfdict.DFdict()
-
-        # load json documents
-        logs = []
-        ids = []
-        for h in [hash1, hash2]:
-            logs.append(self.log_as_dfd(h))
-            ids.append(h)
-
-        log1, log2 = logs
-        id1, id2 = ids
-
-        # print head
-        msg = f"Subtracting id: '{id1}' - id: '{id2}', in table 'logs'"
-        diffsout.print(msg, "=" * len(msg), sep="\n")
-        diffsout.print()
-
-        if log1 is None:
-            raise ValueError(f"Log id: '{id1}' not found")
-        if log2 is None:
-            raise ValueError(f"Log id: '{id2}' not found")
-
-        # iterate operators
-        for q2 in log1.keys():
-            if q2 not in log2.keys():
-                print(f"{q2}: not matching in log2")
-                continue
-
-            diffout = dfdict.DFdict()
-            for op, tab in log1[q2].items():
-                # load operators tables
-                table1 = pd.DataFrame(tab)
-                table2 = pd.DataFrame(log2[q2][op])
-                table_out = table2.copy()
-
-                # check for compatible kinematics
-                if any([any(table1[y] != table2[y]) for y in ["x"]]):
-                    raise ValueError("Cannot compare tables with different (x)")
-
-                # subtract and propagate
-                known_col_set = set(["x", "eko", "eko_error", "percent_error"])
-                t1_ext = list(set(table1.keys()) - known_col_set)[0]
-                t2_ext = list(set(table2.keys()) - known_col_set)[0]
-                if t1_ext == t2_ext:
-                    tout_ext = t1_ext
-                else:
-                    tout_ext = f"{t2_ext}-{t1_ext}"
-                table_out.rename(columns={t2_ext: tout_ext}, inplace=True)
-                table_out[tout_ext] = table2[t2_ext] - table1[t1_ext]
-                # subtract our values
-                table_out["eko"] -= table1["eko"]
-                table_out["eko_error"] += table1["eko_error"]
-
-                # compute relative error
-                def rel_err(row, tout_ext=tout_ext):
-                    if row[tout_ext] == 0.0:
-                        if row["eko"] == 0.0:
-                            return 0.0
-                        return np.nan
-                    else:
-                        return (row["eko"] / row[tout_ext] - 1.0) * 100
-
-                table_out["percent_error"] = table_out.apply(rel_err, axis=1)
-
-                # dump results' table
-                diffout.print(op, "-" * len(op), sep="\n")
-                diffout[op] = table_out
-            diffsout[q2] = diffout
-        return diffsout
 
     def check_log(self, doc_hash, perc_thr=1, abs_thr=1e-6):
         """

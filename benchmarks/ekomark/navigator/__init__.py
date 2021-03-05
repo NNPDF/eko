@@ -39,7 +39,6 @@ bnav.register_globals(globals(), app)
 
 # add my functions
 dfl = app.log_as_dfd
-diff = app.subtract_tables
 check_log = app.check_log
 plot_pdfs = app.plot_pdfs
 
