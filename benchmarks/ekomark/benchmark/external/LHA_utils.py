@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Implementation of :cite:`Giele:2002hx`
+"""
 import pathlib
 import yaml
 import numpy as np
@@ -63,6 +66,22 @@ LHA_rotate_to_flavor = np.array([
 
 # rotate basis
 def rotate_data(raw, rotate_to_evolution_basis=False):
+    """
+    Rotate data either to flavor space or evolution space (from LHA space)
+    which is yet an other basis.
+
+    Parameters
+    ----------
+        raw : dict
+            data
+        rotate_to_evolution_basis : bool
+            to evolution basis?
+
+    Returns
+    -------
+        dict
+            rotated data
+    """
     inp = []
     for l in raw_label_list:
         inp.append(raw[l])

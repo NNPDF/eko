@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+Plotting tools to show the evolved PDF and the computed operators
+"""
 import io
 import pprint
 import numpy as np

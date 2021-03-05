@@ -20,6 +20,9 @@ from .. import pdfname
 
 
 class Runner(BenchmarkRunner):
+    """
+    EKO specialization of the banana runner.
+    """
     banana_cfg = banana_cfg
     db_base_cls = db.Base
     rotate_to_evolution_basis = False
@@ -98,7 +101,6 @@ class Runner(BenchmarkRunner):
         return out
 
     def run_external(self, theory, ocard, pdf):
-
         if self.external == "LHA":
 
             if theory["FNS"] == "FFNS":
@@ -145,7 +147,7 @@ class Runner(BenchmarkRunner):
             f"Benchmark against {self.external} is not implemented!"
         )
 
-    def log(self, pdf, me, ext):
+    def log(self, theory, ocard, pdf, me, ext):
         # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]

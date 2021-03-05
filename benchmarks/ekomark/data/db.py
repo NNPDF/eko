@@ -1,10 +1,18 @@
 # -*- coding: utf-8 -*-
+"""
+Database tables
+"""
+
 from sqlalchemy import Column, Integer, Text, Boolean
 
-from banana.data.db import Base, create_db
+from banana.data.db import Base
 
 
-class Operator(Base):
+class Operator(Base): # pylint: disable=too-few-public-methods
+    """
+    Operator cards tbale
+    """
+
     __tablename__ = "operators"
 
     interpolation_is_log = Column(Text)

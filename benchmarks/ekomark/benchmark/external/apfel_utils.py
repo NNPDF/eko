@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+"""
+APFEL interface
+"""
 import time
 import numpy as np
 
-from eko import basis_rotation as br
-
 from banana.benchmark.external.apfel_utils import load_apfel
+
+from eko import basis_rotation as br
 
 
 def compute_apfel_data(

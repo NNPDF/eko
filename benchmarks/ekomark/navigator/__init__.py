@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""
+ekomark specialization of the navigator
+"""
 from banana import navigator as bnav
 
 from .. import banana_cfg
@@ -44,4 +47,5 @@ plot_pdfs = app.plot_pdfs
 
 
 def launch_navigator():
+    """CLI Entry point"""
     return bnav.launch_navigator("eko", "ekomark")
