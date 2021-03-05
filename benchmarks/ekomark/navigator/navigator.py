@@ -1,13 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
-import numpy as np
-import pandas as pd
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 from banana import navigator as bnav
-from banana.data import dfdict
 
 from eko import basis_rotation as br
 

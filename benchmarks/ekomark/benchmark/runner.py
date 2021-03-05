@@ -31,7 +31,7 @@ class Runner(BenchmarkRunner):
     def load_ocards(session, ocard_updates):
         return operators.load(session, ocard_updates)
 
-    def run_me(self, theory, ocard, pdf):
+    def run_me(self, theory, ocard, _pdf):
         """
         Run eko
 
@@ -145,7 +145,7 @@ class Runner(BenchmarkRunner):
             f"Benchmark against {self.external} is not implemented!"
         )
 
-    def log(self, theory, ocard, pdf, me, ext):
+    def log(self, pdf, me, ext):
         # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]
