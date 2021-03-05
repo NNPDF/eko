@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from banana.data import cartesian_product
-
 
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
@@ -16,7 +14,7 @@ class Sandbox(Runner):
     sandbox = True
 
     # select here the external program between LHA, LHAPDF, apfel
-    external = "LHA"
+    external = "apfel"
 
     # select to plot operators
     plot_operator = False
@@ -54,9 +52,7 @@ class Sandbox(Runner):
             "alphas": 0.35,
         }
         self.run(
-            [theory_updates],
-            operators.build(self.generate_operators()),
-            ["ToyLH"],
+            [theory_updates], operators.build(self.generate_operators()), ["ToyLH"],
         )
 
 
