@@ -28,7 +28,7 @@ class Runner(BenchmarkRunner):
     def load_ocards(conn, ocard_updates):
         return operators.load(conn, ocard_updates)
 
-    def run_me(self, theory, ocard, pdf):
+    def run_me(self, theory, ocard, _pdf):
         """
         Run eko
 
@@ -144,7 +144,7 @@ class Runner(BenchmarkRunner):
 
         return {}
 
-    def log(self, theory, ocard, pdf, me, ext):
+    def log(self, pdf, me, ext):
         # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]
