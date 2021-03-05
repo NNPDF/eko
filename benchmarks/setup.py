@@ -4,14 +4,28 @@ from setuptools import setup, find_packages
 
 setup(
     name="ekomark",
-    author="F. Hekhorn, A.Candido",
+    author="A.Candido, F. Hekhorn, G.Magni",
     version="0.1.0",
     description="eko benchmark",
     # package_dir={"": "."},
     packages=find_packages("."),
-    install_requires=["matplotlib", "pandas"],
+    package_data={
+        "ekomark": [
+            "data/external/LHA.yaml",
+        ]
+    },
+    install_requires=[
+        "eko",
+        "pandas",
+        "banana-hep",
+        "sqlalchemy",
+        "matplotlib",
+        "pyyaml",
+    ],
     entry_points={
-        "console_scripts": [],
+        "console_scripts": [
+            "ekonavigator=ekomark.navigator:launch_navigator",
+        ],
     },
     python_requires=">=3.7",
 )

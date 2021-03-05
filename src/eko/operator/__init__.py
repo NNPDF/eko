@@ -207,6 +207,12 @@ class Operator:
             )
         tot_start_time = time.perf_counter()
         # setup KernelDispatcher
+        logger.info(
+            "Evolution: computing operators %e -> %e, nf=%d",
+            self.q2_from,
+            self.q2_to,
+            self.nf,
+        )
         logger.info("Evolution: computing operators - 0/%d", grid_size)
         sc = self.managers["strong_coupling"]
         fact_to_ren = self.config["fact_to_ren"]

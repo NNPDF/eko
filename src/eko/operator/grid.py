@@ -149,12 +149,7 @@ class OperatorGrid:
             new_op_key = seg.tuple
             if new_op_key not in self._threshold_operators:
                 # Compute the operator and store it
-                logger.info(
-                    "Threshold operator: %e -> %e, nf=%d",
-                    seg.q2_from,
-                    seg.q2_to,
-                    seg.nf,
-                )
+                logger.info("Prepare threshold operator")
                 op_th = Operator(
                     self.config, self.managers, seg.nf, seg.q2_from, seg.q2_to
                 )
@@ -207,6 +202,7 @@ class OperatorGrid:
         path = self.managers["thresholds_config"].path(q2)
         # Prepare the path for the composition of the operator
         thr_ops = self.get_threshold_operators(path)
+        # we start composing with the highest operator ...
         operator = Operator(
             self.config, self.managers, path[-1].nf, path[-1].q2_from, path[-1].q2_to
         )
@@ -217,6 +213,7 @@ class OperatorGrid:
             operator.q2_to,
             self.config["intrinsic_range"],
         )
+        # and multiply the lower ones from the right
         for op in reversed(thr_ops):
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
                 op.op_members, op.nf, op.q2_to, self.config["intrinsic_range"]

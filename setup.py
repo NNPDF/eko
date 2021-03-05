@@ -31,7 +31,7 @@ def setup_package():
         description="Evolution Kernel Operator",
         long_description=long_description,
         long_description_content_type="text/markdown",
-        author="A. Candido, S. Carrazza, J. Cruz-Martinez, F. Hekhorn",
+        author="A. Candido, S. Carrazza, J. Cruz-Martinez, F. Hekhorn, G. Magni",
         author_email="stefano.carrazza@cern.ch",
         url="https://github.com/N3PDF/eko",
         package_dir={"": "src"},
