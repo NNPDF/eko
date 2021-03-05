@@ -23,6 +23,7 @@ class Runner(BenchmarkRunner):
     """
     EKO specialization of the banana runner.
     """
+
     banana_cfg = banana_cfg
     db_base_cls = db.Base
     rotate_to_evolution_basis = False
@@ -147,7 +148,7 @@ class Runner(BenchmarkRunner):
             f"Benchmark against {self.external} is not implemented!"
         )
 
-    def log(self, theory, ocard, pdf, me, ext):
+    def log(self, pdf, me, ext):
         # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]
