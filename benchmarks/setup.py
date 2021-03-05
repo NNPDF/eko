@@ -9,6 +9,11 @@ setup(
     description="eko benchmark",
     # package_dir={"": "."},
     packages=find_packages("."),
+    package_data={
+        "ekomark": [
+            "data/external/LHA.yaml",
+        ]
+    },
     install_requires=[
         "eko",
         "pandas",
