@@ -19,8 +19,7 @@ class LHAPDFBenchmark(Runner):
     external = "LHAPDF"
 
     # Rotate to evolution basis
-    # rotate_to_evolution_basis = True
-    # TODO: rotate also lhapdf to evbasis
+    rotate_to_evolution_basis = False
 
 base_theory = {
     "Qref": 91.1876,
