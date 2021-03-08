@@ -148,7 +148,7 @@ class Runner(BenchmarkRunner):
             f"Benchmark against {self.external} is not implemented!"
         )
 
-    def log(self, pdf, me, ext):
+    def log(self, theory, ocard, pdf, me, ext):
         # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]
