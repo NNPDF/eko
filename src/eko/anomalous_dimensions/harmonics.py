@@ -12,6 +12,7 @@ import numba as nb
 # compute constants only once
 zeta2 = scipy.special.zeta(2)
 zeta3 = scipy.special.zeta(3)
+zeta4 = scipy.special.zeta(4)
 
 
 @nb.njit("c16(c16,u1)", cache=True)
@@ -214,6 +215,32 @@ def harmonic_S3(N):
     """
     return 0.5 * cern_polygamma(N + 1.0, 2) + zeta3
 
+@nb.njit("c16(c16)", cache=True)
+def harmonic_S4(N):
+    r"""
+    Computes the harmonic sum :math:`S_4(N)`.
+
+    .. math::
+      S_4(N) = \sum\limits_{j=1}^N \frac 1 {j^4} = - \frac 1 6 \psi_3(N+1)+\zeta(4)
+
+    with :math:`\psi_3(N)` the 3rd-polygamma function and :math:`\zeta` the
+    Riemann zeta function.
+
+    Parameters
+    ----------
+        N : complex
+            Mellin moment
+
+    Returns
+    -------
+        S_4 : complex
+            Harmonic sum :math:`S_4(N)`
+
+    See Also
+    --------
+        cern_polygamma : :math:`\psi_0(N)`
+    """
+    return zeta4 - 1.0 / 6.0 * cern_polygamma(N + 1.0, 3) 
 
 @nb.njit("c16(c16)", cache=True)
 def mellin_g3(N):
