@@ -66,7 +66,6 @@ def b4(n):
     return ( S1 ** 4 + 6.0 * S1 ** 2 * S2 + 8.0 * S1 * S3 + 3.0 * S2 ** 2 + 6.0 * S4 )/n
 
 # common part for NS plus and NS minus
-@nb.njit("c16(c16,u1)", cache=True)
 def pf2_nfnf(n):
 
     S1 = harmonics.harmonic_S1(n)
