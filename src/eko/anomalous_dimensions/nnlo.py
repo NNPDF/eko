@@ -13,69 +13,13 @@ from . import harmonics
 
 # pylint: disable=line-too-long
 
+# Global variables
+zeta2 = harmonics.zeta2
+zeta3 = harmonics.zeta3
+
 # TODO: is sign convention correct? 
 
-# abbreviation
-def e1(n):
-    S1 = harmonics.harmonic_S1(n)
-    S2 = harmonics.harmonic_S2(n)
-    zeta2 = harmonics.zeta2
-
-    return S1/n ** 2 + (S2 - zeta2)/n
-
-# abbreviation
-def e2(n):
-    S1 = harmonics.harmonic_S1(n)
-    S2 = harmonics.harmonic_S2(n)
-    S3 = harmonics.harmonic_S3(n)
-    zeta2 = harmonics.zeta2
-    zeta3 = harmonics.zeta3
-
-    return 2.0 * ( - S1/n ** 3 + (zeta2 - S2)/n ** 2 - (S3 - zeta3)/n )
-
-# abbreviation for the Singlet
-def e11(n):
-    S1 = harmonics.harmonic_S1(n)
-    S2 = harmonics.harmonic_S2(n)
-    zeta2 = harmonics.zeta2
-
-    return ( S1 + 1.0/(n + 1.0) )/(n + 1.0) ** 2 + ( S2 + 1.0/(n + 1.0) ** 2 - zeta2 )/(n + 1.0)
-
-# abbreviation for the Singlet
-def b21(n):
-    S1 = harmonics.harmonic_S1(n)
-    S2 = harmonics.harmonic_S2(n)
-
-    return (( S1 + 1.0/(n + 1.0) ) ** 2 + S2 + 1.0/(n + 1.0) ** 2 )/(n + 1.0)
-
-# abbreviation for the Singlet
-def b3(n):
-    S1 = harmonics.harmonic_S1(n)
-    S2 = harmonics.harmonic_S2(n)
-    S3 = harmonics.harmonic_S3(n)
-
-    return - ( S1 ** 3 + 3.0 * S1 * S2 + 2.0 * S3 )/n
-
-# abbreviation for the Singlet
-def b4(n):
-    S1 = harmonics.harmonic_S1(n)
-    S2 = harmonics.harmonic_S2(n)
-    S3 = harmonics.harmonic_S3(n)
-    S4 = harmonics.harmonic_S4(n)
-
-    return ( S1 ** 4 + 6.0 * S1 ** 2 * S2 + 8.0 * S1 * S3 + 3.0 * S2 ** 2 + 6.0 * S4 )/n
-
-# common part for NS plus and NS minus
-def pf2_nfnf(n):
-
-    S1 = harmonics.harmonic_S1(n)
-    S2 = harmonics.harmonic_S2(n)
-    S3 = harmonics.harmonic_S3(n)
-
-    res = - ( 17.0/72.0 - 2.0/27.0 * S1 - 10.0/27.0 * S2 \
-        + 2.0/9.0 * S3 - ( 12.0 * n ** 4 + 2.0 * n ** 3 - 12.0 * n ** 2 \
-            - 2.0 * n + 3.0 )/( 27.0 * n ** 3 * (n + 1.0) ** 3) ) * 32.0/3.0
-    return res
+# The QCD colour factors have been hard-wired in the parametrizations.
 
 @nb.njit("c16(c16,u1)", cache=True)
 def gamma_nsm_2(n, nf: int):
@@ -98,21 +42,27 @@ def gamma_nsm_2(n, nf: int):
             :math:`\\gamma_{ns,-}^{(2)}(N)`
     """
     S1 = harmonics.harmonic_S1(n)
-    E1 = e1(n)
+    S2 = harmonics.harmonic_S2(n)
+    S3 = harmonics.harmonic_S3(n)
 
-    # The QCD colour factors have been hard-wired in the parametrizations.
+    E1 = S1/n ** 2 + (S2 - zeta2)/n
+    E2 = 2.0 * ( - S1/n ** 3 + (zeta2 - S2)/n ** 2 - (S3 - zeta3)/n )
 
     pm2 = - 1174.898 * ( S1 + 1.0/n ) + 1295.470 - 714.1 * S1/n - 433.2/(n + 3.0) \
         + 297.0/(n + 2.0) - 3505.0/(n + 1.0) + 1860.2/n - 1465.2/n ** 2 \
             + 399.2 * 2.0/n ** 3 - 320.0/9.0 * 6.0/n ** 4 - 116.0/81.0 * 6.0/(n + 1.0) ** 4 \
-                + 684.0 * E1 + 251.2 * e2(n)
+                + 684.0 * E1 + 251.2 * E2
 
     pm2_nf = + 183.187 * ( S1 + 1.0/n ) - 173.933 + 5120/81.0 * S1/n \
         + 34.76/(n + 3.0) + 77.89/(n + 2.0) + 406.5/(n + 1.0) - 216.62/n \
             + 172.69/n ** 2 - 3216.0/81.0 * 2.0/n ** 3 + 256.0/81.0 * 6.0/n ** 4 \
                 - 65.43 * E1 + 1.136 * 6.0/(n + 1.0) ** 4
 
-    result = pm2 + nf * pm2_nf + nf ** 2 * pf2_nfnf(n)
+    pf2_nfnf = - ( 17.0/72.0 - 2.0/27.0 * S1 - 10.0/27.0 * S2 \
+        + 2.0/9.0 * S3 - ( 12.0 * n ** 4 + 2.0 * n ** 3 - 12.0 * n ** 2 \
+            - 2.0 * n + 3.0 )/( 27.0 * n ** 3 * (n + 1.0) ** 3) ) * 32.0/3.0
+
+    result = pm2 + nf * pm2_nf + nf ** 2 * pf2_nfnf
     return result
 
 @nb.njit("c16(c16,u1)", cache=True)
@@ -136,22 +86,27 @@ def gamma_nsp_2(n, nf: int):
             :math:`\\gamma_{ns,+}^{(2)}(N)`
     """
     S1 = harmonics.harmonic_S1(n)
-    E1 = e1(n)
+    S2 = harmonics.harmonic_S2(n)
+    S3 = harmonics.harmonic_S3(n)
 
-
-    # The QCD colour factors have been hard-wired in the parametrizations.
+    E1 = S1/n ** 2 + (S2 - zeta2)/n
+    E2 = 2.0 * ( - S1/n ** 3 + (zeta2 - S2)/n ** 2 - (S3 - zeta3)/n )
 
     pp2 = - 1174.898 * ( S1 + 1.0/n ) + 1295.384 - 714.1 * S1/n - 522.1/(n + 3.0) \
         + 243.6/(n + 2.0) - 3135.0/(n + 1.0) + 1641.1/n - 1258.0/n ** 2 \
             + 294.9 * 2.0/n ** 3 - 800/27.0 * 6.0/n ** 4 + 128/81.0 * 24.0/n ** 5 \
-                + 563.9 * E1 + 256.8 * e2(n)
+                + 563.9 * E1 + 256.8 * E2
 
     pp2_nf = + 183.187 * ( S1 + 1.0/n ) - 173.924 + 5120/81.0 * S1/n \
         + 44.79/(n + 3.0) + 72.94/(n + 2.0) + 381.1/(n + 1.0) - 197.0/n \
             + 152.6/n ** 2 - 2608.0/81.0 * 2.0/n ** 3 + 192.0/81.0 * 6.0/n ** 4 \
                 - 56.66 * E1 + 1.497 * 6.0/(n + 1.0) ** 4
 
-    result = pp2 + nf * pp2_nf + nf ** 2 * pf2_nfnf(n)
+    pf2_nfnf = - ( 17.0/72.0 - 2.0/27.0 * S1 - 10.0/27.0 * S2 \
+        + 2.0/9.0 * S3 - ( 12.0 * n ** 4 + 2.0 * n ** 3 - 12.0 * n ** 2 \
+            - 2.0 * n + 3.0 )/( 27.0 * n ** 3 * (n + 1.0) ** 3) ) * 32.0/3.0
+
+    result = pp2 + nf * pp2_nf + nf ** 2 * pf2_nfnf
     return result
 
 @nb.njit("c16(c16,u1)", cache=True)
@@ -175,9 +130,11 @@ def gamma_nsv_2(n, nf: int):
             :math:`\\gamma_{ns,v}^{(2)}(N)`
     """
     S1 = harmonics.harmonic_S1(n)
-    zeta2 = harmonics.zeta2
+    S2 = harmonics.harmonic_S2(n)
+    S3 = harmonics.harmonic_S3(n)
 
-
+    E1 = S1/n ** 2 + (S2 - zeta2)/n
+    E2 = 2.0 * ( - S1/n ** 3 + (zeta2 - S2)/n ** 2 - (S3 - zeta3)/n )
     B11 = - ( S1 + 1.0/(n + 1.0) )/(n + 1.0)
     B12 = - ( S1 + 1.0/(n + 1.0) + 1.0/(n + 2.0) )/(n + 2.0)
 
@@ -191,7 +148,7 @@ def gamma_nsv_2(n, nf: int):
     ps2 = - 163.9 * (B1M + S1/n) - 7.208 * (B11 - B12) + 4.82 * ( 1.0/(n + 3.0) - 1.0/(n + 4.0) ) \
         - 43.12 * ( 1.0/(n + 2.0) - 1.0/(n + 3.0) ) + 44.51 * ( 1.0/(n + 1.0) - 1.0/(n + 2.0) ) + 151.49 * ( 1.0/n - 1.0/(n + 1.0) ) \
             - 178.04/n ** 2 + 6.892 * 2.0/n ** 3 - 40.0/27.0 * ( - 2.0 * 6.0/n ** 4 - 24.0/n ** 5 ) \
-                - 173.1 * e1(n) + 46.18 * e2(n)
+                - 173.1 * E1 + 46.18 * E2
 
     result = gamma_nsm_2(n, nf) + nf * ps2
     return result
@@ -219,16 +176,16 @@ def gamma_ps_2(n, nf: int):
     S1 = harmonics.harmonic_S1(n)
     S2 = harmonics.harmonic_S2(n)
     S3 = harmonics.harmonic_S3(n)
-    E1 = e1(n)
-    E11 = e1(n)
-    B21 = b21(n)
 
-
+    E1 = S1/n ** 2 + (S2 - zeta2)/n
+    E11 = ( S1 + 1.0/(n + 1.0) )/(n + 1.0) ** 2 + ( S2 + 1.0/(n + 1.0) ** 2 - zeta2 )/(n + 1.0)
+    B21 = (( S1 + 1.0/(n + 1.0) ) ** 2 + S2 + 1.0/(n + 1.0) ** 2 )/(n + 1.0)
+    B3 = - ( S1 ** 3 + 3.0 * S1 * S2 + 2.0 * S3 )/n
     B31 = - (( S1 + 1.0/(n + 1.0)) ** 3 + 3.0 * (S1 + 1.0/(n + 1.0)) * (S2 + 1.0/(n + 1.0) ** 2) + 2.0 * (S3 + 1.0/(n + 1.0) ** 3))/(n + 1.0)
 
     ps1 = - 3584.0/27.0 * (- 1.0/(n - 1.0) ** 2 + 1.0/n ** 2) - 506.0 * (1.0/(n - 1.0) - 1.0/n) + 160.0/27.0 * (24.0/n ** 5 - 24.0/(n + 1.0) ** 5) \
         - 400.0/9.0 * ( - 6.0/n ** 4 + 6.0/(n + 1.0) ** 4 ) + 131.4 * (2.0/n ** 3 - 2.0/(n + 1.0) ** 3) - 661.6 * (1.0/n ** 2 + 1.0/(n + 1.0) ** 2) \
-            - 5.926 * ( b3(n) - B31 ) - 9.751 * ( ( S1 ** 2 + S2 )/n - B21) - 72.11 * (- S1/n + ( S1 + 1.0/(n + 1.0) )/(n + 1.0)) \
+            - 5.926 * ( B3 - B31 ) - 9.751 * ( ( S1 ** 2 + S2 )/n - B21) - 72.11 * (- S1/n + ( S1 + 1.0/(n + 1.0) )/(n + 1.0)) \
                 + 177.4 * ( 1.0/n - 1.0/(n + 1.0) ) + 392.9 * ( 1.0/(n + 1.0) - 1.0/(n + 2.0) ) - 101.4 * ( 1.0/(n + 2.0) - 1.0/(n + 3.0) ) \
                     - 57.04 * ( E1 - E11 )
 
@@ -262,12 +219,16 @@ def gamma_qg_2(n, nf: int):
     """
     S1 = harmonics.harmonic_S1(n)
     S2 = harmonics.harmonic_S2(n)
-    E1 = e1(n)
-    E2 = e2(n)
-    B3 = b3(n)
+    S3 = harmonics.harmonic_S3(n)
+    S4 = harmonics.harmonic_S4(n)
+
+    E1 = S1/n ** 2 + (S2 - zeta2)/n
+    E2 = 2.0 * ( - S1/n ** 3 + (zeta2 - S2)/n ** 2 - (S3 - zeta3)/n )
+    B3 = - ( S1 ** 3 + 3.0 * S1 * S2 + 2.0 * S3 )/n
+    B4 = ( S1 ** 4 + 6.0 * S1 ** 2 * S2 + 8.0 * S1 * S3 + 3.0 * S2 ** 2 + 6.0 * S4 )/n
 
     qg1 = + 896.0/3.0/(n - 1.0) ** 2 - 1268.3/(n - 1.0) + 536.0/27.0 * 24.0/n ** 5 + 44.0/3.0 * 6.0/n ** 4 \
-        + 881.5 * 2.0/n ** 3 - 424.9/n ** 2 + 100.0/27.0 * b4(n) - 70.0/9.0 * B3 \
+        + 881.5 * 2.0/n ** 3 - 424.9/n ** 2 + 100.0/27.0 * B4 - 70.0/9.0 * B3 \
             - 120.5 * ( S1 ** 2 + S2 )/n - 104.42 * S1/n + 2522.0/n - 3316.0/(n + 1.0) \
                 + 2126.0/(n + 2.0) + 1823.0 * E1 - 25.22 * E2 + 252.5 * 6.0/(n + 1.0) ** 4
 
@@ -301,12 +262,18 @@ def gamma_gq_2(n, nf: int):
     """
     S1 = harmonics.harmonic_S1(n)
     S2 = harmonics.harmonic_S2(n)
-    E1 = e1(n)
-    E2 = e2(n)
-    B3 = b3(n)
+    S3 = harmonics.harmonic_S3(n)
+    S4 = harmonics.harmonic_S4(n)
+
+    E1 = S1/n ** 2 + (S2 - zeta2)/n
+    E2 = 2.0 * ( - S1/n ** 3 + (zeta2 - S2)/n ** 2 - (S3 - zeta3)/n )
+    B21 = (( S1 + 1.0/(n + 1.0) ) ** 2 + S2 + 1.0/(n + 1.0) ** 2 )/(n + 1.0)
+    B3 = - ( S1 ** 3 + 3.0 * S1 * S2 + 2.0 * S3 )/n
+    B4 = ( S1 ** 4 + 6.0 * S1 ** 2 * S2 + 8.0 * S1 * S3 + 3.0 * S2 ** 2 + 6.0 * S4 )/n
+
 
     gq0 = - 1189.3 * 1.0/(n - 1.0) ** 2 + 6163.1/(n - 1.0) - 4288.0/81.0 * 24.0/n ** 5 - 1568.0/9.0 * 6.0/n ** 4 \
-        - 1794.0 * 2.0/n ** 3 - 4033.0 * 1.0/n ** 2 + 400.0/81.0 * b4(n) + 2200.0/27.0 * B3 \
+        - 1794.0 * 2.0/n ** 3 - 4033.0 * 1.0/n ** 2 + 400.0/81.0 * B4 + 2200.0/27.0 * B3 \
             + 606.3 * ( S1 ** 2 + S2 )/n - 2193.0 * S1/n - 4307.0/n + 489.3/(n + 1.0) \
                 + 1452.0/(n + 2.0) + 146.0/(n + 3.0) - 447.3 * E2 - 972.9 * 2.0/(n + 1.0) ** 3
 
@@ -316,7 +283,7 @@ def gamma_gq_2(n, nf: int):
                 + 108.6 * 2.0/(n + 1.0) ** 3 - 49.68 * E1
 
     gq2 = (64.0 * (- 1.0/(n - 1.0) + 1.0/n + 2.0/(n + 1.0)) + 320.0 * (- ( S1 - 1.0/n )/(n - 1.0) + S1/n + 0.8 * - ( S1 + 1.0/(n + 1.0) )/(n + 1.0) ) \
-        + 96.0 * ((( S1 - 1.0/n ) ** 2 + S2 - 1.0/n ** 2 )/(n - 1.0) - ( S1 ** 2 + S2 )/n + 0.5 * b21(n)))/27.0
+        + 96.0 * ((( S1 - 1.0/n ) ** 2 + S2 - 1.0/n ** 2 )/(n - 1.0) - ( S1 ** 2 + S2 )/n + 0.5 * B21))/27.0
 
     result = gq0 + nf * gq1 + nf **2 * gq2
 
@@ -343,8 +310,12 @@ def gamma_gg_2(n, nf: int):
             :math:`\\gamma_{gg}^{(2)}(N)`
     """
     S1 = harmonics.harmonic_S1(n)
-    E1 = e1(n)
-    E2 = e2(n)
+    S2 = harmonics.harmonic_S2(n)
+    S3 = harmonics.harmonic_S3(n)
+
+    E1 = S1/n ** 2 + (S2 - zeta2)/n
+    E11 = ( S1 + 1.0/(n + 1.0) )/(n + 1.0) ** 2 + ( S2 + 1.0/(n + 1.0) ** 2 - zeta2 )/(n + 1.0)
+    E2 = 2.0 * ( - S1/n ** 3 + (zeta2 - S2)/n ** 2 - (S3 - zeta3)/n )
 
     gg0 = - 2675.8/(n - 1.0) ** 2 + 14214.0/(n - 1.0) - 144.0 * 24.0/n ** 5 - 72.0 * 6.0/n ** 4 \
         - 7471.0 * 2.0/n ** 3 - 274.4/n ** 2 - 20852.0/n + 3968.0/(n + 1.0) \
@@ -358,7 +329,7 @@ def gamma_gg_2(n, nf: int):
 
     gg2 = - 680.0/243.0/(n - 1.0) + 32.0/27.0 * 6.0/n ** 4 + 9.680 * 2.0/n ** 3 \
         + 3.422/n ** 2 - 13.878/n + 153.41/(n + 1.0) - 187.7/(n + 2.0) \
-            + 52.75/(n + 3.0) - 115.6 * E1 + 85.25 * e11(n) - 63.23 * E2 \
+            + 52.75/(n + 3.0) - 115.6 * E1 + 85.25 * E11 - 63.23 * E2 \
                 + 6.4630 + 16.0/9.0 * ( S1 - 1.0/n )
 
     result = gg0 + nf * gg1 + nf ** 2 * gg2
@@ -401,6 +372,68 @@ def gamma_singlet_2(N, nf: int):
     gamma_gg = gamma_gg_2(N, nf)
     gamma_S_0 = np.array([[gamma_qq, gamma_qg], [gamma_gq, gamma_gg]], np.complex_)
     return gamma_S_0
+
+# # abbreviation
+# def e1(n):
+#     S1 = harmonics.harmonic_S1(n)
+#     S2 = harmonics.harmonic_S2(n)
+#     zeta2 = harmonics.zeta2
+
+#     return S1/n ** 2 + (S2 - zeta2)/n
+
+# # abbreviation
+# def e2(n):
+#     S1 = harmonics.harmonic_S1(n)
+#     S2 = harmonics.harmonic_S2(n)
+#     S3 = harmonics.harmonic_S3(n)
+#     zeta2 = harmonics.zeta2
+#     zeta3 = harmonics.zeta3
+
+#     return 2.0 * ( - S1/n ** 3 + (zeta2 - S2)/n ** 2 - (S3 - zeta3)/n )
+
+# # abbreviation for the Singlet
+# def e11(n):
+#     S1 = harmonics.harmonic_S1(n)
+#     S2 = harmonics.harmonic_S2(n)
+#     zeta2 = harmonics.zeta2
+
+#     return ( S1 + 1.0/(n + 1.0) )/(n + 1.0) ** 2 + ( S2 + 1.0/(n + 1.0) ** 2 - zeta2 )/(n + 1.0)
+
+# # abbreviation for the Singlet
+# def b21(n):
+#     S1 = harmonics.harmonic_S1(n)
+#     S2 = harmonics.harmonic_S2(n)
+
+#     return (( S1 + 1.0/(n + 1.0) ) ** 2 + S2 + 1.0/(n + 1.0) ** 2 )/(n + 1.0)
+
+# # abbreviation for the Singlet
+# def b3(n):
+#     S1 = harmonics.harmonic_S1(n)
+#     S2 = harmonics.harmonic_S2(n)
+#     S3 = harmonics.harmonic_S3(n)
+
+#     return - ( S1 ** 3 + 3.0 * S1 * S2 + 2.0 * S3 )/n
+
+# # abbreviation for the Singlet
+# def b4(n):
+#     S1 = harmonics.harmonic_S1(n)
+#     S2 = harmonics.harmonic_S2(n)
+#     S3 = harmonics.harmonic_S3(n)
+#     S4 = harmonics.harmonic_S4(n)
+
+#     return ( S1 ** 4 + 6.0 * S1 ** 2 * S2 + 8.0 * S1 * S3 + 3.0 * S2 ** 2 + 6.0 * S4 )/n
+
+# # common part for NS plus and NS minus
+# def pf2_nfnf(n):
+
+#     S1 = harmonics.harmonic_S1(n)
+#     S2 = harmonics.harmonic_S2(n)
+#     S3 = harmonics.harmonic_S3(n)
+
+#     res = - ( 17.0/72.0 - 2.0/27.0 * S1 - 10.0/27.0 * S2 \
+#         + 2.0/9.0 * S3 - ( 12.0 * n ** 4 + 2.0 * n ** 3 - 12.0 * n ** 2 \
+#             - 2.0 * n + 3.0 )/( 27.0 * n ** 3 * (n + 1.0) ** 3) ) * 32.0/3.0
+#     return res
 
 
 #######################

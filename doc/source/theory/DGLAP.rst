@@ -289,13 +289,16 @@ In |NNLO| we provide different strategies to define the |EKO|:
 - ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and expand all functions :math:`j^{(n,m)}(a_s,a_s^0)` to the order :math:`\mathcal o(a_s^3)`. We find:
 
 .. math::
-    j^{(1,2)}(a_s,a_s^0) &\approx \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - (a_s^0)^2)] \\
-    j^{(2,2)}(a_s,a_s^0) &\approx  \frac{1}{2\beta_2} [ -b_1 (a_s - a_s^0) + ( b_2 - \frac{b_1}{2} + \frac{b_1^2}{2}) (a_s^2 - (a_s^0)^2) ] \\
-    j^{(0,2)}(a_s,a_s^0) &\approx  j^{(0,0)}(a_s,a_s^0)  + \frac{1}{2\beta_0} [ b_1 (a_s - a_s^0) + ( b_2 - \frac{b_1}{2} - \frac{b_1^2}{4}) (a_s^2 - (a_s^0)^2) ]
+    j^{(1,2)}(a_s,a_s^0) &\approx \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - a_s^{(0)2})] \\
+    j^{(2,2)}(a_s,a_s^0) &\approx  \frac{1}{2\beta_0} (a_s^2 - a_s^{(0)2}) \\
+    j^{(0,2)}(a_s,a_s^0) &\approx  j^{(0,0)}(a_s,a_s^0)  - \frac{1}{\beta_0} [ b_1 (a_s - a_s^0) + \frac{b_1^2+b_2}{2} (a_s^2 - a_s^{(0)2}) ]
 
 
 - ``method = 'ordered-truncated'``: expanding the *argument* of the exponential of the new term but keeping the order we obtain:
-- ``method = 'truncated'``: expanding the *whole* exponential of the new term we obtain:
+- ``method = 'truncated'``: expanding the *whole* exponential and keeping only the lienar terms in :math:`\gamma^{(i)}`
+.. math::
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) ( 1 + \frac{1}{\beta_0} [\gamma^{(1)} - b_1 \gamma^{(0)}] (a_s - a_s^0) \\
+    &+ \frac{1}{2 \beta_0}[ \gamma^{(2)} - b_1 \gamma^{(1)} + \gamma^{(0)}( b_1^2 - b_2) ] (a_s^2 - a_s^{(0)2})
 
 NNLO Singlet Evolution
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -357,4 +360,4 @@ So the strategies are:
 
 .. math::
     \ESk{2}{a_s}{a_s^0} &= \ESk{0}{a_s}{a_s^0} + a_s \mathbf U_1 \ESk{0}{a_s}{a_s^0} - a_s^0 \ESk{0}{a_s}{a_s^0} \mathbf U_1 \\
-    &+ a_s^2 \mathbf U_2 \ESk{0}{a_s}{a_s^0} + a_s a_s^0 \mathbf U_1 \ESk{0}{a_s}{a_s^0} \mathbf U_1 - (a_s^0)^2 \ESk{0}{a_s}{a_s^0} ( \mathbf U_1^2 - U_2 )    
+    &+ a_s^2 \mathbf U_2 \ESk{0}{a_s}{a_s^0} + a_s a_s^0 \mathbf U_1 \ESk{0}{a_s}{a_s^0} \mathbf U_1 - a_s^{(0)2} \ESk{0}{a_s}{a_s^0} ( \mathbf U_1^2 - U_2 )    
