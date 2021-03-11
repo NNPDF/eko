@@ -327,7 +327,7 @@ All the procedure is identical to |NLO|, simply the beat function is now expande
   we seek for an perturbative solution around the (exact) leading order operator. We set :cite:`Vogt:2004ns`
 
 .. math::
-    \frac{d}{da_s} \dSV{2}{a_s} = - \frac{\mathbf R (a_s)}{a_s} \cdot \dSV{2}{a_s}\,, \quad
+    \frac{d}{da_s} \dSV{2}{a_s} = \frac{\mathbf R (a_s)}{a_s} \cdot \dSV{2}{a_s}\,, \quad
     \mathbf R (a_s) = \sum\limits_{k=0} a_s^k \mathbf R_{k}
 
 Finding one additional term compared to |NLO|:
@@ -350,7 +350,7 @@ The solution ansatz becomes:
 with: 
 
 .. math::
-    [\mathbf U_2, \mathbf R_0] &= \mathbf R_2 + \mathbf R_1 \mathbf U_1 + 2 \mathbf U_1\\
+    [\mathbf U_2, \mathbf R_0] &= \mathbf R_2 + \mathbf R_1 \mathbf U_1 - 2 \mathbf U_1\\
 
 So the strategies are:
 
