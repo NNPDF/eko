@@ -117,6 +117,7 @@ def nlo_decompose_expanded(gamma_singlet, a1, a0, nf):
         gamma_singlet, ei.j01_expanded(a1, a0, nf), ei.j11_expanded(a1, a0, nf)
     )
 
+
 @nb.njit("c16[:,:](c16[:,:,:],f8,f8,f8)", cache=True)
 def nnlo_decompose(gamma_singlet, j02, j12, j22):
     """
@@ -143,8 +144,9 @@ def nnlo_decompose(gamma_singlet, j02, j12, j22):
         e_s^2 : numpy.ndarray
             singlet next-to-next-to-leading order decompose EKO
     """
-    return ad.exp_singlet(gamma_singlet[0] * j02 + gamma_singlet[1] * j12 \
-        + gamma_singlet[2] * j22)[0]
+    return ad.exp_singlet(
+        gamma_singlet[0] * j02 + gamma_singlet[1] * j12 + gamma_singlet[2] * j22
+    )[0]
 
 
 @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)", cache=True)
@@ -169,7 +171,10 @@ def nnlo_decompose_exact(gamma_singlet, a1, a0, nf):
             singlet next-to-next-to-leading order decompose-exact EKO
     """
     return nnlo_decompose(
-        gamma_singlet, ei.j02_exact(a1, a0, nf), ei.j12_exact(a1, a0, nf), ei.j22_exact(a1, a0, nf)
+        gamma_singlet,
+        ei.j02_exact(a1, a0, nf),
+        ei.j12_exact(a1, a0, nf),
+        ei.j22_exact(a1, a0, nf),
     )
 
 
@@ -197,7 +202,6 @@ def nnlo_decompose_exact(gamma_singlet, a1, a0, nf):
 #     return nnlo_decompose(
 #        gamma_singlet, ei.j02_expanded(a1, a0, nf), ei.j12_expanded(a1, a0, nf), ei.j22_expanded(a1, a0, nf)
 #     )
-
 
 
 @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)", cache=True)
@@ -276,7 +280,11 @@ def nnlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations):
         a_half = (ah + al) / 2.0
         delta_a = ah - al
         ln = (
-            (gamma_singlet[0] * a_half + gamma_singlet[1] * a_half ** 2 +  gamma_singlet[2] * a_half ** 3)
+            (
+                gamma_singlet[0] * a_half
+                + gamma_singlet[1] * a_half ** 2
+                + gamma_singlet[2] * a_half ** 3
+            )
             / (beta0 * a_half ** 2 + beta1 * a_half ** 3 + beta2 * a_half ** 4)
             * delta_a
         )
@@ -410,6 +418,7 @@ def nnlo_r_exact(gamma_singlet, nf, ev_op_max_order):
         r_vec : compute R vector
     """
     return r_vec(gamma_singlet, nf, ev_op_max_order, 2, True)
+
 
 # TODO: remove?
 @nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)", cache=True)
@@ -665,6 +674,7 @@ def nnlo_perturbative_exact(
         gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r
     )
 
+
 @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1)", cache=True)
 def nnlo_perturbative_expanded(
     gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
@@ -700,6 +710,7 @@ def nnlo_perturbative_expanded(
     return eko_perturbative(
         gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r
     )
+
 
 @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)", cache=True)
 def nlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations):
@@ -738,6 +749,7 @@ def nlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations):
         al = ah
     return e
 
+
 # TODO: maybe a unique function here
 @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)", cache=True)
 def nnlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations):
@@ -772,11 +784,18 @@ def nnlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations):
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = np.ascontiguousarray(lo_exact(gamma_singlet, ah, al, nf))
-        ek = e0 + ah * u1 @ e0 - al * e0 @ u1 \
-            + ah ** 2 * u2 @ e0 - ah * al * u1 @ e0 @ u1 + al ** 2 * e0 @ ( u1 ** 2 - u2 )
+        ek = (
+            e0
+            + ah * u1 @ e0
+            - al * e0 @ u1
+            + ah ** 2 * u2 @ e0
+            - ah * al * u1 @ e0 @ u1
+            + al ** 2 * e0 @ (u1 ** 2 - u2)
+        )
         e = ek @ e
         al = ah
     return e
+
 
 @nb.njit("c16[:,:](u1,string,c16[:,:,:],f8,f8,u1,u4,u1)", cache=True)
 def dispatcher(  # pylint: disable=too-many-return-statements

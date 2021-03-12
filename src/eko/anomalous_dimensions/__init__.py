@@ -108,12 +108,12 @@ def gamma_ns(order, mode, n, nf):
     # cache the s-es
     sx = np.full(1, harmonics.harmonic_S1(n))
     if order >= 1:
-        np.append(sx, harmonics.harmonic_S2(n))
-        np.append(sx, harmonics.harmonic_S3(n))
+        sx = np.append(sx, harmonics.harmonic_S2(n))
+        sx = np.append(sx, harmonics.harmonic_S3(n))
 
     gamma_ns = np.zeros(order + 1, np.complex_)
     gamma_ns[0] = lo.gamma_ns_0(n, sx[0])
-    if order == 1:
+    if order >= 1:
         # TODO: pass the hamonics to nlo gammas
         if mode == "p":
             gamma_ns_1 = nlo.gamma_nsp_1(n, nf)
@@ -159,14 +159,14 @@ def gamma_singlet(order, n, nf):
     # cache the s-es
     sx = np.full(1, harmonics.harmonic_S1(n))
     if order >= 1:
-        np.append(sx, harmonics.harmonic_S2(n))
-        np.append(sx, harmonics.harmonic_S3(n))
+        sx = np.append(sx, harmonics.harmonic_S2(n))
+        sx = np.append(sx, harmonics.harmonic_S3(n))
 
     gamma_singlet = np.zeros((order + 1, 2, 2), np.complex_)
     gamma_singlet[0] = lo.gamma_singlet_0(n, sx[0], nf)
-    if order == 1:
+    if order >= 1:
         gamma_singlet[1] = nlo.gamma_singlet_1(n, nf)
     if order == 2:
-        np.append(sx, harmonics.harmonic_S4(n))
+        sx = np.append(sx, harmonics.harmonic_S4(n))
         gamma_singlet[2] = nnlo.gamma_singlet_2(n, nf, sx)
     return gamma_singlet
