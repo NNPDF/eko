@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Benchmark to :cite:`Giele:2002hx`
+Benchmark to :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO)
 """
 import numpy as np
 
@@ -8,12 +8,12 @@ from ekomark.benchmark.runner import Runner
 
 base_theory = {
     "ModEv": "EXA",
-    "Q0": np.sqrt(2.0),  # Eq. (30)
-    "mc": np.sqrt(2.0),  # Eq. (34)
+    "Q0": np.sqrt(2.0),  # Eq. (30), Eq. (4.53) NNLO
+    "mc": np.sqrt(2.0),  # Eq. (34), Eq. (4.56) NNLO
     "mb": 4.5,
     "mt": 175,
-    "Qref": np.sqrt(2.0),  # Eq. (32)
-    "alphas": 0.35,
+    "Qref": np.sqrt(2.0),  # Eq. (32),Eq. (4.53) NNLO
+    "alphas": 0.35, # Eq. (4.55) NNLO
 }
 """Global theory settings"""
 
@@ -79,6 +79,8 @@ class LHABenchmark(Runner):
 
     def benchmark_plain(self, pto):
         """Plain configuration"""
+        if pto == 2:
+            self.skip_pdfs.extend([-5, 5])
         self.run_lha(self.plain_theory(pto))
 
     def benchmark_sv(self):
@@ -121,7 +123,8 @@ if __name__ == "__main__":
     vfns = BenchmarkVFNS()
     ffns = BenchmarkFFNS()
 
-    # vfns.benchmark_plain(1)
-    # ffns.benchmark_plain(1)
-    vfns.benchmark_sv()
+    #vfns.benchmark_plain(2)
+    ffns.benchmark_plain(2)
+    # TODO: add NNLO sv
+    # vfns.benchmark_sv()
     # ffns.benchmark_sv()

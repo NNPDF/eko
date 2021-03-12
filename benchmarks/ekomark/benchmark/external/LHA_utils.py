@@ -140,12 +140,28 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
                 part = 2
             else:
                 part = 1
+        elif order == 2:
+            table = 14
+            if fact_to_ren > np.sqrt(2):
+                part = 3
+            elif fact_to_ren < np.sqrt(1.0 / 2.0):
+                part = 2
+            else:
+                part = 1
     elif fns == "ZM-VFNS":
         if order == 0:
             table = 2
             part = 3
         elif order == 1:
             table = 4
+            if fact_to_ren > np.sqrt(2):
+                part = 3
+            elif fact_to_ren < np.sqrt(1.0 / 2.0):
+                part = 2
+            else:
+                part = 1
+        elif order == 2:
+            table = 15
             if fact_to_ren > np.sqrt(2):
                 part = 3
             elif fact_to_ren < np.sqrt(1.0 / 2.0):
