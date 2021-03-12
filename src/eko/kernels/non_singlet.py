@@ -163,6 +163,34 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     return e
 
 
+@nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
+def nnlo_exact(gamma_ns, a1, a0, nf):
+    """
+    Non-singlet next-to-next-to-leading order exact EKO
+
+    Parameters
+    ----------
+        gamma_ns : numpy.ndarray
+            non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        e_ns^2 : complex
+            non-singlet next-to-next-to-leading order exact EKO
+    """
+    return np.exp(
+        gamma_ns[0] * ei.j02_exact(a1, a0, nf)
+        + gamma_ns[1] * ei.j12_exact(a1, a0, nf)
+        + gamma_ns[2] * ei.j22_exact(a1, a0, nf)
+    )
+
+
 @nb.njit("c16(u1,string,c16[:],f8,f8,u1,u4)", cache=True)
 def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):
     """
@@ -196,11 +224,29 @@ def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):
     if order == 0:
         return lo_exact(gamma_ns, a1, a0, nf)
     # NLO
-    if method in ["iterate-expanded", "decompose-expanded", "perturbative-expanded"]:
-        return nlo_expanded(gamma_ns, a1, a0, nf)
-    elif method == "truncated":
-        return nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
-    elif method == "ordered-truncated":
-        return nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
-    # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
-    return nlo_exact(gamma_ns, a1, a0, nf)
+    elif order == 1:
+        if method in [
+            "iterate-expanded",
+            "decompose-expanded",
+            "perturbative-expanded",
+        ]:
+            return nlo_expanded(gamma_ns, a1, a0, nf)
+        elif method == "truncated":
+            return nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
+        elif method == "ordered-truncated":
+            return nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
+        # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
+        else:
+            return nlo_exact(gamma_ns, a1, a0, nf)
+    # NNLO
+    elif order == 2:
+        # if method in ["iterate-expanded", "decompose-expanded", "perturbative-expanded"]:
+        #     return nnlo_expanded(gamma_ns, a1, a0, nf)
+        # elif method == "truncated":
+        #     return nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
+        # elif method == "ordered-truncated":
+        #     return nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
+        # # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
+        return nnlo_exact(gamma_ns, a1, a0, nf)
+    else:
+        raise NotImplementedError("Selected order is not implemented")

@@ -20,7 +20,7 @@ zeta3 = harmonics.zeta3
 # The QCD colour factors have been hard-wired in the parametrizations.
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsm_2(n, nf: int, sx):
     """
     Computes the next-to-next-to-leading-order valence-like non-singlet anomalous dimension.
@@ -97,7 +97,7 @@ def gamma_nsm_2(n, nf: int, sx):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsp_2(n, nf: int, sx):
     """
     Computes the next-to-next-to-leading-order singlet-like non-singlet anomalous dimension.
@@ -174,7 +174,7 @@ def gamma_nsp_2(n, nf: int, sx):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsv_2(n, nf: int, sx):
     """
     Computes the next-to-next-to-leading-order singlet-like non-singlet anomalous dimension.
@@ -229,7 +229,7 @@ def gamma_nsv_2(n, nf: int, sx):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_ps_2(n, nf: int, sx):
     """
     Computes the next-to-next-to-leading-order pure-singlet quark-quark anomalous dimension.
@@ -301,7 +301,7 @@ def gamma_ps_2(n, nf: int, sx):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_qg_2(n, nf: int, sx):
     """
     Computes the next-to-next-to-leading-order quark-gluon singlet anomalous dimension.
@@ -375,7 +375,7 @@ def gamma_qg_2(n, nf: int, sx):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_gq_2(n, nf: int, sx):
     """
     Computes the next-to-next-to-leading-order gluon-quark singlet anomalous dimension.
@@ -465,7 +465,7 @@ def gamma_gq_2(n, nf: int, sx):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_gg_2(n, nf: int, sx):
     """
     Computes the next-to-next-to-leading-order gluon-gluon singlet anomalous dimension.
@@ -553,7 +553,7 @@ def gamma_gg_2(n, nf: int, sx):
     return result
 
 
-@nb.njit("c16[:,:](c16,u1)", cache=True)
+@nb.njit("c16[:,:](c16,u1,c16[:])", cache=True)
 def gamma_singlet_2(N, nf: int, sx):
     r"""
       Computes the next-to-next-to-leading-order singlet anomalous dimension matrix

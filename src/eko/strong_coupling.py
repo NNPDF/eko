@@ -118,12 +118,7 @@ class StrongCoupling:
     """
 
     def __init__(
-        self,
-        alpha_s_ref,
-        scale_ref,
-        thresh,
-        order=0,
-        method="exact",
+        self, alpha_s_ref, scale_ref, thresh, order=0, method="exact",
     ):
         # Sanity checks
         if alpha_s_ref <= 0:

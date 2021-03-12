@@ -143,3 +143,105 @@ def j01_expanded(a1, a0, nf):
             integral
     """
     return j00(a1, a0, nf) - beta.b(1, nf) * j11_expanded(a1, a0, nf)
+
+
+# pylint: disable=line-too-long
+@nb.njit("f8(f8,f8,u1)", cache=True)
+def j22_exact(a1, a0, nf):
+    r"""
+    NNLO-NNLO exact evolution integral.
+
+    .. math::
+        j^{(2,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = \frac{1}{\beta_2}\ln\left(\frac{1 + a_s ( b_1 + b_2 a_s ) }{ 1 + a_s^0 ( b_1 + b_2 a_s^0 )}\right) - \frac{b_1}{ \beta_2 \Delta} \delta \\
+            \delta &= atan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - atan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
+            \Delta &= \sqrt{4 b_2 - b_1^2}
+    
+    Parameters
+    ----------
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        j22 : float
+            integral
+    """
+    b1 = beta.b(1, nf)
+    b2 = beta.b(2, nf)
+    Delta = np.sqrt(4 * b2 - b1 ** 2)
+    delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
+        (b1 + 2 * a0 * b2) / Delta
+    )
+    log = np.log((1 + a1 * (b1 + b2 * a1)) / (1 + a0 * (b1 + b2 * a0)))
+    return 1 / beta.beta(2, nf) * log - b1 / (beta.beta(2, nf) * Delta) * delta
+
+
+@nb.njit("f8(f8,f8,u1)", cache=True)
+def j12_exact(a1, a0, nf):
+    r"""
+    NLO-NNLO exact evolution integral.
+
+    .. math::
+        j^{(1,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = \frac{2}{\beta_0 \Delta} \delta \\
+        \delta &= atan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - atan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
+        \Delta &= \sqrt{4 b_2 - b_1^2}
+    
+    Parameters
+    ----------
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        j12 : float
+            integral
+    """
+    b1 = beta.b(1, nf)
+    b2 = beta.b(2, nf)
+    Delta = np.sqrt(4 * b2 - b1 ** 2)
+    delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
+        (b1 + 2 * a0 * b2) / Delta
+    )
+    return 2.0 / (beta.beta(0, nf) * Delta) * delta
+
+
+@nb.njit("f8(f8,f8,u1)", cache=True)
+def j02_exact(a1, a0, nf):
+    r"""
+    LO-NNLO exact evolution integral.
+
+    .. math::
+        j^{(0,2)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
+            \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}
+                = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}(a_s,a_s^0) - b_2 j^{(2,2)}(a_s,a_s^0)
+
+    Parameters
+    ----------
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        j02 : float
+            integral
+    """
+    return (
+        j00(a1, a0, nf)
+        - beta.b(1, nf) * j12_exact(a1, a0, nf)
+        - beta.b(2, nf) * j22_exact(a1, a0, nf)
+    )  # pylint: disable=line-too-long
+
+
+# TODO: add the NNLO expanded functions

@@ -215,6 +215,7 @@ def harmonic_S3(N):
     """
     return 0.5 * cern_polygamma(N + 1.0, 2) + zeta3
 
+
 @nb.njit("c16(c16)", cache=True)
 def harmonic_S4(N):
     r"""
@@ -240,7 +241,8 @@ def harmonic_S4(N):
     --------
         cern_polygamma : :math:`\psi_0(N)`
     """
-    return zeta4 - 1.0 / 6.0 * cern_polygamma(N + 1.0, 3) 
+    return zeta4 - 1.0 / 6.0 * cern_polygamma(N + 1.0, 3)
+
 
 @nb.njit("c16(c16)", cache=True)
 def mellin_g3(N):

@@ -258,10 +258,10 @@ We obtain the (exact) |EKO| :cite:`Vogt:2004ns,Bonvini:2012sh`:
 with:
 
 .. math::
-    j^{(2,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = \frac{1}{\beta_2}\ln\left(\frac{1 + a_s ( b_1 + b_2 a_s ) }{ 1 + a_s^0 ( b_1 + b_2 a_s^0 )}\right) - \frac{b_1}{ b_2 \beta_0 \Delta} \delta \\
+    j^{(2,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = \frac{1}{\beta_2}\ln\left(\frac{1 + a_s ( b_1 + b_2 a_s ) }{ 1 + a_s^0 ( b_1 + b_2 a_s^0 )}\right) - \frac{b_1}{ \beta_2 \Delta} \delta \\
     \delta &= atan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - atan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
         &= \frac{i}{2} \left[ ln \left( \frac{ \Delta - i (b_1 + 2a_s b_2)}{ \Delta + i (b_1 + 2a_s b_2)}\right) - ln \left( \frac{ \Delta - i (b_1 + 2a_s^0 b_2)}{ \Delta + i (b_1 + 2a_s^0 b_2)}\right) \right] \\
-    \Delta &= \sqrt{4 b_2 - b_1 }
+    \Delta &= \sqrt{4 b_2 - b_1^2 }
 
 and:
 
@@ -296,6 +296,7 @@ In |NNLO| we provide different strategies to define the |EKO|:
 
 - ``method = 'ordered-truncated'``: expanding the *argument* of the exponential of the new term but keeping the order we obtain:
 - ``method = 'truncated'``: expanding the *whole* exponential and keeping only the lienar terms in :math:`\gamma^{(i)}`
+
 .. math::
     \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) ( 1 + \frac{1}{\beta_0} [\gamma^{(1)} - b_1 \gamma^{(0)}] (a_s - a_s^0) \\
     &+ \frac{1}{2 \beta_0}[ \gamma^{(2)} - b_1 \gamma^{(1)} + \gamma^{(0)}( b_1^2 - b_2) ] (a_s^2 - a_s^{(0)2})

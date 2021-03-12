@@ -174,7 +174,9 @@ def evaluate_Nx(N, logx, area_list):
             res += coef * (up - low) / (N + i)
     return res
 
-_atol_eps = 10*np.finfo(float).eps
+
+_atol_eps = 10 * np.finfo(float).eps
+
 
 @nb.njit("f8(f8,f8[:,:])", cache=True)
 def evaluate_x(x, area_list):
@@ -201,7 +203,7 @@ def evaluate_x(x, area_list):
         xmin = a[0]
         xmax = a[1]
         coefs = a[2:]
-        if xmin < x <= xmax or (j == 0 and np.abs(x-xmin) <_atol_eps):
+        if xmin < x <= xmax or (j == 0 and np.abs(x - xmin) < _atol_eps):
             for i, coef in enumerate(coefs):
                 res += coef * pow(x, i)
             return res
@@ -256,12 +258,7 @@ class BasisFunction:
     """
 
     def __init__(
-        self,
-        xgrid,
-        poly_number,
-        list_of_blocks,
-        mode_log=True,
-        mode_N=True,
+        self, xgrid, poly_number, list_of_blocks, mode_log=True, mode_N=True,
     ):
         self.poly_number = poly_number
         self.areas = []
@@ -501,12 +498,7 @@ class InterpolatorDispatcher:
             xgrid = make_grid(*xgrid[1:])
         is_log_interpolation = bool(operators_card["interpolation_is_log"])
         polynom_rank = operators_card["interpolation_polynomial_degree"]
-        return cls(
-            xgrid,
-            polynom_rank,
-            log=is_log_interpolation,
-            mode_N=mode_N,
-        )
+        return cls(xgrid, polynom_rank, log=is_log_interpolation, mode_N=mode_N,)
 
     def __eq__(self, other):
         """Checks equality"""
