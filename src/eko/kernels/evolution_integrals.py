@@ -155,7 +155,7 @@ def j22_exact(a1, a0, nf):
         j^{(2,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = \frac{1}{\beta_2}\ln\left(\frac{1 + a_s ( b_1 + b_2 a_s ) }{ 1 + a_s^0 ( b_1 + b_2 a_s^0 )}\right) - \frac{b_1}{ \beta_2 \Delta} \delta \\
             \delta &= atan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - atan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
             \Delta &= \sqrt{4 b_2 - b_1^2}
-    
+
     Parameters
     ----------
         a1 : float
@@ -189,7 +189,7 @@ def j12_exact(a1, a0, nf):
         j^{(1,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = \frac{2}{\beta_0 \Delta} \delta \\
         \delta &= atan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - atan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
         \Delta &= \sqrt{4 b_2 - b_1^2}
-    
+
     Parameters
     ----------
         a1 : float

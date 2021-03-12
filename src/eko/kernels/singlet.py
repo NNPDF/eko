@@ -332,7 +332,7 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, pto, is_exact):
     return r
 
 
-# TODO: pass pto as argument? and get just two functions ? 
+# TODO: pass pto as argument? and get just two functions ?
 @nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)", cache=True)
 def nlo_r_exact(gamma_singlet, nf, ev_op_max_order):
     """

@@ -2,7 +2,6 @@
 """
     Convert raw PDF data of :cite:`Giele:2002hx` to Python
 """
-import yaml
 
 # pylint: disable=line-too-long
 

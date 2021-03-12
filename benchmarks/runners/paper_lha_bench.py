@@ -123,8 +123,8 @@ if __name__ == "__main__":
     vfns = BenchmarkVFNS()
     ffns = BenchmarkFFNS()
 
-    #vfns.benchmark_plain(2)
-    ffns.benchmark_plain(2)
+    vfns.benchmark_plain(2)
+    #ffns.benchmark_plain(2)
     # TODO: add NNLO sv
     # vfns.benchmark_sv()
     # ffns.benchmark_sv()

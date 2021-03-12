@@ -14,17 +14,17 @@ class Sandbox(Runner):
     sandbox = True
 
     # select here the external program between LHA, LHAPDF, apfel
-    external = "apfel"
+    external = "LHA"
 
     # select to plot operators
-    plot_operator = False
+    plot_operator = True
 
     rotate_to_evolution_basis = True
 
     # pdf to skip, for LHA there is a default
     skip_pdfs = [22, -6, 6, -5, 5, -4, 4, "ph", "V35", "V24", "V15", "V8", "T35"]
-    if external == "LHA":
-        skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
+    #if external == "LHA":
+    #    skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
 
     @staticmethod
     def generate_operators():
@@ -39,11 +39,11 @@ class Sandbox(Runner):
     def run_sand(self):
 
         theory_updates = {
-            "PTO": 0,
+            "PTO": 2,
             "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",
-            "XIR": 1.4142135623730951,
+            #"XIR": 1.4142135623730951,
             "Q0": np.sqrt(2),
             "kcThr": 0.0,
             "kbThr": np.inf,
