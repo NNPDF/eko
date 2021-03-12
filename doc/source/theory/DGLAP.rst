@@ -197,7 +197,7 @@ where in |NLO| we find
 
 .. math::
     \mathbf R_0 = \gamma_{S}^{(0)}/\beta_0\,,\quad
-    \mathbf R_1 = \gamma_{S}^{(1)}/\beta_0 - b_1 \gamma_{S}^{(0)}
+    \mathbf R_1 = \gamma_{S}^{(1)}/\beta_0 - b_1 \gamma_{S}^{(0)} /\beta_0
 
 and for the higher coefficients
 
@@ -334,8 +334,8 @@ All the procedure is identical to |NLO|, simply the beat function is now expande
 Finding one additional term compared to |NLO|:
 
 .. math::
-    \mathbf R_2 & = \gamma_{S}^{(2)}/\beta_0 - b_1 \gamma_{S}^{(0)}/\beta_0 - b_2 ( \mathbf R_1 ) \\
-    & = \frac{1}{\beta_0} [ \gamma_{S}^{(2)} - b_1 \gamma_{S}^{(0)} (1- b_2) - b_2 \gamma_{S}^{(1)}] 
+    \mathbf R_2 & = \gamma_{S}^{(2)}/\beta_0 - b_1 \mathbf R_1 - b_2 \mathbf R_0  \\
+    & = \frac{1}{\beta_0} [ \gamma_{S}^{(2)} - b_1 \gamma_{S}^{(1)} - \gamma_{S}^{(0)} ( b_2 - b_1^2 ) ] 
 
 and for the higher coefficients
 
