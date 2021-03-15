@@ -200,7 +200,8 @@ def nnlo_decompose_exact(gamma_singlet, a1, a0, nf):
 #             singlet next-to-leading order decompose-expanded EKO
 #     """
 #     return nnlo_decompose(
-#        gamma_singlet, ei.j02_expanded(a1, a0, nf), ei.j12_expanded(a1, a0, nf), ei.j22_expanded(a1, a0, nf)
+#        gamma_singlet, ei.j02_expanded(a1, a0, nf), \
+#            ei.j12_expanded(a1, a0, nf), ei.j22_expanded(a1, a0, nf)
 #     )
 
 

@@ -43,7 +43,7 @@ def gamma_singlet_fact(order, n, nf, L):
     gamma_singlet = ad.gamma_singlet(order, n, nf,)
     if order > 0:
         gamma_singlet[1] -= beta.beta(0, nf) * gamma_singlet[0] * L
-    if order > 1:    
+    if order > 1:
         gamma_singlet[2] -= (
             beta.beta(0, nf) * gamma_singlet[1] * L
             - (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_singlet[0]
