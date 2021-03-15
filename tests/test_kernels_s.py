@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import pytest
 import numpy as np
 
 from eko.kernels import singlet as s
@@ -105,8 +104,8 @@ def test_zero_nlo_decompose(monkeypatch):
 def test_zero_nnlo_decompose(monkeypatch):
     """No evolution results in exp(0)"""
     nf = 3
-    ev_op_iterations = 2
-    ev_op_max_order = 2
+    ev_op_iterations = 3
+    ev_op_max_order = 3
     gamma_s = np.random.rand(3, 2, 2) + np.random.rand(3, 2, 2) * 1j
     monkeypatch.setattr(
         ad,
@@ -126,13 +125,13 @@ def test_zero_nnlo_decompose(monkeypatch):
         try:
             np.testing.assert_allclose(
                 s.dispatcher(
-                    1, method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+                    2, method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
                 ),
                 np.zeros((2, 2)),
             )
             np.testing.assert_allclose(
                 s.dispatcher(
-                    1,
+                    2,
                     method,
                     np.zeros((3, 2, 2), dtype=complex),
                     2,
@@ -147,8 +146,6 @@ def test_zero_nnlo_decompose(monkeypatch):
             pass
 
 
-# Sometimes crashes ...
-@pytest.mark.skip
 def test_similarity():
     """all methods should be similar"""
     nf = 3
@@ -157,8 +154,11 @@ def test_similarity():
     a1 = a0 + delta_a
     ev_op_iterations = 10
     ev_op_max_order = 10
-    gamma_s = np.random.rand(2, 2, 2) + np.random.rand(2, 2, 2) * 1j
-    for order in [0, 1]:
+    gamma_s = np.random.rand(3, 2, 2) + np.random.rand(3, 2, 2) * 1j
+    for order in [
+        0,
+        1,
+    ]:  # TODO: add NNLO 2  "truncated" and "ordered-truncated" might not work at this precision
         ref = s.dispatcher(
             order,
             "decompose-exact",
@@ -179,20 +179,17 @@ def test_similarity():
             "decompose-exact",
             "perturbative-exact",
         ]:
-            try:
-                np.testing.assert_allclose(
-                    s.dispatcher(
-                        order,
-                        method,
-                        gamma_s,
-                        a1,
-                        a0,
-                        nf,
-                        ev_op_iterations,
-                        ev_op_max_order,
-                    ),
-                    ref,
-                    atol=delta_a,
-                )
-            except ZeroDivisionError:
-                pass
+            np.testing.assert_allclose(
+                s.dispatcher(
+                    order,
+                    method,
+                    gamma_s,
+                    a1,
+                    a0,
+                    nf,
+                    ev_op_iterations,
+                    ev_op_max_order,
+                ),
+                ref,
+                atol=delta_a,
+            )

@@ -328,8 +328,10 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, pto, is_exact):
     b2 = beta.b(2, nf)
     # fill explicit elements
     r[0] = gamma_singlet[0] / beta0
-    r[1] = gamma_singlet[1] / beta0 - b1 * r[0]
-    r[2] = gamma_singlet[2] / beta0 - b1 * r[1] - b2 * r[0]
+    if pto > 0:
+        r[1] = gamma_singlet[1] / beta0 - b1 * r[0]
+    if pto > 1:
+        r[2] = gamma_singlet[2] / beta0 - b1 * r[1] - b2 * r[0]
     # fill rest
     if is_exact:
         if pto == 1:
