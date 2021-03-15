@@ -119,6 +119,9 @@ def gamma_ns(order, mode, n, nf):
             gamma_ns_1 = nlo.gamma_nsp_1(n, nf)
         elif mode == "m":
             gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
+        # if mode v and NNLO we need to add gamma1_ns explicitly
+        elif mode == "v":
+            gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
         gamma_ns[1] = gamma_ns_1
     if order == 2:
         if mode == "p":
@@ -126,8 +129,6 @@ def gamma_ns(order, mode, n, nf):
         elif mode == "m":
             gamma_ns_2 = nnlo.gamma_nsm_2(n, nf, sx)
         elif mode == "v":
-            # if mode v and NNLO we need to add gamma1 explicitly
-            gamma_ns[1] = nlo.gamma_nsm_1(n, nf)
             gamma_ns_2 = nnlo.gamma_nsv_2(n, nf, sx)
         gamma_ns[2] = gamma_ns_2
     return gamma_ns

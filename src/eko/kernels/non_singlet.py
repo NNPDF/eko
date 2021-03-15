@@ -191,6 +191,73 @@ def nnlo_exact(gamma_ns, a1, a0, nf):
     )
 
 
+@nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
+def nnlo_expanded(gamma_ns, a1, a0, nf):
+    """
+    Non-singlet next-to-next-to-leading order expanded EKO
+
+    Parameters
+    ----------
+        gamma_ns : numpy.ndarray
+            non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        e_ns^2 : complex
+            non-singlet next-to-next-to-leading order expanded EKO
+    """
+    return np.exp(
+        gamma_ns[0] * ei.j02_expanded(a1, a0, nf)
+        + gamma_ns[1] * ei.j12_expanded(a1, a0, nf)
+        + gamma_ns[2] * ei.j22_expanded(a1, a0, nf)
+    )
+
+
+@nb.njit("c16(c16[:],f8,f8,u1,u4)", cache=True)
+def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
+    """
+    Non-singlet next-to-next-to-leading order truncated EKO
+
+    Parameters
+    ----------
+        gamma_ns : numpy.ndarray
+            non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
+
+    Returns
+    -------
+        e_ns^2 : complex
+            non-singlet next-to-next-to-leading order truncated EKO
+    """
+    a_steps = utils.geomspace(a0, a1, ev_op_iterations)
+    b1 = beta.b(1, nf)
+    b2 = beta.b(2, nf)
+    e = 1.0
+    al = a_steps[0]
+    for ah in a_steps[1:]:
+        e0 = lo_exact(gamma_ns, ah, al, nf)
+        e *= (
+            e0
+            * (1.0 + ei.j12_expanded(ah, al, nf) * (gamma_ns[1] - b1 * gamma_ns[0]))
+            * (1.0 + ei.j22_expanded(ah, al, nf) * (gamma_ns[2] - b2 * gamma_ns[0]))
+        )
+        al = ah
+    return e
+
+
 @nb.njit("c16(u1,string,c16[:],f8,f8,u1,u4)", cache=True)
 def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):
     """
@@ -240,10 +307,14 @@ def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):
             return nlo_exact(gamma_ns, a1, a0, nf)
     # NNLO
     elif order == 2:
-        # if method in ["iterate-expanded", "decompose-expanded", "perturbative-expanded"]:
-        #     return nnlo_expanded(gamma_ns, a1, a0, nf)
-        # elif method == "truncated":
-        #     return nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
+        if method in [
+            "iterate-expanded",
+            "decompose-expanded",
+            "perturbative-expanded",
+        ]:
+            return nnlo_expanded(gamma_ns, a1, a0, nf)
+        elif method == "truncated":
+            return nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
         # elif method == "ordered-truncated":
         #     return nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
         # # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:

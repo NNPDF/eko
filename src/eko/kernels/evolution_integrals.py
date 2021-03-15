@@ -244,4 +244,86 @@ def j02_exact(a1, a0, nf):
     )
 
 
-# TODO: add the NNLO expanded functions
+# pylint: disable=line-too-long
+@nb.njit("f8(f8,f8,u1)", cache=True)
+def j22_expanded(a1, a0, nf):
+    r"""
+    NNLO-NNLO expanded evolution integral.
+
+    .. math::
+        j^{(2,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} \approx \frac{1}{2 \beta_0} ( a_s^2 - a_s^{(0),2})
+
+    Parameters
+    ----------
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        j22_exp : float
+            integral
+    """
+    return 1 / (2 * beta.beta(0, nf)) * (a1 ** 2 - a0 ** 2)
+
+
+# pylint: disable=line-too-long
+@nb.njit("f8(f8,f8,u1)", cache=True)
+def j12_expanded(a1, a0, nf):
+    r"""
+    NLO-NNLO expanded evolution integral.
+
+    .. math::
+        j^{(1,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} \approx \frac{1}{\beta_0}[ a_s - a_s^0 - \frac{b_1}{2} ( a_s^2 - a_s^{(0),2})] \\
+
+
+    Parameters
+    ----------
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        j12_exp : float
+            integral
+    """
+    b1 = beta.b(1, nf)
+    return 1 / beta.beta(0, nf) * (a1 - a0 - b1 / 2 * (a1 ** 2 - a0 ** 2))
+
+
+@nb.njit("f8(f8,f8,u1)", cache=True)
+def j02_expanded(a1, a0, nf):
+    r"""
+    LO-NNLO expanded evolution integral.
+
+    .. math::
+        j^{(0,2)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
+            \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}
+                = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}(a_s,a_s^0) - b_2 j^{(2,2)}(a_s,a_s^0)
+
+    Parameters
+    ----------
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        j02_exp : float
+            integral
+    """
+    return (
+        j00(a1, a0, nf)
+        - beta.b(1, nf) * j12_expanded(a1, a0, nf)
+        - beta.b(2, nf) * j22_expanded(a1, a0, nf)
+    )

@@ -81,7 +81,8 @@ class LHABenchmark(Runner):
         """Plain configuration"""
         if pto == 2:
             self.skip_pdfs.extend([-5, 5])
-            self.skip_pdfs.remove("V8")
+            if "V8" in self.skip_pdfs:
+                self.skip_pdfs.remove("V8")
         self.run_lha(self.plain_theory(pto))
 
     def benchmark_sv(self):
@@ -96,7 +97,6 @@ class BenchmarkVFNS(LHABenchmark):
     theory.update(
         {
             "FNS": "ZM-VFNS",  # ignored by eko, but needed by LHA_utils
-            "ModEv": "EXA",
             "kcThr": 1.0,
             "kbThr": 1.0,
             "ktThr": 1.0,
@@ -124,8 +124,8 @@ if __name__ == "__main__":
     vfns = BenchmarkVFNS()
     ffns = BenchmarkFFNS()
 
-    vfns.benchmark_plain(2)
-    #ffns.benchmark_plain(2)
+    #vfns.benchmark_plain(2)
+    ffns.benchmark_plain(2)
     # TODO: add NNLO sv
     # vfns.benchmark_sv()
     # ffns.benchmark_sv()

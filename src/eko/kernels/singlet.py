@@ -178,31 +178,33 @@ def nnlo_decompose_exact(gamma_singlet, a1, a0, nf):
     )
 
 
-# @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)", cache=True)
-# def nnlo_decompose_expanded(gamma_singlet, a1, a0, nf):
-#     """
-#     Singlet next-to-leading order decompose-expanded EKO
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1)", cache=True)
+def nnlo_decompose_expanded(gamma_singlet, a1, a0, nf):
+    """
+    Singlet next-to-next-to-leading order decompose-expanded EKO
 
-#     Parameters
-#     ----------
-#         gamma_singlet : numpy.ndarray
-#             singlet anomalous dimensions matrices
-#         a1 : float
-#             target coupling value
-#         a0 : float
-#             initial coupling value
-#         nf : int
-#             number of active flavors
+    Parameters
+    ----------
+        gamma_singlet : numpy.ndarray
+            singlet anomalous dimensions matrices
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
 
-#     Returns
-#     -------
-#         e_s^2 : numpy.ndarray
-#             singlet next-to-leading order decompose-expanded EKO
-#     """
-#     return nnlo_decompose(
-#        gamma_singlet, ei.j02_expanded(a1, a0, nf), \
-#            ei.j12_expanded(a1, a0, nf), ei.j22_expanded(a1, a0, nf)
-#     )
+    Returns
+    -------
+        e_s^2 : numpy.ndarray
+            singlet next-to-next-to-leading order decompose-expanded EKO
+    """
+    return nnlo_decompose(
+        gamma_singlet,
+        ei.j02_expanded(a1, a0, nf),
+        ei.j12_expanded(a1, a0, nf),
+        ei.j22_expanded(a1, a0, nf),
+    )
 
 
 @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)", cache=True)
@@ -856,8 +858,8 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     elif order == 2:
         if method == "decompose-exact":
             return nnlo_decompose_exact(gamma_singlet, a1, a0, nf)
-        # if method == "decompose-expanded":
-        #     return nnlo_decompose_expanded(gamma_singlet, a1, a0, nf)
+        if method == "decompose-expanded":
+            return nnlo_decompose_expanded(gamma_singlet, a1, a0, nf)
         if method == "perturbative-exact":
             return nnlo_perturbative_exact(
                 gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
