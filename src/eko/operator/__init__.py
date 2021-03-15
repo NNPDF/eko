@@ -30,6 +30,7 @@ def gamma_ns_fact(order, mode, n, nf, L):
     gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
     if order > 0:
         gamma_ns[1] -= beta.beta(0, nf) * gamma_ns[0] * L
+    if order > 1:
         gamma_ns[2] -= (
             beta.beta(0, nf) * gamma_ns[1] * L
             - (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_ns[0]
@@ -42,6 +43,7 @@ def gamma_singlet_fact(order, n, nf, L):
     gamma_singlet = ad.gamma_singlet(order, n, nf,)
     if order > 0:
         gamma_singlet[1] -= beta.beta(0, nf) * gamma_singlet[0] * L
+    if order > 1:    
         gamma_singlet[2] -= (
             beta.beta(0, nf) * gamma_singlet[1] * L
             - (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_singlet[0]
@@ -182,6 +184,8 @@ class Operator:
             labels.append("NS_p")
             if order > 0:
                 labels.append("NS_m")
+            if order > 1:
+                labels.append("NS_v")
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
             logger.warning("Evolution: skipping singlet sector")

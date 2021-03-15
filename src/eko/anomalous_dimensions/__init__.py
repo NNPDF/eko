@@ -103,7 +103,7 @@ def gamma_ns(order, mode, n, nf):
         eko.anomalous_dimensions.nlo.gamma_nsm_1 : :math:`\gamma_{ns,-}^{(1)}(N)`
         eko.anomalous_dimensions.nnlo.gamma_nsp_2 : :math:`\gamma_{ns,+}^{(2)}(N)`
         eko.anomalous_dimensions.nnlo.gamma_nsm_2 : :math:`\gamma_{ns,-}^{(2)}(N)`
-        eko.anomalous_dimensions.nnlo.gamma_nsp_2 : :math:`\gamma_{ns,v}^{(2)}(N)`
+        eko.anomalous_dimensions.nnlo.gamma_nsv_2 : :math:`\gamma_{ns,v}^{(2)}(N)`
     """
     # cache the s-es
     sx = np.full(1, harmonics.harmonic_S1(n))
@@ -126,6 +126,8 @@ def gamma_ns(order, mode, n, nf):
         elif mode == "m":
             gamma_ns_2 = nnlo.gamma_nsm_2(n, nf, sx)
         elif mode == "v":
+            # if mode v and NNLO we need to add gamma1 explicitly
+            gamma_ns[1] = nlo.gamma_nsm_1(n, nf)
             gamma_ns_2 = nnlo.gamma_nsv_2(n, nf, sx)
         gamma_ns[2] = gamma_ns_2
     return gamma_ns

@@ -177,7 +177,7 @@ def j22_exact(a1, a0, nf):
         (b1 + 2 * a0 * b2) / Delta
     )
     log = np.log((1 + a1 * (b1 + b2 * a1)) / (1 + a0 * (b1 + b2 * a0)))
-    return 1 / beta.beta(2, nf) * log - b1 / (beta.beta(2, nf) * Delta) * delta
+    return 1 / (2 * beta.beta(2, nf)) * log - b1 / (beta.beta(2, nf) * Delta) * delta
 
 
 @nb.njit("f8(f8,f8,u1)", cache=True)
@@ -241,7 +241,7 @@ def j02_exact(a1, a0, nf):
         j00(a1, a0, nf)
         - beta.b(1, nf) * j12_exact(a1, a0, nf)
         - beta.b(2, nf) * j22_exact(a1, a0, nf)
-    )  # pylint: disable=line-too-long
+    )
 
 
 # TODO: add the NNLO expanded functions
