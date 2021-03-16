@@ -55,7 +55,7 @@ Sorted elements in Evolution Basis as :obj:`str`.
 
 Definition: :ref:`here <theory/FlavorSpace:flavor basis>`.
 
-corresponding |PDF| : :math:`\gamma, \Sigma, g, V_{3}, V_{8}, V_{15}, V_{24},
+corresponding |PDF| : :math:`\gamma, \Sigma, g, V, V_{3}, V_{8}, V_{15}, V_{24},
 V_{35}, T_{3}, T_{8}, T_{15}, T_{24}, T_{35}`
 """
 

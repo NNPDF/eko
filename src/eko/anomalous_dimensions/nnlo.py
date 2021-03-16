@@ -177,7 +177,7 @@ def gamma_nsp_2(n, nf: int, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsv_2(n, nf: int, sx):
     """
-    Computes the next-to-next-to-leading-order singlet-like non-singlet anomalous dimension.
+    Computes the next-to-next-to-leading-order valence non-singlet anomalous dimension.
 
     Implements Eq. (3.9) of :cite:`Moch:2004pa`.
 
@@ -193,7 +193,7 @@ def gamma_nsv_2(n, nf: int, sx):
     Returns
     -------
         gamma_nsv_2 : complex
-            Next-to-next-to-leading-order singlet-like non-singlet anomalous dimension
+            Next-to-next-to-leading-order valence non-singlet anomalous dimension
             :math:`\\gamma_{ns,v}^{(2)}(N)`
     """
     S1 = sx[0]
