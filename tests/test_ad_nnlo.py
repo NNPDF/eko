@@ -24,9 +24,7 @@ def test_gamma_2():
     sx = np.append(sx, harmonics.harmonic_S3(2))
     sx = np.append(sx, harmonics.harmonic_S4(2))
     gS2 = ad_nnlo.gamma_singlet_2(2, NF, sx)
-    np.testing.assert_allclose(
-        ad_nnlo.gamma_singlet_2(1, NF, sx)[0,0], 0, atol=2e-3
-    )
+    
     # gluon momentum conservation
     np.testing.assert_allclose(gS2[0, 1] + gS2[1, 1], 0, atol=4e-3)
     # quark momentum conservation
