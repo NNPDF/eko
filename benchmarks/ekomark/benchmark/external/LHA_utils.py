@@ -53,7 +53,7 @@ LHA_rotate_to_evolution = np.array([
 
 LHA_rotate_to_evolution_NNLO = np.array([
     # u_v, d_v, L_-, L_+, s_v s_+, c_+,    g
-    [   1,   1,   0,   0,   0,   0,   0,   0], # V
+    [   1,   1,   0,   0,   2,   0,   0,   0], # V
     [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
     [   1,  -1,  -2,   0,   0,   0,   0,   0], # T3
     [   1,   1,   0,   0,  -2,   0,   0,   0], # V8

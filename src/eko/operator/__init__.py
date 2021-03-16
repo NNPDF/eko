@@ -35,7 +35,6 @@ def gamma_ns_fact(order, mode, n, nf, L):
             2 * beta.beta(0, nf) * gamma_ns[1] * L
             + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_ns[0]
         )
-    print( "Gammas", gamma_ns)
     return gamma_ns
 
 

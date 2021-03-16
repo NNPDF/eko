@@ -125,11 +125,11 @@ def gamma_ns(order, mode, n, nf):
         gamma_ns[1] = gamma_ns_1
     if order == 2:
         if mode == "p":
-            gamma_ns_2 = nnlo.gamma_nsp_2(n, nf, sx)
+            gamma_ns_2 = - nnlo.gamma_nsp_2(n, nf, sx)
         elif mode == "m":
-            gamma_ns_2 = nnlo.gamma_nsm_2(n, nf, sx)
+            gamma_ns_2 = - nnlo.gamma_nsm_2(n, nf, sx)
         elif mode == "v":
-            gamma_ns_2 = nnlo.gamma_nsv_2(n, nf, sx)
+            gamma_ns_2 = - nnlo.gamma_nsv_2(n, nf, sx)
         gamma_ns[2] = gamma_ns_2
     return gamma_ns
 
@@ -171,5 +171,5 @@ def gamma_singlet(order, n, nf):
         gamma_singlet[1] = nlo.gamma_singlet_1(n, nf)
     if order == 2:
         sx = np.append(sx, harmonics.harmonic_S4(n))
-        gamma_singlet[2] = nnlo.gamma_singlet_2(n, nf, sx)
+        gamma_singlet[2] = - nnlo.gamma_singlet_2(n, nf, sx)
     return gamma_singlet
