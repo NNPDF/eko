@@ -107,23 +107,24 @@ def gamma_ns(order, mode, n, nf):
     """
     # cache the s-es
     sx = np.full(1, harmonics.harmonic_S1(n))
-    if order >= 1:
-        sx = np.append(sx, harmonics.harmonic_S2(n))
-        sx = np.append(sx, harmonics.harmonic_S3(n))
-
+    # now combine
     gamma_ns = np.zeros(order + 1, np.complex_)
     gamma_ns[0] = lo.gamma_ns_0(n, sx[0])
+    # NLO and beyond
     if order >= 1:
-        # TODO: pass the hamonics to nlo gammas
+        # TODO: pass the necessary harmonics to nlo gammas
         if mode == "p":
             gamma_ns_1 = nlo.gamma_nsp_1(n, nf)
         elif mode == "m":
             gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
-        # if mode v and NNLO we need to add gamma1_ns explicitly
+        # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
         elif mode == "v":
             gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
         gamma_ns[1] = gamma_ns_1
-    if order == 2:
+    # NNLO and beyond
+    if order >= 2:
+        sx = np.append(sx, harmonics.harmonic_S2(n))
+        sx = np.append(sx, harmonics.harmonic_S3(n))
         if mode == "p":
             gamma_ns_2 = - nnlo.gamma_nsp_2(n, nf, sx)
         elif mode == "m":

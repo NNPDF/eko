@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Test LO splitting functions
+# Test NLO anomalous dims
 import numpy as np
 
 import eko.anomalous_dimensions.nlo as ad_nlo

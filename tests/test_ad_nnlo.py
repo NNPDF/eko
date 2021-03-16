@@ -1,30 +1,33 @@
 # -*- coding: utf-8 -*-
-# Test LO splitting functions
+# Test NNLO anomalous dims
 import numpy as np
 
 import eko.anomalous_dimensions.nnlo as ad_nnlo
-import eko.anomalous_dimensions.harmonics as harmonics
+from eko.anomalous_dimensions import harmonics
 
 NF = 5
 
+def get_sx(N):
+    """Collect the S-cache"""
+    sx = np.full(1, harmonics.harmonic_S1(N))
+    sx = np.append(sx, harmonics.harmonic_S2(N))
+    sx = np.append(sx, harmonics.harmonic_S3(N))
+    sx = np.append(sx, harmonics.harmonic_S4(N))
+    return sx
+
 
 def test_gamma_2():
-    # numeber conservation
-    sx = np.full(1, harmonics.harmonic_S1(1))
-    sx = np.append(sx, harmonics.harmonic_S2(1))
-    sx = np.append(sx, harmonics.harmonic_S3(1))
-    sx = np.append(sx, harmonics.harmonic_S4(1))
-    np.testing.assert_allclose(
-        ad_nnlo.gamma_nsm_2(1, NF, sx) - ad_nnlo.gamma_nsv_2(1, NF, sx), 0, atol=2e-3
-    )
+    # number conservation - each is 0 on its own, see :cite:`Moch:2004pa`
+    N = 1
+    sx = get_sx(N)
+    np.testing.assert_allclose(ad_nnlo.gamma_nsv_2(N, NF, sx), 0, atol=1e-3)
+    np.testing.assert_allclose(ad_nnlo.gamma_nsm_2(N, NF, sx), 0, atol=7e-4)
 
+    # get singlet sector
+    N = 2
+    sx = get_sx(N)
+    gS2 = ad_nnlo.gamma_singlet_2(N, NF, sx)
 
-    sx = np.full(1, harmonics.harmonic_S1(2))
-    sx = np.append(sx, harmonics.harmonic_S2(2))
-    sx = np.append(sx, harmonics.harmonic_S3(2))
-    sx = np.append(sx, harmonics.harmonic_S4(2))
-    gS2 = ad_nnlo.gamma_singlet_2(2, NF, sx)
-    
     # gluon momentum conservation
     np.testing.assert_allclose(gS2[0, 1] + gS2[1, 1], 0, atol=4e-3)
     # quark momentum conservation
