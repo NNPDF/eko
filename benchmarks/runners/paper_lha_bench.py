@@ -75,7 +75,7 @@ class LHABenchmark(Runner):
             theory_updates : list(dict)
                 theory updates
         """
-        self.run(theory_updates, [{"Q2grid": [1e4]}], ["ToyLH"])
+        self.run(theory_updates, [{"Q2grid": [1e4], "debug_skip_singlet": True,}], ["ToyLH"])
 
     def benchmark_plain(self, pto):
         """Plain configuration"""

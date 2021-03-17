@@ -28,9 +28,9 @@ logger = logging.getLogger(__name__)
 @nb.njit("c16[:](u1,string,c16,u1,f8)", cache=True)
 def gamma_ns_fact(order, mode, n, nf, L):
     gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
-    if order > 0:
+    if order >= 1:
         gamma_ns[1] -= beta.beta(0, nf) * gamma_ns[0] * L
-    if order > 1:
+    if order >= 2:
         gamma_ns[2] -= (
             2 * beta.beta(0, nf) * gamma_ns[1] * L
             + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_ns[0]
@@ -41,9 +41,9 @@ def gamma_ns_fact(order, mode, n, nf, L):
 @nb.njit("c16[:,:,:](u1,c16,u1,f8)", cache=True)
 def gamma_singlet_fact(order, n, nf, L):
     gamma_singlet = ad.gamma_singlet(order, n, nf,)
-    if order > 0:
+    if order >= 1:
         gamma_singlet[1] -= beta.beta(0, nf) * gamma_singlet[0] * L
-    if order > 1:
+    if order >= 2:
         gamma_singlet[2] -= (
             2 * beta.beta(0, nf) * gamma_singlet[1] * L
             + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_singlet[0]

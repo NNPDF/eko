@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Implementation of :cite:`Giele:2002hx`
+Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO)
 """
 import pathlib
 import yaml
@@ -52,20 +52,21 @@ LHA_rotate_to_evolution = np.array([
 ])
 
 LHA_rotate_to_evolution_NNLO = np.array([
-    # u_v, d_v, L_-, L_+, s_v s_+, c_+,    g
+    # u_v, d_v, L_-, 2L_+, s_v s_+, c_+,    g
     [   1,   1,   0,   0,   2,   0,   0,   0], # V
     [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
     [   1,  -1,  -2,   0,   0,   0,   0,   0], # T3
     [   1,   1,   0,   0,  -2,   0,   0,   0], # V8
     [   1,   1,   0,   1,   0,  -2,   0,   0], # T8
     [   1,   1,   0,   1,   0,   1,  -3,   0], # T15
-    [   1,   1,   0,   1,   0,   1,   1,   0], # T24
     [   1,   1,   0,   1,   0,   1,   1,   0], # S
     [   0,   0,   0,   0,   0,   0,   0,   1], # g
 ])
 
 # L+ = 2(ub + db) = u+ - u- + d+ - d-
 # L- = ub - db = ((u+-u-) - (d+ - d-))/2
+# In the NNLO paper :cite:`Dittmar:2005ed` L_+ definition is different:
+# L_+ = 2 L_+_NNLO
 LHA_rotate_to_flavor = np.array([
     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
     [   0,   0,   0,   0,   0,   0,   0,   0], # ph
@@ -85,7 +86,7 @@ LHA_rotate_to_flavor = np.array([
 ])
 
 LHA_rotate_to_flavor_NNLO = np.array([
-    # u_v, d_v, L_-, L_+, s_v  s_+, c_+,   g
+    # u_v, d_v, L_-, 2L_+, s_v  s_+, c_+,   g
     [   0,   0,   0,   0,   0,   0,   0,   0], # ph
     [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
     [   0,   0,   0,   0,   0,   0,   0,   0], # bbar

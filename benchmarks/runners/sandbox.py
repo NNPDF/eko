@@ -33,6 +33,7 @@ class Sandbox(Runner):
             "ev_op_iterations": [10],
             "ev_op_max_order": [10],
             "Q2grid": [[10000]],
+            "debug_skip_singlet": True,
         }
         return ops
 
