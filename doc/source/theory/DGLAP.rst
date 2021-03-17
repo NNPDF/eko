@@ -250,7 +250,7 @@ We find
 
 with :math:`\gamma_{ns} \in \{\gamma_{ns,+},\gamma_{ns,-}=\gamma_{ns,v}\}`.
 
-We obtain the (exact) |EKO| :cite:`Vogt:2004ns,Bonvini:2012sh`:
+We obtain the (exact) |EKO| :cite:`Vogt:2004ns,Cafarella_2008`:
 
 .. math::
     \ln \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \gamma^{(0)} \cdot j^{(0,2)}(a_s,a_s^0) + \gamma^{(1)} \cdot j^{(1,2)}(a_s,a_s^0) + \gamma^{(2)} \cdot j^{(2,2)}(a_s,a_s^0)\\
@@ -306,23 +306,15 @@ with the unitary mtrices defined consistenly with the mthod ``pertubative`` adop
 .. math::
     U_1 &= R_1 = \frac{1}{\beta_0}[ \gamma^{(1)} - b_1 \gamma^{(0)}] \\
     U_2 &= \frac{1}{2}[ R_1^2 - R_2 ] \\
-    R_2 &= \gamma^{(0)}/\beta_0 - b_1 R_1 - b_2 R_0 \\
+    R_2 &= \gamma^{(2)}/\beta_0 - b_1 R_1 - b_2 R_0 \\
 
 This method corresponds to ``IMODEV=3`` of :cite:`Vogt:2004ns`.  
 
-- ``method = 'truncated'``: we expand the *whole* exponential and keeping terms within :math:`\mathcal o(a_s^3)`. This method is supposed to be the fastest among the one provided by our program. We obtain: 
+- ``method = 'truncated'``: we expand the *whole* exponential and keeping terms within :math:`\mathcal o(a_s^3)`. This method is the fastest among the ones provided by our program. We obtain: 
 
 .. math::
-    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \left ( 1 + R_1 (a_s - a_s^0) + \frac{1}{2} R_2  (a_s^2 - a_s^{(0)2}) \right) \\
-    &= \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \{ 1 + \frac{1}{\beta_0} [ \gamma^{(1)} - b_1 \gamma^{(0)} ] (a_s - a_s^0) \\
-    &+ \frac{1}{2 \beta_0}[ \gamma^{(2)} - b_1 \gamma^{(1)} + \gamma^{(0)}( b_1^2 - b_2) ] (a_s^2 - a_s^{(0)2}) \}
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \left [ 1 + U_1 (a_s - a_s^0) + a_s^2 U_2 - a_s a_s^{(0)} U_1^2 + a_s^{(0)2} ( U_1^2 - U_2 ) \right]
 
-
-Trash this expansion which is not consistent
-
-.. math::
-    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) & \left( 1 + j^{(1,2)}_{exp}(a_s,a_s^0) [ \gamma^{(1)} - b_1 \gamma^{(0)} ] \right) \\
-    & \left( 1 + j^{(2,2)}_{exp}(a_s,a_s^0)[ \gamma^{(2)} - b_2 \gamma^{(0)} ] \right )
 
 
 NNLO Singlet Evolution

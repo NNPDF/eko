@@ -245,15 +245,62 @@ def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
     b1 = beta.b(1, nf)
     b2 = beta.b(2, nf)
+    beta0 = beta.beta(0, nf)
+    # U1 = R1
+    U1 = 1.0 / beta0 * (gamma_ns[1] - b1 * gamma_ns[0])
+    R2 = gamma_ns[2] / beta0 - b1 * U1 - b2 * gamma_ns[0] / beta0
+    U2 = 0.5 * (U1 ** 2 - R2)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = lo_exact(gamma_ns, ah, al, nf)
-        e *= (
-            e0
-            * (1.0 + ei.j12_expanded(ah, al, nf) * (gamma_ns[1] - b1 * gamma_ns[0]))
-            * (1.0 + ei.j22_expanded(ah, al, nf) * (gamma_ns[2] - b2 * gamma_ns[0]))
+        e *= e0 * (
+            1.0
+            + U1 * (ah - al)
+            + U2 * ah ** 2
+            - ah * al * U1 ** 2
+            + al ** 2 * (U1 ** 2 - U2)
         )
+        al = ah
+    return e
+
+
+@nb.njit("c16(c16[:],f8,f8,u1,u4)", cache=True)
+def nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
+    """
+    Non-singlet next-to-next-to-leading order ordered truncated EKO
+
+    Parameters
+    ----------
+        gamma_ns : numpy.ndarray
+            non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
+
+    Returns
+    -------
+        e_ns^2 : complex
+            non-singlet next-to-next-to-leading order ordered truncated EKO
+    """
+    a_steps = utils.geomspace(a0, a1, ev_op_iterations)
+    b1 = beta.b(1, nf)
+    b2 = beta.b(2, nf)
+    beta0 = beta.beta(0, nf)
+    # U1 = R1
+    U1 = 1.0 / beta0 * (gamma_ns[1] - b1 * gamma_ns[0])
+    R2 = gamma_ns[2] / beta0 - b1 * U1 - b2 * gamma_ns[0] / beta0
+    U2 = 0.5 * (U1 ** 2 - R2)
+    e = 1.0
+    al = a_steps[0]
+    for ah in a_steps[1:]:
+        e0 = lo_exact(gamma_ns, ah, al, nf)
+        e *= e0 * (1.0 + ah * U1 + ah ** 2 * U2) / (1.0 + al * U1 + al ** 2 * U2)
         al = ah
     return e
 
@@ -315,9 +362,9 @@ def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations):
             return nnlo_expanded(gamma_ns, a1, a0, nf)
         elif method == "truncated":
             return nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
-        # elif method == "ordered-truncated":
-        #     return nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
-        # # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
+        elif method == "ordered-truncated":
+            return nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
+        # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
         return nnlo_exact(gamma_ns, a1, a0, nf)
     else:
         raise NotImplementedError("Selected order is not implemented")
