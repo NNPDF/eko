@@ -290,17 +290,39 @@ In |NNLO| we provide different strategies to define the |EKO|:
 - ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and expand all functions :math:`j^{(n,m)}(a_s,a_s^0)` to the order :math:`\mathcal o(a_s^3)`. We find:
 
 .. math::
-    j^{(1,2)}(a_s,a_s^0) &\approx \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - a_s^{(0)2})] \\
-    j^{(2,2)}(a_s,a_s^0) &\approx  \frac{1}{2\beta_0} (a_s^2 - a_s^{(0)2}) \\
-    j^{(0,2)}(a_s,a_s^0) &\approx  j^{(0,0)}(a_s,a_s^0)  - \frac{1}{\beta_0} [ b_1 (a_s - a_s^0) + \frac{b_1^2+b_2}{2} (a_s^2 - a_s^{(0)2}) ]
+    j^{(2,2)}(a_s,a_s^0) &\approx j^{(2,2)}_{exp}(a_s,a_s^0) = \frac{1}{2\beta_0} (a_s^2 - a_s^{(0)2}) \\
+    j^{(1,2)}(a_s,a_s^0) &\approx j^{(1,2)}_{exp}(a_s,a_s^0) = \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - a_s^{(0)2})] \\
+    j^{(0,2)}(a_s,a_s^0) &\approx j^{(0,2)}_{exp}(a_s,a_s^0) =  j^{(0,0)}(a_s,a_s^0)  - \frac{1}{\beta_0} [ b_1 (a_s - a_s^0) + \frac{b_1^2+b_2}{2} (a_s^2 - a_s^{(0)2}) ]
 
+This method corresponds to ``IMODEV=2`` of :cite:`Vogt:2004ns`.  
 
-- ``method = 'ordered-truncated'``: expanding the *argument* of the exponential of the new term but keeping the order we obtain:
-- ``method = 'truncated'``: expanding the *whole* exponential and keeping only the lienar terms in :math:`\gamma^{(i)}`
+- ``method = 'ordered-truncated'``: for this method we follow the prescription from :cite:`Vogt:2004ns` and we get:
 
 .. math::
-    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \{ 1 + \frac{1}{\beta_0} [ \gamma^{(1)} - b_1 \gamma^{(0)} ] (a_s - a_s^0) \\
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \frac{ 1 + a_s U_1 + a_s^2 U_2 }{ 1 + a_s^{(0)} U_1 + a_s^{(0)2} U_2 }   
+
+with the unitary mtrices defined consistenly with the mthod ``pertubative`` adopted for NLO singlet evolution: 
+
+.. math::
+    U_1 &= R_1 = \frac{1}{\beta_0}[ \gamma^{(1)} - b_1 \gamma^{(0)}] \\
+    U_2 &= \frac{1}{2}[ R_1^2 - R_2 ] \\
+    R_2 &= \gamma^{(0)}/\beta_0 - b_1 R_1 - b_2 R_0 \\
+
+This method corresponds to ``IMODEV=3`` of :cite:`Vogt:2004ns`.  
+
+- ``method = 'truncated'``: we expand the *whole* exponential and keeping terms within :math:`\mathcal o(a_s^3)`. This method is supposed to be the fastest among the one provided by our program. We obtain: 
+
+.. math::
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \left ( 1 + R_1 (a_s - a_s^0) + \frac{1}{2} R_2  (a_s^2 - a_s^{(0)2}) \right) \\
+    &= \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \{ 1 + \frac{1}{\beta_0} [ \gamma^{(1)} - b_1 \gamma^{(0)} ] (a_s - a_s^0) \\
     &+ \frac{1}{2 \beta_0}[ \gamma^{(2)} - b_1 \gamma^{(1)} + \gamma^{(0)}( b_1^2 - b_2) ] (a_s^2 - a_s^{(0)2}) \}
+
+
+Trash this expansion which is not consistent
+
+.. math::
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) & \left( 1 + j^{(1,2)}_{exp}(a_s,a_s^0) [ \gamma^{(1)} - b_1 \gamma^{(0)} ] \right) \\
+    & \left( 1 + j^{(2,2)}_{exp}(a_s,a_s^0)[ \gamma^{(2)} - b_2 \gamma^{(0)} ] \right )
 
 
 NNLO Singlet Evolution
