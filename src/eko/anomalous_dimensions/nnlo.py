@@ -209,7 +209,7 @@ def gamma_nsv_2(n, nf: int, sx):
     if abs(n.imag) < 1.0e-5 and abs(n - 1.0) < 1.0e-5:
         B1M = - zeta2
     else:
-        B1M = - (S1 - 1.0 / n) / (n - 1.0)
+        B1M = - (S1 - 1.0 / n) / (n - 1.0) # pragma: no cover
 
     ps2 = (
         - 163.9 * (B1M + S1 / n)

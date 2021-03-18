@@ -108,7 +108,7 @@ def test_ode_nnlo():
                     2, method, gamma_ns, a1 - 0.5 * delta_a, a0, nf, ev_op_iterations
                 )
             ) / delta_a
-            np.testing.assert_allclose(lhs, rhs, atol=1e-1)
+            np.testing.assert_allclose(lhs, rhs, atol=2e-1)
 
 
 def test_error():

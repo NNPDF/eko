@@ -13,7 +13,7 @@ base_theory = {
     "mb": 4.5,
     "mt": 175,
     "Qref": np.sqrt(2.0),  # Eq. (32),Eq. (4.53) NNLO
-    "alphas": 0.35, # Eq. (4.55) NNLO
+    "alphas": 0.35,  # Eq. (4.55) NNLO
 }
 """Global theory settings"""
 
@@ -49,9 +49,14 @@ class LHABenchmark(Runner):
         th.update({"PTO": pto})
         return [th]
 
-    def sv_theories(self):
+    def sv_theories(self, pto):
         """
         Scale variation theories.
+
+        Parameters
+        ----------
+            pto : int
+                perturbation order
 
         Returns
         -------
@@ -59,10 +64,10 @@ class LHABenchmark(Runner):
                 theory updates
         """
         low = self.theory.copy()
-        low["PTO"] = 1
+        low["PTO"] = pto
         low["XIR"] = np.sqrt(1.0 / 2.0)
         high = self.theory.copy()
-        high["PTO"] = 1
+        high["PTO"] = pto
         high["XIR"] = np.sqrt(2.0)
         return [low, high]
 
@@ -87,7 +92,12 @@ class LHABenchmark(Runner):
 
     def benchmark_sv(self):
         """Scale variations"""
-        self.run_lha(self.sv_theories())
+        for pto in [1, 2]:
+            if pto == 2:
+                self.skip_pdfs.extend([-5, 5, "T24"])
+                if "V8" in self.skip_pdfs:
+                    self.skip_pdfs.remove("V8")
+            self.run_lha(self.sv_theories(pto))
 
 
 class BenchmarkVFNS(LHABenchmark):
@@ -124,8 +134,7 @@ if __name__ == "__main__":
     vfns = BenchmarkVFNS()
     ffns = BenchmarkFFNS()
 
-    #vfns.benchmark_plain(2)
-    ffns.benchmark_plain(2)
-    # TODO: add NNLO sv
+    # vfns.benchmark_plain(2)
+    # ffns.benchmark_plain(2)
     # vfns.benchmark_sv()
-    # ffns.benchmark_sv()
+    ffns.benchmark_sv()
