@@ -523,7 +523,7 @@ def sum_u(uvec, a):
     return res
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1,c16[:,:,:])", cache=True)
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u1,u4,u1,b1)", cache=True)
 def eko_perturbative(
     gamma_singlet, a1, a0, nf, pto, ev_op_iterations, ev_op_max_order, is_exact
 ):
@@ -720,7 +720,7 @@ def eko_perturbative(
 #     )
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)", cache=True)
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u1,u4)", cache=True)
 def eko_truncated(gamma_singlet, a1, a0, nf, pto, ev_op_iterations):
     """
     Singlet NLO or NNLO truncated EKO
@@ -871,13 +871,15 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     elif method == "decompose-exact":
         if order == 1:
             return nlo_decompose_exact(gamma_singlet, a1, a0, nf)
-        elif order == 2:
+        else:
             return nnlo_decompose_exact(gamma_singlet, a1, a0, nf)
-    if method == "decompose-expanded":
+    elif method == "decompose-expanded":
         if order == 1:
             return nlo_decompose_expanded(gamma_singlet, a1, a0, nf)
-        elif order == 2:
+        else:
             return nnlo_decompose_expanded(gamma_singlet, a1, a0, nf)
+    else:
+        raise NotImplementedError("Selected method is not implemented")
 
     # # NLO
     # if order == 1:
