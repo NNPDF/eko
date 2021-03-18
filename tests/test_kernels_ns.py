@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytest
 import numpy as np
 
 from eko.kernels import non_singlet as ns
@@ -97,7 +98,6 @@ def test_ode_nnlo():
             + beta.beta(1, nf) * a1 ** 3
             + beta.beta(1, nf) * a1 ** 4
         )
-        # TODO: use the expanded here
         for method in ["iterate-exact"]:
             rhs = r * ns.dispatcher(2, method, gamma_ns, a1, a0, nf, ev_op_iterations)
             lhs = (
@@ -108,4 +108,9 @@ def test_ode_nnlo():
                     2, method, gamma_ns, a1 - 0.5 * delta_a, a0, nf, ev_op_iterations
                 )
             ) / delta_a
-            np.testing.assert_allclose(lhs, rhs, atol=2e-1)
+            np.testing.assert_allclose(lhs, rhs, atol=1e-1)
+
+
+def test_error():
+    with pytest.raises(NotImplementedError):
+        ns.dispatcher(3, "iterate-exact", np.random.rand(3) + 0j, 0.2, 0.1, 3, 10)

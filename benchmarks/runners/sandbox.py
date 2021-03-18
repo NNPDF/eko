@@ -22,7 +22,7 @@ class Sandbox(Runner):
     rotate_to_evolution_basis = True
 
     # pdf to skip, for LHA there is a default
-    skip_pdfs = [22, -6, 6, -5, 5, -4, 4, "ph", "V35", "V24", "V15", "T35"]
+    skip_pdfs = [22, -6, 6, -5, 5, -4, 4, "ph", "V35", "V24", "V15", "T35", "T24"]
     #if external == "LHA":
     #    skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
 
@@ -33,7 +33,6 @@ class Sandbox(Runner):
             "ev_op_iterations": [10],
             "ev_op_max_order": [10],
             "Q2grid": [[10000]],
-            "debug_skip_singlet": True,
         }
         return ops
 
@@ -44,7 +43,7 @@ class Sandbox(Runner):
             "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",
-            #"XIR": 1.4142135623730951,
+            "XIR": 1.4142135623730951,
             "Q0": np.sqrt(2),
             "kcThr": 0.0,
             "kbThr": np.inf,

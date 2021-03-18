@@ -28,7 +28,7 @@ raw_label_list = {
 
 evol_label_list = {
     1: ["V", "V3", "T3", "T8", "T15", "T24", "S", "g"],
-    2: ["V", "V3", "T3", "V8", "T8", "T15", "T24", "S", "g"],
+    2: ["V", "V3", "T3", "V8", "T8", "T15", "S", "g"],
 }
 
 # my/exact initial grid

@@ -80,7 +80,7 @@ class LHABenchmark(Runner):
     def benchmark_plain(self, pto):
         """Plain configuration"""
         if pto == 2:
-            self.skip_pdfs.extend([-5, 5])
+            self.skip_pdfs.extend([-5, 5, "T24"])
             if "V8" in self.skip_pdfs:
                 self.skip_pdfs.remove("V8")
         self.run_lha(self.plain_theory(pto))

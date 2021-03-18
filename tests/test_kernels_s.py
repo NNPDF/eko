@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytest
 import numpy as np
 
 from eko.kernels import singlet as s
@@ -158,7 +159,8 @@ def test_similarity():
     for order in [
         0,
         1,
-    ]:  # TODO: add NNLO 2  "truncated" and "ordered-truncated" might not work at this precision
+        2,
+    ]:
         ref = s.dispatcher(
             order,
             "decompose-exact",
@@ -179,6 +181,12 @@ def test_similarity():
             "decompose-exact",
             "perturbative-exact",
         ]:
+            if (
+                "truncated" in method and order == 2
+            ):  # TODO: check if this is consistent
+                toll = 4e-1
+            else:
+                toll = delta_a
             np.testing.assert_allclose(
                 s.dispatcher(
                     order,
@@ -191,5 +199,10 @@ def test_similarity():
                     ev_op_max_order,
                 ),
                 ref,
-                atol=delta_a,
+                atol=toll,
             )
+
+
+def test_error():
+    with pytest.raises(NotImplementedError):
+        s.dispatcher(3, "iterate-exact", np.random.rand(3, 2, 2), 0.2, 0.1, 3, 10, 10)
