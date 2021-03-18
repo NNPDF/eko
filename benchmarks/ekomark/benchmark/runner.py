@@ -78,7 +78,7 @@ class Runner(BenchmarkRunner):
             if rerun:
                 out = eko.run_dglap(theory, ocard)
                 print(f"Writing operator to {path}")
-                out.dump_yaml_to_file(path, binarize=False)
+                out.dump_yaml_to_file(path)
             else:
                 # load
                 print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")

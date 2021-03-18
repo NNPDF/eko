@@ -97,6 +97,8 @@ class TestInterpolatorDispatcher:
             interpolation.InterpolatorDispatcher([0.1, 0.2], 0)
         with pytest.raises(ValueError):
             interpolation.InterpolatorDispatcher([0.1, 0.2], 2)
+        with pytest.raises(ValueError):
+            interpolation.InterpolatorDispatcher([], 1)
 
     def test_from_dict(self):
         d = {

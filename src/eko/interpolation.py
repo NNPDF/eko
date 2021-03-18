@@ -497,6 +497,8 @@ class InterpolatorDispatcher:
         """
         # load xgrid
         xgrid = operators_card["interpolation_xgrid"]
+        if len(xgrid) == 0:
+            raise ValueError("Empty xgrid!")
         if xgrid[0] == "make_grid":
             xgrid = make_grid(*xgrid[1:])
         is_log_interpolation = bool(operators_card["interpolation_is_log"])
