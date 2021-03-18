@@ -203,6 +203,6 @@ def test_similarity():
             )
 
 
-def test_error():
-    with pytest.raises(NotImplementedError):
-        s.dispatcher(3, "iterate-exact", np.random.rand(3, 2, 2), 0.2, 0.1, 3, 10, 10)
+# def test_error():
+#     with pytest.raises(NotImplementedError):
+#         s.dispatcher(3, "iterate-exact", np.random.rand(3, 2, 2), 0.2, 0.1, 3, 10, 10)
