@@ -208,7 +208,7 @@ def nnlo_decompose_expanded(gamma_singlet, a1, a0, nf):
 
 
 @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1, u1, u4)", cache=True)
-def eko_iterate(gamma_singlet, a1, a0, nf, pto, ev_op_iterations):
+def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     """
     Singlet NLO or NNLO iterated (exact) EKO
 
@@ -222,14 +222,14 @@ def eko_iterate(gamma_singlet, a1, a0, nf, pto, ev_op_iterations):
             initial coupling value
         nf : int
             number of active flavors
-        pto : int
+        order : int
             perturbative order
         ev_op_iterations : int
             number of evolution steps
 
     Returns
     -------
-        e_s^{pto} : numpy.ndarray
+        e_s^{order} : numpy.ndarray
             singlet NLO or NNLO iterated (exact) EKO
     """
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
@@ -240,13 +240,13 @@ def eko_iterate(gamma_singlet, a1, a0, nf, pto, ev_op_iterations):
     for ah in a_steps[1:]:
         a_half = (ah + al) / 2.0
         delta_a = ah - al
-        if pto == 1:
+        if order == 1:
             ln = (
                 (gamma_singlet[0] * a_half + gamma_singlet[1] * a_half ** 2)
                 / (beta0 * a_half ** 2 + beta1 * a_half ** 3)
                 * delta_a
             )
-        elif pto == 2:
+        elif order == 2:
             beta2 = beta.beta(2, nf)
             ln = (
                 (
@@ -311,7 +311,7 @@ def eko_iterate(gamma_singlet, a1, a0, nf, pto, ev_op_iterations):
 
 
 @nb.njit("c16[:,:,:](c16[:,:,:],u1,u1,u1,b1)", cache=True)
-def r_vec(gamma_singlet, nf, ev_op_max_order, pto, is_exact):
+def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
     r"""
     Compute singlet R vector for perturbative mode.
 
@@ -327,8 +327,8 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, pto, is_exact):
             number of active flavors
         ev_op_iterations : int
             number of evolution steps
-        pto : int
-            pto order
+        order : int
+            order order
         is_exact : boolean
             fill up r-vector?
 
@@ -343,16 +343,16 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, pto, is_exact):
     b2 = beta.b(2, nf)
     # fill explicit elements
     r[0] = gamma_singlet[0] / beta0
-    if pto > 0:
+    if order > 0:
         r[1] = gamma_singlet[1] / beta0 - b1 * r[0]
-    if pto > 1:
+    if order > 1:
         r[2] = gamma_singlet[2] / beta0 - b1 * r[1] - b2 * r[0]
     # fill rest
     if is_exact:
-        if pto == 1:
+        if order == 1:
             for kk in range(2, ev_op_max_order + 1):
                 r[kk] = -b1 * r[kk - 1]
-        elif pto == 2:
+        elif order == 2:
             for kk in range(3, ev_op_max_order + 1):
                 r[kk] = -b1 * r[kk - 1] - b2 * r[kk - 2]
     return r
@@ -525,7 +525,7 @@ def sum_u(uvec, a):
 
 @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u1,u4,u1,b1)", cache=True)
 def eko_perturbative(
-    gamma_singlet, a1, a0, nf, pto, ev_op_iterations, ev_op_max_order, is_exact
+    gamma_singlet, a1, a0, nf, order, ev_op_iterations, ev_op_max_order, is_exact
 ):
     """
     Singlet NLO or NNLO order pertubative EKO, depending on which r is passed
@@ -540,7 +540,7 @@ def eko_perturbative(
             initial coupling value
         nf : int
             number of active flavors
-        pto : int
+        order : int
             perturbative order
         ev_op_iterations : int
             number of evolution steps
@@ -551,10 +551,10 @@ def eko_perturbative(
 
     Returns
     -------
-        e_s^1,2 : numpy.ndarray
+        e_s^{order} : numpy.ndarray
             singlet NLO or NNLO order perturbative EKO
     """
-    r = r = r_vec(gamma_singlet, nf, ev_op_max_order, pto, is_exact)
+    r = r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact)
     uk = u_vec(r, ev_op_max_order)
     e = np.identity(2, np.complex_)
     # iterate elements
@@ -721,7 +721,7 @@ def eko_perturbative(
 
 
 @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u1,u4)", cache=True)
-def eko_truncated(gamma_singlet, a1, a0, nf, pto, ev_op_iterations):
+def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     """
     Singlet NLO or NNLO truncated EKO
 
@@ -735,18 +735,18 @@ def eko_truncated(gamma_singlet, a1, a0, nf, pto, ev_op_iterations):
             initial coupling value
         nf : int
             number of active flavors
-        pto : int
+        order : int
             perturbative order
         ev_op_iterations : int
             number of evolution steps
 
     Returns
     -------
-        e_s^{pto} : numpy.ndarray
+        e_s^{order} : numpy.ndarray
             singlet NLO or NNLO truncated EKO
     """
-    r = r_vec(gamma_singlet, nf, pto, pto, False)
-    u = u_vec(r, pto)
+    r = r_vec(gamma_singlet, nf, order, order, False)
+    u = u_vec(r, order)
     u1 = np.ascontiguousarray(u[1])
     e = np.identity(2, np.complex_)
     # iterate elements
@@ -754,9 +754,9 @@ def eko_truncated(gamma_singlet, a1, a0, nf, pto, ev_op_iterations):
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = np.ascontiguousarray(lo_exact(gamma_singlet, ah, al, nf))
-        if pto == 1:
+        if order == 1:
             ek = e0 + ah * u1 @ e0 - al * e0 @ u1
-        elif pto == 2:
+        elif order == 2:
             u2 = np.ascontiguousarray(u[2])
             ek = (
                 e0
@@ -852,7 +852,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     if order == 0:
         return lo_exact(gamma_singlet, a1, a0, nf)
 
-    # TODO: right now is not really clean ... go on reordering also decompose ?
+    # TODO: right now it is not really clean ... go on reordering also decompose ?
 
     # Common method for NLO and NNLO
     if method in ["iterate-exact", "iterate-expanded"]:

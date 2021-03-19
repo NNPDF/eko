@@ -58,7 +58,7 @@ class BenchmarkZM(ApfelBenchmark):
         """Benckmark Scale Variation"""
 
         th = self.zm_theory.copy()
-        th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
+        th.update({"PTO": [1,2], "XIR": [0.7071067811865475, 1.4142135623730951]})
         self.run(
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
@@ -104,7 +104,7 @@ class BenchmarkFFNS(ApfelBenchmark):
         """Benckmark Scale Variation"""
 
         th = self.ffns_theory.copy()
-        th.update({"PTO": [1], "XIR": [0.7071067811865475, 1.4142135623730951]})
+        th.update({"PTO": [1,2], "XIR": [0.7071067811865475, 1.4142135623730951]})
         self.run(
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     zm = BenchmarkZM()
     ffns = BenchmarkFFNS()
-    for o in [0, 1]:
+    for o in [0, 1, 2]:
         zm.benchmark_zm(o)
         ffns.benchmark_ffns(o)
 
