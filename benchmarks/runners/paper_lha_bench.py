@@ -31,6 +31,8 @@ class LHABenchmark(Runner):
 
     skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
 
+    is_FFNS = False
+
     def plain_theory(self, pto):
         """
         Plain theories at given PTO.
@@ -84,19 +86,15 @@ class LHABenchmark(Runner):
 
     def benchmark_plain(self, pto):
         """Plain configuration"""
-        if pto == 2:
-            self.skip_pdfs.extend([-5, 5, "T24"])
-            if "V8" in self.skip_pdfs:
-                self.skip_pdfs.remove("V8")
+        if pto == 2 and self.is_FFNS:
+            self.ffns_nnlo_pdfs()
         self.run_lha(self.plain_theory(pto))
 
     def benchmark_sv(self):
         """Scale variations"""
-        for pto in [1, 2]:
-            if pto == 2:
-                self.skip_pdfs.extend([-5, 5, "T24"])
-                if "V8" in self.skip_pdfs:
-                    self.skip_pdfs.remove("V8")
+        for pto in [1,2]:
+            if pto == 2 and self.is_FFNS:
+                self.ffns_nnlo_pdfs()
             self.run_lha(self.sv_theories(pto))
 
 
@@ -127,14 +125,24 @@ class BenchmarkFFNS(LHABenchmark):
             "ktThr": np.inf,
         }
     )
+    is_FFNS = True
+
+    def ffns_nnlo_pdfs(self):
+        """
+        Set different pdfs set for NNLO FFNS
+        """
+        self.skip_pdfs.extend([-5, 5, "T24"])
+        if "V8" in self.skip_pdfs:
+            self.skip_pdfs.remove("V8")
 
 
 if __name__ == "__main__":
 
     vfns = BenchmarkVFNS()
-    ffns = BenchmarkFFNS()
+    vfns.benchmark_plain(2)
+    vfns.benchmark_sv()
 
-    # vfns.benchmark_plain(2)
-    # ffns.benchmark_plain(2)
-    # vfns.benchmark_sv()
+    ffns = BenchmarkFFNS()
+    ffns.benchmark_plain(2)
+    ffns = BenchmarkFFNS()
     ffns.benchmark_sv()

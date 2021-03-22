@@ -58,7 +58,7 @@ class BenchmarkZM(ApfelBenchmark):
         """Benckmark Scale Variation"""
 
         th = self.zm_theory.copy()
-        th.update({"PTO": [1,2], "XIR": [0.7071067811865475, 1.4142135623730951]})
+        th.update({"PTO": [1, 2], "XIR": [0.7071067811865475, 1.4142135623730951]})
         self.run(
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
@@ -72,9 +72,7 @@ class BenchmarkZM(ApfelBenchmark):
         )
 
         self.run(
-            cartesian_product(th),
-            operators.build(operators.apfel_config),
-            ["ToyLH"],
+            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"],
         )
 
 
@@ -104,7 +102,7 @@ class BenchmarkFFNS(ApfelBenchmark):
         """Benckmark Scale Variation"""
 
         th = self.ffns_theory.copy()
-        th.update({"PTO": [1,2], "XIR": [0.7071067811865475, 1.4142135623730951]})
+        th.update({"PTO": [1, 2], "XIR": [0.7071067811865475, 1.4142135623730951]})
         self.run(
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
@@ -118,9 +116,7 @@ class BenchmarkFFNS(ApfelBenchmark):
         )
 
         self.run(
-            cartesian_product(th),
-            operators.build(operators.apfel_config),
-            ["ToyLH"],
+            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"],
         )
 
 

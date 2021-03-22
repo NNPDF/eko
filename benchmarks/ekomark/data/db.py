@@ -8,7 +8,7 @@ from sqlalchemy import Column, Integer, Text, Boolean
 from banana.data.db import Base
 
 
-class Operator(Base): # pylint: disable=too-few-public-methods
+class Operator(Base):  # pylint: disable=too-few-public-methods
     """
     Operator cards tbale
     """

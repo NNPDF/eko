@@ -16,6 +16,7 @@ from ..data import db
 table_objects = bnav.table_objects
 table_objects["o"] = db.Operator
 
+
 class NavigatorApp(bnav.navigator.NavigatorApp):
     """
     Navigator base class holding all elementry operations.

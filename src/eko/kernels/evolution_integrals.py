@@ -236,7 +236,7 @@ def j02_exact(a1, a0, nf):
 
     Returns
     -------
-        j02 : float
+        j02 : complex
             integral
     """
     return (

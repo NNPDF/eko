@@ -20,9 +20,8 @@ toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.
 
 # list
 raw_label_list = {
-    0: ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"],
-    1: ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"],
-    2: ["u_v", "d_v", "L_m", "L_p", "s_v", "s_p", "c_p", "g"],
+    "default": ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"],
+    "NNLO_FFNS": ["u_v", "d_v", "L_m", "L_p", "s_v", "s_p", "c_p", "g"],
 }
 # rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
 
@@ -51,7 +50,7 @@ LHA_rotate_to_evolution = np.array([
     [   0,   0,   0,   0,   0,   0,   0,   1], # g
 ])
 
-LHA_rotate_to_evolution_NNLO = np.array([
+LHA_rotate_to_evolution_NNLO_FFNS = np.array([
     # u_v, d_v, L_-, 2L_+, s_v s_+, c_+,    g
     [   1,   1,   0,   0,   2,   0,   0,   0], # V
     [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
@@ -85,7 +84,7 @@ LHA_rotate_to_flavor = np.array([
     [   0,   0,   0,   0,   0,   0,   0,   0], # t
 ])
 
-LHA_rotate_to_flavor_NNLO = np.array([
+LHA_rotate_to_flavor_NNLO_FFNS = np.array([
     # u_v, d_v, L_-, 2L_+, s_v  s_+, c_+,   g
     [   0,   0,   0,   0,   0,   0,   0,   0], # ph
     [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
@@ -105,7 +104,7 @@ LHA_rotate_to_flavor_NNLO = np.array([
 # fmt: on
 
 # rotate basis
-def rotate_data(raw, order, rotate_to_evolution_basis=False):
+def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
     """
     Rotate data either to flavor space or evolution space (from LHA space)
     which is yet an other basis.
@@ -114,8 +113,8 @@ def rotate_data(raw, order, rotate_to_evolution_basis=False):
     ----------
         raw : dict
             data
-        order : int
-            perturbative order
+        is_ffns_nnlo : bool
+            special table for NNLO FFNS
         rotate_to_evolution_basis : bool
             to evolution basis?
 
@@ -125,19 +124,22 @@ def rotate_data(raw, order, rotate_to_evolution_basis=False):
             rotated data
     """
     inp = []
-    for l in raw_label_list[order]:
+    i = "default"
+    if is_ffns_nnlo:
+        i = "NNLO_FFNS"
+    for l in raw_label_list[i]:
         inp.append(raw[l])
     inp = np.array(inp)
     if rotate_to_evolution_basis:
-        if order == 2:
-            rot = np.dot(LHA_rotate_to_evolution_NNLO, inp)
+        if is_ffns_nnlo:
+            rot = np.dot(LHA_rotate_to_evolution_NNLO_FFNS, inp)
             return dict(zip(evol_label_list[2], rot))
         else:
             rot = np.dot(LHA_rotate_to_evolution, inp)
             return dict(zip(evol_label_list[1], rot))
     else:
-        if order == 2:
-            rot = np.dot(LHA_rotate_to_flavor_NNLO, inp)
+        if is_ffns_nnlo:
+            rot = np.dot(LHA_rotate_to_flavor_NNLO_FFNS, inp)
         else:
             rot = np.dot(LHA_rotate_to_flavor, inp)
         return dict(zip(br.flavor_basis_pids, rot))
@@ -176,6 +178,7 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
     fact_to_ren = (theory["XIF"] / theory["XIR"]) ** 2
     table = None
     part = None
+    is_ffns_nnlo = False
     if fns == "FFNS":
         if order == 0:
             table = 2
@@ -190,6 +193,7 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
             else:
                 part = 1
         elif order == 2:
+            is_ffns_nnlo = True
             table = 14
             if fact_to_ren > np.sqrt(2):
                 part = 3
@@ -220,7 +224,7 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
     else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
     ref_values = rotate_data(
-        data[f"table{table}"][f"part{part}"], order, rotate_to_evolution_basis
+        data[f"table{table}"][f"part{part}"], is_ffns_nnlo, rotate_to_evolution_basis
     )
     ref = {
         "target_xgrid": toy_xgrid,
