@@ -118,7 +118,7 @@ def nlo_decompose_expanded(gamma_singlet, a1, a0, nf):
     )
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,f8)", cache=True)
+@nb.njit("c16[:,:](c16[:,:,:],c16,c16,c16)", cache=True)
 def nnlo_decompose(gamma_singlet, j02, j12, j22):
     """
     Singlet next-to-next-to-leading order decompose EKO
@@ -720,8 +720,8 @@ def eko_perturbative(
 #     )
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u1,u4)", cache=True)
-def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u1,u4,u4)", cache=True)
+def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_max_order, ev_op_iterations):
     """
     Singlet NLO or NNLO truncated EKO
 
@@ -739,14 +739,16 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
             perturbative order
         ev_op_iterations : int
             number of evolution steps
+        ev_op_max_order : int
+            perturbative expansion order of U
 
     Returns
     -------
         e_s^{order} : numpy.ndarray
             singlet NLO or NNLO truncated EKO
     """
-    r = r_vec(gamma_singlet, nf, order, order, False)
-    u = u_vec(r, order)
+    r = r_vec(gamma_singlet, nf, ev_op_max_order, order, False)
+    u = u_vec(r, ev_op_max_order)
     u1 = np.ascontiguousarray(u[1])
     e = np.identity(2, np.complex_)
     # iterate elements
@@ -866,7 +868,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
             gamma_singlet, a1, a0, nf, order, ev_op_iterations, ev_op_max_order, False
         )
     elif method in ["truncated", "ordered-truncated"]:
-        return eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
+        return eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_max_order, ev_op_iterations)
     # These method are scattered for nlo and nnlo
     elif method == "decompose-exact":
         if order == 1:

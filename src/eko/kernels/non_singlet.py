@@ -249,7 +249,7 @@ def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     # U1 = R1
     U1 = 1.0 / beta0 * (gamma_ns[1] - b1 * gamma_ns[0])
     R2 = gamma_ns[2] / beta0 - b1 * U1 - b2 * gamma_ns[0] / beta0
-    U2 = 0.5 * (U1 ** 2 - R2)
+    U2 = 0.5 * ( U1 ** 2 + R2)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:

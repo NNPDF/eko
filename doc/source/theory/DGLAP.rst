@@ -305,7 +305,7 @@ with the unitary mtrices defined consistenly with the mthod ``pertubative`` adop
 
 .. math::
     U_1 &= R_1 = \frac{1}{\beta_0}[ \gamma^{(1)} - b_1 \gamma^{(0)}] \\
-    U_2 &= \frac{1}{2}[ R_1^2 - R_2 ] \\
+    U_2 &= \frac{1}{2}[ R_1^2 + R_2 ] \\
     R_2 &= \gamma^{(2)}/\beta_0 - b_1 R_1 - b_2 R_0 \\
 
 This method corresponds to ``IMODEV=3`` of :cite:`Vogt:2004ns`.  
