@@ -146,7 +146,7 @@ def j01_expanded(a1, a0, nf):
 
 
 # pylint: disable=line-too-long
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit("c16(f8,f8,u1)", cache=True)
 def j22_exact(a1, a0, nf):
     r"""
     NNLO-NNLO exact evolution integral.
@@ -167,12 +167,13 @@ def j22_exact(a1, a0, nf):
 
     Returns
     -------
-        j22 : float
+        j22 : complex
             integral
     """
     b1 = beta.b(1, nf)
     b2 = beta.b(2, nf)
-    Delta = np.sqrt(4 * b2 - b1 ** 2)
+    # allow Delta to be complex for nf = 6, the final result will be real
+    Delta = np.sqrt(complex(4 * b2 - b1 ** 2))
     delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
         (b1 + 2 * a0 * b2) / Delta
     )
@@ -180,7 +181,7 @@ def j22_exact(a1, a0, nf):
     return 1 / (2 * beta.beta(2, nf)) * log - b1 / (beta.beta(2, nf) * Delta) * delta
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit("c16(f8,f8,u1)", cache=True)
 def j12_exact(a1, a0, nf):
     r"""
     NLO-NNLO exact evolution integral.
@@ -201,19 +202,20 @@ def j12_exact(a1, a0, nf):
 
     Returns
     -------
-        j12 : float
+        j12 : complex
             integral
     """
     b1 = beta.b(1, nf)
     b2 = beta.b(2, nf)
-    Delta = np.sqrt(4 * b2 - b1 ** 2)
+    # allow Delta to be complex for nf = 6, the final result will be real
+    Delta = np.sqrt(complex(4 * b2 - b1 ** 2))
     delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
         (b1 + 2 * a0 * b2) / Delta
     )
     return 2.0 / (beta.beta(0, nf) * Delta) * delta
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit("c16(f8,f8,u1)", cache=True)
 def j02_exact(a1, a0, nf):
     r"""
     LO-NNLO exact evolution integral.
