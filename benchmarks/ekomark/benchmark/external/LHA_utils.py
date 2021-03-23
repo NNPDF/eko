@@ -145,7 +145,7 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
         return dict(zip(br.flavor_basis_pids, rot))
 
 
-def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
+def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False): #pylint: disable=too-many-statements disable=too-many-branches
     """
     Setup LHA benchmark :cite:`Giele:2002hx`
 

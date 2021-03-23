@@ -181,12 +181,6 @@ def test_similarity():
             "decompose-exact",
             "perturbative-exact",
         ]:
-            if (
-                "truncated" in method and order == 2
-            ):  # TODO: check if this is consistent
-                toll = 4e-1
-            else:
-                toll = delta_a
             np.testing.assert_allclose(
                 s.dispatcher(
                     order,
@@ -199,7 +193,7 @@ def test_similarity():
                     ev_op_max_order,
                 ),
                 ref,
-                atol=toll,
+                atol=delta_a,
             )
 
 
