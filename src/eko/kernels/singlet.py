@@ -721,7 +721,7 @@ def eko_perturbative(
 
 
 @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u1,u4,u4)", cache=True)
-def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_max_order, ev_op_iterations):
+def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     """
     Singlet NLO or NNLO truncated EKO
 
@@ -739,16 +739,14 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_max_order, ev_op_itera
             perturbative order
         ev_op_iterations : int
             number of evolution steps
-        ev_op_max_order : int
-            perturbative expansion order of U
 
     Returns
     -------
         e_s^{order} : numpy.ndarray
             singlet NLO or NNLO truncated EKO
     """
-    r = r_vec(gamma_singlet, nf, ev_op_max_order, order, False)
-    u = u_vec(r, ev_op_max_order)
+    r = r_vec(gamma_singlet, nf, order, order, False)
+    u = u_vec(r, order)
     u1 = np.ascontiguousarray(u[1])
     e = np.identity(2, np.complex_)
     # iterate elements
@@ -766,7 +764,7 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_max_order, ev_op_itera
                 - al * e0 @ u1
                 + ah ** 2 * u2 @ e0
                 - ah * al * u1 @ e0 @ u1
-                + al ** 2 * e0 @ (u1 ** 2 - u2)
+                + al ** 2 * e0 @ (u1 @ u1 - u2)
             )
         e = ek @ e
         al = ah
@@ -854,8 +852,6 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     if order == 0:
         return lo_exact(gamma_singlet, a1, a0, nf)
 
-    # TODO: right now it is not really clean ... go on reordering also decompose ?
-
     # Common method for NLO and NNLO
     if method in ["iterate-exact", "iterate-expanded"]:
         return eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
@@ -868,8 +864,8 @@ def dispatcher(  # pylint: disable=too-many-return-statements
             gamma_singlet, a1, a0, nf, order, ev_op_iterations, ev_op_max_order, False
         )
     elif method in ["truncated", "ordered-truncated"]:
-        return eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_max_order, ev_op_iterations)
-    # These method are scattered for nlo and nnlo
+        return eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
+    # These methods are scattered for nlo and nnlo
     elif method == "decompose-exact":
         if order == 1:
             return nlo_decompose_exact(gamma_singlet, a1, a0, nf)
