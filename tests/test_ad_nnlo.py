@@ -10,10 +10,14 @@ NF = 5
 
 def get_sx(N):
     """Collect the S-cache"""
-    sx = np.full(1, harmonics.harmonic_S1(N))
-    sx = np.append(sx, harmonics.harmonic_S2(N))
-    sx = np.append(sx, harmonics.harmonic_S3(N))
-    sx = np.append(sx, harmonics.harmonic_S4(N))
+    sx = np.array(
+        [
+            harmonics.harmonic_S1(N),
+            harmonics.harmonic_S2(N),
+            harmonics.harmonic_S3(N),
+            harmonics.harmonic_S4(N),
+        ]
+    )
     return sx
 
 
