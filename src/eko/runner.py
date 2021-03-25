@@ -84,7 +84,13 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         # strong coupling
         sc = StrongCoupling.from_dict(theory_card, tc)
         # setup operator grid
-        self.op_grid = OperatorGrid.from_dict(theory_card, operators_card, tc, sc, bfd,)
+        self.op_grid = OperatorGrid.from_dict(
+            theory_card,
+            operators_card,
+            tc,
+            sc,
+            bfd,
+        )
 
     def get_output(self):
         """

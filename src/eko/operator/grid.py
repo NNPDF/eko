@@ -42,7 +42,12 @@ class OperatorGrid:
     """
 
     def __init__(
-        self, config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher,
+        self,
+        config,
+        q2_grid,
+        thresholds_config,
+        strong_coupling,
+        interpol_dispatcher,
     ):
         # check
         order = int(config["order"])

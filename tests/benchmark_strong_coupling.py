@@ -96,7 +96,11 @@ class BenchmarkStrongCoupling:
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         for order in [0, 1, 2]:
             as_FFNS = StrongCoupling(
-                alphas_ref, scale_ref, threshold_holder, order=order, method="expanded",
+                alphas_ref,
+                scale_ref,
+                threshold_holder,
+                order=order,
+                method="expanded",
             )
             my_vals = []
             for Q2 in Q2s:
@@ -159,7 +163,11 @@ class BenchmarkStrongCoupling:
         threshold_holder = thresholds.ThresholdsAtlas(threshold_list)
         for order in [0, 1, 2]:
             as_VFNS = StrongCoupling(
-                alphas_ref, scale_ref, threshold_holder, order=order, method="expanded",
+                alphas_ref,
+                scale_ref,
+                threshold_holder,
+                order=order,
+                method="expanded",
             )
             my_vals = []
             for Q2 in Q2s:
@@ -265,7 +273,11 @@ class BenchmarkStrongCoupling:
         }
         for order in range(2 + 1):
             sc = StrongCoupling(
-                alphas_ref, scale_ref, threshold_holder, order=order, method="exact",
+                alphas_ref,
+                scale_ref,
+                threshold_holder,
+                order=order,
+                method="exact",
             )
             my_vals = []
             for Q2 in Q2s:
@@ -327,7 +339,11 @@ class BenchmarkStrongCoupling:
         }
         for order in range(2 + 1):
             sc = StrongCoupling(
-                alphas_ref, scale_ref, threshold_holder, order=order, method="exact",
+                alphas_ref,
+                scale_ref,
+                threshold_holder,
+                order=order,
+                method="exact",
             )
             my_vals = []
             for Q2 in Q2s:

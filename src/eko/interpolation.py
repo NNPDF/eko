@@ -258,7 +258,12 @@ class BasisFunction:
     """
 
     def __init__(
-        self, xgrid, poly_number, list_of_blocks, mode_log=True, mode_N=True,
+        self,
+        xgrid,
+        poly_number,
+        list_of_blocks,
+        mode_log=True,
+        mode_N=True,
     ):
         self.poly_number = poly_number
         self.areas = []
@@ -498,7 +503,12 @@ class InterpolatorDispatcher:
             xgrid = make_grid(*xgrid[1:])
         is_log_interpolation = bool(operators_card["interpolation_is_log"])
         polynom_rank = operators_card["interpolation_polynomial_degree"]
-        return cls(xgrid, polynom_rank, log=is_log_interpolation, mode_N=mode_N,)
+        return cls(
+            xgrid,
+            polynom_rank,
+            log=is_log_interpolation,
+            mode_N=mode_N,
+        )
 
     def __eq__(self, other):
         """Checks equality"""

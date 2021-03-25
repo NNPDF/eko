@@ -50,7 +50,7 @@ def gamma_nsm_2(n, nf: int, sx):
     E2 = 2.0 * (-S1 / n ** 3 + (zeta2 - S2) / n ** 2 - (S3 - zeta3) / n)
 
     pm2 = (
-        - 1174.898 * (S1 - 1.0 / n)
+        -1174.898 * (S1 - 1.0 / n)
         + 1295.470
         - 714.1 * S1 / n
         - 433.2 / (n + 3.0)
@@ -66,7 +66,7 @@ def gamma_nsm_2(n, nf: int, sx):
     )
 
     pm2_nf = (
-        + 183.187 * (S1 - 1.0 / n)
+        +183.187 * (S1 - 1.0 / n)
         - 173.933
         + 5120 / 81.0 * S1 / n
         + 34.76 / (n + 3.0)
@@ -207,12 +207,12 @@ def gamma_nsv_2(n, nf: int, sx):
 
     # with special care for the first moment of x^-1 ln(1-x)
     if abs(n.imag) < 1.0e-5 and abs(n - 1.0) < 1.0e-5:
-        B1M = - zeta2
+        B1M = -zeta2
     else:
-        B1M = - (S1 - 1.0 / n) / (n - 1.0) # pragma: no cover
+        B1M = -(S1 - 1.0 / n) / (n - 1.0)  # pragma: no cover
 
     ps2 = (
-        - 163.9 * (B1M + S1 / n)
+        -163.9 * (B1M + S1 / n)
         - 7.208 * (B11 - B12)
         + 4.82 * (1.0 / (n + 3.0) - 1.0 / (n + 4.0))
         - 43.12 * (1.0 / (n + 2.0) - 1.0 / (n + 3.0))

@@ -40,7 +40,11 @@ def gamma_ns_fact(order, mode, n, nf, L):
 
 @nb.njit("c16[:,:,:](u1,c16,u1,f8)", cache=True)
 def gamma_singlet_fact(order, n, nf, L):
-    gamma_singlet = ad.gamma_singlet(order, n, nf,)
+    gamma_singlet = ad.gamma_singlet(
+        order,
+        n,
+        nf,
+    )
     if order >= 2:
         gamma_singlet[2] -= (
             2 * beta.beta(0, nf) * gamma_singlet[1] * L
@@ -131,7 +135,15 @@ def quad_ker(
         ker = ker[k, l]
     else:
         gamma_ns = gamma_ns_fact(order, mode, n, nf, L)
-        ker = ns.dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations,)
+        ker = ns.dispatcher(
+            order,
+            method,
+            gamma_ns,
+            a1,
+            a0,
+            nf,
+            ev_op_iterations,
+        )
     # recombine everthing
     mellin_prefactor = complex(0.0, -1.0 / np.pi)
     return np.real(mellin_prefactor * ker * pj * jac)

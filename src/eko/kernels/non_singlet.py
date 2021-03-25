@@ -249,7 +249,7 @@ def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     # U1 = R1
     U1 = 1.0 / beta0 * (gamma_ns[1] - b1 * gamma_ns[0])
     R2 = gamma_ns[2] / beta0 - b1 * U1 - b2 * gamma_ns[0] / beta0
-    U2 = 0.5 * ( U1 ** 2 + R2)
+    U2 = 0.5 * (U1 ** 2 + R2)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:
@@ -306,7 +306,9 @@ def nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
 
 
 @nb.njit("c16(u1,string,c16[:],f8,f8,u1,u4)", cache=True)
-def dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations): # pylint: disable=too-many-return-statements
+def dispatcher(
+    order, method, gamma_ns, a1, a0, nf, ev_op_iterations
+):  # pylint: disable=too-many-return-statements
     """
     Determine used kernel and call it.
 

@@ -59,7 +59,15 @@ class TestPhysicalOperator:
 
     def test_to_flavor_basis_tensor_ss(self):
         (SS,) = self._mkOM(1)
-        a = PhysicalOperator(dict(zip(self._mkNames(("S.S",)), (SS,),)), 1,)
+        a = PhysicalOperator(
+            dict(
+                zip(
+                    self._mkNames(("S.S",)),
+                    (SS,),
+                )
+            ),
+            1,
+        )
         vt, _ = a.to_flavor_basis_tensor()
         np.testing.assert_allclose(vt[6, :, 6, :], vt[6, :, 5, :])
         np.testing.assert_allclose(vt[6, :, 6, :], vt[5, :, 6, :])
@@ -71,7 +79,15 @@ class TestPhysicalOperator:
 
     def test_to_flavor_basis_tensor_gg(self):
         (gg,) = self._mkOM(1)
-        a = PhysicalOperator(dict(zip(self._mkNames(("g.g",)), (gg,),)), 1,)
+        a = PhysicalOperator(
+            dict(
+                zip(
+                    self._mkNames(("g.g",)),
+                    (gg,),
+                )
+            ),
+            1,
+        )
         vt, _ = a.to_flavor_basis_tensor()
         np.testing.assert_allclose(vt[6, :, 6, :], 0)
         np.testing.assert_allclose(vt[7, :, 7, :], gg.value[:, :])
