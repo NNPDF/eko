@@ -3,8 +3,6 @@
     Convert raw PDF data of :cite:`Giele:2002hx` to Python
 """
 
-# pylint: disable=line-too-long
-
 if __name__ == "__main__":
     # helper to extract the numbers from the pdf
     raw14 = [

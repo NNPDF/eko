@@ -2,23 +2,20 @@
 """
 This file contains the next-to-next-to-leading-order Altarelli-Parisi splitting kernels.
 
-These expression have been obtained from:
+The expression have been obtained from:
 https://www.liverpool.ac.uk/~avogt/p2mom.f
-:cite:`Moch:2004pa`.
+:cite:`Moch:2004pa,Vogt:2004ns`.
+
+Note that the QCD colour factors have been hard-wired in the parametrizations.
 """
 import numpy as np
 import numba as nb
 
 from . import harmonics
 
-# pylint: disable=line-too-long
-
 # Global variables
 zeta2 = harmonics.zeta2
 zeta3 = harmonics.zeta3
-
-# The QCD colour factors have been hard-wired in the parametrizations.
-
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsm_2(n, nf: int, sx):
@@ -577,7 +574,8 @@ def gamma_singlet_2(N, nf: int, sx):
       Returns
       -------
         gamma_S_2 : numpy.ndarray
-            Next-to-next-to-leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(2)}(N)`
+            Next-to-next-to-leading-order singlet anomalous dimension matrix
+            :math:`\gamma_{S}^{(2)}(N)`
 
       See Also
       --------
