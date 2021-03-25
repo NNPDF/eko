@@ -472,7 +472,7 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
         e0 = np.ascontiguousarray(lo_exact(gamma_singlet, ah, al, nf))
         if order >= 1:
             ek = e0 + ah * u1 @ e0 - al * e0 @ u1
-        elif order >= 2:
+        if order >= 2:
             ek += (
                 +(ah ** 2) * u2 @ e0
                 - ah * al * u1 @ e0 @ u1
