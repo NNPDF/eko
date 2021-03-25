@@ -40,3 +40,6 @@ def test_gamma_2():
     np.testing.assert_allclose(gS2[0, 0] + gS2[1, 0], -0.00169375, rtol=2e-6)
 
     assert gS2.shape == (2, 2)
+
+    # test nsv_2 equal to referece value
+    np.testing.assert_allclose(ad_nnlo.gamma_nsv_2(N, NF, sx), -188.325593, rtol=3e-7)
