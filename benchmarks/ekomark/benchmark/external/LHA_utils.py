@@ -145,7 +145,9 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
         return dict(zip(br.flavor_basis_pids, rot))
 
 
-def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False): #pylint: disable=too-many-statements disable=too-many-branches
+def compute_LHA_data(
+    theory, operators, rotate_to_evolution_basis=False
+):  # pylint: disable=too-many-statements disable=too-many-branches
     """
     Setup LHA benchmark :cite:`Giele:2002hx`
 
@@ -179,48 +181,33 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False): #pylin
     table = None
     part = None
     is_ffns_nnlo = False
+
+    # Switching at the intermediate point.
+    if fact_to_ren > np.sqrt(2):
+        part = 3
+    elif fact_to_ren < np.sqrt(1.0 / 2.0):
+        part = 2
+    else:
+        part = 1
+
     if fns == "FFNS":
         if order == 0:
             table = 2
             part = 2
         elif order == 1:
             table = 3
-            # Switching at the intermediate point.
-            if fact_to_ren > np.sqrt(2):
-                part = 3
-            elif fact_to_ren < np.sqrt(1.0 / 2.0):
-                part = 2
-            else:
-                part = 1
         elif order == 2:
             is_ffns_nnlo = True
             table = 14
-            if fact_to_ren > np.sqrt(2):
-                part = 3
-            elif fact_to_ren < np.sqrt(1.0 / 2.0):
-                part = 2
-            else:
-                part = 1
     elif fns == "ZM-VFNS":
         if order == 0:
             table = 2
             part = 3
         elif order == 1:
             table = 4
-            if fact_to_ren > np.sqrt(2):
-                part = 3
-            elif fact_to_ren < np.sqrt(1.0 / 2.0):
-                part = 2
-            else:
-                part = 1
         elif order == 2:
             table = 15
-            if fact_to_ren > np.sqrt(2):
-                part = 3
-            elif fact_to_ren < np.sqrt(1.0 / 2.0):
-                part = 2
-            else:
-                part = 1
+
     else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
     ref_values = rotate_data(

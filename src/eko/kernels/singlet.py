@@ -235,6 +235,8 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
     beta0 = beta.beta(0, nf)
     beta1 = beta.beta(1, nf)
+    if order >= 2:
+        beta2 = beta.beta(2, nf)
     e = np.identity(2, np.complex_)
     al = a_steps[0]
     for ah in a_steps[1:]:
@@ -247,7 +249,6 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
                 * delta_a
             )
         elif order == 2:
-            beta2 = beta.beta(2, nf)
             ln = (
                 (
                     gamma_singlet[0] * a_half
@@ -261,53 +262,6 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
         e = ek @ e
         al = ah
     return e
-
-
-# @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)", cache=True)
-# def nnlo_iterate(gamma_singlet, a1, a0, nf, ev_op_iterations):
-#     """
-#     Singlet next-to-next-to-leading order iterated (exact) EKO
-
-#     Parameters
-#     ----------
-#         gamma_singlet : numpy.ndarray
-#             singlet anomalous dimensions matrices
-#         a1 : float
-#             target coupling value
-#         a0 : float
-#             initial coupling value
-#         nf : int
-#             number of active flavors
-#         ev_op_iterations : int
-#             number of evolution steps
-
-#     Returns
-#     -------
-#         e_s^2 : numpy.ndarray
-#             singlet next-to-next-to-leading order iterated (exact) EKO
-#     """
-#     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
-#     beta0 = beta.beta(0, nf)
-#     beta1 = beta.beta(1, nf)
-#     beta2 = beta.beta(2, nf)
-#     e = np.identity(2, np.complex_)
-#     al = a_steps[0]
-#     for ah in a_steps[1:]:
-#         a_half = (ah + al) / 2.0
-#         delta_a = ah - al
-#         ln = (
-#             (
-#                 gamma_singlet[0] * a_half
-#                 + gamma_singlet[1] * a_half ** 2
-#                 + gamma_singlet[2] * a_half ** 3
-#             )
-#             / (beta0 * a_half ** 2 + beta1 * a_half ** 3 + beta2 * a_half ** 4)
-#             * delta_a
-#         )
-#         ek = np.ascontiguousarray(ad.exp_singlet(ln)[0])
-#         e = ek @ e
-#         al = ah
-#     return e
 
 
 @nb.njit("c16[:,:,:](c16[:,:,:],u1,u1,u1,b1)", cache=True)
@@ -356,98 +310,6 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
             for kk in range(3, ev_op_max_order + 1):
                 r[kk] = -b1 * r[kk - 1] - b2 * r[kk - 2]
     return r
-
-
-# @nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)", cache=True)
-# def nlo_r_exact(gamma_singlet, nf, ev_op_max_order):
-#     """
-#     Compute singlet R vector for perturbative-exact mode.
-#     Parameters
-#     ----------
-#         gamma_singlet : list(numpy.ndarray)
-#             singlet anomalous dimensions matrices
-#         nf : int
-#             number of active flavors
-#         ev_op_iterations : int
-#             number of evolution steps
-#     Returns
-#     -------
-#         r : np.ndarray
-#             R vector
-#     See Also
-#     --------
-#         r_vec : compute R vector
-#     """
-#     return r_vec(gamma_singlet, nf, ev_op_max_order, 1, True)
-
-
-# @nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)", cache=True)
-# def nlo_r_expanded(gamma_singlet, nf, ev_op_max_order):
-#     """
-#     Compute singlet R vector for perturbative-expanded mode.
-#     Parameters
-#     ----------
-#         gamma_singlet : list(numpy.ndarray)
-#             singlet anomalous dimensions matrices
-#         nf : int
-#             number of active flavors
-#         ev_op_iterations : int
-#             number of evolution steps
-#     Returns
-#     -------
-#         r : np.ndarray
-#             R vector
-#     See Also
-#     --------
-#         r_vec : compute R vector
-#     """
-#     return r_vec(gamma_singlet, nf, ev_op_max_order, 1, False)
-
-
-# @nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)", cache=True)
-# def nnlo_r_exact(gamma_singlet, nf, ev_op_max_order):
-#     """
-#     Compute singlet R vector for perturbative-exact mode.
-#     Parameters
-#     ----------
-#         gamma_singlet : list(numpy.ndarray)
-#             singlet anomalous dimensions matrices
-#         nf : int
-#             number of active flavors
-#         ev_op_iterations : int
-#             number of evolution steps
-#     Returns
-#     -------
-#         r : np.ndarray
-#             R vector
-#     See Also
-#     --------
-#         r_vec : compute R vector
-#     """
-#     return r_vec(gamma_singlet, nf, ev_op_max_order, 2, True)
-
-
-# @nb.njit("c16[:,:,:](c16[:,:,:],u1,u1)", cache=True)
-# def nnlo_r_expanded(gamma_singlet, nf, ev_op_max_order):
-#     """
-#     Compute singlet R vector for perturbative-expanded mode.
-#     Parameters
-#     ----------
-#         gamma_singlet : list(numpy.ndarray)
-#             singlet anomalous dimensions matrices
-#         nf : int
-#             number of active flavors
-#         ev_op_iterations : int
-#             number of evolution steps
-#     Returns
-#     -------
-#         r : np.ndarray
-#             R vector
-#     See Also
-#     --------
-#         r_vec : compute R vector
-#     """
-#     return r_vec(gamma_singlet, nf, ev_op_max_order, 2, False)
 
 
 @nb.njit("c16[:,:,:](c16[:,:,:],u1)", cache=True)
@@ -572,155 +434,7 @@ def eko_perturbative(
     return e
 
 
-# @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1)", cache=True)
-# def nlo_perturbative_exact(
-#     gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
-# ):
-#     """
-#     Singlet next-to-leading order pertubative-exact EKO
-
-#     Parameters
-#     ----------
-#         gamma_singlet : numpy.ndarray
-#             singlet anomalous dimensions matrices
-#         a1 : float
-#             target coupling value
-#         a0 : float
-#             initial coupling value
-#         nf : int
-#             number of active flavors
-#         ev_op_iterations : int
-#             number of evolution steps
-#         ev_op_max_order : int
-#             perturbative expansion order of U
-
-#     Returns
-#     -------
-#         e_s^1 : numpy.ndarray
-#             singlet next-to-leading order perturbative-exact EKO
-
-#     See Also
-#     --------
-#         eko_perturbative : called function
-#     """
-#     r = r_vec(gamma_singlet, nf, ev_op_max_order, 1, True)
-#     return eko_perturbative(
-#         gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r
-#     )
-
-
-# @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1)", cache=True)
-# def nlo_perturbative_expanded(
-#     gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
-# ):
-#     """
-#     Singlet next-to-leading order pertubative-expanded EKO
-
-#     Parameters
-#     ----------
-#         gamma_singlet : numpy.ndarray
-#             singlet anomalous dimensions matrices
-#         a1 : float
-#             target coupling value
-#         a0 : float
-#             initial coupling value
-#         nf : int
-#             number of active flavors
-#         ev_op_iterations : int
-#             number of evolution steps
-#         ev_op_max_order : int
-#             perturbative expansion order of U
-
-#     Returns
-#     -------
-#         e_s^1 : numpy.ndarray
-#             singlet next-to-leading order perturbative-expanded EKO
-
-#     See Also
-#     --------
-#         eko_perturbative : called function
-#     """
-#     r = r_vec(gamma_singlet, nf, ev_op_max_order, 1, False)
-#     return eko_perturbative(
-#         gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r
-#     )
-
-
-# @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1)", cache=True)
-# def nnlo_perturbative_exact(
-#     gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
-# ):
-#     """
-#     Singlet next-to-next-to-leading order pertubative-exact EKO
-
-#     Parameters
-#     ----------
-#         gamma_singlet : numpy.ndarray
-#             singlet anomalous dimensions matrices
-#         a1 : float
-#             target coupling value
-#         a0 : float
-#             initial coupling value
-#         nf : int
-#             number of active flavors
-#         ev_op_iterations : int
-#             number of evolution steps
-#         ev_op_max_order : int
-#             perturbative expansion order of U
-
-#     Returns
-#     -------
-#         e_s^2 : numpy.ndarray
-#             singlet next-to-next-to-leading order perturbative-exact EKO
-
-#     See Also
-#     --------
-#         eko_perturbative : called function
-#     """
-#     r = r_vec(gamma_singlet, nf, ev_op_max_order, 2, True)
-#     return eko_perturbative(
-#         gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r
-#     )
-
-
-# @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4,u1)", cache=True)
-# def nnlo_perturbative_expanded(
-#     gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
-# ):
-#     """
-#     Singlet next-to-next-to-leading order pertubative-expanded EKO
-
-#     Parameters
-#     ----------
-#         gamma_singlet : numpy.ndarray
-#             singlet anomalous dimensions matrices
-#         a1 : float
-#             target coupling value
-#         a0 : float
-#             initial coupling value
-#         nf : int
-#             number of active flavors
-#         ev_op_iterations : int
-#             number of evolution steps
-#         ev_op_max_order : int
-#             perturbative expansion order of U
-
-#     Returns
-#     -------
-#         e_s^2 : numpy.ndarray
-#             singlet next-to-next-to-leading order perturbative-expanded EKO
-
-#     See Also
-#     --------
-#         eko_perturbative : called function
-#     """
-#     r = r_vec(gamma_singlet, nf, ev_op_max_order, 2, False)
-#     return eko_perturbative(
-#         gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order, r
-#     )
-
-
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u1,u4,u4)", cache=True)
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u1,u4)", cache=True)
 def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     """
     Singlet NLO or NNLO truncated EKO
@@ -748,73 +462,25 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     r = r_vec(gamma_singlet, nf, order, order, False)
     u = u_vec(r, order)
     u1 = np.ascontiguousarray(u[1])
+    if order >= 2:
+        u2 = np.ascontiguousarray(u[2])
     e = np.identity(2, np.complex_)
     # iterate elements
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = np.ascontiguousarray(lo_exact(gamma_singlet, ah, al, nf))
-        if order == 1:
+        if order >= 1:
             ek = e0 + ah * u1 @ e0 - al * e0 @ u1
-        elif order == 2:
-            u2 = np.ascontiguousarray(u[2])
-            ek = (
-                e0
-                + ah * u1 @ e0
-                - al * e0 @ u1
-                + ah ** 2 * u2 @ e0
+        elif order >= 2:
+            ek += (
+                +(ah ** 2) * u2 @ e0
                 - ah * al * u1 @ e0 @ u1
                 + al ** 2 * e0 @ (u1 @ u1 - u2)
             )
         e = ek @ e
         al = ah
     return e
-
-
-# @nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,u4)", cache=True)
-# def nnlo_truncated(gamma_singlet, a1, a0, nf, ev_op_iterations):
-#     """
-#     Singlet next-to-next-to-leading order truncated EKO
-
-#     Parameters
-#     ----------
-#         gamma_singlet : numpy.ndarray
-#             singlet anomalous dimensions matrices
-#         a1 : float
-#             target coupling value
-#         a0 : float
-#             initial coupling value
-#         nf : int
-#             number of active flavors
-#         ev_op_iterations : int
-#             number of evolution steps
-
-#     Returns
-#     -------
-#         e_s^1 : numpy.ndarray
-#             singlet next-to-next-to-leading order truncated EKO
-#     """
-#     r = r_vec(gamma_singlet, nf, 2, 2, False)
-#     u = u_vec(r, 2)
-#     u1 = np.ascontiguousarray(u[1])
-#     u2 = np.ascontiguousarray(u[2])
-#     e = np.identity(2, np.complex_)
-#     # iterate elements
-#     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
-#     al = a_steps[0]
-#     for ah in a_steps[1:]:
-#         e0 = np.ascontiguousarray(lo_exact(gamma_singlet, ah, al, nf))
-#         ek = (
-#             e0
-#             + ah * u1 @ e0
-#             - al * e0 @ u1
-#             + ah ** 2 * u2 @ e0
-#             - ah * al * u1 @ e0 @ u1
-#             + al ** 2 * e0 @ (u1 ** 2 - u2)
-#         )
-#         e = ek @ e
-#         al = ah
-#     return e
 
 
 @nb.njit("c16[:,:](u1,string,c16[:,:,:],f8,f8,u1,u4,u1)", cache=True)
@@ -878,42 +544,3 @@ def dispatcher(  # pylint: disable=too-many-return-statements
             return nnlo_decompose_expanded(gamma_singlet, a1, a0, nf)
     else:
         raise NotImplementedError("Selected method is not implemented")
-
-    # # NLO
-    # if order == 1:
-    #     if method == "decompose-exact":
-    #         return nlo_decompose_exact(gamma_singlet, a1, a0, nf)
-    #     if method == "decompose-expanded":
-    #         return nlo_decompose_expanded(gamma_singlet, a1, a0, nf)
-    #     if method == "perturbative-exact":
-    #         return nlo_perturbative_exact(
-    #             gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
-    #         )
-    #     if method == "perturbative-expanded":
-    #         return nlo_perturbative_expanded(
-    #             gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
-    #         )
-    #     if method in ["truncated", "ordered-truncated"]:
-    #         return nlo_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
-    #     # if method in ["iterate-exact", "iterate-expanded"]:
-    #     return nlo_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
-    # # NNLO
-    # elif order == 2:
-    #     if method == "decompose-exact":
-    #         return nnlo_decompose_exact(gamma_singlet, a1, a0, nf)
-    #     if method == "decompose-expanded":
-    #         return nnlo_decompose_expanded(gamma_singlet, a1, a0, nf)
-    #     if method == "perturbative-exact":
-    #         return nnlo_perturbative_exact(
-    #             gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
-    #         )
-    #     if method == "perturbative-expanded":
-    #         return nnlo_perturbative_expanded(
-    #             gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
-    #         )
-    #     if method in ["truncated", "ordered-truncated"]:
-    #         return nlo_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
-    #     # if method in ["iterate-exact", "iterate-expanded"]:
-    #     return nlo_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
-    # else:
-    #     raise NotImplementedError("Selected order is not implemented")

@@ -86,6 +86,7 @@ class BenchmarkFFNS(ApfelBenchmark):
         "kcThr": 0.0,
         "kbThr": np.inf,
         "ktThr": np.inf,
+        "Q0": 5,
     }
     ffns_theory = tolist(ffns_theory)
 
