@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 r"""
-Integrals needed for the exact evolutions.
+Integrals needed for the exact evolutions are given by:
 
 .. math::
     j^{(n,m)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{(a_s')^{1+n}}{-\beta^{(m)}(a_s')}
+
+The expanded integrals are obtained from the exact results Taylor expanding in the limit
+:math:`a_s \to a_s^{0}` until :math:`\mathcal{O}( a_s^{m+1})` for :math:`N^{m}LO` computations.
 """
 
 import numpy as np
@@ -210,7 +213,7 @@ def j12_exact(a1, a0, nf):
     -------
         j12 : complex
             integral
-    """ # pylint: disable=line-too-long
+    """  # pylint: disable=line-too-long
     b1 = beta.b(1, nf)
     b2 = beta.b(2, nf)
     # allow Delta to be complex for nf = 6, the final result will be real
@@ -258,9 +261,7 @@ def j22_expanded(a1, a0, nf):
     NNLO-NNLO expanded evolution integral.
 
     .. math::
-        j^{(2,2)}(a_s,a_s^0) &=
-            \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
-         &\approx \frac{1}{2 \beta_0} ( a_s^2 - a_s^{(0),2})
+        j^{(2,2)}_{exp}(a_s,a_s^0) = \frac{1}{2 \beta_0} ( a_s^2 - a_s^{(0),2})
 
     Parameters
     ----------
@@ -275,7 +276,7 @@ def j22_expanded(a1, a0, nf):
     -------
         j22_exp : float
             integral
-    """ # pylint: disable=line-too-long
+    """  # pylint: disable=line-too-long
     return 1 / (2 * beta.beta(0, nf)) * (a1 ** 2 - a0 ** 2)
 
 
@@ -285,8 +286,7 @@ def j12_expanded(a1, a0, nf):
     NLO-NNLO expanded evolution integral.
 
     .. math::
-        j^{(1,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} \approx \frac{1}{\beta_0}[ a_s - a_s^0 - \frac{b_1}{2} ( a_s^2 - a_s^{(0),2})] \\
-
+        j^{(1,2)}_{exp}(a_s,a_s^0) = \frac{1}{\beta_0}[ a_s - a_s^0 - \frac{b_1}{2} ( a_s^2 - a_s^{(0),2})]
 
     Parameters
     ----------
@@ -301,7 +301,7 @@ def j12_expanded(a1, a0, nf):
     -------
         j12_exp : float
             integral
-    """ # pylint: disable=line-too-long
+    """  # pylint: disable=line-too-long
     b1 = beta.b(1, nf)
     return 1 / beta.beta(0, nf) * (a1 - a0 - b1 / 2 * (a1 ** 2 - a0 ** 2))
 
@@ -312,9 +312,7 @@ def j02_expanded(a1, a0, nf):
     LO-NNLO expanded evolution integral.
 
     .. math::
-        j^{(0,2)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
-            \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}
-                = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}(a_s,a_s^0) - b_2 j^{(2,2)}(a_s,a_s^0)
+        j^{(0,2)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}_{exp}(a_s,a_s^0) - b_2 j^{(2,2)}_{exp}(a_s,a_s^0)
 
     Parameters
     ----------
@@ -329,7 +327,7 @@ def j02_expanded(a1, a0, nf):
     -------
         j02_exp : float
             integral
-    """
+    """ # pylint: disable=line-too-long
     return (
         j00(a1, a0, nf)
         - beta.b(1, nf) * j12_expanded(a1, a0, nf)
