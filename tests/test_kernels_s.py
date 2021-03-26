@@ -5,6 +5,17 @@ import numpy as np
 from eko.kernels import singlet as s
 from eko import anomalous_dimensions as ad
 
+methods = [
+    "iterate-expanded",
+    "decompose-expanded",
+    "perturbative-expanded",
+    "truncated",
+    "ordered-truncated",
+    "iterate-exact",
+    "decompose-exact",
+    "perturbative-exact",
+]
+
 
 def test_zero_lo(monkeypatch):
     """No evolution results in exp(0)"""
@@ -23,16 +34,7 @@ def test_zero_lo(monkeypatch):
             np.array([[0, 0], [0, 1]]),
         ),
     )
-    for method in [
-        "iterate-expanded",
-        "decompose-expanded",
-        "perturbative-expanded",
-        "truncated",
-        "ordered-truncated",
-        "iterate-exact",
-        "decompose-exact",
-        "perturbative-exact",
-    ]:
+    for method in methods:
         try:
             np.testing.assert_allclose(
                 s.dispatcher(
@@ -171,16 +173,7 @@ def test_similarity():
             ev_op_iterations,
             ev_op_max_order,
         )
-        for method in [
-            "iterate-expanded",
-            "decompose-expanded",
-            "perturbative-expanded",
-            "truncated",
-            "ordered-truncated",
-            "iterate-exact",
-            "decompose-exact",
-            "perturbative-exact",
-        ]:
+        for method in methods:
             np.testing.assert_allclose(
                 s.dispatcher(
                     order,
@@ -200,3 +193,50 @@ def test_similarity():
 def test_error():
     with pytest.raises(NotImplementedError):
         s.dispatcher(2, "AAA", np.random.rand(3, 2, 2), 0.2, 0.1, 3, 10, 10)
+
+
+def mk_almost_diag_matrix(n, max_ang=np.pi / 8.0):
+    rs = np.random.rand(n) * max_ang
+    coss, sins = np.cos(rs), np.sin(rs)
+    a = np.array([[coss, sins], [sins, coss]])
+    return a.swapaxes(0, 2)
+
+
+def test_gamma_usage():
+    a1 = 0.25
+    a0 = 0.3
+    nf = 3
+    ev_op_iterations = 10
+    ev_op_max_order = 10
+    # first check that at order=n only uses the matrices up n
+    gamma_s = np.full((3, 2, 2), np.nan)
+    for order in range(3):
+        gamma_s[order] = mk_almost_diag_matrix(1)
+        for method in methods:
+            r = s.dispatcher(
+                order,
+                method,
+                gamma_s,
+                a1,
+                a0,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
+            )
+            assert not np.isnan(r).all()
+    # second check that at order=n the actual matrix n is used
+    for order in range(3):
+        gamma_s = mk_almost_diag_matrix(3)
+        gamma_s[order] = np.full((2, 2), np.nan)
+        for method in methods:
+            r = s.dispatcher(
+                order,
+                method,
+                gamma_s,
+                a1,
+                a0,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
+            )
+            assert np.isnan(r).any()

@@ -114,3 +114,24 @@ def test_ode_nnlo():
 def test_error():
     with pytest.raises(NotImplementedError):
         ns.dispatcher(3, "iterate-exact", np.random.rand(3) + 0j, 0.2, 0.1, 3, 10)
+
+
+def test_gamma_usage():
+    a1 = 0.1
+    a0 = 0.3
+    nf = 3
+    ev_op_iterations = 10
+    # first check that at order=n only uses the matrices up n
+    gamma_ns = np.full(3, np.nan)
+    for order in range(3):
+        gamma_ns[order] = np.random.rand()
+        for method in methods:
+            r = ns.dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations)
+            assert not np.isnan(r)
+    # second check that at order=n the actual matrix n is used
+    for order in range(3):
+        gamma_ns = np.random.rand(3)
+        gamma_ns[order] = np.nan
+        for method in methods:
+            r = ns.dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations)
+            assert np.isnan(r)

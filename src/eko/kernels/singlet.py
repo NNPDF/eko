@@ -428,7 +428,6 @@ def eko_perturbative(
         ul = sum_u(uk, al)
         # join elements
         ek = np.ascontiguousarray(uh) @ np.ascontiguousarray(e0) @ np.linalg.inv(ul)
-        # import pdb; pdb.set_trace()
         e = ek @ e
         al = ah
     return e
