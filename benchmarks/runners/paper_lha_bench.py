@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Benchmark to :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO)
+Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO)
 """
 import numpy as np
 
@@ -8,15 +8,18 @@ from ekomark.benchmark.runner import Runner
 
 base_theory = {
     "ModEv": "EXA",
-    "Q0": np.sqrt(2.0),  # Eq. (30), Eq. (4.53) NNLO
-    "mc": np.sqrt(2.0),  # Eq. (34), Eq. (4.56) NNLO
+    "Q0": np.sqrt(2.0),  # Eq. (30) :cite:`Giele:2002hx`, Eq. (4.53) :cite:`Dittmar:2005ed`
+    "mc": np.sqrt(2.0),  # Eq. (34) :cite:`Giele:2002hx`, Eq. (4.56) :cite:`Dittmar:2005ed`
     "mb": 4.5,
     "mt": 175,
-    "Qref": np.sqrt(2.0),  # Eq. (32),Eq. (4.53) NNLO
-    "alphas": 0.35,  # Eq. (4.55) NNLO
+    "Qref": np.sqrt(2.0),  # Eq. (32) :cite:`Giele:2002hx`,Eq. (4.53) :cite:`Dittmar:2005ed`
+    "alphas": 0.35,  # Eq. (4.55) :cite:`Dittmar:2005ed`
 }
 """Global theory settings"""
 
+default_skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
+#ffns_skip_pdfs = vfns_skip_pdfs.copy()
+#ffns_skip_pdfs.extend([-5, 5, "T24"])
 
 class LHABenchmark(Runner):
     """
@@ -28,10 +31,6 @@ class LHABenchmark(Runner):
     theory = {}
 
     rotate_to_evolution_basis = True
-
-    skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
-
-    is_FFNS = False
 
     def plain_theory(self, pto):
         """
@@ -73,6 +72,22 @@ class LHABenchmark(Runner):
         high["XIR"] = np.sqrt(2.0)
         return [low, high]
 
+    def get_skip_pdfs(self, _theory_updates):
+        """
+        Adjust skip_pdf by the used theory
+
+        Parameters
+        ----------
+            theory_updates : list(dict)
+                theory updates
+
+        Returns
+        -------
+            list :
+                current skip_pdf
+        """
+        return default_skip_pdfs
+
     def run_lha(self, theory_updates):
         """
         Enforce operators and PDF
@@ -82,20 +97,16 @@ class LHABenchmark(Runner):
             theory_updates : list(dict)
                 theory updates
         """
+        self.skip_pdfs = self.get_skip_pdfs(theory_updates)
         self.run(theory_updates, [{"Q2grid": [1e4],}], ["ToyLH"])
 
     def benchmark_plain(self, pto):
         """Plain configuration"""
-        if pto == 2 and self.is_FFNS:
-            self.ffns_nnlo_pdfs()
         self.run_lha(self.plain_theory(pto))
 
-    def benchmark_sv(self):
+    def benchmark_sv(self, pto):
         """Scale variations"""
-        for pto in [1,2]:
-            if pto == 2 and self.is_FFNS:
-                self.ffns_nnlo_pdfs()
-            self.run_lha(self.sv_theories(pto))
+        self.run_lha(self.sv_theories(pto))
 
 
 class BenchmarkVFNS(LHABenchmark):
@@ -125,24 +136,23 @@ class BenchmarkFFNS(LHABenchmark):
             "ktThr": np.inf,
         }
     )
-    is_FFNS = True
 
-    def ffns_nnlo_pdfs(self):
-        """
-        Set different pdfs set for NNLO FFNS
-        """
-        self.skip_pdfs.extend([-5, 5, "T24"])
-        if "V8" in self.skip_pdfs:
-            self.skip_pdfs.remove("V8")
+    def get_skip_pdfs(self, theory_updates):
+        ffns_skip_pdfs = default_skip_pdfs.copy()
+        # remove bottom
+        ffns_skip_pdfs.extend([-5, 5, "T24"])
+        # in NNLO V8 becomes available
+        if len(list(filter(lambda u: u["PTO"] >= 2, theory_updates))) > 0:
+            ffns_skip_pdfs.remove("V8")
+        return ffns_skip_pdfs
 
 
 if __name__ == "__main__":
 
-    vfns = BenchmarkVFNS()
-    vfns.benchmark_plain(2)
-    vfns.benchmark_sv()
+    #vfns = BenchmarkVFNS()
+    #vfns.benchmark_plain(2)
+    #vfns.benchmark_sv()
 
     ffns = BenchmarkFFNS()
     ffns.benchmark_plain(2)
-    ffns = BenchmarkFFNS()
-    ffns.benchmark_sv()
+    #ffns.benchmark_sv(1)
