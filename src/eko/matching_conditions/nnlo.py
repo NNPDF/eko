@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 r"""
-This module containse the NNLO operator-matrix elements (OMEs)
+This module contains the NNLO operator-matrix elements (OMEs)
 for the matching condtions in ZM-VNFS :cite:`Buza_1998`.
-The approzximated experessions are copied from the Pegasus Fortran code :cite:`Vogt:2004ns`:
-``asg2mom.f``, `ans2mom.f``
+The approzximated experessions are copied from the Pegasus Fortran code :cite:`Vogt:2004ns`
+(``asg2mom.f``, `ans2mom.f``) and are evaluated in the MS(bar) scheme for :math:`mu_f^2 = m_H^2`.
 """
 import numba as nb
 import numpy as np
 
-from . import constants
-from .anomalous_dimensions import harmonics
+from .. import constants
+from ..anomalous_dimensions import harmonics
 
 # Global variables
 zeta2 = harmonics.zeta2
@@ -20,7 +20,6 @@ zeta3 = harmonics.zeta3
 def A_ns_2(n, sx):
     """
     Implemtation of :math:`A_{qq,H}^{NS,(2)}` given in Eq. (B.4) of :cite:`Buza_1998`
-    in the MS(bar) scheme for mu_f^2 = m_H^2.
 
     Parameters
     ----------
@@ -62,7 +61,6 @@ def A_ns_2(n, sx):
 def A_hq_2(n, sx):
     """
     Implemtation of :math:`A_{Hq}^{PS,(2)}` given in Eq. (B.1) of :cite:`Buza_1998`
-    in the MS(bar) scheme for mu_f^2 = m_H^2.
 
     Parameters
     ----------
@@ -115,7 +113,6 @@ def A_hq_2(n, sx):
 def A_hg_2(n, sx):
     """
     Implemtation of :math:`A_{Hg}^{S,(2)}` given in Eq. (B.3) of :cite:`Buza_1998`
-    in the MS(bar) scheme for mu_f^2 = m_H^2.
 
     Parameters
     ----------
@@ -156,7 +153,6 @@ def A_hg_2(n, sx):
 def A_gq_2(n, sx):
     """
     Implemtation of :math:`A_{gq,H}^{S,(2)}` given in Eq. (B.5) of :cite:`Buza_1998`
-    in the MS(bar) scheme for mu_f^2 = m_H^2.
 
     Parameters
     ----------
@@ -195,7 +191,6 @@ def A_gq_2(n, sx):
 def A_gg_2(n, sx):
     """
     Implemtation of :math:`A_{gg,H}^{S,(2)} ` given in Eq. (B.7) of :cite:`Buza_1998`
-    in the MS(bar) scheme for mu_f^2 = m_H^2.
 
     Parameters
     ----------
@@ -245,8 +240,7 @@ def A_gg_2(n, sx):
 @nb.njit("c16[:,:](c16,c16[:])", cache=True)
 def A_singlet_2(n, sx):
     r"""
-      Computes the next-to-next-leading-order heavy-quark singlet operator
-      matrix elements in the MS(bar) scheme for mu_f^2 = m_H^2.
+      Computes the next-to-next-leading-order heavy-quark singlet operator matrix elements
 
       .. math::
           \A^{S,(2)} = \left(\begin{array}{cc}

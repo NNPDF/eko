@@ -2,7 +2,7 @@
 # Test NNLO anomalous dims
 import numpy as np
 
-from eko import zm_ome
+from eko.matching_conditions import nnlo as zm_ome
 from eko.anomalous_dimensions import harmonics
 
 
