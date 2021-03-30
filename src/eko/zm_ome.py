@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 r"""
-This module containse the NNLO operator-matrix elements (OMEs) for the matching condtions in ZM-VNFS :cite:`Buza_1998`.
+This module containse the NNLO operator-matrix elements (OMEs)
+for the matching condtions in ZM-VNFS :cite:`Buza_1998`.
 The approzximated experessions are copied from the Pegasus Fortran code :cite:`Vogt:2004ns`:
 ``asg2mom.f``, `ans2mom.f``
 """
@@ -33,7 +34,6 @@ def A_ns_2(n, sx):
         A_ns_2 : numpy.ndarray
             Next-to-next-to-leading-order non singlet `A_{qq,H}^{NS,(2)}` operator-matrix element
     """
-
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
@@ -76,13 +76,12 @@ def A_hq_2(n, sx):
         A_hq_2 : numpy.ndarray
             Next-to-next-to-leading-order singlet `A_{Hq}^{PS,(2)}` operator-matrix element
     """
-
     S2 = sx[1]
 
-    F1M = 1.0 / (n - 1.0) * (zeta2 - S2 - 1.0 / n ** 2)
-    F11 = 1.0 / (n + 1.0) * (zeta2 - S2 + 1.0 / (n + 1.0) ** 2)
-    F12 = 1.0 / (n + 2.0) * (zeta2 - S2 + 1.0 / (n + 1.0) ** 2 + 1.0 / (n + 2.0) ** 2)
-    F21 = -(zeta2 - S2 + 1.0 / (n + 1.0) ** 2) / (n + 1.0) ** 2
+    F1M = 1.0 / (n - 1.0) * (zeta2 - (S2 - 1.0 / n ** 2))
+    F11 = 1.0 / (n + 1.0) * (zeta2 - (S2 + 1.0 / (n + 1.0) ** 2))
+    F12 = 1.0 / (n + 2.0) * (zeta2 - (S2 + 1.0 / (n + 1.0) ** 2 + 1.0 / (n + 2.0) ** 2))
+    F21 = - F11 / (n + 1.0)
 
     a_hq_2 = (
         -(
@@ -95,7 +94,7 @@ def A_hq_2(n, sx):
         - 4.0 / 3.0 / n
         - 124.0 / 3.0 * 1.0 / (n + 1.0)
         + 1600.0 / 27.0 / (n + 2.0)
-        - 4.0 / 3.0 * (-6.0 / n ** 4 - 6.0 / (n + 1.0) ** 4)
+        - 4.0 / 3.0 * ( - 6.0 / n ** 4 - 6.0 / (n + 1.0) ** 4)
         + 2.0 * 2.0 / n ** 3
         + 10.0 * 2.0 / (n + 1.0) ** 3
         + 16.0 / 3.0 * 2.0 / (n + 2.0) ** 3
@@ -130,7 +129,6 @@ def A_hg_2(n, sx):
         A_hg_2 : numpy.ndarray
             Next-to-next-to-leading-order singlet `A_{Hg}^{S,(2)}` operator-matrix element
     """
-
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
@@ -172,7 +170,6 @@ def A_gq_2(n, sx):
         A_gq_2 : numpy.ndarray
             Next-to-next-to-leading-order singlet `A_{gq,H}^{S,(2)}` operator-matrix element
     """
-
     S1 = sx[0]
     S2 = sx[1]
 
@@ -191,7 +188,7 @@ def A_gq_2(n, sx):
         + 1.0 / 27.0 * (448.0 * (1.0 / (n - 1.0) - 1.0 / n) + 344.0 / (n + 1.0))
     )
 
-    return constants.CF * constants.CF * a_gq_2
+    return constants.CF * constants.TR * a_gq_2
 
 
 @nb.njit("c16(c16,c16[:])", cache=True)
@@ -248,7 +245,7 @@ def A_gg_2(n, sx):
 @nb.njit("c16[:,:](c16,c16[:])", cache=True)
 def A_singlet_2(n, sx):
     r"""
-      Computes the next-to-next-leading-order heavy-quark singlet operator 
+      Computes the next-to-next-leading-order heavy-quark singlet operator
       matrix elements in the MS(bar) scheme for mu_f^2 = m_H^2.
 
       .. math::
@@ -276,7 +273,7 @@ def A_singlet_2(n, sx):
         A_hg_2 : :math:`\a_{hg}^{S,(2)}`
         A_gq_2 : :math:`\a_{gq, H}^{S,(2)}`
         A_gg_2 : :math:`\a_{gg, H}^{S,(2)}`
-    """
+    """ # pylint: disable=line-too-long
     # TODO: do we need to the NS here?? check pegasus
     A_hq = A_ns_2(n, sx) + A_hq_2(n, sx)
     A_hg = A_hg_2(n, sx)
