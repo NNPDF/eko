@@ -53,9 +53,9 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             "alphas",
         ]:
             obj[f] = theo[f]
-        obj["kcThr_mc"] = theo["mc"] * theo["kcThr"]
-        obj["kbThr_mb"] = theo["mb"] * theo["kbThr"]
-        obj["ktThr_mt"] = theo["mt"] * theo["ktThr"]
+        obj["mcThr"] = theo["mc"] * theo["kcThr"]
+        obj["mbThr"] = theo["mb"] * theo["kbThr"]
+        obj["mtThr"] = theo["mt"] * theo["ktThr"]
 
     def fill_operators(self, op, obj):
         """
@@ -78,7 +78,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         obj["debug_skip_non_singlet"] = op["debug_skip_non_singlet"]
         obj["ev_op_max_order"] = op["ev_op_max_order"]
         obj["ev_op_iterations"] = op["ev_op_iterations"]
-        obj["Q2grid"] = op["Q2grid"]
+        #  obj["Q2grid"] = op["Q2grid"]
 
     def fill_cache(self, cac, obj):
         """
@@ -124,7 +124,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             obj["operators"] = crash
 
         obj["theory"] = lg["t_hash"][: self.hash_len]
-        obj["observables"] = lg["o_hash"][: self.hash_len]
+        obj["ocard"] = lg["o_hash"][: self.hash_len]
         for f in ["pdf", "external"]:
             obj[f] = lg[f]
 
