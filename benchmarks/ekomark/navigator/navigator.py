@@ -131,8 +131,8 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         """
         Check if the log passed the default assertions
 
-        Paramters
-        ---------
+        Parameters
+        ----------
             doc_hash : hash
                 log hash
         """
@@ -194,37 +194,3 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
     @staticmethod
     def is_valid_physical_object(name):
         return name in br.evol_basis or name in br.flavor_basis_names
-
-    # def join(self, id1, id2):
-    #     tabs = []
-    #     tabs1 = []
-    #     exts = []
-    #     suffixes = (f" ({id1})", f" ({id2})")
-
-    #     for i, doc_hash in enumerate([id1, id2]):
-    #         tabs += [self.get_log_DFdict(doc_hash)[0]]
-    #         tabs1 += [tabs[i].drop(["yadism", "yadism_error", "percent_error"], axis=1)]
-    #         exts += [
-    #             tabs1[i].columns.drop(["x", "Q2"])[0]
-    #         ]  # + suffixes[i]] # to do: the suffixes are not working as expected
-
-    #     def rel_err(row):
-    #         ref = row[exts[0]]
-    #         cmp = row[exts[1]]
-    #         if ref != 0:
-    #             return (cmp / ref - 1) * 100
-    #         else:
-    #             return np.nan
-
-    #     tab_joint = tabs1[0].merge(
-    #         tabs1[1], on=["x", "Q2"], how="outer", suffixes=suffixes
-    #     )
-    #     tab_joint["ext_rel_err [%]"] = tab_joint.apply(rel_err, axis=1)
-
-    #     if all(np.isclose(tabs[0]["yadism"], tabs[1]["yadism"])):
-    #         tab_joint["yadism"] = tabs[0]["yadism"]
-    #         tab_joint["yadism_error"] = tabs[0]["yadism_error"]
-    #     else:
-    #         pass
-
-    #     return tab_joint
