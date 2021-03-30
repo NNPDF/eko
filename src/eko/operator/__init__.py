@@ -154,12 +154,15 @@ class Operator:
     Internal representation of a single EKO.
 
     The actual matrices are computed upon calling :meth:`compute`.
-    :meth:`to_physical` will generate the :class:`PhysicalOperator` for the outside world.
 
     Parameters
     ----------
-        master : eko.operator_grid.OperatorMaster
-            the master instance
+        config : dict
+            configuration
+        managers : dict
+            managers
+        nf : int
+            number of active flavors
         q2_from : float
             evolution source
         q2_to : float
@@ -189,14 +192,15 @@ class Operator:
         """
         order = self.config["order"]
         labels = []
-        # NS sector is dynamic
+        # the NS sector is dynamic
         if self.config["debug_skip_non_singlet"]:
             logger.warning("Evolution: skipping non-singlet sector")
         else:
+            # add + as default
             labels.append("NS_p")
-            if order > 0:
+            if order >= 1: # - becomes different starting from NLO
                 labels.append("NS_m")
-            if order > 1:
+            if order >= 2: # v also becomes different starting from NNLO
                 labels.append("NS_v")
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
