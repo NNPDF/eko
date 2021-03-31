@@ -82,7 +82,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         tc = ThresholdsAtlas.from_dict(theory_card)
         self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
-        sc = StrongCoupling.from_dict(theory_card, tc)
+        sc = StrongCoupling.from_dict(theory_card)
         # setup operator grid
         self.op_grid = OperatorGrid.from_dict(
             theory_card,
