@@ -206,6 +206,9 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         log = self.get(bnav.l, doc_hash)
         directory = banana_cfg["database_path"].parents[0] / f"{log['external']}_bench"
 
+        if not directory.exists():
+            directory.mkdir(parents=True)
+
         path = None
         for plot_file in directory.iterdir():
             if plot_file.stem[: len(doc_hash)] == doc_hash:
