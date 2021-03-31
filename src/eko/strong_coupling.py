@@ -287,6 +287,8 @@ class StrongCoupling:
         ----------
             scale_to : float
                 final scale to evolve to :math:`\mu_R^2`
+            fact_scale : float
+                factorization scale (if different from final scale)
 
         Returns
         -------
@@ -296,6 +298,9 @@ class StrongCoupling:
         # Set up the path to follow in order to go from q2_0 to q2_ref
         final_as = self.as_ref
         path = self._threshold_holder.path(scale_to)
+        is_downward_path = False
+        if len(path) > 1:
+            is_downward_path = path[1].nf < path[0].nf
         # as a default assume mu_F^2 = mu_R^2
         if fact_scale is None:
             fact_scale = scale_to
@@ -304,7 +309,6 @@ class StrongCoupling:
             # apply matching conditions: see hep-ph/9706430
             # - if there is yet a step to go
             if k < len(path) - 1:
-                next_nf_is_down = path[k + 1].nf < seg.nf
                 # q2_to is the threshold value
                 L = np.log(scale_to / fact_scale)
                 m_coeffs = (
