@@ -8,18 +8,25 @@ from ekomark.benchmark.runner import Runner
 
 base_theory = {
     "ModEv": "EXA",
-    "Q0": np.sqrt(2.0),  # Eq. (30) :cite:`Giele:2002hx`, Eq. (4.53) :cite:`Dittmar:2005ed`
-    "mc": np.sqrt(2.0),  # Eq. (34) :cite:`Giele:2002hx`, Eq. (4.56) :cite:`Dittmar:2005ed`
+    "Q0": np.sqrt(
+        2.0
+    ),  # Eq. (30) :cite:`Giele:2002hx`, Eq. (4.53) :cite:`Dittmar:2005ed`
+    "mc": np.sqrt(
+        2.0
+    ),  # Eq. (34) :cite:`Giele:2002hx`, Eq. (4.56) :cite:`Dittmar:2005ed`
     "mb": 4.5,
     "mt": 175,
-    "Qref": np.sqrt(2.0),  # Eq. (32) :cite:`Giele:2002hx`,Eq. (4.53) :cite:`Dittmar:2005ed`
+    "Qref": np.sqrt(
+        2.0
+    ),  # Eq. (32) :cite:`Giele:2002hx`,Eq. (4.53) :cite:`Dittmar:2005ed`
     "alphas": 0.35,  # Eq. (4.55) :cite:`Dittmar:2005ed`
 }
 """Global theory settings"""
 
 default_skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
-#ffns_skip_pdfs = vfns_skip_pdfs.copy()
-#ffns_skip_pdfs.extend([-5, 5, "T24"])
+# ffns_skip_pdfs = vfns_skip_pdfs.copy()
+# ffns_skip_pdfs.extend([-5, 5, "T24"])
+
 
 class LHABenchmark(Runner):
     """
@@ -72,7 +79,8 @@ class LHABenchmark(Runner):
         high["XIR"] = np.sqrt(2.0)
         return [low, high]
 
-    def get_skip_pdfs(self, _theory_updates):
+    @staticmethod
+    def skip_pdfs(_theory):
         """
         Adjust skip_pdf by the used theory
 
@@ -97,8 +105,15 @@ class LHABenchmark(Runner):
             theory_updates : list(dict)
                 theory updates
         """
-        self.skip_pdfs = self.get_skip_pdfs(theory_updates)
-        self.run(theory_updates, [{"Q2grid": [1e4],}], ["ToyLH"])
+        self.run(
+            theory_updates,
+            [
+                {
+                    "Q2grid": [1e4],
+                }
+            ],
+            ["ToyLH"],
+        )
 
     def benchmark_plain(self, pto):
         """Plain configuration"""
@@ -137,22 +152,23 @@ class BenchmarkFFNS(LHABenchmark):
         }
     )
 
-    def get_skip_pdfs(self, theory_updates):
+    @staticmethod
+    def skip_pdfs(theory):
         ffns_skip_pdfs = default_skip_pdfs.copy()
         # remove bottom
         ffns_skip_pdfs.extend([-5, 5, "T24"])
         # in NNLO V8 becomes available
-        if len(list(filter(lambda u: u["PTO"] >= 2, theory_updates))) > 0:
+        if theory["PTO"] >= 2:
             ffns_skip_pdfs.remove("V8")
         return ffns_skip_pdfs
 
 
 if __name__ == "__main__":
 
-    #vfns = BenchmarkVFNS()
-    #vfns.benchmark_plain(2)
-    #vfns.benchmark_sv()
+    # vfns = BenchmarkVFNS()
+    # vfns.benchmark_plain(2)
+    # vfns.benchmark_sv()
 
     ffns = BenchmarkFFNS()
     ffns.benchmark_plain(2)
-    #ffns.benchmark_sv(1)
+    # ffns.benchmark_sv(1)
