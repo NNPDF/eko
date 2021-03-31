@@ -198,9 +198,9 @@ class Operator:
         else:
             # add + as default
             labels.append("NS_p")
-            if order >= 1: # - becomes different starting from NLO
+            if order >= 1:  # - becomes different starting from NLO
                 labels.append("NS_m")
-            if order >= 2: # v also becomes different starting from NNLO
+            if order >= 2:  # v also becomes different starting from NNLO
                 labels.append("NS_v")
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:

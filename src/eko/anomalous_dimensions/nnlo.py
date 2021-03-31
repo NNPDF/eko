@@ -17,6 +17,7 @@ from . import harmonics
 zeta2 = harmonics.zeta2
 zeta3 = harmonics.zeta3
 
+
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsm_2(n, nf: int, sx):
     """
