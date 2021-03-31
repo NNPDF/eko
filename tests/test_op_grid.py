@@ -61,7 +61,7 @@ class TestOperatorGrid:
             operators_card
         )
         threshold_holder = ThresholdsAtlas.from_dict(theory_card)
-        a_s = StrongCoupling.from_dict(theory_card, threshold_holder)
+        a_s = StrongCoupling.from_dict(theory_card)
         return OperatorGrid.from_dict(
             theory_card,
             operators_card,
@@ -79,7 +79,7 @@ class TestOperatorGrid:
                 operators_card
             )
             threshold_holder = ThresholdsAtlas.from_dict(theory_card)
-            a_s = StrongCoupling.from_dict(theory_card, threshold_holder)
+            a_s = StrongCoupling.from_dict(theory_card)
             theory_card.update({"ModEv": "wrong"})
             OperatorGrid.from_dict(
                 theory_card,
