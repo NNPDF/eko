@@ -306,11 +306,10 @@ class StrongCoupling:
                 # q2_to is the threshold value
                 L = np.log(scale_to / fact_scale)
                 if next_nf_is_down:
-                    c1 = -4.0 / 3.0 * constants.TR * L
-                    # TODO recover color constants
+                    c1 = - constants.CF * constants.TR * L
                     c2 = 4.0 / 9.0 * L ** 2 - 38.0 / 3.0 * L - 14.0 / 3.0
                 else:
-                    c1 = 4.0 / 3.0 * constants.TR * L
+                    c1 = constants.CF * constants.TR * L
                     c2 = 4.0 / 9.0 * L ** 2 + 38.0 / 3.0 * L + 14.0 / 3.0
                 # shift
                 if self._order == 1:
