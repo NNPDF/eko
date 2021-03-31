@@ -18,17 +18,9 @@ here = pathlib.Path(__file__).parents[0]
 # xgrid
 toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
 
-# list
-raw_label_list = {
-    "default": ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"],
-    "NNLO_FFNS": ["u_v", "d_v", "L_m", "L_p", "s_v", "s_p", "c_p", "g"],
-}
-# rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
+raw_label_list = ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"]
 
-evol_label_list = {
-    1: ["V", "V3", "T3", "T8", "T15", "T24", "S", "g"],
-    2: ["V", "V3", "T3", "V8", "T8", "T15", "S", "g"],
-}
+# rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
 
 # my/exact initial grid
 # LHA_init_grid = []
@@ -38,7 +30,8 @@ LHA_init_grid = np.array([])
 
 # fmt: off
 # rotation matrix
-LHA_rotate_to_evolution = np.array([
+LHA_rotate_to_evolution = {
+    "default": np.array([
     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
     [   1,   1,   0,   0,   0,   0,   0,   0], # V
     [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
@@ -48,9 +41,8 @@ LHA_rotate_to_evolution = np.array([
     [   1,   1,   0,   1,   1,   1,  -4,   0], # T24
     [   1,   1,   0,   1,   1,   1,   1,   0], # S
     [   0,   0,   0,   0,   0,   0,   0,   1], # g
-])
-
-LHA_rotate_to_evolution_NNLO_FFNS = np.array([
+    ]),
+    "NNLO_FFNS": np.array([
     # u_v, d_v, L_-, 2L_+, s_v s_+, c_+,    g
     [   1,   1,   0,   0,   2,   0,   0,   0], # V
     [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
@@ -60,13 +52,15 @@ LHA_rotate_to_evolution_NNLO_FFNS = np.array([
     [   1,   1,   0,   1,   0,   1,  -3,   0], # T15
     [   1,   1,   0,   1,   0,   1,   1,   0], # S
     [   0,   0,   0,   0,   0,   0,   0,   1], # g
-])
+    ])
+}
 
 # L+ = 2(ub + db) = u+ - u- + d+ - d-
 # L- = ub - db = ((u+-u-) - (d+ - d-))/2
 # In the NNLO paper :cite:`Dittmar:2005ed` L_+ definition is different:
 # L_+ = 2 L_+_NNLO
-LHA_rotate_to_flavor = np.array([
+LHA_rotate_to_flavor = {
+    "default": np.array([
     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
     [   0,   0,   0,   0,   0,   0,   0,   0], # ph
     [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
@@ -82,9 +76,8 @@ LHA_rotate_to_flavor = np.array([
     [   0,   0,   0,   0,   0, 1/2,   0,   0], # c
     [   0,   0,   0,   0,   0,   0, 1/2,   0], # b
     [   0,   0,   0,   0,   0,   0,   0,   0], # t
-])
-
-LHA_rotate_to_flavor_NNLO_FFNS = np.array([
+    ]),
+    "NNLO_FFNS": np.array([
     # u_v, d_v, L_-, 2L_+, s_v  s_+, c_+,   g
     [   0,   0,   0,   0,   0,   0,   0,   0], # ph
     [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
@@ -100,8 +93,8 @@ LHA_rotate_to_flavor_NNLO_FFNS = np.array([
     [   0,   0,   0,   0,   0,   0, 1/2,   0], # c
     [   0,   0,   0,   0,   0,   0,   0,   0], # b
     [   0,   0,   0,   0,   0,   0,   0,   0], # t
-])
-# fmt: on
+    ])
+}
 
 # rotate basis
 def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
@@ -125,23 +118,27 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
     """
     inp = []
     i = "default"
+    label_list = raw_label_list
     if is_ffns_nnlo:
         i = "NNLO_FFNS"
-    for l in raw_label_list[i]:
+        # add s_v and delete b_p to label_list
+        label_list = np.insert(label_list, 4, "s_v")
+        label_list = np.delete(label_list, -2)
+
+    for l in label_list:
         inp.append(raw[l])
     inp = np.array(inp)
+
     if rotate_to_evolution_basis:
+        evol_label_list = ["V", "V3", "T3", "T8", "T15", "T24", "S", "g"]
         if is_ffns_nnlo:
-            rot = np.dot(LHA_rotate_to_evolution_NNLO_FFNS, inp)
-            return dict(zip(evol_label_list[2], rot))
-        else:
-            rot = np.dot(LHA_rotate_to_evolution, inp)
-            return dict(zip(evol_label_list[1], rot))
+            # add V8 and delete T24 to evol_label_list
+            evol_label_list = np.insert(evol_label_list, 3, "V8")
+            evol_label_list = np.delete(evol_label_list, -3)
+        rot = np.dot(LHA_rotate_to_evolution[i], inp)
+        return dict(zip(evol_label_list, rot))
     else:
-        if is_ffns_nnlo:
-            rot = np.dot(LHA_rotate_to_flavor_NNLO_FFNS, inp)
-        else:
-            rot = np.dot(LHA_rotate_to_flavor, inp)
+        rot = np.dot(LHA_rotate_to_flavor[i], inp)
         return dict(zip(br.flavor_basis_pids, rot))
 
 
