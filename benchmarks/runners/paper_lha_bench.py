@@ -166,11 +166,8 @@ class BenchmarkFFNS(LHABenchmark):
 
 if __name__ == "__main__":
 
-    # vfns = BenchmarkVFNS()
-    # vfns.benchmark_plain(2)
-    # vfns.benchmark_sv()
+    # obj = BenchmarkVFNS()
+    obj = BenchmarkFFNS()
 
-    # vfns.benchmark_plain(1)
-    ffns.benchmark_plain(1)
-    # vfns.benchmark_sv()
-    # ffns.benchmark_sv()
+    obj.benchmark_plain(1)
+    # obj.benchmark_sv(1)
