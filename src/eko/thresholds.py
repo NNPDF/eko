@@ -98,6 +98,7 @@ class ThresholdsAtlas:
             self.areas.append(new_area)
             nf = nf + 1
             q2_min = q2_max
+        logger.info("Thresholds: walls = %s", self.area_walls)
 
     @classmethod
     def ffns(cls, nf, q2_ref=None):
