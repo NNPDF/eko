@@ -50,7 +50,7 @@ class BenchmarkCT14(LHAPDFBenchmark):
             }
         )
         operator_card = {"Q2grid": list(Q2grid)}
-        self.skip_pdfs = [
+        self.skip_pdfs = lambda _theory: [
             -6,
             -5,
             -4,
@@ -81,16 +81,31 @@ class BenchmarkCT14(LHAPDFBenchmark):
             }
         )
         operator_card = {"Q2grid": list(Q2grid)}
-        self.skip_pdfs = [-6, -5, 5, 6, 22, "ph", "T35", "V35", "T24", "V24"]
+        self.skip_pdfs = lambda _theory: [
+            -6,
+            -5,
+            5,
+            6,
+            22,
+            "ph",
+            "T35",
+            "V35",
+            "T24",
+            "V24",
+        ]
         self.run([theory_card], [operator_card], ["CT14llo_NF4"])
 
     def benchmark_llo_NF6(self, Q0=10, Q2grid=(1e6,)):
         theory_card = base_theory.copy()
         theory_card.update(
-            {"alphas": 0.130000, "PTO": 0, "Q0": Q0,}
+            {
+                "alphas": 0.130000,
+                "PTO": 0,
+                "Q0": Q0,
+            }
         )
         operator_card = {"Q2grid": list(Q2grid)}
-        self.skip_pdfs = [22, "ph"]
+        self.skip_pdfs = lambda _theory: [22, "ph"]
         self.run([theory_card], [operator_card], ["CT14llo_NF6"])
 
 

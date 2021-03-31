@@ -290,17 +290,17 @@ In |NNLO| we provide different strategies to define the |EKO|:
 - ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and expand all functions :math:`j^{(n,m)}(a_s,a_s^0)` to the order :math:`\mathcal o(a_s^3)`. We find:
 
 .. math::
-    j^{(2,2)}(a_s,a_s^0) &\approx j^{(2,2)}_{exp}(a_s,a_s^0) &= \frac{1}{2\beta_0} (a_s^2 - a_s^{(0)2}) \\
-    j^{(1,2)}(a_s,a_s^0) &\approx j^{(1,2)}_{exp}(a_s,a_s^0) &= \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - a_s^{(0)2})] \\
+    j^{(2,2)}(a_s,a_s^0) &\approx j^{(2,2)}_{exp}(a_s,a_s^0) &= \frac{1}{2\beta_0} (a_s^2 - (a_s^0)^{2}) \\
+    j^{(1,2)}(a_s,a_s^0) &\approx j^{(1,2)}_{exp}(a_s,a_s^0) &= \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - (a_s^0)^{2})] \\
     j^{(0,2)}(a_s,a_s^0) &\approx j^{(0,2)}_{exp}(a_s,a_s^0) &=  j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}_{exp}(a_s,a_s^0) - b_2 j^{(2,2)}_{exp}(a_s,a_s^0) \\
-    & &= j^{(0,0)}(a_s,a_s^0)  - \frac{1}{\beta_0} [ b_1 (a_s - a_s^0) + \frac{b_1^2+b_2}{2} (a_s^2 - a_s^{(0)2}) ] \\
+    & &= j^{(0,0)}(a_s,a_s^0)  - \frac{1}{\beta_0} [ b_1 (a_s - a_s^0) + \frac{b_1^2+b_2}{2} (a_s^2 - (a_s^0)^{2}) ] \\
 
 This method corresponds to ``IMODEV=2`` of :cite:`Vogt:2004ns`.  
 
 - ``method = 'ordered-truncated'``: for this method we follow the prescription from :cite:`Vogt:2004ns` and we get:
 
 .. math::
-    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \frac{ 1 + a_s U_1 + a_s^2 U_2 }{ 1 + a_s^{(0)} U_1 + a_s^{(0)2} U_2 }   
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \frac{ 1 + a_s U_1 + a_s^2 U_2 }{ 1 + a_s^{(0)} U_1 + (a_s^0)^{2} U_2 }   
 
 with the unitary mtrices defined consistenly with the mthod ``pertubative`` adopted for NLO singlet evolution: 
 
@@ -314,7 +314,7 @@ This method corresponds to ``IMODEV=3`` of :cite:`Vogt:2004ns`.
 - ``method = 'truncated'``: we expand the *whole* exponential and keeping terms within :math:`\mathcal o(a_s^3)`. This method is the fastest among the ones provided by our program. We obtain: 
 
 .. math::
-    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \left [ 1 + U_1 (a_s - a_s^0) + a_s^2 U_2 - a_s a_s^{(0)} U_1^2 + a_s^{(0)2} ( U_1^2 - U_2 ) \right]
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \left [ 1 + U_1 (a_s - a_s^0) + a_s^2 U_2 - a_s a_s^{(0)} U_1^2 + (a_s^0)^{2} ( U_1^2 - U_2 ) \right]
 
 
 
@@ -378,4 +378,4 @@ So the strategies are:
 
 .. math::
     \ESk{2}{a_s}{a_s^0} &= \ESk{0}{a_s}{a_s^0} + a_s \mathbf U_1 \ESk{0}{a_s}{a_s^0} - a_s^0 \ESk{0}{a_s}{a_s^0} \mathbf U_1 \\
-    &+ a_s^2 \mathbf U_2 \ESk{0}{a_s}{a_s^0} + a_s a_s^0 \mathbf U_1 \ESk{0}{a_s}{a_s^0} \mathbf U_1 - a_s^{(0)2} \ESk{0}{a_s}{a_s^0} ( \mathbf U_1^2 - U_2 )    
+    &+ a_s^2 \mathbf U_2 \ESk{0}{a_s}{a_s^0} + a_s a_s^0 \mathbf U_1 \ESk{0}{a_s}{a_s^0} \mathbf U_1 - (a_s^0)^{2} \ESk{0}{a_s}{a_s^0} ( \mathbf U_1^2 - U_2 )    

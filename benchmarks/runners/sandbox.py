@@ -22,9 +22,23 @@ class Sandbox(Runner):
     rotate_to_evolution_basis = True
 
     # pdf to skip, for LHA there is a default
-    skip_pdfs = [22, -6, 6, -5, 5, -4, 4, "ph", "V35", "V24", "V15", "T35", "T24"]
+    skip_pdfs = lambda _theory: [
+        22,
+        -6,
+        6,
+        -5,
+        5,
+        -4,
+        4,
+        "ph",
+        "V35",
+        "V24",
+        "V15",
+        "T35",
+        "T24",
+    ]
     # if external == "LHA":
-    #    skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
+    #    skip_pdfs = lambda _theory: [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
 
     @staticmethod
     def generate_operators():
@@ -52,7 +66,9 @@ class Sandbox(Runner):
             "alphas": 0.35,
         }
         self.run(
-            [theory_updates], operators.build(self.generate_operators()), ["ToyLH"],
+            [theory_updates],
+            operators.build(self.generate_operators()),
+            ["ToyLH"],
         )
 
 
