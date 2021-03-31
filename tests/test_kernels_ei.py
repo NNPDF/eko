@@ -67,3 +67,77 @@ def test_der_nlo_exa():
         - ei.j11_exact(a1 - 0.5 * delta_a, a0, nf)
     ) / delta_a
     np.testing.assert_allclose(rhs, lhs, atol=np.abs(delta_a))  # in fact O(delta_a^2)
+
+
+def test_der_nnlo_exp():
+    """expanded NNLO derivative"""
+    nf = 3
+    a0 = 0.3
+    a1 = 0.1
+    delta_a = -1e-6
+
+    # Integrals are expanded to the order 0( a_s^3 ) so they can match the derivative to a_s^2
+    # The corresponding prefactor  prorpotional to a_s^2 are included in the tollerance.
+
+    # 02
+    rhs = 1.0 / (
+        beta.beta(0, nf) * a1 + beta.beta(1, nf) * a1 ** 2 + beta.beta(2, nf) * a1 ** 3
+    )
+    lhs = (
+        ei.j02_expanded(a1 + 0.5 * delta_a, a0, nf)
+        - ei.j02_expanded(a1 - 0.5 * delta_a, a0, nf)
+    ) / delta_a
+    toll = (
+        (-beta.b(1, nf) ** 3 + 2 * beta.b(2, nf) * beta.b(1, nf))
+        / beta.beta(0, nf)
+        * a1 ** 2
+    )
+    np.testing.assert_allclose(rhs, lhs, atol=np.abs(toll))
+    # 12
+    rhs = 1.0 / (beta.beta(0, nf) + beta.beta(1, nf) * a1 + beta.beta(2, nf) * a1 ** 2)
+    lhs = (
+        ei.j12_expanded(a1 + 0.5 * delta_a, a0, nf)
+        - ei.j12_expanded(a1 - 0.5 * delta_a, a0, nf)
+    ) / delta_a
+    toll = (beta.b(1, nf) ** 2 - beta.b(2, nf)) / beta.beta(0, nf) * a1 ** 2
+    np.testing.assert_allclose(rhs, lhs, atol=np.abs(toll))
+    # 22
+    rhs = a1 / (beta.beta(0, nf) + beta.beta(1, nf) * a1 + beta.beta(2, nf) * a1 ** 2)
+    lhs = (
+        ei.j22_expanded(a1 + 0.5 * delta_a, a0, nf)
+        - ei.j22_expanded(a1 - 0.5 * delta_a, a0, nf)
+    ) / delta_a
+    np.testing.assert_allclose(
+        rhs, lhs, atol=np.abs(beta.b(1, nf) / beta.beta(0, nf) * a1 ** 2)
+    )
+
+
+def test_der_nnlo_exa():
+    """exact NNLO derivative"""
+    nf = 3
+    a0 = 0.3
+    a1 = 0.1
+    delta_a = -1e-6
+    # 02
+    rhs = 1.0 / (
+        beta.beta(0, nf) * a1 + beta.beta(1, nf) * a1 ** 2 + beta.beta(2, nf) * a1 ** 3
+    )
+    lhs = (
+        ei.j02_exact(a1 + 0.5 * delta_a, a0, nf)
+        - ei.j02_exact(a1 - 0.5 * delta_a, a0, nf)
+    ) / delta_a
+    np.testing.assert_allclose(rhs, lhs, atol=np.abs(delta_a))  # in fact O(delta_a^2)
+    # 12
+    rhs = 1.0 / (beta.beta(0, nf) + beta.beta(1, nf) * a1 + beta.beta(2, nf) * a1 ** 2)
+    lhs = (
+        ei.j12_exact(a1 + 0.5 * delta_a, a0, nf)
+        - ei.j12_exact(a1 - 0.5 * delta_a, a0, nf)
+    ) / delta_a
+    np.testing.assert_allclose(rhs, lhs, atol=np.abs(delta_a))  # in fact O(delta_a^2)
+    # 12
+    rhs = a1 / (beta.beta(0, nf) + beta.beta(1, nf) * a1 + beta.beta(2, nf) * a1 ** 2)
+    lhs = (
+        ei.j22_exact(a1 + 0.5 * delta_a, a0, nf)
+        - ei.j22_exact(a1 - 0.5 * delta_a, a0, nf)
+    ) / delta_a
+    np.testing.assert_allclose(rhs, lhs, atol=np.abs(delta_a))  # in fact O(delta_a^2)

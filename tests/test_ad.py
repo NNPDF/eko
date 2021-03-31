@@ -35,18 +35,27 @@ def test_eigensystem_gamma_singlet_0_values():
 def test_eigensystem_gamma_singlet_projectors_EV():
     nf = 3
     for N in [3, 4]:  # N=2 seems close to 0, so test fails
-        for gamma_S in ad.gamma_singlet(1, N, nf):
-            _exp, l_p, l_m, e_p, e_m = ad.exp_singlet(gamma_S)
-            # projectors behave as P_a . P_b = delta_ab P_a
-            assert_allclose(np.dot(e_p, e_p), e_p)
-            assert_almost_equal(np.dot(e_p, e_m), np.zeros((2, 2)))
-            assert_allclose(np.dot(e_m, e_m), e_m)
-            # check EVs
-            assert_allclose(np.dot(e_p, gamma_S), l_p * e_p)
-            assert_allclose(np.dot(e_m, gamma_S), l_m * e_m)
+        for o in [1, 2]:
+            # N=4 and and NNLO too big numbers, Runtime Warnings
+            if N == 4 and o == 2:
+                continue
+            for gamma_S in ad.gamma_singlet(o, N, nf):
+                _exp, l_p, l_m, e_p, e_m = ad.exp_singlet(gamma_S)
+                # projectors behave as P_a . P_b = delta_ab P_a
+                assert_allclose(np.dot(e_p, e_p), e_p)
+                assert_almost_equal(np.dot(e_p, e_m), np.zeros((2, 2)))
+                assert_allclose(np.dot(e_m, e_m), e_m)
+                # check EVs
+                assert_allclose(np.dot(e_p, gamma_S), l_p * e_p)
+                assert_allclose(np.dot(e_m, gamma_S), l_m * e_m)
 
 
 def test_gamma_ns():
     nf = 3
+    # LO
+    assert_almost_equal(ad.gamma_ns(2, "p", 1, nf)[0], 0.0)
+    # NLO
     assert_allclose(ad.gamma_ns(1, "m", 1, nf), np.zeros(2), atol=2e-6)
-    assert_almost_equal(ad.gamma_ns(1, "p", 1, nf)[0], 0.0)
+    # NNLO
+    assert_allclose(ad.gamma_ns(2, "m", 1, nf), np.zeros(3), atol=2e-4)
+    assert_allclose(ad.gamma_ns(2, "v", 1, nf), np.zeros(3), atol=8e-4)

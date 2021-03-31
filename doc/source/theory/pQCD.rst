@@ -50,10 +50,12 @@ The usual procedure in solving |DGLAP| that is also imployed :doc:`here </theory
 the equations in term of the running coupling :math:`a_s` assuming the factorization scale
 :math:`\mu_F^2` (the inherit scale of the |PDF|) and the renormalization scale :math:`\mu_R^2`
 (the inherit scale for the strong coupling) to be equal. This constraint can however be lifted by a
-suitable redefinition of the splitting kernels
+suitable redefinition of the splitting kernels :cite:`Vogt:2004ns`:
 
 .. math ::
-    \gamma^{(1)}(N) \to \gamma^{(1)}(N) - \beta_0 \ln(\mu_F^2/\mu_R^2) \gamma^{(0)}
+    \gamma^{(1)}(N) &\to \gamma^{(1)}(N) - \beta_0 \ln(\mu_F^2/\mu_R^2) \gamma^{(0)} \\
+    \gamma^{(2)}(N) &\to \gamma^{(2)}(N) - 2 \beta_0 \ln(\mu_F^2/\mu_R^2) \gamma^{(1)} - ( \beta_1 \ln(\mu_F^2/\mu_R^2) - \beta_0^2 \ln^2(\mu_F^2/\mu_R^2) )  \gamma^{(0)}
+
 
 while keeping the evalutation of the strong coupling always at :math:`\mu_R^2`.
 Estimating the theoretical uncertanties imposed on |PDF| determination due to missing higher

@@ -238,6 +238,8 @@ todo_include_todos = True
 mathjax_config = {
     "TeX": {
         "Macros": {
+            # fncs
+            "atan": [r"\text{atan}", 0],
             # texts
             "tLL": [r"\text{LL}", 0],
             # PDFs

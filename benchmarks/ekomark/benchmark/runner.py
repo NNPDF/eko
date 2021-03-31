@@ -27,13 +27,16 @@ class Runner(BenchmarkRunner):
     banana_cfg = banana_cfg
     db_base_cls = db.Base
     rotate_to_evolution_basis = False
-    skip_pdfs = []
     sandbox = False
     plot_operator = False
 
     @staticmethod
     def load_ocards(session, ocard_updates):
         return operators.load(session, ocard_updates)
+
+    @staticmethod
+    def skip_pdfs(_theory):
+        return []
 
     def run_me(self, theory, ocard, _pdf):
         """
@@ -95,7 +98,9 @@ class Runner(BenchmarkRunner):
                 )
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
-                save_operators_to_pdf(output_path, theory, ocard, out, self.skip_pdfs)
+                save_operators_to_pdf(
+                    output_path, theory, ocard, out, self.skip_pdfs(theory)
+                )
         else:
             out = eko.run_dglap(theory, ocard)
 
@@ -103,11 +108,6 @@ class Runner(BenchmarkRunner):
 
     def run_external(self, theory, ocard, pdf):
         if self.external == "LHA":
-
-            if theory["FNS"] == "FFNS":
-                # Reference configuration
-                self.skip_pdfs.extend([-5, 5, "T24"])
-
             from .external import (  # pylint:disable=import-error,import-outside-toplevel
                 LHA_utils,
             )
@@ -127,7 +127,7 @@ class Runner(BenchmarkRunner):
             return lhapdf_utils.compute_LHAPDF_data(
                 ocard,
                 pdf,
-                self.skip_pdfs,
+                self.skip_pdfs(theory),
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
 
@@ -140,7 +140,7 @@ class Runner(BenchmarkRunner):
                 theory,
                 ocard,
                 pdf,
-                self.skip_pdfs,
+                self.skip_pdfs(theory),
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
 
@@ -168,7 +168,7 @@ class Runner(BenchmarkRunner):
 
             for key in my_pdfs:
 
-                if key in self.skip_pdfs:
+                if key in self.skip_pdfs(theory):
                     continue
 
                 # build table

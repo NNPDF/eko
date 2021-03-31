@@ -174,7 +174,9 @@ def evaluate_Nx(N, logx, area_list):
             res += coef * (up - low) / (N + i)
     return res
 
-_atol_eps = 10*np.finfo(float).eps
+
+_atol_eps = 10 * np.finfo(float).eps
+
 
 @nb.njit("f8(f8,f8[:,:])", cache=True)
 def evaluate_x(x, area_list):
@@ -201,7 +203,7 @@ def evaluate_x(x, area_list):
         xmin = a[0]
         xmax = a[1]
         coefs = a[2:]
-        if xmin < x <= xmax or (j == 0 and np.abs(x-xmin) <_atol_eps):
+        if xmin < x <= xmax or (j == 0 and np.abs(x - xmin) < _atol_eps):
             for i, coef in enumerate(coefs):
                 res += coef * pow(x, i)
             return res
