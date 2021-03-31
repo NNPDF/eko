@@ -312,7 +312,7 @@ class StrongCoupling:
                 # q2_to is the threshold value
                 L = np.log(scale_to / fact_scale)
                 m_coeffs = (
-                    matching_coeffs_down if next_nf_is_down else matching_coeffs_up
+                    matching_coeffs_down if is_downward_path else matching_coeffs_up
                 )
                 fact = 1.0
                 # shift
