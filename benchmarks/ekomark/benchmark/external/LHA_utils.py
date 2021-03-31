@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Implementation of :cite:`Giele:2002hx`
+Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO)
 """
 import pathlib
 import yaml
@@ -18,11 +18,9 @@ here = pathlib.Path(__file__).parents[0]
 # xgrid
 toy_xgrid = np.array([1e-7, 1e-6, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, 0.3, 0.5, 0.7, 0.9])
 
-# list
 raw_label_list = ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"]
-# rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
 
-evol_label_list = ["V", "V3", "T3", "T8", "T15", "T24", "S", "g"]
+# rot_func_list = [toy_V0, toy_V30, toy_T30, toy_T80, toy_S0, toy_S0, toy_S0, toy_g0]
 
 # my/exact initial grid
 # LHA_init_grid = []
@@ -32,7 +30,8 @@ LHA_init_grid = np.array([])
 
 # fmt: off
 # rotation matrix
-LHA_rotate_to_evolution = np.array([
+LHA_rotate_to_evolution = {
+    "default": np.array([
     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
     [   1,   1,   0,   0,   0,   0,   0,   0], # V
     [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
@@ -42,10 +41,26 @@ LHA_rotate_to_evolution = np.array([
     [   1,   1,   0,   1,   1,   1,  -4,   0], # T24
     [   1,   1,   0,   1,   1,   1,   1,   0], # S
     [   0,   0,   0,   0,   0,   0,   0,   1], # g
-])
+    ]),
+    "NNLO_FFNS": np.array([
+    # u_v, d_v, L_-, 2L_+, s_v s_+, c_+,    g
+    [   1,   1,   0,   0,   2,   0,   0,   0], # V
+    [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
+    [   1,  -1,  -2,   0,   0,   0,   0,   0], # T3
+    [   1,   1,   0,   0,  -2,   0,   0,   0], # V8
+    [   1,   1,   0,   1,   0,  -2,   0,   0], # T8
+    [   1,   1,   0,   1,   0,   1,  -3,   0], # T15
+    [   1,   1,   0,   1,   0,   1,   1,   0], # S
+    [   0,   0,   0,   0,   0,   0,   0,   1], # g
+    ])
+}
+
 # L+ = 2(ub + db) = u+ - u- + d+ - d-
 # L- = ub - db = ((u+-u-) - (d+ - d-))/2
-LHA_rotate_to_flavor = np.array([
+# In the NNLO paper :cite:`Dittmar:2005ed` L_+ definition is different:
+# L_+ = 2 L_+_NNLO
+LHA_rotate_to_flavor = {
+    "default": np.array([
     # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
     [   0,   0,   0,   0,   0,   0,   0,   0], # ph
     [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
@@ -61,11 +76,28 @@ LHA_rotate_to_flavor = np.array([
     [   0,   0,   0,   0,   0, 1/2,   0,   0], # c
     [   0,   0,   0,   0,   0,   0, 1/2,   0], # b
     [   0,   0,   0,   0,   0,   0,   0,   0], # t
-])
-# fmt: on
+    ]),
+    "NNLO_FFNS": np.array([
+    # u_v, d_v, L_-, 2L_+, s_v  s_+, c_+,   g
+    [   0,   0,   0,   0,   0,   0,   0,   0], # ph
+    [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
+    [   0,   0,   0,   0,   0,   0,   0,   0], # bbar
+    [   0,   0,   0,   0,   0,   0, 1/2,   0], # cbar
+    [   0,   0,   0,   0,-1/2, 1/2,   0,   0], # sbar
+    [   0,   0, 1/2, 1/4,   0,   0,   0,   0], # ubar
+    [   0,   0,-1/2, 1/4,   0,   0,   0,   0], # dbar
+    [   0,   0,   0,   0,   0,   0,   0,   1], # g
+    [   0,   1,-1/2, 1/4,   0,   0,   0,   0], # d
+    [   1,   0, 1/2, 1/4,   0,   0,   0,   0], # u
+    [   0,   0,   0,   0, 1/2, 1/2,   0,   0], # s
+    [   0,   0,   0,   0,   0,   0, 1/2,   0], # c
+    [   0,   0,   0,   0,   0,   0,   0,   0], # b
+    [   0,   0,   0,   0,   0,   0,   0,   0], # t
+    ])
+}
 
 # rotate basis
-def rotate_data(raw, rotate_to_evolution_basis=False):
+def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
     """
     Rotate data either to flavor space or evolution space (from LHA space)
     which is yet an other basis.
@@ -74,6 +106,8 @@ def rotate_data(raw, rotate_to_evolution_basis=False):
     ----------
         raw : dict
             data
+        is_ffns_nnlo : bool
+            special table for NNLO FFNS
         rotate_to_evolution_basis : bool
             to evolution basis?
 
@@ -83,18 +117,34 @@ def rotate_data(raw, rotate_to_evolution_basis=False):
             rotated data
     """
     inp = []
-    for l in raw_label_list:
+    i = "default"
+    label_list = raw_label_list
+    if is_ffns_nnlo:
+        i = "NNLO_FFNS"
+        # add s_v and delete b_p to label_list
+        label_list = np.insert(label_list, 4, "s_v")
+        label_list = np.delete(label_list, -2)
+
+    for l in label_list:
         inp.append(raw[l])
     inp = np.array(inp)
+
     if rotate_to_evolution_basis:
-        rot = np.dot(LHA_rotate_to_evolution, inp)
+        evol_label_list = ["V", "V3", "T3", "T8", "T15", "T24", "S", "g"]
+        if is_ffns_nnlo:
+            # add V8 and delete T24 to evol_label_list
+            evol_label_list = np.insert(evol_label_list, 3, "V8")
+            evol_label_list = np.delete(evol_label_list, -3)
+        rot = np.dot(LHA_rotate_to_evolution[i], inp)
         return dict(zip(evol_label_list, rot))
     else:
-        rot = np.dot(LHA_rotate_to_flavor, inp)
+        rot = np.dot(LHA_rotate_to_flavor[i], inp)
         return dict(zip(br.flavor_basis_pids, rot))
 
 
-def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
+def compute_LHA_data(
+    theory, operators, rotate_to_evolution_basis=False
+):  # pylint: disable=too-many-statements disable=too-many-branches
     """
     Setup LHA benchmark :cite:`Giele:2002hx`
 
@@ -127,34 +177,39 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
     fact_to_ren = (theory["XIF"] / theory["XIR"]) ** 2
     table = None
     part = None
+    is_ffns_nnlo = False
+
+    # Switching at the intermediate point.
+    if fact_to_ren > np.sqrt(2):
+        part = 3
+    elif fact_to_ren < np.sqrt(1.0 / 2.0):
+        part = 2
+    else:
+        part = 1
+
     if fns == "FFNS":
         if order == 0:
             table = 2
             part = 2
         elif order == 1:
             table = 3
-            # Switching at the intermediate point.
-            if fact_to_ren > np.sqrt(2):
-                part = 3
-            elif fact_to_ren < np.sqrt(1.0 / 2.0):
-                part = 2
-            else:
-                part = 1
+        elif order == 2:
+            is_ffns_nnlo = True
+            table = 14
     elif fns == "ZM-VFNS":
         if order == 0:
             table = 2
             part = 3
         elif order == 1:
             table = 4
-            if fact_to_ren > np.sqrt(2):
-                part = 3
-            elif fact_to_ren < np.sqrt(1.0 / 2.0):
-                part = 2
-            else:
-                part = 1
+        elif order == 2:
+            table = 15
+
     else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
-    ref_values = rotate_data(data[f"table{table}"][f"part{part}"], rotate_to_evolution_basis)
+    ref_values = rotate_data(
+        data[f"table{table}"][f"part{part}"], is_ffns_nnlo, rotate_to_evolution_basis
+    )
     ref = {
         "target_xgrid": toy_xgrid,
         "values": {1e4: ref_values},

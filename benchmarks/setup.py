@@ -9,11 +9,7 @@ setup(
     description="eko benchmark",
     # package_dir={"": "."},
     packages=find_packages("."),
-    package_data={
-        "ekomark": [
-            "data/external/LHA.yaml",
-        ]
-    },
+    package_data={"ekomark": ["data/external/LHA.yaml",]},
     install_requires=[
         "eko",
         "pandas",
@@ -23,9 +19,7 @@ setup(
         "pyyaml",
     ],
     entry_points={
-        "console_scripts": [
-            "ekonavigator=ekomark.navigator:launch_navigator",
-        ],
+        "console_scripts": ["ekonavigator=ekomark.navigator:launch_navigator",],
     },
     python_requires=">=3.7",
 )

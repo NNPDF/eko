@@ -219,7 +219,7 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs):
     """
 
     ops_names = list(me["pids"])
-    ops_id = f"o{ops['hash'].hex()[:6]}_t{theory['hash'].hex()[:6]}"
+    ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
     path = f"{path}/{ops_id}.pdf"
     print(f"Plotting operators plots to {path}")
 
