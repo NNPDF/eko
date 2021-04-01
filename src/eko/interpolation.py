@@ -174,7 +174,7 @@ def evaluate_Nx(N, logx, area_list):
             res += coef * (up - low) / (N + i)
     return res
 
-
+# TODO lift to runcard?
 _atol_eps = 10 * np.finfo(float).eps
 
 
