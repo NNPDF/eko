@@ -16,7 +16,7 @@ from . import utils
 @nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
 def lo_exact(gamma_ns, a1, a0, nf):
     """
-    Non-singlet leading order exact EKO
+    |LO| non-singlet exact EKO
 
     Parameters
     ----------
@@ -32,7 +32,7 @@ def lo_exact(gamma_ns, a1, a0, nf):
     Returns
     -------
         e_ns^0 : complex
-            non-singlet leading order exact EKO
+            |LO| non-singlet exact EKO
     """
     return np.exp(gamma_ns[0] * ei.j00(a1, a0, nf))
 
@@ -40,7 +40,7 @@ def lo_exact(gamma_ns, a1, a0, nf):
 @nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
 def nlo_exact(gamma_ns, a1, a0, nf):
     """
-    Non-singlet next-to-leading order exact EKO
+    |NLO| non-singlet exact EKO
 
     Parameters
     ----------
@@ -56,7 +56,7 @@ def nlo_exact(gamma_ns, a1, a0, nf):
     Returns
     -------
         e_ns^1 : complex
-            non-singlet next-to-leading order exact EKO
+            |NLO| non-singlet exact EKO
     """
     return np.exp(
         gamma_ns[0] * ei.j01_exact(a1, a0, nf) + gamma_ns[1] * ei.j11_exact(a1, a0, nf)
@@ -66,7 +66,7 @@ def nlo_exact(gamma_ns, a1, a0, nf):
 @nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
 def nlo_expanded(gamma_ns, a1, a0, nf):
     """
-    Non-singlet next-to-leading order expanded EKO
+    |NLO| non-singlet expanded EKO
 
     Parameters
     ----------
@@ -82,7 +82,7 @@ def nlo_expanded(gamma_ns, a1, a0, nf):
     Returns
     -------
         e_ns^1 : complex
-            non-singlet next-to-leading order expanded EKO
+            |NLO| non-singlet expanded EKO
     """
     return np.exp(
         gamma_ns[0] * ei.j01_expanded(a1, a0, nf)
@@ -93,7 +93,7 @@ def nlo_expanded(gamma_ns, a1, a0, nf):
 @nb.njit("c16(c16[:],f8,f8,u1,u4)", cache=True)
 def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
-    Non-singlet next-to-leading order truncated EKO
+    |NLO| non-singlet truncated EKO
 
     Parameters
     ----------
@@ -111,7 +111,7 @@ def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     Returns
     -------
         e_ns^1 : complex
-            non-singlet next-to-leading order truncated EKO
+            |NLO| non-singlet truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
     b1 = beta.b(1, nf)
@@ -127,7 +127,7 @@ def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
 @nb.njit("c16(c16[:],f8,f8,u1,u4)", cache=True)
 def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
-    Non-singlet next-to-leading order ordered-truncated EKO
+    |NLO| non-singlet ordered-truncated EKO
 
     Parameters
     ----------
@@ -145,7 +145,7 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     Returns
     -------
         e_ns^1 : complex
-            non-singlet next-to-leading order ordered-truncated EKO
+            |NLO| non-singlet ordered-truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
     beta0 = beta.beta(0, nf)
@@ -166,7 +166,7 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
 @nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
 def nnlo_exact(gamma_ns, a1, a0, nf):
     """
-    Non-singlet next-to-next-to-leading order exact EKO
+    |NNLO| non-singlet exact EKO
 
     Parameters
     ----------
@@ -182,7 +182,7 @@ def nnlo_exact(gamma_ns, a1, a0, nf):
     Returns
     -------
         e_ns^2 : complex
-            non-singlet next-to-next-to-leading order exact EKO
+            |NNLO| non-singlet exact EKO
     """
     return np.exp(
         gamma_ns[0] * ei.j02_exact(a1, a0, nf)
@@ -194,7 +194,7 @@ def nnlo_exact(gamma_ns, a1, a0, nf):
 @nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
 def nnlo_expanded(gamma_ns, a1, a0, nf):
     """
-    Non-singlet next-to-next-to-leading order expanded EKO
+    |NNLO| non-singlet expanded EKO
 
     Parameters
     ----------
@@ -210,7 +210,7 @@ def nnlo_expanded(gamma_ns, a1, a0, nf):
     Returns
     -------
         e_ns^2 : complex
-            non-singlet next-to-next-to-leading order expanded EKO
+            |NNLO| non-singlet expanded EKO
     """
     return np.exp(
         gamma_ns[0] * ei.j02_expanded(a1, a0, nf)
@@ -222,7 +222,7 @@ def nnlo_expanded(gamma_ns, a1, a0, nf):
 @nb.njit("c16(c16[:],f8,f8,u1,u4)", cache=True)
 def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
-    Non-singlet next-to-next-to-leading order truncated EKO
+    |NNLO| non-singlet truncated EKO
 
     Parameters
     ----------
@@ -240,7 +240,7 @@ def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     Returns
     -------
         e_ns^2 : complex
-            non-singlet next-to-next-to-leading order truncated EKO
+            |NNLO| non-singlet truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
     b1 = beta.b(1, nf)
@@ -268,7 +268,7 @@ def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
 @nb.njit("c16(c16[:],f8,f8,u1,u4)", cache=True)
 def nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
-    Non-singlet next-to-next-to-leading order ordered truncated EKO
+    |NNLO| non-singlet ordered truncated EKO
 
     Parameters
     ----------
@@ -286,7 +286,7 @@ def nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     Returns
     -------
         e_ns^2 : complex
-            non-singlet next-to-next-to-leading order ordered truncated EKO
+            |NNLO| non-singlet ordered truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, ev_op_iterations)
     b1 = beta.b(1, nf)
@@ -352,8 +352,7 @@ def dispatcher(
         elif method == "ordered-truncated":
             return nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
         # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
-        else:
-            return nlo_exact(gamma_ns, a1, a0, nf)
+        return nlo_exact(gamma_ns, a1, a0, nf)
     # NNLO
     elif order == 2:
         if method in [
@@ -368,5 +367,4 @@ def dispatcher(
             return nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
         # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
         return nnlo_exact(gamma_ns, a1, a0, nf)
-    else:
-        raise NotImplementedError("Selected order is not implemented")
+    raise NotImplementedError("Selected order is not implemented")
