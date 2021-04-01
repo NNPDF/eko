@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This file contains the next-to-leading-order Altarelli-Parisi splitting kernels.
+This file contains the |NLO| Altarelli-Parisi splitting kernels.
 
 These expression have been obtained using the procedure described in the
 `wiki <https://github.com/N3PDF/eko/wiki/Parse-NLO-expressions>`_
@@ -17,7 +17,7 @@ from .. import constants
 @nb.njit("c16(c16,u1)", cache=True)
 def gamma_nsm_1(n, nf: int):
     """
-    Computes the next-to-leading-order valence-like non-singlet anomalous dimension.
+    Computes the |NLO| valence-like non-singlet anomalous dimension.
 
     Implements Eq. (3.5) of :cite:`Moch:2004pa`.
 
@@ -31,7 +31,7 @@ def gamma_nsm_1(n, nf: int):
     Returns
     -------
         gamma_nsm_1 : complex
-            Next-to-leading-order valence-like non-singlet anomalous dimension
+            |NLO| valence-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,-}^{(1)}(N)`
     """
     S1 = harmonics.harmonic_S1(n)
@@ -60,7 +60,7 @@ def gamma_nsm_1(n, nf: int):
 @nb.njit("c16(c16,u1)", cache=True)
 def gamma_nsp_1(n, nf: int):
     """
-    Computes the next-to-leading-order singlet-like non-singlet anomalous dimension.
+    Computes the |NLO| singlet-like non-singlet anomalous dimension.
 
     Implements Eq. (3.5) of :cite:`Moch:2004pa`.
 
@@ -74,7 +74,7 @@ def gamma_nsp_1(n, nf: int):
     Returns
     -------
         gamma_nsp_1 : complex
-            Next-to-leading-order singlet-like non-singlet anomalous dimension
+            |NLO| singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,+}^{(1)}(N)`
     """
     S1 = harmonics.harmonic_S1(n)
@@ -101,7 +101,7 @@ def gamma_nsp_1(n, nf: int):
 @nb.njit("c16(c16,u1)", cache=True)
 def gamma_ps_1(n, nf: int):
     """
-    Computes the next-to-leading-order pure-singlet quark-quark anomalous dimension.
+    Computes the |NLO| pure-singlet quark-quark anomalous dimension.
 
     Implements Eq. (3.6) of :cite:`Vogt:2004mw`.
 
@@ -115,7 +115,7 @@ def gamma_ps_1(n, nf: int):
     Returns
     -------
         gamma_ps_1 : complex
-            Next-to-leading-order pure-singlet quark-quark anomalous dimension
+            |NLO| pure-singlet quark-quark anomalous dimension
             :math:`\\gamma_{ps}^{(1)}(N)`
     """
     # fmt: off
@@ -128,7 +128,7 @@ def gamma_ps_1(n, nf: int):
 @nb.njit("c16(c16,u1)", cache=True)
 def gamma_qg_1(n, nf: int):
     """
-    Computes the next-to-leading-order quark-gluon singlet anomalous dimension.
+    Computes the |NLO| quark-gluon singlet anomalous dimension.
 
     Implements Eq. (3.7) of :cite:`Vogt:2004mw`.
 
@@ -142,7 +142,7 @@ def gamma_qg_1(n, nf: int):
     Returns
     -------
         gamma_qg_1 : complex
-            Next-to-leading-order quark-gluon singlet anomalous dimension
+            |NLO| quark-gluon singlet anomalous dimension
             :math:`\\gamma_{qg}^{(1)}(N)`
     """
     S1 = harmonics.harmonic_S1(n)
@@ -161,7 +161,7 @@ def gamma_qg_1(n, nf: int):
 @nb.njit("c16(c16,u1)", cache=True)
 def gamma_gq_1(n, nf: int):
     """
-    Computes the next-to-leading-order gluon-quark singlet anomalous dimension.
+    Computes the |NLO| gluon-quark singlet anomalous dimension.
 
     Implements Eq. (3.8) of :cite:`Vogt:2004mw`.
 
@@ -175,7 +175,7 @@ def gamma_gq_1(n, nf: int):
     Returns
     -------
         gamma_gq_1 : complex
-            Next-to-leading-order gluon-quark singlet anomalous dimension
+            |NLO| gluon-quark singlet anomalous dimension
             :math:`\\gamma_{gq}^{(1)}(N)`
     """
     S1 = harmonics.harmonic_S1(n)
@@ -197,7 +197,7 @@ def gamma_gq_1(n, nf: int):
 @nb.njit("c16(c16,u1)", cache=True)
 def gamma_gg_1(n, nf: int):
     """
-    Computes the next-to-leading-order gluon-gluon singlet anomalous dimension.
+    Computes the |NLO| gluon-gluon singlet anomalous dimension.
 
     Implements Eq. (3.9) of :cite:`Vogt:2004mw`.
 
@@ -211,7 +211,7 @@ def gamma_gg_1(n, nf: int):
     Returns
     -------
         gamma_gg_1 : complex
-            Next-to-leading-order gluon-gluon singlet anomalous dimension
+            |NLO| gluon-gluon singlet anomalous dimension
             :math:`\\gamma_{gg}^{(1)}(N)`
     """
     S1 = harmonics.harmonic_S1(n)
@@ -253,7 +253,7 @@ def gamma_singlet_1(N, nf: int):
       Returns
       -------
         gamma_S_1 : numpy.ndarray
-          Next-to-leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(1)}(N)`
+          |NLO| singlet anomalous dimension matrix :math:`\gamma_{S}^{(1)}(N)`
 
       See Also
       --------

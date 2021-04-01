@@ -182,7 +182,7 @@ Intrinsic evolution
 -------------------
 
 We also consider the evolution of intrinsic heavy |PDF|. Since these are massive partons they can not
-split any collinear particles and thus they do not participate in the |DGLAP| evolution. Instead their
+split any collinear particles and thus they do not participate in the |DGLAP| evolution. Instead, their
 evolution is simpliy an indentiy operation: e.g. for an intrinsic distribution we get for
 :math:`m_c^2 > Q_1^2 > Q_0^2`:
 
@@ -191,6 +191,6 @@ evolution is simpliy an indentiy operation: e.g. for an intrinsic distribution w
     \tilde {\bar c}(Q_1^2) &= \tilde{\bar c}(Q_0^2)
 
 After crossing the mass threshold (charm in this example) the |PDF| can not be considered intrinsic
-any loger. Here they have to be rejoined with their evolution basis elements and take then again
+any longer. Here, they have to be rejoined with their evolution basis elements and take then again
 part in the ordinary collinear evolution. This twofold behavior leads in the context of the
 FONLL matching scheme :cite:`Forte:2010ta` to considerable simplifications :cite:`Ball:2015dpa`.

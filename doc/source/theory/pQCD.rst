@@ -29,13 +29,13 @@ We implement two different strategies to solve the renormalization group equatio
                                         & \hspace{60pt} \left. + a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) b_1 \ln\left(a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2)/a_s(\mu_0^2)\right)\right]
 
 When the renormalization scale crosses a flavor threshold matching conditions have to be
-applied :cite:`Schroder:2005hy` :cite:`Chetyrkin:2005ia`.
+applied :cite:`Schroder:2005hy,Chetyrkin:2005ia`.
 
 Splitting Functions
 -------------------
 
 The Altarelli-Parisi splitting kernels can be expanded in powers of the strong
-coupling :math:`a_s(\mu^2)` and are given by :cite:`Moch:2004pa` :cite:`Vogt:2004mw`
+coupling :math:`a_s(\mu^2)` and are given by :cite:`Moch:2004pa,Vogt:2004mw`
 
 .. math ::
     \mathbf{P}(x,a_s(\mu^2)) &= \sum\limits_{j=0} a_s^{j+1}(\mu^2) \mathbf{P}^{(j)}(x) \\
