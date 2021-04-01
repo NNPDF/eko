@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 r"""
-This module contains the NNLO operator-matrix elements (OMEs)
-for the matching condtions in ZM-VNFS :cite:`Buza_1998`.
-The approzximated experessions are copied from the Pegasus Fortran code :cite:`Vogt:2004ns`
-(``asg2mom.f``, `ans2mom.f``) and are evaluated in the MS(bar) scheme for :math:`mu_f^2 = m_H^2`.
+This module contains the |NNLO| operator-matrix elements (OMEs)
+for the matching conditions in the |VFNS| at :math:`\mu_F^2 = m_H^2` :cite:`Buza_1998`.
+The approximated expressions are taken from :cite:`Vogt:2004ns`.
 """
 import numba as nb
 import numpy as np
@@ -25,13 +24,13 @@ def A_ns_2(n, sx):
     ----------
         N : complex
             Mellin moment
-        sx : np array
+        sx : numpy.ndarray
             List of harmonic sums
 
     Returns
     -------
         A_ns_2 : numpy.ndarray
-            Next-to-next-to-leading-order non singlet `A_{qq,H}^{NS,(2)}` operator-matrix element
+            |NNLO| non-singlet :math:`A_{qq,H}^{NS,(2)}` operator-matrix element
     """
     S1 = sx[0]
     S2 = sx[1]
@@ -60,19 +59,19 @@ def A_ns_2(n, sx):
 @nb.njit("c16(c16,c16[:])", cache=True)
 def A_hq_2(n, sx):
     """
-    Implemtation of :math:`A_{Hq}^{PS,(2)}` given in Eq. (B.1) of :cite:`Buza_1998`
+    Implemtation of :math:`A_{Hq}^{PS,(2)}` given in Eq. (B.1) of :cite:`Buza_1998`.
 
     Parameters
     ----------
         N : complex
             Mellin moment
-        sx : np array
+        sx : numpy.ndarray
             List of harmonic sums
 
     Returns
     -------
         A_hq_2 : numpy.ndarray
-            Next-to-next-to-leading-order singlet `A_{Hq}^{PS,(2)}` operator-matrix element
+            |NNLO| singlet :math:`A_{Hq}^{PS,(2)}` operator-matrix element
     """
     S2 = sx[1]
 
@@ -112,19 +111,19 @@ def A_hq_2(n, sx):
 @nb.njit("c16(c16,c16[:])", cache=True)
 def A_hg_2(n, sx):
     """
-    Implemtation of :math:`A_{Hg}^{S,(2)}` given in Eq. (B.3) of :cite:`Buza_1998`
+    Implemtation of :math:`A_{Hg}^{S,(2)}` given in Eq. (B.3) of :cite:`Buza_1998`.
 
     Parameters
     ----------
         N : complex
             Mellin moment
-        sx : np array
+        sx : numpy.ndarray
             List of harmonic sums
 
     Returns
     -------
         A_hg_2 : numpy.ndarray
-            Next-to-next-to-leading-order singlet `A_{Hg}^{S,(2)}` operator-matrix element
+            |NNLO| singlet :math:`A_{Hg}^{S,(2)}` operator-matrix element
     """
     S1 = sx[0]
     S2 = sx[1]
@@ -152,19 +151,19 @@ def A_hg_2(n, sx):
 @nb.njit("c16(c16,c16[:])", cache=True)
 def A_gq_2(n, sx):
     """
-    Implemtation of :math:`A_{gq,H}^{S,(2)}` given in Eq. (B.5) of :cite:`Buza_1998`
+    Implemtation of :math:`A_{gq,H}^{S,(2)}` given in Eq. (B.5) of :cite:`Buza_1998`.
 
     Parameters
     ----------
         N : complex
             Mellin moment
-        sx : np array
+        sx : numpy.ndarray
             List of harmonic sums
 
     Returns
     -------
         A_gq_2 : numpy.ndarray
-            Next-to-next-to-leading-order singlet `A_{gq,H}^{S,(2)}` operator-matrix element
+            |NNLO| singlet :math:`A_{gq,H}^{S,(2)}` operator-matrix element
     """
     S1 = sx[0]
     S2 = sx[1]
@@ -190,19 +189,19 @@ def A_gq_2(n, sx):
 @nb.njit("c16(c16,c16[:])", cache=True)
 def A_gg_2(n, sx):
     """
-    Implemtation of :math:`A_{gg,H}^{S,(2)} ` given in Eq. (B.7) of :cite:`Buza_1998`
+    Implemtation of :math:`A_{gg,H}^{S,(2)} ` given in Eq. (B.7) of :cite:`Buza_1998`.
 
     Parameters
     ----------
         N : complex
             Mellin moment
-        sx : np array
+        sx : numpy.ndarray
             List of harmonic sums
 
     Returns
     -------
         A_gg_2 : numpy.ndarray
-            Next-to-next-to-leading-order singlet `A_{gg,H}^{S,(2)}` operator-matrix element
+            |NNLO| singlet :math:`A_{gg,H}^{S,(2)}` operator-matrix element
     """
     S1 = sx[0]
 
@@ -240,33 +239,33 @@ def A_gg_2(n, sx):
 @nb.njit("c16[:,:](c16,c16[:])", cache=True)
 def A_singlet_2(n, sx):
     r"""
-      Computes the next-to-next-leading-order heavy-quark singlet operator matrix elements
+      Computes the |NNLO| heavy-quark singlet operator matrix elements
 
       .. math::
-          \A^{S,(2)} = \left(\begin{array}{cc}
-            \A_{qq,H}^{NS,(2)} + \A_{hq}^{PS,(2)} & \A_{hg}^{S,(2)}\\
-            \A_{gq, H}^{S,(2)} & \A_{gg, H}^{S,(2)}
+          A^{S,(2)} = \left(\begin{array}{cc}
+            A_{qq,H}^{NS,(2)} + A_{hq}^{PS,(2)} & A_{hg}^{S,(2)}\\
+            A_{gq, H}^{S,(2)} & A_{gg, H}^{S,(2)}
           \end{array}\right)
 
       Parameters
       ----------
         N : complex
             Mellin moment
-        sx : np array
+        sx : numpy.ndarray
             List of harmonic sums
 
       Returns
       -------
         A_S_2 : numpy.ndarray
-            Next-to-next-to-leading-order heavy-quark singlet operator matrix elements :math:`\A^{S,(2)}(N)`
+            |NNLO| heavy-quark singlet operator matrix elements :math:`A^{S,(2)}(N)`
 
       See Also
       --------
-        A_ns_2 : :math:`\a_{qq,H}^{NS,(2)}`
-        A_hq_2 : :math:`\a_{hq}^{PS,(2)}`
-        A_hg_2 : :math:`\a_{hg}^{S,(2)}`
-        A_gq_2 : :math:`\a_{gq, H}^{S,(2)}`
-        A_gg_2 : :math:`\a_{gg, H}^{S,(2)}`
+        A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
+        A_hq_2 : :math:`A_{hq}^{PS,(2)}`
+        A_hg_2 : :math:`A_{hg}^{S,(2)}`
+        A_gq_2 : :math:`A_{gq, H}^{S,(2)}`
+        A_gg_2 : :math:`A_{gg, H}^{S,(2)}`
     """  # pylint: disable=line-too-long
     A_hq = A_ns_2(n, sx) + A_hq_2(n, sx)
     A_hg = A_hg_2(n, sx)

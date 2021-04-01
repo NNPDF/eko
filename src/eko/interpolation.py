@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-    Library providing all necessary tools for PDF interpolation.
+Library providing all necessary tools for PDF interpolation.
 
-    This library also provides a class to generate the interpolator `InterpolatorDispatcher`.
-    Upon construction the dispatcher generates a number of functions
-    to evaluate the interpolator.
+This library also provides a class to generate the interpolator :class:`InterpolatorDispatcher`.
+Upon construction the dispatcher generates a number of functions
+to evaluate the interpolator.
 """
 import logging
 import math
@@ -360,7 +360,7 @@ class BasisFunction:
         r"""
         Compiles the function to evaluate the interpolator in N space.
 
-        Generates a function `evaluate_Nx` with a (N, logx) signature.
+        Generates a function :meth:`evaluate_Nx` with a (N, logx) signature.
 
         .. math::
             \tilde p(N)*\exp(- N * \ln(x))
@@ -388,8 +388,8 @@ class InterpolatorDispatcher:
     """
     Setups the interpolator.
 
-    Upon construction will generate a list of `BasisFunction` objects.
-    Each of these `BasisFunction` objects exponses a `callable`
+    Upon construction will generate a list of :class:`BasisFunction` objects.
+    Each of these :class:`BasisFunction` objects exponses a `callable`
     method (also accessible as the `__call__` method of the class)
     which will be numba-compiled.
 
