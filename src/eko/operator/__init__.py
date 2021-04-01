@@ -110,10 +110,11 @@ def quad_ker(
     """
     is_singlet = mode[0] == "S"
     # get transformation to N integral
+    r = 0.4 * 16.0 / (1.0 - logx)
     if is_singlet:
-        r, o = 0.4 * 16.0 / (1.0 - logx), 1.0
+        o = 1.0
     else:
-        r, o = 0.5, 0.0
+        o = 0.0
     n = mellin.Talbot_path(u, r, o)
     jac = mellin.Talbot_jac(u, r, o)
     # check PDF is active
@@ -168,7 +169,7 @@ class Operator:
             cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, config, managers, nf, q2_from, q2_to, mellin_cut=1e-2):
+    def __init__(self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2):
         self.config = config
         self.managers = managers
         self.nf = nf
