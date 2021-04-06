@@ -226,8 +226,11 @@ class OperatorGrid:
             else:
                 ome = OperatorMatrixElement( self.config, self.managers, op.nf, op.q2_to )
                 ome.compute()
-                ome.ad_to_evol_map()
                 ome = physical.PhysicalOperator( ome.op_members, op.q2_to )
-                final_op = final_op @ ome @ phys_op
+                #print("1", final_op.op_members.keys())
+                #print("OME",  ome.op_members.keys())
+                #print("2", phys_op.op_members.keys())
+                final_op = final_op @ ( ome @ phys_op )
+                #print("FINAL", final_op.op_members.keys())
         values, errors = final_op.to_flavor_basis_tensor()
         return {"operators": values, "operator_errors": errors}
