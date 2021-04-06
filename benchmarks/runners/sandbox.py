@@ -75,7 +75,7 @@ class Sandbox(Runner):
     # external = "LHA"
 
     # select to plot operators
-    #plot_operator = True
+    # plot_operator = True
 
     rotate_to_evolution_basis = True
 
@@ -106,7 +106,6 @@ class Sandbox(Runner):
             "T35",
             "T24",
         ]
-    
 
     @staticmethod
     def generate_operators():
@@ -170,9 +169,10 @@ class Sandbox(Runner):
         #  }
         self.run(
             [theory_updates],
-            [{"Q2grid": [1e4],"debug_skip_singlet":False}],
+            [{"Q2grid": [1e4], "debug_skip_singlet": True}],
             ["ToyLH"],
         )
+
 
 if __name__ == "__main__":
     sand = Sandbox()
