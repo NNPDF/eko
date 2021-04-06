@@ -226,9 +226,8 @@ class OperatorGrid:
             else:
                 ome = OperatorMatrixElement( self.config, self.managers, op.nf, op.q2_to )
                 ome.compute()
+                ome.ad_to_evol_map()
                 ome = physical.PhysicalOperator( ome.op_members, op.q2_to )
-                print( type(ome))
-                # TODO: add here the correct cast to before doing the multiplication
                 final_op = final_op @ ome @ phys_op
         values, errors = final_op.to_flavor_basis_tensor()
         return {"operators": values, "operator_errors": errors}

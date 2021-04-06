@@ -12,7 +12,7 @@ from ..operator.member import OpMember
 
 from .nnlo import A_singlet_2, A_ns_2, A_hq_2, A_hg_2
 from ..anomalous_dimensions import harmonics
-from ..operator.flavors import singlet_labels
+from ..operator.flavors import singlet_labels, MemberName
 
 
 # TODO: order might be removed if N3LO matching conditions will not be implemented
@@ -148,7 +148,7 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    is_singlet = mode[0] == "S"
+    is_singlet = mode[0] == ("S" or "g")
     is_threshold = mode[0] == "T"
     # get transformation to N integral
     if is_singlet:
@@ -173,15 +173,15 @@ def quad_ker(
     if is_singlet:
         ker = ome_singlet_fact(order, n, a_s)
         # select element of matrix
-        k = 0 if mode[2] == "q" else 1
-        l = 0 if mode[3] == "q" else 1
+        k = 0 if mode[-1] == "S" else 1
+        l = 0 if mode[-1] == "g" else 1
         ker = ker[k, l]
 
     elif is_threshold:
         # get nf from mode:
         ker = ome_thr_fact(order, n, nf, a_s)
         # select element of matrix
-        k = 0 if mode[-1] == "q" else 1
+        k = 0 if mode[-1] == "S" else 1
         ker = ker[k]
 
     else:
@@ -219,11 +219,14 @@ class OperatorMatrixElement:
         # compute a_s
         sc = managers["strong_coupling"]
         fact_to_ren = config["fact_to_ren"]
+        self.m2_heavy = m2_heavy
         self.a_s = sc.a_s( m2_heavy / fact_to_ren, m2_heavy)
 
         self.int_disp = managers["interpol_dispatcher"] 
         self._mellin_cut = mellin_cut
+        self.ome_members = {}
         self.op_members = {}
+
 
     def labels(self):
         """
@@ -235,21 +238,26 @@ class OperatorMatrixElement:
                 sector labels
         """
         labels = []
-        labels.append("V")
         # V and T have NS contribution
-        for j in range(2, self.nf ** 2 - 1):
-            labels.append(f"V{j}")
-            labels.append(f"T{j}")
+        for f in range(2, self.nf + 1):
+            j = f ** 2 - 1
+            labels.append(f"V{j}.V{j}")
+            labels.append(f"T{j}.V{j}")
         # Threshold operator
         j = (self.nf + 1) ** 2 - 1
-        labels.append(f"V{j}")
-        labels.append(f"T{j}_hq")
-        labels.append(f"T{j}_hg")
+        labels.append(f"V{j}.V{j}")
+        labels.append(f"T{j}.S")
+        labels.append(f"T{j}.g")
         # V is NS and T get singlet contribution
-        for j in range( (self.nf + 2) ** 2 + 1, 35):
-            labels.append(f"V{j}")
-            labels.append(f"T{j}")
-        labels.extend(singlet_labels)
+        for f in range(self.nf + 2 , 7):
+            j = f ** 2 - 1
+            # TODO: check that matmul is working with this syntax
+            labels.append(f"V{j}.V{j}")
+            labels.append(f"T{j}S.S")
+            labels.append(f"T{j}S.g")
+            labels.append(f"T{j}g.S")
+            labels.append(f"T{j}g.g")
+        labels.extend(["S.S","S.g","g.g","g.S","V.V",])
 
         return labels
 
@@ -259,7 +267,7 @@ class OperatorMatrixElement:
         # init all ops with zeros
         grid_size = len(self.int_disp.xgrid)
         for n in self.labels():
-            self.op_members[n] = OpMember(
+            self.ome_members[n] = OpMember(
                 np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
             )
 
@@ -268,9 +276,9 @@ class OperatorMatrixElement:
             # iterate basis functions
             for l, bf in enumerate(self.int_disp):
                 # iterate sectors
-                temp_labels = list(singlet_labels)
+                temp_labels = list(["S.S","S.g","g.g","g.S","V.V",])
                 thr = (self.nf + 1) ** 2 - 1
-                temp_labels.extend(["V", f"T{thr}_hq", f"T{thr}_hg"])
+                temp_labels.extend([f"T{thr}.S", f"T{thr}.g"])
                 for label in temp_labels:
                     # compute and set
                     res = integrate.quad(
@@ -292,11 +300,14 @@ class OperatorMatrixElement:
                         full_output=1,
                     )
                     val, err = res[:2]
-                    self.op_members[label].value[k][l] = val
-                    self.op_members[label].error[k][l] = err
+                    self.ome_members[label].value[k][l] = val
+                    self.ome_members[label].error[k][l] = err
 
         # copy repeated operator matrix elements
         self.copy_omes()
+
+        # map the correct names
+        self.ad_to_evol_map()
 
     def copy(self, out_label, in_label):
         """
@@ -309,22 +320,29 @@ class OperatorMatrixElement:
             in_label : str
                 OME's label to be copied
         """
-        self.op_members[f"{out_label}"].value = self.op_members[f"{in_label}"].value.copy()
-        self.op_members[f"{out_label}"].error = self.op_members[f"{in_label}"].error.copy()
+        self.ome_members[f"{out_label}"].value = self.ome_members[f"{in_label}"].value.copy()
+        self.ome_members[f"{out_label}"].error = self.ome_members[f"{in_label}"].error.copy()
 
     def copy_omes(self):
         """Copy non-singlet and singlet operator matrix elements"""
         # V and T have NS contribution
-        for j in range(2, self.nf ** 2 - 1 ):
-            self.copy(f"V{j}", "V")
-            self.copy(f"T{j}", "V")
+        for f in range(2, self.nf + 1):
+            j = f ** 2 - 1
+            self.copy(f"V{j}.V{j}", "V.V")
+            self.copy(f"T{j}.V{j}", "V.V")
 
         # Threshold operator, copy only V
         j = (self.nf + 1) ** 2 - 1
-        self.copy(f"V{j}", "V")
+        self.copy(f"V{j}.V{j}", "V.V")
 
         # V is NS and T gets singlet contribution
-        for j in range( (self.nf + 2) ** 2 + 1, 35):
-            self.copy(f"V{j}", "V")
-            for label in singlet_labels:
-                self.copy(f"T{j}_{label[:2]}", f"{label}")
+        for f in range(self.nf + 2 , 7):
+            j = f ** 2 - 1
+            self.copy(f"V{j}.V{j}", "V.V")
+            for label in ["S.S","S.g","g.g","g.S"]:
+                self.copy(f"T{j}{label}", f"{label}")
+
+    # TODO: remove this
+    def ad_to_evol_map(self):
+        for k, v in self.ome_members.items():
+            self.op_members[MemberName(k)] = v.copy()
