@@ -99,7 +99,7 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
 
     rot = np.dot(to_flavor, inp)
 
-    # additional rotaion to evolution basis if necessary
+    # additional rotation to evolution basis if necessary
     if rotate_to_evolution_basis:
 
         evol_label_list = ["S", "g", "V", "V3", "V8", "T3", "T8", "T15", "T24"]
