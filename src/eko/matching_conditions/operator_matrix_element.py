@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-This module defines the operator matrix elements for the non-trivial matching conditions in the |VFNS| evolution.
+This module defines the operator matrix elements for the non-trivial matching conditions in the
+|VFNS| evolution.
 """
+
+import time
 import logging
 
 import numpy as np
@@ -123,9 +126,11 @@ class OperatorMatrixElement:
                 np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
             )
 
+        tot_start_time = time.perf_counter()
         logger.info("Matching: computing operators - 0/%d", grid_size)
         # iterate output grid
         for k, logx in enumerate(np.log(self.int_disp.xgrid_raw)):
+            start_time = time.perf_counter()
             # iterate basis functions
             for l, bf in enumerate(self.int_disp):
                 # iterate sectors
@@ -150,3 +155,13 @@ class OperatorMatrixElement:
                     val, err = res[:2]
                     self.ome_members[label].value[k][l] = val
                     self.ome_members[label].error[k][l] = err
+
+            logger.info(
+                "Matching: computing operators - %d/%d took: %f s",
+                k + 1,
+                grid_size,
+                time.perf_counter() - start_time,
+            )
+
+        # closing comment
+        logger.info("Matching: Total time %f s", time.perf_counter() - tot_start_time)
