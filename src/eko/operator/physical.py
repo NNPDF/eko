@@ -141,9 +141,9 @@ class PhysicalOperator(member.OperatorBase):
         for my_key, my_op in self.op_members.items():
             for other_key, other_op in other.op_members.items():
                 # ops match?
-                if my_key.input != other_key.target:
+                if my_key.target != other_key.input:
                     continue
-                new_key = member.MemberName(my_key.target + "." + other_key.input)
+                new_key = member.MemberName(other_key.target + "." + my_key.input)
                 # new?
                 if new_key not in new_oms:
                     new_oms[new_key] = other_op @ my_op

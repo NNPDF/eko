@@ -19,10 +19,7 @@ class MatchingCondition(member.OperatorBase):
         m = {
             f"V{n}.V": op_id,
             f"T{n}.S": op_id,
-            f"T{n}.g": op_id,
             "S.S": op_id,
-            "S.g": op_id,
-            "g.S": op_id,
             "g.g": op_id,
             "V.V": op_id,
         }

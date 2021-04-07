@@ -231,7 +231,7 @@ class OperatorGrid:
                 op.op_members, op.nf, op.q2_to, self.config["intrinsic_range"]
             )
             matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
-                self.ome_members, op.nf, op.q2_to, 0
+                self.ome_members, op.nf + 1, op.q2_to, 0
             )
             final_op = final_op @ (matching @ phys_op)
 
