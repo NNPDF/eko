@@ -3,14 +3,14 @@
 import numpy as np
 import pytest
 
-from eko.operator.member import OpMember
+from eko import member
 from eko.operator.physical import PhysicalOperator
 from eko.operator import flavors
 
 
 def mkOM(shape):
     ma, mae = np.random.rand(2, *shape)
-    return OpMember(ma, mae)
+    return member.OpMember(ma, mae)
 
 
 class TestPhysicalOperator:
@@ -20,7 +20,7 @@ class TestPhysicalOperator:
         return [mkOM(self.shape) for j in range(n)]
 
     def _mkNames(self, ns):
-        return [flavors.MemberName(n) for n in ns]
+        return [member.MemberName(n) for n in ns]
 
     def test_matmul(self):
         VVl, V3V3l, T3Sl, T3gl, SSl, gSl = self._mkOM(6)
@@ -49,10 +49,10 @@ class TestPhysicalOperator:
         assert sorted([str(k) for k in c.op_members.keys()]) == sorted(
             ["V.V", "T3.g", "T3.S", "S.S"]
         )
-        assert c.op_members[flavors.MemberName("V.V")] == VVh @ VVl
-        assert c.op_members[flavors.MemberName("T3.S")] == T3T3h @ T3Sl
-        assert c.op_members[flavors.MemberName("T3.g")] == T3T3h @ T3gl
-        assert c.op_members[flavors.MemberName("S.S")] == SSh @ SSl + Sgh @ gSl
+        assert c.op_members[member.MemberName("V.V")] == VVh @ VVl
+        assert c.op_members[member.MemberName("T3.S")] == T3T3h @ T3Sl
+        assert c.op_members[member.MemberName("T3.g")] == T3T3h @ T3gl
+        assert c.op_members[member.MemberName("S.S")] == SSh @ SSl + Sgh @ gSl
         # errors
         with pytest.raises(ValueError):
             _ = a @ {}
@@ -98,11 +98,11 @@ class TestPhysicalOperator:
 
 
 def mk_op_members(shape=(2, 2)):
-    m = np.random.rand(len(flavors.full_labels), *shape)
-    e = np.random.rand(len(flavors.full_labels), *shape)
+    m = np.random.rand(len(member.full_labels), *shape)
+    e = np.random.rand(len(member.full_labels), *shape)
     om = {}
-    for j, l in enumerate(flavors.full_labels):
-        om[l] = OpMember(m[j], e[j])
+    for j, l in enumerate(member.full_labels):
+        om[l] = member.OpMember(m[j], e[j])
     return om
 
 

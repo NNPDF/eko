@@ -3,17 +3,17 @@ import numpy as np
 
 from .. import basis_rotation as br
 from . import flavors
-from . import member
+from .. import member
 
 
-class PhysicalOperator:
+class PhysicalOperator(member.OperatorBase):
     """
     This joins several fixed flavor scheme operators together.
 
-    - provides the connection between the 3-dimensional anomalous dimension
-      basis and the 4-dimensional evolution basis
-    - provides the connection between the 4-dimensional evolution basis
-      and the 4-dimensional flavor basis
+    - provides the connection between the 7-dimensional anomalous dimension
+      basis and the 15-dimensional evolution basis
+    - provides the connection between the 15-dimensional evolution basis
+      and the 169-dimensional flavor basis
 
 
     Parameters
@@ -23,10 +23,6 @@ class PhysicalOperator:
         q2_final : float
             final scale
     """
-
-    def __init__(self, op_members, q2_final):
-        self.op_members = op_members
-        self.q2_final = q2_final
 
     @classmethod
     def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range=None):
@@ -63,14 +59,6 @@ class PhysicalOperator:
             n = f ** 2 - 1
             m[f"V{n}.V{n}"] = op_members["NS_m"]
             m[f"T{n}.T{n}"] = op_members["NS_p"]
-        # activate one higher element, i.e. where the next heavy quark could participate,
-        # but actually it might be trivial, if we can
-        if nf < 6:
-            n = (nf + 1) ** 2 - 1
-            # without this new heavy quark Vn = V and Tn = S
-            m[f"V{n}.V"] = op_members["NS_v"]
-            m[f"T{n}.S"] = op_members["S_qq"]
-            m[f"T{n}.g"] = op_members["S_qg"]
         # deal with intrinsic heavy quark pdfs
         if intrinsic_range is not None:
             hqfl = "cbt"
@@ -85,13 +73,15 @@ class PhysicalOperator:
                     m[f"{hq}+.{hq}+"] = op_id
                     m[f"{hq}-.{hq}-"] = op_id
                 elif intr_fl == nf + 1:  # next is comming hq?
+                    # TODO move to matching conditions
                     n = intr_fl ** 2 - 1
                     # e.g. T15 = (u+ + d+ + s+) - 3c+
                     m[f"V{n}.{hq}-"] = -(intr_fl - 1) * op_id
                     m[f"T{n}.{hq}+"] = -(intr_fl - 1) * op_id
+        # map key to MemberName
         opms = {}
         for k, v in m.items():
-            opms[flavors.MemberName(k)] = v.copy()
+            opms[member.MemberName(k)] = v.copy()
         return cls(opms, q2_final)
 
     def to_flavor_basis_tensor(self):
@@ -130,13 +120,13 @@ class PhysicalOperator:
                     ] += out_weight * (op.error * in_weight)
         return value_tensor, error_tensor
 
-    def __matmul__(self, other):
+    def __rmatmul__(self, other):
         """
         Multiply ``other`` to self.
 
         Parameters
         ----------
-            other : PhysicalOperator
+            other : OperatorBase
                 second factor with a lower initial scale
 
         Returns
@@ -144,8 +134,8 @@ class PhysicalOperator:
             p : PhysicalOperator
                 self @ other
         """
-        if not isinstance(other, PhysicalOperator):
-            raise ValueError("Can only multiply with another PhysicalOperator")
+        if not isinstance(other, member.OperatorBase):
+            raise ValueError("Can only multiply with another OperatorBase")
         # prepare paths
         new_oms = {}
         for my_key, my_op in self.op_members.items():
@@ -153,7 +143,38 @@ class PhysicalOperator:
                 # ops match?
                 if my_key.input != other_key.target:
                     continue
-                new_key = flavors.MemberName(my_key.target + "." + other_key.input)
+                new_key = member.MemberName(my_key.target + "." + other_key.input)
+                # new?
+                if new_key not in new_oms:
+                    new_oms[new_key] = other_op @ my_op
+                else:  # add element
+                    new_oms[new_key] += other_op @ my_op
+        return self.__class__(new_oms, self.q2_final)
+
+    def __matmul__(self, other):
+        """
+        Multiply ``other`` to self.
+
+        Parameters
+        ----------
+            other : OperatorBase
+                second factor with a lower initial scale
+
+        Returns
+        -------
+            p : PhysicalOperator
+                self @ other
+        """
+        if not isinstance(other, member.OperatorBase):
+            raise ValueError("Can only multiply with another OperatorBase")
+        # prepare paths
+        new_oms = {}
+        for my_key, my_op in self.op_members.items():
+            for other_key, other_op in other.op_members.items():
+                # ops match?
+                if my_key.input != other_key.target:
+                    continue
+                new_key = member.MemberName(my_key.target + "." + other_key.input)
                 # new?
                 if new_key not in new_oms:
                     new_oms[new_key] = my_op @ other_op

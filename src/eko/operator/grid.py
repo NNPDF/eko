@@ -11,11 +11,12 @@ import numbers
 
 import numpy as np
 
+from eko import matching_conditions
+
 from . import Operator
 from . import physical
 
-from ..matching_conditions import OperatorMatrixElement
-
+from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,7 @@ class OperatorGrid:
             interpol_dispatcher=interpol_dispatcher,
         )
         self._threshold_operators = {}
+        self.ome_members = {}
 
     @classmethod
     def from_dict(
@@ -187,6 +189,11 @@ class OperatorGrid:
             grid_return[q2] = self.generate(q2)
         return grid_return
 
+    def compute_matching_coeffs(self):
+        ome = OperatorMatrixElement(self.config, self.managers)
+        ome.compute()
+        self.ome_members = ome.ome_members
+
     def generate(self, q2):
         """
         Computes an single EKO.
@@ -205,6 +212,8 @@ class OperatorGrid:
         path = self.managers["thresholds_config"].path(q2)
         # Prepare the path for the composition of the operator
         thr_ops = self.get_threshold_operators(path)
+        if len(path) > 1 and len(self.ome_members) == 0:
+            self.compute_matching_coeffs()
         # we start composing with the highest operator ...
         operator = Operator(
             self.config, self.managers, path[-1].nf, path[-1].q2_from, path[-1].q2_to
@@ -221,16 +230,10 @@ class OperatorGrid:
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
                 op.op_members, op.nf, op.q2_to, self.config["intrinsic_range"]
             )
-            if self.config["order"] <= 1:
-                final_op = final_op @ phys_op
-            else:
-                ome = OperatorMatrixElement( self.config, self.managers, op.nf, op.q2_to )
-                ome.compute()
-                ome = physical.PhysicalOperator( ome.op_members, op.q2_to )
-                #print("1", final_op.op_members.keys())
-                #print("OME",  ome.op_members.keys())
-                #print("2", phys_op.op_members.keys())
-                final_op = final_op @ ( ome @ phys_op )
-                #print("FINAL", final_op.op_members.keys())
+            matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
+                self.ome_members, op.nf, op.q2_to, 0
+            )
+            final_op = final_op @ (matching @ phys_op)
+
         values, errors = final_op.to_flavor_basis_tensor()
         return {"operators": values, "operator_errors": errors}

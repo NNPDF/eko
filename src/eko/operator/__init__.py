@@ -19,8 +19,8 @@ from .. import beta
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 
-from .member import OpMember
-from .flavors import singlet_labels, full_labels
+from ..member import OpMember, singlet_labels, full_labels
+
 
 logger = logging.getLogger(__name__)
 

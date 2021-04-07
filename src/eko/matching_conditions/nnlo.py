@@ -29,7 +29,7 @@ def A_ns_2(n, sx):
 
     Returns
     -------
-        A_ns_2 : numpy.ndarray
+        A_ns_2 : complex
             |NNLO| non-singlet :math:`A_{qq,H}^{NS,(2)}` operator-matrix element
     """
     S1 = sx[0]

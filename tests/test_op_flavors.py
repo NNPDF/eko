@@ -4,24 +4,25 @@ import numpy as np
 import pytest
 
 from eko.operator import flavors
+from eko import member
 from eko import basis_rotation as br
 
 
 class TestOpMember:
     def test_hash(self):
-        d = {flavors.MemberName("S.S"): 1}
-        assert flavors.MemberName("S.S") in d
-        assert flavors.MemberName("S.g") not in d
+        d = {member.MemberName("S.S"): 1}
+        assert member.MemberName("S.S") in d
+        assert member.MemberName("S.g") not in d
 
     def test_split(self):
-        Sg = flavors.MemberName("S.g")
+        Sg = member.MemberName("S.g")
         assert Sg.input == "g"
         assert Sg.target == "S"
         # errors
         with pytest.raises(ValueError):
-            _ = flavors.MemberName(".").input
+            _ = member.MemberName(".").input
         with pytest.raises(ValueError):
-            _ = flavors.MemberName("bla").input
+            _ = member.MemberName("bla").input
 
 
 def test_pids_from_intrinsic_evol():
@@ -63,14 +64,12 @@ def test_pids_from_intrinsic_evol():
 
 def test_get_range():
     assert (3, 3) == flavors.get_range([])
-    assert (3, 3) == flavors.get_range(
-        [flavors.MemberName(n) for n in ["S.S", "V3.V3"]]
-    )
+    assert (3, 3) == flavors.get_range([member.MemberName(n) for n in ["S.S", "V3.V3"]])
     assert (3, 4) == flavors.get_range(
-        [flavors.MemberName(n) for n in ["S.S", "V3.V3", "T15.S"]]
+        [member.MemberName(n) for n in ["S.S", "V3.V3", "T15.S"]]
     )
     assert (4, 4) == flavors.get_range(
-        [flavors.MemberName(n) for n in ["S.S", "V3.V3", "T15.T15"]]
+        [member.MemberName(n) for n in ["S.S", "V3.V3", "T15.T15"]]
     )
 
 
