@@ -233,7 +233,7 @@ class OperatorGrid:
             matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
                 self.ome_members, op.nf + 1, op.q2_to, 0
             )
-            final_op = final_op @ (matching @ phys_op)
+            final_op = final_op @ matching @ phys_op
 
         values, errors = final_op.to_flavor_basis_tensor()
         return {"operators": values, "operator_errors": errors}

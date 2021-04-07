@@ -136,20 +136,7 @@ class PhysicalOperator(member.OperatorBase):
         """
         if not isinstance(other, member.OperatorBase):
             raise ValueError("Can only multiply with another OperatorBase")
-        # prepare paths
-        new_oms = {}
-        for my_key, my_op in self.op_members.items():
-            for other_key, other_op in other.op_members.items():
-                # ops match?
-                if my_key.target != other_key.input:
-                    continue
-                new_key = member.MemberName(other_key.target + "." + my_key.input)
-                # new?
-                if new_key not in new_oms:
-                    new_oms[new_key] = other_op @ my_op
-                else:  # add element
-                    new_oms[new_key] += other_op @ my_op
-        return self.__class__(new_oms, self.q2_final)
+        return self.__class__(self.operator_multiply(other, self), self.q2_final)
 
     def __matmul__(self, other):
         """
@@ -167,17 +154,21 @@ class PhysicalOperator(member.OperatorBase):
         """
         if not isinstance(other, member.OperatorBase):
             raise ValueError("Can only multiply with another OperatorBase")
+        return self.__class__(self.operator_multiply(self, other), self.q2_final)
+
+    @staticmethod
+    def operator_multiply(left, right):
         # prepare paths
         new_oms = {}
-        for my_key, my_op in self.op_members.items():
-            for other_key, other_op in other.op_members.items():
+        for l_key, l_op in left.op_members.items():
+            for r_key, r_op in right.op_members.items():
                 # ops match?
-                if my_key.input != other_key.target:
+                if l_key.input != r_key.target:
                     continue
-                new_key = member.MemberName(my_key.target + "." + other_key.input)
+                new_key = member.MemberName(l_key.target + "." + r_key.input)
                 # new?
                 if new_key not in new_oms:
-                    new_oms[new_key] = my_op @ other_op
+                    new_oms[new_key] = l_op @ r_op
                 else:  # add element
-                    new_oms[new_key] += my_op @ other_op
-        return self.__class__(new_oms, self.q2_final)
+                    new_oms[new_key] += l_op @ r_op
+        return new_oms
