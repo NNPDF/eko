@@ -2,15 +2,9 @@
 # Test NLO anomalous dims
 import numpy as np
 
-from eko import constants
-
-# constants.CA = 0
-
+from eko.constants import CA, CF
 import eko.anomalous_dimensions.nlo as ad_nlo
 import eko.anomalous_dimensions.harmonics as h
-
-CA = constants.CA
-CF = constants.CF
 
 NF = 5
 
