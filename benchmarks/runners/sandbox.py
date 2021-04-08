@@ -97,14 +97,14 @@ class Sandbox(Runner):
             22,
             -6,
             6,
-            -5,
-            5,
+            #  -5,
+            #  5,
             "ph",
             "V35",
-            "V24",
-            "V15",
+            #  "V24",
+            #  "V15",
             "T35",
-            "T24",
+            #  "T24",
         ]
 
     @staticmethod
@@ -120,17 +120,20 @@ class Sandbox(Runner):
     def doit(self):
 
         theory_updates = {
-            "PTO": 2,
-            "FNS": "FFNS",
+            "PTO": 1,
+            "FNS": "ZM-VFNS",
+            #  "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",
-            "XIR": 1.4142135623730951,
+            #  "XIR": 1.4142135623730951,
             "Q0": np.sqrt(2),
             "kcThr": 0.0,
-            "kbThr": np.inf,
+            "kbThr": 1.0,
+            #  "kbThr": np.inf,
             "ktThr": np.inf,
             "Qref": np.sqrt(2.0),
             "alphas": 0.35,
+            "IC": 1,
         }
         self.run(
             [theory_updates],
@@ -176,4 +179,4 @@ class Sandbox(Runner):
 
 if __name__ == "__main__":
     sand = Sandbox()
-    sand.lha()
+    sand.doit()

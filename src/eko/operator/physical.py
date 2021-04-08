@@ -63,21 +63,16 @@ class PhysicalOperator(member.OperatorBase):
         if intrinsic_range is not None:
             hqfl = "cbt"
             for intr_fl in intrinsic_range:
+                if intr_fl <= nf:  # light quarks are not intrinsic
+                    continue
                 hq = hqfl[intr_fl - 4]  # find name
                 # intrinsic means no evolution, i.e. they are evolving with the identity
                 len_xgrid = op_members["NS_v"].value.shape[0]
                 op_id = member.OpMember(
                     np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid))
                 )
-                if intr_fl > nf + 1:  # keep the higher quarks as they are
-                    m[f"{hq}+.{hq}+"] = op_id
-                    m[f"{hq}-.{hq}-"] = op_id
-                elif intr_fl == nf + 1:  # next is comming hq?
-                    # TODO move to matching conditions
-                    n = intr_fl ** 2 - 1
-                    # e.g. T15 = (u+ + d+ + s+) - 3c+
-                    m[f"V{n}.{hq}-"] = -(intr_fl - 1) * op_id
-                    m[f"T{n}.{hq}+"] = -(intr_fl - 1) * op_id
+                m[f"{hq}+.{hq}+"] = op_id
+                m[f"{hq}-.{hq}-"] = op_id
         # map key to MemberName
         opms = {}
         for k, v in m.items():
