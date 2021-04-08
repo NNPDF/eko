@@ -130,6 +130,18 @@ class Runner(BenchmarkRunner):
                 self.skip_pdfs(theory),
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
+        elif self.external == "pegasus":
+            from .external import (  # pylint:disable=import-error,import-outside-toplevel
+                pegasus_utils,
+            )
+
+            return pegasus_utils.compute_pegasus_data(
+                theory,
+                ocard,
+                pdf,
+                self.skip_pdfs(theory),
+                rotate_to_evolution_basis=self.rotate_to_evolution_basis,
+            )
 
         elif self.external == "apfel":
             from .external import (  # pylint:disable=import-error,import-outside-toplevel

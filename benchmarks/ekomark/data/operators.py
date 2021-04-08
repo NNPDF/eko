@@ -10,8 +10,8 @@ from eko import interpolation
 from . import db
 
 default_card = dict(
-    interpolation_xgrid=interpolation.make_grid(30, 20).tolist(),
-    interpolation_polynomial_degree=4,
+    interpolation_xgrid=interpolation.make_grid(2, 2).tolist(),
+    interpolation_polynomial_degree=1,
     interpolation_is_log=True,
     debug_skip_non_singlet=False,
     debug_skip_singlet=False,
