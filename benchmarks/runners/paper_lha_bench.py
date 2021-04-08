@@ -111,6 +111,7 @@ class LHABenchmark(Runner):
                 {
                     "Q2grid": [1e4],
                     "ev_op_iterations": 10,
+                    # "debug_skip_singlet": True
                 }
             ],
             ["ToyLH"],
