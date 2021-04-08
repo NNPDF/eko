@@ -37,10 +37,10 @@ class MatchingCondition(member.OperatorBase):
             hqfl = "cbt"
             for intr_fl in intrinsic_range:
                 hq = hqfl[intr_fl - 4]  # find name
-                if intr_fl > nf:  # keep the higher quarks as they are
+                if intr_fl > nf + 1:  # keep the higher quarks as they are
                     m[f"{hq}+.{hq}+"] = op_id
                     m[f"{hq}-.{hq}-"] = op_id
-                elif intr_fl == nf:  # next is comming hq?
+                elif intr_fl == nf + 1:  # next is comming hq?
                     # TODO move to matching conditions
                     n = intr_fl ** 2 - 1
                     # e.g. T15 = (u+ + d+ + s+) - 3c+
