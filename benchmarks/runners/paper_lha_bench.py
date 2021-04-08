@@ -107,7 +107,13 @@ class LHABenchmark(Runner):
         """
         self.run(
             theory_updates,
-            [{"Q2grid": [1e4], "ev_op_iterations": 10, "debug_skip_singlet": True}],
+            [
+                {
+                    "Q2grid": [1e4],
+                    "ev_op_iterations": 10,
+                    #"debug_skip_singlet": True
+                }
+            ],
             ["ToyLH"],
         )
 
@@ -165,4 +171,5 @@ if __name__ == "__main__":
     obj = BenchmarkFFNS()
 
     obj.benchmark_plain(0)
+    obj.benchmark_plain(1)
     # obj.benchmark_sv(1)

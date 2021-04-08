@@ -174,6 +174,7 @@ def evaluate_Nx(N, logx, area_list):
             res += coef * (up - low) / (N + i)
     return res
 
+
 # TODO lift to runcard?
 _atol_eps = 10 * np.finfo(float).eps
 
@@ -436,9 +437,12 @@ class InterpolatorDispatcher:
         self.xgrid = xgrid
         self.polynomial_degree = polynomial_degree
         self.log = log
-        logger.info("Interpolation: number of points = %d", xgrid_size)
-        logger.info("Interpolation: polynomial degree = %d", polynomial_degree)
-        logger.info("Interpolation: logarithmic = %s", log)
+        logger.info(
+            "Interpolation: number of points = %d, polynomial degree = %d, logarithmic = %s",
+            xgrid_size,
+            polynomial_degree,
+            log,
+        )
 
         # Create blocks
         list_of_blocks = []

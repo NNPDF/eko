@@ -224,17 +224,23 @@ class Operator:
             )
         tot_start_time = time.perf_counter()
         # setup KernelDispatcher
+        sc = self.managers["strong_coupling"]
+        fact_to_ren = self.config["fact_to_ren"]
+        a1 = sc.a_s(self.q2_to / fact_to_ren, self.q2_to)
+        a0 = sc.a_s(self.q2_from / fact_to_ren, self.q2_from)
         logger.info(
             "Evolution: computing operators %e -> %e, nf=%d",
             self.q2_from,
             self.q2_to,
             self.nf,
         )
+        logger.info("Evolution: a_s distance: %e -> %e", a0, a1)
+        logger.info(
+            "Evolution: order: %d, solution strategy: %s",
+            self.config["order"],
+            self.config["method"],
+        )
         logger.info("Evolution: computing operators - 0/%d", grid_size)
-        sc = self.managers["strong_coupling"]
-        fact_to_ren = self.config["fact_to_ren"]
-        a1 = sc.a_s(self.q2_to / fact_to_ren, self.q2_to)
-        a0 = sc.a_s(self.q2_from / fact_to_ren, self.q2_from)
         # iterate output grid
         for k, logx in enumerate(np.log(int_disp.xgrid_raw)):
             start_time = time.perf_counter()
