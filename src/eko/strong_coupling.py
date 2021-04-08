@@ -154,7 +154,7 @@ class StrongCoupling:
         return self._threshold_holder.q2_ref
 
     @classmethod
-    def from_dict(cls, theory_card, thresholds_config=None):
+    def from_dict(cls, theory_card):
         """
         Create object from theory dictionary.
 
@@ -169,8 +169,6 @@ class StrongCoupling:
         ----------
             theory_card : dict
                 theory dictionary
-            thresholds_config : eko.thresholds.ThresholdsAtlas
-                threshold configuration
 
         Returns
         -------
@@ -197,9 +195,13 @@ class StrongCoupling:
             method = "expanded"
         else:
             raise ValueError(f"Unknown evolution mode {mod_ev}")
-        # eventually read my dependents
-        if thresholds_config is None:
-            thresholds_config = thresholds.ThresholdsAtlas.from_dict(theory_card)
+        # adjust factorization scale / renormalization scale
+        fact_to_ren = theory_card["XIF"] / theory_card["XIR"]
+        t = theory_card.copy()
+        for q in "cbt":
+            t[f"m{q}"] /= fact_to_ren
+        # now read atlas
+        thresholds_config = thresholds.ThresholdsAtlas.from_dict(t)
         return cls(alpha_ref, q2_alpha, thresholds_config, order, method)
 
     def _compute_exact(self, as_ref, nf, scale_from, scale_to):
@@ -285,6 +287,8 @@ class StrongCoupling:
         ----------
             scale_to : float
                 final scale to evolve to :math:`\mu_R^2`
+            fact_scale : float
+                factorization scale (if different from final scale)
 
         Returns
         -------
@@ -294,6 +298,9 @@ class StrongCoupling:
         # Set up the path to follow in order to go from q2_0 to q2_ref
         final_as = self.as_ref
         path = self._threshold_holder.path(scale_to)
+        is_downward_path = False
+        if len(path) > 1:
+            is_downward_path = path[1].nf < path[0].nf
         # as a default assume mu_F^2 = mu_R^2
         if fact_scale is None:
             fact_scale = scale_to
@@ -302,20 +309,62 @@ class StrongCoupling:
             # apply matching conditions: see hep-ph/9706430
             # - if there is yet a step to go
             if k < len(path) - 1:
-                next_nf_is_down = path[k + 1].nf < seg.nf
                 # q2_to is the threshold value
                 L = np.log(scale_to / fact_scale)
-                if next_nf_is_down:
-                    c1 = -4.0 / 3.0 * constants.TR * L
-                    # TODO recover color constants
-                    c2 = 4.0 / 9.0 * L ** 2 - 38.0 / 3.0 * L - 14.0 / 3.0
-                else:
-                    c1 = 4.0 / 3.0 * constants.TR * L
-                    c2 = 4.0 / 9.0 * L ** 2 + 38.0 / 3.0 * L + 14.0 / 3.0
+                m_coeffs = (
+                    matching_coeffs_down if is_downward_path else matching_coeffs_up
+                )
+                fact = 1.0
                 # shift
-                if self._order == 1:
-                    new_as *= 1 + c1 * new_as
-                elif self._order == 2:
-                    new_as *= 1 + c1 * new_as + c2 * new_as ** 2
+                for n in range(1, self._order + 1):
+                    for l in range(n + 1):
+                        fact += new_as ** n * L ** l * m_coeffs[n, l]
+                # shift
+                new_as *= fact
             final_as = new_as
         return final_as
+
+
+matching_coeffs_up = np.zeros((3, 3))
+r"""
+Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia,Vogt:2004ns` at threshold
+when moving to a regime with *more* flavors.
+
+.. math::
+    a_s^{(n_l+1)} = a_s^{(n_l)} + \sum\limits_{n=1} (a_s^{(n_l)})^n
+                            \sum\limits_{k=0}^n c_{nl} \log(\mu_R^2/\mu_F^2)
+"""
+matching_coeffs_up[1, 1] = 4.0 / 3.0 * constants.TR
+matching_coeffs_up[2, 0] = 14.0 / 3.0
+matching_coeffs_up[2, 1] = 38.0 / 3.0
+matching_coeffs_up[2, 2] = 4.0 / 9.0
+
+# inversion of the matching coefficients
+_c = matching_coeffs_up
+
+matching_coeffs_down = np.zeros_like(matching_coeffs_up)
+"""
+Matching coefficients :cite:`Schroder:2005hy` :cite:`Chetyrkin:2005ia` at threshold
+when moving to a regime with *less* flavors.
+
+This is the perturbative inverse of :data:`matching_coeffs_up` and has been obtained via
+
+.. code-block:: Mathematica
+
+    Module[{f, g, l, sol},
+        f[a_] := a + Sum[d[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}];
+        g[a_] := a + Sum[c[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}] /. {c[1, 0] -> 0};
+        l = CoefficientList[Normal@Series[f[g[a]], {a, 0, 5}], {a, L}];
+        sol = First@
+            Solve[{l[[3]] == 0, l[[4]] == 0, l[[5]] == 0},
+            Flatten@Table[d[n, k], {n, 3}, {k, 0, n}]];
+        Do[Print@r, {r, sol}];
+        Print@Series[f[g[a]] /. sol, {a, 0, 5}];
+        Print@Series[g[f[a]] /. sol, {a, 0, 5}];
+    ]
+"""
+
+matching_coeffs_down[1, 1] = -_c[1, 1]
+matching_coeffs_down[2, 0] = -_c[2, 0]
+matching_coeffs_down[2, 1] = -_c[2, 1]
+matching_coeffs_down[2, 2] = 2.0 * _c[1, 1] ** 2 - _c[2, 2]

@@ -155,7 +155,7 @@ def harmonic_S1(N):
 
     See Also
     --------
-        cern_polygamma : :math:`\psi_0(N)`
+        cern_polygamma : :math:`\psi_k(N)`
     """
     return cern_polygamma(N + 1.0, 0) + np.euler_gamma
 
@@ -183,7 +183,7 @@ def harmonic_S2(N):
 
     See Also
     --------
-        cern_polygamma : :math:`\psi_0(N)`
+        cern_polygamma : :math:`\psi_k(N)`
     """
     return -cern_polygamma(N + 1.0, 1) + zeta2
 
@@ -211,7 +211,7 @@ def harmonic_S3(N):
 
     See Also
     --------
-        cern_polygamma : :math:`\psi_0(N)`
+        cern_polygamma : :math:`\psi_k(N)`
     """
     return 0.5 * cern_polygamma(N + 1.0, 2) + zeta3
 
@@ -239,7 +239,7 @@ def harmonic_S4(N):
 
     See Also
     --------
-        cern_polygamma : :math:`\psi_0(N)`
+        cern_polygamma : :math:`\psi_k(N)`
     """
     return zeta4 - 1.0 / 6.0 * cern_polygamma(N + 1.0, 3)
 
@@ -250,7 +250,7 @@ def mellin_g3(N):
     Computes the Mellin transform of :math:`\text{Li}_2(x)/(1+x)`.
 
     This function appears in the analytic continuation of the harmonic sum
-    :math:`S_{-2,1}(N)` which in turn appears in the NLO anomalous dimension
+    :math:`S_{-2,1}(N)` which in turn appears in the |NLO| anomalous dimension
     (see :ref:`theory/mellin:harmonic sums`).
 
     Parameters

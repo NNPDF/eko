@@ -53,10 +53,12 @@ class PathSegment:
 
     @property
     def nf(self):
+        """Number of active flavors."""
         return self._area.nf
 
     @property
     def tuple(self):
+        """Tuple representation suitable for hashing."""
         return (self.q2_from, self.q2_to)
 
     def __repr__(self):
@@ -64,6 +66,23 @@ class PathSegment:
 
     @classmethod
     def intersect(cls, q2_from, q2_to, area):
+        """
+        Create the intersection between the interval `q2_from`,`q2_to` and the `area`.
+
+        Parameters
+        ----------
+            q2_from : float
+                lower interval bound
+            q2_to : float
+                upper interval bound
+            area : eko.thresholds.Area
+                limiting area
+
+        Returns
+        -------
+            PathSegment :
+                intersection
+        """
         if q2_from < q2_to:
             return cls(max(q2_from, area.q2_min), min(q2_to, area.q2_max), area)
         else:
@@ -130,7 +149,7 @@ class ThresholdsAtlas:
 
         Returns
         -------
-            cls : ThresholdsAtlas
+            ThresholdsAtlas :
                 created object
         """
 
@@ -160,7 +179,7 @@ class ThresholdsAtlas:
         Returns
         -------
             path: list(PathSegment)
-                List of PathSegment to go through in order to get from q2_from
+                List of :class:`PathSegment` to go through in order to get from q2_from
                 to q2_to.
         """
         if q2_from is None:

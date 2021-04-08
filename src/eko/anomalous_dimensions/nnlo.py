@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-This file contains the next-to-next-to-leading-order Altarelli-Parisi splitting kernels.
+This file contains the |NNLO| Altarelli-Parisi splitting kernels.
 
-The expression have been obtained from:
-https://www.liverpool.ac.uk/~avogt/p2mom.f
-:cite:`Moch:2004pa,Vogt:2004ns`.
+The expression have been obtained from :cite:`Moch:2004pa,Vogt:2004ns`.
 
 Note that the QCD colour factors have been hard-wired in the parametrizations.
 """
@@ -17,10 +15,11 @@ from . import harmonics
 zeta2 = harmonics.zeta2
 zeta3 = harmonics.zeta3
 
+
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsm_2(n, nf: int, sx):
     """
-    Computes the next-to-next-to-leading-order valence-like non-singlet anomalous dimension.
+    Computes the |NNLO| valence-like non-singlet anomalous dimension.
 
     Implements Eq. (3.8) of :cite:`Moch:2004pa`.
 
@@ -36,7 +35,7 @@ def gamma_nsm_2(n, nf: int, sx):
     Returns
     -------
         gamma_nsm_2 : complex
-            Next-to-next-to-leading-order valence-like non-singlet anomalous dimension
+            |NNLO| valence-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,-}^{(2)}(N)`
     """
     S1 = sx[0]
@@ -97,7 +96,7 @@ def gamma_nsm_2(n, nf: int, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsp_2(n, nf: int, sx):
     """
-    Computes the next-to-next-to-leading-order singlet-like non-singlet anomalous dimension.
+    Computes the |NNLO| singlet-like non-singlet anomalous dimension.
 
     Implements Eq. (3.7) of :cite:`Moch:2004pa`.
 
@@ -113,7 +112,7 @@ def gamma_nsp_2(n, nf: int, sx):
     Returns
     -------
         gamma_nsp_2 : complex
-            Next-to-next-to-leading-order singlet-like non-singlet anomalous dimension
+            |NNLO| singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,+}^{(2)}(N)`
     """
     S1 = sx[0]
@@ -174,7 +173,7 @@ def gamma_nsp_2(n, nf: int, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsv_2(n, nf: int, sx):
     """
-    Computes the next-to-next-to-leading-order valence non-singlet anomalous dimension.
+    Computes the |NNLO| valence non-singlet anomalous dimension.
 
     Implements Eq. (3.9) of :cite:`Moch:2004pa`.
 
@@ -190,7 +189,7 @@ def gamma_nsv_2(n, nf: int, sx):
     Returns
     -------
         gamma_nsv_2 : complex
-            Next-to-next-to-leading-order valence non-singlet anomalous dimension
+            |NNLO| valence non-singlet anomalous dimension
             :math:`\\gamma_{ns,v}^{(2)}(N)`
     """
     S1 = sx[0]
@@ -229,7 +228,7 @@ def gamma_nsv_2(n, nf: int, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_ps_2(n, nf: int, sx):
     """
-    Computes the next-to-next-to-leading-order pure-singlet quark-quark anomalous dimension.
+    Computes the |NNLO| pure-singlet quark-quark anomalous dimension.
 
     Implements Eq. (3.10) of :cite:`Vogt:2004mw`.
 
@@ -245,7 +244,7 @@ def gamma_ps_2(n, nf: int, sx):
     Returns
     -------
         gamma_ps_2 : complex
-            Next-to-next-to-leading-order pure-singlet quark-quark anomalous dimension
+            |NNLO| pure-singlet quark-quark anomalous dimension
             :math:`\\gamma_{ps}^{(2)}(N)`
     """
     S1 = sx[0]
@@ -301,7 +300,7 @@ def gamma_ps_2(n, nf: int, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_qg_2(n, nf: int, sx):
     """
-    Computes the next-to-next-to-leading-order quark-gluon singlet anomalous dimension.
+    Computes the |NNLO| quark-gluon singlet anomalous dimension.
 
     Implements Eq. (3.11) of :cite:`Vogt:2004mw`.
 
@@ -317,7 +316,7 @@ def gamma_qg_2(n, nf: int, sx):
     Returns
     -------
         gamma_qg_2 : complex
-            Next-to-next-to-leading-order quark-gluon singlet anomalous dimension
+            |NNLO| quark-gluon singlet anomalous dimension
             :math:`\\gamma_{qg}^{(2)}(N)`
     """
     S1 = sx[0]
@@ -375,7 +374,7 @@ def gamma_qg_2(n, nf: int, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_gq_2(n, nf: int, sx):
     """
-    Computes the next-to-next-to-leading-order gluon-quark singlet anomalous dimension.
+    Computes the |NNLO| gluon-quark singlet anomalous dimension.
 
     Implements Eq. (3.12) of :cite:`Vogt:2004mw`.
 
@@ -391,7 +390,7 @@ def gamma_gq_2(n, nf: int, sx):
     Returns
     -------
         gamma_gq_2 : complex
-            Next-to-next-to-leading-order gluon-quark singlet anomalous dimension
+            |NNLO| gluon-quark singlet anomalous dimension
             :math:`\\gamma_{gq}^{(2)}(N)`
     """
     S1 = sx[0]
@@ -465,7 +464,7 @@ def gamma_gq_2(n, nf: int, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_gg_2(n, nf: int, sx):
     """
-    Computes the next-to-next-to-leading-order gluon-gluon singlet anomalous dimension.
+    Computes the |NNLO| gluon-gluon singlet anomalous dimension.
 
     Implements Eq. (3.13) of :cite:`Vogt:2004mw`.
 
@@ -481,7 +480,7 @@ def gamma_gg_2(n, nf: int, sx):
     Returns
     -------
         gamma_gg_2 : complex
-            Next-to-next-to-leading-order gluon-gluon singlet anomalous dimension
+            |NNLO| gluon-gluon singlet anomalous dimension
             :math:`\\gamma_{gg}^{(2)}(N)`
     """
     S1 = sx[0]
@@ -553,7 +552,7 @@ def gamma_gg_2(n, nf: int, sx):
 @nb.njit("c16[:,:](c16,u1,c16[:])", cache=True)
 def gamma_singlet_2(N, nf: int, sx):
     r"""
-      Computes the next-to-next-to-leading-order singlet anomalous dimension matrix
+      Computes the |NNLO| singlet anomalous dimension matrix
 
       .. math::
           \gamma_S^{(2)} = \left(\begin{array}{cc}
@@ -574,7 +573,7 @@ def gamma_singlet_2(N, nf: int, sx):
       Returns
       -------
         gamma_S_2 : numpy.ndarray
-            Next-to-next-to-leading-order singlet anomalous dimension matrix
+            |NNLO| singlet anomalous dimension matrix
             :math:`\gamma_{S}^{(2)}(N)`
 
       See Also

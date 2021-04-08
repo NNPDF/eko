@@ -237,7 +237,7 @@ So the strategies are
 .. math::
     \ESk{1}{a_s}{a_s^0} = \ESk{0}{a_s}{a_s^0} + a_s \mathbf U_1 \ESk{0}{a_s}{a_s^0} - a_s^0 \ESk{0}{a_s}{a_s^0} \mathbf U_1
 
-Next-to-next-to-Leading Order
+Next-to-Next-to-Leading Order
 -----------------------------
 
 NNLO Non-Singlet Evolution

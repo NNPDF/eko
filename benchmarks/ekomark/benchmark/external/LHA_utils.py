@@ -28,73 +28,30 @@ raw_label_list = ["u_v", "d_v", "L_m", "L_p", "s_p", "c_p", "b_p", "g"]
 #    LHA_init_grid.append(f(toy_xgrid))
 LHA_init_grid = np.array([])
 
-# fmt: off
-# rotation matrix
-LHA_rotate_to_evolution = {
-    "default": np.array([
-    # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
-    [   1,   1,   0,   0,   0,   0,   0,   0], # V
-    [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
-    [   1,  -1,  -2,   0,   0,   0,   0,   0], # T3
-    [   1,   1,   0,   1,  -2,   0,   0,   0], # T8
-    [   1,   1,   0,   1,   1,  -3,   0,   0], # T15
-    [   1,   1,   0,   1,   1,   1,  -4,   0], # T24
-    [   1,   1,   0,   1,   1,   1,   1,   0], # S
-    [   0,   0,   0,   0,   0,   0,   0,   1], # g
-    ]),
-    "NNLO_FFNS": np.array([
-    # u_v, d_v, L_-, 2L_+, s_v s_+, c_+,    g
-    [   1,   1,   0,   0,   2,   0,   0,   0], # V
-    [   1,  -1,   0,   0,   0,   0,   0,   0], # V3
-    [   1,  -1,  -2,   0,   0,   0,   0,   0], # T3
-    [   1,   1,   0,   0,  -2,   0,   0,   0], # V8
-    [   1,   1,   0,   1,   0,  -2,   0,   0], # T8
-    [   1,   1,   0,   1,   0,   1,  -3,   0], # T15
-    [   1,   1,   0,   1,   0,   1,   1,   0], # S
-    [   0,   0,   0,   0,   0,   0,   0,   1], # g
-    ])
-}
 
 # L+ = 2(ub + db) = u+ - u- + d+ - d-
-# L- = ub - db = ((u+-u-) - (d+ - d-))/2
+# L- = db - ub = ((d+ - d-) - (u+-u-))/2
 # In the NNLO paper :cite:`Dittmar:2005ed` L_+ definition is different:
 # L_+ = 2 L_+_NNLO
-LHA_rotate_to_flavor = {
-    "default": np.array([
-    # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
-    [   0,   0,   0,   0,   0,   0,   0,   0], # ph
-    [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
-    [   0,   0,   0,   0,   0,   0, 1/2,   0], # bbar
-    [   0,   0,   0,   0,   0, 1/2,   0,   0], # cbar
-    [   0,   0,   0,   0, 1/2,   0,   0,   0], # sbar
-    [   0,   0, 1/2, 1/4,   0,   0,   0,   0], # ubar
-    [   0,   0,-1/2, 1/4,   0,   0,   0,   0], # dbar
-    [   0,   0,   0,   0,   0,   0,   0,   1], # g
-    [   0,   1,-1/2, 1/4,   0,   0,   0,   0], # d
-    [   1,   0, 1/2, 1/4,   0,   0,   0,   0], # u
-    [   0,   0,   0,   0, 1/2,   0,   0,   0], # s
-    [   0,   0,   0,   0,   0, 1/2,   0,   0], # c
-    [   0,   0,   0,   0,   0,   0, 1/2,   0], # b
-    [   0,   0,   0,   0,   0,   0,   0,   0], # t
-    ]),
-    "NNLO_FFNS": np.array([
-    # u_v, d_v, L_-, 2L_+, s_v  s_+, c_+,   g
-    [   0,   0,   0,   0,   0,   0,   0,   0], # ph
-    [   0,   0,   0,   0,   0,   0,   0,   0], # tbar
-    [   0,   0,   0,   0,   0,   0,   0,   0], # bbar
-    [   0,   0,   0,   0,   0,   0, 1/2,   0], # cbar
-    [   0,   0,   0,   0,-1/2, 1/2,   0,   0], # sbar
-    [   0,   0, 1/2, 1/4,   0,   0,   0,   0], # ubar
-    [   0,   0,-1/2, 1/4,   0,   0,   0,   0], # dbar
-    [   0,   0,   0,   0,   0,   0,   0,   1], # g
-    [   0,   1,-1/2, 1/4,   0,   0,   0,   0], # d
-    [   1,   0, 1/2, 1/4,   0,   0,   0,   0], # u
-    [   0,   0,   0,   0, 1/2, 1/2,   0,   0], # s
-    [   0,   0,   0,   0,   0,   0, 1/2,   0], # c
-    [   0,   0,   0,   0,   0,   0,   0,   0], # b
-    [   0,   0,   0,   0,   0,   0,   0,   0], # t
-    ])
-}
+LHA_rotate_to_flavor = np.array(
+    [
+        # u_v, d_v, L_-, L_+, s_+, c_+, b_+,   g
+        [0, 0, 0, 0, 0, 0, 0, 0],  # ph
+        [0, 0, 0, 0, 0, 0, 0, 0],  # tbar
+        [0, 0, 0, 0, 0, 0, 1 / 2, 0],  # bbar
+        [0, 0, 0, 0, 0, 1 / 2, 0, 0],  # cbar
+        [0, 0, 0, 0, 1 / 2, 0, 0, 0],  # sbar
+        [0, 0, -1 / 2, 1 / 4, 0, 0, 0, 0],  # ubar
+        [0, 0, 1 / 2, 1 / 4, 0, 0, 0, 0],  # dbar
+        [0, 0, 0, 0, 0, 0, 0, 1],  # g
+        [0, 1, 1 / 2, 1 / 4, 0, 0, 0, 0],  # d
+        [1, 0, -1 / 2, 1 / 4, 0, 0, 0, 0],  # u
+        [0, 0, 0, 0, 1 / 2, 0, 0, 0],  # s
+        [0, 0, 0, 0, 0, 1 / 2, 0, 0],  # c
+        [0, 0, 0, 0, 0, 0, 1 / 2, 0],  # b
+        [0, 0, 0, 0, 0, 0, 0, 0],  # t
+    ]
+)
 
 # rotate basis
 def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
@@ -117,29 +74,35 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
             rotated data
     """
     inp = []
-    i = "default"
     label_list = raw_label_list
+    to_flavor = LHA_rotate_to_flavor
     if is_ffns_nnlo:
-        i = "NNLO_FFNS"
         # add s_v and delete b_p to label_list
         label_list = np.insert(label_list, 4, "s_v")
         label_list = np.delete(label_list, -2)
+
+        # change the rotation matrix
+        b_line = [0, 0, 0, 0, 0, 0, 1 / 2, 0]
+        # b to zeros
+        to_flavor = np.where(to_flavor == b_line, np.zeros(8), to_flavor)
+        # c_p to b_p position
+        to_flavor[3, :] = b_line
+        to_flavor[-3, :] = b_line
+        # s
+        to_flavor[4, :] = [0, 0, 0, 0, -1 / 2, 1 / 2, 0, 0]
+        to_flavor[-4, :] = [0, 0, 0, 0, 1 / 2, 1 / 2, 0, 0]
 
     for l in label_list:
         inp.append(raw[l])
     inp = np.array(inp)
 
+    flav_pdfs = np.dot(to_flavor, inp)
+
+    # additional rotaion to evolution basis if necessary
     if rotate_to_evolution_basis:
-        evol_label_list = ["V", "V3", "T3", "T8", "T15", "T24", "S", "g"]
-        if is_ffns_nnlo:
-            # add V8 and delete T24 to evol_label_list
-            evol_label_list = np.insert(evol_label_list, 3, "V8")
-            evol_label_list = np.delete(evol_label_list, -3)
-        rot = np.dot(LHA_rotate_to_evolution[i], inp)
-        return dict(zip(evol_label_list, rot))
-    else:
-        rot = np.dot(LHA_rotate_to_flavor[i], inp)
-        return dict(zip(br.flavor_basis_pids, rot))
+        evol_pdfs = np.matmul(br.rotate_flavor_to_evolution, flav_pdfs)
+        return dict(zip(br.evol_basis, evol_pdfs))
+    return dict(zip(br.flavor_basis_pids, flav_pdfs))
 
 
 def compute_LHA_data(

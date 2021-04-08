@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-    Library providing all necessary tools for PDF interpolation.
+Library providing all necessary tools for PDF interpolation.
 
-    This library also provides a class to generate the interpolator `InterpolatorDispatcher`.
-    Upon construction the dispatcher generates a number of functions
-    to evaluate the interpolator.
+This library also provides a class to generate the interpolator :class:`InterpolatorDispatcher`.
+Upon construction the dispatcher generates a number of functions
+to evaluate the interpolator.
 """
 import logging
 import math
@@ -175,6 +175,7 @@ def evaluate_Nx(N, logx, area_list):
     return res
 
 
+# TODO lift to runcard?
 _atol_eps = 10 * np.finfo(float).eps
 
 
@@ -360,7 +361,7 @@ class BasisFunction:
         r"""
         Compiles the function to evaluate the interpolator in N space.
 
-        Generates a function `evaluate_Nx` with a (N, logx) signature.
+        Generates a function :meth:`evaluate_Nx` with a (N, logx) signature.
 
         .. math::
             \tilde p(N)*\exp(- N * \ln(x))
@@ -388,8 +389,8 @@ class InterpolatorDispatcher:
     """
     Setups the interpolator.
 
-    Upon construction will generate a list of `BasisFunction` objects.
-    Each of these `BasisFunction` objects exponses a `callable`
+    Upon construction will generate a list of :class:`BasisFunction` objects.
+    Each of these :class:`BasisFunction` objects exponses a `callable`
     method (also accessible as the `__call__` method of the class)
     which will be numba-compiled.
 
@@ -436,9 +437,12 @@ class InterpolatorDispatcher:
         self.xgrid = xgrid
         self.polynomial_degree = polynomial_degree
         self.log = log
-        logger.info("Interpolation: number of points = %d", xgrid_size)
-        logger.info("Interpolation: polynomial degree = %d", polynomial_degree)
-        logger.info("Interpolation: logarithmic = %s", log)
+        logger.info(
+            "Interpolation: number of points = %d, polynomial degree = %d, logarithmic = %s",
+            xgrid_size,
+            polynomial_degree,
+            log,
+        )
 
         # Create blocks
         list_of_blocks = []
@@ -499,6 +503,8 @@ class InterpolatorDispatcher:
         """
         # load xgrid
         xgrid = operators_card["interpolation_xgrid"]
+        if len(xgrid) == 0:
+            raise ValueError("Empty xgrid!")
         if xgrid[0] == "make_grid":
             xgrid = make_grid(*xgrid[1:])
         is_log_interpolation = bool(operators_card["interpolation_is_log"])

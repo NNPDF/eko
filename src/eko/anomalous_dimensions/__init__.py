@@ -115,10 +115,8 @@ def gamma_ns(order, mode, n, nf):
         # TODO: pass the necessary harmonics to nlo gammas
         if mode == "p":
             gamma_ns_1 = nlo.gamma_nsp_1(n, nf)
-        elif mode == "m":
-            gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
-        elif mode == "v":
+        elif mode in ["m", "v"]:
             gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond

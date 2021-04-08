@@ -102,8 +102,12 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
     plt.loglog(x, yref, "x")
     ax1b = plt.subplot(2, 3, 4, sharex=ax1)
     ax1b.set_xscale("log", nonpositive="clip")
-    ax1b.set_yscale("log", nonpositive="clip")
-    plt.errorbar(x, np.abs((y - yref) / yref), yerr=np.abs(yerr / yref), fmt="s")
+    # ax1b.set_yscale("log", nonpositive="clip")
+    # plt.errorbar(x, np.abs((y - yref) / yref), yerr=np.abs(yerr / yref), fmt="s")
+    y_rel_diff = (y - yref) / yref
+    ax1b.set_yscale("symlog", linthresh=np.min(np.abs(y_rel_diff)), linscale=0.1)
+    plt.errorbar(x, y_rel_diff, yerr=np.abs(yerr / yref), fmt="s")
+    plt.axhline(0, linestyle="--", color="grey")
     plt.xlabel("x")
     # linear x
     ax2 = plt.subplot(2, 3, 2)
