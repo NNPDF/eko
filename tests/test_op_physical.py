@@ -5,7 +5,6 @@ import pytest
 
 from eko import member
 from eko.operator.physical import PhysicalOperator
-from eko.operator import flavors
 
 
 def mkOM(shape):
@@ -115,19 +114,15 @@ def get_ad_to_evol_map(nf, intrinsic_range=None):
 def test_ad_to_evol_map():
     triv_ops = ("S.S", "S.g", "g.S", "g.g", "V.V", "V3.V3", "T3.T3", "V8.V8", "T8.T8")
     # nf=3
-    assert sorted([*triv_ops, "V15.V", "T15.S", "T15.g"]) == get_ad_to_evol_map(3)
+    assert sorted(triv_ops) == get_ad_to_evol_map(3)
     # nf=3 + IC
-    assert sorted(
-        [*triv_ops, "V15.V", "T15.S", "T15.g", "T15.c+", "V15.c-"]
-    ) == get_ad_to_evol_map(3, [4])
+    assert sorted([*triv_ops, "T15.c+", "V15.c-"]) == get_ad_to_evol_map(3, [4])
     # nf=3 + IC + IB
     assert sorted(
-        [*triv_ops, "V15.V", "T15.S", "T15.g", "T15.c+", "V15.c-", "b+.b+", "b-.b-"]
+        [*triv_ops, "T15.c+", "V15.c-", "b+.b+", "b-.b-"]
     ) == get_ad_to_evol_map(3, [4, 5])
     # nf=4 + IC + IB
-    ks = sorted(
-        [*triv_ops, "V15.V15", "T15.T15", "V24.V", "T24.S", "T24.g", "T24.b+", "V24.b-"]
-    )
+    ks = sorted([*triv_ops, "V15.V15", "T15.T15", "T24.b+", "V24.b-"])
     assert ks == get_ad_to_evol_map(4, [4, 5])
     # nf=4 + IB
     assert ks == get_ad_to_evol_map(4, [5])

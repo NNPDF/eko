@@ -32,6 +32,8 @@ def test_A_2():
     # Reference numbers coming from Mathematica
     np.testing.assert_allclose(aS2[0, 1] + aS2[1, 1], 0.00035576, rtol=1e-6)
     # quark momentum conservation
-    np.testing.assert_allclose(zm_ome.A_ns_2(N, sx) + aS2[0, 0] + aS2[1, 0], 0.0, atol=3e-7)
+    np.testing.assert_allclose(
+        zm_ome.A_ns_2(N, sx) + aS2[0, 0] + aS2[1, 0], 0.0, atol=3e-7
+    )
 
     assert aS2.shape == (2, 2)
