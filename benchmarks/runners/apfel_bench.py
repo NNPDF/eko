@@ -35,7 +35,7 @@ class ApfelBenchmark(Runner):
         return [22, -6, 6, -5, 5, "ph", "T35", "V35"]
 
 
-class BenchmarkZM(ApfelBenchmark):
+class BenchmarkVFNS(ApfelBenchmark):
     """Benckmark ZM-VFNS """
 
     zm_theory = {
@@ -51,7 +51,7 @@ class BenchmarkZM(ApfelBenchmark):
     }
     zm_theory = tolist(zm_theory)
 
-    def benchmark_zm(self, pto=1):
+    def benchmark_plain(self, pto):
         """Benckmark ZM-VFNS, LO and NLO """
 
         th = self.zm_theory.copy()
@@ -60,11 +60,11 @@ class BenchmarkZM(ApfelBenchmark):
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
 
-    def benchmark_sv(self):
+    def benchmark_sv(self, pto):
         """Benckmark Scale Variation"""
 
         th = self.zm_theory.copy()
-        th.update({"PTO": [1, 2], "XIR": [0.7071067811865475, 1.4142135623730951]})
+        th.update({"PTO": [pto], "XIR": [0.7071067811865475, 1.4142135623730951]})
         self.run(
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
@@ -145,17 +145,10 @@ class BenchmarkFFNS(ApfelBenchmark):
 
 if __name__ == "__main__":
 
-    zm = BenchmarkZM()
-    ffns = BenchmarkFFNS()
-    # ffns.benchmark_plain(0)
-    # ffns.benchmark_plain(1)
-    ffns.benchmark_sv(0)
-    ffns.benchmark_sv(1)
-    # for o in [0, 1, 2]:
-    #    zm.benchmark_zm(o)
-    #    ffns.benchmark_ffns(o)
+    obj = BenchmarkVFNS()
+    # obj = BenchmarkFFNS()
 
-    # ffns.benchmark_sv()
-    # ffns.benchmark_ic()
-    # zm.benchmark_sv()
-    # zm.benchmark_ic()
+    obj.benchmark_sv(0)
+    obj.benchmark_sv(1)
+
+    # obj.benchmark_ic()

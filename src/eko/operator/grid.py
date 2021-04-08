@@ -232,7 +232,7 @@ class OperatorGrid:
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
                 op.op_members, op.nf, op.q2_to, self.config["intrinsic_range"]
             )
-            a_s = sc.a_s( op.q2_to / self.config["fact_to_ren"], op.q2_to)
+            a_s = sc.a_s(op.q2_to / self.config["fact_to_ren"], op.q2_to)
             matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
                 self.ome_members, op.nf, op.q2_to, a_s
             )
