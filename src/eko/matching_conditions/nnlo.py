@@ -70,7 +70,7 @@ def A_hq_2(n, sx):
 
     Returns
     -------
-        A_hq_2 : numpy.ndarray
+        A_hq_2 : complex
             |NNLO| singlet :math:`A_{Hq}^{PS,(2)}` operator-matrix element
     """
     S2 = sx[1]
@@ -122,7 +122,7 @@ def A_hg_2(n, sx):
 
     Returns
     -------
-        A_hg_2 : numpy.ndarray
+        A_hg_2 : complex
             |NNLO| singlet :math:`A_{Hg}^{S,(2)}` operator-matrix element
     """
     S1 = sx[0]
@@ -162,7 +162,7 @@ def A_gq_2(n, sx):
 
     Returns
     -------
-        A_gq_2 : numpy.ndarray
+        A_gq_2 : complex
             |NNLO| singlet :math:`A_{gq,H}^{S,(2)}` operator-matrix element
     """
     S1 = sx[0]
@@ -200,7 +200,7 @@ def A_gg_2(n, sx):
 
     Returns
     -------
-        A_gg_2 : numpy.ndarray
+        A_gg_2 : complex
             |NNLO| singlet :math:`A_{gg,H}^{S,(2)}` operator-matrix element
     """
     S1 = sx[0]
@@ -267,7 +267,7 @@ def A_singlet_2(n, sx):
         A_gq_2 : :math:`A_{gq, H}^{S,(2)}`
         A_gg_2 : :math:`A_{gg, H}^{S,(2)}`
     """  # pylint: disable=line-too-long
-    A_hq = A_ns_2(n, sx) + A_hq_2(n, sx)
+    A_hq = A_hq_2(n, sx)
     A_hg = A_hg_2(n, sx)
     A_gq = A_gq_2(n, sx)
     A_gg = A_gg_2(n, sx)

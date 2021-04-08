@@ -212,8 +212,10 @@ class OperatorGrid:
         path = self.managers["thresholds_config"].path(q2)
         # Prepare the path for the composition of the operator
         thr_ops = self.get_threshold_operators(path)
+        # integrate matching conditions
         if len(path) > 1 and len(self.ome_members) == 0:
             self.compute_matching_coeffs()
+        sc = self.managers["strong_coupling"]
         # we start composing with the highest operator ...
         operator = Operator(
             self.config, self.managers, path[-1].nf, path[-1].q2_from, path[-1].q2_to
@@ -230,8 +232,9 @@ class OperatorGrid:
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
                 op.op_members, op.nf, op.q2_to, self.config["intrinsic_range"]
             )
+            a_s = sc.a_s( op.q2_to / self.config["fact_to_ren"], op.q2_to)
             matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
-                self.ome_members, op.nf + 1, op.q2_to, 0
+                self.ome_members, op.nf, op.q2_to, a_s
             )
             final_op = final_op @ matching @ phys_op
 
