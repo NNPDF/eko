@@ -49,9 +49,6 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
 
     pegasus.initevol(imodev, theory["PTO"], ivfns, nf, theory["XIR"])
     pegasus.initinp(
-        ivfns,
-        nf,
-        L,
         theory["alphas"],
         theory["Qref"] ** 2,
         (theory["kcThr"] * theory["mc"]) ** 2,
@@ -69,6 +66,11 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
     # photon pdf is not in pagsus output
     labels = list(br.flavor_basis_pids)
     labels.remove(22)
+    # swap u, d and ubar and dbar
+    labels[4], labels[5]  = labels[5], labels[4]
+    labels[-6], labels[-5]  = labels[-5], labels[-6]
+    print(labels)
+
 
     # run pegaus
     out_tabs = {}
@@ -76,7 +78,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
 
         tab = {}
         for x in target_xgrid:
-            xf, _ = pegasus.xparton(x, q2, -nf, nf, 1, ivfns, nf, L)
+            xf, _ = pegasus.xparton(x, q2, -nf, nf)
             temp = dict(zip(labels, xf))
             for pid in labels:
                 if pid in skip_pdfs:
