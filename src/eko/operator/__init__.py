@@ -97,7 +97,7 @@ def quad_ker(
         nf : int
             number of active flavors
         L : float
-            logarithmic ratio of factorization and renormalization scale
+            logarithm of the squared ratio of factorization and renormalization scale
         ev_op_iterations : int
             number of evolution steps
         ev_op_max_order : int

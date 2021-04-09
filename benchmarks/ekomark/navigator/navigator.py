@@ -123,7 +123,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             obj["q2s"] = crash
 
         obj["theory"] = lg["t_hash"][: self.hash_len]
-        obj["operators"] = lg["o_hash"][: self.hash_len]
+        obj["ocard"] = lg["o_hash"][: self.hash_len]
         for f in ["pdf", "external"]:
             obj[f] = lg[f]
 
