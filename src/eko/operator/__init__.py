@@ -27,31 +27,76 @@ logger = logging.getLogger(__name__)
 
 @nb.njit("c16[:](u1,string,c16,u1,f8)", cache=True)
 def gamma_ns_fact(order, mode, n, nf, L):
+    """
+    Adjust the anomalous dimensions with the scale variations.
+
+    Parameters
+    ----------
+        order : int
+            perturbation order
+        mode : str
+            sector element
+        n : complex
+            Melling moment
+        nf : int
+            number of active flavors
+        L : float
+            logarithmic ratio of factorization and renormalization scale
+
+    Returns
+    -------
+        gamma_ns : numpy.ndarray
+            adjusted non-singlet anomalous dimensions
+    """
     gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
-    if order >= 1:
-        gamma_ns[1] -= beta.beta(0, nf) * gamma_ns[0] * L
+    # since we are modifying *inplace* be carefull, that the order matters!
+    # and indeed, we need to adjust the high elements first
     if order >= 2:
         gamma_ns[2] -= (
             2 * beta.beta(0, nf) * gamma_ns[1] * L
             + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_ns[0]
         )
+    if order >= 1:
+        gamma_ns[1] -= beta.beta(0, nf) * gamma_ns[0] * L
     return gamma_ns
 
 
 @nb.njit("c16[:,:,:](u1,c16,u1,f8)", cache=True)
 def gamma_singlet_fact(order, n, nf, L):
+    """
+    Adjust the anomalous dimensions with the scale variations.
+
+    Parameters
+    ----------
+        order : int
+            perturbation order
+        mode : str
+            sector element
+        n : complex
+            Melling moment
+        nf : int
+            number of active flavors
+        L : float
+            logarithmic ratio of factorization and renormalization scale
+
+    Returns
+    -------
+        gamma_singlet : numpy.ndarray
+            adjusted singlet anomalous dimensions
+    """
     gamma_singlet = ad.gamma_singlet(
         order,
         n,
         nf,
     )
-    if order >= 1:
-        gamma_singlet[1] -= beta.beta(0, nf) * gamma_singlet[0] * L
+    # concerning order: see comment at gamma_ns_fact
     if order >= 2:
         gamma_singlet[2] -= (
             2 * beta.beta(0, nf) * gamma_singlet[1] * L
             + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_singlet[0]
         )
+    if order >= 1:
+        gamma_singlet[1] -= beta.beta(0, nf) * gamma_singlet[0] * L
     return gamma_singlet
 
 
@@ -72,7 +117,7 @@ def quad_ker(
     ev_op_max_order,
 ):
     """
-    Raw kernel inside quad
+    Raw kernel inside quad.
 
     Parameters
     ----------
@@ -83,9 +128,9 @@ def quad_ker(
         method : str
             method
         mode : str
-            element in the singlet sector
+            sector element
         is_log : boolean
-            logarithmic interpolation
+            is a logarithmic interpolation
         logx : float
             Mellin inversion point
         areas : tuple

@@ -116,13 +116,13 @@ def test_ad_to_evol_map():
     # nf=3
     assert sorted(triv_ops) == get_ad_to_evol_map(3)
     # nf=3 + IC
-    assert sorted([*triv_ops, "T15.c+", "V15.c-"]) == get_ad_to_evol_map(3, [4])
+    assert sorted([*triv_ops, "c+.c+", "c-.c-"]) == get_ad_to_evol_map(3, [4])
     # nf=3 + IC + IB
     assert sorted(
-        [*triv_ops, "T15.c+", "V15.c-", "b+.b+", "b-.b-"]
+        [*triv_ops, "c+.c+", "c-.c-", "b+.b+", "b-.b-"]
     ) == get_ad_to_evol_map(3, [4, 5])
-    # nf=4 + IC + IB
-    ks = sorted([*triv_ops, "V15.V15", "T15.T15", "T24.b+", "V24.b-"])
+    # nf=4 + IC(non-existant) + IB
+    ks = sorted([*triv_ops, "V15.V15", "T15.T15", "b+.b+", "b-.b-"])
     assert ks == get_ad_to_evol_map(4, [4, 5])
     # nf=4 + IB
     assert ks == get_ad_to_evol_map(4, [5])
