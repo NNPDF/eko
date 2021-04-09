@@ -170,5 +170,5 @@ if __name__ == "__main__":
     obj = BenchmarkVFNS()
     # obj = BenchmarkFFNS()
 
-    # obj.benchmark_plain(0)
-    obj.benchmark_sv(1)
+    obj.benchmark_plain(2)
+    # obj.benchmark_sv(1)

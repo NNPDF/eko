@@ -190,6 +190,9 @@ class OperatorGrid:
         return grid_return
 
     def compute_matching_coeffs(self):
+        """
+        Compute the operator matrix elements for the non-trivial matching conditions
+        """
         ome = OperatorMatrixElement(self.config, self.managers)
         ome.compute()
         self.ome_members = ome.ome_members
