@@ -6,32 +6,8 @@ import numpy as np
 
 from eko import basis_rotation as br
 
-def apply_pdf( tabs, pdf, labels, target_xgrid, q20):
 
-    """ apply pdf to pegasus grid """
-
-    # create pdfs
-    pdfs = np.zeros((len(labels), len(target_xgrid)))
-    for j, pid in enumerate(labels):
-        if not pdf.hasFlavor(pid):
-            continue
-        pdfs[j] = np.array(
-            [
-                pdf.xfxQ2(pid, x, q20) / x
-                for x in target_xgrid
-            ]
-        )
-
-    # build output
-    out_grid = {}
-    for q2, elem in tabs.items():
-        pdf_final = np.einsum("bk,bk", elem, pdfs)
-        out_grid[q2] = {
-            dict(zip(labels, pdf_final)),
-        }
-    return out_grid
-
-def compute_pegasus_data(theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False):
+def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis=False):
     """
     Run Pegasus to compute operators.
 
@@ -41,8 +17,6 @@ def compute_pegasus_data(theory, operators, pdf, skip_pdfs, rotate_to_evolution_
             theory card
         operators : dict
             operators card
-        pdf : lhapdf_type
-            pdf
         skip_pdfs : list
             list of pdfs (pid or name) to skip
         rotate_to_evolution_basis: bool
@@ -59,9 +33,11 @@ def compute_pegasus_data(theory, operators, pdf, skip_pdfs, rotate_to_evolution_
 
     # init pegasus
     nf = theory["NfFF"]
+    L = np.log(theory["XIR"])
+
     if theory["ModEv"] == "EXA":
         imodev = 1
-    elif theory["ModEv"] in ["EXP",  'decompose-expanded', 'perturbative-expanded']:
+    elif theory["ModEv"] in ["EXP", "decompose-expanded", "perturbative-expanded"]:
         imodev = 2
     elif theory["ModEv"] in ["TRN", "ordered-truncated"]:
         imodev = 3
@@ -70,55 +46,58 @@ def compute_pegasus_data(theory, operators, pdf, skip_pdfs, rotate_to_evolution_
         ivfns = 0
     else:
         ivfns = 1
-    pegasus.initevol( imodev, theory["PTO"], ivfns, nf, theory["XIR"])
 
-    #as0 = theory["alphas"]
-    q20 = theory["Qref"] ** 2
-    L = np.log(theory["XIR"])
-    #mc2 = ( theory["kcThr"] * theory["mc"] ) ** 2
-    #mb2 = ( theory["kbThr"] * theory["mb"] ) ** 2
-    #mt2 = ( theory["ktThr"] * theory["mt"] ) ** 2
+    pegasus.initevol(imodev, theory["PTO"], ivfns, nf, theory["XIR"])
     pegasus.initinp(
         ivfns,
         nf,
         L,
         theory["alphas"],
-        q20,
-        ( theory["kcThr"] * theory["mc"] ) ** 2,
-        ( theory["kbThr"] * theory["mb"] ) ** 2,
-        ( theory["ktThr"] * theory["mt"] ) ** 2
+        theory["Qref"] ** 2,
+        (theory["kcThr"] * theory["mc"]) ** 2,
+        (theory["kbThr"] * theory["mb"]) ** 2,
+        (theory["ktThr"] * theory["mt"]) ** 2,
     )
 
-    if rotate_to_evolution_basis:
-        ipstd = 0
-        labels = list(br.evol_basis)
-    else:
-        ipstd = 1
-        labels = list(br.flavor_basis_pids)
+    # better return always the flavor basis and then rotate
+    # if rotate_to_evolution_basis:
+    #     ipstd = 0
+    #     labels = list(br.evol_basis)
+    # else:
+    #     ipstd = 1
 
-    for n in skip_pdfs:
-        if n in labels:
-            labels.remove(n)
+    # photon pdf is not in pagsus output
+    labels = list(br.flavor_basis_pids)
+    labels.remove(22)
 
-    # compute ekos with pegaus
+    # run pegaus
     out_tabs = {}
     for q2 in operators["Q2grid"]:
 
-        me =[]
+        tab = {}
         for x in target_xgrid:
-            xf, _ = pegasus.xparton( x, q2, - nf, nf, ipstd, ivfns, nf, L)
-            me.append( xf )
-            # temp = dict(zip(labels, xf))
-            # for pid in labels:
-            #     if pid not in tab.keys():
-            #         tab[pid] = []
-            #     tab[pid].append( temp[pid] )
+            xf, _ = pegasus.xparton(x, q2, -nf, nf, 1, ivfns, nf, L)
+            temp = dict(zip(labels, xf))
+            for pid in labels:
+                if pid in skip_pdfs:
+                    continue
+                if pid not in tab.keys():
+                    tab[pid] = []
+                tab[pid].append(temp[pid])
 
-        out_tabs[q2] = me
+        # rotate if needed
+        if rotate_to_evolution_basis:
+            pdfs = np.array(
+                [
+                    tab[pid] if pid in tab else np.zeros(len(target_xgrid))
+                    for pid in br.flavor_basis_pids
+                ]
+            )
+            evol_pdf = br.rotate_flavor_to_evolution @ pdfs
+            tab = dict(zip(br.evol_basis, evol_pdf))
 
-    ref = {
-        "target_xgrid": target_xgrid,
-        "values": apply_pdf( out_tabs, pdf, labels, target_xgrid, q20),
-    }
+        out_tabs[q2] = tab
+
+    ref = {"target_xgrid": target_xgrid, "values": out_tabs}
 
     return ref

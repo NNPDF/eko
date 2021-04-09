@@ -114,9 +114,7 @@ class Runner(BenchmarkRunner):
 
             # here pdf and skip_pdfs is not needed
             return LHA_utils.compute_LHA_data(
-                theory,
-                ocard,
-                rotate_to_evolution_basis=self.rotate_to_evolution_basis,
+                theory, ocard, rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
         elif self.external == "LHAPDF":
             from .external import (  # pylint:disable=import-error,import-outside-toplevel
@@ -138,7 +136,6 @@ class Runner(BenchmarkRunner):
             return pegasus_utils.compute_pegasus_data(
                 theory,
                 ocard,
-                pdf,
                 self.skip_pdfs(theory),
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
@@ -166,9 +163,7 @@ class Runner(BenchmarkRunner):
         xgrid = ext["target_xgrid"]
         q2s = list(ext["values"].keys())
         pdf_grid = me.apply_pdf(
-            pdf,
-            xgrid,
-            rotate_to_evolution_basis=self.rotate_to_evolution_basis,
+            pdf, xgrid, rotate_to_evolution_basis=self.rotate_to_evolution_basis,
         )
         for q2 in q2s:
 
