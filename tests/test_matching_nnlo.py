@@ -82,7 +82,7 @@ def test_quad_ker(monkeypatch):
     np.testing.assert_allclose(res_ns, 0.0)
 
 
-class TestOperator:
+class TestOperatorMatrixElement:
     def test_compute(self, monkeypatch):
         # setup objs
         theory_card = {
@@ -93,7 +93,6 @@ class TestOperator:
             "XIR": 1.0,
             "Qref": np.sqrt(2),
             "Q0": np.sqrt(2),
-            "FNS": "FFNS",
             "NfFF": 3,
             "IC": 0,
             "mc": 1.0,
