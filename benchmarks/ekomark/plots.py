@@ -172,8 +172,6 @@ def plot_operator(var_name, op, op_err, log_operator=False, abs_operator=False):
     # TODO fix File "/usr/lib/python3/dist-packages/matplotlib/colors.py",
     # line 1181, in _check_vmin_vmax
     # raise ValueError("minvalue must be positive")
-    # ValueError: minvalue must be positive
-    # import pdb; pdb.set_trace()
 
     ax = plt.subplot(1, 3, 1)
     if abs_operator:

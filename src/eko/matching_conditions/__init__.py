@@ -51,5 +51,4 @@ class MatchingCondition(member.OperatorBase):
         for k, v in m.items():
             opms[member.MemberName(k)] = v.copy()
 
-        __import__("pdb").set_trace()
         return cls(opms, q2_thr)
