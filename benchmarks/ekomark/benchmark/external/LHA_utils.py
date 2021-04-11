@@ -76,6 +76,7 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
     inp = []
     label_list = raw_label_list
     to_flavor = LHA_rotate_to_flavor
+    to_evolution = np.copy(br.rotate_flavor_to_evolution)
     if is_ffns_nnlo:
         # add s_v and delete b_p to label_list
         label_list = np.insert(label_list, 4, "s_v")
@@ -92,6 +93,10 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
         to_flavor[4, :] = [0, 0, 0, 0, -1 / 2, 1 / 2, 0, 0]
         to_flavor[-4, :] = [0, 0, 0, 0, 1 / 2, 1 / 2, 0, 0]
 
+        # s_v = c_v count twice
+        to_evolution[3,4] = -2
+        to_evolution[3,-4] = 2
+
     for l in label_list:
         inp.append(raw[l])
     inp = np.array(inp)
@@ -100,7 +105,7 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
 
     # additional rotation to evolution basis if necessary
     if rotate_to_evolution_basis:
-        evol_pdfs = np.matmul(br.rotate_flavor_to_evolution, flav_pdfs)
+        evol_pdfs = np.matmul(to_evolution, flav_pdfs)
         return dict(zip(br.evol_basis, evol_pdfs))
     return dict(zip(br.flavor_basis_pids, flav_pdfs))
 
