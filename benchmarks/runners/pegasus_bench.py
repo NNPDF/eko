@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    Benchmark EKO to Apfel
+Benchmark to Pegasus :cite:`Vogt:2004ns` 
 """
 import numpy as np
 
@@ -18,13 +18,13 @@ def tolist(input_dict):
     return output_dict
 
 
-class ApfelBenchmark(Runner):
+class PegasusBenchmark(Runner):
 
     """
-    Globally set the external program to Apfel
+    Globally set the external program to Pegasus
     """
 
-    external = "apfel"
+    external = "pegasus"
 
     # Rotate to evolution basis
     rotate_to_evolution_basis = True
@@ -32,94 +32,83 @@ class ApfelBenchmark(Runner):
     @staticmethod
     def skip_pdfs(_theory):
         # pdf to skip
-        return [22, -6, 6, -5, 5, "ph", "T35", "V35"]
+        return [22, -6, 6, "ph", "T35", "V35"]
 
 
-class BenchmarkZM(ApfelBenchmark):
+class BenchmarkZM(PegasusBenchmark):
     """Benckmark ZM-VFNS """
 
     zm_theory = {
         "FNS": "ZM-VFNS",
-        "ModEv": ["EXA", "EXP", "TRN",],
+        "ModEv": ["EXA", "EXP", "ordered-truncated",],
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
+        "Qref": np.sqrt(2.0),
+        "alphas": 0.35,
+        "Q0": np.sqrt(2.0),
     }
     zm_theory = tolist(zm_theory)
 
     def benchmark_zm(self, pto=1):
-        """Benckmark ZM-VFNS LO, NLO and NNLO"""
+        """Benckmark ZM-VFNS LO, NLO and NNLO """
 
         th = self.zm_theory.copy()
-        th.update({"PTO": [pto]})
+        th.update(
+            {"PTO": [pto],}
+        )
         self.run(
-            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
+            cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]
         )
 
     def benchmark_sv(self):
         """Benckmark Scale Variation"""
 
         th = self.zm_theory.copy()
-        th.update({"PTO": [1, 2], "XIR": [0.7071067811865475, 1.4142135623730951]})
-        self.run(
-            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
-        )
-
-    def benchmark_ic(self):
-        """Benckmark Intrinsic Charm"""
-
-        th = self.zm_theory.copy()
         th.update(
-            {"PTO": [1], "IC": [1], "mc": [2.0],}
+            {"PTO": [1, 2], "XIR": [0.7071067811865475, 1.4142135623730951],}
         )
-
         self.run(
-            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"],
+            cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]
         )
 
 
-class BenchmarkFFNS(ApfelBenchmark):
+class BenchmarkFFNS(PegasusBenchmark):
     """Benckmark FFNS """
 
     ffns_theory = {
         "FNS": "FFNS",
-        "ModEv": ["EXA", "EXP", "TRN",],
+        "ModEv": ["EXA", "EXP", "ordered-truncated",],
         "NfFF": 4,
         "kcThr": 0.0,
         "kbThr": np.inf,
         "ktThr": np.inf,
-        "Q0": 5,
+        "Qref": np.sqrt(2.0),
+        "alphas": 0.35,
+        "Q0": np.sqrt(2.0),
     }
     ffns_theory = tolist(ffns_theory)
 
     def benchmark_ffns(self, pto=1):
-        """Benckmark FFNS LO, NLO and NNLO"""
+        """Benckmark FFNS LO, NLO and NNLO """
 
         th = self.ffns_theory.copy()
-        th.update({"PTO": [pto]})
+        th.update(
+            {"PTO": [pto],}
+        )
         self.run(
-            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
+            cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]
         )
 
     def benchmark_sv(self):
         """Benckmark Scale Variation"""
 
         th = self.ffns_theory.copy()
-        th.update({"PTO": [1, 2], "XIR": [0.7071067811865475, 1.4142135623730951]})
-        self.run(
-            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
-        )
-
-    def benchmark_ic(self):
-        """Benckmark Intrinsic Charm"""
-
-        th = self.ffns_theory.copy()
         th.update(
-            {"PTO": [1], "IC": [1], "mc": [2.0],}
+            {"PTO": [1, 2], "XIR": [0.7071067811865475, 1.4142135623730951],}
         )
-
         self.run(
-            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"],
+            cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]
         )
 
 
@@ -132,6 +121,4 @@ if __name__ == "__main__":
         ffns.benchmark_ffns(o)
 
     ffns.benchmark_sv()
-    ffns.benchmark_ic()
     zm.benchmark_sv()
-    zm.benchmark_ic()

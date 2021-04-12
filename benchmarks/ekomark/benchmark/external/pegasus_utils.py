@@ -27,13 +27,12 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
         ref : dict
             output containing: target_xgrid, values
     """
-    import pegasus
+    import pegasus # pylint:disable=import-error,import-outside-toplevel
 
     target_xgrid = operators["interpolation_xgrid"]
 
     # init pegasus
     nf = theory["NfFF"]
-    L = np.log(theory["XIR"])
 
     if theory["ModEv"] == "EXA":
         imodev = 1
@@ -46,6 +45,9 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
         ivfns = 0
     else:
         ivfns = 1
+
+    if theory["Q0"] != theory["Qref"]:
+        raise NotImplementedError("Initial scale Q0 must be equal to Qref in Pegasus.")
 
     pegasus.initevol(imodev, theory["PTO"], ivfns, nf, theory["XIR"])
     pegasus.initinp(
@@ -69,8 +71,6 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
     # swap u, d and ubar and dbar
     labels[4], labels[5]  = labels[5], labels[4]
     labels[-6], labels[-5]  = labels[-5], labels[-6]
-    print(labels)
-
 
     # run pegaus
     out_tabs = {}

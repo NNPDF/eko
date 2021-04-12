@@ -34,6 +34,11 @@ apfel_config = {
     "Q2grid": [[1.0e3, 1.0e4]],
 }
 
+pegasus_config = {
+    # "ev_op_max_order": [10],
+    # "ev_op_iterations": [2, 10, 30],
+    "Q2grid": [[1.0e3]],
+}
 
 def build(update=None):
     """
