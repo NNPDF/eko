@@ -27,7 +27,30 @@ logger = logging.getLogger(__name__)
 
 @nb.njit("c16[:](u1,string,c16,u1,f8)", cache=True)
 def gamma_ns_fact(order, mode, n, nf, L):
+    """
+    Adjust the anomalous dimensions with the scale variations.
+
+    Parameters
+    ----------
+        order : int
+            perturbation order
+        mode : str
+            sector element
+        n : complex
+            Melling moment
+        nf : int
+            number of active flavors
+        L : float
+            logarithmic ratio of factorization and renormalization scale
+
+    Returns
+    -------
+        gamma_ns : numpy.ndarray
+            adjusted non-singlet anomalous dimensions
+    """
     gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
+    # since we are modifying *inplace* be carefull, that the order matters!
+    # and indeed, we need to adjust the high elements first
     if order >= 2:
         gamma_ns[2] -= (
             2 * beta.beta(0, nf) * gamma_ns[1] * L
@@ -40,11 +63,33 @@ def gamma_ns_fact(order, mode, n, nf, L):
 
 @nb.njit("c16[:,:,:](u1,c16,u1,f8)", cache=True)
 def gamma_singlet_fact(order, n, nf, L):
+    """
+    Adjust the anomalous dimensions with the scale variations.
+
+    Parameters
+    ----------
+        order : int
+            perturbation order
+        mode : str
+            sector element
+        n : complex
+            Melling moment
+        nf : int
+            number of active flavors
+        L : float
+            logarithmic ratio of factorization and renormalization scale
+
+    Returns
+    -------
+        gamma_singlet : numpy.ndarray
+            adjusted singlet anomalous dimensions
+    """
     gamma_singlet = ad.gamma_singlet(
         order,
         n,
         nf,
     )
+    # concerning order: see comment at gamma_ns_fact
     if order >= 2:
         gamma_singlet[2] -= (
             2 * beta.beta(0, nf) * gamma_singlet[1] * L
@@ -72,7 +117,7 @@ def quad_ker(
     ev_op_max_order,
 ):
     """
-    Raw kernel inside quad
+    Raw kernel inside quad.
 
     Parameters
     ----------
@@ -83,9 +128,9 @@ def quad_ker(
         method : str
             method
         mode : str
-            element in the singlet sector
+            sector element
         is_log : boolean
-            logarithmic interpolation
+            is a logarithmic interpolation
         logx : float
             Mellin inversion point
         areas : tuple
@@ -110,10 +155,11 @@ def quad_ker(
     """
     is_singlet = mode[0] == "S"
     # get transformation to N integral
+    r = 0.4 * 16.0 / (1.0 - logx)
     if is_singlet:
-        r, o = 0.4 * 16.0 / (1.0 - logx), 1.0
+        o = 1.0
     else:
-        r, o = 0.5, 0.0
+        o = 0.0
     n = mellin.Talbot_path(u, r, o)
     jac = mellin.Talbot_jac(u, r, o)
     # check PDF is active
@@ -171,7 +217,7 @@ class Operator:
             cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, config, managers, nf, q2_from, q2_to, mellin_cut=1e-2):
+    def __init__(self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2):
         self.config = config
         self.managers = managers
         self.nf = nf
@@ -223,17 +269,23 @@ class Operator:
             )
         tot_start_time = time.perf_counter()
         # setup KernelDispatcher
+        sc = self.managers["strong_coupling"]
+        fact_to_ren = self.config["fact_to_ren"]
+        a1 = sc.a_s(self.q2_to / fact_to_ren, self.q2_to)
+        a0 = sc.a_s(self.q2_from / fact_to_ren, self.q2_from)
         logger.info(
             "Evolution: computing operators %e -> %e, nf=%d",
             self.q2_from,
             self.q2_to,
             self.nf,
         )
+        logger.info("Evolution: a_s distance: %e -> %e", a0, a1)
+        logger.info(
+            "Evolution: order: %d, solution strategy: %s",
+            self.config["order"],
+            self.config["method"],
+        )
         logger.info("Evolution: computing operators - 0/%d", grid_size)
-        sc = self.managers["strong_coupling"]
-        fact_to_ren = self.config["fact_to_ren"]
-        a1 = sc.a_s(self.q2_to / fact_to_ren, self.q2_to)
-        a0 = sc.a_s(self.q2_from / fact_to_ren, self.q2_from)
         # iterate output grid
         for k, logx in enumerate(np.log(int_disp.xgrid_raw)):
             start_time = time.perf_counter()

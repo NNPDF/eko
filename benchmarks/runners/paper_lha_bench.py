@@ -111,6 +111,7 @@ class LHABenchmark(Runner):
                 {
                     "Q2grid": [1e4],
                     "ev_op_iterations": 10,
+                    # "debug_skip_singlet": True
                 }
             ],
             ["ToyLH"],
@@ -167,7 +168,7 @@ class BenchmarkFFNS(LHABenchmark):
 if __name__ == "__main__":
 
     obj = BenchmarkVFNS()
-    #obj = BenchmarkFFNS()
+    # obj = BenchmarkFFNS()
 
-    obj.benchmark_plain(0)
+    obj.benchmark_plain(2)
     # obj.benchmark_sv(1)

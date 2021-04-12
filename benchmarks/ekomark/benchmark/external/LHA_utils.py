@@ -30,7 +30,7 @@ LHA_init_grid = np.array([])
 
 
 # L+ = 2(ub + db) = u+ - u- + d+ - d-
-# L- = ub - db = ((u+-u-) - (d+ - d-))/2
+# L- = db - ub = ((d+ - d-) - (u+-u-))/2
 # In the NNLO paper :cite:`Dittmar:2005ed` L_+ definition is different:
 # L_+ = 2 L_+_NNLO
 LHA_rotate_to_flavor = np.array(
@@ -76,8 +76,8 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
     inp = []
     label_list = raw_label_list
     to_flavor = LHA_rotate_to_flavor
+    to_evolution = np.copy(br.rotate_flavor_to_evolution)
     if is_ffns_nnlo:
-
         # add s_v and delete b_p to label_list
         label_list = np.insert(label_list, 4, "s_v")
         label_list = np.delete(label_list, -2)
@@ -93,32 +93,21 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
         to_flavor[4, :] = [0, 0, 0, 0, -1 / 2, 1 / 2, 0, 0]
         to_flavor[-4, :] = [0, 0, 0, 0, 1 / 2, 1 / 2, 0, 0]
 
+        # s_v = c_v count twice
+        to_evolution[3,4] = -2
+        to_evolution[3,-4] = 2
+
     for l in label_list:
         inp.append(raw[l])
     inp = np.array(inp)
 
-    rot = np.dot(to_flavor, inp)
+    flav_pdfs = np.dot(to_flavor, inp)
 
     # additional rotation to evolution basis if necessary
     if rotate_to_evolution_basis:
-
-        evol_label_list = ["S", "g", "V", "V3", "V8", "T3", "T8", "T15", "T24"]
-        rot = np.matmul(br.rotate_flavor_to_evolution, rot)
-        # delete ph, V15, V24, V35, T35
-        rot = np.delete(rot, [0, 6, 7, 8, -1], axis=0)
-
-        if is_ffns_nnlo:
-            # delete T24
-            evol_label_list = np.delete(evol_label_list, -1)
-            rot = np.delete(rot, -1, axis=0)
-        else:
-            # delete V8
-            evol_label_list = np.delete(evol_label_list, 4)
-            rot = np.delete(rot, 4, axis=0)
-        return dict(zip(evol_label_list, rot))
-
-    else:
-        return dict(zip(br.flavor_basis_pids, rot))
+        evol_pdfs = np.matmul(to_evolution, flav_pdfs)
+        return dict(zip(br.evol_basis, evol_pdfs))
+    return dict(zip(br.flavor_basis_pids, flav_pdfs))
 
 
 def compute_LHA_data(

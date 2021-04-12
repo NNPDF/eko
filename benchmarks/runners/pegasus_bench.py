@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Benchmark to Pegasus :cite:`Vogt:2004ns` 
+Benchmark to Pegasus :cite:`Vogt:2004ns`
 """
 import numpy as np
 

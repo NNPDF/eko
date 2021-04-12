@@ -86,7 +86,7 @@ class OpMember:
 
 class MemberName:
     """
-    Operator member name
+    Operator member name in operator evolution space
 
     Parameters
     ----------
@@ -130,6 +130,16 @@ class MemberName:
 
 
 class OperatorBase:
+    """
+    Abstract base class to hold a dictionary of interpolation matrices.
+
+    Parameters
+    ----------
+        op_members : dict
+            mapping of :class:`MemberName` onto :class:`OpMember`
+        q2_final : float
+            final scale
+    """
     def __init__(self, op_members, q2_final):
         self.op_members = op_members
         self.q2_final = q2_final

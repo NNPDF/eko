@@ -111,17 +111,20 @@ class Sandbox(Runner):
     def doit(self):
 
         theory_updates = {
-            "PTO": 2,
-            "FNS": "FFNS",
+            "PTO": 1,
+            "FNS": "ZM-VFNS",
+            #  "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",
             "XIR": 1.0,
             "Q0": np.sqrt(2),
             "kcThr": 0.0,
-            "kbThr": np.inf,
+            "kbThr": 1.0,
+            #  "kbThr": np.inf,
             "ktThr": np.inf,
             "Qref": np.sqrt(2.0),
             "alphas": 0.35,
+            "IC": 1,
         }
 
         # pdf to skip, for LHA there is a default
@@ -145,38 +148,23 @@ class Sandbox(Runner):
         )
 
     def lha(self):
-        # theory_updates = {
-        #     "PTO": 1,
-        #     "FNS": "FFNS",
-        #     "NfFF": 4,
-        #     "ModEv": "EXA",
-        #     "XIR": np.sqrt(2),
-        #     "Q0": np.sqrt(2),
-        #     "kcThr": 0.0,
-        #     "kbThr": np.inf,
-        #     "ktThr": np.inf,
-        #     "Qref": np.sqrt(2.0),
-        #     "alphas": 0.35,
-        # }
         theory_updates = {
-            "PTO": 0,
-            "FNS": "ZM-VFNS",
+            "PTO": 1,
+            "FNS": "FFNS",
+            "NfFF": 4,
             "ModEv": "EXA",
-            # "XIR": np.sqrt(2),
+            "XIR": np.sqrt(2),
             "Q0": np.sqrt(2),
-            "kcThr": 1.0,
-            "kbThr": 1.0,
-            "ktThr": 1.0,
-            "mc": np.sqrt(2.0),  # Eq. (34)
-            "mb": 4.5,
-            "mt": 175,
+            "kcThr": 0.0,
+            "kbThr": np.inf,
+            "ktThr": np.inf,
             "Qref": np.sqrt(2.0),
             "alphas": 0.35,
         }
         self.skip_pdfs = lambda _theory: [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
         self.run(
             [theory_updates],
-            [{"Q2grid": [1e4]}],
+            [{"Q2grid": [1e4], "debug_skip_singlet": True}],
             ["ToyLH"],
         )
 
@@ -188,4 +176,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sand = Sandbox()
+    sand.doit()
