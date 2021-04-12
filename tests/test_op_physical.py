@@ -5,6 +5,7 @@ import pytest
 
 from eko import member
 from eko.operator.physical import PhysicalOperator
+from eko.matching_conditions import MatchingCondition
 
 
 def mkOM(shape):
@@ -22,12 +23,12 @@ class TestPhysicalOperator:
         return [member.MemberName(n) for n in ns]
 
     def test_matmul(self):
-        VVl, V3V3l, T3Sl, T3gl, SSl, gSl = self._mkOM(6)
+        VVl, V3V3l, T3T3l, SSl, gSl = self._mkOM(5)
         a = PhysicalOperator(
             dict(
                 zip(
-                    self._mkNames(("V.V", "V3.V3", "T3.S", "T3.g", "S.S", "g.S")),
-                    (VVl, V3V3l, T3Sl, T3gl, SSl, gSl),
+                    self._mkNames(("V.V", "V3.V3", "T3.T3", "S.S", "g.S")),
+                    (VVl, V3V3l, T3T3l, SSl, gSl),
                 )
             ),
             1,
@@ -44,17 +45,50 @@ class TestPhysicalOperator:
         )
         c = b @ a
         assert c.q2_final == b.q2_final
-        # only V and T3 can be computed
+        # V, T3 and S can be computed
         assert sorted([str(k) for k in c.op_members.keys()]) == sorted(
-            ["V.V", "T3.g", "T3.S", "S.S"]
+            ["V.V", "T3.T3", "S.S"]
         )
         assert c.op_members[member.MemberName("V.V")] == VVh @ VVl
-        assert c.op_members[member.MemberName("T3.S")] == T3T3h @ T3Sl
-        assert c.op_members[member.MemberName("T3.g")] == T3T3h @ T3gl
+        assert c.op_members[member.MemberName("T3.T3")] == T3T3h @ T3T3l
         assert c.op_members[member.MemberName("S.S")] == SSh @ SSl + Sgh @ gSl
+        T3S, T3g = self._mkOM(2)
+        mc = MatchingCondition(
+            dict(
+                zip(
+                    self._mkNames(("T3.S", "T3.g")),
+                    (T3S, T3g),
+                )
+            ),
+            1,
+        )
+        ap = a = PhysicalOperator(
+            dict(
+                zip(
+                    self._mkNames(("V.V", "V3.V3", "S.S", "g.S")),
+                    (VVl, V3V3l, SSl, gSl),
+                )
+            ),
+            1,
+        )
+        # check matching conditions
+        d = b @ mc @ ap
+        assert sorted([str(k) for k in d.op_members.keys()]) == sorted(["T3.S"])
+        assert (
+            d.op_members[member.MemberName("T3.S")]
+            == T3T3h @ T3S @ SSl + T3T3h @ T3g @ gSl
+        )
+        dd = b @ (mc @ ap)
+        assert sorted([str(k) for k in dd.op_members.keys()]) == sorted(["T3.S"])
+        assert (
+            d.op_members[member.MemberName("T3.S")]
+            == dd.op_members[member.MemberName("T3.S")]
+        )
         # errors
         with pytest.raises(ValueError):
             _ = a @ {}
+        with pytest.raises(ValueError):
+            _ = {} @ a
 
     def test_to_flavor_basis_tensor_ss(self):
         (SS,) = self._mkOM(1)

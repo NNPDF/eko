@@ -21,7 +21,11 @@ from eko.anomalous_dimensions import harmonics
 def get_sx(N):
     """Collect the S-cache"""
     sx = np.array(
-        [harmonics.harmonic_S1(N), harmonics.harmonic_S2(N), harmonics.harmonic_S3(N),]
+        [
+            harmonics.harmonic_S1(N),
+            harmonics.harmonic_S2(N),
+            harmonics.harmonic_S3(N),
+        ]
     )
     return sx
 
@@ -64,20 +68,40 @@ def test_quad_ker(monkeypatch):
     )
     for is_log in [True, False]:
         res_ns = quad_ker(
-            u=0, order=2, mode="NS", is_log=is_log, logx=0.0, areas=np.zeros(3),
+            u=0,
+            order=2,
+            mode="NS",
+            is_log=is_log,
+            logx=0.0,
+            areas=np.zeros(3),
         )
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
-            u=0, order=2, mode="S_qq", is_log=is_log, logx=0.0, areas=np.zeros(3),
+            u=0,
+            order=2,
+            mode="S_qq",
+            is_log=is_log,
+            logx=0.0,
+            areas=np.zeros(3),
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
-            u=0, order=2, mode="S_qg", is_log=is_log, logx=0.0, areas=np.zeros(3),
+            u=0,
+            order=2,
+            mode="S_qg",
+            is_log=is_log,
+            logx=0.0,
+            areas=np.zeros(3),
         )
         np.testing.assert_allclose(res_s, 0.0)
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
-        u=0, order=2, mode="NS", is_log=True, logx=0.0, areas=np.zeros(3),
+        u=0,
+        order=2,
+        mode="NS",
+        is_log=True,
+        logx=0.0,
+        areas=np.zeros(3),
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
