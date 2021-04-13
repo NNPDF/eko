@@ -49,7 +49,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
     if theory["Q0"] != theory["Qref"]:
         raise NotImplementedError("Initial scale Q0 must be equal to Qref in Pegasus.")
 
-    pegasus.initevol(imodev, theory["PTO"], ivfns, nf, theory["XIR"])
+    pegasus.initevol(imodev, theory["PTO"], ivfns, nf, (theory["XIF"] / theory["XIR"]) ** 2 )
     pegasus.initinp(
         theory["alphas"],
         theory["Qref"] ** 2,
