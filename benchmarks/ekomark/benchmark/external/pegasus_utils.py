@@ -78,7 +78,9 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
 
         tab = {}
         for x in target_xgrid:
-            xf, _ = pegasus.xparton(x, q2, -nf, nf)
+            # last two numbers are the min and max pid to calculate,
+            # keep everthing for simplicity.
+            xf, _ = pegasus.xparton(x, q2, -6, 6)
             temp = dict(zip(labels, xf))
             for pid in labels:
                 if pid in skip_pdfs:
