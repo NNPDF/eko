@@ -69,7 +69,7 @@ def test_quad_ker(monkeypatch):
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            order=2,
+            #order=2,
             mode="NS",
             is_log=is_log,
             logx=0.0,
@@ -78,7 +78,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
             u=0,
-            order=2,
+            #order=2,
             mode="S_qq",
             is_log=is_log,
             logx=0.0,
@@ -87,7 +87,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            order=2,
+            #order=2,
             mode="S_qg",
             is_log=is_log,
             logx=0.0,
@@ -97,7 +97,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        order=2,
+        #order=2,
         mode="NS",
         is_log=True,
         logx=0.0,
