@@ -1,7 +1,7 @@
 Matching Conditions on Crossing Thresholds
 ==========================================
 
-In a |VFNS| the :doc:`evolution distributions <FlavorSpace>` has to be matched across the mass thresholds provided by
+In a |VFNS| the `:doc:`evolution distributions <FlavorSpace> has to be matched across the mass thresholds provided by
 the :class:`~eko.thresholds.ThresholdsAtlas` class.
 We denote the solution of the :doc:`DGLAP equation <DGLAP>` in :doc:`Mellin space <Mellin>` as
 
@@ -18,9 +18,12 @@ For the singlet sector (:math:`\Sigma` and :math:`g`), we define the singlet evo
 
 which is the only coupled system amongst the |DGLAP| equations.
 
-Next, we list the explicit matching conditions for the different evolution distributions up to |LO|.
-Note, that the non-trivial matching of the discontinuities only enters at |NNLO| or higher orders and it is
-parametrized by operators multplying the different EKOs.
+Next, we list the explicit matching conditions for the different evolution distributions up to |NNLO|.
+Note that the non-trivial matching of the discontinuities only enters at |NNLO| or higher orders and it is
+parametrized by operators multplying the different EKOs. These operators are unique and depends on the scale only
+through the couplig constant :math:`a_s`.
+If scale variations are active matching conditions on :math:`a_s` have to be applied, see :doc:`perturbative QCD <pQCD>`.
+
 
 Zero Thresholds
 ---------------
@@ -62,53 +65,71 @@ Here, we consider :math:`\mu_q^2 < Q_0^2 < \mu_{q+1}^2 < Q_1^2 < \mu_{q+2}^2` an
 The singlet sector and the full valence distributions are given by
 
 .. math ::
-    \dSV{n_f+1}{Q_1^2}    &= \ES{Q^2_1}{m_{q+1}^2} M_{s} \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
-    \dVj{j}{n_f+1}{Q_1^2} &= \Ensv{Q^2_1}{m_{q+1}^2} \Ensv{m_{q+1}^2}{Q^2_0} \dVf{n_f}{Q_0^2}
+    \dSV{n_f+1}{Q_1^2}    &= \ES{Q^2_1}{m_{q+1}^2} M_{s}(m_{q+1}^2) \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
+    \dVj{j}{n_f+1}{Q_1^2} &= \Ensv{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensv{m_{q+1}^2}{Q^2_0} \dVf{n_f}{Q_0^2}
 
 with M being the operator matrix element of the matching: 
 
 .. math ::
-    M_{s} = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} + a_s^2(m_{q+1}^2) \begin{pmatrix} A_{qq,H}^{ns,(2)} + A_{Hq}^{ps,(2)} &  A_{Hg}^{s,(2)} \\ A_{gq,H}^{s,(2)} & A_{gg,H}^{s,(2)} \end{pmatrix}
+    M_{s}(m_{q+1}^2) &= \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} + a_s^2(m_{q+1}^2) \begin{pmatrix} A_{qq,H}^{ns,(2)} + A_{Hq}^{ps,(2)} &  A_{Hg}^{s,(2)} \\ A_{gq,H}^{s,(2)} & A_{gg,H}^{s,(2)} \end{pmatrix} \\
+    M_{ns}(m_{q+1}^2) &= [1 + a_s^2(m_{q+1}^2) A_{qq,H}^{ns,(2)}] \\
+
+where the coefficients :math:`A^{x,(2)}_{i}` have been computed in :cite:`Buza_1998`.
 
 If the valence-like/singlet-like non-singlet distributions have already been active before
 the threshold, they keep evolving from themselves
 
 .. math ::
-    \dVj{j}{n_f+1}{Q_1^2} &= \Ensm{Q^2_1}{m_{q+1}^2} M_{ns} \Ensm{m_{q+1}^2}{Q_0^2} \dVj{j}{n_f}{Q_0^2}\\
-    \dTj{j}{n_f+1}{Q_1^2} &= \Ensp{Q^2_1}{m_{q+1}^2} M_{ns} \Ensp{m_{q+1}^2}{Q_0^2} \dTj{j}{n_f}{Q_0^2}\\
+    \dVj{j}{n_f+1}{Q_1^2} &= \Ensm{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensm{m_{q+1}^2}{Q_0^2} \dVj{j}{n_f}{Q_0^2}\\
+    \dTj{j}{n_f+1}{Q_1^2} &= \Ensp{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensp{m_{q+1}^2}{Q_0^2} \dTj{j}{n_f}{Q_0^2}\\
      &\text{for }j=3,\ldots, n_f^2-1
 
-and
-
-.. math ::
-    M_{ns} = [1 + a_s^2(m_{q+1}^2) A_{qq,H}^{ns,(2)}] 
 
 The two distributions which become active after crossing the threshold are generated
 dynamically up to the threshold and then set themselves apart:
 
 .. math ::
-    \dVj{j'}{n_f+1}{Q_1^2} &= \Ensm{Q^2_1}{m_{q+1}^2} M_{ns} \Ensv{m_{q+1}^2}{Q_0^2} \dVf{n_f}{Q_0^2} \\
-    \dTj{j'}{n_f+1}{Q_1^2} &= \Ensp{Q^2_1}{m_{q+1}^2} M_{thr} \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
+    \dVj{j'}{n_f+1}{Q_1^2} &= \Ensm{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensv{m_{q+1}^2}{Q_0^2} \dVf{n_f}{Q_0^2} \\
+    \dTj{j'}{n_f+1}{Q_1^2} &= \Ensp{Q^2_1}{m_{q+1}^2} M_{thr}(m_{q+1}^2, n_f) \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
     & \text{for }j'=(n_f+1)^2-1
 
 being
 
 .. math ::
-    M_{thr} = \left( 1, 0 \right) + a_s^2(m_{q+1}^2) \left( A_{qq,H}^{ns,(2)} - n_f A_{Hq}^{ps,(2)}, - n_f A_{Hg}^{s,(2)} \right) 
+    M_{thr}(m_{q+1}^2, n_f) = \left( 1, 0 \right) + a_s^2(m_{q+1}^2) \left( A_{qq,H}^{ns,(2)} - n_f A_{Hq}^{ps,(2)}, - n_f A_{Hg}^{s,(2)} \right) 
 
 The remaining distributions are generated again purely dynamically:
 
 .. math ::
-    \dVj{k}{n_f+1}{Q_1^2} &= \Ensv{Q^2_1}{m_{q+1}^2} M_{ns} \Ensv{m_{q+1}^2}{Q_0^2} \dVf{n_f}{Q_0^2} \\
-    \dTj{k}{n_f+1}{Q_1^2} &= \left(1, 0\right) \ES{Q_1^2}{m_{q+1}^2} M_{s} \ES{m_{q+1}^2}{Q_0^2}\dSV{n_f}{Q_0^2} \\
+    \dVj{k}{n_f+1}{Q_1^2} &= \Ensv{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensv{m_{q+1}^2}{Q_0^2} \dVf{n_f}{Q_0^2} \\
+    \dTj{k}{n_f+1}{Q_1^2} &= \left(1, 0\right) \ES{Q_1^2}{m_{q+1}^2} M_{s}(m_{q+1}^2) \ES{m_{q+1}^2}{Q_0^2}\dSV{n_f}{Q_0^2} \\
      & \text{for }k=(n_f+2)^2-1, \ldots, 35
+
+
+Two and Three Thresholds
+------------------------
+
+In case more than one threshold scale is present the matching procedure is iterared on all diffrent scales starting form
+the lowest one.
+
+For instance if we connsired: :math:`\mu_q^2 < Q_0^2 < \mu_{q+1}^2 < \mu_{q+2}^2 < Q_1^2 < \mu_{q+3}^2` and we assume that
+:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavor, the singlet sector and the full valence distributions 
+are given by
+
+.. math ::
+    \dSV{n_f+2}{Q_1^2} = & \ES{Q^2_1}{m_{q+2}^2} M_{s}(m_{q+2}^2) \\
+                        & \ES{m_{q+2}^2}{m_{q+1}^2} M_{s}(m_{q+1}^2) \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
+    \dVj{j}{n_f+2}{Q_1^2} = & \Ensv{Q^2_1}{m_{q+2}^2} M_{ns}(m_{q+2}^2) \\
+                        & \Ensv{m_{q+2}^2}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensv{m_{q+1}^2}{Q^2_0} \dVf{n_f}{Q_0^2}
+
+The other pdfs can be obtained in a similar way.
 
 ..
     Two Thresholds
     --------------
 
     Here, we consider :math:`\mu_q^2 < Q_0^2 < \mu_{q+1}^2 < \mu_{q+2}^2 < Q_1^2 < \mu_{q+3}^2` and we assume that
-    :math:`\mu_q` is the matching threshold of the :math:`n_f`-th r.
+    :math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavor.
     The singlet sector and the full valence distributions are given by
 
     .. math ::
