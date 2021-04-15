@@ -46,7 +46,7 @@ Note the additional minus in the definition of :math:`\gamma`.
 Scale Variations
 ----------------
 
-The usual procedure in solving |DGLAP| that is also imployed :doc:`here </theory/DGLAP>` is to rewrite
+The usual procedure in solving |DGLAP| that is also applied :doc:`here </theory/DGLAP>` is to rewrite
 the equations in term of the running coupling :math:`a_s` assuming the factorization scale
 :math:`\mu_F^2` (the inherit scale of the |PDF|) and the renormalization scale :math:`\mu_R^2`
 (the inherit scale for the strong coupling) to be equal. This constraint can however be lifted by a

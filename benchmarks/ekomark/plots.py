@@ -138,7 +138,7 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
     return fig
 
 
-def plot_operator(var_name, op, op_err, log_operator=False, abs_operator=False):
+def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
     """
     Plot a single operator as heat map.
 
