@@ -368,7 +368,7 @@ The solution ansatz becomes:
 with: 
 
 .. math::
-    [\mathbf U_2, \mathbf R_0] &= \mathbf R_2 + \mathbf R_1 \mathbf U_1 - 2 \mathbf U_1\\
+    [\mathbf U_2, \mathbf R_0] &= \mathbf R_2 + \mathbf R_1 \mathbf U_1 - 2 \mathbf U_2\\
 
 So the strategies are:
 

@@ -24,10 +24,10 @@ from ..member import singlet_labels
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("f8(f8,u1,string,b1,f8,f8[:,:])", cache=True)
+@nb.njit("f8(f8,string,b1,f8,f8[:,:])", cache=True)
 def quad_ker(
     u,
-    order,
+    #order,
     mode,
     is_log,
     logx,
@@ -40,8 +40,6 @@ def quad_ker(
     ----------
         u : float
             quad argument
-        order : int
-            perturbation order
         mode : str
             element in the singlet sector
         is_log : boolean
@@ -56,9 +54,6 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    # if LO and NLO no need to do anything
-    if order <= 1:
-        return 0.0
 
     is_singlet = mode[0] == "S"
     # get transformation to N integral
@@ -131,6 +126,11 @@ class OperatorMatrixElement:
                 np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
             )
 
+        # if LO and NLO no need to do anything
+        if self.order <= 1:
+            logger.info("Matching: only trivial conditions are needed at PTO = %d", self.order )
+            return
+
         tot_start_time = time.perf_counter()
         logger.info("Matching: computing operators - 0/%d", grid_size)
         # iterate output grid
@@ -146,7 +146,7 @@ class OperatorMatrixElement:
                         0.5,
                         1.0 - self._mellin_cut,
                         args=(
-                            self.order,
+                            #self.order,
                             label,
                             self.int_disp.log,
                             logx,

@@ -75,41 +75,21 @@ class Sandbox(Runner):
     external = "pegasus"
 
     # select to plot operators
-    plot_operator = False
+    plot_operator = True
 
     rotate_to_evolution_basis = True
 
-    # # pdf to skip, for LHA there is a default
-    # skip_pdfs = lambda _theory: [
-    #     22,
-    #     -6,
-    #     6,
-    #     -5,
-    #     5,
-    #     -4,
-    #     4,
-    #     "ph",
-    #     "V35",
-    #     "V24",
-    #     "V15",
-    #     "T35",
-    #     "T24",
-    # ]
-    # # if external == "LHA":
-    # #    skip_pdfs = lambda _theory: [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
 
     @staticmethod
     def generate_operators():
-
         ops = {
-            "ev_op_iterations": [10],
+            "ev_op_iterations": [30],
             "ev_op_max_order": [10],
             "Q2grid": [[10000]],
         }
         return ops
 
     def doit(self):
-
         theory_updates = {
             "PTO": 1,
             "FNS": "ZM-VFNS",
@@ -126,23 +106,10 @@ class Sandbox(Runner):
             "alphas": 0.35,
             "IC": 1,
         }
-
-        # pdf to skip, for LHA there is a default
-        self.skip_pdfs = lambda _theory: [
-            22,
-            -6,
-            6,
-            -5,
-            5,
-            "ph",
-            "V35",
-            "V24",
-            "V15",
-            "T35",
-            "T24",
-        ]
+        t0 = theory_updates.copy()
+        t0["PTO"] = 0
         self.run(
-            [theory_updates],
+            [theory_updates, t0],
             operators.build(self.generate_operators()),
             ["ToyLH"],
         )
