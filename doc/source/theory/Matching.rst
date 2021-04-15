@@ -72,7 +72,7 @@ with M being the operator matrix element of the matching:
 
 .. math ::
     M_{s}(m_{q+1}^2) &= \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} + a_s^2(m_{q+1}^2) \begin{pmatrix} A_{qq,H}^{ns,(2)} + A_{Hq}^{ps,(2)} &  A_{Hg}^{s,(2)} \\ A_{gq,H}^{s,(2)} & A_{gg,H}^{s,(2)} \end{pmatrix} \\
-    M_{ns}(m_{q+1}^2) &= [1 + a_s^2(m_{q+1}^2) A_{qq,H}^{ns,(2)}] \\
+    M_{ns}(m_{q+1}^2) &= 1 + a_s^2(m_{q+1}^2) A_{qq,H}^{ns,(2)} \\
 
 where the coefficients :math:`A^{x,(2)}_{i}` have been computed in :cite:`Buza_1998`.
 
@@ -90,13 +90,13 @@ dynamically up to the threshold and then set themselves apart:
 
 .. math ::
     \dVj{j'}{n_f+1}{Q_1^2} &= \Ensm{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensv{m_{q+1}^2}{Q_0^2} \dVf{n_f}{Q_0^2} \\
-    \dTj{j'}{n_f+1}{Q_1^2} &= \Ensp{Q^2_1}{m_{q+1}^2} M_{thr}(m_{q+1}^2, n_f) \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
+    \dTj{j'}{n_f+1}{Q_1^2} &= \Ensp{Q^2_1}{m_{q+1}^2} M_{ns,T}(m_{q+1}^2, n_f) \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
     & \text{for }j'=(n_f+1)^2-1
 
 being
 
 .. math ::
-    M_{thr}(m_{q+1}^2, n_f) = \left( 1, 0 \right) + a_s^2(m_{q+1}^2) \left( A_{qq,H}^{ns,(2)} - n_f A_{Hq}^{ps,(2)}, - n_f A_{Hg}^{s,(2)} \right) 
+    M_{ns,T}(m_{q+1}^2, n_f) = \left( 1, 0 \right) + a_s^2(m_{q+1}^2) \left( A_{qq,H}^{ns,(2)} - n_f A_{Hq}^{ps,(2)}, - n_f A_{Hg}^{s,(2)} \right) 
 
 The remaining distributions are generated again purely dynamically:
 
