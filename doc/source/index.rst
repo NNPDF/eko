@@ -56,6 +56,6 @@ EKO is ...
     :caption: Development:
     :hidden:
     
-    development/Benchmarks
-    ekomark <development/ekomark/ekomark>
+    development/Benchmarks.rst
+    development/ekomark.rst
     development/code_todos

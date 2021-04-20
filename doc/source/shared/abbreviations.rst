@@ -53,3 +53,20 @@
 
 .. |pineko| replace::
    :pineko:`\ `
+
+
+.. |APFEL| raw:: html
+
+   <a href="https://apfel.mi.infn.it/"><abbr title="A PDF Evolution Library">APFEL</abbr></a>
+
+.. |Pegasus| raw:: html
+
+   <a href="https://www.nikhef.nl/~avogt/pegasus.html"><abbr title="N-space tools for hard-scattering analyses">Pegasus</abbr></a>
+
+.. |lhapdf| raw:: html
+
+   <a href="https://lhapdf.hepforge.org/"><abbr title="LHAPDF">lhapdf</abbr></a>
+
+.. |T| raw:: html
+
+   <span class="green">✓</span>
