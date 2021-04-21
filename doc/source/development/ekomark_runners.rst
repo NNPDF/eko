@@ -72,7 +72,7 @@ The minimal setup of the input cards must contain:
 
 
 The output of `ekomark` will be stored in ``data/benchmark.db`` inside a :py:obj:`Pandas.DataFrame` table.
-You can then use the `navigator` app to inspect your database and produce plots.
+You can then use the `ekonavigator` app to inspect your database and produce plots.
 
 Available Runners
 -----------------
@@ -84,7 +84,7 @@ In ``benchmarks/runners`` we provide a list of established benchmarks
   - it is used to provide the boilerplate needed for a basic run,
     in order to make a quick run for debugging purpose, but still fully managed
     and registered by the `ekomark` machinery and then available in the
-    `navigator`
+    `ekonavigator`
 
 - ``apfel_bench.py``:
 

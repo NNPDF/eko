@@ -26,13 +26,13 @@ Ekomarl is composed by four subpackages:
 
 * ``benchmark`` containing the runner, implementing the interface with the abstract class provided inside |banana| and the external utils that initialise and evolute the PDFs using the external programs.
 * ``data`` which includes the module to generate `eko` like oprators cards and the module providing the operators database layout.
-* ``navigator`` implementing the navigator app.
+* ``navigator`` implementing the ekonavigator app.
 * ``plot`` containing all the scipts to produce the output plots.
 
 
 The banana configuration is loaded from ``banana_cfg.py`` file. 
 To run Ekomark see the section of the available :doc:`runners<ekomark_runners>`.
-Furthermore Ekomark provides also a python interpter called `navigator` to inspect 
+Furthermore Ekomark provides also a python interpter called `ekonavigator` to inspect 
 the cached benchmark reuslts.
 
 

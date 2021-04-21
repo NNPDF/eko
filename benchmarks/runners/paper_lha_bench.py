@@ -133,7 +133,7 @@ class BenchmarkVFNS(LHABenchmark):
     theory.update(
         {
             "FNS": "ZM-VFNS",  # ignored by eko, but needed by LHA_utils
-            "kcThr": 1.0,
+            "kcThr": 1.00001,  # need to start with Nf=3 so lift c_thr a bit up
             "kbThr": 1.0,
             "ktThr": 1.0,
         }
@@ -171,4 +171,4 @@ if __name__ == "__main__":
     # obj = BenchmarkFFNS()
 
     obj.benchmark_plain(2)
-    # obj.benchmark_sv(1)
+    obj.benchmark_sv(2)
