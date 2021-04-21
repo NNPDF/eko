@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 @nb.njit("f8(f8,string,b1,f8,f8[:,:])", cache=True)
 def quad_ker(
     u,
-    #order,
+    # order,
     mode,
     is_log,
     logx,
@@ -128,7 +128,9 @@ class OperatorMatrixElement:
 
         # if LO and NLO no need to do anything
         if self.order <= 1:
-            logger.info("Matching: only trivial conditions are needed at PTO = %d", self.order )
+            logger.info(
+                "Matching: only trivial conditions are needed at PTO = %d", self.order
+            )
             return
 
         tot_start_time = time.perf_counter()
@@ -146,7 +148,7 @@ class OperatorMatrixElement:
                         0.5,
                         1.0 - self._mellin_cut,
                         args=(
-                            #self.order,
+                            # self.order,
                             label,
                             self.int_disp.log,
                             logx,

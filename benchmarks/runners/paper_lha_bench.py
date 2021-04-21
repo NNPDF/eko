@@ -77,7 +77,7 @@ class LHABenchmark(Runner):
         high = self.theory.copy()
         high["PTO"] = pto
         high["XIR"] = np.sqrt(2.0)
-        return [low, high]
+        return [high, low]
 
     @staticmethod
     def skip_pdfs(_theory):
@@ -167,8 +167,8 @@ class BenchmarkFFNS(LHABenchmark):
 
 if __name__ == "__main__":
 
-    obj = BenchmarkVFNS()
-    # obj = BenchmarkFFNS()
+    #obj = BenchmarkVFNS()
+    obj = BenchmarkFFNS()
 
     obj.benchmark_plain(2)
-    obj.benchmark_sv(2)
+    #obj.benchmark_sv(2)

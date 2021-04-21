@@ -31,6 +31,33 @@ class Output(dict):
                 and :class:`ekomark.toyLH.toyPDF` do) (and thus is in flavor basis)
             targetgrid : list
                 if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
+            rotate_to_evolution_basis : bool
+                if True rotate to evoluton basis
+
+        Returns
+        -------
+            out_grid : dict
+                output PDFs and their associated errors for the computed Q2grid
+        """
+        if rotate_to_evolution_basis:
+            return self.apply_pdf_flavor(
+                lhapdf_like, targetgrid, br.rotate_flavor_to_evolution
+            )
+        return self.apply_pdf_flavor(lhapdf_like, targetgrid)
+
+    def apply_pdf_flavor(self, lhapdf_like, targetgrid=None, flavor_rotation=None):
+        """
+        Apply all available operators to the input PDFs.
+
+        Parameters
+        ----------
+            lhapdf_like : object
+                object that provides an xfxQ2 callable (as `lhapdf <https://lhapdf.hepforge.org/>`_
+                and :class:`ekomark.toyLH.toyPDF` do) (and thus is in flavor basis)
+            targetgrid : list
+                if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
+            flavor_rotation : np.ndarray
+                Rotation matrix in flavor space
 
         Returns
         -------
@@ -60,12 +87,12 @@ class Output(dict):
             }
 
         # rotate to evolution basis
-        if rotate_to_evolution_basis:
+        if flavor_rotation is not None:
             for q2, op in out_grid.items():
-                pdf = br.rotate_flavor_to_evolution @ np.array(
+                pdf = flavor_rotation @ np.array(
                     [op["pdfs"][pid] for pid in br.flavor_basis_pids]
                 )
-                errors = br.rotate_flavor_to_evolution @ np.array(
+                errors = flavor_rotation @ np.array(
                     [op["errors"][pid] for pid in br.flavor_basis_pids]
                 )
                 out_grid[q2]["pdfs"] = dict(zip(br.evol_basis, pdf))

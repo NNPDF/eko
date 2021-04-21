@@ -7,6 +7,7 @@ import logging
 import sys
 import functools
 
+import numpy as np
 import pandas as pd
 
 from banana.data import dfdict
@@ -90,7 +91,7 @@ class Runner(BenchmarkRunner):
                     out = eko.output.Output.load_yaml(o)
 
             if self.plot_operator:
-                from ekomark.plots import ( # pylint:disable=import-error,import-outside-toplevel
+                from ekomark.plots import (  # pylint:disable=import-error,import-outside-toplevel
                     save_operators_to_pdf,
                 )
 
@@ -110,18 +111,16 @@ class Runner(BenchmarkRunner):
     def run_external(self, theory, ocard, pdf):
         # pylint:disable=import-error,import-outside-toplevel
         if self.external == "LHA":
-            from .external import (
-                LHA_utils,
-            )
+            from .external import LHA_utils
 
             # here pdf and skip_pdfs is not needed
             return LHA_utils.compute_LHA_data(
-                theory, ocard, rotate_to_evolution_basis=self.rotate_to_evolution_basis,
+                theory,
+                ocard,
+                rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
         elif self.external == "LHAPDF":
-            from .external import (
-                lhapdf_utils,
-            )
+            from .external import lhapdf_utils
 
             # here theory card is not needed
             return lhapdf_utils.compute_LHAPDF_data(
@@ -131,9 +130,7 @@ class Runner(BenchmarkRunner):
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
         elif self.external == "pegasus":
-            from .external import (
-                pegasus_utils,
-            )
+            from .external import pegasus_utils
 
             return pegasus_utils.compute_pegasus_data(
                 theory,
@@ -143,9 +140,7 @@ class Runner(BenchmarkRunner):
             )
 
         elif self.external == "apfel":
-            from .external import (
-                apfel_utils,
-            )
+            from .external import apfel_utils
 
             return apfel_utils.compute_apfel_data(
                 theory,
@@ -159,7 +154,7 @@ class Runner(BenchmarkRunner):
             f"Benchmark against {self.external} is not implemented!"
         )
 
-    def log(self, theory, ocard, pdf, me, ext):
+    def log(self, theory, _, pdf, me, ext):
         # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]
@@ -167,25 +162,21 @@ class Runner(BenchmarkRunner):
 
         # LHA NNLO VFNS needs a special treatment
         # Valence contains only u and d
-        if (
-            self.external == "LHA"
-            and theory["PTO"] == 2
-            and theory["FNS"] == "ZM-VFNS"
-            and self.rotate_to_evolution_basis
-        ):
-            temp = br.rotate_flavor_to_evolution[3, :]
-            br.rotate_flavor_to_evolution[3, :] = [0, 0, 0, 0, 0, -1, -1, 0, 1, 1, 0, 0, 0, 0]
+        rotate_to_evolution = None
+        if self.rotate_to_evolution_basis:
+            rotate_to_evolution = br.rotate_flavor_to_evolution.copy()
+            if (
+                self.external == "LHA"
+                and theory["PTO"] == 2
+                and theory["FNS"] == "ZM-VFNS"
+            ):
+                rotate_to_evolution[3, :] = [0, 0, 0, 0, 0, -1, -1, 0, 1, 1, 0, 0, 0, 0]
 
-        pdf_grid = me.apply_pdf(
-            pdf, xgrid, rotate_to_evolution_basis=self.rotate_to_evolution_basis,
+        pdf_grid = me.apply_pdf_flavor(
+            pdf,
+            xgrid,
+            flavor_rotation=rotate_to_evolution,
         )
-
-        # Restore if needed
-        try:
-            br.rotate_flavor_to_evolution[3, :] = temp
-        except UnboundLocalError:
-            pass
-
         for q2 in q2s:
 
             log_tab = dfdict.DFdict()

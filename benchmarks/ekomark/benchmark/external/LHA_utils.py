@@ -94,8 +94,8 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
         to_flavor[-4, :] = [0, 0, 0, 0, 1 / 2, 1 / 2, 0, 0]
 
         # s_v = c_v count twice
-        to_evolution[3,4] = -2
-        to_evolution[3,-4] = 2
+        to_evolution[3, 4] = -2
+        to_evolution[3, -4] = 2
 
     for l in label_list:
         inp.append(raw[l])
