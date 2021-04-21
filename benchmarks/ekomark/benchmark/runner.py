@@ -7,7 +7,6 @@ import logging
 import sys
 import functools
 
-import numpy as np
 import pandas as pd
 
 from banana.data import dfdict
@@ -91,7 +90,7 @@ class Runner(BenchmarkRunner):
                     out = eko.output.Output.load_yaml(o)
 
             if self.plot_operator:
-                from ekomark.plots import (
+                from ekomark.plots import ( # pylint:disable=import-error,import-outside-toplevel
                     save_operators_to_pdf,
                 )
 
@@ -132,7 +131,7 @@ class Runner(BenchmarkRunner):
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
         elif self.external == "pegasus":
-            from .external import (  
+            from .external import (
                 pegasus_utils,
             )
 
