@@ -113,6 +113,53 @@ class Output(dict):
 
         return out_grid
 
+    def xgrid_reshape(self, targetgrid=None, inputgrid=None):
+        """
+        Changes the operators to have in the output targetgrid and/or in the input inputgrid.
+
+        The operation is inplace.
+
+        Parameters
+        ----------
+            targetgrid : None or list
+                xgrid for the target
+            inputgrid : None or list
+                xgrid for the input
+        """
+        if targetgrid is None and inputgrid is None:
+            raise ValueError("Nor input nor targetgrid was given")
+
+        # construct matrices
+        if targetgrid is not None:
+            b = interpolation.InterpolatorDispatcher.from_dict(self, False)
+            target_rot = b.get_interpolation(targetgrid)
+        if inputgrid is not None:
+            b = interpolation.InterpolatorDispatcher(
+                inputgrid,
+                self["interpolation_polynomial_degree"],
+                self["interpolation_is_log"],
+                False,
+            )
+            input_rot = b.get_interpolation(self["interpolation_xgrid"])
+
+        # build new grid
+        out_grid = {}
+        for q2, elem in self["Q2grid"].items():
+            ops = elem["operators"]
+            errs = elem["operator_errors"]
+            if targetgrid is not None and inputgrid is None:
+                ops = np.einsum("ij,ajbk->aibk", target_rot, ops)
+                errs = np.einsum("ij,ajbk->aibk", target_rot, errs)
+            elif inputgrid is not None and targetgrid is None:
+                ops = np.einsum("ajbk,kl->ajbl", ops, input_rot)
+                errs = np.einsum("ajbk,kl->ajbl", errs, input_rot)
+            else:
+                ops = np.einsum("ij,ajbk,kl->aibl", target_rot, ops, input_rot)
+                errs = np.einsum("ij,ajbk,kl->aibl", target_rot, errs, input_rot)
+            out_grid[q2] = dict(operators=ops, operator_errors=errs)
+        # set in self
+        self["Q2grid"] = out_grid
+
     def get_raw(self, binarize=True):
         """
         Serialize result as dict/YAML.

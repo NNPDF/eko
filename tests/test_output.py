@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 import io
+import copy
 from unittest import mock
 
 import numpy as np
+import pytest
 
 from eko import output
 
@@ -13,6 +15,13 @@ class FakePDF:
 
     def xfxQ2(self, _pid, x, _q2):
         return x
+
+
+def eko_identity(shape):
+    i, k = np.ogrid[: shape[1], : shape[2]]
+    eko_identity = np.zeros(shape[1:], int)
+    eko_identity[i, k, i, k] = 1
+    return np.broadcast_to(eko_identity[np.newaxis, :, :, :, :], shape)
 
 
 class TestOutput:
@@ -148,3 +157,32 @@ class TestOutput:
             + d["Q2grid"][q2_out]["operators"][1, :, 1, :]
         ) @ np.ones(len(d["interpolation_xgrid"]))
         np.testing.assert_allclose(pdfs["a"], ref_a)
+
+    def test_xgrid_reshape(self):
+        d = self.fake_output()
+        # create object
+        xg = np.geomspace(1e-5, 1.0, 21)
+        o1 = output.Output(d)
+        o1["interpolation_xgrid"] = xg
+        o1["Q2grid"] = {
+            10: dict(
+                operators=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
+                operator_errors=np.zeros((2, len(xg), 2, len(xg))),
+            )
+        }
+        xgp = np.geomspace(1e-5, 1.0, 11)
+        # only input
+        ot = copy.deepcopy(o1)
+        ot.xgrid_reshape(xgp)
+        assert ot["Q2grid"][10]["operators"].shape == (2, len(xgp), 2, len(xg))
+        # only output
+        oi = copy.deepcopy(o1)
+        oi.xgrid_reshape(inputgrid=xgp)
+        assert oi["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xgp))
+        # both
+        o1.xgrid_reshape(xgp, xgp)
+        op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
+        np.testing.assert_allclose(o1["Q2grid"][10]["operators"], op[0], atol=1e-10)
+        # error
+        with pytest.raises(ValueError):
+            copy.deepcopy(o1).xgrid_reshape()
