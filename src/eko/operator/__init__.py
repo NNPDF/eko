@@ -256,7 +256,7 @@ class Operator:
         return labels
 
     def compute(self):
-        """ compute the actual operators (i.e. run the integrations) """
+        """compute the actual operators (i.e. run the integrations)"""
         # Generic parameters
         int_disp = self.managers["interpol_dispatcher"]
         grid_size = len(int_disp.xgrid)

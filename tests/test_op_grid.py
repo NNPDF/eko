@@ -71,7 +71,7 @@ class TestOperatorGrid:
         )
 
     def test_sanity(self):
-        """ Sanity checks for the input"""
+        """Sanity checks for the input"""
         # errors
         with pytest.raises(ValueError):
             theory_card, operators_card = self._get_setup(True)
@@ -100,7 +100,7 @@ class TestOperatorGrid:
         assert len(opg) == 1
 
     def test_grid_computation_VFNS(self):
-        """ Checks that the grid can be computed """
+        """Checks that the grid can be computed"""
         opgrid = self._get_operator_grid(False)
         qgrid_check = [3, 5]
         operators = opgrid.compute(qgrid_check)

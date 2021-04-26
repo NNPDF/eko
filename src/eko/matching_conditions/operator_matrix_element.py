@@ -116,7 +116,7 @@ class OperatorMatrixElement:
         self.ome_members = {}
 
     def compute(self):
-        """ compute the actual operators (i.e. run the integrations) """
+        """compute the actual operators (i.e. run the integrations)"""
 
         # init all ops with zeros
         grid_size = len(self.int_disp.xgrid)

@@ -27,7 +27,7 @@ def test_runner():
     }
     operators_card = {
         "Q2grid": [10, 100],
-        "interpolation_xgrid": [0.1, 1.0],
+        "interpolation_xgrid": [0.01, 0.1, 1.0],
         "interpolation_polynomial_degree": 1,
         "interpolation_is_log": True,
         "debug_skip_singlet": True,
@@ -37,14 +37,38 @@ def test_runner():
     }
     r = eko.runner.Runner(theory_card, operators_card)
     o = r.get_output()
+    # lx = len()
+    check_shapes(
+        o,
+        o["interpolation_xgrid"],
+        o["interpolation_xgrid"],
+        theory_card,
+        operators_card,
+    )
+    # change targetgrid
+    tgrid = [0.1, 1.0]
+    operators_card["targetgrid"] = tgrid
+    rr = eko.runner.Runner(theory_card, operators_card)
+    oo = rr.get_output()
+    check_shapes(
+        oo,
+        tgrid,
+        o["interpolation_xgrid"],
+        theory_card,
+        operators_card,
+    )
+
+
+def check_shapes(o, txs, ixs, theory_card, operators_card):
     lpids = len(o["pids"])
-    lx = len(o["interpolation_xgrid"])
-    op_shape = (lpids, lx, lpids, lx)
+    op_shape = (lpids, len(txs), lpids, len(ixs))
 
     # check output = input
     np.testing.assert_allclose(
         o["interpolation_xgrid"], operators_card["interpolation_xgrid"]
     )
+    np.testing.assert_allclose(o["targetgrid"], txs)
+    np.testing.assert_allclose(o["inputgrid"], ixs)
     for k in ["interpolation_polynomial_degree", "interpolation_is_log"]:
         assert o[k] == operators_card[k]
     np.testing.assert_allclose(o["q2_ref"], theory_card["Q0"] ** 2)

@@ -3,6 +3,7 @@
     This file contains the output management
 """
 import logging
+import warnings
 
 import yaml
 import lz4.frame
@@ -126,13 +127,39 @@ class Output(dict):
             inputgrid : None or list
                 xgrid for the input
         """
+        # calling with no arguments is an error
         if targetgrid is None and inputgrid is None:
-            raise ValueError("Nor input nor targetgrid was given")
+            raise ValueError("Nor inputgrid nor targetgrid was given")
+        # now check to the current status
+        if (
+            targetgrid is not None
+            and len(targetgrid) == len(self["targetgrid"])
+            and np.allclose(targetgrid, self["targetgrid"])
+        ):
+            targetgrid = None
+            warnings.warn("The new targetgrid is close to the current targetgrid")
+        if (
+            inputgrid is not None
+            and len(inputgrid) == len(self["inputgrid"])
+            and np.allclose(inputgrid, self["inputgrid"])
+        ):
+            inputgrid = None
+            warnings.warn("The new inputgrid is close to the current inputgrid")
+        # after the checks: if there is still nothing to do, skip
+        if targetgrid is None and inputgrid is None:
+            logger.debug("Nothing done.")
+            return
 
         # construct matrices
         if targetgrid is not None:
-            b = interpolation.InterpolatorDispatcher.from_dict(self, False)
+            b = interpolation.InterpolatorDispatcher(
+                self["targetgrid"],
+                self["interpolation_polynomial_degree"],
+                self["interpolation_is_log"],
+                False,
+            )
             target_rot = b.get_interpolation(targetgrid)
+            self["targetgrid"] = targetgrid
         if inputgrid is not None:
             b = interpolation.InterpolatorDispatcher(
                 inputgrid,
@@ -140,7 +167,8 @@ class Output(dict):
                 self["interpolation_is_log"],
                 False,
             )
-            input_rot = b.get_interpolation(self["interpolation_xgrid"])
+            input_rot = b.get_interpolation(self["inputgrid"])
+            self["inputgrid"] = inputgrid
 
         # build new grid
         out_grid = {}

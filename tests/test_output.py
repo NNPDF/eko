@@ -51,6 +51,8 @@ class TestOutput:
         Q2grid = self.mk_g([q2_out], len(pids), len(interpolation_xgrid))
         d = dict(
             interpolation_xgrid=interpolation_xgrid,
+            targetgrid=interpolation_xgrid,
+            inputgrid=interpolation_xgrid,
             interpolation_polynomial_degree=interpolation_polynomial_degree,
             interpolation_is_log=interpolation_is_log,
             q2_ref=q2_ref,
@@ -164,6 +166,8 @@ class TestOutput:
         xg = np.geomspace(1e-5, 1.0, 21)
         o1 = output.Output(d)
         o1["interpolation_xgrid"] = xg
+        o1["targetgrid"] = xg
+        o1["inputgrid"] = xg
         o1["Q2grid"] = {
             10: dict(
                 operators=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
@@ -171,14 +175,27 @@ class TestOutput:
             )
         }
         xgp = np.geomspace(1e-5, 1.0, 11)
-        # only input
+        # only target
         ot = copy.deepcopy(o1)
         ot.xgrid_reshape(xgp)
         assert ot["Q2grid"][10]["operators"].shape == (2, len(xgp), 2, len(xg))
-        # only output
+        ott = copy.deepcopy(o1)
+        with pytest.warns(Warning):
+            ott.xgrid_reshape(xg)
+            np.testing.assert_allclose(
+                ott["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+            )
+
+        # only input
         oi = copy.deepcopy(o1)
         oi.xgrid_reshape(inputgrid=xgp)
         assert oi["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xgp))
+        oii = copy.deepcopy(o1)
+        with pytest.warns(Warning):
+            oii.xgrid_reshape(inputgrid=xg)
+            np.testing.assert_allclose(
+                oii["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+            )
         # both
         o1.xgrid_reshape(xgp, xgp)
         op = eko_identity([1, 2, len(xgp), 2, len(xgp)])

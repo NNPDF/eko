@@ -150,7 +150,7 @@ class StrongCoupling:
 
     @property
     def q2_ref(self):
-        """ reference scale """
+        """reference scale"""
         return self._threshold_holder.q2_ref
 
     @classmethod
