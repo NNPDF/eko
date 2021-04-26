@@ -40,7 +40,11 @@ class BenchmarkZM(PegasusBenchmark):
 
     zm_theory = {
         "FNS": "ZM-VFNS",
-        "ModEv": ["EXA", "EXP", "ordered-truncated",],
+        "ModEv": [
+            "EXA",
+            "EXP",
+            "ordered-truncated",
+        ],
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
@@ -55,7 +59,9 @@ class BenchmarkZM(PegasusBenchmark):
 
         th = self.zm_theory.copy()
         th.update(
-            {"PTO": [pto],}
+            {
+                "PTO": [pto],
+            }
         )
         self.run(
             cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]
@@ -66,7 +72,10 @@ class BenchmarkZM(PegasusBenchmark):
 
         th = self.zm_theory.copy()
         th.update(
-            {"PTO": [1, 2], "XIR": [0.7071067811865475, 1.4142135623730951],}
+            {
+                "PTO": [1, 2],
+                "XIR": [0.7071067811865475, 1.4142135623730951],
+            }
         )
         self.run(
             cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]
@@ -78,7 +87,11 @@ class BenchmarkFFNS(PegasusBenchmark):
 
     ffns_theory = {
         "FNS": "FFNS",
-        "ModEv": ["EXA", "EXP", "ordered-truncated",],
+        "ModEv": [
+            "EXA",
+            "EXP",
+            "ordered-truncated",
+        ],
         "NfFF": 4,
         "kcThr": 0.0,
         "kbThr": np.inf,
@@ -94,7 +107,9 @@ class BenchmarkFFNS(PegasusBenchmark):
 
         th = self.ffns_theory.copy()
         th.update(
-            {"PTO": [pto],}
+            {
+                "PTO": [pto],
+            }
         )
         self.run(
             cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]
@@ -105,7 +120,10 @@ class BenchmarkFFNS(PegasusBenchmark):
 
         th = self.ffns_theory.copy()
         th.update(
-            {"PTO": [1, 2], "XIR": [0.7071067811865475, 1.4142135623730951],}
+            {
+                "PTO": [1, 2],
+                "XIR": [0.7071067811865475, 1.4142135623730951],
+            }
         )
         self.run(
             cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]

@@ -75,10 +75,9 @@ class Sandbox(Runner):
     external = "pegasus"
 
     # select to plot operators
-    plot_operator = True
+    plot_operator = False
 
     rotate_to_evolution_basis = True
-
 
     @staticmethod
     def generate_operators():
@@ -98,7 +97,7 @@ class Sandbox(Runner):
             "ModEv": "EXA",
             "XIR": 1.0,
             "Q0": np.sqrt(2),
-            "kcThr": 0.0,
+            "kcThr": 1.0,
             "kbThr": 1.0,
             #  "kbThr": np.inf,
             "ktThr": np.inf,
@@ -128,7 +127,17 @@ class Sandbox(Runner):
             "Qref": np.sqrt(2.0),
             "alphas": 0.35,
         }
-        self.skip_pdfs = lambda _theory: [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
+        self.skip_pdfs = lambda _theory: [
+            22,
+            -6,
+            6,
+            "ph",
+            "V35",
+            "V24",
+            "V15",
+            "V8",
+            "T35",
+        ]
         self.run(
             [theory_updates],
             [{"Q2grid": [1e4], "debug_skip_singlet": True}],
@@ -138,7 +147,7 @@ class Sandbox(Runner):
 
 def main():
     sand = Sandbox()
-    #sand.lha()
+    # sand.lha()
     sand.doit()
 
 

@@ -27,6 +27,7 @@ Available functions:
     crashed_log(id) - print crashed logs
     plot_pdfs(id) - plot pdfs to final scale
     display_pdfs(id) - open pdfs plots
+    compare(id,id) - compare externals
 """
         )
     elif len(args) == 1:

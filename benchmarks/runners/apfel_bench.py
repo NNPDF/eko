@@ -40,7 +40,11 @@ class BenchmarkVFNS(ApfelBenchmark):
 
     zm_theory = {
         "FNS": "ZM-VFNS",
-        "ModEv": ["EXA", "EXP", "TRN",],
+        "ModEv": [
+            "EXA",
+            "EXP",
+            "TRN",
+        ],
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
@@ -70,11 +74,17 @@ class BenchmarkVFNS(ApfelBenchmark):
 
         th = self.zm_theory.copy()
         th.update(
-            {"PTO": [1], "IC": [1], "mc": [2.0],}
+            {
+                "PTO": [1],
+                "IC": [1],
+                "mc": [2.0],
+            }
         )
 
         self.run(
-            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"],
+            cartesian_product(th),
+            operators.build(operators.apfel_config),
+            ["ToyLH"],
         )
 
 
@@ -83,7 +93,11 @@ class BenchmarkFFNS(ApfelBenchmark):
 
     ffns_theory = {
         "FNS": "FFNS",
-        "ModEv": ["EXA", "EXP", "TRN",],
+        "ModEv": [
+            "EXA",
+            "EXP",
+            "TRN",
+        ],
         "NfFF": 4,
         "kcThr": 0.0,
         "kbThr": np.inf,
@@ -115,11 +129,17 @@ class BenchmarkFFNS(ApfelBenchmark):
 
         th = self.ffns_theory.copy()
         th.update(
-            {"PTO": [1], "IC": [1], "mc": [2.0],}
+            {
+                "PTO": [1],
+                "IC": [1],
+                "mc": [2.0],
+            }
         )
 
         self.run(
-            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"],
+            cartesian_product(th),
+            operators.build(operators.apfel_config),
+            ["ToyLH"],
         )
 
 

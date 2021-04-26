@@ -5,6 +5,8 @@
 import logging
 import copy
 
+import numpy as np
+
 from . import interpolation
 from .output import Output
 from .strong_coupling import StrongCoupling
@@ -91,6 +93,12 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
             sc,
             bfd,
         )
+        self.out["inputgrid"] = bfd.xgrid_raw
+        self.out["targetgrid"] = bfd.xgrid_raw
+        self.post_process = dict(
+            inputgrid=operators_card.get("inputgrid", bfd.xgrid_raw),
+            targetgrid=operators_card.get("targetgrid", bfd.xgrid_raw),
+        )
 
     def get_output(self):
         """
@@ -107,4 +115,17 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         for final_scale, op in self.op_grid.compute().items():
             Q2grid[float(final_scale)] = op
         self.out["Q2grid"] = Q2grid
+        # reshape
+        inputgrid = (
+            self.post_process["inputgrid"]
+            if self.post_process["inputgrid"] is not self.out["interpolation_xgrid"]
+            else None
+        )
+        targetgrid = (
+            self.post_process["targetgrid"]
+            if self.post_process["targetgrid"] is not self.out["interpolation_xgrid"]
+            else None
+        )
+        if inputgrid is not None or targetgrid is not None:
+            self.out.xgrid_reshape(targetgrid=targetgrid, inputgrid=inputgrid)
         return copy.deepcopy(self.out)

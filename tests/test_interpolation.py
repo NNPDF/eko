@@ -12,7 +12,7 @@ from eko import interpolation
 
 
 def check_is_interpolator(interpolator):
-    """ Check whether the functions are indeed interpolators"""
+    """Check whether the functions are indeed interpolators"""
     values = [0.1, 0.2, 0.4, 0.6, 0.8]
     # has to be in the range of the interpolation, but for the numerical integration of the
     # logartithmic interpolation to work it has to be setup in a rather larger area
@@ -175,7 +175,7 @@ class TestInterpolatorDispatcher:
                     assert_almost_equal(bx.evaluate_x(x), bN.evaluate_x(x))
 
     def test_math(self):
-        """ Test math properties of interpolator """
+        """Test math properties of interpolator"""
         xgrid = np.linspace(0.09, 1, 10)
         poly_deg = 4
         for log in [True, False]:

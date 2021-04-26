@@ -50,13 +50,13 @@ class Area:
         self.coefs = self._compute_coefs(xgrid)
 
     def _reference_indices(self):
-        """ Iterate over all indices which are part of the block """
+        """Iterate over all indices which are part of the block"""
         for k in range(self.kmin, self.kmax + 1):
             if k != self.poly_number:
                 yield k
 
     def _compute_coefs(self, xgrid):
-        """ Compute the coefficients for this area given a grid on x """
+        """Compute the coefficients for this area given a grid on x"""
         denominator = 1.0
         coeffs = np.ones(1)
         xj = xgrid[self.poly_number]
@@ -70,7 +70,7 @@ class Area:
         return coeffs
 
     def __iter__(self):
-        """ Iterates the generated coefficients """
+        """Iterates the generated coefficients"""
         for coef in self.coefs:
             yield coef
 

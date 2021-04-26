@@ -40,6 +40,7 @@ pegasus_config = {
     "Q2grid": [[1.0e3]],
 }
 
+
 def build(update=None):
     """
     Generate all operator card updates

@@ -140,6 +140,7 @@ class OperatorBase:
         q2_final : float
             final scale
     """
+
     def __init__(self, op_members, q2_final):
         self.op_members = op_members
         self.q2_final = q2_final

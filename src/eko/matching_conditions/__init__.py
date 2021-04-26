@@ -17,6 +17,7 @@ class MatchingCondition(member.OperatorBase):
     is considered "trivial". Instead at |NNLO| additional terms ("non-trivial")
     enter.
     """
+
     @classmethod
     def split_ad_to_evol_map(cls, ome_members, nf, q2_thr, a_s, intrinsic_range=None):
         """
