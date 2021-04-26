@@ -36,9 +36,9 @@ class ApfelBenchmark(Runner):
 
 
 class BenchmarkVFNS(ApfelBenchmark):
-    """Benckmark ZM-VFNS """
+    """Benckmark VFNS"""
 
-    zm_theory = {
+    vfns_theory = {
         "FNS": "ZM-VFNS",
         "ModEv": [
             "EXA",
@@ -49,47 +49,29 @@ class BenchmarkVFNS(ApfelBenchmark):
         "kbThr": 1.0,
         "ktThr": 1.0,
     }
-    zm_theory = tolist(zm_theory)
+    vfns_theory = tolist(vfns_theory)
 
-    def benchmark_zm(self, pto=1):
-        """Benckmark ZM-VFNS LO, NLO and NNLO"""
+    def benchmark_plain(self, pto):
+        """Plain configuration"""
 
-        th = self.zm_theory.copy()
+        th = self.vfns_theory.copy()
         th.update({"PTO": [pto]})
         self.run(
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
 
     def benchmark_sv(self, pto):
-        """Benckmark Scale Variation"""
+        """Scale Variation"""
 
-        th = self.zm_theory.copy()
+        th = self.vfns_theory.copy()
         th.update({"PTO": [pto], "XIR": [0.7071067811865475, 1.4142135623730951]})
         self.run(
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
 
-    def benchmark_ic(self):
-        """Benckmark Intrinsic Charm"""
-
-        th = self.zm_theory.copy()
-        th.update(
-            {
-                "PTO": [1],
-                "IC": [1],
-                "mc": [2.0],
-            }
-        )
-
-        self.run(
-            cartesian_product(th),
-            operators.build(operators.apfel_config),
-            ["ToyLH"],
-        )
-
 
 class BenchmarkFFNS(ApfelBenchmark):
-    """Benckmark FFNS """
+    """Benckmark FFNS"""
 
     ffns_theory = {
         "FNS": "FFNS",
@@ -106,8 +88,8 @@ class BenchmarkFFNS(ApfelBenchmark):
     }
     ffns_theory = tolist(ffns_theory)
 
-    def benchmark_ffns(self, pto=1):
-        """Benckmark FFNS LO, NLO and NNLO"""
+    def benchmark_plain(self, pto):
+        """Plain configuration"""
 
         th = self.ffns_theory.copy()
         th.update({"PTO": [pto]})
@@ -116,39 +98,34 @@ class BenchmarkFFNS(ApfelBenchmark):
         )
 
     def benchmark_sv(self, pto):
-        """Benckmark Scale Variation"""
+        """Scale Variation"""
 
-        th = self.ffns_theory.copy()
-        th.update({"PTO": [pto], "XIR": [0.7071067811865475, 1.4142135623730951]})
-        self.run(
-            cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
-        )
-
-    def benchmark_ic(self):
-        """Benckmark Intrinsic Charm"""
-
+        ts = []
         th = self.ffns_theory.copy()
         th.update(
             {
-                "PTO": [1],
-                "IC": [1],
-                "mc": [2.0],
+                "PTO": [pto],
+                "XIR": [np.sqrt(0.5)],
+                "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
             }
         )
-
-        self.run(
-            cartesian_product(th),
-            operators.build(operators.apfel_config),
-            ["ToyLH"],
+        ts.extend(cartesian_product(th))
+        th = self.ffns_theory.copy()
+        th.update(
+            {
+                "PTO": [pto],
+                "XIR": [np.sqrt(2.0)],
+                "fact_to_ren_scale_ratio": [np.sqrt(0.5)],
+            }
         )
+        ts.extend(cartesian_product(th))
+        self.run(ts, operators.build(operators.apfel_config), ["ToyLH"])
 
 
 if __name__ == "__main__":
 
-    obj = BenchmarkVFNS()
-    # obj = BenchmarkFFNS()
+    # obj = BenchmarkVFNS()
+    obj = BenchmarkFFNS()
 
     #  obj.benchmark_sv(0)
     obj.benchmark_sv(1)
-
-    #  obj.benchmark_ic()

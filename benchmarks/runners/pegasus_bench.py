@@ -35,8 +35,8 @@ class PegasusBenchmark(Runner):
         return [22, -6, 6, "ph", "T35", "V35"]
 
 
-class BenchmarkZM(PegasusBenchmark):
-    """Benckmark ZM-VFNS """
+class BenchmarkVFNS(PegasusBenchmark):
+    """Benckmark VFNS"""
 
     zm_theory = {
         "FNS": "ZM-VFNS",
@@ -54,8 +54,8 @@ class BenchmarkZM(PegasusBenchmark):
     }
     zm_theory = tolist(zm_theory)
 
-    def benchmark_zm(self, pto=1):
-        """Benckmark ZM-VFNS LO, NLO and NNLO """
+    def benchmark_plain(self, pto):
+        """Plain configuration"""
 
         th = self.zm_theory.copy()
         th.update(
@@ -67,14 +67,14 @@ class BenchmarkZM(PegasusBenchmark):
             cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]
         )
 
-    def benchmark_sv(self):
-        """Benckmark Scale Variation"""
+    def benchmark_sv(self, pto):
+        """Scale Variation"""
 
         th = self.zm_theory.copy()
         th.update(
             {
-                "PTO": [1, 2],
-                "XIR": [0.7071067811865475, 1.4142135623730951],
+                "PTO": [pto],
+                "fact_to_ren_scale_ratio": [np.sqrt(0.5), np.sqrt(2.0)],
             }
         )
         self.run(
@@ -83,7 +83,7 @@ class BenchmarkZM(PegasusBenchmark):
 
 
 class BenchmarkFFNS(PegasusBenchmark):
-    """Benckmark FFNS """
+    """Benckmark FFNS"""
 
     ffns_theory = {
         "FNS": "FFNS",
@@ -102,8 +102,8 @@ class BenchmarkFFNS(PegasusBenchmark):
     }
     ffns_theory = tolist(ffns_theory)
 
-    def benchmark_ffns(self, pto=1):
-        """Benckmark FFNS LO, NLO and NNLO """
+    def benchmark_plain(self, pto):
+        """Plain configuration"""
 
         th = self.ffns_theory.copy()
         th.update(
@@ -115,14 +115,14 @@ class BenchmarkFFNS(PegasusBenchmark):
             cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]
         )
 
-    def benchmark_sv(self):
-        """Benckmark Scale Variation"""
+    def benchmark_sv(self, pto):
+        """Scale Variation"""
 
         th = self.ffns_theory.copy()
         th.update(
             {
-                "PTO": [1, 2],
-                "XIR": [0.7071067811865475, 1.4142135623730951],
+                "PTO": [pto],
+                "fact_to_ren_scale_ratio": [np.sqrt(0.5), np.sqrt(2.0)],
             }
         )
         self.run(
@@ -132,11 +132,11 @@ class BenchmarkFFNS(PegasusBenchmark):
 
 if __name__ == "__main__":
 
-    zm = BenchmarkZM()
-    ffns = BenchmarkFFNS()
-    for o in [0, 1, 2]:
-        zm.benchmark_zm(o)
-        ffns.benchmark_ffns(o)
+    # obj = BenchmarkVFNS()
+    obj = BenchmarkFFNS()
+    # for o in [0, 1, 2]:
+    # vfns.benchmark_plain(o)
+    # ffns.benchmark_ffns(o)
 
-    ffns.benchmark_sv()
-    zm.benchmark_sv()
+    obj.benchmark_sv(1)
+    # vfns.benchmark_sv()

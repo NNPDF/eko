@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import webbrowser
+import numpy as np
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
@@ -46,13 +47,15 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         """
         for f in [
             "PTO",
-            "XIR",
             "ModEv",
             "Q0",
             "Qref",
             "alphas",
+            "XIF",
+            "XIR",
         ]:
             obj[f] = theo[f]
+        obj["F/R"] = theo["fact_to_ren_scale_ratio"]
         obj["mcThr"] = theo["mc"] * theo["kcThr"]
         obj["mbThr"] = theo["mb"] * theo["kbThr"]
         obj["mtThr"] = theo["mt"] * theo["ktThr"]

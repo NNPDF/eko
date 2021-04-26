@@ -96,6 +96,7 @@ class Sandbox(Runner):
             "NfFF": 4,
             "ModEv": "EXA",
             "XIR": 1.0,
+            "fact_to_ren_scale_ratio": 1.0,
             "Q0": np.sqrt(2),
             "kcThr": 1.0,
             "kbThr": 1.0,
@@ -119,7 +120,7 @@ class Sandbox(Runner):
             "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",
-            "XIR": np.sqrt(2),
+            "fact_to_ren_scale_ratio": np.sqrt(2),
             "Q0": np.sqrt(2),
             "kcThr": 0.0,
             "kbThr": np.inf,
@@ -143,12 +144,6 @@ class Sandbox(Runner):
             [{"Q2grid": [1e4], "debug_skip_singlet": True}],
             ["ToyLH"],
         )
-
-
-def main():
-    sand = Sandbox()
-    # sand.lha()
-    sand.doit()
 
 
 if __name__ == "__main__":

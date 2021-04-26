@@ -131,8 +131,6 @@ def compute_LHA_data(
             output containing: target_xgrid, values
     """
 
-    if not np.isclose(theory["XIF"], 1.0):
-        raise ValueError("XIF has to be 1")
     Q2grid = operators["Q2grid"]
     if not np.allclose(Q2grid, [1e4]):
         raise ValueError("Q2grid has to be [1e4]")
@@ -142,7 +140,7 @@ def compute_LHA_data(
 
     fns = theory["FNS"]
     order = theory["PTO"]
-    fact_to_ren = (theory["XIF"] / theory["XIR"]) ** 2
+    fact_to_ren = (theory["fact_to_ren_scale_ratio"]) ** 2
     table = None
     part = None
     is_ffns_nnlo = False

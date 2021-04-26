@@ -117,7 +117,7 @@ class OperatorGrid:
         }
         method = mod_ev2method.get(method, method)
         config["method"] = method
-        config["fact_to_ren"] = (theory_card["XIF"] / theory_card["XIR"]) ** 2
+        config["fact_to_ren"] = (theory_card["fact_to_ren_scale_ratio"]) ** 2
         config["ev_op_max_order"] = operators_card["ev_op_max_order"]
         config["ev_op_iterations"] = operators_card["ev_op_iterations"]
         config["debug_skip_singlet"] = operators_card["debug_skip_singlet"]

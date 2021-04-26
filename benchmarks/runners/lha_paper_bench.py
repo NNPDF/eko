@@ -73,10 +73,10 @@ class LHABenchmark(Runner):
         """
         low = self.theory.copy()
         low["PTO"] = pto
-        low["XIR"] = np.sqrt(1.0 / 2.0)
+        low["fact_to_ren_scale_ratio"] = np.sqrt(1.0 / 2.0)
         high = self.theory.copy()
         high["PTO"] = pto
-        high["XIR"] = np.sqrt(2.0)
+        high["fact_to_ren_scale_ratio"] = np.sqrt(2.0)
         return [high, low]
 
     @staticmethod
@@ -167,8 +167,8 @@ class BenchmarkFFNS(LHABenchmark):
 
 if __name__ == "__main__":
 
-    #obj = BenchmarkVFNS()
+    # obj = BenchmarkVFNS()
     obj = BenchmarkFFNS()
 
-    obj.benchmark_plain(2)
-    #obj.benchmark_sv(2)
+    # obj.benchmark_plain(2)
+    obj.benchmark_sv(1)

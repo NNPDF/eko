@@ -196,7 +196,7 @@ class StrongCoupling:
         else:
             raise ValueError(f"Unknown evolution mode {mod_ev}")
         # adjust factorization scale / renormalization scale
-        fact_to_ren = theory_card["XIF"] / theory_card["XIR"]
+        fact_to_ren = theory_card["fact_to_ren_scale_ratio"]
         t = theory_card.copy()
         for q in "cbt":
             t[f"m{q}"] /= fact_to_ren

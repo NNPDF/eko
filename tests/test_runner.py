@@ -10,8 +10,7 @@ def test_runner():
     theory_card = {
         "alphas": 0.35,
         "PTO": 0,
-        "XIF": 1.0,
-        "XIR": 1.0,
+        "fact_to_ren_scale_ratio": 1.0,
         "Qref": np.sqrt(2),
         "Q0": np.sqrt(2),
         "FNS": "FFNS",
