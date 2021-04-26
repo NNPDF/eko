@@ -4,13 +4,12 @@ on:
   push:
     branches:
       - master
-      - develop
 
 jobs:
   deploy-ghpages:
     runs-on: ubuntu-latest
     strategy:
-#      max-parallel: 2
+      #      max-parallel: 2
       matrix:
         python-version: [3.9]
       fail-fast: false
