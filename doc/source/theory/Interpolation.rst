@@ -12,7 +12,7 @@ Therefore, we define the basis grid
 from which we define our interpolation
 
 .. math ::
-    f(x) \sim \bar f(x) \sum\limits_{j=0}^{N_{grid} - 1 } f(x_j) p_j(x)
+    f(x) \sim \bar f(x) \equiv \sum\limits_{j=0}^{N_{grid} - 1 } f(x_j) p_j(x)
 
 Thus each grid point :math:`x_j` has an associated interpolation polynomial :math:`p_j(x)`
 (represented by :class:`eko.interpolation.BasisFunction`).
@@ -103,3 +103,45 @@ The generated polynomials then look like:
     Selected polynomials of the example configuration. The 9 points have been placed
     logarithmically equidistant in :math:`(10^{-5},1]`. Note that :math:`p_4(x)`
     is still piecewise of degree 3.
+
+Change Interpolation Basis
+--------------------------
+It is always possible to change interpolation basis, that corresponds to change
+interpolation grid.
+
+The way it is done is the following:
+
+.. math::
+    f(x) \sim \bar f(x) &= \sum\limits_{j=0}^{N_{grid} - 1 } f(x_j) p_j(x)\\
+    \bar f(x) \sim \bar{\bar{f}}(x) &= \sum\limits_{k=0}^{\tilde{N}_{grid} - 1 } \bar f(\tilde{x}_k) \tilde{p}_k(x) =
+    \sum\limits_{k=0}^{\tilde{N}_{grid} - 1 } \sum\limits_{j=0}^{N_{grid} - 1 } f(x_j) p_j(\tilde{x}_k) \tilde{p}_k(x)
+
+So the change of basis to apply to coefficients/polynomials is:
+
+.. math::
+   M_{jk} = p_j(\tilde{x}_k)
+
+that corresponds to evaluate the old polynomials :math:`p_j` (i.e. took the
+place of the continuous function in :math:`\bar f`) on the new points
+:math:`\tilde x_k`.
+
+Take care that in the above sections it has been explained that the target
+function is interpolated by approximating it with a **piecewise polynomial**.
+
+.. admonition:: Piecewise Polynomials Interpolation
+
+   It is very relevant to notice that it is **not a polynomial**, indeed being
+   defined piecewise only the *function is* **continuous**, but **not its
+   derivatives**.
+
+   Then even interpolating on a bigger but different grid might cause a further
+   approximation.
+   
+   Indeed no polynomial is able to produce a discontinuity in the derivatives,
+   thus if an old grid point falls in the middle of a new grid area an
+   approximation is expected (that intuitevely it would happen only if the grid
+   were smaller, but it is also happening for larger poorly chosen ones).
+
+Since further interpolating will cause a loss of accuracy it is *recommended* to
+have the new grid being a subset or a superset of the previous one, or in
+general *to share as many points as possible*.
