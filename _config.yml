@@ -1,0 +1,23 @@
+# Setup
+title: eko
+tagline: "Evolutionary Kernel Operators"
+description: 'Evolutionary Kernel Operators:<br> yet another PDF evolution library. Made by <a href="http://n3pdf.mi.infn.it/" target="_blank">@N3PDF</a>.'
+url: "https://n3pdf.github.io"
+baseurl: "/eko"
+permalink: /:categories/:title
+
+# About and contact
+author:
+  name: "Alessandro Candido, Felix Hekhorn, Giacomo Magni"
+  url: "http://n3pdf.mi.infn.it"
+
+github:
+  repo: "https://github.com/N3PDF/eko"
+
+# Gems
+plugins:
+  - jekyll-paginate
+  - jekyll-gist
+
+# Custom vars
+version: 3.0.0
