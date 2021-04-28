@@ -7,6 +7,11 @@
         </a>
       </h1>
       <p class="lead">{{ site.description }}</p>
+      <p>
+      Made by <a href="http://n3pdf.mi.infn.it/" target="_blank">@N3PDF 
+      <img src="{{ 'public/n3pdf.png' | relative_url }}" style="display: inline; height: 2em; margin: 0; vertical-align: middle;"/>
+      </a>
+      </p>
     </div>
 
     <nav class="sidebar-nav">
@@ -28,9 +33,21 @@
 
       <a class="sidebar-nav-item" href="{{ site.github.repo }}/releases/latest">Download</a>
       <a class="sidebar-nav-item" href="{{ site.github.repo }}">GitHub <i class="fab fa-github"></i></a>
-      <span class="sidebar-nav-item">Currently v{{ site.version }}</span>
+      <span class="sidebar-nav-item">Currently: <em><a id="latest-release" href="{{ site.github.repo }}">...</a></em></span>
     </nav>
 
     <p>&copy; {{ site.time | date: '%Y' }}. All rights reserved.</p>
   </div>
 </div>
+
+<script charset="utf-8">
+  async function addRepoInfo() {
+    let latestRelease = document.getElementById("latest-release");
+      
+    let releaseInfo = await (await fetch("{{ site.github.api }}/releases/latest")).json();
+    latestRelease.text = releaseInfo.name;
+    latestRelease.href = "{{ site.github.repo }}" + "/tree/" + releaseInfo.tag_name;
+  }
+  
+  addRepoInfo();
+</script>
