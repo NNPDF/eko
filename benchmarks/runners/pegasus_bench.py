@@ -88,9 +88,9 @@ class BenchmarkFFNS(PegasusBenchmark):
     ffns_theory = {
         "FNS": "FFNS",
         "ModEv": [
-            "EXA",
-            "EXP",
-            "ordered-truncated",
+            "perturbative-exact",
+            #"EXP",
+            #"ordered-truncated",
         ],
         "NfFF": 4,
         "kcThr": 0.0,
@@ -134,9 +134,9 @@ if __name__ == "__main__":
 
     # obj = BenchmarkVFNS()
     obj = BenchmarkFFNS()
-    # for o in [0, 1, 2]:
+    for o in [1, 2]:
     # vfns.benchmark_plain(o)
-    # ffns.benchmark_ffns(o)
+        obj.benchmark_plain(o)
 
-    obj.benchmark_sv(1)
+    #obj.benchmark_sv(1)
     # vfns.benchmark_sv()

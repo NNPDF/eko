@@ -47,6 +47,7 @@ dfl = app.log_as_dfd
 check_log = app.check_log
 plot_pdfs = app.plot_pdfs
 display_pdfs = app.display_pdfs
+compare = app.compare_external
 
 
 def launch_navigator():

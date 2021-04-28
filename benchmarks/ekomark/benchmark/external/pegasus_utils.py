@@ -34,12 +34,15 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
     # init pegasus
     nf = theory["NfFF"]
 
-    if theory["ModEv"] == "EXA":
+    if theory["ModEv"] in ["EXA", "perturbative-exact"]:
         imodev = 1
     elif theory["ModEv"] in ["EXP", "decompose-expanded", "perturbative-expanded"]:
         imodev = 2
     elif theory["ModEv"] in ["TRN", "ordered-truncated"]:
         imodev = 3
+    else:
+        raise ValueError(f"Method {theory['ModEv']} is not recognized. ")
+
 
     if theory["FNS"] == "FFNS":
         ivfns = 0
@@ -47,7 +50,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
         ivfns = 1
 
     if theory["Q0"] != theory["Qref"]:
-        raise NotImplementedError("Initial scale Q0 must be equal to Qref in Pegasus.")
+        raise ValueError("Initial scale Q0 must be equal to Qref in Pegasus.")
 
     pegasus.initevol(
         imodev, theory["PTO"], ivfns, nf, theory["fact_to_ren_scale_ratio"] ** 2

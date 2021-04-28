@@ -2,11 +2,14 @@
 import os
 import webbrowser
 import numpy as np
+import pandas as pd
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 from banana import navigator as bnav
+from banana.data import dfdict
+
 
 from eko import basis_rotation as br
 
@@ -226,3 +229,66 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
     @staticmethod
     def is_valid_physical_object(name):
         return name in br.evol_basis or name in br.flavor_basis_names
+
+    def compare_external(self, dfd1, dfd2):
+        """
+        Compare two results in the cache.
+
+        It's taking two results from external benchmarks and compare them in a
+        single table.
+
+        Parameters
+        ----------
+        dfd1 : dict or hash
+            if hash the doc_hash of the cache to be loaded
+        dfd2 : dict or hash
+            if hash the doc_hash of the cache to be loaded
+        """
+        # load json documents
+        id1, cache1 = self.load_dfd(dfd1, self.cache_as_dfd)
+        id2, cache2 = self.load_dfd(dfd2, self.cache_as_dfd)
+
+        if cache1.external == cache2.external:
+            cache1.external = f"{cache1.external}1"
+            cache2.external = f"{cache2.external}2"
+
+        # print head
+        cache_diff = dfdict.DFdict()
+        msg = f"**Comparing** id: `{id1}` - id: `{id2}`, in table *cache*"
+        cache_diff.print(msg, "-" * len(msg), sep="\n")
+        cache_diff.print(f"- *{cache1.external}*: `{id1}`")
+        cache_diff.print(f"- *{cache2.external}*: `{id2}`")
+        cache_diff.print()
+
+        # check x
+        for x in cache1["target_xgrid"]:
+            if x not in cache2["target_xgrid"]:
+                raise ValueError(f"{x}: not matching in x")
+
+        table_out = dfdict.DFdict()
+        for q2, pdfs1 in cache1["values"].items():
+            # check q2
+            if q2 not in cache2["values"].keys():
+                raise ValueError(f"{q2}: not matching in q2")
+
+            pdfs2 = cache2["values"][q2]
+            # check pdfs
+            for pdf in pdfs1.T.keys():
+                if pdf not in pdfs2.keys():
+                    raise ValueError(f"{pdf}: pdf not matching")
+                # skip the photon always (just for the time being)
+                if pdf == "ph":
+                    continue
+
+                tab = {
+                    "x": cache1["target_xgrid"][0],
+                    cache1.external: pdfs1[pdf],
+                    cache2.external: pdfs2[pdf],
+                    "percent_error": (pdfs1[pdf] / pdfs2[pdf] - 1.0) * 100,
+                }
+                table_out[pdf] = pd.DataFrame.from_dict(tab)
+
+            # dump results' table
+            cache_diff[q2] = table_out
+
+        return cache_diff
