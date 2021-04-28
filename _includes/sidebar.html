@@ -33,14 +33,15 @@
 
       <a class="sidebar-nav-item" href="{{ site.github.repo }}/releases/latest">Download</a>
       <a class="sidebar-nav-item" href="{{ site.github.repo }}">GitHub <i class="fab fa-github"></i></a>
-      <span class="sidebar-nav-item">Currently: <em><a id="latest-release" href="{{ site.github.repo }}">...</a></em></span>
+      <!-- <span class="sidebar-nav-item">Currently: <em><a id="latest-release" href="{{ site.github.repo }}">...</a></em></span> -->
+      <span class="sidebar-nav-item">Currently: <em><a id="latest-release" href="{{ site.github.repo }}/tree/{{ site.data.latest_release.tag_name }}">{{ site.data.latest_release.name }}</a></em></span>
     </nav>
 
     <p>&copy; {{ site.time | date: '%Y' }}. All rights reserved.</p>
   </div>
 </div>
 
-<script charset="utf-8">
+<!-- <script charset="utf-8">
   async function addRepoInfo() {
     let latestRelease = document.getElementById("latest-release");
       
@@ -50,4 +51,4 @@
   }
   
   addRepoInfo();
-</script>
+</script> -->

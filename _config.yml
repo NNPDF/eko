@@ -3,10 +3,16 @@ title: eko
 tagline: "Evolutionary Kernel Operators"
 description: >
   Evolutionary Kernel Operators:<br>
-  yet another PDF evolution library.
+  <em>yet another PDF evolution library</em>.
 url: "https://n3pdf.github.io"
 baseurl: "/eko"
 permalink: /:categories/:title
+
+# API data
+
+jekyll_get_json:
+  - data: latest_release
+    json: "https://api.github.com/repos/N3PDF/eko/releases/latest"
 
 # About and contact
 author:
@@ -19,5 +25,6 @@ github:
 
 # Gems
 plugins:
+  - jekyll-get-json
   - jekyll-paginate
   - jekyll-gist
