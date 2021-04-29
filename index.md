@@ -18,6 +18,7 @@ Setup the development environment:
 sudo apt install ruby-dev
 sudo gem install bundler
 # in the repo root
+bundle config set --local path 'vendor/bundle'
 bundle install
 bundle exec jekyll serve
 ```
