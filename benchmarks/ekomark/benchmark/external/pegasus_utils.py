@@ -43,7 +43,6 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
     else:
         raise ValueError(f"Method {theory['ModEv']} is not recognized. ")
 
-
     if theory["FNS"] == "FFNS":
         ivfns = 0
     else:

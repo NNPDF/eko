@@ -86,6 +86,7 @@ class TestThresholdsConfig:
                 "kbThr": 2.0,
                 "ktThr": np.inf,
                 "Q0": 1.0,
+                "MaxNfPdf": 6,
             }
         )
         assert tc.area_walls[1:-1] == [1.0, 64.0, np.inf]
@@ -93,9 +94,9 @@ class TestThresholdsConfig:
 
     def test_ffns(self):
         tc3 = ThresholdsAtlas.ffns(3)
-        assert tc3.area_walls == [0] + [np.inf] * 4
+        assert tc3.area_walls == [0] + [np.inf]
         tc4 = ThresholdsAtlas.ffns(4)
-        assert tc4.area_walls == [0] * 2 + [np.inf] * 3
+        assert tc4.area_walls == [0] * 2 + [np.inf]
 
     def test_path_3thr(self):
         tc = ThresholdsAtlas([1, 2, 3], 0.5)

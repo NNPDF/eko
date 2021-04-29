@@ -6,8 +6,6 @@ Benchmark CT14 pdf family
   whereas the lo family uses LO splitting functions with NLO alphas evolution
 """
 
-import numpy as np
-
 from ekomark.benchmark.runner import Runner
 
 
@@ -38,15 +36,13 @@ class BenchmarkCT14(LHAPDFBenchmark):
 
     def benchmark_llo_NF3(self, Q0=5, Q2grid=(100,)):
         theory_card = base_theory.copy()
-        # TODO fake MaxNfPDF
         theory_card.update(
             {
-                "kcThr": np.inf,
-                "kbThr": np.inf,
-                "ktThr": np.inf,
                 "alphas": 0.118000,
                 "PTO": 0,
                 "Q0": Q0,
+                "MaxNfPdf": 3,
+                "MaxNfAs": 3,
             }
         )
         operator_card = {"Q2grid": list(Q2grid)}
@@ -72,12 +68,11 @@ class BenchmarkCT14(LHAPDFBenchmark):
         theory_card = base_theory.copy()
         theory_card.update(
             {
-                "kcThr": 1.0,
-                "kbThr": np.inf,
-                "ktThr": np.inf,
                 "alphas": 0.125000,
                 "PTO": 0,
                 "Q0": Q0,
+                "MaxNfPdf": 4,
+                "MaxNfAs": 4,
             }
         )
         operator_card = {"Q2grid": list(Q2grid)}
@@ -102,6 +97,8 @@ class BenchmarkCT14(LHAPDFBenchmark):
                 "alphas": 0.130000,
                 "PTO": 0,
                 "Q0": Q0,
+                "MaxNfPdf": 6,
+                "MaxNfAs": 6,
             }
         )
         operator_card = {"Q2grid": list(Q2grid)}
@@ -111,5 +108,5 @@ class BenchmarkCT14(LHAPDFBenchmark):
 
 if __name__ == "__main__":
     lhapdf = BenchmarkCT14()
-    lhapdf.benchmark_llo_NF4()
+    lhapdf.benchmark_llo_NF6()
     # lhapdf.benchmark_nlo()

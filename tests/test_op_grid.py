@@ -29,6 +29,8 @@ class TestOperatorGrid:
             "mc": 2.0,
             "mb": 4.0,
             "mt": 100.0,
+            "MaxNfPdf": 6,
+            "MaxNfAs": 6,
         }
         operators_card = {
             "Q2grid": [1, 10],

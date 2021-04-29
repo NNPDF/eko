@@ -201,7 +201,9 @@ class StrongCoupling:
         for q in "cbt":
             t[f"m{q}"] /= fact_to_ren
         # now read atlas
-        thresholds_config = thresholds.ThresholdsAtlas.from_dict(t)
+        thresholds_config = thresholds.ThresholdsAtlas.from_dict(
+            t, max_nf_name="MaxNfAs"
+        )
         return cls(alpha_ref, q2_alpha, thresholds_config, order, method)
 
     def _compute_exact(self, as_ref, nf, scale_from, scale_to):

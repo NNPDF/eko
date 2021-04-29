@@ -25,6 +25,7 @@ class TestStrongCoupling:
             "kcThr": 1.0,
             "kbThr": 1.0,
             "ktThr": 1.0,
+            "MaxNfAs": 6,
         }
         sc = StrongCoupling.from_dict(d)
         assert sc.a_s(d["Qref"] ** 2) == d["alphas"] / (4.0 * np.pi)
@@ -57,6 +58,7 @@ class TestStrongCoupling:
                     kcThr=1.0,
                     kbThr=1.0,
                     ktThr=1.0,
+                    MaxNfAs=6,
                 )
                 sc2 = StrongCoupling.from_dict(setup)
                 assert sc2.q2_ref == scale_ref

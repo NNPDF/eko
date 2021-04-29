@@ -124,6 +124,8 @@ class TestOperatorMatrixElement:
             "kcThr": np.inf,
             "kbThr": np.inf,
             "ktThr": np.inf,
+            "MaxNfPdf": 6,
+            "MaxNfAs": 6,
         }
         operators_card = {
             "Q2grid": [1, 10],

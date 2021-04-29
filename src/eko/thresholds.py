@@ -124,6 +124,10 @@ class ThresholdsAtlas:
         """
         Create a |FFNS| setup.
 
+        The function creates simply succifienct thresholds at `0` (in the
+        beginning), since the number of flavors is determined by counting
+        from below.
+
         Parameters
         ----------
             nf : int
@@ -131,10 +135,10 @@ class ThresholdsAtlas:
             q2_ref : float
                 reference scale
         """
-        return cls([0] * (nf - 3) + [np.inf] * (6 - nf), q2_ref)
+        return cls([0] * (nf - 3), q2_ref)
 
     @classmethod
-    def from_dict(cls, theory_card, prefix="k"):
+    def from_dict(cls, theory_card, prefix="k", max_nf_name="MaxNfPdf"):
         r"""
         Create the object from the run card.
 
@@ -161,6 +165,9 @@ class ThresholdsAtlas:
             )
 
         thresholds = [thres(q) for q in range(4, 6 + 1)]
+        # cut array = simply reduce some thresholds
+        max_nf = theory_card[max_nf_name]
+        thresholds = thresholds[: max_nf - 3]
         # preset ref scale
         q2_ref = pow(theory_card["Q0"], 2)
         return cls(thresholds, q2_ref)
