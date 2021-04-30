@@ -98,3 +98,34 @@ def test_melling_g3():
     mma_ref_values = [0.3888958462, 0.2560382207, 0.3049381491 - 0.1589060625j]
     for n, r in zip(ns, mma_ref_values):
         np.testing.assert_almost_equal(harmonics.mellin_g3(n), r, decimal=6)
+
+
+def test_melling_g3_pegasus():
+    # Test against pegasus implementation
+    for N in [1, 2, 3, 4]:
+        S1 = harmonics.harmonic_S1(N)
+        N1 = N + 1.0
+        N2 = N + 2.0
+        N3 = N + 3.0
+        N4 = N + 4.0
+        N5 = N + 5.0
+        N6 = N + 6.0
+        S11 = S1 + 1.0 / N1
+        S12 = S11 + 1.0 / N2
+        S13 = S12 + 1.0 / N3
+        S14 = S13 + 1.0 / N4
+        S15 = S14 + 1.0 / N5
+        S16 = S15 + 1.0 / N6
+        zeta2 = harmonics.zeta2
+
+        SPMOM = (
+            1.0000 * (zeta2 - S1 / N) / N
+            - 0.9992 * (zeta2 - S11 / N1) / N1
+            + 0.9851 * (zeta2 - S12 / N2) / N2
+            - 0.9005 * (zeta2 - S13 / N3) / N3
+            + 0.6621 * (zeta2 - S14 / N4) / N4
+            - 0.3174 * (zeta2 - S15 / N5) / N5
+            + 0.0699 * (zeta2 - S16 / N6) / N6
+        )
+
+        np.testing.assert_allclose(harmonics.mellin_g3(N), SPMOM)

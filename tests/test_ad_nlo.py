@@ -2,7 +2,7 @@
 # Test NLO anomalous dims
 import numpy as np
 
-from eko.constants import CA, CF
+from eko.constants import CA, CF, TR
 import eko.anomalous_dimensions.nlo as ad_nlo
 import eko.anomalous_dimensions.harmonics as h
 
@@ -77,3 +77,94 @@ def test_gamma_1():
     np.testing.assert_allclose(
         gS1[0, 1], (-56317.0 / 18000.0 * CF + 16387.0 / 9000.0 * CA) * NF
     )  # qg
+
+
+def test_gamma_ns_1_pegasus():
+    # pylint: disable=line-too-long,too-many-locals
+    # Test against pegasus implementation
+    ZETA2 = h.zeta2
+    ZETA3 = h.zeta3
+
+    for N in [2]:
+        S1 = h.harmonic_S1(N)
+        S2 = h.harmonic_S2(N)
+
+        N1 = N + 1.0
+        N2 = N + 2.0
+        NS = N * N
+        NT = NS * N
+        NFO = NT * N
+        N1S = N1 * N1
+        N1T = N1S * N1
+        N3 = N + 3.0
+        N4 = N + 4.0
+        N5 = N + 5.0
+        N6 = N + 6.0
+        S11 = S1 + 1.0 / N1
+        S12 = S11 + 1.0 / N2
+        S13 = S12 + 1.0 / N3
+        S14 = S13 + 1.0 / N4
+        S15 = S14 + 1.0 / N5
+        S16 = S15 + 1.0 / N6
+        SPMOM = (
+            1.00000 * (ZETA2 - S1 / N) / N
+            - 0.99920 * (ZETA2 - S11 / N1) / N1
+            + 0.98510 * (ZETA2 - S12 / N2) / N2
+            - 0.90050 * (ZETA2 - S13 / N3) / N3
+            + 0.66210 * (ZETA2 - S14 / N4) / N4
+            - 0.31740 * (ZETA2 - S15 / N5) / N5
+            + 0.06990 * (ZETA2 - S16 / N6) / N6
+        )
+        SLC = -5.0 / 8.0 * ZETA3
+        SLV = (
+            -ZETA2 / 2.0 * (h.cern_polygamma(N1 / 2, 0) - h.cern_polygamma(N / 2, 0))
+            + S1 / NS
+            + SPMOM
+        )
+        SSCHLM = SLC - SLV
+        SSTR2M = ZETA2 - h.cern_polygamma(N1 / 2, 1)
+        SSTR3M = 0.5 * h.cern_polygamma(N1 / 2, 2) + ZETA3
+        SSCHLP = SLC + SLV
+        SSTR2P = ZETA2 - h.cern_polygamma(N2 / 2, 1)
+        SSTR3P = 0.5 * h.cern_polygamma(N2 / 2, 2) + ZETA3
+
+        PNMA = (
+            16.0 * S1 * (2.0 * N + 1.0) / (NS * N1S)
+            + 16.0 * (2.0 * S1 - 1.0 / (N * N1)) * (S2 - SSTR2M)
+            + 64.0 * SSCHLM
+            + 24.0 * S2
+            - 3.0
+            - 8.0 * SSTR3M
+            - 8.0 * (3.0 * NT + NS - 1.0) / (NT * N1T)
+            + 16.0 * (2.0 * NS + 2.0 * N + 1.0) / (NT * N1T)
+        ) * (-0.5)
+        PNPA = (
+            16.0 * S1 * (2.0 * N + 1.0) / (NS * N1S)
+            + 16.0 * (2.0 * S1 - 1.0 / (N * N1)) * (S2 - SSTR2P)
+            + 64.0 * SSCHLP
+            + 24.0 * S2
+            - 3.0
+            - 8.0 * SSTR3P
+            - 8.0 * (3.0 * NT + NS - 1.0) / (NT * N1T)
+            - 16.0 * (2.0 * NS + 2.0 * N + 1.0) / (NT * N1T)
+        ) * (-0.5)
+        PNSB = (
+            S1 * (536.0 / 9.0 + 8.0 * (2.0 * N + 1.0) / (NS * N1S))
+            - (16.0 * S1 + 52.0 / 3.0 - 8.0 / (N * N1)) * S2
+            - 43.0 / 6.0
+            - (151.0 * NFO + 263.0 * NT + 97.0 * NS + 3.0 * N + 9.0)
+            * 4.0
+            / (9.0 * NT * N1T)
+        ) * (-0.5)
+        PNSC = (
+            -160.0 / 9.0 * S1
+            + 32.0 / 3.0 * S2
+            + 4.0 / 3.0
+            + 16.0 * (11.0 * NS + 5.0 * N - 3.0) / (9.0 * NS * N1S)
+        ) * (-0.5)
+
+        P1NSP = CF * ((CF - CA / 2.0) * PNPA + CA * PNSB + TR * NF * PNSC)
+        P1NSM = CF * ((CF - CA / 2.0) * PNMA + CA * PNSB + TR * NF * PNSC)
+
+        np.testing.assert_allclose(ad_nlo.gamma_nsp_1(N, NF), -P1NSP)
+        np.testing.assert_allclose(ad_nlo.gamma_nsm_1(N, NF), -P1NSM)
