@@ -200,3 +200,88 @@ class TestOperator:
         np.testing.assert_allclose(
             o.op_members["NS_v"].value, o.op_members["NS_m"].value
         )
+
+
+def test_pegasus_path():
+    def quad_ker_pegasus(
+        u, order, mode, method, logx, areas, a1, a0, nf, L, ev_op_iterations
+    ):
+        # compute the mellin inversion as done in pegasus
+        phi = 3 / 4 * np.pi
+        c = 1.9
+        n = complex(c + u * np.exp(1j * phi))
+        gamma_ns = gamma_ns_fact(order, mode, n, nf, L)
+        ker = ns.dispatcher(
+            order,
+            method,
+            gamma_ns,
+            a1,
+            a0,
+            nf,
+            ev_op_iterations,
+        )
+        pj = interpolation.log_evaluate_Nx(n, logx, areas)
+        return np.imag(np.exp(1j * phi) / np.pi * pj * ker)
+
+    # It might be useful to test with a different fuction
+    # monkeypatch.setattr(ns, "dispatcher", lambda x, *args: np.exp( - x ** 2 ) )
+    xgrid = np.geomspace(1e-7, 1, 10)
+    int_disp = InterpolatorDispatcher(xgrid, 1, True)
+    order = 1
+    mode = "NS_p"
+    method = ""
+    logxs = np.log(int_disp.xgrid_raw)
+    a1 = 1
+    a0 = 2
+    nf = 3
+    L = 0
+    ev_op_iterations = 10
+    for logx in logxs:
+        for bf in int_disp:
+            res_ns, _ = scipy.integrate.quad(
+                quad_ker,
+                0.5,
+                1.0,
+                args=(
+                    order,
+                    mode,
+                    method,
+                    int_disp.log,
+                    logx,
+                    bf.areas_representation,
+                    a1,
+                    a0,
+                    nf,
+                    L,
+                    ev_op_iterations,
+                    10,
+                ),
+                epsabs=1e-12,
+                epsrel=1e-5,
+                limit=100,
+                full_output=1,
+            )[:2]
+
+            res_test, _ = scipy.integrate.quad(
+                quad_ker_pegasus,
+                0,
+                np.inf,
+                args=(
+                    order,
+                    mode,
+                    method,
+                    logx,
+                    bf.areas_representation,
+                    a1,
+                    a0,
+                    nf,
+                    L,
+                    ev_op_iterations,
+                ),
+                epsabs=1e-12,
+                epsrel=1e-5,
+                limit=100,
+                full_output=1,
+            )[:2]
+
+            np.testing.assert_allclose(res_ns, res_test, rtol=2e-6)
