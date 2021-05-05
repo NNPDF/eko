@@ -35,6 +35,12 @@ apfel_config = {
 }
 
 pegasus_config = {
+    "ev_op_max_order": [10],
+    "ev_op_iterations": [10],
+    "Q2grid": [[1.0e3]],
+}
+
+pegasus_exact_config = {
     "ev_op_max_order": [15],
     "ev_op_iterations": [20],
     "Q2grid": [[1.0e3]],

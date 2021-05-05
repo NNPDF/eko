@@ -19,9 +19,12 @@ def tolist(input_dict):
 
 
 class PegasusBenchmark(Runner):
-
     """
-    Globally set the external program to Pegasus
+    Globally set the external program to Pegasus.
+
+    `imodev = 1` exactly corresponds to `perturbative-exact`.
+    However, the difference between `perturbative-exact` and `iterate-exact` is
+    subleading (~ 1e-4 relative difference).
     """
 
     external = "pegasus"
@@ -41,9 +44,10 @@ class BenchmarkVFNS(PegasusBenchmark):
     zm_theory = {
         "FNS": "ZM-VFNS",
         "ModEv": [
-            "EXA",
-            "EXP",
-            "ordered-truncated",
+            #"perturbative-exact",
+            "EXA"
+            #"EXP",
+            #"ordered-truncated",
         ],
         "kcThr": 1.0,
         "kbThr": 1.0,
@@ -132,11 +136,10 @@ class BenchmarkFFNS(PegasusBenchmark):
 
 if __name__ == "__main__":
 
-    # obj = BenchmarkVFNS()
-    obj = BenchmarkFFNS()
-    for o in [1, 2]:
-        # vfns.benchmark_plain(o)
-        obj.benchmark_plain(o)
+    obj = BenchmarkVFNS()
+    #obj = BenchmarkFFNS()
+    obj.benchmark_plain(1)
+
 
     # obj.benchmark_sv(1)
     # vfns.benchmark_sv()

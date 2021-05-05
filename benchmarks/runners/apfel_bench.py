@@ -42,12 +42,15 @@ class BenchmarkVFNS(ApfelBenchmark):
         "FNS": "ZM-VFNS",
         "ModEv": [
             "EXA",
-            "EXP",
-            "TRN",
+            #"EXP",
+            #"TRN",
         ],
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
+        "Qref": np.sqrt(2.0),
+        "alphas": 0.35,
+        "Q0": np.sqrt(2.0),
     }
     vfns_theory = tolist(vfns_theory)
 
@@ -124,8 +127,8 @@ class BenchmarkFFNS(ApfelBenchmark):
 
 if __name__ == "__main__":
 
-    # obj = BenchmarkVFNS()
-    obj = BenchmarkFFNS()
+    obj = BenchmarkVFNS()
+    # obj = BenchmarkFFNS()
 
-    #  obj.benchmark_sv(0)
-    obj.benchmark_sv(1)
+    obj.benchmark_plain(1)
+    #obj.benchmark_sv(1)
