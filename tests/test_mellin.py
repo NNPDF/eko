@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test Mellin module"""
 
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_allclose
 
 import numpy as np
 
@@ -30,10 +30,10 @@ def check_path_symmetry(path, jac, extra_args):
     for t in [0.1, 0.2, 0.3]:
         plow = path(0.5 - t, *extra_args)
         phigh = path(0.5 + t, *extra_args)
-        assert_almost_equal(plow, np.conjugate(phigh))
+        assert_allclose(plow, np.conjugate(phigh))
         jlow = jac(0.5 - t, *extra_args)
         jhigh = jac(0.5 + t, *extra_args)
-        assert_almost_equal(jlow, -np.conjugate(jhigh))
+        assert_allclose(jlow, -np.conjugate(jhigh))
 
 
 def test_Talbot():
@@ -43,8 +43,8 @@ def test_Talbot():
         check_path_derivation(path, jacobian, p)
         check_path_symmetry(path, jacobian, p)
         # assert special points
-        assert_almost_equal(path(0.5, *p), p[0] + p[1])
-        assert_almost_equal(jacobian(0.5, *p), complex(0, p[0] * 2.0 * np.pi))
+        assert_allclose(path(0.5, *p), p[0] + p[1])
+        assert_allclose(jacobian(0.5, *p), complex(0, p[0] * 2.0 * np.pi))
 
 
 def test_get_path_line():

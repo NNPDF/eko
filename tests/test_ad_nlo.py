@@ -80,12 +80,13 @@ def test_gamma_1():
 
 
 def test_gamma_ns_1_pegasus():
-    # pylint: disable=line-too-long,too-many-locals
+    # pylint: disable=line-too-long,too-many-locals,too-many-statements
     # Test against pegasus implementation
     ZETA2 = h.zeta2
     ZETA3 = h.zeta3
 
-    for N in [2]:
+    for N in range(10):
+        N = np.random.rand(1) + np.random.rand(1) * 1j
         S1 = h.harmonic_S1(N)
         S2 = h.harmonic_S2(N)
 
@@ -168,3 +169,124 @@ def test_gamma_ns_1_pegasus():
 
         np.testing.assert_allclose(ad_nlo.gamma_nsp_1(N, NF), -P1NSP)
         np.testing.assert_allclose(ad_nlo.gamma_nsm_1(N, NF), -P1NSM)
+
+        NS = N * N
+        NT = NS * N
+        NFO = NT * N
+        NFI = NFO * N
+        NSI = NFI * N
+        NSE = NSI * N
+        NE = NSE * N
+        NN = NE * N
+
+        NM = N - 1.0
+        N1 = N + 1.0
+        N2 = N + 2.0
+        NMS = NM * NM
+        N1S = N1 * N1
+        N1T = N1S * N1
+        N2S = N2 * N2
+        N2T = N2S * N2
+
+        PPSA = (
+            (5.0 * NFI + 32.0 * NFO + 49.0 * NT + 38.0 * NS + 28.0 * N + 8.0)
+            / (NM * NT * N1T * N2S)
+            * 2.0
+        )
+
+        PQGA = (
+            (-2.0 * S1 * S1 + 2.0 * S2 - 2.0 * SSTR2P) * (NS + N + 2.0) / (N * N1 * N2)
+            + (8.0 * S1 * (2.0 * N + 3.0)) / (N1S * N2S)
+            + 2.0
+            * (
+                NN
+                + 6.0 * NE
+                + 15.0 * NSE
+                + 25.0 * NSI
+                + 36.0 * NFI
+                + 85.0 * NFO
+                + 128.0 * NT
+                + 104.0 * NS
+                + 64.0 * N
+                + 16.0
+            )
+            / (NM * NT * N1T * N2T)
+        )
+        PQGB = (
+            (2.0 * S1 * S1 - 2.0 * S2 + 5.0) * (NS + N + 2.0) / (N * N1 * N2)
+            - 4.0 * S1 / NS
+            + (11.0 * NFO + 26.0 * NT + 15.0 * NS + 8.0 * N + 4.0) / (NT * N1T * N2)
+        )
+
+        PGQA = (
+            (-S1 * S1 + 5.0 * S1 - S2) * (NS + N + 2.0) / (NM * N * N1)
+            - 2.0 * S1 / N1S
+            - (12.0 * NSI + 30.0 * NFI + 43.0 * NFO + 28.0 * NT - NS - 12.0 * N - 4.0)
+            / (2.0 * NM * NT * N1T)
+        )
+        PGQB = (
+            (S1 * S1 + S2 - SSTR2P) * (NS + N + 2.0) / (NM * N * N1)
+            - S1 * (17.0 * NFO + 41.0 * NS - 22.0 * N - 12.0) / (3.0 * NMS * NS * N1)
+            + (
+                109.0 * NN
+                + 621.0 * NE
+                + 1400.0 * NSE
+                + 1678.0 * NSI
+                + 695.0 * NFI
+                - 1031.0 * NFO
+                - 1304.0 * NT
+                - 152.0 * NS
+                + 432.0 * N
+                + 144.0
+            )
+            / (9.0 * NMS * NT * N1T * N2S)
+        )
+        PGQC = (S1 - 8.0 / 3.0) * (NS + N + 2.0) / (NM * N * N1) + 1.0 / N1S
+        PGQC = 4.0 / 3.0 * PGQC
+
+        PGGA = (
+            -(2.0 * NFI + 5.0 * NFO + 8.0 * NT + 7.0 * NS - 2.0 * N - 2.0)
+            * 8.0
+            * S1
+            / (NMS * NS * N1S * N2S)
+            - 67.0 / 9.0 * S1
+            + 8.0 / 3.0
+            - 4.0 * SSTR2P * (NS + N + 1.0) / (NM * N * N1 * N2)
+            + 2.0 * S1 * SSTR2P
+            - 4.0 * SSCHLP
+            + 0.5 * SSTR3P
+            + (
+                457.0 * NN
+                + 2742.0 * NE
+                + 6040.0 * NSE
+                + 6098.0 * NSI
+                + 1567.0 * NFI
+                - 2344.0 * NFO
+                - 1632.0 * NT
+                + 560.0 * NS
+                + 1488.0 * N
+                + 576.0
+            )
+            / (18.0 * NMS * NT * N1T * N2T)
+        )
+        PGGB = (
+            (38.0 * NFO + 76.0 * NT + 94.0 * NS + 56.0 * N + 12.0)
+            * (-2.0)
+            / (9.0 * NM * NS * N1S * N2)
+            + 20.0 / 9.0 * S1
+            - 4.0 / 3.0
+        )
+        PGGC = (2.0 * NSI + 4.0 * NFI + NFO - 10.0 * NT - 5.0 * NS - 4.0 * N - 4.0) * (
+            -2.0
+        ) / (NM * NT * N1T * N2) - 1.0
+
+        P1Sqq = P1NSP + TR * NF * CF * PPSA * 4.0
+        P1Sqg = TR * NF * (CA * PQGA + CF * PQGB) * 4.0
+        P1Sgq = (CF * CF * PGQA + CF * CA * PGQB + TR * NF * CF * PGQC) * 4.0
+        P1Sgg = (CA * CA * PGGA + TR * NF * (CA * PGGB + CF * PGGC)) * 4.0
+
+        gS1 = ad_nlo.gamma_singlet_1(N, NF)
+        np.testing.assert_allclose(gS1[0, 0], -P1Sqq)
+        np.testing.assert_allclose(gS1[0, 1], -P1Sqg)
+        np.testing.assert_allclose(gS1[1, 0], -P1Sgq)
+        np.testing.assert_allclose(gS1[1, 1], -P1Sgg)
