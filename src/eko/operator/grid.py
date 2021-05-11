@@ -69,7 +69,21 @@ class OperatorGrid:
             raise ValueError(f"Unknown evolution mode {method}")
         if order == 0 and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")
+
         self.config = config
+        if method in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
+            # TODO: add exact
+            self.config["backward_method"] = "expanded"
+        elif method in [
+            "TRN",
+            "truncated",
+            "ordered-truncated",
+            "EXP",
+            "iterate-expanded",
+            "decompose-expanded",
+            "perturbative-expanded",
+        ]:
+            self.config["backward_method"] = "expanded"
         self.q2_grid = q2_grid
         self.managers = dict(
             thresholds_config=thresholds_config,
@@ -236,8 +250,17 @@ class OperatorGrid:
                 op.op_members, op.nf, op.q2_to, self.config["intrinsic_range"]
             )
             a_s = sc.a_s(op.q2_to / self.config["fact_to_ren"], op.q2_to)
+            if op.q2_to < op.q2_from:
+                backward_method = self.config["backward_method"]
+            else:
+                backward_method = None
             matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
-                self.ome_members, op.nf, op.q2_to, a_s
+                self.ome_members,
+                op.nf,
+                op.q2_to,
+                a_s,
+                intrinsic_range=self.config["intrinsic_range"],
+                backward_method=backward_method,
             )
             final_op = final_op @ matching @ phys_op
 
