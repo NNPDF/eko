@@ -98,8 +98,6 @@ class BenchmarkFFNS(PegasusBenchmark):
             # "ordered-truncated",
         ],
         "NfFF": 3,
-        "MaxNfAs": 6,
-        "MaxNfPdf": 6,
         "kcThr": np.inf,
         "kbThr": np.inf,
         "ktThr": np.inf,

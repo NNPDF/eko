@@ -123,7 +123,7 @@ class OperatorMatrixElement:
         labels = ["NS", *singlet_labels]
         for n in labels:
             self.ome_members[n] = OpMember(
-                np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
+                np.eye(grid_size), np.zeros((grid_size, grid_size))
             )
 
         # if LO and NLO no need to do anything
@@ -140,6 +140,8 @@ class OperatorMatrixElement:
             start_time = time.perf_counter()
             # iterate basis functions
             for l, bf in enumerate(self.int_disp):
+                if k == l and l == grid_size - 1:
+                    continue
                 # iterate sectors
                 for label in labels:
                     # compute and set

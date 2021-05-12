@@ -71,19 +71,6 @@ class OperatorGrid:
             logger.warning("Evolution: In LO we use the exact solution always!")
 
         self.config = config
-        if method in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
-            # TODO: add exact
-            self.config["backward_method"] = "expanded"
-        elif method in [
-            "TRN",
-            "truncated",
-            "ordered-truncated",
-            "EXP",
-            "iterate-expanded",
-            "decompose-expanded",
-            "perturbative-expanded",
-        ]:
-            self.config["backward_method"] = "expanded"
         self.q2_grid = q2_grid
         self.managers = dict(
             thresholds_config=thresholds_config,
@@ -131,6 +118,7 @@ class OperatorGrid:
         }
         method = mod_ev2method.get(method, method)
         config["method"] = method
+        config["backward_inversion"] = operators_card["backward_inversion"]
         config["fact_to_ren"] = (theory_card["fact_to_ren_scale_ratio"]) ** 2
         config["ev_op_max_order"] = operators_card["ev_op_max_order"]
         config["ev_op_iterations"] = operators_card["ev_op_iterations"]
@@ -251,16 +239,16 @@ class OperatorGrid:
             )
             a_s = sc.a_s(op.q2_to / self.config["fact_to_ren"], op.q2_to)
             if op.q2_to < op.q2_from:
-                backward_method = self.config["backward_method"]
+                backward_inversion = self.config["backward_inversion"]
             else:
-                backward_method = None
+                backward_inversion = None
             matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
                 self.ome_members,
                 op.nf,
                 op.q2_to,
                 a_s,
                 intrinsic_range=self.config["intrinsic_range"],
-                backward_method=backward_method,
+                backward_inversion=backward_inversion,
             )
             final_op = final_op @ matching @ phys_op
 

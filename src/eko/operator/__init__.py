@@ -264,9 +264,14 @@ class Operator:
         # init all ops with zeros
         labels = self.labels()
         for n in full_labels:
-            self.op_members[n] = OpMember(
-                np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
-            )
+            if n in labels:
+                self.op_members[n] = OpMember(
+                    np.eye(grid_size), np.zeros((grid_size, grid_size))
+                )
+            else:
+                self.op_members[n] = OpMember(
+                    np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
+                )
         tot_start_time = time.perf_counter()
         # setup KernelDispatcher
         sc = self.managers["strong_coupling"]
@@ -291,6 +296,8 @@ class Operator:
             start_time = time.perf_counter()
             # iterate basis functions
             for l, bf in enumerate(int_disp):
+                if k == l and l == grid_size - 1:
+                    continue
                 # iterate sectors
                 for label in labels:
                     # compute and set

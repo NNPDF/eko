@@ -17,6 +17,7 @@ default_card = dict(
     debug_skip_singlet=False,
     ev_op_max_order=10,
     ev_op_iterations=10,
+    backward_inversion="expanded",
     Q2grid=[100],
 )
 
