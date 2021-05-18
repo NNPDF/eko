@@ -217,9 +217,6 @@ class OperatorGrid:
         path = self.managers["thresholds_config"].path(q2)
         # Prepare the path for the composition of the operator
         thr_ops = self.get_threshold_operators(path)
-        # integrate matching conditions
-        if len(path) > 1 and len(self.ome_members) == 0:
-            self.compute_matching_coeffs()
         sc = self.managers["strong_coupling"]
         # we start composing with the highest operator ...
         operator = Operator(
@@ -232,23 +229,40 @@ class OperatorGrid:
             operator.q2_to,
             self.config["intrinsic_range"],
         )
+
+        # integrate matching conditions
+        # exact inverse depends on q2 so need to be computed separately
+        is_backward = path[-1].q2_from > path[-1].q2_to
+        if len(path) > 1 and len(self.ome_members) == 0:
+            if is_backward == False:
+                self.config["backward_inversion"] = None
+                self.compute_matching_coeffs()
+            elif self.config["backward_inversion"] == "expanded":
+                self.compute_matching_coeffs()
+            elif self.config["backward_inversion"] == "exact":
+                ome = OperatorMatrixElement(self.config, self.managers)
+            else:
+                raise ValueError(f"{self.config['backward_inversion']} is not implemented")
+
         # and multiply the lower ones from the right
         for op in reversed(thr_ops):
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
                 op.op_members, op.nf, op.q2_to, self.config["intrinsic_range"]
             )
             a_s = sc.a_s(op.q2_to / self.config["fact_to_ren"], op.q2_to)
-            if op.q2_to < op.q2_from:
-                backward_inversion = self.config["backward_inversion"]
-            else:
-                backward_inversion = None
+
+            # compute exact inverse if necessary
+            if self.config["backward_inversion"] == "exact" and is_backward:
+                ome.compute(a_s)
+                self.ome_members = ome.ome_members
+            
             matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
                 self.ome_members,
                 op.nf,
                 op.q2_to,
                 a_s,
                 intrinsic_range=self.config["intrinsic_range"],
-                backward_inversion=backward_inversion,
+                backward_inversion = self.config["backward_inversion"],
             )
             final_op = final_op @ matching @ phys_op
 

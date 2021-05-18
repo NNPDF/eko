@@ -261,7 +261,7 @@ class Operator:
         int_disp = self.managers["interpol_dispatcher"]
         grid_size = len(int_disp.xgrid)
 
-        # init all ops with zeros
+        # init all ops with identity or zeros is skip
         labels = self.labels()
         for n in full_labels:
             if n in labels:

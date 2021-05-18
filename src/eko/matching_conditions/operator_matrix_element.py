@@ -24,7 +24,7 @@ from ..member import singlet_labels
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("f8(f8,string,b1,f8,f8[:,:])", cache=True)
+@nb.njit("f8(f8,string,b1,f8,f8[:,:],string,f8)", cache=True)
 def quad_ker(
     u,
     # order,
@@ -32,6 +32,8 @@ def quad_ker(
     is_log,
     logx,
     areas,
+    backward_method,
+    a_s,
 ):
     """
     Raw kernel inside quad
@@ -48,6 +50,10 @@ def quad_ker(
             Mellin inversion point
         areas : tuple
             basis function configuration
+        backward_method : [exact, expanded or None]
+            None or method for inverting the matching contidtion (exact or expanded)
+        a_s : float
+                strong coupling, needed only for the exact inverse
 
     Returns
     -------
@@ -81,12 +87,21 @@ def quad_ker(
     # compute the actual evolution kernel
     if is_singlet:
         ker = A_singlet_2(n, sx)
+        if backward_method == "exact":
+            ker_ns = np.array([[A_ns_2(n, sx), 0 + 0j], [0 + 0j, 0 + 0j]], np.complex_)
+            ker = np.linalg.inv(np.eye(2) + a_s ** 2 * (ker_ns + ker))
         # select element of matrix
         k = 0 if mode[2] == "q" else 1
         l = 0 if mode[3] == "q" else 1
         ker = ker[k, l]
     else:
         ker = A_ns_2(n, sx)
+        if backward_method == "exact":
+            ker = 1 / (1 + a_s ** 2 * ker)
+
+    # expanded inversion is the same for S and NS
+    if backward_method == "expanded":
+        ker = -ker
 
     # recombine everthing
     mellin_prefactor = complex(0.0, -1.0 / np.pi)
@@ -110,13 +125,22 @@ class OperatorMatrixElement:
     """
 
     def __init__(self, config, managers, mellin_cut=1e-2):
+        self.backward_method = config["backward_inversion"]
+        if self.backward_method is None:
+            self.backward_method = ""
         self.order = config["order"]
         self.int_disp = managers["interpol_dispatcher"]
         self._mellin_cut = mellin_cut
         self.ome_members = {}
 
-    def compute(self):
-        """compute the actual operators (i.e. run the integrations)"""
+    def compute(self, a_s=0.0):
+        """compute the actual operators (i.e. run the integrations)
+
+        Parameters
+        ----------
+            a_s : float, optional
+                strong coupling, needed only for the exact inverse
+        """
 
         # init all ops with zeros
         grid_size = len(self.int_disp.xgrid)
@@ -155,6 +179,8 @@ class OperatorMatrixElement:
                             self.int_disp.log,
                             logx,
                             bf.areas_representation,
+                            self.backward_method,
+                            a_s,
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,
