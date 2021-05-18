@@ -88,10 +88,8 @@ class MatchingCondition(member.OperatorBase):
             backward_inversion: str
                 None or method for inverting the matching contidtion (exact or expanded)
         """
-        len_xgrid = ome_members["NS"].value.shape[0]
+        len_xgrid = ome_members["NS_qq"].value.shape[0]
         op_id = member.OpMember(np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid)))
-        # activate one higher element, i.e. where the next heavy quark could participate,
-        # without this new heavy quark Vn = V and Tn = S
         m = {}
 
         if backward_inversion == "exact":
@@ -101,29 +99,29 @@ class MatchingCondition(member.OperatorBase):
                 "S.g": ome_members["S_qg"],
                 "g.S": ome_members["S_gq"],
                 "g.g": ome_members["S_gg"],
-                "V.V": ome_members["NS"],
+                "V.V": ome_members["NS_qq"],
             }
         else:
             # backawrd expanded or forward mathcing
             m = {
-                "S.S": op_id + a_s ** 2 * (ome_members["NS"] + ome_members["S_qq"]),
+                "S.S": op_id + a_s ** 2 * (ome_members["NS_qq"] + ome_members["S_qq"]),
                 "S.g": a_s ** 2 * ome_members["S_qg"],
                 "g.S": a_s ** 2 * ome_members["S_gq"],
                 "g.g": op_id + a_s ** 2 * ome_members["S_gg"],
-                "V.V": op_id + a_s ** 2 * ome_members["NS"],
+                "V.V": op_id + a_s ** 2 * ome_members["NS_qq"],
             }
 
-        # match op crosssing the threshold in the forward case
-        # and the expanded inverse
+        # activate one higher element, i.e. where the next heavy quark could participate,
+        # without this new heavy quark Vn = V and Tn = S
         if backward_inversion is None or (
             intrinsic_range is not None and backward_inversion == "expanded"
         ):
             n = (nf + 1) ** 2 - 1
             m.update(
                 {
-                    f"V{n}.V": op_id + a_s ** 2 * ome_members["NS"],
+                    f"V{n}.V": op_id + a_s ** 2 * ome_members["NS_qq"],
                     f"T{n}.S": op_id
-                    + a_s ** 2 * (ome_members["NS"] - nf * ome_members["S_qq"]),
+                    + a_s ** 2 * (ome_members["NS_qq"] - nf * ome_members["S_qq"]),
                     f"T{n}.g": -nf * a_s ** 2 * ome_members["S_qg"],
                 }
             )
@@ -151,40 +149,45 @@ class MatchingCondition(member.OperatorBase):
                         m[f"V{n}.{hq}-"] = -(intr_fl - 1) * op_id
                         m[f"T{n}.{hq}+"] = -(intr_fl - 1) * op_id
                 else:
-                    # backward match
-                    #  one flavor is not evolving anymore need to match
+                    # backward matching
+                    # one flavor is not evolving anymore need to match
                     n = intr_fl ** 2 - 1
                     if intr_fl == nf:
                         # TODO: check if this is correct
                         if backward_inversion == "exact":
                             # inversion is alrady done before the integration
-                            m[f"{hq}+.S"] = ome_members["S_Tq"]
-                            m[f"{hq}+.g"] = ome_members["S_Tg"]
-                            m[f"{hq}+.T{n}"] = ome_members["S_TT"]
-                            m[f"{hq}-.V"] = ome_members[f"NS_V{n}V"]
-                            m[f"{hq}-.V{n}"] = ome_members[f"NS_V{n}V{n}"]
-                            # add the new contribution to V, S and g
-                            m[f"V.V{n}"] = ome_members[f"NS_VV{n}"]
-                            m[f"S.T{n}"] = ome_members["S_qT"]
-                            m[f"g.T{n}"] = ome_members["S_gT"]
+                            m.update(
+                                {
+                                    f"{hq}+.S": ome_members["S_Tq"],
+                                    f"{hq}+.g": ome_members["S_Tg"],
+                                    f"{hq}+.T{n}": ome_members["S_TT"],
+                                    f"{hq}-.V": ome_members["NS_Vq"],
+                                    f"{hq}-.V{n}": ome_members["NS_VV"],
+                                    # add the new contribution to V, S and g
+                                    f"V.V{n}": ome_members["NS_qV"],
+                                    f"S.T{n}": ome_members["S_qT"],
+                                    f"g.T{n}": ome_members["S_gT"],
+                                }
+                            )
 
                         elif backward_inversion == "expanded":
-                            # build q+ and q-
-                            m[f"{hq}+.S"] = 1.0 / nf * m["S.S"]
-                            m[f"{hq}+.g"] = 1.0 / nf * m["S.g"]
-                            m[f"{hq}+.T{n}"] = -1.0 / nf * m[f"T{n}.T{n}"]
-                            m[f"{hq}-.V"] = 1.0 / nf * m["V.V"]
-                            m[f"{hq}-.V{n}"] = -1.0 / nf * m[f"V{n}.V{n}"]
-                            # build the new V and S
-                            m[f"V.V{n}"] = 1.0 / nf * m[f"V{n}.V"]
-                            m[f"S.T{n}"] = 1.0 / nf * m[f"T{n}.S"]
-                            m[f"g.T{n}"] = 1.0 / nf * m[f"T{n}.g"]
-                            # TODO: do we need this instead?
-                            # m[f"S.T{n}"] = 1.0 / nf * ( m[f"T{n}.S"] + m[f"T{n}.g"] )
-                            m["V.V"] = -(nf - 1) / nf * m["V.V"]
-                            m["S.S"] = -(nf - 1) / nf * m["S.S"]
-                            m["S.g"] = -(nf - 1) / nf * m["S.g"]
-
+                            m.update(
+                                {
+                                    # build q+ and q-
+                                    f"{hq}+.S": 1.0 / nf * m["S.S"],
+                                    f"{hq}+.g": 1.0 / nf * m["S.g"],
+                                    f"{hq}+.T{n}": -1.0 / nf * m[f"T{n}.T{n}"],
+                                    f"{hq}-.V": 1.0 / nf * m["V.V"],
+                                    f"{hq}-.V{n}": -1.0 / nf * m[f"V{n}.V{n}"],
+                                    # add the new contribution to V, S and g
+                                    f"V.V{n}": 1.0 / nf * m[f"V{n}.V"],
+                                    f"S.T{n}": 1.0 / nf * m[f"T{n}.S"],
+                                    f"g.T{n}": 1.0 / nf * m[f"T{n}.g"],
+                                    "V.V": -(nf - 1) / nf * m["V.V"],
+                                    "S.S": -(nf - 1) / nf * m["S.S"],
+                                    "S.g": -(nf - 1) / nf * m["S.g"],
+                                }
+                            )
         # map key to MemberName
         opms = {}
         for k, v in m.items():

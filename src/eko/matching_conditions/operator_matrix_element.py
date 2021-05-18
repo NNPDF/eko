@@ -19,11 +19,11 @@ from .nnlo import A_singlet_2, A_ns_2
 from ..anomalous_dimensions import harmonics
 from ..member import singlet_labels
 
-# TODO: order might be removed if N3LO matching conditions will not be implemented
 
 logger = logging.getLogger(__name__)
 
-def intrinsic_singlet_ome(n, sx, nf, order, a_s ):
+@nb.njit("c16[:,:](c16,c16[:],u4,u1,f8)", cache=True)
+def intrinsic_singlet_ome(n, sx, nf, order, a_s):
     """ intrisic exact singlet operator """
     ker = np.eye(3, dtype=np.complex_)
     ker[2, 2] -= nf
@@ -36,7 +36,8 @@ def intrinsic_singlet_ome(n, sx, nf, order, a_s ):
         ker[2, 1] -= a_s ** 2 * nf * ker2[0, 1]
     return ker
 
-def intrinsic_non_singlet_ome(n, sx, nf, order, a_s ):
+@nb.njit("c16[:,:](c16,c16[:],u4,u1,f8)", cache=True)
+def intrinsic_non_singlet_ome(n, sx, nf, order, a_s):
     """ intrinsic exact non singlet operator """
     ker = np.eye(2, dtype=np.complex_)
     ker[1, 1] -= nf
@@ -46,6 +47,7 @@ def intrinsic_non_singlet_ome(n, sx, nf, order, a_s ):
         ker[0, 0] += ker2
         ker[1, 0] += ker2
     return ker
+
 
 @nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],string,f8,u4)", cache=True)
 def quad_ker(u, order, mode, is_log, logx, areas, backward_method, a_s, nf):
@@ -104,44 +106,40 @@ def quad_ker(u, order, mode, is_log, logx, areas, backward_method, a_s, nf):
     )
 
     # compute the actual evolution kernel
-    ker = 0.0+0j
+    ker = 0.0 + 0j
     if is_singlet:
         if "T" in mode:
             # intrisic exact inverse
-            ker = np.linalg.inv( intrinsic_singlet_ome(n, sx ,nf, order, a_s))
-            if mode[-1] == "T":
-                k = 2
-            else:
-                k = 0 if mode[-1] == "q" else 1
-            if mode[2] == "T":
-                l = 2
-            else:
-                l = 0 if mode[2] == "q" else 1
-
+            ker = np.linalg.inv(intrinsic_singlet_ome(n, sx, nf, order, a_s))
         else:
             ker = A_singlet_2(n, sx)
             if backward_method == "exact":
                 # exact singlet inverse
                 ker[0, 0] += A_ns_2(n, sx)
                 ker = np.linalg.inv(np.eye(2) + a_s ** 2 * ker)
-            k = 0 if mode[2] == "q" else 1
-            l = 0 if mode[3] == "q" else 1
-        ker = ker[k, l]
     else:
-        if "NS.V" in mode:
+        if "V" in mode:
             # intrisic exact inverse
-            ker = np.linalg.inv( intrinsic_non_singlet_ome(n, sx ,nf, order, a_s))
-            k = 0 if mode[-1] == "V" else 1
-            l = 0 if "VV" in mode else 1
-            ker = ker[k, l]
+            ker = np.linalg.inv(intrinsic_non_singlet_ome(n, sx, nf, order, a_s))
         else:
-            ker = A_ns_2(n,sx)
+            ker = np.array([[A_ns_2(n, sx)]])
             if backward_method == "exact":
                 # non singlet inverse
                 ker = 1 / (1 + a_s ** 2 * ker)
+
+    if mode[-2] == "T":
+        k = 2
+    else:
+        k = 0 if mode[-2] == "q" else 1
+    if mode[-1] == "T":
+        l = 2
+    else:
+        l = 0 if mode[-1] == "q" else 1
+    ker = ker[k, l]
+
     # expanded inversion is the same for S and NS and intrisic
     if backward_method == "expanded":
-        ker = - ker
+        ker = -ker
 
     # recombine everthing
     mellin_prefactor = complex(0.0, -1.0 / np.pi)
@@ -187,7 +185,7 @@ class OperatorMatrixElement:
 
         # init all ops with zeros
         grid_size = len(self.int_disp.xgrid)
-        labels = ["NS", *singlet_labels]
+        labels = ["NS_qq", *singlet_labels]
         if nf != 0:
             # inverse intrisic exact labels
             n = nf ** 2 - 1
@@ -198,9 +196,9 @@ class OperatorMatrixElement:
                     "S_TT",
                     "S_qT",
                     "S_gT",
-                    f"NS_V{n}V",
-                    f"NS_V{n}V{n}",
-                    f"NS_VV{n}",
+                    "NS_qV",
+                    "NS_VV",
+                    "NS_Vq",
                 ]
             )
         for n in labels:
@@ -240,7 +238,7 @@ class OperatorMatrixElement:
                             bf.areas_representation,
                             self.backward_method,
                             a_s,
-                            nf
+                            nf,
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,
