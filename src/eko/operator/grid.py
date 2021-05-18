@@ -232,9 +232,9 @@ class OperatorGrid:
 
         # integrate matching conditions
         # exact inverse depends on q2 so need to be computed separately
-        is_backward = path[-1].q2_from > path[-1].q2_to
+        is_backward = bool(path[-1].q2_from > path[-1].q2_to)
         if len(path) > 1 and len(self.ome_members) == 0:
-            if is_backward == False:
+            if is_backward is False:
                 self.config["backward_inversion"] = None
                 self.compute_matching_coeffs()
             elif self.config["backward_inversion"] == "expanded":
@@ -242,7 +242,9 @@ class OperatorGrid:
             elif self.config["backward_inversion"] == "exact":
                 ome = OperatorMatrixElement(self.config, self.managers)
             else:
-                raise ValueError(f"{self.config['backward_inversion']} is not implemented")
+                raise ValueError(
+                    f"{self.config['backward_inversion']} is not implemented"
+                )
 
         # and multiply the lower ones from the right
         for op in reversed(thr_ops):
@@ -253,16 +255,21 @@ class OperatorGrid:
 
             # compute exact inverse if necessary
             if self.config["backward_inversion"] == "exact" and is_backward:
-                ome.compute(a_s)
+                if self.config["intrinsic_range"] is None:
+                    # compute inverse exact
+                    ome.compute(a_s)
+                else:
+                    # compute intrinsic inverse exact
+                    ome.compute(a_s, nf=op.nf)
                 self.ome_members = ome.ome_members
-            
+
             matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
                 self.ome_members,
                 op.nf,
                 op.q2_to,
                 a_s,
                 intrinsic_range=self.config["intrinsic_range"],
-                backward_inversion = self.config["backward_inversion"],
+                backward_inversion=self.config["backward_inversion"],
             )
             final_op = final_op @ matching @ phys_op
 

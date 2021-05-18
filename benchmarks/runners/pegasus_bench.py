@@ -49,7 +49,7 @@ class BenchmarkVFNS(PegasusBenchmark):
             #"EXP",
             #"ordered-truncated",
         ],
-        
+
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
