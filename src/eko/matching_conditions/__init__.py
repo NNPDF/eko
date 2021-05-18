@@ -181,9 +181,9 @@ class MatchingCondition(member.OperatorBase):
                             m[f"g.T{n}"] = 1.0 / nf * m[f"T{n}.g"]
                             # TODO: do we need this instead?
                             # m[f"S.T{n}"] = 1.0 / nf * ( m[f"T{n}.S"] + m[f"T{n}.g"] )
-                            m[f"V.V"] = -(nf - 1) / nf * m["V.V"]
-                            m[f"S.S"] = -(nf - 1) / nf * m["S.S"]
-                            m[f"S.g"] = -(nf - 1) / nf * m["S.g"]
+                            m["V.V"] = -(nf - 1) / nf * m["V.V"]
+                            m["S.S"] = -(nf - 1) / nf * m["S.S"]
+                            m["S.g"] = -(nf - 1) / nf * m["S.g"]
 
         # map key to MemberName
         opms = {}

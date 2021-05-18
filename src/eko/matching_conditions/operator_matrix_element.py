@@ -23,6 +23,29 @@ from ..member import singlet_labels
 
 logger = logging.getLogger(__name__)
 
+def intrinsic_singlet_ome(n, sx, nf, order, a_s ):
+    """ intrisic exact singlet operator """
+    ker = np.eye(3, dtype=np.complex_)
+    ker[2, 2] -= nf
+    ker[0, 2] += 1.0
+    if order >= 2:
+        ker2 = a_s ** 2 * A_singlet_2(n, sx)
+        ker[:-1, :-1] += ker2
+        ker[0, 0] += a_s ** 2 * A_ns_2(n, sx)
+        ker[2, 0] += a_s ** 2 * (A_ns_2(n, sx) - nf * ker2[0, 0])
+        ker[2, 1] -= a_s ** 2 * nf * ker2[0, 1]
+    return ker
+
+def intrinsic_non_singlet_ome(n, sx, nf, order, a_s ):
+    """ intrinsic exact non singlet operator """
+    ker = np.eye(2, dtype=np.complex_)
+    ker[1, 1] -= nf
+    ker[0, 1] += 1.0
+    if order >= 2:
+        ker2 = a_s ** 2 * A_ns_2(n, sx)
+        ker[0, 0] += ker2
+        ker[1, 0] += ker2
+    return ker
 
 @nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],string,f8,u4)", cache=True)
 def quad_ker(u, order, mode, is_log, logx, areas, backward_method, a_s, nf):
@@ -85,16 +108,7 @@ def quad_ker(u, order, mode, is_log, logx, areas, backward_method, a_s, nf):
     if is_singlet:
         if "T" in mode:
             # intrisic exact inverse
-            ker = np.eye(3, dtype=np.complex_)
-            ker[2, 2] -= nf
-            ker[0, 2] += 1.0
-            if order >= 2:
-                ker2 = a_s ** 2 * A_singlet_2(n, sx)
-                ker[:-1, :-1] += ker2
-                ker[0, 0] += a_s ** 2 * A_ns_2(n, sx)
-                ker[2, 0] += a_s ** 2 * (A_ns_2(n, sx) - nf * ker2[0, 0])
-                ker[2, 1] -= a_s ** 2 * nf * ker2[0, 1]
-            ker = np.linalg.inv(ker)
+            ker = np.linalg.inv( intrinsic_singlet_ome(n, sx ,nf, order, a_s))
             if mode[-1] == "T":
                 k = 2
             else:
@@ -116,14 +130,7 @@ def quad_ker(u, order, mode, is_log, logx, areas, backward_method, a_s, nf):
     else:
         if "NS.V" in mode:
             # intrisic exact inverse
-            ker = np.eye(2, dtype=np.complex_)
-            ker[1, 1] -= nf
-            ker[0, 1] += 1.0
-            if order >= 2:
-                ker2 = a_s ** 2 * A_ns_2(n, sx)
-                ker[0, 0] += ker2
-                ker[1, 0] += ker2
-            ker = np.linalg.inv(ker)
+            ker = np.linalg.inv( intrinsic_non_singlet_ome(n, sx ,nf, order, a_s))
             k = 0 if mode[-1] == "V" else 1
             l = 0 if "VV" in mode else 1
             ker = ker[k, l]
