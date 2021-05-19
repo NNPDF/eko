@@ -9,6 +9,8 @@ import numpy as np
 
 from .. import basis_rotation as br
 
+quark_names = "duscbt"
+
 
 def pids_from_intrinsic_evol(label, nlf, normalize):
     r"""
@@ -104,7 +106,7 @@ def rotate_pm_to_flavor(label):
     if label in ["g", "ph"]:
         return br.rotate_flavor_to_evolution[br.evol_basis.index(label)].copy()
     # no it has to be a quark with + or - appended
-    if label[0] not in "duscbt" or label[1] not in ["+", "-"]:
+    if label[0] not in quark_names or label[1] not in ["+", "-"]:
         raise ValueError(f"Invalid pm label: {label}")
     l = np.zeros(len(br.flavor_basis_pids))
     idx = br.flavor_basis_names.index(label[0])
@@ -116,3 +118,53 @@ def rotate_pm_to_flavor(label):
     else:
         l[br.flavor_basis_pids.index(-pid)] = -1
     return l
+
+
+def rotate_matching(nf, inverse=False):
+    """
+    Rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis
+    (with S,g,...V8,T15,V15).
+
+    Parameters
+    ----------
+        nf : int
+            number of active flavors in the higher patch: to activate T15, nf=4
+        inverse : bool
+            use inverse conditions?
+
+    Returns
+    -------
+        l : dict
+            mapping in dot notation between the bases
+    """
+    # the gluon and the photon do not care about new quarks
+    l = {"g.g": 1.0, "ph.ph": 1.0}
+    # already active distributions
+    for k in range(2, nf):  # nf is the upper, so excluded
+        n = k ** 2 - 1
+        l[f"V{n}.V{n}"] = 1.0
+        l[f"T{n}.T{n}"] = 1.0
+    # the new contributions
+    n = nf ** 2 - 1  # nf is pointing upwards
+    q = quark_names[nf - 1]
+    for (tot, oth, qpm) in (("S", f"T{n}", f"{q}+"), ("V", f"V{n}", f"{q}-")):
+        if inverse:
+            l[f"{tot}.{tot}"] = (nf - 1.0) / nf
+            l[f"{tot}.{oth}"] = 1.0 / nf
+            l[f"{qpm}.{tot}"] = 1.0 / nf
+            l[f"{qpm}.{oth}"] = -1.0 / nf
+        else:
+            l[f"{tot}.{tot}"] = 1.0
+            l[f"{tot}.{qpm}"] = 1.0
+            l[f"{oth}.{tot}"] = 1.0
+            l[f"{oth}.{qpm}"] = -(nf - 1.0)
+    # also higher quarks do not care
+    for k in range(nf + 1, 6 + 1):
+        q = quark_names[k - 1]
+        for sgn in "+-":
+            l[f"{q}{sgn}.{q}{sgn}"] = 1.0
+    return l
+
+
+def rotate_matching_inverse(nf):
+    return rotate_matching(nf, True)

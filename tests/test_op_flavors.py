@@ -85,3 +85,27 @@ def test_rotate_pm_to_flavor():
     )
     with pytest.raises(ValueError):
         flavors.rotate_pm_to_flavor("cbar")
+
+def test_rotate_matching():
+    m = flavors.rotate_matching(4)
+    assert len(list(filter(lambda e: "c+"in e,m.keys()))) == 2
+    assert len(list(filter(lambda e: "b-"in e,m.keys()))) == 1
+
+
+def test_rotate_matching_is_inv():
+    def replace_names(k):
+        for q in range(4,6+1):
+            k = k.replace(flavors.quark_names[q-1]+"+",f"T{q**2-1}").replace(flavors.quark_names[q-1]+"-",f"V{q**2-1}")
+        return k
+    def load(m):
+        mm = np.zeros((len(br.evol_basis),len(br.evol_basis)))
+        for k,v in m.items():
+            k = replace_names(k)
+            kk = k.split(".")
+            mm[br.evol_basis.index(kk[0]),br.evol_basis.index(kk[1])] = v
+        return mm
+
+    for nf in range(4,6+1):
+        m = load(flavors.rotate_matching(nf))
+        minv =  load(flavors.rotate_matching_inverse(nf))
+        np.testing.assert_allclose(m @ minv, np.eye(len(br.evol_basis)),atol=1e-10)

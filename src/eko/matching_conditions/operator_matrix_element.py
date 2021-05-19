@@ -39,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 @nb.njit("c16[:,:](c16,c16[:],string,u4,string,u1,f8)", cache=True)
 def build_singlet_ome(n, sx, mode, order, backward_method, nf, a_s):
-    """ Singlet matching matrix """
+    """Singlet matching matrix"""
     if "T" in mode:
         # intrisic exact inverse
         # ker = np.linalg.inv(intrinsic_singlet_ome(n, sx, nf, order, a_s))
@@ -77,7 +77,7 @@ def build_singlet_ome(n, sx, mode, order, backward_method, nf, a_s):
 
 @nb.njit("c16[:,:](c16,c16[:],string,u4,string,u1,f8)", cache=True)
 def build_non_singlet_ome(n, sx, mode, order, backward_method, nf, a_s):
-    """ Non singlet matching matrix """
+    """Non singlet matching matrix"""
     if "V" in mode:
         # intrisic exact inverse
         # ker = np.linalg.inv(intrinsic_non_singlet_ome(n, sx, nf, order, a_s))
