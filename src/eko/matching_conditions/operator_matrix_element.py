@@ -188,7 +188,6 @@ class OperatorMatrixElement:
         labels = ["NS_qq", *singlet_labels]
         if nf != 0:
             # inverse intrisic exact labels
-            n = nf ** 2 - 1
             labels.extend(
                 [
                     "S_Tq",

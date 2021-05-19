@@ -69,39 +69,51 @@ def test_quad_ker(monkeypatch):
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            # order=2,
-            mode="NS",
+            order=2,
+            mode="NS_qq",
             is_log=is_log,
             logx=0.0,
             areas=np.zeros(3),
+            backward_method=None,
+            a_s=0.,
+            nf=0.,
         )
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
             u=0,
-            # order=2,
+            order=2,
             mode="S_qq",
             is_log=is_log,
             logx=0.0,
             areas=np.zeros(3),
+            backward_method=None,
+            a_s=0.,
+            nf=0.,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            # order=2,
+            order=2,
             mode="S_qg",
             is_log=is_log,
             logx=0.0,
             areas=np.zeros(3),
+            backward_method=None,
+            a_s=0.,
+            nf=0.,
         )
         np.testing.assert_allclose(res_s, 0.0)
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        # order=2,
-        mode="NS",
+        order=2,
+        mode="NS_qq",
         is_log=True,
         logx=0.0,
         areas=np.zeros(3),
+        backward_method=None,
+        a_s=0.,
+        nf=0.,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
@@ -136,6 +148,7 @@ class TestOperatorMatrixElement:
             "debug_skip_non_singlet": False,
             "ev_op_max_order": 1,
             "ev_op_iterations": 1,
+            "backward_inversion": "exact"
         }
         g = OperatorGrid.from_dict(
             theory_card,
@@ -151,7 +164,7 @@ class TestOperatorMatrixElement:
         )
         o.order = 2
         o.compute()
-        assert "NS" in o.ome_members
+        assert "NS_qq" in o.ome_members
         assert "S_qq" in o.ome_members
         assert "S_qg" in o.ome_members
         assert "S_gq" in o.ome_members

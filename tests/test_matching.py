@@ -21,7 +21,7 @@ class TestMatchingCondition:
         qg = mkOM(self.shape)
         gq = mkOM(self.shape)
         gg = mkOM(self.shape)
-        return dict(NS=ns, S_qq=qq, S_qg=qg, S_gq=gq, S_gg=gg)
+        return dict(NS_qq=ns, S_qq=qq, S_qg=qg, S_gq=gq, S_gg=gg)
 
     def test_split_ad_to_evol_map(self):
         ome = self.mkOME()
@@ -48,7 +48,7 @@ class TestMatchingCondition:
         )
         assert_almost_equal(
             a.op_members[member.MemberName("V.V")].value,
-            np.eye(self.shape[0]) + ome["NS"].value,
+            np.eye(self.shape[0]) + ome["NS_qq"].value,
         )
         # if alpha is zero, nothing non-trivial should happen
         b = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, 0)
@@ -62,7 +62,7 @@ class TestMatchingCondition:
         # nf=3 + IC
         c = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, 0, [4])
         assert sorted([str(k) for k in c.op_members.keys()]) == sorted(
-            [*triv_keys, *keys3, "T15.c+", "V15.c-"]
+            [*triv_keys, *keys3, "S.c+", "V.c-", "T15.c+", "V15.c-"]
         )
         assert_almost_equal(
             c.op_members[member.MemberName("V.V")].value,
@@ -97,6 +97,8 @@ class TestMatchingCondition:
                 "V24.V",
                 "T24.b+",
                 "V24.b-",
+                "S.b+",
+                "V.b-",
             ]
         )
         assert_almost_equal(
@@ -113,11 +115,11 @@ class TestMatchingCondition:
         )
         assert_almost_equal(
             d.op_members[member.MemberName("V24.V")].value,
-            np.eye(self.shape[0]) + ome["NS"].value,
+            np.eye(self.shape[0]) + ome["NS_qq"].value,
         )
         assert_almost_equal(
             d.op_members[member.MemberName("T24.S")].value,
-            np.eye(self.shape[0]) + ome["NS"].value - 4.0 * ome["S_qq"].value,
+            np.eye(self.shape[0]) + ome["NS_qq"].value - 4.0 * ome["S_qq"].value,
         )
         assert_almost_equal(
             d.op_members[member.MemberName("T24.g")].value,

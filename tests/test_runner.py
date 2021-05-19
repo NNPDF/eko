@@ -35,6 +35,7 @@ def test_runner():
         "debug_skip_non_singlet": True,
         "ev_op_max_order": 1,
         "ev_op_iterations": 1,
+        "backward_inversion": "exact",
     }
     r = eko.runner.Runner(theory_card, operators_card)
     o = r.get_output()

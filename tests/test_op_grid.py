@@ -41,6 +41,7 @@ class TestOperatorGrid:
             "debug_skip_non_singlet": False,
             "ev_op_max_order": 1,
             "ev_op_iterations": 1,
+            "backward_inversion": "exact",
         }
         if use_FFNS:
             theory_card["FNS"] = "FFNS"
