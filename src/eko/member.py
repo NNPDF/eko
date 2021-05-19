@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from numbers import Number
+import copy
 import numpy as np
 
 
@@ -144,3 +145,25 @@ class OperatorBase:
     def __init__(self, op_members, q2_final):
         self.op_members = op_members
         self.q2_final = q2_final
+
+    @classmethod
+    def promote_names(cls, op_members, q2_final):
+        """
+        Promote string keys to MemberName.
+
+        Parameters
+        ----------
+            op_members : dict
+                mapping of :data:`str` onto :class:`OpMember`
+            q2_final : float
+                final scale
+        """
+        # map key to MemberName
+        opms = {}
+        for k, v in op_members.items():
+            opms[MemberName(k)] = copy.copy(v)
+        return cls(opms, q2_final)
+
+
+class ScalarOperator(OperatorBase):
+    pass

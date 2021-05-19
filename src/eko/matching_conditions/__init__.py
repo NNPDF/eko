@@ -14,8 +14,8 @@ from .. import member
 
 #     Parameters
 #     ----------
-#         op_id : eko.operator.Operator.op_member
-#             Attribute of :class:`~eko.operator.Operator` corresponding to the identity operator
+#         op_id : eko.evolution_operator.Operator.op_member
+#             Attribute of :class:`~eko.evolution_operator.Operator` corresponding to the identity operator
 #         ome_members : eko.operator_matrix_element.OperatorMatrixElement.ome_member
 #             Attribute of :class:`~eko.operator_matrix_element.OperatorMatrixElement`
 #             containing the operator matrix elements
@@ -189,8 +189,4 @@ class MatchingCondition(member.OperatorBase):
                                 }
                             )
         # map key to MemberName
-        opms = {}
-        for k, v in m.items():
-            opms[member.MemberName(k)] = v.copy()
-
-        return cls(opms, q2_thr)
+        return cls.promote_names(m, q2_thr)

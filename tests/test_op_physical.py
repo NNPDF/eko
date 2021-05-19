@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from eko import member
-from eko.operator.physical import PhysicalOperator
+from eko.evolution_operator.physical import PhysicalOperator
 from eko.matching_conditions import MatchingCondition
 
 
@@ -21,6 +21,41 @@ class TestPhysicalOperator:
 
     def _mkNames(self, ns):
         return [member.MemberName(n) for n in ns]
+
+    def test_operation(self):
+        VV = self._mkOM(1)
+        a = PhysicalOperator(
+            dict(
+                zip(
+                    self._mkNames(("V.V",)),
+                    (VV),
+                )
+            ),
+            1,
+        )
+        # assert "__matmul__" == PhysicalOperator.operation(a)
+        b = member.ScalarOperator(dict(zip(self._mkNames(("V.V",)), (1.0,))), 1)
+        # assert "__mul__" == PhysicalOperator.operation(b)
+
+    def test_matmul_scalar(self):
+        VV = self._mkOM(1)
+        a = PhysicalOperator(
+            dict(
+                zip(
+                    self._mkNames(("V.V",)),
+                    (VV),
+                )
+            ),
+            1,
+        )
+        n = 2.0
+        b = member.ScalarOperator(dict(zip(self._mkNames(("V.V",)), (n,))), 1)
+        c = a @ b
+        assert c.q2_final == b.q2_final
+        assert VV[0] * n == c.op_members[member.MemberName("V.V")]
+        d = b @ a
+        assert d.q2_final == b.q2_final
+        assert VV[0] * n == d.op_members[member.MemberName("V.V")]
 
     def test_matmul(self):
         VVl, V3V3l, T3T3l, SSl, gSl = self._mkOM(5)

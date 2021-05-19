@@ -7,6 +7,7 @@ from eko.anomalous_dimensions import harmonics
 # until https://github.com/numba/numba/pull/5660 is confirmed
 # we need to deactivate numba prior running
 
+
 def test_cern_polygamma():
     zs = [1.0, 2.0, 3.0, 0 + 1j, -1 + 1j, -2 + 1j, -1 + 2j, -2 + 2j, -3 + 2j]
     ks = range(5)

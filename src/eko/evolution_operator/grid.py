@@ -11,7 +11,8 @@ import numbers
 
 import numpy as np
 
-from eko import matching_conditions
+from eko import matching_conditions, member
+from eko.evolution_operator import flavors
 
 from . import Operator
 from . import physical
@@ -271,7 +272,17 @@ class OperatorGrid:
                 intrinsic_range=self.config["intrinsic_range"],
                 backward_inversion=self.config["backward_inversion"],
             )
-            final_op = final_op @ matching @ phys_op
+            # join with the basis rotation, since matching requires c+ (or likewise)
+            if is_backward:
+                invrot = member.ScalarOperator.promote_names(
+                    flavors.rotate_matching_inverse(op.nf), op.q2_to
+                )
+                final_op = final_op @ matching @ invrot @ phys_op
+            else:
+                rot = member.ScalarOperator.promote_names(
+                    flavors.rotate_matching(op.nf), op.q2_to
+                )
+                final_op = final_op @ rot @ matching @ phys_op
 
         values, errors = final_op.to_flavor_basis_tensor()
         return {"operators": values, "operator_errors": errors}

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import operator
 import numpy as np
 
 from .. import basis_rotation as br
@@ -74,10 +75,7 @@ class PhysicalOperator(member.OperatorBase):
                 m[f"{hq}+.{hq}+"] = op_id
                 m[f"{hq}-.{hq}-"] = op_id
         # map key to MemberName
-        opms = {}
-        for k, v in m.items():
-            opms[member.MemberName(k)] = v.copy()
-        return cls(opms, q2_final)
+        return cls.promote_names(m, q2_final)
 
     def to_flavor_basis_tensor(self):
         """
@@ -131,7 +129,9 @@ class PhysicalOperator(member.OperatorBase):
         """
         if not isinstance(other, member.OperatorBase):
             raise ValueError("Can only multiply with another OperatorBase")
-        return self.__class__(self.operator_multiply(other, self), self.q2_final)
+        return self.__class__(
+            self.operator_multiply(other, self, self.operation(other)), self.q2_final
+        )
 
     def __matmul__(self, other):
         """
@@ -149,10 +149,48 @@ class PhysicalOperator(member.OperatorBase):
         """
         if not isinstance(other, member.OperatorBase):
             raise ValueError("Can only multiply with another OperatorBase")
-        return self.__class__(self.operator_multiply(self, other), self.q2_final)
+        return self.__class__(
+            self.operator_multiply(self, other, self.operation(other)), self.q2_final
+        )
 
     @staticmethod
-    def operator_multiply(left, right):
+    def operation(other):
+        """
+        Choose mathematical operation by rank
+
+        Parameters
+        ----------
+            other : OperatorBase
+                operand
+
+        Returns
+        -------
+            callable :
+                operation to perform (np.matmul or np.multiply)
+        """
+        if isinstance(other, member.ScalarOperator):
+            return operator.mul
+        return operator.matmul
+
+    @staticmethod
+    def operator_multiply(left, right, operation):
+        """
+        Multiply two operators.
+
+        Parameters
+        ----------
+            left : OperatorBase
+                left operand
+            right : OperatorBase
+                right operand
+            operation : callable
+                operation to perform (np.matmul or np.multiply)
+
+        Returns
+        -------
+            dict :
+                new operator members dictionary
+        """
         # prepare paths
         new_oms = {}
         for l_key, l_op in left.op_members.items():
@@ -163,7 +201,7 @@ class PhysicalOperator(member.OperatorBase):
                 new_key = member.MemberName(l_key.target + "." + r_key.input)
                 # new?
                 if new_key not in new_oms:
-                    new_oms[new_key] = l_op @ r_op
+                    new_oms[new_key] = operation(l_op, r_op)
                 else:  # add element
-                    new_oms[new_key] += l_op @ r_op
+                    new_oms[new_key] += operation(l_op, r_op)
         return new_oms

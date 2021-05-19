@@ -3,8 +3,8 @@
 import numpy as np
 import scipy.integrate
 
-from eko.operator import Operator, gamma_ns_fact, gamma_singlet_fact, quad_ker
-from eko.operator.grid import OperatorGrid
+from eko.evolution_operator import Operator, gamma_ns_fact, gamma_singlet_fact, quad_ker
+from eko.evolution_operator.grid import OperatorGrid
 from eko.thresholds import ThresholdsAtlas
 from eko.strong_coupling import StrongCoupling
 from eko.interpolation import InterpolatorDispatcher

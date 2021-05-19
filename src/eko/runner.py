@@ -5,13 +5,11 @@
 import logging
 import copy
 
-import numpy as np
-
 from . import interpolation
 from .output import Output
 from .strong_coupling import StrongCoupling
 from .thresholds import ThresholdsAtlas
-from .operator.grid import OperatorGrid
+from .evolution_operator.grid import OperatorGrid
 from . import basis_rotation as br
 
 logger = logging.getLogger(__name__)

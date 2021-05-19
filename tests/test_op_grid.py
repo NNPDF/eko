@@ -11,7 +11,7 @@ import numpy as np
 import eko.interpolation as interpolation
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
-from eko.operator.grid import OperatorGrid
+from eko.evolution_operator.grid import OperatorGrid
 
 
 class TestOperatorGrid:

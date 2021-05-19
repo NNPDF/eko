@@ -3,7 +3,7 @@
 import numpy as np
 import scipy.integrate
 
-from eko.operator.grid import OperatorGrid
+from eko.evolution_operator.grid import OperatorGrid
 from eko.thresholds import ThresholdsAtlas
 from eko.strong_coupling import StrongCoupling
 from eko.interpolation import InterpolatorDispatcher
@@ -75,8 +75,8 @@ def test_quad_ker(monkeypatch):
             logx=0.0,
             areas=np.zeros(3),
             backward_method=None,
-            a_s=0.,
-            nf=0.,
+            a_s=0.0,
+            nf=0.0,
         )
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
@@ -87,8 +87,8 @@ def test_quad_ker(monkeypatch):
             logx=0.0,
             areas=np.zeros(3),
             backward_method=None,
-            a_s=0.,
-            nf=0.,
+            a_s=0.0,
+            nf=0.0,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -99,8 +99,8 @@ def test_quad_ker(monkeypatch):
             logx=0.0,
             areas=np.zeros(3),
             backward_method=None,
-            a_s=0.,
-            nf=0.,
+            a_s=0.0,
+            nf=0.0,
         )
         np.testing.assert_allclose(res_s, 0.0)
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
@@ -112,8 +112,8 @@ def test_quad_ker(monkeypatch):
         logx=0.0,
         areas=np.zeros(3),
         backward_method=None,
-        a_s=0.,
-        nf=0.,
+        a_s=0.0,
+        nf=0.0,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
@@ -148,7 +148,7 @@ class TestOperatorMatrixElement:
             "debug_skip_non_singlet": False,
             "ev_op_max_order": 1,
             "ev_op_iterations": 1,
-            "backward_inversion": "exact"
+            "backward_inversion": "exact",
         }
         g = OperatorGrid.from_dict(
             theory_card,

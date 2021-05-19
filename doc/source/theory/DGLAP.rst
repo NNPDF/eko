@@ -38,7 +38,7 @@ we do not need to worry about neither matrices nor the path-ordering.
 
 Using :doc:`Interpolation <Interpolation>` on both the inital and final |PDF|, we can then discretize the
 |EKO| in x-space and define :math:`{\mathbf{E}}_{k,j}` (represented by
-:class:`~eko.operator.Operator`) by
+:class:`~eko.evolution_operator.Operator`) by
 
 .. math::
     {\mathbf{E}}_{k,j}(a_s \leftarrow a_s^0) = \mathcal{M}^{-1}\left[\tilde{\mathbf{E}}(a_s \leftarrow a_s^0)\tilde p_j\right](x_k)

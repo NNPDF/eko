@@ -39,7 +39,7 @@ sea quark distribution:
 
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation to the Flavor Basis is implemented in
-  :meth:`~eko.operator.flavor.rotate_pm_to_flavor`
+  :meth:`~eko.evolution_operator.flavor.rotate_pm_to_flavor`
 
 Evolution Basis
 ---------------

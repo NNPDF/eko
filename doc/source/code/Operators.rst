@@ -33,32 +33,32 @@ The classes are nested as follows:
         test3 -> ndarray [weight=1000 style=invis];
     }
 
-- :class:`~eko.operator.grid.OperatorGrid`
+- :class:`~eko.evolution_operator.grid.OperatorGrid`
 
     * this is the master class which administrates all operator tasks
     * it is instantiated once for each run
     * it holds all necessary :doc:`configurations </code/IO>`
     * it holds all necessary instances of the :doc:`/code/Utilities`
 
-- :class:`~eko.operator.Operator`
+- :class:`~eko.evolution_operator.Operator`
 
     * this represents a configuration for a fixed final scale :math:`Q_1^2`
     * this performs the actual :doc:`computation </theory/DGLAP>`
     * this uses the 3-dimensional :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
-    * its :class:`~eko.operator.member.OpMember` are only valid in the current
+    * its :class:`~eko.evolution_operator.member.OpMember` are only valid in the current
       threshold area
 
-- :class:`~eko.operator.physical.PhysicalOperator`
+- :class:`~eko.evolution_operator.physical.PhysicalOperator`
 
-    * this is the connection of the :class:`~eko.operator.Operator`
+    * this is the connection of the :class:`~eko.evolution_operator.Operator`
       between the different flavor bases
     * it is initialized with the 3-dimensional :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
     * it does recombine the operator in the :ref:`theory/FlavorSpace:Operator Evolution Basis`
       (see :doc:`Matching Conditions </theory/Matching>`)
     * it exports the operators to :ref:`theory/FlavorSpace:Operator Flavor Basis` in a :class:`~numpy.ndarray`
 
-- :class:`~eko.operator.member.OpMember`
+- :class:`~eko.evolution_operator.member.OpMember`
 
     * this represents a single operator in Mellin space for a given element of the :ref:`theory/FlavorSpace:Operator Bases`
-    * inside :class:`~eko.operator.Operator` they are in :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
-    * inside :class:`~eko.operator.physical.PhysicalOperator` they are in :ref:`theory/FlavorSpace:Operator Evolution Basis`
+    * inside :class:`~eko.evolution_operator.Operator` they are in :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
+    * inside :class:`~eko.evolution_operator.physical.PhysicalOperator` they are in :ref:`theory/FlavorSpace:Operator Evolution Basis`
