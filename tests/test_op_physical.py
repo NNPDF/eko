@@ -56,6 +56,9 @@ class TestPhysicalOperator:
         d = b @ a
         assert d.q2_final == b.q2_final
         assert VV[0] * n == d.op_members[member.MemberName("V.V")]
+        e = b @ b
+        assert e.q2_final == b.q2_final
+        assert n * n == e.op_members[member.MemberName("V.V")]
 
     def test_matmul(self):
         VVl, V3V3l, T3T3l, SSl, gSl = self._mkOM(5)
@@ -122,7 +125,7 @@ class TestPhysicalOperator:
         # errors
         with pytest.raises(ValueError):
             _ = a @ {}
-        with pytest.raises(ValueError):
+        with pytest.raises(TypeError):
             _ = {} @ a
 
     def test_to_flavor_basis_tensor_ss(self):
