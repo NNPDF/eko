@@ -22,21 +22,6 @@ from ..member import singlet_labels
 
 logger = logging.getLogger(__name__)
 
-# @nb.njit("c16[:,:](c16,c16[:],u4,u1,f8)", cache=True)
-# def intrinsic_singlet_ome(n, sx, nf, order, a_s):
-#     """ intrisic exact singlet matching matrix """
-#     ker = np.eye(3, dtype=np.complex_)
-#     ker[2, 2] -= nf
-#     ker[0, 2] += 1.0
-#     if order >= 2:
-#         ker2 = a_s ** 2 * A_singlet_2(n, sx)
-#         ker[:-1, :-1] += ker2
-#         ker[0, 0] += a_s ** 2 * A_ns_2(n, sx)
-#         ker[2, 0] += a_s ** 2 * (A_ns_2(n, sx) - nf * ker2[0, 0])
-#         ker[2, 1] -= a_s ** 2 * nf * ker2[0, 1]
-#     return ker
-
-
 @nb.njit("c16[:,:](c16,c16[:],string,u4,string,u1,f8)", cache=True)
 def build_singlet_ome(n, sx, mode, order, backward_method, nf, a_s):
     """Singlet matching matrix"""
@@ -60,19 +45,6 @@ def build_singlet_ome(n, sx, mode, order, backward_method, nf, a_s):
             ker[0, 0] += A_ns_2(n, sx)
             ker = np.linalg.inv(np.eye(2) + a_s ** 2 * ker)
     return ker
-
-
-# @nb.njit("c16[:,:](c16,c16[:],u4,u1,f8)", cache=True)
-# def intrinsic_non_singlet_ome(n, sx, nf, order, a_s):
-#     """ intrinsic exact non singlet operator """
-#     ker = np.eye(2, dtype=np.complex_)
-#     ker[1, 1] -= nf
-#     ker[0, 1] += 1.0
-#     if order >= 2:
-#         ker2 = a_s ** 2 * A_ns_2(n, sx)
-#         ker[0, 0] += ker2
-#         ker[1, 0] += ker2
-#     return ker
 
 
 @nb.njit("c16[:,:](c16,c16[:],string,u4,string,u1,f8)", cache=True)
