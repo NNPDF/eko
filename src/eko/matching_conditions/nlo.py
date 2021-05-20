@@ -10,11 +10,8 @@ import numba as nb
 from ..constants import CF
 
 
-# for the time being keep L=0 here, will be removed at later stage
-
-
 @nb.njit("c16(c16,f8)", cache=True)
-def A_gh_1(n, L=0.0):
+def A_gh_1(n, L):
     """
     math:`A_{gH}^{(1)}` operator-matrix element defined as the
     mellin transform of :math:`K_{gh}` given in Eq. (20b) of :cite:`Ball_2016`.
@@ -32,14 +29,14 @@ def A_gh_1(n, L=0.0):
             |NLO|  :math:`A_{gH}^{(1)}` operator-matrix element
     """
 
-    den = 1.0 / (n ** 2(n ** 2 - 1) ** 2)
-    agh = -4 + n * (2 + n * (15 + n(3 + n - n ** 2)))
-    agh_m = n * (n ** 2 - 1)(2 + n + n ** 2) * L
+    den = 1.0 / (n * (n ** 2 - 1)) ** 2
+    agh = -4 + n * (2 + n * (15 + n * (3 + n - n ** 2)))
+    agh_m = n * (n ** 2 - 1) * (2 + n + n ** 2) * L
     return 2 * CF * den * (agh + agh_m)
 
 
 @nb.njit("c16(c16,c16[:],f8)", cache=True)
-def A_hh_1(n, sx, L=0.0):
+def A_hh_1(n, sx, L):
     """
     math:`A_{HH}^{(1)}` operator-matrix element defined as the
     mellin transform of :math:`K_{hh}` given in Eq. (20a) of :cite:`Ball_2016`.

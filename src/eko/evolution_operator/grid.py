@@ -79,7 +79,7 @@ class OperatorGrid:
             interpol_dispatcher=interpol_dispatcher,
         )
         self._threshold_operators = {}
-        self.ome_members = {}
+        self.ome_members = None
 
     @classmethod
     def from_dict(
@@ -233,15 +233,20 @@ class OperatorGrid:
 
         # integrate matching conditions
         # exact inverse depends on q2 so need to be computed separately
+        # Assume that intrinsic always depends on the scale ( TODO: not correct for the moment but
+        # will be true when we consider the logs )
         is_backward = bool(path[-1].q2_from > path[-1].q2_to)
-        if len(path) > 1 and len(self.ome_members) == 0:
-            if is_backward is False:
+        if len(path) > 1 and self.ome_members is None:
+            if (
+                self.config["intrinsic_range"] is not None
+                or self.config["backward_inversion"] == "exact"
+            ):
+                ome = OperatorMatrixElement(self.config, self.managers)
+            elif is_backward is False:
                 self.config["backward_inversion"] = None
                 self.compute_matching_coeffs()
             elif self.config["backward_inversion"] == "expanded":
                 self.compute_matching_coeffs()
-            elif self.config["backward_inversion"] == "exact":
-                ome = OperatorMatrixElement(self.config, self.managers)
             else:
                 raise ValueError(
                     f"{self.config['backward_inversion']} is not implemented"
@@ -254,14 +259,9 @@ class OperatorGrid:
             )
             a_s = sc.a_s(op.q2_to / self.config["fact_to_ren"], op.q2_to)
 
-            # compute exact inverse if necessary
-            if self.config["backward_inversion"] == "exact" and is_backward:
-                if self.config["intrinsic_range"] is None:
-                    # compute inverse exact
-                    ome.compute(a_s)
-                else:
-                    # compute intrinsic inverse exact
-                    ome.compute(a_s, nf=op.nf)
+            # compute the matching if not done yet
+            if self.ome_members is None:
+                ome.compute(a_s)
                 self.ome_members = ome.ome_members
 
             matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(

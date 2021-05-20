@@ -66,9 +66,7 @@ class MatchingCondition(member.OperatorBase):
 
         # activate one higher element, i.e. where the next heavy quark could participate,
         # without this new heavy quark Vn = V and Tn = S
-        if backward_inversion is None or (
-            intrinsic_range is not None and backward_inversion == "expanded"
-        ):
+        if backward_inversion is None:
             n = (nf + 1) ** 2 - 1
             m.update(
                 {
@@ -89,57 +87,29 @@ class MatchingCondition(member.OperatorBase):
             hqfl = "cbt"
             for intr_fl in intrinsic_range:
                 hq = hqfl[intr_fl - 4]  # find name
-                if backward_inversion is None:
-                    if intr_fl > nf + 1:  # keep the higher quarks as they are
-                        m[f"{hq}+.{hq}+"] = op_id
-                        m[f"{hq}-.{hq}-"] = op_id
-                    elif intr_fl == nf + 1:  # next is comming hq?
-                        n = intr_fl ** 2 - 1
-                        # add hq to S and V
-                        m[f"V.{hq}-"] = op_id
-                        m[f"S.{hq}+"] = op_id
-                        # e.g. T15 = (u+ + d+ + s+) - 3c+
-                        m[f"V{n}.{hq}-"] = -(intr_fl - 1) * op_id
-                        m[f"T{n}.{hq}+"] = -(intr_fl - 1) * op_id
-                else:
-                    # backward matching
-                    # one flavor is not evolving anymore need to match
-                    n = intr_fl ** 2 - 1
-                    if intr_fl == nf:
-                        # TODO: check if this is correct
-                        if backward_inversion == "exact":
-                            # inversion is alrady done before the integration
-                            m.update(
-                                {
-                                    f"{hq}+.S": ome_members["S_Tq"],
-                                    f"{hq}+.g": ome_members["S_Tg"],
-                                    f"{hq}+.T{n}": ome_members["S_TT"],
-                                    f"{hq}-.V": ome_members["NS_Vq"],
-                                    f"{hq}-.V{n}": ome_members["NS_VV"],
-                                    # add the new contribution to V, S and g
-                                    f"V.V{n}": ome_members["NS_qV"],
-                                    f"S.T{n}": ome_members["S_qT"],
-                                    f"g.T{n}": ome_members["S_gT"],
-                                }
-                            )
-
-                        elif backward_inversion == "expanded":
-                            m.update(
-                                {
-                                    # build q+ and q-
-                                    f"{hq}+.S": 1.0 / nf * m["S.S"],
-                                    f"{hq}+.g": 1.0 / nf * m["S.g"],
-                                    f"{hq}+.T{n}": -1.0 / nf * m[f"T{n}.T{n}"],
-                                    f"{hq}-.V": 1.0 / nf * m["V.V"],
-                                    f"{hq}-.V{n}": -1.0 / nf * m[f"V{n}.V{n}"],
-                                    # add the new contribution to V, S and g
-                                    f"V.V{n}": 1.0 / nf * m[f"V{n}.V"],
-                                    f"S.T{n}": 1.0 / nf * m[f"T{n}.S"],
-                                    f"g.T{n}": 1.0 / nf * m[f"T{n}.g"],
-                                    "V.V": -(nf - 1) / nf * m["V.V"],
-                                    "S.S": -(nf - 1) / nf * m["S.S"],
-                                    "S.g": -(nf - 1) / nf * m["S.g"],
-                                }
-                            )
+                if intr_fl > nf + 1 and backward_inversion is None:
+                    # keep the higher quarks as they are
+                    m[f"{hq}+.{hq}+"] = op_id
+                    m[f"{hq}-.{hq}-"] = op_id
+                elif intr_fl == nf + 1:
+                    # match the missing contibution form h+ and h-
+                    m.update(
+                        {
+                            f"{hq}+.S": ome_members["S_Hq"],
+                            f"{hq}+.g": ome_members["S_Hg"],
+                            f"{hq}+.c{hq}+": ome_members["S_HH"],
+                            f"S.{hq}+": ome_members["S_qH"],
+                            f"g.{hq}+": ome_members["S_gH"],
+                            f"{hq}-.V": ome_members["NS_Hq"],
+                            f"{hq}-.c{hq}-": ome_members["NS_HH"],
+                            f"V.{hq}-": ome_members["NS_qH"],
+                        }
+                    )
+                    # # add hq to S and V
+                    # m[f"V.{hq}-"] = op_id
+                    # m[f"S.{hq}+"] = op_id
+                    # # e.g. T15 = (u+ + d+ + s+) - 3c+
+                    # m[f"V{n}.{hq}-"] = -(intr_fl - 1) * op_id
+                    # m[f"T{n}.{hq}+"] = -(intr_fl - 1) * op_id
         # map key to MemberName
         return cls.promote_names(m, q2_thr)
