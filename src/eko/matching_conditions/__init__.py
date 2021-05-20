@@ -97,11 +97,11 @@ class MatchingCondition(member.OperatorBase):
                         {
                             f"{hq}+.S": ome_members["S_Hq"],
                             f"{hq}+.g": ome_members["S_Hg"],
-                            f"{hq}+.c{hq}+": ome_members["S_HH"],
+                            f"{hq}+.{hq}+": ome_members["S_HH"],
                             f"S.{hq}+": ome_members["S_qH"],
                             f"g.{hq}+": ome_members["S_gH"],
                             f"{hq}-.V": ome_members["NS_Hq"],
-                            f"{hq}-.c{hq}-": ome_members["NS_HH"],
+                            f"{hq}-.{hq}-": ome_members["NS_HH"],
                             f"V.{hq}-": ome_members["NS_qH"],
                         }
                     )

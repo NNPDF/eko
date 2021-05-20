@@ -13,6 +13,7 @@ from eko.matching_conditions.operator_matrix_element import (
     quad_ker,
     OperatorMatrixElement,
 )
+from eko.member import singlet_labels
 
 from eko.matching_conditions.nnlo import A_ns_2, A_singlet_2
 from eko.anomalous_dimensions import harmonics
@@ -49,7 +50,7 @@ def test_A_2():
     assert aS2.shape == (2, 2)
 
 
-# Test operator matriz element integration
+# Test operator matrix element integration
 def test_quad_ker(monkeypatch):
     monkeypatch.setattr(
         mellin, "Talbot_path", lambda *args: 2
@@ -76,7 +77,6 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
-            nf=0.0,
         )
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
@@ -88,7 +88,6 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
-            nf=0.0,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -100,9 +99,56 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
-            nf=0.0,
         )
         np.testing.assert_allclose(res_s, 0.0)
+
+    # test inverse kernels
+    labels = ["NS_qq", *singlet_labels]
+    for label in labels:
+        res_ns = quad_ker(
+            u=0,
+            order=2,
+            mode=label,
+            is_log=True,
+            logx=0.0,
+            areas=np.zeros(3),
+            backward_method="expanded",
+            a_s=0.,
+        )
+        if label[-1] == label[-2]:
+            np.testing.assert_allclose(res_ns, -1.0)
+        else:
+            np.testing.assert_allclose(res_ns, 0.0)
+
+    # test exact intrisic inverse kernel
+    labels.extend(
+        [
+            "S_Hq",
+            "S_Hg",
+            "S_HH",
+            "S_qH",
+            "S_gH",
+            "NS_qH",
+            "NS_HH",
+            "NS_Hq",
+        ]
+    )
+    for label in labels:
+        res_ns = quad_ker(
+            u=0,
+            order=2,
+            mode=label,
+            is_log=True,
+            logx=0.0,
+            areas=np.zeros(3),
+            backward_method="exact",
+            a_s=0.,
+        )
+        if label[-1] == label[-2]:
+            np.testing.assert_allclose(res_ns, 1.0)
+        else:
+            np.testing.assert_allclose(res_ns, 0.0)
+
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
@@ -110,13 +156,11 @@ def test_quad_ker(monkeypatch):
         mode="NS_qq",
         is_log=True,
         logx=0.0,
-        areas=np.zeros(3),
+        areas=np.array([0.01,0.1,1.0]),
         backward_method=None,
         a_s=0.0,
-        nf=0.0,
     )
     np.testing.assert_allclose(res_ns, 0.0)
-
 
 class TestOperatorMatrixElement:
     def test_compute(self, monkeypatch):
@@ -163,9 +207,11 @@ class TestOperatorMatrixElement:
             scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
         )
         o.order = 2
-        o.compute()
+        o.compute( a_s = 1.0)
         assert "NS_qq" in o.ome_members
         assert "S_qq" in o.ome_members
         assert "S_qg" in o.ome_members
         assert "S_gq" in o.ome_members
         assert "S_gg" in o.ome_members
+        assert "S_Hg" in o.ome_members
+        assert "NS_Hq" in o.ome_members

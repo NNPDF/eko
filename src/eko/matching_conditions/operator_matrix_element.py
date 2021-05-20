@@ -137,11 +137,11 @@ def quad_ker(u, order, mode, is_log, logx, areas, backward_method, a_s):
 
     # select the ker element
     if mode[-2] == "H":
-        k = 2
+        k = 2 if is_singlet else 1
     else:
         k = 0 if mode[-2] == "q" else 1
     if mode[-1] == "H":
-        l = 2
+        l = 2 if is_singlet else 1
     else:
         l = 0 if mode[-1] == "q" else 1
     ker = ker[k, l]
@@ -205,9 +205,10 @@ class OperatorMatrixElement:
             labels.extend(
                 [
                     "S_qH",  # starts at NNLO we don't have it for the moment
+                    "S_gH",
                     "S_Hq",
-                    "S_HH",
                     "S_Hg",
+                    "S_HH",
                     "NS_qH",  # starts at NNLO we don't have it for the moment
                     "NS_Hq",
                     "NS_HH",

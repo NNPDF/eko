@@ -23,6 +23,12 @@ class TestMatchingCondition:
         gg = mkOM(self.shape)
         return dict(NS_qq=ns, S_qq=qq, S_qg=qg, S_gq=gq, S_gg=gg)
 
+    def update_intrinsic_OME(self, ome):
+        for key in [ 'Hq', 'Hg', 'HH', 'qH', 'gH']:
+            ome.update({f"S_{key}": mkOM(self.shape)})
+            if key not in ['gH', 'Hg']:
+                ome.update({f"NS_{key}": mkOM(self.shape)})
+
     def test_split_ad_to_evol_map(self):
         ome = self.mkOME()
         a = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, 1)
@@ -60,21 +66,14 @@ class TestMatchingCondition:
             np.eye(self.shape[0]),
         )
         # nf=3 + IC
+        self.update_intrinsic_OME(ome)
         c = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, 0, [4])
         assert sorted([str(k) for k in c.op_members.keys()]) == sorted(
-            [*triv_keys, *keys3, "S.c+", "V.c-", "T15.c+", "V15.c-"]
+            [*triv_keys, *keys3, "S.c+", "g.c+", "V.c-", "c+.S", "c+.g", "c+.c+", "c-.V", "c-.c-" ]
         )
         assert_almost_equal(
             c.op_members[member.MemberName("V.V")].value,
             b.op_members[member.MemberName("V.V")].value,
-        )
-        assert_almost_equal(
-            c.op_members[member.MemberName("T15.c+")].value,
-            -3.0 * np.eye(self.shape[0]),
-        )
-        assert_almost_equal(
-            c.op_members[member.MemberName("V15.c-")].value,
-            -3.0 * np.eye(self.shape[0]),
         )
         # nf=3 + IB
         d = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, 0, [5])
@@ -95,23 +94,19 @@ class TestMatchingCondition:
                 "T24.S",
                 "T24.g",
                 "V24.V",
-                "T24.b+",
-                "V24.b-",
                 "S.b+",
+                "g.b+",
                 "V.b-",
+                "b+.S",
+                "b+.g",
+                "b+.b+",
+                "b-.V",
+                "b-.b-",
             ]
         )
         assert_almost_equal(
             d.op_members[member.MemberName("V.V")].value,
             a.op_members[member.MemberName("V.V")].value,
-        )
-        assert_almost_equal(
-            d.op_members[member.MemberName("T24.b+")].value,
-            -4.0 * np.eye(self.shape[0]),
-        )
-        assert_almost_equal(
-            d.op_members[member.MemberName("V24.b-")].value,
-            -4.0 * np.eye(self.shape[0]),
         )
         assert_almost_equal(
             d.op_members[member.MemberName("V24.V")].value,
