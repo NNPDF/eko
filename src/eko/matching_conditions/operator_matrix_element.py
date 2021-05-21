@@ -23,61 +23,75 @@ from ..member import singlet_labels
 
 logger = logging.getLogger(__name__)
 
-# TODO: for the time being keep L=0 here, will be removed at later stage
 
-@nb.njit("c16[:,:](c16,c16[:],string,u4,f8,string)", cache=True)
-def build_singlet_ome(n, sx, mode, order, a_s, backward_method):
+@nb.njit("c16[:,:](c16,c16[:],u4,f8,f8,string,b1)", cache=True)
+def build_singlet_ome(n, sx, order, a_s, L, backward_method, is_intrisinc):
     """Singlet matching matrix"""
-    if "H" in mode:
-        # intrisic singlet + h+ contribution
-        ker = np.eye(3, dtype=np.complex_)
+    ker = np.eye(3, dtype=np.complex_)
+    if backward_method == "expanded":
         if order >= 1:
-            ker[2, 2] += a_s * A_hh_1(n, sx, L=0.0)
-            ker[1, 2] += a_s * A_gh_1(n, L=0.0)
+            ker1 = np.zeros(2)  # TODO: A_singlet_1(n, sx, L) not ready yet
+            ker[:-1, :-1] -= a_s * ker1
+            if is_intrisinc:
+                # intrisic h+ contribution
+                ker[2, 2] -= a_s * A_hh_1(n, sx, L)
+                ker[1, 2] -= a_s * A_gh_1(n, L)
+        if order >= 2:
+            ker[:-1, :-1] += a_s ** 2 * (-A_singlet_2(n, sx) + ker1 @ ker1)
+    else:
+        # forward or exact inverse
+        if order >= 1:
+            ker[:-1, :-1] += a_s * np.zeros(2)  # A_singlet_1(n, sx, L) not ready yet
+            if is_intrisinc:
+                # intrisic h+ contribution
+                ker[2, 2] += a_s * A_hh_1(n, sx, L=0.0)
+                ker[1, 2] += a_s * A_gh_1(n, L=0.0)
         if order >= 2:
             ker2 = a_s ** 2 * A_singlet_2(n, sx)
             ker[:-1, :-1] += ker2
             ker[0, 0] += a_s ** 2 * A_ns_2(n, sx)
-            ker[2, 0] += a_s ** 2 * ker2[0, 0]
-            ker[2, 1] += a_s ** 2 * ker2[0, 1]
-        # need inverse exact ?
+            ker[2, 0] += ker2[0, 0]
+            ker[2, 1] += ker2[0, 1]
+        # need inverse exact ?, so add the missing pieces
         if backward_method == "exact":
             ker = np.linalg.inv(ker)
-    else:
-        ker = A_singlet_2(n, sx)
-        # need inverse exact ?
-        if backward_method == "exact":
-            ker[0, 0] += A_ns_2(n, sx)
-            ker = np.linalg.inv(np.eye(2) + a_s ** 2 * ker)
     return ker
 
 
-@nb.njit("c16[:,:](c16,c16[:],string,u4,f8,string)", cache=True)
-def build_non_singlet_ome(n, sx, mode, order, a_s, backward_method):
+@nb.njit("c16[:,:](c16,c16[:],u4,f8,f8,string,b1)", cache=True)
+def build_non_singlet_ome(n, sx, order, a_s, L, backward_method, is_intrisinc):
     """Non singlet matching matrix"""
-    if "H" in mode:
-        # intrisic non singlet + h- contribution
-        ker = np.eye(2, dtype=np.complex_)
+    ker = np.eye(2, dtype=np.complex_)
+    if backward_method == "expanded":
         if order >= 1:
-            ker[1, 1] += a_s * A_hh_1(n, sx, L=0.0)
+            ker1 = 0.0  # TODO: A_ns_1(n, sx, L) not ready yet
+            ker[0, 0] -= a_s * ker1
+            if is_intrisinc:
+                # intrisic h+ contribution
+                ker[1, 1] -= a_s * A_hh_1(n, sx, L)
+        if order >= 2:
+            ker[0, 0] += a_s ** 2 * ( - A_ns_2(n, sx) + ker1 * ker1)
+    else:
+        # forward or exact inverse
+        if order >= 1:
+            ker[0,0] += a_s * 0.0  # A_ns_1(n, sx, L) not ready yet
+            if is_intrisinc:
+                # intrisic h+ contribution
+                ker[1, 1] += a_s * A_hh_1(n, sx, L)
         if order >= 2:
             ker2 = a_s ** 2 * A_ns_2(n, sx)
             ker[0, 0] += ker2
-            # TODO: are we sure about this?
             ker[1, 0] += ker2
-        # need inverse exact ?
+        # need inverse exact ?  so add the missing pieces
         if backward_method == "exact":
             ker = np.linalg.inv(ker)
-    else:
-        ker = np.array([[A_ns_2(n, sx)]])
-        # need inverse exact ?
-        if backward_method == "exact":
-            ker = 1 / (1 + a_s ** 2 * ker)
     return ker
 
 
-@nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],string,f8)", cache=True)
-def quad_ker(u, order, mode, is_log, logx, areas, backward_method, a_s):
+@nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,f8,string,b1)", cache=True)
+def quad_ker(
+    u, order, mode, is_log, logx, areas, a_s, L, backward_method, is_intrisinc
+):
     """
     Raw kernel inside quad
 
@@ -95,10 +109,14 @@ def quad_ker(u, order, mode, is_log, logx, areas, backward_method, a_s):
             Mellin inversion point
         areas : tuple
             basis function configuration
+        a_s : float
+            strong coupling, needed only for the exact inverse
+        L : float
+            :math:`log(q^2/m_h^2)`
         backward_method : [exact, expanded or None]
             None or method for inverting the matching contidtion (exact or expanded)
-        a_s : float
-                strong coupling, needed only for the exact inverse
+        is_intrinsic: bool
+            True for intrinsic evolution
     Returns
     -------
         ker : float
@@ -109,8 +127,10 @@ def quad_ker(u, order, mode, is_log, logx, areas, backward_method, a_s):
     # get transformation to N integral
     if is_singlet:
         r, o = 0.4 * 16.0 / (1.0 - logx), 1.0
+        indeces = {"q": 0, "g": 1, "H": 2}
     else:
         r, o = 0.5, 0.0
+        indeces = {"q": 0, "H": 1}
 
     n = mellin.Talbot_path(u, r, o)
     jac = mellin.Talbot_jac(u, r, o)
@@ -131,25 +151,11 @@ def quad_ker(u, order, mode, is_log, logx, areas, backward_method, a_s):
     # compute the actual evolution kernel
     ker = 0.0 + 0j
     if is_singlet:
-        ker = build_singlet_ome(n, sx, mode, order, a_s, backward_method)
+        ker = build_singlet_ome(n, sx, order, a_s, L, backward_method, is_intrisinc)
     else:
-        ker = build_non_singlet_ome(n, sx, mode, order, a_s, backward_method)
+        ker = build_non_singlet_ome(n, sx, order, a_s, L, backward_method, is_intrisinc)
 
-    # select the ker element
-    if mode[-2] == "H":
-        k = 2 if is_singlet else 1
-    else:
-        k = 0 if mode[-2] == "q" else 1
-    if mode[-1] == "H":
-        l = 2 if is_singlet else 1
-    else:
-        l = 0 if mode[-1] == "q" else 1
-    ker = ker[k, l]
-
-    # expanded inversion is the same for S and NS and intrisic
-    # TODO: this must be improved when all the As are implemented
-    if backward_method == "expanded":
-        ker = - ker
+    ker = ker[indeces[mode[-2]], indeces[mode[-1]]]
 
     # recombine everthing
     mellin_prefactor = complex(0.0, -1.0 / np.pi)
@@ -168,49 +174,48 @@ class OperatorMatrixElement:
             configuration
         managers : dict
             managers
+        is_backward: bool
+            True for backward evolution
         mellin_cut : float
             cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, config, managers, mellin_cut=1e-2):
+    def __init__(self, config, managers, is_backward, mellin_cut=1e-2):
 
-        self.backward_method = (
-            config["backward_inversion"]
-            if config["backward_inversion"] is not None
-            else ""
-        )
+        self.backward_method = config["backward_inversion"] if is_backward else ""
         self.is_intrinsic = bool(config["intrinsic_range"] is not None)
         self.order = config["order"]
+        self.sc = managers["strong_coupling"]
+        self.fact_to_ren = config["fact_to_ren"]
         self.int_disp = managers["interpol_dispatcher"]
         self._mellin_cut = mellin_cut
         self.ome_members = {}
 
-    def compute(self, a_s=0.0):
-        """compute the actual operators (i.e. run the integrations)
+    def compute(self, q2, mh2):
+        """
+        compute the actual operators (i.e. run the integrations)
 
         Parameters
         ----------
-            a_s : float, optional
-                strong coupling, needed only for the exact inverse
-            nf : int, optional
-                number of active flavors,
-                needed only for intrinsic exact inverse
+            q2: float
+                threshold scale
+            mh2: float
+                heavy quark mass
         """
 
         # init all ops with zeros
         grid_size = len(self.int_disp.xgrid)
-        labels = ["NS_qq", *singlet_labels]
+        # TODO: improve labels: NS_Hq and S_Hg are not really needed for
+        #  forward evolution since are equal to NS_qq and S_qg.
+        labels = ["S_Hg","S_Hq","NS_Hq","NS_qq", *singlet_labels]
         if self.is_intrinsic:
             # intrisic labels
             labels.extend(
                 [
                     "S_qH",  # starts at NNLO we don't have it for the moment
                     "S_gH",
-                    "S_Hq",
-                    "S_Hg",
                     "S_HH",
                     "NS_qH",  # starts at NNLO we don't have it for the moment
-                    "NS_Hq",
                     "NS_HH",
                 ]
             )
@@ -218,10 +223,12 @@ class OperatorMatrixElement:
             self.ome_members[n] = OpMember(
                 np.eye(grid_size), np.zeros((grid_size, grid_size))
             )
+        L = np.log(q2 / mh2)
+        a_s = self.sc.a_s(q2 / self.fact_to_ren, q2)
 
         # if LO and NLO no need to do anything
         # except for intrinsic
-        if self.order <= 1 and self.is_intrinsic is False:
+        if self.order <= 1 and self.is_intrinsic is False and L != 0.0:
             logger.info(
                 "Matching: only trivial conditions are needed at PTO = %d", self.order
             )
@@ -249,8 +256,10 @@ class OperatorMatrixElement:
                             self.int_disp.log,
                             logx,
                             bf.areas_representation,
-                            self.backward_method,
                             a_s,
+                            L,
+                            self.backward_method,
+                            self.is_intrinsic,
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,

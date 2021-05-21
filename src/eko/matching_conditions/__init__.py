@@ -20,7 +20,7 @@ class MatchingCondition(member.OperatorBase):
 
     @classmethod
     def split_ad_to_evol_map(
-        cls, ome_members, nf, q2_thr, a_s, intrinsic_range=None, backward_inversion=None
+        cls, ome_members, nf, q2_thr, intrinsic_range=None, backward_inversion=None
     ):
         """
         Create the instance from the operator matrix elements.
@@ -34,8 +34,6 @@ class MatchingCondition(member.OperatorBase):
                 number of active flavors *below* the threshold
             q2_thr: float
                 threshold value
-            a_s : float
-                value of the strong coupling at the threshold
             intrinsic_range : list
                 list of intrinsic quark pids
             backward_inversion: str
@@ -43,39 +41,58 @@ class MatchingCondition(member.OperatorBase):
         """
         len_xgrid = ome_members["NS_qq"].value.shape[0]
         op_id = member.OpMember(np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid)))
-        m = {}
+        hqfl = "cbt"
+        hq = hqfl[nf - 3]
 
-        if backward_inversion == "exact":
-            # inversion is alrady done before the integration
-            m = {
-                "S.S": ome_members["S_qq"],
-                "S.g": ome_members["S_qg"],
-                "g.S": ome_members["S_gq"],
-                "g.g": ome_members["S_gg"],
-                "V.V": ome_members["NS_qq"],
-            }
-        else:
-            # backawrd expanded or forward mathcing
-            m = {
-                "S.S": op_id + a_s ** 2 * (ome_members["NS_qq"] + ome_members["S_qq"]),
-                "S.g": a_s ** 2 * ome_members["S_qg"],
-                "g.S": a_s ** 2 * ome_members["S_gq"],
-                "g.g": op_id + a_s ** 2 * ome_members["S_gg"],
-                "V.V": op_id + a_s ** 2 * ome_members["NS_qq"],
-            }
+        m = {
+            "S.S": ome_members["S_qq"],
+            "S.g": ome_members["S_qg"],
+            "g.S": ome_members["S_gq"],
+            "g.g": ome_members["S_gg"],
+            "V.V": ome_members["NS_qq"],
+        }
 
         # activate one higher element, i.e. where the next heavy quark could participate,
-        # without this new heavy quark Vn = V and Tn = S
-        if backward_inversion is None:
-            n = (nf + 1) ** 2 - 1
+        # without this new heavy quark Vn = V and Tn = S, done separately for intrinsic
+        if backward_inversion is None and intrinsic_range is None:
             m.update(
                 {
-                    f"V{n}.V": op_id + a_s ** 2 * ome_members["NS_qq"],
-                    f"T{n}.S": op_id
-                    + a_s ** 2 * (ome_members["NS_qq"] - nf * ome_members["S_qq"]),
-                    f"T{n}.g": -nf * a_s ** 2 * ome_members["S_qg"],
+                    f"{hq}-.V": ome_members["NS_Hq"],
+                    f"{hq}+.S": ome_members["S_Hq"],
+                    f"{hq}+.g": ome_members["S_Hg"],
                 }
             )
+
+        # if backward_inversion == "exact":
+        #     # inversion is alrady done before the integration
+        #     m = {
+        #         "S.S": ome_members["S_qq"],
+        #         "S.g": ome_members["S_qg"],
+        #         "g.S": ome_members["S_gq"],
+        #         "g.g": ome_members["S_gg"],
+        #         "V.V": ome_members["NS_qq"],
+        #     }
+        # else:
+        #     # backawrd expanded or forward mathcing
+        #     m = {
+        #         "S.S": op_id + a_s ** 2 * (ome_members["NS_qq"] + ome_members["S_qq"]),
+        #         "S.g": a_s ** 2 * ome_members["S_qg"],
+        #         "g.S": a_s ** 2 * ome_members["S_gq"],
+        #         "g.g": op_id + a_s ** 2 * ome_members["S_gg"],
+        #         "V.V": op_id + a_s ** 2 * ome_members["NS_qq"],
+        #     }
+        #     # activate one higher element, i.e. where the next heavy quark could participate,
+        #     # without this new heavy quark Vn = V and Tn = S
+        #     if backward_inversion is None and intrinsic_range is None:
+        #         m.update(
+        #             {
+        #                 f"{hq}+.V": op_id + a_s ** 2 * ome_members["NS_qq"],
+        #                 f"{hq}+.S": op_id
+        #                 + a_s ** 2 *  ome_members["S_qq"],
+        #                 f"{hq}+.g": a_s ** 2 * ome_members["S_qg"],
+        #             }
+        #         )
+
         # add elements which are already active
         for f in range(2, nf + 1):
             n = f ** 2 - 1
@@ -84,7 +101,6 @@ class MatchingCondition(member.OperatorBase):
 
         # intrinsic matching
         if intrinsic_range is not None:
-            hqfl = "cbt"
             for intr_fl in intrinsic_range:
                 hq = hqfl[intr_fl - 4]  # find name
                 if intr_fl > nf + 1 and backward_inversion is None:
@@ -95,21 +111,14 @@ class MatchingCondition(member.OperatorBase):
                     # match the missing contibution form h+ and h-
                     m.update(
                         {
-                            f"{hq}+.S": ome_members["S_Hq"],
-                            f"{hq}+.g": ome_members["S_Hg"],
                             f"{hq}+.{hq}+": ome_members["S_HH"],
                             f"S.{hq}+": ome_members["S_qH"],
                             f"g.{hq}+": ome_members["S_gH"],
-                            f"{hq}-.V": ome_members["NS_Hq"],
                             f"{hq}-.{hq}-": ome_members["NS_HH"],
                             f"V.{hq}-": ome_members["NS_qH"],
+                            f"{hq}+.S": ome_members["S_Hq"],
+                            f"{hq}+.g": ome_members["S_Hg"],
+                            f"{hq}-.V": ome_members["NS_Hq"],
                         }
                     )
-                    # # add hq to S and V
-                    # m[f"V.{hq}-"] = op_id
-                    # m[f"S.{hq}+"] = op_id
-                    # # e.g. T15 = (u+ + d+ + s+) - 3c+
-                    # m[f"V{n}.{hq}-"] = -(intr_fl - 1) * op_id
-                    # m[f"T{n}.{hq}+"] = -(intr_fl - 1) * op_id
-        # map key to MemberName
         return cls.promote_names(m, q2_thr)

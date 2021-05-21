@@ -77,6 +77,8 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
+            L=0.0,
+            is_intrisinc=False,
         )
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
@@ -88,6 +90,8 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
+            L=0.0,
+            is_intrisinc=False,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -99,6 +103,8 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
+            L=0.0,
+            is_intrisinc=False,
         )
         np.testing.assert_allclose(res_s, 0.0)
 
@@ -113,10 +119,12 @@ def test_quad_ker(monkeypatch):
             logx=0.0,
             areas=np.zeros(3),
             backward_method="expanded",
-            a_s=0.,
+            a_s=0.0,
+            L=0.0,
+            is_intrisinc=False,
         )
         if label[-1] == label[-2]:
-            np.testing.assert_allclose(res_ns, -1.0)
+            np.testing.assert_allclose(res_ns, 1.0)
         else:
             np.testing.assert_allclose(res_ns, 0.0)
 
@@ -142,7 +150,9 @@ def test_quad_ker(monkeypatch):
             logx=0.0,
             areas=np.zeros(3),
             backward_method="exact",
-            a_s=0.,
+            a_s=0.0,
+            L=0.0,
+            is_intrisinc=True,
         )
         if label[-1] == label[-2]:
             np.testing.assert_allclose(res_ns, 1.0)
@@ -159,6 +169,8 @@ def test_quad_ker(monkeypatch):
         areas=np.array([0.01,0.1,1.0]),
         backward_method=None,
         a_s=0.0,
+        L=0.0,
+        is_intrisinc=False,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
@@ -207,7 +219,7 @@ class TestOperatorMatrixElement:
             scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
         )
         o.order = 2
-        o.compute( a_s = 1.0)
+        o.compute( 1.0, 1.0)
         assert "NS_qq" in o.ome_members
         assert "S_qq" in o.ome_members
         assert "S_qg" in o.ome_members

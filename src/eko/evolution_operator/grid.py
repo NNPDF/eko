@@ -79,7 +79,8 @@ class OperatorGrid:
             interpol_dispatcher=interpol_dispatcher,
         )
         self._threshold_operators = {}
-        self.ome_members = None
+        self.is_backward = False
+        self._matching_operators = {}
 
     @classmethod
     def from_dict(
@@ -146,6 +147,7 @@ class OperatorGrid:
         The internal dictionary is self._threshold_operators and its structure is:
         (q2_from, q2_to) -> eko.operators.Operator
 
+        It computes and stores the necessary macthing operators
         Parameters
         ----------
             path: list(PathSegment)
@@ -164,6 +166,18 @@ class OperatorGrid:
                 op_th.compute()
                 self._threshold_operators[new_op_key] = op_th
             thr_ops.append(self._threshold_operators[new_op_key])
+
+            # Compute the matching conditions and store it
+            # TODO: improve here and pass the correct values of Log(mh^2/q2^)
+            self.is_backward = bool(path[-1].q2_from > path[-1].q2_to)
+            if len(path) > 1:
+                mh2 = seg.q2_to
+                if len(self._matching_operators) == 0:
+                    ome = OperatorMatrixElement(
+                        self.config, self.managers, self.is_backward
+                    )
+                ome.compute(seg.q2_to, mh2)
+                self._matching_operators[seg.q2_to] = ome.ome_members
         return thr_ops
 
     def compute(self, q2grid=None):
@@ -192,13 +206,13 @@ class OperatorGrid:
             grid_return[q2] = self.generate(q2)
         return grid_return
 
-    def compute_matching_coeffs(self):
-        """
-        Compute the operator matrix elements for the non-trivial matching conditions
-        """
-        ome = OperatorMatrixElement(self.config, self.managers)
-        ome.compute()
-        self.ome_members = ome.ome_members
+    # def compute_matching_coeffs(self):
+    #     """
+    #     Compute the operator matrix elements for the non-trivial matching conditions
+    #     """
+    #     ome = OperatorMatrixElement(self.config, self.managers)
+    #     ome.compute()
+    #     self.ome_members = ome.ome_members
 
     def generate(self, q2):
         """
@@ -218,7 +232,6 @@ class OperatorGrid:
         path = self.managers["thresholds_config"].path(q2)
         # Prepare the path for the composition of the operator
         thr_ops = self.get_threshold_operators(path)
-        sc = self.managers["strong_coupling"]
         # we start composing with the highest operator ...
         operator = Operator(
             self.config, self.managers, path[-1].nf, path[-1].q2_from, path[-1].q2_to
@@ -232,48 +245,37 @@ class OperatorGrid:
         )
 
         # integrate matching conditions
-        # exact inverse depends on q2 so need to be computed separately
-        # Assume that intrinsic always depends on the scale ( TODO: not correct for the moment but
-        # will be true when we consider the logs )
-        is_backward = bool(path[-1].q2_from > path[-1].q2_to)
-        if len(path) > 1 and self.ome_members is None:
-            if (
-                self.config["intrinsic_range"] is not None
-                or self.config["backward_inversion"] == "exact"
-            ):
-                ome = OperatorMatrixElement(self.config, self.managers)
-            elif is_backward is False:
-                self.config["backward_inversion"] = None
-                self.compute_matching_coeffs()
-            elif self.config["backward_inversion"] == "expanded":
-                self.compute_matching_coeffs()
-            else:
-                raise ValueError(
-                    f"{self.config['backward_inversion']} is not implemented"
-                )
+        # is_backward = bool(path[-1].q2_from > path[-1].q2_to)
+        # if len(path) > 1 and self.ome_members is None:
+        #     if (
+        #         self.config["intrinsic_range"] is not None
+        #         or self.config["backward_inversion"] == "exact"
+        #     ):
+        #         ome = OperatorMatrixElement(self.config, self.managers)
+        #     elif is_backward is False:
+        #         self.config["backward_inversion"] = None
+        #         self.compute_matching_coeffs()
+        #     elif self.config["backward_inversion"] == "expanded":
+        #         self.compute_matching_coeffs()
+        #     else:
+        #         raise ValueError(
+        #             f"{self.config['backward_inversion']} is not implemented"
+        #         )
 
         # and multiply the lower ones from the right
         for op in reversed(thr_ops):
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
                 op.op_members, op.nf, op.q2_to, self.config["intrinsic_range"]
             )
-            a_s = sc.a_s(op.q2_to / self.config["fact_to_ren"], op.q2_to)
-
-            # compute the matching if not done yet
-            if self.ome_members is None:
-                ome.compute(a_s)
-                self.ome_members = ome.ome_members
-
             matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
-                self.ome_members,
+                self._matching_operators[op.q2_to],
                 op.nf,
                 op.q2_to,
-                a_s,
                 intrinsic_range=self.config["intrinsic_range"],
                 backward_inversion=self.config["backward_inversion"],
             )
             # join with the basis rotation, since matching requires c+ (or likewise)
-            if is_backward:
+            if self.is_backward:
                 invrot = member.ScalarOperator.promote_names(
                     flavors.rotate_matching_inverse(op.nf), op.q2_to
                 )
