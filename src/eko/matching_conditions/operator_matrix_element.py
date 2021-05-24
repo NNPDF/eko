@@ -183,7 +183,7 @@ class OperatorMatrixElement:
     def __init__(self, config, managers, is_backward, mellin_cut=1e-2):
 
         self.backward_method = config["backward_inversion"] if is_backward else ""
-        self.is_intrinsic = bool(config["intrinsic_range"] is not None)
+        self.is_intrinsic = bool( len(config["intrinsic_range"]) != 0)
         self.order = config["order"]
         self.sc = managers["strong_coupling"]
         self.fact_to_ren = config["fact_to_ren"]
@@ -221,18 +221,18 @@ class OperatorMatrixElement:
             )
         for n in labels:
             self.ome_members[n] = OpMember(
-                np.eye(grid_size), np.zeros((grid_size, grid_size))
+                np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
             )
         L = np.log(q2 / mh2)
         a_s = self.sc.a_s(q2 / self.fact_to_ren, q2)
 
-        # if LO and NLO no need to do anything
-        # except for intrinsic
-        if self.order <= 1 and self.is_intrinsic is False and L != 0.0:
-            logger.info(
-                "Matching: only trivial conditions are needed at PTO = %d", self.order
-            )
-            return
+        # now we always need to compute the opartors, since some are identies and others
+        # are zeros.
+        # if self.order <= 1 and self.is_intrinsic is False and L == 0.0:
+        #     logger.info(
+        #         "Matching: only trivial conditions are needed at PTO = %d", self.order
+        #     )
+        #     return
 
         tot_start_time = time.perf_counter()
         logger.info("Matching: computing operators - 0/%d", grid_size)

@@ -160,9 +160,13 @@ def rotate_matching(nf, inverse=False):
             l[f"{oth}.{qpm}"] = -(nf - 1.0)
     # also higher quarks do not care
     for k in range(nf + 1, 6 + 1):
-        q = quark_names[k - 1]
-        for sgn in "+-":
-            l[f"{q}{sgn}.{q}{sgn}"] = 1.0
+        # q = quark_names[k - 1]
+        # for sgn in "+-":
+        #     l[f"{q}{sgn}.{q}{sgn}"] = 1.0
+        n = k ** 2 - 1
+        l[f"V{n}.V"] = 1.0
+        l[f"T{n}.S"] = 1.0
+        l[f"T{n}.g"] = 1.0
     return l
 
 

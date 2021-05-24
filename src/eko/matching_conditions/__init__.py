@@ -20,7 +20,7 @@ class MatchingCondition(member.OperatorBase):
 
     @classmethod
     def split_ad_to_evol_map(
-        cls, ome_members, nf, q2_thr, intrinsic_range=None, backward_inversion=None
+        cls, ome_members, nf, q2_thr, intrinsic_range, is_backward
     ):
         """
         Create the instance from the operator matrix elements.
@@ -36,8 +36,8 @@ class MatchingCondition(member.OperatorBase):
                 threshold value
             intrinsic_range : list
                 list of intrinsic quark pids
-            backward_inversion: str
-                None or method for inverting the matching contidtion (exact or expanded)
+            is_backward: bool
+                True for backward evolution
         """
         len_xgrid = ome_members["NS_qq"].value.shape[0]
         op_id = member.OpMember(np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid)))
@@ -54,7 +54,7 @@ class MatchingCondition(member.OperatorBase):
 
         # activate one higher element, i.e. where the next heavy quark could participate,
         # without this new heavy quark Vn = V and Tn = S, done separately for intrinsic
-        if backward_inversion is None and intrinsic_range is None:
+        if is_backward is False and len(intrinsic_range) == 0:
             m.update(
                 {
                     f"{hq}-.V": ome_members["NS_Hq"],
@@ -63,36 +63,6 @@ class MatchingCondition(member.OperatorBase):
                 }
             )
 
-        # if backward_inversion == "exact":
-        #     # inversion is alrady done before the integration
-        #     m = {
-        #         "S.S": ome_members["S_qq"],
-        #         "S.g": ome_members["S_qg"],
-        #         "g.S": ome_members["S_gq"],
-        #         "g.g": ome_members["S_gg"],
-        #         "V.V": ome_members["NS_qq"],
-        #     }
-        # else:
-        #     # backawrd expanded or forward mathcing
-        #     m = {
-        #         "S.S": op_id + a_s ** 2 * (ome_members["NS_qq"] + ome_members["S_qq"]),
-        #         "S.g": a_s ** 2 * ome_members["S_qg"],
-        #         "g.S": a_s ** 2 * ome_members["S_gq"],
-        #         "g.g": op_id + a_s ** 2 * ome_members["S_gg"],
-        #         "V.V": op_id + a_s ** 2 * ome_members["NS_qq"],
-        #     }
-        #     # activate one higher element, i.e. where the next heavy quark could participate,
-        #     # without this new heavy quark Vn = V and Tn = S
-        #     if backward_inversion is None and intrinsic_range is None:
-        #         m.update(
-        #             {
-        #                 f"{hq}+.V": op_id + a_s ** 2 * ome_members["NS_qq"],
-        #                 f"{hq}+.S": op_id
-        #                 + a_s ** 2 *  ome_members["S_qq"],
-        #                 f"{hq}+.g": a_s ** 2 * ome_members["S_qg"],
-        #             }
-        #         )
-
         # add elements which are already active
         for f in range(2, nf + 1):
             n = f ** 2 - 1
@@ -100,10 +70,10 @@ class MatchingCondition(member.OperatorBase):
             m[f"T{n}.T{n}"] = m["V.V"]
 
         # intrinsic matching
-        if intrinsic_range is not None:
+        if len(intrinsic_range) != 0:
             for intr_fl in intrinsic_range:
                 hq = hqfl[intr_fl - 4]  # find name
-                if intr_fl > nf + 1 and backward_inversion is None:
+                if intr_fl > nf + 1 and is_backward is False:
                     # keep the higher quarks as they are
                     m[f"{hq}+.{hq}+"] = op_id
                     m[f"{hq}-.{hq}-"] = op_id

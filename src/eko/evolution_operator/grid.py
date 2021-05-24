@@ -79,7 +79,6 @@ class OperatorGrid:
             interpol_dispatcher=interpol_dispatcher,
         )
         self._threshold_operators = {}
-        self.is_backward = False
         self._matching_operators = {}
 
     @classmethod
@@ -135,7 +134,7 @@ class OperatorGrid:
             config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher
         )
 
-    def get_threshold_operators(self, path):
+    def get_threshold_operators(self, path, is_backward):
         """
         Generate the threshold operators.
 
@@ -152,6 +151,8 @@ class OperatorGrid:
         ----------
             path: list(PathSegment)
                 thresholds path
+            is_backward: bool
+                True for backward evolution
         """
         # The base area is always that of the reference q
         thr_ops = []
@@ -168,13 +169,12 @@ class OperatorGrid:
             thr_ops.append(self._threshold_operators[new_op_key])
 
             # Compute the matching conditions and store it
-            # TODO: improve here and pass the correct values of Log(mh^2/q2^)
-            self.is_backward = bool(path[-1].q2_from > path[-1].q2_to)
+            # TODO: improve here and pass the correct values of Log(q^2/mh2^)
             if len(path) > 1:
                 mh2 = seg.q2_to
                 if len(self._matching_operators) == 0:
                     ome = OperatorMatrixElement(
-                        self.config, self.managers, self.is_backward
+                        self.config, self.managers, is_backward
                     )
                 ome.compute(seg.q2_to, mh2)
                 self._matching_operators[seg.q2_to] = ome.ome_members
@@ -231,7 +231,8 @@ class OperatorGrid:
         # The lists of areas as produced by the thresholds
         path = self.managers["thresholds_config"].path(q2)
         # Prepare the path for the composition of the operator
-        thr_ops = self.get_threshold_operators(path)
+        is_backward = bool(path[-1].q2_from > path[-1].q2_to)
+        thr_ops = self.get_threshold_operators(path, is_backward)
         # we start composing with the highest operator ...
         operator = Operator(
             self.config, self.managers, path[-1].nf, path[-1].q2_from, path[-1].q2_to
@@ -245,7 +246,6 @@ class OperatorGrid:
         )
 
         # integrate matching conditions
-        # is_backward = bool(path[-1].q2_from > path[-1].q2_to)
         # if len(path) > 1 and self.ome_members is None:
         #     if (
         #         self.config["intrinsic_range"] is not None
@@ -272,17 +272,17 @@ class OperatorGrid:
                 op.nf,
                 op.q2_to,
                 intrinsic_range=self.config["intrinsic_range"],
-                backward_inversion=self.config["backward_inversion"],
+                is_backward=is_backward,
             )
             # join with the basis rotation, since matching requires c+ (or likewise)
-            if self.is_backward:
+            if is_backward:
                 invrot = member.ScalarOperator.promote_names(
                     flavors.rotate_matching_inverse(op.nf), op.q2_to
                 )
                 final_op = final_op @ matching @ invrot @ phys_op
             else:
                 rot = member.ScalarOperator.promote_names(
-                    flavors.rotate_matching(op.nf), op.q2_to
+                    flavors.rotate_matching(op.nf + 1), op.q2_to
                 )
                 final_op = final_op @ rot @ matching @ phys_op
 
