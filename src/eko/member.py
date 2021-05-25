@@ -34,6 +34,24 @@ class OpMember:
     def copy(self):
         return self.__class__(self.value.copy(), self.error.copy())
 
+    @classmethod
+    def id_like(cls, other):
+        """
+        Creates an identity operator.
+
+        Parameters
+        ----------
+            other : OpMember
+                reference member
+
+        Returns
+        -------
+            cls :
+                1
+        """
+        len_xgrid = other.value.shape[0]
+        return cls(np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid)))
+
     def __matmul__(self, operator_member):
         rval = operator_member.value
         rerror = operator_member.error

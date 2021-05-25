@@ -266,7 +266,7 @@ def A_singlet_2(n, sx):
         A_hg_2 : :math:`A_{hg}^{S,(2)}`
         A_gq_2 : :math:`A_{gq, H}^{S,(2)}`
         A_gg_2 : :math:`A_{gg, H}^{S,(2)}`
-    """  # pylint: disable=line-too-long
+    """
     A_hq = A_hq_2(n, sx) + A_ns_2(n, sx)
     A_hg = A_hg_2(n, sx)
     A_gq = A_gq_2(n, sx)

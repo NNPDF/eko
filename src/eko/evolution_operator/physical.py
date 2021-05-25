@@ -62,24 +62,21 @@ class PhysicalOperator(member.OperatorBase):
         # deal with intrinsic heavy quark pdfs
         if intrinsic_range is not None:
             hqfl = "cbt"
+            op_id = member.OpMember.id_like(op_members["NS_v"])
             for intr_fl in intrinsic_range:
                 if intr_fl <= nf:  # light quarks are not intrinsic
                     continue
                 hq = hqfl[intr_fl - 4]  # find name
                 # intrinsic means no evolution, i.e. they are evolving with the identity
-                len_xgrid = op_members["NS_v"].value.shape[0]
-                op_id = member.OpMember(
-                    np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid))
-                )
-                m[f"{hq}+.{hq}+"] = op_id
-                m[f"{hq}-.{hq}-"] = op_id
+                m[f"{hq}+.{hq}+"] = op_id.copy()
+                m[f"{hq}-.{hq}-"] = op_id.copy()
         # map key to MemberName
         return cls.promote_names(m, q2_final)
 
     def to_flavor_basis_tensor(self):
         """
         Convert the computations into an rank 4 tensor over flavor operator space and
-        momentum fraction operator space
+        momentum fraction operator space.
 
         Returns
         -------

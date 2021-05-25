@@ -3,9 +3,8 @@
 This module defines the matching conditions for the |VFNS| evolution.
 """
 
-import numpy as np
-
 from .. import member
+from ..evolution_operator import flavors
 
 
 class MatchingCondition(member.OperatorBase):
@@ -39,10 +38,6 @@ class MatchingCondition(member.OperatorBase):
             is_backward: bool
                 True for backward evolution
         """
-        len_xgrid = ome_members["NS_qq"].value.shape[0]
-        op_id = member.OpMember(np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid)))
-        hqfl = "cbt"
-        hq = hqfl[nf - 3]
 
         m = {
             "S.S": ome_members["S_qq"],
@@ -52,40 +47,40 @@ class MatchingCondition(member.OperatorBase):
             "V.V": ome_members["NS_qq"],
         }
 
-        # activate one higher element, i.e. where the next heavy quark could participate,
-        # without this new heavy quark Vn = V and Tn = S
-        if is_backward is False or (len(intrinsic_range) != 0):
-            m.update(
-                {
-                    f"{hq}-.V": ome_members["NS_Hq"],
-                    f"{hq}+.S": ome_members["S_Hq"],
-                    f"{hq}+.g": ome_members["S_Hg"],
-                }
-            )
-
         # add elements which are already active
         for f in range(2, nf + 1):
             n = f ** 2 - 1
             m[f"V{n}.V{n}"] = m["V.V"]
             m[f"T{n}.T{n}"] = m["V.V"]
 
+        # activate the next heavy quark
+        hq = flavors.quark_names[nf]
+        m.update(
+            {
+                f"{hq}-.V": ome_members["NS_Hq"],
+                f"{hq}+.S": ome_members["S_Hq"],
+                f"{hq}+.g": ome_members["S_Hg"],
+            }
+        )
+
         # intrinsic matching
-        if len(intrinsic_range) != 0:
+        if len(intrinsic_range) != 0 and not is_backward:
+            op_id = member.OpMember.id_like(ome_members["NS_qq"])
             for intr_fl in intrinsic_range:
-                hq = hqfl[intr_fl - 4]  # find name
-                if intr_fl > nf + 1 and is_backward is False:
+                ihq = flavors.quark_names[intr_fl - 1]  # find name
+                if intr_fl > nf + 1:
                     # keep the higher quarks as they are
-                    m[f"{hq}+.{hq}+"] = op_id
-                    m[f"{hq}-.{hq}-"] = op_id
+                    m[f"{ihq}+.{ihq}+"] = op_id.copy()
+                    m[f"{ihq}-.{ihq}-"] = op_id.copy()
                 elif intr_fl == nf + 1:
-                    # match the missing contibution form h+ and h-
+                    # match the missing contibution from h+ and h-
                     m.update(
                         {
-                            f"{hq}+.{hq}+": ome_members["S_HH"],
-                            f"S.{hq}+": ome_members["S_qH"],
-                            f"g.{hq}+": ome_members["S_gH"],
-                            f"{hq}-.{hq}-": ome_members["NS_HH"],
-                            f"V.{hq}-": ome_members["NS_qH"],
+                            f"{ihq}+.{ihq}+": ome_members["S_HH"],
+                            f"S.{ihq}+": ome_members["S_qH"],
+                            f"g.{ihq}+": ome_members["S_gH"],
+                            f"{ihq}-.{ihq}-": ome_members["NS_HH"],
+                            f"V.{ihq}-": ome_members["NS_qH"],
                         }
                     )
         return cls.promote_names(m, q2_thr)
