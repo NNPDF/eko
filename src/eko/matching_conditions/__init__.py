@@ -53,8 +53,8 @@ class MatchingCondition(member.OperatorBase):
         }
 
         # activate one higher element, i.e. where the next heavy quark could participate,
-        # without this new heavy quark Vn = V and Tn = S, done separately for intrinsic
-        if is_backward is False and len(intrinsic_range) == 0:
+        # without this new heavy quark Vn = V and Tn = S
+        if is_backward is False or (len(intrinsic_range) != 0):
             m.update(
                 {
                     f"{hq}-.V": ome_members["NS_Hq"],
@@ -86,9 +86,6 @@ class MatchingCondition(member.OperatorBase):
                             f"g.{hq}+": ome_members["S_gH"],
                             f"{hq}-.{hq}-": ome_members["NS_HH"],
                             f"V.{hq}-": ome_members["NS_qH"],
-                            f"{hq}+.S": ome_members["S_Hq"],
-                            f"{hq}+.g": ome_members["S_Hg"],
-                            f"{hq}-.V": ome_members["NS_Hq"],
                         }
                     )
         return cls.promote_names(m, q2_thr)

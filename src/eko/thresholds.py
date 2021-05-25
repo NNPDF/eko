@@ -57,6 +57,13 @@ class PathSegment:
         return self._area.nf
 
     @property
+    def is_backward(self):
+        """True if q2_from bigger than q2_to"""
+        if self.q2_from > self.q2_to:
+            return True
+        return False
+
+    @property
     def tuple(self):
         """Tuple representation suitable for hashing."""
         return (self.q2_from, self.q2_to)

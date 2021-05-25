@@ -45,7 +45,7 @@ def test_A_2():
     # Reference numbers coming from Mathematica
     np.testing.assert_allclose(aS2[0, 1] + aS2[1, 1], 0.00035576, rtol=1e-6)
     # quark momentum conservation
-    np.testing.assert_allclose(A_ns_2(N, sx) + aS2[0, 0] + aS2[1, 0], 0.0, atol=3e-7)
+    np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0], 0.0, atol=3e-7)
 
     assert aS2.shape == (2, 2)
 
@@ -108,7 +108,7 @@ def test_quad_ker(monkeypatch):
         )
         np.testing.assert_allclose(res_s, 0.0)
 
-    # test inverse kernels
+    # test expanded intrisic inverse kernels
     labels = ["NS_qq", *singlet_labels]
     for label in labels:
         res_ns = quad_ker(
@@ -121,7 +121,7 @@ def test_quad_ker(monkeypatch):
             backward_method="expanded",
             a_s=0.0,
             L=0.0,
-            is_intrisinc=False,
+            is_intrisinc=True,
         )
         if label[-1] == label[-2]:
             np.testing.assert_allclose(res_ns, 1.0)
@@ -166,13 +166,14 @@ def test_quad_ker(monkeypatch):
         mode="NS_qq",
         is_log=True,
         logx=0.0,
-        areas=np.array([0.01,0.1,1.0]),
+        areas=np.array([0.01, 0.1, 1.0]),
         backward_method=None,
         a_s=0.0,
         L=0.0,
         is_intrisinc=False,
     )
     np.testing.assert_allclose(res_ns, 0.0)
+
 
 class TestOperatorMatrixElement:
     def test_compute(self, monkeypatch):
@@ -219,7 +220,7 @@ class TestOperatorMatrixElement:
             scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
         )
         o.order = 2
-        o.compute( 1.0, 1.0)
+        o.compute(1.0, 1.0)
         assert "NS_qq" in o.ome_members
         assert "S_qq" in o.ome_members
         assert "S_qg" in o.ome_members

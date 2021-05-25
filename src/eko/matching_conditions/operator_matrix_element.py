@@ -49,7 +49,6 @@ def build_singlet_ome(n, sx, order, a_s, L, backward_method, is_intrisinc):
         if order >= 2:
             ker2 = a_s ** 2 * A_singlet_2(n, sx)
             ker[:-1, :-1] += ker2
-            ker[0, 0] += a_s ** 2 * A_ns_2(n, sx)
             ker[2, 0] += ker2[0, 0]
             ker[2, 1] += ker2[0, 1]
         # need inverse exact ?, so add the missing pieces
@@ -70,11 +69,11 @@ def build_non_singlet_ome(n, sx, order, a_s, L, backward_method, is_intrisinc):
                 # intrisic h+ contribution
                 ker[1, 1] -= a_s * A_hh_1(n, sx, L)
         if order >= 2:
-            ker[0, 0] += a_s ** 2 * ( - A_ns_2(n, sx) + ker1 * ker1)
+            ker[0, 0] += a_s ** 2 * (-A_ns_2(n, sx) + ker1 * ker1)
     else:
         # forward or exact inverse
         if order >= 1:
-            ker[0,0] += a_s * 0.0  # A_ns_1(n, sx, L) not ready yet
+            ker[0, 0] += a_s * 0.0  # A_ns_1(n, sx, L) not ready yet
             if is_intrisinc:
                 # intrisic h+ contribution
                 ker[1, 1] += a_s * A_hh_1(n, sx, L)
@@ -183,7 +182,7 @@ class OperatorMatrixElement:
     def __init__(self, config, managers, is_backward, mellin_cut=1e-2):
 
         self.backward_method = config["backward_inversion"] if is_backward else ""
-        self.is_intrinsic = bool( len(config["intrinsic_range"]) != 0)
+        self.is_intrinsic = bool(len(config["intrinsic_range"]) != 0)
         self.order = config["order"]
         self.sc = managers["strong_coupling"]
         self.fact_to_ren = config["fact_to_ren"]
@@ -207,7 +206,7 @@ class OperatorMatrixElement:
         grid_size = len(self.int_disp.xgrid)
         # TODO: improve labels: NS_Hq and S_Hg are not really needed for
         #  forward evolution since are equal to NS_qq and S_qg.
-        labels = ["S_Hg","S_Hq","NS_Hq","NS_qq", *singlet_labels]
+        labels = ["S_Hg", "S_Hq", "NS_Hq", "NS_qq", *singlet_labels]
         if self.is_intrinsic:
             # intrisic labels
             labels.extend(
@@ -226,7 +225,7 @@ class OperatorMatrixElement:
         L = np.log(q2 / mh2)
         a_s = self.sc.a_s(q2 / self.fact_to_ren, q2)
 
-        # now we always need to compute the opartors, since some are identies and others
+        # we always need to compute the opartors, since some are identies and others
         # are zeros.
         # if self.order <= 1 and self.is_intrinsic is False and L == 0.0:
         #     logger.info(

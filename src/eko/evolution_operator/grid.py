@@ -134,7 +134,7 @@ class OperatorGrid:
             config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher
         )
 
-    def get_threshold_operators(self, path, is_backward):
+    def get_threshold_operators(self, path):
         """
         Generate the threshold operators.
 
@@ -151,8 +151,10 @@ class OperatorGrid:
         ----------
             path: list(PathSegment)
                 thresholds path
-            is_backward: bool
-                True for backward evolution
+
+        Returns
+        -------
+            thr_ops: list(eko.evolution_operator.Operator)
         """
         # The base area is always that of the reference q
         thr_ops = []
@@ -174,7 +176,7 @@ class OperatorGrid:
                 mh2 = seg.q2_to
                 if len(self._matching_operators) == 0:
                     ome = OperatorMatrixElement(
-                        self.config, self.managers, is_backward
+                        self.config, self.managers, seg.is_backward
                     )
                 ome.compute(seg.q2_to, mh2)
                 self._matching_operators[seg.q2_to] = ome.ome_members
@@ -231,8 +233,7 @@ class OperatorGrid:
         # The lists of areas as produced by the thresholds
         path = self.managers["thresholds_config"].path(q2)
         # Prepare the path for the composition of the operator
-        is_backward = bool(path[-1].q2_from > path[-1].q2_to)
-        thr_ops = self.get_threshold_operators(path, is_backward)
+        thr_ops = self.get_threshold_operators(path)
         # we start composing with the highest operator ...
         operator = Operator(
             self.config, self.managers, path[-1].nf, path[-1].q2_from, path[-1].q2_to
@@ -263,7 +264,8 @@ class OperatorGrid:
         #         )
 
         # and multiply the lower ones from the right
-        for op in reversed(thr_ops):
+        for i, op in reversed(list(enumerate(thr_ops))):
+            is_backward = path[i].is_backward
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
                 op.op_members, op.nf, op.q2_to, self.config["intrinsic_range"]
             )
