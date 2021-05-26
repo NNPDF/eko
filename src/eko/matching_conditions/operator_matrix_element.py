@@ -15,7 +15,7 @@ from .. import mellin
 from .. import interpolation
 from ..member import OpMember
 
-from .nlo import A_gh_1, A_hh_1
+from .nlo import A_gh_1, A_hh_1, A_singlet_1, A_ns_1
 from .nnlo import A_singlet_2, A_ns_2
 from ..anomalous_dimensions import harmonics
 from ..member import singlet_labels
@@ -30,18 +30,18 @@ def build_singlet_ome(n, sx, order, a_s, L, backward_method, is_intrisinc):
     ker = np.eye(3, dtype=np.complex_)
     if backward_method == "expanded":
         if order >= 1:
-            ker1 = np.zeros(2)  # TODO: A_singlet_1(n, sx, L) not ready yet
+            ker1 = A_singlet_1(n, sx, L)
             ker[:-1, :-1] -= a_s * ker1
             if is_intrisinc:
                 # intrisic h+ contribution
                 ker[2, 2] -= a_s * A_hh_1(n, sx, L)
                 ker[1, 2] -= a_s * A_gh_1(n, L)
         if order >= 2:
-            ker[:-1, :-1] += a_s ** 2 * (-A_singlet_2(n, sx) + ker1 @ ker1)
+            ker[:-1, :-1] += a_s ** 2 * ( - A_singlet_2(n, sx) + ker1 @ ker1)
     else:
         # forward or exact inverse
         if order >= 1:
-            ker[:-1, :-1] += a_s * np.zeros(2)  # A_singlet_1(n, sx, L) not ready yet
+            ker[:-1, :-1] += a_s * A_singlet_1(n, sx, L)
             if is_intrisinc:
                 # intrisic h+ contribution
                 ker[2, 2] += a_s * A_hh_1(n, sx, L=0.0)
@@ -63,7 +63,7 @@ def build_non_singlet_ome(n, sx, order, a_s, L, backward_method, is_intrisinc):
     ker = np.eye(2, dtype=np.complex_)
     if backward_method == "expanded":
         if order >= 1:
-            ker1 = 0.0  # TODO: A_ns_1(n, sx, L) not ready yet
+            ker1 = A_ns_1(n, sx, L)
             ker[0, 0] -= a_s * ker1
             if is_intrisinc:
                 # intrisic h+ contribution
@@ -73,7 +73,7 @@ def build_non_singlet_ome(n, sx, order, a_s, L, backward_method, is_intrisinc):
     else:
         # forward or exact inverse
         if order >= 1:
-            ker[0, 0] += a_s * 0.0  # A_ns_1(n, sx, L) not ready yet
+            ker[0, 0] += a_s * A_ns_1(n, sx, L)
             if is_intrisinc:
                 # intrisic h+ contribution
                 ker[1, 1] += a_s * A_hh_1(n, sx, L)

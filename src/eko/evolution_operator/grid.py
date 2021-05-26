@@ -31,6 +31,8 @@ class OperatorGrid:
 
     Parameters
     ----------
+        config: dict
+            configuration dictionary
         q2_grid: array
             Grid in Q2 on where to to compute the operators
         order: int
@@ -130,6 +132,8 @@ class OperatorGrid:
         if int(theory_card["IC"]) == 1:
             intrinsic_range.append(4)
         config["intrinsic_range"] = intrinsic_range
+        for hq in flavors.quark_names[3:]:
+            config[f"m{hq}"] = theory_card[f"m{hq}"]
         return cls(
             config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher
         )
@@ -171,9 +175,8 @@ class OperatorGrid:
             thr_ops.append(self._threshold_operators[new_op_key])
 
             # Compute the matching conditions and store it
-            # TODO: improve here and pass the correct values of Log(q^2/mh2^)
             if len(path) > 1:
-                mh2 = seg.q2_to
+                mh2 = self.config[f"m{flavors.quark_names[seg.nf]}"] ** 2
                 if len(self._matching_operators) == 0:
                     ome = OperatorMatrixElement(
                         self.config, self.managers, seg.is_backward
