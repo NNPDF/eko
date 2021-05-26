@@ -59,15 +59,13 @@ corresponding |PDF| : :math:`\gamma, \Sigma, g, V, V_{3}, V_{8}, V_{15}, V_{24},
 V_{35}, T_{3}, T_{8}, T_{15}, T_{24}, T_{35}`
 """
 
-anomalous_dimensions_basis = (
-    "S.S",
-    "S.g",
-    "g.S",
-    "g.g",
-    "NS_v",
-    "NS_p",
-    "NS_m",
-)
+singlet_labels = ("S_qq", "S_qg", "S_gq", "S_gg")
+non_singlet_labels = ("NS_m", "NS_p", "NS_v")
+full_labels = (*singlet_labels, *non_singlet_labels)
+anomalous_dimensions_basis = full_labels
+r"""
+Sorted elements in Anomalous Dimensions Basis as :obj:`str`.
+"""
 
 # Tranformation from physical basis to QCD evolution basis
 rotate_flavor_to_evolution = np.array(

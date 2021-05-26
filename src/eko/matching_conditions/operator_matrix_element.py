@@ -17,7 +17,7 @@ from ..member import OpMember
 
 from .nnlo import A_singlet_2, A_ns_2
 from ..anomalous_dimensions import harmonics
-from ..member import singlet_labels
+from ..basis_rotation import singlet_labels
 
 # TODO: order might be removed if N3LO matching conditions will not be implemented
 
