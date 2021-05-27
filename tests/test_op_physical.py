@@ -22,20 +22,20 @@ class TestPhysicalOperator:
     def _mkNames(self, ns):
         return [member.MemberName(n) for n in ns]
 
-    def test_operation(self):
-        VV = self._mkOM(1)
-        a = PhysicalOperator(
-            dict(
-                zip(
-                    self._mkNames(("V.V",)),
-                    (VV),
-                )
-            ),
-            1,
-        )
-        # assert "__matmul__" == PhysicalOperator.operation(a)
-        b = member.ScalarOperator(dict(zip(self._mkNames(("V.V",)), (1.0,))), 1)
-        # assert "__mul__" == PhysicalOperator.operation(b)
+    # def test_operation(self):
+    #     VV = self._mkOM(1)
+    #     a = PhysicalOperator(
+    #         dict(
+    #             zip(
+    #                 self._mkNames(("V.V",)),
+    #                 (VV),
+    #             )
+    #         ),
+    #         1,
+    #     )
+    #     assert "__matmul__" == PhysicalOperator.operation(a)
+    #     b = member.ScalarOperator(dict(zip(self._mkNames(("V.V",)), (1.0,))), 1)
+    #     assert "__mul__" == PhysicalOperator.operation(b)
 
     def test_matmul_scalar(self):
         VV = self._mkOM(1)

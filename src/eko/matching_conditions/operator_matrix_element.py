@@ -376,7 +376,7 @@ class OperatorMatrixElement:
         for label in ["NS_Hq", "S_Hq", "S_Hg"]:
             if label not in self.ome_members:
                 base_label = label.replace('H','q')
-                self.ome_members[label] = OpMember( 
+                self.ome_members[label] = OpMember(
                     self.ome_members[base_label].value.copy(),
                     self.ome_members[base_label].error.copy()
                 )

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Test eko.matching_conditions.OperatorMatrixElement
 import numpy as np
-import scipy.integrate
 
 from eko.evolution_operator.grid import OperatorGrid
 from eko.thresholds import ThresholdsAtlas
