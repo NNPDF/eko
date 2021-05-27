@@ -89,3 +89,45 @@ rotate_flavor_to_evolution = np.array(
 """
 Basis rotation matrix between :doc:`Flavor Basis and Evolution Basis </theory/FlavorSpace>`.
 """
+
+map_ad_to_evolution = {
+    "S_qq": ["S.S"],
+    "S_qg": ["S.g"],
+    "S_gq": ["g.S"],
+    "S_gg": ["g.g"],
+    "NS_v": ["V.V"],
+    "NS_p": ["T3.T3", "T8.T8", "T15.T15", "T24.T24", "T35.T35"],
+    "NS_m": ["V3.V3", "V8.V8", "V15.V15", "V24.V24", "V35.V35"],
+}
+"""
+Map anomalous dimension sectors' names to their members
+"""
+
+
+def ad_projector(ad_lab):
+    """
+    Build a projector (as a numpy array) for the given anomalous dimension
+    sector.
+
+    Parameters
+    ----------
+    ad_lab : str
+        name of anomalous dimension sector
+
+    Returns
+    -------
+    proj : np.ndarray
+        projector over the specified sector
+    """
+    proj = np.zeros_like(rotate_flavor_to_evolution, dtype=float)
+    l = map_ad_to_evolution[ad_lab]
+
+    for el in l:
+        out_name, in_name = el.split(".")
+        out_idx = evol_basis.index(out_name)
+        in_idx = evol_basis.index(in_name)
+        out = rotate_flavor_to_evolution[out_idx]
+        in_ = rotate_flavor_to_evolution[in_idx]
+        proj += (out[:, np.newaxis] * in_) / (in_ @ in_)
+
+    return proj
