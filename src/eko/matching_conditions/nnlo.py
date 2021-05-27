@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 r"""
-This module contains the |NNLO| operator-matrix elements (OMEs)
+This module contains the |NNLO| |OME|
 for the matching conditions in the |VFNS| at :math:`\mu_F^2 = m_H^2` :cite:`Buza_1998`.
 The approximated expressions are taken from :cite:`Vogt:2004ns`.
 """
@@ -8,17 +8,14 @@ import numba as nb
 import numpy as np
 
 from .. import constants
-from ..anomalous_dimensions import harmonics
-
-# Global variables
-zeta2 = harmonics.zeta2
-zeta3 = harmonics.zeta3
+from ..anomalous_dimensions.harmonics import zeta2,zeta3
 
 
 @nb.njit("c16(c16,c16[:])", cache=True)
-def A_hq_2_ns(n, sx):
+def A_qq_2_ns(n, sx):
     """
-    Implemtation of :math:`A_{qq,H}^{NS,(2)}` given in Eq. (B.4) of :cite:`Buza_1998`
+    |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}` given in
+    Eq. (B.4) of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -29,8 +26,8 @@ def A_hq_2_ns(n, sx):
 
     Returns
     -------
-        A_hq_2_ns : complex
-            |NNLO| non-singlet :math:`A_{qq,H}^{NS,(2)}` operator-matrix element
+        A_qq_2_ns : complex
+            |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`
     """
     S1 = sx[0]
     S2 = sx[1]
@@ -59,7 +56,8 @@ def A_hq_2_ns(n, sx):
 @nb.njit("c16(c16,c16[:])", cache=True)
 def A_hq_2_ps(n, sx):
     """
-    Implemtation of :math:`A_{Hq}^{PS,(2)}` given in Eq. (B.1) of :cite:`Buza_1998`.
+    |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}` given in
+    Eq. (B.1) of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -71,7 +69,7 @@ def A_hq_2_ps(n, sx):
     Returns
     -------
         A_hq_2_ps : complex
-            |NNLO| singlet :math:`A_{Hq}^{PS,(2)}` operator-matrix element
+            |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`
     """
     S2 = sx[1]
 
@@ -111,7 +109,8 @@ def A_hq_2_ps(n, sx):
 @nb.njit("c16(c16,c16[:])", cache=True)
 def A_hg_2(n, sx):
     """
-    Implemtation of :math:`A_{Hg}^{S,(2)}` given in Eq. (B.3) of :cite:`Buza_1998`.
+    |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}` given in
+    Eq. (B.3) of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -123,7 +122,7 @@ def A_hg_2(n, sx):
     Returns
     -------
         A_hg_2 : complex
-            |NNLO| singlet :math:`A_{Hg}^{S,(2)}` operator-matrix element
+            |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`
     """
     S1 = sx[0]
     S2 = sx[1]
@@ -151,7 +150,8 @@ def A_hg_2(n, sx):
 @nb.njit("c16(c16,c16[:])", cache=True)
 def A_gq_2(n, sx):
     """
-    Implemtation of :math:`A_{gq,H}^{S,(2)}` given in Eq. (B.5) of :cite:`Buza_1998`.
+    |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}` given in
+    Eq. (B.5) of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -163,7 +163,7 @@ def A_gq_2(n, sx):
     Returns
     -------
         A_gq_2 : complex
-            |NNLO| singlet :math:`A_{gq,H}^{S,(2)}` operator-matrix element
+            |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`
     """
     S1 = sx[0]
     S2 = sx[1]
@@ -189,7 +189,8 @@ def A_gq_2(n, sx):
 @nb.njit("c16(c16,c16[:])", cache=True)
 def A_gg_2(n, sx):
     """
-    Implemtation of :math:`A_{gg,H}^{S,(2)} ` given in Eq. (B.7) of :cite:`Buza_1998`.
+    |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)} ` given in
+    Eq. (B.7) of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -201,7 +202,7 @@ def A_gg_2(n, sx):
     Returns
     -------
         A_gg_2 : complex
-            |NNLO| singlet :math:`A_{gg,H}^{S,(2)}` operator-matrix element
+            |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
     """
     S1 = sx[0]
 
@@ -239,7 +240,7 @@ def A_gg_2(n, sx):
 @nb.njit("c16[:,:](c16,c16[:])", cache=True)
 def A_singlet_2(n, sx):
     r"""
-      Computes the |NNLO| heavy-quark singlet operator matrix elements
+      Computes the |NNLO| singlet |OME|.
 
       .. math::
           A^{S,(2)} = \left(\begin{array}{cc}
@@ -258,7 +259,7 @@ def A_singlet_2(n, sx):
       Returns
       -------
         A_S_2 : numpy.ndarray
-            |NNLO| heavy-quark singlet operator matrix elements :math:`A^{S,(2)}(N)`
+            |NNLO| singlet |OME| :math:`A^{S,(2)}(N)`
 
       See Also
       --------
@@ -268,7 +269,7 @@ def A_singlet_2(n, sx):
         A_gq_2 : :math:`A_{gq, H}^{S,(2)}`
         A_gg_2 : :math:`A_{gg, H}^{S,(2)}`
     """
-    A_hq = A_hq_2_ns(n, sx) + A_hq_2_ps(n, sx)
+    A_hq = A_qq_2_ns(n, sx) + A_hq_2_ps(n, sx)
     A_hg = A_hg_2(n, sx)
     A_gq = A_gq_2(n, sx)
     A_gg = A_gg_2(n, sx)
@@ -281,7 +282,7 @@ def A_singlet_2(n, sx):
 @nb.njit("c16[:,:](c16,c16[:])", cache=True)
 def A_ns_2(n, sx):
     r"""
-      Computes the |NNLO| heavy-quark non singlet operator matrix elements
+      Computes the |NNLO| non-singlet |OME|.
 
       .. math::
           A^{NS,(2)} = \left(\begin{array}{cc}
@@ -299,11 +300,11 @@ def A_ns_2(n, sx):
       Returns
       -------
         A_NS_2 : numpy.ndarray
-            |NNLO| heavy-quark singlet operator matrix elements :math:`A^{NS,(2)}(N)`
+            |NNLO| non-singlet |OME| :math:`A^{NS,(2)}(N)`
 
       See Also
       --------
-        A_hq_2_ns : :math:`A_{qq,H}^{NS,(2)}`
+        A_qq_2_ns : :math:`A_{qq,H}^{NS,(2)}`
     """
-    A_hq = A_hq_2_ns(n, sx)
+    A_hq = A_qq_2_ns(n, sx)
     return np.array([[A_hq, 0.0], [A_hq, 0.0]], np.complex_)

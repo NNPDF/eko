@@ -22,13 +22,13 @@ class MatchingCondition(member.OperatorBase):
         cls, ome_members, nf, q2_thr, intrinsic_range, is_backward
     ):
         """
-        Create the instance from the operator matrix elements.
+        Create the instance from the |OME|.
 
         Parameters
         ----------
             ome_members : eko.operator_matrix_element.OperatorMatrixElement.ome_member
                 Attribute of :class:`~eko.operator_matrix_element.OperatorMatrixElement`
-                containing the operator matrix elements
+                containing the |OME|
             nf : int
                 number of active flavors *below* the threshold
             q2_thr: float

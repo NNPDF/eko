@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Test NLO operator matrix elements
+# Test NLO OME
 import numpy as np
 
 from eko.matching_conditions.nlo import (

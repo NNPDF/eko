@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This module defines the operator matrix elements for the non-trivial matching conditions in the
+This module defines the |OME| for the non-trivial matching conditions in the
 |VFNS| evolution.
 """
 
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 @nb.njit("c16[:,:,:](u1,c16,c16[:],f8,b1)", cache=True)
 def A_singlet(order, n, sx, L, is_intrisinc):
     r"""
-    Computes the tower of the singlet operator matrix elements
+    Computes the tower of the singlet |OME|.
 
     Parameters
     ----------
@@ -45,7 +45,7 @@ def A_singlet(order, n, sx, L, is_intrisinc):
     Returns
     -------
         A_singlet : numpy.ndarray
-            singlet anomalous operator matrix elements
+            singlet |OME|
 
     See Also
     --------
@@ -70,7 +70,7 @@ def A_singlet(order, n, sx, L, is_intrisinc):
 @nb.njit("c16[:,:,:](u1,c16,c16[:],f8,b1)", cache=True)
 def A_non_singlet(order, n, sx, L, is_intrisinc):
     r"""
-    Computes the tower of the non singlet operator matrix elements
+    Computes the tower of the non-singlet |OME|
 
     Parameters
     ----------
@@ -88,7 +88,7 @@ def A_non_singlet(order, n, sx, L, is_intrisinc):
     Returns
     -------
         A_singlet : numpy.ndarray
-            singlet anomalous operator matrix elements
+            non-singlet |OME|
 
     See Also
     --------
@@ -108,12 +108,12 @@ def A_non_singlet(order, n, sx, L, is_intrisinc):
 @nb.njit("c16[:,:](c16[:,:,:],u4,f8,string)", cache=True)
 def build_ome(A, order, a_s, backward_method):
     r"""
-    Construct the matching expansion in :math:`a_s` with the appropriate method
+    Construct the matching expansion in :math:`a_s` with the appropriate method.
 
     Parameters
     ----------
         A : numpy.ndarray
-            list of operator matrix elements
+            list of |OME|
         order : int
             perturbation order
         a_s : float
@@ -228,7 +228,7 @@ def quad_ker(
 
 class OperatorMatrixElement:
     """
-    Internal representation of a single Operator Matrix Element.
+    Internal representation of a single |OME|.
 
     The actual matrices are computed upon calling :meth:`compute`.
 

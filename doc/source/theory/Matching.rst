@@ -68,7 +68,7 @@ The singlet sector and the full valence distributions are given by
     \dSV{n_f+1}{Q_1^2}    &= \ES{Q^2_1}{m_{q+1}^2} \mathbf{M}_{S}(m_{q+1}^2) \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
     \dVf{n_f+1}{Q_1^2} &= \Ensv{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensv{m_{q+1}^2}{Q^2_0} \dVf{n_f}{Q_0^2}
 
-with M being the operator matrix element of the matching: 
+with M being the |OME| of the matching: 
 
 .. math ::
     \mathbf{M}_{S}(m_{q+1}^2) &= \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} + a_s^2(m_{q+1}^2) \begin{pmatrix} A_{qq,H}^{ns,(2)} + A_{Hq}^{ps,(2)} &  A_{Hg}^{s,(2)} \\ A_{gq,H}^{s,(2)} & A_{gg,H}^{s,(2)} \end{pmatrix} \\

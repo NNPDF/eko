@@ -1,6 +1,9 @@
 .. |EKO| replace::
    :abbr:`EKO (Evolution Kernel Operator)`
 
+.. |PDF| replace::
+   :abbr:`PDF (Parton Distribution Function(s))`
+
 .. FNS
 
 .. |FNS| replace::
@@ -32,13 +35,13 @@
 .. |DGLAP| replace::
    :abbr:`DGLAP (Dokshitzer-Gribov-Lipatov-Altarelli-Parisi)`
 
-.. |PDF| replace::
-   :abbr:`PDF (Parton Distribution Function(s))`
-
 .. data
 
 .. |pid| replace::
-   :abbr:`pid ((Monte Carlo) parton identifier)`
+   :abbr:`PID ((Monte Carlo) parton identifier)`
+
+.. |OME| replace::
+   :abbr:`OME (operator matrix element)`
 
 .. external
 

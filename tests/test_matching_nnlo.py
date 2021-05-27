@@ -56,7 +56,7 @@ def test_A_2():
     assert aS2[1].all() == aS2[2].all()
 
 
-# Test operator matrix element integration
+# Test OME integration
 def test_quad_ker(monkeypatch):
     monkeypatch.setattr(
         mellin, "Talbot_path", lambda *args: 2

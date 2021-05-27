@@ -211,14 +211,6 @@ class OperatorGrid:
             grid_return[q2] = self.generate(q2)
         return grid_return
 
-    # def compute_matching_coeffs(self):
-    #     """
-    #     Compute the operator matrix elements for the non-trivial matching conditions
-    #     """
-    #     ome = OperatorMatrixElement(self.config, self.managers)
-    #     ome.compute()
-    #     self.ome_members = ome.ome_members
-
     def generate(self, q2):
         """
         Computes an single EKO.

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 r"""
-This module contains the |NLO| operator-matrix elements (OMEs)
+This module contains the |NLO| |OME| (OMEs)
 for the matching conditions in the |VFNS|.
 Heavy quark contribution for intrinsic evolution are taken from :cite:`Ball_2016`
 and Mellin transformed with Mathematica.
-The other matching conditions for the |VFNS| at :math:`\mu_F^2 != m_H^2`
+The other matching conditions for the |VFNS| at :math:`\mu_F^2 \neq m_H^2`
 are provided in :cite:`Buza_1998` and Mellin transformed with Mathematica.
 """
 import numba as nb
@@ -17,7 +17,7 @@ from ..constants import CF
 @nb.njit("c16(c16,f8)", cache=True)
 def A_hh_1(n, L):
     r"""
-    math:`A_{HH}^{(1)}` operator-matrix element defined as the
+    |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}` defined as the
     mellin transform of :math:`K_{hh}` given in Eq. (20a) of :cite:`Ball_2016`.
 
     Parameters
@@ -25,12 +25,12 @@ def A_hh_1(n, L):
         N : complex
             Mellin moment
         L : float
-            :math:`ln(\frac{q^2}{m_h^2})`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
         A_hh_1 : complex
-            |NLO|  :math:`A_{HH}^{(1)}` operator-matrix element
+            |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}`
     """
     # TODO: if the harmonics are used also at nnlo we can pass them as argument
     S1m = harmonics.harmonic_S1(n - 1)
@@ -51,7 +51,7 @@ def A_hh_1(n, L):
 @nb.njit("c16(c16,f8)", cache=True)
 def A_hg_1(n, L):
     r"""
-    math:`A_{Hg}^{S,(1)}` operator-matrix element defined as the
+    |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}` defined as the
     mellin transform of Eq. (B.2) from :cite:`Buza_1998`.
 
     Parameters
@@ -59,12 +59,12 @@ def A_hg_1(n, L):
         N : complex
             Mellin moment
         L : float
-            :math:`ln(\frac{q^2}{m_h^2})`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
         A_hg_1 : complex
-            |NLO|  :math:`A_{Hg}^{S,(1)}` operator-matrix element
+            |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}`
     """
     den = 1.0 / (n * (n + 1) * (2 + n))
     num = 2 * (2 + n + n ** 2)
@@ -74,7 +74,7 @@ def A_hg_1(n, L):
 @nb.njit("c16(c16,f8)", cache=True)
 def A_gh_1(n, L):
     r"""
-    math:`A_{gH}^{(1)}` operator-matrix element defined as the
+    |NLO| gluon-heavy |OME| :math:`A_{gH}^{(1)}` defined as the
     mellin transform of :math:`K_{gh}` given in Eq. (20b) of :cite:`Ball_2016`.
 
     Parameters
@@ -82,12 +82,12 @@ def A_gh_1(n, L):
         n : complex
             Mellin moment
         L : float
-            :math:`ln(\frac{q^2}{m_h^2})`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
         A_hg_1 : complex
-            |NLO|  :math:`A_{gH}^{(1)}` operator-matrix element
+            |NLO| gluon-heavy |OME| :math:`A_{gH}^{(1)}`
     """
 
     den = 1.0 / (n * (n ** 2 - 1)) ** 2
@@ -98,8 +98,8 @@ def A_gh_1(n, L):
 
 @nb.njit("c16(c16,f8)", cache=True)
 def A_gg_1(n, L):
-    """
-    math:`A_{gg,H}^{S,(1)}` operator-matrix element defined as the
+    r"""
+    |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}` defined as the
     mellin transform of Eq. (B.6) from :cite:`Buza_1998`.
 
     Parameters
@@ -107,12 +107,12 @@ def A_gg_1(n, L):
         N : complex
             Mellin moment
         L : float
-            :math:`ln(\frac{q^2}{m_h^2})`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
         A_gg_1 : complex
-            |NLO|  :math:`A_{gg,H}^{S,(1)}` operator-matrix element
+            |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`
     """
     return -2.0 / (3.0 * n) * L
 
@@ -120,7 +120,7 @@ def A_gg_1(n, L):
 @nb.njit("c16[:,:](c16,f8)", cache=True)
 def A_singlet_1(n, L):
     r"""
-      Computes the |NLO| heavy-quark singlet operator matrix elements
+      Computes the |NLO| singlet |OME|.
 
       .. math::
           A^{S,(1)} = \left(\begin{array}{cc}
@@ -134,12 +134,12 @@ def A_singlet_1(n, L):
         N : complex
             Mellin moment
         L : float
-            :math:`ln(\frac{q^2}{m_h^2})`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
       Returns
       -------
         A_S_1 : numpy.ndarray
-            |NLO| heavy-quark singlet operator matrix elements :math:`A^{S,(1)}(N)`
+            |NLO| singlet |OME| :math:`A^{S,(1)}(N)`
 
       See Also
       --------
@@ -157,8 +157,7 @@ def A_singlet_1(n, L):
 @nb.njit("c16[:,:](c16,f8)", cache=True)
 def A_singlet_1_intrinsic(n, L):
     r"""
-      Computes the |NLO| heavy-quark singlet operator matrix elements
-      with intrinsic contibution
+      Computes the |NLO| singlet |OME| with intrinsic contibution.
 
       .. math::
           A^{S,(1)} = \left(\begin{array}{cc}
@@ -172,12 +171,12 @@ def A_singlet_1_intrinsic(n, L):
         N : complex
             Mellin moment
         L : float
-            :math:`ln(\frac{q^2}{m_h^2})`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
       Returns
       -------
         A_S_1 : numpy.ndarray
-            |NLO| heavy-quark singlet operator matrix elements :math:`A^{S,(1)}(N)`
+            |NLO| singlet |OME| :math:`A^{S,(1)}(N)`
 
       See Also
       --------
@@ -195,8 +194,7 @@ def A_singlet_1_intrinsic(n, L):
 @nb.njit("c16[:,:](c16,f8)", cache=True)
 def A_ns_1_intrinsic(n, L):
     r"""
-      Computes the |NLO| heavy-quark non singlet operator matrix elements
-      with intrinsic contibution
+      Computes the |NLO| non-singlet |OME| with intrinsic contibutions.
 
       .. math::
           A^{NS,(1)} = \left(\begin{array}{cc}
@@ -209,11 +207,11 @@ def A_ns_1_intrinsic(n, L):
         N : complex
             Mellin moment
         L : float
-            :math:`ln(\frac{q^2}{m_h^2})`
+            :math:`\ln(\mu_F^2 / m_h^2)`
       Returns
       -------
         A_NS_1 : numpy.ndarray
-            |NLO| heavy-quark singlet operator matrix elements :math:`A^{S,(1)}(N)`
+            |NLO| non-singlet |OME| :math:`A^{S,(1)}(N)`
 
       See Also
       --------
