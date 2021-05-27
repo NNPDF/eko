@@ -34,7 +34,8 @@ def get_sx(N):
 def test_A_2():
     N = 1
     sx = get_sx(N)
-    np.testing.assert_allclose(A_ns_2(N, sx), 0.0, atol=3e-7)
+    aNS2 = A_ns_2(N, sx)
+    np.testing.assert_allclose(aNS2[0, 0], 0.0, atol=3e-7)
 
     # get singlet sector
     N = 2
@@ -43,11 +44,16 @@ def test_A_2():
 
     # gluon momentum conservation
     # Reference numbers coming from Mathematica
-    np.testing.assert_allclose(aS2[0, 1] + aS2[1, 1], 0.00035576, rtol=1e-6)
+    np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0], 0.00035576, rtol=1e-6)
     # quark momentum conservation
-    np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0], 0.0, atol=3e-7)
+    np.testing.assert_allclose(aS2[1, 1] + aS2[0, 1], 0.0, atol=3e-7)
 
-    assert aS2.shape == (2, 2)
+    assert aNS2.shape == (2, 2)
+    assert aS2.shape == (3, 3)
+
+    # check q line equal to the h line
+    assert aNS2[0].all() == aNS2[1].all()
+    assert aS2[1].all() == aS2[2].all()
 
 
 # Test operator matrix element integration
@@ -61,11 +67,12 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(
-        "eko.matching_conditions.operator_matrix_element.A_ns_2", lambda *args: 1.0
+        "eko.matching_conditions.operator_matrix_element.A_non_singlet",
+        lambda *args: np.identity(2),
     )
     monkeypatch.setattr(
-        "eko.matching_conditions.operator_matrix_element.A_singlet_2",
-        lambda *args: np.identity(2),
+        "eko.matching_conditions.operator_matrix_element.A_singlet",
+        lambda *args: np.identity(3),
     )
     for is_log in [True, False]:
         res_ns = quad_ker(
