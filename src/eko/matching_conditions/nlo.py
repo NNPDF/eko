@@ -92,8 +92,8 @@ def A_gh_1(n, L):
 
     den = 1.0 / (n * (n ** 2 - 1)) ** 2
     agh = -4 + n * (2 + n * (15 + n * (3 + n - n ** 2)))
-    agh_m = n * (n ** 2 - 1) * (2 + n + n ** 2) * L
-    return 2 * CF * den * (agh + agh_m)
+    agh_l = n * (n ** 2 - 1) * (2 + n + n ** 2) * L
+    return 2 * CF * den * (agh + agh_l)
 
 
 @nb.njit("c16(c16,f8)", cache=True)

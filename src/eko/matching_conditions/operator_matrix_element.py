@@ -98,9 +98,8 @@ def A_non_singlet(order, n, sx, L, is_intrisinc):
     if order == 0:
         return np.zeros((1, 2, 2), np.complex_)
     A_ns = np.zeros((order, 2, 2), np.complex_)
-    if order >= 1:
-        if is_intrisinc:
-            A_ns[0] = nlo.A_ns_1_intrinsic(n, L)
+    if order >= 1 and is_intrisinc:
+        A_ns[0] = nlo.A_ns_1_intrinsic(n, L)
     if order >= 2:
         A_ns[1] = nnlo.A_ns_2(n, sx)
     return A_ns
@@ -133,7 +132,7 @@ def build_ome(A, order, a_s, backward_method):
         if order >= 1:
             ome -= a_s * A[0]
         if order >= 2:
-            ome -= a_s ** 2 * (
+            ome += a_s ** 2 * (
                 -A[1] + np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[0])
             )
     else:
@@ -173,8 +172,8 @@ def quad_ker(
             strong coupling, needed only for the exact inverse
         L : float
             :math:`log(q^2/m_h^2)`
-        backward_method : [exact, expanded or None]
-            None or method for inverting the matching contidtion (exact or expanded)
+        backward_method : ["exact", "expanded" or ""]
+            empty or method for inverting the matching contidtion (exact or expanded)
         is_intrinsic: bool
             True for intrinsic evolution
     Returns
