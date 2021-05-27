@@ -164,6 +164,7 @@ class OperatorGrid:
         thr_ops = []
         for seg in path[:-1]:
             new_op_key = seg.tuple
+            ome = OperatorMatrixElement(self.config, self.managers, seg.is_backward)
             if new_op_key not in self._threshold_operators:
                 # Compute the operator and store it
                 logger.info("Prepare threshold operator")
@@ -177,10 +178,6 @@ class OperatorGrid:
             # Compute the matching conditions and store it
             if len(path) > 1:
                 mh2 = self.config[f"m{flavors.quark_names[seg.nf]}"] ** 2
-                if len(self._matching_operators) == 0:
-                    ome = OperatorMatrixElement(
-                        self.config, self.managers, seg.is_backward
-                    )
                 ome.compute(seg.q2_to, mh2)
                 self._matching_operators[seg.q2_to] = ome.ome_members
         return thr_ops
@@ -240,23 +237,6 @@ class OperatorGrid:
             operator.q2_to,
             self.config["intrinsic_range"],
         )
-
-        # integrate matching conditions
-        # if len(path) > 1 and self.ome_members is None:
-        #     if (
-        #         self.config["intrinsic_range"] is not None
-        #         or self.config["backward_inversion"] == "exact"
-        #     ):
-        #         ome = OperatorMatrixElement(self.config, self.managers)
-        #     elif is_backward is False:
-        #         self.config["backward_inversion"] = None
-        #         self.compute_matching_coeffs()
-        #     elif self.config["backward_inversion"] == "expanded":
-        #         self.compute_matching_coeffs()
-        #     else:
-        #         raise ValueError(
-        #             f"{self.config['backward_inversion']} is not implemented"
-        #         )
 
         # and multiply the lower ones from the right
         for i, op in reversed(list(enumerate(thr_ops))):

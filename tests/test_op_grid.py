@@ -22,18 +22,18 @@ class TestOperatorGrid:
             "ModEv": "TRN",
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
-            "Q0": np.sqrt(2),
+            "Q0": np.sqrt(100),
             "FNS": "FFNS",
             "NfFF": 3,
             "IC": 1,
             "mc": 2.0,
             "mb": 4.0,
-            "mt": 100.0,
+            "mt": 105.0,
             "MaxNfPdf": 6,
             "MaxNfAs": 6,
         }
         operators_card = {
-            "Q2grid": [1, 10],
+            "Q2grid": [1, 100 ** 2],
             "interpolation_xgrid": [0.1, 1.0],
             "interpolation_polynomial_degree": 1,
             "interpolation_is_log": True,
@@ -104,6 +104,6 @@ class TestOperatorGrid:
     def test_grid_computation_VFNS(self):
         """Checks that the grid can be computed"""
         opgrid = self._get_operator_grid(False)
-        qgrid_check = [3, 5]
+        qgrid_check = [3, 5, 200 ** 2]
         operators = opgrid.compute(qgrid_check)
         assert len(operators) == len(qgrid_check)

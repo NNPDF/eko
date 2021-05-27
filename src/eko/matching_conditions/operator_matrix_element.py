@@ -263,31 +263,35 @@ class OperatorMatrixElement:
             labels : list(str)
                 sector labels
         """
-        # TODO: improve labels:
-        # NS_Hq and S_Hg are need only for backward exact.
-        # qH are needed only for backward exact
-        # need to  improve also skip singlet /  non singlet
 
-        # if self.config["debug_skip_non_singlet"]:
-        #     logger.warning("Matching: skipping non-singlet sector")
-        # else:
-        #     labels.extend(["NS_qq","NS_Hq"])
-        # if self.config["debug_skip_singlet"]:
-        #     logger.warning("Matching: skipping singlet sector")
-        # else:
-        labels = ["NS_qq", "NS_Hq", "S_Hg", "S_Hq", *singlet_labels]
+        labels = []
+        # non singlet labels
+        if self.config["debug_skip_non_singlet"]:
+            logger.warning("Matching: skipping non-singlet sector")
+        else:
+            labels.append("NS_qq")
+            # forward and expanded don't need anything else.
+            if self.backward_method == "exact":
+                labels.append("NS_Hq")
+            if self.is_intrinsic:
+                # intrisic labels, which are not zero at NLO
+                labels.append("NS_HH")
+                if self.backward_method == "exact":
+                    # this contribution starts at NNLO, we don't have it for the moment
+                    # however it must be computed in this case
+                    labels.append("NS_qH")
 
-        if self.is_intrinsic:
-            # intrisic labels
-            labels.extend(
-                [
-                    "S_qH",  # starts at NNLO we don't have it for the moment
-                    "S_gH",
-                    "S_HH",
-                    "NS_qH",  # starts at NNLO we don't have it for the moment
-                    "NS_HH",
-                ]
-            )
+        # same for singlet
+        if self.config["debug_skip_singlet"]:
+            logger.warning("Matching: skipping singlet sector")
+        else:
+            labels.extend([*singlet_labels])
+            if self.backward_method == "exact":
+                labels.extend(["S_Hg", "S_Hq"])
+            if self.is_intrinsic:
+                labels.extend(["S_gH","S_HH"])
+                if self.backward_method == "exact":
+                    labels.extend(["S_qH"])
         return labels
 
     def compute(self, q2, mh2):
@@ -357,3 +361,29 @@ class OperatorMatrixElement:
 
         # closing comment
         logger.info("Matching: Total time %f s", time.perf_counter() - tot_start_time)
+        self.copy_ome()
+
+    def copy_ome(self):
+        """Add the missing |OME|, if necessary"""
+        grid_size = len(self.int_disp.xgrid)
+        # basic labels skipped with skip debug
+        for label in ["NS_qq", *singlet_labels]:
+            if label not in self.ome_members:
+                self.ome_members[label] = OpMember(
+                    np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
+                )
+        # heavy quarks labels not computed yet
+        for label in ["NS_Hq", "S_Hq", "S_Hg"]:
+            if label not in self.ome_members:
+                base_label = label.replace('H','q')
+                self.ome_members[label] = OpMember( 
+                    self.ome_members[base_label].value.copy(),
+                    self.ome_members[base_label].error.copy()
+                )
+        # intrinsic labels not computed yet
+        if self.is_intrinsic:
+            for label in ["S_qH","NS_qH","NS_HH", "S_HH", "S_gH"]:
+                if label not in self.ome_members:
+                    self.ome_members[label] = OpMember(
+                        np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
+                    )
