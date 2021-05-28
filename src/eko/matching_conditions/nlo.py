@@ -114,7 +114,7 @@ def A_gg_1(n, L):
         A_gg_1 : complex
             |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`
     """
-    return -2.0 / (3.0 * n) * L
+    return -2.0 / 3.0 * L
 
 
 @nb.njit("c16[:,:](c16,f8)", cache=True)

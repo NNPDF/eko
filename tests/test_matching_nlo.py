@@ -11,11 +11,14 @@ from eko.matching_conditions.nlo import (
 
 def test_A_1_intrinsic():
 
-    L = 0.0
+    L = 5.0
     N = 2
     aS1 = A_singlet_1_intrinsic(N, L)
-    # gluon momentum conservation
+    # heavy quark momentum conservation
     np.testing.assert_allclose(aS1[2, 2] + aS1[0, 2], 0.0, atol=1e-8)
+
+    # gluon momentum conservation
+    np.testing.assert_allclose( aS1[0, 0] + aS1[1, 0], 0.0, rtol=1e-6)
 
 
 def test_A_1_shape():
