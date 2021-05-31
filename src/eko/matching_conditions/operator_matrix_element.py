@@ -59,7 +59,7 @@ def A_singlet(order, n, sx, L, is_intrisinc):
     A_singlet = np.zeros((order, 3, 3), np.complex_)
     if order >= 1:
         if is_intrisinc:
-            A_singlet[0] = nlo.A_singlet_1_intrinsic(n, L)
+            A_singlet[0] = nlo.A_singlet_1_intrinsic(n, sx, L)
         else:
             A_singlet[0] = nlo.A_singlet_1(n, L)
     if order >= 2:
@@ -99,7 +99,7 @@ def A_non_singlet(order, n, sx, L, is_intrisinc):
         return np.zeros((1, 2, 2), np.complex_)
     A_ns = np.zeros((order, 2, 2), np.complex_)
     if order >= 1 and is_intrisinc:
-        A_ns[0] = nlo.A_ns_1_intrinsic(n, L)
+        A_ns[0] = nlo.A_ns_1_intrinsic(n, sx, L)
     if order >= 2:
         A_ns[1] = nnlo.A_ns_2(n, sx, L)
     return A_ns
@@ -183,14 +183,10 @@ def quad_ker(
     """
     # compute the harmonics
     sx = np.zeros(3, np.complex_)
+    if order >= 2 or is_intrisinc:
+        sx = np.array([harmonics.harmonic_S1(u), harmonics.harmonic_S2(u)])
     if order >= 2:
-        sx = np.array(
-            [
-                harmonics.harmonic_S1(u),
-                harmonics.harmonic_S2(u),
-                harmonics.harmonic_S3(u),
-            ]
-        )
+        sx = np.append(sx, harmonics.harmonic_S3(u))
 
     is_singlet = mode[0] == "S"
     # get transformation to N integral
@@ -289,7 +285,7 @@ class OperatorMatrixElement:
             if self.backward_method == "exact":
                 labels.extend(["S_Hg", "S_Hq"])
             if self.is_intrinsic:
-                labels.extend(["S_gH","S_HH"])
+                labels.extend(["S_gH", "S_HH"])
                 if self.backward_method == "exact":
                     labels.extend(["S_qH"])
         return labels
@@ -375,15 +371,16 @@ class OperatorMatrixElement:
         # heavy quarks labels not computed yet
         for label in ["NS_Hq", "S_Hq", "S_Hg"]:
             if label not in self.ome_members:
-                base_label = label.replace('H','q')
+                base_label = label.replace("H", "q")
                 self.ome_members[label] = OpMember(
                     self.ome_members[base_label].value.copy(),
-                    self.ome_members[base_label].error.copy()
+                    self.ome_members[base_label].error.copy(),
                 )
         # intrinsic labels not computed yet
         if self.is_intrinsic:
-            for label in ["S_qH","NS_qH","NS_HH", "S_HH", "S_gH"]:
+            for label in ["S_qH", "NS_qH", "NS_HH", "S_HH", "S_gH"]:
                 if label not in self.ome_members:
                     self.ome_members[label] = OpMember(
-                        np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
+                        np.zeros((grid_size, grid_size)),
+                        np.zeros((grid_size, grid_size)),
                     )

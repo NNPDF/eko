@@ -5,25 +5,26 @@ for the matching conditions in the |VFNS|.
 Heavy quark contribution for intrinsic evolution are taken from :cite:`Ball_2016`
 and Mellin transformed with Mathematica.
 The other matching conditions for the |VFNS| at :math:`\mu_F^2 \neq m_H^2`
-are provided in :cite:`Buza_1998` and Mellin transformed with Mathematica.
+are provided in :cite:`Buza_1998`.
 """
 import numba as nb
 import numpy as np
 
-from eko.anomalous_dimensions import harmonics
 from ..constants import CF
 
 
-@nb.njit("c16(c16,f8)", cache=True)
-def A_hh_1(n, L):
+@nb.njit("c16(c16,c16[:],f8)", cache=True)
+def A_hh_1(n, sx, L):
     r"""
     |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}` defined as the
     mellin transform of :math:`K_{hh}` given in Eq. (20a) of :cite:`Ball_2016`.
 
     Parameters
     ----------
-        N : complex
+        n : complex
             Mellin moment
+        sx : numpy.ndarray
+            List of harmonic sums
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -32,9 +33,8 @@ def A_hh_1(n, L):
         A_hh_1 : complex
             |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}`
     """
-    # TODO: if the harmonics are used also at nnlo we can pass them as argument
-    S1m = harmonics.harmonic_S1(n - 1)
-    S2m = harmonics.harmonic_S2(n - 1)
+    S1m = sx[0] - 1 / n  # harmonics.harmonic_S1(n - 1)
+    S2m = sx[1] - 1 / n ** 2  # harmonics.harmonic_S2(n - 1)
     ahh_l = L * (2 + n - 3 * n ** 2 + 4 * n * (1 + n) * S1m) / (2 * n * (1 + n))
     ahh = (
         2
@@ -56,7 +56,7 @@ def A_hg_1(n, L):
 
     Parameters
     ----------
-        N : complex
+        n : complex
             Mellin moment
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
@@ -97,15 +97,13 @@ def A_gh_1(n, L):
 
 
 @nb.njit("c16(c16,f8)", cache=True)
-def A_gg_1(n, L):
+def A_gg_1(L):
     r"""
     |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}` defined as the
     mellin transform of Eq. (B.6) from :cite:`Buza_1998`.
 
     Parameters
     ----------
-        N : complex
-            Mellin moment
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -131,7 +129,7 @@ def A_singlet_1(n, L):
 
       Parameters
       ----------
-        N : complex
+        n : complex
             Mellin moment
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
@@ -139,7 +137,7 @@ def A_singlet_1(n, L):
       Returns
       -------
         A_S_1 : numpy.ndarray
-            |NLO| singlet |OME| :math:`A^{S,(1)}(N)`
+            |NLO| singlet |OME| :math:`A^{S,(1)}`
 
       See Also
       --------
@@ -147,15 +145,15 @@ def A_singlet_1(n, L):
         A_gg_1 : :math:`A_{gg,H}^{S,(1)}`
     """
     A_hg = A_hg_1(n, L)
-    A_gg = A_gg_1(n, L)
+    A_gg = A_gg_1(L)
     A_S_1 = np.array(
         [[A_gg, 0.0, 0.0], [A_hg, 0.0, 0.0], [A_hg, 0.0, 0.0]], np.complex_
     )
     return A_S_1
 
 
-@nb.njit("c16[:,:](c16,f8)", cache=True)
-def A_singlet_1_intrinsic(n, L):
+@nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
+def A_singlet_1_intrinsic(n, sx, L):
     r"""
       Computes the |NLO| singlet |OME| with intrinsic contibution.
 
@@ -168,15 +166,17 @@ def A_singlet_1_intrinsic(n, L):
 
       Parameters
       ----------
-        N : complex
+        n : complex
             Mellin moment
+        sx : numpy.ndarray
+            List of harmonic sums
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
       Returns
       -------
         A_S_1 : numpy.ndarray
-            |NLO| singlet |OME| :math:`A^{S,(1)}(N)`
+            |NLO| singlet |OME| :math:`A^{S,(1)}`
 
       See Also
       --------
@@ -187,12 +187,12 @@ def A_singlet_1_intrinsic(n, L):
     """
     A_S_1 = A_singlet_1(n, L)
     A_S_1[0, 2] = A_gh_1(n, L)
-    A_S_1[2, 2] = A_hh_1(n, L)
+    A_S_1[2, 2] = A_hh_1(n, sx, L)
     return A_S_1
 
 
-@nb.njit("c16[:,:](c16,f8)", cache=True)
-def A_ns_1_intrinsic(n, L):
+@nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
+def A_ns_1_intrinsic(n, sx, L):
     r"""
       Computes the |NLO| non-singlet |OME| with intrinsic contibutions.
 
@@ -204,17 +204,19 @@ def A_ns_1_intrinsic(n, L):
 
       Parameters
       ----------
-        N : complex
+        n : complex
             Mellin moment
+        sx : numpy.ndarray
+            List of harmonic sums
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
       Returns
       -------
         A_NS_1 : numpy.ndarray
-            |NLO| non-singlet |OME| :math:`A^{S,(1)}(N)`
+            |NLO| non-singlet |OME| :math:`A^{S,(1)}`
 
       See Also
       --------
         A_hh_1 : :math:`A_{HH}^{(1)}`
     """
-    return np.array([[0 + 0j, 0 + 0j], [0 + 0j, A_hh_1(n, L)]], np.complex_)
+    return np.array([[0 + 0j, 0 + 0j], [0 + 0j, A_hh_1(n, sx, L)]], np.complex_)

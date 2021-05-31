@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 r"""
-This module contains the |NNLO| |OME|
-for the matching conditions in the |VFNS| at :math:`\mu_F^2 = m_H^2` :cite:`Buza_1998`.
-The approximated expressions are taken from :cite:`Vogt:2004ns`.
+This module contains the |NNLO| |OME| for the matching conditions in the |VFNS|
+(see, :cite:`Buza_1998` appendix B).
+The expession for :math:`\mu_F^2 = m_H^2` are taken from :cite:`Vogt:2004ns` directly in N space.
+While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes |QCDNUM| 
+(https://github.com/N3PDF/external/blob/master/qcdnum/qcdnum/pij/ome.f) 
+and Mellin transformed with Mathematica.
 """
 import numba as nb
 import numpy as np
 
 from .. import constants
-from ..anomalous_dimensions.harmonics import zeta2, zeta3, harmonic_S1, harmonic_S2
+from ..anomalous_dimensions.harmonics import zeta2, zeta3, harmonic_S2
 
 
 @nb.njit("c16(c16,c16[:],f8)", cache=True)
@@ -19,7 +22,7 @@ def A_qq_2_ns(n, sx, L):
 
     Parameters
     ----------
-        N : complex
+        n : complex
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
@@ -34,8 +37,8 @@ def A_qq_2_ns(n, sx, L):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1m = harmonic_S1(n - 1)
-    S2m = harmonic_S2(n - 1)
+    S1m = S1 - 1 / n  # harmonic_S1(n - 1)
+    S2m = S2 - 1 / n ** 2  # harmonic_S2(n - 1)
 
     a_qq_2_l0 = (
         -224.0 / 27.0 * (S1 - 1.0 / n)
@@ -82,7 +85,7 @@ def A_hq_2_ps(n, sx, L):
 
     Parameters
     ----------
-        N : complex
+        n : complex
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
@@ -147,7 +150,7 @@ def A_hg_2(n, sx, L):
 
     Parameters
     ----------
-        N : complex
+        n : complex
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
@@ -162,8 +165,8 @@ def A_hg_2(n, sx, L):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1m = harmonic_S1(n - 1)
-    S2m = harmonic_S2(n - 1)
+    S1m = S1 - 1 / n  # harmonic_S1(n - 1)
+    S2m = S2 - 1 / n ** 2  # harmonic_S2(n - 1)
     S2mhalf = harmonic_S2((n - 1) / 2)
     S2half = harmonic_S2(n / 2)
 
@@ -240,7 +243,7 @@ def A_gq_2(n, sx, L):
 
     Parameters
     ----------
-        N : complex
+        n : complex
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
@@ -254,7 +257,7 @@ def A_gq_2(n, sx, L):
     """
     S1 = sx[0]
     S2 = sx[1]
-    S1m = harmonic_S1(n - 1)
+    S1m = S1 - 1 / n  # harmonic_S1(n - 1)
 
     B2M = ((S1 - 1.0 / n) ** 2 + S2 - 1.0 / n ** 2) / (n - 1.0)
     B21 = ((S1 + 1.0 / (n + 1.0)) ** 2 + S2 + 1.0 / (n + 1.0) ** 2) / (n + 1.0)
@@ -286,13 +289,13 @@ def A_gq_2(n, sx, L):
 
 @nb.njit("c16(c16,c16[:],f8)", cache=True)
 def A_gg_2(n, sx, L):
-    """
+    r"""
     |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)} ` given in
     Eq. (B.7) of :cite:`Buza_1998`.
 
     Parameters
     ----------
-        N : complex
+        n : complex
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
@@ -305,7 +308,7 @@ def A_gg_2(n, sx, L):
             |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
     """
     S1 = sx[0]
-    S1m = harmonic_S1(n - 1)
+    S1m = S1 - 1 / n  # harmonic_S1(n - 1)
 
     D1 = -1.0 / n ** 2
     D11 = -1.0 / (n + 1.0) ** 2
@@ -385,7 +388,7 @@ def A_singlet_2(n, sx, L):
 
       Parameters
       ----------
-        N : complex
+        n : complex
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
@@ -428,7 +431,7 @@ def A_ns_2(n, sx, L):
 
       Parameters
       ----------
-        N : complex
+        n : complex
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
@@ -438,7 +441,7 @@ def A_ns_2(n, sx, L):
       Returns
       -------
         A_NS_2 : numpy.ndarray
-            |NNLO| non-singlet |OME| :math:`A^{NS,(2)}(N)`
+            |NNLO| non-singlet |OME| :math:`A^{NS,(2)}`
 
       See Also
       --------

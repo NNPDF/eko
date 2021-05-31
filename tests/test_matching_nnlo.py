@@ -25,7 +25,7 @@ def test_A_2():
     sx = get_sx(N)
     aNS2 = A_ns_2(N, sx, L)
     # quark number conservation
-    np.testing.assert_allclose(aNS2[0, 0], 0.0, atol=1e-11)
+    np.testing.assert_allclose(aNS2[0, 0], 0.0, atol=2e-11)
 
     # get singlet sector
     N = 2
