@@ -3,8 +3,8 @@ r"""
 This module contains the |NNLO| |OME| for the matching conditions in the |VFNS|
 (see, :cite:`Buza_1998` appendix B).
 The expession for :math:`\mu_F^2 = m_H^2` are taken from :cite:`Vogt:2004ns` directly in N space.
-While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes |QCDNUM| 
-(https://github.com/N3PDF/external/blob/master/qcdnum/qcdnum/pij/ome.f) 
+While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes |QCDNUM|
+(https://github.com/N3PDF/external/blob/master/qcdnum/qcdnum/pij/ome.f)
 and Mellin transformed with Mathematica.
 """
 import numba as nb
@@ -59,19 +59,13 @@ def A_qq_2_ns(n, sx, L):
 
     a_qq_2_l1 = (
         2
-        * (
-            -12
-            - 28 * n
-            + 9 * n ** 2
-            + 34 * n ** 3
-            - 3 * n ** 4
-            + 40 * (n * (n + 1)) ** 2 * S1m
-            - 24 * (n * (n + 1)) ** 2 * S2m
-        )
+        * (-12 - 28 * n + 9 * n ** 2 + 34 * n ** 3 - 3 * n ** 4)
         / (9 * (n * (n + 1)) ** 2)
+        + 80 / 9 * S1m
+        - 16 / 3 * S2m
     )
 
-    a_qq_2_l2 = -2 * (2 + n - 3 * n ** 2 + 4 * n * (1 + n) * S1m) / (3 * n * (n + 1))
+    a_qq_2_l2 = -2 * ((2 + n - 3 * n ** 2) / (3 * n * (n + 1)) + 4 / 3 * S1m)
     return (
         constants.CF * constants.TR * (a_qq_2_l2 * L ** 2 + a_qq_2_l1 * L + a_qq_2_l0)
     )
@@ -167,8 +161,8 @@ def A_hg_2(n, sx, L):
     S3 = sx[2]
     S1m = S1 - 1 / n  # harmonic_S1(n - 1)
     S2m = S2 - 1 / n ** 2  # harmonic_S2(n - 1)
-    S2mhalf = harmonic_S2((n - 1) / 2)
-    S2half = harmonic_S2(n / 2)
+    Sp2m = harmonic_S2((n - 1) / 2)
+    Sp2p = harmonic_S2(n / 2)
 
     E2 = 2.0 / n * (zeta3 - S3 + 1.0 / n * (zeta2 - S2 - S1 / n))
 
@@ -215,7 +209,7 @@ def A_hg_2(n, sx, L):
                 * (n + 1)
                 * (n + 2)
                 * (2 + n + n ** 2)
-                * (10 * S1m ** 2 - 9 * S2mhalf + 26 * S2m + 9 * S2half)
+                * (10 * S1m ** 2 - 9 * Sp2m + 26 * S2m + 9 * Sp2p)
             )
         )
         / (3 * (n * (n + 1) * (n + 2)) ** 3 * (n - 1))
@@ -225,12 +219,9 @@ def A_hg_2(n, sx, L):
     a_hg_2_l2 = (
         4
         * (2 + n + n ** 2)
-        * (
-            2 * (-11 + n + n ** 2) * (1 + n + n ** 2) / (n - 1)
-            + 5 * n * (1 + n) * (2 + n) * S1
-        )
+        * (2 * (-11 + n + n ** 2) * (1 + n + n ** 2) / (n - 1))
         / (3 * (n * (n + 1) * (n + 2)) ** 2)
-    )
+    ) + 20 * (2 + n + n ** 2) * S1 / (3 * n * (n + 1) * (n + 2))
 
     return a_hg_2_l2 * L ** 2 + a_hg_2_l1 * L + a_hg_2_l0
 
@@ -367,8 +358,8 @@ def A_gg_2(n, sx, L):
             1
             + 6 * (2 + n + n ** 2) ** 2 / ((n * (n + 1)) ** 2 * (-2 + n + n ** 2))
             - 9 * (-4 - 3 * n + n ** 3) / (n * (n + 1) * (-2 + n + n ** 2))
-            - 9 * S1m
         )
+        - 4 * S1m
     )
 
     return a_gg_2_l2 * L ** 2 + a_gg_2_l1 * L + a_gg_2_l0

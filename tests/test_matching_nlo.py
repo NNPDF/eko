@@ -2,7 +2,6 @@
 # Test NLO OME
 import numpy as np
 
-from eko.anomalous_dimensions import harmonics
 from eko.matching_conditions.nlo import (
     A_singlet_1,
     A_singlet_1_intrinsic,
