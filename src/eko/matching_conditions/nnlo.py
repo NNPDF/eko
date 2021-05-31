@@ -8,12 +8,12 @@ import numba as nb
 import numpy as np
 
 from .. import constants
-from ..anomalous_dimensions.harmonics import zeta2,zeta3
+from ..anomalous_dimensions.harmonics import zeta2, zeta3, harmonic_S1, harmonic_S2
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
-def A_qq_2_ns(n, sx):
-    """
+@nb.njit("c16(c16,c16[:],f8)", cache=True)
+def A_qq_2_ns(n, sx, L):
+    r"""
     |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}` given in
     Eq. (B.4) of :cite:`Buza_1998`.
 
@@ -23,6 +23,8 @@ def A_qq_2_ns(n, sx):
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
+        L : float
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -32,8 +34,10 @@ def A_qq_2_ns(n, sx):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
+    S1m = harmonic_S1(n - 1)
+    S2m = harmonic_S2(n - 1)
 
-    a_qq_2 = (
+    a_qq_2_l0 = (
         -224.0 / 27.0 * (S1 - 1.0 / n)
         - 8.0 / 3.0 * zeta3
         + 40 / 9.0 * zeta2
@@ -50,12 +54,29 @@ def A_qq_2_ns(n, sx):
         )
     )
 
-    return constants.CF * constants.TR * a_qq_2
+    a_qq_2_l1 = (
+        2
+        * (
+            -12
+            - 28 * n
+            + 9 * n ** 2
+            + 34 * n ** 3
+            - 3 * n ** 4
+            + 40 * (n * (n + 1)) ** 2 * S1m
+            - 24 * (n * (n + 1)) ** 2 * S2m
+        )
+        / (9 * (n * (n + 1)) ** 2)
+    )
+
+    a_qq_2_l2 = -2 * (2 + n - 3 * n ** 2 + 4 * n * (1 + n) * S1m) / (3 * n * (n + 1))
+    return (
+        constants.CF * constants.TR * (a_qq_2_l2 * L ** 2 + a_qq_2_l1 * L + a_qq_2_l0)
+    )
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
-def A_hq_2_ps(n, sx):
-    """
+@nb.njit("c16(c16,c16[:],f8)", cache=True)
+def A_hq_2_ps(n, sx, L):
+    r"""
     |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}` given in
     Eq. (B.1) of :cite:`Buza_1998`.
 
@@ -65,6 +86,8 @@ def A_hq_2_ps(n, sx):
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
+        L : float
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -77,8 +100,7 @@ def A_hq_2_ps(n, sx):
     F11 = 1.0 / (n + 1.0) * (zeta2 - (S2 + 1.0 / (n + 1.0) ** 2))
     F12 = 1.0 / (n + 2.0) * (zeta2 - (S2 + 1.0 / (n + 1.0) ** 2 + 1.0 / (n + 2.0) ** 2))
     F21 = -F11 / (n + 1.0)
-
-    a_hq_2 = (
+    a_hq_2_l0 = (
         -(
             32.0 / 3.0 / (n - 1.0)
             + 8.0 * (1.0 / n - 1.0 / (n + 1.0))
@@ -103,12 +125,23 @@ def A_hq_2_ps(n, sx):
         + 16.0 * (-(zeta2 - S2) / n ** 2 + F21)
     )
 
-    return constants.CF * constants.TR * a_hq_2
+    a_hq_2_l1 = (
+        8
+        * (2 + n * (5 + n))
+        * (4 + n * (4 + n * (7 + 5 * n)))
+        / ((n - 1) * (n + 2) ** 2 * (n * (n + 1)) ** 3)
+    )
+
+    a_hq_2_l2 = -4 * (2 + n + n ** 2) ** 2 / ((n - 1) * (n + 2) * (n * (n + 1)) ** 2)
+
+    return (
+        constants.CF * constants.TR * (a_hq_2_l2 * L ** 2 + a_hq_2_l1 * L + a_hq_2_l0)
+    )
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
-def A_hg_2(n, sx):
-    """
+@nb.njit("c16(c16,c16[:],f8)", cache=True)
+def A_hg_2(n, sx, L):
+    r"""
     |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}` given in
     Eq. (B.3) of :cite:`Buza_1998`.
 
@@ -118,6 +151,8 @@ def A_hg_2(n, sx):
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
+        L : float
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -127,10 +162,14 @@ def A_hg_2(n, sx):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
+    S1m = harmonic_S1(n - 1)
+    S2m = harmonic_S2(n - 1)
+    S2mhalf = harmonic_S2((n - 1) / 2)
+    S2half = harmonic_S2(n / 2)
 
     E2 = 2.0 / n * (zeta3 - S3 + 1.0 / n * (zeta2 - S2 - S1 / n))
 
-    a_hg_2 = (
+    a_hg_2_l0 = (
         -0.006
         + 1.111 * (S1 ** 3 + 3.0 * S1 * S2 + 2.0 * S3) / n
         - 0.400 * (S1 ** 2 + S2) / n
@@ -144,12 +183,58 @@ def A_hg_2(n, sx):
         - 146.8 * E2
     )
 
-    return a_hg_2
+    a_hg_2_l1 = (
+        2
+        * (
+            +640
+            + 2192 * n
+            + 2072 * n ** 2
+            + 868 * n ** 3
+            + 518 * n ** 4
+            + 736 * n ** 5
+            + 806 * n ** 6
+            + 542 * n ** 7
+            + 228 * n ** 8
+            + 38 * n ** 9
+        )
+        / (3 * (n * (n + 1) * (n + 2)) ** 3 * (n - 1))
+    )
+
+    a_hg_2_l1 -= (
+        2
+        * (
+            n
+            * (n ** 2 - 1)
+            * (n + 2)
+            * (
+                4 * (36 + n * (88 + n * (33 + n * (8 + 9 * n)))) * S1m
+                + n
+                * (n + 1)
+                * (n + 2)
+                * (2 + n + n ** 2)
+                * (10 * S1m ** 2 - 9 * S2mhalf + 26 * S2m + 9 * S2half)
+            )
+        )
+        / (3 * (n * (n + 1) * (n + 2)) ** 3 * (n - 1))
+    )
+    a_hg_2_l1 += 12 * zeta2 * (-2 + n + n ** 3) / (n * (n ** 2 - 1) * (n + 2))
+
+    a_hg_2_l2 = (
+        4
+        * (2 + n + n ** 2)
+        * (
+            2 * (-11 + n + n ** 2) * (1 + n + n ** 2) / (n - 1)
+            + 5 * n * (1 + n) * (2 + n) * S1
+        )
+        / (3 * (n * (n + 1) * (n + 2)) ** 2)
+    )
+
+    return a_hg_2_l2 * L ** 2 + a_hg_2_l1 * L + a_hg_2_l0
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
-def A_gq_2(n, sx):
-    """
+@nb.njit("c16(c16,c16[:],f8)", cache=True)
+def A_gq_2(n, sx, L):
+    r"""
     |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}` given in
     Eq. (B.5) of :cite:`Buza_1998`.
 
@@ -159,6 +244,8 @@ def A_gq_2(n, sx):
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
+        L : float
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -167,11 +254,12 @@ def A_gq_2(n, sx):
     """
     S1 = sx[0]
     S2 = sx[1]
+    S1m = harmonic_S1(n - 1)
 
     B2M = ((S1 - 1.0 / n) ** 2 + S2 - 1.0 / n ** 2) / (n - 1.0)
     B21 = ((S1 + 1.0 / (n + 1.0)) ** 2 + S2 + 1.0 / (n + 1.0) ** 2) / (n + 1.0)
 
-    a_gq_2 = (
+    a_gq_2_l0 = (
         4.0 / 3.0 * (2.0 * B2M - 2.0 * (S1 ** 2 + S2) / n + B21)
         + 8.0
         / 9.0
@@ -183,11 +271,21 @@ def A_gq_2(n, sx):
         + 1.0 / 27.0 * (448.0 * (1.0 / (n - 1.0) - 1.0 / n) + 344.0 / (n + 1.0))
     )
 
-    return constants.CF * constants.TR * a_gq_2
+    a_gq_2_l1 = -(
+        -96
+        + 16 * n * (7 + n * (21 + 10 * n + 8 * n ** 2))
+        - 48 * n * (1 + n) * (2 + n + n ** 2) * S1m
+    ) / (9 * (n - 1) * (n * (1 + n)) ** 2)
+
+    a_gq_2_l2 = 8 * (2 + n + n ** 2) / (3 * n * (n ** 2 - 1))
+
+    return (
+        constants.CF * constants.TR * (a_gq_2_l2 * L ** 2 + a_gq_2_l1 * L + a_gq_2_l0)
+    )
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
-def A_gg_2(n, sx):
+@nb.njit("c16(c16,c16[:],f8)", cache=True)
+def A_gg_2(n, sx, L):
     """
     |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)} ` given in
     Eq. (B.7) of :cite:`Buza_1998`.
@@ -198,6 +296,8 @@ def A_gg_2(n, sx):
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
+        L : float
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -205,6 +305,7 @@ def A_gg_2(n, sx):
             |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
     """
     S1 = sx[0]
+    S1m = harmonic_S1(n - 1)
 
     D1 = -1.0 / n ** 2
     D11 = -1.0 / (n + 1.0) ** 2
@@ -234,11 +335,44 @@ def A_gg_2(n, sx):
         + 1.0 / 9.0 * (52.0 * D1 + 88.0 * D11)
     )
 
-    return constants.TR * (constants.CF * a_gg_2f + constants.CA * a_gg_2a)
+    a_gg_2_l0 = constants.TR * (constants.CF * a_gg_2f + constants.CA * a_gg_2a)
+
+    a_gg_2_l1 = (
+        8
+        / 3
+        * (
+            (
+                8
+                + 2 * n
+                - 34 * n ** 2
+                - 72 * n ** 3
+                - 77 * n ** 4
+                - 37 * n ** 5
+                - 19 * n ** 6
+                - 11 * n ** 7
+                - 4 * n ** 8
+            )
+            / ((n * (n + 1)) ** 3 * (-2 + n + n ** 2))
+            + 5 * S1m
+        )
+    )
+
+    a_gg_2_l2 = (
+        4
+        / 9
+        * (
+            1
+            + 6 * (2 + n + n ** 2) ** 2 / ((n * (n + 1)) ** 2 * (-2 + n + n ** 2))
+            - 9 * (-4 - 3 * n + n ** 3) / (n * (n + 1) * (-2 + n + n ** 2))
+            - 9 * S1m
+        )
+    )
+
+    return a_gg_2_l2 * L ** 2 + a_gg_2_l1 * L + a_gg_2_l0
 
 
-@nb.njit("c16[:,:](c16,c16[:])", cache=True)
-def A_singlet_2(n, sx):
+@nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
+def A_singlet_2(n, sx, L):
     r"""
       Computes the |NNLO| singlet |OME|.
 
@@ -255,6 +389,8 @@ def A_singlet_2(n, sx):
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
+        L : float
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
       Returns
       -------
@@ -269,18 +405,18 @@ def A_singlet_2(n, sx):
         A_gq_2 : :math:`A_{gq, H}^{S,(2)}`
         A_gg_2 : :math:`A_{gg, H}^{S,(2)}`
     """
-    A_hq = A_qq_2_ns(n, sx) + A_hq_2_ps(n, sx)
-    A_hg = A_hg_2(n, sx)
-    A_gq = A_gq_2(n, sx)
-    A_gg = A_gg_2(n, sx)
+    A_hq = A_qq_2_ns(n, sx, L) + A_hq_2_ps(n, sx, L)
+    A_hg = A_hg_2(n, sx, L)
+    A_gq = A_gq_2(n, sx, L)
+    A_gg = A_gg_2(n, sx, L)
     A_S_2 = np.array(
         [[A_gg, A_gq, 0.0], [A_hg, A_hq, 0.0], [A_hg, A_hq, 0.0]], np.complex_
     )
     return A_S_2
 
 
-@nb.njit("c16[:,:](c16,c16[:])", cache=True)
-def A_ns_2(n, sx):
+@nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
+def A_ns_2(n, sx, L):
     r"""
       Computes the |NNLO| non-singlet |OME|.
 
@@ -296,6 +432,8 @@ def A_ns_2(n, sx):
             Mellin moment
         sx : numpy.ndarray
             List of harmonic sums
+        L : float
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
       Returns
       -------
@@ -306,5 +444,5 @@ def A_ns_2(n, sx):
       --------
         A_qq_2_ns : :math:`A_{qq,H}^{NS,(2)}`
     """
-    A_hq = A_qq_2_ns(n, sx)
+    A_hq = A_qq_2_ns(n, sx, L)
     return np.array([[A_hq, 0.0], [A_hq, 0.0]], np.complex_)

@@ -21,20 +21,24 @@ def get_sx(N):
 
 def test_A_2():
     N = 1
+    L = 100
     sx = get_sx(N)
-    aNS2 = A_ns_2(N, sx)
-    np.testing.assert_allclose(aNS2[0, 0], 0.0, atol=3e-7)
+    aNS2 = A_ns_2(N, sx, L)
+    # quark number conservation
+    np.testing.assert_allclose(aNS2[0, 0], 0.0, atol=1e-11)
 
     # get singlet sector
     N = 2
     sx = get_sx(N)
-    aS2 = A_singlet_2(N, sx)
+    aS2 = A_singlet_2(N, sx, L)
 
     # gluon momentum conservation
     # Reference numbers coming from Mathematica
+    # note this difference is only due to the part non proportional to the logaritm
+    # as it's possible to verify setting L = 0
     np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0], 0.00035576, rtol=1e-6)
     # quark momentum conservation
-    np.testing.assert_allclose(aS2[1, 1] + aS2[0, 1], 0.0, atol=3e-7)
+    np.testing.assert_allclose(aS2[1, 1] + aS2[0, 1], 0.0, atol=1e-11)
 
     assert aNS2.shape == (2, 2)
     assert aS2.shape == (3, 3)
@@ -47,9 +51,10 @@ def test_A_2():
 def test_A_2_shape():
 
     N = 2
+    L = 3
     sx = np.zeros(3, np.complex_)
-    aNS2 = A_ns_2(N, sx)
-    aS2 = A_singlet_2(N, sx)
+    aNS2 = A_ns_2(N, sx, L)
+    aS2 = A_singlet_2(N, sx, L)
 
     assert aNS2.shape == (2, 2)
     assert aS2.shape == (3, 3)

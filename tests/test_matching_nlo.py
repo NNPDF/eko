@@ -15,10 +15,10 @@ def test_A_1_intrinsic():
     N = 2
     aS1 = A_singlet_1_intrinsic(N, L)
     # heavy quark momentum conservation
-    np.testing.assert_allclose(aS1[2, 2] + aS1[0, 2], 0.0, atol=1e-8)
+    np.testing.assert_allclose(aS1[2, 2] + aS1[0, 2], 0.0, atol=1e-10)
 
     # gluon momentum conservation
-    np.testing.assert_allclose( aS1[0, 0] + aS1[1, 0], 0.0, rtol=1e-6)
+    np.testing.assert_allclose( aS1[0, 0] + aS1[1, 0], 0.0)
 
 
 def test_A_1_shape():

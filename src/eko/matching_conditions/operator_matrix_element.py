@@ -63,7 +63,7 @@ def A_singlet(order, n, sx, L, is_intrisinc):
         else:
             A_singlet[0] = nlo.A_singlet_1(n, L)
     if order >= 2:
-        A_singlet[1] = nnlo.A_singlet_2(n, sx)
+        A_singlet[1] = nnlo.A_singlet_2(n, sx, L)
     return A_singlet
 
 
@@ -101,7 +101,7 @@ def A_non_singlet(order, n, sx, L, is_intrisinc):
     if order >= 1 and is_intrisinc:
         A_ns[0] = nlo.A_ns_1_intrinsic(n, L)
     if order >= 2:
-        A_ns[1] = nnlo.A_ns_2(n, sx)
+        A_ns[1] = nnlo.A_ns_2(n, sx, L)
     return A_ns
 
 
