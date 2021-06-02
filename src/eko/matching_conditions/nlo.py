@@ -96,7 +96,7 @@ def A_gh_1(n, L):
     return 2 * CF * den * (agh + agh_l)
 
 
-@nb.njit("c16(c16,f8)", cache=True)
+@nb.njit("c16(f8)", cache=True)
 def A_gg_1(L):
     r"""
     |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}` defined as the
