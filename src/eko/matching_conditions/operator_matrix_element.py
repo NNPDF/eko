@@ -358,7 +358,7 @@ class OperatorMatrixElement:
         """Add the missing |OME|, if necessary"""
         grid_size = len(self.int_disp.xgrid)
         # basic labels skipped with skip debug
-        for label in ["NS_qq", *singlet_labels]:
+        for label in ["NS_qq", "S_Hg", "S_Hq", "NS_Hq", *singlet_labels]:
             if label not in self.ome_members:
                 self.ome_members[label] = OpMember(
                     np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
