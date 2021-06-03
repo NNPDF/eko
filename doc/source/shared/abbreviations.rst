@@ -70,6 +70,10 @@
 
    <a href="https://lhapdf.hepforge.org/"><abbr title="LHAPDF">lhapdf</abbr></a>
 
+.. |QCDNUM| raw:: html
+
+   <a href="https://www.nikhef.nl/~h24/qcdnum/"><abbr title="Quantum ChromoDynamics NUM">QCDNUM</abbr></a>
+
 .. |T| raw:: html
 
    <span class="green">✓</span>

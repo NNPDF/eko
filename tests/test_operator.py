@@ -153,6 +153,7 @@ class TestOperator:
             "FNS": "FFNS",
             "NfFF": 3,
             "IC": 0,
+            "IB": 0,
             "mc": 1.0,
             "mb": 4.75,
             "mt": 173.0,

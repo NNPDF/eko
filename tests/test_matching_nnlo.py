@@ -37,9 +37,9 @@ def test_A_2():
         # gluon momentum conservation
         # Reference numbers coming from Mathematica
         # note this difference is only due to the part non proportional to the logaritm
-        np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0], 0.00035576, rtol=1e-6)
+        np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0] + aS2[2, 0], 0.00035576, rtol=1e-6)
         # quark momentum conservation
-        np.testing.assert_allclose(aS2[1, 1] + aS2[0, 1], 0.0, atol=1e-11)
+        np.testing.assert_allclose(aS2[0, 1] + aS2[1, 1] + aS2[2, 1], 0.0, atol=1e-11)
 
     assert aNS2.shape == (2, 2)
     assert aS2.shape == (3, 3)

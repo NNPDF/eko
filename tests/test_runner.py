@@ -17,6 +17,7 @@ def test_runner():
         "NfFF": 3,
         "ModEv": "EXA",
         "IC": 0,
+        "IB": 0,
         "mc": 1.0,
         "mb": 4.75,
         "mt": 173.0,

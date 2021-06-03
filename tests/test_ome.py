@@ -218,6 +218,7 @@ class TestOperatorMatrixElement:
             "Q0": np.sqrt(2),
             "NfFF": 3,
             "IC": 1,
+            "IB": 0,
             "mc": 1.0,
             "mb": 4.75,
             "mt": 173.0,

@@ -250,6 +250,22 @@ mathjax_config = {
             "dVf": [r"{\tilde{V}^{(#1)}(#2)}", 2],
             "dVj": [r"{\tilde{V}_{\!#1}^{(#2)}(#3)}", 3],
             "dTj": [r"{\tilde{T}_{\!#1}^{(#2)}(#3)}", 3],
+            "dSVi": [
+                r"{{\begin{pmatrix}\tilde g\\\sum^{n_f} \tilde q^{+} \\\tilde h^{+}\end{pmatrix}}^{(#1)}\!(#2)}",
+                2,
+            ],
+            "dVi": [
+                r"{{\begin{pmatrix}\sum^{n_f} \tilde q^{-} \\\tilde h^{-}\end{pmatrix}}^{(#1)}\!(#2)}",
+                2,
+            ],
+            "dSVe": [
+                r"{{\begin{pmatrix}\tilde g\\\tilde \Sigma\\\tilde T_{j}\end{pmatrix}}^{(#1)}\!(#2)}",
+                2,
+            ],
+            "dVe": [
+                r"{{\begin{pmatrix}\tilde V\\\tilde V_{j}\end{pmatrix}}^{(#1)}\!(#2)}",
+                2,
+            ],
             # EKOs
             "ES": [r"{\tilde{\mathbf{E}}_S({#1}\leftarrow {#2})}", 2],
             "ESk": [r"{\tilde{\mathbf{E}}_S^{(#1)}({#2}\leftarrow {#3})}", 3],
