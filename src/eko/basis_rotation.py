@@ -104,7 +104,7 @@ Map anomalous dimension sectors' names to their members
 """
 
 
-def ad_projector(ad_lab):
+def ad_projector(ad_lab, nf):
     """
     Build a projector (as a numpy array) for the given anomalous dimension
     sector.
@@ -113,6 +113,8 @@ def ad_projector(ad_lab):
     ----------
     ad_lab : str
         name of anomalous dimension sector
+    nf : int
+        number of light flavors
 
     Returns
     -------
@@ -121,6 +123,10 @@ def ad_projector(ad_lab):
     """
     proj = np.zeros_like(rotate_flavor_to_evolution, dtype=float)
     l = map_ad_to_evolution[ad_lab]
+    # restrict the evolution basis to light flavors
+    # NOTE: the cut is only needed for "NS_p" and "NS_m", but the other lists
+    # are 1-long so they are unaffected
+    l = l[: (nf - 1)]
 
     for el in l:
         out_name, in_name = el.split(".")
