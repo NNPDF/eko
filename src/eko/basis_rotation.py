@@ -137,3 +137,25 @@ def ad_projector(ad_lab, nf):
         proj += (out[:, np.newaxis] * in_) / (in_ @ in_)
 
     return proj
+
+
+def ad_projectors(nf):
+    """
+    Build projectors tensor (as a numpy array), collecting all the individual
+    sector projectors.
+
+    Parameters
+    ----------
+    nf : int
+        number of light flavors
+
+    Returns
+    -------
+    projs : np.ndarray
+        projectors tensor
+    """
+    projs = []
+    for ad in anomalous_dimensions_basis:
+        projs.append(ad_projector(ad, nf))
+
+    return np.array(projs)
