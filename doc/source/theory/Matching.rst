@@ -1,7 +1,7 @@
 Matching Conditions on Crossing Thresholds
 ==========================================
 
-In a |VFNS| the `:doc:`evolution distributions <FlavorSpace> has to be matched across the mass thresholds provided by
+In a |VFNS| the :doc:`evolution distributions <FlavorSpace>` has to be matched across the mass thresholds provided by
 the :class:`~eko.thresholds.ThresholdsAtlas` class.
 We denote the solution of the :doc:`DGLAP equation <DGLAP>` in :doc:`Mellin space <Mellin>` as
 

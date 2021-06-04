@@ -235,9 +235,9 @@ intersphinx_mapping = {
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
-mathjax_config = {
-    "TeX": {
-        "Macros": {
+mathjax3_config = {
+    "tex": {
+        "macros": {
             # fncs
             "atan": [r"\text{atan}", 0],
             # texts
