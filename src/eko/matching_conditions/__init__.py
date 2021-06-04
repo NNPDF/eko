@@ -39,6 +39,9 @@ class MatchingCondition(member.OperatorBase):
                 True for backward evolution
         """
 
+        if is_backward:
+            nf = nf - 1
+
         m = {
             "S.S": ome_members["S_qq"],
             "S.g": ome_members["S_qg"],

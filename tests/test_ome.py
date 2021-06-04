@@ -25,8 +25,8 @@ def test_build_ome_as():
     a_s = 0.0
     sx = np.zeros(3, np.complex_)
     for o in [0, 1, 2]:
-        aNS = A_non_singlet(o, N, sx, L, False)
-        aS = A_singlet(o, N, sx, L, False)
+        aNS = A_non_singlet(o, N, sx, L)
+        aS = A_singlet(o, N, sx, L)
 
         for a in [aNS, aS]:
             for method in ["", "expanded", "exact"]:
@@ -44,25 +44,25 @@ def test_build_ome_nlo():
     N = 2
     L = 0.0
     a_s = 20
-    sx = np.zeros(3, np.complex_)
-    aNS = A_non_singlet(1, N, sx, L, False)
-    aS = A_singlet(1, N, sx, L, False)
+    sx = np.array([1,1,1], np.complex_)
+    # aNS = A_non_singlet(1, N, sx, L)
+    # aS = A_singlet(1, N, sx, L)
 
-    for a in [aNS, aS]:
-        for method in ["", "expanded", "exact"]:
-            dim = len(a[0])
-            assert len(a) == 1
-            assert a[0].all() == np.zeros((dim, dim)).all()
+    # for a in [aNS, aS]:
+    #     for method in ["", "expanded", "exact"]:
+    #         dim = len(a[0])
+    #         assert len(a) == 1
+    #         assert a[0].all() == np.zeros((dim, dim)).all()
 
-            ome = build_ome(a, 1, a_s, method)
-            assert ome.shape == (dim, dim)
-            assert ome.all() == np.eye(dim).all()
+    #         ome = build_ome(a, 1, a_s, method)
+    #         assert ome.shape == (dim, dim)
+    #         assert ome.all() == np.eye(dim).all()
 
     # test that the matching is not an identity when L=0 and intrinsic
-    aNSi = A_non_singlet(1, N, sx, L, True)
-    aSi = A_singlet(1, N, sx, L, True)
+    aNSi = A_non_singlet(1, N, sx, L)
+    aSi = A_singlet(1, N, sx, L)
     for a in [aNSi, aSi]:
-        for method in ["", "expanded"]:
+        for method in ["", "expanded","exact"]:
             dim = len(a[0])
             # hh
             assert a[0, -1, -1] != 0.0
@@ -109,7 +109,6 @@ def test_quad_ker(monkeypatch):
             backward_method=None,
             a_s=0.0,
             L=0.0,
-            is_intrisinc=False,
         )
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
@@ -122,7 +121,6 @@ def test_quad_ker(monkeypatch):
             backward_method=None,
             a_s=0.0,
             L=0.0,
-            is_intrisinc=False,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -135,7 +133,6 @@ def test_quad_ker(monkeypatch):
             backward_method=None,
             a_s=0.0,
             L=0.0,
-            is_intrisinc=False,
         )
         np.testing.assert_allclose(res_s, 0.0)
 
@@ -152,7 +149,6 @@ def test_quad_ker(monkeypatch):
             backward_method="expanded",
             a_s=0.0,
             L=0.0,
-            is_intrisinc=True,
         )
         if label[-1] == label[-2]:
             np.testing.assert_allclose(res_ns, 1.0)
@@ -183,7 +179,6 @@ def test_quad_ker(monkeypatch):
             backward_method="exact",
             a_s=0.0,
             L=0.0,
-            is_intrisinc=True,
         )
         if label[-1] == label[-2]:
             np.testing.assert_allclose(res_ns, 1.0)
@@ -201,7 +196,6 @@ def test_quad_ker(monkeypatch):
         backward_method=None,
         a_s=0.0,
         L=0.0,
-        is_intrisinc=False,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 

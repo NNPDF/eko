@@ -131,6 +131,8 @@ class OperatorGrid:
         intrinsic_range = []
         if int(theory_card["IC"]) == 1:
             intrinsic_range.append(4)
+        if int(theory_card["IB"]) == 1:
+            intrinsic_range.append(5)
         config["intrinsic_range"] = intrinsic_range
         for hq in flavors.quark_names[3:]:
             config[f"m{hq}"] = theory_card[f"m{hq}"]

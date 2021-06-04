@@ -24,8 +24,8 @@ from ..member import singlet_labels
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("c16[:,:,:](u1,c16,c16[:],f8,b1)", cache=True)
-def A_singlet(order, n, sx, L, is_intrisinc):
+@nb.njit("c16[:,:,:](u1,c16,c16[:],f8)", cache=True)
+def A_singlet(order, n, sx, L):
     r"""
     Computes the tower of the singlet |OME|.
 
@@ -39,8 +39,6 @@ def A_singlet(order, n, sx, L, is_intrisinc):
             List of harmonic sums
         L : float
             :math:`log(q^2/m_h^2)`
-        is_intrinsic: bool
-            True for intrinsic evolution
 
     Returns
     -------
@@ -58,17 +56,14 @@ def A_singlet(order, n, sx, L, is_intrisinc):
         return np.zeros((1, 3, 3), np.complex_)
     A_singlet = np.zeros((order, 3, 3), np.complex_)
     if order >= 1:
-        if is_intrisinc:
-            A_singlet[0] = nlo.A_singlet_1_intrinsic(n, sx, L)
-        else:
-            A_singlet[0] = nlo.A_singlet_1(n, L)
+        A_singlet[0] = nlo.A_singlet_1(n, sx, L)
     if order >= 2:
         A_singlet[1] = nnlo.A_singlet_2(n, sx, L)
     return A_singlet
 
 
-@nb.njit("c16[:,:,:](u1,c16,c16[:],f8,b1)", cache=True)
-def A_non_singlet(order, n, sx, L, is_intrisinc):
+@nb.njit("c16[:,:,:](u1,c16,c16[:],f8)", cache=True)
+def A_non_singlet(order, n, sx, L):
     r"""
     Computes the tower of the non-singlet |OME|
 
@@ -82,8 +77,6 @@ def A_non_singlet(order, n, sx, L, is_intrisinc):
             List of harmonic sums
         L : float
             :math:`log(q^2/m_h^2)`
-        is_intrinsic: bool
-            True for intrinsic evolution
 
     Returns
     -------
@@ -98,8 +91,8 @@ def A_non_singlet(order, n, sx, L, is_intrisinc):
     if order == 0:
         return np.zeros((1, 2, 2), np.complex_)
     A_ns = np.zeros((order, 2, 2), np.complex_)
-    if order >= 1 and is_intrisinc:
-        A_ns[0] = nlo.A_ns_1_intrinsic(n, sx, L)
+    if order >= 1:
+        A_ns[0] = nlo.A_ns_1(n, sx, L)
     if order >= 2:
         A_ns[1] = nnlo.A_ns_2(n, sx, L)
     return A_ns
@@ -147,10 +140,8 @@ def build_ome(A, order, a_s, backward_method):
     return ome
 
 
-@nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,f8,string,b1)", cache=True)
-def quad_ker(
-    u, order, mode, is_log, logx, areas, a_s, L, backward_method, is_intrisinc
-):
+@nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,f8,string)", cache=True)
+def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
     """
     Raw kernel inside quad
 
@@ -174,8 +165,6 @@ def quad_ker(
             :math:`log(q^2/m_h^2)`
         backward_method : ["exact", "expanded" or ""]
             empty or method for inverting the matching contidtion (exact or expanded)
-        is_intrinsic: bool
-            True for intrinsic evolution
     Returns
     -------
         ker : float
@@ -183,7 +172,7 @@ def quad_ker(
     """
     # compute the harmonics
     sx = np.zeros(3, np.complex_)
-    if order >= 2 or is_intrisinc:
+    if order >= 1:
         sx = np.array([harmonics.harmonic_S1(u), harmonics.harmonic_S2(u)])
     if order >= 2:
         sx = np.append(sx, harmonics.harmonic_S3(u))
@@ -194,11 +183,11 @@ def quad_ker(
     if is_singlet:
         r, o = 0.4 * 16.0 / (1.0 - logx), 1.0
         indeces = {"g": 0, "q": 1, "H": 2}
-        A = A_singlet(order, u, sx, L, is_intrisinc)
+        A = A_singlet(order, u, sx, L)
     else:
         r, o = 0.5, 0.0
         indeces = {"q": 0, "H": 1}
-        A = A_non_singlet(order, u, sx, L, is_intrisinc)
+        A = A_non_singlet(order, u, sx, L)
 
     n = mellin.Talbot_path(u, r, o)
     jac = mellin.Talbot_jac(u, r, o)
@@ -332,7 +321,6 @@ class OperatorMatrixElement:
                             a_s,
                             L,
                             self.backward_method,
-                            self.is_intrinsic,
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,

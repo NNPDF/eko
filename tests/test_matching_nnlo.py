@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from eko.matching_conditions.nnlo import A_ns_2, A_singlet_2
+from eko.matching_conditions.nnlo import A_ns_2, A_singlet_2, A_qq_2_ns
 from eko.anomalous_dimensions import harmonics
 
 
@@ -25,11 +25,10 @@ def test_A_2():
     for L in logs:
         N = 1
         sx = get_sx(N)
-        aNS2 = A_ns_2(N, sx, L)
+        aNSqq2 = A_qq_2_ns(N, sx, L)
         # quark number conservation
-        np.testing.assert_allclose(aNS2[0, 0], 0.0, atol=2e-11)
+        np.testing.assert_allclose(aNSqq2, 0.0, atol=2e-11)
 
-        # get singlet sector
         N = 2
         sx = get_sx(N)
         aS2 = A_singlet_2(N, sx, L)
@@ -41,6 +40,7 @@ def test_A_2():
         # quark momentum conservation
         np.testing.assert_allclose(aS2[0, 1] + aS2[1, 1] + aS2[2, 1], 0.0, atol=1e-11)
 
+    aNS2 = A_ns_2(N, sx, L)
     assert aNS2.shape == (2, 2)
     assert aS2.shape == (3, 3)
 

@@ -26,7 +26,7 @@ class TestOperatorGrid:
             "FNS": "FFNS",
             "NfFF": 3,
             "IC": 1,
-            "IB": 0,
+            "IB": 1,
             "mc": 2.0,
             "mb": 4.0,
             "mt": 105.0,

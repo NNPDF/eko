@@ -373,8 +373,8 @@ def A_singlet_2(n, sx, L):
       .. math::
           A^{S,(2)} = \left(\begin{array}{cc}
             A_{gg, H}^{S,(2)} & A_{gq, H}^{S,(2)} & 0
-            A_{hg}^{S,(2)} & A_{qq,H}^{NS,(2)} + A_{hq}^{PS,(2)} & 0\\
-            A_{hg}^{S,(2)} & A_{qq,H}^{NS,(2)} + A_{hq}^{PS,(2)} & 0\\
+            0 & A_{qq,H}^{NS,(2)} & 0\\
+            A_{hg}^{S,(2)} & A_{hq}^{PS,(2)} & 0\\
           \end{array}\right)
 
       Parameters
@@ -399,12 +399,13 @@ def A_singlet_2(n, sx, L):
         A_gq_2 : :math:`A_{gq, H}^{S,(2)}`
         A_gg_2 : :math:`A_{gg, H}^{S,(2)}`
     """
-    A_hq = A_qq_2_ns(n, sx, L) + A_hq_2_ps(n, sx, L)
+    A_hq = A_hq_2_ps(n, sx, L)
+    A_qq = A_qq_2_ns(n, sx, L)
     A_hg = A_hg_2(n, sx, L)
     A_gq = A_gq_2(n, sx, L)
     A_gg = A_gg_2(n, sx, L)
     A_S_2 = np.array(
-        [[A_gg, A_gq, 0.0], [A_hg, A_hq, 0.0], [A_hg, A_hq, 0.0]], np.complex_
+        [[A_gg, A_gq, 0.0], [0.0, A_qq, 0.0], [A_hg, A_hq, 0.0]], np.complex_
     )
     return A_S_2
 
@@ -417,7 +418,7 @@ def A_ns_2(n, sx, L):
       .. math::
           A^{NS,(2)} = \left(\begin{array}{cc}
             A_{qq,H}^{NS,(2)} & 0\\
-            A_{qq,H}^{NS,(2)} & 0\\
+            A_{qq,H}^{ps,(2)} & 0\\
           \end{array}\right)
 
       Parameters
@@ -438,5 +439,6 @@ def A_ns_2(n, sx, L):
       --------
         A_qq_2_ns : :math:`A_{qq,H}^{NS,(2)}`
     """
-    A_hq = A_qq_2_ns(n, sx, L)
-    return np.array([[A_hq, 0.0], [A_hq, 0.0]], np.complex_)
+    A_qq = A_qq_2_ns(n, sx, L)
+    A_hq = A_hq_2_ps(n, sx, L)
+    return np.array([[A_qq, 0.0], [A_hq, 0.0]], np.complex_)
