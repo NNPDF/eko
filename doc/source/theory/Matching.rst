@@ -1,61 +1,25 @@
 Matching Conditions on Crossing Thresholds
 ==========================================
 
-In a |VFNS| the :doc:`evolution distributions <FlavorSpace>` has to be matched across the mass thresholds provided by
-the :class:`~eko.thresholds.ThresholdsAtlas` class.
-We denote the solution of the :doc:`DGLAP equation <DGLAP>` in :doc:`Mellin space <Mellin>` as
+In a |VFNS| one considers several matching thresholds (as provided by the :class:`~eko.thresholds.ThresholdsAtlas`)
+where the number of active, light flavors that are participating in the :doc:`DGLAP equation <DGLAP>` changes
+by one unit: :math:`n_f \to n_f +1`. This leads to the complication that one the sides of the thresholds the distributions
+to not behave in the same matter: in esp. the new quark distributions :math:`q_{n_f+1}(x,\mu_F^2) = h(x,\mu_F^2)` and
+:math:`\overline h(x,\mu_F^2)` did not take part in the evolution below the threshold, but above they do.
+This mismatch in the evolution is accounted for by the *matching conditions*. We will decompose this operation into two independet
+steps: first, the true QCD induced matching conditions :math:`\mathbf{M}^{(n_f)}` that are given by perturbative calculations,
+and, second, the necessary :doc:`flavor space rotation <FlavorSpace>` :math:`\mathbf{R}^{(n_f)}` to fit the new evolution basis.
+
+We denote the solution of the :doc:`DGLAP equation <DGLAP>` in a region with *no* threshold
+(:math:`\mu_{q}^2 < Q_0^2 < Q_1^2 < \mu_{q+1}^2`) in :doc:`Mellin space <Mellin>` as
 
 .. math ::
-    \tilde{f_j}(Q^2_1)= \tilde E_{jk}(Q^2_1\leftarrow Q^2_0) \tilde{f_k}(Q^2_0)
+    \tilde{\mathbf{f}}(Q^2_1)= \tilde{\mathbf{E}}(Q^2_1\leftarrow Q^2_0) \tilde{\mathbf{f}}(Q^2_0)
 
-For the singlet sector (:math:`\Sigma` and :math:`g`), we define the singlet evolution kernel matrix
-
-.. math ::
-    \ES{Q_1^2}{Q_0^2} = \begin{pmatrix}
-        \tilde E_{qq} & \tilde E_{qg}\\
-        \tilde E_{gq} & \tilde E_{gg}
-    \end{pmatrix}(Q_1^2\leftarrow Q_0^2)
-
-which is the only coupled system amongst the |DGLAP| equations.
-
-Next, we list the explicit matching conditions for the different evolution distributions up to |NNLO|.
-Note that the non-trivial matching of the discontinuities only enters at |NNLO| or higher orders and it is
-parametrized by operators multplying the different EKOs. These operators are unique and depends on the scale only
-through the couplig constant :math:`a_s`.
-If scale variations are active matching conditions on :math:`a_s` have to be applied, see :doc:`perturbative QCD <pQCD>`.
-
-
-Zero Thresholds
----------------
-
-Here, we consider :math:`\mu_{q}^2 < Q_0^2 < Q_1^2 < \mu_{q+1}^2` and we assume that
-:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavor. This configuration corresponds
-effectively to a |FFNS|.
-All distributions simply evolve with their associated operator.
-The singlet sector and the full valence distributions are given by
+We can then denote the solution with a single threshold (:math:`\mu_h^2 < Q_0^2 < \mu_{h+1}^2 < Q_1^2 < \mu_{h+2}^2`) as
 
 .. math ::
-        \dSV{n_f}{Q_1^2} &= \ES{Q^2_1}{Q_0^2} \dSV{n_f}{Q_0^2}\\
-        \dVf{n_f}{Q_1^2} &= \Ensv{Q^2_1}{Q_0^2} \dVf{n_f}{Q_0^2}
-
-If the valence-like/singlet-like non-singlet distributions are already active,
-they keep evolving from themselves:
-
-.. math ::
-    \dVj{j}{n_f}{Q_1^2} &= \Ensm{Q^2_1}{Q_0^2} \dVj{j}{n_f}{Q_0^2} \\
-    \dTj{j}{n_f}{Q_1^2} &= \Ensp{Q^2_1}{Q_0^2} \dTj{j}{n_f}{Q_0^2} \\
-     &\text{for }j=3,\ldots, n_f^2-1
-
-Otherwise, they are generated dynamically by the full valence distribution or the singlet
-sector respectively:
-
-.. math ::
-    \dVj{k}{n_f}{Q_1^2} &= \Ensv{Q^2_1}{Q_0^2} \dVf{n_f}{Q_0^2} \\
-    \dTj{k}{n_f}{Q_1^2} &= \left(1, 0\right)\ES{Q_1^2}{Q_0^2}\dSV{n_f}{Q_0^2} \\
-     &\text{for }k=(n_f+1)^2-1, \ldots, 35
-
-and making the distributions thus linearly dependent :math:`V_k = V, T_k = \Sigma`
-(as they should).
+    \tilde{\mathbf{f}}(Q^2_1)= \tilde{\mathbf{E}}(Q^2_1\leftarrow \mu_{h+1}^2) {\mathbf{R}^{(n_f)}} {\mathbf{M}^{(n_f)}}(\mu_{h+1}^2) \tilde{\mathbf{E}}(\mu_{h+1}^2\leftarrow Q^2_0) \tilde{\mathbf{f}}(Q^2_0)
 
 
 Forward Evolution
