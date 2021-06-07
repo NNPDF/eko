@@ -134,6 +134,8 @@ def ad_projector(ad_lab, nf):
         in_idx = evol_basis.index(in_name)
         out = rotate_flavor_to_evolution[out_idx]
         in_ = rotate_flavor_to_evolution[in_idx]
+        out[1 : 1 + (6 - nf)] = out[len(out) - (6 - nf) :] = 0
+        in_[1 : 1 + (6 - nf)] = in_[len(in_) - (6 - nf) :] = 0
         proj += (out[:, np.newaxis] * in_) / (in_ @ in_)
 
     return proj
