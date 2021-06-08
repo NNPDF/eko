@@ -39,7 +39,7 @@ sea quark distribution:
 
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation to the Flavor Basis is implemented in
-  :meth:`~eko.evolution_operator.flavor.rotate_pm_to_flavor`
+  :meth:`~eko.evolution_operator.flavors.rotate_pm_to_flavor`
 
 Evolution Basis
 ---------------
@@ -54,8 +54,8 @@ valence distribution :math:`V`, second the valence-like distributions
 The mapping between the Evolution Basis and the +/- Basis is given by
 
 .. math ::
-    \Sigma &= \sum\limits_{j} q_j^+\\
-    V &= \sum\limits_{j} q_j^-\\
+    \Sigma &= \sum\limits_{j}^6 q_j^+\\
+    V &= \sum\limits_{j}^6 q_j^-\\
     V_3 &= u^- - d^-\\
     V_8 &= u^- + d^- - 2 s^-\\
     V_{15} &= u^- + d^- + s^- - 3 c^-\\
@@ -71,10 +71,30 @@ The mapping between the Evolution Basis and the +/- Basis is given by
 - the associated numbers to the valence-like and singlet-like non-singlet distributions
   :math:`k` follow the common group-theoretical notation :math:`k = n_f^2 - 1`
   where :math:`n_f` denotes the incorporated number of quark flavors
-- this basis is *not* normalized with respect to the canonical Flavor Basis, this means that in the
-  final step before the :class:`~eko.output.Output` is created, the elements have to be normalized
+- this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation from the Flavor Basis is implemented in
   :data:`~eko.basis_rotation.rotate_flavor_to_evolution`
+
+Intrinsic Evolution Bases
+-------------------------
+
+However, the Evolution Basis is not yet the most decoupled basis if we consider intrinsic evolution.
+The intrinsic distributions do *not* participate in the |DGLAP| equation but instead evolve with a unity operator:
+this makes, e.g. :math:`T_{15}` a composite object in a evolution range below the charm mass.
+Instead, we will keep the non participating distributions here in their :math:`q^\pm` representation.
+The Intrinsic Evolution Bases will explicitly depend on the number of light flavors :math:`n_f`.
+For :math:`n_f=3` we define (the other cases are defined analogously):
+
+.. math ::
+    \mathcal F \sim \text{span}(g, \Sigma_{(3)}, V_{(3)}, V_3, V_8, T_3, T_8, c^+, c^-, b^+, b^-, t^+, t^-)
+
+where we defined :math:`\Sigma_{(3)} = \sum\limits_{j=1}^3 q_j^+` and :math:`V_{(3)} = \sum\limits_{j=1}^3 q_j^-`
+(not to be confused with the usual :math:`V_3`).
+
+- for :math:`n_f=6` the Intrinsic Evolution Basis coincides with the Evolution Basis
+- this basis is *not* normalized with respect to the canonical Flavor Basis
+- the basis transformation from the Flavor Basis is implemented in
+  :meth:`~eko.evolution_operator.flavors.pids_from_intrinsic_evol`
 
 Other Bases
 -----------
