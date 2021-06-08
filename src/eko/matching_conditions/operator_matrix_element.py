@@ -80,7 +80,7 @@ def A_non_singlet(order, n, sx, L):
 
     Returns
     -------
-        A_singlet : numpy.ndarray
+        A_non_singlet : numpy.ndarray
             non-singlet |OME|
 
     See Also
@@ -205,6 +205,8 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
 
     # select the need matrix element
     ker = ker[indeces[mode[-2]], indeces[mode[-1]]]
+    if ker == 0.0:
+        return 0.0
 
     # recombine everthing
     mellin_prefactor = complex(0.0, -1.0 / np.pi)
@@ -255,23 +257,23 @@ class OperatorMatrixElement:
             logger.warning("Matching: skipping non-singlet sector")
         else:
             labels.extend(["NS_qq", "NS_Hq"])
-            if self.is_intrinsic:
+            if self.is_intrinsic or self.backward_method != "":
                 # intrisic labels, which are not zero at NLO
                 labels.append("NS_HH")
-                if self.backward_method == "exact":
-                    # this contribution starts at NNLO, we don't have it for the moment
-                    # however it must be computed in this case
-                    labels.append("NS_qH")
+                # if self.backward_method == "exact":
+                #     # this contribution starts at NNLO, we don't have it for the moment
+                #     # however it must be computed in this case
+                #     labels.append("NS_qH")
 
         # same for singlet
         if self.config["debug_skip_singlet"]:
             logger.warning("Matching: skipping singlet sector")
         else:
             labels.extend([*singlet_labels, "S_Hg", "S_Hq"])
-            if self.is_intrinsic:
+            if self.is_intrinsic or self.backward_method != "":
                 labels.extend(["S_gH", "S_HH"])
-                if self.backward_method == "exact":
-                    labels.extend(["S_qH"])
+                # if self.backward_method == "exact":
+                #     labels.extend(["S_qH"])
         return labels
 
     def compute(self, q2, mh2):
@@ -290,9 +292,14 @@ class OperatorMatrixElement:
         grid_size = len(self.int_disp.xgrid)
         labels = self.labels()
         for n in labels:
-            self.ome_members[n] = OpMember(
-                np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
-            )
+            if n[-1] == n[-2]:
+                self.ome_members[n] = OpMember(
+                    np.eye(grid_size), np.zeros((grid_size, grid_size))
+                )
+            else:
+                self.ome_members[n] = OpMember(
+                    np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
+                )
         L = np.log(q2 / mh2)
         a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2)
 

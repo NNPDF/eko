@@ -251,11 +251,11 @@ mathjax3_config = {
             "dVj": [r"{\tilde{V}_{\!#1}^{(#2)}(#3)}", 3],
             "dTj": [r"{\tilde{T}_{\!#1}^{(#2)}(#3)}", 3],
             "dSVi": [
-                r"{{\begin{pmatrix}\tilde g\\\sum^{n_f} \tilde q^{+} \\\tilde h^{+}\end{pmatrix}}^{(#1)}\!(#2)}",
+                r"{{\begin{pmatrix}\tilde g\\ \tilde \Sigma_{(#1)} \\\tilde h^{+}\end{pmatrix}}^{(#1)}\!(#2)}",
                 2,
             ],
             "dVi": [
-                r"{{\begin{pmatrix}\sum^{n_f} \tilde q^{-} \\\tilde h^{-}\end{pmatrix}}^{(#1)}\!(#2)}",
+                r"{{\begin{pmatrix} \tilde V_{(#1)} \\\tilde h^{-}\end{pmatrix}}^{(#1)}\!(#2)}",
                 2,
             ],
             "dSVe": [

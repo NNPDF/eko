@@ -44,7 +44,7 @@ class MatchingCondition(member.OperatorBase):
 
         m = {
             "S.S": ome_members["S_qq"],
-            "S.g": ome_members["S_qg"],
+            "S.g": ome_members["S_qg"], # This is always zero for the time being
             "g.S": ome_members["S_gq"],
             "g.g": ome_members["S_gg"],
             "V.V": ome_members["NS_qq"],
@@ -66,6 +66,18 @@ class MatchingCondition(member.OperatorBase):
             }
         )
 
+        if is_backward:
+            # match the missing contibution from h+ and h-
+            m.update(
+            {
+                f"{hq}+.{hq}+": ome_members["S_HH"],
+                # f"S.{hq}+": ome_members["S_qH"],
+                f"g.{hq}+": ome_members["S_gH"],
+                f"{hq}-.{hq}-": ome_members["NS_HH"],
+                # f"V.{hq}-": ome_members["NS_qH"],
+            }
+            )
+
         # intrinsic matching
         if len(intrinsic_range) != 0 and not is_backward:
             op_id = member.OpMember.id_like(ome_members["NS_qq"])
@@ -80,10 +92,10 @@ class MatchingCondition(member.OperatorBase):
                     m.update(
                         {
                             f"{ihq}+.{ihq}+": ome_members["S_HH"],
-                            f"S.{ihq}+": ome_members["S_qH"],
+                            # f"S.{ihq}+": ome_members["S_qH"],
                             f"g.{ihq}+": ome_members["S_gH"],
                             f"{ihq}-.{ihq}-": ome_members["NS_HH"],
-                            f"V.{ihq}-": ome_members["NS_qH"],
+                            #f"V.{ihq}-": ome_members["NS_qH"],
                         }
                     )
         return cls.promote_names(m, q2_thr)
