@@ -418,7 +418,7 @@ def A_ns_2(n, sx, L):
       .. math::
           A^{NS,(2)} = \left(\begin{array}{cc}
             A_{qq,H}^{NS,(2)} & 0\\
-            A_{qq,H}^{ps,(2)} & 0\\
+            0 & 0\\
           \end{array}\right)
 
       Parameters
@@ -440,5 +440,4 @@ def A_ns_2(n, sx, L):
         A_qq_2_ns : :math:`A_{qq,H}^{NS,(2)}`
     """
     A_qq = A_qq_2_ns(n, sx, L)
-    A_hq = A_hq_2_ps(n, sx, L)
-    return np.array([[A_qq, 0.0], [A_hq, 0.0]], np.complex_)
+    return np.array([[A_qq, 0.0], [0+0j, 0+0j]], np.complex_)

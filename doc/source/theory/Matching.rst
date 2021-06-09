@@ -58,7 +58,7 @@ and :math:`\mathbf{A}_{X}^{i}` the operator matrix elements (|OME|), given by th
 .. math ::
     \mathbf{A}_{ns}^{(1)} &= \begin{pmatrix} 0 & 0 \\ 0 & A_{HH}^{(1)}\end{pmatrix} \\
     \mathbf{A}_{S}^{(1)} &= \begin{pmatrix} A_{gg,H}^{s,(1)} & 0 & A_{gH}^{s,(1)} \\ 0 & 0 & 0 \\ A_{Hg}^{s,(1)} & 0 & A_{HH}^{(1)} \end{pmatrix} \\
-    \mathbf{A}_{ns}^{(2)} &= \begin{pmatrix} A_{qq,H}^{ns,(2)} & 0 \\ A_{Hq}^{ps,(2)} & 0 \end{pmatrix} \\
+    \mathbf{A}_{ns}^{(2)} &= \begin{pmatrix} A_{qq,H}^{ns,(2)} & 0 \\ 0 & 0 \end{pmatrix} \\
     \mathbf{A}_{S}^{(2)} &= \begin{pmatrix} A_{gg,H}^{s,(2)} & A_{gq,H}^{s,(2)} & 0 \\ 0 & A_{qq,H}^{ns,(2)} & 0 \\ A_{Hg}^{s,(2)} & A_{Hq}^{ps,(2)} & 0 \end{pmatrix} \\
 
 
