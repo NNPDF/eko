@@ -22,10 +22,6 @@ help:
 
 # sphinx
 html: todos
-	sphinx-apidoc --module-first -o "$(EKOOUT)" "$(EKODIR)"
-	@rm -f $(EKOOUT)/modules.rst
-	sphinx-apidoc --module-first -o "$(EKOMARKOUT)" "$(EKOMARKDIR)"
-	@rm -f $(EKOMARKOUT)/modules.rst
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 view: html

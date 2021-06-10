@@ -25,6 +25,8 @@ import numba as nb
 # in CodeFactor there is no version, since it is generated upon installation
 import eko.version  # pylint: disable=no-name-in-module
 
+here = pathlib.Path(__file__).absolute().parent
+
 # -- Project information -----------------------------------------------------
 
 project = "EKO"
@@ -102,14 +104,14 @@ exclude_patterns = ["shared/*"]
 pygments_style = None
 
 # A string to be included at the beginning of all files
-shared = pathlib.Path(__file__).absolute().parent / "shared"
+shared = here / "shared"
 rst_prolog = "\n".join([open(x).read() for x in os.scandir(shared)])
 
 extlinks = {
-    'yadism': ('https://n3pdf.github.io/yadism/%s', 'yadism'),
-    'banana': ('https://n3pdf.github.io/banana/%s', 'banana'),
-    'pineappl': ('https://n3pdf.github.io/pineappl/%s', 'pineappl'),
-    'pineko': ('https://github.com/N3PDF/pineko/%s', 'pineko'),
+    "yadism": ("https://n3pdf.github.io/yadism/%s", "yadism"),
+    "banana": ("https://n3pdf.github.io/banana/%s", "banana"),
+    "pineappl": ("https://n3pdf.github.io/pineappl/%s", "pineappl"),
+    "pineko": ("https://github.com/N3PDF/pineko/%s", "pineko"),
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -235,9 +237,9 @@ intersphinx_mapping = {
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
-mathjax_config = {
-    "TeX": {
-        "Macros": {
+mathjax3_config = {
+    "tex": {
+        "macros": {
             # fncs
             "atan": [r"\text{atan}", 0],
             # texts
@@ -250,6 +252,22 @@ mathjax_config = {
             "dVf": [r"{\tilde{V}^{(#1)}(#2)}", 2],
             "dVj": [r"{\tilde{V}_{\!#1}^{(#2)}(#3)}", 3],
             "dTj": [r"{\tilde{T}_{\!#1}^{(#2)}(#3)}", 3],
+            "dSVi": [
+                r"{{\begin{pmatrix}\tilde g\\\sum^{n_f} \tilde q^{+} \\\tilde h^{+}\end{pmatrix}}^{(#1)}\!(#2)}",
+                2,
+            ],
+            "dVi": [
+                r"{{\begin{pmatrix}\sum^{n_f} \tilde q^{-} \\\tilde h^{-}\end{pmatrix}}^{(#1)}\!(#2)}",
+                2,
+            ],
+            "dSVe": [
+                r"{{\begin{pmatrix}\tilde g\\\tilde \Sigma\\\tilde T_{j}\end{pmatrix}}^{(#1)}\!(#2)}",
+                2,
+            ],
+            "dVe": [
+                r"{{\begin{pmatrix}\tilde V\\\tilde V_{j}\end{pmatrix}}^{(#1)}\!(#2)}",
+                2,
+            ],
             # EKOs
             "ES": [r"{\tilde{\mathbf{E}}_S({#1}\leftarrow {#2})}", 2],
             "ESk": [r"{\tilde{\mathbf{E}}_S^{(#1)}({#2}\leftarrow {#3})}", 3],
@@ -281,7 +299,27 @@ def process_numba_docstring(
         lines = orig_sig.__doc__
 
 
+# https://github.com/readthedocs/readthedocs.org/issues/1139#issuecomment-312626491
+def run_apidoc(_):
+    from sphinx.ext.apidoc import main
+    import os
+    import sys
+
+    sys.path.append(str(here.parent))
+    # 'eko'
+    docs_dest = here / "modules" / "eko"
+    package = here.parents[1] / "src" / "eko"
+    main(["--module-first", "-o", str(docs_dest), str(package)])
+    (docs_dest / "modules.rst").unlink()
+    # 'ekomark'
+    docs_dest = here / "development" / "ekomark"
+    package = here.parents[1] / "benchmarks" / "ekomark"
+    main(["--module-first", "-o", str(docs_dest), str(package)])
+    (docs_dest / "modules.rst").unlink()
+
+
 def setup(app):
     """Configure Sphinx"""
     app.setup_extension("sphinx.ext.autodoc")
     app.connect("autodoc-process-docstring", process_numba_docstring)
+    app.connect("builder-inited", run_apidoc)
