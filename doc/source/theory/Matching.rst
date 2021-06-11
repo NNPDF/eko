@@ -3,8 +3,8 @@ Matching Conditions on Crossing Thresholds
 
 In a |VFNS| one considers several matching thresholds (as provided by the :class:`~eko.thresholds.ThresholdsAtlas`)
 where the number of active, light flavors that are participating in the :doc:`DGLAP equation <DGLAP>` changes
-by one unit: :math:`n_f \to n_f +1`. This leads to the complication that one the sides of the thresholds the distributions
-to not behave in the same matter: in esp. the new quark distributions :math:`q_{n_f+1}(x,\mu_F^2) = h(x,\mu_F^2)` and
+by one unit: :math:`n_f \to n_f +1`. This means the distributions do not behave in the same matter above and below
+the threhsold: in esp. the new quark distributions :math:`q_{n_f+1}(x,\mu_F^2) = h(x,\mu_F^2)` and
 :math:`\overline h(x,\mu_F^2)` did not take part in the evolution below the threshold, but above they do.
 This mismatch in the evolution is accounted for by the *matching conditions*.
 
@@ -20,13 +20,12 @@ The bold font indicates the vector space spanned by the flavor space and the equ
 If a single threshold (:math:`\mu_h^2 < Q_0^2 < \mu_{h+1}^2 < Q_1^2 < \mu_{h+2}^2`) is present we decompose the matching into two independet steps:
 first, the true QCD induced |OME| :math:`\mathbf{M}^{(n_f)}(\mu_{h+1}^2)` that are given by perturbative calculations,
 and, second, the necessary :doc:`flavor space rotation <FlavorSpace>` :math:`\mathbf{R}^{(n_f)}` to fit the new :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution Bases>`.
-We can then denote the solution with as
+We can then denote the solution as
 
 .. math ::
     \tilde{\mathbf{f}}^{(n_f+1)}(Q^2_1)= \tilde{\mathbf{E}}(Q^2_1\leftarrow \mu_{h+1}^2) {\mathbf{R}^{(n_f)}} {\mathbf{M}^{(n_f)}}(\mu_{h+1}^2) \tilde{\mathbf{E}}(\mu_{h+1}^2\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
-In case more than one threshold scale is present the matching procedure is iterared on all diffrent scales starting form
-the lowest one.
+In case more than one threshold is present, the matching procedure is iterated on all different scales.
 
 Basis rotation
 --------------
@@ -51,14 +50,17 @@ Pertubative Operator Matrix Element
 The matching matrices :math:`\mathbf{M}^{(n_f)}(\mu_{h+1}^2)` mediate between :math:`\mathcal F_{iev,n_f}^{(n_f)}` and :math:`\mathcal F_{iev,n_f}^{(n_f+1)}`.
 
 .. math ::
-    \dSVi{n_f+1}{\mu_{h}^2} &= \mathbf{M}_{S}(\mu_{h}^2) \dSVi{n_f}{\mu_{h}^2} \\
-    \dVi{n_f+1}{\mu_{h}^2} &= \mathbf{M}_{ns}(\mu_{q+1}^2) \dVi{n_f}{\mu_{h}^2}
+    \dSVip{n_f}{\mu_{h}^2} &= \mathbf{M}_{S,h^+}^{(n_f)}(\mu_{h}^2) \dSVi{n_f}{\mu_{h}^2} \\
+    \dVip{n_f}{\mu_{h}^2} &= \mathbf{M}_{nsv,h^-}^{(n_f)}(\mu_{h}^2) \dVi{n_f}{\mu_{h}^2} \\
+    \dVj{j}{n_f+1}{\mu_h^2} &= M_{ns-}^{(n_f)}(\mu_{h}^2) \dVj{j}{n_f}{\mu_h^2}\\
+    \dTj{j}{n_f+1}{\mu_h^2} &= M_{ns+}^{(n_f)}(\mu_{h}^2) \dTj{j}{n_f}{\mu_h^2}\\
+    &\text{for }j=3,\ldots, n_f^2-1
 
 
 where :math:`\mathbf{M}` can be computed order by order in :math:`a_s`:
 
 .. math ::
-    \mathbf{M}(\mu_{h}^2) = \mathbf{I} + a_s(\mu_{h}^2)  \mathbf{A}^{(1)} + a_s^2(\mu_{h}^2) \mathbf{A}^{(2)} 
+    \mathbf{M}^{(n_f)}(\mu_{h}^2) = \mathbf{I} + a_s^{(n_f)}(\mu_{h}^2)  \mathbf{A}^{(n_f),(1)} + \left(a_s^{(n_f)}(\mu_{h}^2)\right)^2 \mathbf{A}^{(n_f),(2)} 
 
 
 and :math:`\mathbf{A}^{i}` the |OME| are given by the following:
@@ -71,19 +73,11 @@ and :math:`\mathbf{A}^{i}` the |OME| are given by the following:
 
 
 The coefficients :math:`A^{x}_{i}(z,\mu_{h}^2)` have been firstly computed in :cite:`Buza_1998` and have been :doc:`Mellin tranformed </theory/Mellin>` to be used inside EKO.
-They depend on the scale :math:`\mu_{h}^2` only through the logaritm :math:`\ln(\mu_{q}^2/m_{q}^2)`,
+They depend on the scale :math:`\mu_{h}^2` only through the logaritm :math:`\ln(\mu_{h}^2/m_{h}^2)`,
 in particular the coefficient :math:`A_{gg,H}^{s,(1)}` is fully proprtional to :math:`\ln(\mu_{h}^2/m_{h}^2)`. 
 
 We remark that contributions of the higher quark at |NNLO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
 On the other hand the elements :math:`A_{qq}^{ps},A_{qg}` are known to start at order :math:`O(a_s^3)`.
-
-The other valence-like/singlet-like non-singlet distributions that were already active before the threshold, continue to evolve from themselves
-under the condition:
-
-.. math ::
-    \dVj{j}{n_f+1}{\mu_h^2} &= M_{ns}(m_{h}^2) \dVj{j}{n_f}{\mu_h^2}\\
-    \dTj{j}{n_f+1}{\mu_h^2} &= M_{ns}(m_{h}^2) \dTj{j}{n_f}{\mu_h^2}\\
-    &\text{for }j=3,\ldots, n_f^2-1
 
 Intrinsic evolution
 -------------------
@@ -116,6 +110,6 @@ EKO implements two different strategies to perform this operation, that can be s
 - ``backward_inversion = 'expanded'``: the matching matrices are inverted through a pertubative exapnsion in :math:`a_s` before the Mellin inversion:
 
 .. math ::
-    \mathbf{M}_{X,exp}^{-1}(\mu_{q}^2) &= \mathbf{I} - a_s(\mu_{q}^2)  \mathbf{A}_{X}^{(1)} + a_s^2(\mu_{q}^2) \left [ \mathbf{A}_{X}^{(2)} -  {\mathbf{A}_{X}^{(1)}}^2 \right ] + o(a_s^3) \\
+    \mathbf{M}_{exp}^{-1}(\mu_{q}^2) &= \mathbf{I} - a_s(\mu_{q}^2)  \mathbf{A}^{(1)} + a_s^2(\mu_{q}^2) \left [ \mathbf{A}^{(2)} -  {\mathbf{A}^{(1)}}^2 \right ] + O(a_s^3) \\
 
 We emphasize that in the backward evolution, below the threshold, the remaining high quark PDFs are always intrinsic and do not evolve anymore.

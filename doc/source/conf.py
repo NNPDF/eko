@@ -258,6 +258,14 @@ mathjax3_config = {
                 r"{{\begin{pmatrix} \tilde V_{(#1)} \\\tilde h^{-}\end{pmatrix}}^{(#1)}\!(#2)}",
                 2,
             ],
+            "dSVip": [
+                r"{{\begin{pmatrix}\tilde g\\ \tilde \Sigma_{(#1)} \\\tilde h^{+}\end{pmatrix}}^{(#1+1)}\!(#2)}",
+                2,
+            ],
+            "dVip": [
+                r"{{\begin{pmatrix} \tilde V_{(#1)} \\\tilde h^{-}\end{pmatrix}}^{(#1+1)}\!(#2)}",
+                2,
+            ],
             "dSVe": [
                 r"{{\begin{pmatrix}\tilde g\\\tilde \Sigma\\\tilde T_{j}\end{pmatrix}}^{(#1)}\!(#2)}",
                 2,
