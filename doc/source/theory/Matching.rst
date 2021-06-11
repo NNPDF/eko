@@ -13,17 +13,17 @@ We denote the solution of the :doc:`DGLAP equation <DGLAP>` in a region with *no
 (:math:`\mu_{h}^2 < Q_0^2 < Q_1^2 < \mu_{h+1}^2`) in :doc:`Mellin space <Mellin>` as
 
 .. math ::
-    \tilde{\mathbf{f}}^{(n_f)}(Q^2_1)= \tilde{\mathbf{E}}(Q^2_1\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
+    \tilde{\mathbf{f}}^{(n_f)}(Q^2_1)= \tilde{\mathbf{E}}^{(n_f)}(Q^2_1\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
 The bold font indicates the vector space spanned by the flavor space and the equation decouples mostly in the evolution basis.
 
-If a single threshold (:math:`\mu_h^2 < Q_0^2 < \mu_{h+1}^2 < Q_1^2 < \mu_{h+2}^2`) is present we decompose the matching into two independet steps:
-first, the true QCD induced |OME| :math:`\mathbf{M}^{(n_f)}(\mu_{h+1}^2)` that are given by perturbative calculations,
+If a single threshold (:math:`\mu_{h-1}^2 < Q_0^2 < \mu_{h}^2 < Q_1^2 < \mu_{h+1}^2`) is present we decompose the matching into two independet steps:
+first, the true QCD induced |OME| :math:`\mathbf{M}^{(n_f)}(\mu_{h}^2)` that are given by perturbative calculations,
 and, second, the necessary :doc:`flavor space rotation <FlavorSpace>` :math:`\mathbf{R}^{(n_f)}` to fit the new :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution Bases>`.
 We can then denote the solution as
 
 .. math ::
-    \tilde{\mathbf{f}}^{(n_f+1)}(Q^2_1)= \tilde{\mathbf{E}}(Q^2_1\leftarrow \mu_{h+1}^2) {\mathbf{R}^{(n_f)}} {\mathbf{M}^{(n_f)}}(\mu_{h+1}^2) \tilde{\mathbf{E}}(\mu_{h+1}^2\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
+    \tilde{\mathbf{f}}^{(n_f+1)}(Q^2_1)= \tilde{\mathbf{E}}^{(n_f+1)}(Q^2_1\leftarrow \mu_{h}^2) {\mathbf{R}^{(n_f)}} \tilde{\mathbf{M}}^{(n_f)}(\mu_{h}^2) \tilde{\mathbf{E}}^{(n_f)}(\mu_{h}^2\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
 In case more than one threshold is present, the matching procedure is iterated on all different scales.
 
@@ -50,10 +50,10 @@ Pertubative Operator Matrix Element
 The matching matrices :math:`\mathbf{M}^{(n_f)}(\mu_{h+1}^2)` mediate between :math:`\mathcal F_{iev,n_f}^{(n_f)}` and :math:`\mathcal F_{iev,n_f}^{(n_f+1)}`.
 
 .. math ::
-    \dSVip{n_f}{\mu_{h}^2} &= \mathbf{M}_{S,h^+}^{(n_f)}(\mu_{h}^2) \dSVi{n_f}{\mu_{h}^2} \\
-    \dVip{n_f}{\mu_{h}^2} &= \mathbf{M}_{nsv,h^-}^{(n_f)}(\mu_{h}^2) \dVi{n_f}{\mu_{h}^2} \\
-    \dVj{j}{n_f+1}{\mu_h^2} &= M_{ns-}^{(n_f)}(\mu_{h}^2) \dVj{j}{n_f}{\mu_h^2}\\
-    \dTj{j}{n_f+1}{\mu_h^2} &= M_{ns+}^{(n_f)}(\mu_{h}^2) \dTj{j}{n_f}{\mu_h^2}\\
+    \dSVip{n_f}{\mu_{h}^2} &= \tilde{\mathbf{M}}_{S,h^+}^{(n_f)}(\mu_{h}^2) \dSVi{n_f}{\mu_{h}^2} \\
+    \dVip{n_f}{\mu_{h}^2} &= \tilde{\mathbf{M}}_{nsv,h^-}^{(n_f)}(\mu_{h}^2) \dVi{n_f}{\mu_{h}^2} \\
+    \dVj{j}{n_f+1}{\mu_h^2} &= \tilde{M}_{ns-}^{(n_f)}(\mu_{h}^2) \dVj{j}{n_f}{\mu_h^2}\\
+    \dTj{j}{n_f+1}{\mu_h^2} &= \tilde{M}_{ns+}^{(n_f)}(\mu_{h}^2) \dTj{j}{n_f}{\mu_h^2}\\
     &\text{for }j=3,\ldots, n_f^2-1
 
 
