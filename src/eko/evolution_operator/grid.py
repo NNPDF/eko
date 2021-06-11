@@ -233,33 +233,42 @@ class OperatorGrid:
             self.config, self.managers, path[-1].nf, path[-1].q2_from, path[-1].q2_to
         )
         operator.compute()
+        intrinsic_range = self.config["intrinsic_range"]
+        if path[-1].is_backward:
+            intrinsic_range = [4,5,6]
         final_op = physical.PhysicalOperator.ad_to_evol_map(
             operator.op_members,
             operator.nf,
             operator.q2_to,
-            self.config["intrinsic_range"],
+            intrinsic_range,
         )
 
         # and multiply the lower ones from the right
         for i, op in reversed(list(enumerate(thr_ops))):
             is_backward = path[i].is_backward
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
-                op.op_members, op.nf, op.q2_to, self.config["intrinsic_range"]
+                op.op_members, op.nf, op.q2_to, intrinsic_range
             )
-            matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
-                self._matching_operators[op.q2_to],
-                op.nf,
-                op.q2_to,
-                intrinsic_range=self.config["intrinsic_range"],
-                is_backward=is_backward,
-            )
+
             # join with the basis rotation, since matching requires c+ (or likewise)
             if is_backward:
+                matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
+                    self._matching_operators[op.q2_to],
+                    op.nf-1,
+                    op.q2_to,
+                    intrinsic_range=intrinsic_range,
+                )
                 invrot = member.ScalarOperator.promote_names(
                     flavors.rotate_matching_inverse(op.nf), op.q2_to
                 )
                 final_op = final_op @ matching @ invrot @ phys_op
             else:
+                matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
+                    self._matching_operators[op.q2_to],
+                    op.nf,
+                    op.q2_to,
+                    intrinsic_range=intrinsic_range,
+                )
                 rot = member.ScalarOperator.promote_names(
                     flavors.rotate_matching(op.nf + 1), op.q2_to
                 )

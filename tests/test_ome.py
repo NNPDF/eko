@@ -244,13 +244,13 @@ class TestOperatorMatrixElement:
                 )
                 o = OperatorMatrixElement(g.config, g.managers, 10)
                 labels = o.labels()
-                test_labels = ["NS_qq", "NS_Hq", "NS_qH"]
+                test_labels = ["NS_qq", "NS_Hq"]
                 for l in test_labels:
                     if skip_ns:
                         assert l not in labels
                     else:
                         assert l in labels
-                test_labels = ["S_qq", "S_Hq", "S_qH", "S_gg", "S_Hg", "S_gH"]
+                test_labels = ["S_qq", "S_Hq", "S_gg", "S_Hg", "S_gH"]
                 for l in test_labels:
                     if skip_singlet:
                         assert l not in labels

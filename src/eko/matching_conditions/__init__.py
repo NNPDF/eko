@@ -19,7 +19,7 @@ class MatchingCondition(member.OperatorBase):
 
     @classmethod
     def split_ad_to_evol_map(
-        cls, ome_members, nf, q2_thr, intrinsic_range, is_backward
+        cls, ome_members, nf, q2_thr, intrinsic_range,
     ):
         """
         Create the instance from the |OME|.
@@ -38,9 +38,6 @@ class MatchingCondition(member.OperatorBase):
             is_backward: bool
                 True for backward evolution
         """
-
-        if is_backward:
-            nf = nf - 1
 
         m = {
             "S.S": ome_members["S_qq"],
@@ -66,20 +63,8 @@ class MatchingCondition(member.OperatorBase):
             }
         )
 
-        if is_backward:
-            # match the missing contibution from h+ and h-
-            m.update(
-            {
-                f"{hq}+.{hq}+": ome_members["S_HH"],
-                # f"S.{hq}+": ome_members["S_qH"],
-                f"g.{hq}+": ome_members["S_gH"],
-                f"{hq}-.{hq}-": ome_members["NS_HH"],
-                # f"V.{hq}-": ome_members["NS_qH"],
-            }
-            )
-
         # intrinsic matching
-        if len(intrinsic_range) != 0 and not is_backward:
+        if len(intrinsic_range) != 0:
             op_id = member.OpMember.id_like(ome_members["NS_qq"])
             for intr_fl in intrinsic_range:
                 ihq = flavors.quark_names[intr_fl - 1]  # find name

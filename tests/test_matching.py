@@ -31,7 +31,7 @@ class TestMatchingCondition:
 
     def test_split_ad_to_evol_map(self):
         ome = self.mkOME()
-        a = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [], False)
+        a = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [])
         triv_keys = [
             "V.V",
             "T3.T3",
@@ -57,7 +57,7 @@ class TestMatchingCondition:
             ome["NS_qq"].value,
         )
         # # if alpha is zero, nothing non-trivial should happen
-        b = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [], False)
+        b = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [])
         assert sorted([str(k) for k in b.op_members.keys()]) == sorted(
             [*triv_keys, *keys3]
         )
@@ -67,16 +67,16 @@ class TestMatchingCondition:
         # )
         # nf=3 + IC
         self.update_intrinsic_OME(ome)
-        c = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [4], False)
+        c = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [4])
         assert sorted([str(k) for k in c.op_members.keys()]) == sorted(
-            [*triv_keys, *keys3, "S.c+", "g.c+", "V.c-", "c+.c+", "c-.c-"]
+            [*triv_keys, *keys3, "g.c+","c+.c+", "c-.c-"]
         )
         assert_almost_equal(
             c.op_members[member.MemberName("V.V")].value,
             b.op_members[member.MemberName("V.V")].value,
         )
         # nf=3 + IB
-        d = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [5], False)
+        d = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [5])
         assert sorted([str(k) for k in d.op_members.keys()]) == sorted(
             [*triv_keys, *keys3, "b+.b+", "b-.b-"]
         )
@@ -85,15 +85,15 @@ class TestMatchingCondition:
             np.eye(self.shape[0]),
         )
         # nf=4 + IB
-        d = MatchingCondition.split_ad_to_evol_map(ome, 4, 1, [5], False)
+        d = MatchingCondition.split_ad_to_evol_map(ome, 4, 1, [5])
         assert sorted([str(k) for k in d.op_members.keys()]) == sorted(
             [
                 *triv_keys,
                 "T15.T15",
                 "V15.V15",
-                "S.b+",
+                #"S.b+",
                 "g.b+",
-                "V.b-",
+                #"V.b-",
                 "b+.S",
                 "b+.g",
                 "b+.b+",

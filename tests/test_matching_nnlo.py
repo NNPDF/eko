@@ -63,3 +63,15 @@ def test_A_2_shape():
     # check q line equal to the h line for non intrinsic
     assert aS2[1].all() == aS2[2].all()
     assert aNS2[0].all() == aNS2[1].all()
+
+
+def test_pegasus_sign():
+
+    # reference value come from Mathematica
+    ref_val = - 21133.9
+    N = 2
+    sx = get_sx(N)
+    L = 100.
+    aS2 = A_singlet_2(N, sx, L)
+
+    np.testing.assert_allclose(aS2[0,0], ref_val, rtol=4e-5)
