@@ -25,7 +25,7 @@ class PhysicalOperator(member.OperatorBase):
     """
 
     @classmethod
-    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range=None):
+    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range):
         """
         Obtain map between the 3-dimensional anomalous dimension basis and the
         4-dimensional evolution basis.
