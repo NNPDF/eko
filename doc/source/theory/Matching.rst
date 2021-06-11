@@ -6,22 +6,24 @@ where the number of active, light flavors that are participating in the :doc:`DG
 by one unit: :math:`n_f \to n_f +1`. This leads to the complication that one the sides of the thresholds the distributions
 to not behave in the same matter: in esp. the new quark distributions :math:`q_{n_f+1}(x,\mu_F^2) = h(x,\mu_F^2)` and
 :math:`\overline h(x,\mu_F^2)` did not take part in the evolution below the threshold, but above they do.
-This mismatch in the evolution is accounted for by the *matching conditions*. We will decompose this operation into two independet
-steps: first, the true QCD induced |OME| :math:`\mathbf{M}^{(n_f)}` that are given by perturbative calculations,
-and, second, the necessary :doc:`flavor space rotation <FlavorSpace>` :math:`\mathbf{R}^{(n_f)}` to fit the new evolution basis.
+This mismatch in the evolution is accounted for by the *matching conditions*.
 
+In the following we will denote the number of active flavors by a supscript :math:`(n_f)`.
 We denote the solution of the :doc:`DGLAP equation <DGLAP>` in a region with *no* threshold
-(:math:`\mu_{q}^2 < Q_0^2 < Q_1^2 < \mu_{q+1}^2`) in :doc:`Mellin space <Mellin>` as
+(:math:`\mu_{h}^2 < Q_0^2 < Q_1^2 < \mu_{h+1}^2`) in :doc:`Mellin space <Mellin>` as
 
 .. math ::
-    \tilde{\mathbf{f}}(Q^2_1)= \tilde{\mathbf{E}}(Q^2_1\leftarrow Q^2_0) \tilde{\mathbf{f}}(Q^2_0)
+    \tilde{\mathbf{f}}^{(n_f)}(Q^2_1)= \tilde{\mathbf{E}}(Q^2_1\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
 The bold font indicates the vector space spanned by the flavor space and the equation decouples mostly in the evolution basis.
 
-We can then denote the solution with a single threshold (:math:`\mu_h^2 < Q_0^2 < \mu_{h+1}^2 < Q_1^2 < \mu_{h+2}^2`) as
+If a single threshold (:math:`\mu_h^2 < Q_0^2 < \mu_{h+1}^2 < Q_1^2 < \mu_{h+2}^2`) is present we decompose the matching into two independet steps:
+first, the true QCD induced |OME| :math:`\mathbf{M}^{(n_f)}(\mu_{h+1}^2)` that are given by perturbative calculations,
+and, second, the necessary :doc:`flavor space rotation <FlavorSpace>` :math:`\mathbf{R}^{(n_f)}` to fit the new :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution Bases>`.
+We can then denote the solution with as
 
 .. math ::
-    \tilde{\mathbf{f}}(Q^2_1)= \tilde{\mathbf{E}}(Q^2_1\leftarrow \mu_{h+1}^2) {\mathbf{R}^{(n_f)}} {\mathbf{M}^{(n_f)}}(\mu_{h+1}^2) \tilde{\mathbf{E}}(\mu_{h+1}^2\leftarrow Q^2_0) \tilde{\mathbf{f}}(Q^2_0)
+    \tilde{\mathbf{f}}^{(n_f+1)}(Q^2_1)= \tilde{\mathbf{E}}(Q^2_1\leftarrow \mu_{h+1}^2) {\mathbf{R}^{(n_f)}} {\mathbf{M}^{(n_f)}}(\mu_{h+1}^2) \tilde{\mathbf{E}}(\mu_{h+1}^2\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
 In case more than one threshold scale is present the matching procedure is iterared on all diffrent scales starting form
 the lowest one.
@@ -29,31 +31,37 @@ the lowest one.
 Basis rotation
 --------------
 
-The rotation matrices :math:`\mathbf{R}^{(n_f)}` are given by
+The rotation matrices :math:`\mathbf{R}^{(n_f)}` mediate between :math:`\mathcal F_{iev,n_f}^{(n_f+1)}` and :math:`\mathcal F_{iev,n_f+1}^{(n_f+1)}`,
+i.e. in the output the distributions are already in a scheme with :math:`(n_f+1)`-flavors and the new heavy quark is already non-trivial, but the basis vectors are
+still expressed with the elements of the :math:`n_f`-flavors space. The matrices are fixed algebraic quantities and do not encode perturbative
+quantities.
+
+The matrices are given by
 
 .. math ::
-    \dSVe{n_f+1}{\mu_{h}^2} &= {\mathbf{R}}_S^{(n_f)} \dSVi{n_f+1}{\mu_{h}^2} = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 1 \\ 0 & 1 & - n_f \end{pmatrix} \dSVi{n_f+1}{\mu_{h}^2} \\
-    \dVe{n_f+1}{\mu_{h}^2} &= {\mathbf{R}}_{ns}^{(n_f)} \dVi{n_f+1}{\mu_{h}^2} = \begin{pmatrix} 1 & 1 \\ 1 & - n_f \end{pmatrix} \dVi{n_f+1}{\mu_{h}^2} \\
+    \dSVe{n_f+1}{\mu_{h}^2} &= {\mathbf{R}}_{S,h^+}^{(n_f)} \dSVi{n_f+1}{\mu_{h}^2} = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 1 \\ 0 & 1 & - n_f \end{pmatrix} \dSVi{n_f+1}{\mu_{h}^2} \\
+    \dVe{n_f+1}{\mu_{h}^2} &= {\mathbf{R}}_{nsv,h^-}^{(n_f)} \dVi{n_f+1}{\mu_{h}^2} = \begin{pmatrix} 1 & 1 \\ 1 & - n_f \end{pmatrix} \dVi{n_f+1}{\mu_{h}^2} \\
     & \text{for }j=(n_f+1)^2-1\\
-    {\mathbf{R}}_{ns\pm}^{(n_f)} &= \mathbf 1 ~ \text{otherwise}
+    {\mathbf{R}}^{(n_f)} &= \mathbf 1 ~ \text{otherwise}
 
 
 Pertubative Operator Matrix Element
 -----------------------------------
+
+The matching matrices :math:`\mathbf{M}^{(n_f)}(\mu_{h+1}^2)` mediate between :math:`\mathcal F_{iev,n_f}^{(n_f)}` and :math:`\mathcal F_{iev,n_f}^{(n_f+1)}`.
 
 .. math ::
     \dSVi{n_f+1}{\mu_{h}^2} &= \mathbf{M}_{S}(\mu_{h}^2) \dSVi{n_f}{\mu_{h}^2} \\
     \dVi{n_f+1}{\mu_{h}^2} &= \mathbf{M}_{ns}(\mu_{q+1}^2) \dVi{n_f}{\mu_{h}^2}
 
 
-with :math:`\mathbf{M}` being the matching matrices computed order by order in :math:`a_s`: 
+where :math:`\mathbf{M}` can be computed order by order in :math:`a_s`:
 
 .. math ::
-    \mathbf{M}_{X}(\mu_{h}^2) &= \mathbf{I} + a_s(\mu_{h}^2)  \mathbf{A}_{X}^{(1)} + a_s^2(\mu_{h}^2) \mathbf{A}_{X}^{(2)} \\
-    & \text{for } X=S,ns \\
+    \mathbf{M}(\mu_{h}^2) = \mathbf{I} + a_s(\mu_{h}^2)  \mathbf{A}^{(1)} + a_s^2(\mu_{h}^2) \mathbf{A}^{(2)} 
 
 
-and :math:`\mathbf{A}_{X}^{i}` the operator matrix elements (|OME|), given by the following:
+and :math:`\mathbf{A}^{i}` the |OME| are given by the following:
 
 .. math ::
     \mathbf{A}_{ns}^{(1)} &= \begin{pmatrix} 0 & 0 \\ 0 & A_{HH}^{(1)}\end{pmatrix} \\
@@ -62,12 +70,12 @@ and :math:`\mathbf{A}_{X}^{i}` the operator matrix elements (|OME|), given by th
     \mathbf{A}_{S}^{(2)} &= \begin{pmatrix} A_{gg,H}^{s,(2)} & A_{gq,H}^{s,(2)} & 0 \\ 0 & A_{qq,H}^{ns,(2)} & 0 \\ A_{Hg}^{s,(2)} & A_{Hq}^{ps,(2)} & 0 \end{pmatrix} \\
 
 
-The coefficients :math:`A^{x}_{i}(z,\mu_{h}^2)` have been firstly computed in :cite:`Buza_1998` and have been Mellin tranformed to be used inside EKO. They depends on the scale :math:`\mu_{h}^2` only through the logaritm :math:`ln(\frac{\mu_{q}^2}{m_{q}^2})`,
-in particular the coefficient :math:`A_{gg,H}^{s,(1)}` is fully proprtional to :math:`ln(\frac{\mu_{h}^2}{m_{h}^2})`. 
+The coefficients :math:`A^{x}_{i}(z,\mu_{h}^2)` have been firstly computed in :cite:`Buza_1998` and have been :doc:`Mellin tranformed </theory/Mellin>` to be used inside EKO.
+They depend on the scale :math:`\mu_{h}^2` only through the logaritm :math:`\ln(\mu_{q}^2/m_{q}^2)`,
+in particular the coefficient :math:`A_{gg,H}^{s,(1)}` is fully proprtional to :math:`\ln(\mu_{h}^2/m_{h}^2)`. 
 
 We remark that contributions of the higher quark at |NNLO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
 On the other hand the elements :math:`A_{qq}^{ps},A_{qg}` are known to start at order :math:`O(a_s^3)`.
-
 
 The other valence-like/singlet-like non-singlet distributions that were already active before the threshold, continue to evolve from themselves
 under the condition:
