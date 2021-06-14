@@ -440,4 +440,4 @@ def A_ns_2(n, sx, L):
         A_qq_2_ns : :math:`A_{qq,H}^{NS,(2)}`
     """
     A_qq = A_qq_2_ns(n, sx, L)
-    return np.array([[A_qq, 0.0], [0+0j, 0+0j]], np.complex_)
+    return np.array([[A_qq, 0.0], [0 + 0j, 0 + 0j]], np.complex_)

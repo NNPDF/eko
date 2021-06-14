@@ -196,6 +196,7 @@ class TestOutput:
             np.testing.assert_allclose(
                 oii["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
             )
+
         # both
         o1.xgrid_reshape(xgp, xgp)
         op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
@@ -203,3 +204,57 @@ class TestOutput:
         # error
         with pytest.raises(ValueError):
             copy.deepcopy(o1).xgrid_reshape()
+
+    def test_flavor_reshape(self):
+        d = self.fake_output()
+        # create object
+        xg = np.geomspace(1e-5, 1.0, 21)
+        o1 = output.Output(d)
+        o1["interpolation_xgrid"] = xg
+        o1["targetgrid"] = xg
+        o1["inputgrid"] = xg
+        o1["Q2grid"] = {
+            10: dict(
+                operators=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
+                operator_errors=np.zeros((2, len(xg), 2, len(xg))),
+            )
+        }
+        # only target
+        target_r = np.array([[1,-1],[1,1]])
+        ot = copy.deepcopy(o1)
+        ot.flavor_reshape(target_r)
+        assert ot["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xg))
+        ott = copy.deepcopy(ot)
+        ott.flavor_reshape(np.linalg.inv(target_r))
+        np.testing.assert_allclose(
+            ott["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+        )
+        with pytest.warns(Warning):
+            ott.flavor_reshape(np.eye(2))
+            np.testing.assert_allclose(
+                ott["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+            )
+
+        # only input
+        input_r = np.array([[1,-1],[1,1]])
+        oi = copy.deepcopy(o1)
+        oi.flavor_reshape(inputbasis=input_r)
+        assert oi["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xg))
+        oii = copy.deepcopy(oi)
+        oii.flavor_reshape(inputbasis=np.linalg.inv(input_r))
+        np.testing.assert_allclose(
+            oii["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+        )
+        with pytest.warns(Warning):
+            oii.flavor_reshape(inputbasis=np.eye(2))
+            np.testing.assert_allclose(
+                oii["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+            )
+
+        # both
+        o1.flavor_reshape(np.array([[1,-1],[1,1]]), np.array([[1,-1],[1,1]]))
+        op = eko_identity([1, 2, len(xg), 2, len(xg)]).copy()
+        np.testing.assert_allclose(o1["Q2grid"][10]["operators"], op[0], atol=1e-10)
+        # error
+        with pytest.raises(ValueError):
+            copy.deepcopy(o1).flavor_reshape()

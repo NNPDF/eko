@@ -235,7 +235,7 @@ class OperatorGrid:
         operator.compute()
         intrinsic_range = self.config["intrinsic_range"]
         if path[-1].is_backward:
-            intrinsic_range = [4,5,6]
+            intrinsic_range = [4, 5, 6]
         final_op = physical.PhysicalOperator.ad_to_evol_map(
             operator.op_members,
             operator.nf,
@@ -254,7 +254,7 @@ class OperatorGrid:
             if is_backward:
                 matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
                     self._matching_operators[op.q2_to],
-                    op.nf-1,
+                    op.nf - 1,
                     op.q2_to,
                     intrinsic_range=intrinsic_range,
                 )

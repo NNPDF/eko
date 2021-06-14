@@ -19,7 +19,11 @@ class MatchingCondition(member.OperatorBase):
 
     @classmethod
     def split_ad_to_evol_map(
-        cls, ome_members, nf, q2_thr, intrinsic_range,
+        cls,
+        ome_members,
+        nf,
+        q2_thr,
+        intrinsic_range,
     ):
         """
         Create the instance from the |OME|.
@@ -41,7 +45,7 @@ class MatchingCondition(member.OperatorBase):
 
         m = {
             "S.S": ome_members["S_qq"],
-            "S.g": ome_members["S_qg"], # This is always zero for the time being
+            "S.g": ome_members["S_qg"],  # This is always zero for the time being
             "g.S": ome_members["S_gq"],
             "g.g": ome_members["S_gg"],
             "V.V": ome_members["NS_qq"],
@@ -80,7 +84,7 @@ class MatchingCondition(member.OperatorBase):
                             # f"S.{ihq}+": ome_members["S_qH"],
                             f"g.{ihq}+": ome_members["S_gH"],
                             f"{ihq}-.{ihq}-": ome_members["NS_HH"],
-                            #f"V.{ihq}-": ome_members["NS_qH"],
+                            # f"V.{ihq}-": ome_members["NS_qH"],
                         }
                     )
         return cls.promote_names(m, q2_thr)
