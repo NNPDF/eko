@@ -1,64 +1,84 @@
 # -*- coding: utf-8 -*-
-
+import copy
 import numpy as np
 
 import eko
 
+theory_card = {
+    "alphas": 0.35,
+    "PTO": 0,
+    "fact_to_ren_scale_ratio": 1.0,
+    "Qref": np.sqrt(2),
+    "Q0": np.sqrt(2),
+    "FNS": "FFNS",
+    "NfFF": 3,
+    "ModEv": "EXA",
+    "IC": 0,
+    "mc": 1.0,
+    "mb": 4.75,
+    "mt": 173.0,
+    "kcThr": 0,
+    "kbThr": np.inf,
+    "ktThr": np.inf,
+    "MaxNfPdf": 6,
+    "MaxNfAs": 6,
+}
+operators_card = {
+    "Q2grid": [10, 100],
+    "interpolation_xgrid": [0.01, 0.1, 1.0],
+    "interpolation_polynomial_degree": 1,
+    "interpolation_is_log": True,
+    "debug_skip_singlet": True,
+    "debug_skip_non_singlet": True,
+    "ev_op_max_order": 1,
+    "ev_op_iterations": 1,
+}
 
-def test_runner():
+def test_raw():
     """we don't check the content here, but only the shape"""
-    theory_card = {
-        "alphas": 0.35,
-        "PTO": 0,
-        "fact_to_ren_scale_ratio": 1.0,
-        "Qref": np.sqrt(2),
-        "Q0": np.sqrt(2),
-        "FNS": "FFNS",
-        "NfFF": 3,
-        "ModEv": "EXA",
-        "IC": 0,
-        "mc": 1.0,
-        "mb": 4.75,
-        "mt": 173.0,
-        "kcThr": 0,
-        "kbThr": np.inf,
-        "ktThr": np.inf,
-        "MaxNfPdf": 6,
-        "MaxNfAs": 6,
-    }
-    operators_card = {
-        "Q2grid": [10, 100],
-        "interpolation_xgrid": [0.01, 0.1, 1.0],
-        "interpolation_polynomial_degree": 1,
-        "interpolation_is_log": True,
-        "debug_skip_singlet": True,
-        "debug_skip_non_singlet": True,
-        "ev_op_max_order": 1,
-        "ev_op_iterations": 1,
-    }
-    r = eko.runner.Runner(theory_card, operators_card)
+    tc = copy.deepcopy(theory_card)
+    oc = copy.deepcopy(operators_card)
+    r = eko.runner.Runner(tc, oc)
     o = r.get_output()
-    # lx = len()
     check_shapes(
         o,
         o["interpolation_xgrid"],
         o["interpolation_xgrid"],
-        theory_card,
-        operators_card,
-    )
-    # change targetgrid
-    tgrid = [0.1, 1.0]
-    operators_card["targetgrid"] = tgrid
-    rr = eko.runner.Runner(theory_card, operators_card)
-    oo = rr.get_output()
-    check_shapes(
-        oo,
-        tgrid,
-        o["interpolation_xgrid"],
-        theory_card,
-        operators_card,
+        tc,
+        oc,
     )
 
+def test_targetgrid():
+    # change targetgrid
+    tc = copy.deepcopy(theory_card)
+    oc = copy.deepcopy(operators_card)
+    tgrid = [0.1, 1.0]
+    oc["targetgrid"] = tgrid
+    r = eko.runner.Runner(tc, oc)
+    o = r.get_output()
+    check_shapes(
+        o,
+        tgrid,
+        o["interpolation_xgrid"],
+        tc,
+        oc,
+    )
+
+def test_targetbasis():
+    # change targetbasis
+    tc = copy.deepcopy(theory_card)
+    oc = copy.deepcopy(operators_card)
+    oc["targetbasis"] = np.eye(14) + .1*np.random.rand(14,14)
+    oc["inputbasis"] = np.eye(14) + .1*np.random.rand(14,14)
+    r = eko.runner.Runner(tc, oc)
+    o = r.get_output()
+    check_shapes(
+        o,
+        o["interpolation_xgrid"],
+        o["interpolation_xgrid"],
+        tc,
+        oc,
+    )
 
 def check_shapes(o, txs, ixs, theory_card, operators_card):
     lpids = len(o["pids"])

@@ -131,9 +131,13 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         if inputgrid is not None or targetgrid is not None:
             self.out.xgrid_reshape(targetgrid=targetgrid, inputgrid=inputgrid)
 
-        # # reshape flavors
-        # inputbasis = self.post_process["inputbasis"]
-        # targetbasis = self.post_process["targetbasis"]
-        # if inputbasis is not None or targetbasis is not None:
-        #     self.out.flavor_reshape(targetbasis=targetbasis, inputbasis=inputbasis)
+        # reshape flavors
+        inputbasis = self.post_process["inputbasis"]
+        if inputbasis is not None:
+            inputbasis = np.array(inputbasis)
+        targetbasis = self.post_process["targetbasis"]
+        if targetbasis is not None:
+            targetbasis = np.array(targetbasis)
+        if inputbasis is not None or targetbasis is not None:
+            self.out.flavor_reshape(targetbasis=targetbasis, inputbasis=inputbasis)
         return copy.deepcopy(self.out)
