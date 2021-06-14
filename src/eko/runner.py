@@ -98,6 +98,8 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         self.post_process = dict(
             inputgrid=operators_card.get("inputgrid", bfd.xgrid_raw),
             targetgrid=operators_card.get("targetgrid", bfd.xgrid_raw),
+            inputbasis=operators_card.get("inputbasis"),
+            targetbasis=operators_card.get("targetbasis"),
         )
 
     def get_output(self):
@@ -115,7 +117,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         for final_scale, op in self.op_grid.compute().items():
             Q2grid[float(final_scale)] = op
         self.out["Q2grid"] = Q2grid
-        # reshape
+        # reshape xgrid
         inputgrid = (
             self.post_process["inputgrid"]
             if self.post_process["inputgrid"] is not self.out["interpolation_xgrid"]
@@ -128,4 +130,10 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         )
         if inputgrid is not None or targetgrid is not None:
             self.out.xgrid_reshape(targetgrid=targetgrid, inputgrid=inputgrid)
+
+        # # reshape flavors
+        # inputbasis = self.post_process["inputbasis"]
+        # targetbasis = self.post_process["targetbasis"]
+        # if inputbasis is not None or targetbasis is not None:
+        #     self.out.flavor_reshape(targetbasis=targetbasis, inputbasis=inputbasis)
         return copy.deepcopy(self.out)

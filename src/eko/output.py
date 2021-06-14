@@ -188,6 +188,62 @@ class Output(dict):
         # set in self
         self["Q2grid"] = out_grid
 
+    def flavor_reshape(self, targetbasis=None, inputbasis=None):
+        """
+        Changes the operators to have in the output targetbasis and/or in the input inputbasis.
+
+        The operation is inplace.
+
+        Parameters
+        ----------
+            targetbasis : numpy.ndarray
+                target rotation specified in the flavor basis
+            inputbasis : None or list
+                input rotation specified in the flavor basis
+        """
+        # calling with no arguments is an error
+        if targetbasis is None and inputbasis is None:
+            raise ValueError("Nor inputbasis nor targetbasis was given")
+        # now check to the current status
+        if targetbasis is not None and np.allclose(
+            targetbasis, np.eye(len(self["pids"]))
+        ):
+            targetbasis = None
+            warnings.warn("The new targetbasis is close to current basis")
+        if inputbasis is not None and np.allclose(
+            inputbasis, np.eye(len(self["pids"]))
+        ):
+            inputbasis = None
+            warnings.warn("The new inputbasis is close to current basis")
+        # after the checks: if there is still nothing to do, skip
+        if targetbasis is None and inputbasis is None:
+            logger.debug("Nothing done.")
+            return
+
+        # flip input around
+        if inputbasis is not None:
+            inv_inputbasis = np.linalg.inv(inputbasis)
+
+        # build new grid
+        out_grid = {}
+        for q2, elem in self["Q2grid"].items():
+            ops = elem["operators"]
+            errs = elem["operator_errors"]
+            if targetbasis is not None and inputbasis is None:
+                ops = np.einsum("ca,ajbk->cjbk", targetbasis, ops)
+                errs = np.einsum("ca,ajbk->cjbk", targetbasis, errs)
+            elif inputbasis is not None and targetbasis is None:
+                ops = np.einsum("ajbk,bd->ajdk", ops, inv_inputbasis)
+                errs = np.einsum("ajbk,bd->ajdk", errs, inv_inputbasis)
+            else:
+                ops = np.einsum("ca,ajbk,bd->cjdk", targetbasis, ops, inv_inputbasis)
+                errs = np.einsum("ca,ajbk,bd->cjdk", targetbasis, errs, inv_inputbasis)
+            out_grid[q2] = dict(operators=ops, operator_errors=errs)
+        # set in self
+        self["Q2grid"] = out_grid
+        # drop PIDs
+        self["pids"] = np.full(len(self["pids"]), np.nan)
+
     def get_raw(self, binarize=True):
         """
         Serialize result as dict/YAML.
