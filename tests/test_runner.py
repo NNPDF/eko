@@ -34,6 +34,7 @@ operators_card = {
     "ev_op_iterations": 1,
 }
 
+
 def test_raw():
     """we don't check the content here, but only the shape"""
     tc = copy.deepcopy(theory_card)
@@ -47,6 +48,7 @@ def test_raw():
         tc,
         oc,
     )
+
 
 def test_targetgrid():
     # change targetgrid
@@ -64,12 +66,13 @@ def test_targetgrid():
         oc,
     )
 
+
 def test_targetbasis():
     # change targetbasis
     tc = copy.deepcopy(theory_card)
     oc = copy.deepcopy(operators_card)
-    oc["targetbasis"] = np.eye(14) + .1*np.random.rand(14,14)
-    oc["inputbasis"] = np.eye(14) + .1*np.random.rand(14,14)
+    oc["targetbasis"] = np.eye(14) + 0.1 * np.random.rand(14, 14)
+    oc["inputbasis"] = np.eye(14) + 0.1 * np.random.rand(14, 14)
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()
     check_shapes(
@@ -80,9 +83,11 @@ def test_targetbasis():
         oc,
     )
 
+
 def check_shapes(o, txs, ixs, theory_card, operators_card):
-    lpids = len(o["pids"])
-    op_shape = (lpids, len(txs), lpids, len(ixs))
+    tpids = len(o["targetpids"])
+    ipids = len(o["inputpids"])
+    op_shape = (tpids, len(txs), ipids, len(ixs))
 
     # check output = input
     np.testing.assert_allclose(

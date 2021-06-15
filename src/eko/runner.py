@@ -113,10 +113,12 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         """
         # add all operators
         Q2grid = {}
-        self.out["pids"] = br.flavor_basis_pids
+        self.out["inputpids"] = br.flavor_basis_pids
+        self.out["targetpids"] = br.flavor_basis_pids
         for final_scale, op in self.op_grid.compute().items():
             Q2grid[float(final_scale)] = op
         self.out["Q2grid"] = Q2grid
+
         # reshape xgrid
         inputgrid = (
             self.post_process["inputgrid"]

@@ -56,7 +56,8 @@ class TestOutput:
             interpolation_polynomial_degree=interpolation_polynomial_degree,
             interpolation_is_log=interpolation_is_log,
             q2_ref=q2_ref,
-            pids=pids,
+            inputpids=pids,
+            targetpids=pids,
             Q2grid=Q2grid,
         )
         return d
@@ -121,7 +122,7 @@ class TestOutput:
         pdf_grid = o.apply_pdf(pdf)
         assert len(pdf_grid) == len(d["Q2grid"])
         pdfs = pdf_grid[q2_out]["pdfs"]
-        assert list(pdfs.keys()) == d["pids"]
+        assert list(pdfs.keys()) == d["targetpids"]
         ref_pid1 = d["Q2grid"][q2_out]["operators"][0, :, 1, :] @ np.ones(
             len(d["interpolation_xgrid"])
         )
@@ -135,7 +136,7 @@ class TestOutput:
         pdf_grid = o.apply_pdf(pdf, target_grid)
         assert len(pdf_grid) == 1
         pdfs = pdf_grid[q2_out]["pdfs"]
-        assert list(pdfs.keys()) == d["pids"]
+        assert list(pdfs.keys()) == d["targetpids"]
 
     def test_apply_flavor(self, monkeypatch):
         d = self.fake_output()
@@ -147,7 +148,7 @@ class TestOutput:
         monkeypatch.setattr(
             "eko.basis_rotation.rotate_flavor_to_evolution", np.ones((2, 2))
         )
-        monkeypatch.setattr("eko.basis_rotation.flavor_basis_pids", d["pids"])
+        monkeypatch.setattr("eko.basis_rotation.flavor_basis_pids", d["targetpids"])
         fake_evol_basis = ("a", "b")
         monkeypatch.setattr("eko.basis_rotation.evol_basis", fake_evol_basis)
         pdf_grid = o.apply_pdf(pdf, rotate_to_evolution_basis=True)
@@ -220,7 +221,7 @@ class TestOutput:
             )
         }
         # only target
-        target_r = np.array([[1,-1],[1,1]])
+        target_r = np.array([[1, -1], [1, 1]])
         ot = copy.deepcopy(o1)
         ot.flavor_reshape(target_r)
         assert ot["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xg))
@@ -236,7 +237,7 @@ class TestOutput:
             )
 
         # only input
-        input_r = np.array([[1,-1],[1,1]])
+        input_r = np.array([[1, -1], [1, 1]])
         oi = copy.deepcopy(o1)
         oi.flavor_reshape(inputbasis=input_r)
         assert oi["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xg))
@@ -252,7 +253,7 @@ class TestOutput:
             )
 
         # both
-        o1.flavor_reshape(np.array([[1,-1],[1,1]]), np.array([[1,-1],[1,1]]))
+        o1.flavor_reshape(np.array([[1, -1], [1, 1]]), np.array([[1, -1], [1, 1]]))
         op = eko_identity([1, 2, len(xg), 2, len(xg)]).copy()
         np.testing.assert_allclose(o1["Q2grid"][10]["operators"], op[0], atol=1e-10)
         # error
