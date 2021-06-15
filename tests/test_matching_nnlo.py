@@ -44,9 +44,10 @@ def test_A_2():
     assert aNS2.shape == (2, 2)
     assert aS2.shape == (3, 3)
 
-    # check q line equal to the h line
-    assert aNS2[0].all() == aNS2[1].all()
-    assert aS2[1].all() == aS2[2].all()
+    np.testing.assert_allclose( aS2[1,0], 0)
+    np.testing.assert_allclose( aS2[:,2], np.zeros(3))
+    np.testing.assert_allclose( aNS2[1,1],0)
+
 
 
 def test_A_2_shape():

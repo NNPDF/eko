@@ -180,16 +180,18 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
     is_singlet = mode[0] == "S"
     # get transformation to N integral
     # and compute the matrix elements
+    r = 0.4 * 16.0 / (1.0 - logx)
     if is_singlet:
-        r, o = 0.4 * 16.0 / (1.0 - logx), 1.0
+        o = 1.0
         indeces = {"g": 0, "q": 1, "H": 2}
-        A = A_singlet(order, u, sx, L)
+        n = mellin.Talbot_path(u, r, o)
+        A = A_singlet(order, n, sx, L)
     else:
-        r, o = 0.5, 0.0
+        o = 0.0
         indeces = {"q": 0, "H": 1}
-        A = A_non_singlet(order, u, sx, L)
+        n = mellin.Talbot_path(u, r, o)
+        A = A_non_singlet(order, n, sx, L)
 
-    n = mellin.Talbot_path(u, r, o)
     jac = mellin.Talbot_jac(u, r, o)
     # check PDF is active
     if is_log:
@@ -231,7 +233,7 @@ class OperatorMatrixElement:
             cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, config, managers, is_backward, mellin_cut=1e-2):
+    def __init__(self, config, managers, is_backward, mellin_cut=1e-3):
 
         self.backward_method = config["backward_inversion"] if is_backward else ""
         self.is_intrinsic = bool(len(config["intrinsic_range"]) != 0)
