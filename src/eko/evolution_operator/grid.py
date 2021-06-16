@@ -179,7 +179,11 @@ class OperatorGrid:
 
             # Compute the matching conditions and store it
             if len(path) > 1:
-                mh2 = self.config[f"m{flavors.quark_names[seg.nf]}"] ** 2
+                # backawd point to the smaller q2
+                if seg.is_backward:
+                    mh2 = self.config[f"m{flavors.quark_names[seg.nf-1]}"] ** 2
+                else:
+                    mh2 = self.config[f"m{flavors.quark_names[seg.nf]}"] ** 2
                 ome.compute(seg.q2_to, mh2)
                 self._matching_operators[seg.q2_to] = ome.ome_members
         return thr_ops

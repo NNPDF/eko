@@ -207,7 +207,7 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
 
     # select the need matrix element
     ker = ker[indeces[mode[-2]], indeces[mode[-1]]]
-    if ker == 0.0:
+    if np.real(ker) == 0.0:
         return 0.0
 
     # recombine everthing
