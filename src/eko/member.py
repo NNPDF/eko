@@ -165,6 +165,11 @@ class OperatorBase:
         self.op_members = op_members
         self.q2_final = q2_final
 
+    def __getitem__(self, key):
+        if not isinstance(key, MemberName):
+            key = MemberName(key)
+        return self.op_members[key]
+
     @classmethod
     def promote_names(cls, op_members, q2_final):
         """
