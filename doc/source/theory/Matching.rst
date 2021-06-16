@@ -15,7 +15,8 @@ We denote the solution of the :doc:`DGLAP equation <DGLAP>` in a region with *no
 .. math ::
     \tilde{\mathbf{f}}^{(n_f)}(Q^2_1)= \tilde{\mathbf{E}}^{(n_f)}(Q^2_1\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
-The bold font indicates the vector space spanned by the flavor space and the equation decouples mostly in the evolution basis.
+The bold font indicates the vector space spanned by the :doc:`flavor space <FlavorSpace>` and the equations decouple mostly
+in the :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution Bases>`.
 
 If a single threshold (:math:`\mu_{h-1}^2 < Q_0^2 < \mu_{h}^2 < Q_1^2 < \mu_{h+1}^2`) is present we decompose the matching into two independet steps:
 first, the true QCD induced |OME| :math:`\mathbf{M}^{(n_f)}(\mu_{h}^2)` that are given by perturbative calculations,
@@ -47,7 +48,9 @@ The matrices are given by
 Pertubative Operator Matrix Element
 -----------------------------------
 
-The matching matrices :math:`\mathbf{M}^{(n_f)}(\mu_{h+1}^2)` mediate between :math:`\mathcal F_{iev,n_f}^{(n_f)}` and :math:`\mathcal F_{iev,n_f}^{(n_f+1)}`.
+The matching matrices :math:`\mathbf{M}^{(n_f)}(\mu_{h+1}^2)` mediate between :math:`\mathcal F_{iev,n_f}^{(n_f)}`
+and :math:`\mathcal F_{iev,n_f}^{(n_f+1)}`, i.e. they transform the basis vectors of the :math:`n_f`-flavors space
+in a :math:`n_f`-flavor scheme to the :math:`(n_f+1)`-flavor scheme.
 
 .. math ::
     \dSVip{n_f}{\mu_{h}^2} &= \tilde{\mathbf{M}}_{S,h^+}^{(n_f)}(\mu_{h}^2) \dSVi{n_f}{\mu_{h}^2} \\
