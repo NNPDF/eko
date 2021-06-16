@@ -178,7 +178,7 @@ class OperatorGrid:
             thr_ops.append(self._threshold_operators[new_op_key])
 
             # Compute the matching conditions and store it
-            if len(path) > 1:
+            if seg.q2_to not in self._matching_operators:
                 # backawd point to the smaller q2
                 if seg.is_backward:
                     mh2 = self.config[f"m{flavors.quark_names[seg.nf-1]}"] ** 2
