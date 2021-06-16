@@ -137,6 +137,7 @@ class StrongCoupling:
         self._order = order
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
+        # method = "pegasus"
         self._method = method
 
         # create new threshold object
@@ -249,8 +250,19 @@ class StrongCoupling:
             return -(a ** 2) * np.sum([a ** k * b for k, b in enumerate(b_vec)])
 
         # let scipy solve
-        res = scipy.integrate.solve_ivp(rge, (0, u), (as_ref,), args=[b_vec])
+        res = scipy.integrate.solve_ivp(rge, (0, u), (as_ref,), args=[b_vec], method="Radau")
         return res.y[0][-1]
+
+    def _compute_pegasus(self, as_ref, nf, scale_from, scale_to):
+        import pegasus
+        pegasus.colour.ca = 3.
+        pegasus.colour.cf = 4./3.
+        pegasus.colour.tr = .5
+        pegasus.betafct()
+        pegasus.aspar.naord = self._order
+        pegasus.aspar.nastps = 20
+        print("inside pegasus")
+        return pegasus.__getattribute__("as")(scale_to,scale_from,as_ref,nf)
 
     def _compute(self, as_ref, nf, scale_from, scale_to):
         """
@@ -277,6 +289,8 @@ class StrongCoupling:
         # at the moment everything is expanded - and type has been checked in the constructor
         if self._method == "exact":
             as_new = self._compute_exact(as_ref, nf, scale_from, scale_to)
+        elif self._method == "pegasus":
+            as_new = self._compute_pegasus(as_ref, nf, scale_from, scale_to)
         else:
             as_new = as_expanded(self._order, as_ref, nf, scale_from, scale_to)
         return as_new
