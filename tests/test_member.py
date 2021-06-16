@@ -4,7 +4,7 @@ import numpy as np
 from numpy.testing import assert_almost_equal
 import pytest
 
-from eko.member import OpMember
+from eko.member import OpMember, OperatorBase, MemberName
 
 
 def mkOM(shape):
@@ -117,3 +117,10 @@ class TestOpMember:
         b = a.copy()
         assert_almost_equal(a.value, b.value)
         assert_almost_equal(a.error, b.error)
+
+
+class TestOperatorBase:
+    def test_getitem(self):
+        opm = {MemberName("S.S"): 1}
+        ob = OperatorBase(opm, 0.0)
+        assert ob[MemberName("S.S")] == ob["S.S"]
