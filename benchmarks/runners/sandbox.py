@@ -13,7 +13,7 @@ class Sandbox(Runner):
     sandbox = True
 
     # select here the external program between LHA, LHAPDF, apfel, pegasus
-    #  external = "apfel"
+    #external = "apfel"
     external = "pegasus"
 
     # select to plot operators
@@ -27,24 +27,23 @@ class Sandbox(Runner):
             "ev_op_iterations": [10],
             "ev_op_max_order": [10],
             "Q2grid": [[1e3]],
-            "debug_skip_singlet": [True],
+            #"debug_skip_singlet": [True],
         }
         return ops
 
     def doit(self):
         theory_updates = {
             "PTO": 1,
-            #"FNS": "ZM-VFNS",
-            "FNS": "FFNS",
+            "FNS": "ZM-VFNS",
+            #"FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",
-            "XIR": 1.0,
-            "fact_to_ren_scale_ratio": 1.0,
+            "XIR": 0.5,
+            "fact_to_ren_scale_ratio": 2.0,
             "Q0": np.sqrt(2),
-            "kcThr": 0.,
-            #"kbThr": 1.0,
-            "kbThr": np.inf,
-            "ktThr": np.inf,
+            #"kcThr": 0.,
+            #"kbThr": np.inf,
+            #"ktThr": np.inf,
             "Qref": np.sqrt(2.0),
             "alphas": 0.35,
         }

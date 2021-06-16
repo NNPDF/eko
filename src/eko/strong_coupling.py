@@ -124,6 +124,7 @@ class StrongCoupling:
         thresh,
         order=0,
         method="exact",
+        nf_ref = None
     ):
         # Sanity checks
         if alpha_s_ref <= 0:
@@ -143,7 +144,7 @@ class StrongCoupling:
         # create new threshold object
         self.as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
         self._threshold_holder = thresholds.ThresholdsAtlas(
-            thresh.area_walls[1:-1], scale_ref
+            thresh.area_walls[1:-1], scale_ref, nf_ref
         )
         logger.info(
             "Strong Coupling: Reference a_s(Q^2=%f)=%f", self.q2_ref, self.as_ref
@@ -289,13 +290,13 @@ class StrongCoupling:
         # at the moment everything is expanded - and type has been checked in the constructor
         if self._method == "exact":
             as_new = self._compute_exact(as_ref, nf, scale_from, scale_to)
-        elif self._method == "pegasus":
-            as_new = self._compute_pegasus(as_ref, nf, scale_from, scale_to)
+        #elif self._method == "pegasus":
+        #    as_new = self._compute_pegasus(as_ref, nf, scale_from, scale_to)
         else:
             as_new = as_expanded(self._order, as_ref, nf, scale_from, scale_to)
         return as_new
 
-    def a_s(self, scale_to, fact_scale=None):
+    def a_s(self, scale_to, fact_scale=None, nf_to = None):
         r"""
         Computes strong coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
 
@@ -313,7 +314,7 @@ class StrongCoupling:
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
         final_as = self.as_ref
-        path = self._threshold_holder.path(scale_to)
+        path = self._threshold_holder.path(scale_to, nf_to)
         is_downward_path = False
         if len(path) > 1:
             is_downward_path = path[1].nf < path[0].nf

@@ -102,9 +102,10 @@ class ThresholdsAtlas:
             reference scale
     """
 
-    def __init__(self, thresholds, q2_ref=None):
+    def __init__(self, thresholds, q2_ref=None, nf_ref= None):
         # Initial values
         self.q2_ref = q2_ref
+        self.nf_ref = nf_ref
         thresholds = list(thresholds)
         if thresholds != sorted(thresholds):
             raise ValueError("thresholds need to be sorted")
@@ -172,7 +173,7 @@ class ThresholdsAtlas:
         q2_ref = pow(theory_card["Q0"], 2)
         return cls(thresholds, q2_ref)
 
-    def path(self, q2_to, q2_from=None):
+    def path(self, q2_to, nf_to = None,q2_from=None, nf_from=None):
         """
         Get path from q2_from to q2_to.
 
@@ -191,6 +192,8 @@ class ThresholdsAtlas:
         """
         if q2_from is None:
             q2_from = self.q2_ref
+        if nf_from is None:
+            nf_from = self.nf_ref
 
         ref_idx = np.digitize(q2_from, self.area_walls)
         target_idx = np.digitize(q2_to, self.area_walls)
