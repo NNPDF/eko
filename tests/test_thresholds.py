@@ -5,58 +5,24 @@
 import pytest
 import numpy as np
 
-from eko.thresholds import ThresholdsAtlas, Area, PathSegment
+from eko.thresholds import ThresholdsAtlas, PathSegment
 
 
 class TestPathSegment:
-    def test_intersect_fully_inside(self):
-        a = Area(0, 1, 3)
-        fwd = PathSegment.intersect(0.2, 0.8, a)
-        assert fwd.q2_from == 0.2
-        assert fwd.q2_to == 0.8
-        assert fwd._area == a  # pylint: disable=protected-access
-        bwd = PathSegment.intersect(0.8, 0.2, a)
-        assert bwd.q2_from == 0.8
-        assert bwd.q2_to == 0.2
-        assert bwd._area == a  # pylint: disable=protected-access
-
-    def test_intersect_too_low(self):
-        a = Area(0, 1, 3)
-        fwd = PathSegment.intersect(-0.2, 0.8, a)
-        assert fwd.q2_from == 0
-        assert fwd.q2_to == 0.8
-        assert fwd._area == a  # pylint: disable=protected-access
-        bwd = PathSegment.intersect(0.8, -0.2, a)
-        assert bwd.q2_from == 0.8
-        assert bwd.q2_to == 0.0
-        assert bwd._area == a  # pylint: disable=protected-access
-
-    def test_intersect_no_overlap(self):
-        a = Area(0, 1, 3)
-        fwd = PathSegment.intersect(-0.2, 1.8, a)
-        assert fwd.q2_from == 0
-        assert fwd.q2_to == 1
-        assert fwd._area == a  # pylint: disable=protected-access
-        bwd = PathSegment.intersect(1.8, -0.2, a)
-        assert bwd.q2_from == 1
-        assert bwd.q2_to == 0.0
-        assert bwd._area == a  # pylint: disable=protected-access
-
-    def test_print(self):
-        a = Area(0, 1, 3)
-        assert "nf=3" in str(a)
-
-        p = PathSegment(0, 1, a)
-        assert "nf=3" in str(p)
-
     def test_tuple(self):
-        a = Area(0, 1, 3)
-        p = PathSegment(0, 1, a)
-        assert p.tuple == (0, 1)
+        p = PathSegment(0, 1, 3)
+        assert p.tuple == (0, 1, 3)
         # is hashable?
         d = dict()
         d[p.tuple] = 1
         assert d[p.tuple] == 1
+
+    def test_repr(self):
+        p = PathSegment(0, 1, 3)
+        s = str(p)
+        assert s.index("0") > 0
+        assert s.index("3") > 0
+        assert s.index("3") > 0
 
 
 class TestThresholdsConfig:
@@ -64,17 +30,25 @@ class TestThresholdsConfig:
         # 3 thr
         tc3 = ThresholdsAtlas([1, 2, 3])
         assert tc3.area_walls == [0, 1, 2, 3, np.inf]
-        assert tc3.areas[0].nf == 3
-        assert tc3.areas[1].nf == 4
         # 2 thr
         tc2 = ThresholdsAtlas([0, 2, 3])
         assert tc2.area_walls == [0, 0, 2, 3, np.inf]
-        assert tc2.areas[0].nf == 3
-        assert tc2.areas[1].nf == 4
 
         # errors
         with pytest.raises(ValueError):
             ThresholdsAtlas([1.0, 0.0])
+
+    def test_build_area_walls(self):
+        for k in range(3, 6 + 1):
+            walls = ThresholdsAtlas.build_area_walls([1, 2, 3], [1, 2, 3], k)
+            assert len(walls) == k - 3
+
+        with pytest.raises(ValueError):
+            ThresholdsAtlas.build_area_walls([1, 2], [1, 2, 3], 4)
+        with pytest.raises(ValueError):
+            ThresholdsAtlas.build_area_walls([1, 2, 3], [1, 2], 4)
+        with pytest.raises(ValueError):
+            ThresholdsAtlas.build_area_walls([1, 2], [1, 2], 4)
 
     def test_from_dict(self):
         tc = ThresholdsAtlas.from_dict(
@@ -97,6 +71,7 @@ class TestThresholdsConfig:
         assert tc3.area_walls == [0] + [np.inf]
         tc4 = ThresholdsAtlas.ffns(4)
         assert tc4.area_walls == [0] * 2 + [np.inf]
+        assert len(tc4.path(q2_to=2.0, q2_from=3.0)) == 1
 
     def test_path_3thr(self):
         tc = ThresholdsAtlas([1, 2, 3], 0.5)
@@ -106,16 +81,69 @@ class TestThresholdsConfig:
         assert p1[0].q2_to == 0.7
         assert p1[0].nf == 3
 
-        p2 = tc.path(1.5, 2.5)
+        p2 = tc.path(1.5, q2_from=2.5)
         assert len(p2) == 2
         assert p2[0].nf == 5
         assert p2[1].nf == 4
 
-    def test_path_filter(self):
-        ta1 = ThresholdsAtlas([0, 2, 3], 0.5)
-        assert len(ta1.path(2.5)) == 2
-        ta2 = ThresholdsAtlas([1, 2, 3], 0.5)
-        assert len(ta2.path(2.5)) == 3
+    def test_path_3thr_backward(self):
+        tc = ThresholdsAtlas([1, 2, 3], 2.5)
+        p1 = tc.path(0.7)
+        assert len(p1) == 3
+        assert p1[0].tuple == (2.5, 2.0, 5)
+        assert p1[1].tuple == (2.0, 1.0, 4)
+        assert p1[2].tuple == (1.0, 0.7, 3)
+
+    def test_path_3thr_on_threshold(self):
+        tc = ThresholdsAtlas([1, 2, 3], 0.5)
+        # on the right of mc
+        p3 = tc.path(1.0, nf_to=4)
+        assert len(p3) == 2
+        assert p3[0].nf == 3
+        assert p3[1].tuple == (1.0, 1.0, 4)
+        # on the left of mc
+        p4 = tc.path(1.0, nf_to=3)
+        assert len(p4) == 1
+        assert p4[0].nf == 3
+        # on the left of mt, across mb
+        p5 = tc.path(1.5, q2_from=3.0, nf_from=5)
+        assert len(p5) == 2
+        assert p5[0].nf == 5
+        assert p5[1].nf == 4
+
+    def test_path_3thr_weird(self):
+        tc = ThresholdsAtlas([1, 2, 3], 0.5)
+        # the whole distance underground
+        p6 = tc.path(3.5, nf_to=3)
+        assert len(p6) == 1
+        assert p6[0].tuple == (0.5, 3.5, 3)
+        q2_from = 3.5
+        q2_to = 0.7
+        #                   0
+        #      1 <-----------
+        #      ---> 2
+        #   3 < -----
+        #      |    |    |
+        p7 = tc.path(q2_to=q2_to, nf_to=5, q2_from=q2_from, nf_from=3)
+        assert len(p7) == 3
+        assert p7[0].nf == 3
+        assert p7[1].nf == 4
+        assert p7[2].nf == 5
+        assert p7[0].q2_from == q2_from
+        assert p7[2].q2_to == q2_to
+        #                   0
+        #      1 <-----------
+        #      ---> 2 -> 3
+        #   4 < ---------
+        #      |    |    |
+        p8 = tc.path(q2_to=q2_to, nf_to=6, q2_from=q2_from, nf_from=3)
+        assert len(p8) == 4
+        assert p8[0].nf == 3
+        assert p8[1].nf == 4
+        assert p8[2].nf == 5
+        assert p8[3].nf == 6
+        assert p8[0].q2_from == q2_from
+        assert p8[3].q2_to == q2_to
 
     def test_nf(self):
         nf4 = ThresholdsAtlas.ffns(4)

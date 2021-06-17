@@ -1,65 +1,26 @@
 # -*- coding: utf-8 -*-
+# pylint: skip-file
 import numpy as np
 
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
-pineappl_xgrid = list(
-    reversed(
-        [
-            1,
-            0.9309440808717544,
-            0.8627839323906108,
-            0.7956242522922756,
-            0.7295868442414312,
-            0.6648139482473823,
-            0.601472197967335,
-            0.5397572337880445,
-            0.4798989029610255,
-            0.4221667753589648,
-            0.3668753186482242,
-            0.31438740076927585,
-            0.2651137041582823,
-            0.2195041265003886,
-            0.17802566042569432,
-            0.14112080644440345,
-            0.10914375746330703,
-            0.08228122126204893,
-            0.060480028754447364,
-            0.04341491741702269,
-            0.030521584007828916,
-            0.02108918668378717,
-            0.014375068581090129,
-            0.009699159574043398,
-            0.006496206194633799,
-            0.004328500638820811,
-            0.0028738675812817515,
-            0.0019034634022867384,
-            0.0012586797144272762,
-            0.0008314068836488144,
-            0.0005487795323670796,
-            0.00036205449638139736,
-            0.00023878782918561914,
-            0.00015745605600841445,
-            0.00010381172986576898,
-            6.843744918967896e-05,
-            4.511438394964044e-05,
-            2.97384953722449e-05,
-            1.9602505002391748e-05,
-            1.292101569074731e-05,
-            8.516806677573355e-06,
-            5.613757716930151e-06,
-            3.7002272069854957e-06,
-            2.438943292891682e-06,
-            1.607585498470808e-06,
-            1.0596094959101024e-06,
-            6.984208530700364e-07,
-            4.6035014748963906e-07,
-            3.034304765867952e-07,
-            1.9999999999999954e-07,
-        ]
-    )
-)
+vfns = {"FNS": "ZM-VFNS", "mc": 1e4, "mb": 1.5e4, "mt": 2e4}
+pegasus_vfns = {"nfref": 3, **vfns}
+ffns3 = {
+    "kcThr": np.inf,
+    "kbThr": np.inf,
+    "ktThr": np.inf,
+    "NfFF": 3,
+    "FNS": "FFNS",
+}
+ffns4 = {
+    "kcThr": 0.0,
+    "kbThr": np.inf,
+    "ktThr": np.inf,
+    "NfFF": 4,
+    "FNS": "FFNS",
+}
 
 
 class Sandbox(Runner):
@@ -71,7 +32,7 @@ class Sandbox(Runner):
     sandbox = True
 
     # select here the external program between LHA, LHAPDF, apfel, pegasus
-    #  external = "apfel"
+    # external = "apfel"
     external = "pegasus"
 
     # select to plot operators
@@ -82,34 +43,39 @@ class Sandbox(Runner):
     @staticmethod
     def generate_operators():
         ops = {
-            "ev_op_iterations": [30],
-            "ev_op_max_order": [10],
-            "Q2grid": [[10000]],
+            "ev_op_iterations": [15],
+            "ev_op_max_order": [20],
+            "Q2grid": [[1e3]],
+            # "debug_skip_singlet": [True],
         }
         return ops
 
     def doit(self):
         theory_updates = {
-            "PTO": 1,
-            "FNS": "ZM-VFNS",
-            #  "FNS": "FFNS",
-            "NfFF": 4,
-            "ModEv": "EXA",
-            "XIR": 1.0,
-            "fact_to_ren_scale_ratio": 1.0,
+            "PTO": 2,
+            "ModEv": "perturbative-exact",
+            # "XIR": 0.5,
+            # "fact_to_ren_scale_ratio": 2.0,
             "Q0": np.sqrt(2),
-            "kcThr": 1.0,
-            "kbThr": 1.0,
-            #  "kbThr": np.inf,
-            "ktThr": np.inf,
             "Qref": np.sqrt(2.0),
             "alphas": 0.35,
-            "IC": 1,
+            **ffns3,
         }
-        t0 = theory_updates.copy()
-        t0["PTO"] = 0
+        # t0 = theory_updates.copy()
+        # t0["PTO"] = 0
+        self.skip_pdfs = lambda _theory: [
+            22,
+            -6,
+            6,
+            "ph",
+            "V35",
+            "V24",
+            "V15",
+            "V8",
+            "T35",
+        ]
         self.run(
-            [theory_updates, t0],
+            [theory_updates],  # , t0],
             operators.build(self.generate_operators()),
             ["ToyLH"],
         )

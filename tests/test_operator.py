@@ -11,6 +11,7 @@ from eko.interpolation import InterpolatorDispatcher
 from eko import anomalous_dimensions as ad
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
+from eko import basis_rotation as br
 from eko import mellin
 from eko import interpolation
 
@@ -149,6 +150,7 @@ class TestOperator:
             "ModEv": "TRN",
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
+            "nfref": None,
             "Q0": np.sqrt(2),
             "FNS": "FFNS",
             "NfFF": 3,
@@ -200,6 +202,15 @@ class TestOperator:
         np.testing.assert_allclose(
             o.op_members["NS_v"].value, o.op_members["NS_m"].value
         )
+
+        # unity operators
+        for n in range(0, 2 + 1):
+            o1 = Operator(g.config, g.managers, 3, 2, 2)
+            o1.config["order"] = n
+            o1.compute()
+            for k in br.non_singlet_labels:
+                assert k in o1.op_members
+                np.testing.assert_allclose(o1.op_members[k].value, np.eye(2), err_msg=k)
 
 
 def test_pegasus_path():
