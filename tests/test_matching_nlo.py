@@ -20,7 +20,7 @@ def test_A_1_intrinsic():
     np.testing.assert_allclose(aS1[0, 2] + aS1[1, 2] + aS1[2, 2], 0.0, atol=1e-10)
 
     # gluon momentum conservation
-    np.testing.assert_allclose( aS1[0, 0] + aS1[1, 0] + aS1[2, 0], 0.0)
+    np.testing.assert_allclose(aS1[0, 0] + aS1[1, 0] + aS1[2, 0], 0.0)
 
 
 def test_A_1_shape():

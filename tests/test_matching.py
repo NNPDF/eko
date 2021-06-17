@@ -69,7 +69,7 @@ class TestMatchingCondition:
         self.update_intrinsic_OME(ome)
         c = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [4])
         assert sorted([str(k) for k in c.op_members.keys()]) == sorted(
-            [*triv_keys, *keys3, "g.c+","c+.c+", "c-.c-"]
+            [*triv_keys, *keys3, "g.c+", "c+.c+", "c-.c-"]
         )
         assert_almost_equal(
             c.op_members[member.MemberName("V.V")].value,
@@ -91,9 +91,9 @@ class TestMatchingCondition:
                 *triv_keys,
                 "T15.T15",
                 "V15.V15",
-                #"S.b+",
+                # "S.b+",
                 "g.b+",
-                #"V.b-",
+                # "V.b-",
                 "b+.S",
                 "b+.g",
                 "b+.b+",

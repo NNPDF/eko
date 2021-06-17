@@ -36,7 +36,9 @@ def test_A_2():
         # gluon momentum conservation
         # Reference numbers coming from Mathematica
         # note this difference is only due to the part non proportional to the logaritm
-        np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0] + aS2[2, 0], 0.00035576, rtol=1e-6)
+        np.testing.assert_allclose(
+            aS2[0, 0] + aS2[1, 0] + aS2[2, 0], 0.00035576, rtol=1e-6
+        )
         # quark momentum conservation
         np.testing.assert_allclose(aS2[0, 1] + aS2[1, 1] + aS2[2, 1], 0.0, atol=1e-11)
 
@@ -44,10 +46,9 @@ def test_A_2():
     assert aNS2.shape == (2, 2)
     assert aS2.shape == (3, 3)
 
-    np.testing.assert_allclose( aS2[1,0], 0)
-    np.testing.assert_allclose( aS2[:,2], np.zeros(3))
-    np.testing.assert_allclose( aNS2[1,1],0)
-
+    np.testing.assert_allclose(aS2[1, 0], 0)
+    np.testing.assert_allclose(aS2[:, 2], np.zeros(3))
+    np.testing.assert_allclose(aNS2[1, 1], 0)
 
 
 def test_A_2_shape():
@@ -69,10 +70,10 @@ def test_A_2_shape():
 def test_pegasus_sign():
 
     # reference value come from Mathematica
-    ref_val = - 21133.9
+    ref_val = -21133.9
     N = 2
     sx = get_sx(N)
-    L = 100.
+    L = 100.0
     aS2 = A_singlet_2(N, sx, L)
 
-    np.testing.assert_allclose(aS2[0,0], ref_val, rtol=4e-5)
+    np.testing.assert_allclose(aS2[0, 0], ref_val, rtol=4e-5)

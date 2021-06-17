@@ -44,12 +44,12 @@ def test_build_ome_nlo():
     N = 2
     L = 0.0
     a_s = 20
-    sx = np.array([1,1,1], np.complex_)
+    sx = np.array([1, 1, 1], np.complex_)
 
     aNSi = A_non_singlet(1, N, sx, L)
     aSi = A_singlet(1, N, sx, L)
     for a in [aNSi, aSi]:
-        for method in ["", "expanded","exact"]:
+        for method in ["", "expanded", "exact"]:
             dim = len(a[0])
             # hh
             assert a[0, -1, -1] != 0.0
