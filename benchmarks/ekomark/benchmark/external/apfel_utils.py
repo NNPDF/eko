@@ -41,6 +41,14 @@ def compute_apfel_data(
 
     # Load apfel
     apf_start = time.perf_counter()
+    if theory["ModEv"] in ["EXA", "perturbative-exact"]:
+        theory["ModEv"] = "EXA"
+    elif theory["ModEv"] in ["EXP", "decompose-expanded", "perturbative-expanded"]:
+        theory["ModEv"] = "EXP"
+    elif theory["ModEv"] in ["TRN", "ordered-truncated"]:
+        theory["ModEv"] = "TRN"
+    else:
+        raise ValueError(f"Method {theory['ModEv']} is not recognized. ")
     apfel = load_apfel(theory, operators, pdf_name)
 
     # Truncated Epsilon

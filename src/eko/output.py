@@ -66,14 +66,14 @@ class Output(dict):
                 output PDFs and their associated errors for the computed Q2grid
         """
         # create pdfs
-        pdfs = np.zeros((len(self["pids"]), len(self["interpolation_xgrid"])))
-        for j, pid in enumerate(self["pids"]):
+        pdfs = np.zeros((len(self["inputpids"]), len(self["inputgrid"])))
+        for j, pid in enumerate(self["inputpids"]):
             if not lhapdf_like.hasFlavor(pid):
                 continue
             pdfs[j] = np.array(
                 [
                     lhapdf_like.xfxQ2(pid, x, self["q2_ref"]) / x
-                    for x in self["interpolation_xgrid"]
+                    for x in self["inputgrid"]
                 ]
             )
 
@@ -83,8 +83,8 @@ class Output(dict):
             pdf_final = np.einsum("ajbk,bk", elem["operators"], pdfs)
             error_final = np.einsum("ajbk,bk", elem["operator_errors"], pdfs)
             out_grid[q2] = {
-                "pdfs": dict(zip(self["pids"], pdf_final)),
-                "errors": dict(zip(self["pids"], error_final)),
+                "pdfs": dict(zip(self["targetpids"], pdf_final)),
+                "errors": dict(zip(self["targetpids"], error_final)),
             }
 
         # rotate to evolution basis
@@ -206,12 +206,12 @@ class Output(dict):
             raise ValueError("Nor inputbasis nor targetbasis was given")
         # now check to the current status
         if targetbasis is not None and np.allclose(
-            targetbasis, np.eye(len(self["pids"]))
+            targetbasis, np.eye(len(self["targetpids"]))
         ):
             targetbasis = None
             warnings.warn("The new targetbasis is close to current basis")
         if inputbasis is not None and np.allclose(
-            inputbasis, np.eye(len(self["pids"]))
+            inputbasis, np.eye(len(self["inputpids"]))
         ):
             inputbasis = None
             warnings.warn("The new inputbasis is close to current basis")
@@ -242,7 +242,10 @@ class Output(dict):
         # set in self
         self["Q2grid"] = out_grid
         # drop PIDs
-        self["pids"] = np.full(len(self["pids"]), np.nan)
+        if inputbasis is not None:
+            self["inputpids"] = np.full(len(self["inputpids"]), np.nan)
+        if targetbasis is not None:
+            self["targetpids"] = np.full(len(self["targetpids"]), np.nan)
 
     def get_raw(self, binarize=True):
         """
@@ -271,9 +274,11 @@ class Output(dict):
             "q2_ref",
         ]:
             out[f] = self[f]
-        out["pids"] = list(self["pids"])
+        out["inputpids"] = list(self["inputpids"])
+        out["targetpids"] = list(self["targetpids"])
         # make raw lists
-        for k in ["interpolation_xgrid"]:
+        # TODO: is interpolation_xgrid really needed in the output?
+        for k in ["interpolation_xgrid", "targetgrid", "inputgrid"]:
             out[k] = self[k].tolist()
         # make operators raw
         for q2, op in self["Q2grid"].items():
@@ -342,10 +347,12 @@ class Output(dict):
                 loaded object
         """
         obj = yaml.safe_load(stream)
-        len_pids = len(obj["pids"])
-        len_xgrid = len(obj["interpolation_xgrid"])
-        # make list numpy
-        for k in ["interpolation_xgrid"]:
+        len_tpids = len(obj["targetpids"])
+        len_ipids = len(obj["inputpids"])
+        len_tgrid = len(obj["targetgrid"])
+        len_igrid = len(obj["inputgrid"])
+        # cast lists to numpy
+        for k in ["interpolation_xgrid", "inputgrid", "targetgrid"]:
             obj[k] = np.array(obj[k])
         # make operators numpy
         for op in obj["Q2grid"].values():
@@ -354,7 +361,7 @@ class Output(dict):
                     v = np.array(v)
                 elif isinstance(v, bytes):
                     v = np.frombuffer(lz4.frame.decompress(v))
-                    v = v.reshape(len_pids, len_xgrid, len_pids, len_xgrid)
+                    v = v.reshape(len_tpids, len_tgrid, len_ipids, len_igrid)
                 op[k] = v
         return cls(obj)
 

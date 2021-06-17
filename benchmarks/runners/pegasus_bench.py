@@ -44,10 +44,10 @@ class BenchmarkVFNS(PegasusBenchmark):
     zm_theory = {
         "FNS": "ZM-VFNS",
         "ModEv": [
-            #"perturbative-exact",
+            # "perturbative-exact",
             "EXA"
-            #"EXP",
-            #"ordered-truncated",
+            # "EXP",
+            # "ordered-truncated",
         ],
 
         "kcThr": 1.0,
@@ -137,10 +137,9 @@ class BenchmarkFFNS(PegasusBenchmark):
 
 if __name__ == "__main__":
 
-    #obj = BenchmarkVFNS()
-    obj = BenchmarkFFNS()
+    obj = BenchmarkVFNS()
+    # obj = BenchmarkFFNS()
     obj.benchmark_plain(1)
-
 
     # obj.benchmark_sv(1)
     # vfns.benchmark_sv()

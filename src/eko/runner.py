@@ -5,6 +5,8 @@
 import logging
 import copy
 
+import numpy as np
+
 from . import interpolation
 from .output import Output
 from .strong_coupling import StrongCoupling
@@ -111,7 +113,8 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         """
         # add all operators
         Q2grid = {}
-        self.out["pids"] = br.flavor_basis_pids
+        self.out["inputpids"] = br.flavor_basis_pids
+        self.out["targetpids"] = br.flavor_basis_pids
         for final_scale, op in self.op_grid.compute().items():
             Q2grid[float(final_scale)] = op
         self.out["Q2grid"] = Q2grid
@@ -129,9 +132,13 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         if inputgrid is not None or targetgrid is not None:
             self.out.xgrid_reshape(targetgrid=targetgrid, inputgrid=inputgrid)
 
-        # # reshape flavors
-        # inputbasis = self.post_process["inputbasis"]
-        # targetbasis = self.post_process["targetbasis"]
-        # if inputbasis is not None or targetbasis is not None:
-        #     self.out.flavor_reshape(targetbasis=targetbasis, inputbasis=inputbasis)
+        # reshape flavors
+        inputbasis = self.post_process["inputbasis"]
+        if inputbasis is not None:
+            inputbasis = np.array(inputbasis)
+        targetbasis = self.post_process["targetbasis"]
+        if targetbasis is not None:
+            targetbasis = np.array(targetbasis)
+        if inputbasis is not None or targetbasis is not None:
+            self.out.flavor_reshape(targetbasis=targetbasis, inputbasis=inputbasis)
         return copy.deepcopy(self.out)

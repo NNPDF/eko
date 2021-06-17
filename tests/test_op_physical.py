@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from eko import member
+from eko import member, basis_rotation as br
 from eko.evolution_operator.physical import PhysicalOperator
 from eko.matching_conditions import MatchingCondition
 
@@ -169,10 +169,10 @@ class TestPhysicalOperator:
 
 
 def mk_op_members(shape=(2, 2)):
-    m = np.random.rand(len(member.full_labels), *shape)
-    e = np.random.rand(len(member.full_labels), *shape)
+    m = np.random.rand(len(br.full_labels), *shape)
+    e = np.random.rand(len(br.full_labels), *shape)
     om = {}
-    for j, l in enumerate(member.full_labels):
+    for j, l in enumerate(br.full_labels):
         om[l] = member.OpMember(m[j], e[j])
     return om
 

@@ -25,6 +25,8 @@ import numba as nb
 # in CodeFactor there is no version, since it is generated upon installation
 import eko.version  # pylint: disable=no-name-in-module
 
+here = pathlib.Path(__file__).absolute().parent
+
 # -- Project information -----------------------------------------------------
 
 project = "EKO"
@@ -102,14 +104,14 @@ exclude_patterns = ["shared/*"]
 pygments_style = None
 
 # A string to be included at the beginning of all files
-shared = pathlib.Path(__file__).absolute().parent / "shared"
+shared = here / "shared"
 rst_prolog = "\n".join([open(x).read() for x in os.scandir(shared)])
 
 extlinks = {
-    'yadism': ('https://n3pdf.github.io/yadism/%s', 'yadism'),
-    'banana': ('https://n3pdf.github.io/banana/%s', 'banana'),
-    'pineappl': ('https://n3pdf.github.io/pineappl/%s', 'pineappl'),
-    'pineko': ('https://github.com/N3PDF/pineko/%s', 'pineko'),
+    "yadism": ("https://n3pdf.github.io/yadism/%s", "yadism"),
+    "banana": ("https://n3pdf.github.io/banana/%s", "banana"),
+    "pineappl": ("https://n3pdf.github.io/pineappl/%s", "pineappl"),
+    "pineko": ("https://github.com/N3PDF/pineko/%s", "pineko"),
 }
 
 # -- Options for HTML output -------------------------------------------------
@@ -251,7 +253,8 @@ mathjax3_config = {
             "dVj": [r"{\tilde{V}_{\!#1}^{(#2)}(#3)}", 3],
             "dTj": [r"{\tilde{T}_{\!#1}^{(#2)}(#3)}", 3],
             "dSVi": [
-                r"{{\begin{pmatrix}\tilde g\\ \tilde \Sigma_{(#1)} \\\tilde h^{+}\end{pmatrix}}^{(#1)}\!(#2)}",
+                r"{{\begin{pmatrix}\tilde g\\ \tilde \Sigma_{(#1)} \\"
+                +r"\tilde h^{+}\end{pmatrix}}^{(#1)}\!(#2)}",
                 2,
             ],
             "dVi": [
@@ -259,7 +262,8 @@ mathjax3_config = {
                 2,
             ],
             "dSVip": [
-                r"{{\begin{pmatrix}\tilde g\\ \tilde \Sigma_{(#1)} \\\tilde h^{+}\end{pmatrix}}^{(#1+1)}\!(#2)}",
+                r"{{\begin{pmatrix}\tilde g\\ \tilde \Sigma_{(#1)} \\"
+                +r"\tilde h^{+}\end{pmatrix}}^{(#1+1)}\!(#2)}",
                 2,
             ],
             "dVip": [
@@ -267,7 +271,8 @@ mathjax3_config = {
                 2,
             ],
             "dSVe": [
-                r"{{\begin{pmatrix}\tilde g\\\tilde \Sigma\\\tilde T_{j}\end{pmatrix}}^{(#1)}\!(#2)}",
+                r"{{\begin{pmatrix}\tilde g\\\tilde \Sigma\\"
+                +r"\tilde T_{j}\end{pmatrix}}^{(#1)}\!(#2)}",
                 2,
             ],
             "dVe": [
@@ -305,7 +310,26 @@ def process_numba_docstring(
         lines = orig_sig.__doc__
 
 
+# https://github.com/readthedocs/readthedocs.org/issues/1139#issuecomment-312626491
+def run_apidoc(_):
+    from sphinx.ext.apidoc import main # pylint: disable=import-outside-toplevel
+    import sys # pylint: disable=import-outside-toplevel
+
+    sys.path.append(str(here.parent))
+    # 'eko'
+    docs_dest = here / "modules" / "eko"
+    package = here.parents[1] / "src" / "eko"
+    main(["--module-first", "-o", str(docs_dest), str(package)])
+    (docs_dest / "modules.rst").unlink()
+    # 'ekomark'
+    docs_dest = here / "development" / "ekomark"
+    package = here.parents[1] / "benchmarks" / "ekomark"
+    main(["--module-first", "-o", str(docs_dest), str(package)])
+    (docs_dest / "modules.rst").unlink()
+
+
 def setup(app):
     """Configure Sphinx"""
     app.setup_extension("sphinx.ext.autodoc")
     app.connect("autodoc-process-docstring", process_numba_docstring)
+    app.connect("builder-inited", run_apidoc)

@@ -18,7 +18,7 @@ from ..member import OpMember
 from . import nlo
 from . import nnlo
 from ..anomalous_dimensions import harmonics
-from ..member import singlet_labels
+from ..basis_rotation import singlet_labels
 
 
 logger = logging.getLogger(__name__)

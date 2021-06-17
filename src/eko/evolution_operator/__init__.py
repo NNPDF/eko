@@ -19,7 +19,8 @@ from .. import beta
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 
-from ..member import OpMember, singlet_labels, full_labels
+from ..member import OpMember
+from ..basis_rotation import singlet_labels, full_labels
 
 
 logger = logging.getLogger(__name__)
@@ -261,7 +262,7 @@ class Operator:
         int_disp = self.managers["interpol_dispatcher"]
         grid_size = len(int_disp.xgrid)
 
-        # init all ops with identity or zeros is skip
+        # init all ops with identity or zeros if we skip them
         labels = self.labels()
         for n in full_labels:
             if n in labels:
@@ -272,17 +273,27 @@ class Operator:
                 self.op_members[n] = OpMember(
                     np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
                 )
+        # skip computation
+        if np.isclose(self.q2_from, self.q2_to):
+            logger.info("Evolution: skipping unity operator at %e", self.q2_from)
+            self.copy_ns_ops()
+            return
         tot_start_time = time.perf_counter()
-        # setup KernelDispatcher
+        # setup ingredients
         sc = self.managers["strong_coupling"]
         fact_to_ren = self.config["fact_to_ren"]
-        a1 = sc.a_s(self.q2_to / fact_to_ren, self.q2_to)
-        a0 = sc.a_s(self.q2_from / fact_to_ren, self.q2_from)
+        a0 = sc.a_s(self.q2_from / fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf)
+        a1 = sc.a_s(self.q2_to / fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf)
         logger.info(
             "Evolution: computing operators %e -> %e, nf=%d",
             self.q2_from,
             self.q2_to,
             self.nf,
+        )
+        logger.info(
+            "Evolution: µ_R^2 distance: %e -> %e",
+            self.q2_from / fact_to_ren,
+            self.q2_to / fact_to_ren,
         )
         logger.info("Evolution: a_s distance: %e -> %e", a0, a1)
         logger.info(

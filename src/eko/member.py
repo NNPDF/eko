@@ -5,11 +5,6 @@ import copy
 import numpy as np
 
 
-singlet_labels = ("S_qq", "S_qg", "S_gq", "S_gg")
-non_singlet_labels = ("NS_m", "NS_p", "NS_v")
-full_labels = (*singlet_labels, *non_singlet_labels)
-
-
 class OpMember:
     """
     A single operator for a specific element in evolution basis.

@@ -110,7 +110,7 @@ class Runner(BenchmarkRunner):
 
     def run_external(self, theory, ocard, pdf):
         # pylint:disable=import-error,import-outside-toplevel
-        if self.external == "LHA":
+        if self.external.lower() == "lha":
             from .external import LHA_utils
 
             # here pdf and skip_pdfs is not needed
@@ -119,7 +119,7 @@ class Runner(BenchmarkRunner):
                 ocard,
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
-        elif self.external == "LHAPDF":
+        elif self.external.lower() == "lhapdf":
             from .external import lhapdf_utils
 
             # here theory card is not needed
@@ -129,7 +129,7 @@ class Runner(BenchmarkRunner):
                 self.skip_pdfs(theory),
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
-        elif self.external == "pegasus":
+        elif self.external.lower() == "pegasus":
             from .external import pegasus_utils
 
             return pegasus_utils.compute_pegasus_data(
@@ -139,7 +139,7 @@ class Runner(BenchmarkRunner):
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
 
-        elif self.external == "apfel":
+        elif self.external.lower() == "apfel":
             from .external import apfel_utils
 
             return apfel_utils.compute_apfel_data(

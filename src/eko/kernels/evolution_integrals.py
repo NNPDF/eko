@@ -148,7 +148,7 @@ def j01_expanded(a1, a0, nf):
     return j00(a1, a0, nf) - beta.b(1, nf) * j11_expanded(a1, a0, nf)
 
 
-@nb.njit("c16(f8,f8,u1)", cache=True)
+@nb.njit("f8(f8,f8,u1)", cache=True)
 def j22_exact(a1, a0, nf):
     r"""
     NNLO-NNLO exact evolution integral.
@@ -186,10 +186,12 @@ def j22_exact(a1, a0, nf):
         (b1 + 2 * a0 * b2) / Delta
     )
     log = np.log((1 + a1 * (b1 + b2 * a1)) / (1 + a0 * (b1 + b2 * a0)))
-    return 1 / (2 * beta.beta(2, nf)) * log - b1 / (beta.beta(2, nf) * Delta) * delta
+    return 1 / (2 * beta.beta(2, nf)) * log - b1 / (beta.beta(2, nf)) * np.real(
+        delta / Delta
+    )
 
 
-@nb.njit("c16(f8,f8,u1)", cache=True)
+@nb.njit("f8(f8,f8,u1)", cache=True)
 def j12_exact(a1, a0, nf):
     r"""
     NLO-NNLO exact evolution integral.
@@ -221,10 +223,10 @@ def j12_exact(a1, a0, nf):
     delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
         (b1 + 2 * a0 * b2) / Delta
     )
-    return 2.0 / (beta.beta(0, nf) * Delta) * delta
+    return 2.0 / (beta.beta(0, nf)) * np.real(delta / Delta)
 
 
-@nb.njit("c16(f8,f8,u1)", cache=True)
+@nb.njit("f8(f8,f8,u1)", cache=True)
 def j02_exact(a1, a0, nf):
     r"""
     LO-NNLO exact evolution integral.
