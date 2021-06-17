@@ -38,6 +38,18 @@ class TestThresholdsConfig:
         with pytest.raises(ValueError):
             ThresholdsAtlas([1.0, 0.0])
 
+    def test_build_area_walls(self):
+        for k in range(3, 6 + 1):
+            walls = ThresholdsAtlas.build_area_walls([1, 2, 3], [1, 2, 3], k)
+            assert len(walls) == k - 3
+
+        with pytest.raises(ValueError):
+            ThresholdsAtlas.build_area_walls([1, 2], [1, 2, 3], 4)
+        with pytest.raises(ValueError):
+            ThresholdsAtlas.build_area_walls([1, 2, 3], [1, 2], 4)
+        with pytest.raises(ValueError):
+            ThresholdsAtlas.build_area_walls([1, 2], [1, 2], 4)
+
     def test_from_dict(self):
         tc = ThresholdsAtlas.from_dict(
             {

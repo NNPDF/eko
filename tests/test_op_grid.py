@@ -22,6 +22,7 @@ class TestOperatorGrid:
             "ModEv": "TRN",
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
+            "nfref": None,
             "Q0": np.sqrt(2),
             "FNS": "FFNS",
             "NfFF": 3,

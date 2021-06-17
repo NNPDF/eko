@@ -22,6 +22,14 @@ try:
 except ImportError:
     use_APFEL = False
 
+# try to load pegasus - if not available, we'll use the cached values
+try:
+    import pegasus
+
+    use_PEGASUS = True
+except ImportError:
+    use_PEGASUS = False
+
 
 class BenchmarkStrongCoupling:
     def test_a_s(self):
@@ -121,6 +129,77 @@ class BenchmarkStrongCoupling:
                 np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
             # check myself to APFEL
             np.testing.assert_allclose(apfel_vals, np.array(my_vals))
+
+    def benchmark_pegasus_ffns(self):
+        Q2s = [1e1, 1e2, 1e3, 1e4]
+        alphas_ref = 0.118
+        scale_ref = 91.0 ** 2
+        nf = 4
+        pegasus_vals_dict = {
+            0: np.array(
+                [
+                    0.01980124164841284,
+                    0.014349241933308077,
+                    0.011251340091472288,
+                    0.009253560532725833,
+                ]
+            ),
+            1: np.array(
+                [
+                    0.021869297350539534,
+                    0.014917847337312901,
+                    0.011395004941942033,
+                    0.00924584172632009,
+                ]
+            ),
+            2: np.array(
+                [
+                    0.022150834782048476,
+                    0.014974959766044743,
+                    0.011407029399653526,
+                    0.009245273177012448,
+                ]
+            ),
+        }
+        # collect my values
+        threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
+        for order in [0, 1, 2]:
+            as_FFNS = StrongCoupling(
+                alphas_ref,
+                scale_ref,
+                threshold_holder.area_walls[1:-1],
+                order=order,
+                method="exact",
+            )
+            my_vals = []
+            for Q2 in Q2s:
+                my_vals.append(as_FFNS.a_s(Q2))
+            # get APFEL numbers - if available else use cache
+            pegasus_vals = pegasus_vals_dict[order]
+            if use_PEGASUS:
+                # run pegasus
+                pegasus.colour.ca = 3.0
+                pegasus.colour.cf = 4.0 / 3.0
+                pegasus.colour.tr = 0.5
+                pegasus.betafct()
+                pegasus.aspar.naord = order
+                pegasus.aspar.nastps = 20
+                # collect a_s
+                pegasus_vals_cur = []
+                for Q2 in Q2s:
+                    pegasus_vals_cur.append(
+                        pegasus.__getattribute__("as")(
+                            Q2, scale_ref, alphas_ref / (4.0 * np.pi), nf
+                        )
+                    )
+                # print(pegasus_vals_cur)
+                np.testing.assert_allclose(
+                    pegasus_vals, np.array(pegasus_vals_cur), err_msg="order=%d" % order
+                )
+            # check myself to APFEL
+            np.testing.assert_allclose(
+                pegasus_vals, np.array(my_vals), rtol=1.5e-7, err_msg="order=%d" % order
+            )
 
     def benchmark_APFEL_vfns(self):
         Q2s = [1, 2 ** 2, 3 ** 2, 90 ** 2, 100 ** 2]
@@ -348,7 +427,9 @@ class BenchmarkStrongCoupling:
         nf = 4
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
-        as_FFNS_LO = StrongCoupling(alphas_ref, scale_ref, threshold_holder.area_walls[1:-1], order=0)
+        as_FFNS_LO = StrongCoupling(
+            alphas_ref, scale_ref, threshold_holder.area_walls[1:-1], order=0
+        )
         my_vals = []
         for Q2 in Q2s:
             my_vals.append(as_FFNS_LO.a_s(Q2))

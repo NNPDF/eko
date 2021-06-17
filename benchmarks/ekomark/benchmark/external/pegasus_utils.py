@@ -41,7 +41,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
     elif theory["ModEv"] in ["ordered-truncated"]:
         imodev = 3
     elif theory["ModEv"] in ["TRN"]:
-        imodev = 4 # 4 is random - just not 1-3
+        imodev = 4  # 4 is random - just not 1-3
     else:
         raise ValueError(f"Method {theory['ModEv']} is not recognized. ")
 
