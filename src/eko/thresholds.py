@@ -78,6 +78,32 @@ class ThresholdsAtlas:
         """
         return cls([0] * (nf - 3), q2_ref)
 
+    @staticmethod
+    def build_area_walls(masses, threshold_ratios, max_nf):
+        r"""
+        Create the object from the run card.
+
+        The thresholds are computed by :math:`(m_q \cdot k_q^{Thr})`.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+            list :
+                threshold list
+        """
+        if len(masses) != 3:
+            raise ValueError("There have to be 3 quark masses")
+        if len(threshold_ratios) != 3:
+            raise ValueError("There have to be 3 quark threshold ratios")
+        thresholds = []
+        for m, k in zip(masses, threshold_ratios):
+            thresholds.append(pow(m * k, 2))
+        # cut array = simply reduce some thresholds
+        thresholds = thresholds[: max_nf - 3]
+        return thresholds
+
     @classmethod
     def from_dict(cls, theory_card, prefix="k", max_nf_name="MaxNfPdf"):
         r"""
@@ -97,18 +123,12 @@ class ThresholdsAtlas:
             ThresholdsAtlas :
                 created object
         """
-
-        def thres(pid):
-            heavy_flavors = "cbt"
-            flavor = heavy_flavors[pid - 4]
-            return pow(
-                theory_card[f"m{flavor}"] * theory_card[f"{prefix}{flavor}Thr"], 2
-            )
-
-        thresholds = [thres(q) for q in range(4, 6 + 1)]
-        # cut array = simply reduce some thresholds
-        max_nf = theory_card[max_nf_name]
-        thresholds = thresholds[: max_nf - 3]
+        heavy_flavors = "cbt"
+        thresholds = cls.build_area_walls(
+            [theory_card[f"m{q}"] for q in heavy_flavors],
+            [theory_card[f"{prefix}{q}Thr"] for q in heavy_flavors],
+            theory_card[max_nf_name],
+        )
         # preset ref scale
         q2_ref = pow(theory_card["Q0"], 2)
         return cls(thresholds, q2_ref)

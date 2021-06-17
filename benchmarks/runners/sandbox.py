@@ -4,6 +4,17 @@ import numpy as np
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
+vfns = {
+            "FNS": "ZM-VFNS",
+}
+ffns4 = {
+"kcThr": 0.,
+"kbThr": np.inf,
+"ktThr": np.inf,
+            "NfFF": 4,
+            "FNS": "FFNS",
+}
+            
 class Sandbox(Runner):
 
     """
@@ -20,7 +31,6 @@ class Sandbox(Runner):
     plot_operator = False
 
     rotate_to_evolution_basis = True
-
     @staticmethod
     def generate_operators():
         ops = {
@@ -34,18 +44,13 @@ class Sandbox(Runner):
     def doit(self):
         theory_updates = {
             "PTO": 1,
-            "FNS": "ZM-VFNS",
-            #"FNS": "FFNS",
-            "NfFF": 4,
             "ModEv": "EXA",
             "XIR": 0.5,
             "fact_to_ren_scale_ratio": 2.0,
             "Q0": np.sqrt(2),
-            #"kcThr": 0.,
-            #"kbThr": np.inf,
-            #"ktThr": np.inf,
             "Qref": np.sqrt(2.0),
             "alphas": 0.35,
+            **ffns4
         }
         #t0 = theory_updates.copy()
         #t0["PTO"] = 0

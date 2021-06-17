@@ -118,15 +118,15 @@ class StrongCoupling:
     """
 
     def __init__(
-        self, alpha_s_ref, scale_ref, thresh, order=0, method="exact", nf_ref=None
+        self, alpha_s_ref, scale_ref, thresh, order=0, method="exact", nf_ref=3
     ):
         # Sanity checks
         if alpha_s_ref <= 0:
             raise ValueError(f"alpha_s_ref has to be positive - got {alpha_s_ref}")
         if scale_ref <= 0:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
-        if not isinstance(thresh, thresholds.ThresholdsAtlas):
-            raise ValueError("Needs a Threshold instance")
+        # if not isinstance(thresh, thresholds.ThresholdsAtlas):
+        #     raise ValueError("Needs a Threshold instance")
         if order not in [0, 1, 2]:
             raise NotImplementedError("a_s beyond NNLO is not implemented")
         self._order = order
@@ -137,10 +137,10 @@ class StrongCoupling:
         # create new threshold object
         self.as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
         self._threshold_holder = thresholds.ThresholdsAtlas(
-            thresh.area_walls[1:-1], scale_ref, nf_ref
+            thresh, scale_ref, nf_ref
         )
         logger.info(
-            "Strong Coupling: Reference a_s(Q^2=%f)=%f", self.q2_ref, self.as_ref
+            "Strong Coupling: Reference a_s(µ_R^2=%f)=%f", self.q2_ref, self.as_ref
         )
 
     @property
@@ -192,14 +192,13 @@ class StrongCoupling:
             raise ValueError(f"Unknown evolution mode {mod_ev}")
         # adjust factorization scale / renormalization scale
         fact_to_ren = theory_card["fact_to_ren_scale_ratio"]
-        t = theory_card.copy()
-        for q in "cbt":
-            t[f"m{q}"] /= fact_to_ren
-        # now read atlas
-        thresholds_config = thresholds.ThresholdsAtlas.from_dict(
-            t, max_nf_name="MaxNfAs"
+        heavy_flavors = "cbt"
+        thresh = thresholds.ThresholdsAtlas.build_area_walls(
+            [theory_card[f"m{q}"]/ fact_to_ren for q in heavy_flavors],
+            [theory_card[f"k{q}Thr"] for q in heavy_flavors],
+            theory_card["MaxNfAs"],
         )
-        return cls(alpha_ref, q2_alpha, thresholds_config, order, method)
+        return cls(alpha_ref, q2_alpha, thresh, order, method)
 
     def _compute_exact(self, as_ref, nf, scale_from, scale_to):
         """
