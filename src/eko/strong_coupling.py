@@ -118,13 +118,7 @@ class StrongCoupling:
     """
 
     def __init__(
-        self,
-        alpha_s_ref,
-        scale_ref,
-        thresh,
-        order=0,
-        method="exact",
-        nf_ref = None
+        self, alpha_s_ref, scale_ref, thresh, order=0, method="exact", nf_ref=None
     ):
         # Sanity checks
         if alpha_s_ref <= 0:
@@ -138,7 +132,6 @@ class StrongCoupling:
         self._order = order
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
-        # method = "pegasus"
         self._method = method
 
         # create new threshold object
@@ -251,19 +244,10 @@ class StrongCoupling:
             return -(a ** 2) * np.sum([a ** k * b for k, b in enumerate(b_vec)])
 
         # let scipy solve
-        res = scipy.integrate.solve_ivp(rge, (0, u), (as_ref,), args=[b_vec], method="Radau")
+        res = scipy.integrate.solve_ivp(
+            rge, (0, u), (as_ref,), args=[b_vec], method="Radau", rtol=1e-6
+        )
         return res.y[0][-1]
-
-    def _compute_pegasus(self, as_ref, nf, scale_from, scale_to):
-        import pegasus
-        pegasus.colour.ca = 3.
-        pegasus.colour.cf = 4./3.
-        pegasus.colour.tr = .5
-        pegasus.betafct()
-        pegasus.aspar.naord = self._order
-        pegasus.aspar.nastps = 20
-        print("inside pegasus")
-        return pegasus.__getattribute__("as")(scale_to,scale_from,as_ref,nf)
 
     def _compute(self, as_ref, nf, scale_from, scale_to):
         """
@@ -290,13 +274,11 @@ class StrongCoupling:
         # at the moment everything is expanded - and type has been checked in the constructor
         if self._method == "exact":
             as_new = self._compute_exact(as_ref, nf, scale_from, scale_to)
-        #elif self._method == "pegasus":
-        #    as_new = self._compute_pegasus(as_ref, nf, scale_from, scale_to)
         else:
             as_new = as_expanded(self._order, as_ref, nf, scale_from, scale_to)
         return as_new
 
-    def a_s(self, scale_to, fact_scale=None, nf_to = None):
+    def a_s(self, scale_to, fact_scale=None, nf_to=None):
         r"""
         Computes strong coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
 
@@ -322,7 +304,11 @@ class StrongCoupling:
         if fact_scale is None:
             fact_scale = scale_to
         for k, seg in enumerate(path):
-            new_as = self._compute(final_as, seg.nf, seg.q2_from, seg.q2_to)
+            # skip a very short segment, but keep the matching
+            if not np.isclose(seg.q2_from, seg.q2_to):
+                new_as = self._compute(final_as, seg.nf, seg.q2_from, seg.q2_to)
+            else:
+                new_as = final_as
             # apply matching conditions: see hep-ph/9706430
             # - if there is yet a step to go
             if k < len(path) - 1:
