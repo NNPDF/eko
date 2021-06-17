@@ -204,6 +204,11 @@ class OperatorBase:
         """
         if not isinstance(other, OperatorBase):
             raise ValueError("Can only multiply with another OperatorBase")
+        # if ScalarOperator is mutplied by OperatorBase, result is a OperatorBase
+        if self.__class__ == ScalarOperator:
+            return other.__class__(
+                self.operator_multiply(self, other, self.operation(other)), self.q2_final
+            )
         return self.__class__(
             self.operator_multiply(self, other, self.operation(other)), self.q2_final
         )
