@@ -15,7 +15,7 @@ from eko.matching_conditions.operator_matrix_element import (
     A_non_singlet,
     A_singlet,
 )
-from eko.member import singlet_labels
+from eko.basis_rotation import singlet_labels
 
 
 def test_build_ome_as():
@@ -196,6 +196,7 @@ class TestOperatorMatrixElement:
             "ModEv": "TRN",
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
+            "nfref": None,
             "Q0": np.sqrt(2),
             "NfFF": 3,
             "IC": 1,
