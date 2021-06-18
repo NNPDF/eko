@@ -15,7 +15,7 @@ Here we use the raw quark flavors along with the gluon as they correspond to the
 operator in the Lagrange density:
 
 .. math ::
-    \mathcal F = \mathcal F_{fl} = \text{span}(g, u, \bar u, d, \bar d, s, \bar s, c, \bar c, b, \bar b, t, \bar t)
+    \mathcal F = \mathcal F_{fl} = \span(g, u, \bar u, d, \bar d, s, \bar s, c, \bar c, b, \bar b, t, \bar t)
 
 - we deliver the :class:`~eko.output.Output` in this basis, although the flavors are
   slightly differently arranged (Implementation: :data:`here <eko.basis_rotation.flavor_basis_pids>`).
@@ -35,7 +35,7 @@ that e.g. in the proton will carry most of the momentum at large x and :math:`q^
 sea quark distribution:
 
 .. math ::
-    \mathcal F \sim \mathcal F_{\pm} = \text{span}(g, u^+, u^-, d^+, d^-, s^+, s^-, c^+, c^-, b^+, b^-, t^+, t^-)
+    \mathcal F \sim \mathcal F_{\pm} = \span(g, u^+, u^-, d^+, d^-, s^+, s^-, c^+, c^-, b^+, b^-, t^+, t^-)
 
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation to the Flavor Basis is implemented in
@@ -66,7 +66,7 @@ The mapping between the Evolution Basis and the +/- Basis is given by
     T_{15} &= u^+ + d^+ + s^+ - 3 c^+\\
     T_{24} &= u^+ + d^+ + s^+ + c^+ - 4 b^+\\
     T_{35} &= u^+ + d^+ + s^+ + c^+ + b^+ - 5 t^+\\
-    \mathcal F \sim \mathcal F_{ev} &= \text{span}(g, \Sigma, V, V_{3}, V_{8}, V_{15}, V_{24}, V_{35}, T_{3}, T_{8}, T_{15}, T_{24}, T_{35})
+    \mathcal F \sim \mathcal F_{ev} &= \span(g, \Sigma, V, V_{3}, V_{8}, V_{15}, V_{24}, V_{35}, T_{3}, T_{8}, T_{15}, T_{24}, T_{35})
 
 
 - the associated numbers to the valence-like and singlet-like non-singlet distributions
@@ -87,7 +87,7 @@ The Intrinsic Evolution Bases will explicitly depend on the number of light flav
 For :math:`n_f=3` we define (the other cases are defined analogously):
 
 .. math ::
-    \mathcal F \sim  \mathcal F_{iev,3} = \text{span}(g, \Sigma_{(3)}, V_{(3)}, V_3, V_8, T_3, T_8, c^+, c^-, b^+, b^-, t^+, t^-)
+    \mathcal F \sim  \mathcal F_{iev,3} = \span(g, \Sigma_{(3)}, V_{(3)}, V_3, V_8, T_3, T_8, c^+, c^-, b^+, b^-, t^+, t^-)
 
 where we defined :math:`\Sigma_{(3)} = \sum\limits_{j=1}^3 q_j^+` and :math:`V_{(3)} = \sum\limits_{j=1}^3 q_j^-`
 (not to be confused with the usual :math:`V_3`).
