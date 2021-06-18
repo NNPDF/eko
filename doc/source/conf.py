@@ -242,6 +242,7 @@ mathjax3_config = {
         "macros": {
             # fncs
             "atan": [r"\text{atan}", 0],
+            "span": [r"\text{span}", 0],
             # texts
             "tLL": [r"\text{LL}", 0],
             # PDFs
