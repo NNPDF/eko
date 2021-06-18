@@ -77,3 +77,24 @@ def test_pegasus_sign():
     aS2 = A_singlet_2(N, sx, L)
 
     np.testing.assert_allclose(aS2[0, 0], ref_val, rtol=4e-5)
+
+def test_Bluemlein_Hg2():
+    # Test against Blumlein OME implementation.
+    # Only even moments are non zero
+    # This might be bacause they are computing only even moments at N3LO
+    # see https://arxiv.org/pdf/0904.3563.pdf (eq 8.50 and similar)
+    # Note there is a minus sign in the definition of L.
+
+    ref_val_l0 = [9.96091, 10.6616,9.27572, 8.25694, 7.49076]
+    ref_val_l10 = [289.097, 278.051, 223.261, 186.256, 160.027]
+    for n in range(1,6):
+        N = 2 * n
+        sx = get_sx(N)
+
+        L = 0.0
+        aS2 = A_singlet_2(N, sx, L)
+        np.testing.assert_allclose(aS2[2,0], ref_val_l0[n-1], rtol=6e-4)
+
+        L = 10.0
+        aS2 = A_singlet_2(N, sx, L)
+        np.testing.assert_allclose(aS2[2,0], ref_val_l10[n-1], rtol=6e-4)
