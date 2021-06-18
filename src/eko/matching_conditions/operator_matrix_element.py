@@ -170,29 +170,31 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
         ker : float
             evaluated integration kernel
     """
-    # compute the harmonics
-    sx = np.zeros(3, np.complex_)
-    if order >= 1:
-        sx = np.array([harmonics.harmonic_S1(u), harmonics.harmonic_S2(u)])
-    if order >= 2:
-        sx = np.append(sx, harmonics.harmonic_S3(u))
-
     is_singlet = mode[0] == "S"
     # get transformation to N integral
-    # and compute the matrix elements
     r = 0.4 * 16.0 / (1.0 - logx)
     if is_singlet:
         o = 1.0
         indeces = {"g": 0, "q": 1, "H": 2}
-        n = mellin.Talbot_path(u, r, o)
-        A = A_singlet(order, n, sx, L)
     else:
         o = 0.0
         indeces = {"q": 0, "H": 1}
-        n = mellin.Talbot_path(u, r, o)
+    n = mellin.Talbot_path(u, r, o)
+    jac = mellin.Talbot_jac(u, r, o)
+
+    # compute the harmonics
+    sx = np.zeros(3, np.complex_)
+    if order >= 1:
+        sx = np.array([harmonics.harmonic_S1(n), harmonics.harmonic_S2(n)])
+    if order >= 2:
+        sx = np.append(sx, harmonics.harmonic_S3(n))
+
+    # compute the ome
+    if is_singlet:
+        A = A_singlet(order, n, sx, L)
+    else:
         A = A_non_singlet(order, n, sx, L)
 
-    jac = mellin.Talbot_jac(u, r, o)
     # check PDF is active
     if is_log:
         pj = interpolation.log_evaluate_Nx(n, logx, areas)
@@ -233,7 +235,7 @@ class OperatorMatrixElement:
             cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, config, managers, is_backward, mellin_cut=1e-3):
+    def __init__(self, config, managers, is_backward, mellin_cut=1e-2):
 
         self.backward_method = config["backward_inversion"] if is_backward else ""
         self.is_intrinsic = bool(len(config["intrinsic_range"]) != 0)
