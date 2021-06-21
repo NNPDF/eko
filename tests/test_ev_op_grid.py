@@ -23,7 +23,7 @@ class TestOperatorGrid:
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
             "nfref": None,
-            "Q0": np.sqrt(2),
+            "Q0": np.sqrt(100),
             "FNS": "FFNS",
             "NfFF": 3,
             "IC": 1,
