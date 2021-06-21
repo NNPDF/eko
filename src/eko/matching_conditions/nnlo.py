@@ -6,12 +6,19 @@ The expession for :math:`\mu_F^2 = m_H^2` are taken from :cite:`Vogt:2004ns` dir
 While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes |QCDNUM|
 (https://github.com/N3PDF/external/blob/master/qcdnum/qcdnum/pij/ome.f)
 and Mellin transformed with Mathematica.
+
+The expession for A_Hg_2_l0 comes form :cite:`Bierenbaum_2009`
 """
 import numba as nb
 import numpy as np
 
 from .. import constants
-from ..anomalous_dimensions.harmonics import zeta2, zeta3, harmonic_S2
+from ..anomalous_dimensions import harmonics
+
+
+# Global variables
+zeta2 = harmonics.zeta2
+zeta3 = harmonics.zeta3
 
 
 @nb.njit("c16(c16,c16[:],f8)", cache=True)
@@ -141,6 +148,7 @@ def A_hg_2(n, sx, L):
     r"""
     |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}` given in
     Eq. (B.3) of :cite:`Buza_1998`.
+    The expession for A_Hg_2_l0 comes form :cite:`Bierenbaum_2009`.
 
     Parameters
     ----------
@@ -159,25 +167,82 @@ def A_hg_2(n, sx, L):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1m = S1 - 1 / n  # harmonic_S1(n - 1)
-    S2m = S2 - 1 / n ** 2  # harmonic_S2(n - 1)
-    Sp2m = harmonic_S2((n - 1) / 2)
-    Sp2p = harmonic_S2(n / 2)
-
-    E2 = 2.0 / n * (zeta3 - S3 + 1.0 / n * (zeta2 - S2 - S1 / n))
+    S1m = S1 - 1 / n
+    S2m = S2 - 1 / n ** 2
+    Sp2m = harmonics.harmonic_S2((n - 1) / 2)
+    Sp2p = harmonics.harmonic_S2(n / 2)
+    Sm1 = -S1 + harmonics.harmonic_S1(n / 2)
+    Sm2 = -S2 + 1 / 2 * Sp2p
+    Sm3 = -S3 + 1 / 4 * harmonics.harmonic_S3(n / 2)
+    Sm21 = (
+        -5 / 8 * harmonics.zeta3
+        + harmonics.zeta2 * (Sm1 - 1 / n + np.log(2))
+        + S1 / n ** 2
+        + harmonics.mellin_g3(n)
+    )
 
     a_hg_2_l0 = (
-        -0.006
-        + 1.111 * (S1 ** 3 + 3.0 * S1 * S2 + 2.0 * S3) / n
-        - 0.400 * (S1 ** 2 + S2) / n
-        + 2.770 * S1 / n
-        - 24.89 / (n - 1.0)
-        - 187.8 / n
-        + 249.6 / (n + 1.0)
-        + 1.556 * 6.0 / n ** 4
-        - 3.292 * 2.0 / n ** 3
-        + 93.68 * 1.0 / n ** 2
-        - 146.8 * E2
+        -(
+            3084
+            + 192 / n ** 4
+            + 1056 / n ** 3
+            + 2496 / n ** 2
+            + 2928 / n
+            + 2970 * n
+            + 1782 * n ** 2
+            + 6 * n ** 3
+            - 1194 * n ** 4
+            - 1152 * n ** 5
+            - 516 * n ** 6
+            - 120 * n ** 7
+            - 12 * n ** 8
+        )
+        / ((n - 1) * ((1 + n) * (2 + n)) ** 4)
+        + (
+            764
+            - 16 / n ** 4
+            - 80 / n ** 3
+            - 100 / n ** 2
+            + 3 * 72 / n
+            + 208 * n ** 3
+            + 3 * (288 * n + 176 * n ** 2 + 16 * n ** 4)
+        )
+        / (3 * (1 + n) ** 4 * (2 + n))
+        + 12 * Sm3 * (2 + n + n ** 2) / (n * (1 + n) * (2 + n))
+        - 24 * Sm2 * (4 + n - n ** 2) / ((1 + n) * (2 + n)) ** 2
+        - S1
+        * (
+            48 / n
+            + 432
+            + 564 * n
+            + 324 * n ** 2
+            + 138 * n ** 3
+            + 48 * n ** 4
+            + 6 * n ** 5
+        )
+        / ((1 + n) * (2 + n)) ** 3
+        + S1
+        * (-160 - 32 / n ** 2 - 80 / n + 8 * n * (n - 1))
+        / (3 * (1 + n) ** 2 * (2 + n))
+        - 6 * S1 ** 2 * (11 + 8 * n + n ** 2 + 2 / n) / ((1 + n) * (2 + n)) ** 2
+        + 8 * S1 ** 2 * (2 / (3 * n) + 1) / (n * (2 + n))
+        - 2
+        * S2
+        * (63 + 48 / n ** 2 + 54 / n + 39 * n + 63 * n ** 2 + 21 * n ** 3)
+        / ((n - 1) * (1 + n) ** 2 * (2 + n) ** 2)
+        + 8
+        * S2
+        * (17 - 2 / n ** 2 - 5 / n + n * (17 + n))
+        / (3 * (1 + n) ** 2 * (2 + n))
+        + (1 + 2 / n + n)
+        / ((1 + n) * (2 + n))
+        * (
+            24 * Sm2 * S1
+            + 10 * S1 ** 3 / 9
+            + 46 * S1 * S2 / 3
+            + 176 * S3 / 9
+            - 24 * Sm21
+        )
     )
 
     a_hg_2_l1 = (

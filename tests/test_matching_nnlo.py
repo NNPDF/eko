@@ -34,11 +34,7 @@ def test_A_2():
         aS2 = A_singlet_2(N, sx, L)
 
         # gluon momentum conservation
-        # Reference numbers coming from Mathematica
-        # note this difference is only due to the part non proportional to the logaritm
-        np.testing.assert_allclose(
-            aS2[0, 0] + aS2[1, 0] + aS2[2, 0], 0.00035576, rtol=1e-6
-        )
+        np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0] + aS2[2, 0], 0.0, atol=2e-6)
         # quark momentum conservation
         np.testing.assert_allclose(aS2[0, 1] + aS2[1, 1] + aS2[2, 1], 0.0, atol=1e-11)
 
@@ -79,12 +75,9 @@ def test_pegasus_sign():
 
 
 def test_Bluemlein_2():
-    # Test against Blumlein OME implementation.
+    # Test against Blumlein OME implementation :cite:`Bierenbaum_2009`.
     # For some OME only even moments are available in that code.
-    # This might be bacause they are computing only even moments at N3LO
-    # see https://arxiv.org/pdf/0904.3563.pdf (eq 8.50 and similar)
     # Note there is a minus sign in the definition of L.
-
     ref_val_gg = {
         0: [-9.96091, -30.0093, -36.5914, -40.6765, -43.6823],
         10: [-289.097, -617.811, -739.687, -820.771, -882.573],
@@ -145,7 +138,40 @@ def test_Bluemlein_2():
                 idx = int(N / 2 - 1)
                 np.testing.assert_allclose(aS2[0, 0], ref_val_gg[L][idx], rtol=2e-6)
                 np.testing.assert_allclose(aS2[0, 1], ref_val_gq[L][idx], rtol=4e-6)
-                # For Hg we are using a parametrized expession, less accurate.
-                np.testing.assert_allclose(aS2[2, 0], ref_val_Hg[L][idx], rtol=6e-4)
+                np.testing.assert_allclose(aS2[2, 0], ref_val_Hg[L][idx], rtol=3e-6)
                 np.testing.assert_allclose(aS2[2, 1], ref_val_Hq[L][idx], rtol=3e-6)
             np.testing.assert_allclose(aS2[1, 1], ref_val_qq[L][N - 2], rtol=4e-6)
+
+
+def test_Hg2_pegasus():
+    # Test againnt the parametrized expession for A_Hg_2
+    # coming from Pegasus code
+    # This expession is less accurate.
+    L = 0
+
+    for N in range(3, 20):
+        sx = get_sx(N)
+        S1 = sx[0]
+        S2 = sx[1]
+        S3 = sx[2]
+        aS2 = A_singlet_2(N, sx, L)
+
+        E2 = (
+            2.0 / N * (harmonics.zeta3 - S3 + 1.0 / N * (harmonics.zeta2 - S2 - S1 / N))
+        )
+
+        a_hg_2_param = (
+            -0.006
+            + 1.111 * (S1 ** 3 + 3.0 * S1 * S2 + 2.0 * S3) / N
+            - 0.400 * (S1 ** 2 + S2) / N
+            + 2.770 * S1 / N
+            - 24.89 / (N - 1.0)
+            - 187.8 / N
+            + 249.6 / (N + 1.0)
+            + 1.556 * 6.0 / N ** 4
+            - 3.292 * 2.0 / N ** 3
+            + 93.68 * 1.0 / N ** 2
+            - 146.8 * E2
+        )
+
+        np.testing.assert_allclose(aS2[2, 0], a_hg_2_param, rtol=7e-4)

@@ -36,3 +36,23 @@ def test_A_1_shape():
 
     # check intrisic hh is the same
     assert aNS1i[1, 1] == aS1i[2, 2]
+
+
+def test_Bluemlein_1():
+    # Test against Blumlein OME implementation :cite:`Bierenbaum_2009`.
+    # Only even moments are available in that code.
+    # Note there is a minus sign in the definition of L.
+
+    N_vals = 5
+    ref_val_gg = {10: np.full(N_vals, -6.66667)}
+    ref_val_Hg = {
+        10: [6.66667, 3.66667, 2.61905, 2.05556, 1.69697],
+    }
+
+    for n in range(N_vals):
+        N = 2 * n + 2
+        sx = get_sx(N)
+        for L in ref_val_gg:
+            aS1 = A_singlet_1(N, sx, L)
+            np.testing.assert_allclose(aS1[0, 0], ref_val_gg[L][n], rtol=1e-6)
+            np.testing.assert_allclose(aS1[2, 0], ref_val_Hg[L][n], rtol=3e-6)

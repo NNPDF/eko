@@ -266,7 +266,6 @@ class OperatorMatrixElement:
                 labels.append("NS_HH")
                 # if self.backward_method == "exact":
                 #     # this contribution starts at NNLO, we don't have it for the moment
-                #     # however it must be computed in this case
                 #     labels.append("NS_qH")
 
         # same for singlet
