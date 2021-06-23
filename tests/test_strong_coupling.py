@@ -38,7 +38,9 @@ class TestStrongCoupling:
         nf = 4
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         # create
-        sc = StrongCoupling(alphas_ref, scale_ref, threshold_holder.area_walls[1:-1])
+        sc = StrongCoupling(
+            alphas_ref, scale_ref, threshold_holder.area_walls[1:-1], (1.0, 1.0, 1.0)
+        )
         assert sc.q2_ref == scale_ref
         assert sc.as_ref == alphas_ref / 4.0 / np.pi
         # from theory dict
@@ -68,14 +70,28 @@ class TestStrongCoupling:
 
         # errors
         with pytest.raises(ValueError):
-            StrongCoupling(0, scale_ref, threshold_holder.area_walls[1:-1])
-        with pytest.raises(ValueError):
-            StrongCoupling(alphas_ref, 0, threshold_holder.area_walls[1:-1])
-        with pytest.raises(NotImplementedError):
-            StrongCoupling(alphas_ref, scale_ref, threshold_holder.area_walls[1:-1], 3)
+            StrongCoupling(
+                0, scale_ref, threshold_holder.area_walls[1:-1], (1.0, 1.0, 1.0)
+            )
         with pytest.raises(ValueError):
             StrongCoupling(
-                alphas_ref, scale_ref, threshold_holder.area_walls[1:-1], method="ODE"
+                alphas_ref, 0, threshold_holder.area_walls[1:-1], (1.0, 1.0, 1.0)
+            )
+        with pytest.raises(NotImplementedError):
+            StrongCoupling(
+                alphas_ref,
+                scale_ref,
+                threshold_holder.area_walls[1:-1],
+                (1.0, 1.0, 1.0),
+                3,
+            )
+        with pytest.raises(ValueError):
+            StrongCoupling(
+                alphas_ref,
+                scale_ref,
+                threshold_holder.area_walls[1:-1],
+                (1.0, 1.0, 1.0),
+                method="ODE",
             )
         with pytest.raises(ValueError):
             StrongCoupling.from_dict(
@@ -102,7 +118,12 @@ class TestStrongCoupling:
                 for method in ["exact", "expanded"]:
                     # create
                     sc = StrongCoupling(
-                        alphas_ref, scale_ref, thresh_setup, order, method
+                        alphas_ref,
+                        scale_ref,
+                        thresh_setup,
+                        (1.0, 1.0, 1.0),
+                        order,
+                        method,
                     )
                     np.testing.assert_approx_equal(
                         sc.a_s(scale_ref), alphas_ref / 4.0 / np.pi
@@ -120,9 +141,11 @@ class TestStrongCoupling:
         for thresh_setup in thresh_setups:
             # in LO expanded  = exact
             sc_expanded = StrongCoupling(
-                alphas_ref, scale_ref, thresh_setup, 0, "expanded"
+                alphas_ref, scale_ref, thresh_setup, (1.0, 1.0, 1.0), 0, "expanded"
             )
-            sc_exact = StrongCoupling(alphas_ref, scale_ref, thresh_setup, 0, "exact")
+            sc_exact = StrongCoupling(
+                alphas_ref, scale_ref, thresh_setup, (1.0, 1.0, 1.0), 0, "exact"
+            )
             for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
                 np.testing.assert_allclose(
                     sc_expanded.a_s(q2), sc_exact.a_s(q2), rtol=5e-4

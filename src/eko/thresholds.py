@@ -55,7 +55,7 @@ class ThresholdsAtlas:
             reference scale
     """
 
-    def __init__(self, thresholds, q2_ref=None, nf_ref=None):
+    def __init__(self, thresholds, q2_ref=None, nf_ref=None, mass_ratios=None):
         # Initial values
         self.q2_ref = q2_ref
         self.nf_ref = nf_ref
@@ -63,6 +63,7 @@ class ThresholdsAtlas:
         if thresholds != sorted(thresholds):
             raise ValueError("thresholds need to be sorted")
         self.area_walls = [0] + thresholds + [np.inf]
+        self.mass_ratios = mass_ratios
         logger.info("Thresholds: walls = %s", self.area_walls)
 
     @classmethod

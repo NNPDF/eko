@@ -5,7 +5,7 @@ import numpy as np
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
-vfns = {"FNS": "ZM-VFNS", "mc": 1e4, "mb": 1.5e4, "mt": 2e4}
+vfns = {"FNS": "ZM-VFNS", "mc": 1.51, "mb": 4.5, "mt": 2e4}
 pegasus_vfns = {"nfref": 3, **vfns}
 ffns3 = {
     "kcThr": np.inf,
@@ -32,8 +32,8 @@ class Sandbox(Runner):
     sandbox = True
 
     # select here the external program between LHA, LHAPDF, apfel, pegasus
-    # external = "apfel"
-    external = "pegasus"
+    external = "apfel"
+    #  external = "pegasus"
 
     # select to plot operators
     plot_operator = False
@@ -56,10 +56,11 @@ class Sandbox(Runner):
             "ModEv": "perturbative-exact",
             # "XIR": 0.5,
             # "fact_to_ren_scale_ratio": 2.0,
-            "Q0": np.sqrt(2),
-            "Qref": np.sqrt(2.0),
+            "Q0": 2,
+            "Qref": 2.0,
             "alphas": 0.35,
-            **ffns3,
+            "kbThr": 2.71,
+            **vfns,
         }
         # t0 = theory_updates.copy()
         # t0["PTO"] = 0
