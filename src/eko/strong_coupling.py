@@ -121,11 +121,12 @@ class StrongCoupling:
         self,
         alpha_s_ref,
         scale_ref,
-        thresh,
-        mass_ratios,
+        masses,
+        thresholds_ratios,
         order=0,
         method="exact",
         nf_ref=None,
+        max_nf=None,
     ):
         # Sanity checks
         if alpha_s_ref <= 0:
@@ -142,7 +143,11 @@ class StrongCoupling:
         # create new threshold object
         self.as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
         self.thresholds = thresholds.ThresholdsAtlas(
-            thresh, scale_ref, nf_ref, mass_ratios=mass_ratios
+            masses,
+            scale_ref,
+            nf_ref,
+            thresholds_ratios=thresholds_ratios,
+            max_nf=max_nf,
         )
         logger.info(
             "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)",
@@ -205,14 +210,23 @@ class StrongCoupling:
         # adjust factorization scale / renormalization scale
         fact_to_ren = theory_card["fact_to_ren_scale_ratio"]
         heavy_flavors = "cbt"
-        thresh_mass_ratios = [theory_card[f"k{q}Thr"] for q in heavy_flavors]
-        thresh = thresholds.ThresholdsAtlas.build_area_walls(
-            [theory_card[f"m{q}"] / fact_to_ren for q in heavy_flavors],
-            thresh_mass_ratios,
-            theory_card["MaxNfAs"],
+        masses = np.power(
+            [theory_card[f"m{q}"] / fact_to_ren for q in heavy_flavors], 2
         )
+        thresholds_ratios = np.power(
+            [theory_card[f"k{q}Thr"] for q in heavy_flavors], 2
+        )
+        max_nf = theory_card["MaxNfAs"]
+
         return cls(
-            alpha_ref, q2_alpha, thresh, thresh_mass_ratios, order, method, nf_ref
+            alpha_ref,
+            q2_alpha,
+            masses,
+            thresholds_ratios,
+            order,
+            method,
+            nf_ref,
+            max_nf,
         )
 
     def compute_exact(self, as_ref, nf, scale_from, scale_to):
@@ -319,6 +333,7 @@ class StrongCoupling:
         if len(path) > 1:
             is_downward_path = path[1].nf < path[0].nf
         shift = 3 if not is_downward_path else 4
+
         # as a default assume mu_F^2 = mu_R^2
         if fact_scale is None:
             fact_scale = scale_to
@@ -332,8 +347,8 @@ class StrongCoupling:
             # - if there is yet a step to go
             if k < len(path) - 1:
                 # q2_to is the threshold value
-                L = np.log(scale_to / fact_scale) + 2 * np.log(
-                    self.thresholds.mass_ratios[seg.nf - shift]
+                L = np.log(scale_to / fact_scale) + np.log(
+                    self.thresholds.thresholds_ratios[seg.nf - shift]
                 )
                 m_coeffs = (
                     matching_coeffs_down if is_downward_path else matching_coeffs_up

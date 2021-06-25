@@ -422,6 +422,57 @@ class BenchmarkStrongCoupling:
                 # check myself to APFEL
                 np.testing.assert_allclose(apfel_vals, np.array(my_vals), rtol=2.5e-5)
 
+    def benchmark_APFEL_vfns_threshold(self):
+        Q2s = np.power([30, 96, 150], 2)
+        alphas_ref = 0.118
+        scale_ref = 91.0 ** 2
+        threshold_list = np.power([30, 95, 240], 2)
+        thresholds_ratios = np.power((2.34, 1.0, 0.5), 2)
+        apfel_vals_dict = {
+            1: np.array(
+                [0.011543349125207046, 0.00930916017456183, 0.008683622955304702]
+            ),
+            2: np.array(
+                [0.011530819844835012, 0.009312638352288492, 0.00867793622077099]
+            ),
+        }
+        # collect my values
+        for order in [1, 2]:
+            as_VFNS = StrongCoupling(
+                alphas_ref,
+                scale_ref,
+                threshold_list,
+                thresholds_ratios,
+                order=order,
+                method="expanded",
+            )
+            my_vals = []
+            for Q2 in Q2s:
+                print(Q2)
+                my_vals.append(as_VFNS.a_s(Q2))
+            # get APFEL numbers - if available else use cache
+            apfel_vals = apfel_vals_dict[order]
+            if use_APFEL:
+                # run apfel
+                apfel.CleanUp()
+                apfel.SetTheory("QCD")
+                apfel.SetPerturbativeOrder(order)
+                apfel.SetAlphaEvolution("expanded")
+                apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                apfel.SetVFNS()
+                apfel.SetPoleMasses(*np.sqrt(threshold_list))
+                apfel.SetMassMatchingScales(*np.sqrt(thresholds_ratios))
+                apfel.SetRenFacRatio(1)
+                apfel.InitializeAPFEL()
+                # collect a_s
+                apfel_vals_cur = []
+                for Q2 in Q2s:
+                    apfel_vals_cur.append(apfel.AlphaQCD(np.sqrt(Q2)) / (4.0 * np.pi))
+                print(apfel_vals_cur)
+                np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
+            # check myself to APFEL
+            np.testing.assert_allclose(apfel_vals, np.array(my_vals))
+
     def _get_Lambda2_LO(self, as_ref, scale_ref, nf):
         """Transformation to Lambda_QCD"""
         beta0 = beta(0, nf)
