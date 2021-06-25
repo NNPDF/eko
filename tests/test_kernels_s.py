@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import pytest
 import numpy as np
+import pytest
 
-from eko.kernels import singlet as s
 from eko import anomalous_dimensions as ad
+from eko.kernels import singlet as s
 
 methods = [
     "iterate-expanded",

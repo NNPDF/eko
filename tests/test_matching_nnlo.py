@@ -3,8 +3,8 @@
 
 import numpy as np
 
-from eko.matching_conditions.nnlo import A_ns_2, A_singlet_2, A_qq_2_ns
 from eko.anomalous_dimensions import harmonics
+from eko.matching_conditions.nnlo import A_ns_2, A_qq_2_ns, A_singlet_2
 
 
 def get_sx(N):

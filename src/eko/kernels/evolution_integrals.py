@@ -9,9 +9,8 @@ The expanded integrals are obtained from the exact results by Taylor expanding i
 :math:`a_s,a_s^{0} \to 0` until :math:`\mathcal{O}( a_s^{m+1})` for :math:`N^{m}LO` computations.
 """
 
-import numpy as np
-
 import numba as nb
+import numpy as np
 
 from .. import beta
 

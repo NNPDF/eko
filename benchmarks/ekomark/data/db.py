@@ -3,9 +3,8 @@
 Database tables
 """
 
-from sqlalchemy import Column, Integer, Text, Boolean
-
 from banana.data.db import Base
+from sqlalchemy import Boolean, Column, Integer, Text
 
 
 class Operator(Base):  # pylint: disable=too-few-public-methods

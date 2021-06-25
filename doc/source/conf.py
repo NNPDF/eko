@@ -17,8 +17,8 @@
 #
 
 import inspect
-import pathlib
 import os
+import pathlib
 
 import numba as nb
 
@@ -255,7 +255,7 @@ mathjax3_config = {
             "dTj": [r"{\tilde{T}_{\!#1}^{(#2)}(#3)}", 3],
             "dSVi": [
                 r"{{\begin{pmatrix}\tilde g\\ \tilde \Sigma_{(#1)} \\"
-                +r"\tilde h^{+}\end{pmatrix}}^{(#1)}\!(#2)}",
+                + r"\tilde h^{+}\end{pmatrix}}^{(#1)}\!(#2)}",
                 2,
             ],
             "dVi": [
@@ -264,7 +264,7 @@ mathjax3_config = {
             ],
             "dSVip": [
                 r"{{\begin{pmatrix}\tilde g\\ \tilde \Sigma_{(#1)} \\"
-                +r"\tilde h^{+}\end{pmatrix}}^{(#1+1)}\!(#2)}",
+                + r"\tilde h^{+}\end{pmatrix}}^{(#1+1)}\!(#2)}",
                 2,
             ],
             "dVip": [
@@ -273,7 +273,7 @@ mathjax3_config = {
             ],
             "dSVe": [
                 r"{{\begin{pmatrix}\tilde g\\\tilde \Sigma\\"
-                +r"\tilde T_{j}\end{pmatrix}}^{(#1)}\!(#2)}",
+                + r"\tilde T_{j}\end{pmatrix}}^{(#1)}\!(#2)}",
                 2,
             ],
             "dVe": [
@@ -313,8 +313,9 @@ def process_numba_docstring(
 
 # https://github.com/readthedocs/readthedocs.org/issues/1139#issuecomment-312626491
 def run_apidoc(_):
-    from sphinx.ext.apidoc import main # pylint: disable=import-outside-toplevel
-    import sys # pylint: disable=import-outside-toplevel
+    import sys  # pylint: disable=import-outside-toplevel
+
+    from sphinx.ext.apidoc import main  # pylint: disable=import-outside-toplevel
 
     sys.path.append(str(here.parent))
     # 'eko'

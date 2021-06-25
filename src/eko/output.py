@@ -5,12 +5,12 @@
 import logging
 import warnings
 
-import yaml
 import lz4.frame
 import numpy as np
+import yaml
 
-from . import interpolation
 from . import basis_rotation as br
+from . import interpolation
 
 logger = logging.getLogger(__name__)
 

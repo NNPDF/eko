@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """This file contains the leading-order Altarelli-Parisi splitting kernels."""
 
-import numpy as np
-
 import numba as nb
+import numpy as np
 
 from eko import constants
 

@@ -14,10 +14,8 @@ import numpy as np
 from eko import matching_conditions, member
 from eko.evolution_operator import flavors
 
-from . import Operator
-from . import physical
-
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
+from . import Operator, physical
 
 logger = logging.getLogger(__name__)
 
@@ -181,8 +179,10 @@ class OperatorGrid:
             if seg.q2_to not in self._matching_operators:
                 # is_backawd point to the smaller q2
                 shift = 3 if not seg.is_backward else 4
-                kthr = self.managers["thresholds_config"].thresholds_ratios[seg.nf-shift]
-                ome.compute(seg.q2_to, np.log(kthr) )
+                kthr = self.managers["thresholds_config"].thresholds_ratios[
+                    seg.nf - shift
+                ]
+                ome.compute(seg.q2_to, np.log(kthr))
                 self._matching_operators[seg.q2_to] = ome.ome_members
         return thr_ops
 

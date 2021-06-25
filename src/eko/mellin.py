@@ -18,8 +18,8 @@ for the singlet sector. Note that the non-singlet kernels evolve poles only up t
 
 """
 
-import numpy as np
 import numba as nb
+import numpy as np
 
 
 @nb.njit("c16(f8,f8,f8)", cache=True)

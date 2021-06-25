@@ -2,10 +2,10 @@
 """
     Tests for the threshold class
 """
-import pytest
 import numpy as np
+import pytest
 
-from eko.thresholds import ThresholdsAtlas, PathSegment
+from eko.thresholds import PathSegment, ThresholdsAtlas
 
 
 class TestPathSegment:

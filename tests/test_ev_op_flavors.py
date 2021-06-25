@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-
 import pytest
 
-from eko.evolution_operator import flavors
-from eko import member
 from eko import basis_rotation as br
+from eko import member
+from eko.evolution_operator import flavors
 
 
 class TestOpMember:

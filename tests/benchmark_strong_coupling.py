@@ -2,9 +2,9 @@
 """This module benchmarks alpha_s against LHAPDF and APFEL."""
 import numpy as np
 
+from eko import thresholds
 from eko.beta import beta
 from eko.strong_coupling import StrongCoupling
-from eko import thresholds
 
 # try to load LHAPDF - if not available, we'll use the cached values
 try:

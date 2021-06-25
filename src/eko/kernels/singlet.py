@@ -3,13 +3,11 @@
 Colletion of singlet EKOs.
 """
 
+import numba as nb
 import numpy as np
 
-import numba as nb
-
-from .. import beta
 from .. import anomalous_dimensions as ad
-
+from .. import beta
 from . import evolution_integrals as ei
 from . import utils
 

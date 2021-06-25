@@ -4,10 +4,11 @@ Plotting tools to show the evolved PDF and the computed operators
 """
 import io
 import pprint
-import numpy as np
+
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
+import numpy as np
 from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.colors import LogNorm
 
 
 def input_figure(theory, ops, pdf_name=None):

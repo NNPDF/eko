@@ -2,7 +2,7 @@ Benchmarks
 ==========
 
 |EKO| benchmarks are listed in the table below and are implemented in a separated tool :doc:`ekomark<ekomark>`.
-For each external program the evolution can be perfomed at |LO|, |NLO|, |NNLO|. 
+For each external program the evolution can be perfomed at |LO|, |NLO|, |NNLO|.
 
 .. list-table:: Available Benchmarks
   :header-rows: 1
@@ -30,7 +30,7 @@ For each external program the evolution can be perfomed at |LO|, |NLO|, |NNLO|.
   * - |Pegasus|
     - VFNS, FFNS
     - |T|
-    - 
+    -
     - ``iterate-exact``, ``iterate-expanded``, ``ordered-truncated``, ``truncated``
 
 
@@ -57,8 +57,8 @@ List of bugs in :cite:`Dittmar:2005ed`
 Lhapdf
 ------
 
-|lhapdf| is the standard tool to store PDFs in Particle Physics. 
-It provides a PDF dependent evolution method which can be compared with |Eko| applied to the same initial PDF. 
+|lhapdf| is the standard tool to store PDFs in Particle Physics.
+It provides a PDF dependent evolution method which can be compared with |Eko| applied to the same initial PDF.
 
 APFEL
 -----
@@ -67,7 +67,7 @@ APFEL
 (and FTDY as well).
 It has been used by the NNPDF collaboration up to NNPDF4.0
 
-|APFEL| solves |DGLAP| numerically in x-space up to |NNLO|. QED evolution is also available.  
+|APFEL| solves |DGLAP| numerically in x-space up to |NNLO|. QED evolution is also available.
 The programs provides 3 different strategies, and in various theory setups (|FNS|, SV, IC ) as shown in the table.
 As |Eko|, |APFEL| can be interfaced with |lhapdf|.
 

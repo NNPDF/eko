@@ -2,10 +2,7 @@
 # Test NLO OME
 import numpy as np
 
-from eko.matching_conditions.nlo import (
-    A_singlet_1,
-    A_ns_1,
-)
+from eko.matching_conditions.nlo import A_ns_1, A_singlet_1
 
 from .test_matching_nnlo import get_sx
 

@@ -8,12 +8,11 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 import logging
 
+import numba as nb
 import numpy as np
 import scipy
-import numba as nb
 
-from . import constants
-from . import thresholds
+from . import constants, thresholds
 from .beta import beta
 
 logger = logging.getLogger(__name__)

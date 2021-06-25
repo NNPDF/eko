@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+import copy
 import operator
 from numbers import Number
-import copy
+
 import numpy as np
 
 

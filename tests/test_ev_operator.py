@@ -3,17 +3,16 @@
 import numpy as np
 import scipy.integrate
 
+from eko import anomalous_dimensions as ad
+from eko import basis_rotation as br
+from eko import interpolation, mellin
 from eko.evolution_operator import Operator, gamma_ns_fact, gamma_singlet_fact, quad_ker
 from eko.evolution_operator.grid import OperatorGrid
-from eko.thresholds import ThresholdsAtlas
-from eko.strong_coupling import StrongCoupling
 from eko.interpolation import InterpolatorDispatcher
-from eko import anomalous_dimensions as ad
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
-from eko import basis_rotation as br
-from eko import mellin
-from eko import interpolation
+from eko.strong_coupling import StrongCoupling
+from eko.thresholds import ThresholdsAtlas
 
 
 def test_gamma_ns_fact(monkeypatch):

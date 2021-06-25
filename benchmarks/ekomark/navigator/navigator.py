@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
 import os
 import webbrowser
-import numpy as np
-import pandas as pd
 
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_pdf import PdfPages
-
+import numpy as np
+import pandas as pd
 from banana import navigator as bnav
 from banana.data import dfdict
-
+from matplotlib.backends.backend_pdf import PdfPages
 
 from eko import basis_rotation as br
 
 from .. import pdfname
-from ..plots import input_figure, plot_dist
 from ..banana_cfg import banana_cfg
 from ..data import db
+from ..plots import input_figure, plot_dist
 
 table_objects = bnav.table_objects
 table_objects["o"] = db.Operator

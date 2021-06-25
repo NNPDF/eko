@@ -7,11 +7,11 @@ These expression have been obtained using the procedure described in the
 involving ``FormGet`` :cite:`Hahn:2016ebn`.
 """
 
-import numpy as np
 import numba as nb
+import numpy as np
 
-from . import harmonics
 from .. import constants
+from . import harmonics
 
 
 @nb.njit("c16(c16,u1)", cache=True)

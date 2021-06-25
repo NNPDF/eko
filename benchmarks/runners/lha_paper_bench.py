@@ -3,7 +3,6 @@
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO)
 """
 import numpy as np
-
 from ekomark.benchmark.runner import Runner
 
 base_theory = {
@@ -169,7 +168,7 @@ class BenchmarkFFNS(LHABenchmark):
 if __name__ == "__main__":
 
     obj = BenchmarkVFNS()
-    #obj = BenchmarkFFNS()
+    # obj = BenchmarkFFNS()
 
     obj.benchmark_plain(1)
-    #obj.benchmark_sv(1)
+    # obj.benchmark_sv(1)

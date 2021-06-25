@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import io
 import copy
+import io
 from unittest import mock
 
 import numpy as np

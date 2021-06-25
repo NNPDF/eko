@@ -5,23 +5,19 @@ This module contains the central operator classes.
 See :doc:`Operator overview </code/Operators>`.
 """
 
-import time
 import logging
+import time
 
+import numba as nb
 import numpy as np
 from scipy import integrate
-import numba as nb
 
-from .. import mellin
-from .. import interpolation
 from .. import anomalous_dimensions as ad
-from .. import beta
+from .. import beta, interpolation, mellin
+from ..basis_rotation import full_labels, singlet_labels
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
-
 from ..member import OpMember
-from ..basis_rotation import singlet_labels, full_labels
-
 
 logger = logging.getLogger(__name__)
 

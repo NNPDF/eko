@@ -4,22 +4,18 @@ This module defines the |OME| for the non-trivial matching conditions in the
 |VFNS| evolution.
 """
 
-import time
 import logging
+import time
 
+import numba as nb
 import numpy as np
 from scipy import integrate
-import numba as nb
 
-from .. import mellin
-from .. import interpolation
-from ..member import OpMember
-
-from . import nlo
-from . import nnlo
+from .. import interpolation, mellin
 from ..anomalous_dimensions import harmonics
 from ..basis_rotation import singlet_labels
-
+from ..member import OpMember
+from . import nlo, nnlo
 
 logger = logging.getLogger(__name__)
 

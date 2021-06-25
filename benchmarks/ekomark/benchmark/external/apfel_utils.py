@@ -3,8 +3,8 @@
 APFEL interface
 """
 import time
-import numpy as np
 
+import numpy as np
 from banana.benchmark.external.apfel_utils import load_apfel
 
 from eko import basis_rotation as br

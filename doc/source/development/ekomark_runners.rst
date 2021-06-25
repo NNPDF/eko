@@ -1,21 +1,21 @@
 Usage
 =====
 
-Ekomark mimics the same inputs needed to run `eko`, namely a theory card, an 
-observable card and also the name of a pdf set whenever the external program can be used 
-together with |lhapdf|. 
+Ekomark mimics the same inputs needed to run `eko`, namely a theory card, an
+observable card and also the name of a pdf set whenever the external program can be used
+together with |lhapdf|.
 
-Both the theory and observable card can be gnerated authomatically from a default: 
-the former with |banana|, the latter with something similar to ``generate_observable()`` provided `sandbox.py`. 
+Both the theory and observable card can be gnerated authomatically from a default:
+the former with |banana|, the latter with something similar to ``generate_observable()`` provided `sandbox.py`.
 
-In addition to run `ekomark` you need to specify the external program you would benchmark against. 
+In addition to run `ekomark` you need to specify the external program you would benchmark against.
 To do so, you will have to initialise a class of type ``ekomark.benchmark.runner``.
 To speed up the calculations null PDFs can be skipped setting the attribute ``skip_pdfs``
 Finally you can decide to display the output in Flavor or in Evolution basis setting ``rotate_to_evolution_basis``
 
 In the following section we describe some available `runners` which are the most useful example.
 
-The minimal setup of the input cards must contain: 
+The minimal setup of the input cards must contain:
 
 .. list-table:: minimal theory input runcard
   :header-rows: 1
@@ -89,23 +89,23 @@ In ``benchmarks/runners`` we provide a list of established benchmarks
 - ``apfel_bench.py``:
 
   - it is used by the corresponding workflow to
-    run the established benchmarks against |APFEL|. The complete 
-    run of this script will benchmark |EKO| against all the compatible |APFEL| features. 
+    run the established benchmarks against |APFEL|. The complete
+    run of this script will benchmark |EKO| against all the compatible |APFEL| features.
   - the necessary python bindings are provided by the |APFEL| itself
 
 - ``pegaus_bench.py``:
 
   - it is used by the corresponding workflow to
-    run the established benchmarks against |Pegasus|. The complete 
-    run of this script will benchmark |EKO| against all the compatible |Pegasus| features. 
+    run the established benchmarks against |Pegasus|. The complete
+    run of this script will benchmark |EKO| against all the compatible |Pegasus| features.
   - the necessary python bindings are provided by us externally.
 
 - ``paper_LHA_bench.py``:
 
   - it is used by the corresponding workflow to
-    run the established benchmarks against the LHA papers. 
-  - There are no external python bindings needed since the LHA data are stored in 
+    run the established benchmarks against the LHA papers.
+  - There are no external python bindings needed since the LHA data are stored in
     ``ekomark/benchmark/external/LHA.yaml``.
 
-All of them are examples useful to understand how to use the 
+All of them are examples useful to understand how to use the
 `ekomark` package for benchmarking.

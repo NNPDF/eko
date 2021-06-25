@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """Test Mellin module"""
 
-from numpy.testing import assert_almost_equal, assert_allclose
-
 import numpy as np
+from numpy.testing import assert_allclose, assert_almost_equal
 
 import eko.mellin as mellin
 

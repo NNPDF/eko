@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import pytest
 from numpy.testing import assert_almost_equal
 from scipy import integrate
-import pytest
 
 from eko import interpolation
 

@@ -2,8 +2,8 @@
 import numpy as np
 
 from .. import basis_rotation as br
-from . import flavors
 from .. import member
+from . import flavors
 
 
 class PhysicalOperator(member.OperatorBase):

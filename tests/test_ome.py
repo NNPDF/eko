@@ -2,20 +2,19 @@
 # Test eko.matching_conditions.OperatorMatrixElement
 import numpy as np
 
+from eko import interpolation, mellin
+from eko.basis_rotation import singlet_labels
 from eko.evolution_operator.grid import OperatorGrid
-from eko.thresholds import ThresholdsAtlas
-from eko.strong_coupling import StrongCoupling
 from eko.interpolation import InterpolatorDispatcher
-from eko import mellin
-from eko import interpolation
 from eko.matching_conditions.operator_matrix_element import (
-    quad_ker,
-    OperatorMatrixElement,
-    build_ome,
     A_non_singlet,
     A_singlet,
+    OperatorMatrixElement,
+    build_ome,
+    quad_ker,
 )
-from eko.basis_rotation import singlet_labels
+from eko.strong_coupling import StrongCoupling
+from eko.thresholds import ThresholdsAtlas
 
 
 def test_build_ome_as():

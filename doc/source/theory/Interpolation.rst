@@ -136,7 +136,7 @@ function is interpolated by approximating it with a **piecewise polynomial**.
 
    Then even interpolating on a bigger but different grid might cause a further
    approximation.
-   
+
    Indeed no polynomial is able to produce a discontinuity in the derivatives,
    thus if an old grid point falls in the middle of a new grid area an
    approximation is expected (that intuitevely it would happen only if the grid

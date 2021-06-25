@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from eko.kernels import evolution_integrals as ei
 from eko import beta
+from eko.kernels import evolution_integrals as ei
 
 
 def test_zero():

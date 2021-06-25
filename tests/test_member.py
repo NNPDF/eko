@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from numpy.testing import assert_almost_equal
 import pytest
+from numpy.testing import assert_almost_equal
 
-from eko.member import OpMember, OperatorBase, MemberName, ScalarOperator
+from eko.member import MemberName, OperatorBase, OpMember, ScalarOperator
 
 
 def mkOM(shape):

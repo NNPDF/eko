@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-import pytest
 import numpy as np
+import pytest
 
-from eko.kernels import non_singlet as ns
 from eko import beta
+from eko.kernels import non_singlet as ns
 
 methods = [
     "iterate-expanded",

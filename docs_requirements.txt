@@ -1,3 +1,0 @@
-# file to be used by `pip install -r`
-sphinx_rtd_theme
-sphinxcontrib-bibtex

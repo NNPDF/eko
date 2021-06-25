@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: skip-file
 import numpy as np
-
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 

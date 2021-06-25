@@ -2,23 +2,22 @@
 """
 Abstract layer for running the benchmarks
 """
-import os
-import logging
-import sys
 import functools
+import logging
+import os
+import sys
 
 import numpy as np
 import pandas as pd
-
-from banana.data import dfdict
 from banana.benchmark.runner import BenchmarkRunner
+from banana.data import dfdict
 
 import eko
 from eko import basis_rotation as br
 
-from ..banana_cfg import banana_cfg
-from ..data import operators, db
 from .. import pdfname
+from ..banana_cfg import banana_cfg
+from ..data import db, operators
 
 
 class Runner(BenchmarkRunner):

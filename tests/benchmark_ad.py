@@ -2,9 +2,9 @@
 """Benchmark the NLO anomalous dimensions against PEGASUS"""
 import numpy as np
 
-from eko.constants import CA, CF, TR
-import eko.anomalous_dimensions.nlo as ad_nlo
 import eko.anomalous_dimensions.harmonics as h
+import eko.anomalous_dimensions.nlo as ad_nlo
+from eko.constants import CA, CF, TR
 
 
 def benchmark_melling_g3_pegasus():

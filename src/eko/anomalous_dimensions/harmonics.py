@@ -5,9 +5,9 @@ Implements higher mathematical functions.
 The functions are discribed in :doc:`Mellin space </theory/Mellin>`.
 """
 
+import numba as nb
 import numpy as np
 import scipy.special
-import numba as nb
 
 # compute constants only once
 zeta2 = scipy.special.zeta(2)

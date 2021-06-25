@@ -6,8 +6,8 @@
 import numpy as np
 import pytest
 
-from eko.strong_coupling import StrongCoupling
 from eko import thresholds
+from eko.strong_coupling import StrongCoupling
 
 
 class TestStrongCoupling:

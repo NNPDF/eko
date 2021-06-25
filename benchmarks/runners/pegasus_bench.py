@@ -3,9 +3,7 @@
 Benchmark to Pegasus :cite:`Vogt:2004ns`
 """
 import numpy as np
-
 from banana.data import cartesian_product
-
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
@@ -49,7 +47,6 @@ class BenchmarkVFNS(PegasusBenchmark):
             # "EXP",
             # "ordered-truncated",
         ],
-
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,

@@ -17,14 +17,10 @@ terms of the anomalous dimensions (note the additional sign!)
     \gamma(N) = - \mathcal{M}[\mathbf{P}(x)](N)
 """
 
+import numba as nb
 import numpy as np
 
-import numba as nb
-
-from . import harmonics
-from . import lo
-from . import nlo
-from . import nnlo
+from . import harmonics, lo, nlo, nnlo
 
 
 @nb.njit("Tuple((c16[:,:],c16,c16,c16[:,:],c16[:,:]))(c16[:,:])", cache=True)

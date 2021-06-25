@@ -9,8 +9,8 @@ to evaluate the interpolator.
 import logging
 import math
 
-import numpy as np
 import numba as nb
+import numpy as np
 
 logger = logging.getLogger(__name__)
 

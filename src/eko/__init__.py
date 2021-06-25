@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import runner
-from . import output
+from . import output, runner
 
 
 def run_dglap(theory_card, operators_card):

@@ -2,17 +2,17 @@
 """
     This file contains the main application class of eko
 """
-import logging
 import copy
+import logging
 
 import numpy as np
 
+from . import basis_rotation as br
 from . import interpolation
+from .evolution_operator.grid import OperatorGrid
 from .output import Output
 from .strong_coupling import StrongCoupling
 from .thresholds import ThresholdsAtlas
-from .evolution_operator.grid import OperatorGrid
-from . import basis_rotation as br
 
 logger = logging.getLogger(__name__)
 
@@ -45,33 +45,33 @@ EE       KK KK   OO   OO
 EEEEEEE  KK  KK   OOOOO"""
 
     banner3 = r""" # Varsity
- ________  ___  ____    ___    
-|_   __  ||_  ||_  _| .'   `.  
-  | |_ \_|  | |_/ /  /  .-.  \ 
-  |  _| _   |  __'.  | |   | | 
- _| |__/ | _| |  \ \_\  `-'  / 
-|________||____||____|`.___.'  
+ ________  ___  ____    ___
+|_   __  ||_  ||_  _| .'   `.
+  | |_ \_|  | |_/ /  /  .-.  \
+  |  _| _   |  __'.  | |   | |
+ _| |__/ | _| |  \ \_\  `-'  /
+|________||____||____|`.___.'
 """
 
     banner4 = r""" # Georgia11
-`7MM\"""YMM  `7MMF' `YMM' .g8""8q.   
-  MM    `7    MM   .M' .dP'    `YM. 
-  MM   d      MM .d"   dM'      `MM 
-  MMmmMM      MMMMM.   MM        MM 
-  MM   Y  ,   MM  VMA  MM.      ,MP 
-  MM     ,M   MM   `MM.`Mb.    ,dP' 
-.JMMmmmmMMM .JMML.   MMb.`"bmmd"'   
+`7MM\"""YMM  `7MMF' `YMM' .g8""8q.
+  MM    `7    MM   .M' .dP'    `YM.
+  MM   d      MM .d"   dM'      `MM
+  MMmmMM      MMMMM.   MM        MM
+  MM   Y  ,   MM  VMA  MM.      ,MP
+  MM     ,M   MM   `MM.`Mb.    ,dP'
+.JMMmmmmMMM .JMML.   MMb.`"bmmd"'
 """
 
     # Roman
     banner5 = r"""
-oooooooooooo oooo    oooo  \\ .oooooo.   
-`888'     `8 `888   .8P'  //////    `Y8b  
- 888          888  d8'   \\o\/////    888 
- 888oooo8     88888[    \\\\/8/////   888 
- 888    "     888`88b.      888 ///   888 
- 888       o  888  `88b.    `88b //  d88' 
-o888ooooood8 o888o  o888o     `Y8bood8P'  
+oooooooooooo oooo    oooo  \\ .oooooo.
+`888'     `8 `888   .8P'  //////    `Y8b
+ 888          888  d8'   \\o\/////    888
+ 888oooo8     88888[    \\\\/8/////   888
+ 888    "     888`88b.      888 ///   888
+ 888       o  888  `88b.    `88b //  d88'
+o888ooooood8 o888o  o888o     `Y8bood8P'
 """
 
     def __init__(self, theory_card, operators_card):

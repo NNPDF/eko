@@ -20,7 +20,7 @@ and the equations to solve become
 
 .. math::
     \frac{d}{da_s} \tilde{\mathbf{f}}(a_s)
-        = \frac{d\ln(\mu_F^2)}{da_s} \cdot \frac{d \tilde{\mathbf{f}}(\mu_F^2)}{d\ln(\mu_F^2)} 
+        = \frac{d\ln(\mu_F^2)}{da_s} \cdot \frac{d \tilde{\mathbf{f}}(\mu_F^2)}{d\ln(\mu_F^2)}
         = -\frac{\gamma(a_s)}{\beta(a_s)} \cdot \tilde{\mathbf{f}}(a_s)
 
 This assumes the factorization scale :math:`\mu_F^2` (the inherit scale of the |PDF|) and the
@@ -48,7 +48,7 @@ Now, we can write the solution to |DGLAP| in a true matrix operator scheme and f
 .. math::
     \mathbf{f}(x_k,a_s) = {\mathbf{E}}_{k,j}(a_s \leftarrow a_s^0) \mathbf{f}(x_j,a_s^0)
 
-so the |EKO| is a rank-4 operator acting both in flavor and momentum fraction space. 
+so the |EKO| is a rank-4 operator acting both in flavor and momentum fraction space.
 
 The issue of matching conditions when crossing flavor thresholds is dicussed in a seperate :doc:`document <Matching>`
 
@@ -181,7 +181,7 @@ where the order of the product is such that later |EKO| are to the left and
 using the projector algebra from |LO| to exponentiate the single steps.
 
 - for ``method in ['decompose-exact', 'decompose-expanded']``: use the exact or the approximate exact
-  integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(1)}` - 
+  integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(1)}` -
   this will neglect the non-commutativity of the singlet matrices.
 
 - for ``method in ['perturbative-exact', 'perturbative-expanded', 'ordered-truncated', 'truncated']``
@@ -270,19 +270,19 @@ and:
     j^{(1,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} =  \frac{2}{\beta_0 \Delta} \delta \\
     j^{(0,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}(a_s,a_s^0) - b_2 j^{(2,2)}(a_s,a_s^0)
 
-Note, plugging the numerical values of :math:`\beta_i` we find that the :math:`\Delta \in \mathbb{R}` if :math:`n_f < 6`. 
-However you can notice that :math:`\Delta` appears always with :math:`\delta` and the fraction :math:`\frac{\delta}{\Delta} \in  \mathbb{R}, \forall n_f`.  
+Note, plugging the numerical values of :math:`\beta_i` we find that the :math:`\Delta \in \mathbb{R}` if :math:`n_f < 6`.
+However you can notice that :math:`\Delta` appears always with :math:`\delta` and the fraction :math:`\frac{\delta}{\Delta} \in  \mathbb{R}, \forall n_f`.
 
 We can recover the |LO| solution:
 
 .. math::
     \ln \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \ln \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) + j^{(1,2)}(a_s,a_s^0)(\gamma^{(1)} - b_1 \gamma^{(0)}) + j^{(2,2)}(a_s,a_s^0)(\gamma^{(2)} - b_2 \gamma^{(0)})
 
-And thus the |NLO| solution: 
+And thus the |NLO| solution:
 
 .. math::
     \ln \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \ln \tilde E^{(1)}_{ns}(a_s \leftarrow a_s^0) + j^{(1,2)'}(a_s,a_s^0)(\gamma^{(1)} - b_1 \gamma^{(0)}) + j^{(2,2)}(a_s,a_s^0)(\gamma^{(2)} - b_2 \gamma^{(0)}) \\
-    j^{(1,2)'}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{ \beta_2 a_s'^2}{\beta_0 + \beta_1 a_s' + \beta_2 a_s'^2 ) (\beta_0 + \beta_1 a_s')} 
+    j^{(1,2)'}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{ \beta_2 a_s'^2}{\beta_0 + \beta_1 a_s' + \beta_2 a_s'^2 ) (\beta_0 + \beta_1 a_s')}
 
 In |NNLO| we provide different strategies to define the |EKO|:
 
@@ -295,23 +295,23 @@ In |NNLO| we provide different strategies to define the |EKO|:
     j^{(0,2)}(a_s,a_s^0) &\approx j^{(0,2)}_{exp}(a_s,a_s^0) &=  j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}_{exp}(a_s,a_s^0) - b_2 j^{(2,2)}_{exp}(a_s,a_s^0) \\
     & &= j^{(0,0)}(a_s,a_s^0)  - \frac{1}{\beta_0} [ b_1 (a_s - a_s^0) + \frac{b_1^2+b_2}{2} (a_s^2 - (a_s^0)^{2}) ] \\
 
-This method corresponds to ``IMODEV=2`` of :cite:`Vogt:2004ns`.  
+This method corresponds to ``IMODEV=2`` of :cite:`Vogt:2004ns`.
 
 - ``method = 'ordered-truncated'``: for this method we follow the prescription from :cite:`Vogt:2004ns` and we get:
 
 .. math::
-    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \frac{ 1 + a_s U_1 + a_s^2 U_2 }{ 1 + a_s^{(0)} U_1 + (a_s^0)^{2} U_2 }   
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \frac{ 1 + a_s U_1 + a_s^2 U_2 }{ 1 + a_s^{(0)} U_1 + (a_s^0)^{2} U_2 }
 
-with the unitary mtrices defined consistenly with the mthod ``pertubative`` adopted for NLO singlet evolution: 
+with the unitary mtrices defined consistenly with the mthod ``pertubative`` adopted for NLO singlet evolution:
 
 .. math::
     U_1 &= R_1 = \frac{1}{\beta_0}[ \gamma^{(1)} - b_1 \gamma^{(0)}] \\
     U_2 &= \frac{1}{2}[ R_1^2 + R_2 ] \\
     R_2 &= \gamma^{(2)}/\beta_0 - b_1 R_1 - b_2 R_0 \\
 
-This method corresponds to ``IMODEV=3`` of :cite:`Vogt:2004ns`.  
+This method corresponds to ``IMODEV=3`` of :cite:`Vogt:2004ns`.
 
-- ``method = 'truncated'``: we expand the *whole* exponential and keeping terms within :math:`\mathcal o(a_s^3)`. This method is the fastest among the ones provided by our program. We obtain: 
+- ``method = 'truncated'``: we expand the *whole* exponential and keeping terms within :math:`\mathcal o(a_s^3)`. This method is the fastest among the ones provided by our program. We obtain:
 
 .. math::
     \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \left [ 1 + U_1 (a_s - a_s^0) + a_s^2 U_2 - a_s a_s^{(0)} U_1^2 + (a_s^0)^{2} ( U_1^2 - U_2 ) \right]
@@ -338,7 +338,7 @@ In analogy to |NLO| we define the following strategies :
 All the procedure is identical to |NLO|, simply the beat function is now expanded until :math:`\mathcal o(a_s^4)`
 
 - for ``method in ['decompose-exact', 'decompose-expanded']``: use the exact or the approximate exact
-  integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(2)}` - 
+  integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(2)}` -
   this will neglect the non-commutativity of the singlet matrices.
 
 - for ``method in ['perturbative-exact', 'perturbative-expanded', 'ordered-truncated', 'truncated']``
@@ -352,20 +352,20 @@ Finding one additional term compared to |NLO|:
 
 .. math::
     \mathbf R_2 & = \gamma_{S}^{(2)}/\beta_0 - b_1 \mathbf R_1 - b_2 \mathbf R_0  \\
-    & = \frac{1}{\beta_0} [ \gamma_{S}^{(2)} - b_1 \gamma_{S}^{(1)} - \gamma_{S}^{(0)} ( b_2 - b_1^2 ) ] 
+    & = \frac{1}{\beta_0} [ \gamma_{S}^{(2)} - b_1 \gamma_{S}^{(1)} - \gamma_{S}^{(0)} ( b_2 - b_1^2 ) ]
 
 and for the higher coefficients
 
 - ``method = 'perturbative-exact'``: :math:`\mathbf R_k = - b_1 \mathbf R_{k-1} - b_2 \mathbf R_{k-1} \,\text{for}\,k>2`
 - ``method = 'perturbative-expanded'``: :math:`\mathbf R_k = 0\,\text{for}\,k>2`
 
-The solution ansatz becomes: 
+The solution ansatz becomes:
 
 .. math::
     \ESk{2}{a_s}{a_s^0} = \mathbf U (a_s) \ESk{0}{a_s}{a_s^0} {\mathbf U}^{-1} (a_s^0), \quad
     \mathbf U (a_s) = \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
 
-with: 
+with:
 
 .. math::
     [\mathbf U_2, \mathbf R_0] &= \mathbf R_2 + \mathbf R_1 \mathbf U_1 - 2 \mathbf U_2\\

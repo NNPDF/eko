@@ -15,7 +15,6 @@ import numpy as np
 from .. import constants
 from ..anomalous_dimensions import harmonics
 
-
 # Global variables
 zeta2 = harmonics.zeta2
 zeta3 = harmonics.zeta3

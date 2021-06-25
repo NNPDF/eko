@@ -1,0 +1,20 @@
+# file to be used by `pip install -r`
+
+# Development
+black
+isort
+pylint
+pre-commit
+
+# Documentation
+sphinx_rtd_theme
+sphinxcontrib-bibtex
+
+# Tests
+pylint
+pytest
+pytest-cov
+pytest-env
+packutil
+#
+-e benchmarks/
