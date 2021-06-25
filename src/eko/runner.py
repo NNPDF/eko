@@ -11,7 +11,7 @@ from . import interpolation
 from .output import Output
 from .strong_coupling import StrongCoupling
 from .thresholds import ThresholdsAtlas
-from .operator.grid import OperatorGrid
+from .evolution_operator.grid import OperatorGrid
 from . import basis_rotation as br
 
 logger = logging.getLogger(__name__)
@@ -118,7 +118,6 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         for final_scale, op in self.op_grid.compute().items():
             Q2grid[float(final_scale)] = op
         self.out["Q2grid"] = Q2grid
-
         # reshape xgrid
         inputgrid = (
             self.post_process["inputgrid"]

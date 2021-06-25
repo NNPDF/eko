@@ -15,6 +15,7 @@ theory_card = {
     "NfFF": 3,
     "ModEv": "EXA",
     "IC": 0,
+    "IB": 0,
     "mc": 1.0,
     "mb": 4.75,
     "mt": 173.0,
@@ -33,6 +34,7 @@ operators_card = {
     "debug_skip_non_singlet": True,
     "ev_op_max_order": 1,
     "ev_op_iterations": 1,
+    "backward_inversion": "exact",
 }
 
 

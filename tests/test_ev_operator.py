@@ -3,8 +3,8 @@
 import numpy as np
 import scipy.integrate
 
-from eko.operator import Operator, gamma_ns_fact, gamma_singlet_fact, quad_ker
-from eko.operator.grid import OperatorGrid
+from eko.evolution_operator import Operator, gamma_ns_fact, gamma_singlet_fact, quad_ker
+from eko.evolution_operator.grid import OperatorGrid
 from eko.thresholds import ThresholdsAtlas
 from eko.strong_coupling import StrongCoupling
 from eko.interpolation import InterpolatorDispatcher
@@ -155,6 +155,7 @@ class TestOperator:
             "FNS": "FFNS",
             "NfFF": 3,
             "IC": 0,
+            "IB": 0,
             "mc": 1.0,
             "mb": 4.75,
             "mt": 173.0,
@@ -173,6 +174,7 @@ class TestOperator:
             "debug_skip_non_singlet": False,
             "ev_op_max_order": 1,
             "ev_op_iterations": 1,
+            "backward_inversion": "exact",
         }
         g = OperatorGrid.from_dict(
             theory_card,

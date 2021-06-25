@@ -12,53 +12,55 @@ The classes are nested as follows:
     digraph G {
         bgcolor = transparent
 
-        node [shape=box]
-        OperatorGrid [label="OperatorGrid"];
-        test, test1, test2222, test3 [style=invis];
-        Operator [label="Operator" ];
-        PhysicalOperator [label="PhysicalOperator"];
+        node [shape=box];
         OpMember [label="OpMember"];
         ndarray [label="np.ndarray"];
+        MatchingCondition [label="MatchingCondition" ];
+        PhysicalOperator [label="PhysicalOperator"];
+        Operator [label="Operator" ];
+        OME [label="OME" ];
+        OperatorGrid [label="OperatorGrid"];
 
-        {rank=same OperatorGrid test test1, test2222, test3}
-        {rank=same Operator PhysicalOperator ndarray}
-
-        OperatorGrid -> Operator [weight=1000];
+        OperatorGrid -> Operator;
+        OperatorGrid -> OME;
+        Operator -> PhysicalOperator [weight=100,style=dashed];
+        PhysicalOperator -> ndarray [style=dashed];
+        OME -> MatchingCondition [weight=100,style=dashed];
+        MatchingCondition -> ndarray [style=dashed];
         Operator -> OpMember;
-        Operator -> PhysicalOperator [style=dashed len=10];
-        PhysicalOperator -> ndarray [style=dashed len=10];
-        PhysicalOperator -> OpMember
-        OperatorGrid -> test -> test1 -> test2222 -> test3 [style=invis];
-        test1 -> PhysicalOperator [weight=1000 style=invis];
-        test3 -> ndarray [weight=1000 style=invis];
+        OpMember -> PhysicalOperator [dir=back];
+        OME -> OpMember;
+        OpMember -> MatchingCondition [dir=back];
+
+        OperatorGrid -> OpMember -> ndarray [style=invis];
     }
 
-- :class:`~eko.operator.grid.OperatorGrid`
+- :class:`~eko.evolution_operator.grid.OperatorGrid`
 
-    * this is the master class which administrates all operator tasks
-    * it is instantiated once for each run
-    * it holds all necessary :doc:`configurations </code/IO>`
-    * it holds all necessary instances of the :doc:`/code/Utilities`
+    * is the master class which administrates all operator tasks
+    * is instantiated once for each run
+    * holds all necessary :doc:`configurations </code/IO>`
+    * holds all necessary instances of the :doc:`/code/Utilities`
 
-- :class:`~eko.operator.Operator`
+- :class:`~eko.evolution_operator.Operator`
 
-    * this represents a configuration for a fixed final scale :math:`Q_1^2`
-    * this performs the actual :doc:`computation </theory/DGLAP>`
-    * this uses the 3-dimensional :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
-    * its :class:`~eko.operator.member.OpMember` are only valid in the current
+    * represents a configuration for a fixed final scale :math:`Q_1^2`
+    * performs the actual :doc:`computation </theory/DGLAP>`
+    * uses the 3-dimensional :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
+    * its :class:`~eko.member.OpMember` are only valid in the current
       threshold area
 
-- :class:`~eko.operator.physical.PhysicalOperator`
+- :class:`~eko.evolution_operator.physical.PhysicalOperator`
 
-    * this is the connection of the :class:`~eko.operator.Operator`
+    * is the connection of the :class:`~eko.evolution_operator.Operator`
       between the different flavor bases
-    * it is initialized with the 3-dimensional :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
-    * it does recombine the operator in the :ref:`theory/FlavorSpace:Operator Evolution Basis`
+    * is initialized with the 3-dimensional :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
+    * does recombine the operator in the :ref:`theory/FlavorSpace:Operator Intrinsic Evolution Basis`
       (see :doc:`Matching Conditions </theory/Matching>`)
-    * it exports the operators to :ref:`theory/FlavorSpace:Operator Flavor Basis` in a :class:`~numpy.ndarray`
+    * exports the operators to :ref:`theory/FlavorSpace:Operator Flavor Basis` in a :class:`~numpy.ndarray`
 
-- :class:`~eko.operator.member.OpMember`
+- :class:`~eko.member.OpMember`
 
-    * this represents a single operator in Mellin space for a given element of the :ref:`theory/FlavorSpace:Operator Bases`
-    * inside :class:`~eko.operator.Operator` they are in :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
-    * inside :class:`~eko.operator.physical.PhysicalOperator` they are in :ref:`theory/FlavorSpace:Operator Evolution Basis`
+    * represents a single operator in Mellin space for a given element of the :ref:`theory/FlavorSpace:Operator Bases`
+    * inside :class:`~eko.evolution_operator.Operator` they are in :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
+    * inside :class:`~eko.evolution_operator.physical.PhysicalOperator` they are in :ref:`theory/FlavorSpace:Operator Intrinsic Evolution Basis`

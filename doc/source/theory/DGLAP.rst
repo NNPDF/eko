@@ -38,7 +38,7 @@ we do not need to worry about neither matrices nor the path-ordering.
 
 Using :doc:`Interpolation <Interpolation>` on both the inital and final |PDF|, we can then discretize the
 |EKO| in x-space and define :math:`{\mathbf{E}}_{k,j}` (represented by
-:class:`~eko.operator.Operator`) by
+:class:`~eko.evolution_operator.Operator`) by
 
 .. math::
     {\mathbf{E}}_{k,j}(a_s \leftarrow a_s^0) = \mathcal{M}^{-1}\left[\tilde{\mathbf{E}}(a_s \leftarrow a_s^0)\tilde p_j\right](x_k)
@@ -378,4 +378,23 @@ So the strategies are:
 
 .. math::
     \ESk{2}{a_s}{a_s^0} &= \ESk{0}{a_s}{a_s^0} + a_s \mathbf U_1 \ESk{0}{a_s}{a_s^0} - a_s^0 \ESk{0}{a_s}{a_s^0} \mathbf U_1 \\
-    &+ a_s^2 \mathbf U_2 \ESk{0}{a_s}{a_s^0} + a_s a_s^0 \mathbf U_1 \ESk{0}{a_s}{a_s^0} \mathbf U_1 - (a_s^0)^{2} \ESk{0}{a_s}{a_s^0} ( \mathbf U_1^2 - U_2 )    
+    &\hspace{20pt} + a_s^2 \mathbf U_2 \ESk{0}{a_s}{a_s^0} \\
+    &\hspace{20pt} + a_s a_s^0 \mathbf U_1 \ESk{0}{a_s}{a_s^0} \mathbf U_1 \\
+    &\hspace{20pt}- (a_s^0)^{2} \ESk{0}{a_s}{a_s^0} ( \mathbf U_1^2 - \mathbf U_2 )
+
+
+Intrinsic evolution
+-------------------
+
+We also consider the evolution of intrinsic heavy |PDF|. Since these are massive partons they can not
+split any collinear particles and thus they do not participate in the |DGLAP| evolution. Instead, their
+evolution is simpliy an indentiy operation: e.g. for an intrinsic charm distribution we get for
+:math:`m_c^2 > Q_1^2 > Q_0^2`:
+
+.. math ::
+    \tilde c(Q_1^2) &= \tilde c(Q_0^2)\\
+    \tilde {\bar c}(Q_1^2) &= \tilde{\bar c}(Q_0^2)
+
+After :doc:`crossing the mass threshold </theory/Matching>` (charm in this example) the |PDF| can not be considered intrinsic
+any longer and hence, they have to be rejoined with their evolution basis elements and take then again
+part in the ordinary collinear evolution.

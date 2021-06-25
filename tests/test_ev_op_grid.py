@@ -11,7 +11,7 @@ import numpy as np
 import eko.interpolation as interpolation
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
-from eko.operator.grid import OperatorGrid
+from eko.evolution_operator.grid import OperatorGrid
 
 
 class TestOperatorGrid:
@@ -23,18 +23,19 @@ class TestOperatorGrid:
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
             "nfref": None,
-            "Q0": np.sqrt(2),
+            "Q0": np.sqrt(100),
             "FNS": "FFNS",
             "NfFF": 3,
             "IC": 1,
+            "IB": 1,
             "mc": 2.0,
             "mb": 4.0,
-            "mt": 100.0,
+            "mt": 105.0,
             "MaxNfPdf": 6,
             "MaxNfAs": 6,
         }
         operators_card = {
-            "Q2grid": [1, 10],
+            "Q2grid": [1, 100 ** 2],
             "interpolation_xgrid": [0.1, 1.0],
             "interpolation_polynomial_degree": 1,
             "interpolation_is_log": True,
@@ -42,6 +43,7 @@ class TestOperatorGrid:
             "debug_skip_non_singlet": False,
             "ev_op_max_order": 1,
             "ev_op_iterations": 1,
+            "backward_inversion": "exact",
         }
         if use_FFNS:
             theory_card["FNS"] = "FFNS"
@@ -104,6 +106,6 @@ class TestOperatorGrid:
     def test_grid_computation_VFNS(self):
         """Checks that the grid can be computed"""
         opgrid = self._get_operator_grid(False)
-        qgrid_check = [3, 5]
+        qgrid_check = [3, 5, 200 ** 2]
         operators = opgrid.compute(qgrid_check)
         assert len(operators) == len(qgrid_check)

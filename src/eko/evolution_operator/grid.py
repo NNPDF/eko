@@ -11,7 +11,8 @@ import numbers
 
 import numpy as np
 
-from eko import matching_conditions
+from eko import matching_conditions, member
+from eko.evolution_operator import flavors
 
 from . import Operator
 from . import physical
@@ -30,6 +31,8 @@ class OperatorGrid:
 
     Parameters
     ----------
+        config: dict
+            configuration dictionary
         q2_grid: array
             Grid in Q2 on where to to compute the operators
         order: int
@@ -69,6 +72,7 @@ class OperatorGrid:
             raise ValueError(f"Unknown evolution mode {method}")
         if order == 0 and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")
+
         self.config = config
         self.q2_grid = q2_grid
         self.managers = dict(
@@ -77,7 +81,7 @@ class OperatorGrid:
             interpol_dispatcher=interpol_dispatcher,
         )
         self._threshold_operators = {}
-        self.ome_members = {}
+        self._matching_operators = {}
 
     @classmethod
     def from_dict(
@@ -117,6 +121,7 @@ class OperatorGrid:
         }
         method = mod_ev2method.get(method, method)
         config["method"] = method
+        config["backward_inversion"] = operators_card["backward_inversion"]
         config["fact_to_ren"] = (theory_card["fact_to_ren_scale_ratio"]) ** 2
         config["ev_op_max_order"] = operators_card["ev_op_max_order"]
         config["ev_op_iterations"] = operators_card["ev_op_iterations"]
@@ -126,7 +131,11 @@ class OperatorGrid:
         intrinsic_range = []
         if int(theory_card["IC"]) == 1:
             intrinsic_range.append(4)
+        if int(theory_card["IB"]) == 1:
+            intrinsic_range.append(5)
         config["intrinsic_range"] = intrinsic_range
+        for hq in flavors.quark_names[3:]:
+            config[f"m{hq}"] = theory_card[f"m{hq}"]
         return cls(
             config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher
         )
@@ -143,15 +152,21 @@ class OperatorGrid:
         The internal dictionary is self._threshold_operators and its structure is:
         (q2_from, q2_to) -> eko.operators.Operator
 
+        It computes and stores the necessary macthing operators
         Parameters
         ----------
             path: list(PathSegment)
                 thresholds path
+
+        Returns
+        -------
+            thr_ops: list(eko.evolution_operator.Operator)
         """
         # The base area is always that of the reference q
         thr_ops = []
         for seg in path[:-1]:
             new_op_key = seg.tuple
+            ome = OperatorMatrixElement(self.config, self.managers, seg.is_backward)
             if new_op_key not in self._threshold_operators:
                 # Compute the operator and store it
                 logger.info("Prepare threshold operator")
@@ -161,6 +176,14 @@ class OperatorGrid:
                 op_th.compute()
                 self._threshold_operators[new_op_key] = op_th
             thr_ops.append(self._threshold_operators[new_op_key])
+
+            # Compute the matching conditions and store it
+            if seg.q2_to not in self._matching_operators:
+                # is_backawd point to the smaller q2
+                shift = 3 if not seg.is_backward else 4
+                kthr = self.managers["thresholds_config"].thresholds_ratios[seg.nf-shift]
+                ome.compute(seg.q2_to, np.log(kthr) )
+                self._matching_operators[seg.q2_to] = ome.ome_members
         return thr_ops
 
     def compute(self, q2grid=None):
@@ -189,14 +212,6 @@ class OperatorGrid:
             grid_return[q2] = self.generate(q2)
         return grid_return
 
-    def compute_matching_coeffs(self):
-        """
-        Compute the operator matrix elements for the non-trivial matching conditions
-        """
-        ome = OperatorMatrixElement(self.config, self.managers)
-        ome.compute()
-        self.ome_members = ome.ome_members
-
     def generate(self, q2):
         """
         Computes an single EKO.
@@ -215,31 +230,51 @@ class OperatorGrid:
         path = self.managers["thresholds_config"].path(q2)
         # Prepare the path for the composition of the operator
         thr_ops = self.get_threshold_operators(path)
-        # integrate matching conditions
-        if len(path) > 1 and len(self.ome_members) == 0:
-            self.compute_matching_coeffs()
-        sc = self.managers["strong_coupling"]
         # we start composing with the highest operator ...
         operator = Operator(
             self.config, self.managers, path[-1].nf, path[-1].q2_from, path[-1].q2_to
         )
         operator.compute()
+        intrinsic_range = self.config["intrinsic_range"]
+        if path[-1].is_backward:
+            intrinsic_range = [4, 5, 6]
         final_op = physical.PhysicalOperator.ad_to_evol_map(
             operator.op_members,
             operator.nf,
             operator.q2_to,
-            self.config["intrinsic_range"],
+            intrinsic_range,
         )
+
         # and multiply the lower ones from the right
-        for op in reversed(thr_ops):
+        for i, op in reversed(list(enumerate(thr_ops))):
+            is_backward = path[i].is_backward
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
-                op.op_members, op.nf, op.q2_to, self.config["intrinsic_range"]
+                op.op_members, op.nf, op.q2_to, intrinsic_range
             )
-            a_s = sc.a_s(op.q2_to / self.config["fact_to_ren"], op.q2_to)
-            matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
-                self.ome_members, op.nf, op.q2_to, a_s
-            )
-            final_op = final_op @ matching @ phys_op
+
+            # join with the basis rotation, since matching requires c+ (or likewise)
+            if is_backward:
+                matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
+                    self._matching_operators[op.q2_to],
+                    op.nf - 1,
+                    op.q2_to,
+                    intrinsic_range=intrinsic_range,
+                )
+                invrot = member.ScalarOperator.promote_names(
+                    flavors.rotate_matching_inverse(op.nf), op.q2_to
+                )
+                final_op = final_op @ matching @ invrot @ phys_op
+            else:
+                matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
+                    self._matching_operators[op.q2_to],
+                    op.nf,
+                    op.q2_to,
+                    intrinsic_range=intrinsic_range,
+                )
+                rot = member.ScalarOperator.promote_names(
+                    flavors.rotate_matching(op.nf + 1), op.q2_to
+                )
+                final_op = final_op @ rot @ matching @ phys_op
 
         values, errors = final_op.to_flavor_basis_tensor()
         return {"operators": values, "operator_errors": errors}

@@ -22,4 +22,4 @@ class Operator(Base):  # pylint: disable=too-few-public-methods
     debug_skip_singlet = Column(Boolean)
     ev_op_max_order = Column(Integer)
     ev_op_iterations = Column(Integer)
-    operators = Column(Text)
+    Q2grid = Column(Text)

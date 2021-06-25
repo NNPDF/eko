@@ -16,16 +16,22 @@ class TestMatchingCondition:
     shape = (2, 2)
 
     def mkOME(self):
-        ns = mkOM(self.shape)
-        qq = mkOM(self.shape)
-        qg = mkOM(self.shape)
-        gq = mkOM(self.shape)
-        gg = mkOM(self.shape)
-        return dict(NS=ns, S_qq=qq, S_qg=qg, S_gq=gq, S_gg=gg)
+        ome = {}
+        for key in ["qq", "qg", "gq", "gg", "Hq", "Hg"]:
+            ome.update({f"S_{key}": mkOM(self.shape)})
+            if "g" not in key:
+                ome.update({f"NS_{key}": mkOM(self.shape)})
+        return ome
+
+    def update_intrinsic_OME(self, ome):
+        for key in ["HH", "qH", "gH"]:
+            ome.update({f"S_{key}": mkOM(self.shape)})
+            if "g" not in key:
+                ome.update({f"NS_{key}": mkOM(self.shape)})
 
     def test_split_ad_to_evol_map(self):
         ome = self.mkOME()
-        a = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, 1)
+        a = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [])
         triv_keys = [
             "V.V",
             "T3.T3",
@@ -39,45 +45,38 @@ class TestMatchingCondition:
         ]
         # nf = 3
         keys3 = [
-            "T15.S",
-            "T15.g",
-            "V15.V",
+            "c+.S",
+            "c+.g",
+            "c-.V",
         ]
         assert sorted([str(k) for k in a.op_members.keys()]) == sorted(
             [*triv_keys, *keys3]
         )
         assert_almost_equal(
             a.op_members[member.MemberName("V.V")].value,
-            np.eye(self.shape[0]) + ome["NS"].value,
+            ome["NS_qq"].value,
         )
-        # if alpha is zero, nothing non-trivial should happen
-        b = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, 0)
+        # # if alpha is zero, nothing non-trivial should happen
+        b = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [])
         assert sorted([str(k) for k in b.op_members.keys()]) == sorted(
             [*triv_keys, *keys3]
         )
-        assert_almost_equal(
-            b.op_members[member.MemberName("V.V")].value,
-            np.eye(self.shape[0]),
-        )
+        # assert_almost_equal(
+        #     b.op_members[member.MemberName("V.V")].value,
+        #     np.eye(self.shape[0]),
+        # )
         # nf=3 + IC
-        c = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, 0, [4])
+        self.update_intrinsic_OME(ome)
+        c = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [4])
         assert sorted([str(k) for k in c.op_members.keys()]) == sorted(
-            [*triv_keys, *keys3, "T15.c+", "V15.c-"]
+            [*triv_keys, *keys3, "g.c+", "c+.c+", "c-.c-"]
         )
         assert_almost_equal(
             c.op_members[member.MemberName("V.V")].value,
             b.op_members[member.MemberName("V.V")].value,
         )
-        assert_almost_equal(
-            c.op_members[member.MemberName("T15.c+")].value,
-            -3.0 * np.eye(self.shape[0]),
-        )
-        assert_almost_equal(
-            c.op_members[member.MemberName("V15.c-")].value,
-            -3.0 * np.eye(self.shape[0]),
-        )
         # nf=3 + IB
-        d = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, 0, [5])
+        d = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [5])
         assert sorted([str(k) for k in d.op_members.keys()]) == sorted(
             [*triv_keys, *keys3, "b+.b+", "b-.b-"]
         )
@@ -86,17 +85,20 @@ class TestMatchingCondition:
             np.eye(self.shape[0]),
         )
         # nf=4 + IB
-        d = MatchingCondition.split_ad_to_evol_map(ome, 4, 1, 1, [5])
+        d = MatchingCondition.split_ad_to_evol_map(ome, 4, 1, [5])
         assert sorted([str(k) for k in d.op_members.keys()]) == sorted(
             [
                 *triv_keys,
                 "T15.T15",
                 "V15.V15",
-                "T24.S",
-                "T24.g",
-                "V24.V",
-                "T24.b+",
-                "V24.b-",
+                # "S.b+",
+                "g.b+",
+                # "V.b-",
+                "b+.S",
+                "b+.g",
+                "b+.b+",
+                "b-.V",
+                "b-.b-",
             ]
         )
         assert_almost_equal(
@@ -104,22 +106,14 @@ class TestMatchingCondition:
             a.op_members[member.MemberName("V.V")].value,
         )
         assert_almost_equal(
-            d.op_members[member.MemberName("T24.b+")].value,
-            -4.0 * np.eye(self.shape[0]),
+            d.op_members[member.MemberName("b-.V")].value,
+            ome["NS_Hq"].value,
         )
         assert_almost_equal(
-            d.op_members[member.MemberName("V24.b-")].value,
-            -4.0 * np.eye(self.shape[0]),
+            d.op_members[member.MemberName("b+.S")].value,
+            ome["S_Hq"].value,
         )
         assert_almost_equal(
-            d.op_members[member.MemberName("V24.V")].value,
-            np.eye(self.shape[0]) + ome["NS"].value,
-        )
-        assert_almost_equal(
-            d.op_members[member.MemberName("T24.S")].value,
-            np.eye(self.shape[0]) + ome["NS"].value - 4.0 * ome["S_qq"].value,
-        )
-        assert_almost_equal(
-            d.op_members[member.MemberName("T24.g")].value,
-            -4.0 * ome["S_qg"].value,
+            d.op_members[member.MemberName("b+.g")].value,
+            ome["S_Hg"].value,
         )

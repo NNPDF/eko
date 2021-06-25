@@ -80,11 +80,11 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             + f"{'log' if op['interpolation_is_log'] else 'x'}"
             + f"^{op['interpolation_polynomial_degree']}"
         )
-
-        obj["debug_skip_non_singlet"] = op["debug_skip_non_singlet"]
-        obj["ev_op_max_order"] = op["ev_op_max_order"]
-        obj["ev_op_iterations"] = op["ev_op_iterations"]
-        #  obj["Q2grid"] = op["Q2grid"]
+        obj["Q2grid"] = op["Q2grid"]
+        obj["max_ord"] = op["ev_op_max_order"]
+        obj["iters"] = op["ev_op_iterations"]
+        obj["skip_ns"] = op["debug_skip_non_singlet"]
+        obj["skip_s"] = op["debug_skip_singlet"]
 
     def fill_cache(self, cac, obj):
         """

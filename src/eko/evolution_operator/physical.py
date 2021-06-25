@@ -25,7 +25,7 @@ class PhysicalOperator(member.OperatorBase):
     """
 
     @classmethod
-    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range=None):
+    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range):
         """
         Obtain map between the 3-dimensional anomalous dimension basis and the
         4-dimensional evolution basis.
@@ -62,27 +62,21 @@ class PhysicalOperator(member.OperatorBase):
         # deal with intrinsic heavy quark pdfs
         if intrinsic_range is not None:
             hqfl = "cbt"
+            op_id = member.OpMember.id_like(op_members["NS_v"])
             for intr_fl in intrinsic_range:
                 if intr_fl <= nf:  # light quarks are not intrinsic
                     continue
                 hq = hqfl[intr_fl - 4]  # find name
                 # intrinsic means no evolution, i.e. they are evolving with the identity
-                len_xgrid = op_members["NS_v"].value.shape[0]
-                op_id = member.OpMember(
-                    np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid))
-                )
-                m[f"{hq}+.{hq}+"] = op_id
-                m[f"{hq}-.{hq}-"] = op_id
+                m[f"{hq}+.{hq}+"] = op_id.copy()
+                m[f"{hq}-.{hq}-"] = op_id.copy()
         # map key to MemberName
-        opms = {}
-        for k, v in m.items():
-            opms[member.MemberName(k)] = v.copy()
-        return cls(opms, q2_final)
+        return cls.promote_names(m, q2_final)
 
     def to_flavor_basis_tensor(self):
         """
         Convert the computations into an rank 4 tensor over flavor operator space and
-        momentum fraction operator space
+        momentum fraction operator space.
 
         Returns
         -------
@@ -114,56 +108,3 @@ class PhysicalOperator(member.OperatorBase):
                         :,  # input momentum fraction
                     ] += out_weight * (op.error * in_weight)
         return value_tensor, error_tensor
-
-    def __rmatmul__(self, other):
-        """
-        Multiply ``other`` to self.
-
-        Parameters
-        ----------
-            other : OperatorBase
-                second factor with a lower initial scale
-
-        Returns
-        -------
-            p : PhysicalOperator
-                self @ other
-        """
-        if not isinstance(other, member.OperatorBase):
-            raise ValueError("Can only multiply with another OperatorBase")
-        return self.__class__(self.operator_multiply(other, self), self.q2_final)
-
-    def __matmul__(self, other):
-        """
-        Multiply ``other`` to self.
-
-        Parameters
-        ----------
-            other : OperatorBase
-                second factor with a lower initial scale
-
-        Returns
-        -------
-            p : PhysicalOperator
-                self @ other
-        """
-        if not isinstance(other, member.OperatorBase):
-            raise ValueError("Can only multiply with another OperatorBase")
-        return self.__class__(self.operator_multiply(self, other), self.q2_final)
-
-    @staticmethod
-    def operator_multiply(left, right):
-        # prepare paths
-        new_oms = {}
-        for l_key, l_op in left.op_members.items():
-            for r_key, r_op in right.op_members.items():
-                # ops match?
-                if l_key.input != r_key.target:
-                    continue
-                new_key = member.MemberName(l_key.target + "." + r_key.input)
-                # new?
-                if new_key not in new_oms:
-                    new_oms[new_key] = l_op @ r_op
-                else:  # add element
-                    new_oms[new_key] += l_op @ r_op
-        return new_oms

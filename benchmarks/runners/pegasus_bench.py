@@ -35,7 +35,7 @@ class PegasusBenchmark(Runner):
     @staticmethod
     def skip_pdfs(_theory):
         # pdf to skip
-        return [22, -6, 6, "ph", "T35", "V35"]
+        return [22, "ph", "T35", "V35"]
 
 
 class BenchmarkVFNS(PegasusBenchmark):
@@ -49,6 +49,7 @@ class BenchmarkVFNS(PegasusBenchmark):
             # "EXP",
             # "ordered-truncated",
         ],
+
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
@@ -96,8 +97,8 @@ class BenchmarkFFNS(PegasusBenchmark):
             # "EXP",
             # "ordered-truncated",
         ],
-        "NfFF": 4,
-        "kcThr": 0.0,
+        "NfFF": 3,
+        "kcThr": np.inf,
         "kbThr": np.inf,
         "ktThr": np.inf,
         "Qref": np.sqrt(2.0),

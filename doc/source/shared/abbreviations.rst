@@ -1,6 +1,9 @@
 .. |EKO| replace::
    :abbr:`EKO (Evolution Kernel Operator)`
 
+.. |PDF| replace::
+   :abbr:`PDF (Parton Distribution Function(s))`
+
 .. FNS
 
 .. |FNS| replace::
@@ -32,13 +35,13 @@
 .. |DGLAP| replace::
    :abbr:`DGLAP (Dokshitzer-Gribov-Lipatov-Altarelli-Parisi)`
 
-.. |PDF| replace::
-   :abbr:`PDF (Parton Distribution Function(s))`
-
 .. data
 
 .. |pid| replace::
-   :abbr:`pid ((Monte Carlo) parton identifier)`
+   :abbr:`PID ((Monte Carlo) parton identifier)`
+
+.. |OME| replace::
+   :abbr:`OME (operator matrix element)`
 
 .. external
 
@@ -66,6 +69,10 @@
 .. |lhapdf| raw:: html
 
    <a href="https://lhapdf.hepforge.org/"><abbr title="LHAPDF">lhapdf</abbr></a>
+
+.. |QCDNUM| raw:: html
+
+   <a href="https://www.nikhef.nl/~h24/qcdnum/"><abbr title="Quantum ChromoDynamics NUM">QCDNUM</abbr></a>
 
 .. |T| raw:: html
 

@@ -242,6 +242,7 @@ mathjax3_config = {
         "macros": {
             # fncs
             "atan": [r"\text{atan}", 0],
+            "span": [r"\text{span}", 0],
             # texts
             "tLL": [r"\text{LL}", 0],
             # PDFs
@@ -253,15 +254,26 @@ mathjax3_config = {
             "dVj": [r"{\tilde{V}_{\!#1}^{(#2)}(#3)}", 3],
             "dTj": [r"{\tilde{T}_{\!#1}^{(#2)}(#3)}", 3],
             "dSVi": [
-                r"{{\begin{pmatrix}\tilde g\\\sum^{n_f} \tilde q^{+} \\\tilde h^{+}\end{pmatrix}}^{(#1)}\!(#2)}",
+                r"{{\begin{pmatrix}\tilde g\\ \tilde \Sigma_{(#1)} \\"
+                +r"\tilde h^{+}\end{pmatrix}}^{(#1)}\!(#2)}",
                 2,
             ],
             "dVi": [
-                r"{{\begin{pmatrix}\sum^{n_f} \tilde q^{-} \\\tilde h^{-}\end{pmatrix}}^{(#1)}\!(#2)}",
+                r"{{\begin{pmatrix} \tilde V_{(#1)} \\\tilde h^{-}\end{pmatrix}}^{(#1)}\!(#2)}",
+                2,
+            ],
+            "dSVip": [
+                r"{{\begin{pmatrix}\tilde g\\ \tilde \Sigma_{(#1)} \\"
+                +r"\tilde h^{+}\end{pmatrix}}^{(#1+1)}\!(#2)}",
+                2,
+            ],
+            "dVip": [
+                r"{{\begin{pmatrix} \tilde V_{(#1)} \\\tilde h^{-}\end{pmatrix}}^{(#1+1)}\!(#2)}",
                 2,
             ],
             "dSVe": [
-                r"{{\begin{pmatrix}\tilde g\\\tilde \Sigma\\\tilde T_{j}\end{pmatrix}}^{(#1)}\!(#2)}",
+                r"{{\begin{pmatrix}\tilde g\\\tilde \Sigma\\"
+                +r"\tilde T_{j}\end{pmatrix}}^{(#1)}\!(#2)}",
                 2,
             ],
             "dVe": [
@@ -301,9 +313,8 @@ def process_numba_docstring(
 
 # https://github.com/readthedocs/readthedocs.org/issues/1139#issuecomment-312626491
 def run_apidoc(_):
-    from sphinx.ext.apidoc import main
-    import os
-    import sys
+    from sphinx.ext.apidoc import main # pylint: disable=import-outside-toplevel
+    import sys # pylint: disable=import-outside-toplevel
 
     sys.path.append(str(here.parent))
     # 'eko'

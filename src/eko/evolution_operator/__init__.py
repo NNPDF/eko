@@ -307,6 +307,8 @@ class Operator:
             start_time = time.perf_counter()
             # iterate basis functions
             for l, bf in enumerate(int_disp):
+                if k == l and l == grid_size - 1:
+                    continue
                 # iterate sectors
                 for label in labels:
                     # compute and set

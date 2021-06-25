@@ -25,7 +25,7 @@ class TestPathSegment:
         assert s.index("3") > 0
 
 
-class TestThresholdsConfig:
+class TestThresholdsAtlas:
     def test_init(self):
         # 3 thr
         tc3 = ThresholdsAtlas([1, 2, 3])
@@ -37,6 +37,13 @@ class TestThresholdsConfig:
         # errors
         with pytest.raises(ValueError):
             ThresholdsAtlas([1.0, 0.0])
+
+    def test_repr(self):
+        walls = [1.23, 9.87, 14.54]
+        stc3 = str(ThresholdsAtlas(walls))
+
+        for w in walls:
+            assert "%.2e" % w in stc3
 
     def test_build_area_walls(self):
         for k in range(3, 6 + 1):
@@ -68,9 +75,9 @@ class TestThresholdsConfig:
 
     def test_ffns(self):
         tc3 = ThresholdsAtlas.ffns(3)
-        assert tc3.area_walls == [0] + [np.inf]
+        assert tc3.area_walls == [0] + [np.inf] * 4
         tc4 = ThresholdsAtlas.ffns(4)
-        assert tc4.area_walls == [0] * 2 + [np.inf]
+        assert tc4.area_walls == [0] * 2 + [np.inf] * 3
         assert len(tc4.path(q2_to=2.0, q2_from=3.0)) == 1
 
     def test_path_3thr(self):

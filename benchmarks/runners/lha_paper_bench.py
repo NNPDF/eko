@@ -11,6 +11,7 @@ base_theory = {
     "Q0": np.sqrt(
         2.0
     ),  # Eq. (30) :cite:`Giele:2002hx`, Eq. (4.53) :cite:`Dittmar:2005ed`
+    "nfref": 3,
     "mc": np.sqrt(
         2.0
     ),  # Eq. (34) :cite:`Giele:2002hx`, Eq. (4.56) :cite:`Dittmar:2005ed`
@@ -133,7 +134,7 @@ class BenchmarkVFNS(LHABenchmark):
     theory.update(
         {
             "FNS": "ZM-VFNS",  # ignored by eko, but needed by LHA_utils
-            "kcThr": 1.00001,  # need to start with Nf=3 so lift c_thr a bit up
+            "kcThr": 1.0,
             "kbThr": 1.0,
             "ktThr": 1.0,
         }
@@ -167,8 +168,8 @@ class BenchmarkFFNS(LHABenchmark):
 
 if __name__ == "__main__":
 
-    # obj = BenchmarkVFNS()
-    obj = BenchmarkFFNS()
+    obj = BenchmarkVFNS()
+    #obj = BenchmarkFFNS()
 
-    # obj.benchmark_plain(2)
-    obj.benchmark_sv(1)
+    obj.benchmark_plain(1)
+    #obj.benchmark_sv(1)

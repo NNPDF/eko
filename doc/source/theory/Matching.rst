@@ -1,235 +1,118 @@
 Matching Conditions on Crossing Thresholds
 ==========================================
 
-In a |VFNS| the `:doc:`evolution distributions <FlavorSpace> has to be matched across the mass thresholds provided by
-the :class:`~eko.thresholds.ThresholdsAtlas` class.
-We denote the solution of the :doc:`DGLAP equation <DGLAP>` in :doc:`Mellin space <Mellin>` as
+In a |VFNS| one considers several matching thresholds (as provided by the :class:`~eko.thresholds.ThresholdsAtlas`)
+where the number of active, light flavors that are participating in the :doc:`DGLAP equation <DGLAP>` changes
+by one unit: :math:`n_f \to n_f +1`. This means the distributions do not behave in the same matter above and below
+the threhsold: in esp. the new quark distributions :math:`q_{n_f+1}(x,\mu_F^2) = h(x,\mu_F^2)` and
+:math:`\overline h(x,\mu_F^2)` did not take part in the evolution below the threshold, but above they do.
+This mismatch in the evolution is accounted for by the *matching conditions*.
+
+In the following we will denote the number of active flavors by a supscript :math:`{}^{(n_f)}`.
+We denote the solution of the :doc:`DGLAP equation <DGLAP>` in a region with a *fixed* number of active flavors, i.e. *no* threshold
+present :math:`\left(\mu_{h}^2 < Q_0^2 < Q_1^2 < \mu_{h+1}^2\right)`, in :doc:`Mellin space <Mellin>` as
 
 .. math ::
-    \tilde{f_j}(Q^2_1)= \tilde E_{jk}(Q^2_1\leftarrow Q^2_0) \tilde{f_k}(Q^2_0)
+    \tilde{\mathbf{f}}^{(n_f)}(Q^2_1)= \tilde{\mathbf{E}}^{(n_f)}(Q^2_1\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
-For the singlet sector (:math:`\Sigma` and :math:`g`), we define the singlet evolution kernel matrix
+The bold font indicates the vector space spanned by the :doc:`flavor space <FlavorSpace>` and the equations decouple mostly
+in the :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution Bases>`.
 
-.. math ::
-    \ES{Q_1^2}{Q_0^2} = \begin{pmatrix}
-        \tilde E_{qq} & \tilde E_{qg}\\
-        \tilde E_{gq} & \tilde E_{gg}
-    \end{pmatrix}(Q_1^2\leftarrow Q_0^2)
-
-which is the only coupled system amongst the |DGLAP| equations.
-
-Next, we list the explicit matching conditions for the different evolution distributions up to |NNLO|.
-Note that the non-trivial matching of the discontinuities only enters at |NNLO| or higher orders and it is
-parametrized by operators multplying the different EKOs. These operators are unique and depends on the scale only
-through the couplig constant :math:`a_s`.
-If scale variations are active matching conditions on :math:`a_s` have to be applied, see :doc:`perturbative QCD <pQCD>`.
-
-
-Zero Thresholds
----------------
-
-Here, we consider :math:`\mu_{q}^2 < Q_0^2 < Q_1^2 < \mu_{q+1}^2` and we assume that
-:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavor. This configuration corresponds
-effectively to a |FFNS|.
-All distributions simply evolve with their associated operator.
-The singlet sector and the full valence distributions are given by
+If a single threshold :math:`\left(\mu_{h-1}^2 < Q_0^2 < \mu_{h}^2 < Q_1^2 < \mu_{h+1}^2\right)` is present
+we decompose the matching into two independet steps:
+first, the true QCD induced |OME| :math:`\mathbf{A}^{(n_f)}(\mu_{h}^2)` that are given by perturbative calculations,
+and, second, the necessary :doc:`flavor space rotation <FlavorSpace>` :math:`\mathbf{R}^{(n_f)}` to fit the
+new :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution Bases>`.
+We can then denote the solution as
 
 .. math ::
-        \dSV{n_f}{Q_1^2} &= \ES{Q^2_1}{Q_0^2} \dSV{n_f}{Q_0^2}\\
-        \dVf{n_f}{Q_1^2} &= \Ensv{Q^2_1}{Q_0^2} \dVf{n_f}{Q_0^2}
+    \tilde{\mathbf{f}}^{(n_f+1)}(Q^2_1)= \tilde{\mathbf{E}}^{(n_f+1)}(Q^2_1\leftarrow \mu_{h}^2) {\mathbf{R}^{(n_f)}} \tilde{\mathbf{A}}^{(n_f)}(\mu_{h}^2) \tilde{\mathbf{E}}^{(n_f)}(\mu_{h}^2\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
-If the valence-like/singlet-like non-singlet distributions are already active,
-they keep evolving from themselves:
-
-.. math ::
-    \dVj{j}{n_f}{Q_1^2} &= \Ensm{Q^2_1}{Q_0^2} \dVj{j}{n_f}{Q_0^2} \\
-    \dTj{j}{n_f}{Q_1^2} &= \Ensp{Q^2_1}{Q_0^2} \dTj{j}{n_f}{Q_0^2} \\
-     &\text{for }j=3,\ldots, n_f^2-1
-
-Otherwise, they are generated dynamically by the full valence distribution or the singlet
-sector respectively:
-
-.. math ::
-    \dVj{k}{n_f}{Q_1^2} &= \Ensv{Q^2_1}{Q_0^2} \dVf{n_f}{Q_0^2} \\
-    \dTj{k}{n_f}{Q_1^2} &= \left(1, 0\right)\ES{Q_1^2}{Q_0^2}\dSV{n_f}{Q_0^2} \\
-     &\text{for }k=(n_f+1)^2-1, \ldots, 35
-
-and making the distributions thus linearly dependent :math:`V_k = V, T_k = \Sigma`
-(as they should).
-
-One Threshold
--------------
-
-Here, we consider :math:`\mu_q^2 < Q_0^2 < \mu_{q+1}^2 < Q_1^2 < \mu_{q+2}^2` and we assume that
-:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavor.
-The singlet sector and the full valence distributions are given by
-
-.. math ::
-    \dSV{n_f+1}{Q_1^2}    &= \ES{Q^2_1}{m_{q+1}^2} M_{s}(m_{q+1}^2) \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
-    \dVj{j}{n_f+1}{Q_1^2} &= \Ensv{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensv{m_{q+1}^2}{Q^2_0} \dVf{n_f}{Q_0^2}
-
-with M being the operator matrix element of the matching: 
-
-.. math ::
-    M_{s}(m_{q+1}^2) &= \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} + a_s^2(m_{q+1}^2) \begin{pmatrix} A_{qq,H}^{ns,(2)} + A_{Hq}^{ps,(2)} &  A_{Hg}^{s,(2)} \\ A_{gq,H}^{s,(2)} & A_{gg,H}^{s,(2)} \end{pmatrix} \\
-    M_{ns}(m_{q+1}^2) &= 1 + a_s^2(m_{q+1}^2) A_{qq,H}^{ns,(2)} \\
-
-where the coefficients :math:`A^{x,(2)}_{i}` have been computed in :cite:`Buza_1998`.
-
-If the valence-like/singlet-like non-singlet distributions have already been active before
-the threshold, they keep evolving from themselves
-
-.. math ::
-    \dVj{j}{n_f+1}{Q_1^2} &= \Ensm{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensm{m_{q+1}^2}{Q_0^2} \dVj{j}{n_f}{Q_0^2}\\
-    \dTj{j}{n_f+1}{Q_1^2} &= \Ensp{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensp{m_{q+1}^2}{Q_0^2} \dTj{j}{n_f}{Q_0^2}\\
-     &\text{for }j=3,\ldots, n_f^2-1
+In the case of more than one threshold beeing present, the matching procedure is iterated on all thresholds.
 
 
-The two distributions which become active after crossing the threshold are generated
-dynamically up to the threshold and then set themselves apart:
-
-.. math ::
-    \dVj{j'}{n_f+1}{Q_1^2} &= \Ensm{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensv{m_{q+1}^2}{Q_0^2} \dVf{n_f}{Q_0^2} \\
-    \dTj{j'}{n_f+1}{Q_1^2} &= \Ensp{Q^2_1}{m_{q+1}^2} M_{ns,T}(m_{q+1}^2, n_f) \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
-    & \text{for }j'=(n_f+1)^2-1
-
-being
-
-.. math ::
-    M_{ns,T}(m_{q+1}^2, n_f) = \left( 1, 0 \right) + a_s^2(m_{q+1}^2) \left( A_{qq,H}^{ns,(2)} - n_f A_{Hq}^{ps,(2)}, - n_f A_{Hg}^{s,(2)} \right) 
-
-The remaining distributions are generated again purely dynamically:
-
-.. math ::
-    \dVj{k}{n_f+1}{Q_1^2} &= \Ensv{Q^2_1}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensv{m_{q+1}^2}{Q_0^2} \dVf{n_f}{Q_0^2} \\
-    \dTj{k}{n_f+1}{Q_1^2} &= \left(1, 0\right) \ES{Q_1^2}{m_{q+1}^2} M_{s}(m_{q+1}^2) \ES{m_{q+1}^2}{Q_0^2}\dSV{n_f}{Q_0^2} \\
-     & \text{for }k=(n_f+2)^2-1, \ldots, 35
-
-
-Two and Three Thresholds
+Operator Matrix Elements
 ------------------------
 
-In case more than one threshold scale is present the matching procedure is iterared on all diffrent scales starting form
-the lowest one.
-
-For instance if we connsired: :math:`\mu_q^2 < Q_0^2 < \mu_{q+1}^2 < \mu_{q+2}^2 < Q_1^2 < \mu_{q+3}^2` and we assume that
-:math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavor, the singlet sector and the full valence distributions 
-are given by
-
-.. math ::
-    \dSV{n_f+2}{Q_1^2} = & \ES{Q^2_1}{m_{q+2}^2} M_{s}(m_{q+2}^2) \\
-                        & \ES{m_{q+2}^2}{m_{q+1}^2} M_{s}(m_{q+1}^2) \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
-    \dVj{j}{n_f+2}{Q_1^2} = & \Ensv{Q^2_1}{m_{q+2}^2} M_{ns}(m_{q+2}^2) \\
-                        & \Ensv{m_{q+2}^2}{m_{q+1}^2} M_{ns}(m_{q+1}^2) \Ensv{m_{q+1}^2}{Q^2_0} \dVf{n_f}{Q_0^2}
-
-The other pdfs can be obtained in a similar way.
-
-..
-    Two Thresholds
-    --------------
-
-    Here, we consider :math:`\mu_q^2 < Q_0^2 < \mu_{q+1}^2 < \mu_{q+2}^2 < Q_1^2 < \mu_{q+3}^2` and we assume that
-    :math:`\mu_q` is the matching threshold of the :math:`n_f`-th flavor.
-    The singlet sector and the full valence distributions are given by
-
-    .. math ::
-    \dSV{n_f+2}{Q_1^2}    &= \ES{Q^2_1}{m_{q+2}^2} \ES{m_{q+2}^2}{m_{q+1}^2} \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
-    \dVj{j}{n_f+2}{Q_1^2} &= \Ensv{Q^2_1}{m_{q+2}^2} \Ensv{m_{q+2}^2}{m_{q+1}^2} \Ensv{m_{q+1}^2}{Q^2_0} \dVf{n_f}{Q_0^2}
-
-    If the valence-like/singlet-like non-singlet distributions have already been active before
-    the threshold, they keep evolving from themselves
-
-    .. math ::
-    \dVj{j}{n_f+2}{Q_1^2} &= \Ensm{Q^2_1}{m_{q+2}^2}\Ensm{m_{q+2}^2}{m_{q+1}^2}\Ensm{m_{q+1}^2}{Q_0^2} \dVj{j}{n_f}{Q_0^2}\\
-    \dTj{j}{n_f+2}{Q_1^2} &= \Ensp{Q^2_1}{m_{q+2}^2}\Ensp{m_{q+2}^2}{m_{q+1}^2}\Ensp{m_{q+1}^2}{Q_0^2} \dTj{j}{n_f}{Q_0^2}\\
-     &\text{for }j=3,\ldots, n_f^2-1
-
-    The two distributions which become active after crossing the *first* threshold are generated
-    dynamically up to the first threshold and then set themselves apart:
-
-    .. math ::
-    \dVj{j'}{n_f+2}{Q_1^2} &= \Ensm{Q^2_1}{m_{q+2}^2}\Ensm{m_{q+2}^2}{m_{q+1}^2}\Ensv{m_{q+1}^2}{Q_0^2} \dVf{n_f}{Q_0^2} \\
-    \dTj{j'}{n_f+2}{Q_1^2} &= \Ensp{Q^2_1}{m_{q+2}^2}\Ensp{m_{q+2}^2}{m_{q+1}^2}\left(1,0\right)\ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
-     & \text{for }j'=(n_f+1)^2-1
-
-    The two distributions which become active after crossing the *second* threshold are generated
-    dynamically up to the second threshold and then set themselves apart:
-
-    .. math ::
-    \dVj{j''}{n_f+2}{Q_1^2} &= \Ensm{Q^2_1}{m_{q+2}^2}\Ensv{m_{q+2}^2}{m_{q+1}^2}\Ensv{m_{q+1}^2}{Q_0^2} \dVf{n_f}{Q_0^2} \\
-    \dTj{j''}{n_f+2}{Q_1^2} &= \Ensp{Q^2_1}{m_{q+2}^2}\left(1,0\right)\ES{m_{q+2}^2}{m_{q+1}^2} \ES{m_{q+1}^2}{Q_0^2} \dSV{n_f}{Q_0^2} \\
-     & \text{for }j''=(n_f+2)^2-1
-
-    If there is a distributions remaining it is generated again purely dynamically:
-
-    .. math ::
-    \dVj{k}{n_f+2}{Q_1^2} &= \Ensv{Q^2_1}{m_{q+2}^2}\Ensv{m_{q+2}^2}{m_{q+1}^2}\Ensv{m_{q+1}^2}{Q_0^2} \dVf{n_f}{Q_0^2} \\
-    \dTj{k}{n_f+2}{Q_1^2} &= \left(1, 0\right)\ES{Q_1^2}{m_{q+2}^2}\ES{m_{q+2}^2}{m_{q+1}^2}\ES{m_{q+1}^2}{Q_0^2}\dSV{n_f}{Q_0^2} \\
-     & \text{for }k=(n_f+3)^2-1
-
-..
-    Three Thresholds
-    ----------------
-
-    Here, we consider :math:`0 < Q_0^2 < \mu_{c}^2 < \mu_{b}^2 < \mu_{t}^2 < Q_1^2 < \infty`.
-    The singlet sector and the full valence distributions are given by
-
-    .. math ::
-    \dSV{6}{Q_1^2} &=       \ES{Q^2_1}{m_{t}^2} \ES{m_t^2}{m_{b}^2} \\
-                   & \quad  \ES{m_b^2}{m_{c}^2} \ES{m_{c}^2}{Q_0^2} \dSV{3}{Q_0^2} \\
-    \dVj{j}{6}{Q_1^2} &=      \Ensv{Q^2_1}{m_{t}^2}   \Ensv{m_{t}^2}{m_{b}^2} \\
-                      & \quad \Ensv{m_{b}^2}{m_{c}^2} \Ensv{m_{c}^2}{Q^2_0} \dVf{3}{Q_0^2}
-
-    The valence-like/singlet-like non-singlet distributions containing flavors up to strange,
-    they keep evolving from themselves
-
-    .. math ::
-    \dVj{j}{6}{Q_1^2} &=      \Ensm{Q^2_1}{m_{t}^2}   \Ensm{m_{t}^2}{m_{b}^2} \\
-                      & \quad \Ensm{m_{b}^2}{m_{c}^2} \Ensm{m_{c}^2}{Q_0^2} \dVj{j}{3}{Q_0^2} \\
-    \dTj{j}{6}{Q_1^2} &=      \Ensp{Q^2_1}{m_{t}^2}   \Ensp{m_t^2}{m_{qb}^2} \\
-                      & \quad \Ensp{m_{b}^2}{m_{c}^2} \Ensp{m_{c}^2}{Q_0^2} \dTj{j}{3}{Q_0^2} \\
-     &\text{for }j=3,8
-
-    The two distributions containing charm are generated dynamically up to the first threshold
-    and then set themselves apart:
-
-    .. math ::
-    \dVj{15}{6}{Q_1^2} &=      \Ensm{Q^2_1}{m_{t}^2}   \Ensm{m_{t}^2}{m_{b}^2} \\
-                       & \quad \Ensm{m_{b}^2}{m_{c}^2} \Ensv{m_{c}^2}{Q_0^2} \dVf{3}{Q_0^2} \\
-    \dTj{15}{6}{Q_1^2} &=      \Ensp{Q^2_1}{m_{t}^2} \Ensp{m_{t}^2}{m_{b}^2} \\
-                       & \quad \Ensp{m_{b}^2}{m_{c}^2} \left(1,0\right)\ES{m_{c}^2}{Q_0^2} \dSV{3}{Q_0^2}
-
-    The two distributions containing bottom are generated dynamically up to the second threshold
-    and then set themselves apart:
-
-    .. math ::
-    \dVj{24}{6}{Q_1^2} &=      \Ensm{Q^2_1}{m_{t}^2}   \Ensm{m_{t}^2}{m_{b}^2} \\
-                       & \quad \Ensv{m_{b}^2}{m_{c}^2} \Ensv{m_{c}^2}{Q_0^2} \dVf{3}{Q_0^2} \\
-    \dTj{24}{6}{Q_1^2} &=      \Ensp{Q^2_1}{m_{t}^2} \Ensp{m_{t}^2}{m_{b}^2} \\
-                       & \quad \left(1,0\right) \ES{m_{b}^2}{m_{c}^2} \ES{m_{c}^2}{Q_0^2} \dSV{3}{Q_0^2}
-
-    The two distributions containing top are generated dynamically up to the third threshold
-    and then set themselves apart:
-
-    .. math ::
-    \dVj{35}{6}{Q_1^2} &=      \Ensm{Q^2_1}{m_{t}^2}   \Ensv{m_{t}^2}{m_{b}^2} \\
-                       & \quad \Ensv{m_{b}^2}{m_{c}^2} \Ensv{m_{c}^2}{Q_0^2} \dVf{3}{Q_0^2} \\
-    \dTj{35}{6}{Q_1^2} &=      \Ensp{Q^2_1}{m_{t}^2} \left(1,0\right) \ES{m_{t}^2}{m_{b}^2} \\
-                       & \quad \ES{m_{b}^2}{m_{c}^2} \ES{m_{c}^2}{Q_0^2} \dSV{3}{Q_0^2}
-
-Intrinsic evolution
--------------------
-
-We also consider the evolution of intrinsic heavy |PDF|. Since these are massive partons they can not
-split any collinear particles and thus they do not participate in the |DGLAP| evolution. Instead, their
-evolution is simpliy an indentiy operation: e.g. for an intrinsic distribution we get for
-:math:`m_c^2 > Q_1^2 > Q_0^2`:
+The matching matrices :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` mediate between :math:`\mathcal F_{iev,n_f}^{(n_f)}`
+and :math:`\mathcal F_{iev,n_f}^{(n_f+1)}`, i.e. they transform the basis vectors of the :math:`n_f`-flavors space
+in a :math:`n_f`-flavor scheme to the :math:`(n_f+1)`-flavor scheme. Hence, the supscript refers to the flavor scheme
+with a smaller number of active flavors. To compute the matrices in a minimal coupled system we decompose the
+:ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution Bases>` :math:`\mathcal F_{iev,n_f}` into
+several subspaces (of course irrespective of the |FNS|):
 
 .. math ::
-    \tilde c(Q_1^2) &= \tilde c(Q_0^2)\\
-    \tilde {\bar c}(Q_1^2) &= \tilde{\bar c}(Q_0^2)
+    \mathcal F_{iev,3,S,c^+} &= \span(g,\Sigma,c^+)\\
+    \mathcal F_{iev,3,nsv,c^-} &= \span(V,c^-)\\
+    \mathcal F_{iev,3,ns+} &= \span(T_3,T_8)\\
+    \mathcal F_{iev,3,ns-} &= \span(V_3,V_8)\\
+    \mathcal F_{iev,3,hh} &= \span(b^+,b^-,t^+,t^-)\\
+    \mathcal F_{iev,n_f} &= \mathcal F_{iev,3,S,c^+} \otimes \mathcal F_{iev,3,nsv,c^-} \otimes \mathcal F_{iev,3,ns+}
+                            \otimes \mathcal F_{iev,3,ns-} \otimes \mathcal F_{iev,3,hh}
 
-After crossing the mass threshold (charm in this example) the |PDF| can not be considered intrinsic
-any longer. Here, they have to be rejoined with their evolution basis elements and take then again
-part in the ordinary collinear evolution. This twofold behavior leads in the context of the
-FONLL matching scheme :cite:`Forte:2010ta` to considerable simplifications :cite:`Ball:2015dpa`.
+We can then write the matching matrices :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` as
+
+.. math ::
+    \dSVip{n_f}{\mu_{h}^2} &= \tilde{\mathbf{A}}_{S,h^+}^{(n_f)}(\mu_{h}^2) \dSVi{n_f}{\mu_{h}^2} \\
+    \dVip{n_f}{\mu_{h}^2} &= \tilde{\mathbf{A}}_{nsv,h^-}^{(n_f)}(\mu_{h}^2) \dVi{n_f}{\mu_{h}^2} \\
+    \dVj{j}{n_f+1}{\mu_h^2} &= \tilde{A}_{ns-}^{(n_f)}(\mu_{h}^2) \dVj{j}{n_f}{\mu_h^2}\\
+    \dTj{j}{n_f+1}{\mu_h^2} &= \tilde{A}_{ns+}^{(n_f)}(\mu_{h}^2) \dTj{j}{n_f}{\mu_h^2}\\
+    &\text{for }j=3,\ldots, n_f^2-1
+
+
+where :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` can be computed order by order in :math:`a_s`:
+
+.. math ::
+    \mathbf{A}^{(n_f)}(\mu_{h}^2) = \mathbf{I} + a_s^{(n_f)}(\mu_{h}^2)  \mathbf{A}^{(n_f),(1)} + \left(a_s^{(n_f)}(\mu_{h}^2)\right)^2 \mathbf{A}^{(n_f),(2)} 
+
+
+and the :math:`\mathbf{A}^{(n_f),(k)}` are given upto |NNLO| by the following expressions:
+
+.. math ::
+    \mathbf{A}_{S,h^+}^{(n_f),(1)} &= \begin{pmatrix} A_{gg,H}^{S,(1)} & 0 & A_{gH}^{S,(1)} \\ 0 & 0 & 0 \\ A_{Hg}^{S,(1)} & 0 & A_{HH}^{(1)} \end{pmatrix} \\
+    \mathbf{A}_{nsv,h^-}^{(n_f),(1)} &= \begin{pmatrix} 0 & 0 \\ 0 & A_{HH}^{(1)}\end{pmatrix} \\
+    \mathbf{A}_{S,h^+}^{(n_f),(2)} &= \begin{pmatrix} A_{gg,H}^{S,(2)} & A_{gq,H}^{S,(2)} & 0 \\ 0 & A_{qq,H}^{ns,(2)} & 0 \\ A_{Hg}^{S,(2)} & A_{Hq}^{ps,(2)} & 0 \end{pmatrix} \\
+    \mathbf{A}_{nsv,h^-}^{(n_f),(2)} &= \begin{pmatrix} A_{qq,H}^{ns,(2)} & 0 \\ 0 & 0 \end{pmatrix}
+
+
+The coefficients :math:`A^{(n_f),(k)}_{ij}(z,\mu_{h}^2)` have been firstly computed in :cite:`Buza_1998` and have
+been :doc:`Mellin tranformed </theory/Mellin>` to be used inside EKO.
+They depend on the scale :math:`\mu_{h}^2` is only through the logarithm :math:`\ln(\mu_{h}^2/m_{h}^2)`,
+in particular the coefficient :math:`A_{gg,H}^{S,(1)}` is fully proprtional to :math:`\ln(\mu_{h}^2/m_{h}^2)`. 
+
+We remark that contributions of the higher quark at |NNLO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
+On the other hand the elements :math:`A_{qq}^{ps},A_{qg}` are known to start at |N3LO|.
+
+The |OME| are also required in the context of the FONLL matching scheme :cite:`Forte:2010ta`.
+For :ref:`Intrinsic Evolution <theory/DGLAP:Intrinsic Evolution>` this leads to considerable simplifications :cite:`Ball:2015dpa`.
+
+Basis rotation
+--------------
+
+The rotation matrices :math:`\mathbf{R}^{(n_f)}` mediate between :math:`\mathcal F_{iev,n_f}^{(n_f+1)}` and :math:`\mathcal F_{iev,n_f+1}^{(n_f+1)}`,
+i.e. in the input and output the distributions are already in a scheme with :math:`(n_f+1)`-flavors and the new heavy quark is already non-trivial,
+but the basis vectors are still expressed with the elements of the :math:`n_f`-flavors space. The matrices are fixed algebraic quantities and do not
+encode perturbative calculations.
+
+The matrices are given by
+
+.. math ::
+    \dSVe{n_f+1}{\mu_{h}^2} &= {\mathbf{R}}_{S,h^+}^{(n_f)} \dSVi{n_f+1}{\mu_{h}^2} = \begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 1 \\ 0 & 1 & - n_f \end{pmatrix} \dSVi{n_f+1}{\mu_{h}^2} \\
+    \dVe{n_f+1}{\mu_{h}^2} &= {\mathbf{R}}_{nsv,h^-}^{(n_f)} \dVi{n_f+1}{\mu_{h}^2} = \begin{pmatrix} 1 & 1 \\ 1 & - n_f \end{pmatrix} \dVi{n_f+1}{\mu_{h}^2} \\
+    & \text{for }j=(n_f+1)^2-1\\
+    {\mathbf{R}}^{(n_f)} &= \mathbf 1 ~ \text{otherwise}
+
+Backward evolution
+------------------
+
+For backward evolution the matching procedure has to be applied in the reversed order: while the inversion of the basis rotation
+matrices :math:`\mathbf{R}^{(n_f)}` are easy to invert, this does not apply to the |OME| :math:`\mathbf{A}^{(n_f)}`.
+EKO implements two different strategies to perform this operation, that can be specified with the parameter ``backward_inversion``:
+
+- ``backward_inversion = 'exact'``: the matching matrices are inverted exactly in N space, and then integrated element by element
+- ``backward_inversion = 'expanded'``: the matching matrices are inverted through a pertubative expansion in :math:`a_s` before the Mellin inversion:
+
+.. math ::
+    \mathbf{A}_{exp}^{-1}(\mu_{h}^2) &= \mathbf{I} - a_s(\mu_{h}^2)  \mathbf{A}^{(1)} + a_s^2(\mu_{h}^2) \left [ \mathbf{A}^{(2)} -  \left(\mathbf{A}^{(1)}\right)^2 \right ] + O(a_s^3) \\
+
+We emphasize that in the backward evolution, below the threshold, the remaining high quark PDFs are always intrinsic and do not evolve anymore.

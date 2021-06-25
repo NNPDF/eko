@@ -29,6 +29,11 @@ class PathSegment:
         self.nf = nf
 
     @property
+    def is_backward(self):
+        """True if q2_from bigger than q2_to"""
+        return self.q2_from > self.q2_to
+
+    @property
     def tuple(self):
         """Tuple representation suitable for hashing."""
         return (self.q2_from, self.q2_to, self.nf)
@@ -44,21 +49,38 @@ class ThresholdsAtlas:
 
     Parameters
     ----------
-        thresholds: list(float)
-            List of q^2 thresholds
+        masses: list(float)
+            list of quark masses squared
         q2_ref: float
             reference scale
+        nf_ref: int
+            number of active flavors at the reference scale
+        thresholds_ratios: list(float)
+            list of ratios between masses and matching thresholds squared
+        max_nf: int
+            maximum number of active flavors
     """
 
-    def __init__(self, thresholds, q2_ref=None, nf_ref=None):
+    def __init__(
+        self, masses, q2_ref=None, nf_ref=None, thresholds_ratios=None, max_nf=None
+    ):
         # Initial values
         self.q2_ref = q2_ref
         self.nf_ref = nf_ref
-        thresholds = list(thresholds)
-        if thresholds != sorted(thresholds):
-            raise ValueError("thresholds need to be sorted")
+
+        masses = list(masses)
+        if masses != sorted(masses):
+            raise ValueError("masses need to be sorted")
+
+        thresholds = self.build_area_walls(masses, thresholds_ratios, max_nf)
+
         self.area_walls = [0] + thresholds + [np.inf]
+        self.thresholds_ratios = thresholds_ratios
         logger.info("Thresholds: walls = %s", self.area_walls)
+
+    def __repr__(self):
+        walls = " - ".join(["%.2e" % w for w in self.area_walls])
+        return f"ThresholdsAtlas [{walls}], ref={self.q2_ref} @ {self.nf_ref}"
 
     @classmethod
     def ffns(cls, nf, q2_ref=None):
@@ -76,10 +98,10 @@ class ThresholdsAtlas:
             q2_ref : float
                 reference scale
         """
-        return cls([0] * (nf - 3), q2_ref)
+        return cls([0] * (nf - 3) + [np.inf] * (6 - nf), q2_ref)
 
     @staticmethod
-    def build_area_walls(masses, threshold_ratios, max_nf):
+    def build_area_walls(masses, thresholds_ratios=None, max_nf=None):
         r"""
         Create the object from the run card.
 
@@ -95,11 +117,16 @@ class ThresholdsAtlas:
         """
         if len(masses) != 3:
             raise ValueError("There have to be 3 quark masses")
-        if len(threshold_ratios) != 3:
+        if thresholds_ratios is None:
+            thresholds_ratios = (1.0, 1.0, 1.0)
+        if len(thresholds_ratios) != 3:
             raise ValueError("There have to be 3 quark threshold ratios")
+        if max_nf is None:
+            max_nf = 6
+
         thresholds = []
-        for m, k in zip(masses, threshold_ratios):
-            thresholds.append(pow(m * k, 2))
+        for m, k in zip(masses, thresholds_ratios):
+            thresholds.append(m * k)
         # cut array = simply reduce some thresholds
         thresholds = thresholds[: max_nf - 3]
         return thresholds
@@ -124,14 +151,17 @@ class ThresholdsAtlas:
                 created object
         """
         heavy_flavors = "cbt"
-        thresholds = cls.build_area_walls(
-            [theory_card[f"m{q}"] for q in heavy_flavors],
-            [theory_card[f"{prefix}{q}Thr"] for q in heavy_flavors],
-            theory_card[max_nf_name],
-        )
+        masses = [theory_card[f"m{q}"] for q in heavy_flavors]
+        thresholds_ratios = [theory_card[f"{prefix}{q}Thr"] for q in heavy_flavors]
+        max_nf = theory_card[max_nf_name]
         # preset ref scale
         q2_ref = pow(theory_card["Q0"], 2)
-        return cls(thresholds, q2_ref)
+        return cls(
+            np.power(masses, 2),
+            q2_ref,
+            thresholds_ratios=np.power(thresholds_ratios, 2),
+            max_nf=max_nf,
+        )
 
     def path(self, q2_to, nf_to=None, q2_from=None, nf_from=None):
         """

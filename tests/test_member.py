@@ -4,7 +4,7 @@ import numpy as np
 from numpy.testing import assert_almost_equal
 import pytest
 
-from eko.member import OpMember
+from eko.member import OpMember, OperatorBase, MemberName, ScalarOperator
 
 
 def mkOM(shape):
@@ -117,3 +117,33 @@ class TestOpMember:
         b = a.copy()
         assert_almost_equal(a.value, b.value)
         assert_almost_equal(a.error, b.error)
+
+
+class TestOperatorBase:
+    def test_getitem(self):
+        opm = {MemberName("S.S"): 1}
+        ob = OperatorBase(opm, 0.0)
+        assert ob[MemberName("S.S")] == ob["S.S"]
+
+    def test_matmul_2(self):
+        m = np.random.rand(2, 2)
+        opm1 = {MemberName("S.S"): m}
+        ob1 = OperatorBase(opm1, 0.0)
+        opm2 = {MemberName("S.S"): 2}
+        so2 = ScalarOperator(opm2, 0.0)
+        # a*b = b*a aslong as b is actually scalar
+        ob3a = ob1 @ so2
+        assert MemberName("S.S") in ob3a.op_members
+        np.testing.assert_allclose(ob3a["S.S"], 2 * m)
+        assert not isinstance(ob3a, ScalarOperator)
+        ob3b = so2 @ ob1
+        assert MemberName("S.S") in ob3b.op_members
+        assert not isinstance(ob3b, ScalarOperator)
+        np.testing.assert_allclose(ob3b["S.S"], 2 * m)
+        # scalar * scalar
+        opm4 = {MemberName("S.S"): 4}
+        so4 = ScalarOperator(opm4, 0.0)
+        so5 = so2 @ so4
+        assert MemberName("S.S") in so5.op_members
+        assert isinstance(so5, ScalarOperator)
+        np.testing.assert_allclose(so5["S.S"], 2 * 4)

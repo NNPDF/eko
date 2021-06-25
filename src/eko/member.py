@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import operator
 from numbers import Number
+import copy
 import numpy as np
 
 
@@ -26,6 +28,24 @@ class OpMember:
 
     def copy(self):
         return self.__class__(self.value.copy(), self.error.copy())
+
+    @classmethod
+    def id_like(cls, other):
+        """
+        Creates an identity operator.
+
+        Parameters
+        ----------
+            other : OpMember
+                reference member
+
+        Returns
+        -------
+            cls :
+                1
+        """
+        len_xgrid = other.value.shape[0]
+        return cls(np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid)))
 
     def __matmul__(self, operator_member):
         rval = operator_member.value
@@ -139,3 +159,107 @@ class OperatorBase:
     def __init__(self, op_members, q2_final):
         self.op_members = op_members
         self.q2_final = q2_final
+
+    def __getitem__(self, key):
+        if not isinstance(key, MemberName):
+            key = MemberName(key)
+        return self.op_members[key]
+
+    @classmethod
+    def promote_names(cls, op_members, q2_final):
+        """
+        Promote string keys to MemberName.
+
+        Parameters
+        ----------
+            op_members : dict
+                mapping of :data:`str` onto :class:`OpMember`
+            q2_final : float
+                final scale
+        """
+        # map key to MemberName
+        opms = {}
+        for k, v in op_members.items():
+            opms[MemberName(k)] = copy.copy(v)
+        return cls(opms, q2_final)
+
+    def __matmul__(self, other):
+        """
+        Multiply ``other`` to self.
+
+        Parameters
+        ----------
+            other : OperatorBase
+                second factor with a lower initial scale
+
+        Returns
+        -------
+            p : PhysicalOperator
+                self @ other
+        """
+        if not isinstance(other, OperatorBase):
+            raise ValueError("Can only multiply with another OperatorBase")
+        # if a ScalarOperator is multiplied by an OperatorBase, the result is an OperatorBase
+        # only the result of ScalarOperator @ ScalarOperator is another ScalarOperator
+        cls = self.__class__
+        if isinstance(self, ScalarOperator):
+            cls = other.__class__
+        return cls(
+            self.operator_multiply(self, other, self.operation(other)), self.q2_final
+        )
+
+    def operation(self, other):
+        """
+        Choose mathematical operation by rank
+
+        Parameters
+        ----------
+            other : OperatorBase
+                operand
+
+        Returns
+        -------
+            callable :
+                operation to perform (np.matmul or np.multiply)
+        """
+        if isinstance(self, ScalarOperator) or isinstance(other, ScalarOperator):
+            return operator.mul
+        return operator.matmul
+
+    @staticmethod
+    def operator_multiply(left, right, operation):
+        """
+        Multiply two operators.
+
+        Parameters
+        ----------
+            left : OperatorBase
+                left operand
+            right : OperatorBase
+                right operand
+            operation : callable
+                operation to perform (np.matmul or np.multiply)
+
+        Returns
+        -------
+            dict :
+                new operator members dictionary
+        """
+        # prepare paths
+        new_oms = {}
+        for l_key, l_op in left.op_members.items():
+            for r_key, r_op in right.op_members.items():
+                # ops match?
+                if l_key.input != r_key.target:
+                    continue
+                new_key = MemberName(l_key.target + "." + r_key.input)
+                # new?
+                if new_key not in new_oms:
+                    new_oms[new_key] = operation(l_op, r_op)
+                else:  # add element
+                    new_oms[new_key] += operation(l_op, r_op)
+        return new_oms
+
+
+class ScalarOperator(OperatorBase):
+    pass
