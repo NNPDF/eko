@@ -50,13 +50,13 @@ class ThresholdsAtlas:
     Parameters
     ----------
         masses: list(float)
-            list of quark masses
+            list of quark masses squared
         q2_ref: float
             reference scale
         nf_ref: int
             number of active flavors at the reference scale
         thresholds_ratios: list(float)
-            list of ratios between masses and matching thresholds
+            list of ratios between masses and matching thresholds squared
         max_nf: int
             maximum number of active flavors
     """

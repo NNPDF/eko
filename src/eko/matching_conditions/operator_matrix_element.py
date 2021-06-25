@@ -279,7 +279,7 @@ class OperatorMatrixElement:
                 #     labels.extend(["S_qH"])
         return labels
 
-    def compute(self, q2, mh2):
+    def compute(self, q2, L):
         """
         compute the actual operators (i.e. run the integrations)
 
@@ -287,8 +287,8 @@ class OperatorMatrixElement:
         ----------
             q2: float
                 threshold scale
-            mh2: float
-                heavy quark mass
+            L: float
+                log of K threshold squared
         """
 
         # init all ops with zeros
@@ -303,7 +303,6 @@ class OperatorMatrixElement:
                 self.ome_members[n] = OpMember(
                     np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
                 )
-        L = np.log(q2 / mh2)
         a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2)
 
         tot_start_time = time.perf_counter()
