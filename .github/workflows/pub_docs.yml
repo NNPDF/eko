@@ -32,7 +32,7 @@ jobs:
           # install eko
           pip install .
           # add docs packages
-          pip install -r docs_requirements.txt
+          pip install -r dev_requirements.txt
       - name: Build 🔨
         run: |
           cd doc/
