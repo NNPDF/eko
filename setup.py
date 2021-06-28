@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import pathlib
 
-import packutil as pack
 from setuptools import find_packages, setup
+import packutil as pack
 
 # write version on the fly - inspired by numpy
 MAJOR = 0

@@ -3,7 +3,6 @@ import os
 import webbrowser
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from banana import navigator as bnav
 from banana.data import dfdict
