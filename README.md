@@ -3,7 +3,7 @@
 </p>
 <p align="center">
   <a href="https://github.com/N3PDF/eko/actions?query=workflow%3A%22eko%22"><img alt="Tests" src="https://github.com/N3PDF/eko/workflows/eko/badge.svg" /></a>
-  <a href="https://n3pdf.github.io/eko/"><img alt="Docs" src="https://github.com/N3PDF/eko/workflows/docs/badge.svg"></a>
+  <a href="https://eko.readthedocs.io/en/latest/?badge=latest"><img alt="Docs" src="https://readthedocs.org/projects/eko/badge/?version=latest"></a>
   <a href="https://codecov.io/gh/N3PDF/eko"><img src="https://codecov.io/gh/N3PDF/eko/branch/master/graph/badge.svg" /></a>
   <a href="https://www.codefactor.io/repository/github/n3pdf/eko"><img src="https://www.codefactor.io/repository/github/n3pdf/eko/badge" alt="CodeFactor" /></a>
 </p>
@@ -24,7 +24,7 @@ python setup.py install
 ```
 
 ## Documentation
-- The documentation is available here: <a href="https://n3pdf.github.io/eko/"><img alt="Docs" src="https://github.com/N3PDF/eko/workflows/docs/badge.svg"></a>
+- The documentation is available here: <a href="https://eko.readthedocs.io/en/latest/?badge=latest"><img alt="Docs" src="https://readthedocs.org/projects/eko/badge/?version=latest"></a>
 - To build the documentation from source install [graphviz](https://www.graphviz.org/) and run in addition to the installation commands
 ```bash
 pip install -r docs_requirements.txt
