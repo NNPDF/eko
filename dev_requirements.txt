@@ -11,7 +11,6 @@ sphinx_rtd_theme
 sphinxcontrib-bibtex
 
 # Tests
-pylint
 pytest
 pytest-cov
 pytest-env
