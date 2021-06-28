@@ -30,7 +30,7 @@ class ApfelBenchmark(Runner):
     @staticmethod
     def skip_pdfs(_theory):
         # pdf to skip
-        return [22, -6, 6, -5, 5, "ph", "T35", "V35"]
+        return [22, -6, 6, "ph", "T35", "V35"]
 
 
 class BenchmarkVFNS(ApfelBenchmark):

@@ -45,10 +45,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
     else:
         raise ValueError(f"Method {theory['ModEv']} is not recognized. ")
 
-    if theory["FNS"] == "FFNS":
-        ivfns = 0
-    else:
-        ivfns = 1
+    ivfns = 0 if theory["FNS"] == "FFNS" else 1
 
     if theory["Q0"] != theory["Qref"]:
         raise ValueError("Initial scale Q0 must be equal to Qref in Pegasus.")
