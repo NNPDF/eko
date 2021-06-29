@@ -127,6 +127,7 @@ class StrongCoupling:
         nf_ref=None,
         max_nf=None,
         hqm_scheme="POLE",
+        q2m_ref=None,
     ):
         # Sanity checks
         if alpha_s_ref <= 0:
@@ -148,6 +149,7 @@ class StrongCoupling:
             nf_ref,
             thresholds_ratios=thresholds_ratios,
             max_nf=max_nf,
+            q2m_ref=q2m_ref,
         )
         self.hqm_scheme = hqm_scheme
         logger.info(
@@ -219,8 +221,11 @@ class StrongCoupling:
         )
         max_nf = theory_card["MaxNfAs"]
         hqm_scheme = theory_card["HQ"]
+        q2m_ref = None
         if hqm_scheme not in ["MSBAR", "POLE"]:
             raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
+        if hqm_scheme == "MSBAR":
+            q2m_ref = np.power([theory_card[f"Qm{q}"] for q in heavy_flavors], 2)
         return cls(
             alpha_ref,
             q2_alpha,
@@ -231,6 +236,7 @@ class StrongCoupling:
             nf_ref,
             max_nf,
             hqm_scheme,
+            q2m_ref,
         )
 
     def compute_exact(self, as_ref, nf, scale_from, scale_to):

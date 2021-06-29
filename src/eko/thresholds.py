@@ -6,6 +6,8 @@ import logging
 
 import numpy as np
 
+from .matching_conditions.msbar_masses import msbar_exact, msbar_expanded
+
 logger = logging.getLogger(__name__)
 
 
@@ -62,12 +64,22 @@ class ThresholdsAtlas:
     """
 
     def __init__(
-        self, masses, q2_ref=None, nf_ref=None, thresholds_ratios=None, max_nf=None
+        self,
+        masses,
+        q2_ref=None,
+        nf_ref=None,
+        thresholds_ratios=None,
+        max_nf=None,
+        q2m_ref=None,
     ):
         # Initial values
         self.q2_ref = q2_ref
         self.nf_ref = nf_ref
-
+        # MSBar
+        if q2m_ref is not None:
+            self.mass_ref = list(zip(q2m_ref, masses))
+        else:
+            self.mass_ref = None
         masses = list(masses)
         if masses != sorted(masses):
             raise ValueError("masses need to be sorted")
@@ -156,11 +168,25 @@ class ThresholdsAtlas:
         max_nf = theory_card[max_nf_name]
         # preset ref scale
         q2_ref = pow(theory_card["Q0"], 2)
+
+        # MSbar or Pole masses
+        hqm_scheme = theory_card["HQ"]
+        q_masses = None
+        if hqm_scheme not in ["MSBAR", "POLE"]:
+            raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
+        if hqm_scheme == "MSBAR":
+            q_masses = np.power([theory_card[f"Qm{q}"] for q in heavy_flavors], 2)
+            for mass, q_m in zip(masses, q_masses):
+                if mass > q_m:
+                    raise ValueError(
+                        "Each heavy quark mass reference scale must be larger or equal than the value of the mass itself"
+                    )
         return cls(
             np.power(masses, 2),
             q2_ref,
             thresholds_ratios=np.power(thresholds_ratios, 2),
             max_nf=max_nf,
+            q2m_ref=q_masses,
         )
 
     def path(self, q2_to, nf_to=None, q2_from=None, nf_from=None):
@@ -223,3 +249,25 @@ class ThresholdsAtlas:
         """
         ref_idx = np.digitize(q2, self.area_walls)
         return 2 + ref_idx
+
+    def compute_msbar_mass(self, strong_coupling, fact_to_ren, order, nf, shift, q2_to):
+        """
+        Compute the evoluted MSbar mass
+
+        Returns
+        -------
+            m2 : float
+                :math:`m_{\bar{MS}}(q2)`
+        """
+        q2m_ref, m2_ref = self.mass_ref[nf - shift]
+        if q2m_ref == m2_ref:
+            return m2_ref
+
+        method = strong_coupling.method
+        a1 = strong_coupling.a_s(q2_to / fact_to_ren, q2_to)
+        a0 = strong_coupling.a_s(q2m_ref / fact_to_ren, q2m_ref)
+        if method == "expanded":
+            ev_mass = msbar_expanded(a0, a1, order, nf)
+        elif method == "exact":
+            ev_mass = msbar_exact(a0, a1, order, nf)
+        return m2_ref * ev_mass ** 2

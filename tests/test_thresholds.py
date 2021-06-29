@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from eko.thresholds import PathSegment, ThresholdsAtlas
-
+from eko.strong_coupling import StrongCoupling
 
 class TestPathSegment:
     def test_tuple(self):
@@ -68,6 +68,7 @@ class TestThresholdsAtlas:
                 "ktThr": np.inf,
                 "Q0": 1.0,
                 "MaxNfPdf": 6,
+                "HQ": "POLE",
             }
         )
         assert tc.area_walls[1:-1] == [1.0, 64.0, np.inf]
@@ -159,3 +160,38 @@ class TestThresholdsAtlas:
         ta = ThresholdsAtlas([1, 2, 3], 0.5)
         assert ta.nf(0.9) == 3
         assert ta.nf(1.1) == 4
+
+    def test_compute_msbar_mass(self):
+        # TODO: imporove this test
+        theory_dict = {
+                "alphas": 0.118,
+                "Qref": 91.0,
+                "nfref": None,
+                "MaxNfPdf": 6,
+                "MaxNfAs": 6,
+                "Q0": 1,
+                "PTO": 1,
+                "ModEv": "EXA",
+                "fact_to_ren_scale_ratio": 1.0,
+                "mc": 2.0,
+                "mb": 4.0,
+                "mt": 175.0,
+                "kcThr": 1.0,
+                "kbThr": 1.0,
+                "ktThr": 1.0,
+                "HQ": "MSBAR",
+                "Qmc": 2.00001,
+                "Qmb": 4.00001,
+                "Qmt": 175.000001,
+        }
+        tc = ThresholdsAtlas.from_dict(theory_dict)
+        strong_coupling = StrongCoupling.from_dict(theory_dict)
+        fact_to_ren = 1.0
+        order = theory_dict["PTO"]
+        shift=3
+        q2_to= [2,4,175]
+        for nf in [3,4,5]:
+            q2 = q2_to[nf - shift] ** 2
+            mass = tc.compute_msbar_mass(strong_coupling, fact_to_ren, order, nf ,shift, q2)
+            np.testing.assert_allclose( mass , tc.mass_ref[nf-shift][0], rtol=1e-4)
+            np.testing.assert_allclose( mass , tc.mass_ref[nf-shift][0], rtol=1e-4)
