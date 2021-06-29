@@ -208,6 +208,7 @@ class TestOperatorMatrixElement:
             "ktThr": np.inf,
             "MaxNfPdf": 6,
             "MaxNfAs": 6,
+            "HQ": "POLE",
         }
         for skip_singlet in [True, False]:
             for skip_ns in [True, False]:

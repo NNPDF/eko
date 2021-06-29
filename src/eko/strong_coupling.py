@@ -126,6 +126,7 @@ class StrongCoupling:
         method="exact",
         nf_ref=None,
         max_nf=None,
+        hqm_scheme="POLE",
     ):
         # Sanity checks
         if alpha_s_ref <= 0:
@@ -148,6 +149,7 @@ class StrongCoupling:
             thresholds_ratios=thresholds_ratios,
             max_nf=max_nf,
         )
+        self.hqm_scheme = hqm_scheme
         logger.info(
             "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)",
             self.q2_ref,
@@ -216,7 +218,9 @@ class StrongCoupling:
             [theory_card[f"k{q}Thr"] for q in heavy_flavors], 2
         )
         max_nf = theory_card["MaxNfAs"]
-
+        hqm_scheme = theory_card["HQ"]
+        if hqm_scheme not in ["MSBAR", "POLE"]:
+            raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
         return cls(
             alpha_ref,
             q2_alpha,
@@ -226,6 +230,7 @@ class StrongCoupling:
             method,
             nf_ref,
             max_nf,
+            hqm_scheme,
         )
 
     def compute_exact(self, as_ref, nf, scale_from, scale_to):
@@ -309,7 +314,12 @@ class StrongCoupling:
             self.cache[key] = as_new
             return as_new
 
-    def a_s(self, scale_to, fact_scale=None, nf_to=None):
+    def a_s(
+        self,
+        scale_to,
+        fact_scale=None,
+        nf_to=None,
+    ):
         r"""
         Computes strong coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
 
@@ -350,7 +360,9 @@ class StrongCoupling:
                     self.thresholds.thresholds_ratios[seg.nf - shift]
                 )
                 m_coeffs = (
-                    matching_coeffs_down if is_downward_path else matching_coeffs_up
+                    compute_matching_coeffs_down(self.hqm_scheme)
+                    if is_downward_path
+                    else compute_matching_coeffs_up(self.hqm_scheme)
                 )
                 fact = 1.0
                 # shift
@@ -363,46 +375,73 @@ class StrongCoupling:
         return final_as
 
 
-matching_coeffs_up = np.zeros((3, 3))
-r"""
-Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia,Vogt:2004ns` at threshold
-when moving to a regime with *more* flavors.
+def compute_matching_coeffs_up(mass_scheme):
+    r"""
+    Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia,Vogt:2004ns` at threshold
+    when moving to a regime with *more* flavors.
 
-.. math::
-    a_s^{(n_l+1)} = a_s^{(n_l)} + \sum\limits_{n=1} (a_s^{(n_l)})^n
-                            \sum\limits_{k=0}^n c_{nl} \log(\mu_R^2/\mu_F^2)
-"""
-matching_coeffs_up[1, 1] = 4.0 / 3.0 * constants.TR
-matching_coeffs_up[2, 0] = 14.0 / 3.0
-matching_coeffs_up[2, 1] = 38.0 / 3.0
-matching_coeffs_up[2, 2] = 4.0 / 9.0
+    .. math::
+        a_s^{(n_l+1)} = a_s^{(n_l)} + \sum\limits_{n=1} (a_s^{(n_l)})^n
+                                \sum\limits_{k=0}^n c_{nl} \log(\mu_R^2/\mu_F^2)
+
+    Parameters
+    ----------
+        mass_scheme:
+            Heavy quark mass scheme: "POLE" or "MSBAR"
+
+    Returns
+    -------
+        matching_coeffs_down:
+            forward matching coefficient matrix
+    """
+    matching_coeffs_up = np.zeros((3, 3))
+    if mass_scheme == "MSBAR":
+        matching_coeffs_up[2, 0] = -22.0 / 3.0
+        matching_coeffs_up[2, 1] = 22.0 / 3.0
+    elif mass_scheme == "POLE":
+        matching_coeffs_up[2, 0] = 14.0 / 3.0
+        matching_coeffs_up[2, 1] = 38.0 / 3.0
+
+    matching_coeffs_up[1, 1] = 4.0 / 3.0 * constants.TR
+    matching_coeffs_up[2, 2] = 4.0 / 9.0
+    return matching_coeffs_up
+
 
 # inversion of the matching coefficients
-_c = matching_coeffs_up
+def compute_matching_coeffs_down(mass_scheme):
+    """
+    Matching coefficients :cite:`Schroder:2005hy` :cite:`Chetyrkin:2005ia` at threshold
+    when moving to a regime with *less* flavors.
 
-matching_coeffs_down = np.zeros_like(matching_coeffs_up)
-"""
-Matching coefficients :cite:`Schroder:2005hy` :cite:`Chetyrkin:2005ia` at threshold
-when moving to a regime with *less* flavors.
+    This is the perturbative inverse of :data:`matching_coeffs_up` and has been obtained via
 
-This is the perturbative inverse of :data:`matching_coeffs_up` and has been obtained via
+    .. code-block:: Mathematica
 
-.. code-block:: Mathematica
+        Module[{f, g, l, sol},
+            f[a_] := a + Sum[d[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}];
+            g[a_] := a + Sum[c[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}] /. {c[1, 0] -> 0};
+            l = CoefficientList[Normal@Series[f[g[a]], {a, 0, 5}], {a, L}];
+            sol = First@
+                Solve[{l[[3]] == 0, l[[4]] == 0, l[[5]] == 0},
+                Flatten@Table[d[n, k], {n, 3}, {k, 0, n}]];
+            Do[Print@r, {r, sol}];
+            Print@Series[f[g[a]] /. sol, {a, 0, 5}];
+            Print@Series[g[f[a]] /. sol, {a, 0, 5}];
+        ]
+    Parameters
+    ----------
+        mass_scheme:
+            Heavy quark mass scheme: "POLE" or "MSBAR"
 
-    Module[{f, g, l, sol},
-        f[a_] := a + Sum[d[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}];
-        g[a_] := a + Sum[c[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}] /. {c[1, 0] -> 0};
-        l = CoefficientList[Normal@Series[f[g[a]], {a, 0, 5}], {a, L}];
-        sol = First@
-            Solve[{l[[3]] == 0, l[[4]] == 0, l[[5]] == 0},
-            Flatten@Table[d[n, k], {n, 3}, {k, 0, n}]];
-        Do[Print@r, {r, sol}];
-        Print@Series[f[g[a]] /. sol, {a, 0, 5}];
-        Print@Series[g[f[a]] /. sol, {a, 0, 5}];
-    ]
-"""
-
-matching_coeffs_down[1, 1] = -_c[1, 1]
-matching_coeffs_down[2, 0] = -_c[2, 0]
-matching_coeffs_down[2, 1] = -_c[2, 1]
-matching_coeffs_down[2, 2] = 2.0 * _c[1, 1] ** 2 - _c[2, 2]
+    Returns
+    -------
+        matching_coeffs_down:
+            downward matching coefficient matrix
+    """
+    _c = compute_matching_coeffs_up(mass_scheme)
+    matching_coeffs_down = np.zeros_like(_c)
+    matching_coeffs_down[1, 1] = -_c[1, 1]
+    matching_coeffs_down[2, 0] = -_c[2, 0]
+    matching_coeffs_down[2, 1] = -_c[2, 1]
+    matching_coeffs_down[2, 2] = 2.0 * _c[1, 1] ** 2 - _c[2, 2]
+    return matching_coeffs_down
