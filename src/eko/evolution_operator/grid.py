@@ -183,7 +183,7 @@ class OperatorGrid:
                 kthr = thr_config.thresholds_ratios[seg.nf - shift]
                 # MSBar mass ?
                 if thr_config.mass_ref is not None:
-                    m2_msbar = thr_config.compute_mass(
+                    m2_msbar = thr_config.compute_msbar_mass(
                         self.managers["strong_coupling"],
                         self.config["fact_to_ren"],
                         self.config["order"],
