@@ -308,7 +308,7 @@ class StrongCoupling:
             a_s : float
                 strong coupling at target scale :math:`a_s(Q^2)`
         """
-        key = (as_ref, nf, scale_from, scale_to)
+        key = (float(as_ref), nf, scale_from, float(scale_to))
         try:
             return self.cache[key]
         except KeyError:

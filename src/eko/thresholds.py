@@ -5,8 +5,9 @@ This module holds the classes that define the |FNS|.
 import logging
 
 import numpy as np
+from scipy import optimize
 
-from .matching_conditions.msbar_masses import msbar_exact, msbar_expanded
+from .matching_conditions.msbar_masses import msbar_dispatcher
 
 logger = logging.getLogger(__name__)
 
@@ -78,9 +79,12 @@ class ThresholdsAtlas:
         # MSBar
         if q2m_ref is not None:
             self.mass_ref = list(zip(q2m_ref, masses))
+            # TODO: here we need to solve the RGE m(m) = m.
+            # how can we pass strong_coupling ?
+            masses = list(masses)
         else:
             self.mass_ref = None
-        masses = list(masses)
+            masses = list(masses)
         if masses != sorted(masses):
             raise ValueError("masses need to be sorted")
 
@@ -179,7 +183,8 @@ class ThresholdsAtlas:
             for mass, q_m in zip(masses, q_masses):
                 if mass > q_m:
                     raise ValueError(
-                        "Each heavy quark mass reference scale must be larger or equal than the value of the mass itself"
+                        "Each heavy quark mass reference scale must be larger \
+                            or equal than the value of the mass itself"
                     )
         return cls(
             np.power(masses, 2),
@@ -225,7 +230,9 @@ class ThresholdsAtlas:
             shift = -2
         # join all necessary points in one list
         boundaries = (
-            [q2_from] + self.area_walls[nf_from + shift : nf_to + shift : rc] + [q2_to]
+            [q2_from]
+            + self.area_walls[nf_from + shift : int(nf_to) + shift : rc]
+            + [q2_to]
         )
         segs = [
             PathSegment(boundaries[i], q2, nf_from + i * rc)
@@ -250,10 +257,26 @@ class ThresholdsAtlas:
         ref_idx = np.digitize(q2, self.area_walls)
         return 2 + ref_idx
 
-    def compute_msbar_mass(self, strong_coupling, fact_to_ren, order, nf, shift, q2_to):
+    def compute_msbar_mass(
+        self, strong_coupling, fact_to_ren, order, nf, shift, q2_to=None
+    ):
         """
         Compute the evoluted MSbar mass
 
+        Parameters
+        ----------
+            strong_coupling: strong_coupling: eko.strong_coupling.StrongCoupling
+                Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
+                any q
+            fact_to_ren: float
+                factorization to renormalization scale ratio
+            order: int
+                pertutbative order
+            shift: int
+                3 for forward evolution, 4 for backward
+            q2_to: float
+                scale at which the mass is computed.
+                If not given it solves the equation :math:`m_{\bar{MS}}(m) = m`
         Returns
         -------
             m2 : float
@@ -262,12 +285,24 @@ class ThresholdsAtlas:
         q2m_ref, m2_ref = self.mass_ref[nf - shift]
         if q2m_ref == m2_ref:
             return m2_ref
+        if q2_to is None:
 
-        method = strong_coupling.method
-        a1 = strong_coupling.a_s(q2_to / fact_to_ren, q2_to)
-        a0 = strong_coupling.a_s(q2m_ref / fact_to_ren, q2m_ref)
-        if method == "expanded":
-            ev_mass = msbar_expanded(a0, a1, order, nf)
-        elif method == "exact":
-            ev_mass = msbar_exact(a0, a1, order, nf)
-        return m2_ref * ev_mass ** 2
+            def rge(m2, q2m_ref, strong_coupling, fact_to_ren, order, nf):
+                return (
+                    m2_ref
+                    * msbar_dispatcher(
+                        m2, q2m_ref, strong_coupling, fact_to_ren, order, nf
+                    )
+                    ** 2
+                    - m2
+                )
+
+            msbar_mass = optimize.fsolve(
+                rge, q2m_ref, args=(q2m_ref, strong_coupling, fact_to_ren, order, nf)
+            )
+            return msbar_mass
+        else:
+            ev_mass = msbar_dispatcher(
+                q2_to, q2m_ref, strong_coupling, fact_to_ren, order, nf
+            )
+            return m2_ref * ev_mass ** 2

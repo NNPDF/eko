@@ -41,7 +41,7 @@ def msbar_exact(a0, a1, order, nf):
 
 
 def msbar_expanded(a0, a1, order, nf):
-    """MSBar RGE exapnded"""
+    """MSBar RGE exapanded"""
     b0 = beta(0, nf)
     c0 = gamma(0, nf) / b0
     ev_mass = a1 / a0 * np.exp(c0)
@@ -60,3 +60,13 @@ def msbar_expanded(a0, a1, order, nf):
         num += a1 ** 2 * r
         den += a0 ** 2 * r
     return ev_mass * num / den
+
+
+def msbar_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, order, nf):
+    """Select MSbar exact or expanded solution"""
+    a0 = strong_coupling.a_s(q2m_ref / fact_to_ren, q2m_ref)
+    a1 = strong_coupling.a_s(q2_to / fact_to_ren, q2_to)
+    method = strong_coupling.method
+    if method == "expanded":
+        return msbar_expanded(a0, a1, order, nf)
+    return msbar_exact(a0, a1, order, nf)

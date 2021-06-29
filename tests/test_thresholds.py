@@ -162,7 +162,8 @@ class TestThresholdsAtlas:
         assert ta.nf(1.1) == 4
 
     def test_compute_msbar_mass(self):
-        # TODO: imporove this test
+        # Test solution of msbar(m) = m
+        # TODO: not working with EXA ?!?
         theory_dict = {
                 "alphas": 0.118,
                 "Qref": 91.0,
@@ -171,7 +172,7 @@ class TestThresholdsAtlas:
                 "MaxNfAs": 6,
                 "Q0": 1,
                 "PTO": 1,
-                "ModEv": "EXA",
+                "ModEv": "EXP",
                 "fact_to_ren_scale_ratio": 1.0,
                 "mc": 2.0,
                 "mb": 4.0,
@@ -180,18 +181,18 @@ class TestThresholdsAtlas:
                 "kbThr": 1.0,
                 "ktThr": 1.0,
                 "HQ": "MSBAR",
-                "Qmc": 2.00001,
-                "Qmb": 4.00001,
-                "Qmt": 175.000001,
+                "Qmc": 2.1,
+                "Qmb": 4.1,
+                "Qmt": 175.3,
         }
         tc = ThresholdsAtlas.from_dict(theory_dict)
         strong_coupling = StrongCoupling.from_dict(theory_dict)
         fact_to_ren = 1.0
         order = theory_dict["PTO"]
         shift=3
-        q2_to= [2,4,175]
         for nf in [3,4,5]:
-            q2 = q2_to[nf - shift] ** 2
-            mass = tc.compute_msbar_mass(strong_coupling, fact_to_ren, order, nf ,shift, q2)
-            np.testing.assert_allclose( mass , tc.mass_ref[nf-shift][0], rtol=1e-4)
-            np.testing.assert_allclose( mass , tc.mass_ref[nf-shift][0], rtol=1e-4)
+            # compute the scale such msbar(m) = m
+            m2 = tc.compute_msbar_mass(strong_coupling, fact_to_ren, order, nf ,shift)
+            # compute msbar( m )
+            m2_test = tc.compute_msbar_mass(strong_coupling, fact_to_ren, order, nf ,shift, m2)
+            np.testing.assert_allclose( m2, m2_test, rtol=1e-4)
