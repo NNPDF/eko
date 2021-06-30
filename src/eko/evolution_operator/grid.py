@@ -16,6 +16,7 @@ from eko.evolution_operator import flavors
 
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
 from . import Operator, physical
+from ..msbar_masses import evolve_msbar_mass
 
 logger = logging.getLogger(__name__)
 
@@ -183,12 +184,13 @@ class OperatorGrid:
                 kthr = thr_config.thresholds_ratios[seg.nf - shift]
                 # MSBar mass ?
                 if thr_config.mass_ref is not None:
-                    m2_msbar = thr_config.compute_msbar_mass(
+                    q2m_ref, m2_ref = thr_config.mass_ref[seg.nf - shift]
+                    m2_msbar = evolve_msbar_mass(
+                        m2_ref,
+                        q2m_ref,
                         self.managers["strong_coupling"],
                         self.config["fact_to_ren"],
-                        self.config["order"],
                         seg.nf,
-                        shift,
                         seg.q2_to,
                     )
                     # TODO: is this correct ??

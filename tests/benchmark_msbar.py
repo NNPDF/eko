@@ -2,7 +2,7 @@
 """This module benchmarks MSbar mass evolution against APFEL."""
 import numpy as np
 
-from eko.thresholds import ThresholdsAtlas
+from eko.msbar_masses import evolve_msbar_mass
 from eko.strong_coupling import StrongCoupling
 
 
@@ -48,7 +48,6 @@ class BenchmarkMSbar:
         }
         # collect my values
         for order in [0, 1, 2]:
-            thr = ThresholdsAtlas(m2, q2m_ref=Q2m)
             as_VFNS = StrongCoupling(
                 alphas_ref,
                 scale_ref,
@@ -64,8 +63,13 @@ class BenchmarkMSbar:
                 my_masses = []
                 for n in [3, 4, 5]:
                     my_masses.append(
-                        thr.compute_msbar_mass(
-                            as_VFNS, fact_to_ren=1, order=order, nf=n, shift=3, q2_to=Q2
+                        evolve_msbar_mass(
+                            m2[n - 3],
+                            Q2m[n - 3],
+                            as_VFNS,
+                            fact_to_ren=1,
+                            nf=n,
+                            q2_to=Q2,
                         )
                     )
                 my_vals.append(my_masses)

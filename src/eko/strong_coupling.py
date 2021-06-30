@@ -150,6 +150,7 @@ class StrongCoupling:
             thresholds_ratios=thresholds_ratios,
             max_nf=max_nf,
             q2m_ref=q2m_ref,
+            as_ref=alpha_s_ref,
         )
         self.hqm_scheme = hqm_scheme
         logger.info(
@@ -316,7 +317,9 @@ class StrongCoupling:
             if self.method == "exact":
                 as_new = self.compute_exact(float(as_ref), nf, scale_from, scale_to)
             else:
-                as_new = as_expanded(self.order, float(as_ref), nf, scale_from, float(scale_to))
+                as_new = as_expanded(
+                    self.order, float(as_ref), nf, scale_from, scale_to
+                )
             self.cache[key] = as_new
             return as_new
 

@@ -5,9 +5,8 @@ This module holds the classes that define the |FNS|.
 import logging
 
 import numpy as np
-from scipy import optimize
 
-from .matching_conditions.msbar_masses import msbar_dispatcher
+from .msbar_masses import evolve_msbar_mass
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +71,9 @@ class ThresholdsAtlas:
         thresholds_ratios=None,
         max_nf=None,
         q2m_ref=None,
+        as_ref=0,
+        order=0,
+        fact_to_ren=1.0,
     ):
         # Initial values
         self.q2_ref = q2_ref
@@ -79,9 +81,10 @@ class ThresholdsAtlas:
         # MSBar
         if q2m_ref is not None:
             self.mass_ref = list(zip(q2m_ref, masses))
-            # TODO: here we need to solve the RGE m(m) = m.
-            # how can we pass strong_coupling ?
-            masses = list(masses)
+            self.as_ref = as_ref
+            self.order = order
+            self.fact_to_ren = fact_to_ren
+            masses = self.compute_msbar_mass()
         else:
             self.mass_ref = None
             masses = list(masses)
@@ -175,23 +178,28 @@ class ThresholdsAtlas:
 
         # MSbar or Pole masses
         hqm_scheme = theory_card["HQ"]
-        q_masses = None
         if hqm_scheme not in ["MSBAR", "POLE"]:
             raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
         if hqm_scheme == "MSBAR":
             q_masses = np.power([theory_card[f"Qm{q}"] for q in heavy_flavors], 2)
-            for mass, q_m in zip(masses, q_masses):
-                if mass > q_m:
-                    raise ValueError(
-                        "Each heavy quark mass reference scale must be larger \
-                            or equal than the value of the mass itself"
-                    )
+            as_ref = theory_card["alphas"]
+            order = theory_card["PTO"]
+            fact_to_ren = theory_card["fact_to_ren_scale_ratio"]
+            return cls(
+                np.power(masses, 2),
+                q2_ref,
+                thresholds_ratios=np.power(thresholds_ratios, 2),
+                max_nf=max_nf,
+                q2m_ref=q_masses,
+                as_ref=as_ref,
+                order=order,
+                fact_to_ren=fact_to_ren,
+            )
         return cls(
             np.power(masses, 2),
             q2_ref,
             thresholds_ratios=np.power(thresholds_ratios, 2),
             max_nf=max_nf,
-            q2m_ref=q_masses,
         )
 
     def path(self, q2_to, nf_to=None, q2_from=None, nf_from=None):
@@ -258,54 +266,50 @@ class ThresholdsAtlas:
         return 2 + ref_idx
 
     def compute_msbar_mass(
-        self, strong_coupling, fact_to_ren, order, nf, shift, q2_to=None
+        self,
     ):
         """
-        Compute the evoluted MSbar mass
-
-        Parameters
-        ----------
-            strong_coupling: strong_coupling: eko.strong_coupling.StrongCoupling
-                Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
-                any q
-            fact_to_ren: float
-                factorization to renormalization scale ratio
-            order: int
-                pertutbative order
-            shift: int
-                3 for forward evolution, 4 for backward
-            q2_to: float
-                scale at which the mass is computed.
-                If not given it solves the equation :math:`m_{\bar{MS}}(m) = m`
-        Returns
-        -------
-            m2 : float
-                :math:`m_{\bar{MS}}(q2)`
+        Compute the MSBar masses solving the equation :math:`m_{\bar{MS}}(m) = m`
         """
-        q2m_ref, m2_ref = self.mass_ref[nf - shift]
+        # Import this here to avoid circular import
+        # TODO: move this out this module
+        from .strong_coupling import StrongCoupling
 
-        if q2_to is None:
+        msbar_masses = []
+        shift = 3
+        for nf in [3, 4, 5]:
+            q2m_ref, m2_ref = self.mass_ref[nf - shift]
+            # if self.q2_ref > q2m_ref:
+            #     raise ValueError("In MSBAR scheme Q0 must be lower than any Qm")
+            # if q2m_ref > m2_ref:
+            #     raise ValueError("In MSBAR scheme each heavy quark \
+            #         mass reference scale must be smaller or equal than \
+            #             the value of the mass itself"
+            #     )
+            # create a FFNS StrongCoupling instance
+            # TODO: is this setting good for FFNS ?
+            sc = StrongCoupling(
+                self.as_ref,
+                self.q2_ref,
+                [item[1] for item in self.mass_ref],
+                thresholds_ratios=[1, 1, 1],
+                order=self.order,
+            )
+            msbar_masses.append(
+                evolve_msbar_mass(m2_ref, q2m_ref, sc, self.fact_to_ren, nf)
+            )
 
-            # check if mass is already given at the pole
-            if q2m_ref == m2_ref:
-                return m2_ref
-
-            def rge(m2, q2m_ref, strong_coupling, fact_to_ren, order, nf):
-                return (
-                    m2_ref
-                    * msbar_dispatcher(
-                        m2, q2m_ref, strong_coupling, fact_to_ren, order, nf
-                    )
-                    ** 2
-                    - m2
+        # Check the msbar ordering
+        for nf in [4, 5]:
+            q2m_ref, m2_ref = self.mass_ref[nf - 4]
+            m2_msbar = msbar_masses[nf - 4]
+            # check that msbar_c < msbar_b (m_c)
+            m2_test = evolve_msbar_mass(
+                m2_ref, q2m_ref, sc, self.fact_to_ren, nf, m2_msbar
+            )
+            if m2_msbar > m2_test:
+                raise ValueError(
+                    "The MSBAR masses do not preserve the correct ordering,\
+                         check the inital reference values"
                 )
-
-            msbar_mass = optimize.fsolve(
-                rge, q2m_ref, args=(q2m_ref, strong_coupling, fact_to_ren, order, nf)
-            )
-            return msbar_mass
-        else:
-            ev_mass = msbar_dispatcher(
-                q2_to, q2m_ref, strong_coupling, fact_to_ren, order, nf
-            )
-            return m2_ref * ev_mass ** 2
+        return msbar_masses
