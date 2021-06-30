@@ -44,7 +44,7 @@ def msbar_expanded(a0, a1, order, nf):
     """MSBar RGE exapanded"""
     b0 = beta(0, nf)
     c0 = gamma(0, nf) / b0
-    ev_mass = a1 / a0 * np.exp(c0)
+    ev_mass = np.power(a1 / a0, c0)
     num = 1.0
     den = 1.0
     if order >= 1:
@@ -54,9 +54,9 @@ def msbar_expanded(a0, a1, order, nf):
         num += a1 * r
         den += a0 * r
     if order >= 2:
-        b2 = b(1, nf)
+        b2 = b(2, nf)
         c2 = gamma(2, nf) / b0
-        r = (c2 - c1 * b1 - b2 * c0 + b1 ** 2 * c0 + (c1 - b1 * b0) ** 2) / 2.0
+        r = (c2 - c1 * b1 - b2 * c0 + b1 ** 2 * c0 + (c1 - b1 * c0) ** 2) / 2.0
         num += a1 ** 2 * r
         den += a0 ** 2 * r
     return ev_mass * num / den

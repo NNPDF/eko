@@ -482,7 +482,7 @@ class BenchmarkStrongCoupling:
         m2 = np.power((1.4, 2.0, 175), 2)
         apfel_vals_dict = {
             1: np.array(
-               [0.011285356789817751, 0.009315017128518715, 0.00873290495922747]
+                [0.011285356789817751, 0.009315017128518715, 0.00873290495922747]
             ),
             2: np.array(
                 [0.011292233300595585, 0.009314871933701218, 0.008731890252153528]
@@ -498,7 +498,7 @@ class BenchmarkStrongCoupling:
                 order=order,
                 method="expanded",
                 hqm_scheme="MSBAR",
-                q2m_ref=Q2m
+                q2m_ref=Q2m,
             )
             my_vals = []
             for Q2 in Q2s:
