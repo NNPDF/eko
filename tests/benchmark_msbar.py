@@ -1,0 +1,86 @@
+# -*- coding: utf-8 -*-
+"""This module benchmarks MSbar mass evolution against APFEL."""
+import numpy as np
+
+from eko.thresholds import ThresholdsAtlas
+from eko.strong_coupling import StrongCoupling
+
+
+# try to load APFEL - if not available, we'll use the cached values
+try:
+    import apfel
+
+    use_APFEL = True
+except ImportError:
+    use_APFEL = False
+
+
+
+class BenchmarkMSbar:
+
+    def benchmark_APFEL_msbar(self):
+        Q2s = np.power([30, 96, 150], 2)
+        alphas_ref = 0.118
+        scale_ref = 91.0 ** 2
+        thresholds_ratios = np.power((1.0, 1.0, 1.0), 2)
+        Q2m = np.power([2.0, 4.5, 175], 2)
+        m2 = np.power((1.4, 4.5, 175), 2)
+        apfel_vals_dict = {
+            1: np.array([
+                [0.9201310979048153, 3.501516131733403, 204.78953029068884],
+                [0.8251533585949282, 3.1400827586994855, 183.65075271254497],
+                [0.7957427000040153, 3.028161864236207, 177.104951823859],
+            ]),
+            2: np.array(
+                [[0.9026183188245102, 3.4773254983022777, 205.17619429785745],
+                [0.8084237419306857, 3.1144420987483485, 183.76461377981423],
+                [0.7793806824526442, 3.002554084550691, 177.16277079680097]]
+            ),
+        }
+        # collect my values
+        for order in [1, 2]:
+            thr = ThresholdsAtlas(
+                m2, q2m_ref=Q2m
+            )
+            as_VFNS = StrongCoupling(
+                alphas_ref,
+                scale_ref,
+                m2,
+                thresholds_ratios,
+                order=order,
+                method="exact",
+                hqm_scheme="MSBAR",
+                q2m_ref=Q2m
+            )
+            my_vals = []
+            for Q2 in Q2s:
+                my_masses = []
+                for n in [3,4,5]:
+                    my_masses.append(thr.compute_msbar_mass(as_VFNS, fact_to_ren=1, order=order, nf=n, shift=3, q2_to=Q2 ))
+                my_vals.append(my_masses)
+            # get APFEL numbers - if available else use cache
+            apfel_vals = apfel_vals_dict[order]
+            if use_APFEL:
+                # run apfel
+                apfel.CleanUp()
+                apfel.SetTheory("QCD")
+                apfel.SetPerturbativeOrder(order)
+                apfel.SetAlphaEvolution("expanded")
+                apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                apfel.SetVFNS()
+                apfel.SetMSbarMasses(*np.sqrt(m2))
+                apfel.SetMassScaleReference(*np.sqrt(Q2m))
+                apfel.SetRenFacRatio(1)
+                apfel.InitializeAPFEL()
+                # collect a_s
+                apfel_vals_cur = []
+                for Q2 in Q2s:
+                    masses = []
+                    for n in [4,5,6]:
+                        masses.append(apfel.HeavyQuarkMass( n, np.sqrt(Q2)))     
+                    apfel_vals_cur.append(masses)
+                print(apfel_vals_cur)
+                np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
+            # check myself to APFEL
+            # TODO: looks not so precise ..., pass more physical Q2s
+            np.testing.assert_allclose(apfel_vals, np.sqrt(np.array(my_vals)), rtol=1e-1)    

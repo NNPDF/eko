@@ -283,10 +283,13 @@ class ThresholdsAtlas:
                 :math:`m_{\bar{MS}}(q2)`
         """
         q2m_ref, m2_ref = self.mass_ref[nf - shift]
-        if q2m_ref == m2_ref:
-            return m2_ref
+        
         if q2_to is None:
-
+            
+            # check if mass is already given at the pole
+            if q2m_ref == m2_ref:
+                return m2_ref
+            
             def rge(m2, q2m_ref, strong_coupling, fact_to_ren, order, nf):
                 return (
                     m2_ref

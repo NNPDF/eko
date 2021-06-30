@@ -314,9 +314,9 @@ class StrongCoupling:
         except KeyError:
             # at the moment everything is expanded - and type has been checked in the constructor
             if self.method == "exact":
-                as_new = self.compute_exact(as_ref, nf, scale_from, scale_to)
+                as_new = self.compute_exact(float(as_ref), nf, scale_from, scale_to)
             else:
-                as_new = as_expanded(self.order, as_ref, nf, scale_from, scale_to)
+                as_new = as_expanded(self.order, float(as_ref), nf, scale_from, float(scale_to))
             self.cache[key] = as_new
             return as_new
 
