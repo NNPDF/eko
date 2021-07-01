@@ -1,0 +1,5 @@
+database_path: benchmark.db
+input_tables:
+  - theories
+  - operators
+  - cache
