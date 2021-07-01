@@ -183,19 +183,20 @@ class OperatorGrid:
                 shift = 3 if not seg.is_backward else 4
                 kthr = thr_config.thresholds_ratios[seg.nf - shift]
                 # MSBar mass ?
-                if thr_config.mass_ref is not None:
+                is_msbar = bool(thr_config.msbar_config is not None)
+                if is_msbar:
                     q2m_ref, m2_ref = thr_config.mass_ref[seg.nf - shift]
                     m2_msbar = evolve_msbar_mass(
                         m2_ref,
                         q2m_ref,
-                        self.managers["strong_coupling"],
-                        self.config["fact_to_ren"],
                         seg.nf,
+                        dict(fact_to_ren=self.config["fact_to_ren"]),
+                        self.managers["strong_coupling"],
                         seg.q2_to,
                     )
                     # TODO: is this correct ??
                     kthr *= m2_msbar / seg.q2_to
-                ome.compute(seg.q2_to, np.log(kthr))
+                ome.compute(seg.q2_to, np.log(kthr), is_msbar)
                 self._matching_operators[seg.q2_to] = ome.ome_members
         return thr_ops
 

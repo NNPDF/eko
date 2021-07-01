@@ -6,7 +6,6 @@ import logging
 
 import numpy as np
 
-from .msbar_masses import evolve_msbar_mass
 
 logger = logging.getLogger(__name__)
 
@@ -70,23 +69,18 @@ class ThresholdsAtlas:
         nf_ref=None,
         thresholds_ratios=None,
         max_nf=None,
-        q2m_ref=None,
-        as_ref=0,
-        order=0,
-        fact_to_ren=1.0,
+        msbar_config=None,
     ):
         # Initial values
         self.q2_ref = q2_ref
         self.nf_ref = nf_ref
         # MSBar
-        if q2m_ref is not None:
-            self.mass_ref = list(zip(q2m_ref, masses))
-            self.as_ref = as_ref
-            self.order = order
-            self.fact_to_ren = fact_to_ren
-            masses = self.compute_msbar_mass()
+        if msbar_config is not None and msbar_config["q2m_ref"] is not None:
+            self.mass_ref = list(zip(msbar_config["q2m_ref"], masses))
+            self.msbar_config = msbar_config
+            masses = list(self.compute_msbar_mass())
         else:
-            self.mass_ref = None
+            self.msbar_config = None
             masses = list(masses)
         if masses != sorted(masses):
             raise ValueError("masses need to be sorted")
@@ -178,28 +172,23 @@ class ThresholdsAtlas:
 
         # MSbar or Pole masses
         hqm_scheme = theory_card["HQ"]
+        msbar_config = None
         if hqm_scheme not in ["MSBAR", "POLE"]:
             raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
         if hqm_scheme == "MSBAR":
-            q_masses = np.power([theory_card[f"Qm{q}"] for q in heavy_flavors], 2)
-            as_ref = theory_card["alphas"]
-            order = theory_card["PTO"]
-            fact_to_ren = theory_card["fact_to_ren_scale_ratio"]
-            return cls(
-                np.power(masses, 2),
-                q2_ref,
-                thresholds_ratios=np.power(thresholds_ratios, 2),
-                max_nf=max_nf,
-                q2m_ref=q_masses,
-                as_ref=as_ref,
-                order=order,
-                fact_to_ren=fact_to_ren,
-            )
+            msbar_config = {
+                "q2m_ref": np.power([theory_card[f"Qm{q}"] for q in heavy_flavors], 2),
+                "as_ref": theory_card["alphas"],
+                "q2a_ref": np.power(theory_card["Qref"], 2),
+                "order": theory_card["PTO"],
+                "fact_to_ren": theory_card["fact_to_ren_scale_ratio"] ** 2,
+            }
         return cls(
             np.power(masses, 2),
             q2_ref,
             thresholds_ratios=np.power(thresholds_ratios, 2),
             max_nf=max_nf,
+            msbar_config=msbar_config,
         )
 
     def path(self, q2_to, nf_to=None, q2_from=None, nf_from=None):
@@ -270,15 +259,18 @@ class ThresholdsAtlas:
     ):
         """
         Compute the MSBar masses solving the equation :math:`m_{\bar{MS}}(m) = m`
-        """
-        # Import this here to avoid circular import
-        # TODO: move this out this module
-        from .strong_coupling import StrongCoupling
+        """  # pylint:disable=import-outside-toplevel
+        from .msbar_masses import evolve_msbar_mass
 
-        msbar_masses = []
+        msbar_masses = np.full(3, np.inf)
+        config = self.msbar_config.copy()
         shift = 3
         for nf in [3, 4, 5]:
             q2m_ref, m2_ref = self.mass_ref[nf - shift]
+            # check if mass is already given at the pole
+            if q2m_ref == m2_ref:
+                msbar_masses[nf - shift] = m2_ref
+                continue
             # if self.q2_ref > q2m_ref:
             #     raise ValueError("In MSBAR scheme Q0 must be lower than any Qm")
             # if q2m_ref > m2_ref:
@@ -286,26 +278,18 @@ class ThresholdsAtlas:
             #         mass reference scale must be smaller or equal than \
             #             the value of the mass itself"
             #     )
-            # create a FFNS StrongCoupling instance
-            # TODO: is this setting good for FFNS ?
-            sc = StrongCoupling(
-                self.as_ref,
-                self.q2_ref,
-                [item[1] for item in self.mass_ref],
-                thresholds_ratios=[1, 1, 1],
-                order=self.order,
-            )
-            msbar_masses.append(
-                evolve_msbar_mass(m2_ref, q2m_ref, sc, self.fact_to_ren, nf)
+            config["thr_masses"] = msbar_masses
+            msbar_masses[nf - shift] = evolve_msbar_mass(
+                m2_ref, q2m_ref, nf, config=config
             )
 
         # Check the msbar ordering
         for nf in [4, 5]:
-            q2m_ref, m2_ref = self.mass_ref[nf - 4]
-            m2_msbar = msbar_masses[nf - 4]
-            # check that msbar_c < msbar_b (m_c)
+            q2m_ref, m2_ref = self.mass_ref[nf - shift]
+            m2_msbar = msbar_masses[nf - shift - 1]
+            # check that m_msbar_hq < msbar_hq+1 (m_msbar_hq)
             m2_test = evolve_msbar_mass(
-                m2_ref, q2m_ref, sc, self.fact_to_ren, nf, m2_msbar
+                m2_ref, q2m_ref, nf, config=config, q2_to=m2_msbar
             )
             if m2_msbar > m2_test:
                 raise ValueError(

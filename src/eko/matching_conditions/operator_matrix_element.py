@@ -332,7 +332,7 @@ class OperatorMatrixElement:
                             a_s,
                             L,
                             self.backward_method,
-                            is_msbar
+                            is_msbar,
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,

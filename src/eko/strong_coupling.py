@@ -128,6 +128,7 @@ class StrongCoupling:
         max_nf=None,
         hqm_scheme="POLE",
         q2m_ref=None,
+        fact_to_ren=None,
     ):
         # Sanity checks
         if alpha_s_ref <= 0:
@@ -149,8 +150,13 @@ class StrongCoupling:
             nf_ref,
             thresholds_ratios=thresholds_ratios,
             max_nf=max_nf,
-            q2m_ref=q2m_ref,
-            as_ref=alpha_s_ref,
+            msbar_config=dict(
+                q2m_ref=q2m_ref,
+                as_ref=alpha_s_ref,
+                q2a_ref=scale_ref,
+                order=order,
+                fact_to_ren=fact_to_ren,
+            ),
         )
         self.hqm_scheme = hqm_scheme
         logger.info(
@@ -238,6 +244,7 @@ class StrongCoupling:
             max_nf,
             hqm_scheme,
             q2m_ref,
+            fact_to_ren ** 2,
         )
 
     def compute_exact(self, as_ref, nf, scale_from, scale_to):
@@ -262,7 +269,7 @@ class StrongCoupling:
         """
         # in LO fallback to expanded, as this is the full solution
         if self.order == 0:
-            return as_expanded(self.order, as_ref, nf, scale_from, scale_to)
+            return as_expanded(self.order, as_ref, nf, scale_from, float(scale_to))
         # otherwise rescale the RGE to run in terms of
         # u = beta0 * ln(scale_to/scale_from)
         beta0 = beta(0, nf)

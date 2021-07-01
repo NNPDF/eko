@@ -57,6 +57,7 @@ class BenchmarkMSbar:
                 method="expanded",
                 hqm_scheme="MSBAR",
                 q2m_ref=Q2m,
+                fact_to_ren=1.0
             )
             my_vals = []
             for Q2 in Q2s:
@@ -66,8 +67,8 @@ class BenchmarkMSbar:
                         evolve_msbar_mass(
                             m2[n - 3],
                             Q2m[n - 3],
-                            as_VFNS,
-                            fact_to_ren=1,
+                            strong_coupling=as_VFNS,
+                            config=dict(fact_to_ren=1),
                             nf=n,
                             q2_to=Q2,
                         )

@@ -248,7 +248,9 @@ def A_hg_2(n, sx, L, is_msbar):
 
     if is_msbar:
         # see Apfel AS2Hg
-        a_hg_2_l0 -= 2.0 * 4.0 * constants.CF * 2 * (2 + n + n ** 2) / (n * (n + 1) * (2 + n))
+        a_hg_2_l0 -= (
+            2.0 * 4.0 * constants.CF * 2 * (2 + n + n ** 2) / (n * (n + 1) * (2 + n))
+        )
 
     a_hg_2_l1 = (
         2

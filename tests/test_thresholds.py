@@ -168,8 +168,8 @@ class TestThresholdsAtlas:
     def test_compute_msbar_mass(self):
         # Test solution of msbar(m) = m
         theory_dict = {
-            "alphas": 0.118,
-            "Qref": 91.0,
+            "alphas": 0.35,
+            "Qref": 1.4,
             "nfref": None,
             "MaxNfPdf": 6,
             "MaxNfAs": 6,
@@ -182,20 +182,20 @@ class TestThresholdsAtlas:
             "kbThr": 1.0,
             "ktThr": 1.0,
             "HQ": "MSBAR",
-            "Qmc": 2.1,
-            "Qmb": 4.1,
-            "Qmt": 175.3,
+            "Qmc": 1.9,
+            "Qmb": 3.9,
+            "Qmt": 174.9,
         }
-        for method in ["EXP", "EXA"]:
-            for order in [1, 2]:
+        for method in ["EXA","EXP"]:
+            for order in [1,2]:
                 theory_dict.update({"ModEv": method, "PTO": order})
                 thr = ThresholdsAtlas.from_dict(theory_dict)
                 strong_coupling = StrongCoupling.from_dict(theory_dict)
-                fact_to_ren = 1.0
+
+                # compute the scale such msbar(m) = m
                 m2_computed = thr.compute_msbar_mass()
                 m2_test = []
                 for nf in [3, 4, 5]:
-                    # compute the scale such msbar(m) = m
                     # compute msbar( m )
                     m2_ref = theory_dict[f"m{quark_names[nf]}"] ** 2
                     Q2m_ref = theory_dict[f"Qm{quark_names[nf]}"] ** 2
@@ -203,10 +203,10 @@ class TestThresholdsAtlas:
                         evolve_msbar_mass(
                             m2_ref,
                             Q2m_ref,
-                            strong_coupling,
-                            fact_to_ren,
                             nf,
-                            m2_computed[nf - 3],
+                            strong_coupling=strong_coupling,
+                            config=dict(fact_to_ren=theory_dict["fact_to_ren_scale_ratio"]),
+                            q2_to=m2_computed[nf - 3],
                         )
                     )
-                np.testing.assert_allclose(m2_computed, m2_test, rtol=3e-2)
+                np.testing.assert_allclose(m2_computed, m2_test, rtol=5e-3)

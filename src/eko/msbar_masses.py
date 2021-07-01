@@ -8,6 +8,7 @@ from scipy import optimize
 
 from .beta import beta, b
 from .gamma import gamma
+from .strong_coupling import StrongCoupling
 
 
 def msbar_ker_exact(a0, a1, order, nf):
@@ -140,8 +141,10 @@ def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
     return msbar_ker_exact(a0, a1, order, nf)
 
 
-def evolve_msbar_mass(m2_ref, q2m_ref, strong_coupling, fact_to_ren, nf, q2_to=None):
-    """
+def evolve_msbar_mass(
+    m2_ref, q2m_ref, nf, config=None, strong_coupling=None, q2_to=None
+):
+    r"""
     Compute the MSbar mass.
     If the final scale is not gven it solves the equation :math:`m_{\bar{MS}}(m) = m`
 
@@ -151,26 +154,33 @@ def evolve_msbar_mass(m2_ref, q2m_ref, strong_coupling, fact_to_ren, nf, q2_to=N
             squared intial mass reference
         q2m_ref: float
             squared intial scale
-        strong_coupling: strong_coupling: eko.strong_coupling.StrongCoupling
-            Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
-            any q
-        fact_to_ren: float
-            factorization to renormalization scale ratio
         nf: int
             number of active flavours
+        config: dict
+            msbar configuration dictionary
+        strong_coupling: eko.strong_coupling.StrongCoupling
+            Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
+            any q
         q2_to: float
-            scale at which the mass is computed.
-            If not given it solves the equation :math:`m_{\bar{MS}}(m) = m`
+            scale at which the mass is computed
+
     Returns
     -------
         m2 : float
             :math:`m_{\bar{MS}}(q2)`
     """
+    # set the missing information if needed
+    fact_to_ren = config["fact_to_ren"]
+    if strong_coupling is None:
+        strong_coupling = StrongCoupling(
+            config["as_ref"],
+            config["q2a_ref"],
+            config["thr_masses"],
+            thresholds_ratios=[1, 1, 1],
+            order=config["order"],
+        )
 
     if q2_to is None:
-        # check if mass is already given at the pole
-        if q2m_ref == m2_ref:
-            return m2_ref
 
         def rge(m2, q2m_ref, strong_coupling, fact_to_ren, nf):
             return (
