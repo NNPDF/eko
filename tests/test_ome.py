@@ -23,9 +23,10 @@ def test_build_ome_as():
     L = 0.0
     a_s = 0.0
     sx = np.zeros(3, np.complex_)
+    is_msbar = False
     for o in [0, 1, 2]:
         aNS = A_non_singlet(o, N, sx, L)
-        aS = A_singlet(o, N, sx, L)
+        aS = A_singlet(o, N, sx, L, is_msbar)
 
         for a in [aNS, aS]:
             for method in ["", "expanded", "exact"]:
@@ -43,10 +44,12 @@ def test_build_ome_nlo():
     N = 2
     L = 0.0
     a_s = 20
+    is_msbar = False
+
     sx = np.array([1, 1, 1], np.complex_)
 
     aNSi = A_non_singlet(1, N, sx, L)
-    aSi = A_singlet(1, N, sx, L)
+    aSi = A_singlet(1, N, sx, L, is_msbar)
     for a in [aNSi, aSi]:
         for method in ["", "expanded", "exact"]:
             dim = len(a[0])
@@ -95,6 +98,7 @@ def test_quad_ker(monkeypatch):
             backward_method=None,
             a_s=0.0,
             L=0.0,
+            is_msbar=False
         )
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
@@ -107,6 +111,7 @@ def test_quad_ker(monkeypatch):
             backward_method=None,
             a_s=0.0,
             L=0.0,
+            is_msbar=False
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -119,6 +124,7 @@ def test_quad_ker(monkeypatch):
             backward_method=None,
             a_s=0.0,
             L=0.0,
+            is_msbar=False
         )
         np.testing.assert_allclose(res_s, 0.0)
 
@@ -135,6 +141,7 @@ def test_quad_ker(monkeypatch):
             backward_method="expanded",
             a_s=0.0,
             L=0.0,
+            is_msbar=False
         )
         if label[-1] == label[-2]:
             np.testing.assert_allclose(res_ns, 1.0)
@@ -165,6 +172,7 @@ def test_quad_ker(monkeypatch):
             backward_method="exact",
             a_s=0.0,
             L=0.0,
+            is_msbar=False
         )
         if label[-1] == label[-2]:
             np.testing.assert_allclose(res_ns, 1.0)
@@ -182,6 +190,7 @@ def test_quad_ker(monkeypatch):
         backward_method=None,
         a_s=0.0,
         L=0.0,
+        is_msbar=False
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
