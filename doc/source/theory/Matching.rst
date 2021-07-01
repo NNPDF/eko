@@ -20,7 +20,7 @@ in the :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution B
 
 If a single threshold :math:`\left(\mu_{h-1}^2 < Q_0^2 < \mu_{h}^2 < Q_1^2 < \mu_{h+1}^2\right)` is present
 we decompose the matching into two independet steps:
-first, the true QCD induced |OME| :math:`\mathbf{A}^{(n_f)}(\mu_{h}^2)` that are given by perturbative calculations,
+first, the true QCD induced |OME| :math:`\mathbf{A}^{(n_f)}(\mu_{h}^2)` that are given by perturbative calculations and expressed in the flavor space,
 and, second, the necessary :doc:`flavor space rotation <FlavorSpace>` :math:`\mathbf{R}^{(n_f)}` to fit the
 new :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution Bases>`.
 We can then denote the solution as
@@ -28,7 +28,7 @@ We can then denote the solution as
 .. math ::
     \tilde{\mathbf{f}}^{(n_f+1)}(Q^2_1)= \tilde{\mathbf{E}}^{(n_f+1)}(Q^2_1\leftarrow \mu_{h}^2) {\mathbf{R}^{(n_f)}} \tilde{\mathbf{A}}^{(n_f)}(\mu_{h}^2) \tilde{\mathbf{E}}^{(n_f)}(\mu_{h}^2\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
-In the case of more than one threshold beeing present, the matching procedure is iterated on all thresholds.
+In the case of more than one threshold beeing present, the matching procedure is iterated on all thresholds starting from the lowest one.
 
 
 Operator Matrix Elements
@@ -59,14 +59,18 @@ We can then write the matching matrices :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` 
     \dTj{j}{n_f+1}{\mu_h^2} &= \tilde{A}_{ns+}^{(n_f)}(\mu_{h}^2) \dTj{j}{n_f}{\mu_h^2}\\
     &\text{for }j=3,\ldots, n_f^2-1
 
+Note that in the left hand side basis the distributions :math:`\tilde \Sigma_{(n_f)}, \tilde V_{(n_f)}` are not the Singlet and the Valence distributions any longer since, they
+do not contain the new higher flavor.
+Furthermore in the right side basis :math:`\tilde h^{+}, \tilde h^{-}` are intrinsic contributions.
 
-where :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` can be computed order by order in :math:`a_s`:
+The :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` can be computed order by order in :math:`a_s`:
 
 .. math ::
     \mathbf{A}^{(n_f)}(\mu_{h}^2) = \mathbf{I} + a_s^{(n_f)}(\mu_{h}^2)  \mathbf{A}^{(n_f),(1)} + \left(a_s^{(n_f)}(\mu_{h}^2)\right)^2 \mathbf{A}^{(n_f),(2)}
 
 
-and the :math:`\mathbf{A}^{(n_f),(k)}` are given upto |NNLO| by the following expressions:
+
+where the :math:`\mathbf{A}^{(n_f),(k)}` are given upto |NNLO| by the following expressions:
 
 .. math ::
     \mathbf{A}_{S,h^+}^{(n_f),(1)} &= \begin{pmatrix} A_{gg,H}^{S,(1)} & 0 & A_{gH}^{S,(1)} \\ 0 & 0 & 0 \\ A_{Hg}^{S,(1)} & 0 & A_{HH}^{(1)} \end{pmatrix} \\
@@ -77,7 +81,7 @@ and the :math:`\mathbf{A}^{(n_f),(k)}` are given upto |NNLO| by the following ex
 
 The coefficients :math:`A^{(n_f),(k)}_{ij}(z,\mu_{h}^2)` have been firstly computed in :cite:`Buza_1998` and have
 been :doc:`Mellin tranformed </theory/Mellin>` to be used inside EKO.
-They depend on the scale :math:`\mu_{h}^2` is only through the logarithm :math:`\ln(\mu_{h}^2/m_{h}^2)`,
+They depend on the scale :math:`\mu_{h}^2` only through the logarithm :math:`\ln(\mu_{h}^2/m_{h}^2)`,
 in particular the coefficient :math:`A_{gg,H}^{S,(1)}` is fully proprtional to :math:`\ln(\mu_{h}^2/m_{h}^2)`.
 
 We remark that contributions of the higher quark at |NNLO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
@@ -109,10 +113,12 @@ For backward evolution the matching procedure has to be applied in the reversed 
 matrices :math:`\mathbf{R}^{(n_f)}` are easy to invert, this does not apply to the |OME| :math:`\mathbf{A}^{(n_f)}`.
 EKO implements two different strategies to perform this operation, that can be specified with the parameter ``backward_inversion``:
 
-- ``backward_inversion = 'exact'``: the matching matrices are inverted exactly in N space, and then integrated element by element
+- ``backward_inversion = 'exact'``: the matching matrices are inverted exactly in N space, and then integrated entry by entry
 - ``backward_inversion = 'expanded'``: the matching matrices are inverted through a pertubative expansion in :math:`a_s` before the Mellin inversion:
 
 .. math ::
     \mathbf{A}_{exp}^{-1}(\mu_{h}^2) &= \mathbf{I} - a_s(\mu_{h}^2)  \mathbf{A}^{(1)} + a_s^2(\mu_{h}^2) \left [ \mathbf{A}^{(2)} -  \left(\mathbf{A}^{(1)}\right)^2 \right ] + O(a_s^3) \\
 
 We emphasize that in the backward evolution, below the threshold, the remaining high quark PDFs are always intrinsic and do not evolve anymore.
+In fact, if the initial PDFs (above threshold) do contain an intrinsic contribution, this has to be evolved below the threhsold otherwise momentum sum rules 
+can be violated.
