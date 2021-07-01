@@ -156,45 +156,6 @@ def A_singlet_1(n, sx, L):
     return A_S_1
 
 
-# @nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
-# def A_singlet_1_intrinsic(n, sx, L):
-#     r"""
-#       Computes the |NLO| singlet |OME| with intrinsic contibution.
-
-#       .. math::
-#           A^{S,(1)} = \left(\begin{array}{cc}
-#             A_{gg,H}^{S,(1)} & 0  & A_{gH}^{(1)} \\
-#             0 & 0 & 0 \\
-#             A_{hg}^{S,(1)} & 0 & A_{HH}^{(1)}
-#           \end{array}\right)
-
-#       Parameters
-#       ----------
-#         n : complex
-#             Mellin moment
-#         sx : numpy.ndarray
-#             List of harmonic sums
-#         L : float
-#             :math:`\ln(\mu_F^2 / m_h^2)`
-
-#       Returns
-#       -------
-#         A_S_1 : numpy.ndarray
-#             |NLO| singlet |OME| :math:`A^{S,(1)}`
-
-#       See Also
-#       --------
-#         A_hg_1 : :math:`A_{hg}^{S,(1)}`
-#         A_gg_1 : :math:`A_{gg,H}^{S,(1)}`
-#         A_gh_1 : :math:`A_{gH}^{(1)}`
-#         A_hh_1 : :math:`A_{HH}^{(1)}`
-#     """
-#     A_S_1 = A_singlet_1(n, L)
-#     A_S_1[0, 2] = A_gh_1(n, L)
-#     A_S_1[2, 2] = A_hh_1(n, sx, L)
-#     return A_S_1
-
-
 @nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
 def A_ns_1(n, sx, L):
     r"""

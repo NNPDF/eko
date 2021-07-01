@@ -14,6 +14,7 @@ import numpy as np
 
 from .. import constants
 from ..anomalous_dimensions import harmonics
+from .nlo import A_gg_1, A_hg_1
 
 # Global variables
 zeta2 = harmonics.zeta2
@@ -142,8 +143,8 @@ def A_hq_2_ps(n, sx, L):
     )
 
 
-@nb.njit("c16(c16,c16[:],f8,b1)", cache=True)
-def A_hg_2(n, sx, L, is_msbar):
+@nb.njit("c16(c16,c16[:],f8)", cache=True)
+def A_hg_2(n, sx, L):
     r"""
     |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}` given in
     Eq. (B.3) of :cite:`Buza_1998`.
@@ -157,8 +158,6 @@ def A_hg_2(n, sx, L, is_msbar):
             List of harmonic sums
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
-        is_msbar: bool
-            add the :math:`\bar{MS}` contribution
 
     Returns
     -------
@@ -245,12 +244,6 @@ def A_hg_2(n, sx, L, is_msbar):
             - 24 * Sm21
         )
     )
-
-    if is_msbar:
-        # see Apfel AS2Hg
-        a_hg_2_l0 -= (
-            2.0 * 4.0 * constants.CF * 2 * (2 + n + n ** 2) / (n * (n + 1) * (2 + n))
-        )
 
     a_hg_2_l1 = (
         2
@@ -350,8 +343,8 @@ def A_gq_2(n, sx, L):
     )
 
 
-@nb.njit("c16(c16,c16[:],f8,b1)", cache=True)
-def A_gg_2(n, sx, L, is_msbar):
+@nb.njit("c16(c16,c16[:],f8)", cache=True)
+def A_gg_2(n, sx, L):
     r"""
     |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)} ` given in
     Eq. (B.7) of :cite:`Buza_1998`.
@@ -364,8 +357,6 @@ def A_gg_2(n, sx, L, is_msbar):
             List of harmonic sums
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
-        is_msbar: bool
-            add the :math:`\bar{MS}`contribution
 
     Returns
     -------
@@ -404,9 +395,6 @@ def A_gg_2(n, sx, L, is_msbar):
     )
 
     a_gg_2_l0 = constants.TR * (constants.CF * a_gg_2f + constants.CA * a_gg_2a)
-    if is_msbar:
-        # see Apfel AS2ggH_L
-        a_gg_2_l0 += 2.0 * 4.0 * constants.CF * 2.0 / 3.0
 
     a_gg_2_l1 = (
         8
@@ -480,9 +468,12 @@ def A_singlet_2(n, sx, L, is_msbar=False):
     """
     A_hq = A_hq_2_ps(n, sx, L)
     A_qq = A_qq_2_ns(n, sx, L)
-    A_hg = A_hg_2(n, sx, L, is_msbar)
+    A_hg = A_hg_2(n, sx, L)
     A_gq = A_gq_2(n, sx, L)
-    A_gg = A_gg_2(n, sx, L, is_msbar)
+    A_gg = A_gg_2(n, sx, L)
+    if is_msbar:
+        A_hg -= 2.0 * 4.0 * constants.CF * A_hg_1(n, L=1.0)
+        A_gg -= 2.0 * 4.0 * constants.CF * A_gg_1(L=1.0)
     A_S_2 = np.array(
         [[A_gg, A_gq, 0.0], [0.0, A_qq, 0.0], [A_hg, A_hq, 0.0]], np.complex_
     )

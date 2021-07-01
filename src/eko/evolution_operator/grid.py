@@ -184,18 +184,18 @@ class OperatorGrid:
                 kthr = thr_config.thresholds_ratios[seg.nf - shift]
                 # MSBar mass ?
                 is_msbar = bool(thr_config.msbar_config is not None)
-                if is_msbar:
-                    q2m_ref, m2_ref = thr_config.mass_ref[seg.nf - shift]
-                    m2_msbar = evolve_msbar_mass(
-                        m2_ref,
-                        q2m_ref,
-                        seg.nf,
-                        dict(fact_to_ren=self.config["fact_to_ren"]),
-                        self.managers["strong_coupling"],
-                        seg.q2_to,
-                    )
-                    # TODO: is this correct ??
-                    kthr *= m2_msbar / seg.q2_to
+                # TODO: comparing to Apfel this seems to be not necessary.
+                # if is_msbar:
+                #     q2m_ref, m2_ref = thr_config.mass_ref[seg.nf - shift]
+                #     m2_msbar = evolve_msbar_mass(
+                #         m2_ref,
+                #         q2m_ref,
+                #         seg.nf,
+                #         dict(fact_to_ren=self.config["fact_to_ren"]),
+                #         self.managers["strong_coupling"],
+                #         seg.q2_to,
+                #     )
+                #     kthr *= m2_msbar / seg.q2_to
                 ome.compute(seg.q2_to, np.log(kthr), is_msbar)
                 self._matching_operators[seg.q2_to] = ome.ome_members
         return thr_ops

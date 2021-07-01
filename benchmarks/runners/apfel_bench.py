@@ -85,6 +85,23 @@ class BenchmarkVFNS(ApfelBenchmark):
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
 
+    def benchmark_msbar(self, pto):
+        """Threshold scale different from heavy quark mass"""
+
+        th = self.vfns_theory.copy()
+        th.update(
+            {
+                "PTO": [pto],
+                "kcThr": [1.20],
+                "Qmc": [2.0],
+                "mc": [2.0],
+                "HQ": ["MSBAR"],
+            }
+        )
+        self.run(
+            cartesian_product(th), operators.build({"Q2grid": [[10]]}), ["ToyLH"]
+        )
+
 
 class BenchmarkFFNS(ApfelBenchmark):
     """Benckmark FFNS"""
@@ -145,4 +162,5 @@ if __name__ == "__main__":
 
     # obj.benchmark_plain(1)
     # obj.benchmark_sv(1)
-    obj.benchmark_kthr(2)
+    # obj.benchmark_kthr(2)
+    obj.benchmark_msbar(2)
