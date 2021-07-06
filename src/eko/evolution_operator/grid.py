@@ -183,7 +183,7 @@ class OperatorGrid:
                 shift = 3 if not seg.is_backward else 4
                 kthr = thr_config.thresholds_ratios[seg.nf - shift]
                 # MSBar mass ?
-                is_msbar = bool(thr_config.msbar_config is not None)
+                is_msbar = thr_config.msbar_config is not None
                 # TODO: comparing to Apfel this seems to be not necessary.
                 # if is_msbar:
                 #     q2m_ref, m2_ref = thr_config.mass_ref[seg.nf - shift]

@@ -217,6 +217,9 @@ class StrongCoupling:
             method = "expanded"
         else:
             raise ValueError(f"Unknown evolution mode {mod_ev}")
+        hqm_scheme = theory_card["HQ"]
+        if hqm_scheme not in ["MSBAR", "POLE"]:
+            raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
         # adjust factorization scale / renormalization scale
         fact_to_ren = theory_card["fact_to_ren_scale_ratio"]
         heavy_flavors = "cbt"
@@ -227,10 +230,7 @@ class StrongCoupling:
             [theory_card[f"k{q}Thr"] for q in heavy_flavors], 2
         )
         max_nf = theory_card["MaxNfAs"]
-        hqm_scheme = theory_card["HQ"]
         q2m_ref = None
-        if hqm_scheme not in ["MSBAR", "POLE"]:
-            raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
         if hqm_scheme == "MSBAR":
             q2m_ref = np.power([theory_card[f"Qm{q}"] for q in heavy_flavors], 2)
         return cls(

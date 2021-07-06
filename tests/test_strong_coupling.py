@@ -105,6 +105,18 @@ class TestStrongCoupling:
                     ModEv="FAIL",
                 ),
             )
+        with pytest.raises(ValueError):
+            StrongCoupling.from_dict(
+                dict(
+                    alphas=alphas_ref,
+                    Qref=np.sqrt(scale_ref),
+                    nfref=None,
+                    PTO=0,
+                    ModEv="EXA",
+                    fact_to_ren_scale_ratio=1.0,
+                    HQ="FAIL",
+                ),
+            )
 
     def test_ref(self):
         # prepare

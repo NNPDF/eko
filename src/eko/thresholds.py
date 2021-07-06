@@ -257,9 +257,10 @@ class ThresholdsAtlas:
     def compute_msbar_mass(
         self,
     ):
-        """
+        r"""
         Compute the :math:`\overline{MS}` masses solving the equation :math:`m_{\bar{MS}}(m) = m`
         """  # pylint:disable=import-outside-toplevel
+        # TODO: remove from this module
         from .msbar_masses import evolve_msbar_mass
 
         msbar_masses = np.full(3, np.inf)
@@ -283,18 +284,19 @@ class ThresholdsAtlas:
                 m2_ref, q2m_ref, nf, config=config
             )
 
+        # TODO: do we need thisor we jus fall in mass not sorted ?
         # Check the msbar ordering
-        for nf in [4, 5]:
-            q2m_ref, m2_ref = self.mass_ref[nf - shift]
-            m2_msbar = msbar_masses[nf - shift - 1]
-            config["thr_masses"] = msbar_masses
-            # check that m_msbar_hq < msbar_hq+1 (m_msbar_hq)
-            m2_test = evolve_msbar_mass(
-                m2_ref, q2m_ref, nf, config=config, q2_to=m2_msbar
-            )
-            if m2_msbar > m2_test:
-                raise ValueError(
-                    "The MSBAR masses do not preserve the correct ordering,\
-                         check the inital reference values"
-                )
+        # for nf in [4, 5]:
+        #     q2m_ref, m2_ref = self.mass_ref[nf - shift]
+        #     m2_msbar = msbar_masses[nf - shift - 1]
+        #     config["thr_masses"] = msbar_masses
+        #     # check that m_msbar_hq < msbar_hq+1 (m_msbar_hq)
+        #     m2_test = evolve_msbar_mass(
+        #         m2_ref, q2m_ref, nf, config=config, q2_to=m2_msbar
+        #     )
+        #     if m2_msbar > m2_test:
+        #         raise ValueError(
+        #             "The MSBAR masses do not preserve the correct ordering,\
+        #                  check the inital reference values"
+        #         )
         return msbar_masses

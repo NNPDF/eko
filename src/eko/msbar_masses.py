@@ -3,8 +3,7 @@ r"""
 This module contains the RGE for the ms bar masses
 """
 import numpy as np
-import scipy.integrate as integrate
-from scipy import optimize
+from scipy import optimize, integrate
 
 from .beta import beta, b
 from .gamma import gamma
@@ -82,7 +81,7 @@ def msbar_ker_expanded(a0, a1, order, nf):
     Returns
     -------
         ker: float
-            Expaned :math:`\overline{MS}` kernel:
+            Expanded :math:`\overline{MS}` kernel:
 
             ..math:
                 k_{expanded} &= \left (\frac{a_s(\mu^2)}{a_s(\mu_{h,0}^2)} \right )^{c_0}
@@ -112,7 +111,7 @@ def msbar_ker_expanded(a0, a1, order, nf):
 
 
 def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
-    """
+    r"""
     Select the MSbar kernel and compute the strong coupling values
 
     Parameters
@@ -132,7 +131,7 @@ def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
     Returns
     -------
         ker:
-            Expaned or exact :math:`\overline{MS}` kernel
+            Expanded or exact :math:`\overline{MS}` kernel
     """
     a0 = strong_coupling.a_s(q2m_ref / fact_to_ren, q2m_ref)
     a1 = strong_coupling.a_s(q2_to / fact_to_ren, q2_to)

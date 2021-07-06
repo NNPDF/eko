@@ -6,7 +6,6 @@ import numpy as np
 import pytest
 
 from eko.thresholds import PathSegment, ThresholdsAtlas
-from eko.strong_coupling import StrongCoupling
 from eko.msbar_masses import evolve_msbar_mass
 from eko.evolution_operator.flavors import quark_names
 
@@ -167,6 +166,9 @@ class TestThresholdsAtlas:
 
     def test_compute_msbar_mass(self):
         # Test solution of msbar(m) = m
+
+        # pylint: disable=import-outside-toplevel
+        from eko.strong_coupling import StrongCoupling
         theory_dict = {
             "alphas": 0.35,
             "Qref": 1.4,
@@ -210,3 +212,19 @@ class TestThresholdsAtlas:
                         )
                     )
                 np.testing.assert_allclose(m2_computed, m2_test, rtol=5e-3)
+
+    def test_errors(self):
+        with pytest.raises(ValueError):
+            ThresholdsAtlas.from_dict(
+                dict(
+                    Q0=np.sqrt(2.2),
+                    mc=1.0,
+                    mb=2.0,
+                    mt=3.0,
+                    kcThr=1.0,
+                    kbThr=2.0,
+                    ktThr=3.0,
+                    MaxNfPdf=6,
+                    HQ="FAIL",
+                ),
+            )
