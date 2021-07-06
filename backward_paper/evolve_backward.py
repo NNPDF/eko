@@ -7,6 +7,7 @@ import logging
 import pathlib
 import os
 import sys
+import copy
 import pandas as pd
 import numpy as np
 
@@ -17,91 +18,51 @@ from banana.data import dfdict
 from ekomark.data import operators, db
 from ekomark import pdfname
 
-from matplotlib import use, rc
-from matplotlib.backends.backend_pdf import PdfPages
-import matplotlib.pyplot as plt
+from plots import plot_pdf
 
 import lhapdf
 import eko
 
-use("PDF")
-rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
-rc("text", usetex=True)
-
 pkg_path = pathlib.Path(__file__).absolute().parents[0]
 
 
-def plot_pdf(log, pdf_name, q0):
-    """
-    Plotting routine
-
-    Parameters
-    ----------
-        log: dict
-            log table
-        pdf_name: str
-            PDFs label
-        q0: float
-            initial scale
-    """
-    path = pkg_path / f"{pdf_name}.pdf"
-    print(f"Writing pdf plots to {path}")
-
-    with PdfPages(path) as pp:
-        for name, vals in log.items():
-
-            fig = plt.figure(figsize=(15, 5))
-            plt.title(name)
-            # compute average and std
-            mean = vals.groupby(["x"], axis=0, as_index=False).mean()
-            std = vals.groupby(["x"], axis=0, as_index=False).std()
-
-            # plot evoluted result
-            ax = mean.plot("x", "eko")
-            plt.fill_between(
-                std.x, mean.eko - 2 * std.eko, mean.eko + 2 * std.eko, alpha=0.2
-            )
-            # plot initial pdf
-            mean.plot("x", "inputpdf", ax=ax)
-            plt.fill_between(
-                std.x,
-                mean.inputpdf - 2 * std.inputpdf,
-                mean.inputpdf + 2 * std.inputpdf,
-                alpha=0.2,
-            )
-
-            #plt.xscale("log")
-            quark_name = name
-            if "bar" in name:
-                quark_name = r"$\bar{%s}$" % name[0]
-            plt.ylabel(r"\rm{x %s(x)}" % quark_name, fontsize=11)
-            plt.xlabel(r"\rm{x}")
-            plt.xlim(1e-6, 1.0)
-            plt.ylim(-0.050, 0.05)
-            ax.legend(
-                [
-                    r"\rm{ %s\ @\ %s\ GeV\ }"
-                    % (pdf_name.replace("_", r"\ "), np.round(np.sqrt(mean.Q2[0]), 2)),
-                    r"\rm{ %s\ @\ %s\ GeV\ }"
-                    % (pdf_name.replace("_", r"\ "), np.round(q0, 2)),
-                ]
-            )
-            plt.plot(np.geomspace(1e-7, 1, 200), np.zeros(200), "k--", alpha=0.5)
-            plt.tight_layout()
-            pp.savefig()
-            plt.close(fig)
+def rotate_to_pm_basis(log):
+    """Rotate to plus minus basis"""
+    # TODO: this can be improved
+    rot_log = {}
+    if "g" in log:
+        rot_log["g"] = log["g"]
+    for pid in eko.evolution_operator.flavors.quark_names:
+        if pid not in log:
+            continue
+        quark = log[pid]
+        qbar = log[f"{pid}bar"].copy()
+        rot_log[r"${%s}^{+}$" % (pid)] = copy.deepcopy(log[pid])
+        rot_log[r"${%s}^{-}$" % (pid)] = copy.deepcopy(log[pid])
+        rot_log[r"${%s}^{+}$" % (pid)].eko = (quark + qbar).eko
+        rot_log[r"${%s}^{-}$" % (pid)].eko = (quark - qbar).eko
+        rot_log[r"${%s}^{+}$" % (pid)].inputpdf = (quark + qbar).inputpdf
+        rot_log[r"${%s}^{-}$" % (pid)].inputpdf = (quark - qbar).inputpdf
+    return rot_log
 
 
 class Runner(BenchmarkRunner):
     """
     EKO specialization of the banana runner.
+
+    Prameters
+    ---------
+        pdf_name: str
+            PDF name
     """
 
-    banana_cfg = load_config(pkg_path)
-    db_base_cls = db.Base
-    rotate_to_evolution_basis = False
-    pdf_name = "NNPDF40_nnlo_pch_as_0118"
-    skip_pdfs = [5, -5, -6, 6, 22]
+    def __init__(self, pdf_name):
+        super().__init__()
+        self.banana_cfg = load_config(pkg_path)
+        self.db_base_cls = db.Base
+        self.rotate_to_evolution_basis = False
+        self.pdf_name = pdf_name
+        self.skip_pdfs = [21, -1, 1, -2, 2, -3, 3, 5, -5, -6, 6, 22]
 
     @staticmethod
     def load_ocards(session, ocard_updates):
@@ -219,15 +180,14 @@ class Runner(BenchmarkRunner):
         new_log = functools.reduce(
             lambda dfd1, dfd2: dfd1.merge(dfd2), log_tabs.values()
         )
-        plot_pdf(new_log, self.pdf_name, theory["Q0"])
+        plot_pdf(rotate_to_pm_basis(new_log), self.pdf_name, theory["Q0"], cl=1)
         return new_log
 
 
 if __name__ == "__main__":
 
-    backward_runner = Runner()
     theory_updates = {
-        "Qref": 9.1187600e+01,
+        "Qref": 9.1187600e01,
         "alphas": 0.1180024,
         "mc": 1.51,
         "mb": 4.92,
@@ -245,5 +205,12 @@ if __name__ == "__main__":
         "backward_inversion": "expanded",
     }
 
-    # toyLH is not used in log
-    backward_runner.run([theory_updates], [operator_updates], ["ToyLH"])
+    pdf_names = [
+        "210629-n3fit-001",  # NNLO, fitted charm
+        "210629-theory-003",  # NNLO, perturbative charm
+        "210701-n3fit-data-014",  # NNLO, fitted charm + EMC F2c
+    ]
+
+    for name in pdf_names:
+        backward_runner = Runner(name)
+        backward_runner.run([theory_updates], [operator_updates], [name])
