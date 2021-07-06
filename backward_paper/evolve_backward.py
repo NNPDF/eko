@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 
 from banana import load_config
-from banana.benchmark.runner import BenchmarkRunner
+from banana.benchmark.runner import BenchmarkRunner, get_pdf
 from banana.data import dfdict
 
 from ekomark.data import operators, db
@@ -70,14 +70,14 @@ def plot_pdf(log, pdf_name, q0):
                 alpha=0.2,
             )
 
-            # plt.xscale("log")
+            #plt.xscale("log")
             quark_name = name
             if "bar" in name:
                 quark_name = r"$\bar{%s}$" % name[0]
             plt.ylabel(r"\rm{x %s(x)}" % quark_name, fontsize=11)
             plt.xlabel(r"\rm{x}")
             plt.xlim(1e-6, 1.0)
-            plt.ylim(-0.5, 2.5)
+            plt.ylim(-0.050, 0.05)
             ax.legend(
                 [
                     r"\rm{ %s\ @\ %s\ GeV\ }"
@@ -100,7 +100,7 @@ class Runner(BenchmarkRunner):
     banana_cfg = load_config(pkg_path)
     db_base_cls = db.Base
     rotate_to_evolution_basis = False
-    pdf_name = "NNPDF31_nnlo_as_0118"
+    pdf_name = "NNPDF40_nnlo_pch_as_0118"
     skip_pdfs = [5, -5, -6, 6, 22]
 
     @staticmethod
@@ -112,6 +112,9 @@ class Runner(BenchmarkRunner):
         xgrid = ocard["interpolation_xgrid"]
         q0 = theory["Q0"]
         ext = {}
+
+        # is the set installed? if not do it now
+        get_pdf(self.pdf_name)
         pdfs = lhapdf.mkPDFs(self.pdf_name)
         for rep, base_pdf in enumerate(pdfs):
             tab = {}
@@ -224,8 +227,8 @@ if __name__ == "__main__":
 
     backward_runner = Runner()
     theory_updates = {
-        "Qref": 91.2,
-        "alphas": 0.118000,
+        "Qref": 9.1187600e+01,
+        "alphas": 0.1180024,
         "mc": 1.51,
         "mb": 4.92,
         "mt": 172.5,
@@ -234,11 +237,12 @@ if __name__ == "__main__":
         "ktThr": 1.0,
         "PTO": 2,
         "Q0": 1.65,
+        "IC": 1,
     }
     operator_updates = {
-        "interpolation_xgrid": np.geomspace(0.0001, 1, 100),
+        "interpolation_xgrid": np.linspace(0.01, 1, 100),
         "Q2grid": [1.50 ** 2],
-        "backward_inversion": "exact",
+        "backward_inversion": "expanded",
     }
 
     # toyLH is not used in log
