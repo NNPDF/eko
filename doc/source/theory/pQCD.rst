@@ -61,3 +61,66 @@ while keeping the evalutation of the strong coupling always at :math:`\mu_R^2`.
 Estimating the theoretical uncertanties imposed on |PDF| determination due to missing higher
 order corrections using scale variation in the evolution corresponds to schemes A and B
 in :cite:`AbdulKhalek:2019ihb`.
+
+
+Heavy Quark Masses
+------------------
+
+In QCD also the heavy quark masses (:math:`m_{c}, m_{b}, m_{t}`) follow a RGE and their values depend on the energy scale at which the quark is probed.
+Masses do not play any role in a single flavour patch, but are important in |VFNS| when more flavour schemes need to be joined (see :doc:`matching conditions <Matching>`).
+
+
+EKO implemts two stategies for dealing with the heavy quark masses, managed by the theory card parameter ``HQ``.
+The easiest and more common option for PDFs evolution is ``POLE`` mass, where the quark masses are kept fixed to the specified input values and the running is neglected.
+
+On contrary selecting the option ``MSBAR`` the user can activate the *mass running* in the :math:`\overline{MS}` scheme, as descibed in the following paragraph.
+
+If the inital mass condtion is not given at the same scale (i.e. in the input theory card ``Qmh≠mh``), 
+EKO needs to compute the scale at which the evoluted mass intersect the identity, in order to properly iniate the  
+:class:`~eko.threshold.ThrsholdAtlas` and set the evolution path.
+
+For each heavy quark :math:`h` we solve for :math:`m_h`: 
+
+.. math :: 
+    m_{\overline{MS},h}(m_h^2) = m_h
+
+
+where the evoluted :math:`\overline{MS}` mass is calculated by: 
+
+.. math ::
+    m_{\overline{MS},h}(\mu^2) = m_{h,0} \int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \frac{\gamma(a_s)}{\beta(a_s)} d a_s
+ 
+and :math:`m_{h,0}` is the given initial condition at the scale :math:`\mu_{h,0}`. 
+Here there is a subtle complication since the solution depends on the value :math:`a_s(\mu_{h,0}^2)` which is unknown and
+depends again on the threshold path.
+To overcome this issue, EKO initialize a temporary instance of the class :class:`~eko.strong_coupling.StrongCoupling` 
+with a fixed flavor number scheme, assuming that the reference scale for :math:`a_s` is below :math:`\mu_{h,0}` and :math:`m_{h,0}`: 
+
+.. math ::
+    \mu_{a_s,0} \leq \mu_{h,0}  \leq  m_{h,0}
+
+In doing so EKO takes advantages of the monotony of the RGE solution :math:`m_{\overline{MS},h}(\mu^2)` with a vanishing limit for  :math:`\mu^2 \rightarrow \infty`
+
+Now, being able to evaluate :math:`a_s(\mu_{h,0}^2)`, there are two ways of solving the prevoius integral and finlally compute the evoluted :math:`m_{\overline{MS},h}`.
+In fact, the function :math:`\gamma(a_s)` is the anomalous QCD mass dimension and as :math:`\beta`
+it can be evaluated pertibatively in :math:`a_s` up to :math:`\mathcal{O}(a_s^3)`:
+
+.. math ::
+    \gamma(a_s) &= - \sum\limits_{n=0} \gamma_n a_s^{n+1} \\
+
+Even here it is usefull to define :math:`c_k = \gamma_k/\beta_0, k>0`.
+
+Therefore the two solution strategies are:
+
+- ``method = "exact"``: the integral is solved exactly using the experssion of :math:`\beta,\gamma` up to the specified pertubative order
+- ``method = "expanded"``: the integral is approximate by the following expansion:
+
+.. math ::
+    m_{\overline{MS},h}(\mu^2) & = m_{h,0} \left ( \frac{a_s(\mu^2)}{a_s(\mu_{h,0}^2)} \right )^{c_0} \frac{j_{exp}(a_s(\mu^2))}{j_{exp}(a_s(\mu_{h,0}^2))} \\
+    j_{exp}(a_s) &= 1 + a_s \left [ c_1 - b_1 c_0 \right ] + \frac{a_s^2}{2} \left [c_2 - c_1 b_1 - b_2 c_0 + b_1^2 c_0 + (c_1 - b_1 c_0)^2 \right]
+
+
+Eventually, to ensure that the threshold values are properly set, we perform a consitency check, asserting:
+
+.. math ::
+    m_{\overline{MS},h} (m_h) \leq m_{\overline{MS},h+1} (m_h)

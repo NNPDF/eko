@@ -13,7 +13,7 @@ from .strong_coupling import StrongCoupling
 
 def msbar_ker_exact(a0, a1, order, nf):
     r"""
-    Exact MSBar RGE kernel
+    Exact :math:`\overline{MS}` RGE kernel
 
     Parameters
     ----------
@@ -29,10 +29,10 @@ def msbar_ker_exact(a0, a1, order, nf):
     Returns
     -------
         ker: float
-            Exact MSBar kernel:
+            Exact :math:`\overline{MS}` kernel:
 
             ..math:
-                k_{exact} = e^{\int_{a_0}^{a} \gamma(a) / \beta(a) da}
+                k_{exact} = e^{\int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \gamma(a_s) / \beta(a_s) da_s}
     """
     b_vec = [beta(0, nf)]
     g_vec = [gamma(0, nf)]
@@ -66,7 +66,7 @@ def msbar_ker_exact(a0, a1, order, nf):
 
 def msbar_ker_expanded(a0, a1, order, nf):
     r"""
-    Expanded MSBar RGE kernel
+    Expanded :math:`\overline{MS}` RGE kernel
 
     Parameters
     ----------
@@ -82,12 +82,14 @@ def msbar_ker_expanded(a0, a1, order, nf):
     Returns
     -------
         ker: float
-            Expaned MSBar kernel:
+            Expaned :math:`\overline{MS}` kernel:
 
             ..math:
-                k_{expanded} &= (\frac{a}{a_0})^{c_0} \frac{j_{exp}(a)}{j_{exp}(a_0)} \\
-                j_{exp}(a) &= 1 + a \left [ c_1 - b_1 c_0 \right ]
-                + a^2 \left [c_2 - c_1 b_1 - b_2 c_0 + b_1^2 c_0 + (c_1 - b_1 c_0)^2) / 2.0 \right]
+                k_{expanded} &= \left (\frac{a_s(\mu^2)}{a_s(\mu_{h,0}^2)} \right )^{c_0}
+                \frac{j_{exp}(a_s(\mu^2))}{j_{exp}(a_s(\mu_{h,0}^2))} \\
+                j_{exp}(a_s) &= 1 + a_s \left [ c_1 - b_1 c_0 \right ]
+                + \frac{a_s^2}{2}
+                \left [c_2 - c_1 b_1 - b_2 c_0 + b_1^2 c_0 + (c_1 - b_1 c_0)^2 right]
     """
     b0 = beta(0, nf)
     c0 = gamma(0, nf) / b0
@@ -130,7 +132,7 @@ def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
     Returns
     -------
         ker:
-            Expaned or exact MSBar kernel
+            Expaned or exact :math:`\overline{MS}` kernel
     """
     a0 = strong_coupling.a_s(q2m_ref / fact_to_ren, q2m_ref)
     a1 = strong_coupling.a_s(q2_to / fact_to_ren, q2_to)
@@ -146,7 +148,7 @@ def evolve_msbar_mass(
 ):
     r"""
     Compute the MSbar mass.
-    If the final scale is not gven it solves the equation :math:`m_{\bar{MS}}(m) = m`
+    If the final scale is not gven it solves the equation :math:`m_{\overline{MS}}(m) = m`
 
     Parameters
     ----------
@@ -167,7 +169,7 @@ def evolve_msbar_mass(
     Returns
     -------
         m2 : float
-            :math:`m_{\bar{MS}}(q2)`
+            :math:`m_{\overline{MS}}(\mu_2)`
     """
     # set the missing information if needed
     fact_to_ren = config["fact_to_ren"]

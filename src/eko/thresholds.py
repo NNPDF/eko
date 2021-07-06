@@ -258,7 +258,7 @@ class ThresholdsAtlas:
         self,
     ):
         """
-        Compute the MSBar masses solving the equation :math:`m_{\bar{MS}}(m) = m`
+        Compute the :math:`\overline{MS}` masses solving the equation :math:`m_{\bar{MS}}(m) = m`
         """  # pylint:disable=import-outside-toplevel
         from .msbar_masses import evolve_msbar_mass
 
