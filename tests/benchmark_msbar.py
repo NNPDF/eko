@@ -56,8 +56,6 @@ class BenchmarkMSbar:
                 order=order,
                 method="expanded",
                 hqm_scheme="MSBAR",
-                q2m_ref=Q2m,
-                fact_to_ren=1.0
             )
             my_vals = []
             for Q2 in Q2s:

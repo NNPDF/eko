@@ -16,7 +16,6 @@ from eko.evolution_operator import flavors
 
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
 from . import Operator, physical
-from ..msbar_masses import evolve_msbar_mass
 
 logger = logging.getLogger(__name__)
 
@@ -183,7 +182,7 @@ class OperatorGrid:
                 shift = 3 if not seg.is_backward else 4
                 kthr = thr_config.thresholds_ratios[seg.nf - shift]
                 # MSBar mass ?
-                is_msbar = thr_config.msbar_config is not None
+                is_msbar = thr_config.is_msbar
                 # TODO: comparing to Apfel this seems to be not necessary.
                 # if is_msbar:
                 #     q2m_ref, m2_ref = thr_config.mass_ref[seg.nf - shift]

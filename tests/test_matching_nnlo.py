@@ -176,6 +176,7 @@ def test_Hg2_pegasus():
 
         np.testing.assert_allclose(aS2[2, 0], a_hg_2_param, rtol=7e-4)
 
+
 def test_msbar_matching():
     logs = [0, 100]
 

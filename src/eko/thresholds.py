@@ -44,7 +44,7 @@ class PathSegment:
 
 
 class ThresholdsAtlas:
-    """
+    r"""
     Holds information about the thresholds any Q2 has to pass in order to get
     there from a given q2_ref.
 
@@ -60,6 +60,8 @@ class ThresholdsAtlas:
             list of ratios between masses and matching thresholds squared
         max_nf: int
             maximum number of active flavors
+        msbar_masses: list
+            list of :math:`\overline{MS}` masses or None if POLE masses are used
     """
 
     def __init__(
@@ -69,18 +71,17 @@ class ThresholdsAtlas:
         nf_ref=None,
         thresholds_ratios=None,
         max_nf=None,
-        msbar_config=None,
+        msbar_masses=None,
     ):
         # Initial values
         self.q2_ref = q2_ref
         self.nf_ref = nf_ref
         # MSBar
-        if msbar_config is not None and msbar_config["q2m_ref"] is not None:
-            self.mass_ref = list(zip(msbar_config["q2m_ref"], masses))
-            self.msbar_config = msbar_config
-            masses = list(self.compute_msbar_mass())
+        if msbar_masses is not None:
+            self.is_msbar = True
+            masses = list(msbar_masses)
         else:
-            self.msbar_config = None
+            self.is_msbar = False
             masses = list(masses)
         if masses != sorted(masses):
             raise ValueError("masses need to be sorted")
@@ -145,7 +146,9 @@ class ThresholdsAtlas:
         return thresholds
 
     @classmethod
-    def from_dict(cls, theory_card, prefix="k", max_nf_name="MaxNfPdf"):
+    def from_dict(
+        cls, theory_card, prefix="k", max_nf_name="MaxNfPdf", msbar_masses=None
+    ):
         r"""
         Create the object from the run card.
 
@@ -157,6 +160,8 @@ class ThresholdsAtlas:
                 run card with the keys given at the head of the :mod:`module <eko.thresholds>`
             prefix : str
                 prefix for the ratio parameters
+            msbar_masses: list
+                list of :math:`\overline{MS}` masses or None if POLE masses are used
 
         Returns
         -------
@@ -172,23 +177,14 @@ class ThresholdsAtlas:
 
         # MSbar or Pole masses
         hqm_scheme = theory_card["HQ"]
-        msbar_config = None
         if hqm_scheme not in ["MSBAR", "POLE"]:
             raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
-        if hqm_scheme == "MSBAR":
-            msbar_config = {
-                "q2m_ref": np.power([theory_card[f"Qm{q}"] for q in heavy_flavors], 2),
-                "as_ref": theory_card["alphas"],
-                "q2a_ref": np.power(theory_card["Qref"], 2),
-                "order": theory_card["PTO"],
-                "fact_to_ren": theory_card["fact_to_ren_scale_ratio"] ** 2,
-            }
         return cls(
             np.power(masses, 2),
             q2_ref,
             thresholds_ratios=np.power(thresholds_ratios, 2),
             max_nf=max_nf,
-            msbar_config=msbar_config,
+            msbar_masses=msbar_masses,
         )
 
     def path(self, q2_to, nf_to=None, q2_from=None, nf_from=None):
@@ -253,49 +249,3 @@ class ThresholdsAtlas:
         """
         ref_idx = np.digitize(q2, self.area_walls)
         return 2 + ref_idx
-
-    def compute_msbar_mass(
-        self,
-    ):
-        r"""
-        Compute the :math:`\overline{MS}` masses solving the equation :math:`m_{\bar{MS}}(m) = m`
-        """  # pylint:disable=import-outside-toplevel
-        # TODO: remove from this module
-        from .msbar_masses import evolve_msbar_mass
-
-        msbar_masses = np.full(3, np.inf)
-        config = self.msbar_config.copy()
-        shift = 3
-        for nf in [3, 4, 5]:
-            q2m_ref, m2_ref = self.mass_ref[nf - shift]
-            # check if mass is already given at the pole
-            if q2m_ref == m2_ref:
-                msbar_masses[nf - shift] = m2_ref
-                continue
-            # if self.q2_ref > q2m_ref:
-            #     raise ValueError("In MSBAR scheme Q0 must be lower than any Qm")
-            # if q2m_ref > m2_ref:
-            #     raise ValueError("In MSBAR scheme each heavy quark \
-            #         mass reference scale must be smaller or equal than \
-            #             the value of the mass itself"
-            #     )
-            config["thr_masses"] = msbar_masses
-            msbar_masses[nf - shift] = evolve_msbar_mass(
-                m2_ref, q2m_ref, nf, config=config
-            )
-
-        #Check the msbar ordering
-        for nf in [4, 5]:
-            q2m_ref, m2_ref = self.mass_ref[nf - shift]
-            m2_msbar = msbar_masses[nf - shift - 1]
-            config["thr_masses"] = msbar_masses
-            # check that m_msbar_hq < msbar_hq+1 (m_msbar_hq)
-            m2_test = evolve_msbar_mass(
-                m2_ref, q2m_ref, nf, config=config, q2_to=m2_msbar
-            )
-            if m2_msbar > m2_test:
-                raise ValueError(
-                    "The MSBAR masses do not preserve the correct ordering,\
-                         check the inital reference values"
-                )
-        return msbar_masses

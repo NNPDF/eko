@@ -113,7 +113,6 @@ class TestStrongCoupling:
                     nfref=None,
                     PTO=0,
                     ModEv="EXA",
-                    fact_to_ren_scale_ratio=1.0,
                     HQ="FAIL",
                 ),
             )

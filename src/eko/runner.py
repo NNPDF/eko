@@ -13,6 +13,7 @@ from .evolution_operator.grid import OperatorGrid
 from .output import Output
 from .strong_coupling import StrongCoupling
 from .thresholds import ThresholdsAtlas
+from .msbar_masses import compute_msbar_mass
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +81,12 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         # setup basis grid
         bfd = interpolation.InterpolatorDispatcher.from_dict(operators_card)
         self.out.update(bfd.to_dict())
-        # FNS
-        tc = ThresholdsAtlas.from_dict(theory_card)
+        # setup the Threshold path, compute masses if necesssary
+        masses = None
+        if theory_card["HQ"] == "MSBAR":
+            masses = compute_msbar_mass(theory_card)
+        tc = ThresholdsAtlas.from_dict(theory_card, msbar_masses=masses)
+
         self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
         sc = StrongCoupling.from_dict(theory_card)

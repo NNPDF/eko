@@ -25,7 +25,10 @@ theory_card = {
     "ktThr": np.inf,
     "MaxNfPdf": 6,
     "MaxNfAs": 6,
-    "HQ": "POLE",
+    "HQ": "MSBAR",
+    "Qmc": 1.0,
+    "Qmb": 4.75,
+    "Qmt": 173.0,
 }
 operators_card = {
     "Q2grid": [10, 100],
