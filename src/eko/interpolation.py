@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-    Library providing all necessary tools for PDF interpolation.
+Library providing all necessary tools for PDF interpolation.
 
-    This library also provides a class to generate the interpolator `InterpolatorDispatcher`.
-    Upon construction the dispatcher generates a number of functions
-    to evaluate the interpolator.
+This library also provides a class to generate the interpolator :class:`InterpolatorDispatcher`.
+Upon construction the dispatcher generates a number of functions
+to evaluate the interpolator.
 """
 import logging
 import math
 
-import numpy as np
 import numba as nb
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -50,13 +50,13 @@ class Area:
         self.coefs = self._compute_coefs(xgrid)
 
     def _reference_indices(self):
-        """ Iterate over all indices which are part of the block """
+        """Iterate over all indices which are part of the block"""
         for k in range(self.kmin, self.kmax + 1):
             if k != self.poly_number:
                 yield k
 
     def _compute_coefs(self, xgrid):
-        """ Compute the coefficients for this area given a grid on x """
+        """Compute the coefficients for this area given a grid on x"""
         denominator = 1.0
         coeffs = np.ones(1)
         xj = xgrid[self.poly_number]
@@ -70,7 +70,7 @@ class Area:
         return coeffs
 
     def __iter__(self):
-        """ Iterates the generated coefficients """
+        """Iterates the generated coefficients"""
         for coef in self.coefs:
             yield coef
 
@@ -175,6 +175,10 @@ def evaluate_Nx(N, logx, area_list):
     return res
 
 
+# TODO lift to runcard?
+_atol_eps = 10 * np.finfo(float).eps
+
+
 @nb.njit("f8(f8,f8[:,:])", cache=True)
 def evaluate_x(x, area_list):
     """
@@ -200,7 +204,7 @@ def evaluate_x(x, area_list):
         xmin = a[0]
         xmax = a[1]
         coefs = a[2:]
-        if xmin < x <= xmax or (j == 0 and x == xmin):
+        if xmin < x <= xmax or (j == 0 and np.abs(x - xmin) < _atol_eps):
             for i, coef in enumerate(coefs):
                 res += coef * pow(x, i)
             return res
@@ -357,7 +361,7 @@ class BasisFunction:
         r"""
         Compiles the function to evaluate the interpolator in N space.
 
-        Generates a function `evaluate_Nx` with a (N, logx) signature.
+        Generates a function :meth:`evaluate_Nx` with a (N, logx) signature.
 
         .. math::
             \tilde p(N)*\exp(- N * \ln(x))
@@ -385,8 +389,8 @@ class InterpolatorDispatcher:
     """
     Setups the interpolator.
 
-    Upon construction will generate a list of `BasisFunction` objects.
-    Each of these `BasisFunction` objects exponses a `callable`
+    Upon construction will generate a list of :class:`BasisFunction` objects.
+    Each of these :class:`BasisFunction` objects exponses a `callable`
     method (also accessible as the `__call__` method of the class)
     which will be numba-compiled.
 
@@ -433,9 +437,12 @@ class InterpolatorDispatcher:
         self.xgrid = xgrid
         self.polynomial_degree = polynomial_degree
         self.log = log
-        logger.info("Interpolation: number of points = %d", xgrid_size)
-        logger.info("Interpolation: polynomial degree = %d", polynomial_degree)
-        logger.info("Interpolation: logarithmic = %s", log)
+        logger.info(
+            "Interpolation: number of points = %d, polynomial degree = %d, logarithmic = %s",
+            xgrid_size,
+            polynomial_degree,
+            log,
+        )
 
         # Create blocks
         list_of_blocks = []
@@ -496,6 +503,8 @@ class InterpolatorDispatcher:
         """
         # load xgrid
         xgrid = operators_card["interpolation_xgrid"]
+        if len(xgrid) == 0:
+            raise ValueError("Empty xgrid!")
         if xgrid[0] == "make_grid":
             xgrid = make_grid(*xgrid[1:])
         is_log_interpolation = bool(operators_card["interpolation_is_log"])

@@ -29,13 +29,13 @@ We implement two different strategies to solve the renormalization group equatio
                                         & \hspace{60pt} \left. + a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) b_1 \ln\left(a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2)/a_s(\mu_0^2)\right)\right]
 
 When the renormalization scale crosses a flavor threshold matching conditions have to be
-applied :cite:`Schroder:2005hy` :cite:`Chetyrkin:2005ia`.
+applied :cite:`Schroder:2005hy,Chetyrkin:2005ia`.
 
 Splitting Functions
 -------------------
 
 The Altarelli-Parisi splitting kernels can be expanded in powers of the strong
-coupling :math:`a_s(\mu^2)` and are given by :cite:`Moch:2004pa` :cite:`Vogt:2004mw`
+coupling :math:`a_s(\mu^2)` and are given by :cite:`Moch:2004pa,Vogt:2004mw`
 
 .. math ::
     \mathbf{P}(x,a_s(\mu^2)) &= \sum\limits_{j=0} a_s^{j+1}(\mu^2) \mathbf{P}^{(j)}(x) \\
@@ -46,14 +46,16 @@ Note the additional minus in the definition of :math:`\gamma`.
 Scale Variations
 ----------------
 
-The usual procedure in solving |DGLAP| that is also imployed :doc:`here </theory/DGLAP>` is to rewrite
+The usual procedure in solving |DGLAP| that is also applied :doc:`here </theory/DGLAP>` is to rewrite
 the equations in term of the running coupling :math:`a_s` assuming the factorization scale
 :math:`\mu_F^2` (the inherit scale of the |PDF|) and the renormalization scale :math:`\mu_R^2`
 (the inherit scale for the strong coupling) to be equal. This constraint can however be lifted by a
-suitable redefinition of the splitting kernels
+suitable redefinition of the splitting kernels :cite:`Vogt:2004ns`:
 
 .. math ::
-    \gamma^{(1)}(N) \to \gamma^{(1)}(N) - \beta_0 \ln(\mu_F^2/\mu_R^2) \gamma^{(0)}
+    \gamma^{(1)}(N) &\to \gamma^{(1)}(N) - \beta_0 \ln(\mu_F^2/\mu_R^2) \gamma^{(0)} \\
+    \gamma^{(2)}(N) &\to \gamma^{(2)}(N) - 2 \beta_0 \ln(\mu_F^2/\mu_R^2) \gamma^{(1)} - ( \beta_1 \ln(\mu_F^2/\mu_R^2) - \beta_0^2 \ln^2(\mu_F^2/\mu_R^2) )  \gamma^{(0)}
+
 
 while keeping the evalutation of the strong coupling always at :math:`\mu_R^2`.
 Estimating the theoretical uncertanties imposed on |PDF| determination due to missing higher

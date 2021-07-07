@@ -4,75 +4,81 @@ import argparse
 import pathlib
 import re
 
+
 def get_all_files(path):
     """
-        Find all .py files in `path`
+    Find all .py files in `path`
 
-        Parameters
-        ----------
-            path : pathlib.Path
-                source directory
+    Parameters
+    ----------
+        path : pathlib.Path
+            source directory
 
-        Returns
-        -------
-            files : list
-                list of files
+    Returns
+    -------
+        files : list
+            list of files
     """
     files = path.glob("*.py")
     return list(files)
 
+
 def search_file(path):
     """
-        Search all todo tags in the file
+    Search all todo tags in the file
 
-        Parameters
-        ----------
-            path : pathlike
-                path to input file
+    Parameters
+    ----------
+        path : pathlike
+            path to input file
 
-        Returns
-        -------
-            todos : list
-                list of tuples with (linenumber, text)
+    Returns
+    -------
+        todos : list
+            list of tuples with (linenumber, text)
     """
     todos = []
-    with open(path,"r") as o:
+    with open(path, "r") as o:
         j = 1
         for l in o:
-            m = re.search(r'\s*#\s+TODO\s+(.+)$',l) # TODO grep sourdings?
-                                                    # i.e. if multiple lines?
+            m = re.search(r"\s*#\s+TODO\s+(.+)$", l)  # TODO grep sourdings?
+            # i.e. if multiple lines?
             if m is not None:
-                todos.append((j,m.group(1)))
+                todos.append((j, m.group(1)))
             j += 1
     return todos
 
+
 def write_output(fn, file_list):
     """
-        Writes the list to a file
+    Writes the list to a file
 
-        Parameters
-        ----------
-            fn : string
-                output file name
-            file_list : list
-                list of todos sorted by file
+    Parameters
+    ----------
+        fn : string
+            output file name
+        file_list : list
+            list of todos sorted by file
     """
-    with open(fn,"w") as o:
+    with open(fn, "w") as o:
         # head
         o.write("TODOs\n")
-        o.write("="*5+"\n\n")
+        o.write("=" * 5 + "\n\n")
         o.write("From Docstrings\n")
-        o.write("-"*15+"\n\n")
+        o.write("-" * 15 + "\n\n")
         o.write(".. todolist ::\n\n")
         o.write("From Source Code\n")
-        o.write("-"*16+"\n\n")
-        for path,todos in file_list:
+        o.write("-" * 16 + "\n\n")
+        for path, todos in file_list:
             # file head
             # TODO use something better then file://? but this should never appear in production
-            o.write("`"+str(path.name)+" <file://"+str(path.resolve())+">`_\n\n")
-            for ln,todo in todos:
+            o.write(
+                "`" + str(path.name) + " <file://" + str(path.resolve()) + ">`_\n\n"
+            )
+            for ln, todo in todos:
                 o.write(f".. warning:: #{ln} {todo}\n\n")
             o.write("\n\n")
+
 
 if __name__ == "__main__":
     # Mini argument parser
@@ -102,6 +108,6 @@ if __name__ == "__main__":
         # found somehting?
         if len(todos) < 1:
             continue
-        file_list.append((f,todos))
+        file_list.append((f, todos))
     # write to file
-    write_output(args.output,file_list)
+    write_output(args.output, file_list)

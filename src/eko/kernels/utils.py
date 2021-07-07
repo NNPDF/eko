@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """Some utility functions"""
 
-import numpy as np
-
 import numba as nb
+import numpy as np
 
 
 @nb.njit("f8[:](f8,f8,u4)", cache=True)

@@ -8,12 +8,11 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 import logging
 
+import numba as nb
 import numpy as np
 import scipy
-import numba as nb
 
-from . import constants
-from . import thresholds
+from . import constants, thresholds
 from .beta import beta
 
 logger = logging.getLogger(__name__)
@@ -121,40 +120,51 @@ class StrongCoupling:
         self,
         alpha_s_ref,
         scale_ref,
-        thresh,
+        masses,
+        thresholds_ratios,
         order=0,
         method="exact",
+        nf_ref=None,
+        max_nf=None,
     ):
         # Sanity checks
         if alpha_s_ref <= 0:
             raise ValueError(f"alpha_s_ref has to be positive - got {alpha_s_ref}")
         if scale_ref <= 0:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
-        if not isinstance(thresh, thresholds.ThresholdsAtlas):
-            raise ValueError("Needs a Threshold instance")
         if order not in [0, 1, 2]:
             raise NotImplementedError("a_s beyond NNLO is not implemented")
-        self._order = order
+        self.order = order
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
-        self._method = method
+        self.method = method
 
         # create new threshold object
         self.as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
-        self._threshold_holder = thresholds.ThresholdsAtlas(
-            thresh.area_walls[1:-1], scale_ref
+        self.thresholds = thresholds.ThresholdsAtlas(
+            masses,
+            scale_ref,
+            nf_ref,
+            thresholds_ratios=thresholds_ratios,
+            max_nf=max_nf,
         )
         logger.info(
-            "Strong Coupling: Reference a_s(Q^2=%f)=%f", self.q2_ref, self.as_ref
+            "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)",
+            self.q2_ref,
+            "^(nf=%d)" % nf_ref if nf_ref else "",
+            self.as_ref,
+            self.as_ref * 4 * np.pi,
         )
+        # cache
+        self.cache = {}
 
     @property
     def q2_ref(self):
-        """ reference scale """
-        return self._threshold_holder.q2_ref
+        """reference scale"""
+        return self.thresholds.q2_ref
 
     @classmethod
-    def from_dict(cls, theory_card, thresholds_config=None):
+    def from_dict(cls, theory_card):
         """
         Create object from theory dictionary.
 
@@ -169,8 +179,6 @@ class StrongCoupling:
         ----------
             theory_card : dict
                 theory dictionary
-            thresholds_config : eko.thresholds.ThresholdsAtlas
-                threshold configuration
 
         Returns
         -------
@@ -180,6 +188,7 @@ class StrongCoupling:
         # read my values
         # TODO cast to a_s here
         alpha_ref = theory_card["alphas"]
+        nf_ref = theory_card["nfref"]
         q2_alpha = pow(theory_card["Qref"], 2)
         order = theory_card["PTO"]
         mod_ev = theory_card["ModEv"]
@@ -197,12 +206,29 @@ class StrongCoupling:
             method = "expanded"
         else:
             raise ValueError(f"Unknown evolution mode {mod_ev}")
-        # eventually read my dependents
-        if thresholds_config is None:
-            thresholds_config = thresholds.ThresholdsAtlas.from_dict(theory_card)
-        return cls(alpha_ref, q2_alpha, thresholds_config, order, method)
+        # adjust factorization scale / renormalization scale
+        fact_to_ren = theory_card["fact_to_ren_scale_ratio"]
+        heavy_flavors = "cbt"
+        masses = np.power(
+            [theory_card[f"m{q}"] / fact_to_ren for q in heavy_flavors], 2
+        )
+        thresholds_ratios = np.power(
+            [theory_card[f"k{q}Thr"] for q in heavy_flavors], 2
+        )
+        max_nf = theory_card["MaxNfAs"]
 
-    def _compute_exact(self, as_ref, nf, scale_from, scale_to):
+        return cls(
+            alpha_ref,
+            q2_alpha,
+            masses,
+            thresholds_ratios,
+            order,
+            method,
+            nf_ref,
+            max_nf,
+        )
+
+    def compute_exact(self, as_ref, nf, scale_from, scale_to):
         """
         Compute via RGE.
 
@@ -223,20 +249,20 @@ class StrongCoupling:
                 strong coupling at target scale :math:`a_s(Q^2)`
         """
         # in LO fallback to expanded, as this is the full solution
-        if self._order == 0:
-            return as_expanded(self._order, as_ref, nf, scale_from, scale_to)
+        if self.order == 0:
+            return as_expanded(self.order, as_ref, nf, scale_from, scale_to)
         # otherwise rescale the RGE to run in terms of
         # u = beta0 * ln(scale_to/scale_from)
         beta0 = beta(0, nf)
         u = beta0 * np.log(scale_to / scale_from)
         b_vec = [1]
         # NLO
-        if self._order >= 1:
+        if self.order >= 1:
             beta1 = beta(1, nf)
             b1 = beta1 / beta0
             b_vec.append(b1)
             # NNLO
-            if self._order >= 2:
+            if self.order >= 2:
                 beta2 = beta(2, nf)
                 b2 = beta2 / beta0
                 b_vec.append(b2)
@@ -245,10 +271,12 @@ class StrongCoupling:
             return -(a ** 2) * np.sum([a ** k * b for k, b in enumerate(b_vec)])
 
         # let scipy solve
-        res = scipy.integrate.solve_ivp(rge, (0, u), (as_ref,), args=[b_vec])
+        res = scipy.integrate.solve_ivp(
+            rge, (0, u), (as_ref,), args=[b_vec], method="Radau", rtol=1e-6
+        )
         return res.y[0][-1]
 
-    def _compute(self, as_ref, nf, scale_from, scale_to):
+    def compute(self, as_ref, nf, scale_from, scale_to):
         """
         Wrapper in order to pass the computation to the corresponding
         method (depending on the calculation method).
@@ -269,15 +297,19 @@ class StrongCoupling:
             a_s : float
                 strong coupling at target scale :math:`a_s(Q^2)`
         """
-        # TODO set up a cache system here
-        # at the moment everything is expanded - and type has been checked in the constructor
-        if self._method == "exact":
-            as_new = self._compute_exact(as_ref, nf, scale_from, scale_to)
-        else:
-            as_new = as_expanded(self._order, as_ref, nf, scale_from, scale_to)
-        return as_new
+        key = (as_ref, nf, scale_from, scale_to)
+        try:
+            return self.cache[key]
+        except KeyError:
+            # at the moment everything is expanded - and type has been checked in the constructor
+            if self.method == "exact":
+                as_new = self.compute_exact(as_ref, nf, scale_from, scale_to)
+            else:
+                as_new = as_expanded(self.order, as_ref, nf, scale_from, scale_to)
+            self.cache[key] = as_new
+            return as_new
 
-    def a_s(self, scale_to, fact_scale=None):
+    def a_s(self, scale_to, fact_scale=None, nf_to=None):
         r"""
         Computes strong coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
 
@@ -285,6 +317,8 @@ class StrongCoupling:
         ----------
             scale_to : float
                 final scale to evolve to :math:`\mu_R^2`
+            fact_scale : float
+                factorization scale (if different from final scale)
 
         Returns
         -------
@@ -293,29 +327,82 @@ class StrongCoupling:
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
         final_as = self.as_ref
-        path = self._threshold_holder.path(scale_to)
+        path = self.thresholds.path(scale_to, nf_to)
+        is_downward_path = False
+        if len(path) > 1:
+            is_downward_path = path[1].nf < path[0].nf
+        shift = 3 if not is_downward_path else 4
+
         # as a default assume mu_F^2 = mu_R^2
         if fact_scale is None:
             fact_scale = scale_to
         for k, seg in enumerate(path):
-            new_as = self._compute(final_as, seg.nf, seg.q2_from, seg.q2_to)
+            # skip a very short segment, but keep the matching
+            if not np.isclose(seg.q2_from, seg.q2_to):
+                new_as = self.compute(final_as, seg.nf, seg.q2_from, seg.q2_to)
+            else:
+                new_as = final_as
             # apply matching conditions: see hep-ph/9706430
             # - if there is yet a step to go
             if k < len(path) - 1:
-                next_nf_is_down = path[k + 1].nf < seg.nf
                 # q2_to is the threshold value
-                L = np.log(scale_to / fact_scale)
-                if next_nf_is_down:
-                    c1 = -4.0 / 3.0 * constants.TR * L
-                    # TODO recover color constants
-                    c2 = 4.0 / 9.0 * L ** 2 - 38.0 / 3.0 * L - 14.0 / 3.0
-                else:
-                    c1 = 4.0 / 3.0 * constants.TR * L
-                    c2 = 4.0 / 9.0 * L ** 2 + 38.0 / 3.0 * L + 14.0 / 3.0
+                L = np.log(scale_to / fact_scale) + np.log(
+                    self.thresholds.thresholds_ratios[seg.nf - shift]
+                )
+                m_coeffs = (
+                    matching_coeffs_down if is_downward_path else matching_coeffs_up
+                )
+                fact = 1.0
                 # shift
-                if self._order == 1:
-                    new_as *= 1 + c1 * new_as
-                elif self._order == 2:
-                    new_as *= 1 + c1 * new_as + c2 * new_as ** 2
+                for n in range(1, self.order + 1):
+                    for l in range(n + 1):
+                        fact += new_as ** n * L ** l * m_coeffs[n, l]
+                # shift
+                new_as *= fact
             final_as = new_as
         return final_as
+
+
+matching_coeffs_up = np.zeros((3, 3))
+r"""
+Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia,Vogt:2004ns` at threshold
+when moving to a regime with *more* flavors.
+
+.. math::
+    a_s^{(n_l+1)} = a_s^{(n_l)} + \sum\limits_{n=1} (a_s^{(n_l)})^n
+                            \sum\limits_{k=0}^n c_{nl} \log(\mu_R^2/\mu_F^2)
+"""
+matching_coeffs_up[1, 1] = 4.0 / 3.0 * constants.TR
+matching_coeffs_up[2, 0] = 14.0 / 3.0
+matching_coeffs_up[2, 1] = 38.0 / 3.0
+matching_coeffs_up[2, 2] = 4.0 / 9.0
+
+# inversion of the matching coefficients
+_c = matching_coeffs_up
+
+matching_coeffs_down = np.zeros_like(matching_coeffs_up)
+"""
+Matching coefficients :cite:`Schroder:2005hy` :cite:`Chetyrkin:2005ia` at threshold
+when moving to a regime with *less* flavors.
+
+This is the perturbative inverse of :data:`matching_coeffs_up` and has been obtained via
+
+.. code-block:: Mathematica
+
+    Module[{f, g, l, sol},
+        f[a_] := a + Sum[d[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}];
+        g[a_] := a + Sum[c[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}] /. {c[1, 0] -> 0};
+        l = CoefficientList[Normal@Series[f[g[a]], {a, 0, 5}], {a, L}];
+        sol = First@
+            Solve[{l[[3]] == 0, l[[4]] == 0, l[[5]] == 0},
+            Flatten@Table[d[n, k], {n, 3}, {k, 0, n}]];
+        Do[Print@r, {r, sol}];
+        Print@Series[f[g[a]] /. sol, {a, 0, 5}];
+        Print@Series[g[f[a]] /. sol, {a, 0, 5}];
+    ]
+"""
+
+matching_coeffs_down[1, 1] = -_c[1, 1]
+matching_coeffs_down[2, 0] = -_c[2, 0]
+matching_coeffs_down[2, 1] = -_c[2, 1]
+matching_coeffs_down[2, 2] = 2.0 * _c[1, 1] ** 2 - _c[2, 2]

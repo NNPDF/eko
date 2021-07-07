@@ -1,0 +1,5 @@
+#database
+*.db
+
+#yaml
+*.yaml

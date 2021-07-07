@@ -8,7 +8,7 @@ from eko.anomalous_dimensions import harmonics
 NF = 5
 
 
-def test_number_momentum_conservation():
+def test_number_conservation():
     # number
     N = complex(1.0, 0.0)
     s1 = harmonics.harmonic_S1(N)

@@ -20,7 +20,7 @@ and the equations to solve become
 
 .. math::
     \frac{d}{da_s} \tilde{\mathbf{f}}(a_s)
-        = \frac{d\ln(\mu_F^2)}{da_s} \cdot \frac{d \tilde{\mathbf{f}}(\mu_F^2)}{d\ln(\mu_F^2)} 
+        = \frac{d\ln(\mu_F^2)}{da_s} \cdot \frac{d \tilde{\mathbf{f}}(\mu_F^2)}{d\ln(\mu_F^2)}
         = -\frac{\gamma(a_s)}{\beta(a_s)} \cdot \tilde{\mathbf{f}}(a_s)
 
 This assumes the factorization scale :math:`\mu_F^2` (the inherit scale of the |PDF|) and the
@@ -38,7 +38,7 @@ we do not need to worry about neither matrices nor the path-ordering.
 
 Using :doc:`Interpolation <Interpolation>` on both the inital and final |PDF|, we can then discretize the
 |EKO| in x-space and define :math:`{\mathbf{E}}_{k,j}` (represented by
-:class:`~eko.operator.Operator`) by
+:class:`~eko.evolution_operator.Operator`) by
 
 .. math::
     {\mathbf{E}}_{k,j}(a_s \leftarrow a_s^0) = \mathcal{M}^{-1}\left[\tilde{\mathbf{E}}(a_s \leftarrow a_s^0)\tilde p_j\right](x_k)
@@ -48,7 +48,7 @@ Now, we can write the solution to |DGLAP| in a true matrix operator scheme and f
 .. math::
     \mathbf{f}(x_k,a_s) = {\mathbf{E}}_{k,j}(a_s \leftarrow a_s^0) \mathbf{f}(x_j,a_s^0)
 
-so the |EKO| is a rank-4 operator acting both in flavor and momentum fraction space. 
+so the |EKO| is a rank-4 operator acting both in flavor and momentum fraction space.
 
 The issue of matching conditions when crossing flavor thresholds is dicussed in a seperate :doc:`document <Matching>`
 
@@ -181,7 +181,7 @@ where the order of the product is such that later |EKO| are to the left and
 using the projector algebra from |LO| to exponentiate the single steps.
 
 - for ``method in ['decompose-exact', 'decompose-expanded']``: use the exact or the approximate exact
-  integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(1)}` - 
+  integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(1)}` -
   this will neglect the non-commutativity of the singlet matrices.
 
 - for ``method in ['perturbative-exact', 'perturbative-expanded', 'ordered-truncated', 'truncated']``
@@ -197,7 +197,7 @@ where in |NLO| we find
 
 .. math::
     \mathbf R_0 = \gamma_{S}^{(0)}/\beta_0\,,\quad
-    \mathbf R_1 = \gamma_{S}^{(1)}/\beta_0 - b_1 \gamma_{S}^{(0)}
+    \mathbf R_1 = \gamma_{S}^{(1)}/\beta_0 - b_1 \gamma_{S}^{(0)} /\beta_0
 
 and for the higher coefficients
 
@@ -236,3 +236,165 @@ So the strategies are
 
 .. math::
     \ESk{1}{a_s}{a_s^0} = \ESk{0}{a_s}{a_s^0} + a_s \mathbf U_1 \ESk{0}{a_s}{a_s^0} - a_s^0 \ESk{0}{a_s}{a_s^0} \mathbf U_1
+
+Next-to-Next-to-Leading Order
+-----------------------------
+
+NNLO Non-Singlet Evolution
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We find
+
+.. math::
+    \frac{d}{da_s} \tilde f_{ns}^{(2)}(a_s) = \frac{\gamma_{ns}^{(0)} a_s + \gamma_{ns}^{(1)} a_s^2 + \gamma_{ns}^{(2)} a_s^3 }{\beta_0 a_s^2 + \beta_1 a_s^3 + \beta_2 a_s^4} \cdot \tilde f_{ns}^{(2)}(a_s)
+
+with :math:`\gamma_{ns} \in \{\gamma_{ns,+},\gamma_{ns,-}=\gamma_{ns,v}\}`.
+
+We obtain the (exact) |EKO| :cite:`Vogt:2004ns,Cafarella_2008`:
+
+.. math::
+    \ln \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \gamma^{(0)} \cdot j^{(0,2)}(a_s,a_s^0) + \gamma^{(1)} \cdot j^{(1,2)}(a_s,a_s^0) + \gamma^{(2)} \cdot j^{(2,2)}(a_s,a_s^0)\\
+
+with:
+
+.. math::
+    j^{(2,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = \frac{1}{\beta_2}\ln\left(\frac{1 + a_s ( b_1 + b_2 a_s ) }{ 1 + a_s^0 ( b_1 + b_2 a_s^0 )}\right) - \frac{b_1}{ \beta_2 \Delta} \delta \\
+    \delta &= atan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - atan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
+        &= \frac{i}{2} \left[ ln \left( \frac{ \Delta - i (b_1 + 2a_s b_2)}{ \Delta + i (b_1 + 2a_s b_2)}\right) - ln \left( \frac{ \Delta - i (b_1 + 2a_s^0 b_2)}{ \Delta + i (b_1 + 2a_s^0 b_2)}\right) \right] \\
+        &= atan \left( \frac{\Delta ( a_s - a_s^0 )}{ 2 + b_1 (a_s + a_s^0) + 2 a_s a_s^0 b_2 } \right) \\
+    \Delta &= \sqrt{4 b_2 - b_1^2 }
+
+and:
+
+.. math::
+    j^{(1,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} =  \frac{2}{\beta_0 \Delta} \delta \\
+    j^{(0,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}(a_s,a_s^0) - b_2 j^{(2,2)}(a_s,a_s^0)
+
+Note, plugging the numerical values of :math:`\beta_i` we find that the :math:`\Delta \in \mathbb{R}` if :math:`n_f < 6`.
+However you can notice that :math:`\Delta` appears always with :math:`\delta` and the fraction :math:`\frac{\delta}{\Delta} \in  \mathbb{R}, \forall n_f`.
+
+We can recover the |LO| solution:
+
+.. math::
+    \ln \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \ln \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) + j^{(1,2)}(a_s,a_s^0)(\gamma^{(1)} - b_1 \gamma^{(0)}) + j^{(2,2)}(a_s,a_s^0)(\gamma^{(2)} - b_2 \gamma^{(0)})
+
+And thus the |NLO| solution:
+
+.. math::
+    \ln \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \ln \tilde E^{(1)}_{ns}(a_s \leftarrow a_s^0) + j^{(1,2)'}(a_s,a_s^0)(\gamma^{(1)} - b_1 \gamma^{(0)}) + j^{(2,2)}(a_s,a_s^0)(\gamma^{(2)} - b_2 \gamma^{(0)}) \\
+    j^{(1,2)'}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{ \beta_2 a_s'^2}{\beta_0 + \beta_1 a_s' + \beta_2 a_s'^2 ) (\beta_0 + \beta_1 a_s')}
+
+In |NNLO| we provide different strategies to define the |EKO|:
+
+- ``method in ['iterate-exact', 'decompose-exact', 'perturbative-exact']``: use the *exact* solution as defined above
+- ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and expand all functions :math:`j^{(n,m)}(a_s,a_s^0)` to the order :math:`\mathcal o(a_s^3)`. We find:
+
+.. math::
+    j^{(2,2)}(a_s,a_s^0) &\approx j^{(2,2)}_{exp}(a_s,a_s^0) &= \frac{1}{2\beta_0} (a_s^2 - (a_s^0)^{2}) \\
+    j^{(1,2)}(a_s,a_s^0) &\approx j^{(1,2)}_{exp}(a_s,a_s^0) &= \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - (a_s^0)^{2})] \\
+    j^{(0,2)}(a_s,a_s^0) &\approx j^{(0,2)}_{exp}(a_s,a_s^0) &=  j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}_{exp}(a_s,a_s^0) - b_2 j^{(2,2)}_{exp}(a_s,a_s^0) \\
+    & &= j^{(0,0)}(a_s,a_s^0)  - \frac{1}{\beta_0} [ b_1 (a_s - a_s^0) + \frac{b_1^2+b_2}{2} (a_s^2 - (a_s^0)^{2}) ] \\
+
+This method corresponds to ``IMODEV=2`` of :cite:`Vogt:2004ns`.
+
+- ``method = 'ordered-truncated'``: for this method we follow the prescription from :cite:`Vogt:2004ns` and we get:
+
+.. math::
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \frac{ 1 + a_s U_1 + a_s^2 U_2 }{ 1 + a_s^{(0)} U_1 + (a_s^0)^{2} U_2 }
+
+with the unitary mtrices defined consistenly with the mthod ``pertubative`` adopted for NLO singlet evolution:
+
+.. math::
+    U_1 &= R_1 = \frac{1}{\beta_0}[ \gamma^{(1)} - b_1 \gamma^{(0)}] \\
+    U_2 &= \frac{1}{2}[ R_1^2 + R_2 ] \\
+    R_2 &= \gamma^{(2)}/\beta_0 - b_1 R_1 - b_2 R_0 \\
+
+This method corresponds to ``IMODEV=3`` of :cite:`Vogt:2004ns`.
+
+- ``method = 'truncated'``: we expand the *whole* exponential and keeping terms within :math:`\mathcal o(a_s^3)`. This method is the fastest among the ones provided by our program. We obtain:
+
+.. math::
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \left [ 1 + U_1 (a_s - a_s^0) + a_s^2 U_2 - a_s a_s^{(0)} U_1^2 + (a_s^0)^{2} ( U_1^2 - U_2 ) \right]
+
+
+
+NNLO Singlet Evolution
+^^^^^^^^^^^^^^^^^^^^^^
+
+For the singlet evolution we find:
+
+.. math::
+    \frac{d}{da_s} \dSV{2}{a_s} = \frac{\gamma_{S}^{(0)} a_s + \gamma_{S}^{(1)} a_s^2 + \gamma_{S}^{(2)} a_s^3}{\beta_0 a_s^2 + \beta_1 a_s^3 + \beta_2 a_s^4} \cdot \dSV{2}{a_s}
+
+with :math:`\gamma_{S}^{(i)} \gamma_{S}^{(j)} \neq \gamma_{S}^{(j)} \gamma_{S}^{(i)}, \quad i,j=0,1,2`.
+
+In analogy to |NLO| we define the following strategies :
+
+- for ``method in ['iterate-exact', 'iterate-expanded']`` we use a discretized path-ordering :cite:`Bonvini:2012sh`:
+
+.. math::
+    \ESk{2}{a_s}{a_s^0} = \prod\limits_{k=n}^{0} \ESk{2}{a_s^{k+1}}{a_s^{k}} \quad \text{with} \quad a_s^{n+1} = a_s
+
+All the procedure is identical to |NLO|, simply the beat function is now expanded until :math:`\mathcal o(a_s^4)`
+
+- for ``method in ['decompose-exact', 'decompose-expanded']``: use the exact or the approximate exact
+  integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(2)}` -
+  this will neglect the non-commutativity of the singlet matrices.
+
+- for ``method in ['perturbative-exact', 'perturbative-expanded', 'ordered-truncated', 'truncated']``
+  we seek for an perturbative solution around the (exact) leading order operator. We set :cite:`Vogt:2004ns`
+
+.. math::
+    \frac{d}{da_s} \dSV{2}{a_s} = \frac{\mathbf R (a_s)}{a_s} \cdot \dSV{2}{a_s}\,, \quad
+    \mathbf R (a_s) = \sum\limits_{k=0} a_s^k \mathbf R_{k}
+
+Finding one additional term compared to |NLO|:
+
+.. math::
+    \mathbf R_2 & = \gamma_{S}^{(2)}/\beta_0 - b_1 \mathbf R_1 - b_2 \mathbf R_0  \\
+    & = \frac{1}{\beta_0} [ \gamma_{S}^{(2)} - b_1 \gamma_{S}^{(1)} - \gamma_{S}^{(0)} ( b_2 - b_1^2 ) ]
+
+and for the higher coefficients
+
+- ``method = 'perturbative-exact'``: :math:`\mathbf R_k = - b_1 \mathbf R_{k-1} - b_2 \mathbf R_{k-1} \,\text{for}\,k>2`
+- ``method = 'perturbative-expanded'``: :math:`\mathbf R_k = 0\,\text{for}\,k>2`
+
+The solution ansatz becomes:
+
+.. math::
+    \ESk{2}{a_s}{a_s^0} = \mathbf U (a_s) \ESk{0}{a_s}{a_s^0} {\mathbf U}^{-1} (a_s^0), \quad
+    \mathbf U (a_s) = \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
+
+with:
+
+.. math::
+    [\mathbf U_2, \mathbf R_0] &= \mathbf R_2 + \mathbf R_1 \mathbf U_1 - 2 \mathbf U_2\\
+
+So the strategies are:
+
+- ``method in ['perturbative-exact', 'perturbative-expanded']``: approximate the full evolution
+  operator :math:`\mathbf U(a_s)` with an expansion up to ``ev_op_max_order``
+- ``method in ['ordered-truncated', 'truncated']``: truncate the evolution operator :math:`\mathbf U(a_s)` and use
+
+.. math::
+    \ESk{2}{a_s}{a_s^0} &= \ESk{0}{a_s}{a_s^0} + a_s \mathbf U_1 \ESk{0}{a_s}{a_s^0} - a_s^0 \ESk{0}{a_s}{a_s^0} \mathbf U_1 \\
+    &\hspace{20pt} + a_s^2 \mathbf U_2 \ESk{0}{a_s}{a_s^0} \\
+    &\hspace{20pt} + a_s a_s^0 \mathbf U_1 \ESk{0}{a_s}{a_s^0} \mathbf U_1 \\
+    &\hspace{20pt}- (a_s^0)^{2} \ESk{0}{a_s}{a_s^0} ( \mathbf U_1^2 - \mathbf U_2 )
+
+
+Intrinsic evolution
+-------------------
+
+We also consider the evolution of intrinsic heavy |PDF|. Since these are massive partons they can not
+split any collinear particles and thus they do not participate in the |DGLAP| evolution. Instead, their
+evolution is simpliy an indentiy operation: e.g. for an intrinsic charm distribution we get for
+:math:`m_c^2 > Q_1^2 > Q_0^2`:
+
+.. math ::
+    \tilde c(Q_1^2) &= \tilde c(Q_0^2)\\
+    \tilde {\bar c}(Q_1^2) &= \tilde{\bar c}(Q_0^2)
+
+After :doc:`crossing the mass threshold </theory/Matching>` (charm in this example) the |PDF| can not be considered intrinsic
+any longer and hence, they have to be rejoined with their evolution basis elements and take then again
+part in the ordinary collinear evolution.

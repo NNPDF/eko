@@ -10,7 +10,7 @@ EKO solves the |DGLAP| equations in Mellin space and produces evolution kernel o
 It is |PDF|-independent and the operators can be precomputed for a given configuration
 once and be reused after.
 
-EKO is ... 
+EKO is ...
 
 - open-source since the beginning - allowing a community effort for writing a new generation of code
 - written in Python - opting for a popular, high-level langauge to facilitate other authors to participate in the project
@@ -37,7 +37,7 @@ EKO is ...
     theory/pQCD
     theory/DGLAP
     theory/Matching
-    
+
     zzz-refs
 
 .. toctree::
@@ -55,7 +55,7 @@ EKO is ...
     :maxdepth: 1
     :caption: Development:
     :hidden:
-    
-    development/Benchmarks
-    ekomark <development/ekomark/ekomark>
+
+    development/Benchmarks.rst
+    development/ekomark.rst
     development/code_todos

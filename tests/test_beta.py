@@ -4,7 +4,6 @@
     of alpha_s for different orders.
 """
 import numpy as np
-
 import pytest
 
 from eko import beta

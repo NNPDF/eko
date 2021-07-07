@@ -18,8 +18,8 @@ for the singlet sector. Note that the non-singlet kernels evolve poles only up t
 
 """
 
-import numpy as np
 import numba as nb
+import numpy as np
 
 
 @nb.njit("c16(f8,f8,f8)", cache=True)
@@ -53,7 +53,7 @@ def Talbot_path(t, r, o):
     else:
         re = theta / np.tan(theta)
     im = theta
-    return o + r * np.complex(re, im)
+    return o + r * complex(re, im)
 
 
 @nb.njit("c16(f8,f8,f8)", cache=True)
@@ -87,7 +87,7 @@ def Talbot_jac(t, r, o):  # pylint: disable=unused-argument
         re = 1.0 / np.tan(theta)
         re -= theta / (np.sin(theta)) ** 2
     im = 1.0
-    return r * np.pi * 2.0 * np.complex(re, im)
+    return r * np.pi * 2.0 * complex(re, im)
 
 
 @nb.njit("c16(f8,f8,f8)", cache=True)
@@ -112,7 +112,7 @@ def line_path(t, m, c):
         path : complex
             Textbook path
     """
-    return np.complex(c, m * (2 * t - 1))
+    return complex(c, m * (2 * t - 1))
 
 
 @nb.njit("c16(f8,f8,f8)", cache=True)
@@ -137,7 +137,7 @@ def line_jac(_t, m, _c):
         jac : complex
             derivative of Textbook path
     """
-    return np.complex(0, m * 2)
+    return complex(0, m * 2)
 
 
 @nb.njit("c16(f8,f8,f8,f8)", cache=True)
@@ -165,9 +165,9 @@ def edge_path(t, m, c, phi):
             Edged path
     """
     if t < 0.5:  # turning point: path is not differentiable in this point
-        return c + (0.5 - t) * m * np.exp(np.complex(0, -phi))
+        return c + (0.5 - t) * m * np.exp(complex(0, -phi))
     else:
-        return c + (t - 0.5) * m * np.exp(np.complex(0, +phi))
+        return c + (t - 0.5) * m * np.exp(complex(0, +phi))
 
 
 @nb.njit("c16(f8,f8,f8,f8)", cache=True)
@@ -195,6 +195,6 @@ def edge_jac(t, m, _c, phi):
             Derivative of edged path
     """
     if t < 0.5:  # turning point: jacobian is not continuous here
-        return -m * np.exp(np.complex(0, -phi))
+        return -m * np.exp(complex(0, -phi))
     else:
-        return +m * np.exp(np.complex(0, phi))
+        return +m * np.exp(complex(0, phi))

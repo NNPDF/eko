@@ -9,32 +9,9 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-class Area:
-    """
-    Sets up a single threshold area with a fixed configuration.
-
-    Parameters
-    ----------
-        q2_min : float
-            lower bound of the area
-        q2_max : float
-            upper bound of the area
-        nf : float
-            number of flavors in the area
-    """
-
-    def __init__(self, q2_min, q2_max, nf):
-        self.q2_min = q2_min
-        self.q2_max = q2_max
-        self.nf = nf
-
-    def __repr__(self):
-        return f"Area([{self.q2_min},{self.q2_max}], nf={self.nf})"
-
-
 class PathSegment:
     """
-    Oriented path in the threshold area landscape.
+    Oriented path in the threshold landscape.
 
     Parameters
     ----------
@@ -42,32 +19,27 @@ class PathSegment:
             starting point
         q2_to : float
             final point
-        area : eko.thresholds.Area
-            containing area
+        nf : int
+            number of active flavors
     """
 
-    def __init__(self, q2_from, q2_to, area):
+    def __init__(self, q2_from, q2_to, nf):
         self.q2_from = q2_from
         self.q2_to = q2_to
-        self._area = area
+        self.nf = nf
 
     @property
-    def nf(self):
-        return self._area.nf
+    def is_backward(self):
+        """True if q2_from bigger than q2_to"""
+        return self.q2_from > self.q2_to
 
     @property
     def tuple(self):
-        return (self.q2_from, self.q2_to)
+        """Tuple representation suitable for hashing."""
+        return (self.q2_from, self.q2_to, self.nf)
 
     def __repr__(self):
         return f"PathSegment({self.q2_from} -> {self.q2_to}, nf={self.nf})"
-
-    @classmethod
-    def intersect(cls, q2_from, q2_to, area):
-        if q2_from < q2_to:
-            return cls(max(q2_from, area.q2_min), min(q2_to, area.q2_max), area)
-        else:
-            return cls(min(q2_from, area.q2_max), max(q2_to, area.q2_min), area)
 
 
 class ThresholdsAtlas:
@@ -77,32 +49,47 @@ class ThresholdsAtlas:
 
     Parameters
     ----------
-        thresholds: list(float)
-            List of q^2 thresholds
+        masses: list(float)
+            list of quark masses squared
         q2_ref: float
             reference scale
+        nf_ref: int
+            number of active flavors at the reference scale
+        thresholds_ratios: list(float)
+            list of ratios between masses and matching thresholds squared
+        max_nf: int
+            maximum number of active flavors
     """
 
-    def __init__(self, thresholds, q2_ref=None):
+    def __init__(
+        self, masses, q2_ref=None, nf_ref=None, thresholds_ratios=None, max_nf=None
+    ):
         # Initial values
         self.q2_ref = q2_ref
-        thresholds = list(thresholds)
-        if thresholds != sorted(thresholds):
-            raise ValueError("thresholds need to be sorted")
-        self.areas = []
+        self.nf_ref = nf_ref
+
+        masses = list(masses)
+        if masses != sorted(masses):
+            raise ValueError("masses need to be sorted")
+
+        thresholds = self.build_area_walls(masses, thresholds_ratios, max_nf)
+
         self.area_walls = [0] + thresholds + [np.inf]
-        q2_min = 0
-        nf = 3
-        for q2_max in self.area_walls[1:]:
-            new_area = Area(q2_min, q2_max, nf)
-            self.areas.append(new_area)
-            nf = nf + 1
-            q2_min = q2_max
+        self.thresholds_ratios = thresholds_ratios
+        logger.info("Thresholds: walls = %s", self.area_walls)
+
+    def __repr__(self):
+        walls = " - ".join(["%.2e" % w for w in self.area_walls])
+        return f"ThresholdsAtlas [{walls}], ref={self.q2_ref} @ {self.nf_ref}"
 
     @classmethod
     def ffns(cls, nf, q2_ref=None):
         """
         Create a |FFNS| setup.
+
+        The function creates simply succifienct thresholds at `0` (in the
+        beginning), since the number of flavors is determined by counting
+        from below.
 
         Parameters
         ----------
@@ -113,8 +100,39 @@ class ThresholdsAtlas:
         """
         return cls([0] * (nf - 3) + [np.inf] * (6 - nf), q2_ref)
 
+    @staticmethod
+    def build_area_walls(masses, thresholds_ratios=None, max_nf=None):
+        r"""
+        Create the object from the run card.
+
+        The thresholds are computed by :math:`(m_q \cdot k_q^{Thr})`.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+            list :
+                threshold list
+        """
+        if len(masses) != 3:
+            raise ValueError("There have to be 3 quark masses")
+        if thresholds_ratios is None:
+            thresholds_ratios = (1.0, 1.0, 1.0)
+        if len(thresholds_ratios) != 3:
+            raise ValueError("There have to be 3 quark threshold ratios")
+        if max_nf is None:
+            max_nf = 6
+
+        thresholds = []
+        for m, k in zip(masses, thresholds_ratios):
+            thresholds.append(m * k)
+        # cut array = simply reduce some thresholds
+        thresholds = thresholds[: max_nf - 3]
+        return thresholds
+
     @classmethod
-    def from_dict(cls, theory_card, prefix="k"):
+    def from_dict(cls, theory_card, prefix="k", max_nf_name="MaxNfPdf"):
         r"""
         Create the object from the run card.
 
@@ -129,23 +147,23 @@ class ThresholdsAtlas:
 
         Returns
         -------
-            cls : ThresholdsAtlas
+            ThresholdsAtlas :
                 created object
         """
-
-        def thres(pid):
-            heavy_flavors = "cbt"
-            flavor = heavy_flavors[pid - 4]
-            return pow(
-                theory_card[f"m{flavor}"] * theory_card[f"{prefix}{flavor}Thr"], 2
-            )
-
-        thresholds = [thres(q) for q in range(4, 6 + 1)]
+        heavy_flavors = "cbt"
+        masses = [theory_card[f"m{q}"] for q in heavy_flavors]
+        thresholds_ratios = [theory_card[f"{prefix}{q}Thr"] for q in heavy_flavors]
+        max_nf = theory_card[max_nf_name]
         # preset ref scale
         q2_ref = pow(theory_card["Q0"], 2)
-        return cls(thresholds, q2_ref)
+        return cls(
+            np.power(masses, 2),
+            q2_ref,
+            thresholds_ratios=np.power(thresholds_ratios, 2),
+            max_nf=max_nf,
+        )
 
-    def path(self, q2_to, q2_from=None):
+    def path(self, q2_to, nf_to=None, q2_from=None, nf_from=None):
         """
         Get path from q2_from to q2_to.
 
@@ -159,23 +177,35 @@ class ThresholdsAtlas:
         Returns
         -------
             path: list(PathSegment)
-                List of PathSegment to go through in order to get from q2_from
+                List of :class:`PathSegment` to go through in order to get from q2_from
                 to q2_to.
         """
+        # fallback to init config
         if q2_from is None:
             q2_from = self.q2_ref
-
-        ref_idx = np.digitize(q2_from, self.area_walls)
-        target_idx = np.digitize(q2_to, self.area_walls)
-        if q2_to < q2_from:
+        if nf_from is None:
+            nf_from = self.nf_ref
+        # determine reference thresholds
+        if nf_from is None:
+            nf_from = 2 + np.digitize(q2_from, self.area_walls)
+        if nf_to is None:
+            nf_to = 2 + np.digitize(q2_to, self.area_walls)
+        # determine direction and python slice modifier
+        if nf_to < nf_from:
             rc = -1
+            shift = -3
         else:
             rc = 1
-        path = [
-            PathSegment.intersect(q2_from, q2_to, self.areas[i - 1])
-            for i in range(ref_idx, target_idx + rc, rc)
+            shift = -2
+        # join all necessary points in one list
+        boundaries = (
+            [q2_from] + self.area_walls[nf_from + shift : nf_to + shift : rc] + [q2_to]
+        )
+        segs = [
+            PathSegment(boundaries[i], q2, nf_from + i * rc)
+            for i, q2 in enumerate(boundaries[1:])
         ]
-        return list(filter(lambda s: not np.allclose(s.q2_from, s.q2_to), path))
+        return segs
 
     def nf(self, q2):
         """
@@ -192,4 +222,4 @@ class ThresholdsAtlas:
                 number of active flavors
         """
         ref_idx = np.digitize(q2, self.area_walls)
-        return self.areas[ref_idx - 1].nf
+        return 2 + ref_idx

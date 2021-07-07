@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+import copy
 import io
 from unittest import mock
 
 import numpy as np
+import pytest
 
 from eko import output
 
@@ -13,6 +15,13 @@ class FakePDF:
 
     def xfxQ2(self, _pid, x, _q2):
         return x
+
+
+def eko_identity(shape):
+    i, k = np.ogrid[: shape[1], : shape[2]]
+    eko_identity = np.zeros(shape[1:], int)
+    eko_identity[i, k, i, k] = 1
+    return np.broadcast_to(eko_identity[np.newaxis, :, :, :, :], shape)
 
 
 class TestOutput:
@@ -42,10 +51,13 @@ class TestOutput:
         Q2grid = self.mk_g([q2_out], len(pids), len(interpolation_xgrid))
         d = dict(
             interpolation_xgrid=interpolation_xgrid,
+            targetgrid=interpolation_xgrid,
+            inputgrid=interpolation_xgrid,
             interpolation_polynomial_degree=interpolation_polynomial_degree,
             interpolation_is_log=interpolation_is_log,
             q2_ref=q2_ref,
-            pids=pids,
+            inputpids=pids,
+            targetpids=pids,
             Q2grid=Q2grid,
         )
         return d
@@ -110,7 +122,7 @@ class TestOutput:
         pdf_grid = o.apply_pdf(pdf)
         assert len(pdf_grid) == len(d["Q2grid"])
         pdfs = pdf_grid[q2_out]["pdfs"]
-        assert list(pdfs.keys()) == d["pids"]
+        assert list(pdfs.keys()) == d["targetpids"]
         ref_pid1 = d["Q2grid"][q2_out]["operators"][0, :, 1, :] @ np.ones(
             len(d["interpolation_xgrid"])
         )
@@ -124,7 +136,7 @@ class TestOutput:
         pdf_grid = o.apply_pdf(pdf, target_grid)
         assert len(pdf_grid) == 1
         pdfs = pdf_grid[q2_out]["pdfs"]
-        assert list(pdfs.keys()) == d["pids"]
+        assert list(pdfs.keys()) == d["targetpids"]
 
     def test_apply_flavor(self, monkeypatch):
         d = self.fake_output()
@@ -136,7 +148,7 @@ class TestOutput:
         monkeypatch.setattr(
             "eko.basis_rotation.rotate_flavor_to_evolution", np.ones((2, 2))
         )
-        monkeypatch.setattr("eko.basis_rotation.flavor_basis_pids", d["pids"])
+        monkeypatch.setattr("eko.basis_rotation.flavor_basis_pids", d["targetpids"])
         fake_evol_basis = ("a", "b")
         monkeypatch.setattr("eko.basis_rotation.evol_basis", fake_evol_basis)
         pdf_grid = o.apply_pdf(pdf, rotate_to_evolution_basis=True)
@@ -148,3 +160,102 @@ class TestOutput:
             + d["Q2grid"][q2_out]["operators"][1, :, 1, :]
         ) @ np.ones(len(d["interpolation_xgrid"]))
         np.testing.assert_allclose(pdfs["a"], ref_a)
+
+    def test_xgrid_reshape(self):
+        d = self.fake_output()
+        # create object
+        xg = np.geomspace(1e-5, 1.0, 21)
+        o1 = output.Output(d)
+        o1["interpolation_xgrid"] = xg
+        o1["targetgrid"] = xg
+        o1["inputgrid"] = xg
+        o1["Q2grid"] = {
+            10: dict(
+                operators=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
+                operator_errors=np.zeros((2, len(xg), 2, len(xg))),
+            )
+        }
+        xgp = np.geomspace(1e-5, 1.0, 11)
+        # only target
+        ot = copy.deepcopy(o1)
+        ot.xgrid_reshape(xgp)
+        assert ot["Q2grid"][10]["operators"].shape == (2, len(xgp), 2, len(xg))
+        ott = copy.deepcopy(o1)
+        with pytest.warns(Warning):
+            ott.xgrid_reshape(xg)
+            np.testing.assert_allclose(
+                ott["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+            )
+
+        # only input
+        oi = copy.deepcopy(o1)
+        oi.xgrid_reshape(inputgrid=xgp)
+        assert oi["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xgp))
+        oii = copy.deepcopy(o1)
+        with pytest.warns(Warning):
+            oii.xgrid_reshape(inputgrid=xg)
+            np.testing.assert_allclose(
+                oii["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+            )
+
+        # both
+        o1.xgrid_reshape(xgp, xgp)
+        op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
+        np.testing.assert_allclose(o1["Q2grid"][10]["operators"], op[0], atol=1e-10)
+        # error
+        with pytest.raises(ValueError):
+            copy.deepcopy(o1).xgrid_reshape()
+
+    def test_flavor_reshape(self):
+        d = self.fake_output()
+        # create object
+        xg = np.geomspace(1e-5, 1.0, 21)
+        o1 = output.Output(d)
+        o1["interpolation_xgrid"] = xg
+        o1["targetgrid"] = xg
+        o1["inputgrid"] = xg
+        o1["Q2grid"] = {
+            10: dict(
+                operators=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
+                operator_errors=np.zeros((2, len(xg), 2, len(xg))),
+            )
+        }
+        # only target
+        target_r = np.array([[1, -1], [1, 1]])
+        ot = copy.deepcopy(o1)
+        ot.flavor_reshape(target_r)
+        assert ot["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xg))
+        ott = copy.deepcopy(ot)
+        ott.flavor_reshape(np.linalg.inv(target_r))
+        np.testing.assert_allclose(
+            ott["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+        )
+        with pytest.warns(Warning):
+            ott.flavor_reshape(np.eye(2))
+            np.testing.assert_allclose(
+                ott["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+            )
+
+        # only input
+        input_r = np.array([[1, -1], [1, 1]])
+        oi = copy.deepcopy(o1)
+        oi.flavor_reshape(inputbasis=input_r)
+        assert oi["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xg))
+        oii = copy.deepcopy(oi)
+        oii.flavor_reshape(inputbasis=np.linalg.inv(input_r))
+        np.testing.assert_allclose(
+            oii["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+        )
+        with pytest.warns(Warning):
+            oii.flavor_reshape(inputbasis=np.eye(2))
+            np.testing.assert_allclose(
+                oii["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
+            )
+
+        # both
+        o1.flavor_reshape(np.array([[1, -1], [1, 1]]), np.array([[1, -1], [1, 1]]))
+        op = eko_identity([1, 2, len(xg), 2, len(xg)]).copy()
+        np.testing.assert_allclose(o1["Q2grid"][10]["operators"], op[0], atol=1e-10)
+        # error
+        with pytest.raises(ValueError):
+            copy.deepcopy(o1).flavor_reshape()

@@ -5,13 +5,14 @@ Implements higher mathematical functions.
 The functions are discribed in :doc:`Mellin space </theory/Mellin>`.
 """
 
+import numba as nb
 import numpy as np
 import scipy.special
-import numba as nb
 
 # compute constants only once
 zeta2 = scipy.special.zeta(2)
 zeta3 = scipy.special.zeta(3)
+zeta4 = scipy.special.zeta(4)
 
 
 @nb.njit("c16(c16,u1)", cache=True)
@@ -114,7 +115,7 @@ def cern_polygamma(Z, K: int):  # pylint: disable=all
         A=np.sin(X)
         B=np.cos(X)
         T=np.tanh(Y)
-        P=np.complex(B,-A*T)/np.complex(A,B*T)
+        P=complex(B,-A*T)/complex(A,B*T)
         if K == 0:
             H=H+1/U+np.pi*P
         elif K == 1:
@@ -154,7 +155,7 @@ def harmonic_S1(N):
 
     See Also
     --------
-        cern_polygamma : :math:`\psi_0(N)`
+        cern_polygamma : :math:`\psi_k(N)`
     """
     return cern_polygamma(N + 1.0, 0) + np.euler_gamma
 
@@ -182,7 +183,7 @@ def harmonic_S2(N):
 
     See Also
     --------
-        cern_polygamma : :math:`\psi_0(N)`
+        cern_polygamma : :math:`\psi_k(N)`
     """
     return -cern_polygamma(N + 1.0, 1) + zeta2
 
@@ -210,9 +211,37 @@ def harmonic_S3(N):
 
     See Also
     --------
-        cern_polygamma : :math:`\psi_0(N)`
+        cern_polygamma : :math:`\psi_k(N)`
     """
     return 0.5 * cern_polygamma(N + 1.0, 2) + zeta3
+
+
+@nb.njit("c16(c16)", cache=True)
+def harmonic_S4(N):
+    r"""
+    Computes the harmonic sum :math:`S_4(N)`.
+
+    .. math::
+      S_4(N) = \sum\limits_{j=1}^N \frac 1 {j^4} = - \frac 1 6 \psi_3(N+1)+\zeta(4)
+
+    with :math:`\psi_3(N)` the 3rd-polygamma function and :math:`\zeta` the
+    Riemann zeta function.
+
+    Parameters
+    ----------
+        N : complex
+            Mellin moment
+
+    Returns
+    -------
+        S_4 : complex
+            Harmonic sum :math:`S_4(N)`
+
+    See Also
+    --------
+        cern_polygamma : :math:`\psi_k(N)`
+    """
+    return zeta4 - 1.0 / 6.0 * cern_polygamma(N + 1.0, 3)
 
 
 @nb.njit("c16(c16)", cache=True)
@@ -221,7 +250,7 @@ def mellin_g3(N):
     Computes the Mellin transform of :math:`\text{Li}_2(x)/(1+x)`.
 
     This function appears in the analytic continuation of the harmonic sum
-    :math:`S_{-2,1}(N)` which in turn appears in the NLO anomalous dimension
+    :math:`S_{-2,1}(N)` which in turn appears in the |NLO| anomalous dimension
     (see :ref:`theory/mellin:harmonic sums`).
 
     Parameters

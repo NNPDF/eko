@@ -107,3 +107,9 @@ assets/
 
 # mypy
 .mypy_cache/
+
+# plots dir
+LHA_bench/
+LHAPDF_bench/
+apfel_bench/
+pegasus_bench/
