@@ -125,6 +125,7 @@ class OperatorGrid:
         config["ev_op_iterations"] = operators_card["ev_op_iterations"]
         config["debug_skip_singlet"] = operators_card["debug_skip_singlet"]
         config["debug_skip_non_singlet"] = operators_card["debug_skip_non_singlet"]
+        config["HQ"] = theory_card["HQ"]
         q2_grid = np.array(operators_card["Q2grid"], np.float_)
         intrinsic_range = []
         if int(theory_card["IC"]) == 1:
@@ -182,7 +183,7 @@ class OperatorGrid:
                 shift = 3 if not seg.is_backward else 4
                 kthr = thr_config.thresholds_ratios[seg.nf - shift]
                 # MSBar mass ?
-                is_msbar = thr_config.is_msbar
+                is_msbar = self.config["HQ"] == "MSBAR"
                 # TODO: comparing to Apfel this seems to be not necessary.
                 # if is_msbar:
                 #     q2m_ref, m2_ref = thr_config.mass_ref[seg.nf - shift]

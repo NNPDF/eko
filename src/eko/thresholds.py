@@ -60,8 +60,6 @@ class ThresholdsAtlas:
             list of ratios between masses and matching thresholds squared
         max_nf: int
             maximum number of active flavors
-        msbar_masses: list
-            list of :math:`\overline{MS}` masses or None if POLE masses are used
     """
 
     def __init__(
@@ -71,18 +69,11 @@ class ThresholdsAtlas:
         nf_ref=None,
         thresholds_ratios=None,
         max_nf=None,
-        msbar_masses=None,
     ):
         # Initial values
         self.q2_ref = q2_ref
         self.nf_ref = nf_ref
-        # MSBar
-        if msbar_masses is not None:
-            self.is_msbar = True
-            masses = list(msbar_masses)
-        else:
-            self.is_msbar = False
-            masses = list(masses)
+        masses = list(masses)
         if masses != sorted(masses):
             raise ValueError("masses need to be sorted")
 
@@ -146,9 +137,7 @@ class ThresholdsAtlas:
         return thresholds
 
     @classmethod
-    def from_dict(
-        cls, theory_card, prefix="k", max_nf_name="MaxNfPdf", msbar_masses=None
-    ):
+    def from_dict(cls, theory_card, prefix="k", max_nf_name="MaxNfPdf", masses=None):
         r"""
         Create the object from the run card.
 
@@ -160,7 +149,7 @@ class ThresholdsAtlas:
                 run card with the keys given at the head of the :mod:`module <eko.thresholds>`
             prefix : str
                 prefix for the ratio parameters
-            msbar_masses: list
+            masses: list
                 list of :math:`\overline{MS}` masses or None if POLE masses are used
 
         Returns
@@ -169,7 +158,8 @@ class ThresholdsAtlas:
                 created object
         """
         heavy_flavors = "cbt"
-        masses = [theory_card[f"m{q}"] for q in heavy_flavors]
+        if masses is None:
+            masses = np.power([theory_card[f"m{q}"] for q in heavy_flavors], 2)
         thresholds_ratios = [theory_card[f"{prefix}{q}Thr"] for q in heavy_flavors]
         max_nf = theory_card[max_nf_name]
         # preset ref scale
@@ -180,11 +170,10 @@ class ThresholdsAtlas:
         if hqm_scheme not in ["MSBAR", "POLE"]:
             raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
         return cls(
-            np.power(masses, 2),
+            masses,
             q2_ref,
             thresholds_ratios=np.power(thresholds_ratios, 2),
             max_nf=max_nf,
-            msbar_masses=msbar_masses,
         )
 
     def path(self, q2_to, nf_to=None, q2_from=None, nf_from=None):

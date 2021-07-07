@@ -7,7 +7,8 @@ import pytest
 
 from eko.strong_coupling import StrongCoupling
 
-from eko.msbar_masses import compute_msbar_mass, evolve_msbar_mass
+from eko.msbar_masses import evolve_msbar_mass
+from eko.runner import compute_msbar_mass
 from eko.evolution_operator.flavors import quark_names
 
 

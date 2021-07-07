@@ -49,7 +49,7 @@ def test_Bluemlein_1():
     for n in range(N_vals):
         N = 2 * n + 2
         sx = get_sx(N)
-        for L in ref_val_gg:
+        for L, ref_gg in ref_val_gg.items():
             aS1 = A_singlet_1(N, sx, L)
-            np.testing.assert_allclose(aS1[0, 0], ref_val_gg[L][n], rtol=1e-6)
+            np.testing.assert_allclose(aS1[0, 0], ref_gg[n], rtol=1e-6)
             np.testing.assert_allclose(aS1[2, 0], ref_val_Hg[L][n], rtol=3e-6)

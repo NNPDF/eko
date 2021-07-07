@@ -13,7 +13,7 @@ from .evolution_operator.grid import OperatorGrid
 from .output import Output
 from .strong_coupling import StrongCoupling
 from .thresholds import ThresholdsAtlas
-from .msbar_masses import compute_msbar_mass
+from .msbar_masses import evolve_msbar_mass
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         masses = None
         if theory_card["HQ"] == "MSBAR":
             masses = compute_msbar_mass(theory_card)
-        tc = ThresholdsAtlas.from_dict(theory_card, msbar_masses=masses)
+        tc = ThresholdsAtlas.from_dict(theory_card, masses=masses)
 
         self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
@@ -147,3 +147,63 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         if inputbasis is not None or targetbasis is not None:
             self.out.flavor_reshape(targetbasis=targetbasis, inputbasis=inputbasis)
         return copy.deepcopy(self.out)
+
+
+def compute_msbar_mass(theory_card):
+    r"""
+    Compute the :math:`\overline{MS}` masses solving the equation :math:`m_{\bar{MS}}(m) = m`
+
+    Parameters
+    ----------
+        theory_card: dict
+            theory run card
+
+    Returns
+    -------
+        masses: list
+            list of msbar masses
+    """
+    masses = np.full(3, np.inf)
+    nf_active = 3
+    config = {
+        "as_ref": theory_card["alphas"],
+        "q2a_ref": np.power(theory_card["Qref"], 2),
+        "order": theory_card["PTO"],
+        "fact_to_ren": theory_card["fact_to_ren_scale_ratio"] ** 2,
+    }
+    for qidx, hq in enumerate("cbt"):
+        q2m_ref = np.power(theory_card[f"Qm{hq}"], 2)
+        m2_ref = np.power(theory_card[f"m{hq}"], 2)
+        # check if mass is already given at the pole
+        if q2m_ref == m2_ref:
+            masses[qidx] = m2_ref
+            continue
+        # if self.q2_ref > q2m_ref:
+        #     raise ValueError("In MSBAR scheme Q0 must be lower than any Qm")
+        # if q2m_ref > m2_ref:
+        #     raise ValueError("In MSBAR scheme each heavy quark \
+        #         mass reference scale must be smaller or equal than \
+        #             the value of the mass itself"
+        #     )
+        config["thr_masses"] = masses
+        masses[qidx] = evolve_msbar_mass(
+            m2_ref, q2m_ref, qidx + nf_active, config=config
+        )
+
+    # Check the msbar ordering
+    nf_active = 4
+    for qidx, hq in enumerate("bt"):
+        q2m_ref = np.power(theory_card[f"Qm{hq}"], 2)
+        m2_ref = np.power(theory_card[f"m{hq}"], 2)
+        m2_msbar = masses[qidx]
+        config["thr_masses"] = masses
+        # check that m_msbar_hq < msbar_hq+1 (m_msbar_hq)
+        m2_test = evolve_msbar_mass(
+            m2_ref, q2m_ref, qidx + nf_active, config=config, q2_to=m2_msbar
+        )
+        if m2_msbar > m2_test:
+            raise ValueError(
+                "The MSBAR masses do not preserve the correct ordering,\
+                    check the inital reference values"
+            )
+    return masses
