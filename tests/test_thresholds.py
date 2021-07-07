@@ -229,28 +229,25 @@ class TestThresholdsAtlas:
                 ),
             )
 
-        with pytest.raises(ValueError, match="MSBAR" ):
-            thr = ThresholdsAtlas.from_dict(
+        with pytest.raises(ValueError, match="MSBAR"):
+            ThresholdsAtlas.from_dict(
                 dict(
-                    Q0=np.sqrt(2.2),
-                    mc=2.0,
+                    Q0=np.sqrt(0.9),
+                    mc=1.0,
                     mb=2.1,
                     mt=3.0,
-                    Qmc=2.0,
-                    Qmb=1.0,
+                    Qmc=1.0,
+                    Qmb=2.0,
                     Qmt=3.0,
                     kcThr=1.0,
-                    kbThr=2.0,
-                    ktThr=3.0,
+                    kbThr=1.0,
+                    ktThr=1.0,
                     MaxNfPdf=6,
                     HQ="MSBAR",
                     PTO=2,
-                    method="expanded",
+                    method="EXA",
                     fact_to_ren_scale_ratio=1.0,
                     alphas=0.118,
                     Qref=91**2
                 ),
             )
-            thr.compute_msbar_mass()
-
-        

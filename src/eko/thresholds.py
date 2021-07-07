@@ -284,7 +284,6 @@ class ThresholdsAtlas:
                 m2_ref, q2m_ref, nf, config=config
             )
 
-        # TODO: do we need thisor we jus fall in mass not sorted ?
         #Check the msbar ordering
         for nf in [4, 5]:
             q2m_ref, m2_ref = self.mass_ref[nf - shift]
