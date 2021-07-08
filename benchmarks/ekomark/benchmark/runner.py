@@ -23,12 +23,14 @@ class Runner(BenchmarkRunner):
     """
     EKO specialization of the banana runner.
     """
-
-    banana_cfg = banana_cfg
     db_base_cls = db.Base
-    rotate_to_evolution_basis = False
-    sandbox = False
-    plot_operator = False
+
+    def __init__(self):
+        super().__init__()
+        self.banana_cfg = banana_cfg
+        self.rotate_to_evolution_basis = False
+        self.sandbox = False
+        self.plot_operator = False
 
     @staticmethod
     def load_ocards(session, ocard_updates):
@@ -70,7 +72,7 @@ class Runner(BenchmarkRunner):
         if self.sandbox:
             rerun = True
             ops_id = f"o{ocard['hash'][:6]}_t{theory['hash'][:6]}"
-            path = f"{banana_cfg['database_path'].parents[0]}/{ops_id}.yaml"
+            path = f"{self.banana_cfg['database_path'].parents[0]}/{ops_id}.yaml"
 
             if os.path.exists(path):
                 rerun = False
@@ -94,7 +96,7 @@ class Runner(BenchmarkRunner):
                 )
 
                 output_path = (
-                    f"{banana_cfg['database_path'].parents[0]}/{self.external}_bench"
+                    f"{self.banana_cfg['database_path'].parents[0]}/{self.external}_bench"
                 )
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
