@@ -29,10 +29,8 @@ jobs:
         pip install -e .
     - name: Package the distribution
       run: |
-        # package the source distribution
-        python setup.py sdist
         # package the pure python wheel
-        python setup.py bdist_wheel
+        pip wheel . -w dist --no-deps
     - name: Publish distribution 📦 to PyPI
       uses: pypa/gh-action-pypi-publish@master
       with:

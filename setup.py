@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import pathlib
 
-from setuptools import find_packages, setup
 import packutil as pack
+from setuptools import find_packages, setup
 
 # write version on the fly - inspired by numpy
 MAJOR = 0
-MINOR = 6
-MICRO = 0
+MINOR = 7
+MICRO = 1
 
 repo_path = pathlib.Path(__file__).absolute().parent
 
