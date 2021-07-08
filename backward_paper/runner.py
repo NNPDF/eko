@@ -22,10 +22,10 @@ import eko
 pkg_path = pathlib.Path(__file__).absolute().parents[0]
 
 
-def rotate_to_pm_basis(log):
+def rotate_to_pm_basis(log, skip=None):
     """Rotate to plus minus basis"""
-    # TODO: this can be improved
     rot_log = {}
+    skip = skip if skip is not None else []
     if "g" in log:
         rot_log["g"] = log["g"]
     for pid in eko.evolution_operator.flavors.quark_names:
@@ -33,22 +33,21 @@ def rotate_to_pm_basis(log):
             continue
         quark = log[pid]
         qbar = log[f"{pid}bar"].copy()
-        rot_log[r"${%s}^{+}$" % (pid)] = copy.deepcopy(log[pid])
-        rot_log[r"${%s}^{-}$" % (pid)] = copy.deepcopy(log[pid])
 
-        for column_name, column_data in quark.items():
-            if column_name == "x":
+        for key, fact in zip(["plus", "minus"], [1, -1]):
+            if key in skip:
                 continue
-            rot_log[r"${%s}^{+}$" % (pid)][column_name] = (
-                column_data + qbar[column_name]
-            )
-            rot_log[r"${%s}^{-}$" % (pid)][column_name] = (
-                column_data - qbar[column_name]
-            )
+            rot_log[r"${%s}^{%s}$" % (pid, key)] = copy.deepcopy(quark)
+            for column_name in quark:
+                if "x" in column_name or "error" in column_name:
+                    continue
+                rot_log[r"${%s}^{%s}$" % (pid, key)][column_name] += (
+                    fact * qbar[column_name]
+                )
     return rot_log
 
 
-class EkoRunner(Runner):
+class BackwardPaperRunner(Runner):
     """
     Specialization of the Ekomark runner.
     """
@@ -56,10 +55,49 @@ class EkoRunner(Runner):
     def __init__(self):
         super().__init__()
         self.banana_cfg = load_config(pkg_path)
+        # TODO: needed ?
         self.rotate_to_evolution_basis = False
         self.plot_pdfs = [4, -4]
         self.sandbox = True
         self.fig_name = None
+        self.return_to_Q0 = False
+
+    def run_me(self, theory, ocard, _pdf):
+
+        # Go back to the inital scale?
+        if self.return_to_Q0:
+            # TODO: cache is not aware of this trick...
+            # Improve this
+            self.sandbox = False
+            if len(ocard["Q2grid"]) > 1:
+                raise ValueError(
+                    "Q2grid must contain a single value when returning to the initial Q0"
+                )
+
+            me = super().run_me(theory, ocard, _pdf)
+
+            # TODO: bad trick
+            q2_from = theory["Q0"] ** 2
+            q2_to = ocard["Q2grid"][0]
+            theory["Q0"] = np.sqrt(q2_to)
+            ocard["Q2grid"] = [q2_from]
+
+            me_back = super().run_me(theory, ocard, _pdf)
+            o1 = me["Q2grid"][q2_to]["operators"]
+            o2 = me_back["Q2grid"][q2_from]["operators"]
+            final_op = np.einsum("ajbk,bkcl -> ajcl", o1, o2)
+
+            # TODO: add a test here
+            # for idx, op in enumerate(final_op):
+            #     np.testing.assert_allclose(op[:,idx,:], np.eye(final_op.shape[1]))
+
+            me_back["Q2grid"][q2_from]["operators"] = final_op
+            theory["Q0"] = np.sqrt(q2_from)
+            return me_back
+        else:
+            me = super().run_me(theory, ocard, _pdf)
+
+        return me
 
     def run_external(self, theory, ocard, pdf):
 
@@ -82,7 +120,7 @@ class EkoRunner(Runner):
                 ext[rep] = tab
         return ext
 
-    def log(self, theory, ocard, _pdf, me, ext):
+    def log(self, theory, ocard, pdf, me, ext):
         """Apply PDFs to eko and produce log tables"""
         log_tabs = {}
         xgrid = ocard["interpolation_xgrid"]
@@ -92,7 +130,7 @@ class EkoRunner(Runner):
         if self.rotate_to_evolution_basis:
             rotate_to_evolution = eko.basis_rotation.rotate_flavor_to_evolution.copy()
 
-        pdf_name = _pdf.set().name
+        pdf_name = pdf.set().name
         pdfs = lhapdf.mkPDFs(pdf_name)
 
         # build table
@@ -100,9 +138,9 @@ class EkoRunner(Runner):
         tab["x"] = xgrid
 
         # Loop over pdfs replicas
-        for rep, pdf in enumerate(pdfs):
+        for rep, pdf_set in enumerate(pdfs):
             pdf_grid = me.apply_pdf_flavor(
-                pdf,
+                pdf_set,
                 xgrid,
                 flavor_rotation=rotate_to_evolution,
             )
@@ -122,11 +160,11 @@ class EkoRunner(Runner):
                 for q2 in q2s:
                     res = pdf_grid[q2]
                     my_pdfs = res["pdfs"]
-                    my_pdf_errs = res["errors"]
+                    # my_pdf_errs = res["errors"]
                     tab[f"EKO_@_{np.round(np.sqrt(q2), 2)}"] = xgrid * my_pdfs[key]
-                    tab[f"EKO_error_@_{np.round(np.sqrt(q2), 2)}"] = (
-                        xgrid * my_pdf_errs[key]
-                    )
+                    # tab[f"EKO_error_@_{np.round(np.sqrt(q2), 2)}"] = (
+                    #     xgrid * my_pdf_errs[key]
+                    # )
 
                 log_tab[pdfname(key)] = pd.DataFrame(tab)
             log_tabs[rep] = log_tab

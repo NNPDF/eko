@@ -17,6 +17,15 @@ rc("text", usetex=True)
 pkg_path = pathlib.Path(__file__).absolute().parents[0]
 
 
+def quark_latex_name(name):
+    quark_name = name
+    if "bar" in name:
+        quark_name = r"$\bar{%s}$" % name[0]
+    quark_name = quark_name.replace("plus", "+")
+    quark_name = quark_name.replace("minus", "-")
+    return quark_name
+
+
 def plot_pdf(log, fig_name, cl=1):
     """
     Plotting routine
@@ -46,7 +55,7 @@ def plot_pdf(log, fig_name, cl=1):
                 labels = []
                 y_min = 1.0
                 for column_name, column_data in mean.items():
-                    if "x" in column_name or "error" in column_name:
+                    if "x" in column_name:
                         continue
                     mean.plot("x", f"{column_name}", ax=ax)
 
@@ -63,9 +72,6 @@ def plot_pdf(log, fig_name, cl=1):
                     if np.abs(column_data.min()) < np.abs(y_min):
                         y_min = np.abs(column_data.min())
 
-                quark_name = name
-                if "bar" in name:
-                    quark_name = r"$\bar{%s}$" % name[0]
                 ax.set_xlabel(r"\rm{x}")
                 ax.set_xlim(mean.x.min(), 1.0)
                 ax.legend(labels)
@@ -73,7 +79,7 @@ def plot_pdf(log, fig_name, cl=1):
 
             axs[1].set_yscale("symlog", linthresh=1e-7 if y_min < 1e-7 else y_min)
             axs[0].set_xscale("log")
-            axs[0].set_ylabel(r"\rm{x %s(x)}" % quark_name, fontsize=11)
+            axs[0].set_ylabel(r"\rm{x %s(x)}" % quark_latex_name(name), fontsize=11)
             plt.tight_layout()
             pp.savefig()
             plt.close(fig)
