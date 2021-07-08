@@ -6,6 +6,8 @@ import numpy as np
 
 from runner import EkoRunner
 
+pid_dict = {"c": 4, "b": 5, "t": 6}
+
 
 class BackwardRunner(EkoRunner):
     """
@@ -43,9 +45,9 @@ class BackwardRunner(EkoRunner):
             pdf_name: str
                 PDF name
             q_high: float
-                initial scale
+                initial Q scale
             q_low: float
-                final scale
+                final Q scale
         """
         self.fig_name = pdf_name
         operator_updates = self.base_operator
@@ -55,7 +57,9 @@ class BackwardRunner(EkoRunner):
 
         self.run([theory_updates], [operator_updates], [pdf_name])
 
-    def evolve_above_below_thr(self, pdf_name, heavy_quark="c", epsilon=0.01):
+    def evolve_above_below_thr(
+        self, pdf_name, q_high=1.65, heavy_quark="c", epsilon=0.01
+    ):
         """
         Comapare above and below the heavy quark threshold
 
@@ -63,12 +67,16 @@ class BackwardRunner(EkoRunner):
         ----------
             pdf_name: str
                 PDF name
+            q_high: float
+                initial Q scale
             heavy_quark: str
                 heavy quark name
             epsilon: float
                 distance from threshold
         """
-        self.fig_name = f"compare_thr_{pdf_name}"
+        self.fig_name = f"compare_thr_{heavy_quark}_{pdf_name}"
+        self.plot_pdfs = [-pid_dict[heavy_quark], pid_dict[heavy_quark]]
+
         operator_updates = self.base_operator
         thr_scale = (
             self.base_theory[f"m{heavy_quark}"] * self.base_theory[f"k{heavy_quark}Thr"]
@@ -76,6 +84,8 @@ class BackwardRunner(EkoRunner):
         operator_updates["Q2grid"] = np.power(
             [thr_scale + epsilon, thr_scale - epsilon], 2
         )
+        theory_updates = self.base_theory
+        theory_updates["Q0"] = q_high
         self.run([self.base_theory], [operator_updates], [pdf_name])
 
 
@@ -90,3 +100,7 @@ if __name__ == "__main__":
     for name in pdf_names:
         myrunner.evolve_backward(name)
         myrunner.evolve_above_below_thr(name)
+
+    # Test perturbarive B
+    pdf_name = "210629-n3fit-001"
+    myrunner.evolve_above_below_thr(pdf_name, q_high=5, heavy_quark="b")

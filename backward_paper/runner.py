@@ -57,7 +57,7 @@ class EkoRunner(Runner):
         super().__init__()
         self.banana_cfg = load_config(pkg_path)
         self.rotate_to_evolution_basis = False
-        self.skip_pdfs = [21, -1, 1, -2, 2, -3, 3, 5, -5, -6, 6, 22]
+        self.plot_pdfs = [4, -4]
         self.sandbox = True
         self.fig_name = None
 
@@ -112,7 +112,7 @@ class EkoRunner(Runner):
 
             # Loop over pdf ids
             for key in ref_pdfs:
-                if key in self.skip_pdfs:
+                if key not in self.plot_pdfs:
                     continue
 
                 if self.external == "inputpdf":
@@ -135,5 +135,5 @@ class EkoRunner(Runner):
         new_log = functools.reduce(
             lambda dfd1, dfd2: dfd1.merge(dfd2), log_tabs.values()
         )
-        plot_pdf(rotate_to_pm_basis(new_log), self.fig_name, cl=1, logscale=True)
+        plot_pdf(rotate_to_pm_basis(new_log), self.fig_name, cl=1)
         return new_log
