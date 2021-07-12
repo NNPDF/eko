@@ -10,13 +10,14 @@ import numpy as np
 
 from banana import load_config
 from banana.data import dfdict
+from banana.benchmark.runner import get_pdf_name
 
 from ekomark.benchmark.runner import Runner
 from ekomark import pdfname
+from ekomark.benchmark.external.lhapdf_utils import compute_LHAPDF_data
 
 from plots import plot_pdf
 
-import lhapdf
 import eko
 
 pkg_path = pathlib.Path(__file__).absolute().parents[0]
@@ -55,7 +56,6 @@ class BackwardPaperRunner(Runner):
     def __init__(self):
         super().__init__()
         self.banana_cfg = load_config(pkg_path)
-        # TODO: needed ?
         self.rotate_to_evolution_basis = False
         self.plot_pdfs = [4, -4]
         self.sandbox = True
@@ -81,15 +81,18 @@ class BackwardPaperRunner(Runner):
             q2_to = ocard["Q2grid"][0]
             theory["Q0"] = np.sqrt(q2_to)
             ocard["Q2grid"] = [q2_from]
-
             me_back = super().run_me(theory, ocard, _pdf)
+
             o1 = me["Q2grid"][q2_to]["operators"]
             o2 = me_back["Q2grid"][q2_from]["operators"]
-            final_op = np.einsum("ajbk,bkcl -> ajcl", o1, o2)
+            final_op = np.einsum("ajbk,bkcl -> ajcl", o2, o1)
 
             # TODO: add a test here
             # for idx, op in enumerate(final_op):
-            #     np.testing.assert_allclose(op[:,idx,:], np.eye(final_op.shape[1]))
+            #     # skip ph, t, tbar, g
+            #     if idx in [0,1,13,7]:
+            #         continue
+            #     np.testing.assert_allclose(op[:,idx,:], np.eye(final_op.shape[1]), atol=0.15)
 
             me_back["Q2grid"][q2_from]["operators"] = final_op
             theory["Q0"] = np.sqrt(q2_from)
@@ -103,21 +106,7 @@ class BackwardPaperRunner(Runner):
 
         if self.external == "inputpdf":
             # Compare with the initial pdf
-
-            xgrid = ocard["interpolation_xgrid"]
-            q0 = theory["Q0"]
-            ext = {}
-            pdfs = lhapdf.mkPDFs(pdf.set().name)
-            for rep, base_pdf in enumerate(pdfs):
-                tab = {}
-                for x in xgrid:
-                    in_pdf = base_pdf.xfxQ(x, q0)
-                    for pid, val in in_pdf.items():
-                        if pid not in tab:
-                            tab[pid] = []
-                        tab[pid].append(val)
-
-                ext[rep] = tab
+            ext = compute_LHAPDF_data(ocard, pdf, skip_pdfs=[], Q2s=[theory["Q0"]])
         return ext
 
     def log(self, theory, ocard, pdf, me, ext):
@@ -130,15 +119,14 @@ class BackwardPaperRunner(Runner):
         if self.rotate_to_evolution_basis:
             rotate_to_evolution = eko.basis_rotation.rotate_flavor_to_evolution.copy()
 
-        pdf_name = pdf.set().name
-        pdfs = lhapdf.mkPDFs(pdf_name)
+        pdf_name = get_pdf_name(pdf)
 
         # build table
         tab = {}
         tab["x"] = xgrid
 
         # Loop over pdfs replicas
-        for rep, pdf_set in enumerate(pdfs):
+        for rep, pdf_set in enumerate(pdf):
             pdf_grid = me.apply_pdf_flavor(
                 pdf_set,
                 xgrid,
@@ -149,12 +137,12 @@ class BackwardPaperRunner(Runner):
             ref_pdfs = ext[rep]
 
             # Loop over pdf ids
-            for key in ref_pdfs:
-                if key not in self.plot_pdfs:
-                    continue
+            for key in self.plot_pdfs:
 
                 if self.external == "inputpdf":
-                    tab[f'{pdf_name}_@_{theory["Q0"]}'] = ref_pdfs[key]
+                    tab[f'{pdf_name}_@_{theory["Q0"]}'] = ref_pdfs["values"][
+                        theory["Q0"]
+                    ][key]
 
                 # Loop over q2 grid
                 for q2 in q2s:
@@ -165,6 +153,7 @@ class BackwardPaperRunner(Runner):
                     # tab[f"EKO_error_@_{np.round(np.sqrt(q2), 2)}"] = (
                     #     xgrid * my_pdf_errs[key]
                     # )
+                    # tab["relative_error"] = ( f - r ) / r * 100
 
                 log_tab[pdfname(key)] = pd.DataFrame(tab)
             log_tabs[rep] = log_tab
@@ -173,5 +162,9 @@ class BackwardPaperRunner(Runner):
         new_log = functools.reduce(
             lambda dfd1, dfd2: dfd1.merge(dfd2), log_tabs.values()
         )
-        plot_pdf(rotate_to_pm_basis(new_log), self.fig_name, cl=1)
+        if self.rotate_to_evolution_basis:
+            plot_pdf(new_log, self.fig_name, cl=1)
+        else:
+            plot_pdf(rotate_to_pm_basis(new_log, skip=["minus"]), self.fig_name, cl=1)
+
         return new_log

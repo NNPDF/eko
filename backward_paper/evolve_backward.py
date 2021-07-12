@@ -32,8 +32,9 @@ class BackwardRunner(BackwardPaperRunner):
     base_operator = {
         # "interpolation_xgrid": np.linspace(0.01, 1, 100),
         # "interpolation_xgrid": np.geomspace(0.0001, 1, 100),
-        #"interpolation_xgrid": eko.interpolation.make_grid(3,2).tolist(),
-        "backward_inversion": "expanded",
+        # "interpolation_xgrid": eko.interpolation.make_grid(1,1).tolist(),
+        # "interpolation_polynomial_degree": 1,
+        "backward_inversion": "exact",
     }
 
     def evolve_backward(self, pdf_name, q_high=1.65, q_low=1.5, return_to_Q0=False):
@@ -52,13 +53,21 @@ class BackwardRunner(BackwardPaperRunner):
                 if True compute also the EKO back to test stability
         """
         self.fig_name = pdf_name
-        self.return_to_Q0 = return_to_Q0
         operator_updates = self.base_operator.copy()
         operator_updates["Q2grid"] = [q_low ** 2]
         theory_updates = self.base_theory.copy()
         theory_updates["Q0"] = q_high
+        if return_to_Q0:
+            self.return_to_Q0 = return_to_Q0
+            theory_updates["PTO"] = 0
+            theory_updates["IC"] = 1
+            theory_updates["IB"] = 1
+            theory_updates["ModEv"] = "TRN"
+            operator_updates["debug_skip_singlet"] = True
+            # self.rotate_to_evolution_basis = True
+            self.plot_pdfs = ["S", "g", "V", "T3", "T8", "V3", "V8"]
 
-        self.run([theory_updates], [operator_updates], [pdf_name])
+        self.run([theory_updates], [operator_updates], [pdf_name], use_replicas=True)
 
     def evolve_above_below_thr(
         self, pdf_name, q_high=1.65, heavy_quark="c", epsilon=0.01
@@ -89,7 +98,7 @@ class BackwardRunner(BackwardPaperRunner):
         )
         theory_updates = self.base_theory.copy()
         theory_updates["Q0"] = q_high
-        self.run([theory_updates], [operator_updates], [pdf_name])
+        self.run([theory_updates], [operator_updates], [pdf_name], use_replicas=True)
 
 
 if __name__ == "__main__":
@@ -98,12 +107,13 @@ if __name__ == "__main__":
 
     # Evolve below c threshold
     pdf_names = [
-        "210629-n3fit-001",  # NNLO, fitted charm
-        # "210629-theory-003",  # NNLO, perturbative charm
+        # "210629-n3fit-001",  # NNLO, fitted charm
+        "210629-theory-003",  # NNLO, perturbative charm
         # "210701-n3fit-data-014",  # NNLO, fitted charm + EMC F2c
+        # "NNPDF31_nnlo_pch_as_0118"
     ]
     for name in pdf_names:
-        myrunner.evolve_backward(name)
+        # myrunner.evolve_backward(name)
         myrunner.evolve_above_below_thr(name)
 
     # # Test perturbarive B
@@ -111,4 +121,4 @@ if __name__ == "__main__":
     # myrunner.evolve_above_below_thr(pdf_name, q_high=5, heavy_quark="b")
 
     # Test EKO back and forth
-    myrunner.evolve_backward(pdf_name, q_high=1.65, q_low=1.52, return_to_Q0=True)
+    # myrunner.evolve_backward(pdf_name, q_high=30, q_low=100, return_to_Q0=True)

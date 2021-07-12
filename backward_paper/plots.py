@@ -77,7 +77,7 @@ def plot_pdf(log, fig_name, cl=1):
                 ax.legend(labels)
                 ax.plot(np.geomspace(1e-7, 1, 200), np.zeros(200), "k--", alpha=0.5)
 
-            axs[1].set_yscale("symlog", linthresh=1e-7 if y_min < 1e-7 else y_min)
+            axs[1].set_yscale("symlog", linthresh=1e-6 if y_min < 1e-6 else y_min)
             axs[0].set_xscale("log")
             axs[0].set_ylabel(r"\rm{x %s(x)}" % quark_latex_name(name), fontsize=11)
             plt.tight_layout()
