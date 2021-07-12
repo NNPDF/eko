@@ -240,3 +240,14 @@ def test_gamma_usage():
                 ev_op_max_order,
             )
             assert np.isnan(r).any()
+
+
+def test_singlet_back():
+    gamma_s = np.random.rand(3, 2, 2) + np.random.rand(3, 2, 2) * 1j
+    nf = 4
+    a1 = 3.0
+    a0 = 4.0
+    s10 = s.dispatcher(2, "iterate-exact", gamma_s, a1, a0, nf, 1, 1)
+    np.testing.assert_allclose(
+        np.linalg.inv(s10), s.dispatcher(2, "iterate-exact", gamma_s, a0, a1, nf, 1, 1)
+    )

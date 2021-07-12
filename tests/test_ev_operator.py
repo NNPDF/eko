@@ -213,6 +213,84 @@ class TestOperator:
                 assert k in o1.op_members
                 np.testing.assert_allclose(o1.op_members[k].value, np.eye(2), err_msg=k)
 
+    def test_back(
+        self,
+    ):
+        # setup objs
+        theory_card = {
+            "alphas": 0.35,
+            "PTO": 0,
+            "ModEv": "EXA",
+            "fact_to_ren_scale_ratio": 1.0,
+            "Qref": np.sqrt(2),
+            "nfref": None,
+            "Q0": np.sqrt(2),
+            "IC": 1,
+            "IB": 1,
+            "mc": 1.0,
+            "mb": 4.75,
+            "mt": 173.0,
+            "kcThr": 1.0,
+            "kbThr": 1.0,
+            "ktThr": 1.0,
+            "MaxNfPdf": 6,
+            "MaxNfAs": 6,
+        }
+        operators_card = {
+            "Q2grid": [10],
+            "interpolation_xgrid": np.geomspace(1e-5, 1, 10),
+            "interpolation_polynomial_degree": 1,
+            "interpolation_is_log": True,
+            "debug_skip_singlet": False,
+            "debug_skip_non_singlet": False,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
+            "backward_inversion": "exact",
+        }
+        g = OperatorGrid.from_dict(
+            theory_card,
+            operators_card,
+            ThresholdsAtlas.from_dict(theory_card),
+            StrongCoupling.from_dict(theory_card),
+            InterpolatorDispatcher.from_dict(operators_card),
+        )
+        a0 = 2
+        a1 = 10
+        o = Operator(g.config, g.managers, 3, a0, a1)
+        o_back = Operator(g.config, g.managers, 3, a1, a0)
+
+        o_back.compute()
+        o.compute()
+
+        for k in ["NS_v"]:
+            # np.testing.assert_allclose(
+            #     o.op_members[k].value,
+            #     np.linalg.inv(o_back.op_members[k].value),
+            #     atol=3e-2,
+            # )
+
+            np.testing.assert_allclose(
+                o.op_members[k].value @ o_back.op_members[k].value,
+                np.eye(o_back.op_members[k].value.shape[0]),
+                atol=3e-2,
+                rtol=2e-2,
+            )
+        # TODO: not passing for singlet?
+        # np.testing.assert_allclose(
+        #     o_back.op_members['S_qq'].value @ o.op_members['S_qq'].value +
+        #     o_back.op_members['S_qg'].value @ o.op_members['S_gq'].value,
+        #     np.eye(o.op_members[k].value.shape[0]),
+        #     atol=3e-2,
+        #     rtol=2e-2
+        # )
+        # np.testing.assert_allclose(
+        #     o_back.op_members['S_qq'].value @ o.op_members['S_qg'].value +
+        #     o_back.op_members['S_qg'].value @ o.op_members['S_gg'].value,
+        #     np.zeros(o.op_members[k].value.shape),
+        #     atol=3e-2,
+        #     rtol=2e-2
+        # )
+
 
 def test_pegasus_path():
     def quad_ker_pegasus(
