@@ -22,9 +22,6 @@ class NavigatorApp(Ekonavigator):
     Specialization of the Ekomark navigator.
     """
 
-    def __init__(self, banana_cfg, external):
-        super().__init__(banana_cfg, external)
-
     def fill_logs(self, lg, obj):
         """
         Collect important information of the log record.

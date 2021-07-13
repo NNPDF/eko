@@ -4,7 +4,7 @@ This script compute an EKO to evolve a PDF set under the charm thrshold replica 
 """
 import numpy as np
 
-from banana.data import cartesian_product
+from ekomark.data import operators
 
 from runner import BackwardPaperRunner
 
@@ -36,8 +36,27 @@ class BackwardRunner(BackwardPaperRunner):
         # "interpolation_xgrid": np.geomspace(0.0001, 1, 100),
         # "interpolation_xgrid": eko.interpolation.make_grid(1,1).tolist(),
         # "interpolation_polynomial_degree": 1,
-        "backward_inversion": "exact",
+        "backward_inversion": ["expanded"],
     }
+
+    def doit(
+        self, pdf_name, operator_updates, theory_updates=None, q_high=None, q_low=None
+    ):
+        """Set common options and run"""
+        self.fig_name = pdf_name
+        if q_low is not None:
+            operator_updates["Q2grid"] = [[q_low ** 2]]
+        if theory_updates is None:
+            theory_updates = self.base_theory.copy()
+        if q_high is not None:
+            theory_updates["Q0"] = q_high
+
+        self.run(
+            [theory_updates],
+            operators.build((operator_updates)),
+            [pdf_name],
+            use_replicas=True,
+        )
 
     def evolve_backward(self, pdf_name, q_high=1.65, q_low=1.5, return_to_Q0=False):
         """
@@ -54,11 +73,8 @@ class BackwardRunner(BackwardPaperRunner):
             return_to_Q0: bool
                 if True compute also the EKO back to test stability
         """
-        self.fig_name = pdf_name
         operator_updates = self.base_operator.copy()
-        operator_updates["Q2grid"] = [q_low ** 2]
         theory_updates = self.base_theory.copy()
-        theory_updates["Q0"] = q_high
         if return_to_Q0:
             self.return_to_Q0 = return_to_Q0
             theory_updates["PTO"] = 0
@@ -69,7 +85,7 @@ class BackwardRunner(BackwardPaperRunner):
             # self.rotate_to_evolution_basis = True
             self.plot_pdfs = ["S", "g", "V", "T3", "T8", "V3", "V8"]
 
-        self.run([theory_updates], [operator_updates], [pdf_name], use_replicas=True)
+        self.doit(pdf_name, operator_updates, theory_updates, q_high, q_low)
 
     def evolve_above_below_thr(
         self, pdf_name, q_high=1.65, heavy_quark="c", epsilon=0.01
@@ -95,27 +111,15 @@ class BackwardRunner(BackwardPaperRunner):
         thr_scale = (
             self.base_theory[f"m{heavy_quark}"] * self.base_theory[f"k{heavy_quark}Thr"]
         )
-        operator_updates["Q2grid"] = list(
-            np.power([thr_scale + epsilon, thr_scale - epsilon], 2)
-        )
-        theory_updates = self.base_theory.copy()
-        theory_updates["Q0"] = q_high
-        self.run([theory_updates], [operator_updates], [pdf_name], use_replicas=True)
+        operator_updates["Q2grid"] = [
+            list(np.power([thr_scale + epsilon, thr_scale - epsilon], 2))
+        ]
+        self.doit(pdf_name, operator_updates, q_high=q_high)
 
     def evolve_exact_expanded(self, pdf_name, q_high=1.65, q_low=1.5):
-        self.fig_name = pdf_name
         operator_updates = self.base_operator.copy()
-        operator_updates["Q2grid"] = [q_low ** 2]
         operator_updates["backward_inversion"] = ["exact", "expanded"]
-
-        theory_updates = self.base_theory.copy()
-        theory_updates["Q0"] = q_high
-        self.run(
-            [theory_updates],
-            [cartesian_product(operator_updates)],
-            [pdf_name],
-            use_replicas=True,
-        )
+        self.doit(pdf_name, operator_updates, q_high=q_high, q_low=q_low)
 
 
 if __name__ == "__main__":
@@ -124,8 +128,8 @@ if __name__ == "__main__":
 
     # Evolve below c threshold
     pdf_names = [
-        # "210629-n3fit-001",  # NNLO, fitted charm
-        "210629-theory-003",  # NNLO, perturbative charm
+        "210629-n3fit-001",  # NNLO, fitted charm
+        # "210629-theory-003",  # NNLO, perturbative charm
         # "210701-n3fit-data-014",  # NNLO, fitted charm + EMC F2c
         # "NNPDF31_nnlo_pch_as_0118"
     ]
@@ -135,10 +139,10 @@ if __name__ == "__main__":
         # myrunner.evolve_backward(name)
 
         # # Test beclow above thr
-        # myrunner.evolve_above_below_thr(name)
+        myrunner.evolve_above_below_thr(name)
 
         # # Test exapanded/exact
-        myrunner.evolve_exact_expanded(name)
+        # myrunner.evolve_exact_expanded(name)
 
     # # Test perturbarive B
     # pdf_name = "210629-n3fit-001"
