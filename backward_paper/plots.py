@@ -2,19 +2,17 @@
 """
 Plotting options
 """
-import pathlib
 import numpy as np
 
 from matplotlib import use, rc
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
 
+from config import pkg_path
 
 use("PDF")
 rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
 rc("text", usetex=True)
-
-pkg_path = pathlib.Path(__file__).absolute().parents[0]
 
 
 def quark_latex_name(name):
@@ -55,7 +53,7 @@ def plot_pdf(log, fig_name, cl=1):
                 labels = []
                 y_min = 1.0
                 for column_name, column_data in mean.items():
-                    if "x" in column_name:
+                    if column_name == "x":
                         continue
                     mean.plot("x", f"{column_name}", ax=ax)
 

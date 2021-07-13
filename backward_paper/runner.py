@@ -3,7 +3,6 @@
 This script contains a specialization of the Ekomark runner
 """
 import functools
-import pathlib
 import copy
 import pandas as pd
 import numpy as np
@@ -17,14 +16,22 @@ from ekomark import pdfname
 from ekomark.benchmark.external.lhapdf_utils import compute_LHAPDF_data
 
 from plots import plot_pdf
+from config import pkg_path
 
 import eko
 
-pkg_path = pathlib.Path(__file__).absolute().parents[0]
-
 
 def rotate_to_pm_basis(log, skip=None):
-    """Rotate to plus minus basis"""
+    """
+    Rotate to plus minus basis
+
+    Parameters
+    ----------
+        log: dict
+            log table
+        skip: str
+            skip 'plus' or 'minus'
+    """
     rot_log = {}
     skip = skip if skip is not None else []
     if "g" in log:
@@ -36,11 +43,11 @@ def rotate_to_pm_basis(log, skip=None):
         qbar = log[f"{pid}bar"].copy()
 
         for key, fact in zip(["plus", "minus"], [1, -1]):
-            if key in skip:
+            if key == skip:
                 continue
             rot_log[r"${%s}^{%s}$" % (pid, key)] = copy.deepcopy(quark)
             for column_name in quark:
-                if "x" in column_name or "error" in column_name:
+                if column_name == "x" or "error" in column_name:
                     continue
                 rot_log[r"${%s}^{%s}$" % (pid, key)][column_name] += (
                     fact * qbar[column_name]
@@ -106,7 +113,7 @@ class BackwardPaperRunner(Runner):
 
         if self.external == "inputpdf":
             # Compare with the initial pdf
-            ext = compute_LHAPDF_data(ocard, pdf, skip_pdfs=[], Q2s=[theory["Q0"]])
+            ext = compute_LHAPDF_data(ocard, pdf, skip_pdfs=[], Q2s=[theory["Q0"] ** 2])
         return ext
 
     def log(self, theory, ocard, pdf, me, ext):
@@ -141,7 +148,7 @@ class BackwardPaperRunner(Runner):
 
                 if self.external == "inputpdf":
                     tab[f'{pdf_name}_@_{theory["Q0"]}'] = ref_pdfs["values"][
-                        theory["Q0"]
+                        theory["Q0"] ** 2
                     ][key]
 
                 # Loop over q2 grid
@@ -165,6 +172,6 @@ class BackwardPaperRunner(Runner):
         if self.rotate_to_evolution_basis:
             plot_pdf(new_log, self.fig_name, cl=1)
         else:
-            plot_pdf(rotate_to_pm_basis(new_log, skip=["minus"]), self.fig_name, cl=1)
+            plot_pdf(rotate_to_pm_basis(new_log, skip="minus"), self.fig_name, cl=1)
 
         return new_log

@@ -82,6 +82,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         obj["iters"] = op["ev_op_iterations"]
         obj["skip_ns"] = op["debug_skip_non_singlet"]
         obj["skip_s"] = op["debug_skip_singlet"]
+        obj["backward_inversion"] = op["backward_inversion"]
 
     def fill_cache(self, cac, obj):
         """
@@ -94,7 +95,11 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             obj : dict
                 to be updated pandas record
         """
-        vals = cac["result"]["values"]
+        # If all the pdfs replicas were used look only a the cental value
+        try:
+            vals = cac["result"]["values"]
+        except KeyError:
+            vals = cac["result"][0]["values"]
         q2s = list(vals.keys())
         # assume the vals are homogenous (true for bare eko results) and look
         # only at the first one

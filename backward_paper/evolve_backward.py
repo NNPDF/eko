@@ -4,6 +4,8 @@ This script compute an EKO to evolve a PDF set under the charm thrshold replica 
 """
 import numpy as np
 
+from banana.data import cartesian_product
+
 from runner import BackwardPaperRunner
 
 pid_dict = {"c": 4, "b": 5, "t": 6}
@@ -93,12 +95,27 @@ class BackwardRunner(BackwardPaperRunner):
         thr_scale = (
             self.base_theory[f"m{heavy_quark}"] * self.base_theory[f"k{heavy_quark}Thr"]
         )
-        operator_updates["Q2grid"] = np.power(
-            [thr_scale + epsilon, thr_scale - epsilon], 2
+        operator_updates["Q2grid"] = list(
+            np.power([thr_scale + epsilon, thr_scale - epsilon], 2)
         )
         theory_updates = self.base_theory.copy()
         theory_updates["Q0"] = q_high
         self.run([theory_updates], [operator_updates], [pdf_name], use_replicas=True)
+
+    def evolve_exact_expanded(self, pdf_name, q_high=1.65, q_low=1.5):
+        self.fig_name = pdf_name
+        operator_updates = self.base_operator.copy()
+        operator_updates["Q2grid"] = [q_low ** 2]
+        operator_updates["backward_inversion"] = ["exact", "expanded"]
+
+        theory_updates = self.base_theory.copy()
+        theory_updates["Q0"] = q_high
+        self.run(
+            [theory_updates],
+            [cartesian_product(operator_updates)],
+            [pdf_name],
+            use_replicas=True,
+        )
 
 
 if __name__ == "__main__":
@@ -113,12 +130,19 @@ if __name__ == "__main__":
         # "NNPDF31_nnlo_pch_as_0118"
     ]
     for name in pdf_names:
+
+        # # Simple inversion
         # myrunner.evolve_backward(name)
-        myrunner.evolve_above_below_thr(name)
+
+        # # Test beclow above thr
+        # myrunner.evolve_above_below_thr(name)
+
+        # # Test exapanded/exact
+        myrunner.evolve_exact_expanded(name)
 
     # # Test perturbarive B
-    pdf_name = "210629-n3fit-001"
+    # pdf_name = "210629-n3fit-001"
     # myrunner.evolve_above_below_thr(pdf_name, q_high=5, heavy_quark="b")
 
-    # Test EKO back and forth
+    # # Test EKO back and forth
     # myrunner.evolve_backward(pdf_name, q_high=30, q_low=100, return_to_Q0=True)
