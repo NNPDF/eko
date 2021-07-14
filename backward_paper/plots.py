@@ -58,9 +58,7 @@ def plot_pdf(log, fig_name, cl=1):
                 ax = plt.subplot(gs[:-1, ncol], sharex=ax_ratio)
                 labels = []
                 y_min = 1.0
-                for column_name, column_data in mean.items():
-                    if column_name == "x":
-                        continue
+                for column_name, column_data in mean.iloc[:, 1:].items():
                     ax.plot(mean.x, column_data)
                     ax.fill_between(
                         mean.x,

@@ -36,14 +36,15 @@ class BackwardRunner(BackwardPaperRunner):
         # "interpolation_xgrid": np.geomspace(0.0001, 1, 100),
         # "interpolation_xgrid": eko.interpolation.make_grid(1,1).tolist(),
         # "interpolation_polynomial_degree": 1,
-        "backward_inversion": ["expanded"],
+        "backward_inversion": ["expanded", "exact"],
     }
 
     def doit(
         self, pdf_name, operator_updates, theory_updates=None, q_high=None, q_low=None
     ):
         """Set common options and run"""
-        self.fig_name = pdf_name
+        if self.fig_name is None:
+            self.fig_name = pdf_name
         if q_low is not None:
             operator_updates["Q2grid"] = [[q_low ** 2]]
         if theory_updates is None:
@@ -81,8 +82,8 @@ class BackwardRunner(BackwardPaperRunner):
             theory_updates["IC"] = 1
             theory_updates["IB"] = 1
             theory_updates["ModEv"] = "TRN"
-            operator_updates["debug_skip_singlet"] = True
-            # self.rotate_to_evolution_basis = True
+            # operator_updates["debug_skip_singlet"] = True
+            self.rotate_to_evolution_basis = True
             self.plot_pdfs = ["S", "g", "V", "T3", "T8", "V3", "V8"]
 
         self.doit(pdf_name, operator_updates, theory_updates, q_high, q_low)
@@ -145,8 +146,8 @@ if __name__ == "__main__":
         # myrunner.evolve_exact_expanded(name)
 
     # # Test perturbarive B
-    # pdf_name = "210629-n3fit-001"
+    pdf_name = "210629-n3fit-001"
     # myrunner.evolve_above_below_thr(pdf_name, q_high=5, heavy_quark="b")
 
     # # Test EKO back and forth
-    # myrunner.evolve_backward(pdf_name, q_high=30, q_low=100, return_to_Q0=True)
+    # myrunner.evolve_backward("ToyLH", q_high=30, q_low=100, return_to_Q0=True)

@@ -46,8 +46,8 @@ def rotate_to_pm_basis(log, skip=None):
             if key == skip:
                 continue
             rot_log[r"${%s}^{%s}$" % (pid, key)] = copy.deepcopy(quark)
-            for column_name in quark:
-                if column_name == "x" or "error" in column_name:
+            for column_name in quark.iloc[:, 1:]:
+                if "error" in column_name:
                     continue
                 rot_log[r"${%s}^{%s}$" % (pid, key)][column_name] += (
                     fact * qbar[column_name]
@@ -113,7 +113,13 @@ class BackwardPaperRunner(Runner):
 
         if self.external == "inputpdf":
             # Compare with the initial pdf
-            ext = compute_LHAPDF_data(ocard, pdf, skip_pdfs=[], Q2s=[theory["Q0"] ** 2])
+            ext = compute_LHAPDF_data(
+                ocard,
+                pdf,
+                skip_pdfs=[22],
+                Q2s=[theory["Q0"] ** 2],
+                rotate_to_evolution_basis=self.rotate_to_evolution_basis,
+            )
         return ext
 
     def log(self, theory, ocard, pdf, me, ext):
