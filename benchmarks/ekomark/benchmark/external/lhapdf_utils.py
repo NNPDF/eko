@@ -42,7 +42,7 @@ def compute_LHAPDF_data(operators, pdf, skip_pdfs, Q2s=None, rotate_to_evolution
         # loop on particles
         for pid in br.flavor_basis_pids:
 
-            if pid in skip_pdfs:
+            if pid in skip_pdfs or not pdf.hasFlavor(pid):
                 continue
 
             # collect lhapdf
