@@ -68,14 +68,14 @@ def test_quad_ker(monkeypatch):
             ev_op_iterations=0,
             ev_op_max_order=0,
         )
-        np.testing.assert_allclose(res_ns, 1.0)
+        np.testing.assert_allclose(res_ns, 0.0)
         res_s = quad_ker(
             u=0,
             order=0,
             mode="S_qq",
             method="",
             is_log=is_log,
-            logx=0.0,
+            logx=1.0,
             areas=np.zeros(3),
             a1=1,
             a0=2,

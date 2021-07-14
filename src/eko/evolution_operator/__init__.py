@@ -6,7 +6,6 @@ See :doc:`Operator overview </code/Operators>`.
 """
 
 import logging
-from os import replace
 import time
 
 import numba as nb
