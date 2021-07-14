@@ -22,10 +22,12 @@ class ApfelBenchmark(Runner):
     Globally set the external program to Apfel
     """
 
-    external = "apfel"
+    def __init__(self):
+        super().__init__()
+        self.external = "apfel"
 
-    # Rotate to evolution basis
-    rotate_to_evolution_basis = True
+        # Rotate to evolution basis
+        self.rotate_to_evolution_basis = True
 
     @staticmethod
     def skip_pdfs(_theory):

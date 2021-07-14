@@ -25,10 +25,11 @@ class PegasusBenchmark(Runner):
     subleading (~ 1e-4 relative difference).
     """
 
-    external = "pegasus"
-
-    # Rotate to evolution basis
-    rotate_to_evolution_basis = True
+    def __init__(self):
+        super().__init__()
+        self.external = "pegasus"
+        # Rotate to evolution basis
+        self.rotate_to_evolution_basis = True
 
     @staticmethod
     def skip_pdfs(_theory):
@@ -136,7 +137,7 @@ if __name__ == "__main__":
 
     obj = BenchmarkVFNS()
     # obj = BenchmarkFFNS()
-    obj.benchmark_plain(1)
+    obj.benchmark_plain(2)
 
     # obj.benchmark_sv(1)
     # vfns.benchmark_sv()

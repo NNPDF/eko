@@ -33,11 +33,13 @@ class LHABenchmark(Runner):
     Globally set the external program to LHA
     """
 
-    external = "LHA"
+    def __init__(self):
+        super().__init__()
+        self.external = "LHA"
 
-    theory = {}
+        self.theory = {}
 
-    rotate_to_evolution_basis = True
+        self.rotate_to_evolution_basis = True
 
     def plain_theory(self, pto):
         """

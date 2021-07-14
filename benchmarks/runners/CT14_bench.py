@@ -14,10 +14,12 @@ class LHAPDFBenchmark(Runner):
     Globally set the external program to LHAPDF
     """
 
-    external = "LHAPDF"
+    def __init__(self):
+        super().__init__()
+        self.external = "LHAPDF"
 
-    # Rotate to evolution basis
-    rotate_to_evolution_basis = False
+        # Rotate to evolution basis
+        self.rotate_to_evolution_basis = False
 
 
 base_theory = {

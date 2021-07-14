@@ -28,16 +28,18 @@ class Sandbox(Runner):
     Globally set the external program
     """
 
-    sandbox = True
+    def __init__(self):
+        super().__init__()
+        self.sandbox = True
 
-    # select here the external program between LHA, LHAPDF, apfel, pegasus
-    external = "apfel"
-    #  external = "pegasus"
+        # select here the external program between LHA, LHAPDF, apfel, pegasus
+        self.external = "apfel"
+        #  external = "pegasus"
 
-    # select to plot operators
-    plot_operator = False
+        # select to plot operators
+        self.plot_operator = False
 
-    rotate_to_evolution_basis = True
+        self.rotate_to_evolution_basis = True
 
     @staticmethod
     def generate_operators():
