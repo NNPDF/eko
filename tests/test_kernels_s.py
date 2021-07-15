@@ -243,11 +243,13 @@ def test_gamma_usage():
 
 
 def test_singlet_back():
-    gamma_s = np.random.rand(3, 2, 2) + np.random.rand(3, 2, 2) * 1j
+    order = 2
+    gamma_s = np.random.rand(order + 1, 2, 2) + np.random.rand(order + 1, 2, 2) * 1j
     nf = 4
     a1 = 3.0
     a0 = 4.0
-    s10 = s.dispatcher(2, "iterate-exact", gamma_s, a1, a0, nf, 1, 1)
+    s10 = s.dispatcher(order, "iterate-exact", gamma_s, a1, a0, nf, 15, 1)
     np.testing.assert_allclose(
-        np.linalg.inv(s10), s.dispatcher(2, "iterate-exact", gamma_s, a0, a1, nf, 1, 1)
+        np.linalg.inv(s10),
+        s.dispatcher(order, "iterate-exact", gamma_s, a0, a1, nf, 15, 1),
     )
