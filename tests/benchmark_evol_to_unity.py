@@ -34,7 +34,8 @@ class TestBackwardForward:
     operators_card = {
         "Q2grid": [10],
         # here you need a very dense grid
-        "interpolation_xgrid": np.linspace(1e-1,5e-1,30),
+        "interpolation_xgrid": np.linspace(1e-1,1,30),
+        #"interpolation_xgrid": make_grid(30,30, x_min=1e-3),
         "interpolation_polynomial_degree": 1,
         "interpolation_is_log": True,
         "debug_skip_singlet": False,
@@ -103,7 +104,7 @@ class TestBackwardForward:
             o_back.op_members["S_gg"].value @ o.op_members["S_gq"].value
             + o_back.op_members["S_gq"].value @ o.op_members["S_qq"].value,
             np.zeros(dim),
-            atol=3e-4,
+            atol=2e-3,
         )
 
     # def test_matching_grid(
