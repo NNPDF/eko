@@ -83,7 +83,6 @@ class BackwardPaperRunner(Runner):
 
             me = super().run_me(theory, ocard, _pdf)
 
-            # TODO: bad trick
             q2_from = theory["Q0"] ** 2
             q2_to = ocard["Q2grid"][0]
             theory["Q0"] = np.sqrt(q2_to)
@@ -94,15 +93,17 @@ class BackwardPaperRunner(Runner):
             o2 = me_back["Q2grid"][q2_from]["operators"]
             final_op = np.einsum("ajbk,bkcl -> ajcl", o2, o1)
 
-            # TODO: add a test here
             # for idx, op in enumerate(final_op):
-            #     # skip ph, t, tbar, g
-            #     if idx in [0,1,13,7]:
+            #     # skip ph, t, tbar,
+            #     if idx in [0,1,13]:
             #         continue
-            #     np.testing.assert_allclose(op[:,idx,:], np.eye(final_op.shape[1]), atol=0.15)
+            #     np.testing.assert_allclose(op[:,idx,:], np.eye(final_op.shape[1]), atol=0.01)
 
             me_back["Q2grid"][q2_from]["operators"] = final_op
+            # restore the Q2 values
             theory["Q0"] = np.sqrt(q2_from)
+            ocard["Q2grid"] = [q2_to]
+            me_back["q2_ref"] = q2_from
             return me_back
         else:
             me = super().run_me(theory, ocard, _pdf)
@@ -126,7 +127,7 @@ class BackwardPaperRunner(Runner):
         """Apply PDFs to eko and produce log tables"""
         log_tabs = {}
         xgrid = ocard["interpolation_xgrid"]
-        q2s = ocard["Q2grid"]
+        q2s = me["Q2grid"]
 
         rotate_to_evolution = None
         if self.rotate_to_evolution_basis:
@@ -162,11 +163,12 @@ class BackwardPaperRunner(Runner):
                     res = pdf_grid[q2]
                     my_pdfs = res["pdfs"]
                     # my_pdf_errs = res["errors"]
-                    tab[f"EKO_@_{np.round(np.sqrt(q2), 2)}"] = xgrid * my_pdfs[key]
-                    # tab[f"EKO_error_@_{np.round(np.sqrt(q2), 2)}"] = (
-                    #     xgrid * my_pdf_errs[key]
-                    # )
-                    # tab["relative_error"] = ( f - r ) / r * 100
+                    if self.return_to_Q0:
+                        tab[
+                            f"EKO_@_{np.round(np.sqrt(q2), 2)}_>_{np.round(np.sqrt(ocard['Q2grid'][0]), 2)}_>_{np.round(np.sqrt(q2), 2)}"
+                        ] = (xgrid * my_pdfs[key])
+                    else:
+                        tab[f"EKO_@_{np.round(np.sqrt(q2), 2)}"] = xgrid * my_pdfs[key]
 
                 log_tab[pdfname(key)] = pd.DataFrame(tab)
             log_tabs[rep] = log_tab
@@ -175,9 +177,14 @@ class BackwardPaperRunner(Runner):
         new_log = functools.reduce(
             lambda dfd1, dfd2: dfd1.merge(dfd2), log_tabs.values()
         )
-        if self.rotate_to_evolution_basis:
-            plot_pdf(new_log, self.fig_name, cl=1)
-        else:
-            plot_pdf(rotate_to_pm_basis(new_log, skip="minus"), self.fig_name, cl=1)
+
+        plot_pdf(
+            rotate_to_pm_basis(new_log, skip="minus")
+            if self.rotate_to_evolution_basis
+            else new_log,
+            self.fig_name,
+            cl=1,
+            plot_reldiff=self.return_to_Q0,
+        )
 
         return new_log

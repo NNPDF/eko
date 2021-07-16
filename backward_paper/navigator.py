@@ -46,7 +46,15 @@ class NavigatorApp(Ekonavigator):
         ngrid = int(len(tab) / nrep)
         return tab.iloc[n * ngrid : (n + 1) * ngrid, :]
 
-    def plot_logs(self, hashes, key_to_plot, rotate_to_pm_basis=True, skip=None):
+    def plot_logs(
+        self,
+        hashes,
+        key_to_plot=None,
+        rotate_to_pm_basis=True,
+        skip=None,
+        plot_pull=False,
+        plot_reldiff=False,
+    ):
         """
         Plot two different logs with the same x grid
 
@@ -73,7 +81,7 @@ class NavigatorApp(Ekonavigator):
             # search the label
             if key_to_plot == "pdf":
                 labels.append(log["pdf"])
-            else:
+            elif key_to_plot is not None:
                 try:
                     theory = self.get(bnav.t, log["t_hash"])
                     labels.append(theory[key_to_plot])
@@ -85,6 +93,8 @@ class NavigatorApp(Ekonavigator):
                         raise KeyError(
                             f"{key_to_plot} is neither in operator card neither in theory card"
                         ) from err
+            else:
+                labels.append("EKO")
         # build a total log table with new keys
         fig_name = fig_name[:-1]
         total_log = dfdict.DFdict()
@@ -102,7 +112,12 @@ class NavigatorApp(Ekonavigator):
                         new_key = key.replace("EKO", f"{labels[n]}")
                         total_log[pid][new_key] = vals
 
-        plot_pdf(to_pm(total_log, skip) if rotate_to_pm_basis else total_log, fig_name)
+        plot_pdf(
+            to_pm(total_log, skip) if rotate_to_pm_basis else total_log,
+            fig_name,
+            plot_reldiff=plot_reldiff,
+            plot_pull=plot_pull,
+        )
 
     def compute_momentum_fraction(self, hashes, rotate_to_pm_basis=True, skip=None):
         """
