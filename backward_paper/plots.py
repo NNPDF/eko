@@ -7,6 +7,7 @@ import numpy as np
 from matplotlib import use, rc
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from config import pkg_path
 
@@ -106,13 +107,12 @@ def plot_pdf(log, fig_name, cl=1, plot_pull=False, plot_reldiff=False):
                 elif plot_reldiff:
                     ax_ratio = plt.subplot(gs[-1:, ncol], sharex=ax)
                     ref_data = mean.iloc[:, 1]
-                    for column_name, column_data in mean.iloc[:, 2:].items():
-                        # TODO: set colors correctly 
+                    for idx, (_, column_data) in enumerate(mean.iloc[:, 2:].items()):
                         ax_ratio.plot(
                             mean.x,
                             (column_data - ref_data).div(ref_data).replace(np.nan, 0)
                             * 100,
-                            color="#ff7f0e",
+                            color=plt.rcParams['axes.prop_cycle'].by_key()['color'][idx+1],
                         )
                     ax_ratio.plot(
                         np.geomspace(1e-7, 1, 200), np.zeros(200), "k--", alpha=0.5

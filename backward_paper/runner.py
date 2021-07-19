@@ -68,46 +68,53 @@ class BackwardPaperRunner(Runner):
         self.sandbox = True
         self.fig_name = None
         self.return_to_Q0 = False
+        self.ekos = []
+        self.intermediate_Q = None
+
+    def run(self, theory_updates, ocard_updates, pdfs, use_replicas=False):
+        if self.return_to_Q0:
+            # prevent to run all the possible runcards combinations
+            # but only the sequence: q0->q1->q0
+            self.ekos = []
+            for idx, q0 in enumerate(theory_updates[0]["Q0"]):
+                temp_theory = copy.deepcopy(theory_updates)
+                temp_theory[0]["Q0"] = q0
+                super().run(temp_theory, [ocard_updates[idx]], pdfs, use_replicas)
+        else:
+            super().run(theory_updates, ocard_updates, pdfs, use_replicas)
 
     def run_me(self, theory, ocard, _pdf):
-
-        # Go back to the inital scale?
-        if self.return_to_Q0:
-            # TODO: cache is not aware of this trick...
-            # Improve this
-            self.sandbox = False
-            if len(ocard["Q2grid"]) > 1:
-                raise ValueError(
-                    "Q2grid must contain a single value when returning to the initial Q0"
-                )
-
+        # need to run or do an eko product?
+        if len(self.ekos) != 2:
             me = super().run_me(theory, ocard, _pdf)
+            # need to store the eko here?
+            if self.return_to_Q0:
+                self.ekos.append(me)
+        else:
+            self.console.print("Computing product between the prevoius Ekos")
 
+            # get the operator tensors
+            op_list = []
+            for eko in self.ekos:
+                for operators in eko["Q2grid"].values():
+                    op_list.append(operators["operators"])
+
+            # do tensor product
+            final_op = np.einsum("ajbk,bkcl -> ajcl", op_list[1], op_list[0])
+
+            # set the final eko values
+            me = copy.deepcopy(self.ekos[1])
+            self.intermediate_Q = np.round(np.sqrt(self.ekos[1]["q2_ref"]), 2)
             q2_from = theory["Q0"] ** 2
-            q2_to = ocard["Q2grid"][0]
-            theory["Q0"] = np.sqrt(q2_to)
-            ocard["Q2grid"] = [q2_from]
-            me_back = super().run_me(theory, ocard, _pdf)
+            me["q2_ref"] = q2_from
+            me["Q2grid"][q2_from]["operators"] = final_op
 
-            o1 = me["Q2grid"][q2_to]["operators"]
-            o2 = me_back["Q2grid"][q2_from]["operators"]
-            final_op = np.einsum("ajbk,bkcl -> ajcl", o2, o1)
-
+            # test?
             # for idx, op in enumerate(final_op):
             #     # skip ph, t, tbar,
             #     if idx in [0,1,13]:
             #         continue
             #     np.testing.assert_allclose(op[:,idx,:], np.eye(final_op.shape[1]), atol=0.01)
-
-            me_back["Q2grid"][q2_from]["operators"] = final_op
-            # restore the Q2 values
-            theory["Q0"] = np.sqrt(q2_from)
-            ocard["Q2grid"] = [q2_to]
-            me_back["q2_ref"] = q2_from
-            return me_back
-        else:
-            me = super().run_me(theory, ocard, _pdf)
-
         return me
 
     def run_external(self, theory, ocard, pdf):
@@ -163,9 +170,9 @@ class BackwardPaperRunner(Runner):
                     res = pdf_grid[q2]
                     my_pdfs = res["pdfs"]
                     # my_pdf_errs = res["errors"]
-                    if self.return_to_Q0:
+                    if self.intermediate_Q:
                         tab[
-                            f"EKO_@_{np.round(np.sqrt(q2), 2)}_>_{np.round(np.sqrt(ocard['Q2grid'][0]), 2)}_>_{np.round(np.sqrt(q2), 2)}"
+                            f"EKO_@_{np.round(np.sqrt(q2), 2)}_>_{self.intermediate_Q}_>_{np.round(np.sqrt(q2), 2)}"
                         ] = (xgrid * my_pdfs[key])
                     else:
                         tab[f"EKO_@_{np.round(np.sqrt(q2), 2)}"] = xgrid * my_pdfs[key]
@@ -173,14 +180,20 @@ class BackwardPaperRunner(Runner):
                 log_tab[pdfname(key)] = pd.DataFrame(tab)
             log_tabs[rep] = log_tab
 
-        # Plot
+        # Merge dfd for different replicas
         new_log = functools.reduce(
             lambda dfd1, dfd2: dfd1.merge(dfd2), log_tabs.values()
         )
 
+        # skip plotting for intermediate step when
+        # returning to Q0
+        if self.return_to_Q0 and self.intermediate_Q is None:
+            return new_log
+
+        # Plot
         plot_pdf(
             rotate_to_pm_basis(new_log, skip="minus")
-            if self.rotate_to_evolution_basis
+            if not self.rotate_to_evolution_basis
             else new_log,
             self.fig_name,
             cl=1,

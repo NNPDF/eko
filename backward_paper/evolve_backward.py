@@ -79,14 +79,19 @@ class BackwardRunner(BackwardPaperRunner):
         theory_updates = self.base_theory.copy()
         if return_to_Q0:
             self.return_to_Q0 = return_to_Q0
-            self.fig_name = f"back_forth_{pdf_name}_{q_low}_{q_high}"
+            self.fig_name = f"back_forth_{pdf_name}_{q_low}_{q_high}_{operator_updates['backward_inversion'][0]}"
             theory_updates["IC"] = 1
             theory_updates["IB"] = 1
             self.rotate_to_evolution_basis = True
             self.plot_pdfs = ["S", "g", "V"]
-            # self.plot_pdfs = [21, -5, 5]
+            #self.plot_pdfs = [21, -5, 5]
+            # self.plot_pdfs = [21, -4, 4]
 
-        self.doit(pdf_name, operator_updates, theory_updates, q_high, q_low)
+            operator_updates["Q2grid"] = [[q_low ** 2], [q_high ** 2], [q_high ** 2]]
+            theory_updates["Q0"] = [q_high, q_low, q_high]
+            return self.doit(pdf_name, operator_updates, theory_updates)
+
+        return self.doit(pdf_name, operator_updates, theory_updates, q_high, q_low)
 
     def evolve_above_below_thr(
         self, pdf_name, q_high=1.65, heavy_quark="c", epsilon=0.01
@@ -153,4 +158,7 @@ if __name__ == "__main__":
     # myrunner.evolve_backward(pdf_name, q_low=4.91, q_high=5, return_to_Q0=True)
 
     # # Test EKO back and forth
-    myrunner.evolve_backward(pdf_name, q_high=30, q_low=100, return_to_Q0=True)
+    myrunner.evolve_backward(pdf_name, q_high=5, q_low=30, return_to_Q0=True)
+
+    # opposite not making sense, pdf at 1.5 is not defined
+    #myrunner.evolve_backward(pdf_name, q_low=1.5, q_high=1.65, return_to_Q0=True)
