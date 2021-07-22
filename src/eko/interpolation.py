@@ -8,6 +8,7 @@ to evaluate the interpolator.
 """
 import logging
 import math
+import scipy.special as sp
 
 import numba as nb
 import numpy as np
@@ -629,3 +630,54 @@ def make_grid(
     # join
     xgrid = np.unique(np.concatenate((xgrid_low, xgrid_mid, xgrid_high, np.array([1]))))
     return xgrid
+
+
+def make_lambert_grid(
+    n_pts,
+    x_min=1e-7,
+    x_max=1.0,
+):
+    """
+    Creates a linear log smoothly spaced grid, following the relation:
+
+    .. math::
+        x(y) = \frac{1}{5} W_{0}(5 exp{5-y})
+
+    where :math:`W_{0}` is the principle branch of the Lambert W function and
+    :math:`y` is a variable which extemes are given as function of :math:`x`
+    by the direct relation:
+
+    .. math::
+        y(x) = 5(1-x)-logx
+
+    Thi method is implemted in `PineAPPL`, :cite:`Carrazza_2020` eq 2.11 and relative
+    paragraph.
+
+    Parameters
+    ----------
+        n_pts : int
+            number of points
+        x_min : float
+            minimum x (included)
+        x_max : float
+            maximum x (included)
+
+    Returns
+    -------
+        xgrid : numpy.ndarray
+            generated grid
+    """
+
+    def direct_relation(x):
+        return 5 * (1 - x) - np.log(x)
+
+    def inverse_relation(y):
+        return np.real(1 / 5 * sp.lambertw(5 * np.exp(5 - y)))
+
+    y_min = direct_relation(x_min)
+    y_max = direct_relation(x_max)
+    delta_y = (y_max - y_min) / (n_pts - 1)
+
+    return np.array(
+        [inverse_relation(y) for y in np.arange(y_min, y_max + delta_y, delta_y)]
+    )
