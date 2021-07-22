@@ -676,8 +676,5 @@ def make_lambert_grid(
 
     y_min = direct_relation(x_min)
     y_max = direct_relation(x_max)
-    delta_y = (y_max - y_min) / (n_pts - 1)
 
-    return np.array(
-        [inverse_relation(y) for y in np.arange(y_min, y_max + delta_y, delta_y)]
-    )
+    return np.array([inverse_relation(y) for y in np.linspace(y_min, y_max, n_pts)])
