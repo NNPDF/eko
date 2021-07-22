@@ -168,7 +168,9 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
     """
     is_singlet = mode[0] == "S"
     # get transformation to N integral
-    r = 0.4 * 16.0 / (1.0 - logx)
+    if logx == 0:
+        return 0.0
+    r = 0.4 * 16.0 / (- logx)
     if is_singlet:
         o = 1.0
         indeces = {"g": 0, "q": 1, "H": 2}
