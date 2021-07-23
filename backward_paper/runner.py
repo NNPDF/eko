@@ -71,17 +71,15 @@ class BackwardPaperRunner(Runner):
         self.ekos = []
         self.intermediate_Q = None
 
-    def run(self, theory_updates, ocard_updates, pdfs, use_replicas=False):
-        if self.return_to_Q0:
-            # prevent to run all the possible runcards combinations
-            # but only the sequence: q0->q1->q0
-            self.ekos = []
-            for idx, q0 in enumerate(theory_updates[0]["Q0"]):
-                temp_theory = copy.deepcopy(theory_updates)
-                temp_theory[0]["Q0"] = q0
-                super().run(temp_theory, [ocard_updates[idx]], pdfs, use_replicas)
-        else:
-            super().run(theory_updates, ocard_updates, pdfs, use_replicas)
+    def run_back_forth(self, theory_updates, ocard_updates, pdfs, use_replicas=True):
+        """Compute the sequence q0->q1->q0"""
+        self.ekos = []
+        for idx, q0 in enumerate(theory_updates[0]["Q0"]):
+            temp_theory = copy.deepcopy(theory_updates)
+            temp_theory[0]["Q0"] = q0
+            super().run(
+                temp_theory, [ocard_updates[idx]], pdfs, use_replicas=use_replicas
+            )
 
     def run_me(self, theory, ocard, _pdf):
         # need to run or do an eko product?
@@ -91,7 +89,7 @@ class BackwardPaperRunner(Runner):
             if self.return_to_Q0:
                 self.ekos.append(me)
         else:
-            self.console.print("Computing product between the prevoius Ekos")
+            self.console.print("Computing product between the previous Ekos")
 
             # get the operator tensors
             op_list = []
