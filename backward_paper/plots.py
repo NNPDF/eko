@@ -7,7 +7,6 @@ import numpy as np
 from matplotlib import use, rc
 from matplotlib.backends.backend_pdf import PdfPages
 import matplotlib.pyplot as plt
-import pandas as pd
 
 from config import pkg_path
 
@@ -103,7 +102,7 @@ def plot_pdf(log, fig_name, cl=1, plot_pull=False, plot_reldiff=False):
                         np.geomspace(1e-7, 1, 200), np.zeros(200), "k--", alpha=0.5
                     )
                     ax_ratio.set_xlabel(r"\rm{x}")
-                    ax_ratio.set_ylabel(r"\rm{Pull}", fontsize=11)
+                    ax_ratio.set_ylabel(r"\rm{Evidence}", fontsize=11)
                 elif plot_reldiff:
                     ax_ratio = plt.subplot(gs[-1:, ncol], sharex=ax)
                     ref_data = mean.iloc[:, 1]
@@ -112,7 +111,9 @@ def plot_pdf(log, fig_name, cl=1, plot_pull=False, plot_reldiff=False):
                             mean.x,
                             (column_data - ref_data).div(ref_data).replace(np.nan, 0)
                             * 100,
-                            color=plt.rcParams['axes.prop_cycle'].by_key()['color'][idx+1],
+                            color=plt.rcParams["axes.prop_cycle"].by_key()["color"][
+                                idx + 1
+                            ],
                         )
                     ax_ratio.plot(
                         np.geomspace(1e-7, 1, 200), np.zeros(200), "k--", alpha=0.5

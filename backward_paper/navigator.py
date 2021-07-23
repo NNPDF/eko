@@ -18,6 +18,10 @@ from runner import rotate_to_pm_basis as to_pm
 from plots import plot_pdf
 
 
+def replace_label(new_label):
+    return lambda s: s.replace("EKO", f"{new_label}")
+
+
 class NavigatorApp(Ekonavigator):
     """
     Specialization of the Ekomark navigator.
@@ -46,10 +50,44 @@ class NavigatorApp(Ekonavigator):
         ngrid = int(len(tab) / nrep)
         return tab.iloc[n * ngrid : (n + 1) * ngrid, :]
 
+    def search_label(self, log, key):
+        """
+        Search the label to display
+
+        Parameters
+        ----------
+            log : dict
+                log dictionary
+            key : str
+                key of which value will be used as label
+
+        Returns
+        -------
+            label: str
+                value to use in the legend
+        """
+        if key == "pdf":
+            label = log["pdf"]
+        elif key is not None:
+            try:
+                theory = self.get(bnav.t, log["t_hash"])
+                label = theory[key]
+            except KeyError:
+                try:
+                    operators = self.get(bnav.o, log["o_hash"])
+                    label = operators[key]
+                except KeyError as err:
+                    raise KeyError(
+                        f"{key} is neither in operator card neither in theory card"
+                    ) from err
+        else:
+            label = "EKO"
+        return label
+
     def plot_logs(
         self,
         hashes,
-        key_to_plot=None,
+        label_to_display=None,
         rotate_to_pm_basis=True,
         skip=None,
         plot_pull=False,
@@ -62,7 +100,7 @@ class NavigatorApp(Ekonavigator):
         ----------
             hashes : list
                 log hash list to plot
-            key_to_plot: str
+            label_to_display: str
                 key to display in the plot legend: 'pdf' or theory/operator key
             rotate_to_pm_basis : bool
                 if True rotate to plus minus basis
@@ -77,24 +115,9 @@ class NavigatorApp(Ekonavigator):
             log = self.get(bnav.l, h)
             dfds.append(log["log"])
             fig_name += f"{log['hash'][: self.hash_len]}_"
-
             # search the label
-            if key_to_plot == "pdf":
-                labels.append(log["pdf"])
-            elif key_to_plot is not None:
-                try:
-                    theory = self.get(bnav.t, log["t_hash"])
-                    labels.append(theory[key_to_plot])
-                except KeyError:
-                    try:
-                        operators = self.get(bnav.o, log["o_hash"])
-                        labels.append(operators[key_to_plot])
-                    except KeyError as err:
-                        raise KeyError(
-                            f"{key_to_plot} is neither in operator card neither in theory card"
-                        ) from err
-            else:
-                labels.append("EKO")
+            labels.append(self.search_label(log, label_to_display))
+
         # build a total log table with new keys
         fig_name = fig_name[:-1]
         total_log = dfdict.DFdict()
@@ -102,8 +125,8 @@ class NavigatorApp(Ekonavigator):
             for pid, tab in dfd.items():
                 # set first table
                 if n == 0:
-                    total_log[pid] = pd.DataFrame(
-                        {k.replace("EKO", f"{labels[n]}"): v for k, v in tab.items()}
+                    total_log[pid] = pd.DataFrame(tab).rename(
+                        columns=replace_label(labels[n])
                     )
                 # set the other tables
                 else:
@@ -119,7 +142,9 @@ class NavigatorApp(Ekonavigator):
             plot_pull=plot_pull,
         )
 
-    def compute_momentum_fraction(self, hashes, rotate_to_pm_basis=True, skip=None):
+    def compute_momentum_fraction(
+        self, hashes, label_to_display=None, rotate_to_pm_basis=True, skip=None
+    ):
         """
         Compute the momentum fraction for each PDF
 
@@ -127,6 +152,8 @@ class NavigatorApp(Ekonavigator):
         ----------
             hashes : list
                 log hash list to plot
+            label_to_display: str
+                key to display in the plot legend: 'pdf' or theory/operator key
             rotate_to_pm_basis : bool
                 if True rotate to plus minus basis
             skip : str
@@ -153,15 +180,18 @@ class NavigatorApp(Ekonavigator):
                         integrand(replica_tab.x)
                     )
                     mom_df = mom_df.append(pd.DataFrame(replica_mom).T)
-                # average and std
+
+                # average and std and rename if necessary
                 momentum_log[pid] = pd.concat(
                     [
                         mom_df.mean().rename("momentum fraction"),
                         mom_df.std().rename("std"),
                         mom_df.mean().rename("momentum fraction (%)") * 100,
+                        mom_df.mean().div(mom_df.std()).rename("Evidence"),
                     ],
                     axis=1,
-                )
+                ).rename(index=replace_label(self.search_label(log, label_to_display)))
+            print("Log:", log["hash"])
             print(momentum_log)
 
 
