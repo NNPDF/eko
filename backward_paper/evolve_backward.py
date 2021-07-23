@@ -5,7 +5,7 @@ This script compute an EKO to evolve a PDF set under the charm thrshold replica 
 import numpy as np
 
 from ekomark.data import operators
-from eko.interpolation import make_grid
+#from eko.interpolation import make_grid, make_lambert_grid
 
 from runner import BackwardPaperRunner
 
@@ -29,15 +29,18 @@ class BackwardRunner(BackwardPaperRunner):
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
-        "PTO": 2,
+        "PTO": 1,
         "IC": 1,
         "IB": 1,
+        "ModEv": "EXA",
     }
     base_operator = {
-        # "interpolation_xgrid": [np.linspace(1e-1,1,50)],
-        # "interpolation_xgrid": [make_grid(30,30, x_min=1e-3).tolist()],
-        # "interpolation_polynomial_degree": 1,
-        "backward_inversion": ["exact"]  # ["expanded","exact"],
+        # "interpolation_xgrid": [np.linspace(1e-2,1,50)],
+        # "interpolation_xgrid": [make_grid(30,10).tolist()],
+        # "interpolation_xgrid": [make_lambert_grid(50).tolist()],
+        # "interpolation_polynomial_degree": [1],
+        "backward_inversion": ["exact"],
+        # "ev_op_iterations": [1],
     }
 
     def doit(
@@ -77,19 +80,23 @@ class BackwardRunner(BackwardPaperRunner):
         """
         operator_updates = self.base_operator.copy()
         theory_updates = self.base_theory.copy()
+        self.fig_name = None
         if return_to_Q0:
             self.return_to_Q0 = return_to_Q0
             self.fig_name = f"back_forth_{pdf_name}_{q_low}_{q_high}_{operator_updates['backward_inversion'][0]}"
             theory_updates["IC"] = 1
             theory_updates["IB"] = 1
-            self.rotate_to_evolution_basis = True
-            self.plot_pdfs = ["S", "g", "V"]
-            #self.plot_pdfs = [21, -5, 5]
-            # self.plot_pdfs = [21, -4, 4]
+            # self.rotate_to_evolution_basis = True
+            # self.plot_pdfs = ["S", "g", "V"]
+            # self.plot_pdfs = [21, -5, 5]
 
             operator_updates["Q2grid"] = [[q_low ** 2], [q_high ** 2], [q_high ** 2]]
             theory_updates["Q0"] = [q_high, q_low, q_high]
-            return self.doit(pdf_name, operator_updates, theory_updates)
+            return self.run_back_forth(
+                [theory_updates],
+                operators.build((operator_updates)),
+                [pdf_name],
+            )
 
         return self.doit(pdf_name, operator_updates, theory_updates, q_high, q_low)
 
@@ -135,30 +142,30 @@ if __name__ == "__main__":
     # Evolve below c threshold
     pdf_names = [
         "210629-n3fit-001",  # NNLO, fitted charm
-        # "210629-theory-003",  # NNLO, perturbative charm
+        "210629-theory-003",  # NNLO, perturbative charm
         # "210701-n3fit-data-014",  # NNLO, fitted charm + EMC F2c
         # "NNPDF31_nnlo_pch_as_0118"
     ]
-    # for name in pdf_names:
+    for name in pdf_names:
 
-    #     # # Simple inversion
-    #     # myrunner.evolve_backward(name)
+        # Simple inversion
+        myrunner.evolve_backward(name)
 
-    #     # # Test beclow above thr
+    #     # Test beclow above thr
     #     myrunner.evolve_above_below_thr(name)
 
     #     # # Test exapanded/exact
     #     # myrunner.evolve_exact_expanded(name)
 
     # # Test perturbarive B
-    pdf_name = "210629-n3fit-001"
-    # pdf_name = "ToyLH"
+    # pdf_name = "210629-n3fit-001"
     # myrunner.evolve_above_below_thr(pdf_name, q_high=5, heavy_quark="b")
+
+    # # Test EKO back and forth
+    # myrunner.evolve_backward(pdf_name, q_high=5, q_low=30, return_to_Q0=True)
     # myrunner.evolve_backward(pdf_name, q_low=5, q_high=4.91, return_to_Q0=True)
     # myrunner.evolve_backward(pdf_name, q_low=4.91, q_high=5, return_to_Q0=True)
 
-    # # Test EKO back and forth
-    myrunner.evolve_backward(pdf_name, q_high=5, q_low=30, return_to_Q0=True)
-
-    # opposite not making sense, pdf at 1.5 is not defined
-    #myrunner.evolve_backward(pdf_name, q_low=1.5, q_high=1.65, return_to_Q0=True)
+    # you can't use n3fit-001 here since it's not defined below the thr scale
+    # pdf_name = "210629-theory-003"
+    # myrunner.evolve_backward(pdf_name, q_low=1.65, q_high=1.5, return_to_Q0=True)

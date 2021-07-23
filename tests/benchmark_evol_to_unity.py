@@ -4,10 +4,10 @@ import numpy as np
 
 from eko.evolution_operator import Operator
 from eko.evolution_operator.grid import OperatorGrid
-from eko.interpolation import InterpolatorDispatcher, make_grid
+from eko.interpolation import InterpolatorDispatcher
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
-from eko.matching_conditions.operator_matrix_element import OperatorMatrixElement
+#from eko.matching_conditions.operator_matrix_element import OperatorMatrixElement
 
 
 class TestBackwardForward:

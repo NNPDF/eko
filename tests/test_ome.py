@@ -267,7 +267,7 @@ class TestOperatorMatrixElement:
         o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
         o.compute(self.theory_card["mb"] ** 2, L=0)
 
-        dim = o.ome_members[f"NS_qq"].value.shape
+        dim = o.ome_members["NS_qq"].value.shape
         for idx in ["S", "NS"]:
             np.testing.assert_allclose(
                 o.ome_members[f"{idx}_qq"].value, np.eye(dim[0]), atol=1e-11
