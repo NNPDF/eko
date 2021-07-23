@@ -29,7 +29,7 @@ class BackwardRunner(BackwardPaperRunner):
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
-        "PTO": 1,
+        "PTO": 2,
         "IC": 1,
         "IB": 1,
         "ModEv": "EXA",

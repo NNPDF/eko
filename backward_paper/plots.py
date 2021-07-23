@@ -19,8 +19,6 @@ def quark_latex_name(name):
     quark_name = name
     if "bar" in name:
         quark_name = r"$\bar{%s}$" % name[0]
-    quark_name = quark_name.replace("plus", "+")
-    quark_name = quark_name.replace("minus", "-")
     return quark_name
 
 

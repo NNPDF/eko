@@ -72,6 +72,9 @@ class NavigatorApp(Ekonavigator):
             try:
                 theory = self.get(bnav.t, log["t_hash"])
                 label = theory[key]
+                if key == "PTO":
+                    pto_dict = {0: "LO", 1: "NLO", 2: "NNLO"}
+                    label = pto_dict[label]
             except KeyError:
                 try:
                     operators = self.get(bnav.o, log["o_hash"])
@@ -105,7 +108,7 @@ class NavigatorApp(Ekonavigator):
             rotate_to_pm_basis : bool
                 if True rotate to plus minus basis
             skip : str
-                skip 'plus' or 'minus' distribution
+                skip '+' or '-' distribution
         """
 
         dfds = []
@@ -157,7 +160,7 @@ class NavigatorApp(Ekonavigator):
             rotate_to_pm_basis : bool
                 if True rotate to plus minus basis
             skip : str
-                skip 'plus' or 'minus' distribution
+                skip '+' or '-' distribution
         """
 
         def integrand(delta_x):

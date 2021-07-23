@@ -30,11 +30,11 @@ def rotate_to_pm_basis(log, skip=None):
         log: dict
             log table
         skip: str
-            skip 'plus' or 'minus'
+            skip '+' or '-'
     """
     rot_log = {}
     skip = skip if skip is not None else []
-    if "g" in log:
+    if "g" in log and "g" not in skip:
         rot_log["g"] = log["g"]
     for pid in eko.evolution_operator.flavors.quark_names:
         if pid not in log:
@@ -42,8 +42,8 @@ def rotate_to_pm_basis(log, skip=None):
         quark = log[pid]
         qbar = log[f"{pid}bar"].copy()
 
-        for key, fact in zip(["plus", "minus"], [1, -1]):
-            if key == skip:
+        for key, fact in zip(["+", "-"], [1, -1]):
+            if key in skip:
                 continue
             rot_log[r"${%s}^{%s}$" % (pid, key)] = copy.deepcopy(quark)
             for column_name in quark.iloc[:, 1:]:
