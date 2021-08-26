@@ -37,6 +37,7 @@ class TestOutput:
             Q2grid[q2] = {
                 "operators": np.random.rand(lpids, lx, lpids, lx),
                 "operator_errors": np.random.rand(lpids, lx, lpids, lx),
+                "alphas": np.random.rand(),
             }
         return Q2grid
 

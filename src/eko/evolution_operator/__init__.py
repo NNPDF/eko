@@ -154,7 +154,7 @@ def quad_ker(
     # get transformation to N integral
     if logx == 0.0:
         return 0.0
-    r = 0.4 * 16.0 / (- logx)
+    r = 0.4 * 16.0 / (-logx)
     if is_singlet:
         o = 1.0
     else:
@@ -262,8 +262,8 @@ class Operator:
 
         # init all ops with identity or zeros if we skip them
         labels = self.labels()
-        eye = OpMember( np.eye(grid_size), np.zeros((grid_size, grid_size)))
-        zero = OpMember(*[np.zeros((grid_size, grid_size))] * 2 )
+        eye = OpMember(np.eye(grid_size), np.zeros((grid_size, grid_size)))
+        zero = OpMember(*[np.zeros((grid_size, grid_size))] * 2)
         for n in full_labels:
             if n in labels:
                 # off diag singlet are zero

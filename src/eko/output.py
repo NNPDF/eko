@@ -5,9 +5,9 @@
 import logging
 import warnings
 
-import yaml
 import lz4.frame
 import numpy as np
+import yaml
 
 from . import basis_rotation as br
 from . import interpolation
@@ -284,6 +284,9 @@ class Output(dict):
         for q2, op in self["Q2grid"].items():
             out["Q2grid"][q2] = dict()
             for k, v in op.items():
+                if k == "alphas":
+                    out["Q2grid"][q2][k] = float(v)
+                    continue
                 if binarize:
                     out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
                 else:
@@ -357,7 +360,9 @@ class Output(dict):
         # make operators numpy
         for op in obj["Q2grid"].values():
             for k, v in op.items():
-                if isinstance(v, list):
+                if k == "alphas":
+                    v = float(v)
+                elif isinstance(v, list):
                     v = np.array(v)
                 elif isinstance(v, bytes):
                     v = np.frombuffer(lz4.frame.decompress(v))

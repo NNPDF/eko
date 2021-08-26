@@ -277,4 +277,8 @@ class OperatorGrid:
                 final_op = final_op @ rot @ matching @ phys_op
 
         values, errors = final_op.to_flavor_basis_tensor()
-        return {"operators": values, "operator_errors": errors}
+        return {
+            "operators": values,
+            "operator_errors": errors,
+            "alphas": self.managers["strong_coupling"].a_s(q2) * 4.0 * np.pi,
+        }

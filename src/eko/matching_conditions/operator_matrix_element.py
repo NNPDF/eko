@@ -170,7 +170,7 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
     # get transformation to N integral
     if logx == 0:
         return 0.0
-    r = 0.4 * 16.0 / (- logx)
+    r = 0.4 * 16.0 / (-logx)
     if is_singlet:
         o = 1.0
         indeces = {"g": 0, "q": 1, "H": 2}

@@ -101,8 +101,22 @@ class TestOperatorGrid:
         # we can also pass a single number
         opg = opgrid.compute()
         assert len(opg) == 2
+        assert all(
+            [
+                k in opg[q2]
+                for k in ["operators", "operator_errors", "alphas"]
+                for q2 in opg
+            ]
+        )
         opg = opgrid.compute(3)
         assert len(opg) == 1
+        assert all(
+            [
+                k in opg[q2]
+                for k in ["operators", "operator_errors", "alphas"]
+                for q2 in opg
+            ]
+        )
 
     def test_grid_computation_VFNS(self):
         """Checks that the grid can be computed"""

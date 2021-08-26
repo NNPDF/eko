@@ -270,15 +270,15 @@ class TestOperatorMatrixElement:
         dim = o.ome_members["NS_qq"].value.shape
         for idx in ["S", "NS"]:
             np.testing.assert_allclose(
-                o.ome_members[f"{idx}_qq"].value, np.eye(dim[0]), atol=1e-11
+                o.ome_members[f"{idx}_qq"].value, np.eye(dim[0]), atol=1e-8
             )
             np.testing.assert_allclose(
-                o.ome_members[f"{idx}_HH"].value, np.eye(dim[0]), atol=1e-11
+                o.ome_members[f"{idx}_HH"].value, np.eye(dim[0]), atol=1e-8
             )
             np.testing.assert_allclose(o.ome_members[f"{idx}_qH"].value, np.zeros(dim))
             np.testing.assert_allclose(o.ome_members[f"{idx}_Hq"].value, np.zeros(dim))
         np.testing.assert_allclose(
-            o.ome_members["S_gg"].value, np.eye(dim[0]), atol=1e-11
+            o.ome_members["S_gg"].value, np.eye(dim[0]), atol=1e-8
         )
         np.testing.assert_allclose(
             o.ome_members["S_qg"].value, o.ome_members["S_gq"].value
