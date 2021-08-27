@@ -64,19 +64,39 @@ class ThresholdsAtlas:
     def __init__(
         self, masses, q2_ref=None, nf_ref=None, thresholds_ratios=None, max_nf=None
     ):
-        # Initial values
-        self.q2_ref = q2_ref
-        self.nf_ref = nf_ref
-
         masses = list(masses)
         if masses != sorted(masses):
             raise ValueError("masses need to be sorted")
-
+        # combine them
         thresholds = self.build_area_walls(masses, thresholds_ratios, max_nf)
-
         self.area_walls = [0] + thresholds + [np.inf]
+
+        # check nf_ref
+        if nf_ref is not None:
+            if q2_ref is None:
+                raise ValueError(
+                    "Without a reference Q2 value a reference number of flavors "
+                    "does not make sense!"
+                )
+            # else self.q2_ref is not None
+            nf_init = 2 + len(list(filter(lambda x: np.isclose(0, x), self.area_walls)))
+            if nf_ref < nf_init:
+                raise ValueError(
+                    f"The reference number of flavors is set to {nf_ref}, "
+                    f"but the atlas starts at {nf_init}"
+                )
+            nf_final = 2 + len(list(filter(lambda x: x < np.inf, self.area_walls)))
+            if nf_ref > nf_final:
+                raise ValueError(
+                    f"The reference number of flavors is set to {nf_ref}, "
+                    f"but the atlas stops at {nf_final}"
+                )
+
+        # Init values
+        self.q2_ref = q2_ref
+        self.nf_ref = nf_ref
         self.thresholds_ratios = thresholds_ratios
-        logger.info("Thresholds: walls = %s", self.area_walls)
+        logger.info(str(self))
 
     def __repr__(self):
         walls = " - ".join(["%.2e" % w for w in self.area_walls])
