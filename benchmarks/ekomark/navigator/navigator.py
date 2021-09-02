@@ -27,7 +27,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
     ----------
         cfg : dict
             banana configuration
-        mode : string
+        mode : str
             mode identifier
     """
 

@@ -308,7 +308,7 @@ class Output(dict):
         -------
             dump : any
                 result of dump(output, stream), i.e. a string, if no stream is given or
-                Null, if self is written sucessfully to stream
+                Null, if written sucessfully to stream
         """
         # TODO explicitly silence yaml
         out = self.get_raw(binarize)
@@ -320,7 +320,7 @@ class Output(dict):
 
         Parameters
         ----------
-            filename : string
+            filename : str
                 target file name
             binarize : bool
                 dump in binary format (instead of list format)
@@ -377,7 +377,7 @@ class Output(dict):
 
         Parameters
         ----------
-            filename : string
+            filename : str
                 source file name
 
         Returns

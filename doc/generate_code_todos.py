@@ -55,7 +55,7 @@ def write_output(fn, file_list):
 
     Parameters
     ----------
-        fn : string
+        fn : str
             output file name
         file_list : list
             list of todos sorted by file
