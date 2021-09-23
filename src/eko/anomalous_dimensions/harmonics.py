@@ -13,7 +13,7 @@ import scipy.special
 zeta2 = scipy.special.zeta(2)
 zeta3 = scipy.special.zeta(3)
 zeta4 = scipy.special.zeta(4)
-
+zeta5 = scipy.special.zeta(5)
 
 @nb.njit("c16(c16,u1)", cache=True)
 def cern_polygamma(Z, K: int):  # pylint: disable=all
@@ -242,6 +242,34 @@ def harmonic_S4(N):
         cern_polygamma : :math:`\psi_k(N)`
     """
     return zeta4 - 1.0 / 6.0 * cern_polygamma(N + 1.0, 3)
+
+
+@nb.njit("c16(c16)", cache=True)
+def harmonic_S5(N):
+    r"""
+    Computes the harmonic sum :math:`S_5(N)`.
+
+    .. math::
+      S_5(N) = \sum\limits_{j=1}^N \frac 1 {j^5} = \frac 1 24 \psi_4(N+1)+\zeta(5)
+
+    with :math:`\psi_4(N)` the 4th-polygamma function and :math:`\zeta` the
+    Riemann zeta function.
+
+    Parameters
+    ----------
+        N : complex
+            Mellin moment
+
+    Returns
+    -------
+        S_5 : complex
+            Harmonic sum :math:`S_5(N)`
+
+    See Also
+    --------
+        cern_polygamma : :math:`\psi_k(N)`
+    """
+    return zeta5 + 1.0 / 24.0 * cern_polygamma(N + 1.0, 4)
 
 
 @nb.njit("c16(c16)", cache=True)
