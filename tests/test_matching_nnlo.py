@@ -144,9 +144,9 @@ def test_Bluemlein_2():
 
 
 def test_Hg2_pegasus():
-    # Test againnt the parametrized expession for A_Hg_2
+    # Test against the parametrized expression for A_Hg_2
     # coming from Pegasus code
-    # This expession is less accurate.
+    # This parametrization is less accurate.
     L = 0
 
     for N in range(3, 20):
