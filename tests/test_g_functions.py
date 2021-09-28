@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Test G functions impleeted by muselli PhD
+# Test G functions implemented by muselli PhD
 
 import numpy as np
 

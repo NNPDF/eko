@@ -90,7 +90,7 @@ def test_F12_F14():
         Sm1 = sf.harmonic_Sm1(N)
         S21 = sf.harmonic_S21(N, S1, S2)
         Sm21 = sf.harmonic_Sm21(N, Sm1)
-        Sm221 = sf.harmonic_Sm221(N, S1, S2, Sm1, S21, Sm21)
+        Sm221 = sf.harmonic_Sm221(N, S1, Sm1, S21, Sm21)
         np.testing.assert_allclose(Sm221, vals, atol=1e-05)
 
 

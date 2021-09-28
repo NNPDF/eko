@@ -118,7 +118,7 @@ def harmonic_Sm211(N, Sm1):
     )
 
 
-@nb.njit("c16(c16,c16)", cache=True)
+@nb.njit("c16(c16,c16,c16,c16)", cache=True)
 def harmonic_Sm2m1(N, S1, S2, Sm2):
     return -gf.mellin_g19(N, S1) + log2 * (S2 - Sm2) - 5 / 8 * zeta3
 
@@ -159,10 +159,10 @@ def harmonic_S221(N, S1, S2, S21):
     )
 
 
-@nb.njit("c16(c16,c16,c16,c16,c16,c16)", cache=True)
-def harmonic_Sm221(N, S1, S2, Sm1, S21, Sm21):
+@nb.njit("c16(c16,c16,c16,c16,c16)", cache=True)
+def harmonic_Sm221(N, S1, Sm1, S21, Sm21):
     return (
-        (-1) ** (N + 1) * (2 * f.F12(N, S1, S2) - 1 / 2 * f.F14(N, S1, S2, S21))
+        (-1) ** (N + 1) * (f.F14F12(N,S1,S21))
         + zeta2 * Sm21
         - 3 / 10 * zeta2 ** 2 * Sm1
         - 0.119102
@@ -170,7 +170,7 @@ def harmonic_Sm221(N, S1, S2, Sm1, S21, Sm21):
     )
 
 
-@nb.njit("c16(c16,c16,c16,c16,c16,c16,c16)", cache=True)
+@nb.njit("c16(c16,c16,c16,c16,c16,c16,c16,c16,c16)", cache=True)
 def harmonic_S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1):
     return (
         (-1) ** (N) * f.F16(N, S1, Sm1, Sm2, Sm3, Sm21)
