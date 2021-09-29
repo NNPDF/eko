@@ -15,13 +15,46 @@ from .. import interpolation, mellin
 from ..anomalous_dimensions import harmonics
 from ..basis_rotation import singlet_labels
 from ..member import OpMember
-from . import nlo, nnlo
+from . import nlo, nnlo, n3lo
+from .n3lo import s_functions
 
 logger = logging.getLogger(__name__)
 
+@nb.njit("c16[:](c16)", cache=True)
+def get_smx(n):
+    """Get the S-minus cache"""
+    return np.array([
+            s_functions.harmonic_Sm1(n),
+            s_functions.harmonic_Sm2(n),
+            s_functions.harmonic_Sm3(n),
+            s_functions.harmonic_Sm4(n),
+            s_functions.harmonic_Sm5(n),
+    ])
 
-@nb.njit("c16[:,:,:](u1,c16,c16[:],f8)", cache=True)
-def A_singlet(order, n, sx, L):
+@nb.njit("c16[:](c16,c16[:],c16[:])", cache=True)
+def get_s3x(n, sx, smx):
+    """Get the S-w3 cache"""
+    return np.array([
+            s_functions.harmonic_S21(n, sx[0], sx[1]),
+            s_functions.harmonic_S2m1(n, sx[1], smx[0], smx[1]),
+            s_functions.harmonic_Sm21(n, smx[0]),
+            s_functions.harmonic_Sm2m1(n, sx[0], sx[1], smx[1]),
+    ])
+
+@nb.njit("c16[:](c16,c16[:],c16[:])", cache=True)
+def get_s4x(n, sx, smx):
+    """Get the S-w4 cache"""
+    Sm31 = s_functions.harmonic_Sm31(n, smx[0], smx[1])
+    return np.array([
+            s_functions.harmonic_S31(n, sx[1], sx[3]),
+            s_functions.harmonic_S211(n, sx[0], sx[1], sx[2]),
+            s_functions.harmonic_Sm22(n, Sm31),
+            s_functions.harmonic_Sm211(n, smx[0] ),
+            s_functions.harmonic_Sm31(n, smx[0], smx[1]),
+    ])
+
+# @nb.njit("c16[:,:,:](u1,c16,c16[:],u4,f8)", cache=True)
+def A_singlet(order, n, sx, nf, L):
     r"""
     Computes the tower of the singlet |OME|.
 
@@ -55,11 +88,13 @@ def A_singlet(order, n, sx, L):
         A_singlet[0] = nlo.A_singlet_1(n, sx, L)
     if order >= 2:
         A_singlet[1] = nnlo.A_singlet_2(n, sx, L)
+    if order >= 3:
+        A_singlet[2] = n3lo.A_singlet_3(n, sx, nf)
     return A_singlet
 
 
-@nb.njit("c16[:,:,:](u1,c16,c16[:],f8)", cache=True)
-def A_non_singlet(order, n, sx, L):
+# @nb.njit("c16[:,:,:](u1,c16,c16[:],u4,f8)", cache=True)
+def A_non_singlet(order, n, sx, nf, L):
     r"""
     Computes the tower of the non-singlet |OME|
 
@@ -91,10 +126,12 @@ def A_non_singlet(order, n, sx, L):
         A_ns[0] = nlo.A_ns_1(n, sx, L)
     if order >= 2:
         A_ns[1] = nnlo.A_ns_2(n, sx, L)
+    if order >= 3:
+        A_ns[2] = n3lo.A_ns_3(n, sx, nf)
     return A_ns
 
 
-@nb.njit("c16[:,:](c16[:,:,:],u4,f8,string)", cache=True)
+# @nb.njit("c16[:,:](c16[:,:,:],u4,f8,string)", cache=True)
 def build_ome(A, order, a_s, backward_method):
     r"""
     Construct the matching expansion in :math:`a_s` with the appropriate method.
@@ -124,20 +161,26 @@ def build_ome(A, order, a_s, backward_method):
             ome += a_s ** 2 * (
                 -A[1] + np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[0])
             )
+        if order >= 3:
+            ome += a_s ** 3 * (
+                -A[2] + 2 * np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[1]) - np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[0])
+            )
     else:
         # forward or exact inverse
         if order >= 1:
             ome += a_s * A[0]
         if order >= 2:
             ome += a_s ** 2 * A[1]
+        if order >= 3:
+            ome += a_s ** 3 * A[2]
         # need inverse exact ?  so add the missing pieces
         if backward_method == "exact":
             ome = np.linalg.inv(ome)
     return ome
 
 
-@nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,f8,string)", cache=True)
-def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
+# @nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,u4,f8,string)", cache=True)
+def quad_ker(u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method):
     """
     Raw kernel inside quad
 
@@ -184,12 +227,18 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
         sx = np.array([harmonics.harmonic_S1(n), harmonics.harmonic_S2(n)])
     if order >= 2:
         sx = np.append(sx, harmonics.harmonic_S3(n))
-
+    if order >= 3:
+        sx = np.append(sx, harmonics.harmonic_S4(n))
+        sx = np.append(sx, harmonics.harmonic_S5(n))
+        smx = get_smx(n)
+        sx = np.append(sx, smx)
+        sx = np.append(sx, get_s3x(n, sx,smx))
+        sx = np.append(sx, get_s4x(n, sx,smx))
     # compute the ome
     if is_singlet:
-        A = A_singlet(order, n, sx, L)
+        A = A_singlet(order, n, sx, nf, L)
     else:
-        A = A_non_singlet(order, n, sx, L)
+        A = A_non_singlet(order, n, sx, nf, L)
 
     # check PDF is active
     if is_log:
@@ -275,7 +324,7 @@ class OperatorMatrixElement:
                 #     labels.extend(["S_qH"])
         return labels
 
-    def compute(self, q2, L):
+    def compute(self, q2, nf, L):
         """
         compute the actual operators (i.e. run the integrations)
 
@@ -283,6 +332,8 @@ class OperatorMatrixElement:
         ----------
             q2: float
                 threshold scale
+            nf: int
+                mumber of active flavor below threshold
             L: float
                 log of K threshold squared
         """
@@ -324,6 +375,7 @@ class OperatorMatrixElement:
                             logx,
                             bf.areas_representation,
                             a_s,
+                            nf,
                             L,
                             self.backward_method,
                         ),

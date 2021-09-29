@@ -182,7 +182,7 @@ class OperatorGrid:
                 kthr = self.managers["thresholds_config"].thresholds_ratios[
                     seg.nf - shift
                 ]
-                ome.compute(seg.q2_to, np.log(kthr))
+                ome.compute(seg.q2_to, seg.nf - shift + 3, np.log(kthr))
                 self._matching_operators[seg.q2_to] = ome.ome_members
         return thr_ops
 

@@ -3,6 +3,13 @@
 import numpy as np
 
 from eko import interpolation, mellin
+from eko.anomalous_dimensions.harmonics import (
+    harmonic_S1,
+    harmonic_S2,
+    harmonic_S3,
+    harmonic_S4,
+    harmonic_S5,
+)
 from eko.basis_rotation import singlet_labels
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
@@ -12,9 +19,54 @@ from eko.matching_conditions.operator_matrix_element import (
     OperatorMatrixElement,
     build_ome,
     quad_ker,
+    get_s3x,
+    get_s4x,
+    get_smx,
 )
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
+from eko.matching_conditions.n3lo import s_functions as sf
+
+
+def test_HarmonicsCache():
+    N = np.random.rand() + 1.0j * np.random.rand()
+    Sm1 = sf.harmonic_Sm1(N)
+    Sm2 = sf.harmonic_Sm2(N)
+    S1 = harmonic_S1(N)
+    S2 = harmonic_S2(N)
+    S3 = harmonic_S3(N)
+    S4 = harmonic_S4(N)
+    sx = np.array([S1, S2, S3, S4, harmonic_S5(N)])
+    smx_test = np.array(
+        [
+            Sm1,
+            Sm2,
+            sf.harmonic_Sm3(N),
+            sf.harmonic_Sm4(N),
+            sf.harmonic_Sm5(N),
+        ]
+    )
+    np.testing.assert_allclose(get_smx(N), smx_test)
+    s3x_test = np.array(
+        [
+            sf.harmonic_S21(N, S1, S2),
+            sf.harmonic_S2m1(N, S2, Sm1, Sm2),
+            sf.harmonic_Sm21(N, Sm1),
+            sf.harmonic_Sm2m1(N, S1, S2, Sm2),
+        ]
+    )
+    np.testing.assert_allclose(get_s3x(N, sx, smx_test), s3x_test)
+    Sm31 = sf.harmonic_Sm31(N, Sm1, Sm2)
+    s4x_test = np.array(
+        [
+            sf.harmonic_S31(N, S2, S4),
+            sf.harmonic_S211(N, S1, S2, S3),
+            sf.harmonic_Sm22(N, Sm31),
+            sf.harmonic_Sm211(N, Sm1),
+            Sm31,
+        ]
+    )
+    np.testing.assert_allclose(get_s4x(N, sx, smx_test), s4x_test)
 
 
 def test_build_ome_as():
@@ -22,10 +74,13 @@ def test_build_ome_as():
     N = 2
     L = 0.0
     a_s = 0.0
-    sx = np.zeros(3, np.complex_)
-    for o in [0, 1, 2]:
-        aNS = A_non_singlet(o, N, sx, L)
-        aS = A_singlet(o, N, sx, L)
+    sx = np.random.rand(19) + 1j * np.random.rand(19)
+    nf = 3
+    for o in [0, 1, 2, 3]:
+        if o == 3:
+            N = complex(2.123)
+        aNS = A_non_singlet(o, N, sx, nf, L)
+        aS = A_singlet(o, N, sx, nf, L)
 
         for a in [aNS, aS]:
             for method in ["", "expanded", "exact"]:
@@ -44,9 +99,9 @@ def test_build_ome_nlo():
     L = 0.0
     a_s = 20
     sx = np.array([1, 1, 1], np.complex_)
-
-    aNSi = A_non_singlet(1, N, sx, L)
-    aSi = A_singlet(1, N, sx, L)
+    nf = 4
+    aNSi = A_non_singlet(1, N, sx, nf, L)
+    aSi = A_singlet(1, N, sx, nf, L)
     for a in [aNSi, aSi]:
         for method in ["", "expanded", "exact"]:
             dim = len(a[0])
@@ -94,6 +149,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
+            nf=3,
             L=0.0,
         )
         np.testing.assert_allclose(res_ns, 1.0)
@@ -106,6 +162,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
+            nf=3,
             L=0.0,
         )
         np.testing.assert_allclose(res_s, 1.0)
@@ -118,6 +175,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
+            nf=3,
             L=0.0,
         )
         np.testing.assert_allclose(res_s, 0.0)
@@ -134,6 +192,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method="expanded",
             a_s=0.0,
+            nf=3,
             L=0.0,
         )
         if label[-1] == label[-2]:
@@ -164,6 +223,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method="exact",
             a_s=0.0,
+            nf=3,
             L=0.0,
         )
         if label[-1] == label[-2]:
@@ -181,6 +241,7 @@ def test_quad_ker(monkeypatch):
         areas=np.array([0.01, 0.1, 1.0]),
         backward_method=None,
         a_s=0.0,
+        nf=3,
         L=0.0,
     )
     np.testing.assert_allclose(res_ns, 0.0)
@@ -265,7 +326,7 @@ class TestOperatorMatrixElement:
             InterpolatorDispatcher.from_dict(operators_card),
         )
         o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
-        o.compute(self.theory_card["mb"] ** 2, L=0)
+        o.compute(self.theory_card["mb"] ** 2, nf=4, L=0)
 
         dim = o.ome_members["NS_qq"].value.shape
         for idx in ["S", "NS"]:
