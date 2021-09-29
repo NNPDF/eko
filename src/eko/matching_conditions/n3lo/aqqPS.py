@@ -1,21 +1,92 @@
 # -*- coding: utf-8 -*-
-"""This module contains the |N3LO| |OME| for the matching conditions in the |VFNS| the experssions are taken from :cite:`Bierenbaum_2009`"""
+"""This module contains the |OME| aqqPS, the experssions are taken from :cite:`Bierenbaum_2009`"""
 import numba as nb
 import numpy as np
-from ...anomalous_dimensions import harmonics
-from . import g_functions as gf
 
 
-zeta2 = harmonics.zeta2
-zeta3 = harmonics.zeta3
-zeta4 = harmonics.zeta4
-zeta5 = harmonics.zeta5
-li4half = 0.517479
-li5half = 0.508401
-
-
-@nb.njit("c16(c16,c16[:],c16[:],u4,f8)", cache=True)
-def A_qqPS_3(n, sx, spx, nf, L):
-    S1, S2, S3, S4, S5 = sx[0], sx[1], sx[2], sx[3], sx[4]
-    Sp1p, Sp2p, Sp3p, Sp4p, Sp5p = spx[0], spx[1], spx[2], spx[3], spx[4]
-    return 0.0
+@nb.njit("c16(c16,c16[:],u4)", cache=True)
+def A_qqPS_3(n, sx, nf):
+    S1, S2, S3 = sx[0], sx[1], sx[2]
+    return (
+        0.3333333333333333
+        * nf
+        * (
+            (
+                -0.13168724279835392
+                * (
+                    -864.0
+                    - 1008.0 * n
+                    - 3408.0 * np.power(n, 2)
+                    - 11704.0 * np.power(n, 3)
+                    + 34274.0 * np.power(n, 4)
+                    + 204541.0 * np.power(n, 5)
+                    + 423970.0 * np.power(n, 6)
+                    + 532664.0 * np.power(n, 7)
+                    + 492456.0 * np.power(n, 8)
+                    + 354532.0 * np.power(n, 9)
+                    + 187681.0 * np.power(n, 10)
+                    + 66389.0 * np.power(n, 11)
+                    + 13931.0 * np.power(n, 12)
+                    + 1330.0 * np.power(n, 13)
+                )
+            )
+            / (
+                (-1.0 + n)
+                * np.power(n, 5)
+                * np.power(1.0 + n, 5)
+                * np.power(2.0 + n, 4)
+            )
+            + (
+                0.3950617283950617
+                * (
+                    288.0
+                    - 96.0 * n
+                    - 928.0 * np.power(n, 2)
+                    + 3272.0 * np.power(n, 3)
+                    + 12030.0 * np.power(n, 4)
+                    + 15396.0 * np.power(n, 5)
+                    + 14606.0 * np.power(n, 6)
+                    + 11454.0 * np.power(n, 7)
+                    + 5937.0 * np.power(n, 8)
+                    + 1744.0 * np.power(n, 9)
+                    + 233.0 * np.power(n, 10)
+                )
+                * S1
+            )
+            / (
+                (-1.0 + n)
+                * np.power(n, 4)
+                * np.power(1.0 + n, 4)
+                * np.power(2.0 + n, 3)
+            )
+            + (
+                (
+                    -96.0
+                    - 16.0 * n
+                    + 404.0 * np.power(n, 2)
+                    + 452.0 * np.power(n, 3)
+                    + 521.0 * np.power(n, 4)
+                    + 430.0 * np.power(n, 5)
+                    + 185.0 * np.power(n, 6)
+                    + 40.0 * np.power(n, 7)
+                )
+                * (-0.5925925925925926 * np.power(S1, 2) - 0.5925925925925926 * S2)
+            )
+            / (
+                (-1.0 + n)
+                * np.power(n, 3)
+                * np.power(1.0 + n, 3)
+                * np.power(2.0 + n, 2)
+            )
+            + (
+                np.power(2.0 + n + np.power(n, 2), 2)
+                * (
+                    34.19184080098401
+                    + 2.962962962962963 * np.power(S1, 3)
+                    + 8.88888888888889 * S1 * S2
+                    + 5.925925925925926 * S3
+                )
+            )
+            / ((-1.0 + n) * np.power(n, 2) * np.power(1.0 + n, 2) * (2.0 + n))
+        )
+    )
