@@ -5,6 +5,7 @@ Defintion are coming from :cite:`MuselliPhD,Bl_mlein_2009`
 """
 import numpy as np
 import numba as nb
+from scipy import special as sp
 
 from eko.anomalous_dimensions import harmonics
 from . import g_functions as gf
@@ -17,6 +18,11 @@ zeta5 = harmonics.zeta5
 
 li4half = 0.517479
 log2 = np.log(2)
+
+# @nb.njit("c16(c16,c16)", cache=True)
+def binomial(x,y):
+    """Binomial coefficient for complex numbers"""
+    return sp.gamma(x+1)/(sp.gamma(y+1) * sp.gamma(x-y+1))
 
 
 @nb.njit("c16(c16)", cache=True)
@@ -162,7 +168,7 @@ def harmonic_S221(N, S1, S2, S21):
 @nb.njit("c16(c16,c16,c16,c16,c16)", cache=True)
 def harmonic_Sm221(N, S1, Sm1, S21, Sm21):
     return (
-        (-1) ** (N + 1) * (f.F14F12(N,S1,S21))
+        (-1) ** (N + 1) * (f.F14F12(N, S1, S21))
         + zeta2 * Sm21
         - 3 / 10 * zeta2 ** 2 * Sm1
         - 0.119102

@@ -206,24 +206,24 @@ def test_S1111l21051():
 #         np.testing.assert_allclose(test, vals), rtol=15e-03)
 
 
-def test_S112l2051():
-    for N, vals in zip(testN, refvals["S112l2051"]):
-        S1 = harmonics.harmonic_S1(N)
-        test = csf.S112l2051(N, S1)
-        np.testing.assert_allclose(test, vals, rtol=5e-03)
+# def test_S112l2051():
+#     for N, vals in zip(testN, refvals["S112l2051"]):
+#         S1 = harmonics.harmonic_S1(N)
+#         test = csf.S112l2051(N, S1)
+#         np.testing.assert_allclose(test, vals, rtol=5e-03)
 
 
-def test_S112l2105():
-    for N, vals in zip(testN, refvals["S112l2105"]):
-        S1 = harmonics.harmonic_S1(N)
-        S2 = harmonics.harmonic_S2(N)
-        H21 = hf.H21(N, S1)
-        H23 = hf.H23(N, S1)
-        test = csf.S112l2105(N, S1, S2, H21, H23)
-        rtol = 6e-03
-        if N == 100 + 5j:
-            rtol = 2e-01
-        np.testing.assert_allclose(test, vals, rtol=rtol)
+# def test_S112l2105():
+#     for N, vals in zip(testN, refvals["S112l2105"]):
+#         S1 = harmonics.harmonic_S1(N)
+#         S2 = harmonics.harmonic_S2(N)
+#         H21 = hf.H21(N, S1)
+#         H23 = hf.H23(N, S1)
+#         test = csf.S112l2105(N, S1, S2, H21, H23)
+#         rtol = 6e-03
+#         if N == 100 + 5j:
+#             rtol = 2e-01
+#         np.testing.assert_allclose(test, vals, rtol=rtol)
 
 
 def test_S121l2051():
@@ -243,13 +243,13 @@ def test_S121l2051():
 #         np.testing.assert_allclose(test, vals), rtol=2e-05)
 
 
-def test_S13l205():
-    for N, vals in zip(testN, refvals["S13l205"]):
-        S1 = harmonics.harmonic_S1(N)
-        S2 = harmonics.harmonic_S2(N)
-        S3 = harmonics.harmonic_S3(N)
-        test = csf.S13l205(N, S1, S2, S3)
-        np.testing.assert_allclose(test, vals, rtol=3e-03)
+# def test_S13l205():
+#     for N, vals in zip(testN, refvals["S13l205"]):
+#         S1 = harmonics.harmonic_S1(N)
+#         S2 = harmonics.harmonic_S2(N)
+#         S3 = harmonics.harmonic_S3(N)
+#         test = csf.S13l205(N, S1, S2, S3)
+#         np.testing.assert_allclose(test, vals, rtol=3e-03)
 
 
 # not given alone
@@ -308,4 +308,27 @@ def test_S211l2051_S211l2105_S22l205():
         rtol = 2e-02
         if N == 5j + 100:
             rtol = 25e-01
+        np.testing.assert_allclose(test, vals, rtol=rtol)
+
+def test_S1111l21105_S112l2051_S112l2105_S121l2105_S13l205():
+    for N, vals in zip(
+        testN,
+        np.array(refvals["S1111l21105"])
+        + np.array(refvals["S112l2051"])
+        - np.array(refvals["S112l2105"])
+        + np.array(refvals["S121l2105"])
+        - np.array(refvals["S13l205"]),
+    ):
+        S1 = harmonics.harmonic_S1(N)
+        S2 = harmonics.harmonic_S2(N)
+        S3 = harmonics.harmonic_S3(N)
+        H21 = hf.H21(N,S1)
+        H22 = hf.H22()
+        H23 = hf.H23(N,S1)
+        H24 = hf.H24()
+        H25 = hf.H25()
+        test = hf.H27(N, S1, S2, S3, H21, H22, H23,H24,H25)
+        rtol = 2e-03
+        if N == 5j + 100:
+            rtol = 2e-01
         np.testing.assert_allclose(test, vals, rtol=rtol)
