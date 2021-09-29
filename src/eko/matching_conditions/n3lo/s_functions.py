@@ -20,9 +20,9 @@ li4half = 0.517479
 log2 = np.log(2)
 
 # @nb.njit("c16(c16,c16)", cache=True)
-def binomial(x,y):
+def binomial(x, y):
     """Binomial coefficient for complex numbers"""
-    return sp.gamma(x+1)/(sp.gamma(y+1) * sp.gamma(x-y+1))
+    return sp.gamma(x + 1) / (sp.gamma(y + 1) * sp.gamma(x - y + 1))
 
 
 @nb.njit("c16(c16)", cache=True)

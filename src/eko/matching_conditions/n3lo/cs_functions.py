@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """This module contains some approximations for generalized harmonics sum"""
-import numba as nb
+#import numba as nb
 import numpy as np
 import mpmath as mp
 from ...anomalous_dimensions.harmonics import zeta2, zeta3
@@ -10,6 +10,11 @@ ln2 = np.log(2)
 # @nb.njit("c16(c16)", cache=True)
 def S111l211(H24):
     return complex(H24)
+
+
+# @nb.njit("c16(c16)", cache=True)
+def S12l21(H25):
+    return complex(-2.0 * H25)
 
 
 # @nb.njit("c16(c16,c16)", cache=True)
