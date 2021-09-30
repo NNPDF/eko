@@ -4,7 +4,6 @@
 import numpy as np
 
 from eko.anomalous_dimensions import harmonics
-import eko.matching_conditions.n3lo.g_functions as gf
 import eko.matching_conditions.n3lo.s_functions as sf
 
 zeta3 = harmonics.zeta3

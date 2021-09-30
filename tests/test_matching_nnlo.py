@@ -76,7 +76,7 @@ def test_pegasus_sign():
 
 def test_Bluemlein_2():
     # Test against Blumlein OME implementation :cite:`Bierenbaum_2009`.
-    # For some OME only even moments are available in that code.
+    # For singlet OME only even moments are available in that code.
     # Note there is a minus sign in the definition of L.
     ref_val_gg = {
         0: [-9.96091, -30.0093, -36.5914, -40.6765, -43.6823],

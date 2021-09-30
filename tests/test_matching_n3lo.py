@@ -66,7 +66,7 @@ def get_s4x(N, sx, smx):
 
 def test_A_2():
     nf = 3
-    N = 1
+    N = 1.0
     sx = get_sx(N)
     smx = get_smx(N)
     s3x = get_s3x(N, sx, smx)
@@ -79,7 +79,7 @@ def test_A_2():
     # If needed, these Fs can be improved.
     np.testing.assert_allclose(aNSqq3, 0.0, atol=5e-3)
 
-    N = complex(2.0)
+    N = 2.0
     sx = get_sx(N)
     smx = get_smx(N)
     s3x = get_s3x(N, sx, smx)
@@ -92,7 +92,7 @@ def test_A_2():
         + n3lo.A_qg_3(N, sx, smx, s3x, s4x, nf)
         + n3lo.A_Hg_3(N, sx, smx, s3x, s4x, nf),
         145.148,
-        rtol=4e-2,
+        rtol=32e-3,
     )
 
     # here you get division by 0 as in Mathematica
@@ -125,3 +125,103 @@ def test_A_2():
 
     np.testing.assert_allclose(aS3[:, 2], np.zeros(3))
     np.testing.assert_allclose(aNS3[1, 1], 0)
+
+
+def test_Bluemlein_2():
+    # Test against Blumlein OME implementation :cite:`Bierenbaum_2009`.
+    # For singlet OME only even moments are available in that code.
+    # Note there is a minus sign in the definition of L.
+
+    ref_val_gg = {
+        0: [-440.104, -1377.49, -1683.31, -2006.18, -3293.81],
+    }
+    # Mathematica not able to evaluate for N=100
+    ref_val_ggTF2 = {
+        0: [-33.4281, -187.903, -239.019, -294.571],
+    }
+    # diverging for N=2
+    ref_val_gq = {
+        0: [0, 22.7356, 16.4025, 10.5142, 0.98988],
+    }
+    ref_val_Hg = {
+        0: [461.219, 682.728, 676.549, 626.857, 294.313],
+    }
+    ref_val_Hgstfac = {
+        0: [109.766, 64.7224, 25.1745, -11.5071, -37.9846],
+    }
+    ref_val_Hq = {
+        0: [15.6809, 1.82795, 1.01716, 0.595205, 0.0065763],
+    }
+    ref_val_qg = {
+        0: [47.695, 44.8523, 32.6934, 19.8899, 0.397559],
+    }
+    ref_val_qqNS = {
+        0: [-37.0244, -40.1562, -36.0358, -28.3506, 6.83759],
+    }
+    ref_val_qqPS = {
+        0: [-8.65731, -0.766936, -0.0365199, 0.147675, 0.0155598],
+    }
+    nf = 3
+    for i, N in enumerate([4.0, 6.0, 10.0, 100.0]):
+        idx = i + 1
+        for L in ref_val_Hg:
+            sx_all = get_sx(N)
+            sx_all = np.append(sx_all, get_smx(N))
+            sx_all = np.append(sx_all, get_s3x(N, get_sx(N), get_smx(N)))
+            sx_all = np.append(sx_all, get_s4x(N, get_sx(N), get_smx(N)))
+            aS3 = A_singlet_3(N, sx_all, nf)
+
+            # here we have a different approximation for AggTF2,
+            # some terms are neglected
+            if N != 100:
+                np.testing.assert_allclose(
+                    aS3[0, 0], ref_val_gg[L][idx] + ref_val_ggTF2[L][idx], rtol=6e-3
+                )
+            if N != 2:
+                np.testing.assert_allclose(aS3[0, 1], ref_val_gq[L][idx], rtol=2e-6)
+            np.testing.assert_allclose(aS3[1, 0], ref_val_qg[L][idx], rtol=2e-6)
+            np.testing.assert_allclose(
+                aS3[2, 0], ref_val_Hg[L][idx] + ref_val_Hgstfac[L][idx], rtol=2e-6
+            )
+
+            # np.testing.assert_allclose(aS3[2, 1], ref_val_Hq[L][idx], rtol=3e-6)
+
+            # here we have a different convention for (-1)^N,
+            # for even values qqNS is analitically continued
+            # as non singlet. The accuracy is worst for large N
+            # due to the approximations of F functions.
+            np.testing.assert_allclose(
+                aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=3e-2
+            )
+
+    # Here we test the critical parts
+    nf = 3
+    ref_ggTF_app = [-28.9075, -180.659, -229.537, -281.337, -467.164]
+    for idx, N in enumerate([2.0, 4.0, 6.0, 10.0, 100.0]):
+        sx = get_sx(N)
+        smx = get_smx(N)
+        s3x = get_s3x(N, sx, smx)
+        s4x = get_s4x(N, sx, smx)
+        Aggtf2 = n3lo.aggTF2.A_ggTF2_3(N, sx, s3x)
+        if N != 100:
+            # Limited in the small N region
+            np.testing.assert_allclose(Aggtf2, ref_val_ggTF2[0][idx], rtol=15e-2)
+        np.testing.assert_allclose(Aggtf2, ref_ggTF_app[idx], rtol=3e-6)
+
+        np.testing.assert_allclose(
+            n3lo.agg.A_gg_3(N, sx, smx, s3x, s4x, nf) - Aggtf2,
+            ref_val_gg[0][idx],
+            rtol=3e-6,
+        )
+
+    # odd numbers of qqNS
+    # Limited accuracy due to F functions
+    ref_qqNS_odd = [-40.95, -21.5988, 6.96633]
+    for N, ref in zip([3.0, 15.0, 101.0], ref_qqNS_odd):
+        sx = get_sx(N)
+        smx = get_smx(N)
+        s3x = get_s3x(N, sx, smx)
+        s4x = get_s4x(N, sx, smx)
+        np.testing.assert_allclose(
+            n3lo.aqqNS.A_qqNS_3(N, sx, smx, s3x, s4x, nf), ref, rtol=3e-2
+        )
