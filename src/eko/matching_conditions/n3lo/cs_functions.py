@@ -8,8 +8,8 @@ from ...anomalous_dimensions.harmonics import zeta2, zeta3
 ln2 = np.log(2)
 
 # @nb.njit("c16(c16)", cache=True)
-def S111l211(H24):
-    return complex(H24)
+def S111l211(H22,H24):
+    return complex(H24 + H22)
 
 
 # @nb.njit("c16(c16)", cache=True)

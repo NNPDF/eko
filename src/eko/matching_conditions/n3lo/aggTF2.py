@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""This module contains the |OME| aggTF2, the experssions are taken from :cite:`Bierenbaum_2009`"""
+"""
+This module contains the  inclomplete |OME| aggTF2,
+the experssions are taken from :cite:`Bierenbaum_2009`
+"""
 import numpy as np
 
 from .s_functions import binomial
@@ -8,6 +11,7 @@ from .s_functions import binomial
 def A_ggTF2_3(n, sx, s3x):
     S1, S2, S3 = sx[0], sx[1], sx[2]
     S21 = s3x[0]
+    binfact = binomial(2 * n, n) / 4 ** n
     return 0.3333333333333333 * (
         (
             0.1335618781288438
@@ -137,7 +141,7 @@ def A_ggTF2_3(n, sx, s3x):
         / ((-1.0 + n) * np.power(n, 2) * np.power(1.0 + n, 2) * (2.0 + n))
         + (
             2.80479944070572
-            * np.power(4.0, 2.0 - 1.0 * n)
+            * np.power(4.0, 2)
             * (
                 -80.0
                 - 104.0 * n
@@ -147,7 +151,7 @@ def A_ggTF2_3(n, sx, s3x):
                 + 9.0 * np.power(n, 5)
                 + 9.0 * np.power(n, 6)
             )
-            * binomial(2.0 * n, n)
+            * binfact
         )
         / (
             (-1.0 + n)
@@ -276,7 +280,7 @@ def A_ggTF2_3(n, sx, s3x):
         / ((-1.0 + n) * n * (1.0 + n))
         + (
             0.18698662938038133
-            * np.power(4.0, 1.0 - 1.0 * n)
+            * np.power(4.0, 1)
             * (
                 996.0
                 + 712.0 * n
@@ -288,7 +292,7 @@ def A_ggTF2_3(n, sx, s3x):
                 + 539.0 * np.power(n, 7)
                 + 100.0 * np.power(n, 8)
             )
-            * binomial(2.0 * n, n)
+            * binfact
         )
         / (
             (-1.0 + n)

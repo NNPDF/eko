@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=too-many-lines
 """
 This module contains some Mellin transfomations for 5th order  harmonics sum.
 Notation refers to :cite:`Bl_mlein_2009`

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=too-many-lines
 """This module contains the |OME| aHg, the experssions are taken from :cite:`Bierenbaum_2009`"""
 import numba as nb
 import numpy as np

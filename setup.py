@@ -53,6 +53,7 @@ def setup_package():
             "numba",
             "pyyaml",
             "lz4",
+            "mpmath"
         ],
         python_requires=">=3.7",
     )
