@@ -29,7 +29,7 @@ class BackwardRunner(BackwardPaperRunner):
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
-        "PTO": 2,
+        "PTO": 3,
         "IC": 1,
         "IB": 1,
         "ModEv": "EXA",
@@ -141,8 +141,8 @@ if __name__ == "__main__":
 
     # Evolve below c threshold
     pdf_names = [
-        "210629-n3fit-001",  # NNLO, fitted charm
-        "210629-theory-003",  # NNLO, perturbative charm
+        "NNPDF40_nnlo_as_01180",  # NNLO, fitted charm
+        # "210629-theory-003",  # NNLO, perturbative charm
         # "210701-n3fit-data-014",  # NNLO, fitted charm + EMC F2c
         # "NNPDF31_nnlo_pch_as_0118"
     ]

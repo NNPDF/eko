@@ -363,6 +363,7 @@ class OperatorMatrixElement:
                     continue
                 # iterate sectors
                 for label in labels:
+                    logger.info("Matching: computing entry %s", label)
                     # compute and set
                     res = integrate.quad(
                         quad_ker,

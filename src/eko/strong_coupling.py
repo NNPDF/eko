@@ -133,7 +133,7 @@ class StrongCoupling:
         if scale_ref <= 0:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
         if order not in [0, 1, 2, 3]:
-            raise NotImplementedError("a_s beyond NNLO is not implemented")
+            raise NotImplementedError("a_s beyond N3LO is not implemented")
         self.order = order
         # TODO: implement a_s running to N3LO
         if order == 3:
