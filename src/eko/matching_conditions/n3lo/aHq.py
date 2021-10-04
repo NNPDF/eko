@@ -38,7 +38,8 @@ def A_Hq_3(n, sx, smx, s3x, s4x, nf):  # pylint: disable=too-many-locals
         H2 = (
             -S31l205
             + S1l05 * S3l2
-            # Expansion of H27 + S1111l20511 + S1111l21051 - S121l2051 - S1l05 * (S111l211 + S12l21)
+            # Expansion of:
+            #  H27 + S1111l20511 + S1111l21051 - S121l2051 - S1l05 * (S111l211 + S12l21)
             + (
                 -0.621442
                 + 2.51724 / n ** 4

@@ -5,7 +5,7 @@ Defintion are coming from :cite:`MuselliPhD,Bl_mlein_2009`
 """
 import numpy as np
 import numba as nb
-import mpmath as mp 
+import mpmath as mp
 
 from eko.anomalous_dimensions import harmonics
 from . import g_functions as gf
@@ -24,7 +24,7 @@ def binomial(x, y):
     """Binomial coefficient for complex numbers"""
     # return sp.gamma(x + 1) / (sp.gamma(y + 1) * sp.gamma(x - y + 1))
     # more accurate for large numbers.
-    return complex(1/((x +1) * mp.beta(x-y+1,y+1)))
+    return complex(1 / ((x + 1) * mp.beta(x - y + 1, y + 1)))
 
 
 @nb.njit("c16(c16)", cache=True)

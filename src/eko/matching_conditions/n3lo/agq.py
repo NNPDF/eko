@@ -5,7 +5,7 @@ import numpy as np
 
 
 @nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4)", cache=True)
-def A_gq_3(n, sx, smx, s3x, s4x, nf): # pylint: disable=too-many-locals
+def A_gq_3(n, sx, smx, s3x, s4x, nf):  # pylint: disable=too-many-locals
     S1, S2, S3, S4 = sx[0], sx[1], sx[2], sx[3]
     Sm1, Sm2, Sm3, Sm4 = smx[0], smx[1], smx[2], smx[3]
     S21, S2m1, Sm21, Sm2m1 = s3x[0], s3x[1], s3x[2], s3x[3]

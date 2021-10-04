@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""This module contains the |OME| aHgstfac, the experssions are taken from :cite:`Bierenbaum_2009`"""
+"""This module contains the |OME| aHgstfac,
+the experssions are taken from :cite:`Bierenbaum_2009`"""
 import numba as nb
 import numpy as np
 

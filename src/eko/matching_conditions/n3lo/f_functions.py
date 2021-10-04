@@ -4,7 +4,7 @@
 This module contains some Mellin transfomations for 5th order  harmonics sum.
 Notation refers to :cite:`Bl_mlein_2009`
 Mellin transform is defined with the convention x^(N).
-F19, F20, F21 are not present explictly in the paper 
+F19, F20, F21 are not present explictly in the paper
 """
 import numba as nb
 import numpy as np

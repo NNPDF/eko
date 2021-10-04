@@ -61,7 +61,6 @@ def test_Smx():
             np.testing.assert_allclose(sm, refvals[f"Sm{i+1}"][j], atol=1e-06)
 
 def test_binomial():
-    # TODO: is it working for large numbers??
     r1 = np.random.randint(1000)
     r2 = np.random.randint(1000)
     np.testing.assert_allclose(sf.binomial(r1,r2), sp.binom(r1, r2))

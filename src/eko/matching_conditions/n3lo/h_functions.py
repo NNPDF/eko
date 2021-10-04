@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=too-many-lines
 """This module contains some Mellin transform used for in the generalized haromonic sums.
 Mellin transform is defined with the convention x^(n)
 """
@@ -8,7 +9,7 @@ import mpmath as mp
 
 # @nb.njit("c16(c16,c16)", cache=True)
 def H21(n, S1):
-    """Mellin transform of  :math:`\int_{1}^{2} (x^(n)-1)(ln(1-x/2))/(x-1)`"""
+    r"""Mellin transform of  :math:`\int_{1}^{2} (x^(n)-1)(ln(1-x/2))/(x-1)`"""
     return complex(
         complex(-2.4674011002723395, -2.177586090303602) * (-1.0 + np.power(2.0, n))
         - 1.0

@@ -7,7 +7,7 @@ from . import s_functions as sf
 
 
 @nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4)", cache=True)
-def A_qqNS_3(n, sx, smx, s3x, s4x, nf): # pylint: disable=too-many-locals
+def A_qqNS_3(n, sx, smx, s3x, s4x, nf):  # pylint: disable=too-many-locals
     S1, S2, S3, S4, S5 = sx[0], sx[1], sx[2], sx[3], sx[4]
     Sm1, Sm2, Sm3, Sm4, Sm5 = smx[0], smx[1], smx[2], smx[3], smx[4]
     S21, S2m1, Sm21 = s3x[0], s3x[1], s3x[2]
