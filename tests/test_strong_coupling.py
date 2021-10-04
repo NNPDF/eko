@@ -83,7 +83,7 @@ class TestStrongCoupling:
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
                 (1.0, 1.0, 1.0),
-                3,
+                4,
             )
         with pytest.raises(ValueError):
             StrongCoupling(
