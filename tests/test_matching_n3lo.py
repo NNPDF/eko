@@ -64,7 +64,7 @@ def get_s4x(N, sx, smx):
     return s4x
 
 
-def test_A_2():
+def test_A_3():
     nf = 3
     N = 1.0
     sx = get_sx(N)
@@ -127,11 +127,12 @@ def test_A_2():
     np.testing.assert_allclose(aNS3[1, 1], 0)
 
 
-def test_Bluemlein_2():
+def test_Bluemlein_3():
     # Test against Blumlein OME implementation :cite:`Bierenbaum_2009`.
     # For singlet OME only even moments are available in that code.
     # Note there is a minus sign in the definition of L.
 
+    # pylint: disable=too-many-locals
     ref_val_gg = {
         0: [-440.104, -1377.49, -1683.31, -2006.18, -3293.81],
     }
@@ -177,14 +178,16 @@ def test_Bluemlein_2():
                 np.testing.assert_allclose(
                     aS3[0, 0], ref_val_gg[L][idx] + ref_val_ggTF2[L][idx], rtol=6e-3
                 )
-            if N != 2:
-                np.testing.assert_allclose(aS3[0, 1], ref_val_gq[L][idx], rtol=2e-6)
+
+            np.testing.assert_allclose(aS3[0, 1], ref_val_gq[L][idx], rtol=2e-6)
             np.testing.assert_allclose(aS3[1, 0], ref_val_qg[L][idx], rtol=2e-6)
             np.testing.assert_allclose(
                 aS3[2, 0], ref_val_Hg[L][idx] + ref_val_Hgstfac[L][idx], rtol=2e-6
             )
 
-            # np.testing.assert_allclose(aS3[2, 1], ref_val_Hq[L][idx], rtol=3e-6)
+            np.testing.assert_allclose(
+                aS3[2, 1], ref_val_Hq[L][idx], rtol=5e-3, atol=3e-4
+            )
 
             # here we have a different convention for (-1)^N,
             # for even values qqNS is analitically continued
@@ -224,4 +227,36 @@ def test_Bluemlein_2():
         s4x = get_s4x(N, sx, smx)
         np.testing.assert_allclose(
             n3lo.aqqNS.A_qqNS_3(N, sx, smx, s3x, s4x, nf), ref, rtol=3e-2
+        )
+
+
+def test_AHq_asymptotic():
+    refs = [
+        -1.06712,
+        0.476901,
+        -0.771605,
+        0.388789,
+        0.228768,
+        0.114067,
+        0.0654939,
+        0.0409271,
+        0.0270083,
+        0.01848,
+        0.0129479,
+        0.00920106,
+    ]
+    Ns = [11.0, 12.0, 13.0, 14.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0]
+    # refs = [
+    # -0.159229, 0.101182, -0.143408, 0.0901927,
+    #  -0.130103, 0.0807537, -0.11879, 0.0725926, -0.109075
+    # ]
+    # Ns = [31.,32.,33.,34.,35.,36.,37.,38.,39.]
+    nf = 3
+    for N, r in zip(Ns, refs):
+        sx = get_sx(N)
+        smx = get_smx(N)
+        s3x = get_s3x(N, sx, smx)
+        s4x = get_s4x(N, sx, smx)
+        np.testing.assert_allclose(
+            n3lo.aHq.A_Hq_3(N, sx, smx, s3x, s4x, nf), r, rtol=5e-3, atol=5e-4
         )
