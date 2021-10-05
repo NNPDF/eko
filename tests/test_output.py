@@ -290,6 +290,12 @@ class TestOutput:
         o11 = copy.copy(o00)
         o11.to_evol(True, True)
 
+        # check all keys of the specific operators are preserved
+        def opkeys(o):
+            return [op.keys() for op in o["Q2grid"].values()]
+
+        assert opkeys(o11) == opkeys(o00)
+
         # check the input rotated one
         np.testing.assert_allclose(o01["inputpids"], br.evol_basis_pids)
         np.testing.assert_allclose(o01["targetpids"], br.flavor_basis_pids)
@@ -298,6 +304,7 @@ class TestOutput:
         np.testing.assert_allclose(
             o01["Q2grid"][q2_out]["operators"], o11["Q2grid"][q2_out]["operators"]
         )
+        assert opkeys(o01) == opkeys(o00)
         # check the target rotated one
         np.testing.assert_allclose(o10["inputpids"], br.flavor_basis_pids)
         np.testing.assert_allclose(o10["targetpids"], br.evol_basis_pids)
@@ -306,3 +313,4 @@ class TestOutput:
         np.testing.assert_allclose(
             o10["Q2grid"][q2_out]["operators"], o11["Q2grid"][q2_out]["operators"]
         )
+        assert opkeys(o10) == opkeys(o00)

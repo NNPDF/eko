@@ -225,8 +225,7 @@ class Output(dict):
             inv_inputbasis = np.linalg.inv(inputbasis)
 
         # build new grid
-        out_grid = {}
-        for q2, elem in self["Q2grid"].items():
+        for elem in self["Q2grid"].values():
             ops = elem["operators"]
             errs = elem["operator_errors"]
             if targetbasis is not None and inputbasis is None:
@@ -238,9 +237,8 @@ class Output(dict):
             else:
                 ops = np.einsum("ca,ajbk,bd->cjdk", targetbasis, ops, inv_inputbasis)
                 errs = np.einsum("ca,ajbk,bd->cjdk", targetbasis, errs, inv_inputbasis)
-            out_grid[q2] = dict(operators=ops, operator_errors=errs)
-        # set in self
-        self["Q2grid"] = out_grid
+            elem["operators"] = ops
+            elem["operator_errors"] = errs
         # drop PIDs
         if inputbasis is not None:
             self["inputpids"] = np.full(len(self["inputpids"]), np.nan)
