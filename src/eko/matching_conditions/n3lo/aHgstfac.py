@@ -1,12 +1,28 @@
 # -*- coding: utf-8 -*-
-"""This module contains the |OME| aHgstfac,
-the experssions are taken from :cite:`Bierenbaum_2009`"""
 import numba as nb
 import numpy as np
 
 
 @nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4)", cache=True)
 def A_Hgstfac_3(n, sx, smx, s3x, s4x, nf):
+    r"""
+    Computes the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)`
+    proportional to various color factors.
+    The experssion is presented in cite:`ablinger2017heavy` (eq 3.1)
+
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        sx : numpy.ndarray
+            list S1 ... S5
+        s3x : numpy.ndarray
+            list S21, S2m1, Sm21, Sm2m1
+
+    Returns
+    -------
+        A_ggTF2_3 : complex
+    """
     S1, S2, S3, S4 = sx[0], sx[1], sx[2], sx[3]
     Sm2, Sm3, Sm4 = smx[1], smx[2], smx[3]
     S21, Sm21 = s3x[0], s3x[2]

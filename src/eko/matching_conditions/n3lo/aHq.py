@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
-"""This module contains the |OME| aHq, the experssions are taken from :cite:`Bierenbaum_2009`"""
+"""This module contains the |OME| aHq, the experssions are taken from """
 import numpy as np
 
 from . import cs_functions as cs
@@ -8,6 +8,33 @@ from . import h_functions as hf
 
 
 def A_Hq_3(n, sx, smx, s3x, s4x, nf):  # pylint: disable=too-many-locals
+    r"""
+    Computes the |N3LO| singlet |OME| :math:`A_{Hq}^{S,(3)}(N)`.
+    The experssion is presented in :cite:`Ablinger_2015` (eq 5.1).
+    It contains generalized harmonics sums, which are computed inside
+    :ref:`eko.matching_conditions.n3lo.cs_functions` and use the libary
+    mpmath which is not compatible with numba.
+
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        sx : numpy.ndarray
+            list S1 ... S5
+        smx : numpy.ndarray
+            list Sm1 ... Sm5
+        s3x : numpy.ndarray
+            list S21, S2m1, Sm21, Sm2m1
+        s4x : numpy.ndarray
+            list S31, S221, Sm22, Sm211, Sm31
+        nf : int
+            numeber of active flavor below the threshold
+
+    Returns
+    -------
+        A_Hq_3 : complex
+            :math:`A_{Hq}^{S,(3)}(N)`
+    """
     S1, S2, S3, S4 = sx[0], sx[1], sx[2], sx[3]
     Sm2, Sm3, Sm4 = smx[1], smx[2], smx[3]
     S21, Sm21 = s3x[0], s3x[2]

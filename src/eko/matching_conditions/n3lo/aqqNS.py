@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-"""This module contains the |OME| aqqNS, the experssions are taken from :cite:`Bierenbaum_2009`"""
 import numba as nb
 import numpy as np
 
@@ -8,6 +7,32 @@ from . import s_functions as sf
 
 @nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4)", cache=True)
 def A_qqNS_3(n, sx, smx, s3x, s4x, nf):  # pylint: disable=too-many-locals
+   r"""
+    Computes the |N3LO| singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.
+    The experssion is presented in :cite:`Bierenbaum_2009`.
+    It contains some weight 5 harmonics sums.
+
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        sx : numpy.ndarray
+            list S1 ... S5
+        smx : numpy.ndarray
+            list Sm1 ... Sm5
+        s3x : numpy.ndarray
+            list S21, S2m1, Sm21, Sm2m1
+        s4x : numpy.ndarray
+            list S31, S221, Sm22, Sm211, Sm31
+        nf : int
+            numeber of active flavor below the threshold
+
+    Returns
+    -------
+        A_qqNS_3 : complex
+            :math:`A_{qq}^{NS,(3)}(N)`
+
+    """
     S1, S2, S3, S4, S5 = sx[0], sx[1], sx[2], sx[3], sx[4]
     Sm1, Sm2, Sm3, Sm4, Sm5 = smx[0], smx[1], smx[2], smx[3], smx[4]
     S21, S2m1, Sm21 = s3x[0], s3x[1], s3x[2]

@@ -1,14 +1,31 @@
 # -*- coding: utf-8 -*-
-"""
-This module contains the  inclomplete |OME| aggTF2,
-the experssions are taken from :cite:`Bierenbaum_2009`
-"""
 import numpy as np
 
 from .s_functions import binomial
 
 
 def A_ggTF2_3(n, sx, s3x):
+    r"""
+    Computes the approximate incomplete part of :math:`A_{gg}^{S,(3)}(N)`
+    prortional to :math:`T_{F}^2`.
+    The experssion is presented in :cite:`ablinger20143loop` (eq 13).
+    It contains a  binomial factor which is computed with mpmath and
+    is not comaptible with numba.
+
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        sx : numpy.ndarray
+            list S1 ... S5
+        s3x : numpy.ndarray
+            list S21, S2m1, Sm21, Sm2m1
+
+    Returns
+    -------
+        A_ggTF2_3 : complex
+            :math:`A_{gg,T_{F}^2}^{S,(3)}(N)`
+    """
     S1, S2, S3 = sx[0], sx[1], sx[2]
     S21 = s3x[0]
     binfact = binomial(2 * n, n) / 4 ** n

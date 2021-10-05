@@ -1,11 +1,28 @@
 # -*- coding: utf-8 -*-
-"""This module contains the |OME| aqqPS, the experssions are taken from :cite:`Bierenbaum_2009`"""
 import numba as nb
 import numpy as np
 
 
 @nb.njit("c16(c16,c16[:],u4)", cache=True)
 def A_qqPS_3(n, sx, nf):
+    r"""
+    Computes the |N3LO| singlet |OME| :math:`A_{qq}^{PS,(3)}(N)`.
+    The expression is presented in :cite:`Bierenbaum_2009`
+
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        sx : numpy.ndarray
+            list S1 ... S5
+        nf : int
+            numeber of active flavor below the threshold
+
+    Returns
+    -------
+        A_qqPS_3 : complex
+            :math:`A_{qq}^{PS,(3)}(N)`
+    """
     S1, S2, S3 = sx[0], sx[1], sx[2]
     return (
         0.3333333333333333
