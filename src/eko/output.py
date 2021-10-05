@@ -247,6 +247,29 @@ class Output(dict):
         if targetbasis is not None:
             self["targetpids"] = np.full(len(self["targetpids"]), np.nan)
 
+    def to_evol(self, source=True, target=False):
+        """
+        Rotate the operator into evolution basis.
+
+        This also assigns also the pids. The operation is inplace.
+
+        Parameters
+        ----------
+            source : bool
+                rotate on the input tensor
+            target : bool
+                rotate on the output tensor
+        """
+        # rotate
+        inputbasis = br.rotate_flavor_to_evolution if source else None
+        targetbasis = br.rotate_flavor_to_evolution if target else None
+        self.flavor_reshape(inputbasis=inputbasis, targetbasis=targetbasis)
+        # assign pids
+        if source:
+            self["inputpids"] = br.evol_basis_pids
+        if target:
+            self["targetpids"] = br.evol_basis_pids
+
     def get_raw(self, binarize=True):
         """
         Serialize result as dict/YAML.
