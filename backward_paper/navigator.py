@@ -73,7 +73,7 @@ class NavigatorApp(Ekonavigator):
                 theory = self.get(bnav.t, log["t_hash"])
                 label = theory[key]
                 if key == "PTO":
-                    pto_dict = {0: "LO", 1: "NLO", 2: "NNLO"}
+                    pto_dict = {0: "LO", 1: "NLO", 2: "NNLO", 3: "N3LO"}
                     label = pto_dict[label]
             except KeyError:
                 try:

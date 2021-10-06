@@ -6,10 +6,13 @@ This module defines the |OME| for the non-trivial matching conditions in the
 
 import logging
 import time
+import multiprocessing
+import functools
 
 import numba as nb
 import numpy as np
 from scipy import integrate
+
 
 from .. import interpolation, mellin
 from ..anomalous_dimensions import harmonics
@@ -20,38 +23,48 @@ from .n3lo import s_functions
 
 logger = logging.getLogger(__name__)
 
+
 @nb.njit("c16[:](c16)", cache=True)
 def get_smx(n):
     """Get the S-minus cache"""
-    return np.array([
+    return np.array(
+        [
             s_functions.harmonic_Sm1(n),
             s_functions.harmonic_Sm2(n),
             s_functions.harmonic_Sm3(n),
             s_functions.harmonic_Sm4(n),
             s_functions.harmonic_Sm5(n),
-    ])
+        ]
+    )
+
 
 @nb.njit("c16[:](c16,c16[:],c16[:])", cache=True)
 def get_s3x(n, sx, smx):
     """Get the S-w3 cache"""
-    return np.array([
+    return np.array(
+        [
             s_functions.harmonic_S21(n, sx[0], sx[1]),
             s_functions.harmonic_S2m1(n, sx[1], smx[0], smx[1]),
             s_functions.harmonic_Sm21(n, smx[0]),
             s_functions.harmonic_Sm2m1(n, sx[0], sx[1], smx[1]),
-    ])
+        ]
+    )
+
 
 @nb.njit("c16[:](c16,c16[:],c16[:])", cache=True)
 def get_s4x(n, sx, smx):
     """Get the S-w4 cache"""
     Sm31 = s_functions.harmonic_Sm31(n, smx[0], smx[1])
-    return np.array([
+    return np.array(
+        [
             s_functions.harmonic_S31(n, sx[1], sx[3]),
             s_functions.harmonic_S211(n, sx[0], sx[1], sx[2]),
             s_functions.harmonic_Sm22(n, Sm31),
-            s_functions.harmonic_Sm211(n, smx[0] ),
+            s_functions.harmonic_Sm211(n, smx[0]),
             s_functions.harmonic_Sm31(n, smx[0], smx[1]),
-    ])
+        ]
+    )
+
 
 # @nb.njit("c16[:,:,:](u1,c16,c16[:],u4,f8)", cache=True)
 def A_singlet(order, n, sx, nf, L):
@@ -66,6 +79,8 @@ def A_singlet(order, n, sx, nf, L):
             Mellin variable
         sx : numpy.ndarray
             List of harmonic sums
+        nf: int
+            number of active flavor below threshold
         L : float
             :math:`log(q^2/m_h^2)`
 
@@ -106,6 +121,8 @@ def A_non_singlet(order, n, sx, nf, L):
             Mellin variable
         sx : numpy.ndarray
             List of harmonic sums
+        nf: int
+            number of active flavor below threshold
         L : float
             :math:`log(q^2/m_h^2)`
 
@@ -163,7 +180,11 @@ def build_ome(A, order, a_s, backward_method):
             )
         if order >= 3:
             ome += a_s ** 3 * (
-                -A[2] + 2 * np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[1]) - np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[0])
+                -A[2]
+                + 2 * np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[1])
+                - np.ascontiguousarray(A[0])
+                @ np.ascontiguousarray(A[0])
+                @ np.ascontiguousarray(A[0])
             )
     else:
         # forward or exact inverse
@@ -200,6 +221,8 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method):
             basis function configuration
         a_s : float
             strong coupling, needed only for the exact inverse
+        nf: int
+            number of active flavor below threshold
         L : float
             :math:`log(q^2/m_h^2)`
         backward_method : ["exact", "expanded" or ""]
@@ -211,7 +234,7 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method):
     """
     is_singlet = mode[0] == "S"
     # get transformation to N integral
-    r = 0.4 * 16.0 / ( 1.0 - logx)
+    r = 0.4 * 16.0 / (1.0 - logx)
     if is_singlet:
         o = 1.0
         indeces = {"g": 0, "q": 1, "H": 2}
@@ -232,8 +255,8 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method):
         sx = np.append(sx, harmonics.harmonic_S5(n))
         smx = get_smx(n)
         sx = np.append(sx, smx)
-        sx = np.append(sx, get_s3x(n, sx,smx))
-        sx = np.append(sx, get_s4x(n, sx,smx))
+        sx = np.append(sx, get_s3x(n, sx, smx))
+        sx = np.append(sx, get_s4x(n, sx, smx))
     # compute the ome
     if is_singlet:
         A = A_singlet(order, n, sx, nf, L)
@@ -260,6 +283,99 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method):
     # recombine everthing
     mellin_prefactor = complex(0.0, -1.0 / np.pi)
     return np.real(mellin_prefactor * ker * pj * jac)
+
+
+def run_op_integration(
+    log_grid,
+    int_disp,
+    grid_size,
+    labels,
+    order,
+    is_log,
+    a_s,
+    nf,
+    L,
+    backward_method,
+):
+    """
+    Integration rutine per operator
+    Parameters
+    ----------
+        log_grid : tuple(k, logx)
+            log grid with relative indices
+        int_disp : eko.interpolation.interpolation_dispatcher
+            instance of the interpolation dispatcher
+        grid_size : int
+            length of the grid
+        labels : numpy.ndarray
+            list of ome labels
+        order : int
+            perturbation order
+        is_log : boolean
+            logarithmic interpolation
+        logx : float
+            Mellin inversion point
+        a_s : float
+            strong coupling, needed only for the exact inverse
+        nf: int
+            number of active flavor below threshold
+        L : float
+            :math:`log(q^2/m_h^2)`
+        backward_method : ["exact", "expanded" or ""]
+            empty or method for inverting the matching contidtion (exact or expanded)
+    Returns
+    -------
+        ker : float
+            evaluated integration kernel
+    """
+    column = []
+    k, logx = log_grid
+    logger.info(
+        "Matching: start computing operators - %d/%d",
+        k + 1,
+        grid_size,
+    )
+    start_time = time.perf_counter()
+    # iterate basis functions
+    for l, bf in enumerate(int_disp):
+        if k == l and l == grid_size - 1:
+            continue
+        temp_dict = {}
+        # iterate sectors
+        for label in labels:
+            # compute and set
+            logger.info(
+                "Matching: %d operator is computing entry %d, %s", k + 1, l + 1, label
+            )
+            res = integrate.quad(
+                quad_ker,
+                0.5,
+                1.0 - 1e-02,
+                args=(
+                    order,
+                    label,
+                    is_log,
+                    logx,
+                    bf.areas_representation,
+                    a_s,
+                    nf,
+                    L,
+                    backward_method,
+                ),
+                epsabs=1e-12,
+                epsrel=1e-5,
+                limit=100,
+                full_output=1,
+            )
+            temp_dict[label] = res[:2]
+        column.append(temp_dict)
+    logger.info(
+        "Matching: computing operators - %d/%d took: %f s",
+        k + 1,
+        grid_size,
+        time.perf_counter() - start_time,
+    )
+    return column
 
 
 class OperatorMatrixElement:
@@ -353,48 +469,66 @@ class OperatorMatrixElement:
         a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2)
 
         tot_start_time = time.perf_counter()
-        logger.info("Matching: computing operators - 0/%d", grid_size)
+        # logger.info("Matching: computing operators - 0/%d", grid_size)
         # iterate output grid
-        for k, logx in enumerate(np.log(self.int_disp.xgrid_raw)):
-            start_time = time.perf_counter()
-            # iterate basis functions
-            for l, bf in enumerate(self.int_disp):
-                if k == l and l == grid_size - 1:
-                    continue
-                # iterate sectors
-                for label in labels:
-                    logger.info("Matching: computing entry %s", label)
-                    # compute and set
-                    res = integrate.quad(
-                        quad_ker,
-                        0.5,
-                        1.0 - self._mellin_cut,
-                        args=(
-                            self.config["order"],
-                            label,
-                            self.int_disp.log,
-                            logx,
-                            bf.areas_representation,
-                            a_s,
-                            nf,
-                            L,
-                            self.backward_method,
-                        ),
-                        epsabs=1e-12,
-                        epsrel=1e-5,
-                        limit=100,
-                        full_output=1,
-                    )
-                    val, err = res[:2]
+        # for k, logx in enumerate(np.log(self.int_disp.xgrid_raw)):
+        #     start_time = time.perf_counter()
+        #     # iterate basis functions
+        #     for l, bf in enumerate(self.int_disp):
+        #         if k == l and l == grid_size - 1:
+        #             continue
+        #         # iterate sectors
+        #         for label in labels:
+        #             logger.info("Matching: computing entry %s", label)
+        #             # compute and set
+        #             res = integrate.quad(
+        #                 quad_ker,
+        #                 0.5,
+        #                 1.0 - self._mellin_cut,
+        #                 args=(
+        #                     self.config["order"],
+        #                     label,
+        #                     self.int_disp.log,
+        #                     logx,
+        #                     bf.areas_representation,
+        #                     a_s,
+        #                     nf,
+        #                     L,
+        #                     self.backward_method,
+        #                 ),
+        #                 epsabs=1e-12,
+        #                 epsrel=1e-5,
+        #                 limit=100,
+        #                 full_output=1,
+        #             )
+        #             val, err = res[:2]
+        #             self.ome_members[label].value[k][l] = val
+        #             self.ome_members[label].error[k][l] = err
+
+        # run integration in parallel for each grid point
+        pool = multiprocessing.Pool(grid_size)
+        res = pool.map(
+            functools.partial(
+                run_op_integration,
+                int_disp=self.int_disp,
+                grid_size=grid_size,
+                labels=labels,
+                order=self.config["order"],
+                is_log=self.int_disp.log,
+                a_s=a_s,
+                nf=nf,
+                L=L,
+                backward_method=self.backward_method,
+            ),
+            enumerate(np.log(self.int_disp.xgrid_raw)),
+        )
+
+        # collect relusts
+        for k, row in enumerate(res):
+            for l, entry in enumerate(row):
+                for label, (val, err) in entry.items():
                     self.ome_members[label].value[k][l] = val
                     self.ome_members[label].error[k][l] = err
-
-            logger.info(
-                "Matching: computing operators - %d/%d took: %f s",
-                k + 1,
-                grid_size,
-                time.perf_counter() - start_time,
-            )
 
         # closing comment
         logger.info("Matching: Total time %f s", time.perf_counter() - tot_start_time)
