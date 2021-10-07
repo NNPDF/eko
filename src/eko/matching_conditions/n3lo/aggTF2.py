@@ -2,8 +2,6 @@
 import numba as nb
 import numpy as np
 
-from .s_functions import binomial
-
 @nb.njit("c16(c16,c16[:],c16[:])", cache=True)
 def A_ggTF2_3(n, sx, s3x):
     r"""
