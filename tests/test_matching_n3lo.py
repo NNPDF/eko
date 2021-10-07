@@ -186,7 +186,7 @@ def test_Bluemlein_3():
             )
 
             np.testing.assert_allclose(
-                aS3[2, 1], ref_val_Hq[L][idx], rtol=5e-3, atol=3e-4
+                aS3[2, 1], ref_val_Hq[L][idx], rtol=5e-3, atol=5e-4
             )
 
             # here we have a different convention for (-1)^N,
@@ -209,7 +209,7 @@ def test_Bluemlein_3():
         if N != 100:
             # Limited in the small N region
             np.testing.assert_allclose(Aggtf2, ref_val_ggTF2[0][idx], rtol=15e-2)
-        np.testing.assert_allclose(Aggtf2, ref_ggTF_app[idx], rtol=3e-6)
+        np.testing.assert_allclose(Aggtf2, ref_ggTF_app[idx], rtol=2e-4)
 
         np.testing.assert_allclose(
             n3lo.agg.A_gg_3(N, sx, smx, s3x, s4x, nf) - Aggtf2,

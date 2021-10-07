@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import numba as nb
 import numpy as np
 
 from .aggTF2 import A_ggTF2_3
 
-
+@nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4)", cache=True)
 def A_gg_3(n, sx, smx, s3x, s4x, nf):
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{gg}^{S,(3)}(N)`.

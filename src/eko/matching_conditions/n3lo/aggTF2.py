@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+import numba as nb
 import numpy as np
 
 from .s_functions import binomial
 
-
+@nb.njit("c16(c16,c16[:],c16[:])", cache=True)
 def A_ggTF2_3(n, sx, s3x):
     r"""
     Computes the approximate incomplete part of :math:`A_{gg}^{S,(3)}(N)`
@@ -28,7 +29,15 @@ def A_ggTF2_3(n, sx, s3x):
     """
     S1, S2, S3 = sx[0], sx[1], sx[2]
     S21 = s3x[0]
-    binfact = binomial(2 * n, n) / 4 ** n
+    # here we use an approximation at large N
+    #  for binomial(2 * n, n) / np.power(4, n)
+    # faster than the exact result
+    binfact = (
+        0.00275483 / n ** (7 / 2)
+        + 0.00440773 / n ** (5 / 2)
+        - 0.0705237 / n ** (3 / 2)
+        + 0.56419 / np.sqrt(n)
+    )
     return 0.3333333333333333 * (
         (
             0.1335618781288438
