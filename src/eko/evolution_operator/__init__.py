@@ -152,7 +152,9 @@ def quad_ker(
     """
     is_singlet = mode[0] == "S"
     # get transformation to N integral
-    r = 0.4 * 16.0 / (1.0 - logx)
+    if logx == 0.0:
+        return 0.0
+    r = 0.4 * 16.0 / (-logx)
     if is_singlet:
         o = 1.0
     else:
@@ -260,15 +262,17 @@ class Operator:
 
         # init all ops with identity or zeros if we skip them
         labels = self.labels()
+        eye = OpMember(np.eye(grid_size), np.zeros((grid_size, grid_size)))
+        zero = OpMember(*[np.zeros((grid_size, grid_size))] * 2)
         for n in full_labels:
             if n in labels:
-                self.op_members[n] = OpMember(
-                    np.eye(grid_size), np.zeros((grid_size, grid_size))
-                )
+                # off diag singlet are zero
+                if n in ["S_qg", "S_gq"]:
+                    self.op_members[n] = zero.copy()
+                else:
+                    self.op_members[n] = eye.copy()
             else:
-                self.op_members[n] = OpMember(
-                    np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
-                )
+                self.op_members[n] = zero.copy()
         # skip computation
         if np.isclose(self.q2_from, self.q2_to):
             logger.info("Evolution: skipping unity operator at %e", self.q2_from)

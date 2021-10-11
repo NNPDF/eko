@@ -90,7 +90,7 @@ def test_quad_ker(monkeypatch):
             order=2,
             mode="NS_qq",
             is_log=is_log,
-            logx=0.0,
+            logx=1.0,
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
@@ -102,7 +102,7 @@ def test_quad_ker(monkeypatch):
             order=2,
             mode="S_qq",
             is_log=is_log,
-            logx=0.0,
+            logx=1.0,
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
@@ -130,7 +130,7 @@ def test_quad_ker(monkeypatch):
             order=2,
             mode=label,
             is_log=True,
-            logx=0.0,
+            logx=1.0,
             areas=np.zeros(3),
             backward_method="expanded",
             a_s=0.0,
@@ -160,7 +160,7 @@ def test_quad_ker(monkeypatch):
             order=2,
             mode=label,
             is_log=True,
-            logx=0.0,
+            logx=1.0,
             areas=np.zeros(3),
             backward_method="exact",
             a_s=0.0,
@@ -187,28 +187,29 @@ def test_quad_ker(monkeypatch):
 
 
 class TestOperatorMatrixElement:
+    # setup objs
+    theory_card = {
+        "alphas": 0.35,
+        "PTO": 0,
+        "ModEv": "TRN",
+        "fact_to_ren_scale_ratio": 1.0,
+        "Qref": np.sqrt(2),
+        "nfref": None,
+        "Q0": np.sqrt(2),
+        "NfFF": 3,
+        "IC": 1,
+        "IB": 0,
+        "mc": 1.0,
+        "mb": 4.75,
+        "mt": 173.0,
+        "kcThr": np.inf,
+        "kbThr": np.inf,
+        "ktThr": np.inf,
+        "MaxNfPdf": 6,
+        "MaxNfAs": 6,
+    }
+
     def test_labels(self):
-        # setup objs
-        theory_card = {
-            "alphas": 0.35,
-            "PTO": 0,
-            "ModEv": "TRN",
-            "fact_to_ren_scale_ratio": 1.0,
-            "Qref": np.sqrt(2),
-            "nfref": None,
-            "Q0": np.sqrt(2),
-            "NfFF": 3,
-            "IC": 1,
-            "IB": 0,
-            "mc": 1.0,
-            "mb": 4.75,
-            "mt": 173.0,
-            "kcThr": np.inf,
-            "kbThr": np.inf,
-            "ktThr": np.inf,
-            "MaxNfPdf": 6,
-            "MaxNfAs": 6,
-        }
         for skip_singlet in [True, False]:
             for skip_ns in [True, False]:
                 operators_card = {
@@ -223,13 +224,13 @@ class TestOperatorMatrixElement:
                     "backward_inversion": "exact",
                 }
                 g = OperatorGrid.from_dict(
-                    theory_card,
+                    self.theory_card,
                     operators_card,
-                    ThresholdsAtlas.from_dict(theory_card),
-                    StrongCoupling.from_dict(theory_card),
+                    ThresholdsAtlas.from_dict(self.theory_card),
+                    StrongCoupling.from_dict(self.theory_card),
                     InterpolatorDispatcher.from_dict(operators_card),
                 )
-                o = OperatorMatrixElement(g.config, g.managers, 10)
+                o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
                 labels = o.labels()
                 test_labels = ["NS_qq", "NS_Hq"]
                 for l in test_labels:
@@ -243,3 +244,45 @@ class TestOperatorMatrixElement:
                         assert l not in labels
                     else:
                         assert l in labels
+
+    def test_compute(self):
+        operators_card = {
+            "Q2grid": [20],
+            "interpolation_xgrid": [0.001, 0.01, 0.1, 1.0],
+            "interpolation_polynomial_degree": 1,
+            "interpolation_is_log": True,
+            "debug_skip_singlet": False,
+            "debug_skip_non_singlet": False,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
+            "backward_inversion": "exact",
+        }
+        g = OperatorGrid.from_dict(
+            self.theory_card,
+            operators_card,
+            ThresholdsAtlas.from_dict(self.theory_card),
+            StrongCoupling.from_dict(self.theory_card),
+            InterpolatorDispatcher.from_dict(operators_card),
+        )
+        o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
+        o.compute(self.theory_card["mb"] ** 2, L=0)
+
+        dim = o.ome_members["NS_qq"].value.shape
+        for idx in ["S", "NS"]:
+            np.testing.assert_allclose(
+                o.ome_members[f"{idx}_qq"].value, np.eye(dim[0]), atol=1e-8
+            )
+            np.testing.assert_allclose(
+                o.ome_members[f"{idx}_HH"].value, np.eye(dim[0]), atol=1e-8
+            )
+            np.testing.assert_allclose(o.ome_members[f"{idx}_qH"].value, np.zeros(dim))
+            np.testing.assert_allclose(o.ome_members[f"{idx}_Hq"].value, np.zeros(dim))
+        np.testing.assert_allclose(
+            o.ome_members["S_gg"].value, np.eye(dim[0]), atol=1e-8
+        )
+        np.testing.assert_allclose(
+            o.ome_members["S_qg"].value, o.ome_members["S_gq"].value
+        )
+        np.testing.assert_allclose(
+            o.ome_members["S_Hg"].value, o.ome_members["S_gH"].value
+        )

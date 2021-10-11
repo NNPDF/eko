@@ -38,6 +38,25 @@ class TestThresholdsAtlas:
         with pytest.raises(ValueError):
             ThresholdsAtlas([1.0, 0.0])
 
+    def test_nfref(self):
+        # errors
+        with pytest.raises(ValueError, match="Without"):
+            ThresholdsAtlas([0, 2, 3], nf_ref=3)
+        with pytest.raises(ValueError, match="starts"):
+            ThresholdsAtlas([0, 2, 3], 1, 3)
+        with pytest.raises(ValueError, match="stops"):
+            ThresholdsAtlas([0, np.inf, np.inf], 1, 5)
+        # weird but fine
+        tc = ThresholdsAtlas([1, 2, 3], 1.5, 3)
+        p = tc.path(1.5)
+        assert len(p) == 2
+        assert p[0].q2_from == 1.5
+        assert p[0].q2_to == 1.0
+        assert p[0].nf == 3
+        assert p[1].q2_from == 1.0
+        assert p[1].q2_to == 1.5
+        assert p[1].nf == 4
+
     def test_repr(self):
         walls = [1.23, 9.87, 14.54]
         stc3 = str(ThresholdsAtlas(walls))

@@ -5,9 +5,9 @@
 import logging
 import warnings
 
-import yaml
 import lz4.frame
 import numpy as np
+import yaml
 
 from . import basis_rotation as br
 from . import interpolation
@@ -225,8 +225,7 @@ class Output(dict):
             inv_inputbasis = np.linalg.inv(inputbasis)
 
         # build new grid
-        out_grid = {}
-        for q2, elem in self["Q2grid"].items():
+        for elem in self["Q2grid"].values():
             ops = elem["operators"]
             errs = elem["operator_errors"]
             if targetbasis is not None and inputbasis is None:
@@ -238,14 +237,36 @@ class Output(dict):
             else:
                 ops = np.einsum("ca,ajbk,bd->cjdk", targetbasis, ops, inv_inputbasis)
                 errs = np.einsum("ca,ajbk,bd->cjdk", targetbasis, errs, inv_inputbasis)
-            out_grid[q2] = dict(operators=ops, operator_errors=errs)
-        # set in self
-        self["Q2grid"] = out_grid
+            elem["operators"] = ops
+            elem["operator_errors"] = errs
         # drop PIDs
         if inputbasis is not None:
             self["inputpids"] = np.full(len(self["inputpids"]), np.nan)
         if targetbasis is not None:
             self["targetpids"] = np.full(len(self["targetpids"]), np.nan)
+
+    def to_evol(self, source=True, target=False):
+        """
+        Rotate the operator into evolution basis.
+
+        This also assigns also the pids. The operation is inplace.
+
+        Parameters
+        ----------
+            source : bool
+                rotate on the input tensor
+            target : bool
+                rotate on the output tensor
+        """
+        # rotate
+        inputbasis = br.rotate_flavor_to_evolution if source else None
+        targetbasis = br.rotate_flavor_to_evolution if target else None
+        self.flavor_reshape(inputbasis=inputbasis, targetbasis=targetbasis)
+        # assign pids
+        if source:
+            self["inputpids"] = br.evol_basis_pids
+        if target:
+            self["targetpids"] = br.evol_basis_pids
 
     def get_raw(self, binarize=True):
         """
@@ -284,6 +305,9 @@ class Output(dict):
         for q2, op in self["Q2grid"].items():
             out["Q2grid"][q2] = dict()
             for k, v in op.items():
+                if k == "alphas":
+                    out["Q2grid"][q2][k] = float(v)
+                    continue
                 if binarize:
                     out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
                 else:
@@ -305,7 +329,7 @@ class Output(dict):
         -------
             dump : any
                 result of dump(output, stream), i.e. a string, if no stream is given or
-                Null, if self is written sucessfully to stream
+                Null, if written sucessfully to stream
         """
         # TODO explicitly silence yaml
         out = self.get_raw(binarize)
@@ -317,7 +341,7 @@ class Output(dict):
 
         Parameters
         ----------
-            filename : string
+            filename : str
                 target file name
             binarize : bool
                 dump in binary format (instead of list format)
@@ -357,7 +381,9 @@ class Output(dict):
         # make operators numpy
         for op in obj["Q2grid"].values():
             for k, v in op.items():
-                if isinstance(v, list):
+                if k == "alphas":
+                    v = float(v)
+                elif isinstance(v, list):
                     v = np.array(v)
                 elif isinstance(v, bytes):
                     v = np.frombuffer(lz4.frame.decompress(v))
@@ -372,7 +398,7 @@ class Output(dict):
 
         Parameters
         ----------
-            filename : string
+            filename : str
                 source file name
 
         Returns

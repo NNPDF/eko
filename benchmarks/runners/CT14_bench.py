@@ -107,6 +107,5 @@ class BenchmarkCT14(LHAPDFBenchmark):
 
 
 if __name__ == "__main__":
-    lhapdf = BenchmarkCT14()
-    lhapdf.benchmark_llo_NF6()
-    # lhapdf.benchmark_nlo()
+    ct14 = BenchmarkCT14()
+    ct14.benchmark_llo_NF4()
