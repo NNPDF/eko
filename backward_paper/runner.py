@@ -170,7 +170,7 @@ class BackwardPaperRunner(Runner):
                     # my_pdf_errs = res["errors"]
                     if self.intermediate_Q:
                         tab[
-                            f"EKO_@_{np.round(np.sqrt(q2), 2)}_>_{self.intermediate_Q}_>_{np.round(np.sqrt(q2), 2)}"
+                            f"EKO_@_{np.round(np.sqrt(q2), 2)}_>_{self.intermediate_Q}_>_{np.round(np.sqrt(q2), 2)}" # pylint: disable=line-too-long
                         ] = (xgrid * my_pdfs[key])
                     else:
                         tab[f"EKO_@_{np.round(np.sqrt(q2), 2)}"] = xgrid * my_pdfs[key]

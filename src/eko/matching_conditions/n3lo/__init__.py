@@ -33,7 +33,7 @@ def A_singlet_3(n, sx_all, nf):
         sx_all : numpy.ndarray
             List of harmonic sums containing:
                 [S1 ... S5, Sm1 ... Sm5, S21, S2m1, Sm21, Sm2m1, S31, S221, Sm22, Sm211, Sm31]
-    
+
       Returns
       -------
         A_S_3 : numpy.ndarray

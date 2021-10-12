@@ -9,7 +9,7 @@
 import numpy as np
 import pytest
 
-import eko.interpolation as interpolation
+from eko import interpolation
 from eko.evolution_operator.grid import OperatorGrid
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas

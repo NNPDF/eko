@@ -114,7 +114,7 @@ class TestStrongCoupling:
         alphas_ref = 0.118
         scale_ref = 91.0 ** 2
         for thresh_setup in thresh_setups:
-            for order in [0, 1, 2]:
+            for order in [0, 1, 2, 3]:
                 for method in ["exact", "expanded"]:
                     # create
                     sc = StrongCoupling(

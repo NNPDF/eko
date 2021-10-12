@@ -2,7 +2,6 @@
 """
 Benchmark NNDPF31 pdf family
 """
-import numpy as np
 from ekomark.benchmark.runner import Runner
 
 

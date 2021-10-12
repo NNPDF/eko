@@ -4,8 +4,9 @@
 import numpy as np
 
 from eko.anomalous_dimensions import harmonics
-from eko.matching_conditions.n3lo import A_ns_3, A_singlet_3, A_qqNS_3, s_functions
+from eko.matching_conditions.n3lo import A_ns_3, A_singlet_3, A_qqNS_3
 from eko.matching_conditions import n3lo
+from eko.matching_conditions.operator_matrix_element import get_s3x, get_s4x, get_smx
 
 
 def get_sx(N):
@@ -20,48 +21,6 @@ def get_sx(N):
         ]
     )
     return sx
-
-
-def get_smx(N):
-    """Collect the Sminus-cache"""
-    smx = np.array(
-        [
-            s_functions.harmonic_Sm1(N),
-            s_functions.harmonic_Sm2(N),
-            s_functions.harmonic_Sm3(N),
-            s_functions.harmonic_Sm4(N),
-            s_functions.harmonic_Sm5(N),
-        ]
-    )
-    return smx
-
-
-def get_s3x(N, sx, smx):
-    """Collect the Sminus-cache"""
-    s3x = np.array(
-        [
-            s_functions.harmonic_S21(N, sx[0], sx[1]),
-            s_functions.harmonic_S2m1(N, sx[1], smx[0], smx[1]),
-            s_functions.harmonic_Sm21(N, smx[0]),
-            s_functions.harmonic_Sm2m1(N, sx[0], sx[1], smx[1]),
-        ]
-    )
-    return s3x
-
-
-def get_s4x(N, sx, smx):
-    """Collect the Sminus-cache"""
-    Sm31 = s_functions.harmonic_Sm31(N, smx[0], smx[1])
-    s4x = np.array(
-        [
-            s_functions.harmonic_S31(N, sx[1], sx[3]),
-            s_functions.harmonic_S211(N, sx[0], sx[1], sx[2]),
-            s_functions.harmonic_Sm22(N, Sm31),
-            s_functions.harmonic_Sm211(N, smx[0]),
-            Sm31,
-        ]
-    )
-    return s4x
 
 
 def test_A_3():

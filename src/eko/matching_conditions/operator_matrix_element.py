@@ -302,7 +302,7 @@ def run_op_integration(
     Parameters
     ----------
         log_grid : tuple(k, logx)
-            log grid with relative indices
+            log grid point with relative indices
         int_disp : eko.interpolation.interpolation_dispatcher
             instance of the interpolation dispatcher
         grid_size : int

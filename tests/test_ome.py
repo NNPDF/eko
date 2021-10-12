@@ -19,6 +19,7 @@ from eko.matching_conditions.operator_matrix_element import (
     OperatorMatrixElement,
     build_ome,
     quad_ker,
+    run_op_integration,
     get_s3x,
     get_s4x,
     get_smx,
@@ -131,18 +132,20 @@ def test_quad_ker(monkeypatch):
     )  # negate mellin prefactor
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
+    zeros = np.zeros((2, 2))
     monkeypatch.setattr(
         "eko.matching_conditions.operator_matrix_element.A_non_singlet",
-        lambda *args: np.identity(2),
+        lambda *args: np.array([zeros, zeros, zeros]),
     )
+    zeros = np.zeros((3, 3))
     monkeypatch.setattr(
         "eko.matching_conditions.operator_matrix_element.A_singlet",
-        lambda *args: np.identity(3),
+        lambda *args: np.array([zeros, zeros, zeros]),
     )
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            order=2,
+            order=3,
             mode="NS_qq",
             is_log=is_log,
             logx=0.0,
@@ -155,7 +158,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
             u=0,
-            order=2,
+            order=3,
             mode="S_qq",
             is_log=is_log,
             logx=0.0,
@@ -168,7 +171,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            order=2,
+            order=3,
             mode="S_qg",
             is_log=is_log,
             logx=0.0,
@@ -185,7 +188,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=2,
+            order=3,
             mode=label,
             is_log=True,
             logx=0.0,
@@ -216,7 +219,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=2,
+            order=3,
             mode=label,
             is_log=True,
             logx=0.0,
@@ -234,7 +237,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        order=2,
+        order=3,
         mode="NS_qq",
         is_log=True,
         logx=0.0,
@@ -245,6 +248,70 @@ def test_quad_ker(monkeypatch):
         L=0.0,
     )
     np.testing.assert_allclose(res_ns, 0.0)
+
+
+def test_run_integration():
+    # setup objs
+    theory_card = {
+        "alphas": 0.35,
+        "PTO": 2,
+        "ModEv": "TRN",
+        "fact_to_ren_scale_ratio": 1.0,
+        "Qref": np.sqrt(2),
+        "nfref": None,
+        "Q0": np.sqrt(2),
+        "NfFF": 3,
+        "IC": 1,
+        "IB": 0,
+        "mc": 1.0,
+        "mb": 4.75,
+        "mt": 173.0,
+        "kcThr": 0.0,
+        "kbThr": np.inf,
+        "ktThr": np.inf,
+        "MaxNfPdf": 6,
+        "MaxNfAs": 6,
+    }
+
+    operators_card = {
+        "Q2grid": [1, 10],
+        "interpolation_xgrid": [0.1, 1.0],
+        "interpolation_polynomial_degree": 1,
+        "interpolation_is_log": True,
+        "debug_skip_singlet": True,
+        "debug_skip_non_singlet": False,
+        "ev_op_max_order": 1,
+        "ev_op_iterations": 1,
+        "backward_inversion": "",
+    }
+    g = OperatorGrid.from_dict(
+        theory_card,
+        operators_card,
+        ThresholdsAtlas.from_dict(theory_card),
+        StrongCoupling.from_dict(theory_card),
+        InterpolatorDispatcher.from_dict(operators_card),
+    )
+    o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
+    log_grid = np.log(o.int_disp.xgrid_raw)
+    res = run_op_integration(
+        log_grid=(len(log_grid) - 1, log_grid[-1]),
+        int_disp=o.int_disp,
+        labels=["NS_qq"],
+        is_log=True,
+        grid_size=len(log_grid),
+        a_s=0.333,
+        order=theory_card["PTO"],
+        L=0,
+        nf=4,
+        backward_method="",
+    )
+
+    # here the last point is a zero, by default
+    np.testing.assert_allclose(res[0]["NS_qq"], (0.0, 0.0))
+
+    # test that copy ome does not change anything
+    o.copy_ome()
+    np.testing.assert_allclose(0.0, o.ome_members["S_qq"].value)
 
 
 class TestOperatorMatrixElement:
