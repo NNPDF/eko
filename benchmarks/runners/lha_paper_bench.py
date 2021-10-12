@@ -150,6 +150,7 @@ class BenchmarkFFNS(LHABenchmark):
         {
             "FNS": "FFNS",  # ignored by eko, but needed by LHA_utils
             "NfFF": 4,
+            "nfref": 4,
             "kcThr": 0.0,
             "kbThr": np.inf,
             "ktThr": np.inf,
@@ -169,8 +170,8 @@ class BenchmarkFFNS(LHABenchmark):
 
 if __name__ == "__main__":
 
-    obj = BenchmarkVFNS()
-    # obj = BenchmarkFFNS()
+    # obj = BenchmarkVFNS()
+    obj = BenchmarkFFNS()
 
-    obj.benchmark_plain(1)
+    obj.benchmark_plain(2)
     # obj.benchmark_sv(1)

@@ -98,22 +98,18 @@ class StrongCoupling:
                 alpha_s(!) at the reference scale :math:`\alpha_s(\mu_0^2)`
             scale_ref : float
                 reference scale :math:`\mu_0^2`
-            threshold_holder : eko.thresholds.ThresholdsAtlas
-                An instance of :class:`~eko.thresholds.ThresholdsAtlas`
+            masses : list(float)
+                list with quark masses
+            thresholds_ratios : list(float)
+                list with ratios between the mass and the thresholds
             order: int
                 Evaluated order of the beta function: ``0`` = LO, ...
             method : ["expanded", "exact"]
                 Applied method to solve the beta function
-
-        Examples
-        --------
-            >>> alpha_ref = 0.35
-            >>> scale_ref = 2
-            >>> threshold_holder = ThresholdsAtlas( ... )
-            >>> sc = StrongCoupling(alpha_ref, scale_ref, threshold_holder)
-            >>> q2 = 91.1**2
-            >>> sc.a_s(q2)
-            0.118
+            nf_ref : int
+                if given, the number of flavors at the reference scale
+            max_nf : int
+                if given, the maximum number of flavors
     """
 
     def __init__(
@@ -170,13 +166,6 @@ class StrongCoupling:
     def from_dict(cls, theory_card):
         """
         Create object from theory dictionary.
-
-        Read keys:
-
-            - alphas : required, reference value for  alpha_s (!)
-            - Qref : required, reference value in GeV (!)
-            - PTO : required, perturbative order
-            - ModEv : optional, method to solve RGE, default=EXA
 
         Parameters
         ----------

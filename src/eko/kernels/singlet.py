@@ -230,7 +230,7 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
         e_s^{order} : numpy.ndarray
             singlet NLO or NNLO iterated (exact) EKO
     """
-    a_steps = utils.geomspace(a0, a1, ev_op_iterations)
+    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     beta0 = beta.beta(0, nf)
     beta1 = beta.beta(1, nf)
     if order >= 2:
@@ -277,8 +277,8 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
             singlet anomalous dimensions matrices
         nf : int
             number of active flavors
-        ev_op_iterations : int
-            number of evolution steps
+        ev_op_max_order : int
+            perturbative expansion order of U
         order : int
             order order
         is_exact : boolean
@@ -418,7 +418,7 @@ def eko_perturbative(
     uk = u_vec(r, ev_op_max_order)
     e = np.identity(2, np.complex_)
     # iterate elements
-    a_steps = utils.geomspace(a0, a1, ev_op_iterations)
+    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = lo_exact(gamma_singlet, ah, al, nf)
@@ -463,7 +463,7 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
         u2 = np.ascontiguousarray(u[2])
     e = np.identity(2, np.complex_)
     # iterate elements
-    a_steps = utils.geomspace(a0, a1, ev_op_iterations)
+    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = np.ascontiguousarray(lo_exact(gamma_singlet, ah, al, nf))

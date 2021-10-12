@@ -76,7 +76,7 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
 
     Other Parameters
     ----------------
-        title : string, optional
+        title : str, optional
             additional overall title
         oMx_min : float
             maximum value for the large x region, i.e. 1-x > 1 - `oMx_min`
@@ -147,7 +147,7 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
     ----------
         ret : dict
             DGLAP result
-        var_name : string
+        var_name : str
             operator name
         log_operator : bool, optional
             plot on logarithmic scale
