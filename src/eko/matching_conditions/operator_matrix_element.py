@@ -421,13 +421,12 @@ class OperatorMatrixElement:
         if self.config["debug_skip_non_singlet"]:
             logger.warning("Matching: skipping non-singlet sector")
         else:
-            labels.extend(["NS_qq", "NS_Hq"])
+            labels.extend(["NS_qq"])
             if self.is_intrinsic or self.backward_method != "":
                 # intrisic labels, which are not zero at NLO
                 labels.append("NS_HH")
-                # if self.backward_method == "exact":
-                #     # this contribution starts at NNLO, we don't have it for the moment
-                #     labels.append("NS_qH")
+                # These contributions are included
+                # labels.extend(["NS_qH", "NS_Hq"])
 
         # same for singlet
         if self.config["debug_skip_singlet"]:
@@ -436,8 +435,8 @@ class OperatorMatrixElement:
             labels.extend([*singlet_labels, "S_Hg", "S_Hq"])
             if self.is_intrinsic or self.backward_method != "":
                 labels.extend(["S_gH", "S_HH"])
-                # if self.backward_method == "exact":
-                #     labels.extend(["S_qH"])
+                if self.backward_method == "exact" and self.config["order"] >= 3:
+                    labels.append("S_qH")
         return labels
 
     def compute(self, q2, nf, L):
@@ -466,6 +465,13 @@ class OperatorMatrixElement:
                 self.ome_members[n] = OpMember(
                     np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
                 )
+
+        # At LO you don't need anything else
+        if self.config["order"] == 0:
+            logger.info("Matching: no need to compute matching at LO")
+            self.copy_ome()
+            return
+
         a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2)
 
         tot_start_time = time.perf_counter()

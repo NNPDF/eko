@@ -318,7 +318,7 @@ class TestOperatorMatrixElement:
     # setup objs
     theory_card = {
         "alphas": 0.35,
-        "PTO": 0,
+        "PTO": 3,
         "ModEv": "TRN",
         "fact_to_ren_scale_ratio": 1.0,
         "Qref": np.sqrt(2),
@@ -335,6 +335,17 @@ class TestOperatorMatrixElement:
         "ktThr": np.inf,
         "MaxNfPdf": 6,
         "MaxNfAs": 6,
+    }
+    operators_card = {
+        "Q2grid": [20],
+        "interpolation_xgrid": [0.1, 1.0],
+        "interpolation_polynomial_degree": 1,
+        "interpolation_is_log": True,
+        "debug_skip_singlet": True,
+        "debug_skip_non_singlet": False,
+        "ev_op_max_order": 1,
+        "ev_op_iterations": 1,
+        "backward_inversion": "exact",
     }
 
     def test_labels(self):
@@ -358,39 +369,59 @@ class TestOperatorMatrixElement:
                     StrongCoupling.from_dict(self.theory_card),
                     InterpolatorDispatcher.from_dict(operators_card),
                 )
-                o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
+                o = OperatorMatrixElement(g.config, g.managers, is_backward=True)
                 labels = o.labels()
-                test_labels = ["NS_qq", "NS_Hq"]
+                test_labels = ["NS_qq", "NS_HH"]
                 for l in test_labels:
                     if skip_ns:
                         assert l not in labels
                     else:
                         assert l in labels
-                test_labels = ["S_qq", "S_Hq", "S_gg", "S_Hg", "S_gH"]
+                test_labels = [
+                    "S_qq",
+                    "S_Hq",
+                    "S_gg",
+                    "S_Hg",
+                    "S_gH",
+                    "S_qH",
+                    "S_qH",
+                    "S_qg",
+                    "S_HH",
+                ]
                 for l in test_labels:
                     if skip_singlet:
                         assert l not in labels
                     else:
                         assert l in labels
 
-    def test_compute(self):
-        operators_card = {
-            "Q2grid": [20],
-            "interpolation_xgrid": [0.001, 0.01, 0.1, 1.0],
-            "interpolation_polynomial_degree": 1,
-            "interpolation_is_log": True,
-            "debug_skip_singlet": False,
-            "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
-            "ev_op_iterations": 1,
-            "backward_inversion": "exact",
-        }
+    def test_compute_n3lo(self):
         g = OperatorGrid.from_dict(
             self.theory_card,
-            operators_card,
+            self.operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
             StrongCoupling.from_dict(self.theory_card),
-            InterpolatorDispatcher.from_dict(operators_card),
+            InterpolatorDispatcher.from_dict(self.operators_card),
+        )
+        o = OperatorMatrixElement(g.config, g.managers, is_backward=True)
+        o.compute(self.theory_card["mb"] ** 2, nf=4, L=0)
+
+        dim = o.ome_members["NS_qq"].value.shape
+        np.testing.assert_allclose(o.ome_members["NS_qH"].value, np.zeros(dim))
+        np.testing.assert_allclose(o.ome_members["NS_Hq"].value, np.zeros(dim))
+
+        for label in ["NS_qq", "NS_HH"]:
+            mat = o.ome_members[label].value
+            np.testing.assert_allclose(mat, np.triu(mat))
+
+    def test_compute_lo(self):
+        self.theory_card.update({"PTO": 0})
+        self.operators_card.update({"debug_skip_singlet": False})
+        g = OperatorGrid.from_dict(
+            self.theory_card,
+            self.operators_card,
+            ThresholdsAtlas.from_dict(self.theory_card),
+            StrongCoupling.from_dict(self.theory_card),
+            InterpolatorDispatcher.from_dict(self.operators_card),
         )
         o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
         o.compute(self.theory_card["mb"] ** 2, nf=4, L=0)
