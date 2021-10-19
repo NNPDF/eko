@@ -143,5 +143,4 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
             targetbasis = np.array(targetbasis)
         if inputbasis is not None or targetbasis is not None:
             self.out.flavor_reshape(targetbasis=targetbasis, inputbasis=inputbasis)
-        __import__("pdb").set_trace()
         return copy.deepcopy(self.out)
