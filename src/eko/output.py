@@ -3,6 +3,9 @@
     This file contains the output management
 """
 import logging
+import pathlib
+import shutil
+import tarfile
 import warnings
 
 import lz4.frame
@@ -268,7 +271,7 @@ class Output(dict):
         if target:
             self["targetpids"] = br.evol_basis_pids
 
-    def get_raw(self, binarize=True):
+    def get_raw(self, binarize=True, skip_q2_grid=False):
         """
         Serialize result as dict/YAML.
 
@@ -295,6 +298,7 @@ class Output(dict):
             "q2_ref",
         ]:
             out[f] = self[f]
+        # list() work both for np.array and list
         out["inputpids"] = list(self["inputpids"])
         out["targetpids"] = list(self["targetpids"])
         # make raw lists
@@ -302,19 +306,22 @@ class Output(dict):
         for k in ["interpolation_xgrid", "targetgrid", "inputgrid"]:
             out[k] = self[k].tolist()
         # make operators raw
-        for q2, op in self["Q2grid"].items():
-            out["Q2grid"][q2] = dict()
-            for k, v in op.items():
-                if k == "alphas":
-                    out["Q2grid"][q2][k] = float(v)
-                    continue
-                if binarize:
-                    out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
-                else:
-                    out["Q2grid"][q2][k] = v.tolist()
+        if not skip_q2_grid:
+            for q2, op in self["Q2grid"].items():
+                out["Q2grid"][q2] = dict()
+                for k, v in op.items():
+                    if k == "alphas":
+                        out["Q2grid"][q2][k] = float(v)
+                        continue
+                    if binarize:
+                        out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
+                    else:
+                        out["Q2grid"][q2][k] = v.tolist()
+        else:
+            out["Q2grid"] = self["Q2grid"]
         return out
 
-    def dump_yaml(self, stream=None, binarize=True):
+    def dump_yaml(self, stream=None, binarize=True, skip_q2_grid=False):
         """
         Serialize result as YAML.
 
@@ -332,10 +339,10 @@ class Output(dict):
                 Null, if written sucessfully to stream
         """
         # TODO explicitly silence yaml
-        out = self.get_raw(binarize)
+        out = self.get_raw(binarize, skip_q2_grid=skip_q2_grid)
         return yaml.dump(out, stream)
 
-    def dump_yaml_to_file(self, filename, binarize=True):
+    def dump_yaml_to_file(self, filename, binarize=True, skip_q2_grid=False):
         """
         Writes YAML representation to a file.
 
@@ -352,8 +359,51 @@ class Output(dict):
                 result of dump(output, stream), i.e. Null if written sucessfully
         """
         with open(filename, "w") as f:
-            ret = self.dump_yaml(f, binarize)
+            ret = self.dump_yaml(f, binarize, skip_q2_grid=skip_q2_grid)
         return ret
+
+    def dump_tar(self, tarname):
+        """
+        Writes representation into a tar archive containing:
+
+        - metadata (in YAML)
+        - operator (in numpy ``.npy`` format)
+
+        Parameters
+        ----------
+            tarname : str
+                target file name
+        """
+        tarpath = pathlib.Path(tarname)
+        if tarpath.suffix != ".tar":
+            raise ValueError(f"'{tarname}' is not a valid tar filename, wrong suffix")
+        tmpdir = tarpath.parent / tarpath.stem
+
+        tmpdir.mkdir(parents=True)
+
+        cls = self.__class__
+        metadata = cls(**{str(k): v for k, v in self.items() if k != "Q2grid"})
+        metadata["Q2grid"] = list(self["Q2grid"].keys())
+
+        yamlname = tmpdir / "metadata.yaml"
+        metadata.dump_yaml_to_file(yamlname, skip_q2_grid=True)
+
+        for kind in next(iter(self["Q2grid"].values())).keys():
+            arrayname = tmpdir / kind
+            operator = np.stack([q2[kind] for q2 in self["Q2grid"].values()])
+            np.save(arrayname, operator)
+
+        for fp in tmpdir.glob("*.npy"):
+            with lz4.frame.open(fp.with_suffix(fp.suffix + ".lz4"), "wb") as fo:
+                with open(fp, "rb") as fi:
+                    fo.write(fi.read())
+
+            fp.unlink()
+
+        with tarfile.open(tarpath, "w") as tar:
+            tar.add(tmpdir)
+
+        shutil.rmtree(tmpdir)
 
     @classmethod
     def load_yaml(cls, stream):
@@ -410,3 +460,7 @@ class Output(dict):
         with open(filename) as o:
             obj = Output.load_yaml(o)
         return obj
+
+    @classmethod
+    def load_from_tar(cls, tarname):
+        """"""
