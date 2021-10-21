@@ -467,32 +467,32 @@ class Output(dict):
         tarpath = pathlib.Path(tarname)
         if tarpath.suffix != ".tar":
             raise ValueError(f"'{tarname}' is not a valid tar filename, wrong suffix")
-        tmpdir = tarpath.parent / tarpath.stem
 
-        with tarfile.open(tarpath, "r") as tar:
-            tar.extractall(tmpdir.parent)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = pathlib.Path(tmpdir)
 
-        # metadata = cls(**{str(k): v for k, v in self.items() if k != "Q2grid"})
-        # metadata["Q2grid"] = list(self["Q2grid"].keys())
+            with tarfile.open(tarpath, "r") as tar:
+                tar.extractall(tmpdir)
 
-        yamlname = tmpdir / "metadata.yaml"
-        metadata = cls.load_yaml_from_file(yamlname, skip_q2_grid=True)
+            # metadata = cls(**{str(k): v for k, v in self.items() if k != "Q2grid"})
+            # metadata["Q2grid"] = list(self["Q2grid"].keys())
 
-        grids = {}
-        for fp in tmpdir.glob("*.npy.lz4"):
-            with lz4.frame.open(fp, "rb") as fd:
-                stream = io.BytesIO(fd.read())
-                stream.seek(0)
-                grids[pathlib.Path(fp.stem).stem] = np.load(stream)
+            yamlname = tmpdir / tarpath.stem / "metadata.yaml"
+            metadata = cls.load_yaml_from_file(yamlname, skip_q2_grid=True)
 
-            fp.unlink()
+            grids = {}
+            for fp in (tmpdir / tarpath.stem).glob("*.npy.lz4"):
+                with lz4.frame.open(fp, "rb") as fd:
+                    stream = io.BytesIO(fd.read())
+                    stream.seek(0)
+                    grids[pathlib.Path(fp.stem).stem] = np.load(stream)
 
-        q2grid = metadata["Q2grid"]
-        operator_grid = {}
-        for q2, slices in zip(q2grid, zip(*grids.values())):
-            operator_grid[q2] = dict(zip(grids.keys(), slices))
-        metadata["Q2grid"] = operator_grid
+                fp.unlink()
 
-        shutil.rmtree(tmpdir)
+            q2grid = metadata["Q2grid"]
+            operator_grid = {}
+            for q2, slices in zip(q2grid, zip(*grids.values())):
+                operator_grid[q2] = dict(zip(grids.keys(), slices))
+            metadata["Q2grid"] = operator_grid
 
         return metadata
