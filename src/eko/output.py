@@ -7,6 +7,7 @@ import logging
 import pathlib
 import shutil
 import tarfile
+import tempfile
 import warnings
 
 import lz4.frame
@@ -378,29 +379,29 @@ class Output(dict):
         tarpath = pathlib.Path(tarname)
         if tarpath.suffix != ".tar":
             raise ValueError(f"'{tarname}' is not a valid tar filename, wrong suffix")
-        tmpdir = tarpath.parent / tarpath.stem
 
-        tmpdir.mkdir(parents=True)
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = pathlib.Path(tmpdir)
 
-        cls = self.__class__
-        metadata = cls(**{str(k): v for k, v in self.items() if k != "Q2grid"})
-        metadata["Q2grid"] = list(self["Q2grid"].keys())
+            cls = self.__class__
+            metadata = cls(**{str(k): v for k, v in self.items() if k != "Q2grid"})
+            metadata["Q2grid"] = list(self["Q2grid"].keys())
 
-        yamlname = tmpdir / "metadata.yaml"
-        metadata.dump_yaml_to_file(yamlname, skip_q2_grid=True)
+            yamlname = tmpdir / "metadata.yaml"
+            metadata.dump_yaml_to_file(yamlname, skip_q2_grid=True)
 
-        for kind in next(iter(self["Q2grid"].values())).keys():
-            operator = np.stack([q2[kind] for q2 in self["Q2grid"].values()])
-            stream = io.BytesIO()
-            np.save(stream, operator)
-            stream.seek(0)
-            with lz4.frame.open((tmpdir / kind).with_suffix(".npy.lz4"), "wb") as fo:
-                fo.write(stream.read())
+            for kind in next(iter(self["Q2grid"].values())).keys():
+                operator = np.stack([q2[kind] for q2 in self["Q2grid"].values()])
+                stream = io.BytesIO()
+                np.save(stream, operator)
+                stream.seek(0)
+                with lz4.frame.open(
+                    (tmpdir / kind).with_suffix(".npy.lz4"), "wb"
+                ) as fo:
+                    fo.write(stream.read())
 
-        with tarfile.open(tarpath, "w") as tar:
-            tar.add(tmpdir)
-
-        shutil.rmtree(tmpdir)
+            with tarfile.open(tarpath, "w") as tar:
+                tar.add(tmpdir, arcname=tarpath.stem)
 
     @classmethod
     def load_yaml(cls, stream, skip_q2_grid=False):
