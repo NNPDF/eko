@@ -390,16 +390,12 @@ class Output(dict):
         metadata.dump_yaml_to_file(yamlname, skip_q2_grid=True)
 
         for kind in next(iter(self["Q2grid"].values())).keys():
-            arrayname = tmpdir / kind
             operator = np.stack([q2[kind] for q2 in self["Q2grid"].values()])
-            np.save(arrayname, operator)
-
-        for fp in tmpdir.glob("*.npy"):
-            with lz4.frame.open(fp.with_suffix(fp.suffix + ".lz4"), "wb") as fo:
-                with open(fp, "rb") as fi:
-                    fo.write(fi.read())
-
-            fp.unlink()
+            stream = io.BytesIO()
+            np.save(stream, operator)
+            stream.seek(0)
+            with lz4.frame.open((tmpdir / kind).with_suffix(".npy.lz4"), "wb") as fo:
+                fo.write(stream.read())
 
         with tarfile.open(tarpath, "w") as tar:
             tar.add(tmpdir)
