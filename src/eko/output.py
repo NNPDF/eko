@@ -2,6 +2,7 @@
 """
     This file contains the output management
 """
+import io
 import logging
 import pathlib
 import shutil
@@ -406,7 +407,7 @@ class Output(dict):
         shutil.rmtree(tmpdir)
 
     @classmethod
-    def load_yaml(cls, stream):
+    def load_yaml(cls, stream, skip_q2_grid=False):
         """
         Load YAML representation from stream
 
@@ -429,20 +430,21 @@ class Output(dict):
         for k in ["interpolation_xgrid", "inputgrid", "targetgrid"]:
             obj[k] = np.array(obj[k])
         # make operators numpy
-        for op in obj["Q2grid"].values():
-            for k, v in op.items():
-                if k == "alphas":
-                    v = float(v)
-                elif isinstance(v, list):
-                    v = np.array(v)
-                elif isinstance(v, bytes):
-                    v = np.frombuffer(lz4.frame.decompress(v))
-                    v = v.reshape(len_tpids, len_tgrid, len_ipids, len_igrid)
-                op[k] = v
+        if not skip_q2_grid:
+            for op in obj["Q2grid"].values():
+                for k, v in op.items():
+                    if k == "alphas":
+                        v = float(v)
+                    elif isinstance(v, list):
+                        v = np.array(v)
+                    elif isinstance(v, bytes):
+                        v = np.frombuffer(lz4.frame.decompress(v))
+                        v = v.reshape(len_tpids, len_tgrid, len_ipids, len_igrid)
+                    op[k] = v
         return cls(obj)
 
     @classmethod
-    def load_yaml_from_file(cls, filename):
+    def load_yaml_from_file(cls, filename, skip_q2_grid=False):
         """
         Load YAML representation from file
 
@@ -458,9 +460,42 @@ class Output(dict):
         """
         obj = None
         with open(filename) as o:
-            obj = Output.load_yaml(o)
+            obj = Output.load_yaml(o, skip_q2_grid)
         return obj
 
     @classmethod
-    def load_from_tar(cls, tarname):
-        """"""
+    def load_tar(cls, tarname):
+        """ """
+
+        tarpath = pathlib.Path(tarname)
+        if tarpath.suffix != ".tar":
+            raise ValueError(f"'{tarname}' is not a valid tar filename, wrong suffix")
+        tmpdir = tarpath.parent / tarpath.stem
+
+        with tarfile.open(tarpath, "r") as tar:
+            tar.extractall(tmpdir.parent)
+
+        # metadata = cls(**{str(k): v for k, v in self.items() if k != "Q2grid"})
+        # metadata["Q2grid"] = list(self["Q2grid"].keys())
+
+        yamlname = tmpdir / "metadata.yaml"
+        metadata = cls.load_yaml_from_file(yamlname, skip_q2_grid=True)
+
+        grids = {}
+        for fp in tmpdir.glob("*.npy.lz4"):
+            with lz4.frame.open(fp, "rb") as fd:
+                stream = io.BytesIO(fd.read())
+                stream.seek(0)
+                grids[pathlib.Path(fp.stem).stem] = np.load(stream)
+
+            fp.unlink()
+
+        q2grid = metadata["Q2grid"]
+        operator_grid = {}
+        for q2, slices in zip(q2grid, zip(*grids.values())):
+            operator_grid[q2] = dict(zip(grids.keys(), slices))
+        metadata["Q2grid"] = operator_grid
+
+        shutil.rmtree(tmpdir)
+
+        return metadata
