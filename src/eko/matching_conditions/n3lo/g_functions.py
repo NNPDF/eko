@@ -184,7 +184,7 @@ def mellin_g18(N, S1, S2):
     So we implement eq 124 of :cite:`Bl_mlein_2000` but using :cite:`MuselliPhD`
     notation.
 
-    Parametersrrr
+    Parameters
     ----------
         N : complex
             Mellin moment

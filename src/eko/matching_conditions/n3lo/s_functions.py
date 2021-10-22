@@ -31,9 +31,10 @@ def binomial(x, y):
 
     Returns
     -------
+
         ..math::
-            \left(\begin{array}{c} x y \end{array}\right) =
-            \frac{1}{(x+1) Beta(x-y+1,y+1)}
+            \left(\begin{array}{c} x y \end{array}\right) = \frac{1}{(x+1) Beta(x-y+1,y+1)}
+
     """
     # return sp.gamma(x + 1) / (sp.gamma(y + 1) * sp.gamma(x - y + 1))
     # more accurate for large numbers.
@@ -179,7 +180,7 @@ def harmonic_Sm5(N):
 def harmonic_S21(N, S1, S2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,1}(N)`
-    as implemented in eq B.5.77 of :cite:`MuselliPhD`and eq 37 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.77 of :cite:`MuselliPhD` and eq 37 of cite:`Bl_mlein_2000`.
 
     Parameters
     ----------
@@ -237,7 +238,7 @@ def harmonic_Sm21(N, Sm1):
 def harmonic_S2m1(N, S2, Sm1, Sm2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,-1}(N)`
-    as implemented in eq B.5.76 of :cite:`MuselliPhD`and eq 23 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.76 of :cite:`MuselliPhD` and eq 23 of cite:`Bl_mlein_2000`.
 
     Parameters
     ----------
@@ -272,7 +273,7 @@ def harmonic_S2m1(N, S2, Sm1, Sm2):
 def harmonic_Sm31(N, Sm1, Sm2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-3,1}(N)`
-    as implemented in eq B.5.93 of :cite:`MuselliPhD`and eq 25 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.93 of :cite:`MuselliPhD` and eq 25 of cite:`Bl_mlein_2000`.
 
     Parameters
     ----------
@@ -308,7 +309,7 @@ def harmonic_Sm31(N, Sm1, Sm2):
 def harmonic_Sm22(N, Sm31):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,2}(N)`
-    as implemented in eq B.5.94 of :cite:`MuselliPhD`and eq 24 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.94 of :cite:`MuselliPhD` and eq 24 of cite:`Bl_mlein_2000`.
 
     Parameters
     ----------
@@ -337,7 +338,7 @@ def harmonic_Sm22(N, Sm31):
 def harmonic_Sm211(N, Sm1):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,1,1}(N)`
-    as implemented in eq B.5.104 of :cite:`MuselliPhD`and eq 27 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.104 of :cite:`MuselliPhD` and eq 27 of cite:`Bl_mlein_2000`.
 
     Parameters
     ----------
@@ -370,7 +371,7 @@ def harmonic_Sm211(N, Sm1):
 def harmonic_Sm2m1(N, S1, S2, Sm2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,-1}(N)`
-    as implemented in eq B.5.74 of :cite:`MuselliPhD`and eq 38 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.74 of :cite:`MuselliPhD` and eq 38 of cite:`Bl_mlein_2000`.
 
     Parameters
     ----------
@@ -399,7 +400,7 @@ def harmonic_Sm2m1(N, S1, S2, Sm2):
 def harmonic_S211(N, S1, S2, S3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,1,1}(N)`
-    as implemented in eq B.5.115 of :cite:`MuselliPhD`and eq 40 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.115 of :cite:`MuselliPhD` and eq 40 of cite:`Bl_mlein_2000`.
 
     Parameters
     ----------
@@ -428,7 +429,7 @@ def harmonic_S211(N, S1, S2, S3):
 def harmonic_S31(N, S2, S4):
     r"""
     Analytic continuation of harmonic sum :math:`S_{3,1}(N)`
-    as implemented in eq B.5.99 of :cite:`MuselliPhD`and eq 41 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.99 of :cite:`MuselliPhD` and eq 41 of cite:`Bl_mlein_2000`.
 
     Parameters
     ----------

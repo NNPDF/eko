@@ -10,7 +10,8 @@ from . import h_functions as hf
 def A_Hq_3(n, sx, smx, s3x, s4x, nf):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{Hq}^{S,(3)}(N)`.
-    The experssion is presented in :cite:`Ablinger_2015` (eq 5.1).
+    The experssion is presented in :cite:`Ablinger_2015` (eq 5.1)
+    and :cite:`Blumlein:2017wxd` (eq 3.1).
     It contains generalized harmonics sums, which are computed inside
     :ref:`eko.matching_conditions.n3lo.cs_functions` and use the libary
     mpmath which is not compatible with numba.

@@ -8,7 +8,7 @@ def A_ggTF2_3(n, sx, s3x):
     r"""
     Computes the approximate incomplete part of :math:`A_{gg}^{S,(3)}(N)`
     prortional to :math:`T_{F}^2`.
-    The experssion is presented in :cite:`ablinger20143loop` (eq 13).
+    The experssion is presented in  :cite:`Ablinger:2014uka` (eq 4.2).
     It contains a  binomial factor which is computed with mpmath and
     is not comaptible with numba.
 
