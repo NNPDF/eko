@@ -87,7 +87,8 @@ in particular the coefficient :math:`A_{gg,H}^{S,(1)}` is fully proprtional to :
 
 |N3LO| matrix elements have been presented in :cite:`Bierenbaum_2009` and following pubblications
 :cite:`Ablinger:2010ty,Ablinger:2014vwa,Ablinger:2014uka,Behring:2014eya,Blumlein:2017wxd,Ablinger_2014,Ablinger_2015`.
-At |N3LO| the part proprtional to :math:`\ln(\mu_{h}^2/m_{h}^2)` are implemented inside our code for simplicity, but are available.
+At |N3LO| the parts proprtional to :math:`\ln(\mu_{h}^2/m_{h}^2)` are not implemented inside our code for simplicity, 
+but are available.
 
 We remark that contributions of the higher quark at |NNLO| and |N3LO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
 On the other hand the elements :math:`A_{qq,H}^{ps},A_{qg,H}` are known to start at |N3LO|.
