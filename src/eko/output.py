@@ -5,7 +5,6 @@
 import io
 import logging
 import pathlib
-import shutil
 import tarfile
 import tempfile
 import warnings
@@ -331,6 +330,9 @@ class Output(dict):
                 if given, dump is written on it
             binarize : bool
                 dump in binary format (instead of list format)
+            skip_q2_grid : bool
+                avoid dumping Q2grid (i.e. the actual operators) into the yaml
+                file (defualt: ``False``)
 
         Returns
         -------
@@ -352,6 +354,9 @@ class Output(dict):
                 target file name
             binarize : bool
                 dump in binary format (instead of list format)
+            skip_q2_grid : bool
+                avoid dumping Q2grid (i.e. the actual operators) into the yaml
+                file (defualt: ``False``)
 
         Returns
         -------
@@ -410,6 +415,9 @@ class Output(dict):
         ----------
             stream : any
                 source stream
+            skip_q2_grid : bool
+                avoid loading Q2grid (i.e. the actual operators) from the yaml
+                file (defualt: ``False``)
 
         Returns
         -------
@@ -447,6 +455,9 @@ class Output(dict):
         ----------
             filename : str
                 source file name
+            skip_q2_grid : bool
+                avoid loading Q2grid (i.e. the actual operators) from the yaml
+                file (defualt: ``False``)
 
         Returns
         -------
@@ -460,7 +471,20 @@ class Output(dict):
 
     @classmethod
     def load_tar(cls, tarname):
-        """ """
+        """
+        Load tar representation from file (compliant with :meth:`dump_tar`
+        output).
+
+        Parameters
+        ----------
+            tarname : str
+                source tar name
+
+        Returns
+        -------
+            obj : output
+                loaded object
+        """
 
         tarpath = pathlib.Path(tarname)
         if tarpath.suffix != ".tar":
