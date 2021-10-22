@@ -7,7 +7,7 @@ While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes |QCDNUM|
 (https://github.com/N3PDF/external/blob/master/qcdnum/qcdnum/pij/ome.f)
 and Mellin transformed with Mathematica.
 
-The expession for A_Hg_2_l0 comes form :cite:`Bierenbaum_2009`
+The expession for A_Hg_2_l0 comes form :cite:`Bierenbaum:2009zt`
 """
 import numba as nb
 import numpy as np
@@ -147,7 +147,7 @@ def A_hg_2(n, sx, L):
     r"""
     |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}` given in
     Eq. (B.3) of :cite:`Buza_1998`.
-    The expession for A_Hg_2_l0 comes form :cite:`Bierenbaum_2009`.
+    The expession for A_Hg_2_l0 comes form :cite:`Bierenbaum:2009zt`.
 
     Parameters
     ----------

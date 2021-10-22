@@ -9,7 +9,7 @@ from . import s_functions as sf
 def A_qqNS_3(n, sx, smx, s3x, s4x, nf):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.
-    The experssion is presented in :cite:`Bierenbaum_2009` and 
+    The experssion is presented in :cite:`Bierenbaum:2009mv` and 
     :cite:`Ablinger:2014vwa`.
     It contains some weight 5 harmonics sums.
 

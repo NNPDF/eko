@@ -10,7 +10,7 @@ from .aHgstfac import A_Hgstfac_3
 def A_Hg_3(n, sx, smx, s3x, s4x, nf):
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{Hg}^{S,(3)}(N)`.
-    The experssion is presented in :cite:`Bierenbaum_2009`
+    The experssion is presented in :cite:`Bierenbaum:2009mv`
 
     Parameters
     ----------

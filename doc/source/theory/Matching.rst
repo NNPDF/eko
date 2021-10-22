@@ -85,7 +85,7 @@ been :doc:`Mellin tranformed </theory/Mellin>` to be used inside EKO.
 They depend on the scale :math:`\mu_{h}^2` only through the logarithm :math:`\ln(\mu_{h}^2/m_{h}^2)`,
 in particular the coefficient :math:`A_{gg,H}^{S,(1)}` is fully proprtional to :math:`\ln(\mu_{h}^2/m_{h}^2)`.
 
-|N3LO| matrix elements have been presented in :cite:`Bierenbaum_2009` and following pubblications
+|N3LO| matrix elements have been presented in :cite:`Bierenbaum:2009mv` and following pubblications
 :cite:`Ablinger:2010ty,Ablinger:2014vwa,Ablinger:2014uka,Behring:2014eya,Blumlein:2017wxd,Ablinger_2014,Ablinger_2015`.
 At |N3LO| the parts proprtional to :math:`\ln(\mu_{h}^2/m_{h}^2)` are not implemented inside our code for simplicity, 
 but are available.
