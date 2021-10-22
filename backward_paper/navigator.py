@@ -5,6 +5,7 @@ This script contains a specialization of the Ekomark navigator
 import numpy as np
 import pandas as pd
 from scipy import integrate
+import json
 
 from banana import navigator as bnav
 from banana import load_config
@@ -68,6 +69,8 @@ class NavigatorApp(Ekonavigator):
         """
         if key == "pdf":
             label = log["pdf"]
+            if label == "210701-n3fit-data-014":
+                label = "NNPDF40_nnlo_as_01180_w_EMC"
         elif key is not None:
             try:
                 theory = self.get(bnav.t, log["t_hash"])
@@ -86,6 +89,51 @@ class NavigatorApp(Ekonavigator):
         else:
             label = "EKO"
         return label
+
+    def collect_logs(
+        self,
+        hashes,
+        label_to_display=None,
+    ):
+        """
+        Collect logs with the same x grid and raname labels
+
+        Parameters
+        ----------
+            hashes : list
+                log hash list to plot
+            label_to_display: str
+                key to display in the plot legend: 'pdf' or theory/operator key
+        """
+
+        dfds = []
+        labels = []
+        log_name = ""
+        for h in hashes:
+            log = self.get(bnav.l, h)
+            dfds.append(log["log"])
+            log_name += f"{log['hash'][: self.hash_len]}_"
+            # search the label
+            labels.append(self.search_label(log, label_to_display))
+
+        # build a total log table with new keys
+        log_name = log_name[:-1]
+        total_log = dfdict.DFdict()
+        for n, dfd in enumerate(dfds):
+            for pid, tab in dfd.items():
+                # set first table
+                if n == 0:
+                    total_log[pid] = pd.DataFrame(tab).rename(
+                        columns=replace_label(labels[n])
+                    )
+                # set the other tables
+                else:
+                    np.testing.assert_allclose(tab.x, total_log[pid].x)
+                    for key, vals in tab.iloc[:, 1:].items():
+                        new_key = key.replace("EKO", f"{labels[n]}")
+                        total_log[pid][new_key] = vals
+
+        return total_log, log_name
 
     def plot_logs(
         self,
@@ -110,33 +158,7 @@ class NavigatorApp(Ekonavigator):
             skip : str
                 skip '+' or '-' distribution
         """
-
-        dfds = []
-        labels = []
-        fig_name = ""
-        for h in hashes:
-            log = self.get(bnav.l, h)
-            dfds.append(log["log"])
-            fig_name += f"{log['hash'][: self.hash_len]}_"
-            # search the label
-            labels.append(self.search_label(log, label_to_display))
-
-        # build a total log table with new keys
-        fig_name = fig_name[:-1]
-        total_log = dfdict.DFdict()
-        for n, dfd in enumerate(dfds):
-            for pid, tab in dfd.items():
-                # set first table
-                if n == 0:
-                    total_log[pid] = pd.DataFrame(tab).rename(
-                        columns=replace_label(labels[n])
-                    )
-                # set the other tables
-                else:
-                    np.testing.assert_allclose(tab.x, total_log[pid].x)
-                    for key, vals in tab.iloc[:, 1:].items():
-                        new_key = key.replace("EKO", f"{labels[n]}")
-                        total_log[pid][new_key] = vals
+        total_log, fig_name = self.collect_logs(hashes, label_to_display)
 
         plot_pdf(
             to_pm(total_log, skip) if rotate_to_pm_basis else total_log,
@@ -144,6 +166,36 @@ class NavigatorApp(Ekonavigator):
             plot_reldiff=plot_reldiff,
             plot_pull=plot_pull,
         )
+
+    def dump_logs(
+        self,
+        hashes,
+        label_to_display=None,
+        rotate_to_pm_basis=True,
+        skip=None,
+    ):
+        """
+        Dump logs with the same x grid to a json file
+
+        Parameters
+        ----------
+            hashes : list
+                log hash list to plot
+            label_to_display: str
+                key to display in the plot legend: 'pdf' or theory/operator key
+            rotate_to_pm_basis : bool
+                if True rotate to plus minus basis
+            skip : str
+                skip '+' or '-' distribution
+        """
+        total_log, log_name = self.collect_logs(hashes, label_to_display)
+        if rotate_to_pm_basis:
+            total_log = to_pm(total_log, skip)
+
+        with open(f"{log_name}.json", "w") as f:
+            for pdf, table in total_log.items():
+                json.dump({pdf: table.to_dict()}, f)
+        f.close()
 
     def compute_momentum_fraction(
         self, hashes, label_to_display=None, rotate_to_pm_basis=True, skip=None
@@ -213,6 +265,7 @@ dfl = app.log_as_dfd
 plot_logs = app.plot_logs
 compute_mom = app.compute_momentum_fraction
 get_replica = app.get_replica
+dump_logs = app.dump_logs
 
 # check_log = app.check_log
 # plot_pdfs = app.plot_pdfs
