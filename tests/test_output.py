@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import copy
 import io
+import pathlib
+import tempfile
 from unittest import mock
 
 import numpy as np
@@ -96,6 +98,20 @@ class TestOutput:
             np.testing.assert_almost_equal(
                 o3["interpolation_xgrid"], d["interpolation_xgrid"]
             )
+        # repeat for tar
+        fn = "test.tar"
+        with tempfile.TemporaryDirectory() as folder:
+            fp = pathlib.Path(folder) / fn
+            o1.dump_tar(fp)
+            o4 = output.Output.load_tar(fp)
+            np.testing.assert_almost_equal(
+                o4["interpolation_xgrid"], d["interpolation_xgrid"]
+            )
+        fn = "test"
+        with pytest.raises(ValueError, match="wrong suffix"):
+            o1.dump_tar(fn)
+        with pytest.raises(ValueError, match="wrong suffix"):
+            o1.load_tar(fn)
 
     def test_io_bin(self):
         d = self.fake_output()
