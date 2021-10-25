@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # Test eko.matching_conditions.OperatorMatrixElement
+import copy
+
 import numpy as np
 
 from eko import interpolation, mellin
@@ -245,7 +247,7 @@ class TestOperatorMatrixElement:
                     else:
                         assert l in labels
 
-    def test_compute(self):
+    def test_compute_lo(self):
         operators_card = {
             "Q2grid": [20],
             "interpolation_xgrid": [0.001, 0.01, 0.1, 1.0],
@@ -286,3 +288,47 @@ class TestOperatorMatrixElement:
         np.testing.assert_allclose(
             o.ome_members["S_Hg"].value, o.ome_members["S_gH"].value
         )
+
+    def test_compute_nlo(self):
+        operators_card = {
+            "Q2grid": [20],
+            "interpolation_xgrid": [0.001, 0.01, 0.1, 1.0],
+            "interpolation_polynomial_degree": 1,
+            "interpolation_is_log": True,
+            "debug_skip_singlet": False,
+            "debug_skip_non_singlet": False,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
+            "backward_inversion": "exact",
+        }
+        t = copy.deepcopy(self.theory_card)
+        t["PTO"] = 1
+        g = OperatorGrid.from_dict(
+            t,
+            operators_card,
+            ThresholdsAtlas.from_dict(self.theory_card),
+            StrongCoupling.from_dict(self.theory_card),
+            InterpolatorDispatcher.from_dict(operators_card),
+        )
+        o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
+        o.compute(self.theory_card["mb"] ** 2, L=0)
+
+        dim = len(operators_card["interpolation_xgrid"])
+        shape = (dim, dim)
+        for idx in ["S", "NS"]:
+            assert o.ome_members[f"{idx}_qq"].value.shape == shape
+            assert o.ome_members[f"{idx}_HH"].value.shape == shape
+            assert o.ome_members[f"{idx}_qH"].value.shape == shape
+            assert o.ome_members[f"{idx}_Hq"].value.shape == shape
+            np.testing.assert_allclose(
+                o.ome_members[f"{idx}_qH"].value, np.zeros(shape)
+            )
+            np.testing.assert_allclose(
+                o.ome_members[f"{idx}_Hq"].value, np.zeros(shape)
+            )
+        assert o.ome_members["S_gg"].value.shape == shape
+        np.testing.assert_allclose(
+            o.ome_members["S_qg"].value, o.ome_members["S_gq"].value
+        )
+        assert o.ome_members["S_Hg"].value.shape == shape
+        assert o.ome_members["S_gH"].value.shape == shape
