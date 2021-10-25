@@ -58,8 +58,8 @@ class Sandbox(Runner):
 
     def doit(self):
         theory_updates = {
-            **nnpdf_base_theory,
-            "PTO": 2,
+            **ffns3,
+            "PTO": 0,
             # "ModEv": "EXA",
             # "XIR": 0.5,
             # "fact_to_ren_scale_ratio": 2.0,

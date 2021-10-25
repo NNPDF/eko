@@ -2,7 +2,11 @@
 """
     This file contains the output management
 """
+import io
 import logging
+import pathlib
+import tarfile
+import tempfile
 import warnings
 
 import lz4.frame
@@ -10,7 +14,7 @@ import numpy as np
 import yaml
 
 from . import basis_rotation as br
-from . import interpolation
+from . import interpolation, version
 
 logger = logging.getLogger(__name__)
 
@@ -268,7 +272,7 @@ class Output(dict):
         if target:
             self["targetpids"] = br.evol_basis_pids
 
-    def get_raw(self, binarize=True):
+    def get_raw(self, binarize=True, skip_q2_grid=False):
         """
         Serialize result as dict/YAML.
 
@@ -285,9 +289,7 @@ class Output(dict):
                 dictionary which will be written on output
         """
         # prepare output dict
-        out = {
-            "Q2grid": {},
-        }
+        out = {"Q2grid": {}, "eko_version": version.full_version}
         # dump raw elements
         for f in [
             "interpolation_polynomial_degree",
@@ -295,6 +297,7 @@ class Output(dict):
             "q2_ref",
         ]:
             out[f] = self[f]
+        # list() work both for np.array and list
         out["inputpids"] = list(self["inputpids"])
         out["targetpids"] = list(self["targetpids"])
         # make raw lists
@@ -302,19 +305,22 @@ class Output(dict):
         for k in ["interpolation_xgrid", "targetgrid", "inputgrid"]:
             out[k] = self[k].tolist()
         # make operators raw
-        for q2, op in self["Q2grid"].items():
-            out["Q2grid"][q2] = dict()
-            for k, v in op.items():
-                if k == "alphas":
-                    out["Q2grid"][q2][k] = float(v)
-                    continue
-                if binarize:
-                    out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
-                else:
-                    out["Q2grid"][q2][k] = v.tolist()
+        if not skip_q2_grid:
+            for q2, op in self["Q2grid"].items():
+                out["Q2grid"][q2] = dict()
+                for k, v in op.items():
+                    if k == "alphas":
+                        out["Q2grid"][q2][k] = float(v)
+                        continue
+                    if binarize:
+                        out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
+                    else:
+                        out["Q2grid"][q2][k] = v.tolist()
+        else:
+            out["Q2grid"] = self["Q2grid"]
         return out
 
-    def dump_yaml(self, stream=None, binarize=True):
+    def dump_yaml(self, stream=None, binarize=True, skip_q2_grid=False):
         """
         Serialize result as YAML.
 
@@ -324,6 +330,9 @@ class Output(dict):
                 if given, dump is written on it
             binarize : bool
                 dump in binary format (instead of list format)
+            skip_q2_grid : bool
+                avoid dumping Q2grid (i.e. the actual operators) into the yaml
+                file (defualt: ``False``)
 
         Returns
         -------
@@ -332,10 +341,10 @@ class Output(dict):
                 Null, if written sucessfully to stream
         """
         # TODO explicitly silence yaml
-        out = self.get_raw(binarize)
+        out = self.get_raw(binarize, skip_q2_grid=skip_q2_grid)
         return yaml.dump(out, stream)
 
-    def dump_yaml_to_file(self, filename, binarize=True):
+    def dump_yaml_to_file(self, filename, binarize=True, skip_q2_grid=False):
         """
         Writes YAML representation to a file.
 
@@ -345,6 +354,9 @@ class Output(dict):
                 target file name
             binarize : bool
                 dump in binary format (instead of list format)
+            skip_q2_grid : bool
+                avoid dumping Q2grid (i.e. the actual operators) into the yaml
+                file (defualt: ``False``)
 
         Returns
         -------
@@ -352,11 +364,50 @@ class Output(dict):
                 result of dump(output, stream), i.e. Null if written sucessfully
         """
         with open(filename, "w") as f:
-            ret = self.dump_yaml(f, binarize)
+            ret = self.dump_yaml(f, binarize, skip_q2_grid=skip_q2_grid)
         return ret
 
+    def dump_tar(self, tarname):
+        """
+        Writes representation into a tar archive containing:
+
+        - metadata (in YAML)
+        - operator (in numpy ``.npy`` format)
+
+        Parameters
+        ----------
+            tarname : str
+                target file name
+        """
+        tarpath = pathlib.Path(tarname)
+        if tarpath.suffix != ".tar":
+            raise ValueError(f"'{tarname}' is not a valid tar filename, wrong suffix")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = pathlib.Path(tmpdir)
+
+            cls = self.__class__
+            metadata = cls(**{str(k): v for k, v in self.items() if k != "Q2grid"})
+            metadata["Q2grid"] = list(self["Q2grid"].keys())
+
+            yamlname = tmpdir / "metadata.yaml"
+            metadata.dump_yaml_to_file(yamlname, skip_q2_grid=True)
+
+            for kind in next(iter(self["Q2grid"].values())).keys():
+                operator = np.stack([q2[kind] for q2 in self["Q2grid"].values()])
+                stream = io.BytesIO()
+                np.save(stream, operator)
+                stream.seek(0)
+                with lz4.frame.open(
+                    (tmpdir / kind).with_suffix(".npy.lz4"), "wb"
+                ) as fo:
+                    fo.write(stream.read())
+
+            with tarfile.open(tarpath, "w") as tar:
+                tar.add(tmpdir, arcname=tarpath.stem)
+
     @classmethod
-    def load_yaml(cls, stream):
+    def load_yaml(cls, stream, skip_q2_grid=False):
         """
         Load YAML representation from stream
 
@@ -364,6 +415,9 @@ class Output(dict):
         ----------
             stream : any
                 source stream
+            skip_q2_grid : bool
+                avoid loading Q2grid (i.e. the actual operators) from the yaml
+                file (defualt: ``False``)
 
         Returns
         -------
@@ -379,20 +433,21 @@ class Output(dict):
         for k in ["interpolation_xgrid", "inputgrid", "targetgrid"]:
             obj[k] = np.array(obj[k])
         # make operators numpy
-        for op in obj["Q2grid"].values():
-            for k, v in op.items():
-                if k == "alphas":
-                    v = float(v)
-                elif isinstance(v, list):
-                    v = np.array(v)
-                elif isinstance(v, bytes):
-                    v = np.frombuffer(lz4.frame.decompress(v))
-                    v = v.reshape(len_tpids, len_tgrid, len_ipids, len_igrid)
-                op[k] = v
+        if not skip_q2_grid:
+            for op in obj["Q2grid"].values():
+                for k, v in op.items():
+                    if k == "alphas":
+                        v = float(v)
+                    elif isinstance(v, list):
+                        v = np.array(v)
+                    elif isinstance(v, bytes):
+                        v = np.frombuffer(lz4.frame.decompress(v))
+                        v = v.reshape(len_tpids, len_tgrid, len_ipids, len_igrid)
+                    op[k] = v
         return cls(obj)
 
     @classmethod
-    def load_yaml_from_file(cls, filename):
+    def load_yaml_from_file(cls, filename, skip_q2_grid=False):
         """
         Load YAML representation from file
 
@@ -400,6 +455,9 @@ class Output(dict):
         ----------
             filename : str
                 source file name
+            skip_q2_grid : bool
+                avoid loading Q2grid (i.e. the actual operators) from the yaml
+                file (defualt: ``False``)
 
         Returns
         -------
@@ -408,5 +466,55 @@ class Output(dict):
         """
         obj = None
         with open(filename) as o:
-            obj = Output.load_yaml(o)
+            obj = Output.load_yaml(o, skip_q2_grid)
         return obj
+
+    @classmethod
+    def load_tar(cls, tarname):
+        """
+        Load tar representation from file (compliant with :meth:`dump_tar`
+        output).
+
+        Parameters
+        ----------
+            tarname : str
+                source tar name
+
+        Returns
+        -------
+            obj : output
+                loaded object
+        """
+
+        tarpath = pathlib.Path(tarname)
+        if tarpath.suffix != ".tar":
+            raise ValueError(f"'{tarname}' is not a valid tar filename, wrong suffix")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmpdir = pathlib.Path(tmpdir)
+
+            with tarfile.open(tarpath, "r") as tar:
+                tar.extractall(tmpdir)
+
+            # metadata = cls(**{str(k): v for k, v in self.items() if k != "Q2grid"})
+            # metadata["Q2grid"] = list(self["Q2grid"].keys())
+
+            yamlname = tmpdir / tarpath.stem / "metadata.yaml"
+            metadata = cls.load_yaml_from_file(yamlname, skip_q2_grid=True)
+
+            grids = {}
+            for fp in (tmpdir / tarpath.stem).glob("*.npy.lz4"):
+                with lz4.frame.open(fp, "rb") as fd:
+                    stream = io.BytesIO(fd.read())
+                    stream.seek(0)
+                    grids[pathlib.Path(fp.stem).stem] = np.load(stream)
+
+                fp.unlink()
+
+            q2grid = metadata["Q2grid"]
+            operator_grid = {}
+            for q2, slices in zip(q2grid, zip(*grids.values())):
+                operator_grid[q2] = dict(zip(grids.keys(), slices))
+            metadata["Q2grid"] = operator_grid
+
+        return metadata
