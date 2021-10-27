@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import copy
 import io
+import pathlib
+import tempfile
 from unittest import mock
 
 import numpy as np
@@ -23,6 +25,16 @@ def eko_identity(shape):
     eko_identity = np.zeros(shape[1:], int)
     eko_identity[i, k, i, k] = 1
     return np.broadcast_to(eko_identity[np.newaxis, :, :, :, :], shape)
+
+
+def chk_keys(a, b):
+    """Check all keys are preserved"""
+    assert sorted(a.keys()) == sorted(b.keys())
+    for q2, op in a["Q2grid"].items():
+        assert q2 in b["Q2grid"]
+        opb = b["Q2grid"][q2]
+        assert sorted(op.keys()) == sorted(opb.keys())
+        assert op["alphas"] == opb["alphas"]
 
 
 class TestOutput:
@@ -96,6 +108,20 @@ class TestOutput:
             np.testing.assert_almost_equal(
                 o3["interpolation_xgrid"], d["interpolation_xgrid"]
             )
+        # repeat for tar
+        fn = "test.tar"
+        with tempfile.TemporaryDirectory() as folder:
+            fp = pathlib.Path(folder) / fn
+            o1.dump_tar(fp)
+            o4 = output.Output.load_tar(fp)
+            np.testing.assert_almost_equal(
+                o4["interpolation_xgrid"], d["interpolation_xgrid"]
+            )
+        fn = "test"
+        with pytest.raises(ValueError, match="wrong suffix"):
+            o1.dump_tar(fn)
+        with pytest.raises(ValueError, match="wrong suffix"):
+            o1.load_tar(fn)
 
     def test_io_bin(self):
         d = self.fake_output()
@@ -175,16 +201,19 @@ class TestOutput:
             10: dict(
                 operators=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
                 operator_errors=np.zeros((2, len(xg), 2, len(xg))),
+                alphas=np.random.rand(),
             )
         }
         xgp = np.geomspace(1e-5, 1.0, 11)
         # only target
         ot = copy.deepcopy(o1)
         ot.xgrid_reshape(xgp)
+        chk_keys(o1, ot)
         assert ot["Q2grid"][10]["operators"].shape == (2, len(xgp), 2, len(xg))
         ott = copy.deepcopy(o1)
         with pytest.warns(Warning):
             ott.xgrid_reshape(xg)
+            chk_keys(o1, ott)
             np.testing.assert_allclose(
                 ott["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
             )
@@ -193,20 +222,41 @@ class TestOutput:
         oi = copy.deepcopy(o1)
         oi.xgrid_reshape(inputgrid=xgp)
         assert oi["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xgp))
+        chk_keys(o1, oi)
         oii = copy.deepcopy(o1)
         with pytest.warns(Warning):
             oii.xgrid_reshape(inputgrid=xg)
+            chk_keys(o1, oii)
             np.testing.assert_allclose(
                 oii["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
             )
 
         # both
-        o1.xgrid_reshape(xgp, xgp)
+        oit = copy.deepcopy(o1)
+        oit.xgrid_reshape(xgp, xgp)
+        chk_keys(o1, oit)
         op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
-        np.testing.assert_allclose(o1["Q2grid"][10]["operators"], op[0], atol=1e-10)
+        np.testing.assert_allclose(oit["Q2grid"][10]["operators"], op[0], atol=1e-10)
         # error
         with pytest.raises(ValueError):
             copy.deepcopy(o1).xgrid_reshape()
+
+    def test_reshape_io(self):
+        d = self.fake_output()
+        # create object
+        o1 = output.Output(d)
+        o2 = copy.deepcopy(o1)
+        o2.xgrid_reshape([0.1, 1.0], [0.1, 1.0])
+        o2.flavor_reshape(inputbasis=np.array([[1, -1], [1, 1]]))
+        # dump
+        stream = io.StringIO()
+        o2.dump_yaml(stream)
+        # reload
+        stream.seek(0)
+        o3 = output.Output.load_yaml(stream)
+        # eko_version is only added in get_raw
+        del o3["eko_version"]
+        chk_keys(o1, o3)
 
     def test_flavor_reshape(self):
         d = self.fake_output()
@@ -220,12 +270,14 @@ class TestOutput:
             10: dict(
                 operators=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
                 operator_errors=np.zeros((2, len(xg), 2, len(xg))),
+                alphas=np.random.rand(),
             )
         }
         # only target
         target_r = np.array([[1, -1], [1, 1]])
         ot = copy.deepcopy(o1)
         ot.flavor_reshape(target_r)
+        chk_keys(o1, ot)
         assert ot["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xg))
         ott = copy.deepcopy(ot)
         ott.flavor_reshape(np.linalg.inv(target_r))
@@ -234,6 +286,7 @@ class TestOutput:
         )
         with pytest.warns(Warning):
             ott.flavor_reshape(np.eye(2))
+            chk_keys(o1, ott)
             np.testing.assert_allclose(
                 ott["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
             )
@@ -242,6 +295,7 @@ class TestOutput:
         input_r = np.array([[1, -1], [1, 1]])
         oi = copy.deepcopy(o1)
         oi.flavor_reshape(inputbasis=input_r)
+        chk_keys(o1, oi)
         assert oi["Q2grid"][10]["operators"].shape == (2, len(xg), 2, len(xg))
         oii = copy.deepcopy(oi)
         oii.flavor_reshape(inputbasis=np.linalg.inv(input_r))
@@ -250,14 +304,17 @@ class TestOutput:
         )
         with pytest.warns(Warning):
             oii.flavor_reshape(inputbasis=np.eye(2))
+            chk_keys(o1, oii)
             np.testing.assert_allclose(
                 oii["Q2grid"][10]["operators"], o1["Q2grid"][10]["operators"]
             )
 
         # both
-        o1.flavor_reshape(np.array([[1, -1], [1, 1]]), np.array([[1, -1], [1, 1]]))
+        oit = copy.deepcopy(o1)
+        oit.flavor_reshape(np.array([[1, -1], [1, 1]]), np.array([[1, -1], [1, 1]]))
+        chk_keys(o1, oit)
         op = eko_identity([1, 2, len(xg), 2, len(xg)]).copy()
-        np.testing.assert_allclose(o1["Q2grid"][10]["operators"], op[0], atol=1e-10)
+        np.testing.assert_allclose(oit["Q2grid"][10]["operators"], op[0], atol=1e-10)
         # error
         with pytest.raises(ValueError):
             copy.deepcopy(o1).flavor_reshape()
@@ -289,12 +346,7 @@ class TestOutput:
         o10.to_evol(False, True)
         o11 = copy.copy(o00)
         o11.to_evol(True, True)
-
-        # check all keys of the specific operators are preserved
-        def opkeys(o):
-            return [op.keys() for op in o["Q2grid"].values()]
-
-        assert opkeys(o11) == opkeys(o00)
+        chk_keys(o00, o11)
 
         # check the input rotated one
         np.testing.assert_allclose(o01["inputpids"], br.evol_basis_pids)
@@ -304,7 +356,7 @@ class TestOutput:
         np.testing.assert_allclose(
             o01["Q2grid"][q2_out]["operators"], o11["Q2grid"][q2_out]["operators"]
         )
-        assert opkeys(o01) == opkeys(o00)
+        chk_keys(o00, o01)
         # check the target rotated one
         np.testing.assert_allclose(o10["inputpids"], br.flavor_basis_pids)
         np.testing.assert_allclose(o10["targetpids"], br.evol_basis_pids)
@@ -313,4 +365,4 @@ class TestOutput:
         np.testing.assert_allclose(
             o10["Q2grid"][q2_out]["operators"], o11["Q2grid"][q2_out]["operators"]
         )
-        assert opkeys(o10) == opkeys(o00)
+        chk_keys(o00, o10)
