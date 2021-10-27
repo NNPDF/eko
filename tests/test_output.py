@@ -241,6 +241,23 @@ class TestOutput:
         with pytest.raises(ValueError):
             copy.deepcopy(o1).xgrid_reshape()
 
+    def test_reshape_io(self):
+        d = self.fake_output()
+        # create object
+        o1 = output.Output(d)
+        o2 = copy.deepcopy(o1)
+        o2.xgrid_reshape([0.1, 1.0], [0.1, 1.0])
+        o2.flavor_reshape(inputbasis=np.array([[1, -1], [1, 1]]))
+        # dump
+        stream = io.StringIO()
+        o2.dump_yaml(stream)
+        # reload
+        stream.seek(0)
+        o3 = output.Output.load_yaml(stream)
+        # eko_version is only added in get_raw
+        del o3["eko_version"]
+        chk_keys(o1, o3)
+
     def test_flavor_reshape(self):
         d = self.fake_output()
         # create object

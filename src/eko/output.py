@@ -295,9 +295,10 @@ class Output(dict):
             "q2_ref",
         ]:
             out[f] = self[f]
-        # list() work both for np.array and list
-        out["inputpids"] = list(self["inputpids"])
-        out["targetpids"] = list(self["targetpids"])
+
+        # list() work both for np.array and list and cast even content (i.e. np.nan)
+        out["inputpids"] = [float(a) for a in self["inputpids"]]
+        out["targetpids"] = [float(a) for a in self["targetpids"]]
         # make raw lists
         # TODO: is interpolation_xgrid really needed in the output?
         for k in ["interpolation_xgrid", "targetgrid", "inputgrid"]:
