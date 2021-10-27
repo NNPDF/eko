@@ -163,7 +163,7 @@ class Output(dict):
                 False,
             )
             target_rot = b.get_interpolation(targetgrid)
-            self["targetgrid"] = targetgrid
+            self["targetgrid"] = np.array(targetgrid)
         if inputgrid is not None:
             b = interpolation.InterpolatorDispatcher(
                 inputgrid,
@@ -172,11 +172,10 @@ class Output(dict):
                 False,
             )
             input_rot = b.get_interpolation(self["inputgrid"])
-            self["inputgrid"] = inputgrid
+            self["inputgrid"] = np.array(inputgrid)
 
         # build new grid
-        out_grid = {}
-        for q2, elem in self["Q2grid"].items():
+        for elem in self["Q2grid"].values():
             ops = elem["operators"]
             errs = elem["operator_errors"]
             if targetgrid is not None and inputgrid is None:
@@ -188,9 +187,8 @@ class Output(dict):
             else:
                 ops = np.einsum("ij,ajbk,kl->aibl", target_rot, ops, input_rot)
                 errs = np.einsum("ij,ajbk,kl->aibl", target_rot, errs, input_rot)
-            out_grid[q2] = dict(operators=ops, operator_errors=errs)
-        # set in self
-        self["Q2grid"] = out_grid
+            elem["operators"] = ops
+            elem["operator_errors"] = errs
 
     def flavor_reshape(self, targetbasis=None, inputbasis=None):
         """
