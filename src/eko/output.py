@@ -241,11 +241,11 @@ class Output(dict):
                 errs = np.einsum("ca,ajbk,bd->cjdk", targetbasis, errs, inv_inputbasis)
             elem["operators"] = ops
             elem["operator_errors"] = errs
-        # drop PIDs
+        # drop PIDs - keeping them int nevertheless
         if inputbasis is not None:
-            self["inputpids"] = np.full(len(self["inputpids"]), np.nan)
+            self["inputpids"] = [0] * len(self["inputpids"])
         if targetbasis is not None:
-            self["targetpids"] = np.full(len(self["targetpids"]), np.nan)
+            self["targetpids"] = [0] * len(self["targetpids"])
 
     def to_evol(self, source=True, target=False):
         """
@@ -296,9 +296,9 @@ class Output(dict):
         ]:
             out[f] = self[f]
 
-        # list() work both for np.array and list and cast even content (i.e. np.nan)
-        out["inputpids"] = [float(a) for a in self["inputpids"]]
-        out["targetpids"] = [float(a) for a in self["targetpids"]]
+        # list() work both for tuple and list
+        out["inputpids"] = list(self["inputpids"])
+        out["targetpids"] = list(self["targetpids"])
         # make raw lists
         # TODO: is interpolation_xgrid really needed in the output?
         for k in ["interpolation_xgrid", "targetgrid", "inputgrid"]:
