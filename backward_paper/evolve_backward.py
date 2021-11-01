@@ -5,7 +5,8 @@ This script compute an EKO to evolve a PDF set under the charm thrshold replica 
 import numpy as np
 
 from ekomark.data import operators
-#from eko.interpolation import make_grid, make_lambert_grid
+
+# from eko.interpolation import make_grid, make_lambert_grid
 
 from runner import BackwardPaperRunner
 
@@ -83,7 +84,7 @@ class BackwardRunner(BackwardPaperRunner):
         self.fig_name = None
         if return_to_Q0:
             self.return_to_Q0 = return_to_Q0
-            self.fig_name = f"back_forth_{pdf_name}_{q_low}_{q_high}_{operator_updates['backward_inversion'][0]}"
+            self.fig_name = f"back_forth_{pdf_name}_{q_low}_{q_high}_{operator_updates['backward_inversion'][0]}"  # pylint: disable=line-too-long
             theory_updates["IC"] = 1
             theory_updates["IB"] = 1
             # self.rotate_to_evolution_basis = True
@@ -142,9 +143,9 @@ if __name__ == "__main__":
     # Evolve below c threshold
     pdf_names = [
         "NNPDF40_nnlo_as_01180",  # NNLO, fitted charm
-        # "210629-theory-003",  # NNLO, perturbative charm
+        # "NNPDF40_nnlo_pch_as_01180",  # NNLO, perturbative charm
         # "210701-n3fit-data-014",  # NNLO, fitted charm + EMC F2c
-        # "NNPDF31_nnlo_pch_as_0118"
+        # "210701-n3fit-meth-013",  # NNPDF4.0 in flavour basis
     ]
     for name in pdf_names:
 
@@ -154,11 +155,11 @@ if __name__ == "__main__":
     #     # Test beclow above thr
     #     myrunner.evolve_above_below_thr(name)
 
-    #     # # Test exapanded/exact
-    #     # myrunner.evolve_exact_expanded(name)
+    #    # Test exapanded/exact
+    #    myrunner.evolve_exact_expanded(name)
 
     # # Test perturbarive B
-    # pdf_name = "210629-n3fit-001"
+    # pdf_name = "NNPDF40_nnlo_as_01180"
     # myrunner.evolve_above_below_thr(pdf_name, q_high=5, heavy_quark="b")
 
     # # Test EKO back and forth
@@ -166,6 +167,9 @@ if __name__ == "__main__":
     # myrunner.evolve_backward(pdf_name, q_low=5, q_high=4.91, return_to_Q0=True)
     # myrunner.evolve_backward(pdf_name, q_low=4.91, q_high=5, return_to_Q0=True)
 
-    # you can't use n3fit-001 here since it's not defined below the thr scale
-    # pdf_name = "210629-theory-003"
-    # myrunner.evolve_backward(pdf_name, q_low=1.65, q_high=1.5, return_to_Q0=True)
+    # forward matching
+    # q_low = 1.51 to compare with Silvia's plot
+    # pdf_name = "NNPDF40_nnlo_pch_as_01180"
+    # myrunner.evolve_backward(pdf_name, q_low=1.51, q_high=1.5, return_to_Q0=False)
+    # pdf_name = "NNPDF40_nnlo_as_01180"
+    # myrunner.evolve_backward(pdf_name, q_low=1.5101, q_high=1.65, return_to_Q0=False)
