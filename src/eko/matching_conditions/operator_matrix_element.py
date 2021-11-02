@@ -66,7 +66,7 @@ def get_s4x(n, sx, smx):
     )
 
 
-# @nb.njit("c16[:,:,:](u1,c16,c16[:],u4,f8)", cache=True)
+@nb.njit("c16[:,:,:](u1,c16,c16[:],u4,f8)", cache=True)
 def A_singlet(order, n, sx, nf, L):
     r"""
     Computes the tower of the singlet |OME|.
@@ -108,7 +108,7 @@ def A_singlet(order, n, sx, nf, L):
     return A_singlet
 
 
-# @nb.njit("c16[:,:,:](u1,c16,c16[:],u4,f8)", cache=True)
+@nb.njit("c16[:,:,:](u1,c16,c16[:],u4,f8)", cache=True)
 def A_non_singlet(order, n, sx, nf, L):
     r"""
     Computes the tower of the non-singlet |OME|
@@ -148,7 +148,7 @@ def A_non_singlet(order, n, sx, nf, L):
     return A_ns
 
 
-# @nb.njit("c16[:,:](c16[:,:,:],u4,f8,string)", cache=True)
+@nb.njit("c16[:,:](c16[:,:,:],u4,f8,string)", cache=True)
 def build_ome(A, order, a_s, backward_method):
     r"""
     Construct the matching expansion in :math:`a_s` with the appropriate method.
@@ -200,7 +200,7 @@ def build_ome(A, order, a_s, backward_method):
     return ome
 
 
-# @nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,u4,f8,string)", cache=True)
+@nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,u4,f8,string)", cache=True)
 def quad_ker(u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method):
     """
     Raw kernel inside quad

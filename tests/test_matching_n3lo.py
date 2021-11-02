@@ -145,7 +145,7 @@ def test_Bluemlein_3():
             )
 
             np.testing.assert_allclose(
-                aS3[2, 1], ref_val_Hq[L][idx], rtol=5e-3, atol=5e-4
+                aS3[2, 1], ref_val_Hq[L][idx], rtol=2e-5, atol=1e-5
             )
 
             # here we have a different convention for (-1)^N,
@@ -217,5 +217,5 @@ def test_AHq_asymptotic():
         s3x = get_s3x(N, sx, smx)
         s4x = get_s4x(N, sx, smx)
         np.testing.assert_allclose(
-            n3lo.aHq.A_Hq_3(N, sx, smx, s3x, s4x, nf), r, rtol=5e-3, atol=5e-4
+            n3lo.aHq.A_Hq_3(N, sx, smx, s3x, s4x, nf), r, rtol=1e-5, atol=1e-5
         )

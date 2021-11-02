@@ -2,7 +2,7 @@
 """
 This module defines the matching conditions for the N3LO |VFNS| evolution.
 """
-# import numba as nb
+import numba as nb
 import numpy as np
 
 from .agg import A_gg_3
@@ -14,7 +14,7 @@ from .aHg import A_Hg_3
 from .aHq import A_Hq_3
 
 
-# @nb.njit("c16[:,:](c16,c16[:],u4)", cache=True)
+@nb.njit("c16[:,:](c16,c16[:],u4)", cache=True)
 def A_singlet_3(n, sx_all, nf):
     r"""
       Computes the |N3LO| singlet |OME|.
@@ -60,7 +60,7 @@ def A_singlet_3(n, sx_all, nf):
     return A_S_3
 
 
-# @nb.njit("c16[:,:](c16,c16[:],u4)", cache=True)
+@nb.njit("c16[:,:](c16,c16[:],u4)", cache=True)
 def A_ns_3(n, sx_all, nf):
     r"""
       Computes the |N3LO| non-singlet |OME|.
