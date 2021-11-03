@@ -14,7 +14,7 @@ from runner import BackwardPaperRunner
 class Q2gridRunner(BackwardPaperRunner):
     """
     Evolve pch and fitted charm to different Q2
-    with different soltuion methods. 
+    with different soltuion methods.
     """
 
     external = "inputpdf"
@@ -28,10 +28,10 @@ class Q2gridRunner(BackwardPaperRunner):
         "kcThr": [1.0],
         "kbThr": [1.0],
         "ktThr": [1.0],
-        "PTO": [2],
+        "PTO": [3],
         "IC": [1],
         "IB": [1],
-        "ModEv": ["TRN","EXA"],
+        "ModEv": ["TRN"],
     }
     base_operator = {
         "interpolation_xgrid": [make_grid(20, 30, x_min=1e-4).tolist()],
@@ -40,11 +40,7 @@ class Q2gridRunner(BackwardPaperRunner):
         "ev_op_iterations": [1],
     }
 
-    def evolve_different_q2(
-        self,
-        pdf_name,
-        q_low=1.5,
-    ):
+    def evolve_different_q2(self, pdf_name, q_low=1.5, q_grid=[1.65, 10.0, 100.0]):
         """
         Evolve pdf at differnt Q2 values
 
@@ -54,6 +50,8 @@ class Q2gridRunner(BackwardPaperRunner):
                 PDF name
             q_low: float
                 initial Q scale
+            q_grid: list
+                final Q scales
         """
 
         self.fig_name = pdf_name
@@ -62,7 +60,7 @@ class Q2gridRunner(BackwardPaperRunner):
         theory_updates["Q0"] = [q_low]
 
         operator_updates = self.base_operator.copy()
-        operator_updates["Q2grid"] = [list(np.power([1.65, 10, 100], 2))]
+        operator_updates["Q2grid"] = [list(np.power(q_grid, 2))]
         self.run(
             cartesian_product(theory_updates),
             operators.build((operator_updates)),
@@ -74,10 +72,16 @@ class Q2gridRunner(BackwardPaperRunner):
 if __name__ == "__main__":
 
     myrunner = Q2gridRunner()
-    pdf_names = [
-        # "NNPDF40_nnlo_as_01180",  # NNLO, fitted charm
-        "NNPDF40_nnlo_pch_as_01180",  # NNLO, perturbative charm
-        # "210701-n3fit-data-014",  # NNLO, fitted charm + EMC F2c
-    ]
-    for name in pdf_names:
-        myrunner.evolve_different_q2(name)
+
+    # Pch evolution
+    name = "NNPDF40_nnlo_pch_as_01180"
+    q_grid = [1.65, 10, 100]
+    myrunner.evolve_different_q2(name, q_grid=q_grid)
+
+    # Fitted charm evolution
+    # pdf_names = {
+    #     "NNPDF40_nnlo_as_01180": [10, 100],  # NNLO, fitted charm
+    #     # "210701-n3fit-data-014": [10, 100],  # NNLO, fitted charm + EMC F2c
+    # }
+    # for name, q_grid in pdf_names.items():
+    #     myrunner.evolve_different_q2(name, q_low=1.65, q_grid=q_grid)
