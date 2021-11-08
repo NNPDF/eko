@@ -83,6 +83,16 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
         operator_card = {**base_operator, "Q2grid": list(Q2grid)}
         self.run([theory_card], [operator_card], ["NNPDF40_nnlo_as_01180"])
 
+    def benchmark_pch(self, Q0=1.5, Q2grid=(1.65 ** 2,)):
+        theory_card = {
+            **base_theory,
+            "PTO": 2,
+            "Q0": Q0,
+        }
+
+        operator_card = {**base_operator, "Q2grid": list(Q2grid)}
+        self.run([theory_card], [operator_card], ["NNPDF40_nnlo_pch_as_01180"])
+
 
 if __name__ == "__main__":
     # nn31 = BenchmarkNNPDF31()
@@ -95,3 +105,4 @@ if __name__ == "__main__":
     nn40 = BenchmarkNNPDF40()
     # nn40.benchmark_nlo(Q2grid=[100])
     nn40.benchmark_nnlo(Q2grid=[100])
+    # nn40.benchmark_pch()

@@ -3,10 +3,12 @@ import os
 import webbrowser
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from banana import navigator as bnav
 from banana.data import dfdict
 from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib import use, rc
 
 from eko import basis_rotation as br
 
@@ -17,6 +19,10 @@ from ..plots import input_figure, plot_dist
 
 table_objects = bnav.table_objects
 table_objects["o"] = db.Operator
+
+use("PDF")
+rc("font", **{"family": "sans-serif", "sans-serif": ["Helvetica"]})
+rc("text", usetex=True)
 
 
 class NavigatorApp(bnav.navigator.NavigatorApp):
@@ -200,6 +206,103 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
                     plt.close(fig)
 
         return path
+
+    def plot_eko_bench(
+        self,
+        hashes,
+        pid,
+        plot_reldiff=False,
+        plot_log_only=True,
+        linestyle="x",
+        fontsize=18,
+        rlim=1e-1,
+        alim=1e-1,
+        linthresh=1e-5,
+    ):
+        """
+        Plot the absolute and relative difference of eko results and an external program
+        for a given pdf element (evolution or flavor basis)
+
+        Parameters
+        ----------
+            hashes : list
+                log hash list to plot
+            pid : str
+                pdf to compare
+            plot_reldiff: bool
+                plot also relative difference
+            plot_log_only : bool
+                if True plot only the log-x scale, else also linear is plotted
+        """
+
+        nrows = 2 if plot_reldiff else 1
+        ncols = 1 if plot_log_only else 2
+        fig = plt.figure(figsize=(7 * ncols, 7))
+        gs = fig.add_gridspec(nrows, ncols)
+
+        # col=0 has log x, col=1 has linear x
+        for ncol in np.arange(ncols):
+            labels = []
+            ax = (
+                plt.subplot(gs[:-1, ncol]) if plot_reldiff else plt.subplot(gs[:, ncol])
+            )
+            ax.set_ylim(-alim, alim)
+            ax.set_yscale("symlog", linthresh=linthresh)
+            if ncol == 0:
+                ax.set_ylabel(
+                    r"$x{%s}_{eko} - x{%s}_{ref}$" % (pid, pid), fontsize=fontsize
+                )
+                ax.set_xscale("log")
+
+            # relative diff plot, ranges, labels
+            if plot_reldiff:
+                ax_ratio = plt.subplot(gs[-1:, ncol], sharex=ax)
+                ax_ratio.plot(
+                    np.geomspace(1e-7, 1, 200), np.zeros(200), "k--", alpha=0.5
+                )
+                ax_ratio.set_xlabel(r"$x$", fontsize=fontsize)
+                ax_ratio.set_ylabel(
+                    r"${%s}_{eko}/{%s}_{ref} - 1$" % (pid, pid), fontsize=fontsize
+                )
+                ax_ratio.set_yscale("symlog", linthresh=linthresh)
+                ax_ratio.set_ylim(-rlim, rlim)
+            else:
+                ax.set_xlabel(r"$x$", fontsize=fontsize)
+
+            # loop on logs and plot
+            log_name = ""
+            for external_label, h in zip(["LHA", "PEGASUS", "APFEL"],hashes):
+                log = self.get(bnav.l, h)
+                log_name += f"{log['hash'][: self.hash_len]}_"
+                df = log["log"][pid]
+                external = log["external"]
+                ax.plot(df.x, df.eko - df[external], linestyle)
+                labels.append(r"\rm{%s}" % external_label)
+
+                if plot_reldiff:
+                    ax_ratio.plot(df.x, df.percent_error / 100.0, linestyle)
+
+            # legend and labels
+            ax.legend(labels, fontsize=12)
+            ax.plot(np.geomspace(1e-7, 1, 200), np.zeros(200), "k--", alpha=0.5)
+            ax.set_xlim(df.x.min(), 1)
+            ax.set_title(
+                r"$x{%s}(x, Q = %s \rightarrow %s\ GeV)$"
+                % (
+                    pid,
+                    np.round(self.get(bnav.t, log["t_hash"])["Q0"], 3),
+                    np.sqrt(df.Q2[0]),
+                ),
+                fontsize=fontsize,
+            )
+
+        # save
+        path = banana_cfg["database_path"].parents[0] / f"{log_name}{pid}.pdf"
+        print(f"Writing pdf plots to {path}")
+        plt.tight_layout()
+        with PdfPages(path) as pp:
+            pp.savefig()
+        plt.close(fig)
 
     def display_pdfs(self, doc_hash):
         """
