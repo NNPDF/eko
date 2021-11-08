@@ -198,6 +198,7 @@ class TestOperatorMatrixElement:
         "Qref": np.sqrt(2),
         "nfref": None,
         "Q0": np.sqrt(2),
+        "nf0": 3,
         "NfFF": 3,
         "IC": 1,
         "IB": 0,

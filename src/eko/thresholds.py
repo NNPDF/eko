@@ -176,9 +176,11 @@ class ThresholdsAtlas:
         max_nf = theory_card[max_nf_name]
         # preset ref scale
         q2_ref = pow(theory_card["Q0"], 2)
+        nf_ref = theory_card["nf0"]
         return cls(
             np.power(masses, 2),
             q2_ref,
+            nf_ref,
             thresholds_ratios=np.power(thresholds_ratios, 2),
             max_nf=max_nf,
         )
