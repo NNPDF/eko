@@ -48,6 +48,7 @@ check_log = app.check_log
 plot_pdfs = app.plot_pdfs
 display_pdfs = app.display_pdfs
 compare = app.compare_external
+plot_bench = app.plot_eko_bench
 
 
 def launch_navigator():
