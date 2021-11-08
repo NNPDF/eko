@@ -271,13 +271,13 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
 
             # loop on logs and plot
             log_name = ""
-            for external_label, h in zip(["LHA", "PEGASUS", "APFEL"],hashes):
+            for h in hashes:
                 log = self.get(bnav.l, h)
                 log_name += f"{log['hash'][: self.hash_len]}_"
                 df = log["log"][pid]
                 external = log["external"]
                 ax.plot(df.x, df.eko - df[external], linestyle)
-                labels.append(r"\rm{%s}" % external_label)
+                labels.append(r"\rm{%s}" % external)
 
                 if plot_reldiff:
                     ax_ratio.plot(df.x, df.percent_error / 100.0, linestyle)

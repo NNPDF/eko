@@ -71,6 +71,8 @@ class NavigatorApp(Ekonavigator):
             label = log["pdf"]
             if label == "210701-n3fit-data-014":
                 label = "NNPDF40_nnlo_as_01180_w_EMC"
+        elif key == "external":
+            label = log["external"]
         elif key is not None:
             try:
                 theory = self.get(bnav.t, log["t_hash"])
