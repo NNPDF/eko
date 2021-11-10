@@ -6,7 +6,7 @@ import numpy as np
 
 from ekomark.data import operators
 
-# from eko.interpolation import make_grid, make_lambert_grid
+from eko.interpolation import make_lambert_grid
 
 from runner import BackwardPaperRunner
 
@@ -36,6 +36,7 @@ class BackwardRunner(BackwardPaperRunner):
         "ModEv": "EXA",
     }
     base_operator = {
+        "interpolation_xgrid": [make_lambert_grid(60, x_min=1e-3).tolist()],
         # "interpolation_xgrid": [np.linspace(1e-2,1,50)],
         # "interpolation_xgrid": [make_grid(30,10).tolist()],
         # "interpolation_xgrid": [make_lambert_grid(50).tolist()],
@@ -135,6 +136,29 @@ class BackwardRunner(BackwardPaperRunner):
         operator_updates["backward_inversion"] = ["exact", "expanded"]
         self.doit(pdf_name, operator_updates, q_high=q_high, q_low=q_low)
 
+    def evolve_backward_mass_variation(
+        self, pdf_name, q_high=1.65, charm_mass=1.51, epsilon=0.01
+    ):
+        """
+        Backward evolution changing also the charm mass value
+        (the final Q scale is set to charm mass - epsilon)
+
+        Parameters
+        ----------
+            pdf_name: str
+                PDF name
+            q_high: float
+                initial Q scale
+            charm_mass: float
+                charm mass
+        """
+        operator_updates = self.base_operator.copy()
+        theory_updates = self.base_theory.copy()
+        theory_updates["mc"] = charm_mass
+        q_low = charm_mass - epsilon
+        self.fig_name = None
+        return self.doit(pdf_name, operator_updates, theory_updates, q_high, q_low)
+
 
 if __name__ == "__main__":
 
@@ -144,13 +168,12 @@ if __name__ == "__main__":
     pdf_names = [
         "NNPDF40_nnlo_as_01180",  # NNLO, fitted charm
         # "NNPDF40_nnlo_pch_as_01180",  # NNLO, perturbative charm
-        # "210701-n3fit-data-014",  # NNLO, fitted charm + EMC F2c
         # "210701-n3fit-meth-013",  # NNPDF4.0 in flavour basis
     ]
-    for name in pdf_names:
+    # for name in pdf_names:
 
-        # Simple inversion
-        myrunner.evolve_backward(name)
+    #     # Simple inversion
+    #     myrunner.evolve_backward(name)
 
     #     # Test beclow above thr
     #     myrunner.evolve_above_below_thr(name)
@@ -167,9 +190,29 @@ if __name__ == "__main__":
     # myrunner.evolve_backward(pdf_name, q_low=5, q_high=4.91, return_to_Q0=True)
     # myrunner.evolve_backward(pdf_name, q_low=4.91, q_high=5, return_to_Q0=True)
 
-    # forward matching
-    # q_low = 1.51 to compare with Silvia's plot
+    # # pch vs ic forward matching
+    # # q_low = 1.51 to compare with Silvia's plot
     # pdf_name = "NNPDF40_nnlo_pch_as_01180"
     # myrunner.evolve_backward(pdf_name, q_low=1.51, q_high=1.5, return_to_Q0=False)
     # pdf_name = "NNPDF40_nnlo_as_01180"
     # myrunner.evolve_backward(pdf_name, q_low=1.5101, q_high=1.65, return_to_Q0=False)
+
+    # # charm mass variations
+    # mass_variations = {
+    #     1.38: "211103-ern-001",  # NNPDF40 baseline with mc=1.38
+    #     1.64: "211103-ern-002",  # NNPDF40 baseline with mc=1.64
+    # }
+    # for c_m, pdf_name in mass_variations.items():
+    #     myrunner.evolve_backward_mass_variation(pdf_name, q_high=1.65, charm_mass=c_m)
+
+    # # dataset_variations
+    # pdf_names =[
+    #     "NNPDF40_nnlo_as_01180_EMC", # NNPDF40 baseline, fitted charm + EMC F2c
+    #     "NNPDF40_nnlo_as_01180_DIS_only",  # NNPDF40 baseline DIS only
+    #     "NNPDF40_nnlo_as_01180_collider_only", # NNPDF40 baseline collider only
+    #     "NNPDF40_nnlo_as_01180_noLHCb", # NNPDF40 baseline no LHCb
+    #     "NNPDF40_nnlo_as_01180",  # NNLO, fitted charm
+    # ]
+    # for name in pdf_names:
+    #     # Simple inversion
+    #     myrunner.evolve_backward(name)
