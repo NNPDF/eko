@@ -2,7 +2,7 @@
 
 import numpy as np
 import pytest
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_equal
 from scipy import integrate
 
 from eko import interpolation
@@ -337,3 +337,27 @@ def test_make_grid():
     )
     xg = interpolation.make_grid(3, 0, 0, 1e-2)
     np.testing.assert_array_almost_equal(xg, np.array([1e-2, 1e-1, 1.0]))
+
+
+def test_make_lambert_grid():
+    # test random grid
+    n_pts = 11
+    x_min = 1e-4
+    x_max = 0.5
+    xg = interpolation.make_lambert_grid(n_pts, x_min, x_max)
+    assert len(xg) == n_pts
+    np.testing.assert_allclose(xg[0], x_min)
+    np.testing.assert_allclose(xg[-1], x_max)
+    np.testing.assert_allclose(xg.min(), x_min)
+    np.testing.assert_allclose(xg.max(), x_max)
+    np.testing.assert_allclose(xg, sorted(xg))
+
+    # test default
+    n_pts = 12
+    xg = interpolation.make_lambert_grid(n_pts)
+    assert len(xg) == n_pts
+    np.testing.assert_allclose(xg[0], 1e-7)
+    np.testing.assert_allclose(xg[-1], 1)
+    np.testing.assert_allclose(xg.min(), 1e-7)
+    np.testing.assert_allclose(xg.max(), 1)
+    np.testing.assert_allclose(xg, sorted(xg))

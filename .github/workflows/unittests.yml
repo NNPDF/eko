@@ -1,6 +1,9 @@
 name: eko
 
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - "*docs*"
 
 jobs:
   build:
@@ -38,10 +41,9 @@ jobs:
           export NUMBA_DISABLE_JIT=1
           pytest
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2
         with:
-          #token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.xml
+          files: ./coverage.xml
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true

@@ -305,6 +305,13 @@ class OperatorMatrixElement:
                 self.ome_members[n] = OpMember(
                     np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
                 )
+
+        # At LO you don't need anything else
+        if self.config["order"] == 0:
+            logger.info("Matching: no need to compute matching at LO")
+            self.copy_ome()
+            return
+
         a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2)
 
         tot_start_time = time.perf_counter()

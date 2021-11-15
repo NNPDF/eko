@@ -86,14 +86,17 @@ class BenchmarkVFNS(ApfelBenchmark):
         )
 
     def benchmark_msbar(self, pto):
-        """Threshold scale different from heavy quark mass"""
+        """MSbar heavy quark mass scheme"""
+        # TODO: when there are these settings Apfel use as thr mc*kcThr
+        # in eko we are using kcthr*msbar_c where msbar_c is the usual
+        # solution.
 
         th = self.vfns_theory.copy()
         th.update(
             {
                 "PTO": [pto],
-                "kcThr": [1.20],
-                "Qmc": [2.0],
+                "kcThr": [1.0],
+                "Qmc": [2.6],
                 "mc": [2.0],
                 "HQ": ["MSBAR"],
             }

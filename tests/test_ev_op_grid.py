@@ -60,8 +60,10 @@ class TestOperatorGrid:
             theory_card["ktThr"] = 1
         return theory_card, operators_card
 
-    def _get_operator_grid(self, use_FFNS=True):
+    def _get_operator_grid(self, use_FFNS=True, theory_update=None):
         theory_card, operators_card = self._get_setup(use_FFNS)
+        if theory_update is not None:
+            theory_card.update(theory_update)
         # create objects
         basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
             operators_card
@@ -102,8 +104,22 @@ class TestOperatorGrid:
         # we can also pass a single number
         opg = opgrid.compute()
         assert len(opg) == 2
+        assert all(
+            [
+                k in opg[q2]
+                for k in ["operators", "operator_errors", "alphas"]
+                for q2 in opg
+            ]
+        )
         opg = opgrid.compute(3)
         assert len(opg) == 1
+        assert all(
+            [
+                k in opg[q2]
+                for k in ["operators", "operator_errors", "alphas"]
+                for q2 in opg
+            ]
+        )
 
     def test_grid_computation_VFNS(self):
         """Checks that the grid can be computed"""
@@ -111,3 +127,13 @@ class TestOperatorGrid:
         qgrid_check = [3, 5, 200 ** 2]
         operators = opgrid.compute(qgrid_check)
         assert len(operators) == len(qgrid_check)
+
+    def test_alphas(self):
+        opgrid = self._get_operator_grid()
+        # q2 has not be precomputed - but should work nevertheless
+        opg = opgrid.compute(3)
+        sv_opgrid = self._get_operator_grid(
+            theory_update={"fact_to_ren_scale_ratio": 2.0}
+        )
+        sv_opg = sv_opgrid.compute(3)
+        assert opg[3]["alphas"] < sv_opg[3]["alphas"]

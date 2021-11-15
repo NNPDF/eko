@@ -59,6 +59,13 @@ corresponding |PDF| : :math:`\gamma, \Sigma, g, V, V_{3}, V_{8}, V_{15}, V_{24},
 V_{35}, T_{3}, T_{8}, T_{15}, T_{24}, T_{35}`
 """
 
+evol_basis_pids = tuple(
+    [22, 100, 21, 200]
+    + [200 + n ** 2 - 1 for n in range(2, 6 + 1)]
+    + [100 + n ** 2 - 1 for n in range(2, 6 + 1)]
+)
+"""|pid| representation of :data:`evol_basis`."""
+
 singlet_labels = ("S_qq", "S_qg", "S_gq", "S_gg")
 non_singlet_labels = ("NS_m", "NS_p", "NS_v")
 full_labels = (*singlet_labels, *non_singlet_labels)

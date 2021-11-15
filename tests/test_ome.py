@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # Test eko.matching_conditions.OperatorMatrixElement
+import copy
+
 import numpy as np
 
 from eko import interpolation, mellin
@@ -196,29 +198,30 @@ def test_quad_ker(monkeypatch):
 
 
 class TestOperatorMatrixElement:
+    # setup objs
+    theory_card = {
+        "alphas": 0.35,
+        "PTO": 0,
+        "ModEv": "TRN",
+        "fact_to_ren_scale_ratio": 1.0,
+        "Qref": np.sqrt(2),
+        "nfref": None,
+        "Q0": np.sqrt(2),
+        "NfFF": 3,
+        "IC": 1,
+        "IB": 0,
+        "mc": 1.0,
+        "mb": 4.75,
+        "mt": 173.0,
+        "kcThr": np.inf,
+        "kbThr": np.inf,
+        "ktThr": np.inf,
+        "MaxNfPdf": 6,
+        "MaxNfAs": 6,
+        "HQ": "POLE",
+    }
+
     def test_labels(self):
-        # setup objs
-        theory_card = {
-            "alphas": 0.35,
-            "PTO": 0,
-            "ModEv": "TRN",
-            "fact_to_ren_scale_ratio": 1.0,
-            "Qref": np.sqrt(2),
-            "nfref": None,
-            "Q0": np.sqrt(2),
-            "NfFF": 3,
-            "IC": 1,
-            "IB": 0,
-            "mc": 1.0,
-            "mb": 4.75,
-            "mt": 173.0,
-            "kcThr": np.inf,
-            "kbThr": np.inf,
-            "ktThr": np.inf,
-            "MaxNfPdf": 6,
-            "MaxNfAs": 6,
-            "HQ": "POLE",
-        }
         for skip_singlet in [True, False]:
             for skip_ns in [True, False]:
                 operators_card = {
@@ -233,13 +236,13 @@ class TestOperatorMatrixElement:
                     "backward_inversion": "exact",
                 }
                 g = OperatorGrid.from_dict(
-                    theory_card,
+                    self.theory_card,
                     operators_card,
-                    ThresholdsAtlas.from_dict(theory_card),
-                    StrongCoupling.from_dict(theory_card),
+                    ThresholdsAtlas.from_dict(self.theory_card),
+                    StrongCoupling.from_dict(self.theory_card),
                     InterpolatorDispatcher.from_dict(operators_card),
                 )
-                o = OperatorMatrixElement(g.config, g.managers, 10)
+                o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
                 labels = o.labels()
                 test_labels = ["NS_qq", "NS_Hq"]
                 for l in test_labels:
@@ -253,3 +256,89 @@ class TestOperatorMatrixElement:
                         assert l not in labels
                     else:
                         assert l in labels
+
+    def test_compute_lo(self):
+        operators_card = {
+            "Q2grid": [20],
+            "interpolation_xgrid": [0.001, 0.01, 0.1, 1.0],
+            "interpolation_polynomial_degree": 1,
+            "interpolation_is_log": True,
+            "debug_skip_singlet": False,
+            "debug_skip_non_singlet": False,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
+            "backward_inversion": "exact",
+        }
+        g = OperatorGrid.from_dict(
+            self.theory_card,
+            operators_card,
+            ThresholdsAtlas.from_dict(self.theory_card),
+            StrongCoupling.from_dict(self.theory_card),
+            InterpolatorDispatcher.from_dict(operators_card),
+        )
+        o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
+        o.compute(self.theory_card["mb"] ** 2, L=0, is_msbar=False)
+
+        dim = o.ome_members["NS_qq"].value.shape
+        for idx in ["S", "NS"]:
+            np.testing.assert_allclose(
+                o.ome_members[f"{idx}_qq"].value, np.eye(dim[0]), atol=1e-8
+            )
+            np.testing.assert_allclose(
+                o.ome_members[f"{idx}_HH"].value, np.eye(dim[0]), atol=1e-8
+            )
+            np.testing.assert_allclose(o.ome_members[f"{idx}_qH"].value, np.zeros(dim))
+            np.testing.assert_allclose(o.ome_members[f"{idx}_Hq"].value, np.zeros(dim))
+        np.testing.assert_allclose(
+            o.ome_members["S_gg"].value, np.eye(dim[0]), atol=1e-8
+        )
+        np.testing.assert_allclose(
+            o.ome_members["S_qg"].value, o.ome_members["S_gq"].value
+        )
+        np.testing.assert_allclose(
+            o.ome_members["S_Hg"].value, o.ome_members["S_gH"].value
+        )
+
+    def test_compute_nlo(self):
+        operators_card = {
+            "Q2grid": [20],
+            "interpolation_xgrid": [0.001, 0.01, 0.1, 1.0],
+            "interpolation_polynomial_degree": 1,
+            "interpolation_is_log": True,
+            "debug_skip_singlet": False,
+            "debug_skip_non_singlet": False,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
+            "backward_inversion": "exact",
+        }
+        t = copy.deepcopy(self.theory_card)
+        t["PTO"] = 1
+        g = OperatorGrid.from_dict(
+            t,
+            operators_card,
+            ThresholdsAtlas.from_dict(self.theory_card),
+            StrongCoupling.from_dict(self.theory_card),
+            InterpolatorDispatcher.from_dict(operators_card),
+        )
+        o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
+        o.compute(self.theory_card["mb"] ** 2, L=0, is_msbar=False)
+
+        dim = len(operators_card["interpolation_xgrid"])
+        shape = (dim, dim)
+        for idx in ["S", "NS"]:
+            assert o.ome_members[f"{idx}_qq"].value.shape == shape
+            assert o.ome_members[f"{idx}_HH"].value.shape == shape
+            assert o.ome_members[f"{idx}_qH"].value.shape == shape
+            assert o.ome_members[f"{idx}_Hq"].value.shape == shape
+            np.testing.assert_allclose(
+                o.ome_members[f"{idx}_qH"].value, np.zeros(shape)
+            )
+            np.testing.assert_allclose(
+                o.ome_members[f"{idx}_Hq"].value, np.zeros(shape)
+            )
+        assert o.ome_members["S_gg"].value.shape == shape
+        np.testing.assert_allclose(
+            o.ome_members["S_qg"].value, o.ome_members["S_gq"].value
+        )
+        assert o.ome_members["S_Hg"].value.shape == shape
+        assert o.ome_members["S_gH"].value.shape == shape

@@ -27,7 +27,7 @@ python setup.py install
 - The documentation is available here: <a href="https://eko.readthedocs.io/en/latest/?badge=latest"><img alt="Docs" src="https://readthedocs.org/projects/eko/badge/?version=latest"></a>
 - To build the documentation from source install [graphviz](https://www.graphviz.org/) and run in addition to the installation commands
 ```bash
-pip install -r docs_requirements.txt
+pip install -r dev_requirements.txt
 cd doc
 make html
 ```
