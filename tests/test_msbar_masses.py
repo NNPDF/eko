@@ -51,7 +51,6 @@ class TestMsbarMasses:
                         evolve_msbar_mass(
                             m2_ref,
                             Q2m_ref,
-                            nf,
                             strong_coupling=strong_coupling,
                             config=dict(
                                 fact_to_ren=theory_dict["fact_to_ren_scale_ratio"]

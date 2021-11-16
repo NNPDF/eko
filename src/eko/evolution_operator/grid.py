@@ -190,7 +190,6 @@ class OperatorGrid:
                 #     m2_msbar = evolve_msbar_mass(
                 #         m2_ref,
                 #         q2m_ref,
-                #         seg.nf,
                 #         dict(fact_to_ren=self.config["fact_to_ren"]),
                 #         self.managers["strong_coupling"],
                 #         seg.q2_to,

@@ -54,7 +54,7 @@ class BenchmarkMSbar:
                 m2,
                 thresholds_ratios,
                 order=order,
-                method="expanded",
+                method="exact",
                 hqm_scheme="MSBAR",
             )
             my_vals = []
@@ -67,7 +67,6 @@ class BenchmarkMSbar:
                             Q2m[n - 3],
                             strong_coupling=as_VFNS,
                             config=dict(fact_to_ren=1),
-                            nf=n,
                             q2_to=Q2,
                         )
                     )
@@ -96,7 +95,6 @@ class BenchmarkMSbar:
                 print(apfel_vals_cur)
                 np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
             # check myself to APFEL
-            # TODO: looks not so precise ..., pass more physical Q2s
             np.testing.assert_allclose(
-                apfel_vals, np.sqrt(np.array(my_vals)), rtol=8e-2
+                apfel_vals, np.sqrt(np.array(my_vals)), rtol=7e-4
             )

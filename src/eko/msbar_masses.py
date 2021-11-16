@@ -143,11 +143,18 @@ def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
 
 
 def evolve_msbar_mass(
-    m2_ref, q2m_ref, nf, config=None, strong_coupling=None, q2_to=None
+    m2_ref,
+    q2m_ref,
+    nf=None,
+    config=None,
+    strong_coupling=None,
+    q2_to=None,
 ):
     r"""
     Compute the MSbar mass.
     If the final scale is not gven it solves the equation :math:`m_{\overline{MS}}(m) = m`
+    for afixed number of nf
+    Else perform the mass evolution.
 
     Parameters
     ----------
@@ -155,14 +162,14 @@ def evolve_msbar_mass(
             squared intial mass reference
         q2m_ref: float
             squared intial scale
-        nf: int
-            number of active flavours
+        nf: int, optional
+            number of active flavours (not used when q2_to is given)
         config: dict
             msbar configuration dictionary
         strong_coupling: eko.strong_coupling.StrongCoupling
             Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
             any q
-        q2_to: float
+        q2_to: float, optional
             scale at which the mass is computed
 
     Returns
@@ -196,5 +203,30 @@ def evolve_msbar_mass(
         )
         return float(msbar_mass)
     else:
-        ev_mass = msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf)
+
+        # evolution might involve different number of active flavors.
+        # Find out the evolution path (always sorted)
+        q2_low, q2_high = sorted([q2m_ref, q2_to])
+        area_walls = np.array(strong_coupling.thresholds.area_walls)
+        path = np.concatenate(
+            (
+                [q2_low],
+                area_walls[(q2_low < area_walls) & (area_walls < q2_high)],
+                [q2_high],
+            )
+        )
+        nf_init = len(area_walls[q2_low >= area_walls]) + 2
+        nf_final = len(area_walls[q2_high > area_walls]) + 2
+
+        ev_mass = 1.0
+        for i, n in enumerate(np.arange(nf_init, nf_final + 1)):
+            q2_init = path[i]
+            q2_final = path[i + 1]
+            # if you are going backward
+            # need to reverse the evolution in each path segment
+            if q2m_ref > q2_to:
+                q2_init, q2_final = q2_final, q2_init
+            ev_mass *= msbar_ker_dispatcher(
+                q2_final, q2_init, strong_coupling, fact_to_ren, n
+            )
         return m2_ref * ev_mass ** 2
