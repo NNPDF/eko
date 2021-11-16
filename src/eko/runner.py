@@ -89,7 +89,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 
         self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
-        sc = StrongCoupling.from_dict(theory_card)
+        sc = StrongCoupling.from_dict(theory_card, masses=masses)
         # setup operator grid
         self.op_grid = OperatorGrid.from_dict(
             theory_card,
@@ -163,7 +163,7 @@ def compute_msbar_mass(theory_card):
     Returns
     -------
         masses: list
-            list of msbar masses
+            list of msbar masses squared
     """
     masses = np.full(3, np.inf)
     nf_active = 3
@@ -180,8 +180,9 @@ def compute_msbar_mass(theory_card):
         if q2m_ref == m2_ref:
             masses[qidx] = m2_ref
             continue
-        # if self.q2_ref > q2m_ref:
-        #     raise ValueError("In MSBAR scheme Q0 must be lower than any Qm")
+        if theory_card["Qref"] > q2m_ref:
+            raise ValueError("In MSBAR scheme Q0 must be lower than any Qm")
+        # TODO: is this really necessary?
         # if q2m_ref > m2_ref:
         #     raise ValueError("In MSBAR scheme each heavy quark \
         #         mass reference scale must be smaller or equal than \
@@ -193,14 +194,12 @@ def compute_msbar_mass(theory_card):
         )
 
     # Check the msbar ordering
-    for m2_msbar, hq in zip( masses[:-1], "bt"):
+    for m2_msbar, hq in zip(masses[:-1], "bt"):
         q2m_ref = np.power(theory_card[f"Qm{hq}"], 2)
         m2_ref = np.power(theory_card[f"m{hq}"], 2)
         config["thr_masses"] = masses
         # check that m_msbar_hq < msbar_hq+1 (m_msbar_hq)
-        m2_test = evolve_msbar_mass(
-            m2_ref, q2m_ref, config=config, q2_to=m2_msbar
-        )
+        m2_test = evolve_msbar_mass(m2_ref, q2m_ref, config=config, q2_to=m2_msbar)
         if m2_msbar > m2_test:
             raise ValueError(
                 "The MSBAR masses do not preserve the correct ordering,\

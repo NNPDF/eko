@@ -87,23 +87,20 @@ class BenchmarkVFNS(ApfelBenchmark):
 
     def benchmark_msbar(self, pto):
         """MSbar heavy quark mass scheme"""
-        # TODO: when there are these settings Apfel use as thr mc*kcThr
-        # in eko we are using kcthr*msbar_c where msbar_c is the usual
-        # solution.
+        # when  passing kthr != 1 both apfel na eko use kcthr*msbar_c,
+        # as thr scale, where msbar_c is the usual ms_bar solution.
 
         th = self.vfns_theory.copy()
         th.update(
             {
                 "PTO": [pto],
-                "kcThr": [1.0],
-                "Qmc": [2.6],
-                "mc": [2.0],
+                "kcThr": [1.2],
+                "Qmc": [4.4],
+                "mc": [1.5],
                 "HQ": ["MSBAR"],
             }
         )
-        self.run(
-            cartesian_product(th), operators.build({"Q2grid": [[10]]}), ["ToyLH"]
-        )
+        self.run(cartesian_product(th), operators.build({"Q2grid": [[10]]}), ["ToyLH"])
 
 
 class BenchmarkFFNS(ApfelBenchmark):

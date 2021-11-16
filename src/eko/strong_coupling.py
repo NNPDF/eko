@@ -162,14 +162,16 @@ class StrongCoupling:
         return self.thresholds.q2_ref
 
     @classmethod
-    def from_dict(cls, theory_card):
-        """
+    def from_dict(cls, theory_card, masses=None):
+        r"""
         Create object from theory dictionary.
 
         Parameters
         ----------
             theory_card : dict
                 theory dictionary
+            masses: list
+                list of :math:`\overline{MS}` masses squared or None if POLE masses are used
 
         Returns
         -------
@@ -203,9 +205,12 @@ class StrongCoupling:
         # adjust factorization scale / renormalization scale
         fact_to_ren = theory_card["fact_to_ren_scale_ratio"]
         heavy_flavors = "cbt"
-        masses = np.power(
-            [theory_card[f"m{q}"] / fact_to_ren for q in heavy_flavors], 2
-        )
+        if masses is None:
+            masses = np.power(
+                [theory_card[f"m{q}"] / fact_to_ren for q in heavy_flavors], 2
+            )
+        else:
+            masses = masses / fact_to_ren ** 2
         thresholds_ratios = np.power(
             [theory_card[f"k{q}Thr"] for q in heavy_flavors], 2
         )

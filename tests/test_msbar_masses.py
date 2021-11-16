@@ -61,7 +61,7 @@ class TestMsbarMasses:
                 np.testing.assert_allclose(m2_computed, m2_test, rtol=5e-3)
 
     def test_errors(self):
-        with pytest.raises(ValueError, match="MSBAR"):
+        with pytest.raises(ValueError, match="MSBAR scheme"):
             compute_msbar_mass(
                 dict(
                     Q0=np.sqrt(0.9),
@@ -81,5 +81,27 @@ class TestMsbarMasses:
                     fact_to_ren_scale_ratio=1.0,
                     alphas=0.118,
                     Qref=91 ** 2,
+                ),
+            )
+        with pytest.raises(ValueError, match="MSBAR masses"):
+            compute_msbar_mass(
+                dict(
+                    Q0=np.sqrt(0.9),
+                    mc=1.0,
+                    mb=1.0,
+                    mt=3.0,
+                    Qmc=1.0,
+                    Qmb=1.00001,
+                    Qmt=3.0,
+                    kcThr=1.0,
+                    kbThr=1.0,
+                    ktThr=1.0,
+                    MaxNfPdf=6,
+                    HQ="MSBAR",
+                    PTO=2,
+                    method="EXA",
+                    fact_to_ren_scale_ratio=1.0,
+                    alphas=10,
+                    Qref=0.5 ** 2,
                 ),
             )
