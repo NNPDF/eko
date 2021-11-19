@@ -194,8 +194,9 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
     ax = plt.subplot(1, 3, 3)
     plt.title("|error/value|")
     # TODO: next line will cause a "invalid value encountered in true divide
-    np.seterr(divide="ignore", invalid="ignore")
+    old_settings = np.seterr(divide="ignore", invalid="ignore")
     err_to_val = np.abs(np.array(op_err) / np.array(op))
+    np.seterr(**old_settings)
     im = plt.imshow(err_to_val, norm=norm, aspect="auto")
     plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
     return fig
@@ -253,6 +254,7 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs):
                             new_op_err[label_in] = []
                         new_op[label_in].append(val)
                         new_op_err[label_in].append(val_err)
+
 
                 for label_in in ops_names:
                     if label_in in skip_pdfs:
