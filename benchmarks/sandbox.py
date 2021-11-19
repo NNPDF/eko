@@ -46,7 +46,7 @@ class Sandbox(Runner):
     # external = "pegasus"
 
     # select to plot operators
-    plot_operator = False
+    plot_operator = True
 
     rotate_to_evolution_basis = True
 
@@ -96,7 +96,7 @@ class Sandbox(Runner):
 
     def lha(self):
         theory_updates = {
-            "PTO": 1,
+            "PTO": 0,
             "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",

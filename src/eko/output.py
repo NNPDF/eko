@@ -480,7 +480,6 @@ class Output(dict):
             obj : output
                 loaded object
         """
-
         tarpath = pathlib.Path(tarname)
 
         with tempfile.TemporaryDirectory() as tmpdir:

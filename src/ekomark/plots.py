@@ -193,6 +193,8 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
 
     ax = plt.subplot(1, 3, 3)
     plt.title("|error/value|")
+    # TODO: next line will cause a "invalid value encountered in true divide
+    np.seterr(divide="ignore", invalid="ignore")
     err_to_val = np.abs(np.array(op_err) / np.array(op))
     im = plt.imshow(err_to_val, norm=norm, aspect="auto")
     plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
@@ -217,7 +219,7 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs):
             PDF to skip
     """
 
-    ops_names = list(me["pids"])
+    ops_names = list(me["targetpids"])
     ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
     path = f"{path}/{ops_id}.pdf"
     print(f"Plotting operators plots to {path}")
