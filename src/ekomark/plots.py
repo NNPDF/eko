@@ -163,12 +163,15 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
     # op = ret["operators"][var_name]
     # op_err = ret["operator_errors"][var_name]
 
+    # empty?
+    if np.max(np.abs(op)) <= 0.0:
+        return None
+
     fig = plt.figure(figsize=(25, 5))
     fig.suptitle(var_name)
 
-    # empty?
-    if np.max(op) <= 0.0:
-        return fig
+
+
 
     # TODO fix File "/usr/lib/python3/dist-packages/matplotlib/colors.py",
     # line 1181, in _check_vmin_vmax
@@ -182,6 +185,7 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
     norm = LogNorm() if log_operator else None
     if abs_operator:
         op = np.abs(op)
+    #TODO:  change colormap for abs or not abs
     im = plt.imshow(op, norm=norm, aspect="auto")
     plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
 
@@ -257,6 +261,7 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs):
 
 
                 for label_in in ops_names:
+                    import pdb; pdb.set_trace()
                     if label_in in skip_pdfs:
                         continue
                     try:
@@ -265,7 +270,8 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs):
                             new_op[label_in],
                             new_op_err[label_in],
                         )
-                        pp.savefig()
+                        if fig is not None:
+                            pp.savefig()
                     finally:
                         if fig:
                             plt.close(fig)
