@@ -29,7 +29,7 @@ def apply_pdf(output, lhapdf_like, targetgrid=None, rotate_to_evolution_basis=Fa
         return apply_pdf_flavor(
             output, lhapdf_like, targetgrid, br.rotate_flavor_to_evolution
         )
-    return apply_pdf_flavor(lhapdf_like, targetgrid)
+    return apply_pdf_flavor(output, lhapdf_like, targetgrid)
 
 
 def apply_pdf_flavor(output, lhapdf_like, targetgrid=None, flavor_rotation=None):
