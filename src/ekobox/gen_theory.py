@@ -6,7 +6,7 @@ import yaml
 from banana.data import sql
 
 
-def gen_theory_card(fns, pto, initial_scale, update=None):
+def gen_theory_card(fns, pto, initial_scale, update=None, dump=False, name=None):
     """
     Generates a theory card with some mandatory user choice and some
     default values which can be changed by the update input dict
@@ -22,6 +22,10 @@ def gen_theory_card(fns, pto, initial_scale, update=None):
             initial scale of evolution
         update : dict
             info to update to default theory card
+        dump : bool
+            set if dump
+        name : str
+            name of theory card (if dumped )
 
     Returns
     -------
@@ -30,6 +34,7 @@ def gen_theory_card(fns, pto, initial_scale, update=None):
         theory card
     """
     # Constructing the dictionary with some default value (NB: ask if it relies on order)
+    # TODOs: load this not write
     def_theory = {
         "CKM": "0.97428 0.22530 0.003470 0.22520 0.97345 0.041000 0.00862 0.04030 0.999152",
         "Comments": "",
@@ -80,6 +85,7 @@ def gen_theory_card(fns, pto, initial_scale, update=None):
         "nfref": None,
     }
     # Adding the mandatory inputs
+    # NB: fns is not used
     def_theory["FNS"] = fns
     def_theory["PTO"] = pto
     def_theory["Q0"] = initial_scale
@@ -91,6 +97,8 @@ def gen_theory_card(fns, pto, initial_scale, update=None):
             if k not in def_theory.keys():
                 raise ValueError("Provided key not in theory card")
         def_theory.update(update)
+    if dump:
+        dump_theory_card(name, def_theory)
     return def_theory
 
 
@@ -106,7 +114,7 @@ def dump_theory_card(name, theory):
         theory : dict
             theory card
     """
-    target = "theorycard_%s.yaml" % (name)
+    target = "%s.yaml" % (name)
     with open(target, "w") as out:
         yaml.safe_dump(theory, out)
 
@@ -130,6 +138,7 @@ def load_theory_card(path):
     return theory
 
 
+# move this to another file
 def create_info_file(theory_card, operators_card, info_update):
     """
     Generate a lhapdf info file from theory and operators card

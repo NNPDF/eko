@@ -7,7 +7,7 @@ from eko import basis_rotation as br
 from . import apply, gen_op, gen_theory
 
 
-# TODO: give the possibility to dump and/or install in lhapdf folder (using genpdf package if possible)
+# TODO: move this from init
 def evolve_PDFs(
     initial_PDF,
     theory_card,
@@ -63,9 +63,9 @@ def evolve_PDFs(
     evolved_PDF = apply.apply_pdf_flavor(
         eko_output, initial_PDF, targetgrid, flavor_rotation
     )
-    # TODOs: What will happen with more than one members?
-    # TODOs: Consider a different number of flavors according to theory card
-    # TODOs: Consider the flavor_rotation case
+    # TODOs: What will happen with more than one members? (iterate, change apply)
+    # TODOs: Consider a different number of flavors according to theory card ("this is not a problem right now")
+    # TODOs: Consider the flavor_rotation case (no need since i don't need to proved evolved_PDF but only dump)
     if dump:
         if targetgrid is None:
             targetgrid = operators_card["interpolation_xgrid"]

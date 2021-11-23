@@ -50,7 +50,7 @@ def dump_op_card(name, op):
         op : dict
             op card
     """
-    target = "opcard_%s.yaml" % (name)
+    target = "%s.yaml" % (name)
     with open(target, "w") as out:
         yaml.safe_dump(op, out)
 
