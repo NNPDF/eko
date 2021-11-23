@@ -44,7 +44,7 @@ def evolve_PDFs(
             set whether to dump evolved PDF to current dicrectory
 
         install : bool
-            set whether to install evolved PDF to lhapdf directory
+            set whether to install evolved PDF to lhapdf directory (only if dumped)
 
         name : str
             set name of evolved PDF (if dumped)
@@ -86,5 +86,12 @@ def evolve_PDFs(
         )
 
         genpdf.export.dump_set(name, info, [[block], [error_block]])
+
+        if install:
+            genpdf.install_pdf(name)
+
+    if not dump:
+        if install:
+            raise ValueError("Installing is impossible without damping")
 
     return evolved_PDF

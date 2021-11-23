@@ -10,6 +10,24 @@ def gen_theory_card(fns, pto, initial_scale, update=None):
     """
     Generates a theory card with some mandatory user choice and some
     default values which can be changed by the update input dict
+
+    Parameters
+    ----------
+
+        fns : str
+            flavour number scheme
+        pto : int
+            perturbation theory order
+        initial_scale: float
+            initial scale of evolution
+        update : dict
+            info to update to default theory card
+
+    Returns
+    -------
+
+        : dict
+        theory card
     """
     # Constructing the dictionary with some default value (NB: ask if it relies on order)
     def_theory = {
