@@ -92,6 +92,7 @@ class Runner(BenchmarkRunner):
                     out = eko.output.Output.load_yaml(o)
 
             if self.plot_operator:
+
                 from ekomark.plots import (  # pylint:disable=import-error,import-outside-toplevel
                     save_operators_to_pdf,
                 )
@@ -99,8 +100,13 @@ class Runner(BenchmarkRunner):
                 output_path = f"{banana_cfg.cfg['database_path'].parents[0]}/{self.external}_bench"
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
+                # rotating to evolution basis if requested
+                out_copy = eko.output.Output.load_tar(path)
+                if self.rotate_to_evolution_basis:
+                    out_copy.to_evol(source=True, target=True)
+
                 save_operators_to_pdf(
-                    output_path, theory, ocard, out, self.skip_pdfs(theory)
+                    output_path, theory, ocard, out_copy, self.skip_pdfs(theory)
                 )
         else:
             out = eko.run_dglap(theory, ocard)

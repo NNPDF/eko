@@ -225,7 +225,6 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs):
         skip_pdfs : list
             PDF to skip
     """
-
     ops_names = list(me["targetpids"])
     ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
     path = f"{path}/{ops_id}.pdf"
