@@ -102,11 +102,18 @@ class Runner(BenchmarkRunner):
                     os.makedirs(output_path)
                 # rotating to evolution basis if requested
                 out_copy = eko.output.Output.load_tar(path)
+                change_lab = False
                 if self.rotate_to_evolution_basis:
                     out_copy.to_evol(source=True, target=True)
+                    change_lab = True
 
                 save_operators_to_pdf(
-                    output_path, theory, ocard, out_copy, self.skip_pdfs(theory)
+                    output_path,
+                    theory,
+                    ocard,
+                    out_copy,
+                    self.skip_pdfs(theory),
+                    change_lab,
                 )
         else:
             out = eko.run_dglap(theory, ocard)

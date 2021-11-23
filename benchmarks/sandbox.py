@@ -46,7 +46,7 @@ class Sandbox(Runner):
     # external = "pegasus"
 
     # select to plot operators
-    plot_operator = False
+    plot_operator = True
 
     rotate_to_evolution_basis = True
 
