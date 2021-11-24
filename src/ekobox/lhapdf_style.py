@@ -1,8 +1,10 @@
+import copy
 import io
 import pathlib
 
 import banana
 import yaml
+from banana.data.genpdf import load
 
 
 def create_info_file(theory_card, operators_card, NumMembers, info_update):
@@ -25,9 +27,7 @@ def create_info_file(theory_card, operators_card, NumMembers, info_update):
         : dict
         info file in lhapdf format
     """
-    here = pathlib.Path(banana.__file__).parent / "data/genpdf"
-    with open(here / "templatePDF.info", "r") as o:
-        template_info = yaml.safe_load(o)
+    template_info = copy.deepcopy(load.template_info)
     template_info["SetDesc"] = "Evolved PDF from " + str(theory_card["Q0"]) + " GeV"
     template_info["Authors"] = ""
 

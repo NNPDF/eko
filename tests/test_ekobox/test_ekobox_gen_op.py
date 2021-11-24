@@ -21,7 +21,7 @@ def test_gen_op_card():
 
 def test_export_load_op_card(tmp_path):
     with cd(tmp_path):
-        op = g_o.gen_op_card([100], export=True, name="debug_op")
+        op = g_o.gen_op_card([100], name="debug_op")
         g_o.export_op_card("debug_op_two", op)
         op_loaded = g_o.import_op_card("debug_op.yaml")
         op_two_loaded = g_o.import_op_card("debug_op_two.yaml")

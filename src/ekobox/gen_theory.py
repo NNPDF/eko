@@ -1,13 +1,13 @@
+import copy
 import io
 import math
 import pathlib
 
-import banana
 import yaml
-from banana.data import sql
+from banana.data import sql, theories
 
 
-def gen_theory_card(pto, initial_scale, update=None, export=False, name="MyTheoryCard"):
+def gen_theory_card(pto, initial_scale, update=None, name=None):
     """
     Generates a theory card with some mandatory user choice and some
     default values which can be changed by the update input dict
@@ -21,10 +21,8 @@ def gen_theory_card(pto, initial_scale, update=None, export=False, name="MyTheor
             initial scale of evolution
         update : dict
             info to update to default theory card
-        export : bool
-            set if dump
         name : str
-            name of theory card (if exported )
+            name of exported theory card (if name not None )
 
     Returns
     -------
@@ -32,10 +30,8 @@ def gen_theory_card(pto, initial_scale, update=None, export=False, name="MyTheor
         : dict
         theory card
     """
-    # Constructing the dictionary with some default value
-    here = pathlib.Path(banana.__file__).parent / "data"
-    with open(here / "theory_template.yaml", "r") as o:
-        theory = yaml.safe_load(o)
+    # Constructing the dictionary with some default values
+    theory = copy.deepcopy(theories.default_card)
     # delete unuseful member
     del theory["FNS"]
     # Adding the mandatory inputs
@@ -49,7 +45,7 @@ def gen_theory_card(pto, initial_scale, update=None, export=False, name="MyTheor
             if k not in theory.keys():
                 raise ValueError("Provided key not in theory card")
         theory.update(update)
-    if export:
+    if name is not None:
         export_theory_card(name, theory)
     return theory
 

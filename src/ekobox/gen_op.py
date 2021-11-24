@@ -1,3 +1,4 @@
+import copy
 import io
 
 import yaml
@@ -5,7 +6,7 @@ from banana.data import sql
 from ekomark.data import operators
 
 
-def gen_op_card(Q2grid, update=None, export=False, name="MyOpCard"):
+def gen_op_card(Q2grid, update=None, name=None):
     """
     Generates an operator card with some mandatory user choice
     (in this case only the Q2 grid) and some default values which
@@ -17,17 +18,15 @@ def gen_op_card(Q2grid, update=None, export=False, name="MyOpCard"):
             grid for Q2
         update : dict
             dictionary of info to update in op. card
-        export : bool
-            set if export the op. card
         name : str
-            name of the exported op.card
+            name of exported op.card (if name not None)
     Returns
     -------
         : dict
             operator card
     """
     # Constructing the dictionary with some default value
-    def_op = operators.default_card
+    def_op = copy.deepcopy(operators.default_card)
     # Adding the mandatory inputs
     def_op["Q2grid"] = Q2grid
     serialized = sql.serialize(def_op)
@@ -38,7 +37,7 @@ def gen_op_card(Q2grid, update=None, export=False, name="MyOpCard"):
                 raise ValueError("Provided key not in operators card")
         def_op.update(update)
 
-    if export:
+    if name is not None:
         export_op_card(name, def_op)
     return def_op
 

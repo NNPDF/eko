@@ -97,6 +97,7 @@ python_classes = ['Test*', 'Benchmark*']
 python_functions = ['test_*', 'benchmark_*']
 addopts = [
   '--cov=eko',
+  '--cov=ekobox',
   '--cov-report=html',
   '--cov-report=xml',
   '--strict-markers',

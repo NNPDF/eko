@@ -21,7 +21,7 @@ def test_gen_theory_card():
 
 def test_export_load_theory_card(tmp_path):
     with cd(tmp_path):
-        theory = g_t.gen_theory_card(2, 12.3, export=True, name="debug_theory")
+        theory = g_t.gen_theory_card(2, 12.3, name="debug_theory")
         g_t.export_theory_card("debug_theory_two", theory)
         theory_loaded = g_t.import_theory_card("debug_theory.yaml")
         theory_two_loaded = g_t.import_theory_card("debug_theory_two.yaml")
