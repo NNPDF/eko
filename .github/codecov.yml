@@ -38,3 +38,6 @@ comment:
   #- master
   #- "feature/*"
   #- "release/*"
+
+github_checks:
+  annotations: false

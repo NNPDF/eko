@@ -151,6 +151,7 @@ class TestOperator:
             "Qref": np.sqrt(2),
             "nfref": None,
             "Q0": np.sqrt(2),
+            "nf0": 3,
             "FNS": "FFNS",
             "NfFF": 3,
             "IC": 0,

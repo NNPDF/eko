@@ -86,6 +86,7 @@ class TestThresholdsAtlas:
                 "kbThr": 2.0,
                 "ktThr": np.inf,
                 "Q0": 1.0,
+                "nf0": 4,
                 "MaxNfPdf": 6,
                 "HQ": "POLE",
                 "alphas": 0.35,

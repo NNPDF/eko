@@ -21,6 +21,7 @@ class TestBackwardForward:
         "Qref": np.sqrt(2),
         "nfref": None,
         "Q0": np.sqrt(2),
+        "nf0": 4,
         "IC": 1,
         "IB": 1,
         "mc": 1.0,

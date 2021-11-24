@@ -136,6 +136,7 @@ class BenchmarkVFNS(LHABenchmark):
             "kcThr": 1.0,
             "kbThr": 1.0,
             "ktThr": 1.0,
+            "nf0": 3,
         }
     )
 
@@ -168,8 +169,8 @@ class BenchmarkFFNS(LHABenchmark):
 
 if __name__ == "__main__":
 
-    # obj = BenchmarkVFNS()
-    obj = BenchmarkFFNS()
+    obj = BenchmarkVFNS()
+    # obj = BenchmarkFFNS()
 
     obj.benchmark_plain(2)
     # obj.benchmark_sv(1)

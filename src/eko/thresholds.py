@@ -190,9 +190,11 @@ class ThresholdsAtlas:
         hqm_scheme = theory_card["HQ"]
         if hqm_scheme not in ["MSBAR", "POLE"]:
             raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
+        nf_ref = theory_card["nf0"]
         return cls(
             masses,
             q2_ref,
+            nf_ref,
             thresholds_ratios=np.power(thresholds_ratios, 2),
             max_nf=max_nf,
         )
