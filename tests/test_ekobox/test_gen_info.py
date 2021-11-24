@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import pytest
 
+from ekobox import gen_info as g_i
 from ekobox import gen_op as g_o
 from ekobox import gen_theory as g_t
-from ekobox import lhapdf_style as l_s
 
 
 def test_create_info_file():
     op = g_o.gen_op_card([10, 100])
     theory = g_t.gen_theory_card(1, 10.0, update={"alphas": 0.2})
-    info = l_s.create_info_file(
+    info = g_i.create_info_file(
         theory, op, 4, info_update={"SetDesc": "Prova", "NewArg": 15.3, "MTop": 1.0}
     )
     assert info["AlphaS_MZ"] == 0.2

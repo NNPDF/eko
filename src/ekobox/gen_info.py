@@ -7,7 +7,7 @@ import yaml
 from banana.data.genpdf import load
 
 
-def create_info_file(theory_card, operators_card, NumMembers, info_update):
+def create_info_file(theory_card, operators_card, num_members, info_update):
     """
     Generate a lhapdf info file from theory and operators card
 
@@ -17,7 +17,7 @@ def create_info_file(theory_card, operators_card, NumMembers, info_update):
             theory card
         operators_card : dict
             operators_card
-        NumMembers : int
+        num_members : int
             number of pdf set members
         info_update : dict
             info to update
@@ -30,13 +30,13 @@ def create_info_file(theory_card, operators_card, NumMembers, info_update):
     template_info = copy.deepcopy(load.template_info)
     template_info["SetDesc"] = "Evolved PDF from " + str(theory_card["Q0"]) + " GeV"
     template_info["Authors"] = ""
-
+    template_info["FlavorScheme"] = "variable"
     template_info.update(info_update)
-    template_info["NumFlavors"] = theory_card["MaxNfPdf"]
+    template_info["NumFlavors"] = 14
+    template_info["Flavors"] = [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21, 22]
     template_info["XMin"] = operators_card["interpolation_xgrid"][0]
     template_info["XMax"] = operators_card["interpolation_xgrid"][-1]
-    # remember Flavors and FlavorScheme
-    template_info["NumMembers"] = NumMembers
+    template_info["NumMembers"] = num_members
     template_info["OrderQCD"] = theory_card["PTO"]
     template_info["QMin"] = operators_card["Q2grid"][0]
     template_info["QMax"] = operators_card["Q2grid"][-1]
