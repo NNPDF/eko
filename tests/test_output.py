@@ -11,6 +11,7 @@ import pytest
 
 from eko import basis_rotation as br
 from eko import output
+from ekobox import apply
 
 
 class FakePDF:
@@ -166,7 +167,7 @@ class TestOutput:
         o = output.Output(d)
         # fake pdfs
         pdf = FakePDF()
-        pdf_grid = o.apply_pdf(pdf)
+        pdf_grid = apply.apply_pdf(o, pdf)
         assert len(pdf_grid) == len(d["Q2grid"])
         pdfs = pdf_grid[q2_out]["pdfs"]
         assert list(pdfs.keys()) == d["targetpids"]
@@ -180,7 +181,7 @@ class TestOutput:
         np.testing.assert_allclose(pdfs[1], ref_pid2)
         # rotate to target_grid
         target_grid = [0.75]
-        pdf_grid = o.apply_pdf(pdf, target_grid)
+        pdf_grid = apply.apply_pdf(o, pdf, target_grid)
         assert len(pdf_grid) == 1
         pdfs = pdf_grid[q2_out]["pdfs"]
         assert list(pdfs.keys()) == d["targetpids"]
@@ -198,7 +199,7 @@ class TestOutput:
         monkeypatch.setattr("eko.basis_rotation.flavor_basis_pids", d["targetpids"])
         fake_evol_basis = ("a", "b")
         monkeypatch.setattr("eko.basis_rotation.evol_basis", fake_evol_basis)
-        pdf_grid = o.apply_pdf(pdf, rotate_to_evolution_basis=True)
+        pdf_grid = apply.apply_pdf(o, pdf, rotate_to_evolution_basis=True)
         assert len(pdf_grid) == len(d["Q2grid"])
         pdfs = pdf_grid[q2_out]["pdfs"]
         assert list(pdfs.keys()) == list(fake_evol_basis)

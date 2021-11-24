@@ -29,7 +29,6 @@ def gen_op_card(Q2grid, update=None):
     def_op["Q2grid"] = Q2grid
     serialized = sql.serialize(def_op)
     def_op["hash"] = (sql.add_hash(serialized))[-1]
-    # Update user choice (NB: Allow also new entries?)
     if isinstance(update, dict):
         for k in update.keys():
             if k not in def_op.keys():
