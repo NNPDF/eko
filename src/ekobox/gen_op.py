@@ -29,14 +29,13 @@ def gen_op_card(Q2grid, update=None, name=None):
     def_op = copy.deepcopy(operators.default_card)
     # Adding the mandatory inputs
     def_op["Q2grid"] = Q2grid
-    serialized = sql.serialize(def_op)
-    def_op["hash"] = (sql.add_hash(serialized))[-1]
     if isinstance(update, dict):
         for k in update.keys():
             if k not in def_op.keys():
                 raise ValueError("Provided key not in operators card")
         def_op.update(update)
-
+    serialized = sql.serialize(def_op)
+    def_op["hash"] = (sql.add_hash(serialized))[-1]
     if name is not None:
         export_op_card(name, def_op)
     return def_op

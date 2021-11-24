@@ -37,14 +37,14 @@ def gen_theory_card(pto, initial_scale, update=None, name=None):
     # Adding the mandatory inputs
     theory["PTO"] = pto
     theory["Q0"] = initial_scale
-    serialized = sql.serialize(theory)
-    theory["hash"] = (sql.add_hash(serialized))[-1]
     # Update user choice
     if isinstance(update, dict):
         for k in update.keys():
             if k not in theory.keys():
                 raise ValueError("Provided key not in theory card")
         theory.update(update)
+    serialized = sql.serialize(theory)
+    theory["hash"] = (sql.add_hash(serialized))[-1]
     if name is not None:
         export_theory_card(name, theory)
     return theory

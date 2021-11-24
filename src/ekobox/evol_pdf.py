@@ -44,22 +44,21 @@ def evolve_PDFs(
 
     """
     eko_output = eko.run_dglap(theory_card, operators_card)
-    if not isinstance(initial_PDF_list, list):
-        raise TypeError("initial_PDF_list must be a list")
     evolved_PDF_list = []
     for initial_PDF in initial_PDF_list:
         evolved_PDF_list.append(apply.apply_pdf(eko_output, initial_PDF, targetgrid))
-    # TODOs: Consider a different number of flavors according to theory card ("this is not a problem right now")
-    # to solve it I need to implement a function optimize to check for zeros
 
     if targetgrid is None:
         targetgrid = operators_card["interpolation_xgrid"]
-
-    info = lhapdf_style.create_info_file(
+    if info_update is None:
+        info_update = {}
+    info_update["XMin"] = targetgrid[0]
+    info_update["XMax"] = targetgrid[-1]
+    info = gen_info.create_info_file(
         theory_card,
         operators_card,
         len(evolved_PDF_list),
-        info_update={"XMin": targetgrid[0], "XMax": targetgrid[-1]},
+        info_update=info_update,
     )
     all_member_blocks = []
     all_blocks = []
