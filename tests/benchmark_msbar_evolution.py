@@ -16,7 +16,7 @@ except ImportError:
 
 
 class BenchmarkMSbar:
-    def benchmark_APFEL_msbar(self):
+    def benchmark_APFEL_msbar_evolution(self):
         Q2s = np.power([1, 96, 150], 2)
         alphas_ref = 0.118
         scale_ref = 91.0 ** 2
@@ -85,7 +85,7 @@ class BenchmarkMSbar:
                 apfel.SetMassScaleReference(*np.sqrt(Q2m))
                 apfel.SetRenFacRatio(1)
                 apfel.InitializeAPFEL()
-                # collect a_s
+                # collect apfel masses
                 apfel_vals_cur = []
                 for Q2 in Q2s:
                     masses = []

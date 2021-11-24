@@ -180,14 +180,14 @@ def compute_msbar_mass(theory_card):
         if q2m_ref == m2_ref:
             masses[qidx] = m2_ref
             continue
+        # check that Qref is in NF=3 scheme
         if theory_card["Qref"] > q2m_ref:
-            raise ValueError("In MSBAR scheme Q0 must be lower than any Qm")
-        # TODO: is this really necessary?
-        # if q2m_ref > m2_ref:
-        #     raise ValueError("In MSBAR scheme each heavy quark \
-        #         mass reference scale must be smaller or equal than \
-        #             the value of the mass itself"
-        #     )
+            raise ValueError("In MSBAR scheme Qref must be lower than any Qm")
+        if q2m_ref > m2_ref:
+            raise ValueError("In MSBAR scheme each heavy quark \
+                mass reference scale must be smaller or equal than \
+                    the value of the mass itself"
+            )
         config["thr_masses"] = masses
         masses[qidx] = evolve_msbar_mass(
             m2_ref, q2m_ref, qidx + nf_active, config=config

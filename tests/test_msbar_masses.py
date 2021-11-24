@@ -88,7 +88,7 @@ class TestMsbarMasses:
                 dict(
                     Q0=np.sqrt(0.9),
                     mc=1.0,
-                    mb=1.0,
+                    mb=1.00001,
                     mt=3.0,
                     Qmc=1.0,
                     Qmb=1.00001,
@@ -103,5 +103,27 @@ class TestMsbarMasses:
                     fact_to_ren_scale_ratio=1.0,
                     alphas=10,
                     Qref=0.5 ** 2,
+                ),
+            )
+        with pytest.raises(ValueError, match="must be smaller or equal"):
+            compute_msbar_mass(
+                dict(
+                    Q0=np.sqrt(2),
+                    mc=np.sqrt(2),
+                    mb=4.0,
+                    mt=172.0,
+                    Qmc=20,
+                    Qmb=4.0,
+                    Qmt=172.0,
+                    kcThr=1.0,
+                    kbThr=1.0,
+                    ktThr=1.0,
+                    MaxNfPdf=6,
+                    HQ="MSBAR",
+                    PTO=2,
+                    method="EXA",
+                    fact_to_ren_scale_ratio=1.0,
+                    alphas=0.35,
+                    Qref=np.sqrt(2),
                 ),
             )

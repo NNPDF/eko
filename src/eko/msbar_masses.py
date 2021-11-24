@@ -175,7 +175,7 @@ def evolve_msbar_mass(
     Returns
     -------
         m2 : float
-            :math:`m_{\overline{MS}}(\mu_2)`
+            :math:`m_{\overline{MS}}(\mu_2)^2`
     """
     # set the missing information if needed
     fact_to_ren = config["fact_to_ren"]
