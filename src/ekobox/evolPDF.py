@@ -56,7 +56,10 @@ def evolve_PDFs(
         targetgrid = operators_card["interpolation_xgrid"]
 
     info = lhapdf_style.create_info_file(
-        theory_card, operators_card, len(evolved_PDF_list), info_update
+        theory_card,
+        operators_card,
+        len(evolved_PDF_list),
+        info_update={"XMin": targetgrid[0], "XMax": targetgrid[-1]},
     )
     all_member_blocks = []
     all_blocks = []

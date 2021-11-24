@@ -5,7 +5,7 @@ from banana.data import sql
 from ekomark.data import operators
 
 
-def gen_op_card(Q2grid, update=None):
+def gen_op_card(Q2grid, update=None, export=False, name="MyOpCard"):
     """
     Generates an operator card with some mandatory user choice
     (in this case only the Q2 grid) and some default values which
@@ -17,7 +17,10 @@ def gen_op_card(Q2grid, update=None):
             grid for Q2
         update : dict
             dictionary of info to update in op. card
-
+        export : bool
+            set if export the op. card
+        name : str
+            name of the exported op.card
     Returns
     -------
         : dict
@@ -34,17 +37,20 @@ def gen_op_card(Q2grid, update=None):
             if k not in def_op.keys():
                 raise ValueError("Provided key not in operators card")
         def_op.update(update)
+
+    if export:
+        export_op_card(name, def_op)
     return def_op
 
 
 def export_op_card(name, op):
     """
-    Dump the operators card in the current directory
+    Export the operators card in the current directory
 
     Parameters
     ----------
         name : str
-            name of the op. card to dump
+            name of the op. card to export
 
         op : dict
             op card
@@ -56,7 +62,7 @@ def export_op_card(name, op):
 
 def import_op_card(path):
     """
-    Load the operators card specified by path
+    Import the operators card specified by path
 
     Parameters
     ----------

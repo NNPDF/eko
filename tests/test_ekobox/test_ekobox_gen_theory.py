@@ -19,11 +19,11 @@ def test_gen_theory_card():
     assert theory["mb"] == 132.3
 
 
-def test_dump_load_theory_card(tmp_path):
+def test_export_load_theory_card(tmp_path):
     with cd(tmp_path):
-        theory = g_t.gen_theory_card(2, 12.3, dump=True, name="debug_theory")
-        g_t.dump_theory_card("debug_theory_two", theory)
-        theory_loaded = g_t.load_theory_card("debug_theory.yaml")
-        theory_two_loaded = g_t.load_theory_card("debug_theory_two.yaml")
+        theory = g_t.gen_theory_card(2, 12.3, export=True, name="debug_theory")
+        g_t.export_theory_card("debug_theory_two", theory)
+        theory_loaded = g_t.import_theory_card("debug_theory.yaml")
+        theory_two_loaded = g_t.import_theory_card("debug_theory_two.yaml")
         for key in theory.keys():
             assert theory[key] == theory_loaded[key] == theory_two_loaded[key]

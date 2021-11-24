@@ -7,7 +7,7 @@ import yaml
 from banana.data import sql
 
 
-def gen_theory_card(pto, initial_scale, update=None, dump=False, name=None):
+def gen_theory_card(pto, initial_scale, update=None, export=False, name="MyTheoryCard"):
     """
     Generates a theory card with some mandatory user choice and some
     default values which can be changed by the update input dict
@@ -21,10 +21,10 @@ def gen_theory_card(pto, initial_scale, update=None, dump=False, name=None):
             initial scale of evolution
         update : dict
             info to update to default theory card
-        dump : bool
+        export : bool
             set if dump
         name : str
-            name of theory card (if dumped )
+            name of theory card (if exported )
 
     Returns
     -------
@@ -49,19 +49,19 @@ def gen_theory_card(pto, initial_scale, update=None, dump=False, name=None):
             if k not in theory.keys():
                 raise ValueError("Provided key not in theory card")
         theory.update(update)
-    if dump:
-        dump_theory_card(name, theory)
+    if export:
+        export_theory_card(name, theory)
     return theory
 
 
 def export_theory_card(name, theory):
     """
-    Dump the theory card in the current directory
+    Export the theory card in the current directory
 
     Parameters
     ----------
         name : str
-            name of the theory card to dump
+            name of the theory card to export
 
         theory : dict
             theory card
@@ -73,7 +73,7 @@ def export_theory_card(name, theory):
 
 def import_theory_card(path):
     """
-    Load the theory card specified by path
+    Import the theory card specified by path
 
     Parameters
     ----------
