@@ -1,6 +1,7 @@
 import io
 import pathlib
 
+import banana
 import yaml
 
 
@@ -24,7 +25,7 @@ def create_info_file(theory_card, operators_card, NumMembers, info_update):
         : dict
         info file in lhapdf format
     """
-    here = pathlib.Path(__file__).parent
+    here = pathlib.Path(banana.__file__).parent / "data/genpdf"
     with open(here / "templatePDF.info", "r") as o:
         template_info = yaml.safe_load(o)
     # TODOs: Updating the info using the theory and operator cards

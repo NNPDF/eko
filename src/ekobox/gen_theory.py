@@ -2,6 +2,7 @@ import io
 import math
 import pathlib
 
+import banana
 import yaml
 from banana.data import sql
 
@@ -32,7 +33,7 @@ def gen_theory_card(pto, initial_scale, update=None, dump=False, name=None):
         theory card
     """
     # Constructing the dictionary with some default value
-    here = pathlib.Path(__file__).parent
+    here = pathlib.Path(banana.__file__).parent / "data"
     with open(here / "theory_template.yaml", "r") as o:
         theory = yaml.safe_load(o)
     # delete unuseful member
