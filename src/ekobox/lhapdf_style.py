@@ -4,7 +4,7 @@ import pathlib
 import yaml
 
 
-def create_info_file(theory_card, operators_card, info_update):
+def create_info_file(theory_card, operators_card, NumMembers, info_update):
     """
     Generate a lhapdf info file from theory and operators card
 
@@ -14,6 +14,8 @@ def create_info_file(theory_card, operators_card, info_update):
             theory card
         operators_card : dict
             operators_card
+        NumMembers : int
+            number of members of the PDF set
         info_update : dict
             info to update
 

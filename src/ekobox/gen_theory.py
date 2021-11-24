@@ -32,7 +32,6 @@ def gen_theory_card(pto, initial_scale, update=None, dump=False, name=None):
         theory card
     """
     # Constructing the dictionary with some default value
-    # TODOs: load this not write
     here = pathlib.Path(__file__).parent
     with open(here / "theory_template.yaml", "r") as o:
         theory = yaml.safe_load(o)
@@ -54,7 +53,7 @@ def gen_theory_card(pto, initial_scale, update=None, dump=False, name=None):
     return theory
 
 
-def dump_theory_card(name, theory):
+def export_theory_card(name, theory):
     """
     Dump the theory card in the current directory
 
@@ -71,7 +70,7 @@ def dump_theory_card(name, theory):
         yaml.safe_dump(theory, out)
 
 
-def load_theory_card(path):
+def import_theory_card(path):
     """
     Load the theory card specified by path
 

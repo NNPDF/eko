@@ -37,7 +37,7 @@ def gen_op_card(Q2grid, update=None):
     return def_op
 
 
-def dump_op_card(name, op):
+def export_op_card(name, op):
     """
     Dump the operators card in the current directory
 
@@ -54,7 +54,7 @@ def dump_op_card(name, op):
         yaml.safe_dump(op, out)
 
 
-def load_op_card(path):
+def import_op_card(path):
     """
     Load the operators card specified by path
 
