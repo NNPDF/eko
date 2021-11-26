@@ -101,33 +101,3 @@ def apply_pdf_flavor(output, lhapdf_like, targetgrid=None, flavor_rotation=None)
                 )
 
     return out_grid
-
-
-def apply_pdf_allmembers(output, lhapdf_list, targetgrid=None, flavor_rotation=None):
-    """
-    Apply all available operators to the input list of PDFs.
-
-    Parameters
-    ----------
-        output : eko.output.Output
-            eko output object containing all informations
-        lhapdf_like : list(objects)
-            list of objects that provide an xfxQ2 callable (as `lhapdf <https://lhapdf.hepforge.org/>`_
-            and :class:`ekomark.toyLH.toyPDF` do) (and thus is in flavor basis)
-        targetgrid : list
-            if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
-        flavor_rotation : np.ndarray
-            Rotation matrix in flavor space
-
-    Returns
-    -------
-        out_grid : list(dict)
-            list of output PDFs and their associated errors for the computed Q2grid
-    """
-    if not isinstance(lhapdf_list, list):
-        raise TypeError("lhapdf object must be a list")
-    out = []
-    for lhapdf_like in lhapdf_list:
-        out.append(apply_pdf_flavor(output, lhapdf_like, targetgrid, flavor_rotation))
-
-    return out
