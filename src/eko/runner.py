@@ -11,9 +11,10 @@ from . import basis_rotation as br
 from . import interpolation
 from .evolution_operator.grid import OperatorGrid
 from .output import Output
-from .strong_coupling import StrongCoupling
+from .strong_coupling import StrongCoupling, strong_coupling_mod_ev
 from .thresholds import ThresholdsAtlas
 from .msbar_masses import evolve_msbar_mass
+from .evolution_operator.flavors import quark_names
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +82,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         # setup basis grid
         bfd = interpolation.InterpolatorDispatcher.from_dict(operators_card)
         self.out.update(bfd.to_dict())
-        # setup the Threshold path, compute masses if necesssary
+        # setup the Threshold path, compute masses if necessary
         masses = None
         if theory_card["HQ"] == "MSBAR":
             masses = compute_msbar_mass(theory_card)
@@ -165,36 +166,91 @@ def compute_msbar_mass(theory_card):
         masses: list
             list of msbar masses squared
     """
-    masses = np.full(3, np.inf)
-    nf_active = 3
+    if theory_card["nfref"] is None:
+        raise ValueError(
+            "You need to specify the number of active flavors for alphas \
+            reference value (nfref) when running in MSBAR scheme"
+        )
+    nfa_ref = theory_card["nfref"]
+
+    q2_ref = np.power(theory_card["Qref"], 2)
+    masses = np.concatenate((np.zeros(nfa_ref - 3), np.full(6 - nfa_ref, np.inf)))
     config = {
         "as_ref": theory_card["alphas"],
-        "q2a_ref": np.power(theory_card["Qref"], 2),
+        "q2a_ref": q2_ref,
         "order": theory_card["PTO"],
         "fact_to_ren": theory_card["fact_to_ren_scale_ratio"] ** 2,
+        "method": strong_coupling_mod_ev(theory_card["ModEv"]),
+        "nfref": nfa_ref,
     }
-    for qidx, hq in enumerate("cbt"):
+
+    # First you need to look for the thr around the given as_ref
+    heavy_quarks = quark_names[3:]
+    hq_idxs = np.arange(0, 3)
+    if nfa_ref > 4:
+        heavy_quarks = reversed(heavy_quarks)
+        hq_idxs = reversed(hq_idxs)
+
+    # loop on heavy quarks and compute the msbar masses
+    for q_idx, hq in zip(hq_idxs, heavy_quarks):
         q2m_ref = np.power(theory_card[f"Qm{hq}"], 2)
         m2_ref = np.power(theory_card[f"m{hq}"], 2)
-        # check if mass is already given at the pole
+
+        # check if mass is already given at the pole -> done
         if q2m_ref == m2_ref:
-            masses[qidx] = m2_ref
+            masses[q_idx] = m2_ref
             continue
-        # check that Qref is in NF=3 scheme
-        if theory_card["Qref"] > q2m_ref:
-            raise ValueError("In MSBAR scheme Qref must be lower than any Qm")
-        if q2m_ref > m2_ref:
-            raise ValueError("In MSBAR scheme each heavy quark \
-                mass reference scale must be smaller or equal than \
-                    the value of the mass itself"
-            )
+
+        # update the alphas thr scales
         config["thr_masses"] = masses
-        masses[qidx] = evolve_msbar_mass(
-            m2_ref, q2m_ref, qidx + nf_active, config=config
-        )
+        nf_target = q_idx + 3
+        shift = -1
+
+        # check that alphas is given with a consistent number of flavors
+        if q_idx + 4 == nfa_ref and q2m_ref > q2_ref:
+            raise ValueError(
+                f"In MSBAR scheme, Qm{hq} should be lower than Qref, \
+                if alpha_s is given with nfref={nfa_ref} at scale Qref={q2_ref}"
+            )
+        if q_idx + 4 == nfa_ref + 1 and q2m_ref < q2_ref:
+            raise ValueError(
+                f"In MSBAR scheme, Qm{hq} should be greater than Qref, \
+                if alpha_s is given with nfref={nfa_ref} at scale Qref={q2_ref}"
+            )
+
+        # check that for higher patches you do forward running
+        # with consistent conditions
+        if q_idx + 3 >= nfa_ref and q2m_ref >= m2_ref:
+            raise ValueError(
+                f"In MSBAR scheme, Qm{hq} should be lower than m{hq} \
+                        if alpha_s is given with nfref={nfa_ref} at scale Qref={q2_ref}"
+            )
+
+        # check that for lower patches you do backward running
+        # with consistent conditions
+        if q_idx + 3 < nfa_ref:
+            if q2m_ref < m2_ref:
+                raise ValueError(
+                    f"In MSBAR scheme, Qm{hq} should be greater than m{hq} \
+                        if alpha_s is given with nfref={nfa_ref} at scale Qref={q2_ref}"
+                )
+            nf_target += 1
+            shift = 1
+
+        # if the initial condition are not in the target patch,
+        # you need to evolve the initial until nf_target patch wall is reached:
+        #   for backward you reach the higher, for forward from the lower.
+        # len(masses[q2m_ref > masses]) + 3 is the nf at the given reference scale
+        if nf_target != len(masses[q2m_ref > masses]) + 3:
+            q2_to = masses[q_idx + shift]
+            m2_ref = evolve_msbar_mass(m2_ref, q2m_ref, config=config, q2_to=q2_to)
+            q2m_ref = q2_to
+
+        # now solve the RGE
+        masses[q_idx] = evolve_msbar_mass(m2_ref, q2m_ref, nf_target, config=config)
 
     # Check the msbar ordering
-    for m2_msbar, hq in zip(masses[:-1], "bt"):
+    for m2_msbar, hq in zip(masses[:-1], quark_names[4:]):
         q2m_ref = np.power(theory_card[f"Qm{hq}"], 2)
         m2_ref = np.power(theory_card[f"m{hq}"], 2)
         config["thr_masses"] = masses
@@ -203,6 +259,6 @@ def compute_msbar_mass(theory_card):
         if m2_msbar > m2_test:
             raise ValueError(
                 "The MSBAR masses do not preserve the correct ordering,\
-                    check the inital reference values"
+                    check the initial reference values"
             )
     return masses

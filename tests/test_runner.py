@@ -10,7 +10,7 @@ theory_card = {
     "PTO": 0,
     "fact_to_ren_scale_ratio": 1.0,
     "Qref": np.sqrt(2),
-    "nfref": None,
+    "nfref": 4,
     "Q0": np.sqrt(2),
     "nf0": 4,
     "FNS": "FFNS",

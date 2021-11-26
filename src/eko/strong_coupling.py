@@ -18,6 +18,23 @@ from .beta import beta
 logger = logging.getLogger(__name__)
 
 
+def strong_coupling_mod_ev(mod_ev):
+    """Map ModEv key to the available strong coupling evolution methods"""
+    if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
+        return "exact"
+    elif mod_ev in [
+        "TRN",
+        "truncated",
+        "ordered-truncated",
+        "EXP",
+        "iterate-expanded",
+        "decompose-expanded",
+        "perturbative-expanded",
+    ]:
+        return "expanded"
+    raise ValueError(f"Unknown evolution mode {mod_ev}")
+
+
 @nb.njit("f8(u1,f8,u1,f8,f8)", cache=True)
 def as_expanded(order, as_ref, nf, scale_from, scale_to):
     """
@@ -184,21 +201,7 @@ class StrongCoupling:
         nf_ref = theory_card["nfref"]
         q2_alpha = pow(theory_card["Qref"], 2)
         order = theory_card["PTO"]
-        mod_ev = theory_card["ModEv"]
-        if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
-            method = "exact"
-        elif mod_ev in [
-            "TRN",
-            "truncated",
-            "ordered-truncated",
-            "EXP",
-            "iterate-expanded",
-            "decompose-expanded",
-            "perturbative-expanded",
-        ]:
-            method = "expanded"
-        else:
-            raise ValueError(f"Unknown evolution mode {mod_ev}")
+        method = strong_coupling_mod_ev(theory_card["ModEv"])
         hqm_scheme = theory_card["HQ"]
         if hqm_scheme not in ["MSBAR", "POLE"]:
             raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")

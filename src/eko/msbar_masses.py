@@ -145,25 +145,25 @@ def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
 def evolve_msbar_mass(
     m2_ref,
     q2m_ref,
-    nf=None,
+    nf_ref=None,
     config=None,
     strong_coupling=None,
     q2_to=None,
 ):
     r"""
     Compute the MSbar mass.
-    If the final scale is not gven it solves the equation :math:`m_{\overline{MS}}(m) = m`
-    for afixed number of nf
+    If the final scale is not given it solves the equation :math:`m_{\overline{MS}}(m) = m`
+    for a fixed number of nf
     Else perform the mass evolution.
 
     Parameters
     ----------
         m2_ref: float
-            squared intial mass reference
+            squared initial mass reference
         q2m_ref: float
-            squared intial scale
-        nf: int, optional
-            number of active flavours (not used when q2_to is given)
+            squared initial scale
+        nf_ref: int, optional (not used when q2_to is given)
+            number of active flavours at the scale q2m_ref, where the solution is searched
         config: dict
             msbar configuration dictionary
         strong_coupling: eko.strong_coupling.StrongCoupling
@@ -186,20 +186,24 @@ def evolve_msbar_mass(
             config["thr_masses"],
             thresholds_ratios=[1, 1, 1],
             order=config["order"],
+            method=config["method"],
+            nf_ref=config["nfref"],
         )
 
     if q2_to is None:
 
-        def rge(m2, q2m_ref, strong_coupling, fact_to_ren, nf):
+        def rge(m2, q2m_ref, strong_coupling, fact_to_ren, nf_ref):
             return (
                 m2_ref
-                * msbar_ker_dispatcher(m2, q2m_ref, strong_coupling, fact_to_ren, nf)
+                * msbar_ker_dispatcher(
+                    m2, q2m_ref, strong_coupling, fact_to_ren, nf_ref
+                )
                 ** 2
                 - m2
             )
 
         msbar_mass = optimize.fsolve(
-            rge, q2m_ref, args=(q2m_ref, strong_coupling, fact_to_ren, nf)
+            rge, q2m_ref, args=(q2m_ref, strong_coupling, fact_to_ren, nf_ref)
         )
         return float(msbar_mass)
     else:
