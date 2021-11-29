@@ -104,7 +104,7 @@ def A_singlet(order, n, sx, nf, L):
     if order >= 2:
         A_singlet[1] = nnlo.A_singlet_2(n, sx, L)
     if order >= 3:
-        A_singlet[2] = n3lo.A_singlet_3(n, sx, nf)
+        A_singlet[2] = n3lo.A_singlet_3(n, sx, nf, L)
     return A_singlet
 
 
@@ -144,7 +144,7 @@ def A_non_singlet(order, n, sx, nf, L):
     if order >= 2:
         A_ns[1] = nnlo.A_ns_2(n, sx, L)
     if order >= 3:
-        A_ns[2] = n3lo.A_ns_3(n, sx, nf)
+        A_ns[2] = n3lo.A_ns_3(n, sx, nf, L)
     return A_ns
 
 
@@ -162,7 +162,7 @@ def build_ome(A, order, a_s, backward_method):
         a_s : float
             strong coupling, needed only for the exact inverse
         backward_method : ["exact", "expanded" or ""]
-            empty or method for inverting the matching contidtion (exact or expanded)
+            empty or method for inverting the matching condition (exact or expanded)
 
     Returns
     -------
@@ -226,7 +226,7 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method):
         L : float
             :math:`log(q^2/m_h^2)`
         backward_method : ["exact", "expanded" or ""]
-            empty or method for inverting the matching contidtion (exact or expanded)
+            empty or method for inverting the matching condition (exact or expanded)
     Returns
     -------
         ker : float

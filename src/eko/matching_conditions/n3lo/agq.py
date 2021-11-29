@@ -3,8 +3,8 @@ import numba as nb
 import numpy as np
 
 
-@nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4)", cache=True)
-def A_gq_3(n, sx, smx, s3x, s4x, nf):  # pylint: disable=too-many-locals
+@nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4,f8)", cache=True)
+def A_gq_3(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{gq}^{S,(3)}(N)`.
     The experssion is presented in :cite:`Ablinger_2014` (eq 6.3)
@@ -22,7 +22,9 @@ def A_gq_3(n, sx, smx, s3x, s4x, nf):  # pylint: disable=too-many-locals
         s4x : numpy.ndarray
             list S31, S221, Sm22, Sm211, Sm31
         nf : int
-            numeber of active flavor below the threshold
+            number of active flavor below the threshold
+        L : float
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -33,7 +35,7 @@ def A_gq_3(n, sx, smx, s3x, s4x, nf):  # pylint: disable=too-many-locals
     Sm1, Sm2, Sm3, Sm4 = smx[0], smx[1], smx[2], smx[3]
     S21, S2m1, Sm21, Sm2m1 = s3x[0], s3x[1], s3x[2], s3x[3]
     S31, S211, Sm22, Sm211, Sm31 = s4x[0], s4x[1], s4x[2], s4x[3], s4x[4]
-    return (
+    a_gq_l0 = (
         0.3333333333333333
         * (
             (
@@ -625,3 +627,361 @@ def A_gq_3(n, sx, smx, s3x, s4x, nf):  # pylint: disable=too-many-locals
             / ((-1.0 + n) * n * (1.0 + n))
         )
     )
+    a_gq_l3 = (
+        -1.0
+        * (2.0 + n + np.power(n, 2))
+        * (
+            1.1851851851851851 * (2.0 + nf)
+            + 0.8888888888888888
+            * (
+                (
+                    0.4444444444444444
+                    * (
+                        48.0
+                        + 44.0 * n
+                        + 52.0 * np.power(n, 2)
+                        + 19.0 * np.power(n, 3)
+                        + 17.0 * np.power(n, 4)
+                        + 9.0 * np.power(n, 5)
+                        + 3.0 * np.power(n, 6)
+                    )
+                )
+                / ((-1.0 + n) * np.power(n, 2) * np.power(1.0 + n, 2) * (2.0 + n))
+                - 1.7777777777777777 * S1
+            )
+            + 2.0
+            * (
+                (
+                    -0.8888888888888888
+                    * (
+                        4.0
+                        - 18.0 * n
+                        - 7.0 * np.power(n, 2)
+                        + 22.0 * np.power(n, 3)
+                        + 11.0 * np.power(n, 4)
+                    )
+                )
+                / ((-1.0 + n) * n * (1.0 + n) * (2.0 + n))
+                + 1.7777777777777777 * S1
+            )
+        )
+    ) / ((-1.0 + n) * n * (1.0 + n))
+    a_gq_l2 = (
+        0.3333333333333333
+        * (
+            (
+                3.5555555555555554
+                * (16.0 + 27.0 * n + 13.0 * np.power(n, 2) + 8.0 * np.power(n, 3))
+            )
+            / ((-1.0 + n) * n * np.power(1.0 + n, 2))
+            - (10.666666666666666 * (2.0 + n + np.power(n, 2)) * S1)
+            / ((-1.0 + n) * n * (1.0 + n))
+        )
+        + 0.8888888888888888
+        * (
+            (
+                -0.2222222222222222
+                * (
+                    -768.0
+                    + 112.0 * n
+                    - 720.0 * np.power(n, 2)
+                    - 1616.0 * np.power(n, 3)
+                    - 3236.0 * np.power(n, 4)
+                    - 2451.0 * np.power(n, 5)
+                    - 526.0 * np.power(n, 6)
+                    + 604.0 * np.power(n, 7)
+                    + 450.0 * np.power(n, 8)
+                    + 87.0 * np.power(n, 9)
+                )
+            )
+            / (
+                np.power(-1.0 + n, 2)
+                * np.power(n, 3)
+                * np.power(1.0 + n, 3)
+                * np.power(2.0 + n, 2)
+            )
+            + (
+                1.7777777777777777
+                * (-6.0 + 17.0 * n + 4.0 * np.power(n, 2) + 7.0 * np.power(n, 3))
+                * S1
+            )
+            / ((-1.0 + n) * np.power(n, 2) * (1.0 + n))
+            + (
+                2.6666666666666665
+                * (2.0 + n + np.power(n, 2))
+                * (np.power(S1, 2) - 5.0 * S2)
+            )
+            / ((-1.0 + n) * n * (1.0 + n))
+        )
+        + 2.0
+        * (
+            (
+                0.4444444444444444
+                * (
+                    384.0
+                    + 896.0 * n
+                    + 528.0 * np.power(n, 2)
+                    - 124.0 * np.power(n, 3)
+                    - 820.0 * np.power(n, 4)
+                    - 309.0 * np.power(n, 5)
+                    + 694.0 * np.power(n, 6)
+                    + 860.0 * np.power(n, 7)
+                    + 414.0 * np.power(n, 8)
+                    + 69.0 * np.power(n, 9)
+                )
+            )
+            / (
+                np.power(-1.0 + n, 2)
+                * np.power(n, 3)
+                * np.power(1.0 + n, 3)
+                * np.power(2.0 + n, 2)
+            )
+            + (
+                3.5555555555555554
+                * (
+                    30.0
+                    - 7.0 * n
+                    - 33.0 * np.power(n, 2)
+                    - 8.0 * np.power(n, 3)
+                    - 1.0 * np.power(n, 4)
+                    + np.power(n, 5)
+                )
+                * S1
+            )
+            / (np.power(-1.0 + n, 2) * np.power(n, 2) * (1.0 + n) * (2.0 + n))
+            + (
+                (2.0 + n + np.power(n, 2))
+                * (-2.6666666666666665 * np.power(S1, 2) - 8.0 * S2 - 16.0 * Sm2)
+            )
+            / ((-1.0 + n) * n * (1.0 + n))
+        )
+    )
+    a_gq_l1 = (
+        (-12.246913580246913 * (2.0 + n + np.power(n, 2)))
+        / ((-1.0 + n) * n * (1.0 + n))
+        - 0.3333333333333333
+        * nf
+        * (
+            (
+                1.1851851851851851
+                * (
+                    38.0
+                    + 80.0 * n
+                    + 86.0 * np.power(n, 2)
+                    + 81.0 * np.power(n, 3)
+                    + 19.0 * np.power(n, 4)
+                )
+            )
+            / ((-1.0 + n) * n * np.power(1.0 + n, 3))
+            + (
+                3.5555555555555554
+                * (16.0 + 27.0 * n + 13.0 * np.power(n, 2) + 8.0 * np.power(n, 3))
+                * S1
+            )
+            / ((-1.0 + n) * n * np.power(1.0 + n, 2))
+            + (
+                (2.0 + n + np.power(n, 2))
+                * (-5.333333333333333 * np.power(S1, 2) - 5.333333333333333 * S2)
+            )
+            / ((-1.0 + n) * n * (1.0 + n))
+        )
+        - 0.8888888888888888
+        * (
+            (
+                -0.07407407407407407
+                * (
+                    3456.0
+                    + 9504.0 * n
+                    + 18240.0 * np.power(n, 2)
+                    + 65344.0 * np.power(n, 3)
+                    + 81160.0 * np.power(n, 4)
+                    + 44386.0 * np.power(n, 5)
+                    + 3704.0 * np.power(n, 6)
+                    - 32981.0 * np.power(n, 7)
+                    - 31663.0 * np.power(n, 8)
+                    - 11406.0 * np.power(n, 9)
+                    + 436.0 * np.power(n, 10)
+                    + 1545.0 * np.power(n, 11)
+                    + 339.0 * np.power(n, 12)
+                )
+            )
+            / (
+                np.power(-1.0 + n, 2)
+                * np.power(n, 5)
+                * np.power(1.0 + n, 4)
+                * np.power(2.0 + n, 2)
+            )
+            + (
+                0.2962962962962963
+                * (
+                    -72.0
+                    - 408.0 * n
+                    - 446.0 * np.power(n, 2)
+                    + 175.0 * np.power(n, 3)
+                    + 472.0 * np.power(n, 4)
+                    + 243.0 * np.power(n, 5)
+                    + 164.0 * np.power(n, 6)
+                )
+                * S1
+            )
+            / ((-1.0 + n) * np.power(n, 3) * np.power(1.0 + n, 3))
+            - (
+                0.4444444444444444
+                * (
+                    -24.0
+                    + 74.0 * n
+                    + 135.0 * np.power(n, 2)
+                    + 68.0 * np.power(n, 3)
+                    + 43.0 * np.power(n, 4)
+                )
+                * np.power(S1, 2)
+            )
+            / ((-1.0 + n) * np.power(n, 2) * np.power(1.0 + n, 2))
+            - (
+                0.4444444444444444
+                * (
+                    -288.0
+                    - 480.0 * n
+                    - 1444.0 * np.power(n, 2)
+                    - 2036.0 * np.power(n, 3)
+                    - 807.0 * np.power(n, 4)
+                    + 802.0 * np.power(n, 5)
+                    + 1056.0 * np.power(n, 6)
+                    + 706.0 * np.power(n, 7)
+                    + 187.0 * np.power(n, 8)
+                )
+                * S2
+            )
+            / (
+                np.power(-1.0 + n, 2)
+                * np.power(n, 3)
+                * np.power(1.0 + n, 3)
+                * (2.0 + n)
+            )
+            + (
+                (2.0 + n + np.power(n, 2))
+                * (
+                    -76.93164180221403
+                    - 0.8888888888888888 * np.power(S1, 3)
+                    + 29.333333333333332 * S1 * S2
+                    - 10.666666666666666 * S21
+                    + 19.555555555555557 * S3
+                    - (128.0 * Sm2) / ((-1.0 + n) * n * (1.0 + n) * (2.0 + n))
+                )
+            )
+            / ((-1.0 + n) * n * (1.0 + n))
+        )
+        - 2.0
+        * (
+            (
+                0.2962962962962963
+                * (
+                    288.0
+                    + 7440.0 * n
+                    + 28928.0 * np.power(n, 2)
+                    + 49136.0 * np.power(n, 3)
+                    + 44966.0 * np.power(n, 4)
+                    + 23063.0 * np.power(n, 5)
+                    + 5814.0 * np.power(n, 6)
+                    + 8033.0 * np.power(n, 7)
+                    + 14891.0 * np.power(n, 8)
+                    + 13239.0 * np.power(n, 9)
+                    + 7232.0 * np.power(n, 10)
+                    + 2301.0 * np.power(n, 11)
+                    + 301.0 * np.power(n, 12)
+                )
+            )
+            / (
+                np.power(-1.0 + n, 2)
+                * np.power(n, 4)
+                * np.power(1.0 + n, 4)
+                * np.power(2.0 + n, 3)
+            )
+            - (
+                0.2962962962962963
+                * (
+                    576.0
+                    - 1680.0 * n
+                    - 8464.0 * np.power(n, 2)
+                    - 7168.0 * np.power(n, 3)
+                    + 4460.0 * np.power(n, 4)
+                    + 11533.0 * np.power(n, 5)
+                    + 9317.0 * np.power(n, 6)
+                    + 5347.0 * np.power(n, 7)
+                    + 2139.0 * np.power(n, 8)
+                    + 356.0 * np.power(n, 9)
+                )
+                * S1
+            )
+            / (
+                np.power(-1.0 + n, 2)
+                * np.power(n, 3)
+                * np.power(1.0 + n, 3)
+                * np.power(2.0 + n, 2)
+            )
+            + (
+                0.4444444444444444
+                * (
+                    -264.0
+                    - 88.0 * n
+                    + 324.0 * np.power(n, 2)
+                    + 127.0 * np.power(n, 3)
+                    + 86.0 * np.power(n, 4)
+                    + 31.0 * np.power(n, 5)
+                )
+                * np.power(S1, 2)
+            )
+            / (np.power(-1.0 + n, 2) * np.power(n, 2) * (1.0 + n) * (2.0 + n))
+            - (
+                1.3333333333333333
+                * (
+                    56.0
+                    - 92.0 * np.power(n, 2)
+                    - 1.0 * np.power(n, 3)
+                    + 37.0 * np.power(n, 4)
+                    + 33.0 * np.power(n, 5)
+                    + 15.0 * np.power(n, 6)
+                )
+                * S2
+            )
+            / (
+                np.power(-1.0 + n, 2)
+                * np.power(n, 2)
+                * np.power(1.0 + n, 2)
+                * (2.0 + n)
+            )
+            - (
+                5.333333333333333
+                * (
+                    -40.0
+                    - 72.0 * n
+                    - 76.0 * np.power(n, 2)
+                    + 39.0 * np.power(n, 3)
+                    + 51.0 * np.power(n, 4)
+                    + 37.0 * np.power(n, 5)
+                    + 13.0 * np.power(n, 6)
+                )
+                * Sm2
+            )
+            / (
+                np.power(-1.0 + n, 2)
+                * np.power(n, 2)
+                * np.power(1.0 + n, 2)
+                * (2.0 + n)
+            )
+            + (
+                (2.0 + n + np.power(n, 2))
+                * (
+                    76.93164180221403
+                    + 0.8888888888888888 * np.power(S1, 3)
+                    + 18.666666666666668 * S1 * S2
+                    + 28.444444444444443 * S3
+                    + 42.666666666666664 * S1 * Sm2
+                    - 21.333333333333332 * Sm21
+                    + 21.333333333333332 * Sm3
+                )
+            )
+            / ((-1.0 + n) * n * (1.0 + n))
+        )
+    )
+    return a_gq_l0 + a_gq_l1 * L + a_gq_l2 * L ** 2 + a_gq_l3 * L ** 3
