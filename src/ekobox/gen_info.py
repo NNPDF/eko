@@ -1,8 +1,10 @@
 import copy
 import io
+import math
 import pathlib
 
 import banana
+import numpy as np
 import yaml
 from banana.data.genpdf import load
 
@@ -38,8 +40,8 @@ def create_info_file(theory_card, operators_card, num_members, info_update):
     template_info["XMax"] = operators_card["interpolation_xgrid"][-1]
     template_info["NumMembers"] = num_members
     template_info["OrderQCD"] = theory_card["PTO"]
-    template_info["QMin"] = operators_card["Q2grid"][0]
-    template_info["QMax"] = operators_card["Q2grid"][-1]
+    template_info["QMin"] = round(math.sqrt(operators_card["Q2grid"][0]), 4)
+    template_info["QMax"] = round(math.sqrt(operators_card["Q2grid"][-1]), 4)
     template_info["MZ"] = theory_card["MZ"]
     template_info["MUp"] = 0.0
     template_info["MDown"] = 0.0

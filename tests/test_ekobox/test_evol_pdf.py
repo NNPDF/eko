@@ -1,4 +1,4 @@
-import itertools
+import pathlib
 
 import lhapdf
 import numpy as np
@@ -15,7 +15,27 @@ from ekobox import gen_theory as g_t
 
 
 def test_evolve_single_member(tmp_path):
-    q2grid = [100.0]
+    q2grid = [
+        55.0,
+        60.0,
+        65.0,
+        70.0,
+        75.0,
+        80.0,
+        85.0,
+        90.0,
+        95.0,
+        100.0,
+        105.0,
+        110.0,
+        115.0,
+        120.0,
+        125.0,
+        130.0,
+        135.0,
+        140.0,
+        145.0,
+    ]
     op = g_o.gen_op_card(q2grid)
     theory = g_t.gen_theory_card(
         0,
@@ -33,6 +53,7 @@ def test_evolve_single_member(tmp_path):
             "ktThr": 1,
         },
     )
+    # lhapdf import (maybe i have to dump with a x*), do plots)
     with lhapdf_path(test_pdf):
         pdf = lhapdf.mkPDF("myCT14llo_NF3", 0)
     with cd(tmp_path):
@@ -40,27 +61,33 @@ def test_evolve_single_member(tmp_path):
             [pdf],
             theory,
             op,
-            path="/home/andrea/n3pdf/eko/tests/test_ekobox/cached_out",
+            name="EvPDF",
+            path=str(pathlib.Path(__file__).parent.resolve()) + "/cached_out",
             info_update={"SetDesc": "MyEvolvedPDF", "MZ": 0.2, "Debug": "Debug"},
         )
     with lhapdf_path(tmp_path):
-        all_blocks = (load.load_blocks_from_file("Evolved_PDF", 0))[1]
-        info = load.load_info_from_file("Evolved_PDF")
+        all_blocks = (load.load_blocks_from_file("EvPDF", 0))[1]
+        info = load.load_info_from_file("EvPDF")
+        ev_pdf = lhapdf.mkPDF("EvPDF", 0)
     assert info["XMin"] == op["interpolation_xgrid"][0]
     assert info["SetDesc"] == "MyEvolvedPDF"
     assert info["MZ"] == theory["MZ"]
     assert info["Debug"] == "Debug"
     xgrid = op["interpolation_xgrid"]
-    for Q2 in q2grid:
-        for x in itertools.islice(xgrid, 10, 40):
+    for Q2 in [100.0]:
+        for x in xgrid[10:40]:
             for pid in [21, 1, -1, 2, -2, 3, -3]:
                 np.testing.assert_allclose(
                     pdf.xfxQ2(pid, x, Q2),
-                    x
-                    * all_blocks[0]["data"][xgrid.index(x)][
-                        br.flavor_basis_pids.index(pid)
-                    ],
-                    rtol=2e-2,
+                    all_blocks[0]["data"][
+                        q2grid.index(Q2) + xgrid.index(x) * len(q2grid)
+                    ][br.flavor_basis_pids.index(pid)],
+                    rtol=1e-3,
+                )
+                np.testing.assert_allclose(
+                    pdf.xfxQ2(pid, x, Q2),
+                    ev_pdf.xfxQ2(pid, x, Q2),
+                    rtol=1e-3,
                 )
 
 

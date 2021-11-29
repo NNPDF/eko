@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import math
+
+import numpy as np
 import pytest
 
 from ekobox import gen_info as g_i
@@ -17,6 +20,6 @@ def test_create_info_file():
     assert info["NewArg"] == 15.3
     assert info["NumMembers"] == 4
     assert info["MTop"] == theory["mt"]
-    assert info["QMin"] == op["Q2grid"][0]
+    np.testing.assert_allclose(info["QMin"], math.sqrt(op["Q2grid"][0]), rtol=1e-5)
     assert info["XMin"] == op["interpolation_xgrid"][0]
     assert info["XMax"] == op["interpolation_xgrid"][-1] == 1.0
