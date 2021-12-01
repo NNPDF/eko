@@ -75,7 +75,7 @@ def evolve_pdfs(
     all_blocks = []
     for evolved_PDF in evolved_PDF_list:
         block = genpdf.generate_block(
-            lambda pid, x, Q2: targetgrid[targetgrid.index(x)]
+            lambda pid, x, Q2, evolved_PDF=evolved_PDF: targetgrid[targetgrid.index(x)]
             * evolved_PDF[Q2]["pdfs"][pid][targetgrid.index(x)],
             xgrid=targetgrid,
             Q2grid=operators_card["Q2grid"],

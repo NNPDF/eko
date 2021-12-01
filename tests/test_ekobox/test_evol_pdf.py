@@ -2,7 +2,6 @@ import pathlib
 
 import lhapdf
 import numpy as np
-import pytest
 from banana.data.genpdf import load
 from utils import cd, lhapdf_path, test_pdf
 
@@ -125,11 +124,7 @@ def test_gen_and_dump_out(tmp_path):
     for el, load_el in zip(
         out["Q2grid"][100.0]["operators"], loaded_out["Q2grid"][100.0]["operators"]
     ):
-        for i in range(len(out["Q2grid"][100.0]["operators"])):
-            for j in range(len(out["Q2grid"][100.0]["operators"][i])):
-                for k in range(len(out["Q2grid"][100.0]["operators"][i][j])):
-                    for l in range(len(out["Q2grid"][100.0]["operators"][i][j][k])):
-                        np.testing.assert_allclose(
-                            out["Q2grid"][100.0]["operators"][i][j][k][l],
-                            loaded_out["Q2grid"][100.0]["operators"][i][j][k][l],
-                        )
+        np.testing.assert_allclose(
+            out["Q2grid"][100.0]["operators"],
+            loaded_out["Q2grid"][100.0]["operators"],
+        )

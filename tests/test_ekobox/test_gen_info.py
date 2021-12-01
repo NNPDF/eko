@@ -2,7 +2,6 @@
 import math
 
 import numpy as np
-import pytest
 
 from ekobox import gen_info as g_i
 from ekobox import gen_op as g_o
