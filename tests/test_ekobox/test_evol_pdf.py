@@ -101,7 +101,7 @@ def test_evolve_more_members(tmp_path):
     with lhapdf_path(d):
         with cd(tmp_path):
             ev_p.evolve_pdfs(pdfs, theory, op, install=True, name="Debug")
-        ev_pdfs = lhapdf.mkPDFs("Debug")
+        _ev_pdfs = lhapdf.mkPDFs("Debug")
         info = load.load_info_from_file("Debug")
     assert info["XMin"] == op["interpolation_xgrid"][0]
 

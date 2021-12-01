@@ -59,7 +59,7 @@ def export_theory_card(name, theory):
         theory : dict
             theory card
     """
-    target = "%s.yaml" % (name)
+    target = "{}.yaml".format(str(name))
     with open(target, "w", encoding="utf-8") as out:
         yaml.safe_dump(theory, out)
 
