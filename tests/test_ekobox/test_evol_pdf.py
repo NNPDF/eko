@@ -9,7 +9,6 @@ from utils import cd, lhapdf_path, test_pdf
 from eko import basis_rotation as br
 from eko import output
 from ekobox import evol_pdf as ev_p
-from ekobox import gen_info as g_i
 from ekobox import gen_op as g_o
 from ekobox import gen_theory as g_t
 
@@ -103,7 +102,7 @@ def test_evolve_more_members(tmp_path):
     with lhapdf_path(d):
         with cd(tmp_path):
             ev_p.evolve_pdfs(pdfs, theory, op, install=True, name="Debug")
-        all_blocks = (load.load_blocks_from_file("Debug", 1))[1]
+        ev_pdfs = lhapdf.mkPDFs("Debug")
         info = load.load_info_from_file("Debug")
     assert info["XMin"] == op["interpolation_xgrid"][0]
 
@@ -119,3 +118,18 @@ def test_gen_and_dump_out(tmp_path):
     ops_id = f"o{op['hash'][:6]}_t{theory['hash'][:6]}"
     outpath = f"{tmp_path}/{ops_id}.tar"
     loaded_out = output.Output.load_tar(outpath)
+    for el, load_el in zip(
+        out["interpolation_xgrid"], loaded_out["interpolation_xgrid"]
+    ):
+        assert el == load_el
+    for el, load_el in zip(
+        out["Q2grid"][100.0]["operators"], loaded_out["Q2grid"][100.0]["operators"]
+    ):
+        for i in range(len(out["Q2grid"][100.0]["operators"])):
+            for j in range(len(out["Q2grid"][100.0]["operators"][i])):
+                for k in range(len(out["Q2grid"][100.0]["operators"][i][j])):
+                    for l in range(len(out["Q2grid"][100.0]["operators"][i][j][k])):
+                        np.testing.assert_allclose(
+                            out["Q2grid"][100.0]["operators"][i][j][k][l],
+                            loaded_out["Q2grid"][100.0]["operators"][i][j][k][l],
+                        )

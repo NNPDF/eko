@@ -1,5 +1,4 @@
 import copy
-import io
 
 import yaml
 from banana.data import sql
@@ -54,7 +53,7 @@ def export_op_card(name, op):
             op card
     """
     target = "%s.yaml" % (name)
-    with open(target, "w") as out:
+    with open(target, "w", encoding="utf-8") as out:
         yaml.safe_dump(op, out)
 
 
@@ -72,6 +71,6 @@ def import_op_card(path):
         : dict
             op card
     """
-    with open(path, "r") as o:
+    with open(path, "r", encoding="utf-8") as o:
         op = yaml.safe_load(o)
     return op

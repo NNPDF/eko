@@ -1,7 +1,4 @@
 import copy
-import io
-import math
-import pathlib
 
 import yaml
 from banana.data import sql, theories
@@ -63,7 +60,7 @@ def export_theory_card(name, theory):
             theory card
     """
     target = "%s.yaml" % (name)
-    with open(target, "w") as out:
+    with open(target, "w", encoding="utf-8") as out:
         yaml.safe_dump(theory, out)
 
 
@@ -81,6 +78,6 @@ def import_theory_card(path):
         : dict
             theory card
     """
-    with open(path, "r") as o:
+    with open(path, "r", encoding="utf-8") as o:
         theory = yaml.safe_load(o)
     return theory

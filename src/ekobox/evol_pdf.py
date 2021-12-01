@@ -1,10 +1,9 @@
-import numpy as np
 from banana.data import genpdf
 
 import eko
 from eko import basis_rotation as br
 
-from . import apply, gen_info, gen_op, gen_theory
+from . import apply, gen_info
 
 
 def evolve_pdfs(
