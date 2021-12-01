@@ -52,7 +52,7 @@ def export_op_card(name, op):
         op : dict
             op card
     """
-    target = "{}.yaml".format(str(name))
+    target = f"{name}.yaml"
     with open(target, "w", encoding="utf-8") as out:
         yaml.safe_dump(op, out)
 
