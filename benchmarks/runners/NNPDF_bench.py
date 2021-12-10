@@ -90,7 +90,11 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
             "Q0": Q0,
         }
 
-        operator_card = {**base_operator, "Q2grid": list(Q2grid)}
+        operator_card = {
+            **base_operator,
+            "Q2grid": list(Q2grid),
+            "backward_inversion": "exact"
+        }
         self.run([theory_card], [operator_card], ["NNPDF40_nnlo_pch_as_01180"])
 
 
@@ -104,5 +108,6 @@ if __name__ == "__main__":
     # #nn31.benchmark_nlo(Q0=np.sqrt(high2), Q2grid=[low2])
     nn40 = BenchmarkNNPDF40()
     # nn40.benchmark_nlo(Q2grid=[100])
-    nn40.benchmark_nnlo(Q2grid=[100])
-    # nn40.benchmark_pch()
+    # nn40.benchmark_nnlo(Q2grid=[100])
+    # nn40.benchmark_pch(Q0=1.65, Q2grid=(1.0**2,))
+    nn40.benchmark_pch()

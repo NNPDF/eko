@@ -6,7 +6,7 @@ import numpy as np
 
 from ekomark.data import operators
 
-from eko.interpolation import make_lambert_grid
+from eko.interpolation import make_lambert_grid, make_grid
 
 from runner import BackwardPaperRunner
 
@@ -36,10 +36,8 @@ class BackwardRunner(BackwardPaperRunner):
         "ModEv": "EXA",
     }
     base_operator = {
-        "interpolation_xgrid": [make_lambert_grid(60, x_min=1e-3).tolist()],
-        # "interpolation_xgrid": [np.linspace(1e-2,1,50)],
-        # "interpolation_xgrid": [make_grid(30,10).tolist()],
-        # "interpolation_xgrid": [make_lambert_grid(50).tolist()],
+        # "interpolation_xgrid": [make_lambert_grid(60, x_min=1e-3).tolist()],
+        "interpolation_xgrid": [make_grid(20, 30, x_min=1e-2).tolist()],
         # "interpolation_polynomial_degree": [1],
         "backward_inversion": ["exact"],
         # "ev_op_iterations": [1],
@@ -225,6 +223,7 @@ if __name__ == "__main__":
         "211112-tg-001",  # Uncorrelated sys
         "211112-tg-002",  # Correlated sys
         "NNPDF40_nnlo_as_01180",
+        "NNPDF40_nnlo_as_01180_EMC",
     ]
     for pdf_name in pdf_names:
         myrunner.evolve_backward(
