@@ -399,7 +399,10 @@ class OperatorMatrixElement:
     def __init__(self, config, managers, is_backward, mellin_cut=1e-2):
 
         self.backward_method = config["backward_inversion"] if is_backward else ""
-        self.is_intrinsic = bool(len(config["intrinsic_range"]) != 0)
+        if is_backward:
+            self.is_intrinsic = True
+        else:
+            self.is_intrinsic = bool(len(config["intrinsic_range"]) != 0)
         self.config = config
         self.sc = managers["strong_coupling"]
         self.int_disp = managers["interpol_dispatcher"]
