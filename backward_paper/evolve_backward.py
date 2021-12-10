@@ -30,7 +30,7 @@ class BackwardRunner(BackwardPaperRunner):
         "kcThr": 1.0,
         "kbThr": 1.0,
         "ktThr": 1.0,
-        "PTO": 3,
+        "PTO": 2,
         "IC": 1,
         "IB": 1,
         "ModEv": "EXA",
@@ -197,13 +197,16 @@ if __name__ == "__main__":
     # pdf_name = "NNPDF40_nnlo_as_01180"
     # myrunner.evolve_backward(pdf_name, q_low=1.5101, q_high=1.65, return_to_Q0=False)
 
-    # # charm mass variations
+    # # charm mass variations,
+    # # and eko for momentum fractions
     # mass_variations = {
     #     1.38: "211103-ern-001",  # NNPDF40 baseline with mc=1.38
     #     1.64: "211103-ern-002",  # NNPDF40 baseline with mc=1.64
+    #     # 1.51: "NNPDF40_nnlo_as_01180",  # NNLO, fitted charm
+    #     # 1.51: "NNPDF40_nnlo_as_01180_EMC", # NNPDF40 baseline, fitted charm + EMC F2c
     # }
     # for c_m, pdf_name in mass_variations.items():
-    #     myrunner.evolve_backward_mass_variation(pdf_name, q_high=1.65, charm_mass=c_m)
+    #     myrunner.evolve_backward_mass_variation(pdf_name, q_high=1.65, charm_mass=c_m, epsilon=1e-4)
 
     # # dataset_variations
     # pdf_names =[
@@ -216,3 +219,14 @@ if __name__ == "__main__":
     # for name in pdf_names:
     #     # Simple inversion
     #     myrunner.evolve_backward(name)
+
+    # # Evolve above thr for RW fits
+    pdf_names = [
+        "211112-tg-001",  # Uncorrelated sys
+        "211112-tg-002",  # Correlated sys
+        "NNPDF40_nnlo_as_01180",
+    ]
+    for pdf_name in pdf_names:
+        myrunner.evolve_backward(
+            pdf_name, q_low=1.5101, q_high=1.65, return_to_Q0=False
+        )

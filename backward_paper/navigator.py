@@ -193,10 +193,12 @@ class NavigatorApp(Ekonavigator):
         total_log, log_name = self.collect_logs(hashes, label_to_display)
         if rotate_to_pm_basis:
             total_log = to_pm(total_log, skip)
-
+        # cast to dict
+        for pdf, table in total_log.items():
+            total_log[pdf] = table.to_dict()
+        # dump
         with open(f"{log_name}.json", "w") as f:
-            for pdf, table in total_log.items():
-                json.dump({pdf: table.to_dict()}, f)
+            json.dump(total_log, f)
         f.close()
 
     def compute_momentum_fraction(
