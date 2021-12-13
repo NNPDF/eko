@@ -2,6 +2,7 @@
 import copy
 import io
 import pathlib
+import shutil
 import tempfile
 from unittest import mock
 
@@ -122,6 +123,26 @@ class TestOutput:
             o1.dump_tar(fn)
         with pytest.raises(ValueError, match="wrong suffix"):
             o1.load_tar(fn)
+
+    def test_rename_issue81(self):
+        # https://github.com/N3PDF/eko/issues/81
+        d = self.fake_output()
+        # create object
+        o1 = output.Output(d)
+
+        with tempfile.TemporaryDirectory() as folder:
+            # dump
+            p = pathlib.Path(folder)
+            fp1 = p / "test1.tar"
+            fp2 = p / "test2.tar"
+            o1.dump_tar(fp1)
+            # rename
+            shutil.move(fp1, fp2)
+            # reload
+            o4 = output.Output.load_tar(fp2)
+            np.testing.assert_almost_equal(
+                o4["interpolation_xgrid"], d["interpolation_xgrid"]
+            )
 
     def test_io_bin(self):
         d = self.fake_output()
