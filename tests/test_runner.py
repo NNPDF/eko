@@ -12,6 +12,7 @@ theory_card = {
     "Qref": np.sqrt(2),
     "nfref": None,
     "Q0": np.sqrt(2),
+    "nf0": 4,
     "FNS": "FFNS",
     "NfFF": 3,
     "ModEv": "EXA",
