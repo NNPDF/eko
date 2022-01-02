@@ -1,6 +1,30 @@
 [build-system]
-requires = ['setuptools >= 40.9.0', 'wheel', 'packutil']
-build-backend = 'setuptools.build_meta'
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "eko"
+version = "0.0.0"
+description = "Evolution Kernel Operator"
+authors = ["A. Candido", "S. Carrazza <stefano.carrazza@cern.ch>", "J. Cruz-Martinez", "F. Hekhorn", "G. Magni"]
+classifiers = [
+"Programming Language :: Python",
+"Programming Language :: Python :: 3",
+"Topic :: Scientific/Engineering",
+"Topic :: Scientific/Engineering :: Physics",
+"License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
+]
+repository = "https://github.com/N3PDF/eko"
+include = [ "doc/source/img/Logo.png" ]
+
+[tool.poetry.dependencies]
+python = "^3.8,<3.10"
+numpy = "^1.20.0"
+scipy = "^1.7.3"
+PyYAML = "^6.0"
+lz4 = "^3.1.10"
+
+[tool.poetry.dev-dependencies]
 
 [tool.pytest.ini_options]
 #norecursedirs = benchmarks/aux
