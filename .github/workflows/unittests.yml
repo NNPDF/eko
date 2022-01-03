@@ -9,7 +9,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
-      #      max-parallel: 2
       matrix:
         python-version: [3.7, 3.8, 3.9]
       fail-fast: false
@@ -19,27 +18,37 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }} 🐍
+        id: setup-python
         uses: actions/setup-python@v1
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-path: ~/.virtualenvs
+          installer-parallel: true
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.virtualenvs
+          key: ${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install .
+        run: poetry install --no-interaction --no-root
+        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Install project
+        run: poetry install --no-interaction
+      - name: Install task runner
+        run: pip install poethepoet
       - name: Lint with pylint
         run: |
-          pip install pylint
           # Search for actual errors
-          pylint src/eko -E
+          poe lint
           # For warnings instead return always zero
-          pylint src/eko --exit-zero
+          poe lint-warnings
       - name: Test with pytest
         run: |
-          # add test packages
-          pip install -r dev_requirements.txt
-          # until https://github.com/numba/numba/pull/5660 is confirmed we need to deactivate numba prior running
-          export NUMBA_DISABLE_JIT=1
-          pytest
+          poe test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
