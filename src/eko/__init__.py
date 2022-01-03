@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import output, runner
+from . import runner
 
 __version__ = "0.0.0"
 
