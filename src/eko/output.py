@@ -13,9 +13,8 @@ import lz4.frame
 import numpy as np
 import yaml
 
-from . import __version__
 from . import basis_rotation as br
-from . import interpolation
+from . import interpolation, version
 
 logger = logging.getLogger(__name__)
 
@@ -288,7 +287,7 @@ class Output(dict):
                 dictionary which will be written on output
         """
         # prepare output dict
-        out = {"Q2grid": {}, "eko_version": __version__}
+        out = {"Q2grid": {}, "eko_version": version.__version__}
         # dump raw elements
         for f in [
             "interpolation_polynomial_degree",

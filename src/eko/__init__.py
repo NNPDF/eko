@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from . import runner
+from . import output, runner, version
 
-__version__ = "0.0.0"
+__version__ = version.__version__
 
 
 def run_dglap(theory_card, operators_card):
