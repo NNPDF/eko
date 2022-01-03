@@ -2,7 +2,7 @@
 
 from . import output, runner
 
-__version__ = "0.8.2-post.3+0534ee6.dirty"
+__version__ = "0.0.0"
 
 
 def run_dglap(theory_card, operators_card):

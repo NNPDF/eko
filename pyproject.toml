@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "eko"
-version = "0.8.2-post.3+0534ee6.dirty"
+version = "0.0.0"
 description = "Evolution Kernel Operator"
 authors = ["A. Candido", "S. Carrazza <stefano.carrazza@cern.ch>", "J. Cruz-Martinez", "F. Hekhorn", "G. Magni"]
 classifiers = [
@@ -32,12 +32,14 @@ pre-commit = "^2.16.0"
 pytest = "^6.2.5"
 pytest-cov = "^3.0.0"
 pytest-env = "^0.6.2"
+# benchmark
+ekomark = { path = "benchmarks/", develop = true }
 Sphinx = "^4.3.2"
 sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-bibtex = "^2.4.1"
 
 [tool.poetry-dynamic-versioning]
-enable = false
+enable = true
 vcs = "git"
 style = "semver"
 dirty = true
