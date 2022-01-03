@@ -33,7 +33,7 @@ pytest = "^6.2.5"
 pytest-cov = "^3.0.0"
 pytest-env = "^0.6.2"
 # benchmark
-ekomark = { path = "benchmarks/", develop = true }
+# ekomark = { path = "benchmarks/", develop = true }
 Sphinx = "^4.3.2"
 sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-bibtex = "^2.4.1"
