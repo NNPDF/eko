@@ -6,16 +6,22 @@ build-backend = "poetry.core.masonry.api"
 name = "eko"
 version = "0.0.0"
 description = "Evolution Kernel Operator"
-authors = ["A. Candido", "S. Carrazza <stefano.carrazza@cern.ch>", "J. Cruz-Martinez", "F. Hekhorn", "G. Magni"]
+authors = [
+  "A. Candido <alessandro.candido@mi.infn.it>",
+  "S. Carrazza <stefano.carrazza@cern.ch>",
+  "J. Cruz-Martinez",
+  "F. Hekhorn",
+  "G. Magni",
+]
 classifiers = [
-"Programming Language :: Python",
-"Programming Language :: Python :: 3",
-"Topic :: Scientific/Engineering",
-"Topic :: Scientific/Engineering :: Physics",
-"License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Physics",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 ]
 repository = "https://github.com/N3PDF/eko"
-include = [ "doc/source/img/Logo.png" ]
+include = ["doc/source/img/Logo.png"]
 
 [tool.poetry.dependencies]
 python = "^3.8,<3.10"
@@ -24,6 +30,10 @@ scipy = "^1.7.3"
 PyYAML = "^6.0"
 lz4 = "^3.1.10"
 numba = "^0.54.1"
+# docs dependencies (for readthedocs, https://github.com/readthedocs/readthedocs.org/issues/4912#issuecomment-664002569)
+Sphinx = { version = "^4.3.2", optional = true }
+sphinx-rtd-theme = { version = "^1.0.0", optional = true }
+sphinxcontrib-bibtex = { version = "^2.4.1", optional = true }
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
@@ -34,10 +44,13 @@ pytest = "^6.2.5"
 pytest-cov = "^3.0.0"
 pytest-env = "^0.6.2"
 # benchmark
-# ekomark = { path = "benchmarks/", develop = true }
+ekomark = { path = "benchmarks/", develop = true }
 Sphinx = "^4.3.2"
 sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-bibtex = "^2.4.1"
+
+[tool.poetry.extras]
+docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex"]
 
 [tool.poetry-dynamic-versioning]
 enable = true
@@ -50,7 +63,7 @@ files = ["src/eko/version.py"]
 
 [tool.poe.tasks]
 # until https://github.com/numba/numba/pull/5660 is confirmed we need to deactivate numba prior running
-test = {shell="NUMBA_DISABLE_JIT=1 pytest tests"}
+test = { shell = "NUMBA_DISABLE_JIT=1 pytest tests" }
 lint = "pylint src/*/*.py -E"
 lint-warnings = "pylint src/*/*.py --exit-zero"
 sandbox = "python benchmarks/runners/sandbox.py"
@@ -58,10 +71,14 @@ sandbox = "python benchmarks/runners/sandbox.py"
 black = "black ."
 isort = "isort . --skip env"
 format = ["black", "isort"]
+docs = { "shell" = "cd doc; make html" }
+docs-view = { "shell" = "cd doc; make view" }
+docs-clean = { "shell" = "cd doc; make clean" }
+docs-cleanall = { "shell" = "cd doc; make cleanall" }
 
 [tool.pytest.ini_options]
 #norecursedirs = benchmarks/aux
-testpaths = ['tests/']#, 'benchmarks/runners/']
+testpaths = ['tests/'] #, 'benchmarks/runners/']
 python_files = ['test_*.py', 'benchmark_*.py', 'regression.py']
 python_classes = ['Test*', 'Benchmark*']
 python_functions = ['test_*', 'benchmark_*']

@@ -34,12 +34,12 @@ copyright = "2019-2021, the N3PDF team"  # pylint: disable=redefined-builtin
 author = "N3PDF team"
 
 # The short X.Y version
-version = eko.version.short_version
-if not eko.version.is_released:
-    version = "develop"
+version = eko.__version__
+#  if not eko.version.is_released:
+#  version = "develop"
 
 # The full version, including alpha/beta/rc tags
-release = eko.version.full_version
+release = eko.__version__
 
 # -- General configuration ---------------------------------------------------
 
