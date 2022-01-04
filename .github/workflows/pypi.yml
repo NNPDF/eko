@@ -6,32 +6,47 @@ on:
       - '*'
 
 jobs:
-  build-n-publish:
+  publish:
     name: Build and publish Python 🐍 distributions 📦 to PyPI
 
     strategy:
       matrix:
         os: [ubuntu-latest]
-        python-version: [3.9]
+        python-version: [3.8, 3.9, 3.10]
 
-    #if: startsWith(github.event.ref, 'refs/tags')
 
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@master
-    - name: Setup Python 🐍
-      uses: actions/setup-python@master
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install package
-      run: |
-        pip install -e .
-    - name: Package the distribution
-      run: |
-        # package the pure python wheel
-        pip wheel . -w dist --no-deps
-    - name: Publish distribution 📦 to PyPI
-      uses: pypa/gh-action-pypi-publish@master
-      with:
-        password: ${{ secrets.PYPI_TOKEN }}
+      - uses: actions/checkout@master
+      - name: Setup Python 🐍
+        id: setup-python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-path: ~/.virtualenvs
+          installer-parallel: true
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.virtualenvs
+          key: ${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
+      - name: Install package
+        run: |
+          pip install poetry-dynamic-versioning
+          poetry install
+          # run tests just before deployment
+          pip install poethepoet
+          poe test
+      - name: Package the distribution
+        run: |
+          # package the pure python wheel
+          poetry build
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.PYPI_TOKEN }}
