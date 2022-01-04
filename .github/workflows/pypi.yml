@@ -3,7 +3,7 @@ name: deploy
 on:
   push:
     tags:
-      - '*'
+      - "*"
 
 jobs:
   publish:
@@ -13,7 +13,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         python-version: [3.8, 3.9, 3.10]
-
 
     runs-on: ${{ matrix.os }}
 
@@ -30,7 +29,7 @@ jobs:
           virtualenvs-path: ~/.virtualenvs
           installer-parallel: true
       - name: Cache Poetry virtualenv
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         id: cache
         with:
           path: ~/.virtualenvs
