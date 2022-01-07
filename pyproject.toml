@@ -8,10 +8,8 @@ version = "0.0.0"
 description = "Evolution Kernel Operator"
 authors = [
   "A. Candido <alessandro.candido@mi.infn.it>",
-  "S. Carrazza <stefano.carrazza@cern.ch>",
-  "J. Cruz-Martinez",
-  "F. Hekhorn",
-  "G. Magni",
+  "F. Hekhorn <felix.hekhorn@mi.infn.it>",
+  "G. Magni <gmagni@nikhef.nl>",
 ]
 classifiers = [
   "Programming Language :: Python",
@@ -63,21 +61,22 @@ files = ["src/eko/version.py"]
 
 [tool.poe.tasks]
 # until https://github.com/numba/numba/pull/5660 is confirmed we need to deactivate numba prior running
-test = { shell = "NUMBA_DISABLE_JIT=1 pytest tests" }
-lint = "pylint src/*/*.py -E"
-lint-warnings = "pylint src/*/*.py --exit-zero"
+test = { "shell" = "pytest tests" }
+lint = "pylint src/**/*.py -E"
+lint-warnings = "pylint src/**/*.py --exit-zero"
 sandbox = "python benchmarks/runners/sandbox.py"
-# navigator = "navigator"
+nav = "ekonavigator"
+ekonavigator = "ekonavigator"
 black = "black ."
-isort = "isort . --skip env"
+isort = "isort ."
 format = ["black", "isort"]
 docs = { "shell" = "cd doc; make html" }
 docs-view = { "shell" = "cd doc; make view" }
+docs-server = { "shell" = "cd doc; make server" }
 docs-clean = { "shell" = "cd doc; make clean" }
 docs-cleanall = { "shell" = "cd doc; make cleanall" }
 
 [tool.pytest.ini_options]
-#norecursedirs = benchmarks/aux
 testpaths = ['tests/'] #, 'benchmarks/runners/']
 python_files = ['test_*.py', 'benchmark_*.py', 'regression.py']
 python_classes = ['Test*', 'Benchmark*']
@@ -92,3 +91,4 @@ env = ["NUMBA_DISABLE_JIT=1"]
 
 [tool.isort]
 profile = "black"
+extend_skip_glob = ["env/*"]
