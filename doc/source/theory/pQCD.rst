@@ -105,15 +105,25 @@ depends on the value :math:`a_s(\mu_{h,0}^2)` which is unknown and depends again
 on the threshold path.
 To overcome this issue, EKO initialize a temporary instance of the class
 :class:`~eko.strong_coupling.StrongCoupling` with a fixed flavor number scheme,
-assuming that the reference scale for :math:`a_s` is below :math:`\mu_{h,0}` and
-:math:`m_{h,0}`: 
+with ``nfref`` active flavors.
+
+To be consistent we check that, heavy quarks involving a number of active flavors 
+higer than ``nfref`` are given with initial conditions:
 
 .. math ::
-    \mu_{a_s,0} \leq \mu_{h,0}  \leq  m_{h,0}
+    m_h (\mu_h) \ge \mu_h
+
+while the ones related to lower active flavors follow:
+
+.. math ::
+    m_h (\mu_h) \le \mu_h
+
+So for the former initial condition we will find the intercept between RGE and the identity
+in the forward direction (:math:`m_{\overline{MS},h} \ge \mu_h`) and viceversa for the latter.
 
 In doing so EKO takes advantages of the monotony of the RGE solution
 :math:`m_{\overline{MS},h}(\mu^2)` with a vanishing limit for  :math:`\mu^2
-\rightarrow \infty`
+\rightarrow \infty`.
 
 Now, being able to evaluate :math:`a_s(\mu_{h,0}^2)`, there are two ways of
 solving the previous integral and finally compute the evolved
@@ -137,8 +147,32 @@ Therefore the two solution strategies are:
     j_{exp}(a_s) &= 1 + a_s \left [ c_1 - b_1 c_0 \right ] + \frac{a_s^2}{2} \left [c_2 - c_1 b_1 - b_2 c_0 + b_1^2 c_0 + (c_1 - b_1 c_0)^2 \right]
 
 
+The procedure is iterated on all the heavy quarks, updating the temporary instance
+of :class:`~eko.strong_coupling.StrongCoupling` with the computed masses.
+
+To find consistent solutions and perform the mass running in the correct pathces it
+is necessary to always start computing the mass scales closer to :math:`\mu_{ref}`.
+
 Eventually, to ensure that the threshold values are properly set, we perform a
 consistency check, asserting:
 
 .. math ::
     m_{\overline{MS},h} (m_h) \leq m_{\overline{MS},h+1} (m_h)
+
+We provide the following as an illustrative example:
+when the strong coupling is given with boundary condition :math:`\alpha_s(\mu_{ref}=91, n_{f_{ref}}=5)`
+then the heavy quarks initial conditions must satisfy:
+
+.. math ::
+    & \mu_{b} \le \mu_{ref} \le \mu_t \\
+    & m_c (\mu_c) \le \mu_c \\
+    & m_b (\mu_b) \le \mu_b \\
+    & m_t (\mu_t) \ge \mu_t
+
+and EKO will start solving the equation :math:`m_{\overline{MS},h}(m_h^2) = m_h`
+in the order :math:`h={t,b,c}`.
+
+Since the charm mass will be computed only when both the top and bottom threshold scales
+are known, the boundary condition :math:`m_c(\mu_{c})` can be evolved safely below 
+the scale :math:`m_{\overline{MS},b}` where the solution of 
+:math:`m_{\overline{MS},c}(m_c^2) = m_c` is sitting.

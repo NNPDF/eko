@@ -237,9 +237,9 @@ def compute_msbar_mass(theory_card):
             nf_target += 1
             shift = 1
 
-        # if the initial condition are not in the target patch,
-        # you need to evolve the initial until nf_target patch wall is reached:
-        #   for backward you reach the higher, for forward from the lower.
+        # if the initial condition is not in the target patch,
+        # you need to evolve it until nf_target patch wall is reached:
+        #   for backward you reach the higher, for forward the lower.
         # len(masses[q2m_ref > masses]) + 3 is the nf at the given reference scale
         if nf_target != len(masses[q2m_ref > masses]) + 3:
             q2_to = masses[q_idx + shift]

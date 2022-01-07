@@ -88,11 +88,11 @@ class BenchmarkVFNS(ApfelBenchmark):
     def benchmark_msbar(self, pto):
         """
         MSbar heavy quark mass scheme
-        when  passing kthr != 1 both apfel na eko use ``kThr * msbar``,
+        when  passing kthr != 1 both apfel and eko use ``kThr * msbar``,
         as thr scale, where ``msbar`` is the usual ms_bar solution.
         However apfel and eko mange the alpha_s thr differently
         (apfel uses the given mass parameters as thr), so the
-        benchmark is not a proper comparison.
+        benchmark is not a proper comparison with this option allowed.
         """
         th = self.vfns_theory.copy()
         th.update(
