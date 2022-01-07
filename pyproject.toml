@@ -8,10 +8,8 @@ version = "0.0.0"
 description = "Evolution Kernel Operator"
 authors = [
   "A. Candido <alessandro.candido@mi.infn.it>",
-  "S. Carrazza <stefano.carrazza@cern.ch>",
-  "J. Cruz-Martinez",
-  "F. Hekhorn",
-  "G. Magni",
+  "F. Hekhorn <felix.hekhorn@mi.infn.it>",
+  "G. Magni <gmagni@nikhef.nl>",
 ]
 classifiers = [
   "Programming Language :: Python",
@@ -77,7 +75,6 @@ docs-clean = { "shell" = "cd doc; make clean" }
 docs-cleanall = { "shell" = "cd doc; make cleanall" }
 
 [tool.pytest.ini_options]
-#norecursedirs = benchmarks/aux
 testpaths = ['tests/'] #, 'benchmarks/runners/']
 python_files = ['test_*.py', 'benchmark_*.py', 'regression.py']
 python_classes = ['Test*', 'Benchmark*']
