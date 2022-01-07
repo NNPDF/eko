@@ -17,26 +17,22 @@
 #
 
 import inspect
-import os
 import pathlib
 
 import numba as nb
 
-# in CodeFactor there is no version, since it is generated upon installation
-import eko.version  # pylint: disable=no-name-in-module
+import eko
 
 here = pathlib.Path(__file__).absolute().parent
 
 # -- Project information -----------------------------------------------------
 
 project = "EKO"
-copyright = "2019-2021, the N3PDF team"  # pylint: disable=redefined-builtin
+copyright = "2019-2022, the N3PDF team"  # pylint: disable=redefined-builtin
 author = "N3PDF team"
 
 # The short X.Y version
 version = eko.__version__
-#  if not eko.version.is_released:
-#  version = "develop"
 
 # The full version, including alpha/beta/rc tags
 release = eko.__version__
@@ -105,7 +101,7 @@ pygments_style = None
 
 # A string to be included at the beginning of all files
 shared = here / "shared"
-rst_prolog = "\n".join([open(x).read() for x in os.scandir(shared)])
+rst_prolog = "\n".join([x.read_text() for x in pathlib.Path(shared).glob("*.rst")])
 
 extlinks = {
     "yadism": ("https://n3pdf.github.io/yadism/%s", "yadism"),
