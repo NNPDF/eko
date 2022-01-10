@@ -36,8 +36,11 @@ class BackwardRunner(BackwardPaperRunner):
         "ModEv": "EXA",
     }
     base_operator = {
-        # "interpolation_xgrid": [make_lambert_grid(60, x_min=1e-3).tolist()],
-        "interpolation_xgrid": [make_grid(20, 30, x_min=1e-2).tolist()],
+        "interpolation_xgrid": [make_lambert_grid(60).tolist()],
+        # "interpolation_xgrid": [make_lambert_grid(60, x_min=1e-2).tolist()],
+        # "interpolation_xgrid": [make_grid(20, 30, x_min=1e-2).tolist()],
+        # "interpolation_xgrid": [make_grid(50, 10, x_low=0.8, x_min=1e-2).tolist()],
+        # "interpolation_xgrid": [make_grid(30, 10, x_low=0.6, x_min=1e-2).tolist()],
         # "interpolation_polynomial_degree": [1],
         "backward_inversion": ["exact"],
         # "ev_op_iterations": [1],
@@ -162,20 +165,16 @@ if __name__ == "__main__":
 
     myrunner = BackwardRunner()
 
-    # Evolve below c threshold
-    pdf_names = [
-        "NNPDF40_nnlo_as_01180",  # NNLO, fitted charm
-        # "NNPDF40_nnlo_pch_as_01180",  # NNLO, perturbative charm
-        # "210701-n3fit-meth-013",  # NNPDF4.0 in flavour basis
-    ]
+    # Basic checks
+    # pdf_names = [
+    #     "NNPDF40_nnlo_as_01180",  # NNLO, fitted charm
+    #     # "NNPDF40_nnlo_pch_as_01180",  # NNLO, perturbative charm
+    # ]
     # for name in pdf_names:
-
     #     # Simple inversion
     #     myrunner.evolve_backward(name)
-
     #     # Test beclow above thr
     #     myrunner.evolve_above_below_thr(name)
-
     #    # Test exapanded/exact
     #    myrunner.evolve_exact_expanded(name)
 
@@ -195,16 +194,24 @@ if __name__ == "__main__":
     # pdf_name = "NNPDF40_nnlo_as_01180"
     # myrunner.evolve_backward(pdf_name, q_low=1.5101, q_high=1.65, return_to_Q0=False)
 
-    # # charm mass variations,
-    # # and eko for momentum fractions
+    # # charm mass variations, also used for momentum fractions
     # mass_variations = {
     #     1.38: "211103-ern-001",  # NNPDF40 baseline with mc=1.38
     #     1.64: "211103-ern-002",  # NNPDF40 baseline with mc=1.64
-    #     # 1.51: "NNPDF40_nnlo_as_01180",  # NNLO, fitted charm
-    #     # 1.51: "NNPDF40_nnlo_as_01180_EMC", # NNPDF40 baseline, fitted charm + EMC F2c
+    #     1.51: "NNPDF40_nnlo_as_01180",  # NNLO, fitted charm
+    #     1.51: "NNPDF40_nnlo_as_01180_EMC", # NNPDF40 baseline, fitted charm + EMC F2c
     # }
     # for c_m, pdf_name in mass_variations.items():
-    #     myrunner.evolve_backward_mass_variation(pdf_name, q_high=1.65, charm_mass=c_m, epsilon=1e-4)
+    #     myrunner.evolve_backward_mass_variation(pdf_name, q_high=1.65, charm_mass=c_m, epsilon=1e-8)
+
+    # mass variation perturbative charm, forward evolution
+    # mass_variations_pch = {
+    #     1.38: "211103-ern-003",  # NNPDF40 baseline with mc=1.38
+    #     1.64: "211103-ern-004",  # NNPDF40 baseline with mc=1.64
+    #     1.51: "NNPDF40_nnlo_pch_as_01180",  # NNLO, fitted charm
+    # }
+    # for c_m, pdf_name in mass_variations_pch.items():
+    #     myrunner.evolve_backward_mass_variation(pdf_name, q_high=c_m-1e-8, charm_mass=c_m, epsilon=c_m-1.65)
 
     # # dataset_variations
     # pdf_names =[
@@ -215,17 +222,28 @@ if __name__ == "__main__":
     #     "NNPDF40_nnlo_as_01180",  # NNLO, fitted charm
     # ]
     # for name in pdf_names:
-    #     # Simple inversion
     #     myrunner.evolve_backward(name)
 
-    # # Evolve above thr for RW fits
-    pdf_names = [
-        "211112-tg-001",  # Uncorrelated sys
-        "211112-tg-002",  # Correlated sys
-        "NNPDF40_nnlo_as_01180",
-        "NNPDF40_nnlo_as_01180_EMC",
-    ]
-    for pdf_name in pdf_names:
-        myrunner.evolve_backward(
-            pdf_name, q_low=1.5101, q_high=1.65, return_to_Q0=False
-        )
+    # # Evolve above thr for RW fits inclding LHCb Z+c
+    # pdf_names = [
+    #     "NNPDF40_nnlo_as_0118_LHCbZc_uncorr",  # Uncorrelated sys
+    #     "NNPDF40_nnlo_as_0118_LHCbZc_corr",  # Correlated sys
+    #     "NNPDF40_nnlo_as_0118_EMC_LHCbZc_uncorr",  # Uncorrelated sys
+    #     "NNPDF40_nnlo_as_0118_EMC_LHCbZc_corr",  # Correlated sys
+    #     "NNPDF40_nnlo_as_01180",
+    #     "NNPDF40_nnlo_as_01180_EMC",
+    # ]
+    # for pdf_name in pdf_names:
+    #     myrunner.evolve_backward(
+    #         pdf_name, q_low=1.50, q_high=1.65, return_to_Q0=False
+    #     )
+
+    # Flavor basis vs 4.0 comparison
+    # pdf_names = [
+    #     "210701-n3fit-meth-013",
+    #     "NNPDF40_nnlo_as_01180"
+    # ]
+    # for pdf_name in pdf_names:
+    #     myrunner.evolve_backward(
+    #         pdf_name, q_low=1.51-1e-8, q_high=1.65, return_to_Q0=False
+    #     )

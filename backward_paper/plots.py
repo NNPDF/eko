@@ -88,6 +88,7 @@ def plot_pdf(log, fig_name, cl=1, plot_pull=False, plot_reldiff=False):
                     ax.set_ylabel(r"\rm{x %s(x)}" % quark_latex_name(name), fontsize=11)
                     ax.set_xscale("log")
                 else:
+                    # ax.set_ylim(-0.05, 0.04)
                     ax.set_yscale("symlog", linthresh=1e-6 if y_min < 1e-6 else y_min)
 
                 if plot_pull:
