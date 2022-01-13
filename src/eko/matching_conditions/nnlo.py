@@ -451,7 +451,7 @@ def A_singlet_2(n, sx, L, is_msbar=False):
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
         is_msbar: bool
-            add the |MS| contribution
+            add the |MSbar| contribution
 
       Returns
       -------

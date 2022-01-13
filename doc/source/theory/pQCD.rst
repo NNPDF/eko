@@ -75,30 +75,30 @@ conditions <Matching>`).
 
 EKO implements two strategies for dealing with the heavy quark masses, managed
 by the theory card parameter ``HQ``.  The easiest and more common option for
-PDFs evolution is ``POLE`` mass, where the physical quark masses are 
+PDFs evolution is ``POLE`` mass, where the physical quark masses are
 specified as input.
 
 On contrary selecting the option ``MSBAR`` the user can activate the *mass
-running* in the :math:`\overline{MS}` scheme, as described in the following
+running* in the |MSbar| scheme, as described in the following
 paragraph.
 
-If the initial condition for the mass is not given at a scale coinciding with 
-the mass itself (i.e. in the input theory card ``Qmh≠mh``), 
-EKO needs to compute the scale at which the mass running function intersects 
+If the initial condition for the mass is not given at a scale coinciding with
+the mass itself (i.e. in the input theory card ``Qmh≠mh``),
+EKO needs to compute the scale at which the mass running function intersects
 the identity function, in order to properly initiate the
 :class:`~eko.threshold.ThresholdAtlas` and set the evolution path.
 
-For each heavy quark :math:`h` we solve for :math:`m_h`: 
+For each heavy quark :math:`h` we solve for :math:`m_h`:
 
-.. math :: 
+.. math ::
     m_{\overline{MS},h}(m_h^2) = m_h
 
 
-where the evolved :math:`\overline{MS}` mass is calculated by: 
+where the evolved |MSbar| mass is calculated by:
 
 .. math ::
     m_{\overline{MS},h}(\mu^2) = m_{h,0} \int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \frac{\gamma(a_s)}{\beta(a_s)} d a_s
- 
+
 and :math:`m_{h,0}` is the given initial condition at the scale
 :math:`\mu_{h,0}`.  Here there is a subtle complication since the solution
 depends on the value :math:`a_s(\mu_{h,0}^2)` which is unknown and depends again
@@ -107,7 +107,7 @@ To overcome this issue, EKO initialize a temporary instance of the class
 :class:`~eko.strong_coupling.StrongCoupling` with a fixed flavor number scheme,
 with ``nfref`` active flavors.
 
-To be consistent we check that, heavy quarks involving a number of active flavors 
+To be consistent we check that, heavy quarks involving a number of active flavors
 higher than ``nfref`` are given with initial conditions:
 
 .. math ::
@@ -173,6 +173,6 @@ and EKO will start solving the equation :math:`m_{\overline{MS},h}(m_h^2) = m_h`
 in the order :math:`h={t,b,c}`.
 
 Since the charm mass will be computed only when both the top and bottom threshold scales
-are known, the boundary condition :math:`m_c(\mu_{c})` can be evolved safely below 
-the scale :math:`m_{\overline{MS},b}` where the solution of 
+are known, the boundary condition :math:`m_c(\mu_{c})` can be evolved safely below
+the scale :math:`m_{\overline{MS},b}` where the solution of
 :math:`m_{\overline{MS},c}(m_c^2) = m_c` is sitting.

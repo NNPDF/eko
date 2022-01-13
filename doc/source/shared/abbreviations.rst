@@ -43,7 +43,7 @@
 .. |OME| replace::
    :abbr:`OME (operator matrix element)`
 
-.. |MS| replace::
+.. |MSbar| replace::
    :math:`\overline{MS}`
 
 .. external

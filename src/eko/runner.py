@@ -154,7 +154,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 
 def compute_msbar_mass(theory_card):
     r"""
-    Compute the |MS| masses solving the equation :math:`m_{\bar{MS}}(m) = m`
+    Compute the |MSbar| masses solving the equation :math:`m_{\bar{MS}}(m) = m`
 
     Parameters
     ----------
@@ -164,7 +164,7 @@ def compute_msbar_mass(theory_card):
     Returns
     -------
         masses: list
-            list of msbar masses squared
+            list of |MSbar| masses squared
     """
     # TODO: sketch in the docs how the MSbar computation works with a figure.
     nfa_ref = theory_card["nfref"]

@@ -36,7 +36,7 @@ def A_singlet(order, n, sx, L, is_msbar):
         L : float
             :math:`log(q^2/m_h^2)`
         is_msbar: bool
-            add the |MS| contribution
+            add the |MSbar| contribution
 
     Returns
     -------
@@ -164,7 +164,7 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method, is_ms
         backward_method : ["exact", "expanded" or ""]
             empty or method for inverting the matching contidtion (exact or expanded)
         is_msbar: bool
-            add the |MS| contribution
+            add the |MSbar| contribution
     Returns
     -------
         ker : float
@@ -290,7 +290,7 @@ class OperatorMatrixElement:
             L: float
                 log of K threshold squared
             is_msbar: bool
-                add the |MS| contribution
+                add the |MSbar| contribution
         """
 
         # init all ops with zeros

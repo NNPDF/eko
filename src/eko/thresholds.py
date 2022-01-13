@@ -171,7 +171,7 @@ class ThresholdsAtlas:
             prefix : str
                 prefix for the ratio parameters
             masses: list
-                list of |MS| masses squared or None if POLE masses are used
+                list of |MSbar| masses squared or None if POLE masses are used
 
         Returns
         -------

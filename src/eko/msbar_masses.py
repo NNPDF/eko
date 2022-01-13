@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 r"""
-This module contains the RGE for the ms bar masses
+This module contains the RGE for the |MSbar| masses
 """
 import numpy as np
 from scipy import optimize, integrate
@@ -12,7 +12,7 @@ from .strong_coupling import StrongCoupling
 
 def msbar_ker_exact(a0, a1, order, nf):
     r"""
-    Exact |MS| RGE kernel
+    Exact |MSbar| RGE kernel
 
     Parameters
     ----------
@@ -28,7 +28,7 @@ def msbar_ker_exact(a0, a1, order, nf):
     Returns
     -------
         ker: float
-            Exact |MS| kernel:
+            Exact |MSbar| kernel:
 
             ..math:
                 k_{exact} = e^{\int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \gamma(a_s) / \beta(a_s) da_s}
@@ -65,7 +65,7 @@ def msbar_ker_exact(a0, a1, order, nf):
 
 def msbar_ker_expanded(a0, a1, order, nf):
     r"""
-    Expanded |MS| RGE kernel
+    Expanded |MSbar| RGE kernel
 
     Parameters
     ----------
@@ -81,7 +81,7 @@ def msbar_ker_expanded(a0, a1, order, nf):
     Returns
     -------
         ker: float
-            Expanded |MS| kernel:
+            Expanded |MSbar| kernel:
 
             ..math:
                 k_{expanded} &= \left (\frac{a_s(\mu^2)}{a_s(\mu_{h,0}^2)} \right )^{c_0}
@@ -112,7 +112,7 @@ def msbar_ker_expanded(a0, a1, order, nf):
 
 def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
     r"""
-    Select the MSbar kernel and compute the strong coupling values
+    Select the |MSbar| kernel and compute the strong coupling values
 
     Parameters
     ----------
@@ -131,7 +131,7 @@ def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
     Returns
     -------
         ker:
-            Expanded or exact |MS| kernel
+            Expanded or exact |MSbar| kernel
     """
     a0 = strong_coupling.a_s(q2m_ref / fact_to_ren, q2m_ref)
     a1 = strong_coupling.a_s(q2_to / fact_to_ren, q2_to)
@@ -151,7 +151,7 @@ def evolve_msbar_mass(
     q2_to=None,
 ):
     r"""
-    Compute the MSbar mass.
+    Compute the |MSbar| mass.
     If the final scale is not given it solves the equation :math:`m_{\overline{MS}}(m) = m`
     for a fixed number of nf
     Else perform the mass evolution.
@@ -165,7 +165,7 @@ def evolve_msbar_mass(
         nf_ref: int, optional (not used when q2_to is given)
             number of active flavours at the scale q2m_ref, where the solution is searched
         config: dict
-            msbar configuration dictionary
+            |MSbar| configuration dictionary
         strong_coupling: eko.strong_coupling.StrongCoupling
             Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
             any q
