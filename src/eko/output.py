@@ -107,13 +107,13 @@ class Output(dict):
         if targetgrid is not None:
             b = interpolation.InterpolatorDispatcher.from_dict(self, False)
             rot = b.get_interpolation(targetgrid)
-            for q2 in out_grid:
-                for pdf_label in out_grid[q2]["pdfs"]:
+            for q2, op in out_grid.items():
+                for pdf_label in op["pdfs"]:
                     out_grid[q2]["pdfs"][pdf_label] = np.matmul(
-                        rot, out_grid[q2]["pdfs"][pdf_label]
+                        rot, op["pdfs"][pdf_label]
                     )
                     out_grid[q2]["errors"][pdf_label] = np.matmul(
-                        rot, out_grid[q2]["errors"][pdf_label]
+                        rot, op["errors"][pdf_label]
                     )
 
         return out_grid
