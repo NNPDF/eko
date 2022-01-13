@@ -166,7 +166,7 @@ class StrongCoupling:
         logger.info(
             "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)",
             self.q2_ref,
-            "^(nf=%d)" % nf_ref if nf_ref else "",
+            f"^(nf={nf_ref})" if nf_ref else "",
             self.as_ref,
             self.as_ref * 4 * np.pi,
         )

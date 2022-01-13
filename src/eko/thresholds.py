@@ -105,7 +105,7 @@ class ThresholdsAtlas:
         logger.info(str(self))
 
     def __repr__(self):
-        walls = " - ".join(["%.2e" % w for w in self.area_walls])
+        walls = " - ".join([f"{w:.2e}" for w in self.area_walls])
         return f"ThresholdsAtlas [{walls}], ref={self.q2_ref} @ {self.nf_ref}"
 
     @classmethod

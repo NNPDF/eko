@@ -9,9 +9,9 @@ import tarfile
 import tempfile
 import warnings
 
+import yaml
 import lz4.frame
 import numpy as np
-import yaml
 
 from . import basis_rotation as br
 from . import interpolation, version
@@ -306,7 +306,7 @@ class Output(dict):
         # make operators raw
         if not skip_q2_grid:
             for q2, op in self["Q2grid"].items():
-                out["Q2grid"][q2] = dict()
+                out["Q2grid"][q2] = {}
                 for k, v in op.items():
                     if k == "alphas":
                         out["Q2grid"][q2][k] = float(v)

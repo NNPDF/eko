@@ -4,9 +4,9 @@ Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO)
 """
 import pathlib
 
-import matplotlib.pyplot as plt
-import numpy as np
 import yaml
+import numpy as np
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 from eko import basis_rotation as br

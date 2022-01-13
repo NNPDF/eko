@@ -13,7 +13,7 @@ class TestPathSegment:
         p = PathSegment(0, 1, 3)
         assert p.tuple == (0, 1, 3)
         # is hashable?
-        d = dict()
+        d = {}
         d[p.tuple] = 1
         assert d[p.tuple] == 1
 
