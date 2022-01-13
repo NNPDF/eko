@@ -43,6 +43,9 @@
 .. |OME| replace::
    :abbr:`OME (operator matrix element)`
 
+.. |MS| replace::
+   :math:`\overline{MS}`
+
 .. external
 
 .. |yadism| replace::

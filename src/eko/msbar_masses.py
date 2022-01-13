@@ -12,7 +12,7 @@ from .strong_coupling import StrongCoupling
 
 def msbar_ker_exact(a0, a1, order, nf):
     r"""
-    Exact :math:`\overline{MS}` RGE kernel
+    Exact |MS| RGE kernel
 
     Parameters
     ----------
@@ -28,7 +28,7 @@ def msbar_ker_exact(a0, a1, order, nf):
     Returns
     -------
         ker: float
-            Exact :math:`\overline{MS}` kernel:
+            Exact |MS| kernel:
 
             ..math:
                 k_{exact} = e^{\int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \gamma(a_s) / \beta(a_s) da_s}
@@ -65,7 +65,7 @@ def msbar_ker_exact(a0, a1, order, nf):
 
 def msbar_ker_expanded(a0, a1, order, nf):
     r"""
-    Expanded :math:`\overline{MS}` RGE kernel
+    Expanded |MS| RGE kernel
 
     Parameters
     ----------
@@ -81,7 +81,7 @@ def msbar_ker_expanded(a0, a1, order, nf):
     Returns
     -------
         ker: float
-            Expanded :math:`\overline{MS}` kernel:
+            Expanded |MS| kernel:
 
             ..math:
                 k_{expanded} &= \left (\frac{a_s(\mu^2)}{a_s(\mu_{h,0}^2)} \right )^{c_0}
@@ -131,7 +131,7 @@ def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
     Returns
     -------
         ker:
-            Expanded or exact :math:`\overline{MS}` kernel
+            Expanded or exact |MS| kernel
     """
     a0 = strong_coupling.a_s(q2m_ref / fact_to_ren, q2m_ref)
     a1 = strong_coupling.a_s(q2_to / fact_to_ren, q2_to)

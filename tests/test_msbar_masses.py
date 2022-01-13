@@ -139,11 +139,3 @@ class TestMsbarMasses:
         with pytest.raises(ValueError, match="should be greater than m"):
             theory_dict.update(dict(mb=4.1, mt=176))
             compute_msbar_mass(theory_dict)
-
-        # check nfref is needed
-        with pytest.raises(
-            ValueError,
-            match="You need to specify the number of active flavors for alphas",
-        ):
-            theory_dict.update(dict(nfref=None))
-            compute_msbar_mass(theory_dict)

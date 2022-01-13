@@ -73,19 +73,19 @@ Masses do not play any role in a single flavour patch, but are important in
 |VFNS| when more flavour schemes need to be joined (see :doc:`matching
 conditions <Matching>`).
 
-
 EKO implements two strategies for dealing with the heavy quark masses, managed
 by the theory card parameter ``HQ``.  The easiest and more common option for
-PDFs evolution is ``POLE`` mass, where the quark masses are kept fixed to the
-specified input values and the running is neglected.
+PDFs evolution is ``POLE`` mass, where the physical quark masses are 
+specified as input.
 
 On contrary selecting the option ``MSBAR`` the user can activate the *mass
 running* in the :math:`\overline{MS}` scheme, as described in the following
 paragraph.
 
-If the initial mass condition is not given at the same scale (i.e. in the input
-theory card ``Qmh≠mh``), EKO needs to compute the scale at which the evolved
-mass intersect the identity, in order to properly initiate the
+If the initial condition for the mass is not given at a scale coinciding with 
+the mass itself (i.e. in the input theory card ``Qmh≠mh``), 
+EKO needs to compute the scale at which the mass running function intersects 
+the identity function, in order to properly initiate the
 :class:`~eko.threshold.ThresholdAtlas` and set the evolution path.
 
 For each heavy quark :math:`h` we solve for :math:`m_h`: 
@@ -108,7 +108,7 @@ To overcome this issue, EKO initialize a temporary instance of the class
 with ``nfref`` active flavors.
 
 To be consistent we check that, heavy quarks involving a number of active flavors 
-higer than ``nfref`` are given with initial conditions:
+higher than ``nfref`` are given with initial conditions:
 
 .. math ::
     m_h (\mu_h) \ge \mu_h

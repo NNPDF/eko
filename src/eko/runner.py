@@ -154,7 +154,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 
 def compute_msbar_mass(theory_card):
     r"""
-    Compute the :math:`\overline{MS}` masses solving the equation :math:`m_{\bar{MS}}(m) = m`
+    Compute the |MS| masses solving the equation :math:`m_{\bar{MS}}(m) = m`
 
     Parameters
     ----------
@@ -166,11 +166,7 @@ def compute_msbar_mass(theory_card):
         masses: list
             list of msbar masses squared
     """
-    if theory_card["nfref"] is None:
-        raise ValueError(
-            "You need to specify the number of active flavors for alphas \
-            reference value (nfref) when running in MSBAR scheme"
-        )
+    # TODO: sketch in the docs how the MSbar computation works with a figure.
     nfa_ref = theory_card["nfref"]
 
     q2_ref = np.power(theory_card["Qref"], 2)

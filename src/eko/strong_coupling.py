@@ -188,7 +188,7 @@ class StrongCoupling:
             theory_card : dict
                 theory dictionary
             masses: list
-                list of :math:`\overline{MS}` masses squared or None if POLE masses are used
+                list of |MS| masses squared or None if POLE masses are used
 
         Returns
         -------
