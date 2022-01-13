@@ -98,14 +98,14 @@ class TestOutput:
         with mock.patch("builtins.open", m_out) as mock_file:
             fn = "test.yaml"
             o1.dump_yaml_to_file(fn)
-            mock_file.assert_called_with(fn, "w")
+            mock_file.assert_called_with(fn, "w", encoding="utf-8")
         # fake input file
         stream.seek(0)
         m_in = mock.mock_open(read_data=stream.getvalue())
         with mock.patch("builtins.open", m_in) as mock_file:
             fn = "test.yaml"
             o3 = output.Output.load_yaml_from_file(fn)
-            mock_file.assert_called_with(fn)
+            mock_file.assert_called_with(fn, encoding="utf-8")
             np.testing.assert_almost_equal(
                 o3["interpolation_xgrid"], d["interpolation_xgrid"]
             )
