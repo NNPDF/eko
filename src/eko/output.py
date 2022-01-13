@@ -498,11 +498,12 @@ class Output(dict):
             # metadata = cls(**{str(k): v for k, v in self.items() if k != "Q2grid"})
             # metadata["Q2grid"] = list(self["Q2grid"].keys())
 
-            yamlname = tmpdir / tarpath.stem / "metadata.yaml"
+            innerdir = list(tmpdir.glob("*"))[0]
+            yamlname = innerdir / "metadata.yaml"
             metadata = cls.load_yaml_from_file(yamlname, skip_q2_grid=True)
 
             grids = {}
-            for fp in (tmpdir / tarpath.stem).glob("*.npy.lz4"):
+            for fp in innerdir.glob("*.npy.lz4"):
                 with lz4.frame.open(fp, "rb") as fd:
                     stream = io.BytesIO(fd.read())
                     stream.seek(0)
