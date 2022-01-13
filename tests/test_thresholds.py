@@ -62,7 +62,7 @@ class TestThresholdsAtlas:
         stc3 = str(ThresholdsAtlas(walls))
 
         for w in walls:
-            assert "%.2e" % w in stc3
+            assert f"{w:.2e}" in stc3
 
     def test_build_area_walls(self):
         for k in range(3, 6 + 1):
