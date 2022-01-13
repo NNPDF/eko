@@ -232,7 +232,7 @@ class StrongCoupling:
 
     def compute_exact(self, as_ref, nf, scale_from, scale_to):
         """
-        Compute via RGE.
+        Compute via |RGE|.
 
         Parameters
         ----------

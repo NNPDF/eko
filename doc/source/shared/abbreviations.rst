@@ -46,6 +46,9 @@
 .. |MSbar| replace::
    :math:`\overline{MS}`
 
+.. |RGE| replace::
+   :abbr:`RGE (renormalization group equation)`
+
 .. external
 
 .. |yadism| replace::

@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 r"""
-This module contains the RGE for the |MSbar| masses
+This module contains the |RGE| for the |MSbar| masses
 """
 import numpy as np
-from scipy import optimize, integrate
+from scipy import integrate, optimize
 
-from .beta import beta, b
+from .beta import b, beta
 from .gamma import gamma
 from .strong_coupling import StrongCoupling
 
 
 def msbar_ker_exact(a0, a1, order, nf):
     r"""
-    Exact |MSbar| RGE kernel
+    Exact |MSbar| |RGE| kernel
 
     Parameters
     ----------
@@ -65,7 +65,7 @@ def msbar_ker_exact(a0, a1, order, nf):
 
 def msbar_ker_expanded(a0, a1, order, nf):
     r"""
-    Expanded |MSbar| RGE kernel
+    Expanded |MSbar| |RGE| kernel
 
     Parameters
     ----------

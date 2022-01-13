@@ -16,7 +16,7 @@ We use perturbative QCD with the running coupling
 
 It is useful to define in addition :math:`b_k = \beta_k/\beta_0, k>0`.
 
-We implement two different strategies to solve the renormalization group equation (RGE):
+We implement two different strategies to solve the |RGE|:
 
 - ``method="exact"``: Solve using :func:`scipy.integrate.solve_ivp`.
   In |LO| we fall back to the expanded solution as this is already the true solution.
@@ -67,7 +67,7 @@ corresponds to schemes A and B in :cite:`AbdulKhalek:2019ihb`.
 Heavy Quark Masses
 ------------------
 
-In QCD also the heavy quark masses (:math:`m_{c}, m_{b}, m_{t}`) follow a RGE
+In QCD also the heavy quark masses (:math:`m_{c}, m_{b}, m_{t}`) follow a |RGE|
 and their values depend on the energy scale at which the quark is probed.
 Masses do not play any role in a single flavour patch, but are important in
 |VFNS| when more flavour schemes need to be joined (see :doc:`matching
@@ -118,10 +118,10 @@ while the ones related to lower active flavors follow:
 .. math ::
     m_h (\mu_h) \le \mu_h
 
-So for the former initial condition we will find the intercept between RGE and the identity
+So for the former initial condition we will find the intercept between |RGE| and the identity
 in the forward direction (:math:`m_{\overline{MS},h} \ge \mu_h`) and viceversa for the latter.
 
-In doing so EKO takes advantages of the monotony of the RGE solution
+In doing so EKO takes advantages of the monotony of the |RGE| solution
 :math:`m_{\overline{MS},h}(\mu^2)` with a vanishing limit for  :math:`\mu^2
 \rightarrow \infty`.
 
