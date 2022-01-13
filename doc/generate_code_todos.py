@@ -38,14 +38,14 @@ def search_file(path):
             list of tuples with (linenumber, text)
     """
     todos = []
-    with open(path, "r") as o:
-        j = 1
-        for l in o:
-            m = re.search(r"\s*#\s+TODO\s+(.+)$", l)  # TODO grep sourdings?
-            # i.e. if multiple lines?
-            if m is not None:
-                todos.append((j, m.group(1)))
-            j += 1
+    o = path.read_text().splitlines()
+    j = 1
+    for l in o:
+        m = re.search(r"\s*#\s+TODO\s+(.+)$", l)  # TODO grep sourdings?
+        # i.e. if multiple lines?
+        if m is not None:
+            todos.append((j, m.group(1)))
+        j += 1
     return todos
 
 

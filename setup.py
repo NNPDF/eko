@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 import pathlib
 
-import packutil as pack
 from setuptools import find_packages, setup
+import packutil as pack
 
 # write version on the fly - inspired by numpy
 MAJOR = 0
@@ -22,7 +22,7 @@ def setup_package():
         filename="src/eko/version.py",
     )
     # paste Readme
-    with open("README.md", "r") as fh:
+    with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
     # do it
     setup(
