@@ -76,7 +76,7 @@ def write_output(fn, file_list):
         for ln, todo in todos:
             s.append(f".. warning:: #{ln} {todo}\n")
         s.append("\n")
-    pathlib.Path(fn).write_text("\n".join(s))
+    pathlib.Path(fn).write_text("\n".join(s), encoding="utf-8")
 
 
 if __name__ == "__main__":
