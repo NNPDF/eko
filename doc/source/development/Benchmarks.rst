@@ -2,7 +2,7 @@ Benchmarks
 ==========
 
 |EKO| benchmarks are listed in the table below and are implemented in a separated tool :doc:`ekomark<ekomark>`.
-For each external program the evolution can be perfomed at |LO|, |NLO|, |NNLO|.
+For each external program the evolution can be performed at |LO|, |NLO|, |NNLO|.
 
 .. list-table:: Available Benchmarks
   :header-rows: 1
@@ -79,5 +79,5 @@ This program has been used to produce the LHA tables.
 
 |Pegasus| solves |DGLAP| numerically in N-space up to |NNLO|.
 The programs provides 3 different strategies, with various |FNS| and  Scale Variations as shown in the table.
-|Pegasus| takes as input a pdf with a fixed funtional form and it's not interfaced with |lhapdf|.
-Aslo the starting scale must be equal to the scale at which the reference value of :math:`\alpha_s` is provided.
+|Pegasus| takes as input a pdf with a fixed functional form and it's not interfaced with |lhapdf|.
+Also the starting scale must be equal to the scale at which the reference value of :math:`\alpha_s` is provided.

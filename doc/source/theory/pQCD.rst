@@ -119,7 +119,7 @@ while the ones related to fewer active flavors follow:
     m_h (\mu_h) \le \mu_h
 
 So for the former initial condition we will find the intercept between |RGE| and the identity
-in the forward direction (:math:`m_{\overline{MS},h} \ge \mu_h`) and viceversa for the latter.
+in the forward direction (:math:`m_{\overline{MS},h} \ge \mu_h`) and vice versa for the latter.
 
 In doing so EKO takes advantage of the monotony of the |RGE| solution
 :math:`m_{\overline{MS},h}(\mu^2)` with a vanishing limit for :math:`\mu^2
@@ -150,7 +150,7 @@ Therefore the two solution strategies are:
 The procedure is iterated on all the heavy quarks, updating the temporary instance
 of :class:`~eko.strong_coupling.StrongCoupling` with the computed masses.
 
-To find coeherent solutions and perform the mass running in the correct pathces it
+To find coherent solutions and perform the mass running in the correct patches it
 is necessary to always start computing the mass scales closer to :math:`\mu_{ref}`.
 
 Eventually, to ensure that the threshold values are properly set, we add a
