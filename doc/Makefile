@@ -24,6 +24,9 @@ help:
 html: todos
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
+server:
+	python3 -m http.server 8000 --bind 127.0.0.1 --directory build/html
+
 view: html
 	$(BROWSER) $(BUILDDIR)/html/index.html
 

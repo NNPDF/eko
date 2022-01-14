@@ -1,10 +1,83 @@
 [build-system]
-requires = ['setuptools >= 40.9.0', 'wheel', 'packutil']
-build-backend = 'setuptools.build_meta'
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "eko"
+version = "0.0.0"
+description = "Evolution Kernel Operator"
+authors = [
+  "A. Candido <alessandro.candido@mi.infn.it>",
+  "F. Hekhorn <felix.hekhorn@mi.infn.it>",
+  "G. Magni <gmagni@nikhef.nl>",
+]
+classifiers = [
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Physics",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+]
+repository = "https://github.com/N3PDF/eko"
+include = ["doc/source/img/Logo.png"]
+
+[tool.poetry.dependencies]
+python = "^3.8,<3.10"
+numpy = "^1.20.0"
+scipy = "^1.7.3"
+PyYAML = "^6.0"
+lz4 = "^3.1.10"
+numba = "^0.54.1"
+# docs dependencies (for readthedocs, https://github.com/readthedocs/readthedocs.org/issues/4912#issuecomment-664002569)
+Sphinx = { version = "^4.3.2", optional = true }
+sphinx-rtd-theme = { version = "^1.0.0", optional = true }
+sphinxcontrib-bibtex = { version = "^2.4.1", optional = true }
+
+[tool.poetry.dev-dependencies]
+black = "^21.12b0"
+isort = "^5.10.1"
+pylint = "^2.12.2"
+pre-commit = "^2.16.0"
+pytest = "^6.2.5"
+pytest-cov = "^3.0.0"
+pytest-env = "^0.6.2"
+# benchmark
+ekomark = { path = "benchmarks/", develop = true }
+Sphinx = "^4.3.2"
+sphinx-rtd-theme = "^1.0.0"
+sphinxcontrib-bibtex = "^2.4.1"
+
+[tool.poetry.extras]
+docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex"]
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"
+dirty = true
+
+[tool.poetry-dynamic-versioning.substitution]
+files = ["src/eko/version.py"]
+
+[tool.poe.tasks]
+# until https://github.com/numba/numba/pull/5660 is confirmed we need to deactivate numba prior running
+test = { "shell" = "pytest tests" }
+lint = "pylint src/**/*.py -E"
+lint-warnings = "pylint src/**/*.py --exit-zero"
+sandbox = "python benchmarks/runners/sandbox.py"
+nav = "ekonavigator"
+ekonavigator = "ekonavigator"
+black = "black ."
+isort = "isort ."
+format = ["black", "isort"]
+docs = { "shell" = "cd doc; make html" }
+docs-view = { "shell" = "cd doc; make view" }
+docs-server = { "shell" = "cd doc; make server" }
+docs-clean = { "shell" = "cd doc; make clean" }
+docs-cleanall = { "shell" = "cd doc; make cleanall" }
 
 [tool.pytest.ini_options]
-#norecursedirs = benchmarks/aux
-testpaths = ['tests/']#, 'benchmarks/runners/']
+testpaths = ['tests/'] #, 'benchmarks/runners/']
 python_files = ['test_*.py', 'benchmark_*.py', 'regression.py']
 python_classes = ['Test*', 'Benchmark*']
 python_functions = ['test_*', 'benchmark_*']
@@ -15,3 +88,7 @@ addopts = [
   '--strict-markers',
 ]
 env = ["NUMBA_DISABLE_JIT=1"]
+
+[tool.isort]
+profile = "black"
+extend_skip_glob = ["env/*"]

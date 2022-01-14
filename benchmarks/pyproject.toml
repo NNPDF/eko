@@ -1,0 +1,33 @@
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "ekomark"
+version = "0.1.0"
+description = "eko benchmarks"
+authors = [
+  "Alessandro Candido <alessandro.candido@mi.infn.it>",
+  "Felix Hekhorn <felix.hekhorn@mi.infn.it>",
+  "Giacomo Magni <gmagni@nikhef.nl>",
+]
+include = ["banana.yaml", "ekomark/benchmark/external/LHA.yaml"]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.10"
+banana-hep = "^0.4.0"
+sqlalchemy = "^1.4.21"
+pandas = "^1.3.0"
+matplotlib = "^3.5.1"
+PyYAML = "^6.0"
+# eko should be a dependency, but this would made it circular, since we want
+# yadmark to be in the environment of eko, thus we rely on this package
+# being installed with eko (since it is a dev-dependency) in this repo, and
+# it will never be released on any public registry
+# eko = { path = "../" }
+
+[tool.poetry.scripts]
+ekonavigator = "ekomark.navigator:launch_navigator"
+
+[tool.poetry.dev-dependencies]
+black = "^21.9b0"

@@ -283,7 +283,7 @@ class Output(dict):
                 dictionary which will be written on output
         """
         # prepare output dict
-        out = {"Q2grid": {}, "eko_version": version.full_version}
+        out = {"Q2grid": {}, "eko_version": version.__version__}
         # dump raw elements
         for f in [
             "interpolation_polynomial_degree",

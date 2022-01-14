@@ -16,12 +16,17 @@ EKO is available via PyPI: <a href="https://pypi.org/project/eko/"><img alt="PyP
 pip install eko
 ```
 
+### Development
+
 If you want to install from source you can run
 ```bash
 git clone git@github.com:N3PDF/eko.git
 cd eko
-python setup.py install
+poetry install
 ```
+
+To setup `poetry`, and other tools, see [Contribution
+Guidlines](https://github.com/N3PDF/eko/blob/master/.github/CONTRIBUTING.md).
 
 ## Documentation
 - The documentation is available here: <a href="https://eko.readthedocs.io/en/latest/?badge=latest"><img alt="Docs" src="https://readthedocs.org/projects/eko/badge/?version=latest"></a>
