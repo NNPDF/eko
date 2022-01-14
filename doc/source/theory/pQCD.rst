@@ -23,7 +23,7 @@ We implement two different strategies to solve the |RGE|:
 - ``method="expanded"``: using approximate solutions:
 
 .. math ::
-    a^{\text{LO}}_s(\mu_R^2)  &= \frac{a_s(\mu_0^2)}{1 + a_s(\mu_0^2) \beta_0 \ln(\mu_R^2/\mu_0^2)} \\
+    a^{\text{LO}}_s(\mu_R^2) &= \frac{a_s(\mu_0^2)}{1 + a_s(\mu_0^2) \beta_0 \ln(\mu_R^2/\mu_0^2)} \\
     a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) &= a^{\text{LO}}_s(\mu_R^2)-b_1 \left[a^{\text{LO}}_s(\mu_R^2)\right]^2 \ln\left(1+a_s(\mu_0^2) \beta_0 \ln(\mu_R^2/\mu_0^2)\right) \\
     a^{\text{NNLO}}_{s,\text{exp}}(\mu_R^2) &= a^{\text{LO}}_s(\mu_R^2)\left[1 + a^{\text{LO}}_s(\mu_R^2)\left(a^{\text{LO}}_s(\mu_R^2) - a_s(\mu_0^2)\right)(b_2 - b_1^2) \right.\\
                                         & \hspace{60pt} \left. + a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) b_1 \ln\left(a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2)/a_s(\mu_0^2)\right)\right]
@@ -74,7 +74,7 @@ Masses do not play any role in a single flavour patch, but are important in
 conditions <Matching>`).
 
 EKO implements two strategies for dealing with the heavy quark masses, managed
-by the theory card parameter ``HQ``.  The easiest and more common option for
+by the theory card parameter ``HQ``. The easiest and more common option for
 PDFs evolution is ``POLE`` mass, where the physical quark masses are
 specified as input.
 
@@ -94,26 +94,26 @@ For each heavy quark :math:`h` we solve for :math:`m_h`:
     m_{\overline{MS},h}(m_h^2) = m_h
 
 
-where the evolved |MSbar| mass is calculated by:
+where the evolved |MSbar| mass is given by:
 
 .. math ::
     m_{\overline{MS},h}(\mu^2) = m_{h,0} \int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \frac{\gamma(a_s)}{\beta(a_s)} d a_s
 
 and :math:`m_{h,0}` is the given initial condition at the scale
-:math:`\mu_{h,0}`.  Here there is a subtle complication since the solution
+:math:`\mu_{h,0}`. Here there is a subtle complication since the solution
 depends on the value :math:`a_s(\mu_{h,0}^2)` which is unknown and depends again
 on the threshold path.
 To overcome this issue, EKO initialize a temporary instance of the class
 :class:`~eko.strong_coupling.StrongCoupling` with a fixed flavor number scheme,
-with ``nfref`` active flavors.
+with :math:`n_{f_{ref}}` active flavors at the scale :math:`\mu_{ref}`.
 
-To be consistent we check that, heavy quarks involving a number of active flavors
-higher than ``nfref`` are given with initial conditions:
+Then we check that, heavy quarks involving a number of active flavors
+greater than :math:`n_{f_{ref}}` are given with initial conditions:
 
 .. math ::
     m_h (\mu_h) \ge \mu_h
 
-while the ones related to lower active flavors follow:
+while the ones related to fewer active flavors follow:
 
 .. math ::
     m_h (\mu_h) \le \mu_h
@@ -121,14 +121,14 @@ while the ones related to lower active flavors follow:
 So for the former initial condition we will find the intercept between |RGE| and the identity
 in the forward direction (:math:`m_{\overline{MS},h} \ge \mu_h`) and viceversa for the latter.
 
-In doing so EKO takes advantages of the monotony of the |RGE| solution
-:math:`m_{\overline{MS},h}(\mu^2)` with a vanishing limit for  :math:`\mu^2
+In doing so EKO takes advantage of the monotony of the |RGE| solution
+:math:`m_{\overline{MS},h}(\mu^2)` with a vanishing limit for :math:`\mu^2
 \rightarrow \infty`.
 
 Now, being able to evaluate :math:`a_s(\mu_{h,0}^2)`, there are two ways of
 solving the previous integral and finally compute the evolved
-:math:`m_{\overline{MS},h}`.  In fact, the function :math:`\gamma(a_s)` is the
-anomalous QCD mass dimension and as :math:`\beta` it can be evaluated
+:math:`m_{\overline{MS},h}`. In fact, the function :math:`\gamma(a_s)` is the
+anomalous QCD mass dimension and, as the :math:`\beta` function, it can be evaluated
 perturbatively in :math:`a_s` up to :math:`\mathcal{O}(a_s^3)`:
 
 .. math ::
@@ -150,16 +150,16 @@ Therefore the two solution strategies are:
 The procedure is iterated on all the heavy quarks, updating the temporary instance
 of :class:`~eko.strong_coupling.StrongCoupling` with the computed masses.
 
-To find consistent solutions and perform the mass running in the correct pathces it
+To find coeherent solutions and perform the mass running in the correct pathces it
 is necessary to always start computing the mass scales closer to :math:`\mu_{ref}`.
 
-Eventually, to ensure that the threshold values are properly set, we perform a
+Eventually, to ensure that the threshold values are properly set, we add a
 consistency check, asserting:
 
 .. math ::
     m_{\overline{MS},h} (m_h) \leq m_{\overline{MS},h+1} (m_h)
 
-We provide the following as an illustrative example:
+We provide the following as an illustrative example of how this procedure works:
 when the strong coupling is given with boundary condition :math:`\alpha_s(\mu_{ref}=91, n_{f_{ref}}=5)`
 then the heavy quarks initial conditions must satisfy:
 
