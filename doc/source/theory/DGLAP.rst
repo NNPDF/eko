@@ -1,7 +1,7 @@
 Solving DGLAP
 =============
 
-We are solving the |DGLAP| equations given in x-space by
+We are solving the |DGLAP| equations :cite:`Altarelli:1977zs,Dokshitzer:1977sg,Gribov:1972ri` given in x-space by
 
 .. math::
     \frac{d}{d\ln(\mu_F^2)} \mathbf{f}(x,\mu_F^2) =

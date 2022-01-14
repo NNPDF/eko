@@ -427,6 +427,7 @@ def compute_matching_coeffs_down(mass_scheme):
             Print@Series[f[g[a]] /. sol, {a, 0, 5}];
             Print@Series[g[f[a]] /. sol, {a, 0, 5}];
         ]
+
     Parameters
     ----------
         mass_scheme:
