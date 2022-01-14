@@ -20,8 +20,8 @@ from . import nlo, nnlo
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("c16[:,:,:](u1,c16,c16[:],f8)", cache=True)
-def A_singlet(order, n, sx, L):
+@nb.njit("c16[:,:,:](u1,c16,c16[:],f8,b1)", cache=True)
+def A_singlet(order, n, sx, L, is_msbar):
     r"""
     Computes the tower of the singlet |OME|.
 
@@ -35,6 +35,8 @@ def A_singlet(order, n, sx, L):
             List of harmonic sums
         L : float
             :math:`log(q^2/m_h^2)`
+        is_msbar: bool
+            add the |MSbar| contribution
 
     Returns
     -------
@@ -54,7 +56,7 @@ def A_singlet(order, n, sx, L):
     if order >= 1:
         A_singlet[0] = nlo.A_singlet_1(n, sx, L)
     if order >= 2:
-        A_singlet[1] = nnlo.A_singlet_2(n, sx, L)
+        A_singlet[1] = nnlo.A_singlet_2(n, sx, L, is_msbar)
     return A_singlet
 
 
@@ -136,8 +138,8 @@ def build_ome(A, order, a_s, backward_method):
     return ome
 
 
-@nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,f8,string)", cache=True)
-def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
+@nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,f8,string,b1)", cache=True)
+def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method, is_msbar):
     """
     Raw kernel inside quad
 
@@ -161,6 +163,8 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
             :math:`log(q^2/m_h^2)`
         backward_method : ["exact", "expanded" or ""]
             empty or method for inverting the matching contidtion (exact or expanded)
+        is_msbar: bool
+            add the |MSbar| contribution
     Returns
     -------
         ker : float
@@ -187,7 +191,7 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method):
 
     # compute the ome
     if is_singlet:
-        A = A_singlet(order, n, sx, L)
+        A = A_singlet(order, n, sx, L, is_msbar)
     else:
         A = A_non_singlet(order, n, sx, L)
 
@@ -275,7 +279,7 @@ class OperatorMatrixElement:
                 #     labels.extend(["S_qH"])
         return labels
 
-    def compute(self, q2, L):
+    def compute(self, q2, L, is_msbar):
         """
         compute the actual operators (i.e. run the integrations)
 
@@ -285,6 +289,8 @@ class OperatorMatrixElement:
                 threshold scale
             L: float
                 log of K threshold squared
+            is_msbar: bool
+                add the |MSbar| contribution
         """
 
         # init all ops with zeros
@@ -333,6 +339,7 @@ class OperatorMatrixElement:
                             a_s,
                             L,
                             self.backward_method,
+                            is_msbar,
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,

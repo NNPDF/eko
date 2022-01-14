@@ -6,6 +6,7 @@ import logging
 
 import numpy as np
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -43,7 +44,7 @@ class PathSegment:
 
 
 class ThresholdsAtlas:
-    """
+    r"""
     Holds information about the thresholds any Q2 has to pass in order to get
     there from a given q2_ref.
 
@@ -62,7 +63,12 @@ class ThresholdsAtlas:
     """
 
     def __init__(
-        self, masses, q2_ref=None, nf_ref=None, thresholds_ratios=None, max_nf=None
+        self,
+        masses,
+        q2_ref=None,
+        nf_ref=None,
+        thresholds_ratios=None,
+        max_nf=None,
     ):
         masses = list(masses)
         if masses != sorted(masses):
@@ -99,7 +105,7 @@ class ThresholdsAtlas:
         logger.info(str(self))
 
     def __repr__(self):
-        walls = " - ".join(["%.2e" % w for w in self.area_walls])
+        walls = " - ".join([f"{w:.2e}" for w in self.area_walls])
         return f"ThresholdsAtlas [{walls}], ref={self.q2_ref} @ {self.nf_ref}"
 
     @classmethod
@@ -152,7 +158,7 @@ class ThresholdsAtlas:
         return thresholds
 
     @classmethod
-    def from_dict(cls, theory_card, prefix="k", max_nf_name="MaxNfPdf"):
+    def from_dict(cls, theory_card, prefix="k", max_nf_name="MaxNfPdf", masses=None):
         r"""
         Create the object from the run card.
 
@@ -164,6 +170,8 @@ class ThresholdsAtlas:
                 run card with the keys given at the head of the :mod:`module <eko.thresholds>`
             prefix : str
                 prefix for the ratio parameters
+            masses: list
+                list of |MSbar| masses squared or None if POLE masses are used
 
         Returns
         -------
@@ -171,14 +179,20 @@ class ThresholdsAtlas:
                 created object
         """
         heavy_flavors = "cbt"
-        masses = [theory_card[f"m{q}"] for q in heavy_flavors]
+        if masses is None:
+            masses = np.power([theory_card[f"m{q}"] for q in heavy_flavors], 2)
         thresholds_ratios = [theory_card[f"{prefix}{q}Thr"] for q in heavy_flavors]
         max_nf = theory_card[max_nf_name]
         # preset ref scale
         q2_ref = pow(theory_card["Q0"], 2)
+
+        # MSbar or Pole masses
+        hqm_scheme = theory_card["HQ"]
+        if hqm_scheme not in ["MSBAR", "POLE"]:
+            raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
         nf_ref = theory_card["nf0"]
         return cls(
-            np.power(masses, 2),
+            masses,
             q2_ref,
             nf_ref,
             thresholds_ratios=np.power(thresholds_ratios, 2),
@@ -221,7 +235,9 @@ class ThresholdsAtlas:
             shift = -2
         # join all necessary points in one list
         boundaries = (
-            [q2_from] + self.area_walls[nf_from + shift : nf_to + shift : rc] + [q2_to]
+            [q2_from]
+            + self.area_walls[nf_from + shift : int(nf_to) + shift : rc]
+            + [q2_to]
         )
         segs = [
             PathSegment(boundaries[i], q2, nf_from + i * rc)

@@ -131,14 +131,14 @@ def test_Bluemlein_2():
         ],
     }
     for N in range(2, 11):
-        for L in ref_val_Hg:
+        for L, ref_Hg in ref_val_Hg.items():
             sx = get_sx(N)
             aS2 = A_singlet_2(N, sx, L)
             if N % 2 == 0:
                 idx = int(N / 2 - 1)
                 np.testing.assert_allclose(aS2[0, 0], ref_val_gg[L][idx], rtol=2e-6)
                 np.testing.assert_allclose(aS2[0, 1], ref_val_gq[L][idx], rtol=4e-6)
-                np.testing.assert_allclose(aS2[2, 0], ref_val_Hg[L][idx], rtol=3e-6)
+                np.testing.assert_allclose(aS2[2, 0], ref_Hg[idx], rtol=3e-6)
                 np.testing.assert_allclose(aS2[2, 1], ref_val_Hq[L][idx], rtol=3e-6)
             np.testing.assert_allclose(aS2[1, 1], ref_val_qq[L][N - 2], rtol=4e-6)
 
@@ -175,3 +175,14 @@ def test_Hg2_pegasus():
         )
 
         np.testing.assert_allclose(aS2[2, 0], a_hg_2_param, rtol=7e-4)
+
+
+def test_msbar_matching():
+    logs = [0, 100]
+
+    for L in logs:
+        N = 2
+        sx = get_sx(N)
+        aS2 = A_singlet_2(N, sx, L, True)
+        # gluon momentum conservation
+        np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0] + aS2[2, 0], 0.0, atol=2e-6)

@@ -9,9 +9,9 @@ import tarfile
 import tempfile
 import warnings
 
+import yaml
 import lz4.frame
 import numpy as np
-import yaml
 
 from . import basis_rotation as br
 from . import interpolation, version
@@ -100,21 +100,17 @@ class Output(dict):
                 errors = flavor_rotation @ np.array(
                     [op["errors"][pid] for pid in br.flavor_basis_pids]
                 )
-                out_grid[q2]["pdfs"] = dict(zip(br.evol_basis, pdf))
-                out_grid[q2]["errors"] = dict(zip(br.evol_basis, errors))
+                op["pdfs"] = dict(zip(br.evol_basis, pdf))
+                op["errors"] = dict(zip(br.evol_basis, errors))
 
         # rotate/interpolate to target grid
         if targetgrid is not None:
             b = interpolation.InterpolatorDispatcher.from_dict(self, False)
             rot = b.get_interpolation(targetgrid)
-            for q2 in out_grid:
-                for pdf_label in out_grid[q2]["pdfs"]:
-                    out_grid[q2]["pdfs"][pdf_label] = np.matmul(
-                        rot, out_grid[q2]["pdfs"][pdf_label]
-                    )
-                    out_grid[q2]["errors"][pdf_label] = np.matmul(
-                        rot, out_grid[q2]["errors"][pdf_label]
-                    )
+            for op in out_grid.values():
+                for pdf_label in op["pdfs"]:
+                    op["pdfs"][pdf_label] = np.matmul(rot, op["pdfs"][pdf_label])
+                    op["errors"][pdf_label] = np.matmul(rot, op["errors"][pdf_label])
 
         return out_grid
 
@@ -306,7 +302,7 @@ class Output(dict):
         # make operators raw
         if not skip_q2_grid:
             for q2, op in self["Q2grid"].items():
-                out["Q2grid"][q2] = dict()
+                out["Q2grid"][q2] = {}
                 for k, v in op.items():
                     if k == "alphas":
                         out["Q2grid"][q2][k] = float(v)
@@ -362,7 +358,7 @@ class Output(dict):
             ret : any
                 result of dump(output, stream), i.e. Null if written sucessfully
         """
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding="utf-8") as f:
             ret = self.dump_yaml(f, binarize, skip_q2_grid=skip_q2_grid)
         return ret
 
@@ -464,7 +460,7 @@ class Output(dict):
                 loaded object
         """
         obj = None
-        with open(filename) as o:
+        with open(filename, encoding="utf-8") as o:
             obj = Output.load_yaml(o, skip_q2_grid)
         return obj
 

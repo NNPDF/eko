@@ -13,7 +13,7 @@ class TestPathSegment:
         p = PathSegment(0, 1, 3)
         assert p.tuple == (0, 1, 3)
         # is hashable?
-        d = dict()
+        d = {}
         d[p.tuple] = 1
         assert d[p.tuple] == 1
 
@@ -62,7 +62,7 @@ class TestThresholdsAtlas:
         stc3 = str(ThresholdsAtlas(walls))
 
         for w in walls:
-            assert "%.2e" % w in stc3
+            assert f"{w:.2e}" in stc3
 
     def test_build_area_walls(self):
         for k in range(3, 6 + 1):
@@ -88,6 +88,8 @@ class TestThresholdsAtlas:
                 "Q0": 1.0,
                 "nf0": 4,
                 "MaxNfPdf": 6,
+                "HQ": "POLE",
+                "alphas": 0.35,
             }
         )
         assert tc.area_walls[1:-1] == [1.0, 64.0, np.inf]
@@ -179,3 +181,19 @@ class TestThresholdsAtlas:
         ta = ThresholdsAtlas([1, 2, 3], 0.5)
         assert ta.nf(0.9) == 3
         assert ta.nf(1.1) == 4
+
+    def test_errors(self):
+        with pytest.raises(ValueError):
+            ThresholdsAtlas.from_dict(
+                dict(
+                    Q0=np.sqrt(2.2),
+                    mc=1.0,
+                    mb=2.0,
+                    mt=3.0,
+                    kcThr=1.0,
+                    kbThr=2.0,
+                    ktThr=3.0,
+                    MaxNfPdf=6,
+                    HQ="FAIL",
+                ),
+            )

@@ -101,7 +101,9 @@ pygments_style = None
 
 # A string to be included at the beginning of all files
 shared = here / "shared"
-rst_prolog = "\n".join([x.read_text() for x in pathlib.Path(shared).glob("*.rst")])
+rst_prolog = "\n".join(
+    [x.read_text(encoding="utf-8") for x in pathlib.Path(shared).glob("*.rst")]
+)
 
 extlinks = {
     "yadism": ("https://n3pdf.github.io/yadism/%s", "yadism"),

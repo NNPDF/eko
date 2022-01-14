@@ -58,7 +58,7 @@ Plus Distributions
 .. math ::
     \mathcal M[1/(1-x)_+](N) = S_1(N)
 
-whith the harmonic sum :math:`S_1` (see :ref:`theory/mellin:harmonic sums`).
+with the harmonic sum :math:`S_1` (see :ref:`theory/mellin:harmonic sums`).
 
 
 Inversion of Factorizable Kernels
