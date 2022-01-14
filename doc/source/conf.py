@@ -32,10 +32,10 @@ copyright = "2019-2022, the N3PDF team"  # pylint: disable=redefined-builtin
 author = "N3PDF team"
 
 # The short X.Y version
-version = eko.__version__
+version = eko.version.__version__
 
 # The full version, including alpha/beta/rc tags
-release = eko.__version__
+release = eko.version.__version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -291,12 +291,14 @@ mathjax3_config = {
     }
 }
 
+
 # I don't know where and when, but at some point sphinx stopped to detect the documentation
 # hidden below numba. This issue is discussed here https://github.com/sphinx-doc/sphinx/issues/3783
 # pointing to this conf.py:
 # https://github.com/duetosymmetry/qnm/blob/d286cad616a4abe5ff3b4e05adbfb4b0e305583e/docs/conf.py#L71-L93
 # However, it doesn't do the trick truly, but the idea is take from there ...
-# see also https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#docstring-preprocessing
+# see also
+# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#docstring-preprocessing
 def process_numba_docstring(
     app, what, name, obj, options, lines
 ):  # pylint: disable=unused-argument
