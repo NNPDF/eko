@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 This module contains some additional harmonics sum.
-Defintion are coming from :cite:`MuselliPhD,Bl_mlein_2000,Bl_mlein_2009`
+Defintion are coming from :cite:`MuselliPhD,Bl_mlein_2000,Blumlein:2009ta`
 """
 import numpy as np
 import numba as nb

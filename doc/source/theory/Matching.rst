@@ -66,26 +66,32 @@ Furthermore in the right side basis :math:`\tilde h^{+}, \tilde h^{-}` are intri
 The :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` can be computed order by order in :math:`a_s`:
 
 .. math ::
-    \mathbf{A}^{(n_f)}(\mu_{h}^2) = \mathbf{I} + a_s^{(n_f)}(\mu_{h}^2)  \mathbf{A}^{(n_f),(1)} + \left(a_s^{(n_f)}(\mu_{h}^2)\right)^2 \mathbf{A}^{(n_f),(2)}
+    \mathbf{A}^{(n_f)}(\mu_{h}^2) = \mathbf{I} + a_s^{(n_f)}(\mu_{h}^2)  \mathbf{A}^{(n_f),(1)} + a_s^{(n_f),2}(\mu_{h}^2) \mathbf{A}^{(n_f),(2)} + a_s^{(n_f),3}(\mu_{h}^2) \mathbf{A}^{(n_f),(3)}
 
 
 
-where the :math:`\mathbf{A}^{(n_f),(k)}` are given up to |NNLO| by the following expressions:
+where the :math:`\mathbf{A}^{(n_f),(k)}` are given up to |N3LO| by the following expressions:
 
 .. math ::
     \mathbf{A}_{S,h^+}^{(n_f),(1)} &= \begin{pmatrix} A_{gg,H}^{S,(1)} & 0 & A_{gH}^{S,(1)} \\ 0 & 0 & 0 \\ A_{Hg}^{S,(1)} & 0 & A_{HH}^{(1)} \end{pmatrix} \\
     \mathbf{A}_{nsv,h^-}^{(n_f),(1)} &= \begin{pmatrix} 0 & 0 \\ 0 & A_{HH}^{(1)}\end{pmatrix} \\
     \mathbf{A}_{S,h^+}^{(n_f),(2)} &= \begin{pmatrix} A_{gg,H}^{S,(2)} & A_{gq,H}^{S,(2)} & 0 \\ 0 & A_{qq,H}^{ns,(2)} & 0 \\ A_{Hg}^{S,(2)} & A_{Hq}^{ps,(2)} & 0 \end{pmatrix} \\
-    \mathbf{A}_{nsv,h^-}^{(n_f),(2)} &= \begin{pmatrix} A_{qq,H}^{ns,(2)} & 0 \\ 0 & 0 \end{pmatrix}
-
+    \mathbf{A}_{nsv,h^-}^{(n_f),(2)} &= \begin{pmatrix} A_{qq,H}^{ns,(2)} & 0 \\ 0 & 0 \end{pmatrix} \\
+    \mathbf{A}_{S,h^+}^{(n_f),(3)} &= \begin{pmatrix} A_{gg,H}^{S,(3)} & A_{gq,H}^{S,(3)} & 0 \\ A_{qg,H}^{S,(3)} & A_{qq,H}^{ns,(3)} + A_{qq,H}^{ps,(3)} & 0 \\ A_{Hg}^{S,(3)} & A_{Hq}^{ps,(3)} & 0 \end{pmatrix} \\
+    \mathbf{A}_{nsv,h^-}^{(n_f),(3)} &= \begin{pmatrix} A_{qq,H}^{ns,(3)} & 0 \\ 0 & 0 \end{pmatrix}
 
 The coefficients :math:`A^{(n_f),(k)}_{ij}(z,\mu_{h}^2)` have been firstly computed in :cite:`Buza_1998` and have
 been :doc:`Mellin transformed </theory/Mellin>` to be used inside EKO.
 They depend on the scale :math:`\mu_{h}^2` only through the logarithm :math:`\ln(\mu_{h}^2/m_{h}^2)`,
 in particular the coefficient :math:`A_{gg,H}^{S,(1)}` is fully proportional to :math:`\ln(\mu_{h}^2/m_{h}^2)`.
 
-We remark that contributions of the higher quark at |NNLO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
-On the other hand the elements :math:`A_{qq}^{ps},A_{qg}` are known to start at |N3LO|.
+|N3LO| matrix elements have been presented in :cite:`Bierenbaum:2009mv` and following publications
+:cite:`Ablinger:2010ty,Ablinger:2014vwa,Ablinger:2014uka,Behring:2014eya,Blumlein:2017wxd,Ablinger_2014,Ablinger_2015`.
+At |N3LO| the parts proportional to :math:`\ln(\mu_{h}^2/m_{h}^2)` are not implemented inside our code for simplicity, 
+but are available.
+
+We remark that contributions of the higher quark at |NNLO| and |N3LO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
+On the other hand the elements :math:`A_{qq,H}^{ps},A_{qg,H}` are known to start at |N3LO|.
 
 The |OME| are also required in the context of the FONLL matching scheme :cite:`Forte:2010ta`.
 For :ref:`Intrinsic Evolution <theory/DGLAP:Intrinsic Evolution>` this leads to considerable simplifications :cite:`Ball:2015dpa`.
@@ -117,7 +123,10 @@ EKO implements two different strategies to perform this operation, that can be s
 - ``backward_inversion = 'expanded'``: the matching matrices are inverted through a perturbative expansion in :math:`a_s` before the Mellin inversion:
 
 .. math ::
-    \mathbf{A}_{exp}^{-1}(\mu_{h}^2) &= \mathbf{I} - a_s(\mu_{h}^2)  \mathbf{A}^{(1)} + a_s^2(\mu_{h}^2) \left [ \mathbf{A}^{(2)} -  \left(\mathbf{A}^{(1)}\right)^2 \right ] + O(a_s^3) \\
+    \mathbf{A}_{exp}^{-1}(\mu_{h}^2) &= \mathbf{I} \\
+    & - a_s(\mu_{h}^2) \mathbf{A}^{(1)} \\
+    & + a_s^2(\mu_{h}^2) \left [ \mathbf{A}^{(2)} - \left(\mathbf{A}^{(1)}\right)^2 \right ] \\
+    & + a_s^3(\mu_{h}^2) \left [ - \mathbf{A}^{(3)} + 2 \mathbf{A}^{(1)} \mathbf{A}^{(2)} - \left( \mathbf{A}^{(1)} \right )^3 \right ] \\
 
 We emphasize that in the backward evolution, below the threshold, the remaining high quark PDFs are always intrinsic and do not evolve anymore.
 In fact, if the initial PDFs (above threshold) do contain an intrinsic contribution, this has to be evolved below the threshold otherwise momentum sum rules 

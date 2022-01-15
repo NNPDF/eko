@@ -2,7 +2,7 @@
 # pylint: disable=too-many-lines
 """
 This module contains some Mellin transfomations for 5th order  harmonics sum.
-Notation refers to :cite:`Bl_mlein_2009`
+Notation refers to :cite:`Blumlein:2009ta`
 Mellin transform is defined with the convention x^(N).
 F19, F20, F21 are not present explictly in the paper
 """
@@ -5457,7 +5457,7 @@ def F13(n, S1, S2):
 
 @nb.njit("c16(c16,c16,c16,c16)", cache=True)
 def F19(n, S1, S2, S3):
-    """Mellin tranfrom of eq 9.3 of :cite:`Bl_mlein_2009`"""
+    """Mellin tranfrom of eq 9.3 of :cite:`Blumlein:2009ta`"""
     return (
         7.548974594558902
         - 1.5497677311665408 / np.power(1.0 + n, 3)
@@ -5505,7 +5505,7 @@ def F19(n, S1, S2, S3):
 
 @nb.njit("c16(c16,c16,c16,c16)", cache=True)
 def F21(n, Sm1, Sm2, Sm3):
-    """Mellin transform of eq 9.4 of :cite:`Bl_mlein_2009`"""
+    """Mellin transform of eq 9.4 of :cite:`Blumlein:2009ta`"""
     return 2.3148148148148148e-7 * (
         2.383072892806571e7 / np.power(-1.0, 1.0 * n)
         + 970000.0 / (2.0 + n)
@@ -5567,7 +5567,7 @@ def F21(n, Sm1, Sm2, Sm3):
 
 @nb.njit("c16(c16,c16,c16,c16)", cache=True)
 def F20(n, Sm1, Sm2, Sm3):
-    """Mellin transform of eq 9.5 :cite:`Bl_mlein_2009`"""
+    """Mellin transform of eq 9.5 :cite:`Blumlein:2009ta`"""
     return 2.3148148148148148e-7 * (
         1.8204889223408133e7 / np.power(-1.0, 1.0 * n)
         - 650000.0 / (2.0 + n)
