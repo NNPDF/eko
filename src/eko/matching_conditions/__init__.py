@@ -45,7 +45,7 @@ class MatchingCondition(member.OperatorBase):
 
         m = {
             "S.S": ome_members["S_qq"],
-            "S.g": ome_members["S_qg"],  # This is always zero for the time being
+            "S.g": ome_members["S_qg"],
             "g.S": ome_members["S_gq"],
             "g.g": ome_members["S_gg"],
             "V.V": ome_members["NS_qq"],
@@ -61,7 +61,7 @@ class MatchingCondition(member.OperatorBase):
         hq = flavors.quark_names[nf]
         m.update(
             {
-                f"{hq}-.V": ome_members["NS_Hq"],
+                # f"{hq}-.V": ome_members["NS_Hq"],
                 f"{hq}+.S": ome_members["S_Hq"],
                 f"{hq}+.g": ome_members["S_Hg"],
             }
@@ -77,11 +77,11 @@ class MatchingCondition(member.OperatorBase):
                     m[f"{ihq}+.{ihq}+"] = op_id.copy()
                     m[f"{ihq}-.{ihq}-"] = op_id.copy()
                 elif intr_fl == nf + 1:
-                    # match the missing contibution from h+ and h-
+                    # match the missing contribution from h+ and h-
                     m.update(
                         {
                             f"{ihq}+.{ihq}+": ome_members["S_HH"],
-                            # f"S.{ihq}+": ome_members["S_qH"],
+                            f"S.{ihq}+": ome_members["S_qH"],
                             f"g.{ihq}+": ome_members["S_gH"],
                             f"{ihq}-.{ihq}-": ome_members["NS_HH"],
                             # f"V.{ihq}-": ome_members["NS_qH"],

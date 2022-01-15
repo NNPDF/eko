@@ -86,8 +86,14 @@ def test_harmonic_Sx():
     def sx(n, m):
         return np.sum([1 / k ** m for k in range(1, n + 1)])
 
-    ls = [harmonics.harmonic_S1, harmonics.harmonic_S2, harmonics.harmonic_S3]
-    for k in range(1, 3 + 1):
+    ls = [
+        harmonics.harmonic_S1,
+        harmonics.harmonic_S2,
+        harmonics.harmonic_S3,
+        harmonics.harmonic_S4,
+        harmonics.harmonic_S5,
+    ]
+    for k in range(1, 5 + 1):
         for n in range(1, 4 + 1):
             np.testing.assert_almost_equal(ls[k - 1](n), sx(n, k))
 

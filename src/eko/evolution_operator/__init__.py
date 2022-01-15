@@ -317,7 +317,8 @@ class Operator:
                         0.5,
                         1.0 - self._mellin_cut,
                         args=(
-                            self.config["order"],
+                            # TODO: implement N3LO evolution
+                            self.config["order"] if self.config["order"] != 3 else 2,
                             label,
                             self.config["method"],
                             int_disp.log,

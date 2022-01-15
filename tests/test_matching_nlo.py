@@ -36,7 +36,7 @@ def test_A_1_shape():
 
 
 def test_Bluemlein_1():
-    # Test against Blumlein OME implementation :cite:`Bierenbaum_2009`.
+    # Test against Blumlein OME implementation :cite:`Bierenbaum:2009mv`.
     # Only even moments are available in that code.
     # Note there is a minus sign in the definition of L.
 

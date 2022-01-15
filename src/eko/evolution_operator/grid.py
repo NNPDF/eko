@@ -178,11 +178,12 @@ class OperatorGrid:
 
             # Compute the matching conditions and store it
             if seg.q2_to not in self._matching_operators:
-                thr_config = self.managers["thresholds_config"]
-                # is_backawd point to the smaller q2
+                # is_backward point to the smaller q2
                 shift = 3 if not seg.is_backward else 4
-                kthr = thr_config.thresholds_ratios[seg.nf - shift]
-                ome.compute(seg.q2_to, np.log(kthr), self.config["HQ"] == "MSBAR")
+                kthr = self.managers["thresholds_config"].thresholds_ratios[
+                    seg.nf - shift
+                ]
+                ome.compute(seg.q2_to, seg.nf - shift + 3, np.log(kthr), self.config["HQ"] == "MSBAR")
                 self._matching_operators[seg.q2_to] = ome.ome_members
         return thr_ops
 
