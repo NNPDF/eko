@@ -388,7 +388,7 @@ def eko_perturbative(
     gamma_singlet, a1, a0, nf, order, ev_op_iterations, ev_op_max_order, is_exact
 ):
     """
-    Singlet NLO or NNLO order pertubative EKO, depending on which r is passed
+    Singlet NLO or NNLO order perturbative EKO, depending on which r is passed
 
     Parameters
     ----------

@@ -243,7 +243,7 @@ class BasisFunction:
     defined by (xmin-xmax) and containing a list of coefficients.
 
     Upon construction will generate all areas and generate and compile
-    a function to evaluate in N (or x) the iterpolator
+    a function to evaluate in N (or x) the interpolator
 
     Parameters
     ----------
@@ -319,7 +319,7 @@ class BasisFunction:
                 area config
         """
         # This is necessary as numba will ask for everything
-        # to be inmutable
+        # to be immutable
         area_list = []
         for area in self:
             area_list.append([area.xmin, area.xmax, *area.coefs])
@@ -391,7 +391,7 @@ class InterpolatorDispatcher:
     Setups the interpolator.
 
     Upon construction will generate a list of :class:`BasisFunction` objects.
-    Each of these :class:`BasisFunction` objects exponses a `callable`
+    Each of these :class:`BasisFunction` objects expose a `callable`
     method (also accessible as the `__call__` method of the class)
     which will be numba-compiled.
 

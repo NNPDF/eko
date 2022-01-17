@@ -113,7 +113,7 @@ class ThresholdsAtlas:
         """
         Create a |FFNS| setup.
 
-        The function creates simply succifienct thresholds at `0` (in the
+        The function creates simply sufficient thresholds at `0` (in the
         beginning), since the number of flavors is determined by counting
         from below.
 
