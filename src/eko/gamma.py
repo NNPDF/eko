@@ -66,5 +66,5 @@ def gamma(order, nf):
     elif order == 3:
         _gamma = gamma_3(nf)
     else:
-        raise ValueError("Gamma coefficients beyond N3LO are not implemented!")
+        raise ValueError("QCD Gamma coefficients beyond N3LO are not implemented!")
     return _gamma

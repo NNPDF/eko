@@ -97,7 +97,7 @@ For each heavy quark :math:`h` we solve for :math:`m_h`:
 where the evolved |MSbar| mass is given by:
 
 .. math ::
-    m_{\overline{MS},h}(\mu^2) = m_{h,0} \int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \frac{\gamma(a_s)}{\beta(a_s)} d a_s
+    m_{\overline{MS},h}(\mu^2) = m_{h,0} \exp \left[ - \int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \frac{\gamma_m(a_s)}{\beta(a_s)} d a_s \right ]
 
 and :math:`m_{h,0}` is the given initial condition at the scale
 :math:`\mu_{h,0}`. Here there is a subtle complication since the solution
@@ -127,24 +127,28 @@ In doing so EKO takes advantage of the monotony of the |RGE| solution
 
 Now, being able to evaluate :math:`a_s(\mu_{h,0}^2)`, there are two ways of
 solving the previous integral and finally compute the evolved
-:math:`m_{\overline{MS},h}`. In fact, the function :math:`\gamma(a_s)` is the
+:math:`m_{\overline{MS},h}`. In fact, the function :math:`\gamma_m(a_s)` is the
 anomalous QCD mass dimension and, as the :math:`\beta` function, it can be evaluated
-perturbatively in :math:`a_s` up to :math:`\mathcal{O}(a_s^3)`:
+perturbatively in :math:`a_s` up to :math:`\mathcal{O}(a_s^4)`:
 
 .. math ::
-    \gamma(a_s) &= - \sum\limits_{n=0} \gamma_n a_s^{n+1} \\
+    \gamma_m(a_s) &= \sum\limits_{n=0} \gamma_{m_n} a_s^{n} \\
 
-Even here it is useful to define :math:`c_k = \gamma_k/\beta_0, k>0`.
+Even here it is useful to define :math:`c_k = \gamma_{m_k}/\beta_0, k \ge 0`.
 
 Therefore the two solution strategies are:
 
 - ``method = "exact"``: the integral is solved exactly using the expression of
-  :math:`\beta,\gamma` up to the specified perturbative order
+  :math:`\beta,\gamma_m` up to the specified perturbative order
 - ``method = "expanded"``: the integral is approximate by the following expansion:
 
 .. math ::
     m_{\overline{MS},h}(\mu^2) & = m_{h,0} \left ( \frac{a_s(\mu^2)}{a_s(\mu_{h,0}^2)} \right )^{c_0} \frac{j_{exp}(a_s(\mu^2))}{j_{exp}(a_s(\mu_{h,0}^2))} \\
-    j_{exp}(a_s) &= 1 + a_s \left [ c_1 - b_1 c_0 \right ] + \frac{a_s^2}{2} \left [c_2 - c_1 b_1 - b_2 c_0 + b_1^2 c_0 + (c_1 - b_1 c_0)^2 \right]
+    j_{exp}(a_s) &= 1 + a_s \left [ c_1 - b_1 c_0 \right ] \\
+                 & + \frac{a_s^2}{2} \left [c_2 - c_1 b_1 - b_2 c_0 + b_1^2 c_0 + (c_1 - b_1 c_0)^2 \right] \\
+                 & + \frac{a_s^3}{6} [ -2 b_3 c_0 - b_1^3 c_0 (1 + c_0) (2 + c_0) - 2 b_2 c_1 \\
+                 & - 3 b_2 c_0 c_1 + b_1^2 (2 + 3 c_0 (2 + c_0)) c_1 + c_1^3 + 3 c_1 c_2 \\
+                 & + b_1 (b_2 c_0 (4 + 3 c_0) - 3 (1 + c_0) c_1^2 - (2 + 3 c_0) c_2) + 2 c_3 ]
 
 
 The procedure is iterated on all the heavy quarks, updating the temporary instance
