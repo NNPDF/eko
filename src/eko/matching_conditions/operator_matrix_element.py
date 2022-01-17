@@ -241,10 +241,10 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method, i
     r = 0.4 * 16.0 / (1.0 - logx)
     if is_singlet:
         o = 1.0
-        indeces = {"g": 0, "q": 1, "H": 2}
+        indices = {"g": 0, "q": 1, "H": 2}
     else:
         o = 0.0
-        indeces = {"q": 0, "H": 1}
+        indices = {"q": 0, "H": 1}
     n = mellin.Talbot_path(u, r, o)
     jac = mellin.Talbot_jac(u, r, o)
 
@@ -280,7 +280,7 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method, i
     ker = build_ome(A, order, a_s, backward_method)
 
     # select the need matrix element
-    ker = ker[indeces[mode[-2]], indeces[mode[-1]]]
+    ker = ker[indices[mode[-2]], indices[mode[-1]]]
     if ker == 0.0:
         return 0.0
 
@@ -318,8 +318,6 @@ def run_op_integration(
             perturbation order
         is_log : boolean
             logarithmic interpolation
-        logx : float
-            Mellin inversion point
         a_s : float
             strong coupling, needed only for the exact inverse
         nf: int
@@ -431,7 +429,7 @@ class OperatorMatrixElement:
         else:
             labels.extend(["NS_qq"])
             if self.is_intrinsic or self.backward_method != "":
-                # intrisic labels, which are not zero at NLO
+                # intrinsic labels, which are not zero at NLO
                 labels.append("NS_HH")
                 # These contributions are always 0 for the now
                 # labels.extend(["NS_qH", "NS_Hq"])
@@ -456,7 +454,7 @@ class OperatorMatrixElement:
             q2: float
                 threshold scale
             nf: int
-                mumber of active flavor below threshold
+                number of active flavor below threshold
             L: float
                 log of K threshold squared
             is_msbar: bool
@@ -485,62 +483,27 @@ class OperatorMatrixElement:
         a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2)
 
         tot_start_time = time.perf_counter()
-        # logger.info("Matching: computing operators - 0/%d", grid_size)
-        # iterate output grid
-        # for k, logx in enumerate(np.log(self.int_disp.xgrid_raw)):
-        #     start_time = time.perf_counter()
-        #     # iterate basis functions
-        #     for l, bf in enumerate(self.int_disp):
-        #         if k == l and l == grid_size - 1:
-        #             continue
-        #         # iterate sectors
-        #         for label in labels:
-        #             logger.info("Matching: computing entry %s", label)
-        #             # compute and set
-        #             res = integrate.quad(
-        #                 quad_ker,
-        #                 0.5,
-        #                 1.0 - self._mellin_cut,
-        #                 args=(
-        #                     self.config["order"],
-        #                     label,
-        #                     self.int_disp.log,
-        #                     logx,
-        #                     bf.areas_representation,
-        #                     a_s,
-        #                     nf,
-        #                     L,
-        #                     self.backward_method,
-        #                 ),
-        #                 epsabs=1e-12,
-        #                 epsrel=1e-5,
-        #                 limit=100,
-        #                 full_output=1,
-        #             )
-        #             val, err = res[:2]
-        #             self.ome_members[label].value[k][l] = val
-        #             self.ome_members[label].error[k][l] = err
 
         # run integration in parallel for each grid point
-        pool = multiprocessing.Pool(grid_size)
-        res = pool.map(
-            functools.partial(
-                run_op_integration,
-                int_disp=self.int_disp,
-                grid_size=grid_size,
-                labels=labels,
-                order=self.config["order"],
-                is_log=self.int_disp.log,
-                a_s=a_s,
-                nf=nf,
-                L=L,
-                backward_method=self.backward_method,
-                is_msbar=is_msbar
-            ),
-            enumerate(np.log(self.int_disp.xgrid_raw)),
-        )
+        with multiprocessing.Pool(grid_size) as pool:
+            res = pool.map(
+                functools.partial(
+                    run_op_integration,
+                    int_disp=self.int_disp,
+                    grid_size=grid_size,
+                    labels=labels,
+                    order=self.config["order"],
+                    is_log=self.int_disp.log,
+                    a_s=a_s,
+                    nf=nf,
+                    L=L,
+                    backward_method=self.backward_method,
+                    is_msbar=is_msbar
+                ),
+                enumerate(np.log(self.int_disp.xgrid_raw)),
+            )
 
-        # collect relusts
+        # collect results
         for k, row in enumerate(res):
             for l, entry in enumerate(row):
                 for label, (val, err) in entry.items():

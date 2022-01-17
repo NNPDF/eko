@@ -2,7 +2,6 @@
 # Test some harmomics and the binomial factor
 
 import numpy as np
-import scipy.special as sp
 
 import eko.matching_conditions.n3lo.s_functions as sf
 

@@ -7,7 +7,7 @@ from .aHgstfac import A_Hgstfac_3
 
 
 @nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4,f8)", cache=True)
-def A_Hg_3(n, sx, smx, s3x, s4x, nf, L):
+def A_Hg_3(n, sx, smx, s3x, s4x, nf, L): # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{Hg}^{S,(3)}(N)`.
     The experssion is presented in :cite:`Bierenbaum:2009mv`
