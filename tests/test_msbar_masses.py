@@ -38,7 +38,9 @@ class TestMsbarMasses:
     def test_compute_msbar_mass(self):
         # Test solution of msbar(m) = m
         for method in ["EXA", "EXP"]:
-            for order in [1, 2]:
+            # TODO: this will fail until the N3LO alphas is not allowed,
+            # see N3LO matching PR
+            for order in [1, 2, 3]:
                 theory_dict.update({"ModEv": method, "PTO": order})
                 strong_coupling = StrongCoupling.from_dict(theory_dict)
 
