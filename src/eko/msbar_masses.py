@@ -30,8 +30,8 @@ def msbar_ker_exact(a0, a1, order, nf):
         ker: float
             Exact |MSbar| kernel:
 
-            ..math:
-                k_{exact} = e^{\int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \gamma(a_s) / \beta(a_s) da_s}
+            .. math::
+                k_{exact} = e^{- \int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \gamma_m(a_s) / \beta(a_s) da_s}
     """
     b_vec = [beta(0, nf)]
     g_vec = [gamma(0, nf)]
@@ -41,6 +41,9 @@ def msbar_ker_exact(a0, a1, order, nf):
     if order >= 2:
         b_vec.append(beta(2, nf))
         g_vec.append(gamma(2, nf))
+    if order >= 3:
+        b_vec.append(beta(3, nf))
+        g_vec.append(gamma(3, nf))
 
     # quad ker
     def integrand(a, b_vec, g_vec):
@@ -83,12 +86,15 @@ def msbar_ker_expanded(a0, a1, order, nf):
         ker: float
             Expanded |MSbar| kernel:
 
-            ..math:
+            .. math::
                 k_{expanded} &= \left (\frac{a_s(\mu^2)}{a_s(\mu_{h,0}^2)} \right )^{c_0}
                 \frac{j_{exp}(a_s(\mu^2))}{j_{exp}(a_s(\mu_{h,0}^2))} \\
-                j_{exp}(a_s) &= 1 + a_s \left [ c_1 - b_1 c_0 \right ]
-                + \frac{a_s^2}{2}
-                \left [c_2 - c_1 b_1 - b_2 c_0 + b_1^2 c_0 + (c_1 - b_1 c_0)^2 right]
+                j_{exp}(a_s) &= 1 + a_s \left [ c_1 - b_1 c_0 \right ] \\
+                & + \frac{a_s^2}{2}
+                \left [c_2 - c_1 b_1 - b_2 c_0 + b_1^2 c_0 + (c_1 - b_1 c_0)^2 \right ] \\
+                & + \frac{a_s^3}{6} [ -2 b_3 c_0 - b_1^3 c_0 (1 + c_0) (2 + c_0) - 2 b_2 c_1 \\
+                & - 3 b_2 c_0 c_1 + b_1^2 (2 + 3 c_0 (2 + c_0)) c_1 + c_1^3 + 3 c_1 c_2 \\
+                & + b_1 (b_2 c_0 (4 + 3 c_0) - 3 (1 + c_0) c_1^2 - (2 + 3 c_0) c_2) + 2 c_3 ]
     """
     b0 = beta(0, nf)
     c0 = gamma(0, nf) / b0
@@ -98,15 +104,36 @@ def msbar_ker_expanded(a0, a1, order, nf):
     if order >= 1:
         b1 = b(1, nf)
         c1 = gamma(1, nf) / b0
-        r = c1 - b1 * c0
-        num += a1 * r
-        den += a0 * r
+        u = c1 - b1 * c0
+        num += a1 * u
+        den += a0 * u
     if order >= 2:
         b2 = b(2, nf)
         c2 = gamma(2, nf) / b0
-        r = (c2 - c1 * b1 - b2 * c0 + b1 ** 2 * c0 + (c1 - b1 * c0) ** 2) / 2.0
-        num += a1 ** 2 * r
-        den += a0 ** 2 * r
+        u = (c2 - c1 * b1 - b2 * c0 + b1 ** 2 * c0 + (c1 - b1 * c0) ** 2) / 2.0
+        num += a1 ** 2 * u
+        den += a0 ** 2 * u
+    if order >= 3:
+        b3 = b(3, nf)
+        c3 = gamma(3, nf) / b0
+        u = (
+            1
+            / 6
+            * (
+                -2 * b3 * c0
+                - b1 ** 3 * c0 * (1 + c0) * (2 + c0)
+                - 2 * b2 * c1
+                - 3 * b2 * c0 * c1
+                + b1 ** 2 * (2 + 3 * c0 * (2 + c0)) * c1
+                + c1 ** 3
+                + 3 * c1 * c2
+                + b1
+                * (b2 * c0 * (4 + 3 * c0) - 3 * (1 + c0) * c1 ** 2 - (2 + 3 * c0) * c2)
+                + 2 * c3
+            )
+        )
+        num += a1 ** 3 * u
+        den += a0 ** 3 * u
     return ev_mass * num / den
 
 
