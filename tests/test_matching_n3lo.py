@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 # Test NNLO OME
-
-from turtle import pd
 import numpy as np
 
 from eko.anomalous_dimensions import harmonics
