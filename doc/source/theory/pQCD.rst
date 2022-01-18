@@ -132,9 +132,9 @@ anomalous QCD mass dimension and, as the :math:`\beta` function, it can be evalu
 perturbatively in :math:`a_s` up to :math:`\mathcal{O}(a_s^4)`:
 
 .. math ::
-    \gamma_m(a_s) &= \sum\limits_{n=0} \gamma_{m_n} a_s^{n} \\
+    \gamma_m(a_s) &= \sum\limits_{n=0} \gamma_{m,n} a_s^{n+1} \\
 
-Even here it is useful to define :math:`c_k = \gamma_{m_k}/\beta_0, k \ge 0`.
+Even here it is useful to define :math:`c_k = \gamma_{m,k}/\beta_0, k \ge 0`.
 
 Therefore the two solution strategies are:
 

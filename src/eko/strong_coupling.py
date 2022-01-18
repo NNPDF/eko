@@ -72,7 +72,7 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
         as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
         res = as_NLO
         # NNLO
-        if order == 2:
+        if order >= 2:
             beta2 = beta(2, nf)
             b2 = beta2 / beta0
             res = as_LO * (
@@ -80,6 +80,10 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
                 + as_LO * (as_LO - as_ref) * (b2 - b1 ** 2)
                 + as_NLO * b1 * np.log(as_NLO / as_ref)
             )
+            #N3LO
+            if order >= 3:
+                pass
+                # TODO: add N3LO expanded
 
     return res
 
@@ -146,8 +150,8 @@ class StrongCoupling:
             raise ValueError(f"alpha_s_ref has to be positive - got {alpha_s_ref}")
         if scale_ref <= 0:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
-        if order not in [0, 1, 2]:
-            raise NotImplementedError("a_s beyond NNLO is not implemented")
+        if order not in [0, 1, 2, 3]:
+            raise NotImplementedError("a_s beyond N3LO is not implemented")
         self.order = order
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
@@ -268,6 +272,11 @@ class StrongCoupling:
                 beta2 = beta(2, nf)
                 b2 = beta2 / beta0
                 b_vec.append(b2)
+                # N3LO
+                if self.order >= 3:
+                    beta3 = beta(3, nf)
+                    b3 = beta3 / beta0
+                    b_vec.append(b3)
         # integration kernel
         def rge(_t, a, b_vec):
             return -(a ** 2) * np.sum([a ** k * b for k, b in enumerate(b_vec)])
@@ -393,7 +402,8 @@ def compute_matching_coeffs_up(mass_scheme):
         matching_coeffs_down:
             forward matching coefficient matrix
     """
-    matching_coeffs_up = np.zeros((3, 3))
+    matching_coeffs_up = np.zeros((4, 4))
+    # TODO: add N3LO parameters
     if mass_scheme == "MSBAR":
         matching_coeffs_up[2, 0] = -22.0 / 3.0
         matching_coeffs_up[2, 1] = 22.0 / 3.0
