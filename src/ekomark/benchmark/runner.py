@@ -30,7 +30,7 @@ class Runner(BenchmarkRunner):
     plot_operator = False
 
     def __init__(self):
-        self.banana_cfg = banana_cfg.banana_cfg
+        self.banana_cfg = banana_cfg.cfg
 
     @staticmethod
     def load_ocards(session, ocard_updates):
@@ -72,7 +72,7 @@ class Runner(BenchmarkRunner):
         if self.sandbox:
             rerun = True
             ops_id = f"o{ocard['hash'][:6]}_t{theory['hash'][:6]}"
-            path = f"{banana_cfg['database_path'].parents[0]}/{ops_id}.yaml"
+            path = f"{banana_cfg.cfg['database_path'].parents[0]}/{ops_id}.yaml"
 
             if os.path.exists(path):
                 rerun = False
@@ -95,9 +95,7 @@ class Runner(BenchmarkRunner):
                     save_operators_to_pdf,
                 )
 
-                output_path = (
-                    f"{banana_cfg['database_path'].parents[0]}/{self.external}_bench"
-                )
+                output_path = f"{banana_cfg.cfg['database_path'].parents[0]}/{self.external}_bench"
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
                 save_operators_to_pdf(
