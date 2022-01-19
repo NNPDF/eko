@@ -70,7 +70,7 @@ python-versions = "*"
 
 [[package]]
 name = "banana-hep"
-version = "0.5.5"
+version = "0.5.6"
 description = "Benchmark QCD physics"
 category = "main"
 optional = true
@@ -88,6 +88,9 @@ pendulum = ">=2.1.2,<3.0.0"
 PyYAML = ">=6.0,<7.0"
 rich = ">=10.16.1,<11.0.0"
 SQLAlchemy = ">=1.4.29,<2.0.0"
+
+[package.extras]
+docs = ["Sphinx (>=4.3.2,<5.0.0)", "sphinx-rtd-theme (>=1.0.0,<2.0.0)", "sphinxcontrib-bibtex (>=2.4.1,<3.0.0)"]
 
 [[package]]
 name = "black"
@@ -324,7 +327,7 @@ python-versions = "*"
 
 [[package]]
 name = "ipython"
-version = "7.31.0"
+version = "7.31.1"
 description = "IPython: Productive Interactive Computing"
 category = "main"
 optional = true
@@ -1213,7 +1216,7 @@ mark = ["banana-hep", "sqlalchemy", "pandas", "matplotlib"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8,<3.10"
-content-hash = "4d359c35f489b7bed5f7922f0937eaeaf5ae0cb40398366e754b513aa8b42b7f"
+content-hash = "6dfdbeba1a8701946abe40b4a8285125041f1b93863b7beb704c467331b5fadc"
 
 [metadata.files]
 alabaster = [
@@ -1245,8 +1248,8 @@ backcall = [
     {file = "backcall-0.2.0.tar.gz", hash = "sha256:5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e"},
 ]
 banana-hep = [
-    {file = "banana-hep-0.5.5.tar.gz", hash = "sha256:74e8d250bbd8ce35839d59d503af12ead22a171e20e2857dbe1ac7238b6b5f22"},
-    {file = "banana_hep-0.5.5-py3-none-any.whl", hash = "sha256:b2e62092532227e1bdea98d6b2f1ad17accb649f22b1b325911a5313c863ab7f"},
+    {file = "banana-hep-0.5.6.tar.gz", hash = "sha256:7cf474dbb36f2e6edb12c0a6b4e163d30277ec2128b84f31b44898e64c771841"},
+    {file = "banana_hep-0.5.6-py3-none-any.whl", hash = "sha256:d37ac04a2e90bcb4d7aff4c4c9b091c4be5fe5e83a25308f8f9fb28767544443"},
 ]
 black = [
     {file = "black-21.12b0-py3-none-any.whl", hash = "sha256:a615e69ae185e08fdd73e4715e260e2479c861b5740057fde6e8b4e3b7dd589f"},
@@ -1426,8 +1429,8 @@ iniconfig = [
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
 ]
 ipython = [
-    {file = "ipython-7.31.0-py3-none-any.whl", hash = "sha256:4c4234cdcc6b8f87c5b5c7af9899aa696ac5cfcf0e9f6d0688018bbee5c73bce"},
-    {file = "ipython-7.31.0.tar.gz", hash = "sha256:346c74db7312c41fa566d3be45d2e759a528dcc2994fe48aac1a03a70cd668a3"},
+    {file = "ipython-7.31.1-py3-none-any.whl", hash = "sha256:55df3e0bd0f94e715abd968bedd89d4e8a7bce4bf498fb123fed4f5398fea874"},
+    {file = "ipython-7.31.1.tar.gz", hash = "sha256:b5548ec5329a4bcf054a5deed5099b0f9622eb9ea51aaa7104d215fece201d8c"},
 ]
 isort = [
     {file = "isort-5.10.1-py3-none-any.whl", hash = "sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7"},
