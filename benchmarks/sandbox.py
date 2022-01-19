@@ -3,9 +3,9 @@
 import numpy as np
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
-import ekomark.banana_cfg
+from ekomark import register
 
-ekomark.banana_cfg.register(__file__)
+register(__file__)
 
 vfns = {"FNS": "ZM-VFNS", "mc": 1.51, "mb": 4.92, "mt": 172.5}
 pegasus_vfns = {"nfref": 3, **vfns}
