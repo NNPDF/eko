@@ -9,7 +9,7 @@ BUILDDIR      = build
 
 EKODIR = ../src/eko
 EKOOUT = $(SOURCEDIR)/modules/eko
-EKOMARKDIR = ../benchmarks/ekomark
+EKOMARKDIR = ../src/ekomark
 EKOMARKOUT = ./source/development/ekomark
 
 TODOOUTFILE = ./source/development/code_todos.rst
