@@ -73,7 +73,7 @@ files = ["src/eko/version.py"]
 test = { "shell" = "pytest tests" }
 lint = "pylint src/**/*.py -E"
 lint-warnings = "pylint src/**/*.py --exit-zero"
-sandbox = "python benchmarks/runners/sandbox.py"
+sandbox = "python benchmarks/sandbox.py"
 nav = "navigator"
 navigator = "ekomark.navigator:launch_navigator"
 black = "black ."
@@ -86,7 +86,7 @@ docs-clean = { "shell" = "cd doc; make clean" }
 docs-cleanall = { "shell" = "cd doc; make cleanall" }
 
 [tool.pytest.ini_options]
-testpaths = ['tests/'] #, 'benchmarks/runners/']
+testpaths = ['tests/'] #, 'benchmarks/']
 python_files = ['test_*.py', 'benchmark_*.py', 'regression.py']
 python_classes = ['Test*', 'Benchmark*']
 python_functions = ['test_*', 'benchmark_*']
