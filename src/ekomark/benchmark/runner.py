@@ -24,11 +24,14 @@ class Runner(BenchmarkRunner):
     EKO specialization of the banana runner.
     """
 
-    banana_cfg = banana_cfg
     db_base_cls = db.Base
     rotate_to_evolution_basis = False
     sandbox = False
     plot_operator = False
+
+    def __init__(self):
+        self.banana_cfg = banana_cfg
+        __import__('pdb').set_trace()
 
     @staticmethod
     def load_ocards(session, ocard_updates):
