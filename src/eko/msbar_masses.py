@@ -32,7 +32,7 @@ def msbar_ker_exact(a0, a1, order, nf):
 
             .. math::
                 k_{exact} = e^{- \int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \gamma_m(a_s) / \beta(a_s) da_s}
-    """
+    """ # pylint:disable=line-too-long
     b_vec = [beta(0, nf)]
     g_vec = [gamma(0, nf)]
     if order >= 1:

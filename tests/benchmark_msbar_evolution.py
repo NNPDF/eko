@@ -122,5 +122,5 @@ class BenchmarkMSbar:
                     np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
                 # check myself to APFEL
                 np.testing.assert_allclose(
-                    apfel_vals, np.sqrt(np.array(my_vals)), rtol=2e-3
+                    apfel_vals, np.sqrt(np.array(my_vals)), rtol=5e-3
                 )
