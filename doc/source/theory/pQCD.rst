@@ -29,7 +29,7 @@ We implement two different strategies to solve the |RGE|:
                                         & \hspace{60pt} \left. + a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) b_1 \ln\left(a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2)/a_s(\mu_0^2)\right)\right]
 
 When the renormalization scale crosses a flavor threshold matching conditions
-have to be applied :cite:`Chetyrkin:1997sg,Schroder:2005hy,Chetyrkin:2005ia`.
+have to be applied :cite:`Schroder:2005hy,Chetyrkin:2005ia`.
 
 Splitting Functions
 -------------------

@@ -368,7 +368,7 @@ class StrongCoupling:
                     self.thresholds.thresholds_ratios[seg.nf - shift]
                 )
                 m_coeffs = (
-                    compute_matching_coeffs_down(self.hqm_scheme, seg.nf-1)
+                    compute_matching_coeffs_down(self.hqm_scheme, seg.nf - 1)
                     if is_downward_path
                     else compute_matching_coeffs_up(self.hqm_scheme, seg.nf)
                 )
@@ -385,12 +385,12 @@ class StrongCoupling:
 
 def compute_matching_coeffs_up(mass_scheme, nf):
     r"""
-    Matching coefficients :cite:`Chetyrkin:1997sg,Schroder:2005hy,Chetyrkin:2005ia,Vogt:2004ns`
+    Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia,Vogt:2004ns`
     at threshold when moving to a regime with *more* flavors.
 
-    We follow notation of :cite:`Vogt:2004ns` (eq 2.43)
+    We follow notation of :cite:`Vogt:2004ns` (eq 2.43) for POLE masses
 
-    The *inverse* |MSbar| values instead are given in :cite:`Chetyrkin:1997sg` (eq 6)
+    The *inverse* |MSbar| values instead are given in :cite:`Schroder:2005hy` (eq 3.1)
     multiplied by a factor of 4 (and 4^2 ...)
 
     .. math::
@@ -412,23 +412,23 @@ def compute_matching_coeffs_up(mass_scheme, nf):
     matching_coeffs_up = np.zeros((4, 4))
     if mass_scheme == "MSBAR":
         matching_coeffs_up[2, 0] = -22.0 / 9.0
-        # TODO: here apfel and :cite:`Chetyrkin:1997sg` (eq 6) do not agree...
-        # Apfel has: matching_coeffs_up[2, 1] = 22.0 / 3.0
+        matching_coeffs_up[2, 1] = 22.0 / 3.0
 
         # c30 = -d30
         matching_coeffs_up[3, 0] = -62.2116 + 5.4177 * nf
         # c31 = -d31 + 5 c11 * c20
-        matching_coeffs_up[3, 1] = 243.444 - 10.4074 * nf
+        matching_coeffs_up[3, 1] = 365.0 / 3.0 - 67.0 / 9.0 * nf
+        matching_coeffs_up[3, 2] = 109.0 / 3.0 + 16.0 / 9.0 * nf
 
     elif mass_scheme == "POLE":
         matching_coeffs_up[2, 0] = 14.0 / 3.0
+        matching_coeffs_up[2, 1] = 38.0 / 3.0
         matching_coeffs_up[3, 0] = 340.729 - 16.7981 * nf
         matching_coeffs_up[3, 1] = 8941.0 / 27.0 - 409.0 / 27.0 * nf
+        matching_coeffs_up[3, 2] = 511.0 / 9.0
 
     matching_coeffs_up[1, 1] = 4.0 / 3.0 * constants.TR
-    matching_coeffs_up[2, 1] = 38.0 / 3.0
     matching_coeffs_up[2, 2] = 4.0 / 9.0
-    matching_coeffs_up[3, 2] = 511.0 / 9.0
     matching_coeffs_up[3, 3] = 8.0 / 27.0
 
     return matching_coeffs_up
@@ -437,7 +437,7 @@ def compute_matching_coeffs_up(mass_scheme, nf):
 # inversion of the matching coefficients
 def compute_matching_coeffs_down(mass_scheme, nf):
     """
-    Matching coefficients :cite:`Chetyrkin:1997sg,Schroder:2005hy,Chetyrkin:2005ia` at threshold
+    Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia` at threshold
     when moving to a regime with *less* flavors.
 
     This is the perturbative inverse of :data:`matching_coeffs_up` and has been obtained via
