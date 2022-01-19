@@ -15,7 +15,7 @@ import eko
 from eko import basis_rotation as br
 
 from .. import pdfname
-from ..banana_cfg import banana_cfg
+from .. import banana_cfg
 from ..data import db, operators
 
 
@@ -30,8 +30,7 @@ class Runner(BenchmarkRunner):
     plot_operator = False
 
     def __init__(self):
-        self.banana_cfg = banana_cfg
-        __import__('pdb').set_trace()
+        self.banana_cfg = banana_cfg.banana_cfg
 
     @staticmethod
     def load_ocards(session, ocard_updates):

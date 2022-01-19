@@ -10,4 +10,5 @@ def register(path):
     if path.is_file():
         path = path.parent
 
+    global banana_cfg
     banana_cfg = load_config(path)
