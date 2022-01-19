@@ -80,11 +80,44 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
                 + as_LO * (as_LO - as_ref) * (b2 - b1 ** 2)
                 + as_NLO * b1 * np.log(as_NLO / as_ref)
             )
-            # N3LO
+            # N3LO expansion is taken from Luca Rottoli and it's simpler
+            # than the APFEL expansion which is more accurate
             if order >= 3:
-                pass
-                # TODO: add N3LO expanded
-
+                b3 = beta(3, nf) / beta0
+                log_fact = np.log(as_LO / (1 + beta0 * lmu * as_LO))
+                res += (
+                    as_LO ** 4
+                    / (2 * beta0 ** 3 * (1 + beta0 * lmu * as_LO) ** 4)
+                    * (
+                        -2 * b1 ** 3 * np.log(as_LO) ** 3
+                        + 5 * b1 ** 3 * log_fact ** 2
+                        + 2 * b1 ** 3 * log_fact ** 3
+                        + b1 ** 3 * np.log(as_LO) ** 2 * (5 + 6 * log_fact)
+                        + 2
+                        * beta0
+                        * b1
+                        * log_fact
+                        * (b2 + 2 * (b1 ** 2 - beta0 * b2) * lmu * as_LO)
+                        - beta0 ** 2
+                        * lmu
+                        * as_LO
+                        * (
+                            -2 * b1 * b2
+                            + 2 * beta0 * b3
+                            + (b1 ** 3 - 2 * beta0 * b1 * b2 + beta0 ** 2 * b3)
+                            * lmu
+                            * as_LO
+                        )
+                        - 2
+                        * b1
+                        * np.log(as_LO)
+                        * (
+                            5 * b1 ** 2 * log_fact
+                            + 3 * b1 ** 2 * log_fact ** 2
+                            + beta0 * (b2 + 2 * (b1 ** 2 - beta0 * b2) * lmu * as_LO)
+                        )
+                    )
+                )
     return res
 
 
@@ -445,8 +478,8 @@ def compute_matching_coeffs_down(mass_scheme, nf):
     .. code-block:: Mathematica
 
         Module[{f, g, l, sol},
-            f[a_] := a + Sum[d[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}];
-            g[a_] := a + Sum[c[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}] /. {c[1, 0] -> 0};
+            f[a_] := a + Sum[d[n, k)*L^k*a^(1 + n), {n, 3}, {k, 0, n}];
+            g[a_] := a + Sum[c[n, k)*L^k*a^(1 + n), {n, 3}, {k, 0, n}] /. {c[1, 0] -> 0};
             l = CoefficientList[Normal@Series[f[g[a]], {a, 0, 5}], {a, L}];
             sol = First@
                 Solve[{l[[3]] == 0, l[[4]] == 0, l[[5]] == 0},

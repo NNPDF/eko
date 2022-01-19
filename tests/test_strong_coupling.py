@@ -163,3 +163,36 @@ class TestStrongCoupling:
                 np.testing.assert_allclose(
                     sc_expanded.a_s(q2), sc_exact.a_s(q2), rtol=5e-4
                 )
+
+    def benchmark_expanded_n3lo(self):
+        """test N3LO - NNLO expansion with some references value from Mathematica"""
+        Q2 = 100 ** 2
+        # use a  big alpha_s to enlarge th difference
+        alphas_ref = 0.9
+        scale_ref = 90 ** 2
+        m2c = 2
+        m2b = 25
+        m2t = 30625
+        threshold_list = [m2c, m2b, m2t]
+        # Reference values from Mathematica cache
+        mathematica_val = -0.000101654
+        # collect my values
+        as_NNLO = StrongCoupling(
+            alphas_ref,
+            scale_ref,
+            threshold_list,
+            (1.0, 1.0, 1.0),
+            order=2,
+            method="expanded",
+        )
+        as_N3LO = StrongCoupling(
+            alphas_ref,
+            scale_ref,
+            threshold_list,
+            (1.0, 1.0, 1.0),
+            order=3,
+            method="expanded",
+        )
+        np.testing.assert_allclose(
+            mathematica_val, as_N3LO.a_s(Q2) - as_NNLO.a_s(Q2), rtol=3e-6
+        )
