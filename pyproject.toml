@@ -20,6 +20,10 @@ classifiers = [
 ]
 repository = "https://github.com/N3PDF/eko"
 include = ["doc/source/img/Logo.png"]
+packages = [
+    { include = "eko", from = "src" },
+    { include = "ekomark", from = "src" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.8,<3.10"
