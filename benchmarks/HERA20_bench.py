@@ -3,7 +3,7 @@
 Benchmark HERAPDF2.0 pdf family
 
 """
-
+from eko import interpolation
 from ekomark import register
 from ekomark.benchmark.runner import Runner
 
@@ -19,6 +19,9 @@ base_theory = {
     "kbThr": 1.0,
     "ktThr": 1.0,
 }
+
+# LHAPDF x-range is smaller
+base_op = {"interpolation_xgrid": interpolation.make_lambert_grid(50, 1.0e-6)}
 
 
 class BenchmarkHERA20(Runner):
@@ -38,7 +41,8 @@ class BenchmarkHERA20(Runner):
                 "Q0": Q0,
             }
         )
-        operator_card = {"Q2grid": list(Q2grid)}
+        operator_card = base_op.copy()
+        operator_card.update({"Q2grid": list(Q2grid)})
         self.skip_pdfs = lambda _theory: [
             -6,
             6,
