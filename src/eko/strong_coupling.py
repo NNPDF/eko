@@ -478,8 +478,8 @@ def compute_matching_coeffs_down(mass_scheme, nf):
     .. code-block:: Mathematica
 
         Module[{f, g, l, sol},
-            f[a_] := a + Sum[d[n, k)*L^k*a^(1 + n), {n, 3}, {k, 0, n}];
-            g[a_] := a + Sum[c[n, k)*L^k*a^(1 + n), {n, 3}, {k, 0, n}] /. {c[1, 0] -> 0};
+            f[a_] := a + Sum[d[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}];
+            g[a_] := a + Sum[c[n, k]*L^k*a^(1 + n), {n, 3}, {k, 0, n}] /. {c[1, 0] -> 0};
             l = CoefficientList[Normal@Series[f[g[a]], {a, 0, 5}], {a, L}];
             sol = First@
                 Solve[{l[[3]] == 0, l[[4]] == 0, l[[5]] == 0},

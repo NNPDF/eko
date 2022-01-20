@@ -165,16 +165,15 @@ class TestStrongCoupling:
                 )
 
     def benchmark_expanded_n3lo(self):
-        """test N3LO - NNLO expansion with some references value from Mathematica"""
+        """test N3LO - NNLO expansion with some reference value from Mathematica"""
         Q2 = 100 ** 2
-        # use a  big alpha_s to enlarge th difference
+        # use a big alpha_s to enlarge the difference
         alphas_ref = 0.9
         scale_ref = 90 ** 2
         m2c = 2
         m2b = 25
         m2t = 30625
         threshold_list = [m2c, m2b, m2t]
-        # Reference values from Mathematica cache
         mathematica_val = -0.000101654
         # collect my values
         as_NNLO = StrongCoupling(
