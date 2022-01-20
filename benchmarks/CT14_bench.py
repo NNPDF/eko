@@ -104,5 +104,5 @@ class BenchmarkCT14(Runner):
 
 
 if __name__ == "__main__":
-    ct14 = BenchmarkCT14()
-    ct14.benchmark_llo_NF4()
+    b = BenchmarkCT14()
+    b.benchmark_llo_NF4()
