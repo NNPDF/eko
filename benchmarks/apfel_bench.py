@@ -6,6 +6,9 @@ import numpy as np
 from banana.data import cartesian_product
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
+from ekomark.banana_cfg import register
+
+register(__file__)
 
 
 def tolist(input_dict):
