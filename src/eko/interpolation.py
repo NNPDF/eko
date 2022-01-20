@@ -508,6 +508,8 @@ class InterpolatorDispatcher:
             raise ValueError("Empty xgrid!")
         if xgrid[0] == "make_grid":
             xgrid = make_grid(*xgrid[1:])
+        elif xgrid[0] == "make_lambert_grid":
+            xgrid = make_lambert_grid(*xgrid[1:])
         is_log_interpolation = bool(operators_card["interpolation_is_log"])
         polynom_rank = operators_card["interpolation_polynomial_degree"]
         return cls(
@@ -560,10 +562,10 @@ class InterpolatorDispatcher:
         # compute map
         out = []
         for x in targetgrid:
-            l = []
+            row = []
             for b in self.basis:
-                l.append(b.evaluate_x(x))
-            out.append(l)
+                row.append(b.evaluate_x(x))
+            out.append(row)
         return np.array(out)
 
     def to_dict(self):
