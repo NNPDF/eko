@@ -223,10 +223,12 @@ Multiplying these equations with :math:`\mathbf e_{\pm}` from left and right and
 .. math::
     \mathbf U_k = \em \mathbf U_k \em + \em \mathbf U_k \ep + \ep \mathbf U_k \em + \ep \mathbf U_k \ep
 
-we obtain the :math:`\mathbf U_k`:
+we obtain the :math:`\mathbf U_k`
 
 .. math::
     \mathbf U_k = \frac{ \em \mathbf{R}_k' \em + \ep \mathbf{R}_k' \ep } k + \frac{\ep \mathbf{R}_k' \em}{r_- - r_+ + k} + \frac{\em \mathbf{R}_k' \ep}{r_+ - r_- + k}
+
+with :math:`r_{\pm} =\frac 1 {2\beta_0} \left( \gamma_{qq}^{(0)} + \gamma_{gg}^{(0)} \pm \sqrt{(\gamma_{qq}^{(0)}-\gamma_{gg}^{(0)})^2 + 4\gamma_{qg}^{(0)}\gamma_{gq}^{(0)}} \right)`.
 
 So the strategies are
 
