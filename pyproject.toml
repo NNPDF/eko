@@ -69,6 +69,9 @@ dirty = true
 [tool.poetry-dynamic-versioning.substitution]
 files = ["src/eko/version.py"]
 
+[tool.poetry.scripts]
+navigator = "ekomark.navigator:launch_navigator"
+
 [tool.poe.tasks]
 # until https://github.com/numba/numba/pull/5660 is confirmed we need to deactivate numba prior running
 test = { "shell" = "pytest tests" }
@@ -76,7 +79,6 @@ lint = "pylint src/**/*.py -E"
 lint-warnings = "pylint src/**/*.py --exit-zero"
 sandbox = "python benchmarks/sandbox.py"
 nav = "navigator"
-navigator = "ekomark.navigator:launch_navigator"
 black = "black ."
 isort = "isort ."
 format = ["black", "isort"]
