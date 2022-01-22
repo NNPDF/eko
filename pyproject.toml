@@ -70,7 +70,7 @@ dirty = true
 files = ["src/eko/version.py"]
 
 [tool.poetry.scripts]
-navigator = "ekomark.navigator:launch_navigator"
+ekonav = "ekomark.navigator:launch_navigator"
 
 [tool.poe.tasks]
 # until https://github.com/numba/numba/pull/5660 is confirmed we need to deactivate numba prior running
@@ -78,7 +78,8 @@ test = { "shell" = "pytest tests" }
 lint = "pylint src/**/*.py -E"
 lint-warnings = "pylint src/**/*.py --exit-zero"
 sandbox = "python benchmarks/sandbox.py"
-nav = "navigator"
+nav = "ekonav"
+navigator = "ekonav"
 black = "black ."
 isort = "isort ."
 format = ["black", "isort"]
