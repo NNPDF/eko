@@ -7,19 +7,37 @@ on:
 
 jobs:
   py37:
-    uses: N3PDF/workflows/.github/workflows/python-poetry-unittests.yml@main
-    with:
-      python-version: "3.7"
-      poetry-extras: "-E mark"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
+        with:
+          python-version: "3.7"
+          poetry-extras: "-E mark"
+      - uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
+        with:
+          python-version: "3.7"
 
   py38:
-    uses: N3PDF/workflows/.github/workflows/python-poetry-unittests.yml@main
-    with:
-      python-version: "3.8"
-      poetry-extras: "-E mark"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
+        with:
+          python-version: "3.8"
+          poetry-extras: "-E mark"
+      - uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
+        with:
+          python-version: "3.8"
 
   py39:
-    uses: N3PDF/workflows/.github/workflows/python-poetry-unittests.yml@main
-    with:
-      python-version: "3.9"
-      poetry-extras: "-E mark"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
+        with:
+          python-version: "3.9"
+          poetry-extras: "-E mark"
+      - uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
+        with:
+          python-version: "3.9"
