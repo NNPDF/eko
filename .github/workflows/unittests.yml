@@ -6,38 +6,35 @@ on:
       - "*docs*"
 
 jobs:
+  py37-setup:
+    uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
+    with:
+      python-version: "3.7"
+      poetry-extras: "-E mark"
   py37:
-    runs-on: ubuntu-latest
+    needs: py37-setup
+    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
+    with:
+      python-version: "3.7"
 
-    steps:
-      - uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
-        with:
-          python-version: "3.7"
-          poetry-extras: "-E mark"
-      - uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
-        with:
-          python-version: "3.7"
-
+  py38-setup:
+    uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
+    with:
+      python-version: "3.8"
+      poetry-extras: "-E mark"
   py38:
-    runs-on: ubuntu-latest
+    needs: py38-setup
+    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
+    with:
+      python-version: "3.8"
 
-    steps:
-      - uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
-        with:
-          python-version: "3.8"
-          poetry-extras: "-E mark"
-      - uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
-        with:
-          python-version: "3.8"
-
+  py39-setup:
+    uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
+    with:
+      python-version: "3.9"
+      poetry-extras: "-E mark"
   py39:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
-        with:
-          python-version: "3.9"
-          poetry-extras: "-E mark"
-      - uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
-        with:
-          python-version: "3.9"
+    needs: py39-setup
+    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
+    with:
+      python-version: "3.9"
