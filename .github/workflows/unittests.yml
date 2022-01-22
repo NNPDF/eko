@@ -10,13 +10,16 @@ jobs:
     uses: N3PDF/workflows/.github/workflows/python-poetry-unittests.yml@main
     with:
       python-version: "3.7"
+      poetry-extras: "-E mark"
 
   py38:
     uses: N3PDF/workflows/.github/workflows/python-poetry-unittests.yml@main
     with:
       python-version: "3.8"
+      poetry-extras: "-E mark"
 
   py39:
     uses: N3PDF/workflows/.github/workflows/python-poetry-unittests.yml@main
     with:
       python-version: "3.9"
+      poetry-extras: "-E mark"
