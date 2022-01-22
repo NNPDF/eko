@@ -6,35 +6,20 @@ on:
       - "*docs*"
 
 jobs:
-  py37-setup:
-    uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
-    with:
-      python-version: "3.7"
-      poetry-extras: "-E mark"
   py37:
-    needs: py37-setup
     uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
     with:
       python-version: "3.7"
-
-  py38-setup:
-    uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
-    with:
-      python-version: "3.8"
       poetry-extras: "-E mark"
+
   py38:
-    needs: py38-setup
     uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
     with:
       python-version: "3.8"
-
-  py39-setup:
-    uses: N3PDF/workflows/.github/workflows/python-poetry-setup.yml@main
-    with:
-      python-version: "3.9"
       poetry-extras: "-E mark"
+
   py39:
-    needs: py39-setup
     uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
     with:
       python-version: "3.9"
+      poetry-extras: "-E mark"
