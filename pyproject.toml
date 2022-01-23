@@ -6,6 +6,7 @@ build-backend = "poetry.core.masonry.api"
 name = "eko"
 version = "0.0.0"
 description = "Evolution Kernel Operator"
+readme = "README.md"
 authors = [
   "A. Candido <alessandro.candido@mi.infn.it>",
   "F. Hekhorn <felix.hekhorn@mi.infn.it>",
