@@ -14,6 +14,7 @@ import numpy as np
 
 from .. import constants
 from ..anomalous_dimensions import harmonics
+from .nlo import A_gg_1, A_hg_1
 
 # Global variables
 zeta2 = harmonics.zeta2
@@ -429,8 +430,8 @@ def A_gg_2(n, sx, L):
     return a_gg_2_l2 * L ** 2 + a_gg_2_l1 * L + a_gg_2_l0
 
 
-@nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
-def A_singlet_2(n, sx, L):
+@nb.njit("c16[:,:](c16,c16[:],f8,b1)", cache=True)
+def A_singlet_2(n, sx, L, is_msbar=False):
     r"""
       Computes the |NNLO| singlet |OME|.
 
@@ -449,6 +450,8 @@ def A_singlet_2(n, sx, L):
             List of harmonic sums
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        is_msbar: bool
+            add the |MSbar| contribution
 
       Returns
       -------
@@ -468,6 +471,9 @@ def A_singlet_2(n, sx, L):
     A_hg = A_hg_2(n, sx, L)
     A_gq = A_gq_2(n, sx, L)
     A_gg = A_gg_2(n, sx, L)
+    if is_msbar:
+        A_hg -= 2.0 * 4.0 * constants.CF * A_hg_1(n, L=1.0)
+        A_gg -= 2.0 * 4.0 * constants.CF * A_gg_1(L=1.0)
     A_S_2 = np.array(
         [[A_gg, A_gq, 0.0], [0.0, A_qq, 0.0], [A_hg, A_hq, 0.0]], np.complex_
     )

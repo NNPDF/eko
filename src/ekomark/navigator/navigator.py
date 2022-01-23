@@ -11,7 +11,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 from eko import basis_rotation as br
 
 from .. import pdfname
-from ..banana_cfg import banana_cfg
+from .. import banana_cfg
 from ..data import db
 from ..plots import input_figure, plot_dist
 
@@ -162,7 +162,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         """
         log = self.get(bnav.l, doc_hash)
         dfd = log["log"]
-        directory = banana_cfg["database_path"].parents[0] / f"{log['external']}_bench"
+        directory = banana_cfg.cfg["database_path"].parents[0] / f"{log['external']}_bench"
 
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -206,7 +206,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
                 log hash
         """
         log = self.get(bnav.l, doc_hash)
-        directory = banana_cfg["database_path"].parents[0] / f"{log['external']}_bench"
+        directory = banana_cfg.cfg["database_path"].parents[0] / f"{log['external']}_bench"
 
         if not directory.exists():
             directory.mkdir(parents=True)

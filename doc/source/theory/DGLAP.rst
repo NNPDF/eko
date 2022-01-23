@@ -1,7 +1,7 @@
 Solving DGLAP
 =============
 
-We are solving the |DGLAP| equations given in x-space by
+We are solving the |DGLAP| equations :cite:`Altarelli:1977zs,Dokshitzer:1977sg,Gribov:1972ri` given in x-space by
 
 .. math::
     \frac{d}{d\ln(\mu_F^2)} \mathbf{f}(x,\mu_F^2) =
@@ -36,7 +36,7 @@ The (formal) solution can then be written in terms of an |EKO| :math:`\mathbf E`
 with :math:`\mathcal P` the path-ordering operator. In the non-singlet sector the equations decouple and
 we do not need to worry about neither matrices nor the path-ordering.
 
-Using :doc:`Interpolation <Interpolation>` on both the inital and final |PDF|, we can then discretize the
+Using :doc:`Interpolation <Interpolation>` on both the initial and final |PDF|, we can then discretize the
 |EKO| in x-space and define :math:`{\mathbf{E}}_{k,j}` (represented by
 :class:`~eko.evolution_operator.Operator`) by
 
@@ -50,7 +50,7 @@ Now, we can write the solution to |DGLAP| in a true matrix operator scheme and f
 
 so the |EKO| is a rank-4 operator acting both in flavor and momentum fraction space.
 
-The issue of matching conditions when crossing flavor thresholds is dicussed in a seperate :doc:`document <Matching>`
+The issue of matching conditions when crossing flavor thresholds is discussed in a separate :doc:`document <Matching>`
 
 Leading Order
 -------------
@@ -223,10 +223,12 @@ Multiplying these equations with :math:`\mathbf e_{\pm}` from left and right and
 .. math::
     \mathbf U_k = \em \mathbf U_k \em + \em \mathbf U_k \ep + \ep \mathbf U_k \em + \ep \mathbf U_k \ep
 
-we obtain the :math:`\mathbf U_k`:
+we obtain the :math:`\mathbf U_k`
 
 .. math::
     \mathbf U_k = \frac{ \em \mathbf{R}_k' \em + \ep \mathbf{R}_k' \ep } k + \frac{\ep \mathbf{R}_k' \em}{r_- - r_+ + k} + \frac{\em \mathbf{R}_k' \ep}{r_+ - r_- + k}
+
+with :math:`r_{\pm} =\frac 1 {2\beta_0} \left( \gamma_{qq}^{(0)} + \gamma_{gg}^{(0)} \pm \sqrt{(\gamma_{qq}^{(0)}-\gamma_{gg}^{(0)})^2 + 4\gamma_{qg}^{(0)}\gamma_{gq}^{(0)}} \right)`.
 
 So the strategies are
 
@@ -302,7 +304,7 @@ This method corresponds to ``IMODEV=2`` of :cite:`Vogt:2004ns`.
 .. math::
     \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \frac{ 1 + a_s U_1 + a_s^2 U_2 }{ 1 + a_s^{(0)} U_1 + (a_s^0)^{2} U_2 }
 
-with the unitary mtrices defined consistenly with the mthod ``pertubative`` adopted for NLO singlet evolution:
+with the unitary matrices defined consistently with the method ``pertubative`` adopted for NLO singlet evolution:
 
 .. math::
     U_1 &= R_1 = \frac{1}{\beta_0}[ \gamma^{(1)} - b_1 \gamma^{(0)}] \\
@@ -388,7 +390,7 @@ Intrinsic evolution
 
 We also consider the evolution of intrinsic heavy |PDF|. Since these are massive partons they can not
 split any collinear particles and thus they do not participate in the |DGLAP| evolution. Instead, their
-evolution is simpliy an indentiy operation: e.g. for an intrinsic charm distribution we get for
+evolution is simply an identity operation: e.g. for an intrinsic charm distribution we get for
 :math:`m_c^2 > Q_1^2 > Q_0^2`:
 
 .. math ::

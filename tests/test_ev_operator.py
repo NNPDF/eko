@@ -164,6 +164,7 @@ class TestOperator:
             "ktThr": np.inf,
             "MaxNfPdf": 6,
             "MaxNfAs": 6,
+            "HQ": "POLE",
         }
         operators_card = {
             "Q2grid": [1, 10],

@@ -4,9 +4,9 @@ Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO)
 """
 import pathlib
 
-import matplotlib.pyplot as plt
-import numpy as np
 import yaml
+import numpy as np
+import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 from eko import basis_rotation as br
@@ -135,7 +135,7 @@ def compute_LHA_data(
     if not np.allclose(Q2grid, [1e4]):
         raise ValueError("Q2grid has to be [1e4]")
     # load data
-    with open(here / "LHA.yaml") as o:
+    with open(here / "LHA.yaml", encoding="utf-8") as o:
         data = yaml.safe_load(o)
 
     fns = theory["FNS"]
@@ -199,7 +199,7 @@ def save_initial_scale_plots_to_pdf(path):
         output path
     """
     # load data
-    with open(here / "LHA.yaml") as o:
+    with open(here / "LHA.yaml", encoding="utf-8") as o:
         data = yaml.safe_load(o)
     LHA_init_grid_ref = data["table2"]["part1"]
     with PdfPages(path) as pp:

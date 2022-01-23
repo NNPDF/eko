@@ -46,7 +46,7 @@ def gamma_ns_fact(order, mode, n, nf, L):
             adjusted non-singlet anomalous dimensions
     """
     gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
-    # since we are modifying *inplace* be carefull, that the order matters!
+    # since we are modifying *in-place* be carefull, that the order matters!
     # and indeed, we need to adjust the high elements first
     if order >= 2:
         gamma_ns[2] -= (

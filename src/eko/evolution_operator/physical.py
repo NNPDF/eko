@@ -59,7 +59,7 @@ class PhysicalOperator(member.OperatorBase):
             n = f ** 2 - 1
             m[f"V{n}.V{n}"] = op_members["NS_m"]
             m[f"T{n}.T{n}"] = op_members["NS_p"]
-        # deal with intrinsic heavy quark pdfs
+        # deal with intrinsic heavy quark PDFs
         if intrinsic_range is not None:
             hqfl = "cbt"
             op_id = member.OpMember.id_like(op_members["NS_v"])
@@ -94,7 +94,7 @@ class PhysicalOperator(member.OperatorBase):
             out_pids = flavors.pids_from_intrinsic_evol(name.target, nf_out, True)
             for out_idx, out_weight in enumerate(out_pids):
                 for in_idx, in_weight in enumerate(in_pids):
-                    # keep the outer index to the left as we're mulitplying from the right
+                    # keep the outer index to the left as we're multiplying from the right
                     value_tensor[
                         out_idx,  # output pid (position)
                         :,  # output momentum fraction

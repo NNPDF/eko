@@ -125,6 +125,7 @@ class OperatorGrid:
         config["ev_op_iterations"] = operators_card["ev_op_iterations"]
         config["debug_skip_singlet"] = operators_card["debug_skip_singlet"]
         config["debug_skip_non_singlet"] = operators_card["debug_skip_non_singlet"]
+        config["HQ"] = theory_card["HQ"]
         q2_grid = np.array(operators_card["Q2grid"], np.float_)
         intrinsic_range = []
         if int(theory_card["IC"]) == 1:
@@ -177,12 +178,11 @@ class OperatorGrid:
 
             # Compute the matching conditions and store it
             if seg.q2_to not in self._matching_operators:
-                # is_backawd point to the smaller q2
+                thr_config = self.managers["thresholds_config"]
+                # is_backward point to the smaller q2
                 shift = 3 if not seg.is_backward else 4
-                kthr = self.managers["thresholds_config"].thresholds_ratios[
-                    seg.nf - shift
-                ]
-                ome.compute(seg.q2_to, np.log(kthr))
+                kthr = thr_config.thresholds_ratios[seg.nf - shift]
+                ome.compute(seg.q2_to, np.log(kthr), self.config["HQ"] == "MSBAR")
                 self._matching_operators[seg.q2_to] = ome.ome_members
         return thr_ops
 

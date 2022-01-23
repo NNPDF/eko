@@ -17,29 +17,25 @@
 #
 
 import inspect
-import os
 import pathlib
 
 import numba as nb
 
-# in CodeFactor there is no version, since it is generated upon installation
-import eko.version  # pylint: disable=no-name-in-module
+import eko
 
 here = pathlib.Path(__file__).absolute().parent
 
 # -- Project information -----------------------------------------------------
 
 project = "EKO"
-copyright = "2019-2021, the N3PDF team"  # pylint: disable=redefined-builtin
+copyright = "2019-2022, the N3PDF team"  # pylint: disable=redefined-builtin
 author = "N3PDF team"
 
 # The short X.Y version
-version = eko.version.short_version
-if not eko.version.is_released:
-    version = "develop"
+version = eko.version.__version__
 
 # The full version, including alpha/beta/rc tags
-release = eko.version.full_version
+release = eko.version.__version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -105,7 +101,9 @@ pygments_style = None
 
 # A string to be included at the beginning of all files
 shared = here / "shared"
-rst_prolog = "\n".join([open(x).read() for x in os.scandir(shared)])
+rst_prolog = "\n".join(
+    [x.read_text(encoding="utf-8") for x in pathlib.Path(shared).glob("*.rst")]
+)
 
 extlinks = {
     "yadism": ("https://n3pdf.github.io/yadism/%s", "yadism"),
@@ -293,12 +291,14 @@ mathjax3_config = {
     }
 }
 
+
 # I don't know where and when, but at some point sphinx stopped to detect the documentation
 # hidden below numba. This issue is discussed here https://github.com/sphinx-doc/sphinx/issues/3783
 # pointing to this conf.py:
 # https://github.com/duetosymmetry/qnm/blob/d286cad616a4abe5ff3b4e05adbfb4b0e305583e/docs/conf.py#L71-L93
 # However, it doesn't do the trick truly, but the idea is take from there ...
-# see also https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#docstring-preprocessing
+# see also
+# https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#docstring-preprocessing
 def process_numba_docstring(
     app, what, name, obj, options, lines
 ):  # pylint: disable=unused-argument
@@ -325,7 +325,7 @@ def run_apidoc(_):
     (docs_dest / "modules.rst").unlink()
     # 'ekomark'
     docs_dest = here / "development" / "ekomark"
-    package = here.parents[1] / "benchmarks" / "ekomark"
+    package = here.parents[1] / "src" / "ekomark"
     main(["--module-first", "-o", str(docs_dest), str(package)])
     (docs_dest / "modules.rst").unlink()
 

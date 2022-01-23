@@ -43,6 +43,12 @@
 .. |OME| replace::
    :abbr:`OME (operator matrix element)`
 
+.. |MSbar| replace::
+   :math:`\overline{MS}`
+
+.. |RGE| replace::
+   :abbr:`RGE (renormalization group equation)`
+
 .. external
 
 .. |yadism| replace::

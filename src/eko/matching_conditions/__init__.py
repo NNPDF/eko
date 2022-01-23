@@ -77,7 +77,7 @@ class MatchingCondition(member.OperatorBase):
                     m[f"{ihq}+.{ihq}+"] = op_id.copy()
                     m[f"{ihq}-.{ihq}-"] = op_id.copy()
                 elif intr_fl == nf + 1:
-                    # match the missing contibution from h+ and h-
+                    # match the missing contribution from h+ and h-
                     m.update(
                         {
                             f"{ihq}+.{ihq}+": ome_members["S_HH"],

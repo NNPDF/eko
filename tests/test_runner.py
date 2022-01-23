@@ -10,7 +10,7 @@ theory_card = {
     "PTO": 0,
     "fact_to_ren_scale_ratio": 1.0,
     "Qref": np.sqrt(2),
-    "nfref": None,
+    "nfref": 4,
     "Q0": np.sqrt(2),
     "nf0": 4,
     "FNS": "FFNS",
@@ -26,6 +26,10 @@ theory_card = {
     "ktThr": np.inf,
     "MaxNfPdf": 6,
     "MaxNfAs": 6,
+    "HQ": "MSBAR",
+    "Qmc": 1.0,
+    "Qmb": 4.75,
+    "Qmt": 173.0,
 }
 operators_card = {
     "Q2grid": [10, 100],

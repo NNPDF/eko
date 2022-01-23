@@ -5,7 +5,7 @@ An |EKO| is a rank-4 operator acting both in Flavor Space :math:`\mathcal F`
 and momentum fraction space :math:`\mathcal X`.
 By Flavor Space :math:`\mathcal F` we mean the 13-dimensional function space that contains
 the different |PDF| flavor. Note, that there is an ambiguity concerning the
-word "Flavor Basis" which is sometimes refered to as an *abstract* basis
+word "Flavor Basis" which is sometimes referred to as an *abstract* basis
 in the Flavor Space, but often the specific basis described here below is meant.
 
 Flavor Basis
@@ -46,7 +46,7 @@ Evolution Basis
 
 As the gluon is flavor-blind it is handy to solve |DGLAP| not in the flavor basis,
 but in the Evolution Basis where instead we need to solve a minimal coupled system.
-The new basis elements can be seperated into two major classes: the singlet sector, consisting of the
+The new basis elements can be separated into two major classes: the singlet sector, consisting of the
 singlet distribution :math:`\Sigma` and the gluon distribution :math:`g`, and the non-singlet
 sector. The non-singlet sector can be again subdivided into three groups: first the full
 valence distribution :math:`V`, second the valence-like distributions

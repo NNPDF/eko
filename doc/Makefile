@@ -9,7 +9,7 @@ BUILDDIR      = build
 
 EKODIR = ../src/eko
 EKOOUT = $(SOURCEDIR)/modules/eko
-EKOMARKDIR = ../benchmarks/ekomark
+EKOMARKDIR = ../src/ekomark
 EKOMARKOUT = ./source/development/ekomark
 
 TODOOUTFILE = ./source/development/code_todos.rst
@@ -23,6 +23,9 @@ help:
 # sphinx
 html: todos
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+
+server:
+	python3 -m http.server 8000 --bind 127.0.0.1 --directory build/html
 
 view: html
 	$(BROWSER) $(BUILDDIR)/html/index.html

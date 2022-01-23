@@ -9,7 +9,7 @@
 import numpy as np
 import pytest
 
-import eko.interpolation as interpolation
+from eko import interpolation
 from eko.evolution_operator.grid import OperatorGrid
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
@@ -35,6 +35,7 @@ class TestOperatorGrid:
             "mt": 105.0,
             "MaxNfPdf": 6,
             "MaxNfAs": 6,
+            "HQ": "POLE",
         }
         operators_card = {
             "Q2grid": [1, 100 ** 2],
@@ -105,20 +106,16 @@ class TestOperatorGrid:
         opg = opgrid.compute()
         assert len(opg) == 2
         assert all(
-            [
-                k in opg[q2]
-                for k in ["operators", "operator_errors", "alphas"]
-                for q2 in opg
-            ]
+            k in op
+            for k in ["operators", "operator_errors", "alphas"]
+            for op in opg.values()
         )
         opg = opgrid.compute(3)
         assert len(opg) == 1
         assert all(
-            [
-                k in opg[q2]
-                for k in ["operators", "operator_errors", "alphas"]
-                for q2 in opg
-            ]
+            k in op
+            for k in ["operators", "operator_errors", "alphas"]
+            for op in opg.values()
         )
 
     def test_grid_computation_VFNS(self):

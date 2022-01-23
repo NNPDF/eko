@@ -5,11 +5,11 @@ Ekomark mimics the same inputs needed to run `eko`, namely a theory card, an
 observable card and also the name of a pdf set whenever the external program can be used
 together with |lhapdf|.
 
-Both the theory and observable card can be gnerated authomatically from a default:
+Both the theory and observable card can be generated automatically from a default:
 the former with |banana|, the latter with something similar to ``generate_observable()`` provided `sandbox.py`.
 
 In addition to run `ekomark` you need to specify the external program you would benchmark against.
-To do so, you will have to initialise a class of type ``ekomark.benchmark.runner``.
+To do so, you will have to initialize a class of type ``ekomark.benchmark.runner``.
 To speed up the calculations null PDFs can be skipped setting the attribute ``skip_pdfs``
 Finally you can decide to display the output in Flavor or in Evolution basis setting ``rotate_to_evolution_basis``
 
@@ -51,7 +51,7 @@ The minimal setup of the input cards must contain:
     - top mass in GeV
 
 
-.. list-table:: minimal oprator input runcard
+.. list-table:: minimal operator input runcard
   :header-rows: 1
 
   * - Name
