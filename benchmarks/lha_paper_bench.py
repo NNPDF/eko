@@ -3,6 +3,7 @@
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO)
 """
 import numpy as np
+
 from ekomark.benchmark.runner import Runner
 
 base_theory = {

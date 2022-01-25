@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 # pylint: skip-file
 import numpy as np
+
+from ekomark import register
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
-from ekomark import register
 
 register(__file__)
 

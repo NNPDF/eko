@@ -4,6 +4,7 @@ Benchmark to Pegasus :cite:`Vogt:2004ns`
 """
 import numpy as np
 from banana.data import cartesian_product
+
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 

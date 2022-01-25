@@ -3,10 +3,12 @@ Additional package to benchmark eko.
 """
 import pathlib
 
-from eko import basis_rotation as br
 from banana import load_config
 
+from eko import basis_rotation as br
+
 from . import banana_cfg
+
 
 def register(path):
     path = pathlib.Path(path)
@@ -14,6 +16,7 @@ def register(path):
         path = path.parent
 
     banana_cfg.cfg = load_config(path)
+
 
 def pdfname(pid_or_name):
     """Return pdf name"""
