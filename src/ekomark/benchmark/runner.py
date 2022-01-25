@@ -87,7 +87,7 @@ class Runner(BenchmarkRunner):
             else:
                 # load
                 print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
-                with open(path) as o:
+                with open(path, encoding="utf-8") as o:
                     out = eko.output.Output.load_yaml(o)
 
             if self.plot_operator:
