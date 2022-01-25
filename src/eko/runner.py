@@ -239,11 +239,11 @@ def compute_msbar_mass(theory_card):
         # len(masses[q2m_ref > masses]) + 3 is the nf at the given reference scale
         if nf_target != len(masses[q2m_ref > masses]) + 3:
             q2_to = masses[q_idx + shift]
-            m2_ref = evolve_msbar_mass(m2_ref, q2m_ref, config=config, q2_to=q2_to)
+            m2_ref = evolve_msbar_mass(m2_ref, q2m_ref, config, q2_to=q2_to)
             q2m_ref = q2_to
 
         # now solve the RGE
-        masses[q_idx] = evolve_msbar_mass(m2_ref, q2m_ref, nf_target, config=config)
+        masses[q_idx] = evolve_msbar_mass(m2_ref, q2m_ref, config, nf_target)
 
     # Check the msbar ordering
     for m2_msbar, hq in zip(masses[:-1], quark_names[4:]):
@@ -251,7 +251,7 @@ def compute_msbar_mass(theory_card):
         m2_ref = np.power(theory_card[f"m{hq}"], 2)
         config["thr_masses"] = masses
         # check that m_msbar_hq < msbar_hq+1 (m_msbar_hq)
-        m2_test = evolve_msbar_mass(m2_ref, q2m_ref, config=config, q2_to=m2_msbar)
+        m2_test = evolve_msbar_mass(m2_ref, q2m_ref, config, q2_to=m2_msbar)
         if m2_msbar > m2_test:
             raise ValueError(
                 "The MSBAR masses do not preserve the correct ordering,\

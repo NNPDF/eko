@@ -91,8 +91,8 @@ class BenchmarkMSbar:
                             evolve_msbar_mass(
                                 m2[n - 3],
                                 Q2m[n - 3],
+                                dict(fact_to_ren=1),
                                 strong_coupling=as_VFNS,
-                                config=dict(fact_to_ren=1),
                                 q2_to=Q2,
                             )
                         )

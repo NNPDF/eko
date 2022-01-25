@@ -53,10 +53,10 @@ class TestMsbarMasses:
                         evolve_msbar_mass(
                             m2_ref,
                             Q2m_ref,
-                            strong_coupling=strong_coupling,
-                            config=dict(
+                            dict(
                                 fact_to_ren=theory_dict["fact_to_ren_scale_ratio"]
                             ),
+                            strong_coupling=strong_coupling,
                             q2_to=m2_computed[nf - 3],
                         )
                     )
@@ -87,8 +87,8 @@ class TestMsbarMasses:
                 evolve_msbar_mass(
                     m2_ref,
                     Q2m_ref,
+                    dict(fact_to_ren=theory_dict["fact_to_ren_scale_ratio"]),
                     strong_coupling=strong_coupling,
-                    config=dict(fact_to_ren=theory_dict["fact_to_ren_scale_ratio"]),
                     q2_to=m2_computed[nf - 3],
                 )
             )

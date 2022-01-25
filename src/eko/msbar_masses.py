@@ -172,8 +172,8 @@ def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
 def evolve_msbar_mass(
     m2_ref,
     q2m_ref,
+    config,
     nf_ref=None,
-    config=None,
     strong_coupling=None,
     q2_to=None,
 ):
@@ -189,11 +189,11 @@ def evolve_msbar_mass(
             squared initial mass reference
         q2m_ref: float
             squared initial scale
-        nf_ref: int, optional (not used when q2_to is given)
-            number of active flavours at the scale q2m_ref, where the solution is searched
         config: dict
             |MSbar| configuration dictionary
-        strong_coupling: eko.strong_coupling.StrongCoupling
+        nf_ref: int, optional (not used when q2_to is given)
+            number of active flavours at the scale q2m_ref, where the solution is searched
+        strong_coupling: eko.strong_coupling.StrongCoupling, optional
             Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
             any q
         q2_to: float, optional
