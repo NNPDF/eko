@@ -5,11 +5,9 @@
 import numpy as np
 import pytest
 
-from eko.strong_coupling import StrongCoupling
-
-from eko.msbar_masses import evolve_msbar_mass
-from eko.runner import compute_msbar_mass
 from eko.evolution_operator.flavors import quark_names
+from eko.msbar_masses import compute_msbar_mass, evolve_msbar_mass
+from eko.strong_coupling import StrongCoupling
 
 theory_dict = {
     "alphas": 0.1180,
@@ -54,9 +52,7 @@ class TestMsbarMasses:
                             m2_ref,
                             Q2m_ref,
                             strong_coupling=strong_coupling,
-                            config=dict(
-                                fact_to_ren=theory_dict["fact_to_ren_scale_ratio"]
-                            ),
+                            fact_to_ren=theory_dict["fact_to_ren_scale_ratio"] ** 2,
                             q2_to=m2_computed[nf - 3],
                         )
                     )
@@ -88,7 +84,7 @@ class TestMsbarMasses:
                     m2_ref,
                     Q2m_ref,
                     strong_coupling=strong_coupling,
-                    config=dict(fact_to_ren=theory_dict["fact_to_ren_scale_ratio"]),
+                    fact_to_ren=theory_dict["fact_to_ren_scale_ratio"] ** 2,
                     q2_to=m2_computed[nf - 3],
                 )
             )
