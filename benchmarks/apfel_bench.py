@@ -4,9 +4,10 @@
 """
 import numpy as np
 from banana.data import cartesian_product
+
+from ekomark.banana_cfg import register
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
-from ekomark.banana_cfg import register
 
 register(__file__)
 
