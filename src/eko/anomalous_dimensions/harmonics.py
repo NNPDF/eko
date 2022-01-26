@@ -2,7 +2,7 @@
 """
 Implements higher mathematical functions.
 
-The functions are discribed in :doc:`Mellin space </theory/Mellin>`.
+The functions are described in :doc:`Mellin space </theory/Mellin>`.
 """
 
 import numba as nb

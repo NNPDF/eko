@@ -325,7 +325,7 @@ def run_apidoc(_):
     (docs_dest / "modules.rst").unlink()
     # 'ekomark'
     docs_dest = here / "development" / "ekomark"
-    package = here.parents[1] / "benchmarks" / "ekomark"
+    package = here.parents[1] / "src" / "ekomark"
     main(["--module-first", "-o", str(docs_dest), str(package)])
     (docs_dest / "modules.rst").unlink()
 

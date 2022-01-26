@@ -2,22 +2,14 @@
 """
 Benchmark CT14 pdf family
 
-- as far as I understand, uses the llo family LO splitting functions with LO alphas evolution,
+- as far as I understand, the llo family uses LO splitting functions with LO alphas evolution,
   whereas the lo family uses LO splitting functions with NLO alphas evolution
 """
 
+from ekomark import register
 from ekomark.benchmark.runner import Runner
 
-
-class LHAPDFBenchmark(Runner):
-    """
-    Globally set the external program to LHAPDF
-    """
-
-    external = "LHAPDF"
-
-    # Rotate to evolution basis
-    rotate_to_evolution_basis = False
+register(__file__)
 
 
 base_theory = {
@@ -31,8 +23,13 @@ base_theory = {
 }
 
 
-class BenchmarkCT14(LHAPDFBenchmark):
+class BenchmarkCT14(Runner):
     """Benchmark CT14 pdfs"""
+
+    external = "LHAPDF"
+
+    # Rotate to evolution basis
+    rotate_to_evolution_basis = False
 
     def benchmark_llo_NF3(self, Q0=5, Q2grid=(100,)):
         theory_card = base_theory.copy()
@@ -107,5 +104,5 @@ class BenchmarkCT14(LHAPDFBenchmark):
 
 
 if __name__ == "__main__":
-    ct14 = BenchmarkCT14()
-    ct14.benchmark_llo_NF4()
+    b = BenchmarkCT14()
+    b.benchmark_llo_NF4()

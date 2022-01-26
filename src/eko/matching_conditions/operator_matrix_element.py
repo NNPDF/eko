@@ -171,6 +171,13 @@ def build_ome(A, order, a_s, backward_method):
         ome : numpy.ndarray
             matching operator matrix
     """
+    # to get the inverse one can use this FORM snippet
+    # Symbol a;
+    # NTensor c,d,e;
+    # Local x=-(a*c+a**2* d + a**3 * e);
+    # Local bi = 1+x+x**2+x**3;
+    # Print;
+    # .end
     ome = np.eye(len(A[0]), dtype=np.complex_)
     if backward_method == "expanded":
         # expended inverse

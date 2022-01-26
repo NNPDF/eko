@@ -1,4 +1,4 @@
-name: eko
+name: tests
 
 on:
   push:
@@ -6,51 +6,26 @@ on:
       - "*docs*"
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.7, 3.8, 3.9]
-      fail-fast: false
+  py37:
+    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
+    with:
+      python-version: "3.7"
+      poetry-extras: "-E mark"
 
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python ${{ matrix.python-version }} 🐍
-        id: setup-python
-        uses: actions/setup-python@v1
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install and configure Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-path: ~/.virtualenvs
-          installer-parallel: true
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v1
-        id: cache
-        with:
-          path: ~/.virtualenvs
-          key: ${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root
-        if: steps.cache.outputs.cache-hit != 'true'
-      - name: Install project
-        run: poetry install --no-interaction
-      - name: Install task runner
-        run: pip install poethepoet
-      - name: Lint with pylint
-        run: |
-          # Search for actual errors
-          poe lint
-          # For warnings instead return always zero
-          poe lint-warnings
-      - name: Test with pytest
-        run: |
-          poe test
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          files: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: true
+  py38:
+    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
+    with:
+      python-version: "3.8"
+      poetry-extras: "-E mark"
+
+  py39:
+    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
+    with:
+      python-version: "3.9"
+      poetry-extras: "-E mark"
+
+  py310:
+    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
+    with:
+      python-version: "3.10"
+      poetry-extras: "-E mark"

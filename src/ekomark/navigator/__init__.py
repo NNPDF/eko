@@ -37,7 +37,7 @@ Available functions:
 
 h = yelp
 
-app = navigator.NavigatorApp(banana_cfg.banana_cfg, "sandbox")
+app = navigator.NavigatorApp(banana_cfg.cfg, "sandbox")
 
 # register banana functions
 bnav.register_globals(globals(), app)

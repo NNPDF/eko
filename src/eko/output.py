@@ -9,9 +9,9 @@ import tarfile
 import tempfile
 import warnings
 
-import yaml
 import lz4.frame
 import numpy as np
+import yaml
 
 from . import basis_rotation as br
 from . import interpolation, version
@@ -35,9 +35,9 @@ class Output(dict):
                 object that provides an xfxQ2 callable (as `lhapdf <https://lhapdf.hepforge.org/>`_
                 and :class:`ekomark.toyLH.toyPDF` do) (and thus is in flavor basis)
             targetgrid : list
-                if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
+                if given, interpolates to the PDFs given at targetgrid (instead of xgrid)
             rotate_to_evolution_basis : bool
-                if True rotate to evoluton basis
+                if True rotate to evolution basis
 
         Returns
         -------
@@ -60,7 +60,7 @@ class Output(dict):
                 object that provides an xfxQ2 callable (as `lhapdf <https://lhapdf.hepforge.org/>`_
                 and :class:`ekomark.toyLH.toyPDF` do) (and thus is in flavor basis)
             targetgrid : list
-                if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
+                if given, interpolates to the PDFs given at targetgrid (instead of xgrid)
             flavor_rotation : np.ndarray
                 Rotation matrix in flavor space
 
@@ -69,7 +69,7 @@ class Output(dict):
             out_grid : dict
                 output PDFs and their associated errors for the computed Q2grid
         """
-        # create pdfs
+        # create PDFs
         pdfs = np.zeros((len(self["inputpids"]), len(self["inputgrid"])))
         for j, pid in enumerate(self["inputpids"]):
             if not lhapdf_like.hasFlavor(pid):
@@ -118,7 +118,7 @@ class Output(dict):
         """
         Changes the operators to have in the output targetgrid and/or in the input inputgrid.
 
-        The operation is inplace.
+        The operation is in-place.
 
         Parameters
         ----------
@@ -190,7 +190,7 @@ class Output(dict):
         """
         Changes the operators to have in the output targetbasis and/or in the input inputbasis.
 
-        The operation is inplace.
+        The operation is in-place.
 
         Parameters
         ----------
@@ -247,7 +247,7 @@ class Output(dict):
         """
         Rotate the operator into evolution basis.
 
-        This also assigns also the pids. The operation is inplace.
+        This also assigns also the pids. The operation is in-place.
 
         Parameters
         ----------
@@ -327,13 +327,13 @@ class Output(dict):
                 dump in binary format (instead of list format)
             skip_q2_grid : bool
                 avoid dumping Q2grid (i.e. the actual operators) into the yaml
-                file (defualt: ``False``)
+                file (default: ``False``)
 
         Returns
         -------
             dump : any
                 result of dump(output, stream), i.e. a string, if no stream is given or
-                Null, if written sucessfully to stream
+                Null, if written successfully to stream
         """
         # TODO explicitly silence yaml
         out = self.get_raw(binarize, skip_q2_grid=skip_q2_grid)
@@ -351,12 +351,12 @@ class Output(dict):
                 dump in binary format (instead of list format)
             skip_q2_grid : bool
                 avoid dumping Q2grid (i.e. the actual operators) into the yaml
-                file (defualt: ``False``)
+                file (default: ``False``)
 
         Returns
         -------
             ret : any
-                result of dump(output, stream), i.e. Null if written sucessfully
+                result of dump(output, stream), i.e. Null if written successfully
         """
         with open(filename, "w", encoding="utf-8") as f:
             ret = self.dump_yaml(f, binarize, skip_q2_grid=skip_q2_grid)
@@ -412,7 +412,7 @@ class Output(dict):
                 source stream
             skip_q2_grid : bool
                 avoid loading Q2grid (i.e. the actual operators) from the yaml
-                file (defualt: ``False``)
+                file (default: ``False``)
 
         Returns
         -------
@@ -452,7 +452,7 @@ class Output(dict):
                 source file name
             skip_q2_grid : bool
                 avoid loading Q2grid (i.e. the actual operators) from the yaml
-                file (defualt: ``False``)
+                file (default: ``False``)
 
         Returns
         -------

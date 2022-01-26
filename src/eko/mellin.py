@@ -36,7 +36,7 @@ def Talbot_path(t, r, o):
         t : float
             way parameter
         r : float
-            scaling parameter - effectivly corresponds to the intersection of the path with the
+            scaling parameter - effectively corresponds to the intersection of the path with the
             real axis
         o : float
             offset on real axis
@@ -69,7 +69,7 @@ def Talbot_jac(t, r, o):  # pylint: disable=unused-argument
         t : float
             way parameter
         r : float
-            scaling parameter - effectivly corresponds to the intersection of the path with the
+            scaling parameter - effectively corresponds to the intersection of the path with the
             real axis
         o : float
             offset on real axis

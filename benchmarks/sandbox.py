@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 # pylint: skip-file
 import numpy as np
+
+from ekomark import register
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
+
+register(__file__)
 
 vfns = {"FNS": "ZM-VFNS", "mc": 1.51, "mb": 4.92, "mt": 172.5}
 pegasus_vfns = {"nfref": 3, **vfns}

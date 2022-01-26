@@ -159,7 +159,7 @@ def A_singlet_1(n, sx, L):
 @nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
 def A_ns_1(n, sx, L):
     r"""
-      Computes the |NLO| non-singlet |OME| with intrinsic contibutions.
+      Computes the |NLO| non-singlet |OME| with intrinsic contributions.
 
       .. math::
           A^{NS,(1)} = \left(\begin{array}{cc}

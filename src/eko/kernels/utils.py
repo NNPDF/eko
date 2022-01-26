@@ -13,7 +13,7 @@ def geomspace(start, end, num):
     Parameters
     ----------
         start : float
-            inital value
+            initial value
         end : float
             final value
         num : int
