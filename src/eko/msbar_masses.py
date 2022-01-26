@@ -2,6 +2,7 @@
 r"""
 This module contains the |RGE| for the |MSbar| masses
 """
+import numba as nb
 import numpy as np
 from scipy import integrate, optimize
 
@@ -66,7 +67,7 @@ def msbar_ker_exact(a0, a1, order, nf):
     val, _ = res[:2]
     return np.exp(val)
 
-
+@nb.njit("f8(f8,f8,u1,u1)", cache=True)
 def msbar_ker_expanded(a0, a1, order, nf):
     r"""
     Expanded |MSbar| |RGE| kernel
