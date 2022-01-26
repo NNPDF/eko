@@ -126,7 +126,7 @@ EKO implements two different strategies to perform this operation, that can be s
     \mathbf{A}_{exp}^{-1}(\mu_{h}^2) &= \mathbf{I} \\
     & - a_s(\mu_{h}^2) \mathbf{A}^{(1)} \\
     & + a_s^2(\mu_{h}^2) \left [ \mathbf{A}^{(2)} - \left(\mathbf{A}^{(1)}\right)^2 \right ] \\
-    & + a_s^3(\mu_{h}^2) \left [ - \mathbf{A}^{(3)} + 2 \mathbf{A}^{(1)} \mathbf{A}^{(2)} - \left( \mathbf{A}^{(1)} \right )^3 \right ] \\
+    & + a_s^3(\mu_{h}^2) \left [ - \mathbf{A}^{(3)} + \mathbf{A}^{(1)} \mathbf{A}^{(2)} + \mathbf{A}^{(2)} \mathbf{A}^{(1)} - \left( \mathbf{A}^{(1)} \right )^3 \right ] \\
 
 We emphasize that in the backward evolution, below the threshold, the remaining high quark PDFs are always intrinsic and do not evolve anymore.
 In fact, if the initial PDFs (above threshold) do contain an intrinsic contribution, this has to be evolved below the threshold otherwise momentum sum rules 

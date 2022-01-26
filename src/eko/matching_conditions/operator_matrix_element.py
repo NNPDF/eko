@@ -190,7 +190,8 @@ def build_ome(A, order, a_s, backward_method):
         if order >= 3:
             ome += a_s ** 3 * (
                 -A[2]
-                + 2 * np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[1])
+                + np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[1])
+                + np.ascontiguousarray(A[1]) @ np.ascontiguousarray(A[0])
                 - np.ascontiguousarray(A[0])
                 @ np.ascontiguousarray(A[0])
                 @ np.ascontiguousarray(A[0])
