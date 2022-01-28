@@ -11,7 +11,7 @@ from eko import basis_rotation as br
 
 
 def compute_apfel_data(
-    theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False
+    theory, operators, pdf, skip_pdfs, n_rep, rotate_to_evolution_basis=False
 ):
 
     """
@@ -25,6 +25,8 @@ def compute_apfel_data(
             operators card
         pdf : lhapdf_type
             pdf
+        n_rep: int
+                replica id
         skip_pdfs : list
             list of pdfs (pid or name) to skip
         rotate_to_evolution_basis: bool
@@ -49,7 +51,7 @@ def compute_apfel_data(
         theory["ModEv"] = "TRN"
     else:
         raise ValueError(f"Method {theory['ModEv']} is not recognized. ")
-    apfel = load_apfel(theory, operators, pdf_name)
+    apfel = load_apfel(theory, operators, pdf_name, n_rep=n_rep)
 
     # Truncated Epsilon
     # APFEL::SetEpsilonTruncation(1E-1);

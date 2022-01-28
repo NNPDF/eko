@@ -105,7 +105,7 @@ class Runner(BenchmarkRunner):
 
         return out
 
-    def run_external(self, theory, ocard, pdf):
+    def run_external(self, theory, ocard, pdf, n_rep):
         # pylint:disable=import-error,import-outside-toplevel
         if self.external.lower() == "lha":
             from .external import LHA_utils
@@ -144,6 +144,7 @@ class Runner(BenchmarkRunner):
                 ocard,
                 pdf,
                 self.skip_pdfs(theory),
+                n_rep,
                 rotate_to_evolution_basis=self.rotate_to_evolution_basis,
             )
 
@@ -154,8 +155,10 @@ class Runner(BenchmarkRunner):
     def log(self, theory, _, pdf, me, ext):
         # return a proper log table
         log_tabs = {}
-        xgrid = ext["target_xgrid"]
-        q2s = list(ext["values"].keys())
+        # Here we use always the central replica
+        rep = 0
+        xgrid = ext[rep]["target_xgrid"]
+        q2s = list(ext[rep]["values"].keys())
 
         # LHA NNLO VFNS needs a special treatment
         # Valence contains only u and d
@@ -170,18 +173,20 @@ class Runner(BenchmarkRunner):
                 rotate_to_evolution[3, :] = [0, 0, 0, 0, 0, -1, -1, 0, 1, 1, 0, 0, 0, 0]
 
         pdf_grid = me.apply_pdf_flavor(
-            pdf,
+            pdf[rep],
             xgrid,
             flavor_rotation=rotate_to_evolution,
         )
+        # Loop over q2 grid
         for q2 in q2s:
 
             log_tab = dfdict.DFdict()
-            ref_pdfs = ext["values"][q2]
+            ref_pdfs = ext[rep]["values"][q2]
             res = pdf_grid[q2]
             my_pdfs = res["pdfs"]
             my_pdf_errs = res["errors"]
 
+            # Loop over pdf ids
             for key in my_pdfs:
 
                 if key in self.skip_pdfs(theory):

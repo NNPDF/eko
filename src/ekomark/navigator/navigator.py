@@ -93,17 +93,17 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             obj : dict
                 to be updated pandas record
         """
-        vals = cac["result"]["values"]
-        q2s = list(vals.keys())
-        # assume the vals are homogenous (true for bare eko results) and look
-        # only at the first one
-        pdfs = len(next(iter(vals.values())))
+        # vals = cac["result"]["values"]
+        # q2s = list(vals.keys())
+        # # assume the vals are homogenous (true for bare eko results) and look
+        # # only at the first one
+        # pdfs = len(next(iter(vals.values())))
 
-        obj["operators"] = f"{pdfs} pdfs @ Q^2 {q2s} Gev^2"
+        # # obj["operators"] = f"{pdfs} pdfs @ Q^2 {q2s} Gev^2"
 
         obj["theory"] = cac["t_hash"][: self.hash_len]
         obj["observables"] = cac["o_hash"][: self.hash_len]
-        for f in ["pdf", "external"]:
+        for f in ["pdf", "external", "int_result", "ext_result"]:
             obj[f] = cac[f]
 
     def fill_logs(self, lg, obj):
