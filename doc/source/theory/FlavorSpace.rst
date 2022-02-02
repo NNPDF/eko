@@ -15,7 +15,7 @@ Here we use the raw quark flavors along with the gluon as they correspond to the
 operator in the Lagrange density:
 
 .. math ::
-    \mathcal F = \mathcal F_{fl} = \span(g, u, \bar u, d, \bar d, s, \bar s, c, \bar c, b, \bar b, t, \bar t)
+    \mathcal F = \mathcal F_{fl} = \span(\gamma, g, u, \bar u, d, \bar d, s, \bar s, c, \bar c, b, \bar b, t, \bar t)
 
 - we deliver the :class:`~eko.output.Output` in this basis, although the flavors are
   slightly differently arranged (Implementation: :data:`here <eko.basis_rotation.flavor_basis_pids>`).
