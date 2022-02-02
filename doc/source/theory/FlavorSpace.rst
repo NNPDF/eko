@@ -35,7 +35,7 @@ that e.g. in the proton will carry most of the momentum at large x and :math:`q^
 sea quark distribution:
 
 .. math ::
-    \mathcal F \sim \mathcal F_{\pm} = \span(g, u^+, u^-, d^+, d^-, s^+, s^-, c^+, c^-, b^+, b^-, t^+, t^-)
+    \mathcal F \sim \mathcal F_{\pm} = \span(\gamma, g, u^+, u^-, d^+, d^-, s^+, s^-, c^+, c^-, b^+, b^-, t^+, t^-)
 
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation to the Flavor Basis is implemented in
