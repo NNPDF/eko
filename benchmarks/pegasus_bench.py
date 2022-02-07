@@ -79,7 +79,8 @@ class BenchmarkVFNS(PegasusBenchmark):
         th.update(
             {
                 "PTO": [pto],
-                "fact_to_ren_scale_ratio": [np.sqrt(0.5), np.sqrt(2.0)],
+                # TODO: why do we need this epsilon to have a good match ??
+                "fact_to_ren_scale_ratio": [np.sqrt(0.5),np.sqrt(2.0-1e-8)],
                 "SV_scheme": [scheme]
             }
         )
@@ -143,5 +144,5 @@ if __name__ == "__main__":
     # obj = BenchmarkFFNS()
     # obj.benchmark_plain(1)
 
-    obj.benchmark_sv(1, "A")
+    obj.benchmark_sv(2, "A")
     # vfns.benchmark_sv()
