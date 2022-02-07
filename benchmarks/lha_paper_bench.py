@@ -4,7 +4,10 @@ Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO)
 """
 import numpy as np
 
+from ekomark import register
 from ekomark.benchmark.runner import Runner
+
+register(__file__)
 
 base_theory = {
     "ModEv": "EXA",
@@ -75,9 +78,11 @@ class LHABenchmark(Runner):
         low = self.theory.copy()
         low["PTO"] = pto
         low["fact_to_ren_scale_ratio"] = np.sqrt(1.0 / 2.0)
+        low["SV_scheme"] = "A"
         high = self.theory.copy()
         high["PTO"] = pto
         high["fact_to_ren_scale_ratio"] = np.sqrt(2.0)
+        high["SV_scheme"] = "A"
         return [high, low]
 
     @staticmethod
@@ -173,5 +178,5 @@ if __name__ == "__main__":
     obj = BenchmarkVFNS()
     # obj = BenchmarkFFNS()
 
-    obj.benchmark_plain(2)
-    # obj.benchmark_sv(1)
+    # obj.benchmark_plain(2)
+    obj.benchmark_sv(1)
