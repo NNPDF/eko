@@ -28,6 +28,7 @@ class TestStrongCoupling:
             "ktThr": 1.0,
             "MaxNfAs": 6,
             "HQ": "POLE",
+            "SV_scheme": None,
         }
         sc = StrongCoupling.from_dict(d)
         assert sc.a_s(d["Qref"] ** 2) == d["alphas"] / (4.0 * np.pi)

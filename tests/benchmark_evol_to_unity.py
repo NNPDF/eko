@@ -33,6 +33,7 @@ class TestBackwardForward:
         "MaxNfPdf": 6,
         "MaxNfAs": 6,
         "HQ": "POLE",
+        "SV_scheme": None,
     }
     operators_card = {
         "Q2grid": [10],

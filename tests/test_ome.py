@@ -220,6 +220,7 @@ class TestOperatorMatrixElement:
         "MaxNfPdf": 6,
         "MaxNfAs": 6,
         "HQ": "POLE",
+        "SV_scheme": None,
     }
 
     def test_labels(self):

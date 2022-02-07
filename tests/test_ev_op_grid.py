@@ -36,6 +36,7 @@ class TestOperatorGrid:
             "MaxNfPdf": 6,
             "MaxNfAs": 6,
             "HQ": "POLE",
+            "SV_scheme": None,
         }
         operators_card = {
             "Q2grid": [1, 100 ** 2],
@@ -134,3 +135,23 @@ class TestOperatorGrid:
         )
         sv_opg = sv_opgrid.compute(3)
         assert opg[3]["alphas"] < sv_opg[3]["alphas"]
+
+    def test_scheme_B(self):
+        opgrid = self._get_operator_grid(
+            theory_update={
+                "PTO": 1,
+                "SV_scheme": "B",
+            }
+        )
+        opg = opgrid.compute(3)
+        sv_opgrid = self._get_operator_grid(
+            theory_update={
+                "fact_to_ren_scale_ratio": 1.0 + 1e-3,
+                "PTO": 1,
+                "SV_scheme": "B",
+            }
+        )
+        sv_opg = sv_opgrid.compute(3)
+        np.testing.assert_allclose(
+            opg[3]["operators"], sv_opg[3]["operators"], atol=1e-4
+        )
