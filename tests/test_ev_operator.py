@@ -6,7 +6,7 @@ import scipy.integrate
 from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
 from eko import interpolation, mellin
-from eko.evolution_operator import Operator, gamma_ns_fact, gamma_singlet_fact, quad_ker
+from eko.evolution_operator import Operator, quad_ker
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
 from eko.kernels import non_singlet as ns
@@ -14,31 +14,30 @@ from eko.kernels import singlet as s
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
+# def test_gamma_ns_fact(monkeypatch):
+#     gamma_ns = np.array([1.0, 0.5, 0.25])
+#     monkeypatch.setattr(ad, "gamma_ns", lambda *args: gamma_ns.copy())
+#     gamma_ns_LO_0 = gamma_ns_fact(0, "NS_p", 1, 3, 0)
+#     np.testing.assert_allclose(gamma_ns_LO_0, gamma_ns)
+#     gamma_ns_LO_1 = gamma_ns_fact(0, "NS_p", 1, 3, 1)
+#     np.testing.assert_allclose(gamma_ns_LO_1, gamma_ns)
+#     gamma_ns_NLO_1 = gamma_ns_fact(1, "NS_p", 1, 3, 1)
+#     assert gamma_ns_NLO_1[1] < gamma_ns[1]
+#     gamma_ns_NNLO_1 = gamma_ns_fact(2, "NS_p", 1, 3, 1)
+#     assert gamma_ns_NNLO_1[2] - gamma_ns[2] == 8.0
 
-def test_gamma_ns_fact(monkeypatch):
-    gamma_ns = np.array([1.0, 0.5, 0.25])
-    monkeypatch.setattr(ad, "gamma_ns", lambda *args: gamma_ns.copy())
-    gamma_ns_LO_0 = gamma_ns_fact(0, "NS_p", 1, 3, 0)
-    np.testing.assert_allclose(gamma_ns_LO_0, gamma_ns)
-    gamma_ns_LO_1 = gamma_ns_fact(0, "NS_p", 1, 3, 1)
-    np.testing.assert_allclose(gamma_ns_LO_1, gamma_ns)
-    gamma_ns_NLO_1 = gamma_ns_fact(1, "NS_p", 1, 3, 1)
-    assert gamma_ns_NLO_1[1] < gamma_ns[1]
-    gamma_ns_NNLO_1 = gamma_ns_fact(2, "NS_p", 1, 3, 1)
-    assert gamma_ns_NNLO_1[2] - gamma_ns[2] == 8.0
 
-
-def test_gamma_singlet_fact(monkeypatch):
-    gamma_s = np.array([1.0, 0.5, 0.25])
-    monkeypatch.setattr(ad, "gamma_singlet", lambda *args: gamma_s.copy())
-    gamma_s_LO_0 = gamma_singlet_fact(0, 1, 3, 0)
-    np.testing.assert_allclose(gamma_s_LO_0, gamma_s)
-    gamma_s_LO_1 = gamma_singlet_fact(0, 1, 3, 1)
-    np.testing.assert_allclose(gamma_s_LO_1, gamma_s)
-    gamma_s_NLO_1 = gamma_singlet_fact(1, 1, 3, 1)
-    assert gamma_s_NLO_1[1] < gamma_s[1]
-    gamma_s_NNLO_1 = gamma_singlet_fact(2, 1, 3, 1)
-    assert gamma_s_NNLO_1[2] - gamma_s[2] == 8.0
+# def test_gamma_singlet_fact(monkeypatch):
+#     gamma_s = np.array([1.0, 0.5, 0.25])
+#     monkeypatch.setattr(ad, "gamma_singlet", lambda *args: gamma_s.copy())
+#     gamma_s_LO_0 = gamma_singlet_fact(0, 1, 3, 0)
+#     np.testing.assert_allclose(gamma_s_LO_0, gamma_s)
+#     gamma_s_LO_1 = gamma_singlet_fact(0, 1, 3, 1)
+#     np.testing.assert_allclose(gamma_s_LO_1, gamma_s)
+#     gamma_s_NLO_1 = gamma_singlet_fact(1, 1, 3, 1)
+#     assert gamma_s_NLO_1[1] < gamma_s[1]
+#     gamma_s_NNLO_1 = gamma_singlet_fact(2, 1, 3, 1)
+#     assert gamma_s_NNLO_1[2] - gamma_s[2] == 8.0
 
 
 def test_quad_ker(monkeypatch):
@@ -67,6 +66,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
+            sv_scheme=None,
         )
         np.testing.assert_allclose(res_ns, 0.0)
         res_s = quad_ker(
@@ -83,6 +83,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
+            sv_scheme=None,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -99,6 +100,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
+            sv_scheme=None,
         )
         np.testing.assert_allclose(res_s, 0.0)
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
@@ -116,6 +118,7 @@ def test_quad_ker(monkeypatch):
         L=0,
         ev_op_iterations=0,
         ev_op_max_order=0,
+        sv_scheme=None,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
@@ -225,7 +228,7 @@ def test_pegasus_path():
         phi = 3 / 4 * np.pi
         c = 1.9
         n = complex(c + u * np.exp(1j * phi))
-        gamma_ns = gamma_ns_fact(order, mode, n, nf, L)
+        gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
         ker = ns.dispatcher(
             order,
             method,
@@ -238,7 +241,7 @@ def test_pegasus_path():
         pj = interpolation.log_evaluate_Nx(n, logx, areas)
         return np.imag(np.exp(1j * phi) / np.pi * pj * ker)
 
-    # It might be useful to test with a different fuction
+    # It might be useful to test with a different function
     # monkeypatch.setattr(ns, "dispatcher", lambda x, *args: np.exp( - x ** 2 ) )
     xgrid = np.geomspace(1e-7, 1, 10)
     int_disp = InterpolatorDispatcher(xgrid, 1, True)
@@ -270,6 +273,7 @@ def test_pegasus_path():
                     L,
                     ev_op_iterations,
                     10,
+                    None,
                 ),
                 epsabs=1e-12,
                 epsrel=1e-5,
