@@ -15,6 +15,7 @@ from eko import matching_conditions, member
 from eko.evolution_operator import flavors
 
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
+from ..scale_variations.scheme_B import ScaleVariationOperator
 from . import Operator, physical
 
 logger = logging.getLogger(__name__)
@@ -126,6 +127,7 @@ class OperatorGrid:
         config["debug_skip_singlet"] = operators_card["debug_skip_singlet"]
         config["debug_skip_non_singlet"] = operators_card["debug_skip_non_singlet"]
         config["HQ"] = theory_card["HQ"]
+        config["SV_scheme"] = theory_card["SV_scheme"]
         q2_grid = np.array(operators_card["Q2grid"], np.float_)
         intrinsic_range = []
         if int(theory_card["IC"]) == 1:
@@ -276,6 +278,19 @@ class OperatorGrid:
                 )
                 final_op = final_op @ rot @ matching @ phys_op
 
+        # Compute scale variation scheme B
+        if self.config["SV_scheme"] == "B":
+            scale_var = ScaleVariationOperator(
+                self.config, self.managers, path[-1].nf, final_op.q2_final
+            )
+            scale_var.compute()
+            scale_var_op = physical.PhysicalOperator.ad_to_evol_map(
+                scale_var.op_members,
+                scale_var.nf,
+                scale_var.q2_to,
+                intrinsic_range,
+             )
+            final_op = scale_var_op @ final_op
         values, errors = final_op.to_flavor_basis_tensor()
         fact_to_ren = self.config["fact_to_ren"]
         return {

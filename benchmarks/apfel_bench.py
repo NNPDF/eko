@@ -5,7 +5,7 @@
 import numpy as np
 from banana.data import cartesian_product
 
-from ekomark.banana_cfg import register
+from ekomark import register
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
@@ -65,11 +65,19 @@ class BenchmarkVFNS(ApfelBenchmark):
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
 
-    def benchmark_sv(self, pto):
+    def benchmark_sv(self, pto, scheme):
         """Scale Variation"""
 
         th = self.vfns_theory.copy()
-        th.update({"PTO": [pto], "XIR": [0.7071067811865475, 1.4142135623730951]})
+        th.update(
+            {
+                "PTO": [pto],
+                "XIR": [np.sqrt(0.5)],
+                "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
+                "SV_scheme": [scheme],
+                "EScaleVar": [0],
+            }
+        )
         self.run(
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
@@ -126,8 +134,8 @@ class BenchmarkFFNS(ApfelBenchmark):
         "FNS": "FFNS",
         "ModEv": [
             "EXA",
-            "EXP",
-            "TRN",
+            # "EXP",
+            # "TRN",
         ],
         "NfFF": 4,
         "kcThr": 0.0,
@@ -146,7 +154,7 @@ class BenchmarkFFNS(ApfelBenchmark):
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
 
-    def benchmark_sv(self, pto):
+    def benchmark_sv(self, pto, scheme):
         """Scale Variation"""
 
         ts = []
@@ -156,18 +164,22 @@ class BenchmarkFFNS(ApfelBenchmark):
                 "PTO": [pto],
                 "XIR": [np.sqrt(0.5)],
                 "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
+                "SV_scheme": [scheme],
+                "EScaleVar": [0],
             }
         )
         ts.extend(cartesian_product(th))
-        th = self.ffns_theory.copy()
-        th.update(
-            {
-                "PTO": [pto],
-                "XIR": [np.sqrt(2.0)],
-                "fact_to_ren_scale_ratio": [np.sqrt(0.5)],
-            }
-        )
-        ts.extend(cartesian_product(th))
+        # th = self.ffns_theory.copy()
+        # th.update(
+        #     {
+        #         "PTO": [pto],
+        #         "XIR": [np.sqrt(2.0)],
+        #         "fact_to_ren_scale_ratio": [np.sqrt(0.5)],
+        #         "SV_scheme": [scheme],
+        #         "EScaleVar": [0],
+        #     }
+        # )
+        # ts.extend(cartesian_product(th))
         self.run(ts, operators.build(operators.apfel_config), ["ToyLH"])
 
 
@@ -177,6 +189,6 @@ if __name__ == "__main__":
     # obj = BenchmarkFFNS()
 
     # obj.benchmark_plain(1)
-    # obj.benchmark_sv(1)
+    obj.benchmark_sv(1, "A")
     # obj.benchmark_kthr(2)
-    obj.benchmark_msbar(2)
+    # obj.benchmark_msbar(2)

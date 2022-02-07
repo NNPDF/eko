@@ -21,9 +21,10 @@ from ..member import OpMember
 
 logger = logging.getLogger(__name__)
 
+# TODO: move the scale var A to a proper module
 
-@nb.njit("c16[:](u1,string,c16,u1,f8)", cache=True)
-def gamma_ns_fact(order, mode, n, nf, L):
+@nb.njit("c16[:](u1,string,c16,u1,f8,string)", cache=True)
+def gamma_ns_fact(order, mode, n, nf, L, sv_scheme):
     """
     Adjust the anomalous dimensions with the scale variations.
 
@@ -39,6 +40,8 @@ def gamma_ns_fact(order, mode, n, nf, L):
             number of active flavors
         L : float
             logarithmic ratio of factorization and renormalization scale
+        sv_scheme : string
+           scale variation scheme
 
     Returns
     -------
@@ -48,18 +51,19 @@ def gamma_ns_fact(order, mode, n, nf, L):
     gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
     # since we are modifying *in-place* be carefull, that the order matters!
     # and indeed, we need to adjust the high elements first
-    if order >= 2:
-        gamma_ns[2] -= (
-            2 * beta.beta(0, nf) * gamma_ns[1] * L
-            + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_ns[0]
-        )
-    if order >= 1:
-        gamma_ns[1] -= beta.beta(0, nf) * gamma_ns[0] * L
+    if sv_scheme == "A":
+        if order >= 2:
+            gamma_ns[2] -= (
+                2 * beta.beta(0, nf) * gamma_ns[1] * L
+                + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_ns[0]
+            )
+        if order >= 1:
+            gamma_ns[1] -= beta.beta(0, nf) * gamma_ns[0] * L
     return gamma_ns
 
 
-@nb.njit("c16[:,:,:](u1,c16,u1,f8)", cache=True)
-def gamma_singlet_fact(order, n, nf, L):
+@nb.njit("c16[:,:,:](u1,c16,u1,f8,string)", cache=True)
+def gamma_singlet_fact(order, n, nf, L, sv_scheme):
     """
     Adjust the anomalous dimensions with the scale variations.
 
@@ -75,6 +79,8 @@ def gamma_singlet_fact(order, n, nf, L):
             number of active flavors
         L : float
             logarithmic ratio of factorization and renormalization scale
+        sv_scheme : string
+           scale variation scheme
 
     Returns
     -------
@@ -87,17 +93,18 @@ def gamma_singlet_fact(order, n, nf, L):
         nf,
     )
     # concerning order: see comment at gamma_ns_fact
-    if order >= 2:
-        gamma_singlet[2] -= (
-            2 * beta.beta(0, nf) * gamma_singlet[1] * L
-            + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_singlet[0]
-        )
-    if order >= 1:
-        gamma_singlet[1] -= beta.beta(0, nf) * gamma_singlet[0] * L
+    if sv_scheme == "A":
+        if order >= 2:
+            gamma_singlet[2] -= (
+                2 * beta.beta(0, nf) * gamma_singlet[1] * L
+                + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_singlet[0]
+            )
+        if order >= 1:
+            gamma_singlet[1] -= beta.beta(0, nf) * gamma_singlet[0] * L
     return gamma_singlet
 
 
-@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1)", cache=True)
+@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,string)", cache=True)
 def quad_ker(
     u,
     order,
@@ -112,6 +119,7 @@ def quad_ker(
     L,
     ev_op_iterations,
     ev_op_max_order,
+    sv_scheme
 ):
     """
     Raw kernel inside quad.
@@ -144,6 +152,8 @@ def quad_ker(
             number of evolution steps
         ev_op_max_order : int
             perturbative expansion order of U
+        sv_scheme : string
+           scale variation scheme
 
     Returns
     -------
@@ -170,7 +180,7 @@ def quad_ker(
         return 0.0
     # compute the actual evolution kernel
     if is_singlet:
-        gamma_singlet = gamma_singlet_fact(order, n, nf, L)
+        gamma_singlet = gamma_singlet_fact(order, n, nf, L, sv_scheme)
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
@@ -179,7 +189,7 @@ def quad_ker(
         l = 0 if mode[3] == "q" else 1
         ker = ker[k, l]
     else:
-        gamma_ns = gamma_ns_fact(order, mode, n, nf, L)
+        gamma_ns = gamma_ns_fact(order, mode, n, nf, L, sv_scheme)
         ker = ns.dispatcher(
             order,
             method,
@@ -216,7 +226,7 @@ class Operator:
             cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2):
+    def __init__(self, config, managers, nf, q2_from, q2_to=None, mellin_cut=5e-2):
         self.config = config
         self.managers = managers
         self.nf = nf
@@ -329,6 +339,7 @@ class Operator:
                             np.log(fact_to_ren),
                             self.config["ev_op_iterations"],
                             self.config["ev_op_max_order"],
+                            self.config["SV_scheme"]
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,
