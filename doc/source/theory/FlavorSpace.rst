@@ -41,8 +41,8 @@ sea quark distribution:
 - the basis transformation to the Flavor Basis is implemented in
   :meth:`~eko.evolution_operator.flavors.rotate_pm_to_flavor`
 
-Evolution Basis
----------------
+QCD Evolution Basis
+-------------------
 
 As the gluon is flavor-blind it is handy to solve |DGLAP| not in the flavor basis,
 but in the Evolution Basis where instead we need to solve a minimal coupled system.
@@ -75,9 +75,10 @@ The mapping between the Evolution Basis and the +/- Basis is given by
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation from the Flavor Basis is implemented in
   :data:`~eko.basis_rotation.rotate_flavor_to_evolution`
+- the photon is just a spectator and does not couple to anyone
 
-Intrinsic Evolution Bases
--------------------------
+Intrinsic QCD Evolution Bases
+-----------------------------
 
 However, the Evolution Basis is not yet the most decoupled basis if we consider intrinsic evolution.
 The intrinsic distributions do *not* participate in the |DGLAP| equation but instead evolve with a unity operator:
@@ -99,6 +100,46 @@ where we defined :math:`\Sigma_{(3)} = \sum\limits_{j=1}^3 q_j^+` and :math:`V_{
 - note that for the case of non-intrinsic component the higher elements in :math:`\mathcal F_{ev}` do become linear dependent
   to other basis vectors (e.g. :math:`\left. T_{15}\right|_{c^+ = 0} = \Sigma`) but are non zero - instead in :math:`\mathcal F_{iev,3}`
   this direction vanishes
+- the photon is just a spectator and does not couple to anyone
+
+
+QED :math:`\otimes` QCD Evolution Basis
+---------------------------------------
+
+In presence of QED corrections to DGLAP evolution equations, 
+the QCD Evolution basis does not decouple the distributions 
+as it was for the pure QCD evolution.
+In this case the QED :math:`\otimes` QCD evolution basis that performs the maximal decoupling is given by:
+
+.. math ::
+  \Sigma_u & = u^+ + c^+ + t^+ \\
+  \Sigma_d & = d^+ + s^+ + b^+ \\
+  \Sigma &= \Sigma_u + \Sigma_d \\
+  \Delta_\Sigma &= \Sigma_u - \Sigma_d \\
+  V_u & = u^- + c^- + t^- \\
+  V_d & = d^- + s^- + b^- \\ 
+  V &= V_u + V_d \\
+  \Delta_V &= V_u - V_d \\
+  T_1^u &=u^+ - c^+ \\
+  T_2^u &=u^+ + c^+ - 2t^+ \\
+  T_1^d &=d^+ - s^+ \\
+  T_2^d &=d^+ + s^+ - 2b^+ \\
+  V_1^u &=u^- - c^- \\
+  V_2^u &=u^- + c^- - 2t^- \\
+  V_1^d &=d^- - s^- \\
+  V_2^d &=d^- + s^- - 2b^- \\
+  \mathcal F \sim  \mathcal F_{QED} &= \span(\gamma, g, \Sigma, \Delta_\Sigma, V, \Delta_V, T_1^u, T_2^u, T_1^d, T_2^d, V_1^u, V_2^u, V_1^d, V_2^d)
+
+
+- :math:`T_1` and :math:`T_2` are just arbitrary name and do not follow any group representation like it was for the :ref:`theory/FlavorSpace:QCD Evolution Basis`
+- this basis is *not* normalized with respect to the canonical Flavor Basis
+- The singlet :math:`\Sigma` is just the QCD singlet 
+- The valence :math:`V` is just the QCD valence 
+
+ 
+
+
+
 
 Other Bases
 -----------
