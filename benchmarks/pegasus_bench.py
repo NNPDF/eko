@@ -56,6 +56,7 @@ class BenchmarkVFNS(PegasusBenchmark):
         "Qref": np.sqrt(2.0),
         "alphas": 0.35,
         "Q0": np.sqrt(2.0),
+        "nfref": 3,
     }
     zm_theory = tolist(zm_theory)
 
@@ -79,8 +80,7 @@ class BenchmarkVFNS(PegasusBenchmark):
         th.update(
             {
                 "PTO": [pto],
-                # TODO: why do we need this epsilon to have a good match ??
-                "fact_to_ren_scale_ratio": [np.sqrt(0.5),np.sqrt(2.0-1e-8)],
+                "fact_to_ren_scale_ratio": [np.sqrt(0.5),np.sqrt(2.0)],
                 "SV_scheme": [scheme]
             }
         )
