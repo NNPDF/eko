@@ -3,7 +3,7 @@ Flavor Space
 
 An |EKO| is a rank-4 operator acting both in Flavor Space :math:`\mathcal F`
 and momentum fraction space :math:`\mathcal X`.
-By Flavor Space :math:`\mathcal F` we mean the 13-dimensional function space that contains
+By Flavor Space :math:`\mathcal F` we mean the 14-dimensional function space that contains
 the different |PDF| flavor. Note, that there is an ambiguity concerning the
 word "Flavor Basis" which is sometimes referred to as an *abstract* basis
 in the Flavor Space, but often the specific basis described here below is meant.
@@ -11,7 +11,7 @@ in the Flavor Space, but often the specific basis described here below is meant.
 Flavor Basis
 ------------
 
-Here we use the raw quark flavors along with the gluon as they correspond to the
+Here we use the raw quark flavors along with the gluon and the photon as they correspond to the
 operator in the Lagrange density:
 
 .. math ::
@@ -45,7 +45,8 @@ QCD Evolution Basis
 -------------------
 
 As the gluon is flavor-blind it is handy to solve |DGLAP| not in the flavor basis,
-but in the Evolution Basis where instead we need to solve a minimal coupled system.
+but in the QCD Evolution Basis where instead we need to solve a minimal coupled system.
+This is the basis in which DGLAP equations are solved considering only QCD corrections.
 The new basis elements can be separated into two major classes: the singlet sector, consisting of the
 singlet distribution :math:`\Sigma` and the gluon distribution :math:`g`, and the non-singlet
 sector. The non-singlet sector can be again subdivided into three groups: first the full
@@ -66,7 +67,7 @@ The mapping between the Evolution Basis and the +/- Basis is given by
     T_{15} &= u^+ + d^+ + s^+ - 3 c^+\\
     T_{24} &= u^+ + d^+ + s^+ + c^+ - 4 b^+\\
     T_{35} &= u^+ + d^+ + s^+ + c^+ + b^+ - 5 t^+\\
-    \mathcal F \sim \mathcal F_{ev} &= \span(g, \Sigma, V, V_{3}, V_{8}, V_{15}, V_{24}, V_{35}, T_{3}, T_{8}, T_{15}, T_{24}, T_{35})
+    \mathcal F \sim \mathcal F_{ev} &= \span(\gamma, g, \Sigma, V, V_{3}, V_{8}, V_{15}, V_{24}, V_{35}, T_{3}, T_{8}, T_{15}, T_{24}, T_{35})
 
 
 - the associated numbers to the valence-like and singlet-like non-singlet distributions
@@ -80,20 +81,20 @@ The mapping between the Evolution Basis and the +/- Basis is given by
 Intrinsic QCD Evolution Bases
 -----------------------------
 
-However, the Evolution Basis is not yet the most decoupled basis if we consider intrinsic evolution.
+However, the QCD Evolution Basis is not yet the most decoupled basis if we consider intrinsic evolution.
 The intrinsic distributions do *not* participate in the |DGLAP| equation but instead evolve with a unity operator:
 this makes, e.g. :math:`T_{15}` a composite object in a evolution range below the charm mass.
 Instead, we will keep the non participating distributions here in their :math:`q^\pm` representation.
-The Intrinsic Evolution Bases will explicitly depend on the number of light flavors :math:`n_f`.
+The Intrinsic QCD Evolution Bases will explicitly depend on the number of light flavors :math:`n_f`.
 For :math:`n_f=3` we define (the other cases are defined analogously):
 
 .. math ::
-    \mathcal F \sim  \mathcal F_{iev,3} = \span(g, \Sigma_{(3)}, V_{(3)}, V_3, V_8, T_3, T_8, c^+, c^-, b^+, b^-, t^+, t^-)
+    \mathcal F \sim  \mathcal F_{iev,3} = \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_3, V_8, T_3, T_8, c^+, c^-, b^+, b^-, t^+, t^-)
 
 where we defined :math:`\Sigma_{(3)} = \sum\limits_{j=1}^3 q_j^+` and :math:`V_{(3)} = \sum\limits_{j=1}^3 q_j^-`
 (not to be confused with the usual :math:`V_3`).
 
-- for :math:`n_f=6` the Intrinsic Evolution Basis coincides with the Evolution Basis: :math:`\mathcal F_{iev,6} = \mathcal F_{ev}`
+- for :math:`n_f=6` the Intrinsic QCD Evolution Basis coincides with the QCD Evolution Basis: :math:`\mathcal F_{iev,6} = \mathcal F_{ev}`
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation from the Flavor Basis is implemented in
   :meth:`~eko.evolution_operator.flavors.pids_from_intrinsic_evol`
@@ -131,7 +132,7 @@ In this case the QED :math:`\otimes` QCD evolution basis that performs the maxim
   \mathcal F \sim  \mathcal F_{QED} &= \span(\gamma, g, \Sigma, \Delta_\Sigma, V, \Delta_V, T_1^u, T_2^u, T_1^d, T_2^d, V_1^u, V_2^u, V_1^d, V_2^d)
 
 
-- :math:`T_1` and :math:`T_2` are just arbitrary name and do not follow any group representation like it was for the :ref:`theory/FlavorSpace:QCD Evolution Basis`
+- :math:`T_1` and :math:`T_2` are just arbitrary names and do not follow any group representation like it was for the :ref:`theory/FlavorSpace:QCD Evolution Basis`
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - The singlet :math:`\Sigma` is just the QCD singlet 
 - The valence :math:`V` is just the QCD valence 
