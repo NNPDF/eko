@@ -18,7 +18,7 @@ from ..basis_rotation import full_labels, singlet_labels
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
-from ..scale_variations.scheme_A import gamma_ns_fact, gamma_singlet_fact
+from ..scale_variations.a import gamma_ns_fact, gamma_singlet_fact
 
 logger = logging.getLogger(__name__)
 

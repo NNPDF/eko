@@ -2,8 +2,7 @@
 
 import numpy as np
 
-from eko import anomalous_dimensions as ad
-from eko.scale_variations.scheme_A import gamma_ns_fact, gamma_singlet_fact
+from eko.scale_variations.a import gamma_ns_fact, gamma_singlet_fact
 
 
 def test_gamma_ns_fact():

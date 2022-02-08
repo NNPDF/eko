@@ -15,7 +15,7 @@ from eko import matching_conditions, member
 from eko.evolution_operator import flavors
 
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
-from ..scale_variations.scheme_B import ScaleVariationOperator
+from ..scale_variations.b import ScaleVariationOperator
 from . import Operator, physical
 
 logger = logging.getLogger(__name__)

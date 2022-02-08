@@ -14,31 +14,6 @@ from eko.kernels import singlet as s
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
-# def test_gamma_ns_fact(monkeypatch):
-#     gamma_ns = np.array([1.0, 0.5, 0.25])
-#     monkeypatch.setattr(ad, "gamma_ns", lambda *args: gamma_ns.copy())
-#     gamma_ns_LO_0 = gamma_ns_fact(0, "NS_p", 1, 3, 0)
-#     np.testing.assert_allclose(gamma_ns_LO_0, gamma_ns)
-#     gamma_ns_LO_1 = gamma_ns_fact(0, "NS_p", 1, 3, 1)
-#     np.testing.assert_allclose(gamma_ns_LO_1, gamma_ns)
-#     gamma_ns_NLO_1 = gamma_ns_fact(1, "NS_p", 1, 3, 1)
-#     assert gamma_ns_NLO_1[1] < gamma_ns[1]
-#     gamma_ns_NNLO_1 = gamma_ns_fact(2, "NS_p", 1, 3, 1)
-#     assert gamma_ns_NNLO_1[2] - gamma_ns[2] == 8.0
-
-
-# def test_gamma_singlet_fact(monkeypatch):
-#     gamma_s = np.array([1.0, 0.5, 0.25])
-#     monkeypatch.setattr(ad, "gamma_singlet", lambda *args: gamma_s.copy())
-#     gamma_s_LO_0 = gamma_singlet_fact(0, 1, 3, 0)
-#     np.testing.assert_allclose(gamma_s_LO_0, gamma_s)
-#     gamma_s_LO_1 = gamma_singlet_fact(0, 1, 3, 1)
-#     np.testing.assert_allclose(gamma_s_LO_1, gamma_s)
-#     gamma_s_NLO_1 = gamma_singlet_fact(1, 1, 3, 1)
-#     assert gamma_s_NLO_1[1] < gamma_s[1]
-#     gamma_s_NNLO_1 = gamma_singlet_fact(2, 1, 3, 1)
-#     assert gamma_s_NNLO_1[2] - gamma_s[2] == 8.0
-
 
 def test_quad_ker(monkeypatch):
     monkeypatch.setattr(
@@ -222,7 +197,7 @@ class TestOperator:
 
 def test_pegasus_path():
     def quad_ker_pegasus(
-        u, order, mode, method, logx, areas, a1, a0, nf, L, ev_op_iterations
+        u, order, mode, method, logx, areas, a1, a0, nf, ev_op_iterations
     ):
         # compute the mellin inversion as done in pegasus
         phi = 3 / 4 * np.pi
@@ -294,7 +269,6 @@ def test_pegasus_path():
                     a1,
                     a0,
                     nf,
-                    L,
                     ev_op_iterations,
                 ),
                 epsabs=1e-12,

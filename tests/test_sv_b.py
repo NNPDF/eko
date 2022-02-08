@@ -8,7 +8,7 @@ from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
-from eko.scale_variations import scheme_B
+from eko.scale_variations import b
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
@@ -21,7 +21,7 @@ def test_ns_sv_dispacher():
     nf = 5
     a_s = 0.35
     np.testing.assert_allclose(
-        scheme_B.non_singlet_dispatcher(gamma_ns, a_s, order, nf, L), 1
+        b.non_singlet_dispatcher(gamma_ns, a_s, order, nf, L), 1
     )
 
 
@@ -33,7 +33,7 @@ def test_singlet_sv_dispacher():
     nf = 5
     a_s = 0.35
     np.testing.assert_allclose(
-        scheme_B.singlet_dispatcher(gamma_singlet, a_s, order, nf, L), np.eye(2)
+        b.singlet_dispatcher(gamma_singlet, a_s, order, nf, L), np.eye(2)
     )
 
 
@@ -49,7 +49,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(ns, "dispatcher", lambda *args: 1.0)
     monkeypatch.setattr(s, "dispatcher", lambda *args: np.identity(2))
     for is_log in [True, False]:
-        res_ns = scheme_B.quad_ker(
+        res_ns = b.quad_ker(
             u=0,
             order=2,
             mode="NS_p",
@@ -61,7 +61,7 @@ def test_quad_ker(monkeypatch):
             L=0,
         )
         np.testing.assert_allclose(res_ns, 1.0)
-        res_s = scheme_B.quad_ker(
+        res_s = b.quad_ker(
             u=0,
             order=2,
             mode="S_qq",
@@ -73,7 +73,7 @@ def test_quad_ker(monkeypatch):
             L=0,
         )
         np.testing.assert_allclose(res_s, 1.0)
-        res_s = scheme_B.quad_ker(
+        res_s = b.quad_ker(
             u=0,
             order=2,
             mode="S_qg",
@@ -85,7 +85,7 @@ def test_quad_ker(monkeypatch):
             L=0,
         )
         np.testing.assert_allclose(res_s, 0.0)
-    res_logx = scheme_B.quad_ker(
+    res_logx = b.quad_ker(
         u=0,
         order=2,
         mode="S_qq",
@@ -144,7 +144,7 @@ class TestOperator:
             StrongCoupling.from_dict(theory_card),
             InterpolatorDispatcher.from_dict(operators_card),
         )
-        o = scheme_B.ScaleVariationOperator(g.config, g.managers, nf=3, q2=2)
+        o = b.ScaleVariationOperator(g.config, g.managers, nf=3, q2=2)
         # fake quad
         monkeypatch.setattr(
             scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
