@@ -103,7 +103,7 @@ class BenchmarkMSbar:
                     apfel.CleanUp()
                     apfel.SetTheory("QCD")
                     apfel.SetPerturbativeOrder(order)
-                    apfel.SetAlphaEvolution("exact")
+                    apfel.SetAlphaEvolution(method)
                     apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
                     apfel.SetVFNS()
                     apfel.SetMSbarMasses(*np.sqrt(m2))

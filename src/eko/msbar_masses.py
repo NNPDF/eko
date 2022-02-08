@@ -9,7 +9,7 @@ from scipy import integrate, optimize
 from .beta import b, beta
 from .evolution_operator.flavors import quark_names
 from .gamma import gamma
-from .strong_coupling import StrongCoupling, strong_coupling_mod_ev
+from .strong_coupling import StrongCoupling
 
 
 def msbar_ker_exact(a0, a1, order, nf):
@@ -34,7 +34,7 @@ def msbar_ker_exact(a0, a1, order, nf):
 
             .. math::
                 k_{exact} = e^{- \int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \gamma_m(a_s) / \beta(a_s) da_s}
-    """ # pylint:disable=line-too-long
+    """  # pylint:disable=line-too-long
     b_vec = [beta(0, nf)]
     g_vec = [gamma(0, nf)]
     if order >= 1:
@@ -66,6 +66,7 @@ def msbar_ker_exact(a0, a1, order, nf):
     )
     val, _ = res[:2]
     return np.exp(val)
+
 
 @nb.njit("f8(f8,f8,u1,u1)", cache=True)
 def msbar_ker_expanded(a0, a1, order, nf):
@@ -171,19 +172,16 @@ def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
     return msbar_ker_exact(a0, a1, order, nf)
 
 
-def evolve_msbar_mass(
+def solve_msbar_mass(
     m2_ref,
     q2m_ref,
     strong_coupling,
-    nf_ref=None,
-    fact_to_ren=1.0,
-    q2_to=None,
+    nf_ref,
+    fact_to_ren,
 ):
     r"""
-    Compute the |MSbar| mass.
-    If the final scale is not given it solves the equation :math:`m_{\overline{MS}}(m) = m`
+    Compute the |MSbar| mass solving the equation :math:`m_{\overline{MS}}(m) = m`
     for a fixed number of nf
-    Else perform the mass evolution.
 
     Parameters
     ----------
@@ -191,13 +189,56 @@ def evolve_msbar_mass(
             squared initial mass reference
         q2m_ref: float
             squared initial scale
-        nf_ref: int, optional (not used when q2_to is given)
-            number of active flavours at the scale q2m_ref, where the solution is searched
-        fact_to_ren: float
-            :math:`\mu_F^2/\muR^2`
         strong_coupling: eko.strong_coupling.StrongCoupling
             Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
             any q
+        nf_ref: int
+            number of active flavours at the scale q2m_ref, where the solution is searched
+        fact_to_ren: float
+            :math:`\mu_F^2/\muR^2`
+
+    Returns
+    -------
+        m2 : float
+            :math:`m_{\overline{MS}}(\mu_2)^2`
+    """
+
+    def rge(m2, q2m_ref, strong_coupling, fact_to_ren, nf_ref):
+        return (
+            m2_ref
+            * msbar_ker_dispatcher(m2, q2m_ref, strong_coupling, fact_to_ren, nf_ref)
+            ** 2
+            - m2
+        )
+
+    msbar_mass = optimize.fsolve(
+        rge, q2m_ref, args=(q2m_ref, strong_coupling, fact_to_ren, nf_ref)
+    )
+    return float(msbar_mass)
+
+
+def evolve_msbar_mass(
+    m2_ref,
+    q2m_ref,
+    strong_coupling,
+    fact_to_ren,
+    q2_to,
+):
+    r"""
+    Perform the |MSbar| mass evolution up to given scale.
+    It allows for different number of active flavors.
+
+    Parameters
+    ----------
+        m2_ref: float
+            squared initial mass reference
+        q2m_ref: float
+            squared initial scale
+        strong_coupling: eko.strong_coupling.StrongCoupling
+            Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
+            any q
+        fact_to_ren: float
+            :math:`\mu_F^2/\muR^2`
         q2_to: float, optional
             scale at which the mass is computed
 
@@ -206,58 +247,38 @@ def evolve_msbar_mass(
         m2 : float
             :math:`m_{\overline{MS}}(\mu_2)^2`
     """
-
-    # TODO: split function: 1 function, 1 job
-    # TODO: this should resolve the argument priority
-    if q2_to is None:
-
-        def rge(m2, q2m_ref, strong_coupling, fact_to_ren, nf_ref):
-            return (
-                m2_ref
-                * msbar_ker_dispatcher(
-                    m2, q2m_ref, strong_coupling, fact_to_ren, nf_ref
-                )
-                ** 2
-                - m2
-            )
-
-        msbar_mass = optimize.fsolve(
-            rge, q2m_ref, args=(q2m_ref, strong_coupling, fact_to_ren, nf_ref)
+    # evolution might involve different number of active flavors.
+    # Find out the evolution path (always sorted)
+    q2_low, q2_high = sorted([q2m_ref, q2_to])
+    area_walls = np.array(strong_coupling.thresholds.area_walls)
+    path = np.concatenate(
+        (
+            [q2_low],
+            area_walls[(q2_low < area_walls) & (area_walls < q2_high)],
+            [q2_high],
         )
-        return float(msbar_mass)
-    else:
+    )
+    nf_init = len(area_walls[q2_low >= area_walls]) + 2
+    nf_final = len(area_walls[q2_high > area_walls]) + 2
 
-        # evolution might involve different number of active flavors.
-        # Find out the evolution path (always sorted)
-        q2_low, q2_high = sorted([q2m_ref, q2_to])
-        area_walls = np.array(strong_coupling.thresholds.area_walls)
-        path = np.concatenate(
-            (
-                [q2_low],
-                area_walls[(q2_low < area_walls) & (area_walls < q2_high)],
-                [q2_high],
-            )
+    ev_mass = 1.0
+    for i, n in enumerate(np.arange(nf_init, nf_final + 1)):
+        q2_init = path[i]
+        q2_final = path[i + 1]
+        # if you are going backward
+        # need to reverse the evolution in each path segment
+        if q2m_ref > q2_to:
+            q2_init, q2_final = q2_final, q2_init
+        ev_mass *= msbar_ker_dispatcher(
+            q2_final, q2_init, strong_coupling, fact_to_ren, n
         )
-        nf_init = len(area_walls[q2_low >= area_walls]) + 2
-        nf_final = len(area_walls[q2_high > area_walls]) + 2
-
-        ev_mass = 1.0
-        for i, n in enumerate(np.arange(nf_init, nf_final + 1)):
-            q2_init = path[i]
-            q2_final = path[i + 1]
-            # if you are going backward
-            # need to reverse the evolution in each path segment
-            if q2m_ref > q2_to:
-                q2_init, q2_final = q2_final, q2_init
-            ev_mass *= msbar_ker_dispatcher(
-                q2_final, q2_init, strong_coupling, fact_to_ren, n
-            )
-        return m2_ref * ev_mass ** 2
+    return m2_ref * ev_mass ** 2
 
 
 def compute_msbar_mass(theory_card):
     r"""
     Compute the |MSbar| masses solving the equation :math:`m_{\bar{MS}}(\mu) = \mu`
+    for each heavy quark and consistent boundary contitions.
 
     Parameters
     ----------
@@ -276,18 +297,8 @@ def compute_msbar_mass(theory_card):
     masses = np.concatenate((np.zeros(nfa_ref - 3), np.full(6 - nfa_ref, np.inf)))
     fact_to_ren = theory_card["fact_to_ren_scale_ratio"] ** 2
 
-    # TODO: why is this different than calling
-    # `StrongCoupling.from_dict(theory_card, masses=thr_masses)`
     def sc(thr_masses):
-        return StrongCoupling(
-            theory_card["alphas"],
-            q2_ref,
-            thr_masses,
-            thresholds_ratios=[1, 1, 1],
-            order=theory_card["PTO"],
-            method=strong_coupling_mod_ev(theory_card["ModEv"]),
-            nf_ref=nfa_ref,
-        )
+        return StrongCoupling.from_dict(theory_card, masses=thr_masses)
 
     # First you need to look for the thr around the given as_ref
     heavy_quarks = quark_names[3:]
@@ -350,19 +361,19 @@ def compute_msbar_mass(theory_card):
             m2_ref = evolve_msbar_mass(
                 m2_ref,
                 q2m_ref,
-                strong_coupling=sc(masses),
-                fact_to_ren=fact_to_ren,
-                q2_to=q2_to,
+                sc(masses),
+                fact_to_ren,
+                q2_to,
             )
             q2m_ref = q2_to
 
         # now solve the RGE
-        masses[q_idx] = evolve_msbar_mass(
+        masses[q_idx] = solve_msbar_mass(
             m2_ref,
             q2m_ref,
-            strong_coupling=sc(masses),
-            nf_ref=nf_target,
-            fact_to_ren=fact_to_ren,
+            sc(masses),
+            nf_target,
+            fact_to_ren,
         )
 
     # Check the msbar ordering
@@ -373,11 +384,11 @@ def compute_msbar_mass(theory_card):
         m2_test = evolve_msbar_mass(
             m2_ref,
             q2m_ref,
-            strong_coupling=sc(masses),
-            fact_to_ren=fact_to_ren,
-            q2_to=m2_msbar,
+            sc(masses),
+            fact_to_ren,
+            m2_msbar,
         )
-        if m2_msbar > m2_test:
+        if m2_msbar >= m2_test:
             raise ValueError(
                 "The MSBAR masses do not preserve the correct ordering,\
                     check the initial reference values"

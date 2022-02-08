@@ -96,10 +96,10 @@ class TestMsbarMasses:
         with pytest.raises(ValueError, match="do not preserve the correct ordering"):
             theory_dict.update(
                 dict(
-                    mc=1.0,
-                    mb=1.00001,
-                    Qmc=1.0,
-                    Qmb=1.00001,
+                    mc=1.009,
+                    mb=1.01,
+                    Qmc=1.012,
+                    Qmb=1.01,
                 )
             )
             compute_msbar_mass(theory_dict)
