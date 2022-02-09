@@ -2,15 +2,17 @@
 """
     Benchmark EKO to Apfel
 """
+import pathlib
+
 import numpy as np
+from banana import register
 from banana.data import cartesian_product
 
-from ekomark.banana_cfg import register
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
-register(__file__)
-
+here = pathlib.Path(__file__).parent
+register(here)
 
 def tolist(input_dict):
     output_dict = input_dict.copy()
@@ -179,4 +181,4 @@ if __name__ == "__main__":
     # obj.benchmark_plain(1)
     # obj.benchmark_sv(1)
     # obj.benchmark_kthr(2)
-    obj.benchmark_msbar(2)
+    obj.benchmark_msbar(0)
