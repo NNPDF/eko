@@ -13,7 +13,7 @@ import numpy as np
 import scipy
 
 from . import constants, thresholds
-from .beta import beta, b
+from .beta import b, beta
 
 logger = logging.getLogger(__name__)
 
@@ -465,6 +465,24 @@ def compute_matching_coeffs_down(mass_scheme, nf):
     Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia` at threshold
     when moving to a regime with *less* flavors.
 
+    Parameters
+    ----------
+        mass_scheme:
+            Heavy quark mass scheme: "POLE" or "MSBAR"
+        nf:
+            number of active flavors in the lower patch
+
+    Returns
+    -------
+        matching_coeffs_down:
+            downward matching coefficient matrix
+    """
+    _c = compute_matching_coeffs_up(mass_scheme, nf)
+    return invert_matching_coeffs(_c)
+
+
+def invert_matching_coeffs(c_up):
+    """
     This is the perturbative inverse of :data:`matching_coeffs_up` and has been obtained via
 
     .. code-block:: Mathematica
@@ -483,24 +501,21 @@ def compute_matching_coeffs_down(mass_scheme, nf):
 
     Parameters
     ----------
-        mass_scheme:
-            Heavy quark mass scheme: "POLE" or "MSBAR"
-        nf:
-            number of active flavors in the lower patch
+        c_up : numpy.ndarray
+            forward matching coefficient matrix
 
     Returns
     -------
         matching_coeffs_down:
             downward matching coefficient matrix
     """
-    _c = compute_matching_coeffs_up(mass_scheme, nf)
-    matching_coeffs_down = np.zeros_like(_c)
-    matching_coeffs_down[1, 1] = -_c[1, 1]
-    matching_coeffs_down[2, 0] = -_c[2, 0]
-    matching_coeffs_down[2, 1] = -_c[2, 1]
-    matching_coeffs_down[2, 2] = 2.0 * _c[1, 1] ** 2 - _c[2, 2]
-    matching_coeffs_down[3, 0] = -_c[3, 0]
-    matching_coeffs_down[3, 1] = 5 * _c[1, 1] * _c[2, 0] - _c[3, 1]
-    matching_coeffs_down[3, 2] = 5 * _c[1, 1] * _c[2, 1] - _c[3, 2]
-    matching_coeffs_down[3, 3] = -5 * _c[1, 1] ** 3 + 5 * _c[1, 1] * _c[2, 2] - _c[3, 3]
+    matching_coeffs_down = np.zeros_like(c_up)
+    matching_coeffs_down[1, 1] = - c_up[1, 1]
+    matching_coeffs_down[2, 0] = - c_up[2, 0]
+    matching_coeffs_down[2, 1] = - c_up[2, 1]
+    matching_coeffs_down[2, 2] = 2.0 * c_up[1, 1] ** 2 - c_up[2, 2]
+    matching_coeffs_down[3, 0] = - c_up[3, 0]
+    matching_coeffs_down[3, 1] = 5 *c_up[1, 1] * c_up[2, 0] - c_up[3, 1]
+    matching_coeffs_down[3, 2] = 5 * c_up[1, 1] * c_up[2, 1] - c_up[3, 2]
+    matching_coeffs_down[3, 3] = -5 * c_up[1, 1] ** 3 + 5 * c_up[1, 1] * c_up[2, 2] - c_up[3, 3]
     return matching_coeffs_down

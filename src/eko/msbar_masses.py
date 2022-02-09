@@ -9,7 +9,7 @@ from scipy import integrate, optimize
 from .beta import b, beta
 from .evolution_operator.flavors import quark_names
 from .gamma import gamma
-from .strong_coupling import StrongCoupling
+from .strong_coupling import StrongCoupling, invert_matching_coeffs
 
 
 def msbar_ker_exact(a0, a1, order, nf):
@@ -250,6 +250,7 @@ def evolve_msbar_mass(
     # evolution might involve different number of active flavors.
     # Find out the evolution path (always sorted)
     q2_low, q2_high = sorted([q2m_ref, q2_to])
+
     area_walls = np.array(strong_coupling.thresholds.area_walls)
     path = np.concatenate(
         (
@@ -262,17 +263,83 @@ def evolve_msbar_mass(
     nf_final = len(area_walls[q2_high > area_walls]) + 2
 
     ev_mass = 1.0
-    for i, n in enumerate(np.arange(nf_init, nf_final + 1)):
+    is_downward_path = bool(q2m_ref > q2_to)
+    for i, nf in enumerate(np.arange(nf_init, nf_final + 1)):
         q2_init = path[i]
         q2_final = path[i + 1]
         # if you are going backward
         # need to reverse the evolution in each path segment
-        if q2m_ref > q2_to:
+        if is_downward_path:
+            m_coeffs = compute_matching_coeffs_down(nf - 1)
             q2_init, q2_final = q2_final, q2_init
-        ev_mass *= msbar_ker_dispatcher(
-            q2_final, q2_init, strong_coupling, fact_to_ren, n
+            shift = 4
+        else:
+            m_coeffs = compute_matching_coeffs_up(nf)
+            shift = 3
+        fact = 1.0
+        # shift
+        for pto in range(1, strong_coupling.order + 1):
+            for l in range(pto + 1):
+                as_thr = strong_coupling.a_s(q2_final / fact_to_ren, q2_final)
+                # TODO: do we need to add np.log(fac_to_ren) here ???
+                L = np.log(strong_coupling.thresholds.thresholds_ratios[pto - shift])
+                fact += as_thr ** pto * L ** l * m_coeffs[pto, l]
+        ev_mass *= (
+            fact
+            * msbar_ker_dispatcher(q2_final, q2_init, strong_coupling, fact_to_ren, nf)
+            ** 2
         )
-    return m2_ref * ev_mass ** 2
+    return m2_ref * ev_mass
+
+
+def compute_matching_coeffs_up(nf):
+    """
+    |MSbar| matching coefficients :cite:`Liu:2015fxa` at threshold
+    when moving to a regime with *more* flavors.
+
+    Note :cite:`Liu:2015fxa` (eq 5.) reports the backward relation,
+    multiplied by a factor of 4 (and 4^2 ...)
+
+    Parameters
+    ----------
+        nf:
+            number of active flavors in the lower patch
+
+    Returns
+    -------
+        matching_coeffs_up:
+            downward matching coefficient matrix
+    """
+    matching_coeffs_up = np.zeros((4, 4))
+    matching_coeffs_up[2, 0] = -89.0 / 27.0
+    matching_coeffs_up[2, 1] = 20.0 / 9.0
+    matching_coeffs_up[2, 2] = -4.0 / 3.0
+
+    matching_coeffs_up[3, 0] = -118.248 - 1.58257 * nf
+    matching_coeffs_up[3, 1] = 71.7887 + 7.85185 * nf
+    matching_coeffs_up[3, 2] = -700.0 / 27.0
+    matching_coeffs_up[3, 3] = -232.0 / 27.0 + 16.0 / 27.0 * nf
+
+    return matching_coeffs_up
+
+
+def compute_matching_coeffs_down(nf):
+    """
+    |MSbar| matching coefficients :cite:`Liu:2015fxa` (eq 5) at threshold
+    when moving to a regime with *less* flavors.
+
+    Parameters
+    ----------
+        nf:
+            number of active flavors in the lower patch
+
+    Returns
+    -------
+        matching_coeffs_down:
+            downward matching coefficient matrix
+    """
+    _c = compute_matching_coeffs_up(nf)
+    return invert_matching_coeffs(_c)
 
 
 def compute_msbar_mass(theory_card):
@@ -376,21 +443,25 @@ def compute_msbar_mass(theory_card):
             fact_to_ren,
         )
 
+    # TODO: this test seems to be quite hard to contradict
+    # what if we check just the mass ordering?
     # Check the msbar ordering
-    for m2_msbar, hq in zip(masses[:-1], quark_names[4:]):
-        q2m_ref = np.power(theory_card[f"Qm{hq}"], 2)
-        m2_ref = np.power(theory_card[f"m{hq}"], 2)
-        # check that m_msbar_hq < msbar_hq+1 (m_msbar_hq)
-        m2_test = evolve_msbar_mass(
-            m2_ref,
-            q2m_ref,
-            sc(masses),
-            fact_to_ren,
-            m2_msbar,
-        )
-        if m2_msbar >= m2_test:
-            raise ValueError(
-                "The MSBAR masses do not preserve the correct ordering,\
-                    check the initial reference values"
-            )
+    if not (masses == np.sort(masses)).all():
+        raise ValueError("masses need to be sorted")
+    # for m2_msbar, hq in zip(masses[:-1], quark_names[4:]):
+    #     q2m_ref = np.power(theory_card[f"Qm{hq}"], 2)
+    #     m2_ref = np.power(theory_card[f"m{hq}"], 2)
+    #     # check that m_msbar_hq < msbar_hq+1 (m_msbar_hq)
+    #     m2_test = evolve_msbar_mass(
+    #         m2_ref,
+    #         q2m_ref,
+    #         sc(masses),
+    #         fact_to_ren,
+    #         m2_msbar,
+    #     )
+    #     if m2_msbar >= m2_test:
+    #         raise ValueError(
+    #             "The MSBAR masses do not preserve the correct ordering,\
+    #                 check the initial reference values"
+    #         )
     return masses
