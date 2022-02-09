@@ -46,23 +46,55 @@ Note the additional minus in the definition of :math:`\gamma`.
 Scale Variations
 ----------------
 
-The usual procedure in solving |DGLAP| that is also applied :doc:`here
+The usual procedure in solving |DGLAP| applied :doc:`here
 </theory/DGLAP>` is to rewrite the equations in term of the running coupling
 :math:`a_s` assuming the factorization scale :math:`\mu_F^2` (the inherit scale
 of the |PDF|) and the renormalization scale :math:`\mu_R^2` (the inherit scale
-for the strong coupling) to be equal. This constraint can however be lifted by a
-suitable redefinition of the splitting kernels :cite:`Vogt:2004ns`:
+for the strong coupling) to be equal.
+This constraint, however, can be lifted in order to provide an estimation of the
+missing higher order uncertainties (MHOU) coming from |DGLAP| evolution :cite:`AbdulKhalek:2019ihb`.
+Since scale-dependent contributions to a perturbative prediction are fixed by |RGE| invariance,
+the scale variation can be used to generate higher order contributions, 
+which are then taken as a proxy for the whole missing higher orders.
+This method provides many advantages:
 
-.. math ::
-    \gamma^{(1)}(N) &\to \gamma^{(1)}(N) - \beta_0 \ln(\mu_F^2/\mu_R^2) \gamma^{(0)} \\
-    \gamma^{(2)}(N) &\to \gamma^{(2)}(N) - 2 \beta_0 \ln(\mu_F^2/\mu_R^2) \gamma^{(1)} - ( \beta_1 \ln(\mu_F^2/\mu_R^2) - \beta_0^2 \ln^2(\mu_F^2/\mu_R^2) )  \gamma^{(0)}
+    * it naturally incorporates renormalization group invariance,
+      as the perturbative order increases, estimates of MHOU decrease;
+    * the same procedure can be used for any perturbative process,
+      since the scale dependence of the strong coupling :math:`a_s(\mu^2)` and of PDFs is universal;
 
+However there is no unique principle to determine the specific range of the scale variation;
+the most used prescription specify to vary the factor :math:`\mu_F/\mu_R` in the range:
+:math:`1/2 \le \mu_F/\mu_R \le 2`.
 
-while keeping the evaluation of the strong coupling always at :math:`\mu_R^2`.
-Estimating the theoretical uncertainties imposed on |PDF| determination due to
-missing higher order corrections using scale variation in the evolution
-corresponds to schemes A and B in :cite:`AbdulKhalek:2019ihb`.
+This variation can be performed at least at two different levels during the |PDF|
+evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
 
+    * For ``SV_scheme='A'`` the variation is applied directly to the splitting functions
+      and the anomalous dimension are then modified using :cite:`Vogt:2004ns`:
+
+    .. math ::
+        & \gamma^{(1)}(N) \to \gamma^{(1)}(N) - \beta_0 L \gamma^{(0)} \\
+        & \gamma^{(2)}(N) \to \gamma^{(2)}(N) - 2 \beta_0 L \gamma^{(1)} - ( \beta_1 L - \beta_0^2 L^2) \gamma^{(0)} \\
+        & L= \ln(\mu_F^2/\mu_R^2)
+
+    * In ``SV_scheme='B'`` the |EKO| is multiplied by an additional kernel, such that
+      the scale variation is applied to the whole |PDF| set:
+
+    .. math ::
+        \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) = \left[ 1 - L \gamma +L^2(\gamma^{2} + \frac{\partial \gamma}{\partial a_s} \beta(a_s)) + ... \right] \tilde{\mathbf{E}}(a_s \leftarrow a_s^0)
+
+    where scale variation kernel is expanded consistently order by order in :math:`a_s`,
+    leading to:
+
+    .. math ::
+        1 - L \gamma +L^2(\gamma^{2} + \frac{\partial \gamma}{\partial a_s} \beta(a_s)) =
+        1 - a_s L \gamma^{(0)} + a_s^2 \left [ L \gamma^{(1)} + \frac{1}{2} L^2 \gamma^{(0)} (\gamma^{(0)}+\beta_0) \right ]
+
+    In this way the dependence of the |EKO| on :math:`L` is factorized outside the unvaried evolution kernel.
+
+Notice that the two methods should be equivalent, especially for fully linearized solutions
+(`ModEv=truncaded,ev_op_max_order=1`)
 
 Heavy Quark Masses
 ------------------

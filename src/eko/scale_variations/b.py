@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 r"""
-This module contains the scale varion operator in scheme B
+This module contains the scale variation operator in scheme B
 """
 
 import logging

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 r"""
-This module contains the scale varion for scheme A
+This module contains the scale variation for scheme A
 """
 import numba as nb
 
