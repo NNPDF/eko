@@ -14,26 +14,27 @@ except ImportError:
     use_APFEL = False
 
 theory_dict = {
-            "alphas": 0.1180,
-            "Qref": 91,
-            "nfref": 5,
-            "MaxNfPdf": 6,
-            "MaxNfAs": 6,
-            "Q0": 1,
-            "fact_to_ren_scale_ratio": 1.0,
-            "mc": 1.5,
-            "mb": 4.1,
-            "mt": 175.0,
-            "kcThr": 1.0,
-            "kbThr": 1.0,
-            "ktThr": 1.0,
-            "HQ": "MSBAR",
-            "Qmc": 18,
-            "Qmb": 20,
-            "Qmt": 175.0,
-            "PTO": 2,
-            "ModEv": "EXA",
+    "alphas": 0.1180,
+    "Qref": 91,
+    "nfref": 5,
+    "MaxNfPdf": 6,
+    "MaxNfAs": 6,
+    "Q0": 1,
+    "fact_to_ren_scale_ratio": 1.0,
+    "mc": 1.5,
+    "mb": 4.1,
+    "mt": 175.0,
+    "kcThr": 1.0,
+    "kbThr": 1.0,
+    "ktThr": 1.0,
+    "HQ": "MSBAR",
+    "Qmc": 18,
+    "Qmb": 20,
+    "Qmt": 175.0,
+    "PTO": 2,
+    "ModEv": "EXA",
 }
+
 
 class BenchmarkMSbar:
     def benchmark_APFEL_msbar_evolution(self):
@@ -144,7 +145,7 @@ class BenchmarkMSbar:
                     )
                 # check myself to APFEL
                 np.testing.assert_allclose(
-                    apfel_vals, np.sqrt(np.array(my_vals)), rtol=5e-3
+                    apfel_vals, np.sqrt(np.array(my_vals)), rtol=2e-3
                 )
 
     def benchmark_APFEL_msbar_solution(self):
@@ -187,61 +188,58 @@ class BenchmarkMSbar:
                 apfel_vals, np.sqrt(np.array(my_masses)), rtol=5e-5
             )
 
-    # With this test you can see that in Apfel
-    # the solution value of mb is affected by "kbThr", while
-    # in EKO this doesn't happend, since mb is searched
-    # with an Nf=5 larger range.
+    def benchmark_msbar_solution_kthr(self):
+        """
+        With this test you can see that in EKO
+        the solution value of mb is not affected by "kbThr",
+        since mb is searched with an Nf=5 larger range.
+        While in Apfel this doesn't happend
+        """
+        theory_dict.update(
+            {
+                "mc": 1.5,
+                "mb": 4.1,
+                "mt": 175.0,
+                "kcThr": 1.2,
+                "kbThr": 1.8,
+                "ktThr": 1.0,
+                "Qmc": 18,
+                "Qmb": 20,
+                "Qmt": 175.0,
+                "PTO": 0,
+            }
+        )
+        my_masses_thr = compute_msbar_mass(theory_dict)
+        apfel_masses_thr = [1.9891, 4.5102, 175.0000]
+        theory_dict.update(
+            {
+                "kcThr": 1.0,
+                "kbThr": 1.0,
+            }
+        )
+        my_masses_plain = compute_msbar_mass(theory_dict)
+        apfel_masses_plain = ([1.9855, 4.8062, 175.0000],)
 
-    # def benchmark_APFEL_msbar_solution_kthr(self):
-    #     theory_dict.update({
-    #         "mc": 1.5,
-    #         "mb": 4.1,
-    #         "mt": 175.0,
-    #         "kcThr": 1.2,
-    #         "kbThr": 1.8,
-    #         "ktThr": 1.0,
-    #         "Qmc": 18,
-    #         "Qmb": 20,
-    #         "Qmt": 175.0,
-    #     })
-    #     apfel_vals_dict = {
-    #         "EXA": {
-    #             0: np.array(
-    #                 [1.9891,4.5102,175.0000],
-    #             ),
-    #             1: np.array(
-    #                 [2.1316, 4.6047, 175.0000],
-    #             ),
-    #             2: np.array([2.1574, 4.6153, 175.0000]),
-    #         },
-    #     }
-    #     # collect my values
-    #     for order in [0, 1, 2]:
-    #         theory_dict["PTO"] = order
-    #         my_masses = compute_msbar_mass(theory_dict)
-    #         # get APFEL numbers - if available else use cache
-    #         apfel_vals = apfel_vals_dict[theory_dict["ModEv"]][order]
-    #         if use_APFEL:
-    #             # run apfel
-    #             apfel.CleanUp()
-    #             apfel.SetTheory("QCD")
-    #             apfel.SetPerturbativeOrder(order)
-    #             apfel.SetAlphaEvolution("exact")
-    #             apfel.SetAlphaQCDRef(theory_dict["alphas"], theory_dict["Qref"])
-    #             apfel.SetVFNS()
-    #             apfel.SetMSbarMasses(
-    #                 theory_dict["mc"], theory_dict["mb"], theory_dict["mt"]
-    #             )
-    #             apfel.SetMassScaleReference(
-    #                 theory_dict["Qmc"], theory_dict["Qmb"], theory_dict["Qmt"]
-    #             )
-    #             apfel.SetMassMatchingScales(
-    #                 theory_dict["kcThr"], theory_dict["kbThr"], theory_dict["ktThr"]
-    #             )
-    #             apfel.SetRenFacRatio(theory_dict["fact_to_ren_scale_ratio"])
-    #             apfel.InitializeAPFEL()
-    #             apfel.EnableWelcomeMessage(1)
-    #         #check myself to APFEL
-    #         np.testing.assert_allclose(
-    #             apfel_vals, np.sqrt(np.array(my_masses)), rtol=5e-5
-    #         )
+        # Eko bottom mass is the same
+        np.testing.assert_allclose(my_masses_thr[1], my_masses_plain[1])
+        # Eko charm mass is not the same
+        np.testing.assert_raises(
+            AssertionError,
+            np.testing.assert_allclose,
+            my_masses_thr[0],
+            my_masses_plain[0],
+        )
+
+        # Apfel bottom masses are not the same
+        np.testing.assert_raises(
+            AssertionError,
+            np.testing.assert_allclose,
+            apfel_masses_thr[0],
+            apfel_masses_plain[0],
+        )
+        np.testing.assert_raises(
+            AssertionError,
+            np.testing.assert_allclose,
+            apfel_masses_thr[0],
+            apfel_masses_plain[0],
+        )

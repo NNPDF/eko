@@ -172,6 +172,56 @@ def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
     return msbar_ker_exact(a0, a1, order, nf)
 
 
+def compute_matching_coeffs_up(nf):
+    """
+    |MSbar| matching coefficients :cite:`Liu:2015fxa` at threshold
+    when moving to a regime with *more* flavors.
+
+    Note :cite:`Liu:2015fxa` (eq 5.) reports the backward relation,
+    multiplied by a factor of 4 (and 4^2 ...)
+
+    Parameters
+    ----------
+        nf:
+            number of active flavors in the lower patch
+
+    Returns
+    -------
+        matching_coeffs_up:
+            downward matching coefficient matrix
+    """
+    matching_coeffs_up = np.zeros((4, 4))
+    matching_coeffs_up[2, 0] = -89.0 / 27.0
+    matching_coeffs_up[2, 1] = 20.0 / 9.0
+    matching_coeffs_up[2, 2] = -4.0 / 3.0
+
+    matching_coeffs_up[3, 0] = -118.248 - 1.58257 * nf
+    matching_coeffs_up[3, 1] = 71.7887 + 7.85185 * nf
+    matching_coeffs_up[3, 2] = -700.0 / 27.0
+    matching_coeffs_up[3, 3] = -232.0 / 27.0 + 16.0 / 27.0 * nf
+
+    return matching_coeffs_up
+
+
+def compute_matching_coeffs_down(nf):
+    """
+    |MSbar| matching coefficients :cite:`Liu:2015fxa` (eq 5) at threshold
+    when moving to a regime with *less* flavors.
+
+    Parameters
+    ----------
+        nf:
+            number of active flavors in the lower patch
+
+    Returns
+    -------
+        matching_coeffs_down:
+            downward matching coefficient matrix
+    """
+    _c = compute_matching_coeffs_up(nf)
+    return invert_matching_coeffs(_c)
+
+
 def solve_msbar_mass(
     m2_ref,
     q2m_ref,
@@ -292,56 +342,6 @@ def evolve_msbar_mass(
     return m2_ref * ev_mass
 
 
-def compute_matching_coeffs_up(nf):
-    """
-    |MSbar| matching coefficients :cite:`Liu:2015fxa` at threshold
-    when moving to a regime with *more* flavors.
-
-    Note :cite:`Liu:2015fxa` (eq 5.) reports the backward relation,
-    multiplied by a factor of 4 (and 4^2 ...)
-
-    Parameters
-    ----------
-        nf:
-            number of active flavors in the lower patch
-
-    Returns
-    -------
-        matching_coeffs_up:
-            downward matching coefficient matrix
-    """
-    matching_coeffs_up = np.zeros((4, 4))
-    matching_coeffs_up[2, 0] = -89.0 / 27.0
-    matching_coeffs_up[2, 1] = 20.0 / 9.0
-    matching_coeffs_up[2, 2] = -4.0 / 3.0
-
-    matching_coeffs_up[3, 0] = -118.248 - 1.58257 * nf
-    matching_coeffs_up[3, 1] = 71.7887 + 7.85185 * nf
-    matching_coeffs_up[3, 2] = -700.0 / 27.0
-    matching_coeffs_up[3, 3] = -232.0 / 27.0 + 16.0 / 27.0 * nf
-
-    return matching_coeffs_up
-
-
-def compute_matching_coeffs_down(nf):
-    """
-    |MSbar| matching coefficients :cite:`Liu:2015fxa` (eq 5) at threshold
-    when moving to a regime with *less* flavors.
-
-    Parameters
-    ----------
-        nf:
-            number of active flavors in the lower patch
-
-    Returns
-    -------
-        matching_coeffs_down:
-            downward matching coefficient matrix
-    """
-    _c = compute_matching_coeffs_up(nf)
-    return invert_matching_coeffs(_c)
-
-
 def compute_msbar_mass(theory_card):
     r"""
     Compute the |MSbar| masses solving the equation :math:`m_{\bar{MS}}(\mu) = \mu`
@@ -447,7 +447,7 @@ def compute_msbar_mass(theory_card):
     # what if we check just the mass ordering?
     # Check the msbar ordering
     if not (masses == np.sort(masses)).all():
-        raise ValueError("masses need to be sorted")
+        raise ValueError("Msbar masses are not to be sorted")
     # for m2_msbar, hq in zip(masses[:-1], quark_names[4:]):
     #     q2m_ref = np.power(theory_card[f"Qm{hq}"], 2)
     #     m2_ref = np.power(theory_card[f"m{hq}"], 2)

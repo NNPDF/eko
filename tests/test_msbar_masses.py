@@ -56,7 +56,7 @@ class TestMsbarMasses:
                             q2_to=m2_computed[nf - 3],
                         )
                     )
-                np.testing.assert_allclose(m2_computed, m2_test, rtol=9e-3 if order==3 else 5e-3)
+                np.testing.assert_allclose(m2_computed, m2_test, rtol=4e-3)
 
     def test_compute_msbar_mass_VFNS(self):
         # test the solution now with some initial contition
@@ -64,7 +64,7 @@ class TestMsbarMasses:
         theory_dict.update(
             {
                 "ModEv": "TRN",
-                "PTO": 2,
+                "PTO": 3,
                 "mc": 2.0,
                 "mb": 4.0,
                 "Qmc": 80.0,
@@ -88,7 +88,7 @@ class TestMsbarMasses:
                     q2_to=m2_computed[nf - 3],
                 )
             )
-        np.testing.assert_allclose(m2_computed, m2_test, rtol=5e-3)
+        np.testing.assert_allclose(m2_computed, m2_test, rtol=3e-3)
 
     def test_errors(self):
 
@@ -103,7 +103,7 @@ class TestMsbarMasses:
         #         )
         #     )
         #     compute_msbar_mass(theory_dict)
-        with pytest.raises(ValueError, match="masses need to be sorted"):
+        with pytest.raises(ValueError, match="Msbar masses are not to be sorted"):
             theory_dict.update(
                 dict(
                     mc=1.1,
