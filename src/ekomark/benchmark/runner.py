@@ -8,13 +8,14 @@ import os
 import sys
 
 import pandas as pd
+from banana import cfg as banana_cfg
 from banana.benchmark.runner import BenchmarkRunner
 from banana.data import dfdict
 
 import eko
 from eko import basis_rotation as br
 
-from .. import banana_cfg, pdfname
+from .. import pdfname
 from ..data import db, operators
 
 
