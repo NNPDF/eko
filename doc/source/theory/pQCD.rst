@@ -27,19 +27,19 @@ We implement two different strategies to solve the |RGE|:
     a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) &= a^{\text{LO}}_s(\mu_R^2)-b_1 \left[a^{\text{LO}}_s(\mu_R^2)\right]^2 \ln\left(1+a_s(\mu_0^2) \beta_0 L_{\mu}\right) \\
     a^{\text{NNLO}}_{s,\text{exp}}(\mu_R^2) &= a^{\text{LO}}_s(\mu_R^2)\left[1 + a^{\text{LO}}_s(\mu_R^2)\left(a^{\text{LO}}_s(\mu_R^2) - a_s(\mu_0^2)\right)(b_2 - b_1^2) \right.\\
                                         & \hspace{60pt} \left. + a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2) b_1 \ln\left(a^{\text{NLO}}_{s,\text{exp}}(\mu_R^2)/a_s(\mu_0^2)\right)\right] \\
-    a^{\text{N3LO}}_{s,\text{exp}}(\mu_R^2) &= a^{\text{NNLO}}_s(\mu_R^2) + \frac{a^{\text{LO}}_s(\mu_R^2)^4}{2 b_0^3 \left(1 + b_0 L_{\mu}  a^{\text{LO}}_s(\mu_R^2)\right)^4} \left\{ \right. \\
-                & -2 b_1^3 L_{\text{LO}}^3 + 5 b_1^3 L_{\alpha_s}^2 + 2 b_1^3  L_{\alpha_s}^3 + b_1^3 L_{\text{LO}}^2 \left(5 + 6  L_{\alpha_s} \right) \\
-                & + 2 b_0 b_1  L_{\alpha_s} \left[ b_2 + 2 \left(b_1^2 - b_0 b_2 \right) L_{\mu} a^{\text{LO}}_s(\mu_R^2) \right] \\
-                & - b_0^2 L_{\mu} a^{\text{LO}}_s(\mu_R^2) \left[ -2 b_1 b_2 + 2 b_0 b_3 + \left( b_1^3 - 2 b_0 b_1 b_2 + b_0^2 b_3 \right) L_{\mu} a^{\text{LO}}_s(\mu_R^2) \right] \\
-                & - 2 b_1 L_{\text{LO}} \left[ 5 b_1^2  L_{\alpha_s} + 3 b_1^2  L_{\alpha_s}^2 + b_0 \left[b_2 + 2 \left(b_1^2 - b_0 b_2\right) L_{\mu} a^{\text{LO}}_s(\mu_R^2)\right] \right ] \\
+    a^{\text{N3LO}}_{s,\text{exp}}(\mu_R^2) &= a^{\text{NNLO}}_s(\mu_R^2) + \frac{a^{\text{LO}}_s(\mu_R^2)^4}{2 b_0^3} \left\{ \right. \\
+                & -2 b_1^3 L_{0}^3 + 5 b_1^3 L_{\text{LO}}^2 + 2 b_1^3  L_{\text{LO}}^3 + b_1^3 L_{0}^2 \left(5 + 6  L_{\text{LO}} \right) \\
+                & + 2 b_0 b_1  L_{\text{LO}} \left[ b_2 + 2 \left(b_1^2 - b_0 b_2 \right) L_{\mu} a_s(\mu_0^2) \right] \\
+                & - b_0^2 L_{\mu} a_s(\mu_0^2) \left[ -2 b_1 b_2 + 2 b_0 b_3 + \left( b_1^3 - 2 b_0 b_1 b_2 + b_0^2 b_3 \right) L_{\mu} a_s(\mu_0^2) \right] \\
+                & - 2 b_1 L_{0} \left[ 5 b_1^2  L_{\text{LO}} + 3 b_1^2  L_{\text{LO}}^2 + b_0 \left[b_2 + 2 \left(b_1^2 - b_0 b_2\right) L_{\mu} a_s(\mu_0^2)\right] \right ] \\
                 & \left. \right\}
 
 being: 
 
 .. math ::
     L_{\mu} &= \ln(\mu_R^2/\mu_0^2) \\
+    L_{0} &= \ln(a_s(\mu_0^2)) \\
     L_{\text{LO}} &= \ln(a^{\text{LO}}_s(\mu_R^2)) \\
-    L_{\alpha_s} &= \ln \left( \frac{a^{\text{LO}}_s(\mu_R^2)}{(1 + b_0 L_{\mu} a^{\text{LO}}_s(\mu_R^2)} \right) \\
 
 When the renormalization scale crosses a flavor threshold matching conditions
 have to be applied :cite:`Schroder:2005hy,Chetyrkin:2005ia`.

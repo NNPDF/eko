@@ -174,7 +174,7 @@ class TestStrongCoupling:
         m2b = 25
         m2t = 30625
         threshold_list = [m2c, m2b, m2t]
-        mathematica_val = -0.000101654
+        mathematica_val = -0.000169117
         # collect my values
         as_NNLO = StrongCoupling(
             alphas_ref,

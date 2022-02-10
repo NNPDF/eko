@@ -82,37 +82,37 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
             # than the APFEL expansion which is more accurate
             if order >= 3:
                 b3 = b(3, nf)
-                log_fact = np.log(as_LO / (1 + beta0 * lmu * as_LO))
+                log_fact = np.log(as_LO)
                 res += (
                     as_LO ** 4
-                    / (2 * beta0 ** 3 * (1 + beta0 * lmu * as_LO) ** 4)
+                    / (2 * beta0 ** 3)
                     * (
-                        -2 * b1 ** 3 * np.log(as_LO) ** 3
+                        -2 * b1 ** 3 * np.log(as_ref) ** 3
                         + 5 * b1 ** 3 * log_fact ** 2
                         + 2 * b1 ** 3 * log_fact ** 3
-                        + b1 ** 3 * np.log(as_LO) ** 2 * (5 + 6 * log_fact)
+                        + b1 ** 3 * np.log(as_ref) ** 2 * (5 + 6 * log_fact)
                         + 2
                         * beta0
                         * b1
                         * log_fact
-                        * (b2 + 2 * (b1 ** 2 - beta0 * b2) * lmu * as_LO)
+                        * (b2 + 2 * (b1 ** 2 - beta0 * b2) * lmu * as_ref)
                         - beta0 ** 2
                         * lmu
-                        * as_LO
+                        * as_ref
                         * (
                             -2 * b1 * b2
                             + 2 * beta0 * b3
                             + (b1 ** 3 - 2 * beta0 * b1 * b2 + beta0 ** 2 * b3)
                             * lmu
-                            * as_LO
+                            * as_ref
                         )
                         - 2
                         * b1
-                        * np.log(as_LO)
+                        * np.log(as_ref)
                         * (
                             5 * b1 ** 2 * log_fact
                             + 3 * b1 ** 2 * log_fact ** 2
-                            + beta0 * (b2 + 2 * (b1 ** 2 - beta0 * b2) * lmu * as_LO)
+                            + beta0 * (b2 + 2 * (b1 ** 2 - beta0 * b2) * lmu * as_ref)
                         )
                     )
                 )
@@ -510,12 +510,14 @@ def invert_matching_coeffs(c_up):
             downward matching coefficient matrix
     """
     matching_coeffs_down = np.zeros_like(c_up)
-    matching_coeffs_down[1, 1] = - c_up[1, 1]
-    matching_coeffs_down[2, 0] = - c_up[2, 0]
-    matching_coeffs_down[2, 1] = - c_up[2, 1]
+    matching_coeffs_down[1, 1] = -c_up[1, 1]
+    matching_coeffs_down[2, 0] = -c_up[2, 0]
+    matching_coeffs_down[2, 1] = -c_up[2, 1]
     matching_coeffs_down[2, 2] = 2.0 * c_up[1, 1] ** 2 - c_up[2, 2]
-    matching_coeffs_down[3, 0] = - c_up[3, 0]
-    matching_coeffs_down[3, 1] = 5 *c_up[1, 1] * c_up[2, 0] - c_up[3, 1]
+    matching_coeffs_down[3, 0] = -c_up[3, 0]
+    matching_coeffs_down[3, 1] = 5 * c_up[1, 1] * c_up[2, 0] - c_up[3, 1]
     matching_coeffs_down[3, 2] = 5 * c_up[1, 1] * c_up[2, 1] - c_up[3, 2]
-    matching_coeffs_down[3, 3] = -5 * c_up[1, 1] ** 3 + 5 * c_up[1, 1] * c_up[2, 2] - c_up[3, 3]
+    matching_coeffs_down[3, 3] = (
+        -5 * c_up[1, 1] ** 3 + 5 * c_up[1, 1] * c_up[2, 2] - c_up[3, 3]
+    )
     return matching_coeffs_down
