@@ -441,25 +441,7 @@ def compute(theory_card):
             fact_to_ren,
         )
 
-    # TODO: this test seems to be quite hard to contradict
-    # what if we check just the mass ordering?
     # Check the msbar ordering
     if not (masses == np.sort(masses)).all():
         raise ValueError("Msbar masses are not to be sorted")
-    # for m2_msbar, hq in zip(masses[:-1], quark_names[4:]):
-    #     q2m_ref = np.power(theory_card[f"Qm{hq}"], 2)
-    #     m2_ref = np.power(theory_card[f"m{hq}"], 2)
-    #     # check that m_msbar_hq < msbar_hq+1 (m_msbar_hq)
-    #     m2_test = evolve_msbar_mass(
-    #         m2_ref,
-    #         q2m_ref,
-    #         sc(masses),
-    #         fact_to_ren,
-    #         m2_msbar,
-    #     )
-    #     if m2_msbar >= m2_test:
-    #         raise ValueError(
-    #             "The MSBAR masses do not preserve the correct ordering,\
-    #                 check the initial reference values"
-    #         )
     return masses

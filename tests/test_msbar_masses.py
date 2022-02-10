@@ -93,16 +93,6 @@ class TestMsbarMasses:
     def test_errors(self):
 
         # test mass ordering
-        # with pytest.raises(ValueError, match="do not preserve the correct ordering"):
-        #     theory_dict.update(
-        #         dict(
-        #             mc=1.009,
-        #             mb=1.01,
-        #             Qmc=1.012,
-        #             Qmb=1.01,
-        #         )
-        #     )
-        #     compute_msbar_mass(theory_dict)
         with pytest.raises(ValueError, match="Msbar masses are not to be sorted"):
             theory_dict.update(
                 dict(

@@ -174,10 +174,11 @@ To find coherent solutions and perform the mass running in the correct patches i
 is necessary to always start computing the mass scales closer to :math:`\mu_{ref}`.
 
 Eventually, to ensure that the threshold values are properly set, we add a
-consistency check, asserting:
+consistency check, asserting that the :math:`m_{\overline{MS},h}` are properly sorted.
 
-.. math ::
-    m_{\overline{MS},h} (m_h) \leq m_{\overline{MS},h+1} (m_h)
+Note that also for |MSbar| mass running when the heavy threshold scales are
+crossed we need to apply non trivial matching from order
+:math:`\mathcal{O}(a_s^2)` as described here :cite:`Liu:2015fxa`.
 
 We provide the following as an illustrative example of how this procedure works:
 when the strong coupling is given with boundary condition :math:`\alpha_s(\mu_{ref}=91, n_{f_{ref}}=5)`
