@@ -5,8 +5,8 @@
 import numpy as np
 import pytest
 
+from eko import msbar_masses
 from eko.evolution_operator.flavors import quark_names
-from eko.msbar_masses import compute_msbar_mass, evolve_msbar_mass
 from eko.strong_coupling import StrongCoupling
 
 theory_dict = {
@@ -41,14 +41,14 @@ class TestMsbarMasses:
                 strong_coupling = StrongCoupling.from_dict(theory_dict)
 
                 # compute the scale such msbar(m) = m
-                m2_computed = compute_msbar_mass(theory_dict)
+                m2_computed = msbar_masses.compute(theory_dict)
                 m2_test = []
                 for nf in [3, 4, 5]:
                     # compute msbar( m )
                     m2_ref = theory_dict[f"m{quark_names[nf]}"] ** 2
                     Q2m_ref = theory_dict[f"Qm{quark_names[nf]}"] ** 2
                     m2_test.append(
-                        evolve_msbar_mass(
+                        msbar_masses.evolve(
                             m2_ref,
                             Q2m_ref,
                             strong_coupling=strong_coupling,
@@ -73,14 +73,14 @@ class TestMsbarMasses:
         )
         strong_coupling = StrongCoupling.from_dict(theory_dict)
         # compute the scale such msbar(m) = m
-        m2_computed = compute_msbar_mass(theory_dict)
+        m2_computed = msbar_masses.compute(theory_dict)
         m2_test = []
         for nf in [3, 4, 5]:
             # compute msbar( m )
             m2_ref = theory_dict[f"m{quark_names[nf]}"] ** 2
             Q2m_ref = theory_dict[f"Qm{quark_names[nf]}"] ** 2
             m2_test.append(
-                evolve_msbar_mass(
+                msbar_masses.evolve(
                     m2_ref,
                     Q2m_ref,
                     strong_coupling=strong_coupling,
@@ -112,26 +112,26 @@ class TestMsbarMasses:
                     Qmb=1.0,
                 )
             )
-            compute_msbar_mass(theory_dict)
+            msbar_masses.compute(theory_dict)
 
         # test forward conditions on alphas_ref
         with pytest.raises(ValueError, match="should be lower than"):
             theory_dict.update(dict(Qmb=91.0001))
-            compute_msbar_mass(theory_dict)
+            msbar_masses.compute(theory_dict)
 
         # test backward conditions on alphas_ref
         with pytest.raises(ValueError, match="should be greater than"):
             theory_dict.update(dict(Qmt=89.9999))
-            compute_msbar_mass(theory_dict)
+            msbar_masses.compute(theory_dict)
 
         theory_dict.update(dict(Qmb=4.0, Qmt=175))
 
         # test forward conditions on masses
         with pytest.raises(ValueError, match="should be lower than m"):
             theory_dict.update(dict(mt=174))
-            compute_msbar_mass(theory_dict)
+            msbar_masses.compute(theory_dict)
 
         # test backward conditions on masses
         with pytest.raises(ValueError, match="should be greater than m"):
             theory_dict.update(dict(mb=4.1, mt=176))
-            compute_msbar_mass(theory_dict)
+            msbar_masses.compute(theory_dict)

@@ -9,8 +9,8 @@ import numpy as np
 
 from . import basis_rotation as br
 from . import interpolation
+from . import msbar_masses
 from .evolution_operator.grid import OperatorGrid
-from .msbar_masses import compute_msbar_mass
 from .output import Output
 from .strong_coupling import StrongCoupling
 from .thresholds import ThresholdsAtlas
@@ -49,7 +49,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         # setup the Threshold path, compute masses if necessary
         masses = None
         if theory_card["HQ"] == "MSBAR":
-            masses = compute_msbar_mass(theory_card)
+            masses = msbar_masses.compute(theory_card)
         tc = ThresholdsAtlas.from_dict(theory_card, masses=masses)
 
         self.out["q2_ref"] = float(tc.q2_ref)

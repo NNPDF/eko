@@ -2,7 +2,7 @@
 """This module benchmarks MSbar mass evolution against APFEL."""
 import numpy as np
 
-from eko.msbar_masses import compute_msbar_mass, evolve_msbar_mass, compute_msbar_mass
+from eko import msbar_masses
 from eko.strong_coupling import StrongCoupling
 
 # try to load APFEL - if not available, we'll use the cached values
@@ -109,7 +109,7 @@ class BenchmarkMSbar:
                     my_masses = []
                     for n in [3, 4, 5]:
                         my_masses.append(
-                            evolve_msbar_mass(
+                            msbar_masses.evolve(
                                 m2[n - 3],
                                 Q2m[n - 3],
                                 strong_coupling=as_VFNS,
@@ -163,7 +163,7 @@ class BenchmarkMSbar:
         # collect my values
         for order in [0, 1, 2]:
             theory_dict["PTO"] = order
-            my_masses = compute_msbar_mass(theory_dict)
+            my_masses = msbar_masses.compute(theory_dict)
             # get APFEL numbers - if available else use cache
             apfel_vals = apfel_vals_dict[theory_dict["ModEv"]][order]
             if use_APFEL:
@@ -209,7 +209,7 @@ class BenchmarkMSbar:
                 "PTO": 0,
             }
         )
-        my_masses_thr = compute_msbar_mass(theory_dict)
+        my_masses_thr = msbar_masses.compute(theory_dict)
         apfel_masses_thr = [1.9891, 4.5102, 175.0000]
         theory_dict.update(
             {
@@ -217,7 +217,7 @@ class BenchmarkMSbar:
                 "kbThr": 1.0,
             }
         )
-        my_masses_plain = compute_msbar_mass(theory_dict)
+        my_masses_plain = msbar_masses.compute(theory_dict)
         apfel_masses_plain = ([1.9855, 4.8062, 175.0000],)
 
         # Eko bottom mass is the same

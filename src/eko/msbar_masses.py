@@ -12,7 +12,7 @@ from .gamma import gamma
 from .strong_coupling import StrongCoupling, invert_matching_coeffs
 
 
-def msbar_ker_exact(a0, a1, order, nf):
+def ker_exact(a0, a1, order, nf):
     r"""
     Exact |MSbar| |RGE| kernel
 
@@ -29,12 +29,12 @@ def msbar_ker_exact(a0, a1, order, nf):
 
     Returns
     -------
-        ker: float
+        ker_exact: float
             Exact |MSbar| kernel:
 
             .. math::
-                k_{exact} = e^{- \int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)} \gamma_m(a_s) / \beta(a_s) da_s}
-    """  # pylint:disable=line-too-long
+                k_{exact} = e^{-\int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)}\gamma_m(a_s)/ \beta(a_s)da_s}
+    """
     b_vec = [beta(0, nf)]
     g_vec = [gamma(0, nf)]
     if order >= 1:
@@ -69,7 +69,7 @@ def msbar_ker_exact(a0, a1, order, nf):
 
 
 @nb.njit("f8(f8,f8,u1,u1)", cache=True)
-def msbar_ker_expanded(a0, a1, order, nf):
+def ker_expanded(a0, a1, order, nf):
     r"""
     Expanded |MSbar| |RGE| kernel
 
@@ -86,7 +86,7 @@ def msbar_ker_expanded(a0, a1, order, nf):
 
     Returns
     -------
-        ker: float
+        ker_expanded: float
             Expanded |MSbar| kernel:
 
             .. math::
@@ -140,7 +140,7 @@ def msbar_ker_expanded(a0, a1, order, nf):
     return ev_mass * num / den
 
 
-def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
+def ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
     r"""
     Select the |MSbar| kernel and compute the strong coupling values
 
@@ -168,8 +168,8 @@ def msbar_ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
     method = strong_coupling.method
     order = strong_coupling.order
     if method == "expanded":
-        return msbar_ker_expanded(a0, a1, order, nf)
-    return msbar_ker_exact(a0, a1, order, nf)
+        return ker_expanded(a0, a1, order, nf)
+    return ker_exact(a0, a1, order, nf)
 
 
 def compute_matching_coeffs_up(nf):
@@ -222,7 +222,7 @@ def compute_matching_coeffs_down(nf):
     return invert_matching_coeffs(c_up)
 
 
-def solve_msbar_mass(
+def solve(
     m2_ref,
     q2m_ref,
     strong_coupling,
@@ -256,8 +256,7 @@ def solve_msbar_mass(
     def rge(m2, q2m_ref, strong_coupling, fact_to_ren, nf_ref):
         return (
             m2_ref
-            * msbar_ker_dispatcher(m2, q2m_ref, strong_coupling, fact_to_ren, nf_ref)
-            ** 2
+            * ker_dispatcher(m2, q2m_ref, strong_coupling, fact_to_ren, nf_ref) ** 2
             - m2
         )
 
@@ -267,7 +266,7 @@ def solve_msbar_mass(
     return float(msbar_mass)
 
 
-def evolve_msbar_mass(
+def evolve(
     m2_ref,
     q2m_ref,
     strong_coupling,
@@ -336,13 +335,12 @@ def evolve_msbar_mass(
                 fact += as_thr ** pto * L ** l * m_coeffs[pto, l]
         ev_mass *= (
             fact
-            * msbar_ker_dispatcher(q2_final, q2_init, strong_coupling, fact_to_ren, nf)
-            ** 2
+            * ker_dispatcher(q2_final, q2_init, strong_coupling, fact_to_ren, nf) ** 2
         )
     return m2_ref * ev_mass
 
 
-def compute_msbar_mass(theory_card):
+def compute(theory_card):
     r"""
     Compute the |MSbar| masses solving the equation :math:`m_{\bar{MS}}(\mu) = \mu`
     for each heavy quark and consistent boundary contitions.
@@ -425,7 +423,7 @@ def compute_msbar_mass(theory_card):
         # len(masses[q2m_ref > masses]) + 3 is the nf at the given reference scale
         if nf_target != len(masses[q2m_ref > masses]) + 3:
             q2_to = masses[q_idx + shift]
-            m2_ref = evolve_msbar_mass(
+            m2_ref = evolve(
                 m2_ref,
                 q2m_ref,
                 sc(masses),
@@ -435,7 +433,7 @@ def compute_msbar_mass(theory_card):
             q2m_ref = q2_to
 
         # now solve the RGE
-        masses[q_idx] = solve_msbar_mass(
+        masses[q_idx] = solve(
             m2_ref,
             q2m_ref,
             sc(masses),
