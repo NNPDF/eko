@@ -218,8 +218,8 @@ def compute_matching_coeffs_down(nf):
         matching_coeffs_down:
             downward matching coefficient matrix
     """
-    _c = compute_matching_coeffs_up(nf)
-    return invert_matching_coeffs(_c)
+    c_up = compute_matching_coeffs_up(nf)
+    return invert_matching_coeffs(c_up)
 
 
 def solve_msbar_mass(

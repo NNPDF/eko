@@ -477,8 +477,8 @@ def compute_matching_coeffs_down(mass_scheme, nf):
         matching_coeffs_down:
             downward matching coefficient matrix
     """
-    _c = compute_matching_coeffs_up(mass_scheme, nf)
-    return invert_matching_coeffs(_c)
+    c_up = compute_matching_coeffs_up(mass_scheme, nf)
+    return invert_matching_coeffs(c_up)
 
 
 def invert_matching_coeffs(c_up):
