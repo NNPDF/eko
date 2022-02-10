@@ -17,7 +17,7 @@ zeta5 = scipy.special.zeta(5)
 
 
 @nb.njit("c16(c16,u1)", cache=True)
-def cern_polygamma(Z, K: int):  # pylint: disable=all
+def cern_polygamma(Z, K):  # pylint: disable=all
     """
     Computes the polygamma functions :math:`\\psi_k(z)`.
 

@@ -25,7 +25,7 @@ def gamma_0():
 
 
 @nb.njit("f8(u1)", cache=True)
-def gamma_1(nf: int):
+def gamma_1(nf):
     """
     Computes the second coefficient of the QCD gamma function.
 
@@ -45,7 +45,7 @@ def gamma_1(nf: int):
 
 
 @nb.njit("f8(u1)", cache=True)
-def gamma_2(nf: int):
+def gamma_2(nf):
     """
     Computes the third coefficient of the QCD gamma function.
 
@@ -65,7 +65,7 @@ def gamma_2(nf: int):
 
 
 @nb.njit("f8(u1)", cache=True)
-def gamma_3(nf: int):
+def gamma_3(nf):
     """
     Computes the fourth coefficient of the QCD gamma function.
 
@@ -98,7 +98,7 @@ def gamma_3(nf: int):
 
 
 @nb.njit("f8(u1,u1)", cache=True)
-def gamma(order, nf: int):
+def gamma(order, nf):
     """
     Compute the value of a gamma coefficient
 

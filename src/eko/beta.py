@@ -12,7 +12,7 @@ from eko.anomalous_dimensions.harmonics import zeta3
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_0(nf: int):
+def beta_0(nf):
     """
     Computes the first coefficient of the QCD beta function.
 
@@ -33,7 +33,7 @@ def beta_0(nf: int):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_1(nf: int):
+def beta_1(nf):
     """
     Computes the second coefficient of the QCD beta function.
 
@@ -58,7 +58,7 @@ def beta_1(nf: int):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_2(nf: int):
+def beta_2(nf):
     """
     Computes the third coefficient of the QCD beta function
 
@@ -87,7 +87,7 @@ def beta_2(nf: int):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_3(nf: int):
+def beta_3(nf):
     """
     Computes the fourth coefficient of the QCD beta function
 
