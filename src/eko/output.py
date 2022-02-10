@@ -11,7 +11,7 @@ import warnings
 
 import numpy as np
 import yaml
-from lz4 import frame
+from lz4 import frame as lz4_frame
 
 from . import basis_rotation as br
 from . import interpolation, version
@@ -308,7 +308,7 @@ class Output(dict):
                         out["Q2grid"][q2][k] = float(v)
                         continue
                     if binarize:
-                        out["Q2grid"][q2][k] = frame.compress(v.tobytes())
+                        out["Q2grid"][q2][k] = lz4_frame.compress(v.tobytes())
                     else:
                         out["Q2grid"][q2][k] = v.tolist()
         else:
@@ -393,7 +393,7 @@ class Output(dict):
                 stream = io.BytesIO()
                 np.save(stream, operator)
                 stream.seek(0)
-                with frame.open(
+                with lz4_frame.open(
                     (tmpdir / kind).with_suffix(".npy.lz4"), "wb"
                 ) as fo:
                     fo.write(stream.read())
@@ -436,7 +436,7 @@ class Output(dict):
                     elif isinstance(v, list):
                         v = np.array(v)
                     elif isinstance(v, bytes):
-                        v = np.frombuffer(frame.decompress(v))
+                        v = np.frombuffer(lz4_frame.decompress(v))
                         v = v.reshape(len_tpids, len_tgrid, len_ipids, len_igrid)
                     op[k] = v
         return cls(obj)
@@ -500,7 +500,7 @@ class Output(dict):
 
             grids = {}
             for fp in innerdir.glob("*.npy.lz4"):
-                with frame.open(fp, "rb") as fd:
+                with lz4_frame.open(fp, "rb") as fd:
                     stream = io.BytesIO(fd.read())
                     stream.seek(0)
                     grids[pathlib.Path(fp.stem).stem] = np.load(stream)

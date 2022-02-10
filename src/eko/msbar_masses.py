@@ -245,7 +245,7 @@ def solve(
         nf_ref: int
             number of active flavours at the scale q2m_ref, where the solution is searched
         fact_to_ren: float
-            :math:`\mu_F^2/\muR^2`
+            :math:`\mu_F^2/\mu_R^2`
 
     Returns
     -------
@@ -287,7 +287,7 @@ def evolve(
             Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
             any q
         fact_to_ren: float
-            :math:`\mu_F^2/\muR^2`
+            :math:`\mu_F^2/\mu_R^2`
         q2_to: float, optional
             scale at which the mass is computed
 

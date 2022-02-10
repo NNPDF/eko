@@ -93,8 +93,8 @@ class BenchmarkVFNS(ApfelBenchmark):
         MSbar heavy quark mass scheme
         when  passing kthr != 1 both apfel and eko use ``kThr * msbar``,
         as thr scale, where ``msbar`` is the usual ms_bar solution.
-        However apfel and eko mange the alpha_s thr differently
-        (apfel uses the given mass parameters as thr multipied by the kthr),
+        However apfel and eko manage the alpha_s thr differently:
+        apfel uses the given mass parameters as thr multiplied by the kthr,
         while in eko only the already computed thr matters, so the
         benchmark is not a proper comparison with this option allowed.
         """

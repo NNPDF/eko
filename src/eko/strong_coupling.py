@@ -13,7 +13,8 @@ import numpy as np
 import scipy
 
 from . import constants, thresholds
-from .beta import b, beta
+from .beta import b as beta_b
+from .beta import beta
 
 logger = logging.getLogger(__name__)
 
@@ -67,12 +68,12 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
     res = as_LO
     # NLO
     if order >= 1:
-        b1 = b(1, nf)
+        b1 = beta_b(1, nf)
         as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
         res = as_NLO
         # NNLO
         if order >= 2:
-            b2 = b(2, nf)
+            b2 = beta_b(2, nf)
             res = as_LO * (
                 1.0
                 + as_LO * (as_LO - as_ref) * (b2 - b1 ** 2)
@@ -81,7 +82,7 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
             # N3LO expansion is taken from Luca Rottoli and it's simpler
             # than the APFEL expansion which is more accurate
             if order >= 3:
-                b3 = b(3, nf)
+                b3 = beta_b(3, nf)
                 log_fact = np.log(as_LO)
                 res += (
                     as_LO ** 4
@@ -295,13 +296,13 @@ class StrongCoupling:
         b_vec = [1]
         # NLO
         if self.order >= 1:
-            b_vec.append(b(1, nf))
+            b_vec.append(beta_b(1, nf))
             # NNLO
             if self.order >= 2:
-                b_vec.append(b(2, nf))
+                b_vec.append(beta_b(2, nf))
                 # N3LO
                 if self.order >= 3:
-                    b_vec.append(b(3, nf))
+                    b_vec.append(beta_b(3, nf))
         # integration kernel
         def rge(_t, a, b_vec):
             return -(a ** 2) * np.sum([a ** k * b for k, b in enumerate(b_vec)])

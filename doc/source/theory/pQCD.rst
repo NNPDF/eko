@@ -43,7 +43,7 @@ being:
 
 When the renormalization scale crosses a flavor threshold matching conditions
 have to be applied :cite:`Schroder:2005hy,Chetyrkin:2005ia`.
-In particular the matching when passing form :math:`n_f` to :math:`n_f-1` schemes 
+In particular, the matching involved in the change from :math:`n_f` to :math:`n_f-1` schemes 
 is presented in equation 3.1 of :cite:`Schroder:2005hy` for |MSbar| masses, while the
 same expression for POLE masses is reported in Appendix A.
 
