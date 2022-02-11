@@ -112,3 +112,21 @@ def test_rotate_matching_is_inv():
         m = load(flavors.rotate_matching(nf))
         minv = load(flavors.rotate_matching_inverse(nf))
         np.testing.assert_allclose(m @ minv, np.eye(len(br.evol_basis)), atol=1e-10)
+
+def test_pids_from_iuev():
+    for nf in range(3, 6+1):
+        labels = br.iuev_labels(nf)
+        for lab in labels:
+            n = flavors.pids_from_iuev(lab, nf, True)
+            for lab2 in labels:
+                n2 = flavors.pids_from_iuev(lab2, nf, False)
+                if lab == lab2:
+                    np.testing.assert_allclose(n @ n2, 1.)
+                else:
+                    np.testing.assert_allclose(n @ n2, 0., atol=1e-10, err_msg=f"{lab} is not orthogonal to {lab2} in nf={nf}")
+    with pytest.raises(ValueError):
+        flavors.pids_from_iuev("V3",4,True)
+    with pytest.raises(ValueError):
+        flavors.pids_from_iuev("T0",7,True)
+    with pytest.raises(ValueError):
+        flavors.pids_from_iuev("V0",7,True)

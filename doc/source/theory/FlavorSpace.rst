@@ -151,11 +151,22 @@ For :math:`n_f=3` light flavors we find:
 .. math ::
   \Sigma_{(3)} &= u^+ + d^+ + s^+\\
   V_{(3)} &= u^- + d^- + s^-\\
-  T_0 &= 2u^+ - d^+ - s^+\\
+  T_{0,(3)} &= 2u^+ - d^+ - s^+\\
   T_1^d &= d^+ - s^+\\
-  V_0 &= 2u^- - d^- - s^-\\
+  V_{0,(3)} &= 2u^- - d^- - s^-\\
   V_1^d &= d^- - s^-\\
-  \mathcal F \sim  \mathcal F_{iuev,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_0, V_1^d, T_0, T_1^d, c^+, c^-, b^+, b^-, t^+, t^-)
+  \mathcal F \sim  \mathcal F_{iuev,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_{0,(3)}, V_1^d, T_{0,(3)}, T_1^d, c^+, c^-, b^+, b^-, t^+, t^-)
+
+For :math:`n_f=4` light flavors we find:
+
+.. math ::
+  \Sigma_{(4)} &= u^+ + d^+ + s^+ + cˆ+\\
+  V_{(4)} &= u^- + d^- + s^- + cˆ-\\
+  T_{0,(4)} &= u^+ + cˆ+ - d^+ - s^+\\
+  T_1^u &= u^+ - c^+\\
+  V_{0,(4)} &= u^- + cˆ- - d^- - s^-\\
+  V_1^u &= u^- - c^-\\
+  \mathcal F \sim  \mathcal F_{iuev,4} &= \span(\gamma, g, \Sigma_{(4)}, V_{(4)}, V_{0,(4)}, V_1^d, T_{0,(4)}, T_1^d, V_1^u, T_1^u, b^+, b^-, t^+, t^-)
 
 Other Bases
 -----------

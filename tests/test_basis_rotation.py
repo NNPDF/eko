@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from eko import basis_rotation as br
 
@@ -40,3 +41,12 @@ def test_ad_projectors():
             atol=1e-15,
             err_msg=f"nf = {nf}",
         )
+
+
+def test_iuev_labels():
+    for nf in range(3, 6 + 1):
+        labels = br.iuev_labels(nf)
+        assert len(labels) == 14
+    # errors
+    with pytest.raises(ValueError):
+        br.iuev_labels(7)
