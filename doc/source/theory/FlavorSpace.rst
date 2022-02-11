@@ -89,10 +89,11 @@ The Intrinsic QCD Evolution Bases will explicitly depend on the number of light 
 For :math:`n_f=3` we define (the other cases are defined analogously):
 
 .. math ::
-    \mathcal F \sim  \mathcal F_{iev,3} = \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_3, V_8, T_3, T_8, c^+, c^-, b^+, b^-, t^+, t^-)
+  \Sigma_{(3)} &= u^+ + d^+ +s^+\\
+  V_{(3)} = u^- + d^- + s^-\\
+  \mathcal F \sim  \mathcal F_{iev,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_3, V_8, T_3, T_8, c^+, c^-, b^+, b^-, t^+, t^-)
 
-where we defined :math:`\Sigma_{(3)} = \sum\limits_{j=1}^3 q_j^+` and :math:`V_{(3)} = \sum\limits_{j=1}^3 q_j^-`
-(not to be confused with the usual :math:`V_3`).
+where :math:`V_{(3)}` is to be confused with the usual (QCD like) :math:`V_3`.
 
 - for :math:`n_f=6` the Intrinsic QCD Evolution Basis coincides with the QCD Evolution Basis: :math:`\mathcal F_{iev,6} = \mathcal F_{ev}`
 - this basis is *not* normalized with respect to the canonical Flavor Basis
@@ -107,8 +108,8 @@ where we defined :math:`\Sigma_{(3)} = \sum\limits_{j=1}^3 q_j^+` and :math:`V_{
 QED :math:`\otimes` QCD Evolution Basis
 ---------------------------------------
 
-In presence of QED corrections to DGLAP evolution equations, 
-the QCD Evolution basis does not decouple the distributions 
+In presence of QED corrections to DGLAP evolution equations,
+the QCD Evolution basis does not decouple the distributions
 as it was for the pure QCD evolution.
 In this case the QED :math:`\otimes` QCD evolution basis that performs the maximal decoupling is given by:
 
@@ -118,7 +119,7 @@ In this case the QED :math:`\otimes` QCD evolution basis that performs the maxim
   \Sigma &= \Sigma_u + \Sigma_d \\
   \Delta_\Sigma &= \Sigma_u - \Sigma_d \\
   V_u & = u^- + c^- + t^- \\
-  V_d & = d^- + s^- + b^- \\ 
+  V_d & = d^- + s^- + b^- \\
   V &= V_u + V_d \\
   \Delta_V &= V_u - V_d \\
   T_1^u &=u^+ - c^+ \\
@@ -129,18 +130,32 @@ In this case the QED :math:`\otimes` QCD evolution basis that performs the maxim
   V_2^u &=u^- + c^- - 2t^- \\
   V_1^d &=d^- - s^- \\
   V_2^d &=d^- + s^- - 2b^- \\
-  \mathcal F \sim  \mathcal F_{QED} &= \span(\gamma, g, \Sigma, \Delta_\Sigma, V, \Delta_V, T_1^u, T_2^u, T_1^d, T_2^d, V_1^u, V_2^u, V_1^d, V_2^d)
+  \mathcal F \sim  \mathcal F_{QED\otimes{}QCD} &= \span(\gamma, g, \Sigma, \Delta_\Sigma, V, \Delta_V, T_1^u, T_2^u, T_1^d, T_2^d, V_1^u, V_2^u, V_1^d, V_2^d)
 
 
 - :math:`T_1` and :math:`T_2` are just arbitrary names and do not follow any group representation like it was for the :ref:`theory/FlavorSpace:QCD Evolution Basis`
 - this basis is *not* normalized with respect to the canonical Flavor Basis
-- The singlet :math:`\Sigma` is just the QCD singlet 
-- The valence :math:`V` is just the QCD valence 
-
- 
+- The singlet :math:`\Sigma` is just the QCD singlet
+- The valence :math:`V` is just the QCD valence
 
 
+Intrinsic QED :math:`\otimes` QCD Evolution Basis
+-------------------------------------------------
 
+Again, we need the generalization to the presence of intrinsic (static) distributions.
+As QED can distinguish between up-like and down-like flavors the situation is again slightly
+more involved.
+
+For :math:`nf=3` light flavors we find:
+
+.. math ::
+  \Sigma_{(3)} &= u^+ + d^+ + s^+\\
+  V_{(3)} &= u^- + d^- + s^-\\
+  T_0 &= 2u^+ - d^+ - s^+\\
+  T_1^d &= d^+ - s^+\\
+  V_0 &= 2u^- - d^- - s^-\\
+  V_1^d &= d^- - s^-\\
+  \mathcal F \sim  \mathcal F_{iev,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_0, V_1^d, T_0, T_1^d, c^+, c^-, b^+, b^-, t^+, t^-)
 
 Other Bases
 -----------
@@ -179,10 +194,10 @@ Operator Anomalous Dimension Basis
 - this basis can *not* span any threshold but can only be used for a *fixed* number of flavors
 - all actual computations are done in this basis
 
-Operator Intrinsic Evolution Basis
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Operator Intrinsic QCD Evolution Basis
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- here we mean :ref:`theory/FlavorSpace:Intrinsic Evolution Bases` both in the input and the output space
+- here we mean :ref:`theory/FlavorSpace:Intrinsic QCD Evolution Bases` both in the input and the output space
 - this basis does **not** coincide with the :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis` as the decision on which operator of that
   basis is used is a non-trivial decision - see :doc:`Matching`
 - this basis has :math:`2n_f+ 3 = 15` elements
