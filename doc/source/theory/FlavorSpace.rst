@@ -146,7 +146,7 @@ Again, we need the generalization to the presence of intrinsic (static) distribu
 As QED can distinguish between up-like and down-like flavors the situation is again slightly
 more involved.
 
-For :math:`nf=3` light flavors we find:
+For :math:`n_f=3` light flavors we find:
 
 .. math ::
   \Sigma_{(3)} &= u^+ + d^+ + s^+\\
@@ -155,7 +155,7 @@ For :math:`nf=3` light flavors we find:
   T_1^d &= d^+ - s^+\\
   V_0 &= 2u^- - d^- - s^-\\
   V_1^d &= d^- - s^-\\
-  \mathcal F \sim  \mathcal F_{iev,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_0, V_1^d, T_0, T_1^d, c^+, c^-, b^+, b^-, t^+, t^-)
+  \mathcal F \sim  \mathcal F_{iuev,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_0, V_1^d, T_0, T_1^d, c^+, c^-, b^+, b^-, t^+, t^-)
 
 Other Bases
 -----------
