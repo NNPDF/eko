@@ -180,7 +180,7 @@ def j22_exact(a1, a0, nf):
     b1 = beta.b(1, nf)
     b2 = beta.b(2, nf)
     # allow Delta to be complex for nf = 6, the final result will be real
-    Delta = np.sqrt(complex(4 * b2 - b1 ** 2))
+    Delta = np.sqrt(complex(4 * b2 - b1**2))
     delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
         (b1 + 2 * a0 * b2) / Delta
     )
@@ -218,7 +218,7 @@ def j12_exact(a1, a0, nf):
     b1 = beta.b(1, nf)
     b2 = beta.b(2, nf)
     # allow Delta to be complex for nf = 6, the final result will be real
-    Delta = np.sqrt(complex(4 * b2 - b1 ** 2))
+    Delta = np.sqrt(complex(4 * b2 - b1**2))
     delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
         (b1 + 2 * a0 * b2) / Delta
     )
@@ -278,7 +278,7 @@ def j22_expanded(a1, a0, nf):
         j22_exp : float
             integral
     """
-    return 1 / (2 * beta.beta(0, nf)) * (a1 ** 2 - a0 ** 2)
+    return 1 / (2 * beta.beta(0, nf)) * (a1**2 - a0**2)
 
 
 @nb.njit("f8(f8,f8,u1)", cache=True)
@@ -305,7 +305,7 @@ def j12_expanded(a1, a0, nf):
             integral
     """
     b1 = beta.b(1, nf)
-    return 1 / beta.beta(0, nf) * (a1 - a0 - b1 / 2 * (a1 ** 2 - a0 ** 2))
+    return 1 / beta.beta(0, nf) * (a1 - a0 - b1 / 2 * (a1**2 - a0**2))
 
 
 @nb.njit("f8(f8,f8,u1)", cache=True)

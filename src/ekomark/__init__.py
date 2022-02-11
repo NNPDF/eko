@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 """
 Additional package to benchmark eko.
 """
 from eko import basis_rotation as br
+
 
 def pdfname(pid_or_name):
     """Return pdf name"""

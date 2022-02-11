@@ -50,7 +50,7 @@ def gamma_qg_0(N, nf: int):
       gamma_qg_0 : complex
         Leading-order quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
-    gamma = -(N ** 2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
+    gamma = -(N**2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
     result = 2.0 * constants.TR * 2.0 * nf * gamma
     return result
 
@@ -72,7 +72,7 @@ def gamma_gq_0(N):
       gamma_gq_0 : complex
         Leading-order gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
     """
-    gamma = -(N ** 2 + N + 2.0) / (N * (N + 1.0) * (N - 1.0))
+    gamma = -(N**2 + N + 2.0) / (N * (N + 1.0) * (N - 1.0))
     result = 2.0 * constants.CF * gamma
     return result
 

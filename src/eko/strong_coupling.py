@@ -77,7 +77,7 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
             b2 = beta2 / beta0
             res = as_LO * (
                 1.0
-                + as_LO * (as_LO - as_ref) * (b2 - b1 ** 2)
+                + as_LO * (as_LO - as_ref) * (b2 - b1**2)
                 + as_NLO * b1 * np.log(as_NLO / as_ref)
             )
 
@@ -213,7 +213,7 @@ class StrongCoupling:
                 [theory_card[f"m{q}"] / fact_to_ren for q in heavy_flavors], 2
             )
         else:
-            masses = masses / fact_to_ren ** 2
+            masses = masses / fact_to_ren**2
         thresholds_ratios = np.power(
             [theory_card[f"k{q}Thr"] for q in heavy_flavors], 2
         )
@@ -270,7 +270,7 @@ class StrongCoupling:
                 b_vec.append(b2)
         # integration kernel
         def rge(_t, a, b_vec):
-            return -(a ** 2) * np.sum([a ** k * b for k, b in enumerate(b_vec)])
+            return -(a**2) * np.sum([a**k * b for k, b in enumerate(b_vec)])
 
         # let scipy solve
         res = scipy.integrate.solve_ivp(
@@ -367,7 +367,7 @@ class StrongCoupling:
                 # shift
                 for n in range(1, self.order + 1):
                     for l in range(n + 1):
-                        fact += new_as ** n * L ** l * m_coeffs[n, l]
+                        fact += new_as**n * L**l * m_coeffs[n, l]
                 # shift
                 new_as *= fact
             final_as = new_as

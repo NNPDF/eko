@@ -18,7 +18,7 @@ class BenchmarkMSbar:
     def benchmark_APFEL_msbar_evolution(self):
         Q2s = np.power([1, 96, 150], 2)
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         thresholds_ratios = np.power((1.0, 1.0, 1.0), 2)
         Q2m = np.power([2.0, 4.5, 175], 2)
         m2 = np.power((1.4, 4.5, 175), 2)
