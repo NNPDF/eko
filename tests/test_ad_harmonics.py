@@ -84,7 +84,7 @@ def test_harmonic_Sx():
     """test harmonic sums S_x on real axis"""
     # test on real axis
     def sx(n, m):
-        return np.sum([1 / k ** m for k in range(1, n + 1)])
+        return np.sum([1 / k**m for k in range(1, n + 1)])
 
     ls = [harmonics.harmonic_S1, harmonics.harmonic_S2, harmonics.harmonic_S3]
     for k in range(1, 3 + 1):

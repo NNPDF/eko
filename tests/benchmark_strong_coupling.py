@@ -73,7 +73,7 @@ class BenchmarkStrongCoupling:
     def benchmark_APFEL_ffns(self):
         Q2s = [1e1, 1e2, 1e3, 1e4]
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         nf = 4
         apfel_vals_dict = {
             0: np.array(
@@ -138,7 +138,7 @@ class BenchmarkStrongCoupling:
     def benchmark_pegasus_ffns(self):
         Q2s = [1e1, 1e2, 1e3, 1e4]
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         nf = 4
         pegasus_vals_dict = {
             0: np.array(
@@ -208,9 +208,9 @@ class BenchmarkStrongCoupling:
             )
 
     def benchmark_APFEL_vfns(self):
-        Q2s = [1, 2 ** 2, 3 ** 2, 90 ** 2, 100 ** 2]
+        Q2s = [1, 2**2, 3**2, 90**2, 100**2]
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         threshold_list = np.power([2, 4, 175], 2)
         apfel_vals_dict = {
             0: np.array(
@@ -278,19 +278,19 @@ class BenchmarkStrongCoupling:
 
     def benchmark_APFEL_vfns_fact_to_ren(self):
         Q2s = [
-            1.5 ** 2,
-            2 ** 2,
-            3 ** 2,
-            4 ** 2,
-            70 ** 2,
-            80 ** 2,
-            90 ** 2,
-            100 ** 2,
-            110 ** 2,
-            120 ** 2,
+            1.5**2,
+            2**2,
+            3**2,
+            4**2,
+            70**2,
+            80**2,
+            90**2,
+            100**2,
+            110**2,
+            120**2,
         ]
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         fact_to_ren_lin_list = [0.567, 2.34]
         threshold_list = np.power([2, 2 * 4, 2 * 92], 2)
         apfel_vals_dict_list = [
@@ -391,14 +391,14 @@ class BenchmarkStrongCoupling:
                 as_VFNS = StrongCoupling(
                     alphas_ref,
                     scale_ref,
-                    1 / fact_to_ren_lin ** 2 * threshold_list,
+                    1 / fact_to_ren_lin**2 * threshold_list,
                     (1.0, 1.0, 1.0),
                     order=order,
                     method="exact",
                 )
                 my_vals = []
                 for Q2 in Q2s:
-                    my_vals.append(as_VFNS.a_s(Q2, fact_to_ren_lin ** 2 * Q2))
+                    my_vals.append(as_VFNS.a_s(Q2, fact_to_ren_lin**2 * Q2))
                 # get APFEL numbers - if available else use cache
                 apfel_vals = apfel_vals_dict[order]
                 if use_APFEL:
@@ -425,7 +425,7 @@ class BenchmarkStrongCoupling:
     def benchmark_APFEL_vfns_threshold(self):
         Q2s = np.power([30, 96, 150], 2)
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         threshold_list = np.power([30, 95, 240], 2)
         thresholds_ratios = np.power((2.34, 1.0, 0.5), 2)
         apfel_vals_dict = {
@@ -476,7 +476,7 @@ class BenchmarkStrongCoupling:
     def benchmark_APFEL_vfns_msbar(self):
         Q2s = np.power([30, 96, 150], 2)
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         thresholds_ratios = np.power((1.0, 1.0, 1.0), 2)
         Q2m = np.power([2.0, 2.0, 175], 2)
         m2 = np.power((1.4, 2.0, 175), 2)
@@ -535,7 +535,7 @@ class BenchmarkStrongCoupling:
         """test FFNS LO towards LHAPDF"""
         Q2s = [1, 1e1, 1e2, 1e3, 1e4]
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         nf = 4
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
@@ -579,7 +579,7 @@ class BenchmarkStrongCoupling:
         """test exact towards APFEL"""
         Q2s = [1e1, 1e2, 1e3, 1e4]
         alphas_ref = 0.118
-        scale_ref = 90 ** 2
+        scale_ref = 90**2
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(3)
         # LHAPDF cache
@@ -646,7 +646,7 @@ class BenchmarkStrongCoupling:
         """test exact towards LHAPDF"""
         Q2s = [1e1, 1e2, 1e3, 1e4]
         alphas_ref = 0.118
-        scale_ref = 90 ** 2
+        scale_ref = 90**2
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(3)
         # LHAPDF cache

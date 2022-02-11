@@ -61,8 +61,8 @@ V_{35}, T_{3}, T_{8}, T_{15}, T_{24}, T_{35}`
 
 evol_basis_pids = tuple(
     [22, 100, 21, 200]
-    + [200 + n ** 2 - 1 for n in range(2, 6 + 1)]
-    + [100 + n ** 2 - 1 for n in range(2, 6 + 1)]
+    + [200 + n**2 - 1 for n in range(2, 6 + 1)]
+    + [100 + n**2 - 1 for n in range(2, 6 + 1)]
 )
 """|pid| representation of :data:`evol_basis`."""
 

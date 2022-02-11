@@ -141,11 +141,11 @@ def rotate_matching(nf, inverse=False):
     l = {"g.g": 1.0, "ph.ph": 1.0}
     # already active distributions
     for k in range(2, nf):  # nf is the upper, so excluded
-        n = k ** 2 - 1
+        n = k**2 - 1
         l[f"V{n}.V{n}"] = 1.0
         l[f"T{n}.T{n}"] = 1.0
     # the new contributions
-    n = nf ** 2 - 1  # nf is pointing upwards
+    n = nf**2 - 1  # nf is pointing upwards
     q = quark_names[nf - 1]
     for (tot, oth, qpm) in (("S", f"T{n}", f"{q}+"), ("V", f"V{n}", f"{q}-")):
         if inverse:
@@ -192,32 +192,32 @@ def pids_from_iuev(label, nf, normalize):
     else:
         if label in ["ph", "g", "S", "V"]:
             return pids_from_intrinsic_evol(label, nf, normalize)
-        weights = np.array([0.] * len(br.flavor_basis_pids))
+        weights = np.array([0.0] * len(br.flavor_basis_pids))
         if label == "T1d":  # T1d = d+ - s+
             weights[br.flavor_basis_pids.index(1)] = 1
             weights[br.flavor_basis_pids.index(-1)] = 1
             weights[br.flavor_basis_pids.index(3)] = -1
             weights[br.flavor_basis_pids.index(-3)] = -1
-        elif label == "V1d": # V1d = d- - s-
+        elif label == "V1d":  # V1d = d- - s-
             weights[br.flavor_basis_pids.index(1)] = 1
             weights[br.flavor_basis_pids.index(-1)] = -1
             weights[br.flavor_basis_pids.index(3)] = -1
             weights[br.flavor_basis_pids.index(-3)] = 1
-        elif label == "T2d": # T2d = d+ + s+ - 2b+
+        elif label == "T2d":  # T2d = d+ + s+ - 2b+
             weights[br.flavor_basis_pids.index(1)] = 1
             weights[br.flavor_basis_pids.index(-1)] = 1
             weights[br.flavor_basis_pids.index(3)] = 1
             weights[br.flavor_basis_pids.index(-3)] = 1
             weights[br.flavor_basis_pids.index(5)] = -2
             weights[br.flavor_basis_pids.index(-5)] = -2
-        elif label == "V2d": # V2d = d- + s- - 2b-
+        elif label == "V2d":  # V2d = d- + s- - 2b-
             weights[br.flavor_basis_pids.index(1)] = 1
             weights[br.flavor_basis_pids.index(-1)] = -1
             weights[br.flavor_basis_pids.index(3)] = 1
             weights[br.flavor_basis_pids.index(-3)] = -1
             weights[br.flavor_basis_pids.index(5)] = -2
             weights[br.flavor_basis_pids.index(-5)] = +2
-        elif label == "V1u": # V1u = u- - c-
+        elif label == "V1u":  # V1u = u- - c-
             weights[br.flavor_basis_pids.index(2)] = 1
             weights[br.flavor_basis_pids.index(-2)] = -1
             weights[br.flavor_basis_pids.index(4)] = -1
@@ -227,29 +227,29 @@ def pids_from_iuev(label, nf, normalize):
             weights[br.flavor_basis_pids.index(-2)] = 1
             weights[br.flavor_basis_pids.index(4)] = -1
             weights[br.flavor_basis_pids.index(-4)] = -1
-        elif  label == "T2u": # T2u = u+ + c+ - 2t+
+        elif label == "T2u":  # T2u = u+ + c+ - 2t+
             weights[br.flavor_basis_pids.index(2)] = 1
             weights[br.flavor_basis_pids.index(-2)] = 1
             weights[br.flavor_basis_pids.index(4)] = 1
             weights[br.flavor_basis_pids.index(-4)] = 1
             weights[br.flavor_basis_pids.index(6)] = -2
             weights[br.flavor_basis_pids.index(-6)] = -2
-        elif label == "V2u": # V2u = u- + c- - 2t-
+        elif label == "V2u":  # V2u = u- + c- - 2t-
             weights[br.flavor_basis_pids.index(2)] = 1
             weights[br.flavor_basis_pids.index(-2)] = -1
             weights[br.flavor_basis_pids.index(4)] = 1
             weights[br.flavor_basis_pids.index(-4)] = -1
             weights[br.flavor_basis_pids.index(6)] = -2
             weights[br.flavor_basis_pids.index(-6)] = +2
-        elif label == "T0":  
-            if nf == 3: # T0 = 2u+ - d+ -s+
+        elif label == "T0":
+            if nf == 3:  # T0 = 2u+ - d+ -s+
                 weights[br.flavor_basis_pids.index(2)] = 2
                 weights[br.flavor_basis_pids.index(-2)] = 2
                 weights[br.flavor_basis_pids.index(1)] = -1
                 weights[br.flavor_basis_pids.index(-1)] = -1
                 weights[br.flavor_basis_pids.index(3)] = -1
                 weights[br.flavor_basis_pids.index(-3)] = -1
-            elif nf == 4: # T0 = u+ + c+ - d+ -s+
+            elif nf == 4:  # T0 = u+ + c+ - d+ -s+
                 weights[br.flavor_basis_pids.index(2)] = 1
                 weights[br.flavor_basis_pids.index(-2)] = 1
                 weights[br.flavor_basis_pids.index(4)] = 1
@@ -258,18 +258,18 @@ def pids_from_iuev(label, nf, normalize):
                 weights[br.flavor_basis_pids.index(-1)] = -1
                 weights[br.flavor_basis_pids.index(3)] = -1
                 weights[br.flavor_basis_pids.index(-3)] = -1
-            elif nf == 5: # T0 = 3/2u+ + 3/2c+ - d+ -s+ - b+
-                weights[br.flavor_basis_pids.index(2)] = 3./2
-                weights[br.flavor_basis_pids.index(-2)] = 3./2
-                weights[br.flavor_basis_pids.index(4)] = 3./2
-                weights[br.flavor_basis_pids.index(-4)] = 3./2
+            elif nf == 5:  # T0 = 3/2u+ + 3/2c+ - d+ -s+ - b+
+                weights[br.flavor_basis_pids.index(2)] = 3.0 / 2
+                weights[br.flavor_basis_pids.index(-2)] = 3.0 / 2
+                weights[br.flavor_basis_pids.index(4)] = 3.0 / 2
+                weights[br.flavor_basis_pids.index(-4)] = 3.0 / 2
                 weights[br.flavor_basis_pids.index(1)] = -1
                 weights[br.flavor_basis_pids.index(-1)] = -1
                 weights[br.flavor_basis_pids.index(3)] = -1
                 weights[br.flavor_basis_pids.index(-3)] = -1
                 weights[br.flavor_basis_pids.index(5)] = -1
                 weights[br.flavor_basis_pids.index(-5)] = -1
-            elif nf == 6: # T0 = u+ + c+ + t+ - d+ -s+ - b+
+            elif nf == 6:  # T0 = u+ + c+ + t+ - d+ -s+ - b+
                 weights[br.flavor_basis_pids.index(2)] = 1
                 weights[br.flavor_basis_pids.index(-2)] = 1
                 weights[br.flavor_basis_pids.index(4)] = 1
@@ -282,17 +282,17 @@ def pids_from_iuev(label, nf, normalize):
                 weights[br.flavor_basis_pids.index(-3)] = -1
                 weights[br.flavor_basis_pids.index(5)] = -1
                 weights[br.flavor_basis_pids.index(-5)] = -1
-            else: 
+            else:
                 raise ValueError("Invalid number of light flavors")
-        elif label == "V0":  
-            if nf == 3: # V0 = 2u- - d- -s-
+        elif label == "V0":
+            if nf == 3:  # V0 = 2u- - d- -s-
                 weights[br.flavor_basis_pids.index(2)] = 2
                 weights[br.flavor_basis_pids.index(-2)] = -2
                 weights[br.flavor_basis_pids.index(1)] = -1
                 weights[br.flavor_basis_pids.index(-1)] = 1
                 weights[br.flavor_basis_pids.index(3)] = -1
                 weights[br.flavor_basis_pids.index(-3)] = 1
-            elif nf == 4: # V0 = u- + c- - d- -s-
+            elif nf == 4:  # V0 = u- + c- - d- -s-
                 weights[br.flavor_basis_pids.index(2)] = 1
                 weights[br.flavor_basis_pids.index(-2)] = -1
                 weights[br.flavor_basis_pids.index(4)] = 1
@@ -301,18 +301,18 @@ def pids_from_iuev(label, nf, normalize):
                 weights[br.flavor_basis_pids.index(-1)] = 1
                 weights[br.flavor_basis_pids.index(3)] = -1
                 weights[br.flavor_basis_pids.index(-3)] = 1
-            elif nf == 5: # V0 = 3/2u- + 3/2c- - d- -s- - b-
-                weights[br.flavor_basis_pids.index(2)] = 3./2
-                weights[br.flavor_basis_pids.index(-2)] = -3./2
-                weights[br.flavor_basis_pids.index(4)] = 3./2
-                weights[br.flavor_basis_pids.index(-4)] = -3./2
+            elif nf == 5:  # V0 = 3/2u- + 3/2c- - d- -s- - b-
+                weights[br.flavor_basis_pids.index(2)] = 3.0 / 2
+                weights[br.flavor_basis_pids.index(-2)] = -3.0 / 2
+                weights[br.flavor_basis_pids.index(4)] = 3.0 / 2
+                weights[br.flavor_basis_pids.index(-4)] = -3.0 / 2
                 weights[br.flavor_basis_pids.index(1)] = -1
                 weights[br.flavor_basis_pids.index(-1)] = 1
                 weights[br.flavor_basis_pids.index(3)] = -1
                 weights[br.flavor_basis_pids.index(-3)] = 1
                 weights[br.flavor_basis_pids.index(5)] = -1
                 weights[br.flavor_basis_pids.index(-5)] = 1
-            elif nf == 6: # V0 = u- + c- + t- - d- -s- - b-
+            elif nf == 6:  # V0 = u- + c- + t- - d- -s- - b-
                 weights[br.flavor_basis_pids.index(2)] = 1
                 weights[br.flavor_basis_pids.index(-2)] = -1
                 weights[br.flavor_basis_pids.index(4)] = 1
@@ -325,7 +325,7 @@ def pids_from_iuev(label, nf, normalize):
                 weights[br.flavor_basis_pids.index(-3)] = 1
                 weights[br.flavor_basis_pids.index(5)] = -1
                 weights[br.flavor_basis_pids.index(-5)] = 1
-            else: 
+            else:
                 raise ValueError("Invalid number of light flavors")
         else:
             raise ValueError("Invalid label")
@@ -334,6 +334,3 @@ def pids_from_iuev(label, nf, normalize):
         norm = weights @ weights
         weights = weights / norm
     return weights
-            
-
-

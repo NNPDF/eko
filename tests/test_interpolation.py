@@ -233,11 +233,11 @@ class TestBasisFunction:
             assert_almost_equal(act_c, res_c)
         # Full -> \tilde p_0(N) = exp(-N)(exp(N)-1-N)/N^2
         # MMa: Integrate[x^(n-1) (-Log[x]),{x,1/E,1}]
-        p0Nref_full = lambda N, lnx: ((np.exp(N) - 1 - N) / N ** 2) * np.exp(
+        p0Nref_full = lambda N, lnx: ((np.exp(N) - 1 - N) / N**2) * np.exp(
             -N * (lnx + 1)
         )
         # partial = lower bound is neglected;
-        p0Nref_partial = lambda N, lnx: (1 / N ** 2) * np.exp(-N * lnx)
+        p0Nref_partial = lambda N, lnx: (1 / N**2) * np.exp(-N * lnx)
         p1N = inter_N[1]
         assert len(p1N.areas) == 1
         p1_cs_ref = [1, 1]
@@ -245,8 +245,8 @@ class TestBasisFunction:
             assert_almost_equal(act_c, res_c)
         # p_1(x) = 1+\ln(x) -> \tilde p_1(N) = (exp(-N)-1+N)/N^2
         # MMa: Integrate[x^(n-1) (1+Log[x]),{x,1/E,1}]
-        p1Nref_full = lambda N, lnx: ((np.exp(-N) - 1 + N) / N ** 2) * np.exp(-N * lnx)
-        p1Nref_partial = lambda N, lnx: (1 / N - 1 / N ** 2) * np.exp(-N * lnx)
+        p1Nref_full = lambda N, lnx: ((np.exp(-N) - 1 + N) / N**2) * np.exp(-N * lnx)
+        p1Nref_partial = lambda N, lnx: (1 / N - 1 / N**2) * np.exp(-N * lnx)
         # iterate configurations
         for N in [1.0, 2.0, complex(1.0, 1.0)]:
             # check skip
