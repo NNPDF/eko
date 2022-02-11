@@ -11,6 +11,7 @@ from ekomark.data import operators
 
 register(__file__)
 
+
 def tolist(input_dict):
     output_dict = input_dict.copy()
     for key, item in output_dict.items():
@@ -37,7 +38,7 @@ class ApfelBenchmark(Runner):
 
 
 class BenchmarkVFNS(ApfelBenchmark):
-    """Benckmark VFNS"""
+    """Benchmark VFNS"""
 
     vfns_theory = {
         "FNS": "ZM-VFNS",
@@ -52,6 +53,8 @@ class BenchmarkVFNS(ApfelBenchmark):
         "Qref": np.sqrt(2.0),
         "alphas": 0.35,
         "Q0": np.sqrt(2.0),
+        "nfref": 3,
+        "nf0": 3,
     }
     vfns_theory = tolist(vfns_theory)
 
@@ -187,7 +190,7 @@ if __name__ == "__main__":
     obj = BenchmarkVFNS()
     # obj = BenchmarkFFNS()
 
-    # obj.benchmark_plain(1)
-    obj.benchmark_sv(1, "A")
+    # obj.benchmark_plain(2)
+    obj.benchmark_sv(2, "A")
     # obj.benchmark_kthr(2)
     # obj.benchmark_msbar(2)

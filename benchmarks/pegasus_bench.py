@@ -3,13 +3,14 @@
 Benchmark to Pegasus :cite:`Vogt:2004ns`
 """
 import numpy as np
+from banana import register
 from banana.data import cartesian_product
 
-from ekomark import register
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
 register(__file__)
+
 
 def tolist(input_dict):
     output_dict = input_dict.copy()
@@ -57,6 +58,7 @@ class BenchmarkVFNS(PegasusBenchmark):
         "alphas": 0.35,
         "Q0": np.sqrt(2.0),
         "nfref": 3,
+        "nf0": 3,
     }
     zm_theory = tolist(zm_theory)
 
@@ -80,8 +82,8 @@ class BenchmarkVFNS(PegasusBenchmark):
         th.update(
             {
                 "PTO": [pto],
-                "fact_to_ren_scale_ratio": [np.sqrt(0.5),np.sqrt(2.0)],
-                "SV_scheme": [scheme]
+                "fact_to_ren_scale_ratio": [np.sqrt(0.5), np.sqrt(2.0)],
+                "SV_scheme": [scheme],
             }
         )
         self.run(

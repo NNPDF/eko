@@ -3,8 +3,8 @@
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO)
 """
 import numpy as np
+from banana import register
 
-from ekomark import register
 from ekomark.benchmark.runner import Runner
 
 register(__file__)
@@ -14,7 +14,6 @@ base_theory = {
     "Q0": np.sqrt(
         2.0
     ),  # Eq. (30) :cite:`Giele:2002hx`, Eq. (4.53) :cite:`Dittmar:2005ed`
-    "nfref": 3,
     "mc": np.sqrt(
         2.0
     ),  # Eq. (34) :cite:`Giele:2002hx`, Eq. (4.56) :cite:`Dittmar:2005ed`
@@ -143,6 +142,7 @@ class BenchmarkVFNS(LHABenchmark):
             "kbThr": 1.0,
             "ktThr": 1.0,
             "nf0": 3,
+            "nfref": 3,
         }
     )
 

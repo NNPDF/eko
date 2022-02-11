@@ -94,7 +94,7 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
     In this way the dependence of the |EKO| on :math:`L` is factorized outside the unvaried evolution kernel.
 
 Notice that the two methods should be equivalent, especially for fully linearized solutions
-(`ModEv=truncaded,ev_op_max_order=1`)
+(`ModEv=truncated,ev_op_max_iterations=1`)
 
 Heavy Quark Masses
 ------------------

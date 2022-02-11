@@ -262,7 +262,7 @@ class Operator:
                             np.log(fact_to_ren),
                             self.config["ev_op_iterations"],
                             self.config["ev_op_max_order"],
-                            self.config["SV_scheme"],
+                            self.config["SV_scheme"] if self.config["SV_scheme"] is not None else "",
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,
