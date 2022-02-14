@@ -9,9 +9,9 @@ import tarfile
 import tempfile
 import warnings
 
-import yaml
 import lz4.frame
 import numpy as np
+import yaml
 
 from . import basis_rotation as br
 from . import interpolation, version

@@ -242,18 +242,18 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
         delta_a = ah - al
         if order == 1:
             ln = (
-                (gamma_singlet[0] * a_half + gamma_singlet[1] * a_half ** 2)
-                / (beta0 * a_half ** 2 + beta1 * a_half ** 3)
+                (gamma_singlet[0] * a_half + gamma_singlet[1] * a_half**2)
+                / (beta0 * a_half**2 + beta1 * a_half**3)
                 * delta_a
             )
         elif order == 2:
             ln = (
                 (
                     gamma_singlet[0] * a_half
-                    + gamma_singlet[1] * a_half ** 2
-                    + gamma_singlet[2] * a_half ** 3
+                    + gamma_singlet[1] * a_half**2
+                    + gamma_singlet[2] * a_half**3
                 )
-                / (beta0 * a_half ** 2 + beta1 * a_half ** 3 + beta2 * a_half ** 4)
+                / (beta0 * a_half**2 + beta1 * a_half**3 + beta2 * a_half**4)
                 * delta_a
             )
         ek = np.ascontiguousarray(ad.exp_singlet(ln)[0])
@@ -471,9 +471,9 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
             ek = e0 + ah * u1 @ e0 - al * e0 @ u1
         if order >= 2:
             ek += (
-                +(ah ** 2) * u2 @ e0
+                +(ah**2) * u2 @ e0
                 - ah * al * u1 @ e0 @ u1
-                + al ** 2 * e0 @ (u1 @ u1 - u2)
+                + al**2 * e0 @ (u1 @ u1 - u2)
             )
         e = ek @ e
         al = ah

@@ -5,7 +5,6 @@ import numpy as np
 from eko.msbar_masses import evolve_msbar_mass
 from eko.strong_coupling import StrongCoupling
 
-
 # try to load APFEL - if not available, we'll use the cached values
 try:
     import apfel
@@ -19,7 +18,7 @@ class BenchmarkMSbar:
     def benchmark_APFEL_msbar_evolution(self):
         Q2s = np.power([1, 96, 150], 2)
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         thresholds_ratios = np.power((1.0, 1.0, 1.0), 2)
         Q2m = np.power([2.0, 4.5, 175], 2)
         m2 = np.power((1.4, 4.5, 175), 2)
@@ -66,7 +65,7 @@ class BenchmarkMSbar:
                             m2[n - 3],
                             Q2m[n - 3],
                             strong_coupling=as_VFNS,
-                            config=dict(fact_to_ren=1),
+                            fact_to_ren=1.0,
                             q2_to=Q2,
                         )
                     )
@@ -83,7 +82,7 @@ class BenchmarkMSbar:
                 apfel.SetVFNS()
                 apfel.SetMSbarMasses(*np.sqrt(m2))
                 apfel.SetMassScaleReference(*np.sqrt(Q2m))
-                apfel.SetRenFacRatio(1)
+                apfel.SetRenFacRatio(1.0)
                 apfel.InitializeAPFEL()
                 # collect apfel masses
                 apfel_vals_cur = []
@@ -93,7 +92,9 @@ class BenchmarkMSbar:
                         masses.append(apfel.HeavyQuarkMass(n, np.sqrt(Q2)))
                     apfel_vals_cur.append(masses)
                 print(apfel_vals_cur)
-                np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
+                np.testing.assert_allclose(
+                    apfel_vals, np.array(apfel_vals_cur), err_msg=f"order={order}"
+                )
             # check myself to APFEL
             np.testing.assert_allclose(
                 apfel_vals, np.sqrt(np.array(my_vals)), rtol=2e-3

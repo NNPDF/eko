@@ -53,7 +53,7 @@ class MatchingCondition(member.OperatorBase):
 
         # add elements which are already active
         for f in range(2, nf + 1):
-            n = f ** 2 - 1
+            n = f**2 - 1
             m[f"V{n}.V{n}"] = m["V.V"]
             m[f"T{n}.T{n}"] = m["V.V"]
 

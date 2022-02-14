@@ -4,6 +4,7 @@ import webbrowser
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from banana import cfg as banana_cfg
 from banana import navigator as bnav
 from banana.data import dfdict
 from matplotlib.backends.backend_pdf import PdfPages
@@ -11,7 +12,6 @@ from matplotlib.backends.backend_pdf import PdfPages
 from eko import basis_rotation as br
 
 from .. import pdfname
-from .. import banana_cfg
 from ..data import db
 from ..plots import input_figure, plot_dist
 
@@ -162,7 +162,9 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         """
         log = self.get(bnav.l, doc_hash)
         dfd = log["log"]
-        directory = banana_cfg.cfg["database_path"].parents[0] / f"{log['external']}_bench"
+        directory = (
+            banana_cfg.cfg["database_path"].parents[0] / f"{log['external']}_bench"
+        )
 
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -206,7 +208,9 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
                 log hash
         """
         log = self.get(bnav.l, doc_hash)
-        directory = banana_cfg.cfg["database_path"].parents[0] / f"{log['external']}_bench"
+        directory = (
+            banana_cfg.cfg["database_path"].parents[0] / f"{log['external']}_bench"
+        )
 
         if not directory.exists():
             directory.mkdir(parents=True)

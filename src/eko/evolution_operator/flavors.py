@@ -141,11 +141,11 @@ def rotate_matching(nf, inverse=False):
     l = {"g.g": 1.0, "ph.ph": 1.0}
     # already active distributions
     for k in range(2, nf):  # nf is the upper, so excluded
-        n = k ** 2 - 1
+        n = k**2 - 1
         l[f"V{n}.V{n}"] = 1.0
         l[f"T{n}.T{n}"] = 1.0
     # the new contributions
-    n = nf ** 2 - 1  # nf is pointing upwards
+    n = nf**2 - 1  # nf is pointing upwards
     q = quark_names[nf - 1]
     for (tot, oth, qpm) in (("S", f"T{n}", f"{q}+"), ("V", f"V{n}", f"{q}-")):
         if inverse:

@@ -51,7 +51,7 @@ def gamma_ns_fact(order, mode, n, nf, L):
     if order >= 2:
         gamma_ns[2] -= (
             2 * beta.beta(0, nf) * gamma_ns[1] * L
-            + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_ns[0]
+            + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L**2) * gamma_ns[0]
         )
     if order >= 1:
         gamma_ns[1] -= beta.beta(0, nf) * gamma_ns[0] * L
@@ -90,7 +90,7 @@ def gamma_singlet_fact(order, n, nf, L):
     if order >= 2:
         gamma_singlet[2] -= (
             2 * beta.beta(0, nf) * gamma_singlet[1] * L
-            + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma_singlet[0]
+            + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L**2) * gamma_singlet[0]
         )
     if order >= 1:
         gamma_singlet[1] -= beta.beta(0, nf) * gamma_singlet[0] * L
