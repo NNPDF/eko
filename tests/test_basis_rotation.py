@@ -49,5 +49,5 @@ def test_iuev_labels():
         labels = br.iuev_labels(nf)
         assert len(labels) == 14
     # errors
-    with pytest.raises(ValueError):
+    with pytest.raises(IndexError):
         br.iuev_labels(7)

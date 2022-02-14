@@ -95,8 +95,8 @@ def test_rotate_matching():
 def test_rotate_matching_is_inv():
     def replace_names(k):
         for q in range(4, 6 + 1):
-            k = k.replace(flavors.quark_names[q - 1] + "+", f"T{q**2-1}").replace(
-                flavors.quark_names[q - 1] + "-", f"V{q**2-1}"
+            k = k.replace(br.quark_names[q - 1] + "+", f"T{q**2-1}").replace(
+                br.quark_names[q - 1] + "-", f"V{q**2-1}"
             )
         return k
 
@@ -130,9 +130,7 @@ def test_pids_from_iuev():
                         atol=1e-10,
                         err_msg=f"{lab} is not orthogonal to {lab2} in nf={nf}",
                     )
-    with pytest.raises(ValueError):
+    with pytest.raises(KeyError):
         flavors.pids_from_iuev("V3", 4, True)
-    with pytest.raises(ValueError):
+    with pytest.raises(KeyError):
         flavors.pids_from_iuev("T0", 7, True)
-    with pytest.raises(ValueError):
-        flavors.pids_from_iuev("V0", 7, True)

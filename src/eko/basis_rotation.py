@@ -34,6 +34,9 @@ flavor_basis_names = (
 )
 """String representation of :data:`flavor_basis_pids`."""
 
+
+quark_names = "".join(flavor_basis_names[-6:])
+
 evol_basis = (
     "ph",
     "S",
@@ -194,15 +197,12 @@ def iuev_labels(nf):
         "T1d",
         "V1d",
     ]
-    if nf == 3:
-        labels.extend(["c+", "c-", "b+", "b-", "t+", "t-"])
-    elif nf == 4:
-        labels.extend(["T1u", "V1u", "b+", "b-", "t+", "t-"])
-    elif nf == 5:
-        labels.extend(["T1u", "V1u", "T2d", "V2d", "t+", "t-"])
-    elif nf == 6:
-        labels.extend(["T1u", "V1u", "T2d", "V2d", "T2u", "V2u"])
-    else:
-        raise ValueError("Invalid number of light flavors")
+    news = ["1u", "2d", "2u"]
+    for j in range(nf, 6):
+        q = quark_names[j]
+        labels.extend([f"{q}+", f"{q}-"])
+    for k in range(3, nf):
+        new = news[k - 3]
+        labels.extend([f"T{new}", f"V{new}"])
 
     return labels

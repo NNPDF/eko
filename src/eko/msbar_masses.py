@@ -5,8 +5,8 @@ This module contains the |RGE| for the |MSbar| masses
 import numpy as np
 from scipy import integrate, optimize
 
+from .basis_rotation import quark_names
 from .beta import b, beta
-from .evolution_operator.flavors import quark_names
 from .gamma import gamma
 from .strong_coupling import StrongCoupling, strong_coupling_mod_ev
 

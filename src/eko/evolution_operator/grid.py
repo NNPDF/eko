@@ -11,11 +11,10 @@ import numbers
 
 import numpy as np
 
-from eko import matching_conditions, member
-from eko.evolution_operator import flavors
-
+from .. import basis_rotation as br
+from .. import matching_conditions, member
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
-from . import Operator, physical
+from . import Operator, flavors, physical
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +132,7 @@ class OperatorGrid:
         if int(theory_card["IB"]) == 1:
             intrinsic_range.append(5)
         config["intrinsic_range"] = intrinsic_range
-        for hq in flavors.quark_names[3:]:
+        for hq in br.quark_names[3:]:
             config[f"m{hq}"] = theory_card[f"m{hq}"]
         return cls(
             config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher
