@@ -111,6 +111,13 @@ class TestInterpolatorDispatcher:
             a.xgrid, np.array([1e-7, 1e-4, 1e-1, 0.55, 1.0])
         )
         assert a.polynomial_degree == 1
+        dd = {
+            "interpolation_xgrid": ["make_lambert_grid", 20],
+            "interpolation_is_log": False,
+            "interpolation_polynomial_degree": 1,
+        }
+        aa = interpolation.InterpolatorDispatcher.from_dict(dd)
+        assert len(aa.xgrid) == 20
         with pytest.raises(ValueError):
             d = {
                 "interpolation_xgrid": [],

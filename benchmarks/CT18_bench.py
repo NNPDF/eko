@@ -51,6 +51,29 @@ class BenchmarkCT18(Runner):
         ]
         self.run([theory_card], [operator_card], ["CT18NNLO"])
 
+    def benchmark_znnlo(self, Q0=1.3, Q2grid=(1e4,)):
+        theory_card = base_theory.copy()
+        theory_card.update(
+            {
+                "alphas": 0.118000,
+                "PTO": 2,
+                "Q0": Q0,
+                "MaxNfPdf": 5,
+                "MaxNfAs": 5,
+                "mc": 1.4,
+            }
+        )
+        operator_card = {"Q2grid": list(Q2grid)}
+        self.skip_pdfs = lambda _theory: [
+            -6,
+            6,
+            22,
+            "ph",
+            "T35",
+            "V35",
+        ]
+        self.run([theory_card], [operator_card], ["CT18ZNNLO"])
+
 
 if __name__ == "__main__":
     b = BenchmarkCT18()

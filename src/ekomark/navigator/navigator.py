@@ -4,13 +4,14 @@ import webbrowser
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from banana import cfg as banana_cfg
 from banana import navigator as bnav
 from banana.data import dfdict
 from matplotlib.backends.backend_pdf import PdfPages
 
 from eko import basis_rotation as br
 
-from .. import banana_cfg, pdfname
+from .. import pdfname
 from ..data import db
 from ..plots import input_figure, plot_dist
 
