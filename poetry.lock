@@ -70,7 +70,7 @@ python-versions = "*"
 
 [[package]]
 name = "banana-hep"
-version = "0.5.9"
+version = "0.6.0"
 description = "Benchmark QCD physics"
 category = "main"
 optional = true
@@ -274,7 +274,7 @@ docs = ["sphinx"]
 
 [[package]]
 name = "identify"
-version = "2.4.9"
+version = "2.4.10"
 description = "File identification library for Python"
 category = "dev"
 optional = false
@@ -1215,7 +1215,7 @@ mark = ["banana-hep", "sqlalchemy", "pandas", "matplotlib"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8,<3.11"
-content-hash = "b0db31c20577a75caaac5885719fb76eda80a1913199877a2db1350eaea3b50e"
+content-hash = "ffe8b44e472a8495bfc6b6bf908ab4f7a1bc1fe68fb55ea1d7378cadc49d958e"
 
 [metadata.files]
 alabaster = [
@@ -1247,8 +1247,8 @@ backcall = [
     {file = "backcall-0.2.0.tar.gz", hash = "sha256:5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e"},
 ]
 banana-hep = [
-    {file = "banana-hep-0.5.9.tar.gz", hash = "sha256:11978d312277049f6c7d07aac0bf8b5d51dc12529906f509e7a7bef20de94fdb"},
-    {file = "banana_hep-0.5.9-py3-none-any.whl", hash = "sha256:22305ebd11f5c62073506789368e9802d936a1500f78f1d52a7991cbee3e7cc2"},
+    {file = "banana-hep-0.6.0.tar.gz", hash = "sha256:83cbf7341a01fdfb6fe410abac776dc3103da1e4f5154deb9d5e8e79ff82284b"},
+    {file = "banana_hep-0.6.0-py3-none-any.whl", hash = "sha256:98f5fac7f874e7f03781c65a1bde9c47b5d4368ab2b66c568f39943fe073a87b"},
 ]
 black = [
     {file = "black-22.1.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:1297c63b9e1b96a3d0da2d85d11cd9bf8664251fd69ddac068b98dc4f34f73b6"},
@@ -1423,8 +1423,8 @@ greenlet = [
     {file = "greenlet-1.1.2.tar.gz", hash = "sha256:e30f5ea4ae2346e62cedde8794a56858a67b878dd79f7df76a0767e356b1744a"},
 ]
 identify = [
-    {file = "identify-2.4.9-py2.py3-none-any.whl", hash = "sha256:bff7c4959d68510bc28b99d664b6a623e36c6eadc933f89a4e0a9ddff9b4fee4"},
-    {file = "identify-2.4.9.tar.gz", hash = "sha256:e926ae3b3dc142b6a7a9c65433eb14ccac751b724ee255f7c2ed3b5970d764fb"},
+    {file = "identify-2.4.10-py2.py3-none-any.whl", hash = "sha256:7d10baf6ba6f1912a0a49f4c1c2c49fa1718765c3a37d72d13b07779567c5b85"},
+    {file = "identify-2.4.10.tar.gz", hash = "sha256:e12b2aea3cf108de73ae055c2260783bde6601de09718f6768cf8e9f6f6322a6"},
 ]
 idna = [
     {file = "idna-3.3-py3-none-any.whl", hash = "sha256:84d9dd047ffa80596e0f246e2eab0b391788b0503584e8945f2368256d2735ff"},
