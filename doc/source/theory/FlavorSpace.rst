@@ -196,6 +196,7 @@ For :math:`n_f=6` light flavors the intrinsic QED :math:`\otimes` QCD Evolution 
 - the basis transformation from the Flavor Basis is implemented in
   :meth:`~eko.evolution_operator.flavors.pids_from_intrinsic_evol`
 - the factors 3/2 in the definition of :math:`V_{0,(5)}` and :math:`T_{0,(5)}` are needed in order to have an orthogonal basis for :math:`n_f=5`
+
 Other Bases
 -----------
 
