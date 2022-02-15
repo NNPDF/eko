@@ -173,7 +173,7 @@ def ad_projectors(nf):
     return np.array(projs)
 
 
-def iuev_labels(nf):
+def intrinsic_unified_evol_labels(nf):
     """
     Collect all labels in the intrinsic unified evolution basis.
 

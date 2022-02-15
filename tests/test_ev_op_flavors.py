@@ -114,13 +114,13 @@ def test_rotate_matching_is_inv():
         np.testing.assert_allclose(m @ minv, np.eye(len(br.evol_basis)), atol=1e-10)
 
 
-def test_pids_from_iuev():
+def test_pids_from_intrinsic_unified_evol():
     for nf in range(3, 6 + 1):
-        labels = br.iuev_labels(nf)
+        labels = br.intrinsic_unified_evol_labels(nf)
         for lab in labels:
-            n = flavors.pids_from_iuev(lab, nf, True)
+            n = flavors.pids_from_intrinsic_unified_evol(lab, nf, True)
             for lab2 in labels:
-                n2 = flavors.pids_from_iuev(lab2, nf, False)
+                n2 = flavors.pids_from_intrinsic_unified_evol(lab2, nf, False)
                 if lab == lab2:
                     np.testing.assert_allclose(n @ n2, 1.0)
                 else:
@@ -131,6 +131,6 @@ def test_pids_from_iuev():
                         err_msg=f"{lab} is not orthogonal to {lab2} in nf={nf}",
                     )
     with pytest.raises(KeyError):
-        flavors.pids_from_iuev("V3", 4, True)
+        flavors.pids_from_intrinsic_unified_evol("V3", 4, True)
     with pytest.raises(KeyError):
-        flavors.pids_from_iuev("T0", 7, True)
+        flavors.pids_from_intrinsic_unified_evol("T0", 7, True)

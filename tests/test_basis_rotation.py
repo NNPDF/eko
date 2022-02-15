@@ -44,10 +44,10 @@ def test_ad_projectors():
         )
 
 
-def test_iuev_labels():
+def test_intrinsic_unified_evol_labels():
     for nf in range(3, 6 + 1):
-        labels = br.iuev_labels(nf)
+        labels = br.intrinsic_unified_evol_labels(nf)
         assert len(labels) == 14
     # errors
     with pytest.raises(IndexError):
-        br.iuev_labels(7)
+        br.intrinsic_unified_evol_labels(7)

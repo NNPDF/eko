@@ -168,7 +168,7 @@ def rotate_matching_inverse(nf):
     return rotate_matching(nf, True)
 
 
-def pids_from_iuev(label, nf, normalize):
+def pids_from_intrinsic_unified_evol(label, nf, normalize):
     r"""
     Obtain the list of pids with their corresponding weight, that are contributing to intrinsic
     unified evolution.

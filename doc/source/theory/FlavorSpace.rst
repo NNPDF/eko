@@ -117,11 +117,11 @@ In this case the QED :math:`\otimes` QCD evolution basis that performs the maxim
   \Sigma_u & = u^+ + c^+ + t^+ \\
   \Sigma_d & = d^+ + s^+ + b^+ \\
   \Sigma &= \Sigma_u + \Sigma_d \\
-  \Delta_\Sigma &= \Sigma_u - \Sigma_d \\
+  T_0 &= \Sigma_u - \Sigma_d \\
   V_u & = u^- + c^- + t^- \\
   V_d & = d^- + s^- + b^- \\
   V &= V_u + V_d \\
-  \Delta_V &= V_u - V_d \\
+  V_0 &= V_u - V_d \\
   T_1^u &=u^+ - c^+ \\
   T_2^u &=u^+ + c^+ - 2t^+ \\
   T_1^d &=d^+ - s^+ \\
@@ -150,24 +150,47 @@ For :math:`n_f=3` light flavors we find:
 
 .. math ::
   \Sigma_{(3)} &= u^+ + d^+ + s^+\\
+  T_{0,(3)} &= 2u^+ - d^+ - s^+ \\
   V_{(3)} &= u^- + d^- + s^-\\
-  T_{0,(3)} &= 2u^+ - d^+ - s^+\\
-  T_1^d &= d^+ - s^+\\
   V_{0,(3)} &= 2u^- - d^- - s^-\\
-  V_1^d &= d^- - s^-\\
-  \mathcal F \sim  \mathcal F_{iuev,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_{0,(3)}, V_1^d, T_{0,(3)}, T_1^d, c^+, c^-, b^+, b^-, t^+, t^-)
+  T_1^d &=d^+ - s^+ \\
+  V_1^d &=d^- - s^- \\
+  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_{0,(3)}, V_1^d, T_{0,(3)}, T_1^d, c^+, c^-, b^+, b^-, t^+, t^-)
 
 For :math:`n_f=4` light flavors we find:
 
 .. math ::
-  \Sigma_{(4)} &= u^+ + d^+ + s^+ + cˆ+\\
-  V_{(4)} &= u^- + d^- + s^- + cˆ-\\
-  T_{0,(4)} &= u^+ + cˆ+ - d^+ - s^+\\
-  T_1^u &= u^+ - c^+\\
-  V_{0,(4)} &= u^- + cˆ- - d^- - s^-\\
-  V_1^u &= u^- - c^-\\
-  \mathcal F \sim  \mathcal F_{iuev,4} &= \span(\gamma, g, \Sigma_{(4)}, V_{(4)}, V_{0,(4)}, V_1^d, T_{0,(4)}, T_1^d, V_1^u, T_1^u, b^+, b^-, t^+, t^-)
+  \Sigma_{(4)} &= u^+ + d^+ + s^+ + c^+\\
+  T_{0,(4)} &= u^+ + c^+ - d^+ - s^+\\
+  V_{(4)} &= u^- + d^- + s^- + c^-\\
+  V_{0,(4)} &= u^- + c^- - d^- - s^-\\
+  T_1^u &=u^+ - c^+ \\
+  T_1^d &=d^+ - s^+ \\
+  V_1^u &=u^- - c^- \\
+  V_1^d &=d^- - s^- \\
+  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,4} &= \span(\gamma, g, \Sigma_{(4)}, V_{(4)}, V_{0,(4)}, V_1^d, T_{0,(4)}, T_1^d, V_1^u, T_1^u, b^+, b^-, t^+, t^-)
 
+For :math:`n_f=5` light flavors we find:
+
+.. math ::
+  \Sigma_{(5)} &= u^+ + d^+ + s^+ + c^+ + b^+\\
+  V_{(5)} &= u^- + d^- + s^- + c^- + b^-\\
+  T_{0,(5)} &= \frac{3}{2}u^+ + \frac{3}{2}c^+ - d^+ -s^+ - b^+\\
+  V_{0,(5)} &= \frac{3}{2}u^- + \frac{3}{2}c^- - d^- -s^- - b^-\\
+  T_1^u &=u^+ - c^+ \\
+  T_1^d &=d^+ - s^+ \\
+  V_1^u &=u^- - c^- \\
+  V_1^d &=d^- - s^- \\
+  T_2^d &=d^+ + s^+ - 2b^+ \\
+  V_2^d &=d^- + s^- - 2b^- \\
+  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,5} &= \span(\gamma, g, \Sigma_{(4)}, V_{(4)}, V_{0,(4)}, V_1^d, T_{0,(4)}, T_1^d, V_1^u, T_1^u, T_2^d, V_2^d, t^+, t^-)
+
+For :math:`n_f=6` light flavors the intrinsic QED :math:`\otimes` QCD Evolution Basis coincides with the QED :math:`\otimes` QCD Evolution Basis.
+
+- this basis is *not* normalized with respect to the canonical Flavor Basis
+- the basis transformation from the Flavor Basis is implemented in
+  :meth:`~eko.evolution_operator.flavors.pids_from_intrinsic_evol`
+- the factors 3/2 in the definition of :math:`V_{0,(5)}` and :math:`T_{0,(5)}` are needed in order to have an orthogonal basis for :math:`n_f=5`
 Other Bases
 -----------
 
