@@ -23,6 +23,7 @@ from ..scale_variations.a import gamma_ns_fact, gamma_singlet_fact
 logger = logging.getLogger(__name__)
 
 
+# TODO: add this to QuadKerBase class ??
 @nb.njit("c16(c16[:,:],string)")
 def select_singlet_element(ker, mode):
     """
@@ -45,6 +46,72 @@ def select_singlet_element(ker, mode):
     return ker[k, l]
 
 
+spec = [
+    ("is_singlet", nb.boolean),
+    ("is_log", nb.boolean),
+    ("logx", nb.float64),
+    ("u", nb.float64),
+]
+
+
+@nb.experimental.jitclass(spec)
+class QuadKerBase:
+    """
+    Class to manage the common part of Mellin inversion integral
+
+    Parameters
+    ----------
+        u : float
+            quad argument
+        is_log : boolean
+            is a logarithmic interpolation
+        logx : float
+            Mellin inversion point
+        mode : str
+            sector element
+    """
+
+    def __init__(self, u, is_log, logx, mode):
+        self.is_singlet = mode[0] == "S"
+        self.is_log = is_log
+        self.u = u
+        self.logx = logx
+
+    @property
+    def path(self):
+        """Returns the associated instance of :class:`eko.mellin.Path`"""
+        return mellin.Path(self.u, self.logx, self.is_singlet)
+
+    @property
+    def n(self):
+        """Returns the Mellin moment N"""
+        return self.path.n
+
+    def integrand(
+        self,
+        areas,
+    ):
+        """
+        Get transformation to Mellin space integral
+
+        Parameters
+        ----------
+            areas : tuple
+                basis function configuration
+
+        Returns
+        -------
+            base_integrand: complex
+                common mellin inversion intgrand
+        """
+        if self.logx == 0.0:
+            return 0.0
+        pj = interpolation.evaluate_grid(self.path.n, self.is_log, self.logx, areas)
+        if pj == 0.0:
+            return 0.0
+        return self.path.prefactor * pj * self.path.jac
+
+
 @nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,string)", cache=True)
 def quad_ker(
     u,
@@ -63,7 +130,7 @@ def quad_ker(
     sv_scheme,
 ):
     """
-    Raw kernel inside quad.
+    Raw evolution kernel inside quad.
 
     Parameters
     ----------
@@ -101,17 +168,14 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    is_singlet = mode[0] == "S"
-    # get transformation to N integral
-    if logx == 0.0:
+    ker_base = QuadKerBase(u, is_log, logx, mode)
+    integrand = ker_base.integrand(areas)
+    if integrand == 0.0:
         return 0.0
-    path = mellin.Path(u, logx, is_singlet)
-    pj = interpolation.evaluate_grid(path.n, is_log, logx, areas)
-    if pj == 0.0:
-        return 0.0
+
     # compute the actual evolution kernel
-    if is_singlet:
-        gamma_singlet = ad.gamma_singlet(order, path.n, nf)
+    if ker_base.is_singlet:
+        gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
         if sv_scheme == "A":
             gamma_singlet = gamma_singlet_fact(gamma_singlet, order, nf, L)
         ker = s.dispatcher(
@@ -119,7 +183,7 @@ def quad_ker(
         )
         ker = select_singlet_element(ker, mode)
     else:
-        gamma_ns = ad.gamma_ns(order, mode[-1], path.n, nf)
+        gamma_ns = ad.gamma_ns(order, mode[-1], ker_base.n, nf)
         if sv_scheme == "A":
             gamma_ns = gamma_ns_fact(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
@@ -132,7 +196,7 @@ def quad_ker(
             ev_op_iterations,
         )
     # recombine everthing
-    return np.real(path.prefactor * ker * pj * path.jac)
+    return np.real(ker * integrand)
 
 
 class Operator:

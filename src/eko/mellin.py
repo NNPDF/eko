@@ -233,12 +233,15 @@ class Path:
     # TODO: make also the other 2 paths available ??
     @property
     def n(self):
+        """Returns the Mellin moment N"""
         return Talbot_path(self.t, self.r, self.o)
 
     @property
     def jac(self):
+        """Returns the Jacobian of the Mellin path"""
         return Talbot_jac(self.t, self.r, self.o)
 
     @property
     def prefactor(self):
+        r"""Returns the mellin inversion prefactor :math:`-\frac{1}{\pi}`"""
         return complex(0.0, -1.0 / np.pi)

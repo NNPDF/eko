@@ -11,9 +11,9 @@ import numpy as np
 from scipy import integrate
 
 from .. import anomalous_dimensions as ad
-from .. import beta, interpolation, mellin
+from .. import beta
 from ..basis_rotation import full_labels
-from ..evolution_operator import Operator, select_singlet_element
+from ..evolution_operator import Operator, QuadKerBase, select_singlet_element
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)
@@ -106,7 +106,7 @@ def quad_ker(
     L,
 ):
     """
-    Raw kernel inside quad.
+    Raw scale variation B kernel inside quad.
 
     Parameters
     ----------
@@ -134,27 +134,22 @@ def quad_ker(
         ker : float
             evaluated scale variation kernel
     """
-    # TODO: this code is reperated twice or 3 times
-    is_singlet = mode[0] == "S"
-    # get transformation to N integral
-    if logx == 0.0:
-        return 0.0
-    path = mellin.Path(u, logx, is_singlet)
-    pj = interpolation.evaluate_grid(path.n, is_log, logx, areas)
-    if pj == 0.0:
+    ker_base = QuadKerBase(u, is_log, logx, mode)
+    integrand = ker_base.integrand(areas)
+    if integrand == 0.0:
         return 0.0
 
     # compute the actual scale variation kernel
-    if is_singlet:
-        gamma_singlet = ad.gamma_singlet(order, path.n, nf)
+    if ker_base.is_singlet:
+        gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
         ker = singlet_dispatcher(gamma_singlet, a_s, order, nf, L)
         ker = select_singlet_element(ker, mode)
     else:
-        gamma_ns = ad.gamma_ns(order, mode[-1], path.n, nf)
+        gamma_ns = ad.gamma_ns(order, mode[-1], ker_base.n, nf)
         ker = non_singlet_dispatcher(gamma_ns, a_s, order, nf, L)
 
     # recombine everthing
-    return np.real(path.prefactor * ker * pj * path.jac)
+    return np.real(ker * integrand)
 
 
 class ScaleVariationOperator(Operator):
