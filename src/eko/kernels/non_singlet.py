@@ -247,7 +247,7 @@ def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     # U1 = R1
     U1 = 1.0 / beta0 * (gamma_ns[1] - b1 * gamma_ns[0])
     R2 = gamma_ns[2] / beta0 - b1 * U1 - b2 * gamma_ns[0] / beta0
-    U2 = 0.5 * (U1 ** 2 + R2)
+    U2 = 0.5 * (U1**2 + R2)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:
@@ -255,9 +255,9 @@ def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
         e *= e0 * (
             1.0
             + U1 * (ah - al)
-            + U2 * ah ** 2
-            - ah * al * U1 ** 2
-            + al ** 2 * (U1 ** 2 - U2)
+            + U2 * ah**2
+            - ah * al * U1**2
+            + al**2 * (U1**2 - U2)
         )
         al = ah
     return e
@@ -293,12 +293,12 @@ def nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     # U1 = R1
     U1 = 1.0 / beta0 * (gamma_ns[1] - b1 * gamma_ns[0])
     R2 = gamma_ns[2] / beta0 - b1 * U1 - b2 * gamma_ns[0] / beta0
-    U2 = 0.5 * (U1 ** 2 + R2)
+    U2 = 0.5 * (U1**2 + R2)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = lo_exact(gamma_ns, ah, al, nf)
-        e *= e0 * (1.0 + ah * U1 + ah ** 2 * U2) / (1.0 + al * U1 + al ** 2 * U2)
+        e *= e0 * (1.0 + ah * U1 + ah**2 * U2) / (1.0 + al * U1 + al**2 * U2)
         al = ah
     return e
 

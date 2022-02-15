@@ -46,8 +46,8 @@ def msbar_ker_exact(a0, a1, order, nf):
     # quad ker
     def integrand(a, b_vec, g_vec):
         # minus sign goes away
-        fgamma = np.sum([a ** k * b for k, b in enumerate(g_vec)])
-        fbeta = a * np.sum([a ** k * b for k, b in enumerate(b_vec)])
+        fgamma = np.sum([a**k * b for k, b in enumerate(g_vec)])
+        fbeta = a * np.sum([a**k * b for k, b in enumerate(b_vec)])
         return fgamma / fbeta
 
     res = integrate.quad(
@@ -105,9 +105,9 @@ def msbar_ker_expanded(a0, a1, order, nf):
     if order >= 2:
         b2 = b(2, nf)
         c2 = gamma(2, nf) / b0
-        r = (c2 - c1 * b1 - b2 * c0 + b1 ** 2 * c0 + (c1 - b1 * c0) ** 2) / 2.0
-        num += a1 ** 2 * r
-        den += a0 ** 2 * r
+        r = (c2 - c1 * b1 - b2 * c0 + b1**2 * c0 + (c1 - b1 * c0) ** 2) / 2.0
+        num += a1**2 * r
+        den += a0**2 * r
     return ev_mass * num / den
 
 
@@ -224,7 +224,7 @@ def evolve_msbar_mass(
             ev_mass *= msbar_ker_dispatcher(
                 q2_final, q2_init, strong_coupling, fact_to_ren, n
             )
-        return m2_ref * ev_mass ** 2
+        return m2_ref * ev_mass**2
 
 
 def compute_msbar_mass(theory_card):

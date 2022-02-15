@@ -28,14 +28,14 @@ def test_beta_1():
     """Test second beta function coefficient"""
     _flav_test(beta.beta_1)
     # from hep-ph/9706430
-    np.testing.assert_approx_equal(beta.beta_1(5), 4 ** 2 * 29 / 12)
+    np.testing.assert_approx_equal(beta.beta_1(5), 4**2 * 29 / 12)
 
 
 def test_beta_2():
     """Test third beta function coefficient"""
     _flav_test(beta.beta_2)
     # from hep-ph/9706430
-    np.testing.assert_approx_equal(beta.beta_2(5), 4 ** 3 * 9769 / 3456)
+    np.testing.assert_approx_equal(beta.beta_2(5), 4**3 * 9769 / 3456)
 
 
 def test_beta():

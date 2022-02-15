@@ -3,7 +3,7 @@
 :tada: Thanks, for considering to contribute to EKO!
 
 :pray: For the sake of simplicity we switch below to imperative
-language, however, please read a "Please" infront of everything.
+language, however, please read a "Please" in front of everything.
 
 -   :brain: Be reasonable and use common sense when contributing: we
     added some points we would like to highlight below
@@ -14,19 +14,18 @@ language, however, please read a "Please" infront of everything.
 
 ## Tools
 
--   [`poetry`](https://github.com/python-poetry/poetry) is the
+-   :books: [`poetry`](https://github.com/python-poetry/poetry) is the
     dependency manager and packaging back-end of choice for this
-    project, refers to official [installation
+    project - see the official [installation
     guide](https://python-poetry.org/docs/#installation)
--   [`poery-dynamic-versioning`](https://github.com/mtkennerly/poetry-dynamic-versioning),
+-   :hash: [`poery-dynamic-versioning`](https://github.com/mtkennerly/poetry-dynamic-versioning),
     is used to update the package version based on VCS status (tags and
     commits); note that since the version is dumped in output object,
     this is to be used not only for releases, but whenever output is
     generated (and intended to be used)
--   [`pre-commit`](https://pre-commit.com/) is used to enforce
+-   :parking: [`pre-commit`](https://pre-commit.com/) is used to enforce
     automation and standardize the tools for all developers; if you want
-    to contribute to this project, please
-    [install](https://pre-commit.com/#install) it and \[setup\]
+    to contribute to this project, install it and setup
 
 ## Testing
 
