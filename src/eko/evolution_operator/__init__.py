@@ -7,6 +7,7 @@ See :doc:`Operator overview </code/Operators>`.
 
 import logging
 import time
+from functools import cached_property
 
 import numba as nb
 import numpy as np
@@ -111,7 +112,7 @@ class QuadKerBase:
         return self.path.prefactor * pj * self.path.jac
 
 
-@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,string)", cache=True)
+@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,b1)", cache=True)
 def quad_ker(
     u,
     order,
@@ -126,7 +127,7 @@ def quad_ker(
     L,
     ev_op_iterations,
     ev_op_max_order,
-    sv_scheme,
+    is_sv_scheme_a,
 ):
     """
     Raw evolution kernel inside quad.
@@ -159,8 +160,8 @@ def quad_ker(
             number of evolution steps
         ev_op_max_order : int
             perturbative expansion order of U
-        sv_scheme : string
-           scale variation scheme
+        is_sv_scheme_a : bool
+            use scale variation scheme A
 
     Returns
     -------
@@ -175,7 +176,7 @@ def quad_ker(
     # compute the actual evolution kernel
     if ker_base.is_singlet:
         gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
-        if sv_scheme == "A":
+        if is_sv_scheme_a:
             gamma_singlet = gamma_fact(gamma_singlet, order, nf, L)
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
@@ -183,7 +184,7 @@ def quad_ker(
         ker = select_singlet_element(ker, mode)
     else:
         gamma_ns = ad.gamma_ns(order, mode[-1], ker_base.n, nf)
-        if sv_scheme == "A":
+        if is_sv_scheme_a:
             gamma_ns = gamma_fact(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
@@ -230,6 +231,27 @@ class Operator:
         self._mellin_cut = mellin_cut
         self.op_members = {}
 
+    @cached_property
+    def fact_to_ren(self):
+        """Returns the interpolation dispatcher"""
+        return self.config["fact_to_ren"]
+
+    @cached_property
+    def int_disp(self):
+        """Returns the interpolation dispatcher"""
+        return self.managers["interpol_dispatcher"]
+
+    @cached_property
+    def grid_size(self):
+        """Returns the grid size"""
+        return self.int_disp.xgrid.size
+
+    @cached_property
+    def strong_coupling(self):
+        """Returns the instance of :class:`eko.strong_coupling.StrongCoupling`"""
+        return self.managers["strong_coupling"]
+
+    @cached_property
     def labels(self):
         """
         Compute necessary sector labels to compute.
@@ -258,18 +280,14 @@ class Operator:
             labels.extend(singlet_labels)
         return labels
 
-    def compute(self):
-        """compute the actual operators (i.e. run the integrations)"""
-        # Generic parameters
-        int_disp = self.managers["interpol_dispatcher"]
-        grid_size = len(int_disp.xgrid)
-
-        # init all ops with identity or zeros if we skip them
-        labels = self.labels()
-        eye = OpMember(np.eye(grid_size), np.zeros((grid_size, grid_size)))
-        zero = OpMember(*[np.zeros((grid_size, grid_size))] * 2)
+    def initialize_op_members(self):
+        """Init all ops with identity or zeros if we skip them"""
+        eye = OpMember(
+            np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
+        )
+        zero = OpMember(*[np.zeros((self.grid_size, self.grid_size))] * 2)
         for n in full_labels:
-            if n in labels:
+            if n in self.labels:
                 # off diag singlet are zero
                 if n in ["S_qg", "S_gq"]:
                     self.op_members[n] = zero.copy()
@@ -277,6 +295,11 @@ class Operator:
                     self.op_members[n] = eye.copy()
             else:
                 self.op_members[n] = zero.copy()
+
+    def compute(self):
+        """compute the actual operators (i.e. run the integrations)"""
+        self.initialize_op_members()
+
         # skip computation
         if np.isclose(self.q2_from, self.q2_to):
             logger.info("Evolution: skipping unity operator at %e", self.q2_from)
@@ -284,10 +307,12 @@ class Operator:
             return
         tot_start_time = time.perf_counter()
         # setup ingredients
-        sc = self.managers["strong_coupling"]
-        fact_to_ren = self.config["fact_to_ren"]
-        a0 = sc.a_s(self.q2_from / fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf)
-        a1 = sc.a_s(self.q2_to / fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf)
+        a0 = self.strong_coupling.a_s(
+            self.q2_from / self.fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf
+        )
+        a1 = self.strong_coupling.a_s(
+            self.q2_to / self.fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf
+        )
         logger.info(
             "Evolution: computing operators %e -> %e, nf=%d",
             self.q2_from,
@@ -296,8 +321,8 @@ class Operator:
         )
         logger.info(
             "Evolution: µ_R^2 distance: %e -> %e",
-            self.q2_from / fact_to_ren,
-            self.q2_to / fact_to_ren,
+            self.q2_from / self.fact_to_ren,
+            self.q2_to / self.fact_to_ren,
         )
         logger.info("Evolution: a_s distance: %e -> %e", a0, a1)
         logger.info(
@@ -305,16 +330,16 @@ class Operator:
             self.config["order"],
             self.config["method"],
         )
-        logger.info("Evolution: computing operators - 0/%d", grid_size)
+        logger.info("Evolution: computing operators - 0/%d", self.grid_size)
         # iterate output grid
-        for k, logx in enumerate(np.log(int_disp.xgrid_raw)):
+        for k, logx in enumerate(np.log(self.int_disp.xgrid_raw)):
             start_time = time.perf_counter()
             # iterate basis functions
-            for l, bf in enumerate(int_disp):
-                if k == l and l == grid_size - 1:
+            for l, bf in enumerate(self.int_disp):
+                if k == l and l == self.grid_size - 1:
                     continue
                 # iterate sectors
-                for label in labels:
+                for label in self.labels:
                     # compute and set
                     res = integrate.quad(
                         quad_ker,
@@ -324,18 +349,16 @@ class Operator:
                             self.config["order"],
                             label,
                             self.config["method"],
-                            int_disp.log,
+                            self.int_disp.log,
                             logx,
                             bf.areas_representation,
                             a1,
                             a0,
                             self.nf,
-                            np.log(fact_to_ren),
+                            np.log(self.fact_to_ren),
                             self.config["ev_op_iterations"],
                             self.config["ev_op_max_order"],
-                            self.config["SV_scheme"]
-                            if self.config["SV_scheme"] is not None
-                            else "",
+                            bool(self.config["SV_scheme"] == "A"),
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,
@@ -349,7 +372,7 @@ class Operator:
             logger.info(
                 "Evolution: computing operators - %d/%d took: %f s",
                 k + 1,
-                grid_size,
+                self.grid_size,
                 time.perf_counter() - start_time,
             )
 

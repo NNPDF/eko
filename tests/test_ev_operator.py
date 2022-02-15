@@ -41,7 +41,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            sv_scheme=None,
+            is_sv_scheme_a=False,
         )
         np.testing.assert_allclose(res_ns, 0.0)
         res_s = quad_ker(
@@ -58,7 +58,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            sv_scheme=None,
+            is_sv_scheme_a=False,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -75,7 +75,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            sv_scheme=None,
+            is_sv_scheme_a=False,
         )
         np.testing.assert_allclose(res_s, 0.0)
     for mode in ["NS_p", "S_qq"]:
@@ -93,7 +93,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            sv_scheme="A",
+            is_sv_scheme_a=False,
         )
         np.testing.assert_allclose(res_sv, 1.0)
 
@@ -112,7 +112,7 @@ def test_quad_ker(monkeypatch):
         L=0,
         ev_op_iterations=0,
         ev_op_max_order=0,
-        sv_scheme=None,
+        is_sv_scheme_a=False,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
@@ -126,7 +126,7 @@ class TestOperator:
             1,
             2,
         )
-        assert sorted(o.labels()) == sorted(
+        assert sorted(o.labels) == sorted(
             ["NS_p", "NS_m", "NS_v", "S_qq", "S_qg", "S_gq", "S_gg"]
         )
         o = Operator(
@@ -136,7 +136,7 @@ class TestOperator:
             1,
             2,
         )
-        assert sorted(o.labels()) == []
+        assert sorted(o.labels) == []
 
     def test_compute(self, monkeypatch):
         # setup objs

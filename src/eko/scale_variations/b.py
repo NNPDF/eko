@@ -12,9 +12,7 @@ from scipy import integrate
 
 from .. import anomalous_dimensions as ad
 from .. import beta
-from ..basis_rotation import full_labels
 from ..evolution_operator import Operator, QuadKerBase, select_singlet_element
-from ..member import OpMember
 
 logger = logging.getLogger(__name__)
 
@@ -175,25 +173,7 @@ class ScaleVariationOperator(Operator):
 
     def compute(self):
         """compute the actual operators (i.e. run the integrations)"""
-        # TODO: here there are a lot of repetitions, you need to generalize
-        # the evolution operator
-        # Generic parameters
-        int_disp = self.managers["interpol_dispatcher"]
-        grid_size = len(int_disp.xgrid)
-
-        # init all ops with identity or zeros if we skip them
-        labels = self.labels()
-        eye = OpMember(np.eye(grid_size), np.zeros((grid_size, grid_size)))
-        zero = OpMember(*[np.zeros((grid_size, grid_size))] * 2)
-        for n in full_labels:
-            if n in labels:
-                # off diag singlet are zero
-                if n in ["S_qg", "S_gq"]:
-                    self.op_members[n] = zero.copy()
-                else:
-                    self.op_members[n] = eye.copy()
-            else:
-                self.op_members[n] = zero.copy()
+        self.initialize_op_members()
 
         # At LO you don't need anything else
         if self.config["order"] == 0:
@@ -202,26 +182,25 @@ class ScaleVariationOperator(Operator):
             return
 
         tot_start_time = time.perf_counter()
-        # setup ingredients
-        sc = self.managers["strong_coupling"]
-        fact_to_ren = self.config["fact_to_ren"]
-        a_s = sc.a_s(self.q2_from / fact_to_ren, fact_scale=self.q2_from)
+        a_s = self.strong_coupling.a_s(
+            self.q2_from / self.fact_to_ren, fact_scale=self.q2_from
+        )
         logger.info(
             "Scale Variation: (µ_F/µ_R)^2 = %e, Q^2 = %e, nf=%d",
-            fact_to_ren,
+            self.fact_to_ren,
             self.q2_from,
             self.nf,
         )
-        logger.info("Scale Variation: computing operators - 0/%d", grid_size)
+        logger.info("Scale Variation: computing operators - 0/%d", self.grid_size)
         # iterate output grid
-        for k, logx in enumerate(np.log(int_disp.xgrid_raw)):
+        for k, logx in enumerate(np.log(self.int_disp.xgrid_raw)):
             start_time = time.perf_counter()
             # iterate basis functions
-            for l, bf in enumerate(int_disp):
-                if k == l and l == grid_size - 1:
+            for l, bf in enumerate(self.int_disp):
+                if k == l and l == self.grid_size - 1:
                     continue
                 # iterate sectors
-                for label in labels:
+                for label in self.labels:
                     # compute and set
                     res = integrate.quad(
                         quad_ker,
@@ -230,12 +209,12 @@ class ScaleVariationOperator(Operator):
                         args=(
                             self.config["order"],
                             label,
-                            int_disp.log,
+                            self.int_disp.log,
                             logx,
                             bf.areas_representation,
                             a_s,
                             self.nf,
-                            np.log(fact_to_ren),
+                            np.log(self.fact_to_ren),
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,
@@ -249,7 +228,7 @@ class ScaleVariationOperator(Operator):
             logger.info(
                 "Scale Variation: computing operators - %d/%d took: %f s",
                 k + 1,
-                grid_size,
+                self.grid_size,
                 time.perf_counter() - start_time,
             )
 
