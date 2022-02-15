@@ -28,7 +28,7 @@ base_theory = {
     ),  # Eq. (32) :cite:`Giele:2002hx`,Eq. (4.53) :cite:`Dittmar:2005ed`
     "alphas": 0.35,  # Eq. (4.55) :cite:`Dittmar:2005ed`
     "FNS": "ZM-VFNS",  # ignored by eko, but needed by LHA_utils
-    "kcThr": 1.0,  # here you need to start in nf=3 and do the match.
+    "kcThr": 1.0,
     "kbThr": 1.0,
     "ktThr": 1.0,
 }
@@ -85,10 +85,13 @@ class BenchmarkRunner(Runner):
             list(dict)
                 theory updates
         """
-        # low = base_theory.copy()
-        # low["PTO"] = pto
-        # low["fact_to_ren_scale_ratio"] = np.sqrt(1.0 / 2.0)
-        # low["SV_scheme"] = "A"
+        low = base_theory.copy()
+        low["PTO"] = pto
+        low["fact_to_ren_scale_ratio"] = np.sqrt(1.0 / 2.0)
+        low["SV_scheme"] = "A"
+        # needed for apfel
+        low["XIR"] = np.sqrt(2.0)
+        low["EScaleVar"] = 0
         high = base_theory.copy()
         high["PTO"] = pto
         high["fact_to_ren_scale_ratio"] = np.sqrt(2.0)
@@ -96,7 +99,7 @@ class BenchmarkRunner(Runner):
         # needed for apfel
         high["XIR"] = np.sqrt(0.5)
         high["EScaleVar"] = 0
-        self.run_lha([high])
+        self.run_lha([low, high])
 
     def benchmark_plain(self, pto):
         """Plain configuration"""
@@ -110,4 +113,5 @@ if __name__ == "__main__":
     programs = ["LHA", "pegasus", "apfel"]
     for p in programs:
         obj = BenchmarkRunner(p)
+        # obj.benchmark_plain(2)
         obj.benchmark_sv(2)

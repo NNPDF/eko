@@ -78,6 +78,25 @@ def test_quad_ker(monkeypatch):
             sv_scheme=None,
         )
         np.testing.assert_allclose(res_s, 0.0)
+    for mode in ["NS_p", "S_qq"]:
+        res_sv = quad_ker(
+            u=0,
+            order=0,
+            mode=mode,
+            method="",
+            is_log=True,
+            logx=1.0,
+            areas=np.zeros(3),
+            a1=1,
+            a0=2,
+            nf=3,
+            L=0,
+            ev_op_iterations=0,
+            ev_op_max_order=0,
+            sv_scheme="A",
+        )
+        np.testing.assert_allclose(res_sv, 1.0)
+
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,

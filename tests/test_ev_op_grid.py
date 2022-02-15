@@ -39,7 +39,7 @@ class TestOperatorGrid:
             "SV_scheme": None,
         }
         operators_card = {
-            "Q2grid": [1, 100**2],
+            "Q2grid": [1, 100 ** 2],
             "interpolation_xgrid": [0.1, 1.0],
             "interpolation_polynomial_degree": 1,
             "interpolation_is_log": True,
@@ -122,7 +122,7 @@ class TestOperatorGrid:
     def test_grid_computation_VFNS(self):
         """Checks that the grid can be computed"""
         opgrid = self._get_operator_grid(False)
-        qgrid_check = [3, 5, 200**2]
+        qgrid_check = [3, 5, 200 ** 2]
         operators = opgrid.compute(qgrid_check)
         assert len(operators) == len(qgrid_check)
 
@@ -137,21 +137,19 @@ class TestOperatorGrid:
         assert opg[3]["alphas"] < sv_opg[3]["alphas"]
 
     def test_scheme_B(self):
-        opgrid = self._get_operator_grid(
-            theory_update={
-                "PTO": 1,
-                "SV_scheme": "B",
-            }
-        )
-        opg = opgrid.compute(3)
-        sv_opgrid = self._get_operator_grid(
-            theory_update={
-                "fact_to_ren_scale_ratio": 1.0 + 1e-3,
-                "PTO": 1,
-                "SV_scheme": "B",
-            }
-        )
-        sv_opg = sv_opgrid.compute(3)
-        np.testing.assert_allclose(
-            opg[3]["operators"], sv_opg[3]["operators"], atol=1e-4
-        )
+        theory_update = {
+            "PTO": 1,
+            "SV_scheme": "B",
+        }
+        for ffns, epsilon, nf0 in zip([False, True], [1e-4, 1e-3], [5, 3]):
+            theory_update["nf0"] = nf0
+            opgrid = self._get_operator_grid(use_FFNS=ffns, theory_update=theory_update)
+            opg = opgrid.compute(3)
+            theory_update["fact_to_ren_scale_ratio"] = 1.0 + epsilon
+            sv_opgrid = self._get_operator_grid(
+                use_FFNS=ffns, theory_update=theory_update
+            )
+            sv_opg = sv_opgrid.compute(3)
+            np.testing.assert_allclose(
+                opg[3]["operators"], sv_opg[3]["operators"], atol=1e-4
+            )

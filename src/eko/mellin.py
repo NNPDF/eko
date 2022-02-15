@@ -243,5 +243,5 @@ class Path:
 
     @property
     def prefactor(self):
-        r"""Returns the mellin inversion prefactor :math:`-\frac{1}{\pi}`"""
+        r"""Returns the mellin inversion prefactor :math:`-\frac{i}{\pi}`"""
         return complex(0.0, -1.0 / np.pi)
