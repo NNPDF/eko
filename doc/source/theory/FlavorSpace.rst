@@ -111,15 +111,20 @@ QED :math:`\otimes` QCD Evolution Basis
 In presence of QED corrections to DGLAP evolution equations,
 the QCD Evolution basis does not decouple the distributions
 as it was for the pure QCD evolution.
-In this case the QED :math:`\otimes` QCD evolution basis that performs the maximal decoupling is given by:
+
+Defining the following combinations
 
 .. math ::
   \Sigma_u & = u^+ + c^+ + t^+ \\
   \Sigma_d & = d^+ + s^+ + b^+ \\
-  \Sigma &= \Sigma_u + \Sigma_d \\
-  T_0 &= \Sigma_u - \Sigma_d \\
   V_u & = u^- + c^- + t^- \\
   V_d & = d^- + s^- + b^- \\
+
+we have that in this case the QED :math:`\otimes` QCD evolution basis that performs the maximal decoupling is given by:
+
+.. math ::
+  \Sigma &= \Sigma_u + \Sigma_d \\
+  T_0 &= \Sigma_u - \Sigma_d \\
   V &= V_u + V_d \\
   V_0 &= V_u - V_d \\
   T_1^u &=u^+ - c^+ \\
@@ -130,7 +135,7 @@ In this case the QED :math:`\otimes` QCD evolution basis that performs the maxim
   V_2^u &=u^- + c^- - 2t^- \\
   V_1^d &=d^- - s^- \\
   V_2^d &=d^- + s^- - 2b^- \\
-  \mathcal F \sim  \mathcal F_{QED\otimes{}QCD} &= \span(\gamma, g, \Sigma, \Delta_\Sigma, V, \Delta_V, T_1^u, T_2^u, T_1^d, T_2^d, V_1^u, V_2^u, V_1^d, V_2^d)
+  \mathcal F \sim  \mathcal F_{QED\otimes{}QCD} &= \span(\gamma, g, \Sigma, \Sigma_0, V, V_0, T_1^u, T_2^u, T_1^d, T_2^d, V_1^u, V_2^u, V_1^d, V_2^d)
 
 
 - :math:`T_1` and :math:`T_2` are just arbitrary names and do not follow any group representation like it was for the :ref:`theory/FlavorSpace:QCD Evolution Basis`
