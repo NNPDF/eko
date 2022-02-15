@@ -38,7 +38,7 @@ class TestOperatorGrid:
             "HQ": "POLE",
         }
         operators_card = {
-            "Q2grid": [1, 100 ** 2],
+            "Q2grid": [1, 100**2],
             "interpolation_xgrid": [0.1, 1.0],
             "interpolation_polynomial_degree": 1,
             "interpolation_is_log": True,
@@ -121,7 +121,7 @@ class TestOperatorGrid:
     def test_grid_computation_VFNS(self):
         """Checks that the grid can be computed"""
         opgrid = self._get_operator_grid(False)
-        qgrid_check = [3, 5, 200 ** 2]
+        qgrid_check = [3, 5, 200**2]
         operators = opgrid.compute(qgrid_check)
         assert len(operators) == len(qgrid_check)
 

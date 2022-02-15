@@ -11,6 +11,7 @@ from ekomark.data import operators
 
 register(__file__)
 
+
 def tolist(input_dict):
     output_dict = input_dict.copy()
     for key, item in output_dict.items():

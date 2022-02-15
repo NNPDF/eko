@@ -130,7 +130,7 @@ def build_ome(A, order, a_s, backward_method):
         if order >= 1:
             ome -= a_s * A[0]
         if order >= 2:
-            ome += a_s ** 2 * (
+            ome += a_s**2 * (
                 -A[1] + np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[0])
             )
     else:
@@ -138,7 +138,7 @@ def build_ome(A, order, a_s, backward_method):
         if order >= 1:
             ome += a_s * A[0]
         if order >= 2:
-            ome += a_s ** 2 * A[1]
+            ome += a_s**2 * A[1]
         # need inverse exact ?  so add the missing pieces
         if backward_method == "exact":
             ome = np.linalg.inv(ome)

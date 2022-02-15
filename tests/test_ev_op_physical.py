@@ -85,7 +85,7 @@ class TestPhysicalOperator:
         c = b @ a
         assert c.q2_final == b.q2_final
         # V, T3 and S can be computed
-        assert sorted([str(k) for k in c.op_members.keys()]) == sorted(
+        assert sorted(str(k) for k in c.op_members.keys()) == sorted(
             ["V.V", "T3.T3", "S.S"]
         )
         assert c.op_members[member.MemberName("V.V")] == VVh @ VVl
@@ -112,13 +112,13 @@ class TestPhysicalOperator:
         )
         # check matching conditions
         d = b @ mc @ ap
-        assert sorted([str(k) for k in d.op_members.keys()]) == sorted(["T3.S"])
+        assert sorted(str(k) for k in d.op_members.keys()) == sorted(["T3.S"])
         assert (
             d.op_members[member.MemberName("T3.S")]
             == T3T3h @ T3S @ SSl + T3T3h @ T3g @ gSl
         )
         dd = b @ (mc @ ap)
-        assert sorted([str(k) for k in dd.op_members.keys()]) == sorted(["T3.S"])
+        assert sorted(str(k) for k in dd.op_members.keys()) == sorted(["T3.S"])
         assert (
             d.op_members[member.MemberName("T3.S")]
             == dd.op_members[member.MemberName("T3.S")]

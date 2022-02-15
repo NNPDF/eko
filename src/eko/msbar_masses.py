@@ -50,8 +50,8 @@ def ker_exact(a0, a1, order, nf):
     # quad ker
     def integrand(a, b_vec, g_vec):
         # minus sign goes away
-        fgamma = np.sum([a ** k * b for k, b in enumerate(g_vec)])
-        fbeta = a * np.sum([a ** k * b for k, b in enumerate(b_vec)])
+        fgamma = np.sum([a**k * b for k, b in enumerate(g_vec)])
+        fbeta = a * np.sum([a**k * b for k, b in enumerate(b_vec)])
         return fgamma / fbeta
 
     res = integrate.quad(
@@ -113,9 +113,9 @@ def ker_expanded(a0, a1, order, nf):
     if order >= 2:
         b2 = b(2, nf)
         c2 = gamma(2, nf) / b0
-        u = (c2 - c1 * b1 - b2 * c0 + b1 ** 2 * c0 + (c1 - b1 * c0) ** 2) / 2.0
-        num += a1 ** 2 * u
-        den += a0 ** 2 * u
+        u = (c2 - c1 * b1 - b2 * c0 + b1**2 * c0 + (c1 - b1 * c0) ** 2) / 2.0
+        num += a1**2 * u
+        den += a0**2 * u
     if order >= 3:
         b3 = b(3, nf)
         c3 = gamma(3, nf) / b0
@@ -124,19 +124,19 @@ def ker_expanded(a0, a1, order, nf):
             / 6
             * (
                 -2 * b3 * c0
-                - b1 ** 3 * c0 * (1 + c0) * (2 + c0)
+                - b1**3 * c0 * (1 + c0) * (2 + c0)
                 - 2 * b2 * c1
                 - 3 * b2 * c0 * c1
-                + b1 ** 2 * (2 + 3 * c0 * (2 + c0)) * c1
-                + c1 ** 3
+                + b1**2 * (2 + 3 * c0 * (2 + c0)) * c1
+                + c1**3
                 + 3 * c1 * c2
                 + b1
-                * (b2 * c0 * (4 + 3 * c0) - 3 * (1 + c0) * c1 ** 2 - (2 + 3 * c0) * c2)
+                * (b2 * c0 * (4 + 3 * c0) - 3 * (1 + c0) * c1**2 - (2 + 3 * c0) * c2)
                 + 2 * c3
             )
         )
-        num += a1 ** 3 * u
-        den += a0 ** 3 * u
+        num += a1**3 * u
+        den += a0**3 * u
     return ev_mass * num / den
 
 
@@ -332,7 +332,7 @@ def evolve(
                 as_thr = strong_coupling.a_s(q2_final / fact_to_ren, q2_final)
                 # TODO: do we need to add np.log(fac_to_ren) here ???
                 L = np.log(strong_coupling.thresholds.thresholds_ratios[pto - shift])
-                fact += as_thr ** pto * L ** l * m_coeffs[pto, l]
+                fact += as_thr**pto * L**l * m_coeffs[pto, l]
         ev_mass *= (
             fact
             * ker_dispatcher(q2_final, q2_init, strong_coupling, fact_to_ren, nf) ** 2

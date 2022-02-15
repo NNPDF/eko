@@ -35,7 +35,7 @@ class TestStrongCoupling:
     def test_init(self):
         # prepare
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         nf = 4
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         # create
@@ -125,7 +125,7 @@ class TestStrongCoupling:
             (2, 4, 175),
         ]
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
             for order in [0, 1, 2, 3]:
                 for method in ["exact", "expanded"]:
@@ -150,7 +150,7 @@ class TestStrongCoupling:
             (2, 4, 175),
         ]
         alphas_ref = 0.118
-        scale_ref = 91.0 ** 2
+        scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
             # in LO expanded  = exact
             sc_expanded = StrongCoupling(

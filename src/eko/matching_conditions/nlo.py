@@ -34,16 +34,16 @@ def A_hh_1(n, sx, L):
             |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}`
     """
     S1m = sx[0] - 1 / n  # harmonics.harmonic_S1(n - 1)
-    S2m = sx[1] - 1 / n ** 2  # harmonics.harmonic_S2(n - 1)
-    ahh_l = (2 + n - 3 * n ** 2) / (n * (1 + n)) + 4 * S1m
+    S2m = sx[1] - 1 / n**2  # harmonics.harmonic_S2(n - 1)
+    ahh_l = (2 + n - 3 * n**2) / (n * (1 + n)) + 4 * S1m
     ahh = 2 * (
         2
         + 5 * n
-        + n ** 2
-        - 6 * n ** 3
-        - 2 * n ** 4
-        - 2 * n * (-1 - 2 * n + n ** 3) * S1m
-    ) / (n * (1 + n)) ** 2 + 4 * (S1m ** 2 + S2m)
+        + n**2
+        - 6 * n**3
+        - 2 * n**4
+        - 2 * n * (-1 - 2 * n + n**3) * S1m
+    ) / (n * (1 + n)) ** 2 + 4 * (S1m**2 + S2m)
     return -CF * (ahh_l * L + ahh)
 
 
@@ -66,9 +66,9 @@ def A_gh_1(n, L):
             |NLO| gluon-heavy |OME| :math:`A_{gH}^{(1)}`
     """
 
-    agh_l1 = (2 + n + n ** 2) / (n * (n ** 2 - 1))
-    agh_l0 = (-4 + 2 * n + n ** 2 * (15 + n * (3 + n - n ** 2))) / (
-        n * (n ** 2 - 1)
+    agh_l1 = (2 + n + n**2) / (n * (n**2 - 1))
+    agh_l0 = (-4 + 2 * n + n**2 * (15 + n * (3 + n - n**2))) / (
+        n * (n**2 - 1)
     ) ** 2
     return 2 * CF * (agh_l0 + agh_l1 * L)
 
@@ -92,7 +92,7 @@ def A_hg_1(n, L):
             |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}`
     """
     den = 1.0 / (n * (n + 1) * (2 + n))
-    num = 2 * (2 + n + n ** 2)
+    num = 2 * (2 + n + n**2)
     return num * den * L
 
 

@@ -2,9 +2,9 @@
 """
 ekomark specialization of the navigator
 """
+from banana import cfg as banana_cfg
 from banana import navigator as bnav
 
-from banana import cfg as banana_cfg
 from . import navigator
 
 

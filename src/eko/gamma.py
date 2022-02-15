@@ -61,7 +61,7 @@ def gamma_2(nf):
         gamma_2 : float
             third coefficient of the QCD gamma function :math:`\\gamma_{m,2}^{n_f}`
     """
-    return 1249.0 - (2216.0 / 27.0 + 160.0 / 3.0 * zeta3) * nf - 140.0 / 81.0 * nf ** 2
+    return 1249.0 - (2216.0 / 27.0 + 160.0 / 3.0 * zeta3) * nf - 140.0 / 81.0 * nf**2
 
 
 @nb.njit("f8(u1)", cache=True)
@@ -92,8 +92,8 @@ def gamma_3(nf):
             + 18400.0 * zeta5 / 9.0
         )
         * nf
-        + (5242.0 / 243.0 + 800.0 * zeta3 / 9.0 - 160.0 * zeta4 / 3.0) * nf ** 2
-        + (332.0 / 243.0 + 64.0 * zeta3 / 27.0) * nf ** 3
+        + (5242.0 / 243.0 + 800.0 * zeta3 / 9.0 - 160.0 * zeta4 / 3.0) * nf**2
+        + (332.0 / 243.0 + 64.0 * zeta3 / 27.0) * nf**3
     )
 
 
