@@ -57,7 +57,7 @@ spec = [
 @nb.experimental.jitclass(spec)
 class QuadKerBase:
     """
-    Class to manage the common part of Mellin inversion integral
+    Manage the common part of Mellin inversion integral
 
     Parameters
     ----------

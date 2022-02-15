@@ -93,7 +93,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            is_sv_scheme_a=False,
+            is_sv_scheme_a=True,
         )
         np.testing.assert_allclose(res_sv, 1.0)
 
