@@ -44,7 +44,7 @@ def test_beta_3():
     _flav_test(beta.beta_3)
     # from hep-ph/9706430
     np.testing.assert_allclose(
-        beta.beta_3(5), 4 ** 4 * (11027.0 / 648.0 * zeta3 - 598391.0 / 373248.0)
+        beta.beta_3(5), 4**4 * (11027.0 / 648.0 * zeta3 - 598391.0 / 373248.0)
     )
 
 

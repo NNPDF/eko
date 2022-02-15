@@ -85,25 +85,25 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
                 b3 = beta_b(3, nf)
                 log_fact = np.log(as_LO)
                 res += (
-                    as_LO ** 4
-                    / (2 * beta0 ** 3)
+                    as_LO**4
+                    / (2 * beta0**3)
                     * (
-                        -2 * b1 ** 3 * np.log(as_ref) ** 3
-                        + 5 * b1 ** 3 * log_fact ** 2
-                        + 2 * b1 ** 3 * log_fact ** 3
-                        + b1 ** 3 * np.log(as_ref) ** 2 * (5 + 6 * log_fact)
+                        -2 * b1**3 * np.log(as_ref) ** 3
+                        + 5 * b1**3 * log_fact**2
+                        + 2 * b1**3 * log_fact**3
+                        + b1**3 * np.log(as_ref) ** 2 * (5 + 6 * log_fact)
                         + 2
                         * beta0
                         * b1
                         * log_fact
-                        * (b2 + 2 * (b1 ** 2 - beta0 * b2) * lmu * as_ref)
-                        - beta0 ** 2
+                        * (b2 + 2 * (b1**2 - beta0 * b2) * lmu * as_ref)
+                        - beta0**2
                         * lmu
                         * as_ref
                         * (
                             -2 * b1 * b2
                             + 2 * beta0 * b3
-                            + (b1 ** 3 - 2 * beta0 * b1 * b2 + beta0 ** 2 * b3)
+                            + (b1**3 - 2 * beta0 * b1 * b2 + beta0**2 * b3)
                             * lmu
                             * as_ref
                         )
@@ -111,9 +111,9 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
                         * b1
                         * np.log(as_ref)
                         * (
-                            5 * b1 ** 2 * log_fact
-                            + 3 * b1 ** 2 * log_fact ** 2
-                            + beta0 * (b2 + 2 * (b1 ** 2 - beta0 * b2) * lmu * as_ref)
+                            5 * b1**2 * log_fact
+                            + 3 * b1**2 * log_fact**2
+                            + beta0 * (b2 + 2 * (b1**2 - beta0 * b2) * lmu * as_ref)
                         )
                     )
                 )

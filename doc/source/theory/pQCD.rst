@@ -34,7 +34,7 @@ We implement two different strategies to solve the |RGE|:
                 & - 2 b_1 L_{0} \left[ 5 b_1^2  L_{\text{LO}} + 3 b_1^2  L_{\text{LO}}^2 + b_0 \left[b_2 + 2 \left(b_1^2 - b_0 b_2\right) L_{\mu} a_s(\mu_0^2)\right] \right ] \\
                 & \left. \right\}
 
-being: 
+being:
 
 .. math ::
     L_{\mu} &= \ln(\mu_R^2/\mu_0^2) \\
@@ -43,7 +43,7 @@ being:
 
 When the renormalization scale crosses a flavor threshold matching conditions
 have to be applied :cite:`Schroder:2005hy,Chetyrkin:2005ia`.
-In particular, the matching involved in the change from :math:`n_f` to :math:`n_f-1` schemes 
+In particular, the matching involved in the change from :math:`n_f` to :math:`n_f-1` schemes
 is presented in equation 3.1 of :cite:`Schroder:2005hy` for |MSbar| masses, while the
 same expression for POLE masses is reported in Appendix A.
 

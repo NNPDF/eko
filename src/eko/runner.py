@@ -8,8 +8,7 @@ import logging
 import numpy as np
 
 from . import basis_rotation as br
-from . import interpolation
-from . import msbar_masses
+from . import interpolation, msbar_masses
 from .evolution_operator.grid import OperatorGrid
 from .output import Output
 from .strong_coupling import StrongCoupling

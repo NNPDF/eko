@@ -166,10 +166,10 @@ class TestStrongCoupling:
 
     def benchmark_expanded_n3lo(self):
         """test N3LO - NNLO expansion with some reference value from Mathematica"""
-        Q2 = 100 ** 2
+        Q2 = 100**2
         # use a big alpha_s to enlarge the difference
         alphas_ref = 0.9
-        scale_ref = 90 ** 2
+        scale_ref = 90**2
         m2c = 2
         m2b = 25
         m2t = 30625
