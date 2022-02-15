@@ -10,10 +10,10 @@ import numba as nb
 import numpy as np
 from scipy import integrate
 
-from ..evolution_operator import Operator
 from .. import anomalous_dimensions as ad
 from .. import beta, interpolation, mellin
 from ..basis_rotation import full_labels
+from ..evolution_operator import Operator, select_singlet_element
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)
@@ -139,36 +139,22 @@ def quad_ker(
     # get transformation to N integral
     if logx == 0.0:
         return 0.0
-    r = 0.4 * 16.0 / (-logx)
-    if is_singlet:
-        o = 1.0
-    else:
-        o = 0.0
-    n = mellin.Talbot_path(u, r, o)
-    jac = mellin.Talbot_jac(u, r, o)
-    # check PDF is active
-    if is_log:
-        pj = interpolation.log_evaluate_Nx(n, logx, areas)
-    else:
-        pj = interpolation.evaluate_Nx(n, logx, areas)
+    path = mellin.Path(u, logx, is_singlet)
+    pj = interpolation.evaluate_grid(path.n, is_log, logx, areas)
     if pj == 0.0:
         return 0.0
 
     # compute the actual scale variation kernel
     if is_singlet:
-        gamma_singlet = ad.gamma_singlet(order, n, nf)
+        gamma_singlet = ad.gamma_singlet(order, path.n, nf)
         ker = singlet_dispatcher(gamma_singlet, a_s, order, nf, L)
-        # select element of matrix
-        k = 0 if mode[2] == "q" else 1
-        l = 0 if mode[3] == "q" else 1
-        ker = ker[k, l]
+        ker = select_singlet_element(ker, mode)
     else:
-        gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
+        gamma_ns = ad.gamma_ns(order, mode[-1], path.n, nf)
         ker = non_singlet_dispatcher(gamma_ns, a_s, order, nf, L)
 
     # recombine everthing
-    mellin_prefactor = complex(0.0, -1.0 / np.pi)
-    return np.real(mellin_prefactor * ker * pj * jac)
+    return np.real(path.prefactor * ker * pj * path.jac)
 
 
 class ScaleVariationOperator(Operator):
@@ -224,7 +210,7 @@ class ScaleVariationOperator(Operator):
         # setup ingredients
         sc = self.managers["strong_coupling"]
         fact_to_ren = self.config["fact_to_ren"]
-        a_s = sc.a_s(self.q2_from / fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf)
+        a_s = sc.a_s(self.q2_from / fact_to_ren, fact_scale=self.q2_from)
         logger.info(
             "Scale Variation: (µ_F/µ_R)^2 = %e, Q^2 = %e, nf=%d",
             fact_to_ren,

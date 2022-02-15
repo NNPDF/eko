@@ -23,6 +23,28 @@ from ..scale_variations.a import gamma_ns_fact, gamma_singlet_fact
 logger = logging.getLogger(__name__)
 
 
+@nb.njit("c16(c16[:,:],string)")
+def select_singlet_element(ker, mode):
+    """
+    Select element of the singlet matrix
+
+    Parameters
+    ----------
+        mode : str
+            sector element
+        ker : numpy.ndarray
+            singlet integration kernel
+
+    Returns
+    -------
+        ker : complex
+            singlet integration kernel element
+    """
+    k = 0 if mode[2] == "q" else 1
+    l = 0 if mode[3] == "q" else 1
+    return ker[k, l]
+
+
 @nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,string)", cache=True)
 def quad_ker(
     u,
@@ -83,34 +105,21 @@ def quad_ker(
     # get transformation to N integral
     if logx == 0.0:
         return 0.0
-    r = 0.4 * 16.0 / (-logx)
-    if is_singlet:
-        o = 1.0
-    else:
-        o = 0.0
-    n = mellin.Talbot_path(u, r, o)
-    jac = mellin.Talbot_jac(u, r, o)
-    # check PDF is active
-    if is_log:
-        pj = interpolation.log_evaluate_Nx(n, logx, areas)
-    else:
-        pj = interpolation.evaluate_Nx(n, logx, areas)
+    path = mellin.Path(u, logx, is_singlet)
+    pj = interpolation.evaluate_grid(path.n, is_log, logx, areas)
     if pj == 0.0:
         return 0.0
     # compute the actual evolution kernel
     if is_singlet:
-        gamma_singlet = ad.gamma_singlet(order, n, nf)
+        gamma_singlet = ad.gamma_singlet(order, path.n, nf)
         if sv_scheme == "A":
             gamma_singlet = gamma_singlet_fact(gamma_singlet, order, nf, L)
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
-        # select element of matrix
-        k = 0 if mode[2] == "q" else 1
-        l = 0 if mode[3] == "q" else 1
-        ker = ker[k, l]
+        ker = select_singlet_element(ker, mode)
     else:
-        gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
+        gamma_ns = ad.gamma_ns(order, mode[-1], path.n, nf)
         if sv_scheme == "A":
             gamma_ns = gamma_ns_fact(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
@@ -123,8 +132,7 @@ def quad_ker(
             ev_op_iterations,
         )
     # recombine everthing
-    mellin_prefactor = complex(0.0, -1.0 / np.pi)
-    return np.real(mellin_prefactor * ker * pj * jac)
+    return np.real(path.prefactor * ker * pj * path.jac)
 
 
 class Operator:
@@ -262,7 +270,9 @@ class Operator:
                             np.log(fact_to_ren),
                             self.config["ev_op_iterations"],
                             self.config["ev_op_max_order"],
-                            self.config["SV_scheme"] if self.config["SV_scheme"] is not None else "",
+                            self.config["SV_scheme"]
+                            if self.config["SV_scheme"] is not None
+                            else "",
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,

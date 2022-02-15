@@ -198,3 +198,47 @@ def edge_jac(t, m, _c, phi):
         return -m * np.exp(complex(0, -phi))
     else:
         return +m * np.exp(complex(0, phi))
+
+
+spec = [
+    ("t", nb.float64),
+    ("r", nb.float64),
+    ("o", nb.int8),
+]
+
+
+@nb.experimental.jitclass(spec)
+class Path:
+    """
+    Mellin path dispatcher
+
+    Parameters
+    ----------
+        t : float
+            way parameter
+        logx : float
+            Mellin inversion point
+        axis_offset: bool
+            add offset on the real axis
+    """
+
+    def __init__(self, t, logx, axis_offset):
+        self.t = t
+        self.r = 0.4 * 16.0 / (-logx)
+        if axis_offset:
+            self.o = 1.0
+        else:
+            self.o = 0.0
+
+    # TODO: make also the other 2 paths available ??
+    @property
+    def n(self):
+        return Talbot_path(self.t, self.r, self.o)
+
+    @property
+    def jac(self):
+        return Talbot_jac(self.t, self.r, self.o)
+
+    @property
+    def prefactor(self):
+        return complex(0.0, -1.0 / np.pi)
