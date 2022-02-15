@@ -18,12 +18,11 @@ from ..basis_rotation import full_labels, singlet_labels
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
-from ..scale_variations.a import gamma_ns_fact, gamma_singlet_fact
+from ..scale_variations.a import gamma_fact
 
 logger = logging.getLogger(__name__)
 
 
-# TODO: add this to QuadKerBase class ??
 @nb.njit("c16(c16[:,:],string)")
 def select_singlet_element(ker, mode):
     """
@@ -177,7 +176,7 @@ def quad_ker(
     if ker_base.is_singlet:
         gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
         if sv_scheme == "A":
-            gamma_singlet = gamma_singlet_fact(gamma_singlet, order, nf, L)
+            gamma_singlet = gamma_fact(gamma_singlet, order, nf, L)
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
@@ -185,7 +184,7 @@ def quad_ker(
     else:
         gamma_ns = ad.gamma_ns(order, mode[-1], ker_base.n, nf)
         if sv_scheme == "A":
-            gamma_ns = gamma_ns_fact(gamma_ns, order, nf, L)
+            gamma_ns = gamma_fact(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
             method,
