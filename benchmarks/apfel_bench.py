@@ -180,4 +180,4 @@ if __name__ == "__main__":
     # obj.benchmark_plain(1)
     # obj.benchmark_sv(1)
     # obj.benchmark_kthr(2)
-    obj.benchmark_msbar(0)
+    obj.benchmark_msbar(2)

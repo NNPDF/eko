@@ -79,8 +79,7 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
                 + as_LO * (as_LO - as_ref) * (b2 - b1**2)
                 + as_NLO * b1 * np.log(as_NLO / as_ref)
             )
-            # N3LO expansion is taken from Luca Rottoli and it's simpler
-            # than the APFEL expansion which is more accurate
+            # N3LO expansion is taken from Luca Rottoli
             if order >= 3:
                 b3 = beta_b(3, nf)
                 log_fact = np.log(as_LO)

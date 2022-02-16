@@ -193,7 +193,7 @@ class BenchmarkMSbar:
         With this test you can see that in EKO
         the solution value of mb is not affected by "kbThr",
         since mb is searched with an Nf=5 larger range.
-        While in Apfel this doesn't happend
+        While in Apfel this doesn't happen.
         """
         theory_dict.update(
             {
