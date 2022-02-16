@@ -22,15 +22,17 @@ from ..scale_variations import a, b
 
 logger = logging.getLogger(__name__)
 
+full_labels_dict = dict(zip(full_labels, np.arange(len(full_labels))))
 
-@nb.njit("c16(c16[:,:],string)")
+
+@nb.njit("c16(c16[:,:],u1)", cache=True)
 def select_singlet_element(ker, mode):
     """
     Select element of the singlet matrix
 
     Parameters
     ----------
-        mode : str
+        mode : int
             sector element
         ker : numpy.ndarray
             singlet integration kernel
@@ -40,8 +42,8 @@ def select_singlet_element(ker, mode):
         ker : complex
             singlet integration kernel element
     """
-    k = 0 if mode[2] == "q" else 1
-    l = 0 if mode[3] == "q" else 1
+    k = 0 if mode < 2 else 1
+    l = 0 if mode % 2 == 0 else 1
     return ker[k, l]
 
 
@@ -66,12 +68,12 @@ class QuadKerBase:
             is a logarithmic interpolation
         logx : float
             Mellin inversion point
-        mode : str
+        mode : int
             sector element
     """
 
     def __init__(self, u, is_log, logx, mode):
-        self.is_singlet = mode[0] == "S"
+        self.is_singlet = mode < 4
         self.is_log = is_log
         self.u = u
         self.logx = logx
@@ -111,7 +113,7 @@ class QuadKerBase:
         return self.path.prefactor * pj * self.path.jac
 
 
-@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,u1)", cache=True)
+@nb.njit("f8(f8,u1,u1,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,u1)", cache=True)
 def quad_ker(
     u,
     order,
@@ -139,7 +141,7 @@ def quad_ker(
             perturbation order
         method : str
             method
-        mode : str
+        mode : int
             sector element
         is_log : boolean
             is a logarithmic interpolation
@@ -186,7 +188,7 @@ def quad_ker(
             ker = b.singlet_variation(ker, gamma_singlet, a1, order, nf, L)
         ker = select_singlet_element(ker, mode)
     else:
-        gamma_ns = ad.gamma_ns(order, mode[-1], ker_base.n, nf)
+        gamma_ns = ad.gamma_ns(order, mode, ker_base.n, nf)
         if sv_scheme == 1:
             gamma_ns = a.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
@@ -365,7 +367,7 @@ class Operator:
                         1.0 - self._mellin_cut,
                         args=(
                             self.config["order"],
-                            label,
+                            full_labels_dict[label],
                             self.config["method"],
                             self.int_disp.log,
                             logx,

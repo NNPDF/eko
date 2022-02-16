@@ -6,13 +6,34 @@ import scipy.integrate
 from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
 from eko import interpolation, mellin
-from eko.evolution_operator import Operator, quad_ker
+from eko.evolution_operator import (
+    Operator,
+    full_labels_dict,
+    quad_ker,
+    select_singlet_element,
+)
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
+
+
+def test_full_labels_dict():
+    for mode in ["S_qq", "S_qg", "S_gq", "S_gg"]:
+        assert full_labels_dict[mode] < 4
+    for mode in ["NS_p", "NS_m", "NS_v"]:
+        assert full_labels_dict[mode] >= 4
+
+
+def test_select_singlet_element():
+    fake_singlet_ker = np.array([["S_qq", "S_qg"], ["S_gq", "S_gg"]])
+    for mode in np.arange(4):
+        assert (
+            select_singlet_element(fake_singlet_ker, mode)
+            == list(full_labels_dict)[mode]
+        )
 
 
 def test_quad_ker(monkeypatch):
@@ -30,7 +51,7 @@ def test_quad_ker(monkeypatch):
         res_ns = quad_ker(
             u=0,
             order=0,
-            mode="NS_p",
+            mode=full_labels_dict["NS_p"],
             method="",
             is_log=is_log,
             logx=0.0,
@@ -47,7 +68,7 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=0,
-            mode="S_qq",
+            mode=full_labels_dict["S_qq"],
             method="",
             is_log=is_log,
             logx=1.0,
@@ -64,7 +85,7 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=0,
-            mode="S_qg",
+            mode=full_labels_dict["S_qg"],
             method="",
             is_log=is_log,
             logx=0.0,
@@ -83,7 +104,7 @@ def test_quad_ker(monkeypatch):
             res_sv = quad_ker(
                 u=0,
                 order=0,
-                mode=mode,
+                mode=full_labels_dict[mode],
                 method="",
                 is_log=True,
                 logx=1.0,
@@ -102,7 +123,7 @@ def test_quad_ker(monkeypatch):
     res_ns = quad_ker(
         u=0,
         order=0,
-        mode="NS_p",
+        mode=full_labels_dict["NS_p"],
         method="",
         is_log=True,
         logx=0.0,
@@ -223,7 +244,7 @@ def test_pegasus_path():
         phi = 3 / 4 * np.pi
         c = 1.9
         n = complex(c + u * np.exp(1j * phi))
-        gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
+        gamma_ns = ad.gamma_ns(order, mode, n, nf)
         ker = ns.dispatcher(
             order,
             method,
@@ -241,7 +262,7 @@ def test_pegasus_path():
     xgrid = np.geomspace(1e-7, 1, 10)
     int_disp = InterpolatorDispatcher(xgrid, 1, True)
     order = 1
-    mode = "NS_p"
+    mode = full_labels_dict["NS_p"]
     method = ""
     logxs = np.log(int_disp.xgrid_raw)
     a1 = 1
