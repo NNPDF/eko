@@ -14,7 +14,12 @@ from scipy import integrate
 
 from .. import anomalous_dimensions as ad
 from .. import interpolation, mellin
-from ..basis_rotation import full_labels, singlet_labels
+from .. import scale_variations as sv
+from ..basis_rotation import (
+    anomalous_dimensions_basis,
+    anomalous_dimensions_basis_idx,
+    singlet_labels,
+)
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
@@ -22,7 +27,8 @@ from ..scale_variations import a, b
 
 logger = logging.getLogger(__name__)
 
-full_labels_dict = dict(zip(full_labels, np.arange(len(full_labels))))
+ad_basis_dict = dict(zip(anomalous_dimensions_basis, anomalous_dimensions_basis_idx))
+sv_scheme_dict = dict(zip([None, "A", "B"], [sv.unvaried, sv.scheme_A, sv.scheme_B]))
 
 
 @nb.njit("c16(c16[:,:],u1)", cache=True)
@@ -33,7 +39,11 @@ def select_singlet_element(ker, mode):
     Parameters
     ----------
         mode : int
-            sector element
+            sector element:
+                0: "S_qq", ker[0,0]
+                1: "S_qg", ker[0,1]
+                2: "S_gq", ker[1,1]
+                3: "S_gg", ker[1,1]
         ker : numpy.ndarray
             singlet integration kernel
 
@@ -178,18 +188,18 @@ def quad_ker(
     if ker_base.is_singlet:
         gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
         # scale var A is directly applied on gamma
-        if sv_scheme == 1:
+        if sv_scheme == sv.scheme_A:
             gamma_singlet = a.gamma_variation(gamma_singlet, order, nf, L)
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
         # scale var B is applied on the kernel
-        if sv_scheme == 2:
+        if sv_scheme == sv.scheme_B:
             ker = b.singlet_variation(ker, gamma_singlet, a1, order, nf, L)
         ker = select_singlet_element(ker, mode)
     else:
         gamma_ns = ad.gamma_ns(order, mode, ker_base.n, nf)
-        if sv_scheme == 1:
+        if sv_scheme == sv.scheme_A:
             gamma_ns = a.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
@@ -200,7 +210,7 @@ def quad_ker(
             nf,
             ev_op_iterations,
         )
-        if sv_scheme == 2:
+        if sv_scheme == sv.scheme_B:
             ker = b.non_singlet_variation(ker, gamma_ns, a1, order, nf, L)
 
     # recombine everthing
@@ -247,7 +257,6 @@ class Operator:
     @property
     def sv_scheme(self):
         """Returns the scale variation scheme"""
-        sv_scheme_dict = {None: 0, "A": 1, "B": 2}
         return sv_scheme_dict[self.config["SV_scheme"]]
 
     @property
@@ -300,7 +309,7 @@ class Operator:
             np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
         )
         zero = OpMember(*[np.zeros((self.grid_size, self.grid_size))] * 2)
-        for n in full_labels:
+        for n in anomalous_dimensions_basis:
             if n in self.labels:
                 # off diag singlet are zero
                 if n in ["S_qg", "S_gq"]:
@@ -367,7 +376,7 @@ class Operator:
                         1.0 - self._mellin_cut,
                         args=(
                             self.config["order"],
-                            full_labels_dict[label],
+                            ad_basis_dict[label],
                             self.config["method"],
                             self.int_disp.log,
                             logx,

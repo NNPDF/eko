@@ -8,7 +8,7 @@ from eko import basis_rotation as br
 from eko import interpolation, mellin
 from eko.evolution_operator import (
     Operator,
-    full_labels_dict,
+    ad_basis_dict,
     quad_ker,
     select_singlet_element,
 )
@@ -20,19 +20,26 @@ from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
 
-def test_full_labels_dict():
+def test_ad_basis_dict():
+    assert ad_basis_dict["S_qq"] == 0
+    assert ad_basis_dict["S_qg"] == 1
+    assert ad_basis_dict["S_gq"] == 2
+    assert ad_basis_dict["S_gg"] == 3
+    assert ad_basis_dict["NS_m"] == 4
+    assert ad_basis_dict["NS_p"] == 5
+    assert ad_basis_dict["NS_v"] == 6
+
     for mode in ["S_qq", "S_qg", "S_gq", "S_gg"]:
-        assert full_labels_dict[mode] < 4
+        assert ad_basis_dict[mode] < 4
     for mode in ["NS_p", "NS_m", "NS_v"]:
-        assert full_labels_dict[mode] >= 4
+        assert ad_basis_dict[mode] >= 4
 
 
 def test_select_singlet_element():
     fake_singlet_ker = np.array([["S_qq", "S_qg"], ["S_gq", "S_gg"]])
     for mode in np.arange(4):
         assert (
-            select_singlet_element(fake_singlet_ker, mode)
-            == list(full_labels_dict)[mode]
+            select_singlet_element(fake_singlet_ker, mode) == list(ad_basis_dict)[mode]
         )
 
 
@@ -51,7 +58,7 @@ def test_quad_ker(monkeypatch):
         res_ns = quad_ker(
             u=0,
             order=0,
-            mode=full_labels_dict["NS_p"],
+            mode=ad_basis_dict["NS_p"],
             method="",
             is_log=is_log,
             logx=0.0,
@@ -68,7 +75,7 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=0,
-            mode=full_labels_dict["S_qq"],
+            mode=ad_basis_dict["S_qq"],
             method="",
             is_log=is_log,
             logx=1.0,
@@ -85,7 +92,7 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=0,
-            mode=full_labels_dict["S_qg"],
+            mode=ad_basis_dict["S_qg"],
             method="",
             is_log=is_log,
             logx=0.0,
@@ -104,7 +111,7 @@ def test_quad_ker(monkeypatch):
             res_sv = quad_ker(
                 u=0,
                 order=0,
-                mode=full_labels_dict[mode],
+                mode=ad_basis_dict[mode],
                 method="",
                 is_log=True,
                 logx=1.0,
@@ -123,7 +130,7 @@ def test_quad_ker(monkeypatch):
     res_ns = quad_ker(
         u=0,
         order=0,
-        mode=full_labels_dict["NS_p"],
+        mode=ad_basis_dict["NS_p"],
         method="",
         is_log=True,
         logx=0.0,
@@ -262,7 +269,7 @@ def test_pegasus_path():
     xgrid = np.geomspace(1e-7, 1, 10)
     int_disp = InterpolatorDispatcher(xgrid, 1, True)
     order = 1
-    mode = full_labels_dict["NS_p"]
+    mode = ad_basis_dict["NS_p"]
     method = ""
     logxs = np.log(int_disp.xgrid_raw)
     a1 = 1

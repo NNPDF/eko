@@ -73,6 +73,10 @@ anomalous_dimensions_basis = full_labels
 r"""
 Sorted elements in Anomalous Dimensions Basis as :obj:`str`.
 """
+anomalous_dimensions_basis_idx = tuple(range(len(full_labels)))
+r"""
+Sorted elements in Anomalous Dimensions Basis as  :obj:`int`.
+"""
 
 # Tranformation from physical basis to QCD evolution basis
 rotate_flavor_to_evolution = np.array(
