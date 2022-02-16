@@ -7,7 +7,6 @@ See :doc:`Operator overview </code/Operators>`.
 
 import logging
 import time
-from functools import cached_property
 
 import numba as nb
 import numpy as np
@@ -19,7 +18,7 @@ from ..basis_rotation import full_labels, singlet_labels
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
-from ..scale_variations.a import gamma_fact
+from ..scale_variations import a, b
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +111,7 @@ class QuadKerBase:
         return self.path.prefactor * pj * self.path.jac
 
 
-@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,b1)", cache=True)
+@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,u1)", cache=True)
 def quad_ker(
     u,
     order,
@@ -127,7 +126,7 @@ def quad_ker(
     L,
     ev_op_iterations,
     ev_op_max_order,
-    is_sv_scheme_a,
+    sv_scheme,
 ):
     """
     Raw evolution kernel inside quad.
@@ -160,8 +159,8 @@ def quad_ker(
             number of evolution steps
         ev_op_max_order : int
             perturbative expansion order of U
-        is_sv_scheme_a : bool
-            use scale variation scheme A
+        sv_scheme: int
+            use scale variation scheme 0: none, 1: A, 2: B
 
     Returns
     -------
@@ -176,16 +175,20 @@ def quad_ker(
     # compute the actual evolution kernel
     if ker_base.is_singlet:
         gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
-        if is_sv_scheme_a:
-            gamma_singlet = gamma_fact(gamma_singlet, order, nf, L)
+        # scale var A is directly applied on gamma
+        if sv_scheme == 1:
+            gamma_singlet = a.gamma_variation(gamma_singlet, order, nf, L)
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
+        # scale var B is applied on the kernel
+        if sv_scheme == 2:
+            ker = b.singlet_variation(ker, gamma_singlet, a1, order, nf, L)
         ker = select_singlet_element(ker, mode)
     else:
         gamma_ns = ad.gamma_ns(order, mode[-1], ker_base.n, nf)
-        if is_sv_scheme_a:
-            gamma_ns = gamma_fact(gamma_ns, order, nf, L)
+        if sv_scheme == 1:
+            gamma_ns = a.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
             method,
@@ -195,6 +198,9 @@ def quad_ker(
             nf,
             ev_op_iterations,
         )
+        if sv_scheme == 2:
+            ker = b.non_singlet_variation(ker, gamma_ns, a1, order, nf, L)
+
     # recombine everthing
     return np.real(ker * integrand)
 
@@ -231,27 +237,33 @@ class Operator:
         self._mellin_cut = mellin_cut
         self.op_members = {}
 
-    @cached_property
+    @property
     def fact_to_ren(self):
-        """Returns the interpolation dispatcher"""
+        """Returns the factor (µ_F/µ_R)^2"""
         return self.config["fact_to_ren"]
 
-    @cached_property
+    @property
+    def sv_scheme(self):
+        """Returns the scale variation scheme"""
+        sv_scheme_dict = {None: 0, "A": 1, "B": 2}
+        return sv_scheme_dict[self.config["SV_scheme"]]
+
+    @property
     def int_disp(self):
         """Returns the interpolation dispatcher"""
         return self.managers["interpol_dispatcher"]
 
-    @cached_property
+    @property
     def grid_size(self):
         """Returns the grid size"""
         return self.int_disp.xgrid.size
 
-    @cached_property
+    @property
     def strong_coupling(self):
         """Returns the instance of :class:`eko.strong_coupling.StrongCoupling`"""
         return self.managers["strong_coupling"]
 
-    @cached_property
+    @property
     def labels(self):
         """
         Compute necessary sector labels to compute.
@@ -324,6 +336,12 @@ class Operator:
             self.q2_from / self.fact_to_ren,
             self.q2_to / self.fact_to_ren,
         )
+        if self.sv_scheme != 0:
+            logger.info(
+                "Scale Variation: (µ_F/µ_R)^2 = %e, scheme: %s",
+                self.fact_to_ren,
+                "A" if self.sv_scheme == 1 else "B",
+            )
         logger.info("Evolution: a_s distance: %e -> %e", a0, a1)
         logger.info(
             "Evolution: order: %d, solution strategy: %s",
@@ -358,7 +376,7 @@ class Operator:
                             np.log(self.fact_to_ren),
                             self.config["ev_op_iterations"],
                             self.config["ev_op_max_order"],
-                            bool(self.config["SV_scheme"] == "A"),
+                            self.sv_scheme,
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,

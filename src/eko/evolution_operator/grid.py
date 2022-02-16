@@ -15,7 +15,6 @@ from eko import matching_conditions, member
 from eko.evolution_operator import flavors
 
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
-from ..scale_variations.b import ScaleVariationOperator
 from . import Operator, physical
 
 logger = logging.getLogger(__name__)
@@ -81,7 +80,6 @@ class OperatorGrid:
         )
         self._threshold_operators = {}
         self._matching_operators = {}
-        self._sv_operators = {}
 
     @classmethod
     def from_dict(
@@ -187,13 +185,6 @@ class OperatorGrid:
                 kthr = thr_config.thresholds_ratios[seg.nf - shift]
                 ome.compute(seg.q2_to, np.log(kthr), self.config["HQ"] == "MSBAR")
                 self._matching_operators[seg.q2_to] = ome.ome_members
-            # compute the scale variation scheme B
-            if self.config["SV_scheme"] == "B" and seg.q2_to not in self._sv_operators:
-                scale_var = ScaleVariationOperator(
-                    self.config, self.managers, seg.nf-shift+3, seg.q2_to
-                )
-                scale_var.compute()
-                self._sv_operators[seg.q2_to] = scale_var
         return thr_ops
 
     def compute(self, q2grid=None):
@@ -254,36 +245,12 @@ class OperatorGrid:
             operator.q2_to,
             intrinsic_range,
         )
-        # Compute scale variation scheme B
-        if self.config["SV_scheme"] == "B":
-            scale_var = ScaleVariationOperator(
-                self.config, self.managers, operator.nf, operator.q2_to
-            )
-            scale_var.compute()
-            scale_var_op = physical.PhysicalOperator.ad_to_evol_map(
-                scale_var.op_members,
-                scale_var.nf,
-                scale_var.q2_to,
-                intrinsic_range,
-             )
-            final_op = scale_var_op @ final_op
-
         # and multiply the lower ones from the right
         for i, op in reversed(list(enumerate(thr_ops))):
             is_backward = path[i].is_backward
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
                 op.op_members, op.nf, op.q2_to, intrinsic_range
             )
-            # add the scale variation scheme B operator
-            if op.q2_to in self._sv_operators:
-                scale_var = self._sv_operators[op.q2_to]
-                scale_var_op = physical.PhysicalOperator.ad_to_evol_map(
-                    scale_var.op_members,
-                    scale_var.nf,
-                    scale_var.q2_to,
-                    intrinsic_range,
-                )
-                phys_op = scale_var_op @ phys_op
 
             # join with the basis rotation, since matching requires c+ (or likewise)
             if is_backward:

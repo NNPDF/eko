@@ -8,7 +8,7 @@ from .. import beta
 
 
 @nb.njit(["c16[:,:,:](c16[:,:,:],u1,u1,f8)", "c16[:](c16[:],u1,u1,f8)"], cache=True)
-def gamma_fact(gamma, order, nf, L):
+def gamma_variation(gamma, order, nf, L):
     """
     Adjust the anomalous dimensions with the scale variations.
 
@@ -33,7 +33,7 @@ def gamma_fact(gamma, order, nf, L):
     if order >= 2:
         gamma[2] -= (
             2 * beta.beta(0, nf) * gamma[1] * L
-            + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L ** 2) * gamma[0]
+            + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L**2) * gamma[0]
         )
     if order >= 1:
         gamma[1] -= beta.beta(0, nf) * gamma[0] * L

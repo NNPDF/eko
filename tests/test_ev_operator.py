@@ -41,7 +41,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            is_sv_scheme_a=False,
+            sv_scheme=0,
         )
         np.testing.assert_allclose(res_ns, 0.0)
         res_s = quad_ker(
@@ -58,7 +58,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            is_sv_scheme_a=False,
+            sv_scheme=0,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -75,27 +75,28 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            is_sv_scheme_a=False,
+            sv_scheme=0,
         )
         np.testing.assert_allclose(res_s, 0.0)
     for mode in ["NS_p", "S_qq"]:
-        res_sv = quad_ker(
-            u=0,
-            order=0,
-            mode=mode,
-            method="",
-            is_log=True,
-            logx=1.0,
-            areas=np.zeros(3),
-            a1=1,
-            a0=2,
-            nf=3,
-            L=0,
-            ev_op_iterations=0,
-            ev_op_max_order=0,
-            is_sv_scheme_a=True,
-        )
-        np.testing.assert_allclose(res_sv, 1.0)
+        for sv in [1, 2]:
+            res_sv = quad_ker(
+                u=0,
+                order=0,
+                mode=mode,
+                method="",
+                is_log=True,
+                logx=1.0,
+                areas=np.zeros(3),
+                a1=1,
+                a0=2,
+                nf=3,
+                L=0,
+                ev_op_iterations=0,
+                ev_op_max_order=0,
+                sv_scheme=sv,
+            )
+            np.testing.assert_allclose(res_sv, 1.0)
 
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
@@ -112,7 +113,7 @@ def test_quad_ker(monkeypatch):
         L=0,
         ev_op_iterations=0,
         ev_op_max_order=0,
-        is_sv_scheme_a=False,
+        sv_scheme=0,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
@@ -267,7 +268,7 @@ def test_pegasus_path():
                     L,
                     ev_op_iterations,
                     10,
-                    None,
+                    0,
                 ),
                 epsabs=1e-12,
                 epsrel=1e-5,
