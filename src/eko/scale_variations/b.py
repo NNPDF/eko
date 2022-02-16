@@ -13,15 +13,13 @@ from .. import beta
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("c16(c16,c16[:],f8,u1,u1,f8)", cache=True)
-def non_singlet_variation(ker, gamma, a_s, order, nf, L):
+@nb.njit("c16(c16[:],f8,u1,u1,f8)", cache=True)
+def non_singlet_variation(gamma, a_s, order, nf, L):
     """
     Scale Variation non singlet dispatcher
 
     Parameters
     ----------
-        ker : complex
-            non singlet evolution kernel
         gamma : numpy.ndarray
             anomalous dimensions
         a_s :  float
@@ -38,7 +36,7 @@ def non_singlet_variation(ker, gamma, a_s, order, nf, L):
         sv_ker : numpy.ndarray
             scale varion kernel
     """
-    sv_ker = ker
+    sv_ker = 1.0
     if order >= 1:
         sv_ker -= a_s * L * gamma[0]
     if order >= 2:
@@ -49,15 +47,13 @@ def non_singlet_variation(ker, gamma, a_s, order, nf, L):
     return sv_ker
 
 
-@nb.njit("c16[:,:](c16[:,:],c16[:,:,:],f8,u1,u1,f8)", cache=True)
-def singlet_variation(ker, gamma, a_s, order, nf, L):
+@nb.njit("c16[:,:](c16[:,:,:],f8,u1,u1,f8)", cache=True)
+def singlet_variation(gamma, a_s, order, nf, L):
     """
     Scale Variation singlet dispatcher
 
     Parameters
     ----------
-        ker : numpy.ndarray
-            singlet evolution kernel
         gamma : numpy.ndarray
             anomalous dimensions
         a_s :  float
@@ -74,7 +70,7 @@ def singlet_variation(ker, gamma, a_s, order, nf, L):
         sv_ker : numpy.ndarray
             scale varion kernel
     """
-    sv_ker = ker
+    sv_ker = np.eye(2, dtype=np.complex_)
     if order >= 1:
         sv_ker -= a_s * L * gamma[0]
     if order >= 2:
