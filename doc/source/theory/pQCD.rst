@@ -54,7 +54,7 @@ for the strong coupling) to be equal.
 This constraint, however, can be lifted in order to provide an estimation of the
 missing higher order uncertainties (MHOU) coming from |DGLAP| evolution :cite:`AbdulKhalek:2019ihb`.
 Since scale-dependent contributions to a perturbative prediction are fixed by |RGE| invariance,
-the scale variation can be used to generate higher order contributions, 
+the scale variation can be used to generate higher order contributions,
 which are then taken as a proxy for the whole missing higher orders.
 This method provides many advantages:
 
@@ -92,6 +92,7 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
         1 - a_s L \gamma^{(0)} + a_s^2 \left [ L \gamma^{(1)} + \frac{1}{2} L^2 \gamma^{(0)} (\gamma^{(0)}+\beta_0) \right ]
 
     In this way the dependence of the |EKO| on :math:`L` is factorized outside the unvaried evolution kernel.
+    This procedure is repeated for each different |FNS| present in the evolution path.
 
 Notice that the two methods should be equivalent, especially for fully linearized solutions
 (`ModEv=truncated,ev_op_max_iterations=1`)
