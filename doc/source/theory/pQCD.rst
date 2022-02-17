@@ -94,8 +94,12 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
     In this way the dependence of the |EKO| on :math:`L` is factorized outside the unvaried evolution kernel.
     This procedure is repeated for each different flavor patch present in the evolution path.
 
-Notice that the two methods should be equivalent, especially for fully linearized solutions
-(`ModEv=truncated,ev_op_max_iterations=1`)
+Notice that in principle the two methods should be equivalent, especially for fully linearized solutions
+(`ModEv=truncated,ev_op_max_iterations=1`), where the difference depends only on the
+perturbative expansion in :math:`a_s`.
+However, in our implementation this is not exactly true; since the integral of :math:`\frac{\gamma}{\beta}`
+is evaluated before the scale variation procedure is applied, the difference between the two
+schemes depends also on the actual evolution distance and on the ratio :math:`\ln(\mu_F^2/\mu_R^2)`.
 
 Heavy Quark Masses
 ------------------

@@ -76,8 +76,7 @@ def singlet_variation(gamma, a_s, order, nf, L):
     if order >= 2:
         sv_ker += a_s**2 * (
             gamma[1] * L
-            + 1
-            / 2
+            + (1 / 2)
             * (
                 -beta.beta_0(nf) * gamma[0]
                 + np.ascontiguousarray(gamma[0]) @ np.ascontiguousarray(gamma[0])

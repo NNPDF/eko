@@ -253,7 +253,7 @@ class Operator:
 
     @property
     def fact_to_ren(self):
-        """Returns the factor (µ_F/µ_R)^2"""
+        r"""Returns the factor :math:`(\mu_F/\mu_R)^2`"""
         return self.config["fact_to_ren"]
 
     @property
