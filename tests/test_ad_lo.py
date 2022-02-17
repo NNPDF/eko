@@ -2,7 +2,7 @@
 # Test LO splitting functions
 import numpy as np
 
-import eko.anomalous_dimensions.lo as ad_lo
+import eko.anomalous_dimensions.as1 as ad_lo
 from eko.anomalous_dimensions import harmonics
 
 NF = 5

@@ -4,7 +4,7 @@
 import numba as nb
 import numpy as np
 
-from eko import constants
+from .. import constants
 
 
 @nb.njit("c16(c16,c16)", cache=True)

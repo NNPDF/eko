@@ -4,8 +4,8 @@ import numpy as np
 from numpy.testing import assert_allclose, assert_almost_equal
 
 from eko import anomalous_dimensions as ad
+from eko.anomalous_dimensions import as1 as ad_lo
 from eko.anomalous_dimensions import harmonics
-from eko.anomalous_dimensions import lo as ad_lo
 
 NF = 5
 

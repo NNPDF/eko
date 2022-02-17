@@ -20,7 +20,7 @@ terms of the anomalous dimensions (note the additional sign!)
 import numba as nb
 import numpy as np
 
-from . import harmonics, lo, nlo, nnlo
+from . import as1, harmonics, nlo, nnlo
 
 
 @nb.njit("Tuple((c16[:,:],c16,c16,c16[:,:],c16[:,:]))(c16[:,:])", cache=True)
@@ -52,7 +52,7 @@ def exp_singlet(gamma_S):
 
     See Also
     --------
-        eko.anomalous_dimensions.lo.gamma_singlet_0 : :math:`\gamma_{S}^{(0)}(N)`
+        eko.anomalous_dimensions.as1.gamma_singlet_0 : :math:`\gamma_{S}^{(0)}(N)`
         eko.anomalous_dimensions.nlo.gamma_singlet_1 : :math:`\gamma_{S}^{(1)}(N)`
         eko.anomalous_dimensions.nnlo.gamma_singlet_2 : :math:`\gamma_{S}^{(2)}(N)`
     """
@@ -94,7 +94,7 @@ def gamma_ns(order, mode, n, nf):
 
     See Also
     --------
-        eko.anomalous_dimensions.lo.gamma_ns_0 : :math:`\gamma_{ns}^{(0)}(N)`
+        eko.anomalous_dimensions.as1.gamma_ns_0 : :math:`\gamma_{ns}^{(0)}(N)`
         eko.anomalous_dimensions.nlo.gamma_nsp_1 : :math:`\gamma_{ns,+}^{(1)}(N)`
         eko.anomalous_dimensions.nlo.gamma_nsm_1 : :math:`\gamma_{ns,-}^{(1)}(N)`
         eko.anomalous_dimensions.nnlo.gamma_nsp_2 : :math:`\gamma_{ns,+}^{(2)}(N)`
@@ -105,7 +105,7 @@ def gamma_ns(order, mode, n, nf):
     sx = np.full(1, harmonics.harmonic_S1(n))
     # now combine
     gamma_ns = np.zeros(order + 1, np.complex_)
-    gamma_ns[0] = lo.gamma_ns_0(n, sx[0])
+    gamma_ns[0] = as1.gamma_ns_0(n, sx[0])
     # NLO and beyond
     if order >= 1:
         # TODO: pass the necessary harmonics to nlo gammas
@@ -150,7 +150,7 @@ def gamma_singlet(order, n, nf):
 
     See Also
     --------
-        eko.anomalous_dimensions.lo.gamma_singlet_0 : :math:`\gamma_{S}^{(0)}(N)`
+        eko.anomalous_dimensions.as1.gamma_singlet_0 : :math:`\gamma_{S}^{(0)}(N)`
         eko.anomalous_dimensions.nlo.gamma_singlet_1 : :math:`\gamma_{S}^{(1)}(N)`
         eko.anomalous_dimensions.nnlo.gamma_singlet_2 : :math:`\gamma_{S}^{(2)}(N)`
     """
@@ -161,7 +161,7 @@ def gamma_singlet(order, n, nf):
         sx = np.append(sx, harmonics.harmonic_S3(n))
 
     gamma_singlet = np.zeros((order + 1, 2, 2), np.complex_)
-    gamma_singlet[0] = lo.gamma_singlet_0(n, sx[0], nf)
+    gamma_singlet[0] = as1.gamma_singlet_0(n, sx[0], nf)
     if order >= 1:
         gamma_singlet[1] = nlo.gamma_singlet_1(n, nf)
     if order == 2:
