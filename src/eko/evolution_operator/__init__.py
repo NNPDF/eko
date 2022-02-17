@@ -242,16 +242,16 @@ class Operator:
             logger.warning("Evolution: skipping non-singlet sector")
         else:
             # add + as default
-            labels.append("NS_p")
+            labels.append(("T3", "T3"))
             if order >= 1:  # - becomes different starting from NLO
-                labels.append("NS_m")
+                labels.append(("V3", "V3"))
             if order >= 2:  # v also becomes different starting from NNLO
-                labels.append("NS_v")
+                labels.append(("V", "V"))
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
             logger.warning("Evolution: skipping singlet sector")
         else:
-            labels.extend(singlet_labels)
+            labels.extend([("S", "S"), ("S", "g"), ("g", "S"), ("g", "g")])
         return labels
 
     def compute(self):
@@ -267,7 +267,7 @@ class Operator:
         for n in full_labels:
             if n in labels:
                 # off diag singlet are zero
-                if n in ["S_qg", "S_gq"]:
+                if n in [("S", "g"), ("g", "S")]:
                     self.op_members[n] = zero.copy()
                 else:
                     self.op_members[n] = eye.copy()
