@@ -141,7 +141,8 @@ class TestOperatorGrid:
             "PTO": 1,
             "SV_scheme": "B",
         }
-        for ffns, epsilon, nf0 in zip([False, True], [1e-4, 1e-3], [5, 3]):
+        epsilon = 1e-1
+        for ffns, nf0 in zip([False, True], [5, 3]):
             theory_update["nf0"] = nf0
             opgrid = self._get_operator_grid(use_FFNS=ffns, theory_update=theory_update)
             opg = opgrid.compute(3)
@@ -151,5 +152,5 @@ class TestOperatorGrid:
             )
             sv_opg = sv_opgrid.compute(3)
             np.testing.assert_allclose(
-                opg[3]["operators"], sv_opg[3]["operators"], atol=1e-4
+                opg[3]["operators"], sv_opg[3]["operators"], atol=0.7 * epsilon
             )
