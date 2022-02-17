@@ -82,17 +82,17 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
       the scale variation is applied to the whole |PDF| set:
 
     .. math ::
-        \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) = \left[ 1 - L \gamma +L^2(\gamma^{2} + \frac{\partial \gamma}{\partial a_s} \beta(a_s)) + ... \right] \tilde{\mathbf{E}}(a_s \leftarrow a_s^0)
+        \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) = \left[ 1 + L \gamma +L^2(\gamma^{2} - \frac{\partial \gamma}{\partial a_s} \beta(a_s)) + ... \right] \tilde{\mathbf{E}}(a_s \leftarrow a_s^0)
 
     where scale variation kernel is expanded consistently order by order in :math:`a_s`,
     leading to:
 
     .. math ::
-        1 - L \gamma +L^2(\gamma^{2} + \frac{\partial \gamma}{\partial a_s} \beta(a_s)) =
-        1 - a_s L \gamma^{(0)} + a_s^2 \left [ L \gamma^{(1)} + \frac{1}{2} L^2 \gamma^{(0)} (\gamma^{(0)}+\beta_0) \right ]
+        1 + L \gamma +L^2(\gamma^{2} - \frac{\partial \gamma}{\partial a_s} \beta(a_s)) =
+        1 + a_s L \gamma^{(0)} + a_s^2 \left [ L \gamma^{(1)} + \frac{1}{2} L^2 \gamma^{(0)} (\gamma^{(0)}-\beta_0) \right ]
 
     In this way the dependence of the |EKO| on :math:`L` is factorized outside the unvaried evolution kernel.
-    This procedure is repeated for each different |FNS| present in the evolution path.
+    This procedure is repeated for each different flavor patch present in the evolution path.
 
 Notice that the two methods should be equivalent, especially for fully linearized solutions
 (`ModEv=truncated,ev_op_max_iterations=1`)
