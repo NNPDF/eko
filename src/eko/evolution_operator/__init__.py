@@ -195,9 +195,7 @@ def quad_ker(
         )
         # scale var B is applied on the kernel
         if sv_scheme == sv.scheme_B:
-            ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
-                b.singlet_variation(gamma_singlet, a1, order, nf, L)
-            )
+            ker = ker @ b.singlet_variation(gamma_singlet, a1, order, nf, L)
         ker = select_singlet_element(ker, mode)
     else:
         gamma_ns = ad.gamma_ns(order, mode, ker_base.n, nf)

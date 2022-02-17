@@ -83,4 +83,4 @@ def singlet_variation(gamma, a_s, order, nf, L):
             )
             * L**2
         )
-    return sv_ker
+    return np.ascontiguousarray(sv_ker)
