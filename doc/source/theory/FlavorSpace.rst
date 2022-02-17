@@ -105,8 +105,8 @@ where :math:`V_{(3)}` is to be confused with the usual (QCD like) :math:`V_3`.
 - the photon is just a spectator and does not couple to anyone
 
 
-QED :math:`\otimes` QCD Evolution Basis
----------------------------------------
+Unified Evolution Basis
+-----------------------
 
 In presence of QED corrections to DGLAP evolution equations,
 the QCD Evolution basis does not decouple the distributions
@@ -144,8 +144,8 @@ we have that in this case the QED :math:`\otimes` QCD evolution basis that perfo
 - The valence :math:`V` is just the QCD valence
 
 
-Intrinsic QED :math:`\otimes` QCD Evolution Basis
--------------------------------------------------
+Intrinsic Unified Evolution Basis
+---------------------------------
 
 Again, we need the generalization to the presence of intrinsic (static) distributions.
 As QED can distinguish between up-like and down-like flavors the situation is again slightly
