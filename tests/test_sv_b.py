@@ -35,30 +35,31 @@ def test_singlet_sv_dispacher():
 def test_scale_variation_a_vs_b():
     r"""
     Test sv_scheme A kernel vs sv_scheme B.
-    We test that the quantity :math:`(ker_A - ker_B)/ker_{unv}` depends
-    only on the accuracy in the :math:`\alpha_s` expansion
-    and not in the size of the `fact_to_ren` itself.
-    However in our implementation the sv_scheme A depends on
-    the actual value of a0 and a1, since the evolution integral in :math:`\alpha_s`
-    is evaluated, so this test ratio :math:`(ker_A - ker_B)/ker_{unv}`
-    still has contains a dependency on `fact_to_ren`
+    We test that the quantity :math:`(ker_A - ker_B)/ker_{unv}`
+    which can be computed analytically
+    In particular we check the implementation for truncated solutions.
+    In scheme A since the evolution integral in :math:`\alpha_s`
+    is evaluated, this test ratio :math:`(ker_A - ker_B)/ker_{unv}`
+    still has contains a dependency also on the
+    distance between a0 and a1, moreover it depends on `fact_to_ren`.
     """
     nf = 5
     n = 10
     a1 = 0.118 / (4 * np.pi)
-    a0 = 0.30 / (4 * np.pi)
-    method = "iterate-exact"
+    a0 = 0.20 / (4 * np.pi)
+    method = "truncated"
 
-    def tolerance(g, k, pto, is_singlet):
+    def scheme_diff(g, k, pto, is_singlet):
         if pto >= 1:
-            atol = g[0] * k * a0
+            diff = g[0] * k * (-2 * a1 + a0)
         if pto >= 2:
             b0 = beta_0(nf)
             g02 = g[0] @ g[0] if is_singlet else g[0] ** 2
-            atol += -(a0**2) * g[1] * k + k**2 * (
-                1 / 2 * a0**2 * b0 * g[0] - a1 * a0 * g02 + 1 / 2 * a0**2 * g02
+            diff += g[1] * k * (-2 * a1**2 + a0**2) + k**2 * (
+                b0 * g[0] * (a1**2 - 1 / 2 * a0**2)
+                + g02 * (-a1 * a0 + 1 / 2 * a0**2)
             )
-        return np.abs(atol)
+        return diff
 
     for L in [np.log(0.5), np.log(2)]:
         for order in [1, 2]:
@@ -72,8 +73,8 @@ def test_scale_variation_a_vs_b():
                 order, method, gns_a, a1, a0, nf, ev_op_iterations=1
             )
             ker_b = ker * b.non_singlet_variation(gns, a1, order, nf, L)
-            ns_atol = tolerance(gns, L, order, False)
-            np.testing.assert_allclose((ker_a - ker_b) / ker, 0, atol=ns_atol)
+            ns_diff = scheme_diff(gns, L, order, False)
+            np.testing.assert_allclose((ker_a - ker_b) / ker, ns_diff, atol=1e-3)
 
             # Singlet kernels
             gs = gamma_singlet(order, n, nf)
@@ -85,7 +86,7 @@ def test_scale_variation_a_vs_b():
                 order, method, gs_a, a1, a0, nf, ev_op_iterations=1, ev_op_max_order=1
             )
             ker_b = ker @ b.singlet_variation(gs, a1, order, nf, L)
-            s_atol = tolerance(gs, L, order, True)
-            diff = (ker_a - ker_b) @ np.linalg.inv(ker)
-            for (i, j), el in np.ndenumerate(diff):
-                np.testing.assert_allclose(el, 0, atol=s_atol[i, j])
+            s_diff = scheme_diff(gs, L, order, True)
+            np.testing.assert_allclose(
+                (ker_a - ker_b) @ np.linalg.inv(ker), s_diff, atol=5e-3
+            )
