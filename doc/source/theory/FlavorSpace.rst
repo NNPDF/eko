@@ -124,21 +124,20 @@ we have that in this case the QED :math:`\otimes` QCD evolution basis that perfo
 
 .. math ::
   \Sigma &= \Sigma_u + \Sigma_d \\
-  T_0 &= \Sigma_u - \Sigma_d \\
+  \Sigma_{\Delta} &= \Sigma_u - \Sigma_d \\
   V &= V_u + V_d \\
-  V_0 &= V_u - V_d \\
-  T_1^u &=u^+ - c^+ \\
-  T_2^u &=u^+ + c^+ - 2t^+ \\
-  T_1^d &=d^+ - s^+ \\
-  T_2^d &=d^+ + s^+ - 2b^+ \\
-  V_1^u &=u^- - c^- \\
-  V_2^u &=u^- + c^- - 2t^- \\
-  V_1^d &=d^- - s^- \\
-  V_2^d &=d^- + s^- - 2b^- \\
-  \mathcal F \sim  \mathcal F_{QED\otimes{}QCD} &= \span(\gamma, g, \Sigma, \Sigma_0, V, V_0, T_1^u, T_2^u, T_1^d, T_2^d, V_1^u, V_2^u, V_1^d, V_2^d)
+  V_{\Delta} &= V_u - V_d \\
+  T_3^u &=u^+ - c^+ \\
+  T_8^u &=u^+ + c^+ - 2t^+ \\
+  T_3^d &=d^+ - s^+ \\
+  T_8^d &=d^+ + s^+ - 2b^+ \\
+  V_3^u &=u^- - c^- \\
+  V_8^u &=u^- + c^- - 2t^- \\
+  V_3^d &=d^- - s^- \\
+  V_8^d &=d^- + s^- - 2b^- \\
+  \mathcal F \sim  \mathcal F_{QED\otimes{}QCD} &= \span(\gamma, g, \Sigma, \Sigma__{\Delta}, V, V__{\Delta}, T_3^u, T_8^u, T_3^d, T_8^d, V_3^u, V_8^u, V_3^d, V_8^d)
 
 
-- :math:`T_1` and :math:`T_2` are just arbitrary names and do not follow any group representation like it was for the :ref:`theory/FlavorSpace:QCD Evolution Basis`
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - The singlet :math:`\Sigma` is just the QCD singlet
 - The valence :math:`V` is just the QCD valence

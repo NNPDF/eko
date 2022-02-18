@@ -192,12 +192,12 @@ def intrinsic_unified_evol_labels(nf):
         "g",
         "S",
         "V",
-        "T0",
-        "V0",
-        "T1d",
-        "V1d",
+        "Sdelta",
+        "Vdelta",
+        "Td3",
+        "Vd3",
     ]
-    news = ["1u", "2d", "2u"]
+    news = ["u3", "d8", "u8"]
     for j in range(nf, 6):
         q = quark_names[j]
         labels.extend([f"{q}+", f"{q}-"])
