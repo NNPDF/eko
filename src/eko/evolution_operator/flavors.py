@@ -193,11 +193,11 @@ def pids_from_intrinsic_unified_evol(label, nf, normalize):
     else:
         weights = np.array([0.0] * len(br.flavor_basis_pids))
         mapping = {
-            "1d": {1: 1.0, 3: -1.0},  # T1d = d+ - s+
-            "2d": {1: 1.0, 3: 1.0, 5: -2.0},  # T2d = d+ + s+ - 2b+
-            "1u": {2: 1.0, 4: -1.0},  # T1u = u+ - c+
-            "2u": {2: 1.0, 4: 1.0, 6: -2.0},  # T2u = u+ + c+ - 2t+
-            "0": {
+            "d3": {1: 1.0, 3: -1.0},  # T1d = d+ - s+
+            "d8": {1: 1.0, 3: 1.0, 5: -2.0},  # T2d = d+ + s+ - 2b+
+            "u3": {2: 1.0, 4: -1.0},  # T1u = u+ - c+
+            "u8": {2: 1.0, 4: 1.0, 6: -2.0},  # T2u = u+ + c+ - 2t+
+            "delta": {
                 3: {2: 2.0, 1: -1.0, 3: -1.0},  # T0 = 2u+ - d+ -s+
                 4: {2: 1.0, 4: 1.0, 1: -1.0, 3: -1.0},  # T0 = u+ + c+ - d+ - s+
                 5: {
@@ -218,7 +218,7 @@ def pids_from_intrinsic_unified_evol(label, nf, normalize):
             },
         }
         cur_map = mapping[label[1:]]
-        if label[1] == "0":
+        if label[1:] == "delta":
             cur_map = cur_map[nf]
         for q, w in cur_map.items():
             weights[br.flavor_basis_pids.index(q)] = w
