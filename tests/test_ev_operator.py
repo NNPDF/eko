@@ -18,13 +18,13 @@ from eko.thresholds import ThresholdsAtlas
 def test_gamma_ns_fact(monkeypatch):
     gamma_ns = np.array([1.0, 0.5, 0.25])
     monkeypatch.setattr(ad, "gamma_ns", lambda *args: gamma_ns.copy())
-    gamma_ns_LO_0 = gamma_ns_fact(0, "NS_p", 1, 3, 0)
+    gamma_ns_LO_0 = gamma_ns_fact(0, "ns+", 1, 3, 0)
     np.testing.assert_allclose(gamma_ns_LO_0, gamma_ns)
-    gamma_ns_LO_1 = gamma_ns_fact(0, "NS_p", 1, 3, 1)
+    gamma_ns_LO_1 = gamma_ns_fact(0, "ns+", 1, 3, 1)
     np.testing.assert_allclose(gamma_ns_LO_1, gamma_ns)
-    gamma_ns_NLO_1 = gamma_ns_fact(1, "NS_p", 1, 3, 1)
+    gamma_ns_NLO_1 = gamma_ns_fact(1, "ns+", 1, 3, 1)
     assert gamma_ns_NLO_1[1] < gamma_ns[1]
-    gamma_ns_NNLO_1 = gamma_ns_fact(2, "NS_p", 1, 3, 1)
+    gamma_ns_NNLO_1 = gamma_ns_fact(2, "ns+", 1, 3, 1)
     assert gamma_ns_NNLO_1[2] - gamma_ns[2] == 8.0
 
 
@@ -56,7 +56,8 @@ def test_quad_ker(monkeypatch):
         res_ns = quad_ker(
             u=0,
             order=0,
-            mode="NS_p",
+            mode0="ns+",
+            mode1=None,
             method="",
             is_log=is_log,
             logx=0.0,
@@ -72,7 +73,8 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=0,
-            mode="S_qq",
+            mode0="S",
+            mode1="S",
             method="",
             is_log=is_log,
             logx=1.0,
@@ -88,7 +90,8 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=0,
-            mode="S_qg",
+            mode0="S",
+            mode1="g",
             method="",
             is_log=is_log,
             logx=0.0,
@@ -105,7 +108,8 @@ def test_quad_ker(monkeypatch):
     res_ns = quad_ker(
         u=0,
         order=0,
-        mode="NS_p",
+        mode0="ns+",
+        mode1=None,
         method="",
         is_log=True,
         logx=0.0,
@@ -129,9 +133,7 @@ class TestOperator:
             1,
             2,
         )
-        assert sorted(o.labels()) == sorted(
-            ["NS_p", "NS_m", "NS_v", "S_qq", "S_qg", "S_gq", "S_gg"]
-        )
+        assert sorted(o.labels()) == sorted(br.full_labels)
         o = Operator(
             dict(order=1, debug_skip_non_singlet=True, debug_skip_singlet=True),
             {},
@@ -191,19 +193,21 @@ class TestOperator:
         )
         # LO
         o.compute()
-        assert "NS_m" in o.op_members
+        assert ("ns-", None) in o.op_members
         np.testing.assert_allclose(
-            o.op_members["NS_m"].value, o.op_members["NS_p"].value
+            o.op_members[("ns-", None)].value, o.op_members[("ns+", None)].value
         )
         np.testing.assert_allclose(
-            o.op_members["NS_v"].value, o.op_members["NS_p"].value
+            o.op_members[("nsV", None)].value, o.op_members[("ns+", None)].value
         )
         # NLO
         o.config["order"] = 1
         o.compute()
-        assert not np.allclose(o.op_members["NS_p"].value, o.op_members["NS_m"].value)
+        assert not np.allclose(
+            o.op_members[("ns+", None)].value, o.op_members[("ns-", None)].value
+        )
         np.testing.assert_allclose(
-            o.op_members["NS_v"].value, o.op_members["NS_m"].value
+            o.op_members[("nsV", None)].value, o.op_members[("ns-", None)].value
         )
 
         # unity operators
@@ -218,13 +222,13 @@ class TestOperator:
 
 def test_pegasus_path():
     def quad_ker_pegasus(
-        u, order, mode, method, logx, areas, a1, a0, nf, L, ev_op_iterations
+        u, order, mode0, method, logx, areas, a1, a0, nf, L, ev_op_iterations
     ):
         # compute the mellin inversion as done in pegasus
         phi = 3 / 4 * np.pi
         c = 1.9
         n = complex(c + u * np.exp(1j * phi))
-        gamma_ns = gamma_ns_fact(order, mode, n, nf, L)
+        gamma_ns = gamma_ns_fact(order, mode0, n, nf, L)
         ker = ns.dispatcher(
             order,
             method,
@@ -242,7 +246,8 @@ def test_pegasus_path():
     xgrid = np.geomspace(1e-7, 1, 10)
     int_disp = InterpolatorDispatcher(xgrid, 1, True)
     order = 1
-    mode = "NS_p"
+    mode0 = "ns+"
+    mode1 = None
     method = ""
     logxs = np.log(int_disp.xgrid_raw)
     a1 = 1
@@ -258,7 +263,8 @@ def test_pegasus_path():
                 1.0,
                 args=(
                     order,
-                    mode,
+                    mode0,
+                    mode1,
                     method,
                     int_disp.log,
                     logx,
@@ -282,7 +288,7 @@ def test_pegasus_path():
                 np.inf,
                 args=(
                     order,
-                    mode,
+                    mode0,
                     method,
                     logx,
                     bf.areas_representation,

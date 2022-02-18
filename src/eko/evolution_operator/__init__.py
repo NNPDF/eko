@@ -357,9 +357,17 @@ class Operator:
         """Copy non-singlet kernels, if necessary"""
         order = self.config["order"]
         if order == 0:  # in LO +=-=v
-            for label in ["NS_v", "NS_m"]:
-                self.op_members[label].value = self.op_members["NS_p"].value.copy()
-                self.op_members[label].error = self.op_members["NS_p"].error.copy()
+            for label in ["nsV", "ns-"]:
+                self.op_members[(label, None)].value = self.op_members[
+                    ("ns+", None)
+                ].value.copy()
+                self.op_members[(label, None)].error = self.op_members[
+                    ("ns+", None)
+                ].error.copy()
         elif order == 1:  # in NLO -=v
-            self.op_members["NS_v"].value = self.op_members["NS_m"].value.copy()
-            self.op_members["NS_v"].error = self.op_members["NS_m"].error.copy()
+            self.op_members[("nsV", None)].value = self.op_members[
+                ("ns-", None)
+            ].value.copy()
+            self.op_members[("nsV", None)].error = self.op_members[
+                ("ns-", None)
+            ].error.copy()

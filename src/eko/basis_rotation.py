@@ -101,13 +101,13 @@ Basis rotation matrix between :doc:`Flavor Basis and Evolution Basis </theory/Fl
 """
 
 map_ad_to_evolution = {
-    "S_qq": ["S.S"],
-    "S_qg": ["S.g"],
-    "S_gq": ["g.S"],
-    "S_gg": ["g.g"],
-    "NS_v": ["V.V"],
-    "NS_p": ["T3.T3", "T8.T8", "T15.T15", "T24.T24", "T35.T35"],
-    "NS_m": ["V3.V3", "V8.V8", "V15.V15", "V24.V24", "V35.V35"],
+    ("S", "S"): ["S.S"],
+    ("S", "g"): ["S.g"],
+    ("g", "S"): ["g.S"],
+    ("g", "g"): ["g.g"],
+    ("nsV", None): ["V.V"],
+    ("ns+", None): ["T3.T3", "T8.T8", "T15.T15", "T24.T24", "T35.T35"],
+    ("ns-", None): ["V3.V3", "V8.V8", "V15.V15", "V24.V24", "V35.V35"],
 }
 """
 Map anomalous dimension sectors' names to their members
