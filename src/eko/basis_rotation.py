@@ -70,7 +70,7 @@ evol_basis_pids = tuple(
 """|pid| representation of :data:`evol_basis`."""
 
 singlet_labels = (("S", "S"), ("S", "g"), ("g", "S"), ("g", "g"))
-non_singlet_labels = (("V3", "V3"), ("T3", "T3"), ("V", "V"))
+non_singlet_labels = (("ns-", None), ("ns+", None), ("nsV", None))
 full_labels = (*singlet_labels, *non_singlet_labels)
 anomalous_dimensions_basis = full_labels
 r"""

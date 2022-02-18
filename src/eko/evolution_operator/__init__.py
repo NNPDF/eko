@@ -97,11 +97,12 @@ def gamma_singlet_fact(order, n, nf, L):
     return gamma_singlet
 
 
-@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1)", cache=True)
+@nb.njit("f8(f8,u1,string,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1)", cache=True)
 def quad_ker(
     u,
     order,
-    mode,
+    mode0,
+    mode1,
     method,
     is_log,
     logx,
@@ -150,7 +151,7 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    is_singlet = mode[0] == "S"
+    is_singlet = mode1 is not None
     # get transformation to N integral
     if logx == 0.0:
         return 0.0
@@ -175,11 +176,11 @@ def quad_ker(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
         # select element of matrix
-        k = 0 if mode[2] == "q" else 1
-        l = 0 if mode[3] == "q" else 1
+        k = 0 if mode0 == "S" else 1
+        l = 0 if mode1 == "S" else 1
         ker = ker[k, l]
     else:
-        gamma_ns = gamma_ns_fact(order, mode, n, nf, L)
+        gamma_ns = gamma_ns_fact(order, mode0, n, nf, L)
         ker = ns.dispatcher(
             order,
             method,
@@ -242,11 +243,11 @@ class Operator:
             logger.warning("Evolution: skipping non-singlet sector")
         else:
             # add + as default
-            labels.append(("T3", "T3"))
+            labels.append(("ns+", None))
             if order >= 1:  # - becomes different starting from NLO
-                labels.append(("V3", "V3"))
+                labels.append(("ns-", None))
             if order >= 2:  # v also becomes different starting from NNLO
-                labels.append(("V", "V"))
+                labels.append(("nsV", None))
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
             logger.warning("Evolution: skipping singlet sector")
@@ -318,7 +319,8 @@ class Operator:
                         1.0 - self._mellin_cut,
                         args=(
                             self.config["order"],
-                            label,
+                            label[0],
+                            label[1],
                             self.config["method"],
                             int_disp.log,
                             logx,
