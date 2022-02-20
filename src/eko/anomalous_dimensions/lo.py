@@ -32,7 +32,7 @@ def gamma_ns_0(N, s1):
 
 
 @nb.njit("c16(c16,u1)", cache=True)
-def gamma_qg_0(N, nf: int):
+def gamma_qg_0(N, nf):
     """
     Computes the leading-order quark-gluon anomalous dimension
 
@@ -78,7 +78,7 @@ def gamma_gq_0(N):
 
 
 @nb.njit("c16(c16,c16,u1)", cache=True)
-def gamma_gg_0(N, s1, nf: int):
+def gamma_gg_0(N, s1, nf):
     """
     Computes the leading-order gluon-gluon anomalous dimension
 
@@ -104,7 +104,7 @@ def gamma_gg_0(N, s1, nf: int):
 
 
 @nb.njit("c16[:,:](c16,c16,u1)", cache=True)
-def gamma_singlet_0(N, s1, nf: int):
+def gamma_singlet_0(N, s1, nf):
     r"""
       Computes the leading-order singlet anomalous dimension matrix
 

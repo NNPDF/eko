@@ -13,6 +13,7 @@ import numpy as np
 import scipy
 
 from . import constants, thresholds
+from .beta import b as beta_b
 from .beta import beta
 
 logger = logging.getLogger(__name__)
@@ -67,20 +68,54 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
     res = as_LO
     # NLO
     if order >= 1:
-        beta1 = beta(1, nf)
-        b1 = beta1 / beta0
+        b1 = beta_b(1, nf)
         as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
         res = as_NLO
         # NNLO
-        if order == 2:
-            beta2 = beta(2, nf)
-            b2 = beta2 / beta0
+        if order >= 2:
+            b2 = beta_b(2, nf)
             res = as_LO * (
                 1.0
                 + as_LO * (as_LO - as_ref) * (b2 - b1**2)
                 + as_NLO * b1 * np.log(as_NLO / as_ref)
             )
-
+            # N3LO expansion is taken from Luca Rottoli
+            if order >= 3:
+                b3 = beta_b(3, nf)
+                log_fact = np.log(as_LO)
+                res += (
+                    as_LO**4
+                    / (2 * beta0**3)
+                    * (
+                        -2 * b1**3 * np.log(as_ref) ** 3
+                        + 5 * b1**3 * log_fact**2
+                        + 2 * b1**3 * log_fact**3
+                        + b1**3 * np.log(as_ref) ** 2 * (5 + 6 * log_fact)
+                        + 2
+                        * beta0
+                        * b1
+                        * log_fact
+                        * (b2 + 2 * (b1**2 - beta0 * b2) * lmu * as_ref)
+                        - beta0**2
+                        * lmu
+                        * as_ref
+                        * (
+                            -2 * b1 * b2
+                            + 2 * beta0 * b3
+                            + (b1**3 - 2 * beta0 * b1 * b2 + beta0**2 * b3)
+                            * lmu
+                            * as_ref
+                        )
+                        - 2
+                        * b1
+                        * np.log(as_ref)
+                        * (
+                            5 * b1**2 * log_fact
+                            + 3 * b1**2 * log_fact**2
+                            + beta0 * (b2 + 2 * (b1**2 - beta0 * b2) * lmu * as_ref)
+                        )
+                    )
+                )
     return res
 
 
@@ -146,8 +181,8 @@ class StrongCoupling:
             raise ValueError(f"alpha_s_ref has to be positive - got {alpha_s_ref}")
         if scale_ref <= 0:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
-        if order not in [0, 1, 2]:
-            raise NotImplementedError("a_s beyond NNLO is not implemented")
+        if order not in [0, 1, 2, 3]:
+            raise NotImplementedError("a_s beyond N3LO is not implemented")
         self.order = order
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
@@ -260,14 +295,13 @@ class StrongCoupling:
         b_vec = [1]
         # NLO
         if self.order >= 1:
-            beta1 = beta(1, nf)
-            b1 = beta1 / beta0
-            b_vec.append(b1)
+            b_vec.append(beta_b(1, nf))
             # NNLO
             if self.order >= 2:
-                beta2 = beta(2, nf)
-                b2 = beta2 / beta0
-                b_vec.append(b2)
+                b_vec.append(beta_b(2, nf))
+                # N3LO
+                if self.order >= 3:
+                    b_vec.append(beta_b(3, nf))
         # integration kernel
         def rge(_t, a, b_vec):
             return -(a**2) * np.sum([a**k * b for k, b in enumerate(b_vec)])
@@ -359,9 +393,9 @@ class StrongCoupling:
                     self.thresholds.thresholds_ratios[seg.nf - shift]
                 )
                 m_coeffs = (
-                    compute_matching_coeffs_down(self.hqm_scheme)
+                    compute_matching_coeffs_down(self.hqm_scheme, seg.nf - 1)
                     if is_downward_path
-                    else compute_matching_coeffs_up(self.hqm_scheme)
+                    else compute_matching_coeffs_up(self.hqm_scheme, seg.nf)
                 )
                 fact = 1.0
                 # shift
@@ -374,10 +408,15 @@ class StrongCoupling:
         return final_as
 
 
-def compute_matching_coeffs_up(mass_scheme):
+def compute_matching_coeffs_up(mass_scheme, nf):
     r"""
-    Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia,Vogt:2004ns` at threshold
-    when moving to a regime with *more* flavors.
+    Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia,Vogt:2004ns`
+    at threshold when moving to a regime with *more* flavors.
+
+    We follow notation of :cite:`Vogt:2004ns` (eq 2.43) for POLE masses
+
+    The *inverse* |MSbar| values instead are given in :cite:`Schroder:2005hy` (eq 3.1)
+    multiplied by a factor of 4 (and 4^2 ...)
 
     .. math::
         a_s^{(n_l+1)} = a_s^{(n_l)} + \sum\limits_{n=1} (a_s^{(n_l)})^n
@@ -387,31 +426,63 @@ def compute_matching_coeffs_up(mass_scheme):
     ----------
         mass_scheme:
             Heavy quark mass scheme: "POLE" or "MSBAR"
+        nf:
+            number of active flavors in the lower patch
 
     Returns
     -------
         matching_coeffs_down:
             forward matching coefficient matrix
     """
-    matching_coeffs_up = np.zeros((3, 3))
+    matching_coeffs_up = np.zeros((4, 4))
     if mass_scheme == "MSBAR":
-        matching_coeffs_up[2, 0] = -22.0 / 3.0
+        matching_coeffs_up[2, 0] = -22.0 / 9.0
         matching_coeffs_up[2, 1] = 22.0 / 3.0
+
+        # c30 = -d30
+        matching_coeffs_up[3, 0] = -62.2116 + 5.4177 * nf
+        # c31 = -d31 + 5 c11 * c20
+        matching_coeffs_up[3, 1] = 365.0 / 3.0 - 67.0 / 9.0 * nf
+        matching_coeffs_up[3, 2] = 109.0 / 3.0 + 16.0 / 9.0 * nf
+
     elif mass_scheme == "POLE":
         matching_coeffs_up[2, 0] = 14.0 / 3.0
         matching_coeffs_up[2, 1] = 38.0 / 3.0
+        matching_coeffs_up[3, 0] = 340.729 - 16.7981 * nf
+        matching_coeffs_up[3, 1] = 8941.0 / 27.0 - 409.0 / 27.0 * nf
+        matching_coeffs_up[3, 2] = 511.0 / 9.0
 
     matching_coeffs_up[1, 1] = 4.0 / 3.0 * constants.TR
     matching_coeffs_up[2, 2] = 4.0 / 9.0
+    matching_coeffs_up[3, 3] = 8.0 / 27.0
+
     return matching_coeffs_up
 
 
 # inversion of the matching coefficients
-def compute_matching_coeffs_down(mass_scheme):
+def compute_matching_coeffs_down(mass_scheme, nf):
     """
-    Matching coefficients :cite:`Schroder:2005hy` :cite:`Chetyrkin:2005ia` at threshold
+    Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia` at threshold
     when moving to a regime with *less* flavors.
 
+    Parameters
+    ----------
+        mass_scheme:
+            Heavy quark mass scheme: "POLE" or "MSBAR"
+        nf:
+            number of active flavors in the lower patch
+
+    Returns
+    -------
+        matching_coeffs_down:
+            downward matching coefficient matrix
+    """
+    c_up = compute_matching_coeffs_up(mass_scheme, nf)
+    return invert_matching_coeffs(c_up)
+
+
+def invert_matching_coeffs(c_up):
+    """
     This is the perturbative inverse of :data:`matching_coeffs_up` and has been obtained via
 
     .. code-block:: Mathematica
@@ -430,18 +501,23 @@ def compute_matching_coeffs_down(mass_scheme):
 
     Parameters
     ----------
-        mass_scheme:
-            Heavy quark mass scheme: "POLE" or "MSBAR"
+        c_up : numpy.ndarray
+            forward matching coefficient matrix
 
     Returns
     -------
         matching_coeffs_down:
             downward matching coefficient matrix
     """
-    _c = compute_matching_coeffs_up(mass_scheme)
-    matching_coeffs_down = np.zeros_like(_c)
-    matching_coeffs_down[1, 1] = -_c[1, 1]
-    matching_coeffs_down[2, 0] = -_c[2, 0]
-    matching_coeffs_down[2, 1] = -_c[2, 1]
-    matching_coeffs_down[2, 2] = 2.0 * _c[1, 1] ** 2 - _c[2, 2]
+    matching_coeffs_down = np.zeros_like(c_up)
+    matching_coeffs_down[1, 1] = -c_up[1, 1]
+    matching_coeffs_down[2, 0] = -c_up[2, 0]
+    matching_coeffs_down[2, 1] = -c_up[2, 1]
+    matching_coeffs_down[2, 2] = 2.0 * c_up[1, 1] ** 2 - c_up[2, 2]
+    matching_coeffs_down[3, 0] = -c_up[3, 0]
+    matching_coeffs_down[3, 1] = 5 * c_up[1, 1] * c_up[2, 0] - c_up[3, 1]
+    matching_coeffs_down[3, 2] = 5 * c_up[1, 1] * c_up[2, 1] - c_up[3, 2]
+    matching_coeffs_down[3, 3] = (
+        -5 * c_up[1, 1] ** 3 + 5 * c_up[1, 1] * c_up[2, 2] - c_up[3, 3]
+    )
     return matching_coeffs_down

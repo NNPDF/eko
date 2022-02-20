@@ -482,8 +482,6 @@ class Output(dict):
         """
 
         tarpath = pathlib.Path(tarname)
-        if tarpath.suffix != ".tar":
-            raise ValueError(f"'{tarname}' is not a valid tar filename, wrong suffix")
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = pathlib.Path(tmpdir)
