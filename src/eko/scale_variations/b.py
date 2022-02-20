@@ -38,11 +38,11 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
     """
     sv_ker = 1.0
     if order >= 1:
-        sv_ker += a_s * L * gamma[0]
+        sv_ker -= a_s * L * gamma[0]
     if order >= 2:
         sv_ker += a_s**2 * (
-            gamma[1] * L
-            + 1 / 2 * (-beta.beta_0(nf) * gamma[0] + gamma[0] * gamma[0]) * L**2
+            -gamma[1] * L
+            + 1 / 2 * (beta.beta_0(nf) * gamma[0] + gamma[0] * gamma[0]) * L**2
         )
     return sv_ker
 
@@ -72,13 +72,13 @@ def singlet_variation(gamma, a_s, order, nf, L):
     """
     sv_ker = np.eye(2, dtype=np.complex_)
     if order >= 1:
-        sv_ker += a_s * L * gamma[0]
+        sv_ker -= a_s * L * gamma[0]
     if order >= 2:
         sv_ker += a_s**2 * (
-            gamma[1] * L
+            -gamma[1] * L
             + (1 / 2)
             * (
-                -beta.beta_0(nf) * gamma[0]
+                beta.beta_0(nf) * gamma[0]
                 + np.ascontiguousarray(gamma[0]) @ np.ascontiguousarray(gamma[0])
             )
             * L**2

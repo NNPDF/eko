@@ -74,24 +74,24 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
       and the anomalous dimension are then modified using :cite:`Vogt:2004ns`:
 
     .. math ::
-        & \gamma^{(1)}(N) \to \gamma^{(1)}(N) - \beta_0 L \gamma^{(0)} \\
-        & \gamma^{(2)}(N) \to \gamma^{(2)}(N) - 2 \beta_0 L \gamma^{(1)} - ( \beta_1 L - \beta_0^2 L^2) \gamma^{(0)} \\
-        & L= \ln(\mu_F^2/\mu_R^2)
+        & \gamma^{(1)}(N) \to \gamma^{(1)}(N) - \beta_0 k \gamma^{(0)} \\
+        & \gamma^{(2)}(N) \to \gamma^{(2)}(N) - 2 \beta_0 k \gamma^{(1)} - ( \beta_1 k - \beta_0^2 k^2) \gamma^{(0)} \\
+        & k = \ln(\mu_F^2/\mu_R^2)
 
     * In ``SV_scheme='B'`` the |EKO| is multiplied by an additional kernel, such that
       the scale variation is applied to the whole |PDF| set:
 
     .. math ::
-        \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) = \left[ 1 + L \gamma +L^2(\gamma^{2} - \frac{\partial \gamma}{\partial a_s} \beta(a_s)) + ... \right] \tilde{\mathbf{E}}(a_s \leftarrow a_s^0)
+        \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) = \left[ 1 - k \gamma + k^2(\gamma^{2} - \frac{\partial \gamma}{\partial a_s} \beta(a_s)) + ... \right] \tilde{\mathbf{E}}(a_s \leftarrow a_s^0)
 
     where scale variation kernel is expanded consistently order by order in :math:`a_s`,
     leading to:
 
     .. math ::
-        1 + L \gamma +L^2(\gamma^{2} - \frac{\partial \gamma}{\partial a_s} \beta(a_s)) =
-        1 + a_s L \gamma^{(0)} + a_s^2 \left [ L \gamma^{(1)} + \frac{1}{2} L^2 \gamma^{(0)} (\gamma^{(0)}-\beta_0) \right ]
+        1 - k \gamma + k^2(\gamma^{2} - \frac{\partial \gamma}{\partial a_s} \beta(a_s)) =
+        1 - a_s k \gamma^{(0)} + a_s^2 \left [ - k \gamma^{(1)} + \frac{1}{2} k^2 \gamma^{(0)} (\gamma^{(0)}+\beta_0) \right ]
 
-    In this way the dependence of the |EKO| on :math:`L` is factorized outside the unvaried evolution kernel.
+    In this way the dependence of the |EKO| on :math:`k` is factorized outside the unvaried evolution kernel.
     This procedure is repeated for each different flavor patch present in the evolution path.
 
 Notice that in principle the two methods should be equivalent, especially for fully linearized solutions
