@@ -8,13 +8,14 @@ import os
 import sys
 
 import pandas as pd
+from banana import cfg as banana_cfg
 from banana.benchmark.runner import BenchmarkRunner
 from banana.data import dfdict
 
 import eko
 from eko import basis_rotation as br
 
-from .. import banana_cfg, pdfname
+from .. import pdfname
 from ..data import db, operators
 
 
@@ -86,7 +87,7 @@ class Runner(BenchmarkRunner):
             else:
                 # load
                 print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
-                with open(path) as o:
+                with open(path, encoding="utf-8") as o:
                     out = eko.output.Output.load_yaml(o)
 
             if self.plot_operator:

@@ -1,4 +1,4 @@
-## -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 Benchmark CT14 pdf family
 
@@ -6,7 +6,8 @@ Benchmark CT14 pdf family
   whereas the lo family uses LO splitting functions with NLO alphas evolution
 """
 
-from ekomark import register
+from banana import register
+
 from ekomark.benchmark.runner import Runner
 
 register(__file__)

@@ -121,8 +121,6 @@ class TestOutput:
         fn = "test"
         with pytest.raises(ValueError, match="wrong suffix"):
             o1.dump_tar(fn)
-        with pytest.raises(ValueError, match="wrong suffix"):
-            o1.load_tar(fn)
 
     def test_rename_issue81(self):
         # https://github.com/N3PDF/eko/issues/81

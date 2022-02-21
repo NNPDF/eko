@@ -49,7 +49,7 @@ class TestMatchingCondition:
             "c+.g",
             # "c-.V",
         ]
-        assert sorted([str(k) for k in a.op_members.keys()]) == sorted(
+        assert sorted(str(k) for k in a.op_members.keys()) == sorted(
             [*triv_keys, *keys3]
         )
         assert_almost_equal(
@@ -58,7 +58,7 @@ class TestMatchingCondition:
         )
         # # if alpha is zero, nothing non-trivial should happen
         b = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [])
-        assert sorted([str(k) for k in b.op_members.keys()]) == sorted(
+        assert sorted(str(k) for k in b.op_members.keys()) == sorted(
             [*triv_keys, *keys3]
         )
         # assert_almost_equal(
@@ -68,7 +68,7 @@ class TestMatchingCondition:
         # nf=3 + IC
         self.update_intrinsic_OME(ome)
         c = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [4])
-        assert sorted([str(k) for k in c.op_members.keys()]) == sorted(
+        assert sorted(str(k) for k in c.op_members.keys()) == sorted(
             [*triv_keys, *keys3, "S.c+", "g.c+", "c+.c+", "c-.c-"]
         )
         assert_almost_equal(
@@ -77,7 +77,7 @@ class TestMatchingCondition:
         )
         # nf=3 + IB
         d = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [5])
-        assert sorted([str(k) for k in d.op_members.keys()]) == sorted(
+        assert sorted(str(k) for k in d.op_members.keys()) == sorted(
             [*triv_keys, *keys3, "b+.b+", "b-.b-"]
         )
         assert_almost_equal(
@@ -86,7 +86,7 @@ class TestMatchingCondition:
         )
         # nf=4 + IB
         d = MatchingCondition.split_ad_to_evol_map(ome, 4, 1, [5])
-        assert sorted([str(k) for k in d.op_members.keys()]) == sorted(
+        assert sorted(str(k) for k in d.op_members.keys()) == sorted(
             [
                 *triv_keys,
                 "T15.T15",

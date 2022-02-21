@@ -87,7 +87,7 @@ in particular the coefficient :math:`A_{gg,H}^{S,(1)}` is fully proportional to 
 
 |N3LO| matrix elements have been presented in :cite:`Bierenbaum:2009mv` and following publications
 :cite:`Ablinger:2010ty,Ablinger:2014vwa,Ablinger:2014uka,Behring:2014eya,Blumlein:2017wxd,Ablinger_2014,Ablinger_2015`.
-At |N3LO| the parts proportional to :math:`\ln(\mu_{h}^2/m_{h}^2)` are not implemented inside our code for simplicity, 
+At |N3LO| the parts proportional to :math:`\ln(\mu_{h}^2/m_{h}^2)` are not implemented inside our code for simplicity,
 but are available.
 
 We remark that contributions of the higher quark at |NNLO| and |N3LO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
@@ -129,5 +129,5 @@ EKO implements two different strategies to perform this operation, that can be s
     & + a_s^3(\mu_{h}^2) \left [ - \mathbf{A}^{(3)} + \mathbf{A}^{(1)} \mathbf{A}^{(2)} + \mathbf{A}^{(2)} \mathbf{A}^{(1)} - \left( \mathbf{A}^{(1)} \right )^3 \right ] \\
 
 We emphasize that in the backward evolution, below the threshold, the remaining high quark PDFs are always intrinsic and do not evolve anymore.
-In fact, if the initial PDFs (above threshold) do contain an intrinsic contribution, this has to be evolved below the threshold otherwise momentum sum rules 
+In fact, if the initial PDFs (above threshold) do contain an intrinsic contribution, this has to be evolved below the threshold otherwise momentum sum rules
 can be violated.

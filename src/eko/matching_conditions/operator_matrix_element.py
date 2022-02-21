@@ -4,21 +4,20 @@ This module defines the |OME| for the non-trivial matching conditions in the
 |VFNS| evolution.
 """
 
-import logging
-import time
-import multiprocessing
 import functools
+import logging
+import multiprocessing
+import time
 
 import numba as nb
 import numpy as np
 from scipy import integrate
 
-
 from .. import interpolation, mellin
 from ..anomalous_dimensions import harmonics
 from ..basis_rotation import singlet_labels
 from ..member import OpMember
-from . import nlo, nnlo, n3lo
+from . import n3lo, nlo, nnlo
 from .n3lo import s_functions
 
 logger = logging.getLogger(__name__)
@@ -184,11 +183,11 @@ def build_ome(A, order, a_s, backward_method):
         if order >= 1:
             ome -= a_s * A[0]
         if order >= 2:
-            ome += a_s ** 2 * (
+            ome += a_s**2 * (
                 -A[1] + np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[0])
             )
         if order >= 3:
-            ome += a_s ** 3 * (
+            ome += a_s**3 * (
                 -A[2]
                 + np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[1])
                 + np.ascontiguousarray(A[1]) @ np.ascontiguousarray(A[0])
@@ -201,9 +200,9 @@ def build_ome(A, order, a_s, backward_method):
         if order >= 1:
             ome += a_s * A[0]
         if order >= 2:
-            ome += a_s ** 2 * A[1]
+            ome += a_s**2 * A[1]
         if order >= 3:
-            ome += a_s ** 3 * A[2]
+            ome += a_s**3 * A[2]
         # need inverse exact ?  so add the missing pieces
         if backward_method == "exact":
             ome = np.linalg.inv(ome)
@@ -211,7 +210,9 @@ def build_ome(A, order, a_s, backward_method):
 
 
 @nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,u4,f8,string,b1)", cache=True)
-def quad_ker(u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar):
+def quad_ker(
+    u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
+):
     """
     Raw kernel inside quad
 
@@ -506,7 +507,7 @@ class OperatorMatrixElement:
                     nf=nf,
                     L=L,
                     backward_method=self.backward_method,
-                    is_msbar=is_msbar
+                    is_msbar=is_msbar,
                 ),
                 enumerate(np.log(self.int_disp.xgrid_raw)),
             )

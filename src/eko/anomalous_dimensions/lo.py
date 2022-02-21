@@ -32,7 +32,7 @@ def gamma_ns_0(N, s1):
 
 
 @nb.njit("c16(c16,u1)", cache=True)
-def gamma_qg_0(N, nf: int):
+def gamma_qg_0(N, nf):
     """
     Computes the leading-order quark-gluon anomalous dimension
 
@@ -50,7 +50,7 @@ def gamma_qg_0(N, nf: int):
       gamma_qg_0 : complex
         Leading-order quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
-    gamma = -(N ** 2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
+    gamma = -(N**2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
     result = 2.0 * constants.TR * 2.0 * nf * gamma
     return result
 
@@ -72,13 +72,13 @@ def gamma_gq_0(N):
       gamma_gq_0 : complex
         Leading-order gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
     """
-    gamma = -(N ** 2 + N + 2.0) / (N * (N + 1.0) * (N - 1.0))
+    gamma = -(N**2 + N + 2.0) / (N * (N + 1.0) * (N - 1.0))
     result = 2.0 * constants.CF * gamma
     return result
 
 
 @nb.njit("c16(c16,c16,u1)", cache=True)
-def gamma_gg_0(N, s1, nf: int):
+def gamma_gg_0(N, s1, nf):
     """
     Computes the leading-order gluon-gluon anomalous dimension
 
@@ -104,7 +104,7 @@ def gamma_gg_0(N, s1, nf: int):
 
 
 @nb.njit("c16[:,:](c16,c16,u1)", cache=True)
-def gamma_singlet_0(N, s1, nf: int):
+def gamma_singlet_0(N, s1, nf):
     r"""
       Computes the leading-order singlet anomalous dimension matrix
 
