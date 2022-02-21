@@ -30,11 +30,23 @@ def gamma_variation(gamma, order, nf, L):
     """
     # since we are modifying *in-place* be carefull, that the order matters!
     # and indeed, we need to adjust the high elements first
+    beta0 = beta.beta(0, nf)
+    beta1 = beta.beta(1, nf)
+    if order >= 3:
+        gamma[3] -= (
+            3 * beta0 * L * gamma[2]
+            + (2 * beta1 * L - 3 * beta0**2 * L**2) * gamma[1]
+            + (
+                beta.beta(2, nf) * L
+                - 5 / 2 * beta1 * beta0 * L**2
+                + beta0**3 * L**3
+            )
+            * gamma[0]
+        )
     if order >= 2:
         gamma[2] -= (
-            2 * beta.beta(0, nf) * gamma[1] * L
-            + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L**2) * gamma[0]
+            2 * beta0 * gamma[1] * L + (beta1 * L - beta0**2 * L**2) * gamma[0]
         )
     if order >= 1:
-        gamma[1] -= beta.beta(0, nf) * gamma[0] * L
+        gamma[1] -= beta0 * gamma[0] * L
     return gamma

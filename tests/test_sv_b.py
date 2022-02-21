@@ -10,7 +10,7 @@ from eko.scale_variations import a, b
 
 def test_ns_sv_dispacher():
     """Test to identity"""
-    order = 2
+    order = 3
     gamma_ns = np.random.rand(order + 1)
     L = 0
     nf = 5
@@ -22,7 +22,7 @@ def test_ns_sv_dispacher():
 
 def test_singlet_sv_dispacher():
     """Test to identity"""
-    order = 2
+    order = 3
     gamma_singlet = np.random.rand(order + 1, 2, 2)
     L = 0
     nf = 5
@@ -64,6 +64,9 @@ def test_scale_variation_a_vs_b():
                 1 / 2 * a0**2 * b0 * g[0] + a1 * a0 * g02 - 1 / 2 * a0**2 * g02
             )
         return diff
+
+    # TODO: perfor this test also at N3LO, once evolution kernels
+    # will be implemented
 
     for L in [np.log(0.5), np.log(2)]:
         for order in [1, 2]:
