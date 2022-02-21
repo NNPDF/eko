@@ -68,14 +68,14 @@ The usual procedure in solving |DGLAP| applied :doc:`here
 of the |PDF|) and the renormalization scale :math:`\mu_R^2` (the inherit scale
 for the strong coupling) to be equal.
 This constraint, however, can be lifted in order to provide an estimation of the
-missing higher order uncertainties (MHOU) coming from |DGLAP| evolution :cite:`AbdulKhalek:2019ihb`.
+missing higher order uncertainties (|MHOU|) coming from |DGLAP| evolution :cite:`AbdulKhalek:2019ihb`.
 Since scale-dependent contributions to a perturbative prediction are fixed by |RGE| invariance,
 the scale variation can be used to generate higher order contributions,
 which are then taken as a proxy for the whole missing higher orders.
 This method provides many advantages:
 
     * it naturally incorporates renormalization group invariance,
-      as the perturbative order increases, estimates of MHOU decrease;
+      as the perturbative order increases, estimates of |MHOU| decrease;
     * the same procedure can be used for any perturbative process,
       since the scale dependence of the strong coupling :math:`a_s(\mu^2)` and of PDFs is universal;
 
@@ -89,33 +89,46 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
     * For ``SV_scheme='A'`` the variation is applied directly to the splitting functions
       and the anomalous dimension are then modified using :cite:`Vogt:2004ns`:
 
-    .. math ::
-        & \gamma^{(1)}(N) \to \gamma^{(1)}(N) - \beta_0 k \gamma^{(0)} \\
-        & \gamma^{(2)}(N) \to \gamma^{(2)}(N) - 2 \beta_0 k \gamma^{(1)} - ( \beta_1 k - \beta_0^2 k^2) \gamma^{(0)} \\
-        & k = \ln(\mu_F^2/\mu_R^2)
+        .. math ::
+            & \gamma^{(1)}(N) \to \gamma^{(1)}(N) - \beta_0 k \gamma^{(0)} \\
+            & \gamma^{(2)}(N) \to \gamma^{(2)}(N) - 2 \beta_0 k \gamma^{(1)} - ( \beta_1 k - \beta_0^2 k^2) \gamma^{(0)} \\
+            & \gamma^{(3)}(N) \to \gamma^{(3)}(N) - 3 \beta_0 k \gamma^{(2)} - ( 2 \beta_1 k - 3 \beta_0^2 k^2) \gamma^{(1)} - (\beta_2 k - \frac{5}{2} \beta_1 \beta_0 k^2 + \beta_0^3 k^3) \gamma^{(0)} \\
+            & k = \ln(\mu_F^2/\mu_R^2)
 
     * In ``SV_scheme='B'`` the |EKO| is multiplied by an additional kernel, such that
       the scale variation is applied to the whole |PDF| set:
 
-    .. math ::
-        \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) = \left[ 1 - k \gamma + k^2(\gamma^{2} - \frac{\partial \gamma}{\partial a_s} \beta(a_s)) + ... \right] \tilde{\mathbf{E}}(a_s \leftarrow a_s^0)
+        .. math ::
+            & \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) = \tilde{\mathbf{K}}(a_s) \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) \\
+            & \tilde{\mathbf{K}}(a_s) = 1 - k \gamma + \frac{1}{2} k^2 \left ( \gamma^{2} - \beta \frac{\partial \gamma}{\partial a_s} \right ) + \frac{1}{6} k^3 \left [ - \beta \frac{\partial}{\partial a_s} \left( \beta \frac{\partial \gamma}{\partial a_s} \right) + 3 \beta \frac{\partial \gamma}{\partial a_s} \gamma - \gamma^3 \right ] + \mathcal{O}(k^4)
 
-    where scale variation kernel is expanded consistently order by order in :math:`a_s`,
-    leading to:
+     where scale variation kernel is expanded consistently order by order in :math:`a_s`,
+     leading to:
 
-    .. math ::
-        1 - k \gamma + k^2(\gamma^{2} - \frac{\partial \gamma}{\partial a_s} \beta(a_s)) =
-        1 - a_s k \gamma^{(0)} + a_s^2 \left [ - k \gamma^{(1)} + \frac{1}{2} k^2 \gamma^{(0)} (\gamma^{(0)}+\beta_0) \right ]
+        .. math ::
+            \tilde{\mathbf{K}}(a_s) \approx & 1 - a_s k \gamma^{(0)} + a_s^2 \left [ - k \gamma^{(1)} + \frac{1}{2} k^2 \gamma^{(0)} (\beta_0 + \gamma^{(0)}) \right ] \\
+            & + a_s^3 \left [ -k \gamma^{(2)} + \frac{1}{2} k^2 \left(\beta_1 \gamma^{(0)} + 2 \gamma^{(1)} (\beta_0 + \gamma^{(0)} ) \right) - \frac{1}{6} k^3 \gamma^{(0)} \left(2 \beta_0^2 + 3 \beta_0 \gamma^{(0)}+\gamma^{(0),2} \right) \right] + \mathcal{O}(a^4)
 
-    In this way the dependence of the |EKO| on :math:`k` is factorized outside the unvaried evolution kernel.
-    This procedure is repeated for each different flavor patch present in the evolution path.
 
-Notice that in principle the two methods should be equivalent, especially for fully linearized solutions
-(`ModEv=truncated,ev_op_max_iterations=1`), where the difference depends only on the
-perturbative expansion in :math:`a_s`.
-However, in our implementation this is not exactly true; since the integral of :math:`\frac{\gamma}{\beta}`
-is evaluated before the scale variation procedure is applied, the difference between the two
-schemes depends also on the actual evolution distance and on the ratio :math:`\ln(\mu_F^2/\mu_R^2)`.
+     In this way the dependence of the |EKO| on :math:`k` is factorized outside the unvaried evolution kernel.
+     This procedure is repeated for each different flavor patch present in the evolution path.
+
+By construction, the corrections of the order :math:`\mathcal{O}(k^n)` will appear
+at the order :math:`n` in the expansion :math:`a_s`.
+This happens because :math:`\beta \approx \mathcal{O}(a_s^2)`, :math:`\gamma \approx \mathcal{O}(a_s)`
+and the contribution proportional to :math:`\mathcal{O}(k^n)` is originated
+by the `n-th` derivative in :math:`\gamma` :cite:`AbdulKhalek:2019ihb`.
+
+Furthermore the distance between the varied |EKO| and the unvaried one will decrease increasing
+the perturbative order in :math:`a_s`
+
+Notice that in principle the two methods should be equivalent, especially for fully
+linearized solutions (``ModEv=truncated,ev_op_max_iterations=1``),
+where the difference depends only on the perturbative expansion in :math:`a_s`.
+However, in our implementation this is not exactly true;
+since the integral of :math:`-\frac{\gamma(a_s)}{\beta(a_s)}` is evaluated before
+the scale variation procedure is applied, the difference between the two schemes
+depends also on the actual evolution distance and on the ratio :math:`k`.
 
 Heavy Quark Masses
 ------------------

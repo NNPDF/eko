@@ -40,14 +40,19 @@
 .. |pid| replace::
    :abbr:`PID ((Monte Carlo) parton identifier)`
 
+.. QCD
+
 .. |OME| replace::
-   :abbr:`OME (operator matrix element)`
+   :abbr:`OME (Operator Matrix Element)`
 
 .. |MSbar| replace::
    :math:`\overline{MS}`
 
 .. |RGE| replace::
-   :abbr:`RGE (renormalization group equation)`
+   :abbr:`RGE (Renormalization Group Equation)`
+
+.. |MHOU| replace::
+   :abbr:`MHOU (Missing Higher Order Uncertainties)`
 
 .. external
 
