@@ -184,9 +184,6 @@ class StrongCoupling:
         if order not in [0, 1, 2, 3]:
             raise NotImplementedError("a_s beyond N3LO is not implemented")
         self.order = order
-        # TODO: implement a_s running to N3LO
-        if order == 3:
-            self.order = self.order - 1
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
         self.method = method
