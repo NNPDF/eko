@@ -135,7 +135,7 @@ we have that in this case the QED :math:`\otimes` QCD evolution basis that perfo
   V_8^u &=u^- + c^- - 2t^- \\
   V_3^d &=d^- - s^- \\
   V_8^d &=d^- + s^- - 2b^- \\
-  \mathcal F \sim  \mathcal F_{QED\otimes{}QCD} &= \span(\gamma, g, \Sigma, \Sigma_{\Delta}, V, V_{\Delta}, T_3^u, T_8^u, T_3^d, T_8^d, V_3^u, V_8^u, V_3^d, V_8^d)
+  \mathcal F \sim  \mathcal F_{QED\otimes QCD} &= \span(\gamma, g, \Sigma, \Sigma_{\Delta}, V, V_{\Delta}, T_3^u, T_8^u, T_3^d, T_8^d, V_3^u, V_8^u, V_3^d, V_8^d)
 
 
 - this basis is *not* normalized with respect to the canonical Flavor Basis
@@ -159,7 +159,7 @@ For :math:`n_f=3` light flavors we find:
   V_{\Delta,(3)} &= 2u^- - d^- - s^-\\
   T_3^d &=d^+ - s^+ \\
   V_3^d &=d^- - s^- \\
-  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,3} &= \span(\gamma, g, \Sigma_{(3)}, \Sigma_{\Delta,(3)}, V_{(3)}, V_{\Delta,(3)}, T_3^d, V_3^d, c^+, c^-, b^+, b^-, t^+, t^-)
+  \mathcal F \sim  \mathcal F_{QED\otimes QCD,intrinsic,3} &= \span(\gamma, g, \Sigma_{(3)}, \Sigma_{\Delta,(3)}, V_{(3)}, V_{\Delta,(3)}, T_3^d, V_3^d, c^+, c^-, b^+, b^-, t^+, t^-)
 
 For :math:`n_f=4` light flavors we find:
 
@@ -172,7 +172,7 @@ For :math:`n_f=4` light flavors we find:
   T_3^d &=d^+ - s^+ \\
   V_3^u &=u^- - c^- \\
   V_3^d &=d^- - s^- \\
-  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,4} &= \span(\gamma, g, \Sigma_{(4)}, \Sigma_{\Delta,(4)}, V_{(4)}, V_{\Delta,(4)}, V_3^d, T_3^d, V_3^u, T_3^u, b^+, b^-, t^+, t^-)
+  \mathcal F \sim  \mathcal F_{QED\otimes QCD,intrinsic,4} &= \span(\gamma, g, \Sigma_{(4)}, \Sigma_{\Delta,(4)}, V_{(4)}, V_{\Delta,(4)}, V_3^d, T_3^d, V_3^u, T_3^u, b^+, b^-, t^+, t^-)
 
 For :math:`n_f=5` light flavors we find:
 
@@ -187,7 +187,7 @@ For :math:`n_f=5` light flavors we find:
   V_3^d &=d^- - s^- \\
   T_8^d &=d^+ + s^+ - 2b^+ \\
   V_8^d &=d^- + s^- - 2b^- \\
-  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,5} &= \span(\gamma, g, \Sigma_{(4)}, \Sigma_{\Delta,(4)}, V_{(4)}, V_{\Delta,(4)}, V_3^d, T_3^d, V_3^u, T_3^u, T_8^d, V_8^d, t^+, t^-)
+  \mathcal F \sim  \mathcal F_{QED\otimes QCD,intrinsic,5} &= \span(\gamma, g, \Sigma_{(4)}, \Sigma_{\Delta,(4)}, V_{(4)}, V_{\Delta,(4)}, V_3^d, T_3^d, V_3^u, T_3^u, T_8^d, V_8^d, t^+, t^-)
 
 For :math:`n_f=6` light flavors the intrinsic QED :math:`\otimes` QCD Evolution Basis coincides with the QED :math:`\otimes` QCD Evolution Basis.
 
