@@ -193,4 +193,4 @@ def A_qqPS_3(n, sx, nf, L):
             / ((-1.0 + n) * np.power(n, 2) * np.power(1.0 + n, 2) * (2.0 + n))
         )
     )
-    return a_qqPS_l0 + a_qqPS_l1 * L + a_qqPS_l2 * L ** 2 + a_qqPS_l3 * L ** 3
+    return a_qqPS_l0 + a_qqPS_l1 * L + a_qqPS_l2 * L**2 + a_qqPS_l3 * L**3

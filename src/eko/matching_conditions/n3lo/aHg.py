@@ -7,7 +7,7 @@ from .aHgstfac import A_Hgstfac_3
 
 
 @nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4,f8)", cache=True)
-def A_Hg_3(n, sx, smx, s3x, s4x, nf, L): # pylint: disable=too-many-locals
+def A_Hg_3(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{Hg}^{S,(3)}(N)`.
     The experssion is presented in :cite:`Bierenbaum:2009mv`
@@ -3805,4 +3805,4 @@ def A_Hg_3(n, sx, smx, s3x, s4x, nf, L): # pylint: disable=too-many-locals
             / (n * (1.0 + n) * (2.0 + n))
         )
     )
-    return a_Hg_l0 + a_Hg_l1 * L + a_Hg_l2 * L ** 2 + a_Hg_l3 * L ** 3
+    return a_Hg_l0 + a_Hg_l1 * L + a_Hg_l2 * L**2 + a_Hg_l3 * L**3

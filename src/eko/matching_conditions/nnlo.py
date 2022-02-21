@@ -437,7 +437,7 @@ def A_singlet_2(n, sx, L, is_msbar=False):
 
       .. math::
           A^{S,(2)} = \left(\begin{array}{cc}
-            A_{gg, H}^{S,(2)} & A_{gq, H}^{S,(2)} & 0
+            A_{gg, H}^{S,(2)} & A_{gq, H}^{S,(2)} & 0 \\
             0 & A_{qq,H}^{NS,(2)} & 0\\
             A_{hg}^{S,(2)} & A_{hq}^{PS,(2)} & 0\\
           \end{array}\right)
@@ -487,8 +487,8 @@ def A_ns_2(n, sx, L):
 
       .. math::
           A^{NS,(2)} = \left(\begin{array}{cc}
-            A_{qq,H}^{NS,(2)} & 0\\
-            0 & 0\\
+            A_{qq,H}^{NS,(2)} & 0 \\
+            0 & 0 \\
           \end{array}\right)
 
       Parameters

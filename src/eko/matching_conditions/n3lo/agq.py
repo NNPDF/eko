@@ -984,4 +984,4 @@ def A_gq_3(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
             / ((-1.0 + n) * n * (1.0 + n))
         )
     )
-    return a_gq_l0 + a_gq_l1 * L + a_gq_l2 * L ** 2 + a_gq_l3 * L ** 3
+    return a_gq_l0 + a_gq_l1 * L + a_gq_l2 * L**2 + a_gq_l3 * L**3

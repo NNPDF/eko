@@ -1,13 +1,15 @@
-import numpy as np
+# -*- coding: utf-8 -*-
 import numba as nb
+import numpy as np
 
 from ...anomalous_dimensions.harmonics import (
     cern_polygamma,
     harmonic_S1,
     harmonic_S2,
     harmonic_S3,
+    zeta2,
+    zeta3,
 )
-from ...anomalous_dimensions.harmonics import zeta2, zeta3
 
 a1 = np.array(
     [
@@ -84,7 +86,7 @@ def mellin_g4(N):
     for k, ak in enumerate(a1):
         Nk = N + k + 1
         beta = 1 / 2 * (harmonic_S1((Nk) / 2) - harmonic_S1((Nk - 1) / 2))
-        g4 += ak * (N / Nk * zeta2 / 2 + (k + 1) / Nk ** 2 * (np.log(2) - beta))
+        g4 += ak * (N / Nk * zeta2 / 2 + (k + 1) / Nk**2 * (np.log(2) - beta))
     return g4
 
 
@@ -111,7 +113,7 @@ def mellin_g5(N):
         Nk = N + k + 1
         g5 -= ak * (
             (k + 1)
-            / Nk ** 2
+            / Nk**2
             * (zeta2 + cern_polygamma(Nk + 1, 1) - 2 * harmonic_S1(Nk) / Nk)
         )
     return g5
@@ -140,7 +142,7 @@ def mellin_g6(N):
     g6 = zeta3 * np.log(2)
     for k, ak in enumerate(a1):
         Nk = N + k + 1
-        g6 -= ak * (N / Nk * zeta3 + (k + 1) / Nk ** 2 * (zeta2 - harmonic_S1(Nk) / Nk))
+        g6 -= ak * (N / Nk * zeta3 + (k + 1) / Nk**2 * (zeta2 - harmonic_S1(Nk) / Nk))
     return g6
 
 
@@ -167,7 +169,7 @@ def mellin_g8(N):
         Nk = N + k + 1
         g8 -= ak * (
             N / Nk * zeta3
-            + (k + 1) / Nk ** 2 * 1 / 2 * (harmonic_S1(Nk) ** 2 + harmonic_S2(Nk))
+            + (k + 1) / Nk**2 * 1 / 2 * (harmonic_S1(Nk) ** 2 + harmonic_S2(Nk))
         )
     return g8
 
@@ -197,7 +199,7 @@ def mellin_g18(N, S1, S2):
         mellin_g18 : complex
             Mellin transform :math:`\mathcal{M}[-(\text{Li}_2(x) - \zeta_2)/(1-x)](N)`
     """
-    g18 = (S1 ** 2 + S2) / (N) - zeta2 * S1
+    g18 = (S1**2 + S2) / (N) - zeta2 * S1
     for k, ck in enumerate(c1):
         Nk = N + k
         g18 += ck * (N) / (Nk) * harmonic_S1(Nk)
@@ -263,7 +265,7 @@ def mellin_g21(N, S1, S2, S3):
         mellin_g21 : complex
             Mellin transform :math:`\mathcal{M}[-(S_{1,2}(x) - \zeta_3)/(1-x)](N)`
     """
-    g21 = -zeta3 * S1 + (S1 ** 3 + 3 * S1 * S2 + 2 * S3) / (2 * N)
+    g21 = -zeta3 * S1 + (S1**3 + 3 * S1 * S2 + 2 * S3) / (2 * N)
     for k, ck in enumerate(c3):
         Nk = N + k
         g21 += ck * N / Nk * harmonic_S1(Nk)

@@ -7,11 +7,11 @@ import numpy as np
 
 from .agg import A_gg_3
 from .agq import A_gq_3
-from .aqg import A_qg_3
-from .aqqPS import A_qqPS_3
-from .aqqNS import A_qqNS_3
 from .aHg import A_Hg_3
 from .aHq import A_Hq_3
+from .aqg import A_qg_3
+from .aqqNS import A_qqNS_3
+from .aqqPS import A_qqPS_3
 
 
 @nb.njit("c16[:,:](c16,c16[:],u4,f8)", cache=True)

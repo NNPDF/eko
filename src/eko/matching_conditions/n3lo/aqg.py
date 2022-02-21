@@ -476,4 +476,4 @@ def A_qg_3(n, sx, smx, s3x, s4x, nf, L):
         - (32.0 * nf * Sm3) / (n * (1.0 + n) * (2.0 + n))
         - (16.0 * n * nf * Sm3) / ((1.0 + n) * (2.0 + n))
     )
-    return a_qg_l0 + a_qg_l1 * L + a_qg_l2 * L ** 2 + a_qg_l3 * L ** 3
+    return a_qg_l0 + a_qg_l1 * L + a_qg_l2 * L**2 + a_qg_l3 * L**3

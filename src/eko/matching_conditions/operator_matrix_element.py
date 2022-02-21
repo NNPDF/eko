@@ -313,6 +313,7 @@ def run_op_integration(
 ):
     """
     Integration routine per operator
+
     Parameters
     ----------
         log_grid : tuple(k, logx)
@@ -337,6 +338,7 @@ def run_op_integration(
             empty or method for inverting the matching condition (exact or expanded)
         is_msbar: bool
             add the |MSbar| contribution
+
     Returns
     -------
         ker : float

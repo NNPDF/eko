@@ -754,4 +754,4 @@ def A_qqNS_3(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
         - 4.7407407407407405 * S1 * Sm3
         - 4.7407407407407405 * Sm4
     )
-    return a_qqNS_l0 + a_qqNS_l1 * L + a_qqNS_l2 * L ** 2 + a_qqNS_l3 * L ** 3
+    return a_qqNS_l0 + a_qqNS_l1 * L + a_qqNS_l2 * L**2 + a_qqNS_l3 * L**3
