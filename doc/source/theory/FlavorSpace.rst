@@ -11,7 +11,7 @@ in the Flavor Space, but often the specific basis described here below is meant.
 Flavor Basis
 ------------
 
-Here we use the raw quark flavors along with the gluon and the photon as they correspond to the
+Here we use the raw quark flavors along with the gluon and the photon, as they correspond to the
 operator in the Lagrange density:
 
 .. math ::
@@ -46,7 +46,7 @@ QCD Evolution Basis
 
 As the gluon is flavor-blind it is handy to solve |DGLAP| not in the flavor basis,
 but in the QCD Evolution Basis where instead we need to solve a minimal coupled system.
-This is the basis in which DGLAP equations are solved considering only QCD corrections.
+This is the basis in which DGLAP equations are solved when only QCD corrections are taken into account.
 The new basis elements can be separated into two major classes: the singlet sector, consisting of the
 singlet distribution :math:`\Sigma` and the gluon distribution :math:`g`, and the non-singlet
 sector. The non-singlet sector can be again subdivided into three groups: first the full
@@ -93,7 +93,7 @@ For :math:`n_f=3` we define (the other cases are defined analogously):
   V_{(3)} = u^- + d^- + s^-\\
   \mathcal F \sim  \mathcal F_{iev,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_3, V_8, T_3, T_8, c^+, c^-, b^+, b^-, t^+, t^-)
 
-where :math:`V_{(3)}` is to be confused with the usual (QCD like) :math:`V_3`.
+where :math:`V_{(3)}` is not to be confused with the usual (QCD like) :math:`V_3`.
 
 - for :math:`n_f=6` the Intrinsic QCD Evolution Basis coincides with the QCD Evolution Basis: :math:`\mathcal F_{iev,6} = \mathcal F_{ev}`
 - this basis is *not* normalized with respect to the canonical Flavor Basis
@@ -135,7 +135,7 @@ we have that in this case the QED :math:`\otimes` QCD evolution basis that perfo
   V_8^u &=u^- + c^- - 2t^- \\
   V_3^d &=d^- - s^- \\
   V_8^d &=d^- + s^- - 2b^- \\
-  \mathcal F \sim  \mathcal F_{QED\otimes{}QCD} &= \span(\gamma, g, \Sigma, \Sigma__{\Delta}, V, V__{\Delta}, T_3^u, T_8^u, T_3^d, T_8^d, V_3^u, V_8^u, V_3^d, V_8^d)
+  \mathcal F \sim  \mathcal F_{QED\otimes{}QCD} &= \span(\gamma, g, \Sigma, \Sigma_{\Delta}, V, V_{\Delta}, T_3^u, T_8^u, T_3^d, T_8^d, V_3^u, V_8^u, V_3^d, V_8^d)
 
 
 - this basis is *not* normalized with respect to the canonical Flavor Basis
@@ -154,40 +154,40 @@ For :math:`n_f=3` light flavors we find:
 
 .. math ::
   \Sigma_{(3)} &= u^+ + d^+ + s^+\\
-  T_{0,(3)} &= 2u^+ - d^+ - s^+ \\
+  \Sigma_{\Delta,(3)} &= 2u^+ - d^+ - s^+ \\
   V_{(3)} &= u^- + d^- + s^-\\
-  V_{0,(3)} &= 2u^- - d^- - s^-\\
-  T_1^d &=d^+ - s^+ \\
-  V_1^d &=d^- - s^- \\
-  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_{0,(3)}, V_1^d, T_{0,(3)}, T_1^d, c^+, c^-, b^+, b^-, t^+, t^-)
+  V_{\Delta,(3)} &= 2u^- - d^- - s^-\\
+  T_3^d &=d^+ - s^+ \\
+  V_3^d &=d^- - s^- \\
+  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,3} &= \span(\gamma, g, \Sigma_{(3)}, \Sigma_{\Delta,(3)}, V_{(3)}, V_{\Delta,(3)}, T_3^d, V_3^d, c^+, c^-, b^+, b^-, t^+, t^-)
 
 For :math:`n_f=4` light flavors we find:
 
 .. math ::
   \Sigma_{(4)} &= u^+ + d^+ + s^+ + c^+\\
-  T_{0,(4)} &= u^+ + c^+ - d^+ - s^+\\
+  \Sigma_{\Delta,(4)} &= u^+ + c^+ - d^+ - s^+\\
   V_{(4)} &= u^- + d^- + s^- + c^-\\
-  V_{0,(4)} &= u^- + c^- - d^- - s^-\\
-  T_1^u &=u^+ - c^+ \\
-  T_1^d &=d^+ - s^+ \\
-  V_1^u &=u^- - c^- \\
-  V_1^d &=d^- - s^- \\
-  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,4} &= \span(\gamma, g, \Sigma_{(4)}, V_{(4)}, V_{0,(4)}, V_1^d, T_{0,(4)}, T_1^d, V_1^u, T_1^u, b^+, b^-, t^+, t^-)
+  V_{\Delta,(4)} &= u^- + c^- - d^- - s^-\\
+  T_3^u &=u^+ - c^+ \\
+  T_3^d &=d^+ - s^+ \\
+  V_3^u &=u^- - c^- \\
+  V_3^d &=d^- - s^- \\
+  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,4} &= \span(\gamma, g, \Sigma_{(4)}, \Sigma_{\Delta,(4)}, V_{(4)}, V_{\Delta,(4)}, V_3^d, T_3^d, V_3^u, T_3^u, b^+, b^-, t^+, t^-)
 
 For :math:`n_f=5` light flavors we find:
 
 .. math ::
   \Sigma_{(5)} &= u^+ + d^+ + s^+ + c^+ + b^+\\
+  \Sigma_{\Delta,(5)} &= \frac{3}{2}u^+ + \frac{3}{2}c^+ - d^+ -s^+ - b^+\\
   V_{(5)} &= u^- + d^- + s^- + c^- + b^-\\
-  T_{0,(5)} &= \frac{3}{2}u^+ + \frac{3}{2}c^+ - d^+ -s^+ - b^+\\
-  V_{0,(5)} &= \frac{3}{2}u^- + \frac{3}{2}c^- - d^- -s^- - b^-\\
-  T_1^u &=u^+ - c^+ \\
-  T_1^d &=d^+ - s^+ \\
-  V_1^u &=u^- - c^- \\
-  V_1^d &=d^- - s^- \\
-  T_2^d &=d^+ + s^+ - 2b^+ \\
-  V_2^d &=d^- + s^- - 2b^- \\
-  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,5} &= \span(\gamma, g, \Sigma_{(4)}, V_{(4)}, V_{0,(4)}, V_1^d, T_{0,(4)}, T_1^d, V_1^u, T_1^u, T_2^d, V_2^d, t^+, t^-)
+  V_{\Delta,(5)} &= \frac{3}{2}u^- + \frac{3}{2}c^- - d^- -s^- - b^-\\
+  T_3^u &=u^+ - c^+ \\
+  T_3^d &=d^+ - s^+ \\
+  V_3^u &=u^- - c^- \\
+  V_3^d &=d^- - s^- \\
+  T_8^d &=d^+ + s^+ - 2b^+ \\
+  V_8^d &=d^- + s^- - 2b^- \\
+  \mathcal F \sim  \mathcal F_{intrinsic_unified_evol,5} &= \span(\gamma, g, \Sigma_{(4)}, \Sigma_{\Delta,(4)}, V_{(4)}, V_{\Delta,(4)}, V_3^d, T_3^d, V_3^u, T_3^u, T_8^d, V_8^d, t^+, t^-)
 
 For :math:`n_f=6` light flavors the intrinsic QED :math:`\otimes` QCD Evolution Basis coincides with the QED :math:`\otimes` QCD Evolution Basis.
 
