@@ -7,7 +7,7 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 import numba as nb
 
-from eko import constants
+from . import constants
 
 
 @nb.njit("f8(u1)", cache=True)
