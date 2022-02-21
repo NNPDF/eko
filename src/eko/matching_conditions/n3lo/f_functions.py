@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
-"""
-This module contains some Mellin transfomations for 5th order  harmonics sum.
-Notation refers to :cite:`Blumlein:2009ta`
+r"""
+This module contains some Mellin transformations for 5th order  harmonics sum.
+Notation refers to:
+    - :cite:`Blumlein:2009ta`. Johannes Blumlein. Structural Relations of Harmonic Sums and Mellin Transforms up to Weight w = 5. Comput. Phys. Commun., 180:2218-2249, 2009. arXiv:0901.3106, doi:10.1016/j.cpc.2009.07.004.
+
 Mellin transform is defined with the convention x^(N).
-F19, F20, F21 are not present explictly in the paper
-"""
+F19, F20, F21 are not present explicitly in the paper
+
+"""  # pylint: disable=line-too-long
 import numba as nb
 import numpy as np
 
