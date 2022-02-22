@@ -145,8 +145,10 @@ def build_ome(A, order, a_s, backward_method):
     return ome
 
 
-@nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,f8,string,b1)", cache=True)
-def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method, is_msbar):
+@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,string,b1)", cache=True)
+def quad_ker(
+    u, order, mode0, mode1, is_log, logx, areas, a_s, L, backward_method, is_msbar
+):
     """
     Raw kernel inside quad
 
@@ -177,15 +179,15 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method, is_ms
         ker : float
             evaluated integration kernel
     """
-    is_singlet = mode[0] == "S"
+    is_singlet = mode0 in ["S", "g", "H+"]
     # get transformation to N integral
     r = 0.4 * 16.0 / (1.0 - logx)
     if is_singlet:
         o = 1.0
-        indeces = {"g": 0, "q": 1, "H": 2}
+        indices = {"g": 0, "S": 1, "H+": 2}
     else:
         o = 0.0
-        indeces = {"q": 0, "H": 1}
+        indices = {"V": 0, "H-": 1}
     n = mellin.Talbot_path(u, r, o)
     jac = mellin.Talbot_jac(u, r, o)
 
@@ -215,7 +217,7 @@ def quad_ker(u, order, mode, is_log, logx, areas, a_s, L, backward_method, is_ms
     ker = build_ome(A, order, a_s, backward_method)
 
     # select the need matrix element
-    ker = ker[indeces[mode[-2]], indeces[mode[-1]]]
+    ker = ker[indices[mode0], indices[mode1]]
     if ker == 0.0:
         return 0.0
 
@@ -267,10 +269,10 @@ class OperatorMatrixElement:
         if self.config["debug_skip_non_singlet"]:
             logger.warning("Matching: skipping non-singlet sector")
         else:
-            labels.extend(["NS_qq", "NS_Hq"])
+            labels.extend([("V", "V"), ("H-", "V")])
             if self.is_intrinsic or self.backward_method != "":
                 # intrisic labels, which are not zero at NLO
-                labels.append("NS_HH")
+                labels.append(("H-", "H-"))
                 # if self.backward_method == "exact":
                 #     # this contribution starts at NNLO, we don't have it for the moment
                 #     labels.append("NS_qH")
@@ -279,9 +281,9 @@ class OperatorMatrixElement:
         if self.config["debug_skip_singlet"]:
             logger.warning("Matching: skipping singlet sector")
         else:
-            labels.extend([*singlet_labels, "S_Hg", "S_Hq"])
+            labels.extend([*singlet_labels, ("H+", "g"), ("H+", "S")])
             if self.is_intrinsic or self.backward_method != "":
-                labels.extend(["S_gH", "S_HH"])
+                labels.extend([("g", "H+"), ("H+", "H+")])
                 # if self.backward_method == "exact":
                 #     labels.extend(["S_qH"])
         return labels
@@ -304,7 +306,7 @@ class OperatorMatrixElement:
         grid_size = len(self.int_disp.xgrid)
         labels = self.labels()
         for n in labels:
-            if n[-1] == n[-2]:
+            if n[0] == n[1]:
                 self.ome_members[n] = OpMember(
                     np.eye(grid_size), np.zeros((grid_size, grid_size))
                 )
@@ -339,7 +341,8 @@ class OperatorMatrixElement:
                         1.0 - self._mellin_cut,
                         args=(
                             self.config["order"],
-                            label,
+                            label[0],
+                            label[1],
                             self.int_disp.log,
                             logx,
                             bf.areas_representation,
@@ -372,7 +375,13 @@ class OperatorMatrixElement:
         """Add the missing |OME|, if necessary"""
         grid_size = len(self.int_disp.xgrid)
         # basic labels skipped with skip debug
-        for label in ["NS_qq", "S_Hg", "S_Hq", "NS_Hq", *singlet_labels]:
+        for label in [
+            ("V", "V"),
+            ("H+", "g"),
+            ("H+", "S"),
+            ("H-", "V"),
+            *singlet_labels,
+        ]:
             if label not in self.ome_members:
                 self.ome_members[label] = OpMember(
                     np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
@@ -380,7 +389,13 @@ class OperatorMatrixElement:
 
         # intrinsic labels not computed yet
         if self.is_intrinsic:
-            for label in ["S_qH", "NS_qH", "NS_HH", "S_HH", "S_gH"]:
+            for label in [
+                ("S", "H+"),
+                ("V", "H-"),
+                ("H-", "H-"),
+                ("H+", "H+"),
+                ("g", "H+"),
+            ]:
                 if label not in self.ome_members:
                     self.ome_members[label] = OpMember(
                         np.zeros((grid_size, grid_size)),

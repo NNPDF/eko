@@ -3,6 +3,7 @@
 import numpy as np
 from numpy.testing import assert_almost_equal
 
+from eko import basis_rotation as br
 from eko import member
 from eko.matching_conditions import MatchingCondition
 
@@ -17,17 +18,19 @@ class TestMatchingCondition:
 
     def mkOME(self):
         ome = {}
-        for key in ["qq", "qg", "gq", "gg", "Hq", "Hg"]:
-            ome.update({f"S_{key}": mkOM(self.shape)})
-            if "g" not in key:
-                ome.update({f"NS_{key}": mkOM(self.shape)})
+        for key in [
+            *br.singlet_labels,
+            ("H+", "S"),
+            ("H+", "g"),
+            ("V", "V"),
+            ("H-", "V"),
+        ]:
+            ome.update({key: mkOM(self.shape)})
         return ome
 
     def update_intrinsic_OME(self, ome):
-        for key in ["HH", "qH", "gH"]:
-            ome.update({f"S_{key}": mkOM(self.shape)})
-            if "g" not in key:
-                ome.update({f"NS_{key}": mkOM(self.shape)})
+        for key in [("H+", "H+"), ("H-", "H-"), ("V", "H-"), ("S", "H+"), ("g", "H+")]:
+            ome.update({key: mkOM(self.shape)})
 
     def test_split_ad_to_evol_map(self):
         ome = self.mkOME()
@@ -54,7 +57,7 @@ class TestMatchingCondition:
         )
         assert_almost_equal(
             a.op_members[member.MemberName("V.V")].value,
-            ome["NS_qq"].value,
+            ome[("V", "V")].value,
         )
         # # if alpha is zero, nothing non-trivial should happen
         b = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [])
@@ -107,13 +110,13 @@ class TestMatchingCondition:
         )
         assert_almost_equal(
             d.op_members[member.MemberName("b-.V")].value,
-            ome["NS_Hq"].value,
+            ome[("H-", "V")].value,
         )
         assert_almost_equal(
             d.op_members[member.MemberName("b+.S")].value,
-            ome["S_Hq"].value,
+            ome[("H+", "S")].value,
         )
         assert_almost_equal(
             d.op_members[member.MemberName("b+.g")].value,
-            ome["S_Hg"].value,
+            ome[("H+", "g")].value,
         )

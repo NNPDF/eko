@@ -57,7 +57,7 @@ def test_quad_ker(monkeypatch):
             u=0,
             order=0,
             mode0="ns+",
-            mode1=None,
+            mode1="",
             method="",
             is_log=is_log,
             logx=0.0,
@@ -109,7 +109,7 @@ def test_quad_ker(monkeypatch):
         u=0,
         order=0,
         mode0="ns+",
-        mode1=None,
+        mode1="",
         method="",
         is_log=True,
         logx=0.0,
@@ -247,7 +247,7 @@ def test_pegasus_path():
     int_disp = InterpolatorDispatcher(xgrid, 1, True)
     order = 1
     mode0 = "ns+"
-    mode1 = None
+    mode1 = ""
     method = ""
     logxs = np.log(int_disp.xgrid_raw)
     a1 = 1
