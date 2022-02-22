@@ -4,7 +4,8 @@ Benchmark CT18 pdf family
 
 """
 
-from ekomark import register
+from banana import register
+
 from ekomark.benchmark.runner import Runner
 
 register(__file__)

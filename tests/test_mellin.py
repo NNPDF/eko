@@ -4,7 +4,7 @@
 import numpy as np
 from numpy.testing import assert_allclose, assert_almost_equal
 
-import eko.mellin as mellin
+from eko import mellin
 
 
 def check_path_derivation(path, jacobian, extra_args):

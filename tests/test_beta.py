@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 from eko import beta
+from eko.anomalous_dimensions.harmonics import zeta3
 
 
 def _flav_test(function):
@@ -38,14 +39,24 @@ def test_beta_2():
     np.testing.assert_approx_equal(beta.beta_2(5), 4**3 * 9769 / 3456)
 
 
+def test_beta_3():
+    """Test fourth beta function coefficient"""
+    _flav_test(beta.beta_3)
+    # from hep-ph/9706430
+    np.testing.assert_allclose(
+        beta.beta_3(5), 4**4 * (11027.0 / 648.0 * zeta3 - 598391.0 / 373248.0)
+    )
+
+
 def test_beta():
     """beta-wrapper"""
     nf = 3
     np.testing.assert_allclose(beta.beta(0, nf), beta.beta_0(nf))
     np.testing.assert_allclose(beta.beta(1, nf), beta.beta_1(nf))
     np.testing.assert_allclose(beta.beta(2, nf), beta.beta_2(nf))
+    np.testing.assert_allclose(beta.beta(3, nf), beta.beta_3(nf))
     with pytest.raises(ValueError):
-        beta.beta(3, 3)
+        beta.beta(4, 3)
 
 
 def test_b():
