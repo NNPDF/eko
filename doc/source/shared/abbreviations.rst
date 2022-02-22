@@ -49,6 +49,12 @@
 .. |RGE| replace::
    :abbr:`RGE (renormalization group equation)`
 
+.. |QCD| replace::
+   :abbr:`Quantum Chromodynamics`
+
+.. |QED| replace::
+   :abbr:`Quantum Elecrodynamics`
+
 .. external
 
 .. |yadism| replace::

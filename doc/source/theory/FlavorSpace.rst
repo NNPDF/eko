@@ -45,7 +45,7 @@ QCD Evolution Basis
 -------------------
 
 As the gluon is flavor-blind it is handy to solve |DGLAP| not in the flavor basis,
-but in the QCD Evolution Basis where instead we need to solve a minimal coupled system.
+but in the |QCD| Evolution Basis where instead we need to solve a minimal coupled system.
 This is the basis in which DGLAP equations are solved when only QCD corrections are taken into account.
 The new basis elements can be separated into two major classes: the singlet sector, consisting of the
 singlet distribution :math:`\Sigma` and the gluon distribution :math:`g`, and the non-singlet
