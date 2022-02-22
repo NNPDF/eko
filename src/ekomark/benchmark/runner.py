@@ -14,6 +14,7 @@ from banana.data import dfdict
 
 import eko
 from eko import basis_rotation as br
+from ekobox import apply
 
 from .. import pdfname
 from ..data import db, operators
@@ -83,7 +84,7 @@ class Runner(BenchmarkRunner):
             if rerun:
                 out = eko.run_dglap(theory, ocard)
                 print(f"Writing operator to {path}")
-                out.dump_yaml_to_file(path)
+                out.dump_tar(path)
             else:
                 # load
                 print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
@@ -170,7 +171,8 @@ class Runner(BenchmarkRunner):
             ):
                 rotate_to_evolution[3, :] = [0, 0, 0, 0, 0, -1, -1, 0, 1, 1, 0, 0, 0, 0]
 
-        pdf_grid = me.apply_pdf_flavor(
+        pdf_grid = apply.apply_pdf_flavor(
+            me,
             pdf,
             xgrid,
             flavor_rotation=rotate_to_evolution,

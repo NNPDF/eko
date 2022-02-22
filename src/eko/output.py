@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    This file contains the output management
+This file contains the output management
 """
 import io
 import logging
