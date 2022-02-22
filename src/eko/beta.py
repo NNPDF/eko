@@ -8,10 +8,11 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 import numba as nb
 
 from . import constants
+from .anomalous_dimensions.harmonics import zeta3
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_0(nf: int):
+def beta_0(nf):
     """
     Computes the first coefficient of the QCD beta function.
 
@@ -32,7 +33,7 @@ def beta_0(nf: int):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_1(nf: int):
+def beta_1(nf):
     """
     Computes the second coefficient of the QCD beta function.
 
@@ -57,7 +58,7 @@ def beta_1(nf: int):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_2(nf: int):
+def beta_2(nf):
     """
     Computes the third coefficient of the QCD beta function
 
@@ -85,6 +86,33 @@ def beta_2(nf: int):
     return beta_2
 
 
+@nb.njit("f8(u1)", cache=True)
+def beta_3(nf):
+    """
+    Computes the fourth coefficient of the QCD beta function
+
+    Implements Eq. (3.6) of :cite:`Herzog:2017ohr`.
+
+    Parameters
+    ----------
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        beta_3 : float
+            fourth coefficient of the QCD beta function :math:`\\beta_3^{n_f}`
+    """
+    beta_3 = (
+        149753.0 / 6.0
+        + 3564.0 * zeta3
+        + nf * (-1078361.0 / 162.0 - 6508.0 / 27.0 * zeta3)
+        + nf**2 * (50065.0 / 162.0 + 6472.0 / 81.0 * zeta3)
+        + 1093.0 / 729.0 * nf**3
+    )
+    return beta_3
+
+
 @nb.njit("f8(u1,u1)", cache=True)
 def beta(k, nf):
     """
@@ -109,8 +137,10 @@ def beta(k, nf):
         beta_ = beta_1(nf)
     elif k == 2:
         beta_ = beta_2(nf)
+    elif k == 3:
+        beta_ = beta_3(nf)
     else:
-        raise ValueError("Beta coefficients beyond NNLO are not implemented!")
+        raise ValueError("Beta coefficients beyond N3LO are not implemented!")
     return beta_
 
 

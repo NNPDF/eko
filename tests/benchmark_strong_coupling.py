@@ -165,10 +165,18 @@ class BenchmarkStrongCoupling:
                     0.009245273177012448,
                 ]
             ),
+            3: np.array(
+                [
+                    0.02224042559454458,
+                    0.014988806602725375,
+                    0.01140950716164355,
+                    0.009245168439298405,
+                ]
+            ),
         }
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
-        for order in [0, 1, 2]:
+        for order in [0, 1, 2, 3]:
             as_FFNS = StrongCoupling(
                 alphas_ref,
                 scale_ref,
@@ -200,11 +208,11 @@ class BenchmarkStrongCoupling:
                     )
                 # print(pegasus_vals_cur)
                 np.testing.assert_allclose(
-                    pegasus_vals, np.array(pegasus_vals_cur), err_msg="order=%d" % order
+                    pegasus_vals, np.array(pegasus_vals_cur), err_msg=f"order={order}"
                 )
-            # check myself to APFEL
+            # check myself to PEGASUS
             np.testing.assert_allclose(
-                pegasus_vals, np.array(my_vals), rtol=1.5e-7, err_msg="order=%d" % order
+                pegasus_vals, np.array(my_vals), rtol=1.5e-7, err_msg=f"order={order}"
             )
 
     def benchmark_APFEL_vfns(self):
@@ -474,18 +482,18 @@ class BenchmarkStrongCoupling:
             np.testing.assert_allclose(apfel_vals, np.array(my_vals))
 
     def benchmark_APFEL_vfns_msbar(self):
-        Q2s = np.power([30, 96, 150], 2)
+        Q2s = np.power([3, 96, 150], 2)
         alphas_ref = 0.118
         scale_ref = 91.0**2
         thresholds_ratios = np.power((1.0, 1.0, 1.0), 2)
-        Q2m = np.power([2.0, 2.0, 175], 2)
-        m2 = np.power((1.4, 2.0, 175), 2)
+        Q2m = np.power([2.0, 4.0, 175], 2)
+        m2 = np.power((1.4, 4.0, 175), 2)
         apfel_vals_dict = {
             1: np.array(
-                [0.011285356789817751, 0.009315017128518715, 0.00873290495922747]
+                [0.01985110421500437, 0.009315017128518715, 0.00873290495922747]
             ),
             2: np.array(
-                [0.011292233300595585, 0.009314871933701218, 0.008731890252153528]
+                [0.02005213805142418, 0.009314871933701218, 0.008731890252153528]
             ),
         }
         # collect my values
@@ -524,7 +532,7 @@ class BenchmarkStrongCoupling:
                 print(apfel_vals_cur)
                 np.testing.assert_allclose(apfel_vals, np.array(apfel_vals_cur))
             # check myself to APFEL
-            np.testing.assert_allclose(apfel_vals, np.array(my_vals), rtol=2e-4)
+            np.testing.assert_allclose(apfel_vals, np.array(my_vals))
 
     def _get_Lambda2_LO(self, as_ref, scale_ref, nf):
         """Transformation to Lambda_QCD"""
@@ -675,8 +683,16 @@ class BenchmarkStrongCoupling:
                     0.009214183512196827,
                 ]
             ),
+            3: np.array(
+                [
+                    0.025955428065113105,
+                    0.015862752802768762,
+                    0.011614793662449371,
+                    0.009214009540864635,
+                ]
+            ),
         }
-        for order in range(2 + 1):
+        for order in range(3 + 1):
             sc = StrongCoupling(
                 alphas_ref,
                 scale_ref,

@@ -72,14 +72,14 @@ def compute_apfel_data(
 
     # init evolution
     apfel.InitializeAPFEL()
-    print("Loading APFEL took %f s" % (time.perf_counter() - apf_start))
+    print(f"Loading APFEL took {(time.perf_counter() - apf_start)} s")
 
     # Run
     apf_tabs = {}
     for q2 in operators["Q2grid"]:
 
         apfel.EvolveAPFEL(theory["Q0"], np.sqrt(q2))
-        print("Executing APFEL took %f s" % (time.perf_counter() - apf_start))
+        print(f"Executing APFEL took {(time.perf_counter() - apf_start)} s")
 
         tab = {}
         for pid in br.flavor_basis_pids:

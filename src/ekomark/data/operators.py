@@ -66,7 +66,7 @@ def build(update=None):
     if update is None:
         update = {}
     for c in cartesian_product(update):
-        card = dict()
+        card = {}
         card.update(c)
         cards.append(card)
     return cards
