@@ -70,7 +70,7 @@ evol_basis_pids = tuple(
 """|pid| representation of :data:`evol_basis`."""
 
 singlet_labels = (("S", "S"), ("S", "g"), ("g", "S"), ("g", "g"))
-non_singlet_labels = (("ns-", None), ("ns+", None), ("nsV", None))
+non_singlet_labels = (("ns-", ""), ("ns+", ""), ("nsV", ""))
 full_labels = (*singlet_labels, *non_singlet_labels)
 anomalous_dimensions_basis = full_labels
 r"""
@@ -105,9 +105,9 @@ map_ad_to_evolution = {
     ("S", "g"): ["S.g"],
     ("g", "S"): ["g.S"],
     ("g", "g"): ["g.g"],
-    ("nsV", None): ["V.V"],
-    ("ns+", None): ["T3.T3", "T8.T8", "T15.T15", "T24.T24", "T35.T35"],
-    ("ns-", None): ["V3.V3", "V8.V8", "V15.V15", "V24.V24", "V35.V35"],
+    ("nsV", ""): ["V.V"],
+    ("ns+", ""): ["T3.T3", "T8.T8", "T15.T15", "T24.T24", "T35.T35"],
+    ("ns-", ""): ["V3.V3", "V8.V8", "V15.V15", "V24.V24", "V35.V35"],
 }
 """
 Map anomalous dimension sectors' names to their members

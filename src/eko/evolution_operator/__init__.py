@@ -151,7 +151,7 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    is_singlet = mode1 is not None
+    is_singlet = len(mode1) > 0
     # get transformation to N integral
     if logx == 0.0:
         return 0.0
@@ -243,11 +243,11 @@ class Operator:
             logger.warning("Evolution: skipping non-singlet sector")
         else:
             # add + as default
-            labels.append(("ns+", None))
+            labels.append(("ns+", ""))
             if order >= 1:  # - becomes different starting from NLO
-                labels.append(("ns-", None))
+                labels.append(("ns-", ""))
             if order >= 2:  # v also becomes different starting from NNLO
-                labels.append(("nsV", None))
+                labels.append(("nsV", ""))
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
             logger.warning("Evolution: skipping singlet sector")
@@ -358,16 +358,16 @@ class Operator:
         order = self.config["order"]
         if order == 0:  # in LO +=-=v
             for label in ["nsV", "ns-"]:
-                self.op_members[(label, None)].value = self.op_members[
-                    ("ns+", None)
+                self.op_members[(label, "")].value = self.op_members[
+                    ("ns+", "")
                 ].value.copy()
-                self.op_members[(label, None)].error = self.op_members[
-                    ("ns+", None)
+                self.op_members[(label, "")].error = self.op_members[
+                    ("ns+", "")
                 ].error.copy()
         elif order == 1:  # in NLO -=v
-            self.op_members[("nsV", None)].value = self.op_members[
-                ("ns-", None)
+            self.op_members[("nsV", "")].value = self.op_members[
+                ("ns-", "")
             ].value.copy()
-            self.op_members[("nsV", None)].error = self.op_members[
-                ("ns-", None)
+            self.op_members[("nsV", "")].error = self.op_members[
+                ("ns-", "")
             ].error.copy()

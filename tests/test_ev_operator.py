@@ -193,21 +193,21 @@ class TestOperator:
         )
         # LO
         o.compute()
-        assert ("ns-", None) in o.op_members
+        assert ("ns-", "") in o.op_members
         np.testing.assert_allclose(
-            o.op_members[("ns-", None)].value, o.op_members[("ns+", None)].value
+            o.op_members[("ns-", "")].value, o.op_members[("ns+", "")].value
         )
         np.testing.assert_allclose(
-            o.op_members[("nsV", None)].value, o.op_members[("ns+", None)].value
+            o.op_members[("nsV", "")].value, o.op_members[("ns+", "")].value
         )
         # NLO
         o.config["order"] = 1
         o.compute()
         assert not np.allclose(
-            o.op_members[("ns+", None)].value, o.op_members[("ns-", None)].value
+            o.op_members[("ns+", "")].value, o.op_members[("ns-", "")].value
         )
         np.testing.assert_allclose(
-            o.op_members[("nsV", None)].value, o.op_members[("ns-", None)].value
+            o.op_members[("nsV", "")].value, o.op_members[("ns-", "")].value
         )
 
         # unity operators

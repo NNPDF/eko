@@ -3,8 +3,12 @@
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO)
 """
 import numpy as np
+from banana import register
 
 from ekomark.benchmark.runner import Runner
+
+register(__file__)
+
 
 base_theory = {
     "ModEv": "EXA",
@@ -170,8 +174,8 @@ class BenchmarkFFNS(LHABenchmark):
 
 if __name__ == "__main__":
 
-    obj = BenchmarkVFNS()
-    # obj = BenchmarkFFNS()
+    # obj = BenchmarkVFNS()
+    obj = BenchmarkFFNS()
 
-    obj.benchmark_plain(2)
+    obj.benchmark_plain(0)
     # obj.benchmark_sv(1)

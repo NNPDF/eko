@@ -22,7 +22,7 @@ def test_ad_projector():
     np.testing.assert_allclose(g @ g_to_s, s)
     np.testing.assert_allclose(v3 @ g_to_s, 0.0)
 
-    ns_m = br.ad_projector(("ns-", None), nf=6)
+    ns_m = br.ad_projector(("ns-", ""), nf=6)
 
     np.testing.assert_allclose(s @ ns_m, 0.0, atol=1e-15)
     np.testing.assert_allclose(g @ ns_m, 0.0)
