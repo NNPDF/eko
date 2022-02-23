@@ -86,7 +86,7 @@ the most used prescription specify to vary the factor :math:`\mu_F/\mu_R` in the
 This variation can be performed at least at two different levels during the |PDF|
 evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
 
-    * For ``SV_scheme='A'`` the variation is applied directly to the splitting functions
+    * For ``ModSV='exponentiated'`` the variation is applied directly to the splitting functions
       and the anomalous dimension are then modified using :cite:`Vogt:2004ns`:
 
         .. math ::
@@ -95,23 +95,30 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
             & \gamma^{(3)}(N) \to \gamma^{(3)}(N) - 3 \beta_0 k \gamma^{(2)} - ( 2 \beta_1 k - 3 \beta_0^2 k^2) \gamma^{(1)} - (\beta_2 k - \frac{5}{2} \beta_1 \beta_0 k^2 + \beta_0^3 k^3) \gamma^{(0)} \\
             & k = \ln(\mu_F^2/\mu_R^2)
 
-    * In ``SV_scheme='B'`` the |EKO| is multiplied by an additional kernel, such that
+      This procedure corresponds to scheme A of :cite:`AbdulKhalek:2019ihb`, and we recommend to use it along with
+      ``ModEv='iterate-exact'`` in order to be in agreement with the treatment of the evolution integral expansion.
+
+
+    * In ``ModSV='expanded'`` the |EKO| is multiplied by an additional kernel, such that
       the scale variation is applied to the whole |PDF| set:
 
         .. math ::
             & \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) = \tilde{\mathbf{K}}(a_s) \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) \\
             & \tilde{\mathbf{K}}(a_s) = 1 - k \gamma + \frac{1}{2} k^2 \left ( \gamma^{2} - \beta \frac{\partial \gamma}{\partial a_s} \right ) + \frac{1}{6} k^3 \left [ - \beta \frac{\partial}{\partial a_s} \left( \beta \frac{\partial \gamma}{\partial a_s} \right) + 3 \beta \frac{\partial \gamma}{\partial a_s} \gamma - \gamma^3 \right ] + \mathcal{O}(k^4)
 
-     where scale variation kernel is expanded consistently order by order in :math:`a_s`,
-     leading to:
+      where scale variation kernel is expanded consistently order by order in :math:`a_s`,
+      leading to:
 
         .. math ::
             \tilde{\mathbf{K}}(a_s) \approx & 1 - a_s k \gamma^{(0)} + a_s^2 \left [ - k \gamma^{(1)} + \frac{1}{2} k^2 \gamma^{(0)} (\beta_0 + \gamma^{(0)}) \right ] \\
             & + a_s^3 \left [ -k \gamma^{(2)} + \frac{1}{2} k^2 \left(\beta_1 \gamma^{(0)} + 2 \gamma^{(1)} (\beta_0 + \gamma^{(0)} ) \right) - \frac{1}{6} k^3 \gamma^{(0)} \left(2 \beta_0^2 + 3 \beta_0 \gamma^{(0)}+\gamma^{(0),2} \right) \right] + \mathcal{O}(a^4)
 
 
-     In this way the dependence of the |EKO| on :math:`k` is factorized outside the unvaried evolution kernel.
-     This procedure is repeated for each different flavor patch present in the evolution path.
+      In this way the dependence of the |EKO| on :math:`k` is factorized outside the unvaried evolution kernel.
+      This procedure is repeated for each different flavor patch present in the evolution path.
+      It corresponds to scheme B of :cite:`AbdulKhalek:2019ihb`, and we recommend to use it along with
+      ``ModEv='truncated'`` in order to keep consistency with the evolution integral expansion.
+
 
 By construction, the corrections of the order :math:`\mathcal{O}(k^n)` will appear
 at the order :math:`n` in the expansion :math:`a_s`.
