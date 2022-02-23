@@ -46,7 +46,7 @@ QCD Evolution Basis
 
 As the gluon is flavor-blind it is handy to solve |DGLAP| not in the flavor basis,
 but in the |QCD| Evolution Basis where instead we need to solve a minimal coupled system.
-This is the basis in which DGLAP equations are solved when only QCD corrections are taken into account.
+This is the basis in which DGLAP equations are solved when only |QCD| corrections are taken into account.
 The new basis elements can be separated into two major classes: the singlet sector, consisting of the
 singlet distribution :math:`\Sigma` and the gluon distribution :math:`g`, and the non-singlet
 sector. The non-singlet sector can be again subdivided into three groups: first the full
@@ -81,11 +81,11 @@ The mapping between the Evolution Basis and the +/- Basis is given by
 Intrinsic QCD Evolution Bases
 -----------------------------
 
-However, the QCD Evolution Basis is not yet the most decoupled basis if we consider intrinsic evolution.
+However, the |QCD| Evolution Basis is not yet the most decoupled basis if we consider intrinsic evolution.
 The intrinsic distributions do *not* participate in the |DGLAP| equation but instead evolve with a unity operator:
 this makes, e.g. :math:`T_{15}` a composite object in a evolution range below the charm mass.
 Instead, we will keep the non participating distributions here in their :math:`q^\pm` representation.
-The Intrinsic QCD Evolution Bases will explicitly depend on the number of light flavors :math:`n_f`.
+The Intrinsic |QCD| Evolution Bases will explicitly depend on the number of light flavors :math:`n_f`.
 For :math:`n_f=3` we define (the other cases are defined analogously):
 
 .. math ::
@@ -93,9 +93,9 @@ For :math:`n_f=3` we define (the other cases are defined analogously):
   V_{(3)} = u^- + d^- + s^-\\
   \mathcal F \sim  \mathcal F_{iev,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_3, V_8, T_3, T_8, c^+, c^-, b^+, b^-, t^+, t^-)
 
-where :math:`V_{(3)}` is not to be confused with the usual (QCD like) :math:`V_3`.
+where :math:`V_{(3)}` is not to be confused with the usual (|QCD| like) :math:`V_3`.
 
-- for :math:`n_f=6` the Intrinsic QCD Evolution Basis coincides with the QCD Evolution Basis: :math:`\mathcal F_{iev,6} = \mathcal F_{ev}`
+- for :math:`n_f=6` the Intrinsic |QCD| Evolution Basis coincides with the |QCD| Evolution Basis: :math:`\mathcal F_{iev,6} = \mathcal F_{ev}`
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation from the Flavor Basis is implemented in
   :meth:`~eko.evolution_operator.flavors.pids_from_intrinsic_evol`
@@ -108,9 +108,9 @@ where :math:`V_{(3)}` is not to be confused with the usual (QCD like) :math:`V_3
 Unified Evolution Basis
 -----------------------
 
-In presence of QED corrections to DGLAP evolution equations,
-the QCD Evolution basis does not decouple the distributions
-as it was for the pure QCD evolution.
+In presence of |QED| corrections to DGLAP evolution equations,
+the |QCD| Evolution basis does not decouple the distributions
+as it was for the pure |QCD| evolution.
 
 Defining the following combinations
 
@@ -139,15 +139,15 @@ we have that in this case the QED :math:`\otimes` QCD evolution basis that perfo
 
 
 - this basis is *not* normalized with respect to the canonical Flavor Basis
-- The singlet :math:`\Sigma` is just the QCD singlet
-- The valence :math:`V` is just the QCD valence
+- The singlet :math:`\Sigma` is just the |QCD| singlet
+- The valence :math:`V` is just the |QCD| valence
 
 
 Intrinsic Unified Evolution Basis
 ---------------------------------
 
 Again, we need the generalization to the presence of intrinsic (static) distributions.
-As QED can distinguish between up-like and down-like flavors the situation is again slightly
+As |QED| can distinguish between up-like and down-like flavors the situation is again slightly
 more involved.
 
 For :math:`n_f=3` light flavors we find:
@@ -236,7 +236,7 @@ Operator Anomalous Dimension Basis
 Operator Intrinsic QCD Evolution Basis
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-- here we mean :ref:`theory/FlavorSpace:Intrinsic QCD Evolution Bases` both in the input and the output space
+- here we mean :ref:`theory/FlavorSpace:Intrinsic |QCD| Evolution Bases` both in the input and the output space
 - this basis does **not** coincide with the :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis` as the decision on which operator of that
   basis is used is a non-trivial decision - see :doc:`Matching`
 - this basis has :math:`2n_f+ 3 = 15` elements
