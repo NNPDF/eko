@@ -4,6 +4,6 @@ This module contain the possible scale variations integrals.
 """
 
 unvaried = 0
-scheme_A = 1
-scheme_B = 2
-"""Scale Variation schemes"""
+mode_exponentiated = 1
+mode_expanded = 2
+"""Scale Variation modes"""

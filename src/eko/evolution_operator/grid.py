@@ -126,7 +126,7 @@ class OperatorGrid:
         config["debug_skip_singlet"] = operators_card["debug_skip_singlet"]
         config["debug_skip_non_singlet"] = operators_card["debug_skip_non_singlet"]
         config["HQ"] = theory_card["HQ"]
-        config["SV_scheme"] = theory_card["SV_scheme"]
+        config["ModSV"] = theory_card["ModSV"]
         q2_grid = np.array(operators_card["Q2grid"], np.float_)
         intrinsic_range = []
         if int(theory_card["IC"]) == 1:

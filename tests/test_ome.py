@@ -150,7 +150,7 @@ def test_quad_ker(monkeypatch):
         else:
             np.testing.assert_allclose(res_ns, 0.0)
 
-    # test exact intrisic inverse kernel
+    # test exact intrinsic inverse kernel
     labels.extend(
         [
             "S_Hq",
@@ -220,7 +220,7 @@ class TestOperatorMatrixElement:
         "MaxNfPdf": 6,
         "MaxNfAs": 6,
         "HQ": "POLE",
-        "SV_scheme": None,
+        "ModSV": None,
     }
 
     def test_labels(self):

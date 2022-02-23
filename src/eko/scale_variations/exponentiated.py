@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 r"""
-This module contains the scale variation for scheme A
+This module contains the scale variation for ``ModSV=exponentiated``.
 """
 import numba as nb
 

@@ -77,11 +77,11 @@ class LHABenchmark(Runner):
         low = self.theory.copy()
         low["PTO"] = pto
         low["fact_to_ren_scale_ratio"] = np.sqrt(1.0 / 2.0)
-        low["SV_scheme"] = "A"
+        low["SV_scheme"] = "exponentiated"
         high = self.theory.copy()
         high["PTO"] = pto
         high["fact_to_ren_scale_ratio"] = np.sqrt(2.0)
-        high["SV_scheme"] = "A"
+        high["SV_scheme"] = "exponentiated"
         return [high, low]
 
     @staticmethod

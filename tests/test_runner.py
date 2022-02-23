@@ -30,7 +30,7 @@ theory_card = {
     "Qmc": 1.0,
     "Qmb": 4.75,
     "Qmt": 173.0,
-    "SV_scheme": None,
+    "ModSV": None,
 }
 operators_card = {
     "Q2grid": [10, 100],

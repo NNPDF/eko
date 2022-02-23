@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from eko.scale_variations.a import gamma_variation
+from eko.scale_variations.exponentiated import gamma_variation
 
 
 def test_gamma_ns_fact():

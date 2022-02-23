@@ -36,7 +36,7 @@ class TestOperatorGrid:
             "MaxNfPdf": 6,
             "MaxNfAs": 6,
             "HQ": "POLE",
-            "SV_scheme": None,
+            "ModSV": None,
         }
         operators_card = {
             "Q2grid": [1, 100**2],
@@ -136,10 +136,10 @@ class TestOperatorGrid:
         sv_opg = sv_opgrid.compute(3)
         assert opg[3]["alphas"] < sv_opg[3]["alphas"]
 
-    def test_scheme_B(self):
+    def test_mod_expanded(self):
         theory_update = {
             "PTO": 1,
-            "SV_scheme": "B",
+            "ModSV": "B",
         }
         epsilon = 1e-1
         for ffns, nf0 in zip([False, True], [5, 3]):

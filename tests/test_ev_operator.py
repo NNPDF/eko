@@ -69,7 +69,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            sv_scheme=0,
+            sv_mode=0,
         )
         np.testing.assert_allclose(res_ns, 0.0)
         res_s = quad_ker(
@@ -86,7 +86,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            sv_scheme=0,
+            sv_mode=0,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -103,7 +103,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            sv_scheme=0,
+            sv_mode=0,
         )
         np.testing.assert_allclose(res_s, 0.0)
     for mode in ["NS_p", "S_qq"]:
@@ -122,7 +122,7 @@ def test_quad_ker(monkeypatch):
                 L=0,
                 ev_op_iterations=0,
                 ev_op_max_order=0,
-                sv_scheme=sv,
+                sv_mode=sv,
             )
             np.testing.assert_allclose(res_sv, 1.0)
 
@@ -141,7 +141,7 @@ def test_quad_ker(monkeypatch):
         L=0,
         ev_op_iterations=0,
         ev_op_max_order=0,
-        sv_scheme=0,
+        sv_mode=0,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
@@ -191,7 +191,7 @@ class TestOperator:
             "MaxNfPdf": 6,
             "MaxNfAs": 6,
             "HQ": "POLE",
-            "SV_scheme": None,
+            "ModSV": None,
         }
         operators_card = {
             "Q2grid": [1, 10],

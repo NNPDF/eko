@@ -23,12 +23,14 @@ from ..basis_rotation import (
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
-from ..scale_variations import a, b
+from ..scale_variations import expanded, exponentiated
 
 logger = logging.getLogger(__name__)
 
 ad_basis_dict = dict(zip(anomalous_dimensions_basis, anomalous_dimensions_basis_idx))
-sv_scheme_dict = dict(zip([None, "A", "B"], [sv.unvaried, sv.scheme_A, sv.scheme_B]))
+sv_mode_dict = dict(
+    zip([None, "A", "B"], [sv.unvaried, sv.mode_exponentiated, sv.mode_expanded])
+)
 
 
 @nb.njit("c16(c16[:,:],u1)", cache=True)
@@ -138,7 +140,7 @@ def quad_ker(
     L,
     ev_op_iterations,
     ev_op_max_order,
-    sv_scheme,
+    sv_mode,
 ):
     """
     Raw evolution kernel inside quad.
@@ -171,8 +173,8 @@ def quad_ker(
             number of evolution steps
         ev_op_max_order : int
             perturbative expansion order of U
-        sv_scheme: int
-            use scale variation scheme 0: none, 1: A, 2: B
+        sv_mode: int
+            use scale variation mode 0: none, 1: exponentiated, 2: expanded
 
     Returns
     -------
@@ -188,21 +190,21 @@ def quad_ker(
     if ker_base.is_singlet:
         gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
         # scale var A is directly applied on gamma
-        if sv_scheme == sv.scheme_A:
-            gamma_singlet = a.gamma_variation(gamma_singlet, order, nf, L)
+        if sv_mode == sv.mode_exponentiated:
+            gamma_singlet = exponentiated.gamma_variation(gamma_singlet, order, nf, L)
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
         # scale var B is applied on the kernel
-        if sv_scheme == sv.scheme_B:
+        if sv_mode == sv.mode_expanded:
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
-                b.singlet_variation(gamma_singlet, a1, order, nf, L)
+                expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
             )
         ker = select_singlet_element(ker, mode)
     else:
         gamma_ns = ad.gamma_ns(order, mode, ker_base.n, nf)
-        if sv_scheme == sv.scheme_A:
-            gamma_ns = a.gamma_variation(gamma_ns, order, nf, L)
+        if sv_mode == sv.mode_exponentiated:
+            gamma_ns = exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
             method,
@@ -212,8 +214,8 @@ def quad_ker(
             nf,
             ev_op_iterations,
         )
-        if sv_scheme == sv.scheme_B:
-            ker = ker * b.non_singlet_variation(gamma_ns, a1, order, nf, L)
+        if sv_mode == sv.mode_expanded:
+            ker = ker * expanded.non_singlet_variation(gamma_ns, a1, order, nf, L)
 
     # recombine everthing
     return np.real(ker * integrand)
@@ -257,9 +259,9 @@ class Operator:
         return self.config["fact_to_ren"]
 
     @property
-    def sv_scheme(self):
-        """Returns the scale variation scheme"""
-        return sv_scheme_dict[self.config["SV_scheme"]]
+    def sv_mode(self):
+        """Returns the scale variation mode"""
+        return sv_mode_dict[self.config["ModSV"]]
 
     @property
     def int_disp(self):
@@ -349,11 +351,11 @@ class Operator:
             self.q2_from / self.fact_to_ren,
             self.q2_to / self.fact_to_ren,
         )
-        if self.sv_scheme != 0:
+        if self.sv_mode != 0:
             logger.info(
-                "Scale Variation: (µ_F/µ_R)^2 = %e, scheme: %s",
+                "Scale Variation: (µ_F/µ_R)^2 = %e, mode: %s",
                 self.fact_to_ren,
-                "A" if self.sv_scheme == 1 else "B",
+                "A" if self.sv_mode == 1 else "B",
             )
         logger.info("Evolution: a_s distance: %e -> %e", a0, a1)
         logger.info(
@@ -389,7 +391,7 @@ class Operator:
                             np.log(self.fact_to_ren),
                             self.config["ev_op_iterations"],
                             self.config["ev_op_max_order"],
-                            self.sv_scheme,
+                            self.sv_mode,
                         ),
                         epsabs=1e-12,
                         epsrel=1e-5,

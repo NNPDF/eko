@@ -74,7 +74,7 @@ class BenchmarkVFNS(ApfelBenchmark):
         th.update(
             {
                 "PTO": [pto],
-                "XIR": [np.sqrt(0.5)],
+                "XIR": [1 / np.sqrt(2.0)],
                 "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
                 "SV_scheme": [scheme],
                 "EScaleVar": [0],
@@ -165,7 +165,7 @@ class BenchmarkFFNS(ApfelBenchmark):
         th.update(
             {
                 "PTO": [pto],
-                "XIR": [np.sqrt(0.5)],
+                "XIR": [1 / np.sqrt(2.0)],
                 "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
                 "SV_scheme": [scheme],
                 "EScaleVar": [0],
@@ -192,6 +192,6 @@ if __name__ == "__main__":
     # obj = BenchmarkFFNS()
 
     # obj.benchmark_plain(2)
-    obj.benchmark_sv(2, "A")
+    obj.benchmark_sv(2, "exponentiated")
     # obj.benchmark_kthr(2)
     # obj.benchmark_msbar(2)

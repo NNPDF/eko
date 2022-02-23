@@ -146,5 +146,5 @@ if __name__ == "__main__":
     # obj = BenchmarkFFNS()
     # obj.benchmark_plain(1)
 
-    obj.benchmark_sv(2, "A")
+    obj.benchmark_sv(2, "exponentiated")
     # vfns.benchmark_sv()
