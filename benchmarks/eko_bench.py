@@ -88,14 +88,14 @@ class BenchmarkRunner(Runner):
         low = base_theory.copy()
         low["PTO"] = pto
         low["fact_to_ren_scale_ratio"] = np.sqrt(1.0 / 2.0)
-        low["SV_scheme"] = "exponentiated"
+        low["ModSV"] = "exponentiated"
         # needed for apfel
         low["XIR"] = np.sqrt(2.0)
         low["EScaleVar"] = 0
         high = base_theory.copy()
         high["PTO"] = pto
         high["fact_to_ren_scale_ratio"] = np.sqrt(2.0)
-        high["SV_scheme"] = "A"
+        high["ModSV"] = "A"
         # needed for apfel
         high["XIR"] = np.sqrt(0.5)
         high["EScaleVar"] = 0

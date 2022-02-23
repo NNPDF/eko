@@ -29,7 +29,10 @@ logger = logging.getLogger(__name__)
 
 ad_basis_dict = dict(zip(anomalous_dimensions_basis, anomalous_dimensions_basis_idx))
 sv_mode_dict = dict(
-    zip([None, "A", "B"], [sv.unvaried, sv.mode_exponentiated, sv.mode_expanded])
+    zip(
+        [None, "exponentiated", "expanded"],
+        [sv.unvaried, sv.mode_exponentiated, sv.mode_expanded],
+    )
 )
 
 

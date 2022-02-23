@@ -83,7 +83,7 @@ class BenchmarkVFNS(PegasusBenchmark):
             {
                 "PTO": [pto],
                 "fact_to_ren_scale_ratio": [np.sqrt(0.5), np.sqrt(2.0)],
-                "SV_scheme": [scheme],
+                "ModSV": [scheme],
             }
         )
         self.run(
@@ -132,7 +132,7 @@ class BenchmarkFFNS(PegasusBenchmark):
             {
                 "PTO": [pto],
                 "fact_to_ren_scale_ratio": [np.sqrt(0.5), np.sqrt(2.0)],
-                "SV_scheme": [scheme],
+                "ModSV": [scheme],
             }
         )
         self.run(
