@@ -89,8 +89,11 @@ in particular the coefficient :math:`A_{gg,H}^{S,(1)}` is fully proportional to 
 :cite:`Ablinger:2010ty,Ablinger:2014vwa,Ablinger:2014uka,Behring:2014eya,Blumlein:2017wxd,Ablinger_2014,Ablinger_2015`.
 We have included at |N3LO| also parts proportional to :math:`\ln(\mu_{h}^2/m_{h}^2)`.
 
-We remark that contributions of the higher quark at |NNLO| and |N3LO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
+We remark that contributions of the higher quark at |NNLO| and |N3LO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}`
+are not encoded in EKO despite of being present.
 On the other hand the elements :math:`A_{qq,H}^{ps},A_{qg,H}` are known to start at |N3LO|.
+
+Additional contributions due to |Msbar| masses are included only up to |NNLO|.
 
 The |OME| are also required in the context of the FONLL matching scheme :cite:`Forte:2010ta`.
 For :ref:`Intrinsic Evolution <theory/DGLAP:Intrinsic Evolution>` this leads to considerable simplifications :cite:`Ball:2015dpa`.
