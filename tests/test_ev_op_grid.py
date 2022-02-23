@@ -139,7 +139,7 @@ class TestOperatorGrid:
     def test_mod_expanded(self):
         theory_update = {
             "PTO": 1,
-            "ModSV": "B",
+            "ModSV": "expanded",
         }
         epsilon = 1e-1
         for ffns, nf0 in zip([False, True], [5, 3]):

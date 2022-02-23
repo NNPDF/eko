@@ -358,7 +358,7 @@ class Operator:
             logger.info(
                 "Scale Variation: (µ_F/µ_R)^2 = %e, mode: %s",
                 self.fact_to_ren,
-                "A" if self.sv_mode == 1 else "B",
+                "exponentiated" if self.sv_mode == 1 else "expanded",
             )
         logger.info("Evolution: a_s distance: %e -> %e", a0, a1)
         logger.info(
