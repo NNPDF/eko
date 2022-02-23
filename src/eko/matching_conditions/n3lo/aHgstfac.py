@@ -8,7 +8,10 @@ def A_Hgstfac_3(n, sx, smx, s3x, s4x, nf):
     r"""
     Computes the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)`
     proportional to various color factors.
-    The experssion is presented in cite:`ablinger2017heavy` (eq 3.1)
+    The experssion is presented in cite:`ablinger2017heavy` (eq 3.1).
+
+    When using the code, please cite the complete list of references
+    available in :mod:`eko.matching_conditions.n3lo`.
 
     Parameters
     ----------

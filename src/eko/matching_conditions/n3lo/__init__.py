@@ -4,13 +4,13 @@ This module defines the matching conditions for the N3LO |VFNS| evolution.
 
 The expressions are based on:
 
-    - :cite:`Bierenbaum:2009mv`. Isabella Bierenbaum, Johannes Blumlein, and Sebastian Klein. Mellin Moments of the O(alpha**3(s)) Heavy Flavor Contributions to unpolarized Deep-Inelastic Scattering at Q**2 \ensuremath >\ensuremath > m**2 and Anomalous Dimensions. Nucl. Phys. B, 820:417-482, 2009. arXiv:0904.3563, doi:10.1016/j.nuclphysb.2009.06.005.
+    - :cite:`Bierenbaum:2009mv`. Isabella Bierenbaum, Johannes Blümlein, and Sebastian Klein. Mellin Moments of the O(alpha**3(s)) Heavy Flavor Contributions to unpolarized Deep-Inelastic Scattering at Q**2 \ensuremath >\ensuremath > m**2 and Anomalous Dimensions. Nucl. Phys. B, 820:417-482, 2009. arXiv:0904.3563, doi:10.1016/j.nuclphysb.2009.06.005.
 
     - :cite:`Bl_mlein_2000`. Johannes Blümlein. Analytic continuation of mellin transforms up to two-loop order. Computer Physics Communications, 133(1):76-104, Dec 2000. URL: http://dx.doi.org/10.1016/S0010-4655(00)00156-9, doi:10.1016/s0010-4655(00)00156-9.
 
-    - :cite:`Bierenbaum:2009zt`. Isabella Bierenbaum, Johannes Blumlein, and Sebastian Klein. The Gluonic Operator Matrix Elements at O(alpha(s)**2) for DIS Heavy Flavor Production. Phys. Lett. B, 672:401-406, 2009. arXiv:0901.0669, doi:10.1016/j.physletb.2009.01.057.
+    - :cite:`Bierenbaum:2009zt`. Isabella Bierenbaum, Johannes Blümlein, and Sebastian Klein. The Gluonic Operator Matrix Elements at O(alpha(s)**2) for DIS Heavy Flavor Production. Phys. Lett. B, 672:401-406, 2009. arXiv:0901.0669, doi:10.1016/j.physletb.2009.01.057.
 
-    - :cite:`Ablinger:2010ty`. J. Ablinger, J. Blumlein, S. Klein, C. Schneider, and F. Wissbrock. The $O(\alpha _s^3)$ Massive Operator Matrix Elements of $O(n_f)$ for the Structure Function $F_2(x,Q^2)$ and Transversity. Nucl. Phys. B, 844:26-54, 2011. arXiv:1008.3347, doi:10.1016/j.nuclphysb.2010.10.021.
+    - :cite:`Ablinger:2010ty`. J. Ablinger, J. Blümlein, S. Klein, C. Schneider, and F. Wissbrock. The $O(\alpha _s^3)$ Massive Operator Matrix Elements of $O(n_f)$ for the Structure Function $F_2(x,Q^2)$ and Transversity. Nucl. Phys. B, 844:26-54, 2011. arXiv:1008.3347, doi:10.1016/j.nuclphysb.2010.10.021.
 
     - :cite:`Ablinger:2014vwa`. J. Ablinger, A. Behring, J. Blümlein, A. De Freitas, A. Hasselhuhn, A. von Manteuffel, M. Round, C. Schneider, and F. Wißbrock. The 3-Loop Non-Singlet Heavy Flavor Contributions and Anomalous Dimensions for the Structure Function $F_2(x,Q^2)$ and Transversity. Nucl. Phys. B, 886:733-823, 2014. arXiv:1406.4654, doi:10.1016/j.nuclphysb.2014.07.010.
 
@@ -39,17 +39,20 @@ from .aqqPS import A_qqPS_3
 @nb.njit("c16[:,:](c16,c16[:],u4,f8)", cache=True)
 def A_singlet_3(n, sx_all, nf, L):
     r"""
-      Computes the |N3LO| singlet |OME|.
+    Computes the |N3LO| singlet |OME|.
 
-      .. math::
-          A^{S,(3)} = \left(\begin{array}{cc}
-            A_{gg, H}^{S,(3)} & A_{gq, H}^{S,(3)} & 0
+    .. math::
+        A^{S,(3)} = \left(\begin{array}{cc}
+            A_{gg, H}^{S,(3)} & A_{gq, H}^{S,(3)} & 0 \\
             A_{qg, H}^{S,(3)} & A_{qq,H}^{NS,(3)} + A_{qq,H}^{PS,(3)} & 0\\
             A_{hg}^{S,(3)} & A_{hq}^{PS,(3)} & 0\\
-          \end{array}\right)
+        \end{array}\right)
 
-      Parameters
-      ----------
+    When using the code, please cite the complete list of references
+    available at the top of this module :mod:`eko.matching_conditions.n3lo`.
+
+    Parameters
+    ----------
         n : complex
             Mellin moment
         sx_all : numpy.ndarray
@@ -60,8 +63,8 @@ def A_singlet_3(n, sx_all, nf, L):
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
-      Returns
-      -------
+    Returns
+    -------
         A_S_3 : numpy.ndarray
             |NNLO| singlet |OME| :math:`A^{S,(3)}(N)`
     """
@@ -89,16 +92,19 @@ def A_singlet_3(n, sx_all, nf, L):
 @nb.njit("c16[:,:](c16,c16[:],u4,f8)", cache=True)
 def A_ns_3(n, sx_all, nf, L):
     r"""
-      Computes the |N3LO| non-singlet |OME|.
+    Computes the |N3LO| non-singlet |OME|.
 
-      .. math::
-          A^{NS,(3)} = \left(\begin{array}{cc}
+    .. math::
+        A^{NS,(3)} = \left(\begin{array}{cc}
             A_{qq,H}^{NS,(3)} & 0\\
             0 & 0\\
-          \end{array}\right)
+        \end{array}\right)
 
-      Parameters
-      ----------
+    When using the code, please cite the complete list of references
+    available at the top of this module :mod:`eko.matching_conditions.n3lo`.
+
+    Parameters
+    ----------
         n : complex
             Mellin moment
         sx_all : numpy.ndarray
@@ -109,13 +115,13 @@ def A_ns_3(n, sx_all, nf, L):
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
-      Returns
-      -------
+    Returns
+    -------
         A_NS_3 : numpy.ndarray
             |N3LO| non-singlet |OME| :math:`A^{NS,(3)}`
 
-      See Also
-      --------
+    See Also
+    --------
         A_qqNS_3 : :math:`A_{qq,H}^{NS,(3))}`
     """
     sx = sx_all[:5]

@@ -7,7 +7,10 @@ import numpy as np
 def A_gq_3(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{gq}^{S,(3)}(N)`.
-    The experssion is presented in :cite:`Ablinger_2014` (eq 6.3)
+    The experssion is presented in :cite:`Ablinger_2014` (eq 6.3).
+
+    When using the code, please cite the complete list of references
+    available in :mod:`eko.matching_conditions.n3lo`.
 
     Parameters
     ----------

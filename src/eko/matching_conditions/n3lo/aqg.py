@@ -7,7 +7,10 @@ import numpy as np
 def A_qg_3(n, sx, smx, s3x, s4x, nf, L):
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{qg}^{S,(3)}(N)`.
-    The expression is presented in :cite:`Bierenbaum:2009mv`
+    The expression is presented in :cite:`Bierenbaum:2009mv`.
+
+    When using the code, please cite the complete list of references
+    available in :mod:`eko.matching_conditions.n3lo`.
 
     Parameters
     ----------

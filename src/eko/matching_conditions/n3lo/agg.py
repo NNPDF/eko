@@ -10,7 +10,10 @@ from .aggTF2 import A_ggTF2_3
 def A_gg_3(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{gg}^{S,(3)}(N)`.
-    The experssion is presented in :cite:`Bierenbaum:2009mv`
+    The experssion is presented in :cite:`Bierenbaum:2009mv`.
+
+    When using the code, please cite the complete list of references
+    available in :mod:`eko.matching_conditions.n3lo`.
 
     Parameters
     ----------

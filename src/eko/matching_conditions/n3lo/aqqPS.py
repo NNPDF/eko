@@ -7,7 +7,10 @@ import numpy as np
 def A_qqPS_3(n, sx, nf, L):
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{qq}^{PS,(3)}(N)`.
-    The expression is presented in :cite:`Bierenbaum:2009mv`
+    The expression is presented in :cite:`Bierenbaum:2009mv`.
+
+    When using the code, please cite the complete list of references
+    available in :mod:`eko.matching_conditions.n3lo`.
 
     Parameters
     ----------
