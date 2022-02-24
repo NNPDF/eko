@@ -320,20 +320,6 @@ class Operator:
     def quad_ker(self):
         """Integrand function"""
         return quad_ker
-        # TODO: is there a way to pass here a partially initialized quad ker??
-        # return functools.partial(
-        #     quad_ker,
-        #     order=self.config["order"],
-        #     method=self.config["method"],
-        #     is_log=self.int_disp.log,
-        #     a1=self.a_s[1],
-        #     a0=self.a_s[0],
-        #     nf=self.nf,
-        #     L=np.log(self.fact_to_ren),
-        #     ev_op_iterations=self.config["ev_op_iterations"],
-        #     ev_op_max_order=self.config["ev_op_max_order"],
-        #     sv_mode=self.sv_mode,
-        # )
 
     def initialize_op_members(self):
         """Init all ops with identity or zeros if we skip them"""
@@ -356,7 +342,7 @@ class Operator:
         log_grid,
     ):
         """
-        Integration routine per operator
+        Run the integration for each grid point
 
         Parameters
         ----------
@@ -366,7 +352,7 @@ class Operator:
         Returns
         -------
             column : list
-                single operators column
+                computed operators at the give grid point
 
         """
         column = []
@@ -446,8 +432,7 @@ class Operator:
             self.config["method"],
         )
 
-        # TODO: which is the optimal numbers of pool to open?
-        # make it an external parameter?
+        # TODO: make the number of pools an external parameter?
         # run integration in parallel for each grid point
         with Pool(8) as pool:
             res = pool.map(
