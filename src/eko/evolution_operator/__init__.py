@@ -7,6 +7,7 @@ See :doc:`Operator overview </code/Operators>`.
 
 import logging
 import time
+from multiprocessing import Pool
 
 import numba as nb
 import numpy as np
@@ -277,9 +278,14 @@ class Operator:
         return self.int_disp.xgrid.size
 
     @property
-    def strong_coupling(self):
-        """Returns the instance of :class:`eko.strong_coupling.StrongCoupling`"""
-        return self.managers["strong_coupling"]
+    def a_s(self):
+        """Returns the computed values for :math:`a_s`"""
+        sc = self.managers["strong_coupling"]
+        a0 = sc.a_s(
+            self.q2_from / self.fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf
+        )
+        a1 = sc.a_s(self.q2_to / self.fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf)
+        return (a0, a1)
 
     @property
     def labels(self):
@@ -310,6 +316,25 @@ class Operator:
             labels.extend(singlet_labels)
         return labels
 
+    @property
+    def quad_ker(self):
+        """Integrand function"""
+        return quad_ker
+        # TODO: is there a way to pass here a partially initialized quad ker??
+        # return functools.partial(
+        #     quad_ker,
+        #     order=self.config["order"],
+        #     method=self.config["method"],
+        #     is_log=self.int_disp.log,
+        #     a1=self.a_s[1],
+        #     a0=self.a_s[0],
+        #     nf=self.nf,
+        #     L=np.log(self.fact_to_ren),
+        #     ev_op_iterations=self.config["ev_op_iterations"],
+        #     ev_op_max_order=self.config["ev_op_max_order"],
+        #     sv_mode=self.sv_mode,
+        # )
+
     def initialize_op_members(self):
         """Init all ops with identity or zeros if we skip them"""
         eye = OpMember(
@@ -326,23 +351,77 @@ class Operator:
             else:
                 self.op_members[n] = zero.copy()
 
+    def run_op_integration(
+        self,
+        log_grid,
+    ):
+        """
+        Integration routine per operator
+
+        Parameters
+        ----------
+            log_grid : tuple(k, logx)
+                log grid point with relative index
+
+        Returns
+        -------
+            column : list
+                single operators column
+
+        """
+        column = []
+        k, logx = log_grid
+        start_time = time.perf_counter()
+        # iterate basis functions
+        for l, bf in enumerate(self.int_disp):
+            if k == l and l == self.grid_size - 1:
+                continue
+            temp_dict = {}
+            # iterate sectors
+            for label in self.labels:
+                res = integrate.quad(
+                    self.quad_ker,
+                    0.5,
+                    1.0 - self._mellin_cut,
+                    args=(
+                        self.config["order"],
+                        ad_basis_dict[label],
+                        self.config["method"],
+                        self.int_disp.log,
+                        logx,
+                        bf.areas_representation,
+                        self.a_s[1],
+                        self.a_s[0],
+                        self.nf,
+                        np.log(self.fact_to_ren),
+                        self.config["ev_op_iterations"],
+                        self.config["ev_op_max_order"],
+                        self.sv_mode,
+                    ),
+                    epsabs=1e-12,
+                    epsrel=1e-5,
+                    limit=100,
+                    full_output=1,
+                )
+                temp_dict[label] = res[:2]
+            column.append(temp_dict)
+
+        print(
+            f"Evolution: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time)} s"  # pylint: disable=line-too-long
+        )
+        return column
+
     def compute(self):
         """compute the actual operators (i.e. run the integrations)"""
         self.initialize_op_members()
 
-        # skip computation
+        # skip computation ?
         if np.isclose(self.q2_from, self.q2_to):
             logger.info("Evolution: skipping unity operator at %e", self.q2_from)
             self.copy_ns_ops()
             return
+
         tot_start_time = time.perf_counter()
-        # setup ingredients
-        a0 = self.strong_coupling.a_s(
-            self.q2_from / self.fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf
-        )
-        a1 = self.strong_coupling.a_s(
-            self.q2_to / self.fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf
-        )
         logger.info(
             "Evolution: computing operators %e -> %e, nf=%d",
             self.q2_from,
@@ -360,57 +439,30 @@ class Operator:
                 self.fact_to_ren,
                 "exponentiated" if self.sv_mode == 1 else "expanded",
             )
-        logger.info("Evolution: a_s distance: %e -> %e", a0, a1)
+        logger.info("Evolution: a_s distance: %e -> %e", self.a_s[0], self.a_s[1])
         logger.info(
             "Evolution: order: %d, solution strategy: %s",
             self.config["order"],
             self.config["method"],
         )
-        logger.info("Evolution: computing operators - 0/%d", self.grid_size)
-        # iterate output grid
-        for k, logx in enumerate(np.log(self.int_disp.xgrid_raw)):
-            start_time = time.perf_counter()
-            # iterate basis functions
-            for l, bf in enumerate(self.int_disp):
-                if k == l and l == self.grid_size - 1:
-                    continue
-                # iterate sectors
-                for label in self.labels:
-                    # compute and set
-                    res = integrate.quad(
-                        quad_ker,
-                        0.5,
-                        1.0 - self._mellin_cut,
-                        args=(
-                            self.config["order"],
-                            ad_basis_dict[label],
-                            self.config["method"],
-                            self.int_disp.log,
-                            logx,
-                            bf.areas_representation,
-                            a1,
-                            a0,
-                            self.nf,
-                            np.log(self.fact_to_ren),
-                            self.config["ev_op_iterations"],
-                            self.config["ev_op_max_order"],
-                            self.sv_mode,
-                        ),
-                        epsabs=1e-12,
-                        epsrel=1e-5,
-                        limit=100,
-                        full_output=1,
-                    )
-                    val, err = res[:2]
+
+        # TODO: which is the optimal numbers of pool to open?
+        # make it an external parameter?
+        # run integration in parallel for each grid point
+        with Pool(8) as pool:
+            res = pool.map(
+                self.run_op_integration,
+                enumerate(np.log(self.int_disp.xgrid_raw)),
+            )
+        pool.close()
+        pool.join()
+
+        # collect results
+        for k, row in enumerate(res):
+            for l, entry in enumerate(row):
+                for label, (val, err) in entry.items():
                     self.op_members[label].value[k][l] = val
                     self.op_members[label].error[k][l] = err
-
-            logger.info(
-                "Evolution: computing operators - %d/%d took: %f s",
-                k + 1,
-                self.grid_size,
-                time.perf_counter() - start_time,
-            )
 
         # closing comment
         logger.info("Evolution: Total time %f s", time.perf_counter() - tot_start_time)

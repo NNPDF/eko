@@ -76,7 +76,7 @@ class BenchmarkVFNS(ApfelBenchmark):
                 "PTO": [pto],
                 "XIR": [1 / np.sqrt(2.0)],
                 "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
-                "ModSv": [scheme],
+                "ModSV": [scheme],
                 "EScaleVar": [0],
             }
         )
