@@ -6,6 +6,7 @@ See :doc:`Operator overview </code/Operators>`.
 """
 
 import logging
+import os
 import time
 from multiprocessing import Pool
 
@@ -432,9 +433,8 @@ class Operator:
             self.config["method"],
         )
 
-        # TODO: make the number of pools an external parameter?
         # run integration in parallel for each grid point
-        with Pool(8) as pool:
+        with Pool(int(os.cpu_count() / 2)) as pool:
             res = pool.map(
                 self.run_op_integration,
                 enumerate(np.log(self.int_disp.xgrid_raw)),
