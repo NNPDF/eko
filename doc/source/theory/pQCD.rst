@@ -48,7 +48,7 @@ is presented in equation 3.1 of :cite:`Schroder:2005hy` for |MSbar| masses, whil
 same expression for POLE masses is reported in Appendix A.
 
 QCD Splitting Functions
--------------------
+-----------------------
 
 In the case in which only the |QCD| corrections are considered, the Altarelli-Parisi splitting kernels can be expanded in powers of the strong
 coupling :math:`a_s(\mu^2)` and are given by :cite:`Moch:2004pa,Vogt:2004mw`
