@@ -47,10 +47,10 @@ In particular, the matching involved in the change from :math:`n_f` to :math:`n_
 is presented in equation 3.1 of :cite:`Schroder:2005hy` for |MSbar| masses, while the
 same expression for POLE masses is reported in Appendix A.
 
-Splitting Functions
+QCD Splitting Functions
 -------------------
 
-The Altarelli-Parisi splitting kernels can be expanded in powers of the strong
+In the case in which only the |QCD| corrections are considered, the Altarelli-Parisi splitting kernels can be expanded in powers of the strong
 coupling :math:`a_s(\mu^2)` and are given by :cite:`Moch:2004pa,Vogt:2004mw`
 
 .. math ::
@@ -58,6 +58,24 @@ coupling :math:`a_s(\mu^2)` and are given by :cite:`Moch:2004pa,Vogt:2004mw`
     {\gamma}^{(j)}(N) &= -\mathcal{M}[\mathbf{P}^{(j)}(x)](N)
 
 Note the additional minus in the definition of :math:`\gamma`.
+
+Unified Splitting Functions
+---------------------------
+
+When the |QED| corrections are taken into account, |DGLAP| equation take the form
+
+.. math ::
+    \mathbf{P}=\mathbf{\tilde{P}}+\mathbf{\bar{P}}
+
+where :math:`\mathbf{\tilde{P}}` are the usual |QCD| splitting kernels defined in the previous section,
+while :math:`\mathbf{\bar{P}}` are given by
+
+.. math ::
+    \mathbf{\bar{P}} = \alpha \mathbf{P}^{(0,1)} + \alpha_s \alpha \mathbf{P}^{(1,1)} +
+    \alpha^2 \mathbf{P}^{(0,2)} + \dots
+
+The expression of the pure |QED| and of the mixed |QED| :math:`\otimes` |QCD| splitting kernels are given in
+:cite:`deFlorian:2015ujt,deFlorian:2016gvk`
 
 Scale Variations
 ----------------

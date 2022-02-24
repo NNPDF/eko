@@ -53,7 +53,7 @@
    :abbr:`QCD (Quantum Chromodynamics)`
 
 .. |QED| replace::
-   :abbr:`QED (Quantum Elecrodynamics)`
+   :abbr:`QED (Quantum Electrodynamics)`
 
 .. external
 
