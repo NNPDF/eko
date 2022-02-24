@@ -50,10 +50,10 @@
    :abbr:`RGE (renormalization group equation)`
 
 .. |QCD| replace::
-   :abbr:`Quantum Chromodynamics`
+   :abbr:`QCD (Quantum Chromodynamics)`
 
 .. |QED| replace::
-   :abbr:`Quantum Elecrodynamics`
+   :abbr:`QED (Quantum Electrodynamics)`
 
 .. external
 

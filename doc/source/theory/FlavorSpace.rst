@@ -46,7 +46,7 @@ QCD Evolution Basis
 
 As the gluon is flavor-blind it is handy to solve |DGLAP| not in the flavor basis,
 but in the |QCD| Evolution Basis where instead we need to solve a minimal coupled system.
-This is the basis in which DGLAP equations are solved when only QCD corrections are taken into account.
+This is the basis in which |DGLAP| equations are solved when only |QCD| corrections are taken into account.
 The new basis elements can be separated into two major classes: the singlet sector, consisting of the
 singlet distribution :math:`\Sigma` and the gluon distribution :math:`g`, and the non-singlet
 sector. The non-singlet sector can be again subdivided into three groups: first the full
@@ -81,21 +81,21 @@ The mapping between the Evolution Basis and the +/- Basis is given by
 Intrinsic QCD Evolution Bases
 -----------------------------
 
-However, the QCD Evolution Basis is not yet the most decoupled basis if we consider intrinsic evolution.
+However, the |QCD| Evolution Basis is not yet the most decoupled basis if we consider intrinsic evolution.
 The intrinsic distributions do *not* participate in the |DGLAP| equation but instead evolve with a unity operator:
 this makes, e.g. :math:`T_{15}` a composite object in a evolution range below the charm mass.
 Instead, we will keep the non participating distributions here in their :math:`q^\pm` representation.
-The Intrinsic QCD Evolution Bases will explicitly depend on the number of light flavors :math:`n_f`.
+The Intrinsic |QCD| Evolution Bases will explicitly depend on the number of light flavors :math:`n_f`.
 For :math:`n_f=3` we define (the other cases are defined analogously):
 
 .. math ::
   \Sigma_{(3)} &= u^+ + d^+ +s^+\\
-  V_{(3)} = u^- + d^- + s^-\\
+  V_{(3)} &= u^- + d^- + s^-\\
   \mathcal F \sim  \mathcal F_{iev,3} &= \span(\gamma, g, \Sigma_{(3)}, V_{(3)}, V_3, V_8, T_3, T_8, c^+, c^-, b^+, b^-, t^+, t^-)
 
-where :math:`V_{(3)}` is not to be confused with the usual (QCD like) :math:`V_3`.
+where :math:`V_{(3)}` is not to be confused with the usual (|QCD| like) :math:`V_3`.
 
-- for :math:`n_f=6` the Intrinsic QCD Evolution Basis coincides with the QCD Evolution Basis: :math:`\mathcal F_{iev,6} = \mathcal F_{ev}`
+- for :math:`n_f=6` the Intrinsic |QCD| Evolution Basis coincides with the |QCD| Evolution Basis: :math:`\mathcal F_{iev,6} = \mathcal F_{ev}`
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation from the Flavor Basis is implemented in
   :meth:`~eko.evolution_operator.flavors.pids_from_intrinsic_evol`
@@ -108,9 +108,9 @@ where :math:`V_{(3)}` is not to be confused with the usual (QCD like) :math:`V_3
 Unified Evolution Basis
 -----------------------
 
-In presence of QED corrections to DGLAP evolution equations,
-the QCD Evolution basis does not decouple the distributions
-as it was for the pure QCD evolution.
+In presence of |QED| corrections to |DGLAP| evolution equations,
+the |QCD| Evolution basis does not decouple the distributions
+as it was for the pure |QCD| evolution.
 
 Defining the following combinations
 
@@ -135,19 +135,19 @@ we have that in this case the QED :math:`\otimes` QCD evolution basis that perfo
   V_8^u &=u^- + c^- - 2t^- \\
   V_3^d &=d^- - s^- \\
   V_8^d &=d^- + s^- - 2b^- \\
-  \mathcal F \sim  \mathcal F_{QED\otimes QCD} &= \span(\gamma, g, \Sigma, \Sigma_{\Delta}, V, V_{\Delta}, T_3^u, T_8^u, T_3^d, T_8^d, V_3^u, V_8^u, V_3^d, V_8^d)
+  \mathcal F \sim  \mathcal F_{uni,ev} &= \span(\gamma, g, \Sigma, \Sigma_{\Delta}, V, V_{\Delta}, T_3^u, T_8^u, T_3^d, T_8^d, V_3^u, V_8^u, V_3^d, V_8^d)
 
 
 - this basis is *not* normalized with respect to the canonical Flavor Basis
-- The singlet :math:`\Sigma` is just the QCD singlet
-- The valence :math:`V` is just the QCD valence
+- The singlet :math:`\Sigma` is just the |QCD| singlet
+- The valence :math:`V` is just the |QCD| valence
 
 
 Intrinsic Unified Evolution Basis
 ---------------------------------
 
 Again, we need the generalization to the presence of intrinsic (static) distributions.
-As QED can distinguish between up-like and down-like flavors the situation is again slightly
+As |QED| can distinguish between up-like and down-like flavors the situation is again slightly
 more involved.
 
 For :math:`n_f=3` light flavors we find:
@@ -159,7 +159,7 @@ For :math:`n_f=3` light flavors we find:
   V_{\Delta,(3)} &= 2u^- - d^- - s^-\\
   T_3^d &=d^+ - s^+ \\
   V_3^d &=d^- - s^- \\
-  \mathcal F \sim  \mathcal F_{QED\otimes QCD,intrinsic,3} &= \span(\gamma, g, \Sigma_{(3)}, \Sigma_{\Delta,(3)}, V_{(3)}, V_{\Delta,(3)}, T_3^d, V_3^d, c^+, c^-, b^+, b^-, t^+, t^-)
+  \mathcal F \sim  \mathcal F_{uni,iev,3} &= \span(\gamma, g, \Sigma_{(3)}, \Sigma_{\Delta,(3)}, V_{(3)}, V_{\Delta,(3)}, T_3^d, V_3^d, c^+, c^-, b^+, b^-, t^+, t^-)
 
 For :math:`n_f=4` light flavors we find:
 
@@ -172,7 +172,7 @@ For :math:`n_f=4` light flavors we find:
   T_3^d &=d^+ - s^+ \\
   V_3^u &=u^- - c^- \\
   V_3^d &=d^- - s^- \\
-  \mathcal F \sim  \mathcal F_{QED\otimes QCD,intrinsic,4} &= \span(\gamma, g, \Sigma_{(4)}, \Sigma_{\Delta,(4)}, V_{(4)}, V_{\Delta,(4)}, V_3^d, T_3^d, V_3^u, T_3^u, b^+, b^-, t^+, t^-)
+  \mathcal F \sim  \mathcal F_{uni,iev,4} &= \span(\gamma, g, \Sigma_{(4)}, \Sigma_{\Delta,(4)}, V_{(4)}, V_{\Delta,(4)}, V_3^d, T_3^d, V_3^u, T_3^u, b^+, b^-, t^+, t^-)
 
 For :math:`n_f=5` light flavors we find:
 
@@ -187,9 +187,9 @@ For :math:`n_f=5` light flavors we find:
   V_3^d &=d^- - s^- \\
   T_8^d &=d^+ + s^+ - 2b^+ \\
   V_8^d &=d^- + s^- - 2b^- \\
-  \mathcal F \sim  \mathcal F_{QED\otimes QCD,intrinsic,5} &= \span(\gamma, g, \Sigma_{(4)}, \Sigma_{\Delta,(4)}, V_{(4)}, V_{\Delta,(4)}, V_3^d, T_3^d, V_3^u, T_3^u, T_8^d, V_8^d, t^+, t^-)
+  \mathcal F \sim  \mathcal F_{uni,iev,5} &= \span(\gamma, g, \Sigma_{(4)}, \Sigma_{\Delta,(4)}, V_{(4)}, V_{\Delta,(4)}, V_3^d, T_3^d, V_3^u, T_3^u, T_8^d, V_8^d, t^+, t^-)
 
-For :math:`n_f=6` light flavors the intrinsic QED :math:`\otimes` QCD Evolution Basis coincides with the QED :math:`\otimes` QCD Evolution Basis.
+For :math:`n_f=6` light flavors the Intrinsic Unified Evolution Basis coincides with the :ref:`theory/FlavorSpace:Unified Evolution Basis`.
 
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation from the Flavor Basis is implemented in
