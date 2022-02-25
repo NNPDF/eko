@@ -6,9 +6,9 @@ Strong Coupling
 
 Implementation: :class:`~eko.strong_coupling.StrongCoupling`.
 
-We use perturbative QCD with the running coupling
+We use perturbative |QCD| with the running coupling
 :math:`a_s(\mu_R^2) = \alpha_s(\mu_R^2)/(4\pi)` given at 5-loop by
-:cite:`Herzog:2017ohr` :cite:`Luthe:2016ima` :cite:`Baikov:2016tgj`
+:cite:`Herzog:2017ohr,Luthe:2016ima,Baikov:2016tgj,Chetyrkin:2017bjc,Luthe:2017ttg`
 
 .. math ::
     \frac{da_s(\mu_R^2)}{d\ln\mu_R^2} = \beta(a_s(\mu_R^2)) \
@@ -101,7 +101,7 @@ corresponds to schemes A and B in :cite:`AbdulKhalek:2019ihb`.
 Heavy Quark Masses
 ------------------
 
-In QCD also the heavy quark masses (:math:`m_{c}, m_{b}, m_{t}`) follow a |RGE|
+In |QCD| also the heavy quark masses (:math:`m_{c}, m_{b}, m_{t}`) follow a |RGE|
 and their values depend on the energy scale at which the quark is probed.
 Masses do not play any role in a single flavour patch, but are important in
 |VFNS| when more flavour schemes need to be joined (see :doc:`matching
@@ -162,7 +162,7 @@ In doing so EKO takes advantage of the monotony of the |RGE| solution
 Now, being able to evaluate :math:`a_s(\mu_{h,0}^2)`, there are two ways of
 solving the previous integral and finally compute the evolved
 :math:`m_{\overline{MS},h}`. In fact, the function :math:`\gamma_m(a_s)` is the
-anomalous QCD mass dimension and, as the :math:`\beta` function, it can be evaluated
+anomalous |QCD| mass dimension and, as the :math:`\beta` function, it can be evaluated
 perturbatively in :math:`a_s` up to :math:`\mathcal{O}(a_s^4)`:
 
 .. math ::

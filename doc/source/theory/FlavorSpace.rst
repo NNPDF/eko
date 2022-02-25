@@ -120,7 +120,7 @@ Defining the following combinations
   V_u & = u^- + c^- + t^- \\
   V_d & = d^- + s^- + b^- \\
 
-we have that in this case the QED :math:`\otimes` QCD evolution basis that performs the maximal decoupling is given by:
+we have that in this case the |QED| :math:`\otimes` |QCD| evolution basis that performs the maximal decoupling is given by:
 
 .. math ::
   \Sigma &= \Sigma_u + \Sigma_d \\
