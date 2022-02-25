@@ -48,21 +48,23 @@ class PhysicalOperator(member.OperatorBase):
         """
         # constant elements
         m = {
-            "S.S": op_members[("S", "S")],
-            "S.g": op_members[("S", "g")],
-            "g.g": op_members[("g", "g")],
-            "g.S": op_members[("g", "S")],
-            "V.V": op_members[("nsV", "")],
+            "S.S": op_members[(100, 100)],
+            "S.g": op_members[(100, 21)],
+            "g.g": op_members[(21, 21)],
+            "g.S": op_members[(21, 100)],
+            "V.V": op_members[(br.non_singlet_pids_map["nsV"], 0)],
         }
         # add elements which are already active
         for f in range(2, nf + 1):
             n = f**2 - 1
-            m[f"V{n}.V{n}"] = op_members[("ns-", "")]
-            m[f"T{n}.T{n}"] = op_members[("ns+", "")]
+            m[f"V{n}.V{n}"] = op_members[(br.non_singlet_pids_map["ns-"], 0)]
+            m[f"T{n}.T{n}"] = op_members[(br.non_singlet_pids_map["ns+"], 0)]
         # deal with intrinsic heavy quark PDFs
         if intrinsic_range is not None:
             hqfl = "cbt"
-            op_id = member.OpMember.id_like(op_members[("nsV", "")])
+            op_id = member.OpMember.id_like(
+                op_members[(br.non_singlet_pids_map["nsV"], 0)]
+            )
             for intr_fl in intrinsic_range:
                 if intr_fl <= nf:  # light quarks are not intrinsic
                     continue

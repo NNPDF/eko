@@ -44,11 +44,11 @@ class MatchingCondition(member.OperatorBase):
         """
 
         m = {
-            "S.S": ome_members[("S", "S")],
-            "S.g": ome_members[("S", "g")],  # This is always zero for the time being
-            "g.S": ome_members[("g", "S")],
-            "g.g": ome_members[("g", "g")],
-            "V.V": ome_members[("V", "V")],
+            "S.S": ome_members[(100, 100)],
+            "S.g": ome_members[(100, 21)],  # This is always zero for the time being
+            "g.S": ome_members[(21, 100)],
+            "g.g": ome_members[(21, 21)],
+            "V.V": ome_members[(200, 200)],
         }
 
         # add elements which are already active
@@ -61,15 +61,15 @@ class MatchingCondition(member.OperatorBase):
         hq = br.quark_names[nf]
         m.update(
             {
-                f"{hq}-.V": ome_members[("H-", "V")],
-                f"{hq}+.S": ome_members[("H+", "S")],
-                f"{hq}+.g": ome_members[("H+", "g")],
+                f"{hq}-.V": ome_members[(br.matching_hminus_pid, 200)],
+                f"{hq}+.S": ome_members[(br.matching_hplus_pid, 100)],
+                f"{hq}+.g": ome_members[(br.matching_hplus_pid, 21)],
             }
         )
 
         # intrinsic matching
         if len(intrinsic_range) != 0:
-            op_id = member.OpMember.id_like(ome_members[("V", "V")])
+            op_id = member.OpMember.id_like(ome_members[(200, 200)])
             for intr_fl in intrinsic_range:
                 ihq = br.quark_names[intr_fl - 1]  # find name
                 if intr_fl > nf + 1:
@@ -80,11 +80,15 @@ class MatchingCondition(member.OperatorBase):
                     # match the missing contribution from h+ and h-
                     m.update(
                         {
-                            f"{ihq}+.{ihq}+": ome_members[("H+", "H+")],
-                            # f"S.{ihq}+": ome_members[("S", "H+")],
-                            f"g.{ihq}+": ome_members[("g", "H+")],
-                            f"{ihq}-.{ihq}-": ome_members[("H-", "H-")],
-                            # f"V.{ihq}-": ome_members[("V", "H-")],
+                            f"{ihq}+.{ihq}+": ome_members[
+                                (br.matching_hplus_pid, br.matching_hplus_pid)
+                            ],
+                            # f"S.{ihq}+": ome_members[(100, br.matching_hplus_pid)],
+                            f"g.{ihq}+": ome_members[(21, br.matching_hplus_pid)],
+                            f"{ihq}-.{ihq}-": ome_members[
+                                (br.matching_hminus_pid, br.matching_hminus_pid)
+                            ],
+                            # f"V.{ihq}-": ome_members[(200, br.matching_hminus_pid)],
                         }
                     )
         return cls.promote_names(m, q2_thr)

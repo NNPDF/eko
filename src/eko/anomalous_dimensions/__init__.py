@@ -20,6 +20,7 @@ terms of the anomalous dimensions (note the additional sign!)
 import numba as nb
 import numpy as np
 
+from .. import basis_rotation as br
 from . import as1, harmonics, nlo, nnlo
 
 
@@ -71,7 +72,7 @@ def exp_singlet(gamma_S):
     return exp, lambda_p, lambda_m, e_p, e_m
 
 
-@nb.njit("c16[:](u1,string,c16,u1)", cache=True)
+@nb.njit("c16[:](u1,u1,c16,u1)", cache=True)
 def gamma_ns(order, mode, n, nf):
     r"""
     Computes the tower of the non-singlet anomalous dimensions
@@ -109,21 +110,23 @@ def gamma_ns(order, mode, n, nf):
     # NLO and beyond
     if order >= 1:
         # TODO: pass the necessary harmonics to nlo gammas
-        if mode == "+":
+        if mode == 10101:
             gamma_ns_1 = nlo.gamma_nsp_1(n, nf)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
-        elif mode in ["-", "V"]:
+        elif mode in [10201, 10200]:
             gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
+        else:
+            raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond
     if order >= 2:
         sx = np.append(sx, harmonics.harmonic_S2(n))
         sx = np.append(sx, harmonics.harmonic_S3(n))
-        if mode == "+":
+        if mode == 10101:
             gamma_ns_2 = -nnlo.gamma_nsp_2(n, nf, sx)
-        elif mode == "-":
+        elif mode == 10201:
             gamma_ns_2 = -nnlo.gamma_nsm_2(n, nf, sx)
-        elif mode == "V":
+        elif mode == 10200:
             gamma_ns_2 = -nnlo.gamma_nsv_2(n, nf, sx)
         gamma_ns[2] = gamma_ns_2
     return gamma_ns

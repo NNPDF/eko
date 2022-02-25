@@ -13,8 +13,8 @@ import numpy as np
 from scipy import integrate
 
 from .. import anomalous_dimensions as ad
+from .. import basis_rotation as br
 from .. import beta, interpolation, mellin
-from ..basis_rotation import full_labels, singlet_labels
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
@@ -22,7 +22,7 @@ from ..member import OpMember
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("c16[:](u1,string,c16,u1,f8)", cache=True)
+@nb.njit("c16[:](u1,u1,c16,u1,f8)", cache=True)
 def gamma_ns_fact(order, mode, n, nf, L):
     """
     Adjust the anomalous dimensions with the scale variations.
@@ -45,7 +45,7 @@ def gamma_ns_fact(order, mode, n, nf, L):
         gamma_ns : numpy.ndarray
             adjusted non-singlet anomalous dimensions
     """
-    gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
+    gamma_ns = ad.gamma_ns(order, mode, n, nf)
     # since we are modifying *in-place* be carefull, that the order matters!
     # and indeed, we need to adjust the high elements first
     if order >= 2:
@@ -97,7 +97,7 @@ def gamma_singlet_fact(order, n, nf, L):
     return gamma_singlet
 
 
-@nb.njit("f8(f8,u1,string,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1)", cache=True)
+@nb.njit("f8(f8,u1,u1,u1,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1)", cache=True)
 def quad_ker(
     u,
     order,
@@ -151,7 +151,7 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    is_singlet = len(mode1) > 0
+    is_singlet = mode1 != 0
     # get transformation to N integral
     if logx == 0.0:
         return 0.0
@@ -176,8 +176,8 @@ def quad_ker(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
         # select element of matrix
-        k = 0 if mode0 == "S" else 1
-        l = 0 if mode1 == "S" else 1
+        k = 0 if mode0 == 100 else 1
+        l = 0 if mode1 == 100 else 1
         ker = ker[k, l]
     else:
         gamma_ns = gamma_ns_fact(order, mode0, n, nf, L)
@@ -243,16 +243,16 @@ class Operator:
             logger.warning("Evolution: skipping non-singlet sector")
         else:
             # add + as default
-            labels.append(("ns+", ""))
+            labels.append((br.non_singlet_pids_map["ns+"], 0))
             if order >= 1:  # - becomes different starting from NLO
-                labels.append(("ns-", ""))
+                labels.append((br.non_singlet_pids_map["ns-"], 0))
             if order >= 2:  # v also becomes different starting from NNLO
-                labels.append(("nsV", ""))
+                labels.append((br.non_singlet_pids_map["nsV"], 0))
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
             logger.warning("Evolution: skipping singlet sector")
         else:
-            labels.extend([("S", "S"), ("S", "g"), ("g", "S"), ("g", "g")])
+            labels.extend(br.singlet_labels)
         return labels
 
     def compute(self):
@@ -265,10 +265,10 @@ class Operator:
         labels = self.labels()
         eye = OpMember(np.eye(grid_size), np.zeros((grid_size, grid_size)))
         zero = OpMember(*[np.zeros((grid_size, grid_size))] * 2)
-        for n in full_labels:
+        for n in br.full_labels:
             if n in labels:
                 # off diag singlet are zero
-                if n in [("S", "g"), ("g", "S")]:
+                if n in br.singlet_labels and n[0] != n[1]:
                     self.op_members[n] = zero.copy()
                 else:
                     self.op_members[n] = eye.copy()
@@ -358,16 +358,20 @@ class Operator:
         order = self.config["order"]
         if order == 0:  # in LO +=-=v
             for label in ["nsV", "ns-"]:
-                self.op_members[(label, "")].value = self.op_members[
-                    ("ns+", "")
+                self.op_members[
+                    (br.non_singlet_pids_map[label], 0)
+                ].value = self.op_members[
+                    (br.non_singlet_pids_map["ns+"], 0)
                 ].value.copy()
-                self.op_members[(label, "")].error = self.op_members[
-                    ("ns+", "")
+                self.op_members[
+                    (br.non_singlet_pids_map[label], 0)
+                ].error = self.op_members[
+                    (br.non_singlet_pids_map["ns+"], 0)
                 ].error.copy()
         elif order == 1:  # in NLO -=v
-            self.op_members[("nsV", "")].value = self.op_members[
-                ("ns-", "")
-            ].value.copy()
-            self.op_members[("nsV", "")].error = self.op_members[
-                ("ns-", "")
-            ].error.copy()
+            self.op_members[
+                (br.non_singlet_pids_map["nsV"], 0)
+            ].value = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].value.copy()
+            self.op_members[
+                (br.non_singlet_pids_map["nsV"], 0)
+            ].error = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].error.copy()

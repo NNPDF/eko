@@ -18,13 +18,13 @@ from eko.thresholds import ThresholdsAtlas
 def test_gamma_ns_fact(monkeypatch):
     gamma_ns = np.array([1.0, 0.5, 0.25])
     monkeypatch.setattr(ad, "gamma_ns", lambda *args: gamma_ns.copy())
-    gamma_ns_LO_0 = gamma_ns_fact(0, "ns+", 1, 3, 0)
+    gamma_ns_LO_0 = gamma_ns_fact(0, br.non_singlet_pids_map["ns+"], 1, 3, 0)
     np.testing.assert_allclose(gamma_ns_LO_0, gamma_ns)
-    gamma_ns_LO_1 = gamma_ns_fact(0, "ns+", 1, 3, 1)
+    gamma_ns_LO_1 = gamma_ns_fact(0, br.non_singlet_pids_map["ns+"], 1, 3, 1)
     np.testing.assert_allclose(gamma_ns_LO_1, gamma_ns)
-    gamma_ns_NLO_1 = gamma_ns_fact(1, "ns+", 1, 3, 1)
+    gamma_ns_NLO_1 = gamma_ns_fact(1, br.non_singlet_pids_map["ns+"], 1, 3, 1)
     assert gamma_ns_NLO_1[1] < gamma_ns[1]
-    gamma_ns_NNLO_1 = gamma_ns_fact(2, "ns+", 1, 3, 1)
+    gamma_ns_NNLO_1 = gamma_ns_fact(2, br.non_singlet_pids_map["ns+"], 1, 3, 1)
     assert gamma_ns_NNLO_1[2] - gamma_ns[2] == 8.0
 
 
@@ -56,8 +56,8 @@ def test_quad_ker(monkeypatch):
         res_ns = quad_ker(
             u=0,
             order=0,
-            mode0="ns+",
-            mode1="",
+            mode0=br.non_singlet_pids_map["ns+"],
+            mode1=0,
             method="",
             is_log=is_log,
             logx=0.0,
@@ -73,8 +73,8 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=0,
-            mode0="S",
-            mode1="S",
+            mode0=100,
+            mode1=100,
             method="",
             is_log=is_log,
             logx=1.0,
@@ -90,8 +90,8 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=0,
-            mode0="S",
-            mode1="g",
+            mode0=100,
+            mode1=21,
             method="",
             is_log=is_log,
             logx=0.0,
@@ -108,8 +108,8 @@ def test_quad_ker(monkeypatch):
     res_ns = quad_ker(
         u=0,
         order=0,
-        mode0="ns+",
-        mode1="",
+        mode0=br.non_singlet_pids_map["ns+"],
+        mode1=0,
         method="",
         is_log=True,
         logx=0.0,
@@ -193,21 +193,25 @@ class TestOperator:
         )
         # LO
         o.compute()
-        assert ("ns-", "") in o.op_members
+        assert (br.non_singlet_pids_map["ns-"], 0) in o.op_members
         np.testing.assert_allclose(
-            o.op_members[("ns-", "")].value, o.op_members[("ns+", "")].value
+            o.op_members[(br.non_singlet_pids_map["ns-"], 0)].value,
+            o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
         )
         np.testing.assert_allclose(
-            o.op_members[("nsV", "")].value, o.op_members[("ns+", "")].value
+            o.op_members[(br.non_singlet_pids_map["nsV"], 0)].value,
+            o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
         )
         # NLO
         o.config["order"] = 1
         o.compute()
         assert not np.allclose(
-            o.op_members[("ns+", "")].value, o.op_members[("ns-", "")].value
+            o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
+            o.op_members[(br.non_singlet_pids_map["ns-"], 0)].value,
         )
         np.testing.assert_allclose(
-            o.op_members[("nsV", "")].value, o.op_members[("ns-", "")].value
+            o.op_members[(br.non_singlet_pids_map["nsV"], 0)].value,
+            o.op_members[(br.non_singlet_pids_map["ns-"], 0)].value,
         )
 
         # unity operators
@@ -246,8 +250,8 @@ def test_pegasus_path():
     xgrid = np.geomspace(1e-7, 1, 10)
     int_disp = InterpolatorDispatcher(xgrid, 1, True)
     order = 1
-    mode0 = "ns+"
-    mode1 = ""
+    mode0 = br.non_singlet_pids_map["ns+"]
+    mode1 = 0
     method = ""
     logxs = np.log(int_disp.xgrid_raw)
     a1 = 1

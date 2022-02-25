@@ -4,6 +4,7 @@ import numpy as np
 from numpy.testing import assert_allclose, assert_almost_equal
 
 from eko import anomalous_dimensions as ad
+from eko import basis_rotation as br
 from eko.anomalous_dimensions import as1 as ad_lo
 from eko.anomalous_dimensions import harmonics
 
@@ -53,9 +54,15 @@ def test_eigensystem_gamma_singlet_projectors_EV():
 def test_gamma_ns():
     nf = 3
     # LO
-    assert_almost_equal(ad.gamma_ns(2, "+", 1, nf)[0], 0.0)
+    assert_almost_equal(ad.gamma_ns(2, br.non_singlet_pids_map["ns+"], 1, nf)[0], 0.0)
     # NLO
-    assert_allclose(ad.gamma_ns(1, "-", 1, nf), np.zeros(2), atol=2e-6)
+    assert_allclose(
+        ad.gamma_ns(1, br.non_singlet_pids_map["ns-"], 1, nf), np.zeros(2), atol=2e-6
+    )
     # NNLO
-    assert_allclose(ad.gamma_ns(2, "-", 1, nf), np.zeros(3), atol=2e-4)
-    assert_allclose(ad.gamma_ns(2, "V", 1, nf), np.zeros(3), atol=8e-4)
+    assert_allclose(
+        ad.gamma_ns(2, br.non_singlet_pids_map["ns-"], 1, nf), np.zeros(3), atol=2e-4
+    )
+    assert_allclose(
+        ad.gamma_ns(2, br.non_singlet_pids_map["nsV"], 1, nf), np.zeros(3), atol=8e-4
+    )
