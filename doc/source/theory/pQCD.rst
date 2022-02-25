@@ -8,7 +8,7 @@ Implementation: :class:`~eko.strong_coupling.StrongCoupling`.
 
 We use perturbative |QCD| with the running coupling
 :math:`a_s(\mu_R^2) = \alpha_s(\mu_R^2)/(4\pi)` given at 5-loop by
-:cite:`Herzog:2017ohr` :cite:`Luthe:2016ima` :cite:`Baikov:2016tgj`
+:cite:`Herzog:2017ohr,Luthe:2016ima,Baikov:2016tgj,Chetyrkin:2017bjc,Luthe:2017ttg`
 
 .. math ::
     \frac{da_s(\mu_R^2)}{d\ln\mu_R^2} = \beta(a_s(\mu_R^2)) \
