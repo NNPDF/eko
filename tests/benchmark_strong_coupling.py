@@ -785,3 +785,78 @@ class BenchmarkStrongCoupling:
         # Max absolute difference: 2.58611282e-06
         # Max relative difference: 0.00013379
         np.testing.assert_allclose(lhapdf_vals, np.array(my_vals), rtol=1.5e-4)
+
+    def benchmark_APFEL_fact_to_ren_lha_settings(self):
+
+        theory_dict = {
+            "alphas": 0.1180,
+            "Qref": np.sqrt(2.0),
+            "nfref": 3,
+            "nf0": 3,
+            "MaxNfPdf": 6,
+            "MaxNfAs": 6,
+            "Q0": np.sqrt(2.0),
+            "fact_to_ren_scale_ratio": np.sqrt(2.0),
+            "mc": np.sqrt(2.0),
+            "mb": 4.1,
+            "mt": 175.0,
+            "kcThr": 1.0,
+            "kbThr": 1.0,
+            "ktThr": 1.0,
+            "HQ": "POLE",
+            "Qmc": np.sqrt(2.0),
+            "Qmb": 4.1,
+            "Qmt": 175.0,
+            "PTO": 2,
+            "ModEv": "EXA",
+        }
+        Q2s = [2.0]
+        sc = StrongCoupling.from_dict(theory_dict)
+        fact_to_ren = theory_dict["fact_to_ren_scale_ratio"] ** 2
+        for Q2 in Q2s:
+
+            my_vals = sc.a_s(Q2 / fact_to_ren, Q2)
+            path = sc.thresholds.path(Q2 / fact_to_ren)
+            my_vals_4 = sc.a_s(Q2 / fact_to_ren, Q2, nf_to=4)
+            path_4 = sc.thresholds.path(Q2 / fact_to_ren, 4)
+            my_vals_3 = sc.a_s(Q2 / fact_to_ren, Q2, nf_to=3)
+            path_3 = sc.thresholds.path(Q2 / fact_to_ren, 3)
+
+            # TODO: path_3 is the same as path and it's,
+            # what we call in matching conditions, it's not matched
+            assert len(path_3) == 1
+            assert len(path) == 1
+
+            # TODO: path_4 is forward in nf, but backward in q2 ?!?!
+            # this is called in evolution_operator and is considered
+            # forward ...
+            assert len(path_4) == 2
+            assert path_4[1].nf > path_4[0].nf
+            assert path_4[1].q2_from < path_4[0].q2_from
+
+            if use_APFEL:
+                # run apfel
+                apfel.CleanUp()
+                apfel.SetTheory("QCD")
+                apfel.SetPerturbativeOrder(theory_dict["PTO"])
+                apfel.SetAlphaEvolution("exact")
+                apfel.SetAlphaQCDRef(theory_dict["alphas"], theory_dict["Qref"])
+                apfel.SetVFNS()
+                apfel.SetPoleMasses(
+                    theory_dict["mc"],
+                    theory_dict["mb"],
+                    theory_dict["mt"],
+                )
+                apfel.SetMassMatchingScales(
+                    theory_dict["kcThr"],
+                    theory_dict["kbThr"],
+                    theory_dict["ktThr"],
+                )
+                apfel.SetRenFacRatio(1.0 / theory_dict["fact_to_ren_scale_ratio"])
+                apfel.InitializeAPFEL()
+                # collect a_s
+                apfel_vals = apfel.AlphaQCD(np.sqrt(Q2)) / (4.0 * np.pi)
+                # check myself to APFEL
+                np.testing.assert_allclose(apfel_vals, my_vals, rtol=0.07)
+                np.testing.assert_allclose(apfel_vals, my_vals_4, rtol=0.0006)
+            np.testing.assert_allclose(my_vals, my_vals_3)
