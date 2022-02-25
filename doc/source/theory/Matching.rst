@@ -20,7 +20,7 @@ in the :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic QCD Evoluti
 
 If a single threshold :math:`\left(\mu_{h-1}^2 < Q_0^2 < \mu_{h}^2 < Q_1^2 < \mu_{h+1}^2\right)` is present
 we decompose the matching into two independent steps:
-first, the true QCD induced |OME| :math:`\mathbf{A}^{(n_f)}(\mu_{h}^2)` that are given by perturbative calculations and expressed in the flavor space,
+first, the true |QCD| induced |OME| :math:`\mathbf{A}^{(n_f)}(\mu_{h}^2)` that are given by perturbative calculations and expressed in the flavor space,
 and, second, the necessary :doc:`flavor space rotation <FlavorSpace>` :math:`\mathbf{R}^{(n_f)}` to fit the
 new :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic QCD Evolution Bases>`.
 We can then denote the solution as
