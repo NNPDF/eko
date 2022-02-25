@@ -116,7 +116,6 @@ def gamma_ns(order, mode, n, nf):
         elif mode in [10201, 10200]:
             gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
         else:
-            print(mode)
             raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond
