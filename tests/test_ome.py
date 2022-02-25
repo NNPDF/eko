@@ -4,8 +4,8 @@ import copy
 
 import numpy as np
 
+from eko import basis_rotation as br
 from eko import interpolation, mellin
-from eko.basis_rotation import singlet_labels
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
 from eko.matching_conditions.operator_matrix_element import (
@@ -93,8 +93,8 @@ def test_quad_ker(monkeypatch):
         res_ns = quad_ker(
             u=0,
             order=2,
-            mode0="V",
-            mode1="V",
+            mode0=200,
+            mode1=200,
             is_log=is_log,
             logx=0.0,
             areas=np.zeros(3),
@@ -107,8 +107,8 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=2,
-            mode0="S",
-            mode1="S",
+            mode0=100,
+            mode1=100,
             is_log=is_log,
             logx=0.0,
             areas=np.zeros(3),
@@ -121,8 +121,8 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=2,
-            mode0="S",
-            mode1="g",
+            mode0=100,
+            mode1=21,
             is_log=is_log,
             logx=0.0,
             areas=np.zeros(3),
@@ -134,7 +134,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_s, 0.0)
 
     # test expanded intrisic inverse kernels
-    labels = [("V", "V"), *singlet_labels]
+    labels = [(200, 200), *br.singlet_labels]
     for label in labels:
         res_ns = quad_ker(
             u=0,
@@ -157,14 +157,14 @@ def test_quad_ker(monkeypatch):
     # test exact intrisic inverse kernel
     labels.extend(
         [
-            ("H+", "S"),
-            ("H+", "g"),
-            ("H+", "H+"),
-            ("S", "H+"),
-            ("g", "H+"),
-            ("V", "H-"),
-            ("H-", "H-"),
-            ("H-", "V"),
+            (br.matching_hplus_pid, 100),
+            (br.matching_hplus_pid, 21),
+            (br.matching_hplus_pid, br.matching_hplus_pid),
+            (100, br.matching_hplus_pid),
+            (21, br.matching_hplus_pid),
+            (200, br.matching_hminus_pid),
+            (br.matching_hminus_pid, br.matching_hminus_pid),
+            (br.matching_hminus_pid, 200),
         ]
     )
     for label in labels:
@@ -190,8 +190,8 @@ def test_quad_ker(monkeypatch):
     res_ns = quad_ker(
         u=0,
         order=2,
-        mode0="V",
-        mode1="V",
+        mode0=200,
+        mode1=200,
         is_log=True,
         logx=0.0,
         areas=np.array([0.01, 0.1, 1.0]),
@@ -251,18 +251,18 @@ class TestOperatorMatrixElement:
                 )
                 o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
                 labels = o.labels()
-                test_labels = [("V", "V"), ("H-", "V")]
+                test_labels = [(200, 200), (br.matching_hminus_pid, 200)]
                 for l in test_labels:
                     if skip_ns:
                         assert l not in labels
                     else:
                         assert l in labels
                 test_labels = [
-                    ("S", "S"),
-                    ("H+", "S"),
-                    ("g", "g"),
-                    ("H+", "g"),
-                    ("g", "H+"),
+                    (100, 100),
+                    (br.matching_hplus_pid, 100),
+                    (21, 21),
+                    (br.matching_hplus_pid, 21),
+                    (21, br.matching_hplus_pid),
                 ]
                 for l in test_labels:
                     if skip_singlet:
@@ -292,8 +292,8 @@ class TestOperatorMatrixElement:
         o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
         o.compute(self.theory_card["mb"] ** 2, L=0, is_msbar=False)
 
-        dim = o.ome_members[("V", "V")].value.shape
-        for indices in [("S", "H+"), ("V", "H-")]:
+        dim = o.ome_members[(200, 200)].value.shape
+        for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
             np.testing.assert_allclose(
                 o.ome_members[(indices[0], indices[0])].value, np.eye(dim[0]), atol=1e-8
             )
@@ -307,13 +307,14 @@ class TestOperatorMatrixElement:
                 o.ome_members[(indices[1], indices[0])].value, np.zeros(dim)
             )
         np.testing.assert_allclose(
-            o.ome_members[("g", "g")].value, np.eye(dim[0]), atol=1e-8
+            o.ome_members[(21, 21)].value, np.eye(dim[0]), atol=1e-8
         )
         np.testing.assert_allclose(
-            o.ome_members["S", "g"].value, o.ome_members[("g", "S")].value
+            o.ome_members[100, 21].value, o.ome_members[(21, 100)].value
         )
         np.testing.assert_allclose(
-            o.ome_members[("H+", "g")].value, o.ome_members[("g", "H+")].value
+            o.ome_members[(br.matching_hplus_pid, 21)].value,
+            o.ome_members[(21, br.matching_hplus_pid)].value,
         )
 
     def test_compute_nlo(self):
@@ -342,7 +343,7 @@ class TestOperatorMatrixElement:
 
         dim = len(operators_card["interpolation_xgrid"])
         shape = (dim, dim)
-        for indices in [("S", "H+"), ("V", "H-")]:
+        for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
             assert o.ome_members[(indices[0], indices[0])].value.shape == shape
             assert o.ome_members[(indices[1], indices[1])].value.shape == shape
             assert o.ome_members[(indices[0], indices[1])].value.shape == shape
@@ -353,9 +354,9 @@ class TestOperatorMatrixElement:
             np.testing.assert_allclose(
                 o.ome_members[(indices[1], indices[0])].value, np.zeros(shape)
             )
-        assert o.ome_members[("g", "g")].value.shape == shape
+        assert o.ome_members[(21, 21)].value.shape == shape
         np.testing.assert_allclose(
-            o.ome_members[("S", "g")].value, o.ome_members[("g", "S")].value
+            o.ome_members[(100, 21)].value, o.ome_members[(21, 100)].value
         )
-        assert o.ome_members[("H+", "g")].value.shape == shape
-        assert o.ome_members[("g", "H+")].value.shape == shape
+        assert o.ome_members[(br.matching_hplus_pid, 21)].value.shape == shape
+        assert o.ome_members[(21, br.matching_hplus_pid)].value.shape == shape

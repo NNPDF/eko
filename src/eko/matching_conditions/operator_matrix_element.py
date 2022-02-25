@@ -11,9 +11,9 @@ import numba as nb
 import numpy as np
 from scipy import integrate
 
+from .. import basis_rotation as br
 from .. import interpolation, mellin
 from ..anomalous_dimensions import harmonics
-from ..basis_rotation import singlet_labels
 from ..member import OpMember
 from . import nlo, nnlo
 
@@ -145,7 +145,7 @@ def build_ome(A, order, a_s, backward_method):
     return ome
 
 
-@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,string,b1)", cache=True)
+@nb.njit("f8(f8,u1,u1,u1,b1,f8,f8[:,:],f8,f8,string,b1)", cache=True)
 def quad_ker(
     u, order, mode0, mode1, is_log, logx, areas, a_s, L, backward_method, is_msbar
 ):
@@ -179,15 +179,15 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    is_singlet = mode0 in ["S", "g", "H+"]
+    is_singlet = mode0 in [100, 21, 90]
     # get transformation to N integral
     r = 0.4 * 16.0 / (1.0 - logx)
     if is_singlet:
         o = 1.0
-        indices = {"g": 0, "S": 1, "H+": 2}
+        indices = {21: 0, 100: 1, 90: 2}
     else:
         o = 0.0
-        indices = {"V": 0, "H-": 1}
+        indices = {200: 0, 91: 1}
     n = mellin.Talbot_path(u, r, o)
     jac = mellin.Talbot_jac(u, r, o)
 
@@ -269,10 +269,10 @@ class OperatorMatrixElement:
         if self.config["debug_skip_non_singlet"]:
             logger.warning("Matching: skipping non-singlet sector")
         else:
-            labels.extend([("V", "V"), ("H-", "V")])
+            labels.extend([(200, 200), (br.matching_hminus_pid, 200)])
             if self.is_intrinsic or self.backward_method != "":
                 # intrisic labels, which are not zero at NLO
-                labels.append(("H-", "H-"))
+                labels.append((br.matching_hminus_pid, br.matching_hminus_pid))
                 # if self.backward_method == "exact":
                 #     # this contribution starts at NNLO, we don't have it for the moment
                 #     labels.append("NS_qH")
@@ -281,9 +281,20 @@ class OperatorMatrixElement:
         if self.config["debug_skip_singlet"]:
             logger.warning("Matching: skipping singlet sector")
         else:
-            labels.extend([*singlet_labels, ("H+", "g"), ("H+", "S")])
+            labels.extend(
+                [
+                    *br.singlet_labels,
+                    (br.matching_hplus_pid, 21),
+                    (br.matching_hplus_pid, 100),
+                ]
+            )
             if self.is_intrinsic or self.backward_method != "":
-                labels.extend([("g", "H+"), ("H+", "H+")])
+                labels.extend(
+                    [
+                        (21, br.matching_hplus_pid),
+                        (br.matching_hplus_pid, br.matching_hplus_pid),
+                    ]
+                )
                 # if self.backward_method == "exact":
                 #     labels.extend(["S_qH"])
         return labels
@@ -376,11 +387,11 @@ class OperatorMatrixElement:
         grid_size = len(self.int_disp.xgrid)
         # basic labels skipped with skip debug
         for label in [
-            ("V", "V"),
-            ("H+", "g"),
-            ("H+", "S"),
-            ("H-", "V"),
-            *singlet_labels,
+            (200, 200),
+            (br.matching_hplus_pid, 21),
+            (br.matching_hplus_pid, 100),
+            (br.matching_hminus_pid, 200),
+            *br.singlet_labels,
         ]:
             if label not in self.ome_members:
                 self.ome_members[label] = OpMember(
@@ -390,11 +401,11 @@ class OperatorMatrixElement:
         # intrinsic labels not computed yet
         if self.is_intrinsic:
             for label in [
-                ("S", "H+"),
-                ("V", "H-"),
-                ("H-", "H-"),
-                ("H+", "H+"),
-                ("g", "H+"),
+                (100, br.matching_hplus_pid),
+                (200, br.matching_hminus_pid),
+                (br.matching_hminus_pid, br.matching_hminus_pid),
+                (br.matching_hplus_pid, br.matching_hplus_pid),
+                (21, br.matching_hplus_pid),
             ]:
                 if label not in self.ome_members:
                     self.ome_members[label] = OpMember(
