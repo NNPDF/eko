@@ -145,7 +145,7 @@ def build_ome(A, order, a_s, backward_method):
     return ome
 
 
-@nb.njit("f8(f8,u1,u1,u1,b1,f8,f8[:,:],f8,f8,string,b1)", cache=True)
+@nb.njit("f8(f8,u1,u2,u2,b1,f8,f8[:,:],f8,f8,string,b1)", cache=True)
 def quad_ker(
     u, order, mode0, mode1, is_log, logx, areas, a_s, L, backward_method, is_msbar
 ):

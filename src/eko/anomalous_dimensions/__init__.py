@@ -72,7 +72,7 @@ def exp_singlet(gamma_S):
     return exp, lambda_p, lambda_m, e_p, e_m
 
 
-@nb.njit("c16[:](u1,u1,c16,u1)", cache=True)
+@nb.njit("c16[:](u1,u2,c16,u1)", cache=True)
 def gamma_ns(order, mode, n, nf):
     r"""
     Computes the tower of the non-singlet anomalous dimensions
@@ -116,6 +116,7 @@ def gamma_ns(order, mode, n, nf):
         elif mode in [10201, 10200]:
             gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
         else:
+            print(mode)
             raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond

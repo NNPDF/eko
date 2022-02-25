@@ -22,7 +22,7 @@ from ..member import OpMember
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("c16[:](u1,u1,c16,u1,f8)", cache=True)
+@nb.njit("c16[:](u1,u2,c16,u1,f8)", cache=True)
 def gamma_ns_fact(order, mode, n, nf, L):
     """
     Adjust the anomalous dimensions with the scale variations.
@@ -97,7 +97,7 @@ def gamma_singlet_fact(order, n, nf, L):
     return gamma_singlet
 
 
-@nb.njit("f8(f8,u1,u1,u1,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1)", cache=True)
+@nb.njit("f8(f8,u1,u2,u2,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1)", cache=True)
 def quad_ker(
     u,
     order,
