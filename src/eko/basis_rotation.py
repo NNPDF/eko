@@ -34,6 +34,9 @@ flavor_basis_names = (
 )
 """String representation of :data:`flavor_basis_pids`."""
 
+
+quark_names = "".join(flavor_basis_names[-6:])
+
 evol_basis = (
     "ph",
     "S",
@@ -172,3 +175,38 @@ def ad_projectors(nf):
         projs.append(ad_projector(ad, nf))
 
     return np.array(projs)
+
+
+def intrinsic_unified_evol_labels(nf):
+    """
+    Collect all labels in the intrinsic unified evolution basis.
+
+    Parameters
+    ----------
+    nf : int
+        number of light flavors
+
+    Returns
+    -------
+    labels : list(str)
+        active distributions
+    """
+    labels = [
+        "ph",
+        "g",
+        "S",
+        "V",
+        "Sdelta",
+        "Vdelta",
+        "Td3",
+        "Vd3",
+    ]
+    news = ["u3", "d8", "u8"]
+    for j in range(nf, 6):
+        q = quark_names[j]
+        labels.extend([f"{q}+", f"{q}-"])
+    for k in range(3, nf):
+        new = news[k - 3]
+        labels.extend([f"T{new}", f"V{new}"])
+
+    return labels

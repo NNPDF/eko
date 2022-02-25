@@ -54,6 +54,12 @@
 .. |MHOU| replace::
    :abbr:`MHOU (Missing Higher Order Uncertainties)`
 
+.. |QCD| replace::
+   :abbr:`QCD (Quantum Chromodynamics)`
+
+.. |QED| replace::
+   :abbr:`QED (Quantum Electrodynamics)`
+
 .. external
 
 .. |yadism| replace::

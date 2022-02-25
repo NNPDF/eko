@@ -7,8 +7,8 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 import numba as nb
 
-from eko import constants
-from eko.anomalous_dimensions.harmonics import zeta3
+from . import constants
+from .anomalous_dimensions.harmonics import zeta3
 
 
 @nb.njit("f8(u1)", cache=True)
