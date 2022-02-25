@@ -95,10 +95,21 @@ class BenchmarkRunner(Runner):
         high = base_theory.copy()
         high["PTO"] = pto
         high["fact_to_ren_scale_ratio"] = np.sqrt(2.0)
-        high["ModSV"] = "A"
+        high["ModSV"] = "exponentiated"
         # needed for apfel
         high["XIR"] = np.sqrt(0.5)
         high["EScaleVar"] = 0
+
+        # here we need to adjust also the
+        # apfel initial nf, which we can't
+        # be accessed in other ways
+        # Be careful: this is and hack not a proper solution
+        if self.external == "apfel":
+            low["kcThr"] = 1.0 - 1e-15
+            low["nf0"] = 4
+            high["kcThr"] = 1.0 - 1e-15
+            high["nf0"] = 4
+
         self.run_lha([low, high])
 
     def benchmark_plain(self, pto):
