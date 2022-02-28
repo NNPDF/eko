@@ -6,9 +6,9 @@ Strong Coupling
 
 Implementation: :class:`~eko.strong_coupling.StrongCoupling`.
 
-We use perturbative QCD with the running coupling
+We use perturbative |QCD| with the running coupling
 :math:`a_s(\mu_R^2) = \alpha_s(\mu_R^2)/(4\pi)` given at 5-loop by
-:cite:`Herzog:2017ohr` :cite:`Luthe:2016ima` :cite:`Baikov:2016tgj`
+:cite:`Herzog:2017ohr,Luthe:2016ima,Baikov:2016tgj,Chetyrkin:2017bjc,Luthe:2017ttg`
 
 .. math ::
     \frac{da_s(\mu_R^2)}{d\ln\mu_R^2} = \beta(a_s(\mu_R^2)) \
@@ -47,10 +47,10 @@ In particular, the matching involved in the change from :math:`n_f` to :math:`n_
 is presented in equation 3.1 of :cite:`Schroder:2005hy` for |MSbar| masses, while the
 same expression for POLE masses is reported in Appendix A.
 
-Splitting Functions
--------------------
+QCD Splitting Functions
+-----------------------
 
-The Altarelli-Parisi splitting kernels can be expanded in powers of the strong
+In the case in which only the |QCD| corrections are considered, the Altarelli-Parisi splitting kernels can be expanded in powers of the strong
 coupling :math:`a_s(\mu^2)` and are given by :cite:`Moch:2004pa,Vogt:2004mw`
 
 .. math ::
@@ -58,6 +58,24 @@ coupling :math:`a_s(\mu^2)` and are given by :cite:`Moch:2004pa,Vogt:2004mw`
     {\gamma}^{(j)}(N) &= -\mathcal{M}[\mathbf{P}^{(j)}(x)](N)
 
 Note the additional minus in the definition of :math:`\gamma`.
+
+Unified Splitting Functions
+---------------------------
+
+When the |QED| corrections are taken into account, |DGLAP| equation take the form
+
+.. math ::
+    \mathbf{P}=\mathbf{\tilde{P}}+\mathbf{\bar{P}}
+
+where :math:`\mathbf{\tilde{P}}` are the usual |QCD| splitting kernels defined in the previous section,
+while :math:`\mathbf{\bar{P}}` are given by
+
+.. math ::
+    \mathbf{\bar{P}} = \alpha \mathbf{P}^{(0,1)} + \alpha_s \alpha \mathbf{P}^{(1,1)} +
+    \alpha^2 \mathbf{P}^{(0,2)} + \dots
+
+The expression of the pure |QED| and of the mixed |QED| :math:`\otimes` |QCD| splitting kernels are given in
+:cite:`deFlorian:2015ujt,deFlorian:2016gvk`
 
 Scale Variations
 ----------------
@@ -83,7 +101,7 @@ corresponds to schemes A and B in :cite:`AbdulKhalek:2019ihb`.
 Heavy Quark Masses
 ------------------
 
-In QCD also the heavy quark masses (:math:`m_{c}, m_{b}, m_{t}`) follow a |RGE|
+In |QCD| also the heavy quark masses (:math:`m_{c}, m_{b}, m_{t}`) follow a |RGE|
 and their values depend on the energy scale at which the quark is probed.
 Masses do not play any role in a single flavour patch, but are important in
 |VFNS| when more flavour schemes need to be joined (see :doc:`matching
@@ -144,7 +162,7 @@ In doing so EKO takes advantage of the monotony of the |RGE| solution
 Now, being able to evaluate :math:`a_s(\mu_{h,0}^2)`, there are two ways of
 solving the previous integral and finally compute the evolved
 :math:`m_{\overline{MS},h}`. In fact, the function :math:`\gamma_m(a_s)` is the
-anomalous QCD mass dimension and, as the :math:`\beta` function, it can be evaluated
+anomalous |QCD| mass dimension and, as the :math:`\beta` function, it can be evaluated
 perturbatively in :math:`a_s` up to :math:`\mathcal{O}(a_s^4)`:
 
 .. math ::

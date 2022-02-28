@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+import pytest
 
 from eko import basis_rotation as br
 
@@ -41,3 +42,12 @@ def test_ad_projectors():
             atol=1e-15,
             err_msg=f"nf = {nf}",
         )
+
+
+def test_intrinsic_unified_evol_labels():
+    for nf in range(3, 6 + 1):
+        labels = br.intrinsic_unified_evol_labels(nf)
+        assert len(labels) == 14
+    # errors
+    with pytest.raises(IndexError):
+        br.intrinsic_unified_evol_labels(7)

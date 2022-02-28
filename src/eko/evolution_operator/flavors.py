@@ -9,10 +9,8 @@ import numpy as np
 
 from .. import basis_rotation as br
 
-quark_names = "duscbt"
 
-
-def pids_from_intrinsic_evol(label, nlf, normalize):
+def pids_from_intrinsic_evol(label, nf, normalize):
     r"""
     Obtain the list of pids with their corresponding weight, that are contributing to ``evol``
 
@@ -24,13 +22,13 @@ def pids_from_intrinsic_evol(label, nlf, normalize):
       e.g. in nf=3 :math:`u = \frac 1 6 S + \frac 1 6 V + \ldots`
 
     The normalization can only happen here since we're actively cutting out some
-    flavor (according to ``nlf``).
+    flavor (according to ``nf``).
 
     Parameters
     ----------
         evol : str
             evolution label
-        nlf : int
+        nf : int
             maximum number of light flavors
         normalize : bool
             normalize output
@@ -47,7 +45,7 @@ def pids_from_intrinsic_evol(label, nlf, normalize):
     if is_evol:
         weights = br.rotate_flavor_to_evolution[evol_idx].copy()
         for j, pid in enumerate(br.flavor_basis_pids):
-            if nlf < abs(pid) <= 6:
+            if nf < abs(pid) <= 6:
                 weights[j] = 0
     else:
         weights = rotate_pm_to_flavor(label)
@@ -106,7 +104,7 @@ def rotate_pm_to_flavor(label):
     if label in ["g", "ph"]:
         return br.rotate_flavor_to_evolution[br.evol_basis.index(label)].copy()
     # no it has to be a quark with + or - appended
-    if label[0] not in quark_names or label[1] not in ["+", "-"]:
+    if label[0] not in br.quark_names or label[1] not in ["+", "-"]:
         raise ValueError(f"Invalid pm label: {label}")
     l = np.zeros(len(br.flavor_basis_pids))
     idx = br.flavor_basis_names.index(label[0])
@@ -146,7 +144,7 @@ def rotate_matching(nf, inverse=False):
         l[f"T{n}.T{n}"] = 1.0
     # the new contributions
     n = nf**2 - 1  # nf is pointing upwards
-    q = quark_names[nf - 1]
+    q = br.quark_names[nf - 1]
     for (tot, oth, qpm) in (("S", f"T{n}", f"{q}+"), ("V", f"V{n}", f"{q}-")):
         if inverse:
             l[f"{tot}.{tot}"] = (nf - 1.0) / nf
@@ -160,7 +158,7 @@ def rotate_matching(nf, inverse=False):
             l[f"{oth}.{qpm}"] = -(nf - 1.0)
     # also higher quarks do not care
     for k in range(nf + 1, 6 + 1):
-        q = quark_names[k - 1]
+        q = br.quark_names[k - 1]
         for sgn in "+-":
             l[f"{q}{sgn}.{q}{sgn}"] = 1.0
     return l
@@ -168,3 +166,68 @@ def rotate_matching(nf, inverse=False):
 
 def rotate_matching_inverse(nf):
     return rotate_matching(nf, True)
+
+
+def pids_from_intrinsic_unified_evol(label, nf, normalize):
+    r"""
+    Obtain the list of pids with their corresponding weight, that are contributing to intrinsic
+    unified evolution.
+
+    Parameters
+    ----------
+        evol : str
+            evolution label
+        nf : int
+            maximum number of light flavors
+        normalize : bool
+            normalize output
+
+    Returns
+    -------
+        m : list
+    """
+    if label in ["ph", "g", "S", "V"]:
+        return pids_from_intrinsic_evol(label, nf, normalize)
+    if label[0] in br.quark_names[3:]:
+        weights = rotate_pm_to_flavor(label)
+    else:
+        weights = np.array([0.0] * len(br.flavor_basis_pids))
+        mapping = {
+            "d3": {1: 1.0, 3: -1.0},  # T3d = d+ - s+
+            "d8": {1: 1.0, 3: 1.0, 5: -2.0},  # T8d = d+ + s+ - 2b+
+            "u3": {2: 1.0, 4: -1.0},  # T3u = u+ - c+
+            "u8": {2: 1.0, 4: 1.0, 6: -2.0},  # T8u = u+ + c+ - 2t+
+            "delta": {
+                3: {2: 2.0, 1: -1.0, 3: -1.0},  # Sdelta = 2u+ - d+ -s+
+                4: {2: 1.0, 4: 1.0, 1: -1.0, 3: -1.0},  # Sdelta = u+ + c+ - d+ - s+
+                5: {
+                    2: 3.0 / 2.0,
+                    4: 3.0 / 2.0,
+                    1: -1.0,
+                    3: -1.0,
+                    5: -1.0,
+                },  # Sdelta = 3/2u+ + 3/2c+ - d+ - s+ - b+
+                6: {
+                    2: 1.0,
+                    4: 1.0,
+                    6: 1.0,
+                    1: -1.0,
+                    3: -1.0,
+                    5: -1.0,
+                },  # Sdelta = u+ + c+ + t+ - d+ -s+ - b+
+            },
+        }
+        cur_map = mapping[label[1:]]
+        if label[1:] == "delta":
+            cur_map = cur_map[nf]
+        for q, w in cur_map.items():
+            weights[br.flavor_basis_pids.index(q)] = w
+            weights[br.flavor_basis_pids.index(-q)] = (
+                -1 if label[0] == "V" else 1.0
+            ) * w
+
+    # normalize?
+    if normalize:
+        norm = weights @ weights
+        weights = weights / norm
+    return weights
