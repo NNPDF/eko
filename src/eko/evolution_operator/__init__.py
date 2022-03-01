@@ -17,11 +17,7 @@ from scipy import integrate
 from .. import anomalous_dimensions as ad
 from .. import interpolation, mellin
 from .. import scale_variations as sv
-from ..basis_rotation import (
-    anomalous_dimensions_basis,
-    anomalous_dimensions_basis_idx,
-    singlet_labels,
-)
+from ..basis_rotation import full_labels, singlet_labels
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
@@ -29,7 +25,6 @@ from ..scale_variations import expanded, exponentiated
 
 logger = logging.getLogger(__name__)
 
-ad_basis_dict = dict(zip(anomalous_dimensions_basis, anomalous_dimensions_basis_idx))
 sv_mode_dict = dict(
     zip(
         [None, "exponentiated", "expanded"],
@@ -38,19 +33,15 @@ sv_mode_dict = dict(
 )
 
 
-@nb.njit("c16(c16[:,:],u1)", cache=True)
+@nb.njit("c16(c16[:,:],string)")
 def select_singlet_element(ker, mode):
     """
     Select element of the singlet matrix
 
     Parameters
     ----------
-        mode : int
-            sector element:
-                0: "S_qq", ker[0,0]
-                1: "S_qg", ker[0,1]
-                2: "S_gq", ker[1,1]
-                3: "S_gg", ker[1,1]
+        mode : str
+            sector element
         ker : numpy.ndarray
             singlet integration kernel
 
@@ -59,8 +50,8 @@ def select_singlet_element(ker, mode):
         ker : complex
             singlet integration kernel element
     """
-    k = 0 if mode < 2 else 1
-    l = 0 if mode % 2 == 0 else 1
+    k = 0 if mode[2] == "q" else 1
+    l = 0 if mode[3] == "q" else 1
     return ker[k, l]
 
 
@@ -85,12 +76,12 @@ class QuadKerBase:
             is a logarithmic interpolation
         logx : float
             Mellin inversion point
-        mode : int
+        mode : str
             sector element
     """
 
     def __init__(self, u, is_log, logx, mode):
-        self.is_singlet = mode < 4
+        self.is_singlet = mode[0] == "S"
         self.is_log = is_log
         self.u = u
         self.logx = logx
@@ -130,7 +121,7 @@ class QuadKerBase:
         return self.path.prefactor * pj * self.path.jac
 
 
-@nb.njit("f8(f8,u1,u1,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,u1)", cache=True)
+@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,u1)", cache=True)
 def quad_ker(
     u,
     order,
@@ -158,7 +149,7 @@ def quad_ker(
             perturbation order
         method : str
             method
-        mode : int
+        mode : str
             sector element
         is_log : boolean
             is a logarithmic interpolation
@@ -207,7 +198,7 @@ def quad_ker(
             )
         ker = select_singlet_element(ker, mode)
     else:
-        gamma_ns = ad.gamma_ns(order, mode, ker_base.n, nf)
+        gamma_ns = ad.gamma_ns(order, mode[-1], ker_base.n, nf)
         if sv_mode == sv.mode_exponentiated:
             gamma_ns = exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
@@ -328,7 +319,7 @@ class Operator:
             np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
         )
         zero = OpMember(*[np.zeros((self.grid_size, self.grid_size))] * 2)
-        for n in anomalous_dimensions_basis:
+        for n in full_labels:
             if n in self.labels:
                 # off diag singlet are zero
                 if n in ["S_qg", "S_gq"]:
@@ -372,7 +363,7 @@ class Operator:
                     1.0 - self._mellin_cut,
                     args=(
                         self.config["order"],
-                        ad_basis_dict[label],
+                        label,
                         self.config["method"],
                         self.int_disp.log,
                         logx,

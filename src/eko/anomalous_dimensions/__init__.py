@@ -20,7 +20,6 @@ terms of the anomalous dimensions (note the additional sign!)
 import numba as nb
 import numpy as np
 
-from ..basis_rotation import anomalous_dimensions_basis
 from . import harmonics, lo, nlo, nnlo
 
 
@@ -72,7 +71,7 @@ def exp_singlet(gamma_S):
     return exp, lambda_p, lambda_m, e_p, e_m
 
 
-@nb.njit("c16[:](u1,u1,c16,u1)", cache=True)
+@nb.njit("c16[:](u1,string,c16,u1)", cache=True)
 def gamma_ns(order, mode, n, nf):
     r"""
     Computes the tower of the non-singlet anomalous dimensions
@@ -81,8 +80,8 @@ def gamma_ns(order, mode, n, nf):
     ----------
         order : int
             perturbative order
-        mode : int
-            sector identifier 4: m, 5: p, 6: v
+        mode : "m" | "p" | "v"
+            sector identifier
         n : complex
             Mellin variable
         nf : int
@@ -102,7 +101,6 @@ def gamma_ns(order, mode, n, nf):
         eko.anomalous_dimensions.nnlo.gamma_nsm_2 : :math:`\gamma_{ns,-}^{(2)}(N)`
         eko.anomalous_dimensions.nnlo.gamma_nsv_2 : :math:`\gamma_{ns,v}^{(2)}(N)`
     """
-    label = anomalous_dimensions_basis[mode][-1]
     # cache the s-es
     sx = np.full(1, harmonics.harmonic_S1(n))
     # now combine
@@ -111,21 +109,21 @@ def gamma_ns(order, mode, n, nf):
     # NLO and beyond
     if order >= 1:
         # TODO: pass the necessary harmonics to nlo gammas
-        if label == "p":
+        if mode == "p":
             gamma_ns_1 = nlo.gamma_nsp_1(n, nf)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
-        elif label in ["m", "v"]:
+        elif mode in ["m", "v"]:
             gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond
     if order >= 2:
         sx = np.append(sx, harmonics.harmonic_S2(n))
         sx = np.append(sx, harmonics.harmonic_S3(n))
-        if label == "p":
+        if mode == "p":
             gamma_ns_2 = -nnlo.gamma_nsp_2(n, nf, sx)
-        elif label == "m":
+        elif mode == "m":
             gamma_ns_2 = -nnlo.gamma_nsm_2(n, nf, sx)
-        elif label == "v":
+        elif mode == "v":
             gamma_ns_2 = -nnlo.gamma_nsv_2(n, nf, sx)
         gamma_ns[2] = gamma_ns_2
     return gamma_ns

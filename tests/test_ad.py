@@ -53,9 +53,9 @@ def test_eigensystem_gamma_singlet_projectors_EV():
 def test_gamma_ns():
     nf = 3
     # LO
-    assert_almost_equal(ad.gamma_ns(2, 5, 1, nf)[0], 0.0)
+    assert_almost_equal(ad.gamma_ns(2, "p", 1, nf)[0], 0.0)
     # NLO
-    assert_allclose(ad.gamma_ns(1, 4, 1, nf), np.zeros(2), atol=2e-6)
+    assert_allclose(ad.gamma_ns(1, "m", 1, nf), np.zeros(2), atol=2e-6)
     # NNLO
-    assert_allclose(ad.gamma_ns(2, 4, 1, nf), np.zeros(3), atol=2e-4)
-    assert_allclose(ad.gamma_ns(2, 6, 1, nf), np.zeros(3), atol=8e-4)
+    assert_allclose(ad.gamma_ns(2, "m", 1, nf), np.zeros(3), atol=2e-4)
+    assert_allclose(ad.gamma_ns(2, "v", 1, nf), np.zeros(3), atol=8e-4)
