@@ -2,7 +2,8 @@
 # Test LO splitting functions
 import numpy as np
 
-import eko.anomalous_dimensions.as1 as ad_lo
+import eko.anomalous_dimensions.aem1 as ad_lo_aem1
+import eko.anomalous_dimensions.as1 as ad_lo_as1
 from eko.anomalous_dimensions import harmonics
 
 NF = 5
@@ -12,14 +13,18 @@ def test_number_conservation():
     # number
     N = complex(1.0, 0.0)
     s1 = harmonics.harmonic_S1(N)
-    np.testing.assert_almost_equal(ad_lo.gamma_ns_0(N, s1), 0)
+    np.testing.assert_almost_equal(ad_lo_as1.gamma_ns_0(N, s1), 0)
 
 
 def test_quark_momentum_conservation():
     # quark momentum
     N = complex(2.0, 0.0)
     s1 = harmonics.harmonic_S1(N)
-    np.testing.assert_almost_equal(ad_lo.gamma_ns_0(N, s1) + ad_lo.gamma_gq_0(N), 0)
+    np.testing.assert_almost_equal(
+        ad_lo_as1.gamma_ns_0(N, s1) + ad_lo_as1.gamma_gq_0(N),
+        +ad_lo_aem1.gamma_ns_0(N, s1) + ad_lo_aem1.gamma_phq_0(N),
+        0,
+    )
 
 
 def test_gluon_momentum_conservation():
@@ -27,24 +32,41 @@ def test_gluon_momentum_conservation():
     N = complex(2.0, 0.0)
     s1 = harmonics.harmonic_S1(N)
     np.testing.assert_almost_equal(
-        ad_lo.gamma_qg_0(N, NF) + ad_lo.gamma_gg_0(N, s1, NF), 0
+        ad_lo_as1.gamma_qg_0(N, NF) + ad_lo_as1.gamma_gg_0(N, s1, NF), 0
     )
 
 
 def test_gamma_qg_0():
     N = complex(1.0, 0.0)
     res = complex(-20.0 / 3.0, 0.0)
-    np.testing.assert_almost_equal(ad_lo.gamma_qg_0(N, NF), res)
+    np.testing.assert_almost_equal(ad_lo_as1.gamma_qg_0(N, NF), res)
 
 
 def test_gamma_gq_0():
     N = complex(0.0, 1.0)
     res = complex(4.0, -4.0) / 3.0
-    np.testing.assert_almost_equal(ad_lo.gamma_gq_0(N), res)
+    np.testing.assert_almost_equal(ad_lo_as1.gamma_gq_0(N), res)
 
 
 def test_gamma_gg_0():
     N = complex(0.0, 1.0)
     s1 = harmonics.harmonic_S1(N)
     res = complex(5.195725159621, 10.52008856962)
-    np.testing.assert_almost_equal(ad_lo.gamma_gg_0(N, s1, NF), res)
+    np.testing.assert_almost_equal(ad_lo_as1.gamma_gg_0(N, s1, NF), res)
+
+
+def test_gamma_phq_0():
+    N = complex(0.0, 1.0)
+    res = complex(4.0, -4.0) / 3.0 / 4 * 3
+    np.testing.assert_almost_equal(ad_lo_aem1.gamma_phq_0(N), res)
+
+
+def test_gamma_qph_0():
+    N = complex(1.0, 0.0)
+    res = complex(-20.0 / 3.0, 0.0) * 3 / 0.5
+    np.testing.assert_almost_equal(ad_lo_aem1.gamma_qph_0(N, NF), res)
+
+
+def test_gamma_phph_0():
+    res = complex(-4.0 / 3, 0.0)
+    np.testing.assert_almost_equal(ad_lo_aem1.gamma_phph_0(), res)
