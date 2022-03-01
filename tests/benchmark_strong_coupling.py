@@ -789,7 +789,7 @@ class BenchmarkStrongCoupling:
     def benchmark_APFEL_fact_to_ren_lha_settings(self):
 
         theory_dict = {
-            "alphas": 0.1180,
+            "alphas": 0.35,
             "Qref": np.sqrt(2.0),
             "nfref": 3,
             "nf0": 3,
@@ -798,14 +798,14 @@ class BenchmarkStrongCoupling:
             "Q0": np.sqrt(2.0),
             "fact_to_ren_scale_ratio": np.sqrt(2.0),
             "mc": np.sqrt(2.0),
-            "mb": 4.1,
+            "mb": 4.5,
             "mt": 175.0,
             "kcThr": 1.0,
             "kbThr": 1.0,
             "ktThr": 1.0,
             "HQ": "POLE",
             "Qmc": np.sqrt(2.0),
-            "Qmb": 4.1,
+            "Qmb": 4.5,
             "Qmt": 175.0,
             "PTO": 2,
             "ModEv": "EXA",
@@ -815,21 +815,18 @@ class BenchmarkStrongCoupling:
         fact_to_ren = theory_dict["fact_to_ren_scale_ratio"] ** 2
         for Q2 in Q2s:
 
-            my_vals = sc.a_s(Q2 / fact_to_ren, Q2)
+            my_val = sc.a_s(Q2 / fact_to_ren, Q2)
             path = sc.thresholds.path(Q2 / fact_to_ren)
-            my_vals_4 = sc.a_s(Q2 / fact_to_ren, Q2, nf_to=4)
+            my_val_4 = sc.a_s(Q2 / fact_to_ren, Q2, nf_to=4)
             path_4 = sc.thresholds.path(Q2 / fact_to_ren, 4)
-            my_vals_3 = sc.a_s(Q2 / fact_to_ren, Q2, nf_to=3)
+            my_val_3 = sc.a_s(Q2 / fact_to_ren, Q2, nf_to=3)
             path_3 = sc.thresholds.path(Q2 / fact_to_ren, 3)
 
-            # TODO: path_3 is the same as path and it's,
-            # what we call in matching conditions, it's not matched
+            # path_3 is the same as path and it's not matched
             assert len(path_3) == 1
             assert len(path) == 1
 
-            # TODO: path_4 is forward in nf, but backward in q2 ?!?!
-            # this is called in evolution_operator and is considered
-            # forward ...
+            # path_4 is forward in nf, but backward in q2.
             assert len(path_4) == 2
             assert path_4[1].nf > path_4[0].nf
             assert path_4[1].q2_from < path_4[0].q2_from
@@ -855,8 +852,12 @@ class BenchmarkStrongCoupling:
                 apfel.SetRenFacRatio(1.0 / theory_dict["fact_to_ren_scale_ratio"])
                 apfel.InitializeAPFEL()
                 # collect a_s
-                apfel_vals = apfel.AlphaQCD(np.sqrt(Q2)) / (4.0 * np.pi)
-                # check myself to APFEL
-                np.testing.assert_allclose(apfel_vals, my_vals, rtol=0.07)
-                np.testing.assert_allclose(apfel_vals, my_vals_4, rtol=0.0006)
-            np.testing.assert_allclose(my_vals, my_vals_3)
+                apfel_val = apfel.AlphaQCD(
+                    np.sqrt(Q2) / theory_dict["fact_to_ren_scale_ratio"]
+                ) / (4.0 * np.pi)
+            else:
+                apfel_val = 0.03478112968976964
+            # check myself to APFEL
+            np.testing.assert_allclose(apfel_val, my_val, rtol=0.04)
+            np.testing.assert_allclose(apfel_val, my_val_4, rtol=0.02)
+            np.testing.assert_allclose(my_val, my_val_3)

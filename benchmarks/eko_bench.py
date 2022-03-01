@@ -103,12 +103,9 @@ class BenchmarkRunner(Runner):
         # here we need to adjust also the
         # apfel initial nf, which we can't
         # be accessed in other ways
-        # Be careful: this is and hack not a proper solution
         if self.external == "apfel":
-            low["kcThr"] = 1.0 - 1e-15
-            low["nf0"] = 4
-            high["kcThr"] = 1.0 - 1e-15
-            high["nf0"] = 4
+            high["kcThr"] = 1.0 + 1e-15
+            low["kcThr"] = 1.0 + 1e-15
 
         self.run_lha([low, high])
 
@@ -121,7 +118,8 @@ class BenchmarkRunner(Runner):
 
 if __name__ == "__main__":
 
-    programs = ["LHA", "pegasus", "apfel"]
+    # programs = ["LHA", "pegasus", "apfel"]
+    programs = ["apfel"]
     for p in programs:
         obj = BenchmarkRunner(p)
         # obj.benchmark_plain(2)
