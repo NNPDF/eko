@@ -214,8 +214,8 @@ class TestOperatorMatrixElement:
         "mc": 1.0,
         "mb": 4.75,
         "mt": 173.0,
-        "kcThr": np.inf,
-        "kbThr": np.inf,
+        "kcThr": 1.0,
+        "kbThr": 1.0,
         "ktThr": np.inf,
         "MaxNfPdf": 6,
         "MaxNfAs": 6,
@@ -279,7 +279,7 @@ class TestOperatorMatrixElement:
             InterpolatorDispatcher.from_dict(operators_card),
         )
         o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
-        o.compute(self.theory_card["mb"] ** 2, L=0, is_msbar=False)
+        o.compute(self.theory_card["mb"] ** 2, nf=4, L=0, is_msbar=False)
 
         dim = o.ome_members["NS_qq"].value.shape
         for idx in ["S", "NS"]:
@@ -318,12 +318,12 @@ class TestOperatorMatrixElement:
         g = OperatorGrid.from_dict(
             t,
             operators_card,
-            ThresholdsAtlas.from_dict(self.theory_card),
-            StrongCoupling.from_dict(self.theory_card),
+            ThresholdsAtlas.from_dict(t),
+            StrongCoupling.from_dict(t),
             InterpolatorDispatcher.from_dict(operators_card),
         )
         o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
-        o.compute(self.theory_card["mb"] ** 2, L=0, is_msbar=False)
+        o.compute(t["mb"] ** 2, nf=4, L=0, is_msbar=False)
 
         dim = len(operators_card["interpolation_xgrid"])
         shape = (dim, dim)

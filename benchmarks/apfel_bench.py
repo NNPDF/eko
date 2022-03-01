@@ -44,8 +44,8 @@ class BenchmarkVFNS(ApfelBenchmark):
         "FNS": "ZM-VFNS",
         "ModEv": [
             "EXA",
-            # "EXP",
-            # "TRN",
+            "EXP",
+            "TRN",
         ],
         "kcThr": 1.0,
         "kbThr": 1.0,
@@ -137,8 +137,8 @@ class BenchmarkFFNS(ApfelBenchmark):
         "FNS": "FFNS",
         "ModEv": [
             "EXA",
-            # "EXP",
-            # "TRN",
+            "EXP",
+            "TRN",
         ],
         "NfFF": 4,
         "kcThr": 0.0,
@@ -165,24 +165,24 @@ class BenchmarkFFNS(ApfelBenchmark):
         th.update(
             {
                 "PTO": [pto],
-                "XIR": [1 / np.sqrt(2.0)],
+                "XIR": [np.sqrt(0.5)],
                 "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
                 "ModSV": [scheme],
                 "EScaleVar": [0],
             }
         )
         ts.extend(cartesian_product(th))
-        # th = self.ffns_theory.copy()
-        # th.update(
-        #     {
-        #         "PTO": [pto],
-        #         "XIR": [np.sqrt(2.0)],
-        #         "fact_to_ren_scale_ratio": [np.sqrt(0.5)],
-        #         "ModSV": [scheme],
-        #         "EScaleVar": [0],
-        #     }
-        # )
-        # ts.extend(cartesian_product(th))
+        th = self.ffns_theory.copy()
+        th.update(
+            {
+                "PTO": [pto],
+                "XIR": [np.sqrt(2.0)],
+                "fact_to_ren_scale_ratio": [np.sqrt(0.5)],
+                "ModSV": [scheme],
+                "EScaleVar": [0],
+            }
+        )
+        ts.extend(cartesian_product(th))
         self.run(ts, operators.build(operators.apfel_config), ["ToyLH"])
 
 
