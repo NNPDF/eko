@@ -3,10 +3,13 @@
 Benchmark to Pegasus :cite:`Vogt:2004ns`
 """
 import numpy as np
+from banana import register
 from banana.data import cartesian_product
 
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
+
+register(__file__)
 
 
 def tolist(input_dict):
@@ -137,7 +140,7 @@ if __name__ == "__main__":
 
     obj = BenchmarkVFNS()
     # obj = BenchmarkFFNS()
-    obj.benchmark_plain(1)
+    obj.benchmark_plain(2)
 
     # obj.benchmark_sv(1)
     # vfns.benchmark_sv()

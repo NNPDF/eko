@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 """
-Benchmark NNDPF31 pdf family
+Benchmark NNPDF pdf family
 """
+import numpy as np
+from banana import register
+
 from ekomark.benchmark.runner import Runner
+
+register(__file__)
 
 
 class BenchmarkNNPDF(Runner):
@@ -26,9 +31,7 @@ class BenchmarkNNPDF(Runner):
         ]
 
 
-base_operator = {
-    "ev_op_iterations": 1,
-}
+base_operator = {"ev_op_iterations": 1, "backward_inversion": "exact"}
 
 base_theory = {
     "Qref": 91.2,
@@ -75,6 +78,7 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
         theory_card = {
             **base_theory,
             "PTO": 2,
+            "IC": 1,
             "Q0": Q0,
         }
 
@@ -83,13 +87,13 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
 
 
 if __name__ == "__main__":
+    low2 = 2**2
+    high2 = 30**2
     # nn31 = BenchmarkNNPDF31()
-    # low2 = 1.65**2
-    # high2 = 20
     # # test forward
     # nn31.benchmark_nlo(Q0=np.sqrt(low2), Q2grid=[10])
     # # test backward
     # #nn31.benchmark_nlo(Q0=np.sqrt(high2), Q2grid=[low2])
     nn40 = BenchmarkNNPDF40()
-    # nn40.benchmark_nlo(Q2grid=[100])
-    nn40.benchmark_nnlo(Q2grid=[100])
+    # nn40.benchmark_nnlo(Q2grid=[100])
+    nn40.benchmark_nnlo(Q0=np.sqrt(high2), Q2grid=[low2])

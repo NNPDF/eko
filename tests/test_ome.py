@@ -15,20 +15,20 @@ from eko.anomalous_dimensions.harmonics import (
 from eko.basis_rotation import singlet_labels
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
+from eko.matching_conditions.n3lo import s_functions as sf
 from eko.matching_conditions.operator_matrix_element import (
     A_non_singlet,
     A_singlet,
     OperatorMatrixElement,
     build_ome,
-    quad_ker,
-    run_op_integration,
     get_s3x,
     get_s4x,
     get_smx,
+    quad_ker,
+    run_op_integration,
 )
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
-from eko.matching_conditions.n3lo import s_functions as sf
 
 
 def test_HarmonicsCache():
@@ -317,7 +317,7 @@ def test_run_integration():
         L=0,
         nf=4,
         backward_method="",
-        is_msbar=False
+        is_msbar=False,
     )
 
     # here the last point is a zero, by default
@@ -342,11 +342,11 @@ class TestOperatorMatrixElement:
         "NfFF": 3,
         "IC": 1,
         "IB": 0,
-        "mc": 1.0,
+        "mc": 1.51,
         "mb": 4.75,
         "mt": 173.0,
-        "kcThr": np.inf,
-        "kbThr": np.inf,
+        "kcThr": 1,
+        "kbThr": 1,
         "ktThr": np.inf,
         "MaxNfPdf": 6,
         "MaxNfAs": 6,
@@ -479,12 +479,12 @@ class TestOperatorMatrixElement:
         g = OperatorGrid.from_dict(
             t,
             operators_card,
-            ThresholdsAtlas.from_dict(self.theory_card),
-            StrongCoupling.from_dict(self.theory_card),
+            ThresholdsAtlas.from_dict(t),
+            StrongCoupling.from_dict(t),
             InterpolatorDispatcher.from_dict(operators_card),
         )
         o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
-        o.compute(self.theory_card["mb"] ** 2, nf=4, L=0, is_msbar=False)
+        o.compute(t["mb"] ** 2, nf=4, L=0, is_msbar=False)
 
         dim = len(operators_card["interpolation_xgrid"])
         shape = (dim, dim)

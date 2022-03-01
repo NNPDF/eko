@@ -7,6 +7,7 @@ This module defines the |OME| for the non-trivial matching conditions in the
 import functools
 import logging
 import multiprocessing
+import os
 import time
 
 import numba as nb
@@ -178,23 +179,15 @@ def build_ome(A, order, a_s, backward_method):
     # Print;
     # .end
     ome = np.eye(len(A[0]), dtype=np.complex_)
+    A = np.ascontiguousarray(A)
     if backward_method == "expanded":
         # expended inverse
         if order >= 1:
             ome -= a_s * A[0]
         if order >= 2:
-            ome += a_s**2 * (
-                -A[1] + np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[0])
-            )
+            ome += a_s**2 * (-A[1] + A[0] @ A[0])
         if order >= 3:
-            ome += a_s**3 * (
-                -A[2]
-                + np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[1])
-                + np.ascontiguousarray(A[1]) @ np.ascontiguousarray(A[0])
-                - np.ascontiguousarray(A[0])
-                @ np.ascontiguousarray(A[0])
-                @ np.ascontiguousarray(A[0])
-            )
+            ome += a_s**3 * (-A[2] + A[0] @ A[1] + A[1] @ A[0] - A[0] @ A[0] @ A[0])
     else:
         # forward or exact inverse
         if order >= 1:
@@ -346,11 +339,6 @@ def run_op_integration(
     """
     column = []
     k, logx = log_grid
-    logger.info(
-        "Matching: start computing operators - %d/%d",
-        k + 1,
-        grid_size,
-    )
     start_time = time.perf_counter()
     # iterate basis functions
     for l, bf in enumerate(int_disp):
@@ -383,11 +371,8 @@ def run_op_integration(
             )
             temp_dict[label] = res[:2]
         column.append(temp_dict)
-    logger.info(
-        "Matching: computing operators - %d/%d took: %f s",
-        k + 1,
-        grid_size,
-        time.perf_counter() - start_time,
+    print(
+        f"Matching: computing operators - {k + 1}/{grid_size} took: {(time.perf_counter() - start_time)} s",  # pylint: disable=line-too-long
     )
     return column
 
@@ -491,12 +476,13 @@ class OperatorMatrixElement:
             self.copy_ome()
             return
 
-        a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2)
+        # here you need to pass nf otherwise the a_s matching is performed
+        a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2, nf_to=nf)
 
         tot_start_time = time.perf_counter()
 
         # run integration in parallel for each grid point
-        with multiprocessing.Pool(grid_size) as pool:
+        with multiprocessing.Pool(int(os.cpu_count() / 2)) as pool:
             res = pool.map(
                 functools.partial(
                     run_op_integration,
