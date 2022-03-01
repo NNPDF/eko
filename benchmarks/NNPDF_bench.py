@@ -42,7 +42,6 @@ base_theory = {
     "kbThr": 1.0,
     "ktThr": 1.0,
     "alphas": 0.118000,
-    "FNS": "ZM-VFNS",
     "ModEv": "TRN",
 }
 
@@ -79,6 +78,7 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
             **base_theory,
             "PTO": 2,
             "IC": 1,
+            "IB": 1,
             "Q0": Q0,
         }
 
@@ -87,7 +87,7 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
 
 
 if __name__ == "__main__":
-    low2 = 2**2
+    low2 = 4**2
     high2 = 30**2
     # nn31 = BenchmarkNNPDF31()
     # # test forward
