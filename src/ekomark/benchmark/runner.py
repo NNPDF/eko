@@ -14,9 +14,8 @@ from banana.data import dfdict
 
 import eko
 from eko import basis_rotation as br
-from ekomark import apply
 
-from .. import pdfname
+from .. import apply, pdfname
 from ..data import db, operators
 
 
