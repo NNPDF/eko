@@ -1,4 +1,5 @@
-database_path: data/benchmark.db
+paths:
+  database: data/benchmark.db
 input_tables:
   - theories
   - operators
