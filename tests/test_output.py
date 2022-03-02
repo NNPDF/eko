@@ -11,7 +11,7 @@ import pytest
 
 from eko import basis_rotation as br
 from eko import output
-from ekobox import apply
+from ekomark import apply
 
 
 class FakePDF:

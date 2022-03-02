@@ -1,7 +1,9 @@
+# -*- coding: utf-8 -*-
 import copy
 
 import yaml
 from banana.data import sql
+
 from ekomark.data import operators
 
 
