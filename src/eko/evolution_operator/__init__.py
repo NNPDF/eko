@@ -386,7 +386,7 @@ class Operator:
             column.append(temp_dict)
 
         print(
-            f"Evolution: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time)} s"  # pylint: disable=line-too-long
+            f"Evolution: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time):6f} s"  # pylint: disable=line-too-long
         )
         return column
 

@@ -155,6 +155,9 @@ since the integral of :math:`-\frac{\gamma(a_s)}{\beta(a_s)}` is evaluated befor
 the scale variation procedure is applied, the difference between the two schemes
 depends also on the actual evolution distance and on the ratio :math:`k`.
 
+When using the scale variations, boundary conditions for the strong coupling :math:`a_s`
+(``Qref`` and ``nfref``) have to be given according to renormalization scales.
+
 Heavy Quark Masses
 ------------------
 

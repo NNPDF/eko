@@ -83,6 +83,7 @@ class LHABenchmark(Runner):
         high["PTO"] = pto
         high["fact_to_ren_scale_ratio"] = np.sqrt(2.0)
         high["ModSV"] = "exponentiated"
+        high["nfref"] = 4
         return [high, low]
 
     @staticmethod
@@ -228,7 +229,6 @@ if __name__ == "__main__":
 
     # VFNS benchmarks with LHA settings
     programs = ["LHA", "pegasus", "apfel"]
-    programs = ["apfel"]
     for p in programs:
         obj = BenchmarkRunner(p)
         # obj.benchmark_plain(2)

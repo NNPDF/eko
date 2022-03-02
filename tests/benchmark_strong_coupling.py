@@ -791,7 +791,7 @@ class BenchmarkStrongCoupling:
         theory_dict = {
             "alphas": 0.35,
             "Qref": np.sqrt(2.0),
-            "nfref": 3,
+            "nfref": 4,
             "nf0": 3,
             "MaxNfPdf": 6,
             "MaxNfAs": 6,
@@ -822,14 +822,14 @@ class BenchmarkStrongCoupling:
             my_val_3 = sc.a_s(Q2 / fact_to_ren, Q2, nf_to=3)
             path_3 = sc.thresholds.path(Q2 / fact_to_ren, 3)
 
-            # path_3 is the same as path and it's not matched
-            assert len(path_3) == 1
-            assert len(path) == 1
+            # path_4 it's not matched
+            assert len(path_4) == 1
 
-            # path_4 is forward in nf, but backward in q2.
-            assert len(path_4) == 2
-            assert path_4[1].nf > path_4[0].nf
-            assert path_4[1].q2_from < path_4[0].q2_from
+            # path_3 is the same as path backward in nf and in q2.
+            assert len(path_3) == 2
+            assert len(path) == 2
+            assert path_3[1].nf < path_3[0].nf
+            assert path_3[1].q2_from < path_3[0].q2_from
 
             if use_APFEL:
                 # run apfel
@@ -858,6 +858,8 @@ class BenchmarkStrongCoupling:
             else:
                 apfel_val = 0.03478112968976964
             # check myself to APFEL
-            np.testing.assert_allclose(apfel_val, my_val, rtol=0.04)
-            np.testing.assert_allclose(apfel_val, my_val_4, rtol=0.02)
+            # notice that Apfel computes alpha in nf=4 by default,
+            # but what has to be used during the matching is alpha in nf=3
+            np.testing.assert_allclose(apfel_val, my_val, rtol=0.03)
+            np.testing.assert_allclose(apfel_val, my_val_4)
             np.testing.assert_allclose(my_val, my_val_3)
