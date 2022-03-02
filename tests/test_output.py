@@ -39,7 +39,7 @@ def chk_keys(a, b):
         assert op["alphas"] == opb["alphas"]
 
 
-class TestOutput:
+class FakeOutput:
     shape = (2, 2)
 
     def mkO(self):
@@ -78,6 +78,8 @@ class TestOutput:
         )
         return d
 
+
+class TestOutput(FakeOutput):
     def test_io(self):
         d = self.fake_output()
         # create object
