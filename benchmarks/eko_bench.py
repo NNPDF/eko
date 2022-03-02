@@ -101,7 +101,7 @@ class BenchmarkRunner(Runner):
         high["EScaleVar"] = 0
 
         # here we need to adjust also the
-        # apfel initial nf, which we can't
+        # apfel initial nf, which can't
         # be accessed in other ways
         if self.external == "apfel":
             high["kcThr"] = 1.0 + 1e-15

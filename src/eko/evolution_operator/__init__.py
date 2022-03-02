@@ -21,7 +21,6 @@ from ..basis_rotation import full_labels, singlet_labels
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
-from ..scale_variations import expanded, exponentiated
 
 logger = logging.getLogger(__name__)
 
@@ -187,20 +186,22 @@ def quad_ker(
         gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
         # scale var A is directly applied on gamma
         if sv_mode == sv.mode_exponentiated:
-            gamma_singlet = exponentiated.gamma_variation(gamma_singlet, order, nf, L)
+            gamma_singlet = sv.exponentiated.gamma_variation(
+                gamma_singlet, order, nf, L
+            )
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
         # scale var B is applied on the kernel
         if sv_mode == sv.mode_expanded:
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
-                expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
+                sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
             )
         ker = select_singlet_element(ker, mode)
     else:
         gamma_ns = ad.gamma_ns(order, mode[-1], ker_base.n, nf)
         if sv_mode == sv.mode_exponentiated:
-            gamma_ns = exponentiated.gamma_variation(gamma_ns, order, nf, L)
+            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
             method,
@@ -211,7 +212,7 @@ def quad_ker(
             ev_op_iterations,
         )
         if sv_mode == sv.mode_expanded:
-            ker = ker * expanded.non_singlet_variation(gamma_ns, a1, order, nf, L)
+            ker = ker * sv.expanded.non_singlet_variation(gamma_ns, a1, order, nf, L)
 
     # recombine everthing
     return np.real(ker * integrand)
@@ -430,8 +431,6 @@ class Operator:
                 self.run_op_integration,
                 enumerate(np.log(self.int_disp.xgrid_raw)),
             )
-        pool.close()
-        pool.join()
 
         # collect results
         for k, row in enumerate(res):
