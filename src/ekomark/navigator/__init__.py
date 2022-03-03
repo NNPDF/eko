@@ -2,16 +2,13 @@
 """
 ekomark specialization of the navigator
 """
+import argparse
 import pathlib
 
 from banana import cfg as banana_cfg
 from banana import navigator as bnav
-from banana import register
 
-from . import navigator
-
-benchmarks_path = pathlib.Path(__file__).parents[3] / "benchmarks"
-register(benchmarks_path)
+from . import navigator, glob
 
 
 def yelp(*args):
@@ -41,24 +38,37 @@ Available functions:
     return None
 
 
-h = yelp
+def register_globals(configpath):
+    app = navigator.NavigatorApp(configpath, "sandbox")
+    glob.app = app
 
-app = navigator.NavigatorApp(benchmarks_path / banana_cfg.name, "sandbox")
+    glob.glob["yelp"] = yelp
+    glob.glob["h"] = yelp
 
-# register banana functions
-bnav.register_globals(globals(), app)
+    # register banana functions
+    bnav.register_globals(glob.glob, glob.app)
 
-# add my functions
-dfl = app.log_as_dfd
-check_log = app.check_log
-plot_pdfs = app.plot_pdfs
-display_pdfs = app.display_pdfs
-compare = app.compare_external
+    # add my functions
+    glob.glob["dfl"] = app.log_as_dfd
+    glob.glob["check_log"] = app.check_log
+    glob.glob["plot_pdfs"] = app.plot_pdfs
+    glob.glob["display_pdfs"] = app.display_pdfs
+    glob.glob["compare"] = app.compare_external
 
 
 def launch_navigator():
     """CLI Entry point"""
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
+        "-c", "--config", type=pathlib.Path, default=None, help="Path to config file"
+    )
+
+    args = parser.parse_args()
+
+    register_globals(banana_cfg.detect(args.config))
+
     # ekomark.navigator makes the globals here (e.g. app, ls, t) available inside IPython
     return bnav.launch_navigator(
-        ["eko", "ekomark", "ekomark.navigator"], benchmarks_path
+        ["eko", "ekomark", "ekomark.navigator.glob"], skip_cfg=True
     )
