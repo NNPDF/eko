@@ -11,7 +11,6 @@ import pytest
 
 from eko import basis_rotation as br
 from eko import output
-from ekomark import apply
 
 
 class FakePDF:
@@ -79,11 +78,15 @@ class FakeOutput:
         return d
 
 
-class TestOutput(FakeOutput):
-    def test_io(self):
-        d = self.fake_output()
+@pytest.fixture
+def fake_output():
+    return FakeOutput().fake_output()
+
+
+class TestOutput:
+    def test_io(self, fake_output):
         # create object
-        o1 = output.Output(d)
+        o1 = output.Output(fake_output)
         # test streams
         stream = io.StringIO()
         o1.dump_yaml(stream)
@@ -91,10 +94,10 @@ class TestOutput(FakeOutput):
         stream.seek(0)
         o2 = output.Output.load_yaml(stream)
         np.testing.assert_almost_equal(
-            o1["interpolation_xgrid"], d["interpolation_xgrid"]
+            o1["interpolation_xgrid"], fake_output["interpolation_xgrid"]
         )
         np.testing.assert_almost_equal(
-            o2["interpolation_xgrid"], d["interpolation_xgrid"]
+            o2["interpolation_xgrid"], fake_output["interpolation_xgrid"]
         )
         # fake output files
         m_out = mock.mock_open(read_data="")
@@ -110,7 +113,7 @@ class TestOutput(FakeOutput):
             o3 = output.Output.load_yaml_from_file(fn)
             mock_file.assert_called_with(fn, encoding="utf-8")
             np.testing.assert_almost_equal(
-                o3["interpolation_xgrid"], d["interpolation_xgrid"]
+                o3["interpolation_xgrid"], fake_output["interpolation_xgrid"]
             )
         # repeat for tar
         fn = "test.tar"
@@ -119,17 +122,16 @@ class TestOutput(FakeOutput):
             o1.dump_tar(fp)
             o4 = output.Output.load_tar(fp)
             np.testing.assert_almost_equal(
-                o4["interpolation_xgrid"], d["interpolation_xgrid"]
+                o4["interpolation_xgrid"], fake_output["interpolation_xgrid"]
             )
         fn = "test"
         with pytest.raises(ValueError, match="wrong suffix"):
             o1.dump_tar(fn)
 
-    def test_rename_issue81(self):
+    def test_rename_issue81(self, fake_output):
         # https://github.com/N3PDF/eko/issues/81
-        d = self.fake_output()
         # create object
-        o1 = output.Output(d)
+        o1 = output.Output(fake_output)
 
         with tempfile.TemporaryDirectory() as folder:
             # dump
@@ -142,13 +144,12 @@ class TestOutput(FakeOutput):
             # reload
             o4 = output.Output.load_tar(fp2)
             np.testing.assert_almost_equal(
-                o4["interpolation_xgrid"], d["interpolation_xgrid"]
+                o4["interpolation_xgrid"], fake_output["interpolation_xgrid"]
             )
 
-    def test_io_bin(self):
-        d = self.fake_output()
+    def test_io_bin(self, fake_output):
         # create object
-        o1 = output.Output(d)
+        o1 = output.Output(fake_output)
         # test streams
         stream = io.StringIO()
         o1.dump_yaml(stream, False)
@@ -156,17 +157,16 @@ class TestOutput(FakeOutput):
         stream.seek(0)
         o2 = output.Output.load_yaml(stream)
         np.testing.assert_almost_equal(
-            o1["interpolation_xgrid"], d["interpolation_xgrid"]
+            o1["interpolation_xgrid"], fake_output["interpolation_xgrid"]
         )
         np.testing.assert_almost_equal(
-            o2["interpolation_xgrid"], d["interpolation_xgrid"]
+            o2["interpolation_xgrid"], fake_output["interpolation_xgrid"]
         )
 
-    def test_xgrid_reshape(self):
-        d = self.fake_output()
+    def test_xgrid_reshape(self, fake_output):
         # create object
         xg = np.geomspace(1e-5, 1.0, 21)
-        o1 = output.Output(d)
+        o1 = output.Output(fake_output)
         o1["interpolation_xgrid"] = xg
         o1["targetgrid"] = xg
         o1["inputgrid"] = xg
@@ -214,10 +214,9 @@ class TestOutput(FakeOutput):
         with pytest.raises(ValueError):
             copy.deepcopy(o1).xgrid_reshape()
 
-    def test_reshape_io(self):
-        d = self.fake_output()
+    def test_reshape_io(self, fake_output):
         # create object
-        o1 = output.Output(d)
+        o1 = output.Output(fake_output)
         o2 = copy.deepcopy(o1)
         o2.xgrid_reshape([0.1, 1.0], [0.1, 1.0])
         o2.flavor_reshape(inputbasis=np.array([[1, -1], [1, 1]]))
@@ -231,11 +230,10 @@ class TestOutput(FakeOutput):
         del o3["eko_version"]
         chk_keys(o1, o3)
 
-    def test_flavor_reshape(self):
-        d = self.fake_output()
+    def test_flavor_reshape(self, fake_output):
         # create object
         xg = np.geomspace(1e-5, 1.0, 21)
-        o1 = output.Output(d)
+        o1 = output.Output(fake_output)
         o1["interpolation_xgrid"] = xg
         o1["targetgrid"] = xg
         o1["inputgrid"] = xg
@@ -292,13 +290,13 @@ class TestOutput(FakeOutput):
         with pytest.raises(ValueError):
             copy.deepcopy(o1).flavor_reshape()
 
-    def test_to_evol(self):
+    def test_to_evol(self, fake_output):
         interpolation_xgrid = np.array([0.5, 1.0])
         interpolation_polynomial_degree = 1
         interpolation_is_log = False
         q2_ref = 1
         q2_out = 2
-        Q2grid = self.mk_g(
+        Q2grid = fake_output.mk_g(
             [q2_out], len(br.flavor_basis_pids), len(interpolation_xgrid)
         )
         d = dict(
