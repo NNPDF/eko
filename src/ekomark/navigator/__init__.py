@@ -2,10 +2,16 @@
 """
 ekomark specialization of the navigator
 """
+import pathlib
+
 from banana import cfg as banana_cfg
 from banana import navigator as bnav
+from banana import register
 
 from . import navigator
+
+benchmarks_path = pathlib.Path(__file__).parents[3] / "benchmarks"
+register(benchmarks_path)
 
 
 def yelp(*args):
@@ -37,7 +43,7 @@ Available functions:
 
 h = yelp
 
-app = navigator.NavigatorApp(banana_cfg.cfg, "sandbox")
+app = navigator.NavigatorApp(benchmarks_path / banana_cfg.name, "sandbox")
 
 # register banana functions
 bnav.register_globals(globals(), app)
@@ -52,4 +58,7 @@ compare = app.compare_external
 
 def launch_navigator():
     """CLI Entry point"""
-    return bnav.launch_navigator("eko", "ekomark")
+    # ekomark.navigator makes the globals here (e.g. app, ls, t) available inside IPython
+    return bnav.launch_navigator(
+        ["eko", "ekomark", "ekomark.navigator"], benchmarks_path
+    )

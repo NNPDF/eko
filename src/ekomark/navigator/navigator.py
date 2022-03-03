@@ -15,7 +15,7 @@ from .. import pdfname
 from ..data import db
 from ..plots import input_figure, plot_dist
 
-table_objects = bnav.table_objects
+table_objects = bnav.navigator.table_objects
 table_objects["o"] = db.Operator
 
 

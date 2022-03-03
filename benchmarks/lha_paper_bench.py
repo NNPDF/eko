@@ -220,15 +220,16 @@ class BenchmarkRunner(BenchmarkVFNS):
 
 if __name__ == "__main__":
 
-    # # Benchmark to LHA
+    # Benchmark to LHA
     # obj = BenchmarkVFNS()
-    # # obj = BenchmarkFFNS()
+    # obj = BenchmarkFFNS()
 
     # obj.benchmark_plain(2)
-    # # obj.benchmark_sv(2)
+    # obj.benchmark_sv(2)
 
-    # VFNS benchmarks with LHA settings
-    programs = ["LHA", "pegasus", "apfel"]
+    # # VFNS benchmarks with LHA settings
+    # programs = ["LHA", "pegasus", "apfel"]
+    programs = ["apfel"]
     for p in programs:
         obj = BenchmarkRunner(p)
         # obj.benchmark_plain(2)
