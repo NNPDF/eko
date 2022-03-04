@@ -858,8 +858,6 @@ class BenchmarkStrongCoupling:
             else:
                 apfel_val = 0.03478112968976964
             # check myself to APFEL
-            # notice that Apfel computes alpha in nf=4 by default,
-            # but what has to be used during the matching is alpha in nf=3
             np.testing.assert_allclose(apfel_val, my_val, rtol=0.03)
             np.testing.assert_allclose(apfel_val, my_val_4)
             np.testing.assert_allclose(my_val, my_val_3)
