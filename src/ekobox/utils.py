@@ -35,9 +35,10 @@ def ekos_product(eko_ini, eko_fin, in_place=True, force=False):
     final_dict = {}
     for Q2 in ope2_dict.keys():
         final_op_dict[Q2] = np.einsum("ajbk,bkcl -> ajcl", ope1, ope2_dict[Q2])
-        final_op_error_dict[Q2] = np.einsum(
-            "ajbk,bkcl -> ajcl", ope1_error, ope2_error_dict[Q2]
-        )
+        final_op_error_dict[Q2] = np.add(np.einsum(
+            "ajbk,bkcl -> ajcl", ope1, ope2_error_dict[Q2]
+        ), np.einsum(
+            "ajbk,bkcl -> ajcl", ope1_error, ope2_dict[Q2]))
         final_alphas_dict[Q2] = eko_fin["Q2grid"][Q2]["alphas"]
         final_dict[Q2] = {
             "operators": final_op_dict[Q2],
