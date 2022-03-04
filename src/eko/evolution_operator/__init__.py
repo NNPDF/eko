@@ -125,8 +125,10 @@ def quad_ker(
             perturbation order
         method : str
             method
-        mode : str
-            sector element
+        mode0: int
+            pid for first sector element
+        mode1 : int
+            pid for second sector element
         is_log : boolean
             is a logarithmic interpolation
         logx : float

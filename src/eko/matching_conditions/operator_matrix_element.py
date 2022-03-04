@@ -158,8 +158,10 @@ def quad_ker(
             quad argument
         order : int
             perturbation order
-        mode : str
-            element in the singlet sector
+        mode0 : int
+            pid for first element in the singlet sector
+        mode1 : int
+            pid for second element in the singlet sector
         is_log : boolean
             logarithmic interpolation
         logx : float

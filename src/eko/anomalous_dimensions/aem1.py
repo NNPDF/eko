@@ -27,7 +27,7 @@ def gamma_phq_0(N):
 
 
 @nb.njit("c16(c16,u1)", cache=True)
-def gamma_qph_0(N, nf: int):
+def gamma_qph_0(N, nf):
     """
     Computes the leading-order quark-photon anomalous dimension
 
