@@ -35,7 +35,7 @@ def gen_theory_card(pto, initial_scale, update=None, name=None):
     theory["PTO"] = pto
     theory["Q0"] = initial_scale
     # Update user choice
-    if isinstance(update, dict):
+    if update is not None:
         for k in update.keys():
             if k not in theory.keys():
                 raise ValueError("Provided key not in theory card")
