@@ -2,7 +2,7 @@
 # Test NNLO anomalous dims
 import numpy as np
 
-import eko.anomalous_dimensions.nnlo as ad_nnlo
+import eko.anomalous_dimensions.as3 as ad_nnlo
 from eko.anomalous_dimensions import harmonics
 
 NF = 5
