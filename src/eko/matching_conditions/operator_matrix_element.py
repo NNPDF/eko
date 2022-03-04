@@ -321,7 +321,8 @@ class OperatorMatrixElement:
             self.copy_ome()
             return
 
-        a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2, nf)
+        # Note that here you need to use a_s^{nf+1}(q2)
+        a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2, nf + 1)
 
         tot_start_time = time.perf_counter()
         logger.info("Matching: computing operators - 0/%d", grid_size)
