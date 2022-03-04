@@ -245,11 +245,11 @@ class Operator:
             logger.warning("Evolution: skipping non-singlet sector")
         else:
             # add + as default
-            labels.append((br.non_singlet_pids_map["ns+"], 0))
+            labels.append(br.non_singlet_labels[1])
             if order >= 1:  # - becomes different starting from NLO
-                labels.append((br.non_singlet_pids_map["ns-"], 0))
+                labels.append(br.non_singlet_labels[0])
             if order >= 2:  # v also becomes different starting from NNLO
-                labels.append((br.non_singlet_pids_map["nsV"], 0))
+                labels.append(br.non_singlet_labels[2])
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
             logger.warning("Evolution: skipping singlet sector")
