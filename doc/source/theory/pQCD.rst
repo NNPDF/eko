@@ -113,7 +113,7 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
             & \gamma^{(3)}(N) \to \gamma^{(3)}(N) - 3 \beta_0 k \gamma^{(2)} - ( 2 \beta_1 k - 3 \beta_0^2 k^2) \gamma^{(1)} - (\beta_2 k - \frac{5}{2} \beta_1 \beta_0 k^2 + \beta_0^3 k^3) \gamma^{(0)} \\
             & k = \ln(\mu_F^2/\mu_R^2)
 
-      This procedure corresponds to scheme A of :cite:`AbdulKhalek:2019ihb`, and we recommend to use it along with
+      This procedure corresponds to Eq. (3.32) of :cite:`AbdulKhalek:2019ihb`, and we recommend to use it along with
       ``ModEv='iterate-exact'`` in order to be in agreement with the treatment of the evolution integral expansion.
 
 
@@ -134,7 +134,7 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
 
       In this way the dependence of the |EKO| on :math:`k` is factorized outside the unvaried evolution kernel.
       This procedure is repeated for each different flavor patch present in the evolution path.
-      It corresponds to scheme B of :cite:`AbdulKhalek:2019ihb`, and we recommend to use it along with
+      It corresponds to Eq. (3.35) of :cite:`AbdulKhalek:2019ihb`, and we recommend to use it along with
       ``ModEv='truncated'`` in order to keep consistency with the evolution integral expansion.
 
 

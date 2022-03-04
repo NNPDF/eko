@@ -240,7 +240,7 @@ class Operator:
             cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, config, managers, nf, q2_from, q2_to=None, mellin_cut=5e-2):
+    def __init__(self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2):
         self.config = config
         self.managers = managers
         self.nf = nf

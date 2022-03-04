@@ -228,8 +228,7 @@ if __name__ == "__main__":
     # obj.benchmark_sv(2)
 
     # # VFNS benchmarks with LHA settings
-    # programs = ["LHA", "pegasus", "apfel"]
-    programs = ["apfel"]
+    programs = ["LHA", "pegasus", "apfel"]
     for p in programs:
         obj = BenchmarkRunner(p)
         # obj.benchmark_plain(2)

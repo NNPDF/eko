@@ -55,6 +55,7 @@ class BenchmarkVFNS(ApfelBenchmark):
         "Q0": np.sqrt(2.0),
         "nfref": 3,
         "nf0": 3,
+        "mc": 1.51,
     }
     vfns_theory = tolist(vfns_theory)
 
@@ -78,6 +79,7 @@ class BenchmarkVFNS(ApfelBenchmark):
                 "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
                 "ModSV": [scheme],
                 "EScaleVar": [0],
+                "nfref": [4],
             }
         )
         self.run(

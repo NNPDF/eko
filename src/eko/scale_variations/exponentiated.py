@@ -26,7 +26,7 @@ def gamma_variation(gamma, order, nf, L):
     Returns
     -------
         gamma : numpy.ndarray
-            adjusted singlet anomalous dimensions
+            adjusted anomalous dimensions
     """
     # since we are modifying *in-place* be carefull, that the order matters!
     # and indeed, we need to adjust the high elements first
