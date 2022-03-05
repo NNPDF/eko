@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 import pytest
 
@@ -5,6 +6,8 @@ from ekobox import evol_pdf as ev_p
 from ekobox import gen_op as g_o
 from ekobox import gen_theory as g_t
 from ekobox import utils
+
+
 def benchmark_ekos_product():
     # Generating two ekos
     op1 = g_o.gen_op_card(

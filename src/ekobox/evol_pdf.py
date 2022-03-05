@@ -1,15 +1,10 @@
 # -*- coding: utf-8 -*-
-import copy
-
-
-import numpy as np
-from banana.data import genpdf
-
 import eko
 from eko import basis_rotation as br
 from ekomark import apply
 
 from . import gen_info
+from . import genpdf
 
 
 def evolve_pdfs(
@@ -123,6 +118,3 @@ def gen_out(theory_card, op_card, path=None):
         path = f"{path}/{ops_id}.tar"
         eko_output.dump_tar(path)
     return eko_output
-
-
-

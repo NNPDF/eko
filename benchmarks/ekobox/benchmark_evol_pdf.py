@@ -130,5 +130,3 @@ def benchmark_gen_and_dump_out(tmp_path):
             out["Q2grid"][100.0]["operators"],
             loaded_out["Q2grid"][100.0]["operators"],
         )
-
-

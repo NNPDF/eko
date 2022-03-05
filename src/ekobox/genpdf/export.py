@@ -42,7 +42,7 @@ def array_to_str(ar):
     """
     table = ""
     for line in ar:
-        table += ("% .8e " % line[0]) + list_to_str(line[1:], fmt="%.8e") + "\n"
+        table += f"{line[0]} .8e " + list_to_str(line[1:], fmt="%.8e") + "\n"
     return table
 
 
@@ -62,7 +62,7 @@ def dump_blocks(name, member, blocks, pdf_type=None):
             str to be copied in the head of member files
     """
 
-    target = pathlib.Path(name) / ("%s_%04d.dat" % (name, member))
+    target = pathlib.Path(name) / f"{name}_{member:04d}.dat"
     target.parent.mkdir(exist_ok=True)
     with open(target, "w", encoding="utf-8") as o:
         if pdf_type is None:
@@ -96,7 +96,7 @@ def dump_info(name, info):
         info : dict
             info dictionary
     """
-    target = pathlib.Path(name) / ("%s.info" % (name))
+    target = pathlib.Path(name) / f"{name}.info"
     target.parent.mkdir(exist_ok=True)
     # write on string stream to capture output
     stream = io.StringIO()
