@@ -35,7 +35,7 @@ def test_A_2(get_sx):
     np.testing.assert_allclose(aNS2[1, 1], 0)
 
 
-def test_A_2_shape(get_sx):
+def test_A_2_shape():
     N = 2
     L = 3
     sx = np.zeros(3, np.complex_)

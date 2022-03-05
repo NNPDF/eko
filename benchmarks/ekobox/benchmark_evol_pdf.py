@@ -3,12 +3,11 @@ import pathlib
 
 import lhapdf
 import numpy as np
-import pytest
-from banana.data.genpdf import load
 from utils import cd, lhapdf_path, test_pdf
 
 from eko import basis_rotation as br
 from eko import output
+from ekobox.genpdf import load
 from ekobox import evol_pdf as ev_p
 from ekobox import gen_op as g_o
 from ekobox import gen_theory as g_t
@@ -103,7 +102,8 @@ def benchmark_evolve_more_members(tmp_path):
     with lhapdf_path(d):
         with cd(tmp_path):
             ev_p.evolve_pdfs(pdfs, theory, op, install=True, name="Debug")
-        _ev_pdfs = lhapdf.mkPDFs("Debug")
+        # ev_pdfs
+        _ = lhapdf.mkPDFs("Debug")
         info = load.load_info_from_file("Debug")
     assert info["XMin"] == op["interpolation_xgrid"][0]
 

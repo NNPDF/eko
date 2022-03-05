@@ -85,8 +85,8 @@ def apply_pdf_flavor(output, lhapdf_like, targetgrid=None, flavor_rotation=None)
             errors = flavor_rotation @ np.array(
                 [op["errors"][pid] for pid in br.flavor_basis_pids]
             )
-            out_grid[q2]["pdfs"] = dict(zip(br.evol_basis, pdf))
-            out_grid[q2]["errors"] = dict(zip(br.evol_basis, errors))
+            op["pdfs"] = dict(zip(br.evol_basis, pdf))
+            op["errors"] = dict(zip(br.evol_basis, errors))
 
     # rotate/interpolate to target grid
     if targetgrid is not None:

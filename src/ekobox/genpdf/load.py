@@ -29,7 +29,7 @@ def load_info_from_file(pdfset_name):
     import lhapdf  # pylint: disable=import-error, import-outside-toplevel
 
     src = pathlib.Path(lhapdf.paths()[0]) / pdfset_name
-    with open(src / ("%s.info" % (pdfset_name)), "r", encoding="utf-8") as o:
+    with open(src / f"{pdfset_name}.info", "r", encoding="utf-8") as o:
         info = yaml.safe_load(o)
     return info
 
@@ -60,7 +60,7 @@ def load_blocks_from_file(pdfset_name, member):
     # read actual file
     cnt = []
     with open(
-        src / ("%s_%04d.dat" % (pdfset_name, pdf.memberID)), "r", encoding="utf-8"
+        src / f"{pdfset_name}_{pdf.memberID:04d}.dat", "r", encoding="utf-8"
     ) as o:
         cnt = o.readlines()
     # file head
@@ -76,8 +76,8 @@ def load_blocks_from_file(pdfset_name, member):
         pids = np.array(cnt[head_section + 3].strip().split(" "), dtype=np.int_)
         # data
         data = []
-        for l in cnt[head_section + 4 : next_head_section]:
-            elems = np.fromstring(l.strip(), sep=" ")
+        for line in cnt[head_section + 4 : next_head_section]:
+            elems = np.fromstring(line.strip(), sep=" ")
             data.append(elems)
         Q2grid = [el * el for el in Qgrid]
         blocks.append(dict(xgrid=xgrid, Q2grid=Q2grid, pids=pids, data=np.array(data)))
