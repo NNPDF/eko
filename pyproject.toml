@@ -93,13 +93,13 @@ docs-clean = { "shell" = "cd doc; make clean" }
 docs-cleanall = { "shell" = "cd doc; make cleanall" }
 
 [tool.pytest.ini_options]
-testpaths = ['tests/'] #, 'benchmarks/']
+testpaths = ['tests/', 'benchmarks/']
 python_files = ['test_*.py', 'benchmark_*.py', 'regression.py']
 python_classes = ['Test*', 'Benchmark*']
 python_functions = ['test_*', 'benchmark_*']
 addopts = [
   '--cov=eko',
-  '--cov=ekobox',
+  # '--cov=ekobox',
   '--cov-report=html',
   '--cov-report=xml',
   '--strict-markers',
