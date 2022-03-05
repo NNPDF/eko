@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 import copy
+import pathlib
 
 import numpy as np
 import pytest
 from banana.utils import lhapdf_path
-from utils import cd, test_pdf
 
 from ekobox import genpdf
 
-# TODO mark file skipped in coverage.py
+test_pdf = pathlib.Path(__file__).parent / "genpdf"
+
 lhapdf = pytest.importorskip("lhapdf")
 
 
 @pytest.mark.isolated
-def benchmark_dump_info(tmp_path):
+def benchmark_dump_info(tmp_path, cd):
     with cd(tmp_path):
         with lhapdf_path(test_pdf):
             info = genpdf.load.load_info_from_file("myCT14llo_NF3")
@@ -31,7 +32,7 @@ def benchmark_dump_info(tmp_path):
 
 
 @pytest.mark.isolated
-def benchmark_dump_blocks(tmp_path):
+def benchmark_dump_blocks(tmp_path, cd):
     with cd(tmp_path):
         with lhapdf_path(test_pdf):
             info = genpdf.load.load_info_from_file("myCT14llo_NF3")

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
+import pathlib
+
 import pytest
 from banana.utils import lhapdf_path
 from click.testing import CliRunner
-from utils import test_pdf
 
 from ekobox.genpdf.cli import cli
 
-# TODO mark file skipped in coverage.py
+test_pdf = pathlib.Path(__file__).parent / "genpdf"
+
 lhapdf = pytest.importorskip("lhapdf")
 
 

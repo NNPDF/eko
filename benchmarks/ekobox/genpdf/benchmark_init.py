@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
+import pathlib
+
 import numpy as np
 import pytest
 from banana import toy
 from banana.utils import lhapdf_path
-from utils import cd, test_pdf
 
 from eko import basis_rotation as br
 from ekobox import genpdf
 
-# TODO mark file skipped in coverage.py
+test_pdf = pathlib.Path(__file__).parent / "genpdf"
+
 lhapdf = pytest.importorskip("lhapdf")
 
 
 @pytest.mark.isolated
-def benchmark_genpdf_exceptions(tmp_path):
+def benchmark_genpdf_exceptions(tmp_path, cd):
     # using a wrong label and then a wrong parent pdf
     with cd(tmp_path):
         with pytest.raises(TypeError):
@@ -39,7 +41,7 @@ def benchmark_genpdf_exceptions(tmp_path):
 
 
 @pytest.mark.isolated
-def benchmark_genpdf_no_parent_and_install(tmp_path):
+def benchmark_genpdf_no_parent_and_install(tmp_path, cd):
     with cd(tmp_path):
         d = tmp_path / "sub"
         d.mkdir()
@@ -56,7 +58,7 @@ def benchmark_genpdf_no_parent_and_install(tmp_path):
 
 
 @pytest.mark.isolated
-def benchmark_genpdf_toy(tmp_path):
+def benchmark_genpdf_toy(tmp_path, cd):
     with cd(tmp_path):
         toylh = toy.mkPDF("", 0)
         genpdf.generate_pdf(
@@ -80,7 +82,7 @@ def benchmark_genpdf_toy(tmp_path):
 
 
 @pytest.mark.isolated
-def benchmark_genpdf_parent_evolution_basis(tmp_path):
+def benchmark_genpdf_parent_evolution_basis(tmp_path, cd):
     with cd(tmp_path):
         with lhapdf_path(test_pdf):
             CT14 = lhapdf.mkPDF("myCT14llo_NF3", 0)
@@ -98,7 +100,7 @@ def benchmark_genpdf_parent_evolution_basis(tmp_path):
 
 
 @pytest.mark.isolated
-def benchmark_genpdf_dict(tmp_path):
+def benchmark_genpdf_dict(tmp_path, cd):
     with cd(tmp_path):
         genpdf.generate_pdf(
             "test_genpdf_dict",
@@ -120,7 +122,7 @@ def benchmark_genpdf_dict(tmp_path):
 
 
 @pytest.mark.isolated
-def benchmark_genpdf_custom(tmp_path):
+def benchmark_genpdf_custom(tmp_path, cd):
     with cd(tmp_path):
         c = np.zeros_like(br.flavor_basis_pids, dtype=np.float_)
         c[br.flavor_basis_pids.index(1)] = 1.0
@@ -148,7 +150,7 @@ def benchmark_genpdf_custom(tmp_path):
 
 
 @pytest.mark.isolated
-def benchmark_genpdf_allflavors(tmp_path):
+def benchmark_genpdf_allflavors(tmp_path, cd):
     with cd(tmp_path):
         for setname in ("myMSTW2008nlo90cl", "myNNPDF31_nlo_as_0118"):
             with lhapdf_path(test_pdf):

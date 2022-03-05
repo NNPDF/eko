@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
+import pathlib
+
 import numpy as np
 import pytest
 from banana.utils import lhapdf_path
-from utils import cd, test_pdf
 
 from eko import basis_rotation as br
 from ekobox import genpdf
 
-# TODO mark file skipped in coverage.py
+test_pdf = pathlib.Path(__file__).parent / "genpdf"
+
 lhapdf = pytest.importorskip("lhapdf")
 
 
@@ -44,7 +46,7 @@ def benchmark_flavors_evol_to_flavor():
 
 
 @pytest.mark.isolated
-def benchmark_flavors_pids_ct14(tmp_path):
+def benchmark_flavors_pids_ct14(tmp_path, cd):
     with cd(tmp_path):
         # read the debug PDFs
         with lhapdf_path(test_pdf):
@@ -72,7 +74,7 @@ def benchmark_flavors_pids_ct14(tmp_path):
 
 
 @pytest.mark.isolated
-def benchmark_flavors_evol_ct14(tmp_path):
+def benchmark_flavors_evol_ct14(tmp_path, cd):
     with cd(tmp_path):
         # read the debug PDFs
         with lhapdf_path(test_pdf):

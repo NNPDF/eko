@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import pytest
-from utils import cd
 
 from ekobox import gen_op as g_o
 
@@ -17,11 +16,11 @@ def benchmark_gen_op_card():
     op = g_o.gen_op_card([100], update=up)
     assert op["Q2grid"] == [100]
     assert op["interpolation_polynomial_degree"] == 2
-    assert op["interpolation_is_log"] == False
+    assert op["interpolation_is_log"] is False
 
 
 @pytest.mark.isolated
-def benchmark_export_load_op_card(tmp_path):
+def benchmark_export_load_op_card(tmp_path, cd):
     with cd(tmp_path):
         op = g_o.gen_op_card([100], name="debug_op")
         g_o.export_op_card("debug_op_two", op)
