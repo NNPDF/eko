@@ -4,10 +4,8 @@ import numpy as np
 
 from eko.matching_conditions.nlo import A_ns_1, A_singlet_1
 
-from .test_matching_nnlo import get_sx
 
-
-def test_A_1_intrinsic():
+def test_A_1_intrinsic(get_sx):
 
     L = 100.0
     N = 2
@@ -20,7 +18,7 @@ def test_A_1_intrinsic():
     np.testing.assert_allclose(aS1[0, 0] + aS1[1, 0] + aS1[2, 0], 0.0)
 
 
-def test_A_1_shape():
+def test_A_1_shape(get_sx):
 
     N = 2
     L = 3.0
@@ -35,7 +33,7 @@ def test_A_1_shape():
     assert aNS1i[1, 1] == aS1i[2, 2]
 
 
-def test_Bluemlein_1():
+def test_Bluemlein_1(get_sx):
     # Test against Blumlein OME implementation :cite:`Bierenbaum_2009`.
     # Only even moments are available in that code.
     # Note there is a minus sign in the definition of L.

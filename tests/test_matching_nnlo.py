@@ -7,19 +7,7 @@ from eko.anomalous_dimensions import harmonics
 from eko.matching_conditions.nnlo import A_ns_2, A_qq_2_ns, A_singlet_2
 
 
-def get_sx(N):
-    """Collect the S-cache"""
-    sx = np.array(
-        [
-            harmonics.harmonic_S1(N),
-            harmonics.harmonic_S2(N),
-            harmonics.harmonic_S3(N),
-        ]
-    )
-    return sx
-
-
-def test_A_2():
+def test_A_2(get_sx):
     logs = [0, 100]
 
     for L in logs:
@@ -47,8 +35,7 @@ def test_A_2():
     np.testing.assert_allclose(aNS2[1, 1], 0)
 
 
-def test_A_2_shape():
-
+def test_A_2_shape(get_sx):
     N = 2
     L = 3
     sx = np.zeros(3, np.complex_)
@@ -63,7 +50,7 @@ def test_A_2_shape():
     assert aNS2[0].all() == aNS2[1].all()
 
 
-def test_pegasus_sign():
+def test_pegasus_sign(get_sx):
     # reference value come from Pegasus code transalted Mathematica
     ref_val = -21133.9
     N = 2
@@ -74,7 +61,7 @@ def test_pegasus_sign():
     np.testing.assert_allclose(aS2[0, 0], ref_val, rtol=4e-5)
 
 
-def test_Bluemlein_2():
+def test_Bluemlein_2(get_sx):
     # Test against Blumlein OME implementation :cite:`Bierenbaum_2009`.
     # For some OME only even moments are available in that code.
     # Note there is a minus sign in the definition of L.
@@ -143,7 +130,7 @@ def test_Bluemlein_2():
             np.testing.assert_allclose(aS2[1, 1], ref_val_qq[L][N - 2], rtol=4e-6)
 
 
-def test_Hg2_pegasus():
+def test_Hg2_pegasus(get_sx):
     # Test againnt the parametrized expession for A_Hg_2
     # coming from Pegasus code
     # This expession is less accurate.
@@ -177,7 +164,7 @@ def test_Hg2_pegasus():
         np.testing.assert_allclose(aS2[2, 0], a_hg_2_param, rtol=7e-4)
 
 
-def test_msbar_matching():
+def test_msbar_matching(get_sx):
     logs = [0, 100]
 
     for L in logs:

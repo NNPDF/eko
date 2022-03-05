@@ -1,6 +1,11 @@
 import numpy as np
 import pytest
 
+from eko.anomalous_dimensions import harmonics
+
+# Output
+# ======
+
 
 class FakePDF:
     def hasFlavor(self, pid):
@@ -63,3 +68,23 @@ def fake_factory():
 @pytest.fixture
 def fake_output():
     return FakeOutput().fake_output()
+
+
+# Matching
+# ========
+
+
+@pytest.fixture
+def get_sx():
+    def wrapped(N):
+        """Collect the S-cache"""
+        sx = np.array(
+            [
+                harmonics.harmonic_S1(N),
+                harmonics.harmonic_S2(N),
+                harmonics.harmonic_S3(N),
+            ]
+        )
+        return sx
+
+    return wrapped
