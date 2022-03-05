@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
 import numpy as np
+import pytest
 
 from eko.evolution_operator import Operator
 from eko.evolution_operator.grid import OperatorGrid
@@ -11,7 +11,8 @@ from eko.thresholds import ThresholdsAtlas
 # from eko.matching_conditions.operator_matrix_element import OperatorMatrixElement
 
 
-class TestBackwardForward:
+@pytest.mark.isolated
+class BenchmarkBackwardForward:
     # setup objs
     theory_card = {
         "alphas": 0.35,

@@ -105,6 +105,7 @@ addopts = [
   '--strict-markers',
 ]
 env = ["NUMBA_DISABLE_JIT=1"]
+markers = ["isolated: marks benchmarks as isolated"]
 
 [tool.isort]
 profile = "black"

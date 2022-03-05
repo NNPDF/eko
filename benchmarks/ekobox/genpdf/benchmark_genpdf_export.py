@@ -12,6 +12,7 @@ from ekobox import genpdf
 lhapdf = pytest.importorskip("lhapdf")
 
 
+@pytest.mark.isolated
 def benchmark_dump_info(tmp_path):
     with cd(tmp_path):
         with lhapdf_path(test_pdf):
@@ -29,6 +30,7 @@ def benchmark_dump_info(tmp_path):
                 assert v == info2[k]
 
 
+@pytest.mark.isolated
 def benchmark_dump_blocks(tmp_path):
     with cd(tmp_path):
         with lhapdf_path(test_pdf):

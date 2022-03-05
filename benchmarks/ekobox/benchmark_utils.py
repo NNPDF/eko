@@ -8,6 +8,7 @@ from ekobox import gen_theory as g_t
 from ekobox import utils
 
 
+@pytest.mark.isolated
 def benchmark_ekos_product():
     # Generating two ekos
     op1 = g_o.gen_op_card(

@@ -3,16 +3,18 @@ import pathlib
 
 import lhapdf
 import numpy as np
+import pytest
 from utils import cd, lhapdf_path, test_pdf
 
 from eko import basis_rotation as br
 from eko import output
-from ekobox.genpdf import load
 from ekobox import evol_pdf as ev_p
 from ekobox import gen_op as g_o
 from ekobox import gen_theory as g_t
+from ekobox.genpdf import load
 
 
+@pytest.mark.isolated
 def benchmark_evolve_single_member(tmp_path):
     q2grid = [
         55.0,
@@ -90,6 +92,7 @@ def benchmark_evolve_single_member(tmp_path):
                 )
 
 
+@pytest.mark.isolated
 def benchmark_evolve_more_members(tmp_path):
     op = g_o.gen_op_card(
         [10, 100], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
@@ -108,6 +111,7 @@ def benchmark_evolve_more_members(tmp_path):
     assert info["XMin"] == op["interpolation_xgrid"][0]
 
 
+@pytest.mark.isolated
 def benchmark_gen_and_dump_out(tmp_path):
     op = g_o.gen_op_card(
         [100.0], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}

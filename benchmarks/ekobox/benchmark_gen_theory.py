@@ -5,6 +5,7 @@ from utils import cd
 from ekobox import gen_theory as g_t
 
 
+@pytest.mark.isolated
 def benchmark_gen_theory_card():
     theory = g_t.gen_theory_card(0, 1.0)
     assert theory["PTO"] == 0
@@ -19,6 +20,7 @@ def benchmark_gen_theory_card():
     assert theory["mb"] == 132.3
 
 
+@pytest.mark.isolated
 def benchmark_export_load_theory_card(tmp_path):
     with cd(tmp_path):
         theory = g_t.gen_theory_card(2, 12.3, name="debug_theory")

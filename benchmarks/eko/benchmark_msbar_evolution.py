@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """This module benchmarks MSbar mass evolution against APFEL."""
 import numpy as np
+import pytest
 
 from eko import msbar_masses
 from eko.strong_coupling import StrongCoupling
@@ -36,6 +37,7 @@ theory_dict = {
 }
 
 
+@pytest.mark.isolated
 class BenchmarkMSbar:
     def benchmark_APFEL_msbar_evolution(self):
         Q2s = np.power([1, 96, 150], 2)

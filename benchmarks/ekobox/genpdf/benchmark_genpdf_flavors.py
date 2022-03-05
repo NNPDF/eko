@@ -11,11 +11,13 @@ from ekobox import genpdf
 lhapdf = pytest.importorskip("lhapdf")
 
 
+@pytest.mark.isolated
 def benchmark_is_evolution():
     assert genpdf.flavors.is_evolution_labels(["V", "T3"])
     assert not genpdf.flavors.is_evolution_labels(["21", "2"])
 
 
+@pytest.mark.isolated
 def benchmark_is_pids():
     assert not genpdf.flavors.is_pid_labels(["V", "T3"])
     assert not genpdf.flavors.is_pid_labels(["35", "9"])
@@ -23,6 +25,7 @@ def benchmark_is_pids():
     assert genpdf.flavors.is_pid_labels([21, 2])
 
 
+@pytest.mark.isolated
 def benchmark_flavors_pid_to_flavor():
     flavs = genpdf.flavors.pid_to_flavor([1, 2, 21, -3])
     for f in flavs:
@@ -31,6 +34,7 @@ def benchmark_flavors_pid_to_flavor():
                 assert f @ g == 0
 
 
+@pytest.mark.isolated
 def benchmark_flavors_evol_to_flavor():
     flavs = genpdf.flavors.evol_to_flavor(["S", "g", "T3", "V8"])
     for f in flavs:
@@ -39,6 +43,7 @@ def benchmark_flavors_evol_to_flavor():
                 assert f @ g == 0
 
 
+@pytest.mark.isolated
 def benchmark_flavors_pids_ct14(tmp_path):
     with cd(tmp_path):
         # read the debug PDFs
@@ -66,6 +71,7 @@ def benchmark_flavors_pids_ct14(tmp_path):
                     )
 
 
+@pytest.mark.isolated
 def benchmark_flavors_evol_ct14(tmp_path):
     with cd(tmp_path):
         # read the debug PDFs
@@ -95,6 +101,7 @@ def benchmark_flavors_evol_ct14(tmp_path):
                     )
 
 
+@pytest.mark.isolated
 def benchmark_flavors_evol_raw():
     blocks = [
         {
@@ -123,6 +130,7 @@ def benchmark_flavors_evol_raw():
             np.testing.assert_allclose(Sonly[0]["data"][i][pid], Sonly[0]["data"][i][1])
 
 
+@pytest.mark.isolated
 def benchmark_flavors_evol_nodata():
     # try with a block without data
     blocks = [

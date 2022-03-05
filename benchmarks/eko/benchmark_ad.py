@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 """Benchmark the NLO anomalous dimensions against PEGASUS"""
 import numpy as np
+import pytest
 
 import eko.anomalous_dimensions.harmonics as h
 import eko.anomalous_dimensions.nlo as ad_nlo
 from eko.constants import CA, CF, TR
 
 
+@pytest.mark.isolated
 def benchmark_melling_g3_pegasus():
     for N in [1, 2, 3, 4, 1 + 1j, 1 - 1j, 2 + 1j, 3 + 1j]:
         check_melling_g3_pegasus(N)
 
 
+@pytest.mark.isolated
 def check_melling_g3_pegasus(N):
     S1 = h.harmonic_S1(N)
     N1 = N + 1.0
@@ -41,12 +44,14 @@ def check_melling_g3_pegasus(N):
     np.testing.assert_allclose(h.mellin_g3(N), SPMOM)
 
 
+@pytest.mark.isolated
 def benchmark_gamma_ns_1_pegasus():
     for N in range(10):
         for NF in [3, 4, 5]:
             check_gamma_ns_1_pegasus(N, NF)
 
 
+@pytest.mark.isolated
 def check_gamma_ns_1_pegasus(N, NF):
     # pylint: disable=line-too-long,too-many-locals,too-many-statements
     # Test against pegasus implementation

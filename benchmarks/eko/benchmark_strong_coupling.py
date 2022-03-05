@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """This module benchmarks alpha_s against LHAPDF and APFEL."""
 import numpy as np
+import pytest
 
 from eko import thresholds
 from eko.beta import beta
@@ -31,6 +32,7 @@ except ImportError:
     use_PEGASUS = False
 
 
+@pytest.mark.isolated
 class BenchmarkStrongCoupling:
     def test_a_s(self):
         """Tests the value of alpha_s (for now only at LO)
