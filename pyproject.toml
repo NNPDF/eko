@@ -62,6 +62,7 @@ sphinxcontrib-bibtex = "^2.4.1"
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex"]
 mark = ["banana-hep", "sqlalchemy", "pandas", "matplotlib"]
+box = ["banana-hep", "sqlalchemy", "pandas", "matplotlib"]
 
 [tool.poetry-dynamic-versioning]
 enable = true
@@ -76,8 +77,10 @@ files = ["src/eko/version.py"]
 ekonav = "ekomark.navigator:launch_navigator"
 
 [tool.poe.tasks]
-# until https://github.com/numba/numba/pull/5660 is confirmed we need to deactivate numba prior running
-test = { "shell" = "pytest tests" }
+test = "pytest tests"
+bench = "pytest benchmarks"
+bench-iso = "pytest benchmarks -m isolated"
+bench-run = "pytest benchmarks -m 'not isolated'"
 lint = "pylint src/**/*.py -E"
 lint-warnings = "pylint src/**/*.py --exit-zero"
 sandbox = "python benchmarks/sandbox.py"

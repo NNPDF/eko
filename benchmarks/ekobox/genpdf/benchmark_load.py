@@ -7,7 +7,7 @@ from banana.utils import lhapdf_path
 
 from ekobox import genpdf
 
-test_pdf = pathlib.Path(__file__).parent / "genpdf"
+test_pdf = pathlib.Path(__file__).parents[1] / "fakepdf"
 
 lhapdf = pytest.importorskip("lhapdf")
 

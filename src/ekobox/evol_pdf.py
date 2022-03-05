@@ -3,8 +3,7 @@ import eko
 from eko import basis_rotation as br
 from ekomark import apply
 
-from . import gen_info
-from . import genpdf
+from . import gen_info, genpdf
 
 
 def evolve_pdfs(

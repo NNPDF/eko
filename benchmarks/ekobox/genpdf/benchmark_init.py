@@ -9,7 +9,7 @@ from banana.utils import lhapdf_path
 from eko import basis_rotation as br
 from ekobox import genpdf
 
-test_pdf = pathlib.Path(__file__).parent / "genpdf"
+test_pdf = pathlib.Path(__file__).parents[1] / "fakepdf"
 
 lhapdf = pytest.importorskip("lhapdf")
 

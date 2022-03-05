@@ -7,7 +7,7 @@ from click.testing import CliRunner
 
 from ekobox.genpdf.cli import cli
 
-test_pdf = pathlib.Path(__file__).parent / "genpdf"
+test_pdf = pathlib.Path(__file__).parents[1] / "fakepdf"
 
 lhapdf = pytest.importorskip("lhapdf")
 
@@ -48,10 +48,10 @@ def benchmark_genpdf_CLI(tmp_path):
         with lhapdf_path(d):
             result3 = runner.invoke(cli, ["generate", "debug3", "21", "-i"])
             assert result3.exit_code == 0
-            _pdf3 = lhapdf.mkPDF("debug3", 0)
+            _ = lhapdf.mkPDF("debug3", 0)
             result4 = runner.invoke(cli, ["install", "debug"])
             assert result4.exit_code == 0
             result6 = runner.invoke(cli, ["install", "n4uonly"])
             assert result6.exit_code == 0
-            _pdf = lhapdf.mkPDF("debug", 0)
-            _mypdf = lhapdf.mkPDF("n4uonly", 0)
+            _ = lhapdf.mkPDF("debug", 0)
+            _ = lhapdf.mkPDF("n4uonly", 0)
