@@ -2,7 +2,7 @@
 import copy
 import math
 
-from banana.data.genpdf import load
+from .genpdf import load
 
 
 def create_info_file(theory_card, operators_card, num_members, info_update):
