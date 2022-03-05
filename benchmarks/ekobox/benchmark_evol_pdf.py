@@ -14,7 +14,7 @@ from ekobox import gen_op as g_o
 from ekobox import gen_theory as g_t
 
 
-def test_evolve_single_member(tmp_path):
+def benchmark_evolve_single_member(tmp_path):
     q2grid = [
         55.0,
         60.0,
@@ -91,7 +91,7 @@ def test_evolve_single_member(tmp_path):
                 )
 
 
-def test_evolve_more_members(tmp_path):
+def benchmark_evolve_more_members(tmp_path):
     op = g_o.gen_op_card(
         [10, 100], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
     )
@@ -108,7 +108,7 @@ def test_evolve_more_members(tmp_path):
     assert info["XMin"] == op["interpolation_xgrid"][0]
 
 
-def test_gen_and_dump_out(tmp_path):
+def benchmark_gen_and_dump_out(tmp_path):
     op = g_o.gen_op_card(
         [100.0], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
     )

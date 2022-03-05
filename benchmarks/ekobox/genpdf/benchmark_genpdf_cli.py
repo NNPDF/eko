@@ -10,7 +10,7 @@ from ekobox.genpdf.cli import cli
 lhapdf = pytest.importorskip("lhapdf")
 
 
-def test_genpdf_CLI_messages():
+def benchmark_genpdf_CLI_messages():
     runner = CliRunner()
     result = runner.invoke(cli, ["generate"])
     assert "Error: Missing argument 'NAME'." in result.output
@@ -22,7 +22,7 @@ def test_genpdf_CLI_messages():
     assert "-i, --install" in result.output
 
 
-def test_genpdf_CLI(tmp_path):
+def benchmark_genpdf_CLI(tmp_path):
     runner = CliRunner()
     with runner.isolated_filesystem(temp_dir=tmp_path):
         result = runner.invoke(cli, ["generate", "debug", "g"])

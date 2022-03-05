@@ -5,7 +5,7 @@ from utils import cd
 from ekobox import gen_op as g_o
 
 
-def test_gen_op_card():
+def benchmark_gen_op_card():
     op = g_o.gen_op_card([10, 100])
     assert op["Q2grid"] == [10, 100]
     assert op["interpolation_polynomial_degree"] == 4
@@ -19,7 +19,7 @@ def test_gen_op_card():
     assert op["interpolation_is_log"] == False
 
 
-def test_export_load_op_card(tmp_path):
+def benchmark_export_load_op_card(tmp_path):
     with cd(tmp_path):
         op = g_o.gen_op_card([100], name="debug_op")
         g_o.export_op_card("debug_op_two", op)

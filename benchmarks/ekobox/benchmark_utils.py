@@ -5,7 +5,7 @@ from ekobox import evol_pdf as ev_p
 from ekobox import gen_op as g_o
 from ekobox import gen_theory as g_t
 from ekobox import utils
-def test_ekos_product():
+def benchmark_ekos_product():
     # Generating two ekos
     op1 = g_o.gen_op_card(
         [60.0, 80.0, 100.0], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}

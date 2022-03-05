@@ -12,7 +12,7 @@ from ekobox import genpdf
 lhapdf = pytest.importorskip("lhapdf")
 
 
-def test_dump_info(tmp_path):
+def benchmark_dump_info(tmp_path):
     with cd(tmp_path):
         with lhapdf_path(test_pdf):
             info = genpdf.load.load_info_from_file("myCT14llo_NF3")
@@ -29,7 +29,7 @@ def test_dump_info(tmp_path):
                 assert v == info2[k]
 
 
-def test_dump_blocks(tmp_path):
+def benchmark_dump_blocks(tmp_path):
     with cd(tmp_path):
         with lhapdf_path(test_pdf):
             info = genpdf.load.load_info_from_file("myCT14llo_NF3")

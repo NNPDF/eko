@@ -5,7 +5,7 @@ from utils import cd
 from ekobox import gen_theory as g_t
 
 
-def test_gen_theory_card():
+def benchmark_gen_theory_card():
     theory = g_t.gen_theory_card(0, 1.0)
     assert theory["PTO"] == 0
     assert theory["Q0"] == 1.0
@@ -19,7 +19,7 @@ def test_gen_theory_card():
     assert theory["mb"] == 132.3
 
 
-def test_export_load_theory_card(tmp_path):
+def benchmark_export_load_theory_card(tmp_path):
     with cd(tmp_path):
         theory = g_t.gen_theory_card(2, 12.3, name="debug_theory")
         g_t.export_theory_card("debug_theory_two", theory)
