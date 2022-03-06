@@ -12,14 +12,8 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-      volumes:
-        - /home/runner/work
 
     steps:
-      - name: Acquire privileges on workspace
-        run: |
-          sudo chown -R $(id -u) /__w/
-          sudo chown -R $(id -u) /home/runner/work/
       - uses: actions/checkout@v2
         with:
           # tags needed for dynamic versioning
