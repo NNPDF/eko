@@ -27,9 +27,8 @@ jobs:
       - name: Debug
         run: |
           echo $PWD
+          echo $PATH
           ls ~ -a
-          ls ~/.local
-          ls ~/.local/bin
           ls /usr
           ls /usr/bin
           ls /usr/local
