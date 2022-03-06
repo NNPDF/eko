@@ -12,6 +12,8 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+      volumes:
+        - /home/runner/work
 
     steps:
       - name: Acquire privileges on workspace
