@@ -20,10 +20,7 @@ jobs:
           # tags needed for dynamic versioning
           fetch-depth: 0
       - name: Install and configure Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-path: ~/.virtualenvs
-          installer-parallel: true
+        run: curl -sSL https://install.python-poetry.org | python3 -
       - name: Debug
         run: |
           echo $PWD
