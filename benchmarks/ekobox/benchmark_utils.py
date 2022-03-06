@@ -28,7 +28,7 @@ def benchmark_ekos_product():
     # Test_error
     eko_fin_err = ev_p.gen_out(theory_err, op2)
     with pytest.raises(ValueError):
-        eko_res_err = utils.ekos_product(eko_ini, eko_fin_err)
+        _ = utils.ekos_product(eko_ini, eko_fin_err)
     # product is copied
     eko_res = utils.ekos_product(eko_ini, eko_fin, in_place=False)
     # product overwrites initial
