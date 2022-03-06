@@ -35,9 +35,6 @@ jobs:
           poetry install --no-interaction -E mark -E box
       - name: Debug
         run: |
-          echo $PWD
-          ls .local
-          ls .local/lib
           python -c "import apfel; print(apfel.GetVersion())"
           poetry run python -c "import apfel; print(apfel.GetVersion())"
           poetry env use system
