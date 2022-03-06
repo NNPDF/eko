@@ -39,19 +39,20 @@ jobs:
           echo $(which python)
           python -c "import sys; print(sys.path)"
           python -c "import apfel; print(apfel.GetVersion())"
-          poetry run python -c "import apfel; print(apfel.GetVersion())"
           poetry env use system
           poetry run python -c "import apfel; print(apfel.GetVersion())"
       - name: Install task runner
         run: pip install poethepoet
       - name: Lint with pylint
         run: |
+          poetry env use system
           # Search for actual errors
           poe lint
           # For warnings instead return always zero
           poe lint-warnings
       - name: Test with pytest
         run: |
+          poetry env use system
           poe bench-iso
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
