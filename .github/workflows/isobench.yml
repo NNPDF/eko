@@ -26,6 +26,14 @@ jobs:
           installer-parallel: true
       - name: Debug
         run: |
+          echo $PWD
+          ls ~ -a
+          ls ~/.local
+          ls ~/.local/bin
+          ls /usr
+          ls /usr/bin
+          ls /usr/local
+          ls /usr/local/bin
           echo $(which poetry)
           poetry --version
           echo $(head -n1 $(which poetry))
