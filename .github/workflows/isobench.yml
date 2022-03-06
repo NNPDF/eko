@@ -4,7 +4,7 @@ on: push
 
 jobs:
   isobench:
-    name: 🏝️ Isolated Benchmarks (🐍 ${{ inputs.python-version }})
+    name: 🏝️ Isolated Benchmarks
     runs-on: ubuntu-latest
 
     container:
@@ -14,20 +14,11 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
       options: --user 1001
 
-    strategy:
-      matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10"]
-
     steps:
       - uses: actions/checkout@v2
         with:
           # tags needed for dynamic versioning
           fetch-depth: 0
-      - name: Set up Python ${{ matrix.python-version }} 🐍
-        id: setup-python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
@@ -38,7 +29,7 @@ jobs:
         id: cache
         with:
           path: ~/.virtualenvs
-          key: ${{ runner.os }}-py-${{ steps.setup-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
       - name: Install version management tool
         run: |
           # same poetry env
