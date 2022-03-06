@@ -23,19 +23,6 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - name: Debug
-        run: |
-          echo $PWD
-          echo $PATH
-          ls ~ -a
-          ls /usr
-          ls /usr/bin
-          ls /usr/local
-          ls /usr/local/bin
-          echo $(which poetry)
-          poetry --version
-          echo $(head -n1 $(which poetry))
-          echo $(head -n1 $(which poetry) | cut -c 3-)
       - name: Cache Poetry virtualenv
         uses: actions/cache@v2
         id: cache
@@ -51,7 +38,7 @@ jobs:
         run: poetry install --no-interaction --no-root
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Install project
-        run: poetry install --no-interaction -E mark box
+        run: poetry install --no-interaction -E mark -E box
       - name: Install task runner
         run: pip install poethepoet
       - name: Lint with pylint
