@@ -14,6 +14,9 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      - uses: Acquire privileges on workspace
+        run: |
+          sudo chown -R $USER ${{ github.workspace }}
       - uses: actions/checkout@v2
         with:
           # tags needed for dynamic versioning
