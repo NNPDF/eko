@@ -35,6 +35,9 @@ jobs:
           poetry install --no-interaction -E mark -E box
       - name: Debug
         run: |
+          echo $LD_LIBRARY_PATH
+          echo $(which python)
+          python -c "import sys; print(sys.path)"
           python -c "import apfel; print(apfel.GetVersion())"
           poetry run python -c "import apfel; print(apfel.GetVersion())"
           poetry env use system
