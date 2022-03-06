@@ -35,10 +35,10 @@ jobs:
           PIP="$(head -n1 $(which poetry) | cut -c 3-) -m pip"
           ${PIP} install poetry-dynamic-versioning
       - name: Install dependencies
-        run: poetry install --no-interaction --no-root
+        run: poetry install --no-interaction --no-root -E mark -E box
         if: steps.cache.outputs.cache-hit != 'true'
       - name: Install project
-        run: poetry install --no-interaction -E mark -E box
+        run: poetry install --no-interaction
       - name: Install task runner
         run: pip install poethepoet
       - name: Lint with pylint
