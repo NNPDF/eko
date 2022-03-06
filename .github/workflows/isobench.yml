@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Acquire privileges on workspace
         run: |
-          sudo chown -R $(id -u) ${{ github.workspace }}
+          sudo chown -R $(id -u) $(dirname  ${{ github.workspace }})
       - uses: actions/checkout@v2
         with:
           # tags needed for dynamic versioning
