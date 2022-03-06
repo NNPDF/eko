@@ -19,6 +19,8 @@ jobs:
         with:
           # tags needed for dynamic versioning
           fetch-depth: 0
+      - name: Check python
+        run: python -c "print('ciao, come va?')"
       - name: Install and configure Poetry
         uses: snok/install-poetry@v1
         with:
