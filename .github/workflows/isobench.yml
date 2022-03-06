@@ -21,8 +21,13 @@ jobs:
       - name: Install and configure Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
+          # update path for this and the other steps
+          export PATH=$HOME/.local/bin:$PATH
           echo "$HOME/.local/bin" >> $GITHUB_PATH
+          # prevent poetry environments
+          # in order to access container pre-installed packages
           poetry config virtualenvs.create false
+          # log all configurations
           poetry config --list
       - name: Install version management tool
         run: |
@@ -31,8 +36,6 @@ jobs:
           ${PIP} install poetry-dynamic-versioning
       - name: Install project
         run: |
-          # do not use a virtualenv
-          # in order to access container pre-installed packages
           poetry install --no-interaction -E mark -E box
       - name: Debug
         run: |
