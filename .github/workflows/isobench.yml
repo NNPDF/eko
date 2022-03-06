@@ -37,13 +37,6 @@ jobs:
       - name: Install project
         run: |
           poetry install --no-interaction -E mark -E box
-      - name: Debug
-        run: |
-          echo $LD_LIBRARY_PATH
-          echo $(which python)
-          python -c "import sys; print(sys.path)"
-          python -c "import apfel; print(apfel.GetVersion())"
-          poetry run python -c "import apfel; print(apfel.GetVersion())"
       - name: Install task runner
         run: pip install poethepoet
       - name: Lint with pylint
