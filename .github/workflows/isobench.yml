@@ -12,8 +12,7 @@ jobs:
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
-      volumes:
-        - ${{ github.workspace }}
+      options: --user 1001
 
     strategy:
       matrix:
