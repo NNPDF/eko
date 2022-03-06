@@ -20,7 +20,9 @@ jobs:
           # tags needed for dynamic versioning
           fetch-depth: 0
       - name: Install and configure Poetry
-        run: curl -sSL https://install.python-poetry.org | python3 -
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Debug
         run: |
           echo $PWD
