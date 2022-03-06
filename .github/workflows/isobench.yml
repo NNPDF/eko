@@ -23,22 +23,17 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v2
-        id: cache
-        with:
-          path: ~/.virtualenvs
-          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
       - name: Install version management tool
         run: |
           # same poetry env
           PIP="$(head -n1 $(which poetry) | cut -c 3-) -m pip"
           ${PIP} install poetry-dynamic-versioning
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root -E mark -E box
-        if: steps.cache.outputs.cache-hit != 'true'
-      - name: Install project
-        run: poetry install --no-interaction
+      - name: Install
+        run: |
+          # do not use a virtualenv
+          # in order to access container pre-installed packages
+          poetry env use system
+          poetry install --no-interaction -E mark -E box
       - name: Install task runner
         run: pip install poethepoet
       - name: Lint with pylint
