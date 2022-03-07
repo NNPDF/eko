@@ -18,11 +18,9 @@ test_pdf = pathlib.Path(__file__).parent / "fakepdf"
 @pytest.mark.isolated
 def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
     q2grid = [
-        90.0,
-        95.0,
+        20.0,
         100.0,
-        105.0,
-        110.0,
+        10000.0,
     ]
     op = g_o.gen_op_card(q2grid)
     theory = g_t.gen_theory_card(
@@ -61,7 +59,7 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
     assert info["MZ"] == theory["MZ"]
     assert info["Debug"] == "Debug"
     xgrid = op["interpolation_xgrid"]
-    for Q2 in [100.0]:
+    for Q2 in [20.0, 100.0, 10000.0]:
         for x in xgrid[10:40]:
             for pid in [21, 1, -1, 2, -2, 3, -3]:
                 np.testing.assert_allclose(
