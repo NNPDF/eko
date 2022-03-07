@@ -18,25 +18,11 @@ test_pdf = pathlib.Path(__file__).parent / "fakepdf"
 @pytest.mark.isolated
 def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
     q2grid = [
-        55.0,
-        60.0,
-        65.0,
-        70.0,
-        75.0,
-        80.0,
-        85.0,
         90.0,
         95.0,
         100.0,
         105.0,
         110.0,
-        115.0,
-        120.0,
-        125.0,
-        130.0,
-        135.0,
-        140.0,
-        145.0,
     ]
     op = g_o.gen_op_card(q2grid)
     theory = g_t.gen_theory_card(
