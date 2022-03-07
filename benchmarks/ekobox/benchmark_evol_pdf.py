@@ -67,12 +67,12 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
                     all_blocks[0]["data"][
                         q2grid.index(Q2) + xgrid.index(x) * len(q2grid)
                     ][br.flavor_basis_pids.index(pid)],
-                    rtol=1e-3,
+                    rtol=1e-2,
                 )
                 np.testing.assert_allclose(
                     pdf.xfxQ2(pid, x, Q2),
                     ev_pdf.xfxQ2(pid, x, Q2),
-                    rtol=1e-3,
+                    rtol=1e-2,
                 )
 
 
