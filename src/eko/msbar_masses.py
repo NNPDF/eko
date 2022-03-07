@@ -10,6 +10,7 @@ from .basis_rotation import quark_names
 from .beta import b, beta
 from .gamma import gamma
 from .strong_coupling import StrongCoupling, invert_matching_coeffs
+from .thresholds import ThresholdsAtlas, is_downward_path
 
 
 def ker_exact(a0, a1, order, nf):
@@ -163,12 +164,12 @@ def ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
         ker:
             Expanded or exact |MSbar| kernel
     """
-    a0 = strong_coupling.a_s(q2m_ref / fact_to_ren, q2m_ref)
-    a1 = strong_coupling.a_s(q2_to / fact_to_ren, q2_to)
+    a0 = strong_coupling.a_s(q2m_ref / fact_to_ren, q2m_ref, nf)
+    a1 = strong_coupling.a_s(q2_to / fact_to_ren, q2_to, nf)
     method = strong_coupling.method
     order = strong_coupling.order
     if method == "expanded":
-        return ker_expanded(a0, a1, order, nf)
+        return ker_expanded(a0, float(a1), order, nf)
     return ker_exact(a0, a1, order, nf)
 
 
@@ -267,11 +268,7 @@ def solve(
 
 
 def evolve(
-    m2_ref,
-    q2m_ref,
-    strong_coupling,
-    fact_to_ren,
-    q2_to,
+    m2_ref, q2m_ref, strong_coupling, fact_to_ren, q2_to, nf_ref=None, nf_to=None
 ):
     r"""
     Perform the |MSbar| mass evolution up to given scale.
@@ -288,55 +285,56 @@ def evolve(
             any q
         fact_to_ren: float
             :math:`\mu_F^2/\mu_R^2`
-        q2_to: float, optional
+        q2_to: float
             scale at which the mass is computed
+        nf_ref: int
+            number of flavor active at the reference scale
+        nf_to: int
+            number of flavor active at the target scale
 
     Returns
     -------
         m2 : float
             :math:`m_{\overline{MS}}(\mu_2)^2`
     """
-    # evolution might involve different number of active flavors.
-    # Find out the evolution path (always sorted)
-    q2_low, q2_high = sorted([q2m_ref, q2_to])
-
-    area_walls = np.array(strong_coupling.thresholds.area_walls)
-    path = np.concatenate(
-        (
-            [q2_low],
-            area_walls[(q2_low < area_walls) & (area_walls < q2_high)],
-            [q2_high],
-        )
+    thr_atlas = ThresholdsAtlas(
+        np.array(strong_coupling.thresholds.area_walls)[1:-1],
+        q2m_ref,
+        nf_ref,
+        strong_coupling.thresholds.thresholds_ratios,
     )
-    nf_init = len(area_walls[q2_low >= area_walls]) + 2
-    nf_final = len(area_walls[q2_high > area_walls]) + 2
+    path = thr_atlas.path(q2_to, nf_to)
+    is_downward, shift = is_downward_path(path)
 
     ev_mass = 1.0
-    is_downward_path = bool(q2m_ref > q2_to)
-    for i, nf in enumerate(np.arange(nf_init, nf_final + 1)):
-        q2_init = path[i]
-        q2_final = path[i + 1]
-        # if you are going backward
-        # need to reverse the evolution in each path segment
-        if is_downward_path:
-            m_coeffs = compute_matching_coeffs_down(nf - 1)
-            q2_init, q2_final = q2_final, q2_init
-            shift = 4
-        else:
-            m_coeffs = compute_matching_coeffs_up(nf)
-            shift = 3
-        fact = 1.0
-        # shift
-        for pto in range(1, strong_coupling.order + 1):
-            for l in range(pto + 1):
-                as_thr = strong_coupling.a_s(q2_final / fact_to_ren, q2_final)
-                # TODO: do we need to add np.log(fac_to_ren) here ???
-                L = np.log(strong_coupling.thresholds.thresholds_ratios[pto - shift])
-                fact += as_thr**pto * L**l * m_coeffs[pto, l]
-        ev_mass *= (
-            fact
-            * ker_dispatcher(q2_final, q2_init, strong_coupling, fact_to_ren, nf) ** 2
-        )
+    for k, seg in enumerate(path):
+        # skip a very short segment, but keep the matching
+        ker_evol = 1.0
+        if not np.isclose(seg.q2_from, seg.q2_to):
+            ker_evol = (
+                ker_dispatcher(
+                    seg.q2_to, seg.q2_from, strong_coupling, fact_to_ren, seg.nf
+                )
+                ** 2
+            )
+        # apply matching condition
+        if k < len(path) - 1:
+            # TODO: do we need to add np.log(fac_to_ren) here ???
+            L = np.log(thr_atlas.thresholds_ratios[seg.nf - shift])
+            m_coeffs = (
+                compute_matching_coeffs_down(seg.nf - 1)
+                if is_downward
+                else compute_matching_coeffs_up(seg.nf)
+            )
+            matching = 1.0
+            for pto in range(1, strong_coupling.order + 1):
+                for l in range(pto + 1):
+                    as_thr = strong_coupling.a_s(
+                        seg.q2_to / fact_to_ren, seg.q2_to, seg.nf - shift + 4
+                    )
+                    matching += as_thr**pto * L**l * m_coeffs[pto, l]
+            ker_evol *= matching
+        ev_mass *= ker_evol
     return m2_ref * ev_mass
 
 
@@ -421,7 +419,8 @@ def compute(theory_card):
         # you need to evolve it until nf_target patch wall is reached:
         #   for backward you reach the higher, for forward the lower.
         # len(masses[q2m_ref > masses]) + 3 is the nf at the given reference scale
-        if nf_target != len(masses[q2m_ref > masses]) + 3:
+        nf_ref = len(masses[q2m_ref > masses]) + 3
+        if nf_target != nf_ref:
             q2_to = masses[q_idx + shift]
             m2_ref = evolve(
                 m2_ref,
@@ -429,6 +428,8 @@ def compute(theory_card):
                 sc(masses),
                 fact_to_ren,
                 q2_to,
+                nf_ref=nf_ref,
+                nf_to=nf_target,
             )
             q2m_ref = q2_to
 

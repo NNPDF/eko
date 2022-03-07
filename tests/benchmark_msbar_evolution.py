@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 """This module benchmarks MSbar mass evolution against APFEL."""
+import copy
+
 import numpy as np
 
 from eko import msbar_masses
+from eko.basis_rotation import quark_names
 from eko.strong_coupling import StrongCoupling
 
 # try to load APFEL - if not available, we'll use the cached values
@@ -38,12 +41,19 @@ theory_dict = {
 
 class BenchmarkMSbar:
     def benchmark_APFEL_msbar_evolution(self):
+        theory = copy.deepcopy(theory_dict)
         Q2s = np.power([1, 96, 150], 2)
-        alphas_ref = 0.118
-        scale_ref = 91.0**2
-        thresholds_ratios = np.power((1.0, 1.0, 1.0), 2)
-        Q2m = np.power([2.0, 4.5, 175], 2)
-        m2 = np.power((1.4, 4.5, 175), 2)
+        nfs = [3, 5, 5]
+        theory.update(
+            {
+                "mc": 1.4,
+                "mb": 4.5,
+                "mt": 175.0,
+                "Qmc": 2.0,
+                "Qmb": 4.5,
+                "Qmt": 175.0,
+            }
+        )
         apfel_vals_dict = {
             "exact": {
                 0: np.array(
@@ -94,27 +104,32 @@ class BenchmarkMSbar:
         }
         # collect my values
         for method in ["exact", "expanded"]:
+            theory["ModEv"] = "EXP" if method == "expanded" else "EXA"
             for order in [0, 1, 2]:
+                theory["PTO"] = order
                 as_VFNS = StrongCoupling(
-                    alphas_ref,
-                    scale_ref,
-                    m2,
-                    thresholds_ratios,
+                    theory["alphas"],
+                    theory["Qref"] ** 2,
+                    msbar_masses.compute(theory),
+                    np.power([theory["kcThr"], theory["kbThr"], theory["ktThr"]], 2),
                     order=order,
                     method=method,
-                    hqm_scheme="MSBAR",
+                    nf_ref=theory["nfref"],
+                    hqm_scheme=theory["HQ"],
                 )
                 my_vals = []
-                for Q2 in Q2s:
+                for nf_to, Q2 in zip(nfs, Q2s):
                     my_masses = []
                     for n in [3, 4, 5]:
                         my_masses.append(
                             msbar_masses.evolve(
-                                m2[n - 3],
-                                Q2m[n - 3],
+                                theory[f"m{quark_names[n]}"] ** 2,
+                                theory[f"Qm{quark_names[n]}"] ** 2,
                                 strong_coupling=as_VFNS,
                                 fact_to_ren=1.0,
                                 q2_to=Q2,
+                                nf_ref=n,
+                                nf_to=nf_to,
                             )
                         )
                     my_vals.append(my_masses)
@@ -126,10 +141,12 @@ class BenchmarkMSbar:
                     apfel.SetTheory("QCD")
                     apfel.SetPerturbativeOrder(order)
                     apfel.SetAlphaEvolution(method)
-                    apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                    apfel.SetAlphaQCDRef(theory["alphas"], theory["Qref"])
                     apfel.SetVFNS()
-                    apfel.SetMSbarMasses(*np.sqrt(m2))
-                    apfel.SetMassScaleReference(*np.sqrt(Q2m))
+                    apfel.SetMSbarMasses(theory["mc"], theory["mb"], theory["mt"])
+                    apfel.SetMassScaleReference(
+                        theory["Qmc"], theory["Qmb"], theory["Qmt"]
+                    )
                     apfel.SetRenFacRatio(1.0)
                     apfel.InitializeAPFEL()
                     # collect apfel masses
@@ -145,7 +162,7 @@ class BenchmarkMSbar:
                     )
                 # check myself to APFEL
                 np.testing.assert_allclose(
-                    apfel_vals, np.sqrt(np.array(my_vals)), rtol=2e-3
+                    apfel_vals, np.sqrt(np.array(my_vals)), rtol=2.3e-3
                 )
 
     def benchmark_APFEL_msbar_solution(self):
@@ -185,7 +202,7 @@ class BenchmarkMSbar:
                 apfel.EnableWelcomeMessage(1)
             # check myself to APFEL
             np.testing.assert_allclose(
-                apfel_vals, np.sqrt(np.array(my_masses)), rtol=5e-5
+                apfel_vals, np.sqrt(np.array(my_masses)), rtol=4e-4
             )
 
     def benchmark_msbar_solution_kthr(self):

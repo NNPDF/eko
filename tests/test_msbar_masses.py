@@ -38,10 +38,10 @@ class TestMsbarMasses:
         for method in ["EXA", "EXP"]:
             for order in [1, 2, 3]:
                 theory_dict.update({"ModEv": method, "PTO": order})
-                strong_coupling = StrongCoupling.from_dict(theory_dict)
 
                 # compute the scale such msbar(m) = m
                 m2_computed = msbar_masses.compute(theory_dict)
+                strong_coupling = StrongCoupling.from_dict(theory_dict, m2_computed)
                 m2_test = []
                 for nf in [3, 4, 5]:
                     # compute msbar( m )
@@ -56,7 +56,7 @@ class TestMsbarMasses:
                             q2_to=m2_computed[nf - 3],
                         )
                     )
-                np.testing.assert_allclose(m2_computed, m2_test, rtol=4e-3)
+                np.testing.assert_allclose(m2_computed, m2_test, rtol=6e-4)
 
     def test_compute_msbar_mass_VFNS(self):
         # test the solution now with some initial contition
@@ -71,9 +71,9 @@ class TestMsbarMasses:
                 "Qmb": 85.0,
             }
         )
-        strong_coupling = StrongCoupling.from_dict(theory_dict)
         # compute the scale such msbar(m) = m
         m2_computed = msbar_masses.compute(theory_dict)
+        strong_coupling = StrongCoupling.from_dict(theory_dict, m2_computed)
         m2_test = []
         for nf in [3, 4, 5]:
             # compute msbar( m )
@@ -88,7 +88,7 @@ class TestMsbarMasses:
                     q2_to=m2_computed[nf - 3],
                 )
             )
-        np.testing.assert_allclose(m2_computed, m2_test, rtol=3e-3)
+        np.testing.assert_allclose(m2_computed, m2_test, rtol=6e-4)
 
     def test_errors(self):
 

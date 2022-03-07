@@ -151,9 +151,9 @@ class StrongCoupling:
             scale_ref : float
                 reference scale :math:`\mu_0^2`
             masses : list(float)
-                list with quark masses
+                list with quark masses squared
             thresholds_ratios : list(float)
-                list with ratios between the mass and the thresholds
+                list with ratios between the mass and the thresholds squared
             order: int
                 Evaluated order of the beta function: ``0`` = LO, ...
             method : ["expanded", "exact"]
@@ -342,7 +342,7 @@ class StrongCoupling:
                 as_new = self.compute_exact(float(as_ref), nf, scale_from, scale_to)
             else:
                 as_new = as_expanded(
-                    self.order, float(as_ref), nf, scale_from, scale_to
+                    self.order, float(as_ref), nf, scale_from, float(scale_to)
                 )
             self.cache[key] = as_new
             return as_new
