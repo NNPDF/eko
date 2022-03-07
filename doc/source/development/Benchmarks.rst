@@ -58,7 +58,7 @@ APFEL
 (and FTDY as well).
 It has been used by the NNPDF collaboration up to NNPDF4.0
 
-|APFEL| solves |DGLAP| numerically in x-space up to |NNLO|. QED evolution is also available.
+|APFEL| solves |DGLAP| numerically in x-space up to |NNLO|. |QED| evolution is also available.
 The programs provides 3 different strategies, and in various theory setups (|FNS|, SV, IC ) as shown in the table.
 As |Eko|, |APFEL| can be interfaced with |lhapdf|.
 

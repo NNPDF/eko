@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from eko import msbar_masses
-from eko.evolution_operator.flavors import quark_names
+from eko.basis_rotation import quark_names
 from eko.strong_coupling import StrongCoupling
 
 theory_dict = {

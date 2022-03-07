@@ -95,8 +95,8 @@ def test_rotate_matching():
 def test_rotate_matching_is_inv():
     def replace_names(k):
         for q in range(4, 6 + 1):
-            k = k.replace(flavors.quark_names[q - 1] + "+", f"T{q**2-1}").replace(
-                flavors.quark_names[q - 1] + "-", f"V{q**2-1}"
+            k = k.replace(br.quark_names[q - 1] + "+", f"T{q**2-1}").replace(
+                br.quark_names[q - 1] + "-", f"V{q**2-1}"
             )
         return k
 
@@ -112,3 +112,25 @@ def test_rotate_matching_is_inv():
         m = load(flavors.rotate_matching(nf))
         minv = load(flavors.rotate_matching_inverse(nf))
         np.testing.assert_allclose(m @ minv, np.eye(len(br.evol_basis)), atol=1e-10)
+
+
+def test_pids_from_intrinsic_unified_evol():
+    for nf in range(3, 6 + 1):
+        labels = br.intrinsic_unified_evol_labels(nf)
+        for lab in labels:
+            n = flavors.pids_from_intrinsic_unified_evol(lab, nf, True)
+            for lab2 in labels:
+                n2 = flavors.pids_from_intrinsic_unified_evol(lab2, nf, False)
+                if lab == lab2:
+                    np.testing.assert_allclose(n @ n2, 1.0)
+                else:
+                    np.testing.assert_allclose(
+                        n @ n2,
+                        0.0,
+                        atol=1e-10,
+                        err_msg=f"{lab} is not orthogonal to {lab2} in nf={nf}",
+                    )
+    with pytest.raises(KeyError):
+        flavors.pids_from_intrinsic_unified_evol("V3", 4, True)
+    with pytest.raises(KeyError):
+        flavors.pids_from_intrinsic_unified_evol("T0", 7, True)
