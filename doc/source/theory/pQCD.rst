@@ -48,7 +48,7 @@ is presented in equation 3.1 of :cite:`Schroder:2005hy` for |MSbar| masses, whil
 same expression for POLE masses is reported in Appendix A.
 For this reason the boundary conditions of :class:`eko.strong_coupling.StrongCoupling`
 can be specified at `scale_ref` along with ``nf_ref`` and, the computed result can
-depend on the number of flavors at the target scale, see :meth:`StrongCoupling.a_s`
+depend on the number of flavors at the target scale, see :meth:`eko.strong_coupling.StrongCoupling.a_s`
 An example how the evolution path is determined is given :doc:`here</code/Utilities/>`.
 
 

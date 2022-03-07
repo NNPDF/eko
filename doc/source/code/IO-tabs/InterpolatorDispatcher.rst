@@ -1,5 +1,6 @@
-InterpolatorDispatcher parameter:
+InterpolatorDispatcher parameters:
 
-- :py:obj:`list(float)` ``interpolation_xgrid`` the interpolation grid; **Required**
-- :py:obj:`int` ``interpolation_polynomial_degree`` polynomial degree of the interpolating function; **Required**
-- :py:obj:`bool` ``interpolation_is_log`` use logarithmic interpolation? **Required**
+- :obj:`list(float)` ``interpolation_xgrid`` the interpolation grid; **Required**
+- :obj:`int` ``interpolation_polynomial_degree`` polynomial degree of the interpolating function; **Required**
+- :obj:`bool` ``log`` use logarithmic interpolation?
+- :obj:`bool` ``mode_N`` if true compiles the function on N, otherwise compiles x

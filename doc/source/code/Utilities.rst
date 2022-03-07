@@ -8,21 +8,30 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
   -  Implementation of the flavor number scheme and the quark thresholds both for
      the :class:`eko.strong_coupling.StrongCoupling` and the :doc:`operators <../theory/Matching>`
 
-  When running in |VFNS| it is important to specify the number of flavors active at each given scale, since evolution path
+  .. include:: IO-tabs/ThresholdConfig.rst
+
+  When running in |VFNS| it is important to specify the number of flavors active at each given scale, since the evolution path
   can be different depending of the chosen setting. This path is determined by :meth:`eko.thresholds.ThresholdsAtlas.path`.
 
   Let us consider an example to better illustrate how it works.
   Imagine to have a boundary condition ``q2_ref=64, nf_ref=3`` and would like to evolve your object (|PDF| or :math:`a_s`) to a lower
   scale (say ``Q=7``) but giving different number of active flavors to the final state and having set the heavy quarks mass thresholds
-  at: ``mc=2, mb=3, mt=4``. In this case some possible paths are:
+  at: ``mc=2, mb=3, mt=4``.
 
-    - a path to ``Q=7`` with ``nf=6`` (default) which is given by the following list of :class:`eko.thresholds.PathSegment` :
+  .. code-block::
+
+    ThresholdsAtlas [0.00e+00 - 4.00e+00 - 9.00e+00 - 16.00e+00 - inf], ref=49.000000000000001 @ 3
+
+  In this case some possible paths are:
+
+    - a path to ``Q=7`` with ``nf=6`` which is given by the following list of :class:`eko.thresholds.PathSegment` :
 
       .. code-block::
 
         [PathSegment(64 -> 4, nf=3), PathSegment(4 -> 9, nf=4), PathSegment(9 -> 16, nf=5), PathSegment(16 -> 49, nf=6)]
 
-      and it's determined according to the list of heavy quark thresholds.
+      and it's determined according to the list of heavy quark thresholds. This path is default option when the argument
+      ``nf_to`` is not given.
 
     - A path to ``Q=7`` enforcing ``nf=3`` which will simply contain a single :class:`eko.thresholds.PathSegment`:
 
@@ -43,9 +52,11 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
   You can noticed that :meth:`eko.thresholds.ThresholdsAtlas.path` are always ordered according to `nf` and not `Q2` scales.
   This property is used in |VFNS| to determine if a path is backward or not modifying the way the different patches are matched.
 
-.. include:: IO-tabs/ThresholdConfig.rst
 
+- :class:`eko.strong_coupling.StrongCoupling`: Implementation of the :ref:`theory/pQCD:strong coupling`
 
-- :class:`eko.strong_coupling.StrongCoupling` Implementation of the :ref:`theory/pQCD:strong coupling`
+  .. include:: IO-tabs/StrongCoupling.rst
 
-- :class:`eko.interpolation.InterpolatorDispatcher` Implementation of the :doc:`../theory/Interpolation`
+- :class:`eko.interpolation.InterpolatorDispatcher`: Implementation of the :doc:`../theory/Interpolation`
+
+  .. include:: IO-tabs/InterpolatorDispatcher.rst

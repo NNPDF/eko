@@ -243,7 +243,7 @@ class OperatorGrid:
         )
         operator.compute()
         intrinsic_range = self.config["intrinsic_range"]
-        is_downward = is_downward_path(path)[0]
+        is_downward, _ = is_downward_path(path)
         if is_downward:
             intrinsic_range = [4, 5, 6]
         final_op = physical.PhysicalOperator.ad_to_evol_map(
@@ -288,7 +288,7 @@ class OperatorGrid:
             "operators": values,
             "operator_errors": errors,
             "alphas": self.managers["strong_coupling"].a_s(
-                q2 / fact_to_ren, fact_scale=q2
+                q2 / fact_to_ren, fact_scale=q2, nf_to=path[-1].nf
             )
             * 4.0
             * np.pi,
