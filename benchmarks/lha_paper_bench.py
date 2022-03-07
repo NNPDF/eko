@@ -83,7 +83,6 @@ class LHABenchmark(Runner):
         high["PTO"] = pto
         high["fact_to_ren_scale_ratio"] = np.sqrt(2.0)
         high["ModSV"] = "exponentiated"
-        high["nfref"] = 4
         return [high, low]
 
     @staticmethod
@@ -211,6 +210,7 @@ class BenchmarkRunner(BenchmarkVFNS):
         if self.external == "apfel":
             for sv_theory in [low, high]:
                 sv_theory["kcThr"] = 1.0 + 1e-15
+                sv_theory["nfref"] = 4
                 sv_theory["EScaleVar"] = 0
         low["XIR"] = np.sqrt(2.0)
         high["XIR"] = np.sqrt(0.5)

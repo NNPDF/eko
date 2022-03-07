@@ -11,6 +11,8 @@ import numbers
 
 import numpy as np
 
+from eko.thresholds import is_downward_path
+
 from .. import basis_rotation as br
 from .. import matching_conditions, member
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
@@ -154,7 +156,7 @@ class OperatorGrid:
         It computes and stores the necessary macthing operators
         Parameters
         ----------
-            path: list(PathSegment)
+            path: list(`eko.thresholds.PathSegment`)
                 thresholds path
 
         Returns
@@ -163,9 +165,11 @@ class OperatorGrid:
         """
         # The base area is always that of the reference q
         thr_ops = []
+        # is_downward point to smaller nf
+        is_downward, shift = is_downward_path(path)
         for seg in path[:-1]:
             new_op_key = seg.tuple
-            ome = OperatorMatrixElement(self.config, self.managers, seg.is_backward)
+            ome = OperatorMatrixElement(self.config, self.managers, is_downward)
             if new_op_key not in self._threshold_operators:
                 # Compute the operator and store it
                 logger.info("Prepare threshold operator")
@@ -179,8 +183,6 @@ class OperatorGrid:
             # Compute the matching conditions and store it
             if seg.q2_to not in self._matching_operators:
                 thr_config = self.managers["thresholds_config"]
-                # is_backward point to the smaller q2
-                shift = 3 if not seg.is_backward else 4
                 kthr = thr_config.thresholds_ratios[seg.nf - shift]
                 ome.compute(
                     seg.q2_to,
@@ -241,7 +243,8 @@ class OperatorGrid:
         )
         operator.compute()
         intrinsic_range = self.config["intrinsic_range"]
-        if path[-1].is_backward:
+        is_downward = is_downward_path(path)[0]
+        if is_downward:
             intrinsic_range = [4, 5, 6]
         final_op = physical.PhysicalOperator.ad_to_evol_map(
             operator.op_members,
@@ -250,14 +253,13 @@ class OperatorGrid:
             intrinsic_range,
         )
         # and multiply the lower ones from the right
-        for i, op in reversed(list(enumerate(thr_ops))):
-            is_backward = path[i].is_backward
+        for op in reversed(list(thr_ops)):
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
                 op.op_members, op.nf, op.q2_to, intrinsic_range
             )
 
             # join with the basis rotation, since matching requires c+ (or likewise)
-            if is_backward:
+            if is_downward:
                 matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
                     self._matching_operators[op.q2_to],
                     op.nf - 1,

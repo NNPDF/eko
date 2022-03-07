@@ -371,10 +371,7 @@ class StrongCoupling:
         # Set up the path to follow in order to go from q2_0 to q2_ref
         final_as = self.as_ref
         path = self.thresholds.path(scale_to, nf_to)
-        is_downward_path = False
-        if len(path) > 1:
-            is_downward_path = path[1].nf < path[0].nf
-        shift = 3 if not is_downward_path else 4
+        is_downward, shift = thresholds.is_downward_path(path)
 
         # as a default assume mu_F^2 = mu_R^2
         if fact_scale is None:
@@ -394,7 +391,7 @@ class StrongCoupling:
                 )
                 m_coeffs = (
                     compute_matching_coeffs_down(self.hqm_scheme, seg.nf - 1)
-                    if is_downward_path
+                    if is_downward
                     else compute_matching_coeffs_up(self.hqm_scheme, seg.nf)
                 )
                 fact = 1.0
@@ -402,7 +399,6 @@ class StrongCoupling:
                 for n in range(1, self.order + 1):
                     for l in range(n + 1):
                         fact += new_as**n * L**l * m_coeffs[n, l]
-                # shift
                 new_as *= fact
             final_as = new_as
         return final_as
