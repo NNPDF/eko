@@ -113,3 +113,21 @@ markers = ["isolated: marks benchmarks as isolated"]
 [tool.isort]
 profile = "black"
 extend_skip_glob = ["env/*"]
+
+[tool.pylint.master]
+# extensions not to check
+extension-pkg-whitelist=["numpy","numba","lhapdf","pegasus"]
+ignore-paths=["benchmarks/","doc/","tests/"]
+jobs=1 # has to be 1 as pylint is NOT threadsafe
+[tool.pylint.messages_control]
+disable=["invalid-name","fixme"]
+[tool.pylint.reports]
+# Available formats are:
+# text, parseable, colorized, json and msvs (visual studio).
+output-format="colorized"
+[tool.pylint.format]
+# Maximum number of characters on a single line.
+max-line-length=100
+[tool.pylint.design]
+# Maximum number of arguments for function / method
+max-args=10
