@@ -46,6 +46,11 @@ have to be applied :cite:`Schroder:2005hy,Chetyrkin:2005ia`.
 In particular, the matching involved in the change from :math:`n_f` to :math:`n_f-1` schemes
 is presented in equation 3.1 of :cite:`Schroder:2005hy` for |MSbar| masses, while the
 same expression for POLE masses is reported in Appendix A.
+For this reason the boundary conditions of :class:`eko.strong_coupling.StrongCoupling`
+can be specified at `scale_ref` along with ``nf_ref`` and, the computed result can
+depend on the number of flavors at the target scale, see :meth:`StrongCoupling.a_s`
+An example how the evolution path is determined is given :doc:`here</code/Utilities/>`.
+
 
 QCD Splitting Functions
 -----------------------
