@@ -64,7 +64,6 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
             theory,
             op,
             name="EvPDF",
-            path=str(pathlib.Path(__file__).parent.resolve()) + "/cached_out",
             info_update={"SetDesc": "MyEvolvedPDF", "MZ": 0.2, "Debug": "Debug"},
         )
     with lhapdf_path(tmp_path):
