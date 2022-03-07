@@ -42,7 +42,7 @@ def array_to_str(ar):
     """
     table = ""
     for line in ar:
-        table += f"{line[0]:.8e}" + list_to_str(line[1:], fmt="%.8e") + "\n"
+        table += f"{line[0]:.8e} " + list_to_str(line[1:], fmt="%.8e") + "\n"
     return table
 
 
