@@ -55,6 +55,7 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
 
 - :class:`eko.strong_coupling.StrongCoupling`: Implementation of the :ref:`theory/pQCD:strong coupling`
 
+..
   .. include:: IO-tabs/StrongCoupling.rst
 
 - :class:`eko.interpolation.InterpolatorDispatcher`: Implementation of the :doc:`../theory/Interpolation`

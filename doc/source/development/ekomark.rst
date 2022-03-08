@@ -30,7 +30,7 @@ Ekomark is composed by four subpackages:
 * ``plot`` containing all the scripts to produce the output plots.
 
 
-The banana configuration is loaded from ``banana_cfg.py`` file.
+The banana configuration is loaded from ``banana/cfg.py`` file.
 To run Ekomark see the section of the available :doc:`runners<ekomark_runners>`.
 Furthermore Ekomark provides also a python interpreter called `ekonavigator` to inspect
 the cached benchmark results.
