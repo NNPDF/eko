@@ -8,8 +8,6 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
   -  Implementation of the flavor number scheme and the quark thresholds both for
      the :class:`eko.strong_coupling.StrongCoupling` and the :doc:`operators <../theory/Matching>`
 
-  .. include:: IO-tabs/ThresholdConfig.rst
-
   When running in |VFNS| it is important to specify the number of flavors active at each given scale, since the evolution path
   can be different depending of the chosen setting. This path is determined by :meth:`eko.thresholds.ThresholdsAtlas.path`.
 
@@ -55,8 +53,4 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
 
 - :class:`eko.strong_coupling.StrongCoupling`: Implementation of the :ref:`theory/pQCD:strong coupling`
 
-  .. include:: IO-tabs/StrongCoupling.rst
-
 - :class:`eko.interpolation.InterpolatorDispatcher`: Implementation of the :doc:`../theory/Interpolation`
-
-  .. include:: IO-tabs/InterpolatorDispatcher.rst
