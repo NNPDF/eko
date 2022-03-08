@@ -46,6 +46,7 @@ EKO is ...
     :hidden:
 
     code/IO
+    code/interface
     API <modules/eko/eko>
     code/Operators
     code/Utilities
@@ -58,5 +59,4 @@ EKO is ...
 
     development/Benchmarks.rst
     development/ekomark.rst
-    development/ekobox/ekobox.rst
     development/code_todos

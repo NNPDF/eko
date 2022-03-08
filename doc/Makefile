@@ -12,7 +12,7 @@ EKOOUT = $(SOURCEDIR)/modules/eko
 EKOMARKDIR = ../src/ekomark
 EKOMARKOUT = $(SOURCEDIR)/development/ekomark
 EKOBOXKDIR = ../src/ekobox
-EKOBOXKOUT = $(SOURCEDIR)/development/ekobox
+EKOBOXKOUT = $(SOURCEDIR)/code/ekobox
 
 TODOOUTFILE = ./source/development/code_todos.rst
 

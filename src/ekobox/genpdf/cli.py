@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-This module defines the CLI - see :doc:`here </tools/genpdf>`
+This module defines the CLI - see :doc:`here </code/genpdf>`
 """
 
 import click

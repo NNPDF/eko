@@ -3,7 +3,7 @@ source/development/code_todos.rst
 # Ignore auto generated module references
 source/modules
 source/development/ekomark
-source/development/ekobox
+source/code/ekobox
 # ignore temporary build files
 _build/
 # Ignore generated sphinx-bibtex file
