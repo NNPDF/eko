@@ -11,6 +11,8 @@ EKODIR = ../src/eko
 EKOOUT = $(SOURCEDIR)/modules/eko
 EKOMARKDIR = ../src/ekomark
 EKOMARKOUT = $(SOURCEDIR)/development/ekomark
+EKOBOXKDIR = ../src/ekobox
+EKOBOXKOUT = $(SOURCEDIR)/development/ekobox
 
 TODOOUTFILE = ./source/development/code_todos.rst
 
@@ -35,7 +37,9 @@ clean:
 	rm -rf _build
 
 cleanall: clean clean-todos
-	rm -rf $(SOURCEDIR)/modules
+	rm -rf $(EKOOUT)
+	rm -rf $(EKOMARKOUT)
+	rm -rf $(EKOBOXKOUT)
 
 # TODOs
 todos:

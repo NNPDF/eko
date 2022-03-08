@@ -328,6 +328,11 @@ def run_apidoc(_):
     package = here.parents[1] / "src" / "ekomark"
     main(["--module-first", "-o", str(docs_dest), str(package)])
     (docs_dest / "modules.rst").unlink()
+    # 'ekobox'
+    docs_dest = here / "development" / "ekobox"
+    package = here.parents[1] / "src" / "ekobox"
+    main(["--module-first", "-o", str(docs_dest), str(package)])
+    (docs_dest / "modules.rst").unlink()
 
 
 def setup(app):
