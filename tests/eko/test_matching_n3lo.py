@@ -1,28 +1,13 @@
 # -*- coding: utf-8 -*-
-# Test NNLO OME
+# Test N3LO OME
 import numpy as np
 
-from eko.anomalous_dimensions import harmonics
-from eko.matching_conditions.n3lo import A_ns_3, A_singlet_3, A_qqNS_3
 from eko.matching_conditions import n3lo
+from eko.matching_conditions.n3lo import A_ns_3, A_qqNS_3, A_singlet_3
 from eko.matching_conditions.operator_matrix_element import get_s3x, get_s4x, get_smx
 
 
-def get_sx(N):
-    """Collect the S-cache"""
-    sx = np.array(
-        [
-            harmonics.harmonic_S1(N),
-            harmonics.harmonic_S2(N),
-            harmonics.harmonic_S3(N),
-            harmonics.harmonic_S4(N),
-            harmonics.harmonic_S5(N),
-        ]
-    )
-    return sx
-
-
-def test_A_3():
+def test_A_3(get_sx):
     logs = [0, 10]
     nf = 3
 
@@ -87,8 +72,8 @@ def test_A_3():
     np.testing.assert_allclose(aNS3[1, 1], 0)
 
 
-def test_Bluemlein_3():
-    # Test against Bluemlein OME implementation :cite:`Bierenbaum:2009mv`.
+def test_Blumlein_3(get_sx):
+    # Test against Blumlein OME implementation :cite:`Bierenbaum:2009mv`.
     # For singlet OME only even moments are available in that code.
     # Note there is a minus sign in the definition of L.
 
@@ -184,7 +169,7 @@ def test_Bluemlein_3():
             )
 
             # here we have a different convention for (-1)^N,
-            # for even values qqNS is analitically continued
+            # for even values qqNS is analytically continued
             # as non singlet. The accuracy is worst for large N
             # due to the approximations of F functions.
             np.testing.assert_allclose(
@@ -224,7 +209,7 @@ def test_Bluemlein_3():
         )
 
 
-def test_AHq_asymptotic():
+def test_AHq_asymptotic(get_sx):
     refs = [
         -1.06712,
         0.476901,

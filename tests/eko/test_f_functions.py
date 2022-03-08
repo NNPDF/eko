@@ -3,8 +3,8 @@
 
 import numpy as np
 
-from eko.anomalous_dimensions import harmonics
 import eko.matching_conditions.n3lo.s_functions as sf
+from eko.anomalous_dimensions import harmonics
 
 zeta2 = harmonics.zeta2
 zeta3 = harmonics.zeta3

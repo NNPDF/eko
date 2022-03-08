@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-# Test G functions implemented by muselli PhD
+# Test G functions implemented by Muselli PhD
 
 import numpy as np
 
-from eko.anomalous_dimensions import harmonics
 import eko.matching_conditions.n3lo.s_functions as sf
+from eko.anomalous_dimensions import harmonics
 
 zeta3 = harmonics.zeta3
 log2 = np.log(2)
@@ -13,7 +13,7 @@ log2 = np.log(2)
 testN = [1, 10, 100]
 
 
-# copare the exact values of some harmonics with Muselli parametrisations
+# compare the exact values of some harmonics with Muselli parametrization
 def test_g4():
     refvals = [-1, -1.34359, -1.40286]
     for N, vals in zip(testN, refvals):

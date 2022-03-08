@@ -14,6 +14,8 @@ def get_sx():
                 harmonics.harmonic_S1(N),
                 harmonics.harmonic_S2(N),
                 harmonics.harmonic_S3(N),
+                harmonics.harmonic_S4(N),
+                harmonics.harmonic_S5(N),
             ]
         )
         return sx

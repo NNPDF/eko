@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Test some harmomics and the binomial factor
+# Test some harmonics
 
 import numpy as np
 
