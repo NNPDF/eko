@@ -46,6 +46,7 @@ EKO is ...
     :hidden:
 
     code/IO
+    code/interface
     API <modules/eko/eko>
     code/Operators
     code/Utilities

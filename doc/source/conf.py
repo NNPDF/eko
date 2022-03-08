@@ -319,15 +319,14 @@ def run_apidoc(_):
 
     sys.path.append(str(here.parent))
     # 'eko'
-    docs_dest = here / "modules" / "eko"
-    package = here.parents[1] / "src" / "eko"
-    main(["--module-first", "-o", str(docs_dest), str(package)])
-    (docs_dest / "modules.rst").unlink()
-    # 'ekomark'
-    docs_dest = here / "development" / "ekomark"
-    package = here.parents[1] / "src" / "ekomark"
-    main(["--module-first", "-o", str(docs_dest), str(package)])
-    (docs_dest / "modules.rst").unlink()
+    for pkg, docs_dest in dict(
+        eko=here / "modules" / "eko",
+        ekomark=here / "development" / "ekomark",
+        ekobox=here / "code" / "ekobox",
+    ).items():
+        package = here.parents[1] / "src" / pkg
+        main(["--module-first", "-o", str(docs_dest), str(package)])
+        (docs_dest / "modules.rst").unlink()
 
 
 def setup(app):

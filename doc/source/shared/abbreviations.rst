@@ -94,3 +94,7 @@
 .. |T| raw:: html
 
    <span class="green">✓</span>
+
+
+.. |API| replace::
+   :abbr:`API (Application Program Interface)`
