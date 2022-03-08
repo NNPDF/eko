@@ -76,8 +76,10 @@ ekonav = "ekomark.navigator:launch_navigator"
 [tool.poe.tasks]
 test = "pytest tests"
 bench = "pytest benchmarks"
-bench-iso = "pytest benchmarks -m isolated"
-bench-run = "pytest benchmarks -m 'not isolated'"
+bench-iso.cmd = "pytest benchmarks -m isolated"
+bench-iso.env.NUMBA_DISABLE_JIT.default = "0"
+bench-run.cmd = "pytest benchmarks -m 'not isolated'"
+bench-run.env.NUMBA_DISABLE_JIT.default = "0"
 lint = "pylint src/**/*.py -E"
 lint-warnings = "pylint src/**/*.py --exit-zero"
 sandbox = "python benchmarks/sandbox.py"
@@ -101,7 +103,7 @@ addopts = [
   '--cov-report=xml',
   '--strict-markers',
 ]
-env = ["NUMBA_DISABLE_JIT=1"]
+env = ["D:NUMBA_DISABLE_JIT=1"]
 markers = ["isolated: marks benchmarks as isolated"]
 
 [tool.pylint.master]

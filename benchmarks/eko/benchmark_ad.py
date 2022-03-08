@@ -14,7 +14,6 @@ def benchmark_melling_g3_pegasus():
         check_melling_g3_pegasus(N)
 
 
-@pytest.mark.isolated
 def check_melling_g3_pegasus(N):
     S1 = h.harmonic_S1(N)
     N1 = N + 1.0
@@ -40,25 +39,23 @@ def check_melling_g3_pegasus(N):
         - 0.3174 * (zeta2 - S15 / N5) / N5
         + 0.0699 * (zeta2 - S16 / N6) / N6
     )
-
     np.testing.assert_allclose(h.mellin_g3(N), SPMOM)
 
 
 @pytest.mark.isolated
 def benchmark_gamma_ns_1_pegasus():
-    for N in range(10):
+    # remember that singlet has pole at N=1
+    for N in [2, 3, 4, 1 + 1j, 1 - 1j, 2 + 1j, 3 + 1j]:
         for NF in [3, 4, 5]:
-            check_gamma_ns_1_pegasus(N, NF)
+            check_gamma_1_pegasus(N, NF)
 
 
-@pytest.mark.isolated
-def check_gamma_ns_1_pegasus(N, NF):
-    # pylint: disable=line-too-long,too-many-locals,too-many-statements
+def check_gamma_1_pegasus(N, NF):
     # Test against pegasus implementation
     ZETA2 = h.zeta2
     ZETA3 = h.zeta3
 
-    N = np.random.rand(1) + np.random.rand(1) * 1j
+    # N = np.random.rand(1) + np.random.rand(1) * 1j
     S1 = h.harmonic_S1(N)
     S2 = h.harmonic_S2(N)
 
