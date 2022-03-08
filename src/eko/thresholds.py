@@ -276,13 +276,25 @@ def is_downward_path(path):
     Returns
     -------
         is_downward: bool
-            True is number of flavor is decreasing
+            True for a downward path
+    """
+    if len(path) == 1:
+        return path[0].is_downward_q2
+    return path[1].nf < path[0].nf
+
+
+def flavor_shift(is_downward):
+    """
+    Determine the shift to number of light flavors
+
+    Parameters
+    ----------
+        is_downward: bool
+            True for a downward path
+
+    Returns
+    -------
         shift: 3, 4
             shift to number of light flavors
     """
-    if len(path) == 1:
-        is_downward = path[0].is_downward_q2
-    else:
-        is_downward = path[1].nf < path[0].nf
-    shift = 4 if is_downward else 3
-    return is_downward, shift
+    return 4 if is_downward else 3

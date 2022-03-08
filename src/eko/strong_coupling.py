@@ -371,7 +371,8 @@ class StrongCoupling:
         # Set up the path to follow in order to go from q2_0 to q2_ref
         final_as = self.as_ref
         path = self.thresholds.path(scale_to, nf_to)
-        is_downward, shift = thresholds.is_downward_path(path)
+        is_downward = thresholds.is_downward_path(path)
+        shift = thresholds.flavor_shift(is_downward)
 
         # as a default assume mu_F^2 = mu_R^2
         if fact_scale is None:

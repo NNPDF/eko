@@ -11,7 +11,7 @@ import numbers
 
 import numpy as np
 
-from eko.thresholds import is_downward_path
+from eko.thresholds import flavor_shift, is_downward_path
 
 from .. import basis_rotation as br
 from .. import matching_conditions, member
@@ -166,7 +166,8 @@ class OperatorGrid:
         # The base area is always that of the reference q
         thr_ops = []
         # is_downward point to smaller nf
-        is_downward, shift = is_downward_path(path)
+        is_downward = is_downward_path(path)
+        shift = flavor_shift(is_downward)
         for seg in path[:-1]:
             new_op_key = seg.tuple
             ome = OperatorMatrixElement(self.config, self.managers, is_downward)
@@ -243,7 +244,7 @@ class OperatorGrid:
         )
         operator.compute()
         intrinsic_range = self.config["intrinsic_range"]
-        is_downward, _ = is_downward_path(path)
+        is_downward = is_downward_path(path)
         if is_downward:
             intrinsic_range = [4, 5, 6]
         final_op = physical.PhysicalOperator.ad_to_evol_map(

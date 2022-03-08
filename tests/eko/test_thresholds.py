@@ -5,7 +5,7 @@
 import numpy as np
 import pytest
 
-from eko.thresholds import PathSegment, ThresholdsAtlas, is_downward_path
+from eko.thresholds import PathSegment, ThresholdsAtlas, flavor_shift, is_downward_path
 
 
 class TestPathSegment:
@@ -199,7 +199,7 @@ class TestThresholdsAtlas:
             )
 
 
-def test_is_downward_path():
+def test_downward_path():
     thr_atlas = ThresholdsAtlas(
         masses=np.power([2, 3, 4], 2),
         q2_ref=91**2,
@@ -209,11 +209,11 @@ def test_is_downward_path():
     q2_to = 5**2
     path_3 = thr_atlas.path(q2_to, nf_to=3)
     # path_3 is downward in q2
-    is_downward, shift = is_downward_path(path_3)
+    is_downward = is_downward_path(path_3)
     assert is_downward is True
-    assert shift == 4
+    assert flavor_shift(is_downward) == 4
     # path_6 is downward in q2, but forward in nf
     path_6 = thr_atlas.path(q2_to, nf_to=6)
-    is_downward, shift = is_downward_path(path_6)
+    is_downward = is_downward_path(path_6)
     assert is_downward is False
-    assert shift == 3
+    assert flavor_shift(is_downward) == 3

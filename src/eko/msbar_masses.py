@@ -10,7 +10,7 @@ from .basis_rotation import quark_names
 from .beta import b, beta
 from .gamma import gamma
 from .strong_coupling import StrongCoupling, invert_matching_coeffs
-from .thresholds import ThresholdsAtlas, is_downward_path
+from .thresholds import ThresholdsAtlas, flavor_shift, is_downward_path
 
 
 def ker_exact(a0, a1, order, nf):
@@ -304,7 +304,8 @@ def evolve(
         strong_coupling.thresholds.thresholds_ratios,
     )
     path = thr_atlas.path(q2_to, nf_to)
-    is_downward, shift = is_downward_path(path)
+    is_downward = is_downward_path(path)
+    shift = flavor_shift(is_downward)
 
     ev_mass = 1.0
     for k, seg in enumerate(path):
