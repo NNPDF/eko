@@ -44,8 +44,7 @@ theory_dict = {
 class BenchmarkMSbar:
     def benchmark_APFEL_msbar_evolution(self):
         theory = copy.deepcopy(theory_dict)
-        Q2s = np.power([1, 96, 150], 2)
-        nfs = [3, 5, 5]
+        bench_values = dict(zip(np.power([1, 96, 150], 2), [3, 5, 5]))
         theory.update(
             {
                 "mc": 1.4,
@@ -120,7 +119,7 @@ class BenchmarkMSbar:
                     hqm_scheme=theory["HQ"],
                 )
                 my_vals = []
-                for nf_to, Q2 in zip(nfs, Q2s):
+                for Q2, nf_to in bench_values.items():
                     my_masses = []
                     for n in [3, 4, 5]:
                         my_masses.append(
@@ -153,7 +152,7 @@ class BenchmarkMSbar:
                     apfel.InitializeAPFEL()
                     # collect apfel masses
                     apfel_vals_cur = []
-                    for Q2 in Q2s:
+                    for Q2 in bench_values:
                         masses = []
                         for n in [4, 5, 6]:
                             masses.append(apfel.HeavyQuarkMass(n, np.sqrt(Q2)))
@@ -201,7 +200,6 @@ class BenchmarkMSbar:
                 )
                 apfel.SetRenFacRatio(theory_dict["fact_to_ren_scale_ratio"])
                 apfel.InitializeAPFEL()
-                apfel.EnableWelcomeMessage(1)
             # check myself to APFEL
             np.testing.assert_allclose(
                 apfel_vals, np.sqrt(np.array(my_masses)), rtol=4e-4

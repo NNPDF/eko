@@ -68,7 +68,7 @@ class BenchmarkVFNS(ApfelBenchmark):
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
 
-    def benchmark_sv(self, pto, scheme):
+    def benchmark_sv(self, pto, svmode):
         """Scale Variation"""
 
         th = self.vfns_theory.copy()
@@ -77,7 +77,7 @@ class BenchmarkVFNS(ApfelBenchmark):
                 "PTO": [pto],
                 "XIR": [1 / np.sqrt(2.0)],
                 "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
-                "ModSV": [scheme],
+                "ModSV": [svmode],
                 "EScaleVar": [0],
                 "nfref": [4],
             }
@@ -159,7 +159,7 @@ class BenchmarkFFNS(ApfelBenchmark):
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
 
-    def benchmark_sv(self, pto, scheme):
+    def benchmark_sv(self, pto, svmode):
         """Scale Variation"""
 
         ts = []
@@ -169,7 +169,7 @@ class BenchmarkFFNS(ApfelBenchmark):
                 "PTO": [pto],
                 "XIR": [np.sqrt(0.5)],
                 "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
-                "ModSV": [scheme],
+                "ModSV": [svmode],
                 "EScaleVar": [0],
             }
         )
@@ -180,7 +180,7 @@ class BenchmarkFFNS(ApfelBenchmark):
                 "PTO": [pto],
                 "XIR": [np.sqrt(2.0)],
                 "fact_to_ren_scale_ratio": [np.sqrt(0.5)],
-                "ModSV": [scheme],
+                "ModSV": [svmode],
                 "EScaleVar": [0],
             }
         )
