@@ -9,7 +9,7 @@ from sqlalchemy import Boolean, Column, Integer, Text
 
 class Operator(Base):  # pylint: disable=too-few-public-methods
     """
-    Operator cards tbale
+    Operator cards table
     """
 
     __tablename__ = "operators"

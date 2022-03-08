@@ -8,7 +8,10 @@ import pprint
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.cm import get_cmap
 from matplotlib.colors import LogNorm
+
+from eko import basis_rotation as br
 
 
 def input_figure(theory, ops, pdf_name=None):
@@ -163,43 +166,52 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
     # op = ret["operators"][var_name]
     # op_err = ret["operator_errors"][var_name]
 
+    # empty?
+    thre = 1e-8
+    if np.max(np.abs(op)) <= thre:
+        return None
+
     fig = plt.figure(figsize=(25, 5))
     fig.suptitle(var_name)
-
-    # empty?
-    if np.max(op) <= 0.0:
-        return fig
 
     # TODO fix File "/usr/lib/python3/dist-packages/matplotlib/colors.py",
     # line 1181, in _check_vmin_vmax
     # raise ValueError("minvalue must be positive")
 
+    # Settings
+    colormap = "coolwarm"
     ax = plt.subplot(1, 3, 1)
     if abs_operator:
         plt.title("|operator|")
+        colormap = "inferno"
+        op = np.abs(op)
     else:
         plt.title("operator")
-    norm = LogNorm() if log_operator else None
-    if abs_operator:
-        op = np.abs(op)
-    im = plt.imshow(op, norm=norm, aspect="auto")
-    plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
 
+    norm = LogNorm() if log_operator else None
+    cmap = get_cmap(colormap)
+    # Plotting operator
+    im = plt.imshow(op, cmap=cmap, norm=norm, aspect="auto")
+    plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
+    # Plotting operator error
     ax = plt.subplot(1, 3, 2)
     plt.title("operator_error")
-
     im = plt.imshow(op_err, norm=norm, aspect="auto")
     plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
-
+    # Plotting ratio
     ax = plt.subplot(1, 3, 3)
     plt.title("|error/value|")
+    # Avoid the numpy warning
+    old_settings = np.seterr(divide="ignore", invalid="ignore")
     err_to_val = np.abs(np.array(op_err) / np.array(op))
+    np.seterr(**old_settings)
+
     im = plt.imshow(err_to_val, norm=norm, aspect="auto")
     plt.colorbar(im, ax=ax, fraction=0.034, pad=0.04)
     return fig
 
 
-def save_operators_to_pdf(path, theory, ops, me, skip_pdfs):
+def save_operators_to_pdf(path, theory, ops, me, skip_pdfs, change_lab=False):
     """
         Output all operator heatmaps to PDF.
 
@@ -215,13 +227,13 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs):
             DGLAP result
         skip_pdfs : list
             PDF to skip
+        change_lab : bool
+            set whether to rename the labels
     """
-
-    ops_names = list(me["pids"])
+    ops_names = list(me["targetpids"])
     ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
     path = f"{path}/{ops_id}.pdf"
     print(f"Plotting operators plots to {path}")
-
     with PdfPages(path) as pp:
         # print setup
         firstPage = input_figure(theory, ops)
@@ -255,13 +267,21 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs):
                 for label_in in ops_names:
                     if label_in in skip_pdfs:
                         continue
+                    lab_in = label_in
+                    lab_out = label_out
+                    if change_lab:
+                        index_in = br.evol_basis_pids.index(label_in)
+                        index_out = br.evol_basis_pids.index(label_out)
+                        lab_in = br.evol_basis[index_in]
+                        lab_out = br.evol_basis[index_out]
                     try:
                         fig = plot_operator(
-                            f"Operator ({label_in};{label_out}) µ_F^2 = {q2} GeV^2",
+                            f"Operator ({lab_in};{lab_out}) µ_F^2 = {q2} GeV^2",
                             new_op[label_in],
                             new_op_err[label_in],
                         )
-                        pp.savefig()
+                        if fig is not None:
+                            pp.savefig()
                     finally:
                         if fig:
                             plt.close(fig)
