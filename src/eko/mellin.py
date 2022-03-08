@@ -166,8 +166,7 @@ def edge_path(t, m, c, phi):
     """
     if t < 0.5:  # turning point: path is not differentiable in this point
         return c + (0.5 - t) * m * np.exp(complex(0, -phi))
-    else:
-        return c + (t - 0.5) * m * np.exp(complex(0, +phi))
+    return c + (t - 0.5) * m * np.exp(complex(0, +phi))
 
 
 @nb.njit("c16(f8,f8,f8,f8)", cache=True)
@@ -196,8 +195,7 @@ def edge_jac(t, m, _c, phi):
     """
     if t < 0.5:  # turning point: jacobian is not continuous here
         return -m * np.exp(complex(0, -phi))
-    else:
-        return +m * np.exp(complex(0, phi))
+    return +m * np.exp(complex(0, phi))
 
 
 spec = [

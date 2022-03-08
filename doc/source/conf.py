@@ -305,10 +305,9 @@ def process_numba_docstring(
     """Recover the docstring under numba, as the numba.njit decorator doesn't repeat the __doc__"""
     if not isinstance(obj, nb.core.registry.CPUDispatcher):
         return
-    else:
-        original = obj.py_func
-        orig_sig = inspect.signature(original)
-        lines = orig_sig.__doc__
+    original = obj.py_func
+    orig_sig = inspect.signature(original)
+    lines = orig_sig.__doc__
 
 
 # https://github.com/readthedocs/readthedocs.org/issues/1139#issuecomment-312626491

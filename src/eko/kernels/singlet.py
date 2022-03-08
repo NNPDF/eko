@@ -532,12 +532,9 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     elif method == "decompose-exact":
         if order == 1:
             return nlo_decompose_exact(gamma_singlet, a1, a0, nf)
-        else:
-            return nnlo_decompose_exact(gamma_singlet, a1, a0, nf)
+        return nnlo_decompose_exact(gamma_singlet, a1, a0, nf)
     elif method == "decompose-expanded":
         if order == 1:
             return nlo_decompose_expanded(gamma_singlet, a1, a0, nf)
-        else:
-            return nnlo_decompose_expanded(gamma_singlet, a1, a0, nf)
-    else:
-        raise NotImplementedError("Selected method is not implemented")
+        return nnlo_decompose_expanded(gamma_singlet, a1, a0, nf)
+    raise NotImplementedError("Selected method is not implemented")
