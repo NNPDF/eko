@@ -155,7 +155,7 @@ Furthermore the distance between the varied |EKO| and the unvaried one will decr
 keeping higher order terms in :math:`a_s`
 
 Notice that in principle the two methods should be equivalent, especially for fully
-linearized solutions (``ModEv=truncated``,``ev_op_iterations=1``),
+linearized solutions (``ModEv=truncated``, ``ev_op_iterations=1``),
 where the difference depends only on the perturbative expansion in :math:`a_s`.
 However, in our implementation this is not exactly true;
 since the integral of :math:`-\frac{\gamma(a_s)}{\beta(a_s)}` is evaluated before
