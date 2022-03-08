@@ -1,9 +1,6 @@
 name: tests
 
-on:
-  push:
-    branches-ignore:
-      - "*docs*"
+on: push
 
 jobs:
   py37:

@@ -15,7 +15,7 @@ from banana.data import dfdict
 import eko
 from eko import basis_rotation as br
 
-from .. import pdfname
+from .. import apply, pdfname
 from ..data import db, operators
 
 
@@ -83,7 +83,7 @@ class Runner(BenchmarkRunner):
             if rerun:
                 out = eko.run_dglap(theory, ocard)
                 print(f"Writing operator to {path}")
-                out.dump_yaml_to_file(path)
+                out.dump_tar(path)
             else:
                 # load
                 print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
@@ -91,6 +91,7 @@ class Runner(BenchmarkRunner):
                     out = eko.output.Output.load_yaml(o)
 
             if self.plot_operator:
+
                 from ekomark.plots import (  # pylint:disable=import-error,import-outside-toplevel
                     save_operators_to_pdf,
                 )
@@ -98,8 +99,20 @@ class Runner(BenchmarkRunner):
                 output_path = f"{banana_cfg.cfg['database_path'].parents[0]}/{self.external}_bench"
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
+                # rotating to evolution basis if requested
+                out_copy = eko.output.Output.load_tar(path)
+                change_lab = False
+                if self.rotate_to_evolution_basis:
+                    out_copy.to_evol(source=True, target=True)
+                    change_lab = True
+
                 save_operators_to_pdf(
-                    output_path, theory, ocard, out, self.skip_pdfs(theory)
+                    output_path,
+                    theory,
+                    ocard,
+                    out_copy,
+                    self.skip_pdfs(theory),
+                    change_lab,
                 )
         else:
             out = eko.run_dglap(theory, ocard)
@@ -170,7 +183,8 @@ class Runner(BenchmarkRunner):
             ):
                 rotate_to_evolution[3, :] = [0, 0, 0, 0, 0, -1, -1, 0, 1, 1, 0, 0, 0, 0]
 
-        pdf_grid = me.apply_pdf_flavor(
+        pdf_grid = apply.apply_pdf_flavor(
+            me,
             pdf,
             xgrid,
             flavor_rotation=rotate_to_evolution,

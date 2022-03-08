@@ -1,0 +1,57 @@
+name: isolated benchmarks
+
+on: push
+
+jobs:
+  isobench:
+    name: 🏝️ Isolated Benchmarks
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/n3pdf/bench-evol:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # tags needed for dynamic versioning
+          fetch-depth: 0
+      - name: Install and configure Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          # update path for this and the other steps
+          export PATH=$HOME/.local/bin:$PATH
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          # prevent poetry environments
+          # in order to access container pre-installed packages
+          poetry config virtualenvs.create false
+          # log all configurations
+          poetry config --list
+      - name: Install version management tool
+        run: |
+          # same poetry env
+          PIP="$(head -n1 $(which poetry) | cut -c 3-) -m pip"
+          ${PIP} install poetry-dynamic-versioning
+      - name: Install project
+        run: |
+          poetry install --no-interaction -E mark -E box
+      - name: Install task runner
+        run: pip install poethepoet
+      - name: Lint with pylint
+        run: |
+          # Search for actual errors
+          poe lint
+          # For warnings instead return always zero
+          poe lint-warnings
+      - name: Test with pytest
+        run: |
+          poe bench-iso
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.xml
+          flags: isobench
+          name: codecov-umbrella
+          fail_ci_if_error: true

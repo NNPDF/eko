@@ -144,12 +144,12 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
 
         for q2 in dfds:
             for op, df in dfds[q2].items():
-                for l in df.iloc:
+                for row in df.iloc:
                     if (
-                        abs(l["percent_error"]) > perc_thr
-                        and abs(l[f"{log['external']}"] - l["eko"]) > abs_thr
+                        abs(row["percent_error"]) > perc_thr
+                        and abs(row[f"{log['external']}"] - row["eko"]) > abs_thr
                     ):
-                        print(op, l, sep="\n", end="\n\n")
+                        print(op, row, sep="\n", end="\n\n")
 
     def plot_pdfs(self, doc_hash):
         """
