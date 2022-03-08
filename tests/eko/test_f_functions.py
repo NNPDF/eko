@@ -54,7 +54,7 @@ refvals = {
 
 
 # copare the exact values of some harmonics
-# All the harmonics defition are coming from :cite`:Bl_mlein_2009` section 9.
+# All the harmonics definition are coming from :cite`:Bl_mlein_2009` section 9.
 # F19, F20,F21 are not present in that paper.
 def test_F9():
     for N, vals in zip(testN, refvals["S41"]):
