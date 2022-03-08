@@ -510,19 +510,15 @@ class InterpolatorDispatcher:
 
             *   - Name
                 - Type
-                - default
                 - description
             *   - ``interpolation_xgrid``
                 - :py:obj:`list(float)`
-                - [required]
                 - the interpolation grid
             *   - ``interpolation_polynomial_degree``
                 - :py:obj:`int`
-                - ``4``
                 - polynomial degree of the interpolating function
             *   - ``interpolation_is_log``
                 - :py:obj:`bool`
-                - ``True``
                 - use logarithmic interpolation?
 
         Parameters
