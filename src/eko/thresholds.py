@@ -29,7 +29,7 @@ class PathSegment:
         self.nf = nf
 
     @property
-    def is_backward(self):
+    def is_downward_q2(self):
         """True if q2_from bigger than q2_to"""
         return self.q2_from > self.q2_to
 
@@ -260,3 +260,41 @@ class ThresholdsAtlas:
         """
         ref_idx = np.digitize(q2, self.area_walls)
         return 2 + ref_idx
+
+
+def is_downward_path(path):
+    """
+    Determine if a path is downward:
+        - in the number of active flavors when the path list contains more than one `PathSegment`,
+           note this can be different from each `PathSegment.is_downward`
+        - in :math:`Q^2` when just one single `PathSegment` is given
+
+    Parameters
+    ----------
+        path: list(`eko.thresholds.PathSegment`)
+
+    Returns
+    -------
+        is_downward: bool
+            True for a downward path
+    """
+    if len(path) == 1:
+        return path[0].is_downward_q2
+    return path[1].nf < path[0].nf
+
+
+def flavor_shift(is_downward):
+    """
+    Determine the shift to number of light flavors
+
+    Parameters
+    ----------
+        is_downward: bool
+            True for a downward path
+
+    Returns
+    -------
+        shift: 3, 4
+            shift to number of light flavors
+    """
+    return 4 if is_downward else 3

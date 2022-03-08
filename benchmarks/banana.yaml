@@ -1,5 +1,7 @@
-database_path: data/benchmark.db
-input_tables:
-  - theories
-  - operators
-  - cache
+paths:
+  database: data/benchmark.db
+input:
+  tables:
+    - theories
+    - operators
+    - cache

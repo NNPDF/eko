@@ -427,7 +427,7 @@ class OperatorMatrixElement:
             if self.is_intrinsic or self.backward_method != "":
                 # intrinsic labels, which are not zero at NLO
                 labels.append("NS_HH")
-                # These contributions are always 0 for the now
+                # These contributions are always 0 for the moment
                 # labels.extend(["NS_qH", "NS_Hq"])
 
         # same for singlet
@@ -476,8 +476,8 @@ class OperatorMatrixElement:
             self.copy_ome()
             return
 
-        # here you need to pass nf otherwise the a_s matching is performed
-        a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2, nf_to=nf)
+        # Note that here you need to use a_s^{nf+1}(q2)
+        a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2, nf_to=nf + 1)
 
         tot_start_time = time.perf_counter()
 

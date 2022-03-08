@@ -38,14 +38,14 @@ class ApfelBenchmark(Runner):
 
 
 class BenchmarkVFNS(ApfelBenchmark):
-    """Benckmark VFNS"""
+    """Benchmark VFNS"""
 
     vfns_theory = {
         "FNS": "ZM-VFNS",
         "ModEv": [
             "EXA",
-            # "EXP",
-            # "TRN",
+            "EXP",
+            "TRN",
         ],
         "kcThr": 1.0,
         "kbThr": 1.0,
@@ -53,6 +53,9 @@ class BenchmarkVFNS(ApfelBenchmark):
         "Qref": np.sqrt(2.0),
         "alphas": 0.35,
         "Q0": np.sqrt(2.0),
+        "nfref": 3,
+        "nf0": 3,
+        "mc": 1.51,
     }
     vfns_theory = tolist(vfns_theory)
 
@@ -65,11 +68,20 @@ class BenchmarkVFNS(ApfelBenchmark):
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
 
-    def benchmark_sv(self, pto):
+    def benchmark_sv(self, pto, svmode):
         """Scale Variation"""
 
         th = self.vfns_theory.copy()
-        th.update({"PTO": [pto], "XIR": [0.7071067811865475, 1.4142135623730951]})
+        th.update(
+            {
+                "PTO": [pto],
+                "XIR": [1 / np.sqrt(2.0)],
+                "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
+                "ModSV": [svmode],
+                "EScaleVar": [0],
+                "nfref": [4],
+            }
+        )
         self.run(
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
@@ -147,7 +159,7 @@ class BenchmarkFFNS(ApfelBenchmark):
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
 
-    def benchmark_sv(self, pto):
+    def benchmark_sv(self, pto, svmode):
         """Scale Variation"""
 
         ts = []
@@ -157,6 +169,8 @@ class BenchmarkFFNS(ApfelBenchmark):
                 "PTO": [pto],
                 "XIR": [np.sqrt(0.5)],
                 "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
+                "ModSV": [svmode],
+                "EScaleVar": [0],
             }
         )
         ts.extend(cartesian_product(th))
@@ -166,6 +180,8 @@ class BenchmarkFFNS(ApfelBenchmark):
                 "PTO": [pto],
                 "XIR": [np.sqrt(2.0)],
                 "fact_to_ren_scale_ratio": [np.sqrt(0.5)],
+                "ModSV": [svmode],
+                "EScaleVar": [0],
             }
         )
         ts.extend(cartesian_product(th))
@@ -177,7 +193,7 @@ if __name__ == "__main__":
     obj = BenchmarkVFNS()
     # obj = BenchmarkFFNS()
 
-    # obj.benchmark_plain(1)
-    # obj.benchmark_sv(1)
+    # obj.benchmark_plain(2)
+    obj.benchmark_sv(2, "exponentiated")
     # obj.benchmark_kthr(2)
-    obj.benchmark_msbar(2)
+    # obj.benchmark_msbar(2)

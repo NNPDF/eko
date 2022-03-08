@@ -66,8 +66,7 @@ Furthermore in the right side basis :math:`\tilde h^{+}, \tilde h^{-}` are intri
 The :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` can be computed order by order in :math:`a_s`:
 
 .. math ::
-    \mathbf{A}^{(n_f)}(\mu_{h}^2) = \mathbf{I} + a_s^{(n_f)}(\mu_{h}^2)  \mathbf{A}^{(n_f),(1)} + a_s^{(n_f),2}(\mu_{h}^2) \mathbf{A}^{(n_f),(2)} + a_s^{(n_f),3}(\mu_{h}^2) \mathbf{A}^{(n_f),(3)}
-
+    \mathbf{A}^{(n_f)}(\mu_{h}^2) = \mathbf{I} + a_s^{(n_f+1)}(\mu_{h}^2)  \mathbf{A}^{(n_f),(1)} + \left(a_s^{(n_f+1)}(\mu_{h}^2)\right)^2 \mathbf{A}^{(n_f),(2)}
 
 
 where the :math:`\mathbf{A}^{(n_f),(k)}` are given up to |N3LO| by the following expressions:
@@ -84,6 +83,8 @@ The coefficients :math:`A^{(n_f),(k)}_{ij}(z,\mu_{h}^2)` have been firstly compu
 been :doc:`Mellin transformed </theory/Mellin>` to be used inside EKO.
 They depend on the scale :math:`\mu_{h}^2` only through the logarithm :math:`\ln(\mu_{h}^2/m_{h}^2)`,
 in particular the coefficient :math:`A_{gg,H}^{S,(1)}` is fully proportional to :math:`\ln(\mu_{h}^2/m_{h}^2)`.
+During the matching we use :math:`a_s^{(n_f+1)}`: in fact the :math:`a_s` decoupling gives raise to some additional logarithms
+:math:`\ln(\mu_{h}^2/m_{h}^2)`, which are cancelled by the OME's :math:`A_{kl,H}`.
 
 |N3LO| matrix elements have been presented in :cite:`Bierenbaum:2009mv` and following publications
 :cite:`Ablinger:2010ty,Ablinger:2014vwa,Ablinger:2014uka,Behring:2014eya,Blumlein:2017wxd,Ablinger_2014,Ablinger_2015`.
