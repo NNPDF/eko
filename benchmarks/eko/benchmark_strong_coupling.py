@@ -833,6 +833,7 @@ class BenchmarkStrongCoupling:
             assert path_3[1].nf < path_3[0].nf
             assert path_3[1].q2_from < path_3[0].q2_from
 
+            apfel_val_ref = 0.03478112968976964
             if use_APFEL:
                 # run apfel
                 apfel.CleanUp()
@@ -857,9 +858,10 @@ class BenchmarkStrongCoupling:
                 apfel_val = apfel.AlphaQCD(
                     np.sqrt(Q2) / theory_dict["fact_to_ren_scale_ratio"]
                 ) / (4.0 * np.pi)
-            else:
-                apfel_val = 0.03478112968976964
+                # check APFEL cached value
+                np.testing.assert_allclose(apfel_val_ref, apfel_val)
+
             # check myself to APFEL
-            np.testing.assert_allclose(apfel_val, my_val, rtol=0.03)
-            np.testing.assert_allclose(apfel_val, my_val_4)
+            np.testing.assert_allclose(apfel_val_ref, my_val, rtol=0.03)
+            np.testing.assert_allclose(apfel_val_ref, my_val_4)
             np.testing.assert_allclose(my_val, my_val_3)
