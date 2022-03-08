@@ -47,7 +47,7 @@ In particular, the matching involved in the change from :math:`n_f` to :math:`n_
 is presented in equation 3.1 of :cite:`Schroder:2005hy` for |MSbar| masses, while the
 same expression for POLE masses is reported in Appendix A.
 For this reason the boundary conditions of :class:`eko.strong_coupling.StrongCoupling`
-can be specified at `scale_ref` along with ``nf_ref`` and, the computed result can
+can be specified at ``scale_ref`` along with ``nf_ref`` and, the computed result can
 depend on the number of flavors at the target scale, see :meth:`eko.strong_coupling.StrongCoupling.a_s`
 An example how the evolution path is determined is given :doc:`here</code/Utilities/>`.
 
@@ -102,7 +102,7 @@ This method provides many advantages:
     * the same procedure can be used for any perturbative process,
       since the scale dependence of the strong coupling :math:`a_s(\mu^2)` and of PDFs is universal;
 
-However there is no unique principle to determine the specific range of the scale variation;
+However, there is no unique prescription to determine the specific range of the scale variation,
 the most used prescription specify to vary the factor :math:`\mu_F/\mu_R` in the range:
 :math:`1/2 \le \mu_F/\mu_R \le 2`.
 
@@ -126,15 +126,17 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
       the scale variation is applied to the whole |PDF| set:
 
         .. math ::
-            & \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) = \tilde{\mathbf{K}}(a_s) \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) \\
-            & \tilde{\mathbf{K}}(a_s) = 1 - k \gamma + \frac{1}{2} k^2 \left ( \gamma^{2} - \beta \frac{\partial \gamma}{\partial a_s} \right ) + \frac{1}{6} k^3 \left [ - \beta \frac{\partial}{\partial a_s} \left( \beta \frac{\partial \gamma}{\partial a_s} \right) + 3 \beta \frac{\partial \gamma}{\partial a_s} \gamma - \gamma^3 \right ] + \mathcal{O}(k^4)
+            \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) & = \tilde{\mathbf{K}}(a_s) \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) \\
+            \tilde{\mathbf{K}}(a_s) & = 1 - k \gamma + \frac{1}{2} k^2 \left ( \gamma^{2} - \beta \frac{\partial \gamma}{\partial a_s} \right ) \\
+            & + \frac{1}{6} k^3 \left [ - \beta \frac{\partial}{\partial a_s} \left( \beta \frac{\partial \gamma}{\partial a_s} \right) + 3 \beta \frac{\partial \gamma}{\partial a_s} \gamma - \gamma^3 \right ] + \mathcal{O}(k^4)
 
       where scale variation kernel is expanded consistently order by order in :math:`a_s`,
       leading to:
 
         .. math ::
             \tilde{\mathbf{K}}(a_s) \approx & 1 - a_s k \gamma^{(0)} + a_s^2 \left [ - k \gamma^{(1)} + \frac{1}{2} k^2 \gamma^{(0)} (\beta_0 + \gamma^{(0)}) \right ] \\
-            & + a_s^3 \left [ -k \gamma^{(2)} + \frac{1}{2} k^2 \left(\beta_1 \gamma^{(0)} + 2 \gamma^{(1)} (\beta_0 + \gamma^{(0)} ) \right) - \frac{1}{6} k^3 \gamma^{(0)} \left(2 \beta_0^2 + 3 \beta_0 \gamma^{(0)}+\gamma^{(0),2} \right) \right] + \mathcal{O}(a^4)
+            & + a_s^3 \left [ -k \gamma^{(2)} + \frac{1}{2} k^2 \left(\beta_1 \gamma^{(0)} + 2 \gamma^{(1)} (\beta_0 + \gamma^{(0)} ) \right) \right. \\
+            & \left. - \frac{1}{6} k^3 \gamma^{(0)} \left(2 \beta_0^2 + 3 \beta_0 \gamma^{(0)}+\gamma^{(0),2} \right) \right] + \mathcal{O}(a^4)
 
 
       In this way the dependence of the |EKO| on :math:`k` is factorized outside the unvaried evolution kernel.
@@ -149,11 +151,11 @@ This happens because :math:`\beta \approx \mathcal{O}(a_s^2)`, :math:`\gamma \ap
 and the contribution proportional to :math:`\mathcal{O}(k^n)` is originated
 by the `n-th` derivative in :math:`\gamma` :cite:`AbdulKhalek:2019ihb`.
 
-Furthermore the distance between the varied |EKO| and the unvaried one will decrease increasing
-the perturbative order in :math:`a_s`
+Furthermore the distance between the varied |EKO| and the unvaried one will decrease while
+keeping higher order terms in :math:`a_s`
 
 Notice that in principle the two methods should be equivalent, especially for fully
-linearized solutions (``ModEv=truncated,ev_op_max_iterations=1``),
+linearized solutions (``ModEv=truncated``,``ev_op_iterations=1``),
 where the difference depends only on the perturbative expansion in :math:`a_s`.
 However, in our implementation this is not exactly true;
 since the integral of :math:`-\frac{\gamma(a_s)}{\beta(a_s)}` is evaluated before

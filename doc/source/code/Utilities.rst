@@ -18,11 +18,11 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
 
   .. code-block::
 
-    ThresholdsAtlas [0.00e+00 - 4.00e+00 - 9.00e+00 - 16.00e+00 - inf], ref=49.000000000000001 @ 3
+    ThresholdsAtlas [0.00e+00 - 4.00e+00 - 9.00e+00 - 16.00e+00 - inf], ref=64.000000000000001 @ 3
 
   In this case some possible paths are:
 
-    - a path to ``Q=7`` with ``nf=6`` which is given by the following list of :class:`eko.thresholds.PathSegment` :
+    - a path to ``q2_to=49`` with ``nf=6`` which is given by the following list of :class:`eko.thresholds.PathSegment` :
 
       .. code-block::
 
@@ -31,24 +31,27 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
       and it's determined according to the list of heavy quark thresholds. This path is default option when the argument
       ``nf_to`` is not given.
 
-    - A path to ``Q=7`` enforcing ``nf=3`` which will simply contain a single :class:`eko.thresholds.PathSegment`:
-
-      .. code-block::
-
-        [PathSegment(64 -> 49, nf=3)]
-
-    - A path to ``Q=7`` enforcing ``nf=4``:
+    - A path to ``q2_to=49`` enforcing ``nf=4``:
 
       .. code-block::
 
         [PathSegment(64 -> 4, nf=3), PathSegment(4 -> 49, nf=4)]
 
-  As first step, you always go back to the closest matching scale (closest in ``nf``),
+    - A path to ``q2_to=49`` enforcing ``nf=3`` which will simply contain a single :class:`eko.thresholds.PathSegment`:
+
+      .. code-block::
+
+        [PathSegment(64 -> 49, nf=3)]
+
+
+  In the first two cases as first step, you go back to the closest matching scale (closest in ``nf``),
   running in ``nf=3``, since that is what has been specified in the boundary conditions.
-  Then you are back in the normal flow, and you cross all the other thresholds going according to the prescription given
-  by the :class:``eko.thresholds.ThresholdAtlas``.
-  You can noticed that :meth:`eko.thresholds.ThresholdsAtlas.path` are always ordered according to `nf` and not `Q2` scales.
-  This property is used in |VFNS| to determine if a path is backward or not modifying the way the different patches are matched.
+  Then you are back in the flavor flow, and you cross all the other thresholds going according to the prescription given
+  by the :class:`eko.thresholds.ThresholdAtlas`.
+  While in the third example you go directly to the final scale, since there is no matching scale in the middle.
+  You can notice that :meth:`eko.thresholds.ThresholdsAtlas.path` are always ordered according to `nf` and not `Q2` scales.
+  This property is used in |VFNS| to determine if the matchings are done for an increasing or decreasing number of
+  light flavors.
 
 
 - :class:`eko.strong_coupling.StrongCoupling`: Implementation of the :ref:`theory/pQCD:strong coupling`
