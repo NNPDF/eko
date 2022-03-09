@@ -3,8 +3,8 @@
 This module defines the matching conditions for the |VFNS| evolution.
 """
 
+from .. import basis_rotation as br
 from .. import member
-from ..evolution_operator import flavors
 
 
 class MatchingCondition(member.OperatorBase):
@@ -39,8 +39,6 @@ class MatchingCondition(member.OperatorBase):
                 threshold value
             intrinsic_range : list
                 list of intrinsic quark pids
-            is_backward: bool
-                True for backward evolution
         """
 
         m = {
@@ -58,7 +56,7 @@ class MatchingCondition(member.OperatorBase):
             m[f"T{n}.T{n}"] = m["V.V"]
 
         # activate the next heavy quark
-        hq = flavors.quark_names[nf]
+        hq = br.quark_names[nf]
         m.update(
             {
                 f"{hq}-.V": ome_members["NS_Hq"],
@@ -71,7 +69,7 @@ class MatchingCondition(member.OperatorBase):
         if len(intrinsic_range) != 0:
             op_id = member.OpMember.id_like(ome_members["NS_qq"])
             for intr_fl in intrinsic_range:
-                ihq = flavors.quark_names[intr_fl - 1]  # find name
+                ihq = br.quark_names[intr_fl - 1]  # find name
                 if intr_fl > nf + 1:
                     # keep the higher quarks as they are
                     m[f"{ihq}+.{ihq}+"] = op_id.copy()

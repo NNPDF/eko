@@ -286,7 +286,7 @@ class OperatorMatrixElement:
                 #     labels.extend(["S_qH"])
         return labels
 
-    def compute(self, q2, L, is_msbar):
+    def compute(self, q2, nf, L, is_msbar):
         """
         compute the actual operators (i.e. run the integrations)
 
@@ -294,6 +294,8 @@ class OperatorMatrixElement:
         ----------
             q2: float
                 threshold scale
+            nf: int
+                number of active flavor below threshold
             L: float
                 log of K threshold squared
             is_msbar: bool
@@ -319,7 +321,8 @@ class OperatorMatrixElement:
             self.copy_ome()
             return
 
-        a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2)
+        # Note that here you need to use a_s^{nf+1}(q2)
+        a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2, nf + 1)
 
         tot_start_time = time.perf_counter()
         logger.info("Matching: computing operators - 0/%d", grid_size)

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # pylint: skip-file
 import numpy as np
+from banana import register
 
-from ekomark import register
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
@@ -46,7 +46,7 @@ class Sandbox(Runner):
     # external = "pegasus"
 
     # select to plot operators
-    plot_operator = False
+    plot_operator = True
 
     rotate_to_evolution_basis = True
 
@@ -74,17 +74,31 @@ class Sandbox(Runner):
         }
         # t0 = theory_updates.copy()
         # t0["PTO"] = 0
+        #    self.skip_pdfs = lambda _theory: [
+        #        22,
+        #        -6,
+        #        6,
+        #        "ph",
+        #        "V35",
+        #        "V24",
+        #        "V15",
+        #        "V8",
+        #        "T35",
+        #    ]
         self.skip_pdfs = lambda _theory: [
             22,
             -6,
             6,
-            "ph",
-            "V35",
-            "V24",
-            "V15",
-            "V8",
-            "T35",
+            108,
+            115,
+            224,
+            235,
+            124,
+            135,
+            208,
+            215,
         ]
+
         self.run(
             [theory_updates],  # , t0],
             operators.build(self.generate_operators()),
@@ -96,7 +110,7 @@ class Sandbox(Runner):
 
     def lha(self):
         theory_updates = {
-            "PTO": 1,
+            "PTO": 0,
             "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    This file contains the output management
+This file contains the output management
 """
 import io
 import logging
@@ -24,95 +24,6 @@ class Output(dict):
     Wrapper for the output to help with application
     to PDFs and dumping to file.
     """
-
-    def apply_pdf(self, lhapdf_like, targetgrid=None, rotate_to_evolution_basis=False):
-        """
-        Apply all available operators to the input PDFs.
-
-        Parameters
-        ----------
-            lhapdf_like : object
-                object that provides an xfxQ2 callable (as `lhapdf <https://lhapdf.hepforge.org/>`_
-                and :class:`ekomark.toyLH.toyPDF` do) (and thus is in flavor basis)
-            targetgrid : list
-                if given, interpolates to the PDFs given at targetgrid (instead of xgrid)
-            rotate_to_evolution_basis : bool
-                if True rotate to evolution basis
-
-        Returns
-        -------
-            out_grid : dict
-                output PDFs and their associated errors for the computed Q2grid
-        """
-        if rotate_to_evolution_basis:
-            return self.apply_pdf_flavor(
-                lhapdf_like, targetgrid, br.rotate_flavor_to_evolution
-            )
-        return self.apply_pdf_flavor(lhapdf_like, targetgrid)
-
-    def apply_pdf_flavor(self, lhapdf_like, targetgrid=None, flavor_rotation=None):
-        """
-        Apply all available operators to the input PDFs.
-
-        Parameters
-        ----------
-            lhapdf_like : object
-                object that provides an xfxQ2 callable (as `lhapdf <https://lhapdf.hepforge.org/>`_
-                and :class:`ekomark.toyLH.toyPDF` do) (and thus is in flavor basis)
-            targetgrid : list
-                if given, interpolates to the PDFs given at targetgrid (instead of xgrid)
-            flavor_rotation : np.ndarray
-                Rotation matrix in flavor space
-
-        Returns
-        -------
-            out_grid : dict
-                output PDFs and their associated errors for the computed Q2grid
-        """
-        # create PDFs
-        pdfs = np.zeros((len(self["inputpids"]), len(self["inputgrid"])))
-        for j, pid in enumerate(self["inputpids"]):
-            if not lhapdf_like.hasFlavor(pid):
-                continue
-            pdfs[j] = np.array(
-                [
-                    lhapdf_like.xfxQ2(pid, x, self["q2_ref"]) / x
-                    for x in self["inputgrid"]
-                ]
-            )
-
-        # build output
-        out_grid = {}
-        for q2, elem in self["Q2grid"].items():
-            pdf_final = np.einsum("ajbk,bk", elem["operators"], pdfs)
-            error_final = np.einsum("ajbk,bk", elem["operator_errors"], pdfs)
-            out_grid[q2] = {
-                "pdfs": dict(zip(self["targetpids"], pdf_final)),
-                "errors": dict(zip(self["targetpids"], error_final)),
-            }
-
-        # rotate to evolution basis
-        if flavor_rotation is not None:
-            for q2, op in out_grid.items():
-                pdf = flavor_rotation @ np.array(
-                    [op["pdfs"][pid] for pid in br.flavor_basis_pids]
-                )
-                errors = flavor_rotation @ np.array(
-                    [op["errors"][pid] for pid in br.flavor_basis_pids]
-                )
-                op["pdfs"] = dict(zip(br.evol_basis, pdf))
-                op["errors"] = dict(zip(br.evol_basis, errors))
-
-        # rotate/interpolate to target grid
-        if targetgrid is not None:
-            b = interpolation.InterpolatorDispatcher.from_dict(self, False)
-            rot = b.get_interpolation(targetgrid)
-            for op in out_grid.values():
-                for pdf_label in op["pdfs"]:
-                    op["pdfs"][pdf_label] = np.matmul(rot, op["pdfs"][pdf_label])
-                    op["errors"][pdf_label] = np.matmul(rot, op["errors"][pdf_label])
-
-        return out_grid
 
     def xgrid_reshape(self, targetgrid=None, inputgrid=None):
         """
@@ -480,10 +391,7 @@ class Output(dict):
             obj : output
                 loaded object
         """
-
         tarpath = pathlib.Path(tarname)
-        if tarpath.suffix != ".tar":
-            raise ValueError(f"'{tarname}' is not a valid tar filename, wrong suffix")
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = pathlib.Path(tmpdir)

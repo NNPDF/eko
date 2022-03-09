@@ -3,10 +3,13 @@
 Benchmark to Pegasus :cite:`Vogt:2004ns`
 """
 import numpy as np
+from banana import register
 from banana.data import cartesian_product
 
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
+
+register(__file__)
 
 
 def tolist(input_dict):
@@ -54,6 +57,8 @@ class BenchmarkVFNS(PegasusBenchmark):
         "Qref": np.sqrt(2.0),
         "alphas": 0.35,
         "Q0": np.sqrt(2.0),
+        "nfref": 3,
+        "nf0": 3,
     }
     zm_theory = tolist(zm_theory)
 
@@ -70,7 +75,7 @@ class BenchmarkVFNS(PegasusBenchmark):
             cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]
         )
 
-    def benchmark_sv(self, pto):
+    def benchmark_sv(self, pto, svmode):
         """Scale Variation"""
 
         th = self.zm_theory.copy()
@@ -78,6 +83,7 @@ class BenchmarkVFNS(PegasusBenchmark):
             {
                 "PTO": [pto],
                 "fact_to_ren_scale_ratio": [np.sqrt(0.5), np.sqrt(2.0)],
+                "ModSV": [svmode],
             }
         )
         self.run(
@@ -118,7 +124,7 @@ class BenchmarkFFNS(PegasusBenchmark):
             cartesian_product(th), operators.build(operators.pegasus_config), ["ToyLH"]
         )
 
-    def benchmark_sv(self, pto):
+    def benchmark_sv(self, pto, svmode):
         """Scale Variation"""
 
         th = self.ffns_theory.copy()
@@ -126,6 +132,7 @@ class BenchmarkFFNS(PegasusBenchmark):
             {
                 "PTO": [pto],
                 "fact_to_ren_scale_ratio": [np.sqrt(0.5), np.sqrt(2.0)],
+                "ModSV": [svmode],
             }
         )
         self.run(
@@ -137,7 +144,7 @@ if __name__ == "__main__":
 
     obj = BenchmarkVFNS()
     # obj = BenchmarkFFNS()
-    obj.benchmark_plain(1)
+    # obj.benchmark_plain(1)
 
-    # obj.benchmark_sv(1)
+    obj.benchmark_sv(2, "exponentiated")
     # vfns.benchmark_sv()

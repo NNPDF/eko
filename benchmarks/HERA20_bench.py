@@ -3,8 +3,9 @@
 Benchmark HERAPDF2.0 pdf family
 
 """
+from banana import register
+
 from eko import interpolation
-from ekomark import register
 from ekomark.benchmark.runner import Runner
 
 register(__file__)

@@ -16,13 +16,13 @@ present :math:`\left(\mu_{h}^2 < Q_0^2 < Q_1^2 < \mu_{h+1}^2\right)`, in :doc:`M
     \tilde{\mathbf{f}}^{(n_f)}(Q^2_1)= \tilde{\mathbf{E}}^{(n_f)}(Q^2_1\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
 The bold font indicates the vector space spanned by the :doc:`flavor space <FlavorSpace>` and the equations decouple mostly
-in the :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution Bases>`.
+in the :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic QCD Evolution Bases>`.
 
 If a single threshold :math:`\left(\mu_{h-1}^2 < Q_0^2 < \mu_{h}^2 < Q_1^2 < \mu_{h+1}^2\right)` is present
 we decompose the matching into two independent steps:
-first, the true QCD induced |OME| :math:`\mathbf{A}^{(n_f)}(\mu_{h}^2)` that are given by perturbative calculations and expressed in the flavor space,
+first, the true |QCD| induced |OME| :math:`\mathbf{A}^{(n_f)}(\mu_{h}^2)` that are given by perturbative calculations and expressed in the flavor space,
 and, second, the necessary :doc:`flavor space rotation <FlavorSpace>` :math:`\mathbf{R}^{(n_f)}` to fit the
-new :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution Bases>`.
+new :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic QCD Evolution Bases>`.
 We can then denote the solution as
 
 .. math ::
@@ -38,7 +38,7 @@ The matching matrices :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` mediate between :m
 and :math:`\mathcal F_{iev,n_f}^{(n_f+1)}`, i.e. they transform the basis vectors of the :math:`n_f`-flavors space
 in a :math:`n_f`-flavor scheme to the :math:`(n_f+1)`-flavor scheme. Hence, the supscript refers to the flavor scheme
 with a smaller number of active flavors. To compute the matrices in a minimal coupled system we decompose the
-:ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic Evolution Bases>` :math:`\mathcal F_{iev,n_f}` into
+:ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic QCD Evolution Bases>` :math:`\mathcal F_{iev,n_f}` into
 several subspaces (of course irrespective of the |FNS|):
 
 .. math ::
@@ -66,8 +66,7 @@ Furthermore in the right side basis :math:`\tilde h^{+}, \tilde h^{-}` are intri
 The :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` can be computed order by order in :math:`a_s`:
 
 .. math ::
-    \mathbf{A}^{(n_f)}(\mu_{h}^2) = \mathbf{I} + a_s^{(n_f)}(\mu_{h}^2)  \mathbf{A}^{(n_f),(1)} + \left(a_s^{(n_f)}(\mu_{h}^2)\right)^2 \mathbf{A}^{(n_f),(2)}
-
+    \mathbf{A}^{(n_f)}(\mu_{h}^2) = \mathbf{I} + a_s^{(n_f+1)}(\mu_{h}^2)  \mathbf{A}^{(n_f),(1)} + \left(a_s^{(n_f+1)}(\mu_{h}^2)\right)^2 \mathbf{A}^{(n_f),(2)}
 
 
 where the :math:`\mathbf{A}^{(n_f),(k)}` are given up to |NNLO| by the following expressions:
@@ -83,6 +82,8 @@ The coefficients :math:`A^{(n_f),(k)}_{ij}(z,\mu_{h}^2)` have been firstly compu
 been :doc:`Mellin transformed </theory/Mellin>` to be used inside EKO.
 They depend on the scale :math:`\mu_{h}^2` only through the logarithm :math:`\ln(\mu_{h}^2/m_{h}^2)`,
 in particular the coefficient :math:`A_{gg,H}^{S,(1)}` is fully proportional to :math:`\ln(\mu_{h}^2/m_{h}^2)`.
+During the matching we use :math:`a_s^{(n_f+1)}`: in fact the :math:`a_s` decoupling gives raise to some additional logarithms
+:math:`\ln(\mu_{h}^2/m_{h}^2)`, which are cancelled by the OME's :math:`A_{kl,H}`.
 
 We remark that contributions of the higher quark at |NNLO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
 On the other hand the elements :math:`A_{qq}^{ps},A_{qg}` are known to start at |N3LO|.

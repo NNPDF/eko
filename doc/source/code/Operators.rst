@@ -55,7 +55,7 @@ The classes are nested as follows:
     * is the connection of the :class:`~eko.evolution_operator.Operator`
       between the different flavor bases
     * is initialized with the 3-dimensional :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
-    * does recombine the operator in the :ref:`theory/FlavorSpace:Operator Intrinsic Evolution Basis`
+    * does recombine the operator in the :ref:`theory/FlavorSpace:Operator Intrinsic QCD Evolution Basis`
       (see :doc:`Matching Conditions </theory/Matching>`)
     * exports the operators to :ref:`theory/FlavorSpace:Operator Flavor Basis` in a :class:`~numpy.ndarray`
 
@@ -63,4 +63,4 @@ The classes are nested as follows:
 
     * represents a single operator in Mellin space for a given element of the :ref:`theory/FlavorSpace:Operator Bases`
     * inside :class:`~eko.evolution_operator.Operator` they are in :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis`
-    * inside :class:`~eko.evolution_operator.physical.PhysicalOperator` they are in :ref:`theory/FlavorSpace:Operator Intrinsic Evolution Basis`
+    * inside :class:`~eko.evolution_operator.physical.PhysicalOperator` they are in :ref:`theory/FlavorSpace:Operator Intrinsic QCD Evolution Basis`
