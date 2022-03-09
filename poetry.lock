@@ -100,7 +100,7 @@ python-versions = "*"
 
 [[package]]
 name = "banana-hep"
-version = "0.6.3"
+version = "0.6.4"
 description = "Benchmark QCD physics"
 category = "main"
 optional = true
@@ -109,7 +109,6 @@ python-versions = ">=3.8.0,<3.11"
 [package.dependencies]
 appdirs = ">=1.4.4,<2.0.0"
 click = ">=8.0.3,<9.0.0"
-eko = ">=0.8.2,<0.9.0"
 ipython = ">=8.1.0,<9.0.0"
 matplotlib = ">=3.5.1,<4.0.0"
 numpy = ">=1.21.0,<2.0.0"
@@ -1247,7 +1246,7 @@ mark = ["banana-hep", "sqlalchemy", "pandas", "matplotlib"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8,<3.11"
-content-hash = "1b6fb7851a767927d7a6b3aceafd6fcc9a7ee27752e5c402629b173fac56fea9"
+content-hash = "59deb666ca547633026cedb1a6ef346c95da7e29168c026881b42da5cb0ea983"
 
 [metadata.files]
 a3b2bbc3ced97675ac3a71df45f55ba = [
@@ -1296,8 +1295,8 @@ backcall = [
     {file = "backcall-0.2.0.tar.gz", hash = "sha256:5cbdbf27be5e7cfadb448baf0aa95508f91f2bbc6c6437cd9cd06e2a4c215e1e"},
 ]
 banana-hep = [
-    {file = "banana-hep-0.6.3.tar.gz", hash = "sha256:296e5e7fa79c2271348258b6f2165cc34067b2a9c60e2c97aec035eb645fe014"},
-    {file = "banana_hep-0.6.3-py3-none-any.whl", hash = "sha256:aa52344c4fac9e9e5475dbe175da44fd52ab37bb25b68c0a71eff6f704cd5b82"},
+    {file = "banana-hep-0.6.4.tar.gz", hash = "sha256:e642946fad9545e1aec0a8108b0d31deb01b8f0d50411951f323123c4da75c2e"},
+    {file = "banana_hep-0.6.4-py3-none-any.whl", hash = "sha256:9e02874b135e900244fe8c007d192844cccb1191eb07ed949c9e229524365b07"},
 ]
 certifi = [
     {file = "certifi-2021.10.8-py2.py3-none-any.whl", hash = "sha256:d62a0163eb4c2344ac042ab2bdf75399a71a2d8c7d47eac2e2ee91b9d6339569"},
