@@ -22,7 +22,7 @@ def test_quark_momentum_conservation():
     s1 = harmonics.harmonic_S1(N)
     np.testing.assert_almost_equal(
         ad_lo_as1.gamma_ns_0(N, s1) + ad_lo_as1.gamma_gq_0(N),
-        +ad_lo_aem1.gamma_ns_0(N, s1) + ad_lo_aem1.gamma_phq_0(N),
+        +ad_lo_aem1.gamma_ns(N, s1) + ad_lo_aem1.gamma_phq(N),
         0,
     )
 
@@ -58,15 +58,15 @@ def test_gamma_gg_0():
 def test_gamma_phq_0():
     N = complex(0.0, 1.0)
     res = complex(4.0, -4.0) / 3.0 / 4 * 3
-    np.testing.assert_almost_equal(ad_lo_aem1.gamma_phq_0(N), res)
+    np.testing.assert_almost_equal(ad_lo_aem1.gamma_phq(N), res)
 
 
 def test_gamma_qph_0():
     N = complex(1.0, 0.0)
     res = complex(-20.0 / 3.0, 0.0) * 3 / 0.5
-    np.testing.assert_almost_equal(ad_lo_aem1.gamma_qph_0(N, NF), res)
+    np.testing.assert_almost_equal(ad_lo_aem1.gamma_qph(N, NF), res)
 
 
 def test_gamma_phph_0():
     res = complex(-4.0 / 3, 0.0)
-    np.testing.assert_almost_equal(ad_lo_aem1.gamma_phph_0(), res)
+    np.testing.assert_almost_equal(ad_lo_aem1.gamma_phph(), res)

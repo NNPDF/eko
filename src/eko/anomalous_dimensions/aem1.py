@@ -6,7 +6,7 @@ from . import as1
 
 
 @nb.njit("c16(c16)", cache=True)
-def gamma_phq_0(N):
+def gamma_phq(N):
     """
     Computes the leading-order photon-quark anomalous dimension
 
@@ -19,7 +19,7 @@ def gamma_phq_0(N):
 
     Returns
     -------
-      gamma_phq_0 : complex
+      gamma_phq : complex
         Leading-order photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(0)}(N)`
     """
 
@@ -27,7 +27,7 @@ def gamma_phq_0(N):
 
 
 @nb.njit("c16(c16,u1)", cache=True)
-def gamma_qph_0(N, nf):
+def gamma_qph(N, nf):
     """
     Computes the leading-order quark-photon anomalous dimension
 
@@ -44,14 +44,14 @@ def gamma_qph_0(N, nf):
 
     Returns
     -------
-      gamma_qph_0 : complex
+      gamma_qph : complex
         Leading-order quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(0)}(N)`
     """
     return as1.gamma_qg_0(N, nf) / constants.TR * constants.NC
 
 
 @nb.njit("c16()", cache=True)
-def gamma_phph_0():
+def gamma_phph():
     """
     Computes the leading-order photon-photon anomalous dimension
 
@@ -59,7 +59,7 @@ def gamma_phph_0():
 
     Returns
     -------
-      gamma_phph_0 : complex
+      gamma_phph : complex
         Leading-order phton-photon anomalous dimension :math:`\\gamma_{\\gamma \\gamma}^{(0)}(N)`
     """
 
@@ -67,7 +67,7 @@ def gamma_phph_0():
 
 
 @nb.njit("c16(c16,c16)", cache=True)
-def gamma_ns_0(N, s1):
+def gamma_ns(N, s1):
     """
     Computes the leading-order non-singlet QED anomalous dimension.
 
@@ -82,7 +82,7 @@ def gamma_ns_0(N, s1):
 
     Returns
     -------
-      gamma_ns_0 : complex
+      gamma_ns : complex
         Leading-order non-singlet QED anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
     return as1.gamma_ns_0(N, s1) / constants.CF
