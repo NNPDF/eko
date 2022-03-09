@@ -24,6 +24,7 @@ include = ["src/ekomark/benchmark/external/LHA.yaml", "doc/source/img/Logo.png"]
 packages = [
   { include = "eko", from = "src" },
   { include = "ekomark", from = "src" },
+  { include = "ekobox", from = "src" },
 ]
 
 [tool.poetry.dependencies]
