@@ -81,7 +81,7 @@ def gamma_ns(order, mode, n, nf):
     ----------
         order : int
             perturbative order
-        mode : "-" | "+" | "V"
+        mode : 10201 | 10101 | 10200
             sector identifier
         n : complex
             Mellin variable
