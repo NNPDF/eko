@@ -23,7 +23,7 @@ def strong_coupling_mod_ev(mod_ev):
     """Map ModEv key to the available strong coupling evolution methods"""
     if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
         return "exact"
-    elif mod_ev in [
+    if mod_ev in [
         "TRN",
         "truncated",
         "ordered-truncated",
