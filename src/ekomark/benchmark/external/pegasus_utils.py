@@ -88,7 +88,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
             for pid in labels:
                 if pid in skip_pdfs:
                     continue
-                if pid not in tab.keys():
+                if pid not in tab:
                     tab[pid] = []
                 tab[pid].append(temp[pid])
 

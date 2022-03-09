@@ -39,8 +39,6 @@ class MatchingCondition(member.OperatorBase):
                 threshold value
             intrinsic_range : list
                 list of intrinsic quark pids
-            is_backward: bool
-                True for backward evolution
         """
 
         m = {

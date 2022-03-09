@@ -11,6 +11,8 @@ import numbers
 
 import numpy as np
 
+from eko.thresholds import flavor_shift, is_downward_path
+
 from .. import basis_rotation as br
 from .. import matching_conditions, member
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
@@ -125,6 +127,7 @@ class OperatorGrid:
         config["debug_skip_singlet"] = operators_card["debug_skip_singlet"]
         config["debug_skip_non_singlet"] = operators_card["debug_skip_non_singlet"]
         config["HQ"] = theory_card["HQ"]
+        config["ModSV"] = theory_card["ModSV"]
         q2_grid = np.array(operators_card["Q2grid"], np.float_)
         intrinsic_range = []
         if int(theory_card["IC"]) == 1:
@@ -153,7 +156,7 @@ class OperatorGrid:
         It computes and stores the necessary macthing operators
         Parameters
         ----------
-            path: list(PathSegment)
+            path: list(`eko.thresholds.PathSegment`)
                 thresholds path
 
         Returns
@@ -162,9 +165,12 @@ class OperatorGrid:
         """
         # The base area is always that of the reference q
         thr_ops = []
+        # is_downward point to smaller nf
+        is_downward = is_downward_path(path)
+        shift = flavor_shift(is_downward)
         for seg in path[:-1]:
             new_op_key = seg.tuple
-            ome = OperatorMatrixElement(self.config, self.managers, seg.is_backward)
+            ome = OperatorMatrixElement(self.config, self.managers, is_downward)
             if new_op_key not in self._threshold_operators:
                 # Compute the operator and store it
                 logger.info("Prepare threshold operator")
@@ -178,10 +184,13 @@ class OperatorGrid:
             # Compute the matching conditions and store it
             if seg.q2_to not in self._matching_operators:
                 thr_config = self.managers["thresholds_config"]
-                # is_backward point to the smaller q2
-                shift = 3 if not seg.is_backward else 4
                 kthr = thr_config.thresholds_ratios[seg.nf - shift]
-                ome.compute(seg.q2_to, np.log(kthr), self.config["HQ"] == "MSBAR")
+                ome.compute(
+                    seg.q2_to,
+                    seg.nf - shift + 3,
+                    np.log(kthr),
+                    self.config["HQ"] == "MSBAR",
+                )
                 self._matching_operators[seg.q2_to] = ome.ome_members
         return thr_ops
 
@@ -213,7 +222,7 @@ class OperatorGrid:
 
     def generate(self, q2):
         """
-        Computes an single EKO.
+        Computes a single EKO.
 
         Parameters
         ----------
@@ -235,7 +244,8 @@ class OperatorGrid:
         )
         operator.compute()
         intrinsic_range = self.config["intrinsic_range"]
-        if path[-1].is_backward:
+        is_downward = is_downward_path(path)
+        if is_downward:
             intrinsic_range = [4, 5, 6]
         final_op = physical.PhysicalOperator.ad_to_evol_map(
             operator.op_members,
@@ -243,16 +253,14 @@ class OperatorGrid:
             operator.q2_to,
             intrinsic_range,
         )
-
         # and multiply the lower ones from the right
-        for i, op in reversed(list(enumerate(thr_ops))):
-            is_backward = path[i].is_backward
+        for op in reversed(list(thr_ops)):
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
                 op.op_members, op.nf, op.q2_to, intrinsic_range
             )
 
             # join with the basis rotation, since matching requires c+ (or likewise)
-            if is_backward:
+            if is_downward:
                 matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
                     self._matching_operators[op.q2_to],
                     op.nf - 1,
@@ -281,7 +289,7 @@ class OperatorGrid:
             "operators": values,
             "operator_errors": errors,
             "alphas": self.managers["strong_coupling"].a_s(
-                q2 / fact_to_ren, fact_scale=q2
+                q2 / fact_to_ren, fact_scale=q2, nf_to=path[-1].nf
             )
             * 4.0
             * np.pi,

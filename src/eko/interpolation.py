@@ -176,6 +176,34 @@ def evaluate_Nx(N, logx, area_list):
     return res
 
 
+@nb.njit("c16(c16,b1,f8,f8[:,:])", cache=True)
+def evaluate_grid(N, is_log, logx, area_list):
+    """
+    Evaluate interpolator in N-space
+
+    Parameters
+    ----------
+        N : complex
+            Mellin variable
+        is_log : boolean
+            is a logarithmic interpolation
+        logx : float
+            logarithm of inversion point
+        area_list : list
+            area configuration of basis function
+
+    Returns
+    -------
+        pj : float
+            basis function * inversion factor
+    """ ""
+    if is_log:
+        pj = log_evaluate_Nx(N, logx, area_list)
+    else:
+        pj = evaluate_Nx(N, logx, area_list)
+    return pj
+
+
 # TODO lift to runcard?
 _atol_eps = 10 * np.finfo(float).eps
 
@@ -482,19 +510,15 @@ class InterpolatorDispatcher:
 
             *   - Name
                 - Type
-                - default
                 - description
             *   - ``interpolation_xgrid``
                 - :py:obj:`list(float)`
-                - [required]
                 - the interpolation grid
             *   - ``interpolation_polynomial_degree``
                 - :py:obj:`int`
-                - ``4``
                 - polynomial degree of the interpolating function
             *   - ``interpolation_is_log``
                 - :py:obj:`bool`
-                - ``True``
                 - use logarithmic interpolation?
 
         Parameters

@@ -6,7 +6,9 @@ See :doc:`Operator overview </code/Operators>`.
 """
 
 import logging
+import os
 import time
+from multiprocessing import Pool
 
 import numba as nb
 import numpy as np
@@ -15,89 +17,112 @@ from scipy import integrate
 from .. import anomalous_dimensions as ad
 from .. import basis_rotation as br
 from .. import beta, interpolation, mellin
+from .. import scale_variations as sv
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)
 
-
-@nb.njit("c16[:](u1,u2,c16,u1,f8)", cache=True)
-def gamma_ns_fact(order, mode, n, nf, L):
-    """
-    Adjust the anomalous dimensions with the scale variations.
-
-    Parameters
-    ----------
-        order : int
-            perturbation order
-        mode : str
-            sector element
-        n : complex
-            Melling moment
-        nf : int
-            number of active flavors
-        L : float
-            logarithmic ratio of factorization and renormalization scale
-
-    Returns
-    -------
-        gamma_ns : numpy.ndarray
-            adjusted non-singlet anomalous dimensions
-    """
-    gamma_ns = ad.gamma_ns(order, mode, n, nf)
-    # since we are modifying *in-place* be carefull, that the order matters!
-    # and indeed, we need to adjust the high elements first
-    if order >= 2:
-        gamma_ns[2] -= (
-            2 * beta.beta(0, nf) * gamma_ns[1] * L
-            + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L**2) * gamma_ns[0]
-        )
-    if order >= 1:
-        gamma_ns[1] -= beta.beta(0, nf) * gamma_ns[0] * L
-    return gamma_ns
-
-
-@nb.njit("c16[:,:,:](u1,c16,u1,f8)", cache=True)
-def gamma_singlet_fact(order, n, nf, L):
-    """
-    Adjust the anomalous dimensions with the scale variations.
-
-    Parameters
-    ----------
-        order : int
-            perturbation order
-        mode : str
-            sector element
-        n : complex
-            Melling moment
-        nf : int
-            number of active flavors
-        L : float
-            logarithmic ratio of factorization and renormalization scale
-
-    Returns
-    -------
-        gamma_singlet : numpy.ndarray
-            adjusted singlet anomalous dimensions
-    """
-    gamma_singlet = ad.gamma_singlet(
-        order,
-        n,
-        nf,
+sv_mode_dict = dict(
+    zip(
+        [None, "exponentiated", "expanded"],
+        [sv.unvaried, sv.mode_exponentiated, sv.mode_expanded],
     )
-    # concerning order: see comment at gamma_ns_fact
-    if order >= 2:
-        gamma_singlet[2] -= (
-            2 * beta.beta(0, nf) * gamma_singlet[1] * L
-            + (beta.beta(1, nf) * L - beta.beta(0, nf) ** 2 * L**2) * gamma_singlet[0]
-        )
-    if order >= 1:
-        gamma_singlet[1] -= beta.beta(0, nf) * gamma_singlet[0] * L
-    return gamma_singlet
+)
 
 
-@nb.njit("f8(f8,u1,u2,u2,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1)", cache=True)
+@nb.njit("c16(c16[:,:],u2,u2)")
+def select_singlet_element(ker, mode0, mode1):
+    """
+    Select element of the singlet matrix
+
+    Parameters
+    ----------
+        ker : numpy.ndarray
+            singlet integration kernel
+        mode0 : int
+            first sector element
+        mode1 : int
+            second sector element
+    Returns
+    -------
+        ker : complex
+            singlet integration kernel element
+    """
+
+    k = 0 if mode0 == 100 else 1
+    l = 0 if mode1 == 100 else 1
+    return ker[k, l]
+
+
+spec = [
+    ("is_singlet", nb.boolean),
+    ("is_log", nb.boolean),
+    ("logx", nb.float64),
+    ("u", nb.float64),
+]
+
+
+@nb.experimental.jitclass(spec)
+class QuadKerBase:
+    """
+    Manage the common part of Mellin inversion integral
+
+    Parameters
+    ----------
+        u : float
+            quad argument
+        is_log : boolean
+            is a logarithmic interpolation
+        logx : float
+            Mellin inversion point
+        mode : str
+            sector element
+    """
+
+    def __init__(self, u, is_log, logx, mode1):
+        self.is_singlet = mode1 != 0
+        self.is_log = is_log
+        self.u = u
+        self.logx = logx
+
+    @property
+    def path(self):
+        """Returns the associated instance of :class:`eko.mellin.Path`"""
+        return mellin.Path(self.u, self.logx, self.is_singlet)
+
+    @property
+    def n(self):
+        """Returns the Mellin moment N"""
+        return self.path.n
+
+    def integrand(
+        self,
+        areas,
+    ):
+        """
+        Get transformation to Mellin space integral
+
+        Parameters
+        ----------
+            areas : tuple
+                basis function configuration
+
+        Returns
+        -------
+            base_integrand: complex
+                common mellin inversion intgrand
+        """
+        if self.logx == 0.0:
+            return 0.0
+        pj = interpolation.evaluate_grid(self.path.n, self.is_log, self.logx, areas)
+        if pj == 0.0:
+            return 0.0
+        return self.path.prefactor * pj * self.path.jac
+
+
+@nb.njit("f8(f8,u1,u2,u2,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,u1)", cache=True)
 def quad_ker(
     u,
     order,
@@ -113,9 +138,10 @@ def quad_ker(
     L,
     ev_op_iterations,
     ev_op_max_order,
+    sv_mode,
 ):
     """
-    Raw kernel inside quad.
+    Raw evolution kernel inside quad.
 
     Parameters
     ----------
@@ -147,42 +173,40 @@ def quad_ker(
             number of evolution steps
         ev_op_max_order : int
             perturbative expansion order of U
+        sv_mode: int
+            use scale variation mode 0: none, 1: exponentiated, 2: expanded
 
     Returns
     -------
         ker : float
             evaluated integration kernel
     """
-    is_singlet = mode1 != 0
-    # get transformation to N integral
-    if logx == 0.0:
+    ker_base = QuadKerBase(u, is_log, logx, mode1)
+    integrand = ker_base.integrand(areas)
+    if integrand == 0.0:
         return 0.0
-    r = 0.4 * 16.0 / (-logx)
-    if is_singlet:
-        o = 1.0
-    else:
-        o = 0.0
-    n = mellin.Talbot_path(u, r, o)
-    jac = mellin.Talbot_jac(u, r, o)
-    # check PDF is active
-    if is_log:
-        pj = interpolation.log_evaluate_Nx(n, logx, areas)
-    else:
-        pj = interpolation.evaluate_Nx(n, logx, areas)
-    if pj == 0.0:
-        return 0.0
+
     # compute the actual evolution kernel
-    if is_singlet:
-        gamma_singlet = gamma_singlet_fact(order, n, nf, L)
+    if ker_base.is_singlet:
+        gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
+        # scale var A is directly applied on gamma
+        if sv_mode == sv.mode_exponentiated:
+            gamma_singlet = sv.exponentiated.gamma_variation(
+                gamma_singlet, order, nf, L
+            )
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
-        # select element of matrix
-        k = 0 if mode0 == 100 else 1
-        l = 0 if mode1 == 100 else 1
-        ker = ker[k, l]
+        # scale var B is applied on the kernel
+        if sv_mode == sv.mode_expanded:
+            ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
+                sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
+            )
+        ker = select_singlet_element(ker, mode0, mode1)
     else:
-        gamma_ns = gamma_ns_fact(order, mode0, n, nf, L)
+        gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
+        if sv_mode == sv.mode_exponentiated:
+            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
             method,
@@ -192,9 +216,11 @@ def quad_ker(
             nf,
             ev_op_iterations,
         )
+        if sv_mode == sv.mode_expanded:
+            ker = ker * sv.expanded.non_singlet_variation(gamma_ns, a1, order, nf, L)
+
     # recombine everthing
-    mellin_prefactor = complex(0.0, -1.0 / np.pi)
-    return np.real(mellin_prefactor * ker * pj * jac)
+    return np.real(ker * integrand)
 
 
 class Operator:
@@ -229,6 +255,37 @@ class Operator:
         self._mellin_cut = mellin_cut
         self.op_members = {}
 
+    @property
+    def fact_to_ren(self):
+        r"""Returns the factor :math:`(\mu_F/\mu_R)^2`"""
+        return self.config["fact_to_ren"]
+
+    @property
+    def sv_mode(self):
+        """Returns the scale variation mode"""
+        return sv_mode_dict[self.config["ModSV"]]
+
+    @property
+    def int_disp(self):
+        """Returns the interpolation dispatcher"""
+        return self.managers["interpol_dispatcher"]
+
+    @property
+    def grid_size(self):
+        """Returns the grid size"""
+        return self.int_disp.xgrid.size
+
+    @property
+    def a_s(self):
+        """Returns the computed values for :math:`a_s`"""
+        sc = self.managers["strong_coupling"]
+        a0 = sc.a_s(
+            self.q2_from / self.fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf
+        )
+        a1 = sc.a_s(self.q2_to / self.fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf)
+        return (a0, a1)
+
+    @property
     def labels(self):
         """
         Compute necessary sector labels to compute.
@@ -257,18 +314,19 @@ class Operator:
             labels.extend(br.singlet_labels)
         return labels
 
-    def compute(self):
-        """compute the actual operators (i.e. run the integrations)"""
-        # Generic parameters
-        int_disp = self.managers["interpol_dispatcher"]
-        grid_size = len(int_disp.xgrid)
+    @property
+    def quad_ker(self):
+        """Integrand function"""
+        return quad_ker
 
-        # init all ops with identity or zeros if we skip them
-        labels = self.labels()
-        eye = OpMember(np.eye(grid_size), np.zeros((grid_size, grid_size)))
-        zero = OpMember(*[np.zeros((grid_size, grid_size))] * 2)
+    def initialize_op_members(self):
+        """Init all ops with identity or zeros if we skip them"""
+        eye = OpMember(
+            np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
+        )
+        zero = OpMember(*[np.zeros((self.grid_size, self.grid_size))] * 2)
         for n in br.full_labels:
-            if n in labels:
+            if n in self.labels:
                 # off diag singlet are zero
                 if n in br.singlet_labels and n[0] != n[1]:
                     self.op_members[n] = zero.copy()
@@ -276,17 +334,79 @@ class Operator:
                     self.op_members[n] = eye.copy()
             else:
                 self.op_members[n] = zero.copy()
-        # skip computation
+
+    def run_op_integration(
+        self,
+        log_grid,
+    ):
+        """
+        Run the integration for each grid point
+
+        Parameters
+        ----------
+            log_grid : tuple(k, logx)
+                log grid point with relative index
+
+        Returns
+        -------
+            column : list
+                computed operators at the give grid point
+
+        """
+        column = []
+        k, logx = log_grid
+        start_time = time.perf_counter()
+        # iterate basis functions
+        for l, bf in enumerate(self.int_disp):
+            if k == l and l == self.grid_size - 1:
+                continue
+            temp_dict = {}
+            # iterate sectors
+            for label in self.labels:
+                res = integrate.quad(
+                    self.quad_ker,
+                    0.5,
+                    1.0 - self._mellin_cut,
+                    args=(
+                        self.config["order"],
+                        label[0],
+                        label[1],
+                        self.config["method"],
+                        self.int_disp.log,
+                        logx,
+                        bf.areas_representation,
+                        self.a_s[1],
+                        self.a_s[0],
+                        self.nf,
+                        np.log(self.fact_to_ren),
+                        self.config["ev_op_iterations"],
+                        self.config["ev_op_max_order"],
+                        self.sv_mode,
+                    ),
+                    epsabs=1e-12,
+                    epsrel=1e-5,
+                    limit=100,
+                    full_output=1,
+                )
+                temp_dict[label] = res[:2]
+            column.append(temp_dict)
+
+        print(
+            f"Evolution: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time):6f} s"  # pylint: disable=line-too-long
+        )
+        return column
+
+    def compute(self):
+        """compute the actual operators (i.e. run the integrations)"""
+        self.initialize_op_members()
+
+        # skip computation ?
         if np.isclose(self.q2_from, self.q2_to):
             logger.info("Evolution: skipping unity operator at %e", self.q2_from)
             self.copy_ns_ops()
             return
+
         tot_start_time = time.perf_counter()
-        # setup ingredients
-        sc = self.managers["strong_coupling"]
-        fact_to_ren = self.config["fact_to_ren"]
-        a0 = sc.a_s(self.q2_from / fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf)
-        a1 = sc.a_s(self.q2_to / fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf)
         logger.info(
             "Evolution: computing operators %e -> %e, nf=%d",
             self.q2_from,
@@ -295,60 +415,35 @@ class Operator:
         )
         logger.info(
             "Evolution: µ_R^2 distance: %e -> %e",
-            self.q2_from / fact_to_ren,
-            self.q2_to / fact_to_ren,
+            self.q2_from / self.fact_to_ren,
+            self.q2_to / self.fact_to_ren,
         )
-        logger.info("Evolution: a_s distance: %e -> %e", a0, a1)
+        if self.sv_mode != 0:
+            logger.info(
+                "Scale Variation: (µ_F/µ_R)^2 = %e, mode: %s",
+                self.fact_to_ren,
+                "exponentiated" if self.sv_mode == 1 else "expanded",
+            )
+        logger.info("Evolution: a_s distance: %e -> %e", self.a_s[0], self.a_s[1])
         logger.info(
             "Evolution: order: %d, solution strategy: %s",
             self.config["order"],
             self.config["method"],
         )
-        logger.info("Evolution: computing operators - 0/%d", grid_size)
-        # iterate output grid
-        for k, logx in enumerate(np.log(int_disp.xgrid_raw)):
-            start_time = time.perf_counter()
-            # iterate basis functions
-            for l, bf in enumerate(int_disp):
-                if k == l and l == grid_size - 1:
-                    continue
-                # iterate sectors
-                for label in labels:
-                    # compute and set
-                    res = integrate.quad(
-                        quad_ker,
-                        0.5,
-                        1.0 - self._mellin_cut,
-                        args=(
-                            self.config["order"],
-                            label[0],
-                            label[1],
-                            self.config["method"],
-                            int_disp.log,
-                            logx,
-                            bf.areas_representation,
-                            a1,
-                            a0,
-                            self.nf,
-                            np.log(fact_to_ren),
-                            self.config["ev_op_iterations"],
-                            self.config["ev_op_max_order"],
-                        ),
-                        epsabs=1e-12,
-                        epsrel=1e-5,
-                        limit=100,
-                        full_output=1,
-                    )
-                    val, err = res[:2]
+
+        # run integration in parallel for each grid point
+        with Pool(int(os.cpu_count() / 2)) as pool:
+            res = pool.map(
+                self.run_op_integration,
+                enumerate(np.log(self.int_disp.xgrid_raw)),
+            )
+
+        # collect results
+        for k, row in enumerate(res):
+            for l, entry in enumerate(row):
+                for label, (val, err) in entry.items():
                     self.op_members[label].value[k][l] = val
                     self.op_members[label].error[k][l] = err
-
-            logger.info(
-                "Evolution: computing operators - %d/%d took: %f s",
-                k + 1,
-                grid_size,
-                time.perf_counter() - start_time,
-            )
 
         # closing comment
         logger.info("Evolution: Total time %f s", time.perf_counter() - tot_start_time)
