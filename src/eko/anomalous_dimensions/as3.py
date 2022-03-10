@@ -17,7 +17,7 @@ zeta3 = harmonics.zeta3
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_nsm_2(n, nf, sx):
+def gamma_nsm(n, nf, sx):
     """
     Computes the |NNLO| valence-like non-singlet anomalous dimension.
 
@@ -34,7 +34,7 @@ def gamma_nsm_2(n, nf, sx):
 
     Returns
     -------
-        gamma_nsm_2 : complex
+        gamma_nsm : complex
             |NNLO| valence-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,-}^{(2)}(N)`
     """
@@ -94,7 +94,7 @@ def gamma_nsm_2(n, nf, sx):
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_nsp_2(n, nf, sx):
+def gamma_nsp(n, nf, sx):
     """
     Computes the |NNLO| singlet-like non-singlet anomalous dimension.
 
@@ -111,7 +111,7 @@ def gamma_nsp_2(n, nf, sx):
 
     Returns
     -------
-        gamma_nsp_2 : complex
+        gamma_nsp : complex
             |NNLO| singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,+}^{(2)}(N)`
     """
@@ -171,7 +171,7 @@ def gamma_nsp_2(n, nf, sx):
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_nsv_2(n, nf, sx):
+def gamma_nsv(n, nf, sx):
     """
     Computes the |NNLO| valence non-singlet anomalous dimension.
 
@@ -188,7 +188,7 @@ def gamma_nsv_2(n, nf, sx):
 
     Returns
     -------
-        gamma_nsv_2 : complex
+        gamma_nsv : complex
             |NNLO| valence non-singlet anomalous dimension
             :math:`\\gamma_{ns,v}^{(2)}(N)`
     """
@@ -221,12 +221,12 @@ def gamma_nsv_2(n, nf, sx):
         + 46.18 * E2
     )
 
-    result = gamma_nsm_2(n, nf, sx) + nf * ps2
+    result = gamma_nsm(n, nf, sx) + nf * ps2
     return result
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_ps_2(n, nf, sx):
+def gamma_ps(n, nf, sx):
     """
     Computes the |NNLO| pure-singlet quark-quark anomalous dimension.
 
@@ -243,7 +243,7 @@ def gamma_ps_2(n, nf, sx):
 
     Returns
     -------
-        gamma_ps_2 : complex
+        gamma_ps : complex
             |NNLO| pure-singlet quark-quark anomalous dimension
             :math:`\\gamma_{ps}^{(2)}(N)`
     """
@@ -298,7 +298,7 @@ def gamma_ps_2(n, nf, sx):
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_qg_2(n, nf, sx):
+def gamma_qg(n, nf, sx):
     """
     Computes the |NNLO| quark-gluon singlet anomalous dimension.
 
@@ -315,7 +315,7 @@ def gamma_qg_2(n, nf, sx):
 
     Returns
     -------
-        gamma_qg_2 : complex
+        gamma_qg : complex
             |NNLO| quark-gluon singlet anomalous dimension
             :math:`\\gamma_{qg}^{(2)}(N)`
     """
@@ -372,7 +372,7 @@ def gamma_qg_2(n, nf, sx):
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_gq_2(n, nf, sx):
+def gamma_gq(n, nf, sx):
     """
     Computes the |NNLO| gluon-quark singlet anomalous dimension.
 
@@ -389,7 +389,7 @@ def gamma_gq_2(n, nf, sx):
 
     Returns
     -------
-        gamma_gq_2 : complex
+        gamma_gq : complex
             |NNLO| gluon-quark singlet anomalous dimension
             :math:`\\gamma_{gq}^{(2)}(N)`
     """
@@ -462,7 +462,7 @@ def gamma_gq_2(n, nf, sx):
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_gg_2(n, nf, sx):
+def gamma_gg(n, nf, sx):
     """
     Computes the |NNLO| gluon-gluon singlet anomalous dimension.
 
@@ -479,7 +479,7 @@ def gamma_gg_2(n, nf, sx):
 
     Returns
     -------
-        gamma_gg_2 : complex
+        gamma_gg : complex
             |NNLO| gluon-gluon singlet anomalous dimension
             :math:`\\gamma_{gg}^{(2)}(N)`
     """
@@ -550,7 +550,7 @@ def gamma_gg_2(n, nf, sx):
 
 
 @nb.njit("c16[:,:](c16,u1,c16[:])", cache=True)
-def gamma_singlet_2(N, nf, sx):
+def gamma_singlet(N, nf, sx):
     r"""
       Computes the |NNLO| singlet anomalous dimension matrix
 
@@ -578,15 +578,15 @@ def gamma_singlet_2(N, nf, sx):
 
       See Also
       --------
-        gamma_nsp_2 : :math:`\gamma_{qq}^{(2)}`
-        gamma_ps_2 : :math:`\gamma_{qq}^{(2)}`
-        gamma_qg_2 : :math:`\gamma_{qg}^{(2)}`
-        gamma_gq_2 : :math:`\gamma_{gq}^{(2)}`
-        gamma_gg_2 : :math:`\gamma_{gg}^{(2)}`
+        gamma_nsp : :math:`\gamma_{qq}^{(2)}`
+        gamma_ps : :math:`\gamma_{qq}^{(2)}`
+        gamma_qg : :math:`\gamma_{qg}^{(2)}`
+        gamma_gq : :math:`\gamma_{gq}^{(2)}`
+        gamma_gg : :math:`\gamma_{gg}^{(2)}`
     """
-    gamma_qq = gamma_nsp_2(N, nf, sx) + gamma_ps_2(N, nf, sx)
-    gamma_qg = gamma_qg_2(N, nf, sx)
-    gamma_gq = gamma_gq_2(N, nf, sx)
-    gamma_gg = gamma_gg_2(N, nf, sx)
-    gamma_S_0 = np.array([[gamma_qq, gamma_qg], [gamma_gq, gamma_gg]], np.complex_)
+    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx)
+    gamma_S_0 = np.array(
+        [[gamma_qq, gamma_qg(N, nf, sx)], [gamma_gq(N, nf, sx), gamma_gg(N, nf, sx)]],
+        np.complex_,
+    )
     return gamma_S_0

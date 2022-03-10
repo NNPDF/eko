@@ -23,7 +23,7 @@ def gamma_phq(N):
         Leading-order photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(0)}(N)`
     """
 
-    return as1.gamma_gq_0(N) / constants.CF
+    return as1.gamma_gq(N) / constants.CF
 
 
 @nb.njit("c16(c16,u1)", cache=True)
@@ -47,7 +47,7 @@ def gamma_qph(N, nf):
       gamma_qph : complex
         Leading-order quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(0)}(N)`
     """
-    return as1.gamma_qg_0(N, nf) / constants.TR * constants.NC
+    return as1.gamma_qg(N, nf) / constants.TR * constants.NC
 
 
 @nb.njit("c16()", cache=True)
@@ -85,4 +85,4 @@ def gamma_ns(N, s1):
       gamma_ns : complex
         Leading-order non-singlet QED anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    return as1.gamma_ns_0(N, s1) / constants.CF
+    return as1.gamma_ns(N, s1) / constants.CF

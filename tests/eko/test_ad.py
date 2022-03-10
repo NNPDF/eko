@@ -5,7 +5,7 @@ from numpy.testing import assert_allclose, assert_almost_equal
 
 from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
-from eko.anomalous_dimensions import as1 as ad_lo
+from eko.anomalous_dimensions import as1 as ad_as1
 from eko.anomalous_dimensions import harmonics
 
 NF = 5
@@ -14,7 +14,7 @@ NF = 5
 def test_eigensystem_gamma_singlet_0_values():
     n = 3
     s1 = harmonics.harmonic_S1(n)
-    gamma_S_0 = ad_lo.gamma_singlet_0(3, s1, NF)
+    gamma_S_0 = ad_as1.gamma_singlet(3, s1, NF)
     res = ad.exp_singlet(gamma_S_0)
     lambda_p = complex(12.273612971466964, 0)
     lambda_m = complex(5.015275917421917, 0)

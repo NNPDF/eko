@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-import eko.anomalous_dimensions.as2 as ad_nlo
+import eko.anomalous_dimensions.as2 as ad_as2
 import eko.anomalous_dimensions.harmonics as h
 from eko.constants import CA, CF, TR
 
@@ -136,8 +136,8 @@ def check_gamma_1_pegasus(N, NF):
     P1NSP = CF * ((CF - CA / 2.0) * PNPA + CA * PNSB + TR * NF * PNSC)
     P1NSM = CF * ((CF - CA / 2.0) * PNMA + CA * PNSB + TR * NF * PNSC)
 
-    np.testing.assert_allclose(ad_nlo.gamma_nsp_1(N, NF), -P1NSP)
-    np.testing.assert_allclose(ad_nlo.gamma_nsm_1(N, NF), -P1NSM)
+    np.testing.assert_allclose(ad_as2.gamma_nsp(N, NF), -P1NSP)
+    np.testing.assert_allclose(ad_as2.gamma_nsm(N, NF), -P1NSM)
 
     NS = N * N
     NT = NS * N
@@ -254,7 +254,7 @@ def check_gamma_1_pegasus(N, NF):
     P1Sgq = (CF * CF * PGQA + CF * CA * PGQB + TR * NF * CF * PGQC) * 4.0
     P1Sgg = (CA * CA * PGGA + TR * NF * (CA * PGGB + CF * PGGC)) * 4.0
 
-    gS1 = ad_nlo.gamma_singlet_1(N, NF)
+    gS1 = ad_as2.gamma_singlet(N, NF)
     np.testing.assert_allclose(gS1[0, 0], -P1Sqq)
     np.testing.assert_allclose(gS1[0, 1], -P1Sqg)
     np.testing.assert_allclose(gS1[1, 0], -P1Sgq)
