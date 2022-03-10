@@ -24,6 +24,14 @@ ed2 = 1.0 / 9
 
 
 def update_colors(nc):
+    """
+    Updates the number of colors to :math:`NC = nc` and the Casimirs for a generic value of :math:`NC`
+
+    Parameters
+    ----------
+      nc : int
+        Number of colors
+    """
     global NC, CA, CF
     NC = int(nc)
     CA = float(NC)
