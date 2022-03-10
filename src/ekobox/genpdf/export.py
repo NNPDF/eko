@@ -52,8 +52,8 @@ def dump_blocks(name, member, blocks, pdf_type=None):
 
     Parameters
     ----------
-        name : str
-            target name
+        name : str or os.PathLike
+            target name or path
         member : int
             PDF member
         blocks : list(dict)
@@ -62,7 +62,7 @@ def dump_blocks(name, member, blocks, pdf_type=None):
             str to be copied in the head of member files
     """
     path_name = pathlib.Path(name)
-    target = path_name / f"{path_name.name}_{member:04d}.dat"
+    target = path_name / f"{path_name.stem}_{member:04d}.dat"
     target.parent.mkdir(exist_ok=True)
     with open(target, "w", encoding="utf-8") as o:
         if pdf_type is None:
@@ -91,13 +91,13 @@ def dump_info(name, info):
 
     Parameters
     ----------
-        name : str
-            target name
+        name : str or os.Pathlike
+            target name or path
         info : dict
             info dictionary
     """
     path_name = pathlib.Path(name)
-    target = path_name / f"{path_name.name}.info"
+    target = path_name / f"{path_name.stem}.info"
     target.parent.mkdir(exist_ok=True)
     # write on string stream to capture output
     stream = io.StringIO()
