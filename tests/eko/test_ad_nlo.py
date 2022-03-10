@@ -4,7 +4,7 @@ import numpy as np
 
 import eko.anomalous_dimensions.as2 as ad_as2
 import eko.anomalous_dimensions.harmonics as h
-from eko.constants import CA, CF
+from eko.constants import CA, CF, update_colors
 
 NF = 5
 
@@ -77,3 +77,33 @@ def test_gamma_1():
     np.testing.assert_allclose(
         gS1[0, 1], (-56317.0 / 18000.0 * CF + 16387.0 / 9000.0 * CA) * NF
     )  # qg
+
+    update_colors(4)
+    from eko.constants import CA as ca
+    from eko.constants import CF as cf
+
+    np.testing.assert_allclose(ca, 4.0)
+    gS1 = ad_as2.gamma_singlet(3, NF)
+    np.testing.assert_allclose(
+        gS1[1, 0],
+        (
+            973.0 / 432.0 * cf
+            + (2801.0 / 5400.0 - 7.0 * np.pi**2 / 9.0) * ca
+            + 61.0 / 54.0 * NF
+        )
+        * cf,
+    )  # gq
+    np.testing.assert_allclose(
+        gS1[1, 1],
+        (
+            (-79909.0 / 3375.0 + 194.0 * np.pi**2 / 45.0 - 8.0 * h.zeta3) * ca**2
+            - 967.0 / 270.0 * ca * NF
+            + 541.0 / 216.0 * cf * NF
+        ),
+        rtol=6e-7,
+    )  # gg
+    gS1 = ad_as2.gamma_singlet(4, NF)
+    np.testing.assert_allclose(
+        gS1[0, 1], (-56317.0 / 18000.0 * cf + 16387.0 / 9000.0 * ca) * NF
+    )  # qg
+    update_colors(3)
