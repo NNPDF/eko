@@ -50,12 +50,17 @@ def gamma_qph(N, nf):
     return as1.gamma_qg(N, nf) / constants.TR * constants.NC
 
 
-@nb.njit("c16()", cache=True)
-def gamma_phph():
+@nb.njit("c16(u1)", cache=True)
+def gamma_phph(nf):
     """
     Computes the leading-order photon-photon anomalous dimension
 
     Implements Eq. (2.5) of :cite:`Carrazza:2015dea`.
+
+    Parameters
+    ----------
+      nf : int
+        Number of active flavors
 
     Returns
     -------
@@ -63,7 +68,7 @@ def gamma_phph():
         Leading-order phton-photon anomalous dimension :math:`\\gamma_{\\gamma \\gamma}^{(0)}(N)`
     """
 
-    return -4.0 / 3
+    return -2 / 3 * constants.NC * 2 * nf
 
 
 @nb.njit("c16(c16,c16)", cache=True)

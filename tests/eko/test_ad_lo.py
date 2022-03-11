@@ -71,5 +71,5 @@ def test_gamma_qph_0():
 
 
 def test_gamma_phph_0():
-    res = complex(-4.0 / 3, 0.0)
-    np.testing.assert_almost_equal(ad_aem1.gamma_phph(), res)
+    res = complex(-2.0 / 3 * 3 * 2 * NF, 0.0)
+    np.testing.assert_almost_equal(ad_aem1.gamma_phph(NF), res)
