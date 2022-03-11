@@ -8,7 +8,7 @@ NC = 3
 """the number of colors"""
 
 TR = float(1.0 / 2.0)
-"""the normalization of fundamental generators - defaults to :math:`T_F = 1/2`"""
+"""the normalization of fundamental generators - defaults to :math:`T_R = 1/2`"""
 
 CA = float(NC)
 """second Casimir constant in the adjoint representation - defaults to :math:`N_C = 3`"""
