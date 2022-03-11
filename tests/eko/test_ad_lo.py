@@ -39,6 +39,12 @@ def test_gluon_momentum_conservation():
     )
 
 
+def test_photon_momentum_conservation():
+    # gluon momentum
+    N = complex(2.0, 0.0)
+    np.testing.assert_almost_equal(ad_aem1.gamma_qph(N, NF) + ad_aem1.gamma_phph(NF), 0)
+
+
 def test_gamma_qg_0():
     N = complex(1.0, 0.0)
     res = complex(-20.0 / 3.0, 0.0)
@@ -71,5 +77,5 @@ def test_gamma_qph_0():
 
 
 def test_gamma_phph_0():
-    res = complex(-2.0 / 3 * 3 * 2 * NF, 0.0)
+    res = complex(2.0 / 3 * 3 * 2 * NF, 0.0)
     np.testing.assert_almost_equal(ad_aem1.gamma_phph(NF), res)

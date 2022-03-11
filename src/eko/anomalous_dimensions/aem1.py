@@ -68,7 +68,7 @@ def gamma_phph(nf):
         Leading-order phton-photon anomalous dimension :math:`\\gamma_{\\gamma \\gamma}^{(0)}(N)`
     """
 
-    return -2 / 3 * constants.NC * 2 * nf
+    return 2 / 3 * constants.NC * 2 * nf
 
 
 @nb.njit("c16(c16,c16)", cache=True)
