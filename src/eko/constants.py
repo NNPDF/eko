@@ -32,7 +32,8 @@ def update_colors(nc):
       nc : int
         Number of colors
     """
-    global NC, CA, CF
+    global NC, CA, CF  # pylint: disable=global-statement
+
     NC = int(nc)
     CA = float(NC)
     CF = float((NC * NC - 1.0) / (2.0 * NC))
