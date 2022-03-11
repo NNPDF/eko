@@ -116,9 +116,7 @@ def gamma_ns(order, mode, n, nf):
         elif mode in [10201, 10200]:
             gamma_ns_1 = as2.gamma_nsm(n, nf)
         else:
-            raise NotImplementedError(
-                "Non-singlet sector " + str(mode) + " is not implemented"
-            )
+            raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond
     if order >= 2:
