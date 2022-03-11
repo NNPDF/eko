@@ -42,9 +42,9 @@ def select_singlet_element(ker, mode0, mode1):
         ker : numpy.ndarray
             singlet integration kernel
         mode0 : int
-            first sector element
+            id for first sector element
         mode1 : int
-            second sector element
+            id for second sector element
     Returns
     -------
         ker : complex
