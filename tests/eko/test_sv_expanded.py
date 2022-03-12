@@ -2,6 +2,7 @@
 
 import numpy as np
 
+from eko import basis_rotation as br
 from eko.anomalous_dimensions import gamma_ns, gamma_singlet
 from eko.beta import beta_0
 from eko.kernels import non_singlet, singlet
@@ -71,7 +72,7 @@ def test_scale_variation_a_vs_b():
     for L in [np.log(0.5), np.log(2)]:
         for order in [1, 2]:
             # Non singlet kernels
-            gns = gamma_ns(order, "p", n, nf)
+            gns = gamma_ns(order, br.non_singlet_pids_map["ns+"], n, nf)
             ker = non_singlet.dispatcher(
                 order, method, gns, a1, a0, nf, ev_op_iterations=1
             )

@@ -30,7 +30,8 @@ def test_quad_ker(monkeypatch):
         res_ns = quad_ker(
             u=0,
             order=0,
-            mode="NS_p",
+            mode0=br.non_singlet_pids_map["ns+"],
+            mode1=0,
             method="",
             is_log=is_log,
             logx=0.0,
@@ -47,7 +48,8 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=0,
-            mode="S_qq",
+            mode0=100,
+            mode1=100,
             method="",
             is_log=is_log,
             logx=1.0,
@@ -64,7 +66,8 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=0,
-            mode="S_qg",
+            mode0=100,
+            mode1=21,
             method="",
             is_log=is_log,
             logx=0.0,
@@ -78,12 +81,13 @@ def test_quad_ker(monkeypatch):
             sv_mode=0,
         )
         np.testing.assert_allclose(res_s, 0.0)
-    for mode in ["NS_p", "S_qq"]:
+    for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
         for sv in [1, 2]:
             res_sv = quad_ker(
                 u=0,
                 order=0,
-                mode=mode,
+                mode0=label[0],
+                mode1=label[1],
                 method="",
                 is_log=True,
                 logx=1.0,
@@ -102,7 +106,8 @@ def test_quad_ker(monkeypatch):
     res_ns = quad_ker(
         u=0,
         order=0,
-        mode="NS_p",
+        mode0=br.non_singlet_pids_map["ns+"],
+        mode1=0,
         method="",
         is_log=True,
         logx=0.0,
@@ -127,9 +132,7 @@ class TestOperator:
             1,
             2,
         )
-        assert sorted(o.labels) == sorted(
-            ["NS_p", "NS_m", "NS_v", "S_qq", "S_qg", "S_gq", "S_gg"]
-        )
+        assert sorted(o.labels) == sorted(br.full_labels)
         o = Operator(
             dict(order=1, debug_skip_non_singlet=True, debug_skip_singlet=True),
             {},
@@ -190,19 +193,25 @@ class TestOperator:
         )
         # LO
         o.compute()
-        assert "NS_m" in o.op_members
+        assert (br.non_singlet_pids_map["ns-"], 0) in o.op_members
         np.testing.assert_allclose(
-            o.op_members["NS_m"].value, o.op_members["NS_p"].value
+            o.op_members[(br.non_singlet_pids_map["ns-"], 0)].value,
+            o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
         )
         np.testing.assert_allclose(
-            o.op_members["NS_v"].value, o.op_members["NS_p"].value
+            o.op_members[(br.non_singlet_pids_map["nsV"], 0)].value,
+            o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
         )
         # NLO
         o.config["order"] = 1
         o.compute()
-        assert not np.allclose(o.op_members["NS_p"].value, o.op_members["NS_m"].value)
+        assert not np.allclose(
+            o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
+            o.op_members[(br.non_singlet_pids_map["ns-"], 0)].value,
+        )
         np.testing.assert_allclose(
-            o.op_members["NS_v"].value, o.op_members["NS_m"].value
+            o.op_members[(br.non_singlet_pids_map["nsV"], 0)].value,
+            o.op_members[(br.non_singlet_pids_map["ns-"], 0)].value,
         )
 
         # unity operators
@@ -217,13 +226,13 @@ class TestOperator:
 
 def test_pegasus_path():
     def quad_ker_pegasus(
-        u, order, mode, method, logx, areas, a1, a0, nf, ev_op_iterations
+        u, order, mode0, method, logx, areas, a1, a0, nf, ev_op_iterations
     ):
         # compute the mellin inversion as done in pegasus
         phi = 3 / 4 * np.pi
         c = 1.9
         n = complex(c + u * np.exp(1j * phi))
-        gamma_ns = ad.gamma_ns(order, mode[-1], n, nf)
+        gamma_ns = ad.gamma_ns(order, mode0, n, nf)
         ker = ns.dispatcher(
             order,
             method,
@@ -241,7 +250,8 @@ def test_pegasus_path():
     xgrid = np.geomspace(1e-7, 1, 10)
     int_disp = InterpolatorDispatcher(xgrid, 1, True)
     order = 1
-    mode = "NS_p"
+    mode0 = br.non_singlet_pids_map["ns+"]
+    mode1 = 0
     method = ""
     logxs = np.log(int_disp.xgrid_raw)
     a1 = 1
@@ -257,7 +267,8 @@ def test_pegasus_path():
                 1.0,
                 args=(
                     order,
-                    mode,
+                    mode0,
+                    mode1,
                     method,
                     int_disp.log,
                     logx,
@@ -282,7 +293,7 @@ def test_pegasus_path():
                 np.inf,
                 args=(
                     order,
-                    mode,
+                    mode0,
                     method,
                     logx,
                     bf.areas_representation,

@@ -518,22 +518,22 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     # Common method for NLO and NNLO
     if method in ["iterate-exact", "iterate-expanded"]:
         return eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
-    elif method == "perturbative-exact":
+    if method == "perturbative-exact":
         return eko_perturbative(
             gamma_singlet, a1, a0, nf, order, ev_op_iterations, ev_op_max_order, True
         )
-    elif method == "perturbative-expanded":
+    if method == "perturbative-expanded":
         return eko_perturbative(
             gamma_singlet, a1, a0, nf, order, ev_op_iterations, ev_op_max_order, False
         )
-    elif method in ["truncated", "ordered-truncated"]:
+    if method in ["truncated", "ordered-truncated"]:
         return eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
     # These methods are scattered for nlo and nnlo
-    elif method == "decompose-exact":
+    if method == "decompose-exact":
         if order == 1:
             return nlo_decompose_exact(gamma_singlet, a1, a0, nf)
         return nnlo_decompose_exact(gamma_singlet, a1, a0, nf)
-    elif method == "decompose-expanded":
+    if method == "decompose-expanded":
         if order == 1:
             return nlo_decompose_expanded(gamma_singlet, a1, a0, nf)
         return nnlo_decompose_expanded(gamma_singlet, a1, a0, nf)
