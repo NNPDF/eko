@@ -6,9 +6,6 @@ This module defines the |OME| for the non-trivial matching conditions in the
 
 import functools
 import logging
-import multiprocessing
-import os
-import time
 
 import numba as nb
 import numpy as np
@@ -16,7 +13,7 @@ from scipy import integrate
 
 from .. import basis_rotation as br
 from ..anomalous_dimensions import harmonics
-from ..evolution_operator import QuadKerBase
+from ..evolution_operator import Operator, QuadKerBase
 from ..member import OpMember
 from . import n3lo, nlo, nnlo
 from .n3lo import s_functions
@@ -147,7 +144,6 @@ def A_non_singlet(order, n, sx, nf, L):
         A_ns[1] = nnlo.A_ns_2(n, sx, L)
     if order >= 3:
         A_ns[2] = n3lo.A_ns_3(n, sx, nf, L)
-    print(A_ns)
     return A_ns
 
 
@@ -279,94 +275,7 @@ def quad_ker(
     return np.real(ker * integrand)
 
 
-def run_op_integration(
-    log_grid,
-    int_disp,
-    grid_size,
-    labels,
-    order,
-    is_log,
-    a_s,
-    nf,
-    L,
-    backward_method,
-    is_msbar,
-):
-    """
-    Integration routine per operator
-
-    Parameters
-    ----------
-        log_grid : tuple(k, logx)
-            log grid point with relative indices
-        int_disp : eko.interpolation.interpolation_dispatcher
-            instance of the interpolation dispatcher
-        grid_size : int
-            length of the grid
-        labels : numpy.ndarray
-            list of ome labels
-        order : int
-            perturbation order
-        is_log : boolean
-            logarithmic interpolation
-        a_s : float
-            strong coupling, needed only for the exact inverse
-        nf: int
-            number of active flavor below threshold
-        L : float
-            :math:`log(q^2/m_h^2)`
-        backward_method : ["exact", "expanded" or ""]
-            empty or method for inverting the matching condition (exact or expanded)
-        is_msbar: bool
-            add the |MSbar| contribution
-
-    Returns
-    -------
-        ker : float
-            evaluated integration kernel
-    """
-    column = []
-    k, logx = log_grid
-    start_time = time.perf_counter()
-    # iterate basis functions
-    for l, bf in enumerate(int_disp):
-        if k == l and l == grid_size - 1:
-            continue
-        temp_dict = {}
-        # iterate sectors
-        for label in labels:
-            # compute and set
-            res = integrate.quad(
-                quad_ker,
-                0.5,
-                1.0 - 1e-02,
-                args=(
-                    order,
-                    label[0],
-                    label[1],
-                    is_log,
-                    logx,
-                    bf.areas_representation,
-                    a_s,
-                    nf,
-                    L,
-                    backward_method,
-                    is_msbar,
-                ),
-                epsabs=1e-12,
-                epsrel=1e-5,
-                limit=100,
-                full_output=1,
-            )
-            temp_dict[label] = res[:2]
-        column.append(temp_dict)
-    print(
-        f"Matching: computing operators - {k + 1}/{grid_size} took: {(time.perf_counter() - start_time)} s",  # pylint: disable=line-too-long
-    )
-    return column
-
-
-class OperatorMatrixElement:
+class OperatorMatrixElement(Operator):
     """
     Internal representation of a single |OME|.
 
@@ -380,23 +289,29 @@ class OperatorMatrixElement:
             managers
         is_backward: bool
             True for backward evolution
-        mellin_cut : float
-            cut to the upper limit in the mellin inversion
+        q2: float
+            matching scale
+        nf: int
+            number of active flavor below threshold
+        L: float
+            log of K threshold squared
+        is_msbar: bool
+            add the |MSbar| contribution
     """
 
-    def __init__(self, config, managers, is_backward, mellin_cut=1e-2):
+    operator_type = "Matching"
 
+    def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
+        super().__init__(config, managers, nf, q2)
         self.backward_method = config["backward_inversion"] if is_backward else ""
         if is_backward:
             self.is_intrinsic = True
         else:
             self.is_intrinsic = bool(len(config["intrinsic_range"]) != 0)
-        self.config = config
-        self.sc = managers["strong_coupling"]
-        self.int_disp = managers["interpol_dispatcher"]
-        self._mellin_cut = mellin_cut
-        self.ome_members = {}
+        self.L = L
+        self.is_msbar = is_msbar
 
+    @property
     def labels(self):
         """
         Compute necessary sector labels to compute.
@@ -410,7 +325,7 @@ class OperatorMatrixElement:
         labels = []
         # non singlet labels
         if self.config["debug_skip_non_singlet"]:
-            logger.warning("Matching: skipping non-singlet sector")
+            logger.warning("%s: skipping non-singlet sector", self.operator_type)
         else:
             labels.extend([(200, 200), (br.matching_hminus_pid, 200)])
             if self.is_intrinsic or self.backward_method != "":
@@ -420,7 +335,7 @@ class OperatorMatrixElement:
                 # labels.extend(["NS_qH", "NS_Hq"])
         # same for singlet
         if self.config["debug_skip_singlet"]:
-            logger.warning("Matching: skipping singlet sector")
+            logger.warning("%s: skipping singlet sector", self.operator_type)
         else:
             labels.extend(
                 [
@@ -439,74 +354,76 @@ class OperatorMatrixElement:
                 )
         return labels
 
-    def compute(self, q2, nf, L, is_msbar):
-        """
-        compute the actual operators (i.e. run the integrations)
-
-        Parameters
-        ----------
-            q2: float
-                matching scale
-            nf: int
-                number of active flavor below threshold
-            L: float
-                log of K threshold squared
-            is_msbar: bool
-                add the |MSbar| contribution
-        """
-
-        # init all ops with zeros
-        grid_size = len(self.int_disp.xgrid)
-        labels = self.labels()
-        for n in labels:
+    def initialize_ome_members(self):
+        """Init all ops with identity or zeros if we skip them"""
+        # TODO: promote the ome_members to be op_members and reuse this function!!
+        for n in self.labels:
             if n[0] == n[1]:
                 self.ome_members[n] = OpMember(
-                    np.eye(grid_size), np.zeros((grid_size, grid_size))
+                    np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
                 )
             else:
                 self.ome_members[n] = OpMember(
-                    np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
+                    np.zeros((self.grid_size, self.grid_size)),
+                    np.zeros((self.grid_size, self.grid_size)),
                 )
+
+    def quad_ker(self, label, logx, areas):
+        """
+        Partially initialized integrand function
+
+        Parameters
+        ----------
+            label: tuple
+                operator element pids
+            logx: float
+                Mellin inversion point
+            areas : tuple
+                basis function configuration
+
+        Returns
+        -------
+            quad_ker : functools.partial
+                partially initialized intration kernel
+
+        """
+        return functools.partial(
+            quad_ker,
+            order=self.config["order"],
+            mode0=label[0],
+            mode1=label[1],
+            is_log=self.int_disp.log,
+            logx=logx,
+            areas=areas,
+            a_s=self.a_s,
+            nf=self.nf,
+            L=self.L,
+            backward_method=self.backward_method,
+            is_msbar=self.is_msbar,
+        )
+
+    @property
+    def a_s(self):
+        """
+        Returns the computed values for :math:`a_s`.
+        Note that here you need to use :math:`a_s^{n_f+1}`
+        """
+        sc = self.managers["strong_coupling"]
+        return sc.a_s(self.q2_from / self.fact_to_ren, self.q2_from, nf_to=self.nf + 1)
+
+    def compute(self):
+        """
+        compute the actual operators (i.e. run the integrations)
+        """
+        self.initialize_ome_members()
 
         # At LO you don't need anything else
         if self.config["order"] == 0:
-            logger.info("Matching: no need to compute matching at LO")
+            logger.info("%s: no need to compute matching at LO", self.operator_type)
             self.copy_ome()
             return
 
-        # Note that here you need to use a_s^{nf+1}(q2)
-        a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2, nf_to=nf + 1)
-
-        tot_start_time = time.perf_counter()
-
-        # run integration in parallel for each grid point
-        with multiprocessing.Pool(int(os.cpu_count() / 2)) as pool:
-            res = pool.map(
-                functools.partial(
-                    run_op_integration,
-                    int_disp=self.int_disp,
-                    grid_size=grid_size,
-                    labels=labels,
-                    order=self.config["order"],
-                    is_log=self.int_disp.log,
-                    a_s=a_s,
-                    nf=nf,
-                    L=L,
-                    backward_method=self.backward_method,
-                    is_msbar=is_msbar,
-                ),
-                enumerate(np.log(self.int_disp.xgrid_raw)),
-            )
-
-        # collect results
-        for k, row in enumerate(res):
-            for l, entry in enumerate(row):
-                for label, (val, err) in entry.items():
-                    self.ome_members[label].value[k][l] = val
-                    self.ome_members[label].error[k][l] = err
-
-        # closing comment
-        logger.info("Matching: Total time %f s", time.perf_counter() - tot_start_time)
+        self.integrate()
         self.copy_ome()
 
     def copy_ome(self):
