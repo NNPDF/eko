@@ -1,7 +1,7 @@
 Matching Conditions on Crossing Thresholds
 ==========================================
 
-In a |VFNS| one considers several matching thresholds (as provided by the :class:`~eko.thresholds.ThresholdsAtlas`)
+In a |VFNS| one considers several matching scales (as provided by the :class:`~eko.thresholds.ThresholdsAtlas`)
 where the number of active, light flavors that are participating in the :doc:`DGLAP equation <DGLAP>` changes
 by one unit: :math:`n_f \to n_f +1`. This means the distributions do not behave in the same matter above and below
 the threshold: in esp. the new quark distributions :math:`q_{n_f+1}(x,\mu_F^2) = h(x,\mu_F^2)` and
@@ -28,7 +28,7 @@ We can then denote the solution as
 .. math ::
     \tilde{\mathbf{f}}^{(n_f+1)}(Q^2_1)= \tilde{\mathbf{E}}^{(n_f+1)}(Q^2_1\leftarrow \mu_{h}^2) {\mathbf{R}^{(n_f)}} \tilde{\mathbf{A}}^{(n_f)}(\mu_{h}^2) \tilde{\mathbf{E}}^{(n_f)}(\mu_{h}^2\leftarrow Q^2_0) \tilde{\mathbf{f}}^{(n_f)}(Q^2_0)
 
-In the case of more than one threshold being present, the matching procedure is iterated on all thresholds starting from the lowest one.
+In the case of more than one threshold being present, the matching procedure is iterated on all matching scales starting from the lowest one.
 
 
 Operator Matrix Elements

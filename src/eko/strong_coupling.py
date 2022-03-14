@@ -153,7 +153,7 @@ class StrongCoupling:
             masses : list(float)
                 list with quark masses squared
             thresholds_ratios : list(float)
-                list with ratios between the mass and the thresholds squared
+                list with ratios between the mass and the matching scales squared
             order: int
                 Evaluated order of the beta function: ``0`` = LO, ...
             method : ["expanded", "exact"]

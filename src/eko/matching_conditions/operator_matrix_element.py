@@ -446,7 +446,7 @@ class OperatorMatrixElement:
         Parameters
         ----------
             q2: float
-                threshold scale
+                matching scale
             nf: int
                 number of active flavor below threshold
             L: float
