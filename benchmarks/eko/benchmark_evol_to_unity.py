@@ -104,7 +104,7 @@ class BenchmarkBackwardForward:
             o_back.op_members[(21, 21)].value @ o.op_members[(21, 21)].value
             + o_back.op_members[(21, 100)].value @ o.op_members[(100, 21)].value,
             np.eye(dim[0]),
-            atol=9e-2,
+            atol=11.2e-2,
         )
         # gq
         np.testing.assert_allclose(
