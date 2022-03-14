@@ -5,6 +5,7 @@ This module contains the central operator classes.
 See :doc:`Operator overview </code/Operators>`.
 """
 
+import functools
 import logging
 import os
 import time
@@ -245,7 +246,10 @@ class Operator:
             cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2):
+    operator_type = "Evolution"
+    n_pools = int(os.cpu_count() / 2)
+
+    def __init__(self, config, managers, nf, q2_from, q2_to=None, mellin_cut=5e-2):
         self.config = config
         self.managers = managers
         self.nf = nf
@@ -254,6 +258,8 @@ class Operator:
         # TODO make 'cut' external parameter?
         self._mellin_cut = mellin_cut
         self.op_members = {}
+        # TODO: temporary fix
+        self.ome_members = {}
 
     @property
     def fact_to_ren(self):
@@ -299,7 +305,7 @@ class Operator:
         labels = []
         # the NS sector is dynamic
         if self.config["debug_skip_non_singlet"]:
-            logger.warning("Evolution: skipping non-singlet sector")
+            logger.warning("%s: skipping non-singlet sector", self.operator_type)
         else:
             # add + as default
             labels.append(br.non_singlet_labels[1])
@@ -309,15 +315,48 @@ class Operator:
                 labels.append(br.non_singlet_labels[2])
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
-            logger.warning("Evolution: skipping singlet sector")
+            logger.warning("%s: skipping singlet sector", self.operator_type)
         else:
             labels.extend(br.singlet_labels)
         return labels
 
-    @property
-    def quad_ker(self):
-        """Integrand function"""
-        return quad_ker
+    def quad_ker(self, label, logx, areas):
+        """
+        Partially initialized integrand function
+
+        Parameters
+        ----------
+            label: tuple
+                operator element pids
+            logx: float
+                Mellin inversion point
+            areas : tuple
+                basis function configuration
+
+        Returns
+        -------
+            quad_ker : functools.partial
+                partially initialized intration kernel
+
+        """
+        return functools.partial(
+            quad_ker,
+            # TODO: implement N3LO evolution kernels
+            order=self.config["order"] if self.config["order"] != 3 else 2,
+            mode0=label[0],
+            mode1=label[1],
+            method=self.config["method"],
+            is_log=self.int_disp.log,
+            logx=logx,
+            areas=areas,
+            a1=self.a_s[1],
+            a0=self.a_s[0],
+            nf=self.nf,
+            L=np.log(self.fact_to_ren),
+            ev_op_iterations=self.config["ev_op_iterations"],
+            ev_op_max_order=self.config["ev_op_max_order"],
+            sv_mode=self.sv_mode,
+        )
 
     def initialize_op_members(self):
         """Init all ops with identity or zeros if we skip them"""
@@ -364,26 +403,9 @@ class Operator:
             # iterate sectors
             for label in self.labels:
                 res = integrate.quad(
-                    self.quad_ker,
+                    self.quad_ker(label, logx, bf.areas_representation),
                     0.5,
                     1.0 - self._mellin_cut,
-                    args=(
-                        # TODO: implement N3LO evolution kernels
-                        self.config["order"] if self.config["order"] != 3 else 2,
-                        label[0],
-                        label[1],
-                        self.config["method"],
-                        self.int_disp.log,
-                        logx,
-                        bf.areas_representation,
-                        self.a_s[1],
-                        self.a_s[0],
-                        self.nf,
-                        np.log(self.fact_to_ren),
-                        self.config["ev_op_iterations"],
-                        self.config["ev_op_max_order"],
-                        self.sv_mode,
-                    ),
                     epsabs=1e-12,
                     epsrel=1e-5,
                     limit=100,
@@ -391,9 +413,8 @@ class Operator:
                 )
                 temp_dict[label] = res[:2]
             column.append(temp_dict)
-
         print(
-            f"Evolution: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time):6f} s"  # pylint: disable=line-too-long
+            f"{self.operator_type}: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time):6f} s"  # pylint: disable=line-too-long
         )
         return column
 
@@ -403,19 +424,22 @@ class Operator:
 
         # skip computation ?
         if np.isclose(self.q2_from, self.q2_to):
-            logger.info("Evolution: skipping unity operator at %e", self.q2_from)
+            logger.info(
+                "%s: skipping unity operator at %e", self.operator_type, self.q2_from
+            )
             self.copy_ns_ops()
             return
 
-        tot_start_time = time.perf_counter()
         logger.info(
-            "Evolution: computing operators %e -> %e, nf=%d",
+            "%s: computing operators %e -> %e, nf=%d",
+            self.operator_type,
             self.q2_from,
             self.q2_to,
             self.nf,
         )
         logger.info(
-            "Evolution: µ_R^2 distance: %e -> %e",
+            "%s: µ_R^2 distance: %e -> %e",
+            self.operator_type,
             self.q2_from / self.fact_to_ren,
             self.q2_to / self.fact_to_ren,
         )
@@ -425,15 +449,28 @@ class Operator:
                 self.fact_to_ren,
                 "exponentiated" if self.sv_mode == 1 else "expanded",
             )
-        logger.info("Evolution: a_s distance: %e -> %e", self.a_s[0], self.a_s[1])
         logger.info(
-            "Evolution: order: %d, solution strategy: %s",
+            "%s: a_s distance: %e -> %e", self.operator_type, self.a_s[0], self.a_s[1]
+        )
+        logger.info(
+            "%s: order: %d, solution strategy: %s",
+            self.operator_type,
             self.config["order"],
             self.config["method"],
         )
 
+        self.integrate()
+        # copy non-singlet kernels, if necessary
+        self.copy_ns_ops()
+
+    def integrate(
+        self,
+    ):
+        """Run the integration"""
+        tot_start_time = time.perf_counter()
+
         # run integration in parallel for each grid point
-        with Pool(int(os.cpu_count() / 2)) as pool:
+        with Pool(self.n_pools) as pool:
             res = pool.map(
                 self.run_op_integration,
                 enumerate(np.log(self.int_disp.xgrid_raw)),
@@ -443,13 +480,21 @@ class Operator:
         for k, row in enumerate(res):
             for l, entry in enumerate(row):
                 for label, (val, err) in entry.items():
-                    self.op_members[label].value[k][l] = val
-                    self.op_members[label].error[k][l] = err
+
+                    # TODO: same as labels, promote ome_members to be op_members
+                    if self.operator_type == "Evolution":
+                        self.op_members[label].value[k][l] = val
+                        self.op_members[label].error[k][l] = err
+                    else:
+                        self.ome_members[label].value[k][l] = val
+                        self.ome_members[label].error[k][l] = err
 
         # closing comment
-        logger.info("Evolution: Total time %f s", time.perf_counter() - tot_start_time)
-        # copy non-singlet kernels, if necessary
-        self.copy_ns_ops()
+        logger.info(
+            "%s: Total time %f s",
+            self.operator_type,
+            time.perf_counter() - tot_start_time,
+        )
 
     def copy_ns_ops(self):
         """Copy non-singlet kernels, if necessary"""
