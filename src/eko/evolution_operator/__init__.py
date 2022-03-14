@@ -15,9 +15,9 @@ import numpy as np
 from scipy import integrate
 
 from .. import anomalous_dimensions as ad
+from .. import basis_rotation as br
 from .. import interpolation, mellin
 from .. import scale_variations as sv
-from ..basis_rotation import full_labels, singlet_labels
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
@@ -32,25 +32,27 @@ sv_mode_dict = dict(
 )
 
 
-@nb.njit("c16(c16[:,:],string)")
-def select_singlet_element(ker, mode):
+@nb.njit("c16(c16[:,:],u2,u2)")
+def select_singlet_element(ker, mode0, mode1):
     """
     Select element of the singlet matrix
 
     Parameters
     ----------
-        mode : str
-            sector element
         ker : numpy.ndarray
             singlet integration kernel
-
+        mode0 : int
+            id for first sector element
+        mode1 : int
+            id for second sector element
     Returns
     -------
         ker : complex
             singlet integration kernel element
     """
-    k = 0 if mode[2] == "q" else 1
-    l = 0 if mode[3] == "q" else 1
+
+    k = 0 if mode0 == 100 else 1
+    l = 0 if mode1 == 100 else 1
     return ker[k, l]
 
 
@@ -79,8 +81,8 @@ class QuadKerBase:
             sector element
     """
 
-    def __init__(self, u, is_log, logx, mode):
-        self.is_singlet = mode[0] == "S"
+    def __init__(self, u, is_log, logx, mode1):
+        self.is_singlet = mode1 != 0
         self.is_log = is_log
         self.u = u
         self.logx = logx
@@ -120,11 +122,12 @@ class QuadKerBase:
         return self.path.prefactor * pj * self.path.jac
 
 
-@nb.njit("f8(f8,u1,string,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,u1)", cache=True)
+@nb.njit("f8(f8,u1,u2,u2,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,u1)", cache=True)
 def quad_ker(
     u,
     order,
-    mode,
+    mode0,
+    mode1,
     method,
     is_log,
     logx,
@@ -148,8 +151,10 @@ def quad_ker(
             perturbation order
         method : str
             method
-        mode : str
-            sector element
+        mode0: int
+            pid for first sector element
+        mode1 : int
+            pid for second sector element
         is_log : boolean
             is a logarithmic interpolation
         logx : float
@@ -176,7 +181,7 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    ker_base = QuadKerBase(u, is_log, logx, mode)
+    ker_base = QuadKerBase(u, is_log, logx, mode1)
     integrand = ker_base.integrand(areas)
     if integrand == 0.0:
         return 0.0
@@ -197,9 +202,9 @@ def quad_ker(
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
                 sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
             )
-        ker = select_singlet_element(ker, mode)
+        ker = select_singlet_element(ker, mode0, mode1)
     else:
-        gamma_ns = ad.gamma_ns(order, mode[-1], ker_base.n, nf)
+        gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
         if sv_mode == sv.mode_exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
@@ -297,16 +302,16 @@ class Operator:
             logger.warning("Evolution: skipping non-singlet sector")
         else:
             # add + as default
-            labels.append("NS_p")
+            labels.append(br.non_singlet_labels[1])
             if order >= 1:  # - becomes different starting from NLO
-                labels.append("NS_m")
+                labels.append(br.non_singlet_labels[0])
             if order >= 2:  # v also becomes different starting from NNLO
-                labels.append("NS_v")
+                labels.append(br.non_singlet_labels[2])
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
             logger.warning("Evolution: skipping singlet sector")
         else:
-            labels.extend(singlet_labels)
+            labels.extend(br.singlet_labels)
         return labels
 
     @property
@@ -320,10 +325,10 @@ class Operator:
             np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
         )
         zero = OpMember(*[np.zeros((self.grid_size, self.grid_size))] * 2)
-        for n in full_labels:
+        for n in br.full_labels:
             if n in self.labels:
                 # off diag singlet are zero
-                if n in ["S_qg", "S_gq"]:
+                if n in br.singlet_labels and n[0] != n[1]:
                     self.op_members[n] = zero.copy()
                 else:
                     self.op_members[n] = eye.copy()
@@ -364,7 +369,8 @@ class Operator:
                     1.0 - self._mellin_cut,
                     args=(
                         self.config["order"],
-                        label,
+                        label[0],
+                        label[1],
                         self.config["method"],
                         self.int_disp.log,
                         logx,
@@ -448,9 +454,21 @@ class Operator:
         """Copy non-singlet kernels, if necessary"""
         order = self.config["order"]
         if order == 0:  # in LO +=-=v
-            for label in ["NS_v", "NS_m"]:
-                self.op_members[label].value = self.op_members["NS_p"].value.copy()
-                self.op_members[label].error = self.op_members["NS_p"].error.copy()
+            for label in ["nsV", "ns-"]:
+                self.op_members[
+                    (br.non_singlet_pids_map[label], 0)
+                ].value = self.op_members[
+                    (br.non_singlet_pids_map["ns+"], 0)
+                ].value.copy()
+                self.op_members[
+                    (br.non_singlet_pids_map[label], 0)
+                ].error = self.op_members[
+                    (br.non_singlet_pids_map["ns+"], 0)
+                ].error.copy()
         elif order == 1:  # in NLO -=v
-            self.op_members["NS_v"].value = self.op_members["NS_m"].value.copy()
-            self.op_members["NS_v"].error = self.op_members["NS_m"].error.copy()
+            self.op_members[
+                (br.non_singlet_pids_map["nsV"], 0)
+            ].value = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].value.copy()
+            self.op_members[
+                (br.non_singlet_pids_map["nsV"], 0)
+            ].error = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].error.copy()

@@ -69,13 +69,21 @@ evol_basis_pids = tuple(
 )
 """|pid| representation of :data:`evol_basis`."""
 
-singlet_labels = ("S_qq", "S_qg", "S_gq", "S_gg")
-non_singlet_labels = ("NS_m", "NS_p", "NS_v")
+non_singlet_pids_map = {"ns-": 10201, "ns+": 10101, "nsV": 10200}
+
+singlet_labels = ((100, 100), (100, 21), (21, 100), (21, 21))
+non_singlet_labels = (
+    (non_singlet_pids_map["ns-"], 0),
+    (non_singlet_pids_map["ns+"], 0),
+    (non_singlet_pids_map["nsV"], 0),
+)
 full_labels = (*singlet_labels, *non_singlet_labels)
 anomalous_dimensions_basis = full_labels
 r"""
 Sorted elements in Anomalous Dimensions Basis as :obj:`str`.
 """
+matching_hplus_pid = 90
+matching_hminus_pid = 91
 
 # Tranformation from physical basis to QCD evolution basis
 rotate_flavor_to_evolution = np.array(
@@ -101,13 +109,25 @@ Basis rotation matrix between :doc:`Flavor Basis and Evolution Basis </theory/Fl
 """
 
 map_ad_to_evolution = {
-    "S_qq": ["S.S"],
-    "S_qg": ["S.g"],
-    "S_gq": ["g.S"],
-    "S_gg": ["g.g"],
-    "NS_v": ["V.V"],
-    "NS_p": ["T3.T3", "T8.T8", "T15.T15", "T24.T24", "T35.T35"],
-    "NS_m": ["V3.V3", "V8.V8", "V15.V15", "V24.V24", "V35.V35"],
+    (100, 100): ["S.S"],
+    (100, 21): ["S.g"],
+    (21, 100): ["g.S"],
+    (21, 21): ["g.g"],
+    (non_singlet_pids_map["nsV"], 0): ["V.V"],
+    (non_singlet_pids_map["ns+"], 0): [
+        "T3.T3",
+        "T8.T8",
+        "T15.T15",
+        "T24.T24",
+        "T35.T35",
+    ],
+    (non_singlet_pids_map["ns-"], 0): [
+        "V3.V3",
+        "V8.V8",
+        "V15.V15",
+        "V24.V24",
+        "V35.V35",
+    ],
 }
 """
 Map anomalous dimension sectors' names to their members

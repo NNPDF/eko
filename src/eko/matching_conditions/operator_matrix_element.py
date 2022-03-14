@@ -14,9 +14,9 @@ import numba as nb
 import numpy as np
 from scipy import integrate
 
+from .. import basis_rotation as br
 from .. import interpolation, mellin
 from ..anomalous_dimensions import harmonics
-from ..basis_rotation import singlet_labels
 from ..member import OpMember
 from . import n3lo, nlo, nnlo
 from .n3lo import s_functions
@@ -100,14 +100,14 @@ def A_singlet(order, n, sx, nf, L, is_msbar):
     """
     if order == 0:
         return np.zeros((1, 3, 3), np.complex_)
-    A_singlet = np.zeros((order, 3, 3), np.complex_)
+    A_s = np.zeros((order, 3, 3), np.complex_)
     if order >= 1:
-        A_singlet[0] = nlo.A_singlet_1(n, sx, L)
+        A_s[0] = nlo.A_singlet_1(n, sx, L)
     if order >= 2:
-        A_singlet[1] = nnlo.A_singlet_2(n, sx, L, is_msbar)
+        A_s[1] = nnlo.A_singlet_2(n, sx, L, is_msbar)
     if order >= 3:
-        A_singlet[2] = n3lo.A_singlet_3(n, sx, nf, L)
-    return A_singlet
+        A_s[2] = n3lo.A_singlet_3(n, sx, nf, L)
+    return A_s
 
 
 @nb.njit("c16[:,:,:](u1,c16,c16[:],u4,f8)", cache=True)
@@ -202,9 +202,9 @@ def build_ome(A, order, a_s, backward_method):
     return ome
 
 
-@nb.njit("f8(f8,u1,string,b1,f8,f8[:,:],f8,u4,f8,string,b1)", cache=True)
+@nb.njit("f8(f8,u1,u2,u2,b1,f8,f8[:,:],f8,u1,f8,string,b1)", cache=True)
 def quad_ker(
-    u, order, mode, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
+    u, order, mode0, mode1, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
 ):
     """
     Raw kernel inside quad
@@ -215,8 +215,10 @@ def quad_ker(
             quad argument
         order : int
             perturbation order
-        mode : str
-            element in the singlet sector
+        mode0 : int
+            pid for first element in the singlet sector
+        mode1 : int
+            pid for second element in the singlet sector
         is_log : boolean
             logarithmic interpolation
         logx : float
@@ -238,15 +240,15 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    is_singlet = mode[0] == "S"
+    is_singlet = mode0 in [100, 21, 90]
     # get transformation to N integral
     r = 0.4 * 16.0 / (1.0 - logx)
     if is_singlet:
         o = 1.0
-        indices = {"g": 0, "q": 1, "H": 2}
+        indices = {21: 0, 100: 1, 90: 2}
     else:
         o = 0.0
-        indices = {"q": 0, "H": 1}
+        indices = {200: 0, 91: 1}
     n = mellin.Talbot_path(u, r, o)
     jac = mellin.Talbot_jac(u, r, o)
 
@@ -282,7 +284,7 @@ def quad_ker(
     ker = build_ome(A, order, a_s, backward_method)
 
     # select the need matrix element
-    ker = ker[indices[mode[-2]], indices[mode[-1]]]
+    ker = ker[indices[mode0], indices[mode1]]
     if ker == 0.0:
         return 0.0
 
@@ -354,7 +356,8 @@ def run_op_integration(
                 1.0 - 1e-02,
                 args=(
                     order,
-                    label,
+                    label[0],
+                    label[1],
                     is_log,
                     logx,
                     bf.areas_representation,
@@ -423,22 +426,31 @@ class OperatorMatrixElement:
         if self.config["debug_skip_non_singlet"]:
             logger.warning("Matching: skipping non-singlet sector")
         else:
-            labels.extend(["NS_qq"])
+            labels.extend([(200, 200), (br.matching_hminus_pid, 200)])
             if self.is_intrinsic or self.backward_method != "":
                 # intrinsic labels, which are not zero at NLO
-                labels.append("NS_HH")
+                labels.append((br.matching_hminus_pid, br.matching_hminus_pid))
                 # These contributions are always 0 for the moment
                 # labels.extend(["NS_qH", "NS_Hq"])
-
         # same for singlet
         if self.config["debug_skip_singlet"]:
             logger.warning("Matching: skipping singlet sector")
         else:
-            labels.extend([*singlet_labels, "S_Hg", "S_Hq"])
+            labels.extend(
+                [
+                    *br.singlet_labels,
+                    (br.matching_hplus_pid, 21),
+                    (br.matching_hplus_pid, 100),
+                ]
+            )
             if self.is_intrinsic or self.backward_method != "":
-                labels.extend(["S_gH", "S_HH"])
-                if self.backward_method == "exact" and self.config["order"] >= 3:
-                    labels.append("S_qH")
+                labels.extend(
+                    [
+                        (21, br.matching_hplus_pid),
+                        (100, br.matching_hplus_pid),
+                        (br.matching_hplus_pid, br.matching_hplus_pid),
+                    ]
+                )
         return labels
 
     def compute(self, q2, nf, L, is_msbar):
@@ -461,7 +473,7 @@ class OperatorMatrixElement:
         grid_size = len(self.int_disp.xgrid)
         labels = self.labels()
         for n in labels:
-            if n[-1] == n[-2]:
+            if n[0] == n[1]:
                 self.ome_members[n] = OpMember(
                     np.eye(grid_size), np.zeros((grid_size, grid_size))
                 )
@@ -515,7 +527,13 @@ class OperatorMatrixElement:
         """Add the missing |OME|, if necessary"""
         grid_size = len(self.int_disp.xgrid)
         # basic labels skipped with skip debug
-        for label in ["NS_qq", "S_Hg", "S_Hq", "NS_Hq", *singlet_labels]:
+        for label in [
+            (200, 200),
+            (br.matching_hplus_pid, 21),
+            (br.matching_hplus_pid, 100),
+            (br.matching_hminus_pid, 200),
+            *br.singlet_labels,
+        ]:
             if label not in self.ome_members:
                 self.ome_members[label] = OpMember(
                     np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
@@ -523,7 +541,13 @@ class OperatorMatrixElement:
 
         # intrinsic labels not computed yet
         if self.is_intrinsic:
-            for label in ["S_qH", "NS_qH", "NS_HH", "S_HH", "S_gH"]:
+            for label in [
+                (100, br.matching_hplus_pid),
+                (200, br.matching_hminus_pid),
+                (br.matching_hminus_pid, br.matching_hminus_pid),
+                (br.matching_hplus_pid, br.matching_hplus_pid),
+                (21, br.matching_hplus_pid),
+            ]:
                 if label not in self.ome_members:
                     self.ome_members[label] = OpMember(
                         np.zeros((grid_size, grid_size)),

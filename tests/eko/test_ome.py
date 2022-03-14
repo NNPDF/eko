@@ -4,6 +4,7 @@ import copy
 
 import numpy as np
 
+from eko import basis_rotation as br
 from eko import interpolation, mellin
 from eko.anomalous_dimensions.harmonics import (
     harmonic_S1,
@@ -12,7 +13,6 @@ from eko.anomalous_dimensions.harmonics import (
     harmonic_S4,
     harmonic_S5,
 )
-from eko.basis_rotation import singlet_labels
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
 from eko.matching_conditions.n3lo import s_functions as sf
@@ -151,7 +151,8 @@ def test_quad_ker(monkeypatch):
         res_ns = quad_ker(
             u=0,
             order=3,
-            mode="NS_qq",
+            mode0=200,
+            mode1=200,
             is_log=is_log,
             logx=0.0,
             areas=np.zeros(3),
@@ -165,7 +166,8 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=3,
-            mode="S_qq",
+            mode0=100,
+            mode1=100,
             is_log=is_log,
             logx=0.0,
             areas=np.zeros(3),
@@ -179,7 +181,8 @@ def test_quad_ker(monkeypatch):
         res_s = quad_ker(
             u=0,
             order=3,
-            mode="S_qg",
+            mode0=100,
+            mode1=21,
             is_log=is_log,
             logx=0.0,
             areas=np.zeros(3),
@@ -192,12 +195,13 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_s, 0.0)
 
     # test expanded intrisic inverse kernels
-    labels = ["NS_qq", *singlet_labels]
+    labels = [(200, 200), *br.singlet_labels]
     for label in labels:
         res_ns = quad_ker(
             u=0,
             order=3,
-            mode=label,
+            mode0=label[0],
+            mode1=label[1],
             is_log=True,
             logx=0.0,
             areas=np.zeros(3),
@@ -215,21 +219,22 @@ def test_quad_ker(monkeypatch):
     # test exact intrinsic inverse kernel
     labels.extend(
         [
-            "S_Hq",
-            "S_Hg",
-            "S_HH",
-            "S_qH",
-            "S_gH",
-            "NS_qH",
-            "NS_HH",
-            "NS_Hq",
+            (br.matching_hplus_pid, 100),
+            (br.matching_hplus_pid, 21),
+            (br.matching_hplus_pid, br.matching_hplus_pid),
+            (100, br.matching_hplus_pid),
+            (21, br.matching_hplus_pid),
+            (200, br.matching_hminus_pid),
+            (br.matching_hminus_pid, br.matching_hminus_pid),
+            (br.matching_hminus_pid, 200),
         ]
     )
     for label in labels:
         res_ns = quad_ker(
             u=0,
             order=3,
-            mode=label,
+            mode0=label[0],
+            mode1=label[1],
             is_log=True,
             logx=0.0,
             areas=np.zeros(3),
@@ -248,7 +253,8 @@ def test_quad_ker(monkeypatch):
     res_ns = quad_ker(
         u=0,
         order=3,
-        mode="NS_qq",
+        mode0=200,
+        mode1=200,
         is_log=True,
         logx=0.0,
         areas=np.array([0.01, 0.1, 1.0]),
@@ -310,7 +316,7 @@ def test_run_integration():
     res = run_op_integration(
         log_grid=(len(log_grid) - 1, log_grid[-1]),
         int_disp=o.int_disp,
-        labels=["NS_qq"],
+        labels=[(200, 200)],
         is_log=True,
         grid_size=len(log_grid),
         a_s=0.333,
@@ -322,11 +328,11 @@ def test_run_integration():
     )
 
     # here the last point is a zero, by default
-    np.testing.assert_allclose(res[0]["NS_qq"], (0.0, 0.0))
+    np.testing.assert_allclose(res[0][(200, 200)], (0.0, 0.0))
 
     # test that copy ome does not change anything
     o.copy_ome()
-    np.testing.assert_allclose(0.0, o.ome_members["S_qq"].value)
+    np.testing.assert_allclose(0.0, o.ome_members[(100, 100)].value)
 
 
 class TestOperatorMatrixElement:
@@ -389,22 +395,22 @@ class TestOperatorMatrixElement:
                 )
                 o = OperatorMatrixElement(g.config, g.managers, is_backward=True)
                 labels = o.labels()
-                test_labels = ["NS_qq", "NS_HH"]
+                test_labels = [(200, 200), (br.matching_hminus_pid, 200)]
                 for l in test_labels:
                     if skip_ns:
                         assert l not in labels
                     else:
                         assert l in labels
                 test_labels = [
-                    "S_qq",
-                    "S_Hq",
-                    "S_gg",
-                    "S_Hg",
-                    "S_gH",
-                    "S_qH",
-                    "S_qH",
-                    "S_qg",
-                    "S_HH",
+                    (21, 21),
+                    (21, 100),
+                    (21, br.matching_hplus_pid),
+                    (100, 21),
+                    (100, 100),
+                    (100, br.matching_hplus_pid),
+                    (br.matching_hplus_pid, 21),
+                    (br.matching_hplus_pid, 100),
+                    (br.matching_hplus_pid, br.matching_hplus_pid),
                 ]
                 for l in test_labels:
                     if skip_singlet:
@@ -423,11 +429,15 @@ class TestOperatorMatrixElement:
         o = OperatorMatrixElement(g.config, g.managers, is_backward=True)
         o.compute(self.theory_card["mb"] ** 2, nf=4, L=0, is_msbar=False)
 
-        dim = o.ome_members["NS_qq"].value.shape
-        np.testing.assert_allclose(o.ome_members["NS_qH"].value, np.zeros(dim))
-        np.testing.assert_allclose(o.ome_members["NS_Hq"].value, np.zeros(dim))
+        dim = o.ome_members[(200, 200)].value.shape
+        np.testing.assert_allclose(
+            o.ome_members[(200, br.matching_hminus_pid)].value, np.zeros(dim)
+        )
+        np.testing.assert_allclose(
+            o.ome_members[(br.matching_hminus_pid, 200)].value, np.zeros(dim)
+        )
 
-        for label in ["NS_qq", "NS_HH"]:
+        for label in [(200, 200), (br.matching_hminus_pid, br.matching_hminus_pid)]:
             mat = o.ome_members[label].value
             np.testing.assert_allclose(mat, np.triu(mat))
 
@@ -444,24 +454,29 @@ class TestOperatorMatrixElement:
         o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
         o.compute(self.theory_card["mb"] ** 2, nf=4, L=0, is_msbar=False)
 
-        dim = o.ome_members["NS_qq"].value.shape
-        for idx in ["S", "NS"]:
+        dim = o.ome_members[(200, 200)].value.shape
+        for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
             np.testing.assert_allclose(
-                o.ome_members[f"{idx}_qq"].value, np.eye(dim[0]), atol=1e-8
+                o.ome_members[(indices[0], indices[0])].value, np.eye(dim[0]), atol=1e-8
             )
             np.testing.assert_allclose(
-                o.ome_members[f"{idx}_HH"].value, np.eye(dim[0]), atol=1e-8
+                o.ome_members[(indices[1], indices[1])].value, np.eye(dim[0]), atol=1e-8
             )
-            np.testing.assert_allclose(o.ome_members[f"{idx}_qH"].value, np.zeros(dim))
-            np.testing.assert_allclose(o.ome_members[f"{idx}_Hq"].value, np.zeros(dim))
+            np.testing.assert_allclose(
+                o.ome_members[(indices[0], indices[1])].value, np.zeros(dim)
+            )
+            np.testing.assert_allclose(
+                o.ome_members[(indices[1], indices[0])].value, np.zeros(dim)
+            )
         np.testing.assert_allclose(
-            o.ome_members["S_gg"].value, np.eye(dim[0]), atol=1e-8
+            o.ome_members[(21, 21)].value, np.eye(dim[0]), atol=1e-8
         )
         np.testing.assert_allclose(
-            o.ome_members["S_qg"].value, o.ome_members["S_gq"].value
+            o.ome_members[100, 21].value, o.ome_members[(21, 100)].value
         )
         np.testing.assert_allclose(
-            o.ome_members["S_Hg"].value, o.ome_members["S_gH"].value
+            o.ome_members[(br.matching_hplus_pid, 21)].value,
+            o.ome_members[(21, br.matching_hplus_pid)].value,
         )
 
     def test_compute_nlo(self):
@@ -490,20 +505,20 @@ class TestOperatorMatrixElement:
 
         dim = len(operators_card["interpolation_xgrid"])
         shape = (dim, dim)
-        for idx in ["S", "NS"]:
-            assert o.ome_members[f"{idx}_qq"].value.shape == shape
-            assert o.ome_members[f"{idx}_HH"].value.shape == shape
-            assert o.ome_members[f"{idx}_qH"].value.shape == shape
-            assert o.ome_members[f"{idx}_Hq"].value.shape == shape
+        for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
+            assert o.ome_members[(indices[0], indices[0])].value.shape == shape
+            assert o.ome_members[(indices[1], indices[1])].value.shape == shape
+            assert o.ome_members[(indices[0], indices[1])].value.shape == shape
+            assert o.ome_members[(indices[1], indices[0])].value.shape == shape
             np.testing.assert_allclose(
-                o.ome_members[f"{idx}_qH"].value, np.zeros(shape)
+                o.ome_members[(indices[0], indices[1])].value, np.zeros(shape)
             )
             np.testing.assert_allclose(
-                o.ome_members[f"{idx}_Hq"].value, np.zeros(shape)
+                o.ome_members[(indices[1], indices[0])].value, np.zeros(shape)
             )
-        assert o.ome_members["S_gg"].value.shape == shape
+        assert o.ome_members[(21, 21)].value.shape == shape
         np.testing.assert_allclose(
-            o.ome_members["S_qg"].value, o.ome_members["S_gq"].value
+            o.ome_members[(100, 21)].value, o.ome_members[(21, 100)].value
         )
-        assert o.ome_members["S_Hg"].value.shape == shape
-        assert o.ome_members["S_gH"].value.shape == shape
+        assert o.ome_members[(br.matching_hplus_pid, 21)].value.shape == shape
+        assert o.ome_members[(21, br.matching_hplus_pid)].value.shape == shape

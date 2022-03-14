@@ -338,30 +338,30 @@ def dispatcher(
     if order == 0:
         return lo_exact(gamma_ns, a1, a0, nf)
     # NLO
-    elif order == 1:
+    if order == 1:
         if method in [
             "iterate-expanded",
             "decompose-expanded",
             "perturbative-expanded",
         ]:
             return nlo_expanded(gamma_ns, a1, a0, nf)
-        elif method == "truncated":
+        if method == "truncated":
             return nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
-        elif method == "ordered-truncated":
+        if method == "ordered-truncated":
             return nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
         # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
         return nlo_exact(gamma_ns, a1, a0, nf)
     # NNLO
-    elif order == 2:
+    if order == 2:
         if method in [
             "iterate-expanded",
             "decompose-expanded",
             "perturbative-expanded",
         ]:
             return nnlo_expanded(gamma_ns, a1, a0, nf)
-        elif method == "truncated":
+        if method == "truncated":
             return nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
-        elif method == "ordered-truncated":
+        if method == "ordered-truncated":
             return nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
         # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
         return nnlo_exact(gamma_ns, a1, a0, nf)

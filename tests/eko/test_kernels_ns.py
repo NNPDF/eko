@@ -2,6 +2,7 @@
 import numpy as np
 import pytest
 
+from eko import anomalous_dimensions as ad
 from eko import beta
 from eko.kernels import non_singlet as ns
 
@@ -114,6 +115,8 @@ def test_ode_nlo():
 def test_error():
     with pytest.raises(NotImplementedError):
         ns.dispatcher(3, "iterate-exact", np.random.rand(3) + 0j, 0.2, 0.1, 3, 10)
+    with pytest.raises(NotImplementedError):
+        ad.gamma_ns(1, 10202, 1, 3)
 
 
 def test_gamma_usage():

@@ -10,19 +10,19 @@ def test_ad_projector():
     g = br.rotate_flavor_to_evolution[2]
     v3 = br.rotate_flavor_to_evolution[br.evol_basis.index("V3")]
 
-    s_to_s = br.ad_projector("S_qq", nf=6)
+    s_to_s = br.ad_projector((100, 100), nf=6)
 
     np.testing.assert_allclose(s @ s_to_s, s)
     np.testing.assert_allclose(g @ s_to_s, 0.0)
     np.testing.assert_allclose(v3 @ s_to_s, 0.0)
 
-    g_to_s = br.ad_projector("S_gq", nf=6)
+    g_to_s = br.ad_projector((21, 100), nf=6)
 
     np.testing.assert_allclose(s @ g_to_s, 0.0)
     np.testing.assert_allclose(g @ g_to_s, s)
     np.testing.assert_allclose(v3 @ g_to_s, 0.0)
 
-    ns_m = br.ad_projector("NS_m", nf=6)
+    ns_m = br.ad_projector((br.non_singlet_pids_map["ns-"], 0), nf=6)
 
     np.testing.assert_allclose(s @ ns_m, 0.0, atol=1e-15)
     np.testing.assert_allclose(g @ ns_m, 0.0)
