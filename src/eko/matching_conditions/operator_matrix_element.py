@@ -15,8 +15,8 @@ import numpy as np
 from scipy import integrate
 
 from .. import basis_rotation as br
-from .. import interpolation, mellin
 from ..anomalous_dimensions import harmonics
+from ..evolution_operator import QuadKerBase
 from ..member import OpMember
 from . import n3lo, nlo, nnlo
 from .n3lo import s_functions
@@ -147,6 +147,7 @@ def A_non_singlet(order, n, sx, nf, L):
         A_ns[1] = nnlo.A_ns_2(n, sx, L)
     if order >= 3:
         A_ns[2] = n3lo.A_ns_3(n, sx, nf, L)
+    print(A_ns)
     return A_ns
 
 
@@ -240,57 +241,42 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    is_singlet = mode0 in [100, 21, 90]
-    # get transformation to N integral
-    r = 0.4 * 16.0 / (1.0 - logx)
-    if is_singlet:
-        o = 1.0
-        indices = {21: 0, 100: 1, 90: 2}
-    else:
-        o = 0.0
-        indices = {200: 0, 91: 1}
-    n = mellin.Talbot_path(u, r, o)
-    jac = mellin.Talbot_jac(u, r, o)
+    ker_base = QuadKerBase(u, is_log, logx, mode0)
+    integrand = ker_base.integrand(areas)
+    if integrand == 0.0:
+        return 0.0
 
     # compute the harmonics
     sx = np.zeros(3, np.complex_)
     if order >= 1:
-        sx = np.array([harmonics.harmonic_S1(n), harmonics.harmonic_S2(n)])
+        sx = np.array(
+            [harmonics.harmonic_S1(ker_base.n), harmonics.harmonic_S2(ker_base.n)]
+        )
     if order >= 2:
-        sx = np.append(sx, harmonics.harmonic_S3(n))
+        sx = np.append(sx, harmonics.harmonic_S3(ker_base.n))
     if order >= 3:
-        sx = np.append(sx, harmonics.harmonic_S4(n))
-        sx = np.append(sx, harmonics.harmonic_S5(n))
-        smx = get_smx(n)
+        sx = np.append(sx, harmonics.harmonic_S4(ker_base.n))
+        sx = np.append(sx, harmonics.harmonic_S5(ker_base.n))
+        smx = get_smx(ker_base.n)
         sx = np.append(sx, smx)
-        sx = np.append(sx, get_s3x(n, sx, smx))
-        sx = np.append(sx, get_s4x(n, sx, smx))
+        sx = np.append(sx, get_s3x(ker_base.n, sx, smx))
+        sx = np.append(sx, get_s4x(ker_base.n, sx, smx))
     # compute the ome
-    if is_singlet:
-        A = A_singlet(order, n, sx, nf, L, is_msbar)
+    if ker_base.is_singlet:
+        indices = {21: 0, 100: 1, 90: 2}
+        A = A_singlet(order, ker_base.n, sx, nf, L, is_msbar)
     else:
-        A = A_non_singlet(order, n, sx, nf, L)
-
-    # check PDF is active
-    if is_log:
-        pj = interpolation.log_evaluate_Nx(n, logx, areas)
-    else:
-        pj = interpolation.evaluate_Nx(n, logx, areas)
-
-    if pj == 0.0:
-        return 0.0
+        indices = {200: 0, 91: 1}
+        A = A_non_singlet(order, ker_base.n, sx, nf, L)
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, a_s, backward_method)
 
-    # select the need matrix element
+    # select the needed matrix element
     ker = ker[indices[mode0], indices[mode1]]
-    if ker == 0.0:
-        return 0.0
 
     # recombine everthing
-    mellin_prefactor = complex(0.0, -1.0 / np.pi)
-    return np.real(mellin_prefactor * ker * pj * jac)
+    return np.real(ker * integrand)
 
 
 def run_op_integration(

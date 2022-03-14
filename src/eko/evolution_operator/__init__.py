@@ -77,12 +77,12 @@ class QuadKerBase:
             is a logarithmic interpolation
         logx : float
             Mellin inversion point
-        mode : str
-            sector element
+        mode0 : str
+            first sector element
     """
 
-    def __init__(self, u, is_log, logx, mode1):
-        self.is_singlet = mode1 != 0
+    def __init__(self, u, is_log, logx, mode0):
+        self.is_singlet = mode0 in [100, 21, 90]
         self.is_log = is_log
         self.u = u
         self.logx = logx
@@ -181,7 +181,7 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    ker_base = QuadKerBase(u, is_log, logx, mode1)
+    ker_base = QuadKerBase(u, is_log, logx, mode0)
     integrand = ker_base.integrand(areas)
     if integrand == 0.0:
         return 0.0
@@ -368,7 +368,8 @@ class Operator:
                     0.5,
                     1.0 - self._mellin_cut,
                     args=(
-                        self.config["order"],
+                        # TODO: implement N3LO evolution kernels
+                        self.config["order"] if self.config["order"] != 3 else 2,
                         label[0],
                         label[1],
                         self.config["method"],
