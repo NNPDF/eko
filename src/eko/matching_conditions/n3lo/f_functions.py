@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
 r"""
-This module contains some Mellin transformations for 5th order  harmonics sum.
+This module contains some Mellin transformations for 5th order harmonics sum.
 Notation refers to:
+
     - :cite:`Blumlein:2009ta`. Johannes Blumlein. Structural Relations of Harmonic Sums and Mellin Transforms up to Weight w = 5. Comput. Phys. Commun., 180:2218-2249, 2009. arXiv:0901.3106, doi:10.1016/j.cpc.2009.07.004.
 
 Mellin transform is defined with the convention x^(N).
 F19, F20, F21 are not present explicitly in the paper
-
 """  # pylint: disable=line-too-long
 import numba as nb
 import numpy as np
@@ -15,6 +15,7 @@ import numpy as np
 
 @nb.njit("c16(c16,c16,c16,c16)", cache=True)
 def F17(n, S1, S2, S3):
+    """Implements eq 9.35 of :cite:`Blumlein:2009ta`"""
     return (
         0.006250114775233491 * n
         - (0.003746947390066303 * n) / (2.0 + n)
@@ -238,6 +239,7 @@ def F17(n, S1, S2, S3):
 
 @nb.njit("c16(c16,c16,c16)", cache=True)
 def F11(n, S1, S2):
+    """Implements eq 9.27 of :cite:`Blumlein:2009ta`"""
     return (
         -0.1570209743051114 * n
         - (0.4961137242141078 * n) / (2.0 + n)
@@ -327,6 +329,7 @@ def F11(n, S1, S2):
 
 @nb.njit("c16(c16,c16,c16,c16)", cache=True)
 def F18(n, S1, S2, S3):
+    """Implements eq 9.36 of :cite:`Blumlein:2009ta`"""
     return (
         0.7502092979013981
         - 0.9999999952263307
@@ -2308,6 +2311,7 @@ def F18(n, S1, S2, S3):
 
 @nb.njit("c16(c16,c16)", cache=True)
 def F9(n, S1):
+    """Implements eq 9.19 of :cite:`Blumlein:2009ta`"""
     return (
         0.06236473052300693 * n
         + (0.2690947900632558 * n) / (2.0 + n)
@@ -2349,6 +2353,7 @@ def F9(n, S1):
 
 @nb.njit("c16(c16,c16,c16,c16,c16,c16)", cache=True)
 def F16(n, S1, Sm1, Sm2, Sm3, Sm21):
+    """Implements eq 9.32 of :cite:`Blumlein:2009ta`"""
     return (
         -0.23444040559418688
         - 0.9999999952263307
@@ -5352,6 +5357,7 @@ def F16(n, S1, Sm1, Sm2, Sm3, Sm21):
 
 @nb.njit("c16(c16,c16,c16)", cache=True)
 def F13(n, S1, S2):
+    """Implements eq 9.29 of :cite:`Blumlein:2009ta`"""
     return (
         -0.15312792746068732 * n
         + (0.13621083778040208 * n) / (2.0 + n)
