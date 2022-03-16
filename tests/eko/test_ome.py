@@ -266,7 +266,6 @@ def test_quad_ker(monkeypatch):
     np.testing.assert_allclose(res_ns, 0.0)
 
 
-# TODO: reshuffle this test around
 # def test_run_integration():
 #     # setup objs
 #     theory_card = {
@@ -403,7 +402,10 @@ class TestOperatorMatrixElement:
                     is_msbar=False,
                 )
                 labels = o.labels
-                test_labels = [(200, 200), (br.matching_hminus_pid, 200)]
+                test_labels = [
+                    (200, 200),
+                    (br.matching_hminus_pid, br.matching_hminus_pid),
+                ]
                 for l in test_labels:
                     if skip_ns:
                         assert l not in labels

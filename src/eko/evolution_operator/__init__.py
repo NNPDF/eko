@@ -248,6 +248,8 @@ class Operator:
 
     operator_type = "Evolution"
     n_pools = int(os.cpu_count() / 2)
+    # complete list of possible evolution operators labels
+    full_labels = br.full_labels
 
     def __init__(self, config, managers, nf, q2_from, q2_to=None, mellin_cut=5e-2):
         self.config = config
@@ -362,13 +364,13 @@ class Operator:
             np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
         )
         zero = OpMember(*[np.zeros((self.grid_size, self.grid_size))] * 2)
-        for n in br.full_labels:
+        for n in self.full_labels:
             if n in self.labels:
-                # off diag singlet are zero
-                if n in br.singlet_labels and n[0] != n[1]:
-                    self.op_members[n] = zero.copy()
-                else:
+                # non singlet evolution and diagonal op are identities
+                if n in br.non_singlet_labels or n[0] == n[1]:
                     self.op_members[n] = eye.copy()
+                else:
+                    self.op_members[n] = zero.copy()
             else:
                 self.op_members[n] = zero.copy()
 
@@ -478,14 +480,8 @@ class Operator:
         for k, row in enumerate(res):
             for l, entry in enumerate(row):
                 for label, (val, err) in entry.items():
-
-                    # TODO: same as labels, promote op_members to be op_members
-                    if self.operator_type == "Evolution":
-                        self.op_members[label].value[k][l] = val
-                        self.op_members[label].error[k][l] = err
-                    else:
-                        self.op_members[label].value[k][l] = val
-                        self.op_members[label].error[k][l] = err
+                    self.op_members[label].value[k][l] = val
+                    self.op_members[label].error[k][l] = err
 
         # closing comment
         logger.info(

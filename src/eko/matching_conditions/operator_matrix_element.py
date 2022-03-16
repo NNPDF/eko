@@ -300,6 +300,23 @@ class OperatorMatrixElement(Operator):
     """
 
     operator_type = "Matching"
+    # complete list of possible matching operators labels
+    full_labels = [
+        *br.singlet_labels,
+        (br.matching_hplus_pid, 21),
+        (br.matching_hplus_pid, 100),
+        (21, br.matching_hplus_pid),
+        (100, br.matching_hplus_pid),
+        (br.matching_hplus_pid, br.matching_hplus_pid),
+    ]
+    full_labels.extend(
+        [
+            (200, 200),
+            (200, br.matching_hminus_pid),
+            (br.matching_hminus_pid, 200),
+            (br.matching_hminus_pid, br.matching_hminus_pid),
+        ]
+    )
 
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
         super().__init__(config, managers, nf, q2)
@@ -327,12 +344,12 @@ class OperatorMatrixElement(Operator):
         if self.config["debug_skip_non_singlet"]:
             logger.warning("%s: skipping non-singlet sector", self.operator_type)
         else:
-            labels.extend([(200, 200), (br.matching_hminus_pid, 200)])
+            labels.append((200, 200))
             if self.is_intrinsic or self.backward_method != "":
                 # intrinsic labels, which are not zero at NLO
                 labels.append((br.matching_hminus_pid, br.matching_hminus_pid))
                 # These contributions are always 0 for the moment
-                # labels.extend(["NS_qH", "NS_Hq"])
+                # labels.extend([(200, br.matching_hminus_pid), (br.matching_hminus_pid, 200)])
         # same for singlet
         if self.config["debug_skip_singlet"]:
             logger.warning("%s: skipping singlet sector", self.operator_type)
@@ -353,20 +370,6 @@ class OperatorMatrixElement(Operator):
                     ]
                 )
         return labels
-
-    def initialize_op_members(self):
-        """Init all ops with identity or zeros if we skip them"""
-        # TODO: promote the op_members to be op_members and reuse this function!!
-        for n in self.labels:
-            if n[0] == n[1]:
-                self.op_members[n] = OpMember(
-                    np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
-                )
-            else:
-                self.op_members[n] = OpMember(
-                    np.zeros((self.grid_size, self.grid_size)),
-                    np.zeros((self.grid_size, self.grid_size)),
-                )
 
     def quad_ker(self, label, logx, areas):
         """
@@ -420,39 +423,6 @@ class OperatorMatrixElement(Operator):
         # At LO you don't need anything else
         if self.config["order"] == 0:
             logger.info("%s: no need to compute matching at LO", self.operator_type)
-            self.copy_ome()
             return
 
         self.integrate()
-        self.copy_ome()
-
-    def copy_ome(self):
-        """Add the missing |OME|, if necessary"""
-        grid_size = len(self.int_disp.xgrid)
-        # basic labels skipped with skip debug
-        for label in [
-            (200, 200),
-            (br.matching_hplus_pid, 21),
-            (br.matching_hplus_pid, 100),
-            (br.matching_hminus_pid, 200),
-            *br.singlet_labels,
-        ]:
-            if label not in self.op_members:
-                self.op_members[label] = OpMember(
-                    np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
-                )
-
-        # intrinsic labels not computed yet
-        if self.is_intrinsic:
-            for label in [
-                (100, br.matching_hplus_pid),
-                (200, br.matching_hminus_pid),
-                (br.matching_hminus_pid, br.matching_hminus_pid),
-                (br.matching_hplus_pid, br.matching_hplus_pid),
-                (21, br.matching_hplus_pid),
-            ]:
-                if label not in self.op_members:
-                    self.op_members[label] = OpMember(
-                        np.zeros((grid_size, grid_size)),
-                        np.zeros((grid_size, grid_size)),
-                    )
