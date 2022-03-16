@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from dataclasses import dataclass, fields
+from dataclasses import asdict, dataclass, fields
 from typing import Dict, Literal, Optional
 
 import numpy as np
@@ -21,6 +21,8 @@ class DictLike:
             dictionary[field.name] = (
                 value if not isinstance(value, np.ndarray) else value.tolist()
             )
+
+        return dictionary
 
 
 @dataclass
@@ -67,14 +69,23 @@ class EKO:
     rotations: Rotations
     debug: Debug
 
+    def __iter__(self):
+        return iter(self._operators)
+
+    def items(self):
+        return (
+            (k, asdict(v) if v is not None else None)
+            for k, v in self._operators.items()
+        )
+
     @property
     def Q2grid(self):
-        return np.array(self._operators.keys())
+        return np.array(list(self._operators))
 
     @classmethod
     def from_dict(cls, dictionary):
         return cls(
-            xgrid=dictionary["xgrid"],
+            xgrid=np.array(dictionary["xgrid"]),
             Q02=dictionary["Q0"] ** 2,
             _operators={q2: None for q2 in dictionary["Q2grid"]},
             configs=Configs.from_dict(dictionary["configs"]),
@@ -86,7 +97,7 @@ class EKO:
     def raw(self):
         return dict(
             xgrid=self.xgrid.tolist(),
-            Q0=np.sqrt(self.Q02),
+            Q0=float(np.sqrt(self.Q02)),
             Q2grid=self.Q2grid,
             configs=self.configs.raw,
             rotations=self.rotations.raw,
