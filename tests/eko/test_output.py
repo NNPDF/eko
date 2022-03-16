@@ -78,15 +78,12 @@ class TestLegacy:
             p = pathlib.Path(folder)
             fp1 = p / "test1.tar"
             fp2 = p / "test2.tar"
-            __import__("pdb").set_trace()
             legacy.dump_tar(o1, fp1)
             # rename
             shutil.move(fp1, fp2)
             # reload
             o4 = legacy.load_tar(fp2)
-            np.testing.assert_almost_equal(
-                o4["interpolation_xgrid"], fake_output["interpolation_xgrid"]
-            )
+            np.testing.assert_almost_equal(o4.xgrid, fake_output["xgrid"])
 
     def test_io_bin(self, fake_output):
         # create object
