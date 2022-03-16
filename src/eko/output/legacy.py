@@ -12,7 +12,7 @@ from .. import version
 from . import struct
 
 
-def get_raw(obj, binarize=True, skip_q2_grid=False):
+def get_raw(eko, binarize=True, skip_q2_grid=False):
     """
     Serialize result as dict/YAML.
 
@@ -20,43 +20,36 @@ def get_raw(obj, binarize=True, skip_q2_grid=False):
 
     Parameters
     ----------
-        binarize : bool
-            dump in binary format (instead of list format)
+    binarize : bool
+        dump in binary format (instead of list format)
 
     Returns
     -------
-        out : dict
-            dictionary which will be written on output
+    out : dict
+        dictionary which will be written on output
+
     """
+    obj = eko.raw
+
     # prepare output dict
     out = {"Q2grid": {}, "eko_version": version.__version__}
     # dump raw elements
-    for f in [
-        "interpolation_polynomial_degree",
-        "interpolation_is_log",
-        "q2_ref",
-    ]:
+    for f in ["Q0", "xgrid", "configs", "rotations"]:
         out[f] = obj[f]
 
-    # list() work both for tuple and list
-    out["inputpids"] = list(obj["inputpids"])
-    out["targetpids"] = list(obj["targetpids"])
-    # make raw lists
-    # TODO: is interpolation_xgrid really needed in the output?
-    for k in ["interpolation_xgrid", "targetgrid", "inputgrid"]:
-        out[k] = obj[k].tolist()
     # make operators raw
     if not skip_q2_grid:
-        for q2, op in obj["Q2grid"].items():
+        for q2, op in eko.items():
             out["Q2grid"][q2] = {}
-            for k, v in op.items():
-                if k == "alphas":
-                    out["Q2grid"][q2][k] = float(v)
-                    continue
-                if binarize:
-                    out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
-                else:
-                    out["Q2grid"][q2][k] = v.tolist()
+            if op is not None:
+                for k, v in op.items():
+                    if k == "alphas":
+                        out["Q2grid"][q2][k] = float(v)
+                        continue
+                    if binarize:
+                        out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
+                    else:
+                        out["Q2grid"][q2][k] = v.tolist()
     else:
         out["Q2grid"] = obj["Q2grid"]
     return out
@@ -107,7 +100,7 @@ def dump_yaml_to_file(obj, filename, binarize=True, skip_q2_grid=False):
             result of dump(output, stream), i.e. Null if written successfully
     """
     with open(filename, "w", encoding="utf-8") as f:
-        ret = obj.dump_yaml(f, binarize, skip_q2_grid=skip_q2_grid)
+        ret = dump_yaml(obj, f, binarize, skip_q2_grid=skip_q2_grid)
     return ret
 
 
@@ -130,12 +123,11 @@ def dump_tar(obj, tarname):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = pathlib.Path(tmpdir)
 
-        cls = obj.__class__
-        metadata = cls(**{str(k): v for k, v in obj.items() if k != "Q2grid"})
-        metadata["Q2grid"] = list(obj["Q2grid"].keys())
+        metadata = {str(k): v for k, v in obj.items() if k != "Q2grid"}
+        metadata["Q2grid"] = obj.Q2grid.tolist()
 
         yamlname = tmpdir / "metadata.yaml"
-        metadata.dump_yaml_to_file(yamlname, skip_q2_grid=True)
+        dump_yaml_to_file(metadata, yamlname, skip_q2_grid=True)
 
         for kind in next(iter(obj["Q2grid"].values())).keys():
             operator = np.stack([q2[kind] for q2 in obj["Q2grid"].values()])
@@ -167,13 +159,13 @@ def load_yaml(stream, skip_q2_grid=False):
             loaded object
     """
     obj = yaml.safe_load(stream)
-    len_tpids = len(obj["targetpids"])
-    len_ipids = len(obj["inputpids"])
-    len_tgrid = len(obj["targetgrid"])
-    len_igrid = len(obj["inputgrid"])
+    len_tpids = len(obj["rotations"]["targetpids"])
+    len_ipids = len(obj["rotations"]["inputpids"])
+    len_tgrid = len(obj["rotations"]["targetgrid"])
+    len_igrid = len(obj["rotations"]["inputgrid"])
     # cast lists to numpy
-    for k in ["interpolation_xgrid", "inputgrid", "targetgrid"]:
-        obj[k] = np.array(obj[k])
+    for k, v in obj["rotations"].items():
+        obj["rotations"][k] = np.array(v)
     # make operators numpy
     if not skip_q2_grid:
         for op in obj["Q2grid"].values():

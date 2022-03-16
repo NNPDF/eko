@@ -41,8 +41,8 @@ class TestLegacy:
         # rewind and read again
         stream.seek(0)
         o2 = legacy.load_yaml(stream)
-        np.testing.assert_almost_equal(o1.xgrid, fake_output["interpolation_xgrid"])
-        np.testing.assert_almost_equal(o2.xgrid, fake_output["interpolation_xgrid"])
+        np.testing.assert_almost_equal(o1.xgrid, fake_output["xgrid"])
+        np.testing.assert_almost_equal(o2.xgrid, fake_output["xgrid"])
         # fake output files
         m_out = mock.mock_open(read_data="")
         with mock.patch("builtins.open", m_out) as mock_file:
@@ -56,14 +56,14 @@ class TestLegacy:
             fn = "test.yaml"
             o3 = legacy.load_yaml_from_file(fn)
             mock_file.assert_called_with(fn, encoding="utf-8")
-            np.testing.assert_almost_equal(o3.xgrid, fake_output["interpolation_xgrid"])
+            np.testing.assert_almost_equal(o3.xgrid, fake_output["xgrid"])
         # repeat for tar
         fn = "test.tar"
         with tempfile.TemporaryDirectory() as folder:
             fp = pathlib.Path(folder) / fn
             legacy.dump_tar(o1, fp)
             o4 = legacy.load_tar(fp)
-            np.testing.assert_almost_equal(o4.xgrid, fake_output["interpolation_xgrid"])
+            np.testing.assert_almost_equal(o4.xgrid, fake_output["xgrid"])
         fn = "test"
         with pytest.raises(ValueError, match="wrong suffix"):
             legacy.dump_tar(o1, fn)
@@ -78,6 +78,7 @@ class TestLegacy:
             p = pathlib.Path(folder)
             fp1 = p / "test1.tar"
             fp2 = p / "test2.tar"
+            __import__("pdb").set_trace()
             legacy.dump_tar(o1, fp1)
             # rename
             shutil.move(fp1, fp2)
@@ -96,8 +97,8 @@ class TestLegacy:
         # rewind and read again
         stream.seek(0)
         o2 = legacy.load_yaml(stream)
-        np.testing.assert_almost_equal(o1.xgrid, fake_output.xgrid)
-        np.testing.assert_almost_equal(o2.xgrid, fake_output.xgrid)
+        np.testing.assert_almost_equal(o1.xgrid, fake_output["xgrid"])
+        np.testing.assert_almost_equal(o2.xgrid, fake_output["xgrid"])
 
 
 class TestManipulate:
