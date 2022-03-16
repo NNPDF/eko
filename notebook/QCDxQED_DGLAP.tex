@@ -1,0 +1,67 @@
+\documentclass[a4paper,twoside]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+
+%\usepackage[a4paper,top=3cm,bottom=3cm,left=3cm,right=3cm]{geometry}
+\usepackage[a4paper,top=1cm,bottom=1cm,left=0.0cm,right=1cm]{geometry}
+
+
+\title{}
+\author{}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+\begin{itemize}
+\item Singlet sector:
+
+\begin{equation*}
+\mu^2\frac{d}{d\mu^2}
+\begin{pmatrix}
+g \\
+\gamma \\
+\Sigma \\
+\Delta_\Sigma
+\end{pmatrix}
+=
+\begin{pmatrix}
+ P_{gg}+e_\Sigma^2 \tilde{P}_{gg} & e_\Sigma^2 \tilde{P}_{g\gamma} & P_{gq} + \frac{e_\Sigma^2}{n_f}\tilde{P}_{gq} & 2\frac{n_u}{n_f}\eta^- \tilde{P}_{gq} \\
+ e_\Sigma^2 \tilde{P}_{\gamma g} & e_\Sigma^2 \tilde{P}_{\gamma \gamma} & \frac{e_\Sigma^2}{n_f}\tilde{P}_{\gamma q} & 2\frac{n_u}{n_f}\eta^- \tilde{P}_{\gamma q} \\
+ 2n_f P_{qg} +2e_\Sigma^2  \tilde{P}_{qg} & 2 e_\Sigma^2  \tilde{P}_{q\gamma} & P_{qq}+ \frac{e_\Sigma^2}{n_f}\tilde{P}_{+}  \Bigl(\frac{e_\Sigma^2}{n_f}\Bigr)^2(\tilde{P}_{qq}-\tilde{P}_{+}) & 2\frac{n_u}{n_f}\eta^-\tilde{P}_{+}+2\frac{\eta^-e_\Sigma^2}{n_f^2}(\tilde{P}_{qq}-\tilde{P}_{+}) \\
+ 4\frac{n_d}{n_f}\eta^-\tilde{P}_{qg} & 4\frac{n_d}{n_f}\eta^-\tilde{P}_{q\gamma} & \eta^- \tilde{P}_{+} +2\frac{\eta^-e_\Sigma^2}{n_f^2}(\tilde{P}_{qq}-\tilde{P}_{+}) & P_+ +\frac{e_\Delta^2}{n_f}\tilde{P}_{+} +4\frac{n_u n_d}{n_f^2}(\eta^-)^2(\tilde{P}_{qq}-\tilde{P}_{+})
+\end{pmatrix}
+\begin{pmatrix}
+g \\
+\gamma \\
+\Sigma \\
+\Delta_\Sigma
+\end{pmatrix}
+\end{equation*}
+with $e_\Delta^2=n_u e_d^2+n_d e_u^2$
+
+\item Valence sector:
+\begin{equation*}
+\mu^2\frac{d}{d\mu^2}
+\begin{pmatrix}
+V \\
+\Delta_V
+\end{pmatrix}
+=
+\begin{pmatrix}
+P_V+\frac{e_\Sigma^2}{n_f} \tilde{P}_{-} & 2\frac{n_u}{n_f}\eta^- \tilde{P}_{-}\\
+ 2\frac{n_d}{n_f}\eta^- \tilde{P}_{-}& P_-+\frac{e_\Delta^2}{n_f} \tilde{P}_{-}
+\end{pmatrix}
+\begin{pmatrix}
+V \\
+\Delta_V
+\end{pmatrix}
+\end{equation*}
+
+
+\end{itemize}
+\end{document}
