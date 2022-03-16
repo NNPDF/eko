@@ -3,4 +3,5 @@
 This subpackage orchestrate the calculation workflow.
 """
 
-from .struct import Eko
+from . import manipulate
+from .struct import EKO
