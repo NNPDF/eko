@@ -258,8 +258,6 @@ class Operator:
         # TODO make 'cut' external parameter?
         self._mellin_cut = mellin_cut
         self.op_members = {}
-        # TODO: temporary fix
-        self.ome_members = {}
 
     @property
     def fact_to_ren(self):
@@ -481,13 +479,13 @@ class Operator:
             for l, entry in enumerate(row):
                 for label, (val, err) in entry.items():
 
-                    # TODO: same as labels, promote ome_members to be op_members
+                    # TODO: same as labels, promote op_members to be op_members
                     if self.operator_type == "Evolution":
                         self.op_members[label].value[k][l] = val
                         self.op_members[label].error[k][l] = err
                     else:
-                        self.ome_members[label].value[k][l] = val
-                        self.ome_members[label].error[k][l] = err
+                        self.op_members[label].value[k][l] = val
+                        self.op_members[label].error[k][l] = err
 
         # closing comment
         logger.info(

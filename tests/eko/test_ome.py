@@ -332,7 +332,7 @@ def test_quad_ker(monkeypatch):
 
 #     # test that copy ome does not change anything
 #     o.copy_ome()
-#     np.testing.assert_allclose(0.0, o.ome_members[(100, 100)].value)
+#     np.testing.assert_allclose(0.0, o.op_members[(100, 100)].value)
 
 
 class TestOperatorMatrixElement:
@@ -445,16 +445,16 @@ class TestOperatorMatrixElement:
         )
         o.compute()
 
-        dim = o.ome_members[(200, 200)].value.shape
+        dim = o.op_members[(200, 200)].value.shape
         np.testing.assert_allclose(
-            o.ome_members[(200, br.matching_hminus_pid)].value, np.zeros(dim)
+            o.op_members[(200, br.matching_hminus_pid)].value, np.zeros(dim)
         )
         np.testing.assert_allclose(
-            o.ome_members[(br.matching_hminus_pid, 200)].value, np.zeros(dim)
+            o.op_members[(br.matching_hminus_pid, 200)].value, np.zeros(dim)
         )
 
         for label in [(200, 200), (br.matching_hminus_pid, br.matching_hminus_pid)]:
-            mat = o.ome_members[label].value
+            mat = o.op_members[label].value
             np.testing.assert_allclose(mat, np.triu(mat))
 
     def test_compute_lo(self):
@@ -478,29 +478,29 @@ class TestOperatorMatrixElement:
         )
         o.compute()
 
-        dim = o.ome_members[(200, 200)].value.shape
+        dim = o.op_members[(200, 200)].value.shape
         for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
             np.testing.assert_allclose(
-                o.ome_members[(indices[0], indices[0])].value, np.eye(dim[0]), atol=1e-8
+                o.op_members[(indices[0], indices[0])].value, np.eye(dim[0]), atol=1e-8
             )
             np.testing.assert_allclose(
-                o.ome_members[(indices[1], indices[1])].value, np.eye(dim[0]), atol=1e-8
+                o.op_members[(indices[1], indices[1])].value, np.eye(dim[0]), atol=1e-8
             )
             np.testing.assert_allclose(
-                o.ome_members[(indices[0], indices[1])].value, np.zeros(dim)
+                o.op_members[(indices[0], indices[1])].value, np.zeros(dim)
             )
             np.testing.assert_allclose(
-                o.ome_members[(indices[1], indices[0])].value, np.zeros(dim)
+                o.op_members[(indices[1], indices[0])].value, np.zeros(dim)
             )
         np.testing.assert_allclose(
-            o.ome_members[(21, 21)].value, np.eye(dim[0]), atol=1e-8
+            o.op_members[(21, 21)].value, np.eye(dim[0]), atol=1e-8
         )
         np.testing.assert_allclose(
-            o.ome_members[100, 21].value, o.ome_members[(21, 100)].value
+            o.op_members[100, 21].value, o.op_members[(21, 100)].value
         )
         np.testing.assert_allclose(
-            o.ome_members[(br.matching_hplus_pid, 21)].value,
-            o.ome_members[(21, br.matching_hplus_pid)].value,
+            o.op_members[(br.matching_hplus_pid, 21)].value,
+            o.op_members[(21, br.matching_hplus_pid)].value,
         )
 
     def test_compute_nlo(self):
@@ -538,19 +538,19 @@ class TestOperatorMatrixElement:
         dim = len(operators_card["interpolation_xgrid"])
         shape = (dim, dim)
         for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
-            assert o.ome_members[(indices[0], indices[0])].value.shape == shape
-            assert o.ome_members[(indices[1], indices[1])].value.shape == shape
-            assert o.ome_members[(indices[0], indices[1])].value.shape == shape
-            assert o.ome_members[(indices[1], indices[0])].value.shape == shape
+            assert o.op_members[(indices[0], indices[0])].value.shape == shape
+            assert o.op_members[(indices[1], indices[1])].value.shape == shape
+            assert o.op_members[(indices[0], indices[1])].value.shape == shape
+            assert o.op_members[(indices[1], indices[0])].value.shape == shape
             np.testing.assert_allclose(
-                o.ome_members[(indices[0], indices[1])].value, np.zeros(shape)
+                o.op_members[(indices[0], indices[1])].value, np.zeros(shape)
             )
             np.testing.assert_allclose(
-                o.ome_members[(indices[1], indices[0])].value, np.zeros(shape)
+                o.op_members[(indices[1], indices[0])].value, np.zeros(shape)
             )
-        assert o.ome_members[(21, 21)].value.shape == shape
+        assert o.op_members[(21, 21)].value.shape == shape
         np.testing.assert_allclose(
-            o.ome_members[(100, 21)].value, o.ome_members[(21, 100)].value
+            o.op_members[(100, 21)].value, o.op_members[(21, 100)].value
         )
-        assert o.ome_members[(br.matching_hplus_pid, 21)].value.shape == shape
-        assert o.ome_members[(21, br.matching_hplus_pid)].value.shape == shape
+        assert o.op_members[(br.matching_hplus_pid, 21)].value.shape == shape
+        assert o.op_members[(21, br.matching_hplus_pid)].value.shape == shape

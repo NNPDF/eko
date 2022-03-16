@@ -354,16 +354,16 @@ class OperatorMatrixElement(Operator):
                 )
         return labels
 
-    def initialize_ome_members(self):
+    def initialize_op_members(self):
         """Init all ops with identity or zeros if we skip them"""
-        # TODO: promote the ome_members to be op_members and reuse this function!!
+        # TODO: promote the op_members to be op_members and reuse this function!!
         for n in self.labels:
             if n[0] == n[1]:
-                self.ome_members[n] = OpMember(
+                self.op_members[n] = OpMember(
                     np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
                 )
             else:
-                self.ome_members[n] = OpMember(
+                self.op_members[n] = OpMember(
                     np.zeros((self.grid_size, self.grid_size)),
                     np.zeros((self.grid_size, self.grid_size)),
                 )
@@ -415,7 +415,7 @@ class OperatorMatrixElement(Operator):
         """
         compute the actual operators (i.e. run the integrations)
         """
-        self.initialize_ome_members()
+        self.initialize_op_members()
 
         # At LO you don't need anything else
         if self.config["order"] == 0:
@@ -437,8 +437,8 @@ class OperatorMatrixElement(Operator):
             (br.matching_hminus_pid, 200),
             *br.singlet_labels,
         ]:
-            if label not in self.ome_members:
-                self.ome_members[label] = OpMember(
+            if label not in self.op_members:
+                self.op_members[label] = OpMember(
                     np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
                 )
 
@@ -451,8 +451,8 @@ class OperatorMatrixElement(Operator):
                 (br.matching_hplus_pid, br.matching_hplus_pid),
                 (21, br.matching_hplus_pid),
             ]:
-                if label not in self.ome_members:
-                    self.ome_members[label] = OpMember(
+                if label not in self.op_members:
+                    self.op_members[label] = OpMember(
                         np.zeros((grid_size, grid_size)),
                         np.zeros((grid_size, grid_size)),
                     )

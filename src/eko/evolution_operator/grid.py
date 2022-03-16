@@ -194,7 +194,7 @@ class OperatorGrid:
             # Compute the matching conditions and store it
             if seg.q2_to not in self._matching_operators:
                 ome.compute()
-                self._matching_operators[seg.q2_to] = ome.ome_members
+                self._matching_operators[seg.q2_to] = ome.op_members
         return thr_ops
 
     def compute(self, q2grid=None):

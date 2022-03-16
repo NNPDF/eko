@@ -126,14 +126,14 @@ class BenchmarkBackwardForward:
     #     ome.compute( q2, L)
     #     ome_back.compute(q2, L)
 
-    #     dim = ome.ome_members[(100, 100)].value.shape
+    #     dim = ome.op_members[(100, 100)].value.shape
     #     ome_tensor = np.zeros((3,3,dim[0],dim[0]))
     #     ome_tensor_back = ome_tensor
     #     idx_dict = dict(zip(["g", "q", "H"],[0,1,2]))
     #     for p1, j in idx_dict.items():
     #         for p2, k in idx_dict.items():
-    #             ome_tensor[j,k] = ome.ome_members[f"S_{p1}{p2}"].value
-    #             ome_tensor_back[j,k] = ome_back.ome_members[f"S_{p1}{p2}"].value
+    #             ome_tensor[j,k] = ome.op_members[f"S_{p1}{p2}"].value
+    #             ome_tensor_back[j,k] = ome_back.op_members[f"S_{p1}{p2}"].value
 
     #     ome_product = np.einsum("abjk,bckl -> acjl", ome_tensor_back, ome_tensor)
     #     for j, line in enumerate(ome_product):
