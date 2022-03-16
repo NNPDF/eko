@@ -43,14 +43,22 @@ class FakeOutput:
         q2_out = 2
         Q2grid = self.mk_g([q2_out], len(pids), len(interpolation_xgrid))
         d = dict(
-            interpolation_xgrid=interpolation_xgrid,
-            targetgrid=interpolation_xgrid,
-            inputgrid=interpolation_xgrid,
-            interpolation_polynomial_degree=interpolation_polynomial_degree,
-            interpolation_is_log=interpolation_is_log,
-            q2_ref=q2_ref,
-            inputpids=pids,
-            targetpids=pids,
+            xgrid=interpolation_xgrid,
+            rotations=dict(
+                targetgrid=interpolation_xgrid,
+                inputgrid=interpolation_xgrid,
+                inputpids=pids,
+                targetpids=pids,
+            ),
+            Q0=np.sqrt(q2_ref),
+            couplings=dict(),
+            configs=dict(
+                ev_op_max_order=1,
+                ev_op_iterations=1,
+                interpolation_polynomial_degree=interpolation_polynomial_degree,
+                interpolation_is_log=interpolation_is_log,
+                backward_inversion="exact",
+            ),
             Q2grid=Q2grid,
         )
         return d

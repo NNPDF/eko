@@ -10,7 +10,7 @@ import numpy as np
 from . import basis_rotation as br
 from . import interpolation, msbar_masses
 from .evolution_operator.grid import OperatorGrid
-from .output import Output
+from .output import EKO
 from .strong_coupling import StrongCoupling
 from .thresholds import ThresholdsAtlas
 
@@ -40,7 +40,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 """
 
     def __init__(self, theory_card, operators_card):
-        self.out = Output()
+        self.out = EKO()
 
         # setup basis grid
         bfd = interpolation.InterpolatorDispatcher.from_dict(operators_card)
