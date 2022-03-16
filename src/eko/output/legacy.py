@@ -123,14 +123,22 @@ def dump_tar(obj, tarname):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = pathlib.Path(tmpdir)
 
-        metadata = {str(k): v for k, v in obj.items() if k != "Q2grid"}
+        metadata = {str(k): v for k, v in obj.raw.items() if k != "Q2grid"}
         metadata["Q2grid"] = obj.Q2grid.tolist()
 
         yamlname = tmpdir / "metadata.yaml"
-        dump_yaml_to_file(metadata, yamlname, skip_q2_grid=True)
+        with open(yamlname, "w", encoding="utf-8") as fd:
+            yaml.dump(metadata, fd)
 
-        for kind in next(iter(obj["Q2grid"].values())).keys():
-            operator = np.stack([q2[kind] for q2 in obj["Q2grid"].values()])
+        for kind in ["alphas", "operators", "operator_errors"]:
+            elements = []
+            for q2, op in obj.items():
+                if op is not None:
+                    el = getattr(q2, kind)
+                else:
+                    el = np.zeros((len(obj.xgrid), 14, len(obj.xgrid), 14))
+                elements.append(el)
+            operator = np.stack(elements)
             stream = io.BytesIO()
             np.save(stream, operator)
             stream.seek(0)
@@ -232,7 +240,8 @@ def load_tar(tarname):
 
         innerdir = list(tmpdir.glob("*"))[0]
         yamlname = innerdir / "metadata.yaml"
-        metadata = load_yaml_from_file(yamlname, skip_q2_grid=True)
+        with open(yamlname, encoding="utf-8") as fd:
+            metadata = yaml.safe_load(fd)
 
         grids = {}
         for fp in innerdir.glob("*.npy.lz4"):
@@ -249,4 +258,4 @@ def load_tar(tarname):
             operator_grid[q2] = dict(zip(grids.keys(), slices))
         metadata["Q2grid"] = operator_grid
 
-    return metadata
+    return struct.EKO.from_dict(metadata)
