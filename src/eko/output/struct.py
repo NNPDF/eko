@@ -80,8 +80,14 @@ class EKO:
         return q2 in self._operators
 
     def __getitem__(self, q2):
-        # TODO: autload
+        # TODO: autoload
         return self._operators[q2]
+
+    def __setitem__(self, q2, op):
+        # TODO: autodump
+        if isinstance(op, dict):
+            op = Operator.from_dict(op)
+        self._operators[q2] = op
 
     def items(self):
         return (
