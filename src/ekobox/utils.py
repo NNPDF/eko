@@ -32,39 +32,22 @@ def ekos_product(eko_ini: EKO, eko_fin: EKO, in_place=True) -> EKO:
             "Initial Q2 of final eko operator does not match any final Q2 in"
             " the initial eko operator"
         )
-    ope1 = eko_ini[eko_fin.Q02].operator
-    ope1_error = eko_ini[eko_fin.Q02].error
-
-    ope2_dict = {}
-    ope2_error_dict = {}
-    for q2, op in eko_fin.items():
-        ope2_dict[q2] = op.operator
-        ope2_error_dict[q2] = op.error
-
-    final_op_dict = {}
-    final_op_error_dict = {}
-    final_alphas_dict = {}
-    final_dict = {}
-    for q2, op2 in ope2_dict.items():
-        final_op_dict[q2] = np.einsum("ajbk,bkcl -> ajcl", ope1, op2)
-
-        final_op_error_dict[q2] = np.einsum(
-            "ajbk,bkcl -> ajcl", ope1, ope2_error_dict[q2]
-        ) + np.einsum("ajbk,bkcl -> ajcl", ope1_error, op2)
-
-        final_alphas_dict[q2] = eko_fin[q2].alphas
-        final_dict[q2] = {
-            "operator": final_op_dict[q2],
-            "error": final_op_error_dict[q2],
-            "alphas": final_alphas_dict[q2],
-        }
+    ope1 = eko_ini[eko_fin.Q02].operator.copy()
+    ope1_error = eko_ini[eko_fin.Q02].error.copy()
 
     if in_place is False:
         final_eko = copy.deepcopy(eko_ini)
     else:
         final_eko = eko_ini
 
-    for q2, op in final_dict.items():
-        final_eko[q2] = op
+    for q2, op2 in eko_fin.items():
+        op = np.einsum("ajbk,bkcl -> ajcl", ope1, op2.operator)
+
+        error = np.einsum("ajbk,bkcl -> ajcl", ope1, op2.error) + np.einsum(
+            "ajbk,bkcl -> ajcl", ope1_error, op2.operator
+        )
+
+        alphas = eko_fin[q2].alphas
+        final_eko[q2] = dict(operator=op, error=error, alphas=alphas)
 
     return final_eko
