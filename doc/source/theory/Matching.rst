@@ -39,16 +39,16 @@ and :math:`\mathcal F_{iev,n_f}^{(n_f+1)}`, i.e. they transform the basis vector
 in a :math:`n_f`-flavor scheme to the :math:`(n_f+1)`-flavor scheme. Hence, the supscript refers to the flavor scheme
 with a smaller number of active flavors. To compute the matrices in a minimal coupled system we decompose the
 :ref:`Intrinsic Evolution Basis <theory/FlavorSpace:Intrinsic QCD Evolution Bases>` :math:`\mathcal F_{iev,n_f}` into
-several subspaces (of course irrespective of the |FNS|):
+several subspaces (below for the example of `n_f = 3`):
 
 .. math ::
     \mathcal F_{iev,3,S,c^+} &= \span(g,\Sigma,c^+)\\
     \mathcal F_{iev,3,nsv,c^-} &= \span(V,c^-)\\
     \mathcal F_{iev,3,ns+} &= \span(T_3,T_8)\\
     \mathcal F_{iev,3,ns-} &= \span(V_3,V_8)\\
-    \mathcal F_{iev,3,hh} &= \span(b^+,b^-,t^+,t^-)\\
+    \mathcal F_{iev,3,h} &= \span(b^+,b^-,t^+,t^-)\\
     \mathcal F_{iev,n_f} &= \mathcal F_{iev,3,S,c^+} \otimes \mathcal F_{iev,3,nsv,c^-} \otimes \mathcal F_{iev,3,ns+}
-                            \otimes \mathcal F_{iev,3,ns-} \otimes \mathcal F_{iev,3,hh}
+                            \otimes \mathcal F_{iev,3,ns-} \otimes \mathcal F_{iev,3,h}
 
 We can then write the matching matrices :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` as
 
@@ -59,14 +59,15 @@ We can then write the matching matrices :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` 
     \dTj{j}{n_f+1}{\mu_h^2} &= \tilde{A}_{ns+}^{(n_f)}(\mu_{h}^2) \dTj{j}{n_f}{\mu_h^2}\\
     &\text{for }j=3,\ldots, n_f^2-1
 
-Note that in the left hand side basis the distributions :math:`\tilde \Sigma_{(n_f)}, \tilde V_{(n_f)}` are not the Singlet and the Valence distributions any longer since, they
-do not contain the new higher flavor.
-Furthermore in the right side basis :math:`\tilde h^{+}, \tilde h^{-}` are intrinsic contributions.
+Note that in the left hand side basis the distributions :math:`\tilde \Sigma_{(n_f)}, \tilde V_{(n_f)}`
+are no longer the ordinary singlet and valence distribution as they
+do not contain the new flavor :math:`\tilde h^{+}, \tilde h^{-}`.
+Furthermore, in the right side basis :math:`\tilde h^{+}, \tilde h^{-}` are intrinsic contributions.
 
 The :math:`\mathbf{A}^{(n_f)}(\mu_{h+1}^2)` can be computed order by order in :math:`a_s`:
 
 .. math ::
-    \mathbf{A}^{(n_f)}(\mu_{h}^2) = \mathbf{I} + a_s^{(n_f+1)}(\mu_{h}^2)  \mathbf{A}^{(n_f),(1)} + \left(a_s^{(n_f+1)}(\mu_{h}^2)\right)^2 \mathbf{A}^{(n_f),(2)}
+    \mathbf{A}^{(n_f)}(\mu_{h}^2) = \mathbf{I} + \sum_{k=1} \left(a_s^{(n_f+1)}(\mu_{h}^2)\right)^k \mathbf{A}^{(n_f),(k)}
 
 
 where the :math:`\mathbf{A}^{(n_f),(k)}` are given up to |N3LO| by the following expressions:
@@ -94,7 +95,7 @@ We remark that contributions of the higher quark at |NNLO| and |N3LO| have not b
 are not encoded in EKO despite of being present.
 On the other hand the elements :math:`A_{qq,H}^{ps},A_{qg,H}` are known to start at |N3LO|.
 
-Additional contributions due to |Msbar| masses are included only up to |NNLO|.
+Additional contributions due to |MSbar| masses are included only up to |NNLO|.
 
 The |OME| are also required in the context of the FONLL matching scheme :cite:`Forte:2010ta`.
 For :ref:`Intrinsic Evolution <theory/DGLAP:Intrinsic Evolution>` this leads to considerable simplifications :cite:`Ball:2015dpa`.
