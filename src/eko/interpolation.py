@@ -511,7 +511,7 @@ class InterpolatorDispatcher:
             *   - Name
                 - Type
                 - description
-            *   - ``interpolation_xgrid``
+            *   - ``xgrid``
                 - :py:obj:`list(float)`
                 - the interpolation grid
             *   - ``interpolation_polynomial_degree``
@@ -527,7 +527,7 @@ class InterpolatorDispatcher:
                 input configurations
         """
         # load xgrid
-        xgrid = operators_card["interpolation_xgrid"]
+        xgrid = operators_card["xgrid"]
         if len(xgrid) == 0:
             raise ValueError("Empty xgrid!")
         if xgrid[0] == "make_grid":
@@ -605,7 +605,7 @@ class InterpolatorDispatcher:
                 full grid configuration
         """
         ret = {
-            "interpolation_xgrid": self.xgrid_raw,
+            "xgrid": self.xgrid_raw,
             "interpolation_polynomial_degree": self.polynomial_degree,
             "interpolation_is_log": self.log,
         }
