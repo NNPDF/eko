@@ -14,7 +14,7 @@ CA = float(NC)
 """second Casimir constant in the adjoint representation - defaults to :math:`N_C = 3`"""
 
 CF = float((NC * NC - 1.0) / (2.0 * NC))
-"""second Casimir constant in the fundamental representation - defaults to :math:`\frac{N_C^2-1}{2N_C} = 4/3`"""
+"""second Casimir constant in the fundamental representation - defaults to :math:`\frac{N_C^2-1}{2N_C} = 4/3`"""  # pylint: disable=line-too-long
 
 eu2 = 4.0 / 9
 """up quarks charge squared"""
@@ -31,7 +31,7 @@ def update_colors(nc):
     ----------
       nc : int
         Number of colors
-    """
+    """  # pylint: disable=line-too-long
     global NC, CA, CF  # pylint: disable=global-statement
 
     NC = int(nc)

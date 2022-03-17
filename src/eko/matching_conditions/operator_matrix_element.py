@@ -9,12 +9,10 @@ import logging
 
 import numba as nb
 import numpy as np
-from scipy import integrate
 
 from .. import basis_rotation as br
 from ..anomalous_dimensions import harmonics
 from ..evolution_operator import Operator, QuadKerBase
-from ..member import OpMember
 from . import n3lo, nlo, nnlo
 from .n3lo import s_functions
 
@@ -299,7 +297,7 @@ class OperatorMatrixElement(Operator):
             add the |MSbar| contribution
     """
 
-    operator_type = "Matching"
+    log_label = "Matching"
     # complete list of possible matching operators labels
     full_labels = [
         *br.singlet_labels,
@@ -308,15 +306,11 @@ class OperatorMatrixElement(Operator):
         (21, br.matching_hplus_pid),
         (100, br.matching_hplus_pid),
         (br.matching_hplus_pid, br.matching_hplus_pid),
+        (200, 200),
+        (200, br.matching_hminus_pid),
+        (br.matching_hminus_pid, 200),
+        (br.matching_hminus_pid, br.matching_hminus_pid),
     ]
-    full_labels.extend(
-        [
-            (200, 200),
-            (200, br.matching_hminus_pid),
-            (br.matching_hminus_pid, 200),
-            (br.matching_hminus_pid, br.matching_hminus_pid),
-        ]
-    )
 
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
         super().__init__(config, managers, nf, q2)
@@ -342,7 +336,7 @@ class OperatorMatrixElement(Operator):
         labels = []
         # non singlet labels
         if self.config["debug_skip_non_singlet"]:
-            logger.warning("%s: skipping non-singlet sector", self.operator_type)
+            logger.warning("%s: skipping non-singlet sector", self.log_label)
         else:
             labels.append((200, 200))
             if self.is_intrinsic or self.backward_method != "":
@@ -352,7 +346,7 @@ class OperatorMatrixElement(Operator):
                 # labels.extend([(200, br.matching_hminus_pid), (br.matching_hminus_pid, 200)])
         # same for singlet
         if self.config["debug_skip_singlet"]:
-            logger.warning("%s: skipping singlet sector", self.operator_type)
+            logger.warning("%s: skipping singlet sector", self.log_label)
         else:
             labels.extend(
                 [
@@ -422,7 +416,7 @@ class OperatorMatrixElement(Operator):
 
         # At LO you don't need anything else
         if self.config["order"] == 0:
-            logger.info("%s: no need to compute matching at LO", self.operator_type)
+            logger.info("%s: no need to compute matching at LO", self.log_label)
             return
 
         self.integrate()

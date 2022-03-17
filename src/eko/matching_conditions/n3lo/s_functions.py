@@ -177,7 +177,7 @@ def harmonic_S21(N, S1, S2):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.g_functions.mellin_g18 : :math:`g_18(N)`
+        eko.matching_conditions.n3lo.g_functions.mellin_g18 : :math:`g_18(N)`
     """
     return -gf.mellin_g18(N, S1, S2) + 2 * zeta3
 
@@ -237,7 +237,7 @@ def harmonic_S2m1(N, S2, Sm1, Sm2):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.g_functions.mellin_g4 : :math:`g_4(N)`
+        eko.matching_conditions.n3lo.g_functions.mellin_g4 : :math:`g_4(N)`
     """
     return (
         -((-1) ** N) * gf.mellin_g4(N)
@@ -270,7 +270,7 @@ def harmonic_Sm31(N, Sm1, Sm2):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.g_functions.mellin_g6 : :math:`g_6(N)`
+        eko.matching_conditions.n3lo.g_functions.mellin_g6 : :math:`g_6(N)`
     """
     return (
         (-1) ** N * gf.mellin_g6(N)
@@ -303,7 +303,7 @@ def harmonic_Sm22(N, Sm31):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.g_functions.mellin_g5 : :math:`g_5(N)`
+        eko.matching_conditions.n3lo.g_functions.mellin_g5 : :math:`g_5(N)`
     """
     return (
         (-1) ** N * gf.mellin_g5(N)
@@ -333,7 +333,7 @@ def harmonic_Sm211(N, Sm1):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.g_functions.mellin_g8 : :math:`g_8(N)`
+        eko.matching_conditions.n3lo.g_functions.mellin_g8 : :math:`g_8(N)`
     """
     return (
         -((-1) ** N) * gf.mellin_g8(N)
@@ -370,7 +370,7 @@ def harmonic_Sm2m1(N, S1, S2, Sm2):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.g_functions.mellin_g19 : :math:`g_19(N)`
+        eko.matching_conditions.n3lo.g_functions.mellin_g19 : :math:`g_19(N)`
     """
     return -gf.mellin_g19(N, S1) + log2 * (S2 - Sm2) - 5 / 8 * zeta3
 
@@ -399,7 +399,7 @@ def harmonic_S211(N, S1, S2, S3):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.g_functions.mellin_g21 : :math:`g_21(N)`
+        eko.matching_conditions.n3lo.g_functions.mellin_g21 : :math:`g_21(N)`
     """
     return -gf.mellin_g21(N, S1, S2, S3) + 6 / 5 * zeta2**2
 
@@ -426,7 +426,7 @@ def harmonic_S31(N, S2, S4):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.g_functions.mellin_g22 : :math:`g_22(N)`
+        eko.matching_conditions.n3lo.g_functions.mellin_g22 : :math:`g_22(N)`
     """
     return (
         1 / 2 * gf.mellin_g22(N)
@@ -461,7 +461,7 @@ def harmonic_S41(N, S1, S2, S3):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.f_functions.F9 :
+        eko.matching_conditions.n3lo.f_functions.F9 :
             :math:`\mathcal{M}[(\text{Li}_4(x)/(x-1))_{+}](N)`
     """
     return -f.F9(N, S1) + S1 * zeta4 - S2 * zeta3 + S3 * zeta2
@@ -489,7 +489,7 @@ def harmonic_S311(N, S1, S2):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.f_functions.F11 :
+        eko.matching_conditions.n3lo.f_functions.F11 :
             :math:`\mathcal{M}[(\text{S}_{2,2}(x)/(x-1))_{+}](N)`
     """
     return f.F11(N, S1, S2) + zeta3 * S2 - zeta4 / 4 * S1
@@ -519,9 +519,9 @@ def harmonic_S221(N, S1, S2, S21):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.f_functions.F11 :
+        eko.matching_conditions.n3lo.f_functions.F11 :
             :math:`\mathcal{M}[(\text{S}_{2,2}(x)/(x-1))_{+}](N)`
-        eko.mathcing_conditions.n3lo.f_functions.F13 :
+        eko.matching_conditions.n3lo.f_functions.F13 :
             :math:`\mathcal{M}[(\text{Li}_{2}^2(x)/(x-1))_{+}](N)`
     """
     return (
@@ -558,7 +558,7 @@ def harmonic_Sm221(N, S1, Sm1, S21, Sm21):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.f_functions.F14F12 :
+        eko.matching_conditions.n3lo.f_functions.F14F12 :
             :math:`\mathcal{M}[(2 \text{S}_{2,2}(x) - 1/2 \text{Li}_{2}^2(x))/(x+1)](N)`
     """
     return (
@@ -604,7 +604,7 @@ def harmonic_S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.f_functions.F14F12 :
+        eko.matching_conditions.n3lo.f_functions.F14F12 :
             :math:`\mathcal{M}[
                 (\text{ln}(x) \text{S}_{1,2}(−x) − \text{Li}_2^2(−x)/2)/(x+1)
                 ](N)`
@@ -642,7 +642,7 @@ def harmonic_S2111(N, S1, S2, S3):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.f_functions.F17 :
+        eko.matching_conditions.n3lo.f_functions.F17 :
             :math:`\mathcal{M}[(\text{S}_{1,3}(x)/(x-1))_{+}](N)`
     """
     return -f.F17(N, S1, S2, S3) + zeta4 * S1
@@ -674,7 +674,7 @@ def harmonic_Sm2111(N, S1, S2, S3, Sm1):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.f_functions.F18 :
+        eko.matching_conditions.n3lo.f_functions.F18 :
             :math:`\mathcal{M}[\text{S}_{1,3}(x)/(x+1)](N)`
     """
     return (
@@ -709,7 +709,7 @@ def harmonic_S23(N, S1, S2, S3):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.f_functions.F19 :
+        eko.matching_conditions.n3lo.f_functions.F19 :
             :math:`\mathcal{M}[
                 ((
                     \text{ln}(x)[\text{S}_{1,2}(1-x) - \zeta_3]
@@ -743,7 +743,7 @@ def harmonic_Sm23(N, Sm1, Sm2, Sm3):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.f_functions.F19 :
+        eko.matching_conditions.n3lo.f_functions.F19 :
             :math:`\mathcal{M}[
                 (
                     \text{ln}(x)[\text{S}_{1,2}(1-x) - \zeta_3]
@@ -785,7 +785,7 @@ def harmonic_S2m3(N, S2, Sm1, Sm2, Sm3):
 
     See Also
     --------
-        eko.mathcing_conditions.n3lo.f_functions.F19 :
+        eko.matching_conditions.n3lo.f_functions.F19 :
             :math:`\mathcal{M}[
                 ((
                     1/2 \text{ln}^2(x) \text{Li}_2(-x)

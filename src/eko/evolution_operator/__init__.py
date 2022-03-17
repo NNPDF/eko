@@ -246,8 +246,8 @@ class Operator:
             cut to the upper limit in the mellin inversion
     """
 
-    operator_type = "Evolution"
-    n_pools = int(os.cpu_count() / 2)
+    log_label = "Evolution"
+    n_pools = os.cpu_count()
     # complete list of possible evolution operators labels
     full_labels = br.full_labels
 
@@ -305,7 +305,7 @@ class Operator:
         labels = []
         # the NS sector is dynamic
         if self.config["debug_skip_non_singlet"]:
-            logger.warning("%s: skipping non-singlet sector", self.operator_type)
+            logger.warning("%s: skipping non-singlet sector", self.log_label)
         else:
             # add + as default
             labels.append(br.non_singlet_labels[1])
@@ -315,7 +315,7 @@ class Operator:
                 labels.append(br.non_singlet_labels[2])
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
-            logger.warning("%s: skipping singlet sector", self.operator_type)
+            logger.warning("%s: skipping singlet sector", self.log_label)
         else:
             labels.extend(br.singlet_labels)
         return labels
@@ -414,7 +414,7 @@ class Operator:
                 temp_dict[label] = res[:2]
             column.append(temp_dict)
         print(
-            f"{self.operator_type}: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time):6f} s"  # pylint: disable=line-too-long
+            f"{self.log_label}: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time):6f} s"  # pylint: disable=line-too-long
         )
         return column
 
@@ -425,21 +425,21 @@ class Operator:
         # skip computation ?
         if np.isclose(self.q2_from, self.q2_to):
             logger.info(
-                "%s: skipping unity operator at %e", self.operator_type, self.q2_from
+                "%s: skipping unity operator at %e", self.log_label, self.q2_from
             )
             self.copy_ns_ops()
             return
 
         logger.info(
             "%s: computing operators %e -> %e, nf=%d",
-            self.operator_type,
+            self.log_label,
             self.q2_from,
             self.q2_to,
             self.nf,
         )
         logger.info(
             "%s: µ_R^2 distance: %e -> %e",
-            self.operator_type,
+            self.log_label,
             self.q2_from / self.fact_to_ren,
             self.q2_to / self.fact_to_ren,
         )
@@ -450,11 +450,11 @@ class Operator:
                 "exponentiated" if self.sv_mode == 1 else "expanded",
             )
         logger.info(
-            "%s: a_s distance: %e -> %e", self.operator_type, self.a_s[0], self.a_s[1]
+            "%s: a_s distance: %e -> %e", self.log_label, self.a_s[0], self.a_s[1]
         )
         logger.info(
             "%s: order: %d, solution strategy: %s",
-            self.operator_type,
+            self.log_label,
             self.config["order"],
             self.config["method"],
         )
@@ -486,7 +486,7 @@ class Operator:
         # closing comment
         logger.info(
             "%s: Total time %f s",
-            self.operator_type,
+            self.log_label,
             time.perf_counter() - tot_start_time,
         )
 

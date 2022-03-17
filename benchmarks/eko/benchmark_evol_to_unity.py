@@ -99,11 +99,19 @@ class BenchmarkBackwardForward:
             np.zeros(dim),
             atol=7e-4,
         )
-        # gg
-        np.testing.assert_allclose(
+        # gg, check last two rows separately
+        gg_id = (
             o_back.op_members[(21, 21)].value @ o.op_members[(21, 21)].value
-            + o_back.op_members[(21, 100)].value @ o.op_members[(100, 21)].value,
-            np.eye(dim[0]),
+            + o_back.op_members[(21, 100)].value @ o.op_members[(100, 21)].value
+        )
+        np.testing.assert_allclose(
+            gg_id[:-2],
+            np.eye(dim[0])[:-2],
+            atol=3e-2,
+        )
+        np.testing.assert_allclose(
+            gg_id[-2:],
+            np.eye(dim[0])[-2:],
             atol=11.2e-2,
         )
         # gq
