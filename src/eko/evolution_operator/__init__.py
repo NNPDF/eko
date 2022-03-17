@@ -25,13 +25,6 @@ from ..member import OpMember
 
 logger = logging.getLogger(__name__)
 
-sv_mode_dict = dict(
-    zip(
-        [None, "exponentiated", "expanded"],
-        [sv.unvaried, sv.mode_exponentiated, sv.mode_expanded],
-    )
-)
-
 
 @nb.njit("c16(c16[:,:],u2,u2)")
 def select_singlet_element(ker, mode0, mode1):
@@ -175,7 +168,8 @@ def quad_ker(
         ev_op_max_order : int
             perturbative expansion order of U
         sv_mode: int
-            use scale variation mode 0: none, 1: exponentiated, 2: expanded
+            scale variation mode 0: none, 1: exponentiated, 2: expanded
+            see `eko.scale_variations.Modes`
 
     Returns
     -------
@@ -191,7 +185,7 @@ def quad_ker(
     if ker_base.is_singlet:
         gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
         # scale var A is directly applied on gamma
-        if sv_mode == sv.mode_exponentiated:
+        if sv_mode == sv.Modes.exponentiated.value:
             gamma_singlet = sv.exponentiated.gamma_variation(
                 gamma_singlet, order, nf, L
             )
@@ -199,14 +193,14 @@ def quad_ker(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
         # scale var B is applied on the kernel
-        if sv_mode == sv.mode_expanded:
+        if sv_mode == sv.Modes.expanded.value:
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
                 sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
             )
         ker = select_singlet_element(ker, mode0, mode1)
     else:
         gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
-        if sv_mode == sv.mode_exponentiated:
+        if sv_mode == sv.Modes.exponentiated.value:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
@@ -217,7 +211,7 @@ def quad_ker(
             nf,
             ev_op_iterations,
         )
-        if sv_mode == sv.mode_expanded:
+        if sv_mode == sv.Modes.expanded.value:
             ker = ker * sv.expanded.non_singlet_variation(gamma_ns, a1, order, nf, L)
 
     # recombine everthing
@@ -269,7 +263,10 @@ class Operator:
     @property
     def sv_mode(self):
         """Returns the scale variation mode"""
-        return sv_mode_dict[self.config["ModSV"]]
+        try:
+            return sv.Modes[self.config["ModSV"]]
+        except KeyError:
+            return sv.Modes.unvaried
 
     @property
     def int_disp(self):
@@ -355,7 +352,7 @@ class Operator:
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
             ev_op_max_order=self.config["ev_op_max_order"],
-            sv_mode=self.sv_mode,
+            sv_mode=self.sv_mode.value,
         )
 
     def initialize_op_members(self):
@@ -443,11 +440,11 @@ class Operator:
             self.q2_from / self.fact_to_ren,
             self.q2_to / self.fact_to_ren,
         )
-        if self.sv_mode != 0:
+        if self.sv_mode.name != "unvaried":
             logger.info(
                 "Scale Variation: (µ_F/µ_R)^2 = %e, mode: %s",
                 self.fact_to_ren,
-                "exponentiated" if self.sv_mode == 1 else "expanded",
+                self.sv_mode.name,
             )
         logger.info(
             "%s: a_s distance: %e -> %e", self.log_label, self.a_s[0], self.a_s[1]

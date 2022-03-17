@@ -2,10 +2,14 @@
 """
 This module contain the possible scale variations integrals.
 """
+from enum import Enum
 
 from . import expanded, exponentiated
 
-unvaried = 0
-mode_exponentiated = 1
-mode_expanded = 2
-"""Scale Variation modes"""
+
+class Modes(Enum):
+    """Scale Variation modes"""
+
+    unvaried = 0
+    exponentiated = 1
+    expanded = 2
