@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import dataclasses
 import io
 import pathlib
 import tarfile
@@ -42,7 +43,7 @@ def get_raw(eko, binarize=True, skip_q2_grid=False):
         for q2, op in eko.items():
             out["Q2grid"][q2] = {}
             if op is not None:
-                for k, v in op.items():
+                for k, v in dataclasses.asdict(op).items():
                     if k == "alphas":
                         out["Q2grid"][q2][k] = float(v)
                         continue
@@ -134,7 +135,7 @@ def dump_tar(obj, tarname):
             elements = []
             for q2, op in obj.items():
                 if op is not None:
-                    el = op[kind]
+                    el = getattr(op, kind)
                 else:
                     el = np.zeros((len(obj.xgrid), 14, len(obj.xgrid), 14))
                 elements.append(el)

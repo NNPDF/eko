@@ -67,7 +67,7 @@ def xgrid_reshape(eko, targetgrid=None, inputgrid=None, inplace=True):
         eko.rotations.inputgrid = np.array(inputgrid)
 
     # build new grid
-    for _, elem in eko._operators.items():
+    for _, elem in eko.items():
         if elem is None:
             continue
         ops = elem.operator
@@ -122,7 +122,7 @@ def flavor_reshape(eko, targetbasis=None, inputbasis=None, inplace=True):
         inv_inputbasis = np.linalg.inv(inputbasis)
 
     # build new grid
-    for _, elem in eko._operators.items():
+    for _, elem in eko.items():
         if elem is None:
             continue
         ops = elem.operator

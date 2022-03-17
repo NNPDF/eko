@@ -85,6 +85,8 @@ genpdf = "ekobox.genpdf.cli:cli"
 
 [tool.poe.tasks]
 test = "pytest tests"
+coverage = "$BROWSER htmlcov/index.html"
+test-cov = ["test", "coverage"]
 bench = "pytest benchmarks"
 bench-iso.cmd = "pytest benchmarks -m isolated"
 bench-iso.env.NUMBA_DISABLE_JIT.default = "0"
