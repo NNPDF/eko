@@ -2,6 +2,7 @@
 import pathlib
 
 import eko
+import eko.output.legacy
 from eko import basis_rotation as br
 from ekomark import apply
 
@@ -56,9 +57,9 @@ def evolve_pdfs(
             ops_id = f"o{operators_card['hash'][:6]}_t{theory_card['hash'][:6]}.tar"
             ops_id_path = pathlib.Path(ops_id)
             outpath = my_path / ops_id_path.relative_to(ops_id_path.anchor)
-            eko_output = eko.output.Output.load_tar(outpath)
+            eko_output = eko.output.legacy.load_tar(outpath)
         else:
-            eko_output = eko.output.Output.load_tar(my_path)
+            eko_output = eko.output.legacy.load_tar(my_path)
     else:
         eko_output = eko.run_dglap(theory_card, operators_card)
 
