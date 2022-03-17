@@ -13,8 +13,7 @@ import numpy as np
 from .. import basis_rotation as br
 from ..anomalous_dimensions import harmonics
 from ..evolution_operator import Operator, QuadKerBase
-from . import n3lo, nlo, nnlo
-from .n3lo import s_functions
+from . import nlo, nnlo
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +21,8 @@ logger = logging.getLogger(__name__)
 @nb.njit("c16[:](c16)", cache=True)
 def get_smx(n):
     """Get the S-minus cache"""
+    from .n3lo import s_functions  # pylint:disable=import-outside-toplevel
+
     return np.array(
         [
             s_functions.harmonic_Sm1(n),
@@ -36,6 +37,8 @@ def get_smx(n):
 @nb.njit("c16[:](c16,c16[:],c16[:])", cache=True)
 def get_s3x(n, sx, smx):
     """Get the S-w3 cache"""
+    from .n3lo import s_functions  # pylint:disable=import-outside-toplevel
+
     return np.array(
         [
             s_functions.harmonic_S21(n, sx[0], sx[1]),
@@ -49,6 +52,8 @@ def get_s3x(n, sx, smx):
 @nb.njit("c16[:](c16,c16[:],c16[:])", cache=True)
 def get_s4x(n, sx, smx):
     """Get the S-w4 cache"""
+    from .n3lo import s_functions  # pylint:disable=import-outside-toplevel
+
     Sm31 = s_functions.harmonic_Sm31(n, smx[0], smx[1])
     return np.array(
         [
@@ -101,7 +106,9 @@ def A_singlet(order, n, sx, nf, L, is_msbar):
     if order >= 2:
         A_s[1] = nnlo.A_singlet_2(n, sx, L, is_msbar)
     if order >= 3:
-        A_s[2] = n3lo.A_singlet_3(n, sx, nf, L)
+        from .n3lo import A_singlet_3  # pylint:disable=import-outside-toplevel
+
+        A_s[2] = A_singlet_3(n, sx, nf, L)
     return A_s
 
 
@@ -141,7 +148,9 @@ def A_non_singlet(order, n, sx, nf, L):
     if order >= 2:
         A_ns[1] = nnlo.A_ns_2(n, sx, L)
     if order >= 3:
-        A_ns[2] = n3lo.A_ns_3(n, sx, nf, L)
+        from .n3lo import A_ns_3  # pylint:disable=import-outside-toplevel
+
+        A_ns[2] = A_ns_3(n, sx, nf, L)
     return A_ns
 
 
