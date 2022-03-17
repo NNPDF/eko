@@ -40,14 +40,18 @@ class TestOperatorGrid:
         }
         operators_card = {
             "Q2grid": [1, 100**2],
-            "interpolation_xgrid": [0.1, 1.0],
-            "interpolation_polynomial_degree": 1,
-            "interpolation_is_log": True,
-            "debug_skip_singlet": True,
-            "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
-            "ev_op_iterations": 1,
-            "backward_inversion": "exact",
+            "xgrid": [0.1, 1.0],
+            "configs": {
+                "interpolation_polynomial_degree": 1,
+                "interpolation_is_log": True,
+                "ev_op_max_order": 1,
+                "ev_op_iterations": 1,
+                "backward_inversion": "exact",
+            },
+            "debug": {
+                "skip_singlet": True,
+                "skip_non_singlet": False,
+            },
         }
         if use_FFNS:
             theory_card["FNS"] = "FFNS"

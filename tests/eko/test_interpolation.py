@@ -102,9 +102,11 @@ class TestInterpolatorDispatcher:
 
     def test_from_dict(self):
         d = {
-            "interpolation_xgrid": ["make_grid", 3, 3],
-            "interpolation_is_log": False,
-            "interpolation_polynomial_degree": 1,
+            "xgrid": ["make_grid", 3, 3],
+            "configs": {
+                "interpolation_is_log": False,
+                "interpolation_polynomial_degree": 1,
+            },
         }
         a = interpolation.InterpolatorDispatcher.from_dict(d)
         np.testing.assert_array_almost_equal(
@@ -112,17 +114,21 @@ class TestInterpolatorDispatcher:
         )
         assert a.polynomial_degree == 1
         dd = {
-            "interpolation_xgrid": ["make_lambert_grid", 20],
-            "interpolation_is_log": False,
-            "interpolation_polynomial_degree": 1,
+            "xgrid": ["make_lambert_grid", 20],
+            "configs": {
+                "interpolation_is_log": False,
+                "interpolation_polynomial_degree": 1,
+            },
         }
         aa = interpolation.InterpolatorDispatcher.from_dict(dd)
         assert len(aa.xgrid) == 20
         with pytest.raises(ValueError):
             d = {
-                "interpolation_xgrid": [],
-                "interpolation_is_log": False,
-                "interpolation_polynomial_degree": 1,
+                "xgrid": [],
+                "configs": {
+                    "interpolation_is_log": False,
+                    "interpolation_polynomial_degree": 1,
+                },
             }
             interpolation.InterpolatorDispatcher.from_dict(d)
 
@@ -211,14 +217,20 @@ class TestBasisFunction:
         p0_cs_ref = [1, -1]
         for act_c, res_c in zip(p0N.areas[0], p0_cs_ref):
             assert_almost_equal(act_c, res_c)
-        p0Nref = lambda N, lnx: (1 / N - 1 / (N + 1)) * np.exp(-N * lnx)
+
+        def p0Nref(N, lnx):
+            return (1 / N - 1 / (N + 1)) * np.exp(-N * lnx)
+
         # p_1(x) = x -> \tilde p_1(N) = 1/(N+1)
         p1N = inter_N[1]
         assert len(p1N.areas) == 1
         p1_cs_ref = [0, 1]
         for act_c, res_c in zip(p1N.areas[0], p1_cs_ref):
             assert_almost_equal(act_c, res_c)
-        p1Nref = lambda N, lnx: (1 / (N + 1)) * np.exp(-N * lnx)
+
+        def p1Nref(N, lnx):
+            return (1 / (N + 1)) * np.exp(-N * lnx)
+
         # iterate configurations
         for N in [1.0, 2.0, complex(1.0, 1.0)]:
             # check skip
@@ -238,22 +250,34 @@ class TestBasisFunction:
         p0_cs_ref = [0, -1]
         for act_c, res_c in zip(p0N.areas[0], p0_cs_ref):
             assert_almost_equal(act_c, res_c)
-        # Full -> \tilde p_0(N) = exp(-N)(exp(N)-1-N)/N^2
-        # MMa: Integrate[x^(n-1) (-Log[x]),{x,1/E,1}]
-        p0Nref_full = lambda N, lnx: ((np.exp(N) - 1 - N) / N**2) * np.exp(
-            -N * (lnx + 1)
-        )
-        # partial = lower bound is neglected;
-        p0Nref_partial = lambda N, lnx: (1 / N**2) * np.exp(-N * lnx)
+
+        def p0Nref_full(N, lnx):
+            r"""
+            Full -> \tilde p_0(N) = exp(-N)(exp(N)-1-N)/N^2
+            MMa: Integrate[x^(n-1) (-Log[x]),{x,1/E,1}]
+            """
+            return ((np.exp(N) - 1 - N) / N**2) * np.exp(-N * (lnx + 1))
+
+        def p0Nref_partial(N, lnx):
+            "partial = lower bound is neglected"
+            return (1 / N**2) * np.exp(-N * lnx)
+
         p1N = inter_N[1]
         assert len(p1N.areas) == 1
         p1_cs_ref = [1, 1]
         for act_c, res_c in zip(p1N.areas[0], p1_cs_ref):
             assert_almost_equal(act_c, res_c)
-        # p_1(x) = 1+\ln(x) -> \tilde p_1(N) = (exp(-N)-1+N)/N^2
-        # MMa: Integrate[x^(n-1) (1+Log[x]),{x,1/E,1}]
-        p1Nref_full = lambda N, lnx: ((np.exp(-N) - 1 + N) / N**2) * np.exp(-N * lnx)
-        p1Nref_partial = lambda N, lnx: (1 / N - 1 / N**2) * np.exp(-N * lnx)
+
+        def p1Nref_full(N, lnx):
+            r"""
+            p_1(x) = 1+\ln(x) -> \tilde p_1(N) = (exp(-N)-1+N)/N^2
+            MMa: Integrate[x^(n-1) (1+Log[x]),{x,1/E,1}]
+            """
+            return ((np.exp(-N) - 1 + N) / N**2) * np.exp(-N * lnx)
+
+        def p1Nref_partial(N, lnx):
+            return (1 / N - 1 / N**2) * np.exp(-N * lnx)
+
         # iterate configurations
         for N in [1.0, 2.0, complex(1.0, 1.0)]:
             # check skip

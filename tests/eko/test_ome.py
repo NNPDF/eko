@@ -234,14 +234,18 @@ class TestOperatorMatrixElement:
             for skip_ns in [True, False]:
                 operators_card = {
                     "Q2grid": [1, 10],
-                    "interpolation_xgrid": [0.1, 1.0],
-                    "interpolation_polynomial_degree": 1,
-                    "interpolation_is_log": True,
-                    "debug_skip_singlet": skip_singlet,
-                    "debug_skip_non_singlet": skip_ns,
-                    "ev_op_max_order": 1,
-                    "ev_op_iterations": 1,
-                    "backward_inversion": "exact",
+                    "xgrid": [0.1, 1.0],
+                    "configs": {
+                        "interpolation_polynomial_degree": 1,
+                        "interpolation_is_log": True,
+                        "ev_op_max_order": 1,
+                        "ev_op_iterations": 1,
+                        "backward_inversion": "exact",
+                    },
+                    "debug": {
+                        "skip_singlet": skip_singlet,
+                        "skip_non_singlet": skip_ns,
+                    },
                 }
                 g = OperatorGrid.from_dict(
                     self.theory_card,
@@ -274,14 +278,18 @@ class TestOperatorMatrixElement:
     def test_compute_lo(self):
         operators_card = {
             "Q2grid": [20],
-            "interpolation_xgrid": [0.001, 0.01, 0.1, 1.0],
-            "interpolation_polynomial_degree": 1,
-            "interpolation_is_log": True,
-            "debug_skip_singlet": False,
-            "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
-            "ev_op_iterations": 1,
-            "backward_inversion": "exact",
+            "xgrid": [0.001, 0.01, 0.1, 1.0],
+            "configs": {
+                "interpolation_polynomial_degree": 1,
+                "interpolation_is_log": True,
+                "ev_op_max_order": 1,
+                "ev_op_iterations": 1,
+                "backward_inversion": "exact",
+            },
+            "debug": {
+                "skip_singlet": False,
+                "skip_non_singlet": False,
+            },
         }
         g = OperatorGrid.from_dict(
             self.theory_card,
@@ -321,14 +329,18 @@ class TestOperatorMatrixElement:
     def test_compute_nlo(self):
         operators_card = {
             "Q2grid": [20],
-            "interpolation_xgrid": [0.001, 0.01, 0.1, 1.0],
-            "interpolation_polynomial_degree": 1,
-            "interpolation_is_log": True,
-            "debug_skip_singlet": False,
-            "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
-            "ev_op_iterations": 1,
-            "backward_inversion": "exact",
+            "xgrid": [0.001, 0.01, 0.1, 1.0],
+            "configs": {
+                "interpolation_polynomial_degree": 1,
+                "interpolation_is_log": True,
+                "ev_op_max_order": 1,
+                "ev_op_iterations": 1,
+                "backward_inversion": "exact",
+            },
+            "debug": {
+                "skip_singlet": False,
+                "skip_non_singlet": False,
+            },
         }
         t = copy.deepcopy(self.theory_card)
         t["PTO"] = 1
@@ -342,7 +354,7 @@ class TestOperatorMatrixElement:
         o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
         o.compute(t["mb"] ** 2, nf=4, L=0, is_msbar=False)
 
-        dim = len(operators_card["interpolation_xgrid"])
+        dim = len(operators_card["xgrid"])
         shape = (dim, dim)
         for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
             assert o.ome_members[(indices[0], indices[0])].value.shape == shape

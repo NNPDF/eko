@@ -58,7 +58,7 @@ class OperatorGrid:
         # check
         order = int(config["order"])
         method = config["method"]
-        if not method in [
+        if method not in [
             "iterate-exact",
             "iterate-expanded",
             "truncated",
@@ -120,12 +120,12 @@ class OperatorGrid:
         }
         method = mod_ev2method.get(method, method)
         config["method"] = method
-        config["backward_inversion"] = operators_card["backward_inversion"]
+        config["backward_inversion"] = operators_card["configs"]["backward_inversion"]
         config["fact_to_ren"] = (theory_card["fact_to_ren_scale_ratio"]) ** 2
-        config["ev_op_max_order"] = operators_card["ev_op_max_order"]
-        config["ev_op_iterations"] = operators_card["ev_op_iterations"]
-        config["debug_skip_singlet"] = operators_card["debug_skip_singlet"]
-        config["debug_skip_non_singlet"] = operators_card["debug_skip_non_singlet"]
+        config["ev_op_max_order"] = operators_card["configs"]["ev_op_max_order"]
+        config["ev_op_iterations"] = operators_card["configs"]["ev_op_iterations"]
+        config["debug_skip_singlet"] = operators_card["debug"]["skip_singlet"]
+        config["debug_skip_non_singlet"] = operators_card["debug"]["skip_non_singlet"]
         config["HQ"] = theory_card["HQ"]
         config["ModSV"] = theory_card["ModSV"]
         q2_grid = np.array(operators_card["Q2grid"], np.float_)
