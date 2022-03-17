@@ -111,16 +111,12 @@ class TestOperatorGrid:
         opg = opgrid.compute()
         assert len(opg) == 2
         assert all(
-            k in op
-            for k in ["operators", "operator_errors", "alphas"]
-            for op in opg.values()
+            k in op for k in ["operator", "error", "alphas"] for op in opg.values()
         )
         opg = opgrid.compute(3)
         assert len(opg) == 1
         assert all(
-            k in op
-            for k in ["operators", "operator_errors", "alphas"]
-            for op in opg.values()
+            k in op for k in ["operator", "error", "alphas"] for op in opg.values()
         )
 
     def test_grid_computation_VFNS(self):
@@ -156,5 +152,5 @@ class TestOperatorGrid:
             )
             sv_opg = sv_opgrid.compute(3)
             np.testing.assert_allclose(
-                opg[3]["operators"], sv_opg[3]["operators"], atol=0.7 * epsilon
+                opg[3]["operator"], sv_opg[3]["operator"], atol=0.7 * epsilon
             )
