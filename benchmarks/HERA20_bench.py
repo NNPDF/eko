@@ -22,7 +22,7 @@ base_theory = {
 }
 
 # LHAPDF x-range is smaller
-base_op = {"interpolation_xgrid": interpolation.make_lambert_grid(50, 1.0e-6)}
+base_op = {"xgrid": interpolation.make_lambert_grid(50, 1.0e-6)}
 
 
 class BenchmarkHERA20(Runner):

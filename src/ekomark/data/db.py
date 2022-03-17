@@ -16,7 +16,7 @@ class Operator(Base):  # pylint: disable=too-few-public-methods
 
     interpolation_is_log = Column(Text)
     interpolation_polynomial_degree = Column(Integer)
-    interpolation_xgrid = Column(Text)
+    xgrid = Column(Text)
     debug_skip_non_singlet = Column(Boolean)
     debug_skip_singlet = Column(Boolean)
     ev_op_max_order = Column(Integer)

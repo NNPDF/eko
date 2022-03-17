@@ -71,7 +71,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             obj : dict
                 to be updated pandas record
         """
-        xgrid = op["interpolation_xgrid"]
+        xgrid = op["xgrid"]
         obj["xgrid"] = (
             f"{len(xgrid)}pts: "
             + f"{'log' if op['interpolation_is_log'] else 'x'}"

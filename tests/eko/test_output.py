@@ -225,21 +225,19 @@ class TestManipulate:
             manipulate.flavor_reshape(copy.deepcopy(o1))
 
     def test_to_evol(self, fake_factory):
-        interpolation_xgrid = np.array([0.5, 1.0])
+        xgrid = np.array([0.5, 1.0])
         interpolation_polynomial_degree = 1
         interpolation_is_log = False
         q2_ref = 1
         q2_out = 2
-        Q2grid = fake_factory.mk_g(
-            [q2_out], len(br.flavor_basis_pids), len(interpolation_xgrid)
-        )
+        Q2grid = fake_factory.mk_g([q2_out], len(br.flavor_basis_pids), len(xgrid))
         d = dict(
-            xgrid=interpolation_xgrid,
+            xgrid=xgrid,
             Q0=np.sqrt(q2_ref),
             Q2grid=Q2grid,
             rotations=dict(
-                targetgrid=interpolation_xgrid,
-                inputgrid=interpolation_xgrid,
+                targetgrid=xgrid,
+                inputgrid=xgrid,
                 inputpids=br.flavor_basis_pids,
                 targetpids=br.flavor_basis_pids,
             ),

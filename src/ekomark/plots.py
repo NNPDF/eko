@@ -253,7 +253,7 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs, change_lab=False):
                 new_op = {}
                 new_op_err = {}
                 # loop on xgrid point
-                for j in range(len(me["interpolation_xgrid"])):
+                for j in range(len(me["xgrid"])):
                     # loop on pid in
                     for label_in, val, val_err in zip(ops_names, res[j], res_err[j]):
                         if label_in in skip_pdfs:

@@ -116,8 +116,8 @@ class LHABenchmark(Runner):
             [
                 {
                     "Q2grid": [1e4],
-                    "ev_op_iterations": 10,
-                    "interpolation_xgrid": make_lambert_grid(60).tolist(),
+                    "configs": {"ev_op_iterations": 10},
+                    "xgrid": make_lambert_grid(60).tolist(),
                 }
             ],
             ["ToyLH"],
