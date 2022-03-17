@@ -28,7 +28,7 @@ def compute_LHAPDF_data(operators, pdf, skip_pdfs, rotate_to_evolution_basis=Fal
             output containing: target_xgrid, values
     """
 
-    target_xgrid = operators["interpolation_xgrid"]
+    target_xgrid = operators["xgrid"]
 
     out_tabs = {}
     for q2 in operators["Q2grid"]:

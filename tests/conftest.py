@@ -35,18 +35,18 @@ class FakeOutput:
 
     def fake_output(self):
         # build data
-        interpolation_xgrid = np.array([0.5, 1.0])
+        xgrid = np.array([0.5, 1.0])
         interpolation_polynomial_degree = 1
         interpolation_is_log = False
         pids = [0, 1]
         q2_ref = 1
         q2_out = 2
-        Q2grid = self.mk_g([q2_out], len(pids), len(interpolation_xgrid))
+        Q2grid = self.mk_g([q2_out], len(pids), len(xgrid))
         d = dict(
-            xgrid=interpolation_xgrid,
+            xgrid=xgrid,
             rotations=dict(
-                targetgrid=interpolation_xgrid,
-                inputgrid=interpolation_xgrid,
+                targetgrid=xgrid,
+                inputgrid=xgrid,
                 inputpids=pids,
                 targetpids=pids,
             ),

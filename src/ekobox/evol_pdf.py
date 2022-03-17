@@ -74,7 +74,7 @@ def evolve_pdfs(
         evolved_PDF_list.append(apply.apply_pdf(eko_output, initial_PDF, targetgrid))
 
     if targetgrid is None:
-        targetgrid = operators_card["interpolation_xgrid"]
+        targetgrid = operators_card["xgrid"]
     if info_update is None:
         info_update = {}
     info_update["XMin"] = targetgrid[0]
