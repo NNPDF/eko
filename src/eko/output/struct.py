@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from dataclasses import asdict, dataclass, fields
+from dataclasses import dataclass, fields
 from typing import Dict, Literal, Optional
 
 import numpy as np
@@ -20,9 +20,15 @@ class DictLike:
         dictionary = {}
         for field in fields(self):
             value = getattr(self, field.name)
-            dictionary[field.name] = (
-                value if not isinstance(value, np.ndarray) else value.tolist()
-            )
+
+            # replace numpy arrays with lists
+            if isinstance(value, np.ndarray):
+                value = value.tolist()
+            # replace numpy scalars with python ones
+            elif isinstance(value, float):
+                value = float(value)
+
+            dictionary[field.name] = value
 
         return dictionary
 
@@ -90,10 +96,7 @@ class EKO:
         self._operators[q2] = op
 
     def items(self):
-        return (
-            (k, asdict(v) if v is not None else None)
-            for k, v in self._operators.items()
-        )
+        return self._operators.items()
 
     @property
     def Q2grid(self):
