@@ -29,15 +29,15 @@ def xgrid_reshape(eko, targetgrid=None, inputgrid=None, inplace=True):
     # now check to the current status
     if (
         targetgrid is not None
-        and len(targetgrid) == len(eko.targetgrid)
-        and np.allclose(targetgrid, eko.targetgrid)
+        and len(targetgrid) == len(eko.rotations.targetgrid)
+        and np.allclose(targetgrid, eko.rotations.targetgrid)
     ):
         targetgrid = None
         warnings.warn("The new targetgrid is close to the current targetgrid")
     if (
         inputgrid is not None
-        and len(inputgrid) == len(eko.inputgrid)
-        and np.allclose(inputgrid, eko.inputgrid)
+        and len(inputgrid) == len(eko.rotations.inputgrid)
+        and np.allclose(inputgrid, eko.rotations.inputgrid)
     ):
         inputgrid = None
         warnings.warn("The new inputgrid is close to the current inputgrid")
@@ -49,27 +49,29 @@ def xgrid_reshape(eko, targetgrid=None, inputgrid=None, inplace=True):
     # construct matrices
     if targetgrid is not None:
         b = interpolation.InterpolatorDispatcher(
-            eko.targetgrid,
-            eko.interpolation_polynomial_degree,
-            eko.interpolation_is_log,
+            eko.rotations.targetgrid,
+            eko.configs.interpolation_polynomial_degree,
+            eko.configs.interpolation_is_log,
             False,
         )
         target_rot = b.get_interpolation(targetgrid)
-        eko.targetgrid = np.array(targetgrid)
+        eko.rotations.targetgrid = np.array(targetgrid)
     if inputgrid is not None:
         b = interpolation.InterpolatorDispatcher(
             inputgrid,
-            eko.interpolation_polynomial_degree,
-            eko.interpolation_is_log,
+            eko.configs.interpolation_polynomial_degree,
+            eko.configs.interpolation_is_log,
             False,
         )
-        input_rot = b.get_interpolation(eko.inputgrid)
-        eko.inputgrid = np.array(inputgrid)
+        input_rot = b.get_interpolation(eko.rotations.inputgrid)
+        eko.rotations.inputgrid = np.array(inputgrid)
 
     # build new grid
-    for elem in eko.Q2grid.values():
-        ops = elem.operators
-        errs = elem.operator_errors
+    for _, elem in eko._operators.items():
+        if elem is None:
+            continue
+        ops = elem.operator
+        errs = elem.error
         if targetgrid is not None and inputgrid is None:
             ops = np.einsum("ij,ajbk->aibk", target_rot, ops)
             errs = np.einsum("ij,ajbk->aibk", target_rot, errs)
@@ -79,8 +81,8 @@ def xgrid_reshape(eko, targetgrid=None, inputgrid=None, inplace=True):
         else:
             ops = np.einsum("ij,ajbk,kl->aibl", target_rot, ops, input_rot)
             errs = np.einsum("ij,ajbk,kl->aibl", target_rot, errs, input_rot)
-        elem.operators = ops
-        elem.operator_errors = errs
+        elem.operator = ops
+        elem.error = errs
 
 
 def flavor_reshape(eko, targetbasis=None, inputbasis=None, inplace=True):
@@ -101,11 +103,13 @@ def flavor_reshape(eko, targetbasis=None, inputbasis=None, inplace=True):
         raise ValueError("Nor inputbasis nor targetbasis was given")
     # now check to the current status
     if targetbasis is not None and np.allclose(
-        targetbasis, np.eye(len(eko.targetpids))
+        targetbasis, np.eye(len(eko.rotations.targetpids))
     ):
         targetbasis = None
         warnings.warn("The new targetbasis is close to current basis")
-    if inputbasis is not None and np.allclose(inputbasis, np.eye(len(eko.inputpids))):
+    if inputbasis is not None and np.allclose(
+        inputbasis, np.eye(len(eko.rotations.inputpids))
+    ):
         inputbasis = None
         warnings.warn("The new inputbasis is close to current basis")
     # after the checks: if there is still nothing to do, skip
@@ -118,7 +122,9 @@ def flavor_reshape(eko, targetbasis=None, inputbasis=None, inplace=True):
         inv_inputbasis = np.linalg.inv(inputbasis)
 
     # build new grid
-    for elem in eko.Q2grid.values():
+    for _, elem in eko.items():
+        if elem is None:
+            continue
         ops = elem.operators
         errs = elem.operator_errors
         if targetbasis is not None and inputbasis is None:
@@ -133,10 +139,11 @@ def flavor_reshape(eko, targetbasis=None, inputbasis=None, inplace=True):
         elem.operators = ops
         elem.operator_errors = errs
     # drop PIDs - keeping them int nevertheless
+    #  there is no meaningful way to set them in general, after rotation
     if inputbasis is not None:
-        eko.inputpids = [0] * len(eko.inputpids)
+        eko.rotations.inputpids = [0] * len(eko.rotations.inputpids)
     if targetbasis is not None:
-        eko.targetpids = [0] * len(eko.targetpids)
+        eko.rotations.targetpids = [0] * len(eko.rotations.targetpids)
 
 
 def to_evol(eko, source=True, target=False, inplace=True):
