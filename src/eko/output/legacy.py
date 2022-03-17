@@ -259,4 +259,8 @@ def load_tar(tarname):
             operator_grid[q2] = dict(zip(grids.keys(), slices))
         metadata["Q2grid"] = operator_grid
 
-    return struct.EKO.from_dict(metadata)
+    eko = struct.EKO.from_dict(metadata)
+    for q2, op in metadata["Q2grid"].items():
+        eko[q2] = op
+
+    return eko

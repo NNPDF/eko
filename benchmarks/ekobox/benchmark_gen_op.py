@@ -8,15 +8,17 @@ from ekobox import gen_op as g_o
 def benchmark_gen_op_card():
     op = g_o.gen_op_card([10, 100])
     assert op["Q2grid"] == [10, 100]
-    assert op["interpolation_polynomial_degree"] == 4
+    assert op["configs"]["interpolation_polynomial_degree"] == 4
     up_err = {"Prova": "Prova"}
     with pytest.raises(ValueError):
         op = g_o.gen_op_card([10], update=up_err)
-    up = {"interpolation_polynomial_degree": 2, "interpolation_is_log": False}
+    up = {
+        "configs": {"interpolation_polynomial_degree": 2, "interpolation_is_log": False}
+    }
     op = g_o.gen_op_card([100], update=up)
     assert op["Q2grid"] == [100]
-    assert op["interpolation_polynomial_degree"] == 2
-    assert op["interpolation_is_log"] is False
+    assert op["configs"]["interpolation_polynomial_degree"] == 2
+    assert op["configs"]["interpolation_is_log"] is False
 
 
 @pytest.mark.isolated

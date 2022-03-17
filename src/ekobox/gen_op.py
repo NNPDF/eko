@@ -37,7 +37,12 @@ def gen_op_card(Q2grid, update=None, name=None):
         for k in update.keys():
             if k not in def_op.keys():
                 raise ValueError("Provided key not in operators card")
-        def_op.update(update)
+        for key, value in update.items():
+            # properly update sections
+            if isinstance(value, dict):
+                def_op[key].update(value)
+            else:
+                def_op[key] = value
     serialized = sql.serialize(def_op)
     def_op["hash"] = (sql.add_hash(serialized))[-1]
     if name is not None:
