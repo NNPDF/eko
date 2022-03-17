@@ -34,7 +34,7 @@ theory_card = {
 }
 operators_card = {
     "Q2grid": [10, 100],
-    "interpolation_xgrid": [0.01, 0.1, 1.0],
+    "xgrid": [0.01, 0.1, 1.0],
     "configs": {
         "interpolation_polynomial_degree": 1,
         "interpolation_is_log": True,
@@ -52,13 +52,7 @@ def test_raw():
     oc = copy.deepcopy(operators_card)
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()
-    check_shapes(
-        o,
-        o["interpolation_xgrid"],
-        o["interpolation_xgrid"],
-        tc,
-        oc,
-    )
+    check_shapes(o, o.xgrid, o.xgrid, tc, oc)
 
 
 def test_targetgrid():
@@ -66,16 +60,10 @@ def test_targetgrid():
     tc = copy.deepcopy(theory_card)
     oc = copy.deepcopy(operators_card)
     tgrid = [0.1, 1.0]
-    oc["targetgrid"] = tgrid
+    oc["rotations"] = dict(targetgrid=tgrid)
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()
-    check_shapes(
-        o,
-        tgrid,
-        o["interpolation_xgrid"],
-        tc,
-        oc,
-    )
+    check_shapes(o, tgrid, o.xgrid, tc, oc)
 
 
 def test_targetbasis():
@@ -86,37 +74,27 @@ def test_targetbasis():
     oc["inputbasis"] = np.eye(14) + 0.1 * np.random.rand(14, 14)
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()
-    check_shapes(
-        o,
-        o["interpolation_xgrid"],
-        o["interpolation_xgrid"],
-        tc,
-        oc,
-    )
+    check_shapes(o, o.xgrid, o.xgrid, tc, oc)
 
 
 def check_shapes(o, txs, ixs, theory_card, operators_card):
-    tpids = len(o["targetpids"])
-    ipids = len(o["inputpids"])
+    tpids = len(o.rotations.targetpids)
+    ipids = len(o.rotations.inputpids)
     op_shape = (tpids, len(txs), ipids, len(ixs))
 
     # check output = input
-    np.testing.assert_allclose(
-        o["interpolation_xgrid"], operators_card["interpolation_xgrid"]
-    )
-    np.testing.assert_allclose(o["targetgrid"], txs)
-    np.testing.assert_allclose(o["inputgrid"], ixs)
+    np.testing.assert_allclose(o.xgrid, operators_card["xgrid"])
+    np.testing.assert_allclose(o.rotations.targetgrid, txs)
+    np.testing.assert_allclose(o.rotations.inputgrid, ixs)
     for k in ["interpolation_polynomial_degree", "interpolation_is_log"]:
-        assert o[k] == operators_card[k]
-    np.testing.assert_allclose(o["q2_ref"], theory_card["Q0"] ** 2)
+        assert getattr(o.configs, k) == operators_card["configs"][k]
+    np.testing.assert_allclose(o.Q02, theory_card["Q0"] ** 2)
     # check available operators
-    assert len(o["Q2grid"]) == len(operators_card["Q2grid"])
-    assert list(o["Q2grid"].keys()) == operators_card["Q2grid"]
-    for ops in o["Q2grid"].values():
-        assert "operators" in ops
-        assert "operator_errors" in ops
-        assert ops["operators"].shape == op_shape
-        assert ops["operator_errors"].shape == op_shape
+    assert len(o.Q2grid) == len(operators_card["Q2grid"])
+    assert list(o.Q2grid) == operators_card["Q2grid"]
+    for _, ops in o.items():
+        assert ops.operator.shape == op_shape
+        assert ops.error.shape == op_shape
 
 
 def test_vfns():
@@ -126,13 +104,7 @@ def test_vfns():
     tc["kcThr"] = 1.0
     tc["kbThr"] = 1.0
     tc["PTO"] = 2
-    oc["debug_skip_non_singlet"] = False
+    oc["debug"]["skip_non_singlet"] = False
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()
-    check_shapes(
-        o,
-        o["interpolation_xgrid"],
-        o["interpolation_xgrid"],
-        tc,
-        oc,
-    )
+    check_shapes(o, o.xgrid, o.xgrid, tc, oc)

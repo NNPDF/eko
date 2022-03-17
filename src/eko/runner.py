@@ -10,7 +10,7 @@ import numpy as np
 from . import basis_rotation as br
 from . import interpolation, msbar_masses
 from .evolution_operator.grid import OperatorGrid
-from .output import EKO
+from .output import EKO, manipulate
 from .strong_coupling import StrongCoupling
 from .thresholds import ThresholdsAtlas
 
@@ -40,18 +40,15 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 """
 
     def __init__(self, theory_card, operators_card):
-        self.out = EKO()
-
         # setup basis grid
         bfd = interpolation.InterpolatorDispatcher.from_dict(operators_card)
-        self.out.update(bfd.to_dict())
+
         # setup the Threshold path, compute masses if necessary
         masses = None
         if theory_card["HQ"] == "MSBAR":
             masses = msbar_masses.compute(theory_card)
         tc = ThresholdsAtlas.from_dict(theory_card, masses=masses)
 
-        self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
         sc = StrongCoupling.from_dict(theory_card, masses=masses)
         # setup operator grid
@@ -62,14 +59,21 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
             sc,
             bfd,
         )
-        self.out["inputgrid"] = bfd.xgrid_raw
-        self.out["targetgrid"] = bfd.xgrid_raw
+
+        rot = operators_card.get("rotations", {})
         self.post_process = dict(
-            inputgrid=operators_card.get("inputgrid", bfd.xgrid_raw),
-            targetgrid=operators_card.get("targetgrid", bfd.xgrid_raw),
-            inputbasis=operators_card.get("inputbasis"),
-            targetbasis=operators_card.get("targetbasis"),
+            inputgrid=rot.get("inputgrid", bfd.xgrid_raw),
+            targetgrid=rot.get("targetgrid", bfd.xgrid_raw),
+            inputbasis=rot.get("inputbasis"),
+            targetbasis=rot.get("targetbasis"),
         )
+
+        if "rotations" not in operators_card:
+            operators_card["rotations"] = {}
+        operators_card["rotations"]["inputgrid"] = bfd.xgrid_raw
+        operators_card["rotations"]["targetgrid"] = bfd.xgrid_raw
+
+        self.out = EKO.from_dict(dict(Q0=np.sqrt(tc.q2_ref)) | operators_card)
 
     def get_output(self):
         """
@@ -81,27 +85,28 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
                 output instance
         """
         # add all operators
-        Q2grid = {}
-        self.out["inputpids"] = br.flavor_basis_pids
-        self.out["targetpids"] = br.flavor_basis_pids
-        self.out["inputgrid"] = self.out["interpolation_xgrid"]
-        self.out["targetgrid"] = self.out["interpolation_xgrid"]
+        self.out.rotations.inputpids = np.array(br.flavor_basis_pids)
+        self.out.rotations.targetpids = np.array(br.flavor_basis_pids)
+        self.out.rotations.inputgrid = self.out.xgrid
+        self.out.rotations.targetgrid = self.out.xgrid
         for final_scale, op in self.op_grid.compute().items():
-            Q2grid[float(final_scale)] = op
-        self.out["Q2grid"] = Q2grid
+            self.out[float(final_scale)] = op
+
         # reshape xgrid
         inputgrid = (
             self.post_process["inputgrid"]
-            if self.post_process["inputgrid"] is not self.out["interpolation_xgrid"]
+            if self.post_process["inputgrid"] is not self.out.xgrid
             else None
         )
         targetgrid = (
             self.post_process["targetgrid"]
-            if self.post_process["targetgrid"] is not self.out["interpolation_xgrid"]
+            if self.post_process["targetgrid"] is not self.out.xgrid
             else None
         )
         if inputgrid is not None or targetgrid is not None:
-            self.out.xgrid_reshape(targetgrid=targetgrid, inputgrid=inputgrid)
+            manipulate.xgrid_reshape(
+                self.out, targetgrid=targetgrid, inputgrid=inputgrid
+            )
 
         # reshape flavors
         inputbasis = self.post_process["inputbasis"]
@@ -111,5 +116,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         if targetbasis is not None:
             targetbasis = np.array(targetbasis)
         if inputbasis is not None or targetbasis is not None:
-            self.out.flavor_reshape(targetbasis=targetbasis, inputbasis=inputbasis)
+            manipulate.flavor_reshape(
+                self.out, targetbasis=targetbasis, inputbasis=inputbasis
+            )
         return copy.deepcopy(self.out)

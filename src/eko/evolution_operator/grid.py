@@ -286,8 +286,8 @@ class OperatorGrid:
         values, errors = final_op.to_flavor_basis_tensor()
         fact_to_ren = self.config["fact_to_ren"]
         return {
-            "operators": values,
-            "operator_errors": errors,
+            "operator": values,
+            "error": errors,
             "alphas": self.managers["strong_coupling"].a_s(
                 q2 / fact_to_ren, fact_scale=q2, nf_to=path[-1].nf
             )
