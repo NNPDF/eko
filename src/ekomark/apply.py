@@ -5,13 +5,13 @@ from eko import basis_rotation as br
 from eko import interpolation
 
 
-def apply_pdf(output, lhapdf_like, targetgrid=None, rotate_to_evolution_basis=False):
+def apply_pdf(eko, lhapdf_like, targetgrid=None, rotate_to_evolution_basis=False):
     """
     Apply all available operators to the input PDFs.
 
     Parameters
     ----------
-        output : eko.output.Output
+        output : eko.output.EKO
             eko output object containing all informations
         lhapdf_like : object
             object that provides an xfxQ2 callable (as `lhapdf <https://lhapdf.hepforge.org/>`_
@@ -28,18 +28,18 @@ def apply_pdf(output, lhapdf_like, targetgrid=None, rotate_to_evolution_basis=Fa
     """
     if rotate_to_evolution_basis:
         return apply_pdf_flavor(
-            output, lhapdf_like, targetgrid, br.rotate_flavor_to_evolution
+            eko, lhapdf_like, targetgrid, br.rotate_flavor_to_evolution
         )
-    return apply_pdf_flavor(output, lhapdf_like, targetgrid)
+    return apply_pdf_flavor(eko, lhapdf_like, targetgrid)
 
 
-def apply_pdf_flavor(output, lhapdf_like, targetgrid=None, flavor_rotation=None):
+def apply_pdf_flavor(eko, lhapdf_like, targetgrid=None, flavor_rotation=None):
     """
     Apply all available operators to the input PDFs.
 
     Parameters
     ----------
-        output : eko.output.Output
+        output : eko.output.EKO
             eko output object containing all informations
         lhapdf_like : object
             object that provides an xfxQ2 callable (as `lhapdf <https://lhapdf.hepforge.org/>`_
@@ -55,25 +55,22 @@ def apply_pdf_flavor(output, lhapdf_like, targetgrid=None, flavor_rotation=None)
             output PDFs and their associated errors for the computed Q2grid
     """
     # create pdfs
-    pdfs = np.zeros((len(output["inputpids"]), len(output["inputgrid"])))
-    for j, pid in enumerate(output["inputpids"]):
+    pdfs = np.zeros((len(eko.rotations.inputpids), len(eko.rotations.inputgrid)))
+    for j, pid in enumerate(eko.rotations.inputpids):
         if not lhapdf_like.hasFlavor(pid):
             continue
         pdfs[j] = np.array(
-            [
-                lhapdf_like.xfxQ2(pid, x, output["q2_ref"]) / x
-                for x in output["inputgrid"]
-            ]
+            [lhapdf_like.xfxQ2(pid, x, eko.Q02) / x for x in eko.rotations.inputgrid]
         )
 
     # build output
     out_grid = {}
-    for q2, elem in output["Q2grid"].items():
-        pdf_final = np.einsum("ajbk,bk", elem["operators"], pdfs)
-        error_final = np.einsum("ajbk,bk", elem["operator_errors"], pdfs)
+    for q2, elem in eko.items():
+        pdf_final = np.einsum("ajbk,bk", elem.operator, pdfs)
+        error_final = np.einsum("ajbk,bk", elem.error, pdfs)
         out_grid[q2] = {
-            "pdfs": dict(zip(output["targetpids"], pdf_final)),
-            "errors": dict(zip(output["targetpids"], error_final)),
+            "pdfs": dict(zip(eko.rotations.targetpids, pdf_final)),
+            "errors": dict(zip(eko.rotations.targetpids, error_final)),
         }
 
     # rotate to evolution basis
@@ -90,7 +87,9 @@ def apply_pdf_flavor(output, lhapdf_like, targetgrid=None, flavor_rotation=None)
 
     # rotate/interpolate to target grid
     if targetgrid is not None:
-        b = interpolation.InterpolatorDispatcher.from_dict(output, False)
+        b = interpolation.InterpolatorDispatcher.from_dict(
+            eko.configs.raw | dict(xgrid=eko.xgrid), False
+        )
         rot = b.get_interpolation(targetgrid)
         for evpdf in out_grid.values():
             for pdf_label in evpdf["pdfs"]:
