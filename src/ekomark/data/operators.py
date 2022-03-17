@@ -10,18 +10,22 @@ from eko import interpolation
 from . import db
 
 default_card = dict(
-    interpolation_xgrid=interpolation.make_grid(30, 20).tolist(),
-    interpolation_polynomial_degree=4,
-    interpolation_is_log=True,
-    debug_skip_non_singlet=False,
-    debug_skip_singlet=False,
-    ev_op_max_order=10,
-    ev_op_iterations=10,
-    backward_inversion="expanded",
-    Q2grid=[100],
+    sorted(
+        dict(
+            xgrid=interpolation.make_grid(30, 20).tolist(),
+            configs=dict(
+                interpolation_polynomial_degree=4,
+                interpolation_is_log=True,
+                ev_op_max_order=10,
+                ev_op_iterations=10,
+                backward_inversion="expanded",
+            ),
+            debug=dict(skip_non_singlet=False, skip_singlet=False),
+            Q2grid=[100],
+        ).items()
+    )
 )
 
-default_card = dict(sorted(default_card.items()))
 
 lhapdf_config = {
     # "ev_op_max_order": [10],
