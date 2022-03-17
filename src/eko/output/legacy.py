@@ -130,11 +130,11 @@ def dump_tar(obj, tarname):
         with open(yamlname, "w", encoding="utf-8") as fd:
             yaml.dump(metadata, fd)
 
-        for kind in ["alphas", "operators", "operator_errors"]:
+        for kind in ["alphas", "operator", "error"]:
             elements = []
             for q2, op in obj.items():
                 if op is not None:
-                    el = getattr(q2, kind)
+                    el = op[kind]
                 else:
                     el = np.zeros((len(obj.xgrid), 14, len(obj.xgrid), 14))
                 elements.append(el)
