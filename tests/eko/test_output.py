@@ -24,11 +24,9 @@ def eko_identity(shape):
 def chk_keys(a, b):
     """Check all keys are preserved"""
     assert sorted(a.keys()) == sorted(b.keys())
-    for q2, op in a.Q2grid.items():
-        assert q2 in b.Q2grid
-        opb = b.Q2grid[q2]
-        assert sorted(op.keys()) == sorted(opb.keys())
-        assert op["alphas"] == opb["alphas"]
+    for key, value in a.items():
+        if isinstance(value, dict):
+            assert sorted(value.keys()) == sorted(b[key].keys())
 
 
 class TestLegacy:
@@ -104,48 +102,50 @@ class TestManipulate:
         xg = np.geomspace(1e-5, 1.0, 21)
         o1 = output.EKO.from_dict(fake_output)
         o1.xgrid = xg
-        o1.targetgrid = xg
-        o1.inputgrid = xg
-        o1.Q2grid = {
-            10: dict(
-                operators=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
-                operator_errors=np.zeros((2, len(xg), 2, len(xg))),
-                alphas=np.random.rand(),
+        o1.rotations.targetgrid = xg
+        o1.rotations.inputgrid = xg
+        o1._operators = {
+            10: output.Operator.from_dict(
+                dict(
+                    operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
+                    error=np.zeros((2, len(xg), 2, len(xg))),
+                    alphas=np.random.rand(),
+                )
             )
         }
         xgp = np.geomspace(1e-5, 1.0, 11)
         # only target
         ot = copy.deepcopy(o1)
         manipulate.xgrid_reshape(ot, xgp, inplace=True)
-        chk_keys(o1, ot)
-        assert ot["Q2grid"][10]["operators"].shape == (2, len(xgp), 2, len(xg))
+        chk_keys(o1.raw, ot.raw)
+        assert ot._operators[10].operator.shape == (2, len(xgp), 2, len(xg))
         ott = copy.deepcopy(o1)
         with pytest.warns(Warning):
             manipulate.xgrid_reshape(ott, xg)
-            chk_keys(o1, ott)
+            chk_keys(o1.raw, ott.raw)
             np.testing.assert_allclose(
-                ott.Q2grid[10]["operators"], o1.Q2grid[10]["operators"]
+                ott._operators[10].operator, o1._operators[10].operator
             )
 
         # only input
         oi = copy.deepcopy(o1)
-        manipulate.xgrid_reshape(o1, inputgrid=xgp)
-        assert oi.Q2grid[10]["operators"].shape == (2, len(xg), 2, len(xgp))
-        chk_keys(o1, oi)
+        manipulate.xgrid_reshape(oi, inputgrid=xgp)
+        assert oi._operators[10].operator.shape == (2, len(xg), 2, len(xgp))
+        chk_keys(o1.raw, oi.raw)
         oii = copy.deepcopy(o1)
         with pytest.warns(Warning):
             manipulate.xgrid_reshape(oii, inputgrid=xg)
-            chk_keys(o1, oii)
+            chk_keys(o1.raw, oii.raw)
             np.testing.assert_allclose(
-                oii.Q2grid[10]["operators"], o1.Q2grid[10]["operators"]
+                oii._operators[10].operator, o1._operators[10].operator
             )
 
         # both
         oit = copy.deepcopy(o1)
         manipulate.xgrid_reshape(oit, xgp, xgp)
-        chk_keys(o1, oit)
+        chk_keys(o1.raw, oit.raw)
         op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
-        np.testing.assert_allclose(oit.Q2grid[10]["operators"], op[0], atol=1e-10)
+        np.testing.assert_allclose(oit._operators[10].operator, op[0], atol=1e-10)
         # error
         with pytest.raises(ValueError):
             manipulate.xgrid_reshape(copy.deepcopy(o1))
@@ -162,9 +162,7 @@ class TestManipulate:
         # reload
         stream.seek(0)
         o3 = legacy.load_yaml(stream)
-        # eko_version is only added in get_raw
-        del o3["eko_version"]
-        chk_keys(o1, o3)
+        chk_keys(o1.raw, o3.raw)
 
     def test_flavor_reshape(self, fake_output):
         # create object
