@@ -122,11 +122,11 @@ def flavor_reshape(eko, targetbasis=None, inputbasis=None, inplace=True):
         inv_inputbasis = np.linalg.inv(inputbasis)
 
     # build new grid
-    for _, elem in eko.items():
+    for _, elem in eko._operators.items():
         if elem is None:
             continue
-        ops = elem.operators
-        errs = elem.operator_errors
+        ops = elem.operator
+        errs = elem.error
         if targetbasis is not None and inputbasis is None:
             ops = np.einsum("ca,ajbk->cjbk", targetbasis, ops)
             errs = np.einsum("ca,ajbk->cjbk", targetbasis, errs)
@@ -162,9 +162,9 @@ def to_evol(eko, source=True, target=False, inplace=True):
     # rotate
     inputbasis = br.rotate_flavor_to_evolution if source else None
     targetbasis = br.rotate_flavor_to_evolution if target else None
-    eko.flavor_reshape(inputbasis=inputbasis, targetbasis=targetbasis)
+    flavor_reshape(eko, inputbasis=inputbasis, targetbasis=targetbasis)
     # assign pids
     if source:
-        eko.inputpids = br.evol_basis_pids
+        eko.rotations.inputpids = br.evol_basis_pids
     if target:
-        eko.targetpids = br.evol_basis_pids
+        eko.rotations.targetpids = br.evol_basis_pids
