@@ -73,7 +73,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         operators_card["rotations"]["inputgrid"] = bfd.xgrid_raw
         operators_card["rotations"]["targetgrid"] = bfd.xgrid_raw
 
-        self.out = EKO.from_dict(dict(Q0=np.sqrt(tc.q2_ref)) | operators_card)
+        self.out = EKO.from_dict(dict(Q0=np.sqrt(tc.q2_ref), **operators_card))
 
     def get_output(self):
         """
