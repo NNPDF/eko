@@ -4,7 +4,7 @@ import numpy as np
 
 
 @nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4,f8)", cache=True)
-def A_gq_3(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
+def A_gq(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{gq}^{S,(3)}(N)`.
     The experssion is presented in :cite:`Ablinger_2014` (eq 6.3).
@@ -31,7 +31,7 @@ def A_gq_3(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
 
     Returns
     -------
-        A_gq_3 : complex
+        A_gq : complex
             :math:`A_{gq}^{S,(3)}(N)`
     """
     S1, S2, S3, S4 = sx[0], sx[1], sx[2], sx[3]

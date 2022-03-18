@@ -4,7 +4,7 @@ import numpy as np
 
 
 @nb.njit("c16(c16,c16[:],u4,f8)", cache=True)
-def A_qqPS_3(n, sx, nf, L):
+def A_qqPS(n, sx, nf, L):
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{qq}^{PS,(3)}(N)`.
     The expression is presented in :cite:`Bierenbaum:2009mv`.
@@ -25,7 +25,7 @@ def A_qqPS_3(n, sx, nf, L):
 
     Returns
     -------
-        A_qqPS_3 : complex
+        A_qqPS : complex
             :math:`A_{qq}^{PS,(3)}(N)`
     """
     S1, S2, S3 = sx[0], sx[1], sx[2]

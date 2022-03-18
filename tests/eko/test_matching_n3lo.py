@@ -2,8 +2,8 @@
 # Test N3LO OME
 import numpy as np
 
-from eko.matching_conditions import n3lo
-from eko.matching_conditions.n3lo import A_ns_3, A_qqNS_3, A_singlet_3
+from eko.matching_conditions import as3
+from eko.matching_conditions.as3 import A_ns, A_qqNS, A_singlet
 from eko.matching_conditions.operator_matrix_element import get_s3x, get_s4x, get_smx
 
 
@@ -17,7 +17,7 @@ def test_A_3(get_sx):
         smx = get_smx(N)
         s3x = get_s3x(N, sx, smx)
         s4x = get_s4x(N, sx, smx)
-        aNSqq3 = A_qqNS_3(N, sx, smx, s3x, s4x, nf, L)
+        aNSqq3 = A_qqNS(N, sx, smx, s3x, s4x, nf, L)
         # quark number conservation
         # the accuracy of this test depends directly on the precision of the
         # F functions, thus is dominated by F19,F20,F21 accuracy are the worst ones
@@ -33,19 +33,19 @@ def test_A_3(get_sx):
         # thus the reference value is not 0.0
         # Here the accuracy of this test depends on the approximation of AggTF2
         np.testing.assert_allclose(
-            n3lo.A_gg_3(N, sx, smx, s3x, s4x, nf, L)
-            + n3lo.A_qg_3(N, sx, smx, s3x, s4x, nf, L)
-            + n3lo.A_Hg_3(N, sx, smx, s3x, s4x, nf, L),
+            as3.A_gg(N, sx, smx, s3x, s4x, nf, L)
+            + as3.A_qg(N, sx, smx, s3x, s4x, nf, L)
+            + as3.A_Hg(N, sx, smx, s3x, s4x, nf, L),
             145.148,
             rtol=32e-3,
         )
 
     # here you get division by 0 as in Mathematica
     # np.testing.assert_allclose(
-    #     n3lo.A_gq_3(N, sx, smx, s3x, s4x, nf,L)
-    #     + n3lo.A_qqNS_3(N, sx, smx, s3x, s4x, nf,L)
-    #     + n3lo.A_qqPS_3(N, sx, nf,L)
-    #     + n3lo.A_Hq_3(N, sx, smx, s3x, s4x, nf,L),
+    #     n3lo.A_gq(N, sx, smx, s3x, s4x, nf,L)
+    #     + n3lo.A_qqNS(N, sx, smx, s3x, s4x, nf,L)
+    #     + n3lo.A_qqPS(N, sx, nf,L)
+    #     + n3lo.A_Hq(N, sx, smx, s3x, s4x, nf,L),
     #     0.0,
     #     atol=2e-6,
     # )
@@ -55,7 +55,7 @@ def test_A_3(get_sx):
     # sx_all = np.append(sx_all, get_smx(N))
     # sx_all = np.append(sx_all, get_s3x(N, get_sx(N),get_smx(N)))
     # sx_all = np.append(sx_all, get_s4x(N, get_sx(N),get_smx(N)))
-    # aS3 = A_singlet_3(N, sx_all, nf, L)
+    # aS3 = A_singlet(N, sx_all, nf, L)
     # gluon momentum conservation
     # np.testing.assert_allclose(aS3[0, 0] + aS3[1, 0] + aS3[2, 0], 0.0, atol=2e-6)
     # quark momentum conservation
@@ -63,8 +63,8 @@ def test_A_3(get_sx):
 
     N = 3 + 2j
     sx_all = np.random.rand(19) + 1j * np.random.rand(19)
-    aS3 = A_singlet_3(N, sx_all, nf, L)
-    aNS3 = A_ns_3(N, sx_all, nf, L)
+    aS3 = A_singlet(N, sx_all, nf, L)
+    aNS3 = A_ns(N, sx_all, nf, L)
     assert aNS3.shape == (2, 2)
     assert aS3.shape == (3, 3)
 
@@ -149,7 +149,7 @@ def test_Blumlein_3(get_sx):
             sx_all = np.append(sx_all, get_smx(N))
             sx_all = np.append(sx_all, get_s3x(N, get_sx(N), get_smx(N)))
             sx_all = np.append(sx_all, get_s4x(N, get_sx(N), get_smx(N)))
-            aS3 = A_singlet_3(N, sx_all, nf, L)
+            aS3 = A_singlet(N, sx_all, nf, L)
 
             # here we have a different approximation for AggTF2,
             # some terms are neglected
@@ -184,14 +184,14 @@ def test_Blumlein_3(get_sx):
         smx = get_smx(N)
         s3x = get_s3x(N, sx, smx)
         s4x = get_s4x(N, sx, smx)
-        Aggtf2 = n3lo.aggTF2.A_ggTF2_3(N, sx, s3x)
+        Aggtf2 = as3.aggTF2.A_ggTF2(N, sx, s3x)
         if N != 100:
             # Limited in the small N region
             np.testing.assert_allclose(Aggtf2, ref_val_ggTF2[0][idx], rtol=15e-2)
         np.testing.assert_allclose(Aggtf2, ref_ggTF_app[idx], rtol=2e-4)
 
         np.testing.assert_allclose(
-            n3lo.agg.A_gg_3(N, sx, smx, s3x, s4x, nf, L=0) - Aggtf2,
+            as3.agg.A_gg(N, sx, smx, s3x, s4x, nf, L=0) - Aggtf2,
             ref_val_gg[0][idx],
             rtol=3e-6,
         )
@@ -205,7 +205,7 @@ def test_Blumlein_3(get_sx):
         s3x = get_s3x(N, sx, smx)
         s4x = get_s4x(N, sx, smx)
         np.testing.assert_allclose(
-            n3lo.aqqNS.A_qqNS_3(N, sx, smx, s3x, s4x, nf, L=0), ref, rtol=3e-2
+            as3.aqqNS.A_qqNS(N, sx, smx, s3x, s4x, nf, L=0), ref, rtol=3e-2
         )
 
 
@@ -258,5 +258,5 @@ def test_AHq_asymptotic(get_sx):
         s3x = get_s3x(N, sx, smx)
         s4x = get_s4x(N, sx, smx)
         np.testing.assert_allclose(
-            n3lo.aHq.A_Hq_3(N, sx, smx, s3x, s4x, nf, L=0), r, rtol=1e-5, atol=1e-5
+            as3.aHq.A_Hq(N, sx, smx, s3x, s4x, nf, L=0), r, rtol=1e-5, atol=1e-5
         )

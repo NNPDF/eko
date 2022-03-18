@@ -3,11 +3,11 @@
 import numba as nb
 import numpy as np
 
-from .aggTF2 import A_ggTF2_3
+from .aggTF2 import A_ggTF2
 
 
 @nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4,f8)", cache=True)
-def A_gg_3(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
+def A_gg(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{gg}^{S,(3)}(N)`.
     The experssion is presented in :cite:`Bierenbaum:2009mv`.
@@ -34,12 +34,12 @@ def A_gg_3(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
 
     Returns
     -------
-        A_gg_3 : complex
+        A_gg : complex
             :math:`A_{gg}^{S,(3)}(N)`
 
     See Also
     --------
-        A_ggTF2_3: eko.matching_conditions.n3lo.aggTF2.A_ggTF2_3
+        A_ggTF2: eko.matching_conditions.n3lo.aggTF2.A_ggTF2
             Incomplete part proportional to :math:`T_{F}^2`.
     """
     S1, S2, S3, S4 = sx[0], sx[1], sx[2], sx[3]
@@ -48,7 +48,7 @@ def A_gg_3(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     S31, S211, Sm22, Sm211, Sm31 = s4x[0], s4x[1], s4x[2], s4x[3], s4x[4]
     a_gg_l0 = (
         -0.35616500834358344
-        + A_ggTF2_3(n, sx, s3x)
+        + A_ggTF2(n, sx, s3x)
         + 0.75
         * (
             (-19.945240467240673 * (1.0 + n + np.power(n, 2)))

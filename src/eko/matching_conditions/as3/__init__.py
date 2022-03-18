@@ -27,17 +27,17 @@ The expressions are based on:
 import numba as nb
 import numpy as np
 
-from .agg import A_gg_3
-from .agq import A_gq_3
-from .aHg import A_Hg_3
-from .aHq import A_Hq_3
-from .aqg import A_qg_3
-from .aqqNS import A_qqNS_3
-from .aqqPS import A_qqPS_3
+from .agg import A_gg
+from .agq import A_gq
+from .aHg import A_Hg
+from .aHq import A_Hq
+from .aqg import A_qg
+from .aqqNS import A_qqNS
+from .aqqPS import A_qqPS
 
 
 @nb.njit("c16[:,:](c16,c16[:],u4,f8)", cache=True)
-def A_singlet_3(n, sx_all, nf, L):
+def A_singlet(n, sx_all, nf, L):
     r"""
     Computes the |N3LO| singlet |OME|.
 
@@ -65,32 +65,36 @@ def A_singlet_3(n, sx_all, nf, L):
 
     Returns
     -------
-        A_S_3 : numpy.ndarray
+        A_S : numpy.ndarray
             |NNLO| singlet |OME| :math:`A^{S,(3)}(N)`
     """
     sx = sx_all[:5]
     smx = sx_all[5:10]
     s3x = sx_all[10:14]
     s4x = sx_all[14:]
-    A_hq = A_Hq_3(n, sx, smx, s3x, s4x, nf, L)
-    A_hg = A_Hg_3(n, sx, smx, s3x, s4x, nf, L)
+    A_hq_3 = A_Hq(n, sx, smx, s3x, s4x, nf, L)
+    A_hg_3 = A_Hg(n, sx, smx, s3x, s4x, nf, L)
 
-    A_gq = A_gq_3(n, sx, smx, s3x, s4x, nf, L)
-    A_gg = A_gg_3(n, sx, smx, s3x, s4x, nf, L)
+    A_gq_3 = A_gq(n, sx, smx, s3x, s4x, nf, L)
+    A_gg_3 = A_gg(n, sx, smx, s3x, s4x, nf, L)
 
-    A_qq_ps = A_qqPS_3(n, sx, nf, L)
-    A_qq_ns = A_qqNS_3(n, sx, smx, s3x, s4x, nf, L)
-    A_qg = A_qg_3(n, sx, smx, s3x, s4x, nf, L)
+    A_qq_ps_3 = A_qqPS(n, sx, nf, L)
+    A_qq_ns_3 = A_qqNS(n, sx, smx, s3x, s4x, nf, L)
+    A_qg_3 = A_qg(n, sx, smx, s3x, s4x, nf, L)
 
-    A_S_3 = np.array(
-        [[A_gg, A_gq, 0.0], [A_qg, A_qq_ps + A_qq_ns, 0.0], [A_hg, A_hq, 0.0]],
+    A_S = np.array(
+        [
+            [A_gg_3, A_gq_3, 0.0],
+            [A_qg_3, A_qq_ps_3 + A_qq_ns_3, 0.0],
+            [A_hg_3, A_hq_3, 0.0],
+        ],
         np.complex_,
     )
-    return A_S_3
+    return A_S
 
 
 @nb.njit("c16[:,:](c16,c16[:],u4,f8)", cache=True)
-def A_ns_3(n, sx_all, nf, L):
+def A_ns(n, sx_all, nf, L):
     r"""
     Computes the |N3LO| non-singlet |OME|.
 
@@ -117,7 +121,7 @@ def A_ns_3(n, sx_all, nf, L):
 
     Returns
     -------
-        A_NS_3 : numpy.ndarray
+        A_NS : numpy.ndarray
             |N3LO| non-singlet |OME| :math:`A^{NS,(3)}`
 
     See Also
@@ -128,5 +132,6 @@ def A_ns_3(n, sx_all, nf, L):
     smx = sx_all[5:10]
     s3x = sx_all[10:14]
     s4x = sx_all[14:]
-    A_qq = A_qqNS_3(n, sx, smx, s3x, s4x, nf, L)
-    return np.array([[A_qq, 0.0], [0 + 0j, 0 + 0j]], np.complex_)
+    return np.array(
+        [[A_qqNS(n, sx, smx, s3x, s4x, nf, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_
+    )

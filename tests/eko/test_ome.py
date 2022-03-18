@@ -15,7 +15,7 @@ from eko.anomalous_dimensions.harmonics import (
 )
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
-from eko.matching_conditions.n3lo import s_functions as sf
+from eko.matching_conditions.as3 import s_functions as sf
 from eko.matching_conditions.operator_matrix_element import (
     A_non_singlet,
     A_singlet,

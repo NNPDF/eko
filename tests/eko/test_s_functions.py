@@ -3,7 +3,7 @@
 
 import numpy as np
 
-import eko.matching_conditions.n3lo.s_functions as sf
+import eko.matching_conditions.as3.s_functions as sf
 
 # reference values coming fom mathematica
 testN = [1, 2, 2 + 2j, 10 + 5j, 100]

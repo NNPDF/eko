@@ -4,7 +4,7 @@ import numpy as np
 
 
 @nb.njit("c16(c16,c16[:],c16[:])", cache=True)
-def A_ggTF2_3(n, sx, s3x):
+def A_ggTF2(n, sx, s3x):
     r"""
     Computes the approximate incomplete part of :math:`A_{gg}^{S,(3)}(N)`
     proportional to :math:`T_{F}^2`.
@@ -25,7 +25,7 @@ def A_ggTF2_3(n, sx, s3x):
 
     Returns
     -------
-        A_ggTF2_3 : complex
+        A_ggTF2 : complex
             :math:`A_{gg,T_{F}^2}^{S,(3)}(N)`
     """
     S1, S2, S3 = sx[0], sx[1], sx[2]

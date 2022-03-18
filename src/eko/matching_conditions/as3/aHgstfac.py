@@ -4,7 +4,7 @@ import numpy as np
 
 
 @nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4)", cache=True)
-def A_Hgstfac_3(n, sx, smx, s3x, s4x, nf):
+def A_Hgstfac(n, sx, smx, s3x, s4x, nf):
     r"""
     Computes the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)`
     proportional to various color factors.
@@ -24,7 +24,7 @@ def A_Hgstfac_3(n, sx, smx, s3x, s4x, nf):
 
     Returns
     -------
-        A_ggTF2_3 : complex
+        A_ggTF2 : complex
     """
     S1, S2, S3, S4 = sx[0], sx[1], sx[2], sx[3]
     Sm2, Sm3, Sm4 = smx[1], smx[2], smx[3]
