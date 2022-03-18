@@ -7,14 +7,15 @@ While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes |QCDNUM|
 (https://github.com/N3PDF/external/blob/master/qcdnum/qcdnum/pij/ome.f)
 and Mellin transformed with Mathematica.
 
-The expession for A_Hg_2_l0 comes form :cite:`Bierenbaum:2009zt`
+The expession for A_Hg_l0 comes form :cite:`Bierenbaum:2009zt`
 """
 import numba as nb
 import numpy as np
 
 from .. import constants
 from ..anomalous_dimensions import harmonics
-from .nlo import A_gg_1, A_hg_1
+from .as1 import A_gg as A_gg_1
+from .as1 import A_hg as A_hg_1
 
 # Global variables
 zeta2 = harmonics.zeta2
@@ -22,7 +23,7 @@ zeta3 = harmonics.zeta3
 
 
 @nb.njit("c16(c16,c16[:],f8)", cache=True)
-def A_qq_2_ns(n, sx, L):
+def A_qq_ns(n, sx, L):
     r"""
     |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}` given in
     Eq. (B.4) of :cite:`Buza_1998`.
@@ -38,7 +39,7 @@ def A_qq_2_ns(n, sx, L):
 
     Returns
     -------
-        A_qq_2_ns : complex
+        A_qq_ns : complex
             |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`
     """
     S1 = sx[0]
@@ -47,7 +48,7 @@ def A_qq_2_ns(n, sx, L):
     S1m = S1 - 1 / n  # harmonic_S1(n - 1)
     S2m = S2 - 1 / n**2  # harmonic_S2(n - 1)
 
-    a_qq_2_l0 = (
+    a_qq_l0 = (
         -224.0 / 27.0 * (S1 - 1.0 / n)
         - 8.0 / 3.0 * zeta3
         + 40 / 9.0 * zeta2
@@ -64,7 +65,7 @@ def A_qq_2_ns(n, sx, L):
         )
     )
 
-    a_qq_2_l1 = (
+    a_qq_l1 = (
         2
         * (-12 - 28 * n + 9 * n**2 + 34 * n**3 - 3 * n**4)
         / (9 * (n * (n + 1)) ** 2)
@@ -72,14 +73,12 @@ def A_qq_2_ns(n, sx, L):
         - 16 / 3 * S2m
     )
 
-    a_qq_2_l2 = -2 * ((2 + n - 3 * n**2) / (3 * n * (n + 1)) + 4 / 3 * S1m)
-    return (
-        constants.CF * constants.TR * (a_qq_2_l2 * L**2 + a_qq_2_l1 * L + a_qq_2_l0)
-    )
+    a_qq_l2 = -2 * ((2 + n - 3 * n**2) / (3 * n * (n + 1)) + 4 / 3 * S1m)
+    return constants.CF * constants.TR * (a_qq_l2 * L**2 + a_qq_l1 * L + a_qq_l0)
 
 
 @nb.njit("c16(c16,c16[:],f8)", cache=True)
-def A_hq_2_ps(n, sx, L):
+def A_hq_ps(n, sx, L):
     r"""
     |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}` given in
     Eq. (B.1) of :cite:`Buza_1998`.
@@ -95,7 +94,7 @@ def A_hq_2_ps(n, sx, L):
 
     Returns
     -------
-        A_hq_2_ps : complex
+        A_hq_ps : complex
             |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`
     """
     S2 = sx[1]
@@ -104,7 +103,7 @@ def A_hq_2_ps(n, sx, L):
     F11 = 1.0 / (n + 1.0) * (zeta2 - (S2 + 1.0 / (n + 1.0) ** 2))
     F12 = 1.0 / (n + 2.0) * (zeta2 - (S2 + 1.0 / (n + 1.0) ** 2 + 1.0 / (n + 2.0) ** 2))
     F21 = -F11 / (n + 1.0)
-    a_hq_2_l0 = (
+    a_hq_l0 = (
         -(
             32.0 / 3.0 / (n - 1.0)
             + 8.0 * (1.0 / n - 1.0 / (n + 1.0))
@@ -129,26 +128,24 @@ def A_hq_2_ps(n, sx, L):
         + 16.0 * (-(zeta2 - S2) / n**2 + F21)
     )
 
-    a_hq_2_l1 = (
+    a_hq_l1 = (
         8
         * (2 + n * (5 + n))
         * (4 + n * (4 + n * (7 + 5 * n)))
         / ((n - 1) * (n + 2) ** 2 * (n * (n + 1)) ** 3)
     )
 
-    a_hq_2_l2 = -4 * (2 + n + n**2) ** 2 / ((n - 1) * (n + 2) * (n * (n + 1)) ** 2)
+    a_hq_l2 = -4 * (2 + n + n**2) ** 2 / ((n - 1) * (n + 2) * (n * (n + 1)) ** 2)
 
-    return (
-        constants.CF * constants.TR * (a_hq_2_l2 * L**2 + a_hq_2_l1 * L + a_hq_2_l0)
-    )
+    return constants.CF * constants.TR * (a_hq_l2 * L**2 + a_hq_l1 * L + a_hq_l0)
 
 
 @nb.njit("c16(c16,c16[:],f8)", cache=True)
-def A_hg_2(n, sx, L):
+def A_hg(n, sx, L):
     r"""
     |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}` given in
     Eq. (B.3) of :cite:`Buza_1998`.
-    The expession for A_Hg_2_l0 comes form :cite:`Bierenbaum:2009zt`.
+    The expession for A_Hg_l0 comes form :cite:`Bierenbaum:2009zt`.
 
     Parameters
     ----------
@@ -161,7 +158,7 @@ def A_hg_2(n, sx, L):
 
     Returns
     -------
-        A_hg_2 : complex
+        A_hg : complex
             |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`
     """
     S1 = sx[0]
@@ -181,7 +178,7 @@ def A_hg_2(n, sx, L):
         + harmonics.mellin_g3(n)
     )
 
-    a_hg_2_l0 = (
+    a_hg_l0 = (
         -(
             3084
             + 192 / n**4
@@ -245,7 +242,7 @@ def A_hg_2(n, sx, L):
         )
     )
 
-    a_hg_2_l1 = (
+    a_hg_l1 = (
         2
         * (
             +640
@@ -262,7 +259,7 @@ def A_hg_2(n, sx, L):
         / (3 * (n * (n + 1) * (n + 2)) ** 3 * (n - 1))
     )
 
-    a_hg_2_l1 -= (
+    a_hg_l1 -= (
         2
         * (
             n
@@ -279,20 +276,20 @@ def A_hg_2(n, sx, L):
         )
         / (3 * (n * (n + 1) * (n + 2)) ** 3 * (n - 1))
     )
-    a_hg_2_l1 += 12 * zeta2 * (-2 + n + n**3) / (n * (n**2 - 1) * (n + 2))
+    a_hg_l1 += 12 * zeta2 * (-2 + n + n**3) / (n * (n**2 - 1) * (n + 2))
 
-    a_hg_2_l2 = (
+    a_hg_l2 = (
         4
         * (2 + n + n**2)
         * (2 * (-11 + n + n**2) * (1 + n + n**2) / (n - 1))
         / (3 * (n * (n + 1) * (n + 2)) ** 2)
     ) + 20 * (2 + n + n**2) * S1 / (3 * n * (n + 1) * (n + 2))
 
-    return a_hg_2_l2 * L**2 + a_hg_2_l1 * L + a_hg_2_l0
+    return a_hg_l2 * L**2 + a_hg_l1 * L + a_hg_l0
 
 
 @nb.njit("c16(c16,c16[:],f8)", cache=True)
-def A_gq_2(n, sx, L):
+def A_gq(n, sx, L):
     r"""
     |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}` given in
     Eq. (B.5) of :cite:`Buza_1998`.
@@ -308,7 +305,7 @@ def A_gq_2(n, sx, L):
 
     Returns
     -------
-        A_gq_2 : complex
+        A_gq : complex
             |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`
     """
     S1 = sx[0]
@@ -318,7 +315,7 @@ def A_gq_2(n, sx, L):
     B2M = ((S1 - 1.0 / n) ** 2 + S2 - 1.0 / n**2) / (n - 1.0)
     B21 = ((S1 + 1.0 / (n + 1.0)) ** 2 + S2 + 1.0 / (n + 1.0) ** 2) / (n + 1.0)
 
-    a_gq_2_l0 = (
+    a_gq_l0 = (
         4.0 / 3.0 * (2.0 * B2M - 2.0 * (S1**2 + S2) / n + B21)
         + 8.0
         / 9.0
@@ -330,21 +327,19 @@ def A_gq_2(n, sx, L):
         + 1.0 / 27.0 * (448.0 * (1.0 / (n - 1.0) - 1.0 / n) + 344.0 / (n + 1.0))
     )
 
-    a_gq_2_l1 = -(
+    a_gq_l1 = -(
         -96
         + 16 * n * (7 + n * (21 + 10 * n + 8 * n**2))
         - 48 * n * (1 + n) * (2 + n + n**2) * S1m
     ) / (9 * (n - 1) * (n * (1 + n)) ** 2)
 
-    a_gq_2_l2 = 8 * (2 + n + n**2) / (3 * n * (n**2 - 1))
+    a_gq_l2 = 8 * (2 + n + n**2) / (3 * n * (n**2 - 1))
 
-    return (
-        constants.CF * constants.TR * (a_gq_2_l2 * L**2 + a_gq_2_l1 * L + a_gq_2_l0)
-    )
+    return constants.CF * constants.TR * (a_gq_l2 * L**2 + a_gq_l1 * L + a_gq_l0)
 
 
 @nb.njit("c16(c16,c16[:],f8)", cache=True)
-def A_gg_2(n, sx, L):
+def A_gg(n, sx, L):
     r"""
     |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)} ` given in
     Eq. (B.7) of :cite:`Buza_1998`.
@@ -360,7 +355,7 @@ def A_gg_2(n, sx, L):
 
     Returns
     -------
-        A_gg_2 : complex
+        A_gg : complex
             |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
     """
     S1 = sx[0]
@@ -371,7 +366,7 @@ def A_gg_2(n, sx, L):
     D2 = 2.0 / n**3
     D21 = 2.0 / (n + 1.0) ** 3
 
-    a_gg_2f = (
+    a_gg_f = (
         -15.0
         - 8.0 / (n - 1.0)
         + 80.0 / n
@@ -383,7 +378,7 @@ def A_gg_2(n, sx, L):
         + 32.0 * D1
         + 48.0 * D11
     )
-    a_gg_2a = (
+    a_gg_a = (
         -224.0 / 27.0 * (S1 - 1.0 / n)
         + 10.0 / 9.0
         + 4.0 / 3.0 * (S1 + 1.0 / (n + 1.0)) / (n + 1.0)
@@ -394,9 +389,9 @@ def A_gg_2(n, sx, L):
         + 1.0 / 9.0 * (52.0 * D1 + 88.0 * D11)
     )
 
-    a_gg_2_l0 = constants.TR * (constants.CF * a_gg_2f + constants.CA * a_gg_2a)
+    a_gg_l0 = constants.TR * (constants.CF * a_gg_f + constants.CA * a_gg_a)
 
-    a_gg_2_l1 = (
+    a_gg_l1 = (
         8
         / 3
         * (
@@ -416,7 +411,7 @@ def A_gg_2(n, sx, L):
         )
     )
 
-    a_gg_2_l2 = (
+    a_gg_l2 = (
         4
         / 9
         * (
@@ -427,11 +422,11 @@ def A_gg_2(n, sx, L):
         - 4 * S1m
     )
 
-    return a_gg_2_l2 * L**2 + a_gg_2_l1 * L + a_gg_2_l0
+    return a_gg_l2 * L**2 + a_gg_l1 * L + a_gg_l0
 
 
 @nb.njit("c16[:,:](c16,c16[:],f8,b1)", cache=True)
-def A_singlet_2(n, sx, L, is_msbar=False):
+def A_singlet(n, sx, L, is_msbar=False):
     r"""
       Computes the |NNLO| singlet |OME|.
 
@@ -455,33 +450,33 @@ def A_singlet_2(n, sx, L, is_msbar=False):
 
       Returns
       -------
-        A_S_2 : numpy.ndarray
+        A_S : numpy.ndarray
             |NNLO| singlet |OME| :math:`A^{S,(2)}(N)`
 
       See Also
       --------
-        A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
-        A_hq_2 : :math:`A_{hq}^{PS,(2)}`
-        A_hg_2 : :math:`A_{hg}^{S,(2)}`
-        A_gq_2 : :math:`A_{gq, H}^{S,(2)}`
-        A_gg_2 : :math:`A_{gg, H}^{S,(2)}`
+        A_ns : :math:`A_{qq,H}^{NS,(2)}`
+        A_hq : :math:`A_{hq}^{PS,(2)}`
+        A_hg : :math:`A_{hg}^{S,(2)}`
+        A_gq : :math:`A_{gq, H}^{S,(2)}`
+        A_gg : :math:`A_{gg, H}^{S,(2)}`
     """
-    A_hq = A_hq_2_ps(n, sx, L)
-    A_qq = A_qq_2_ns(n, sx, L)
-    A_hg = A_hg_2(n, sx, L)
-    A_gq = A_gq_2(n, sx, L)
-    A_gg = A_gg_2(n, sx, L)
+    A_hq_2 = A_hq_ps(n, sx, L)
+    A_qq_2 = A_qq_ns(n, sx, L)
+    A_hg_2 = A_hg(n, sx, L)
+    A_gq_2 = A_gq(n, sx, L)
+    A_gg_2 = A_gg(n, sx, L)
     if is_msbar:
-        A_hg -= 2.0 * 4.0 * constants.CF * A_hg_1(n, L=1.0)
-        A_gg -= 2.0 * 4.0 * constants.CF * A_gg_1(L=1.0)
-    A_S_2 = np.array(
-        [[A_gg, A_gq, 0.0], [0.0, A_qq, 0.0], [A_hg, A_hq, 0.0]], np.complex_
+        A_hg_2 -= 2.0 * 4.0 * constants.CF * A_hg_1(n, L=1.0)
+        A_gg_2 -= 2.0 * 4.0 * constants.CF * A_gg_1(L=1.0)
+    A_S = np.array(
+        [[A_gg_2, A_gq_2, 0.0], [0.0, A_qq_2, 0.0], [A_hg_2, A_hq_2, 0.0]], np.complex_
     )
-    return A_S_2
+    return A_S
 
 
 @nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
-def A_ns_2(n, sx, L):
+def A_ns(n, sx, L):
     r"""
       Computes the |NNLO| non-singlet |OME|.
 
@@ -502,12 +497,11 @@ def A_ns_2(n, sx, L):
 
       Returns
       -------
-        A_NS_2 : numpy.ndarray
+        A_NS : numpy.ndarray
             |NNLO| non-singlet |OME| :math:`A^{NS,(2)}`
 
       See Also
       --------
-        A_qq_2_ns : :math:`A_{qq,H}^{NS,(2)}`
+        A_qq_ns : :math:`A_{qq,H}^{NS,(2)}`
     """
-    A_qq = A_qq_2_ns(n, sx, L)
-    return np.array([[A_qq, 0.0], [0 + 0j, 0 + 0j]], np.complex_)
+    return np.array([[A_qq_ns(n, sx, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)

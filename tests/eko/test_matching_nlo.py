@@ -2,7 +2,7 @@
 # Test NLO OME
 import numpy as np
 
-from eko.matching_conditions.nlo import A_ns_1, A_singlet_1
+from eko.matching_conditions.as1 import A_ns, A_singlet
 
 
 def test_A_1_intrinsic(get_sx):
@@ -10,7 +10,7 @@ def test_A_1_intrinsic(get_sx):
     L = 100.0
     N = 2
     sx = get_sx(N)
-    aS1 = A_singlet_1(N, sx, L)
+    aS1 = A_singlet(N, sx, L)
     # heavy quark momentum conservation
     np.testing.assert_allclose(aS1[0, 2] + aS1[1, 2] + aS1[2, 2], 0.0, atol=1e-10)
 
@@ -23,8 +23,8 @@ def test_A_1_shape(get_sx):
     N = 2
     L = 3.0
     sx = get_sx(N)
-    aNS1i = A_ns_1(N, sx, L)
-    aS1i = A_singlet_1(N, sx, L)
+    aNS1i = A_ns(N, sx, L)
+    aS1i = A_singlet(N, sx, L)
 
     assert aNS1i.shape == (2, 2)
     assert aS1i.shape == (3, 3)
@@ -48,6 +48,6 @@ def test_Blumlein_1(get_sx):
         N = 2 * n + 2
         sx = get_sx(N)
         for L, ref_gg in ref_val_gg.items():
-            aS1 = A_singlet_1(N, sx, L)
+            aS1 = A_singlet(N, sx, L)
             np.testing.assert_allclose(aS1[0, 0], ref_gg[n], rtol=1e-6)
             np.testing.assert_allclose(aS1[2, 0], ref_val_Hg[L][n], rtol=3e-6)
