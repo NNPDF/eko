@@ -449,7 +449,7 @@ class XGrid:
     def size(self) -> int:
         return self.grid.size
 
-    def tolist(self) -> list[float]:
+    def tolist(self) -> list:
         return self.raw.tolist()
 
 
