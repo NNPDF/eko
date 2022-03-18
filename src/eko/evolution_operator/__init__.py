@@ -16,7 +16,7 @@ from scipy import integrate
 
 from .. import anomalous_dimensions as ad
 from .. import basis_rotation as br
-from .. import beta, interpolation, mellin
+from .. import interpolation, mellin
 from .. import scale_variations as sv
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
@@ -392,7 +392,8 @@ class Operator:
             column.append(temp_dict)
 
         print(
-            f"Evolution: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time):6f} s"  # pylint: disable=line-too-long
+            f"Evolution: computing operators: - {k+1}/{self.grid_size}"
+            f" took: {(time.perf_counter() - start_time):6f} s"
         )
         return column
 
@@ -435,7 +436,7 @@ class Operator:
         with Pool(int(os.cpu_count() / 2)) as pool:
             res = pool.map(
                 self.run_op_integration,
-                enumerate(np.log(self.int_disp.xgrid_raw)),
+                enumerate(np.log(self.int_disp.xgrid.raw)),
             )
 
         # collect results

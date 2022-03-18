@@ -414,6 +414,44 @@ class BasisFunction:
         return self.callable(*args, **kwargs)
 
 
+class XGrid:
+    def __init__(self, xgrid: np.ndarray, log: bool = True):
+        ugrid = np.array(np.unique(xgrid), np.float_)
+        if len(xgrid) != len(ugrid):
+            raise ValueError(f"xgrid is not unique: {xgrid}")
+        if len(xgrid) < 2:
+            raise ValueError(f"xgrid needs at least 2 points, received {len(xgrid)}")
+
+        self.log = log
+
+        # henceforth ugrid might no longer be the input!
+        # which is ok, because for most of the code this is all we need to do
+        # to distinguish log and non-log
+        if log:
+            self._raw = ugrid
+            ugrid = np.log(ugrid)
+
+        self.grid = ugrid
+
+    def __len__(self) -> int:
+        return len(self.grid)
+
+    def __eq__(self, other) -> bool:
+        """Checks equality"""
+        return all([len(self) == len(other), np.allclose(self.raw, other.raw)])
+
+    @property
+    def raw(self) -> np.ndarray:
+        return self.grid if not self.log else self._raw
+
+    @property
+    def size(self) -> int:
+        return self.grid.size
+
+    def tolist(self) -> list[float]:
+        return self.raw.tolist()
+
+
 class InterpolatorDispatcher:
     """
     Setups the interpolator.
@@ -426,7 +464,7 @@ class InterpolatorDispatcher:
 
     Parameters
     ----------
-        xgrid_in : numpy.ndarray
+        xgrid : numpy.ndarray
             Grid in x-space from which the interpolators are constructed
         polynomial_degree : int
             degree of the interpolation polynomial
@@ -437,30 +475,17 @@ class InterpolatorDispatcher:
     """
 
     def __init__(self, xgrid, polynomial_degree, log=True, mode_N=True):
+        xgrid = XGrid(xgrid, log=log)
         # sanity checks
-        xgrid_size = len(xgrid)
-        ugrid = np.array(np.unique(xgrid), np.float_)
-        if xgrid_size != len(ugrid):
-            raise ValueError(f"xgrid is not unique: {xgrid}")
-        xgrid = ugrid
-        if xgrid_size < 2:
-            raise ValueError(f"xgrid needs at least 2 points, received {xgrid_size}")
         if polynomial_degree < 1:
             raise ValueError(
                 f"need at least polynomial_degree 1, received {polynomial_degree}"
             )
-        if xgrid_size <= polynomial_degree:
+        if len(xgrid) <= polynomial_degree:
             raise ValueError(
                 f"to interpolate with degree {polynomial_degree} "
                 " we need at least that much points + 1"
             )
-        # keep a true copy of grid
-        self.xgrid_raw = xgrid
-        # henceforth xgrid might no longer be the input!
-        # which is ok, because for most of the code this is all we need to do
-        # to distinguish log and non-log
-        if log:
-            xgrid = np.log(xgrid)
 
         # Save the different variables
         self.xgrid = xgrid
@@ -468,7 +493,7 @@ class InterpolatorDispatcher:
         self.log = log
         logger.info(
             "Interpolation: number of points = %d, polynomial degree = %d, logarithmic = %s",
-            xgrid_size,
+            len(xgrid),
             polynomial_degree,
             log,
         )
@@ -482,20 +507,20 @@ class InterpolatorDispatcher:
         if polynomial_degree % 2 == 0:
             po2 -= 1
         # iterate areas: there is 1 less then number of points
-        for i in range(xgrid_size - 1):
+        for i in range(len(xgrid) - 1):
             kmin = max(0, i - po2)
             kmax = kmin + polynomial_degree
-            if kmax >= xgrid_size:
-                kmax = xgrid_size - 1
+            if kmax >= len(xgrid):
+                kmax = len(xgrid) - 1
                 kmin = kmax - polynomial_degree
             b = (kmin, kmax)
             list_of_blocks.append(b)
 
         # Generate the basis functions
         basis_functions = []
-        for i in range(xgrid_size):
+        for i in range(len(xgrid)):
             new_basis = BasisFunction(
-                xgrid, i, list_of_blocks, mode_log=log, mode_N=mode_N
+                xgrid.grid, i, list_of_blocks, mode_log=log, mode_N=mode_N
             )
             basis_functions.append(new_basis)
         self.basis = basis_functions
@@ -546,12 +571,11 @@ class InterpolatorDispatcher:
     def __eq__(self, other):
         """Checks equality"""
         checks = [
-            len(self.xgrid_raw) == len(other.xgrid_raw),
             self.log == other.log,
             self.polynomial_degree == other.polynomial_degree,
+            self.xgrid == other.xgrid,
         ]
-        # check elements after shape
-        return all(checks) and np.allclose(self.xgrid_raw, other.xgrid_raw)
+        return all(checks)
 
     def __iter__(self):
         # return iter(self.basis)
@@ -579,10 +603,10 @@ class InterpolatorDispatcher:
                 interpolation matrix, do be multiplied from the left(!)
         """
         # trivial?
-        if len(targetgrid) == len(self.xgrid_raw) and np.allclose(
-            targetgrid, self.xgrid_raw
+        if len(targetgrid) == len(self.xgrid) and np.allclose(
+            targetgrid, self.xgrid.raw
         ):
-            return np.eye(len(self.xgrid_raw))
+            return np.eye(len(self.xgrid))
         # compute map
         out = []
         for x in targetgrid:
@@ -605,7 +629,7 @@ class InterpolatorDispatcher:
                 full grid configuration
         """
         ret = {
-            "xgrid": self.xgrid_raw,
+            "xgrid": self.xgrid.tolist(),
             "configs": {
                 "interpolation_polynomial_degree": self.polynomial_degree,
                 "interpolation_is_log": self.log,

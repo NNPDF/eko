@@ -342,7 +342,7 @@ class OperatorMatrixElement:
         tot_start_time = time.perf_counter()
         logger.info("Matching: computing operators - 0/%d", grid_size)
         # iterate output grid
-        for k, logx in enumerate(np.log(self.int_disp.xgrid_raw)):
+        for k, logx in enumerate(np.log(self.int_disp.xgrid.raw)):
             start_time = time.perf_counter()
             # iterate basis functions
             for l, bf in enumerate(self.int_disp):
