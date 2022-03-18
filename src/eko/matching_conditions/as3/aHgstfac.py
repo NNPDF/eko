@@ -3,7 +3,7 @@ import numba as nb
 import numpy as np
 
 
-@nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4)", cache=True)
+@nb.njit(cache=True)
 def A_Hgstfac(n, sx, smx, s3x, s4x, nf):
     r"""
     Computes the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)`

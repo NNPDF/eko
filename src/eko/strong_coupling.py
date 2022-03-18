@@ -36,7 +36,7 @@ def strong_coupling_mod_ev(mod_ev):
     raise ValueError(f"Unknown evolution mode {mod_ev}")
 
 
-@nb.njit("f8(u1,f8,u1,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def as_expanded(order, as_ref, nf, scale_from, scale_to):
     """
     Compute expanded expression.

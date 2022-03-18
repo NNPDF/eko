@@ -6,7 +6,7 @@ import numpy as np
 from .aHgstfac import A_Hgstfac
 
 
-@nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4,f8)", cache=True)
+@nb.njit(cache=True)
 def A_Hg(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{Hg}^{S,(3)}(N)`.

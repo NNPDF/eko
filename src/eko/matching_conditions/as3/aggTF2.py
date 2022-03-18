@@ -3,7 +3,7 @@ import numba as nb
 import numpy as np
 
 
-@nb.njit("c16(c16,c16[:],c16[:])", cache=True)
+@nb.njit(cache=True)
 def A_ggTF2(n, sx, s3x):
     r"""
     Computes the approximate incomplete part of :math:`A_{gg}^{S,(3)}(N)`

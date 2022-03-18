@@ -8,7 +8,7 @@ import numba as nb
 import numpy as np
 
 
-@nb.njit("c16(c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def F21(n, Sm1, Sm2, Sm3):
     """Mellin transform of eq 9.4 of :cite:`Blumlein:2009ta`"""
     return 2.3148148148148148e-7 * (

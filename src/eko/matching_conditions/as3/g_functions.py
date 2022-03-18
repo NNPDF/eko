@@ -63,7 +63,7 @@ p32 = np.array([-25.0 / 24.0, 2.0, -3.0 / 2.0, 2.0 / 3.0, -1.0 / 8.0])
 p31 = np.array([205.0 / 144.0, -25.0 / 12.0, 23.0 / 24.0, -13.0 / 36.0, 1.0 / 16])
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def mellin_g4(N):
     r"""
     Computes the Mellin transform of :math:`\text{Li}_2(-x)/(1+x)`.
@@ -90,7 +90,7 @@ def mellin_g4(N):
     return g4
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def mellin_g5(N):
     r"""
     Computes the Mellin transform of :math:`(\text{Li}_2(x)ln(x))/(1+x)`.
@@ -119,7 +119,7 @@ def mellin_g5(N):
     return g5
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def mellin_g6(N):
     r"""
     Computes the Mellin transform of :math:`\text{Li}_3(x)/(1+x)`.
@@ -146,7 +146,7 @@ def mellin_g6(N):
     return g6
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def mellin_g8(N):
     r"""
     Computes the Mellin transform of :math:`S_{1,2}(x)/(1+x)`.
@@ -174,7 +174,7 @@ def mellin_g8(N):
     return g8
 
 
-@nb.njit("c16(c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def mellin_g18(N, S1, S2):
     r"""
     Computes the Mellin transform of :math:`-(\text{Li}_2(x) - \zeta_2)/(1-x)`.
@@ -209,7 +209,7 @@ def mellin_g18(N, S1, S2):
     return g18
 
 
-@nb.njit("c16(c16,c16)", cache=True)
+@nb.njit(cache=True)
 def mellin_g19(N, S1):
     r"""
     Computes the Mellin transform of :math:`-(\text{Li}_2(-x) + \zeta_2/2)/(1-x)`.
@@ -236,7 +236,7 @@ def mellin_g19(N, S1):
     return g19
 
 
-@nb.njit("c16(c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def mellin_g21(N, S1, S2, S3):
     r"""
     Computes the Mellin transform of :math:`-(S_{1,2}(x) - \zeta_3)/(1-x)`.
@@ -287,7 +287,7 @@ def mellin_g21(N, S1, S2, S3):
     return g21
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def mellin_g22(N):
     r"""
     Computes the Mellin transform of :math:`-(\text{Li}_2(x) ln(x))/(1-x)`.

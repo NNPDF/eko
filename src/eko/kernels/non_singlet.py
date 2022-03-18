@@ -11,7 +11,7 @@ from . import evolution_integrals as ei
 from . import utils
 
 
-@nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def lo_exact(gamma_ns, a1, a0, nf):
     """
     |LO| non-singlet exact EKO
@@ -35,7 +35,7 @@ def lo_exact(gamma_ns, a1, a0, nf):
     return np.exp(gamma_ns[0] * ei.j00(a1, a0, nf))
 
 
-@nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def nlo_exact(gamma_ns, a1, a0, nf):
     """
     |NLO| non-singlet exact EKO
@@ -61,7 +61,7 @@ def nlo_exact(gamma_ns, a1, a0, nf):
     )
 
 
-@nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def nlo_expanded(gamma_ns, a1, a0, nf):
     """
     |NLO| non-singlet expanded EKO
@@ -88,7 +88,7 @@ def nlo_expanded(gamma_ns, a1, a0, nf):
     )
 
 
-@nb.njit("c16(c16[:],f8,f8,u1,u4)", cache=True)
+@nb.njit(cache=True)
 def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
     |NLO| non-singlet truncated EKO
@@ -122,7 +122,7 @@ def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     return e
 
 
-@nb.njit("c16(c16[:],f8,f8,u1,u4)", cache=True)
+@nb.njit(cache=True)
 def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
     |NLO| non-singlet ordered-truncated EKO
@@ -161,7 +161,7 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     return e
 
 
-@nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def nnlo_exact(gamma_ns, a1, a0, nf):
     """
     |NNLO| non-singlet exact EKO
@@ -189,7 +189,7 @@ def nnlo_exact(gamma_ns, a1, a0, nf):
     )
 
 
-@nb.njit("c16(c16[:],f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def nnlo_expanded(gamma_ns, a1, a0, nf):
     """
     |NNLO| non-singlet expanded EKO
@@ -217,7 +217,7 @@ def nnlo_expanded(gamma_ns, a1, a0, nf):
     )
 
 
-@nb.njit("c16(c16[:],f8,f8,u1,u4)", cache=True)
+@nb.njit(cache=True)
 def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
     |NNLO| non-singlet truncated EKO
@@ -263,7 +263,7 @@ def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     return e
 
 
-@nb.njit("c16(c16[:],f8,f8,u1,u4)", cache=True)
+@nb.njit(cache=True)
 def nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     """
     |NNLO| non-singlet ordered truncated EKO
@@ -303,7 +303,7 @@ def nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
     return e
 
 
-@nb.njit("c16(u1,string,c16[:],f8,f8,u1,u4)", cache=True)
+@nb.njit(cache=True)
 def dispatcher(
     order, method, gamma_ns, a1, a0, nf, ev_op_iterations
 ):  # pylint: disable=too-many-return-statements

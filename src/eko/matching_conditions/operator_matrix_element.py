@@ -19,7 +19,7 @@ from .as3 import s_functions
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("c16[:](c16)", cache=True)
+@nb.njit(cache=True)
 def get_smx(n):
     """Get the S-minus cache"""
     return np.array(
@@ -33,7 +33,7 @@ def get_smx(n):
     )
 
 
-@nb.njit("c16[:](c16,c16[:],c16[:])", cache=True)
+@nb.njit(cache=True)
 def get_s3x(n, sx, smx):
     """Get the S-w3 cache"""
     return np.array(
@@ -46,7 +46,7 @@ def get_s3x(n, sx, smx):
     )
 
 
-@nb.njit("c16[:](c16,c16[:],c16[:])", cache=True)
+@nb.njit(cache=True)
 def get_s4x(n, sx, smx):
     """Get the S-w4 cache"""
     Sm31 = s_functions.harmonic_Sm31(n, smx[0], smx[1])
@@ -61,7 +61,7 @@ def get_s4x(n, sx, smx):
     )
 
 
-@nb.njit("c16[:,:,:](u1,c16,c16[:],u4,f8,b1)", cache=True)
+@nb.njit(cache=True)
 def A_singlet(order, n, sx, nf, L, is_msbar):
     r"""
     Computes the tower of the singlet |OME|.
@@ -105,7 +105,7 @@ def A_singlet(order, n, sx, nf, L, is_msbar):
     return A_s
 
 
-@nb.njit("c16[:,:,:](u1,c16,c16[:],u4,f8)", cache=True)
+@nb.njit(cache=True)
 def A_non_singlet(order, n, sx, nf, L):
     r"""
     Computes the tower of the non-singlet |OME|
@@ -145,7 +145,7 @@ def A_non_singlet(order, n, sx, nf, L):
     return A_ns
 
 
-@nb.njit("c16[:,:](c16[:,:,:],u4,f8,string)", cache=True)
+@nb.njit(cache=True)
 def build_ome(A, order, a_s, backward_method):
     r"""
     Construct the matching expansion in :math:`a_s` with the appropriate method.
@@ -197,7 +197,7 @@ def build_ome(A, order, a_s, backward_method):
     return ome
 
 
-@nb.njit("f8(f8,u1,u2,u2,b1,f8,f8[:,:],f8,u1,f8,string,b1)", cache=True)
+@nb.njit(cache=True)
 def quad_ker(
     u, order, mode0, mode1, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
 ):

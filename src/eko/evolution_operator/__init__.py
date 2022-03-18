@@ -26,7 +26,7 @@ from ..member import OpMember
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("c16(c16[:,:],u2,u2)")
+@nb.njit(cache=True)
 def select_singlet_element(ker, mode0, mode1):
     """
     Select element of the singlet matrix
@@ -116,7 +116,7 @@ class QuadKerBase:
         return self.path.prefactor * pj * self.path.jac
 
 
-@nb.njit("f8(f8,u1,u2,u2,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,u1)", cache=True)
+@nb.njit(cache=True)
 def quad_ker(
     u,
     order,

@@ -8,7 +8,7 @@ import numba as nb
 import numpy as np
 
 
-@nb.njit("c16(c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def F17(n, S1, S2, S3):
     """Implements eq 9.35 of :cite:`Blumlein:2009ta`"""
     return (

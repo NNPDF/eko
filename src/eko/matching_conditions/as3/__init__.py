@@ -36,7 +36,7 @@ from .aqqNS import A_qqNS
 from .aqqPS import A_qqPS
 
 
-@nb.njit("c16[:,:](c16,c16[:],u4,f8)", cache=True)
+@nb.njit(cache=True)
 def A_singlet(n, sx_all, nf, L):
     r"""
     Computes the |N3LO| singlet |OME|.
@@ -93,7 +93,7 @@ def A_singlet(n, sx_all, nf, L):
     return A_S
 
 
-@nb.njit("c16[:,:](c16,c16[:],u4,f8)", cache=True)
+@nb.njit(cache=True)
 def A_ns(n, sx_all, nf, L):
     r"""
     Computes the |N3LO| non-singlet |OME|.
