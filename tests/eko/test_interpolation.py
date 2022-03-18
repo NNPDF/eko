@@ -24,7 +24,7 @@ def check_is_interpolator(interpolator):
         assert_almost_equal(one, 1.0)
 
     # polynoms need to be "orthogonal" at grid points
-    for j, (basis_j, xj) in enumerate(zip(interpolator, interpolator.xgrid_raw)):
+    for j, (basis_j, xj) in enumerate(zip(interpolator, interpolator.xgrid.raw)):
         one = basis_j(xj)
         assert_almost_equal(
             one,
@@ -110,7 +110,7 @@ class TestInterpolatorDispatcher:
         }
         a = interpolation.InterpolatorDispatcher.from_dict(d)
         np.testing.assert_array_almost_equal(
-            a.xgrid, np.array([1e-7, 1e-4, 1e-1, 0.55, 1.0])
+            a.xgrid.grid, np.array([1e-7, 1e-4, 1e-1, 0.55, 1.0])
         )
         assert a.polynomial_degree == 1
         dd = {

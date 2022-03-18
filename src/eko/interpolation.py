@@ -438,7 +438,8 @@ class XGrid:
 
     def __eq__(self, other) -> bool:
         """Checks equality"""
-        return all([len(self) == len(other), np.allclose(self.raw, other.raw)])
+        # check shape before comparing values
+        return len(self) == len(other) and np.allclose(self.raw, other.raw)
 
     @property
     def raw(self) -> np.ndarray:
