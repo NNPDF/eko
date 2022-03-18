@@ -21,7 +21,7 @@
 \item Singlet sector:
 
 \begin{equation*}
-\mu^2\frac{d}{d\mu^2}
+\hspace*{-0.4cm}\mu^2\frac{d}{d\mu^2}
 \begin{pmatrix}
 g \\
 \gamma \\
@@ -30,10 +30,10 @@ g \\
 \end{pmatrix}
 =
 \begin{pmatrix}
- P_{gg}+e_\Sigma^2 \tilde{P}_{gg} & e_\Sigma^2 \tilde{P}_{g\gamma} & P_{gq} + \frac{e_\Sigma^2}{n_f}\tilde{P}_{gq} & 2\frac{n_u}{n_f}\eta^- \tilde{P}_{gq} \\
- e_\Sigma^2 \tilde{P}_{\gamma g} & e_\Sigma^2 \tilde{P}_{\gamma \gamma} & \frac{e_\Sigma^2}{n_f}\tilde{P}_{\gamma q} & 2\frac{n_u}{n_f}\eta^- \tilde{P}_{\gamma q} \\
- 2n_f P_{qg} +2e_\Sigma^2  \tilde{P}_{qg} & 2 e_\Sigma^2  \tilde{P}_{q\gamma} & P_{qq}+ \frac{e_\Sigma^2}{n_f}\tilde{P}_{+} +  \Bigl(\frac{e_\Sigma^2}{n_f}\Bigr)^2(\tilde{P}_{qq}-\tilde{P}_{+}) & 2\frac{n_u}{n_f}\eta^-\tilde{P}_{+}+2n_u \frac{\eta^-e_\Sigma^2}{n_f^2}(\tilde{P}_{qq}-\tilde{P}_{+}) \\
- 4n_d\eta^-\tilde{P}_{qg} & 4n_d\eta^-\tilde{P}_{q\gamma} & 2\frac{n_d}{n_f}\eta^- \tilde{P}_{+} +2n_d \frac{\eta^-e_\Sigma^2}{n_f^2}(\tilde{P}_{qq}-\tilde{P}_{+}) & P_+ +\frac{e_\Delta^2}{n_f}\tilde{P}_{+} +4\frac{n_u n_d}{n_f^2}(\eta^-)^2(\tilde{P}_{qq}-\tilde{P}_{+})
+ P_{gg}+n_f \langle e^2\rangle \tilde{P}_{gg} & n_f \langle e^2\rangle \tilde{P}_{g\gamma} & P_{gq} + \langle e^2\rangle \tilde{P}_{gq} & \frac{n_u}{n_f}e^- \tilde{P}_{gq} \\
+ n_f \langle e^2\rangle \tilde{P}_{\gamma g} & n_f \langle e^2\rangle \tilde{P}_{\gamma \gamma} & \langle e^2\rangle \tilde{P}_{\gamma q} & \frac{n_u}{n_f}e^- \tilde{P}_{\gamma q} \\
+ 2n_f (P_{qg} +\langle e^2\rangle  \tilde{P}_{qg} )& 2 n_f \langle e^2\rangle  \tilde{P}_{q\gamma} & P_{qq}+ \langle e^2\rangle \tilde{P}_{+} + \langle e^2\rangle^2(\tilde{P}_{qq}-\tilde{P}_{+}) & \frac{n_u}{n_f}\Bigl(e^-\tilde{P}_{+}+ e^- \langle e^2\rangle (\tilde{P}_{qq}-\tilde{P}_{+}) \Bigr)\\
+ 2n_de^-\tilde{P}_{qg} & 2n_de^-\tilde{P}_{q\gamma} & \frac{n_d}{n_f}\Bigl(e^- \tilde{P}_{+} + e^- \langle e^2\rangle (\tilde{P}_{qq}-\tilde{P}_{+}) \Bigr)& P_+ +\frac{e_\Delta^2}{n_f}\tilde{P}_{+} +\frac{n_u n_d}{n_f^2}(e^-)^2(\tilde{P}_{qq}-\tilde{P}_{+})
 \end{pmatrix}
 \begin{pmatrix}
 g \\
@@ -44,9 +44,9 @@ g \\
 \end{equation*}
 with
 \begin{align*}
-e_\Sigma^2&=n_u e_u^2+n_d e_d^2 \\
+ \langle e^2\rangle&=\frac{n_u e_u^2+n_d e_d^2}{n_f} \\
 e_\Delta^2&=n_u e_d^2+n_d e_u^2 \\
-\eta^\pm &= \frac{1}{2}(e_u^2 \pm e_d^2)
+e^- &= e_u^2 -e_d^2
 \end{align*}
 
 \item Valence sector:
@@ -58,8 +58,8 @@ V \\
 \end{pmatrix}
 =
 \begin{pmatrix}
-P_V+\frac{e_\Sigma^2}{n_f} \tilde{P}_{-} & 2\frac{n_u}{n_f}\eta^- \tilde{P}_{-}\\
- 2\frac{n_d}{n_f}\eta^- \tilde{P}_{-}& P_-+\frac{e_\Delta^2}{n_f} \tilde{P}_{-}
+P_V+\langle e^2\rangle \tilde{P}_{-} & \frac{n_u}{n_f}e^- \tilde{P}_{-}\\
+ \frac{n_d}{n_f}e^- \tilde{P}_{-}& P_-+\frac{e_\Delta^2}{n_f} \tilde{P}_{-}
 \end{pmatrix}
 \begin{pmatrix}
 V \\
