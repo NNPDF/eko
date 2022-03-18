@@ -62,6 +62,9 @@ def ekos_product(eko_ini: EKO, eko_fin: EKO, in_place=True) -> EKO:
         final_eko = eko_ini
 
     for q2, op2 in eko_fin.items():
+        if q2 in eko_ini:
+            continue
+
         op = np.einsum("ajbk,bkcl -> ajcl", ope1, op2.operator)
 
         error = np.einsum("ajbk,bkcl -> ajcl", ope1, op2.error) + np.einsum(
