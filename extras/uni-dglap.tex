@@ -1,0 +1,74 @@
+\documentclass[a4paper,twoside]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+
+%\usepackage[a4paper,top=3cm,bottom=3cm,left=3cm,right=3cm]{geometry}
+\usepackage[a4paper,top=1cm,bottom=1cm,left=-0.2cm,right=1cm]{geometry}
+
+
+\title{}
+\author{}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+\begin{itemize}
+\item Singlet sector:
+
+\begin{equation*}
+\hspace*{-0.4cm}\mu^2\frac{d}{d\mu^2}
+\begin{pmatrix}
+g \\
+\gamma \\
+\Sigma \\
+\Delta_\Sigma
+\end{pmatrix}
+=
+\begin{pmatrix}
+ P_{gg}+n_f \langle e^2\rangle \tilde{P}_{gg} & n_f \langle e^2\rangle \tilde{P}_{g\gamma} & P_{gq} + \langle e^2\rangle \tilde{P}_{gq} & \nu_ue^2_-\tilde{P}_{gq} \\
+ n_f \langle e^2\rangle \tilde{P}_{\gamma g} & n_f \langle e^2\rangle \tilde{P}_{\gamma \gamma} & \langle e^2\rangle \tilde{P}_{\gamma q} & \nu_ue^2_-\tilde{P}_{\gamma q} \\
+ 2n_f (P_{qg} +\langle e^2\rangle  \tilde{P}_{qg} )& 2 n_f \langle e^2\rangle  \tilde{P}_{q\gamma} & P_{qq}+ \langle e^2\rangle \Bigl(\tilde{P}_{+} + \langle e^2\rangle(\tilde{P}_{qq}-\tilde{P}_{+})\Bigr) & \nu_ue^-\Bigl(\tilde{P}_{+}+ \langle e^2\rangle (\tilde{P}_{qq}-\tilde{P}_{+}) \Bigr)\\
+ 2n_f \nu_d e^-\tilde{P}_{qg} & 2n_f \nu_d e^-\tilde{P}_{q\gamma} & \nu_de^-\Bigl( \tilde{P}_{+} +  \langle e^2\rangle (\tilde{P}_{qq}-\tilde{P}_{+}) \Bigr)& P_+ +e_\Delta^2 \tilde{P}_{+} +\nu_u \nu_d (e^-)^2(\tilde{P}_{qq}-\tilde{P}_{+})
+\end{pmatrix}
+\begin{pmatrix}
+g \\
+\gamma \\
+\Sigma \\
+\Delta_\Sigma
+\end{pmatrix}
+\end{equation*}
+with
+\begin{align*}
+ \langle e^2\rangle&=\frac{n_u e_u^2+n_d e_d^2}{n_f} \\
+e_\Delta^2&=\frac{n_u e_d^2+n_d e_u^2}{n_f} \\
+e^2_-&= e_u^2 -e_d^2 \\
+\nu_u &= \frac{n_u}{n_f}\\
+\nu_d &= \frac{n_d}{n_f}
+\end{align*}
+
+\item Valence sector:
+\begin{equation*}
+\mu^2\frac{d}{d\mu^2}
+\begin{pmatrix}
+V \\
+\Delta_V
+\end{pmatrix}
+=
+\begin{pmatrix}
+P_V+\langle e^2\rangle \tilde{P}_{-} & \nu_ue^2_-\tilde{P}_{-}\\
+ \nu_de^2_-\tilde{P}_{-}& P_-+e_\Delta^2 \tilde{P}_{-}
+\end{pmatrix}
+\begin{pmatrix}
+V \\
+\Delta_V
+\end{pmatrix}
+\end{equation*}
+
+
+\end{itemize}
+\end{document}
