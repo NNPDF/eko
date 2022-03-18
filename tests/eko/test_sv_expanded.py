@@ -13,9 +13,9 @@ def test_modes():
     assert Modes.expanded.name == "expanded"
     assert Modes.exponentiated.name == "exponentiated"
     assert Modes.unvaried.name == "unvaried"
-    assert Modes.expanded.value == 2
-    assert Modes.exponentiated.value == 1
-    assert Modes.unvaried.value == 0
+    assert Modes.expanded.value == 3
+    assert Modes.exponentiated.value == 2
+    assert Modes.unvaried.value == 1
 
 
 def test_ns_sv_dispacher():

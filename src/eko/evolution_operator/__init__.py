@@ -167,9 +167,8 @@ def quad_ker(
             number of evolution steps
         ev_op_max_order : int
             perturbative expansion order of U
-        sv_mode: int
-            scale variation mode 0: none, 1: exponentiated, 2: expanded
-            see `eko.scale_variations.Modes`
+        sv_mode: int, `enum.IntEnum`
+            scale variation mode, see `eko.scale_variations.Modes`
 
     Returns
     -------
@@ -185,7 +184,7 @@ def quad_ker(
     if ker_base.is_singlet:
         gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
         # scale var A is directly applied on gamma
-        if sv_mode == sv.Modes.exponentiated.value:
+        if sv_mode == sv.Modes.exponentiated:
             gamma_singlet = sv.exponentiated.gamma_variation(
                 gamma_singlet, order, nf, L
             )
@@ -193,14 +192,14 @@ def quad_ker(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
         # scale var B is applied on the kernel
-        if sv_mode == sv.Modes.expanded.value:
+        if sv_mode == sv.Modes.expanded:
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
                 sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
             )
         ker = select_singlet_element(ker, mode0, mode1)
     else:
         gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
-        if sv_mode == sv.Modes.exponentiated.value:
+        if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
@@ -211,7 +210,7 @@ def quad_ker(
             nf,
             ev_op_iterations,
         )
-        if sv_mode == sv.Modes.expanded.value:
+        if sv_mode == sv.Modes.expanded:
             ker = ker * sv.expanded.non_singlet_variation(gamma_ns, a1, order, nf, L)
 
     # recombine everthing
@@ -263,9 +262,9 @@ class Operator:
     @property
     def sv_mode(self):
         """Returns the scale variation mode"""
-        try:
+        if self.config["ModSV"] is not None:
             return sv.Modes[self.config["ModSV"]]
-        except KeyError:
+        else:
             return sv.Modes.unvaried
 
     @property
@@ -352,7 +351,7 @@ class Operator:
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
             ev_op_max_order=self.config["ev_op_max_order"],
-            sv_mode=self.sv_mode.value,
+            sv_mode=self.sv_mode,
         )
 
     def initialize_op_members(self):
