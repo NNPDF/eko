@@ -183,7 +183,7 @@ def quad_ker(
     # compute the actual evolution kernel
     if ker_base.is_singlet:
         gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
-        # scale var A is directly applied on gamma
+        # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_singlet = sv.exponentiated.gamma_variation(
                 gamma_singlet, order, nf, L
@@ -191,7 +191,7 @@ def quad_ker(
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
-        # scale var B is applied on the kernel
+        # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded:
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
                 sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)

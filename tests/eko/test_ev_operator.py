@@ -42,7 +42,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            sv_mode=0,
+            sv_mode=1,
         )
         np.testing.assert_allclose(res_ns, 0.0)
         res_s = quad_ker(
@@ -60,7 +60,7 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            sv_mode=0,
+            sv_mode=1,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -78,11 +78,11 @@ def test_quad_ker(monkeypatch):
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=0,
-            sv_mode=0,
+            sv_mode=1,
         )
         np.testing.assert_allclose(res_s, 0.0)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
-        for sv in [1, 2]:
+        for sv in [2, 3]:
             res_sv = quad_ker(
                 u=0,
                 order=0,
@@ -118,7 +118,7 @@ def test_quad_ker(monkeypatch):
         L=0,
         ev_op_iterations=0,
         ev_op_max_order=0,
-        sv_mode=0,
+        sv_mode=1,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
