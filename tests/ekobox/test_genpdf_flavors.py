@@ -5,19 +5,19 @@ import numpy as np
 from ekobox import genpdf
 
 
-def benchmark_is_evolution():
+def test_is_evolution():
     assert genpdf.flavors.is_evolution_labels(["V", "T3"])
     assert not genpdf.flavors.is_evolution_labels(["21", "2"])
 
 
-def benchmark_is_pids():
+def test_is_pids():
     assert not genpdf.flavors.is_pid_labels(["V", "T3"])
     assert not genpdf.flavors.is_pid_labels(["35", "9"])
     assert not genpdf.flavors.is_pid_labels({})
     assert genpdf.flavors.is_pid_labels([21, 2])
 
 
-def benchmark_flavors_pid_to_flavor():
+def test_flavors_pid_to_flavor():
     flavs = genpdf.flavors.pid_to_flavor([1, 2, 21, -3])
     for f in flavs:
         for g in flavs:
@@ -25,7 +25,7 @@ def benchmark_flavors_pid_to_flavor():
                 assert f @ g == 0
 
 
-def benchmark_flavors_evol_to_flavor():
+def test_flavors_evol_to_flavor():
     flavs = genpdf.flavors.evol_to_flavor(["S", "g", "T3", "V8"])
     for f in flavs:
         for g in flavs:
@@ -33,7 +33,7 @@ def benchmark_flavors_evol_to_flavor():
                 assert f @ g == 0
 
 
-def benchmark_flavors_evol_raw():
+def test_flavors_evol_raw():
     blocks = [
         {
             "Q2grid": np.array([1, 2]),
@@ -61,7 +61,7 @@ def benchmark_flavors_evol_raw():
             np.testing.assert_allclose(Sonly[0]["data"][i][pid], Sonly[0]["data"][i][1])
 
 
-def benchmark_flavors_evol_nodata():
+def test_flavors_evol_nodata():
     # try with a block without data
     blocks = [
         {

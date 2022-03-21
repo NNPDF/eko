@@ -8,7 +8,7 @@ from ekobox import gen_op as g_o
 from ekobox import gen_theory as g_t
 
 
-def benchmark_create_info_file():
+def test_create_info_file():
     op = g_o.gen_op_card([10, 100])
     theory = g_t.gen_theory_card(1, 10.0, update={"alphas": 0.2})
     info = g_i.create_info_file(
