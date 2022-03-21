@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
+import pathlib
+import sys
 from contextlib import contextmanager
 
 import numpy as np
@@ -91,3 +93,18 @@ def fake_factory():
 @pytest.fixture
 def fake_output():
     return FakeOutput().fake_output()
+
+
+# Fake LHAPDF
+# Thanks https://stackoverflow.com/questions/43162722/mocking-a-module-import-in-pytest
+
+test_pdf = pathlib.Path(__file__).parents[1] / "benchmarks" / "ekobox" / "fakepdf"
+
+
+def lhapdf_paths():
+    return [test_pdf]
+
+
+module = type(sys)("lhapdf")
+module.paths = lhapdf_paths
+sys.modules["lhapdf"] = module
