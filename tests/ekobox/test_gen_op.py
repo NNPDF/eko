@@ -4,7 +4,7 @@ import pytest
 from ekobox import gen_op as g_o
 
 
-def benchmark_gen_op_card():
+def test_gen_op_card():
     op = g_o.gen_op_card([10, 100])
     assert op["Q2grid"] == [10, 100]
     assert op["configs"]["interpolation_polynomial_degree"] == 4
@@ -20,7 +20,7 @@ def benchmark_gen_op_card():
     assert op["configs"]["interpolation_is_log"] is False
 
 
-def benchmark_export_load_op_card(tmp_path, cd):
+def test_export_load_op_card(tmp_path, cd):
     with cd(tmp_path):
         op = g_o.gen_op_card([100], name="debug_op")
         g_o.export_op_card("debug_op_two", op)

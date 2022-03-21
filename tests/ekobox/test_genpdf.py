@@ -5,7 +5,7 @@ import pytest
 from ekobox import genpdf
 
 
-def benchmark_genpdf_exceptions(tmp_path, cd):
+def test_genpdf_exceptions(tmp_path, cd):
     # using a wrong label and then a wrong parent pdf
     with cd(tmp_path):
         with pytest.raises(TypeError):
