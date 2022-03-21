@@ -129,6 +129,9 @@ def is_pid_labels(labels):
     except (ValueError, TypeError):
         return False
     for label in labels:
+        # label might still be a list (for general projection)
+        if not isinstance(label, np.int_):
+            return False
         if label not in br.flavor_basis_pids:
             return False
     return True

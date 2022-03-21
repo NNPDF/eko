@@ -55,13 +55,10 @@ def load_blocks_from_file(pdfset_name, member):
     """
     import lhapdf  # pylint: disable=import-error, import-outside-toplevel
 
-    pdf = lhapdf.mkPDF(pdfset_name, member)
     src = pathlib.Path(lhapdf.paths()[0]) / pdfset_name
     # read actual file
     cnt = []
-    with open(
-        src / f"{pdfset_name}_{pdf.memberID:04d}.dat", "r", encoding="utf-8"
-    ) as o:
+    with open(src / f"{pdfset_name}_{member:04d}.dat", "r", encoding="utf-8") as o:
         cnt = o.readlines()
     # file head
     head = cnt[0]
