@@ -7,6 +7,7 @@ from ekobox import genpdf
 
 def test_is_evolution():
     assert genpdf.flavors.is_evolution_labels(["V", "T3"])
+    assert not genpdf.flavors.is_evolution_labels([[1, 2]])
     assert not genpdf.flavors.is_evolution_labels(["21", "2"])
 
 
@@ -14,6 +15,7 @@ def test_is_pids():
     assert not genpdf.flavors.is_pid_labels(["V", "T3"])
     assert not genpdf.flavors.is_pid_labels(["35", "9"])
     assert not genpdf.flavors.is_pid_labels({})
+    assert not genpdf.flavors.is_pid_labels([[1, 2]])
     assert genpdf.flavors.is_pid_labels([21, 2])
 
 
