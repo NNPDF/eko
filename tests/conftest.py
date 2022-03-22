@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import pathlib
+import shutil
 import sys
 from contextlib import contextmanager
 
@@ -95,16 +96,27 @@ def fake_output():
     return FakeOutput().fake_output()
 
 
-# Fake LHAPDF
-# Thanks https://stackoverflow.com/questions/43162722/mocking-a-module-import-in-pytest
+@pytest.fixture
+def fake_lhapdf(tmp_path):
+    def lhapdf_paths():
+        return [tmp_path]
 
-test_pdf = pathlib.Path(__file__).parents[1] / "benchmarks" / "ekobox" / "fakepdf"
+    # Thanks https://stackoverflow.com/questions/43162722/mocking-a-module-import-in-pytest
+    module = type(sys)("lhapdf")
+    module.paths = lhapdf_paths
+    sys.modules["lhapdf"] = module
+
+    yield tmp_path
 
 
-def lhapdf_paths():
-    return [test_pdf]
+fakepdf = pathlib.Path(__file__).parents[1] / "benchmarks" / "ekobox" / "fakepdf"
 
 
-module = type(sys)("lhapdf")
-module.paths = lhapdf_paths
-sys.modules["lhapdf"] = module
+@pytest.fixture
+def fake_ct14(fake_lhapdf):
+    n = "myCT14llo_NF3"
+    src = fakepdf / n
+    dst = fake_lhapdf / n
+    shutil.copytree(src, dst)
+    yield n
+    shutil.rmtree(dst)
