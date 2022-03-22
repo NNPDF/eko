@@ -11,20 +11,37 @@ from eko import basis_rotation as br
 from . import export, flavors, load
 
 
-def take_data(parent_pdf_set=None, members=False):
+def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
     """
-    Auxiliary function for generate_pdf. It provides the info, the heads
-    of the member files and the blocks to be generated to generate_pdf.
+    Auxiliary function for `generate_pdf`.
+
+    It provides the info, the heads of the member files and the blocks
+    to be generated to `generate_pdf`.
 
     Parameters
     ----------
-        parent_pdf_set :
-            the PDF set to be used as parent
+        parent_pdf_set : None or str or dict
+            the PDF set to be used as parent set
         members : bool
-            if true every member of the parent are loaded
+            if true every member of the parent is loaded
+        xgrid : list(float)
+            produced x grid if given
+        Q2grid : list(float)
+            produced Q2 grid if given
+
+    Returns
+    -------
+        info : dict
+            info dictionary
+        heads : list(str)
+            heads of member files if necessary
+        blocks : list(dict)
+            data blocks
     """
-    xgrid = np.geomspace(1e-9, 1, 240)
-    Q2grid = np.geomspace(1.3, 1e5, 35)
+    if xgrid is None:
+        xgrid = np.geomspace(1e-9, 1, 240)
+    if Q2grid is None:
+        Q2grid = np.geomspace(1.3, 1e5, 35)
     # collect blocks
     all_blocks = []
     info = None
@@ -44,9 +61,9 @@ def take_data(parent_pdf_set=None, members=False):
             info = load.load_info_from_file(parent_pdf_set)
             # iterate on members
             for m in range(int(info["NumMembers"])):
-                dat = load.load_blocks_from_file(parent_pdf_set, m)
-                heads.append(dat[0])
-                all_blocks.append(dat[1])
+                head, blocks = load.load_blocks_from_file(parent_pdf_set, m)
+                heads.append(head)
+                all_blocks.append(blocks)
                 if not members:
                     break
     elif isinstance(parent_pdf_set, dict):
@@ -65,7 +82,7 @@ def take_data(parent_pdf_set=None, members=False):
         )
     else:
         raise ValueError("Unknown parent pdf type")
-    return heads, info, all_blocks
+    return info, heads, all_blocks
 
 
 def generate_pdf(
@@ -147,7 +164,7 @@ def generate_pdf(
         flavor_combinations = flavors.pid_to_flavor(labels)
 
     # labels = verify_labels(args.labels)
-    heads, info, all_blocks = take_data(parent_pdf_set=parent_pdf_set, members=members)
+    info, heads, all_blocks = take_data(parent_pdf_set=parent_pdf_set, members=members)
 
     # filter the PDF
     new_all_blocks = []
@@ -156,10 +173,7 @@ def generate_pdf(
 
     # changing info file according to user choice
     if info_update is not None:
-        if isinstance(info_update, dict):
-            info.update(info_update)
-        else:
-            raise TypeError("Info to update are not in a dictionary format")
+        info.update(info_update)
     # write
     info["Flavors"] = [int(pid) for pid in br.flavor_basis_pids]
     info["NumFlavors"] = len(br.flavor_basis_pids)
@@ -190,9 +204,7 @@ def install_pdf(name):
     print(f"install_pdf {name}")
     target = pathlib.Path(lhapdf.paths()[0])
     src = pathlib.Path(name)
-    if not src.exists():
-        raise FileExistsError(src)
-    shutil.move(str(src), str(target))
+    shutil.move(src, target)
 
 
 def generate_block(xfxQ2, xgrid, Q2grid, pids):
