@@ -45,7 +45,7 @@ def test_generate_block():
 def test_install_pdf(fake_lhapdf, tmp_path, cd):
     mytmp = tmp_path / "install"
     mytmp.mkdir()
-    n = "bla"
+    n = "test_install_pdf"
     p = mytmp / n
     i = "test.info"
     with cd(mytmp):
@@ -57,5 +57,52 @@ def test_install_pdf(fake_lhapdf, tmp_path, cd):
     pp = tmp_path / n
     assert not p.exists()
     assert pp.exists()
-    assert (pp / i).exists()
-    assert "Bla" == (pp / i).read_text()
+    ppi = pp / i
+    assert ppi.exists()
+    assert "Bla" == ppi.read_text()
+
+
+def test_generate_pdf_debug(fake_lhapdf, tmp_path, cd):
+    mytmp = tmp_path / "install"
+    mytmp.mkdir()
+    n = "test_generate_pdf_debug"
+    xg = np.linspace(0.0, 1.0, 5)
+    q2s = np.geomspace(1.0, 1e3, 5)
+    p = mytmp / n
+    i = f"{n}.info"
+    with cd(mytmp):
+        genpdf.generate_pdf(
+            n,
+            [21],
+            None,
+            info_update={"Debug": "debug"},
+            install=True,
+            xgrid=xg,
+            Q2grid=q2s,
+        )
+    pp = tmp_path / n
+    assert not p.exists()
+    assert pp.exists()
+    # check info file
+    ppi = pp / i
+    assert ppi.exists()
+    assert "Debug: debug" in ppi.read_text()
+    ii = genpdf.load.load_info_from_file(n)
+    assert "Debug" in ii
+    assert ii["Debug"] == "debug"
+    # check member file
+    ppm = pp / f"{n}_0000.dat"
+    assert ppm.exists()
+    assert "PdfType: central" in ppm.read_text()
+    head, blocks = genpdf.load.load_blocks_from_file(n, 0)
+    assert "PdfType: central" in head
+    assert len(blocks) == 1
+    b = blocks[0]
+    assert 21 in b["pids"]
+    for k, line in enumerate(b["data"]):
+        for pid, f in zip(b["pids"], line):
+            # the gluon is non-zero in the bulk
+            if pid == 21 and k > len(xg) - 1 and k < len(b["data"]) - len(xg):
+                assert not f == 0.0
+            else:
+                assert f == 0.0
