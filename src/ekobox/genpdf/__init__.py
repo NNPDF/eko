@@ -86,33 +86,40 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
 
 
 def generate_pdf(
-    name, labels, parent_pdf_set=None, members=False, info_update=None, install=False
+    name,
+    labels,
+    parent_pdf_set=None,
+    members=False,
+    info_update=None,
+    install=False,
+    xgrid=None,
+    Q2grid=None,
 ):
     """
     Generate a new PDF from a parent PDF with a set of flavors.
 
-    If parent_pdf_set is the name of an available PDF set,
+    If `parent_pdf_set` is the name of an available PDF set,
     it will be used as parent. In order to use the toy PDF
-    as parent, it is enough to set parent_pdf_set = "toy" or "toylh".
-    If parent_pdf_set is not specified, a debug PDF constructed as
-    x * (1-x) for every flavor will be usedas parent.
+    as parent, it is enough to set `parent_pdf_set` to "toy" or "toylh".
+    If `parent_pdf_set` is not specified, a debug PDF constructed as
+    x * (1-x) for every flavor will be used as parent.
     It is also possible to provide custom functions for each flavor
-    in the form of a dictionary: {pid: f(x,Q2)}.
+    in the form of a dictionary: `{pid: f(x,Q2)}`.
 
-    In labels it is possible to pass a list of PIDs or evolution basis
+    With `labels` it is possible to pass a list of PIDs or evolution basis
     combinations to keep in the generated PDF. In order to project
     on custom combinations of PIDs, it is also possible to pass a list
     containing the desired factors for each flavor.
 
     The default behaviour is to generate only one member for a PDF set
-    (the zero member) but it can be changed setting to True the member flag.
+    (the zero member) but it can be changed setting to True the `members` flag.
 
-    The info_update argument is a dictionary and provide to the user a way
-    to change the info file of the generated PDF set. If a key of info_update
+    The `info_update` argument is a dictionary and provide to the user as a way
+    to change the info file of the generated PDF set. If a key of `info_update`
     matches with one key of the standard info file, the information
     are updated, otherwise they are simply added.
 
-    Turning True the value of the install flag, it is possible to autmatically
+    Turning True the value of the `install` flag, it is possible to automatically
     install the generated PDF to the lhapdf directory. By default install is False.
 
     Parameters
@@ -127,6 +134,10 @@ def generate_pdf(
             iterate on members
         install : bool
             install on LHAPDF path
+        xgrid : list(float)
+            produced x grid if given
+        Q2grid : list(float)
+            produced Q2 grid if given
 
     Examples
     --------
@@ -164,7 +175,9 @@ def generate_pdf(
         flavor_combinations = flavors.pid_to_flavor(labels)
 
     # labels = verify_labels(args.labels)
-    info, heads, all_blocks = take_data(parent_pdf_set=parent_pdf_set, members=members)
+    info, heads, all_blocks = take_data(
+        parent_pdf_set, members, xgrid=xgrid, Q2grid=Q2grid
+    )
 
     # filter the PDF
     new_all_blocks = []
