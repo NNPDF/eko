@@ -43,6 +43,7 @@ def test_generate_block():
 
 
 def test_install_pdf(fake_lhapdf, tmp_path, cd):
+    # move into subdir to be able to move
     mytmp = tmp_path / "install"
     mytmp.mkdir()
     n = "test_install_pdf"
