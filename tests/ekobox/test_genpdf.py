@@ -63,12 +63,12 @@ def test_install_pdf(fake_lhapdf, tmp_path, cd):
     assert "Bla" == ppi.read_text()
 
 
-def test_generate_pdf_debug(fake_lhapdf, tmp_path, cd):
-    mytmp = tmp_path / "install"
+def test_generate_pdf_debug_pid(fake_lhapdf, cd):
+    mytmp = fake_lhapdf / "install"
     mytmp.mkdir()
-    n = "test_generate_pdf_debug"
+    n = "test_generate_pdf_debug_pid"
     xg = np.linspace(0.0, 1.0, 5)
-    q2s = np.geomspace(1.0, 1e3, 5)
+    q2s = np.geomspace(1.0, 1e3, 7)
     p = mytmp / n
     i = f"{n}.info"
     with cd(mytmp):
@@ -81,7 +81,7 @@ def test_generate_pdf_debug(fake_lhapdf, tmp_path, cd):
             xgrid=xg,
             Q2grid=q2s,
         )
-    pp = tmp_path / n
+    pp = fake_lhapdf / n
     assert not p.exists()
     assert pp.exists()
     # check info file
@@ -102,8 +102,55 @@ def test_generate_pdf_debug(fake_lhapdf, tmp_path, cd):
     assert 21 in b["pids"]
     for k, line in enumerate(b["data"]):
         for pid, f in zip(b["pids"], line):
-            # the gluon is non-zero in the bulk
-            if pid == 21 and k > len(xg) - 1 and k < len(b["data"]) - len(xg):
+            # the gluon is non-zero in the bulk - x=0 is included here
+            if (
+                pid == 21
+                and k > len(b["Q2grid"]) - 1
+                and k < len(b["data"]) - len(b["Q2grid"])
+            ):
                 assert not f == 0.0
             else:
                 assert f == 0.0
+
+
+def test_generate_pdf_pdf_evol(fake_lhapdf, fake_nn31, fake_mstw, cd):
+    # iterate pdfs with their error type and number of blocks
+    for fake_pdf, err_type, nb in ((fake_nn31, "replica", 2), (fake_mstw, "error", 3)):
+        n = f"test_generate_pdf_{err_type}_evol"
+        p = fake_lhapdf / n
+        i = f"{n}.info"
+        pi = p / i
+        with cd(fake_lhapdf):
+            genpdf.generate_pdf(
+                n,
+                ["S"],
+                fake_pdf,
+                members=True,
+            )
+        assert p.exists()
+        # check info file
+        assert pi.exists()
+        # check member file
+        for m in range(1 + 1):
+            pm = p / f"{n}_{m:04d}.dat"
+            assert pm.exists()
+            head, blocks = genpdf.load.load_blocks_from_file(n, m)
+            assert ("PdfType: central" if m == 0 else f"PdfType: {err_type}") in head
+            assert len(blocks) == nb
+            for b in blocks:
+                for k, line in enumerate(b["data"]):
+                    for pid, f in zip(b["pids"], line):
+                        # the singlet is non-zero in the bulk - x >= 0
+                        if abs(pid) in range(1, 6 + 1) and k < len(b["data"]) - len(
+                            b["Q2grid"]
+                        ):
+                            assert not f == 0.0
+                            assert not np.isclose(f, 0.0, atol=1e-15)
+                        else:
+                            # MSTW is not 0 at the end, but only almost
+                            if err_type == "error" and k >= len(b["data"]) - len(
+                                b["Q2grid"]
+                            ):
+                                np.testing.assert_allclose(f, 0.0, atol=1e-15)
+                            else:
+                                assert f == 0.0
