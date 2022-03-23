@@ -19,3 +19,19 @@ def test_genpdf_CLI_messages():
     assert "-p, --parent-pdf-set TEXT" in result.output
     assert "-m, --members" in result.output
     assert "-i, --install" in result.output
+
+
+def test_genpdf_CLI(fake_lhapdf, cd):
+    n = "test_genpdf_CLI"
+    runner = CliRunner()
+    result = None
+    with cd(fake_lhapdf):
+        result = runner.invoke(cli, ["generate", n, "21"])
+    assert result is not None
+    assert result.exception is None
+    p = fake_lhapdf / n
+    assert p.exists()
+    pi = p / f"{n}.info"
+    assert pi.exists()
+    pm = p / f"{n}_0000.dat"
+    assert pm.exists()
