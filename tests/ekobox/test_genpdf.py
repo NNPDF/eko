@@ -2,6 +2,7 @@
 import numpy as np
 import pytest
 
+from eko import basis_rotation as br
 from ekobox import genpdf
 
 
@@ -113,9 +114,13 @@ def test_generate_pdf_debug_pid(fake_lhapdf, cd):
                 assert f == 0.0
 
 
-def test_generate_pdf_pdf_evol(fake_lhapdf, fake_nn31, fake_mstw, cd):
+def test_generate_pdf_pdf_evol(fake_lhapdf, fake_nn31, fake_mstw, fake_ct14, cd):
     # iterate pdfs with their error type and number of blocks
-    for fake_pdf, err_type, nb in ((fake_nn31, "replica", 2), (fake_mstw, "error", 3)):
+    for fake_pdf, err_type, nmem, nb in (
+        (fake_nn31, "replica", 1, 2),
+        (fake_mstw, "error", 1, 3),
+        (fake_ct14, "", 0, 1),
+    ):
         n = f"test_generate_pdf_{err_type}_evol"
         p = fake_lhapdf / n
         i = f"{n}.info"
@@ -125,13 +130,13 @@ def test_generate_pdf_pdf_evol(fake_lhapdf, fake_nn31, fake_mstw, cd):
                 n,
                 ["S"],
                 fake_pdf,
-                members=True,
+                members=nmem > 0,
             )
         assert p.exists()
         # check info file
         assert pi.exists()
-        # check member file
-        for m in range(1 + 1):
+        # check member files
+        for m in range(nmem + 1):
             pm = p / f"{n}_{m:04d}.dat"
             assert pm.exists()
             head, blocks = genpdf.load.load_blocks_from_file(n, m)
@@ -154,3 +159,44 @@ def test_generate_pdf_pdf_evol(fake_lhapdf, fake_nn31, fake_mstw, cd):
                                 np.testing.assert_allclose(f, 0.0, atol=1e-15)
                             else:
                                 assert f == 0.0
+
+
+def test_generate_pdf_toy_antiqed(fake_lhapdf, cd):
+    # iterate pdfs with their error type and number of blocks
+    n = "test_generate_pdf_toy_antiqed"
+    xg = np.linspace(1e-5, 1.0, 5)
+    q2s = np.geomspace(1.0, 1e3, 7)
+    anti_qed_singlet = np.zeros_like(br.flavor_basis_pids, dtype=np.float_)
+    anti_qed_singlet[br.flavor_basis_pids.index(1)] = -4
+    anti_qed_singlet[br.flavor_basis_pids.index(-1)] = -4
+    anti_qed_singlet[br.flavor_basis_pids.index(2)] = 1
+    anti_qed_singlet[br.flavor_basis_pids.index(-2)] = 1
+    p = fake_lhapdf / n
+    i = f"{n}.info"
+    pi = p / i
+    with cd(fake_lhapdf):
+        genpdf.generate_pdf(
+            n,
+            [anti_qed_singlet],
+            "toy",
+            xgrid=xg,
+            Q2grid=q2s,
+        )
+    assert p.exists()
+    # check info file
+    assert pi.exists()
+    # check member files
+    pm = p / f"{n}_0000.dat"
+    assert pm.exists()
+    assert "PdfType: central" in pm.read_text()
+    head, blocks = genpdf.load.load_blocks_from_file(n, 0)
+    assert "PdfType: central" in head
+    assert len(blocks) == 1
+    b = blocks[0]
+    for k, line in enumerate(b["data"]):
+        for pid, f in zip(b["pids"], line):
+            # the u and d are non-zero in the bulk - x=0 is not included here
+            if abs(pid) in [1, 2] and k < len(b["data"]) - len(b["Q2grid"]):
+                assert not f == 0.0
+            else:
+                assert f == 0.0
