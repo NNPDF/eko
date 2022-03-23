@@ -154,7 +154,7 @@ def generate_pdf(
         through the pure-singlet contributions (starting at |NNLO|)
 
         >>> from eko import basis_rotation as br
-        >>> from ekobox.tools import genpdf
+        >>> from ekobox import genpdf
         >>> import numpy as np
         >>> anti_qed_singlet = np.zeros_like(br.flavor_basis_pids, dtype=np.float_)
         >>> anti_qed_singlet[br.flavor_basis_pids.index(1)] = -4
