@@ -9,7 +9,13 @@ from ekobox import gen_theory as g_t
 
 
 def test_gen_and_dump_out(tmp_path):
-    op = g_o.gen_op_card([100.0], update={"xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]})
+    op = g_o.gen_op_card(
+        [100.0],
+        update={
+            "xgrid": [0.1, 0.5, 1.0],
+            "configs": {"interpolation_polynomial_degree": 1},
+        },
+    )
     theory = g_t.gen_theory_card(0, 1.0)
 
     out = ev_p.gen_out(theory, op, path=tmp_path)
