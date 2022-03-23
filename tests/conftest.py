@@ -111,11 +111,24 @@ def fake_lhapdf(tmp_path):
 fakepdf = pathlib.Path(__file__).parents[1] / "benchmarks" / "ekobox" / "fakepdf"
 
 
-@pytest.fixture
-def fake_ct14(fake_lhapdf):
-    n = "myCT14llo_NF3"
+def fake_pdf(fake_lhapdf, n):
     src = fakepdf / n
     dst = fake_lhapdf / n
     shutil.copytree(src, dst)
     yield n
     shutil.rmtree(dst)
+
+
+@pytest.fixture
+def fake_ct14(fake_lhapdf):
+    yield from fake_pdf(fake_lhapdf, "myCT14llo_NF3")
+
+
+@pytest.fixture
+def fake_nn31(fake_lhapdf):
+    yield from fake_pdf(fake_lhapdf, "myNNPDF31_nlo_as_0118")
+
+
+@pytest.fixture
+def fake_mstw(fake_lhapdf):
+    yield from fake_pdf(fake_lhapdf, "myMSTW2008nlo90cl")
