@@ -5,7 +5,7 @@ import math
 from .genpdf import load
 
 
-def create_info_file(theory_card, operators_card, num_members, info_update):
+def build(theory_card, operators_card, num_members, info_update):
     """
     Generate a lhapdf info file from theory and operators card
 
@@ -22,8 +22,8 @@ def create_info_file(theory_card, operators_card, num_members, info_update):
 
     Returns
     -------
-        : dict
-        info file in lhapdf format
+        dict :
+            info file in lhapdf format
     """
     template_info = copy.deepcopy(load.template_info)
     template_info["SetDesc"] = "Evolved PDF from " + str(theory_card["Q0"]) + " GeV"

@@ -6,7 +6,7 @@ import eko.output.legacy
 from eko import basis_rotation as br
 from ekomark import apply
 
-from . import gen_info, genpdf
+from . import genpdf, info_file
 
 
 def evolve_pdfs(
@@ -79,7 +79,7 @@ def evolve_pdfs(
         info_update = {}
     info_update["XMin"] = targetgrid[0]
     info_update["XMax"] = targetgrid[-1]
-    info = gen_info.create_info_file(
+    info = info_file.build(
         theory_card,
         operators_card,
         len(evolved_PDF_list),

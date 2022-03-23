@@ -12,26 +12,22 @@ def gen_theory_card(pto, initial_scale, update=None, name=None):
 
     Parameters
     ----------
-
         pto : int
             perturbation theory order
         initial_scale: float
-            initial scale of evolution
+            initial scale of evolution [GeV]
         update : dict
             info to update to default theory card
         name : str
-            name of exported theory card (if name not None )
+            name of exported theory card (if name is not None )
 
     Returns
     -------
-
-        : dict
-        theory card
+        dict :
+            theory card
     """
     # Constructing the dictionary with some default values
     theory = copy.deepcopy(theories.default_card)
-    # delete unuseful member
-    del theory["FNS"]
     # Adding the mandatory inputs
     theory["PTO"] = pto
     theory["Q0"] = initial_scale
@@ -42,7 +38,7 @@ def gen_theory_card(pto, initial_scale, update=None, name=None):
                 raise ValueError("Provided key not in theory card")
         theory.update(update)
     serialized = sql.serialize(theory)
-    theory["hash"] = (sql.add_hash(serialized))[-1]
+    theory["hash"] = sql.add_hash(serialized)[-1]
     if name is not None:
         export_theory_card(name, theory)
     return theory
@@ -76,7 +72,7 @@ def import_theory_card(path):
 
     Returns
     -------
-        : dict
+        dict :
             theory card
     """
     with open(path, "r", encoding="utf-8") as o:
