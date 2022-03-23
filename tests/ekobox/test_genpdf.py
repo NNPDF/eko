@@ -43,9 +43,9 @@ def test_generate_block():
     assert b["data"].shape == (len(xg) * len(q2s), len(pids))
 
 
-def test_install_pdf(fake_lhapdf, tmp_path, cd):
+def test_install_pdf(fake_lhapdf, cd):
     # move into subdir to be able to move
-    mytmp = tmp_path / "install"
+    mytmp = fake_lhapdf / "install"
     mytmp.mkdir()
     n = "test_install_pdf"
     p = mytmp / n
@@ -56,7 +56,7 @@ def test_install_pdf(fake_lhapdf, tmp_path, cd):
         p.mkdir()
         (p / i).write_text("Bla")
         genpdf.install_pdf(p)
-    pp = tmp_path / n
+    pp = fake_lhapdf / n
     assert not p.exists()
     assert pp.exists()
     ppi = pp / i

@@ -22,13 +22,15 @@ def test_genpdf_CLI_messages():
 
 
 def test_genpdf_CLI(fake_lhapdf, cd):
+    mytmp = fake_lhapdf / "install"
+    mytmp.mkdir()
     n = "test_genpdf_CLI"
     runner = CliRunner()
-    result = None
-    with cd(fake_lhapdf):
-        result = runner.invoke(cli, ["generate", n, "21"])
-    assert result is not None
-    assert result.exception is None
+    with cd(mytmp):
+        result_gen = runner.invoke(cli, ["generate", n, "21"])
+        assert result_gen.exception is None
+        result_inst = runner.invoke(cli, ["install", n])
+        assert result_inst.exception is None
     p = fake_lhapdf / n
     assert p.exists()
     pi = p / f"{n}.info"
