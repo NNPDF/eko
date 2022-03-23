@@ -217,7 +217,9 @@ def install_pdf(name):
     print(f"install_pdf {name}")
     target = pathlib.Path(lhapdf.paths()[0])
     src = pathlib.Path(name)
-    shutil.move(src, target)
+    # shutil.move only accepts paths since 3.9 so we need to cast
+    # https://docs.python.org/3/library/shutil.html?highlight=shutil#shutil.move
+    shutil.move(str(src), str(target))
 
 
 def generate_block(xfxQ2, xgrid, Q2grid, pids):
