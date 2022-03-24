@@ -6,7 +6,7 @@ import pytest
 
 from eko import basis_rotation as br
 from ekobox import evol_pdf as ev_p
-from ekobox import gen_op as g_o
+from ekobox import operators_card as oc
 from ekobox import theory_card as tc
 from ekobox.genpdf import load
 
@@ -21,7 +21,7 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
         100.0,
         10000.0,
     ]
-    op = g_o.gen_op_card(q2grid)
+    op = oc.generate(q2grid)
     theory = tc.generate(
         0,
         5.0,
@@ -77,7 +77,7 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
 
 @pytest.mark.isolated
 def benchmark_evolve_more_members(tmp_path, cd, lhapdf_path):
-    op = g_o.gen_op_card([10, 100], update={"xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]})
+    op = oc.generate([10, 100], update={"xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]})
     theory = tc.generate(0, 1.0)
     with lhapdf_path(test_pdf):
         pdfs = lhapdf.mkPDFs("myMSTW2008nlo90cl")

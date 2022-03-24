@@ -4,7 +4,7 @@ import pytest
 from ekobox import theory_card as tc
 
 
-def test_gen_theory_card():
+def test_generate_theory_card():
     theory = tc.generate(0, 1.0)
     assert theory["PTO"] == 0
     assert theory["Q0"] == 1.0
@@ -18,7 +18,7 @@ def test_gen_theory_card():
     assert theory["mb"] == 132.3
 
 
-def test_export_load_theory_card(tmp_path, cd):
+def test_dump_load_theory_card(tmp_path, cd):
     with cd(tmp_path):
         theory = tc.generate(2, 12.3, name="debug_theory")
         tc.dump("debug_theory_two", theory)
