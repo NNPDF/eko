@@ -4,7 +4,7 @@ import pytest
 
 import eko
 from ekobox import gen_op as g_o
-from ekobox import gen_theory as g_t
+from ekobox import theory_card as tc
 from ekobox import utils
 
 
@@ -17,7 +17,7 @@ def test_ekos_product():
             "configs": {"interpolation_polynomial_degree": 1},
         },
     )
-    theory1 = g_t.gen_theory_card(0, 5.0)
+    theory1 = tc.generate(0, 5.0)
 
     op2 = g_o.gen_op_card(
         [80.0, 100.0, 120.0],
@@ -26,8 +26,8 @@ def test_ekos_product():
             "configs": {"interpolation_polynomial_degree": 1},
         },
     )
-    theory2 = g_t.gen_theory_card(0, 10.0)
-    theory_err = g_t.gen_theory_card(0, 5.0)
+    theory2 = tc.generate(0, 10.0)
+    theory_err = tc.generate(0, 5.0)
 
     eko_ini = eko.run_dglap(theory1, op1)
     eko_fin = eko.run_dglap(theory2, op2)

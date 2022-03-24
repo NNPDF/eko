@@ -4,13 +4,13 @@ import math
 import numpy as np
 
 from ekobox import gen_op as g_o
-from ekobox import gen_theory as g_t
 from ekobox import info_file
+from ekobox import theory_card as tc
 
 
 def test_build():
     op = g_o.gen_op_card([10, 100])
-    theory = g_t.gen_theory_card(1, 10.0, update={"alphas": 0.2})
+    theory = tc.generate(1, 10.0, update={"alphas": 0.2})
     info = info_file.build(
         theory, op, 4, info_update={"SetDesc": "Prova", "NewArg": 15.3, "MTop": 1.0}
     )

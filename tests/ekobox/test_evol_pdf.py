@@ -6,7 +6,7 @@ import eko
 import eko.output.legacy as out
 from ekobox import evol_pdf as ev_p
 from ekobox import gen_op as g_o
-from ekobox import gen_theory as g_t
+from ekobox import theory_card as tc
 
 op = g_o.gen_op_card(
     [100.0],
@@ -15,7 +15,7 @@ op = g_o.gen_op_card(
         "configs": {"interpolation_polynomial_degree": 1},
     },
 )
-theory = g_t.gen_theory_card(0, 1.65)
+theory = tc.generate(0, 1.65)
 
 
 def test_evolve_pdfs_run(fake_lhapdf, cd):
