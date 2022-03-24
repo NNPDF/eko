@@ -3,14 +3,14 @@ import numpy as np
 import pytest
 
 import eko
-from ekobox import gen_op as g_o
+from ekobox import operators_card as oc
 from ekobox import theory_card as tc
 from ekobox import utils
 
 
 def test_ekos_product():
     # Generating two ekos
-    op1 = g_o.gen_op_card(
+    op1 = oc.generate(
         [60.0, 80.0, 100.0],
         update={
             "xgrid": [0.1, 0.5, 1.0],
@@ -19,7 +19,7 @@ def test_ekos_product():
     )
     theory1 = tc.generate(0, 5.0)
 
-    op2 = g_o.gen_op_card(
+    op2 = oc.generate(
         [80.0, 100.0, 120.0],
         update={
             "xgrid": [0.1, 0.5, 1.0],

@@ -5,10 +5,10 @@ from banana import toy
 import eko
 import eko.output.legacy as out
 from ekobox import evol_pdf as ev_p
-from ekobox import gen_op as g_o
+from ekobox import operators_card as oc
 from ekobox import theory_card as tc
 
-op = g_o.gen_op_card(
+op = oc.generate(
     [100.0],
     update={
         "xgrid": [0.1, 0.5, 1.0],
