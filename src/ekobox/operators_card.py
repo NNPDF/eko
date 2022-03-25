@@ -26,7 +26,7 @@ def generate(Q2grid, update=None, name=None):
 
     Returns
     -------
-        dict :
+        dict
             operators card
     """
     # Constructing the dictionary with some default value
@@ -77,7 +77,7 @@ def load(path):
 
     Returns
     -------
-        dict :
+        dict
             operators card
     """
     with open(path, "r", encoding="utf-8") as o:

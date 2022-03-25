@@ -23,7 +23,7 @@ def generate(pto, initial_scale, update=None, name=None):
 
     Returns
     -------
-        dict :
+        dict
             theory card
     """
     # Constructing the dictionary with some default values
@@ -72,7 +72,7 @@ def load(path):
 
     Returns
     -------
-        dict :
+        dict
             theory card
     """
     with open(path, "r", encoding="utf-8") as o:

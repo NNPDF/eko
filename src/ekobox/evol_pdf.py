@@ -91,4 +91,19 @@ def evolve_pdfs(
 
 
 def ekofileid(theory_card, operators_card):
+    """
+    Return a common filename composed by the hashes.
+
+    Parameters
+    ----------
+    theory_card : dict
+        theory card
+    operators_card : dict
+        operators card
+
+    Returns
+    -------
+    str
+        file name
+    """
     return f"o{operators_card['hash'][:6]}_t{theory_card['hash'][:6]}.tar"

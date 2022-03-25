@@ -23,7 +23,7 @@ def load_info_from_file(pdfset_name):
 
     Returns
     -------
-        dict :
+        dict
             info dictionary
     """
     import lhapdf  # pylint: disable=import-error, import-outside-toplevel
