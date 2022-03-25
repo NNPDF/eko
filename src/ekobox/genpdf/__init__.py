@@ -239,7 +239,7 @@ def generate_block(xfxQ2, xgrid, Q2grid, pids):
 
     Returns
     -------
-        dict :
+        dict
             PDF block
     """
     block = dict(Q2grid=Q2grid, pids=pids, xgrid=xgrid)

@@ -22,7 +22,7 @@ def build(theory_card, operators_card, num_members, info_update):
 
     Returns
     -------
-        dict :
+        dict
             info file in lhapdf format
     """
     template_info = copy.deepcopy(load.template_info)

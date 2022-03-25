@@ -243,7 +243,7 @@ class OperatorBase:
 
         Returns
         -------
-            dict :
+            dict
                 new operator members dictionary
         """
         # prepare paths
