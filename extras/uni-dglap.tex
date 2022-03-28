@@ -16,7 +16,30 @@
 
 \begin{document}
 
-\maketitle
+%\maketitle
+Defining
+\begin{align*}
+\Sigma_u&=\sum_{k=1}^{n_u}u_k^+,  \quad \Sigma_d=\sum_{k=1}^{n_d}d_k^+ \\
+V_u&=\sum_{k=1}^{n_u}u_k^-, \quad V_d=\sum_{k=1}^{n_d}d_k^-
+\end{align*}
+
+our basis is
+\begin{align*}
+g & \\
+\gamma & \\
+\Sigma &= \Sigma_u + \Sigma_d \\
+\Delta_\Sigma & = \frac{n_d}{n_u}\Sigma_u - \Sigma_d \\
+V & = V_u + V_d \\
+\Delta_V & = \frac{n_d}{n_u}V_u - V_d \\
+T_3^d &=d^+ - s^+ \\
+V_3^d &=d^- - s^- \\
+T_3^u &=u^+ - c^+ \\
+V_3^u &=u^- - c^- \\
+T_8^d &=d^+ + s^+ - 2b^+ \\
+V_8^d &=d^- + s^- - 2b^- \\
+T_8^u &=u^+ + c^+ - 2t^+ \\
+V_8^u &=u^- + c^- - 2t^-
+\end{align*}
 \begin{itemize}
 \item Singlet sector:
 
@@ -68,7 +91,11 @@ V \\
 \Delta_V
 \end{pmatrix}
 \end{equation*}
-
+\item Decoupled sector:
+\begin{align*}
+\mu^2\frac{d}{d\mu^2}T^{u/d}_{3/8} & = (P_{+} + e_i^2 \tilde{P}_{+}) T^{u/d}_{3/8} \\
+\mu^2\frac{d}{d\mu^2}V^{u/d}_{3/8} & = (P_{-} + e_i^2 \tilde{P}_{-} )V^{u/d}_{3/8}
+\end{align*}
 
 \end{itemize}
 \end{document}
