@@ -22,3 +22,4 @@ class Operator(Base):  # pylint: disable=too-few-public-methods
     ev_op_max_order = Column(Integer)
     ev_op_iterations = Column(Integer)
     Q2grid = Column(Text)
+    n_integration_cores = Column(Integer)

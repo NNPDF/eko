@@ -240,7 +240,6 @@ class Operator:
     """
 
     log_label = "Evolution"
-    n_pools = os.cpu_count()
     # complete list of possible evolution operators labels
     full_labels = br.full_labels
 
@@ -255,6 +254,13 @@ class Operator:
         self.op_members = {}
 
     @property
+    def n_pools(self):
+        n_pools = self.config["n_integration_cores"]
+        if n_pools > 0:
+            return n_pools
+        return os.cpu_count() + n_pools
+
+    @property
     def fact_to_ren(self):
         r"""Returns the factor :math:`(\mu_F/\mu_R)^2`"""
         return self.config["fact_to_ren"]
@@ -264,8 +270,7 @@ class Operator:
         """Returns the scale variation mode"""
         if self.config["ModSV"] is not None:
             return sv.Modes[self.config["ModSV"]]
-        else:
-            return sv.Modes.unvaried
+        return sv.Modes.unvaried
 
     @property
     def int_disp(self):
@@ -466,11 +471,18 @@ class Operator:
         tot_start_time = time.perf_counter()
 
         # run integration in parallel for each grid point
-        with Pool(self.n_pools) as pool:
-            res = pool.map(
+        # or avoid opening a single pool
+        if self.n_pools == 1:
+            res = map(
                 self.run_op_integration,
                 enumerate(np.log(self.int_disp.xgrid_raw)),
             )
+        else:
+            with Pool(self.n_pools) as pool:
+                res = pool.map(
+                    self.run_op_integration,
+                    enumerate(np.log(self.int_disp.xgrid_raw)),
+                )
 
         # collect results
         for k, row in enumerate(res):
