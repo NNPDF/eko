@@ -369,6 +369,7 @@ class TestOperatorMatrixElement:
         "ev_op_max_order": 1,
         "ev_op_iterations": 1,
         "backward_inversion": "exact",
+        "n_integration_cores": 1,
     }
 
     def test_labels(self):
@@ -384,6 +385,7 @@ class TestOperatorMatrixElement:
                     "ev_op_max_order": 1,
                     "ev_op_iterations": 1,
                     "backward_inversion": "exact",
+                    "n_integration_cores": 1,
                 }
                 g = OperatorGrid.from_dict(
                     self.theory_card,
@@ -516,6 +518,7 @@ class TestOperatorMatrixElement:
             "ev_op_max_order": 1,
             "ev_op_iterations": 1,
             "backward_inversion": "exact",
+            "n_integration_cores": 1,
         }
         t = copy.deepcopy(self.theory_card)
         t["PTO"] = 1
