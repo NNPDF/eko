@@ -472,17 +472,12 @@ class Operator:
 
         # run integration in parallel for each grid point
         # or avoid opening a single pool
+        args = (self.run_op_integration, enumerate(np.log(self.int_disp.xgrid_raw)))
         if self.n_pools == 1:
-            res = map(
-                self.run_op_integration,
-                enumerate(np.log(self.int_disp.xgrid_raw)),
-            )
+            res = map(*args)
         else:
             with Pool(self.n_pools) as pool:
-                res = pool.map(
-                    self.run_op_integration,
-                    enumerate(np.log(self.int_disp.xgrid_raw)),
-                )
+                res = pool.map(*args)
 
         # collect results
         for k, row in enumerate(res):
