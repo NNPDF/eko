@@ -7,7 +7,7 @@ import numpy as np
 from .. import constants
 
 
-@nb.njit("c16(c16,c16)", cache=True)
+@nb.njit(cache=True)
 def gamma_ns(N, s1):
     """
     Computes the leading-order non-singlet anomalous dimension.
@@ -31,7 +31,7 @@ def gamma_ns(N, s1):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_qg(N, nf):
     """
     Computes the leading-order quark-gluon anomalous dimension
@@ -55,7 +55,7 @@ def gamma_qg(N, nf):
     return result
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def gamma_gq(N):
     """
     Computes the leading-order gluon-quark anomalous dimension
@@ -77,7 +77,7 @@ def gamma_gq(N):
     return result
 
 
-@nb.njit("c16(c16,c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_gg(N, s1, nf):
     """
     Computes the leading-order gluon-gluon anomalous dimension
@@ -103,7 +103,7 @@ def gamma_gg(N, s1, nf):
     return result
 
 
-@nb.njit("c16[:,:](c16,c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_singlet(N, s1, nf):
     r"""
       Computes the leading-order singlet anomalous dimension matrix

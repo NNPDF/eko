@@ -14,7 +14,7 @@ from .. import constants
 from . import harmonics
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_nsm(n, nf):
     """
     Computes the |NLO| valence-like non-singlet anomalous dimension.
@@ -57,7 +57,7 @@ def gamma_nsm(n, nf):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_nsp(n, nf):
     """
     Computes the |NLO| singlet-like non-singlet anomalous dimension.
@@ -98,7 +98,7 @@ def gamma_nsp(n, nf):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_ps(n, nf):
     """
     Computes the |NLO| pure-singlet quark-quark anomalous dimension.
@@ -125,7 +125,7 @@ def gamma_ps(n, nf):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_qg(n, nf):
     """
     Computes the |NLO| quark-gluon singlet anomalous dimension.
@@ -158,7 +158,7 @@ def gamma_qg(n, nf):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_gq(n, nf):
     """
     Computes the |NLO| gluon-quark singlet anomalous dimension.
@@ -194,7 +194,7 @@ def gamma_gq(n, nf):
     return result
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_gg(n, nf):
     """
     Computes the |NLO| gluon-gluon singlet anomalous dimension.
@@ -232,7 +232,7 @@ def gamma_gg(n, nf):
     return result
 
 
-@nb.njit("c16[:,:](c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_singlet(N, nf):
     r"""
       Computes the next-leading-order singlet anomalous dimension matrix

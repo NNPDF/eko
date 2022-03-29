@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 
 import numpy as np
 import scipy.integrate
@@ -126,7 +127,12 @@ def test_quad_ker(monkeypatch):
 class TestOperator:
     def test_labels(self):
         o = Operator(
-            dict(order=2, debug_skip_non_singlet=False, debug_skip_singlet=False),
+            dict(
+                order=2,
+                debug_skip_non_singlet=False,
+                debug_skip_singlet=False,
+                n_integration_cores=1,
+            ),
             {},
             3,
             1,
@@ -134,13 +140,33 @@ class TestOperator:
         )
         assert sorted(o.labels) == sorted(br.full_labels)
         o = Operator(
-            dict(order=1, debug_skip_non_singlet=True, debug_skip_singlet=True),
+            dict(
+                order=1,
+                debug_skip_non_singlet=True,
+                debug_skip_singlet=True,
+                n_integration_cores=1,
+            ),
             {},
             3,
             1,
             2,
         )
         assert sorted(o.labels) == []
+
+    def test_n_pools(self):
+        excluded_cores = 3
+        o = Operator(
+            dict(
+                order=1,
+                debug_skip_non_singlet=True,
+                debug_skip_singlet=True,
+                n_integration_cores=-excluded_cores,
+            ),
+            {},
+            3,
+            1,
+        )
+        assert o.n_pools == os.cpu_count() - excluded_cores
 
     def test_compute(self, monkeypatch):
         # setup objs
@@ -178,6 +204,7 @@ class TestOperator:
             "ev_op_max_order": 1,
             "ev_op_iterations": 1,
             "backward_inversion": "exact",
+            "n_integration_cores": 1,
         }
         g = OperatorGrid.from_dict(
             theory_card,

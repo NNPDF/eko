@@ -20,7 +20,7 @@ li4half = 0.517479
 log2 = np.log(2)
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm1(N):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-1}(N)`.
@@ -47,7 +47,7 @@ def harmonic_Sm1(N):
     ) - log2
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm2(N):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2}(N)`.
@@ -74,7 +74,7 @@ def harmonic_Sm2(N):
     ) - zeta2 / 2
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm3(N):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-3}(N)`.
@@ -101,7 +101,7 @@ def harmonic_Sm3(N):
     ) - 3 / 4 * zeta3
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm4(N):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-4}(N)`.
@@ -128,7 +128,7 @@ def harmonic_Sm4(N):
     ) - 7 / 8 * zeta4
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm5(N):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-5}(N)`.
@@ -155,7 +155,7 @@ def harmonic_Sm5(N):
     ) - 15 / 16 * zeta5
 
 
-@nb.njit("c16(c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_S21(N, S1, S2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,1}(N)`
@@ -182,7 +182,7 @@ def harmonic_S21(N, S1, S2):
     return -gf.mellin_g18(N, S1, S2) + 2 * zeta3
 
 
-@nb.njit("c16(c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm21(N, Sm1):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,1}(N)`
@@ -213,7 +213,7 @@ def harmonic_Sm21(N, Sm1):
     )
 
 
-@nb.njit("c16(c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_S2m1(N, S2, Sm1, Sm2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,-1}(N)`
@@ -248,7 +248,7 @@ def harmonic_S2m1(N, S2, Sm1, Sm2):
     )
 
 
-@nb.njit("c16(c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm31(N, Sm1, Sm2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-3,1}(N)`
@@ -284,7 +284,7 @@ def harmonic_Sm31(N, Sm1, Sm2):
     )
 
 
-@nb.njit("c16(c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm22(N, Sm31):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,2}(N)`
@@ -313,7 +313,7 @@ def harmonic_Sm22(N, Sm31):
     )
 
 
-@nb.njit("c16(c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm211(N, Sm1):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,1,1}(N)`
@@ -346,7 +346,7 @@ def harmonic_Sm211(N, Sm1):
     )
 
 
-@nb.njit("c16(c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm2m1(N, S1, S2, Sm2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,-1}(N)`
@@ -375,7 +375,7 @@ def harmonic_Sm2m1(N, S1, S2, Sm2):
     return -gf.mellin_g19(N, S1) + log2 * (S2 - Sm2) - 5 / 8 * zeta3
 
 
-@nb.njit("c16(c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_S211(N, S1, S2, S3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,1,1}(N)`
@@ -404,7 +404,7 @@ def harmonic_S211(N, S1, S2, S3):
     return -gf.mellin_g21(N, S1, S2, S3) + 6 / 5 * zeta2**2
 
 
-@nb.njit("c16(c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_S31(N, S2, S4):
     r"""
     Analytic continuation of harmonic sum :math:`S_{3,1}(N)`
@@ -437,7 +437,7 @@ def harmonic_S31(N, S2, S4):
     )
 
 
-@nb.njit("c16(c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_S41(N, S1, S2, S3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{4,1}(N)`
@@ -467,7 +467,7 @@ def harmonic_S41(N, S1, S2, S3):
     return -f.F9(N, S1) + S1 * zeta4 - S2 * zeta3 + S3 * zeta2
 
 
-@nb.njit("c16(c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_S311(N, S1, S2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{3,1,1}(N)`
@@ -495,7 +495,7 @@ def harmonic_S311(N, S1, S2):
     return f.F11(N, S1, S2) + zeta3 * S2 - zeta4 / 4 * S1
 
 
-@nb.njit("c16(c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_S221(N, S1, S2, S21):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,2,1}(N)`
@@ -532,7 +532,7 @@ def harmonic_S221(N, S1, S2, S21):
     )
 
 
-@nb.njit("c16(c16,c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm221(N, S1, Sm1, S21, Sm21):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,2,1}(N)`
@@ -570,7 +570,7 @@ def harmonic_Sm221(N, S1, Sm1, S21, Sm21):
     )
 
 
-@nb.njit("c16(c16,c16,c16,c16,c16,c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,1,-2}(N)`
@@ -618,7 +618,7 @@ def harmonic_S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1):
     )
 
 
-@nb.njit("c16(c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_S2111(N, S1, S2, S3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,1,1,1}(N)`
@@ -648,7 +648,7 @@ def harmonic_S2111(N, S1, S2, S3):
     return -f.F17(N, S1, S2, S3) + zeta4 * S1
 
 
-@nb.njit("c16(c16,c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm2111(N, S1, S2, S3, Sm1):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,1,1,1}(N)`
@@ -685,7 +685,7 @@ def harmonic_Sm2111(N, S1, S2, S3, Sm1):
     )
 
 
-@nb.njit("c16(c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_S23(N, S1, S2, S3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,3}(N)`
@@ -719,7 +719,7 @@ def harmonic_S23(N, S1, S2, S3):
     return f.F19(N, S1, S2, S3) + 3 * zeta4 * S1
 
 
-@nb.njit("c16(c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_Sm23(N, Sm1, Sm2, Sm3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,3}(N)`
@@ -759,7 +759,7 @@ def harmonic_Sm23(N, Sm1, Sm2, Sm3):
     )
 
 
-@nb.njit("c16(c16,c16,c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def harmonic_S2m3(N, S2, Sm1, Sm2, Sm3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,-3}(N)`

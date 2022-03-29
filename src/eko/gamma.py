@@ -9,7 +9,7 @@ import numba as nb
 from .anomalous_dimensions.harmonics import zeta3, zeta4, zeta5
 
 
-@nb.njit("f8()", cache=True)
+@nb.njit(cache=True)
 def gamma_0():
     """
     Computes the first coefficient of the QCD gamma function.
@@ -24,7 +24,7 @@ def gamma_0():
     return 4.0
 
 
-@nb.njit("f8(u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_1(nf):
     """
     Computes the second coefficient of the QCD gamma function.
@@ -44,7 +44,7 @@ def gamma_1(nf):
     return 202.0 / 3.0 - 20.0 / 9.0 * nf
 
 
-@nb.njit("f8(u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_2(nf):
     """
     Computes the third coefficient of the QCD gamma function.
@@ -64,7 +64,7 @@ def gamma_2(nf):
     return 1249.0 - (2216.0 / 27.0 + 160.0 / 3.0 * zeta3) * nf - 140.0 / 81.0 * nf**2
 
 
-@nb.njit("f8(u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_3(nf):
     """
     Computes the fourth coefficient of the QCD gamma function.
@@ -97,7 +97,7 @@ def gamma_3(nf):
     )
 
 
-@nb.njit("f8(u1,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma(order, nf):
     """
     Compute the value of a gamma coefficient

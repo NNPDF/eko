@@ -5,7 +5,7 @@ import numpy as np
 from . import s_functions as sf
 
 
-@nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4,f8)", cache=True)
+@nb.njit(cache=True)
 def A_qqNS(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.

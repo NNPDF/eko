@@ -3,7 +3,7 @@ import numba as nb
 import numpy as np
 
 
-@nb.njit("c16(c16,c16[:],c16[:],c16[:],c16[:],u4,f8)", cache=True)
+@nb.njit(cache=True)
 def A_qg(n, sx, smx, s3x, s4x, nf, L):
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{qg}^{S,(3)}(N)`.

@@ -22,7 +22,7 @@ zeta2 = harmonics.zeta2
 zeta3 = harmonics.zeta3
 
 
-@nb.njit("c16(c16,c16[:],f8)", cache=True)
+@nb.njit(cache=True)
 def A_qq_ns(n, sx, L):
     r"""
     |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}` given in
@@ -77,7 +77,7 @@ def A_qq_ns(n, sx, L):
     return constants.CF * constants.TR * (a_qq_l2 * L**2 + a_qq_l1 * L + a_qq_l0)
 
 
-@nb.njit("c16(c16,c16[:],f8)", cache=True)
+@nb.njit(cache=True)
 def A_hq_ps(n, sx, L):
     r"""
     |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}` given in
@@ -140,7 +140,7 @@ def A_hq_ps(n, sx, L):
     return constants.CF * constants.TR * (a_hq_l2 * L**2 + a_hq_l1 * L + a_hq_l0)
 
 
-@nb.njit("c16(c16,c16[:],f8)", cache=True)
+@nb.njit(cache=True)
 def A_hg(n, sx, L):
     r"""
     |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}` given in
@@ -288,7 +288,7 @@ def A_hg(n, sx, L):
     return a_hg_l2 * L**2 + a_hg_l1 * L + a_hg_l0
 
 
-@nb.njit("c16(c16,c16[:],f8)", cache=True)
+@nb.njit(cache=True)
 def A_gq(n, sx, L):
     r"""
     |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}` given in
@@ -338,7 +338,7 @@ def A_gq(n, sx, L):
     return constants.CF * constants.TR * (a_gq_l2 * L**2 + a_gq_l1 * L + a_gq_l0)
 
 
-@nb.njit("c16(c16,c16[:],f8)", cache=True)
+@nb.njit(cache=True)
 def A_gg(n, sx, L):
     r"""
     |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)} ` given in
@@ -425,7 +425,7 @@ def A_gg(n, sx, L):
     return a_gg_l2 * L**2 + a_gg_l1 * L + a_gg_l0
 
 
-@nb.njit("c16[:,:](c16,c16[:],f8,b1)", cache=True)
+@nb.njit(cache=True)
 def A_singlet(n, sx, L, is_msbar=False):
     r"""
       Computes the |NNLO| singlet |OME|.
@@ -475,7 +475,7 @@ def A_singlet(n, sx, L, is_msbar=False):
     return A_S
 
 
-@nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
+@nb.njit(cache=True)
 def A_ns(n, sx, L):
     r"""
       Computes the |NNLO| non-singlet |OME|.

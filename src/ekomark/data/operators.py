@@ -2,7 +2,6 @@
 """
 Operator card configurations.
 """
-
 from banana.data import cartesian_product, sql
 
 from eko import interpolation
@@ -18,6 +17,7 @@ default_card = dict(
     ev_op_max_order=10,
     ev_op_iterations=10,
     backward_inversion="expanded",
+    n_integration_cores=0,
     Q2grid=[100],
 )
 

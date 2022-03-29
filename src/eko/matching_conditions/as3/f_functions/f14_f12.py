@@ -9,7 +9,7 @@ import numba as nb
 import numpy as np
 
 
-@nb.njit("c16(c16,c16,c16)", cache=True)
+@nb.njit(cache=True)
 def F14F12(n, S1, S21):
     """Linear combination of :math:`M[( 2 S_{2,2}(x)- Li_2(x)^2/2)/(1+x)](N)`"""
     return (

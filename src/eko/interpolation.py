@@ -76,7 +76,7 @@ class Area:
             yield coef
 
 
-@nb.njit("c16(c16,f8,f8[:,:])", cache=True)
+@nb.njit(cache=True)
 def log_evaluate_Nx(N, logx, area_list):
     r"""
     Evaluates a single logarithmic Lagrange interpolator in N-space multiplied
@@ -133,7 +133,7 @@ def log_evaluate_Nx(N, logx, area_list):
     return res
 
 
-@nb.njit("c16(c16,f8,f8[:,:])", cache=True)
+@nb.njit(cache=True)
 def evaluate_Nx(N, logx, area_list):
     r"""
     Evaluates a single linear Lagrange interpolator in N-space multiplied
@@ -176,7 +176,7 @@ def evaluate_Nx(N, logx, area_list):
     return res
 
 
-@nb.njit("c16(c16,b1,f8,f8[:,:])", cache=True)
+@nb.njit(cache=True)
 def evaluate_grid(N, is_log, logx, area_list):
     """
     Evaluate interpolator in N-space
@@ -208,7 +208,7 @@ def evaluate_grid(N, is_log, logx, area_list):
 _atol_eps = 10 * np.finfo(float).eps
 
 
-@nb.njit("f8(f8,f8[:,:])", cache=True)
+@nb.njit(cache=True)
 def evaluate_x(x, area_list):
     """
     Get a single linear Lagrange interpolator in x-space
@@ -241,7 +241,7 @@ def evaluate_x(x, area_list):
     return res
 
 
-@nb.njit("f8(f8,f8[:,:])", cache=True)
+@nb.njit(cache=True)
 def log_evaluate_x(x, area_list):
     """
     Get a single logarithmic Lagrange interpolator in x-space
