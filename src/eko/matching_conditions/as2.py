@@ -12,14 +12,10 @@ The expession for A_Hg_l0 comes form :cite:`Bierenbaum:2009zt`
 import numba as nb
 import numpy as np
 
-from .. import constants
-from ..anomalous_dimensions import harmonics
+from .. import constants, harmonics
+from ..harmonics.constants import log2, zeta2, zeta3
 from .as1 import A_gg as A_gg_1
 from .as1 import A_hg as A_hg_1
-
-# Global variables
-zeta2 = harmonics.zeta2
-zeta3 = harmonics.zeta3
 
 
 @nb.njit(cache=True)
@@ -166,16 +162,17 @@ def A_hg(n, sx, L):
     S3 = sx[2]
     S1m = S1 - 1 / n
     S2m = S2 - 1 / n**2
-    Sp2m = harmonics.harmonic_S2((n - 1) / 2)
-    Sp2p = harmonics.harmonic_S2(n / 2)
-    Sm1 = -S1 + harmonics.harmonic_S1(n / 2)
+    Sp2m = harmonics.S2((n - 1) / 2)
+    Sp2p = harmonics.S2(n / 2)
+    # TODO: use harmonics from cache
+    Sm1 = -S1 + harmonics.S1(n / 2)
     Sm2 = -S2 + 1 / 2 * Sp2p
-    Sm3 = -S3 + 1 / 4 * harmonics.harmonic_S3(n / 2)
+    Sm3 = -S3 + 1 / 4 * harmonics.S3(n / 2)
     Sm21 = (
-        -5 / 8 * harmonics.zeta3
-        + harmonics.zeta2 * (Sm1 - 1 / n + np.log(2))
+        -5 / 8 * zeta3
+        + zeta2 * (Sm1 - 1 / n + log2)
         + S1 / n**2
-        + harmonics.mellin_g3(n)
+        + harmonics.g_functions.mellin_g3(n)
     )
 
     a_hg_l0 = (

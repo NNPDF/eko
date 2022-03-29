@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
+"""
+Implemtations of some mellin transformations :cite:`MuselliPhD`
+appearing in the analytic continuation of harmonics sums of weight = 3,4.
+"""
 import numba as nb
 import numpy as np
 
-from ...anomalous_dimensions.harmonics import (
-    cern_polygamma,
-    harmonic_S1,
-    harmonic_S2,
-    harmonic_S3,
-    zeta2,
-    zeta3,
-)
+from . import w1, w2, w3
+from .constants import log2, zeta2, zeta3
+from .polygamma import cern_polygamma
 
 a1 = np.array(
     [
@@ -64,11 +63,43 @@ p31 = np.array([205.0 / 144.0, -25.0 / 12.0, 23.0 / 24.0, -13.0 / 36.0, 1.0 / 16
 
 
 @nb.njit(cache=True)
+def mellin_g3(N):
+    r"""
+    Computes the Mellin transform of :math:`\text{Li}_2(x)/(1+x)`.
+
+    This function appears in the analytic continuation of the harmonic sum
+    :math:`S_{-2,1}(N)` which in turn appears in the |NLO| anomalous dimension
+    (see :ref:`theory/mellin:harmonic sums`).
+
+    Parameters
+    ----------
+        N : complex
+            Mellin moment
+
+    Returns
+    -------
+        mellin_g3 : complex
+            approximate Mellin transform :math:`\mathcal{M}[\text{Li}_2(x)/(1+x)](N)`
+
+    Note
+    ----
+        We use the name from :cite:`MuselliPhD`, but not his implementation - rather we use the
+        Pegasus :cite:`Vogt:2004ns` implementation.
+    """
+    cs = [1.0000e0, -0.9992e0, 0.9851e0, -0.9005e0, 0.6621e0, -0.3174e0, 0.0699e0]
+    g3 = 0
+    for j, c in enumerate(cs):
+        Nj = N + j
+        g3 += c * (zeta2 - w1.S1(Nj) / Nj) / Nj
+    return g3
+
+
+@nb.njit(cache=True)
 def mellin_g4(N):
     r"""
     Computes the Mellin transform of :math:`\text{Li}_2(-x)/(1+x)`.
 
-    Implementation and defition in B.5.25 of :cite:`MuselliPhD` or
+    Implementation and definition in B.5.25 of :cite:`MuselliPhD` or
     in eq 61 of :cite:`Bl_mlein_2000`, but none of them is fully correct.
 
 
@@ -82,11 +113,11 @@ def mellin_g4(N):
         mellin_g4 : complex
             Mellin transform :math:`\mathcal{M}[\text{Li}_2(-x)/(1+x)](N)`
     """
-    g4 = -1 / 2 * zeta2 * np.log(2)
+    g4 = -1 / 2 * zeta2 * log2
     for k, ak in enumerate(a1):
         Nk = N + k + 1
-        beta = 1 / 2 * (harmonic_S1((Nk) / 2) - harmonic_S1((Nk - 1) / 2))
-        g4 += ak * (N / Nk * zeta2 / 2 + (k + 1) / Nk**2 * (np.log(2) - beta))
+        beta = 1 / 2 * (w1.S1((Nk) / 2) - w1.S1((Nk - 1) / 2))
+        g4 += ak * (N / Nk * zeta2 / 2 + (k + 1) / Nk**2 * (log2 - beta))
     return g4
 
 
@@ -95,7 +126,7 @@ def mellin_g5(N):
     r"""
     Computes the Mellin transform of :math:`(\text{Li}_2(x)ln(x))/(1+x)`.
 
-    Implementation and defition in B.5.26 of :cite:`MuselliPhD` or
+    Implementation and definition in B.5.26 of :cite:`MuselliPhD` or
     in eq 62 of :cite:`Bl_mlein_2000`, but none of them is fully correct.
 
     Parameters
@@ -112,9 +143,7 @@ def mellin_g5(N):
     for k, ak in enumerate(a1):
         Nk = N + k + 1
         g5 -= ak * (
-            (k + 1)
-            / Nk**2
-            * (zeta2 + cern_polygamma(Nk + 1, 1) - 2 * harmonic_S1(Nk) / Nk)
+            (k + 1) / Nk**2 * (zeta2 + cern_polygamma(Nk + 1, 1) - 2 * w1.S1(Nk) / Nk)
         )
     return g5
 
@@ -124,7 +153,7 @@ def mellin_g6(N):
     r"""
     Computes the Mellin transform of :math:`\text{Li}_3(x)/(1+x)`.
 
-    Implementation and defition in B.5.27 of :cite:`MuselliPhD` or
+    Implementation and definition in B.5.27 of :cite:`MuselliPhD` or
     in eq 63 of :cite:`Bl_mlein_2000`, but none of them is fully correct.
 
     Parameters
@@ -139,10 +168,10 @@ def mellin_g6(N):
 
 
     """
-    g6 = zeta3 * np.log(2)
+    g6 = zeta3 * log2
     for k, ak in enumerate(a1):
         Nk = N + k + 1
-        g6 -= ak * (N / Nk * zeta3 + (k + 1) / Nk**2 * (zeta2 - harmonic_S1(Nk) / Nk))
+        g6 -= ak * (N / Nk * zeta3 + (k + 1) / Nk**2 * (zeta2 - w1.S1(Nk) / Nk))
     return g6
 
 
@@ -151,7 +180,7 @@ def mellin_g8(N):
     r"""
     Computes the Mellin transform of :math:`S_{1,2}(x)/(1+x)`.
 
-    Implementation and defition in B.5.29 of :cite:`MuselliPhD` or
+    Implementation and definition in B.5.29 of :cite:`MuselliPhD` or
     in eq 65 of :cite:`Bl_mlein_2000`, but none of them is fully correct.
 
     Parameters
@@ -164,12 +193,11 @@ def mellin_g8(N):
         mellin_g8 : complex
             Mellin transform :math:`\mathcal{M}[S_{1,2}(x)/(1+x)](N)`
     """
-    g8 = zeta3 * np.log(2)
+    g8 = zeta3 * log2
     for k, ak in enumerate(a1):
         Nk = N + k + 1
         g8 -= ak * (
-            N / Nk * zeta3
-            + (k + 1) / Nk**2 * 1 / 2 * (harmonic_S1(Nk) ** 2 + harmonic_S2(Nk))
+            N / Nk * zeta3 + (k + 1) / Nk**2 * 1 / 2 * (w1.S1(Nk) ** 2 + w2.S2(Nk))
         )
     return g8
 
@@ -179,7 +207,7 @@ def mellin_g18(N, S1, S2):
     r"""
     Computes the Mellin transform of :math:`-(\text{Li}_2(x) - \zeta_2)/(1-x)`.
 
-    Implementation and defition in eq 124 of :cite:`Bl_mlein_2000`
+    Implementation and definition in eq 124 of :cite:`Bl_mlein_2000`
 
     Note: comparing to :cite:`Bl_mlein_2000`, we believe :cite:`MuselliPhD`
     was not changing the notations of :math:`P^{(1)}_{2}` to :math:`P^{(1)}_{1}`.
@@ -191,9 +219,9 @@ def mellin_g18(N, S1, S2):
         N : complex
             Mellin moment
         S1 : complex
-           harmonics.harmonic_S1(N)
+           harmonics.S1(N)
         S2 : complex
-           harmonics.harmonic_S2(N)
+           harmonics.S2(N)
     Returns
     -------
         mellin_g18 : complex
@@ -202,10 +230,10 @@ def mellin_g18(N, S1, S2):
     g18 = (S1**2 + S2) / (N) - zeta2 * S1
     for k, ck in enumerate(c1):
         Nk = N + k
-        g18 += ck * (N) / (Nk) * harmonic_S1(Nk)
+        g18 += ck * (N) / (Nk) * w1.S1(Nk)
     for k, p11k in enumerate(p11):
         Nk = N + k
-        g18 -= p11k * (N) / (Nk) * (harmonic_S1(Nk) ** 2 + harmonic_S2(Nk))
+        g18 -= p11k * (N) / (Nk) * (w1.S1(Nk) ** 2 + w2.S2(Nk))
     return g18
 
 
@@ -214,7 +242,7 @@ def mellin_g19(N, S1):
     r"""
     Computes the Mellin transform of :math:`-(\text{Li}_2(-x) + \zeta_2/2)/(1-x)`.
 
-    Implementation and defition in B.5.40 of :cite:`MuselliPhD` or in 125 of
+    Implementation and definition in B.5.40 of :cite:`MuselliPhD` or in 125 of
     :cite:`Bl_mlein_2000`, but none of them is fully correct.
 
     Parameters
@@ -222,7 +250,7 @@ def mellin_g19(N, S1):
         N : complex
             Mellin moment
         S1 : complex
-           harmonics.harmonic_S1(N)
+           harmonics.S1(N)
 
     Returns
     -------
@@ -232,7 +260,7 @@ def mellin_g19(N, S1):
     g19 = 1 / 2 * zeta2 * S1
     for k, ak in enumerate(a1):
         Nk = N + k
-        g19 -= ak / (k + 1) * harmonic_S1(Nk + 1)
+        g19 -= ak / (k + 1) * w1.S1(Nk + 1)
     return g19
 
 
@@ -241,7 +269,7 @@ def mellin_g21(N, S1, S2, S3):
     r"""
     Computes the Mellin transform of :math:`-(S_{1,2}(x) - \zeta_3)/(1-x)`.
 
-    Implementation and defition in B.5.42 of :cite:`MuselliPhD`
+    Implementation and definition in B.5.42 of :cite:`MuselliPhD`
 
     Note: comparing to :cite:`Bl_mlein_2000`, we believe :cite:`MuselliPhD`
     was not changing the notations of :math:`P^{(3)}_{2}` to :math:`P^{(3)}_{1}`
@@ -254,11 +282,11 @@ def mellin_g21(N, S1, S2, S3):
         N : complex
             Mellin moment
         S1 : complex
-           harmonics.harmonic_S1(N)
+           harmonics.S1(N)
         S2 : complex
-           harmonics.harmonic_S2(N)
+           harmonics.S2(N)
         S3 : complex
-           harmonics.harmonic_S3(N)
+           harmonics.S3(N)
 
     Returns
     -------
@@ -268,20 +296,15 @@ def mellin_g21(N, S1, S2, S3):
     g21 = -zeta3 * S1 + (S1**3 + 3 * S1 * S2 + 2 * S3) / (2 * N)
     for k, ck in enumerate(c3):
         Nk = N + k
-        g21 += ck * N / Nk * harmonic_S1(Nk)
+        g21 += ck * N / Nk * w1.S1(Nk)
     for k in range(0, 5):
         Nk = N + k
         g21 += (
             N
             / Nk
             * (
-                p32[k]
-                * (
-                    harmonic_S1(Nk) ** 3
-                    + 3 * harmonic_S1(Nk) * harmonic_S2(Nk)
-                    + 2 * harmonic_S3(Nk)
-                )
-                - p31[k] * (harmonic_S1(Nk) ** 2 + harmonic_S2(Nk))
+                p32[k] * (w1.S1(Nk) ** 3 + 3 * w1.S1(Nk) * w2.S2(Nk) + 2 * w3.S3(Nk))
+                - p31[k] * (w1.S1(Nk) ** 2 + w2.S2(Nk))
             )
         )
     return g21
@@ -292,7 +315,7 @@ def mellin_g22(N):
     r"""
     Computes the Mellin transform of :math:`-(\text{Li}_2(x) ln(x))/(1-x)`.
 
-    Implementation and defition in B.5.43 of :cite:`MuselliPhD`
+    Implementation and definition in B.5.43 of :cite:`MuselliPhD`
 
     Note: comparing to :cite:`Bl_mlein_2000`, we believe :cite:`MuselliPhD`
     was not changing the notations of :math:`P^{(1)}_{2}` to :math:`P^{(1)}_{1}`
@@ -316,7 +339,6 @@ def mellin_g22(N):
     for k, p11k in enumerate(p11):
         Nk = N + k
         g22 -= p11k * (
-            harmonic_S1(Nk) * cern_polygamma(Nk + 1, 1)
-            - 1 / 2 * cern_polygamma(Nk + 1, 2)
+            w1.S1(Nk) * cern_polygamma(Nk + 1, 1) - 1 / 2 * cern_polygamma(Nk + 1, 2)
         )
     return g22

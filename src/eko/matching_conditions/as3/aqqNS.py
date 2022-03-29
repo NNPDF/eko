@@ -2,7 +2,7 @@
 import numba as nb
 import numpy as np
 
-from . import s_functions as sf
+from ... import harmonics as sf
 
 
 @nb.njit(cache=True)
@@ -41,16 +41,16 @@ def A_qqNS(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     Sm1, Sm2, Sm3, Sm4, Sm5 = smx[0], smx[1], smx[2], smx[3], smx[4]
     S21, S2m1, Sm21 = s3x[0], s3x[1], s3x[2]
     S31, S211, Sm22, Sm211 = s4x[0], s4x[1], s4x[2], s4x[3]
-    S41 = sf.harmonic_S41(n, S1, S2, S3)
-    S311 = sf.harmonic_S311(n, S1, S2)
-    S221 = sf.harmonic_S221(n, S1, S2, S21)
-    Sm221 = sf.harmonic_Sm221(n, S1, Sm1, S21, Sm21)
-    S21m2 = sf.harmonic_S21m2(n, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1)
-    S2111 = sf.harmonic_S2111(n, S1, S2, S3)
-    Sm2111 = sf.harmonic_Sm2111(n, S1, S2, S3, Sm1)
-    S23 = sf.harmonic_S23(n, S1, S2, S3)
-    Sm23 = sf.harmonic_Sm23(n, Sm1, Sm2, Sm3)
-    S2m3 = sf.harmonic_S2m3(n, S2, Sm1, Sm2, Sm3)
+    S41 = sf.S41(n, S1, S2, S3)
+    S311 = sf.S311(n, S1, S2)
+    S221 = sf.S221(n, S1, S2, S21)
+    Sm221 = sf.Sm221(n, S1, Sm1, S21, Sm21)
+    S21m2 = sf.S21m2(n, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1)
+    S2111 = sf.S2111(n, S1, S2, S3)
+    Sm2111 = sf.Sm2111(n, S1, S2, S3, Sm1)
+    S23 = sf.S23(n, S1, S2, S3)
+    Sm23 = sf.Sm23(n, Sm1, Sm2, Sm3)
+    S2m3 = sf.S2m3(n, S2, Sm1, Sm2, Sm3)
     a_qqNS_l0 = (
         0.3333333333333333
         * nf

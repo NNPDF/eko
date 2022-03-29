@@ -11,10 +11,10 @@ import numba as nb
 import numpy as np
 
 from .. import basis_rotation as br
+from .. import harmonics
 from ..anomalous_dimensions import harmonics
 from ..evolution_operator import Operator, QuadKerBase
 from . import as1, as2, as3
-from .as3 import s_functions
 
 logger = logging.getLogger(__name__)
 
@@ -24,11 +24,11 @@ def get_smx(n):
     """Get the S-minus cache"""
     return np.array(
         [
-            s_functions.harmonic_Sm1(n),
-            s_functions.harmonic_Sm2(n),
-            s_functions.harmonic_Sm3(n),
-            s_functions.harmonic_Sm4(n),
-            s_functions.harmonic_Sm5(n),
+            harmonics.Sm1(n),
+            harmonics.Sm2(n),
+            harmonics.Sm3(n),
+            harmonics.Sm4(n),
+            harmonics.Sm5(n),
         ]
     )
 
@@ -38,10 +38,10 @@ def get_s3x(n, sx, smx):
     """Get the S-w3 cache"""
     return np.array(
         [
-            s_functions.harmonic_S21(n, sx[0], sx[1]),
-            s_functions.harmonic_S2m1(n, sx[1], smx[0], smx[1]),
-            s_functions.harmonic_Sm21(n, smx[0]),
-            s_functions.harmonic_Sm2m1(n, sx[0], sx[1], smx[1]),
+            harmonics.S21(n, sx[0], sx[1]),
+            harmonics.S2m1(n, sx[1], smx[0], smx[1]),
+            harmonics.Sm21(n, smx[0]),
+            harmonics.Sm2m1(n, sx[0], sx[1], smx[1]),
         ]
     )
 
@@ -49,14 +49,14 @@ def get_s3x(n, sx, smx):
 @nb.njit(cache=True)
 def get_s4x(n, sx, smx):
     """Get the S-w4 cache"""
-    Sm31 = s_functions.harmonic_Sm31(n, smx[0], smx[1])
+    Sm31 = harmonics.Sm31(n, smx[0], smx[1])
     return np.array(
         [
-            s_functions.harmonic_S31(n, sx[1], sx[3]),
-            s_functions.harmonic_S211(n, sx[0], sx[1], sx[2]),
-            s_functions.harmonic_Sm22(n, Sm31),
-            s_functions.harmonic_Sm211(n, smx[0]),
-            s_functions.harmonic_Sm31(n, smx[0], smx[1]),
+            harmonics.S31(n, sx[1], sx[3]),
+            harmonics.S211(n, sx[0], sx[1], sx[2]),
+            harmonics.Sm22(n, smx[1], Sm31),
+            harmonics.Sm211(n, smx[0]),
+            harmonics.Sm31(n, smx[0], smx[1]),
         ]
     )
 
@@ -243,14 +243,12 @@ def quad_ker(
     # compute the harmonics
     sx = np.zeros(3, np.complex_)
     if order >= 1:
-        sx = np.array(
-            [harmonics.harmonic_S1(ker_base.n), harmonics.harmonic_S2(ker_base.n)]
-        )
+        sx = np.array([harmonics.S1(ker_base.n), harmonics.S2(ker_base.n)])
     if order >= 2:
-        sx = np.append(sx, harmonics.harmonic_S3(ker_base.n))
+        sx = np.append(sx, harmonics.S3(ker_base.n))
     if order >= 3:
-        sx = np.append(sx, harmonics.harmonic_S4(ker_base.n))
-        sx = np.append(sx, harmonics.harmonic_S5(ker_base.n))
+        sx = np.append(sx, harmonics.S4(ker_base.n))
+        sx = np.append(sx, harmonics.S5(ker_base.n))
         smx = get_smx(ker_base.n)
         sx = np.append(sx, smx)
         sx = np.append(sx, get_s3x(ker_base.n, sx, smx))
