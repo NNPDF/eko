@@ -5,17 +5,10 @@ import copy
 import numpy as np
 
 from eko import basis_rotation as br
+from eko import harmonics as sf
 from eko import interpolation, mellin
-from eko.anomalous_dimensions.harmonics import (
-    harmonic_S1,
-    harmonic_S2,
-    harmonic_S3,
-    harmonic_S4,
-    harmonic_S5,
-)
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
-from eko.matching_conditions.as3 import s_functions as sf
 from eko.matching_conditions.operator_matrix_element import (
     A_non_singlet,
     A_singlet,
@@ -32,39 +25,39 @@ from eko.thresholds import ThresholdsAtlas
 
 def test_HarmonicsCache():
     N = np.random.rand() + 1.0j * np.random.rand()
-    Sm1 = sf.harmonic_Sm1(N)
-    Sm2 = sf.harmonic_Sm2(N)
-    S1 = harmonic_S1(N)
-    S2 = harmonic_S2(N)
-    S3 = harmonic_S3(N)
-    S4 = harmonic_S4(N)
-    sx = np.array([S1, S2, S3, S4, harmonic_S5(N)])
+    Sm1 = sf.Sm1(N)
+    Sm2 = sf.Sm2(N)
+    S1 = sf.S1(N)
+    S2 = sf.S2(N)
+    S3 = sf.S3(N)
+    S4 = sf.S4(N)
+    sx = np.array([S1, S2, S3, S4, sf.S5(N)])
     smx_test = np.array(
         [
             Sm1,
             Sm2,
-            sf.harmonic_Sm3(N),
-            sf.harmonic_Sm4(N),
-            sf.harmonic_Sm5(N),
+            sf.Sm3(N),
+            sf.Sm4(N),
+            sf.Sm5(N),
         ]
     )
     np.testing.assert_allclose(get_smx(N), smx_test)
     s3x_test = np.array(
         [
-            sf.harmonic_S21(N, S1, S2),
-            sf.harmonic_S2m1(N, S2, Sm1, Sm2),
-            sf.harmonic_Sm21(N, Sm1),
-            sf.harmonic_Sm2m1(N, S1, S2, Sm2),
+            sf.S21(N, S1, S2),
+            sf.S2m1(N, S2, Sm1, Sm2),
+            sf.Sm21(N, Sm1),
+            sf.Sm2m1(N, S1, S2, Sm2),
         ]
     )
     np.testing.assert_allclose(get_s3x(N, sx, smx_test), s3x_test)
-    Sm31 = sf.harmonic_Sm31(N, Sm1, Sm2)
+    Sm31 = sf.Sm31(N, Sm1, Sm2)
     s4x_test = np.array(
         [
-            sf.harmonic_S31(N, S2, S4),
-            sf.harmonic_S211(N, S1, S2, S3),
-            sf.harmonic_Sm22(N, Sm31),
-            sf.harmonic_Sm211(N, Sm1),
+            sf.S31(N, S2, S4),
+            sf.S211(N, S1, S2, S3),
+            sf.Sm22(N, Sm2, Sm31),
+            sf.Sm211(N, Sm1),
             Sm31,
         ]
     )

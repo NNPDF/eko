@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from eko.anomalous_dimensions import harmonics
+from eko.harmonics import constants
 from eko.matching_conditions.as2 import A_ns, A_qq_ns, A_singlet
 
 
@@ -144,7 +144,7 @@ def test_Hg2_pegasus(get_sx):
         aS2 = A_singlet(N, sx, L)
 
         E2 = (
-            2.0 / N * (harmonics.zeta3 - S3 + 1.0 / N * (harmonics.zeta2 - S2 - S1 / N))
+            2.0 / N * (constants.zeta3 - S3 + 1.0 / N * (constants.zeta2 - S2 - S1 / N))
         )
 
         a_hg_param = (

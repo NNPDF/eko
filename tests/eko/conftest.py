@@ -11,11 +11,11 @@ def get_sx():
         """Collect the S-cache"""
         sx = np.array(
             [
-                harmonics.harmonic_S1(N),
-                harmonics.harmonic_S2(N),
-                harmonics.harmonic_S3(N),
-                harmonics.harmonic_S4(N),
-                harmonics.harmonic_S5(N),
+                harmonics.S1(N),
+                harmonics.S2(N),
+                harmonics.S3(N),
+                harmonics.S4(N),
+                harmonics.S5(N),
             ]
         )
         return sx

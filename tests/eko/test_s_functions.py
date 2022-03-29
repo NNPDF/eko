@@ -3,7 +3,7 @@
 
 import numpy as np
 
-import eko.matching_conditions.as3.s_functions as sf
+import eko.harmonics as sf
 
 # reference values coming fom mathematica
 testN = [1, 2, 2 + 2j, 10 + 5j, 100]
@@ -43,18 +43,36 @@ refvals = {
 
 def test_Sm21():
     for N, vals in zip(testN, refvals["Sm21"]):
-        Sm1 = sf.harmonic_Sm1(N)
-        np.testing.assert_allclose(sf.harmonic_Sm21(N, Sm1), vals, atol=1e-06)
+        Sm1 = sf.Sm1(N)
+        np.testing.assert_allclose(sf.Sm21(N, Sm1), vals, atol=1e-06)
 
 
 def test_Smx():
     for j, N in enumerate(testN):
         smx = [
-            sf.harmonic_Sm1(N),
-            sf.harmonic_Sm2(N),
-            sf.harmonic_Sm3(N),
-            sf.harmonic_Sm4(N),
-            sf.harmonic_Sm5(N),
+            sf.Sm1(N),
+            sf.Sm2(N),
+            sf.Sm3(N),
+            sf.Sm4(N),
+            sf.Sm5(N),
         ]
         for i, sm in enumerate(smx):
             np.testing.assert_allclose(sm, refvals[f"Sm{i+1}"][j], atol=1e-06)
+
+
+def test_Sx():
+    """test harmonic sums S_x on real axis"""
+    # test on real axis
+    def sx(n, m):
+        return np.sum([1 / k**m for k in range(1, n + 1)])
+
+    ls = [
+        sf.S1,
+        sf.S2,
+        sf.S3,
+        sf.S4,
+        sf.S5,
+    ]
+    for k in range(1, 5 + 1):
+        for n in range(1, 4 + 1):
+            np.testing.assert_almost_equal(ls[k - 1](n), sx(n, k))

@@ -3,7 +3,7 @@
 import numpy as np
 
 import eko.anomalous_dimensions.as3 as ad_as3
-from eko.anomalous_dimensions import harmonics
+from eko import harmonics
 
 NF = 5
 
@@ -12,10 +12,10 @@ def get_sx(N):
     """Collect the S-cache"""
     sx = np.array(
         [
-            harmonics.harmonic_S1(N),
-            harmonics.harmonic_S2(N),
-            harmonics.harmonic_S3(N),
-            harmonics.harmonic_S4(N),
+            harmonics.S1(N),
+            harmonics.S2(N),
+            harmonics.S3(N),
+            harmonics.S4(N),
         ]
     )
     return sx
