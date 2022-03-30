@@ -12,7 +12,6 @@ import numpy as np
 
 from .. import basis_rotation as br
 from .. import harmonics
-from ..anomalous_dimensions import harmonics
 from ..evolution_operator import Operator, QuadKerBase
 from . import as1, as2, as3
 
@@ -20,17 +19,21 @@ logger = logging.getLogger(__name__)
 
 
 @nb.njit(cache=True)
-def get_smx(n):
-    """Get the S-minus cache"""
-    return np.array(
-        [
-            harmonics.Sm1(n),
-            harmonics.Sm2(n),
-            harmonics.Sm3(n),
-            harmonics.Sm4(n),
-            harmonics.Sm5(n),
-        ]
-    )
+def compute_harmonics_cache(n, order):
+    """Get the harmonics sums cache"""
+    # max harmonics sum weight for each qcd order
+    max_weight = {1: 2, 2: 3, 3: 5}
+    # max number of harmonics sum of a given weight for each qcd order
+    n_max_sums_weight = {1: 1, 2: 3, 3: 7}
+    sx = harmonics.base_harmonics_cache(n, max_weight[order], n_max_sums_weight[order])
+    if order == 2:
+        # Add Sm21 to cache
+        sx[2, 1] = harmonics.Sm21(n, sx[0, -1])
+    if order == 3:
+        # Add weight 3 and 4 to cache
+        sx[2, 1:] = get_s3x(n, sx[:, 0], sx[:, -1])
+        sx[3, 1:] = get_s4x(n, sx[:, 0], sx[:, -1])
+    return sx
 
 
 @nb.njit(cache=True)
@@ -240,19 +243,7 @@ def quad_ker(
     if integrand == 0.0:
         return 0.0
 
-    # compute the harmonics
-    sx = np.zeros(3, np.complex_)
-    if order >= 1:
-        sx = np.array([harmonics.S1(ker_base.n), harmonics.S2(ker_base.n)])
-    if order >= 2:
-        sx = np.append(sx, harmonics.S3(ker_base.n))
-    if order >= 3:
-        sx = np.append(sx, harmonics.S4(ker_base.n))
-        sx = np.append(sx, harmonics.S5(ker_base.n))
-        smx = get_smx(ker_base.n)
-        sx = np.append(sx, smx)
-        sx = np.append(sx, get_s3x(ker_base.n, sx, smx))
-        sx = np.append(sx, get_s4x(ker_base.n, sx, smx))
+    sx = compute_harmonics_cache(ker_base.n, order)
     # compute the ome
     if ker_base.is_singlet:
         indices = {21: 0, 100: 1, 90: 2}

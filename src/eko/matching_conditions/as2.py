@@ -12,8 +12,8 @@ The expession for A_Hg_l0 comes form :cite:`Bierenbaum:2009zt`
 import numba as nb
 import numpy as np
 
-from .. import constants, harmonics
-from ..harmonics.constants import log2, zeta2, zeta3
+from .. import constants
+from ..harmonics.constants import zeta2, zeta3
 from .as1 import A_gg as A_gg_1
 from .as1 import A_hg as A_hg_1
 
@@ -29,7 +29,7 @@ def A_qq_ns(n, sx, L):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            List of harmonic sums
+            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -74,7 +74,7 @@ def A_qq_ns(n, sx, L):
 
 
 @nb.njit(cache=True)
-def A_hq_ps(n, sx, L):
+def A_hq_ps(n, S2, L):
     r"""
     |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}` given in
     Eq. (B.1) of :cite:`Buza_1998`.
@@ -83,8 +83,8 @@ def A_hq_ps(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
-            List of harmonic sums
+        S2 : complex
+            harmonic sum: :math:`S_{2}`
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -93,7 +93,6 @@ def A_hq_ps(n, sx, L):
         A_hq_ps : complex
             |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`
     """
-    S2 = sx[1]
 
     F1M = 1.0 / (n - 1.0) * (zeta2 - (S2 - 1.0 / n**2))
     F11 = 1.0 / (n + 1.0) * (zeta2 - (S2 + 1.0 / (n + 1.0) ** 2))
@@ -137,7 +136,7 @@ def A_hq_ps(n, sx, L):
 
 
 @nb.njit(cache=True)
-def A_hg(n, sx, L):
+def A_hg(n, sx, smx, Sm21, L):
     r"""
     |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}` given in
     Eq. (B.3) of :cite:`Buza_1998`.
@@ -148,7 +147,11 @@ def A_hg(n, sx, L):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            List of harmonic sums
+            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+        smx : numpy.ndarray
+            List of harmonic sums: :math:`S_{-1},S_{-2},S_{-3}`
+        Sm21 : complex
+            harmonic sum: :math:`S_{-2,1}`
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -162,18 +165,8 @@ def A_hg(n, sx, L):
     S3 = sx[2]
     S1m = S1 - 1 / n
     S2m = S2 - 1 / n**2
-    Sp2m = harmonics.S2((n - 1) / 2)
-    Sp2p = harmonics.S2(n / 2)
-    # TODO: use harmonics from cache
-    Sm1 = -S1 + harmonics.S1(n / 2)
-    Sm2 = -S2 + 1 / 2 * Sp2p
-    Sm3 = -S3 + 1 / 4 * harmonics.S3(n / 2)
-    Sm21 = (
-        -5 / 8 * zeta3
-        + zeta2 * (Sm1 - 1 / n + log2)
-        + S1 / n**2
-        + harmonics.g_functions.mellin_g3(n)
-    )
+    Sm2 = smx[1]
+    Sm3 = smx[2]
 
     a_hg_l0 = (
         -(
@@ -268,7 +261,7 @@ def A_hg(n, sx, L):
                 * (n + 1)
                 * (n + 2)
                 * (2 + n + n**2)
-                * (10 * S1m**2 - 9 * Sp2m + 26 * S2m + 9 * Sp2p)
+                * (10 * S1m**2 + 18 * (-1) ** n * (2 * Sm2 + zeta2) + 26 * S2m)
             )
         )
         / (3 * (n * (n + 1) * (n + 2)) ** 3 * (n - 1))
@@ -296,7 +289,7 @@ def A_gq(n, sx, L):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            List of harmonic sums
+            List of harmonic sums: :math:`S_{1},S_{2}`
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -336,7 +329,7 @@ def A_gq(n, sx, L):
 
 
 @nb.njit(cache=True)
-def A_gg(n, sx, L):
+def A_gg(n, S1, L):
     r"""
     |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)} ` given in
     Eq. (B.7) of :cite:`Buza_1998`.
@@ -345,8 +338,8 @@ def A_gg(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
-            List of harmonic sums
+        S1 : complex
+            harmonic sum :math:`S_{1}`
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -355,7 +348,6 @@ def A_gg(n, sx, L):
         A_gg : complex
             |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
     """
-    S1 = sx[0]
     S1m = S1 - 1 / n  # harmonic_S1(n - 1)
 
     D1 = -1.0 / n**2
@@ -458,11 +450,11 @@ def A_singlet(n, sx, L, is_msbar=False):
         A_gq : :math:`A_{gq, H}^{S,(2)}`
         A_gg : :math:`A_{gg, H}^{S,(2)}`
     """
-    A_hq_2 = A_hq_ps(n, sx, L)
-    A_qq_2 = A_qq_ns(n, sx, L)
-    A_hg_2 = A_hg(n, sx, L)
-    A_gq_2 = A_gq(n, sx, L)
-    A_gg_2 = A_gg(n, sx, L)
+    A_hq_2 = A_hq_ps(n, sx[1, 0], L)
+    A_qq_2 = A_qq_ns(n, sx[:, 0], L)
+    A_hg_2 = A_hg(n, sx[:, 0], sx[:, -1], sx[2, 1], L)
+    A_gq_2 = A_gq(n, sx[:-1, 0], L)
+    A_gg_2 = A_gg(n, sx[0, 0], L)
     if is_msbar:
         A_hg_2 -= 2.0 * 4.0 * constants.CF * A_hg_1(n, L=1.0)
         A_gg_2 -= 2.0 * 4.0 * constants.CF * A_gg_1(L=1.0)
@@ -501,4 +493,4 @@ def A_ns(n, sx, L):
       --------
         A_qq_ns : :math:`A_{qq,H}^{NS,(2)}`
     """
-    return np.array([[A_qq_ns(n, sx, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)
+    return np.array([[A_qq_ns(n, sx[:, 0], L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)

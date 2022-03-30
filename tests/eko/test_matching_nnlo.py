@@ -3,22 +3,23 @@
 
 import numpy as np
 
-from eko.harmonics import constants
+from eko.harmonics import constants, get_sx
 from eko.matching_conditions.as2 import A_ns, A_qq_ns, A_singlet
+from eko.matching_conditions.operator_matrix_element import compute_harmonics_cache
 
 
-def test_A_2(get_sx):
+def test_A_2():
     logs = [0, 100]
 
     for L in logs:
         N = 1
-        sx = get_sx(N)
+        sx = get_sx(N, 3)
         aNSqq2 = A_qq_ns(N, sx, L)
         # quark number conservation
         np.testing.assert_allclose(aNSqq2, 0.0, atol=2e-11)
 
         N = 2
-        sx = get_sx(N)
+        sx = compute_harmonics_cache(N, 2)
         aS2 = A_singlet(N, sx, L)
 
         # gluon momentum conservation
@@ -38,7 +39,7 @@ def test_A_2(get_sx):
 def test_A_2_shape():
     N = 2
     L = 3
-    sx = np.zeros(3, np.complex_)
+    sx = np.zeros((3, 3), np.complex_)
     aNS2 = A_ns(N, sx, L)
     aS2 = A_singlet(N, sx, L)
 
@@ -50,18 +51,18 @@ def test_A_2_shape():
     assert aNS2[0].all() == aNS2[1].all()
 
 
-def test_pegasus_sign(get_sx):
+def test_pegasus_sign():
     # reference value come from Pegasus code transalted Mathematica
     ref_val = -21133.9
     N = 2
-    sx = get_sx(N)
+    sx = compute_harmonics_cache(N, 2)
     L = 100.0
     aS2 = A_singlet(N, sx, L)
 
     np.testing.assert_allclose(aS2[0, 0], ref_val, rtol=4e-5)
 
 
-def test_Blumlein_2(get_sx):
+def test_Blumlein_2():
     # Test against Blumlein OME implementation :cite:`Bierenbaum:2009zt`.
     # For singlet OME only even moments are available in that code.
     # Note there is a minus sign in the definition of L.
@@ -119,7 +120,7 @@ def test_Blumlein_2(get_sx):
     }
     for N in range(2, 11):
         for L, ref_Hg in ref_val_Hg.items():
-            sx = get_sx(N)
+            sx = compute_harmonics_cache(N, 2)
             aS2 = A_singlet(N, sx, L)
             if N % 2 == 0:
                 idx = int(N / 2 - 1)
@@ -130,17 +131,17 @@ def test_Blumlein_2(get_sx):
             np.testing.assert_allclose(aS2[1, 1], ref_val_qq[L][N - 2], rtol=4e-6)
 
 
-def test_Hg2_pegasus(get_sx):
+def test_Hg2_pegasus():
     # Test against the parametrized expression for A_Hg
     # coming from Pegasus code
     # This parametrization is less accurate.
     L = 0
 
     for N in range(3, 20):
-        sx = get_sx(N)
-        S1 = sx[0]
-        S2 = sx[1]
-        S3 = sx[2]
+        sx = compute_harmonics_cache(N, 2)
+        S1 = sx[0, 0]
+        S2 = sx[1, 0]
+        S3 = sx[2, 0]
         aS2 = A_singlet(N, sx, L)
 
         E2 = (
@@ -161,15 +162,15 @@ def test_Hg2_pegasus(get_sx):
             - 146.8 * E2
         )
 
-        np.testing.assert_allclose(aS2[2, 0], a_hg_param, rtol=7e-4)
+        np.testing.assert_allclose(aS2[2, 0], a_hg_param, rtol=9e-4)
 
 
-def test_msbar_matching(get_sx):
+def test_msbar_matching():
     logs = [0, 100]
 
     for L in logs:
         N = 2
-        sx = get_sx(N)
+        sx = compute_harmonics_cache(N, 2)
         aS2 = A_singlet(N, sx, L, True)
         # gluon momentum conservation
         np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0] + aS2[2, 0], 0.0, atol=2e-6)
