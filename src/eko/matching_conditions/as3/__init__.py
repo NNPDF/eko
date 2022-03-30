@@ -49,7 +49,7 @@ def A_singlet(n, sx_all, nf, L):
         \end{array}\right)
 
     When using the code, please cite the complete list of references
-    available at the top of this module :mod:`eko.matching_conditions.n3lo`.
+    available at the top of this module :mod:`eko.matching_conditions.as3`.
 
     Parameters
     ----------
@@ -105,7 +105,7 @@ def A_ns(n, sx_all, nf, L):
         \end{array}\right)
 
     When using the code, please cite the complete list of references
-    available at the top of this module :mod:`eko.matching_conditions.n3lo`.
+    available at the top of this module :mod:`eko.matching_conditions.as3`.
 
     Parameters
     ----------

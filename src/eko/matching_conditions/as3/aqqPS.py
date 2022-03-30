@@ -10,7 +10,7 @@ def A_qqPS(n, sx, nf, L):
     The expression is presented in :cite:`Bierenbaum:2009mv`.
 
     When using the code, please cite the complete list of references
-    available in :mod:`eko.matching_conditions.n3lo`.
+    available in :mod:`eko.matching_conditions.as3`.
 
     Parameters
     ----------

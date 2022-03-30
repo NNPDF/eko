@@ -12,7 +12,7 @@ def A_ggTF2(n, sx, s3x):
     It contains a binomial factor which is given approximated.
 
     When using the code, please cite the complete list of references
-    available in :mod:`eko.matching_conditions.n3lo`.
+    available in :mod:`eko.matching_conditions.as3`.
 
     Parameters
     ----------

@@ -10,7 +10,7 @@ def A_gq(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     The experssion is presented in :cite:`Ablinger_2014` (eq 6.3).
 
     When using the code, please cite the complete list of references
-    available in :mod:`eko.matching_conditions.n3lo`.
+    available in :mod:`eko.matching_conditions.as3`.
 
     Parameters
     ----------

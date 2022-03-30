@@ -13,7 +13,7 @@ def A_gg(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     The experssion is presented in :cite:`Bierenbaum:2009mv`.
 
     When using the code, please cite the complete list of references
-    available in :mod:`eko.matching_conditions.n3lo`.
+    available in :mod:`eko.matching_conditions.as3`.
 
     Parameters
     ----------
@@ -39,7 +39,7 @@ def A_gg(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
 
     See Also
     --------
-        A_ggTF2: eko.matching_conditions.n3lo.aggTF2.A_ggTF2
+        A_ggTF2: eko.matching_conditions.as3.aggTF2.A_ggTF2
             Incomplete part proportional to :math:`T_{F}^2`.
     """
     S1, S2, S3, S4 = sx[0], sx[1], sx[2], sx[3]

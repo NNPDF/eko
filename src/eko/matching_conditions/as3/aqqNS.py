@@ -13,7 +13,7 @@ def A_qqNS(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     :cite:`Ablinger:2014vwa`. It contains some weight 5 harmonics sums.
 
     When using the code, please cite the complete list of references
-    available in :mod:`eko.matching_conditions.n3lo`.
+    available in :mod:`eko.matching_conditions.as3`.
 
     Parameters
     ----------
