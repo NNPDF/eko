@@ -26,3 +26,17 @@ def test_gluon_momentum_conservation():
         + (NU * constants.eu2 + ND * constants.ed2) * as1aem1.gamma_gg(),
         0,
     )
+
+
+def test_photon_momentum_conservation():
+    # photon momentum
+    N = complex(2.0, 0.0)
+    sx = get_sx(N)
+    # import pdb; pdb.set_trace()
+    np.testing.assert_almost_equal(
+        +2 * NU * constants.eu2 * as1aem1.gamma_qph(N, NF, sx)
+        + 2 * ND * constants.ed2 * as1aem1.gamma_qph(N, NF, sx)
+        + (NU * constants.eu2 + ND * constants.ed2) * as1aem1.gamma_phph()
+        + (NU * constants.eu2 + ND * constants.ed2) * as1aem1.gamma_gph(N),
+        0,
+    )
