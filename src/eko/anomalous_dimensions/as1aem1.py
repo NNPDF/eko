@@ -95,7 +95,11 @@ def gamma_qph(N, nf, sx):
     tmp_S1 = 8 / N**2
     tmp_S12 = -4 * (2 + N + N**2) / (N * (1 + N) * (2 + N))
     tmp_S2 = 4 * (2 + N + N**2) / (N * (1 + N) * (2 + N))
-    return constants.CF * (tmp_const + tmp_S1 * S1 + tmp_S12 * S1**2 + tmp_S2 * S2)
+    return (
+        constants.CA
+        * constants.CF
+        * (tmp_const + tmp_S1 * S1 + tmp_S12 * S1**2 + tmp_S2 * S2)
+    )
 
 
 @nb.njit("c16(c16)", cache=True)
@@ -120,6 +124,7 @@ def gamma_gph(N):
 
     return (
         constants.CF
+        * constants.CA
         * (8 * (-4 + N * (-4 + N * (-5 + N * (-10 + N + 2 * N**2 * (2 + N))))))
         / (N**3 * (1 + N) ** 3 * (-2 + N + N**2))
     )
@@ -145,7 +150,7 @@ def gamma_phg(N):
         O(as1aem1) photon-gluon anomalous dimension :math:`\\gamma_{\\gamma g}^{(1,1)}(N)`
     """
 
-    return constants.TR / constants.CF * gamma_gph(N)
+    return constants.TR / constants.CF / constants.CA * gamma_gph(N)
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
@@ -171,7 +176,7 @@ def gamma_qg(N, nf, sx):
             :math:`\\gamma_{qg}^{(1,1)}(N)`
     """
 
-    return constants.TR / constants.CF * gamma_qph(N, nf, sx)
+    return constants.TR / constants.CF / constants.CA * gamma_qph(N, nf, sx)
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
@@ -217,7 +222,7 @@ def gamma_phph():
             :math:`\\gamma_{\\gamma \\gamma}^{(1,1)}(N)`
     """
 
-    return 4 * constants.CF
+    return 4 * constants.CF * constants.CA
 
 
 @nb.njit("c16(c16,u1)", cache=True)
