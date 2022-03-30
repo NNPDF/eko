@@ -31,37 +31,9 @@ def compute_harmonics_cache(n, order):
         sx[2, 1] = harmonics.Sm21(n, sx[0, -1])
     if order == 3:
         # Add weight 3 and 4 to cache
-        sx[2, 1:] = get_s3x(n, sx[:, 0], sx[:, -1])
-        sx[3, 1:] = get_s4x(n, sx[:, 0], sx[:, -1])
+        sx[2, 1:-2] = harmonics.get_s3x(n, sx[:, 0], sx[:, -1])
+        sx[3, 1:-1] = harmonics.get_s4x(n, sx[:, 0], sx[:, -1])
     return sx
-
-
-@nb.njit(cache=True)
-def get_s3x(n, sx, smx):
-    """Get the S-w3 cache"""
-    return np.array(
-        [
-            harmonics.S21(n, sx[0], sx[1]),
-            harmonics.S2m1(n, sx[1], smx[0], smx[1]),
-            harmonics.Sm21(n, smx[0]),
-            harmonics.Sm2m1(n, sx[0], sx[1], smx[1]),
-        ]
-    )
-
-
-@nb.njit(cache=True)
-def get_s4x(n, sx, smx):
-    """Get the S-w4 cache"""
-    Sm31 = harmonics.Sm31(n, smx[0], smx[1])
-    return np.array(
-        [
-            harmonics.S31(n, sx[1], sx[3]),
-            harmonics.S211(n, sx[0], sx[1], sx[2]),
-            harmonics.Sm22(n, smx[1], Sm31),
-            harmonics.Sm211(n, smx[0]),
-            harmonics.Sm31(n, smx[0], smx[1]),
-        ]
-    )
 
 
 @nb.njit(cache=True)
