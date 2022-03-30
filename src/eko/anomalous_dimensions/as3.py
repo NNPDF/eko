@@ -25,8 +25,8 @@ def gamma_nsm(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np array
-            List of harmonic sums
+        sx : np.ndarray
+            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
 
     Returns
     -------
@@ -102,8 +102,8 @@ def gamma_nsp(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np array
-            List of harmonic sums
+        sx : np.ndarray
+            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
 
     Returns
     -------
@@ -179,8 +179,8 @@ def gamma_nsv(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np array
-            List of harmonic sums
+        sx : np.ndarray
+            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
 
     Returns
     -------
@@ -234,8 +234,8 @@ def gamma_ps(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np array
-            List of harmonic sums
+        sx : np.ndarray
+            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
 
     Returns
     -------
@@ -306,8 +306,8 @@ def gamma_qg(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np array
-            List of harmonic sums
+        sx : np.ndarray
+            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
 
     Returns
     -------
@@ -380,8 +380,8 @@ def gamma_gq(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np array
-            List of harmonic sums
+        sx : np.ndarray
+            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
 
     Returns
     -------
@@ -470,8 +470,8 @@ def gamma_gg(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np array
-            List of harmonic sums
+        sx : np.ndarray
+            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
 
     Returns
     -------
@@ -562,8 +562,8 @@ def gamma_singlet(N, nf, sx):
           Mellin moment
         nf : int
           Number of active flavors
-        sx : np array
-            List of harmonic sums
+        sx : np.ndarray
+            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
 
 
       Returns
