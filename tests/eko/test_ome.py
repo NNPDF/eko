@@ -5,7 +5,6 @@ import copy
 import numpy as np
 
 from eko import basis_rotation as br
-from eko import harmonics as sf
 from eko import interpolation, mellin
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
@@ -14,54 +13,10 @@ from eko.matching_conditions.operator_matrix_element import (
     A_singlet,
     OperatorMatrixElement,
     build_ome,
-    get_s3x,
-    get_s4x,
-    get_smx,
     quad_ker,
 )
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
-
-
-def test_HarmonicsCache():
-    N = np.random.rand() + 1.0j * np.random.rand()
-    Sm1 = sf.Sm1(N)
-    Sm2 = sf.Sm2(N)
-    S1 = sf.S1(N)
-    S2 = sf.S2(N)
-    S3 = sf.S3(N)
-    S4 = sf.S4(N)
-    sx = np.array([S1, S2, S3, S4, sf.S5(N)])
-    smx_test = np.array(
-        [
-            Sm1,
-            Sm2,
-            sf.Sm3(N),
-            sf.Sm4(N),
-            sf.Sm5(N),
-        ]
-    )
-    np.testing.assert_allclose(get_smx(N), smx_test)
-    s3x_test = np.array(
-        [
-            sf.S21(N, S1, S2),
-            sf.S2m1(N, S2, Sm1, Sm2),
-            sf.Sm21(N, Sm1),
-            sf.Sm2m1(N, S1, S2, Sm2),
-        ]
-    )
-    np.testing.assert_allclose(get_s3x(N, sx, smx_test), s3x_test)
-    Sm31 = sf.Sm31(N, Sm1, Sm2)
-    s4x_test = np.array(
-        [
-            sf.S31(N, S2, S4),
-            sf.S211(N, S1, S2, S3),
-            sf.Sm22(N, Sm2, Sm31),
-            sf.Sm211(N, Sm1),
-            Sm31,
-        ]
-    )
-    np.testing.assert_allclose(get_s4x(N, sx, smx_test), s4x_test)
 
 
 def test_build_ome_as():
@@ -69,7 +24,7 @@ def test_build_ome_as():
     N = 2
     L = 0.0
     a_s = 0.0
-    sx = np.random.rand(19) + 1j * np.random.rand(19)
+    sx = np.random.rand(5, 7) + 1j * np.random.rand(5, 7)
     nf = 3
     is_msbar = False
     for o in [0, 1, 2, 3]:
@@ -96,7 +51,7 @@ def test_build_ome_nlo():
     a_s = 20
     is_msbar = False
 
-    sx = np.array([1, 1, 1], np.complex_)
+    sx = np.array([[1], [1], [1]], np.complex_)
     nf = 4
     aNSi = A_non_singlet(1, N, sx, nf, L)
     aSi = A_singlet(1, N, sx, nf, L, is_msbar)

@@ -68,10 +68,10 @@ def A_singlet(n, sx_all, nf, L):
         A_S : numpy.ndarray
             |NNLO| singlet |OME| :math:`A^{S,(3)}(N)`
     """
-    sx = sx_all[:5]
-    smx = sx_all[5:10]
-    s3x = sx_all[10:14]
-    s4x = sx_all[14:]
+    sx = sx_all[:, 0]
+    smx = sx_all[:, -1]
+    s3x = sx_all[2, 1:]
+    s4x = sx_all[3, 1:]
     A_hq_3 = A_Hq(n, sx, smx, s3x, s4x, nf, L)
     A_hg_3 = A_Hg(n, sx, smx, s3x, s4x, nf, L)
 
@@ -128,10 +128,10 @@ def A_ns(n, sx_all, nf, L):
     --------
         A_qqNS_3 : :math:`A_{qq,H}^{NS,(3))}`
     """
-    sx = sx_all[:5]
-    smx = sx_all[5:10]
-    s3x = sx_all[10:14]
-    s4x = sx_all[14:]
+    sx = sx_all[:, 0]
+    smx = sx_all[:, -1]
+    s3x = sx_all[2, 1:]
+    s4x = sx_all[3, 1:]
     return np.array(
         [[A_qqNS(n, sx, smx, s3x, s4x, nf, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_
     )

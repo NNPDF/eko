@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from eko.harmonics import constants, get_sx
+from eko.harmonics import constants
 from eko.matching_conditions.as2 import A_ns, A_qq_ns, A_singlet
 from eko.matching_conditions.operator_matrix_element import compute_harmonics_cache
 
@@ -13,7 +13,7 @@ def test_A_2():
 
     for L in logs:
         N = 1
-        sx = get_sx(N, 3)
+        sx = compute_harmonics_cache(N, 2)
         aNSqq2 = A_qq_ns(N, sx, L)
         # quark number conservation
         np.testing.assert_allclose(aNSqq2, 0.0, atol=2e-11)

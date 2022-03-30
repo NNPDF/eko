@@ -2,12 +2,13 @@
 # Test N3LO OME
 import numpy as np
 
+from eko.harmonics import get_s3x, get_s4x, get_smx, get_sx
 from eko.matching_conditions import as3
 from eko.matching_conditions.as3 import A_ns, A_qqNS, A_singlet
-from eko.matching_conditions.operator_matrix_element import get_s3x, get_s4x, get_smx
+from eko.matching_conditions.operator_matrix_element import compute_harmonics_cache
 
 
-def test_A_3(get_sx):
+def test_A_3():
     logs = [0, 10]
     nf = 3
 
@@ -62,7 +63,7 @@ def test_A_3(get_sx):
     # np.testing.assert_allclose(aS3[0, 1] + aS3[1, 1] + aS3[2, 1], 0.0, atol=1e-11)
 
     N = 3 + 2j
-    sx_all = np.random.rand(19) + 1j * np.random.rand(19)
+    sx_all = np.random.rand(5, 7) + 1j * np.random.rand(5, 7)
     aS3 = A_singlet(N, sx_all, nf, L)
     aNS3 = A_ns(N, sx_all, nf, L)
     assert aNS3.shape == (2, 2)
@@ -72,7 +73,7 @@ def test_A_3(get_sx):
     np.testing.assert_allclose(aNS3[1, 1], 0)
 
 
-def test_Blumlein_3(get_sx):
+def test_Blumlein_3():
     # Test against Blumlein OME implementation :cite:`Bierenbaum:2009mv`.
     # For singlet OME only even moments are available in that code.
     # Note there is a minus sign in the definition of L.
@@ -145,10 +146,7 @@ def test_Blumlein_3(get_sx):
     for i, N in enumerate([4.0, 6.0, 10.0, 100.0]):
         idx = i + 1
         for L in [0, 10]:
-            sx_all = get_sx(N)
-            sx_all = np.append(sx_all, get_smx(N))
-            sx_all = np.append(sx_all, get_s3x(N, get_sx(N), get_smx(N)))
-            sx_all = np.append(sx_all, get_s4x(N, get_sx(N), get_smx(N)))
+            sx_all = compute_harmonics_cache(N, 3)
             aS3 = A_singlet(N, sx_all, nf, L)
 
             # here we have a different approximation for AggTF2,
@@ -209,7 +207,7 @@ def test_Blumlein_3(get_sx):
         )
 
 
-def test_AHq_asymptotic(get_sx):
+def test_AHq_asymptotic():
     refs = [
         -1.06712,
         0.476901,
