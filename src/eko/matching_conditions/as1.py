@@ -24,7 +24,7 @@ def A_hh(n, sx, L):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            List of harmonic sums: :math:`S_{1},S_{2}`
+            List of harmonic sums
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -33,8 +33,8 @@ def A_hh(n, sx, L):
         A_hh : complex
             |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}`
     """
-    S1m = sx[0] - 1 / n  # harmonics.S1(n - 1)
-    S2m = sx[1] - 1 / n**2  # harmonics.S2(n - 1)
+    S1m = sx[0, 0] - 1 / n  # harmonics.S1(n - 1)
+    S2m = sx[1, 0] - 1 / n**2  # harmonics.S2(n - 1)
     ahh_l = (2 + n - 3 * n**2) / (n * (1 + n)) + 4 * S1m
     ahh = 2 * (
         2
@@ -131,8 +131,6 @@ def A_singlet(n, sx, L):
       ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
-            List of harmonic sums
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
