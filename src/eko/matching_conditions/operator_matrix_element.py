@@ -20,7 +20,21 @@ logger = logging.getLogger(__name__)
 
 @nb.njit(cache=True)
 def compute_harmonics_cache(n, order):
-    """Get the harmonics sums cache"""
+    """
+    Get the harmonics sums cache
+
+    Parameters
+    ----------
+        n: complex
+            Mellin moment
+        order: int
+            perturbative order
+
+    Returns
+    -------
+        sx: np.ndarray
+            harmonic sums cache
+    """
     # max harmonics sum weight for each qcd order
     max_weight = {1: 2, 2: 3, 3: 5}
     # max number of harmonics sum of a given weight for each qcd order
@@ -48,7 +62,7 @@ def A_singlet(order, n, sx, nf, L, is_msbar):
         n : complex
             Mellin variable
         sx : numpy.ndarray
-            List of harmonic sums
+            harmonic sums cache
         nf: int
             number of active flavor below threshold
         L : float
@@ -92,7 +106,7 @@ def A_non_singlet(order, n, sx, nf, L):
         n : complex
             Mellin variable
         sx : numpy.ndarray
-            List of harmonic sums
+            harmonic sums cache
         nf: int
             number of active flavor below threshold
         L : float

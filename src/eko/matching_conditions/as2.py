@@ -29,7 +29,7 @@ def A_qq_ns(n, sx, L):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            List of harmonic sums
+            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -84,7 +84,7 @@ def A_hq_ps(n, sx, L):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            List of harmonic sums
+            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -148,7 +148,7 @@ def A_hg(n, sx, L):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            List of harmonic sums
+            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -287,7 +287,7 @@ def A_gq(n, sx, L):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            List of harmonic sums
+            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -337,7 +337,7 @@ def A_gg(n, sx, L):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            List of harmonic sums
+            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -430,7 +430,7 @@ def A_singlet(n, sx, L, is_msbar=False):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            List of harmonic sums
+            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
         is_msbar: bool
@@ -479,7 +479,7 @@ def A_ns(n, sx, L):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            List of harmonic sums
+            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
