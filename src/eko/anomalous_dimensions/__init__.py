@@ -109,18 +109,17 @@ def gamma_ns(order, mode, n, nf):
     gamma_ns[0] = as1.gamma_ns(n, sx[0])
     # NLO and beyond
     if order >= 1:
-        # TODO: pass the necessary harmonics to nlo gammas
+        sx = np.append(sx, harmonics.S2(n))
         if mode == 10101:
-            gamma_ns_1 = as2.gamma_nsp(n, nf)
+            gamma_ns_1 = as2.gamma_nsp(n, nf, sx)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
         elif mode in [10201, 10200]:
-            gamma_ns_1 = as2.gamma_nsm(n, nf)
+            gamma_ns_1 = as2.gamma_nsm(n, nf, sx)
         else:
             raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond
     if order >= 2:
-        sx = np.append(sx, harmonics.S2(n))
         sx = np.append(sx, harmonics.S3(n))
         if mode == 10101:
             gamma_ns_2 = -as3.gamma_nsp(n, nf, sx)
@@ -159,15 +158,13 @@ def gamma_singlet(order, n, nf):
     """
     # cache the s-es
     sx = np.full(1, harmonics.S1(n))
-    if order >= 1:
-        sx = np.append(sx, harmonics.S2(n))
-        sx = np.append(sx, harmonics.S3(n))
-
     gamma_s = np.zeros((order + 1, 2, 2), np.complex_)
     gamma_s[0] = as1.gamma_singlet(n, sx[0], nf)
     if order >= 1:
-        gamma_s[1] = as2.gamma_singlet(n, nf)
+        sx = np.append(sx, harmonics.S2(n))
+        gamma_s[1] = as2.gamma_singlet(n, nf, sx)
     if order == 2:
+        sx = np.append(sx, harmonics.S3(n))
         sx = np.append(sx, harmonics.S4(n))
         gamma_s[2] = -as3.gamma_singlet(n, nf, sx)
     return gamma_s
