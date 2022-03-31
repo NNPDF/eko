@@ -23,7 +23,7 @@ def test_HarmonicsCache():
             h.Sm5(N),
         ]
     )
-    np.testing.assert_allclose(h.get_smx(N), smx_test)
+    np.testing.assert_allclose(h.smx(N), smx_test)
     s3x_test = np.array(
         [
             h.S21(N, S1, S2),
@@ -32,7 +32,7 @@ def test_HarmonicsCache():
             h.Sm2m1(N, S1, S2, Sm2),
         ]
     )
-    np.testing.assert_allclose(h.get_s3x(N, sx, smx_test), s3x_test)
+    np.testing.assert_allclose(h.s3x(N, sx, smx_test), s3x_test)
     Sm31 = h.Sm31(N, Sm1, Sm2)
     s4x_test = np.array(
         [
@@ -43,4 +43,4 @@ def test_HarmonicsCache():
             Sm31,
         ]
     )
-    np.testing.assert_allclose(h.get_s4x(N, sx, smx_test), s4x_test)
+    np.testing.assert_allclose(h.s4x(N, sx, smx_test), s4x_test)

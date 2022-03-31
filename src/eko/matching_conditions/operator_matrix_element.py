@@ -45,8 +45,8 @@ def compute_harmonics_cache(n, order):
         sx[2, 1] = harmonics.Sm21(n, sx[0, -1])
     if order == 3:
         # Add weight 3 and 4 to cache
-        sx[2, 1:-2] = harmonics.get_s3x(n, sx[:, 0], sx[:, -1])
-        sx[3, 1:-1] = harmonics.get_s4x(n, sx[:, 0], sx[:, -1])
+        sx[2, 1:-2] = harmonics.s3x(n, sx[:, 0], sx[:, -1])
+        sx[3, 1:-1] = harmonics.s4x(n, sx[:, 0], sx[:, -1])
     return sx
 
 

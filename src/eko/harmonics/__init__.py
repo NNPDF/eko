@@ -35,14 +35,14 @@ def base_harmonics_cache(n, max_weight=5, n_max_sums_weight=7):
                 (weights, n_max_sums_weight)
     """
     h_cache = np.zeros((max_weight, n_max_sums_weight), dtype=np.complex_)
-    h_cache[:, 0] = get_sx(n, max_weight)
+    h_cache[:, 0] = sx(n, max_weight)
     if n_max_sums_weight > 1:
-        h_cache[:, -1] = get_smx(n, max_weight)
+        h_cache[:, -1] = smx(n, max_weight)
     return h_cache
 
 
 @nb.njit(cache=True)
-def get_sx(n, max_weight=5):
+def sx(n, max_weight=5):
     """
     Get the harmonics sums S cache
 
@@ -72,7 +72,7 @@ def get_sx(n, max_weight=5):
 
 
 @nb.njit(cache=True)
-def get_smx(n, max_weight=5):
+def smx(n, max_weight=5):
     """
     Get the harmonics S-minus cache
 
@@ -103,7 +103,7 @@ def get_smx(n, max_weight=5):
 
 
 @nb.njit(cache=True)
-def get_s3x(n, sx, smx):
+def s3x(n, sx, smx):
     """
     Compute the weight 3 multi indices harmonics sums cache
 
@@ -132,7 +132,7 @@ def get_s3x(n, sx, smx):
 
 
 @nb.njit(cache=True)
-def get_s4x(n, sx, smx):
+def s4x(n, sx, smx):
     """
     Compute the weight 4 multi indices harmonics sums cache
 

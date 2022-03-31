@@ -2,7 +2,7 @@
 # Test N3LO OME
 import numpy as np
 
-from eko.harmonics import get_s3x, get_s4x, get_smx, get_sx
+from eko.harmonics import s3x, s4x, smx, sx
 from eko.matching_conditions import as3
 from eko.matching_conditions.as3 import A_ns, A_qqNS, A_singlet
 from eko.matching_conditions.operator_matrix_element import compute_harmonics_cache
@@ -14,10 +14,10 @@ def test_A_3():
 
     for L in logs:
         N = 1.0
-        sx = get_sx(N)
-        smx = get_smx(N)
-        s3x = get_s3x(N, sx, smx)
-        s4x = get_s4x(N, sx, smx)
+        sx = sx(N)
+        smx = smx(N)
+        s3x = s3x(N, sx, smx)
+        s4x = s4x(N, sx, smx)
         aNSqq3 = A_qqNS(N, sx, smx, s3x, s4x, nf, L)
         # quark number conservation
         # the accuracy of this test depends directly on the precision of the
@@ -26,10 +26,10 @@ def test_A_3():
         np.testing.assert_allclose(aNSqq3, 0.0, atol=5e-3)
 
         N = 2.0
-        sx = get_sx(N)
-        smx = get_smx(N)
-        s3x = get_s3x(N, sx, smx)
-        s4x = get_s4x(N, sx, smx)
+        sx = sx(N)
+        smx = smx(N)
+        s3x = s3x(N, sx, smx)
+        s4x = s4x(N, sx, smx)
         # reference value comes form Mathematica, gg is not fullycomplete
         # thus the reference value is not 0.0
         # Here the accuracy of this test depends on the approximation of AggTF2
@@ -52,10 +52,10 @@ def test_A_3():
     # )
 
     # here you get division by 0 as in Mathematica
-    # sx_all = get_sx(N)
-    # sx_all = np.append(sx_all, get_smx(N))
-    # sx_all = np.append(sx_all, get_s3x(N, get_sx(N),get_smx(N)))
-    # sx_all = np.append(sx_all, get_s4x(N, get_sx(N),get_smx(N)))
+    # sx_all = sx(N)
+    # sx_all = np.append(sx_all, smx(N))
+    # sx_all = np.append(sx_all, s3x(N, sx(N),smx(N)))
+    # sx_all = np.append(sx_all, s4x(N, sx(N),smx(N)))
     # aS3 = A_singlet(N, sx_all, nf, L)
     # gluon momentum conservation
     # np.testing.assert_allclose(aS3[0, 0] + aS3[1, 0] + aS3[2, 0], 0.0, atol=2e-6)
@@ -178,10 +178,10 @@ def test_Blumlein_3():
     nf = 3
     ref_ggTF_app = [-28.9075, -180.659, -229.537, -281.337, -467.164]
     for idx, N in enumerate([2.0, 4.0, 6.0, 10.0, 100.0]):
-        sx = get_sx(N)
-        smx = get_smx(N)
-        s3x = get_s3x(N, sx, smx)
-        s4x = get_s4x(N, sx, smx)
+        sx = sx(N)
+        smx = smx(N)
+        s3x = s3x(N, sx, smx)
+        s4x = s4x(N, sx, smx)
         Aggtf2 = as3.aggTF2.A_ggTF2(N, sx, s3x)
         if N != 100:
             # Limited in the small N region
@@ -198,10 +198,10 @@ def test_Blumlein_3():
     # Limited accuracy due to F functions
     ref_qqNS_odd = [-40.94998646588999, -21.598793547423504, 6.966325573931755]
     for N, ref in zip([3.0, 15.0, 101.0], ref_qqNS_odd):
-        sx = get_sx(N)
-        smx = get_smx(N)
-        s3x = get_s3x(N, sx, smx)
-        s4x = get_s4x(N, sx, smx)
+        sx = sx(N)
+        smx = smx(N)
+        s3x = s3x(N, sx, smx)
+        s4x = s4x(N, sx, smx)
         np.testing.assert_allclose(
             as3.aqqNS.A_qqNS(N, sx, smx, s3x, s4x, nf, L=0), ref, rtol=3e-2
         )
@@ -251,10 +251,10 @@ def test_AHq_asymptotic():
     # Ns = [31.,32.,33.,34.,35.,36.,37.,38.,39.]
     nf = 3
     for N, r in zip(Ns, refs):
-        sx = get_sx(N)
-        smx = get_smx(N)
-        s3x = get_s3x(N, sx, smx)
-        s4x = get_s4x(N, sx, smx)
+        sx = sx(N)
+        smx = smx(N)
+        s3x = s3x(N, sx, smx)
+        s4x = s4x(N, sx, smx)
         np.testing.assert_allclose(
             as3.aHq.A_Hq(N, sx, smx, s3x, s4x, nf, L=0), r, rtol=1e-5, atol=1e-5
         )

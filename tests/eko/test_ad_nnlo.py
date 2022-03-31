@@ -8,7 +8,7 @@ from eko import harmonics
 NF = 5
 
 
-def get_sx(N):
+def sx(N):
     """Collect the S-cache"""
     sx = np.array(
         [
@@ -25,13 +25,13 @@ def get_sx(N):
 def test_gamma_2():
     # number conservation - each is 0 on its own, see :cite:`Moch:2004pa`
     N = 1
-    sx = get_sx(N)
+    sx = sx(N)
     np.testing.assert_allclose(ad_as3.gamma_nsv(N, NF, sx), 0.000960586, rtol=3e-7)
     np.testing.assert_allclose(ad_as3.gamma_nsm(N, NF, sx), -0.000594225, rtol=6e-7)
 
     # get singlet sector
     N = 2
-    sx = get_sx(N)
+    sx = sx(N)
     gS2 = ad_as3.gamma_singlet(N, NF, sx)
 
     # gluon momentum conservation

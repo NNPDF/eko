@@ -11,10 +11,10 @@ NF = 5
 
 def test_gamma_1():
     # number conservation
-    sx = h.get_sx(1, 2)
+    sx = h.sx(1, 2)
     np.testing.assert_allclose(ad_as2.gamma_nsm(1, NF, sx), 0.0, atol=2e-6)
 
-    sx = h.get_sx(2, 2)
+    sx = h.sx(2, 2)
     gS1 = ad_as2.gamma_singlet(2, NF, sx)
     # gluon momentum conservation
     # the CA*NF term seems to be tough to compute, so raise the constraint ...
@@ -51,8 +51,8 @@ def test_gamma_1():
         )
         * const.CF,
     )
-    sx_3 = h.get_sx(3, 2)
-    sx_4 = h.get_sx(4, 2)
+    sx_3 = h.sx(3, 2)
+    sx_4 = h.sx(4, 2)
     np.testing.assert_allclose(
         ad_as2.gamma_nsp(3, NF, sx_3),
         (
