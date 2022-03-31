@@ -4,7 +4,7 @@ import numpy as np
 
 
 @nb.njit(cache=True)
-def A_ggTF2(n, sx, s3x):
+def A_ggTF2(n, sx):
     r"""
     Computes the approximate incomplete part of :math:`A_{gg}^{S,(3)}(N)`
     proportional to :math:`T_{F}^2`.
@@ -19,7 +19,7 @@ def A_ggTF2(n, sx, s3x):
         n : complex
             Mellin moment
         sx : numpy.ndarray
-            list S1 ... S5
+            harmonic sums cache
         s3x : numpy.ndarray
             list S21, S2m1, Sm21, Sm2m1
 
@@ -28,8 +28,8 @@ def A_ggTF2(n, sx, s3x):
         A_ggTF2 : complex
             :math:`A_{gg,T_{F}^2}^{S,(3)}(N)`
     """
-    S1, S2, S3 = sx[0], sx[1], sx[2]
-    S21 = s3x[0]
+    S1, S2, S3 = sx[:3, 0]
+    S21 = sx[2, 1]
     # here we use an approximation at large N
     #  for binomial(2 * n, n) / np.power(4, n)
     # faster than the exact result

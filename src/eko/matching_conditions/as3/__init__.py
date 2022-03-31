@@ -56,8 +56,14 @@ def A_singlet(n, sx_all, nf, L):
         n : complex
             Mellin moment
         sx_all : numpy.ndarray
-            List of harmonic sums containing:
-                [S1 ... S5, Sm1 ... Sm5, S21, S2m1, Sm21, Sm2m1, S31, S221, Sm22, Sm211, Sm31]
+            harmonic sums cache containing:
+                [
+                    [S1, 0,   0,    0,    0,     0,   Sm1],
+                    [S2, 0,   0,    0,    0,     0,   Sm2],
+                    [S3, S21, S2m1, Sm21, Sm2m1, 0,   Sm3],
+                    [S4, S31, S221, Sm22, Sm211, Sm31 Sm4],
+                    [S5, 0,   0,    0,    0,     0,   Sm5],
+                ]
         nf : int
             number of active flavor below the threshold
         L : float
@@ -76,7 +82,7 @@ def A_singlet(n, sx_all, nf, L):
     A_hg_3 = A_Hg(n, sx, smx, s3x, s4x, nf, L)
 
     A_gq_3 = A_gq(n, sx, smx, s3x, s4x, nf, L)
-    A_gg_3 = A_gg(n, sx, smx, s3x, s4x, nf, L)
+    A_gg_3 = A_gg(n, sx_all, nf, L)
 
     A_qq_ps_3 = A_qqPS(n, sx, nf, L)
     A_qq_ns_3 = A_qqNS(n, sx, smx, s3x, s4x, nf, L)
