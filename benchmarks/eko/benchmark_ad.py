@@ -138,7 +138,7 @@ def check_gamma_1_pegasus(N, NF):
     P1NSP = CF * ((CF - CA / 2.0) * PNPA + CA * PNSB + TR * NF * PNSC)
     P1NSM = CF * ((CF - CA / 2.0) * PNMA + CA * PNSB + TR * NF * PNSC)
 
-    sx = h.get_sx(N, 2)
+    sx = h.sx(N, 2)
     np.testing.assert_allclose(ad_as2.gamma_nsp(N, NF, sx), -P1NSP)
     np.testing.assert_allclose(ad_as2.gamma_nsm(N, NF, sx), -P1NSM)
 
