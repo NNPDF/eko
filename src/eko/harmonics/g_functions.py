@@ -8,7 +8,7 @@ import numpy as np
 
 from . import w1
 from .constants import log2, zeta2, zeta3
-from .polygamma import recursive_harmonic_sum as harmonic_sum
+from .polygamma import recursive_harmonic_sum as s
 
 a1 = np.array(
     [
@@ -92,7 +92,7 @@ def mellin_g3(N, S1):
     g3 = 0
     for j, c in enumerate(cs):
         Nj = N + j
-        g3 += c * (zeta2 - harmonic_sum(S1, N, j, 1) / Nj) / Nj
+        g3 += c * (zeta2 - s(S1, N, j, 1) / Nj) / Nj
     return g3
 
 
@@ -148,12 +148,8 @@ def mellin_g5(N, S1, S2):
     g5 = 0.0
     for k, ak in enumerate(a1):
         Nk = N + k + 1
-        poly1nk = -harmonic_sum(S2, N, k + 1, 2) + zeta2
-        g5 -= ak * (
-            (k + 1)
-            / Nk**2
-            * (zeta2 + poly1nk - 2 * harmonic_sum(S1, N, k + 1, 1) / Nk)
-        )
+        poly1nk = -s(S2, N, k + 1, 2) + zeta2
+        g5 -= ak * ((k + 1) / Nk**2 * (zeta2 + poly1nk - 2 * s(S1, N, k + 1, 1) / Nk))
     return g5
 
 
@@ -183,8 +179,7 @@ def mellin_g6(N, S1):
     for k, ak in enumerate(a1):
         Nk = N + k + 1
         g6 -= ak * (
-            N / Nk * zeta3
-            + (k + 1) / Nk**2 * (zeta2 - harmonic_sum(S1, N, k + 1, 1) / Nk)
+            N / Nk * zeta3 + (k + 1) / Nk**2 * (zeta2 - s(S1, N, k + 1, 1) / Nk)
         )
     return g6
 
@@ -216,11 +211,7 @@ def mellin_g8(N, S1, S2):
         Nk = N + k + 1
         g8 -= ak * (
             N / Nk * zeta3
-            + (k + 1)
-            / Nk**2
-            * 1
-            / 2
-            * (harmonic_sum(S1, N, k + 1, 1) ** 2 + harmonic_sum(S2, N, k + 1, 2))
+            + (k + 1) / Nk**2 * 1 / 2 * (s(S1, N, k + 1, 1) ** 2 + s(S2, N, k + 1, 2))
         )
     return g8
 
@@ -253,15 +244,10 @@ def mellin_g18(N, S1, S2):
     g18 = (S1**2 + S2) / (N) - zeta2 * S1
     for k, ck in enumerate(c1):
         Nk = N + k
-        g18 += ck * (N) / (Nk) * harmonic_sum(S1, N, k, 1)
+        g18 += ck * (N) / (Nk) * s(S1, N, k, 1)
     for k, p11k in enumerate(p11):
         Nk = N + k
-        g18 -= (
-            p11k
-            * (N)
-            / (Nk)
-            * (harmonic_sum(S1, N, k, 1) ** 2 + harmonic_sum(S2, N, k, 2))
-        )
+        g18 -= p11k * (N) / (Nk) * (s(S1, N, k, 1) ** 2 + s(S2, N, k, 2))
     return g18
 
 
@@ -287,7 +273,7 @@ def mellin_g19(N, S1):
     """
     g19 = 1 / 2 * zeta2 * S1
     for k, ak in enumerate(a1):
-        g19 -= ak / (k + 1) * harmonic_sum(S1, N, k + 1, 1)
+        g19 -= ak / (k + 1) * s(S1, N, k + 1, 1)
     return g19
 
 
@@ -323,12 +309,12 @@ def mellin_g21(N, S1, S2, S3):
     g21 = -zeta3 * S1 + (S1**3 + 3 * S1 * S2 + 2 * S3) / (2 * N)
     for k, ck in enumerate(c3):
         Nk = N + k
-        g21 += ck * N / Nk * harmonic_sum(S1, N, k, 1)
+        g21 += ck * N / Nk * s(S1, N, k, 1)
     for k in range(0, 5):
         Nk = N + k
-        S1nk = harmonic_sum(S1, N, k, 1)
-        S2nk = harmonic_sum(S2, N, k, 2)
-        S3nk = harmonic_sum(S3, N, k, 3)
+        S1nk = s(S1, N, k, 1)
+        S2nk = s(S2, N, k, 2)
+        S3nk = s(S3, N, k, 3)
         g21 += (
             N
             / Nk
@@ -370,11 +356,11 @@ def mellin_g22(N, S1, S2, S3):
     """
     g22 = 0.0
     for k, ck in enumerate(c1):
-        poly1nk = -harmonic_sum(S2, N, k, 2) + zeta2
+        poly1nk = -s(S2, N, k, 2) + zeta2
         g22 += ck * poly1nk
     for k, p11k in enumerate(p11):
-        S1nk = harmonic_sum(S1, N, k, 1)
-        poly1nk = -harmonic_sum(S2, N, k, 2) + zeta2
-        poly2nk = 2 * harmonic_sum(S3, N, k, 3) + zeta3
+        S1nk = s(S1, N, k, 1)
+        poly1nk = -s(S2, N, k, 2) + zeta2
+        poly2nk = 2 * s(S3, N, k, 3) + zeta3
         g22 -= p11k * (S1nk * poly1nk - 1 / 2 * poly2nk)
     return g22
