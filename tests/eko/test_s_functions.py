@@ -44,7 +44,8 @@ refvals = {
 def test_Sm21():
     for N, vals in zip(testN, refvals["Sm21"]):
         Sm1 = sf.Sm1(N)
-        np.testing.assert_allclose(sf.Sm21(N, Sm1), vals, atol=1e-06)
+        S1 = sf.S1(N)
+        np.testing.assert_allclose(sf.Sm21(N, S1, Sm1), vals, atol=1e-06)
 
 
 def test_Smx():

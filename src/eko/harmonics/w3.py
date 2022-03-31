@@ -73,9 +73,9 @@ def S21(N, S1, S2):
         N : complex
             Mellin moment
         S1: complex
-            Hamrmonic sum :math:`S_{1}(N)`
+            Harmonic sum :math:`S_{1}(N)`
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
 
     Returns
     -------
@@ -90,7 +90,7 @@ def S21(N, S1, S2):
 
 
 @nb.njit(cache=True)
-def Sm21(N, Sm1):
+def Sm21(N, S1, Sm1):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,1}(N)`
     as implemented in eq B.5.75 of :cite:`MuselliPhD` and eq 22 of cite:`Bl_mlein_2000`.
@@ -99,8 +99,10 @@ def Sm21(N, Sm1):
     ----------
         N : complex
             Mellin moment
+        S1:  complex
+            Harmonic sum :math:`S_{1}(N)`
         Sm1: complex
-            Hamrmonic sum :math:`S_{-1}(N)`
+            Harmonic sum :math:`S_{-1}(N)`
 
     Returns
     -------
@@ -113,7 +115,10 @@ def Sm21(N, Sm1):
     """
     # Note mellin g3 was integrated following x^(N-1) convention.
     return (
-        -((-1) ** N) * gf.mellin_g3(N + 1) + zeta2 * Sm1 - 5 / 8 * zeta3 + zeta2 * log2
+        -((-1) ** N) * gf.mellin_g3(N + 1, S1 + 1 / (N + 1))
+        + zeta2 * Sm1
+        - 5 / 8 * zeta3
+        + zeta2 * log2
     )
 
 
@@ -128,11 +133,11 @@ def S2m1(N, S2, Sm1, Sm2):
         N : complex
             Mellin moment
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
         Sm1: complex
-            Hamrmonic sum :math:`S_{-1}(N)`
+            Harmonic sum :math:`S_{-1}(N)`
         Sm2: complex
-            Hamrmonic sum :math:`S_{-2}(N)`
+            Harmonic sum :math:`S_{-2}(N)`
 
     Returns
     -------
@@ -163,11 +168,11 @@ def Sm2m1(N, S1, S2, Sm2):
         N : complex
             Mellin moment
         S1: complex
-            Hamrmonic sum :math:`S_{1}(N)`
+            Harmonic sum :math:`S_{1}(N)`
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
         Sm2: complex
-            Hamrmonic sum :math:`S_{-2}(N)`
+            Harmonic sum :math:`S_{-2}(N)`
 
     Returns
     -------

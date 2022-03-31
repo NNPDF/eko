@@ -63,7 +63,7 @@ def Sm4(N):
 
 
 @nb.njit(cache=True)
-def Sm31(N, Sm1, Sm2):
+def Sm31(N, S1, Sm1, Sm2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-3,1}(N)`
     as implemented in eq B.5.93 of :cite:`MuselliPhD` and eq 25 of cite:`Bl_mlein_2000`.
@@ -72,10 +72,12 @@ def Sm31(N, Sm1, Sm2):
     ----------
         N : complex
             Mellin moment
+        S1: complex
+            Harmonic sum :math:`S_{1}(N)`
         Sm1: complex
-            Hamrmonic sum :math:`S_{-1}(N)`
+            Harmonic sum :math:`S_{-1}(N)`
         Sm2: complex
-            Hamrmonic sum :math:`S_{-2}(N)`
+            Harmonic sum :math:`S_{-2}(N)`
 
     Returns
     -------
@@ -87,7 +89,7 @@ def Sm31(N, Sm1, Sm2):
         eko.harmonics.g_functions.mellin_g6 : :math:`g_6(N)`
     """
     return (
-        (-1) ** N * gf.mellin_g6(N)
+        (-1) ** N * gf.mellin_g6(N, S1)
         + zeta2 * Sm2
         - zeta3 * Sm1
         - 3 / 5 * zeta2**2
@@ -99,7 +101,7 @@ def Sm31(N, Sm1, Sm2):
 
 
 @nb.njit(cache=True)
-def Sm22(N, Sm2, Sm31):
+def Sm22(N, S1, Sm2, Sm31):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,2}(N)`
     as implemented in eq B.5.94 of :cite:`MuselliPhD` and eq 24 of cite:`Bl_mlein_2000`.
@@ -108,10 +110,12 @@ def Sm22(N, Sm2, Sm31):
     ----------
         N : complex
             Mellin moment
+        S1: complex
+            Harmonic sum :math:`S_{1}(N)`
         Sm2: complex
-            Hamrmonic sum :math:`S_{-2}(N)`
+            Harmonic sum :math:`S_{-2}(N)`
         Sm31: complex
-            Hamrmonic sum :math:`S_{-3,1}(N)`
+            Harmonic sum :math:`S_{-3,1}(N)`
     Returns
     -------
         Sm22 : complex
@@ -122,12 +126,15 @@ def Sm22(N, Sm2, Sm31):
         eko.harmonics.g_functions.mellin_g5 : :math:`g_5(N)`
     """
     return (
-        (-1) ** N * gf.mellin_g5(N) - 2 * Sm31 + 2 * zeta2 * Sm2 + 3 / 40 * zeta2**2
+        (-1) ** N * gf.mellin_g5(N, S1)
+        - 2 * Sm31
+        + 2 * zeta2 * Sm2
+        + 3 / 40 * zeta2**2
     )
 
 
 @nb.njit(cache=True)
-def Sm211(N, Sm1):
+def Sm211(N, S1, S2, Sm1):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,1,1}(N)`
     as implemented in eq B.5.104 of :cite:`MuselliPhD` and eq 27 of cite:`Bl_mlein_2000`.
@@ -136,12 +143,16 @@ def Sm211(N, Sm1):
     ----------
         N : complex
             Mellin moment
+        S1: complex
+            Harmonic sum :math:`S_{1}(N)`
+        S2: complex
+            Harmonic sum :math:`S_{2}(N)`
         Sm1: complex
-            Hamrmonic sum :math:`S_{-1}(N)`
+            Harmonic sum :math:`S_{-1}(N)`
 
     Returns
     -------
-        Sm31 : complex
+        Sm221 : complex
             Harmonic sum :math:`S_{-2,1,1}(N)`
 
     See Also
@@ -149,7 +160,7 @@ def Sm211(N, Sm1):
         eko.harmonics.g_functions.mellin_g8 : :math:`g_8(N)`
     """
     return (
-        -((-1) ** N) * gf.mellin_g8(N)
+        -((-1) ** N) * gf.mellin_g8(N, S1, S2)
         + zeta3 * Sm1
         - li4half
         + 1 / 8 * zeta2**2
@@ -170,11 +181,11 @@ def S211(N, S1, S2, S3):
         N : complex
             Mellin moment
         S1: complex
-            Hamrmonic sum :math:`S_{1}(N)`
+            Harmonic sum :math:`S_{1}(N)`
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
         S3: complex
-            Hamrmonic sum :math:`S_{3}(N)`
+            Harmonic sum :math:`S_{3}(N)`
 
     Returns
     -------
@@ -189,7 +200,7 @@ def S211(N, S1, S2, S3):
 
 
 @nb.njit(cache=True)
-def S31(N, S2, S4):
+def S31(N, S1, S2, S4):
     r"""
     Analytic continuation of harmonic sum :math:`S_{3,1}(N)`
     as implemented in eq B.5.99 of :cite:`MuselliPhD` and eq 41 of cite:`Bl_mlein_2000`.
@@ -198,10 +209,12 @@ def S31(N, S2, S4):
     ----------
         N : complex
             Mellin moment
+        S1: complex
+            Harmonic sum :math:`S_{1}(N)`
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
         S4: complex
-            Hamrmonic sum :math:`S_{4}(N)`
+            Harmonic sum :math:`S_{4}(N)`
 
     Returns
     -------
@@ -213,7 +226,7 @@ def S31(N, S2, S4):
         eko.harmonics.g_functions.mellin_g22 : :math:`g_22(N)`
     """
     return (
-        1 / 2 * gf.mellin_g22(N)
+        1 / 2 * gf.mellin_g22(N, S1)
         - 1 / 4 * S4
         - 1 / 4 * S2**2
         + zeta2 * S2

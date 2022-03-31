@@ -42,7 +42,7 @@ def compute_harmonics_cache(n, order):
     sx = harmonics.base_harmonics_cache(n, max_weight[order], n_max_sums_weight[order])
     if order == 2:
         # Add Sm21 to cache
-        sx[2, 1] = harmonics.Sm21(n, sx[0, -1])
+        sx[2, 1] = harmonics.Sm21(n, sx[0, 0], sx[0, -1])
     if order == 3:
         # Add weight 3 and 4 to cache
         sx[2, 1:-2] = harmonics.s3x(n, sx[:, 0], sx[:, -1])

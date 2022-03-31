@@ -78,3 +78,19 @@ def test_cern_polygamma():
         _ = harmonics.polygamma.cern_polygamma(1, 5)
     with pytest.raises(ValueError):
         _ = harmonics.polygamma.cern_polygamma(0, 0)
+
+
+def test_recursive_harmonic_sum():
+
+    n = np.random.rand()
+    iterations = 1
+    sx_base = harmonics.sx(n)
+    sx_test = harmonics.sx(n + iterations)
+
+    sx_final = []
+    for w in range(1, 6):
+        sx_final.append(
+            harmonics.polygamma.recursive_harmonic_sum(sx_base[w - 1], n, iterations, w)
+        )
+
+    np.testing.assert_allclose(sx_final, sx_test)

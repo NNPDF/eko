@@ -88,7 +88,7 @@ def test_F12_F14():
         S2 = harmonics.S2(N)
         Sm1 = harmonics.Sm1(N)
         S21 = harmonics.S21(N, S1, S2)
-        Sm21 = harmonics.Sm21(N, Sm1)
+        Sm21 = harmonics.Sm21(N, S1, Sm1)
         Sm221 = harmonics.Sm221(N, S1, Sm1, S21, Sm21)
         np.testing.assert_allclose(Sm221, vals, atol=1e-05)
 
@@ -102,7 +102,7 @@ def test_F16():
         Sm3 = harmonics.Sm3(N)
         S21 = harmonics.S21(N, S1, S2)
         S2m1 = harmonics.S2m1(N, S2, Sm1, Sm2)
-        Sm21 = harmonics.Sm21(N, Sm1)
+        Sm21 = harmonics.Sm21(N, S1, Sm1)
         S21m2 = harmonics.S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1)
         np.testing.assert_allclose(S21m2, vals, atol=1e-04)
 

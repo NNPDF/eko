@@ -73,11 +73,11 @@ def S41(N, S1, S2, S3):
         N : complex
             Mellin moment
         S1: complex
-            Hamrmonic sum :math:`S_{1}(N)`
+            Harmonic sum :math:`S_{1}(N)`
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
         S3: complex
-            Hamrmonic sum :math:`S_{3}(N)`
+            Harmonic sum :math:`S_{3}(N)`
 
     Returns
     -------
@@ -103,9 +103,9 @@ def S311(N, S1, S2):
         N : complex
             Mellin moment
         S1: complex
-            Hamrmonic sum :math:`S_{1}(N)`
+            Harmonic sum :math:`S_{1}(N)`
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
 
     Returns
     -------
@@ -131,11 +131,11 @@ def S221(N, S1, S2, S21):
         N : complex
             Mellin moment
         S1: complex
-            Hamrmonic sum :math:`S_{1}(N)`
+            Harmonic sum :math:`S_{1}(N)`
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
         S21: complex
-            Hamrmonic sum :math:`S_{2,1}(N)`
+            Harmonic sum :math:`S_{2,1}(N)`
 
     Returns
     -------
@@ -168,13 +168,13 @@ def Sm221(N, S1, Sm1, S21, Sm21):
         N : complex
             Mellin moment
         S1: complex
-            Hamrmonic sum :math:`S_{1}(N)`
+            Harmonic sum :math:`S_{1}(N)`
         Sm1: complex
-            Hamrmonic sum :math:`S_{-1}(N)`
+            Harmonic sum :math:`S_{-1}(N)`
         S21: complex
-            Hamrmonic sum :math:`S_{2,1}(N)`
+            Harmonic sum :math:`S_{2,1}(N)`
         Sm21: complex
-            Hamrmonic sum :math:`S_{-2,1}(N)`
+            Harmonic sum :math:`S_{-2,1}(N)`
 
     Returns
     -------
@@ -206,21 +206,21 @@ def S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1):
         N : complex
             Mellin moment
         S1: complex
-            Hamrmonic sum :math:`S_{1}(N)`
+            Harmonic sum :math:`S_{1}(N)`
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
         Sm1: complex
-            Hamrmonic sum :math:`S_{-1}(N)`
+            Harmonic sum :math:`S_{-1}(N)`
         Sm2: complex
-            Hamrmonic sum :math:`S_{-2}(N)`
+            Harmonic sum :math:`S_{-2}(N)`
         Sm3: complex
-            Hamrmonic sum :math:`S_{-3}(N)`
+            Harmonic sum :math:`S_{-3}(N)`
         S21: complex
-            Hamrmonic sum :math:`S_{2,1}(N)`
+            Harmonic sum :math:`S_{2,1}(N)`
         Sm21: complex
-            Hamrmonic sum :math:`S_{-2,1}(N)`
+            Harmonic sum :math:`S_{-2,1}(N)`
         S2m1: complex
-            Hamrmonic sum :math:`S_{2,-1}(N)`
+            Harmonic sum :math:`S_{2,-1}(N)`
 
     Returns
     -------
@@ -254,11 +254,11 @@ def S2111(N, S1, S2, S3):
         N : complex
             Mellin moment
         S1: complex
-            Hamrmonic sum :math:`S_{1}(N)`
+            Harmonic sum :math:`S_{1}(N)`
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
         S3: complex
-            Hamrmonic sum :math:`S_{3}(N)`
+            Harmonic sum :math:`S_{3}(N)`
 
     Returns
     -------
@@ -284,13 +284,13 @@ def Sm2111(N, S1, S2, S3, Sm1):
         N : complex
             Mellin moment
         S1: complex
-            Hamrmonic sum :math:`S_{1}(N)`
+            Harmonic sum :math:`S_{1}(N)`
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
         S3: complex
-            Hamrmonic sum :math:`S_{3}(N)`
+            Harmonic sum :math:`S_{3}(N)`
         Sm1: complex
-            Hamrmonic sum :math:`S_{-1}(N)`
+            Harmonic sum :math:`S_{-1}(N)`
 
     Returns
     -------
@@ -321,11 +321,11 @@ def S23(N, S1, S2, S3):
         N : complex
             Mellin moment
         S1: complex
-            Hamrmonic sum :math:`S_{1}(N)`
+            Harmonic sum :math:`S_{1}(N)`
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
         S3: complex
-            Hamrmonic sum :math:`S_{3}(N)`
+            Harmonic sum :math:`S_{3}(N)`
 
     Returns
     -------
@@ -355,11 +355,11 @@ def Sm23(N, Sm1, Sm2, Sm3):
         N : complex
             Mellin moment
         Sm1: complex
-            Hamrmonic sum :math:`S_{-1}(N)`
+            Harmonic sum :math:`S_{-1}(N)`
         Sm2: complex
-            Hamrmonic sum :math:`S_{-2}(N)`
+            Harmonic sum :math:`S_{-2}(N)`
         Sm3: complex
-            Hamrmonic sum :math:`S_{-3}(N)`
+            Harmonic sum :math:`S_{-3}(N)`
 
     Returns
     -------
@@ -395,13 +395,13 @@ def S2m3(N, S2, Sm1, Sm2, Sm3):
         N : complex
             Mellin moment
         S2: complex
-            Hamrmonic sum :math:`S_{2}(N)`
+            Harmonic sum :math:`S_{2}(N)`
         Sm1: complex
-            Hamrmonic sum :math:`S_{-1}(N)`
+            Harmonic sum :math:`S_{-1}(N)`
         Sm2: complex
-            Hamrmonic sum :math:`S_{-2}(N)`
+            Harmonic sum :math:`S_{-2}(N)`
         Sm3: complex
-            Hamrmonic sum :math:`S_{-3}(N)`
+            Harmonic sum :math:`S_{-3}(N)`
 
     Returns
     -------

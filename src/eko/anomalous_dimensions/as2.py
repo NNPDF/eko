@@ -43,7 +43,7 @@ def gamma_nsm(n, nf, sx):
     Sp1m = harmonics.S1((n - 1) / 2)
     Sp2m = harmonics.S2((n - 1) / 2)
     Sp3m = harmonics.S3((n - 1) / 2)
-    g3n = harmonics.g_functions.mellin_g3(n)
+    g3n = harmonics.g_functions.mellin_g3(n, S1)
     # fmt: off
     gqq1m_cfca = 16*g3n - (144 + n*(1 + n)*(156 + n*(340 + n*(655 + 51*n*(2 + n)))))/(18.*np.power(n,3)*np.power(1 + n,3)) + (-14.666666666666666 + 8/n - 8/(1 + n))*S2 - (4*Sp2m)/(n + np.power(n,2)) + S1*(29.77777777777778 + 16/np.power(n,2) - 16*S2 + 8*Sp2m) + 2*Sp3m + 10*zeta3 + zeta2*(16*S1 - 16*Sp1m - (16*(1 + n*log2))/n) # pylint: disable=line-too-long
     gqq1m_cfcf = -32*g3n + (24 - n*(-32 + 3*n*(-8 + n*(3 + n)*(3 + np.power(n,2)))))/(2.*np.power(n,3)*np.power(1 + n,3)) + (12 - 8/n + 8/(1 + n))*S2 + S1*(-24/np.power(n,2) - 8/np.power(1 + n,2) + 16*S2 - 16*Sp2m) + (8*Sp2m)/(n + np.power(n,2)) - 4*Sp3m - 20*zeta3 + zeta2*(-32*S1 + 32*Sp1m + 32*(1/n + log2)) # pylint: disable=line-too-long
@@ -84,7 +84,7 @@ def gamma_nsp(n, nf, sx):
     Sp1p = harmonics.S1(n / 2)
     Sp2p = harmonics.S2(n / 2)
     Sp3p = harmonics.S3(n / 2)
-    g3n = harmonics.g_functions.mellin_g3(n)
+    g3n = harmonics.g_functions.mellin_g3(n, S1)
     # fmt: off
     gqq1p_cfca = -16*g3n + (132 - n*(340 + n*(655 + 51*n*(2 + n))))/(18.*np.power(n,2)*np.power(1 + n,2)) + (-14.666666666666666 + 8/n - 8/(1 + n))*S2 - (4*Sp2p)/(n + np.power(n,2)) + S1*(29.77777777777778 - 16/np.power(n,2) - 16*S2 + 8*Sp2p) + 2*Sp3p + 10*zeta3 + zeta2*(16*S1 - 16*Sp1p + 16*(1/n - log2)) # pylint: disable=line-too-long
     gqq1p_cfcf = 32*g3n - (8 + n*(32 + n*(40 + 3*n*(3 + n)*(3 + np.power(n,2)))))/(2.*np.power(n,3)*np.power(1 + n,3)) + (12 - 8/n + 8/(1 + n))*S2 + S1*(40/np.power(n,2) - 8/np.power(1 + n,2) + 16*S2 - 16*Sp2p) + (8*Sp2p)/(n + np.power(n,2)) - 4*Sp3p - 20*zeta3 + zeta2*(-32*S1 + 32*Sp1p + 32*(-(1/n) + log2)) # pylint: disable=line-too-long
@@ -224,7 +224,7 @@ def gamma_gg(n, nf, sx):
     Sp1p = harmonics.S1(n / 2)
     Sp2p = harmonics.S2(n / 2)
     Sp3p = harmonics.S3(n / 2)
-    g3n = harmonics.g_functions.mellin_g3(n)
+    g3n = harmonics.g_functions.mellin_g3(n, S1)
     # fmt: off
     ggg1_caca = 16*g3n - (2*(576 + n*(1488 + n*(560 + n*(-1248 + n*(-1384 + n*(1663 + n*(4514 + n*(4744 + n*(3030 + n*(1225 + 48*n*(7 + n))))))))))))/(9.*np.power(-1 + n,2)*np.power(n,3)*np.power(1 + n,3)*np.power(2 + n,3)) + S1*(29.77777777777778 + 16/np.power(-1 + n,2) + 16/np.power(1 + n,2) - 16/np.power(2 + n,2) - 8*Sp2p) + (16*(1 + n + np.power(n,2))*Sp2p)/(n*(1 + n)*(-2 + n + np.power(n,2))) - 2*Sp3p - 10*zeta3 + zeta2*(-16*S1 + 16*Sp1p + 16*(-(1/n) + log2)) # pylint: disable=line-too-long
     ggg1_canf = (8*(6 + n*(1 + n)*(28 + n*(1 + n)*(13 + 3*n*(1 + n)))))/(9.*np.power(n,2)*np.power(1 + n,2)*(-2 + n + np.power(n,2))) - (40*S1)/9. # pylint: disable=line-too-long

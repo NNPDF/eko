@@ -28,18 +28,18 @@ def test_HarmonicsCache():
         [
             h.S21(N, S1, S2),
             h.S2m1(N, S2, Sm1, Sm2),
-            h.Sm21(N, Sm1),
+            h.Sm21(N, S1, Sm1),
             h.Sm2m1(N, S1, S2, Sm2),
         ]
     )
     np.testing.assert_allclose(h.s3x(N, sx, smx_test), s3x_test)
-    Sm31 = h.Sm31(N, Sm1, Sm2)
+    Sm31 = h.Sm31(N, S1, Sm1, Sm2)
     s4x_test = np.array(
         [
-            h.S31(N, S2, S4),
+            h.S31(N, S1, S2, S4),
             h.S211(N, S1, S2, S3),
-            h.Sm22(N, Sm2, Sm31),
-            h.Sm211(N, Sm1),
+            h.Sm22(N, S1, Sm2, Sm31),
+            h.Sm211(N, S1, S2, Sm1),
             Sm31,
         ]
     )

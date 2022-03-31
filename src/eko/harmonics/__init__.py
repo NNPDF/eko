@@ -125,7 +125,7 @@ def s3x(n, sx, smx):
         [
             S21(n, sx[0], sx[1]),
             S2m1(n, sx[1], smx[0], smx[1]),
-            Sm21(n, smx[0]),
+            Sm21(n, sx[0], smx[0]),
             Sm2m1(n, sx[0], sx[1], smx[1]),
         ]
     )
@@ -150,13 +150,13 @@ def s4x(n, sx, smx):
         s4x: np.ndarray
             list containing: :math:`S_{3,1},S_{2,1,1},S_{-2,2},S_{-2,1,1},S_{-3,1}`
     """
-    sm31 = Sm31(n, smx[0], smx[1])
+    sm31 = Sm31(n, sx[0], smx[0], smx[1])
     return np.array(
         [
-            S31(n, sx[1], sx[3]),
+            S31(n, sx[0], sx[1], sx[3]),
             S211(n, sx[0], sx[1], sx[2]),
-            Sm22(n, smx[1], sm31),
-            Sm211(n, smx[0]),
-            Sm31(n, smx[0], smx[1]),
+            Sm22(n, sx[0], smx[1], sm31),
+            Sm211(n, sx[0], sx[1], smx[0]),
+            Sm31(n, sx[0], smx[0], smx[1]),
         ]
     )

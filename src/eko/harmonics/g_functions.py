@@ -6,9 +6,10 @@ appearing in the analytic continuation of harmonics sums of weight = 3,4.
 import numba as nb
 import numpy as np
 
-from . import w1, w2, w3
+from . import w1
 from .constants import log2, zeta2, zeta3
 from .polygamma import cern_polygamma
+from .polygamma import recursive_harmonic_sum as harmonic_sum
 
 a1 = np.array(
     [
@@ -63,7 +64,7 @@ p31 = np.array([205.0 / 144.0, -25.0 / 12.0, 23.0 / 24.0, -13.0 / 36.0, 1.0 / 16
 
 
 @nb.njit(cache=True)
-def mellin_g3(N):
+def mellin_g3(N, S1):
     r"""
     Computes the Mellin transform of :math:`\text{Li}_2(x)/(1+x)`.
 
@@ -75,6 +76,8 @@ def mellin_g3(N):
     ----------
         N : complex
             Mellin moment
+        S1: complex
+            Harmonic sum :math:`S_{1}(N)`
 
     Returns
     -------
@@ -90,7 +93,7 @@ def mellin_g3(N):
     g3 = 0
     for j, c in enumerate(cs):
         Nj = N + j
-        g3 += c * (zeta2 - w1.S1(Nj) / Nj) / Nj
+        g3 += c * (zeta2 - harmonic_sum(S1, N, j, 1) / Nj) / Nj
     return g3
 
 
@@ -122,7 +125,7 @@ def mellin_g4(N):
 
 
 @nb.njit(cache=True)
-def mellin_g5(N):
+def mellin_g5(N, S1):
     r"""
     Computes the Mellin transform of :math:`(\text{Li}_2(x)ln(x))/(1+x)`.
 
@@ -133,6 +136,8 @@ def mellin_g5(N):
     ----------
         N : complex
             Mellin moment
+        S1: complex
+            Harmonic sum :math:`S_{1}(N)`
 
     Returns
     -------
@@ -143,13 +148,19 @@ def mellin_g5(N):
     for k, ak in enumerate(a1):
         Nk = N + k + 1
         g5 -= ak * (
-            (k + 1) / Nk**2 * (zeta2 + cern_polygamma(Nk + 1, 1) - 2 * w1.S1(Nk) / Nk)
+            (k + 1)
+            / Nk**2
+            * (
+                zeta2
+                + cern_polygamma(Nk + 1, 1)
+                - 2 * harmonic_sum(S1, N, k + 1, 1) / Nk
+            )
         )
     return g5
 
 
 @nb.njit(cache=True)
-def mellin_g6(N):
+def mellin_g6(N, S1):
     r"""
     Computes the Mellin transform of :math:`\text{Li}_3(x)/(1+x)`.
 
@@ -160,6 +171,8 @@ def mellin_g6(N):
     ----------
         N : complex
             Mellin moment
+        S1: complex
+            Harmonic sum :math:`S_{1}(N)`
 
     Returns
     -------
@@ -171,12 +184,15 @@ def mellin_g6(N):
     g6 = zeta3 * log2
     for k, ak in enumerate(a1):
         Nk = N + k + 1
-        g6 -= ak * (N / Nk * zeta3 + (k + 1) / Nk**2 * (zeta2 - w1.S1(Nk) / Nk))
+        g6 -= ak * (
+            N / Nk * zeta3
+            + (k + 1) / Nk**2 * (zeta2 - harmonic_sum(S1, N, k + 1, 1) / Nk)
+        )
     return g6
 
 
 @nb.njit(cache=True)
-def mellin_g8(N):
+def mellin_g8(N, S1, S2):
     r"""
     Computes the Mellin transform of :math:`S_{1,2}(x)/(1+x)`.
 
@@ -187,6 +203,10 @@ def mellin_g8(N):
     ----------
         N : complex
             Mellin moment
+        S1: complex
+            Harmonic sum :math:`S_{1}(N)`
+        S2: complex
+            Harmonic sum :math:`S_{2}(N)`
 
     Returns
     -------
@@ -197,7 +217,12 @@ def mellin_g8(N):
     for k, ak in enumerate(a1):
         Nk = N + k + 1
         g8 -= ak * (
-            N / Nk * zeta3 + (k + 1) / Nk**2 * 1 / 2 * (w1.S1(Nk) ** 2 + w2.S2(Nk))
+            N / Nk * zeta3
+            + (k + 1)
+            / Nk**2
+            * 1
+            / 2
+            * (harmonic_sum(S1, N, k + 1, 1) ** 2 + harmonic_sum(S2, N, k + 1, 2))
         )
     return g8
 
@@ -219,9 +244,9 @@ def mellin_g18(N, S1, S2):
         N : complex
             Mellin moment
         S1 : complex
-           harmonics.S1(N)
+            Harmonic sum :math:`S_{1}(N)`
         S2 : complex
-           harmonics.S2(N)
+            Harmonic sum :math:`S_{2}(N)`
     Returns
     -------
         mellin_g18 : complex
@@ -230,10 +255,15 @@ def mellin_g18(N, S1, S2):
     g18 = (S1**2 + S2) / (N) - zeta2 * S1
     for k, ck in enumerate(c1):
         Nk = N + k
-        g18 += ck * (N) / (Nk) * w1.S1(Nk)
+        g18 += ck * (N) / (Nk) * harmonic_sum(S1, N, k, 1)
     for k, p11k in enumerate(p11):
         Nk = N + k
-        g18 -= p11k * (N) / (Nk) * (w1.S1(Nk) ** 2 + w2.S2(Nk))
+        g18 -= (
+            p11k
+            * (N)
+            / (Nk)
+            * (harmonic_sum(S1, N, k, 1) ** 2 + harmonic_sum(S2, N, k, 2))
+        )
     return g18
 
 
@@ -250,7 +280,7 @@ def mellin_g19(N, S1):
         N : complex
             Mellin moment
         S1 : complex
-           harmonics.S1(N)
+           Harmonic sum :math:`S_{1}(N)`
 
     Returns
     -------
@@ -260,7 +290,7 @@ def mellin_g19(N, S1):
     g19 = 1 / 2 * zeta2 * S1
     for k, ak in enumerate(a1):
         Nk = N + k
-        g19 -= ak / (k + 1) * w1.S1(Nk + 1)
+        g19 -= ak / (k + 1) * harmonic_sum(S1, N, k + 1, 1)
     return g19
 
 
@@ -282,11 +312,11 @@ def mellin_g21(N, S1, S2, S3):
         N : complex
             Mellin moment
         S1 : complex
-           harmonics.S1(N)
+            Harmonic sum :math:`S_{1}(N)`
         S2 : complex
-           harmonics.S2(N)
+            Harmonic sum :math:`S_{2}(N)`
         S3 : complex
-           harmonics.S3(N)
+            Harmonic sum :math:`S_{3}(N)`
 
     Returns
     -------
@@ -296,22 +326,25 @@ def mellin_g21(N, S1, S2, S3):
     g21 = -zeta3 * S1 + (S1**3 + 3 * S1 * S2 + 2 * S3) / (2 * N)
     for k, ck in enumerate(c3):
         Nk = N + k
-        g21 += ck * N / Nk * w1.S1(Nk)
+        g21 += ck * N / Nk * harmonic_sum(S1, N, k, 1)
     for k in range(0, 5):
         Nk = N + k
+        S1nk = harmonic_sum(S1, N, k, 1)
+        S2nk = harmonic_sum(S2, N, k, 2)
+        S3nk = harmonic_sum(S3, N, k, 3)
         g21 += (
             N
             / Nk
             * (
-                p32[k] * (w1.S1(Nk) ** 3 + 3 * w1.S1(Nk) * w2.S2(Nk) + 2 * w3.S3(Nk))
-                - p31[k] * (w1.S1(Nk) ** 2 + w2.S2(Nk))
+                p32[k] * (S1nk**3 + 3 * S1nk * S2nk + 2 * S3nk)
+                - p31[k] * (S1nk**2 + S2nk)
             )
         )
     return g21
 
 
 @nb.njit(cache=True)
-def mellin_g22(N):
+def mellin_g22(N, S1):
     r"""
     Computes the Mellin transform of :math:`-(\text{Li}_2(x) ln(x))/(1-x)`.
 
@@ -326,6 +359,8 @@ def mellin_g22(N):
     ----------
         N : complex
             Mellin moment
+        S1 : complex
+            Harmonic sum :math:`S_{1}(N)`
 
     Returns
     -------
@@ -339,6 +374,7 @@ def mellin_g22(N):
     for k, p11k in enumerate(p11):
         Nk = N + k
         g22 -= p11k * (
-            w1.S1(Nk) * cern_polygamma(Nk + 1, 1) - 1 / 2 * cern_polygamma(Nk + 1, 2)
+            harmonic_sum(S1, N, k, 1) * cern_polygamma(Nk + 1, 1)
+            - 1 / 2 * cern_polygamma(Nk + 1, 2)
         )
     return g22

@@ -39,7 +39,7 @@ def check_melling_g3_pegasus(N):
         - 0.3174 * (zeta2 - S15 / N5) / N5
         + 0.0699 * (zeta2 - S16 / N6) / N6
     )
-    np.testing.assert_allclose(h.g_functions.mellin_g3(N), SPMOM)
+    np.testing.assert_allclose(h.g_functions.mellin_g3(N, S1), SPMOM)
 
 
 @pytest.mark.isolated
