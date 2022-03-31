@@ -36,9 +36,9 @@ def test_HarmonicsCache():
     Sm31 = h.Sm31(N, S1, Sm1, Sm2)
     s4x_test = np.array(
         [
-            h.S31(N, S1, S2, S4),
+            h.S31(N, S1, S2, S3, S4),
             h.S211(N, S1, S2, S3),
-            h.Sm22(N, S1, Sm2, Sm31),
+            h.Sm22(N, S1, S2, Sm2, Sm31),
             h.Sm211(N, S1, S2, Sm1),
             Sm31,
         ]

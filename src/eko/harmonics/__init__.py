@@ -153,9 +153,9 @@ def s4x(n, sx, smx):
     sm31 = Sm31(n, sx[0], smx[0], smx[1])
     return np.array(
         [
-            S31(n, sx[0], sx[1], sx[3]),
+            S31(n, sx[0], sx[1], sx[2], sx[3]),
             S211(n, sx[0], sx[1], sx[2]),
-            Sm22(n, sx[0], smx[1], sm31),
+            Sm22(n, sx[0], sx[1], smx[1], sm31),
             Sm211(n, sx[0], sx[1], smx[0]),
             Sm31(n, sx[0], smx[0], smx[1]),
         ]

@@ -47,8 +47,9 @@ def test_g5():
         Sm1 = h.Sm1(N)
         Sm2 = h.Sm2(N)
         S1 = h.S1(N)
+        S2 = h.S2(N)
         Sm31 = h.Sm31(N, S1, Sm1, Sm2)
-        Sm22 = h.Sm22(N, S1, Sm2, Sm31)
+        Sm22 = h.Sm22(N, S1, S2, Sm2, Sm31)
         np.testing.assert_allclose(Sm22, vals, atol=1e-05)
 
 
@@ -99,6 +100,7 @@ def test_g22():
     for N, vals in zip(testN, refvals):
         S1 = h.S1(N)
         S2 = h.S2(N)
+        S3 = h.S3(N)
         S4 = h.S4(N)
-        S31 = h.S31(N, S1, S2, S4)
+        S31 = h.S31(N, S1, S2, S3, S4)
         np.testing.assert_allclose(S31, vals, atol=1e-05)

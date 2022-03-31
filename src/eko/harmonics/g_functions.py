@@ -8,7 +8,6 @@ import numpy as np
 
 from . import w1
 from .constants import log2, zeta2, zeta3
-from .polygamma import cern_polygamma
 from .polygamma import recursive_harmonic_sum as harmonic_sum
 
 a1 = np.array(
@@ -125,7 +124,7 @@ def mellin_g4(N):
 
 
 @nb.njit(cache=True)
-def mellin_g5(N, S1):
+def mellin_g5(N, S1, S2):
     r"""
     Computes the Mellin transform of :math:`(\text{Li}_2(x)ln(x))/(1+x)`.
 
@@ -138,6 +137,8 @@ def mellin_g5(N, S1):
             Mellin moment
         S1: complex
             Harmonic sum :math:`S_{1}(N)`
+        S2: complex
+            Harmonic sum :math:`S_{2}(N)`
 
     Returns
     -------
@@ -147,14 +148,11 @@ def mellin_g5(N, S1):
     g5 = 0.0
     for k, ak in enumerate(a1):
         Nk = N + k + 1
+        poly1nk = -harmonic_sum(S2, N, k + 1, 2) + zeta2
         g5 -= ak * (
             (k + 1)
             / Nk**2
-            * (
-                zeta2
-                + cern_polygamma(Nk + 1, 1)
-                - 2 * harmonic_sum(S1, N, k + 1, 1) / Nk
-            )
+            * (zeta2 + poly1nk - 2 * harmonic_sum(S1, N, k + 1, 1) / Nk)
         )
     return g5
 
@@ -289,7 +287,6 @@ def mellin_g19(N, S1):
     """
     g19 = 1 / 2 * zeta2 * S1
     for k, ak in enumerate(a1):
-        Nk = N + k
         g19 -= ak / (k + 1) * harmonic_sum(S1, N, k + 1, 1)
     return g19
 
@@ -344,7 +341,7 @@ def mellin_g21(N, S1, S2, S3):
 
 
 @nb.njit(cache=True)
-def mellin_g22(N, S1):
+def mellin_g22(N, S1, S2, S3):
     r"""
     Computes the Mellin transform of :math:`-(\text{Li}_2(x) ln(x))/(1-x)`.
 
@@ -361,6 +358,10 @@ def mellin_g22(N, S1):
             Mellin moment
         S1 : complex
             Harmonic sum :math:`S_{1}(N)`
+        S2 : complex
+            Harmonic sum :math:`S_{2}(N)`
+        S3 : complex
+            Harmonic sum :math:`S_{3}(N)`
 
     Returns
     -------
@@ -369,12 +370,11 @@ def mellin_g22(N, S1):
     """
     g22 = 0.0
     for k, ck in enumerate(c1):
-        Nk = N + k
-        g22 += ck * cern_polygamma(Nk + 1, 1)
+        poly1nk = -harmonic_sum(S2, N, k, 2) + zeta2
+        g22 += ck * poly1nk
     for k, p11k in enumerate(p11):
-        Nk = N + k
-        g22 -= p11k * (
-            harmonic_sum(S1, N, k, 1) * cern_polygamma(Nk + 1, 1)
-            - 1 / 2 * cern_polygamma(Nk + 1, 2)
-        )
+        S1nk = harmonic_sum(S1, N, k, 1)
+        poly1nk = -harmonic_sum(S2, N, k, 2) + zeta2
+        poly2nk = 2 * harmonic_sum(S3, N, k, 3) + zeta3
+        g22 -= p11k * (S1nk * poly1nk - 1 / 2 * poly2nk)
     return g22
