@@ -48,23 +48,14 @@ def test_photon_momentum_conservation():
     )
 
 
-# def test_gammansp():
-#    N = complex(2.0, 0.0)
-#    sx = get_sx(N)
-#    # import pdb; pdb.set_trace()
-#    np.testing.assert_almost_equal(
-#       as1aem1.gamma_nsp(N,NF,sx) ,
-#        -6.67306,
-#    )
-
-
-# def test_quark_momentum_conservation():
-#    # quark momentum
-#    N = complex(2.0, 0.0)
-#    sx = get_sx(N)
-#    np.testing.assert_almost_equal(
-#        - 6.67306
-#        + as1aem1.gamma_gq(N, NF, sx)
-#        + as1aem1.gamma_phq(N, NF, sx),
-#        0,
-#    )
+def test_quark_momentum_conservation():
+    # quark momentum
+    N = complex(2.0, 0.0)
+    sx = get_sx(N)
+    np.testing.assert_almost_equal(
+        +as1aem1.gamma_nsp(N, NF, sx)
+        + as1aem1.gamma_gq(N, NF, sx)
+        + as1aem1.gamma_phq(N, NF, sx),
+        0,
+        decimal=4,
+    )
