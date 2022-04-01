@@ -9,4 +9,4 @@ class TheoryCard:
 
 @dataclass
 class OperatorCard:
-    xgrid: list[float]
+    xgrid: list
