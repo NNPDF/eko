@@ -19,6 +19,7 @@ def test_number_conservation():
     N = complex(1.0, 0.0)
     sx = get_sx(N)
     np.testing.assert_almost_equal(+as1aem1.gamma_nsm(N, NF, sx), 0, decimal=4)
+    np.testing.assert_almost_equal(+as1aem1.gamma_nsV(N, NF, sx), 0, decimal=4)
 
 
 def test_gluon_momentum_conservation():
