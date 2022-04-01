@@ -28,7 +28,7 @@ def A_qq_ns(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
+        sx : list
             harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
@@ -83,7 +83,7 @@ def A_hq_ps(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
+        sx : list
             harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
@@ -147,7 +147,7 @@ def A_hg(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
+        sx : list
             harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
@@ -159,7 +159,10 @@ def A_hg(n, sx, L):
     """
     S1 = sx[0][0]
     S2, Sm2 = sx[1]
-    S3, Sm21, Sm3 = sx[2]
+    try:
+        S3, Sm21, Sm3 = sx[2]
+    except ValueError:
+        S3, _, _, Sm21, _, Sm3 = sx[2]
     S1m = S1 - 1 / n
     S2m = S2 - 1 / n**2
 
@@ -283,7 +286,7 @@ def A_gq(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
+        sx : list
             harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
@@ -333,7 +336,7 @@ def A_gg(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
+        sx : list
             harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
@@ -426,8 +429,13 @@ def A_singlet(n, sx, L, is_msbar=False):
       ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
-            harmonic sums cache
+        sx : list
+            harmonic sums cache containing:
+                [
+                    [S1, Sm1],
+                    [S2, Sm2],
+                    [S3, Sm21, Sm3],
+                ]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
         is_msbar: bool
@@ -475,8 +483,13 @@ def A_ns(n, sx, L):
       ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
-            harmonic sums cache
+        sx : list
+            harmonic sums cache containing:
+                [
+                    [S1, Sm1],
+                    [S2, Sm2],
+                    [S3, Sm21, Sm3],
+                ]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 

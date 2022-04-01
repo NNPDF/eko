@@ -30,7 +30,7 @@ def test_build_ome_as():
     for o in [1, 2, 3]:
         if o == 3:
             N = complex(2.123)
-        sx = compute_harmonics_cache(np.random.rand(), o)
+        sx = compute_harmonics_cache(N, o)
         aNS = A_non_singlet(o, N, sx, nf, L)
         aS = A_singlet(o, N, sx, nf, L, is_msbar)
 

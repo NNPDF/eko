@@ -32,8 +32,15 @@ def compute_harmonics_cache(n, order):
 
     Returns
     -------
-        sx: np.ndarray
-            harmonic sums cache
+        sx: list
+            harmonic sums cache. At |N3LO| it contains:
+                [
+                    [S1, Sm1],
+                    [S2, Sm2],
+                    [S3, S21, S2m1, Sm21,  Sm2m1, Sm3],
+                    [S4, S31, S211, Sm22,  Sm211, Sm31,  Sm4],
+                    [S5, Sm5],
+                ]
     """
     # max harmonics sum weight for each qcd order
     max_weight = {1: 2, 2: 3, 3: 5}
@@ -62,7 +69,7 @@ def A_singlet(order, n, sx, nf, L, is_msbar):
             perturbative order
         n : complex
             Mellin variable
-        sx : numpy.ndarray
+        sx : list
             harmonic sums cache
         nf: int
             number of active flavor below threshold
@@ -106,7 +113,7 @@ def A_non_singlet(order, n, sx, nf, L):
             perturbative order
         n : complex
             Mellin variable
-        sx : numpy.ndarray
+        sx : list
             harmonic sums cache
         nf: int
             number of active flavor below threshold

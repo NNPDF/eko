@@ -18,10 +18,8 @@ def A_ggTF2(n, sx):
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
+        sx : list
             harmonic sums cache
-        s3x : numpy.ndarray
-            list S21, S2m1, Sm21, Sm2m1
 
     Returns
     -------
@@ -29,8 +27,8 @@ def A_ggTF2(n, sx):
             :math:`A_{gg,T_{F}^2}^{S,(3)}(N)`
     """
     S1 = sx[0][0]
-    S1 = sx[1][0]
-    S1 = sx[2][0]
+    S2 = sx[1][0]
+    S3 = sx[2][0]
     S21 = sx[2][1]
     # here we use an approximation at large N
     #  for binomial(2 * n, n) / np.power(4, n)

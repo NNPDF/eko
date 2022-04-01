@@ -16,8 +16,8 @@ def A_qqPS(n, sx, nf, L):
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
-            list S1 ... S5
+        sx : list
+            harmonic sums cache
         nf : int
             number of active flavor below the threshold
         L : float
@@ -28,7 +28,10 @@ def A_qqPS(n, sx, nf, L):
         A_qqPS : complex
             :math:`A_{qq}^{PS,(3)}(N)`
     """
-    S1, S2, S3 = sx[0], sx[1], sx[2]
+    S1 = sx[0][0]
+    S2 = sx[1][0]
+    S3 = sx[2][0]
+
     a_qqPS_l0 = (
         0.3333333333333333
         * nf

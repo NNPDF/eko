@@ -4,7 +4,7 @@ import numpy as np
 
 
 @nb.njit(cache=True)
-def A_qg(n, sx, smx, s3x, s4x, nf, L):
+def A_qg(n, sx, nf, L):
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{qg}^{S,(3)}(N)`.
     The expression is presented in :cite:`Bierenbaum:2009mv`.
@@ -16,14 +16,8 @@ def A_qg(n, sx, smx, s3x, s4x, nf, L):
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
-            list S1 ... S5
-        smx : numpy.ndarray
-            list Sm1 ... Sm5
-        s3x : numpy.ndarray
-            list S21, S2m1, Sm21, Sm2m1
-        s4x : numpy.ndarray
-            list S31, S221, Sm22, Sm211, Sm31
+        sx : list
+            harmonic sums cache
         nf : int
             number of active flavor below the threshold
         L : float
@@ -34,10 +28,10 @@ def A_qg(n, sx, smx, s3x, s4x, nf, L):
         A_qg : complex
             :math:`A_{qg}^{S,(3)}(N)`
     """
-    S1, S2, S3, S4 = sx[0], sx[1], sx[2], sx[3]
-    Sm2, Sm3, Sm4 = smx[1], smx[2], smx[3]
-    S21 = s3x[0]
-    S31, S211 = s4x[0], s4x[1]
+    S1, _ = sx[0]
+    S2, Sm2 = sx[1]
+    S3, S21, _, _, _, Sm3 = sx[2]
+    S4, S31, S211, _, _, _, Sm4 = sx[3]
     a_qg_l0 = 0.3333333333333333 * nf * (
         (
             -8.547960200246003

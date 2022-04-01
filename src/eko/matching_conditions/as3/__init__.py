@@ -55,13 +55,13 @@ def A_singlet(n, sx_all, nf, L):
     ----------
         n : complex
             Mellin moment
-        sx_all : numpy.ndarray
+        sx_all : list
             harmonic sums cache containing:
                 [
                     [S1, Sm1],
                     [S2, Sm2],
-                    [S3, S21, S2m1, Sm21, Sm2m1, Sm3],
-                    [S4, S31, S221, Sm22, Sm211, Sm31 Sm4],
+                    [S3, S21, S2m1, Sm21,  Sm2m1, Sm3],
+                    [S4, S31, S211, Sm22,  Sm211, Sm31,  Sm4],
                     [S5, Sm5],
                 ]
         nf : int
@@ -74,19 +74,15 @@ def A_singlet(n, sx_all, nf, L):
         A_S : numpy.ndarray
             |NNLO| singlet |OME| :math:`A^{S,(3)}(N)`
     """
-    sx = sx_all[:, 0]
-    smx = sx_all[:, -1]
-    s3x = sx_all[2, 1:]
-    s4x = sx_all[3, 1:]
-    A_hq_3 = A_Hq(n, sx, smx, s3x, s4x, nf, L)
-    A_hg_3 = A_Hg(n, sx, smx, s3x, s4x, nf, L)
+    A_hq_3 = A_Hq(n, sx_all, nf, L)
+    A_hg_3 = A_Hg(n, sx_all, nf, L)
 
-    A_gq_3 = A_gq(n, sx, smx, s3x, s4x, nf, L)
+    A_gq_3 = A_gq(n, sx_all, nf, L)
     A_gg_3 = A_gg(n, sx_all, nf, L)
 
-    A_qq_ps_3 = A_qqPS(n, sx, nf, L)
-    A_qq_ns_3 = A_qqNS(n, sx, smx, s3x, s4x, nf, L)
-    A_qg_3 = A_qg(n, sx, smx, s3x, s4x, nf, L)
+    A_qq_ps_3 = A_qqPS(n, sx_all, nf, L)
+    A_qq_ns_3 = A_qqNS(n, sx_all, nf, L)
+    A_qg_3 = A_qg(n, sx_all, nf, L)
 
     A_S = np.array(
         [
@@ -117,9 +113,15 @@ def A_ns(n, sx_all, nf, L):
     ----------
         n : complex
             Mellin moment
-        sx_all : numpy.ndarray
-            List of harmonic sums containing:
-                [S1 ... S5, Sm1 ... Sm5, S21, S2m1, Sm21, Sm2m1, S31, S221, Sm22, Sm211, Sm31]
+        sx_all : list
+            harmonic sums cache containing:
+                [
+                    [S1, Sm1],
+                    [S2, Sm2],
+                    [S3, S21, S2m1, Sm21,  Sm2m1, Sm3],
+                    [S4, S31, S211, Sm22,  Sm211, Sm31,  Sm4],
+                    [S5, Sm5],
+                ]
         nf : int
             number of active flavor below the threshold
         L : float
@@ -134,10 +136,4 @@ def A_ns(n, sx_all, nf, L):
     --------
         A_qqNS_3 : :math:`A_{qq,H}^{NS,(3))}`
     """
-    sx = sx_all[:, 0]
-    smx = sx_all[:, -1]
-    s3x = sx_all[2, 1:]
-    s4x = sx_all[3, 1:]
-    return np.array(
-        [[A_qqNS(n, sx, smx, s3x, s4x, nf, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_
-    )
+    return np.array([[A_qqNS(n, sx_all, nf, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)

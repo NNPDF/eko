@@ -19,7 +19,7 @@ def A_gg(n, sx, nf, L):  # pylint: disable=too-many-locals
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
+        sx : list
             harmonic sums cache
         nf : int
             number of active flavor below the threshold

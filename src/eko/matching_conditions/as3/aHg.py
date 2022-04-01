@@ -7,7 +7,7 @@ from .aHgstfac import A_Hgstfac
 
 
 @nb.njit(cache=True)
-def A_Hg(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
+def A_Hg(n, sx, nf, L):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{Hg}^{S,(3)}(N)`.
     The experssion is presented in :cite:`Bierenbaum:2009mv`.
@@ -19,14 +19,8 @@ def A_Hg(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
-            list S1 ... S5
-        smx : numpy.ndarray
-            list Sm1 ... Sm5
-        s3x : numpy.ndarray
-            list S21, S2m1, Sm21, Sm2m1
-        s4x : numpy.ndarray
-            list S31, S221, Sm22, Sm211, Sm31
+        sx : list
+            harmonic sums cache
         nf : int
             number of active flavor below the threshold
         L : float
@@ -41,12 +35,12 @@ def A_Hg(n, sx, smx, s3x, s4x, nf, L):  # pylint: disable=too-many-locals
         A_Hgstfac: eko.matching_conditions.as3.aHgstfac.A_Hgstfac
             Incomplete part of the |OME|.
     """
-    S1, S2, S3, S4 = sx[0], sx[1], sx[2], sx[3]
-    Sm2, Sm3, Sm4 = smx[1], smx[2], smx[3]
-    S21, Sm21 = s3x[0], s3x[2]
-    S31, S211, Sm22, Sm211, Sm31 = s4x[0], s4x[1], s4x[2], s4x[3], s4x[4]
+    S1, _ = sx[0]
+    S2, Sm2 = sx[1]
+    S3, S21, _, Sm21, _, Sm3 = sx[2]
+    S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
     a_Hg_l0 = (
-        A_Hgstfac(n, sx, smx, s3x, s4x, nf)
+        A_Hgstfac(n, sx, nf)
         + (1.0684950250307503 * (2.0 + n + np.power(n, 2)))
         / (n * (1.0 + n) * (2.0 + n))
         + 0.3333333333333333
