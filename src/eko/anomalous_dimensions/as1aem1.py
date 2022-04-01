@@ -19,7 +19,7 @@ def gamma_phq(N, nf, sx):
     """
     Computes the O(as1aem1) photon-quark anomalous dimension
 
-    Implements Eq. (2.5) of :cite:`Carrazza:2015dea`.
+    Implements Eq. (36) of :cite:`deFlorian:2015ujt`.
 
     Parameters
     ----------
@@ -59,9 +59,7 @@ def gamma_qph(N, nf, sx):
     """
     Computes the O(as1aem1) quark-photon anomalous dimension
 
-    Implements Eq. (2.5) of :cite:`Carrazza:2015dea`.
-    But adding the :math:`N_C` and the :math:`2n_f` factors from :math:`\\theta` inside the
-    definition of :math:`\\gamma_{q \\gamma}^{(0)}(N)`.
+    Implements Eq. (26) of :cite:`deFlorian:2015ujt`.
 
     Parameters
     ----------
@@ -107,9 +105,7 @@ def gamma_gph(N):
     """
     Computes the O(as1aem1) gluon-photon anomalous dimension
 
-    Implements Eq. (2.5) of :cite:`Carrazza:2015dea`.
-    But adding the :math:`N_C` and the :math:`2n_f` factors from :math:`\\theta` inside the
-    definition of :math:`\\gamma_{q \\gamma}^{(0)}(N)`.
+    Implements Eq. (27) of :cite:`deFlorian:2015ujt`.
 
     Parameters
     ----------
@@ -135,9 +131,7 @@ def gamma_phg(N):
     """
     Computes the O(as1aem1) photon-gluon anomalous dimension
 
-    Implements Eq. (2.5) of :cite:`Carrazza:2015dea`.
-    But adding the :math:`N_C` and the :math:`2n_f` factors from :math:`\\theta` inside the
-    definition of :math:`\\gamma_{q \\gamma}^{(0)}(N)`.
+    Implements Eq. (30) of :cite:`deFlorian:2015ujt`.
 
     Parameters
     ----------
@@ -158,7 +152,7 @@ def gamma_qg(N, nf, sx):
     """
     Computes the O(as1aem1) quark-gluon singlet anomalous dimension.
 
-    Implements Eq. (3.7) of :cite:`Vogt:2004mw`.
+    Implements Eq. (29) of :cite:`deFlorian:2015ujt`.
 
     Parameters
     ----------
@@ -184,7 +178,7 @@ def gamma_gq(N, nf, sx):
     """
     Computes the O(as1aem1) gluon-quark singlet anomalous dimension.
 
-    Implements Eq. (3.8) of :cite:`Vogt:2004mw`.
+    Implements Eq. (35) of :cite:`deFlorian:2015ujt`.
 
     Parameters
     ----------
@@ -205,12 +199,12 @@ def gamma_gq(N, nf, sx):
     return gamma_phq(N, nf, sx)
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit("c16()", cache=True)
 def gamma_phph():
     """
     Computes the O(as1aem1) photon-photon singlet anomalous dimension.
 
-    Implements Eq. (3.9) of :cite:`Vogt:2004mw`.
+    Implements Eq. (28) of :cite:`deFlorian:2015ujt`.
 
     Parameters
     ----------
@@ -225,12 +219,12 @@ def gamma_phph():
     return 4 * constants.CF * constants.CA
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit("c16()", cache=True)
 def gamma_gg():
     """
     Computes the O(as1aem1) gluon-gluon singlet anomalous dimension.
 
-    Implements Eq. (3.9) of :cite:`Vogt:2004mw`.
+    Implements Eq. (31) of :cite:`deFlorian:2015ujt`.
 
     Parameters
     ----------
@@ -250,7 +244,7 @@ def gamma_nsp(N, nf, sx):
     """
     Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
 
-    Implements Eq. (3.5) of :cite:`Moch:2004pa`.
+    Implements sum of Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
 
     Parameters
     ----------
@@ -317,7 +311,7 @@ def gamma_nsm(N, nf, sx):
     """
     Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
 
-    Implements Eq. (3.5) of :cite:`Moch:2004pa`.
+    Implements difference between Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
 
     Parameters
     ----------
@@ -377,29 +371,3 @@ def gamma_nsm(N, nf, sx):
         - 16 * zeta3
     )
     return constants.CF * result
-
-
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_nsV(N, nf, sx):
-    """
-    Computes the O(as1aem1) valence non-singlet anomalous dimension.
-
-    Implements Eq. (3.5) of :cite:`Moch:2004pa`.
-
-    Parameters
-    ----------
-        N : complex
-            Mellin moment
-        nf : int
-            Number of active flavors
-        sx : np array
-            List of harmonic sums
-
-    Returns
-    -------
-        gamma_nsV : complex
-            O(as1aem1) singlet-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,V}^{(1,1)}(N)`
-    """
-
-    return gamma_nsm(N, nf, sx)

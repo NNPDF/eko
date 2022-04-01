@@ -3,11 +3,8 @@
 import numpy as np
 from test_ad_nnlo import get_sx
 
-import eko.anomalous_dimensions.aem1 as aem1
-import eko.anomalous_dimensions.as1 as as1
-import eko.anomalous_dimensions.as1aem1 as as1aem1
 from eko import constants
-from eko.anomalous_dimensions import harmonics
+from eko.anomalous_dimensions import as1aem1, harmonics
 
 NF = 5
 ND = 3
@@ -18,8 +15,7 @@ def test_number_conservation():
     # number
     N = complex(1.0, 0.0)
     sx = get_sx(N)
-    np.testing.assert_almost_equal(+as1aem1.gamma_nsm(N, NF, sx), 0, decimal=4)
-    np.testing.assert_almost_equal(+as1aem1.gamma_nsV(N, NF, sx), 0, decimal=4)
+    np.testing.assert_almost_equal(as1aem1.gamma_nsm(N, NF, sx), 0, decimal=4)
 
 
 def test_gluon_momentum_conservation():
