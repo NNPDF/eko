@@ -431,11 +431,7 @@ def A_singlet(n, sx, L, is_msbar=False):
             Mellin moment
         sx : list
             harmonic sums cache containing:
-                [
-                    [S1, Sm1],
-                    [S2, Sm2],
-                    [S3, Sm21, Sm3],
-                ]
+                [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
         is_msbar: bool
@@ -485,11 +481,7 @@ def A_ns(n, sx, L):
             Mellin moment
         sx : list
             harmonic sums cache containing:
-                [
-                    [S1, Sm1],
-                    [S2, Sm2],
-                    [S3, Sm21, Sm3],
-                ]
+                [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 

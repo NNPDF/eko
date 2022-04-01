@@ -57,13 +57,13 @@ def A_singlet(n, sx_all, nf, L):
             Mellin moment
         sx_all : list
             harmonic sums cache containing:
-                [
-                    [S1, Sm1],
-                    [S2, Sm2],
-                    [S3, S21, S2m1, Sm21,  Sm2m1, Sm3],
-                    [S4, S31, S211, Sm22,  Sm211, Sm31,  Sm4],
-                    [S5, Sm5],
-                ]
+
+            .. math ::
+                [[S_1,S_{-1}],
+                [S_2,S_{-2}],
+                [S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}],
+                [S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}],]
+
         nf : int
             number of active flavor below the threshold
         L : float
@@ -115,13 +115,13 @@ def A_ns(n, sx_all, nf, L):
             Mellin moment
         sx_all : list
             harmonic sums cache containing:
-                [
-                    [S1, Sm1],
-                    [S2, Sm2],
-                    [S3, S21, S2m1, Sm21,  Sm2m1, Sm3],
-                    [S4, S31, S211, Sm22,  Sm211, Sm31,  Sm4],
-                    [S5, Sm5],
-                ]
+
+            .. math ::
+                [[S_1,S_{-1}],
+                [S_2,S_{-2}],
+                [S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}],
+                [S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}],]
+
         nf : int
             number of active flavor below the threshold
         L : float

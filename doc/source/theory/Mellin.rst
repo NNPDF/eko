@@ -126,19 +126,33 @@ the Mellin inverse.
 and where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`~eko.harmonics.polygamma.cern_polygamma`)
 and :math:`\zeta` the Riemann zeta function (using :func:`scipy.special.zeta`).
 
-- for the sums :math:`S_{-m}(N)` and :math:`m > 0` we use :cite:`Gluck:1989ze`
+- for the sums :math:`S_{-m}(N)` and :math:`m > 0` we use:
 
 .. math ::
-    S_m'(N) = 2^{m-1}(S_m(N) + S_{-m}(N)) = \frac{1+\eta}{2} S_m(N/2) + \frac{1-\eta}{2}S_m((N-1)/2)
+    S_{-m}(N) = \frac{\eta}{2} (S_{m}(N / 2) - S_{m}((N - 1) / 2)) - c_{m}
 
-where formally :math:`\eta = (-1)^N` but in all singlet-like quantities it has to be analytically continued with 1
-and with -1 elsewise.
+  where formally :math:`\eta = (-1)^N` but in all singlet-like quantities it has to be analytically continued with 1
+  and with -1 elsewise and :math:`c_{m}= \left [ log(2), 1/2 \zeta_{2}, 3/4 \zeta_{3}, 7/8 \zeta_{4}, 15/16 \zeta_{5} \right]`
 
-- for the sums with greater depth we use the lists provided in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if`.
-- For :math:`S_{-2,1}(N)` we use the implementation of :cite:`Gluck:1989ze` (where it is called :math:`\tilde S`):
+- for the sums with greater depth we use the definitions provided in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if,Blumlein:2009ta`:
 
-.. math ::
-    S_{-2,1}(N) &= - \frac 5 8 \zeta(3) + \zeta(2)\left(S_{-1}(N) - \frac{\eta}{N} + \log(2)\right) + \eta\left(\frac{S_{1}(N)}{N^2} + g_3(N)\right)\\
-    g_3(N) &= \mathcal M \left[\frac{\text{Li}_2(x)}{1+x}\right](N)
+The full list of harmonics sums available in :mod:`eko.harmonics` is:
 
-where for :math:`g_3(N)` we use the parametrization of :cite:`Vogt:2004ns` (implemented as :meth:`~eko.harmonics.g_functions.mellin_g3`).
+    - weight 1: :math:`S_{1}, S_{-1}`
+    - weight 2: :math:`S_{2}, S_{-2}`
+    - weight 3: :math:`S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}`
+    - weight 4:
+
+        .. math ::
+            S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}
+
+        these sums relies on the integrals :mod:`eko.harmonics.g_functions` :cite:`MuselliPhD,Blumlein:1998if`
+
+    - weight 5:
+
+        .. math ::
+            S_{5}, S_{4,1}, S_{3,1,1}, S_{2,3}, S_{2,2,1}, S_{2,1,1,1}, S_{2,1,-2}, S_{2,-3}, S_{-2,3}, S_{-2,2,1}, S_{-2,1,1,1}, S_{-5}
+
+        these sums relies on the integrals :mod:`eko.harmonics.f_functions` :cite:`Blumlein:2009ta`
+
+We have also implemented a recursive computation of simple harmonics (single index), see :func:`eko.harmonics.polygamma.recursive_harmonic_sum`

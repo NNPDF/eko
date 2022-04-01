@@ -132,11 +132,7 @@ def A_singlet(n, sx, L):
         n : complex
             Mellin moment
         sx : list
-            harmonic sums cache containing:
-                [
-                    [S1],
-                    [S2],
-                ]
+            harmonic sums cache containing: [[:math:`S_1`][:math:`S_2`]]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -179,11 +175,7 @@ def A_ns(n, sx, L):
         n : complex
             Mellin moment
         sx : list
-            harmonic sums cache containing:
-                [
-                    [S1],
-                    [S2],
-                ]
+            harmonic sums cache containing: [[:math:`S_1`][:math:`S_2`]]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
       Returns
