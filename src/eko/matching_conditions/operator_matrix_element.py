@@ -47,7 +47,8 @@ def compute_harmonics_cache(n, order):
         # Add weight 3 and 4 to cache
         sx[2, 1:-2] = harmonics.s3x(n, sx[:, 0], sx[:, -1])
         sx[3, 1:-1] = harmonics.s4x(n, sx[:, 0], sx[:, -1])
-    return sx
+    # return list of list keeping the non zero values
+    return [[el for el in sx_list if el != 0] for sx_list in sx]
 
 
 @nb.njit(cache=True)

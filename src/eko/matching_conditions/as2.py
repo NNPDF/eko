@@ -38,9 +38,9 @@ def A_qq_ns(n, sx, L):
         A_qq_ns : complex
             |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`
     """
-    S1 = sx[0, 0]
-    S2 = sx[1, 0]
-    S3 = sx[2, 0]
+    S1 = sx[0][0]
+    S2 = sx[1][0]
+    S3 = sx[2][0]
     S1m = S1 - 1 / n  # harmonic_S1(n - 1)
     S2m = S2 - 1 / n**2  # harmonic_S2(n - 1)
 
@@ -93,7 +93,7 @@ def A_hq_ps(n, sx, L):
         A_hq_ps : complex
             |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`
     """
-    S2 = sx[1, 0]
+    S2 = sx[1][0]
 
     F1M = 1.0 / (n - 1.0) * (zeta2 - (S2 - 1.0 / n**2))
     F11 = 1.0 / (n + 1.0) * (zeta2 - (S2 + 1.0 / (n + 1.0) ** 2))
@@ -157,14 +157,11 @@ def A_hg(n, sx, L):
         A_hg : complex
             |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`
     """
-    S1 = sx[0, 0]
-    S2 = sx[1, 0]
-    S3 = sx[2, 0]
+    S1 = sx[0][0]
+    S2, Sm2 = sx[1]
+    S3, Sm21, Sm3 = sx[2]
     S1m = S1 - 1 / n
     S2m = S2 - 1 / n**2
-    Sm2 = sx[1, -1]
-    Sm3 = sx[2, -1]
-    Sm21 = sx[2, 1]
 
     a_hg_l0 = (
         -(
@@ -296,8 +293,8 @@ def A_gq(n, sx, L):
         A_gq : complex
             |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`
     """
-    S1 = sx[0, 0]
-    S2 = sx[1, 0]
+    S1 = sx[0][0]
+    S2 = sx[1][0]
     S1m = S1 - 1 / n  # harmonic_S1(n - 1)
 
     B2M = ((S1 - 1.0 / n) ** 2 + S2 - 1.0 / n**2) / (n - 1.0)
@@ -346,7 +343,7 @@ def A_gg(n, sx, L):
         A_gg : complex
             |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
     """
-    S1 = sx[0, 0]
+    S1 = sx[0][0]
     S1m = S1 - 1 / n  # harmonic_S1(n - 1)
 
     D1 = -1.0 / n**2

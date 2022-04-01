@@ -37,9 +37,9 @@ def test_A_2():
 
 
 def test_A_2_shape():
-    N = 2
+    N = np.random.rand()
     L = 3
-    sx = np.zeros((3, 3), np.complex_)
+    sx = compute_harmonics_cache(N, 2)
     aNS2 = A_ns(N, sx, L)
     aS2 = A_singlet(N, sx, L)
 
@@ -139,9 +139,9 @@ def test_Hg2_pegasus():
 
     for N in range(3, 20):
         sx = compute_harmonics_cache(N, 2)
-        S1 = sx[0, 0]
-        S2 = sx[1, 0]
-        S3 = sx[2, 0]
+        S1 = sx[0][0]
+        S2 = sx[1][0]
+        S3 = sx[2][0]
         aS2 = A_singlet(N, sx, L)
 
         E2 = (

@@ -13,6 +13,7 @@ from eko.matching_conditions.operator_matrix_element import (
     A_singlet,
     OperatorMatrixElement,
     build_ome,
+    compute_harmonics_cache,
     quad_ker,
 )
 from eko.strong_coupling import StrongCoupling
@@ -24,12 +25,12 @@ def test_build_ome_as():
     N = 2
     L = 0.0
     a_s = 0.0
-    sx = np.random.rand(5, 7) + 1j * np.random.rand(5, 7)
     nf = 3
     is_msbar = False
-    for o in [0, 1, 2, 3]:
+    for o in [1, 2, 3]:
         if o == 3:
             N = complex(2.123)
+        sx = compute_harmonics_cache(np.random.rand(), o)
         aNS = A_non_singlet(o, N, sx, nf, L)
         aS = A_singlet(o, N, sx, nf, L, is_msbar)
 
@@ -51,7 +52,7 @@ def test_build_ome_nlo():
     a_s = 20
     is_msbar = False
 
-    sx = np.array([[1], [1], [1]], np.complex_)
+    sx = [[1], [1], [1]]
     nf = 4
     aNSi = A_non_singlet(1, N, sx, nf, L)
     aSi = A_singlet(1, N, sx, nf, L, is_msbar)

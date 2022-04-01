@@ -58,11 +58,11 @@ def A_singlet(n, sx_all, nf, L):
         sx_all : numpy.ndarray
             harmonic sums cache containing:
                 [
-                    [S1, 0,   0,    0,    0,     0,   Sm1],
-                    [S2, 0,   0,    0,    0,     0,   Sm2],
-                    [S3, S21, S2m1, Sm21, Sm2m1, 0,   Sm3],
+                    [S1, Sm1],
+                    [S2, Sm2],
+                    [S3, S21, S2m1, Sm21, Sm2m1, Sm3],
                     [S4, S31, S221, Sm22, Sm211, Sm31 Sm4],
-                    [S5, 0,   0,    0,    0,     0,   Sm5],
+                    [S5, Sm5],
                 ]
         nf : int
             number of active flavor below the threshold

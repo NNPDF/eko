@@ -28,6 +28,8 @@ def base_harmonics_cache(n, max_weight=5, n_max_sums_weight=7):
             Mellin moment
         max_weight : int
             max harmonics weight, max value 5 (default)
+        n_max_sums_weight : int
+            max number of harmonics sums for a given weight
     Retruns
     -------
         h_cache : np.ndarray

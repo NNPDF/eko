@@ -33,8 +33,8 @@ def A_hh(n, sx, L):
         A_hh : complex
             |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}`
     """
-    S1m = sx[0, 0] - 1 / n  # harmonics.S1(n - 1)
-    S2m = sx[1, 0] - 1 / n**2  # harmonics.S2(n - 1)
+    S1m = sx[0][0] - 1 / n  # harmonics.S1(n - 1)
+    S2m = sx[1][0] - 1 / n**2  # harmonics.S2(n - 1)
     ahh_l = (2 + n - 3 * n**2) / (n * (1 + n)) + 4 * S1m
     ahh = 2 * (
         2

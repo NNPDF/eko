@@ -36,10 +36,10 @@ def A_gg(n, sx, nf, L):  # pylint: disable=too-many-locals
         A_ggTF2: eko.matching_conditions.as3.aggTF2.A_ggTF2
             Incomplete part proportional to :math:`T_{F}^2`.
     """
-    S1, S2, S3, S4 = sx[:4, 0]
-    Sm2, Sm3, Sm4 = sx[1:4, -1]
-    S21, Sm21 = sx[2, 1], sx[2, 3]
-    S31, S211, Sm22, Sm211, Sm31 = sx[3, 1:6]
+    S1, _ = sx[0]
+    S2, Sm2 = sx[1]
+    S3, S21, _, Sm21, _, Sm3 = sx[2]
+    S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
     a_gg_l0 = (
         -0.35616500834358344
         + A_ggTF2(n, sx)
