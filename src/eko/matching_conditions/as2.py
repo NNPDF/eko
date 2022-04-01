@@ -159,9 +159,9 @@ def A_hg(n, sx, L):
     """
     S1 = sx[0][0]
     S2, Sm2 = sx[1]
-    try:
+    if len(sx[2]) == 3:
         S3, Sm21, Sm3 = sx[2]
-    except ValueError:
+    else:
         S3, _, _, Sm21, _, Sm3 = sx[2]
     S1m = S1 - 1 / n
     S2m = S2 - 1 / n**2
