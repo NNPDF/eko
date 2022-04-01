@@ -14,11 +14,17 @@ ND = 3
 NU = 2
 
 
+def test_number_conservation():
+    # number
+    N = complex(1.0, 0.0)
+    sx = get_sx(N)
+    np.testing.assert_almost_equal(+as1aem1.gamma_nsm(N, NF, sx), 0, decimal=4)
+
+
 def test_gluon_momentum_conservation():
     # gluon momentum
     N = complex(2.0, 0.0)
     sx = get_sx(N)
-    # import pdb; pdb.set_trace()
     np.testing.assert_almost_equal(
         +2 * NU * constants.eu2 * as1aem1.gamma_qg(N, NF, sx)
         + 2 * ND * constants.ed2 * as1aem1.gamma_qg(N, NF, sx)
@@ -40,3 +46,25 @@ def test_photon_momentum_conservation():
         + (NU * constants.eu2 + ND * constants.ed2) * as1aem1.gamma_gph(N),
         0,
     )
+
+
+# def test_gammansp():
+#    N = complex(2.0, 0.0)
+#    sx = get_sx(N)
+#    # import pdb; pdb.set_trace()
+#    np.testing.assert_almost_equal(
+#       as1aem1.gamma_nsp(N,NF,sx) ,
+#        -6.67306,
+#    )
+
+
+# def test_quark_momentum_conservation():
+#    # quark momentum
+#    N = complex(2.0, 0.0)
+#    sx = get_sx(N)
+#    np.testing.assert_almost_equal(
+#        - 6.67306
+#        + as1aem1.gamma_gq(N, NF, sx)
+#        + as1aem1.gamma_phq(N, NF, sx),
+#        0,
+#    )
