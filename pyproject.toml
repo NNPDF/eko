@@ -53,6 +53,9 @@ pytest-cov = "^3.0.0"
 pytest-env = "^0.6.2"
 a3b2bbc3ced97675ac3a71df45f55ba = "^6.4.0" # = lhapdf
 # benchmark
+asv = "^0.4.2"
+virtualenv = "^20.13.2"
+# docs
 Sphinx = "^4.3.2"
 sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-bibtex = "^2.4.1"
