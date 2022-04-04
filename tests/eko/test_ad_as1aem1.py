@@ -35,7 +35,6 @@ def test_photon_momentum_conservation():
     # photon momentum
     N = complex(2.0, 0.0)
     sx = get_sx(N)
-    # import pdb; pdb.set_trace()
     np.testing.assert_almost_equal(
         constants.eu2 * ad.as1aem1.gamma_qph(N, NU, sx)
         + constants.ed2 * ad.as1aem1.gamma_qph(N, ND, sx)
@@ -87,7 +86,6 @@ def test_photon_momentum_conservation():
     # photon momentum
     N = complex(2.0, 0.0)
     sx = get_sx(N)
-    # import pdb; pdb.set_trace()
     np.testing.assert_almost_equal(
         constants.eu2 * ad.as1aem1.gamma_qph(N, NU, sx)
         + constants.ed2 * ad.as1aem1.gamma_qph(N, ND, sx)

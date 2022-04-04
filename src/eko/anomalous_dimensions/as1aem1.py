@@ -175,7 +175,7 @@ def gamma_qg(N, nf, sx):
     return constants.TR / constants.CF / constants.CA * gamma_qph(N, nf, sx)
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit("c16(c16,c16[:])", cache=True)
 def gamma_gq(N, sx):
     """
     Computes the O(as1aem1) gluon-quark singlet anomalous dimension.
