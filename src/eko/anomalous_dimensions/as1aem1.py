@@ -14,8 +14,8 @@ from .. import constants
 from . import harmonics
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_phq(N, nf, sx):
+@nb.njit("c16(c16,c16[:])", cache=True)
+def gamma_phq(N, sx):
     """
     Computes the O(as1aem1) photon-quark anomalous dimension
 
@@ -94,7 +94,9 @@ def gamma_qph(N, nf, sx):
     tmp_S12 = -4 * (2 + N + N**2) / (N * (1 + N) * (2 + N))
     tmp_S2 = 4 * (2 + N + N**2) / (N * (1 + N) * (2 + N))
     return (
-        constants.CA
+        2
+        * nf
+        * constants.CA
         * constants.CF
         * (tmp_const + tmp_S1 * S1 + tmp_S12 * S1**2 + tmp_S2 * S2)
     )
@@ -174,7 +176,7 @@ def gamma_qg(N, nf, sx):
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_gq(N, nf, sx):
+def gamma_gq(N, sx):
     """
     Computes the O(as1aem1) gluon-quark singlet anomalous dimension.
 
@@ -196,7 +198,7 @@ def gamma_gq(N, nf, sx):
             :math:`\\gamma_{gq}^{(1,1)}(N)`
     """
 
-    return gamma_phq(N, nf, sx)
+    return gamma_phq(N, sx)
 
 
 @nb.njit("c16()", cache=True)
@@ -239,8 +241,8 @@ def gamma_gg():
     return 4 * constants.TR
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_nsp(N, nf, sx):
+@nb.njit("c16(c16,c16[:])", cache=True)
+def gamma_nsp(N, sx):
     """
     Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
 
@@ -275,8 +277,8 @@ def gamma_nsp(N, nf, sx):
     zeta2 = harmonics.zeta2
     zeta3 = harmonics.zeta3
     result = (
-        +16 / 3 * np.pi**2 * S1h
-        - 16.0 / 3 * np.pi**2 * S1p1h
+        +32 * zeta2 * S1h
+        - 32 * zeta2 * S1p1h
         + 8.0 / (N + N**2) * S2h
         - 4 * S3h
         + (24 + 16 / (N + N**2)) * S2
@@ -284,7 +286,7 @@ def gamma_nsp(N, nf, sx):
         - 8.0 / (N + N**2) * S2p1h
         + S1
         * (
-            +16 * (9 / N**2 - 9 / (1 + N) ** 2 + np.pi**2) / 3
+            +16 * (3 / N**2 - 3 / (1 + N) ** 2 + 2 * zeta2)
             - 16 * S2h
             - 32 * S2
             + 16 * S2p1h
@@ -294,8 +296,7 @@ def gamma_nsp(N, nf, sx):
             + N
             * (
                 -32
-                + N
-                * (-8 - 3 * N * (3 + N) * (3 + N**2) - 8 * (1 + N) ** 2 * np.pi**2)
+                + N * (-8 - 3 * N * (3 + N) * (3 + N**2) - 48 * (1 + N) ** 2 * zeta2)
             )
             + 32 * N**3 * (1 + N) ** 3 * (g3N + g3Np2)
         )
@@ -306,8 +307,8 @@ def gamma_nsp(N, nf, sx):
     return constants.CF * result
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
-def gamma_nsm(N, nf, sx):
+@nb.njit("c16(c16,c16[:])", cache=True)
+def gamma_nsm(N, sx):
     """
     Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
 
@@ -342,13 +343,13 @@ def gamma_nsm(N, nf, sx):
     zeta2 = harmonics.zeta2
     zeta3 = harmonics.zeta3
     result = (
-        -16.0 / 3 * np.pi**2 * S1h
+        -32.0 * zeta2 * S1h
         - 8.0 / (N + N**2) * S2h
         + (24 + 16 / (N + N**2)) * S2
         + 8.0 / (N + N**2) * S2p1h
         + S1
         * (
-            16 * (-3 / N**2 + 3 / (1 + N) ** 2 + np.pi**2) / 3
+            16 * (-1 / N**2 + 1 / (1 + N) ** 2 + 2 * zeta2)
             + 16 * S2h
             - 32 * S2
             - 16 * S2p1h
@@ -359,12 +360,12 @@ def gamma_nsm(N, nf, sx):
             * (
                 96
                 - 3 * N * (8 + 3 * N * (3 + N) * (3 + N**2))
-                + 8 * N * (1 + N) ** 2 * np.pi**2
+                + 48 * N * (1 + N) ** 2 * zeta2
             )
             - 96 * N**3 * (1 + N) ** 3 * (g3N + g3Np2)
         )
         / (3.0 * N**3 * (1 + N) ** 3)
-        + 16.0 / 3 * np.pi**2 * S1p1h
+        + 32.0 * zeta2 * S1p1h
         + 4 * S3h
         - 32 * S3
         - 4 * S3p1h
