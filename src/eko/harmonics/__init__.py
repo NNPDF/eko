@@ -30,11 +30,11 @@ def base_harmonics_cache(n, max_weight=5, n_max_sums_weight=7):
             max harmonics weight, max value 5 (default)
         n_max_sums_weight : int
             max number of harmonics sums for a given weight
-    Retruns
+
+    Returns
     -------
         h_cache : np.ndarray
-            list of harmonics sums:
-                (weights, n_max_sums_weight)
+            list of harmonics sums: (weights, n_max_sums_weight)
     """
     h_cache = np.zeros((max_weight, n_max_sums_weight), dtype=np.complex_)
     h_cache[:, 0] = sx(n, max_weight)
@@ -54,7 +54,8 @@ def sx(n, max_weight=5):
             Mellin moment
         max_weight : int
             max harmonics weight, max value 5 (default)
-    Retruns
+
+    Returns
     -------
         sx : np.ndarray
             list of harmonics sums (:math:`S_{1,..,w}`)
@@ -85,7 +86,7 @@ def smx(n, max_weight=5):
         max_weight : int
             max harmonics weight, max value 5 (default)
 
-    Retruns
+    Returns
     -------
         smx : np.ndarray
             list of harmonics sums (:math:`S_{-1,..,-w}`)

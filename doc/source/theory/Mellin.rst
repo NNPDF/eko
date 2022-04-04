@@ -107,40 +107,56 @@ are doing, are proportional to
 
 Harmonic Sums
 -------------
-In the computations of the anomalous dimensions (generalized) harmonic sums
+In the computations of the anomalous dimensions and matching conditions, (generalized) harmonic sums
 :cite:`Ablinger:2013hcp` appear naturally:
 
 .. math ::
     S_{m}(N) &= \sum\limits_{j=1}^N \frac{(\text{sign}(m))^j}{j^{|m|}} \\
     S_{m_0,m_1\ldots}(N) &= \sum\limits_{j=1}^N \frac{(\text{sign}(m_0))^j}{j^{|m_0|}} S_{m_1\ldots}(j)
 
+At |N3LO| the anomalous dimensions contains at maximum weight 7 harmonic sums.
 We then need to find an analytical continuation of these sums into the complex plain to perform
 the Mellin inverse.
 
 - the sums :math:`S_{m}(N)` for :math:`m > 0` do have a straight continuation:
 
-.. math ::
+  .. math ::
     S_m(N) = \sum\limits_{j=1}^N \frac 1 {j^m} = \frac{(-1)^{m-1}}{(m-1)!} \psi_{m-1}(N+1)+c_m \quad
     \text{with}\, c_m = \left\{\begin{array}{ll} \gamma_E, & m=1\\ \zeta(m), & m>1\end{array} \right.
 
-and where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`~eko.harmonics.polygamma.cern_polygamma`)
-and :math:`\zeta` the Riemann zeta function (using :func:`scipy.special.zeta`).
+  where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`~eko.harmonics.polygamma.cern_polygamma`)
+  and :math:`\zeta` the Riemann zeta function (using :func:`scipy.special.zeta`).
 
 - for the sums :math:`S_{-m}(N)` and :math:`m > 0` we use:
 
-.. math ::
+  .. math ::
     S_{-m}(N) = \frac{\eta}{2} (S_{m}(N / 2) - S_{m}((N - 1) / 2)) - c_{m}
 
   where formally :math:`\eta = (-1)^N` but in all singlet-like quantities it has to be analytically continued with 1
   and with -1 elsewise and :math:`c_{m}= \left [ log(2), 1/2 \zeta_{2}, 3/4 \zeta_{3}, 7/8 \zeta_{4}, 15/16 \zeta_{5} \right]`
 
-- for the sums with greater depth we use the definitions provided in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if,Blumlein:2009ta`:
+- for the sums with greater depth we use the definitions provided in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if,Blumlein:2009ta`,
+  which express higher weight sums in terms of simple one :math:`S_{m}, S_{-m}` and some irreducible integrals.
 
-The full list of harmonics sums available in :mod:`eko.harmonics` is:
+The complete list of harmonics sums available in :mod:`eko.harmonics` is:
 
-    - weight 1: :math:`S_{1}, S_{-1}`
-    - weight 2: :math:`S_{2}, S_{-2}`
-    - weight 3: :math:`S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}`
+    - weight 1:
+
+        .. math::
+            S_{1}, S_{-1}
+
+    - weight 2:
+
+        .. math::
+            S_{2}, S_{-2}
+
+    - weight 3:
+
+        .. math::
+            S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}
+
+        these sums relies on the integrals :mod:`eko.harmonics.g_functions` :cite:`MuselliPhD,Blumlein:1998if`
+
     - weight 4:
 
         .. math ::
