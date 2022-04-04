@@ -90,8 +90,6 @@ def A_singlet(order, n, sx, nf, L, is_msbar):
         eko.matching_conditions.nlo.A_gh_1 : :math:`A_{gH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
     """
-    if order == 0:
-        return np.zeros((1, 3, 3), np.complex_)
     A_s = np.zeros((order, 3, 3), np.complex_)
     if order >= 1:
         A_s[0] = as1.A_singlet(n, sx, L)
@@ -130,8 +128,6 @@ def A_non_singlet(order, n, sx, nf, L):
         eko.matching_conditions.nlo.A_hh_1 : :math:`A_{HH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
     """
-    if order == 0:
-        return np.zeros((1, 2, 2), np.complex_)
     A_ns = np.zeros((order, 2, 2), np.complex_)
     if order >= 1:
         A_ns[0] = as1.A_ns(n, sx, L)
