@@ -152,3 +152,31 @@ def recursive_harmonic_sum(base_value, n, iterations, weight):
     for i in range(1, iterations + 1):
         fact += 1.0 / (n + i) ** weight
     return base_value + fact
+
+
+@nb.njit(cache=True)
+def symmetry_factor(N, is_singlet=None):
+    """
+    Compute the analytical continuation of :math:`(-1)^N`
+
+    Parameters
+    ----------
+        N: complex
+            Mellin moment
+        is_singlet: bool, None
+            True for singlet like quantities
+            False for non singlet like quantities
+            None for generic complex N value
+
+    Retruns
+    -------
+        eta: complex
+            1 for singlet like quantities,
+            -1 for non singlet like quantities,
+            :math:`(-1)^N` elsewise
+    """
+    if is_singlet is None:
+        return (-1) ** N
+    if is_singlet:
+        return 1
+    return -1

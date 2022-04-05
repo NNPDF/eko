@@ -5,7 +5,6 @@ Weight 1 harmonic sums.
 import numba as nb
 import numpy as np
 
-from .constants import log2
 from .polygamma import cern_polygamma
 
 
@@ -38,7 +37,7 @@ def S1(N):
 
 
 @nb.njit(cache=True)
-def Sm1(N, hS1, is_singlet):
+def Sm1(N, hS1, is_singlet=None):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-1}(N)`.
 
@@ -51,7 +50,7 @@ def Sm1(N, hS1, is_singlet):
             Mellin moment
         hS1:  complex
             Harmonic sum :math:`S_{1}(N)`
-        is_singlet: bool
+        is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
             False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
     Returns
@@ -63,6 +62,12 @@ def Sm1(N, hS1, is_singlet):
     --------
         eko.anomalous_dimension.w1.S1 : :math:`S_1(N)`
     """
+    if is_singlet is None:
+        return (
+            -((-1) ** N - 1) / 2 * S1((N - 1) / 2)
+            + ((-1) ** N + 1) / 2 * S1(N / 2)
+            - hS1
+        )
     if is_singlet:
         return S1(N / 2) - hS1
     return S1((N - 1) / 2) - hS1

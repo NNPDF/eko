@@ -6,7 +6,7 @@ import numba as nb
 
 from . import f_functions as f
 from .constants import log2, zeta2, zeta3, zeta4, zeta5
-from .polygamma import cern_polygamma
+from .polygamma import cern_polygamma, symmetry_factor
 
 
 @nb.njit(cache=True)
@@ -38,7 +38,7 @@ def S5(N):
 
 
 @nb.njit(cache=True)
-def Sm5(N, hS5, is_singlet):
+def Sm5(N, hS5, is_singlet=None):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-5}(N)`.
 
@@ -51,7 +51,7 @@ def Sm5(N, hS5, is_singlet):
             Mellin moment
         hS5:  complex
             Harmonic sum :math:`S_{5}(N)`
-        is_singlet: bool
+        is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
             False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
@@ -64,6 +64,13 @@ def Sm5(N, hS5, is_singlet):
     --------
         eko.harmonic.w5.S5 : :math:`S_5(N)`
     """
+    if is_singlet is None:
+        return (
+            1
+            / 2**4
+            * (-((-1) ** N - 1) / 2 * S5((N - 1) / 2) + ((-1) ** N + 1) / 2 * S5(N / 2))
+            - hS5
+        )
     if is_singlet:
         return 1 / 2**4 * S5(N / 2) - hS5
     return 1 / 2**4 * S5((N - 1) / 2) - hS5
@@ -352,7 +359,7 @@ def S23(N, S1, S2, S3):
 
 
 @nb.njit(cache=True)
-def Sm23(N, Sm1, Sm2, Sm3, is_singlet):
+def Sm23(N, Sm1, Sm2, Sm3, is_singlet=None):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,3}(N)`
     as implemented in eq 9.4 of :cite:`Blumlein:2009ta`
@@ -367,7 +374,7 @@ def Sm23(N, Sm1, Sm2, Sm3, is_singlet):
             Harmonic sum :math:`S_{-2}(N)`
         Sm3: complex
             Harmonic sum :math:`S_{-3}(N)`
-        is_singlet: bool
+        is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
             False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
@@ -385,7 +392,7 @@ def Sm23(N, Sm1, Sm2, Sm3, is_singlet):
                     +3 [\text{S}_{1,3}(1-x) - \zeta_4]
                 /(x+1)](N)`
     """
-    eta = 1 if is_singlet else -1
+    eta = symmetry_factor(N, is_singlet)
     return (
         eta * f.F20(N, Sm1, Sm2, Sm3)
         + 3 * zeta4 * Sm1

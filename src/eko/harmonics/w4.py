@@ -6,7 +6,7 @@ import numba as nb
 
 from . import g_functions as gf
 from .constants import li4half, log2, zeta2, zeta3, zeta4
-from .polygamma import cern_polygamma
+from .polygamma import cern_polygamma, symmetry_factor
 
 
 @nb.njit(cache=True)
@@ -38,7 +38,7 @@ def S4(N):
 
 
 @nb.njit(cache=True)
-def Sm4(N, hS4, is_singlet):
+def Sm4(N, hS4, is_singlet=None):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-4}(N)`.
 
@@ -51,7 +51,7 @@ def Sm4(N, hS4, is_singlet):
             Mellin moment
         hS4:  complex
             Harmonic sum :math:`S_{4}(N)`
-        is_singlet: bool
+        is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
             False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
@@ -64,13 +64,20 @@ def Sm4(N, hS4, is_singlet):
     --------
         eko.anomalous_dimension.w4.S4 : :math:`S_4(N)`
     """
+    if is_singlet is None:
+        return (
+            1
+            / 2**3
+            * (-((-1) ** N - 1) / 2 * S4((N - 1) / 2) + ((-1) ** N + 1) / 2 * S4(N / 2))
+            - hS4
+        )
     if is_singlet:
         return 1 / 2**3 * S4(N / 2) - hS4
     return 1 / 2**3 * S4((N - 1) / 2) - hS4
 
 
 @nb.njit(cache=True)
-def Sm31(N, S1, Sm1, Sm2, is_singlet):
+def Sm31(N, S1, Sm1, Sm2, is_singlet=None):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-3,1}(N)`
     as implemented in eq B.5.93 of :cite:`MuselliPhD` and eq 25 of cite:`Bl_mlein_2000`.
@@ -85,7 +92,7 @@ def Sm31(N, S1, Sm1, Sm2, is_singlet):
             Harmonic sum :math:`S_{-1}(N)`
         Sm2: complex
             Harmonic sum :math:`S_{-2}(N)`
-        is_singlet: bool
+        is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
             False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
@@ -98,7 +105,7 @@ def Sm31(N, S1, Sm1, Sm2, is_singlet):
     --------
         eko.harmonics.g_functions.mellin_g6 : :math:`g_6(N)`
     """
-    eta = 1 if is_singlet else -1
+    eta = symmetry_factor(N, is_singlet)
     return (
         eta * gf.mellin_g6(N, S1)
         + zeta2 * Sm2
@@ -112,7 +119,7 @@ def Sm31(N, S1, Sm1, Sm2, is_singlet):
 
 
 @nb.njit(cache=True)
-def Sm22(N, S1, S2, Sm2, Sm31, is_singlet):
+def Sm22(N, S1, S2, Sm2, Sm31, is_singlet=None):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,2}(N)`
     as implemented in eq B.5.94 of :cite:`MuselliPhD` and eq 24 of cite:`Bl_mlein_2000`.
@@ -129,7 +136,7 @@ def Sm22(N, S1, S2, Sm2, Sm31, is_singlet):
             Harmonic sum :math:`S_{-2}(N)`
         Sm31: complex
             Harmonic sum :math:`S_{-3,1}(N)`
-        is_singlet: bool
+        is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
             False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
     Returns
@@ -141,14 +148,14 @@ def Sm22(N, S1, S2, Sm2, Sm31, is_singlet):
     --------
         eko.harmonics.g_functions.mellin_g5 : :math:`g_5(N)`
     """
-    eta = 1 if is_singlet else -1
+    eta = symmetry_factor(N, is_singlet)
     return (
         eta * gf.mellin_g5(N, S1, S2) - 2 * Sm31 + 2 * zeta2 * Sm2 + 3 / 40 * zeta2**2
     )
 
 
 @nb.njit(cache=True)
-def Sm211(N, S1, S2, Sm1, is_singlet):
+def Sm211(N, S1, S2, Sm1, is_singlet=None):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,1,1}(N)`
     as implemented in eq B.5.104 of :cite:`MuselliPhD` and eq 27 of cite:`Bl_mlein_2000`.
@@ -163,7 +170,7 @@ def Sm211(N, S1, S2, Sm1, is_singlet):
             Harmonic sum :math:`S_{2}(N)`
         Sm1: complex
             Harmonic sum :math:`S_{-1}(N)`
-        is_singlet: bool
+        is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
             False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
@@ -176,7 +183,7 @@ def Sm211(N, S1, S2, Sm1, is_singlet):
     --------
         eko.harmonics.g_functions.mellin_g8 : :math:`g_8(N)`
     """
-    eta = 1 if is_singlet else -1
+    eta = symmetry_factor(N, is_singlet)
     return (
         -eta * gf.mellin_g8(N, S1, S2)
         + zeta3 * Sm1
