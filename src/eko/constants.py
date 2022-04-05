@@ -37,3 +37,37 @@ def update_colors(nc):
     NC = int(nc)
     CA = float(NC)
     CF = float((NC * NC - 1.0) / (2.0 * NC))
+
+
+def number_of_flavors(nf):
+    """
+    Computes the number of up (nu) and down (nd) flavors
+
+    Parameters
+    ----------
+        nf : int
+            Number of active flavors
+
+    Returns
+    -------
+        nu : int
+        nd : int
+    """
+    if nf == 2:
+        nu = 1
+        nd = 1
+    elif nf == 3:
+        nu = 1
+        nd = 2
+    elif nf == 4:
+        nu = 2
+        nd = 2
+    elif nf == 5:
+        nu = 2
+        nd = 3
+    elif nf == 6:
+        nu = 3
+        nd = 3
+    else:
+        raise NotImplementedError("Selected nf is not implemented")
+    return nu, nd
