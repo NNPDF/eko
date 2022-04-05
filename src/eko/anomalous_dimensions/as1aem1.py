@@ -54,8 +54,6 @@ def gamma_phq(N, sx):
     ----------
         N : complex
             Mellin moment
-        nf : int
-            Number of active flavors
         sx : np array
             List of harmonic sums
 
@@ -215,8 +213,6 @@ def gamma_gq(N, sx):
     ----------
         N : complex
             Mellin moment
-        nf : int
-            Number of active flavors
         sx : np array
             List of harmonic sums
 
@@ -285,8 +281,6 @@ def gamma_nsp(N, sx):
     ----------
         N : complex
             Mellin moment
-        nf : int
-            Number of active flavors
         sx : np array
             List of harmonic sums
 
@@ -351,8 +345,6 @@ def gamma_nsm(N, sx):
     ----------
         N : complex
             Mellin moment
-        nf : int
-            Number of active flavors
         sx : np array
             List of harmonic sums
 
