@@ -4,6 +4,8 @@ This files sets the physical constants.
 
 """
 
+import numba as nb
+
 NC = 3
 """the number of colors"""
 
@@ -37,3 +39,32 @@ def update_colors(nc):
     NC = int(nc)
     CA = float(NC)
     CF = float((NC * NC - 1.0) / (2.0 * NC))
+
+
+@nb.njit("u1(u1)", cache=True)
+def uplike_flavors(nf):
+    """
+    Computes the number of up flavors
+
+    Parameters
+    ----------
+        nf : int
+            Number of active flavors
+
+    Returns
+    -------
+        nu : int
+    """
+    if nf == 2:
+        nu = 1
+    elif nf == 3:
+        nu = 1
+    elif nf == 4:
+        nu = 2
+    elif nf == 5:
+        nu = 2
+    elif nf == 6:
+        nu = 3
+    else:
+        raise NotImplementedError("Selected nf is not implemented")
+    return nu

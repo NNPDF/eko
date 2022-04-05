@@ -14,35 +14,6 @@ from .. import constants
 from . import harmonics
 
 
-@nb.njit("u1(u1)", cache=True)
-def uplike_flavors(nf):
-    """
-    Computes the number of up flavors
-
-    Parameters
-    ----------
-        nf : int
-            Number of active flavors
-
-    Returns
-    -------
-        nu : int
-    """
-    if nf == 2:
-        nu = 1
-    elif nf == 3:
-        nu = 1
-    elif nf == 4:
-        nu = 2
-    elif nf == 5:
-        nu = 2
-    elif nf == 6:
-        nu = 3
-    else:
-        raise NotImplementedError("Selected nf is not implemented")
-    return nu
-
-
 @nb.njit("c16(c16,c16[:])", cache=True)
 def gamma_phq(N, sx):
     """
@@ -245,7 +216,7 @@ def gamma_phph(nf):
             :math:`\\gamma_{\\gamma \\gamma}^{(1,1)}(N)`
     """
 
-    nu = uplike_flavors(nf)
+    nu = constants.uplike_flavors(nf)
     nd = nf - nu
     return 4 * constants.CF * constants.CA * (nu * constants.eu2 + nd * constants.ed2)
 
