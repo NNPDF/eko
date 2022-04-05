@@ -17,9 +17,9 @@ from . import as1aem1, harmonics
 @nb.njit("c16(c16,u1)", cache=True)
 def gamma_phph(N, nf):
     """
-    Computes the O(as1aem1) photon-photon singlet anomalous dimension.
+    Computes the O(aem2) photon-photon singlet anomalous dimension.
 
-    Implements Eq. (28) of :cite:`deFlorian:2015ujt`.
+    Implements Eq. (68) of :cite:`deFlorian:2016gvk`.
 
     Parameters
     ----------
@@ -41,9 +41,9 @@ def gamma_phph(N, nf):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_uph(N, nf, sx):
     """
-    Computes the O(as1aem1) quark-photon anomalous dimension
+    Computes the O(aem2) quark-photon anomalous dimension
 
-    Implements Eq. (26) of :cite:`deFlorian:2015ujt`.
+    Implements Eq. (55) of :cite:`deFlorian:2016gvk` for q=u.
 
     Parameters
     ----------
@@ -66,9 +66,9 @@ def gamma_uph(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_dph(N, nf, sx):
     """
-    Computes the O(as1aem1) quark-photon anomalous dimension
+    Computes the O(aem2) quark-photon anomalous dimension
 
-    Implements Eq. (26) of :cite:`deFlorian:2015ujt`.
+    Implements Eq. (55) of :cite:`deFlorian:2016gvk` for q=d.
 
     Parameters
     ----------
@@ -91,9 +91,9 @@ def gamma_dph(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_phu(N, nf, sx):
     """
-    Computes the O(as1aem1) photon-quark anomalous dimension
+    Computes the O(aem2) photon-quark anomalous dimension
 
-    Implements Eq. (36) of :cite:`deFlorian:2015ujt`.
+    Implements Eq. (56) of :cite:`deFlorian:2016gvk` for q=u.
 
     Parameters
     ----------
@@ -125,9 +125,9 @@ def gamma_phu(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_phd(N, nf, sx):
     """
-    Computes the O(as1aem1) photon-quark anomalous dimension
+    Computes theO(aem2) photon-quark anomalous dimension
 
-    Implements Eq. (36) of :cite:`deFlorian:2015ujt`.
+    Implements Eq. (56) of :cite:`deFlorian:2016gvk` for q=d.
 
     Parameters
     ----------
@@ -159,9 +159,9 @@ def gamma_phd(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nspu(N, nf, sx):
     """
-    Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
+    Computes the O(aem2) singlet-like non-singlet anomalous dimension.
 
-    Implements sum of Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
+    Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
 
     Parameters
     ----------
@@ -197,9 +197,9 @@ def gamma_nspu(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nspd(N, nf, sx):
     """
-    Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
+    Computes the O(aem2) singlet-like non-singlet anomalous dimension.
 
-    Implements sum of Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
+    Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
 
     Parameters
     ----------
@@ -232,16 +232,92 @@ def gamma_nspd(N, nf, sx):
     return constants.ed2 * as1aem1.gamma_nsp(N, sx) / constants.CF / 2 + tmp
 
 
-@nb.njit("c16(c16,u1)", cache=True)
-def gamma_ps(N, nf):
+@nb.njit("c16(c16,u1,c16[:])", cache=True)
+def gamma_nsmu(N, nf, sx):
     """
-    Computes the |NLO| pure-singlet quark-quark anomalous dimension.
+    Computes the O(aem2) singlet-like non-singlet anomalous dimension.
 
-    Implements Eq. (3.6) of :cite:`Vogt:2004mw`.
+    Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
 
     Parameters
     ----------
-        n : complex
+        N : complex
+            Mellin moment
+        nf : int
+            Number of active flavors
+        sx : np array
+            List of harmonic sums
+
+    Returns
+    -------
+        gamma_nsp : complex
+            O(as1aem1) singlet-like non-singlet anomalous dimension
+            :math:`\\gamma_{ns,+}^{(1)}(N)`
+    """
+
+    S1 = sx[0]
+    S2 = sx[1]
+    nu = as1aem1.uplike_flavors(nf)
+    nd = nf - nu
+    eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
+    tmp = (
+        2
+        * (-12 + 20 * N + 107 * N**2 + 126 * N**3 + 63 * N**4)
+        / (9.0 * N**2 * (1 + N) ** 2)
+        - 80 / 9 * S1
+        + 16 / 3 * S2
+    ) * eSigma2
+    return constants.eu2 * as1aem1.gamma_nsm(N, sx) / constants.CF / 2 + tmp
+
+
+@nb.njit("c16(c16,u1,c16[:])", cache=True)
+def gamma_nsmd(N, nf, sx):
+    """
+    Computes the O(aem2) singlet-like non-singlet anomalous dimension.
+
+    Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
+
+    Parameters
+    ----------
+        N : complex
+            Mellin moment
+        nf : int
+            Number of active flavors
+        sx : np array
+            List of harmonic sums
+
+    Returns
+    -------
+        gamma_nsp : complex
+            O(as1aem1) singlet-like non-singlet anomalous dimension
+            :math:`\\gamma_{ns,+}^{(1)}(N)`
+    """
+
+    S1 = sx[0]
+    S2 = sx[1]
+    nu = as1aem1.uplike_flavors(nf)
+    nd = nf - nu
+    eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
+    tmp = (
+        2
+        * (-12 + 20 * N + 107 * N**2 + 126 * N**3 + 63 * N**4)
+        / (9.0 * N**2 * (1 + N) ** 2)
+        - 80 / 9 * S1
+        + 16 / 3 * S2
+    ) * eSigma2
+    return constants.ed2 * as1aem1.gamma_nsm(N, sx) / constants.CF / 2 + tmp
+
+
+@nb.njit("c16(c16,u1)", cache=True)
+def gamma_ps(N, nf):
+    """
+    Computes the O(aem2) pure-singlet quark-quark anomalous dimension.
+
+    Implements Eq. (59) of :cite:`deFlorian:2016gvk`.
+
+    Parameters
+    ----------
+        N : complex
             Mellin moment
         nf : int
             Number of active flavors
