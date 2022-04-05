@@ -130,10 +130,10 @@ the Mellin inverse.
 - for the sums :math:`S_{-m}(N)` and :math:`m > 0` we use:
 
   .. math ::
-    S_{-m}(N) = \frac{\eta}{2} (S_{m}(N / 2) - S_{m}((N - 1) / 2)) - c_{m}
+    S_{-m}(N) = \frac{\eta}{2} (S_{m}(N / 2) - S_{m}((N - 1) / 2)) - d_{m}
 
   where formally :math:`\eta = (-1)^N` but in all singlet-like quantities it has to be analytically continued with 1
-  and with -1 elsewise and :math:`c_{m}= \left [ log(2), 1/2 \zeta_{2}, 3/4 \zeta_{3}, 7/8 \zeta_{4}, 15/16 \zeta_{5} \right]`
+  and with -1 elsewise and :math:`d_{m}= \left [ \log(2), 1/2 \zeta_{2}, 3/4 \zeta_{3}, 7/8 \zeta_{4}, 15/16 \zeta_{5}, \ldots \right]`
 
 - for the sums with greater depth we use the definitions provided in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if,Blumlein:2009ta`,
   which express higher weight sums in terms of simple one :math:`S_{m}, S_{-m}` and some irreducible integrals.
