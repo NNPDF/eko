@@ -188,7 +188,7 @@ def gamma_nspu(N, nf, sx):
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
     tmp = (
         2
-        * (-12 + 20 * N + 107 * N**2 + 126 * N**3 + 63 * N**4)
+        * (-12 + 20 * N + 47 * N**2 + 6 * N**3 + 3 * N**4)
         / (9.0 * N**2 * (1 + N) ** 2)
         - 80 / 9 * S1
         + 16 / 3 * S2
@@ -226,7 +226,7 @@ def gamma_nspd(N, nf, sx):
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
     tmp = (
         2
-        * (-12 + 20 * N + 107 * N**2 + 126 * N**3 + 63 * N**4)
+        * (-12 + 20 * N + 47 * N**2 + 6 * N**3 + 3 * N**4)
         / (9.0 * N**2 * (1 + N) ** 2)
         - 80 / 9 * S1
         + 16 / 3 * S2
@@ -337,4 +337,4 @@ def gamma_ps(N, nf):
         * (4 + N * (4 + N * (7 + 5 * N)))
         / ((-1 + N) * N**3 * (1 + N) ** 3 * (2 + N) ** 2)
     )
-    return 2 * nf * result
+    return 2 * nf * constants.CA * result
