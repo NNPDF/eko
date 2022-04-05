@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Weight 4 harmonics sum.
+Weight 4 harmonic sums.
 """
 import numba as nb
 
@@ -43,7 +43,7 @@ def Sm4(N):
     Analytic continuation of harmonic sum :math:`S_{-4}(N)`.
 
     .. math::
-      S_{-4}(N) = \sum\limits_{j=1}^N \frac (-1)^j j^4
+      S_{-4}(N) = \sum\limits_{j=1}^N \frac {(-1)^j} {j^4}
 
     Parameters
     ----------

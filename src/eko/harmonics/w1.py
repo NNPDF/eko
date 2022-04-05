@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Weight 1 harmonics sum.
+Weight 1 harmonic sums.
 """
 import numba as nb
 import numpy as np
@@ -43,7 +43,7 @@ def Sm1(N):
     Analytic continuation of harmonic sum :math:`S_{-1}(N)`.
 
     .. math::
-      S_{-1}(N) = \sum\limits_{j=1}^N \frac (-1)^j j
+      S_{-1}(N) = \sum\limits_{j=1}^N \frac {(-1)^j} j
 
     Parameters
     ----------

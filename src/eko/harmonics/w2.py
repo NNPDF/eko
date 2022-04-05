@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Weight 2 harmonics sum.
+Weight 2 harmonic sums.
 """
 import numba as nb
 
@@ -42,7 +42,7 @@ def Sm2(N):
     Analytic continuation of harmonic sum :math:`S_{-2}(N)`.
 
     .. math::
-      S_{-2}(N) = \sum\limits_{j=1}^N \frac (-1)^j j^2
+      S_{-2}(N) = \sum\limits_{j=1}^N \frac {(-1)^j}{j^2}
 
     Parameters
     ----------

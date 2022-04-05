@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Weight 3 harmonics sum.
+Weight 3 harmonic sums.
 """
 import numba as nb
 
@@ -43,7 +43,7 @@ def Sm3(N):
     Analytic continuation of harmonic sum :math:`S_{-3}(N)`.
 
     .. math::
-      S_{-3}(N) = \sum\limits_{j=1}^N \frac (-1)^j j^3
+      S_{-3}(N) = \sum\limits_{j=1}^N \frac {(-1)^j} {j^3}
 
     Parameters
     ----------
@@ -66,7 +66,7 @@ def Sm3(N):
 def S21(N, S1, S2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,1}(N)`
-    as implemented in eq B.5.77 of :cite:`MuselliPhD` and eq 37 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.77 of :cite:`MuselliPhD` and eq 37 of :cite:`Bl_mlein_2000`.
 
     Parameters
     ----------
@@ -93,7 +93,7 @@ def S21(N, S1, S2):
 def Sm21(N, S1, Sm1):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,1}(N)`
-    as implemented in eq B.5.75 of :cite:`MuselliPhD` and eq 22 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.75 of :cite:`MuselliPhD` and eq 22 of :cite:`Bl_mlein_2000`.
 
     Parameters
     ----------
@@ -126,7 +126,7 @@ def Sm21(N, S1, Sm1):
 def S2m1(N, S2, Sm1, Sm2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,-1}(N)`
-    as implemented in eq B.5.76 of :cite:`MuselliPhD` and eq 23 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.76 of :cite:`MuselliPhD` and eq 23 of :cite:`Bl_mlein_2000`.
 
     Parameters
     ----------
@@ -161,7 +161,7 @@ def S2m1(N, S2, Sm1, Sm2):
 def Sm2m1(N, S1, S2, Sm2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,-1}(N)`
-    as implemented in eq B.5.74 of :cite:`MuselliPhD` and eq 38 of cite:`Bl_mlein_2000`.
+    as implemented in eq B.5.74 of :cite:`MuselliPhD` and eq 38 of :cite:`Bl_mlein_2000`.
 
     Parameters
     ----------

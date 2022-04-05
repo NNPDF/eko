@@ -129,15 +129,15 @@ def cern_polygamma(Z, K):  # pylint: disable=all
 @nb.njit(cache=True)
 def recursive_harmonic_sum(base_value, n, iterations, weight):
     """
-    Compute the harmonic sum :math:`S_{w}(N+i)` stating from the value
-    S_{w}(N)
+    Compute the harmonic sum :math:`S_{w}(N+k)` stating from the value
+    :math:`S_{w}(N)` via the recurrence relations.
 
     Parameters
     ----------
         base_value: complex
-            starting value :math:`S_{w}(N+i)`
+            starting value :math:`S_{w}(N)`
         n: complex
-            starting value
+            starting point
         iterations: int
             number of iterations
         weight: int
@@ -146,9 +146,9 @@ def recursive_harmonic_sum(base_value, n, iterations, weight):
     Returns
     -------
         sni : complex
-            :math:`S_{w}(N+i)`
+            :math:`S_{w}(N+k)`
     """
-    fact = 0
+    fact = 0.0
     for i in range(1, iterations + 1):
-        fact += 1 / (n + i) ** weight
+        fact += 1.0 / (n + i) ** weight
     return base_value + fact
