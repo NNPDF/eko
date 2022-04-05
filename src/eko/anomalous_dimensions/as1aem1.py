@@ -15,7 +15,7 @@ from . import harmonics
 
 
 @nb.njit("u1(u1)", cache=True)
-def number_of_up_flavors(nf):
+def uplike_flavors(nf):
     """
     Computes the number of up flavors
 
@@ -249,7 +249,7 @@ def gamma_phph(nf):
             :math:`\\gamma_{\\gamma \\gamma}^{(1,1)}(N)`
     """
 
-    nu = number_of_up_flavors(nf)
+    nu = uplike_flavors(nf)
     nd = nf - nu
     return 4 * constants.CF * constants.CA * (nu * constants.eu2 + nd * constants.ed2)
 
