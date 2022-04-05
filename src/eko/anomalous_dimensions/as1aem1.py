@@ -201,8 +201,8 @@ def gamma_gq(N, sx):
     return gamma_phq(N, sx)
 
 
-@nb.njit("c16()", cache=True)
-def gamma_phph():
+@nb.njit("c16(u1)", cache=True)
+def gamma_phph(nf):
     """
     Computes the O(as1aem1) photon-photon singlet anomalous dimension.
 
@@ -210,6 +210,8 @@ def gamma_phph():
 
     Parameters
     ----------
+        nf : int
+            Number of active flavors
 
     Returns
     -------
@@ -218,7 +220,8 @@ def gamma_phph():
             :math:`\\gamma_{\\gamma \\gamma}^{(1,1)}(N)`
     """
 
-    return 4 * constants.CF * constants.CA
+    nu, nd = constants.number_of_flavors(nf)
+    return 4 * constants.CF * constants.CA * (nu * constants.eu2 + nd * constants.ed2)
 
 
 @nb.njit("c16()", cache=True)

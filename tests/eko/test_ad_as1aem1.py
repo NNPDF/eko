@@ -38,7 +38,7 @@ def test_photon_momentum_conservation():
     np.testing.assert_almost_equal(
         constants.eu2 * ad.as1aem1.gamma_qph(N, NU, sx)
         + constants.ed2 * ad.as1aem1.gamma_qph(N, ND, sx)
-        + (NU * constants.eu2 + ND * constants.ed2) * ad.as1aem1.gamma_phph()
+        + ad.as1aem1.gamma_phph(NF)
         + (NU * constants.eu2 + ND * constants.ed2) * ad.as1aem1.gamma_gph(N),
         0,
     )
@@ -89,7 +89,7 @@ def test_photon_momentum_conservation():
     np.testing.assert_almost_equal(
         constants.eu2 * ad.as1aem1.gamma_qph(N, NU, sx)
         + constants.ed2 * ad.as1aem1.gamma_qph(N, ND, sx)
-        + (NU * constants.eu2 + ND * constants.ed2) * ad.as1aem1.gamma_phph()
+        + ad.as1aem1.gamma_phph(NF)
         + (NU * constants.eu2 + ND * constants.ed2) * ad.as1aem1.gamma_gph(N),
         0,
     )
