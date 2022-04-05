@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Test O(as1aem1) splitting functions
 import numpy as np
-from test_ad_nnlo import get_sx
+from test_ad_as3 import get_sx
 
 from eko import anomalous_dimensions as ad
 from eko import constants
@@ -22,7 +22,7 @@ def test_photon_momentum_conservation():
     N = complex(2.0, 0.0)
     sx = get_sx(N)
     for NF in range(2, 6 + 1):
-        NU = ad.as1aem1.uplike_flavors(NF)
+        NU = constants.uplike_flavors(NF)
         ND = NF - NU
         np.testing.assert_almost_equal(
             constants.eu2 * ad.aem2.gamma_uph(N, NU, sx)
@@ -37,7 +37,7 @@ def test_quark_momentum_conservation():
     N = complex(2.0, 0.0)
     sx = get_sx(N)
     NF = 6
-    NU = ad.as1aem1.uplike_flavors(NF)
+    NU = constants.uplike_flavors(NF)
     ND = NF - NU
     # import pdb; pdb.set_trace()
     np.testing.assert_almost_equal(

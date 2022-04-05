@@ -31,7 +31,7 @@ def gamma_phph(N, nf):
             :math:`\\gamma_{\\gamma \\gamma}^{(1,1)}(N)`
     """
 
-    nu = as1aem1.uplike_flavors(nf)
+    nu = constants.uplike_flavors(nf)
     nd = nf - nu
     return (
         constants.NC
@@ -112,7 +112,7 @@ def gamma_phu(N, nf, sx):
         O(as1aem1) photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(1,1)}(N)`
     """
 
-    nu = as1aem1.uplike_flavors(nf)
+    nu = constants.uplike_flavors(nf)
     nd = nf - nu
     S1 = sx[0]
     tmp = (-16 * (-16 - 27 * N - 13 * N**2 - 8 * N**3)) / (
@@ -146,7 +146,7 @@ def gamma_phd(N, nf, sx):
         O(as1aem1) photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(1,1)}(N)`
     """
 
-    nu = as1aem1.uplike_flavors(nf)
+    nu = constants.uplike_flavors(nf)
     nd = nf - nu
     S1 = sx[0]
     tmp = (-16 * (-16 - 27 * N - 13 * N**2 - 8 * N**3)) / (
@@ -183,7 +183,7 @@ def gamma_nspu(N, nf, sx):
 
     S1 = sx[0]
     S2 = sx[1]
-    nu = as1aem1.uplike_flavors(nf)
+    nu = constants.uplike_flavors(nf)
     nd = nf - nu
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
     tmp = (
@@ -221,7 +221,7 @@ def gamma_nspd(N, nf, sx):
 
     S1 = sx[0]
     S2 = sx[1]
-    nu = as1aem1.uplike_flavors(nf)
+    nu = constants.uplike_flavors(nf)
     nd = nf - nu
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
     tmp = (
@@ -259,7 +259,7 @@ def gamma_nsmu(N, nf, sx):
 
     S1 = sx[0]
     S2 = sx[1]
-    nu = as1aem1.uplike_flavors(nf)
+    nu = constants.uplike_flavors(nf)
     nd = nf - nu
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
     tmp = (
@@ -297,7 +297,7 @@ def gamma_nsmd(N, nf, sx):
 
     S1 = sx[0]
     S2 = sx[1]
-    nu = as1aem1.uplike_flavors(nf)
+    nu = constants.uplike_flavors(nf)
     nd = nf - nu
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
     tmp = (

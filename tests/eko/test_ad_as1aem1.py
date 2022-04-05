@@ -2,7 +2,7 @@
 # Test O(as1aem1) splitting functions
 import numpy as np
 import pytest
-from test_ad_nnlo import get_sx
+from test_ad_as3 import get_sx
 
 from eko import anomalous_dimensions as ad
 from eko import constants
@@ -20,7 +20,7 @@ def test_gluon_momentum_conservation():
     N = complex(2.0, 0.0)
     sx = get_sx(N)
     for NF in range(2, 6 + 1):
-        NU = ad.as1aem1.uplike_flavors(NF)
+        NU = constants.uplike_flavors(NF)
         ND = NF - NU
         np.testing.assert_almost_equal(
             constants.eu2 * ad.as1aem1.gamma_qg(N, NU, sx)
@@ -30,7 +30,7 @@ def test_gluon_momentum_conservation():
             0,
         )
     with pytest.raises(NotImplementedError):
-        ad.as1aem1.uplike_flavors(7)
+        constants.uplike_flavors(7)
 
 
 def test_photon_momentum_conservation():
@@ -38,7 +38,7 @@ def test_photon_momentum_conservation():
     N = complex(2.0, 0.0)
     sx = get_sx(N)
     for NF in range(2, 6 + 1):
-        NU = ad.as1aem1.uplike_flavors(NF)
+        NU = constants.uplike_flavors(NF)
         ND = NF - NU
         np.testing.assert_almost_equal(
             constants.eu2 * ad.as1aem1.gamma_qph(N, NU, sx)
