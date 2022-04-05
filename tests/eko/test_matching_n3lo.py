@@ -191,10 +191,14 @@ def test_Blumlein_3():
 
 
 def test_AHq_asymptotic():
+    # Odd moments can't be not tested, since in the
+    # reference values coming from mathematica, some
+    # harmonics still contains some (-1)**N factors which
+    # should be continued with 1, but this is not doable.
     refs = [
-        -1.06712,
+        # -1.06712,
         0.476901,
-        -0.771605,
+        # -0.771605,
         0.388789,
         0.228768,
         0.114067,
@@ -210,9 +214,9 @@ def test_AHq_asymptotic():
         -0.000560666,
     ]
     Ns = [
-        11.0,
+        # 11.0,
         12.0,
-        13.0,
+        # 13.0,
         14.0,
         20.0,
         30.0,
