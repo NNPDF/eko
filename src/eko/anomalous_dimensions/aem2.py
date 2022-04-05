@@ -33,8 +33,10 @@ def gamma_phph(N, nf):
 
     nu = as1aem1.uplike_flavors(nf)
     nd = nf - nu
-    return (nu * constants.eu2**2 + nd * constants.ed2**2) * (
-        as1aem1.gamma_gph(N) / constants.CF / constants.CA + 4
+    return (
+        constants.NC
+        * (nu * constants.eu2**2 + nd * constants.ed2**2)
+        * (as1aem1.gamma_gph(N) / constants.CF / constants.CA + 4)
     )
 
 
