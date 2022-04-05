@@ -84,25 +84,28 @@ def test_F13():
 def test_F12_F14():
     # here there is a typo in eq (9.25) of Bl_mlein_2009
     for N, vals in zip(testN, refvals["Sm221"]):
+        is_singlet = (-1) ** N == 1
         S1 = harmonics.S1(N)
         S2 = harmonics.S2(N)
-        Sm1 = harmonics.Sm1(N)
+        Sm1 = harmonics.Sm1(N, S1, is_singlet)
         S21 = harmonics.S21(N, S1, S2)
-        Sm21 = harmonics.Sm21(N, S1, Sm1)
+        Sm21 = harmonics.Sm21(N, S1, Sm1, is_singlet)
         Sm221 = harmonics.Sm221(N, S1, Sm1, S21, Sm21)
         np.testing.assert_allclose(Sm221, vals, atol=1e-05)
 
 
 def test_F16():
     for N, vals in zip(testN, refvals["S21m2"]):
+        is_singlet = (-1) ** N == 1
         S1 = harmonics.S1(N)
         S2 = harmonics.S2(N)
-        Sm1 = harmonics.Sm1(N)
-        Sm2 = harmonics.Sm2(N)
-        Sm3 = harmonics.Sm3(N)
+        S3 = harmonics.S3(N)
+        Sm1 = harmonics.Sm1(N, S1, is_singlet)
+        Sm2 = harmonics.Sm2(N, S2, is_singlet)
+        Sm3 = harmonics.Sm3(N, S3, is_singlet)
         S21 = harmonics.S21(N, S1, S2)
-        S2m1 = harmonics.S2m1(N, S2, Sm1, Sm2)
-        Sm21 = harmonics.Sm21(N, S1, Sm1)
+        S2m1 = harmonics.S2m1(N, S2, Sm1, Sm2, is_singlet)
+        Sm21 = harmonics.Sm21(N, S1, Sm1, is_singlet)
         S21m2 = harmonics.S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1)
         np.testing.assert_allclose(S21m2, vals, atol=1e-04)
 
@@ -118,10 +121,11 @@ def test_F17():
 
 def test_F18():
     for N, vals in zip(testN, refvals["Sm2111"]):
+        is_singlet = (-1) ** N == 1
         S1 = harmonics.S1(N)
         S2 = harmonics.S2(N)
         S3 = harmonics.S3(N)
-        Sm1 = harmonics.Sm1(N)
+        Sm1 = harmonics.Sm1(N, S1, is_singlet)
         Sm2111 = harmonics.Sm2111(N, S1, S2, S3, Sm1)
         np.testing.assert_allclose(Sm2111, vals, atol=1e-05)
 
@@ -139,19 +143,26 @@ def test_F19():
 # different parametrization, less accurate
 def test_F20():
     for N, vals in zip(testN, refvals["Sm23"]):
-        Sm3 = harmonics.Sm3(N)
-        Sm2 = harmonics.Sm2(N)
-        Sm1 = harmonics.Sm1(N)
-        Sm23 = harmonics.Sm23(N, Sm1, Sm2, Sm3)
+        is_singlet = (-1) ** N == 1
+        S1 = harmonics.S1(N)
+        S2 = harmonics.S2(N)
+        S3 = harmonics.S3(N)
+        Sm3 = harmonics.Sm3(N, S3, is_singlet)
+        Sm2 = harmonics.Sm2(N, S2, is_singlet)
+        Sm1 = harmonics.Sm1(N, S1, is_singlet)
+        Sm23 = harmonics.Sm23(N, Sm1, Sm2, Sm3, is_singlet)
         np.testing.assert_allclose(Sm23, vals, rtol=1e-03)
 
 
 # different parametrization, less accurate
 def test_F21():
     for N, vals in zip(testN, refvals["S2m3"]):
-        Sm3 = harmonics.Sm3(N)
-        Sm2 = harmonics.Sm2(N)
-        Sm1 = harmonics.Sm1(N)
+        is_singlet = (-1) ** N == 1
+        S1 = harmonics.S1(N)
         S2 = harmonics.S2(N)
+        S3 = harmonics.S3(N)
+        Sm3 = harmonics.Sm3(N, S3, is_singlet)
+        Sm2 = harmonics.Sm2(N, S2, is_singlet)
+        Sm1 = harmonics.Sm1(N, S1, is_singlet)
         S2m3 = harmonics.S2m3(N, S2, Sm1, Sm2, Sm3)
         np.testing.assert_allclose(S2m3, vals, rtol=1e-03)

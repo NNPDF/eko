@@ -38,7 +38,7 @@ def S3(N):
 
 
 @nb.njit(cache=True)
-def Sm3(N, S3, is_singlet):
+def Sm3(N, hS3, is_singlet):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-3}(N)`.
 
@@ -49,7 +49,7 @@ def Sm3(N, S3, is_singlet):
     ----------
         N : complex
             Mellin moment
-        S3:  complex
+        hS3:  complex
             Harmonic sum :math:`S_{3}(N)`
         is_singlet: bool
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
@@ -65,8 +65,8 @@ def Sm3(N, S3, is_singlet):
         eko.harmonics.w3.S3 : :math:`S_3(N)`
     """
     if is_singlet:
-        return S3(N / 2) - 1 / 2**2 * S3
-    return S3((N - 1) / 2) - 1 / 2**2 * S3
+        return 1 / 2**2 * S3(N / 2) - hS3
+    return 1 / 2**2 * S3((N - 1) / 2) - hS3
 
 
 @nb.njit(cache=True)

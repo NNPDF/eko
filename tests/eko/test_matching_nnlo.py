@@ -13,13 +13,13 @@ def test_A_2():
 
     for L in logs:
         N = 1
-        sx = compute_harmonics_cache(N, 2)
+        sx = compute_harmonics_cache(N, 2, False)
         aNSqq2 = A_qq_ns(N, sx, L)
         # quark number conservation
         np.testing.assert_allclose(aNSqq2, 0.0, atol=2e-11)
 
         N = 2
-        sx = compute_harmonics_cache(N, 2)
+        sx = compute_harmonics_cache(N, 2, True)
         aS2 = A_singlet(N, sx, L)
 
         # gluon momentum conservation
@@ -39,7 +39,7 @@ def test_A_2():
 def test_A_2_shape():
     N = np.random.rand()
     L = 3
-    sx = compute_harmonics_cache(N, 2)
+    sx = compute_harmonics_cache(N, 2, (-1) ** N == 1)
     aNS2 = A_ns(N, sx, L)
     aS2 = A_singlet(N, sx, L)
 
@@ -55,7 +55,7 @@ def test_pegasus_sign():
     # reference value come from Pegasus code transalted Mathematica
     ref_val = -21133.9
     N = 2
-    sx = compute_harmonics_cache(N, 2)
+    sx = compute_harmonics_cache(N, 2, True)
     L = 100.0
     aS2 = A_singlet(N, sx, L)
 
@@ -120,7 +120,7 @@ def test_Blumlein_2():
     }
     for N in range(2, 11):
         for L, ref_Hg in ref_val_Hg.items():
-            sx = compute_harmonics_cache(N, 2)
+            sx = compute_harmonics_cache(N, 2, True)
             aS2 = A_singlet(N, sx, L)
             if N % 2 == 0:
                 idx = int(N / 2 - 1)
@@ -138,7 +138,7 @@ def test_Hg2_pegasus():
     L = 0
 
     for N in range(3, 20):
-        sx = compute_harmonics_cache(N, 2)
+        sx = compute_harmonics_cache(N, 2, True)
         S1 = sx[0][0]
         S2 = sx[1][0]
         S3 = sx[2][0]
@@ -162,7 +162,7 @@ def test_Hg2_pegasus():
             - 146.8 * E2
         )
 
-        np.testing.assert_allclose(aS2[2, 0], a_hg_param, rtol=9e-4)
+        np.testing.assert_allclose(aS2[2, 0], a_hg_param, rtol=7e-4)
 
 
 def test_msbar_matching():
@@ -170,7 +170,7 @@ def test_msbar_matching():
 
     for L in logs:
         N = 2
-        sx = compute_harmonics_cache(N, 2)
+        sx = compute_harmonics_cache(N, 2, True)
         aS2 = A_singlet(N, sx, L, True)
         # gluon momentum conservation
         np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0] + aS2[2, 0], 0.0, atol=2e-6)

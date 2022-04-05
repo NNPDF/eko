@@ -10,7 +10,7 @@ def test_A_1_intrinsic():
 
     L = 100.0
     N = 2
-    sx = compute_harmonics_cache(N, 1)
+    sx = compute_harmonics_cache(N, 1, True)
     aS1 = A_singlet(N, sx, L)
     # heavy quark momentum conservation
     np.testing.assert_allclose(aS1[0, 2] + aS1[1, 2] + aS1[2, 2], 0.0, atol=1e-10)
@@ -23,7 +23,7 @@ def test_A_1_shape():
 
     N = 2
     L = 3.0
-    sx = compute_harmonics_cache(N, 1)
+    sx = compute_harmonics_cache(N, 1, (-1) ** N == 1)
     aNS1i = A_ns(N, sx, L)
     aS1i = A_singlet(N, sx, L)
 
@@ -47,7 +47,7 @@ def test_Blumlein_1():
 
     for n in range(N_vals):
         N = 2 * n + 2
-        sx = compute_harmonics_cache(N, 1)
+        sx = compute_harmonics_cache(N, 1, True)
         for L, ref_gg in ref_val_gg.items():
             aS1 = A_singlet(N, sx, L)
             np.testing.assert_allclose(aS1[0, 0], ref_gg[n], rtol=1e-6)

@@ -38,7 +38,7 @@ def S4(N):
 
 
 @nb.njit(cache=True)
-def Sm4(N, S4, is_singlet):
+def Sm4(N, hS4, is_singlet):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-4}(N)`.
 
@@ -49,7 +49,7 @@ def Sm4(N, S4, is_singlet):
     ----------
         N : complex
             Mellin moment
-        S4:  complex
+        hS4:  complex
             Harmonic sum :math:`S_{4}(N)`
         is_singlet: bool
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
@@ -65,8 +65,8 @@ def Sm4(N, S4, is_singlet):
         eko.anomalous_dimension.w4.S4 : :math:`S_4(N)`
     """
     if is_singlet:
-        return S4(N / 2) - 1 / 2**3 * S4
-    return S4((N - 1) / 2) - 1 / 2**3 * S4
+        return 1 / 2**3 * S4(N / 2) - hS4
+    return 1 / 2**3 * S4((N - 1) / 2) - hS4
 
 
 @nb.njit(cache=True)

@@ -165,7 +165,7 @@ def s4x(n, sx, smx, is_singlet):
         s4x: np.ndarray
             list containing: :math:`S_{3,1},S_{2,1,1},S_{-2,2},S_{-2,1,1},S_{-3,1}`
     """
-    sm31 = Sm31(n, sx[0], smx[0], smx[1])
+    sm31 = Sm31(n, sx[0], smx[0], smx[1], is_singlet)
     return np.array(
         [
             S31(n, sx[0], sx[1], sx[2], sx[3]),
