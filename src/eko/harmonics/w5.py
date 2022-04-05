@@ -66,7 +66,7 @@ def Sm5(N):
 def S41(N, S1, S2, S3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{4,1}(N)`
-    as implemented in eq 9.1 of :cite:` Bl_mlein_2009`
+    as implemented in eq 9.1 of :cite:`Blumlein:2009ta`
 
     Parameters
     ----------
@@ -96,7 +96,7 @@ def S41(N, S1, S2, S3):
 def S311(N, S1, S2):
     r"""
     Analytic continuation of harmonic sum :math:`S_{3,1,1}(N)`
-    as implemented in eq 9.21 of :cite:` Bl_mlein_2009`
+    as implemented in eq 9.21 of :cite:`Blumlein:2009ta`
 
     Parameters
     ----------
@@ -124,7 +124,7 @@ def S311(N, S1, S2):
 def S221(N, S1, S2, S21):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,2,1}(N)`
-    as implemented in eq 9.23 of :cite:` Bl_mlein_2009`
+    as implemented in eq 9.23 of :cite:`Blumlein:2009ta`
 
     Parameters
     ----------
@@ -161,7 +161,7 @@ def S221(N, S1, S2, S21):
 def Sm221(N, S1, Sm1, S21, Sm21):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,2,1}(N)`
-    as implemented in eq 9.25 of :cite:` Bl_mlein_2009`
+    as implemented in eq 9.25 of :cite:`Blumlein:2009ta`
 
     Parameters
     ----------
@@ -199,7 +199,7 @@ def Sm221(N, S1, Sm1, S21, Sm21):
 def S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,1,-2}(N)`
-    as implemented in eq 9.26 of :cite:` Bl_mlein_2009`
+    as implemented in eq 9.26 of :cite:`Blumlein:2009ta`
 
     Parameters
     ----------
@@ -247,7 +247,7 @@ def S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1):
 def S2111(N, S1, S2, S3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,1,1,1}(N)`
-    as implemented in eq 9.33 of :cite:` Bl_mlein_2009`
+    as implemented in eq 9.33 of :cite:`Blumlein:2009ta`
 
     Parameters
     ----------
@@ -277,7 +277,7 @@ def S2111(N, S1, S2, S3):
 def Sm2111(N, S1, S2, S3, Sm1):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,1,1,1}(N)`
-    as implemented in eq 9.34 of :cite:` Bl_mlein_2009`
+    as implemented in eq 9.34 of :cite:`Blumlein:2009ta`
 
     Parameters
     ----------
@@ -314,7 +314,7 @@ def Sm2111(N, S1, S2, S3, Sm1):
 def S23(N, S1, S2, S3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,3}(N)`
-    as implemented in eq 9.3 of :cite:` Bl_mlein_2009`
+    as implemented in eq 9.3 of :cite:`Blumlein:2009ta`
 
     Parameters
     ----------
@@ -348,7 +348,7 @@ def S23(N, S1, S2, S3):
 def Sm23(N, Sm1, Sm2, Sm3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,3}(N)`
-    as implemented in eq 9.4 of :cite:` Bl_mlein_2009`
+    as implemented in eq 9.4 of :cite:`Blumlein:2009ta`
 
     Parameters
     ----------
@@ -388,7 +388,7 @@ def Sm23(N, Sm1, Sm2, Sm3):
 def S2m3(N, S2, Sm1, Sm2, Sm3):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,-3}(N)`
-    as implemented in eq 9.5 of :cite:` Bl_mlein_2009`
+    as implemented in eq 9.5 of :cite:`Blumlein:2009ta`
 
     Parameters
     ----------
