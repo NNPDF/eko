@@ -88,7 +88,7 @@ def gamma_dph(N, nf, sx):
     return constants.ed2 * as1aem1.gamma_qph(N, nf, sx) / constants.CF
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
+@nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_phu(N, nf, sx):
     """
     Computes the O(as1aem1) photon-quark anomalous dimension
@@ -122,7 +122,7 @@ def gamma_phu(N, nf, sx):
     return constants.eu2 * as1aem1.gamma_phq(N, sx) / constants.CF + eSigma2 * tmp
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
+@nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_phd(N, nf, sx):
     """
     Computes the O(as1aem1) photon-quark anomalous dimension
