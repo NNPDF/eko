@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 import os
 
 import numpy as np
@@ -124,6 +125,44 @@ def test_quad_ker(monkeypatch):
     np.testing.assert_allclose(res_ns, 0.0)
 
 
+theory_card = {
+    "alphas": 0.35,
+    "PTO": 0,
+    "ModEv": "TRN",
+    "fact_to_ren_scale_ratio": 1.0,
+    "Qref": np.sqrt(2),
+    "nfref": None,
+    "Q0": np.sqrt(2),
+    "nf0": 3,
+    "FNS": "FFNS",
+    "NfFF": 3,
+    "IC": 0,
+    "IB": 0,
+    "mc": 1.0,
+    "mb": 4.75,
+    "mt": 173.0,
+    "kcThr": np.inf,
+    "kbThr": np.inf,
+    "ktThr": np.inf,
+    "MaxNfPdf": 6,
+    "MaxNfAs": 6,
+    "HQ": "POLE",
+    "ModSV": None,
+}
+operators_card = {
+    "Q2grid": [1, 10],
+    "interpolation_xgrid": [0.1, 1.0],
+    "interpolation_polynomial_degree": 1,
+    "interpolation_is_log": True,
+    "debug_skip_singlet": False,
+    "debug_skip_non_singlet": False,
+    "ev_op_max_order": 1,
+    "ev_op_iterations": 1,
+    "backward_inversion": "exact",
+    "n_integration_cores": 1,
+}
+
+
 class TestOperator:
     def test_labels(self):
         o = Operator(
@@ -168,58 +207,28 @@ class TestOperator:
         )
         assert o.n_pools == os.cpu_count() - excluded_cores
 
-    def test_compute(self, monkeypatch):
-        # setup objs
-        theory_card = {
-            "alphas": 0.35,
-            "PTO": 0,
-            "ModEv": "TRN",
-            "fact_to_ren_scale_ratio": 1.0,
-            "Qref": np.sqrt(2),
-            "nfref": None,
-            "Q0": np.sqrt(2),
-            "nf0": 3,
-            "FNS": "FFNS",
-            "NfFF": 3,
-            "IC": 0,
-            "IB": 0,
-            "mc": 1.0,
-            "mb": 4.75,
-            "mt": 173.0,
-            "kcThr": np.inf,
-            "kbThr": np.inf,
-            "ktThr": np.inf,
-            "MaxNfPdf": 6,
-            "MaxNfAs": 6,
-            "HQ": "POLE",
-            "ModSV": None,
-        }
-        operators_card = {
-            "Q2grid": [1, 10],
-            "interpolation_xgrid": [0.1, 1.0],
-            "interpolation_polynomial_degree": 1,
-            "interpolation_is_log": True,
-            "debug_skip_singlet": False,
-            "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
-            "ev_op_iterations": 1,
-            "backward_inversion": "exact",
-            "n_integration_cores": 1,
-        }
+    def test_compute_parallel(self, monkeypatch):
+        tcard = copy.deepcopy(theory_card)
+        ocard = copy.deepcopy(operators_card)
+        ocard["n_integration_cores"] = 2
         g = OperatorGrid.from_dict(
-            theory_card,
-            operators_card,
-            ThresholdsAtlas.from_dict(theory_card),
-            StrongCoupling.from_dict(theory_card),
-            InterpolatorDispatcher.from_dict(operators_card),
+            tcard,
+            ocard,
+            ThresholdsAtlas.from_dict(tcard),
+            StrongCoupling.from_dict(tcard),
+            InterpolatorDispatcher.from_dict(ocard),
         )
-        o = Operator(g.config, g.managers, 3, 2, 10)
+        # setup objs
+        o = Operator(g.config, g.managers, 3, 2.0, 10.0)
         # fake quad
         monkeypatch.setattr(
             scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
         )
         # LO
         o.compute()
+        self.check_lo(o)
+
+    def check_lo(self, o):
         assert (br.non_singlet_pids_map["ns-"], 0) in o.op_members
         np.testing.assert_allclose(
             o.op_members[(br.non_singlet_pids_map["ns-"], 0)].value,
@@ -229,6 +238,26 @@ class TestOperator:
             o.op_members[(br.non_singlet_pids_map["nsV"], 0)].value,
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
         )
+
+    def test_compute(self, monkeypatch):
+        tcard = copy.deepcopy(theory_card)
+        ocard = copy.deepcopy(operators_card)
+        g = OperatorGrid.from_dict(
+            tcard,
+            ocard,
+            ThresholdsAtlas.from_dict(tcard),
+            StrongCoupling.from_dict(tcard),
+            InterpolatorDispatcher.from_dict(ocard),
+        )
+        # setup objs
+        o = Operator(g.config, g.managers, 3, 2.0, 10.0)
+        # fake quad
+        monkeypatch.setattr(
+            scipy.integrate, "quad", lambda *args, **kwargs: np.random.rand(2)
+        )
+        # LO
+        o.compute()
+        self.check_lo(o)
         # NLO
         o.config["order"] = 1
         o.compute()
@@ -243,7 +272,7 @@ class TestOperator:
 
         # unity operators
         for n in range(0, 2 + 1):
-            o1 = Operator(g.config, g.managers, 3, 2, 2)
+            o1 = Operator(g.config, g.managers, 3, 2.0, 2.0)
             o1.config["order"] = n
             o1.compute()
             for k in br.non_singlet_labels:
