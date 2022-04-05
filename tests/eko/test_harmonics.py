@@ -1,11 +1,26 @@
 # -*- coding: utf-8 -*-
-# Test eko.matching_conditions.OperatorMatrixElement
 import numpy as np
 
 from eko import harmonics as h
 
 
-def test_HarmonicsCache():
+def test_spm1():
+    for k in range(1, 5 + 1):
+        f = np.sum([1.0 / j for j in range(1, k + 1)])
+        np.testing.assert_allclose(f, h.w1.S1(k))
+        g = np.sum([(-1.0) ** j / j for j in range(1, k + 1)])
+        np.testing.assert_allclose(g, h.w1.Sm1(k))
+
+
+def test_spm2():
+    for k in range(1, 5 + 1):
+        f = np.sum([1.0 / j**2 for j in range(1, k + 1)])
+        np.testing.assert_allclose(f, h.w2.S2(k))
+        g = np.sum([(-1.0) ** j / j**2 for j in range(1, k + 1)])
+        np.testing.assert_allclose(g, h.w2.Sm2(k))
+
+
+def test_harmonics_cache():
     N = np.random.rand() + 1.0j * np.random.rand()
     Sm1 = h.Sm1(N)
     Sm2 = h.Sm2(N)
