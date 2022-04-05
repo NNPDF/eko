@@ -6,10 +6,6 @@ from test_ad_nnlo import get_sx
 from eko import anomalous_dimensions as ad
 from eko import constants
 
-NF = 5
-ND = 3
-NU = 2
-
 
 def test_number_conservation():
     # number
