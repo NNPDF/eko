@@ -6,7 +6,7 @@ from ... import harmonics as sf
 
 
 @nb.njit(cache=True)
-def A_qqNS(n, sx, nf, L):  # pylint: disable=too-many-locals
+def A_qqNS(n, sx, nf, L, is_singlet):  # pylint: disable=too-many-locals
     r"""
     Computes the |N3LO| singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.
     The experssion is presented in :cite:`Bierenbaum:2009mv` and
@@ -25,6 +25,9 @@ def A_qqNS(n, sx, nf, L):  # pylint: disable=too-many-locals
             number of active flavor below the threshold
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -44,7 +47,7 @@ def A_qqNS(n, sx, nf, L):  # pylint: disable=too-many-locals
     S2111 = sf.S2111(n, S1, S2, S3)
     Sm2111 = sf.Sm2111(n, S1, S2, S3, Sm1)
     S23 = sf.S23(n, S1, S2, S3)
-    Sm23 = sf.Sm23(n, Sm1, Sm2, Sm3)
+    Sm23 = sf.Sm23(n, Sm1, Sm2, Sm3, is_singlet)
     S2m3 = sf.S2m3(n, S2, Sm1, Sm2, Sm3)
     a_qqNS_l0 = (
         0.3333333333333333

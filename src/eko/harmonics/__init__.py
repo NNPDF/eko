@@ -14,8 +14,8 @@ from .w5 import S5, S23, S41, S221, S311, S2111, S2m3, S21m2, Sm5, Sm23, Sm221, 
 
 
 @nb.njit(cache=True)
-def base_harmonics_cache(n, max_weight=5, n_max_sums_weight=7):
-    """
+def base_harmonics_cache(n, is_singlet, max_weight=5, n_max_sums_weight=7):
+    r"""
     Get the harmonics sums S basic cache.
     Only single index harmonics are computed and stored
     in the first (:math:`S_{n}`) or in the last column (:math:`S_{-n}`)
@@ -26,6 +26,9 @@ def base_harmonics_cache(n, max_weight=5, n_max_sums_weight=7):
     ----------
         n : complex
             Mellin moment
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
         max_weight : int
             max harmonics weight, max value 5 (default)
         n_max_sums_weight : int
@@ -39,7 +42,7 @@ def base_harmonics_cache(n, max_weight=5, n_max_sums_weight=7):
     h_cache = np.zeros((max_weight, n_max_sums_weight), dtype=np.complex_)
     h_cache[:, 0] = sx(n, max_weight)
     if n_max_sums_weight > 1:
-        h_cache[:, -1] = smx(n, max_weight)
+        h_cache[:, -1] = smx(n, h_cache[:, 0], is_singlet)
     return h_cache
 
 
@@ -75,39 +78,42 @@ def sx(n, max_weight=5):
 
 
 @nb.njit(cache=True)
-def smx(n, max_weight=5):
-    """
+def smx(n, sx, is_singlet):
+    r"""
     Get the harmonics S-minus cache
 
     Parameters
     ----------
         n : complex
             Mellin moment
-        max_weight : int
-            max harmonics weight, max value 5 (default)
-
+        sx : numpy.ndarray
+            List of harmonics sums: :math:`S_{1},\dots,S_{w}`
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
     Returns
     -------
         smx : np.ndarray
             list of harmonics sums (:math:`S_{-1,..,-w}`)
     """
+    max_weight = sx.size
     smx = np.zeros(max_weight, dtype=np.complex_)
     if max_weight >= 1:
-        smx[0] = Sm1(n)
+        smx[0] = Sm1(n, sx[0], is_singlet)
     if max_weight >= 2:
-        smx[1] = Sm2(n)
+        smx[1] = Sm2(n, sx[1], is_singlet)
     if max_weight >= 3:
-        smx[2] = Sm3(n)
+        smx[2] = Sm3(n, sx[2], is_singlet)
     if max_weight >= 4:
-        smx[3] = Sm4(n)
+        smx[3] = Sm4(n, sx[3], is_singlet)
     if max_weight >= 5:
-        smx[4] = Sm5(n)
+        smx[4] = Sm5(n, sx[4], is_singlet)
     return smx
 
 
 @nb.njit(cache=True)
-def s3x(n, sx, smx):
-    """
+def s3x(n, sx, smx, is_singlet):
+    r"""
     Compute the weight 3 multi indices harmonics sums cache
 
     Parameters
@@ -118,6 +124,9 @@ def s3x(n, sx, smx):
             List of harmonics sums: :math:`S_{1},S_{2}`
         smx : list
             List of harmonics sums: :math:`S_{-1},S_{-2}`
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -127,16 +136,16 @@ def s3x(n, sx, smx):
     return np.array(
         [
             S21(n, sx[0], sx[1]),
-            S2m1(n, sx[1], smx[0], smx[1]),
-            Sm21(n, sx[0], smx[0]),
+            S2m1(n, sx[1], smx[0], smx[1], is_singlet),
+            Sm21(n, sx[0], smx[0], is_singlet),
             Sm2m1(n, sx[0], sx[1], smx[1]),
         ]
     )
 
 
 @nb.njit(cache=True)
-def s4x(n, sx, smx):
-    """
+def s4x(n, sx, smx, is_singlet):
+    r"""
     Compute the weight 4 multi indices harmonics sums cache
 
     Parameters
@@ -147,6 +156,9 @@ def s4x(n, sx, smx):
             List of harmonics sums: :math:`S_{1},S_{2},S_{3},S_{4}`
         smx : list
             List of harmonics sums: :math:`S_{-1},S_{-2}`
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -158,8 +170,8 @@ def s4x(n, sx, smx):
         [
             S31(n, sx[0], sx[1], sx[2], sx[3]),
             S211(n, sx[0], sx[1], sx[2]),
-            Sm22(n, sx[0], sx[1], smx[1], sm31),
-            Sm211(n, sx[0], sx[1], smx[0]),
-            Sm31(n, sx[0], smx[0], smx[1]),
+            Sm22(n, sx[0], sx[1], smx[1], sm31, is_singlet),
+            Sm211(n, sx[0], sx[1], smx[0], is_singlet),
+            Sm31(n, sx[0], smx[0], smx[1], is_singlet),
         ]
     )

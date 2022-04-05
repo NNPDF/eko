@@ -38,7 +38,7 @@ def S5(N):
 
 
 @nb.njit(cache=True)
-def Sm5(N):
+def Sm5(N, S5, is_singlet):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-5}(N)`.
 
@@ -49,6 +49,11 @@ def Sm5(N):
     ----------
         N : complex
             Mellin moment
+        S5:  complex
+            Harmonic sum :math:`S_{5}(N)`
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -59,7 +64,9 @@ def Sm5(N):
     --------
         eko.harmonic.w5.S5 : :math:`S_5(N)`
     """
-    return (-1) ** N / 32 * (S5(N / 2) - S5((N - 1) / 2)) - 15 / 16 * zeta5
+    if is_singlet:
+        return S5(N / 2) - 1 / 2**4 * S5
+    return S5((N - 1) / 2) - 1 / 2**4 * S5
 
 
 @nb.njit(cache=True)
@@ -345,7 +352,7 @@ def S23(N, S1, S2, S3):
 
 
 @nb.njit(cache=True)
-def Sm23(N, Sm1, Sm2, Sm3):
+def Sm23(N, Sm1, Sm2, Sm3, is_singlet):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,3}(N)`
     as implemented in eq 9.4 of :cite:`Blumlein:2009ta`
@@ -360,6 +367,9 @@ def Sm23(N, Sm1, Sm2, Sm3):
             Harmonic sum :math:`S_{-2}(N)`
         Sm3: complex
             Harmonic sum :math:`S_{-3}(N)`
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -375,8 +385,9 @@ def Sm23(N, Sm1, Sm2, Sm3):
                     +3 [\text{S}_{1,3}(1-x) - \zeta_4]
                 /(x+1)](N)`
     """
+    eta = 1 if is_singlet else -1
     return (
-        (-1) ** N * f.F20(N, Sm1, Sm2, Sm3)
+        eta * f.F20(N, Sm1, Sm2, Sm3)
         + 3 * zeta4 * Sm1
         + 21 / 32 * zeta5
         + 3 * zeta4 * log2

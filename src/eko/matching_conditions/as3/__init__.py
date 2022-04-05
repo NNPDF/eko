@@ -81,7 +81,7 @@ def A_singlet(n, sx_all, nf, L):
     A_gg_3 = A_gg(n, sx_all, nf, L)
 
     A_qq_ps_3 = A_qqPS(n, sx_all, nf, L)
-    A_qq_ns_3 = A_qqNS(n, sx_all, nf, L)
+    A_qq_ns_3 = A_qqNS(n, sx_all, nf, L, True)
     A_qg_3 = A_qg(n, sx_all, nf, L)
 
     A_S = np.array(
@@ -136,4 +136,6 @@ def A_ns(n, sx_all, nf, L):
     --------
         A_qqNS_3 : :math:`A_{qq,H}^{NS,(3))}`
     """
-    return np.array([[A_qqNS(n, sx_all, nf, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)
+    return np.array(
+        [[A_qqNS(n, sx_all, nf, L, False), 0.0], [0 + 0j, 0 + 0j]], np.complex_
+    )

@@ -38,7 +38,7 @@ def S3(N):
 
 
 @nb.njit(cache=True)
-def Sm3(N):
+def Sm3(N, S3, is_singlet):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-3}(N)`.
 
@@ -49,6 +49,11 @@ def Sm3(N):
     ----------
         N : complex
             Mellin moment
+        S3:  complex
+            Harmonic sum :math:`S_{3}(N)`
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -59,7 +64,9 @@ def Sm3(N):
     --------
         eko.harmonics.w3.S3 : :math:`S_3(N)`
     """
-    return (-1) ** N / 8 * (S3(N / 2) - S3((N - 1) / 2)) - 3 / 4 * zeta3
+    if is_singlet:
+        return S3(N / 2) - 1 / 2**2 * S3
+    return S3((N - 1) / 2) - 1 / 2**2 * S3
 
 
 @nb.njit(cache=True)
@@ -90,7 +97,7 @@ def S21(N, S1, S2):
 
 
 @nb.njit(cache=True)
-def Sm21(N, S1, Sm1):
+def Sm21(N, S1, Sm1, is_singlet):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2,1}(N)`
     as implemented in eq B.5.75 of :cite:`MuselliPhD` and eq 22 of :cite:`Bl_mlein_2000`.
@@ -103,6 +110,9 @@ def Sm21(N, S1, Sm1):
             Harmonic sum :math:`S_{1}(N)`
         Sm1: complex
             Harmonic sum :math:`S_{-1}(N)`
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -114,8 +124,9 @@ def Sm21(N, S1, Sm1):
         eko.harmonics.g_functions : :math:`g_3(N)`
     """
     # Note mellin g3 was integrated following x^(N-1) convention.
+    eta = 1 if is_singlet else -1
     return (
-        -((-1) ** N) * gf.mellin_g3(N + 1, S1 + 1 / (N + 1))
+        -eta * gf.mellin_g3(N + 1, S1 + 1 / (N + 1))
         + zeta2 * Sm1
         - 5 / 8 * zeta3
         + zeta2 * log2
@@ -123,7 +134,7 @@ def Sm21(N, S1, Sm1):
 
 
 @nb.njit(cache=True)
-def S2m1(N, S2, Sm1, Sm2):
+def S2m1(N, S2, Sm1, Sm2, is_singlet):
     r"""
     Analytic continuation of harmonic sum :math:`S_{2,-1}(N)`
     as implemented in eq B.5.76 of :cite:`MuselliPhD` and eq 23 of :cite:`Bl_mlein_2000`.
@@ -138,6 +149,9 @@ def S2m1(N, S2, Sm1, Sm2):
             Harmonic sum :math:`S_{-1}(N)`
         Sm2: complex
             Harmonic sum :math:`S_{-2}(N)`
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -148,8 +162,9 @@ def S2m1(N, S2, Sm1, Sm2):
     --------
         eko.harmonics.g_functions.mellin_g4 : :math:`g_4(N)`
     """
+    eta = 1 if is_singlet else -1
     return (
-        -((-1) ** N) * gf.mellin_g4(N)
+        -eta * gf.mellin_g4(N)
         - log2 * (S2 - Sm2)
         - 1 / 2 * zeta2 * Sm1
         + 1 / 4 * zeta3

@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 
 @nb.njit(cache=True)
-def compute_harmonics_cache(n, order):
-    """
+def compute_harmonics_cache(n, order, is_singlet):
+    r"""
     Get the harmonics sums cache
 
     Parameters
@@ -29,6 +29,9 @@ def compute_harmonics_cache(n, order):
             Mellin moment
         order: int
             perturbative order
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -46,14 +49,16 @@ def compute_harmonics_cache(n, order):
     max_weight = {1: 2, 2: 3, 3: 5}
     # max number of harmonics sum of a given weight for each qcd order
     n_max_sums_weight = {1: 1, 2: 3, 3: 7}
-    sx = harmonics.base_harmonics_cache(n, max_weight[order], n_max_sums_weight[order])
+    sx = harmonics.base_harmonics_cache(
+        n, is_singlet, max_weight[order], n_max_sums_weight[order]
+    )
     if order == 2:
         # Add Sm21 to cache
-        sx[2, 1] = harmonics.Sm21(n, sx[0, 0], sx[0, -1])
+        sx[2, 1] = harmonics.Sm21(n, sx[0, 0], sx[0, -1], is_singlet)
     if order == 3:
         # Add weight 3 and 4 to cache
-        sx[2, 1:-2] = harmonics.s3x(n, sx[:, 0], sx[:, -1])
-        sx[3, 1:-1] = harmonics.s4x(n, sx[:, 0], sx[:, -1])
+        sx[2, 1:-2] = harmonics.s3x(n, sx[:, 0], sx[:, -1], is_singlet)
+        sx[3, 1:-1] = harmonics.s4x(n, sx[:, 0], sx[:, -1], is_singlet)
     # return list of list keeping the non zero values
     return [[el for el in sx_list if el != 0] for sx_list in sx]
 
@@ -233,7 +238,7 @@ def quad_ker(
     if integrand == 0.0:
         return 0.0
 
-    sx = compute_harmonics_cache(ker_base.n, order)
+    sx = compute_harmonics_cache(ker_base.n, order, ker_base.is_singlet)
     # compute the ome
     if ker_base.is_singlet:
         indices = {21: 0, 100: 1, 90: 2}

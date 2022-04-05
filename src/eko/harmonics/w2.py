@@ -37,7 +37,7 @@ def S2(N):
 
 
 @nb.njit(cache=True)
-def Sm2(N):
+def Sm2(N, S2, is_singlet):
     r"""
     Analytic continuation of harmonic sum :math:`S_{-2}(N)`.
 
@@ -48,6 +48,11 @@ def Sm2(N):
     ----------
         N : complex
             Mellin moment
+        S2:  complex
+            Harmonic sum :math:`S_{2}(N)`
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -58,4 +63,6 @@ def Sm2(N):
     --------
         eko.anomalous_dimension.w2.S2 : :math:`S_2(N)`
     """
-    return (-1) ** N / 4 * (S2(N / 2) - S2((N - 1) / 2)) - zeta2 / 2
+    if is_singlet:
+        return S2(N / 2) - 1 / 2 * S2
+    return S2((N - 1) / 2) - 1 / 2 * S2
