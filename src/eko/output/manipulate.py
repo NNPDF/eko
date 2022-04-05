@@ -23,6 +23,7 @@ def xgrid_reshape(eko, targetgrid=None, inputgrid=None, inplace=True):
         inputgrid : None or list
             xgrid for the input
     """
+    __import__("pdb").set_trace()
     # calling with no arguments is an error
     if targetgrid is None and inputgrid is None:
         raise ValueError("Nor inputgrid nor targetgrid was given")

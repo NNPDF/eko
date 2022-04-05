@@ -82,7 +82,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 
         self.out = EKO.from_dict(dict(Q0=np.sqrt(tc.q2_ref), **operators_card))
 
-    def get_output(self):
+    def get_output(self) -> EKO:
         """
         Collects all data for output (to run the evolution)
 
@@ -97,6 +97,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         self.out.rotations.inputgrid = self.out.xgrid.grid
         self.out.rotations.targetgrid = self.out.xgrid.grid
         for final_scale, op in self.op_grid.compute().items():
+            __import__("pdb").set_trace()
             self.out[float(final_scale)] = op
 
         # reshape xgrid
