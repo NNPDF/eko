@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+This file contains the O(aem1) Altarelli-Parisi splitting kernels.
+"""
+
 import numba as nb
 
 from .. import constants

@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 This file contains the O(as1aem1) Altarelli-Parisi splitting kernels.
-
-These expression have been obtained using the procedure described in the
-`wiki <https://github.com/N3PDF/eko/wiki/Parse-NLO-expressions>`_
-involving ``FormGet`` :cite:`Hahn:2016ebn`.
 """
 
 import numba as nb
