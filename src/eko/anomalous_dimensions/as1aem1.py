@@ -304,7 +304,7 @@ def gamma_nsp(N, sx):
 @nb.njit("c16(c16,c16[:])", cache=True)
 def gamma_nsm(N, sx):
     """
-    Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
+    Computes the O(as1aem1) valence-like non-singlet anomalous dimension.
 
     Implements difference between Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
 

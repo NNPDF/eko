@@ -23,8 +23,8 @@ def gamma_phph(N, nf):
     Returns
     -------
         gamma_gg : complex
-            O(as1aem1) photon-photon singlet anomalous dimension
-            :math:`\\gamma_{\\gamma \\gamma}^{(1,1)}(N)`
+            O(aem2) photon-photon singlet anomalous dimension
+            :math:`\\gamma_{\\gamma \\gamma}^{(0,2)}(N)`
     """
 
     nu = constants.uplike_flavors(nf)
@@ -54,8 +54,8 @@ def gamma_uph(N, nf, sx):
 
     Returns
     -------
-      gamma_qph : complex
-        O(as1aem1) quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(1,1)}(N)`
+      gamma_uph : complex
+        O(aem2) quark-photon anomalous dimension :math:`\\gamma_{u \\gamma}^{(0,2)}(N)`
     """
 
     return constants.eu2 * as1aem1.gamma_qph(N, nf, sx) / constants.CF
@@ -79,8 +79,8 @@ def gamma_dph(N, nf, sx):
 
     Returns
     -------
-      gamma_qph : complex
-        O(as1aem1) quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(1,1)}(N)`
+      gamma_dph : complex
+        O(aem2) quark-photon anomalous dimension :math:`\\gamma_{d \\gamma}^{(0,2)}(N)`
     """
 
     return constants.ed2 * as1aem1.gamma_qph(N, nf, sx) / constants.CF
@@ -104,8 +104,8 @@ def gamma_phu(N, nf, sx):
 
     Returns
     -------
-      gamma_phq : complex
-        O(as1aem1) photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(1,1)}(N)`
+      gamma_phu : complex
+        O(aem2) photon-quark anomalous dimension :math:`\\gamma_{\\gamma u}^{(0,2)}(N)`
     """
 
     nu = constants.uplike_flavors(nf)
@@ -138,8 +138,8 @@ def gamma_phd(N, nf, sx):
 
     Returns
     -------
-      gamma_phq : complex
-        O(as1aem1) photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(1,1)}(N)`
+      gamma_phd : complex
+        O(aem2) photon-quark anomalous dimension :math:`\\gamma_{\\gamma d}^{(0,2)}(N)`
     """
 
     nu = constants.uplike_flavors(nf)
@@ -172,9 +172,9 @@ def gamma_nspu(N, nf, sx):
 
     Returns
     -------
-        gamma_nsp : complex
-            O(as1aem1) singlet-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,+}^{(1)}(N)`
+        gamma_nspu : complex
+            O(aem2) singlet-like non-singlet anomalous dimension
+            :math:`\\gamma_{ns,+,u}^{(0,2)}(N)`
     """
 
     S1 = sx[0]
@@ -210,9 +210,9 @@ def gamma_nspd(N, nf, sx):
 
     Returns
     -------
-        gamma_nsp : complex
-            O(as1aem1) singlet-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,+}^{(1)}(N)`
+        gamma_nspd : complex
+            O(aem2) singlet-like non-singlet anomalous dimension
+            :math:`\\gamma_{ns,+,d}^{(0,2)}(N)`
     """
 
     S1 = sx[0]
@@ -249,8 +249,8 @@ def gamma_nsmu(N, nf, sx):
     Returns
     -------
         gamma_nsp : complex
-            O(as1aem1) singlet-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,+}^{(1)}(N)`
+            O(aem2) valence-like non-singlet anomalous dimension
+            :math:`\\gamma_{ns,-,u}^{(0,2)}(N)`
     """
 
     S1 = sx[0]
@@ -287,8 +287,8 @@ def gamma_nsmd(N, nf, sx):
     Returns
     -------
         gamma_nsp : complex
-            O(as1aem1) singlet-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,+}^{(1)}(N)`
+            O(aem2) valence-like non-singlet anomalous dimension
+            :math:`\\gamma_{ns,-,d}^{(0,2)}(N)`
     """
 
     S1 = sx[0]
@@ -323,8 +323,8 @@ def gamma_ps(N, nf):
     Returns
     -------
         gamma_ps : complex
-            |NLO| pure-singlet quark-quark anomalous dimension
-            :math:`\\gamma_{ps}^{(1)}(N)`
+            O(aem2) pure-singlet quark-quark anomalous dimension
+            :math:`\\gamma_{ps}^{(0,2)}(N)`
     """
 
     result = (
