@@ -1,8 +1,7 @@
-FILE=uni-dglap.tex
-SHELL=/bin/bash
+all: uni-dglap.pdf
 
-all:
-	pdflatex $(FILE)
+%.pdf: %.tex
+	pdflatex $<
 
 clean:
 	rm -f *.aux
