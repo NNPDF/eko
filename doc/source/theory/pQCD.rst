@@ -76,9 +76,10 @@ where :math:`\mathbf{\tilde{P}}` are the usual |QCD| splitting kernels defined i
 while :math:`\mathbf{\bar{P}}` are given by
 
 .. math ::
-    \mathbf{\bar{P}} = \alpha \mathbf{P}^{(0,1)} + \alpha_s \alpha \mathbf{P}^{(1,1)} +
-    \alpha^2 \mathbf{P}^{(0,2)} + \dots
+    \mathbf{\bar{P}} = a \mathbf{P}^{(0,1)} + a_s a \mathbf{P}^{(1,1)} +
+   a^2 \mathbf{P}^{(0,2)} + \dots
 
+where :math:`a = \alpha/(4\pi)`.
 The expression of the pure |QED| and of the mixed |QED| :math:`\otimes` |QCD| splitting kernels are given in
 :cite:`deFlorian:2015ujt,deFlorian:2016gvk`
 
