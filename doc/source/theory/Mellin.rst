@@ -122,21 +122,32 @@ the Mellin inverse.
 
   .. math ::
     S_m(N) = \sum\limits_{j=1}^N \frac 1 {j^m} = \frac{(-1)^{m-1}}{(m-1)!} \psi_{m-1}(N+1)+c_m \quad
-    \text{with}\, c_m = \left\{\begin{array}{ll} \gamma_E, & m=1\\ \zeta(m), & m>1\end{array} \right.
+    \text{with},\quad c_m = \left\{\begin{array}{ll} \gamma_E, & m=1\\ \zeta(m), & m>1\end{array} \right.
 
   where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`~eko.harmonics.polygamma.cern_polygamma`)
   and :math:`\zeta` the Riemann zeta function (using :func:`scipy.special.zeta`).
 
-- for the sums :math:`S_{-m}(N)` and :math:`m > 0` we use:
+- for the sums :math:`S_{-m}(N)` and m > 0 we use :cite:`Gluck:1989ze`:
 
   .. math ::
-    S_{-m}(N) = \frac{\eta}{2} (S_{m}(N / 2) - S_{m}((N - 1) / 2)) - d_{m}
+    S_m'(N) = 2^{m-1}(S_m(N) + S_{-m}(N)) = \frac{1+\eta}{2} S_m\left(\frac{N}{2}\right) + \frac{1-\eta}{2} S_m\left(\frac{N-1}{2}\right)
+
+  .. math ::
+    S_{-m}(N) = \frac{1}{2^{m-1}} \left [ \frac{1+\eta}{2} S_m\left(\frac{N}{2}\right) + \frac{1-\eta}{2}S_m\left(\frac{N-1}{2}\right)\right ] - S_m(N)
 
   where formally :math:`\eta = (-1)^N` but in all singlet-like quantities it has to be analytically continued with 1
-  and with -1 elsewise and :math:`d_{m}= \left [ \log(2), 1/2 \zeta_{2}, 3/4 \zeta_{3}, 7/8 \zeta_{4}, 15/16 \zeta_{5}, \ldots \right]`
+  and with -1 elsewise. In case the symmetry condition is not given the formal definition of :math:`\eta` is used.
+  This relation is equivalent to the standard analytical continuation :cite:`Blumlein:2009ta,MuselliPhD`:
+
+  .. math ::
+    S_{-m}(N) &= \frac{\eta}{2^m} \left[ S_m\left(\frac{N}{2}\right) - S_m\left(\frac{N-1}{2}\right) \right] - d_{m} \quad
+    \text{with},\quad d_m = \left\{\begin{array}{ll} \log(2), & m=1\\ \frac{2^{m-1}-1}{2^{m-1}}\zeta(m), & m>1\end{array} \right.\\
+
+  but it's faster for :math:`\eta = \pm 1`.
 
 - for the sums with greater depth we use the definitions provided in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if,Blumlein:2009ta`,
   which express higher weight sums in terms of simple one :math:`S_{m}, S_{-m}` and some irreducible integrals.
+  The above prescription on the analytical continuation of :math:`\eta` is applied.
 
 The complete list of harmonics sums available in :mod:`eko.harmonics` is:
 
