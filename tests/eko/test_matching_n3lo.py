@@ -14,7 +14,7 @@ def test_A_3():
     for L in logs:
         N = 1.0
         sx_cache = compute_harmonics_cache(N, 3, False)
-        aNSqq3 = A_qqNS(N, sx_cache, nf, L, False)
+        aNSqq3 = A_qqNS(N, sx_cache, nf, L)
         # quark number conservation
         # the accuracy of this test depends directly on the precision of the
         # F functions, thus is dominated by F19,F20,F21 accuracy are the worst ones
@@ -37,7 +37,7 @@ def test_A_3():
     # here you get division by 0 as in Mathematica
     # np.testing.assert_allclose(
     #     n3lo.A_gq(N, sx_cache, nf,L)
-    #     + n3lo.A_qqNS(N, sx_cache, nf,L, True)
+    #     + n3lo.A_qqNS(N, ns_sx_cache, nf,L)
     #     + n3lo.A_qqPS(N, sx, nf,L)
     #     + n3lo.A_Hq(N, sx_cache, nf,L),
     #     0.0,
@@ -52,14 +52,16 @@ def test_A_3():
     # np.testing.assert_allclose(aS3[0, 1] + aS3[1, 1] + aS3[2, 1], 0.0, atol=1e-11)
 
     N = 3 + 2j
-    sx_cache = compute_harmonics_cache(np.random.rand(), 3, (-1) ** N == 1)
-    aS3 = A_singlet(N, sx_cache, nf, L)
-    aNS3 = A_ns(N, sx_cache, nf, L)
+    sx_cache = compute_harmonics_cache(np.random.rand(), 3, True)
+    ns_sx_cache = compute_harmonics_cache(np.random.rand(), 3, False)
+    aS3 = A_singlet(N, sx_cache, ns_sx_cache, nf, L)
+    aNS3 = A_ns(N, ns_sx_cache, nf, L)
     assert aNS3.shape == (2, 2)
     assert aS3.shape == (3, 3)
 
     np.testing.assert_allclose(aS3[:, 2], np.zeros(3))
     np.testing.assert_allclose(aNS3[1, 1], 0)
+    np.testing.assert_allclose(aNS3[0, 0], as3.A_qqNS(N, ns_sx_cache, nf, L))
 
 
 def test_Blumlein_3():
@@ -124,8 +126,8 @@ def test_Blumlein_3():
         10: [-74.4038, -1347.17, -1278.72, -1080.31, -291.084],
     }
     ref_val_qqNS = {
-        0: [-37.0244, -40.1562, -36.0358, -28.3506, 6.83759],
-        10: [-7574.85, -14130.3, -17928.6, -22768.0, -45425.9],
+        0: [-36.5531, -40.1257, -36.0358, -28.3555, 6.83735],
+        10: [-7562.97, -14129.7, -17928.6, -22768.1, -45326.9],
     }
     ref_val_qqPS = {
         0: [-8.65731, -0.766936, -0.0365199, 0.147675, 0.0155598],
@@ -136,7 +138,8 @@ def test_Blumlein_3():
         idx = i + 1
         for L in [0, 10]:
             sx_cache = compute_harmonics_cache(N, 3, True)
-            aS3 = A_singlet(N, sx_cache, nf, L)
+            ns_sx_cache = compute_harmonics_cache(N, 3, False)
+            aS3 = A_singlet(N, sx_cache, ns_sx_cache, nf, L)
 
             # here we have a different approximation for AggTF2,
             # some terms are neglected
@@ -160,7 +163,7 @@ def test_Blumlein_3():
             # as non singlet. The accuracy is worst for large N
             # due to the approximations of F functions.
             np.testing.assert_allclose(
-                aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=3e-2
+                aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=8e-2
             )
 
     # Here we test the critical parts
@@ -183,10 +186,11 @@ def test_Blumlein_3():
     # odd numbers of qqNS
     # Limited accuracy due to F functions
     ref_qqNS_odd = [-40.94998646588999, -21.598793547423504, 6.966325573931755]
-    for N, ref in zip([3.0, 15.0, 101.0], ref_qqNS_odd):
+    rtols = [4e-4, 3e-3, 21e-2]
+    for N, ref, rtol in zip([3.0, 15.0, 101.0], ref_qqNS_odd, rtols):
         sx_cache = compute_harmonics_cache(N, 3, False)
         np.testing.assert_allclose(
-            as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0, is_singlet=False), ref, rtol=3e-2
+            as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0), ref, rtol=rtol
         )
 
 

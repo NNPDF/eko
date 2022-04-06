@@ -37,7 +37,7 @@ from .aqqPS import A_qqPS
 
 
 @nb.njit(cache=True)
-def A_singlet(n, sx_all, nf, L):
+def A_singlet(n, sx_singlet, sx_non_singlet, nf, L):
     r"""
     Computes the |N3LO| singlet |OME|.
 
@@ -55,8 +55,8 @@ def A_singlet(n, sx_all, nf, L):
     ----------
         n : complex
             Mellin moment
-        sx_all : list
-            harmonic sums cache containing:
+        sx_singlet : list
+            singlet like harmonic sums cache containing:
 
             .. math ::
                 [[S_1,S_{-1}],
@@ -64,6 +64,8 @@ def A_singlet(n, sx_all, nf, L):
                 [S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}],
                 [S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}],]
 
+        sx_non_singlet: list
+            same as sx_singlet but now for non singlet like harmonics
         nf : int
             number of active flavor below the threshold
         L : float
@@ -74,15 +76,15 @@ def A_singlet(n, sx_all, nf, L):
         A_S : numpy.ndarray
             |NNLO| singlet |OME| :math:`A^{S,(3)}(N)`
     """
-    A_hq_3 = A_Hq(n, sx_all, nf, L)
-    A_hg_3 = A_Hg(n, sx_all, nf, L)
+    A_hq_3 = A_Hq(n, sx_singlet, nf, L)
+    A_hg_3 = A_Hg(n, sx_singlet, nf, L)
 
-    A_gq_3 = A_gq(n, sx_all, nf, L)
-    A_gg_3 = A_gg(n, sx_all, nf, L)
+    A_gq_3 = A_gq(n, sx_singlet, nf, L)
+    A_gg_3 = A_gg(n, sx_singlet, nf, L)
 
-    A_qq_ps_3 = A_qqPS(n, sx_all, nf, L)
-    A_qq_ns_3 = A_qqNS(n, sx_all, nf, L, True)
-    A_qg_3 = A_qg(n, sx_all, nf, L)
+    A_qq_ps_3 = A_qqPS(n, sx_singlet, nf, L)
+    A_qq_ns_3 = A_qqNS(n, sx_non_singlet, nf, L)
+    A_qg_3 = A_qg(n, sx_singlet, nf, L)
 
     A_S = np.array(
         [
@@ -136,6 +138,4 @@ def A_ns(n, sx_all, nf, L):
     --------
         A_qqNS_3 : :math:`A_{qq,H}^{NS,(3))}`
     """
-    return np.array(
-        [[A_qqNS(n, sx_all, nf, L, False), 0.0], [0 + 0j, 0 + 0j]], np.complex_
-    )
+    return np.array([[A_qqNS(n, sx_all, nf, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)

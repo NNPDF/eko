@@ -172,6 +172,6 @@ def s4x(n, sx, smx, is_singlet):
             S211(n, sx[0], sx[1], sx[2]),
             Sm22(n, sx[0], sx[1], smx[1], sm31, is_singlet),
             Sm211(n, sx[0], sx[1], smx[0], is_singlet),
-            Sm31(n, sx[0], smx[0], smx[1], is_singlet),
+            sm31,
         ]
     )

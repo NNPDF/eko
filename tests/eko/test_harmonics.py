@@ -23,7 +23,7 @@ def test_spm2():
 
 
 def test_harmonics_cache():
-    N = np.random.rand() + 1.0j * np.random.rand()
+    N = np.random.randint(100)
     is_singlet = (-1) ** N == 1
     S1 = h.S1(N)
     S2 = h.S2(N)
@@ -66,6 +66,8 @@ def test_harmonics_cache():
 
 
 # reference values coming fom mathematica
+# and are computed doing an inverse mellin
+# transformation
 testN = [1, 2, 2 + 2j, 10 + 5j, 100]
 refvals = {
     "Sm1": [-1.0, -0.5, -0.692917 - 0.000175788j, -0.693147 - 2.77406e-9j, -0.688172],
