@@ -39,7 +39,7 @@ def gamma_phph(N, nf):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_uph(N, nf, sx):
     """
-    Computes the O(aem2) quark-photon anomalous dimension
+    Computes the O(aem2) quark-photon anomalous dimension for up quarks.
 
     Implements Eq. (55) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -64,7 +64,7 @@ def gamma_uph(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_dph(N, nf, sx):
     """
-    Computes the O(aem2) quark-photon anomalous dimension
+    Computes the O(aem2) quark-photon anomalous dimension for down quarks.
 
     Implements Eq. (55) of :cite:`deFlorian:2016gvk` for q=d.
 
@@ -89,7 +89,7 @@ def gamma_dph(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_phu(N, nf, sx):
     """
-    Computes the O(aem2) photon-quark anomalous dimension
+    Computes the O(aem2) photon-quark anomalous dimension for up quarks.
 
     Implements Eq. (56) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -123,7 +123,7 @@ def gamma_phu(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_phd(N, nf, sx):
     """
-    Computes theO(aem2) photon-quark anomalous dimension
+    Computes theO(aem2) photon-quark anomalous dimension for down quarks.
 
     Implements Eq. (56) of :cite:`deFlorian:2016gvk` for q=d.
 
