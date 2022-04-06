@@ -12,8 +12,7 @@ from . import as1aem1, harmonics
 
 @nb.njit("c16(c16,u1)", cache=True)
 def gamma_phph(N, nf):
-    """
-    Computes the O(aem2) photon-photon singlet anomalous dimension.
+    """Computes the O(aem2) photon-photon singlet anomalous dimension.
 
     Implements Eq. (68) of :cite:`deFlorian:2016gvk`.
 
@@ -25,6 +24,7 @@ def gamma_phph(N, nf):
         gamma_gg : complex
             O(aem2) photon-photon singlet anomalous dimension
             :math:`\\gamma_{\\gamma \\gamma}^{(0,2)}(N)`
+
     """
 
     nu = constants.uplike_flavors(nf)
@@ -38,8 +38,7 @@ def gamma_phph(N, nf):
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_uph(N, nf, sx):
-    """
-    Computes the O(aem2) quark-photon anomalous dimension for up quarks.
+    """Computes the O(aem2) quark-photon anomalous dimension for up quarks.
 
     Implements Eq. (55) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -56,15 +55,14 @@ def gamma_uph(N, nf, sx):
     -------
       gamma_uph : complex
         O(aem2) quark-photon anomalous dimension :math:`\\gamma_{u \\gamma}^{(0,2)}(N)`
-    """
 
+    """
     return constants.eu2 * as1aem1.gamma_qph(N, nf, sx) / constants.CF
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_dph(N, nf, sx):
-    """
-    Computes the O(aem2) quark-photon anomalous dimension for down quarks.
+    """Computes the O(aem2) quark-photon anomalous dimension for down quarks.
 
     Implements Eq. (55) of :cite:`deFlorian:2016gvk` for q=d.
 
@@ -81,15 +79,14 @@ def gamma_dph(N, nf, sx):
     -------
       gamma_dph : complex
         O(aem2) quark-photon anomalous dimension :math:`\\gamma_{d \\gamma}^{(0,2)}(N)`
-    """
 
+    """
     return constants.ed2 * as1aem1.gamma_qph(N, nf, sx) / constants.CF
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_phu(N, nf, sx):
-    """
-    Computes the O(aem2) photon-quark anomalous dimension for up quarks.
+    """Computes the O(aem2) photon-quark anomalous dimension for up quarks.
 
     Implements Eq. (56) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -106,8 +103,8 @@ def gamma_phu(N, nf, sx):
     -------
       gamma_phu : complex
         O(aem2) photon-quark anomalous dimension :math:`\\gamma_{\\gamma u}^{(0,2)}(N)`
-    """
 
+    """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
     S1 = sx[0]
@@ -122,8 +119,7 @@ def gamma_phu(N, nf, sx):
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_phd(N, nf, sx):
-    """
-    Computes theO(aem2) photon-quark anomalous dimension for down quarks.
+    """Computes the O(aem2) photon-quark anomalous dimension for down quarks.
 
     Implements Eq. (56) of :cite:`deFlorian:2016gvk` for q=d.
 
@@ -140,8 +136,8 @@ def gamma_phd(N, nf, sx):
     -------
       gamma_phd : complex
         O(aem2) photon-quark anomalous dimension :math:`\\gamma_{\\gamma d}^{(0,2)}(N)`
-    """
 
+    """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
     S1 = sx[0]
@@ -156,8 +152,7 @@ def gamma_phd(N, nf, sx):
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nspu(N, nf, sx):
-    """
-    Computes the O(aem2) singlet-like non-singlet anomalous dimension for up quarks.
+    """Computes the O(aem2) singlet-like non-singlet anomalous dimension for up quarks.
 
     Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -175,8 +170,8 @@ def gamma_nspu(N, nf, sx):
         gamma_nspu : complex
             O(aem2) singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,+,u}^{(0,2)}(N)`
-    """
 
+    """
     S1 = sx[0]
     S2 = sx[1]
     nu = constants.uplike_flavors(nf)
@@ -194,8 +189,7 @@ def gamma_nspu(N, nf, sx):
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nspd(N, nf, sx):
-    """
-    Computes the O(aem2) singlet-like non-singlet anomalous dimension for down quarks.
+    """Computes the O(aem2) singlet-like non-singlet anomalous dimension for down quarks.
 
     Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
 
@@ -213,8 +207,8 @@ def gamma_nspd(N, nf, sx):
         gamma_nspd : complex
             O(aem2) singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,+,d}^{(0,2)}(N)`
-    """
 
+    """
     S1 = sx[0]
     S2 = sx[1]
     nu = constants.uplike_flavors(nf)
@@ -232,8 +226,7 @@ def gamma_nspd(N, nf, sx):
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsmu(N, nf, sx):
-    """
-    Computes the O(aem2) valence-like non-singlet anomalous dimension for up quarks.
+    """Computes the O(aem2) valence-like non-singlet anomalous dimension for up quarks.
 
     Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -251,8 +244,8 @@ def gamma_nsmu(N, nf, sx):
         gamma_nsp : complex
             O(aem2) valence-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,-,u}^{(0,2)}(N)`
-    """
 
+    """
     S1 = sx[0]
     S2 = sx[1]
     nu = constants.uplike_flavors(nf)
@@ -270,8 +263,7 @@ def gamma_nsmu(N, nf, sx):
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsmd(N, nf, sx):
-    """
-    Computes the O(aem2) valence-like non-singlet anomalous dimension for down quarks.
+    """Computes the O(aem2) valence-like non-singlet anomalous dimension for down quarks.
 
     Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
 
@@ -289,8 +281,8 @@ def gamma_nsmd(N, nf, sx):
         gamma_nsp : complex
             O(aem2) valence-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,-,d}^{(0,2)}(N)`
-    """
 
+    """
     S1 = sx[0]
     S2 = sx[1]
     nu = constants.uplike_flavors(nf)
@@ -308,8 +300,7 @@ def gamma_nsmd(N, nf, sx):
 
 @nb.njit("c16(c16,u1)", cache=True)
 def gamma_ps(N, nf):
-    """
-    Computes the O(aem2) pure-singlet quark-quark anomalous dimension.
+    """Computes the O(aem2) pure-singlet quark-quark anomalous dimension.
 
     Implements Eq. (59) of :cite:`deFlorian:2016gvk`.
 
@@ -325,8 +316,8 @@ def gamma_ps(N, nf):
         gamma_ps : complex
             O(aem2) pure-singlet quark-quark anomalous dimension
             :math:`\\gamma_{ps}^{(0,2)}(N)`
-    """
 
+    """
     result = (
         -4
         * (2 + N * (5 + N))

@@ -12,8 +12,7 @@ from . import harmonics
 
 @nb.njit("c16(c16,c16[:])", cache=True)
 def gamma_phq(N, sx):
-    """
-    Computes the O(as1aem1) photon-quark anomalous dimension
+    """Computes the O(as1aem1) photon-quark anomalous dimension
 
     Implements Eq. (36) of :cite:`deFlorian:2015ujt`.
 
@@ -28,8 +27,8 @@ def gamma_phq(N, sx):
     -------
       gamma_phq : complex
         O(as1aem1) photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(1,1)}(N)`
-    """
 
+    """
     S1 = sx[0]
     S2 = sx[1]
     tmp_const = (
@@ -50,8 +49,7 @@ def gamma_phq(N, sx):
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_qph(N, nf, sx):
-    """
-    Computes the O(as1aem1) quark-photon anomalous dimension
+    """Computes the O(as1aem1) quark-photon anomalous dimension
 
     Implements Eq. (26) of :cite:`deFlorian:2015ujt`.
 
@@ -68,6 +66,7 @@ def gamma_qph(N, nf, sx):
     -------
       gamma_qph : complex
         O(as1aem1) quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(1,1)}(N)`
+
     """
     S1 = sx[0]
     S2 = sx[1]
@@ -98,8 +97,7 @@ def gamma_qph(N, nf, sx):
 
 @nb.njit("c16(c16)", cache=True)
 def gamma_gph(N):
-    """
-    Computes the O(as1aem1) gluon-photon anomalous dimension
+    """Computes the O(as1aem1) gluon-photon anomalous dimension
 
     Implements Eq. (27) of :cite:`deFlorian:2015ujt`.
 
@@ -112,8 +110,8 @@ def gamma_gph(N):
     -------
       gamma_qph : complex
         O(as1aem1) gluon-photon anomalous dimension :math:`\\gamma_{g \\gamma}^{(1,1)}(N)`
-    """
 
+    """
     return (
         constants.CF
         * constants.CA
@@ -124,8 +122,7 @@ def gamma_gph(N):
 
 @nb.njit("c16(c16)", cache=True)
 def gamma_phg(N):
-    """
-    Computes the O(as1aem1) photon-gluon anomalous dimension
+    """Computes the O(as1aem1) photon-gluon anomalous dimension
 
     Implements Eq. (30) of :cite:`deFlorian:2015ujt`.
 
@@ -138,15 +135,14 @@ def gamma_phg(N):
     -------
       gamma_qph : complex
         O(as1aem1) photon-gluon anomalous dimension :math:`\\gamma_{\\gamma g}^{(1,1)}(N)`
-    """
 
+    """
     return constants.TR / constants.CF / constants.CA * gamma_gph(N)
 
 
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_qg(N, nf, sx):
-    """
-    Computes the O(as1aem1) quark-gluon singlet anomalous dimension.
+    """Computes the O(as1aem1) quark-gluon singlet anomalous dimension.
 
     Implements Eq. (29) of :cite:`deFlorian:2015ujt`.
 
@@ -164,15 +160,14 @@ def gamma_qg(N, nf, sx):
         gamma_qg : complex
             O(as1aem1) quark-gluon singlet anomalous dimension
             :math:`\\gamma_{qg}^{(1,1)}(N)`
-    """
 
+    """
     return constants.TR / constants.CF / constants.CA * gamma_qph(N, nf, sx)
 
 
 @nb.njit("c16(c16,c16[:])", cache=True)
 def gamma_gq(N, sx):
-    """
-    Computes the O(as1aem1) gluon-quark singlet anomalous dimension.
+    """Computes the O(as1aem1) gluon-quark singlet anomalous dimension.
 
     Implements Eq. (35) of :cite:`deFlorian:2015ujt`.
 
@@ -188,15 +183,14 @@ def gamma_gq(N, sx):
         gamma_gq : complex
             O(as1aem1) gluon-quark singlet anomalous dimension
             :math:`\\gamma_{gq}^{(1,1)}(N)`
-    """
 
+    """
     return gamma_phq(N, sx)
 
 
 @nb.njit("c16(u1)", cache=True)
 def gamma_phph(nf):
-    """
-    Computes the O(as1aem1) photon-photon singlet anomalous dimension.
+    """Computes the O(as1aem1) photon-photon singlet anomalous dimension.
 
     Implements Eq. (28) of :cite:`deFlorian:2015ujt`.
 
@@ -210,8 +204,8 @@ def gamma_phph(nf):
         gamma_gg : complex
             O(as1aem1) photon-photon singlet anomalous dimension
             :math:`\\gamma_{\\gamma \\gamma}^{(1,1)}(N)`
-    """
 
+    """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
     return 4 * constants.CF * constants.CA * (nu * constants.eu2 + nd * constants.ed2)
@@ -219,8 +213,7 @@ def gamma_phph(nf):
 
 @nb.njit("c16()", cache=True)
 def gamma_gg():
-    """
-    Computes the O(as1aem1) gluon-gluon singlet anomalous dimension.
+    """Computes the O(as1aem1) gluon-gluon singlet anomalous dimension.
 
     Implements Eq. (31) of :cite:`deFlorian:2015ujt`.
 
@@ -232,15 +225,14 @@ def gamma_gg():
         gamma_gg : complex
             O(as1aem1) gluon-gluon singlet anomalous dimension
             :math:`\\gamma_{gg}^{(1,1)}(N)`
-    """
 
+    """
     return 4 * constants.TR
 
 
 @nb.njit("c16(c16,c16[:])", cache=True)
 def gamma_nsp(N, sx):
-    """
-    Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
+    """Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
 
     Implements sum of Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
 
@@ -256,6 +248,7 @@ def gamma_nsp(N, sx):
         gamma_nsp : complex
             O(as1aem1) singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,+}^{(1)}(N)`
+
     """
     S1 = sx[0]
     S2 = sx[1]
@@ -303,8 +296,7 @@ def gamma_nsp(N, sx):
 
 @nb.njit("c16(c16,c16[:])", cache=True)
 def gamma_nsm(N, sx):
-    """
-    Computes the O(as1aem1) valence-like non-singlet anomalous dimension.
+    """Computes the O(as1aem1) valence-like non-singlet anomalous dimension.
 
     Implements difference between Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
 
@@ -320,6 +312,7 @@ def gamma_nsm(N, sx):
         gamma_nsm : complex
             O(as1aem1) singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,-}^{(1,1)}(N)`
+
     """
     S1 = sx[0]
     S2 = sx[1]
