@@ -86,7 +86,7 @@ The expression of the pure |QED| and of the mixed |QED| :math:`\otimes` |QCD| sp
 Sum Rules
 ---------
 
-The Altarelli-Parisi Splitting functions have to satisfy certain sum rules. In fact |QED|:math:`\otimes` |QCD|
+The Altarelli-Parisi Splitting functions have to satisfy certain sum rules. In fact |QED| :math:`\otimes` |QCD|
 interactions preserve fermion number, therefore
 
 .. math ::
@@ -101,7 +101,7 @@ Moreover, the conservation of the proton's momentum implies that
     \int_0^1dx x (2n_dP_{d\gamma}(x)+2n_uP_{u\gamma}(x)+P_{\gamma \gamma}(x)+P_{g\gamma}(x))=0
 
 .. math ::
-    \int_0^1dx x \Bigl(\sum_{i=1}^{n_f} P_{q_iq_j}(x)+P_{\gamma q_j}(x)+P_{gq_j}(x)\Bigr)=0
+    \int_0^1dx x \Bigl(\sum_{q_i=q,\bar{q}} P_{q_iq_j}(x)+P_{\gamma q_j}(x)+P_{gq_j}(x)\Bigr)=0
 
 Using the definition of anomalous dimensions the sum rules are written as:
 
