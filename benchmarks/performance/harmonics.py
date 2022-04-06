@@ -27,13 +27,3 @@ class TimeSuite:
     def time_as3_sing(self):
         for n in self.ns:
             ad.gamma_singlet(2, n, NF)
-
-
-# class MemorySuite:
-#     def mem_sf(self):
-#         return compute_sf()
-
-
-# class PeakMemorySuite:
-#     def peakmem_sf(self):
-#         compute_sf()
