@@ -34,22 +34,10 @@ def test_A_3():
             rtol=32e-3,
         )
 
-    # here you get division by 0 as in Mathematica
-    # np.testing.assert_allclose(
-    #     n3lo.A_gq(N, sx_cache, nf,L)
-    #     + n3lo.A_qqNS(N, ns_sx_cache, nf,L)
-    #     + n3lo.A_qqPS(N, sx, nf,L)
-    #     + n3lo.A_Hq(N, sx_cache, nf,L),
-    #     0.0,
-    #     atol=2e-6,
-    # )
-
-    # here you get division by 0 as in Mathematica
-    # aS3 = A_singlet(N, sx_cache, nf, L)
-    # gluon momentum conservation
-    # np.testing.assert_allclose(aS3[0, 0] + aS3[1, 0] + aS3[2, 0], 0.0, atol=2e-6)
-    # quark momentum conservation
-    # np.testing.assert_allclose(aS3[0, 1] + aS3[1, 1] + aS3[2, 1], 0.0, atol=1e-11)
+    # here you can't test the quark momentum conservation
+    # since you get division by 0 as in Mathematica
+    # due to a factor 1/(N-2) which should cancel when
+    # doing a proper limit.
 
     N = 3 + 2j
     sx_cache = compute_harmonics_cache(np.random.rand(), 3, True)
@@ -186,7 +174,7 @@ def test_Blumlein_3():
     # odd numbers of qqNS
     # Limited accuracy due to F functions
     ref_qqNS_odd = [-40.94998646588999, -21.598793547423504, 6.966325573931755]
-    rtols = [4e-4, 3e-3, 21e-2]
+    rtols = [4e-4, 3e-3, 2.1e-2]
     for N, ref, rtol in zip([3.0, 15.0, 101.0], ref_qqNS_odd, rtols):
         sx_cache = compute_harmonics_cache(N, 3, False)
         np.testing.assert_allclose(
