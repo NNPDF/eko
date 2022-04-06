@@ -64,7 +64,7 @@ def Sm1(N, hS1, is_singlet=None):
     """
     if is_singlet is None:
         return (
-            -((-1) ** N - 1) / 2 * S1((N - 1) / 2)
+            (1 - (-1) ** N) / 2 * S1((N - 1) / 2)
             + ((-1) ** N + 1) / 2 * S1(N / 2)
             - hS1
         )

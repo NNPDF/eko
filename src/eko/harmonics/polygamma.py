@@ -168,7 +168,7 @@ def symmetry_factor(N, is_singlet=None):
             False for non singlet like quantities
             None for generic complex N value
 
-    Retruns
+    Returns
     -------
         eta: complex
             1 for singlet like quantities,
