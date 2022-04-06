@@ -165,14 +165,14 @@ def symmetry_factor(N, is_singlet=None):
             Mellin moment
         is_singlet: bool, None
             True for singlet like quantities
-            False for non singlet like quantities
+            False for non-singlet like quantities
             None for generic complex N value
 
     Returns
     -------
         eta: complex
             1 for singlet like quantities,
-            -1 for non singlet like quantities,
+            -1 for non-singlet like quantities,
             :math:`(-1)^N` elsewise
     """
     if is_singlet is None:

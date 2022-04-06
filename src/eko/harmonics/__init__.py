@@ -28,7 +28,7 @@ def base_harmonics_cache(n, is_singlet, max_weight=5, n_max_sums_weight=7):
             Mellin moment
         is_singlet: bool
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
         max_weight : int
             max harmonics weight, max value 5 (default)
         n_max_sums_weight : int
@@ -90,7 +90,7 @@ def smx(n, sx, is_singlet):
             List of harmonics sums: :math:`S_{1},\dots,S_{w}`
         is_singlet: bool
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
     Returns
     -------
         smx : np.ndarray
@@ -126,7 +126,7 @@ def s3x(n, sx, smx, is_singlet):
             List of harmonics sums: :math:`S_{-1},S_{-2}`
         is_singlet: bool
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -158,7 +158,7 @@ def s4x(n, sx, smx, is_singlet):
             List of harmonics sums: :math:`S_{-1},S_{-2}`
         is_singlet: bool
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------

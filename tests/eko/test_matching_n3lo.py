@@ -148,7 +148,7 @@ def test_Blumlein_3():
 
             # here we have a different convention for (-1)^N,
             # for even values qqNS is analytically continued
-            # as non singlet. The accuracy is worst for large N
+            # as non-singlet. The accuracy is worst for large N
             # due to the approximations of F functions.
             np.testing.assert_allclose(
                 aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=8e-2

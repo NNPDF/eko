@@ -65,7 +65,7 @@ def A_singlet(n, sx_singlet, sx_non_singlet, nf, L):
                 [S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}],]
 
         sx_non_singlet: list
-            same as sx_singlet but now for non singlet like harmonics
+            same as sx_singlet but now for non-singlet like harmonics
         nf : int
             number of active flavor below the threshold
         L : float

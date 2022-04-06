@@ -25,7 +25,7 @@ def test_gamma_1():
     assert gS1.shape == (2, 2)
 
     # reference values are obtained from MMa
-    # Non singlet sector
+    # non-singlet sector
     np.testing.assert_allclose(
         ad_as2.gamma_nsp(2, NF, sx_n2),
         (-112.0 * const.CF + 376.0 * const.CA - 64.0 * NF) * const.CF / 27.0,

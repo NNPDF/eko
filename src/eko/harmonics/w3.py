@@ -53,7 +53,7 @@ def Sm3(N, hS3, is_singlet=None):
             Harmonic sum :math:`S_{3}(N)`
         is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -119,7 +119,7 @@ def Sm21(N, S1, Sm1, is_singlet=None):
             Harmonic sum :math:`S_{-1}(N)`
         is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -158,7 +158,7 @@ def S2m1(N, S2, Sm1, Sm2, is_singlet=None):
             Harmonic sum :math:`S_{-2}(N)`
         is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------

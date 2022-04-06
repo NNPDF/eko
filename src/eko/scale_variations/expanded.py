@@ -91,7 +91,7 @@ def gamma_3_variation(gamma, L, beta0, beta1, g0e2, g0e3, g1g0):
 @nb.njit(cache=True)
 def non_singlet_variation(gamma, a_s, order, nf, L):
     """
-    Scale Variation non singlet dispatcher
+    Scale Variation non-singlet dispatcher
 
     Parameters
     ----------

@@ -80,7 +80,7 @@ def test_scale_variation_a_vs_b():
 
     for L in [np.log(0.5), np.log(2)]:
         for order in [1, 2]:
-            # Non singlet kernels
+            # non-singlet kernels
             gns = gamma_ns(order, br.non_singlet_pids_map["ns+"], n, nf)
             ker = non_singlet.dispatcher(
                 order, method, gns, a1, a0, nf, ev_op_iterations=1

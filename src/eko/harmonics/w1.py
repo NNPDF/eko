@@ -52,7 +52,7 @@ def Sm1(N, hS1, is_singlet=None):
             Harmonic sum :math:`S_{1}(N)`
         is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
     Returns
     -------
         Sm1 : complex

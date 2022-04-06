@@ -31,7 +31,7 @@ def compute_harmonics_cache(n, order, is_singlet):
             perturbative order
         is_singlet: bool
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -83,7 +83,7 @@ def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
         is_msbar: bool
             add the |MSbar| contribution
         sx_ns : list
-            non singlet like harmonic sums cache
+            non-singlet like harmonic sums cache
 
     Returns
     -------
@@ -247,7 +247,7 @@ def quad_ker(
         or (mode0 == 100 and mode0 == 100)
     ):
         # At N3LO for A_qq singlet or backward you need to compute
-        # both the singlet and non singlet like harmonics
+        # both the singlet and non-singlet like harmonics
         # avoiding recomputing all of them ...
         sx_ns = sx.copy()
         smx_ns = harmonics.smx(ker_base.n, np.array([s[0] for s in sx]), False)
@@ -340,7 +340,7 @@ class OperatorMatrixElement(Operator):
         """
 
         labels = []
-        # non singlet labels
+        # non-singlet labels
         if self.config["debug_skip_non_singlet"]:
             logger.warning("%s: skipping non-singlet sector", self.log_label)
         else:

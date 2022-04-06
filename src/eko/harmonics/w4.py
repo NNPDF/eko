@@ -53,7 +53,7 @@ def Sm4(N, hS4, is_singlet=None):
             Harmonic sum :math:`S_{4}(N)`
         is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -94,7 +94,7 @@ def Sm31(N, S1, Sm1, Sm2, is_singlet=None):
             Harmonic sum :math:`S_{-2}(N)`
         is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
@@ -138,7 +138,7 @@ def Sm22(N, S1, S2, Sm2, Sm31, is_singlet=None):
             Harmonic sum :math:`S_{-3,1}(N)`
         is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
     Returns
     -------
         Sm22 : complex
@@ -172,7 +172,7 @@ def Sm211(N, S1, S2, Sm1, is_singlet=None):
             Harmonic sum :math:`S_{-1}(N)`
         is_singlet: bool, None
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non singlet like quantities (:math:`\eta=(-1)^N=-1`)
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------

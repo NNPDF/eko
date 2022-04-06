@@ -367,7 +367,7 @@ class Operator:
         zero = OpMember(*[np.zeros((self.grid_size, self.grid_size))] * 2)
         for n in self.full_labels:
             if n in self.labels:
-                # non singlet evolution and diagonal op are identities
+                # non-singlet evolution and diagonal op are identities
                 if n in br.non_singlet_labels or n[0] == n[1]:
                     self.op_members[n] = eye.copy()
                 else:
