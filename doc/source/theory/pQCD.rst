@@ -83,6 +83,43 @@ where :math:`a = \alpha/(4\pi)`.
 The expression of the pure |QED| and of the mixed |QED| :math:`\otimes` |QCD| splitting kernels are given in
 :cite:`deFlorian:2015ujt,deFlorian:2016gvk`
 
+Sum Rules
+---------
+
+The Altarelli-Parisi Splitting functions have to satisfy certain sum rules. In fact |QED|:math:`\otimes` |QCD|
+interactions preserve fermion number, therefore
+
+.. math ::
+    \int_0^1dx P_{ns,q}^-(x)=0
+
+Moreover, the conservation of the proton's momentum implies that
+
+.. math ::
+    \int_0^1dx x (2n_dP_{dg}(x)+2n_uP_{ug}(x)+P_{\gamma g}(x)+P_{gg}(x))=0
+
+.. math ::
+    \int_0^1dx x (2n_dP_{d\gamma}(x)+2n_uP_{u\gamma}(x)+P_{\gamma \gamma}(x)+P_{g\gamma}(x))=0
+
+.. math ::
+    \int_0^1dx x \Bigl(\sum_{i=1}^{n_f} P_{q_iq_j}(x)+P_{\gamma q_j}(x)+P_{gq_j}(x)\Bigr)=0
+
+Using the definition of anomalous dimensions the sum rules are written as:
+
+.. math ::
+    \gamma_{ns}^-(N=1)=0
+
+.. math ::
+    \bigl(2n_d\gamma_{dg}+2n_u\gamma_{ug}+\gamma_{\gamma g}+\gamma_{gg}\bigr)(N=2)=0
+
+.. math ::
+    \bigl(2n_d \gamma_{d\gamma}+2n_u \gamma_{u\gamma}+ \gamma_{\gamma \gamma}+ \gamma_{g\gamma})(N=2)=0
+
+.. math ::
+    \Bigl(\gamma_{ns,q}^+ +2n_u\gamma^S_{uq}+2n_d\gamma^S_{dq} + \gamma_{\gamma q}+\gamma_{gq}\Bigr)(N=2)=0
+
+that must be satisfied order by order in perturbation theory.
+
+
 Scale Variations
 ----------------
 
