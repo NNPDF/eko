@@ -157,7 +157,7 @@ def gamma_phd(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nspu(N, nf, sx):
     """
-    Computes the O(aem2) singlet-like non-singlet anomalous dimension.
+    Computes the O(aem2) singlet-like non-singlet anomalous dimension for up quarks.
 
     Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -195,7 +195,7 @@ def gamma_nspu(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nspd(N, nf, sx):
     """
-    Computes the O(aem2) singlet-like non-singlet anomalous dimension.
+    Computes the O(aem2) singlet-like non-singlet anomalous dimension for down quarks.
 
     Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
 
@@ -233,7 +233,7 @@ def gamma_nspd(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsmu(N, nf, sx):
     """
-    Computes the O(aem2) singlet-like non-singlet anomalous dimension.
+    Computes the O(aem2) valence-like non-singlet anomalous dimension for up quarks.
 
     Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -271,7 +271,7 @@ def gamma_nsmu(N, nf, sx):
 @nb.njit("c16(c16,u1,c16[:])", cache=True)
 def gamma_nsmd(N, nf, sx):
     """
-    Computes the O(aem2) singlet-like non-singlet anomalous dimension.
+    Computes the O(aem2) valence-like non-singlet anomalous dimension for down quarks.
 
     Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
 
