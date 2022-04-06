@@ -43,8 +43,7 @@ def update_colors(nc):
 
 @nb.njit("u1(u1)", cache=True)
 def uplike_flavors(nf):
-    """
-    Computes the number of up flavors
+    """Computes the number of up flavors
 
     Parameters
     ----------
@@ -54,17 +53,9 @@ def uplike_flavors(nf):
     Returns
     -------
         nu : int
+
     """
-    if nf == 2:
-        nu = 1
-    elif nf == 3:
-        nu = 1
-    elif nf == 4:
-        nu = 2
-    elif nf == 5:
-        nu = 2
-    elif nf == 6:
-        nu = 3
-    else:
+    if nf not in range(2, 6 + 1):
         raise NotImplementedError("Selected nf is not implemented")
+    nu = nf // 2
     return nu
