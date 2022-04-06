@@ -122,3 +122,48 @@ def test_Smx():
         ]
         for i, sm in enumerate(smx):
             np.testing.assert_allclose(sm, refvals[f"Sm{i+1}"][j], atol=1e-06)
+
+
+def test_smx_continuation():
+    # test s_{-m} against a different analytic continuation
+    N = np.random.rand() + 1j * np.random.rand()
+    sx = h.sx(N)
+
+    def dm(m):
+        zeta_list = [
+            h.constants.zeta2,
+            h.constants.zeta3,
+            h.constants.zeta4,
+            h.constants.zeta5,
+        ]
+        if m == 1:
+            return h.constants.log2
+        return (2 ** (m - 1) - 1) / (2 ** (m - 1)) * zeta_list[m - 2]
+
+    def sm_complex(m, N):
+        return ((-1) ** N) / 2**m * (s(m, N / 2) - s(m, (N - 1) / 2)) - dm(m)
+
+    def s(m, N):
+        if m == 1:
+            return h.S1(N)
+        if m == 2:
+            return h.S2(N)
+        if m == 3:
+            return h.S3(N)
+        if m == 4:
+            return h.S4(N)
+        return h.S5(N)
+
+    def sm(m, N, hs):
+        if m == 1:
+            return h.Sm1(N, hs)
+        if m == 2:
+            return h.Sm2(N, hs)
+        if m == 3:
+            return h.Sm3(N, hs)
+        if m == 4:
+            return h.Sm4(N, hs)
+        return h.Sm5(N, hs)
+
+    for j, hs in enumerate(sx):
+        np.testing.assert_allclose(sm_complex(j + 1, N), sm(j + 1, N, hs))
