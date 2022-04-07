@@ -81,20 +81,51 @@ class Rotations(DictLike):
 
 @dataclass
 class EKO:
-    """
-    Wrapper for the output to help with application
-    to PDFs and dumping to file.
+    """Operator interface.
+
+    This class offers an interface to an abstract operator, between memory and
+    disk.
+
+    An actual operator might be arbitrarily huge, and in particular size
+    limitations in memory are far more strict than on disk.
+    Since manually managing, for each application, the burden of off-loading
+    part of the operator might be hard and occasionally not possible (without a
+    clear picture of the internals), the library itself offers this facility.
+
+    In particular, the data format on disk has a complete specification, and
+    can hold a full operator independently of the loading procedure.
+    In order to accomplish the former goal, the remaining task of partial
+    loading is done by this class (for the Python library, other
+    implementations are possible and encouraged).
+
+    For this reason, a core component of an :cls:`EKO` object is a path,
+    referring to the location on disk of the corresponding operator.
+    Any :cls:`EKO` has an associated path:
+
+    - for the computed object, it corresponds to the path where the actual
+    result of the computation is already saved
+    - for a new object, it is the path at which any result of final or
+    intermediate computation is stored, as soon as it is produced
+
+    The computation can be stopped at any time, without the loss of any of the
+    intermediate results.
+
     """
 
+    path: pathlib.Path
+    _operators: Dict[float, Optional[Operator]]
     xgrid: interpolation.XGrid
     Q02: float
-    _operators: Dict[float, Optional[Operator]]
     configs: Configs
     rotations: Rotations
     debug: Debug
     pids: np.ndarray = np.array(br.flavor_basis_pids)
     version: str = vmod.__version__
     data_version: str = vmod.__data_version__
+
+    def __post_init__(self):
+        if self.path.suffix != ".tar":
+            raise ValueError("Not a valid path")
 
     def __iter__(self):
         """Iterate operators, with minimal load.
@@ -205,9 +236,14 @@ class EKO:
             the generated structure
 
         """
+        path = pathlib.Path(runcard.get("path", tempfile.mkstemp(suffix=".tar")[1]))
         xgrid = interpolation.XGrid(runcard["xgrid"])
         pids = runcard.get("pids", cls.pids)
+
+        logger.info(f"New operator created at path '{path}'")
+
         return cls(
+            path=path,
             xgrid=xgrid,
             pids=pids,
             Q02=runcard["Q0"] ** 2,
@@ -218,8 +254,9 @@ class EKO:
         )
 
     @classmethod
-    def load(cls, path):
+    def load(cls, path: typing.Union[str, os.PathLike]):
         return cls(
+            path=pathlib.Path(path),
             xgrid=None,
             Q02=None,
             _operators={q2: None for q2 in ()},
