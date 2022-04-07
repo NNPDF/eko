@@ -103,9 +103,13 @@ Moreover, the conservation of the proton's momentum implies that
 .. math ::
     \int_0^1dx x \Bigl(\sum_{q_i=q,\bar{q}} P_{q_iq_j}(x)+P_{\gamma q_j}(x)+P_{gq_j}(x)\Bigr)=0
 
-The reason why multiple conservation equations follow from a single conserved quantity (i.e. proton's momentum)
-is that one is free to choose a border condition in which there is only one parton, e.g. the gluon, and the
-momentum should be preserved.
+The reason why multiple conservation equations follow from a single conserved
+quantity (i.e. proton's momentum) is that one is free to choose a border
+condition in which there is only one parton, e.g. the gluon, and the momentum
+should be preserved.
+This is just a simple way to consider that anomalous dimensions are actually
+operators, and the conservation thus apply element by element in the first
+dimension (summing over the second one only).
 
 Using the definition of anomalous dimensions the sum rules are written as:
 
