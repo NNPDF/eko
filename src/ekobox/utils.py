@@ -8,7 +8,9 @@ from eko.output import EKO
 
 # TODO: add a control on the theory (but before we need to implement another
 # kind of output which includes the theory and operator runcards)
-def ekos_product(eko_ini: EKO, eko_fin: EKO, in_place=True) -> EKO:
+def ekos_product(
+    eko_ini: EKO, eko_fin: EKO, rtol: float = 1e-6, atol: float = 1e-10, in_place=True
+) -> EKO:
     """Returns the product of two ekos
 
     Parameters
@@ -17,6 +19,10 @@ def ekos_product(eko_ini: EKO, eko_fin: EKO, in_place=True) -> EKO:
         initial eko operator
     eko_fin : eko.output.Output
         final eko operator
+    rtol : float
+        relative tolerance on Q2, used to check compatibility
+    atol : float
+        absolute tolerance on Q2, used to check compatibility
     in_place : bool
         do operation in place, modifying input arrays
 
@@ -26,14 +32,14 @@ def ekos_product(eko_ini: EKO, eko_fin: EKO, in_place=True) -> EKO:
         eko operator
 
     """
-    # TODO: check if it's close, instead of checking identity
-    if eko_fin.Q02 not in eko_ini.Q2grid:
+    q2match = eko_ini.approx(eko_fin.Q02, rtol=rtol, atol=atol)
+    if q2match is None:
         raise ValueError(
             "Initial Q2 of final eko operator does not match any final Q2 in"
             " the initial eko operator"
         )
-    ope1 = eko_ini[eko_fin.Q02].operator.copy()
-    ope1_error = eko_ini[eko_fin.Q02].error.copy()
+    ope1 = eko_ini[q2match].operator.copy()
+    ope1_error = eko_ini[q2match].error.copy()
 
     ope2_dict = {}
     ope2_error_dict = {}

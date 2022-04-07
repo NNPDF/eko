@@ -114,6 +114,16 @@ class EKO:
     def Q2grid(self):
         return np.array(list(self._operators))
 
+    def approx(self, q2, rtol=1e-6, atol=1e-10) -> Optional[float]:
+        q2s = self.Q2grid
+        close = q2s[np.isclose(q2, q2s, rtol=rtol, atol=atol)]
+
+        if close.size == 1:
+            return close[0]
+        if close.size == 0:
+            return None
+        raise ValueError(f"Multiple values of Q2 have been found close to {q2}")
+
     @classmethod
     def from_dict(cls, runcard: dict):
         """Make structure from runcard-like dictionary.
