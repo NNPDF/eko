@@ -2,6 +2,7 @@
 import logging
 import os
 import pathlib
+import tarfile
 import tempfile
 import typing
 from dataclasses import dataclass, fields
@@ -125,7 +126,9 @@ class EKO:
 
     def __post_init__(self):
         if self.path.suffix != ".tar":
-            raise ValueError("Not a valid path")
+            raise ValueError("Not a valid path for an EKO")
+        if not tarfile.is_tarfile(self.path):
+            raise ValueError("EKO: the corresponding file is not a valid tar archive")
 
     def __iter__(self):
         """Iterate operators, with minimal load.
@@ -237,6 +240,10 @@ class EKO:
 
         """
         path = pathlib.Path(runcard.get("path", tempfile.mkstemp(suffix=".tar")[1]))
+        path.unlink()
+        with tarfile.open(path, mode="x") as tar:
+            tar.addfile(tarfile.TarInfo("metadata.yaml"))
+
         xgrid = interpolation.XGrid(runcard["xgrid"])
         pids = runcard.get("pids", cls.pids)
 
