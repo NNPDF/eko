@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+import logging
+import os
+import pathlib
+import tempfile
+import typing
 from dataclasses import dataclass, fields
 from typing import Dict, Literal, Optional
 
@@ -7,6 +12,8 @@ import numpy as np
 from .. import basis_rotation as br
 from .. import interpolation
 from .. import version as vmod
+
+logger = logging.getLogger(__name__)
 
 
 class DictLike:
@@ -90,22 +97,69 @@ class EKO:
     data_version: str = vmod.__data_version__
 
     def __iter__(self):
-        return iter(self._operators)
+        """Iterate operators, with minimal load.
 
-    def __contains__(self, q2):
+        Pay attention, this iterator:
+
+        - is similar to ``dict.items()``, since it returns tuples of ``(q2,
+          operator)``
+        - is not a read-only operation from the point of view of the in-memory
+          object (since the final result after iteration is no operator loaded)
+        - but it is a read-only operation from the point of view of the
+          permanent object on-disk
+
+        Yields
+        ------
+        tuple
+            couples of ``(q2, operator)``, loaded immediately before, unloaded
+            immediately after
+
+        """
+        for q2 in self.Q2grid:
+            yield q2, self[q2]
+            del self[q2]
+
+    def __contains__(self, q2: float) -> bool:
         return q2 in self._operators
 
-    def __getitem__(self, q2):
+    def __getitem__(self, q2: float):
         # TODO: autoload
         return self._operators[q2]
 
-    def __setitem__(self, q2, op):
+    def __setitem__(self, q2: float, op: Operator):
         # TODO: autodump
         if isinstance(op, dict):
             op = Operator.from_dict(op)
         if not isinstance(op, Operator):
             raise ValueError("Only operators can be stored.")
         self._operators[q2] = op
+
+    def __delitem__(self, q2: float):
+        """Drop operator from memory.
+
+        This method only drops the operator from memory, and it's not expected
+        to do anything else.
+
+        Autosave is done on set, and explicit saves are performed by the
+        computation functions.
+
+        If a further explicit save is required, repeat explicit assignment::
+
+            eko[q2] = eko[q2]
+
+        This is only useful if the operator has been mutated in place, that in
+        general should be avoided, since the operator should only be the result
+        of a full computation or a library manipulation.
+
+
+        Parameters
+        ----------
+        q2 : float
+            the value of :math:`Q^2` for which the corresponding operator
+            should be dropped
+
+        """
+        self._operators[q2] = None
 
     def items(self):
         return self._operators.items()
@@ -184,3 +238,10 @@ class EKO:
             rotations=self.rotations.raw,
             debug=self.debug.raw,
         )
+
+    def close(self):
+        for q2 in self.Q2grid:
+            del self[q2]
+
+    def __del__(self):
+        self.close()
