@@ -21,7 +21,7 @@ import numba as nb
 import numpy as np
 
 from .. import basis_rotation as br
-from . import as1, as2, as3, harmonics
+from . import aem1, aem2, as1, as1aem1, as2, as3, harmonics
 
 
 @nb.njit("Tuple((c16[:,:],c16,c16,c16[:,:],c16[:,:]))(c16[:,:])", cache=True)
