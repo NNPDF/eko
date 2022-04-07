@@ -82,7 +82,6 @@ def dump_yaml(
         Null, if written successfully to stream
 
     """
-    # TODO explicitly silence yaml
     out = get_raw(obj, binarize, skip_q2_grid=skip_q2_grid)
     return yaml.dump(out, stream)
 
