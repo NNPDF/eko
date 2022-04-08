@@ -31,7 +31,7 @@ def chk_keys(a, b):
 class TestLegacy:
     def test_io(self, fake_output, tmp_path):
         # create object
-        o1 = output.EKO.from_dict(fake_output)
+        o1 = output.EKO.new(theory={}, operator=fake_output)
         for q2, op in fake_output["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
         # test streams
@@ -60,7 +60,7 @@ class TestLegacy:
     def test_rename_issue81(self, fake_output):
         # https://github.com/N3PDF/eko/issues/81
         # create object
-        o1 = output.EKO.from_dict(fake_output)
+        o1 = output.EKO.new(theory={}, operator=fake_output)
         for q2, op in fake_output["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
 
@@ -78,7 +78,7 @@ class TestLegacy:
 
     def test_io_bin(self, fake_output):
         # create object
-        o1 = output.EKO.from_dict(fake_output)
+        o1 = output.EKO.new(theory={}, operator=fake_output)
         for q2, op in fake_output["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
         # test streams
@@ -95,7 +95,7 @@ class TestManipulate:
     def test_xgrid_reshape(self, fake_output):
         # create object
         xg = np.geomspace(1e-5, 1.0, 21)
-        o1 = output.EKO.from_dict(fake_output)
+        o1 = output.EKO.new(theory={}, operator=fake_output)
         o1.xgrid = xg
         o1.rotations.targetgrid = xg
         o1.rotations.inputgrid = xg
@@ -143,7 +143,7 @@ class TestManipulate:
 
     def test_reshape_io(self, fake_output):
         # create object
-        o1 = output.EKO.from_dict(fake_output)
+        o1 = output.EKO.new(theory={}, operator=fake_output)
         for q2, op in fake_output["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
         o2 = copy.deepcopy(o1)
@@ -160,7 +160,7 @@ class TestManipulate:
     def test_flavor_reshape(self, fake_output):
         # create object
         xg = np.geomspace(1e-5, 1.0, 21)
-        o1 = output.EKO.from_dict(fake_output)
+        o1 = output.EKO.new(theory={}, operator=fake_output)
         o1.xgrid = xg
         o1.rotations.targetgrid = xg
         o1.rotations.inputgrid = xg
@@ -238,7 +238,7 @@ class TestManipulate:
                 backward_inversion="exact",
             ),
         )
-        o00 = output.EKO.from_dict(d)
+        o00 = output.EKO.new(theory={}, operator=d)
         o00[q2_out] = Q2grid[q2_out]
         o01 = copy.deepcopy(o00)
         manipulate.to_evol(o01)

@@ -9,7 +9,7 @@ class TestApply:
     def test_apply(self, fake_output, fake_pdf):
         q2_out = list(fake_output["Q2grid"].keys())[0]
         # create object
-        o = output.EKO.from_dict(fake_output)
+        o = output.EKO.new(theory={}, operator=fake_output)
         for q2, op in fake_output["Q2grid"].items():
             o[q2] = output.Operator.from_dict(op)
         # fake pdfs
@@ -35,7 +35,7 @@ class TestApply:
     def test_apply_flavor(self, fake_output, fake_pdf, monkeypatch):
         q2_out = list(fake_output["Q2grid"].keys())[0]
         # create object
-        o = output.EKO.from_dict(fake_output)
+        o = output.EKO.new(theory={}, operator=fake_output)
         for q2, op in fake_output["Q2grid"].items():
             o[q2] = output.Operator.from_dict(op)
         # fake pdfs

@@ -18,6 +18,8 @@ from .. import version as vmod
 
 logger = logging.getLogger(__name__)
 
+PathLike = typing.Union[str, os.PathLike]
+
 
 class DictLike:
     def __init__(self, **kwargs):
@@ -215,7 +217,7 @@ class EKO:
         raise ValueError(f"Multiple values of Q2 have been found close to {q2}")
 
     @staticmethod
-    def bootstrap(tdir: typing.Union[str, os.PathLike], theory: dict, operator: dict):
+    def bootstrap(tdir: PathLike, theory: dict, operator: dict):
         tdir = pathlib.Path(tdir)
         (tdir / "theory.yaml").write_text(yaml.dump(theory), encoding="utf-8")
         (tdir / "operator.yaml").write_text(yaml.dump(operator), encoding="utf-8")
@@ -223,8 +225,11 @@ class EKO:
         (tdir / "parts").mkdir()
         (tdir / "operators").mkdir()
 
-    def extract(self, filename: str) -> str:
-        with tarfile.open(self.path, "r") as tar:
+    @staticmethod
+    def extract(path: PathLike, filename: str) -> str:
+        path = pathlib.Path(path)
+
+        with tarfile.open(path, "r") as tar:
             fd = tar.extractfile(filename)
             if fd is None:
                 raise ValueError(
@@ -232,11 +237,12 @@ class EKO:
                 )
             content = fd.read().decode()
 
+        __import__("pdb").set_trace()
         return content
 
     @property
     def theory(self) -> dict:
-        return yaml.safe_load(self.extract("theory.yaml"))
+        return yaml.safe_load(self.extract(self.path, "theory.yaml"))
 
     @property
     def theory_card(self) -> dict:
@@ -244,10 +250,51 @@ class EKO:
 
     @property
     def operator_card(self) -> dict:
-        return yaml.safe_load(self.extract("theory.yaml"))
+        return yaml.safe_load(self.extract(self.path, "operator.yaml"))
 
     @classmethod
-    def from_dict(cls, runcard: dict):
+    def detached(cls, theory: dict, operator: dict, path: pathlib.Path):
+        """Build the in-memory object alone.
+
+        Note
+        ----
+        This constructor is meant for internal use, backing the usual ones (like
+        :meth:`new` or :meth:`load`), but it should not be used directly, since
+        it has no guarantee that the underlying path is valid, breaking the
+        object semantic.
+
+        Parameters
+        ----------
+        theory : dict
+            the theory card
+        operator : dict
+            the operator card
+        path : str or os.PathLike
+            the underlying path (it has to be a valid object, but it is not
+            guaranteed, see the note)
+
+        Returns
+        -------
+        EKO
+            the generated structure
+
+        """
+        xgrid = interpolation.XGrid(operator["xgrid"])
+        pids = np.array(operator.get("pids", cls.pids))
+
+        return cls(
+            path=path,
+            xgrid=xgrid,
+            pids=pids,
+            Q02=operator["Q0"] ** 2,
+            _operators={q2: None for q2 in operator["Q2grid"]},
+            configs=Configs.from_dict(operator["configs"]),
+            rotations=Rotations.default(xgrid, pids),
+            debug=Debug.from_dict(operator.get("debug", {})),
+        )
+
+    @classmethod
+    def new(cls, theory: dict, operator: dict, path: Optional[PathLike] = None):
         """Make structure from runcard-like dictionary.
 
         This constructor is made to be used with loaded runcards, in order to
@@ -264,8 +311,13 @@ class EKO:
 
         Parameters
         ----------
-        runcard : dict
-            a dictionary containing the runcard's content
+        theory : dict
+            the theory card
+        operator : dict
+            the operator card
+        path : str or os.PathLike
+            the underlying path (if not provided, it is created in a temporary
+            path)
 
         Returns
         -------
@@ -273,12 +325,13 @@ class EKO:
             the generated structure
 
         """
-        path = pathlib.Path(runcard.get("path", tempfile.mkstemp(suffix=".tar")[1]))
+        path = pathlib.Path(
+            path if path is not None else tempfile.mkstemp(suffix=".tar")[1]
+        )
         path.unlink()
         with tempfile.TemporaryDirectory() as td:
             td = pathlib.Path(td)
-            # TODO: replace with actual runcards
-            cls.bootstrap(td, theory={}, operator=runcard)
+            cls.bootstrap(td, theory=theory, operator=operator)
 
             with tarfile.open(path, mode="w") as tar:
                 for element in td.glob("*"):
@@ -286,38 +339,29 @@ class EKO:
 
             shutil.rmtree(td)
 
-        xgrid = interpolation.XGrid(runcard["xgrid"])
-        pids = runcard.get("pids", cls.pids)
-
+        eko = cls.detached(theory, operator, path=path)
         logger.info(f"New operator created at path '{path}'")
-
-        return cls(
-            path=path,
-            xgrid=xgrid,
-            pids=pids,
-            Q02=runcard["Q0"] ** 2,
-            _operators={q2: None for q2 in runcard["Q2grid"]},
-            configs=Configs.from_dict(runcard["configs"]),
-            rotations=Rotations.default(xgrid, pids),
-            debug=Debug.from_dict(runcard.get("debug", {})),
-        )
+        return eko
 
     @classmethod
-    def load(cls, path: typing.Union[str, os.PathLike]):
-        return cls(
-            path=pathlib.Path(path),
-            xgrid=None,
-            Q02=None,
-            _operators={q2: None for q2 in ()},
-            configs=None,
-            rotations=None,
-            debug=None,
-        )
+    def load(cls, path: PathLike):
+        path = pathlib.Path(path)
+        if not tarfile.is_tarfile(path):
+            raise ValueError("EKO: the corresponding file is not a valid tar archive")
+
+        theory = yaml.safe_load(cls.extract(path, "theory.yaml"))
+        operator = yaml.safe_load(cls.extract(path, "operator.yaml"))
+
+        eko = cls.detached(theory, operator, path=path)
+        logger.info(f"Operator loaded from path '{path}'")
+        return eko
 
     @property
     def raw(self):
         return dict(
+            path=str(self.path),
             xgrid=self.xgrid.tolist(),
+            pids=self.pids.tolist(),
             Q0=float(np.sqrt(self.Q02)),
             Q2grid=self.Q2grid,
             configs=self.configs.raw,

@@ -68,7 +68,9 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
             for key in ("inputgrid", "targetgrid", "inputpids", "targetpids")
         }
 
-        self.out = EKO.from_dict(dict(Q0=np.sqrt(tc.q2_ref), **operators_card))
+        self.out = EKO.new(
+            theory=theory_card, operator=dict(Q0=np.sqrt(tc.q2_ref), **operators_card)
+        )
 
     def get_output(self) -> EKO:
         """Run evolution and generate output operator.

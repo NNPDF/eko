@@ -197,7 +197,7 @@ def load_yaml(stream: TextIO, skip_q2_grid=False) -> struct.EKO:
                     v = np.frombuffer(lz4.frame.decompress(v))
                     v = v.reshape(len_tpids, len_tgrid, len_ipids, len_igrid)
                 op[k] = v
-    return struct.EKO.from_dict(obj)
+    return struct.EKO.new(theory={}, operator=obj)
 
 
 def load_yaml_from_file(
@@ -271,7 +271,7 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
             operator_grid[q2] = dict(zip(grids.keys(), slices))
         metadata["Q2grid"] = operator_grid
 
-    eko = struct.EKO.from_dict(metadata)
+    eko = struct.EKO.new(theory={}, operator=metadata)
     for q2, op in metadata["Q2grid"].items():
         eko[q2] = op
 
