@@ -223,16 +223,28 @@ class EKO:
         (tdir / "parts").mkdir()
         (tdir / "operators").mkdir()
 
-    def update_runcard(self, runcard: dict, which: str = "theory"):
-        names = ("theory", "operator")
-        if which not in names:
-            raise ValueError(f"Runcard '{which}' not available, choose in {names}.")
+    def extract(self, filename: str) -> str:
+        with tarfile.open(self.path, "r") as tar:
+            fd = tar.extractfile(filename)
+            if fd is None:
+                raise ValueError(
+                    f"The member '{filename}' is not a readable file inside EKO tar"
+                )
+            content = fd.read().decode()
 
-        with tarfile.open(self.path, mode="w") as tar:
-            with tempfile.NamedTemporaryFile() as tmp:
-                tmppath = pathlib.Path(tmp.name)
-                tmppath.write_text(yaml.dump(runcard), encoding="utf-8")
-                tar.add(tmppath, arcname=f"{which}.yaml")
+        return content
+
+    @property
+    def theory(self) -> dict:
+        return yaml.safe_load(self.extract("theory.yaml"))
+
+    @property
+    def theory_card(self) -> dict:
+        return self.theory
+
+    @property
+    def operator_card(self) -> dict:
+        return yaml.safe_load(self.extract("theory.yaml"))
 
     @classmethod
     def from_dict(cls, runcard: dict):
