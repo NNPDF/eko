@@ -4,7 +4,6 @@ import io
 import pathlib
 import shutil
 import tempfile
-from unittest import mock
 
 import numpy as np
 import pytest
@@ -30,7 +29,7 @@ def chk_keys(a, b):
 
 
 class TestLegacy:
-    def test_io(self, fake_output):
+    def test_io(self, fake_output, tmp_path):
         # create object
         o1 = output.EKO.from_dict(fake_output)
         for q2, op in fake_output["Q2grid"].items():
@@ -44,26 +43,16 @@ class TestLegacy:
         np.testing.assert_almost_equal(o1.xgrid.raw, fake_output["xgrid"])
         np.testing.assert_almost_equal(o2.xgrid.raw, fake_output["xgrid"])
         # fake output files
-        m_out = mock.mock_open(read_data="")
-        with mock.patch("builtins.open", m_out) as mock_file:
-            fn = "test.yaml"
-            legacy.dump_yaml_to_file(o1, fn)
-            mock_file.assert_called_with(fn, "w", encoding="utf-8")
+        fpyaml = tmp_path / "test.yaml"
+        legacy.dump_yaml_to_file(o1, fpyaml)
         # fake input file
-        stream.seek(0)
-        m_in = mock.mock_open(read_data=stream.getvalue())
-        with mock.patch("builtins.open", m_in) as mock_file:
-            fn = "test.yaml"
-            o3 = legacy.load_yaml_from_file(fn)
-            mock_file.assert_called_with(fn, encoding="utf-8")
-            np.testing.assert_almost_equal(o3.xgrid.raw, fake_output["xgrid"])
+        o3 = legacy.load_yaml_from_file(fpyaml)
+        np.testing.assert_almost_equal(o3.xgrid.raw, fake_output["xgrid"])
         # repeat for tar
-        fn = "test.tar"
-        with tempfile.TemporaryDirectory() as folder:
-            fp = pathlib.Path(folder) / fn
-            legacy.dump_tar(o1, fp)
-            o4 = legacy.load_tar(fp)
-            np.testing.assert_almost_equal(o4.xgrid.raw, fake_output["xgrid"])
+        fptar = tmp_path / "test.tar"
+        legacy.dump_tar(o1, fptar)
+        o4 = legacy.load_tar(fptar)
+        np.testing.assert_almost_equal(o4.xgrid.raw, fake_output["xgrid"])
         fn = "test"
         with pytest.raises(ValueError, match="wrong suffix"):
             legacy.dump_tar(o1, fn)
