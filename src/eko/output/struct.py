@@ -2,6 +2,7 @@
 import logging
 import os
 import pathlib
+import shutil
 import tarfile
 import tempfile
 import typing
@@ -9,6 +10,7 @@ from dataclasses import dataclass, fields
 from typing import Dict, Literal, Optional
 
 import numpy as np
+import yaml
 
 from .. import basis_rotation as br
 from .. import interpolation
@@ -241,8 +243,19 @@ class EKO:
         """
         path = pathlib.Path(runcard.get("path", tempfile.mkstemp(suffix=".tar")[1]))
         path.unlink()
-        with tarfile.open(path, mode="x") as tar:
-            tar.addfile(tarfile.TarInfo("metadata.yaml"))
+        with tempfile.TemporaryDirectory() as td:
+            td = pathlib.Path(td)
+            # TODO: replace with actual runcards
+            (td / "metadata.yaml").write_text(yaml.dump(runcard), encoding="utf-8")
+            (td / "recipes").mkdir()
+            (td / "parts").mkdir()
+            (td / "operators").mkdir()
+
+            with tarfile.open(path, mode="w") as tar:
+                for element in td.glob("*"):
+                    tar.add(element, arcname=element.name)
+
+            shutil.rmtree(td)
 
         xgrid = interpolation.XGrid(runcard["xgrid"])
         pids = runcard.get("pids", cls.pids)
