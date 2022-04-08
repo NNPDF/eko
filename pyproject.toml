@@ -82,6 +82,7 @@ files = ["src/eko/version.py"]
 [tool.poetry.scripts]
 ekonav = "ekomark.navigator:launch_navigator"
 genpdf = "ekobox.genpdf.cli:cli"
+eko = "ekobox.cli:command"
 
 [tool.poe.tasks]
 test = "pytest tests"
