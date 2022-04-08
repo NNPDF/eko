@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import contextlib
 import logging
 import os
 import pathlib
@@ -198,6 +199,13 @@ class EKO:
 
         """
         self._operators[q2] = None
+
+    @contextlib.contextmanager
+    def operator(self, q2: float):
+        try:
+            yield self[q2]
+        finally:
+            del self[q2]
 
     def items(self):
         return self._operators.items()
