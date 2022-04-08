@@ -214,6 +214,26 @@ class EKO:
             return None
         raise ValueError(f"Multiple values of Q2 have been found close to {q2}")
 
+    @staticmethod
+    def bootstrap(tdir: typing.Union[str, os.PathLike], theory: dict, operator: dict):
+        tdir = pathlib.Path(tdir)
+        (tdir / "theory.yaml").write_text(yaml.dump(theory), encoding="utf-8")
+        (tdir / "operator.yaml").write_text(yaml.dump(operator), encoding="utf-8")
+        (tdir / "recipes").mkdir()
+        (tdir / "parts").mkdir()
+        (tdir / "operators").mkdir()
+
+    def update_runcard(self, runcard: dict, which: str = "theory"):
+        names = ("theory", "operator")
+        if which not in names:
+            raise ValueError(f"Runcard '{which}' not available, choose in {names}.")
+
+        with tarfile.open(self.path, mode="w") as tar:
+            with tempfile.NamedTemporaryFile() as tmp:
+                tmppath = pathlib.Path(tmp.name)
+                tmppath.write_text(yaml.dump(runcard), encoding="utf-8")
+                tar.add(tmppath, arcname=f"{which}.yaml")
+
     @classmethod
     def from_dict(cls, runcard: dict):
         """Make structure from runcard-like dictionary.
@@ -246,10 +266,7 @@ class EKO:
         with tempfile.TemporaryDirectory() as td:
             td = pathlib.Path(td)
             # TODO: replace with actual runcards
-            (td / "metadata.yaml").write_text(yaml.dump(runcard), encoding="utf-8")
-            (td / "recipes").mkdir()
-            (td / "parts").mkdir()
-            (td / "operators").mkdir()
+            cls.bootstrap(td, theory={}, operator=runcard)
 
             with tarfile.open(path, mode="w") as tar:
                 for element in td.glob("*"):
