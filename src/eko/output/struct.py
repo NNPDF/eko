@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import contextlib
+import io
 import logging
 import os
 import pathlib
@@ -8,9 +9,11 @@ import tarfile
 import tempfile
 import typing
 from dataclasses import dataclass, fields
-from typing import Dict, Literal, Optional
+from typing import BinaryIO, Dict, Literal, Optional, Tuple
 
+import lz4.frame
 import numpy as np
+import numpy.lib.npyio as npyio
 import yaml
 
 from .. import basis_rotation as br
@@ -53,6 +56,42 @@ class Operator(DictLike):
     alphas: float
     operator: np.ndarray
     error: Optional[np.ndarray] = None
+
+    # IO works with streams in memory, in order to avoid intermediate write on
+    # disk (keep read from and write to tar file only)
+
+    def save(self, compress: bool = True) -> Tuple[BinaryIO, bool]:
+        stream = io.BytesIO()
+        if self.error is None:
+            np.save(stream, self.operator)
+        else:
+            np.savez(stream, operator=self.operator, error=self.error)
+        stream.seek(0)
+
+        # compress if requested
+        if compress:
+            stream = io.BytesIO(lz4.frame.compress(stream.read()))
+
+        # return the stream ready to be read, and the type of array dumped (i.e.
+        # 'npy' or 'npz')
+        return stream, self.error is None
+
+    @classmethod
+    def load(cls, stream: BinaryIO):
+        content = np.load(stream)
+
+        if isinstance(content, np.ndarray):
+            op = content
+            err = None
+        elif isinstance(content, npyio.NpzFile):
+            op = content["operator"]
+            err = content["error"]
+        else:
+            raise ValueError(
+                "Not possible to load operator, content format not recognized"
+            )
+
+        return cls(alphas=0.0, operator=op, error=err)
 
 
 @dataclass
@@ -171,6 +210,7 @@ class EKO:
             op = Operator.from_dict(op)
         if not isinstance(op, Operator):
             raise ValueError("Only operators can be stored.")
+
         self._operators[q2] = op
 
     def __delitem__(self, q2: float):
