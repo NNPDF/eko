@@ -155,16 +155,46 @@ class EKO:
     The computation can be stopped at any time, without the loss of any of the
     intermediate results.
 
+    Attributes
+    ----------
+    path : pathlib.Path
+        path on disk, to which this object is linked (and for which it is
+        essentially an interface)
+    Q02 : float
+        inital scale
+    xgrid : interpolation.XGrid
+        momentum fraction internal grid
+    pids : np.ndarray
+        array of integers, corresponding to internal PIDs
+    configs : Configs
+        specific configuration to be used during the calculation of these
+        operators
+    rotations : Rotations
+        manipulation information, describing the current status of the EKO (e.g.
+        `inputgrid` and `targetgrid`)
+    debug : Debug
+        debug configurations
+    version : str
+        library version used to create the corresponding file
+    data_version : str
+        specs version, to which the file adheres
+
     """
 
-    path: pathlib.Path
+    # operators cache, contains the Q2 grid information
     _operators: Dict[float, Optional[Operator]]
-    xgrid: interpolation.XGrid
+    # public attributes
+    # -----------------
+    # mandatory, identifying features
+    path: pathlib.Path
     Q02: float
+    xgrid: interpolation.XGrid
+    pids: np.ndarray
+    # collections
     configs: Configs
     rotations: Rotations
     debug: Debug
-    pids: np.ndarray = np.array(br.flavor_basis_pids)
+    # tagging information
     version: str = vmod.__version__
     data_version: str = vmod.__data_version__
 
