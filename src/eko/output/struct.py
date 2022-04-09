@@ -204,32 +204,6 @@ class EKO:
         if not tarfile.is_tarfile(self.path):
             raise ValueError("EKO: the corresponding file is not a valid tar archive")
 
-    def __iter__(self):
-        """Iterate operators, with minimal load.
-
-        Pay attention, this iterator:
-
-        - is similar to ``dict.items()``, since it returns tuples of ``(q2,
-          operator)``
-        - is not a read-only operation from the point of view of the in-memory
-          object (since the final result after iteration is no operator loaded)
-        - but it is a read-only operation from the point of view of the
-          permanent object on-disk
-
-        Yields
-        ------
-        tuple
-            couples of ``(q2, operator)``, loaded immediately before, unloaded
-            immediately after
-
-        """
-        for q2 in self.Q2grid:
-            yield q2, self[q2]
-            del self[q2]
-
-    def __contains__(self, q2: float) -> bool:
-        return q2 in self._operators
-
     def __getitem__(self, q2: float):
         # TODO: autoload
         return self._operators[q2]
@@ -277,12 +251,45 @@ class EKO:
         finally:
             del self[q2]
 
-    def items(self):
-        return self._operators.items()
-
     @property
     def Q2grid(self):
         return np.array(list(self._operators))
+
+    def __iter__(self):
+        """Iterate over keys (i.e. Q2 values)
+
+        Yields
+        ------
+        float
+            q2 values
+
+        """
+        for q2 in self._operators:
+            yield q2
+
+    def items(self):
+        """Iterate operators, with minimal load.
+
+        Pay attention, this iterator:
+
+        - is not a read-only operation from the point of view of the in-memory
+          object (since the final result after iteration is no operator loaded)
+        - but it is a read-only operation from the point of view of the
+          permanent object on-disk
+
+        Yields
+        ------
+        tuple
+            couples of ``(q2, operator)``, loaded immediately before, unloaded
+            immediately after
+
+        """
+        for q2 in self.Q2grid:
+            yield q2, self[q2]
+            del self[q2]
+
+    def __contains__(self, q2: float) -> bool:
+        return q2 in self._operators
 
     def approx(self, q2, rtol=1e-6, atol=1e-10) -> Optional[float]:
         q2s = self.Q2grid
@@ -358,7 +365,7 @@ class EKO:
 
         """
         xgrid = interpolation.XGrid(operator["xgrid"])
-        pids = np.array(operator.get("pids", cls.pids))
+        pids = np.array(operator.get("pids", np.array(br.flavor_basis_pids)))
 
         return cls(
             path=path,
