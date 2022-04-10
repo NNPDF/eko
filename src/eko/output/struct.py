@@ -7,6 +7,7 @@ import pathlib
 import shutil
 import tarfile
 import tempfile
+import time
 import typing
 from dataclasses import dataclass, fields
 from typing import BinaryIO, Dict, Literal, Optional, Tuple
@@ -60,7 +61,7 @@ class Operator(DictLike):
     # IO works with streams in memory, in order to avoid intermediate write on
     # disk (keep read from and write to tar file only)
 
-    def save(self, compress: bool = True) -> Tuple[BinaryIO, bool]:
+    def save(self, compress: bool = True) -> Tuple[io.BytesIO, bool]:
         stream = io.BytesIO()
         if self.error is None:
             np.save(stream, self.operator)
@@ -77,7 +78,9 @@ class Operator(DictLike):
         return stream, self.error is None
 
     @classmethod
-    def load(cls, stream: BinaryIO):
+    def load(cls, stream: BinaryIO, compressed: bool = True):
+        if compressed:
+            stream = io.BytesIO(lz4.frame.decompress(stream.read()))
         content = np.load(stream)
 
         if isinstance(content, np.ndarray):
@@ -206,14 +209,51 @@ class EKO:
 
     def __getitem__(self, q2: float):
         # TODO: autoload
-        return self._operators[q2]
+        op = self._operators[q2]
+        if op is not None:
+            return op
 
-    def __setitem__(self, q2: float, op: Operator):
-        # TODO: autodump
-        if isinstance(op, dict):
-            op = Operator.from_dict(op)
-        if not isinstance(op, Operator):
-            raise ValueError("Only operators can be stored.")
+        start = f"operators/{q2:8.2f}"
+
+        with tarfile.open(self.path) as tar:
+            names = list(filter(lambda n: n.startswith(start), tar.getnames()))
+
+            if len(names) == 0:
+                raise ValueError(f"Q2 value '{q2}' not available in '{self.path}'")
+            if len(names) > 1:
+                raise ValueError(
+                    f"Q2 value '{q2}' occurs multiple times in '{self.path}'"
+                )
+
+            name = names[0]
+            compressed = name.endswith(".lz4")
+            stream = tar.extractfile(name)
+
+            if stream is None:
+                raise ValueError
+
+            op = Operator.load(stream, compressed=compressed)
+
+        self._operators[q2] = op
+        return op
+
+    def __setitem__(self, q2: float, op: Optional[Operator], compress: bool = True):
+        if op is not None:
+            stream, without_err = op.save(compress)
+
+            suffix = "npy" if without_err else "npz"
+            if compress:
+                suffix += ".lz4"
+
+            info = tarfile.TarInfo(name=f"operators/{q2:8.2f}.{suffix}")
+            info.size = len(stream.getbuffer())
+            info.mtime = time.time()
+            info.mode = 436
+            info.uname = os.getlogin()
+            info.gname = os.getlogin()
+
+            with tarfile.open(self.path, "a") as tar:
+                tar.addfile(info, fileobj=stream)
 
         self._operators[q2] = op
 

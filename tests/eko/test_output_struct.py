@@ -27,7 +27,7 @@ class TestLegacy:
             eko[q2] = output.Operator.from_dict(op)
 
         q2prev = None
-        for q2, op in eko:
+        for q2, op in eko.items():
             if q2prev is not None:
                 assert eko._operators[q2prev] is None
             assert isinstance(op, struct.Operator)
