@@ -249,8 +249,8 @@ class EKO:
             info.size = len(stream.getbuffer())
             info.mtime = time.time()
             info.mode = 436
-            info.uname = os.getlogin()
-            info.gname = os.getlogin()
+            #  info.uname = os.getlogin()
+            #  info.gname = os.getlogin()
 
             with tarfile.open(self.path, "a") as tar:
                 tar.addfile(info, fileobj=stream)
