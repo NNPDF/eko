@@ -18,11 +18,11 @@ def _flav_test(function):
         assert result > 0.0
 
 
-def test_beta_0():
+def test_beta_as1():
     """Test first beta function coefficient"""
-    _flav_test(beta.beta_0)
+    _flav_test(beta.beta_as1)
     # from hep-ph/9706430
-    np.testing.assert_approx_equal(beta.beta_0(5), 4 * 23 / 12)
+    np.testing.assert_approx_equal(beta.beta_as1(5), 4 * 23 / 12)
 
 
 def test_beta_1():
@@ -51,7 +51,7 @@ def test_beta_3():
 def test_beta():
     """beta-wrapper"""
     nf = 3
-    np.testing.assert_allclose(beta.beta(0, nf), beta.beta_0(nf))
+    np.testing.assert_allclose(beta.beta(0, nf), beta.beta_as1(nf))
     np.testing.assert_allclose(beta.beta(1, nf), beta.beta_1(nf))
     np.testing.assert_allclose(beta.beta(2, nf), beta.beta_2(nf))
     np.testing.assert_allclose(beta.beta(3, nf), beta.beta_3(nf))

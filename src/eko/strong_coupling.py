@@ -131,7 +131,7 @@ class StrongCoupling:
           :math:`a_s = \frac{\alpha_s(\mu^2)}{4\pi}` the reference value has to be
           given in terms of :math:`\alpha_s(\mu_0^2)` due to legacy reasons
         - the ``order`` refers to the perturbative order of the beta function, thus
-          ``order=0`` means leading order beta function, means evolution with :math:`\beta_0`,
+          ``order=0`` means leading order beta function, means evolution with :math:`\beta_as1`,
           means running at 1-loop - so there is a natural mismatch between ``order`` and the
           number of loops by one unit
 

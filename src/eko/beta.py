@@ -12,9 +12,30 @@ from .anomalous_dimensions.harmonics import zeta3
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_0(nf):
+def beta_as1(nf):
     """
     Computes the first coefficient of the QCD beta function.
+
+    Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
+
+    Parameters
+    ----------
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        beta_as1 : float
+            first coefficient of the QCD beta function :math:`\\beta_as1^{n_f}`
+    """
+    beta_as1 = 11.0 / 3.0 * constants.CA - 4.0 / 3.0 * constants.TR * nf
+    return beta_as1
+
+
+@nb.njit("f8(u1)", cache=True)
+def beta_0_aem1(nf):
+    """
+    Computes the first coefficient of the QED beta function.
 
     Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
 
@@ -28,7 +49,9 @@ def beta_0(nf):
         beta_0 : float
             first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
     """
-    beta_0 = 11.0 / 3.0 * constants.CA - 4.0 / 3.0 * constants.TR * nf
+    nu = constants.uplike_flavors(nf)
+    nd = nf - nu
+    beta_0 = -4.0 / 3 * constants.NC * (nu * constants.eu2 + nd * constants.ed2)
     return beta_0
 
 
@@ -54,6 +77,77 @@ def beta_1(nf):
     b_ca = -20.0 / 3.0 * constants.CA * TF
     b_cf = -4.0 * constants.CF * TF
     beta_1 = b_ca2 + b_ca + b_cf
+    return beta_1
+
+
+@nb.njit("f8(u1)", cache=True)
+def beta_1_aem2(nf):
+    """
+    Computes the second coefficient of the QED beta function.
+
+    Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
+
+    Parameters
+    ----------
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        beta_1 : float
+            second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
+    """
+    nu = constants.uplike_flavors(nf)
+    nd = nf - nu
+    beta_1 = -4.0 * constants.NC * (nu * constants.eu2**2 + nd * constants.ed2**2)
+    return beta_1
+
+
+@nb.njit("f8(u1)", cache=True)
+def beta_1_as1aem1(nf):
+    """
+    Computes the second coefficient of the QED beta function.
+
+    Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
+
+    Parameters
+    ----------
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        beta_1 : float
+            second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
+    """
+    nu = constants.uplike_flavors(nf)
+    nd = nf - nu
+    beta_1 = -4.0 * constants.TR * (nu * constants.eu2 + nd * constants.ed2)
+    return beta_1
+
+
+@nb.njit("f8(u1)", cache=True)
+def beta_1_aem1as1(nf):
+    """
+    Computes the second coefficient of the QED beta function.
+
+    Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
+
+    Parameters
+    ----------
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        beta_1 : float
+            second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
+    """
+    nu = constants.uplike_flavors(nf)
+    nd = nf - nu
+    beta_1 = (
+        -4.0 * constants.CF * constants.NC * (nu * constants.eu2 + nd * constants.ed2)
+    )
     return beta_1
 
 
@@ -132,7 +226,7 @@ def beta(k, nf):
     """
     beta_ = 0
     if k == 0:
-        beta_ = beta_0(nf)
+        beta_ = beta_as1(nf)
     elif k == 1:
         beta_ = beta_1(nf)
     elif k == 2:
