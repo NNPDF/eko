@@ -33,7 +33,7 @@ def beta_as1(nf):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_0_aem1(nf):
+def beta_aem1(nf):
     """
     Computes the first coefficient of the QED beta function.
 
@@ -51,8 +51,8 @@ def beta_0_aem1(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    beta_0 = -4.0 / 3 * constants.NC * (nu * constants.eu2 + nd * constants.ed2)
-    return beta_0
+    beta_aem1 = -4.0 / 3 * constants.NC * (nu * constants.eu2 + nd * constants.ed2)
+    return beta_aem1
 
 
 @nb.njit("f8(u1)", cache=True)
@@ -81,7 +81,7 @@ def beta_1(nf):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_1_aem2(nf):
+def beta_aem2(nf):
     """
     Computes the second coefficient of the QED beta function.
 
@@ -99,12 +99,14 @@ def beta_1_aem2(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    beta_1 = -4.0 * constants.NC * (nu * constants.eu2**2 + nd * constants.ed2**2)
-    return beta_1
+    beta_aem2 = (
+        -4.0 * constants.NC * (nu * constants.eu2**2 + nd * constants.ed2**2)
+    )
+    return beta_aem2
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_1_as1aem1(nf):
+def beta_as1aem1(nf):
     """
     Computes the second coefficient of the QED beta function.
 
@@ -122,12 +124,12 @@ def beta_1_as1aem1(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    beta_1 = -4.0 * constants.TR * (nu * constants.eu2 + nd * constants.ed2)
-    return beta_1
+    beta_as1aem1 = -4.0 * constants.TR * (nu * constants.eu2 + nd * constants.ed2)
+    return beta_as1aem1
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_1_aem1as1(nf):
+def beta_aem1as1(nf):
     """
     Computes the second coefficient of the QED beta function.
 
@@ -145,10 +147,10 @@ def beta_1_aem1as1(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    beta_1 = (
+    beta_aem1as1 = (
         -4.0 * constants.CF * constants.NC * (nu * constants.eu2 + nd * constants.ed2)
     )
-    return beta_1
+    return beta_aem1as1
 
 
 @nb.njit("f8(u1)", cache=True)
