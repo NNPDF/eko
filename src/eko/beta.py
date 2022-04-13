@@ -106,7 +106,7 @@ def beta_aem3(nf):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_as1aem1(nf):
+def beta_as2aem1(nf):
     """
     Computes the second coefficient of the QED beta function.
 
@@ -119,8 +119,8 @@ def beta_as1aem1(nf):
 
     Returns
     -------
-        beta_1 : float
-            second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
+        beta_as2aem1 : float
+            second coefficient of the QCD beta function :math:`\\beta_as2aem1^{n_f}`
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -129,7 +129,7 @@ def beta_as1aem1(nf):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_aem1as1(nf):
+def beta_aem2as1(nf):
     """
     Computes the second coefficient of the QED beta function.
 
@@ -142,8 +142,8 @@ def beta_aem1as1(nf):
 
     Returns
     -------
-        beta_1 : float
-            second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
+        beta_aem2as1 : float
+            second coefficient of the QCD beta function :math:`\\beta_aem2as1^{n_f}`
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
