@@ -33,7 +33,7 @@ def beta_as2(nf):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_aem1(nf):
+def beta_aem2(nf):
     """
     Computes the first coefficient of the QED beta function.
 
@@ -46,13 +46,13 @@ def beta_aem1(nf):
 
     Returns
     -------
-        beta_0 : float
-            first coefficient of the QCD beta function :math:`\\beta_0^{n_f}`
+        beta_aem2 : float
+            first coefficient of the QCD beta function :math:`\\beta_aem2^{n_f}`
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    beta_aem1 = -4.0 / 3 * constants.NC * (nu * constants.eu2 + nd * constants.ed2)
-    return beta_aem1
+    beta_aem2 = -4.0 / 3 * constants.NC * (nu * constants.eu2 + nd * constants.ed2)
+    return beta_aem2
 
 
 @nb.njit("f8(u1)", cache=True)
@@ -81,7 +81,7 @@ def beta_as3(nf):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_aem2(nf):
+def beta_aem3(nf):
     """
     Computes the second coefficient of the QED beta function.
 
@@ -94,15 +94,15 @@ def beta_aem2(nf):
 
     Returns
     -------
-        beta_1 : float
-            second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
+        beta_aem3 : float
+            second coefficient of the QCD beta function :math:`\\beta_aem3^{n_f}`
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    beta_aem2 = (
+    beta_aem3 = (
         -4.0 * constants.NC * (nu * constants.eu2**2 + nd * constants.ed2**2)
     )
-    return beta_aem2
+    return beta_aem3
 
 
 @nb.njit("f8(u1)", cache=True)
@@ -183,7 +183,7 @@ def beta_as4(nf):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_3(nf):
+def beta_as5(nf):
     """
     Computes the fourth coefficient of the QCD beta function
 
@@ -196,17 +196,17 @@ def beta_3(nf):
 
     Returns
     -------
-        beta_3 : float
-            fourth coefficient of the QCD beta function :math:`\\beta_3^{n_f}`
+        beta_as5 : float
+            fourth coefficient of the QCD beta function :math:`\\beta_as5^{n_f}`
     """
-    beta_3 = (
+    beta_as5 = (
         149753.0 / 6.0
         + 3564.0 * zeta3
         + nf * (-1078361.0 / 162.0 - 6508.0 / 27.0 * zeta3)
         + nf**2 * (50065.0 / 162.0 + 6472.0 / 81.0 * zeta3)
         + 1093.0 / 729.0 * nf**3
     )
-    return beta_3
+    return beta_as5
 
 
 @nb.njit("f8(u1,u1)", cache=True)
@@ -234,7 +234,7 @@ def beta(k, nf):
     elif k == 2:
         beta_ = beta_as4(nf)
     elif k == 3:
-        beta_ = beta_3(nf)
+        beta_ = beta_as5(nf)
     else:
         raise ValueError("Beta coefficients beyond N3LO are not implemented!")
     return beta_
