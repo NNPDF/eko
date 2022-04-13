@@ -4,7 +4,7 @@ import numpy as np
 
 from eko import basis_rotation as br
 from eko.anomalous_dimensions import gamma_ns, gamma_singlet
-from eko.beta import beta_as1
+from eko.beta import beta_as2
 from eko.kernels import non_singlet, singlet
 from eko.scale_variations import expanded, exponentiated
 
@@ -59,7 +59,7 @@ def test_scale_variation_a_vs_b():
         if pto >= 1:
             diff = g[0] * k * a0
         if pto >= 2:
-            b0 = beta_as1(nf)
+            b0 = beta_as2(nf)
             g02 = g[0] @ g[0] if is_singlet else g[0] ** 2
             diff += a0**2 * g[1] * k - k**2 * (
                 1 / 2 * a0**2 * b0 * g[0] + a1 * a0 * g02 - 1 / 2 * a0**2 * g02

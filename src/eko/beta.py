@@ -12,7 +12,7 @@ from .anomalous_dimensions.harmonics import zeta3
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_as1(nf):
+def beta_as2(nf):
     """
     Computes the first coefficient of the QCD beta function.
 
@@ -25,11 +25,11 @@ def beta_as1(nf):
 
     Returns
     -------
-        beta_as1 : float
-            first coefficient of the QCD beta function :math:`\\beta_as1^{n_f}`
+        beta_as2 : float
+            first coefficient of the QCD beta function :math:`\\beta_as2^{n_f}`
     """
-    beta_as1 = 11.0 / 3.0 * constants.CA - 4.0 / 3.0 * constants.TR * nf
-    return beta_as1
+    beta_as2 = 11.0 / 3.0 * constants.CA - 4.0 / 3.0 * constants.TR * nf
+    return beta_as2
 
 
 @nb.njit("f8(u1)", cache=True)
@@ -56,7 +56,7 @@ def beta_aem1(nf):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_as2(nf):
+def beta_as3(nf):
     """
     Computes the second coefficient of the QCD beta function.
 
@@ -69,15 +69,15 @@ def beta_as2(nf):
 
     Returns
     -------
-        beta_as2 : float
-            second coefficient of the QCD beta function :math:`\\beta_as2^{n_f}`
+        beta_as3 : float
+            second coefficient of the QCD beta function :math:`\\beta_as3^{n_f}`
     """
     TF = constants.TR * nf
     b_ca2 = 34.0 / 3.0 * constants.CA * constants.CA
     b_ca = -20.0 / 3.0 * constants.CA * TF
     b_cf = -4.0 * constants.CF * TF
-    beta_as2 = b_ca2 + b_ca + b_cf
-    return beta_as2
+    beta_as3 = b_ca2 + b_ca + b_cf
+    return beta_as3
 
 
 @nb.njit("f8(u1)", cache=True)
@@ -228,9 +228,9 @@ def beta(k, nf):
     """
     beta_ = 0
     if k == 0:
-        beta_ = beta_as1(nf)
-    elif k == 1:
         beta_ = beta_as2(nf)
+    elif k == 1:
+        beta_ = beta_as3(nf)
     elif k == 2:
         beta_ = beta_2(nf)
     elif k == 3:
