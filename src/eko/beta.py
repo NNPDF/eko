@@ -56,7 +56,7 @@ def beta_aem1(nf):
 
 
 @nb.njit("f8(u1)", cache=True)
-def beta_1(nf):
+def beta_as2(nf):
     """
     Computes the second coefficient of the QCD beta function.
 
@@ -69,15 +69,15 @@ def beta_1(nf):
 
     Returns
     -------
-        beta_1 : float
-            second coefficient of the QCD beta function :math:`\\beta_1^{n_f}`
+        beta_as2 : float
+            second coefficient of the QCD beta function :math:`\\beta_as2^{n_f}`
     """
     TF = constants.TR * nf
     b_ca2 = 34.0 / 3.0 * constants.CA * constants.CA
     b_ca = -20.0 / 3.0 * constants.CA * TF
     b_cf = -4.0 * constants.CF * TF
-    beta_1 = b_ca2 + b_ca + b_cf
-    return beta_1
+    beta_as2 = b_ca2 + b_ca + b_cf
+    return beta_as2
 
 
 @nb.njit("f8(u1)", cache=True)
@@ -230,7 +230,7 @@ def beta(k, nf):
     if k == 0:
         beta_ = beta_as1(nf)
     elif k == 1:
-        beta_ = beta_1(nf)
+        beta_ = beta_as2(nf)
     elif k == 2:
         beta_ = beta_2(nf)
     elif k == 3:

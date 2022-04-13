@@ -65,9 +65,9 @@ def j11_exact(a1, a0, nf):
         j11 : float
             integral
     """
-    beta_1 = beta.beta(1, nf)
+    beta_as2 = beta.beta(1, nf)
     b1 = beta.b(1, nf)
-    return (1.0 / beta_1) * np.log((1.0 + a1 * b1) / (1.0 + a0 * b1))
+    return (1.0 / beta_as2) * np.log((1.0 + a1 * b1) / (1.0 + a0 * b1))
 
 
 @nb.njit("f8(f8,f8,u1)", cache=True)
