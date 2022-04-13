@@ -32,11 +32,11 @@ def test_beta_as3():
     np.testing.assert_approx_equal(beta.beta_as3(5), 4**2 * 29 / 12)
 
 
-def test_beta_2():
+def test_beta_as4():
     """Test third beta function coefficient"""
-    _flav_test(beta.beta_2)
+    _flav_test(beta.beta_as4)
     # from hep-ph/9706430
-    np.testing.assert_approx_equal(beta.beta_2(5), 4**3 * 9769 / 3456)
+    np.testing.assert_approx_equal(beta.beta_as4(5), 4**3 * 9769 / 3456)
 
 
 def test_beta_3():
@@ -53,7 +53,7 @@ def test_beta():
     nf = 3
     np.testing.assert_allclose(beta.beta(0, nf), beta.beta_as2(nf))
     np.testing.assert_allclose(beta.beta(1, nf), beta.beta_as3(nf))
-    np.testing.assert_allclose(beta.beta(2, nf), beta.beta_2(nf))
+    np.testing.assert_allclose(beta.beta(2, nf), beta.beta_as4(nf))
     np.testing.assert_allclose(beta.beta(3, nf), beta.beta_3(nf))
     with pytest.raises(ValueError):
         beta.beta(4, 3)
