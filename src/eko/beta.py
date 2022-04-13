@@ -13,8 +13,7 @@ from .anomalous_dimensions.harmonics import zeta3
 
 @nb.njit("f8(u1)", cache=True)
 def beta_as2(nf):
-    """
-    Computes the first coefficient of the QCD beta function.
+    """Computes the first coefficient of the QCD beta function.
 
     Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
 
@@ -27,6 +26,7 @@ def beta_as2(nf):
     -------
         beta_as2 : float
             first coefficient of the QCD beta function :math:`\\beta_as2^{n_f}`
+
     """
     beta_as2 = 11.0 / 3.0 * constants.CA - 4.0 / 3.0 * constants.TR * nf
     return beta_as2
@@ -34,8 +34,7 @@ def beta_as2(nf):
 
 @nb.njit("f8(u1)", cache=True)
 def beta_aem2(nf):
-    """
-    Computes the first coefficient of the QED beta function.
+    """Computes the first coefficient of the QED beta function.
 
     Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
 
@@ -47,7 +46,8 @@ def beta_aem2(nf):
     Returns
     -------
         beta_aem2 : float
-            first coefficient of the QCD beta function :math:`\\beta_aem2^{n_f}`
+            first coefficient of the QED beta function :math:`\\beta_aem2^{n_f}`
+
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -57,8 +57,7 @@ def beta_aem2(nf):
 
 @nb.njit("f8(u1)", cache=True)
 def beta_as3(nf):
-    """
-    Computes the second coefficient of the QCD beta function.
+    """Computes the second coefficient of the QCD beta function.
 
     Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
 
@@ -71,6 +70,7 @@ def beta_as3(nf):
     -------
         beta_as3 : float
             second coefficient of the QCD beta function :math:`\\beta_as3^{n_f}`
+
     """
     TF = constants.TR * nf
     b_ca2 = 34.0 / 3.0 * constants.CA * constants.CA
@@ -82,8 +82,7 @@ def beta_as3(nf):
 
 @nb.njit("f8(u1)", cache=True)
 def beta_aem3(nf):
-    """
-    Computes the second coefficient of the QED beta function.
+    """Computes the second coefficient of the QED beta function.
 
     Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
 
@@ -95,7 +94,8 @@ def beta_aem3(nf):
     Returns
     -------
         beta_aem3 : float
-            second coefficient of the QCD beta function :math:`\\beta_aem3^{n_f}`
+            second coefficient of the QED beta function :math:`\\beta_aem3^{n_f}`
+
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -107,8 +107,7 @@ def beta_aem3(nf):
 
 @nb.njit("f8(u1)", cache=True)
 def beta_as2aem1(nf):
-    """
-    Computes the second coefficient of the QED beta function.
+    """Computes the first QED correction of the QCD beta function.
 
     Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
 
@@ -120,7 +119,8 @@ def beta_as2aem1(nf):
     Returns
     -------
         beta_as2aem1 : float
-            second coefficient of the QCD beta function :math:`\\beta_as2aem1^{n_f}`
+            first QED correction of the QCD beta function :math:`\\beta_as2aem1^{n_f}`
+
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -130,8 +130,7 @@ def beta_as2aem1(nf):
 
 @nb.njit("f8(u1)", cache=True)
 def beta_aem2as1(nf):
-    """
-    Computes the second coefficient of the QED beta function.
+    """Computes the first QCD correction of the QED beta function.
 
     Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
 
@@ -143,7 +142,8 @@ def beta_aem2as1(nf):
     Returns
     -------
         beta_aem2as1 : float
-            second coefficient of the QCD beta function :math:`\\beta_aem2as1^{n_f}`
+            first QCD correction of the QCD beta function :math:`\\beta_aem2as1^{n_f}`
+
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -155,8 +155,7 @@ def beta_aem2as1(nf):
 
 @nb.njit("f8(u1)", cache=True)
 def beta_as4(nf):
-    """
-    Computes the third coefficient of the QCD beta function
+    """Computes the third coefficient of the QCD beta function
 
     Implements Eq. (3.3) of :cite:`Herzog:2017ohr`.
 
@@ -169,6 +168,7 @@ def beta_as4(nf):
     -------
         beta_as4 : float
             third coefficient of the QCD beta function :math:`\\beta_as4^{n_f}`
+
     """
     TF = constants.TR * nf
     beta_as4 = (
@@ -184,8 +184,7 @@ def beta_as4(nf):
 
 @nb.njit("f8(u1)", cache=True)
 def beta_as5(nf):
-    """
-    Computes the fourth coefficient of the QCD beta function
+    """Computes the fourth coefficient of the QCD beta function
 
     Implements Eq. (3.6) of :cite:`Herzog:2017ohr`.
 
@@ -198,6 +197,7 @@ def beta_as5(nf):
     -------
         beta_as5 : float
             fourth coefficient of the QCD beta function :math:`\\beta_as5^{n_f}`
+
     """
     beta_as5 = (
         149753.0 / 6.0
@@ -211,8 +211,7 @@ def beta_as5(nf):
 
 @nb.njit("f8(u1,u1)", cache=True)
 def beta(k, nf):
-    """
-    Compute value of a beta coefficients
+    """Compute value of a beta coefficients
 
     Parameters
     ----------
@@ -225,6 +224,7 @@ def beta(k, nf):
     -------
         beta : float
             beta_k(nf)
+
     """
     beta_ = 0
     if k == 0:
@@ -242,8 +242,7 @@ def beta(k, nf):
 
 @nb.njit("f8(u1,u1)", cache=True)
 def b(k, nf):
-    """
-    Compute b coefficient.
+    """Compute b coefficient.
 
     Parameters
     ----------
@@ -256,5 +255,6 @@ def b(k, nf):
     -------
         b : float
             b_k(nf)
+
     """
     return beta(k, nf) / beta(0, nf)
