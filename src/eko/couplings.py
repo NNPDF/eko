@@ -13,8 +13,7 @@ import numpy as np
 import scipy
 
 from . import constants, thresholds
-from .beta import b as beta_b
-from .beta import beta
+from .beta import b_qcd, b_qed, beta_qcd, beta_qed
 
 logger = logging.getLogger(__name__)
 
@@ -36,16 +35,16 @@ def strong_coupling_mod_ev(mod_ev):
     raise ValueError(f"Unknown evolution mode {mod_ev}")
 
 
-@nb.njit("f8(u1,f8,u1,f8,f8)", cache=True)
-def as_expanded(order, as_ref, nf, scale_from, scale_to):
+@nb.njit("f8(u1[:],f8,u1,f8,f8)", cache=True)
+def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     """
     Compute expanded expression.
 
     Parameters
     ----------
-        order: int
+        order: tuple
             perturbation order
-        as_ref: float
+        as_ref: tuple
             reference alpha_s
         nf: int
             value of nf for computing alpha_s
@@ -60,66 +59,108 @@ def as_expanded(order, as_ref, nf, scale_from, scale_to):
             coupling at target scale :math:`a_s(Q^2)`
     """
     # common vars
-    beta0 = beta(0, nf)
     lmu = np.log(scale_to / scale_from)
-    den = 1.0 + beta0 * as_ref * lmu
-    # LO
-    as_LO = as_ref / den
-    res = as_LO
-    # NLO
-    if order >= 1:
-        b1 = beta_b(1, nf)
-        as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
-        res = as_NLO
-        # NNLO
-        if order >= 2:
-            b2 = beta_b(2, nf)
-            res = as_LO * (
-                1.0
-                + as_LO * (as_LO - as_ref) * (b2 - b1**2)
-                + as_NLO * b1 * np.log(as_NLO / as_ref)
-            )
-            # N3LO expansion is taken from Luca Rottoli
-            if order >= 3:
-                b3 = beta_b(3, nf)
-                log_fact = np.log(as_LO)
-                res += (
-                    as_LO**4
-                    / (2 * beta0**3)
-                    * (
-                        -2 * b1**3 * np.log(as_ref) ** 3
-                        + 5 * b1**3 * log_fact**2
-                        + 2 * b1**3 * log_fact**3
-                        + b1**3 * np.log(as_ref) ** 2 * (5 + 6 * log_fact)
-                        + 2
-                        * beta0
-                        * b1
-                        * log_fact
-                        * (b2 + 2 * (b1**2 - beta0 * b2) * lmu * as_ref)
-                        - beta0**2
-                        * lmu
-                        * as_ref
+    if order[1] == 0:
+        beta_qcd0 = beta_qcd(0, nf)
+        den = 1.0 + beta_qcd0 * couplings_ref[0] * lmu
+        # QCD LO
+        as_LO = couplings_ref[0] / den
+        res_as = as_LO
+        beta_qed0 = beta_qed(0, nf)
+        den = 1.0 + beta_qed0 * couplings_ref[1] * lmu
+        # QED LO
+        aem_LO = couplings_ref[1] / den
+        res_aem = aem_LO
+        # NLO
+        if order[0] >= 1:
+            b1 = b_qcd(1, nf)
+            as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
+            res_as = as_NLO
+            # NNLO
+            if order[0] >= 2:
+                b2 = b_qcd(2, nf)
+                res_as = as_LO * (
+                    1.0
+                    + as_LO * (as_LO - couplings_ref[0]) * (b2 - b1**2)
+                    + as_NLO * b1 * np.log(as_NLO / couplings_ref[0])
+                )
+                # N3LO expansion is taken from Luca Rottoli
+                if order[0] >= 3:
+                    b3 = b_qcd(3, nf)
+                    log_fact = np.log(as_LO)
+                    res_as += (
+                        as_LO**4
+                        / (2 * beta_qcd0**3)
                         * (
-                            -2 * b1 * b2
-                            + 2 * beta0 * b3
-                            + (b1**3 - 2 * beta0 * b1 * b2 + beta0**2 * b3)
+                            -2 * b1**3 * np.log(couplings_ref[0]) ** 3
+                            + 5 * b1**3 * log_fact**2
+                            + 2 * b1**3 * log_fact**3
+                            + b1**3
+                            * np.log(couplings_ref[0]) ** 2
+                            * (5 + 6 * log_fact)
+                            + 2
+                            * beta_qcd0
+                            * b1
+                            * log_fact
+                            * (
+                                b2
+                                + 2
+                                * (b1**2 - beta_qcd0 * b2)
+                                * lmu
+                                * couplings_ref[0]
+                            )
+                            - beta_qcd0**2
                             * lmu
-                            * as_ref
-                        )
-                        - 2
-                        * b1
-                        * np.log(as_ref)
-                        * (
-                            5 * b1**2 * log_fact
-                            + 3 * b1**2 * log_fact**2
-                            + beta0 * (b2 + 2 * (b1**2 - beta0 * b2) * lmu * as_ref)
+                            * couplings_ref[0]
+                            * (
+                                -2 * b1 * b2
+                                + 2 * beta_qcd0 * b3
+                                + (
+                                    b1**3
+                                    - 2 * beta_qcd0 * b1 * b2
+                                    + beta_qcd0**2 * b3
+                                )
+                                * lmu
+                                * couplings_ref[0]
+                            )
+                            - 2
+                            * b1
+                            * np.log(couplings_ref[0])
+                            * (
+                                5 * b1**2 * log_fact
+                                + 3 * b1**2 * log_fact**2
+                                + beta_qcd0
+                                * (
+                                    b2
+                                    + 2
+                                    * (b1**2 - beta_qcd0 * b2)
+                                    * lmu
+                                    * couplings_ref[0]
+                                )
+                            )
                         )
                     )
-                )
-    return res
+    elif order[1] == 1:
+        beta_qcd0 = beta_qcd(0, nf)
+        den = 1.0 + beta_qcd0 * couplings_ref[0] * lmu
+        # QCD LO
+        as_LO = couplings_ref[0] / den
+        res_as = as_LO
+        beta_qed0 = beta_qed(0, nf)
+        den = 1.0 + beta_qed0 * couplings_ref[1] * lmu
+        # QED NLO
+        b_qed1 = b_qed(1, nf)
+        aem_LO = couplings_ref[1] / den
+        aem_NLO = aem_LO * (1 - b_qed1 * aem_LO * np.log(den))
+        res_aem = aem_NLO
+        if order[0] >= 1:
+            # TODO find and implement expanded solution at order (1,1)
+            res_as = 0
+            res_aem = 0
+    return np.array([res_as, res_aem])
 
 
-class StrongCoupling:
+class Couplings:
     r"""
         Computes the strong coupling constant :math:`a_s`.
 
@@ -131,7 +172,7 @@ class StrongCoupling:
           :math:`a_s = \frac{\alpha_s(\mu^2)}{4\pi}` the reference value has to be
           given in terms of :math:`\alpha_s(\mu_0^2)` due to legacy reasons
         - the ``order`` refers to the perturbative order of the beta function, thus
-          ``order=0`` means leading order beta function, means evolution with :math:`\beta_as1`,
+          ``order=0`` means leading order beta function, means evolution with :math:`\beta_as2`,
           means running at 1-loop - so there is a natural mismatch between ``order`` and the
           number of loops by one unit
 
@@ -146,7 +187,7 @@ class StrongCoupling:
 
         Parameters
         ----------
-            alpha_s_ref : float
+            couplings_ref : np.array
                 alpha_s(!) at the reference scale :math:`\alpha_s(\mu_0^2)`
             scale_ref : float
                 reference scale :math:`\mu_0^2`
@@ -154,7 +195,7 @@ class StrongCoupling:
                 list with quark masses squared
             thresholds_ratios : list(float)
                 list with ratios between the mass and the thresholds squared
-            order: int
+            order: tuple
                 Evaluated order of the beta function: ``0`` = LO, ...
             method : ["expanded", "exact"]
                 Applied method to solve the beta function
@@ -166,30 +207,36 @@ class StrongCoupling:
 
     def __init__(
         self,
-        alpha_s_ref,
+        couplings_ref,
         scale_ref,
         masses,
         thresholds_ratios,
-        order=0,
+        order=(0, 0),
         method="exact",
         nf_ref=None,
         max_nf=None,
         hqm_scheme="POLE",
     ):
         # Sanity checks
-        if alpha_s_ref <= 0:
-            raise ValueError(f"alpha_s_ref has to be positive - got {alpha_s_ref}")
+        if couplings_ref[0] <= 0:
+            raise ValueError(f"alpha_s_ref has to be positive - got {couplings_ref[0]}")
+        if couplings_ref[1] <= 0:
+            raise ValueError(
+                f"alpha_em_ref has to be positive - got {couplings_ref[1]}"
+            )
         if scale_ref <= 0:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
-        if order not in [0, 1, 2, 3]:
+        if order[0] not in [0, 1, 2, 3]:
             raise NotImplementedError("a_s beyond N3LO is not implemented")
+        if order[1] not in [0, 1]:
+            raise NotImplementedError("a_em beyond NLO is not implemented")
         self.order = order
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
         self.method = method
 
         # create new threshold object
-        self.as_ref = alpha_s_ref / 4.0 / np.pi  # convert to a_s
+        self.a_ref = couplings_ref / 4.0 / np.pi  # convert to a_s and a_em
         self.thresholds = thresholds.ThresholdsAtlas(
             masses,
             scale_ref,
@@ -200,10 +247,13 @@ class StrongCoupling:
         self.hqm_scheme = hqm_scheme
         logger.info(
             "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)",
+            "Electromagnetic Coupling: a_em(µ_R^2=%f)%s=%f=%f/(4π)",
             self.q2_ref,
             f"^(nf={nf_ref})" if nf_ref else "",
-            self.as_ref,
-            self.as_ref * 4 * np.pi,
+            self.a_ref[0],
+            self.a_ref[1],
+            self.a_ref[0] * 4 * np.pi,
+            self.a_ref[1] * 4 * np.pi,
         )
         # cache
         self.cache = {}
@@ -232,10 +282,13 @@ class StrongCoupling:
         """
         # read my values
         # TODO cast to a_s here
-        alpha_ref = theory_card["alphas"]
+        alphas_ref = theory_card["alphas"]
+        alphaem_ref = theory_card["alphaem"]
+        couplings_ref = np.array([alphas_ref, alphaem_ref])
         nf_ref = theory_card["nfref"]
         q2_alpha = pow(theory_card["Qref"], 2)
-        order = theory_card["PTO"]
+        # TODO decide how to specify QCD x QED orders
+        order = (theory_card["PTOs"], theory_card["PTOem"])
         method = strong_coupling_mod_ev(theory_card["ModEv"])
         hqm_scheme = theory_card["HQ"]
         if hqm_scheme not in ["MSBAR", "POLE"]:
@@ -254,7 +307,7 @@ class StrongCoupling:
         )
         max_nf = theory_card["MaxNfAs"]
         return cls(
-            alpha_ref,
+            couplings_ref,
             q2_alpha,
             masses,
             thresholds_ratios,
@@ -265,7 +318,7 @@ class StrongCoupling:
             hqm_scheme,
         )
 
-    def compute_exact(self, as_ref, nf, scale_from, scale_to):
+    def compute_exact(self, a_ref, nf, scale_from, scale_to):
         """
         Compute via |RGE|.
 
@@ -286,8 +339,10 @@ class StrongCoupling:
                 strong coupling at target scale :math:`a_s(Q^2)`
         """
         # in LO fallback to expanded, as this is the full solution
-        if self.order == 0:
-            return as_expanded(self.order, as_ref, nf, scale_from, float(scale_to))
+        if self.order == (0, 0):
+            return couplings_expanded(
+                self.order, a_ref, nf, scale_from, float(scale_to)
+            )
         # otherwise rescale the RGE to run in terms of
         # u = beta0 * ln(scale_to/scale_from)
         beta0 = beta(0, nf)
@@ -295,13 +350,13 @@ class StrongCoupling:
         b_vec = [1]
         # NLO
         if self.order >= 1:
-            b_vec.append(beta_b(1, nf))
+            b_vec.append(b_qcd(1, nf))
             # NNLO
             if self.order >= 2:
-                b_vec.append(beta_b(2, nf))
+                b_vec.append(b_qcd(2, nf))
                 # N3LO
                 if self.order >= 3:
-                    b_vec.append(beta_b(3, nf))
+                    b_vec.append(b_qcd(3, nf))
         # integration kernel
         def rge(_t, a, b_vec):
             return -(a**2) * np.sum([a**k * b for k, b in enumerate(b_vec)])

@@ -209,9 +209,9 @@ def beta_as5(nf):
     return beta_as5
 
 
-@nb.njit("f8(u1,u1)", cache=True)
-def beta(k, nf):
-    """Compute value of a beta coefficients
+@nb.njit("f8(u1[:],u1)", cache=True)
+def beta_qcd(k, nf):
+    """Compute value of a beta_qcd coefficients
 
     Parameters
     ----------
@@ -227,21 +227,52 @@ def beta(k, nf):
 
     """
     beta_ = 0
-    if k == 0:
+    if k == (0, 0):
         beta_ = beta_as2(nf)
-    elif k == 1:
+    elif k == (1, 0):
         beta_ = beta_as3(nf)
-    elif k == 2:
+    elif k == (2, 0):
         beta_ = beta_as4(nf)
-    elif k == 3:
+    elif k == (3, 0):
         beta_ = beta_as5(nf)
+    elif k == (0, 1):
+        beta_ = beta_as2aem1(nf)
     else:
-        raise ValueError("Beta coefficients beyond N3LO are not implemented!")
+        raise ValueError("Beta_QCD coefficients beyond N3LO are not implemented!")
     return beta_
 
 
-@nb.njit("f8(u1,u1)", cache=True)
-def b(k, nf):
+@nb.njit("f8(u1[:],u1)", cache=True)
+def beta_qed(k, nf):
+    """Compute value of a beta_qed coefficients
+
+    Parameters
+    ----------
+        k : int
+            perturbative order
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        beta : float
+            beta_k(nf)
+
+    """
+    beta_ = 0
+    if k == (0, 0):
+        beta_ = beta_aem2(nf)
+    elif k == (0, 1):
+        beta_ = beta_aem3(nf)
+    elif k == (1, 0):
+        beta_ = beta_aem2as1(nf)
+    else:
+        raise ValueError("Beta_QED coefficients beyond NLO are not implemented!")
+    return beta_
+
+
+@nb.njit("f8(u1[:],u1)", cache=True)
+def b_qcd(k, nf):
     """Compute b coefficient.
 
     Parameters
@@ -257,4 +288,24 @@ def b(k, nf):
             b_k(nf)
 
     """
-    return beta(k, nf) / beta(0, nf)
+    return beta_qcd(k, nf) / beta_qcd((0, 0), nf)
+
+
+@nb.njit("f8(u1[:],u1)", cache=True)
+def b_qed(k, nf):
+    """Compute b coefficient.
+
+    Parameters
+    ----------
+        k : int
+            perturbative order
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        b : float
+            b_k(nf)
+
+    """
+    return beta_qed(k, nf) / beta_qed((0, 0), nf)
