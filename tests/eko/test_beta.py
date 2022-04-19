@@ -51,14 +51,14 @@ def test_beta_as5():
 def test_beta():
     """beta-wrapper"""
     nf = 3
-    np.testing.assert_allclose(beta.beta(0, nf), beta.beta_as2(nf))
-    np.testing.assert_allclose(beta.beta(1, nf), beta.beta_as3(nf))
-    np.testing.assert_allclose(beta.beta(2, nf), beta.beta_as4(nf))
-    np.testing.assert_allclose(beta.beta(3, nf), beta.beta_as5(nf))
+    np.testing.assert_allclose(beta.beta_qcd((0, 0), nf), beta.beta_as2(nf))
+    np.testing.assert_allclose(beta.beta_qcd((1, 0), nf), beta.beta_as3(nf))
+    np.testing.assert_allclose(beta.beta_qcd((2, 0), nf), beta.beta_as4(nf))
+    np.testing.assert_allclose(beta.beta_qcd((3, 0), nf), beta.beta_as5(nf))
     with pytest.raises(ValueError):
-        beta.beta(4, 3)
+        beta.beta_qcd((4, 0), 3)
 
 
 def test_b():
     """b-wrapper"""
-    np.testing.assert_allclose(beta.b(0, 3), 1.0)
+    np.testing.assert_allclose(beta.b_qcd((0, 0), 3), 1.0)
