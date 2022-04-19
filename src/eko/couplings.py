@@ -433,7 +433,7 @@ class Couplings:
             self.cache[key] = a_new
             return a_new
 
-    def a_s(
+    def a(
         self,
         scale_to,
         fact_scale=None,
@@ -455,7 +455,7 @@ class Couplings:
                 strong coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
-        final_as = self.as_ref
+        final_a = self.a_ref
         path = self.thresholds.path(scale_to, nf_to)
         is_downward = thresholds.is_downward_path(path)
         shift = thresholds.flavor_shift(is_downward)
@@ -466,9 +466,9 @@ class Couplings:
         for k, seg in enumerate(path):
             # skip a very short segment, but keep the matching
             if not np.isclose(seg.q2_from, seg.q2_to):
-                new_as = self.compute(final_as, seg.nf, seg.q2_from, seg.q2_to)
+                new_a = self.compute(final_a, seg.nf, seg.q2_from, seg.q2_to)
             else:
-                new_as = final_as
+                new_a = final_a
             # apply matching conditions: see hep-ph/9706430
             # - if there is yet a step to go
             if k < len(path) - 1:
@@ -485,10 +485,10 @@ class Couplings:
                 # shift
                 for n in range(1, self.order + 1):
                     for l in range(n + 1):
-                        fact += new_as**n * L**l * m_coeffs[n, l]
-                new_as *= fact
-            final_as = new_as
-        return final_as
+                        fact += new_a**n * L**l * m_coeffs[n, l]
+                new_a *= fact
+            final_a = new_a
+        return final_a
 
 
 def compute_matching_coeffs_up(mass_scheme, nf):
