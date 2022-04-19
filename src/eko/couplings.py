@@ -345,29 +345,60 @@ class Couplings:
             )
         # otherwise rescale the RGE to run in terms of
         # u = beta0 * ln(scale_to/scale_from)
-        beta0 = beta(0, nf)
-        u = beta0 * np.log(scale_to / scale_from)
-        b_vec = [1]
+        # beta_qcd0 = beta_qcd((0,0), nf)
+        u = np.log(scale_to / scale_from)
+        beta_qcd_vec = [beta_qcd((0, 0), nf)]
+        beta_qcd_mix = 0
         # NLO
-        if self.order >= 1:
-            b_vec.append(b_qcd(1, nf))
+        if self.order[0] >= 1:
+            beta_qcd_vec.append(beta_qcd((1, 0), nf))
             # NNLO
-            if self.order >= 2:
-                b_vec.append(b_qcd(2, nf))
+            if self.order[0] >= 2:
+                beta_qcd_vec.append(beta_qcd((2, 0), nf))
                 # N3LO
-                if self.order >= 3:
-                    b_vec.append(b_qcd(3, nf))
+                if self.order[0] >= 3:
+                    beta_qcd_vec.append(beta_qcd((3, 0), nf))
+        if self.order[1] >= 1:
+            beta_qcd_mix = beta_qcd((0, 1), nf)
+        # beta_qed0 = beta_qed((0,0), nf)
+        beta_qed_vec = [beta_qed((0, 0), nf)]
+        beta_qed_mix = 0
+        # NLO
+        if self.order[1] >= 1:
+            beta_qed_vec.append(beta_qed((1, 0), nf))
+            # NNLO
+        #            if self.order[0] >= 2:
+        #                b_qed_vec.append(b_qed((2,0), nf))
+        #                # N3LO
+        #                if self.order[0] >= 3:
+        #                    b_qed_vec.append(b_qed((3,0), nf))
+        if self.order[0] >= 1:
+            beta_qed_mix = beta_qed((0, 1), nf)
         # integration kernel
-        def rge(_t, a, b_vec):
-            return -(a**2) * np.sum([a**k * b for k, b in enumerate(b_vec)])
+        def rge(_t, a, beta_qcd_vec, beta_qed_vec):
+            rge_qcd = -(a[0] ** 2) * (
+                np.sum([a[0] ** k * b for k, b in enumerate(beta_qcd_vec)])
+                - a[1] * beta_qcd_mix
+            )
+            rge_qed = -(a[1] ** 2) * (
+                np.sum([a[1] ** k * b for k, b in enumerate(beta_qed_vec)])
+                - a[0] * beta_qed_mix
+            )
+            res = np.array([rge_qcd, rge_qed])
+            return res
 
         # let scipy solve
         res = scipy.integrate.solve_ivp(
-            rge, (0, u), (as_ref,), args=[b_vec], method="Radau", rtol=1e-6
+            rge,
+            (0, u),
+            (a_ref,),
+            args=[beta_qcd_vec, beta_qed_vec],
+            method="Radau",
+            rtol=1e-6,
         )
         return res.y[0][-1]
 
-    def compute(self, as_ref, nf, scale_from, scale_to):
+    def compute(self, a_ref, nf, scale_from, scale_to):
         """
         Wrapper in order to pass the computation to the corresponding
         method (depending on the calculation method).
@@ -388,19 +419,19 @@ class Couplings:
             a_s : float
                 strong coupling at target scale :math:`a_s(Q^2)`
         """
-        key = (float(as_ref), nf, scale_from, float(scale_to))
+        key = (float(a_ref), nf, scale_from, float(scale_to))
         try:
             return self.cache[key]
         except KeyError:
             # at the moment everything is expanded - and type has been checked in the constructor
             if self.method == "exact":
-                as_new = self.compute_exact(float(as_ref), nf, scale_from, scale_to)
+                a_new = self.compute_exact(float(a_ref), nf, scale_from, scale_to)
             else:
-                as_new = as_expanded(
-                    self.order, float(as_ref), nf, scale_from, float(scale_to)
+                a_new = couplings_expanded(
+                    self.order, float(a_ref), nf, scale_from, float(scale_to)
                 )
-            self.cache[key] = as_new
-            return as_new
+            self.cache[key] = a_new
+            return a_new
 
     def a_s(
         self,
