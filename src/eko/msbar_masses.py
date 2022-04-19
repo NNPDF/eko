@@ -7,9 +7,9 @@ import numpy as np
 from scipy import integrate, optimize
 
 from .basis_rotation import quark_names
-from .beta import b, beta
+from .beta import b_qcd, beta_qcd
+from .couplings import Couplings, invert_matching_coeffs
 from .gamma import gamma
-from .strong_coupling import StrongCoupling, invert_matching_coeffs
 from .thresholds import ThresholdsAtlas, flavor_shift, is_downward_path
 
 
@@ -36,16 +36,16 @@ def ker_exact(a0, a1, order, nf):
             .. math::
                 k_{exact} = e^{-\int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)}\gamma_m(a_s)/ \beta(a_s)da_s}
     """
-    b_vec = [beta(0, nf)]
+    b_vec = [beta_qcd(0, nf)]
     g_vec = [gamma(0, nf)]
     if order >= 1:
-        b_vec.append(beta(1, nf))
+        b_vec.append(beta_qcd(1, nf))
         g_vec.append(gamma(1, nf))
     if order >= 2:
-        b_vec.append(beta(2, nf))
+        b_vec.append(beta_qcd(2, nf))
         g_vec.append(gamma(2, nf))
     if order >= 3:
-        b_vec.append(beta(3, nf))
+        b_vec.append(beta_qcd(3, nf))
         g_vec.append(gamma(3, nf))
 
     # quad ker
@@ -100,25 +100,25 @@ def ker_expanded(a0, a1, order, nf):
                 & - 3 b_2 c_0 c_1 + b_1^2 (2 + 3 c_0 (2 + c_0)) c_1 + c_1^3 + 3 c_1 c_2 \\
                 & + b_1 (b_2 c_0 (4 + 3 c_0) - 3 (1 + c_0) c_1^2 - (2 + 3 c_0) c_2) + 2 c_3 ]
     """
-    b0 = beta(0, nf)
+    b0 = beta_qcd(0, nf)
     c0 = gamma(0, nf) / b0
     ev_mass = np.power(a1 / a0, c0)
     num = 1.0
     den = 1.0
     if order >= 1:
-        b1 = b(1, nf)
+        b1 = b_qcd(1, nf)
         c1 = gamma(1, nf) / b0
         u = c1 - b1 * c0
         num += a1 * u
         den += a0 * u
     if order >= 2:
-        b2 = b(2, nf)
+        b2 = b_qcd(2, nf)
         c2 = gamma(2, nf) / b0
         u = (c2 - c1 * b1 - b2 * c0 + b1**2 * c0 + (c1 - b1 * c0) ** 2) / 2.0
         num += a1**2 * u
         den += a0**2 * u
     if order >= 3:
-        b3 = b(3, nf)
+        b3 = b_qcd(3, nf)
         c3 = gamma(3, nf) / b0
         u = (
             1
@@ -362,7 +362,7 @@ def compute(theory_card):
     fact_to_ren = theory_card["fact_to_ren_scale_ratio"] ** 2
 
     def sc(thr_masses):
-        return StrongCoupling.from_dict(theory_card, masses=thr_masses)
+        return Couplings.from_dict(theory_card, masses=thr_masses)
 
     # First you need to look for the thr around the given as_ref
     heavy_quarks = quark_names[3:]

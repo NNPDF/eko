@@ -9,9 +9,9 @@ import numpy as np
 
 from . import basis_rotation as br
 from . import interpolation, msbar_masses
+from .couplings import Couplings
 from .evolution_operator.grid import OperatorGrid
 from .output import Output
-from .strong_coupling import StrongCoupling
 from .thresholds import ThresholdsAtlas
 
 logger = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 
         self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
-        sc = StrongCoupling.from_dict(theory_card, masses=masses)
+        sc = Couplings.from_dict(theory_card, masses=masses)
         # setup operator grid
         self.op_grid = OperatorGrid.from_dict(
             theory_card,
