@@ -7,17 +7,19 @@ import numpy as np
 import pytest
 
 from eko import thresholds
-from eko.strong_coupling import StrongCoupling
+from eko.couplings import Couplings
 
 
 class TestStrongCoupling:
     def test_from_dict(self):
         d = {
             "alphas": 0.118,
+            "alphaem": 0.00781,
             "Qref": 91.0,
             "nfref": None,
             "Q0": 1,
-            "PTO": 0,
+            "PTOs": 0,
+            "PTOem": 0,
             "ModEv": "EXA",
             "fact_to_ren_scale_ratio": 1.0,
             "mc": 2.0,
@@ -30,29 +32,35 @@ class TestStrongCoupling:
             "HQ": "POLE",
             "ModSV": None,
         }
-        sc = StrongCoupling.from_dict(d)
-        assert sc.a_s(d["Qref"] ** 2) == d["alphas"] / (4.0 * np.pi)
+        sc = Couplings.from_dict(d)
+        assert sc.a(d["Qref"] ** 2)[0] == d["alphas"] / (4.0 * np.pi)
+        assert sc.a(d["Qref"] ** 2)[1] == d["alphaem"] / (4.0 * np.pi)
 
     def test_init(self):
         # prepare
         alphas_ref = 0.118
+        alphaem_ref = 0.00781
+        couplings_ref = np.array([alphas_ref, alphaem_ref])
         scale_ref = 91.0**2
         nf = 4
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         # create
-        sc = StrongCoupling(
-            alphas_ref, scale_ref, threshold_holder.area_walls[1:-1], (1.0, 1.0, 1.0)
+        sc = Couplings(
+            couplings_ref, scale_ref, threshold_holder.area_walls[1:-1], (1.0, 1.0, 1.0)
         )
         assert sc.q2_ref == scale_ref
-        assert sc.as_ref == alphas_ref / 4.0 / np.pi
+        assert sc.a_ref[0] == couplings_ref[0] / 4.0 / np.pi
+        assert sc.a_ref[1] == couplings_ref[1] / 4.0 / np.pi
         # from theory dict
         for ModEv in ["EXP", "EXA"]:
             for PTO in range(2 + 1):
                 setup = dict(
                     alphas=alphas_ref,
+                    alphaem=alphaem_ref,
                     Qref=np.sqrt(scale_ref),
                     nfref=None,
-                    PTO=PTO,
+                    PTOs=PTO,
+                    PTOem=0,
                     ModEv=ModEv,
                     FNS="FFNS",
                     NfFF=nf,
@@ -67,52 +75,65 @@ class TestStrongCoupling:
                     MaxNfAs=6,
                     HQ="POLE",
                 )
-                sc2 = StrongCoupling.from_dict(setup)
+                sc2 = Couplings.from_dict(setup)
                 assert sc2.q2_ref == scale_ref
-                assert sc2.as_ref == alphas_ref / 4.0 / np.pi
+                assert sc2.a_ref[0] == couplings_ref[0] / 4.0 / np.pi
+                assert sc2.a_ref[1] == couplings_ref[1] / 4.0 / np.pi
 
         # errors
         with pytest.raises(ValueError):
-            StrongCoupling(
-                0, scale_ref, threshold_holder.area_walls[1:-1], (1.0, 1.0, 1.0)
+            Couplings(
+                [0, 0], scale_ref, threshold_holder.area_walls[1:-1], (1.0, 1.0, 1.0)
             )
         with pytest.raises(ValueError):
-            StrongCoupling(
-                alphas_ref, 0, threshold_holder.area_walls[1:-1], (1.0, 1.0, 1.0)
+            Couplings(
+                couplings_ref, 0, threshold_holder.area_walls[1:-1], (1.0, 1.0, 1.0)
             )
         with pytest.raises(NotImplementedError):
-            StrongCoupling(
-                alphas_ref,
+            Couplings(
+                couplings_ref,
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
                 (1.0, 1.0, 1.0),
-                4,
+                (4, 0),
+            )
+        with pytest.raises(NotImplementedError):
+            Couplings(
+                couplings_ref,
+                scale_ref,
+                threshold_holder.area_walls[1:-1],
+                (1.0, 1.0, 1.0),
+                (1, 2),
             )
         with pytest.raises(ValueError):
-            StrongCoupling(
-                alphas_ref,
+            Couplings(
+                couplings_ref,
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
                 (1.0, 1.0, 1.0),
                 method="ODE",
             )
         with pytest.raises(ValueError):
-            StrongCoupling.from_dict(
+            Couplings.from_dict(
                 dict(
                     alphas=alphas_ref,
+                    alphaem=alphaem_ref,
                     Qref=np.sqrt(scale_ref),
                     nfref=None,
-                    PTO=0,
+                    PTOs=0,
+                    PTOem=0,
                     ModEv="FAIL",
                 ),
             )
         with pytest.raises(ValueError):
-            StrongCoupling.from_dict(
+            Couplings.from_dict(
                 dict(
                     alphas=alphas_ref,
+                    alphaem=alphaem_ref,
                     Qref=np.sqrt(scale_ref),
                     nfref=None,
-                    PTO=0,
+                    PTOs=0,
+                    PTOem=0,
                     ModEv="EXA",
                     HQ="FAIL",
                 ),
@@ -131,7 +152,7 @@ class TestStrongCoupling:
             for order in [0, 1, 2, 3]:
                 for method in ["exact", "expanded"]:
                     # create
-                    sc = StrongCoupling(
+                    sc = Couplings(
                         alphas_ref,
                         scale_ref,
                         thresh_setup,
@@ -154,10 +175,10 @@ class TestStrongCoupling:
         scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
             # in LO expanded  = exact
-            sc_expanded = StrongCoupling(
+            sc_expanded = Couplings(
                 alphas_ref, scale_ref, thresh_setup, (1.0, 1.0, 1.0), 0, "expanded"
             )
-            sc_exact = StrongCoupling(
+            sc_exact = Couplings(
                 alphas_ref, scale_ref, thresh_setup, (1.0, 1.0, 1.0), 0, "exact"
             )
             for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
@@ -177,7 +198,7 @@ class TestStrongCoupling:
         threshold_list = [m2c, m2b, m2t]
         mathematica_val = -0.000169117
         # collect my values
-        as_NNLO = StrongCoupling(
+        as_NNLO = Couplings(
             alphas_ref,
             scale_ref,
             threshold_list,
@@ -185,7 +206,7 @@ class TestStrongCoupling:
             order=2,
             method="expanded",
         )
-        as_N3LO = StrongCoupling(
+        as_N3LO = Couplings(
             alphas_ref,
             scale_ref,
             threshold_list,

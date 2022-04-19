@@ -343,6 +343,7 @@ class Couplings:
             return couplings_expanded(
                 self.order, a_ref, nf, scale_from, float(scale_to)
             )
+
         # otherwise rescale the RGE to run in terms of
         # u = beta0 * ln(scale_to/scale_from)
         # beta_qcd0 = beta_qcd((0,0), nf)
@@ -396,7 +397,7 @@ class Couplings:
             method="Radau",
             rtol=1e-6,
         )
-        return res.y[0][-1]
+        return res.y[0][-1]  # TODO : check this
 
     def compute(self, a_ref, nf, scale_from, scale_to):
         """
