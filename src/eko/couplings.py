@@ -60,20 +60,24 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     """
     # common vars
     lmu = np.log(scale_to / scale_from)
+
+    def expanded_lo(ref, beta0, lmu):
+        den = 1.0 + beta0 * ref * lmu
+        return ref / den
+
     if order[1] == 0:
         beta_qcd0 = beta_qcd((0, 0), nf)
-        den = 1.0 + beta_qcd0 * couplings_ref[0] * lmu
         # QCD LO
-        as_LO = couplings_ref[0] / den
+        as_LO = expanded_lo(couplings_ref[0], beta_qcd0, lmu)
         res_as = as_LO
         beta_qed0 = beta_qed((0, 0), nf)
-        den = 1.0 + beta_qed0 * couplings_ref[1] * lmu
         # QED LO
-        aem_LO = couplings_ref[1] / den
+        aem_LO = expanded_lo(couplings_ref[1], beta_qed0, lmu)
         res_aem = aem_LO
         # NLO
         if order[0] >= 1:
             b1 = b_qcd((1, 0), nf)
+            den = 1.0 + beta_qcd0 * couplings_ref[0] * lmu
             as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
             res_as = as_NLO
             # NNLO
@@ -142,15 +146,14 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
                     )
     elif order[1] == 1:
         beta_qcd0 = beta_qcd((0, 0), nf)
-        den = 1.0 + beta_qcd0 * couplings_ref[0] * lmu
         # QCD LO
-        as_LO = couplings_ref[0] / den
+        as_LO = expanded_lo(couplings_ref[0], beta_qcd0, lmu)
         res_as = as_LO
         beta_qed0 = beta_qed((0, 0), nf)
         den = 1.0 + beta_qed0 * couplings_ref[1] * lmu
         # QED NLO
         b_qed1 = b_qed((0, 1), nf)
-        aem_LO = couplings_ref[1] / den
+        aem_LO = expanded_lo(couplings_ref[1], beta_qed0, lmu)
         aem_NLO = aem_LO * (1 - b_qed1 * aem_LO * np.log(den))
         res_aem = aem_NLO
         if order[0] >= 1:
@@ -251,8 +254,10 @@ class Couplings:
             self.q2_ref,
             f"^(nf={nf_ref})" if nf_ref else "",
             self.a_ref[0],
-            self.a_ref[1],
             self.a_ref[0] * 4 * np.pi,
+            self.q2_ref,
+            f"^(nf={nf_ref})" if nf_ref else "",
+            self.a_ref[1],
             self.a_ref[1] * 4 * np.pi,
         )
         # cache
