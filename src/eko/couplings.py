@@ -339,6 +339,7 @@ class Couplings:
                 strong coupling at target scale :math:`a_s(Q^2)`
         """
         # in LO fallback to expanded, as this is the full solution
+        u = np.log(scale_to / scale_from)
         if self.order == (0, 0):
             return couplings_expanded(
                 self.order, a_ref, nf, scale_from, float(scale_to)
@@ -405,7 +406,6 @@ class Couplings:
             return np.array([a_s, a_em])
         # otherwise rescale the RGE to run in terms of
         # u = ln(scale_to/scale_from)
-        u = np.log(scale_to / scale_from)
         beta_qcd_vec = [beta_qcd((0, 0), nf)]
         beta_qcd_mix = 0
         # NLO

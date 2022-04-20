@@ -6,12 +6,12 @@ import scipy.integrate
 from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
 from eko import interpolation, mellin
+from eko.couplings import Couplings
 from eko.evolution_operator import Operator, quad_ker
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
-from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
 
@@ -146,7 +146,9 @@ class TestOperator:
         # setup objs
         theory_card = {
             "alphas": 0.35,
-            "PTO": 0,
+            "alphaem": 0.00781,
+            "PTOs": 0,
+            "PTOem": 0,
             "ModEv": "TRN",
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
@@ -183,7 +185,7 @@ class TestOperator:
             theory_card,
             operators_card,
             ThresholdsAtlas.from_dict(theory_card),
-            StrongCoupling.from_dict(theory_card),
+            Couplings.from_dict(theory_card),
             InterpolatorDispatcher.from_dict(operators_card),
         )
         o = Operator(g.config, g.managers, 3, 2, 10)

@@ -112,7 +112,7 @@ def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
             |NLO| non-singlet truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    b1 = beta.b(1, nf)
+    b1 = beta.b_qcd((1, 0), nf)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:
@@ -146,8 +146,8 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
             |NLO| non-singlet ordered-truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    beta0 = beta.beta(0, nf)
-    b1 = beta.b(1, nf)
+    beta0 = beta.beta_qcd((0, 0), nf)
+    b1 = beta.b_qcd((1, 0), nf)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:
@@ -241,9 +241,9 @@ def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
             |NNLO| non-singlet truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    b1 = beta.b(1, nf)
-    b2 = beta.b(2, nf)
-    beta0 = beta.beta(0, nf)
+    b1 = beta.b_qcd((1, 0), nf)
+    b2 = beta.b_qcd((2, 0), nf)
+    beta0 = beta.beta_qcd((0, 0), nf)
     # U1 = R1
     U1 = 1.0 / beta0 * (gamma_ns[1] - b1 * gamma_ns[0])
     R2 = gamma_ns[2] / beta0 - b1 * U1 - b2 * gamma_ns[0] / beta0
@@ -287,9 +287,9 @@ def nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
             |NNLO| non-singlet ordered truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    b1 = beta.b(1, nf)
-    b2 = beta.b(2, nf)
-    beta0 = beta.beta(0, nf)
+    b1 = beta.b_qcd((1, 0), nf)
+    b2 = beta.b_qcd((2, 0), nf)
+    beta0 = beta.beta_qcd((0, 0), nf)
     # U1 = R1
     U1 = 1.0 / beta0 * (gamma_ns[1] - b1 * gamma_ns[0])
     R2 = gamma_ns[2] / beta0 - b1 * U1 - b2 * gamma_ns[0] / beta0

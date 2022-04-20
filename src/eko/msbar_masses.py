@@ -36,16 +36,16 @@ def ker_exact(a0, a1, order, nf):
             .. math::
                 k_{exact} = e^{-\int_{a_s(\mu_{h,0}^2)}^{a_s(\mu^2)}\gamma_m(a_s)/ \beta(a_s)da_s}
     """
-    b_vec = [beta_qcd(0, nf)]
+    b_vec = [beta_qcd((0, 0), nf)]
     g_vec = [gamma(0, nf)]
-    if order >= 1:
-        b_vec.append(beta_qcd(1, nf))
+    if order[0] >= 1:
+        b_vec.append(beta_qcd((1, 0), nf))
         g_vec.append(gamma(1, nf))
-    if order >= 2:
-        b_vec.append(beta_qcd(2, nf))
+    if order[0] >= 2:
+        b_vec.append(beta_qcd((2, 0), nf))
         g_vec.append(gamma(2, nf))
-    if order >= 3:
-        b_vec.append(beta_qcd(3, nf))
+    if order[0] >= 3:
+        b_vec.append(beta_qcd((3, 0), nf))
         g_vec.append(gamma(3, nf))
 
     # quad ker
@@ -100,25 +100,25 @@ def ker_expanded(a0, a1, order, nf):
                 & - 3 b_2 c_0 c_1 + b_1^2 (2 + 3 c_0 (2 + c_0)) c_1 + c_1^3 + 3 c_1 c_2 \\
                 & + b_1 (b_2 c_0 (4 + 3 c_0) - 3 (1 + c_0) c_1^2 - (2 + 3 c_0) c_2) + 2 c_3 ]
     """
-    b0 = beta_qcd(0, nf)
+    b0 = beta_qcd((0, 0), nf)
     c0 = gamma(0, nf) / b0
     ev_mass = np.power(a1 / a0, c0)
     num = 1.0
     den = 1.0
-    if order >= 1:
-        b1 = b_qcd(1, nf)
+    if order[0] >= 1:
+        b1 = b_qcd((1, 0), nf)
         c1 = gamma(1, nf) / b0
         u = c1 - b1 * c0
         num += a1 * u
         den += a0 * u
-    if order >= 2:
-        b2 = b_qcd(2, nf)
+    if order[0] >= 2:
+        b2 = b_qcd((2, 0), nf)
         c2 = gamma(2, nf) / b0
         u = (c2 - c1 * b1 - b2 * c0 + b1**2 * c0 + (c1 - b1 * c0) ** 2) / 2.0
         num += a1**2 * u
         den += a0**2 * u
-    if order >= 3:
-        b3 = b_qcd(3, nf)
+    if order[0] >= 3:
+        b3 = b_qcd((3, 0), nf)
         c3 = gamma(3, nf) / b0
         u = (
             1
@@ -164,8 +164,8 @@ def ker_dispatcher(q2_to, q2m_ref, strong_coupling, fact_to_ren, nf):
         ker:
             Expanded or exact |MSbar| kernel
     """
-    a0 = strong_coupling.a_s(q2m_ref / fact_to_ren, q2m_ref, nf)
-    a1 = strong_coupling.a_s(q2_to / fact_to_ren, q2_to, nf)
+    a0 = strong_coupling.a(q2m_ref / fact_to_ren, q2m_ref, nf)[0]
+    a1 = strong_coupling.a(q2_to / fact_to_ren, q2_to, nf)[0]
     method = strong_coupling.method
     order = strong_coupling.order
     if method == "expanded":
@@ -328,11 +328,11 @@ def evolve(
                 else compute_matching_coeffs_up(seg.nf)
             )
             matching = 1.0
-            for pto in range(1, strong_coupling.order + 1):
+            for pto in range(1, strong_coupling.order[0] + 1):
                 for l in range(pto + 1):
-                    as_thr = strong_coupling.a_s(
+                    as_thr = strong_coupling.a(
                         seg.q2_to / fact_to_ren, seg.q2_to, seg.nf - shift + 4
-                    )
+                    )[0]
                     matching += as_thr**pto * L**l * m_coeffs[pto, l]
             ker_evol *= matching
         ev_mass *= ker_evol
