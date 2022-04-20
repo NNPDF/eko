@@ -65,6 +65,13 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
         den = 1.0 + beta0 * ref * lmu
         return ref / den
 
+    def expanded_nlo(ref, beta0, beta1, lmu):
+        den = 1.0 + beta0 * ref * lmu
+        b1 = beta1 / beta0
+        as_LO = expanded_lo(ref, beta0, lmu)
+        as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
+        return as_NLO
+
     if order[1] == 0:
         beta_qcd0 = beta_qcd((0, 0), nf)
         # QCD LO
@@ -77,8 +84,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
         # NLO
         if order[0] >= 1:
             b1 = b_qcd((1, 0), nf)
-            den = 1.0 + beta_qcd0 * couplings_ref[0] * lmu
-            as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
+            as_NLO = expanded_nlo(couplings_ref[0], beta_qcd0, b1 * beta_qcd0, lmu)
             res_as = as_NLO
             # NNLO
             if order[0] >= 2:
@@ -154,7 +160,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
         # QED NLO
         b_qed1 = b_qed((0, 1), nf)
         aem_LO = expanded_lo(couplings_ref[1], beta_qed0, lmu)
-        aem_NLO = aem_LO * (1 - b_qed1 * aem_LO * np.log(den))
+        aem_NLO = expanded_nlo(couplings_ref[1], beta_qed0, beta_qed0 * b_qed1, lmu)
         res_aem = aem_NLO
         if order[0] >= 1:
             # TODO find and implement expanded solution at order (1,1)
