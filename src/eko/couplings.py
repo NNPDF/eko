@@ -343,10 +343,68 @@ class Couplings:
             return couplings_expanded(
                 self.order, a_ref, nf, scale_from, float(scale_to)
             )
+        elif self.order[0] == 0:
+            # return expanded solution for a_s and exact for a_em
+            a_s = couplings_expanded(
+                self.order, a_ref, nf, scale_from, float(scale_to)
+            )[0]
+            beta_qed_vec = [beta_qed((0, 0), nf)]
+            # NLO
+            if self.order[1] >= 1:
+                beta_qed_vec.append(beta_qed((0, 1), nf))
 
+            def rge(_t, a_em, beta_qed_vec):
+                rge_qed = -(a_em**2) * (
+                    np.sum([a_em**k * b for k, b in enumerate(beta_qed_vec)])
+                )
+                return rge_qed
+
+            # let scipy solve
+            res = scipy.integrate.solve_ivp(
+                rge,
+                (0, u),
+                (a_ref[1],),
+                args=[beta_qed_vec],
+                method="Radau",
+                rtol=1e-6,
+            )
+            a_em = res.y[0][-1]
+            return np.array([a_s, a_em])
+        elif self.order[1] == 0:
+            # return expanded solution for a_em and exact for a_s
+            a_em = couplings_expanded(
+                self.order, a_ref, nf, scale_from, float(scale_to)
+            )[1]
+            beta_qcd_vec = [beta_qcd((0, 0), nf)]
+            # NLO
+            if self.order[0] >= 1:
+                beta_qcd_vec.append(beta_qcd((1, 0), nf))
+                # NNLO
+                if self.order[0] >= 2:
+                    beta_qcd_vec.append(beta_qcd((2, 0), nf))
+                    # N3LO
+                    if self.order[0] >= 3:
+                        beta_qcd_vec.append(beta_qcd((3, 0), nf))
+
+            def rge(_t, a_s, beta_qcd_vec):
+                rge_qcd = -(a_s**2) * (
+                    np.sum([a_s**k * b for k, b in enumerate(beta_qcd_vec)])
+                )
+                return rge_qcd
+
+            # let scipy solve
+            res = scipy.integrate.solve_ivp(
+                rge,
+                (0, u),
+                (a_ref[0],),
+                args=[beta_qcd_vec],
+                method="Radau",
+                rtol=1e-6,
+            )
+            a_s = res.y[0][-1]
+            return np.array([a_s, a_em])
         # otherwise rescale the RGE to run in terms of
-        # u = beta0 * ln(scale_to/scale_from)
-        # beta_qcd0 = beta_qcd((0,0), nf)
+        # u = ln(scale_to/scale_from)
         u = np.log(scale_to / scale_from)
         beta_qcd_vec = [beta_qcd((0, 0), nf)]
         beta_qcd_mix = 0
@@ -361,12 +419,11 @@ class Couplings:
                     beta_qcd_vec.append(beta_qcd((3, 0), nf))
         if self.order[1] >= 1:
             beta_qcd_mix = beta_qcd((0, 1), nf)
-        # beta_qed0 = beta_qed((0,0), nf)
         beta_qed_vec = [beta_qed((0, 0), nf)]
         beta_qed_mix = 0
         # NLO
         if self.order[1] >= 1:
-            beta_qed_vec.append(beta_qed((1, 0), nf))
+            beta_qed_vec.append(beta_qed((0, 1), nf))
             # NNLO
         #            if self.order[0] >= 2:
         #                b_qed_vec.append(b_qed((2,0), nf))
@@ -374,7 +431,7 @@ class Couplings:
         #                if self.order[0] >= 3:
         #                    b_qed_vec.append(b_qed((3,0), nf))
         if self.order[0] >= 1:
-            beta_qed_mix = beta_qed((0, 1), nf)
+            beta_qed_mix = beta_qed((1, 0), nf)
         # integration kernel
         def rge(_t, a, beta_qcd_vec, beta_qed_vec):
             rge_qcd = -(a[0] ** 2) * (
