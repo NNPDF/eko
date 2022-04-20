@@ -147,21 +147,25 @@ class TestStrongCoupling:
             (2, 4, 175),
         ]
         alphas_ref = 0.118
+        alphaem_ref = 0.00781
         scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
             for order in [0, 1, 2, 3]:
                 for method in ["exact", "expanded"]:
                     # create
                     sc = Couplings(
-                        alphas_ref,
+                        np.array([alphas_ref, alphaem_ref]),
                         scale_ref,
                         thresh_setup,
                         (1.0, 1.0, 1.0),
-                        order,
+                        (order, 0),
                         method,
                     )
                     np.testing.assert_approx_equal(
-                        sc.a_s(scale_ref), alphas_ref / 4.0 / np.pi
+                        sc.a(scale_ref)[0], alphas_ref / 4.0 / np.pi
+                    )
+                    np.testing.assert_approx_equal(
+                        sc.a(scale_ref)[1], alphaem_ref / 4.0 / np.pi
                     )
 
     def test_exact_LO(self):
@@ -172,18 +176,32 @@ class TestStrongCoupling:
             (2, 4, 175),
         ]
         alphas_ref = 0.118
+        alphaem_ref = 0.00781
         scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
             # in LO expanded  = exact
             sc_expanded = Couplings(
-                alphas_ref, scale_ref, thresh_setup, (1.0, 1.0, 1.0), 0, "expanded"
+                np.array([alphas_ref, alphaem_ref]),
+                scale_ref,
+                thresh_setup,
+                (1.0, 1.0, 1.0),
+                (0, 0),
+                "expanded",
             )
             sc_exact = Couplings(
-                alphas_ref, scale_ref, thresh_setup, (1.0, 1.0, 1.0), 0, "exact"
+                np.array([alphas_ref, alphaem_ref]),
+                scale_ref,
+                thresh_setup,
+                (1.0, 1.0, 1.0),
+                (0, 0),
+                "exact",
             )
             for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
                 np.testing.assert_allclose(
-                    sc_expanded.a_s(q2), sc_exact.a_s(q2), rtol=5e-4
+                    sc_expanded.a(q2)[0], sc_exact.a(q2)[0], rtol=5e-4
+                )
+                np.testing.assert_allclose(
+                    sc_expanded.a(q2)[1], sc_exact.a(q2)[1], rtol=5e-4
                 )
 
     def benchmark_expanded_n3lo(self):
@@ -191,6 +209,7 @@ class TestStrongCoupling:
         Q2 = 100**2
         # use a big alpha_s to enlarge the difference
         alphas_ref = 0.9
+        alphaem_ref = 0.00781
         scale_ref = 90**2
         m2c = 2
         m2b = 25
@@ -199,21 +218,21 @@ class TestStrongCoupling:
         mathematica_val = -0.000169117
         # collect my values
         as_NNLO = Couplings(
-            alphas_ref,
+            np.array([alphas_ref, alphaem_ref]),
             scale_ref,
             threshold_list,
             (1.0, 1.0, 1.0),
-            order=2,
+            order=(2, 0),
             method="expanded",
         )
         as_N3LO = Couplings(
-            alphas_ref,
+            np.array([alphas_ref, alphaem_ref]),
             scale_ref,
             threshold_list,
             (1.0, 1.0, 1.0),
-            order=3,
+            order=(3, 0),
             method="expanded",
         )
         np.testing.assert_allclose(
-            mathematica_val, as_N3LO.a_s(Q2) - as_NNLO.a_s(Q2), rtol=3e-6
+            mathematica_val, as_N3LO.a(Q2)[0] - as_NNLO.a(Q2)[0], rtol=3e-6
         )

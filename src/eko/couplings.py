@@ -61,24 +61,24 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     # common vars
     lmu = np.log(scale_to / scale_from)
     if order[1] == 0:
-        beta_qcd0 = beta_qcd(0, nf)
+        beta_qcd0 = beta_qcd((0, 0), nf)
         den = 1.0 + beta_qcd0 * couplings_ref[0] * lmu
         # QCD LO
         as_LO = couplings_ref[0] / den
         res_as = as_LO
-        beta_qed0 = beta_qed(0, nf)
+        beta_qed0 = beta_qed((0, 0), nf)
         den = 1.0 + beta_qed0 * couplings_ref[1] * lmu
         # QED LO
         aem_LO = couplings_ref[1] / den
         res_aem = aem_LO
         # NLO
         if order[0] >= 1:
-            b1 = b_qcd(1, nf)
+            b1 = b_qcd((1, 0), nf)
             as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
             res_as = as_NLO
             # NNLO
             if order[0] >= 2:
-                b2 = b_qcd(2, nf)
+                b2 = b_qcd((2, 0), nf)
                 res_as = as_LO * (
                     1.0
                     + as_LO * (as_LO - couplings_ref[0]) * (b2 - b1**2)
@@ -86,7 +86,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
                 )
                 # N3LO expansion is taken from Luca Rottoli
                 if order[0] >= 3:
-                    b3 = b_qcd(3, nf)
+                    b3 = b_qcd((3, 0), nf)
                     log_fact = np.log(as_LO)
                     res_as += (
                         as_LO**4
@@ -141,15 +141,15 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
                         )
                     )
     elif order[1] == 1:
-        beta_qcd0 = beta_qcd(0, nf)
+        beta_qcd0 = beta_qcd((0, 0), nf)
         den = 1.0 + beta_qcd0 * couplings_ref[0] * lmu
         # QCD LO
         as_LO = couplings_ref[0] / den
         res_as = as_LO
-        beta_qed0 = beta_qed(0, nf)
+        beta_qed0 = beta_qed((0, 0), nf)
         den = 1.0 + beta_qed0 * couplings_ref[1] * lmu
         # QED NLO
-        b_qed1 = b_qed(1, nf)
+        b_qed1 = b_qed((0, 1), nf)
         aem_LO = couplings_ref[1] / den
         aem_NLO = aem_LO * (1 - b_qed1 * aem_LO * np.log(den))
         res_aem = aem_NLO
@@ -420,16 +420,18 @@ class Couplings:
             a_s : float
                 strong coupling at target scale :math:`a_s(Q^2)`
         """
-        key = (float(a_ref), nf, scale_from, float(scale_to))
+        key = (float(a_ref[0]), float(a_ref[1]), nf, scale_from, float(scale_to))
         try:
             return self.cache[key]
         except KeyError:
             # at the moment everything is expanded - and type has been checked in the constructor
             if self.method == "exact":
-                a_new = self.compute_exact(float(a_ref), nf, scale_from, scale_to)
+                a_new = self.compute_exact(
+                    a_ref.astype(float), nf, scale_from, scale_to
+                )
             else:
                 a_new = couplings_expanded(
-                    self.order, float(a_ref), nf, scale_from, float(scale_to)
+                    self.order, a_ref.astype(float), nf, scale_from, float(scale_to)
                 )
             self.cache[key] = a_new
             return a_new
@@ -484,7 +486,7 @@ class Couplings:
                 )
                 fact = 1.0
                 # shift
-                for n in range(1, self.order + 1):
+                for n in range(1, self.order[0] + 1):
                     for l in range(n + 1):
                         fact += new_a**n * L**l * m_coeffs[n, l]
                 new_a *= fact
