@@ -111,7 +111,7 @@ class OperatorGrid:
                 created object
         """
         config = {}
-        config["order"] = int(theory_card["PTO"])
+        config["order"] = int(theory_card["PTOs"])
         method = theory_card["ModEv"]
         mod_ev2method = {
             "EXA": "iterate-exact",
@@ -288,9 +288,9 @@ class OperatorGrid:
         return {
             "operators": values,
             "operator_errors": errors,
-            "alphas": self.managers["strong_coupling"].a_s(
+            "alphas": self.managers["strong_coupling"].a(
                 q2 / fact_to_ren, fact_scale=q2, nf_to=path[-1].nf
-            )
+            )[0]
             * 4.0
             * np.pi,
         }

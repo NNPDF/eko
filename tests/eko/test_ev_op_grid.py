@@ -10,8 +10,8 @@ import numpy as np
 import pytest
 
 from eko import interpolation
+from eko.couplings import Couplings
 from eko.evolution_operator.grid import OperatorGrid
-from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
 
@@ -19,7 +19,9 @@ class TestOperatorGrid:
     def _get_setup(self, use_FFNS):
         theory_card = {
             "alphas": 0.35,
-            "PTO": 0,
+            "alphaem": 0.00781,
+            "PTOs": 0,
+            "PTOem": 0,
             "ModEv": "TRN",
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
@@ -71,7 +73,7 @@ class TestOperatorGrid:
             operators_card
         )
         threshold_holder = ThresholdsAtlas.from_dict(theory_card)
-        a_s = StrongCoupling.from_dict(theory_card)
+        a_s = Couplings.from_dict(theory_card)
         return OperatorGrid.from_dict(
             theory_card,
             operators_card,
@@ -89,7 +91,7 @@ class TestOperatorGrid:
                 operators_card
             )
             threshold_holder = ThresholdsAtlas.from_dict(theory_card)
-            a_s = StrongCoupling.from_dict(theory_card)
+            a_s = Couplings.from_dict(theory_card)
             theory_card.update({"ModEv": "wrong"})
             OperatorGrid.from_dict(
                 theory_card,
