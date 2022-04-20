@@ -6,6 +6,7 @@ import numpy as np
 
 from eko import basis_rotation as br
 from eko import interpolation, mellin
+from eko.couplings import Couplings
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
 from eko.matching_conditions.operator_matrix_element import (
@@ -15,7 +16,6 @@ from eko.matching_conditions.operator_matrix_element import (
     build_ome,
     quad_ker,
 )
-from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
 
@@ -207,7 +207,9 @@ class TestOperatorMatrixElement:
     # setup objs
     theory_card = {
         "alphas": 0.35,
-        "PTO": 0,
+        "alphaem": 0.00781,
+        "PTOs": 0,
+        "PTOem": 0,
         "ModEv": "TRN",
         "fact_to_ren_scale_ratio": 1.0,
         "Qref": np.sqrt(2),
@@ -247,7 +249,7 @@ class TestOperatorMatrixElement:
                     self.theory_card,
                     operators_card,
                     ThresholdsAtlas.from_dict(self.theory_card),
-                    StrongCoupling.from_dict(self.theory_card),
+                    Couplings.from_dict(self.theory_card),
                     InterpolatorDispatcher.from_dict(operators_card),
                 )
                 o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
@@ -287,7 +289,7 @@ class TestOperatorMatrixElement:
             self.theory_card,
             operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
-            StrongCoupling.from_dict(self.theory_card),
+            Couplings.from_dict(self.theory_card),
             InterpolatorDispatcher.from_dict(operators_card),
         )
         o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
@@ -336,7 +338,7 @@ class TestOperatorMatrixElement:
             t,
             operators_card,
             ThresholdsAtlas.from_dict(t),
-            StrongCoupling.from_dict(t),
+            Couplings.from_dict(t),
             InterpolatorDispatcher.from_dict(operators_card),
         )
         o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
