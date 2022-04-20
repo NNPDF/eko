@@ -50,7 +50,7 @@ def test_ode_lo():
     delta_a = -1e-6
     a0 = 0.3
     for a1 in [0.1, 0.2]:
-        r = a1 * gamma_ns / (beta.beta(0, nf) * a1**2)
+        r = a1 * gamma_ns / (beta.beta_qcd((0, 0), nf) * a1**2)
         for method in methods:
             rhs = r * ns.dispatcher(0, method, gamma_ns, a1, a0, nf, ev_op_iterations)
             lhs = (
@@ -72,7 +72,7 @@ def test_ode_nlo():
     a0 = 0.3
     for a1 in [0.1, 0.2]:
         r = (a1 * gamma_ns[0] + a1**2 * gamma_ns[1]) / (
-            beta.beta(0, nf) * a1**2 + beta.beta(1, nf) * a1**3
+            beta.beta_qcd((0, 0), nf) * a1**2 + beta.beta_qcd((1, 0), nf) * a1**3
         )
         for method in ["iterate-exact"]:
             rhs = r * ns.dispatcher(1, method, gamma_ns, a1, a0, nf, ev_op_iterations)
@@ -95,9 +95,9 @@ def test_ode_nlo():
 #  a0 = 0.3
 #  for a1 in [0.1, 0.2]:
 #  r = (a1 * gamma_ns[0] + a1 ** 2 * gamma_ns[1] + a1 ** 3 * gamma_ns[2]) / (
-#  beta.beta(0, nf) * a1 ** 2
-#  + beta.beta(1, nf) * a1 ** 3
-#  + beta.beta(1, nf) * a1 ** 4
+#  beta.beta_qcd((0,0), nf) * a1 ** 2
+#  + beta.beta_qcd((1,0), nf) * a1 ** 3
+#  + beta.beta_qcd((1,0), nf) * a1 ** 4
 #  )
 #  for method in ["iterate-exact"]:
 #  rhs = r * ns.dispatcher(2, method, gamma_ns, a1, a0, nf, ev_op_iterations)
