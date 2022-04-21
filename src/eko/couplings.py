@@ -156,7 +156,6 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
         as_LO = expanded_lo(couplings_ref[0], beta_qcd0, lmu)
         res_as = as_LO
         beta_qed0 = beta_qed((0, 0), nf)
-        den = 1.0 + beta_qed0 * couplings_ref[1] * lmu
         # QED NLO
         b_qed1 = b_qed((0, 1), nf)
         aem_LO = expanded_lo(couplings_ref[1], beta_qed0, lmu)
