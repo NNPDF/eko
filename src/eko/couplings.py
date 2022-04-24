@@ -359,23 +359,23 @@ class Couplings:
             a_s = couplings_expanded(
                 self.order, a_ref, nf, scale_from, float(scale_to)
             )[0]
-            beta_qed_vec = [beta_qed((0, 0), nf)]
+            b_qed_vec = [1.0]
             # NLO
             if self.order[1] >= 1:
-                beta_qed_vec.append(beta_qed((0, 1), nf))
+                b_qed_vec.append(b_qed((0, 1), nf))
 
-            def rge(_t, a_em, beta_qed_vec):
+            def rge(_t, a_em, b_qed_vec):
                 rge_qed = -(a_em**2) * (
-                    np.sum([a_em**k * b for k, b in enumerate(beta_qed_vec)])
+                    np.sum([a_em**k * b for k, b in enumerate(b_qed_vec)])
                 )
                 return rge_qed
 
             # let scipy solve
             res = scipy.integrate.solve_ivp(
                 rge,
-                (0, u),
+                (0, beta_qed((0, 0), nf) * u),
                 (a_ref[1],),
-                args=[beta_qed_vec],
+                args=[b_qed_vec],
                 method="Radau",
                 rtol=1e-6,
             )
@@ -386,29 +386,29 @@ class Couplings:
             a_em = couplings_expanded(
                 self.order, a_ref, nf, scale_from, float(scale_to)
             )[1]
-            beta_qcd_vec = [beta_qcd((0, 0), nf)]
+            b_qcd_vec = [1.0]
             # NLO
             if self.order[0] >= 1:
-                beta_qcd_vec.append(beta_qcd((1, 0), nf))
+                b_qcd_vec.append(b_qcd((1, 0), nf))
                 # NNLO
                 if self.order[0] >= 2:
-                    beta_qcd_vec.append(beta_qcd((2, 0), nf))
+                    b_qcd_vec.append(b_qcd((2, 0), nf))
                     # N3LO
                     if self.order[0] >= 3:
-                        beta_qcd_vec.append(beta_qcd((3, 0), nf))
+                        b_qcd_vec.append(b_qcd((3, 0), nf))
 
-            def rge(_t, a_s, beta_qcd_vec):
+            def rge(_t, a_s, b_qcd_vec):
                 rge_qcd = -(a_s**2) * (
-                    np.sum([a_s**k * b for k, b in enumerate(beta_qcd_vec)])
+                    np.sum([a_s**k * b for k, b in enumerate(b_qcd_vec)])
                 )
                 return rge_qcd
 
             # let scipy solve
             res = scipy.integrate.solve_ivp(
                 rge,
-                (0, u),
+                (0, beta_qcd((0, 0), nf) * u),
                 (a_ref[0],),
-                args=[beta_qcd_vec],
+                args=[b_qcd_vec],
                 method="Radau",
                 rtol=1e-6,
             )
