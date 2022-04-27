@@ -369,7 +369,7 @@ class Couplings:
             return couplings_expanded(
                 self.order, a_ref, nf, scale_from, float(scale_to)
             )
-        elif self.order[0] == 0:
+        if self.order[0] == 0:
             # return expanded solution for a_s and exact for a_em
             a_s = couplings_expanded(
                 self.order, a_ref, nf, scale_from, float(scale_to)
@@ -383,7 +383,7 @@ class Couplings:
                 beta0_qed, b_qed_vec, u, a_ref[1], "Radau", 1e-6
             )
             return np.array([a_s, a_em])
-        elif self.order[1] == 0:
+        if self.order[1] == 0:
             # return expanded solution for a_em and exact for a_s
             a_em = couplings_expanded(
                 self.order, a_ref, nf, scale_from, float(scale_to)
