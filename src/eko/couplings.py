@@ -254,8 +254,7 @@ class Couplings:
         )
         self.hqm_scheme = hqm_scheme
         logger.info(
-            "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)",
-            "Electromagnetic Coupling: a_em(µ_R^2=%f)%s=%f=%f/(4π)",
+            "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)\nElectromagnetic Coupling: a_em(µ_R^2=%f)%s=%f=%f/(4π)",
             self.q2_ref,
             f"^(nf={nf_ref})" if nf_ref else "",
             self.a_ref[0],
