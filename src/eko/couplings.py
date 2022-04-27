@@ -477,7 +477,7 @@ class Couplings:
         """
         key = (float(a_ref[0]), float(a_ref[1]), nf, scale_from, float(scale_to))
         try:
-            return self.cache[key]
+            return self.cache[key].copy()
         except KeyError:
             # at the moment everything is expanded - and type has been checked in the constructor
             if self.method == "exact":
@@ -488,7 +488,7 @@ class Couplings:
                 a_new = couplings_expanded(
                     self.order, a_ref.astype(float), nf, scale_from, float(scale_to)
                 )
-            self.cache[key] = a_new
+            self.cache[key] = a_new.copy()
             return a_new
 
     def a(
@@ -543,8 +543,8 @@ class Couplings:
                 # shift
                 for n in range(1, self.order[0] + 1):
                     for l in range(n + 1):
-                        fact += new_a**n * L**l * m_coeffs[n, l]
-                new_a *= fact
+                        fact += new_a[0] ** n * L**l * m_coeffs[n, l]
+                new_a[0] *= fact
             final_a = new_a
         return final_a
 
