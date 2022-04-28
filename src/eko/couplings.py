@@ -446,12 +446,12 @@ class Couplings:
         res = scipy.integrate.solve_ivp(
             rge,
             (0, u),
-            (a_ref,),
+            a_ref,
             args=[beta_qcd_vec, beta_qed_vec],
             method="Radau",
             rtol=1e-6,
         )
-        return res.y[0][-1]  # TODO : check this
+        return np.array([res.y[0][-1], res.y[1][-1]])
 
     def compute(self, a_ref, nf, scale_from, scale_to):
         """
