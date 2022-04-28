@@ -42,12 +42,12 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
 
     Parameters
     ----------
-        order: tuple
+        order: tuple(int, int)
             perturbation order
-        as_ref: tuple
-            reference alpha_s
+        couplings_ref: np array
+            reference alpha_s and alpha
         nf: int
-            value of nf for computing alpha_s
+            value of nf for computing the couplings
         scale_from: float
             reference scale
         scale_to : float
@@ -55,8 +55,8 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
 
     Returns
     -------
-        a_s : float
-            coupling at target scale :math:`a_s(Q^2)`
+        a : np array
+            couplings at target scale :math:`a(Q^2)`
     """
     # common vars
     lmu = np.log(scale_to / scale_from)
@@ -170,17 +170,17 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
 
 class Couplings:
     r"""
-        Computes the strong coupling constant :math:`a_s`.
+        Computes the strong and electromagnetic coupling constants :math:`a_s,a`.
 
         Note that
 
         - all scale parameters (``scale_ref`` and ``scale_to``),
           have to be given as squared values, i.e. in units of :math:`\text{GeV}^2`
         - although, we only provide methods for
-          :math:`a_s = \frac{\alpha_s(\mu^2)}{4\pi}` the reference value has to be
-          given in terms of :math:`\alpha_s(\mu_0^2)` due to legacy reasons
+          :math:`a_i = \frac{\alpha_i(\mu^2)}{4\pi}` the reference value has to be
+          given in terms of :math:`\alpha_i(\mu_0^2)` due to legacy reasons
         - the ``order`` refers to the perturbative order of the beta function, thus
-          ``order=0`` means leading order beta function, means evolution with :math:`\beta_as2`,
+          ``order=(0,0)`` means leading order beta function, means evolution with :math:`\beta_as2`,
           means running at 1-loop - so there is a natural mismatch between ``order`` and the
           number of loops by one unit
 
@@ -195,15 +195,15 @@ class Couplings:
 
         Parameters
         ----------
-            couplings_ref : np.array
-                alpha_s(!) at the reference scale :math:`\alpha_s(\mu_0^2)`
+            couplings_ref : np array
+                alpha_s and \alpha(!) at the reference scale :math:`\alpha_s(\mu_0^2),\alpha(\mu_0^2)`
             scale_ref : float
                 reference scale :math:`\mu_0^2`
             masses : list(float)
                 list with quark masses squared
             thresholds_ratios : list(float)
                 list with ratios between the mass and the thresholds squared
-            order: tuple
+            order: tuple(int,int)
                 Evaluated order of the beta function: ``0`` = LO, ...
             method : ["expanded", "exact"]
                 Applied method to solve the beta function
@@ -286,7 +286,7 @@ class Couplings:
 
         Returns
         -------
-            cls : StrongCoupling
+            cls : Couplings
                 created object
         """
         # read my values
@@ -333,10 +333,10 @@ class Couplings:
 
         Parameters
         ----------
-            as_ref: float
-                reference alpha_s
+            as_ref: np array
+                reference alpha_s and alpha
             nf: int
-                value of nf for computing alpha_s
+                value of nf for computing alpha_i
             scale_from: float
                 reference scale
             scale_to : float
@@ -344,8 +344,8 @@ class Couplings:
 
         Returns
         -------
-            a_s : float
-                strong coupling at target scale :math:`a_s(Q^2)`
+            a : np array
+                couplings at target scale :math:`a(Q^2)`
         """
         # in LO fallback to expanded, as this is the full solution
         u = np.log(scale_to / scale_from)
@@ -460,10 +460,10 @@ class Couplings:
 
         Parameters
         ----------
-            as_ref: float
-                reference alpha_s
+            a_ref: np array
+                reference a
             nf: int
-                value of nf for computing alpha_s
+                value of nf for computing alpha
             scale_from: float
                 reference scale
             scale_to : float
@@ -471,8 +471,8 @@ class Couplings:
 
         Returns
         -------
-            a_s : float
-                strong coupling at target scale :math:`a_s(Q^2)`
+            a : np array
+                couplings at target scale :math:`a(Q^2)`
         """
         key = (float(a_ref[0]), float(a_ref[1]), nf, scale_from, float(scale_to))
         try:
@@ -497,7 +497,7 @@ class Couplings:
         nf_to=None,
     ):
         r"""
-        Computes strong coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
+        Computes couplings :math:`a_i(\mu_R^2) = \frac{\alpha_i(\mu_R^2)}{4\pi}`.
 
         Parameters
         ----------
@@ -508,8 +508,8 @@ class Couplings:
 
         Returns
         -------
-            a_s : float
-                strong coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
+            a : np array
+                couplings :math:`a_i(\mu_R^2) = \frac{\alpha_i(\mu_R^2)}{4\pi}`
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
         final_a = self.a_ref

@@ -215,7 +215,7 @@ def beta_qcd(k, nf):
 
     Parameters
     ----------
-        k : int
+        k : tuple(int, int)
             perturbative order
         nf : int
             number of active flavors
@@ -248,7 +248,7 @@ def beta_qed(k, nf):
 
     Parameters
     ----------
-        k : int
+        k : tuple(int, int)
             perturbative order
         nf : int
             number of active flavors
@@ -277,7 +277,7 @@ def b_qcd(k, nf):
 
     Parameters
     ----------
-        k : int
+        k : tuple(int, int)
             perturbative order
         nf : int
             number of active flavors
@@ -297,7 +297,7 @@ def b_qed(k, nf):
 
     Parameters
     ----------
-        k : int
+        k : tuple(int, int)
             perturbative order
         nf : int
             number of active flavors
