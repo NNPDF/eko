@@ -36,7 +36,7 @@ def beta_as2(nf):
 def beta_aem2(nf):
     """Computes the first coefficient of the QED beta function.
 
-    Implements Eq. (3.1) of :cite:`Herzog:2017ohr`.
+    Implements Eq. (3.10) of :cite:`Herzog:2017ohr`.
 
     Parameters
     ----------
@@ -84,7 +84,7 @@ def beta_as3(nf):
 def beta_aem3(nf):
     """Computes the second coefficient of the QED beta function.
 
-    Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
+    Implements Eq. (3.10) of :cite:`Herzog:2017ohr`.
 
     Parameters
     ----------
@@ -109,7 +109,7 @@ def beta_aem3(nf):
 def beta_as2aem1(nf):
     """Computes the first QED correction of the QCD beta function.
 
-    Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
+    Implements Eq. (7) of :cite:`Surguladze:1996hx`.
 
     Parameters
     ----------
@@ -132,7 +132,7 @@ def beta_as2aem1(nf):
 def beta_aem2as1(nf):
     """Computes the first QCD correction of the QED beta function.
 
-    Implements Eq. (3.2) of :cite:`Herzog:2017ohr`.
+    Implements Eq. (7) of :cite:`Surguladze:1996hx`.
 
     Parameters
     ----------
@@ -222,8 +222,8 @@ def beta_qcd(k, nf):
 
     Returns
     -------
-        beta : float
-            beta_k(nf)
+        beta_qcd : float
+            beta_qcd_k(nf)
 
     """
     beta_ = 0
@@ -255,8 +255,8 @@ def beta_qed(k, nf):
 
     Returns
     -------
-        beta : float
-            beta_k(nf)
+        beta_qed : float
+            beta_qed_k(nf)
 
     """
     beta_ = 0
@@ -273,7 +273,7 @@ def beta_qed(k, nf):
 
 @nb.njit("f8(u1[:],u1)", cache=True)
 def b_qcd(k, nf):
-    """Compute b coefficient.
+    """Compute b_qcd coefficient.
 
     Parameters
     ----------
@@ -284,8 +284,8 @@ def b_qcd(k, nf):
 
     Returns
     -------
-        b : float
-            b_k(nf)
+        b_qcd : float
+            b_qcd_k(nf)
 
     """
     return beta_qcd(k, nf) / beta_qcd((0, 0), nf)
@@ -293,7 +293,7 @@ def b_qcd(k, nf):
 
 @nb.njit("f8(u1[:],u1)", cache=True)
 def b_qed(k, nf):
-    """Compute b coefficient.
+    """Compute b_qed coefficient.
 
     Parameters
     ----------
@@ -304,8 +304,8 @@ def b_qed(k, nf):
 
     Returns
     -------
-        b : float
-            b_k(nf)
+        b_qed : float
+            b_qed_k(nf)
 
     """
     return beta_qed(k, nf) / beta_qed((0, 0), nf)
