@@ -208,8 +208,7 @@ class TestOperatorMatrixElement:
     theory_card = {
         "alphas": 0.35,
         "alphaem": 0.00781,
-        "PTOs": 0,
-        "PTOem": 0,
+        "orders": (0, 0),
         "ModEv": "TRN",
         "fact_to_ren_scale_ratio": 1.0,
         "Qref": np.sqrt(2),

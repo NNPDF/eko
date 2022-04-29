@@ -295,8 +295,7 @@ class Couplings:
         couplings_ref = np.array([alphas_ref, alphaem_ref])
         nf_ref = theory_card["nfref"]
         q2_alpha = pow(theory_card["Qref"], 2)
-        # TODO decide how to specify QCD x QED orders
-        order = (theory_card["PTOs"], theory_card["PTOem"])
+        order = theory_card["orders"]
         method = strong_coupling_mod_ev(theory_card["ModEv"])
         hqm_scheme = theory_card["HQ"]
         if hqm_scheme not in ["MSBAR", "POLE"]:
