@@ -35,7 +35,9 @@ class BenchmarkCT18(Runner):
         theory_card.update(
             {
                 "alphas": 0.118000,
-                "PTO": 2,
+                "alphaem": 0.00781,
+                "PTOs": 2,
+                "PTOem": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 5,
                 "MaxNfAs": 5,
@@ -57,7 +59,9 @@ class BenchmarkCT18(Runner):
         theory_card.update(
             {
                 "alphas": 0.118000,
-                "PTO": 2,
+                "alphaem": 0.00781,
+                "PTOs": 2,
+                "PTOem": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 5,
                 "MaxNfAs": 5,

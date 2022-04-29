@@ -35,7 +35,7 @@ def strong_coupling_mod_ev(mod_ev):
     raise ValueError(f"Unknown evolution mode {mod_ev}")
 
 
-@nb.njit("f8(u1[:],f8,u1,f8,f8)", cache=True)
+@nb.njit("f8[:](UniTuple(u1, 2),f8[:],u1,f8,f8)", cache=True)
 def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     """
     Compute expanded expression.
@@ -163,8 +163,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
         res_aem = aem_NLO
         if order[0] >= 1:
             # TODO find and implement expanded solution at order (1,1)
-            res_as = 0
-            res_aem = 0
+            raise ValueError("Order (1,1) is not implemented (yet)!")
     return np.array([res_as, res_aem])
 
 
@@ -180,7 +179,7 @@ class Couplings:
           :math:`a_i = \frac{\alpha_i(\mu^2)}{4\pi}` the reference value has to be
           given in terms of :math:`\alpha_i(\mu_0^2)` due to legacy reasons
         - the ``order`` refers to the perturbative order of the beta function, thus
-          ``order=(0,0)`` means leading order beta function, means evolution with :math:`\beta_as2`,
+          ``order=(0,0)`` means leading order beta function, means evolution with :math:`\beta_as_2`,
           means running at 1-loop - so there is a natural mismatch between ``order`` and the
           number of loops by one unit
 

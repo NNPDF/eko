@@ -20,41 +20,41 @@ def _flav_test(function):
 
 def test_beta_as2():
     """Test first beta function coefficient"""
-    _flav_test(beta.beta_as2)
+    _flav_test(beta.beta_as_2)
     # from hep-ph/9706430
-    np.testing.assert_approx_equal(beta.beta_as2(5), 4 * 23 / 12)
+    np.testing.assert_approx_equal(beta.beta_as_2(5), 4 * 23 / 12)
 
 
 def test_beta_as3():
     """Test second beta function coefficient"""
-    _flav_test(beta.beta_as3)
+    _flav_test(beta.beta_as_3)
     # from hep-ph/9706430
-    np.testing.assert_approx_equal(beta.beta_as3(5), 4**2 * 29 / 12)
+    np.testing.assert_approx_equal(beta.beta_as_3(5), 4**2 * 29 / 12)
 
 
 def test_beta_as4():
     """Test third beta function coefficient"""
-    _flav_test(beta.beta_as4)
+    _flav_test(beta.beta_as_4)
     # from hep-ph/9706430
-    np.testing.assert_approx_equal(beta.beta_as4(5), 4**3 * 9769 / 3456)
+    np.testing.assert_approx_equal(beta.beta_as_4(5), 4**3 * 9769 / 3456)
 
 
 def test_beta_as5():
     """Test fourth beta function coefficient"""
-    _flav_test(beta.beta_as5)
+    _flav_test(beta.beta_as_5)
     # from hep-ph/9706430
     np.testing.assert_allclose(
-        beta.beta_as5(5), 4**4 * (11027.0 / 648.0 * zeta3 - 598391.0 / 373248.0)
+        beta.beta_as_5(5), 4**4 * (11027.0 / 648.0 * zeta3 - 598391.0 / 373248.0)
     )
 
 
 def test_beta():
     """beta-wrapper"""
     nf = 3
-    np.testing.assert_allclose(beta.beta_qcd((0, 0), nf), beta.beta_as2(nf))
-    np.testing.assert_allclose(beta.beta_qcd((1, 0), nf), beta.beta_as3(nf))
-    np.testing.assert_allclose(beta.beta_qcd((2, 0), nf), beta.beta_as4(nf))
-    np.testing.assert_allclose(beta.beta_qcd((3, 0), nf), beta.beta_as5(nf))
+    np.testing.assert_allclose(beta.beta_qcd((0, 0), nf), beta.beta_as_2(nf))
+    np.testing.assert_allclose(beta.beta_qcd((1, 0), nf), beta.beta_as_3(nf))
+    np.testing.assert_allclose(beta.beta_qcd((2, 0), nf), beta.beta_as_4(nf))
+    np.testing.assert_allclose(beta.beta_qcd((3, 0), nf), beta.beta_as_5(nf))
     with pytest.raises(ValueError):
         beta.beta_qcd((4, 0), 3)
 
