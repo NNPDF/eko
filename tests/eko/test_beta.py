@@ -25,11 +25,27 @@ def test_beta_as2():
     np.testing.assert_approx_equal(beta.beta_as_2(5), 4 * 23 / 12)
 
 
+def test_beta_aem2():
+    """Test first beta function coefficient"""
+    # from hep-ph/9706430
+    np.testing.assert_approx_equal(
+        beta.beta_aem_2(5), -4.0 / 3 * 3 * (2 * 4 / 9 + 3 * 1 / 9)
+    )
+
+
 def test_beta_as3():
     """Test second beta function coefficient"""
     _flav_test(beta.beta_as_3)
     # from hep-ph/9706430
     np.testing.assert_approx_equal(beta.beta_as_3(5), 4**2 * 29 / 12)
+
+
+def test_beta_aem3():
+    """Test second beta function coefficient"""
+    # from hep-ph/9706430
+    np.testing.assert_approx_equal(
+        beta.beta_aem_3(5), -4.0 * 3 * (2 * 16 / 81 + 3 * 1 / 81)
+    )
 
 
 def test_beta_as4():
@@ -55,10 +71,17 @@ def test_beta():
     np.testing.assert_allclose(beta.beta_qcd((1, 0), nf), beta.beta_as_3(nf))
     np.testing.assert_allclose(beta.beta_qcd((2, 0), nf), beta.beta_as_4(nf))
     np.testing.assert_allclose(beta.beta_qcd((3, 0), nf), beta.beta_as_5(nf))
+    np.testing.assert_allclose(beta.beta_qcd((0, 1), nf), beta.beta_as_2aem1(nf))
+    np.testing.assert_allclose(beta.beta_qed((0, 0), nf), beta.beta_aem_2(nf))
+    np.testing.assert_allclose(beta.beta_qed((0, 1), nf), beta.beta_aem_3(nf))
+    np.testing.assert_allclose(beta.beta_qed((1, 0), nf), beta.beta_aem_2as1(nf))
     with pytest.raises(ValueError):
         beta.beta_qcd((4, 0), 3)
+    with pytest.raises(ValueError):
+        beta.beta_qed((0, 2), 3)
 
 
 def test_b():
     """b-wrapper"""
     np.testing.assert_allclose(beta.b_qcd((0, 0), 3), 1.0)
+    np.testing.assert_allclose(beta.b_qed((0, 0), 3), 1.0)
