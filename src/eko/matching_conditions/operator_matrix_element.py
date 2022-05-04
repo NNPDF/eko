@@ -50,12 +50,12 @@ def A_singlet(order, n, sx, L, is_msbar):
         eko.matching_conditions.nlo.A_gh_1 : :math:`A_{gH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
     """
-    if order == 0:
+    if order[0] == 0:
         return np.zeros((1, 3, 3), np.complex_)
-    A_singlet = np.zeros((order, 3, 3), np.complex_)
-    if order >= 1:
+    A_singlet = np.zeros((order[0], 3, 3), np.complex_)
+    if order[0] >= 1:
         A_singlet[0] = nlo.A_singlet_1(n, sx, L)
-    if order >= 2:
+    if order[0] >= 2:
         A_singlet[1] = nnlo.A_singlet_2(n, sx, L, is_msbar)
     return A_singlet
 
@@ -86,12 +86,12 @@ def A_non_singlet(order, n, sx, L):
         eko.matching_conditions.nlo.A_hh_1 : :math:`A_{HH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
     """
-    if order == 0:
+    if order[0] == 0:
         return np.zeros((1, 2, 2), np.complex_)
-    A_ns = np.zeros((order, 2, 2), np.complex_)
-    if order >= 1:
+    A_ns = np.zeros((order[0], 2, 2), np.complex_)
+    if order[0] >= 1:
         A_ns[0] = nlo.A_ns_1(n, sx, L)
-    if order >= 2:
+    if order[0] >= 2:
         A_ns[1] = nnlo.A_ns_2(n, sx, L)
     return A_ns
 
@@ -127,17 +127,17 @@ def build_ome(A, order, a_s, backward_method):
     ome = np.eye(len(A[0]), dtype=np.complex_)
     if backward_method == "expanded":
         # expended inverse
-        if order >= 1:
+        if order[0] >= 1:
             ome -= a_s * A[0]
-        if order >= 2:
+        if order[0] >= 2:
             ome += a_s**2 * (
                 -A[1] + np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[0])
             )
     else:
         # forward or exact inverse
-        if order >= 1:
+        if order[0] >= 1:
             ome += a_s * A[0]
-        if order >= 2:
+        if order[0] >= 2:
             ome += a_s**2 * A[1]
         # need inverse exact ?  so add the missing pieces
         if backward_method == "exact":
@@ -195,9 +195,9 @@ def quad_ker(
 
     # compute the harmonics
     sx = np.zeros(3, np.complex_)
-    if order >= 1:
+    if order[0] >= 1:
         sx = np.array([harmonics.harmonic_S1(n), harmonics.harmonic_S2(n)])
-    if order >= 2:
+    if order[0] >= 2:
         sx = np.append(sx, harmonics.harmonic_S3(n))
 
     # compute the ome
@@ -329,7 +329,7 @@ class OperatorMatrixElement:
                 self.ome_members[n] = OpMember(
                     np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
                 )
-
+        # import pdb; pdb.set_trace()
         # At LO you don't need anything else
         if self.config["order"] == 0:
             logger.info("Matching: no need to compute matching at LO")
@@ -337,7 +337,7 @@ class OperatorMatrixElement:
             return
 
         # Note that here you need to use a_s^{nf+1}(q2)
-        a_s = self.sc.a_s(q2 / self.config["fact_to_ren"], q2, nf + 1)
+        a_s = self.sc.a(q2 / self.config["fact_to_ren"], q2, nf + 1)[0]
 
         tot_start_time = time.perf_counter()
         logger.info("Matching: computing operators - 0/%d", grid_size)

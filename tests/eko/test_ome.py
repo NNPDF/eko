@@ -27,8 +27,8 @@ def test_build_ome_as():
     sx = np.zeros(3, np.complex_)
     is_msbar = False
     for o in [0, 1, 2]:
-        aNS = A_non_singlet(o, N, sx, L)
-        aS = A_singlet(o, N, sx, L, is_msbar)
+        aNS = A_non_singlet((o, 0), N, sx, L)
+        aS = A_singlet((o, 0), N, sx, L, is_msbar)
 
         for a in [aNS, aS]:
             for method in ["", "expanded", "exact"]:
@@ -36,7 +36,7 @@ def test_build_ome_as():
                 if o != 0:
                     assert len(a) == o
 
-                ome = build_ome(a, o, a_s, method)
+                ome = build_ome(a, (o, 0), a_s, method)
                 assert ome.shape == (dim, dim)
                 assert ome.all() == np.eye(dim).all()
 
@@ -50,8 +50,8 @@ def test_build_ome_nlo():
 
     sx = np.array([1, 1, 1], np.complex_)
 
-    aNSi = A_non_singlet(1, N, sx, L)
-    aSi = A_singlet(1, N, sx, L, is_msbar)
+    aNSi = A_non_singlet((1, 0), N, sx, L)
+    aSi = A_singlet((1, 0), N, sx, L, is_msbar)
     for a in [aNSi, aSi]:
         for method in ["", "expanded", "exact"]:
             dim = len(a[0])
@@ -59,7 +59,7 @@ def test_build_ome_nlo():
             assert a[0, -1, -1] != 0.0
             # qh
             assert a[0, -2, -1] == 0.0
-            ome = build_ome(a, 1, a_s, method)
+            ome = build_ome(a, (1, 0), a_s, method)
             assert ome.shape == (dim, dim)
             assert ome[-1, -1] != 1.0
             assert ome[-2, -1] == 0.0
@@ -92,7 +92,7 @@ def test_quad_ker(monkeypatch):
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            order=2,
+            order=(2, 0),
             mode0=200,
             mode1=200,
             is_log=is_log,
@@ -106,7 +106,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
             u=0,
-            order=2,
+            order=(2, 0),
             mode0=100,
             mode1=100,
             is_log=is_log,
@@ -120,7 +120,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            order=2,
+            order=(2, 0),
             mode0=100,
             mode1=21,
             is_log=is_log,
@@ -138,7 +138,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=2,
+            order=(2, 0),
             mode0=label[0],
             mode1=label[1],
             is_log=True,
@@ -170,7 +170,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=2,
+            order=(2, 0),
             mode0=label[0],
             mode1=label[1],
             is_log=True,
@@ -189,7 +189,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        order=2,
+        order=(2, 0),
         mode0=200,
         mode1=200,
         is_log=True,
