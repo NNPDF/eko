@@ -331,7 +331,7 @@ class OperatorMatrixElement:
                 )
         # import pdb; pdb.set_trace()
         # At LO you don't need anything else
-        if self.config["orders"] == 0:
+        if self.config["orders"] == (0, 0):
             logger.info("Matching: no need to compute matching at LO")
             self.copy_ome()
             return
