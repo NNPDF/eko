@@ -38,7 +38,7 @@ def test_eigensystem_gamma_singlet_projectors_EV():
     for N in [3, 4]:  # N=2 seems close to 0, so test fails
         for o in [(1, 0), (2, 0)]:
             # N=4 and and NNLO too big numbers, Runtime Warnings
-            if N == 4 and o == 2:
+            if N == 4 and o == (2, 0):
                 continue
             for gamma_S in ad.gamma_singlet(o, N, nf):
                 _exp, l_p, l_m, e_p, e_m = ad.exp_singlet(gamma_S)
