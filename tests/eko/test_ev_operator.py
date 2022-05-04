@@ -204,7 +204,7 @@ class TestOperator:
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
         )
         # NLO
-        o.config["order"] = 1
+        o.config["orders"] = (1, 0)
         o.compute()
         assert not np.allclose(
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
