@@ -52,31 +52,32 @@ class TestStrongCoupling:
         assert sc.a_ref[1] == couplings_ref[1] / 4.0 / np.pi
         # from theory dict
         for ModEv in ["EXP", "EXA"]:
-            for PTO in range(2 + 1):
-                setup = dict(
-                    alphas=alphas_ref,
-                    alphaem=alphaem_ref,
-                    Qref=np.sqrt(scale_ref),
-                    nfref=None,
-                    orders=(PTO, 0),
-                    ModEv=ModEv,
-                    FNS="FFNS",
-                    NfFF=nf,
-                    Q0=2,
-                    fact_to_ren_scale_ratio=1,
-                    mc=2.0,
-                    mb=4.0,
-                    mt=175.0,
-                    kcThr=1.0,
-                    kbThr=1.0,
-                    ktThr=1.0,
-                    MaxNfAs=6,
-                    HQ="POLE",
-                )
-                sc2 = Couplings.from_dict(setup)
-                assert sc2.q2_ref == scale_ref
-                assert sc2.a_ref[0] == couplings_ref[0] / 4.0 / np.pi
-                assert sc2.a_ref[1] == couplings_ref[1] / 4.0 / np.pi
+            for PTOs in range(2 + 1):
+                for PTOem in range(1 + 1):
+                    setup = dict(
+                        alphas=alphas_ref,
+                        alphaem=alphaem_ref,
+                        Qref=np.sqrt(scale_ref),
+                        nfref=None,
+                        orders=(PTOs, PTOem),
+                        ModEv=ModEv,
+                        FNS="FFNS",
+                        NfFF=nf,
+                        Q0=2,
+                        fact_to_ren_scale_ratio=1,
+                        mc=2.0,
+                        mb=4.0,
+                        mt=175.0,
+                        kcThr=1.0,
+                        kbThr=1.0,
+                        ktThr=1.0,
+                        MaxNfAs=6,
+                        HQ="POLE",
+                    )
+                    sc2 = Couplings.from_dict(setup)
+                    assert sc2.q2_ref == scale_ref
+                    assert sc2.a_ref[0] == couplings_ref[0] / 4.0 / np.pi
+                    assert sc2.a_ref[1] == couplings_ref[1] / 4.0 / np.pi
 
         # errors
         with pytest.raises(ValueError):
@@ -144,6 +145,16 @@ class TestStrongCoupling:
                     HQ="FAIL",
                 ),
             )
+        couplings = Couplings(
+            couplings_ref,
+            scale_ref,
+            threshold_holder.area_walls[1:-1],
+            (1.0, 1.0, 1.0),
+            (1, 1),
+            method="expanded",
+        )
+        with pytest.raises(NotImplementedError):
+            couplings.a(scale_ref / 2)
 
     def test_ref(self):
         # prepare
@@ -156,23 +167,26 @@ class TestStrongCoupling:
         alphaem_ref = 0.00781
         scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
-            for order in [0, 1, 2, 3]:
-                for method in ["exact", "expanded"]:
-                    # create
-                    sc = Couplings(
-                        np.array([alphas_ref, alphaem_ref]),
-                        scale_ref,
-                        thresh_setup,
-                        (1.0, 1.0, 1.0),
-                        (order, 0),
-                        method,
-                    )
-                    np.testing.assert_approx_equal(
-                        sc.a(scale_ref)[0], alphas_ref / 4.0 / np.pi
-                    )
-                    np.testing.assert_approx_equal(
-                        sc.a(scale_ref)[1], alphaem_ref / 4.0 / np.pi
-                    )
+            for order_s in [0, 1, 2, 3]:
+                for order_em in [0, 1]:
+                    for method in ["exact", "expanded"]:
+                        # if order_em == 1 and method == "expanded" and order_s != 0:
+                        #    continue
+                        # create
+                        sc = Couplings(
+                            np.array([alphas_ref, alphaem_ref]),
+                            scale_ref,
+                            thresh_setup,
+                            (1.0, 1.0, 1.0),
+                            (order_s, order_em),
+                            method,
+                        )
+                        np.testing.assert_approx_equal(
+                            sc.a(scale_ref)[0], alphas_ref / 4.0 / np.pi
+                        )
+                        np.testing.assert_approx_equal(
+                            sc.a(scale_ref)[1], alphaem_ref / 4.0 / np.pi
+                        )
 
     def test_exact_LO(self):
         # prepare
@@ -200,6 +214,42 @@ class TestStrongCoupling:
                 thresh_setup,
                 (1.0, 1.0, 1.0),
                 (0, 0),
+                "exact",
+            )
+            for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
+                np.testing.assert_allclose(
+                    sc_expanded.a(q2)[0], sc_exact.a(q2)[0], rtol=5e-4
+                )
+                np.testing.assert_allclose(
+                    sc_expanded.a(q2)[1], sc_exact.a(q2)[1], rtol=5e-4
+                )
+
+    def test_exact_NLO_QED(self):
+        # prepare
+        thresh_setups = [
+            (np.inf, np.inf, np.inf),
+            (0, np.inf, np.inf),
+            (2, 4, 175),
+        ]
+        alphas_ref = 0.118
+        alphaem_ref = 0.00781
+        scale_ref = 91.0**2
+        for thresh_setup in thresh_setups:
+            # in LO expanded  = exact
+            sc_expanded = Couplings(
+                np.array([alphas_ref, alphaem_ref]),
+                scale_ref,
+                thresh_setup,
+                (1.0, 1.0, 1.0),
+                (0, 1),
+                "expanded",
+            )
+            sc_exact = Couplings(
+                np.array([alphas_ref, alphaem_ref]),
+                scale_ref,
+                thresh_setup,
+                (1.0, 1.0, 1.0),
+                (0, 1),
                 "exact",
             )
             for q2 in [1, 1e1, 1e2, 1e3, 1e4]:

@@ -316,7 +316,6 @@ class OperatorMatrixElement:
             is_msbar: bool
                 add the |MSbar| contribution
         """
-        # import pdb;pdb.set_trace()
         # init all ops with zeros
         grid_size = len(self.int_disp.xgrid)
         labels = self.labels()
@@ -329,7 +328,6 @@ class OperatorMatrixElement:
                 self.ome_members[n] = OpMember(
                     np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
                 )
-        # import pdb; pdb.set_trace()
         # At LO you don't need anything else
         if self.config["orders"] == (0, 0):
             logger.info("Matching: no need to compute matching at LO")

@@ -150,7 +150,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
                             )
                         )
                     )
-    elif order[1] == 1:
+    if order[1] == 1:
         beta_qcd0 = beta_qcd((0, 0), nf)
         # QCD LO
         as_LO = expanded_lo(couplings_ref[0], beta_qcd0, lmu)
@@ -163,7 +163,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
         res_aem = aem_NLO
         if order[0] >= 1:
             # TODO find and implement expanded solution at order (1,1)
-            raise ValueError("Order (1,1) is not implemented (yet)!")
+            raise NotImplementedError("Order (1,1) is not implemented (yet)!")
     return np.array([res_as, res_aem])
 
 
