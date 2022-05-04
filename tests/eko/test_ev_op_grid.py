@@ -139,7 +139,7 @@ class TestOperatorGrid:
 
     def test_mod_expanded(self):
         theory_update = {
-            "PTO": 1,
+            "orders": (1, 0),
             "ModSV": "expanded",
         }
         epsilon = 1e-1

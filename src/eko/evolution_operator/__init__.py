@@ -297,7 +297,7 @@ class Operator:
             labels : list(str)
                 sector labels
         """
-        order = self.config["order"]
+        order = self.config["orders"]
         labels = []
         # the NS sector is dynamic
         if self.config["debug_skip_non_singlet"]:
@@ -305,9 +305,9 @@ class Operator:
         else:
             # add + as default
             labels.append(br.non_singlet_labels[1])
-            if order >= 1:  # - becomes different starting from NLO
+            if order[0] >= 1:  # - becomes different starting from NLO
                 labels.append(br.non_singlet_labels[0])
-            if order >= 2:  # v also becomes different starting from NNLO
+            if order[0] >= 2:  # v also becomes different starting from NNLO
                 labels.append(br.non_singlet_labels[2])
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
@@ -370,7 +370,7 @@ class Operator:
                     0.5,
                     1.0 - self._mellin_cut,
                     args=(
-                        self.config["order"],
+                        self.config["orders"],
                         label[0],
                         label[1],
                         self.config["method"],
@@ -429,7 +429,7 @@ class Operator:
         logger.info("Evolution: a_s distance: %e -> %e", self.a_s[0], self.a_s[1])
         logger.info(
             "Evolution: order: %d, solution strategy: %s",
-            self.config["order"],
+            self.config["orders"],
             self.config["method"],
         )
 
@@ -454,8 +454,8 @@ class Operator:
 
     def copy_ns_ops(self):
         """Copy non-singlet kernels, if necessary"""
-        order = self.config["order"]
-        if order == 0:  # in LO +=-=v
+        order = self.config["orders"]
+        if order[0] == 0:  # in LO +=-=v
             for label in ["nsV", "ns-"]:
                 self.op_members[
                     (br.non_singlet_pids_map[label], 0)
@@ -467,7 +467,7 @@ class Operator:
                 ].error = self.op_members[
                     (br.non_singlet_pids_map["ns+"], 0)
                 ].error.copy()
-        elif order == 1:  # in NLO -=v
+        elif order[0] == 1:  # in NLO -=v
             self.op_members[
                 (br.non_singlet_pids_map["nsV"], 0)
             ].value = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].value.copy()

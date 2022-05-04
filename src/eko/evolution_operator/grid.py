@@ -56,7 +56,7 @@ class OperatorGrid:
         interpol_dispatcher,
     ):
         # check
-        order = int(config["order"])
+        order = config["orders"]
         method = config["method"]
         if not method in [
             "iterate-exact",
@@ -69,7 +69,7 @@ class OperatorGrid:
             "perturbative-expanded",
         ]:
             raise ValueError(f"Unknown evolution mode {method}")
-        if order == 0 and method != "iterate-exact":
+        if order == (0, 0) and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")
 
         self.config = config
@@ -111,7 +111,7 @@ class OperatorGrid:
                 created object
         """
         config = {}
-        config["order"] = int(theory_card["orders"][0])
+        config["orders"] = theory_card["orders"]
         method = theory_card["ModEv"]
         mod_ev2method = {
             "EXA": "iterate-exact",

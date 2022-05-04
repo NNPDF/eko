@@ -81,7 +81,17 @@ class TestStrongCoupling:
         # errors
         with pytest.raises(ValueError):
             Couplings(
-                [0, 0], scale_ref, threshold_holder.area_walls[1:-1], (1.0, 1.0, 1.0)
+                [0, couplings_ref[1]],
+                scale_ref,
+                threshold_holder.area_walls[1:-1],
+                (1.0, 1.0, 1.0),
+            )
+        with pytest.raises(ValueError):
+            Couplings(
+                [couplings_ref[0], 0],
+                scale_ref,
+                threshold_holder.area_walls[1:-1],
+                (1.0, 1.0, 1.0),
             )
         with pytest.raises(ValueError):
             Couplings(

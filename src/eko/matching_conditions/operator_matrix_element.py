@@ -316,7 +316,7 @@ class OperatorMatrixElement:
             is_msbar: bool
                 add the |MSbar| contribution
         """
-
+        # import pdb;pdb.set_trace()
         # init all ops with zeros
         grid_size = len(self.int_disp.xgrid)
         labels = self.labels()
@@ -331,7 +331,7 @@ class OperatorMatrixElement:
                 )
         # import pdb; pdb.set_trace()
         # At LO you don't need anything else
-        if self.config["order"] == 0:
+        if self.config["orders"] == 0:
             logger.info("Matching: no need to compute matching at LO")
             self.copy_ome()
             return
@@ -356,7 +356,7 @@ class OperatorMatrixElement:
                         0.5,
                         1.0 - self._mellin_cut,
                         args=(
-                            self.config["order"],
+                            self.config["orders"],
                             label[0],
                             label[1],
                             self.int_disp.log,

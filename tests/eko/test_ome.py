@@ -332,7 +332,7 @@ class TestOperatorMatrixElement:
             "backward_inversion": "exact",
         }
         t = copy.deepcopy(self.theory_card)
-        t["PTO"] = 1
+        t["orders"] = (1, 0)
         g = OperatorGrid.from_dict(
             t,
             operators_card,

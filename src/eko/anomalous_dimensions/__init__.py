@@ -105,10 +105,10 @@ def gamma_ns(order, mode, n, nf):
     # cache the s-es
     sx = np.full(1, harmonics.harmonic_S1(n))
     # now combine
-    gamma_ns = np.zeros(order + 1, np.complex_)
+    gamma_ns = np.zeros(order[0] + 1, np.complex_)
     gamma_ns[0] = as1.gamma_ns(n, sx[0])
     # NLO and beyond
-    if order >= 1:
+    if order[0] >= 1:
         # TODO: pass the necessary harmonics to nlo gammas
         if mode == 10101:
             gamma_ns_1 = as2.gamma_nsp(n, nf)
@@ -119,7 +119,7 @@ def gamma_ns(order, mode, n, nf):
             raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond
-    if order >= 2:
+    if order[0] >= 2:
         sx = np.append(sx, harmonics.harmonic_S2(n))
         sx = np.append(sx, harmonics.harmonic_S3(n))
         if mode == 10101:
@@ -159,15 +159,15 @@ def gamma_singlet(order, n, nf):
     """
     # cache the s-es
     sx = np.full(1, harmonics.harmonic_S1(n))
-    if order >= 1:
+    if order[0] >= 1:
         sx = np.append(sx, harmonics.harmonic_S2(n))
         sx = np.append(sx, harmonics.harmonic_S3(n))
 
-    gamma_singlet = np.zeros((order + 1, 2, 2), np.complex_)
+    gamma_singlet = np.zeros((order[0] + 1, 2, 2), np.complex_)
     gamma_singlet[0] = as1.gamma_singlet(n, sx[0], nf)
-    if order >= 1:
+    if order[0] >= 1:
         gamma_singlet[1] = as2.gamma_singlet(n, nf)
-    if order == 2:
+    if order[0] == 2:
         sx = np.append(sx, harmonics.harmonic_S4(n))
         gamma_singlet[2] = -as3.gamma_singlet(n, nf, sx)
     return gamma_singlet

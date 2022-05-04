@@ -11,8 +11,8 @@ from eko.scale_variations import expanded, exponentiated
 
 def test_ns_sv_dispacher():
     """Test to identity"""
-    order = 3
-    gamma_ns = np.random.rand(order + 1)
+    order = (3, 0)
+    gamma_ns = np.random.rand(order[0] + 1)
     L = 0
     nf = 5
     a_s = 0.35
@@ -23,8 +23,8 @@ def test_ns_sv_dispacher():
 
 def test_singlet_sv_dispacher():
     """Test to identity"""
-    order = 3
-    gamma_singlet = np.random.rand(order + 1, 2, 2)
+    order = (3, 0)
+    gamma_singlet = np.random.rand(order[0] + 1, 2, 2)
     L = 0
     nf = 5
     a_s = 0.35
@@ -56,9 +56,9 @@ def test_scale_variation_a_vs_b():
         Effects due to non commutativity are neglected thus,
         he accuracy of singlet quantities is slightly worst.
         """
-        if pto >= 1:
+        if pto[0] >= 1:
             diff = g[0] * k * a0
-        if pto >= 2:
+        if pto[0] >= 2:
             b0 = beta_as_2(nf)
             g02 = g[0] @ g[0] if is_singlet else g[0] ** 2
             diff += a0**2 * g[1] * k - k**2 * (
@@ -70,7 +70,7 @@ def test_scale_variation_a_vs_b():
     # will be implemented
 
     for L in [np.log(0.5), np.log(2)]:
-        for order in [1, 2]:
+        for order in [(1, 0), (2, 0)]:
             # Non singlet kernels
             gns = gamma_ns(order, br.non_singlet_pids_map["ns+"], n, nf)
             ker = non_singlet.dispatcher(

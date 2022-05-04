@@ -36,7 +36,7 @@ def test_eigensystem_gamma_singlet_0_values():
 def test_eigensystem_gamma_singlet_projectors_EV():
     nf = 3
     for N in [3, 4]:  # N=2 seems close to 0, so test fails
-        for o in [1, 2]:
+        for o in [(1, 0), (2, 0)]:
             # N=4 and and NNLO too big numbers, Runtime Warnings
             if N == 4 and o == 2:
                 continue
@@ -54,15 +54,23 @@ def test_eigensystem_gamma_singlet_projectors_EV():
 def test_gamma_ns():
     nf = 3
     # LO
-    assert_almost_equal(ad.gamma_ns(2, br.non_singlet_pids_map["ns+"], 1, nf)[0], 0.0)
+    assert_almost_equal(
+        ad.gamma_ns((2, 0), br.non_singlet_pids_map["ns+"], 1, nf)[0], 0.0
+    )
     # NLO
     assert_allclose(
-        ad.gamma_ns(1, br.non_singlet_pids_map["ns-"], 1, nf), np.zeros(2), atol=2e-6
+        ad.gamma_ns((1, 0), br.non_singlet_pids_map["ns-"], 1, nf),
+        np.zeros(2),
+        atol=2e-6,
     )
     # NNLO
     assert_allclose(
-        ad.gamma_ns(2, br.non_singlet_pids_map["ns-"], 1, nf), np.zeros(3), atol=2e-4
+        ad.gamma_ns((2, 0), br.non_singlet_pids_map["ns-"], 1, nf),
+        np.zeros(3),
+        atol=2e-4,
     )
     assert_allclose(
-        ad.gamma_ns(2, br.non_singlet_pids_map["nsV"], 1, nf), np.zeros(3), atol=8e-4
+        ad.gamma_ns((2, 0), br.non_singlet_pids_map["nsV"], 1, nf),
+        np.zeros(3),
+        atol=8e-4,
     )

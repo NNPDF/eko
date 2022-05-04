@@ -335,10 +335,10 @@ def dispatcher(
             non-singlet EKO
     """
     # use always exact in LO
-    if order == 0:
+    if order[0] == 0:
         return lo_exact(gamma_ns, a1, a0, nf)
     # NLO
-    if order == 1:
+    if order[0] == 1:
         if method in [
             "iterate-expanded",
             "decompose-expanded",
@@ -352,7 +352,7 @@ def dispatcher(
         # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
         return nlo_exact(gamma_ns, a1, a0, nf)
     # NNLO
-    if order == 2:
+    if order[0] == 2:
         if method in [
             "iterate-expanded",
             "decompose-expanded",

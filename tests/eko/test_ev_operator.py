@@ -29,7 +29,7 @@ def test_quad_ker(monkeypatch):
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            order=0,
+            order=(0, 0),
             mode0=br.non_singlet_pids_map["ns+"],
             mode1=0,
             method="",
@@ -47,7 +47,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_ns, 0.0)
         res_s = quad_ker(
             u=0,
-            order=0,
+            order=(0, 0),
             mode0=100,
             mode1=100,
             method="",
@@ -65,7 +65,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            order=0,
+            order=(0, 0),
             mode0=100,
             mode1=21,
             method="",
@@ -85,7 +85,7 @@ def test_quad_ker(monkeypatch):
         for sv in [1, 2]:
             res_sv = quad_ker(
                 u=0,
-                order=0,
+                order=(0, 0),
                 mode0=label[0],
                 mode1=label[1],
                 method="",
@@ -105,7 +105,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        order=0,
+        order=(0, 0),
         mode0=br.non_singlet_pids_map["ns+"],
         mode1=0,
         method="",
@@ -126,7 +126,7 @@ def test_quad_ker(monkeypatch):
 class TestOperator:
     def test_labels(self):
         o = Operator(
-            dict(order=2, debug_skip_non_singlet=False, debug_skip_singlet=False),
+            dict(orders=(2, 0), debug_skip_non_singlet=False, debug_skip_singlet=False),
             {},
             3,
             1,
@@ -134,7 +134,7 @@ class TestOperator:
         )
         assert sorted(o.labels) == sorted(br.full_labels)
         o = Operator(
-            dict(order=1, debug_skip_non_singlet=True, debug_skip_singlet=True),
+            dict(orders=(1, 0), debug_skip_non_singlet=True, debug_skip_singlet=True),
             {},
             3,
             1,
@@ -250,7 +250,7 @@ def test_pegasus_path():
     # monkeypatch.setattr(ns, "dispatcher", lambda x, *args: np.exp( - x ** 2 ) )
     xgrid = np.geomspace(1e-7, 1, 10)
     int_disp = InterpolatorDispatcher(xgrid, 1, True)
-    order = 1
+    order = (1, 0)
     mode0 = br.non_singlet_pids_map["ns+"]
     mode1 = 0
     method = ""
