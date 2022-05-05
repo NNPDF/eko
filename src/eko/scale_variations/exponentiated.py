@@ -7,7 +7,13 @@ import numba as nb
 from .. import beta
 
 
-@nb.njit(["c16[:,:,:](c16[:,:,:],u1,u1,f8)", "c16[:](c16[:],u1,u1,f8)"], cache=True)
+@nb.njit(
+    [
+        "c16[:,:,:](c16[:,:,:],UniTuple(u1, 2),u1,f8)",
+        "c16[:](c16[:],UniTuple(u1, 2),u1,f8)",
+    ],
+    cache=True,
+)
 def gamma_variation(gamma, order, nf, L):
     """
     Adjust the anomalous dimensions with the scale variations.

@@ -94,7 +94,7 @@ def gamma_3_variation(gamma, L, beta0, beta1, g0e2, g0e3, g1g0):
     )
 
 
-@nb.njit("c16(c16[:],f8,u1,u1,f8)", cache=True)
+@nb.njit("c16(c16[:],f8,UniTuple(u1, 2),u1,f8)", cache=True)
 def non_singlet_variation(gamma, a_s, order, nf, L):
     """
     Scale Variation non singlet dispatcher
@@ -131,7 +131,7 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
     return sv_ker
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,u1,u1,f8)", cache=True)
+@nb.njit("c16[:,:](c16[:,:,:],f8,UniTuple(u1, 2),u1,f8)", cache=True)
 def singlet_variation(gamma, a_s, order, nf, L):
     """
     Scale Variation singlet dispatcher
