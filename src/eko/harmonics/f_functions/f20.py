@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-This module contains implemtation of F20.
+"""This module contains implemtation of F20.
+
 When using it, please cite :cite:`Blumlein:2009ta`.
 Mellin transform is defined with the convention x^(N).
 """

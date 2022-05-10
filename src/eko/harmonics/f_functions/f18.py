@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
-"""
-This module contains implemtation of F18.
+"""This module contains implemtation of F18.
+
 When using it, please cite :cite:`Blumlein:2009ta`.
 Mellin transform is defined with the convention x^(N).
 """

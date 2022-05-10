@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-This module contains implemtation of F11.
+"""This module contains implemtation of F11.
+
 When using it, please cite :cite:`Blumlein:2009ta`.
 Mellin transform is defined with the convention x^(N).
 """
