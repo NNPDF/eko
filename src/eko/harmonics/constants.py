@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-Zeta function and other constants.
-"""
+"""Zeta function values and other constants."""
+
 import numpy as np
 from scipy.special import zeta
 
@@ -16,7 +15,6 @@ r""":math:`\zeta(4)`"""
 
 zeta5 = zeta(5)
 r""":math:`\zeta(5)`"""
-
 
 log2 = np.log(2)
 r""":math:`\ln(2)`"""

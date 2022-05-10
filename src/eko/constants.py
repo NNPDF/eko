@@ -17,7 +17,7 @@ Defaults to :math:`N_C = 3`.
 """
 
 CF = float((NC * NC - 1.0) / (2.0 * NC))
-"""Second Casimir constant in the fundamental representation.
+r"""Second Casimir constant in the fundamental representation.
 
 Defaults to :math:`\frac{N_C^2-1}{2N_C} = 4/3`.
 """
