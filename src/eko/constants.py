@@ -50,7 +50,7 @@ def update_colors(nc):
     CF = float((NC * NC - 1.0) / (2.0 * NC))
 
 
-@nb.njit("u1(u1)", cache=True)
+@nb.njit(cache=True)
 def uplike_flavors(nf):
     """Computes the number of up flavors
 

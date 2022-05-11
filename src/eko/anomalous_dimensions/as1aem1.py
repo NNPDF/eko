@@ -9,7 +9,7 @@ from .. import constants, harmonics
 from ..harmonics.constants import zeta2, zeta3
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_phq(N, sx):
     """Computes the O(as1aem1) photon-quark anomalous dimension
 
@@ -46,7 +46,7 @@ def gamma_phq(N, sx):
     return constants.CF * (tmp_const + tmp_S1 * S1 + tmp_S12 * S1**2 + tmp_S2 * S2)
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_qph(N, nf, sx):
     """Computes the O(as1aem1) quark-photon anomalous dimension
 
@@ -94,7 +94,7 @@ def gamma_qph(N, nf, sx):
     )
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def gamma_gph(N):
     """Computes the O(as1aem1) gluon-photon anomalous dimension
 
@@ -119,7 +119,7 @@ def gamma_gph(N):
     )
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def gamma_phg(N):
     """Computes the O(as1aem1) photon-gluon anomalous dimension
 
@@ -139,7 +139,7 @@ def gamma_phg(N):
     return constants.TR / constants.CF / constants.CA * gamma_gph(N)
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_qg(N, nf, sx):
     """Computes the O(as1aem1) quark-gluon singlet anomalous dimension.
 
@@ -164,7 +164,7 @@ def gamma_qg(N, nf, sx):
     return constants.TR / constants.CF / constants.CA * gamma_qph(N, nf, sx)
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_gq(N, sx):
     """Computes the O(as1aem1) gluon-quark singlet anomalous dimension.
 
@@ -187,7 +187,7 @@ def gamma_gq(N, sx):
     return gamma_phq(N, sx)
 
 
-@nb.njit("c16(u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_phph(nf):
     """Computes the O(as1aem1) photon-photon singlet anomalous dimension.
 
@@ -210,7 +210,7 @@ def gamma_phph(nf):
     return 4 * constants.CF * constants.CA * (nu * constants.eu2 + nd * constants.ed2)
 
 
-@nb.njit("c16()", cache=True)
+@nb.njit(cache=True)
 def gamma_gg():
     """Computes the O(as1aem1) gluon-gluon singlet anomalous dimension.
 
@@ -229,7 +229,7 @@ def gamma_gg():
     return 4 * constants.TR
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_nsp(N, sx):
     """Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
 
@@ -292,7 +292,7 @@ def gamma_nsp(N, sx):
     return constants.CF * result
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_nsm(N, sx):
     """Computes the O(as1aem1) valence-like non-singlet anomalous dimension.
 
