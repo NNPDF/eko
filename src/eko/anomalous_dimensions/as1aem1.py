@@ -259,8 +259,8 @@ def gamma_nsp(N, sx):
     S2p1h = harmonics.S2((N + 1) / 2)
     S3p1h = harmonics.S3((N + 1) / 2)
     g3N = harmonics.g_functions.mellin_g3(N, S1)
-    s1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
-    g3Np2 = harmonics.g_functions.mellin_g3(N + 2, s1p2)
+    S1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
+    g3Np2 = harmonics.g_functions.mellin_g3(N + 2, S1p2)
     result = (
         +32 * zeta2 * S1h
         - 32 * zeta2 * S1p1h
@@ -322,8 +322,8 @@ def gamma_nsm(N, sx):
     S2p1h = harmonics.S2((N + 1) / 2)
     S3p1h = harmonics.S3((N + 1) / 2)
     g3N = harmonics.g_functions.mellin_g3(N, S1)
-    s1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
-    g3Np2 = harmonics.g_functions.mellin_g3(N + 2, s1p2)
+    S1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
+    g3Np2 = harmonics.g_functions.mellin_g3(N + 2, S1p2)
 
     result = (
         -32.0 * zeta2 * S1h
