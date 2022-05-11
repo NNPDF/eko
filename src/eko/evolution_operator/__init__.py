@@ -5,6 +5,7 @@ This module contains the central operator classes.
 See :doc:`Operator overview </code/Operators>`.
 """
 
+import functools
 import logging
 import os
 import time
@@ -16,7 +17,7 @@ from scipy import integrate
 
 from .. import anomalous_dimensions as ad
 from .. import basis_rotation as br
-from .. import beta, interpolation, mellin
+from .. import interpolation, mellin
 from .. import scale_variations as sv
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
@@ -24,15 +25,8 @@ from ..member import OpMember
 
 logger = logging.getLogger(__name__)
 
-sv_mode_dict = dict(
-    zip(
-        [None, "exponentiated", "expanded"],
-        [sv.unvaried, sv.mode_exponentiated, sv.mode_expanded],
-    )
-)
 
-
-@nb.njit("c16(c16[:,:],u2,u2)")
+@nb.njit(cache=True)
 def select_singlet_element(ker, mode0, mode1):
     """
     Select element of the singlet matrix
@@ -77,12 +71,12 @@ class QuadKerBase:
             is a logarithmic interpolation
         logx : float
             Mellin inversion point
-        mode : str
-            sector element
+        mode0 : str
+            first sector element
     """
 
-    def __init__(self, u, is_log, logx, mode1):
-        self.is_singlet = mode1 != 0
+    def __init__(self, u, is_log, logx, mode0):
+        self.is_singlet = mode0 in [100, 21, 90]
         self.is_log = is_log
         self.u = u
         self.logx = logx
@@ -122,7 +116,7 @@ class QuadKerBase:
         return self.path.prefactor * pj * self.path.jac
 
 
-@nb.njit("f8(f8,u1,u2,u2,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,u1,u1)", cache=True)
+@nb.njit(cache=True)
 def quad_ker(
     u,
     order,
@@ -173,15 +167,15 @@ def quad_ker(
             number of evolution steps
         ev_op_max_order : int
             perturbative expansion order of U
-        sv_mode: int
-            use scale variation mode 0: none, 1: exponentiated, 2: expanded
+        sv_mode: int, `enum.IntEnum`
+            scale variation mode, see `eko.scale_variations.Modes`
 
     Returns
     -------
         ker : float
             evaluated integration kernel
     """
-    ker_base = QuadKerBase(u, is_log, logx, mode1)
+    ker_base = QuadKerBase(u, is_log, logx, mode0)
     integrand = ker_base.integrand(areas)
     if integrand == 0.0:
         return 0.0
@@ -189,23 +183,23 @@ def quad_ker(
     # compute the actual evolution kernel
     if ker_base.is_singlet:
         gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
-        # scale var A is directly applied on gamma
-        if sv_mode == sv.mode_exponentiated:
+        # scale var exponentiated is directly applied on gamma
+        if sv_mode == sv.Modes.exponentiated:
             gamma_singlet = sv.exponentiated.gamma_variation(
                 gamma_singlet, order, nf, L
             )
         ker = s.dispatcher(
             order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
         )
-        # scale var B is applied on the kernel
-        if sv_mode == sv.mode_expanded:
+        # scale var expanded is applied on the kernel
+        if sv_mode == sv.Modes.expanded:
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
                 sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
             )
         ker = select_singlet_element(ker, mode0, mode1)
     else:
         gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
-        if sv_mode == sv.mode_exponentiated:
+        if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
@@ -216,7 +210,7 @@ def quad_ker(
             nf,
             ev_op_iterations,
         )
-        if sv_mode == sv.mode_expanded:
+        if sv_mode == sv.Modes.expanded:
             ker = ker * sv.expanded.non_singlet_variation(gamma_ns, a1, order, nf, L)
 
     # recombine everthing
@@ -245,7 +239,11 @@ class Operator:
             cut to the upper limit in the mellin inversion
     """
 
-    def __init__(self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2):
+    log_label = "Evolution"
+    # complete list of possible evolution operators labels
+    full_labels = br.full_labels
+
+    def __init__(self, config, managers, nf, q2_from, q2_to=None, mellin_cut=5e-2):
         self.config = config
         self.managers = managers
         self.nf = nf
@@ -256,6 +254,13 @@ class Operator:
         self.op_members = {}
 
     @property
+    def n_pools(self):
+        n_pools = self.config["n_integration_cores"]
+        if n_pools > 0:
+            return n_pools
+        return os.cpu_count() + n_pools
+
+    @property
     def fact_to_ren(self):
         r"""Returns the factor :math:`(\mu_F/\mu_R)^2`"""
         return self.config["fact_to_ren"]
@@ -263,7 +268,9 @@ class Operator:
     @property
     def sv_mode(self):
         """Returns the scale variation mode"""
-        return sv_mode_dict[self.config["ModSV"]]
+        if self.config["ModSV"] is not None:
+            return sv.Modes[self.config["ModSV"]]
+        return sv.Modes.unvaried
 
     @property
     def int_disp(self):
@@ -299,7 +306,7 @@ class Operator:
         labels = []
         # the NS sector is dynamic
         if self.config["debug_skip_non_singlet"]:
-            logger.warning("Evolution: skipping non-singlet sector")
+            logger.warning("%s: skipping non-singlet sector", self.log_label)
         else:
             # add + as default
             labels.append(br.non_singlet_labels[1])
@@ -309,15 +316,48 @@ class Operator:
                 labels.append(br.non_singlet_labels[2])
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
-            logger.warning("Evolution: skipping singlet sector")
+            logger.warning("%s: skipping singlet sector", self.log_label)
         else:
             labels.extend(br.singlet_labels)
         return labels
 
-    @property
-    def quad_ker(self):
-        """Integrand function"""
-        return quad_ker
+    def quad_ker(self, label, logx, areas):
+        """
+        Partially initialized integrand function
+
+        Parameters
+        ----------
+            label: tuple
+                operator element pids
+            logx: float
+                Mellin inversion point
+            areas : tuple
+                basis function configuration
+
+        Returns
+        -------
+            quad_ker : functools.partial
+                partially initialized intration kernel
+
+        """
+        return functools.partial(
+            quad_ker,
+            # TODO: implement N3LO evolution kernels
+            order=self.config["order"] if self.config["order"] != 3 else 2,
+            mode0=label[0],
+            mode1=label[1],
+            method=self.config["method"],
+            is_log=self.int_disp.log,
+            logx=logx,
+            areas=areas,
+            a1=self.a_s[1],
+            a0=self.a_s[0],
+            nf=self.nf,
+            L=np.log(self.fact_to_ren),
+            ev_op_iterations=self.config["ev_op_iterations"],
+            ev_op_max_order=self.config["ev_op_max_order"],
+            sv_mode=self.sv_mode,
+        )
 
     def initialize_op_members(self):
         """Init all ops with identity or zeros if we skip them"""
@@ -325,13 +365,13 @@ class Operator:
             np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
         )
         zero = OpMember(*[np.zeros((self.grid_size, self.grid_size))] * 2)
-        for n in br.full_labels:
+        for n in self.full_labels:
             if n in self.labels:
-                # off diag singlet are zero
-                if n in br.singlet_labels and n[0] != n[1]:
-                    self.op_members[n] = zero.copy()
-                else:
+                # non-singlet evolution and diagonal op are identities
+                if n in br.non_singlet_labels or n[0] == n[1]:
                     self.op_members[n] = eye.copy()
+                else:
+                    self.op_members[n] = zero.copy()
             else:
                 self.op_members[n] = zero.copy()
 
@@ -364,25 +404,9 @@ class Operator:
             # iterate sectors
             for label in self.labels:
                 res = integrate.quad(
-                    self.quad_ker,
+                    self.quad_ker(label, logx, bf.areas_representation),
                     0.5,
                     1.0 - self._mellin_cut,
-                    args=(
-                        self.config["order"],
-                        label[0],
-                        label[1],
-                        self.config["method"],
-                        self.int_disp.log,
-                        logx,
-                        bf.areas_representation,
-                        self.a_s[1],
-                        self.a_s[0],
-                        self.nf,
-                        np.log(self.fact_to_ren),
-                        self.config["ev_op_iterations"],
-                        self.config["ev_op_max_order"],
-                        self.sv_mode,
-                    ),
                     epsabs=1e-12,
                     epsrel=1e-5,
                     limit=100,
@@ -390,9 +414,8 @@ class Operator:
                 )
                 temp_dict[label] = res[:2]
             column.append(temp_dict)
-
         print(
-            f"Evolution: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time):6f} s"  # pylint: disable=line-too-long
+            f"{self.log_label}: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time):6f} s"  # pylint: disable=line-too-long
         )
         return column
 
@@ -402,41 +425,59 @@ class Operator:
 
         # skip computation ?
         if np.isclose(self.q2_from, self.q2_to):
-            logger.info("Evolution: skipping unity operator at %e", self.q2_from)
+            logger.info(
+                "%s: skipping unity operator at %e", self.log_label, self.q2_from
+            )
             self.copy_ns_ops()
             return
 
-        tot_start_time = time.perf_counter()
         logger.info(
-            "Evolution: computing operators %e -> %e, nf=%d",
+            "%s: computing operators %e -> %e, nf=%d",
+            self.log_label,
             self.q2_from,
             self.q2_to,
             self.nf,
         )
         logger.info(
-            "Evolution: µ_R^2 distance: %e -> %e",
+            "%s: µ_R^2 distance: %e -> %e",
+            self.log_label,
             self.q2_from / self.fact_to_ren,
             self.q2_to / self.fact_to_ren,
         )
-        if self.sv_mode != 0:
+        if self.sv_mode.name != "unvaried":
             logger.info(
                 "Scale Variation: (µ_F/µ_R)^2 = %e, mode: %s",
                 self.fact_to_ren,
-                "exponentiated" if self.sv_mode == 1 else "expanded",
+                self.sv_mode.name,
             )
-        logger.info("Evolution: a_s distance: %e -> %e", self.a_s[0], self.a_s[1])
         logger.info(
-            "Evolution: order: %d, solution strategy: %s",
+            "%s: a_s distance: %e -> %e", self.log_label, self.a_s[0], self.a_s[1]
+        )
+        logger.info(
+            "%s: order: %d, solution strategy: %s",
+            self.log_label,
             self.config["order"],
             self.config["method"],
         )
 
+        self.integrate()
+        # copy non-singlet kernels, if necessary
+        self.copy_ns_ops()
+
+    def integrate(
+        self,
+    ):
+        """Run the integration"""
+        tot_start_time = time.perf_counter()
+
         # run integration in parallel for each grid point
-        with Pool(int(os.cpu_count() / 2)) as pool:
-            res = pool.map(
-                self.run_op_integration,
-                enumerate(np.log(self.int_disp.xgrid_raw)),
-            )
+        # or avoid opening a single pool
+        args = (self.run_op_integration, enumerate(np.log(self.int_disp.xgrid_raw)))
+        if self.n_pools == 1:
+            res = map(*args)
+        else:
+            with Pool(self.n_pools) as pool:
+                res = pool.map(*args)
 
         # collect results
         for k, row in enumerate(res):
@@ -446,9 +487,11 @@ class Operator:
                     self.op_members[label].error[k][l] = err
 
         # closing comment
-        logger.info("Evolution: Total time %f s", time.perf_counter() - tot_start_time)
-        # copy non-singlet kernels, if necessary
-        self.copy_ns_ops()
+        logger.info(
+            "%s: Total time %f s",
+            self.log_label,
+            time.perf_counter() - tot_start_time,
+        )
 
     def copy_ns_ops(self):
         """Copy non-singlet kernels, if necessary"""

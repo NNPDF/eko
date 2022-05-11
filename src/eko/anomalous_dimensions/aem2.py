@@ -4,10 +4,9 @@ This file contains the O(aem2) Altarelli-Parisi splitting kernels.
 """
 
 import numba as nb
-import numpy as np
 
 from .. import constants
-from . import as1aem1, harmonics
+from . import as1aem1
 
 
 @nb.njit("c16(c16,u1)", cache=True)

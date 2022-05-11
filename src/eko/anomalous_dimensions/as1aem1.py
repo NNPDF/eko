@@ -4,10 +4,9 @@ This file contains the O(as1aem1) Altarelli-Parisi splitting kernels.
 """
 
 import numba as nb
-import numpy as np
 
-from .. import constants
-from . import harmonics
+from .. import constants, harmonics
+from ..harmonics.constants import zeta2, zeta3
 
 
 @nb.njit("c16(c16,c16[:])", cache=True)
@@ -253,16 +252,15 @@ def gamma_nsp(N, sx):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1h = harmonics.harmonic_S1(N / 2)
-    S2h = harmonics.harmonic_S2(N / 2)
-    S3h = harmonics.harmonic_S3(N / 2)
-    S1p1h = harmonics.harmonic_S1((N + 1.0) / 2)
-    S2p1h = harmonics.harmonic_S2((N + 1) / 2)
-    S3p1h = harmonics.harmonic_S3((N + 1) / 2)
-    g3N = harmonics.mellin_g3(N)
-    g3Np2 = harmonics.mellin_g3(N + 2)
-    zeta2 = harmonics.zeta2
-    zeta3 = harmonics.zeta3
+    S1h = harmonics.S1(N / 2)
+    S2h = harmonics.S2(N / 2)
+    S3h = harmonics.S3(N / 2)
+    S1p1h = harmonics.S1((N + 1.0) / 2)
+    S2p1h = harmonics.S2((N + 1) / 2)
+    S3p1h = harmonics.S3((N + 1) / 2)
+    g3N = harmonics.g_functions.mellin_g3(N, S1)
+    s1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
+    g3Np2 = harmonics.g_functions.mellin_g3(N + 2, s1p2)
     result = (
         +32 * zeta2 * S1h
         - 32 * zeta2 * S1p1h
@@ -317,16 +315,16 @@ def gamma_nsm(N, sx):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1h = harmonics.harmonic_S1(N / 2)
-    S2h = harmonics.harmonic_S2(N / 2)
-    S3h = harmonics.harmonic_S3(N / 2)
-    S1p1h = harmonics.harmonic_S1((N + 1.0) / 2)
-    S2p1h = harmonics.harmonic_S2((N + 1) / 2)
-    S3p1h = harmonics.harmonic_S3((N + 1) / 2)
-    g3N = harmonics.mellin_g3(N)
-    g3Np2 = harmonics.mellin_g3(N + 2)
-    zeta2 = harmonics.zeta2
-    zeta3 = harmonics.zeta3
+    S1h = harmonics.S1(N / 2)
+    S2h = harmonics.S2(N / 2)
+    S3h = harmonics.S3(N / 2)
+    S1p1h = harmonics.S1((N + 1.0) / 2)
+    S2p1h = harmonics.S2((N + 1) / 2)
+    S3p1h = harmonics.S3((N + 1) / 2)
+    g3N = harmonics.g_functions.mellin_g3(N, S1)
+    s1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
+    g3Np2 = harmonics.g_functions.mellin_g3(N + 2, s1p2)
+
     result = (
         -32.0 * zeta2 * S1h
         - 8.0 / (N + N**2) * S2h

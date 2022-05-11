@@ -69,7 +69,7 @@ def ker_exact(a0, a1, order, nf):
     return np.exp(val)
 
 
-@nb.njit("f8(f8,f8,u1,u1)", cache=True)
+@nb.njit(cache=True)
 def ker_expanded(a0, a1, order, nf):
     r"""
     Expanded |MSbar| |RGE| kernel

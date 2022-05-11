@@ -6,7 +6,16 @@ from eko import basis_rotation as br
 from eko.anomalous_dimensions import gamma_ns, gamma_singlet
 from eko.beta import beta_0
 from eko.kernels import non_singlet, singlet
-from eko.scale_variations import expanded, exponentiated
+from eko.scale_variations import Modes, expanded, exponentiated
+
+
+def test_modes():
+    assert Modes.expanded.name == "expanded"
+    assert Modes.exponentiated.name == "exponentiated"
+    assert Modes.unvaried.name == "unvaried"
+    assert Modes.expanded.value == 3
+    assert Modes.exponentiated.value == 2
+    assert Modes.unvaried.value == 1
 
 
 def test_ns_sv_dispacher():
@@ -71,7 +80,7 @@ def test_scale_variation_a_vs_b():
 
     for L in [np.log(0.5), np.log(2)]:
         for order in [1, 2]:
-            # Non singlet kernels
+            # non-singlet kernels
             gns = gamma_ns(order, br.non_singlet_pids_map["ns+"], n, nf)
             ker = non_singlet.dispatcher(
                 order, method, gns, a1, a0, nf, ev_op_iterations=1
