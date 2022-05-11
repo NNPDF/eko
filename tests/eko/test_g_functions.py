@@ -9,14 +9,17 @@ zeta3 = h.constants.zeta3
 log2 = h.constants.log2
 
 
+# Reference values comes form Mathematica, and are
+# obtained using the function S of HarmonicSums package
+
 testN = [1, 10, 100]
 
 # compare the exact values of some harmonics with Muselli parametrization
 def test_g3():
     ns = [1.0, 2.0, 1 + 1j]
     # NIntegrate[x^({1, 2, 1 + I} - 1) PolyLog[2, x]/(1 + x), {x, 0, 1}]
-    mma_ref_values = [0.3888958462, 0.2560382207, 0.3049381491 - 0.1589060625j]
-    for n, r in zip(ns, mma_ref_values):
+    refvals = [0.3888958462, 0.2560382207, 0.3049381491 - 0.1589060625j]
+    for n, r in zip(ns, refvals):
         S1 = h.S1(n)
         np.testing.assert_almost_equal(h.g_functions.mellin_g3(n, S1), r, decimal=6)
 

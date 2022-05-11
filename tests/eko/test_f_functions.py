@@ -11,7 +11,10 @@ zeta4 = harmonics.constants.zeta4
 zeta5 = harmonics.constants.zeta5
 log2 = np.log(2)
 
-# reference values coming fom mathematica
+# reference values coming fom Mathematica:
+# they are computed inverting the harmonics to x-space
+# and then doing numerical integration.
+
 testN = [1, 2, 2 + 2j, 10 + 5j, 100]
 refvals = {
     "S41": [1.0, 1.09375, 1.13674 + 0.0223259j, 1.13322 + 0.000675408j, 1.13348],
