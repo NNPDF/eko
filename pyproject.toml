@@ -59,9 +59,10 @@ virtualenv = "^20.13.2"
 Sphinx = "^4.3.2"
 sphinx-rtd-theme = "^1.0.0"
 sphinxcontrib-bibtex = "^2.4.1"
+nbsphinx = "^0.8.8"
 
 [tool.poetry.extras]
-docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex"]
+docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex", "nbsphinx"]
 mark = ["banana-hep", "sqlalchemy", "pandas", "matplotlib"]
 box = ["banana-hep", "sqlalchemy", "pandas", "matplotlib"]
 

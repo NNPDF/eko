@@ -11,3 +11,7 @@ needed for the adoption of new releases).
 
 In case of troubles, feel free to write an issue on the `repository
 <https://github.com/N3PDF/eko/>`_.
+
+.. toctree::
+
+    Full DGLAP <dglap.ipynb>

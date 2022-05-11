@@ -60,6 +60,7 @@ extensions = [
     "sphinxcontrib.bibtex",
     "sphinx.ext.graphviz",
     "sphinx.ext.extlinks",
+    "nbsphinx",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
