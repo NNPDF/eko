@@ -14,5 +14,5 @@ In case of troubles, feel free to write an issue on the `repository
 
 .. toctree::
 
-    Full DGLAP <dglap.ipynb>
-    Output <output.ipynb>
+    Computing Evolution <dglap.ipynb>
+    Explore the Output <output.ipynb>
