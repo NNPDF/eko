@@ -145,16 +145,6 @@ class TestStrongCoupling:
                     HQ="FAIL",
                 ),
             )
-        couplings = Couplings(
-            couplings_ref,
-            scale_ref,
-            threshold_holder.area_walls[1:-1],
-            (1.0, 1.0, 1.0),
-            (1, 1),
-            method="expanded",
-        )
-        with pytest.raises(NotImplementedError):
-            couplings.a(scale_ref / 2)
 
     def test_ref(self):
         # prepare
@@ -258,6 +248,115 @@ class TestStrongCoupling:
                 )
                 np.testing.assert_allclose(
                     sc_expanded.a(q2)[1], sc_exact.a(q2)[1], rtol=5e-4
+                )
+
+    def test_exact_NLO_mix(self):
+        # prepare
+        thresh_setups = [
+            (np.inf, np.inf, np.inf),
+            (0, np.inf, np.inf),
+            (2, 4, 175),
+        ]
+        alphas_ref = 0.118
+        alphaem_ref = 0.00781
+        scale_ref = 91.0**2
+        for thresh_setup in thresh_setups:
+            # in LO expanded  = exact
+            sc_expanded = Couplings(
+                np.array([alphas_ref, alphaem_ref]),
+                scale_ref,
+                thresh_setup,
+                (1.0, 1.0, 1.0),
+                (1, 1),
+                "expanded",
+            )
+            sc_exact = Couplings(
+                np.array([alphas_ref, alphaem_ref]),
+                scale_ref,
+                thresh_setup,
+                (1.0, 1.0, 1.0),
+                (1, 1),
+                "exact",
+            )
+            for q2 in [1e2, 1e3, 1e4]:
+                np.testing.assert_allclose(
+                    sc_expanded.a(q2)[0], sc_exact.a(q2)[0], atol=5e-4
+                )
+                np.testing.assert_allclose(
+                    sc_expanded.a(q2)[1], sc_exact.a(q2)[1], atol=5e-4
+                )
+
+    def test_exact_N2LO_mix(self):
+        # prepare
+        thresh_setups = [
+            (np.inf, np.inf, np.inf),
+            (0, np.inf, np.inf),
+            (2, 4, 175),
+        ]
+        alphas_ref = 0.118
+        alphaem_ref = 0.00781
+        scale_ref = 91.0**2
+        for thresh_setup in thresh_setups:
+            # in LO expanded  = exact
+            sc_expanded = Couplings(
+                np.array([alphas_ref, alphaem_ref]),
+                scale_ref,
+                thresh_setup,
+                (1.0, 1.0, 1.0),
+                (2, 1),
+                "expanded",
+            )
+            sc_exact = Couplings(
+                np.array([alphas_ref, alphaem_ref]),
+                scale_ref,
+                thresh_setup,
+                (1.0, 1.0, 1.0),
+                (2, 1),
+                "exact",
+            )
+            for q2 in [1e1, 1e2, 1e3, 1e4]:
+                np.testing.assert_allclose(
+                    sc_expanded.a(q2)[0], sc_exact.a(q2)[0], atol=5e-4
+                )
+                np.testing.assert_allclose(
+                    sc_expanded.a(q2)[1], sc_exact.a(q2)[1], atol=5e-4
+                )
+
+    def test_exact_N3LO_mix(self):
+        # prepare
+        thresh_setups = [
+            (np.inf, np.inf, np.inf),
+            (0, np.inf, np.inf),
+            (2, 4, 175),
+        ]
+        alphas_ref = 0.118
+        alphaem_ref = 0.00781
+        scale_ref = 91.0**2
+        for thresh_setup in thresh_setups:
+            # in LO expanded  = exact
+            sc_expanded = Couplings(
+                np.array([alphas_ref, alphaem_ref]),
+                scale_ref,
+                thresh_setup,
+                (1.0, 1.0, 1.0),
+                (3, 1),
+                "expanded",
+            )
+            sc_exact = Couplings(
+                np.array([alphas_ref, alphaem_ref]),
+                scale_ref,
+                thresh_setup,
+                (1.0, 1.0, 1.0),
+                (3, 1),
+                "exact",
+            )
+            for q2 in [1e1, 1e2, 1e3, 1e4]:
+                # import pdb; pdb.set_trace()
+                np.testing.assert_allclose(
+                    sc_expanded.a(q2)[0], sc_exact.a(q2)[0], atol=5e-3
+                )
+                np.testing.assert_allclose(
+                    sc_expanded.a(q2)[1], sc_exact.a(q2)[1], atol=5e-4
                 )
 
     def benchmark_expanded_n3lo(self):

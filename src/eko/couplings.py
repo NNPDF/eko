@@ -158,12 +158,23 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
         beta_qed0 = beta_qed((0, 0), nf)
         # QED NLO
         b_qed1 = b_qed((0, 1), nf)
-        aem_LO = expanded_lo(couplings_ref[1], beta_qed0, lmu)
         aem_NLO = expanded_nlo(couplings_ref[1], beta_qed0, beta_qed0 * b_qed1, lmu)
         res_aem = aem_NLO
         if order[0] >= 1:
-            # TODO find and implement expanded solution at order (1,1)
-            raise NotImplementedError("Order (1,1) is not implemented (yet)!")
+            # mixed solution from arXiv:hep-ph/9803211v1 eqs. (17-18)
+            res_as = couplings_expanded(
+                (order[0], 0), couplings_ref, nf, scale_from, scale_to
+            )[0]
+            res_as += (
+                -couplings_ref[0] ** 2
+                * b_qcd((0, 1), nf)
+                * np.log(1 + beta_qcd0 * couplings_ref[1] * lmu)
+            )
+            res_aem += (
+                -couplings_ref[1] ** 2
+                * b_qed((1, 0), nf)
+                * np.log(1 + beta_qed0 * couplings_ref[0] * lmu)
+            )
     return np.array([res_as, res_aem])
 
 
@@ -419,23 +430,17 @@ class Couplings:
         # NLO
         if self.order[1] >= 1:
             beta_qed_vec.append(beta_qed((0, 1), nf))
-            # NNLO
-        #            if self.order[0] >= 2:
-        #                b_qed_vec.append(b_qed((2,0), nf))
-        #                # N3LO
-        #                if self.order[0] >= 3:
-        #                    b_qed_vec.append(b_qed((3,0), nf))
         if self.order[0] >= 1:
             beta_qed_mix = beta_qed((1, 0), nf)
         # integration kernel
         def rge(_t, a, beta_qcd_vec, beta_qed_vec):
             rge_qcd = -(a[0] ** 2) * (
                 np.sum([a[0] ** k * b for k, b in enumerate(beta_qcd_vec)])
-                - a[1] * beta_qcd_mix
+                + a[1] * beta_qcd_mix
             )
             rge_qed = -(a[1] ** 2) * (
                 np.sum([a[1] ** k * b for k, b in enumerate(beta_qed_vec)])
-                - a[0] * beta_qed_mix
+                + a[0] * beta_qed_mix
             )
             res = np.array([rge_qcd, rge_qed])
             return res
