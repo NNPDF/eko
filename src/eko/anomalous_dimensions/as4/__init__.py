@@ -13,3 +13,6 @@ For the non singlet anomalous dimensions:
         while the rest is exact.
     *
 """
+from .gNSm import gamma_nsm
+from .gNSp import gamma_nsp
+from .gNSv import gamma_nsv

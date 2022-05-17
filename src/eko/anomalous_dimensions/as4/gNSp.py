@@ -35,10 +35,11 @@ def gamma_ns_nf3(n, sx):
     S4 = sx[3][0]
     eta = 1 / n * 1 / (n + 1)
     g_ns_nf3 = CF * (
-        -32 / 27 * zeta3 * eta - 16 / 9 * zeta3 - 16 / 27 * eta
-        ^ 4 - 16 / 81 * eta
-        ^ 3 + 80 / 27 * eta
-        ^ 2
+        -32 / 27 * zeta3 * eta
+        - 16 / 9 * zeta3
+        - 16 / 27 * eta**4
+        - 16 / 81 * eta**3
+        + 80 / 27 * eta**2
         - 320 / 81 * eta
         + 32 / 27 * 1 / (n + 1) ** 4
         + 128 / 27 * 1 / (n + 1) ** 2
@@ -153,7 +154,7 @@ def B_3p(n, sx):
             proportional to :math:`C_F (C_A - 2 C_F) nf^2`
     """
     S1 = sx[0][0]
-    return -52.6196 + 58.6005 * S1 - 28.9527 * S1 / n ^ 2 + 16.6447 * S1 / n
+    return -52.6196 + 58.6005 * S1 - 28.9527 * S1 / n**2 + 16.6447 * S1 / n
 
 
 @nb.njit(cache=True)
