@@ -26,14 +26,14 @@ def test_build_ome_as():
     a_s = 0.0
     sx = np.zeros(3, np.complex_)
     is_msbar = False
-    for o in [0, 1, 2]:
+    for o in [1, 2, 3]:
         aNS = A_non_singlet((o, 0), N, sx, L)
         aS = A_singlet((o, 0), N, sx, L, is_msbar)
 
         for a in [aNS, aS]:
             for method in ["", "expanded", "exact"]:
                 dim = len(a[0])
-                if o != 0:
+                if o != 1:
                     assert len(a) == o
 
                 ome = build_ome(a, (o, 0), a_s, method)
@@ -92,7 +92,7 @@ def test_quad_ker(monkeypatch):
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            order=(2, 0),
+            order=(3, 0),
             mode0=200,
             mode1=200,
             is_log=is_log,
@@ -106,7 +106,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
             u=0,
-            order=(2, 0),
+            order=(3, 0),
             mode0=100,
             mode1=100,
             is_log=is_log,
@@ -120,7 +120,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            order=(2, 0),
+            order=(3, 0),
             mode0=100,
             mode1=21,
             is_log=is_log,
@@ -138,7 +138,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=(2, 0),
+            order=(3, 0),
             mode0=label[0],
             mode1=label[1],
             is_log=True,
@@ -170,7 +170,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=(2, 0),
+            order=(3, 0),
             mode0=label[0],
             mode1=label[1],
             is_log=True,
@@ -189,7 +189,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        order=(2, 0),
+        order=(3, 0),
         mode0=200,
         mode1=200,
         is_log=True,
@@ -208,7 +208,7 @@ class TestOperatorMatrixElement:
     theory_card = {
         "alphas": 0.35,
         "alphaem": 0.00781,
-        "orders": (0, 0),
+        "orders": (1, 0),
         "ModEv": "TRN",
         "fact_to_ren_scale_ratio": 1.0,
         "Qref": np.sqrt(2),
@@ -240,7 +240,7 @@ class TestOperatorMatrixElement:
                     "interpolation_is_log": True,
                     "debug_skip_singlet": skip_singlet,
                     "debug_skip_non_singlet": skip_ns,
-                    "ev_op_max_order": 1,
+                    "ev_op_max_order": (2, 0),
                     "ev_op_iterations": 1,
                     "backward_inversion": "exact",
                 }
@@ -280,7 +280,7 @@ class TestOperatorMatrixElement:
             "interpolation_is_log": True,
             "debug_skip_singlet": False,
             "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
+            "ev_op_max_order": (2, 0),
             "ev_op_iterations": 1,
             "backward_inversion": "exact",
         }
@@ -327,12 +327,12 @@ class TestOperatorMatrixElement:
             "interpolation_is_log": True,
             "debug_skip_singlet": False,
             "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
+            "ev_op_max_order": (2, 0),
             "ev_op_iterations": 1,
             "backward_inversion": "exact",
         }
         t = copy.deepcopy(self.theory_card)
-        t["orders"] = (1, 0)
+        t["orders"] = (2, 0)
         g = OperatorGrid.from_dict(
             t,
             operators_card,

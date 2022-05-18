@@ -29,7 +29,7 @@ def test_quad_ker(monkeypatch):
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            order=(0, 0),
+            order=(1, 0),
             mode0=br.non_singlet_pids_map["ns+"],
             mode1=0,
             method="",
@@ -41,13 +41,13 @@ def test_quad_ker(monkeypatch):
             nf=3,
             L=0,
             ev_op_iterations=0,
-            ev_op_max_order=0,
+            ev_op_max_order=(1, 0),
             sv_mode=0,
         )
         np.testing.assert_allclose(res_ns, 0.0)
         res_s = quad_ker(
             u=0,
-            order=(0, 0),
+            order=(1, 0),
             mode0=100,
             mode1=100,
             method="",
@@ -59,13 +59,13 @@ def test_quad_ker(monkeypatch):
             nf=3,
             L=0,
             ev_op_iterations=0,
-            ev_op_max_order=0,
+            ev_op_max_order=(1, 0),
             sv_mode=0,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            order=(0, 0),
+            order=(1, 0),
             mode0=100,
             mode1=21,
             method="",
@@ -77,7 +77,7 @@ def test_quad_ker(monkeypatch):
             nf=3,
             L=0,
             ev_op_iterations=0,
-            ev_op_max_order=0,
+            ev_op_max_order=(1, 0),
             sv_mode=0,
         )
         np.testing.assert_allclose(res_s, 0.0)
@@ -85,7 +85,7 @@ def test_quad_ker(monkeypatch):
         for sv in [1, 2]:
             res_sv = quad_ker(
                 u=0,
-                order=(0, 0),
+                order=(1, 0),
                 mode0=label[0],
                 mode1=label[1],
                 method="",
@@ -97,7 +97,7 @@ def test_quad_ker(monkeypatch):
                 nf=3,
                 L=0,
                 ev_op_iterations=0,
-                ev_op_max_order=0,
+                ev_op_max_order=(1, 0),
                 sv_mode=sv,
             )
             np.testing.assert_allclose(res_sv, 1.0)
@@ -105,7 +105,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        order=(0, 0),
+        order=(1, 0),
         mode0=br.non_singlet_pids_map["ns+"],
         mode1=0,
         method="",
@@ -117,7 +117,7 @@ def test_quad_ker(monkeypatch):
         nf=3,
         L=0,
         ev_op_iterations=0,
-        ev_op_max_order=0,
+        ev_op_max_order=(1, 0),
         sv_mode=0,
     )
     np.testing.assert_allclose(res_ns, 0.0)
@@ -126,7 +126,7 @@ def test_quad_ker(monkeypatch):
 class TestOperator:
     def test_labels(self):
         o = Operator(
-            dict(orders=(2, 0), debug_skip_non_singlet=False, debug_skip_singlet=False),
+            dict(orders=(3, 0), debug_skip_non_singlet=False, debug_skip_singlet=False),
             {},
             3,
             1,
@@ -134,7 +134,7 @@ class TestOperator:
         )
         assert sorted(o.labels) == sorted(br.full_labels)
         o = Operator(
-            dict(orders=(1, 0), debug_skip_non_singlet=True, debug_skip_singlet=True),
+            dict(orders=(2, 0), debug_skip_non_singlet=True, debug_skip_singlet=True),
             {},
             3,
             1,
@@ -147,7 +147,7 @@ class TestOperator:
         theory_card = {
             "alphas": 0.35,
             "alphaem": 0.00781,
-            "orders": (0, 0),
+            "orders": (1, 0),
             "ModEv": "TRN",
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
@@ -176,7 +176,7 @@ class TestOperator:
             "interpolation_is_log": True,
             "debug_skip_singlet": False,
             "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
+            "ev_op_max_order": (2, 0),
             "ev_op_iterations": 1,
             "backward_inversion": "exact",
         }
@@ -204,7 +204,7 @@ class TestOperator:
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
         )
         # NLO
-        o.config["orders"] = (1, 0)
+        o.config["orders"] = (2, 0)
         o.compute()
         assert not np.allclose(
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
@@ -216,9 +216,9 @@ class TestOperator:
         )
 
         # unity operators
-        for n in range(0, 2 + 1):
+        for n in range(1, 3 + 1):
             o1 = Operator(g.config, g.managers, 3, 2, 2)
-            o1.config["order"] = n
+            o1.config["orders"] = (n, 0)
             o1.compute()
             for k in br.non_singlet_labels:
                 assert k in o1.op_members
@@ -250,7 +250,7 @@ def test_pegasus_path():
     # monkeypatch.setattr(ns, "dispatcher", lambda x, *args: np.exp( - x ** 2 ) )
     xgrid = np.geomspace(1e-7, 1, 10)
     int_disp = InterpolatorDispatcher(xgrid, 1, True)
-    order = (1, 0)
+    order = (2, 0)
     mode0 = br.non_singlet_pids_map["ns+"]
     mode1 = 0
     method = ""

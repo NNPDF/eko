@@ -23,7 +23,7 @@ def test_zero():
     nf = 3
     ev_op_iterations = 2
     gamma_ns = np.array([1 + 0.0j, 1 + 0j, 1 + 0j])
-    for order in [0, 1, 2]:
+    for order in [1, 2, 3]:
         for method in methods:
             np.testing.assert_allclose(
                 ns.dispatcher(
@@ -52,14 +52,14 @@ def test_ode_lo():
     delta_a = -1e-6
     a0 = 0.3
     for a1 in [0.1, 0.2]:
-        r = a1 * gamma_ns / (beta.beta_qcd((0, 0), nf) * a1**2)
+        r = a1 * gamma_ns / (beta.beta_qcd((2, 0), nf) * a1**2)
         for method in methods:
             rhs = r * ns.dispatcher(
-                (0, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
+                (1, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
             )
             lhs = (
                 ns.dispatcher(
-                    (0, 0),
+                    (1, 0),
                     method,
                     gamma_ns,
                     a1 + 0.5 * delta_a,
@@ -68,7 +68,7 @@ def test_ode_lo():
                     ev_op_iterations,
                 )
                 - ns.dispatcher(
-                    (0, 0),
+                    (1, 0),
                     method,
                     gamma_ns,
                     a1 - 0.5 * delta_a,
@@ -88,15 +88,15 @@ def test_ode_nlo():
     a0 = 0.3
     for a1 in [0.1, 0.2]:
         r = (a1 * gamma_ns[0] + a1**2 * gamma_ns[1]) / (
-            beta.beta_qcd((0, 0), nf) * a1**2 + beta.beta_qcd((1, 0), nf) * a1**3
+            beta.beta_qcd((2, 0), nf) * a1**2 + beta.beta_qcd((3, 0), nf) * a1**3
         )
         for method in ["iterate-exact"]:
             rhs = r * ns.dispatcher(
-                (1, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
+                (2, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
             )
             lhs = (
                 ns.dispatcher(
-                    (1, 0),
+                    (2, 0),
                     method,
                     gamma_ns,
                     a1 + 0.5 * delta_a,
@@ -105,7 +105,7 @@ def test_ode_nlo():
                     ev_op_iterations,
                 )
                 - ns.dispatcher(
-                    (1, 0),
+                    (2, 0),
                     method,
                     gamma_ns,
                     a1 - 0.5 * delta_a,
@@ -144,9 +144,9 @@ def test_ode_nlo():
 
 def test_error():
     with pytest.raises(NotImplementedError):
-        ns.dispatcher((3, 0), "iterate-exact", np.random.rand(3) + 0j, 0.2, 0.1, 3, 10)
+        ns.dispatcher((4, 0), "iterate-exact", np.random.rand(3) + 0j, 0.2, 0.1, 3, 10)
     with pytest.raises(NotImplementedError):
-        ad.gamma_ns((1, 0), 10202, 1, 3)
+        ad.gamma_ns((2, 0), 10202, 1, 3)
 
 
 def test_gamma_usage():
@@ -156,7 +156,7 @@ def test_gamma_usage():
     ev_op_iterations = 10
     # first check that at order=n only uses the matrices up n
     gamma_ns = np.full(3, np.nan)
-    for order in range(3):
+    for order in range(1, 4):
         gamma_ns[order] = np.random.rand()
         for method in methods:
             r = ns.dispatcher(
@@ -164,7 +164,7 @@ def test_gamma_usage():
             )
             assert not np.isnan(r)
     # second check that at order=n the actual matrix n is used
-    for order in range(3):
+    for order in range(1, 4):
         gamma_ns = np.random.rand(3)
         gamma_ns[order] = np.nan
         for method in methods:

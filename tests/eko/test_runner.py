@@ -8,7 +8,7 @@ import eko
 theory_card = {
     "alphas": 0.35,
     "alphaem": 0.00781,
-    "orders": (0, 0),
+    "orders": (1, 0),
     "fact_to_ren_scale_ratio": 1.0,
     "Qref": np.sqrt(2),
     "nfref": 4,
@@ -40,7 +40,7 @@ operators_card = {
     "interpolation_is_log": True,
     "debug_skip_singlet": True,
     "debug_skip_non_singlet": True,
-    "ev_op_max_order": 1,
+    "ev_op_max_order": (2, 0),
     "ev_op_iterations": 1,
     "backward_inversion": "exact",
 }
@@ -125,7 +125,7 @@ def test_vfns():
     oc = copy.deepcopy(operators_card)
     tc["kcThr"] = 1.0
     tc["kbThr"] = 1.0
-    tc["PTO"] = 2
+    tc["orders"] = (3, 0)
     oc["debug_skip_non_singlet"] = False
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()

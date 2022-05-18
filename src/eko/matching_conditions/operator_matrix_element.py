@@ -89,9 +89,9 @@ def A_non_singlet(order, n, sx, L):
     if order[0] == 1:
         return np.zeros((1, 2, 2), np.complex_)
     A_ns = np.zeros((order[0] - 1, 2, 2), np.complex_)
-    if order[0] >= 1:
-        A_ns[0] = nlo.A_ns_1(n, sx, L)
     if order[0] >= 2:
+        A_ns[0] = nlo.A_ns_1(n, sx, L)
+    if order[0] >= 3:
         A_ns[1] = nnlo.A_ns_2(n, sx, L)
     return A_ns
 

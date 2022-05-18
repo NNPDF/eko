@@ -231,10 +231,10 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
             singlet NLO or NNLO iterated (exact) EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    beta0 = beta.beta_qcd((0, 0), nf)
-    beta1 = beta.beta_qcd((1, 0), nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    beta1 = beta.beta_qcd((3, 0), nf)
     if order[0] >= 3:
-        beta2 = beta.beta_qcd((2, 0), nf)
+        beta2 = beta.beta_qcd((4, 0), nf)
     e = np.identity(2, np.complex_)
     al = a_steps[0]
     for ah in a_steps[1:]:
@@ -290,9 +290,9 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
             R vector
     """
     r = np.zeros((ev_op_max_order[0], 2, 2), np.complex_)  # k = 0 .. max_order
-    beta0 = beta.beta_qcd((0, 0), nf)
-    b1 = beta.b_qcd((1, 0), nf)
-    b2 = beta.b_qcd((2, 0), nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    b1 = beta.b_qcd((3, 0), nf)
+    b2 = beta.b_qcd((4, 0), nf)
     # fill explicit elements
     r[0] = gamma_singlet[0] / beta0
     if order[0] > 1:

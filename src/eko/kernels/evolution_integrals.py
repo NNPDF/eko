@@ -38,7 +38,7 @@ def j00(a1, a0, nf):
         j00 : float
             integral
     """
-    return np.log(a1 / a0) / beta.beta_qcd((0, 0), nf)
+    return np.log(a1 / a0) / beta.beta_qcd((2, 0), nf)
 
 
 @nb.njit("f8(f8,f8,u1)", cache=True)
@@ -65,8 +65,8 @@ def j11_exact(a1, a0, nf):
         j11 : float
             integral
     """
-    beta_as_3 = beta.beta_qcd((1, 0), nf)
-    b1 = beta.b_qcd((1, 0), nf)
+    beta_as_3 = beta.beta_qcd((3, 0), nf)
+    b1 = beta.b_qcd((3, 0), nf)
     return (1.0 / beta_as_3) * np.log((1.0 + a1 * b1) / (1.0 + a0 * b1))
 
 
@@ -92,7 +92,7 @@ def j11_expanded(a1, a0, nf):
         j11_exp : float
             integral
     """
-    return 1.0 / beta.beta_qcd((0, 0), nf) * (a1 - a0)
+    return 1.0 / beta.beta_qcd((2, 0), nf) * (a1 - a0)
 
 
 @nb.njit("f8(f8,f8,u1)", cache=True)
@@ -119,7 +119,7 @@ def j01_exact(a1, a0, nf):
         j11 : float
             integral
     """
-    return j00(a1, a0, nf) - beta.b_qcd((1, 0), nf) * j11_exact(a1, a0, nf)
+    return j00(a1, a0, nf) - beta.b_qcd((3, 0), nf) * j11_exact(a1, a0, nf)
 
 
 @nb.njit("f8(f8,f8,u1)", cache=True)
@@ -144,7 +144,7 @@ def j01_expanded(a1, a0, nf):
         j01_exp : float
             integral
     """
-    return j00(a1, a0, nf) - beta.b_qcd((1, 0), nf) * j11_expanded(a1, a0, nf)
+    return j00(a1, a0, nf) - beta.b_qcd((3, 0), nf) * j11_expanded(a1, a0, nf)
 
 
 @nb.njit("f8(f8,f8,u1)", cache=True)
@@ -177,16 +177,16 @@ def j22_exact(a1, a0, nf):
         j22 : complex
             integral
     """
-    b1 = beta.b_qcd((1, 0), nf)
-    b2 = beta.b_qcd((2, 0), nf)
+    b1 = beta.b_qcd((3, 0), nf)
+    b2 = beta.b_qcd((4, 0), nf)
     # allow Delta to be complex for nf = 6, the final result will be real
     Delta = np.sqrt(complex(4 * b2 - b1**2))
     delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
         (b1 + 2 * a0 * b2) / Delta
     )
     log = np.log((1 + a1 * (b1 + b2 * a1)) / (1 + a0 * (b1 + b2 * a0)))
-    return 1 / (2 * beta.beta_qcd((2, 0), nf)) * log - b1 / (
-        beta.beta_qcd((2, 0), nf)
+    return 1 / (2 * beta.beta_qcd((4, 0), nf)) * log - b1 / (
+        beta.beta_qcd((4, 0), nf)
     ) * np.real(delta / Delta)
 
 
@@ -215,14 +215,14 @@ def j12_exact(a1, a0, nf):
         j12 : complex
             integral
     """  # pylint: disable=line-too-long
-    b1 = beta.b_qcd((1, 0), nf)
-    b2 = beta.b_qcd((2, 0), nf)
+    b1 = beta.b_qcd((3, 0), nf)
+    b2 = beta.b_qcd((4, 0), nf)
     # allow Delta to be complex for nf = 6, the final result will be real
     Delta = np.sqrt(complex(4 * b2 - b1**2))
     delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
         (b1 + 2 * a0 * b2) / Delta
     )
-    return 2.0 / (beta.beta_qcd((0, 0), nf)) * np.real(delta / Delta)
+    return 2.0 / (beta.beta_qcd((2, 0), nf)) * np.real(delta / Delta)
 
 
 @nb.njit("f8(f8,f8,u1)", cache=True)
@@ -251,8 +251,8 @@ def j02_exact(a1, a0, nf):
     """
     return (
         j00(a1, a0, nf)
-        - beta.b_qcd((1, 0), nf) * j12_exact(a1, a0, nf)
-        - beta.b_qcd((2, 0), nf) * j22_exact(a1, a0, nf)
+        - beta.b_qcd((3, 0), nf) * j12_exact(a1, a0, nf)
+        - beta.b_qcd((4, 0), nf) * j22_exact(a1, a0, nf)
     )
 
 
@@ -278,7 +278,7 @@ def j22_expanded(a1, a0, nf):
         j22_exp : float
             integral
     """
-    return 1 / (2 * beta.beta_qcd((0, 0), nf)) * (a1**2 - a0**2)
+    return 1 / (2 * beta.beta_qcd((2, 0), nf)) * (a1**2 - a0**2)
 
 
 @nb.njit("f8(f8,f8,u1)", cache=True)
@@ -304,8 +304,8 @@ def j12_expanded(a1, a0, nf):
         j12_exp : float
             integral
     """
-    b1 = beta.b_qcd((1, 0), nf)
-    return 1 / beta.beta_qcd((0, 0), nf) * (a1 - a0 - b1 / 2 * (a1**2 - a0**2))
+    b1 = beta.b_qcd((3, 0), nf)
+    return 1 / beta.beta_qcd((2, 0), nf) * (a1 - a0 - b1 / 2 * (a1**2 - a0**2))
 
 
 @nb.njit("f8(f8,f8,u1)", cache=True)
@@ -333,6 +333,6 @@ def j02_expanded(a1, a0, nf):
     """
     return (
         j00(a1, a0, nf)
-        - beta.b_qcd((1, 0), nf) * j12_expanded(a1, a0, nf)
-        - beta.b_qcd((2, 0), nf) * j22_expanded(a1, a0, nf)
+        - beta.b_qcd((3, 0), nf) * j12_expanded(a1, a0, nf)
+        - beta.b_qcd((4, 0), nf) * j22_expanded(a1, a0, nf)
     )

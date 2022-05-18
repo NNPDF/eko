@@ -100,13 +100,13 @@ def ker_expanded(a0, a1, order, nf):
                 & - 3 b_2 c_0 c_1 + b_1^2 (2 + 3 c_0 (2 + c_0)) c_1 + c_1^3 + 3 c_1 c_2 \\
                 & + b_1 (b_2 c_0 (4 + 3 c_0) - 3 (1 + c_0) c_1^2 - (2 + 3 c_0) c_2) + 2 c_3 ]
     """
-    b0 = beta_qcd((0, 0), nf)
+    b0 = beta_qcd((2, 0), nf)
     c0 = gamma(1, nf) / b0
     ev_mass = np.power(a1 / a0, c0)
     num = 1.0
     den = 1.0
     if order[0] >= 2:
-        b1 = b_qcd((2, 0), nf)
+        b1 = b_qcd((3, 0), nf)
         c1 = gamma(2, nf) / b0
         u = c1 - b1 * c0
         num += a1 * u

@@ -112,7 +112,7 @@ def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
             |NLO| non-singlet truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    b1 = beta.b_qcd((1, 0), nf)
+    b1 = beta.b_qcd((3, 0), nf)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:
@@ -146,8 +146,8 @@ def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
             |NLO| non-singlet ordered-truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    beta0 = beta.beta_qcd((0, 0), nf)
-    b1 = beta.b_qcd((1, 0), nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    b1 = beta.b_qcd((3, 0), nf)
     e = 1.0
     al = a_steps[0]
     for ah in a_steps[1:]:

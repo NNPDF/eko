@@ -36,14 +36,14 @@ def gamma_variation(gamma, order, nf, L):
     """
     # since we are modifying *in-place* be carefull, that the order matters!
     # and indeed, we need to adjust the high elements first
-    beta0 = beta.beta_qcd((0, 0), nf)
-    beta1 = beta.beta_qcd((1, 0), nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    beta1 = beta.beta_qcd((3, 0), nf)
     if order[0] >= 4:
         gamma[3] -= (
             3 * beta0 * L * gamma[2]
             + (2 * beta1 * L - 3 * beta0**2 * L**2) * gamma[1]
             + (
-                beta.beta_qcd((2, 0), nf) * L
+                beta.beta_qcd((4, 0), nf) * L
                 - 5 / 2 * beta1 * beta0 * L**2
                 + beta0**3 * L**3
             )
