@@ -233,20 +233,20 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     beta0 = beta.beta_qcd((0, 0), nf)
     beta1 = beta.beta_qcd((1, 0), nf)
-    if order[0] >= 2:
+    if order[0] >= 3:
         beta2 = beta.beta_qcd((2, 0), nf)
     e = np.identity(2, np.complex_)
     al = a_steps[0]
     for ah in a_steps[1:]:
         a_half = (ah + al) / 2.0
         delta_a = ah - al
-        if order[0] == 1:
+        if order[0] == 2:
             ln = (
                 (gamma_singlet[0] * a_half + gamma_singlet[1] * a_half**2)
                 / (beta0 * a_half**2 + beta1 * a_half**3)
                 * delta_a
             )
-        elif order[0] == 2:
+        elif order[0] == 3:
             ln = (
                 (
                     gamma_singlet[0] * a_half
@@ -289,23 +289,23 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
         r : np.ndarray
             R vector
     """
-    r = np.zeros((ev_op_max_order[0] + 1, 2, 2), np.complex_)  # k = 0 .. max_order
+    r = np.zeros((ev_op_max_order[0], 2, 2), np.complex_)  # k = 0 .. max_order
     beta0 = beta.beta_qcd((0, 0), nf)
     b1 = beta.b_qcd((1, 0), nf)
     b2 = beta.b_qcd((2, 0), nf)
     # fill explicit elements
     r[0] = gamma_singlet[0] / beta0
-    if order[0] > 0:
-        r[1] = gamma_singlet[1] / beta0 - b1 * r[0]
     if order[0] > 1:
+        r[1] = gamma_singlet[1] / beta0 - b1 * r[0]
+    if order[0] > 2:
         r[2] = gamma_singlet[2] / beta0 - b1 * r[1] - b2 * r[0]
     # fill rest
     if is_exact:
-        if order[0] == 1:
-            for kk in range(2, ev_op_max_order[0] + 1):
+        if order[0] == 2:
+            for kk in range(2, ev_op_max_order[0]):
                 r[kk] = -b1 * r[kk - 1]
-        elif order[0] == 2:
-            for kk in range(3, ev_op_max_order[0] + 1):
+        elif order[0] == 3:
+            for kk in range(3, ev_op_max_order[0]):
                 r[kk] = -b1 * r[kk - 1] - b2 * r[kk - 2]
     return r
 
@@ -331,13 +331,13 @@ def u_vec(r, ev_op_max_order):
         u : np.ndarray
             U vector
     """
-    u = np.zeros((ev_op_max_order[0] + 1, 2, 2), np.complex_)  # k = 0 .. max_order
+    u = np.zeros((ev_op_max_order[0], 2, 2), np.complex_)  # k = 0 .. max_order
     # init
     u[0] = np.identity(2, np.complex_)
     _, r_p, r_m, e_p, e_m = ad.exp_singlet(r[0])
     e_p = np.ascontiguousarray(e_p)
     e_m = np.ascontiguousarray(e_m)
-    for kk in range(1, ev_op_max_order[0] + 1):
+    for kk in range(1, ev_op_max_order[0]):
         # compute R'
         rp = np.zeros((2, 2), np.complex_)
         for jj in range(kk):
@@ -461,7 +461,7 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     r = r_vec(gamma_singlet, nf, order, order, False)
     u = u_vec(r, order)
     u1 = np.ascontiguousarray(u[1])
-    if order[0] >= 2:
+    if order[0] >= 3:
         u2 = np.ascontiguousarray(u[2])
     e = np.identity(2, np.complex_)
     # iterate elements
@@ -469,9 +469,9 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = np.ascontiguousarray(lo_exact(gamma_singlet, ah, al, nf))
-        if order[0] >= 1:
-            ek = e0 + ah * u1 @ e0 - al * e0 @ u1
         if order[0] >= 2:
+            ek = e0 + ah * u1 @ e0 - al * e0 @ u1
+        if order[0] >= 3:
             ek += (
                 +(ah**2) * u2 @ e0
                 - ah * al * u1 @ e0 @ u1
@@ -517,7 +517,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
             singlet EKO
     """
     # use always exact in LO
-    if order[0] == 0:
+    if order[0] == 1:
         return lo_exact(gamma_singlet, a1, a0, nf)
 
     # Common method for NLO and NNLO
@@ -535,11 +535,11 @@ def dispatcher(  # pylint: disable=too-many-return-statements
         return eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
     # These methods are scattered for nlo and nnlo
     if method == "decompose-exact":
-        if order[0] == 1:
+        if order[0] == 2:
             return nlo_decompose_exact(gamma_singlet, a1, a0, nf)
         return nnlo_decompose_exact(gamma_singlet, a1, a0, nf)
     if method == "decompose-expanded":
-        if order[0] == 1:
+        if order[0] == 2:
             return nlo_decompose_expanded(gamma_singlet, a1, a0, nf)
         return nnlo_decompose_expanded(gamma_singlet, a1, a0, nf)
     raise NotImplementedError("Selected method is not implemented")

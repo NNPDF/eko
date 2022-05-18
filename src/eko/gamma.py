@@ -116,13 +116,13 @@ def gamma(order, nf):
     """
     _gamma = 0.0
 
-    if order == 0:
+    if order == 1:
         _gamma = gamma_0()
-    elif order == 1:
-        _gamma = gamma_1(nf)
     elif order == 2:
-        _gamma = gamma_2(nf)
+        _gamma = gamma_1(nf)
     elif order == 3:
+        _gamma = gamma_2(nf)
+    elif order == 4:
         _gamma = gamma_3(nf)
     else:
         raise ValueError("QCD Gamma coefficients beyond N3LO are not implemented!")

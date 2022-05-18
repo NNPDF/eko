@@ -38,7 +38,7 @@ def gamma_variation(gamma, order, nf, L):
     # and indeed, we need to adjust the high elements first
     beta0 = beta.beta_qcd((0, 0), nf)
     beta1 = beta.beta_qcd((1, 0), nf)
-    if order[0] >= 3:
+    if order[0] >= 4:
         gamma[3] -= (
             3 * beta0 * L * gamma[2]
             + (2 * beta1 * L - 3 * beta0**2 * L**2) * gamma[1]
@@ -49,10 +49,10 @@ def gamma_variation(gamma, order, nf, L):
             )
             * gamma[0]
         )
-    if order[0] >= 2:
+    if order[0] >= 3:
         gamma[2] -= (
             2 * beta0 * gamma[1] * L + (beta1 * L - beta0**2 * L**2) * gamma[0]
         )
-    if order[0] >= 1:
+    if order[0] >= 2:
         gamma[1] -= beta0 * gamma[0] * L
     return gamma

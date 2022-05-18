@@ -69,7 +69,7 @@ class OperatorGrid:
             "perturbative-expanded",
         ]:
             raise ValueError(f"Unknown evolution mode {method}")
-        if order == (0, 0) and method != "iterate-exact":
+        if order == (1, 0) and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")
 
         self.config = config

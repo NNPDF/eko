@@ -241,9 +241,9 @@ def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
             |NNLO| non-singlet truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    b1 = beta.b_qcd((1, 0), nf)
-    b2 = beta.b_qcd((2, 0), nf)
-    beta0 = beta.beta_qcd((0, 0), nf)
+    b1 = beta.b_qcd((3, 0), nf)
+    b2 = beta.b_qcd((4, 0), nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
     # U1 = R1
     U1 = 1.0 / beta0 * (gamma_ns[1] - b1 * gamma_ns[0])
     R2 = gamma_ns[2] / beta0 - b1 * U1 - b2 * gamma_ns[0] / beta0
@@ -287,9 +287,9 @@ def nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
             |NNLO| non-singlet ordered truncated EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    b1 = beta.b_qcd((1, 0), nf)
-    b2 = beta.b_qcd((2, 0), nf)
-    beta0 = beta.beta_qcd((0, 0), nf)
+    b1 = beta.b_qcd((3, 0), nf)
+    b2 = beta.b_qcd((4, 0), nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
     # U1 = R1
     U1 = 1.0 / beta0 * (gamma_ns[1] - b1 * gamma_ns[0])
     R2 = gamma_ns[2] / beta0 - b1 * U1 - b2 * gamma_ns[0] / beta0
@@ -335,10 +335,10 @@ def dispatcher(
             non-singlet EKO
     """
     # use always exact in LO
-    if order[0] == 0:
+    if order[0] == 1:
         return lo_exact(gamma_ns, a1, a0, nf)
     # NLO
-    if order[0] == 1:
+    if order[0] == 2:
         if method in [
             "iterate-expanded",
             "decompose-expanded",
@@ -352,7 +352,7 @@ def dispatcher(
         # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
         return nlo_exact(gamma_ns, a1, a0, nf)
     # NNLO
-    if order[0] == 2:
+    if order[0] == 3:
         if method in [
             "iterate-expanded",
             "decompose-expanded",

@@ -227,15 +227,15 @@ def beta_qcd(k, nf):
 
     """
     beta_ = 0
-    if k == (0, 0):
+    if k == (2, 0):
         beta_ = beta_as_2(nf)
-    elif k == (1, 0):
-        beta_ = beta_as_3(nf)
-    elif k == (2, 0):
-        beta_ = beta_as_4(nf)
     elif k == (3, 0):
+        beta_ = beta_as_3(nf)
+    elif k == (4, 0):
+        beta_ = beta_as_4(nf)
+    elif k == (5, 0):
         beta_ = beta_as_5(nf)
-    elif k == (0, 1):
+    elif k == (2, 1):
         beta_ = beta_as_2aem1(nf)
     else:
         raise ValueError("Beta_QCD coefficients beyond N3LO are not implemented!")
@@ -260,11 +260,11 @@ def beta_qed(k, nf):
 
     """
     beta_ = 0
-    if k == (0, 0):
+    if k == (0, 2):
         beta_ = beta_aem_2(nf)
-    elif k == (0, 1):
+    elif k == (0, 3):
         beta_ = beta_aem_3(nf)
-    elif k == (1, 0):
+    elif k == (1, 2):
         beta_ = beta_aem_2as1(nf)
     else:
         raise ValueError("Beta_QED coefficients beyond NLO are not implemented!")
