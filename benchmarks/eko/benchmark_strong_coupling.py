@@ -5,7 +5,7 @@ import pytest
 
 from eko import thresholds
 from eko.beta import beta
-from eko.strong_coupling import StrongCoupling
+from eko.couplings import Couplings
 
 # try to load LHAPDF - if not available, we'll use the cached values
 try:
@@ -33,7 +33,7 @@ except ImportError:
 
 
 @pytest.mark.isolated
-class BenchmarkStrongCoupling:
+class BenchmarkCouplings:
     def test_a_s(self):
         """Tests the value of alpha_s (for now only at LO)
         for a given set of parameters
@@ -43,7 +43,7 @@ class BenchmarkStrongCoupling:
         ref_alpha_s = 0.1181
         ref_mu2 = 90
         ask_q2 = 125
-        as_FFNS_LO = StrongCoupling(
+        as_FFNS_LO = Couplings(
             ref_alpha_s, ref_mu2, [0, 0, np.inf], (1.0, 1.0, 1.0), order=0
         )
         # check local
@@ -59,15 +59,13 @@ class BenchmarkStrongCoupling:
         # LO - FFNS
         # note that the LO-FFNS value reported in :cite:`Giele:2002hx`
         # was corrected in :cite:`Dittmar:2005ed`
-        as_FFNS_LO = StrongCoupling(
-            0.35, 2, (0, np.inf, np.inf), (1.0, 1.0, 1.0), order=0
-        )
+        as_FFNS_LO = Couplings(0.35, 2, (0, np.inf, np.inf), (1.0, 1.0, 1.0), order=0)
         me = as_FFNS_LO.a_s(1e4) * 4 * np.pi
         ref = 0.117574
         np.testing.assert_approx_equal(me, ref, significant=6)
         # LO - VFNS
         threshold_list = [2, pow(4.5, 2), pow(175, 2)]
-        as_VFNS_LO = StrongCoupling(0.35, 2, threshold_list, (1.0, 1.0, 1.0), order=0)
+        as_VFNS_LO = Couplings(0.35, 2, threshold_list, (1.0, 1.0, 1.0), order=0)
         me = as_VFNS_LO.a_s(1e4) * 4 * np.pi
         ref = 0.122306
         np.testing.assert_approx_equal(me, ref, significant=6)
@@ -106,7 +104,7 @@ class BenchmarkStrongCoupling:
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         for order in [0, 1, 2]:
-            as_FFNS = StrongCoupling(
+            as_FFNS = Couplings(
                 alphas_ref,
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
@@ -179,7 +177,7 @@ class BenchmarkStrongCoupling:
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         for order in [0, 1, 2, 3]:
-            as_FFNS = StrongCoupling(
+            as_FFNS = Couplings(
                 alphas_ref,
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
@@ -253,7 +251,7 @@ class BenchmarkStrongCoupling:
         }
         # collect my values
         for order in [0, 1, 2]:
-            as_VFNS = StrongCoupling(
+            as_VFNS = Couplings(
                 alphas_ref,
                 scale_ref,
                 threshold_list,
@@ -398,7 +396,7 @@ class BenchmarkStrongCoupling:
         ):
             # collect my values
             for order in [0, 1, 2]:
-                as_VFNS = StrongCoupling(
+                as_VFNS = Couplings(
                     alphas_ref,
                     scale_ref,
                     1 / fact_to_ren_lin**2 * threshold_list,
@@ -448,7 +446,7 @@ class BenchmarkStrongCoupling:
         }
         # collect my values
         for order in [1, 2]:
-            as_VFNS = StrongCoupling(
+            as_VFNS = Couplings(
                 alphas_ref,
                 scale_ref,
                 threshold_list,
@@ -500,7 +498,7 @@ class BenchmarkStrongCoupling:
         }
         # collect my values
         for order in [1, 2]:
-            as_VFNS = StrongCoupling(
+            as_VFNS = Couplings(
                 alphas_ref,
                 scale_ref,
                 m2,
@@ -549,7 +547,7 @@ class BenchmarkStrongCoupling:
         nf = 4
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
-        as_FFNS_LO = StrongCoupling(
+        as_FFNS_LO = Couplings(
             alphas_ref,
             scale_ref,
             threshold_holder.area_walls[1:-1],
@@ -620,7 +618,7 @@ class BenchmarkStrongCoupling:
             ),
         }
         for order in range(2 + 1):
-            sc = StrongCoupling(
+            sc = Couplings(
                 alphas_ref,
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
@@ -695,7 +693,7 @@ class BenchmarkStrongCoupling:
             ),
         }
         for order in range(3 + 1):
-            sc = StrongCoupling(
+            sc = Couplings(
                 alphas_ref,
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
@@ -813,7 +811,7 @@ class BenchmarkStrongCoupling:
             "ModEv": "EXA",
         }
         Q2s = [2.0]
-        sc = StrongCoupling.from_dict(theory_dict)
+        sc = Couplings.from_dict(theory_dict)
         fact_to_ren = theory_dict["fact_to_ren_scale_ratio"] ** 2
         for Q2 in Q2s:
 

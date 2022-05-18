@@ -20,7 +20,7 @@ from . import nlo, nnlo
 logger = logging.getLogger(__name__)
 
 
-@nb.njit("c16[:,:,:](UniTuple(u1, 2),c16,c16[:],f8,b1)", cache=True)
+@nb.njit("c16[:,:,:](UniTuple(u1,2),c16,c16[:],f8,b1)", cache=True)
 def A_singlet(order, n, sx, L, is_msbar):
     r"""
     Computes the tower of the singlet |OME|.
@@ -60,7 +60,7 @@ def A_singlet(order, n, sx, L, is_msbar):
     return A_singlet
 
 
-@nb.njit("c16[:,:,:](UniTuple(u1, 2),c16,c16[:],f8)", cache=True)
+@nb.njit("c16[:,:,:](UniTuple(u1,2),c16,c16[:],f8)", cache=True)
 def A_non_singlet(order, n, sx, L):
     r"""
     Computes the tower of the non-singlet |OME|
@@ -96,7 +96,7 @@ def A_non_singlet(order, n, sx, L):
     return A_ns
 
 
-@nb.njit("c16[:,:](c16[:,:,:],UniTuple(u1, 2),f8,string)", cache=True)
+@nb.njit("c16[:,:](c16[:,:,:],UniTuple(u1,2),f8,string)", cache=True)
 def build_ome(A, order, a_s, backward_method):
     r"""
     Construct the matching expansion in :math:`a_s` with the appropriate method.
@@ -145,7 +145,7 @@ def build_ome(A, order, a_s, backward_method):
     return ome
 
 
-@nb.njit("f8(f8,UniTuple(u1, 2),u2,u2,b1,f8,f8[:,:],f8,f8,string,b1)", cache=True)
+@nb.njit("f8(f8,UniTuple(u1,2),u2,u2,b1,f8,f8[:,:],f8,f8,string,b1)", cache=True)
 def quad_ker(
     u, order, mode0, mode1, is_log, logx, areas, a_s, L, backward_method, is_msbar
 ):

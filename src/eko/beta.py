@@ -209,7 +209,7 @@ def beta_as_5(nf):
     return beta_as_5
 
 
-@nb.njit("f8(UniTuple(u1, 2),u1)", cache=True)
+@nb.njit("f8(UniTuple(u1,2),u1)", cache=True)
 def beta_qcd(k, nf):
     """Compute value of a beta_qcd coefficients
 
@@ -242,7 +242,7 @@ def beta_qcd(k, nf):
     return beta_
 
 
-@nb.njit("f8(UniTuple(u1, 2),u1)", cache=True)
+@nb.njit("f8(UniTuple(u1,2),u1)", cache=True)
 def beta_qed(k, nf):
     """Compute value of a beta_qed coefficients
 
@@ -271,7 +271,7 @@ def beta_qed(k, nf):
     return beta_
 
 
-@nb.njit("f8(UniTuple(u1, 2),u1)", cache=True)
+@nb.njit("f8(UniTuple(u1,2),u1)", cache=True)
 def b_qcd(k, nf):
     """Compute b_qcd coefficient.
 
@@ -291,7 +291,7 @@ def b_qcd(k, nf):
     return beta_qcd(k, nf) / beta_qcd((0, 0), nf)
 
 
-@nb.njit("f8(UniTuple(u1, 2),u1)", cache=True)
+@nb.njit("f8(UniTuple(u1,2),u1)", cache=True)
 def b_qed(k, nf):
     """Compute b_qed coefficient.
 

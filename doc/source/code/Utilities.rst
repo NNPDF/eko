@@ -6,7 +6,7 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
 - :class:`eko.thresholds.ThresholdsAtlas`
 
   -  Implementation of the flavor number scheme and the quark thresholds both for
-     the :class:`eko.strong_coupling.StrongCoupling` and the :doc:`operators <../theory/Matching>`
+     the :class:`eko.strong_coupling.Couplings` and the :doc:`operators <../theory/Matching>`
 
   When running in |VFNS| it is important to specify the number of flavors active at each given scale, since the evolution path
   can be different depending of the chosen setting. This path is determined by :meth:`eko.thresholds.ThresholdsAtlas.path`.

@@ -123,7 +123,7 @@ class QuadKerBase:
 
 
 @nb.njit(
-    "f8(f8,UniTuple(u1, 2),u2,u2,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,UniTuple(u1, 2),u1)",
+    "f8(f8,UniTuple(u1,2),u2,u2,string,b1,f8,f8[:,:],f8,f8,f8,f8,u4,UniTuple(u1,2),u1)",
     cache=True,
 )
 def quad_ker(

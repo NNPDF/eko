@@ -72,7 +72,7 @@ def exp_singlet(gamma_S):
     return exp, lambda_p, lambda_m, e_p, e_m
 
 
-@nb.njit("c16[:](UniTuple(u1, 2),u2,c16,u1)", cache=True)
+@nb.njit("c16[:](UniTuple(u1,2),u2,c16,u1)", cache=True)
 def gamma_ns(order, mode, n, nf):
     r"""
     Computes the tower of the non-singlet anomalous dimensions
@@ -132,7 +132,7 @@ def gamma_ns(order, mode, n, nf):
     return gamma_ns
 
 
-@nb.njit("c16[:,:,:](UniTuple(u1, 2),c16,u1)", cache=True)
+@nb.njit("c16[:,:,:](UniTuple(u1,2),c16,u1)", cache=True)
 def gamma_singlet(order, n, nf):
     r"""
     Computes the tower of the singlet anomalous dimensions matrices

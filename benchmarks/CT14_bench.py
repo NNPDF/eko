@@ -37,8 +37,7 @@ class BenchmarkCT14(Runner):
         theory_card.update(
             {
                 "alphas": 0.118000,
-                "alphaem": 0.00781,
-                "orders": (0, 0),
+                "PTO": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 3,
                 "MaxNfAs": 3,

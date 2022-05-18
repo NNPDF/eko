@@ -18,7 +18,7 @@ from .beta import b_qcd, b_qed, beta_qcd, beta_qed
 logger = logging.getLogger(__name__)
 
 
-def strong_coupling_mod_ev(mod_ev):
+def couplings_mod_ev(mod_ev):
     """Map ModEv key to the available strong coupling evolution methods"""
     if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
         return "exact"
@@ -35,7 +35,7 @@ def strong_coupling_mod_ev(mod_ev):
     raise ValueError(f"Unknown evolution mode {mod_ev}")
 
 
-@nb.njit("f8[:](UniTuple(u1, 2),f8[:],u1,f8,f8)", cache=True)
+@nb.njit("f8[:](UniTuple(u1,2),f8[:],u1,f8,f8)", cache=True)
 def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     """
     Compute expanded expression.
@@ -72,7 +72,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
         as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
         return as_NLO
 
-    if order[1] == 0:
+    if order[1] == 1:
         beta_qcd0 = beta_qcd((0, 0), nf)
         # QCD LO
         as_LO = expanded_lo(couplings_ref[0], beta_qcd0, lmu)
@@ -82,12 +82,12 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
         aem_LO = expanded_lo(couplings_ref[1], beta_qed0, lmu)
         res_aem = aem_LO
         # NLO
-        if order[0] >= 1:
+        if order[0] >= 2:
             b1 = b_qcd((1, 0), nf)
             as_NLO = expanded_nlo(couplings_ref[0], beta_qcd0, b1 * beta_qcd0, lmu)
             res_as = as_NLO
             # NNLO
-            if order[0] >= 2:
+            if order[0] >= 3:
                 b2 = b_qcd((2, 0), nf)
                 res_as = as_LO * (
                     1.0
@@ -95,7 +95,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
                     + as_NLO * b1 * np.log(as_NLO / couplings_ref[0])
                 )
                 # N3LO expansion is taken from Luca Rottoli
-                if order[0] >= 3:
+                if order[0] >= 4:
                     b3 = b_qcd((3, 0), nf)
                     log_fact = np.log(as_LO)
                     res_as += (
@@ -150,7 +150,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
                             )
                         )
                     )
-    if order[1] == 1:
+    if order[1] == 2:
         beta_qcd0 = beta_qcd((0, 0), nf)
         # QCD LO
         as_LO = expanded_lo(couplings_ref[0], beta_qcd0, lmu)
@@ -160,11 +160,74 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
         b_qed1 = b_qed((0, 1), nf)
         aem_NLO = expanded_nlo(couplings_ref[1], beta_qed0, beta_qed0 * b_qed1, lmu)
         res_aem = aem_NLO
-        if order[0] >= 1:
-            # mixed solution from arXiv:hep-ph/9803211v1 eqs. (17-18)
-            res_as = couplings_expanded(
-                (order[0], 0), couplings_ref, nf, scale_from, scale_to
-            )[0]
+        if order[0] >= 2:
+            b1 = b_qcd((1, 0), nf)
+            as_NLO = expanded_nlo(couplings_ref[0], beta_qcd0, b1 * beta_qcd0, lmu)
+            res_as = as_NLO
+            # NNLO
+            if order[0] >= 3:
+                b2 = b_qcd((2, 0), nf)
+                res_as = as_LO * (
+                    1.0
+                    + as_LO * (as_LO - couplings_ref[0]) * (b2 - b1**2)
+                    + as_NLO * b1 * np.log(as_NLO / couplings_ref[0])
+                )
+                # N3LO expansion is taken from Luca Rottoli
+                if order[0] >= 4:
+                    b3 = b_qcd((3, 0), nf)
+                    log_fact = np.log(as_LO)
+                    res_as += (
+                        as_LO**4
+                        / (2 * beta_qcd0**3)
+                        * (
+                            -2 * b1**3 * np.log(couplings_ref[0]) ** 3
+                            + 5 * b1**3 * log_fact**2
+                            + 2 * b1**3 * log_fact**3
+                            + b1**3
+                            * np.log(couplings_ref[0]) ** 2
+                            * (5 + 6 * log_fact)
+                            + 2
+                            * beta_qcd0
+                            * b1
+                            * log_fact
+                            * (
+                                b2
+                                + 2
+                                * (b1**2 - beta_qcd0 * b2)
+                                * lmu
+                                * couplings_ref[0]
+                            )
+                            - beta_qcd0**2
+                            * lmu
+                            * couplings_ref[0]
+                            * (
+                                -2 * b1 * b2
+                                + 2 * beta_qcd0 * b3
+                                + (
+                                    b1**3
+                                    - 2 * beta_qcd0 * b1 * b2
+                                    + beta_qcd0**2 * b3
+                                )
+                                * lmu
+                                * couplings_ref[0]
+                            )
+                            - 2
+                            * b1
+                            * np.log(couplings_ref[0])
+                            * (
+                                5 * b1**2 * log_fact
+                                + 3 * b1**2 * log_fact**2
+                                + beta_qcd0
+                                * (
+                                    b2
+                                    + 2
+                                    * (b1**2 - beta_qcd0 * b2)
+                                    * lmu
+                                    * couplings_ref[0]
+                                )
+                            )
+                        )
+                    )
             res_as += (
                 -couplings_ref[0] ** 2
                 * b_qcd((0, 1), nf)
@@ -307,7 +370,7 @@ class Couplings:
         nf_ref = theory_card["nfref"]
         q2_alpha = pow(theory_card["Qref"], 2)
         order = theory_card["orders"]
-        method = strong_coupling_mod_ev(theory_card["ModEv"])
+        method = couplings_mod_ev(theory_card["ModEv"])
         hqm_scheme = theory_card["HQ"]
         if hqm_scheme not in ["MSBAR", "POLE"]:
             raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")

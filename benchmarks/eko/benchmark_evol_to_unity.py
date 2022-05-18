@@ -3,10 +3,10 @@ import numpy as np
 import pytest
 
 from eko import basis_rotation as br
+from eko.couplings import Couplings
 from eko.evolution_operator import Operator
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
-from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
 # from eko.matching_conditions.operator_matrix_element import OperatorMatrixElement
@@ -54,7 +54,7 @@ class BenchmarkBackwardForward:
         theory_card,
         operators_card,
         ThresholdsAtlas.from_dict(theory_card),
-        StrongCoupling.from_dict(theory_card),
+        Couplings.from_dict(theory_card),
         InterpolatorDispatcher.from_dict(operators_card),
     )
 
@@ -66,7 +66,7 @@ class BenchmarkBackwardForward:
             self.theory_card,
             self.operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
-            StrongCoupling.from_dict(self.theory_card),
+            Couplings.from_dict(self.theory_card),
             InterpolatorDispatcher.from_dict(self.operators_card),
         )
         q20 = 30

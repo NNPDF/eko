@@ -9,8 +9,8 @@ from .. import beta
 
 @nb.njit(
     [
-        "c16[:,:,:](c16[:,:,:],UniTuple(u1, 2),u1,f8)",
-        "c16[:](c16[:],UniTuple(u1, 2),u1,f8)",
+        "c16[:,:,:](c16[:,:,:],UniTuple(u1,2),u1,f8)",
+        "c16[:](c16[:],UniTuple(u1,2),u1,f8)",
     ],
     cache=True,
 )

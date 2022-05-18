@@ -205,7 +205,7 @@ def nnlo_decompose_expanded(gamma_singlet, a1, a0, nf):
     )
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1, UniTuple(u1, 2), u4)", cache=True)
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1, UniTuple(u1,2), u4)", cache=True)
 def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     """
     Singlet NLO or NNLO iterated (exact) EKO
@@ -262,7 +262,7 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     return e
 
 
-@nb.njit("c16[:,:,:](c16[:,:,:],u1,UniTuple(u1, 2),UniTuple(u1, 2),b1)", cache=True)
+@nb.njit("c16[:,:,:](c16[:,:,:],u1,UniTuple(u1,2),UniTuple(u1,2),b1)", cache=True)
 def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
     r"""
     Compute singlet R vector for perturbative mode.
@@ -310,7 +310,7 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
     return r
 
 
-@nb.njit("c16[:,:,:](c16[:,:,:],UniTuple(u1, 2))", cache=True)
+@nb.njit("c16[:,:,:](c16[:,:,:],UniTuple(u1,2))", cache=True)
 def u_vec(r, ev_op_max_order):
     r"""
     Compute the elements of the singlet U vector.
@@ -384,7 +384,7 @@ def sum_u(uvec, a):
 
 
 @nb.njit(
-    "c16[:,:](c16[:,:,:],f8,f8,u1,UniTuple(u1, 2),u4,UniTuple(u1, 2),b1)", cache=True
+    "c16[:,:](c16[:,:,:],f8,f8,u1,UniTuple(u1,2),u4,UniTuple(u1,2),b1)", cache=True
 )
 def eko_perturbative(
     gamma_singlet, a1, a0, nf, order, ev_op_iterations, ev_op_max_order, is_exact
@@ -433,7 +433,7 @@ def eko_perturbative(
     return e
 
 
-@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,UniTuple(u1, 2),u4)", cache=True)
+@nb.njit("c16[:,:](c16[:,:,:],f8,f8,u1,UniTuple(u1,2),u4)", cache=True)
 def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     """
     Singlet NLO or NNLO truncated EKO
@@ -483,7 +483,7 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
 
 
 @nb.njit(
-    "c16[:,:](UniTuple(u1, 2),string,c16[:,:,:],f8,f8,u1,u4,UniTuple(u1, 2))",
+    "c16[:,:](UniTuple(u1,2),string,c16[:,:,:],f8,f8,u1,u4,UniTuple(u1,2))",
     cache=True,
 )
 def dispatcher(  # pylint: disable=too-many-return-statements

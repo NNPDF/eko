@@ -7,7 +7,7 @@ import pytest
 
 from eko import msbar_masses
 from eko.basis_rotation import quark_names
-from eko.strong_coupling import StrongCoupling
+from eko.couplings import Couplings
 
 # try to load APFEL - if not available, we'll use the cached values
 try:
@@ -108,7 +108,7 @@ class BenchmarkMSbar:
             theory["ModEv"] = "EXP" if method == "expanded" else "EXA"
             for order in [0, 1, 2]:
                 theory["PTO"] = order
-                as_VFNS = StrongCoupling(
+                as_VFNS = Couplings(
                     theory["alphas"],
                     theory["Qref"] ** 2,
                     msbar_masses.compute(theory),

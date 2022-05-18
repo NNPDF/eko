@@ -10,7 +10,7 @@ from eko import thresholds
 from eko.couplings import Couplings
 
 
-class TestStrongCoupling:
+class TestCouplings:
     def test_from_dict(self):
         d = {
             "alphas": 0.118,
@@ -351,7 +351,6 @@ class TestStrongCoupling:
                 "exact",
             )
             for q2 in [1e1, 1e2, 1e3, 1e4]:
-                # import pdb; pdb.set_trace()
                 np.testing.assert_allclose(
                     sc_expanded.a(q2)[0], sc_exact.a(q2)[0], atol=5e-3
                 )
