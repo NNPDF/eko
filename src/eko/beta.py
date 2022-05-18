@@ -288,7 +288,7 @@ def b_qcd(k, nf):
             b_qcd_k(nf)
 
     """
-    return beta_qcd(k, nf) / beta_qcd((0, 0), nf)
+    return beta_qcd(k, nf) / beta_qcd((2, 0), nf)
 
 
 @nb.njit("f8(UniTuple(u1,2),u1)", cache=True)
@@ -308,4 +308,4 @@ def b_qed(k, nf):
             b_qed_k(nf)
 
     """
-    return beta_qed(k, nf) / beta_qed((0, 0), nf)
+    return beta_qed(k, nf) / beta_qed((0, 2), nf)

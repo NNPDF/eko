@@ -18,7 +18,7 @@ class TestCouplings:
             "Qref": 91.0,
             "nfref": None,
             "Q0": 1,
-            "orders": (0, 0),
+            "orders": (1, 0),
             "ModEv": "EXA",
             "fact_to_ren_scale_ratio": 1.0,
             "mc": 2.0,
@@ -52,8 +52,8 @@ class TestCouplings:
         assert sc.a_ref[1] == couplings_ref[1] / 4.0 / np.pi
         # from theory dict
         for ModEv in ["EXP", "EXA"]:
-            for PTOs in range(2 + 1):
-                for PTOem in range(1 + 1):
+            for PTOs in range(3 + 1):
+                for PTOem in range(2 + 1):
                     setup = dict(
                         alphas=alphas_ref,
                         alphaem=alphaem_ref,
@@ -104,7 +104,7 @@ class TestCouplings:
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
                 (1.0, 1.0, 1.0),
-                (4, 0),
+                (6, 0),
             )
         with pytest.raises(NotImplementedError):
             Couplings(
@@ -112,7 +112,7 @@ class TestCouplings:
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
                 (1.0, 1.0, 1.0),
-                (1, 2),
+                (1, 3),
             )
         with pytest.raises(ValueError):
             Couplings(
@@ -129,7 +129,7 @@ class TestCouplings:
                     alphaem=alphaem_ref,
                     Qref=np.sqrt(scale_ref),
                     nfref=None,
-                    orders=(0, 0),
+                    orders=(1, 0),
                     ModEv="FAIL",
                 ),
             )
@@ -140,7 +140,7 @@ class TestCouplings:
                     alphaem=alphaem_ref,
                     Qref=np.sqrt(scale_ref),
                     nfref=None,
-                    orders=(0, 0),
+                    orders=(1, 0),
                     ModEv="EXA",
                     HQ="FAIL",
                 ),
@@ -157,8 +157,8 @@ class TestCouplings:
         alphaem_ref = 0.00781
         scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
-            for order_s in [0, 1, 2, 3]:
-                for order_em in [0, 1]:
+            for order_s in [0, 1, 2, 3, 4]:
+                for order_em in [0, 1, 2]:
                     for method in ["exact", "expanded"]:
                         # if order_em == 1 and method == "expanded" and order_s != 0:
                         #    continue
@@ -195,7 +195,7 @@ class TestCouplings:
                 scale_ref,
                 thresh_setup,
                 (1.0, 1.0, 1.0),
-                (0, 0),
+                (1, 0),
                 "expanded",
             )
             sc_exact = Couplings(
@@ -203,7 +203,7 @@ class TestCouplings:
                 scale_ref,
                 thresh_setup,
                 (1.0, 1.0, 1.0),
-                (0, 0),
+                (1, 0),
                 "exact",
             )
             for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
@@ -231,7 +231,7 @@ class TestCouplings:
                 scale_ref,
                 thresh_setup,
                 (1.0, 1.0, 1.0),
-                (0, 1),
+                (0, 2),
                 "expanded",
             )
             sc_exact = Couplings(
@@ -239,7 +239,7 @@ class TestCouplings:
                 scale_ref,
                 thresh_setup,
                 (1.0, 1.0, 1.0),
-                (0, 1),
+                (0, 2),
                 "exact",
             )
             for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
@@ -267,7 +267,7 @@ class TestCouplings:
                 scale_ref,
                 thresh_setup,
                 (1.0, 1.0, 1.0),
-                (1, 1),
+                (2, 2),
                 "expanded",
             )
             sc_exact = Couplings(
@@ -275,7 +275,7 @@ class TestCouplings:
                 scale_ref,
                 thresh_setup,
                 (1.0, 1.0, 1.0),
-                (1, 1),
+                (2, 2),
                 "exact",
             )
             for q2 in [1e2, 1e3, 1e4]:
@@ -303,7 +303,7 @@ class TestCouplings:
                 scale_ref,
                 thresh_setup,
                 (1.0, 1.0, 1.0),
-                (2, 1),
+                (3, 2),
                 "expanded",
             )
             sc_exact = Couplings(
@@ -311,7 +311,7 @@ class TestCouplings:
                 scale_ref,
                 thresh_setup,
                 (1.0, 1.0, 1.0),
-                (2, 1),
+                (3, 2),
                 "exact",
             )
             for q2 in [1e1, 1e2, 1e3, 1e4]:
@@ -339,7 +339,7 @@ class TestCouplings:
                 scale_ref,
                 thresh_setup,
                 (1.0, 1.0, 1.0),
-                (3, 1),
+                (4, 2),
                 "expanded",
             )
             sc_exact = Couplings(
@@ -347,7 +347,7 @@ class TestCouplings:
                 scale_ref,
                 thresh_setup,
                 (1.0, 1.0, 1.0),
-                (3, 1),
+                (4, 2),
                 "exact",
             )
             for q2 in [1e1, 1e2, 1e3, 1e4]:
@@ -376,7 +376,7 @@ class TestCouplings:
             scale_ref,
             threshold_list,
             (1.0, 1.0, 1.0),
-            order=(2, 0),
+            order=(3, 0),
             method="expanded",
         )
         as_N3LO = Couplings(
@@ -384,7 +384,7 @@ class TestCouplings:
             scale_ref,
             threshold_list,
             (1.0, 1.0, 1.0),
-            order=(3, 0),
+            order=(4, 0),
             method="expanded",
         )
         np.testing.assert_allclose(

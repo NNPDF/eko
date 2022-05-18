@@ -86,8 +86,8 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
 
     def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
         b3 = b_qcd((3, 0), nf)
-        log_fact = np.log(as_LO)
         as_LO = expanded_lo(ref, beta0, lmu)
+        log_fact = np.log(as_LO)
         b1 = beta1 / beta0
         b2 = beta2 / beta0
         b3 = beta3 / beta0

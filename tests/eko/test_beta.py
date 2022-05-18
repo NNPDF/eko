@@ -67,21 +67,21 @@ def test_beta_as5():
 def test_beta():
     """beta-wrapper"""
     nf = 3
-    np.testing.assert_allclose(beta.beta_qcd((0, 0), nf), beta.beta_as_2(nf))
-    np.testing.assert_allclose(beta.beta_qcd((1, 0), nf), beta.beta_as_3(nf))
-    np.testing.assert_allclose(beta.beta_qcd((2, 0), nf), beta.beta_as_4(nf))
-    np.testing.assert_allclose(beta.beta_qcd((3, 0), nf), beta.beta_as_5(nf))
-    np.testing.assert_allclose(beta.beta_qcd((0, 1), nf), beta.beta_as_2aem1(nf))
-    np.testing.assert_allclose(beta.beta_qed((0, 0), nf), beta.beta_aem_2(nf))
-    np.testing.assert_allclose(beta.beta_qed((0, 1), nf), beta.beta_aem_3(nf))
-    np.testing.assert_allclose(beta.beta_qed((1, 0), nf), beta.beta_aem_2as1(nf))
+    np.testing.assert_allclose(beta.beta_qcd((2, 0), nf), beta.beta_as_2(nf))
+    np.testing.assert_allclose(beta.beta_qcd((3, 0), nf), beta.beta_as_3(nf))
+    np.testing.assert_allclose(beta.beta_qcd((4, 0), nf), beta.beta_as_4(nf))
+    np.testing.assert_allclose(beta.beta_qcd((5, 0), nf), beta.beta_as_5(nf))
+    np.testing.assert_allclose(beta.beta_qcd((2, 1), nf), beta.beta_as_2aem1(nf))
+    np.testing.assert_allclose(beta.beta_qed((0, 2), nf), beta.beta_aem_2(nf))
+    np.testing.assert_allclose(beta.beta_qed((0, 3), nf), beta.beta_aem_3(nf))
+    np.testing.assert_allclose(beta.beta_qed((1, 2), nf), beta.beta_aem_2as1(nf))
     with pytest.raises(ValueError):
-        beta.beta_qcd((4, 0), 3)
+        beta.beta_qcd((6, 0), 3)
     with pytest.raises(ValueError):
-        beta.beta_qed((0, 2), 3)
+        beta.beta_qed((0, 4), 3)
 
 
 def test_b():
     """b-wrapper"""
-    np.testing.assert_allclose(beta.b_qcd((0, 0), 3), 1.0)
-    np.testing.assert_allclose(beta.b_qed((0, 0), 3), 1.0)
+    np.testing.assert_allclose(beta.b_qcd((2, 0), 3), 1.0)
+    np.testing.assert_allclose(beta.b_qed((0, 2), 3), 1.0)
