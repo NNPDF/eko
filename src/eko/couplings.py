@@ -292,7 +292,7 @@ class Couplings:
         scale_ref,
         masses,
         thresholds_ratios,
-        order=(0, 0),
+        order=(1, 0),
         method="exact",
         nf_ref=None,
         max_nf=None,
@@ -307,9 +307,9 @@ class Couplings:
             )
         if scale_ref <= 0:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
-        if order[0] not in [0, 1, 2, 3]:
+        if order[0] not in [0, 1, 2, 3, 4]:
             raise NotImplementedError("a_s beyond N3LO is not implemented")
-        if order[1] not in [0, 1]:
+        if order[1] not in [0, 1, 2]:
             raise NotImplementedError("a_em beyond NLO is not implemented")
         self.order = order
         if method not in ["expanded", "exact"]:
@@ -437,11 +437,11 @@ class Couplings:
             )
             return res.y[0][-1]
 
-        if self.order == (0, 0):
+        if self.order == (1, 1):
             return couplings_expanded(
                 self.order, a_ref, nf, scale_from, float(scale_to)
             )
-        if self.order[0] == 0:
+        if self.order[0] == 1:
             # return expanded solution for a_s and exact for a_em
             a_s = couplings_expanded(
                 self.order, a_ref, nf, scale_from, float(scale_to)
@@ -455,7 +455,7 @@ class Couplings:
                 beta0_qed, b_qed_vec, u, a_ref[1], "Radau", 1e-6
             )
             return np.array([a_s, a_em])
-        if self.order[1] == 0:
+        if self.order[1] == 1:
             # return expanded solution for a_em and exact for a_s
             a_em = couplings_expanded(
                 self.order, a_ref, nf, scale_from, float(scale_to)
@@ -463,13 +463,13 @@ class Couplings:
             beta0_qcd = beta_qcd((0, 0), nf)
             b_qcd_vec = [1.0]
             # NLO
-            if self.order[0] >= 1:
+            if self.order[0] >= 2:
                 b_qcd_vec.append(b_qcd((1, 0), nf))
                 # NNLO
-                if self.order[0] >= 2:
+                if self.order[0] >= 3:
                     b_qcd_vec.append(b_qcd((2, 0), nf))
                     # N3LO
-                    if self.order[0] >= 3:
+                    if self.order[0] >= 4:
                         b_qcd_vec.append(b_qcd((3, 0), nf))
             a_s = unidimensional_exact(beta0_qcd, b_qcd_vec, u, a_ref[0], "Radau", 1e-6)
             return np.array([a_s, a_em])
@@ -478,22 +478,22 @@ class Couplings:
         beta_qcd_vec = [beta_qcd((0, 0), nf)]
         beta_qcd_mix = 0
         # NLO
-        if self.order[0] >= 1:
+        if self.order[0] >= 2:
             beta_qcd_vec.append(beta_qcd((1, 0), nf))
             # NNLO
-            if self.order[0] >= 2:
+            if self.order[0] >= 3:
                 beta_qcd_vec.append(beta_qcd((2, 0), nf))
                 # N3LO
-                if self.order[0] >= 3:
+                if self.order[0] >= 4:
                     beta_qcd_vec.append(beta_qcd((3, 0), nf))
-        if self.order[1] >= 1:
+        if self.order[1] >= 2:
             beta_qcd_mix = beta_qcd((0, 1), nf)
         beta_qed_vec = [beta_qed((0, 0), nf)]
         beta_qed_mix = 0
         # NLO
-        if self.order[1] >= 1:
+        if self.order[1] >= 2:
             beta_qed_vec.append(beta_qed((0, 1), nf))
-        if self.order[0] >= 1:
+        if self.order[0] >= 2:
             beta_qed_mix = beta_qed((1, 0), nf)
         # integration kernel
         def rge(_t, a, beta_qcd_vec, beta_qed_vec):
@@ -606,7 +606,7 @@ class Couplings:
                 )
                 fact = 1.0
                 # shift
-                for n in range(1, self.order[0] + 1):
+                for n in range(1, self.order[0]):
                     for l in range(n + 1):
                         fact += new_a[0] ** n * L**l * m_coeffs[n, l]
                 new_a[0] *= fact
