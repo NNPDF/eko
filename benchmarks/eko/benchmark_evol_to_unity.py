@@ -17,7 +17,9 @@ class BenchmarkBackwardForward:
     # setup objs
     theory_card = {
         "alphas": 0.35,
-        "PTO": 0,
+        "alphaqed": 0.007496,
+        "PTO": 1,
+        "QED": 0,
         "ModEv": "EXA",
         "fact_to_ren_scale_ratio": 1.0,
         "Qref": np.sqrt(2),

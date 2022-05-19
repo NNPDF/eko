@@ -19,6 +19,7 @@ except ImportError:
 
 theory_dict = {
     "alphas": 0.1180,
+    "alphaqed": 0.007496,
     "Qref": 91,
     "nfref": 5,
     "MaxNfPdf": 6,
@@ -35,7 +36,8 @@ theory_dict = {
     "Qmc": 18,
     "Qmb": 20,
     "Qmt": 175.0,
-    "PTO": 2,
+    "PTO": 3,
+    "QED": 0,
     "ModEv": "EXA",
 }
 
