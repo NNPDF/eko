@@ -16,4 +16,4 @@ In case of troubles, feel free to write an issue on the `repository
 
     Computing Evolution <dglap.ipynb>
     Explore the Output <output.ipynb>
-    Strong coupling running <alpha_s.ipynb>
+    Strong Coupling Running <alpha_s.ipynb>
