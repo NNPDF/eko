@@ -98,6 +98,7 @@ docs-view = { "shell" = "cd doc; make view" }
 docs-server = { "shell" = "cd doc; make server" }
 docs-clean = { "shell" = "cd doc; make clean" }
 docs-cleanall = { "shell" = "cd doc; make cleanall" }
+docs-install-nb = { "shell" = "python -m ipykernel install --user --name=$(basename $(poetry env info -p))" }
 asv-run = "asv run --config benchmarks/asv.conf.json master..HEAD"
 asv-preview = "asv preview --config benchmarks/asv.conf.json"
 asv-publish = "asv publish --config benchmarks/asv.conf.json"

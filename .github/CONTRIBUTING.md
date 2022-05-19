@@ -30,11 +30,9 @@ language, however, please read a "Please" in front of everything.
 ## Docs
 
 - :books: in order to run the notebooks in the environment, you need first to install
-  the environment kernel; thus, run from inside the environment:
+  the environment kernel:
   ```sh
-  # already installed with poetry, but in case...
-  pip install ipykernel
-  python -m ipykernel install --user --name=<env-name>
+  poe docs-install-nb
   ```
   thanks to [Nikolai Janakiev](https://janakiev.com/blog/jupyter-virtual-envs/#add-virtual-environment-to-jupyter-notebook)
 
