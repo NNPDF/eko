@@ -20,8 +20,8 @@ def benchmark_ekos_product():
         [80.0, 100.0, 120.0],
         update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]},
     )
-    theory2 = g_t.gen_theory_card(0, 10.0)
-    theory_err = g_t.gen_theory_card(0, 5.0)
+    theory2 = g_t.gen_theory_card(1, 10.0)
+    theory_err = g_t.gen_theory_card(1, 5.0)
 
     eko_ini = ev_p.gen_out(theory1, op1)
     eko_fin = ev_p.gen_out(theory2, op2)
