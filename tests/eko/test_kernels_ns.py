@@ -157,7 +157,7 @@ def test_gamma_usage():
     # first check that at order=n only uses the matrices up n
     gamma_ns = np.full(3, np.nan)
     for order in range(1, 4):
-        gamma_ns[order] = np.random.rand()
+        gamma_ns[order - 1] = np.random.rand()
         for method in methods:
             r = ns.dispatcher(
                 (order, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
@@ -166,7 +166,7 @@ def test_gamma_usage():
     # second check that at order=n the actual matrix n is used
     for order in range(1, 4):
         gamma_ns = np.random.rand(3)
-        gamma_ns[order] = np.nan
+        gamma_ns[order - 1] = np.nan
         for method in methods:
             r = ns.dispatcher(
                 (order, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations

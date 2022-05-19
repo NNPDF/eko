@@ -211,7 +211,7 @@ def test_gamma_usage():
     # first check that at order=n only uses the matrices up n
     gamma_s = np.full((3, 2, 2), np.nan)
     for order in range(1, 4):
-        gamma_s[order] = mk_almost_diag_matrix(1)
+        gamma_s[order - 1] = mk_almost_diag_matrix(1)
         for method in methods:
             r = s.dispatcher(
                 (order, 0),
@@ -227,7 +227,7 @@ def test_gamma_usage():
     # second check that at order=n the actual matrix n is used
     for order in range(1, 4):
         gamma_s = mk_almost_diag_matrix(3)
-        gamma_s[order] = np.full((2, 2), np.nan)
+        gamma_s[order - 1] = np.full((2, 2), np.nan)
         for method in methods:
             r = s.dispatcher(
                 (order, 0),
