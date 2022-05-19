@@ -38,7 +38,9 @@ class BenchmarkHERA20(Runner):
         theory_card.update(
             {
                 "alphas": 0.118000,
-                "PTO": 2,
+                "alphaqed": 0.007496,
+                "PTO": 3,
+                "QED": 0,
                 "Q0": Q0,
             }
         )

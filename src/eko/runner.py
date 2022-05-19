@@ -44,13 +44,13 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
     def __init__(self, theory_card, operators_card):
         self.out = Output()
 
-        new_theory = compatibility.update(theory_card)
+        new_theory, new_operators = compatibility.update(theory_card, operators_card)
 
         # Store inputs
         self._theory = new_theory
 
         # setup basis grid
-        bfd = interpolation.InterpolatorDispatcher.from_dict(operators_card)
+        bfd = interpolation.InterpolatorDispatcher.from_dict(new_operators)
         self.out.update(bfd.to_dict())
         # setup the Threshold path, compute masses if necessary
         masses = None
@@ -64,7 +64,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         # setup operator grid
         self.op_grid = OperatorGrid.from_dict(
             new_theory,
-            operators_card,
+            new_operators,
             tc,
             sc,
             bfd,
@@ -72,10 +72,10 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         self.out["inputgrid"] = bfd.xgrid_raw
         self.out["targetgrid"] = bfd.xgrid_raw
         self.post_process = dict(
-            inputgrid=operators_card.get("inputgrid", bfd.xgrid_raw),
-            targetgrid=operators_card.get("targetgrid", bfd.xgrid_raw),
-            inputbasis=operators_card.get("inputbasis"),
-            targetbasis=operators_card.get("targetbasis"),
+            inputgrid=new_operators.get("inputgrid", bfd.xgrid_raw),
+            targetgrid=new_operators.get("targetgrid", bfd.xgrid_raw),
+            inputbasis=new_operators.get("inputbasis"),
+            targetbasis=new_operators.get("targetbasis"),
         )
 
     def get_output(self):

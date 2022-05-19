@@ -431,8 +431,9 @@ class Operator:
             )
         logger.info("Evolution: a_s distance: %e -> %e", self.a_s[0], self.a_s[1])
         logger.info(
-            "Evolution: order: %d, solution strategy: %s",
-            self.config["orders"],
+            "Evolution: order: (%d, %d), solution strategy: %s",
+            self.config["orders"][0],
+            self.config["orders"][1],
             self.config["method"],
         )
 

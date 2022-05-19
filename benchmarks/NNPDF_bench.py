@@ -39,6 +39,7 @@ base_theory = {
     "kbThr": 1.0,
     "ktThr": 1.0,
     "alphas": 0.118000,
+    "alphaqed": 0.007496,
     "FNS": "ZM-VFNS",
     "ModEv": "TRN",
 }
@@ -50,7 +51,8 @@ class BenchmarkNNPDF31(BenchmarkNNPDF):
     def benchmark_nlo(self, Q0=1.65, Q2grid=(100,)):
         theory_card = {
             **base_theory,
-            "PTO": 1,
+            "PTO": 2,
+            "QED": 0,
             "Q0": Q0,
         }
 
@@ -64,7 +66,8 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
     def benchmark_nlo(self, Q0=1.65, Q2grid=(100,)):
         theory_card = {
             **base_theory,
-            "PTO": 1,
+            "PTO": 2,
+            "QED": 0,
             "Q0": Q0,
         }
 
@@ -74,7 +77,8 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
     def benchmark_nnlo(self, Q0=1.65, Q2grid=(100,)):
         theory_card = {
             **base_theory,
-            "PTO": 2,
+            "PTO": 3,
+            "QED": 0,
             "Q0": Q0,
         }
 

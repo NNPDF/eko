@@ -37,7 +37,9 @@ class BenchmarkCT14(Runner):
         theory_card.update(
             {
                 "alphas": 0.118000,
-                "PTO": 0,
+                "alphaqed": 0.007496,
+                "PTO": 1,
+                "QED": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 3,
                 "MaxNfAs": 3,
@@ -67,8 +69,9 @@ class BenchmarkCT14(Runner):
         theory_card.update(
             {
                 "alphas": 0.125000,
-                "alphaem": 0.00781,
-                "orders": (0, 0),
+                "alphaqed": 0.007496,
+                "PTO": 1,
+                "QED": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 4,
                 "MaxNfAs": 4,
@@ -94,8 +97,9 @@ class BenchmarkCT14(Runner):
         theory_card.update(
             {
                 "alphas": 0.130000,
-                "alphaem": 0.00781,
-                "orders": (0, 0),
+                "alphaqed": 0.007496,
+                "PTO": 1,
+                "QED": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 6,
                 "MaxNfAs": 6,
