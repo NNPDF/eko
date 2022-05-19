@@ -14,7 +14,7 @@ language, however, please read a "Please" in front of everything.
 
 ## Tools
 
-- :books: [`poetry`](https://github.com/python-poetry/poetry) is the
+- :envelope: [`poetry`](https://github.com/python-poetry/poetry) is the
   dependency manager and packaging back-end of choice for this
   project - see the official [installation
   guide](https://python-poetry.org/docs/#installation)
@@ -29,7 +29,7 @@ language, however, please read a "Please" in front of everything.
 
 ## Docs
 
-- in order to run the notebooks in the environment, you need first to install
+- :books: in order to run the notebooks in the environment, you need first to install
   the environment kernel; thus, run from inside the environment:
   ```sh
   # already installed with poetry, but in case...
