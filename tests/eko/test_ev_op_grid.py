@@ -20,7 +20,7 @@ class TestOperatorGrid:
         theory_card = {
             "alphas": 0.35,
             "alphaem": 0.00781,
-            "orders": (0, 0),
+            "orders": (1, 0),
             "ModEv": "TRN",
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
@@ -46,7 +46,7 @@ class TestOperatorGrid:
             "interpolation_is_log": True,
             "debug_skip_singlet": True,
             "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
+            "ev_op_max_order": (2, 0),
             "ev_op_iterations": 1,
             "backward_inversion": "exact",
         }

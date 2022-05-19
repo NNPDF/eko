@@ -34,7 +34,7 @@ def test_build_ome_as():
             for method in ["", "expanded", "exact"]:
                 dim = len(a[0])
                 if o != 1:
-                    assert len(a) == o
+                    assert len(a) == o - 1
 
                 ome = build_ome(a, (o, 0), a_s, method)
                 assert ome.shape == (dim, dim)
@@ -50,8 +50,8 @@ def test_build_ome_nlo():
 
     sx = np.array([1, 1, 1], np.complex_)
 
-    aNSi = A_non_singlet((1, 0), N, sx, L)
-    aSi = A_singlet((1, 0), N, sx, L, is_msbar)
+    aNSi = A_non_singlet((2, 0), N, sx, L)
+    aSi = A_singlet((2, 0), N, sx, L, is_msbar)
     for a in [aNSi, aSi]:
         for method in ["", "expanded", "exact"]:
             dim = len(a[0])
@@ -59,7 +59,7 @@ def test_build_ome_nlo():
             assert a[0, -1, -1] != 0.0
             # qh
             assert a[0, -2, -1] == 0.0
-            ome = build_ome(a, (1, 0), a_s, method)
+            ome = build_ome(a, (2, 0), a_s, method)
             assert ome.shape == (dim, dim)
             assert ome[-1, -1] != 1.0
             assert ome[-2, -1] == 0.0
