@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from eko import thresholds
-from eko.beta import beta
+from eko.beta import beta_qcd
 from eko.couplings import Couplings
 
 # try to load LHAPDF - if not available, we'll use the cached values
@@ -536,7 +536,7 @@ class BenchmarkCouplings:
 
     def _get_Lambda2_LO(self, as_ref, scale_ref, nf):
         """Transformation to Lambda_QCD"""
-        beta0 = beta(0, nf)
+        beta0 = beta_qcd((2, 0), nf)
         return scale_ref * np.exp(-1.0 / (as_ref * beta0))
 
     def benchmark_lhapdf_ffns_lo(self):
