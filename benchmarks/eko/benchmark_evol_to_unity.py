@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 
 from eko import basis_rotation as br
+from eko import compatibility
 from eko.couplings import Couplings
 from eko.evolution_operator import Operator
 from eko.evolution_operator.grid import OperatorGrid
@@ -52,12 +53,13 @@ class BenchmarkBackwardForward:
         "ev_op_iterations": 1,
         "backward_inversion": "exact",
     }
+    new_theory, new_operators = compatibility.update(theory_card, operators_card)
     g = OperatorGrid.from_dict(
-        theory_card,
-        operators_card,
-        ThresholdsAtlas.from_dict(theory_card),
-        Couplings.from_dict(theory_card),
-        InterpolatorDispatcher.from_dict(operators_card),
+        new_theory,
+        new_operators,
+        ThresholdsAtlas.from_dict(new_theory),
+        Couplings.from_dict(new_theory),
+        InterpolatorDispatcher.from_dict(new_operators),
     )
 
     def test_operator_grid(
@@ -65,11 +67,11 @@ class BenchmarkBackwardForward:
         self,
     ):
         g = OperatorGrid.from_dict(
-            self.theory_card,
-            self.operators_card,
-            ThresholdsAtlas.from_dict(self.theory_card),
-            Couplings.from_dict(self.theory_card),
-            InterpolatorDispatcher.from_dict(self.operators_card),
+            self.new_theory,
+            self.new_operators,
+            ThresholdsAtlas.from_dict(self.new_theory),
+            Couplings.from_dict(self.new_theory),
+            InterpolatorDispatcher.from_dict(self.new_operators),
         )
         q20 = 30
         q21 = 50
