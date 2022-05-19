@@ -7,8 +7,9 @@ import eko
 
 theory_card = {
     "alphas": 0.35,
-    "alphaem": 0.00781,
-    "orders": (1, 0),
+    "alphaqed": 0.007496,
+    "PTO": 1,
+    "QED": 0,
     "fact_to_ren_scale_ratio": 1.0,
     "Qref": np.sqrt(2),
     "nfref": 4,

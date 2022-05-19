@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 
-def update(theory, observables):
+def update(theory):
     """
     Upgrade the legacy theory and observable runcards with the new settings.
 
@@ -20,5 +20,9 @@ def update(theory, observables):
             upgraded observable runcard
     """
     new_theory = theory.copy()
-    new_obs = observables.copy()
-    return new_theory, new_obs
+    # new_obs = observables.copy()
+    new_theory["alphaem"] = new_theory.pop("alphaqed")
+    new_theory["orders"] = (new_theory["PTO"], new_theory["QED"])
+    del new_theory["PTO"]
+    del new_theory["QED"]
+    return new_theory

@@ -7,6 +7,8 @@ import logging
 
 import numpy as np
 
+from eko import compatibility
+
 from . import basis_rotation as br
 from . import interpolation, msbar_masses
 from .couplings import Couplings
@@ -42,21 +44,26 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
     def __init__(self, theory_card, operators_card):
         self.out = Output()
 
+        new_theory = compatibility.update(theory_card)
+
+        # Store inputs
+        self._theory = new_theory
+
         # setup basis grid
         bfd = interpolation.InterpolatorDispatcher.from_dict(operators_card)
         self.out.update(bfd.to_dict())
         # setup the Threshold path, compute masses if necessary
         masses = None
-        if theory_card["HQ"] == "MSBAR":
-            masses = msbar_masses.compute(theory_card)
-        tc = ThresholdsAtlas.from_dict(theory_card, masses=masses)
+        if new_theory["HQ"] == "MSBAR":
+            masses = msbar_masses.compute(new_theory)
+        tc = ThresholdsAtlas.from_dict(new_theory, masses=masses)
 
         self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
-        sc = Couplings.from_dict(theory_card, masses=masses)
+        sc = Couplings.from_dict(new_theory, masses=masses)
         # setup operator grid
         self.op_grid = OperatorGrid.from_dict(
-            theory_card,
+            new_theory,
             operators_card,
             tc,
             sc,
