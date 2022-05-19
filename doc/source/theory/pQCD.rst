@@ -307,7 +307,7 @@ is necessary to always start computing the mass scales closer to :math:`\mu_{ref
 Eventually, to ensure that the threshold values are properly set, we add a
 consistency check, asserting that the :math:`m_{\overline{MS},h}` are properly sorted.
 
-Note that also for |MSbar| mass running when the heavy threshold scales are
+Note that also for |MSbar| mass running when the heavy matching scales are
 crossed we need to apply non trivial matching from order
 :math:`\mathcal{O}(a_s^2)` as described here :cite:`Liu:2015fxa`.
 
@@ -324,7 +324,7 @@ then the heavy quarks initial conditions must satisfy:
 and EKO will start solving the equation :math:`m_{\overline{MS},h}(m_h^2) = m_h`
 in the order :math:`h={t,b,c}`.
 
-Since the charm mass will be computed only when both the top and bottom threshold scales
+Since the charm mass will be computed only when both the top and bottom matching scales
 are known, the boundary condition :math:`m_c(\mu_{c})` can be evolved safely below
 the scale :math:`m_{\overline{MS},b}` where the solution of
 :math:`m_{\overline{MS},c}(m_c^2) = m_c` is sitting.

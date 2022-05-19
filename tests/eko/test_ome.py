@@ -13,6 +13,7 @@ from eko.matching_conditions.operator_matrix_element import (
     A_singlet,
     OperatorMatrixElement,
     build_ome,
+    compute_harmonics_cache,
     quad_ker,
 )
 from eko.strong_coupling import StrongCoupling
@@ -21,14 +22,19 @@ from eko.thresholds import ThresholdsAtlas
 
 def test_build_ome_as():
     # test that if as = 0 ome is and identity
-    N = 2
+    N = complex(2.123)
     L = 0.0
     a_s = 0.0
-    sx = np.zeros(3, np.complex_)
+    nf = 3
     is_msbar = False
-    for o in [0, 1, 2]:
-        aNS = A_non_singlet(o, N, sx, L)
-        aS = A_singlet(o, N, sx, L, is_msbar)
+    for o in [1, 2, 3]:
+        sx_singlet = compute_harmonics_cache(N, o, True)
+        sx_ns = sx_singlet
+        if o == 3:
+            sx_ns = compute_harmonics_cache(N, o, False)
+
+        aNS = A_non_singlet(o, N, sx_ns, nf, L)
+        aS = A_singlet(o, N, sx_singlet, nf, L, is_msbar, sx_ns)
 
         for a in [aNS, aS]:
             for method in ["", "expanded", "exact"]:
@@ -48,10 +54,10 @@ def test_build_ome_nlo():
     a_s = 20
     is_msbar = False
 
-    sx = np.array([1, 1, 1], np.complex_)
-
-    aNSi = A_non_singlet(1, N, sx, L)
-    aSi = A_singlet(1, N, sx, L, is_msbar)
+    sx = [[1], [1], [1]]
+    nf = 4
+    aNSi = A_non_singlet(1, N, sx, nf, L)
+    aSi = A_singlet(1, N, sx, nf, L, is_msbar)
     for a in [aNSi, aSi]:
         for method in ["", "expanded", "exact"]:
             dim = len(a[0])
@@ -81,46 +87,50 @@ def test_quad_ker(monkeypatch):
     )  # negate mellin prefactor
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
+    zeros = np.zeros((2, 2))
     monkeypatch.setattr(
         "eko.matching_conditions.operator_matrix_element.A_non_singlet",
-        lambda *args: np.identity(2),
+        lambda *args: np.array([zeros, zeros, zeros]),
     )
+    zeros = np.zeros((3, 3))
     monkeypatch.setattr(
         "eko.matching_conditions.operator_matrix_element.A_singlet",
-        lambda *args: np.identity(3),
+        lambda *args: np.array([zeros, zeros, zeros]),
     )
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            order=2,
+            order=3,
             mode0=200,
             mode1=200,
             is_log=is_log,
-            logx=0.0,
+            logx=0.123,
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
+            nf=3,
             L=0.0,
             is_msbar=False,
         )
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
             u=0,
-            order=2,
+            order=3,
             mode0=100,
             mode1=100,
             is_log=is_log,
-            logx=0.0,
+            logx=0.123,
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
+            nf=3,
             L=0.0,
             is_msbar=False,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            order=2,
+            order=3,
             mode0=100,
             mode1=21,
             is_log=is_log,
@@ -128,6 +138,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             backward_method=None,
             a_s=0.0,
+            nf=3,
             L=0.0,
             is_msbar=False,
         )
@@ -138,14 +149,15 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=2,
+            order=3,
             mode0=label[0],
             mode1=label[1],
             is_log=True,
-            logx=0.0,
+            logx=0.123,
             areas=np.zeros(3),
             backward_method="expanded",
             a_s=0.0,
+            nf=3,
             L=0.0,
             is_msbar=False,
         )
@@ -170,14 +182,15 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=2,
+            order=3,
             mode0=label[0],
             mode1=label[1],
             is_log=True,
-            logx=0.0,
+            logx=0.123,
             areas=np.zeros(3),
             backward_method="exact",
             a_s=0.0,
+            nf=3,
             L=0.0,
             is_msbar=False,
         )
@@ -189,7 +202,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        order=2,
+        order=3,
         mode0=200,
         mode1=200,
         is_log=True,
@@ -197,17 +210,86 @@ def test_quad_ker(monkeypatch):
         areas=np.array([0.01, 0.1, 1.0]),
         backward_method=None,
         a_s=0.0,
+        nf=3,
         L=0.0,
         is_msbar=False,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
 
+# def test_run_integration():
+#     # setup objs
+#     theory_card = {
+#         "alphas": 0.35,
+#         "PTO": 2,
+#         "ModEv": "TRN",
+#         "fact_to_ren_scale_ratio": 1.0,
+#         "Qref": np.sqrt(2),
+#         "nfref": None,
+#         "Q0": np.sqrt(2),
+#         "nf0": 4,
+#         "NfFF": 3,
+#         "IC": 1,
+#         "IB": 0,
+#         "mc": 1.0,
+#         "mb": 4.75,
+#         "mt": 173.0,
+#         "kcThr": 0.0,
+#         "kbThr": np.inf,
+#         "ktThr": np.inf,
+#         "MaxNfPdf": 6,
+#         "MaxNfAs": 6,
+#         "HQ": "POLE",
+#         "ModSV": None,
+#     }
+
+#     operators_card = {
+#         "Q2grid": [1, 10],
+#         "interpolation_xgrid": [0.1, 1.0],
+#         "interpolation_polynomial_degree": 1,
+#         "interpolation_is_log": True,
+#         "debug_skip_singlet": True,
+#         "debug_skip_non_singlet": False,
+#         "ev_op_max_order": 1,
+#         "ev_op_iterations": 1,
+#         "backward_inversion": "",
+#     }
+#     g = OperatorGrid.from_dict(
+#         theory_card,
+#         operators_card,
+#         ThresholdsAtlas.from_dict(theory_card),
+#         StrongCoupling.from_dict(theory_card),
+#         InterpolatorDispatcher.from_dict(operators_card),
+#     )
+#     o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
+#     log_grid = np.log(o.int_disp.xgrid_raw)
+#     res = run_op_integration(
+#         log_grid=(len(log_grid) - 1, log_grid[-1]),
+#         int_disp=o.int_disp,
+#         labels=[(200, 200)],
+#         is_log=True,
+#         grid_size=len(log_grid),
+#         a_s=0.333,
+#         order=theory_card["PTO"],
+#         L=0,
+#         nf=4,
+#         backward_method="",
+#         is_msbar=False,
+#     )
+
+#     # here the last point is a zero, by default
+#     np.testing.assert_allclose(res[0][(200, 200)], (0.0, 0.0))
+
+#     # test that copy ome does not change anything
+#     o.copy_ome()
+#     np.testing.assert_allclose(0.0, o.op_members[(100, 100)].value)
+
+
 class TestOperatorMatrixElement:
     # setup objs
     theory_card = {
         "alphas": 0.35,
-        "PTO": 0,
+        "PTO": 3,
         "ModEv": "TRN",
         "fact_to_ren_scale_ratio": 1.0,
         "Qref": np.sqrt(2),
@@ -217,16 +299,28 @@ class TestOperatorMatrixElement:
         "NfFF": 3,
         "IC": 1,
         "IB": 0,
-        "mc": 1.0,
+        "mc": 1.51,
         "mb": 4.75,
         "mt": 173.0,
-        "kcThr": 1.0,
-        "kbThr": 1.0,
+        "kcThr": 1,
+        "kbThr": 1,
         "ktThr": np.inf,
         "MaxNfPdf": 6,
         "MaxNfAs": 6,
         "HQ": "POLE",
         "ModSV": None,
+    }
+    operators_card = {
+        "Q2grid": [20],
+        "interpolation_xgrid": [0.1, 1.0],
+        "interpolation_polynomial_degree": 1,
+        "interpolation_is_log": True,
+        "debug_skip_singlet": True,
+        "debug_skip_non_singlet": False,
+        "ev_op_max_order": 1,
+        "ev_op_iterations": 1,
+        "backward_inversion": "exact",
+        "n_integration_cores": 1,
     }
 
     def test_labels(self):
@@ -242,6 +336,7 @@ class TestOperatorMatrixElement:
                     "ev_op_max_order": 1,
                     "ev_op_iterations": 1,
                     "backward_inversion": "exact",
+                    "n_integration_cores": 1,
                 }
                 g = OperatorGrid.from_dict(
                     self.theory_card,
@@ -250,20 +345,35 @@ class TestOperatorMatrixElement:
                     StrongCoupling.from_dict(self.theory_card),
                     InterpolatorDispatcher.from_dict(operators_card),
                 )
-                o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
-                labels = o.labels()
-                test_labels = [(200, 200), (br.matching_hminus_pid, 200)]
+                o = OperatorMatrixElement(
+                    g.config,
+                    g.managers,
+                    is_backward=True,
+                    q2=None,
+                    nf=None,
+                    L=None,
+                    is_msbar=False,
+                )
+                labels = o.labels
+                test_labels = [
+                    (200, 200),
+                    (br.matching_hminus_pid, br.matching_hminus_pid),
+                ]
                 for l in test_labels:
                     if skip_ns:
                         assert l not in labels
                     else:
                         assert l in labels
                 test_labels = [
-                    (100, 100),
-                    (br.matching_hplus_pid, 100),
                     (21, 21),
-                    (br.matching_hplus_pid, 21),
+                    (21, 100),
                     (21, br.matching_hplus_pid),
+                    (100, 21),
+                    (100, 100),
+                    (100, br.matching_hplus_pid),
+                    (br.matching_hplus_pid, 21),
+                    (br.matching_hplus_pid, 100),
+                    (br.matching_hplus_pid, br.matching_hplus_pid),
                 ]
                 for l in test_labels:
                     if skip_singlet:
@@ -271,51 +381,81 @@ class TestOperatorMatrixElement:
                     else:
                         assert l in labels
 
-    def test_compute_lo(self):
-        operators_card = {
-            "Q2grid": [20],
-            "interpolation_xgrid": [0.001, 0.01, 0.1, 1.0],
-            "interpolation_polynomial_degree": 1,
-            "interpolation_is_log": True,
-            "debug_skip_singlet": False,
-            "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
-            "ev_op_iterations": 1,
-            "backward_inversion": "exact",
-        }
+    def test_compute_n3lo(self):
         g = OperatorGrid.from_dict(
             self.theory_card,
-            operators_card,
+            self.operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
             StrongCoupling.from_dict(self.theory_card),
-            InterpolatorDispatcher.from_dict(operators_card),
+            InterpolatorDispatcher.from_dict(self.operators_card),
         )
-        o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
-        o.compute(self.theory_card["mb"] ** 2, nf=4, L=0, is_msbar=False)
+        o = OperatorMatrixElement(
+            g.config,
+            g.managers,
+            is_backward=True,
+            q2=self.theory_card["mb"] ** 2,
+            nf=4,
+            L=0,
+            is_msbar=False,
+        )
+        o.compute()
 
-        dim = o.ome_members[(200, 200)].value.shape
+        dim = o.op_members[(200, 200)].value.shape
+        np.testing.assert_allclose(
+            o.op_members[(200, br.matching_hminus_pid)].value, np.zeros(dim)
+        )
+        np.testing.assert_allclose(
+            o.op_members[(br.matching_hminus_pid, 200)].value, np.zeros(dim)
+        )
+
+        for label in [(200, 200), (br.matching_hminus_pid, br.matching_hminus_pid)]:
+            mat = o.op_members[label].value
+            np.testing.assert_allclose(mat, np.triu(mat))
+
+    def test_compute_lo(self):
+        self.theory_card.update({"PTO": 0})
+        self.operators_card.update({"debug_skip_singlet": False})
+        g = OperatorGrid.from_dict(
+            self.theory_card,
+            self.operators_card,
+            ThresholdsAtlas.from_dict(self.theory_card),
+            StrongCoupling.from_dict(self.theory_card),
+            InterpolatorDispatcher.from_dict(self.operators_card),
+        )
+        o = OperatorMatrixElement(
+            g.config,
+            g.managers,
+            is_backward=False,
+            q2=self.theory_card["mb"] ** 2,
+            nf=4,
+            L=0,
+            is_msbar=False,
+        )
+        o.compute()
+
+        dim = o.op_members[(200, 200)].value.shape
         for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
             np.testing.assert_allclose(
-                o.ome_members[(indices[0], indices[0])].value, np.eye(dim[0]), atol=1e-8
+                o.op_members[(indices[0], indices[0])].value, np.eye(dim[0]), atol=1e-8
             )
             np.testing.assert_allclose(
-                o.ome_members[(indices[1], indices[1])].value, np.eye(dim[0]), atol=1e-8
+                o.op_members[(indices[1], indices[1])].value, np.eye(dim[0]), atol=1e-8
             )
             np.testing.assert_allclose(
-                o.ome_members[(indices[0], indices[1])].value, np.zeros(dim)
+                o.op_members[(indices[0], indices[1])].value, np.zeros(dim)
             )
             np.testing.assert_allclose(
-                o.ome_members[(indices[1], indices[0])].value, np.zeros(dim)
+                o.op_members[(indices[1], indices[0])].value, np.zeros(dim)
             )
         np.testing.assert_allclose(
-            o.ome_members[(21, 21)].value, np.eye(dim[0]), atol=1e-8
+            o.op_members[(21, 21)].value, np.eye(dim[0]), atol=1e-8
         )
         np.testing.assert_allclose(
-            o.ome_members[100, 21].value, o.ome_members[(21, 100)].value
+            o.op_members[100, 21].value, o.op_members[(21, 100)].value
         )
         np.testing.assert_allclose(
-            o.ome_members[(br.matching_hplus_pid, 21)].value,
-            o.ome_members[(21, br.matching_hplus_pid)].value,
+            o.op_members[(br.matching_hplus_pid, 21)].value,
+            o.op_members[(21, br.matching_hplus_pid)].value,
         )
 
     def test_compute_nlo(self):
@@ -329,6 +469,7 @@ class TestOperatorMatrixElement:
             "ev_op_max_order": 1,
             "ev_op_iterations": 1,
             "backward_inversion": "exact",
+            "n_integration_cores": 1,
         }
         t = copy.deepcopy(self.theory_card)
         t["PTO"] = 1
@@ -339,25 +480,33 @@ class TestOperatorMatrixElement:
             StrongCoupling.from_dict(t),
             InterpolatorDispatcher.from_dict(operators_card),
         )
-        o = OperatorMatrixElement(g.config, g.managers, is_backward=False)
-        o.compute(t["mb"] ** 2, nf=4, L=0, is_msbar=False)
+        o = OperatorMatrixElement(
+            g.config,
+            g.managers,
+            is_backward=False,
+            q2=t["mb"] ** 2,
+            nf=4,
+            L=0,
+            is_msbar=False,
+        )
+        o.compute()
 
         dim = len(operators_card["interpolation_xgrid"])
         shape = (dim, dim)
         for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
-            assert o.ome_members[(indices[0], indices[0])].value.shape == shape
-            assert o.ome_members[(indices[1], indices[1])].value.shape == shape
-            assert o.ome_members[(indices[0], indices[1])].value.shape == shape
-            assert o.ome_members[(indices[1], indices[0])].value.shape == shape
+            assert o.op_members[(indices[0], indices[0])].value.shape == shape
+            assert o.op_members[(indices[1], indices[1])].value.shape == shape
+            assert o.op_members[(indices[0], indices[1])].value.shape == shape
+            assert o.op_members[(indices[1], indices[0])].value.shape == shape
             np.testing.assert_allclose(
-                o.ome_members[(indices[0], indices[1])].value, np.zeros(shape)
+                o.op_members[(indices[0], indices[1])].value, np.zeros(shape)
             )
             np.testing.assert_allclose(
-                o.ome_members[(indices[1], indices[0])].value, np.zeros(shape)
+                o.op_members[(indices[1], indices[0])].value, np.zeros(shape)
             )
-        assert o.ome_members[(21, 21)].value.shape == shape
+        assert o.op_members[(21, 21)].value.shape == shape
         np.testing.assert_allclose(
-            o.ome_members[(100, 21)].value, o.ome_members[(21, 100)].value
+            o.op_members[(100, 21)].value, o.op_members[(21, 100)].value
         )
-        assert o.ome_members[(br.matching_hplus_pid, 21)].value.shape == shape
-        assert o.ome_members[(21, br.matching_hplus_pid)].value.shape == shape
+        assert o.op_members[(br.matching_hplus_pid, 21)].value.shape == shape
+        assert o.op_members[(21, br.matching_hplus_pid)].value.shape == shape

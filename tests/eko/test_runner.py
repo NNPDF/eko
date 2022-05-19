@@ -42,6 +42,7 @@ operators_card = {
     "ev_op_max_order": 1,
     "ev_op_iterations": 1,
     "backward_inversion": "exact",
+    "n_integration_cores": 1,
 }
 
 

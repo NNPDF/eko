@@ -107,38 +107,79 @@ are doing, are proportional to
 
 Harmonic Sums
 -------------
-In the computations of the anomalous dimensions (generalized) harmonic sums
+In the computations of the anomalous dimensions and matching conditions, (generalized) harmonic sums
 :cite:`Ablinger:2013hcp` appear naturally:
 
 .. math ::
     S_{m}(N) &= \sum\limits_{j=1}^N \frac{(\text{sign}(m))^j}{j^{|m|}} \\
     S_{m_0,m_1\ldots}(N) &= \sum\limits_{j=1}^N \frac{(\text{sign}(m_0))^j}{j^{|m_0|}} S_{m_1\ldots}(j)
 
+At |N3LO| the anomalous dimensions contains at maximum weight 7 harmonic sums.
 We then need to find an analytical continuation of these sums into the complex plain to perform
 the Mellin inverse.
 
 - the sums :math:`S_{m}(N)` for :math:`m > 0` do have a straight continuation:
 
-.. math ::
+  .. math ::
     S_m(N) = \sum\limits_{j=1}^N \frac 1 {j^m} = \frac{(-1)^{m-1}}{(m-1)!} \psi_{m-1}(N+1)+c_m \quad
-    \text{with}\, c_m = \left\{\begin{array}{ll} \gamma_E, & m=1\\ \zeta(m), & m>1\end{array} \right.
+    \text{with},\quad c_m = \left\{\begin{array}{ll} \gamma_E, & m=1\\ \zeta(m), & m>1\end{array} \right.
 
-and where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`~eko.anomalous_dimensions.harmonics.cern_polygamma`)
-and :math:`\zeta` the Riemann zeta function (using :func:`scipy.special.zeta`).
+  where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`~eko.harmonics.polygamma.cern_polygamma`)
+  and :math:`\zeta` the Riemann zeta function (using :func:`scipy.special.zeta`).
 
-- for the sums :math:`S_{-m}(N)` and :math:`m > 0` we use :cite:`Gluck:1989ze`
+- for the sums :math:`S_{-m}(N)` and m > 0 we use :cite:`Gluck:1989ze`:
 
-.. math ::
-    S_m'(N) = 2^{m-1}(S_m(N) + S_{-m}(N)) = \frac{1+\eta}{2} S_m(N/2) + \frac{1-\eta}{2}S_m((N-1)/2)
+  .. math ::
+    S_m'(N) = 2^{m-1}(S_m(N) + S_{-m}(N)) = \frac{1+\eta}{2} S_m\left(\frac{N}{2}\right) + \frac{1-\eta}{2} S_m\left(\frac{N-1}{2}\right)
 
-where formally :math:`\eta = (-1)^N` but in all singlet-like quantities it has to be analytically continued with 1
-and with -1 elsewise.
+  .. math ::
+    S_{-m}(N) = \frac{1}{2^{m-1}} \left [ \frac{1+\eta}{2} S_m\left(\frac{N}{2}\right) + \frac{1-\eta}{2}S_m\left(\frac{N-1}{2}\right)\right ] - S_m(N)
 
-- for the sums with greater depth we use the lists provided in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if`.
-- For :math:`S_{-2,1}(N)` we use the implementation of :cite:`Gluck:1989ze` (where it is called :math:`\tilde S`):
+  where formally :math:`\eta = (-1)^N` but in all singlet-like quantities it has to be analytically continued with 1
+  and with -1 elsewise. In case the symmetry condition is not given the formal definition of :math:`\eta` is used.
+  This relation is equivalent to the standard analytical continuation :cite:`Blumlein:2009ta,MuselliPhD`:
 
-.. math ::
-    S_{-2,1}(N) &= - \frac 5 8 \zeta(3) + \zeta(2)\left(S_{-1}(N) - \frac{\eta}{N} + \log(2)\right) + \eta\left(\frac{S_{1}(N)}{N^2} + g_3(N)\right)\\
-    g_3(N) &= \mathcal M \left[\frac{\text{Li}_2(x)}{1+x}\right](N)
+  .. math ::
+    S_{-m}(N) &= \frac{\eta}{2^m} \left[ S_m\left(\frac{N}{2}\right) - S_m\left(\frac{N-1}{2}\right) \right] - d_{m} \quad
+    \text{with},\quad d_m = \left\{\begin{array}{ll} \log(2), & m=1\\ \frac{2^{m-1}-1}{2^{m-1}}\zeta(m), & m>1\end{array} \right.\\
 
-where for :math:`g_3(N)` we use the parametrization of :cite:`Vogt:2004ns` (implemented as :meth:`~eko.anomalous_dimensions.harmonics.mellin_g3`).
+  but it's faster for :math:`\eta = \pm 1`.
+
+- for the sums with greater depth we use the definitions provided in :cite:`Gluck:1989ze,MuselliPhD,Blumlein:1998if,Blumlein:2009ta`,
+  which express higher weight sums in terms of simple one :math:`S_{m}, S_{-m}` and some irreducible integrals.
+  The above prescription on the analytical continuation of :math:`\eta` is applied.
+
+The complete list of harmonics sums available in :mod:`eko.harmonics` is:
+
+    - weight 1:
+
+        .. math::
+            S_{1}, S_{-1}
+
+    - weight 2:
+
+        .. math::
+            S_{2}, S_{-2}
+
+    - weight 3:
+
+        .. math::
+            S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}
+
+        these sums relies on the integrals :mod:`eko.harmonics.g_functions` :cite:`MuselliPhD,Blumlein:1998if`
+
+    - weight 4:
+
+        .. math ::
+            S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}
+
+        these sums relies on the integrals :mod:`eko.harmonics.g_functions` :cite:`MuselliPhD,Blumlein:1998if`
+
+    - weight 5:
+
+        .. math ::
+            S_{5}, S_{4,1}, S_{3,1,1}, S_{2,3}, S_{2,2,1}, S_{2,1,1,1}, S_{2,1,-2}, S_{2,-3}, S_{-2,3}, S_{-2,2,1}, S_{-2,1,1,1}, S_{-5}
+
+        these sums relies on the integrals :mod:`eko.harmonics.f_functions` :cite:`Blumlein:2009ta`
+
+We have also implemented a recursive computation of simple harmonics (single index), see :func:`eko.harmonics.polygamma.recursive_harmonic_sum`

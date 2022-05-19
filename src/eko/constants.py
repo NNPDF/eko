@@ -1,38 +1,47 @@
 # -*- coding: utf-8 -*-
-r"""
-This files sets the physical constants.
-
-"""
+"""This files sets the physical constants."""
 
 import numba as nb
 
 NC = 3
-"""the number of colors"""
+"""The number of colors."""
 
 TR = float(1.0 / 2.0)
-"""the normalization of fundamental generators - defaults to :math:`T_R = 1/2`"""
+"""The normalization of fundamental generators.
+
+Defaults to :math:`T_R = 1/2`.
+"""
 
 CA = float(NC)
-"""second Casimir constant in the adjoint representation - defaults to :math:`N_C = 3`"""
+"""Second Casimir constant in the adjoint representation.
+
+Defaults to :math:`N_C = 3`.
+"""
 
 CF = float((NC * NC - 1.0) / (2.0 * NC))
-"""second Casimir constant in the fundamental representation - defaults to :math:`\frac{N_C^2-1}{2N_C} = 4/3`"""
+r"""Second Casimir constant in the fundamental representation.
+
+Defaults to :math:`\frac{N_C^2-1}{2N_C} = 4/3`.
+"""
 
 eu2 = 4.0 / 9
-"""up quarks charge squared"""
+"""Up quarks charge squared."""
 
 ed2 = 1.0 / 9
-"""down quarks charge squared"""
+"""Down quarks charge squared."""
 
 
 def update_colors(nc):
-    """
-    Updates the number of colors to :math:`NC = nc` and the Casimirs for a generic value of :math:`NC`
+    """Updates the number of colors to :math:`NC = nc`.
+
+    The Casimirs for a generic value of :math:`NC` are consistenly updated as
+    well.
 
     Parameters
     ----------
-      nc : int
-        Number of colors
+    nc : int
+      Number of colors
+
     """
     global NC, CA, CF  # pylint: disable=global-statement
 
@@ -41,7 +50,7 @@ def update_colors(nc):
     CF = float((NC * NC - 1.0) / (2.0 * NC))
 
 
-@nb.njit("u1(u1)", cache=True)
+@nb.njit(cache=True)
 def uplike_flavors(nf):
     """Computes the number of up flavors
 

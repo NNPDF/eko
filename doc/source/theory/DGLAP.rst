@@ -284,7 +284,7 @@ And thus the |NLO| solution:
 
 .. math::
     \ln \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \ln \tilde E^{(1)}_{ns}(a_s \leftarrow a_s^0) + j^{(1,2)'}(a_s,a_s^0)(\gamma^{(1)} - b_1 \gamma^{(0)}) + j^{(2,2)}(a_s,a_s^0)(\gamma^{(2)} - b_2 \gamma^{(0)}) \\
-    j^{(1,2)'}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{ \beta_2 a_s'^2}{\beta_0 + \beta_1 a_s' + \beta_2 a_s'^2 ) (\beta_0 + \beta_1 a_s')}
+    j^{(1,2)'}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{ \beta_2 a_s'^2}{( \beta_0 + \beta_1 a_s' + \beta_2 a_s'^2 ) (\beta_0 + \beta_1 a_s')}
 
 In |NNLO| we provide different strategies to define the |EKO|:
 

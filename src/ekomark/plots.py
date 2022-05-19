@@ -258,7 +258,7 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs, change_lab=False):
                     for label_in, val, val_err in zip(ops_names, res[j], res_err[j]):
                         if label_in in skip_pdfs:
                             continue
-                        if label_in not in new_op.keys():
+                        if label_in not in new_op:
                             new_op[label_in] = []
                             new_op_err[label_in] = []
                         new_op[label_in].append(val)

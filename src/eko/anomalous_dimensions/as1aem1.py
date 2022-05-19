@@ -4,13 +4,12 @@ This file contains the O(as1aem1) Altarelli-Parisi splitting kernels.
 """
 
 import numba as nb
-import numpy as np
 
-from .. import constants
-from . import harmonics
+from .. import constants, harmonics
+from ..harmonics.constants import zeta2, zeta3
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_phq(N, sx):
     """Computes the O(as1aem1) photon-quark anomalous dimension
 
@@ -47,7 +46,7 @@ def gamma_phq(N, sx):
     return constants.CF * (tmp_const + tmp_S1 * S1 + tmp_S12 * S1**2 + tmp_S2 * S2)
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_qph(N, nf, sx):
     """Computes the O(as1aem1) quark-photon anomalous dimension
 
@@ -95,7 +94,7 @@ def gamma_qph(N, nf, sx):
     )
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def gamma_gph(N):
     """Computes the O(as1aem1) gluon-photon anomalous dimension
 
@@ -120,7 +119,7 @@ def gamma_gph(N):
     )
 
 
-@nb.njit("c16(c16)", cache=True)
+@nb.njit(cache=True)
 def gamma_phg(N):
     """Computes the O(as1aem1) photon-gluon anomalous dimension
 
@@ -140,7 +139,7 @@ def gamma_phg(N):
     return constants.TR / constants.CF / constants.CA * gamma_gph(N)
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_qg(N, nf, sx):
     """Computes the O(as1aem1) quark-gluon singlet anomalous dimension.
 
@@ -165,7 +164,7 @@ def gamma_qg(N, nf, sx):
     return constants.TR / constants.CF / constants.CA * gamma_qph(N, nf, sx)
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_gq(N, sx):
     """Computes the O(as1aem1) gluon-quark singlet anomalous dimension.
 
@@ -188,7 +187,7 @@ def gamma_gq(N, sx):
     return gamma_phq(N, sx)
 
 
-@nb.njit("c16(u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_phph(nf):
     """Computes the O(as1aem1) photon-photon singlet anomalous dimension.
 
@@ -211,7 +210,7 @@ def gamma_phph(nf):
     return 4 * constants.CF * constants.CA * (nu * constants.eu2 + nd * constants.ed2)
 
 
-@nb.njit("c16()", cache=True)
+@nb.njit(cache=True)
 def gamma_gg():
     """Computes the O(as1aem1) gluon-gluon singlet anomalous dimension.
 
@@ -230,7 +229,7 @@ def gamma_gg():
     return 4 * constants.TR
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_nsp(N, sx):
     """Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
 
@@ -253,16 +252,15 @@ def gamma_nsp(N, sx):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1h = harmonics.harmonic_S1(N / 2)
-    S2h = harmonics.harmonic_S2(N / 2)
-    S3h = harmonics.harmonic_S3(N / 2)
-    S1p1h = harmonics.harmonic_S1((N + 1.0) / 2)
-    S2p1h = harmonics.harmonic_S2((N + 1) / 2)
-    S3p1h = harmonics.harmonic_S3((N + 1) / 2)
-    g3N = harmonics.mellin_g3(N)
-    g3Np2 = harmonics.mellin_g3(N + 2)
-    zeta2 = harmonics.zeta2
-    zeta3 = harmonics.zeta3
+    S1h = harmonics.S1(N / 2)
+    S2h = harmonics.S2(N / 2)
+    S3h = harmonics.S3(N / 2)
+    S1p1h = harmonics.S1((N + 1.0) / 2)
+    S2p1h = harmonics.S2((N + 1) / 2)
+    S3p1h = harmonics.S3((N + 1) / 2)
+    g3N = harmonics.g_functions.mellin_g3(N, S1)
+    S1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
+    g3Np2 = harmonics.g_functions.mellin_g3(N + 2, S1p2)
     result = (
         +32 * zeta2 * S1h
         - 32 * zeta2 * S1p1h
@@ -294,7 +292,7 @@ def gamma_nsp(N, sx):
     return constants.CF * result
 
 
-@nb.njit("c16(c16,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_nsm(N, sx):
     """Computes the O(as1aem1) valence-like non-singlet anomalous dimension.
 
@@ -317,16 +315,16 @@ def gamma_nsm(N, sx):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1h = harmonics.harmonic_S1(N / 2)
-    S2h = harmonics.harmonic_S2(N / 2)
-    S3h = harmonics.harmonic_S3(N / 2)
-    S1p1h = harmonics.harmonic_S1((N + 1.0) / 2)
-    S2p1h = harmonics.harmonic_S2((N + 1) / 2)
-    S3p1h = harmonics.harmonic_S3((N + 1) / 2)
-    g3N = harmonics.mellin_g3(N)
-    g3Np2 = harmonics.mellin_g3(N + 2)
-    zeta2 = harmonics.zeta2
-    zeta3 = harmonics.zeta3
+    S1h = harmonics.S1(N / 2)
+    S2h = harmonics.S2(N / 2)
+    S3h = harmonics.S3(N / 2)
+    S1p1h = harmonics.S1((N + 1.0) / 2)
+    S2p1h = harmonics.S2((N + 1) / 2)
+    S3p1h = harmonics.S3((N + 1) / 2)
+    g3N = harmonics.g_functions.mellin_g3(N, S1)
+    S1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
+    g3Np2 = harmonics.g_functions.mellin_g3(N + 2, S1p2)
+
     result = (
         -32.0 * zeta2 * S1h
         - 8.0 / (N + N**2) * S2h

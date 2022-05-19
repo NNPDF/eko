@@ -13,7 +13,7 @@ NF = 5
 
 def test_eigensystem_gamma_singlet_0_values():
     n = 3
-    s1 = harmonics.harmonic_S1(n)
+    s1 = harmonics.S1(n)
     gamma_S_0 = ad_as1.gamma_singlet(3, s1, NF)
     res = ad.exp_singlet(gamma_S_0)
     lambda_p = complex(12.273612971466964, 0)
