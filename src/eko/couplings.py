@@ -62,7 +62,7 @@ def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
 
 
 def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
-    b3 = b_qcd((3, 0), nf)
+    b3 = beta3 / beta0
     as_LO = expanded_lo(ref, beta0, lmu)
     log_fact = np.log(as_LO)
     b1 = beta1 / beta0
