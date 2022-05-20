@@ -35,6 +35,70 @@ def couplings_mod_ev(mod_ev):
     raise ValueError(f"Unknown evolution mode {mod_ev}")
 
 
+def expanded_lo(ref, beta0, lmu):
+    den = 1.0 + beta0 * ref * lmu
+    return ref / den
+
+
+def expanded_nlo(ref, beta0, beta1, lmu):
+    den = 1.0 + beta0 * ref * lmu
+    b1 = beta1 / beta0
+    as_LO = expanded_lo(ref, beta0, lmu)
+    as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
+    return as_NLO
+
+
+def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
+    as_LO = expanded_lo(ref, beta0, lmu)
+    as_NLO = expanded_nlo(ref, beta0, beta1, lmu)
+    b1 = beta1 / beta0
+    b2 = beta2 / beta0
+    res = as_LO * (
+        1.0
+        + as_LO * (as_LO - ref) * (b2 - b1**2)
+        + as_NLO * b1 * np.log(as_NLO / ref)
+    )
+    return res
+
+
+def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
+    b3 = b_qcd((3, 0), nf)
+    as_LO = expanded_lo(ref, beta0, lmu)
+    log_fact = np.log(as_LO)
+    b1 = beta1 / beta0
+    b2 = beta2 / beta0
+    b3 = beta3 / beta0
+    res = expanded_nnlo(ref, beta0, beta1, beta2, lmu)
+    res += (
+        as_LO**4
+        / (2 * beta0**3)
+        * (
+            -2 * b1**3 * np.log(ref) ** 3
+            + 5 * b1**3 * log_fact**2
+            + 2 * b1**3 * log_fact**3
+            + b1**3 * np.log(ref) ** 2 * (5 + 6 * log_fact)
+            + 2 * beta0 * b1 * log_fact * (b2 + 2 * (b1**2 - beta0 * b2) * lmu * ref)
+            - beta0**2
+            * lmu
+            * ref
+            * (
+                -2 * b1 * b2
+                + 2 * beta0 * b3
+                + (b1**3 - 2 * beta0 * b1 * b2 + beta0**2 * b3) * lmu * ref
+            )
+            - 2
+            * b1
+            * np.log(ref)
+            * (
+                5 * b1**2 * log_fact
+                + 3 * b1**2 * log_fact**2
+                + beta0 * (b2 + 2 * (b1**2 - beta0 * b2) * lmu * ref)
+            )
+        )
+    )
+    return res
+
+
 @nb.njit("f8[:](UniTuple(u1,2),f8[:],u1,f8,f8)", cache=True)
 def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     """
@@ -60,74 +124,9 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     """
     # common vars
     lmu = np.log(scale_to / scale_from)
-
-    def expanded_lo(ref, beta0, lmu):
-        den = 1.0 + beta0 * ref * lmu
-        return ref / den
-
-    def expanded_nlo(ref, beta0, beta1, lmu):
-        den = 1.0 + beta0 * ref * lmu
-        b1 = beta1 / beta0
-        as_LO = expanded_lo(ref, beta0, lmu)
-        as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
-        return as_NLO
-
-    def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
-        as_LO = expanded_lo(ref, beta0, lmu)
-        as_NLO = expanded_nlo(ref, beta0, beta1, lmu)
-        b1 = beta1 / beta0
-        b2 = beta2 / beta0
-        res = as_LO * (
-            1.0
-            + as_LO * (as_LO - ref) * (b2 - b1**2)
-            + as_NLO * b1 * np.log(as_NLO / ref)
-        )
-        return res
-
-    def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
-        b3 = b_qcd((3, 0), nf)
-        as_LO = expanded_lo(ref, beta0, lmu)
-        log_fact = np.log(as_LO)
-        b1 = beta1 / beta0
-        b2 = beta2 / beta0
-        b3 = beta3 / beta0
-        res = expanded_nnlo(ref, beta0, beta1, beta2, lmu)
-        res += (
-            as_LO**4
-            / (2 * beta0**3)
-            * (
-                -2 * b1**3 * np.log(ref) ** 3
-                + 5 * b1**3 * log_fact**2
-                + 2 * b1**3 * log_fact**3
-                + b1**3 * np.log(ref) ** 2 * (5 + 6 * log_fact)
-                + 2
-                * beta0
-                * b1
-                * log_fact
-                * (b2 + 2 * (b1**2 - beta0 * b2) * lmu * ref)
-                - beta0**2
-                * lmu
-                * ref
-                * (
-                    -2 * b1 * b2
-                    + 2 * beta0 * b3
-                    + (b1**3 - 2 * beta0 * b1 * b2 + beta0**2 * b3) * lmu * ref
-                )
-                - 2
-                * b1
-                * np.log(ref)
-                * (
-                    5 * b1**2 * log_fact
-                    + 3 * b1**2 * log_fact**2
-                    + beta0 * (b2 + 2 * (b1**2 - beta0 * b2) * lmu * ref)
-                )
-            )
-        )
-        return res
-
     if order[1] == 0:
-        res_as = couplings_ref[0]
         res_aem = couplings_ref[1]
+        res_as = couplings_ref[0]
         if order[0] >= 1:
             beta_qcd0 = beta_qcd((2, 0), nf)
             # QCD LO
@@ -158,11 +157,11 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
                         )
                         res_as = as_N3LO
     if order[1] == 1:
-        res_as = couplings_ref[0]
         beta_qed0 = beta_qed((0, 2), nf)
         # QED LO
         aem_LO = expanded_lo(couplings_ref[1], beta_qed0, lmu)
         res_aem = aem_LO
+        res_as = couplings_ref[0]
         if order[0] >= 1:
             beta_qcd0 = beta_qcd((2, 0), nf)
             # QCD LO
@@ -193,12 +192,12 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
                         )
                         res_as = as_N3LO
     if order[1] == 2:
-        res_as = couplings_ref[0]
         beta_qed0 = beta_qed((0, 2), nf)
         beta_qed1 = beta_qed((0, 3), nf)
         # QED NLO
         aem_LO = expanded_nlo(couplings_ref[1], beta_qed0, beta_qed1, lmu)
         res_aem = aem_LO
+        res_as = couplings_ref[0]
         if order[0] >= 1:
             beta_qcd0 = beta_qcd((2, 0), nf)
             # QCD LO
