@@ -103,7 +103,7 @@ def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
     return res
 
 
-@nb.njit("f8(f8,u1,f8,f8)", cache=True)
+@nb.njit("f8(f8,u1,u1,f8)", cache=True)
 def expanded_qcd(ref, order, nf, lmu):
     res_as = ref
     if order >= 1:
@@ -136,7 +136,7 @@ def expanded_qcd(ref, order, nf, lmu):
     return res_as
 
 
-@nb.njit("f8(f8,u1,f8,f8)", cache=True)
+@nb.njit("f8(f8,u1,u1,f8)", cache=True)
 def expanded_qed(ref, order, nf, lmu):
     res_aem = ref
     if order >= 1:
