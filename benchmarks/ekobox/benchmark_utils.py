@@ -14,7 +14,7 @@ def benchmark_ekos_product():
     op1 = g_o.gen_op_card(
         [60.0, 80.0, 100.0], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
     )
-    theory1 = g_t.gen_theory_card(0, 5.0)
+    theory1 = g_t.gen_theory_card(1, 5.0)
 
     op2 = g_o.gen_op_card(
         [80.0, 100.0, 120.0],
