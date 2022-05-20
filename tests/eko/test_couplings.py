@@ -12,7 +12,7 @@ from eko.couplings import Couplings
 
 class TestCouplings:
     def test_from_dict(self):
-        dict = {
+        theory_dict = {
             "alphas": 0.118,
             "alphaqed": 0.00781,
             "Qref": 91.0,
@@ -32,7 +32,7 @@ class TestCouplings:
             "ModSV": None,
         }
         operators = {}
-        d, o = compatibility.update(dict, operators)
+        d, o = compatibility.update(theory_dict, operators)
         sc = Couplings.from_dict(d)
         assert sc.a(d["Qref"] ** 2)[0] == d["alphas"] / (4.0 * np.pi)
         assert sc.a(d["Qref"] ** 2)[1] == d["alphaem"] / (4.0 * np.pi)
