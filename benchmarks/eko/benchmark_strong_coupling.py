@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """This module benchmarks alpha_s against LHAPDF and APFEL."""
+from ast import operator
+
 import numpy as np
 import pytest
 
-from eko import thresholds
+from eko import compatibility, thresholds
 from eko.beta import beta_qcd
 from eko.couplings import Couplings
 
@@ -40,18 +42,18 @@ class BenchmarkCouplings:
         """
         # TODO @JCM: we need a source for this!
         known_val = 0.0091807954
-        ref_alpha_s = 0.1181
+        ref_couplings = np.array([0.1181, 0.007496])
         ref_mu2 = 90
         ask_q2 = 125
         as_FFNS_LO = Couplings(
-            ref_alpha_s, ref_mu2, [0, 0, np.inf], (1.0, 1.0, 1.0), order=0
+            ref_couplings, ref_mu2, [0, 0, np.inf], (1.0, 1.0, 1.0), order=(1, 0)
         )
         # check local
         np.testing.assert_approx_equal(
-            as_FFNS_LO.a_s(ref_mu2), ref_alpha_s / 4.0 / np.pi
+            as_FFNS_LO.a(ref_mu2)[0], ref_couplings[0] / 4.0 / np.pi
         )
         # check high
-        result = as_FFNS_LO.a_s(ask_q2)
+        result = as_FFNS_LO.a(ask_q2)[0]
         np.testing.assert_approx_equal(result, known_val, significant=7)
 
     def benchmark_LHA_paper(self):
@@ -59,24 +61,29 @@ class BenchmarkCouplings:
         # LO - FFNS
         # note that the LO-FFNS value reported in :cite:`Giele:2002hx`
         # was corrected in :cite:`Dittmar:2005ed`
-        as_FFNS_LO = Couplings(0.35, 2, (0, np.inf, np.inf), (1.0, 1.0, 1.0), order=0)
-        me = as_FFNS_LO.a_s(1e4) * 4 * np.pi
+        coupling_ref = np.array([0.35, 0.007496])
+        as_FFNS_LO = Couplings(
+            coupling_ref, 2, (0, np.inf, np.inf), (1.0, 1.0, 1.0), order=(1, 0)
+        )
+        me = as_FFNS_LO.a(1e4)[0] * 4 * np.pi
         ref = 0.117574
         np.testing.assert_approx_equal(me, ref, significant=6)
         # LO - VFNS
         threshold_list = [2, pow(4.5, 2), pow(175, 2)]
-        as_VFNS_LO = Couplings(0.35, 2, threshold_list, (1.0, 1.0, 1.0), order=0)
-        me = as_VFNS_LO.a_s(1e4) * 4 * np.pi
+        as_VFNS_LO = Couplings(
+            coupling_ref, 2, threshold_list, (1.0, 1.0, 1.0), order=(1, 0)
+        )
+        me = as_VFNS_LO.a(1e4)[0] * 4 * np.pi
         ref = 0.122306
         np.testing.assert_approx_equal(me, ref, significant=6)
 
     def benchmark_APFEL_ffns(self):
         Q2s = [1e1, 1e2, 1e3, 1e4]
-        alphas_ref = 0.118
+        coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 91.0**2
         nf = 4
         apfel_vals_dict = {
-            0: np.array(
+            1: np.array(
                 [
                     0.01980124164841284,
                     0.014349241933308077,
@@ -84,7 +91,7 @@ class BenchmarkCouplings:
                     0.009253560532725833,
                 ]
             ),
-            1: np.array(
+            2: np.array(
                 [
                     0.021603236069744878,
                     0.014887068327193985,
@@ -92,7 +99,7 @@ class BenchmarkCouplings:
                     0.009245832041857378,
                 ]
             ),
-            2: np.array(
+            3: np.array(
                 [
                     0.02204088975651748,
                     0.014966690529271008,
@@ -103,18 +110,18 @@ class BenchmarkCouplings:
         }
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
-        for order in [0, 1, 2]:
+        for order in [1, 2, 3]:
             as_FFNS = Couplings(
-                alphas_ref,
+                coupling_ref,
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
                 (1.0, 1.0, 1.0),
-                order=order,
+                order=(order, 0),
                 method="expanded",
             )
             my_vals = []
             for Q2 in Q2s:
-                my_vals.append(as_FFNS.a_s(Q2))
+                my_vals.append(as_FFNS.a(Q2)[0])
             # get APFEL numbers - if available else use cache
             apfel_vals = apfel_vals_dict[order]
             if use_APFEL:
@@ -123,7 +130,7 @@ class BenchmarkCouplings:
                 apfel.SetTheory("QCD")
                 apfel.SetPerturbativeOrder(order)
                 apfel.SetAlphaEvolution("expanded")
-                apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                apfel.SetAlphaQCDRef(coupling_ref[0], np.sqrt(scale_ref))
                 apfel.SetFFNS(nf)
                 apfel.SetRenFacRatio(1)
                 # collect a_s
@@ -137,11 +144,11 @@ class BenchmarkCouplings:
 
     def benchmark_pegasus_ffns(self):
         Q2s = [1e1, 1e2, 1e3, 1e4]
-        alphas_ref = 0.118
+        coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 91.0**2
         nf = 4
         pegasus_vals_dict = {
-            0: np.array(
+            1: np.array(
                 [
                     0.01980124164841284,
                     0.014349241933308077,
@@ -149,7 +156,7 @@ class BenchmarkCouplings:
                     0.009253560532725833,
                 ]
             ),
-            1: np.array(
+            2: np.array(
                 [
                     0.021869297350539534,
                     0.014917847337312901,
@@ -157,7 +164,7 @@ class BenchmarkCouplings:
                     0.00924584172632009,
                 ]
             ),
-            2: np.array(
+            3: np.array(
                 [
                     0.022150834782048476,
                     0.014974959766044743,
@@ -165,7 +172,7 @@ class BenchmarkCouplings:
                     0.009245273177012448,
                 ]
             ),
-            3: np.array(
+            4: np.array(
                 [
                     0.02224042559454458,
                     0.014988806602725375,
@@ -176,18 +183,18 @@ class BenchmarkCouplings:
         }
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
-        for order in [0, 1, 2, 3]:
+        for order in [1, 2, 3, 4]:
             as_FFNS = Couplings(
-                alphas_ref,
+                coupling_ref,
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
                 (1.0, 1.0, 1.0),
-                order=order,
+                order=(order, 0),
                 method="exact",
             )
             my_vals = []
             for Q2 in Q2s:
-                my_vals.append(as_FFNS.a_s(Q2))
+                my_vals.append(as_FFNS.a(Q2)[0])
             # get APFEL numbers - if available else use cache
             pegasus_vals = pegasus_vals_dict[order]
             if use_PEGASUS:
@@ -196,14 +203,14 @@ class BenchmarkCouplings:
                 pegasus.colour.cf = 4.0 / 3.0
                 pegasus.colour.tr = 0.5
                 pegasus.betafct()
-                pegasus.aspar.naord = order
+                pegasus.aspar.naord = order - 1
                 pegasus.aspar.nastps = 20
                 # collect a_s
                 pegasus_vals_cur = []
                 for Q2 in Q2s:
                     pegasus_vals_cur.append(
                         pegasus.__getattribute__("as")(
-                            Q2, scale_ref, alphas_ref / (4.0 * np.pi), nf
+                            Q2, scale_ref, coupling_ref[0] / (4.0 * np.pi), nf
                         )
                     )
                 # print(pegasus_vals_cur)
@@ -217,11 +224,11 @@ class BenchmarkCouplings:
 
     def benchmark_APFEL_vfns(self):
         Q2s = [1, 2**2, 3**2, 90**2, 100**2]
-        alphas_ref = 0.118
+        coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 91.0**2
         threshold_list = np.power([2, 4, 175], 2)
         apfel_vals_dict = {
-            0: np.array(
+            1: np.array(
                 [
                     0.028938898786215545,
                     0.021262022520127353,
@@ -230,7 +237,7 @@ class BenchmarkCouplings:
                     0.00926434063784546,
                 ]
             ),
-            1: np.array(
+            2: np.array(
                 [
                     0.035670881093047654,
                     0.02337584106433519,
@@ -239,7 +246,7 @@ class BenchmarkCouplings:
                     0.009258502199861199,
                 ]
             ),
-            2: np.array(
+            3: np.array(
                 [
                     0.03745593700854872,
                     0.023692463391822537,
@@ -250,27 +257,27 @@ class BenchmarkCouplings:
             ),
         }
         # collect my values
-        for order in [0, 1, 2]:
+        for order in [1, 2, 3]:
             as_VFNS = Couplings(
-                alphas_ref,
+                coupling_ref,
                 scale_ref,
                 threshold_list,
                 (1.0, 1.0, 1.0),
-                order=order,
+                order=(order, 0),
                 method="expanded",
             )
             my_vals = []
             for Q2 in Q2s:
-                my_vals.append(as_VFNS.a_s(Q2))
+                my_vals.append(as_VFNS.a(Q2)[0])
             # get APFEL numbers - if available else use cache
             apfel_vals = apfel_vals_dict[order]
             if use_APFEL:
                 # run apfel
                 apfel.CleanUp()
                 apfel.SetTheory("QCD")
-                apfel.SetPerturbativeOrder(order)
+                apfel.SetPerturbativeOrder(order - 1)
                 apfel.SetAlphaEvolution("expanded")
-                apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                apfel.SetAlphaQCDRef(coupling_ref[0], np.sqrt(scale_ref))
                 apfel.SetVFNS()
                 apfel.SetPoleMasses(*np.sqrt(threshold_list))
                 apfel.SetRenFacRatio(1)
@@ -297,13 +304,13 @@ class BenchmarkCouplings:
             110**2,
             120**2,
         ]
-        alphas_ref = 0.118
+        coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 91.0**2
         fact_to_ren_lin_list = [0.567, 2.34]
         threshold_list = np.power([2, 2 * 4, 2 * 92], 2)
         apfel_vals_dict_list = [
             {
-                0: np.array(
+                1: np.array(
                     [
                         0.02536996716194434,
                         0.02242405760517867,
@@ -317,7 +324,7 @@ class BenchmarkCouplings:
                         0.009030457524243522,
                     ]
                 ),
-                1: np.array(
+                2: np.array(
                     [
                         0.02892091611225328,
                         0.024548883236784783,
@@ -331,7 +338,7 @@ class BenchmarkCouplings:
                         0.009014436496515657,
                     ]
                 ),
-                2: np.array(
+                3: np.array(
                     [
                         0.029220134213545565,
                         0.024598646506863896,
@@ -347,7 +354,7 @@ class BenchmarkCouplings:
                 ),
             },
             {
-                0: np.array(
+                1: np.array(
                     [
                         0.023451267902337505,
                         0.021080893784642736,
@@ -361,7 +368,7 @@ class BenchmarkCouplings:
                         0.009060636882751797,
                     ]
                 ),
-                1: np.array(
+                2: np.array(
                     [
                         0.028479841693964322,
                         0.02457741561064943,
@@ -375,7 +382,7 @@ class BenchmarkCouplings:
                         0.009049764354779253,
                     ]
                 ),
-                2: np.array(
+                3: np.array(
                     [
                         0.029458461672676982,
                         0.025177951225443865,
@@ -395,27 +402,27 @@ class BenchmarkCouplings:
             fact_to_ren_lin_list, apfel_vals_dict_list
         ):
             # collect my values
-            for order in [0, 1, 2]:
+            for order in [1, 2, 3]:
                 as_VFNS = Couplings(
-                    alphas_ref,
+                    coupling_ref,
                     scale_ref,
                     1 / fact_to_ren_lin**2 * threshold_list,
                     (1.0, 1.0, 1.0),
-                    order=order,
+                    order=(order, 0),
                     method="exact",
                 )
                 my_vals = []
                 for Q2 in Q2s:
-                    my_vals.append(as_VFNS.a_s(Q2, fact_to_ren_lin**2 * Q2))
+                    my_vals.append(as_VFNS.a(Q2, fact_to_ren_lin**2 * Q2)[0])
                 # get APFEL numbers - if available else use cache
                 apfel_vals = apfel_vals_dict[order]
                 if use_APFEL:
                     # run apfel
                     apfel.CleanUp()
                     apfel.SetTheory("QCD")
-                    apfel.SetPerturbativeOrder(order)
+                    apfel.SetPerturbativeOrder(order - 1)
                     apfel.SetAlphaEvolution("exact")
-                    apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                    apfel.SetAlphaQCDRef(coupling_ref[0], np.sqrt(scale_ref))
                     apfel.SetVFNS()
                     apfel.SetPoleMasses(*np.sqrt(threshold_list))
                     apfel.SetRenFacRatio(1.0 / fact_to_ren_lin)
@@ -432,41 +439,41 @@ class BenchmarkCouplings:
 
     def benchmark_APFEL_vfns_threshold(self):
         Q2s = np.power([30, 96, 150], 2)
-        alphas_ref = 0.118
+        coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 91.0**2
         threshold_list = np.power([30, 95, 240], 2)
         thresholds_ratios = np.power((2.34, 1.0, 0.5), 2)
         apfel_vals_dict = {
-            1: np.array(
+            2: np.array(
                 [0.011543349125207046, 0.00930916017456183, 0.008683622955304702]
             ),
-            2: np.array(
+            3: np.array(
                 [0.011530819844835012, 0.009312638352288492, 0.00867793622077099]
             ),
         }
         # collect my values
-        for order in [1, 2]:
+        for order in [2, 3]:
             as_VFNS = Couplings(
-                alphas_ref,
+                coupling_ref,
                 scale_ref,
                 threshold_list,
                 thresholds_ratios,
-                order=order,
+                order=(order, 0),
                 method="expanded",
             )
             my_vals = []
             for Q2 in Q2s:
                 print(Q2)
-                my_vals.append(as_VFNS.a_s(Q2))
+                my_vals.append(as_VFNS.a(Q2)[0])
             # get APFEL numbers - if available else use cache
             apfel_vals = apfel_vals_dict[order]
             if use_APFEL:
                 # run apfel
                 apfel.CleanUp()
                 apfel.SetTheory("QCD")
-                apfel.SetPerturbativeOrder(order)
+                apfel.SetPerturbativeOrder(order - 1)
                 apfel.SetAlphaEvolution("expanded")
-                apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                apfel.SetAlphaQCDRef(coupling_ref[0], np.sqrt(scale_ref))
                 apfel.SetVFNS()
                 apfel.SetPoleMasses(*np.sqrt(threshold_list))
                 apfel.SetMassMatchingScales(*np.sqrt(thresholds_ratios))
@@ -483,43 +490,43 @@ class BenchmarkCouplings:
 
     def benchmark_APFEL_vfns_msbar(self):
         Q2s = np.power([3, 96, 150], 2)
-        alphas_ref = 0.118
+        coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 91.0**2
         thresholds_ratios = np.power((1.0, 1.0, 1.0), 2)
         Q2m = np.power([2.0, 4.0, 175], 2)
         m2 = np.power((1.4, 4.0, 175), 2)
         apfel_vals_dict = {
-            1: np.array(
+            2: np.array(
                 [0.01985110421500437, 0.009315017128518715, 0.00873290495922747]
             ),
-            2: np.array(
+            3: np.array(
                 [0.02005213805142418, 0.009314871933701218, 0.008731890252153528]
             ),
         }
         # collect my values
-        for order in [1, 2]:
+        for order in [2, 3]:
             as_VFNS = Couplings(
-                alphas_ref,
+                coupling_ref,
                 scale_ref,
                 m2,
                 thresholds_ratios,
-                order=order,
+                order=(order, 0),
                 method="expanded",
                 hqm_scheme="MSBAR",
             )
             my_vals = []
             for Q2 in Q2s:
                 print(Q2)
-                my_vals.append(as_VFNS.a_s(Q2))
+                my_vals.append(as_VFNS.a(Q2)[0])
             # get APFEL numbers - if available else use cache
             apfel_vals = apfel_vals_dict[order]
             if use_APFEL:
                 # run apfel
                 apfel.CleanUp()
                 apfel.SetTheory("QCD")
-                apfel.SetPerturbativeOrder(order)
+                apfel.SetPerturbativeOrder(order - 1)
                 apfel.SetAlphaEvolution("expanded")
-                apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                apfel.SetAlphaQCDRef(coupling_ref[0], np.sqrt(scale_ref))
                 apfel.SetVFNS()
                 apfel.SetMSbarMasses(*np.sqrt(m2))
                 apfel.SetMassScaleReference(*np.sqrt(Q2m))
@@ -542,21 +549,21 @@ class BenchmarkCouplings:
     def benchmark_lhapdf_ffns_lo(self):
         """test FFNS LO towards LHAPDF"""
         Q2s = [1, 1e1, 1e2, 1e3, 1e4]
-        alphas_ref = 0.118
+        coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 91.0**2
         nf = 4
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         as_FFNS_LO = Couplings(
-            alphas_ref,
+            coupling_ref,
             scale_ref,
             threshold_holder.area_walls[1:-1],
             (1.0, 1.0, 1.0),
-            order=0,
+            order=(1, 0),
         )
         my_vals = []
         for Q2 in Q2s:
-            my_vals.append(as_FFNS_LO.a_s(Q2))
+            my_vals.append(as_FFNS_LO.a(Q2)[0])
         # get LHAPDF numbers - if available else use cache
         lhapdf_vals = np.array(
             [
@@ -572,7 +579,9 @@ class BenchmarkCouplings:
             as_lhapdf = lhapdf.mkBareAlphaS("analytic")
             as_lhapdf.setOrderQCD(1)
             as_lhapdf.setFlavorScheme("FIXED", nf)
-            Lambda2 = self._get_Lambda2_LO(alphas_ref / (4.0 * np.pi), scale_ref, nf)
+            Lambda2 = self._get_Lambda2_LO(
+                coupling_ref[0] / (4.0 * np.pi), scale_ref, nf
+            )
             as_lhapdf.setLambda(nf, np.sqrt(Lambda2))
             # collect a_s
             lhapdf_vals_cur = []
@@ -586,13 +595,13 @@ class BenchmarkCouplings:
     def benchmark_apfel_exact(self):
         """test exact towards APFEL"""
         Q2s = [1e1, 1e2, 1e3, 1e4]
-        alphas_ref = 0.118
+        coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 90**2
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(3)
         # LHAPDF cache
         apfel_vals_dict = {
-            0: np.array(
+            1: np.array(
                 [
                     0.021635019899707245,
                     0.014937719308417242,
@@ -600,7 +609,7 @@ class BenchmarkCouplings:
                     0.009225844999427163,
                 ]
             ),
-            1: np.array(
+            2: np.array(
                 [
                     0.025027723843261098,
                     0.015730685887616093,
@@ -608,7 +617,7 @@ class BenchmarkCouplings:
                     0.009215179564010682,
                 ]
             ),
-            2: np.array(
+            3: np.array(
                 [
                     0.025717091835015565,
                     0.01583723253352162,
@@ -617,27 +626,27 @@ class BenchmarkCouplings:
                 ]
             ),
         }
-        for order in range(2 + 1):
+        for order in range(1, 3 + 1):
             sc = Couplings(
-                alphas_ref,
+                coupling_ref,
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
                 (1.0, 1.0, 1.0),
-                order=order,
+                order=(order, 0),
                 method="exact",
             )
             my_vals = []
             for Q2 in Q2s:
-                my_vals.append(sc.a_s(Q2))
+                my_vals.append(sc.a(Q2)[0])
             # get APFEL numbers - if available else use cache
             apfel_vals = apfel_vals_dict[order]
             if use_APFEL:
                 # run apfel
                 apfel.CleanUp()
                 apfel.SetTheory("QCD")
-                apfel.SetPerturbativeOrder(order)
+                apfel.SetPerturbativeOrder(order - 1)
                 apfel.SetAlphaEvolution("exact")
-                apfel.SetAlphaQCDRef(alphas_ref, np.sqrt(scale_ref))
+                apfel.SetAlphaQCDRef(coupling_ref[0], np.sqrt(scale_ref))
                 apfel.SetFFNS(3)
                 apfel.SetRenFacRatio(1)
                 apfel.InitializeAPFEL()
@@ -653,13 +662,13 @@ class BenchmarkCouplings:
     def benchmark_lhapdf_exact(self):
         """test exact towards LHAPDF"""
         Q2s = [1e1, 1e2, 1e3, 1e4]
-        alphas_ref = 0.118
+        coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 90**2
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(3)
         # LHAPDF cache
         lhapdf_vals_dict = {
-            0: np.array(
+            1: np.array(
                 [
                     0.021634715590772086,
                     0.014937700253543466,
@@ -667,7 +676,7 @@ class BenchmarkCouplings:
                     0.009225845071914008,
                 ]
             ),
-            1: np.array(
+            2: np.array(
                 [
                     0.025027589743439077,
                     0.015730666136188308,
@@ -675,7 +684,7 @@ class BenchmarkCouplings:
                     0.009215179641099218,
                 ]
             ),
-            2: np.array(
+            3: np.array(
                 [
                     0.02571700975829869,
                     0.015837212322787945,
@@ -683,7 +692,7 @@ class BenchmarkCouplings:
                     0.009214183512196827,
                 ]
             ),
-            3: np.array(
+            4: np.array(
                 [
                     0.025955428065113105,
                     0.015862752802768762,
@@ -692,24 +701,24 @@ class BenchmarkCouplings:
                 ]
             ),
         }
-        for order in range(3 + 1):
+        for order in range(1, 4 + 1):
             sc = Couplings(
-                alphas_ref,
+                coupling_ref,
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
                 (1.0, 1.0, 1.0),
-                order=order,
+                order=(order, 0),
                 method="exact",
             )
             my_vals = []
             for Q2 in Q2s:
-                my_vals.append(sc.a_s(Q2))
+                my_vals.append(sc.a(Q2)[0])
             lhapdf_vals = lhapdf_vals_dict[order]
             if use_LHAPDF:
                 as_lhapdf = lhapdf.mkBareAlphaS("ODE")
-                as_lhapdf.setOrderQCD(1 + order)
+                as_lhapdf.setOrderQCD(order)
                 as_lhapdf.setFlavorScheme("FIXED", 3)
-                as_lhapdf.setAlphaSMZ(alphas_ref)
+                as_lhapdf.setAlphaSMZ(coupling_ref[0])
                 as_lhapdf.setMZ(np.sqrt(scale_ref))
                 # collect a_s
                 lhapdf_vals_cur = []
@@ -723,7 +732,7 @@ class BenchmarkCouplings:
     def benchmark_lhapdf_zmvfns_lo(self):
         """test ZM-VFNS LO towards LHAPDF"""
         Q2s = [1, 1e1, 1e2, 1e3, 1e4]
-        alphas_ref = 0.118
+        coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 900
         m2c = 2
         m2b = 25
@@ -743,12 +752,12 @@ class BenchmarkCouplings:
         # Lambda2_3 = self._get_Lambda2_LO(as_FFNS_LO_4.a_s(m2c), m2c, 3)
 
         # collect my values
-        as_VFNS_LO = StrongCoupling(
-            alphas_ref, scale_ref, threshold_list, (1.0, 1.0, 1.0), order=0
+        as_VFNS_LO = Couplings(
+            coupling_ref, scale_ref, threshold_list, (1.0, 1.0, 1.0), order=(1, 0)
         )
         my_vals = []
         for Q2 in Q2s:
-            my_vals.append(as_VFNS_LO.a_s(Q2))
+            my_vals.append(as_VFNS_LO.a(Q2)[0])
         # LHAPDF cache
         lhapdf_vals = np.array(
             [
@@ -765,7 +774,7 @@ class BenchmarkCouplings:
             as_lhapdf = lhapdf.mkBareAlphaS("ODE")
             as_lhapdf.setOrderQCD(1)
             as_lhapdf.setFlavorScheme("VARIABLE", -1)
-            as_lhapdf.setAlphaSMZ(alphas_ref)
+            as_lhapdf.setAlphaSMZ(coupling_ref[0])
             as_lhapdf.setMZ(np.sqrt(scale_ref))
             for k in range(3):
                 as_lhapdf.setQuarkMass(1 + k, 0)
@@ -790,6 +799,7 @@ class BenchmarkCouplings:
 
         theory_dict = {
             "alphas": 0.35,
+            "alphaqed": 0.007496,
             "Qref": np.sqrt(2.0),
             "nfref": 4,
             "nf0": 3,
@@ -807,19 +817,22 @@ class BenchmarkCouplings:
             "Qmc": np.sqrt(2.0),
             "Qmb": 4.5,
             "Qmt": 175.0,
-            "PTO": 2,
+            "PTO": 3,
+            "QED": 0,
             "ModEv": "EXA",
         }
+        operator_dict = {}
+        new_theory, new_operators = compatibility.update(theory_dict, operator_dict)
         Q2s = [2.0]
-        sc = Couplings.from_dict(theory_dict)
+        sc = Couplings.from_dict(new_theory)
         fact_to_ren = theory_dict["fact_to_ren_scale_ratio"] ** 2
         for Q2 in Q2s:
 
-            my_val = sc.a_s(Q2 / fact_to_ren, Q2)
+            my_val = sc.a(Q2 / fact_to_ren, Q2)[0]
             path = sc.thresholds.path(Q2 / fact_to_ren)
-            my_val_4 = sc.a_s(Q2 / fact_to_ren, Q2, nf_to=4)
+            my_val_4 = sc.a(Q2 / fact_to_ren, Q2, nf_to=4)[0]
             path_4 = sc.thresholds.path(Q2 / fact_to_ren, 4)
-            my_val_3 = sc.a_s(Q2 / fact_to_ren, Q2, nf_to=3)
+            my_val_3 = sc.a(Q2 / fact_to_ren, Q2, nf_to=3)[0]
             path_3 = sc.thresholds.path(Q2 / fact_to_ren, 3)
 
             # path_4 it's not matched
