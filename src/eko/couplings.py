@@ -45,21 +45,19 @@ def expanded_lo(ref, beta0, lmu):
 def expanded_nlo(ref, beta0, beta1, lmu):
     den = 1.0 + beta0 * ref * lmu
     b1 = beta1 / beta0
-    as_LO = expanded_lo(ref, beta0, lmu)
-    as_NLO = as_LO * (1 - b1 * as_LO * np.log(den))
+    a_LO = expanded_lo(ref, beta0, lmu)
+    as_NLO = a_LO * (1 - b1 * a_LO * np.log(den))
     return as_NLO
 
 
 @nb.njit("f8(f8,f8,f8,f8,f8)", cache=True)
 def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
-    as_LO = expanded_lo(ref, beta0, lmu)
-    as_NLO = expanded_nlo(ref, beta0, beta1, lmu)
+    a_LO = expanded_lo(ref, beta0, lmu)
+    a_NLO = expanded_nlo(ref, beta0, beta1, lmu)
     b1 = beta1 / beta0
     b2 = beta2 / beta0
-    res = as_LO * (
-        1.0
-        + as_LO * (as_LO - ref) * (b2 - b1**2)
-        + as_NLO * b1 * np.log(as_NLO / ref)
+    res = a_LO * (
+        1.0 + a_LO * (a_LO - ref) * (b2 - b1**2) + a_NLO * b1 * np.log(a_NLO / ref)
     )
     return res
 
@@ -67,14 +65,14 @@ def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
 @nb.njit("f8(f8,f8,f8,f8,f8,f8)", cache=True)
 def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
     b3 = beta3 / beta0
-    as_LO = expanded_lo(ref, beta0, lmu)
-    log_fact = np.log(as_LO)
+    a_LO = expanded_lo(ref, beta0, lmu)
+    log_fact = np.log(a_LO)
     b1 = beta1 / beta0
     b2 = beta2 / beta0
     b3 = beta3 / beta0
     res = expanded_nnlo(ref, beta0, beta1, beta2, lmu)
     res += (
-        as_LO**4
+        a_LO**4
         / (2 * beta0**3)
         * (
             -2 * b1**3 * np.log(ref) ** 3
