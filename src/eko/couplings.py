@@ -35,11 +35,13 @@ def couplings_mod_ev(mod_ev):
     raise ValueError(f"Unknown evolution mode {mod_ev}")
 
 
+@nb.njit("f8(f8,f8,f8)", cache=True)
 def expanded_lo(ref, beta0, lmu):
     den = 1.0 + beta0 * ref * lmu
     return ref / den
 
 
+@nb.njit("f8(f8,f8,f8,f8)", cache=True)
 def expanded_nlo(ref, beta0, beta1, lmu):
     den = 1.0 + beta0 * ref * lmu
     b1 = beta1 / beta0
@@ -48,6 +50,7 @@ def expanded_nlo(ref, beta0, beta1, lmu):
     return as_NLO
 
 
+@nb.njit("f8(f8,f8,f8,f8,f8)", cache=True)
 def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
     as_LO = expanded_lo(ref, beta0, lmu)
     as_NLO = expanded_nlo(ref, beta0, beta1, lmu)
@@ -61,6 +64,7 @@ def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
     return res
 
 
+@nb.njit("f8(f8,f8,f8,f8,f8,f8)", cache=True)
 def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
     b3 = beta3 / beta0
     as_LO = expanded_lo(ref, beta0, lmu)
@@ -99,6 +103,55 @@ def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
     return res
 
 
+@nb.njit("f8(f8,f8,f8,f8)", cache=True)
+def expanded_qcd(ref, order, nf, lmu):
+    res_as = ref
+    if order >= 1:
+        beta_qcd0 = beta_qcd((2, 0), nf)
+        # QCD LO
+        as_LO = expanded_lo(ref, beta_qcd0, lmu)
+        res_as = as_LO
+        # NLO
+        if order >= 2:
+            beta_qcd1 = beta_qcd((3, 0), nf)
+            as_NLO = expanded_nlo(ref, beta_qcd0, beta_qcd1, lmu)
+            res_as = as_NLO
+            # NNLO
+            if order >= 3:
+                beta_qcd2 = beta_qcd((4, 0), nf)
+                as_NNLO = expanded_nnlo(ref, beta_qcd0, beta_qcd1, beta_qcd2, lmu)
+                res_as = as_NNLO
+                # N3LO
+                if order >= 4:
+                    beta_qcd3 = beta_qcd((5, 0), nf)
+                    as_N3LO = expanded_n3lo(
+                        ref,
+                        beta_qcd0,
+                        beta_qcd1,
+                        beta_qcd2,
+                        beta_qcd3,
+                        lmu,
+                    )
+                    res_as = as_N3LO
+    return res_as
+
+
+@nb.njit("f8(f8,f8,f8,f8)", cache=True)
+def expanded_qed(ref, order, nf, lmu):
+    res_aem = ref
+    if order >= 1:
+        beta_qed0 = beta_qed((0, 2), nf)
+        # QED LO
+        aem_LO = expanded_lo(ref, beta_qed0, lmu)
+        res_aem = aem_LO
+        # NLO
+        if order >= 2:
+            beta_qed1 = beta_qed((0, 3), nf)
+            aem_NLO = expanded_nlo(ref, beta_qed0, beta_qed1, lmu)
+            res_aem = aem_NLO
+    return res_aem
+
+
 @nb.njit("f8[:](UniTuple(u1,2),f8[:],u1,f8,f8)", cache=True)
 def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     """
@@ -124,119 +177,21 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     """
     # common vars
     lmu = np.log(scale_to / scale_from)
-    if order[1] == 0:
-        res_aem = couplings_ref[1]
-        res_as = couplings_ref[0]
-        if order[0] >= 1:
-            beta_qcd0 = beta_qcd((2, 0), nf)
-            # QCD LO
-            as_LO = expanded_lo(couplings_ref[0], beta_qcd0, lmu)
-            res_as = as_LO
-            # NLO
-            if order[0] >= 2:
-                beta_qcd1 = beta_qcd((3, 0), nf)
-                as_NLO = expanded_nlo(couplings_ref[0], beta_qcd0, beta_qcd1, lmu)
-                res_as = as_NLO
-                # NNLO
-                if order[0] >= 3:
-                    beta_qcd2 = beta_qcd((4, 0), nf)
-                    as_NNLO = expanded_nnlo(
-                        couplings_ref[0], beta_qcd0, beta_qcd1, beta_qcd2, lmu
-                    )
-                    res_as = as_NNLO
-                    # N3LO
-                    if order[0] >= 4:
-                        beta_qcd3 = beta_qcd((5, 0), nf)
-                        as_N3LO = expanded_n3lo(
-                            couplings_ref[0],
-                            beta_qcd0,
-                            beta_qcd1,
-                            beta_qcd2,
-                            beta_qcd3,
-                            lmu,
-                        )
-                        res_as = as_N3LO
-    if order[1] == 1:
+    res_as = expanded_qcd(couplings_ref[0], order[0], nf, lmu)
+    res_aem = expanded_qed(couplings_ref[1], order[1], nf, lmu)
+    if order[0] >= 2 and order[1] >= 2:
+        beta_qcd0 = beta_qcd((2, 0), nf)
         beta_qed0 = beta_qed((0, 2), nf)
-        # QED LO
-        aem_LO = expanded_lo(couplings_ref[1], beta_qed0, lmu)
-        res_aem = aem_LO
-        res_as = couplings_ref[0]
-        if order[0] >= 1:
-            beta_qcd0 = beta_qcd((2, 0), nf)
-            # QCD LO
-            as_LO = expanded_lo(couplings_ref[0], beta_qcd0, lmu)
-            res_as = as_LO
-            # NLO
-            if order[0] >= 2:
-                beta_qcd1 = beta_qcd((3, 0), nf)
-                as_NLO = expanded_nlo(couplings_ref[0], beta_qcd0, beta_qcd1, lmu)
-                res_as = as_NLO
-                # NNLO
-                if order[0] >= 3:
-                    beta_qcd2 = beta_qcd((4, 0), nf)
-                    as_NNLO = expanded_nnlo(
-                        couplings_ref[0], beta_qcd0, beta_qcd1, beta_qcd2, lmu
-                    )
-                    res_as = as_NNLO
-                    # N3LO
-                    if order[0] >= 4:
-                        beta_qcd3 = beta_qcd((5, 0), nf)
-                        as_N3LO = expanded_n3lo(
-                            couplings_ref[0],
-                            beta_qcd0,
-                            beta_qcd1,
-                            beta_qcd2,
-                            beta_qcd3,
-                            lmu,
-                        )
-                        res_as = as_N3LO
-    if order[1] == 2:
-        beta_qed0 = beta_qed((0, 2), nf)
-        beta_qed1 = beta_qed((0, 3), nf)
-        # QED NLO
-        aem_LO = expanded_nlo(couplings_ref[1], beta_qed0, beta_qed1, lmu)
-        res_aem = aem_LO
-        res_as = couplings_ref[0]
-        if order[0] >= 1:
-            beta_qcd0 = beta_qcd((2, 0), nf)
-            # QCD LO
-            as_LO = expanded_lo(couplings_ref[0], beta_qcd0, lmu)
-            res_as = as_LO
-            # NLO
-            if order[0] >= 2:
-                beta_qcd1 = beta_qcd((3, 0), nf)
-                as_NLO = expanded_nlo(couplings_ref[0], beta_qcd0, beta_qcd1, lmu)
-                res_as = as_NLO
-                # NNLO
-                if order[0] >= 3:
-                    beta_qcd2 = beta_qcd((4, 0), nf)
-                    as_NNLO = expanded_nnlo(
-                        couplings_ref[0], beta_qcd0, beta_qcd1, beta_qcd2, lmu
-                    )
-                    res_as = as_NNLO
-                    # N3LO
-                    if order[0] >= 4:
-                        beta_qcd3 = beta_qcd((5, 0), nf)
-                        as_N3LO = expanded_n3lo(
-                            couplings_ref[0],
-                            beta_qcd0,
-                            beta_qcd1,
-                            beta_qcd2,
-                            beta_qcd3,
-                            lmu,
-                        )
-                        res_as = as_N3LO
-            res_as += (
-                -couplings_ref[0] ** 2
-                * b_qcd((2, 1), nf)
-                * np.log(1 + beta_qcd0 * couplings_ref[1] * lmu)
-            )
-            res_aem += (
-                -couplings_ref[1] ** 2
-                * b_qed((1, 2), nf)
-                * np.log(1 + beta_qed0 * couplings_ref[0] * lmu)
-            )
+        res_as += (
+            -couplings_ref[0] ** 2
+            * b_qcd((2, 1), nf)
+            * np.log(1 + beta_qcd0 * couplings_ref[1] * lmu)
+        )
+        res_aem += (
+            -couplings_ref[1] ** 2
+            * b_qed((1, 2), nf)
+            * np.log(1 + beta_qed0 * couplings_ref[0] * lmu)
+        )
     return np.array([res_as, res_aem])
 
 
