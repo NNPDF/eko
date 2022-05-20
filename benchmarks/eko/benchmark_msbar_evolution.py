@@ -165,7 +165,9 @@ class BenchmarkMSbar:
                         apfel_vals_cur.append(masses)
                     print(apfel_vals_cur)
                     np.testing.assert_allclose(
-                        apfel_vals, np.array(apfel_vals_cur), err_msg=f"order={order}"
+                        apfel_vals,
+                        np.array(apfel_vals_cur),
+                        err_msg=f"order={order - 1}",
                     )
                 # check myself to APFEL
                 np.testing.assert_allclose(

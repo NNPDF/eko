@@ -128,7 +128,7 @@ class BenchmarkCouplings:
                 # run apfel
                 apfel.CleanUp()
                 apfel.SetTheory("QCD")
-                apfel.SetPerturbativeOrder(order)
+                apfel.SetPerturbativeOrder(order - 1)
                 apfel.SetAlphaEvolution("expanded")
                 apfel.SetAlphaQCDRef(coupling_ref[0], np.sqrt(scale_ref))
                 apfel.SetFFNS(nf)
@@ -215,7 +215,9 @@ class BenchmarkCouplings:
                     )
                 # print(pegasus_vals_cur)
                 np.testing.assert_allclose(
-                    pegasus_vals, np.array(pegasus_vals_cur), err_msg=f"order={order}"
+                    pegasus_vals,
+                    np.array(pegasus_vals_cur),
+                    err_msg=f"order={order - 1}",
                 )
             # check myself to PEGASUS
             np.testing.assert_allclose(
@@ -849,7 +851,7 @@ class BenchmarkCouplings:
                 # run apfel
                 apfel.CleanUp()
                 apfel.SetTheory("QCD")
-                apfel.SetPerturbativeOrder(theory_dict["PTO"])
+                apfel.SetPerturbativeOrder(theory_dict["PTO"] - 1)
                 apfel.SetAlphaEvolution("exact")
                 apfel.SetAlphaQCDRef(theory_dict["alphas"], theory_dict["Qref"])
                 apfel.SetVFNS()
