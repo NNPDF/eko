@@ -6,19 +6,19 @@
 import numpy as np
 import pytest
 
-from eko import thresholds
+from eko import compatibility, thresholds
 from eko.couplings import Couplings
 
 
 class TestCouplings:
     def test_from_dict(self):
-        d = {
+        dict = {
             "alphas": 0.118,
-            "alphaem": 0.00781,
+            "alphaqed": 0.00781,
             "Qref": 91.0,
             "nfref": None,
             "Q0": 1,
-            "orders": (1, 0),
+            "PTO": 1,
             "ModEv": "EXA",
             "fact_to_ren_scale_ratio": 1.0,
             "mc": 2.0,
@@ -31,6 +31,8 @@ class TestCouplings:
             "HQ": "POLE",
             "ModSV": None,
         }
+        operators = {}
+        d, o = compatibility.update(dict, operators)
         sc = Couplings.from_dict(d)
         assert sc.a(d["Qref"] ** 2)[0] == d["alphas"] / (4.0 * np.pi)
         assert sc.a(d["Qref"] ** 2)[1] == d["alphaem"] / (4.0 * np.pi)
