@@ -146,7 +146,7 @@ class BenchmarkMSbar:
                     # run apfel
                     apfel.CleanUp()
                     apfel.SetTheory("QCD")
-                    apfel.SetPerturbativeOrder(order)
+                    apfel.SetPerturbativeOrder(order - 1)
                     apfel.SetAlphaEvolution(method)
                     apfel.SetAlphaQCDRef(theory["alphas"], theory["Qref"])
                     apfel.SetVFNS()
@@ -197,7 +197,7 @@ class BenchmarkMSbar:
                 # run apfel
                 apfel.CleanUp()
                 apfel.SetTheory("QCD")
-                apfel.SetPerturbativeOrder(order)
+                apfel.SetPerturbativeOrder(order - 1)
                 apfel.SetAlphaEvolution("exact")
                 apfel.SetAlphaQCDRef(theory_dict["alphas"], theory_dict["Qref"])
                 apfel.SetVFNS()
