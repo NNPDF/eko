@@ -5,7 +5,7 @@ import numba as nb
 import numpy as np
 
 
-@nb.njit("f8[:](f8,f8,u4)", cache=True)
+@nb.njit(cache=True)
 def geomspace(start, end, num):
     """
     Numba port of :func:`numpy.geomspace`.

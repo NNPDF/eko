@@ -13,7 +13,7 @@ import numpy as np
 from ..constants import CF
 
 
-@nb.njit("c16(c16,c16[:],f8)", cache=True)
+@nb.njit(cache=True)
 def A_hh_1(n, sx, L):
     r"""
     |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}` defined as the
@@ -47,7 +47,7 @@ def A_hh_1(n, sx, L):
     return -CF * (ahh_l * L + ahh)
 
 
-@nb.njit("c16(c16,f8)", cache=True)
+@nb.njit(cache=True)
 def A_gh_1(n, L):
     r"""
     |NLO| gluon-heavy |OME| :math:`A_{gH}^{(1)}` defined as the
@@ -73,7 +73,7 @@ def A_gh_1(n, L):
     return 2 * CF * (agh_l0 + agh_l1 * L)
 
 
-@nb.njit("c16(c16,f8)", cache=True)
+@nb.njit(cache=True)
 def A_hg_1(n, L):
     r"""
     |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}` defined as the
@@ -96,7 +96,7 @@ def A_hg_1(n, L):
     return num * den * L
 
 
-@nb.njit("c16(f8)", cache=True)
+@nb.njit(cache=True)
 def A_gg_1(L):
     r"""
     |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}` defined as the
@@ -115,7 +115,7 @@ def A_gg_1(L):
     return -2.0 / 3.0 * L
 
 
-@nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
+@nb.njit(cache=True)
 def A_singlet_1(n, sx, L):
     r"""
       Computes the |NLO| singlet |OME|.
@@ -156,7 +156,7 @@ def A_singlet_1(n, sx, L):
     return A_S_1
 
 
-@nb.njit("c16[:,:](c16,c16[:],f8)", cache=True)
+@nb.njit(cache=True)
 def A_ns_1(n, sx, L):
     r"""
       Computes the |NLO| non-singlet |OME| with intrinsic contributions.
