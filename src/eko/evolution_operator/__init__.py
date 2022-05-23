@@ -32,7 +32,7 @@ sv_mode_dict = dict(
 )
 
 
-@nb.njit("c16(c16[:,:],u2,u2)")
+@nb.njit(cache=True)
 def select_singlet_element(ker, mode0, mode1):
     """
     Select element of the singlet matrix

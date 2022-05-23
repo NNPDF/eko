@@ -15,7 +15,7 @@ import numpy as np
 from .. import beta
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def j00(a1, a0, nf):
     r"""
     LO-LO exact evolution integral.
@@ -41,7 +41,7 @@ def j00(a1, a0, nf):
     return np.log(a1 / a0) / beta.beta_qcd((2, 0), nf)
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def j11_exact(a1, a0, nf):
     r"""
     NLO-NLO exact evolution integral.
@@ -70,7 +70,7 @@ def j11_exact(a1, a0, nf):
     return (1.0 / beta_as_3) * np.log((1.0 + a1 * b1) / (1.0 + a0 * b1))
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def j11_expanded(a1, a0, nf):
     r"""
     NLO-NLO expanded evolution integral.
@@ -95,7 +95,7 @@ def j11_expanded(a1, a0, nf):
     return 1.0 / beta.beta_qcd((2, 0), nf) * (a1 - a0)
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def j01_exact(a1, a0, nf):
     r"""
     LO-NLO exact evolution integral.
@@ -122,7 +122,7 @@ def j01_exact(a1, a0, nf):
     return j00(a1, a0, nf) - beta.b_qcd((3, 0), nf) * j11_exact(a1, a0, nf)
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def j01_expanded(a1, a0, nf):
     r"""
     LO-NLO expanded evolution integral.
@@ -147,7 +147,7 @@ def j01_expanded(a1, a0, nf):
     return j00(a1, a0, nf) - beta.b_qcd((3, 0), nf) * j11_expanded(a1, a0, nf)
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def j22_exact(a1, a0, nf):
     r"""
     NNLO-NNLO exact evolution integral.
@@ -190,7 +190,7 @@ def j22_exact(a1, a0, nf):
     ) * np.real(delta / Delta)
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def j12_exact(a1, a0, nf):
     r"""
     NLO-NNLO exact evolution integral.
@@ -225,7 +225,7 @@ def j12_exact(a1, a0, nf):
     return 2.0 / (beta.beta_qcd((2, 0), nf)) * np.real(delta / Delta)
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def j02_exact(a1, a0, nf):
     r"""
     LO-NNLO exact evolution integral.
@@ -256,7 +256,7 @@ def j02_exact(a1, a0, nf):
     )
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def j22_expanded(a1, a0, nf):
     r"""
     NNLO-NNLO expanded evolution integral.
@@ -281,7 +281,7 @@ def j22_expanded(a1, a0, nf):
     return 1 / (2 * beta.beta_qcd((2, 0), nf)) * (a1**2 - a0**2)
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def j12_expanded(a1, a0, nf):
     r"""
     NLO-NNLO expanded evolution integral.
@@ -308,7 +308,7 @@ def j12_expanded(a1, a0, nf):
     return 1 / beta.beta_qcd((2, 0), nf) * (a1 - a0 - b1 / 2 * (a1**2 - a0**2))
 
 
-@nb.njit("f8(f8,f8,u1)", cache=True)
+@nb.njit(cache=True)
 def j02_expanded(a1, a0, nf):
     r"""
     LO-NNLO expanded evolution integral.
