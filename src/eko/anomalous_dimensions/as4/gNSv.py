@@ -121,13 +121,13 @@ def gamma_nss_nf2(n, sx):
                 - 56 / (n**2 * (1 + n) ** 2)
                 - 112 / (n * (1 + n))
                 + 32 / (3 * (2 + n) ** 2)
-                + 352 / (3 * (-1 + n)(2 + n))
+                + 352 / (3 * (-1 + n) * (2 + n))
             )
             * (S1 * Sm2 - Sm21 + Sm3)
             + (
                 -(4 / (n**2 * (1 + n) ** 2))
                 - 10 / (n * (1 + n))
-                + 16 / ((-1 + n)(2 + n))
+                + 16 / ((-1 + n) * (2 + n))
             )
             * (
                 -S1 * S3
@@ -166,9 +166,9 @@ def gamma_nss_nf2(n, sx):
 @nb.njit(cache=True)
 def gamma_nss_nf1(n, sx):
     """
-    Implements the sea non-singlet part proportional to :math:`nf^2`.
+    Implements the sea non-singlet part proportional to :math:`nf^1`.
     The expression is the average of the Mellin transform
-    of eq. 4.19 and 4.20 of :cite:`Moch:2017uml`
+    of eq. 4.19, 4.20 of :cite:`Moch:2017uml`
 
     Parameters
     ----------

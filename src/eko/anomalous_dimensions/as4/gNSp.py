@@ -158,7 +158,6 @@ def deltaB3(n, sx):
             - 3 * n**5 * (85 - 294 * S1 + 72 * S1**2 + 72 * S2 + 72 * Sm2)
         )
     )
-    # return B_3p(n, sx) + deltaB
     return deltaB
 
 
@@ -178,7 +177,7 @@ def gamma_nsp_nf2(n, sx):
 
     Returns
     -------
-        g_ns_nf2 : complex
+        g_nsp_nf2 : complex
             |N3LO| singlet-like non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^2}`
 
     See Also
@@ -191,12 +190,115 @@ def gamma_nsp_nf2(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsp_nf1(n, sx):
-    return 0
+    """
+    Implements the singlet-like non-singlet part proportional to :math:`nf^1`.
+    The expression is the average of the Mellin transform
+    of eq. 4.12, 4.13  of :cite:`Moch:2017uml`
+
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        sx : list
+            harmonic sums cache
+
+    Returns
+    -------
+        g_nsp_nf1 : complex
+            |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^1}`
+    """
+    S1 = sx[0][0]
+    S2 = sx[1][0]
+    S3 = sx[2][0]
+    return (
+        5551.1105
+        - 126.419752 / n**6
+        + 752.197524 / n**5
+        - 2506.4001 / n**4
+        + 5760.2261 / n**3
+        - 9239.374 / n**2
+        + 119259.11141693963 / n
+        + 495.79776 / (1 + n) ** 4
+        + 1230.0 / (1 + n) ** 3
+        - 7077.807 / (1 + n) ** 2
+        - 55456.1555 / (1 + n)
+        + 42292.153 / (2 + n)
+        - 13596.323 / (3 + n)
+        + 7896.0 / (4 + n)
+        - 5171.934055 * S1
+        - (63007.5 * S1) / n**2
+        + (59940.977 * S1) / n
+        + (30.797760 * S1) / (1 + n) ** 3
+        - (62682.807 * S1) / (1 + n)
+        + (15.39888 * S1**2) / (1 + n) ** 2
+        - (5.13296 * S1**3) / n
+        + (5.13296 * S1**3) / (1 + n)
+        - (63007.5 * S2) / n
+        + (15.39888 * S2) / (1 + n) ** 2
+        - (15.39888 * S1 * S2) / n
+        + (15.39888 * S1 * S2) / (1 + n)
+        - (10.26592 * S3) / n
+        + (10.26592 * S3) / (1 + n)
+    )
 
 
 @nb.njit(cache=True)
 def gamma_nsp_nf0(n, sx):
-    return 0
+    """
+    Implements the singlet-like non-singlet part proportional to :math:`nf^0`.
+    The expression is the average of the Mellin transform
+    of eq. 4.12, 4.13  of :cite:`Moch:2017uml`
+
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        sx : list
+            harmonic sums cache
+
+    Returns
+    -------
+        g_nsp_nf0 : complex
+            |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^0}`
+    """
+    S1 = sx[0][0]
+    S2 = sx[1][0]
+    S3 = sx[2][0]
+    return (
+        -23396.42
+        - 252.83952 / n**7
+        + 1580.24688 / n**6
+        - 5806.79928 / n**5
+        + 15972.888 / n**4
+        - 32592.036 / n**3
+        + 52366.195 / n**2
+        + 471083.45095404686 / n
+        - 56.685 / (1 + n) ** 4
+        + 2581.794 / (1 + n) ** 3
+        + 11825.0 / (1 + n) ** 2
+        - 129113.005 / (1 + n)
+        + 260862.515 / (2 + n)
+        - 87390.43 / (3 + n)
+        + 45750.0 / (4 + n)
+        + 20702.8395 * S1
+        - (334400.0 * S1) / n**2
+        + (302200.933 * S1) / n
+        - (56.685 * S1) / (1 + n) ** 3
+        - (1951.206 * S1) / (1 + n) ** 2
+        - (285250.0 * S1) / (1 + n)
+        + (975.603 * S1**2) / n
+        - (28.3425 * S1**2) / (1 + n) ** 2
+        - (975.603 * S1**2) / (1 + n)
+        + (9.4475 * S1**3) / n
+        - (9.4475 * S1**3) / (1 + n)
+        - (333424.397 * S2) / n
+        - (28.3425 * S2) / (1 + n) ** 2
+        - (975.603 * S2) / (1 + n)
+        + (28.3425 * S1 * S2) / n
+        - (28.3425 * S1 * S2) / (1 + n)
+        + (18.895 * S3) / n
+        - (18.895 * S3) / (1 + n)
+    )
 
 
 @nb.njit(cache=True)
