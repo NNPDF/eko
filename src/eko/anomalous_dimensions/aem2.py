@@ -10,7 +10,7 @@ from .. import constants
 from . import as1aem1, harmonics
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_phph(N, nf):
     """Computes the O(aem2) photon-photon singlet anomalous dimension.
 
@@ -36,7 +36,7 @@ def gamma_phph(N, nf):
     )
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_uph(N, nf, sx):
     """Computes the O(aem2) quark-photon anomalous dimension for up quarks.
 
@@ -60,7 +60,7 @@ def gamma_uph(N, nf, sx):
     return constants.eu2 * as1aem1.gamma_qph(N, nf, sx) / constants.CF
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_dph(N, nf, sx):
     """Computes the O(aem2) quark-photon anomalous dimension for down quarks.
 
@@ -84,7 +84,7 @@ def gamma_dph(N, nf, sx):
     return constants.ed2 * as1aem1.gamma_qph(N, nf, sx) / constants.CF
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_phu(N, nf, sx):
     """Computes the O(aem2) photon-quark anomalous dimension for up quarks.
 
@@ -117,7 +117,7 @@ def gamma_phu(N, nf, sx):
     return constants.eu2 * as1aem1.gamma_phq(N, sx) / constants.CF + eSigma2 * tmp
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_phd(N, nf, sx):
     """Computes the O(aem2) photon-quark anomalous dimension for down quarks.
 
@@ -150,7 +150,7 @@ def gamma_phd(N, nf, sx):
     return constants.ed2 * as1aem1.gamma_phq(N, sx) / constants.CF + eSigma2 * tmp
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_nspu(N, nf, sx):
     """Computes the O(aem2) singlet-like non-singlet anomalous dimension for up quarks.
 
@@ -187,7 +187,7 @@ def gamma_nspu(N, nf, sx):
     return constants.eu2 * as1aem1.gamma_nsp(N, sx) / constants.CF / 2 + tmp
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_nspd(N, nf, sx):
     """Computes the O(aem2) singlet-like non-singlet anomalous dimension for down quarks.
 
@@ -224,7 +224,7 @@ def gamma_nspd(N, nf, sx):
     return constants.ed2 * as1aem1.gamma_nsp(N, sx) / constants.CF / 2 + tmp
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_nsmu(N, nf, sx):
     """Computes the O(aem2) valence-like non-singlet anomalous dimension for up quarks.
 
@@ -261,7 +261,7 @@ def gamma_nsmu(N, nf, sx):
     return constants.eu2 * as1aem1.gamma_nsm(N, sx) / constants.CF / 2 + tmp
 
 
-@nb.njit("c16(c16,u1,c16[:])", cache=True)
+@nb.njit(cache=True)
 def gamma_nsmd(N, nf, sx):
     """Computes the O(aem2) valence-like non-singlet anomalous dimension for down quarks.
 
@@ -298,7 +298,7 @@ def gamma_nsmd(N, nf, sx):
     return constants.ed2 * as1aem1.gamma_nsm(N, sx) / constants.CF / 2 + tmp
 
 
-@nb.njit("c16(c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_ps(N, nf):
     """Computes the O(aem2) pure-singlet quark-quark anomalous dimension.
 
