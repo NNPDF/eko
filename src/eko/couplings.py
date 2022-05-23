@@ -35,13 +35,13 @@ def couplings_mod_ev(mod_ev):
     raise ValueError(f"Unknown evolution mode {mod_ev}")
 
 
-@nb.njit("f8(f8,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def expanded_lo(ref, beta0, lmu):
     den = 1.0 + beta0 * ref * lmu
     return ref / den
 
 
-@nb.njit("f8(f8,f8,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def expanded_nlo(ref, beta0, beta1, lmu):
     den = 1.0 + beta0 * ref * lmu
     b1 = beta1 / beta0
@@ -50,7 +50,7 @@ def expanded_nlo(ref, beta0, beta1, lmu):
     return as_NLO
 
 
-@nb.njit("f8(f8,f8,f8,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
     a_LO = expanded_lo(ref, beta0, lmu)
     a_NLO = expanded_nlo(ref, beta0, beta1, lmu)
@@ -62,7 +62,7 @@ def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
     return res
 
 
-@nb.njit("f8(f8,f8,f8,f8,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
     b3 = beta3 / beta0
     a_LO = expanded_lo(ref, beta0, lmu)
@@ -101,7 +101,7 @@ def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
     return res
 
 
-@nb.njit("f8(f8,u1,u1,f8)", cache=True)
+@nb.njit(cache=True)
 def expanded_qcd(ref, order, nf, lmu):
     res_as = ref
     if order >= 1:
@@ -134,7 +134,7 @@ def expanded_qcd(ref, order, nf, lmu):
     return res_as
 
 
-@nb.njit("f8(f8,u1,u1,f8)", cache=True)
+@nb.njit(cache=True)
 def expanded_qed(ref, order, nf, lmu):
     res_aem = ref
     if order >= 1:
@@ -150,7 +150,7 @@ def expanded_qed(ref, order, nf, lmu):
     return res_aem
 
 
-@nb.njit("f8[:](UniTuple(u1,2),f8[:],u1,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     """
     Compute expanded expression.
