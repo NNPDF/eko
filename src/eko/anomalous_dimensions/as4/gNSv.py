@@ -165,7 +165,57 @@ def gamma_nss_nf2(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nss_nf1(n, sx):
-    return 0
+    """
+    Implements the sea non-singlet part proportional to :math:`nf^2`.
+    The expression is the average of the Mellin transform
+    of eq. 4.19 and 4.20 of :cite:`Moch:2017uml`
+
+    Parameters
+    ----------
+        n : complex
+            Mellin moment
+        sx : list
+            harmonic sums cache
+
+    Returns
+    -------
+        g_nss_nf1 : complex
+            |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,s}^{(3)}|_{nf^1}`
+    """
+    S1 = sx[0][0]
+    S2 = sx[1][0]
+    S3 = sx[2][0]
+    return (
+        3803.04 / n**6
+        - 3560.16 / n**5
+        + 1042.89 / n**4
+        - 3569.65 / n**3
+        + 3337.715 / n**2
+        - 1266.77 / n
+        - 13.18641 / (1 + n) ** 4
+        + 60.4 / (1 + n) ** 3
+        - 1743.225 / (1 + n)
+        + 127.315 / (1.0 + n) ** 2
+        + 4447.245 / (2 + n)
+        - 1437.25 / (3 + n)
+        - (127.315 * S1) / n
+        - (13.18641 * S1) / (1 + n) ** 3
+        + (60.4 * S1) / (1 + n) ** 2
+        + (127.315 * S1) / (1.0 + n) ** 2
+        + (127.315 * n * S1) / (1.0 + n) ** 2
+        - (30.2 * S1**2) / n
+        - (6.5932 * S1**2) / (1 + n) ** 2
+        + (30.2 * S1**2) / (1 + n)
+        + (2.197735 * S1**3) / n
+        - (2.197735 * S1**3) / (1 + n)
+        - (30.2 * S2) / n
+        - (6.593205 * S2) / (1 + n) ** 2
+        + (30.2 * S2) / (1 + n)
+        + (6.593205 * S1 * S2) / n
+        - (6.593205 * S1 * S2) / (1 + n)
+        + (4.39547 * S3) / n
+        - (4.39547 * S3) / (1 + n)
+    )
 
 
 @nb.njit(cache=True)

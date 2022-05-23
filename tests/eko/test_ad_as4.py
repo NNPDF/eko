@@ -16,10 +16,16 @@ def test_quark_number_conservation():
     sx_cache = compute_harmonics_cache(N, 3, False)
 
     # (ns,s)
-    # the exact expression has an nonphysical pole at N=1, see also :cite:`Moch:2017uml`
-    # and :cite:`Davies:2016jie` eq 3.5 where the \nu term is present.
+    # the exact expression (nf^2 part) has an nonphysical pole at N=1,
+    # see also :cite:`Moch:2017uml` and :cite:`Davies:2016jie` eq 3.5
+    # where the \nu term is present.
     # This should cancel when doing the limit, since the given moment for N=1 is 0
     # np.testing.assert_allclose(ad_as4.gamma_nsv(N, NF, sx_cache), 0, rtol=3e-7)
+
+    # nf^1 part
+    np.testing.assert_allclose(
+        ad_as4.gNSv.gamma_nss_nf1(N, sx_cache), 0.000400625, atol=2e-6
+    )
 
     # nf^3 part
     np.testing.assert_allclose(ad_as4.gNSp.gamma_ns_nf3(N, sx_cache), 0, atol=3e-10)
