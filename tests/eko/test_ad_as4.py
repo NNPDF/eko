@@ -62,15 +62,19 @@ def test_non_singlet_reference_moments():
     ]
     for N in [3.0, 5.0, 7.0, 9.0, 11.0, 13.0, 15.0, 17.0]:
         sx_cache = compute_harmonics_cache(N, 3, False)
+        idx = int((N - 3) / 2)
         if N != 17:
             np.testing.assert_allclose(
-                gNSm.gamma_nsm(N, NF, sx_cache), nsm_nf4_refs[int((N - 3) / 2)]
+                gNSm.gamma_nsm(N, NF, sx_cache), nsm_nf4_refs[idx]
+            )
+            np.testing.assert_allclose(
+                gNSv.gamma_nsv(N, NF, sx_cache), nss_nf4_refs[idx] + nsm_nf4_refs[idx]
             )
         gamma_nss = (
             gNSv.gamma_nss_nf1(N, sx_cache) * NF
             + gNSv.gamma_nss_nf2(N, sx_cache) * NF**2
         )
-        np.testing.assert_allclose(gamma_nss, nss_nf4_refs[int((N - 3) / 2)], atol=4e-4)
+        np.testing.assert_allclose(gamma_nss, nss_nf4_refs[idx], atol=4e-4)
 
 
 def test_singlet_reference_moments():
