@@ -37,7 +37,7 @@ def couplings_mod_ev(mod_ev):
 
 @nb.njit(cache=True)
 def expanded_lo(ref, beta0, lmu):
-    """Compute expanded solution at LO.
+    """Compute expanded solution at |LO|.
 
     Parameters
     ----------
@@ -60,7 +60,7 @@ def expanded_lo(ref, beta0, lmu):
 
 @nb.njit(cache=True)
 def expanded_nlo(ref, beta0, b1, lmu):
-    """Compute expanded solution at NLO.
+    """Compute expanded solution at |NLO|.
 
     From apfel
 
@@ -89,7 +89,7 @@ def expanded_nlo(ref, beta0, b1, lmu):
 
 @nb.njit(cache=True)
 def expanded_nnlo(ref, beta0, b1, b2, lmu):
-    """Compute expanded solution at NNLO.
+    """Compute expanded solution at |NNLO|.
 
     From apfel
 
@@ -122,7 +122,7 @@ def expanded_nnlo(ref, beta0, b1, b2, lmu):
 
 @nb.njit(cache=True)
 def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
-    """Compute expanded solution at N3LO.
+    """Compute expanded solution at |N3LO|.
 
     From Luca Rottoli
 
