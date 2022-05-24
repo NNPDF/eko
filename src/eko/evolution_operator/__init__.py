@@ -462,6 +462,7 @@ class Operator:
         )
         logger.info(
             "%s: order: (%d, %d), solution strategy: %s",
+            self.log_label,
             self.config["order"][0],
             self.config["order"][1],
             self.config["method"],
