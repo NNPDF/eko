@@ -44,7 +44,7 @@ def expanded_lo(ref, beta0, lmu):
         ref: float
             reference value of the coupling
         beta0: float
-            LO beta function
+            first coefficient of the beta function
         lmu: float
             log(scale_to / scale_from)
 
@@ -69,9 +69,9 @@ def expanded_nlo(ref, beta0, b1, lmu):
         ref: float
             reference value of the coupling
         beta0: float
-            LO beta function
-        beta1: float
-            NLO beta function
+            first coefficient of the beta function
+        b1: float
+            second coefficient of the b function
         lmu: float
             log(scale_to / scale_from)
 
@@ -98,11 +98,11 @@ def expanded_nnlo(ref, beta0, b1, b2, lmu):
         ref: float
             reference value of the coupling
         beta0: float
-            LO beta function
-        beta1: float
-            NLO beta function
-        beta2: float
-            NNLO beta function
+            first coefficient of the beta function
+        b1: float
+            second coefficient of the b function
+        b2: float
+            third coefficient of the b function
         lmu: float
             log(scale_to / scale_from)
 
@@ -131,13 +131,13 @@ def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
         ref: float
             reference value of the coupling
         beta0: float
-            LO beta function
-        beta1: float
-            NLO beta function
-        beta2: float
-            NNLO beta function
-        beta3: float
-            N3LO beta function
+            first coefficient of the beta function
+        b1: float
+            second coefficient of the b function
+        b2: float
+            third coefficient of the b function
+        b3: float
+            fourth coefficient of the b function
         lmu: float
             log(scale_to / scale_from)
 
@@ -312,7 +312,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
 
 class Couplings:
     r"""
-        Computes the strong and electromagnetic coupling constants :math:`a_s, a_em`.
+        Computes the strong and electromagnetic coupling constants :math:`a_s, a_{em}`.
 
         Note that
 
