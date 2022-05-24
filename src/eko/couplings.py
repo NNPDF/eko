@@ -556,6 +556,7 @@ class Couplings:
         # NLO
         if self.order[0] >= 2:
             beta_qcd_vec.append(beta_qcd((3, 0), nf))
+            beta_qed_mix = beta_qed((1, 2), nf)
             # NNLO
             if self.order[0] >= 3:
                 beta_qcd_vec.append(beta_qcd((4, 0), nf))
@@ -564,13 +565,9 @@ class Couplings:
                     beta_qcd_vec.append(beta_qcd((5, 0), nf))
         if self.order[1] >= 2:
             beta_qcd_mix = beta_qcd((2, 1), nf)
+            beta_qed_vec.append(beta_qed((0, 3), nf))
         beta_qed_vec = [beta_qed((0, 2), nf)]
         beta_qed_mix = 0
-        # NLO
-        if self.order[1] >= 2:
-            beta_qed_vec.append(beta_qed((0, 3), nf))
-        if self.order[0] >= 2:
-            beta_qed_mix = beta_qed((1, 2), nf)
         # integration kernel
         def rge(_t, a, beta_qcd_vec, beta_qed_vec):
             rge_qcd = -(a[0] ** 2) * (
