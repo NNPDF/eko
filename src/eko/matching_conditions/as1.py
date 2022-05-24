@@ -14,7 +14,7 @@ from ..constants import CF
 
 
 @nb.njit(cache=True)
-def A_hh_1(n, sx, L):
+def A_hh(n, sx, L):
     r"""
     |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}` defined as the
     mellin transform of :math:`K_{hh}` given in Eq. (20a) of :cite:`Ball_2016`.
@@ -23,18 +23,18 @@ def A_hh_1(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
-            List of harmonic sums
+        sx : list
+            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
-        A_hh_1 : complex
+        A_hh : complex
             |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}`
     """
-    S1m = sx[0] - 1 / n  # harmonics.harmonic_S1(n - 1)
-    S2m = sx[1] - 1 / n**2  # harmonics.harmonic_S2(n - 1)
+    S1m = sx[0][0] - 1 / n  # harmonics.S1(n - 1)
+    S2m = sx[1][0] - 1 / n**2  # harmonics.S2(n - 1)
     ahh_l = (2 + n - 3 * n**2) / (n * (1 + n)) + 4 * S1m
     ahh = 2 * (
         2
@@ -48,7 +48,7 @@ def A_hh_1(n, sx, L):
 
 
 @nb.njit(cache=True)
-def A_gh_1(n, L):
+def A_gh(n, L):
     r"""
     |NLO| gluon-heavy |OME| :math:`A_{gH}^{(1)}` defined as the
     mellin transform of :math:`K_{gh}` given in Eq. (20b) of :cite:`Ball_2016`.
@@ -62,7 +62,7 @@ def A_gh_1(n, L):
 
     Returns
     -------
-        A_hg_1 : complex
+        A_hg : complex
             |NLO| gluon-heavy |OME| :math:`A_{gH}^{(1)}`
     """
 
@@ -74,7 +74,7 @@ def A_gh_1(n, L):
 
 
 @nb.njit(cache=True)
-def A_hg_1(n, L):
+def A_hg(n, L):
     r"""
     |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}` defined as the
     mellin transform of Eq. (B.2) from :cite:`Buza_1998`.
@@ -88,7 +88,7 @@ def A_hg_1(n, L):
 
     Returns
     -------
-        A_hg_1 : complex
+        A_hg : complex
             |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}`
     """
     den = 1.0 / (n * (n + 1) * (2 + n))
@@ -97,7 +97,7 @@ def A_hg_1(n, L):
 
 
 @nb.njit(cache=True)
-def A_gg_1(L):
+def A_gg(L):
     r"""
     |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}` defined as the
     mellin transform of Eq. (B.6) from :cite:`Buza_1998`.
@@ -109,14 +109,14 @@ def A_gg_1(L):
 
     Returns
     -------
-        A_gg_1 : complex
+        A_gg : complex
             |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`
     """
     return -2.0 / 3.0 * L
 
 
 @nb.njit(cache=True)
-def A_singlet_1(n, sx, L):
+def A_singlet(n, sx, L):
     r"""
       Computes the |NLO| singlet |OME|.
 
@@ -131,33 +131,36 @@ def A_singlet_1(n, sx, L):
       ----------
         n : complex
             Mellin moment
+        sx : list
+            harmonic sums cache containing: [[:math:`S_1`][:math:`S_2`]]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
 
       Returns
       -------
-        A_S_1 : numpy.ndarray
+        A_S : numpy.ndarray
             |NLO| singlet |OME| :math:`A^{S,(1)}`
 
       See Also
       --------
-        A_hg_1 : :math:`A_{hg}^{S,(1)}`
-        A_hh_1 : :math:`A_{HH}^{(1)}`
-        A_gg_1 : :math:`A_{gg,H}^{S,(1)}`
-        A_gh_1 : :math:`A_{gH}^{(1)}`
+        A_hg : :math:`A_{hg}^{S,(1)}`
+        A_hh : :math:`A_{HH}^{(1)}`
+        A_gg : :math:`A_{gg,H}^{S,(1)}`
+        A_gh : :math:`A_{gH}^{(1)}`
     """
-    A_hg = A_hg_1(n, L)
-    A_gg = A_gg_1(L)
-    A_gh = A_gh_1(n, L)
-    A_hh = A_hh_1(n, sx, L)
-    A_S_1 = np.array(
-        [[A_gg, 0.0, A_gh], [0 + 0j, 0 + 0j, 0 + 0j], [A_hg, 0.0, A_hh]], np.complex_
+    A_S = np.array(
+        [
+            [A_gg(L), 0.0, A_gh(n, L)],
+            [0 + 0j, 0 + 0j, 0 + 0j],
+            [A_hg(n, L), 0.0, A_hh(n, sx, L)],
+        ],
+        np.complex_,
     )
-    return A_S_1
+    return A_S
 
 
 @nb.njit(cache=True)
-def A_ns_1(n, sx, L):
+def A_ns(n, sx, L):
     r"""
       Computes the |NLO| non-singlet |OME| with intrinsic contributions.
 
@@ -171,17 +174,17 @@ def A_ns_1(n, sx, L):
       ----------
         n : complex
             Mellin moment
-        sx : numpy.ndarray
-            List of harmonic sums
+        sx : list
+            harmonic sums cache containing: [[:math:`S_1`][:math:`S_2`]]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
       Returns
       -------
-        A_NS_1 : numpy.ndarray
+        A_NS : numpy.ndarray
             |NLO| non-singlet |OME| :math:`A^{S,(1)}`
 
       See Also
       --------
-        A_hh_1 : :math:`A_{HH}^{(1)}`
+        A_hh : :math:`A_{HH}^{(1)}`
     """
-    return np.array([[0 + 0j, 0 + 0j], [0 + 0j, A_hh_1(n, sx, L)]], np.complex_)
+    return np.array([[0 + 0j, 0 + 0j], [0 + 0j, A_hh(n, sx, L)]], np.complex_)

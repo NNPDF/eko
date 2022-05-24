@@ -222,7 +222,7 @@ Operator Flavor Basis
 - here we mean :ref:`theory/FlavorSpace:Flavor Basis` both in the input and the output space
 - the :class:`~eko.output.Output` is delivered in this basis
 - this basis has :math:`(2n_f+ 1)^2 = 13^2 = 169` elements
-- this basis can span arbitrary thresholds
+- this basis can span arbitrary matching scales
 
 Operator Anomalous Dimension Basis
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -240,4 +240,4 @@ Operator Intrinsic QCD Evolution Basis
 - this basis does **not** coincide with the :ref:`theory/FlavorSpace:Operator Anomalous Dimension Basis` as the decision on which operator of that
   basis is used is a non-trivial decision - see :doc:`Matching`
 - this basis has :math:`2n_f+ 3 = 15` elements
-- this basis can span arbitrary thresholds
+- this basis can span arbitrary matching scales

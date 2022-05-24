@@ -19,7 +19,7 @@ def gamma_ns(N, s1):
       N : complex
         Mellin moment
       s1 : complex
-        S1(N)
+        harmonic sum :math:`S_{1}`
 
     Returns
     -------
@@ -89,7 +89,7 @@ def gamma_gg(N, s1, nf):
       N : complex
         Mellin moment
       s1 : complex
-        S1(N)
+        harmonic sum :math:`S_{1}`
       nf : int
         Number of active flavors
 
@@ -119,7 +119,7 @@ def gamma_singlet(N, s1, nf):
         N : complex
           Mellin moment
         s1 : complex
-          S1(N)
+          harmonic sum :math:`S_{1}`
         nf : int
           Number of active flavors
 

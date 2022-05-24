@@ -7,13 +7,6 @@ The functions are described in :doc:`Mellin space </theory/Mellin>`.
 
 import numba as nb
 import numpy as np
-import scipy.special
-
-# compute constants only once
-zeta2 = scipy.special.zeta(2)
-zeta3 = scipy.special.zeta(3)
-zeta4 = scipy.special.zeta(4)
-zeta5 = scipy.special.zeta(5)
 
 
 @nb.njit(cache=True)
@@ -134,144 +127,56 @@ def cern_polygamma(Z, K):  # pylint: disable=all
 
 
 @nb.njit(cache=True)
-def harmonic_S1(N):
-    r"""
-    Computes the harmonic sum :math:`S_1(N)`.
-
-    .. math::
-      S_1(N) = \sum\limits_{j=1}^N \frac 1 j = \psi_0(N+1)+\gamma_E
-
-    with :math:`\psi_0(N)` the digamma function and :math:`\gamma_E` the
-    Euler-Mascheroni constant.
+def recursive_harmonic_sum(base_value, n, iterations, weight):
+    """
+    Compute the harmonic sum :math:`S_{w}(N+k)` stating from the value
+    :math:`S_{w}(N)` via the recurrence relations.
 
     Parameters
     ----------
-        N : complex
-            Mellin moment
+        base_value: complex
+            starting value :math:`S_{w}(N)`
+        n: complex
+            starting point
+        iterations: int
+            number of iterations
+        weight: int
+            harmonic sum weight
 
     Returns
     -------
-        S_1 : complex
-            (simple) Harmonic sum :math:`S_1(N)`
-
-    See Also
-    --------
-        cern_polygamma : :math:`\psi_k(N)`
+        sni : complex
+            :math:`S_{w}(N+k)`
     """
-    return cern_polygamma(N + 1.0, 0) + np.euler_gamma
+    fact = 0.0
+    for i in range(1, iterations + 1):
+        fact += 1.0 / (n + i) ** weight
+    return base_value + fact
 
 
 @nb.njit(cache=True)
-def harmonic_S2(N):
-    r"""
-    Computes the harmonic sum :math:`S_2(N)`.
-
-    .. math::
-      S_2(N) = \sum\limits_{j=1}^N \frac 1 {j^2} = -\psi_1(N+1)+\zeta(2)
-
-    with :math:`\psi_1(N)` the trigamma function and :math:`\zeta` the
-    Riemann zeta function.
+def symmetry_factor(N, is_singlet=None):
+    """
+    Compute the analytical continuation of :math:`(-1)^N`
 
     Parameters
     ----------
-        N : complex
+        N: complex
             Mellin moment
+        is_singlet: bool, None
+            True for singlet like quantities
+            False for non-singlet like quantities
+            None for generic complex N value
 
     Returns
     -------
-        S_2 : complex
-            Harmonic sum :math:`S_2(N)`
-
-    See Also
-    --------
-        cern_polygamma : :math:`\psi_k(N)`
+        eta: complex
+            1 for singlet like quantities,
+            -1 for non-singlet like quantities,
+            :math:`(-1)^N` elsewise
     """
-    return -cern_polygamma(N + 1.0, 1) + zeta2
-
-
-@nb.njit(cache=True)
-def harmonic_S3(N):
-    r"""
-    Computes the harmonic sum :math:`S_3(N)`.
-
-    .. math::
-      S_3(N) = \sum\limits_{j=1}^N \frac 1 {j^3} = \frac 1 2 \psi_2(N+1)+\zeta(3)
-
-    with :math:`\psi_2(N)` the 2nd-polygamma function and :math:`\zeta` the
-    Riemann zeta function.
-
-    Parameters
-    ----------
-        N : complex
-            Mellin moment
-
-    Returns
-    -------
-        S_3 : complex
-            Harmonic sum :math:`S_3(N)`
-
-    See Also
-    --------
-        cern_polygamma : :math:`\psi_k(N)`
-    """
-    return 0.5 * cern_polygamma(N + 1.0, 2) + zeta3
-
-
-@nb.njit(cache=True)
-def harmonic_S4(N):
-    r"""
-    Computes the harmonic sum :math:`S_4(N)`.
-
-    .. math::
-      S_4(N) = \sum\limits_{j=1}^N \frac 1 {j^4} = - \frac 1 6 \psi_3(N+1)+\zeta(4)
-
-    with :math:`\psi_3(N)` the 3rd-polygamma function and :math:`\zeta` the
-    Riemann zeta function.
-
-    Parameters
-    ----------
-        N : complex
-            Mellin moment
-
-    Returns
-    -------
-        S_4 : complex
-            Harmonic sum :math:`S_4(N)`
-
-    See Also
-    --------
-        cern_polygamma : :math:`\psi_k(N)`
-    """
-    return zeta4 - 1.0 / 6.0 * cern_polygamma(N + 1.0, 3)
-
-
-@nb.njit(cache=True)
-def mellin_g3(N):
-    r"""
-    Computes the Mellin transform of :math:`\text{Li}_2(x)/(1+x)`.
-
-    This function appears in the analytic continuation of the harmonic sum
-    :math:`S_{-2,1}(N)` which in turn appears in the |NLO| anomalous dimension
-    (see :ref:`theory/mellin:harmonic sums`).
-
-    Parameters
-    ----------
-        N : complex
-            Mellin moment
-
-    Returns
-    -------
-        mellin_g3 : complex
-            approximate Mellin transform :math:`\mathcal{M}[\text{Li}_2(x)/(1+x)](N)`
-
-    Note
-    ----
-        We use the name from :cite:`MuselliPhD`, but not his implementation - rather we use the
-        Pegasus :cite:`Vogt:2004ns` implementation.
-    """
-    cs = [1.0000e0, -0.9992e0, 0.9851e0, -0.9005e0, 0.6621e0, -0.3174e0, 0.0699e0]
-    g3 = 0
-    for j, c in enumerate(cs):
-        Nj = N + j
-        g3 += c * (zeta2 - harmonic_S1(Nj) / Nj) / Nj
-    return g3
+    if is_singlet is None:
+        return (-1) ** N
+    if is_singlet:
+        return 1
+    return -1

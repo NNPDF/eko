@@ -6,7 +6,7 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 """
 import numba as nb
 
-from .anomalous_dimensions.harmonics import zeta3, zeta4, zeta5
+from .harmonics.constants import zeta3, zeta4, zeta5
 
 
 @nb.njit(cache=True)

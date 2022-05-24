@@ -10,7 +10,7 @@ import numpy as np
 from .. import beta
 
 
-@nb.njit(["c16(c16[:],f8)", "c16[:,:](c16[:,:,:],f8)"], cache=True)
+@nb.njit(cache=True)
 def gamma_1_variation(gamma, L):
     r"""
     Computes the |NLO| anomalous dimension variation.
@@ -30,7 +30,7 @@ def gamma_1_variation(gamma, L):
     return -L * gamma[0]
 
 
-@nb.njit(["c16(c16[:],f8,f8,c16)", "c16[:,:](c16[:,:,:],f8,f8,c16[:,:])"], cache=True)
+@nb.njit(cache=True)
 def gamma_2_variation(gamma, L, beta0, g0e2):
     r"""
     Computes the |NNLO| anomalous dimension variation.
@@ -54,13 +54,7 @@ def gamma_2_variation(gamma, L, beta0, g0e2):
     return -gamma[1] * L + 1 / 2 * (beta0 * gamma[0] + g0e2) * L**2
 
 
-@nb.njit(
-    [
-        "c16(c16[:],f8,f8,f8,c16,c16,c16)",
-        "c16[:,:](c16[:,:,:],f8,f8,f8,c16[:,:],c16[:,:],c16[:,:])",
-    ],
-    cache=True,
-)
+@nb.njit(cache=True)
 def gamma_3_variation(gamma, L, beta0, beta1, g0e2, g0e3, g1g0):
     r"""
     Computes the |N3LO| anomalous dimension variation.
@@ -97,7 +91,7 @@ def gamma_3_variation(gamma, L, beta0, beta1, g0e2, g0e3, g1g0):
 @nb.njit(cache=True)
 def non_singlet_variation(gamma, a_s, order, nf, L):
     """
-    Scale Variation non singlet dispatcher
+    Scale Variation non-singlet dispatcher
 
     Parameters
     ----------

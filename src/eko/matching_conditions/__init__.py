@@ -20,7 +20,7 @@ class MatchingCondition(member.OperatorBase):
     @classmethod
     def split_ad_to_evol_map(
         cls,
-        ome_members,
+        op_members,
         nf,
         q2_thr,
         intrinsic_range,
@@ -30,7 +30,7 @@ class MatchingCondition(member.OperatorBase):
 
         Parameters
         ----------
-            ome_members : eko.operator_matrix_element.OperatorMatrixElement.ome_member
+            op_members : eko.operator_matrix_element.OperatorMatrixElement.op_members
                 Attribute of :class:`~eko.operator_matrix_element.OperatorMatrixElement`
                 containing the |OME|
             nf : int
@@ -42,11 +42,11 @@ class MatchingCondition(member.OperatorBase):
         """
 
         m = {
-            "S.S": ome_members[(100, 100)],
-            "S.g": ome_members[(100, 21)],  # This is always zero for the time being
-            "g.S": ome_members[(21, 100)],
-            "g.g": ome_members[(21, 21)],
-            "V.V": ome_members[(200, 200)],
+            "S.S": op_members[(100, 100)],
+            "S.g": op_members[(100, 21)],
+            "g.S": op_members[(21, 100)],
+            "g.g": op_members[(21, 21)],
+            "V.V": op_members[(200, 200)],
         }
 
         # add elements which are already active
@@ -59,15 +59,15 @@ class MatchingCondition(member.OperatorBase):
         hq = br.quark_names[nf]
         m.update(
             {
-                f"{hq}-.V": ome_members[(br.matching_hminus_pid, 200)],
-                f"{hq}+.S": ome_members[(br.matching_hplus_pid, 100)],
-                f"{hq}+.g": ome_members[(br.matching_hplus_pid, 21)],
+                # f"{hq}-.V": op_members[(br.matching_hminus_pid, 200)],
+                f"{hq}+.S": op_members[(br.matching_hplus_pid, 100)],
+                f"{hq}+.g": op_members[(br.matching_hplus_pid, 21)],
             }
         )
 
         # intrinsic matching
         if len(intrinsic_range) != 0:
-            op_id = member.OpMember.id_like(ome_members[(200, 200)])
+            op_id = member.OpMember.id_like(op_members[(200, 200)])
             for intr_fl in intrinsic_range:
                 ihq = br.quark_names[intr_fl - 1]  # find name
                 if intr_fl > nf + 1:
@@ -78,15 +78,15 @@ class MatchingCondition(member.OperatorBase):
                     # match the missing contribution from h+ and h-
                     m.update(
                         {
-                            f"{ihq}+.{ihq}+": ome_members[
+                            f"{ihq}+.{ihq}+": op_members[
                                 (br.matching_hplus_pid, br.matching_hplus_pid)
                             ],
-                            # f"S.{ihq}+": ome_members[(100, br.matching_hplus_pid)],
-                            f"g.{ihq}+": ome_members[(21, br.matching_hplus_pid)],
-                            f"{ihq}-.{ihq}-": ome_members[
+                            f"S.{ihq}+": op_members[(100, br.matching_hplus_pid)],
+                            f"g.{ihq}+": op_members[(21, br.matching_hplus_pid)],
+                            f"{ihq}-.{ihq}-": op_members[
                                 (br.matching_hminus_pid, br.matching_hminus_pid)
                             ],
-                            # f"V.{ihq}-": ome_members[(200, br.matching_hminus_pid)],
+                            # f"V.{ihq}-": op_members[(200, br.matching_hminus_pid)],
                         }
                     )
         return cls.promote_names(m, q2_thr)

@@ -6,7 +6,16 @@ from eko import basis_rotation as br
 from eko.anomalous_dimensions import gamma_ns, gamma_singlet
 from eko.beta import beta_as_2
 from eko.kernels import non_singlet, singlet
-from eko.scale_variations import expanded, exponentiated
+from eko.scale_variations import Modes, expanded, exponentiated
+
+
+def test_modes():
+    assert Modes.expanded.name == "expanded"
+    assert Modes.exponentiated.name == "exponentiated"
+    assert Modes.unvaried.name == "unvaried"
+    assert Modes.expanded.value == 3
+    assert Modes.exponentiated.value == 2
+    assert Modes.unvaried.value == 1
 
 
 def test_ns_sv_dispacher():

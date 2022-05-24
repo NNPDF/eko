@@ -4,24 +4,67 @@ This module defines the |OME| for the non-trivial matching conditions in the
 |VFNS| evolution.
 """
 
+import functools
 import logging
-import time
 
 import numba as nb
 import numpy as np
-from scipy import integrate
 
 from .. import basis_rotation as br
-from .. import interpolation, mellin
-from ..anomalous_dimensions import harmonics
-from ..member import OpMember
-from . import nlo, nnlo
+from .. import harmonics
+from ..evolution_operator import Operator, QuadKerBase
+from . import as1, as2, as3
 
 logger = logging.getLogger(__name__)
 
 
 @nb.njit(cache=True)
-def A_singlet(order, n, sx, L, is_msbar):
+def compute_harmonics_cache(n, order, is_singlet):
+    r"""
+    Get the harmonics sums cache
+
+    Parameters
+    ----------
+        n: complex
+            Mellin moment
+        order: int
+            perturbative order
+        is_singlet: bool
+            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
+
+    Returns
+    -------
+        sx: list
+            harmonic sums cache. At |N3LO| it contains:
+
+            .. math ::
+                [[S_1,S_{-1}],
+                [S_2,S_{-2}],
+                [S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}],
+                [S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}],]
+
+    """
+    # max harmonics sum weight for each qcd order
+    max_weight = {1: 2, 2: 3, 3: 5}
+    # max number of harmonics sum of a given weight for each qcd order
+    n_max_sums_weight = {1: 1, 2: 3, 3: 7}
+    sx = harmonics.base_harmonics_cache(
+        n, is_singlet, max_weight[order], n_max_sums_weight[order]
+    )
+    if order == 2:
+        # Add Sm21 to cache
+        sx[2, 1] = harmonics.Sm21(n, sx[0, 0], sx[0, -1], is_singlet)
+    if order == 3:
+        # Add weight 3 and 4 to cache
+        sx[2, 1:-2] = harmonics.s3x(n, sx[:, 0], sx[:, -1], is_singlet)
+        sx[3, 1:-1] = harmonics.s4x(n, sx[:, 0], sx[:, -1], is_singlet)
+    # return list of list keeping the non zero values
+    return [[el for el in sx_list if el != 0] for sx_list in sx]
+
+
+@nb.njit(cache=True)
+def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
     r"""
     Computes the tower of the singlet |OME|.
 
@@ -31,12 +74,16 @@ def A_singlet(order, n, sx, L, is_msbar):
             perturbative order
         n : complex
             Mellin variable
-        sx : numpy.ndarray
-            List of harmonic sums
+        sx : list
+            singlet like harmonic sums cache
+        nf: int
+            number of active flavor below threshold
         L : float
             :math:`log(q^2/m_h^2)`
         is_msbar: bool
             add the |MSbar| contribution
+        sx_ns : list
+            non-singlet like harmonic sums cache
 
     Returns
     -------
@@ -50,18 +97,18 @@ def A_singlet(order, n, sx, L, is_msbar):
         eko.matching_conditions.nlo.A_gh_1 : :math:`A_{gH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
     """
-    if order[0] == 1:
-        return np.zeros((1, 3, 3), np.complex_)
-    A_singlet = np.zeros((order[0] - 1, 3, 3), np.complex_)
-    if order[0] >= 2:
-        A_singlet[0] = nlo.A_singlet_1(n, sx, L)
-    if order[0] >= 3:
-        A_singlet[1] = nnlo.A_singlet_2(n, sx, L, is_msbar)
-    return A_singlet
+    A_s = np.zeros((order, 3, 3), np.complex_)
+    if order >= 1:
+        A_s[0] = as1.A_singlet(n, sx, L)
+    if order >= 2:
+        A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
+    if order >= 3:
+        A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
+    return A_s
 
 
 @nb.njit(cache=True)
-def A_non_singlet(order, n, sx, L):
+def A_non_singlet(order, n, sx, nf, L):
     r"""
     Computes the tower of the non-singlet |OME|
 
@@ -71,8 +118,10 @@ def A_non_singlet(order, n, sx, L):
             perturbative order
         n : complex
             Mellin variable
-        sx : numpy.ndarray
-            List of harmonic sums
+        sx : list
+            harmonic sums cache
+        nf: int
+            number of active flavor below threshold
         L : float
             :math:`log(q^2/m_h^2)`
 
@@ -86,13 +135,13 @@ def A_non_singlet(order, n, sx, L):
         eko.matching_conditions.nlo.A_hh_1 : :math:`A_{HH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
     """
-    if order[0] == 1:
-        return np.zeros((1, 2, 2), np.complex_)
-    A_ns = np.zeros((order[0] - 1, 2, 2), np.complex_)
-    if order[0] >= 2:
-        A_ns[0] = nlo.A_ns_1(n, sx, L)
-    if order[0] >= 3:
-        A_ns[1] = nnlo.A_ns_2(n, sx, L)
+    A_ns = np.zeros((order, 2, 2), np.complex_)
+    if order >= 1:
+        A_ns[0] = as1.A_ns(n, sx, L)
+    if order >= 2:
+        A_ns[1] = as2.A_ns(n, sx, L)
+    if order >= 3:
+        A_ns[2] = as3.A_ns(n, sx, nf, L)
     return A_ns
 
 
@@ -110,7 +159,7 @@ def build_ome(A, order, a_s, backward_method):
         a_s : float
             strong coupling, needed only for the exact inverse
         backward_method : ["exact", "expanded" or ""]
-            empty or method for inverting the matching contidtion (exact or expanded)
+            empty or method for inverting the matching condition (exact or expanded)
 
     Returns
     -------
@@ -125,20 +174,23 @@ def build_ome(A, order, a_s, backward_method):
     # Print;
     # .end
     ome = np.eye(len(A[0]), dtype=np.complex_)
+    A = np.ascontiguousarray(A)
     if backward_method == "expanded":
         # expended inverse
         if order[0] >= 2:
             ome -= a_s * A[0]
         if order[0] >= 3:
-            ome += a_s**2 * (
-                -A[1] + np.ascontiguousarray(A[0]) @ np.ascontiguousarray(A[0])
-            )
+            ome += a_s**2 * (-A[1] + A[0] @ A[0])
+        if order[0] >= 4:
+            ome += a_s**3 * (-A[2] + A[0] @ A[1] + A[1] @ A[0] - A[0] @ A[0] @ A[0])
     else:
         # forward or exact inverse
         if order[0] >= 2:
             ome += a_s * A[0]
         if order[0] >= 3:
             ome += a_s**2 * A[1]
+        if order[0] >= 3:
+            ome += a_s**3 * A[2]
         # need inverse exact ?  so add the missing pieces
         if backward_method == "exact":
             ome = np.linalg.inv(ome)
@@ -147,7 +199,7 @@ def build_ome(A, order, a_s, backward_method):
 
 @nb.njit(cache=True)
 def quad_ker(
-    u, order, mode0, mode1, is_log, logx, areas, a_s, L, backward_method, is_msbar
+    u, order, mode0, mode1, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
 ):
     """
     Raw kernel inside quad
@@ -170,10 +222,12 @@ def quad_ker(
             basis function configuration
         a_s : float
             strong coupling, needed only for the exact inverse
+        nf: int
+            number of active flavor below threshold
         L : float
             :math:`log(q^2/m_h^2)`
         backward_method : ["exact", "expanded" or ""]
-            empty or method for inverting the matching contidtion (exact or expanded)
+            empty or method for inverting the matching condition (exact or expanded)
         is_msbar: bool
             add the |MSbar| contribution
     Returns
@@ -181,54 +235,51 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    is_singlet = mode0 in [100, 21, 90]
-    # get transformation to N integral
-    r = 0.4 * 16.0 / (1.0 - logx)
-    if is_singlet:
-        o = 1.0
-        indices = {21: 0, 100: 1, 90: 2}
-    else:
-        o = 0.0
-        indices = {200: 0, 91: 1}
-    n = mellin.Talbot_path(u, r, o)
-    jac = mellin.Talbot_jac(u, r, o)
+    ker_base = QuadKerBase(u, is_log, logx, mode0)
+    integrand = ker_base.integrand(areas)
+    if integrand == 0.0:
+        return 0.0
 
-    # compute the harmonics
-    sx = np.zeros(3, np.complex_)
-    if order[0] >= 2:
-        sx = np.array([harmonics.harmonic_S1(n), harmonics.harmonic_S2(n)])
-    if order[0] >= 3:
-        sx = np.append(sx, harmonics.harmonic_S3(n))
+    sx = compute_harmonics_cache(ker_base.n, order[0], ker_base.is_singlet)
+    sx_ns = None
+    if order[0] == 4 and (
+        (backward_method != "" and ker_base.is_singlet)
+        or (mode0 == 100 and mode0 == 100)
+    ):
+        # At N3LO for A_qq singlet or backward you need to compute
+        # both the singlet and non-singlet like harmonics
+        # avoiding recomputing all of them ...
+        sx_ns = sx.copy()
+        smx_ns = harmonics.smx(ker_base.n, np.array([s[0] for s in sx]), False)
+        for w, sm in enumerate(smx_ns):
+            sx_ns[w][-1] = sm
+        sx_ns[2][2] = harmonics.S2m1(ker_base.n, sx[0][1], smx_ns[0], smx_ns[1], False)
+        sx_ns[2][3] = harmonics.Sm21(ker_base.n, sx[0][0], smx_ns[0], False)
+        sx_ns[3][5] = harmonics.Sm31(ker_base.n, sx[0][0], smx_ns[0], smx_ns[1], False)
+        sx_ns[3][4] = harmonics.Sm211(ker_base.n, sx[0][0], sx[0][1], smx_ns[0], False)
+        sx_ns[3][3] = harmonics.Sm22(
+            ker_base.n, sx[0][0], sx[0][1], smx_ns[1], sx_ns[3][5], False
+        )
 
     # compute the ome
-    if is_singlet:
-        A = A_singlet(order, n, sx, L, is_msbar)
+    if ker_base.is_singlet:
+        indices = {21: 0, 100: 1, 90: 2}
+        A = A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
     else:
-        A = A_non_singlet(order, n, sx, L)
-
-    # check PDF is active
-    if is_log:
-        pj = interpolation.log_evaluate_Nx(n, logx, areas)
-    else:
-        pj = interpolation.evaluate_Nx(n, logx, areas)
-
-    if pj == 0.0:
-        return 0.0
+        indices = {200: 0, 91: 1}
+        A = A_non_singlet(order, ker_base.n, sx, nf, L)
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, a_s, backward_method)
 
-    # select the need matrix element
+    # select the needed matrix element
     ker = ker[indices[mode0], indices[mode1]]
-    if ker == 0.0:
-        return 0.0
 
     # recombine everthing
-    mellin_prefactor = complex(0.0, -1.0 / np.pi)
-    return np.real(mellin_prefactor * ker * pj * jac)
+    return np.real(ker * integrand)
 
 
-class OperatorMatrixElement:
+class OperatorMatrixElement(Operator):
     """
     Internal representation of a single |OME|.
 
@@ -242,20 +293,42 @@ class OperatorMatrixElement:
             managers
         is_backward: bool
             True for backward evolution
-        mellin_cut : float
-            cut to the upper limit in the mellin inversion
+        q2: float
+            matching scale
+        nf: int
+            number of active flavor below threshold
+        L: float
+            log of K threshold squared
+        is_msbar: bool
+            add the |MSbar| contribution
     """
 
-    def __init__(self, config, managers, is_backward, mellin_cut=1e-2):
+    log_label = "Matching"
+    # complete list of possible matching operators labels
+    full_labels = [
+        *br.singlet_labels,
+        (br.matching_hplus_pid, 21),
+        (br.matching_hplus_pid, 100),
+        (21, br.matching_hplus_pid),
+        (100, br.matching_hplus_pid),
+        (br.matching_hplus_pid, br.matching_hplus_pid),
+        (200, 200),
+        (200, br.matching_hminus_pid),
+        (br.matching_hminus_pid, 200),
+        (br.matching_hminus_pid, br.matching_hminus_pid),
+    ]
 
+    def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
+        super().__init__(config, managers, nf, q2)
         self.backward_method = config["backward_inversion"] if is_backward else ""
-        self.is_intrinsic = bool(len(config["intrinsic_range"]) != 0)
-        self.config = config
-        self.sc = managers["strong_coupling"]
-        self.int_disp = managers["interpol_dispatcher"]
-        self._mellin_cut = mellin_cut
-        self.ome_members = {}
+        if is_backward:
+            self.is_intrinsic = True
+        else:
+            self.is_intrinsic = bool(len(config["intrinsic_range"]) != 0)
+        self.L = L
+        self.is_msbar = is_msbar
 
+    @property
     def labels(self):
         """
         Compute necessary sector labels to compute.
@@ -267,21 +340,19 @@ class OperatorMatrixElement:
         """
 
         labels = []
-        # non singlet labels
+        # non-singlet labels
         if self.config["debug_skip_non_singlet"]:
-            logger.warning("Matching: skipping non-singlet sector")
+            logger.warning("%s: skipping non-singlet sector", self.log_label)
         else:
-            labels.extend([(200, 200), (br.matching_hminus_pid, 200)])
+            labels.append((200, 200))
             if self.is_intrinsic or self.backward_method != "":
-                # intrisic labels, which are not zero at NLO
+                # intrinsic labels, which are not zero at NLO
                 labels.append((br.matching_hminus_pid, br.matching_hminus_pid))
-                # if self.backward_method == "exact":
-                #     # this contribution starts at NNLO, we don't have it for the moment
-                #     labels.append("NS_qH")
-
+                # These contributions are always 0 for the moment
+                # labels.extend([(200, br.matching_hminus_pid), (br.matching_hminus_pid, 200)])
         # same for singlet
         if self.config["debug_skip_singlet"]:
-            logger.warning("Matching: skipping singlet sector")
+            logger.warning("%s: skipping singlet sector", self.log_label)
         else:
             labels.extend(
                 [
@@ -294,124 +365,64 @@ class OperatorMatrixElement:
                 labels.extend(
                     [
                         (21, br.matching_hplus_pid),
+                        (100, br.matching_hplus_pid),
                         (br.matching_hplus_pid, br.matching_hplus_pid),
                     ]
                 )
-                # if self.backward_method == "exact":
-                #     labels.extend(["S_qH"])
         return labels
 
-    def compute(self, q2, nf, L, is_msbar):
+    def quad_ker(self, label, logx, areas):
         """
-        compute the actual operators (i.e. run the integrations)
+        Partially initialized integrand function
 
         Parameters
         ----------
-            q2: float
-                threshold scale
-            nf: int
-                number of active flavor below threshold
-            L: float
-                log of K threshold squared
-            is_msbar: bool
-                add the |MSbar| contribution
+            label: tuple
+                operator element pids
+            logx: float
+                Mellin inversion point
+            areas : tuple
+                basis function configuration
+
+        Returns
+        -------
+            quad_ker : functools.partial
+                partially initialized intration kernel
+
         """
-        # init all ops with zeros
-        grid_size = len(self.int_disp.xgrid)
-        labels = self.labels()
-        for n in labels:
-            if n[0] == n[1]:
-                self.ome_members[n] = OpMember(
-                    np.eye(grid_size), np.zeros((grid_size, grid_size))
-                )
-            else:
-                self.ome_members[n] = OpMember(
-                    np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
-                )
+        return functools.partial(
+            quad_ker,
+            order=self.config["order"],
+            mode0=label[0],
+            mode1=label[1],
+            is_log=self.int_disp.log,
+            logx=logx,
+            areas=areas,
+            a_s=self.a_s,
+            nf=self.nf,
+            L=self.L,
+            backward_method=self.backward_method,
+            is_msbar=self.is_msbar,
+        )
+
+    @property
+    def a_s(self):
+        """
+        Returns the computed values for :math:`a_s`.
+        Note that here you need to use :math:`a_s^{n_f+1}`
+        """
+        sc = self.managers["couplings"]
+        return sc.a(self.q2_from / self.fact_to_ren, self.q2_from, nf_to=self.nf + 1)[0]
+
+    def compute(self):
+        """
+        compute the actual operators (i.e. run the integrations)
+        """
+        self.initialize_op_members()
+
         # At LO you don't need anything else
-        if self.config["orders"] == (1, 0):
-            logger.info("Matching: no need to compute matching at LO")
-            self.copy_ome()
+        if self.config["order"][0] == 1:
+            logger.info("%s: no need to compute matching at LO", self.log_label)
             return
 
-        # Note that here you need to use a_s^{nf+1}(q2)
-        a_s = self.sc.a(q2 / self.config["fact_to_ren"], q2, nf + 1)[0]
-
-        tot_start_time = time.perf_counter()
-        logger.info("Matching: computing operators - 0/%d", grid_size)
-        # iterate output grid
-        for k, logx in enumerate(np.log(self.int_disp.xgrid_raw)):
-            start_time = time.perf_counter()
-            # iterate basis functions
-            for l, bf in enumerate(self.int_disp):
-                if k == l and l == grid_size - 1:
-                    continue
-                # iterate sectors
-                for label in labels:
-                    # compute and set
-                    res = integrate.quad(
-                        quad_ker,
-                        0.5,
-                        1.0 - self._mellin_cut,
-                        args=(
-                            self.config["orders"],
-                            label[0],
-                            label[1],
-                            self.int_disp.log,
-                            logx,
-                            bf.areas_representation,
-                            a_s,
-                            L,
-                            self.backward_method,
-                            is_msbar,
-                        ),
-                        epsabs=1e-12,
-                        epsrel=1e-5,
-                        limit=100,
-                        full_output=1,
-                    )
-                    val, err = res[:2]
-                    self.ome_members[label].value[k][l] = val
-                    self.ome_members[label].error[k][l] = err
-
-            logger.info(
-                "Matching: computing operators - %d/%d took: %f s",
-                k + 1,
-                grid_size,
-                time.perf_counter() - start_time,
-            )
-
-        # closing comment
-        logger.info("Matching: Total time %f s", time.perf_counter() - tot_start_time)
-        self.copy_ome()
-
-    def copy_ome(self):
-        """Add the missing |OME|, if necessary"""
-        grid_size = len(self.int_disp.xgrid)
-        # basic labels skipped with skip debug
-        for label in [
-            (200, 200),
-            (br.matching_hplus_pid, 21),
-            (br.matching_hplus_pid, 100),
-            (br.matching_hminus_pid, 200),
-            *br.singlet_labels,
-        ]:
-            if label not in self.ome_members:
-                self.ome_members[label] = OpMember(
-                    np.zeros((grid_size, grid_size)), np.zeros((grid_size, grid_size))
-                )
-
-        # intrinsic labels not computed yet
-        if self.is_intrinsic:
-            for label in [
-                (100, br.matching_hplus_pid),
-                (200, br.matching_hminus_pid),
-                (br.matching_hminus_pid, br.matching_hminus_pid),
-                (br.matching_hplus_pid, br.matching_hplus_pid),
-                (21, br.matching_hplus_pid),
-            ]:
-                if label not in self.ome_members:
-                    self.ome_members[label] = OpMember(
-                        np.zeros((grid_size, grid_size)),
-                        np.zeros((grid_size, grid_size)),
-                    )
+        self.integrate()

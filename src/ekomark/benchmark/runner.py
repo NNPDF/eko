@@ -72,7 +72,8 @@ class Runner(BenchmarkRunner):
         if self.sandbox:
             rerun = True
             ops_id = f"o{ocard['hash'][:6]}_t{theory['hash'][:6]}"
-            path = f"{banana_cfg.cfg['paths']['database'].parents[0]}/{ops_id}.tar"
+            root = banana_cfg.cfg["paths"]["database"].parents[0]
+            path = f"{root}/{ops_id}.tar"
 
             if os.path.exists(path):
                 rerun = False
@@ -95,7 +96,7 @@ class Runner(BenchmarkRunner):
                     save_operators_to_pdf,
                 )
 
-                output_path = f"{banana_cfg.cfg['database_path'].parents[0]}/{self.external}_bench"
+                output_path = f"{root}/{self.external}_bench"
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
                 # rotating to evolution basis if requested

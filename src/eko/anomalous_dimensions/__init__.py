@@ -21,7 +21,8 @@ import numba as nb
 import numpy as np
 
 from .. import basis_rotation as br
-from . import aem1, aem2, as1, as1aem1, as2, as3, harmonics
+from .. import harmonics
+from . import aem1, aem2, as1, as1aem1, as2, as3
 
 
 @nb.njit(cache=True)
@@ -103,25 +104,22 @@ def gamma_ns(order, mode, n, nf):
         eko.anomalous_dimensions.as3.gamma_nsv : :math:`\gamma_{ns,v}^{(2)}(N)`
     """
     # cache the s-es
-    sx = np.full(1, harmonics.harmonic_S1(n))
+    sx = harmonics.sx(n, max_weight=order + 1)
     # now combine
     gamma_ns = np.zeros(order[0], np.complex_)
     gamma_ns[0] = as1.gamma_ns(n, sx[0])
     # NLO and beyond
     if order[0] >= 2:
-        # TODO: pass the necessary harmonics to nlo gammas
         if mode == 10101:
-            gamma_ns_1 = as2.gamma_nsp(n, nf)
+            gamma_ns_1 = as2.gamma_nsp(n, nf, sx)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
         elif mode in [10201, 10200]:
-            gamma_ns_1 = as2.gamma_nsm(n, nf)
+            gamma_ns_1 = as2.gamma_nsm(n, nf, sx)
         else:
             raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond
     if order[0] >= 3:
-        sx = np.append(sx, harmonics.harmonic_S2(n))
-        sx = np.append(sx, harmonics.harmonic_S3(n))
         if mode == 10101:
             gamma_ns_2 = -as3.gamma_nsp(n, nf, sx)
         elif mode == 10201:
@@ -158,16 +156,12 @@ def gamma_singlet(order, n, nf):
         eko.anomalous_dimensions.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
     """
     # cache the s-es
-    sx = np.full(1, harmonics.harmonic_S1(n))
+    sx = harmonics.sx(n, max_weight=order[0] + 1)
+    gamma_s = np.zeros((order + 1, 2, 2), np.complex_)
+    gamma_s[0] = as1.gamma_singlet(n, sx[0], nf)
     if order[0] >= 2:
-        sx = np.append(sx, harmonics.harmonic_S2(n))
-        sx = np.append(sx, harmonics.harmonic_S3(n))
-
-    gamma_singlet = np.zeros((order[0], 2, 2), np.complex_)
-    gamma_singlet[0] = as1.gamma_singlet(n, sx[0], nf)
-    if order[0] >= 2:
-        gamma_singlet[1] = as2.gamma_singlet(n, nf)
+        gamma_s[1] = as2.gamma_singlet(n, nf, sx)
     if order[0] == 3:
-        sx = np.append(sx, harmonics.harmonic_S4(n))
-        gamma_singlet[2] = -as3.gamma_singlet(n, nf, sx)
-    return gamma_singlet
+        sx = np.append(sx, harmonics.S4(n))
+        gamma_s[2] = -as3.gamma_singlet(n, nf, sx)
+    return gamma_s

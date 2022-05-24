@@ -383,9 +383,7 @@ def sum_u(uvec, a):
     return res
 
 
-@nb.njit(
-    "c16[:,:](c16[:,:,:],f8,f8,u1,UniTuple(u1,2),u4,UniTuple(u1,2),b1)", cache=True
-)
+@nb.njit(cache=True)
 def eko_perturbative(
     gamma_singlet, a1, a0, nf, order, ev_op_iterations, ev_op_max_order, is_exact
 ):
@@ -482,10 +480,7 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     return e
 
 
-@nb.njit(
-    "c16[:,:](UniTuple(u1,2),string,c16[:,:,:],f8,f8,u1,u4,UniTuple(u1,2))",
-    cache=True,
-)
+@nb.njit(cache=True)
 def dispatcher(  # pylint: disable=too-many-return-statements
     order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
 ):

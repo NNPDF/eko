@@ -8,7 +8,7 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 import numba as nb
 
 from . import constants
-from .anomalous_dimensions.harmonics import zeta3
+from .harmonics.constants import zeta3
 
 
 @nb.njit(cache=True)
