@@ -27,11 +27,11 @@ def test_build_ome_as():
     a_s = 0.0
     nf = 3
     is_msbar = False
-    for o in [1, 2, 3]:
-        sx_singlet = compute_harmonics_cache(N, o, True)
+    for o in [2, 3, 4]:
+        sx_singlet = compute_harmonics_cache(N, o - 1, True)
         sx_ns = sx_singlet
         if o == 3:
-            sx_ns = compute_harmonics_cache(N, o, False)
+            sx_ns = compute_harmonics_cache(N, o - 1, False)
 
         aNS = A_non_singlet((o, 0), N, sx_ns, nf, L)
         aS = A_singlet((o, 0), N, sx_singlet, nf, L, is_msbar, sx_ns)
@@ -99,7 +99,7 @@ def test_quad_ker(monkeypatch):
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            order=(3, 0),
+            order=(4, 0),
             mode0=200,
             mode1=200,
             is_log=is_log,
@@ -114,7 +114,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
             u=0,
-            order=(3, 0),
+            order=(4, 0),
             mode0=100,
             mode1=100,
             is_log=is_log,
@@ -129,7 +129,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            order=(3, 0),
+            order=(4, 0),
             mode0=100,
             mode1=21,
             is_log=is_log,
@@ -148,7 +148,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=(3, 0),
+            order=(4, 0),
             mode0=label[0],
             mode1=label[1],
             is_log=True,
@@ -181,7 +181,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=(3, 0),
+            order=(4, 0),
             mode0=label[0],
             mode1=label[1],
             is_log=True,
@@ -201,7 +201,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        order=(3, 0),
+        order=(4, 0),
         mode0=200,
         mode1=200,
         is_log=True,
