@@ -62,6 +62,8 @@ def expanded_lo(ref, beta0, lmu):
 def expanded_nlo(ref, beta0, beta1, lmu):
     """Compute expanded solution at NLO.
 
+    From apfel
+
     Parameters
     ----------
         ref: float
@@ -89,6 +91,8 @@ def expanded_nlo(ref, beta0, beta1, lmu):
 @nb.njit(cache=True)
 def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
     """Compute expanded solution at NNLO.
+
+    From apfel
 
     Parameters
     ----------
@@ -122,6 +126,8 @@ def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
 @nb.njit(cache=True)
 def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
     """Compute expanded solution at N3LO.
+
+    From Luca Rottoli
 
     Parameters
     ----------
