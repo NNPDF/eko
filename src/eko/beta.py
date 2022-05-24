@@ -124,8 +124,8 @@ def beta_as_2aem1(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    beta_as1aem1 = -4.0 * constants.TR * (nu * constants.eu2 + nd * constants.ed2)
-    return beta_as1aem1
+    beta_as_2aem1 = -4.0 * constants.TR * (nu * constants.eu2 + nd * constants.ed2)
+    return beta_as_2aem1
 
 
 @nb.njit(cache=True)
@@ -147,10 +147,10 @@ def beta_aem_2as1(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    beta_aem1as1 = (
+    beta_aem_2as1 = (
         -4.0 * constants.CF * constants.NC * (nu * constants.eu2 + nd * constants.ed2)
     )
-    return beta_aem1as1
+    return beta_aem_2as1
 
 
 @nb.njit(cache=True)
