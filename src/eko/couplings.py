@@ -321,7 +321,7 @@ class Couplings:
         couplings_ref = np.array([alphas_ref, alphaem_ref])
         nf_ref = theory_card["nfref"]
         q2_alpha = pow(theory_card["Qref"], 2)
-        order = theory_card["orders"]
+        order = theory_card["order"]
         method = couplings_mod_ev(theory_card["ModEv"])
         hqm_scheme = theory_card["HQ"]
         if hqm_scheme not in ["MSBAR", "POLE"]:

@@ -127,7 +127,7 @@ def test_vfns():
     oc = copy.deepcopy(operators_card)
     tc["kcThr"] = 1.0
     tc["kbThr"] = 1.0
-    tc["orders"] = (3, 0)
+    tc["order"] = (3, 0)
     oc["debug_skip_non_singlet"] = False
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()

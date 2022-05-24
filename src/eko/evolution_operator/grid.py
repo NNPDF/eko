@@ -56,7 +56,7 @@ class OperatorGrid:
         interpol_dispatcher,
     ):
         # check
-        order = config["orders"]
+        order = config["order"]
         method = config["method"]
         if not method in [
             "iterate-exact",
@@ -111,7 +111,7 @@ class OperatorGrid:
                 created object
         """
         config = {}
-        config["orders"] = theory_card["orders"]
+        config["order"] = theory_card["order"]
         method = theory_card["ModEv"]
         mod_ev2method = {
             "EXA": "iterate-exact",

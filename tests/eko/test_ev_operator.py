@@ -127,7 +127,8 @@ def test_quad_ker(monkeypatch):
 
 theory_card = {
     "alphas": 0.35,
-    "PTO": 0,
+    "alphaem": 0.00781,
+    "order": (1, 0),
     "ModEv": "TRN",
     "fact_to_ren_scale_ratio": 1.0,
     "Qref": np.sqrt(2),
@@ -167,7 +168,7 @@ class TestOperator:
     def test_labels(self):
         o = Operator(
             dict(
-                orders=(3, 0),
+                order=(3, 0),
                 debug_skip_non_singlet=False,
                 debug_skip_singlet=False,
                 n_integration_cores=1,
@@ -180,7 +181,7 @@ class TestOperator:
         assert sorted(o.labels) == sorted(br.full_labels)
         o = Operator(
             dict(
-                orders=(2, 0),
+                order=(2, 0),
                 debug_skip_non_singlet=True,
                 debug_skip_singlet=True,
                 n_integration_cores=1,
@@ -215,7 +216,7 @@ class TestOperator:
             tcard,
             ocard,
             ThresholdsAtlas.from_dict(tcard),
-            StrongCoupling.from_dict(tcard),
+            Couplings.from_dict(tcard),
             InterpolatorDispatcher.from_dict(ocard),
         )
         # setup objs
@@ -246,7 +247,7 @@ class TestOperator:
             tcard,
             ocard,
             ThresholdsAtlas.from_dict(tcard),
-            StrongCoupling.from_dict(tcard),
+            Couplings.from_dict(tcard),
             InterpolatorDispatcher.from_dict(ocard),
         )
         # setup objs
@@ -259,7 +260,7 @@ class TestOperator:
         o.compute()
         self.check_lo(o)
         # NLO
-        o.config["orders"] = (2, 0)
+        o.config["order"] = (2, 0)
         o.compute()
         assert not np.allclose(
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
@@ -273,7 +274,7 @@ class TestOperator:
         # unity operators
         for n in range(1, 3 + 1):
             o1 = Operator(g.config, g.managers, 3, 2.0, 2.0)
-            o1.config["orders"] = (n, 0)
+            o1.config["order"] = (n, 0)
             o1.compute()
             for k in br.non_singlet_labels:
                 assert k in o1.op_members

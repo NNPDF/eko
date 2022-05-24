@@ -97,12 +97,12 @@ def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
         eko.matching_conditions.nlo.A_gh_1 : :math:`A_{gH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
     """
-    A_s = np.zeros((order, 3, 3), np.complex_)
-    if order >= 1:
+    A_s = np.zeros((order[0], 3, 3), np.complex_)
+    if order[0] >= 2:
         A_s[0] = as1.A_singlet(n, sx, L)
-    if order >= 2:
+    if order[0] >= 3:
         A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
-    if order >= 3:
+    if order[0] >= 4:
         A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
     return A_s
 
@@ -135,12 +135,12 @@ def A_non_singlet(order, n, sx, nf, L):
         eko.matching_conditions.nlo.A_hh_1 : :math:`A_{HH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
     """
-    A_ns = np.zeros((order, 2, 2), np.complex_)
-    if order >= 1:
+    A_ns = np.zeros((order[0], 2, 2), np.complex_)
+    if order[0] >= 2:
         A_ns[0] = as1.A_ns(n, sx, L)
-    if order >= 2:
+    if order[0] >= 3:
         A_ns[1] = as2.A_ns(n, sx, L)
-    if order >= 3:
+    if order[0] >= 4:
         A_ns[2] = as3.A_ns(n, sx, nf, L)
     return A_ns
 
@@ -189,7 +189,7 @@ def build_ome(A, order, a_s, backward_method):
             ome += a_s * A[0]
         if order[0] >= 3:
             ome += a_s**2 * A[1]
-        if order[0] >= 3:
+        if order[0] >= 4:
             ome += a_s**3 * A[2]
         # need inverse exact ?  so add the missing pieces
         if backward_method == "exact":
@@ -240,7 +240,9 @@ def quad_ker(
     if integrand == 0.0:
         return 0.0
 
-    sx = compute_harmonics_cache(ker_base.n, order[0], ker_base.is_singlet)
+    sx = compute_harmonics_cache(ker_base.n, order[0] - 1, ker_base.is_singlet)
+    # order in compute_harmonics_cache is mismatched wrt order[0]
+    # TODO : fix it
     sx_ns = None
     if order[0] == 4 and (
         (backward_method != "" and ker_base.is_singlet)
@@ -411,7 +413,7 @@ class OperatorMatrixElement(Operator):
         Returns the computed values for :math:`a_s`.
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
-        sc = self.managers["couplings"]
+        sc = self.managers["strong_coupling"]
         return sc.a(self.q2_from / self.fact_to_ren, self.q2_from, nf_to=self.nf + 1)[0]
 
     def compute(self):

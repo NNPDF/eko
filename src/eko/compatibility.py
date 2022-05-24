@@ -23,10 +23,10 @@ def update(theory, operators):
     new_operators = operators.copy()
     new_theory["alphaem"] = new_theory.pop("alphaqed")
     if "QED" in new_theory:
-        new_theory["orders"] = (new_theory["PTO"], new_theory["QED"])
+        new_theory["order"] = (new_theory["PTO"], new_theory["QED"])
     else:
         new_theory["QED"] = 0
-        new_theory["orders"] = (new_theory["PTO"], new_theory["QED"])
+        new_theory["order"] = (new_theory["PTO"], new_theory["QED"])
     if "ev_op_max_order" in new_operators:
         new_operators["ev_op_max_order"] = (
             new_operators["ev_op_max_order"],

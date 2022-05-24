@@ -20,7 +20,7 @@ class TestOperatorGrid:
         theory_card = {
             "alphas": 0.35,
             "alphaem": 0.00781,
-            "orders": (1, 0),
+            "order": (1, 0),
             "ModEv": "TRN",
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
@@ -140,7 +140,7 @@ class TestOperatorGrid:
 
     def test_mod_expanded(self):
         theory_update = {
-            "orders": (1, 0),
+            "order": (1, 0),
             "ModSV": "expanded",
         }
         epsilon = 1e-1

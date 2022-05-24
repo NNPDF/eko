@@ -28,7 +28,7 @@ theory_dict = {
     "Qmc": 2.1,
     "Qmb": 4.1,
     "Qmt": 174.9,
-    "orders": (3, 0),
+    "order": (3, 0),
     "ModEv": "TRN",
 }
 
@@ -38,7 +38,7 @@ class TestMsbarMasses:
         # Test solution of msbar(m) = m
         for method in ["EXA", "EXP"]:
             for order in [2, 3, 4]:
-                theory_dict.update({"ModEv": method, "orders": (order, 0)})
+                theory_dict.update({"ModEv": method, "order": (order, 0)})
 
                 # compute the scale such msbar(m) = m
                 m2_computed = msbar_masses.compute(theory_dict)
@@ -65,7 +65,7 @@ class TestMsbarMasses:
         theory_dict.update(
             {
                 "ModEv": "TRN",
-                "orders": (4, 0),
+                "order": (4, 0),
                 "mc": 2.0,
                 "mb": 4.0,
                 "Qmc": 80.0,

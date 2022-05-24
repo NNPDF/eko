@@ -40,7 +40,7 @@ def test_build_ome_as():
             for method in ["", "expanded", "exact"]:
                 dim = len(a[0])
                 if o != 1:
-                    assert len(a) == o - 1
+                    assert len(a) == o
 
                 ome = build_ome(a, (o, 0), a_s, method)
                 assert ome.shape == (dim, dim)
@@ -53,7 +53,6 @@ def test_build_ome_nlo():
     L = 0.0
     a_s = 20
     is_msbar = False
-
     sx = [[1], [1], [1]]
     nf = 4
     aNSi = A_non_singlet((2, 0), N, sx, nf, L)
@@ -290,7 +289,7 @@ class TestOperatorMatrixElement:
     theory_card = {
         "alphas": 0.35,
         "alphaem": 0.00781,
-        "orders": (4, 0),
+        "order": (4, 0),
         "ModEv": "TRN",
         "fact_to_ren_scale_ratio": 1.0,
         "Qref": np.sqrt(2),
@@ -387,7 +386,7 @@ class TestOperatorMatrixElement:
             self.theory_card,
             self.operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
-            StrongCoupling.from_dict(self.theory_card),
+            Couplings.from_dict(self.theory_card),
             InterpolatorDispatcher.from_dict(self.operators_card),
         )
         o = OperatorMatrixElement(
@@ -414,13 +413,13 @@ class TestOperatorMatrixElement:
             np.testing.assert_allclose(mat, np.triu(mat))
 
     def test_compute_lo(self):
-        self.theory_card.update({"orders": (1, 0)})
+        self.theory_card.update({"order": (1, 0)})
         self.operators_card.update({"debug_skip_singlet": False})
         g = OperatorGrid.from_dict(
             self.theory_card,
             self.operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
-            StrongCoupling.from_dict(self.theory_card),
+            Couplings.from_dict(self.theory_card),
             InterpolatorDispatcher.from_dict(self.operators_card),
         )
         o = OperatorMatrixElement(
@@ -473,7 +472,7 @@ class TestOperatorMatrixElement:
             "n_integration_cores": 1,
         }
         t = copy.deepcopy(self.theory_card)
-        t["orders"] = (2, 0)
+        t["order"] = (2, 0)
         g = OperatorGrid.from_dict(
             t,
             operators_card,

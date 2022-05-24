@@ -113,13 +113,13 @@ class BenchmarkMSbar:
         for method in ["exact", "expanded"]:
             theory["ModEv"] = "EXP" if method == "expanded" else "EXA"
             for order in [1, 2, 3]:
-                theory["orders"] = (order, 0)
+                theory["order"] = (order, 0)
                 as_VFNS = Couplings(
                     np.array([theory["alphas"], theory["alphaem"]]),
                     theory["Qref"] ** 2,
                     msbar_masses.compute(theory),
                     np.power([theory["kcThr"], theory["kbThr"], theory["ktThr"]], 2),
-                    order=theory["orders"],
+                    order=theory["order"],
                     method=method,
                     nf_ref=theory["nfref"],
                     hqm_scheme=theory["HQ"],
@@ -191,7 +191,7 @@ class BenchmarkMSbar:
             copy.deepcopy(theory_dict), operators_dict
         )
         for order in [1, 2, 3]:
-            theory["orders"] = (order, 0)
+            theory["order"] = (order, 0)
             my_masses = msbar_masses.compute(theory)
             # get APFEL numbers - if available else use cache
             apfel_vals = apfel_vals_dict[theory_dict["ModEv"]][order]

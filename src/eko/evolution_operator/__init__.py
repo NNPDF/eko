@@ -304,7 +304,7 @@ class Operator:
             labels : list(str)
                 sector labels
         """
-        order = self.config["orders"]
+        order = self.config["order"]
         labels = []
         # the NS sector is dynamic
         if self.config["debug_skip_non_singlet"]:
@@ -462,8 +462,8 @@ class Operator:
         )
         logger.info(
             "%s: order: (%d, %d), solution strategy: %s",
-            self.config["orders"][0],
-            self.config["orders"][1],
+            self.config["order"][0],
+            self.config["order"][1],
             self.config["method"],
         )
 
@@ -502,7 +502,7 @@ class Operator:
 
     def copy_ns_ops(self):
         """Copy non-singlet kernels, if necessary"""
-        order = self.config["orders"]
+        order = self.config["order"]
         if order[0] == 1:  # in LO +=-=v
             for label in ["nsV", "ns-"]:
                 self.op_members[
