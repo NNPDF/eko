@@ -525,8 +525,8 @@ class Couplings:
             beta0_qed = beta_qed((0, 2), nf)
             b_qed_vec = [1.0]
             # NLO
-            if self.order[1] >= 2:  # I think that at this point this if is always true
-                b_qed_vec.append(b_qed((0, 3), nf))
+            # if self.order[1] >= 2:  # I think that at this point this if is always true
+            b_qed_vec.append(b_qed((0, 3), nf))
             a_em = unidimensional_exact(
                 beta0_qed, b_qed_vec, u, a_ref[1], "Radau", 1e-6
             )
