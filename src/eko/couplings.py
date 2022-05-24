@@ -195,7 +195,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
 
 class Couplings:
     r"""
-        Computes the strong and electromagnetic coupling constants :math:`a_s,a`.
+        Computes the strong and electromagnetic coupling constants :math:`a_s, a_em`.
 
         Note that
 
