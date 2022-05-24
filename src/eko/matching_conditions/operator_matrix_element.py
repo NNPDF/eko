@@ -242,7 +242,6 @@ def quad_ker(
 
     sx = compute_harmonics_cache(ker_base.n, order[0] - 1, ker_base.is_singlet)
     # order in compute_harmonics_cache is mismatched wrt order[0]
-    # TODO : fix it
     sx_ns = None
     if order[0] == 4 and (
         (backward_method != "" and ker_base.is_singlet)

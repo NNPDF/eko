@@ -59,7 +59,7 @@ def expanded_lo(ref, beta0, lmu):
 
 
 @nb.njit(cache=True)
-def expanded_nlo(ref, beta0, beta1, lmu):
+def expanded_nlo(ref, beta0, b1, lmu):
     """Compute expanded solution at NLO.
 
     From apfel
@@ -82,14 +82,13 @@ def expanded_nlo(ref, beta0, beta1, lmu):
 
     """
     den = 1.0 + beta0 * ref * lmu
-    b1 = beta1 / beta0
     a_LO = expanded_lo(ref, beta0, lmu)
     as_NLO = a_LO * (1 - b1 * a_LO * np.log(den))
     return as_NLO
 
 
 @nb.njit(cache=True)
-def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
+def expanded_nnlo(ref, beta0, b1, b2, lmu):
     """Compute expanded solution at NNLO.
 
     From apfel
@@ -114,9 +113,7 @@ def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
 
     """
     a_LO = expanded_lo(ref, beta0, lmu)
-    a_NLO = expanded_nlo(ref, beta0, beta1, lmu)
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
+    a_NLO = expanded_nlo(ref, beta0, b1, lmu)
     res = a_LO * (
         1.0 + a_LO * (a_LO - ref) * (b2 - b1**2) + a_NLO * b1 * np.log(a_NLO / ref)
     )
@@ -124,7 +121,7 @@ def expanded_nnlo(ref, beta0, beta1, beta2, lmu):
 
 
 @nb.njit(cache=True)
-def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
+def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
     """Compute expanded solution at N3LO.
 
     From Luca Rottoli
@@ -150,13 +147,9 @@ def expanded_n3lo(ref, beta0, beta1, beta2, beta3, lmu):
             coupling at target scale :math:`a(scale_to^2)`
 
     """
-    b3 = beta3 / beta0
     a_LO = expanded_lo(ref, beta0, lmu)
     log_fact = np.log(a_LO)
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
-    b3 = beta3 / beta0
-    res = expanded_nnlo(ref, beta0, beta1, beta2, lmu)
+    res = expanded_nnlo(ref, beta0, b1, b2, lmu)
     res += (
         a_LO**4
         / (2 * beta0**3)
@@ -216,23 +209,23 @@ def expanded_qcd(ref, order, nf, lmu):
         res_as = as_LO
         # NLO
         if order >= 2:
-            beta_qcd1 = beta_qcd((3, 0), nf)
-            as_NLO = expanded_nlo(ref, beta_qcd0, beta_qcd1, lmu)
+            b_qcd1 = b_qcd((3, 0), nf)
+            as_NLO = expanded_nlo(ref, beta_qcd0, b_qcd1, lmu)
             res_as = as_NLO
             # NNLO
             if order >= 3:
-                beta_qcd2 = beta_qcd((4, 0), nf)
-                as_NNLO = expanded_nnlo(ref, beta_qcd0, beta_qcd1, beta_qcd2, lmu)
+                b_qcd2 = b_qcd((4, 0), nf)
+                as_NNLO = expanded_nnlo(ref, beta_qcd0, b_qcd1, b_qcd2, lmu)
                 res_as = as_NNLO
                 # N3LO
                 if order >= 4:
-                    beta_qcd3 = beta_qcd((5, 0), nf)
+                    b_qcd3 = b_qcd((5, 0), nf)
                     as_N3LO = expanded_n3lo(
                         ref,
                         beta_qcd0,
-                        beta_qcd1,
-                        beta_qcd2,
-                        beta_qcd3,
+                        b_qcd1,
+                        b_qcd2,
+                        b_qcd3,
                         lmu,
                     )
                     res_as = as_N3LO
@@ -268,8 +261,8 @@ def expanded_qed(ref, order, nf, lmu):
         res_aem = aem_LO
         # NLO
         if order >= 2:
-            beta_qed1 = beta_qed((0, 3), nf)
-            aem_NLO = expanded_nlo(ref, beta_qed0, beta_qed1, lmu)
+            b_qed1 = b_qed((0, 3), nf)
+            aem_NLO = expanded_nlo(ref, beta_qed0, b_qed1, lmu)
             res_aem = aem_NLO
     return res_aem
 
