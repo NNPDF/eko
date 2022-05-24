@@ -46,12 +46,12 @@ def expanded_lo(ref, beta0, lmu):
         beta0: float
             first coefficient of the beta function
         lmu: float
-            log(scale_to / scale_from)
+            scaling log
 
     Returns
     -------
         a : float
-            coupling at target scale :math:`a(scale_to^2)`
+            coupling at target scale :math:`a(µ_r^2)`
 
     """
     den = 1.0 + beta0 * ref * lmu
@@ -73,12 +73,12 @@ def expanded_nlo(ref, beta0, b1, lmu):
         b1: float
             second coefficient of the b function
         lmu: float
-            log(scale_to / scale_from)
+            scaling log
 
     Returns
     -------
         a : float
-            coupling at target scale :math:`a(scale_to^2)`
+            coupling at target scale :math:`a(µ_r^2)`
 
     """
     den = 1.0 + beta0 * ref * lmu
@@ -104,12 +104,12 @@ def expanded_nnlo(ref, beta0, b1, b2, lmu):
         b2: float
             third coefficient of the b function
         lmu: float
-            log(scale_to / scale_from)
+            scaling log
 
     Returns
     -------
         a : float
-            coupling at target scale :math:`a(scale_to^2)`
+            coupling at target scale :math:`a(µ_r^2)`
 
     """
     a_LO = expanded_lo(ref, beta0, lmu)
@@ -139,12 +139,12 @@ def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
         b3: float
             fourth coefficient of the b function
         lmu: float
-            log(scale_to / scale_from)
+            scaling log
 
     Returns
     -------
         a : float
-            coupling at target scale :math:`a(scale_to^2)`
+            coupling at target scale :math:`a(µ_r^2)`
 
     """
     a_LO = expanded_lo(ref, beta0, lmu)
@@ -198,7 +198,7 @@ def expanded_qcd(ref, order, nf, lmu):
     Returns
     -------
         a_s : float
-            strong coupling at target scale :math:`a_s(scale_to^2)`
+            strong coupling at target scale :math:`a_s(µ_r^2)`
 
     """
     res_as = ref
@@ -250,7 +250,7 @@ def expanded_qed(ref, order, nf, lmu):
     Returns
     -------
         a_em : float
-            QED coupling at target scale :math:`a_em(scale_to^2)`
+            QED coupling at target scale :math:`a_em(µ_r^2)`
 
     """
     res_aem = ref
@@ -288,7 +288,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     Returns
     -------
         a : np array
-            couplings at target scale :math:`a(Q^2)`
+            couplings at target scale :math:`a(µ_r^2)`
     """
     # common vars
     lmu = np.log(scale_to / scale_from)
