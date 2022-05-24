@@ -65,9 +65,9 @@ def j11_exact(a1, a0, nf):
         j11 : float
             integral
     """
-    beta_as_3 = beta.beta_qcd((3, 0), nf)
+    beta_qcd_as3 = beta.beta_qcd((3, 0), nf)
     b1 = beta.b_qcd((3, 0), nf)
-    return (1.0 / beta_as_3) * np.log((1.0 + a1 * b1) / (1.0 + a0 * b1))
+    return (1.0 / beta_qcd_as3) * np.log((1.0 + a1 * b1) / (1.0 + a0 * b1))
 
 
 @nb.njit(cache=True)
