@@ -193,7 +193,7 @@ def expanded_qcd(ref, order, nf, lmu):
         nf: int
             number of flavors
         lmu: float
-            log(scale_to / scale_from)
+            scaling log
 
     Returns
     -------
@@ -245,7 +245,7 @@ def expanded_qed(ref, order, nf, lmu):
         nf: int
             number of flavors
         lmu: float
-            log(scale_to / scale_from)
+            scaling log
 
     Returns
     -------
