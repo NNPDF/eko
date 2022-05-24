@@ -97,7 +97,7 @@ def test_singlet_reference_moments():
 
 
 def test_diff_pm_nf2():
-    # exact values of g_ns,+ prop to nf^2, see eq. 2.12 of :cite:`Davies:2016jie`
+    # exact values of g_ns,+ prop to nf^2, see Eq. 2.12 of :cite:`Davies:2016jie`
     gns_p_nf2_ref = [
         -2.803840877914952,
         117.7814976940519,

@@ -14,7 +14,7 @@ def gamma_ns_nf3(n, sx):
     Implements the common part proportional to :math:`nf^3`,
     of :math:`\\gamma_{ns,+}^{(3)},`\\gamma_{ns,-}^{(3)},`\\gamma_{ns,v}^{(3)}`
 
-    The expression is copied exact from eq. 3.6. of :cite:`Davies:2016jie`
+    The expression is copied exact from Eq. 3.6. of :cite:`Davies:2016jie`
 
     Parameters
     ----------

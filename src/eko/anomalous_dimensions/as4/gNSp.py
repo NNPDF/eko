@@ -12,7 +12,7 @@ from .gNSm import gamma_ns_nf3, gamma_nsm_nf2
 #     Implements the common part proportional to :math:`nf^2`,
 #     of :math:`\\gamma_{ns,+}^{(3)},`\\gamma_{ns,-}^{(3)},`\\gamma_{ns,v}^{(3)}`
 
-#     The expression is taken from eq. 3.1 of :cite:`Davies:2016jie`
+#     The expression is taken from Eq. 3.1 of :cite:`Davies:2016jie`
 
 #     Parameters
 #     ----------
@@ -92,7 +92,7 @@ from .gNSm import gamma_ns_nf3, gamma_nsm_nf2
 
 # def B_3p(n, sx):
 #     """
-#     Parametrization of eq. 3.2 of :cite:`Davies:2016jie`.
+#     Parametrization of Eq. 3.2 of :cite:`Davies:2016jie`.
 #     This contribution is sub-leading with respect to A_3.
 #     The exact expression contains weight 5 harmonics sum not yet
 #     implemented in eko.
@@ -126,7 +126,7 @@ from .gNSm import gamma_ns_nf3, gamma_nsm_nf2
 
 def deltaB3(n, sx):
     """
-    Parametrization of eq. 3.4 of :cite:`Davies:2016jie`.
+    Implementation of Eq. 3.4 of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
@@ -182,8 +182,7 @@ def gamma_nsp_nf2(n, sx):
 
     See Also
     --------
-        A_3: :math:`A^{(3)}`
-        B_3p: :math:`B^{(3)}_{+}`
+        delta_B3: :math:`\\delta B^{(3)}`
     """
     return gamma_nsm_nf2(n, sx) - CF * (CA - 2 * CF) * deltaB3(n, sx)
 
@@ -193,7 +192,7 @@ def gamma_nsp_nf1(n, sx):
     """
     Implements the singlet-like non-singlet part proportional to :math:`nf^1`.
     The expression is the average of the Mellin transform
-    of eq. 4.12, 4.13  of :cite:`Moch:2017uml`
+    of Eq. 4.12, 4.13  of :cite:`Moch:2017uml`
 
     Parameters
     ----------
@@ -247,7 +246,7 @@ def gamma_nsp_nf0(n, sx):
     """
     Implements the singlet-like non-singlet part proportional to :math:`nf^0`.
     The expression is the average of the Mellin transform
-    of eq. 4.12, 4.13  of :cite:`Moch:2017uml`
+    of Eq. 4.12, 4.13  of :cite:`Moch:2017uml`
 
     Parameters
     ----------

@@ -11,7 +11,7 @@ from .gNSm import gamma_nsm
 def gamma_nss_nf2(n, sx):
     """
     Implements the sea non-singlet part proportional to :math:`nf^2`
-    as in eq. 3.5 of :cite:`Davies:2016jie`.
+    as in Eq. 3.5 of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
@@ -168,7 +168,7 @@ def gamma_nss_nf1(n, sx):
     """
     Implements the sea non-singlet part proportional to :math:`nf^1`.
     The expression is the average of the Mellin transform
-    of eq. 4.19, 4.20 of :cite:`Moch:2017uml`
+    of Eq. 4.19, 4.20 of :cite:`Moch:2017uml`
 
     Parameters
     ----------
