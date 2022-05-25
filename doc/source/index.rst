@@ -23,7 +23,7 @@ EKO is ...
     :hidden:
 
     overview/features
-    overview/examples
+    overview/tutorials/index
     overview/indices
 
 .. toctree::

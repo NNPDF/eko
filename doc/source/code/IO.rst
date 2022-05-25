@@ -12,6 +12,25 @@ The input is split into two runcard
   and environment
 - a operator runcard that defines the numerical setup and the requested operators
 
+.. list-table:: theory input runcard
+  :header-rows: 1
+
+  * - Name
+    - Type
+    - default
+    - description
+  * - ``PTO``
+    - :py:obj:`int`
+    - [required]
+    - order of perturbation theory: ``0`` = LO, ...
+  * - ``alphas``
+    - :py:obj:`float`
+    - [required]
+    - reference value of the strong coupling :math:`\alpha_s(\mu_0^2)` (Note that we have to use
+      :math:`\alpha_s(\mu_0^2)` here, instead of :math:`a_s(\mu_0^2)` for legacy reasons)
+
+- :py:obj:`list(float)` ``Q2grid`` the target grid in :math:`Q^2`; **Required**
+
 
 Output
 ------
