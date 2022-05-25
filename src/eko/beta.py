@@ -8,10 +8,10 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 import numba as nb
 
 from . import constants
-from .anomalous_dimensions.harmonics import zeta3
+from .harmonics.constants import zeta3
 
 
-@nb.njit("f8(u1)", cache=True)
+@nb.njit(cache=True)
 def beta_0(nf):
     """
     Computes the first coefficient of the QCD beta function.
@@ -32,7 +32,7 @@ def beta_0(nf):
     return beta_0
 
 
-@nb.njit("f8(u1)", cache=True)
+@nb.njit(cache=True)
 def beta_1(nf):
     """
     Computes the second coefficient of the QCD beta function.
@@ -57,7 +57,7 @@ def beta_1(nf):
     return beta_1
 
 
-@nb.njit("f8(u1)", cache=True)
+@nb.njit(cache=True)
 def beta_2(nf):
     """
     Computes the third coefficient of the QCD beta function
@@ -86,7 +86,7 @@ def beta_2(nf):
     return beta_2
 
 
-@nb.njit("f8(u1)", cache=True)
+@nb.njit(cache=True)
 def beta_3(nf):
     """
     Computes the fourth coefficient of the QCD beta function
@@ -113,7 +113,7 @@ def beta_3(nf):
     return beta_3
 
 
-@nb.njit("f8(u1,u1)", cache=True)
+@nb.njit(cache=True)
 def beta(k, nf):
     """
     Compute value of a beta coefficients
@@ -144,7 +144,7 @@ def beta(k, nf):
     return beta_
 
 
-@nb.njit("f8(u1,u1)", cache=True)
+@nb.njit(cache=True)
 def b(k, nf):
     """
     Compute b coefficient.

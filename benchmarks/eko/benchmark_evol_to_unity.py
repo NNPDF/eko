@@ -2,6 +2,7 @@
 import numpy as np
 import pytest
 
+from eko import basis_rotation as br
 from eko.evolution_operator import Operator
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
@@ -48,6 +49,7 @@ class BenchmarkBackwardForward:
         "ev_op_max_order": 1,
         "ev_op_iterations": 1,
         "backward_inversion": "exact",
+        "n_integration_cores": 1,
     }
     g = OperatorGrid.from_dict(
         theory_card,
@@ -76,38 +78,47 @@ class BenchmarkBackwardForward:
         o.compute()
         o_back.compute()
 
-        dim = o_back.op_members["NS_v"].value.shape
-        for k in ["NS_v", "NS_m", "NS_p"]:
+        dim = o_back.op_members[(br.non_singlet_pids_map["nsV"], 0)].value.shape
+        for k in ["nsV", "ns-", "ns+"]:
             np.testing.assert_allclose(
-                o.op_members[k].value @ o_back.op_members[k].value,
+                o.op_members[(br.non_singlet_pids_map[k], 0)].value
+                @ o_back.op_members[(br.non_singlet_pids_map[k], 0)].value,
                 np.eye(dim[0]),
                 atol=7e-2,
             )
         # qq
         np.testing.assert_allclose(
-            o_back.op_members["S_qq"].value @ o.op_members["S_qq"].value
-            + o_back.op_members["S_qg"].value @ o.op_members["S_gq"].value,
+            o_back.op_members[(100, 100)].value @ o.op_members[(100, 100)].value
+            + o_back.op_members[(100, 21)].value @ o.op_members[(21, 100)].value,
             np.eye(dim[0]),
             atol=7e-2,
         )
         # qg
         np.testing.assert_allclose(
-            o_back.op_members["S_qq"].value @ o.op_members["S_qg"].value
-            + o_back.op_members["S_qg"].value @ o.op_members["S_gg"].value,
+            o_back.op_members[(100, 100)].value @ o.op_members[(100, 21)].value
+            + o_back.op_members[(100, 21)].value @ o.op_members[(21, 21)].value,
             np.zeros(dim),
             atol=7e-4,
         )
-        # gg
+        # gg, check last two rows separately
+        gg_id = (
+            o_back.op_members[(21, 21)].value @ o.op_members[(21, 21)].value
+            + o_back.op_members[(21, 100)].value @ o.op_members[(100, 21)].value
+        )
         np.testing.assert_allclose(
-            o_back.op_members["S_gg"].value @ o.op_members["S_gg"].value
-            + o_back.op_members["S_gq"].value @ o.op_members["S_qg"].value,
-            np.eye(dim[0]),
-            atol=9e-2,
+            gg_id[:-2],
+            np.eye(dim[0])[:-2],
+            atol=3e-2,
+        )
+        np.testing.assert_allclose(
+            gg_id[-2:],
+            np.eye(dim[0])[-2:],
+            atol=11.2e-2,
         )
         # gq
         np.testing.assert_allclose(
-            o_back.op_members["S_gg"].value @ o.op_members["S_gq"].value
-            + o_back.op_members["S_gq"].value @ o.op_members["S_qq"].value,
+            o_back.op_members[(21, 21)].value @ o.op_members[(21, 100)].value
+            + o_back.op_members[(21, 100)].value @ o.op_members[(100, 100)].value,
             np.zeros(dim),
             atol=2e-3,
         )
@@ -124,14 +135,14 @@ class BenchmarkBackwardForward:
     #     ome.compute( q2, L)
     #     ome_back.compute(q2, L)
 
-    #     dim = ome.ome_members["S_qq"].value.shape
+    #     dim = ome.op_members[(100, 100)].value.shape
     #     ome_tensor = np.zeros((3,3,dim[0],dim[0]))
     #     ome_tensor_back = ome_tensor
     #     idx_dict = dict(zip(["g", "q", "H"],[0,1,2]))
     #     for p1, j in idx_dict.items():
     #         for p2, k in idx_dict.items():
-    #             ome_tensor[j,k] = ome.ome_members[f"S_{p1}{p2}"].value
-    #             ome_tensor_back[j,k] = ome_back.ome_members[f"S_{p1}{p2}"].value
+    #             ome_tensor[j,k] = ome.op_members[f"S_{p1}{p2}"].value
+    #             ome_tensor_back[j,k] = ome_back.op_members[f"S_{p1}{p2}"].value
 
     #     ome_product = np.einsum("abjk,bckl -> acjl", ome_tensor_back, ome_tensor)
     #     for j, line in enumerate(ome_product):

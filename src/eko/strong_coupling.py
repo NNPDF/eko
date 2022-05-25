@@ -23,7 +23,7 @@ def strong_coupling_mod_ev(mod_ev):
     """Map ModEv key to the available strong coupling evolution methods"""
     if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
         return "exact"
-    elif mod_ev in [
+    if mod_ev in [
         "TRN",
         "truncated",
         "ordered-truncated",
@@ -36,7 +36,7 @@ def strong_coupling_mod_ev(mod_ev):
     raise ValueError(f"Unknown evolution mode {mod_ev}")
 
 
-@nb.njit("f8(u1,f8,u1,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def as_expanded(order, as_ref, nf, scale_from, scale_to):
     """
     Compute expanded expression.
@@ -153,7 +153,7 @@ class StrongCoupling:
             masses : list(float)
                 list with quark masses squared
             thresholds_ratios : list(float)
-                list with ratios between the mass and the thresholds squared
+                list with ratios between the mass and the matching scales squared
             order: int
                 Evaluated order of the beta function: ``0`` = LO, ...
             method : ["expanded", "exact"]

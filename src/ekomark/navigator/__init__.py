@@ -8,7 +8,7 @@ import pathlib
 from banana import cfg as banana_cfg
 from banana import navigator as bnav
 
-from . import navigator, glob
+from . import glob, navigator
 
 
 def yelp(*args):
@@ -49,11 +49,9 @@ def register_globals(configpath):
     bnav.register_globals(glob.glob, glob.app)
 
     # add my functions
-    glob.glob["dfl"] = app.log_as_dfd
     glob.glob["check_log"] = app.check_log
     glob.glob["plot_pdfs"] = app.plot_pdfs
     glob.glob["display_pdfs"] = app.display_pdfs
-    glob.glob["compare"] = app.compare_external
 
 
 def launch_navigator():

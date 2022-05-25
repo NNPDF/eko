@@ -29,10 +29,6 @@ The input is split into two runcard
     - reference value of the strong coupling :math:`\alpha_s(\mu_0^2)` (Note that we have to use
       :math:`\alpha_s(\mu_0^2)` here, instead of :math:`a_s(\mu_0^2)` for legacy reasons)
 
-.. include:: IO-tabs/ThresholdConfig.rst
-
-.. include:: IO-tabs/InterpolatorDispatcher.rst
-
 - :py:obj:`list(float)` ``Q2grid`` the target grid in :math:`Q^2`; **Required**
 
 

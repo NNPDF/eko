@@ -126,6 +126,7 @@ class OperatorGrid:
         config["ev_op_iterations"] = operators_card["ev_op_iterations"]
         config["debug_skip_singlet"] = operators_card["debug_skip_singlet"]
         config["debug_skip_non_singlet"] = operators_card["debug_skip_non_singlet"]
+        config["n_integration_cores"] = operators_card["n_integration_cores"]
         config["HQ"] = theory_card["HQ"]
         config["ModSV"] = theory_card["ModSV"]
         q2_grid = np.array(operators_card["Q2grid"], np.float_)
@@ -170,7 +171,17 @@ class OperatorGrid:
         shift = flavor_shift(is_downward)
         for seg in path[:-1]:
             new_op_key = seg.tuple
-            ome = OperatorMatrixElement(self.config, self.managers, is_downward)
+            thr_config = self.managers["thresholds_config"]
+            kthr = thr_config.thresholds_ratios[seg.nf - shift]
+            ome = OperatorMatrixElement(
+                self.config,
+                self.managers,
+                seg.nf - shift + 3,
+                seg.q2_to,
+                is_downward,
+                np.log(kthr),
+                self.config["HQ"] == "MSBAR",
+            )
             if new_op_key not in self._threshold_operators:
                 # Compute the operator and store it
                 logger.info("Prepare threshold operator")
@@ -183,15 +194,8 @@ class OperatorGrid:
 
             # Compute the matching conditions and store it
             if seg.q2_to not in self._matching_operators:
-                thr_config = self.managers["thresholds_config"]
-                kthr = thr_config.thresholds_ratios[seg.nf - shift]
-                ome.compute(
-                    seg.q2_to,
-                    seg.nf - shift + 3,
-                    np.log(kthr),
-                    self.config["HQ"] == "MSBAR",
-                )
-                self._matching_operators[seg.q2_to] = ome.ome_members
+                ome.compute()
+                self._matching_operators[seg.q2_to] = ome.op_members
         return thr_ops
 
     def compute(self, q2grid=None):

@@ -22,7 +22,7 @@ import numba as nb
 import numpy as np
 
 
-@nb.njit("c16(f8,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def Talbot_path(t, r, o):
     r"""
     Talbot path.
@@ -56,7 +56,7 @@ def Talbot_path(t, r, o):
     return o + r * complex(re, im)
 
 
-@nb.njit("c16(f8,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def Talbot_jac(t, r, o):  # pylint: disable=unused-argument
     r"""
     Derivative of Talbot path.
@@ -90,7 +90,7 @@ def Talbot_jac(t, r, o):  # pylint: disable=unused-argument
     return r * np.pi * 2.0 * complex(re, im)
 
 
-@nb.njit("c16(f8,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def line_path(t, m, c):
     r"""
     Textbook path, i.e. a straight line parallel to the imaginary axis.
@@ -115,7 +115,7 @@ def line_path(t, m, c):
     return complex(c, m * (2 * t - 1))
 
 
-@nb.njit("c16(f8,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def line_jac(_t, m, _c):
     r"""
     Derivative of Textbook path.
@@ -140,7 +140,7 @@ def line_jac(_t, m, _c):
     return complex(0, m * 2)
 
 
-@nb.njit("c16(f8,f8,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def edge_path(t, m, c, phi):
     r"""
     Edged path with a given angle.
@@ -169,7 +169,7 @@ def edge_path(t, m, c, phi):
     return c + (t - 0.5) * m * np.exp(complex(0, +phi))
 
 
-@nb.njit("c16(f8,f8,f8,f8)", cache=True)
+@nb.njit(cache=True)
 def edge_jac(t, m, _c, phi):
     r"""
     Derivative of edged path
@@ -222,8 +222,8 @@ class Path:
 
     def __init__(self, t, logx, axis_offset):
         self.t = t
-        # TODO: shall we use: 0.4 * 16.0 / (1.0 - logx) ?
-        self.r = 0.4 * 16.0 / (-logx)
+        # TODO: shall we use: 0.4 * 16.0 / ( - logx) ?
+        self.r = 0.4 * 16.0 / (1.0 - logx)
         if axis_offset:
             self.o = 1.0
         else:

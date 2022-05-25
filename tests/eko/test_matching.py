@@ -3,6 +3,7 @@
 import numpy as np
 from numpy.testing import assert_almost_equal
 
+from eko import basis_rotation as br
 from eko import member
 from eko.matching_conditions import MatchingCondition
 
@@ -17,17 +18,25 @@ class TestMatchingCondition:
 
     def mkOME(self):
         ome = {}
-        for key in ["qq", "qg", "gq", "gg", "Hq", "Hg"]:
-            ome.update({f"S_{key}": mkOM(self.shape)})
-            if "g" not in key:
-                ome.update({f"NS_{key}": mkOM(self.shape)})
+        for key in [
+            *br.singlet_labels,
+            (br.matching_hplus_pid, 100),
+            (br.matching_hplus_pid, 21),
+            (200, 200),
+            (br.matching_hminus_pid, 200),
+        ]:
+            ome.update({key: mkOM(self.shape)})
         return ome
 
     def update_intrinsic_OME(self, ome):
-        for key in ["HH", "qH", "gH"]:
-            ome.update({f"S_{key}": mkOM(self.shape)})
-            if "g" not in key:
-                ome.update({f"NS_{key}": mkOM(self.shape)})
+        for key in [
+            (br.matching_hplus_pid, br.matching_hplus_pid),
+            (br.matching_hminus_pid, br.matching_hminus_pid),
+            (200, br.matching_hminus_pid),
+            (100, br.matching_hplus_pid),
+            (21, br.matching_hplus_pid),
+        ]:
+            ome.update({key: mkOM(self.shape)})
 
     def test_split_ad_to_evol_map(self):
         ome = self.mkOME()
@@ -47,14 +56,14 @@ class TestMatchingCondition:
         keys3 = [
             "c+.S",
             "c+.g",
-            "c-.V",
+            # "c-.V",
         ]
         assert sorted(str(k) for k in a.op_members.keys()) == sorted(
             [*triv_keys, *keys3]
         )
         assert_almost_equal(
             a.op_members[member.MemberName("V.V")].value,
-            ome["NS_qq"].value,
+            ome[(200, 200)].value,
         )
         # # if alpha is zero, nothing non-trivial should happen
         b = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [])
@@ -69,7 +78,7 @@ class TestMatchingCondition:
         self.update_intrinsic_OME(ome)
         c = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [4])
         assert sorted(str(k) for k in c.op_members.keys()) == sorted(
-            [*triv_keys, *keys3, "g.c+", "c+.c+", "c-.c-"]
+            [*triv_keys, *keys3, "S.c+", "g.c+", "c+.c+", "c-.c-"]
         )
         assert_almost_equal(
             c.op_members[member.MemberName("V.V")].value,
@@ -91,13 +100,13 @@ class TestMatchingCondition:
                 *triv_keys,
                 "T15.T15",
                 "V15.V15",
-                # "S.b+",
+                "S.b+",
                 "g.b+",
                 # "V.b-",
                 "b+.S",
                 "b+.g",
                 "b+.b+",
-                "b-.V",
+                # "b-.V",
                 "b-.b-",
             ]
         )
@@ -105,15 +114,15 @@ class TestMatchingCondition:
             d.op_members[member.MemberName("V.V")].value,
             a.op_members[member.MemberName("V.V")].value,
         )
-        assert_almost_equal(
-            d.op_members[member.MemberName("b-.V")].value,
-            ome["NS_Hq"].value,
-        )
+        # assert_almost_equal(
+        #     d.op_members[member.MemberName("b-.V")].value,
+        #     ome[(br.matching_hminus_pid, 200)].value,
+        # )
         assert_almost_equal(
             d.op_members[member.MemberName("b+.S")].value,
-            ome["S_Hq"].value,
+            ome[(br.matching_hplus_pid, 100)].value,
         )
         assert_almost_equal(
             d.op_members[member.MemberName("b+.g")].value,
-            ome["S_Hg"].value,
+            ome[(br.matching_hplus_pid, 21)].value,
         )

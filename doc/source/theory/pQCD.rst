@@ -76,11 +76,57 @@ where :math:`\mathbf{\tilde{P}}` are the usual |QCD| splitting kernels defined i
 while :math:`\mathbf{\bar{P}}` are given by
 
 .. math ::
-    \mathbf{\bar{P}} = \alpha \mathbf{P}^{(0,1)} + \alpha_s \alpha \mathbf{P}^{(1,1)} +
-    \alpha^2 \mathbf{P}^{(0,2)} + \dots
+    \mathbf{\bar{P}} = a \mathbf{P}^{(0,1)} + a_s a \mathbf{P}^{(1,1)} +
+   a^2 \mathbf{P}^{(0,2)} + \dots
 
+where :math:`a = \alpha/(4\pi)`.
 The expression of the pure |QED| and of the mixed |QED| :math:`\otimes` |QCD| splitting kernels are given in
 :cite:`deFlorian:2015ujt,deFlorian:2016gvk`
+
+Sum Rules
+---------
+
+The Altarelli-Parisi Splitting functions have to satisfy certain sum rules. In fact |QED| :math:`\otimes` |QCD|
+interactions preserve fermion number, therefore
+
+.. math ::
+    \int_0^1dx P_{ns,q}^-(x)=0
+
+Moreover, the conservation of the proton's momentum implies that
+
+.. math ::
+    \int_0^1dx x (2n_dP_{dg}(x)+2n_uP_{ug}(x)+P_{\gamma g}(x)+P_{gg}(x))=0
+
+.. math ::
+    \int_0^1dx x (2n_dP_{d\gamma}(x)+2n_uP_{u\gamma}(x)+P_{\gamma \gamma}(x)+P_{g\gamma}(x))=0
+
+.. math ::
+    \int_0^1dx x \Bigl(\sum_{q_i=q,\bar{q}} P_{q_iq_j}(x)+P_{\gamma q_j}(x)+P_{gq_j}(x)\Bigr)=0
+
+The reason why multiple conservation equations follow from a single conserved
+quantity (i.e. proton's momentum) is that one is free to choose a border
+condition in which there is only one parton, e.g. the gluon, and the momentum
+should be preserved.
+This is just a simple way to consider that anomalous dimensions are actually
+operators, and the conservation thus apply element by element in the first
+dimension (summing over the second one only).
+
+Using the definition of anomalous dimensions the sum rules are written as:
+
+.. math ::
+    \gamma_{ns}^-(N=1)=0
+
+.. math ::
+    \bigl(2n_d\gamma_{dg}+2n_u\gamma_{ug}+\gamma_{\gamma g}+\gamma_{gg}\bigr)(N=2)=0
+
+.. math ::
+    \bigl(2n_d \gamma_{d\gamma}+2n_u \gamma_{u\gamma}+ \gamma_{\gamma \gamma}+ \gamma_{g\gamma})(N=2)=0
+
+.. math ::
+    \Bigl(\gamma_{ns,q}^+ +2n_u\gamma^S_{uq}+2n_d\gamma^S_{dq} + \gamma_{\gamma q}+\gamma_{gq}\Bigr)(N=2)=0
+
+that must be satisfied order by order in perturbation theory.
+
 
 Scale Variations
 ----------------
@@ -261,7 +307,7 @@ is necessary to always start computing the mass scales closer to :math:`\mu_{ref
 Eventually, to ensure that the threshold values are properly set, we add a
 consistency check, asserting that the :math:`m_{\overline{MS},h}` are properly sorted.
 
-Note that also for |MSbar| mass running when the heavy threshold scales are
+Note that also for |MSbar| mass running when the heavy matching scales are
 crossed we need to apply non trivial matching from order
 :math:`\mathcal{O}(a_s^2)` as described here :cite:`Liu:2015fxa`.
 
@@ -278,7 +324,7 @@ then the heavy quarks initial conditions must satisfy:
 and EKO will start solving the equation :math:`m_{\overline{MS},h}(m_h^2) = m_h`
 in the order :math:`h={t,b,c}`.
 
-Since the charm mass will be computed only when both the top and bottom threshold scales
+Since the charm mass will be computed only when both the top and bottom matching scales
 are known, the boundary condition :math:`m_c(\mu_{c})` can be evolved safely below
 the scale :math:`m_{\overline{MS},b}` where the solution of
 :math:`m_{\overline{MS},c}(m_c^2) = m_c` is sitting.

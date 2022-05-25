@@ -20,10 +20,12 @@ terms of the anomalous dimensions (note the additional sign!)
 import numba as nb
 import numpy as np
 
-from . import harmonics, lo, nlo, nnlo
+from .. import basis_rotation as br
+from .. import harmonics
+from . import aem1, aem2, as1, as1aem1, as2, as3
 
 
-@nb.njit("Tuple((c16[:,:],c16,c16,c16[:,:],c16[:,:]))(c16[:,:])", cache=True)
+@nb.njit(cache=True)
 def exp_singlet(gamma_S):
     r"""
     Computes the exponential and the eigensystem of the singlet anomalous dimension matrix
@@ -52,9 +54,9 @@ def exp_singlet(gamma_S):
 
     See Also
     --------
-        eko.anomalous_dimensions.lo.gamma_singlet_0 : :math:`\gamma_{S}^{(0)}(N)`
-        eko.anomalous_dimensions.nlo.gamma_singlet_1 : :math:`\gamma_{S}^{(1)}(N)`
-        eko.anomalous_dimensions.nnlo.gamma_singlet_2 : :math:`\gamma_{S}^{(2)}(N)`
+        eko.anomalous_dimensions.as1.gamma_singlet : :math:`\gamma_{S}^{(0)}(N)`
+        eko.anomalous_dimensions.as2.gamma_singlet : :math:`\gamma_{S}^{(1)}(N)`
+        eko.anomalous_dimensions.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
     """
     # compute eigenvalues
     det = np.sqrt(
@@ -71,7 +73,7 @@ def exp_singlet(gamma_S):
     return exp, lambda_p, lambda_m, e_p, e_m
 
 
-@nb.njit("c16[:](u1,string,c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_ns(order, mode, n, nf):
     r"""
     Computes the tower of the non-singlet anomalous dimensions
@@ -80,7 +82,7 @@ def gamma_ns(order, mode, n, nf):
     ----------
         order : int
             perturbative order
-        mode : "m" | "p" | "v"
+        mode : 10201 | 10101 | 10200
             sector identifier
         n : complex
             Mellin variable
@@ -94,42 +96,41 @@ def gamma_ns(order, mode, n, nf):
 
     See Also
     --------
-        eko.anomalous_dimensions.lo.gamma_ns_0 : :math:`\gamma_{ns}^{(0)}(N)`
-        eko.anomalous_dimensions.nlo.gamma_nsp_1 : :math:`\gamma_{ns,+}^{(1)}(N)`
-        eko.anomalous_dimensions.nlo.gamma_nsm_1 : :math:`\gamma_{ns,-}^{(1)}(N)`
-        eko.anomalous_dimensions.nnlo.gamma_nsp_2 : :math:`\gamma_{ns,+}^{(2)}(N)`
-        eko.anomalous_dimensions.nnlo.gamma_nsm_2 : :math:`\gamma_{ns,-}^{(2)}(N)`
-        eko.anomalous_dimensions.nnlo.gamma_nsv_2 : :math:`\gamma_{ns,v}^{(2)}(N)`
+        eko.anomalous_dimensions.as1.gamma_ns : :math:`\gamma_{ns}^{(0)}(N)`
+        eko.anomalous_dimensions.as2.gamma_nsp : :math:`\gamma_{ns,+}^{(1)}(N)`
+        eko.anomalous_dimensions.as2.gamma_nsm : :math:`\gamma_{ns,-}^{(1)}(N)`
+        eko.anomalous_dimensions.as3.gamma_nsp : :math:`\gamma_{ns,+}^{(2)}(N)`
+        eko.anomalous_dimensions.as3.gamma_nsm : :math:`\gamma_{ns,-}^{(2)}(N)`
+        eko.anomalous_dimensions.as3.gamma_nsv : :math:`\gamma_{ns,v}^{(2)}(N)`
     """
     # cache the s-es
-    sx = np.full(1, harmonics.harmonic_S1(n))
+    sx = harmonics.sx(n, max_weight=order + 1)
     # now combine
     gamma_ns = np.zeros(order + 1, np.complex_)
-    gamma_ns[0] = lo.gamma_ns_0(n, sx[0])
+    gamma_ns[0] = as1.gamma_ns(n, sx[0])
     # NLO and beyond
     if order >= 1:
-        # TODO: pass the necessary harmonics to nlo gammas
-        if mode == "p":
-            gamma_ns_1 = nlo.gamma_nsp_1(n, nf)
+        if mode == 10101:
+            gamma_ns_1 = as2.gamma_nsp(n, nf, sx)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
-        elif mode in ["m", "v"]:
-            gamma_ns_1 = nlo.gamma_nsm_1(n, nf)
+        elif mode in [10201, 10200]:
+            gamma_ns_1 = as2.gamma_nsm(n, nf, sx)
+        else:
+            raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond
     if order >= 2:
-        sx = np.append(sx, harmonics.harmonic_S2(n))
-        sx = np.append(sx, harmonics.harmonic_S3(n))
-        if mode == "p":
-            gamma_ns_2 = -nnlo.gamma_nsp_2(n, nf, sx)
-        elif mode == "m":
-            gamma_ns_2 = -nnlo.gamma_nsm_2(n, nf, sx)
-        elif mode == "v":
-            gamma_ns_2 = -nnlo.gamma_nsv_2(n, nf, sx)
+        if mode == 10101:
+            gamma_ns_2 = -as3.gamma_nsp(n, nf, sx)
+        elif mode == 10201:
+            gamma_ns_2 = -as3.gamma_nsm(n, nf, sx)
+        elif mode == 10200:
+            gamma_ns_2 = -as3.gamma_nsv(n, nf, sx)
         gamma_ns[2] = gamma_ns_2
     return gamma_ns
 
 
-@nb.njit("c16[:,:,:](u1,c16,u1)", cache=True)
+@nb.njit(cache=True)
 def gamma_singlet(order, n, nf):
     r"""
     Computes the tower of the singlet anomalous dimensions matrices
@@ -150,21 +151,17 @@ def gamma_singlet(order, n, nf):
 
     See Also
     --------
-        eko.anomalous_dimensions.lo.gamma_singlet_0 : :math:`\gamma_{S}^{(0)}(N)`
-        eko.anomalous_dimensions.nlo.gamma_singlet_1 : :math:`\gamma_{S}^{(1)}(N)`
-        eko.anomalous_dimensions.nnlo.gamma_singlet_2 : :math:`\gamma_{S}^{(2)}(N)`
+        eko.anomalous_dimensions.as1.gamma_singlet : :math:`\gamma_{S}^{(0)}(N)`
+        eko.anomalous_dimensions.as2.gamma_singlet : :math:`\gamma_{S}^{(1)}(N)`
+        eko.anomalous_dimensions.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
     """
     # cache the s-es
-    sx = np.full(1, harmonics.harmonic_S1(n))
+    sx = harmonics.sx(n, max_weight=order + 1)
+    gamma_s = np.zeros((order + 1, 2, 2), np.complex_)
+    gamma_s[0] = as1.gamma_singlet(n, sx[0], nf)
     if order >= 1:
-        sx = np.append(sx, harmonics.harmonic_S2(n))
-        sx = np.append(sx, harmonics.harmonic_S3(n))
-
-    gamma_singlet = np.zeros((order + 1, 2, 2), np.complex_)
-    gamma_singlet[0] = lo.gamma_singlet_0(n, sx[0], nf)
-    if order >= 1:
-        gamma_singlet[1] = nlo.gamma_singlet_1(n, nf)
+        gamma_s[1] = as2.gamma_singlet(n, nf, sx)
     if order == 2:
-        sx = np.append(sx, harmonics.harmonic_S4(n))
-        gamma_singlet[2] = -nnlo.gamma_singlet_2(n, nf, sx)
-    return gamma_singlet
+        sx = np.append(sx, harmonics.S4(n))
+        gamma_s[2] = -as3.gamma_singlet(n, nf, sx)
+    return gamma_s

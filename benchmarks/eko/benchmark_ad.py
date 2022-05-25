@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-import eko.anomalous_dimensions.harmonics as h
-import eko.anomalous_dimensions.nlo as ad_nlo
+import eko.anomalous_dimensions.as2 as ad_as2
+import eko.harmonics as h
 from eko.constants import CA, CF, TR
 
 
@@ -15,7 +15,7 @@ def benchmark_melling_g3_pegasus():
 
 
 def check_melling_g3_pegasus(N):
-    S1 = h.harmonic_S1(N)
+    S1 = h.S1(N)
     N1 = N + 1.0
     N2 = N + 2.0
     N3 = N + 3.0
@@ -28,7 +28,7 @@ def check_melling_g3_pegasus(N):
     S14 = S13 + 1.0 / N4
     S15 = S14 + 1.0 / N5
     S16 = S15 + 1.0 / N6
-    zeta2 = h.zeta2
+    zeta2 = h.constants.zeta2
 
     SPMOM = (
         1.0000 * (zeta2 - S1 / N) / N
@@ -39,7 +39,7 @@ def check_melling_g3_pegasus(N):
         - 0.3174 * (zeta2 - S15 / N5) / N5
         + 0.0699 * (zeta2 - S16 / N6) / N6
     )
-    np.testing.assert_allclose(h.mellin_g3(N), SPMOM)
+    np.testing.assert_allclose(h.g_functions.mellin_g3(N, S1), SPMOM)
 
 
 @pytest.mark.isolated
@@ -52,12 +52,12 @@ def benchmark_gamma_ns_1_pegasus():
 
 def check_gamma_1_pegasus(N, NF):
     # Test against pegasus implementation
-    ZETA2 = h.zeta2
-    ZETA3 = h.zeta3
+    ZETA2 = h.constants.zeta2
+    ZETA3 = h.constants.zeta3
 
     # N = np.random.rand(1) + np.random.rand(1) * 1j
-    S1 = h.harmonic_S1(N)
-    S2 = h.harmonic_S2(N)
+    S1 = h.S1(N)
+    S2 = h.S2(N)
 
     N1 = N + 1.0
     N2 = N + 2.0
@@ -87,16 +87,18 @@ def check_gamma_1_pegasus(N, NF):
     )
     SLC = -5.0 / 8.0 * ZETA3
     SLV = (
-        -ZETA2 / 2.0 * (h.cern_polygamma(N1 / 2, 0) - h.cern_polygamma(N / 2, 0))
+        -ZETA2
+        / 2.0
+        * (h.polygamma.cern_polygamma(N1 / 2, 0) - h.polygamma.cern_polygamma(N / 2, 0))
         + S1 / NS
         + SPMOM
     )
     SSCHLM = SLC - SLV
-    SSTR2M = ZETA2 - h.cern_polygamma(N1 / 2, 1)
-    SSTR3M = 0.5 * h.cern_polygamma(N1 / 2, 2) + ZETA3
+    SSTR2M = ZETA2 - h.polygamma.cern_polygamma(N1 / 2, 1)
+    SSTR3M = 0.5 * h.polygamma.cern_polygamma(N1 / 2, 2) + ZETA3
     SSCHLP = SLC + SLV
-    SSTR2P = ZETA2 - h.cern_polygamma(N2 / 2, 1)
-    SSTR3P = 0.5 * h.cern_polygamma(N2 / 2, 2) + ZETA3
+    SSTR2P = ZETA2 - h.polygamma.cern_polygamma(N2 / 2, 1)
+    SSTR3P = 0.5 * h.polygamma.cern_polygamma(N2 / 2, 2) + ZETA3
 
     PNMA = (
         16.0 * S1 * (2.0 * N + 1.0) / (NS * N1S)
@@ -136,8 +138,9 @@ def check_gamma_1_pegasus(N, NF):
     P1NSP = CF * ((CF - CA / 2.0) * PNPA + CA * PNSB + TR * NF * PNSC)
     P1NSM = CF * ((CF - CA / 2.0) * PNMA + CA * PNSB + TR * NF * PNSC)
 
-    np.testing.assert_allclose(ad_nlo.gamma_nsp_1(N, NF), -P1NSP)
-    np.testing.assert_allclose(ad_nlo.gamma_nsm_1(N, NF), -P1NSM)
+    sx = h.sx(N, 2)
+    np.testing.assert_allclose(ad_as2.gamma_nsp(N, NF, sx), -P1NSP)
+    np.testing.assert_allclose(ad_as2.gamma_nsm(N, NF, sx), -P1NSM)
 
     NS = N * N
     NT = NS * N
@@ -254,7 +257,7 @@ def check_gamma_1_pegasus(N, NF):
     P1Sgq = (CF * CF * PGQA + CF * CA * PGQB + TR * NF * CF * PGQC) * 4.0
     P1Sgg = (CA * CA * PGGA + TR * NF * (CA * PGGB + CF * PGGC)) * 4.0
 
-    gS1 = ad_nlo.gamma_singlet_1(N, NF)
+    gS1 = ad_as2.gamma_singlet(N, NF, sx)
     np.testing.assert_allclose(gS1[0, 0], -P1Sqq)
     np.testing.assert_allclose(gS1[0, 1], -P1Sqg)
     np.testing.assert_allclose(gS1[1, 0], -P1Sgq)

@@ -44,7 +44,7 @@ class PathSegment:
 
 class ThresholdsAtlas:
     r"""
-    Holds information about the thresholds any Q2 has to pass in order to get
+    Holds information about the matching scales any Q2 has to pass in order to get
     there from a given q2_ref.
 
     Parameters
@@ -56,7 +56,7 @@ class ThresholdsAtlas:
         nf_ref: int
             number of active flavors at the reference scale
         thresholds_ratios: list(float)
-            list of ratios between masses and matching thresholds squared
+            list of ratios between masses and matching scales squared
         max_nf: int
             maximum number of active flavors
     """

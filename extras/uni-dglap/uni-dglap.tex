@@ -1,0 +1,174 @@
+\documentclass[a4paper,oneside]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+
+%\usepackage[a4paper,top=3cm,bottom=3cm,left=3cm,right=3cm]{geometry}
+\usepackage[a4paper,top=1.5cm,bottom=1.5cm,left=1.5cm,right=1.5cm]{geometry}
+
+
+\title{}
+\author{}
+
+\date{}
+
+\begin{document}
+
+%\maketitle
+Defining
+\begin{align*}
+\Sigma_u&=\sum_{k=1}^{n_u}u_k^+,  \quad \Sigma_d=\sum_{k=1}^{n_d}d_k^+ \\
+V_u&=\sum_{k=1}^{n_u}u_k^-, \quad V_d=\sum_{k=1}^{n_d}d_k^-
+\end{align*}
+
+our basis is
+\begin{align*}
+g & \\
+\gamma & \\
+\Sigma &= \Sigma_u + \Sigma_d \\
+\Delta_\Sigma & = \frac{n_d}{n_u}\Sigma_u - \Sigma_d \\
+V & = V_u + V_d \\
+\Delta_V & = \frac{n_d}{n_u}V_u - V_d \\
+T_3^d &=d^+ - s^+ \\
+V_3^d &=d^- - s^- \\
+T_3^u &=u^+ - c^+ \\
+V_3^u &=u^- - c^- \\
+T_8^d &=d^+ + s^+ - 2b^+ \\
+V_8^d &=d^- + s^- - 2b^- \\
+T_8^u &=u^+ + c^+ - 2t^+ \\
+V_8^u &=u^- + c^- - 2t^-
+\end{align*}
+The unified splitting functions can be split as
+\begin{equation*}
+P^{uni}_{ij} = P_{ij}+\tilde{P}_{ij}
+\end{equation*}
+where $P_{ij}$ are the usual pure QCD splitting functions, while $\tilde{P}_{ij}$ contain the pure QED and the mixed QCD$\otimes$QED contributions, i.e.\
+\begin{equation*}
+\tilde{P}_{ij} = \alpha P^{(0,1)}_{ij} +\alpha_s \alpha P^{(1,1)}_{ij} + \alpha^2 P^{(0,2)}_{ij} + \dots
+\end{equation*}
+\begin{itemize}
+\item Singlet sector:
+
+\begin{equation*}
+\mu^2\frac{d}{d\mu^2}
+\begin{pmatrix}
+g \\
+\gamma \\
+\Sigma \\
+\Delta_\Sigma
+\end{pmatrix}
+=
+\begin{pmatrix}
+ P_{gg}+n_f \langle e^2\rangle \tilde{P}_{gg} & n_f \langle e^2\rangle \tilde{P}_{g\gamma} & P_{gq} + \langle e^2\rangle \tilde{P}_{gq} & \nu_ue^2_-\tilde{P}_{gq} \\
+ n_f \langle e^2\rangle \tilde{P}_{\gamma g} & n_f \langle e^2\rangle \tilde{P}_{\gamma \gamma} & \langle e^2\rangle \tilde{P}_{\gamma q} & \nu_ue^2_-\tilde{P}_{\gamma q} \\
+ 2n_f (P_{qg} +\langle e^2\rangle  \tilde{P}_{qg} )& 2 n_f \langle e^2\rangle  \tilde{P}_{q\gamma} & P_{qq}+ \langle e^2\rangle \Bigl(\tilde{P}_{+} + \langle e^2\rangle\tilde{P}_{ps}\Bigr)& \nu_ue^2_-\Bigl(\tilde{P}_{+}+ \langle e^2\rangle \tilde{P}_{ps} \Bigr)\\
+ 2n_f \nu_d e^2_-\tilde{P}_{qg} & 2n_f \nu_d e^2_-\tilde{P}_{q\gamma} & \nu_de^2_-\Bigl( \tilde{P}_{+} +  \langle e^2\rangle \tilde{P}_{ps} \Bigr)& P_+ +e_\Delta^2 \tilde{P}_{+} +\nu_u \nu_d (e^2_-)^2\tilde{P}_{ps}
+\end{pmatrix}
+\begin{pmatrix}
+g \\
+\gamma \\
+\Sigma \\
+\Delta_\Sigma
+\end{pmatrix}
+\end{equation*}
+with
+\begin{align*}
+ \langle e^2\rangle&=\frac{n_u e_u^2+n_d e_d^2}{n_f} \\
+e_\Delta^2&=\frac{n_u e_d^2+n_d e_u^2}{n_f} \\
+e^2_-&= e_u^2 -e_d^2 \\
+\nu_u &= \frac{n_u}{n_f}\\
+\nu_d &= \frac{n_d}{n_f}
+\end{align*}
+
+\item Valence sector:
+\begin{equation*}
+\mu^2\frac{d}{d\mu^2}
+\begin{pmatrix}
+V \\
+\Delta_V
+\end{pmatrix}
+=
+\begin{pmatrix}
+P_V+\langle e^2\rangle \tilde{P}_{-} & \nu_ue^2_-\tilde{P}_{-}\\
+ \nu_de^2_-\tilde{P}_{-}& P_-+e_\Delta^2 \tilde{P}_{-}
+\end{pmatrix}
+\begin{pmatrix}
+V \\
+\Delta_V
+\end{pmatrix}
+\end{equation*}
+\item Decoupled sector:
+\begin{align*}
+\mu^2\frac{d}{d\mu^2}T^{u/d}_{3/8} & = (P_{+} + e_{u/d}^2 \tilde{P}_{+}) T^{u/d}_{3/8} \\
+\mu^2\frac{d}{d\mu^2}V^{u/d}_{3/8} & = (P_{-} + e_{u/d}^2 \tilde{P}_{-} )V^{u/d}_{3/8}
+\end{align*}
+\end{itemize}
+
+
+Observe that starting from $\mathcal{O}(\alpha^2)$ it is no longer possible to write that $\tilde{P}_{u \gamma}=e_u^2 \tilde{P}_{q \gamma}$ where $\tilde{P}_{q \gamma}$ is independent of the flavor of the quark. For this reason even if we define the QED splitting function factorizing a factor of $e_q^2$, we are left with a dependence on the flavor of the quark, i.e.\ $\tilde{P}_{u \gamma} \rightarrow e_u^2 \tilde{P}_{u \gamma}$. Moreover, we can no longer factorize a term $n_f \langle e^2\rangle=n_u e_u^2+n_d e_d^2$ out of $\tilde{P}_{\gamma \gamma}$ since at $\mathcal{O}(\alpha^2)$ it is proportional to $n_f \langle e^4\rangle=n_u e_u^4+n_d e_d^4$. For this reason it is better to reinsert both $n_f \langle e^2\rangle$ and $n_f \langle e^4\rangle$ inside $\tilde{P}_{\gamma \gamma}^{(1,1)}$ and $\tilde{P}_{\gamma \gamma}^{(0,2)}$.
+Therefore a more general expression of the DGLAP equations is:
+\begin{itemize}
+\item Singlet sector:
+\begin{align*}
+&\mu^2\frac{d}{d\mu^2}
+\begin{pmatrix}
+g \\
+\gamma \\
+\Sigma \\
+\Delta_\Sigma
+\end{pmatrix}
+= \\
+&\begin{pmatrix}
+ P_{gg}+n_f \langle e^2\rangle \tilde{P}_{gg} & n_f \langle e^2\rangle \tilde{P}_{g\gamma} & P_{gq} + \langle e^2\rangle \tilde{P}_{gq} & \nu_ue^2_-\tilde{P}_{gq} \\
+ n_f \langle e^2\rangle \tilde{P}_{\gamma g} & \tilde{P}_{\gamma \gamma} &  \langle \tilde{P}_{\gamma q} \rangle& \nu_u \tilde{P}_{\gamma \Delta q} \\
+ 2n_f (P_{qg} +\langle e^2\rangle  \tilde{P}_{qg} )& 2 n_f  \langle \tilde{P}_{q \gamma} \rangle& P_{qq}+  \langle \tilde{P}^+_{q} \rangle+ \langle e^2\rangle^2\tilde{P}_{ps}& \nu_u\tilde{P}^+_{ \Delta q}+ \nu_ue_-^2\langle e^2\rangle \tilde{P}_{ps}\\
+ 2n_f \nu_d e^2_-\tilde{P}_{qg} & 2n_f \nu_d \tilde{P}_{\Delta q\gamma} & \nu_d\tilde{P}^+_{ \Delta q}+  \nu_d e^2_-\langle e^2\rangle \tilde{P}_{ps}& P_+ + \{ \tilde{P}^+_{q} \}+\nu_u \nu_d (e^2_-)^2\tilde{P}_{ps}
+\end{pmatrix}
+\begin{pmatrix}
+g \\
+\gamma \\
+\Sigma \\
+\Delta_\Sigma
+\end{pmatrix}
+\end{align*}
+
+\item Valence sector:
+\begin{equation*}
+\mu^2\frac{d}{d\mu^2}
+\begin{pmatrix}
+V \\
+\Delta_V
+\end{pmatrix}
+=
+\begin{pmatrix}
+P_V+\langle \tilde{P}^-_{q} \rangle & \nu_u\tilde{P}^-_{\Delta q}\\
+ \nu_d\tilde{P}^-_{\Delta q}& P_-+\{ \tilde{P}^-_{q} \}
+\end{pmatrix}
+\begin{pmatrix}
+V \\
+\Delta_V
+\end{pmatrix}
+\end{equation*}
+\item Decoupled sector:
+\begin{align*}
+\mu^2\frac{d}{d\mu^2}T^{u/d}_{3/8} & = (P_{+} + e_{u/d}^2 \tilde{P}^{+}_{u/d}) T^{u/d}_{3/8} \\
+\mu^2\frac{d}{d\mu^2}V^{u/d}_{3/8} & = (P_{-} + e_{u/d}^2 \tilde{P}^{-}_{u/d} )V^{u/d}_{3/8}
+\end{align*}
+\end{itemize}
+with
+\begin{align*}
+ \langle \tilde{P}_{\gamma q} \rangle &= \nu_u e_u^2 \tilde{P}_{\gamma u}+\nu_d e_d^2 \tilde{P}_{\gamma d} \\
+ \langle \tilde{P}_{q \gamma} \rangle &= \nu_u e_u^2 \tilde{P}_{u \gamma}+\nu_d e_d^2 \tilde{P}_{d \gamma}  \\
+ \langle \tilde{P}^+_{q} \rangle &= \nu_u e_u^2 \tilde{P}^+_{u}+\nu_d e_d^2 \tilde{P}^+_{d} \\
+ \langle \tilde{P}^-_{q} \rangle &= \nu_u e_u^2 \tilde{P}^-_{u}+\nu_d e_d^2 \tilde{P}^-_{d} \\
+ \{ \tilde{P}^+_{q} \}&= \nu_d e_u^2 \tilde{P}^+_{u}+\nu_u e_d^2 \tilde{P}^+_{d} \\ %awful notation
+ \{ \tilde{P}^-_{q} \}&= \nu_d e_u^2 \tilde{P}^-_{u}+\nu_u e_d^2 \tilde{P}^-_{d} \\ %awful notation
+ \tilde{P}_{\gamma \Delta q}&=e_u^2 \tilde{P}_{\gamma u}-e_d^2 \tilde{P}_{\gamma d} \\
+ \tilde{P}_{\Delta q\gamma}&=e_u^2 \tilde{P}_{u\gamma}-e_d^2 \tilde{P}_{d\gamma} \\
+ \tilde{P}^+_{\Delta q}&=e_u^2 \tilde{P}^+_{ u}-e_d^2 \tilde{P}^+_{d} \\
+ \tilde{P}^-_{\Delta q}&=e_u^2 \tilde{P}^-_{ u}-e_d^2 \tilde{P}^-_{d}
+\end{align*}
+
+\end{document}

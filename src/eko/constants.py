@@ -1,26 +1,70 @@
 # -*- coding: utf-8 -*-
-r"""
-This files sets the physical constants.
+"""This files sets the physical constants."""
 
-
-The constants are:
-
-    - :math:`N_C` the number of colors - defaults to :math:`3`
-    - :math:`T_R` the normalization of fundamental generators - defaults to :math:`1/2`
-    - :math:`C_A` second Casimir constant in the adjoint representation - defaults to
-      :math:`N_C = 3`
-    - :math:`C_F` second Casimir constant in the fundamental representation - defaults to
-      :math:`\frac{N_C^2-1}{2N_C} = 4/3`
-"""
+import numba as nb
 
 NC = 3
-"""the number of colors"""
+"""The number of colors."""
 
 TR = float(1.0 / 2.0)
-"""the normalization of fundamental generators"""
+"""The normalization of fundamental generators.
+
+Defaults to :math:`T_R = 1/2`.
+"""
 
 CA = float(NC)
-"""second Casimir constant in the adjoint representation"""
+"""Second Casimir constant in the adjoint representation.
+
+Defaults to :math:`N_C = 3`.
+"""
 
 CF = float((NC * NC - 1.0) / (2.0 * NC))
-"""second Casimir constant in the fundamental representation"""
+r"""Second Casimir constant in the fundamental representation.
+
+Defaults to :math:`\frac{N_C^2-1}{2N_C} = 4/3`.
+"""
+
+eu2 = 4.0 / 9
+"""Up quarks charge squared."""
+
+ed2 = 1.0 / 9
+"""Down quarks charge squared."""
+
+
+def update_colors(nc):
+    """Updates the number of colors to :math:`NC = nc`.
+
+    The Casimirs for a generic value of :math:`NC` are consistenly updated as
+    well.
+
+    Parameters
+    ----------
+    nc : int
+      Number of colors
+
+    """
+    global NC, CA, CF  # pylint: disable=global-statement
+
+    NC = int(nc)
+    CA = float(NC)
+    CF = float((NC * NC - 1.0) / (2.0 * NC))
+
+
+@nb.njit(cache=True)
+def uplike_flavors(nf):
+    """Computes the number of up flavors
+
+    Parameters
+    ----------
+        nf : int
+            Number of active flavors
+
+    Returns
+    -------
+        nu : int
+
+    """
+    if nf not in range(2, 6 + 1):
+        raise NotImplementedError("Selected nf is not implemented")
+    nu = nf // 2
+    return nu

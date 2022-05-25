@@ -12,7 +12,7 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
   can be different depending of the chosen setting. This path is determined by :meth:`eko.thresholds.ThresholdsAtlas.path`.
 
   Let us consider two examples to better illustrate how it works.
-  Imagine to have a boundary condition ``q2_ref=1``, ``nf_ref=3`` with heavy quarks mass thresholds
+  Imagine to have a boundary condition ``q2_ref=1``, ``nf_ref=3`` with heavy quarks mass matching scales
   at: ``mc=2``, ``mb=3``, ``mt=4`` and would like to evolve your object (|PDF| or :math:`a_s`) to an higher
   scale (say ``q2_to=49``). The corresponding ``ThresholdsAtlas`` will look like:
 
@@ -27,7 +27,7 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
         [PathSegment(1 -> 4, nf=3), PathSegment(4 -> 9, nf=4), PathSegment(9 -> 16, nf=5), PathSegment(16 -> 49, nf=6)]
 
   where automatically the number of flavors active in each :class:`eko.thresholds.PathSegment` is determined according with the
-  specified thresholds scales.
+  specified matching scales.
 
   However some more complicated situations can arise when the boundary conditions are not given with the same prescription
   of the :class:`eko.thresholds.ThresholdAtlas`. Let's now consider as boundary condition ``q2_ref=64`` with ``nf_ref=3``:
@@ -63,7 +63,7 @@ Apart from the :doc:`operator <Operators>` classes, `eko` also provides some uti
 
   In the first two cases as first step, you go back to the closest matching scale (closest in `nf`),
   running in ``nf=3``, since that is what has been specified in the boundary conditions.
-  Then you are back in the flavor flow, and you cross all the other thresholds going according to the prescription given
+  Then you are back in the flavor flow, and you cross all the other scales going according to the prescription given
   by the :class:`eko.thresholds.ThresholdAtlas`.
   While in the third example you go directly to the final scale, since there is no matching scale in the middle.
   You can notice that :meth:`eko.thresholds.ThresholdsAtlas.path` are always ordered according to `nf` and not `q2` scales.

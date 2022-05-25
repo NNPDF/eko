@@ -42,6 +42,7 @@ operators_card = {
     "ev_op_max_order": 1,
     "ev_op_iterations": 1,
     "backward_inversion": "exact",
+    "n_integration_cores": 1,
 }
 
 
@@ -116,3 +117,22 @@ def check_shapes(o, txs, ixs, theory_card, operators_card):
         assert "operator_errors" in ops
         assert ops["operators"].shape == op_shape
         assert ops["operator_errors"].shape == op_shape
+
+
+def test_vfns():
+    # change targetbasis
+    tc = copy.deepcopy(theory_card)
+    oc = copy.deepcopy(operators_card)
+    tc["kcThr"] = 1.0
+    tc["kbThr"] = 1.0
+    tc["PTO"] = 2
+    oc["debug_skip_non_singlet"] = False
+    r = eko.runner.Runner(tc, oc)
+    o = r.get_output()
+    check_shapes(
+        o,
+        o["interpolation_xgrid"],
+        o["interpolation_xgrid"],
+        tc,
+        oc,
+    )

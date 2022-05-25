@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 from eko import beta
-from eko.anomalous_dimensions.harmonics import zeta3
+from eko.harmonics.constants import zeta3
 
 
 def _flav_test(function):

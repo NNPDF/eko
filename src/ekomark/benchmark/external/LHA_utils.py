@@ -141,6 +141,8 @@ def compute_LHA_data(
     fns = theory["FNS"]
     order = theory["PTO"]
     fact_to_ren = (theory["fact_to_ren_scale_ratio"]) ** 2
+    if order == 0 and fact_to_ren != 1.0:
+        raise ValueError("LO LHA tables with scale variations are not available")
     table = None
     part = None
     is_ffns_nnlo = False
