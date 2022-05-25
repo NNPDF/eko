@@ -37,7 +37,7 @@ def couplings_mod_ev(mod_ev):
 
 @nb.njit(cache=True)
 def expanded_lo(ref, beta0, lmu):
-    """Compute expanded solution at |LO|.
+    r"""Compute expanded solution at |LO|.
 
     Parameters
     ----------
@@ -51,7 +51,7 @@ def expanded_lo(ref, beta0, lmu):
     Returns
     -------
         a : float
-            coupling at target scale :math:`a(µ_r^2)`
+            coupling at target scale :math:`a(\mu_R^2)`
 
     """
     den = 1.0 + beta0 * ref * lmu
@@ -60,7 +60,7 @@ def expanded_lo(ref, beta0, lmu):
 
 @nb.njit(cache=True)
 def expanded_nlo(ref, beta0, b1, lmu):
-    """Compute expanded solution at |NLO|.
+    r"""Compute expanded solution at |NLO|.
 
     From apfel
 
@@ -78,7 +78,7 @@ def expanded_nlo(ref, beta0, b1, lmu):
     Returns
     -------
         a : float
-            coupling at target scale :math:`a(µ_r^2)`
+            coupling at target scale :math:`a(\mu_R^2)`
 
     """
     den = 1.0 + beta0 * ref * lmu
@@ -89,7 +89,7 @@ def expanded_nlo(ref, beta0, b1, lmu):
 
 @nb.njit(cache=True)
 def expanded_nnlo(ref, beta0, b1, b2, lmu):
-    """Compute expanded solution at |NNLO|.
+    r"""Compute expanded solution at |NNLO|.
 
     From apfel
 
@@ -109,7 +109,7 @@ def expanded_nnlo(ref, beta0, b1, b2, lmu):
     Returns
     -------
         a : float
-            coupling at target scale :math:`a(µ_r^2)`
+            coupling at target scale :math:`a(\mu_R^2)`
 
     """
     a_LO = expanded_lo(ref, beta0, lmu)
@@ -122,7 +122,7 @@ def expanded_nnlo(ref, beta0, b1, b2, lmu):
 
 @nb.njit(cache=True)
 def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
-    """Compute expanded solution at |N3LO|.
+    r"""Compute expanded solution at |N3LO|.
 
     From Luca Rottoli
 
@@ -144,7 +144,7 @@ def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
     Returns
     -------
         a : float
-            coupling at target scale :math:`a(µ_r^2)`
+            coupling at target scale :math:`a(\mu_R^2)`
 
     """
     a_LO = expanded_lo(ref, beta0, lmu)
@@ -182,7 +182,7 @@ def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
 
 @nb.njit(cache=True)
 def expanded_qcd(ref, order, nf, lmu):
-    """Compute QCD expanded solution at a give order.
+    r"""Compute QCD expanded solution at a give order.
 
     Parameters
     ----------
@@ -198,7 +198,7 @@ def expanded_qcd(ref, order, nf, lmu):
     Returns
     -------
         a_s : float
-            strong coupling at target scale :math:`a_s(µ_r^2)`
+            strong coupling at target scale :math:`a_s(\mu_R^2)`
 
     """
     res_as = ref
@@ -234,7 +234,7 @@ def expanded_qcd(ref, order, nf, lmu):
 
 @nb.njit(cache=True)
 def expanded_qed(ref, order, nf, lmu):
-    """Compute QED expanded solution at a give order.
+    r"""Compute QED expanded solution at a give order.
 
     Parameters
     ----------
@@ -250,7 +250,7 @@ def expanded_qed(ref, order, nf, lmu):
     Returns
     -------
         a_em : float
-            QED coupling at target scale :math:`a_em(µ_r^2)`
+            QED coupling at target scale :math:`a_em(\mu_R^2)`
 
     """
     res_aem = ref
@@ -269,7 +269,7 @@ def expanded_qed(ref, order, nf, lmu):
 
 @nb.njit(cache=True)
 def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
-    """
+    r"""
     Compute expanded expression.
 
     Parameters
@@ -288,7 +288,7 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     Returns
     -------
         a : np array
-            couplings at target scale :math:`a(µ_r^2)`
+            couplings at target scale :math:`a(\mu_R^2)`
     """
     # common vars
     lmu = np.log(scale_to / scale_from)
