@@ -142,7 +142,7 @@ def beta_qed_aem2as1(nf):
     Returns
     -------
         beta_aem2as1 : float
-            first QCD correction of the QCD beta function :math:`\\beta_aem2as1^{n_f}`
+            first QCD correction of the QED beta function :math:`\\beta_aem2as1^{n_f}`
 
     """
     nu = constants.uplike_flavors(nf)
