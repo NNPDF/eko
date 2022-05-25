@@ -46,7 +46,7 @@ def expanded_lo(ref, beta0, lmu):
         beta0: float
             first coefficient of the beta function
         lmu: float
-            scaling log
+            logarithm of the ratio between target and reference scales
 
     Returns
     -------
@@ -73,7 +73,7 @@ def expanded_nlo(ref, beta0, b1, lmu):
         b1: float
             second coefficient of the b function
         lmu: float
-            scaling log
+            logarithm of the ratio between target and reference scales
 
     Returns
     -------
@@ -104,7 +104,7 @@ def expanded_nnlo(ref, beta0, b1, b2, lmu):
         b2: float
             third coefficient of the b function
         lmu: float
-            scaling log
+            logarithm of the ratio between target and reference scales
 
     Returns
     -------
@@ -139,7 +139,7 @@ def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
         b3: float
             fourth coefficient of the b function
         lmu: float
-            scaling log
+            logarithm of the ratio between target and reference scales
 
     Returns
     -------
@@ -193,7 +193,7 @@ def expanded_qcd(ref, order, nf, lmu):
         nf: int
             number of flavors
         lmu: float
-            scaling log
+            logarithm of the ratio between target and reference scales
 
     Returns
     -------
@@ -245,7 +245,7 @@ def expanded_qed(ref, order, nf, lmu):
         nf: int
             number of flavors
         lmu: float
-            scaling log
+            logarithm of the ratio between target and reference scales
 
     Returns
     -------
