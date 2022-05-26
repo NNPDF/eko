@@ -62,7 +62,7 @@ def expanded_lo(ref, beta0, lmu):
 def expanded_nlo(ref, beta0, b1, lmu):
     r"""Compute expanded solution at |NLO|.
 
-    From apfel
+    Implement the default expression for |NLO| expanded solution, e.g. the one implemented in |APFEL|
 
     Parameters
     ----------
@@ -91,7 +91,7 @@ def expanded_nlo(ref, beta0, b1, lmu):
 def expanded_nnlo(ref, beta0, b1, b2, lmu):
     r"""Compute expanded solution at |NNLO|.
 
-    From apfel
+    Implement the |NNLO| expanded solution from |APFEL| (not the default expression)
 
     Parameters
     ----------
