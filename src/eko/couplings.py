@@ -124,7 +124,7 @@ def expanded_nnlo(ref, beta0, b1, b2, lmu):
 def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
     r"""Compute expanded solution at |N3LO|.
 
-    From Luca Rottoli
+    Implement the |N3LO| expanded solution obtained via iterated solution of the RGE :cite:`Rottoli`
 
     Parameters
     ----------
