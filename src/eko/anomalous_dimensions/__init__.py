@@ -80,8 +80,8 @@ def gamma_ns(order, mode, n, nf):
 
     Parameters
     ----------
-        order : int
-            perturbative order
+        order : tuple(int,int)
+            perturbative orders
         mode : 10201 | 10101 | 10200
             sector identifier
         n : complex
@@ -137,8 +137,8 @@ def gamma_singlet(order, n, nf):
 
     Parameters
     ----------
-        order : int
-            perturbative order
+        order : tuple(int,int)
+            perturbative orders
         n : complex
             Mellin variable
         nf : int
