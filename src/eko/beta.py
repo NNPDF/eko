@@ -36,7 +36,7 @@ def beta_qcd_as2(nf):
 def beta_qed_aem2(nf):
     """Computes the first coefficient of the QED beta function.
 
-    Implements Eq. (3.10) of :cite:`Herzog:2017ohr`.
+    Implements Eq. (7) of :cite:`Surguladze:1996hx`.
 
     Parameters
     ----------
@@ -84,7 +84,7 @@ def beta_qcd_as3(nf):
 def beta_qed_aem3(nf):
     """Computes the second coefficient of the QED beta function.
 
-    Implements Eq. (3.10) of :cite:`Herzog:2017ohr`.
+    Implements Eq. (7) of :cite:`Surguladze:1996hx`.
 
     Parameters
     ----------
