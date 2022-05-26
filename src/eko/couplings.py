@@ -36,7 +36,7 @@ def couplings_mod_ev(mod_ev):
 
 
 @nb.njit(cache=True)
-def expanded_lo(ref, beta0, lmu):
+def exact_lo(ref, beta0, lmu):
     r"""Compute expanded solution at |LO|.
 
     Parameters
@@ -82,7 +82,7 @@ def expanded_nlo(ref, beta0, b1, lmu):
 
     """
     den = 1.0 + beta0 * ref * lmu
-    a_LO = expanded_lo(ref, beta0, lmu)
+    a_LO = exact_lo(ref, beta0, lmu)
     as_NLO = a_LO * (1 - b1 * a_LO * np.log(den))
     return as_NLO
 
@@ -112,7 +112,7 @@ def expanded_nnlo(ref, beta0, b1, b2, lmu):
             coupling at target scale :math:`a(\mu_R^2)`
 
     """
-    a_LO = expanded_lo(ref, beta0, lmu)
+    a_LO = exact_lo(ref, beta0, lmu)
     a_NLO = expanded_nlo(ref, beta0, b1, lmu)
     res = a_LO * (
         1.0 + a_LO * (a_LO - ref) * (b2 - b1**2) + a_NLO * b1 * np.log(a_NLO / ref)
@@ -147,7 +147,7 @@ def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
             coupling at target scale :math:`a(\mu_R^2)`
 
     """
-    a_LO = expanded_lo(ref, beta0, lmu)
+    a_LO = exact_lo(ref, beta0, lmu)
     log_fact = np.log(a_LO)
     res = expanded_nnlo(ref, beta0, b1, b2, lmu)
     res += (
@@ -205,7 +205,7 @@ def expanded_qcd(ref, order, nf, lmu):
     if order >= 1:
         beta_qcd0 = beta_qcd((2, 0), nf)
         # QCD LO
-        as_LO = expanded_lo(ref, beta_qcd0, lmu)
+        as_LO = exact_lo(ref, beta_qcd0, lmu)
         res_as = as_LO
         # NLO
         if order >= 2:
@@ -257,7 +257,7 @@ def expanded_qed(ref, order, nf, lmu):
     if order >= 1:
         beta_qed0 = beta_qed((0, 2), nf)
         # QED LO
-        aem_LO = expanded_lo(ref, beta_qed0, lmu)
+        aem_LO = exact_lo(ref, beta_qed0, lmu)
         res_aem = aem_LO
         # NLO
         if order >= 2:
