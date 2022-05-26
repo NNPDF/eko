@@ -34,8 +34,8 @@ class OperatorGrid:
             configuration dictionary
         q2_grid: array
             Grid in Q2 on where to to compute the operators
-        order: int
-            order in perturbation theory
+        order: tuple(int,int)
+            orders in perturbation theory
         thresholds_config: eko.thresholds.ThresholdsAtlas
             Instance of :class:`~eko.thresholds.Threshold` containing information about the
             thresholds

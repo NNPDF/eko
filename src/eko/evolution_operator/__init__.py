@@ -141,8 +141,8 @@ def quad_ker(
     ----------
         u : float
             quad argument
-        order : int
-            perturbation order
+        order : tuple(int,int)
+            perturbation orders
         method : str
             method
         mode0: int

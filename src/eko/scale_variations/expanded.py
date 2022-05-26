@@ -99,7 +99,7 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
             anomalous dimensions
         a_s :  float
             target coupling value
-        order : int
+        order : tuple(int,int)
             perturbation order
         nf : int
             number of active flavors
@@ -136,7 +136,7 @@ def singlet_variation(gamma, a_s, order, nf, L):
             anomalous dimensions
         a_s :  float
             target coupling value
-        order : int
+        order : tuple(int,int)
             perturbation order
         nf : int
             number of active flavors

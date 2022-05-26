@@ -314,7 +314,7 @@ def dispatcher(
 
     Parameters
     ----------
-        order : int
+        order : tuple(int,int)
             perturbation order
         method : str
             method

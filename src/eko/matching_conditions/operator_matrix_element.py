@@ -70,7 +70,7 @@ def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
 
     Parameters
     ----------
-        order : int
+        order : tuple(int,int)
             perturbative order
         n : complex
             Mellin variable
@@ -114,7 +114,7 @@ def A_non_singlet(order, n, sx, nf, L):
 
     Parameters
     ----------
-        order : int
+        order : tuple(int,int)
             perturbative order
         n : complex
             Mellin variable
@@ -154,7 +154,7 @@ def build_ome(A, order, a_s, backward_method):
     ----------
         A : numpy.ndarray
             list of |OME|
-        order : int
+        order : tuple(int,int)
             perturbation order
         a_s : float
             strong coupling, needed only for the exact inverse
@@ -208,7 +208,7 @@ def quad_ker(
     ----------
         u : float
             quad argument
-        order : int
+        order : tuple(int,int)
             perturbation order
         mode0 : int
             pid for first element in the singlet sector

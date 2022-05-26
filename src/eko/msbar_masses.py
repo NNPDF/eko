@@ -23,7 +23,7 @@ def ker_exact(a0, a1, order, nf):
             strong coupling at the initial scale
         a1: float
             strong coupling at the final scale
-        oreder: int
+        oreder: tuple(int,int)
             perturbative order
         nf: int
             number of active flavours
@@ -80,7 +80,7 @@ def ker_expanded(a0, a1, order, nf):
             strong coupling at the initial scale
         a1: float
             strong coupling at the final scale
-        oreder: int
+        order: tuple(int,int)
             perturbative order
         nf: int
             number of active flavours

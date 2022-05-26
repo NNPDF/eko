@@ -16,7 +16,7 @@ def gamma_variation(gamma, order, nf, L):
     ----------
         gamma : numpy.ndarray
             anomalous dimensions
-        order : int
+        order : tuple(int,int)
             perturbation order
         nf : int
             number of active flavors

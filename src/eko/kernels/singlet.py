@@ -277,7 +277,7 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
             singlet anomalous dimensions matrices
         nf : int
             number of active flavors
-        ev_op_max_order : int
+        ev_op_max_order : tuple(int,int)
             perturbative expansion order of U
         order : int
             order order
@@ -323,7 +323,7 @@ def u_vec(r, ev_op_max_order):
     ----------
         r : numpy.ndarray
             singlet R vector
-        ev_op_max_order : int
+        ev_op_max_order : tuple(int,int)
             perturbative expansion order of U
 
     Returns
@@ -404,7 +404,7 @@ def eko_perturbative(
             perturbative order
         ev_op_iterations : int
             number of evolution steps
-        ev_op_max_order : int
+        ev_op_max_order : tuple(int,int)
             perturbative expansion order of U
         is_exact : boolean
             fill up r-vector?
@@ -446,9 +446,9 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
             initial coupling value
         nf : int
             number of active flavors
-        order : int
+        order : tuple(int,int)
             perturbative order
-        ev_op_iterations : int
+        ev_op_iterations : tuple(int,int)
             number of evolution steps
 
     Returns
@@ -491,6 +491,8 @@ def dispatcher(  # pylint: disable=too-many-return-statements
 
     Parameters
     ----------
+        order : tuple(int,int)
+            perturbative order
         method : str
             method
         gamma_singlet : numpy.ndarray
@@ -503,7 +505,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
             number of active flavors
         ev_op_iterations : int
             number of evolution steps
-        ev_op_max_order : int
+        ev_op_max_order : tuple(int,int)
             perturbative expansion order of U
 
     Returns
