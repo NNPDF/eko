@@ -2,9 +2,9 @@
 # Test N3LO OME
 import numpy as np
 
+from eko.harmonics import compute_harmonics_cache
 from eko.matching_conditions import as3
 from eko.matching_conditions.as3 import A_ns, A_qqNS, A_singlet
-from eko.matching_conditions.operator_matrix_element import compute_harmonics_cache
 
 
 def test_A_3():

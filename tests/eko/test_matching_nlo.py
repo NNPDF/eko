@@ -2,8 +2,8 @@
 # Test NLO OME
 import numpy as np
 
+from eko.harmonics import compute_harmonics_cache
 from eko.matching_conditions.as1 import A_ns, A_singlet
-from eko.matching_conditions.operator_matrix_element import compute_harmonics_cache
 
 
 def test_A_1_intrinsic():

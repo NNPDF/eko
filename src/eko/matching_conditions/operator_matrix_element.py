@@ -11,60 +11,14 @@ import numba as nb
 import numpy as np
 
 from .. import basis_rotation as br
-from .. import harmonics
+from .. import compile, harmonics
 from ..evolution_operator import Operator, QuadKerBase
 from . import as1, as2, as3
 
 logger = logging.getLogger(__name__)
 
 
-@nb.njit(cache=True)
-def compute_harmonics_cache(n, order, is_singlet):
-    r"""
-    Get the harmonics sums cache
-
-    Parameters
-    ----------
-        n: complex
-            Mellin moment
-        order: int
-            perturbative order
-        is_singlet: bool
-            symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-            False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
-
-    Returns
-    -------
-        sx: list
-            harmonic sums cache. At |N3LO| it contains:
-
-            .. math ::
-                [[S_1,S_{-1}],
-                [S_2,S_{-2}],
-                [S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}],
-                [S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}],]
-
-    """
-    # max harmonics sum weight for each qcd order
-    max_weight = {1: 2, 2: 3, 3: 5}
-    # max number of harmonics sum of a given weight for each qcd order
-    n_max_sums_weight = {1: 1, 2: 3, 3: 7}
-    sx = harmonics.base_harmonics_cache(
-        n, is_singlet, max_weight[order], n_max_sums_weight[order]
-    )
-    if order == 2:
-        # Add Sm21 to cache
-        sx[2, 1] = harmonics.Sm21(n, sx[0, 0], sx[0, -1], is_singlet)
-    if order == 3:
-        # Add weight 3 and 4 to cache
-        sx[2, 1:-2] = harmonics.s3x(n, sx[:, 0], sx[:, -1], is_singlet)
-        sx[3, 1:-1] = harmonics.s4x(n, sx[:, 0], sx[:, -1], is_singlet)
-    # return list of list keeping the non zero values
-    return [[el for el in sx_list if el != 0] for sx_list in sx]
-
-
-@nb.njit(cache=True)
-def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
+def A_singlet__nklo(order, n, sx, nf, L, is_msbar, sx_ns=None):
     r"""
     Computes the tower of the singlet |OME|.
 
@@ -98,17 +52,28 @@ def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
         eko.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
     """
     A_s = np.zeros((order, 3, 3), np.complex_)
+    # >> start/NLO
     if order >= 1:
         A_s[0] = as1.A_singlet(n, sx, L)
+    # << end/NLO
+    # >> start/NNLO
     if order >= 2:
         A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
+    # << end/NNLO
+    # >> start/NNNLO
     if order >= 3:
         A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
+    # << end/NNNLO
     return A_s
 
 
-@nb.njit(cache=True)
-def A_non_singlet(order, n, sx, nf, L):
+A_singlet__lo = nb.njit()(compile.parse(A_singlet__nklo, 0, globals()))
+A_singlet__nlo = nb.njit()(compile.parse(A_singlet__nklo, 1, globals()))
+A_singlet__nnlo = nb.njit()(compile.parse(A_singlet__nklo, 2, globals()))
+A_singlet__nnnlo = nb.njit(cache=True)(A_singlet__nklo)
+
+
+def A_non_singlet__nklo(order, n, sx, nf, L):
     r"""
     Computes the tower of the non-singlet |OME|
 
@@ -136,13 +101,25 @@ def A_non_singlet(order, n, sx, nf, L):
         eko.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
     """
     A_ns = np.zeros((order, 2, 2), np.complex_)
+    # >> start/NLO
     if order >= 1:
         A_ns[0] = as1.A_ns(n, sx, L)
+    # << end/NLO
+    # >> start/NNLO
     if order >= 2:
         A_ns[1] = as2.A_ns(n, sx, L)
+    # << end/NNLO
+    # >> start/NNNLO
     if order >= 3:
         A_ns[2] = as3.A_ns(n, sx, nf, L)
+    # << end/NNNLO
     return A_ns
+
+
+A_non_singlet__lo = nb.njit()(compile.parse(A_non_singlet__nklo, 0, globals()))
+A_non_singlet__nlo = nb.njit()(compile.parse(A_non_singlet__nklo, 1, globals()))
+A_non_singlet__nnlo = nb.njit()(compile.parse(A_non_singlet__nklo, 2, globals()))
+A_non_singlet__nnnlo = nb.njit(cache=True)(A_non_singlet__nklo)
 
 
 @nb.njit(cache=True)
@@ -197,8 +174,7 @@ def build_ome(A, order, a_s, backward_method):
     return ome
 
 
-@nb.njit(cache=True)
-def quad_ker(
+def quad_ker__nklo(
     u, order, mode0, mode1, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
 ):
     """
@@ -240,8 +216,9 @@ def quad_ker(
     if integrand == 0.0:
         return 0.0
 
-    sx = compute_harmonics_cache(ker_base.n, order, ker_base.is_singlet)
+    sx = harmonics.compute_harmonics_cache(ker_base.n, order, ker_base.is_singlet)
     sx_ns = None
+    # >> start/NNNLO
     if order == 3 and (
         (backward_method != "" and ker_base.is_singlet)
         or (mode0 == 100 and mode0 == 100)
@@ -260,14 +237,15 @@ def quad_ker(
         sx_ns[3][3] = harmonics.Sm22(
             ker_base.n, sx[0][0], sx[0][1], smx_ns[1], sx_ns[3][5], False
         )
+    # << end/NNNLO
 
     # compute the ome
     if ker_base.is_singlet:
         indices = {21: 0, 100: 1, 90: 2}
-        A = A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+        A = A_singlet__nklo(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
     else:
         indices = {200: 0, 91: 1}
-        A = A_non_singlet(order, ker_base.n, sx, nf, L)
+        A = A_non_singlet__nklo(order, ker_base.n, sx, nf, L)
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, a_s, backward_method)
@@ -277,6 +255,12 @@ def quad_ker(
 
     # recombine everthing
     return np.real(ker * integrand)
+
+
+quad_ker__lo = nb.njit()(compile.parse(quad_ker__nklo, 0, globals()))
+quad_ker__nlo = nb.njit()(compile.parse(quad_ker__nklo, 1, globals()))
+quad_ker__nnlo = nb.njit()(compile.parse(quad_ker__nklo, 2, globals()))
+quad_ker__nnnlo = nb.njit(cache=True)(quad_ker__nklo)
 
 
 class OperatorMatrixElement(Operator):
@@ -390,8 +374,15 @@ class OperatorMatrixElement(Operator):
                 partially initialized intration kernel
 
         """
+        qk = quad_ker__lo
+        if self.config["order"] >= 1:
+            qk = quad_ker__nlo
+        if self.config["order"] >= 2:
+            qk = quad_ker__nnlo
+        if self.config["order"] >= 3:
+            qk = quad_ker__nnnlo
         return functools.partial(
-            quad_ker,
+            qk,
             order=self.config["order"],
             mode0=label[0],
             mode1=label[1],

@@ -7,15 +7,15 @@ import numpy as np
 from eko import basis_rotation as br
 from eko import interpolation, mellin
 from eko.evolution_operator.grid import OperatorGrid
+from eko.harmonics import compute_harmonics_cache
 from eko.interpolation import InterpolatorDispatcher
 from eko.matching_conditions.operator_matrix_element import (
-    A_non_singlet,
-    A_singlet,
+    A_non_singlet__nklo,
+    A_singlet__nklo,
     OperatorMatrixElement,
     build_ome,
-    compute_harmonics_cache,
-    quad_ker,
 )
+from eko.matching_conditions.operator_matrix_element import quad_ker__nklo as quad_ker
 from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
@@ -33,8 +33,8 @@ def test_build_ome_as():
         if o == 3:
             sx_ns = compute_harmonics_cache(N, o, False)
 
-        aNS = A_non_singlet(o, N, sx_ns, nf, L)
-        aS = A_singlet(o, N, sx_singlet, nf, L, is_msbar, sx_ns)
+        aNS = A_non_singlet__nklo(o, N, sx_ns, nf, L)
+        aS = A_singlet__nklo(o, N, sx_singlet, nf, L, is_msbar, sx_ns)
 
         for a in [aNS, aS]:
             for method in ["", "expanded", "exact"]:
@@ -56,8 +56,8 @@ def test_build_ome_nlo():
 
     sx = [[1], [1], [1]]
     nf = 4
-    aNSi = A_non_singlet(1, N, sx, nf, L)
-    aSi = A_singlet(1, N, sx, nf, L, is_msbar)
+    aNSi = A_non_singlet__nklo(1, N, sx, nf, L)
+    aSi = A_singlet__nklo(1, N, sx, nf, L, is_msbar)
     for a in [aNSi, aSi]:
         for method in ["", "expanded", "exact"]:
             dim = len(a[0])
@@ -89,12 +89,12 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
     zeros = np.zeros((2, 2))
     monkeypatch.setattr(
-        "eko.matching_conditions.operator_matrix_element.A_non_singlet",
+        "eko.matching_conditions.operator_matrix_element.A_non_singlet__nklo",
         lambda *args: np.array([zeros, zeros, zeros]),
     )
     zeros = np.zeros((3, 3))
     monkeypatch.setattr(
-        "eko.matching_conditions.operator_matrix_element.A_singlet",
+        "eko.matching_conditions.operator_matrix_element.A_singlet__nklo",
         lambda *args: np.array([zeros, zeros, zeros]),
     )
     for is_log in [True, False]:
