@@ -52,18 +52,18 @@ def A_singlet__nklo(order, n, sx, nf, L, is_msbar, sx_ns=None):
         eko.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
     """
     A_s = np.zeros((order, 3, 3), np.complex_)
-    # >> start/NLO
+    # >> start/N1LO
     if order >= 1:
         A_s[0] = as1.A_singlet(n, sx, L)
-    # << end/NLO
-    # >> start/NNLO
+    # << end/N1LO
+    # >> start/N2LO
     if order >= 2:
         A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
-    # << end/NNLO
-    # >> start/NNNLO
+    # << end/N2LO
+    # >> start/N3LO
     if order >= 3:
         A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
-    # << end/NNNLO
+    # << end/N3LO
     return A_s
 
 
@@ -101,18 +101,18 @@ def A_non_singlet__nklo(order, n, sx, nf, L):
         eko.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
     """
     A_ns = np.zeros((order, 2, 2), np.complex_)
-    # >> start/NLO
+    # >> start/N1LO
     if order >= 1:
         A_ns[0] = as1.A_ns(n, sx, L)
-    # << end/NLO
-    # >> start/NNLO
+    # << end/N1LO
+    # >> start/N2LO
     if order >= 2:
         A_ns[1] = as2.A_ns(n, sx, L)
-    # << end/NNLO
-    # >> start/NNNLO
+    # << end/N2LO
+    # >> start/N3LO
     if order >= 3:
         A_ns[2] = as3.A_ns(n, sx, nf, L)
-    # << end/NNNLO
+    # << end/N3LO
     return A_ns
 
 
@@ -218,7 +218,7 @@ def quad_ker__nklo(
 
     sx = harmonics.compute_harmonics_cache(ker_base.n, order, ker_base.is_singlet)
     sx_ns = None
-    # >> start/NNNLO
+    # >> start/N3LO
     if order == 3 and (
         (backward_method != "" and ker_base.is_singlet)
         or (mode0 == 100 and mode0 == 100)
@@ -237,7 +237,7 @@ def quad_ker__nklo(
         sx_ns[3][3] = harmonics.Sm22(
             ker_base.n, sx[0][0], sx[0][1], smx_ns[1], sx_ns[3][5], False
         )
-    # << end/NNNLO
+    # << end/N3LO
 
     # compute the ome
     if ker_base.is_singlet:

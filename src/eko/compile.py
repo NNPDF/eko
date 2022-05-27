@@ -10,7 +10,7 @@ def parse(fnk, max_order, locs):
 
     - the string `__nklo` is replaced with an explicit version (i.e. sufficient ns).
       This can be used to chain the scope to lower laying funciton calls.
-    - the code between `#>> start/NLO` and `#<< end/NLO` is cut out for a LO cut
+    - the code between `# >> start/N1LO` and `# << end/N1LO` is cut out for a LO function
       (and similar for higher orders). This can be used to cut out expensive calls
       needed at higher orders.
 
@@ -26,10 +26,13 @@ def parse(fnk, max_order, locs):
     """
     cnt = inspect.getsource(fnk)
     # remove code
-    for order in range(max_order, 3 + 1):
-        k = "N" * order + "LO"
-        s = cnt.find(f"#>> start/{k}")
-        e = cnt.find(f"#<< end/{k}")
+    for order in range(max_order + 1, 3 + 1):
+        s = cnt.find(f"# >> start/N{order}LO")
+        if s < 0:
+            continue
+        e = cnt.find(f"# << end/N{order}LO")
+        if e < 0:
+            continue
         cnt = cnt[:s] + cnt[e:]
     # replace place holder tags with their actual incarnation
     tag = "n" * max_order + "lo"
