@@ -46,6 +46,19 @@ partial__nnlo = parse(partial__nklo, 2, globals())
 partial__nnnlo = partial__nklo
 
 
+def broken__nklo():
+    a = "c"
+    # >> start/N3LO
+    a += "d"
+    return a
+
+
+broken__lo = parse(broken__nklo, 0, globals())
+broken__nlo = parse(broken__nklo, 1, globals())
+broken__nnlo = parse(broken__nklo, 2, globals())
+broken__nnnlo = broken__nklo
+
+
 def test_parse():
     # different at each order
     assert full__lo() == 1
@@ -62,3 +75,8 @@ def test_parse():
     assert partial__nlo() == "a"
     assert partial__nnlo() == "a"
     assert partial__nnnlo() == "ab"
+    # broken parsing (falling through to N3LO)
+    assert broken__lo() == "cd"
+    assert broken__nlo() == "cd"
+    assert broken__nnlo() == "cd"
+    assert broken__nnnlo() == "cd"
