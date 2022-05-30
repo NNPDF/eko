@@ -574,8 +574,8 @@ def gamma_singlet(N, nf, sx):
 
       See Also
       --------
-        gamma_nsp : :math:`\gamma_{qq}^{(2)}`
-        gamma_ps : :math:`\gamma_{qq}^{(2)}`
+        gamma_nsp : :math:`\gamma_{ns,+}^{(2)}`
+        gamma_ps : :math:`\gamma_{ps}^{(2)}`
         gamma_qg : :math:`\gamma_{qg}^{(2)}`
         gamma_gq : :math:`\gamma_{gq}^{(2)}`
         gamma_gg : :math:`\gamma_{gg}^{(2)}`
