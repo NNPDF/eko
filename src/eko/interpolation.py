@@ -576,7 +576,7 @@ class InterpolatorDispatcher:
         -------
         R : array
             interpolation matrix $R_{ij}$, where $i$ is the index over
-            `targetdgrid`, and $j$ is the index on the internal basis (the
+            `targetgrid`, and $j$ is the index on the internal basis (the
             one stored in the :cls:`InterpolatorDispatcher` instance)
 
         """
