@@ -2,7 +2,7 @@
 # Test NNLO anomalous dims
 import numpy as np
 
-from eko.anomalous_dimensions.as4 import gNSm, gNSp, gNSv
+from eko.anomalous_dimensions.as4 import ggg, ggq, gNSm, gNSp, gNSv, gPS, gqg
 
 # TODO: move this method  out of matching conditions if it will be used
 # also here...
@@ -160,3 +160,20 @@ def test_diff_pm_nf2():
         np.testing.assert_allclose(
             gNSp.gamma_nsp_nf2(N, sx_cache), gns_p_nf2_ref[N - 1], rtol=rtol
         )
+
+
+def test_momentum_conservation():
+    N = 2
+    sx_cache = compute_harmonics_cache(N, 3, True)
+
+    # nf^3 part
+    np.testing.assert_allclose(
+        gNSp.gamma_ns_nf3(N, sx_cache)
+        + gPS.gamma_ps_nf3(N, sx_cache)
+        + ggq.gamma_gq_nf3(N, sx_cache),
+        0,
+        atol=3e-15,
+    )
+    np.testing.assert_allclose(
+        ggg.gamma_gg_nf3(N, sx_cache) + gqg.gamma_qg_nf3(N, sx_cache), 0, atol=2e-7
+    )
