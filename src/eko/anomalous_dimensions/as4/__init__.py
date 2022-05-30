@@ -25,7 +25,7 @@ For the non singlet anomalous dimensions:
         -   The 8 lowest N moments provided in :cite:`Moch:2017uml`.
         -   The difference between the given moments and the known limits is fitted
             using a basis containing:
-                :math:`1,1/n,1/(n+1),1/(n+2),1/(n+3),1/(n+4),S1/(n+1),S1/n^2`
+                :math:`1,1/(n+1),1/(n+2),1/(n+3),1/(n+4),S1/(n+1),S1/n^2,1/(n+1)^2`
 
 The large-N expression are based on the 4-loop QCD-cusp calculation :cite:`Henn:2019swt`.
 """

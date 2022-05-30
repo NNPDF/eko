@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Test NNLO anomalous dims
+# Test N3LO anomalous dimensions
 import numpy as np
 
 import eko.anomalous_dimensions.as3 as ad_as3

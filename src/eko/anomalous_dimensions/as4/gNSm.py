@@ -12,7 +12,7 @@ from ...harmonics.constants import zeta3
 def gamma_ns_nf3(n, sx):
     """
     Implements the common part proportional to :math:`nf^3`,
-    of :math:`\\gamma_{ns,+}^{(3)},`\\gamma_{ns,-}^{(3)},`\\gamma_{ns,v}^{(3)}`
+    of :math:`\\gamma_{ns,+}^{(3)},\\gamma_{ns,-}^{(3)},\\gamma_{ns,v}^{(3)}`
 
     The expression is copied exact from Eq. 3.6. of :cite:`Davies:2016jie`
 
@@ -20,8 +20,8 @@ def gamma_ns_nf3(n, sx):
     ----------
         n : complex
             Mellin moment
-        sx : np.ndarray
-            List of harmonic sums: :math:`S_{1},S_{2},S_{3},S_{4}`
+        sx : list
+            harmonic sums cache
 
     Returns
     -------
