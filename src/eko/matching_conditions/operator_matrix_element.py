@@ -13,7 +13,9 @@ import numpy as np
 from .. import basis_rotation as br
 from .. import harmonics
 from ..evolution_operator import Operator, QuadKerBase
-from . import as1, as2, as3
+from . import as1, as2
+
+# from . import as1, as2, as3
 
 logger = logging.getLogger(__name__)
 
@@ -102,8 +104,8 @@ def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
         A_s[0] = as1.A_singlet(n, sx, L)
     if order >= 2:
         A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
-    if order >= 3:
-        A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
+    # if order >= 3:
+    #     A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
     return A_s
 
 
@@ -140,8 +142,8 @@ def A_non_singlet(order, n, sx, nf, L):
         A_ns[0] = as1.A_ns(n, sx, L)
     if order >= 2:
         A_ns[1] = as2.A_ns(n, sx, L)
-    if order >= 3:
-        A_ns[2] = as3.A_ns(n, sx, nf, L)
+    # if order >= 3:
+    #     A_ns[2] = as3.A_ns(n, sx, nf, L)
     return A_ns
 
 
