@@ -12,114 +12,11 @@ import numpy as np
 
 from .. import basis_rotation as br
 from .. import compile, harmonics
-from ..evolution_operator import Operator, QuadKerBase
+from .. import quad_ker_base as qkb
+from ..evolution_operator import Operator
 from . import as1, as2, as3
 
 logger = logging.getLogger(__name__)
-
-
-def A_singlet__nklo(order, n, sx, nf, L, is_msbar, sx_ns=None):
-    r"""
-    Computes the tower of the singlet |OME|.
-
-    Parameters
-    ----------
-        order : int
-            perturbative order
-        n : complex
-            Mellin variable
-        sx : list
-            singlet like harmonic sums cache
-        nf: int
-            number of active flavor below threshold
-        L : float
-            :math:`log(q^2/m_h^2)`
-        is_msbar: bool
-            add the |MSbar| contribution
-        sx_ns : list
-            non-singlet like harmonic sums cache
-
-    Returns
-    -------
-        A_singlet : numpy.ndarray
-            singlet |OME|
-
-    See Also
-    --------
-        eko.matching_conditions.nlo.A_singlet_1 : :math:`A^{S,(1)}(N)`
-        eko.matching_conditions.nlo.A_hh_1 : :math:`A_{HH}^{(1)}(N)`
-        eko.matching_conditions.nlo.A_gh_1 : :math:`A_{gH}^{(1)}(N)`
-        eko.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
-    """
-    A_s = np.zeros((order, 3, 3), np.complex_)
-    # >> start/N1LO
-    if order >= 1:
-        A_s[0] = as1.A_singlet(n, sx, L)
-    # << end/N1LO
-    # >> start/N2LO
-    if order >= 2:
-        A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
-    # << end/N2LO
-    # >> start/N3LO
-    if order >= 3:
-        A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
-    # << end/N3LO
-    return A_s
-
-
-A_singlet__lo = nb.njit()(compile.parse(A_singlet__nklo, 0, globals()))
-A_singlet__nlo = nb.njit()(compile.parse(A_singlet__nklo, 1, globals()))
-A_singlet__nnlo = nb.njit()(compile.parse(A_singlet__nklo, 2, globals()))
-A_singlet__nnnlo = nb.njit(cache=True)(A_singlet__nklo)
-
-
-def A_non_singlet__nklo(order, n, sx, nf, L):
-    r"""
-    Computes the tower of the non-singlet |OME|
-
-    Parameters
-    ----------
-        order : int
-            perturbative order
-        n : complex
-            Mellin variable
-        sx : list
-            harmonic sums cache
-        nf: int
-            number of active flavor below threshold
-        L : float
-            :math:`log(q^2/m_h^2)`
-
-    Returns
-    -------
-        A_non_singlet : numpy.ndarray
-            non-singlet |OME|
-
-    See Also
-    --------
-        eko.matching_conditions.nlo.A_hh_1 : :math:`A_{HH}^{(1)}(N)`
-        eko.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
-    """
-    A_ns = np.zeros((order, 2, 2), np.complex_)
-    # >> start/N1LO
-    if order >= 1:
-        A_ns[0] = as1.A_ns(n, sx, L)
-    # << end/N1LO
-    # >> start/N2LO
-    if order >= 2:
-        A_ns[1] = as2.A_ns(n, sx, L)
-    # << end/N2LO
-    # >> start/N3LO
-    if order >= 3:
-        A_ns[2] = as3.A_ns(n, sx, nf, L)
-    # << end/N3LO
-    return A_ns
-
-
-A_non_singlet__lo = nb.njit()(compile.parse(A_non_singlet__nklo, 0, globals()))
-A_non_singlet__nlo = nb.njit()(compile.parse(A_non_singlet__nklo, 1, globals()))
-A_non_singlet__nnlo = nb.njit()(compile.parse(A_non_singlet__nklo, 2, globals()))
-A_non_singlet__nnnlo = nb.njit(cache=True)(A_non_singlet__nklo)
 
 
 @nb.njit(cache=True)
@@ -174,7 +71,96 @@ def build_ome(A, order, a_s, backward_method):
     return ome
 
 
-def quad_ker__nklo(
+# def quad_ker__nklo(
+#     u, order, mode0, mode1, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
+# ):
+#     """
+#     Raw kernel inside quad
+
+#     Parameters
+#     ----------
+#         u : float
+#             quad argument
+#         order : int
+#             perturbation order
+#         mode0 : int
+#             pid for first element in the singlet sector
+#         mode1 : int
+#             pid for second element in the singlet sector
+#         is_log : boolean
+#             logarithmic interpolation
+#         logx : float
+#             Mellin inversion point
+#         areas : tuple
+#             basis function configuration
+#         a_s : float
+#             strong coupling, needed only for the exact inverse
+#         nf: int
+#             number of active flavor below threshold
+#         L : float
+#             :math:`log(q^2/m_h^2)`
+#         backward_method : ["exact", "expanded" or ""]
+#             empty or method for inverting the matching condition (exact or expanded)
+#         is_msbar: bool
+#             add the |MSbar| contribution
+#     Returns
+#     -------
+#         ker : float
+#             evaluated integration kernel
+#     """
+#     ker_base = qkb.QuadKerBase(u, is_log, logx, mode0)
+#     integrand = ker_base.integrand(areas)
+#     if integrand == 0.0:
+#         return 0.0
+
+#     sx = harmonics.compute_harmonics_cache(ker_base.n, order, ker_base.is_singlet)
+#     sx_ns = None
+#     # >> start/N3LO
+#     if order == 3 and (
+#         (backward_method != "" and ker_base.is_singlet)
+#         or (mode0 == 100 and mode0 == 100)
+#     ):
+#         # At N3LO for A_qq singlet or backward you need to compute
+#         # both the singlet and non-singlet like harmonics
+#         # avoiding recomputing all of them ...
+#         sx_ns = sx.copy()
+#         smx_ns = harmonics.smx(ker_base.n, np.array([s[0] for s in sx]), False)
+#         for w, sm in enumerate(smx_ns):
+#             sx_ns[w][-1] = sm
+#         sx_ns[2][2] = harmonics.S2m1(ker_base.n, sx[0][1], smx_ns[0], smx_ns[1], False)
+#         sx_ns[2][3] = harmonics.Sm21(ker_base.n, sx[0][0], smx_ns[0], False)
+#         sx_ns[3][5] = harmonics.Sm31(ker_base.n, sx[0][0], smx_ns[0], smx_ns[1], False)
+#         sx_ns[3][4] = harmonics.Sm211(ker_base.n, sx[0][0], sx[0][1], smx_ns[0], False)
+#         sx_ns[3][3] = harmonics.Sm22(
+#             ker_base.n, sx[0][0], sx[0][1], smx_ns[1], sx_ns[3][5], False
+#         )
+#     # << end/N3LO
+
+#     # compute the ome
+#     if ker_base.is_singlet:
+#         indices = {21: 0, 100: 1, 90: 2}
+#         A = A_singlet__nklo(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+#     else:
+#         indices = {200: 0, 91: 1}
+#         A = A_non_singlet__nklo(order, ker_base.n, sx, nf, L)
+
+#     # build the expansion in alpha_s depending on the strategy
+#     ker = build_ome(A, order, a_s, backward_method)
+
+#     # select the needed matrix element
+#     ker = ker[indices[mode0], indices[mode1]]
+
+#     # recombine everthing
+#     return np.real(ker * integrand)
+
+
+# quad_ker__lo = nb.njit()(compile.parse(quad_ker__nklo, 0, globals()))
+# quad_ker__nlo = nb.njit()(compile.parse(quad_ker__nklo, 1, globals()))
+# quad_ker__nnlo = nb.njit()(compile.parse(quad_ker__nklo, 2, globals()))
+# quad_ker__nnnlo = nb.njit(cache=True)(quad_ker__nklo)
+
+
+def quad_ker_as1(
     u, order, mode0, mode1, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
 ):
     """
@@ -211,7 +197,7 @@ def quad_ker__nklo(
         ker : float
             evaluated integration kernel
     """
-    ker_base = QuadKerBase(u, is_log, logx, mode0)
+    ker_base = qkb.QuadKerBase(u, is_log, logx, mode0)
     integrand = ker_base.integrand(areas)
     if integrand == 0.0:
         return 0.0
@@ -255,12 +241,6 @@ def quad_ker__nklo(
 
     # recombine everthing
     return np.real(ker * integrand)
-
-
-quad_ker__lo = nb.njit()(compile.parse(quad_ker__nklo, 0, globals()))
-quad_ker__nlo = nb.njit()(compile.parse(quad_ker__nklo, 1, globals()))
-quad_ker__nnlo = nb.njit()(compile.parse(quad_ker__nklo, 2, globals()))
-quad_ker__nnnlo = nb.njit(cache=True)(quad_ker__nklo)
 
 
 class OperatorMatrixElement(Operator):

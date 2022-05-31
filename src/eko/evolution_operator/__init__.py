@@ -17,103 +17,13 @@ from scipy import integrate
 
 from .. import anomalous_dimensions as ad
 from .. import basis_rotation as br
-from .. import interpolation, mellin
+from .. import quad_ker_base as qkb
 from .. import scale_variations as sv
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)
-
-
-@nb.njit(cache=True)
-def select_singlet_element(ker, mode0, mode1):
-    """
-    Select element of the singlet matrix
-
-    Parameters
-    ----------
-        ker : numpy.ndarray
-            singlet integration kernel
-        mode0 : int
-            id for first sector element
-        mode1 : int
-            id for second sector element
-    Returns
-    -------
-        ker : complex
-            singlet integration kernel element
-    """
-
-    k = 0 if mode0 == 100 else 1
-    l = 0 if mode1 == 100 else 1
-    return ker[k, l]
-
-
-spec = [
-    ("is_singlet", nb.boolean),
-    ("is_log", nb.boolean),
-    ("logx", nb.float64),
-    ("u", nb.float64),
-]
-
-
-@nb.experimental.jitclass(spec)
-class QuadKerBase:
-    """
-    Manage the common part of Mellin inversion integral
-
-    Parameters
-    ----------
-        u : float
-            quad argument
-        is_log : boolean
-            is a logarithmic interpolation
-        logx : float
-            Mellin inversion point
-        mode0 : str
-            first sector element
-    """
-
-    def __init__(self, u, is_log, logx, mode0):
-        self.is_singlet = mode0 in [100, 21, 90]
-        self.is_log = is_log
-        self.u = u
-        self.logx = logx
-
-    @property
-    def path(self):
-        """Returns the associated instance of :class:`eko.mellin.Path`"""
-        return mellin.Path(self.u, self.logx, self.is_singlet)
-
-    @property
-    def n(self):
-        """Returns the Mellin moment N"""
-        return self.path.n
-
-    def integrand(
-        self,
-        areas,
-    ):
-        """
-        Get transformation to Mellin space integral
-
-        Parameters
-        ----------
-            areas : tuple
-                basis function configuration
-
-        Returns
-        -------
-            base_integrand: complex
-                common mellin inversion intgrand
-        """
-        if self.logx == 0.0:
-            return 0.0
-        pj = interpolation.evaluate_grid(self.path.n, self.is_log, self.logx, areas)
-        if pj == 0.0:
-            return 0.0
-        return self.path.prefactor * pj * self.path.jac
 
 
 @nb.njit(cache=True)
@@ -175,7 +85,7 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    ker_base = QuadKerBase(u, is_log, logx, mode0)
+    ker_base = qkb.QuadKerBase(u, is_log, logx, mode0)
     integrand = ker_base.integrand(areas)
     if integrand == 0.0:
         return 0.0
@@ -196,7 +106,7 @@ def quad_ker(
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
                 sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
             )
-        ker = select_singlet_element(ker, mode0, mode1)
+        ker = qkb.select_singlet_element(ker, mode0, mode1)
     else:
         gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
         if sv_mode == sv.Modes.exponentiated:
