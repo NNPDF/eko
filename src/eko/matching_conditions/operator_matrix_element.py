@@ -15,7 +15,7 @@ from .. import harmonics
 from ..evolution_operator import Operator, QuadKerBase
 from . import as1, as2
 
-# from . import as1, as2, as3
+# _N3LO_ from . import as1, as2, as3
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ def compute_harmonics_cache(n, order, is_singlet):
     if order >= 2:
         # Add Sm21 to cache
         sx[2, 1] = harmonics.Sm21(n, sx[0, 0], sx[0, -1], is_singlet)
-    # if order == 3:
+    # _N3LO_ if order == 3:
     #     # Add weight 3 and 4 to cache
     #     sx[2, 1:-2] = harmonics.s3x(n, sx[:, 0], sx[:, -1], is_singlet)
     #     sx[3, 1:-1] = harmonics.s4x(n, sx[:, 0], sx[:, -1], is_singlet)
