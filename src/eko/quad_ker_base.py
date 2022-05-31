@@ -6,14 +6,20 @@ import numpy as np
 from . import interpolation, mellin
 
 spec = [
-    ("ker_mode", nb.int),
+    ("ker_mode", nb.int8),
     ("u", nb.float64),
     ("is_log", nb.boolean),
     ("logx", nb.float64),
     ("areas", nb.float64[:, :]),
-    ("mode0", nb.int),
-    ("mode1", nb.int),
+    ("mode0", nb.int64),
+    ("mode1", nb.int64),
 ]
+
+MODE_EVOLUTION = 0
+"""Evolution mode to combine anomalous dimensions"""
+
+MODE_MATCHING = 1
+"""Matching mode to combine operator matching elements"""
 
 
 @nb.experimental.jitclass(spec)
@@ -80,7 +86,7 @@ class QuadKerBase:
             singlet integration kernel element
         """
         # OME mode
-        if self.ker_mode == 1:
+        if self.ker_mode == MODE_MATCHING:
             if self.is_singlet:
                 indices = {21: 0, 100: 1, 90: 2}
             else:

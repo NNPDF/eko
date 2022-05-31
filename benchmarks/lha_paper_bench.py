@@ -118,6 +118,7 @@ class LHABenchmark(Runner):
                     "Q2grid": [1e4],
                     "ev_op_iterations": 10,
                     "interpolation_xgrid": make_lambert_grid(60).tolist(),
+                    # "n_integration_cores": 1
                 }
             ],
             ["ToyLH"],
@@ -221,15 +222,15 @@ class BenchmarkRunner(BenchmarkVFNS):
 if __name__ == "__main__":
 
     # Benchmark to LHA
-    # obj = BenchmarkVFNS()
-    obj = BenchmarkFFNS()
+    obj = BenchmarkVFNS()
+    # obj = BenchmarkFFNS()
 
-    # obj.benchmark_plain(0)
+    obj.benchmark_plain(2)
     # obj.benchmark_sv(2)
 
     # # VFNS benchmarks with LHA settings
-    programs = ["LHA", "pegasus", "apfel"]
-    for p in programs:
-        obj = BenchmarkRunner(p)
-        # obj.benchmark_plain(2)
-        obj.benchmark_sv(2)
+    # programs = ["LHA", "pegasus", "apfel"]
+    # for p in programs:
+    #     obj = BenchmarkRunner(p)
+    #     # obj.benchmark_plain(2)
+    #     obj.benchmark_sv(2)

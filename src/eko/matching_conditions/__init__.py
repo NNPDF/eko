@@ -179,7 +179,7 @@ def A_non_singlet_as2(n, sx, L, _nf=0):
 
 
 @nb.njit(cache=True)
-def A_non_singlet_as2(n, sx, L, _nf=0):
+def A_non_singlet_as1(n, sx, L, _nf=0):
     r"""Computes the tower of the |NLO| non-singlet |OME|.
 
     Parameters

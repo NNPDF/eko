@@ -85,9 +85,9 @@ def quad_ker(
         ker : float
             evaluated integration kernel
     """
-    ker_base = qkb.QuadKerBase(u, is_log, logx, mode0)
-    integrand = ker_base.integrand(areas)
-    if integrand == 0.0:
+    ker_base = qkb.QuadKerBase(qkb.MODE_EVOLUTION, u, is_log, logx, areas, mode0, mode1)
+    integrand = ker_base.integrand
+    if ker_base.is_empty:
         return 0.0
 
     # compute the actual evolution kernel
@@ -106,7 +106,7 @@ def quad_ker(
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
                 sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
             )
-        ker = qkb.select_singlet_element(ker, mode0, mode1)
+        ker = ker_base.select_element(ker)
     else:
         gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
         if sv_mode == sv.Modes.exponentiated:
