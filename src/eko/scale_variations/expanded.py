@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
-r"""
-This module contains the scale variation operator in ``ModSV=expanded``
+r"""This module contains the scale variation operator for the expanded scheme (``ModSV=expanded``).
+
+The expressions can be obtained using Eqs. (3.33) and (3.38) of :cite:`AbdulKhalek:2019ihb`.
+Note, however, that our definition of the anomalous dimensions :math:`\gamma`
+includes a further minus sign with resepect to :cite:`AbdulKhalek:2019ihb`, as well as
+our definition of the coefficients of the beta function :math:`\beta_k`
+(compare Eq. (3.3) of :cite:`AbdulKhalek:2019ihb`).
+This effectively introduces a minus signs on terms which include a odd number of :math:`\gamma_j` and :math:`\beta_k` .
 """
 
 
@@ -12,104 +18,100 @@ from .. import beta
 
 @nb.njit(cache=True)
 def gamma_1_variation(gamma, L):
-    r"""
-    Computes the |NLO| anomalous dimension variation.
+    r"""Computes the |NLO| anomalous dimension variation.
 
     Parameters
     ----------
-        gamma : numpy.ndarray
-            anomalous dimensions
-        L : float
-            logarithmic ratio of factorization and renormalization scale
+    gamma : numpy.ndarray
+        anomalous dimensions
+    L : float
+        logarithmic ratio of factorization and renormalization scale
 
     Returns
     -------
-        gamma_1 : complex
-            variation to :math:`\gamma^{(1)}`
+    gamma_1 : complex
+        variation to :math:`\gamma^{(1)}`
     """
-    return -L * gamma[0]
+    return L * gamma[0]
 
 
 @nb.njit(cache=True)
 def gamma_2_variation(gamma, L, beta0, g0e2):
-    r"""
-    Computes the |NNLO| anomalous dimension variation.
+    r"""Computes the |NNLO| anomalous dimension variation.
 
     Parameters
     ----------
-        gamma : numpy.ndarray
-            anomalous dimensions
-        L : float
-            logarithmic ratio of factorization and renormalization scale
-        beta0: float
-            :math:`\beta_0`
-        g0e2: complex
-            :math:`\gamma^{(0),2}`
+    gamma : numpy.ndarray
+        anomalous dimensions
+    L : float
+        logarithmic ratio of factorization and renormalization scale
+    beta0: float
+        :math:`\beta_0`
+    g0e2: complex
+        :math:`\left(\gamma^{(0)}\right)^2`
 
     Returns
     -------
-        gamma_2 : complex
-            variation to :math:`\gamma^{(2)}`
+    gamma_2 : complex
+        variation to :math:`\gamma^{(2)}`
     """
-    return -gamma[1] * L + 1 / 2 * (beta0 * gamma[0] + g0e2) * L**2
+    return gamma[1] * L + 1 / 2 * (beta0 * gamma[0] + g0e2) * L**2
 
 
 @nb.njit(cache=True)
 def gamma_3_variation(gamma, L, beta0, beta1, g0e2, g0e3, g1g0):
-    r"""
-    Computes the |N3LO| anomalous dimension variation.
+    r"""Computes the |N3LO| anomalous dimension variation.
 
     Parameters
     ----------
-        gamma : numpy.ndarray
-            anomalous dimensions
-        L : float
-            logarithmic ratio of factorization and renormalization scale
-        beta0: float
-            :math:`\beta_0`
-        beta0: float
-            :math:`\beta_1`
-        g0e2: complex
-            :math:`\gamma^{(0),2}`
-        g0e3: complex
-            :math:`\gamma^{(0),3}`
-        g1g0: complex
-            :math:`\gamma^{(1)} \gamma^{(0)}`
+    gamma : numpy.ndarray
+        anomalous dimensions
+    L : float
+        logarithmic ratio of factorization and renormalization scale
+    beta0: float
+        :math:`\beta_0`
+    beta0: float
+        :math:`\beta_1`
+    g0e2: complex
+        :math:`\left(\gamma^{(0)}\right)^2`
+    g0e3: complex
+        :math:`\left(\gamma^{(0)}\right)^3`
+    g1g0: complex
+        :math:`\gamma^{(1)} \gamma^{(0)}`
 
     Returns
     -------
-        gamma_3 : complex
-            variation to :math:`\gamma^{(3)}`
+    gamma_3 : complex
+        variation to :math:`\gamma^{(3)}`
     """
     return (
-        -gamma[2] * L
+        gamma[2] * L
         + (1 / 2) * (beta1 * gamma[0] + 2 * beta0 * gamma[1] + 2 * g1g0) * L**2
-        - (1 / 6) * (2 * beta0**2 * gamma[0] + 3 * beta0 * g0e2 + g0e3) * L**3
+        + (1 / 6) * (2 * beta0**2 * gamma[0] + 3 * beta0 * g0e2 + g0e3) * L**3
     )
 
 
 @nb.njit(cache=True)
 def non_singlet_variation(gamma, a_s, order, nf, L):
-    """
-    Scale Variation non-singlet dispatcher
+    """Non-singlet scale variation dispatcher.
 
     Parameters
     ----------
-        gamma : numpy.ndarray
-            anomalous dimensions
-        a_s :  float
-            target coupling value
-        order : int
-            perturbation order
-        nf : int
-            number of active flavors
-        L : float
-            logarithmic ratio of factorization and renormalization scale
+    gamma : numpy.ndarray
+        anomalous dimensions
+    a_s :  float
+        target coupling value
+    order : int
+        perturbation order
+    nf : int
+        number of active flavors
+    L : float
+        logarithmic ratio of factorization and renormalization scale
 
     Returns
     -------
-        sv_ker : numpy.ndarray
-            scale varion kernel
+    sv_ker : numpy.ndarray
+        scale varion kernel
     """
     sv_ker = 1.0
     if order >= 1:
@@ -127,26 +129,25 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
 
 @nb.njit(cache=True)
 def singlet_variation(gamma, a_s, order, nf, L):
-    """
-    Scale Variation singlet dispatcher
+    """Singlet scale cariation dispatcher
 
     Parameters
     ----------
-        gamma : numpy.ndarray
-            anomalous dimensions
-        a_s :  float
-            target coupling value
-        order : int
-            perturbation order
-        nf : int
-            number of active flavors
-        L : float
-            logarithmic ratio of factorization and renormalization scale
+    gamma : numpy.ndarray
+        anomalous dimensions
+    a_s :  float
+        target coupling value
+    order : int
+        perturbation order
+    nf : int
+        number of active flavors
+    L : float
+        logarithmic ratio of factorization and renormalization scale
 
     Returns
     -------
-        sv_ker : numpy.ndarray
-            scale varion kernel
+    sv_ker : numpy.ndarray
+        scale varion kernel
     """
     sv_ker = np.eye(2, dtype=np.complex_)
     gamma = np.ascontiguousarray(gamma)
