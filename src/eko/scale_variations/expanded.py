@@ -47,7 +47,7 @@ def gamma_2_variation(gamma, L, beta0, g0e2):
         logarithmic ratio of factorization and renormalization scale
     beta0: float
         :math:`\beta_0`
-    g0e2: complex
+    g0e2: complex or numpy.ndarray
         :math:`\left(\gamma^{(0)}\right)^2`
 
     Returns
@@ -55,11 +55,11 @@ def gamma_2_variation(gamma, L, beta0, g0e2):
     gamma_2 : complex
         variation to :math:`\gamma^{(2)}`
     """
-    return gamma[1] * L + 1 / 2 * (beta0 * gamma[0] + g0e2) * L**2
+    return gamma[1] * L + 1.0 / 2.0 * (beta0 * gamma[0] + g0e2) * L**2
 
 
 @nb.njit(cache=True)
-def gamma_3_variation(gamma, L, beta0, beta1, g0e2, g0e3, g1g0):
+def gamma_3_variation(gamma, L, beta0, beta1, g0e2, g0e3, g1g0, g0g1):
     r"""Computes the |N3LO| anomalous dimension variation.
 
     Parameters
@@ -72,12 +72,14 @@ def gamma_3_variation(gamma, L, beta0, beta1, g0e2, g0e3, g1g0):
         :math:`\beta_0`
     beta0: float
         :math:`\beta_1`
-    g0e2: complex
+    g0e2: complex or numpy.ndarray
         :math:`\left(\gamma^{(0)}\right)^2`
-    g0e3: complex
+    g0e3: complex or numpy.ndarray
         :math:`\left(\gamma^{(0)}\right)^3`
-    g1g0: complex
+    g1g0: complex or numpy.ndarray
         :math:`\gamma^{(1)} \gamma^{(0)}`
+    g0g1: complex or numpy.ndarray
+        :math:`\gamma^{(0)} \gamma^{(1)} `
 
     Returns
     -------
@@ -86,8 +88,12 @@ def gamma_3_variation(gamma, L, beta0, beta1, g0e2, g0e3, g1g0):
     """
     return (
         gamma[2] * L
-        + (1 / 2) * (beta1 * gamma[0] + 2 * beta0 * gamma[1] + 2 * g1g0) * L**2
-        + (1 / 6) * (2 * beta0**2 * gamma[0] + 3 * beta0 * g0e2 + g0e3) * L**3
+        + (1.0 / 2.0)
+        * (beta1 * gamma[0] + 2.0 * beta0 * gamma[1] + g1g0 + g0g1)
+        * L**2
+        + (1.0 / 6.0)
+        * (2.0 * beta0**2 * gamma[0] + 3.0 * beta0 * g0e2 + g0e3)
+        * L**3
     )
 
 
@@ -121,8 +127,9 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
         sv_ker += a_s**2 * gamma_2_variation(gamma, L, beta0, gamma[0] ** 2)
     if order >= 3:
         beta1 = beta.beta(1, nf)
+        g0g1 = gamma[0] * gamma[1]
         sv_ker += a_s**3 * gamma_3_variation(
-            gamma, L, beta0, beta1, gamma[0] ** 2, gamma[0] ** 3, gamma[0] * gamma[1]
+            gamma, L, beta0, beta1, gamma[0] ** 2, gamma[0] ** 3, g0g1, g0g1
         )
     return sv_ker
 
@@ -162,7 +169,8 @@ def singlet_variation(gamma, a_s, order, nf, L):
         gamma0e3 = gamma0e2 @ gamma[0]
         # here the product is not commutative
         g1g0 = gamma[1] @ gamma[0]
+        g0g1 = gamma[0] @ gamma[1]
         sv_ker += a_s**3 * gamma_3_variation(
-            gamma, L, beta0, beta1, gamma0e2, gamma0e3, g1g0
+            gamma, L, beta0, beta1, gamma0e2, gamma0e3, g1g0, g0g1
         )
     return sv_ker
