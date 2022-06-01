@@ -2,7 +2,7 @@
 # Test N3LO anomalous dimensions
 import numpy as np
 
-from eko.anomalous_dimensions.as4 import gnsm, gNSp, gNSv
+from eko.anomalous_dimensions.as4 import gnsm, gnsp, gnsv
 from eko.constants import CA, CF
 
 # TODO: move this method  out of matching conditions if it will be used
@@ -24,11 +24,11 @@ def test_quark_number_conservation():
     # np.testing.assert_allclose(gamma_nsv(N, NF, sx_cache), 0, rtol=3e-7)
 
     # nf^1 part
-    np.testing.assert_allclose(gNSv.gamma_nss_nf1(N, sx_cache), 0.000400625, atol=2e-6)
+    np.testing.assert_allclose(gnsv.gamma_nss_nf1(N, sx_cache), 0.000400625, atol=2e-6)
 
     # (ns,-)
     # nf^3 part
-    np.testing.assert_allclose(gNSp.gamma_ns_nf3(N, sx_cache), 0, atol=3e-15)
+    np.testing.assert_allclose(gnsp.gamma_ns_nf3(N, sx_cache), 0, atol=3e-15)
     # nf^2 part
     np.testing.assert_allclose(gnsm.gamma_nsm_nf2(N, sx_cache), 0, atol=3e-13)
     # nf^1 part
@@ -69,11 +69,11 @@ def test_non_singlet_reference_moments():
                 gnsm.gamma_nsm(N, NF, sx_cache), nsm_nf4_refs[idx]
             )
             np.testing.assert_allclose(
-                gNSv.gamma_nsv(N, NF, sx_cache), nss_nf4_refs[idx] + nsm_nf4_refs[idx]
+                gnsv.gamma_nsv(N, NF, sx_cache), nss_nf4_refs[idx] + nsm_nf4_refs[idx]
             )
         gamma_nss = (
-            gNSv.gamma_nss_nf1(N, sx_cache) * NF
-            + gNSv.gamma_nss_nf2(N, sx_cache) * NF**2
+            gnsv.gamma_nss_nf1(N, sx_cache) * NF
+            + gnsv.gamma_nss_nf2(N, sx_cache) * NF**2
         )
         np.testing.assert_allclose(gamma_nss, nss_nf4_refs[idx], atol=4e-4)
 
@@ -93,7 +93,7 @@ def test_singlet_reference_moments():
     for N in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0]:
         sx_cache = compute_harmonics_cache(N, 3, False)
         np.testing.assert_allclose(
-            gNSp.gamma_nsp(N, NF, sx_cache), nsp_nf4_refs[int((N - 2) / 2)]
+            gnsp.gamma_nsp(N, NF, sx_cache), nsp_nf4_refs[int((N - 2) / 2)]
         )
 
 
@@ -165,6 +165,6 @@ def test_diff_pm_nf2():
     ref_vals = []
     for N in range(n_init, 51):
         sx_cache = compute_harmonics_cache(N, 3, not bool(N % 2))
-        diff.append(gNSp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
+        diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
         ref_vals.append(deltaB3(N, sx_cache))
     np.testing.assert_allclose(diff, ref_vals, atol=4e-3)

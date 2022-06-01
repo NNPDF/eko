@@ -28,5 +28,5 @@ The large-N expression are based on the 4-loop QCD-cusp calculation :cite:`Henn:
 
 """
 from .gnsm import gamma_nsm
-from .gNSp import gamma_nsp
-from .gNSv import gamma_nsv
+from .gnsp import gamma_nsp
+from .gnsv import gamma_nsv
