@@ -18,6 +18,8 @@ For the non singlet anomalous dimensions:
     *   The remaining contributions are all fitted and includes:
         -   The small-x limit, given in the large :math:`n_c` approximation by
             :cite:`Davies:2022ofz` (see Eq. 3.3, 3.8, 3.9, 3.10).
+            Note the expressions are evaluated with the exact values of the |QCD|
+            to better agree with the :cite:`Moch:2017uml` parametrization.
         -   The large-N limit see :cite:`Moch:2017uml` (Eq. 2.17), where :math:`\\ln(N)+\\gamma_{E}`
             is replaced by :math:`S1`.
             This limit is common for all
@@ -25,7 +27,7 @@ For the non singlet anomalous dimensions:
         -   The 8 lowest N moments provided in :cite:`Moch:2017uml`.
         -   The difference between the given moments and the known limits is fitted
             using a basis containing:
-                :math:`1,1/(n+1),1/(n+2),1/(n+3),1/(n+4),S1/(n+1),S1/n^2,1/(n+1)^2`
+                :math:`1,1/(n+2),S1/n^2,S1/(n+1),S1/(n+1)^2,S1/(n+1)^3,1/(n+1)^2,1/(n+1)^3`
 
 The large-N expression are based on the 4-loop QCD-cusp calculation :cite:`Henn:2019swt`.
 """
