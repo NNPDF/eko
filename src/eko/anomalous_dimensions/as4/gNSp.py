@@ -4,29 +4,25 @@ This module contains the anomalous dimension :math:`\\gamma_{ns,+}^{(3)}`
 """
 import numba as nb
 
-from .gNSm import gamma_ns_nf3
+from .gnsm import gamma_ns_nf3
 
 
 @nb.njit(cache=True)
 def gamma_nsp_nf2(n, sx):
-    """
-    Implements the parametrized singlet-like non-singlet part proportional to :math:`nf^2`.
+    """Implements the parametrized singlet-like non-singlet part proportional to :math:`nf^2`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        g_nsp_nf2 : complex
-            |N3LO| singlet-like non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^2}`
+    g_nsp_nf2 : complex
+        |N3LO| singlet-like non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^2}`
 
-    See Also
-    --------
-        delta_B3: :math:`\\delta B^{(3)}`
     """
     S1 = sx[0][0]
     return (
@@ -50,20 +46,20 @@ def gamma_nsp_nf2(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsp_nf1(n, sx):
-    """
-    Implements the parametrized singlet-like non-singlet part proportional to :math:`nf^1`.
+    """Implements the parametrized singlet-like non-singlet part proportional to :math:`nf^1`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        g_nsp_nf1 : complex
-            |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^1}`
+    g_nsp_nf1 : complex
+        |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^1}`
+
     """
     S1 = sx[0][0]
     return (
@@ -88,20 +84,20 @@ def gamma_nsp_nf1(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsp_nf0(n, sx):
-    """
-    Implements the parametrized singlet-like non-singlet part proportional to :math:`nf^0`.
+    """Implements the parametrized singlet-like non-singlet part proportional to :math:`nf^0`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        g_nsp_nf0 : complex
-            |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^0}`
+    g_nsp_nf0 : complex
+        |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^0}`
+
     """
     S1 = sx[0][0]
     return (
@@ -127,30 +123,30 @@ def gamma_nsp_nf0(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsp(n, nf, sx):
-    """
-    Computes the |N3LO| singlet-like non-singlet anomalous dimension.
+    """Computes the |N3LO| singlet-like non-singlet anomalous dimension.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        nf : int
-            Number of active flavors
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    nf : int
+        Number of active flavors
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        gamma_nsp : complex
-            |N3LO| singlet-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,+}^{(3)}(N)`
+    gamma_nsp : complex
+        |N3LO| singlet-like non-singlet anomalous dimension
+        :math:`\\gamma_{ns,+}^{(3)}(N)`
 
     See Also
     --------
-        gamma_nsp_nf0: :math:`\\gamma_{ns,+}^{(3)}|_{nf^0}`
-        gamma_nsp_nf1: :math:`\\gamma_{ns,+}^{(3)}|_{nf^1}`
-        gamma_nsp_nf2: :math:`\\gamma_{ns,+}^{(3)}|_{nf^2}`
-        gamma_ns_nf3: :math:`\\gamma_{ns}^{(3)}|_{nf^3}`
+    gamma_nsp_nf0: :math:`\\gamma_{ns,+}^{(3)}|_{nf^0}`
+    gamma_nsp_nf1: :math:`\\gamma_{ns,+}^{(3)}|_{nf^1}`
+    gamma_nsp_nf2: :math:`\\gamma_{ns,+}^{(3)}|_{nf^2}`
+    gamma_ns_nf3: :math:`\\gamma_{ns}^{(3)}|_{nf^3}`
+
     """
     return (
         gamma_nsp_nf0(n, sx)

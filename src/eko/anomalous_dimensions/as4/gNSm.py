@@ -10,23 +10,22 @@ from ...harmonics.constants import zeta3
 
 @nb.njit(cache=True)
 def gamma_ns_nf3(n, sx):
-    """
-    Implements the common part proportional to :math:`nf^3`,
-    of :math:`\\gamma_{ns,+}^{(3)},\\gamma_{ns,-}^{(3)},\\gamma_{ns,v}^{(3)}`
-
-    The expression is copied exact from Eq. 3.6. of :cite:`Davies:2016jie`
+    """Implements the common part proportional to :math:`nf^3`,
+    of :math:`\\gamma_{ns,+}^{(3)},\\gamma_{ns,-}^{(3)},\\gamma_{ns,v}^{(3)}`.
+    The expression is copied exact from Eq. 3.6. of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        g_ns_nf3 : complex
-            |N3LO| non-singlet anomalous dimension :math:`\\gamma_{ns}^{(3)}|_{nf^3}`
+    g_ns_nf3 : complex
+        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{ns}^{(3)}|_{nf^3}`
+
     """
     S1 = sx[0][0]
     S2 = sx[1][0]
@@ -54,21 +53,21 @@ def gamma_ns_nf3(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsm_nf2(n, sx):
-    """
-    Implements the parametrized valence-like non-singlet part proportional to :math:`nf^2`
+    """Implements the parametrized valence-like non-singlet part proportional to :math:`nf^2`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        g_ns_nf2 : complex
-            |N3LO| valence-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,-}^{(3)}|_{nf^2}`
+    g_ns_nf2 : complex
+        |N3LO| valence-like non-singlet anomalous dimension
+        :math:`\\gamma_{ns,-}^{(3)}|_{nf^2}`
+
     """
     S1 = sx[0][0]
     return (
@@ -92,21 +91,21 @@ def gamma_nsm_nf2(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsm_nf1(n, sx):
-    """
-    Implements the parametrized valence-like non-singlet part proportional to :math:`nf^1`
+    """Implements the parametrized valence-like non-singlet part proportional to :math:`nf^1`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        g_ns_nf1 : complex
-            |N3LO| valence-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,-}^{(3)}|_{nf^1}`
+    g_ns_nf1 : complex
+        |N3LO| valence-like non-singlet anomalous dimension
+        :math:`\\gamma_{ns,-}^{(3)}|_{nf^1}`
+
     """
     S1 = sx[0][0]
     return (
@@ -131,15 +130,14 @@ def gamma_nsm_nf1(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsm_nf0(n, sx):
-    """
-    Implements the parametrized valence-like non-singlet part proportional to :math:`nf^0`
+    """Implements the parametrized valence-like non-singlet part proportional to :math:`nf^0`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
@@ -171,30 +169,30 @@ def gamma_nsm_nf0(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsm(n, nf, sx):
-    """
-    Computes the |N3LO| valence-like non-singlet anomalous dimension.
+    """Computes the |N3LO| valence-like non-singlet anomalous dimension.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        nf : int
-            Number of active flavors
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    nf : int
+        Number of active flavors
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        gamma_nsp : complex
-            |N3LO| valence-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,-}^{(3)}(N)`
+    gamma_nsp : complex
+        |N3LO| valence-like non-singlet anomalous dimension
+        :math:`\\gamma_{ns,-}^{(3)}(N)`
 
     See Also
     --------
-        gamma_nsm_nf0: :math:`\\gamma_{ns,-}^{(3)}|_{nf^0}`
-        gamma_nsm_nf1: :math:`\\gamma_{ns,-}^{(3)}|_{nf^1}`
-        gamma_nsm_nf2: :math:`\\gamma_{ns,-}^{(3)}|_{nf^2}`
-        gamma_ns_nf3: :math:`\\gamma_{ns}^{(3)}|_{nf^3}`
+    gamma_nsm_nf0: :math:`\\gamma_{ns,-}^{(3)}|_{nf^0}`
+    gamma_nsm_nf1: :math:`\\gamma_{ns,-}^{(3)}|_{nf^1}`
+    gamma_nsm_nf2: :math:`\\gamma_{ns,-}^{(3)}|_{nf^2}`
+    gamma_ns_nf3: :math:`\\gamma_{ns}^{(3)}|_{nf^3}`
+
     """
     return (
         gamma_nsm_nf0(n, sx)

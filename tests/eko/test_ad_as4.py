@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-# Test NNLO anomalous dims
+# Test N3LO anomalous dimensions
 import numpy as np
 
-from eko.anomalous_dimensions.as4 import gNSm, gNSp, gNSv
+from eko.anomalous_dimensions.as4 import gnsm, gNSp, gNSv
 from eko.constants import CA, CF
 
 # TODO: move this method  out of matching conditions if it will be used
@@ -30,13 +30,13 @@ def test_quark_number_conservation():
     # nf^3 part
     np.testing.assert_allclose(gNSp.gamma_ns_nf3(N, sx_cache), 0, atol=3e-15)
     # nf^2 part
-    np.testing.assert_allclose(gNSm.gamma_nsm_nf2(N, sx_cache), 0, atol=3e-13)
+    np.testing.assert_allclose(gnsm.gamma_nsm_nf2(N, sx_cache), 0, atol=3e-13)
     # nf^1 part
-    np.testing.assert_allclose(gNSm.gamma_nsm_nf1(N, sx_cache), 0, atol=2e-11)
+    np.testing.assert_allclose(gnsm.gamma_nsm_nf1(N, sx_cache), 0, atol=2e-11)
     # nf^0 part
-    np.testing.assert_allclose(gNSm.gamma_nsm_nf0(N, sx_cache), 0, atol=2e-10)
+    np.testing.assert_allclose(gnsm.gamma_nsm_nf0(N, sx_cache), 0, atol=2e-10)
     # total
-    np.testing.assert_allclose(gNSm.gamma_nsm(N, NF, sx_cache), 0, atol=1e-10)
+    np.testing.assert_allclose(gnsm.gamma_nsm(N, NF, sx_cache), 0, atol=1e-10)
 
 
 def test_non_singlet_reference_moments():
@@ -66,7 +66,7 @@ def test_non_singlet_reference_moments():
         idx = int((N - 3) / 2)
         if N != 17:
             np.testing.assert_allclose(
-                gNSm.gamma_nsm(N, NF, sx_cache), nsm_nf4_refs[idx]
+                gnsm.gamma_nsm(N, NF, sx_cache), nsm_nf4_refs[idx]
             )
             np.testing.assert_allclose(
                 gNSv.gamma_nsv(N, NF, sx_cache), nss_nf4_refs[idx] + nsm_nf4_refs[idx]
@@ -165,6 +165,6 @@ def test_diff_pm_nf2():
     ref_vals = []
     for N in range(n_init, 51):
         sx_cache = compute_harmonics_cache(N, 3, not bool(N % 2))
-        diff.append(gNSp.gamma_nsp_nf2(N, sx_cache) - gNSm.gamma_nsm_nf2(N, sx_cache))
+        diff.append(gNSp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
         ref_vals.append(deltaB3(N, sx_cache))
     np.testing.assert_allclose(diff, ref_vals, atol=4e-3)

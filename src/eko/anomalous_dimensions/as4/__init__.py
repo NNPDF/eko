@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-This file contains the |N3LO| Altarelli-Parisi splitting kernels.
-
+"""This subpackage contains the |N3LO| Altarelli-Parisi splitting kernels.
 
 For the non singlet anomalous dimensions:
     *   The part proportional to :math:`nf^3`,
@@ -13,7 +11,7 @@ For the non singlet anomalous dimensions:
         copied from :cite:`Moch:2017uml`, `gNSv.gamma_nss_nf1`.
 
     *   The remaining contributions are all fitted and includes:
-        -   The small-x limit, given in the large :math:`n_c` approximation by
+        -   The small-x limit, given in the large :math:`N_c` approximation by
             :cite:`Davies:2022ofz` (see Eq. 3.3, 3.8, 3.9, 3.10).
             Note the expressions are evaluated with the exact values of the |QCD|
             to better agree with the :cite:`Moch:2017uml` parametrization.
@@ -27,7 +25,8 @@ For the non singlet anomalous dimensions:
                 :math:`1,1/(n+2),S1/n^2,S1/(n+1),S1/(n+1)^2,S1/(n+1)^3,1/(n+1)^2,1/(n+1)^3`
 
 The large-N expression are based on the 4-loop QCD-cusp calculation :cite:`Henn:2019swt`.
+
 """
-from .gNSm import gamma_nsm
+from .gnsm import gamma_nsm
 from .gNSp import gamma_nsp
 from .gNSv import gamma_nsv

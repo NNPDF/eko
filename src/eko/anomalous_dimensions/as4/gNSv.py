@@ -4,26 +4,26 @@ This module contains the anomalous dimension :math:`\\gamma_{ns,v}^{(3)}`
 """
 import numba as nb
 
-from .gNSm import gamma_nsm
+from .gnsm import gamma_nsm
 
 
 @nb.njit(cache=True)
 def gamma_nss_nf2(n, sx):
-    """
-    Implements the sea non-singlet part proportional to :math:`nf^2`
+    """Implements the sea non-singlet part proportional to :math:`nf^2`
     as in Eq. 3.5 of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        g_nss_nf2 : complex
-            |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,s}^{(3)}|_{nf^2}`
+    g_nss_nf2 : complex
+        |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,s}^{(3)}|_{nf^2}`
+
     """
     S1, _ = sx[0]
     S2, Sm2 = sx[1]
@@ -165,22 +165,22 @@ def gamma_nss_nf2(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nss_nf1(n, sx):
-    """
-    Implements the sea non-singlet part proportional to :math:`nf^1`.
+    """Implements the sea non-singlet part proportional to :math:`nf^1`.
     The expression is the average of the Mellin transform
     of Eq. 4.19, 4.20 of :cite:`Moch:2017uml`
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        g_nss_nf1 : complex
-            |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,s}^{(3)}|_{nf^1}`
+    g_nss_nf1 : complex
+        |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,s}^{(3)}|_{nf^1}`
+
     """
     S1 = sx[0][0]
     S2 = sx[1][0]
@@ -220,17 +220,16 @@ def gamma_nss_nf1(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsv(n, nf, sx):
-    """
-    Computes the |N3LO| valence non-singlet anomalous dimension.
+    """Computes the |N3LO| valence non-singlet anomalous dimension.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        nf : int
-            Number of active flavors
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    nf : int
+        Number of active flavors
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
@@ -240,12 +239,13 @@ def gamma_nsv(n, nf, sx):
 
     See Also
     --------
-        gamma_nsm: :math:`\\gamma_{ns,-}^{(3)}`
-        gamma_nss_nf1: :math:`\\gamma_{ns,s}^{(3)}|_{nf^1}`
-        gamma_nss_nf2: :math:`\\gamma_{ns,s}^{(3)}|_{nf^2}`
+    gamma_nsm: :math:`\\gamma_{ns,-}^{(3)}`
+    gamma_nss_nf1: :math:`\\gamma_{ns,s}^{(3)}|_{nf^1}`
+    gamma_nss_nf2: :math:`\\gamma_{ns,s}^{(3)}|_{nf^2}`
+
     """
     return (
         gamma_nsm(n, nf, sx)
-        + nf * +gamma_nss_nf1(n, sx)
+        + nf * gamma_nss_nf1(n, sx)
         + nf**2 * gamma_nss_nf2(n, sx)
     )
