@@ -12,9 +12,6 @@ For the non singlet anomalous dimensions:
     *   In :math:`\\gamma_{ns,s}^{(3)}`: the part proportional to :math:`nf^1` is
         copied from :cite:`Moch:2017uml`, `gNSv.gamma_nss_nf1`.
 
-    *   The difference between :math:`\\gamma_{ns,+}^{(3)}-\\gamma_{ns,-}^{(3)}` proportional to
-        :math:`nf^2` is exact, see `gNSp.delta_B3`.
-
     *   The remaining contributions are all fitted and includes:
         -   The small-x limit, given in the large :math:`n_c` approximation by
             :cite:`Davies:2022ofz` (see Eq. 3.3, 3.8, 3.9, 3.10).

@@ -3,6 +3,7 @@
 import numpy as np
 
 from eko.anomalous_dimensions.as4 import gNSm, gNSp, gNSv
+from eko.constants import CA, CF
 
 # TODO: move this method  out of matching conditions if it will be used
 # also here...
@@ -29,13 +30,13 @@ def test_quark_number_conservation():
     # nf^3 part
     np.testing.assert_allclose(gNSp.gamma_ns_nf3(N, sx_cache), 0, atol=3e-15)
     # nf^2 part
-    np.testing.assert_allclose(gNSm.gamma_nsm_nf2(N, sx_cache), 0, atol=9e-6)
+    np.testing.assert_allclose(gNSm.gamma_nsm_nf2(N, sx_cache), 0, atol=3e-13)
     # nf^1 part
-    np.testing.assert_allclose(gNSm.gamma_nsm_nf1(N, sx_cache), 0, atol=3e-7)
+    np.testing.assert_allclose(gNSm.gamma_nsm_nf1(N, sx_cache), 0, atol=2e-11)
     # nf^0 part
-    np.testing.assert_allclose(gNSm.gamma_nsm_nf0(N, sx_cache), 0, atol=7e-6)
+    np.testing.assert_allclose(gNSm.gamma_nsm_nf0(N, sx_cache), 0, atol=2e-10)
     # total
-    np.testing.assert_allclose(gNSm.gamma_nsm(N, NF, sx_cache), 0, atol=6e-6)
+    np.testing.assert_allclose(gNSm.gamma_nsm(N, NF, sx_cache), 0, atol=1e-10)
 
 
 def test_non_singlet_reference_moments():
@@ -92,71 +93,78 @@ def test_singlet_reference_moments():
     for N in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0]:
         sx_cache = compute_harmonics_cache(N, 3, False)
         np.testing.assert_allclose(
-            gNSp.gamma_nsp(N, NF, sx_cache), nsp_nf4_refs[int((N - 2) / 2)], rtol=9e-4
+            gNSp.gamma_nsp(N, NF, sx_cache), nsp_nf4_refs[int((N - 2) / 2)]
         )
 
 
 def test_diff_pm_nf2():
-    # exact values of g_ns,+ prop to nf^2, see Eq. 2.12 of :cite:`Davies:2016jie`
-    gns_p_nf2_ref = [
-        -2.803840877914952,
-        117.7814976940519,
-        188.87171647391625,
-        238.68679901047244,
-        277.07930877088023,
-        308.4837803273823,
-        335.1177191046878,
-        358.3007784502141,
-        378.85106713860694,
-        397.32916271288485,
-        414.1262555360935,
-        429.5329384542155,
-        443.76746775104476,
-        457.00052146069135,
-        469.36681505646123,
-        480.9754844895223,
-        491.9157919184809,
-        502.26193535832397,
-        512.0762438997319,
-        521.4115529054055,
-        530.3131765723368,
-        538.820124769626,
-        546.9664132606869,
-        554.7816939160562,
-        562.292174724311,
-        569.5209392368877,
-        576.488620836123,
-        583.2135523833766,
-        589.7122772356583,
-        595.9996044443682,
-        602.0890065401921,
-        607.9926219826734,
-        613.721571594659,
-        619.2859319575805,
-        624.6949916802943,
-        629.9572094569793,
-        635.0804247493609,
-        640.0718085348396,
-        644.9380387370721,
-        649.6852483728882,
-        654.3191732453407,
-        658.8451002269538,
-        663.2679927985199,
-        667.592441020625,
-        671.8227691456708,
-        675.9629881109798,
-        680.0168884780201,
-        683.9879958439881,
-        687.8796516493836,
-        691.694971641426,
-    ]
-    n_init = 1
-    for N in range(n_init, 51):
-        if N == 2:
-            rtol = 2e-3
-        else:
-            rtol = 1e-4
-        sx_cache = compute_harmonics_cache(N, 3, False)
-        np.testing.assert_allclose(
-            gNSp.gamma_nsp_nf2(N, sx_cache), gns_p_nf2_ref[N - 1], rtol=rtol
+    # Test deltaB3: diff g_{ns,-} - g_{ns,+} prop to nf^2
+    # Note that discrepancy for low moments is higher due to
+    # oscillating behavior which is not captured by our parametrization
+    def deltaB3(n, sx):
+        """
+        Implementation of Eq. 3.4 of :cite:`Davies:2016jie`.
+
+        Parameters
+        ----------
+            n : complex
+                Mellin moment
+            sx : list
+                harmonic sums cache
+
+        Returns
+        -------
+            B_3m : complex
+                |N3LO| valence-like non-singlet anomalous dimension part
+                proportional to :math:`C_F (C_A - 2 C_F) nf^2`
+        """
+        S1, _ = sx[0]
+        S2, Sm2 = sx[1]
+        deltaB = (
+            -(1 / (729 * n**5 * (1 + n) ** 5))
+            * CF
+            * (CA - 2 * CF)
+            * 9
+            * 16
+            * (
+                -54
+                - 60 * n
+                + 211 * n**2
+                + 367 * n**3
+                + 73 * n**4
+                - 255 * n**5
+                - 475 * n**6
+                - 138 * n**7
+                - 39 * n**8
+                - 36 * n**2 * (1 + n) ** 2 * (1 + 2 * n + 2 * n**2) * Sm2
+                + 6
+                * n
+                * (
+                    -12
+                    - 22 * n
+                    + 29 * n**2
+                    + 116 * n**3
+                    + 147 * n**4
+                    + 79 * n**5
+                    + 12 * n**6
+                    + 3 * n**7
+                )
+                * S1
+                - 36 * n**2 * (1 + n) ** 2 * (1 + 2 * n + 2 * n**2) * S1**2
+                - 36 * n**2 * S2
+                - 144 * n**3 * S2
+                - 252 * n**4 * S2
+                - 216 * n**5 * S2
+                - 72 * n**6 * S2
+            )
         )
+        return deltaB
+
+    n_init = 10
+    diff = []
+    ref_vals = []
+    for N in range(n_init, 51):
+        sx_cache = compute_harmonics_cache(N, 3, not bool(N % 2))
+        diff.append(gNSp.gamma_nsp_nf2(N, sx_cache) - gNSm.gamma_nsm_nf2(N, sx_cache))
+        ref_vals.append(deltaB3(N, sx_cache))
+    np.testing.assert_allclose(diff, ref_vals, atol=4e-3)
