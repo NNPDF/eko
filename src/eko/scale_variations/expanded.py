@@ -76,7 +76,7 @@ def variation_as3(gamma, L, beta0, beta1, g0e2, g0e3, g1g0, g0g1):
     g1g0: complex or numpy.ndarray
         :math:`\gamma^{(1)} \gamma^{(0)}`
     g0g1: complex or numpy.ndarray
-        :math:`\gamma^{(0)} \gamma^{(1)} `
+        :math:`\gamma^{(0)} \gamma^{(1)}`
 
     Returns
     -------
