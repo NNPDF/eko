@@ -26,8 +26,8 @@ def variation_as1(gamma, L):
 
     Returns
     -------
-    gamma_1 : complex
-        variation to :math:`\gamma^{(1)}`
+    complex
+        variation at |NLO|
     """
     return -L * gamma[0]
 
@@ -49,8 +49,8 @@ def variation_as2(gamma, L, beta0, g0e2):
 
     Returns
     -------
-    gamma_2 : complex
-        variation to :math:`\gamma^{(2)}`
+    complex
+        variation at |NNLO|
     """
     return -gamma[1] * L + 1.0 / 2.0 * (beta0 * gamma[0] + g0e2) * L**2
 
@@ -80,8 +80,8 @@ def variation_as3(gamma, L, beta0, beta1, g0e2, g0e3, g1g0, g0g1):
 
     Returns
     -------
-    gamma_3 : complex
-        variation to :math:`\gamma^{(3)}`
+    complex
+        variation at |N3LO|
     """
     return (
         -gamma[2] * L
@@ -113,8 +113,8 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
 
     Returns
     -------
-    sv_ker : numpy.ndarray
-        scale varion kernel
+    complex
+        scale variation kernel
     """
     sv_ker = 1.0
     if order >= 1:
@@ -133,7 +133,7 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
 
 @nb.njit(cache=True)
 def singlet_variation(gamma, a_s, order, nf, L):
-    """Singlet scale cariation dispatcher
+    """Singlet scale variation dispatcher.
 
     Parameters
     ----------
@@ -150,8 +150,8 @@ def singlet_variation(gamma, a_s, order, nf, L):
 
     Returns
     -------
-    sv_ker : numpy.ndarray
-        scale varion kernel
+    numpy.ndarray
+        scale variation kernel
     """
     sv_ker = np.eye(2, dtype=np.complex_)
     gamma = np.ascontiguousarray(gamma)
