@@ -3,12 +3,6 @@ name: tests
 on: push
 
 jobs:
-  py37:
-    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
-    with:
-      python-version: "3.7"
-      poetry-extras: "-E mark"
-
   py38:
     uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
     with:

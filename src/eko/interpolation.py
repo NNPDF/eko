@@ -562,21 +562,23 @@ class InterpolatorDispatcher:
         return self.basis[item]
 
     def get_interpolation(self, targetgrid):
-        """
-        Computes interpolation matrix between `targetgrid` and `xgrid`.
+        """Computes interpolation matrix between `targetgrid` and `xgrid`.
 
         .. math::
             f(targetgrid) = R \\cdot f(xgrid)
 
         Parameters
         ----------
-            targetgrid : array
-                grid to interpolate to
+        targetgrid : array
+            grid to interpolate to
 
         Returns
         -------
-            R : array
-                interpolation matrix, do be multiplied from the left(!)
+        R : array
+            interpolation matrix $R_{ij}$, where $i$ is the index over
+            `targetgrid`, and $j$ is the index on the internal basis (the
+            one stored in the :class:`InterpolatorDispatcher` instance)
+
         """
         # trivial?
         if len(targetgrid) == len(self.xgrid_raw) and np.allclose(

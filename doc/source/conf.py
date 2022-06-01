@@ -227,7 +227,7 @@ epub_exclude_files = ["search.html"]
 # Thanks https://github.com/bskinn/sphobjinv
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy", None),
     "numpy": ("https://numpy.org/doc/stable", None),
 }
 
