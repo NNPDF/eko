@@ -91,7 +91,7 @@ def test_singlet_reference_moments():
         8119.044600816003,
     ]
     for N in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0]:
-        sx_cache = compute_harmonics_cache(N, 3, False)
+        sx_cache = compute_harmonics_cache(N, 3, True)
         np.testing.assert_allclose(
             gnsp.gamma_nsp(N, NF, sx_cache), nsp_nf4_refs[int((N - 2) / 2)]
         )
@@ -160,11 +160,18 @@ def test_diff_pm_nf2():
         )
         return deltaB
 
-    n_init = 10
     diff = []
     ref_vals = []
-    for N in range(n_init, 51):
+    for N in range(10, 51):
         sx_cache = compute_harmonics_cache(N, 3, not bool(N % 2))
         diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
         ref_vals.append(deltaB3(N, sx_cache))
-    np.testing.assert_allclose(diff, ref_vals, atol=4e-3)
+    np.testing.assert_allclose(diff, ref_vals, atol=5e-4)
+
+    diff = []
+    ref_vals = []
+    for N in range(4, 10):
+        sx_cache = compute_harmonics_cache(N, 3, not bool(N % 2))
+        diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
+        ref_vals.append(deltaB3(N, sx_cache))
+    np.testing.assert_allclose(diff, ref_vals, atol=2e-2)
