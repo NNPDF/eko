@@ -36,6 +36,7 @@ EKO is ...
     theory/FlavorSpace
     theory/pQCD
     theory/DGLAP
+    theory/N3LO_ad
     theory/Matching
 
     zzz-refs

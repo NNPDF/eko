@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-"""
-This module contains the anomalous dimension :math:`\\gamma_{ns,+}^{(3)}`
+"""This module contains the anomalous dimension :math:`\\gamma_{ns,+}^{(3)}`
+
 """
 import numba as nb
 
