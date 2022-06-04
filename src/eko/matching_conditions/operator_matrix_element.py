@@ -48,22 +48,19 @@ def compute_harmonics_cache(n, order, is_singlet):
 
     """
     # max harmonics sum weight for each qcd order
-    max_weight = {1: 2, 2: 3, 3: 3}
-    # _N3LO_ max_weight = {1: 2, 2: 3, 3: 5}
+    max_weight = {1: 2, 2: 3, 3: 5}
     # max number of harmonics sum of a given weight for each qcd order
-    n_max_sums_weight = {1: 1, 2: 3, 3: 3}
-    # _N3LO_ n_max_sums_weight = {1: 1, 2: 3, 3: 7}
+    n_max_sums_weight = {1: 1, 2: 3, 3: 7}
     sx = harmonics.base_harmonics_cache(
         n, is_singlet, max_weight[order], n_max_sums_weight[order]
     )
-    # _N3LO_ if order == 2:
-    if order >= 2:
+    if order == 2:
         # Add Sm21 to cache
         sx[2, 1] = harmonics.Sm21(n, sx[0, 0], sx[0, -1], is_singlet)
-    # _N3LO_ if order == 3:
-    #     # Add weight 3 and 4 to cache
-    #     sx[2, 1:-2] = harmonics.s3x(n, sx[:, 0], sx[:, -1], is_singlet)
-    #     sx[3, 1:-1] = harmonics.s4x(n, sx[:, 0], sx[:, -1], is_singlet)
+    if order == 3:
+        # Add weight 3 and 4 to cache
+        sx[2, 1:-2] = harmonics.s3x(n, sx[:, 0], sx[:, -1], is_singlet)
+        sx[3, 1:-1] = harmonics.s4x(n, sx[:, 0], sx[:, -1], is_singlet)
     # return list of list keeping the non zero values
     return [[el for el in sx_list if el != 0] for sx_list in sx]
 
