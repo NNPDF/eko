@@ -12,7 +12,9 @@ import numba as nb
 import numpy as np
 import scipy
 
-from . import constants, thresholds
+from . import constants
+from . import scale_variations as sv
+from . import thresholds
 from .beta import b as beta_b
 from .beta import beta
 
@@ -242,6 +244,8 @@ class StrongCoupling:
             raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
         # adjust factorization scale / renormalization scale
         fact_to_ren = theory_card["fact_to_ren_scale_ratio"]
+        if sv.sv_mode(theory_card["ModSV"]) is not sv.Modes.exponentiated:
+            fact_to_ren = 1.0
         heavy_flavors = "cbt"
         if masses is None:
             masses = np.power(
