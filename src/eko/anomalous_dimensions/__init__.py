@@ -165,3 +165,51 @@ def gamma_singlet(order, n, nf):
         sx = np.append(sx, harmonics.S4(n))
         gamma_s[2] = -as3.gamma_singlet(n, nf, sx)
     return gamma_s
+
+
+@nb.njit(cache=True)
+def exp_4x4_sector(gamma_S):
+    r"""
+    Computes the exponential and the eigensystem of the singlet anomalous dimension matrix
+
+    Parameters
+    ----------
+        gamma_S : numpy.ndarray
+            singlet anomalous dimension matrix
+
+    Returns
+    -------
+        exp : numpy.ndarray
+            exponential of the singlet anomalous dimension matrix :math:`\gamma_{S}(N)`
+        lambda_p : complex
+            positive eigenvalue of the singlet anomalous dimension matrix
+            :math:`\gamma_{S}(N)`
+        lambda_m : complex
+            negative eigenvalue of the singlet anomalous dimension matrix
+            :math:`\gamma_{S}(N)`
+        e_p : numpy.ndarray
+            projector for the positive eigenvalue of the singlet anomalous
+            dimension matrix :math:`\gamma_{S}(N)`
+        e_m : numpy.ndarray
+            projector for the negative eigenvalue of the singlet anomalous
+            dimension matrix :math:`\gamma_{S}(N)`
+
+    See Also
+    --------
+        eko.anomalous_dimensions.as1.gamma_singlet : :math:`\gamma_{S}^{(0)}(N)`
+        eko.anomalous_dimensions.as2.gamma_singlet : :math:`\gamma_{S}^{(1)}(N)`
+        eko.anomalous_dimensions.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
+    """
+    # compute Matrix of coefficients
+    w, v = np.linalg.eig(gamma_S)
+    V = np.transpose(v).dot(v)
+    C = np.linalg.inv(V)
+    # compute projectors
+    tmp = C.dot(np.transpose(v))
+    e1 = v[:, 0, np.newaxis].dot(tmp[np.newaxis, 0, :])
+    e2 = v[:, 1, np.newaxis].dot(tmp[np.newaxis, 1, :])
+    e3 = v[:, 2, np.newaxis].dot(tmp[np.newaxis, 2, :])
+    e4 = v[:, 3, np.newaxis].dot(tmp[np.newaxis, 3, :])
+    e = np.array([e1, e2, e3, e4])
+    exp = sum(e[i] * np.exp(w[i]) for i in range(4))
+    return exp, w, e
