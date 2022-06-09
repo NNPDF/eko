@@ -1,0 +1,215 @@
+# -*- coding: utf-8 -*-
+"""This file implements the |N3LO| evolution integrals"""
+
+import numba as nb
+import numpy as np
+
+
+@nb.njit(cache=True)
+def roots(b_list):
+    """Returns the roots of:
+
+    .. math ::
+        1 + b_1 a_s + b_2 a_s^2 + b_3 a_s^3 = 0
+
+    Parameters
+    ----------
+    b_list : list
+        :math:`[b_1, b_2, b_3]`
+    Returns
+    -------
+    list
+        list of complex roots
+
+    """
+    b1, b2, b3 = b_list
+    d1 = -(b2**2) + 3 * b1 * b3
+    d2 = -2 * b2**3 + 9 * b1 * b2 * b3 - 27 * b3**2
+    d3 = ((d2 + np.sqrt(4 * d1**3 + d2**2)) / 2) ** (1.0 / 3.0)
+    r1 = 1 / (3 * b3) * (-b2 - d1 / d3 + d3)
+    r2 = (1 / (3 * b3)) * (
+        -b2
+        + ((1 + 1.0j * np.sqrt(3)) * d1) / (2 * d3)
+        - ((1 - 1.0j * np.sqrt(3)) * d3) / 2
+    )
+    r3 = (1 / (3 * b3)) * (
+        -b2
+        + ((1 - 1.0j * np.sqrt(3)) * d1) / (2 * d3)
+        - ((1 + 1.0j * np.sqrt(3)) * d3) / 2
+    )
+    return [r1, r2, r3]
+
+
+@nb.njit(cache=True)
+def derivative(r, b_list):
+    r"""Returns the derivative:
+
+    .. math ::
+        \frac{d}{d a_s}(1 + b_1 a_s + b_2 a_s^2 + b_3 a_s^3) = b_1 + 2 b_2 r + 3 b_3 r^2
+
+    Parameters
+    ----------
+    a_s :
+        coupling constant
+    b_list : list
+        :math:`[b_1, b_2, b_3]`
+
+    Returns
+    -------
+    float :
+        evaluated derivative
+
+    """
+    b1, b2, b3 = b_list
+    return b1 + 2 * b2 * r + 3 * b3 * r**2
+
+
+@nb.njit(cache=True)
+def j33_exact(a1, a0, beta0, b_list, roots):
+    r"""|N3LO|-|N3LO| exact evolution definite integral
+    evaluated at :math:`a_s-a_s^0`.
+
+    .. math::
+
+        j^{(3,3)}(a_s) =  \frac{1}{\beta_0} \left( \sum_{r=r_1}^{r_3} \frac{\ln(a_s-r) r^2}{b_1 + 2 b_2 r + 3 b_3 r^2} \right)
+
+    Parameters
+    ----------
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta0 : float
+        :math:`\beta_0`
+    b_list : list
+        :math:`[b_1, b_2, b_3]`
+    roots: :math:`[r_1,r_2,r_3]`
+        list of roots of :math:`1 + b_1 a_s + b_2 a_s^2 + b_3 a_s^3`
+
+    Returns
+    -------
+    float
+        evaluated integral
+
+    """
+    return (1 / beta0) * np.sum(
+        [r**2 / derivative(r, b_list) * np.log((a1 - r) / (a0 - r)) for r in roots]
+    )
+
+
+@nb.njit(cache=True)
+def j23_exact(a1, a0, beta0, b_list, roots):
+    r"""|NNLO|-|N3LO| exact evolution definite integral
+    evaluated at :math:`a_s-a_s^0`.
+
+    .. math::
+
+        j^{(2,3)}(a_s) =  \frac{1}{\beta_0} \left( \sum_{r=r_1}^{r_3} \frac{\ln(a_s-r) r}{b_1 + 2 b_2 r + 3 b_3 r^2} \right)
+
+    Parameters
+    ----------
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta0 : float
+        :math:`\beta_0`
+    b_list : list
+        :math:`[b_1, b_2, b_3]`
+    roots: :math:`[r_1,r_2,r_3]`
+        list of roots of :math:`1 + b_1 a_s + b_2 a_s^2 + b_3 a_s^3`
+
+    Returns
+    -------
+    float
+        evaluated integral
+
+    """
+    return (1 / beta0) * np.sum(
+        [r / derivative(r, b_list) * np.log((a1 - r) / (a0 - r)) for r in roots]
+    )
+
+
+@nb.njit(cache=True)
+def j13_exact(a1, a0, beta0, b_list, roots):
+    r"""|NLO|-|N3LO| exact evolution definite integral
+    evaluated at :math:`a_s-a_s^0`.
+
+    .. math::
+
+        j^{(1,3)}(a_s) = \frac{1}{\beta_0} \left( \sum_{r=r_1}^{r_3} \frac{\ln(a_s-r)}{b_1 + 2 b_2 r + 3 b_3 r^2} \right )
+
+    Parameters
+    ----------
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta0 : float
+        :math:`\beta_0`
+    b_list : list
+        :math:`[b_1, b_2, b_3]`
+    roots: :math:`[r_1,r_2,r_3]`
+        list of roots of :math:`1 + b_1 a_s + b_2 a_s^2 + b_3 a_s^3`
+
+    Returns
+    -------
+    float
+        evaluated integral
+
+    """
+    return (1 / beta0) * np.sum(
+        [1 / derivative(r, b_list) * np.log((a1 - r) / (a0 - r)) for r in roots]
+    )
+
+
+@nb.njit(cache=True)
+def j03_exact(j00, j13, j23, j33, b_list):
+    r"""|LO|-|N3LO| exact evolution definite integral
+    evaluated at :math:`a_s-a_s^0`.
+
+    .. math::
+
+        j^{(0,3)}(a_s) = \frac{1}{\beta_0} \left( \ln(a) - \sum_{r=r_1}^{r_3} \frac{b_1 \ln(a_s-r) + b_2 \ln(a_s-r) r + b_3 \ln(a_s-r) r^2}{b_1 + 2 b_2 r + 3 b_3 r^2} \right )
+
+    Parameters
+    ----------
+    j00: float
+        |LO|-|LO| evolution kernel
+    j13: float
+        |NLO|-|N3LO| evolution kernel
+    j23: float
+        |NNLO|-|N3LO| evolution kernel
+    j33: float
+        |N3LO|-|N3LO| evolution kernel
+    b_list : list
+        :math:`[b_1, b_2, b_3]`
+
+    Returns
+    -------
+    float
+        evaluated integral
+
+    """
+    b1, b2, b3 = b_list
+    return j00 - b1 * j13 - b2 * j23 - b3 * j33
+
+
+@nb.njit(cache=True)
+def j33_expanded(a1, a0, nf):
+    return 0
+
+
+@nb.njit(cache=True)
+def j23_expanded(a1, a0, nf):
+    return 0
+
+
+@nb.njit(cache=True)
+def j13_expanded(a1, a0, nf):
+    return 0
+
+
+@nb.njit(cache=True)
+def j03_expanded(a1, a0, nf):
+    return 0

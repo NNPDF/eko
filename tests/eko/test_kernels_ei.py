@@ -8,7 +8,19 @@ from eko.kernels import evolution_integrals as ei
 def test_zero():
     """No evolution results in exp(0)"""
     nf = 3
-    for fnc in [ei.j00, ei.j01_exact, ei.j01_expanded, ei.j11_exact, ei.j11_expanded]:
+    for fnc in [
+        ei.j00,
+        ei.j01_exact,
+        ei.j01_expanded,
+        ei.j11_exact,
+        ei.j11_expanded,
+        ei.j02_exact,
+        ei.j02_expanded,
+        ei.j12_exact,
+        ei.j12_expanded,
+        ei.j22_exact,
+        ei.j22_expanded,
+    ]:
         np.testing.assert_allclose(fnc(1, 1, nf), 0)
 
 
@@ -77,7 +89,7 @@ def test_der_nnlo_exp():
     delta_a = -1e-6
 
     # Integrals are expanded to the order 0( a_s^3 ) so they can match the derivative to a_s^2
-    # The corresponding prefactor  prorpotional to a_s^2 are included in the tollerance.
+    # The corresponding prefactor  proportional to a_s^2 are included in the tolerance.
 
     # 02
     rhs = 1.0 / (

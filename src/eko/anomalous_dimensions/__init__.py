@@ -22,7 +22,7 @@ import numpy as np
 
 from .. import basis_rotation as br
 from .. import harmonics
-from . import aem1, aem2, as1, as1aem1, as2, as3
+from . import aem1, aem2, as1, as1aem1, as2, as3, as4
 
 
 @nb.njit(cache=True)
@@ -127,6 +127,15 @@ def gamma_ns(order, mode, n, nf):
         elif mode == 10200:
             gamma_ns_2 = -as3.gamma_nsv(n, nf, sx)
         gamma_ns[2] = gamma_ns_2
+    # N3LO
+    if order == 3:
+        if mode == 10101:
+            gamma_ns_3 = -as4.gamma_nsp(n, nf, sx)
+        elif mode == 10201:
+            gamma_ns_3 = -as4.gamma_nsm(n, nf, sx)
+        elif mode == 10200:
+            gamma_ns_3 = -as4.gamma_nsv(n, nf, sx)
+        gamma_ns[3] = gamma_ns_3
     return gamma_ns
 
 
