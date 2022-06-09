@@ -11,8 +11,8 @@ The expressions are based on:
     - :cite:`Bl_mlein_2000`. Johannes Blümlein. Analytic continuation of mellin
       transforms up to two-loop order. Computer Physics Communications,
       133(1):76-104, Dec 2000. URL:
-          http://dx.doi.org/10.1016/S0010-4655(00)00156-9,
-          doi:10.1016/s0010-4655(00)00156-9.
+      http://dx.doi.org/10.1016/S0010-4655(00)00156-9,
+      doi:10.1016/s0010-4655(00)00156-9.
     - :cite:`Bierenbaum:2009zt`. Isabella Bierenbaum, Johannes Blümlein, and
       Sebastian Klein. The Gluonic Operator Matrix Elements at O(alpha(s)**2) for
       DIS Heavy Flavor Production. Phys. Lett. B, 672:401-406, 2009.
@@ -41,20 +41,20 @@ The expressions are based on:
     - :cite:`Blumlein:2017wxd`. Johannes Blümlein, Jakob Ablinger, Arnd Behring,
       Abilio De Freitas, Andreas von Manteuffel, Carsten Schneider, and C.
       Schneider. Heavy Flavor Wilson Coefficients in Deep-Inelastic Scattering:
-          Recent Results. PoS, QCDEV2017:031, 2017. arXiv:1711.07957,
-          doi:10.22323/1.308.0031.
+      Recent Results. PoS, QCDEV2017:031, 2017. arXiv:1711.07957,
+      doi:10.22323/1.308.0031.
     - :cite:`Ablinger_2014`. J. Ablinger, J. Blümlein, A. De Freitas, A.
       Hasselhuhn, A. von Manteuffel, M. Round, C. Schneider, and F. Wißbrock. The
       transition matrix element a_gq(n) of the variable flavor number scheme at
       o(α_s^3). Nuclear Physics B, 882:263-288, May 2014. URL:
-          http://dx.doi.org/10.1016/j.nuclphysb.2014.02.007,
-          doi:10.1016/j.nuclphysb.2014.02.007.
+      http://dx.doi.org/10.1016/j.nuclphysb.2014.02.007,
+      doi:10.1016/j.nuclphysb.2014.02.007.
     - :cite:`Ablinger_2015`. J. Ablinger, A. Behring, J. Blümlein, A. De
       Freitas, A. von Manteuffel, and C. Schneider. The 3-loop pure singlet heavy
       flavor contributions to the structure function f2(x,q2) and the anomalous
       dimension. Nuclear Physics B, 890:48-151, Jan 2015. URL:
-          http://dx.doi.org/10.1016/j.nuclphysb.2014.10.008,
-          doi:10.1016/j.nuclphysb.2014.10.008.
+      http://dx.doi.org/10.1016/j.nuclphysb.2014.10.008,
+      doi:10.1016/j.nuclphysb.2014.10.008.
 """
 
 import numba as nb

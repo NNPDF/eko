@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Implemtations of some mellin transformations :cite:`MuselliPhD`
+Implementations of some mellin transformations :cite:`MuselliPhD`
 appearing in the analytic continuation of harmonics sums of weight = 3,4.
 """
 import numba as nb

@@ -414,8 +414,13 @@ class Operator:
                 )
                 temp_dict[label] = res[:2]
             column.append(temp_dict)
-        print(
-            f"{self.log_label}: computing operators: - {k+1}/{self.grid_size} took: {(time.perf_counter() - start_time):6f} s"  # pylint: disable=line-too-long
+
+        logger.info(
+            "%s: computing operators - %u/%u took: %6f s",
+            self.log_label,
+            k + 1,
+            self.grid_size,
+            (time.perf_counter() - start_time),
         )
         return column
 

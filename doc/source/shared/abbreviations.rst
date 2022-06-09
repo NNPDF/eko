@@ -98,3 +98,8 @@
 
 .. |API| replace::
    :abbr:`API (Application Program Interface)`
+
+
+.. |pip| raw:: html
+
+   <a href="https://pip.pypa.io/"><code class="xref">pip</code></a>
