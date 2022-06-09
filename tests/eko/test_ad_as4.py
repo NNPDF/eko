@@ -3,6 +3,7 @@
 import numpy as np
 
 from eko.anomalous_dimensions.as4 import ggg, ggq, gnsm, gnsp, gnsv, gps, gqg
+from eko.constants import CA, CF
 
 # TODO: move this method  out of matching conditions if it will be used
 # also here...
@@ -36,6 +37,23 @@ def test_quark_number_conservation():
     np.testing.assert_allclose(gnsm.gamma_nsm_nf0(N, sx_cache), 0, atol=2e-10)
     # total
     np.testing.assert_allclose(gnsm.gamma_nsm(N, NF, sx_cache), 0, atol=1e-10)
+
+
+def test_momentum_conservation():
+    N = 2
+    sx_cache = compute_harmonics_cache(N, 3, True)
+
+    # nf^3 part
+    np.testing.assert_allclose(
+        gnsp.gamma_ns_nf3(N, sx_cache)
+        + gps.gamma_ps_nf3(N, sx_cache)
+        + ggq.gamma_gq_nf3(N, sx_cache),
+        0,
+        atol=3e-15,
+    )
+    np.testing.assert_allclose(
+        ggg.gamma_gg_nf3(N, sx_cache) + gqg.gamma_qg_nf3(N, sx_cache), 0, atol=2e-7
+    )
 
 
 def test_non_singlet_reference_moments():
