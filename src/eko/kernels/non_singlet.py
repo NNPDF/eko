@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Colletion of non-singlet EKOs.
+Collection of non-singlet EKOs.
 """
 
 import numba as nb
@@ -14,7 +14,7 @@ from . import utils
 nb.njit(cache=True)
 
 
-def U_vec(gamma_ns, nf):
+def U_vec(gamma_ns, nf, order):
     r"""Compute the elements of the non-singlet U vector.
 
     Parameters
@@ -23,15 +23,16 @@ def U_vec(gamma_ns, nf):
         non-singlet anomalous dimension
     nf : int
         number of active flavors
+    order : int
+        perturbative order
 
     Returns
     -------
     np.ndarray
         U vector
-    """
-    order = gamma_ns.size - 1
-    U = np.zeros(order + 1)
 
+    """
+    U = np.zeros(order + 1, dtype=complex)
     beta0 = beta.beta(0, nf)
     R0 = gamma_ns[0] / beta0
     U[0] = 1.0
@@ -128,74 +129,6 @@ def nlo_expanded(gamma_ns, a1, a0, nf):
 
 
 @nb.njit(cache=True)
-def nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
-    """
-    |NLO| non-singlet truncated EKO
-
-    Parameters
-    ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
-        ev_op_iterations : int
-            number of evolution steps
-
-    Returns
-    -------
-        e_ns^1 : complex
-            |NLO| non-singlet truncated EKO
-    """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    U0, U1 = U_vec(gamma_ns, nf)
-    e = 1.0
-    al = a_steps[0]
-    for ah in a_steps[1:]:
-        e0 = lo_exact(gamma_ns, ah, al, nf)
-        e *= e0 * (U0 + (ah - al) * U1)
-        al = ah
-    return e
-
-
-@nb.njit(cache=True)
-def nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
-    """
-    |NLO| non-singlet ordered-truncated EKO
-
-    Parameters
-    ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
-        ev_op_iterations : int
-            number of evolution steps
-
-    Returns
-    -------
-        e_ns^1 : complex
-            |NLO| non-singlet ordered-truncated EKO
-    """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    U0, U1 = U_vec(gamma_ns, nf)
-    e = 1.0
-    al = a_steps[0]
-    for ah in a_steps[1:]:
-        e0 = lo_exact(gamma_ns, ah, al, nf)
-        e *= e0 * (U0 + ah * U1) / (U0 + al * U1)
-        al = ah
-    return e
-
-
-@nb.njit(cache=True)
 def nnlo_exact(gamma_ns, a1, a0, nf):
     """
     |NNLO| non-singlet exact EKO
@@ -252,80 +185,6 @@ def nnlo_expanded(gamma_ns, a1, a0, nf):
 
 
 @nb.njit(cache=True)
-def nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
-    """
-    |NNLO| non-singlet truncated EKO
-
-    Parameters
-    ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
-        ev_op_iterations : int
-            number of evolution steps
-
-    Returns
-    -------
-        e_ns^2 : complex
-            |NNLO| non-singlet truncated EKO
-    """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    U0, U1, U2 = U_vec(gamma_ns, nf)
-    e = 1.0
-    al = a_steps[0]
-    for ah in a_steps[1:]:
-        e0 = lo_exact(gamma_ns, ah, al, nf)
-        e *= e0 * (
-            U0
-            + U1 * (ah - al)
-            + U2 * ah**2
-            - ah * al * U1**2
-            + al**2 * (U1**2 - U2)
-        )
-        al = ah
-    return e
-
-
-@nb.njit(cache=True)
-def nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
-    """
-    |NNLO| non-singlet ordered truncated EKO
-
-    Parameters
-    ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
-        ev_op_iterations : int
-            number of evolution steps
-
-    Returns
-    -------
-        e_ns^2 : complex
-            |NNLO| non-singlet ordered truncated EKO
-    """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    U0, U1, U2 = U_vec(gamma_ns, nf)
-    e = 1.0
-    al = a_steps[0]
-    for ah in a_steps[1:]:
-        e0 = lo_exact(gamma_ns, ah, al, nf)
-        e *= e0 * (U0 + ah * U1 + ah**2 * U2) / (U0 + al * U1 + al**2 * U2)
-        al = ah
-    return e
-
-
-@nb.njit(cache=True)
 def n3lo_expanded(gamma_ns, a1, a0, nf):
     """|N3LO| non-singlet expanded EKO
 
@@ -352,88 +211,6 @@ def n3lo_expanded(gamma_ns, a1, a0, nf):
         + gamma_ns[2] * as4_ei.j23_expanded(a1, a0, nf)
         + gamma_ns[3] * as4_ei.j33_expanded(a1, a0, nf)
     )
-
-
-@nb.njit(cache=True)
-def n3lo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
-    """|N3LO| non-singlet truncated EKO
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    nf : int
-        number of active flavors
-    ev_op_iterations : int
-        number of evolution steps
-
-    Returns
-    -------
-    complex
-        |N3LO| non-singlet truncated EKO
-
-    """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    U0, U1, U2, U3 = U_vec(gamma_ns, nf)
-    e = 1.0
-    al = a_steps[0]
-    for ah in a_steps[1:]:
-        e0 = lo_exact(gamma_ns, ah, al, nf)
-        e *= e0 * (
-            U0
-            + U1 * (ah - al)
-            + U2 * ah**2
-            - ah * al * U1**2
-            + al**2 * (U1**2 - U2)
-            + ah**3 * U3
-            - ah**2 * al * U2 * U1
-            + ah * al**2 * U1 * (U1**2 - U2)
-            - al**3 * (U1**3 - 2 * U1 * U2 + U3)
-        )
-        al = ah
-    return e
-
-
-@nb.njit(cache=True)
-def n3lo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations):
-    """|N3LO| non-singlet ordered truncated EKO
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    nf : int
-        number of active flavors
-    ev_op_iterations : int
-        number of evolution steps
-
-    Returns
-    -------
-    complex
-        |N3LO| non-singlet ordered truncated EKO
-
-    """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    U0, U1, U2, U3 = U_vec(gamma_ns, nf)
-    e = 1.0
-    al = a_steps[0]
-    for ah in a_steps[1:]:
-        e0 = lo_exact(gamma_ns, ah, al, nf)
-        e *= (
-            e0
-            * (U0 + ah * U1 + ah**2 * U2 + ah**3 * U3)
-            / (U0 + al * U1 + al**2 * U2 + al**3 * U3)
-        )
-        al = ah
-    return e
 
 
 @nb.njit(cache=True)
@@ -477,6 +254,92 @@ def n3lo_exact(gamma_ns, a1, a0, nf):
 
 
 @nb.njit(cache=True)
+def eko_ordered_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations):
+    """|NLO|, |NNLO| or |N3LO| non-singlet ordered truncated EKO
+
+    Parameters
+    ----------
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
+    order : int
+        perturbative order
+    ev_op_iterations : int
+        number of evolution steps
+
+    Returns
+    -------
+    complex
+        non-singlet ordered truncated EKO
+
+    """
+    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    U = U_vec(gamma_ns, nf, order)
+    e = 1.0
+    al = a_steps[0]
+    for ah in a_steps[1:]:
+        e0 = lo_exact(gamma_ns, ah, al, nf)
+        num = np.sum([U[i] * ah**i for i in range(order + 1)])
+        den = np.sum([U[i] * al**i for i in range(order + 1)])
+        e *= e0 * num / den
+        al = ah
+    return e
+
+
+@nb.njit(cache=True)
+def eko_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations):
+    """|NLO|, |NNLO| or |N3LO| non-singlet truncated EKO
+
+    Parameters
+    ----------
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
+    order : int
+        perturbative order
+    ev_op_iterations : int
+        number of evolution steps
+
+    Returns
+    -------
+    complex
+        non-singlet truncated EKO
+
+    """
+    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    U = U_vec(gamma_ns, nf, order)
+    e = 1.0
+    al = a_steps[0]
+    fact = U[0]
+    for ah in a_steps[1:]:
+        e0 = lo_exact(gamma_ns, ah, al, nf)
+        if order >= 1:
+            fact += U[1] * (ah - al)
+        if order >= 2:
+            fact += +U[2] * ah**2 - ah * al * U[1] ** 2 + al**2 * (U[1] ** 2 - U[2])
+        if order >= 3:
+            fact += (
+                +(ah**3) * U[3]
+                - ah**2 * al * U[2] * U[1]
+                + ah * al**2 * U[1] * (U[1] ** 2 - U[2])
+                - al**3 * (U[1] ** 3 - 2 * U[1] * U[2] + U[3])
+            )
+        e *= e0 * fact
+        al = ah
+    return e
+
+
+@nb.njit(cache=True)
 def dispatcher(
     order, method, gamma_ns, a1, a0, nf, ev_op_iterations
 ):  # pylint: disable=too-many-return-statements
@@ -510,6 +373,11 @@ def dispatcher(
     # use always exact in LO
     if order == 0:
         return lo_exact(gamma_ns, a1, a0, nf)
+    if method == "ordered-truncated":
+        return eko_ordered_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations)
+    if method == "truncated":
+        return eko_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations)
+
     # NLO
     if order == 1:
         if method in [
@@ -518,10 +386,6 @@ def dispatcher(
             "perturbative-expanded",
         ]:
             return nlo_expanded(gamma_ns, a1, a0, nf)
-        if method == "truncated":
-            return nlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
-        if method == "ordered-truncated":
-            return nlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
         # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
         return nlo_exact(gamma_ns, a1, a0, nf)
     # NNLO
@@ -532,10 +396,6 @@ def dispatcher(
             "perturbative-expanded",
         ]:
             return nnlo_expanded(gamma_ns, a1, a0, nf)
-        if method == "truncated":
-            return nnlo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
-        if method == "ordered-truncated":
-            return nnlo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
         return nnlo_exact(gamma_ns, a1, a0, nf)
     # N3LO
     if order == 3:
@@ -545,9 +405,5 @@ def dispatcher(
             "perturbative-expanded",
         ]:
             return n3lo_expanded(gamma_ns, a1, a0, nf)
-        if method == "truncated":
-            return n3lo_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
-        if method == "ordered-truncated":
-            return n3lo_ordered_truncated(gamma_ns, a1, a0, nf, ev_op_iterations)
         return n3lo_exact(gamma_ns, a1, a0, nf)
     raise NotImplementedError("Selected order is not implemented")
