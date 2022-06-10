@@ -175,13 +175,13 @@ def j03_exact(j00, j13, j23, j33, b_list):
     Parameters
     ----------
     j00: float
-        |LO|-|LO| evolution kernel
+        |LO|-|LO| evolution integral
     j13: float
-        |NLO|-|N3LO| evolution kernel
+        |NLO|-|N3LO| evolution integral
     j23: float
-        |NNLO|-|N3LO| evolution kernel
+        |NNLO|-|N3LO| evolution integral
     j33: float
-        |N3LO|-|N3LO| evolution kernel
+        |N3LO|-|N3LO| evolution integral
     b_list : list
         :math:`[b_1, b_2, b_3]`
 
