@@ -7,13 +7,13 @@ import numpy as np
 from eko import basis_rotation as br
 from eko import interpolation, mellin
 from eko.evolution_operator.grid import OperatorGrid
+from eko.harmonics import compute_harmonics_cache
 from eko.interpolation import InterpolatorDispatcher
 from eko.matching_conditions.operator_matrix_element import (
     A_non_singlet,
     A_singlet,
     OperatorMatrixElement,
     build_ome,
-    compute_harmonics_cache,
     quad_ker,
 )
 from eko.strong_coupling import StrongCoupling

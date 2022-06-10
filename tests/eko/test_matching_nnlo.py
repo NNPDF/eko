@@ -3,9 +3,8 @@
 
 import numpy as np
 
-from eko.harmonics import constants
+from eko.harmonics import compute_harmonics_cache, constants
 from eko.matching_conditions.as2 import A_ns, A_qq_ns, A_singlet
-from eko.matching_conditions.operator_matrix_element import compute_harmonics_cache
 
 
 def test_A_2():

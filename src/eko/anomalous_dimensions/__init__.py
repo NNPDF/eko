@@ -75,33 +75,36 @@ def exp_singlet(gamma_S):
 
 @nb.njit(cache=True)
 def gamma_ns(order, mode, n, nf):
-    r"""
-    Computes the tower of the non-singlet anomalous dimensions
+    r"""Computes the tower of the non-singlet anomalous dimensions
 
     Parameters
     ----------
-        order : int
-            perturbative order
-        mode : 10201 | 10101 | 10200
-            sector identifier
-        n : complex
-            Mellin variable
-        nf : int
-            Number of active flavors
+    order : int
+        perturbative order
+    mode : 10201 | 10101 | 10200
+        sector identifier
+    n : complex
+        Mellin variable
+    nf : int
+        Number of active flavors
 
     Returns
     -------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
+    numpy.ndarray
+        non-singlet anomalous dimensions
 
     See Also
     --------
-        eko.anomalous_dimensions.as1.gamma_ns : :math:`\gamma_{ns}^{(0)}(N)`
-        eko.anomalous_dimensions.as2.gamma_nsp : :math:`\gamma_{ns,+}^{(1)}(N)`
-        eko.anomalous_dimensions.as2.gamma_nsm : :math:`\gamma_{ns,-}^{(1)}(N)`
-        eko.anomalous_dimensions.as3.gamma_nsp : :math:`\gamma_{ns,+}^{(2)}(N)`
-        eko.anomalous_dimensions.as3.gamma_nsm : :math:`\gamma_{ns,-}^{(2)}(N)`
-        eko.anomalous_dimensions.as3.gamma_nsv : :math:`\gamma_{ns,v}^{(2)}(N)`
+    eko.anomalous_dimensions.as1.gamma_ns : :math:`\gamma_{ns}^{(0)}(N)`
+    eko.anomalous_dimensions.as2.gamma_nsp : :math:`\gamma_{ns,+}^{(1)}(N)`
+    eko.anomalous_dimensions.as2.gamma_nsm : :math:`\gamma_{ns,-}^{(1)}(N)`
+    eko.anomalous_dimensions.as3.gamma_nsp : :math:`\gamma_{ns,+}^{(2)}(N)`
+    eko.anomalous_dimensions.as3.gamma_nsm : :math:`\gamma_{ns,-}^{(2)}(N)`
+    eko.anomalous_dimensions.as3.gamma_nsv : :math:`\gamma_{ns,v}^{(2)}(N)`
+    eko.anomalous_dimensions.as4.gamma_nsp : :math:`\gamma_{ns,+}^{(3)}(N)`
+    eko.anomalous_dimensions.as4.gamma_nsm : :math:`\gamma_{ns,-}^{(3)}(N)`
+    eko.anomalous_dimensions.as4.gamma_nsv : :math:`\gamma_{ns,v}^{(3)}(N)`
+
     """
     # cache the s-es
     sx = harmonics.sx(n, max_weight=order + 1)
@@ -129,6 +132,7 @@ def gamma_ns(order, mode, n, nf):
         gamma_ns[2] = gamma_ns_2
     # N3LO
     if order == 3:
+        sx = harmonics.compute_harmonics_cache(n, order, is_singlet=False)
         if mode == 10101:
             gamma_ns_3 = -as4.gamma_nsp(n, nf, sx)
         elif mode == 10201:
@@ -141,28 +145,29 @@ def gamma_ns(order, mode, n, nf):
 
 @nb.njit(cache=True)
 def gamma_singlet(order, n, nf):
-    r"""
-    Computes the tower of the singlet anomalous dimensions matrices
+    r"""Computes the tower of the singlet anomalous dimensions matrices
 
     Parameters
     ----------
-        order : int
-            perturbative order
-        n : complex
-            Mellin variable
-        nf : int
-            Number of active flavors
+    order : int
+        perturbative order
+    n : complex
+        Mellin variable
+    nf : int
+        Number of active flavors
 
     Returns
     -------
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
+    numpy.ndarray
+        singlet anomalous dimensions matrices
 
     See Also
     --------
-        eko.anomalous_dimensions.as1.gamma_singlet : :math:`\gamma_{S}^{(0)}(N)`
-        eko.anomalous_dimensions.as2.gamma_singlet : :math:`\gamma_{S}^{(1)}(N)`
-        eko.anomalous_dimensions.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
+    eko.anomalous_dimensions.as1.gamma_singlet : :math:`\gamma_{S}^{(0)}(N)`
+    eko.anomalous_dimensions.as2.gamma_singlet : :math:`\gamma_{S}^{(1)}(N)`
+    eko.anomalous_dimensions.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
+    eko.anomalous_dimensions.as4.gamma_singlet : :math:`\gamma_{S}^{(3)}(N)`
+
     """
     # cache the s-es
     sx = harmonics.sx(n, max_weight=order + 1)
@@ -170,7 +175,10 @@ def gamma_singlet(order, n, nf):
     gamma_s[0] = as1.gamma_singlet(n, sx[0], nf)
     if order >= 1:
         gamma_s[1] = as2.gamma_singlet(n, nf, sx)
-    if order == 2:
+    if order >= 2:
         sx = np.append(sx, harmonics.S4(n))
         gamma_s[2] = -as3.gamma_singlet(n, nf, sx)
+    if order == 3:
+        sx = harmonics.compute_harmonics_cache(n, order, is_singlet=True)
+        gamma_s[3] = -as4.gamma_singlet(n, nf, sx)
     return gamma_s

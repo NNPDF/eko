@@ -4,10 +4,7 @@ import numpy as np
 
 from eko.anomalous_dimensions.as4 import ggg, ggq, gnsm, gnsp, gnsv, gps, gqg
 from eko.constants import CA, CF
-
-# TODO: move this method  out of matching conditions if it will be used
-# also here...
-from eko.matching_conditions.operator_matrix_element import compute_harmonics_cache
+from eko.harmonics import compute_harmonics_cache
 
 NF = 5
 

@@ -175,3 +175,47 @@ def s4x(n, sx, smx, is_singlet):
             sm31,
         ]
     )
+
+
+@nb.njit(cache=True)
+def compute_harmonics_cache(n, order, is_singlet):
+    r"""Get the harmonics sums cache
+
+    Parameters
+    ----------
+    n: complex
+        Mellin moment
+    order: int
+        perturbative order
+    is_singlet: bool
+        symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
+        False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
+
+    Returns
+    -------
+    list
+        harmonic sums cache. At |N3LO| it contains:
+
+        .. math ::
+            [[S_1,S_{-1}],
+            [S_2,S_{-2}],
+            [S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}],
+            [S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}],]
+
+    """
+    # max harmonics sum weight for each qcd order
+    max_weight = {1: 2, 2: 3, 3: 5}
+    # max number of harmonics sum of a given weight for each qcd order
+    n_max_sums_weight = {1: 1, 2: 3, 3: 7}
+    sx = base_harmonics_cache(
+        n, is_singlet, max_weight[order], n_max_sums_weight[order]
+    )
+    if order == 2:
+        # Add Sm21 to cache
+        sx[2, 1] = Sm21(n, sx[0, 0], sx[0, -1], is_singlet)
+    if order == 3:
+        # Add weight 3 and 4 to cache
+        sx[2, 1:-2] = s3x(n, sx[:, 0], sx[:, -1], is_singlet)
+        sx[3, 1:-1] = s4x(n, sx[:, 0], sx[:, -1], is_singlet)
+    # return list of list keeping the non zero values
+    return [[el for el in sx_list if el != 0] for sx_list in sx]
