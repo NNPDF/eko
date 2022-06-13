@@ -71,7 +71,7 @@ def j33_exact(a1, a0, beta0, b_list, roots):
 
     .. math::
 
-        j^{(3,3)}(a_s) =  \frac{1}{\beta_0} \left( \sum_{r=r_1}^{r_3} \frac{\ln(a_s-r) r^2}{b_1 + 2 b_2 r + 3 b_3 r^2} \right)
+        j^{(3,3)}(a_s) =  \frac{1}{\beta_0} \sum_{r=r_1}^{r_3} \frac{\ln(a_s-r) r^2}{b_1 + 2 b_2 r + 3 b_3 r^2}
 
     Parameters
     ----------
@@ -104,7 +104,7 @@ def j23_exact(a1, a0, beta0, b_list, roots):
 
     .. math::
 
-        j^{(2,3)}(a_s) =  \frac{1}{\beta_0} \left( \sum_{r=r_1}^{r_3} \frac{\ln(a_s-r) r}{b_1 + 2 b_2 r + 3 b_3 r^2} \right)
+        j^{(2,3)}(a_s) =  \frac{1}{\beta_0} \sum_{r=r_1}^{r_3} \frac{\ln(a_s-r) r}{b_1 + 2 b_2 r + 3 b_3 r^2}
 
     Parameters
     ----------
@@ -137,7 +137,7 @@ def j13_exact(a1, a0, beta0, b_list, roots):
 
     .. math::
 
-        j^{(1,3)}(a_s) = \frac{1}{\beta_0} \left( \sum_{r=r_1}^{r_3} \frac{\ln(a_s-r)}{b_1 + 2 b_2 r + 3 b_3 r^2} \right )
+        j^{(1,3)}(a_s) = \frac{1}{\beta_0} \sum_{r=r_1}^{r_3} \frac{\ln(a_s-r)}{b_1 + 2 b_2 r + 3 b_3 r^2}
 
     Parameters
     ----------

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Colletion of singlet EKOs.
+Collection of singlet EKOs.
 """
 
 import numba as nb
