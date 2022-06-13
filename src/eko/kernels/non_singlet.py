@@ -31,7 +31,7 @@ def U_vec(gamma_ns, nf, order):
         U vector
 
     """
-    U = np.zeros(order + 1, dytpe=np.complex_)
+    U = np.zeros(order + 1, dtype=np.complex_)
     beta0 = beta.beta(0, nf)
     R0 = gamma_ns[0] / beta0
     U[0] = 1.0

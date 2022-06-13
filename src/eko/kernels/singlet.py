@@ -347,12 +347,12 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
         beta_vec.append(beta.beta(2, nf))
     if order >= 3:
         beta_vec.append(beta.beta(3, nf))
-    e = np.identity(2, dytpe=np.complex_)
+    e = np.identity(2, dtype=np.complex_)
     al = a_steps[0]
     for ah in a_steps[1:]:
         a_half = (ah + al) / 2.0
         delta_a = ah - al
-        gamma_summed = np.zeros((2, 2), dytpe=np.complex_)
+        gamma_summed = np.zeros((2, 2), dtype=np.complex_)
         beta_summed = 0
         for i in range(order + 1):
             gamma_summed += gamma_singlet[i] * a_half**i
@@ -391,7 +391,7 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
         R vector
 
     """
-    r = np.zeros((ev_op_max_order + 1, 2, 2), dytpe=np.complex_)  # k = 0 .. max_order
+    r = np.zeros((ev_op_max_order + 1, 2, 2), dtype=np.complex_)  # k = 0 .. max_order
     beta0 = beta.beta(0, nf)
     # fill explicit elements
     r[0] = gamma_singlet[0] / beta0
@@ -439,15 +439,15 @@ def u_vec(r, ev_op_max_order):
         U vector
 
     """
-    u = np.zeros((ev_op_max_order + 1, 2, 2), dytpe=np.complex_)  # k = 0 .. max_order
+    u = np.zeros((ev_op_max_order + 1, 2, 2), dtype=np.complex_)  # k = 0 .. max_order
     # init
-    u[0] = np.identity(2, dytpe=np.complex_)
+    u[0] = np.identity(2, dtype=np.complex_)
     _, r_p, r_m, e_p, e_m = ad.exp_singlet(r[0])
     e_p = np.ascontiguousarray(e_p)
     e_m = np.ascontiguousarray(e_m)
     for kk in range(1, ev_op_max_order + 1):
         # compute R'
-        rp = np.zeros((2, 2), dytpe=np.complex_)
+        rp = np.zeros((2, 2), dtype=np.complex_)
         for jj in range(kk):
             rp += np.ascontiguousarray(r[kk - jj]) @ u[jj]
         # now compose U
@@ -481,7 +481,7 @@ def sum_u(uvec, a):
 
     """
     p = 1.0
-    res = np.zeros((2, 2), dytpe=np.complex_)
+    res = np.zeros((2, 2), dtype=np.complex_)
     for uk in uvec:
         res += p * uk
         p *= a
@@ -524,7 +524,7 @@ def eko_perturbative(
     """
     r = r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact)
     uk = u_vec(r, ev_op_max_order)
-    e = np.identity(2, dytpe=np.complex_)
+    e = np.identity(2, dtype=np.complex_)
     # iterate elements
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     al = a_steps[0]
@@ -567,7 +567,7 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     r = r_vec(gamma_singlet, nf, order, order, False)
     u = u_vec(r, order)
     u1 = np.ascontiguousarray(u[1])
-    e = np.identity(2, dytpe=np.complex_)
+    e = np.identity(2, dtype=np.complex_)
     # iterate elements
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     al = a_steps[0]
