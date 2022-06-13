@@ -141,9 +141,12 @@ Note that we recover the |LO| solution:
 In |NLO| we provide different strategies to define the |EKO|:
 
 - ``method in ['iterate-exact', 'decompose-exact', 'perturbative-exact']``: use the *exact* solution as defined above
-- ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and substitute
-  :math:`j^{(1,1)}(a_s,a_s^0) \to j^{(1,1)}_{exp}(a_s,a_s^0) = \frac 1 {\beta_0}(a_s - a_s^0)`
-  and :math:`j^{(0,1)}(a_s,a_s^0) \to j^{(0,1)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}_{exp}(a_s,a_s^0)`
+- ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and substitute:
+
+    .. math ::
+        j^{(1,1)}(a_s,a_s^0) \to j^{(1,1)}_{exp}(a_s,a_s^0) &= \frac 1 {\beta_0}(a_s - a_s^0) \\
+        j^{(0,1)}(a_s,a_s^0) \to j^{(0,1)}_{exp}(a_s,a_s^0) &= j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}_{exp}(a_s,a_s^0) \\
+
 - ``method = 'ordered-truncated'``: expanding the *argument* of the exponential of the new term but keeping the order we obtain:
 
 .. math::
@@ -261,9 +264,9 @@ with:
 
 .. math::
     j^{(2,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = \frac{1}{\beta_2}\ln\left(\frac{1 + a_s ( b_1 + b_2 a_s ) }{ 1 + a_s^0 ( b_1 + b_2 a_s^0 )}\right) - \frac{b_1}{ \beta_2 \Delta} \delta \\
-    \delta &= atan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - atan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
+    \delta &= \arctan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - \arctan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
         &= \frac{i}{2} \left[ ln \left( \frac{ \Delta - i (b_1 + 2a_s b_2)}{ \Delta + i (b_1 + 2a_s b_2)}\right) - ln \left( \frac{ \Delta - i (b_1 + 2a_s^0 b_2)}{ \Delta + i (b_1 + 2a_s^0 b_2)}\right) \right] \\
-        &= atan \left( \frac{\Delta ( a_s - a_s^0 )}{ 2 + b_1 (a_s + a_s^0) + 2 a_s a_s^0 b_2 } \right) \\
+        &= \arctan \left( \frac{\Delta ( a_s - a_s^0 )}{ 2 + b_1 (a_s + a_s^0) + 2 a_s a_s^0 b_2 } \right) \\
     \Delta &= \sqrt{4 b_2 - b_1^2 }
 
 and:
@@ -292,10 +295,10 @@ In |NNLO| we provide different strategies to define the |EKO|:
 - ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and expand all functions :math:`j^{(n,m)}(a_s,a_s^0)` to the order :math:`\mathcal o(a_s^3)`. We find:
 
 .. math::
-    j^{(2,2)}(a_s,a_s^0) &\approx j^{(2,2)}_{exp}(a_s,a_s^0) &= \frac{1}{2\beta_0} (a_s^2 - (a_s^0)^{2}) \\
-    j^{(1,2)}(a_s,a_s^0) &\approx j^{(1,2)}_{exp}(a_s,a_s^0) &= \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - (a_s^0)^{2})] \\
-    j^{(0,2)}(a_s,a_s^0) &\approx j^{(0,2)}_{exp}(a_s,a_s^0) &= j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}_{exp}(a_s,a_s^0) - b_2 j^{(2,2)}_{exp}(a_s,a_s^0) \\
-    & &= j^{(0,0)}(a_s,a_s^0) - \frac{1}{\beta_0} [ b_1 (a_s - a_s^0) + \frac{b_1^2+b_2}{2} (a_s^2 - (a_s^0)^{2}) ] \\
+    j^{(2,2)}(a_s,a_s^0) \approx j^{(2,2)}_{exp}(a_s,a_s^0) &= \frac{1}{2\beta_0} (a_s^2 - (a_s^0)^{2}) \\
+    j^{(1,2)}(a_s,a_s^0) \approx j^{(1,2)}_{exp}(a_s,a_s^0) &= \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - (a_s^0)^{2})] \\
+    j^{(0,2)}(a_s,a_s^0) \approx j^{(0,2)}_{exp}(a_s,a_s^0) &= j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}_{exp}(a_s,a_s^0) - b_2 j^{(2,2)}_{exp}(a_s,a_s^0) \\
+    &= j^{(0,0)}(a_s,a_s^0) - \frac{1}{\beta_0} [ b_1 (a_s - a_s^0) + \frac{b_1^2-b_2}{2} (a_s^2 - (a_s^0)^{2}) ] \\
 
 This method corresponds to ``IMODEV=2`` of :cite:`Vogt:2004ns`.
 
@@ -425,10 +428,10 @@ Also in this case we provide a we provide different strategies to define the |EK
 - ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and expand all functions :math:`j^{(n,m)}(a_s,a_s^0)` to the order :math:`\mathcal o(a_s^3)`. We find:
 
 .. math::
-    j^{(3,3)}(a_s,a_s^0) &\approx j^{(3,3)}_{exp}(a_s,a_s^0) \\
-    j^{(2,3)}(a_s,a_s^0) &\approx j^{(2,3)}_{exp}(a_s,a_s^0) \\
-    j^{(1,3)}(a_s,a_s^0) &\approx j^{(1,3)}_{exp}(a_s,a_s^0) \\
-    j^{(0,2)}(a_s,a_s^0) &\approx j^{(0,3)}_{exp}(a_s,a_s^0) \\
+    j^{(3,3)}(a_s,a_s^0) &\approx j^{(3,3)}_{exp}(a_s,a_s^0) = \frac{1}{3 \beta_0} (a_s^3 - (a_s^0)^3) \\
+    j^{(2,3)}(a_s,a_s^0) &\approx j^{(2,3)}_{exp}(a_s,a_s^0) = \frac{1}{\beta_0} [ \frac{1}{2} (a_s^2 - (a_s^0)^2) - \frac{b_1}{3} (a_s^3 - (a_s^0)^3) ]\\
+    j^{(1,3)}(a_s,a_s^0) &\approx j^{(1,3)}_{exp}(a_s,a_s^0) = \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - (a_s^0)^2) + \frac{b_1^2-b_2}{3} (a_s^3 - (a_s^0)^3) ]\\
+    j^{(0,2)}(a_s,a_s^0) &\approx j^{(0,3)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,3)}_{exp}(a_s,a_s^0) - b_2 j^{(2,3)}_{exp}(a_s,a_s^0)- b_3 j^{(3,3)}_{exp}(a_s,a_s^0) \\
 
 
 

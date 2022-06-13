@@ -13,13 +13,13 @@ def test_zero():
     roots = np.random.random(3)
     for fnc in [
         as4_ei.j13_exact,
-        # as4_ei.j13_expanded,
         as4_ei.j23_exact,
-        # as4_ei.j23_expanded,
         as4_ei.j33_exact,
-        # as4_ei.j33_expanded,
     ]:
         np.testing.assert_allclose(fnc(1, 1, beta0, b_list, roots), 0)
+    for fnc in [as4_ei.j13_expanded, as4_ei.j23_expanded]:
+        np.testing.assert_allclose(fnc(1, 1, beta0, b_list), 0)
+    np.testing.assert_allclose(as4_ei.j33_expanded(1, 1, beta0), 0)
 
 
 def test_roots():
@@ -89,3 +89,52 @@ def test_der_n3lo_exa():
         - as4_ei.j03_exact(j00m, j13m, j23m, j33m, b_list)
     ) / delta_a
     np.testing.assert_allclose(rhs, lhs)
+
+
+def test_der_n3lo_exp():
+    """expanded N3LO derivative"""
+    nf = 3
+    a0 = 0.3
+    a1 = 0.1
+    delta_a = -1e-6
+
+    beta0 = beta.beta(0, nf)
+    b1 = beta.beta(1, nf)
+    b2 = beta.beta(2, nf)
+    b3 = beta.beta(3, nf)
+    b_list = [b1, b2, b3]
+
+    den = beta0 * (1 + b1 * a1 + b2 * a1**2 + b3 * a1**3)
+
+    # 33
+    rhs = a1**2 / den
+    j33p = as4_ei.j33_expanded(a1 + 0.5 * delta_a, a0, beta0)
+    j33m = as4_ei.j33_expanded(a1 - 0.5 * delta_a, a0, beta0)
+    lhs = (j33p - j33m) / delta_a
+    toll = np.abs(-(b1 * a1**3) / beta0)
+    np.testing.assert_allclose(rhs, lhs, atol=toll)
+    # 23
+    rhs = a1 / den
+    j23p = as4_ei.j23_expanded(a1 + 0.5 * delta_a, a0, beta0, b_list)
+    j23m = as4_ei.j23_expanded(a1 - 0.5 * delta_a, a0, beta0, b_list)
+    lhs = (j23p - j23m) / delta_a
+    toll = np.abs(((b1**2 - b2) * a1**3) / beta0)
+    np.testing.assert_allclose(rhs, lhs, atol=toll)
+    # 13
+    rhs = 1.0 / den
+    j13p = as4_ei.j13_expanded(a1 + 0.5 * delta_a, a0, beta0, b_list)
+    j13m = as4_ei.j13_expanded(a1 - 0.5 * delta_a, a0, beta0, b_list)
+    lhs = (j13p - j13m) / delta_a
+    toll = np.abs(((-(b1**3) + 2 * b1 * b2 - b3) * a1**3) / beta0)
+    np.testing.assert_allclose(rhs, lhs, atol=toll)
+
+    # 03
+    rhs = 1.0 / (a1 * den)
+    j00p = j00(a1 + 0.5 * delta_a, a0, nf)
+    j00m = j00(a1 - 0.5 * delta_a, a0, nf)
+    lhs = (
+        as4_ei.j03_expanded(j00p, j13p, j23p, j33p, b_list)
+        - as4_ei.j03_expanded(j00m, j13m, j23m, j33m, b_list)
+    ) / delta_a
+    toll = np.abs(((b1 * 4 - 3 * b1 * b2 + b2**2 + 2 * b1 * b3) * a1**3) / beta0)
+    np.testing.assert_allclose(rhs, lhs, atol=toll)

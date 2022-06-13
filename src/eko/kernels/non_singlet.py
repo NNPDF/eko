@@ -204,11 +204,21 @@ def n3lo_expanded(gamma_ns, a1, a0, nf):
         |N3LO| non-singlet expanded EKO
 
     """
+    beta0 = beta.beta(0, nf)
+    b_list = [
+        beta.b(1, nf),
+        beta.b(2, nf),
+        beta.b(3, nf),
+    ]
+    j00 = ei.j00(a1, a0, nf)
+    j13 = as4_ei.j13_expanded(a1, a0, beta0, b_list)
+    j23 = as4_ei.j23_expanded(a1, a0, beta0, b_list)
+    j33 = as4_ei.j33_expanded(a1, a0, beta0)
     return np.exp(
-        gamma_ns[0] * as4_ei.j03_expanded(a1, a0, nf)
-        + gamma_ns[1] * as4_ei.j13_expanded(a1, a0, nf)
-        + gamma_ns[2] * as4_ei.j23_expanded(a1, a0, nf)
-        + gamma_ns[3] * as4_ei.j33_expanded(a1, a0, nf)
+        gamma_ns[0] * as4_ei.j03_expanded(j00, j13, j23, j33, b_list)
+        + gamma_ns[1] * j13
+        + gamma_ns[2] * j23
+        + gamma_ns[3] * j33
     )
 
 

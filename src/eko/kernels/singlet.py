@@ -301,12 +301,18 @@ def n3lo_decompose_expanded(gamma_singlet, a1, a0, nf):
         singlet |N3LO| decompose-expanded EKO
 
     """
+    beta0 = beta.beta(0, nf)
+    b_list = [
+        beta.b(1, nf),
+        beta.b(2, nf),
+        beta.b(3, nf),
+    ]
+    j00 = ei.j00(a1, a0, nf)
+    j13 = as4_ei.j13_expanded(a1, a0, beta0, b_list)
+    j23 = as4_ei.j23_expanded(a1, a0, beta0, b_list)
+    j33 = as4_ei.j33_expanded(a1, a0, beta0)
     return n3lo_decompose(
-        gamma_singlet,
-        as4_ei.j03_expanded(a1, a0, nf),
-        as4_ei.j13_expanded(a1, a0, nf),
-        as4_ei.j23_expanded(a1, a0, nf),
-        as4_ei.j33_expanded(a1, a0, nf),
+        gamma_singlet, as4_ei.j03_expanded(j00, j13, j23, j33, b_list), j13, j23, j33
     )
 
 

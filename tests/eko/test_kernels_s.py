@@ -7,8 +7,7 @@ from eko.kernels import singlet as s
 
 methods = [
     "iterate-expanded",
-    # TODO: restore this
-    # "decompose-expanded",
+    "decompose-expanded",
     "perturbative-expanded",
     "truncated",
     "ordered-truncated",

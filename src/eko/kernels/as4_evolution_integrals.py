@@ -199,20 +199,122 @@ def j03_exact(j00, j13, j23, j33, b_list):
 
 
 @nb.njit(cache=True)
-def j33_expanded(a1, a0, nf):
-    return 0
+def j33_expanded(a1, a0, beta0):
+    r"""|N3LO|-|N3LO| expanded evolution definite integral
+    evaluated at :math:`a_s-a_s^0`.
+
+    .. math::
+        j^{(3,3)}_{exp}(a_s) = \frac{1}{3 \beta_0} a_s^3
+
+    Parameters
+    ----------
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta0 : float
+        :math:`\beta_0`
+
+    Returns
+    -------
+    float
+        evaluated integral
+
+    """
+    return 1 / (3 * beta0) * (a1**3 - a0**3)
 
 
 @nb.njit(cache=True)
-def j23_expanded(a1, a0, nf):
-    return 0
+def j23_expanded(a1, a0, beta0, b_list):
+    r"""|NNLO|-|N3LO| expanded evolution definite integral
+    evaluated at :math:`a_s-a_s^0`.
+
+    .. math::
+        j^{(2,3)}_{exp}(a_s) = \frac{1}{\beta_0} ( \frac{1}{2} a_s^2 - \frac{b_1}{3} as^3)
+
+    Parameters
+    ----------
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta0 : float
+        :math:`\beta_0`
+    b_list : list
+        :math:`[b_1, b_2, b_3]`
+
+    Returns
+    -------
+    float
+        evaluated integral
+
+    """
+    b1 = b_list[0]
+    return 1 / beta0 * (1 / 2 * (a1**2 - a0**2) - b1 / 3 * (a1**3 - a0**3))
 
 
 @nb.njit(cache=True)
-def j13_expanded(a1, a0, nf):
-    return 0
+def j13_expanded(a1, a0, beta0, b_list):
+    r"""|NLO|-|N3LO| expanded evolution definite integral
+    evaluated at :math:`a_s-a_s^0`.
+
+    .. math::
+        j^{(1,3)}_{exp}(a_s) = \frac{1}{\beta_0} ( a_s - \frac{b_1}{2} a_s^2 + \frac{b_1^2-b_2}{3} as^3)
+
+    Parameters
+    ----------
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta0 : float
+        :math:`\beta_0`
+    b_list : list
+        :math:`[b_1, b_2, b_3]`
+
+    Returns
+    -------
+    float
+        evaluated integral
+
+    """
+    b1, b2, _ = b_list
+    return (1 / beta0) * (
+        (a1 - a0)
+        - b1 / 2 * (a1**2 - a0**2)
+        + (b1**2 - b2) / 3 * (a1**3 - a0**3)
+    )
 
 
 @nb.njit(cache=True)
-def j03_expanded(a1, a0, nf):
-    return 0
+def j03_expanded(j00, j13, j23, j33, b_list):
+    r"""|LO|-|N3LO| expanded evolution definite integral
+    evaluated at :math:`a_s-a_s^0`.
+
+    .. math::
+        j^{(0,3)}_{exp}(a_s) = j^{(0,0)} - b_1 j^{(1,3)}_{exp}(a_s) - b_2 j^{(2,3)}_{exp}(a_s) - b_3 j^{(3,3)}_{exp}(a_s)
+
+    Parameters
+    ----------
+    j00: float
+        |LO|-|LO| evolution integral
+    j13: float
+        |NLO|-|N3LO| expanded evolution integral
+    j23: float
+        |NNLO|-|N3LO| expanded evolution integral
+    j33: float
+        |N3LO|-|N3LO| expanded evolution integral
+    b_list : list
+        :math:`[b_1, b_2, b_3]`
+
+    Returns
+    -------
+    float
+        evaluated integral
+
+    See Also
+    --------
+    j03_exact
+
+    """
+    return j03_exact(j00, j13, j23, j33, b_list)
