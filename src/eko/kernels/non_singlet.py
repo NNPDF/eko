@@ -11,9 +11,8 @@ from . import as4_evolution_integrals as as4_ei
 from . import evolution_integrals as ei
 from . import utils
 
-nb.njit(cache=True)
 
-
+@nb.njit(cache=True)
 def U_vec(gamma_ns, nf, order):
     r"""Compute the elements of the non-singlet U vector.
 
@@ -32,7 +31,7 @@ def U_vec(gamma_ns, nf, order):
         U vector
 
     """
-    U = np.zeros(order + 1, dtype=complex)
+    U = np.zeros(order + 1, np.complex_)
     beta0 = beta.beta(0, nf)
     R0 = gamma_ns[0] / beta0
     U[0] = 1.0
@@ -284,8 +283,10 @@ def eko_ordered_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations):
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = lo_exact(gamma_ns, ah, al, nf)
-        num = np.sum([U[i] * ah**i for i in range(order + 1)])
-        den = np.sum([U[i] * al**i for i in range(order + 1)])
+        num, den = 0, 0
+        for i in range(order + 1):
+            num += U[i] * ah**i
+            den += U[i] * al**i
         e *= e0 * num / den
         al = ah
     return e

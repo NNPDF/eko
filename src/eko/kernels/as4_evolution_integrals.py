@@ -92,9 +92,10 @@ def j33_exact(a1, a0, beta0, b_list, roots):
         evaluated integral
 
     """
-    return (1 / beta0) * np.sum(
-        [r**2 / derivative(r, b_list) * np.log((a1 - r) / (a0 - r)) for r in roots]
-    )
+    integral = 0
+    for r in roots:
+        integral += r**2 / derivative(r, b_list) * np.log((a1 - r) / (a0 - r))
+    return (1 / beta0) * integral
 
 
 @nb.njit(cache=True)
@@ -125,9 +126,10 @@ def j23_exact(a1, a0, beta0, b_list, roots):
         evaluated integral
 
     """
-    return (1 / beta0) * np.sum(
-        [r / derivative(r, b_list) * np.log((a1 - r) / (a0 - r)) for r in roots]
-    )
+    integral = 0
+    for r in roots:
+        integral += r / derivative(r, b_list) * np.log((a1 - r) / (a0 - r))
+    return (1 / beta0) * integral
 
 
 @nb.njit(cache=True)
@@ -158,9 +160,10 @@ def j13_exact(a1, a0, beta0, b_list, roots):
         evaluated integral
 
     """
-    return (1 / beta0) * np.sum(
-        [1 / derivative(r, b_list) * np.log((a1 - r) / (a0 - r)) for r in roots]
-    )
+    integral = 0
+    for r in roots:
+        integral += 1.0 / derivative(r, b_list) * np.log((a1 - r) / (a0 - r))
+    return (1 / beta0) * integral
 
 
 @nb.njit(cache=True)

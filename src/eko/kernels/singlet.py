@@ -346,12 +346,11 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     for ah in a_steps[1:]:
         a_half = (ah + al) / 2.0
         delta_a = ah - al
-        gamma_summed = np.sum(
-            [gamma_singlet[i] * a_half**i for i in range(order + 1)], axis=0
-        )
-        beta_summed = np.sum(
-            [beta_vec[i] * a_half ** (i + 1) for i in range(order + 1)]
-        )
+        gamma_summed = np.zeros((2, 2), np.complex_)
+        beta_summed = 0
+        for i in range(order + 1):
+            gamma_summed += gamma_singlet[i] * a_half**i
+            beta_summed += beta_vec[i] * a_half ** (i + 1)
         ln = gamma_summed / beta_summed * delta_a
         ek = np.ascontiguousarray(ad.exp_singlet(ln)[0])
         e = ek @ e
