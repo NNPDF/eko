@@ -179,7 +179,7 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
 
 
     * In ``ModSV='expanded'`` the |EKO| is multiplied by an additional kernel, such that
-      the scale variation is applied to the whole |PDF| set:
+      the scale variation is applied to the whole evolution operator:
 
         .. math ::
             \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) & = \tilde{\mathbf{K}}(a_s) \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) \\

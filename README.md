@@ -40,6 +40,19 @@ Guidelines](https://github.com/N3PDF/eko/blob/master/.github/CONTRIBUTING.md).
 poe docs
 ```
 
+## Tests and benchmarks
+- To run unit test you can do
+```bash
+poe tests
+```
+
+- Benchmarks of specific part of the code, such as the strong coupling or msbar masses running, are available doing
+```bash
+poe bench
+```
+
+- The complete list of benchmarks with external codes is available through `ekomark`: [documentation](https://eko.readthedocs.io/en/latest/development/Benchmarks.html)
+
 ## Citation policy
 When using our code please cite
 - our DOI: <a href="https://doi.org/10.5281/zenodo.3874237"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.3874237.svg" alt="DOI"/></a>
