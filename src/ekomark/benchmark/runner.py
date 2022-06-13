@@ -117,7 +117,6 @@ class Runner(BenchmarkRunner):
                     change_lab,
                 )
         else:
-            # new_theory, new_operators = compatibility.update(theory, ocard)
             out = eko.run_dglap(theory, ocard)
 
         return out
