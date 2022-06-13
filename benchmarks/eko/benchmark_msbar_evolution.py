@@ -36,7 +36,7 @@ theory_dict = {
     "Qmc": 18,
     "Qmb": 20,
     "Qmt": 175.0,
-    "PTO": 3,
+    "PTO": 2,
     "QED": 0,
     "ModEv": "EXA",
 }
@@ -234,7 +234,7 @@ class BenchmarkMSbar:
                 "Qmc": 18,
                 "Qmb": 20,
                 "Qmt": 175.0,
-                "PTO": 1,
+                "PTO": 0,
             }
         )
         theory, operators = compatibility.update(

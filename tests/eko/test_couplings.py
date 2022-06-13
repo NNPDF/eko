@@ -18,7 +18,7 @@ class TestCouplings:
             "Qref": 91.0,
             "nfref": None,
             "Q0": 1,
-            "PTO": 1,
+            "PTO": 0,
             "ModEv": "EXA",
             "fact_to_ren_scale_ratio": 1.0,
             "mc": 2.0,

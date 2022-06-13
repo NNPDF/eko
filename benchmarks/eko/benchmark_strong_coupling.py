@@ -819,7 +819,7 @@ class BenchmarkCouplings:
             "Qmc": np.sqrt(2.0),
             "Qmb": 4.5,
             "Qmt": 175.0,
-            "PTO": 3,
+            "PTO": 2,
             "QED": 0,
             "ModEv": "EXA",
         }

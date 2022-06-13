@@ -54,7 +54,7 @@ class BenchmarkNNPDF31(BenchmarkNNPDF):
     def benchmark_nlo(self, Q0=1.65, Q2grid=(100,)):
         theory_card = {
             **base_theory,
-            "PTO": 2,
+            "PTO": 1,
             "QED": 0,
             "Q0": Q0,
         }
@@ -69,7 +69,7 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
     def benchmark_nlo(self, Q0=1.65, Q2grid=(100,)):
         theory_card = {
             **base_theory,
-            "PTO": 2,
+            "PTO": 1,
             "QED": 0,
             "Q0": Q0,
         }
@@ -80,7 +80,7 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
     def benchmark_nnlo(self, Q0=1.65, Q2grid=(100,)):
         theory_card = {
             **base_theory,
-            "PTO": 3,
+            "PTO": 2,
             "QED": 0,
             "IC": 1,
             "IB": 1,

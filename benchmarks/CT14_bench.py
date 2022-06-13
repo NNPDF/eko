@@ -8,6 +8,7 @@ Benchmark CT14 pdf family
 
 from banana import register
 
+from eko import compatibility
 from ekomark.benchmark.runner import Runner
 
 register(__file__)
@@ -38,7 +39,7 @@ class BenchmarkCT14(Runner):
             {
                 "alphas": 0.118000,
                 "alphaqed": 0.007496,
-                "PTO": 1,
+                "PTO": 0,
                 "QED": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 3,
@@ -62,7 +63,8 @@ class BenchmarkCT14(Runner):
             "T15",
             "V15",
         ]
-        self.run([theory_card], [operator_card], ["CT14llo_NF3"])
+        new_theory, new_operators = compatibility.update(theory_card, operator_card)
+        self.run([new_theory], [new_operators], ["CT14llo_NF3"])
 
     def benchmark_llo_NF4(self, Q0=5, Q2grid=(100,)):
         theory_card = base_theory.copy()
@@ -70,7 +72,7 @@ class BenchmarkCT14(Runner):
             {
                 "alphas": 0.125000,
                 "alphaqed": 0.007496,
-                "PTO": 1,
+                "PTO": 0,
                 "QED": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 4,
@@ -90,7 +92,8 @@ class BenchmarkCT14(Runner):
             "T24",
             "V24",
         ]
-        self.run([theory_card], [operator_card], ["CT14llo_NF4"])
+        new_theory, new_operators = compatibility.update(theory_card, operator_card)
+        self.run([new_theory], [new_operators], ["CT14llo_NF4"])
 
     def benchmark_llo_NF6(self, Q0=10, Q2grid=(1e6,)):
         theory_card = base_theory.copy()
@@ -98,7 +101,7 @@ class BenchmarkCT14(Runner):
             {
                 "alphas": 0.130000,
                 "alphaqed": 0.007496,
-                "PTO": 1,
+                "PTO": 0,
                 "QED": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 6,
@@ -107,7 +110,8 @@ class BenchmarkCT14(Runner):
         )
         operator_card = {"Q2grid": list(Q2grid)}
         self.skip_pdfs = lambda _theory: [22, "ph"]
-        self.run([theory_card], [operator_card], ["CT14llo_NF6"])
+        new_theory, new_operators = compatibility.update(theory_card, operator_card)
+        self.run([new_theory], [new_operators], ["CT14llo_NF6"])
 
 
 if __name__ == "__main__":

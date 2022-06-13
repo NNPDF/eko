@@ -4,11 +4,12 @@ import copy
 import numpy as np
 
 import eko
+from eko import compatibility
 
 theory_card = {
     "alphas": 0.35,
     "alphaqed": 0.007496,
-    "PTO": 1,
+    "PTO": 0,
     "QED": 0,
     "fact_to_ren_scale_ratio": 1.0,
     "Qref": np.sqrt(2),
@@ -129,6 +130,7 @@ def test_vfns():
     tc["kbThr"] = 1.0
     tc["order"] = (3, 0)
     oc["debug_skip_non_singlet"] = False
+    # tc,oc = compatibility.update(theory_card,operators_card)
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()
     check_shapes(
