@@ -204,11 +204,10 @@ def test_similarity():
     ev_op_iterations = 4
     ev_op_max_order = 4
     gamma_s = np.random.rand(4, 2, 2) + np.random.rand(4, 2, 2) * 1j
-    # TODO: check this test
-    for order in [0, 1, 2]:
+    for order in [0, 1, 2, 3]:
         ref = s.dispatcher(
             order,
-            "decompose-exact",
+            "iterate-exact",
             gamma_s,
             a1,
             a0,
