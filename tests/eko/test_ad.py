@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Test LO splitting functions
 import numpy as np
-from numpy.testing import assert_allclose, assert_almost_equal
+from numpy.testing import assert_allclose, assert_almost_equal, assert_raises
 
 from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
@@ -36,9 +36,9 @@ def test_eigensystem_gamma_singlet_0_values():
 def test_eigensystem_gamma_singlet_projectors_EV():
     nf = 3
     for N in [3, 4]:  # N=2 seems close to 0, so test fails
-        for o in [1, 2]:
+        for o in [1, 2, 3]:
             # N=4 and and NNLO too big numbers, Runtime Warnings
-            if N == 4 and o == 2:
+            if N == 4 and o in [2, 3]:
                 continue
             for gamma_S in ad.gamma_singlet(o, N, nf):
                 _exp, l_p, l_m, e_p, e_m = ad.exp_singlet(gamma_S)
@@ -65,4 +65,20 @@ def test_gamma_ns():
     )
     assert_allclose(
         ad.gamma_ns(2, br.non_singlet_pids_map["nsV"], 1, nf), np.zeros(3), atol=8e-4
+    )
+    # N3LO
+    assert_allclose(
+        ad.gamma_ns(3, br.non_singlet_pids_map["ns-"], 1, nf), np.zeros(4), atol=2e-4
+    )
+    # N3LO valence has a spurious pole, need to add a small shift
+    assert_allclose(
+        ad.gamma_ns(3, br.non_singlet_pids_map["nsV"], 1 + 1e-6, nf),
+        np.zeros(4),
+        atol=5e-4,
+    )
+    assert_raises(
+        AssertionError,
+        assert_allclose,
+        ad.gamma_ns(3, br.non_singlet_pids_map["ns+"], 1, nf),
+        np.zeros(4),
     )
