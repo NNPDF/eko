@@ -63,8 +63,8 @@ class BenchmarkCT14(Runner):
             "T15",
             "V15",
         ]
-        new_theory, new_operators = compatibility.update(theory_card, operator_card)
-        self.run([new_theory], [new_operators], ["CT14llo_NF3"])
+        # new_theory, new_operators = compatibility.update(theory_card, operator_card)
+        self.run([theory_card], [operator_card], ["CT14llo_NF3"])
 
     def benchmark_llo_NF4(self, Q0=5, Q2grid=(100,)):
         theory_card = base_theory.copy()
@@ -92,8 +92,8 @@ class BenchmarkCT14(Runner):
             "T24",
             "V24",
         ]
-        new_theory, new_operators = compatibility.update(theory_card, operator_card)
-        self.run([new_theory], [new_operators], ["CT14llo_NF4"])
+        # new_theory, new_operators = compatibility.update(theory_card, operator_card)
+        self.run([theory_card], [operator_card], ["CT14llo_NF4"])
 
     def benchmark_llo_NF6(self, Q0=10, Q2grid=(1e6,)):
         theory_card = base_theory.copy()
@@ -110,8 +110,8 @@ class BenchmarkCT14(Runner):
         )
         operator_card = {"Q2grid": list(Q2grid)}
         self.skip_pdfs = lambda _theory: [22, "ph"]
-        new_theory, new_operators = compatibility.update(theory_card, operator_card)
-        self.run([new_theory], [new_operators], ["CT14llo_NF6"])
+        # new_theory, new_operators = compatibility.update(theory_card, operator_card)
+        self.run([theory_card], [operator_card], ["CT14llo_NF6"])
 
 
 if __name__ == "__main__":
