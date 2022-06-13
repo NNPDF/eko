@@ -352,7 +352,7 @@ class Operator(sv.ModeMixin):
         Returns
         -------
         functools.partial
-            partially initialized intration kernel
+            partially initialized integration kernel
 
         """
         return functools.partial(
