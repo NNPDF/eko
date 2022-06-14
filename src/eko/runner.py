@@ -44,27 +44,25 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
     def __init__(self, theory_card, operators_card):
         self.out = Output()
 
-        new_theory, new_operators = compatibility.update(theory_card, operators_card)
-
         # Store inputs
-        self._theory = new_theory
+        self._theory = theory_card
 
         # setup basis grid
-        bfd = interpolation.InterpolatorDispatcher.from_dict(new_operators)
+        bfd = interpolation.InterpolatorDispatcher.from_dict(operators_card)
         self.out.update(bfd.to_dict())
         # setup the Threshold path, compute masses if necessary
         masses = None
-        if new_theory["HQ"] == "MSBAR":
-            masses = msbar_masses.compute(new_theory)
-        tc = ThresholdsAtlas.from_dict(new_theory, masses=masses)
+        if theory_card["HQ"] == "MSBAR":
+            masses = msbar_masses.compute(theory_card)
+        tc = ThresholdsAtlas.from_dict(theory_card, masses=masses)
 
         self.out["q2_ref"] = float(tc.q2_ref)
         # strong coupling
-        sc = Couplings.from_dict(new_theory, masses=masses)
+        sc = Couplings.from_dict(theory_card, masses=masses)
         # setup operator grid
         self.op_grid = OperatorGrid.from_dict(
-            new_theory,
-            new_operators,
+            theory_card,
+            operators_card,
             tc,
             sc,
             bfd,
@@ -72,10 +70,10 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         self.out["inputgrid"] = bfd.xgrid_raw
         self.out["targetgrid"] = bfd.xgrid_raw
         self.post_process = dict(
-            inputgrid=new_operators.get("inputgrid", bfd.xgrid_raw),
-            targetgrid=new_operators.get("targetgrid", bfd.xgrid_raw),
-            inputbasis=new_operators.get("inputbasis"),
-            targetbasis=new_operators.get("targetbasis"),
+            inputgrid=operators_card.get("inputgrid", bfd.xgrid_raw),
+            targetgrid=operators_card.get("targetgrid", bfd.xgrid_raw),
+            inputbasis=operators_card.get("inputbasis"),
+            targetbasis=operators_card.get("targetbasis"),
         )
 
     def get_output(self):
