@@ -20,8 +20,6 @@ def update(theory, operators):
         new_obs : dict
             upgraded observable runcard
     """
-    # new_theory = theory.copy()
-    # new_operators = operators.copy()
     new_theory = copy.deepcopy(theory)
     new_operators = copy.deepcopy(operators)
     if "alphaqed" in new_theory:
@@ -30,7 +28,7 @@ def update(theory, operators):
         new_theory["order"] = (new_theory.pop("PTO") + 1, new_theory.pop("QED"))
     else:
         if "PTO" in new_theory:
-            new_theory["order"] = (new_theory["PTO"] + 1, 0)
+            new_theory["order"] = (new_theory.pop("PTO") + 1, 0)
     if "ev_op_max_order" in new_operators:
         if isinstance(new_operators["ev_op_max_order"], int):
             new_operators["ev_op_max_order"] = (
