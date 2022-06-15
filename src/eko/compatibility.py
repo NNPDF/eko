@@ -29,10 +29,9 @@ def update(theory, operators):
     else:
         if "PTO" in new_theory:
             new_theory["order"] = (new_theory.pop("PTO") + 1, 0)
-    if "ev_op_max_order" in new_operators:
-        if isinstance(new_operators["ev_op_max_order"], int):
-            new_operators["ev_op_max_order"] = (
-                new_operators["ev_op_max_order"],
-                new_theory["order"][1],
-            )
+    if isinstance(new_operators["ev_op_max_order"], int):
+        new_operators["ev_op_max_order"] = (
+            new_operators["ev_op_max_order"],
+            new_theory["order"][1],
+        )
     return new_theory, new_operators
