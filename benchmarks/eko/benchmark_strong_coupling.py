@@ -823,8 +823,7 @@ class BenchmarkCouplings:
             "QED": 0,
             "ModEv": "EXA",
         }
-        operator_dict = {}
-        new_theory, new_operators = compatibility.update(theory_dict, operator_dict)
+        new_theory = compatibility.update(theory_dict)
         Q2s = [2.0]
         sc = Couplings.from_dict(new_theory)
         fact_to_ren = theory_dict["fact_to_ren_scale_ratio"] ** 2

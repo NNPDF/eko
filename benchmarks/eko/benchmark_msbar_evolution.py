@@ -41,15 +41,11 @@ theory_dict = {
     "ModEv": "EXA",
 }
 
-operators_dict = {}
-
 
 @pytest.mark.isolated
 class BenchmarkMSbar:
     def benchmark_APFEL_msbar_evolution(self):
-        theory, operators = compatibility.update(
-            copy.deepcopy(theory_dict), operators_dict
-        )
+        theory = compatibility.update(copy.deepcopy(theory_dict))
         bench_values = dict(zip(np.power([1, 96, 150], 2), [3, 5, 5]))
         theory.update(
             {
@@ -187,9 +183,7 @@ class BenchmarkMSbar:
             },
         }
         # collect my values
-        theory, operators = compatibility.update(
-            copy.deepcopy(theory_dict), operators_dict
-        )
+        theory = compatibility.update(copy.deepcopy(theory_dict))
         for order in [1, 2, 3]:
             theory["order"] = (order, 0)
             my_masses = msbar_masses.compute(theory)
@@ -237,9 +231,7 @@ class BenchmarkMSbar:
                 "PTO": 0,
             }
         )
-        theory, operators = compatibility.update(
-            copy.deepcopy(theory_dict), operators_dict
-        )
+        theory = compatibility.update(copy.deepcopy(theory_dict))
         my_masses_thr = msbar_masses.compute(theory)
         apfel_masses_thr = [1.9891, 4.5102, 175.0000]
         theory.update(

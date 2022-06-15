@@ -31,8 +31,6 @@ class TestCouplings:
             "HQ": "POLE",
             "ModSV": None,
         }
-        # operators = {}
-        # d, o = compatibility.update(theory_dict, operators)
         sc = Couplings.from_dict(theory_dict)
         assert sc.a(theory_dict["Qref"] ** 2)[0] == theory_dict["alphas"] / (
             4.0 * np.pi

@@ -2,7 +2,7 @@
 import copy
 
 
-def update(theory, operators):
+def update(theory, operators=None):
     """
     Upgrade the legacy theory and observable runcards with the new settings.
 
@@ -29,9 +29,11 @@ def update(theory, operators):
     else:
         if "PTO" in new_theory:
             new_theory["order"] = (new_theory.pop("PTO") + 1, 0)
-    if isinstance(new_operators["ev_op_max_order"], int):
-        new_operators["ev_op_max_order"] = (
-            new_operators["ev_op_max_order"],
-            new_theory["order"][1],
-        )
-    return new_theory, new_operators
+    if operators is not None:
+        if isinstance(new_operators["ev_op_max_order"], int):
+            new_operators["ev_op_max_order"] = (
+                new_operators["ev_op_max_order"],
+                new_theory["order"][1],
+            )
+        return new_theory, new_operators
+    return new_theory
