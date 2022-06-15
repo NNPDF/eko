@@ -680,6 +680,21 @@ class Couplings:
         return final_a
 
     def a_s(self, scale_to, fact_scale=None, nf_to=None):
+        r"""
+        Computes coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
+
+        Parameters
+        ----------
+            scale_to : float
+                final scale to evolve to :math:`\mu_R^2`
+            fact_scale : float
+                factorization scale (if different from final scale)
+
+        Returns
+        -------
+            a_s : float
+                couplings :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
+        """
         return self.a(scale_to, fact_scale, nf_to)[0]
 
 
