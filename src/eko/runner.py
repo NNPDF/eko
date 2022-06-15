@@ -7,10 +7,8 @@ import logging
 
 import numpy as np
 
-from eko import compatibility
-
 from . import basis_rotation as br
-from . import interpolation, msbar_masses
+from . import compatibility, interpolation, msbar_masses
 from .couplings import Couplings
 from .evolution_operator.grid import OperatorGrid
 from .output import Output
