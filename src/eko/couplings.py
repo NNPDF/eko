@@ -679,6 +679,9 @@ class Couplings:
             final_a = new_a
         return final_a
 
+    def a_s(self, scale_to, fact_scale=None, nf_to=None):
+        return self.a(scale_to, fact_scale, nf_to)[0]
+
 
 def compute_matching_coeffs_up(mass_scheme, nf):
     r"""

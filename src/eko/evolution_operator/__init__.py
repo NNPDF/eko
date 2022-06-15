@@ -293,12 +293,12 @@ class Operator:
     def a_s(self):
         """Returns the computed values for :math:`a_s`"""
         sc = self.managers["strong_coupling"]
-        as0 = sc.a(
+        as0 = sc.a_s(
             self.q2_from / self.fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf
-        )[0]
-        as1 = sc.a(self.q2_to / self.fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf)[
-            0
-        ]
+        )
+        as1 = sc.a_s(
+            self.q2_to / self.fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf
+        )
         return (as0, as1)
 
     @property
