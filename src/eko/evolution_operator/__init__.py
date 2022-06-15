@@ -295,7 +295,7 @@ class Operator(sv.ModeMixin):
         float
             renormalization scale
         """
-        if self.sv_mode == sv.exponentiated:
+        if self.sv_mode == sv.Modes.exponentiated:
             return q2 / self.fact_to_ren
         return q2
 

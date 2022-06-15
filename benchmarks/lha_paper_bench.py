@@ -223,7 +223,7 @@ if __name__ == "__main__":
     # obj = BenchmarkFFNS()
 
     # obj.benchmark_plain(0)
-    obj.benchmark_sv(1)
+    obj.benchmark_sv(2)
 
     # # VFNS benchmarks with LHA settings
     # programs = ["LHA", "pegasus", "apfel"]
