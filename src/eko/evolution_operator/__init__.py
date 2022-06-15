@@ -126,8 +126,8 @@ def quad_ker(
     is_log,
     logx,
     areas,
-    a1,
-    a0,
+    as1,
+    as0,
     nf,
     L,
     ev_op_iterations,
@@ -155,9 +155,9 @@ def quad_ker(
             Mellin inversion point
         areas : tuple
             basis function configuration
-        a1 : float
+        as1 : float
             target coupling value
-        a0 : float
+        as0 : float
             initial coupling value
         nf : int
             number of active flavors
@@ -189,12 +189,19 @@ def quad_ker(
                 gamma_singlet, order, nf, L
             )
         ker = s.dispatcher(
-            order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
+            order,
+            method,
+            gamma_singlet,
+            as1,
+            as0,
+            nf,
+            ev_op_iterations,
+            ev_op_max_order,
         )
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded:
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
+                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
             )
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -205,13 +212,13 @@ def quad_ker(
             order,
             method,
             gamma_ns,
-            a1,
-            a0,
+            as1,
+            as0,
             nf,
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded:
-            ker = ker * sv.expanded.non_singlet_variation(gamma_ns, a1, order, nf, L)
+            ker = ker * sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L)
 
     # recombine everthing
     return np.real(ker * integrand)
@@ -286,13 +293,13 @@ class Operator:
     def a_s(self):
         """Returns the computed values for :math:`a_s`"""
         sc = self.managers["strong_coupling"]
-        a0 = sc.a(
+        as0 = sc.a(
             self.q2_from / self.fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf
         )[0]
-        a1 = sc.a(self.q2_to / self.fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf)[
+        as1 = sc.a(self.q2_to / self.fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf)[
             0
         ]
-        return (a0, a1)
+        return (as0, as1)
 
     @property
     def labels(self):
@@ -352,8 +359,8 @@ class Operator:
             is_log=self.int_disp.log,
             logx=logx,
             areas=areas,
-            a1=self.a_s[1],
-            a0=self.a_s[0],
+            as1=self.a_s[1],
+            as0=self.a_s[0],
             nf=self.nf,
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
