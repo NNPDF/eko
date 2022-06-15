@@ -337,13 +337,12 @@ class Operator:
         Returns
         -------
             quad_ker : functools.partial
-                partially initialized intration kernel
+                partially initialized integration kernel
 
         """
         return functools.partial(
             quad_ker,
-            # TODO: implement N3LO evolution kernels
-            order=self.config["order"] if self.config["order"] != 3 else 2,
+            order=self.config["order"],
             mode0=label[0],
             mode1=label[1],
             method=self.config["method"],
