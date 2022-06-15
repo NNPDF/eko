@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO)
+Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
 """
 import numpy as np
 from banana import register
@@ -33,9 +33,7 @@ default_skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
 
 
 class LHABenchmark(Runner):
-    """
-    Globally set the external program to LHA
-    """
+    """Globally set the external program to LHA."""
 
     def __init__(self):
         super().__init__()
@@ -44,36 +42,34 @@ class LHABenchmark(Runner):
         self.rotate_to_evolution_basis = True
 
     def plain_theory(self, pto):
-        """
-        Plain theories at given PTO.
+        """Generate plain theories at given PTO.
 
         Parameters
         ----------
-            pto : int
-                perturbation order
+        pto : int
+            perturbation order
 
         Returns
         -------
-            list(dict)
-                theory updates
+        list(dict)
+            theory updates
         """
         th = self.theory.copy()
         th.update({"PTO": pto})
         return [th]
 
     def sv_theories(self, pto):
-        """
-        Scale variation theories.
+        """Generate scale variation theories.
 
         Parameters
         ----------
-            pto : int
-                perturbation order
+        pto : int
+            perturbation order
 
         Returns
         -------
-            list(dict)
-                theory updates
+        list(dict)
+            theory updates
         """
         low = self.theory.copy()
         low["PTO"] = pto
@@ -87,29 +83,27 @@ class LHABenchmark(Runner):
 
     @staticmethod
     def skip_pdfs(_theory):
-        """
-        Adjust skip_pdf by the used theory
+        """Adjust skip_pdf by the used theory.
 
         Parameters
         ----------
-            theory_updates : list(dict)
-                theory updates
+        theory : dict
+            theory update
 
         Returns
         -------
-            list :
-                current skip_pdf
+        list
+            allowed PDFs in LHA
         """
         return default_skip_pdfs
 
     def run_lha(self, theory_updates):
-        """
-        Enforce operators and PDF
+        """Enforce operator grid and PDF.
 
         Parameters
         ----------
-            theory_updates : list(dict)
-                theory updates
+        theory_updates : list(dict)
+            theory updates
         """
         self.run(
             theory_updates,
@@ -124,16 +118,16 @@ class LHABenchmark(Runner):
         )
 
     def benchmark_plain(self, pto):
-        """Plain configuration"""
+        """Run plain configuration."""
         self.run_lha(self.plain_theory(pto))
 
     def benchmark_sv(self, pto):
-        """Scale variations"""
+        """Run scale variations."""
         self.run_lha(self.sv_theories(pto))
 
 
 class BenchmarkVFNS(LHABenchmark):
-    """Variable Flavor Number Scheme"""
+    """Provide |VFNS| settings."""
 
     def __init__(self):
         super().__init__()
@@ -151,7 +145,7 @@ class BenchmarkVFNS(LHABenchmark):
 
 
 class BenchmarkFFNS(LHABenchmark):
-    """Fixed Flavor Number Scheme"""
+    """Provide |FFNS| settings."""
 
     def __init__(self):
         super().__init__()
@@ -169,19 +163,29 @@ class BenchmarkFFNS(LHABenchmark):
 
     @staticmethod
     def skip_pdfs(theory):
+        """Adjust skip_pdf by the used theory.
+
+        Parameters
+        ----------
+        theory : dict
+            theory update
+
+        Returns
+        -------
+        list
+            allowed PDFs in FFNS LHA
+        """
         ffns_skip_pdfs = default_skip_pdfs.copy()
         # remove bottom
         ffns_skip_pdfs.extend([-5, 5, "T24"])
-        # in NNLO V8 becomes available
+        # in NNLO also V8 gets removed
         if theory["PTO"] >= 2:
             ffns_skip_pdfs.remove("V8")
         return ffns_skip_pdfs
 
 
 class BenchmarkRunner(BenchmarkVFNS):
-    """
-    Generic benchmark runner using the LHA VFNS settings
-    """
+    """Generic benchmark runner using the LHA |VFNS| settings."""
 
     def __init__(self, external):
         super().__init__()
@@ -189,18 +193,12 @@ class BenchmarkRunner(BenchmarkVFNS):
         self.sandbox = True
 
     def benchmark_sv(self, pto):
-        """
-        Scale variations
+        """Run scale variations.
 
         Parameters
         ----------
-            pto : int
-                perturbation order
-
-        Returns
-        -------
-            list(dict)
-                theory updates
+        pto : int
+            perturbation order
         """
         high, low = self.sv_theories(pto)
 
@@ -221,15 +219,15 @@ class BenchmarkRunner(BenchmarkVFNS):
 if __name__ == "__main__":
 
     # Benchmark to LHA
-    # obj = BenchmarkVFNS()
-    obj = BenchmarkFFNS()
+    obj = BenchmarkVFNS()
+    # obj = BenchmarkFFNS()
 
     # obj.benchmark_plain(0)
-    # obj.benchmark_sv(2)
+    obj.benchmark_sv(1)
 
     # # VFNS benchmarks with LHA settings
-    programs = ["LHA", "pegasus", "apfel"]
-    for p in programs:
-        obj = BenchmarkRunner(p)
-        # obj.benchmark_plain(2)
-        obj.benchmark_sv(2)
+    # programs = ["LHA", "pegasus", "apfel"]
+    # for p in programs:
+    #     obj = BenchmarkRunner(p)
+    #     # obj.benchmark_plain(2)
+    #     obj.benchmark_sv(2)
