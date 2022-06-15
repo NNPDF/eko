@@ -11,11 +11,10 @@ import numbers
 
 import numpy as np
 
-from eko.thresholds import flavor_shift, is_downward_path
-
 from .. import basis_rotation as br
 from .. import matching_conditions, member
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
+from ..thresholds import flavor_shift, is_downward_path
 from . import Operator, flavors, physical
 
 logger = logging.getLogger(__name__)
