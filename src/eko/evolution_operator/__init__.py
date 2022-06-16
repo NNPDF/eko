@@ -106,7 +106,7 @@ class QuadKerBase:
         Returns
         -------
             base_integrand: complex
-                common mellin inversion intgrand
+                common mellin inversion integrand
         """
         if self.logx == 0.0:
             return 0.0
