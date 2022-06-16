@@ -13,7 +13,9 @@ import numpy as np
 from .. import basis_rotation as br
 from .. import harmonics
 from ..evolution_operator import Operator, QuadKerBase
-from . import as1, as2, as3
+from . import as1, as2
+
+# _N3LO_ from . import as1, as2, as3
 
 logger = logging.getLogger(__name__)
 
@@ -102,8 +104,8 @@ def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
         A_s[0] = as1.A_singlet(n, sx, L)
     if order[0] >= 3:
         A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
-    if order[0] >= 4:
-        A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
+    # _N3LO_ if order >= 4:
+    #     A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
     return A_s
 
 
@@ -140,8 +142,8 @@ def A_non_singlet(order, n, sx, nf, L):
         A_ns[0] = as1.A_ns(n, sx, L)
     if order[0] >= 3:
         A_ns[1] = as2.A_ns(n, sx, L)
-    if order[0] >= 4:
-        A_ns[2] = as3.A_ns(n, sx, nf, L)
+    # _N3LO_ if order >= 4:
+    #     A_ns[2] = as3.A_ns(n, sx, nf, L)
     return A_ns
 
 
@@ -243,24 +245,24 @@ def quad_ker(
     sx = compute_harmonics_cache(ker_base.n, order[0] - 1, ker_base.is_singlet)
     # order in compute_harmonics_cache is mismatched wrt order[0]
     sx_ns = None
-    if order[0] == 4 and (
-        (backward_method != "" and ker_base.is_singlet)
-        or (mode0 == 100 and mode0 == 100)
-    ):
-        # At N3LO for A_qq singlet or backward you need to compute
-        # both the singlet and non-singlet like harmonics
-        # avoiding recomputing all of them ...
-        sx_ns = sx.copy()
-        smx_ns = harmonics.smx(ker_base.n, np.array([s[0] for s in sx]), False)
-        for w, sm in enumerate(smx_ns):
-            sx_ns[w][-1] = sm
-        sx_ns[2][2] = harmonics.S2m1(ker_base.n, sx[0][1], smx_ns[0], smx_ns[1], False)
-        sx_ns[2][3] = harmonics.Sm21(ker_base.n, sx[0][0], smx_ns[0], False)
-        sx_ns[3][5] = harmonics.Sm31(ker_base.n, sx[0][0], smx_ns[0], smx_ns[1], False)
-        sx_ns[3][4] = harmonics.Sm211(ker_base.n, sx[0][0], sx[0][1], smx_ns[0], False)
-        sx_ns[3][3] = harmonics.Sm22(
-            ker_base.n, sx[0][0], sx[0][1], smx_ns[1], sx_ns[3][5], False
-        )
+    # _N3LO_ if order == 4 and (
+    #     (backward_method != "" and ker_base.is_singlet)
+    #     or (mode0 == 100 and mode0 == 100)
+    # ):
+    #     # At N3LO for A_qq singlet or backward you need to compute
+    #     # both the singlet and non-singlet like harmonics
+    #     # avoiding recomputing all of them ...
+    #     sx_ns = sx.copy()
+    #     smx_ns = harmonics.smx(ker_base.n, np.array([s[0] for s in sx]), False)
+    #     for w, sm in enumerate(smx_ns):
+    #         sx_ns[w][-1] = sm
+    #     sx_ns[2][2] = harmonics.S2m1(ker_base.n, sx[0][1], smx_ns[0], smx_ns[1], False)
+    #     sx_ns[2][3] = harmonics.Sm21(ker_base.n, sx[0][0], smx_ns[0], False)
+    #     sx_ns[3][5] = harmonics.Sm31(ker_base.n, sx[0][0], smx_ns[0], smx_ns[1], False)
+    #     sx_ns[3][4] = harmonics.Sm211(ker_base.n, sx[0][0], sx[0][1], smx_ns[0], False)
+    #     sx_ns[3][3] = harmonics.Sm22(
+    #         ker_base.n, sx[0][0], sx[0][1], smx_ns[1], sx_ns[3][5], False
+    #     )
 
     # compute the ome
     if ker_base.is_singlet:

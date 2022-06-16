@@ -39,7 +39,7 @@ class BenchmarkHERA20(Runner):
             {
                 "alphas": 0.118000,
                 "alphaqed": 0.007496,
-                "PTO": 3,
+                "PTO": 2,
                 "QED": 0,
                 "Q0": Q0,
             }

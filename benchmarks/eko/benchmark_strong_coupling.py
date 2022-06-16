@@ -819,12 +819,11 @@ class BenchmarkCouplings:
             "Qmc": np.sqrt(2.0),
             "Qmb": 4.5,
             "Qmt": 175.0,
-            "PTO": 3,
+            "PTO": 2,
             "QED": 0,
             "ModEv": "EXA",
         }
-        operator_dict = {}
-        new_theory, new_operators = compatibility.update(theory_dict, operator_dict)
+        new_theory = compatibility.update_theory(theory_dict)
         Q2s = [2.0]
         sc = Couplings.from_dict(new_theory)
         fact_to_ren = theory_dict["fact_to_ren_scale_ratio"] ** 2
@@ -851,7 +850,7 @@ class BenchmarkCouplings:
                 # run apfel
                 apfel.CleanUp()
                 apfel.SetTheory("QCD")
-                apfel.SetPerturbativeOrder(theory_dict["PTO"] - 1)
+                apfel.SetPerturbativeOrder(theory_dict["PTO"])
                 apfel.SetAlphaEvolution("exact")
                 apfel.SetAlphaQCDRef(theory_dict["alphas"], theory_dict["Qref"])
                 apfel.SetVFNS()

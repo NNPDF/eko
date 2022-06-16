@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 
 
 def update(theory, operators):
@@ -19,19 +20,33 @@ def update(theory, operators):
         new_obs : dict
             upgraded observable runcard
     """
-    new_theory = theory.copy()
-    new_operators = operators.copy()
-    new_theory["alphaem"] = new_theory.pop("alphaqed")
+    new_theory = copy.deepcopy(theory)
+    new_operators = copy.deepcopy(operators)
+    if "alphaqed" in new_theory:
+        new_theory["alphaem"] = new_theory.pop("alphaqed")
     if "QED" in new_theory:
-        new_theory["order"] = (new_theory["PTO"], new_theory["QED"])
-    else:
-        new_theory["QED"] = 0
-        new_theory["order"] = (new_theory["PTO"], new_theory["QED"])
-    if "ev_op_max_order" in new_operators:
-        new_operators["ev_op_max_order"] = (
-            new_operators["ev_op_max_order"],
-            new_theory["QED"],
-        )
-    del new_theory["PTO"]
-    del new_theory["QED"]
+        new_theory["order"] = (new_theory.pop("PTO") + 1, new_theory.pop("QED"))
+    if operators is not None:
+        if isinstance(new_operators["ev_op_max_order"], int):
+            new_operators["ev_op_max_order"] = (
+                new_operators["ev_op_max_order"],
+                new_theory["order"][1],
+            )
     return new_theory, new_operators
+
+
+def update_theory(theory):
+    """
+    Upgrade the legacy theory runcards with the new settings.
+
+    Parameters
+    ----------
+        theory : dict
+            theory runcard
+
+    Returns
+    -------
+        new_theory : dict
+            upgraded theory runcard
+    """
+    return update(theory, None)[0]

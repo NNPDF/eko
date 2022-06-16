@@ -64,7 +64,7 @@ class Sandbox(Runner):
     def doit(self):
         theory_updates = {
             **ffns3,
-            "PTO": 1,
+            "PTO": 0,
             "QED": 0,
             # "ModEv": "EXA",
             # "XIR": 0.5,
@@ -112,7 +112,7 @@ class Sandbox(Runner):
 
     def lha(self):
         theory_updates = {
-            "PTO": 1,
+            "PTO": 0,
             "QED": 0,
             "FNS": "FFNS",
             "NfFF": 4,

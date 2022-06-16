@@ -207,28 +207,28 @@ def expanded_qcd(ref, order, nf, lmu):
         # QCD LO
         as_LO = exact_lo(ref, beta_qcd0, lmu)
         res_as = as_LO
-        # NLO
-        if order >= 2:
-            b_qcd1 = b_qcd((3, 0), nf)
-            as_NLO = expanded_nlo(ref, beta_qcd0, b_qcd1, lmu)
-            res_as = as_NLO
-            # NNLO
-            if order >= 3:
-                b_qcd2 = b_qcd((4, 0), nf)
-                as_NNLO = expanded_nnlo(ref, beta_qcd0, b_qcd1, b_qcd2, lmu)
-                res_as = as_NNLO
-                # N3LO
-                if order >= 4:
-                    b_qcd3 = b_qcd((5, 0), nf)
-                    as_N3LO = expanded_n3lo(
-                        ref,
-                        beta_qcd0,
-                        b_qcd1,
-                        b_qcd2,
-                        b_qcd3,
-                        lmu,
-                    )
-                    res_as = as_N3LO
+    # NLO
+    if order >= 2:
+        b_qcd1 = b_qcd((3, 0), nf)
+        as_NLO = expanded_nlo(ref, beta_qcd0, b_qcd1, lmu)
+        res_as = as_NLO
+    # NNLO
+    if order >= 3:
+        b_qcd2 = b_qcd((4, 0), nf)
+        as_NNLO = expanded_nnlo(ref, beta_qcd0, b_qcd1, b_qcd2, lmu)
+        res_as = as_NNLO
+    # N3LO
+    if order >= 4:
+        b_qcd3 = b_qcd((5, 0), nf)
+        as_N3LO = expanded_n3lo(
+            ref,
+            beta_qcd0,
+            b_qcd1,
+            b_qcd2,
+            b_qcd3,
+            lmu,
+        )
+        res_as = as_N3LO
     return res_as
 
 
@@ -259,11 +259,11 @@ def expanded_qed(ref, order, nf, lmu):
         # QED LO
         aem_LO = exact_lo(ref, beta_qed0, lmu)
         res_aem = aem_LO
-        # NLO
-        if order >= 2:
-            b_qed1 = b_qed((0, 3), nf)
-            aem_NLO = expanded_nlo(ref, beta_qed0, b_qed1, lmu)
-            res_aem = aem_NLO
+    # NLO
+    if order >= 2:
+        b_qed1 = b_qed((0, 3), nf)
+        aem_NLO = expanded_nlo(ref, beta_qed0, b_qed1, lmu)
+        res_aem = aem_NLO
     return res_aem
 
 
@@ -678,6 +678,24 @@ class Couplings:
                 new_a[0] *= fact
             final_a = new_a
         return final_a
+
+    def a_s(self, scale_to, fact_scale=None, nf_to=None):
+        r"""
+        Computes coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
+
+        Parameters
+        ----------
+            scale_to : float
+                final scale to evolve to :math:`\mu_R^2`
+            fact_scale : float
+                factorization scale (if different from final scale)
+
+        Returns
+        -------
+            a_s : float
+                couplings :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
+        """
+        return self.a(scale_to, fact_scale, nf_to)[0]
 
 
 def compute_matching_coeffs_up(mass_scheme, nf):

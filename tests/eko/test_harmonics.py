@@ -23,7 +23,7 @@ def test_spm2():
 
 
 def test_harmonics_cache():
-    N = np.random.randint(100)
+    N = np.random.randint(1, high=100)
     is_singlet = (-1) ** N == 1
     S1 = h.S1(N)
     S2 = h.S2(N)

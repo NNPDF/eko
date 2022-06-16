@@ -24,7 +24,7 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
     ]
     op = g_o.gen_op_card(q2grid)
     theory = g_t.gen_theory_card(
-        1,
+        0,
         5.0,
         update={
             "alphas": 0.118000,
@@ -83,7 +83,7 @@ def benchmark_evolve_more_members(tmp_path, cd, lhapdf_path):
     op = g_o.gen_op_card(
         [10, 100], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
     )
-    theory = g_t.gen_theory_card(1, 1.0)
+    theory = g_t.gen_theory_card(0, 1.0)
     with lhapdf_path(test_pdf):
         pdfs = lhapdf.mkPDFs("myMSTW2008nlo90cl")
     d = tmp_path / "sub"
@@ -102,7 +102,7 @@ def benchmark_gen_and_dump_out(tmp_path):
     op = g_o.gen_op_card(
         [100.0], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
     )
-    theory = g_t.gen_theory_card(1, 1.0)
+    theory = g_t.gen_theory_card(0, 1.0)
 
     out = ev_p.gen_out(theory, op, path=tmp_path)
 

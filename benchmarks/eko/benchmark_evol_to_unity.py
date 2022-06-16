@@ -19,7 +19,7 @@ class BenchmarkBackwardForward:
     theory_card = {
         "alphas": 0.35,
         "alphaqed": 0.007496,
-        "PTO": 1,
+        "PTO": 0,
         "QED": 0,
         "ModEv": "EXA",
         "fact_to_ren_scale_ratio": 1.0,

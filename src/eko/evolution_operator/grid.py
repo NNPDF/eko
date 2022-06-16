@@ -11,11 +11,10 @@ import numbers
 
 import numpy as np
 
-from eko.thresholds import flavor_shift, is_downward_path
-
 from .. import basis_rotation as br
 from .. import matching_conditions, member
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
+from ..thresholds import flavor_shift, is_downward_path
 from . import Operator, flavors, physical
 
 logger = logging.getLogger(__name__)
@@ -111,7 +110,7 @@ class OperatorGrid:
                 created object
         """
         config = {}
-        config["order"] = theory_card["order"]
+        config["order"] = tuple(int(o) for o in theory_card["order"])
         method = theory_card["ModEv"]
         mod_ev2method = {
             "EXA": "iterate-exact",
