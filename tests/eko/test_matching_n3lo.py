@@ -13,7 +13,7 @@ def test_A_3():
 
     for L in logs:
         N = 1.0
-        sx_cache = compute_harmonics_cache(N, 3, False)
+        sx_cache = compute_harmonics_cache(N, 5, False)
         aNSqq3 = A_qqNS(N, sx_cache, nf, L)
         # quark number conservation
         # the accuracy of this test depends directly on the precision of the
@@ -21,7 +21,7 @@ def test_A_3():
         np.testing.assert_allclose(aNSqq3, 0.0, atol=5e-5)
 
         N = 2.0
-        sx_cache = compute_harmonics_cache(N, 3, True)
+        sx_cache = compute_harmonics_cache(N, 5, True)
         # reference value comes form Mathematica, gg is not fullycomplete
         # thus the reference value is not 0.0
         # Here the accuracy of this test depends on the approximation of AggTF2
@@ -39,8 +39,8 @@ def test_A_3():
     # doing a proper limit.
 
     N = 3 + 2j
-    sx_cache = compute_harmonics_cache(np.random.rand(), 3, True)
-    ns_sx_cache = compute_harmonics_cache(np.random.rand(), 3, False)
+    sx_cache = compute_harmonics_cache(np.random.rand(), 5, True)
+    ns_sx_cache = compute_harmonics_cache(np.random.rand(), 5, False)
     aS3 = A_singlet(N, sx_cache, ns_sx_cache, nf, L)
     aNS3 = A_ns(N, ns_sx_cache, nf, L)
     assert aNS3.shape == (2, 2)
@@ -124,8 +124,8 @@ def test_Blumlein_3():
     for i, N in enumerate([4.0, 6.0, 10.0, 100.0]):
         idx = i + 1
         for L in [0, 10]:
-            sx_cache = compute_harmonics_cache(N, 3, True)
-            ns_sx_cache = compute_harmonics_cache(N, 3, False)
+            sx_cache = compute_harmonics_cache(N, 5, True)
+            ns_sx_cache = compute_harmonics_cache(N, 5, False)
             aS3 = A_singlet(N, sx_cache, ns_sx_cache, nf, L)
 
             # here we have a different approximation for AggTF2,
@@ -157,7 +157,7 @@ def test_Blumlein_3():
     nf = 3
     ref_ggTF_app = [-28.9075, -180.659, -229.537, -281.337, -467.164]
     for idx, N in enumerate([2.0, 4.0, 6.0, 10.0, 100.0]):
-        sx_cache = compute_harmonics_cache(N, 3, True)
+        sx_cache = compute_harmonics_cache(N, 5, True)
         Aggtf2 = as3.aggTF2.A_ggTF2(N, sx_cache)
         if N != 100:
             # Limited in the small N region
@@ -173,7 +173,7 @@ def test_Blumlein_3():
     # odd numbers of qqNS
     ref_qqNS_odd = [-40.94998646588999, -21.598793547423504, 6.966325573931755]
     for N, ref in zip([3.0, 15.0, 101.0], ref_qqNS_odd):
-        sx_cache = compute_harmonics_cache(N, 3, False)
+        sx_cache = compute_harmonics_cache(N, 5, False)
         np.testing.assert_allclose(
             as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0), ref, rtol=1e-4
         )
@@ -227,7 +227,7 @@ def test_AHq_asymptotic():
     # Ns = [31.,32.,33.,34.,35.,36.,37.,38.,39.]
     nf = 3
     for N, r in zip(Ns, refs):
-        sx_cache = compute_harmonics_cache(N, 3, True)
+        sx_cache = compute_harmonics_cache(N, 5, True)
         np.testing.assert_allclose(
             as3.aHq.A_Hq(N, sx_cache, nf, L=0), r, rtol=7e-6, atol=1e-5
         )

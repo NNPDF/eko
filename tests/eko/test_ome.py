@@ -19,6 +19,8 @@ from eko.matching_conditions.operator_matrix_element import (
 )
 from eko.thresholds import ThresholdsAtlas
 
+max_weight_dict = {1: 2, 2: 3, 3: 5}
+
 
 def test_build_ome_as():
     # test that if as = 0 ome is and identity
@@ -28,10 +30,10 @@ def test_build_ome_as():
     nf = 3
     is_msbar = False
     for o in [1, 2, 3]:
-        sx_singlet = compute_harmonics_cache(N, o, True)
+        sx_singlet = compute_harmonics_cache(N, max_weight_dict[o], True)
         sx_ns = sx_singlet
         if o == 3:
-            sx_ns = compute_harmonics_cache(N, o, False)
+            sx_ns = compute_harmonics_cache(N, max_weight_dict[o], False)
 
         aNS = A_non_singlet((o, 0), N, sx_ns, nf, L)
         aS = A_singlet((o, 0), N, sx_singlet, nf, L, is_msbar, sx_ns)
