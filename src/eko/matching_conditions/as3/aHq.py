@@ -13,6 +13,12 @@ def A_Hq(n, sx, nf, L):  # pylint: disable=too-many-locals
     When using the code, please cite the complete list of references
     available in :mod:`eko.matching_conditions.as3`.
 
+    Note the part proportional to nf^0 includes non trivial weight = 5
+    harmonics and has been parametrized in Mellin space.
+    For these pieces the accuracy wrt the exact expression is below
+    0.001% (N<1000).
+    All the other contributions are provided exact.
+
     Parameters
     ----------
     n : complex

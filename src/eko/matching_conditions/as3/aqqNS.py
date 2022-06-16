@@ -2,17 +2,21 @@
 import numba as nb
 import numpy as np
 
-from ... import harmonics as sf
-
 
 @nb.njit(cache=True)
-def A_qqNS(n, sx, nf, L):  # pylint: disable=too-many-locals
+def A_qqNS(n, sx, nf, L):
     r"""Computes the |N3LO| singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.
     The expression is presented in :cite:`Bierenbaum:2009mv` and
     :cite:`Ablinger:2014vwa`. It contains some weight 5 harmonics sums.
 
     When using the code, please cite the complete list of references
     available in :mod:`eko.matching_conditions.as3`.
+
+    Note the part proportional to nf^0 includes weight = 5
+    harmonics and has been parametrized in Mellin space.
+    For this piece the accuracy wrt the known moments is below the 0.01% (N<1000)
+    and the absolute diff is within 5e-3.
+    All the other contributions are provided exact.
 
     Parameters
     ----------
@@ -35,29 +39,38 @@ def A_qqNS(n, sx, nf, L):  # pylint: disable=too-many-locals
     S2, Sm2 = sx[1]
     S3, _, _, Sm21, _, Sm3 = sx[2]
     S4, S31, _, Sm22, Sm211, _, Sm4 = sx[3]
-    a_qqNS_l0 = 0.3333333333333333 * nf * (
-        (
-            0.0054869684499314125
-            * (
-                432.0
-                + 144.0 * n
-                - 2016.0 * np.power(n, 2)
-                + 1712.0 * np.power(n, 3)
-                + 15165.0 * np.power(n, 4)
-                + 25380.0 * np.power(n, 5)
-                + 23870.0 * np.power(n, 6)
-                + 14196.0 * np.power(n, 7)
-                + 3549.0 * np.power(n, 8)
+    a_qqNS_l0_nf1 = (
+        0.3333333333333333
+        * nf
+        * (
+            (
+                0.0054869684499314125
+                * (
+                    432.0
+                    + 144.0 * n
+                    - 2016.0 * np.power(n, 2)
+                    + 1712.0 * np.power(n, 3)
+                    + 15165.0 * np.power(n, 4)
+                    + 25380.0 * np.power(n, 5)
+                    + 23870.0 * np.power(n, 6)
+                    + 14196.0 * np.power(n, 7)
+                    + 3549.0 * np.power(n, 8)
+                )
             )
+            / (np.power(n, 4) * np.power(1.0 + n, 4))
+            - 33.00960219478738 * S1
+            + 11.39728026699467
+            * (
+                (-0.5 * (2.0 + 3.0 * n + 3.0 * np.power(n, 2))) / (n * (1.0 + n))
+                + 2.0 * S1
+            )
+            + 1.5802469135802468 * S2
+            + 7.901234567901234 * S3
+            - 4.7407407407407405 * S4
         )
-        / (np.power(n, 4) * np.power(1.0 + n, 4))
-        - 33.00960219478738 * S1
-        + 11.39728026699467
-        * ((-0.5 * (2.0 + 3.0 * n + 3.0 * np.power(n, 2))) / (n * (1.0 + n)) + 2.0 * S1)
-        + 1.5802469135802468 * S2
-        + 7.901234567901234 * S3
-        - 4.7407407407407405 * S4
-    ) + (
+    )
+    # Parametrized part
+    a_qqNS_l0_nf0 = (
         3461.323400827195 / (1.0 + n) ** 5
         - (819109.4159686691 * n) / (1.0 + n) ** 5
         - (588978.6568109449 * n**2) / (1.0 + n) ** 5
@@ -72,6 +85,7 @@ def A_qqNS(n, sx, nf, L):  # pylint: disable=too-many-locals
         + 0.160466156494926 * S1**3
         - 108.40179984327544 * S2
     )
+    a_qqNS_l0 = a_qqNS_l0_nf0 + a_qqNS_l0_nf1
     a_qqNS_l3 = (
         8.592592592592593 / (1.0 + n)
         + 5.728395061728395 / (n * (1.0 + n))
