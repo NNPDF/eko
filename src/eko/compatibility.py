@@ -26,9 +26,6 @@ def update(theory, operators=None):
         new_theory["alphaem"] = new_theory.pop("alphaqed")
     if "QED" in new_theory:
         new_theory["order"] = (new_theory.pop("PTO") + 1, new_theory.pop("QED"))
-    else:
-        if "PTO" in new_theory:
-            new_theory["order"] = (new_theory.pop("PTO") + 1, 0)
     if operators is not None:
         if isinstance(new_operators["ev_op_max_order"], int):
             new_operators["ev_op_max_order"] = (
