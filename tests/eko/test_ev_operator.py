@@ -260,7 +260,7 @@ class TestOperator:
         o.compute()
         self.check_lo(o)
         # NLO
-        o.config["order"] = (2, 0)
+        o.order = (2, 0)
         o.compute()
         assert not np.allclose(
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,

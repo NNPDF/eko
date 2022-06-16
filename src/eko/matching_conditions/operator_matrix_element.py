@@ -98,11 +98,11 @@ def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
         eko.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
     """
     A_s = np.zeros((order[0], 3, 3), np.complex_)
-    if order[0] >= 2:
+    if order[0] >= 1:
         A_s[0] = as1.A_singlet(n, sx, L)
-    if order[0] >= 3:
+    if order[0] >= 2:
         A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
-    if order[0] >= 4:
+    if order[0] >= 3:
         A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
     return A_s
 
@@ -136,11 +136,11 @@ def A_non_singlet(order, n, sx, nf, L):
         eko.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
     """
     A_ns = np.zeros((order[0], 2, 2), np.complex_)
-    if order[0] >= 2:
+    if order[0] >= 1:
         A_ns[0] = as1.A_ns(n, sx, L)
-    if order[0] >= 3:
+    if order[0] >= 2:
         A_ns[1] = as2.A_ns(n, sx, L)
-    if order[0] >= 4:
+    if order[0] >= 3:
         A_ns[2] = as3.A_ns(n, sx, nf, L)
     return A_ns
 
@@ -177,19 +177,19 @@ def build_ome(A, order, a_s, backward_method):
     A = np.ascontiguousarray(A)
     if backward_method == "expanded":
         # expended inverse
-        if order[0] >= 2:
+        if order[0] >= 1:
             ome -= a_s * A[0]
-        if order[0] >= 3:
+        if order[0] >= 2:
             ome += a_s**2 * (-A[1] + A[0] @ A[0])
-        if order[0] >= 4:
+        if order[0] >= 3:
             ome += a_s**3 * (-A[2] + A[0] @ A[1] + A[1] @ A[0] - A[0] @ A[0] @ A[0])
     else:
         # forward or exact inverse
-        if order[0] >= 2:
+        if order[0] >= 1:
             ome += a_s * A[0]
-        if order[0] >= 3:
+        if order[0] >= 2:
             ome += a_s**2 * A[1]
-        if order[0] >= 4:
+        if order[0] >= 3:
             ome += a_s**3 * A[2]
         # need inverse exact ?  so add the missing pieces
         if backward_method == "exact":
@@ -240,9 +240,9 @@ def quad_ker(
     if integrand == 0.0:
         return 0.0
 
-    sx = compute_harmonics_cache(ker_base.n, order[0] - 1, ker_base.is_singlet)
+    sx = compute_harmonics_cache(ker_base.n, order[0], ker_base.is_singlet)
     sx_ns = sx.copy()
-    if order[0] == 4 and (
+    if order[0] == 3 and (
         (backward_method != "" and ker_base.is_singlet)
         or (mode0 == 100 and mode1 == 100)
     ):
@@ -326,6 +326,8 @@ class OperatorMatrixElement(Operator):
             self.is_intrinsic = bool(len(config["intrinsic_range"]) != 0)
         self.L = L
         self.is_msbar = is_msbar
+        # Note for the moment only QCD matching is implemented
+        self.order = (self.order[0] - 1, self.order[1])
 
     @property
     def labels(self):
@@ -391,7 +393,7 @@ class OperatorMatrixElement(Operator):
         """
         return functools.partial(
             quad_ker,
-            order=self.config["order"],
+            order=self.order,
             mode0=label[0],
             mode1=label[1],
             is_log=self.int_disp.log,
@@ -420,7 +422,7 @@ class OperatorMatrixElement(Operator):
         self.initialize_op_members()
 
         # At LO you don't need anything else
-        if self.config["order"][0] == 1:
+        if self.order[0] == 0:
             logger.info("%s: no need to compute matching at LO", self.log_label)
             return
 
