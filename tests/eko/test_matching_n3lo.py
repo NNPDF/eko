@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# _N3LO_ Test N3LO OME
+# Test N3LO OME
 import numpy as np
 
 from eko.matching_conditions import as3
@@ -17,9 +17,8 @@ def test_A_3():
         aNSqq3 = A_qqNS(N, sx_cache, nf, L)
         # quark number conservation
         # the accuracy of this test depends directly on the precision of the
-        # F functions, thus is dominated by F19,F20,F21 accuracy are the worst ones
-        # If needed, these Fs can be improved.
-        np.testing.assert_allclose(aNSqq3, 0.0, atol=5e-3)
+        # fitted part of aNSqq3
+        np.testing.assert_allclose(aNSqq3, 0.0, atol=5e-5)
 
         N = 2.0
         sx_cache = compute_harmonics_cache(N, 3, True)
@@ -143,7 +142,7 @@ def test_Blumlein_3():
             )
 
             np.testing.assert_allclose(
-                aS3[2, 1], ref_val_Hq[L][idx], rtol=2e-5, atol=3e-6
+                aS3[2, 1], ref_val_Hq[L][idx], rtol=2e-5, atol=2e-6
             )
 
             # here we have a different convention for (-1)^N,
@@ -151,7 +150,7 @@ def test_Blumlein_3():
             # as non-singlet. The accuracy is worst for large N
             # due to the approximations of F functions.
             np.testing.assert_allclose(
-                aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=8e-2
+                aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=8e-4
             )
 
     # Here we test the critical parts
@@ -172,13 +171,11 @@ def test_Blumlein_3():
         )
 
     # odd numbers of qqNS
-    # Limited accuracy due to F functions
     ref_qqNS_odd = [-40.94998646588999, -21.598793547423504, 6.966325573931755]
-    rtols = [4e-4, 3e-3, 2.1e-2]
-    for N, ref, rtol in zip([3.0, 15.0, 101.0], ref_qqNS_odd, rtols):
+    for N, ref in zip([3.0, 15.0, 101.0], ref_qqNS_odd):
         sx_cache = compute_harmonics_cache(N, 3, False)
         np.testing.assert_allclose(
-            as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0), ref, rtol=rtol
+            as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0), ref, rtol=1e-4
         )
 
 
@@ -232,5 +229,5 @@ def test_AHq_asymptotic():
     for N, r in zip(Ns, refs):
         sx_cache = compute_harmonics_cache(N, 3, True)
         np.testing.assert_allclose(
-            as3.aHq.A_Hq(N, sx_cache, nf, L=0), r, rtol=1e-5, atol=1e-5
+            as3.aHq.A_Hq(N, sx_cache, nf, L=0), r, rtol=7e-6, atol=1e-5
         )
