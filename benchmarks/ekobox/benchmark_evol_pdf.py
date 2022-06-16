@@ -91,8 +91,14 @@ def benchmark_evolve_more_members(tmp_path, cd, lhapdf_path):
             ev_p.evolve_pdfs(pdfs, theory, op, install=True, name="Debug")
         # ev_pdfs
         _ = lhapdf.mkPDFs("Debug")
+        new_pdf_1 = lhapdf.mkPDF("Debug", 0)
+        new_pdf_2 = lhapdf.mkPDF("Debug", 1)
         info = load.load_info_from_file("Debug")
     assert info["XMin"] == op["interpolation_xgrid"][0]
+    for Q2 in [10, 100]:
+        for x in [1e-7, 0.01, 0.1, 0.2, 0.3]:
+            for pid in [21, 1, 2]:
+                assert new_pdf_1.xfxQ2(pid, x, Q2) != new_pdf_2.xfxQ2(pid, x, Q2)
 
 
 @pytest.mark.isolated
