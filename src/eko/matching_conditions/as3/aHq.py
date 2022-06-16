@@ -6,9 +6,8 @@ import numpy as np
 
 @nb.njit(cache=True)
 def A_Hq(n, sx, nf, L):  # pylint: disable=too-many-locals
-    r"""
-    Computes the |N3LO| singlet |OME| :math:`A_{Hq}^{S,(3)}(N)`.
-    The experssion is presented in :cite:`Ablinger_2015` (eq 5.1)
+    r"""Computes the |N3LO| singlet |OME| :math:`A_{Hq}^{S,(3)}(N)`.
+    The expression is presented in :cite:`Ablinger_2015` (eq 5.1)
     and :cite:`Blumlein:2017wxd` (eq 3.1).
 
     When using the code, please cite the complete list of references
@@ -16,19 +15,20 @@ def A_Hq(n, sx, nf, L):  # pylint: disable=too-many-locals
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
-        nf : int
-            number of active flavor below the threshold
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
-        A_Hq : complex
-            :math:`A_{Hq}^{S,(3)}(N)`
+    complex
+        :math:`A_{Hq}^{S,(3)}(N)`
+
     """
     S1, _ = sx[0]
     S2, Sm2 = sx[1]

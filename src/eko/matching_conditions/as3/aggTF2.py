@@ -5,10 +5,9 @@ import numpy as np
 
 @nb.njit(cache=True)
 def A_ggTF2(n, sx):
-    r"""
-    Computes the approximate incomplete part of :math:`A_{gg}^{S,(3)}(N)`
+    r"""Computes the approximate incomplete part of :math:`A_{gg}^{S,(3)}(N)`
     proportional to :math:`T_{F}^2`.
-    The experssion is presented in  :cite:`Ablinger:2014uka` (eq 4.2).
+    The expression is presented in  :cite:`Ablinger:2014uka` (eq 4.2).
     It contains a binomial factor which is given approximated.
 
     When using the code, please cite the complete list of references
@@ -16,15 +15,16 @@ def A_ggTF2(n, sx):
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        A_ggTF2 : complex
-            :math:`A_{gg,T_{F}^2}^{S,(3)}(N)`
+    complex
+        :math:`A_{gg,T_{F}^2}^{S,(3)}(N)`
+
     """
     S1 = sx[0][0]
     S2 = sx[1][0]

@@ -5,24 +5,24 @@ import numpy as np
 
 @nb.njit(cache=True)
 def A_Hgstfac(n, sx, nf):
-    r"""
-    Computes the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)`
+    r"""Computes the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)`
     proportional to various color factors.
-    The experssion is presented in cite:`ablinger2017heavy` (eq 3.1).
+    The expression is presented in cite:`ablinger2017heavy` (eq 3.1).
 
     When using the code, please cite the complete list of references
     available in :mod:`eko.matching_conditions.as3`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        A_ggTF2 : complex
+    complex
+
     """
     S1, _ = sx[0]
     S2, Sm2 = sx[1]

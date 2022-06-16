@@ -7,9 +7,8 @@ from ... import harmonics as sf
 
 @nb.njit(cache=True)
 def A_qqNS(n, sx, nf, L):  # pylint: disable=too-many-locals
-    r"""
-    Computes the |N3LO| singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.
-    The experssion is presented in :cite:`Bierenbaum:2009mv` and
+    r"""Computes the |N3LO| singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.
+    The expression is presented in :cite:`Bierenbaum:2009mv` and
     :cite:`Ablinger:2014vwa`. It contains some weight 5 harmonics sums.
 
     When using the code, please cite the complete list of references
@@ -17,19 +16,20 @@ def A_qqNS(n, sx, nf, L):  # pylint: disable=too-many-locals
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
-        nf : int
-            number of active flavor below the threshold
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
-        A_qqNS : complex
-            :math:`A_{qq}^{NS,(3)}(N)`
+    complex
+        :math:`A_{qq}^{NS,(3)}(N)`
+
     """
     S1, _ = sx[0]
     S2, Sm2 = sx[1]
