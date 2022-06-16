@@ -72,7 +72,7 @@ def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
 
     Parameters
     ----------
-        order : int
+        order : tuple(int,int)
             perturbative order
         n : complex
             Mellin variable
@@ -99,12 +99,12 @@ def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
         eko.matching_conditions.nlo.A_gh_1 : :math:`A_{gH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
     """
-    A_s = np.zeros((order, 3, 3), np.complex_)
-    if order >= 1:
+    A_s = np.zeros((order[0], 3, 3), np.complex_)
+    if order[0] >= 2:
         A_s[0] = as1.A_singlet(n, sx, L)
-    if order >= 2:
+    if order[0] >= 3:
         A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
-    # _N3LO_ if order >= 3:
+    # _N3LO_ if order >= 4:
     #     A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
     return A_s
 
@@ -116,7 +116,7 @@ def A_non_singlet(order, n, sx, nf, L):
 
     Parameters
     ----------
-        order : int
+        order : tuple(int,int)
             perturbative order
         n : complex
             Mellin variable
@@ -137,12 +137,12 @@ def A_non_singlet(order, n, sx, nf, L):
         eko.matching_conditions.nlo.A_hh_1 : :math:`A_{HH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
     """
-    A_ns = np.zeros((order, 2, 2), np.complex_)
-    if order >= 1:
+    A_ns = np.zeros((order[0], 2, 2), np.complex_)
+    if order[0] >= 2:
         A_ns[0] = as1.A_ns(n, sx, L)
-    if order >= 2:
+    if order[0] >= 3:
         A_ns[1] = as2.A_ns(n, sx, L)
-    # _N3LO_ if order >= 3:
+    # _N3LO_ if order >= 4:
     #     A_ns[2] = as3.A_ns(n, sx, nf, L)
     return A_ns
 
@@ -156,7 +156,7 @@ def build_ome(A, order, a_s, backward_method):
     ----------
         A : numpy.ndarray
             list of |OME|
-        order : int
+        order : tuple(int,int)
             perturbation order
         a_s : float
             strong coupling, needed only for the exact inverse
@@ -179,19 +179,19 @@ def build_ome(A, order, a_s, backward_method):
     A = np.ascontiguousarray(A)
     if backward_method == "expanded":
         # expended inverse
-        if order >= 1:
+        if order[0] >= 2:
             ome -= a_s * A[0]
-        if order >= 2:
+        if order[0] >= 3:
             ome += a_s**2 * (-A[1] + A[0] @ A[0])
-        if order >= 3:
+        if order[0] >= 4:
             ome += a_s**3 * (-A[2] + A[0] @ A[1] + A[1] @ A[0] - A[0] @ A[0] @ A[0])
     else:
         # forward or exact inverse
-        if order >= 1:
+        if order[0] >= 2:
             ome += a_s * A[0]
-        if order >= 2:
+        if order[0] >= 3:
             ome += a_s**2 * A[1]
-        if order >= 3:
+        if order[0] >= 4:
             ome += a_s**3 * A[2]
         # need inverse exact ?  so add the missing pieces
         if backward_method == "exact":
@@ -210,7 +210,7 @@ def quad_ker(
     ----------
         u : float
             quad argument
-        order : int
+        order : tuple(int,int)
             perturbation order
         mode0 : int
             pid for first element in the singlet sector
@@ -242,9 +242,10 @@ def quad_ker(
     if integrand == 0.0:
         return 0.0
 
-    sx = compute_harmonics_cache(ker_base.n, order, ker_base.is_singlet)
+    sx = compute_harmonics_cache(ker_base.n, order[0] - 1, ker_base.is_singlet)
+    # order in compute_harmonics_cache is mismatched wrt order[0]
     sx_ns = None
-    # _N3LO_ if order == 3 and (
+    # _N3LO_ if order == 4 and (
     #     (backward_method != "" and ker_base.is_singlet)
     #     or (mode0 == 100 and mode0 == 100)
     # ):
@@ -414,7 +415,7 @@ class OperatorMatrixElement(Operator):
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
         sc = self.managers["strong_coupling"]
-        return sc.a_s(self.q2_from / self.fact_to_ren, self.q2_from, nf_to=self.nf + 1)
+        return sc.a(self.q2_from / self.fact_to_ren, self.q2_from, nf_to=self.nf + 1)[0]
 
     def compute(self):
         """
@@ -423,7 +424,7 @@ class OperatorMatrixElement(Operator):
         self.initialize_op_members()
 
         # At LO you don't need anything else
-        if self.config["order"] == 0:
+        if self.config["order"][0] == 1:
             logger.info("%s: no need to compute matching at LO", self.log_label)
             return
 

@@ -126,8 +126,8 @@ def quad_ker(
     is_log,
     logx,
     areas,
-    a1,
-    a0,
+    as1,
+    as0,
     nf,
     L,
     ev_op_iterations,
@@ -141,8 +141,8 @@ def quad_ker(
     ----------
         u : float
             quad argument
-        order : int
-            perturbation order
+        order : tuple(int,int)
+            perturbation orders
         method : str
             method
         mode0: int
@@ -155,9 +155,9 @@ def quad_ker(
             Mellin inversion point
         areas : tuple
             basis function configuration
-        a1 : float
+        as1 : float
             target coupling value
-        a0 : float
+        as0 : float
             initial coupling value
         nf : int
             number of active flavors
@@ -189,12 +189,19 @@ def quad_ker(
                 gamma_singlet, order, nf, L
             )
         ker = s.dispatcher(
-            order, method, gamma_singlet, a1, a0, nf, ev_op_iterations, ev_op_max_order
+            order,
+            method,
+            gamma_singlet,
+            as1,
+            as0,
+            nf,
+            ev_op_iterations,
+            ev_op_max_order,
         )
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded:
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
+                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
             )
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -205,13 +212,13 @@ def quad_ker(
             order,
             method,
             gamma_ns,
-            a1,
-            a0,
+            as1,
+            as0,
             nf,
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded:
-            ker = ker * sv.expanded.non_singlet_variation(gamma_ns, a1, order, nf, L)
+            ker = ker * sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L)
 
     # recombine everthing
     return np.real(ker * integrand)
@@ -286,11 +293,13 @@ class Operator:
     def a_s(self):
         """Returns the computed values for :math:`a_s`"""
         sc = self.managers["strong_coupling"]
-        a0 = sc.a_s(
+        as0 = sc.a_s(
             self.q2_from / self.fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf
         )
-        a1 = sc.a_s(self.q2_to / self.fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf)
-        return (a0, a1)
+        as1 = sc.a_s(
+            self.q2_to / self.fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf
+        )
+        return (as0, as1)
 
     @property
     def labels(self):
@@ -310,9 +319,9 @@ class Operator:
         else:
             # add + as default
             labels.append(br.non_singlet_labels[1])
-            if order >= 1:  # - becomes different starting from NLO
+            if order[0] >= 2:  # - becomes different starting from NLO
                 labels.append(br.non_singlet_labels[0])
-            if order >= 2:  # v also becomes different starting from NNLO
+            if order[0] >= 3:  # v also becomes different starting from NNLO
                 labels.append(br.non_singlet_labels[2])
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
@@ -350,8 +359,8 @@ class Operator:
             is_log=self.int_disp.log,
             logx=logx,
             areas=areas,
-            a1=self.a_s[1],
-            a0=self.a_s[0],
+            as1=self.a_s[1],
+            as0=self.a_s[0],
             nf=self.nf,
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
@@ -459,9 +468,10 @@ class Operator:
             "%s: a_s distance: %e -> %e", self.log_label, self.a_s[0], self.a_s[1]
         )
         logger.info(
-            "%s: order: %d, solution strategy: %s",
+            "%s: order: (%d, %d), solution strategy: %s",
             self.log_label,
-            self.config["order"],
+            self.config["order"][0],
+            self.config["order"][1],
             self.config["method"],
         )
 
@@ -501,7 +511,7 @@ class Operator:
     def copy_ns_ops(self):
         """Copy non-singlet kernels, if necessary"""
         order = self.config["order"]
-        if order == 0:  # in LO +=-=v
+        if order[0] == 1:  # in LO +=-=v
             for label in ["nsV", "ns-"]:
                 self.op_members[
                     (br.non_singlet_pids_map[label], 0)
@@ -513,7 +523,7 @@ class Operator:
                 ].error = self.op_members[
                     (br.non_singlet_pids_map["ns+"], 0)
                 ].error.copy()
-        elif order == 1:  # in NLO -=v
+        elif order[0] == 2:  # in NLO -=v
             self.op_members[
                 (br.non_singlet_pids_map["nsV"], 0)
             ].value = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].value.copy()

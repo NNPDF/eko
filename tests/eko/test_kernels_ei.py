@@ -18,7 +18,7 @@ def test_der_lo():
     a0 = 5
     a1 = 3
     delta_a = -1e-6
-    rhs = 1.0 / (beta.beta(0, nf) * a1)
+    rhs = 1.0 / (beta.beta_qcd((2, 0), nf) * a1)
     lhs = (
         ei.j00(a1 + 0.5 * delta_a, a0, nf) - ei.j00(a1 - 0.5 * delta_a, a0, nf)
     ) / delta_a
@@ -32,19 +32,21 @@ def test_der_nlo_exp():
     a1 = 0.1
     delta_a = -1e-6
     # 01
-    rhs = 1.0 / (beta.beta(0, nf) * a1 + beta.beta(1, nf) * a1**2)
+    rhs = 1.0 / (beta.beta_qcd((2, 0), nf) * a1 + beta.beta_qcd((3, 0), nf) * a1**2)
     lhs = (
         ei.j01_expanded(a1 + 0.5 * delta_a, a0, nf)
         - ei.j01_expanded(a1 - 0.5 * delta_a, a0, nf)
     ) / delta_a
-    np.testing.assert_allclose(rhs, lhs, atol=np.abs((beta.b(1, nf) * a1) ** 2))
+    np.testing.assert_allclose(
+        rhs, lhs, atol=np.abs((beta.b_qcd((3, 0), nf) * a1) ** 2)
+    )
     # 11
-    rhs = 1.0 / (beta.beta(0, nf) + beta.beta(1, nf) * a1)
+    rhs = 1.0 / (beta.beta_qcd((2, 0), nf) + beta.beta_qcd((3, 0), nf) * a1)
     lhs = (
         ei.j11_expanded(a1 + 0.5 * delta_a, a0, nf)
         - ei.j11_expanded(a1 - 0.5 * delta_a, a0, nf)
     ) / delta_a
-    np.testing.assert_allclose(rhs, lhs, atol=np.abs(beta.b(1, nf) * a1))
+    np.testing.assert_allclose(rhs, lhs, atol=np.abs(beta.b_qcd((3, 0), nf) * a1))
 
 
 def test_der_nlo_exa():
@@ -54,14 +56,14 @@ def test_der_nlo_exa():
     a1 = 0.1
     delta_a = -1e-6
     # 01
-    rhs = 1.0 / (beta.beta(0, nf) * a1 + beta.beta(1, nf) * a1**2)
+    rhs = 1.0 / (beta.beta_qcd((2, 0), nf) * a1 + beta.beta_qcd((3, 0), nf) * a1**2)
     lhs = (
         ei.j01_exact(a1 + 0.5 * delta_a, a0, nf)
         - ei.j01_exact(a1 - 0.5 * delta_a, a0, nf)
     ) / delta_a
     np.testing.assert_allclose(rhs, lhs, atol=np.abs(delta_a))  # in fact O(delta_a^2)
     # 11
-    rhs = 1.0 / (beta.beta(0, nf) + beta.beta(1, nf) * a1)
+    rhs = 1.0 / (beta.beta_qcd((2, 0), nf) + beta.beta_qcd((3, 0), nf) * a1)
     lhs = (
         ei.j11_exact(a1 + 0.5 * delta_a, a0, nf)
         - ei.j11_exact(a1 - 0.5 * delta_a, a0, nf)
@@ -81,34 +83,53 @@ def test_der_nnlo_exp():
 
     # 02
     rhs = 1.0 / (
-        beta.beta(0, nf) * a1 + beta.beta(1, nf) * a1**2 + beta.beta(2, nf) * a1**3
+        beta.beta_qcd((2, 0), nf) * a1
+        + beta.beta_qcd((3, 0), nf) * a1**2
+        + beta.beta_qcd((4, 0), nf) * a1**3
     )
     lhs = (
         ei.j02_expanded(a1 + 0.5 * delta_a, a0, nf)
         - ei.j02_expanded(a1 - 0.5 * delta_a, a0, nf)
     ) / delta_a
     toll = (
-        (-beta.b(1, nf) ** 3 + 2 * beta.b(2, nf) * beta.b(1, nf))
-        / beta.beta(0, nf)
+        (
+            -beta.b_qcd((3, 0), nf) ** 3
+            + 2 * beta.b_qcd((4, 0), nf) * beta.b_qcd((3, 0), nf)
+        )
+        / beta.beta_qcd((2, 0), nf)
         * a1**2
     )
     np.testing.assert_allclose(rhs, lhs, atol=np.abs(toll))
     # 12
-    rhs = 1.0 / (beta.beta(0, nf) + beta.beta(1, nf) * a1 + beta.beta(2, nf) * a1**2)
+    rhs = 1.0 / (
+        beta.beta_qcd((2, 0), nf)
+        + beta.beta_qcd((3, 0), nf) * a1
+        + beta.beta_qcd((4, 0), nf) * a1**2
+    )
     lhs = (
         ei.j12_expanded(a1 + 0.5 * delta_a, a0, nf)
         - ei.j12_expanded(a1 - 0.5 * delta_a, a0, nf)
     ) / delta_a
-    toll = (beta.b(1, nf) ** 2 - beta.b(2, nf)) / beta.beta(0, nf) * a1**2
+    toll = (
+        (beta.b_qcd((3, 0), nf) ** 2 - beta.b_qcd((4, 0), nf))
+        / beta.beta_qcd((2, 0), nf)
+        * a1**2
+    )
     np.testing.assert_allclose(rhs, lhs, atol=np.abs(toll))
     # 22
-    rhs = a1 / (beta.beta(0, nf) + beta.beta(1, nf) * a1 + beta.beta(2, nf) * a1**2)
+    rhs = a1 / (
+        beta.beta_qcd((2, 0), nf)
+        + beta.beta_qcd((3, 0), nf) * a1
+        + beta.beta_qcd((4, 0), nf) * a1**2
+    )
     lhs = (
         ei.j22_expanded(a1 + 0.5 * delta_a, a0, nf)
         - ei.j22_expanded(a1 - 0.5 * delta_a, a0, nf)
     ) / delta_a
     np.testing.assert_allclose(
-        rhs, lhs, atol=np.abs(beta.b(1, nf) / beta.beta(0, nf) * a1**2)
+        rhs,
+        lhs,
+        atol=np.abs(beta.b_qcd((3, 0), nf) / beta.beta_qcd((2, 0), nf) * a1**2),
     )
 
 
@@ -120,7 +141,9 @@ def test_der_nnlo_exa():
     delta_a = -1e-6
     # 02
     rhs = 1.0 / (
-        beta.beta(0, nf) * a1 + beta.beta(1, nf) * a1**2 + beta.beta(2, nf) * a1**3
+        beta.beta_qcd((2, 0), nf) * a1
+        + beta.beta_qcd((3, 0), nf) * a1**2
+        + beta.beta_qcd((4, 0), nf) * a1**3
     )
     lhs = (
         ei.j02_exact(a1 + 0.5 * delta_a, a0, nf)
@@ -128,14 +151,22 @@ def test_der_nnlo_exa():
     ) / delta_a
     np.testing.assert_allclose(rhs, lhs, atol=np.abs(delta_a))  # in fact O(delta_a^2)
     # 12
-    rhs = 1.0 / (beta.beta(0, nf) + beta.beta(1, nf) * a1 + beta.beta(2, nf) * a1**2)
+    rhs = 1.0 / (
+        beta.beta_qcd((2, 0), nf)
+        + beta.beta_qcd((3, 0), nf) * a1
+        + beta.beta_qcd((4, 0), nf) * a1**2
+    )
     lhs = (
         ei.j12_exact(a1 + 0.5 * delta_a, a0, nf)
         - ei.j12_exact(a1 - 0.5 * delta_a, a0, nf)
     ) / delta_a
     np.testing.assert_allclose(rhs, lhs, atol=np.abs(delta_a))  # in fact O(delta_a^2)
     # 12
-    rhs = a1 / (beta.beta(0, nf) + beta.beta(1, nf) * a1 + beta.beta(2, nf) * a1**2)
+    rhs = a1 / (
+        beta.beta_qcd((2, 0), nf)
+        + beta.beta_qcd((3, 0), nf) * a1
+        + beta.beta_qcd((4, 0), nf) * a1**2
+    )
     lhs = (
         ei.j22_exact(a1 + 0.5 * delta_a, a0, nf)
         - ei.j22_exact(a1 - 0.5 * delta_a, a0, nf)

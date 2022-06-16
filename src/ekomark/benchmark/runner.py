@@ -14,6 +14,7 @@ from banana.data import dfdict
 
 import eko
 from eko import basis_rotation as br
+from eko import compatibility
 
 from .. import apply, pdfname
 from ..data import db, operators
@@ -82,7 +83,8 @@ class Runner(BenchmarkRunner):
                     rerun = True
 
             if rerun:
-                out = eko.run_dglap(theory, ocard)
+                new_theory, new_operators = compatibility.update(theory, ocard)
+                out = eko.run_dglap(new_theory, new_operators)
                 print(f"Writing operator to {path}")
                 out.dump_tar(path)
             else:

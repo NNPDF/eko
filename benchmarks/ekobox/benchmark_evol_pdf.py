@@ -28,6 +28,8 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
         5.0,
         update={
             "alphas": 0.118000,
+            "alphaqed": 0.007496,
+            "QED": 0,
             "MaxNfPdf": 3,
             "MaxNfAs": 3,
             "Qref": 91.1876,

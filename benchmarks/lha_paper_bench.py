@@ -24,6 +24,8 @@ base_theory = {
         2.0
     ),  # Eq. (32) :cite:`Giele:2002hx`,Eq. (4.53) :cite:`Dittmar:2005ed`
     "alphas": 0.35,  # Eq. (4.55) :cite:`Dittmar:2005ed`
+    "alphaqed": 0.007496,
+    "QED": 0,
 }
 """Global theory settings"""
 
