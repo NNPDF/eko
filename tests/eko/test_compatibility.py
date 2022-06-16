@@ -12,7 +12,7 @@ theory1 = {
 
 
 def test_compatibility():
-    new_theory = compatibility.update(theory1)
+    new_theory = compatibility.update_theory(theory1)
 
 
 operator_dict = {"ev_op_max_order": 2}

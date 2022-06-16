@@ -2,7 +2,7 @@
 import copy
 
 
-def update(theory, operators=None):
+def update(theory, operators):
     """
     Upgrade the legacy theory and observable runcards with the new settings.
 
@@ -32,5 +32,21 @@ def update(theory, operators=None):
                 new_operators["ev_op_max_order"],
                 new_theory["order"][1],
             )
-        return new_theory, new_operators
-    return new_theory
+    return new_theory, new_operators
+
+
+def update_theory(theory):
+    """
+    Upgrade the legacy theory runcards with the new settings.
+
+    Parameters
+    ----------
+        theory : dict
+            theory runcard
+
+    Returns
+    -------
+        new_theory : dict
+            upgraded theory runcard
+    """
+    return update(theory, None)[0]
