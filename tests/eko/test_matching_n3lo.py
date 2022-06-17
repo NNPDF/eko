@@ -22,15 +22,15 @@ def test_A_3():
 
         N = 2.0
         sx_cache = compute_harmonics_cache(N, 5, True)
-        # reference value comes form Mathematica, gg is not fullycomplete
+        # reference value comes form Mathematica, Hg is not fully complete
         # thus the reference value is not 0.0
         # Here the accuracy of this test depends on the approximation of AggTF2
         np.testing.assert_allclose(
             as3.A_gg(N, sx_cache, nf, L)
             + as3.A_qg(N, sx_cache, nf, L)
             + as3.A_Hg(N, sx_cache, nf, L),
-            145.148,
-            rtol=32e-3,
+            145.14813631128334,
+            rtol=2e-5,
         )
 
     # here you can't test the quark momentum conservation
@@ -70,8 +70,8 @@ def test_Blumlein_3():
     }
     # Mathematica not able to evaluate for N=100
     ref_val_ggTF2 = {
-        0: [-33.4281, -187.903, -239.019, -294.571],
-        10: [-33.4281, -187.903, -239.019, -294.571],
+        0: [-33.4281, -187.903, -239.019, -294.571, -524.765],
+        10: [-33.4281, -187.903, -239.019, -294.571, -524.765],
     }
     # diverging for N=2
     ref_val_gq = {
@@ -128,12 +128,9 @@ def test_Blumlein_3():
             ns_sx_cache = compute_harmonics_cache(N, 5, False)
             aS3 = A_singlet(N, sx_cache, ns_sx_cache, nf, L)
 
-            # here we have a different approximation for AggTF2,
-            # some terms are neglected
-            if N != 100:
-                np.testing.assert_allclose(
-                    aS3[0, 0], ref_val_gg[L][idx] + ref_val_ggTF2[L][idx], rtol=6e-3
-                )
+            np.testing.assert_allclose(
+                aS3[0, 0], ref_val_gg[L][idx] + ref_val_ggTF2[L][idx], rtol=3e-6
+            )
 
             np.testing.assert_allclose(aS3[0, 1], ref_val_gq[L][idx], rtol=2e-6)
             np.testing.assert_allclose(aS3[1, 0], ref_val_qg[L][idx], rtol=2e-6)
@@ -154,16 +151,10 @@ def test_Blumlein_3():
             )
 
     # Here we test the critical parts
-    nf = 3
-    ref_ggTF_app = [-28.9075, -180.659, -229.537, -281.337, -467.164]
     for idx, N in enumerate([2.0, 4.0, 6.0, 10.0, 100.0]):
         sx_cache = compute_harmonics_cache(N, 5, True)
         Aggtf2 = as3.aggTF2.A_ggTF2(N, sx_cache)
-        if N != 100:
-            # Limited in the small N region
-            np.testing.assert_allclose(Aggtf2, ref_val_ggTF2[0][idx], rtol=15e-2)
-        np.testing.assert_allclose(Aggtf2, ref_ggTF_app[idx], rtol=2e-4)
-
+        np.testing.assert_allclose(Aggtf2, ref_val_ggTF2[0][idx], rtol=3e-6)
         np.testing.assert_allclose(
             as3.agg.A_gg(N, sx_cache, nf, L=0) - Aggtf2,
             ref_val_gg[0][idx],
