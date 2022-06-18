@@ -6,11 +6,18 @@ import numpy as np
 @nb.njit(cache=True)
 def A_Hgstfac(n, sx, nf):
     r"""Computes the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)`
-    proportional to various color factors.
+    proportional to :math:`T_{F}`.
     The expression is presented in :cite:`ablinger2017heavy` (eq 3.1).
 
     When using the code, please cite the complete list of references
     available in :mod:`eko.matching_conditions.as3`.
+
+    The expression contains some unknown parts which are set to 0.
+    However we have included a shift to impose the gluon
+    momentum conservation for both the parts proportional to
+    :math:`n_{f}^{0,1}` independently.
+    In oder to do a minimal corrections we have added terms which
+    can modify only the sub-leading terms for N to 0,1,infinity.
 
     Parameters
     ----------
@@ -28,7 +35,10 @@ def A_Hgstfac(n, sx, nf):
     S2, Sm2 = sx[1]
     S3, S21, _, Sm21, _, Sm3 = sx[2]
     S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
-    return (
+    momentum_conservation_shift = (
+        -136.47358087568801 / n**3 * nf - 375.88217393160176 / n**2
+    )
+    return momentum_conservation_shift + (
         (-1.0684950250307503 * (2.0 + n + np.power(n, 2))) / (n * (1.0 + n) * (2.0 + n))
         + 1.3333333333333333
         * (

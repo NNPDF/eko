@@ -23,20 +23,38 @@ def test_A_3():
         N = 2.0
         sx_cache = compute_harmonics_cache(N, 5, True)
         # reference value comes form Mathematica, Hg is not fully complete
-        # thus the reference value is not 0.0
-        # Here the accuracy of this test depends on the approximation of AggTF2
+        # thus the reference value is not 0.0 but 145.14813631128334.
+        # Here we have imposed a small shift in A_Hgstfac such that
+        # both the part proportional to nf^0 and nf^1 will vanish.
+        # The accuracy of this test depends on the approximation of AggTF2.
+        atol = 2e-4 if L == 0 else 2e-3
         np.testing.assert_allclose(
             as3.A_gg(N, sx_cache, nf, L)
             + as3.A_qg(N, sx_cache, nf, L)
             + as3.A_Hg(N, sx_cache, nf, L),
-            145.14813631128334,
-            rtol=2e-5,
+            0,
+            atol=atol,
         )
 
-    # here you can't test the quark momentum conservation
-    # since you get division by 0 as in Mathematica
-    # due to a factor 1/(N-2) which should cancel when
-    # doing a proper limit.
+        # here you can't test the quark momentum conservation
+        # since you get division by 0 as in Mathematica
+        # due to a factor 1/(N-2) which should cancel when
+        # doing a proper limit.
+        # Note the part proportional to the log respect momentum conservation,
+        # independently.
+        if L == 0:
+            eps = 1e-6
+            atol = 2e-5
+            N = 2.0 + eps
+            sx_cache = compute_harmonics_cache(N, 5, True)
+            np.testing.assert_allclose(
+                as3.A_gq(N, sx_cache, nf, L)
+                + as3.A_qqNS(N, sx_cache, nf, L)
+                + as3.A_qqPS(N, sx_cache, nf, L)
+                + as3.A_Hq(N, sx_cache, nf, L),
+                0,
+                atol=atol,
+            )
 
     N = 3 + 2j
     sx_cache = compute_harmonics_cache(np.random.rand(), 5, True)
@@ -56,7 +74,6 @@ def test_Blumlein_3():
     # For singlet OME only even moments are available in that code.
     # Note there is a minus sign in the definition of L.
 
-    # pylint: disable=too-many-locals
     # reference N are 2,4,6,10,100
     ref_val_gg = {
         0: [
@@ -68,7 +85,6 @@ def test_Blumlein_3():
         ],
         10: [-18344.3, -41742.6, -50808.5, -61319.1, -108626.0],
     }
-    # Mathematica not able to evaluate for N=100
     ref_val_ggTF2 = {
         0: [-33.4281, -187.903, -239.019, -294.571, -524.765],
         10: [-33.4281, -187.903, -239.019, -294.571, -524.765],
@@ -89,8 +105,20 @@ def test_Blumlein_3():
         ],
     }
     ref_val_Hgstfac = {
-        0: [109.766, 64.7224, 25.1745, -11.5071, -37.9846],
-        10: [109.766, 64.7224, 25.1745, -11.5071, -37.9846],
+        0: [
+            109.766 - 145.148,
+            64.7224 - 29.8898,
+            25.1745 - 12.3366,
+            -11.5071 - 4.16824,
+            -37.9846 - 0.0379976,
+        ],
+        10: [
+            109.766 - 145.148,
+            64.7224 - 29.8898,
+            25.1745 - 12.3366,
+            -11.5071 - 4.16824,
+            -37.9846 - 0.0379976,
+        ],
     }
     ref_val_Hq = {
         0: [
