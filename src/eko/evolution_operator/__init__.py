@@ -106,7 +106,7 @@ class QuadKerBase:
         Returns
         -------
             base_integrand: complex
-                common mellin inversion intgrand
+                common mellin inversion integrand
         """
         if self.logx == 0.0:
             return 0.0
@@ -259,6 +259,7 @@ class Operator:
         # TODO make 'cut' external parameter?
         self._mellin_cut = mellin_cut
         self.op_members = {}
+        self.order = config["order"]
 
     @property
     def n_pools(self):
@@ -311,7 +312,6 @@ class Operator:
             labels : list(str)
                 sector labels
         """
-        order = self.config["order"]
         labels = []
         # the NS sector is dynamic
         if self.config["debug_skip_non_singlet"]:
@@ -319,9 +319,9 @@ class Operator:
         else:
             # add + as default
             labels.append(br.non_singlet_labels[1])
-            if order[0] >= 2:  # - becomes different starting from NLO
+            if self.order[0] >= 2:  # - becomes different starting from NLO
                 labels.append(br.non_singlet_labels[0])
-            if order[0] >= 3:  # v also becomes different starting from NNLO
+            if self.order[0] >= 3:  # v also becomes different starting from NNLO
                 labels.append(br.non_singlet_labels[2])
         # singlet sector is fixed
         if self.config["debug_skip_singlet"]:
@@ -346,13 +346,13 @@ class Operator:
         Returns
         -------
             quad_ker : functools.partial
-                partially initialized intration kernel
+                partially initialized integration kernel
 
         """
         return functools.partial(
             quad_ker,
             # TODO: implement N3LO evolution kernels
-            order=self.config["order"] if self.config["order"] != 3 else 2,
+            order=self.order if self.order != (4, 0) else (3, 0),
             mode0=label[0],
             mode1=label[1],
             method=self.config["method"],
@@ -470,8 +470,8 @@ class Operator:
         logger.info(
             "%s: order: (%d, %d), solution strategy: %s",
             self.log_label,
-            self.config["order"][0],
-            self.config["order"][1],
+            self.order[0],
+            self.order[1],
             self.config["method"],
         )
 
@@ -510,8 +510,7 @@ class Operator:
 
     def copy_ns_ops(self):
         """Copy non-singlet kernels, if necessary"""
-        order = self.config["order"]
-        if order[0] == 1:  # in LO +=-=v
+        if self.order[0] == 1:  # in LO +=-=v
             for label in ["nsV", "ns-"]:
                 self.op_members[
                     (br.non_singlet_pids_map[label], 0)
@@ -523,7 +522,7 @@ class Operator:
                 ].error = self.op_members[
                     (br.non_singlet_pids_map["ns+"], 0)
                 ].error.copy()
-        elif order[0] == 2:  # in NLO -=v
+        elif self.order[0] == 2:  # in NLO -=v
             self.op_members[
                 (br.non_singlet_pids_map["nsV"], 0)
             ].value = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].value.copy()

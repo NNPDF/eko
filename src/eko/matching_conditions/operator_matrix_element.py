@@ -13,15 +13,13 @@ import numpy as np
 from .. import basis_rotation as br
 from .. import harmonics
 from ..evolution_operator import Operator, QuadKerBase
-from . import as1, as2
-
-# _N3LO_ from . import as1, as2, as3
+from . import as1, as2, as3
 
 logger = logging.getLogger(__name__)
 
 
 @nb.njit(cache=True)
-def compute_harmonics_cache(n, order, is_singlet):
+def compute_harmonics_cache(n, max_weight, is_singlet):
     r"""
     Get the harmonics sums cache
 
@@ -29,8 +27,8 @@ def compute_harmonics_cache(n, order, is_singlet):
     ----------
         n: complex
             Mellin moment
-        order: int
-            perturbative order
+        max_weight: int
+            maximum weight to compute [2,3,4,5]
         is_singlet: bool
             symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
             False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
@@ -45,19 +43,18 @@ def compute_harmonics_cache(n, order, is_singlet):
                 [S_2,S_{-2}],
                 [S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}],
                 [S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}],]
+                [S_{5}, S_{-5}]
 
     """
-    # max harmonics sum weight for each qcd order
-    max_weight = {1: 2, 2: 3, 3: 5}
-    # max number of harmonics sum of a given weight for each qcd order
-    n_max_sums_weight = {1: 1, 2: 3, 3: 7}
+    # max number of harmonics sum of a given weight for a given max weight.
+    n_max_sums_weight = {2: 1, 3: 3, 4: 7, 5: 7}
     sx = harmonics.base_harmonics_cache(
-        n, is_singlet, max_weight[order], n_max_sums_weight[order]
+        n, is_singlet, max_weight, n_max_sums_weight[max_weight]
     )
-    if order == 2:
+    if max_weight == 3:
         # Add Sm21 to cache
         sx[2, 1] = harmonics.Sm21(n, sx[0, 0], sx[0, -1], is_singlet)
-    if order == 3:
+    elif max_weight >= 4:
         # Add weight 3 and 4 to cache
         sx[2, 1:-2] = harmonics.s3x(n, sx[:, 0], sx[:, -1], is_singlet)
         sx[3, 1:-1] = harmonics.s4x(n, sx[:, 0], sx[:, -1], is_singlet)
@@ -66,14 +63,14 @@ def compute_harmonics_cache(n, order, is_singlet):
 
 
 @nb.njit(cache=True)
-def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
+def A_singlet(matching_order, n, sx, nf, L, is_msbar, sx_ns=None):
     r"""
     Computes the tower of the singlet |OME|.
 
     Parameters
     ----------
-        order : tuple(int,int)
-            perturbative order
+        matching_order : tuple(int,int)
+            perturbative matching_order
         n : complex
             Mellin variable
         sx : list
@@ -99,25 +96,25 @@ def A_singlet(order, n, sx, nf, L, is_msbar, sx_ns=None):
         eko.matching_conditions.nlo.A_gh_1 : :math:`A_{gH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
     """
-    A_s = np.zeros((order[0], 3, 3), np.complex_)
-    if order[0] >= 2:
+    A_s = np.zeros((matching_order[0], 3, 3), np.complex_)
+    if matching_order[0] >= 1:
         A_s[0] = as1.A_singlet(n, sx, L)
-    if order[0] >= 3:
+    if matching_order[0] >= 2:
         A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
-    # _N3LO_ if order >= 4:
-    #     A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
+    if matching_order[0] >= 3:
+        A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
     return A_s
 
 
 @nb.njit(cache=True)
-def A_non_singlet(order, n, sx, nf, L):
+def A_non_singlet(matching_order, n, sx, nf, L):
     r"""
     Computes the tower of the non-singlet |OME|
 
     Parameters
     ----------
-        order : tuple(int,int)
-            perturbative order
+        matching_order : tuple(int,int)
+            perturbative matching_order
         n : complex
             Mellin variable
         sx : list
@@ -137,18 +134,18 @@ def A_non_singlet(order, n, sx, nf, L):
         eko.matching_conditions.nlo.A_hh_1 : :math:`A_{HH}^{(1)}(N)`
         eko.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
     """
-    A_ns = np.zeros((order[0], 2, 2), np.complex_)
-    if order[0] >= 2:
+    A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)
+    if matching_order[0] >= 1:
         A_ns[0] = as1.A_ns(n, sx, L)
-    if order[0] >= 3:
+    if matching_order[0] >= 2:
         A_ns[1] = as2.A_ns(n, sx, L)
-    # _N3LO_ if order >= 4:
-    #     A_ns[2] = as3.A_ns(n, sx, nf, L)
+    if matching_order[0] >= 3:
+        A_ns[2] = as3.A_ns(n, sx, nf, L)
     return A_ns
 
 
 @nb.njit(cache=True)
-def build_ome(A, order, a_s, backward_method):
+def build_ome(A, matching_order, a_s, backward_method):
     r"""
     Construct the matching expansion in :math:`a_s` with the appropriate method.
 
@@ -156,8 +153,8 @@ def build_ome(A, order, a_s, backward_method):
     ----------
         A : numpy.ndarray
             list of |OME|
-        order : tuple(int,int)
-            perturbation order
+        matching_order : tuple(int,int)
+            perturbation matching order
         a_s : float
             strong coupling, needed only for the exact inverse
         backward_method : ["exact", "expanded" or ""]
@@ -179,19 +176,19 @@ def build_ome(A, order, a_s, backward_method):
     A = np.ascontiguousarray(A)
     if backward_method == "expanded":
         # expended inverse
-        if order[0] >= 2:
+        if matching_order[0] >= 1:
             ome -= a_s * A[0]
-        if order[0] >= 3:
+        if matching_order[0] >= 2:
             ome += a_s**2 * (-A[1] + A[0] @ A[0])
-        if order[0] >= 4:
+        if matching_order[0] >= 3:
             ome += a_s**3 * (-A[2] + A[0] @ A[1] + A[1] @ A[0] - A[0] @ A[0] @ A[0])
     else:
         # forward or exact inverse
-        if order[0] >= 2:
+        if matching_order[0] >= 1:
             ome += a_s * A[0]
-        if order[0] >= 3:
+        if matching_order[0] >= 2:
             ome += a_s**2 * A[1]
-        if order[0] >= 4:
+        if matching_order[0] >= 3:
             ome += a_s**3 * A[2]
         # need inverse exact ?  so add the missing pieces
         if backward_method == "exact":
@@ -211,7 +208,7 @@ def quad_ker(
         u : float
             quad argument
         order : tuple(int,int)
-            perturbation order
+            perturbation matching order
         mode0 : int
             pid for first element in the singlet sector
         mode1 : int
@@ -242,27 +239,28 @@ def quad_ker(
     if integrand == 0.0:
         return 0.0
 
-    sx = compute_harmonics_cache(ker_base.n, order[0] - 1, ker_base.is_singlet)
-    # order in compute_harmonics_cache is mismatched wrt order[0]
-    sx_ns = None
-    # _N3LO_ if order == 4 and (
-    #     (backward_method != "" and ker_base.is_singlet)
-    #     or (mode0 == 100 and mode0 == 100)
-    # ):
-    #     # At N3LO for A_qq singlet or backward you need to compute
-    #     # both the singlet and non-singlet like harmonics
-    #     # avoiding recomputing all of them ...
-    #     sx_ns = sx.copy()
-    #     smx_ns = harmonics.smx(ker_base.n, np.array([s[0] for s in sx]), False)
-    #     for w, sm in enumerate(smx_ns):
-    #         sx_ns[w][-1] = sm
-    #     sx_ns[2][2] = harmonics.S2m1(ker_base.n, sx[0][1], smx_ns[0], smx_ns[1], False)
-    #     sx_ns[2][3] = harmonics.Sm21(ker_base.n, sx[0][0], smx_ns[0], False)
-    #     sx_ns[3][5] = harmonics.Sm31(ker_base.n, sx[0][0], smx_ns[0], smx_ns[1], False)
-    #     sx_ns[3][4] = harmonics.Sm211(ker_base.n, sx[0][0], sx[0][1], smx_ns[0], False)
-    #     sx_ns[3][3] = harmonics.Sm22(
-    #         ker_base.n, sx[0][0], sx[0][1], smx_ns[1], sx_ns[3][5], False
-    #     )
+    max_weight_dict = {1: 2, 2: 3, 3: 5}
+    sx = compute_harmonics_cache(
+        ker_base.n, max_weight_dict[order[0]], ker_base.is_singlet
+    )
+    sx_ns = sx.copy()
+    if order[0] == 3 and (
+        (backward_method != "" and ker_base.is_singlet)
+        or (mode0 == 100 and mode1 == 100)
+    ):
+        # At N3LO for A_qq singlet or backward you need to compute
+        # both the singlet and non-singlet like harmonics
+        # avoiding recomputing all of them ...
+        smx_ns = harmonics.smx(ker_base.n, np.array([s[0] for s in sx]), False)
+        for w, sm in enumerate(smx_ns):
+            sx_ns[w][-1] = sm
+        sx_ns[2][2] = harmonics.S2m1(ker_base.n, sx[0][1], smx_ns[0], smx_ns[1], False)
+        sx_ns[2][3] = harmonics.Sm21(ker_base.n, sx[0][0], smx_ns[0], False)
+        sx_ns[3][5] = harmonics.Sm31(ker_base.n, sx[0][0], smx_ns[0], smx_ns[1], False)
+        sx_ns[3][4] = harmonics.Sm211(ker_base.n, sx[0][0], sx[0][1], smx_ns[0], False)
+        sx_ns[3][3] = harmonics.Sm22(
+            ker_base.n, sx[0][0], sx[0][1], smx_ns[1], sx_ns[3][5], False
+        )
 
     # compute the ome
     if ker_base.is_singlet:
@@ -278,7 +276,7 @@ def quad_ker(
     # select the needed matrix element
     ker = ker[indices[mode0], indices[mode1]]
 
-    # recombine everthing
+    # recombine everything
     return np.real(ker * integrand)
 
 
@@ -330,6 +328,8 @@ class OperatorMatrixElement(Operator):
             self.is_intrinsic = bool(len(config["intrinsic_range"]) != 0)
         self.L = L
         self.is_msbar = is_msbar
+        # Note for the moment only QCD matching is implemented
+        self.order = (self.order[0] - 1, self.order[1])
 
     @property
     def labels(self):
@@ -390,12 +390,12 @@ class OperatorMatrixElement(Operator):
         Returns
         -------
             quad_ker : functools.partial
-                partially initialized intration kernel
+                partially initialized integration kernel
 
         """
         return functools.partial(
             quad_ker,
-            order=self.config["order"],
+            order=self.order,
             mode0=label[0],
             mode1=label[1],
             is_log=self.int_disp.log,
@@ -424,7 +424,7 @@ class OperatorMatrixElement(Operator):
         self.initialize_op_members()
 
         # At LO you don't need anything else
-        if self.config["order"][0] == 1:
+        if self.order[0] == 0:
             logger.info("%s: no need to compute matching at LO", self.log_label)
             return
 
