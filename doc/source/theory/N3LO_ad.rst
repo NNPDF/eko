@@ -142,3 +142,53 @@ In |EKO| they are implemented as follows:
             Note that the constant coefficient is included in the fit, following the procedure done
             in :cite:`Moch:2017uml` (section 4), to achieve a better accuracy.
             It is checked that this contribution is much more smaller than the values of :math:`B_4`.
+
+Singlet sector
+--------------
+
+In the singlet sector we construct a parametrization for
+:math:`\gamma_{gg}^{(3)},\gamma_{gq}^{(3)},\gamma_{qq}^{(3)},\gamma_{qg}^{(3)}` where:
+
+    .. math ::
+        \gamma_{qq}^{(3)} = \gamma_{ns,+}^{(3)} + \gamma_{qq,ps}^{(3)}
+
+In particular, making explicitly the dependence on :math:`n_f`, the singlet anomalous dimensions include
+the following terms:
+
+    .. list-table:: singlet 4-loop Anomalous Dimensions
+        :header-rows: 1
+
+        *   -
+            - :math:`n_{f}^0`
+            - :math:`n_{f}^1`
+            - :math:`n_{f}^2`
+            - :math:`n_{f}^3`
+
+
+        *   - :math:`\gamma_{gg}^{(3)}`
+            - |T|
+            - |T|
+            - |T|
+            - |T|
+
+        *   - :math:`\gamma_{gq}^{(3)}`
+            -
+            - |T|
+            - |T|
+            - |T|
+
+        *   - :math:`\gamma_{qq,ps}^{(3)}`
+            -
+            - |T|
+            - |T|
+            - |T|
+
+        *   - :math:`\gamma_{qg}^{(3)}`
+            - |T|
+            - |T|
+            - |T|
+            - |T|
+
+Only the parts proportional to :math:`n_f^3` are known analytical
+:cite:`Davies:2016jie` and have been included so far.
+The rest will be approximated using some known limits.

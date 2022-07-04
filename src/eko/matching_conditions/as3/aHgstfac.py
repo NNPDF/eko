@@ -7,7 +7,7 @@ import numpy as np
 def A_Hgstfac(n, sx, nf):
     r"""Computes the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)`
     proportional to :math:`T_{F}`.
-    The expression is presented in :cite:`ablinger2017heavy` (eq 3.1).
+    The expression is presented in :cite:`Blumlein:2017wxd` (eq 3.1).
 
     When using the code, please cite the complete list of references
     available in :mod:`eko.matching_conditions.as3`.
