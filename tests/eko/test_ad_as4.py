@@ -41,7 +41,7 @@ def test_quark_number_conservation():
 
 def test_momentum_conservation():
     N = 2
-    sx_cache = compute_harmonics_cache(N, 3, True)
+    sx_cache = compute_harmonics_cache(N, 5, True)
 
     # nf^3 part
     np.testing.assert_allclose(

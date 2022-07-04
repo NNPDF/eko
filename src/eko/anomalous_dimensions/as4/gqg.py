@@ -8,21 +8,21 @@ import numpy as np
 
 @nb.njit(cache=True)
 def gamma_qg_nf3(n, sx):
-    """
-    Implements the part proportional to :math:`nf^3` of :math:`\\gamma_{qg}^{(3)}`
+    """Implements the part proportional to :math:`nf^3` of :math:`\\gamma_{qg}^{(3)}`
     The expression is copied exact from Eq. 3.12 of :cite:`Davies:2016jie`
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        g_qg_nf3 : complex
-            |N3LO| non-singlet anomalous dimension :math:`\\gamma_{qg}^{(3)}|_{nf^3}`
+    complex
+        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{qg}^{(3)}|_{nf^3}`
+
     """
     S1 = sx[0][0]
     S2, Sm2 = sx[1]
@@ -345,30 +345,30 @@ def gamma_qg_nf0(n, sx):
 
 @nb.njit(cache=True)
 def gamma_qg(n, nf, sx):
-    """
-    Computes the |N3LO| quark-gluon singlet anomalous dimension.
+    """Computes the |N3LO| quark-gluon singlet anomalous dimension.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        nf : int
-            Number of active flavors
-        sx : list
-            harmonic sums cache
+    n : complex
+        Mellin moment
+    nf : int
+        Number of active flavors
+    sx : list
+        harmonic sums cache
 
     Returns
     -------
-        gamma_qg : complex
-            |N3LO| quark-gluon singlet anomalous dimension
-            :math:`\\gamma_{qg}^{(3)}(N)`
+    complex
+        |N3LO| quark-gluon singlet anomalous dimension
+        :math:`\\gamma_{qg}^{(3)}(N)`
 
     See Also
     --------
-        gamma_qg_nf0: :math:`\\gamma_{qg}^{(3)}|_{nf^0}`
-        gamma_qg_nf1: :math:`\\gamma_{qg}^{(3)}|_{nf^1}`
-        gamma_qg_nf2: :math:`\\gamma_{qg}^{(3)}|_{nf^2}`
-        gamma_qg_nf3: :math:`\\gamma_{qg}^{(3)}|_{nf^3}`
+    gamma_qg_nf0: :math:`\\gamma_{qg}^{(3)}|_{nf^0}`
+    gamma_qg_nf1: :math:`\\gamma_{qg}^{(3)}|_{nf^1}`
+    gamma_qg_nf2: :math:`\\gamma_{qg}^{(3)}|_{nf^2}`
+    gamma_qg_nf3: :math:`\\gamma_{qg}^{(3)}|_{nf^3}`
+
     """
     return (
         gamma_qg_nf0(n, sx)
