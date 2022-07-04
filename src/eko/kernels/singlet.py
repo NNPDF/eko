@@ -414,7 +414,7 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
         elif order[0] == 3:
             for kk in range(3, ev_op_max_order[0]):
                 r[kk] = -b1 * r[kk - 1] - b2 * r[kk - 2]
-        elif order == 4:
+        elif order[0] == 4:
             for kk in range(4, ev_op_max_order[0] + 1):
                 r[kk] = -b1 * r[kk - 1] - b2 * r[kk - 2] - b3 * r[kk - 3]
     return r
