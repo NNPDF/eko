@@ -343,9 +343,9 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     beta_vec = [beta.beta_qcd((2, 0), nf), beta.beta_qcd((3, 0), nf)]
-    if order[0] >= 2:
-        beta_vec.append(beta.beta_qcd((4, 0), nf))
     if order[0] >= 3:
+        beta_vec.append(beta.beta_qcd((4, 0), nf))
+    if order[0] >= 4:
         beta_vec.append(beta.beta_qcd((5, 0), nf))
     e = np.identity(2, np.complex_)
     al = a_steps[0]
@@ -354,7 +354,7 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
         delta_a = ah - al
         gamma_summed = np.zeros((2, 2), dtype=np.complex_)
         beta_summed = 0
-        for i in range(order[0] + 1):
+        for i in range(order[0]):
             gamma_summed += gamma_singlet[i] * a_half**i
             beta_summed += beta_vec[i] * a_half ** (i + 1)
         ln = gamma_summed / beta_summed * delta_a
@@ -397,13 +397,13 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
     beta0 = beta.beta_qcd((2, 0), nf)
     # fill explicit elements
     r[0] = gamma_singlet[0] / beta0
-    if order[0] > 2:
+    if order[0] > 1:
         b1 = beta.b_qcd((3, 0), nf)
         r[1] = gamma_singlet[1] / beta0 - b1 * r[0]
-    if order[0] > 3:
+    if order[0] > 2:
         b2 = beta.b_qcd((4, 0), nf)
         r[2] = gamma_singlet[2] / beta0 - b1 * r[1] - b2 * r[0]
-    if order[0] > 4:
+    if order[0] > 3:
         b3 = beta.b_qcd((5, 0), nf)
         r[3] = gamma_singlet[3] / beta0 - b1 * r[2] - b2 * r[1] - b3 * r[0]
     # fill rest

@@ -52,10 +52,10 @@ def test_der_n3lo_exa():
     a1 = 0.1
     delta_a = -1e-6
 
-    beta0 = beta.beta(0, nf)
-    b1 = beta.beta(1, nf)
-    b2 = beta.beta(2, nf)
-    b3 = beta.beta(3, nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    b1 = beta.beta_qcd((3, 0), nf)
+    b2 = beta.beta_qcd((4, 0), nf)
+    b3 = beta.beta_qcd((5, 0), nf)
     b_list = [b1, b2, b3]
 
     den = beta0 * (1 + b1 * a1 + b2 * a1**2 + b3 * a1**3)
@@ -98,10 +98,10 @@ def test_der_n3lo_exp():
     a1 = 0.1
     delta_a = -1e-6
 
-    beta0 = beta.beta(0, nf)
-    b1 = beta.beta(1, nf)
-    b2 = beta.beta(2, nf)
-    b3 = beta.beta(3, nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    b1 = beta.beta_qcd((3, 0), nf)
+    b2 = beta.beta_qcd((4, 0), nf)
+    b3 = beta.beta_qcd((5, 0), nf)
     b_list = [b1, b2, b3]
 
     den = beta0 * (1 + b1 * a1 + b2 * a1**2 + b3 * a1**3)

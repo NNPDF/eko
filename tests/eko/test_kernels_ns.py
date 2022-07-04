@@ -130,13 +130,27 @@ def test_ode_nnlo():
             + beta.beta_qcd((4, 0), nf) * a1**3
         )
         for method in ["iterate-exact"]:
-            rhs = r * ns.dispatcher(2, method, gamma_ns, a1, a0, nf, ev_op_iterations)
+            rhs = r * ns.dispatcher(
+                (3, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
+            )
             lhs = (
                 ns.dispatcher(
-                    2, method, gamma_ns, a1 + 0.5 * delta_a, a0, nf, ev_op_iterations
+                    (3, 0),
+                    method,
+                    gamma_ns,
+                    a1 + 0.5 * delta_a,
+                    a0,
+                    nf,
+                    ev_op_iterations,
                 )
                 - ns.dispatcher(
-                    2, method, gamma_ns, a1 - 0.5 * delta_a, a0, nf, ev_op_iterations
+                    (3, 0),
+                    method,
+                    gamma_ns,
+                    a1 - 0.5 * delta_a,
+                    a0,
+                    nf,
+                    ev_op_iterations,
                 )
             ) / delta_a
             np.testing.assert_allclose(lhs, rhs)
@@ -161,13 +175,27 @@ def test_ode_n3lo():
             + beta.beta_qcd((5, 0), nf) * a1**4
         )
         for method in ["iterate-exact"]:
-            rhs = r * ns.dispatcher(3, method, gamma_ns, a1, a0, nf, ev_op_iterations)
+            rhs = r * ns.dispatcher(
+                (4, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
+            )
             lhs = (
                 ns.dispatcher(
-                    3, method, gamma_ns, a1 + 0.5 * delta_a, a0, nf, ev_op_iterations
+                    (4, 0),
+                    method,
+                    gamma_ns,
+                    a1 + 0.5 * delta_a,
+                    a0,
+                    nf,
+                    ev_op_iterations,
                 )
                 - ns.dispatcher(
-                    3, method, gamma_ns, a1 - 0.5 * delta_a, a0, nf, ev_op_iterations
+                    (4, 0),
+                    method,
+                    gamma_ns,
+                    a1 - 0.5 * delta_a,
+                    a0,
+                    nf,
+                    ev_op_iterations,
                 )
             ) / delta_a
             np.testing.assert_allclose(lhs, rhs)

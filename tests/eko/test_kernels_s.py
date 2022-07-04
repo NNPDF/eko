@@ -173,14 +173,14 @@ def test_zero_n3lo_decompose(monkeypatch):
         try:
             np.testing.assert_allclose(
                 s.dispatcher(
-                    3, method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+                    (4, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
                 ),
                 np.zeros((2, 2)),
                 atol=1e-15,
             )
             np.testing.assert_allclose(
                 s.dispatcher(
-                    3,
+                    (4, 0),
                     method,
                     np.zeros((4, 2, 2), dtype=complex),
                     2,
