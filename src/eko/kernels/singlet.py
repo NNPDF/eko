@@ -264,11 +264,11 @@ def n3lo_decompose_exact(gamma_singlet, a1, a0, nf):
         singlet |N3LO| decompose-exact EKO
 
     """
-    beta0 = beta.beta(0, nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
     b_list = [
-        beta.b(1, nf),
-        beta.b(2, nf),
-        beta.b(3, nf),
+        beta.b_qcd((3, 0), nf),
+        beta.b_qcd((4, 0), nf),
+        beta.b_qcd((5, 0), nf),
     ]
     roots = as4_ei.roots(b_list)
     j00 = ei.j00(a1, a0, nf)
@@ -301,11 +301,11 @@ def n3lo_decompose_expanded(gamma_singlet, a1, a0, nf):
         singlet |N3LO| decompose-expanded EKO
 
     """
-    beta0 = beta.beta(0, nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
     b_list = [
-        beta.b(1, nf),
-        beta.b(2, nf),
-        beta.b(3, nf),
+        beta.b_qcd((3, 0), nf),
+        beta.b_qcd((4, 0), nf),
+        beta.b_qcd((5, 0), nf),
     ]
     j00 = ei.j00(a1, a0, nf)
     j13 = as4_ei.j13_expanded(a1, a0, beta0, b_list)
@@ -330,7 +330,7 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
         initial coupling value
     nf : int
         number of active flavors
-    order : int
+    order : tuple(int,int)
         perturbative order
     ev_op_iterations : int
         number of evolution steps
@@ -342,11 +342,11 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
 
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    beta_vec = [beta.beta(0, nf), beta.beta(1, nf)]
-    if order >= 2:
-        beta_vec.append(beta.beta(2, nf))
-    if order >= 3:
-        beta_vec.append(beta.beta(3, nf))
+    beta_vec = [beta.beta_qcd((2, 0), nf), beta.beta_qcd((3, 0), nf)]
+    if order[0] >= 2:
+        beta_vec.append(beta.beta_qcd((4, 0), nf))
+    if order[0] >= 3:
+        beta_vec.append(beta.beta_qcd((5, 0), nf))
     e = np.identity(2, np.complex_)
     al = a_steps[0]
     for ah in a_steps[1:]:
@@ -354,7 +354,7 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
         delta_a = ah - al
         gamma_summed = np.zeros((2, 2), dtype=np.complex_)
         beta_summed = 0
-        for i in range(order + 1):
+        for i in range(order[0] + 1):
             gamma_summed += gamma_singlet[i] * a_half**i
             beta_summed += beta_vec[i] * a_half ** (i + 1)
         ln = gamma_summed / beta_summed * delta_a
@@ -378,10 +378,10 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
         singlet anomalous dimensions matrices
     nf : int
         number of active flavors
-    ev_op_max_order : int
+    ev_op_max_order : tuple(int,int)
         perturbative expansion order of U
-    order : int
-        order order
+    order : tuple(int,int)
+       perturbative order
     is_exact : boolean
         fill up r-vector?
 
@@ -391,29 +391,31 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
         R vector
 
     """
-    r = np.zeros((ev_op_max_order + 1, 2, 2), dtype=np.complex_)  # k = 0 .. max_order
-    beta0 = beta.beta(0, nf)
+    r = np.zeros(
+        (ev_op_max_order[0] + 1, 2, 2), dtype=np.complex_
+    )  # k = 0 .. max_order
+    beta0 = beta.beta_qcd((2, 0), nf)
     # fill explicit elements
     r[0] = gamma_singlet[0] / beta0
-    if order > 0:
-        b1 = beta.b(1, nf)
+    if order[0] > 2:
+        b1 = beta.b_qcd((3, 0), nf)
         r[1] = gamma_singlet[1] / beta0 - b1 * r[0]
-    if order > 1:
-        b2 = beta.b(2, nf)
+    if order[0] > 3:
+        b2 = beta.b_qcd((4, 0), nf)
         r[2] = gamma_singlet[2] / beta0 - b1 * r[1] - b2 * r[0]
-    if order > 2:
-        b3 = beta.b(3, nf)
+    if order[0] > 4:
+        b3 = beta.b_qcd((5, 0), nf)
         r[3] = gamma_singlet[3] / beta0 - b1 * r[2] - b2 * r[1] - b3 * r[0]
     # fill rest
     if is_exact:
-        if order == 1:
-            for kk in range(2, ev_op_max_order + 1):
+        if order[0] == 2:
+            for kk in range(2, ev_op_max_order[0]):
                 r[kk] = -b1 * r[kk - 1]
-        elif order == 2:
-            for kk in range(3, ev_op_max_order + 1):
+        elif order[0] == 3:
+            for kk in range(3, ev_op_max_order[0]):
                 r[kk] = -b1 * r[kk - 1] - b2 * r[kk - 2]
-        elif order == 3:
-            for kk in range(4, ev_op_max_order + 1):
+        elif order == 4:
+            for kk in range(4, ev_op_max_order[0] + 1):
                 r[kk] = -b1 * r[kk - 1] - b2 * r[kk - 2] - b3 * r[kk - 3]
     return r
 
@@ -430,7 +432,7 @@ def u_vec(r, ev_op_max_order):
     ----------
     r : numpy.ndarray
         singlet R vector
-    ev_op_max_order : int
+    ev_op_max_order : tuple(int,int)
         perturbative expansion order of U
 
     Returns
@@ -439,13 +441,13 @@ def u_vec(r, ev_op_max_order):
         U vector
 
     """
-    u = np.zeros((ev_op_max_order + 1, 2, 2), dtype=np.complex_)  # k = 0 .. max_order
+    u = np.zeros((ev_op_max_order[0], 2, 2), np.complex_)  # k = 0 .. max_order
     # init
     u[0] = np.identity(2, np.complex_)
     _, r_p, r_m, e_p, e_m = ad.exp_singlet(r[0])
     e_p = np.ascontiguousarray(e_p)
     e_m = np.ascontiguousarray(e_m)
-    for kk in range(1, ev_op_max_order + 1):
+    for kk in range(1, ev_op_max_order[0]):
         # compute R'
         rp = np.zeros((2, 2), dtype=np.complex_)
         for jj in range(kk):
@@ -507,11 +509,11 @@ def eko_perturbative(
         initial coupling value
     nf : int
         number of active flavors
-    order : int
+    order : tuple(int,int)
         perturbative order
     ev_op_iterations : int
         number of evolution steps
-    ev_op_max_order : int
+    ev_op_max_order : tuple(int,int)
         perturbative expansion order of U
     is_exact : boolean
         fill up r-vector?
@@ -553,7 +555,7 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
         initial coupling value
     nf : int
         number of active flavors
-    order : int
+    order : tuple(int,int)
         perturbative order
     ev_op_iterations : int
         number of evolution steps
@@ -573,16 +575,16 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = np.ascontiguousarray(lo_exact(gamma_singlet, ah, al, nf))
-        if order >= 1:
+        if order[0] >= 2:
             ek = e0 + ah * u1 @ e0 - al * e0 @ u1
-        if order >= 2:
+        if order[0] >= 3:
             u2 = np.ascontiguousarray(u[2])
             ek += (
                 +(ah**2) * u2 @ e0
                 - ah * al * u1 @ e0 @ u1
                 + al**2 * e0 @ (u1 @ u1 - u2)
             )
-        if order >= 3:
+        if order[0] >= 4:
             u3 = np.ascontiguousarray(u[3])
             ek += (
                 +(ah**3) * u3 @ e0
@@ -605,7 +607,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
 
     Parameters
     ----------
-    order : int
+    order :  tuple(int,int)
         perturbative order
     method : str
         method
@@ -619,7 +621,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
         number of active flavors
     ev_op_iterations : int
         number of evolution steps
-    ev_op_max_order : int
+    ev_op_max_order : tuple(int,int)
         perturbative expansion order of U
 
     Returns
@@ -629,7 +631,7 @@ def dispatcher(  # pylint: disable=too-many-return-statements
 
     """
     # use always exact in LO
-    if order == 0:
+    if order[0] == 1:
         return lo_exact(gamma_singlet, a1, a0, nf)
 
     # Common method for NLO and NNLO
@@ -647,15 +649,15 @@ def dispatcher(  # pylint: disable=too-many-return-statements
         return eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
     # These methods are scattered for nlo and nnlo
     if method == "decompose-exact":
-        if order == 1:
+        if order[0] == 2:
             return nlo_decompose_exact(gamma_singlet, a1, a0, nf)
-        elif order == 2:
+        elif order[0] == 3:
             return nnlo_decompose_exact(gamma_singlet, a1, a0, nf)
         return n3lo_decompose_exact(gamma_singlet, a1, a0, nf)
     if method == "decompose-expanded":
-        if order == 1:
+        if order[0] == 2:
             return nlo_decompose_expanded(gamma_singlet, a1, a0, nf)
-        elif order == 2:
+        elif order[0] == 3:
             return nnlo_decompose_expanded(gamma_singlet, a1, a0, nf)
         return n3lo_decompose_expanded(gamma_singlet, a1, a0, nf)
     raise NotImplementedError("Selected method is not implemented")

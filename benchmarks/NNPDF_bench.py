@@ -42,6 +42,8 @@ base_theory = {
     "kbThr": 1.0,
     "ktThr": 1.0,
     "alphas": 0.118000,
+    "alphaqed": 0.007496,
+    "FNS": "ZM-VFNS",
     "ModEv": "TRN",
 }
 
@@ -53,6 +55,7 @@ class BenchmarkNNPDF31(BenchmarkNNPDF):
         theory_card = {
             **base_theory,
             "PTO": 1,
+            "QED": 0,
             "Q0": Q0,
         }
 
@@ -67,6 +70,7 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
         theory_card = {
             **base_theory,
             "PTO": 1,
+            "QED": 0,
             "Q0": Q0,
         }
 
@@ -77,6 +81,7 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
         theory_card = {
             **base_theory,
             "PTO": 2,
+            "QED": 0,
             "IC": 1,
             "IB": 1,
             "Q0": Q0,

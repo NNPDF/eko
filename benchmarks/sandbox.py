@@ -33,6 +33,7 @@ nnpdf_base_theory = {
     "kbThr": 1.0,
     "ktThr": 1.0,
     "alphas": 0.118000,
+    "alphaqed": 0.007496,
     "FNS": "ZM-VFNS",
     "ModEv": "TRN",
 }
@@ -64,6 +65,7 @@ class Sandbox(Runner):
         theory_updates = {
             **ffns3,
             "PTO": 0,
+            "QED": 0,
             # "ModEv": "EXA",
             # "XIR": 0.5,
             # "fact_to_ren_scale_ratio": 2.0,
@@ -111,6 +113,7 @@ class Sandbox(Runner):
     def lha(self):
         theory_updates = {
             "PTO": 0,
+            "QED": 0,
             "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",

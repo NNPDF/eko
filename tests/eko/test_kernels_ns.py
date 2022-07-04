@@ -23,15 +23,17 @@ def test_zero():
     nf = 3
     ev_op_iterations = 2
     gamma_ns = np.array([1 + 0.0j, 1 + 0j, 1 + 0j, 1 + 0j])
-    for order in [0, 1, 2, 3]:
+    for order in [1, 2, 3, 4]:
         for method in methods:
             np.testing.assert_allclose(
-                ns.dispatcher(order, method, gamma_ns, 1.0, 1.0, nf, ev_op_iterations),
+                ns.dispatcher(
+                    (order, 0), method, gamma_ns, 1.0, 1.0, nf, ev_op_iterations
+                ),
                 1.0,
             )
             np.testing.assert_allclose(
                 ns.dispatcher(
-                    order,
+                    (order, 0),
                     method,
                     np.zeros(order + 1, dtype=complex),
                     2.0,
@@ -50,15 +52,29 @@ def test_ode_lo():
     delta_a = -1e-6
     a0 = 0.3
     for a1 in [0.1, 0.2]:
-        r = a1 * gamma_ns / (beta.beta(0, nf) * a1**2)
+        r = a1 * gamma_ns / (beta.beta_qcd((2, 0), nf) * a1**2)
         for method in methods:
-            rhs = r * ns.dispatcher(0, method, gamma_ns, a1, a0, nf, ev_op_iterations)
+            rhs = r * ns.dispatcher(
+                (1, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
+            )
             lhs = (
                 ns.dispatcher(
-                    0, method, gamma_ns, a1 + 0.5 * delta_a, a0, nf, ev_op_iterations
+                    (1, 0),
+                    method,
+                    gamma_ns,
+                    a1 + 0.5 * delta_a,
+                    a0,
+                    nf,
+                    ev_op_iterations,
                 )
                 - ns.dispatcher(
-                    0, method, gamma_ns, a1 - 0.5 * delta_a, a0, nf, ev_op_iterations
+                    (1, 0),
+                    method,
+                    gamma_ns,
+                    a1 - 0.5 * delta_a,
+                    a0,
+                    nf,
+                    ev_op_iterations,
                 )
             ) / delta_a
             np.testing.assert_allclose(lhs, rhs, atol=np.abs(delta_a))
@@ -72,16 +88,30 @@ def test_ode_nlo():
     a0 = 0.3
     for a1 in [0.1, 0.2]:
         r = (a1 * gamma_ns[0] + a1**2 * gamma_ns[1]) / (
-            beta.beta(0, nf) * a1**2 + beta.beta(1, nf) * a1**3
+            beta.beta_qcd((2, 0), nf) * a1**2 + beta.beta_qcd((3, 0), nf) * a1**3
         )
         for method in ["iterate-exact"]:
-            rhs = r * ns.dispatcher(1, method, gamma_ns, a1, a0, nf, ev_op_iterations)
+            rhs = r * ns.dispatcher(
+                (2, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
+            )
             lhs = (
                 ns.dispatcher(
-                    1, method, gamma_ns, a1 + 0.5 * delta_a, a0, nf, ev_op_iterations
+                    (2, 0),
+                    method,
+                    gamma_ns,
+                    a1 + 0.5 * delta_a,
+                    a0,
+                    nf,
+                    ev_op_iterations,
                 )
                 - ns.dispatcher(
-                    1, method, gamma_ns, a1 - 0.5 * delta_a, a0, nf, ev_op_iterations
+                    (2, 0),
+                    method,
+                    gamma_ns,
+                    a1 - 0.5 * delta_a,
+                    a0,
+                    nf,
+                    ev_op_iterations,
                 )
             ) / delta_a
             np.testing.assert_allclose(lhs, rhs, atol=np.abs(delta_a))
@@ -95,9 +125,9 @@ def test_ode_nnlo():
     a0 = 0.3
     for a1 in [0.1, 0.2]:
         r = (gamma_ns[0] + a1 * gamma_ns[1] + a1**2 * gamma_ns[2]) / (
-            beta.beta(0, nf) * a1
-            + beta.beta(1, nf) * a1**2
-            + beta.beta(2, nf) * a1**3
+            beta.beta_qcd((2, 0), nf) * a1
+            + beta.beta_qcd((3, 0), nf) * a1**2
+            + beta.beta_qcd((4, 0), nf) * a1**3
         )
         for method in ["iterate-exact"]:
             rhs = r * ns.dispatcher(2, method, gamma_ns, a1, a0, nf, ev_op_iterations)
@@ -125,10 +155,10 @@ def test_ode_n3lo():
             + a1**2 * gamma_ns[2]
             + a1**3 * gamma_ns[3]
         ) / (
-            beta.beta(0, nf) * a1
-            + beta.beta(1, nf) * a1**2
-            + beta.beta(2, nf) * a1**3
-            + beta.beta(3, nf) * a1**4
+            beta.beta_qcd((2, 0), nf) * a1
+            + beta.beta_qcd((3, 0), nf) * a1**2
+            + beta.beta_qcd((4, 0), nf) * a1**3
+            + beta.beta_qcd((5, 0), nf) * a1**4
         )
         for method in ["iterate-exact"]:
             rhs = r * ns.dispatcher(3, method, gamma_ns, a1, a0, nf, ev_op_iterations)
@@ -145,9 +175,9 @@ def test_ode_n3lo():
 
 def test_error():
     with pytest.raises(NotImplementedError):
-        ns.dispatcher(4, "iterate-exact", np.random.rand(3) + 0j, 0.2, 0.1, 3, 10)
+        ns.dispatcher((5, 0), "iterate-exact", np.random.rand(3) + 0j, 0.2, 0.1, 3, 10)
     with pytest.raises(NotImplementedError):
-        ad.gamma_ns(1, 10202, 1, 3)
+        ad.gamma_ns((2, 0), 10202, 1, 3)
 
 
 def test_gamma_usage():
@@ -156,15 +186,20 @@ def test_gamma_usage():
     nf = 3
     ev_op_iterations = 10
     # first check that at order=n only uses the matrices up n
-    for order in range(4):
-        gamma_ns = np.random.rand(order + 1)
+    gamma_ns = np.full(4, np.nan)
+    for order in range(1, 5):
+        gamma_ns[order - 1] = np.random.rand()
         for method in methods:
-            r = ns.dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations)
+            r = ns.dispatcher(
+                (order, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
+            )
             assert not np.isnan(r)
     # second check that at order=n the actual matrix n is used
-    for order in range(4):
-        gamma_ns = np.random.rand(order + 1)
-        gamma_ns[order] = np.nan
+    for order in range(1, 5):
+        gamma_ns = np.random.rand(order)
+        gamma_ns[order - 1] = np.nan
         for method in methods:
-            r = ns.dispatcher(order, method, gamma_ns, a1, a0, nf, ev_op_iterations)
+            r = ns.dispatcher(
+                (order, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
+            )
             assert np.isnan(r)

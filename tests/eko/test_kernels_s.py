@@ -21,7 +21,7 @@ def test_zero_lo(monkeypatch):
     """No evolution results in exp(0)"""
     nf = 3
     ev_op_iterations = 2
-    ev_op_max_order = 2
+    ev_op_max_order = (3, 0)
     gamma_s = np.random.rand(1, 2, 2) + np.random.rand(1, 2, 2) * 1j
     monkeypatch.setattr(
         ad,
@@ -38,13 +38,13 @@ def test_zero_lo(monkeypatch):
         try:
             np.testing.assert_allclose(
                 s.dispatcher(
-                    0, method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+                    (1, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
                 ),
                 np.zeros((2, 2)),
             )
             np.testing.assert_allclose(
                 s.dispatcher(
-                    0,
+                    (1, 0),
                     method,
                     np.zeros((1, 2, 2), dtype=complex),
                     2,
@@ -63,7 +63,7 @@ def test_zero_nlo_decompose(monkeypatch):
     """No evolution results in exp(0)"""
     nf = 3
     ev_op_iterations = 2
-    ev_op_max_order = 2
+    ev_op_max_order = (3, 0)
     gamma_s = np.random.rand(2, 2, 2) + np.random.rand(2, 2, 2) * 1j
     monkeypatch.setattr(
         ad,
@@ -83,13 +83,13 @@ def test_zero_nlo_decompose(monkeypatch):
         try:
             np.testing.assert_allclose(
                 s.dispatcher(
-                    1, method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+                    (2, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
                 ),
                 np.zeros((2, 2)),
             )
             np.testing.assert_allclose(
                 s.dispatcher(
-                    1,
+                    (2, 0),
                     method,
                     np.zeros((2, 2, 2), dtype=complex),
                     2,
@@ -108,7 +108,7 @@ def test_zero_nnlo_decompose(monkeypatch):
     """No evolution results in exp(0)"""
     nf = 3
     ev_op_iterations = 3
-    ev_op_max_order = 3
+    ev_op_max_order = (4, 0)
     gamma_s = np.random.rand(3, 2, 2) + np.random.rand(3, 2, 2) * 1j
     monkeypatch.setattr(
         ad,
@@ -128,13 +128,13 @@ def test_zero_nnlo_decompose(monkeypatch):
         try:
             np.testing.assert_allclose(
                 s.dispatcher(
-                    2, method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+                    (3, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
                 ),
                 np.zeros((2, 2)),
             )
             np.testing.assert_allclose(
                 s.dispatcher(
-                    2,
+                    (3, 0),
                     method,
                     np.zeros((3, 2, 2), dtype=complex),
                     2,
@@ -201,10 +201,14 @@ def test_similarity():
     a0 = 0.1
     delta_a = 1e-3
     a1 = a0 + delta_a
-    ev_op_iterations = 4
-    ev_op_max_order = 4
+    ev_op_iterations = 10
+    ev_op_max_order = (10, 0)
     gamma_s = np.random.rand(4, 2, 2) + np.random.rand(4, 2, 2) * 1j
-    for order in [0, 1, 2]:
+    for order in [
+        (1, 0),
+        (2, 0),
+        (3, 0),
+    ]:
         ref = s.dispatcher(
             order,
             "decompose-exact",
@@ -234,7 +238,7 @@ def test_similarity():
 
 def test_error():
     with pytest.raises(NotImplementedError):
-        s.dispatcher(4, "AAA", np.random.rand(3, 2, 2), 0.2, 0.1, 3, 10, 10)
+        s.dispatcher((4, 0), "AAA", np.random.rand(3, 2, 2), 0.2, 0.1, 3, 10, 10)
 
 
 def mk_almost_diag_matrix(n, max_ang=np.pi / 8.0):
@@ -249,14 +253,14 @@ def test_gamma_usage():
     a0 = 0.3
     nf = 3
     ev_op_iterations = 10
-    ev_op_max_order = 10
+    ev_op_max_order = (10, 0)
     # first check that at order=n only uses the matrices up n
     gamma_s = np.full((4, 2, 2), np.nan)
-    for order in range(4):
-        gamma_s[order] = mk_almost_diag_matrix(1)
+    for order in range(1, 5):
+        gamma_s[order - 1] = mk_almost_diag_matrix(1)
         for method in methods:
             r = s.dispatcher(
-                order,
+                (order, 0),
                 method,
                 gamma_s,
                 a1,
@@ -267,12 +271,12 @@ def test_gamma_usage():
             )
             assert not np.isnan(r).all()
     # second check that at order=n the actual matrix n is used
-    for order in range(4):
+    for order in range(1, 5):
         gamma_s = mk_almost_diag_matrix(4)
-        gamma_s[order] = np.full((2, 2), np.nan)
+        gamma_s[order - 1] = np.full((2, 2), np.nan)
         for method in methods:
             r = s.dispatcher(
-                order,
+                (order, 0),
                 method,
                 gamma_s,
                 a1,
@@ -285,8 +289,8 @@ def test_gamma_usage():
 
 
 def test_singlet_back():
-    order = 3
-    gamma_s = np.random.rand(order + 1, 2, 2) + np.random.rand(order + 1, 2, 2) * 1j
+    order = (3, 0)
+    gamma_s = np.random.rand(order[0], 2, 2) + np.random.rand(order[0], 2, 2) * 1j
     nf = 4
     a1 = 3.0
     a0 = 4.0

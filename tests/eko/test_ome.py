@@ -6,6 +6,7 @@ import numpy as np
 
 from eko import basis_rotation as br
 from eko import interpolation, mellin
+from eko.couplings import Couplings
 from eko.evolution_operator.grid import OperatorGrid
 from eko.harmonics import compute_harmonics_cache
 from eko.interpolation import InterpolatorDispatcher
@@ -16,8 +17,9 @@ from eko.matching_conditions.operator_matrix_element import (
     build_ome,
     quad_ker,
 )
-from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
+
+max_weight_dict = {1: 2, 2: 3, 3: 5}
 
 
 def test_build_ome_as():
@@ -28,21 +30,21 @@ def test_build_ome_as():
     nf = 3
     is_msbar = False
     for o in [1, 2, 3]:
-        sx_singlet = compute_harmonics_cache(N, o, True)
+        sx_singlet = compute_harmonics_cache(N, max_weight_dict[o], True)
         sx_ns = sx_singlet
         if o == 3:
-            sx_ns = compute_harmonics_cache(N, o, False)
+            sx_ns = compute_harmonics_cache(N, max_weight_dict[o], False)
 
-        aNS = A_non_singlet(o, N, sx_ns, nf, L)
-        aS = A_singlet(o, N, sx_singlet, nf, L, is_msbar, sx_ns)
+        aNS = A_non_singlet((o, 0), N, sx_ns, nf, L)
+        aS = A_singlet((o, 0), N, sx_singlet, nf, L, is_msbar, sx_ns)
 
         for a in [aNS, aS]:
             for method in ["", "expanded", "exact"]:
                 dim = len(a[0])
-                if o != 0:
+                if o != 1:
                     assert len(a) == o
 
-                ome = build_ome(a, o, a_s, method)
+                ome = build_ome(a, (o, 0), a_s, method)
                 assert ome.shape == (dim, dim)
                 assert ome.all() == np.eye(dim).all()
 
@@ -53,11 +55,10 @@ def test_build_ome_nlo():
     L = 0.0
     a_s = 20
     is_msbar = False
-
     sx = [[1], [1], [1]]
     nf = 4
-    aNSi = A_non_singlet(1, N, sx, nf, L)
-    aSi = A_singlet(1, N, sx, nf, L, is_msbar)
+    aNSi = A_non_singlet((1, 0), N, sx, nf, L)
+    aSi = A_singlet((1, 0), N, sx, nf, L, is_msbar)
     for a in [aNSi, aSi]:
         for method in ["", "expanded", "exact"]:
             dim = len(a[0])
@@ -65,7 +66,7 @@ def test_build_ome_nlo():
             assert a[0, -1, -1] != 0.0
             # qh
             assert a[0, -2, -1] == 0.0
-            ome = build_ome(a, 1, a_s, method)
+            ome = build_ome(a, (1, 0), a_s, method)
             assert ome.shape == (dim, dim)
             assert ome[-1, -1] != 1.0
             assert ome[-2, -1] == 0.0
@@ -100,7 +101,7 @@ def test_quad_ker(monkeypatch):
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            order=3,
+            order=(3, 0),
             mode0=200,
             mode1=200,
             is_log=is_log,
@@ -115,7 +116,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
             u=0,
-            order=3,
+            order=(3, 0),
             mode0=100,
             mode1=100,
             is_log=is_log,
@@ -130,7 +131,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            order=3,
+            order=(3, 0),
             mode0=100,
             mode1=21,
             is_log=is_log,
@@ -149,7 +150,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=3,
+            order=(3, 0),
             mode0=label[0],
             mode1=label[1],
             is_log=True,
@@ -182,7 +183,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=3,
+            order=(3, 0),
             mode0=label[0],
             mode1=label[1],
             is_log=True,
@@ -202,7 +203,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        order=3,
+        order=(3, 0),
         mode0=200,
         mode1=200,
         is_log=True,
@@ -289,7 +290,8 @@ class TestOperatorMatrixElement:
     # setup objs
     theory_card = {
         "alphas": 0.35,
-        "PTO": 3,
+        "alphaem": 0.00781,
+        "order": (4, 0),
         "ModEv": "TRN",
         "fact_to_ren_scale_ratio": 1.0,
         "Qref": np.sqrt(2),
@@ -333,7 +335,7 @@ class TestOperatorMatrixElement:
                     "interpolation_is_log": True,
                     "debug_skip_singlet": skip_singlet,
                     "debug_skip_non_singlet": skip_ns,
-                    "ev_op_max_order": 1,
+                    "ev_op_max_order": (2, 0),
                     "ev_op_iterations": 1,
                     "backward_inversion": "exact",
                     "n_integration_cores": 1,
@@ -342,7 +344,7 @@ class TestOperatorMatrixElement:
                     self.theory_card,
                     operators_card,
                     ThresholdsAtlas.from_dict(self.theory_card),
-                    StrongCoupling.from_dict(self.theory_card),
+                    Couplings.from_dict(self.theory_card),
                     InterpolatorDispatcher.from_dict(operators_card),
                 )
                 o = OperatorMatrixElement(
@@ -386,7 +388,7 @@ class TestOperatorMatrixElement:
             self.theory_card,
             self.operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
-            StrongCoupling.from_dict(self.theory_card),
+            Couplings.from_dict(self.theory_card),
             InterpolatorDispatcher.from_dict(self.operators_card),
         )
         o = OperatorMatrixElement(
@@ -413,13 +415,13 @@ class TestOperatorMatrixElement:
             np.testing.assert_allclose(mat, np.triu(mat))
 
     def test_compute_lo(self):
-        self.theory_card.update({"PTO": 0})
+        self.theory_card.update({"order": (1, 0)})
         self.operators_card.update({"debug_skip_singlet": False})
         g = OperatorGrid.from_dict(
             self.theory_card,
             self.operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
-            StrongCoupling.from_dict(self.theory_card),
+            Couplings.from_dict(self.theory_card),
             InterpolatorDispatcher.from_dict(self.operators_card),
         )
         o = OperatorMatrixElement(
@@ -466,18 +468,18 @@ class TestOperatorMatrixElement:
             "interpolation_is_log": True,
             "debug_skip_singlet": False,
             "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
+            "ev_op_max_order": (1, 0),
             "ev_op_iterations": 1,
             "backward_inversion": "exact",
             "n_integration_cores": 1,
         }
         t = copy.deepcopy(self.theory_card)
-        t["PTO"] = 1
+        t["order"] = (1, 0)
         g = OperatorGrid.from_dict(
             t,
             operators_card,
             ThresholdsAtlas.from_dict(t),
-            StrongCoupling.from_dict(t),
+            Couplings.from_dict(t),
             InterpolatorDispatcher.from_dict(operators_card),
         )
         o = OperatorMatrixElement(

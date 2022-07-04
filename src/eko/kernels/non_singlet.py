@@ -31,20 +31,20 @@ def U_vec(gamma_ns, nf, order):
         U vector
 
     """
-    U = np.zeros(order + 1, dtype=np.complex_)
-    beta0 = beta.beta(0, nf)
+    U = np.zeros(order[0] + 1, dtype=np.complex_)
+    beta0 = beta.beta_qcd((2, 0), nf)
     R0 = gamma_ns[0] / beta0
     U[0] = 1.0
-    if order >= 1:
-        b1 = beta.b(1, nf)
+    if order[0] >= 2:
+        b1 = beta.b_qcd((3, 0), nf)
         R1 = gamma_ns[1] / beta0 - b1 * R0
         U[1] = R1
-    if order >= 2:
-        b2 = beta.b(2, nf)
+    if order[0] >= 3:
+        b2 = beta.b_qcd((4, 0), nf)
         R2 = gamma_ns[2] / beta0 - b1 * R1 - b2 * R0
         U[2] = 0.5 * (R2 + U[1] * R1)
-    if order == 3:
-        b3 = beta.b(3, nf)
+    if order[0] >= 4:
+        b3 = beta.b_qcd((5, 0), nf)
         R3 = gamma_ns[3] / beta0 - b1 * R2 - b2 * R1 - b3 * R0
         U[3] = 1 / 3 * (R3 + R2 * U[1] + R1 * U[2])
     return U
@@ -204,11 +204,11 @@ def n3lo_expanded(gamma_ns, a1, a0, nf):
         |N3LO| non-singlet expanded EKO
 
     """
-    beta0 = beta.beta(0, nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
     b_list = [
-        beta.b(1, nf),
-        beta.b(2, nf),
-        beta.b(3, nf),
+        beta.b_qcd((3, 0), nf),
+        beta.b_qcd((4, 0), nf),
+        beta.b_qcd((5, 0), nf),
     ]
     j00 = ei.j00(a1, a0, nf)
     j13 = as4_ei.j13_expanded(a1, a0, beta0, b_list)
@@ -243,11 +243,11 @@ def n3lo_exact(gamma_ns, a1, a0, nf):
         |N3LO| non-singlet exact EKO
 
     """
-    beta0 = beta.beta(0, nf)
+    beta0 = beta.beta_qcd((2, 0), nf)
     b_list = [
-        beta.b(1, nf),
-        beta.b(2, nf),
-        beta.b(3, nf),
+        beta.b_qcd((3, 0), nf),
+        beta.b_qcd((4, 0), nf),
+        beta.b_qcd((5, 0), nf),
     ]
     roots = as4_ei.roots(b_list)
     j00 = ei.j00(a1, a0, nf)
@@ -276,7 +276,7 @@ def eko_ordered_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations):
         initial coupling value
     nf : int
         number of active flavors
-    order : int
+    order : tuple(int,int)
         perturbative order
     ev_op_iterations : int
         number of evolution steps
@@ -294,7 +294,7 @@ def eko_ordered_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations):
     for ah in a_steps[1:]:
         e0 = lo_exact(gamma_ns, ah, al, nf)
         num, den = 0, 0
-        for i in range(order + 1):
+        for i in range(order[0] + 1):
             num += U[i] * ah**i
             den += U[i] * al**i
         e *= e0 * num / den
@@ -316,7 +316,7 @@ def eko_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations):
         initial coupling value
     nf : int
         number of active flavors
-    order : int
+    order : tuple(int,int)
         perturbative order
     ev_op_iterations : int
         number of evolution steps
@@ -334,11 +334,11 @@ def eko_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations):
     fact = U[0]
     for ah in a_steps[1:]:
         e0 = lo_exact(gamma_ns, ah, al, nf)
-        if order >= 1:
+        if order[0] >= 2:
             fact += U[1] * (ah - al)
-        if order >= 2:
+        if order[0] >= 3:
             fact += +U[2] * ah**2 - ah * al * U[1] ** 2 + al**2 * (U[1] ** 2 - U[2])
-        if order >= 3:
+        if order[0] >= 4:
             fact += (
                 +(ah**3) * U[3]
                 - ah**2 * al * U[2] * U[1]
@@ -360,7 +360,7 @@ def dispatcher(
 
     Parameters
     ----------
-    order : int
+    order : tuple(int,int)
         perturbation order
     method : str
         method
@@ -382,7 +382,7 @@ def dispatcher(
 
     """
     # use always exact in LO
-    if order == 0:
+    if order[0] == 1:
         return lo_exact(gamma_ns, a1, a0, nf)
     if method == "ordered-truncated":
         return eko_ordered_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations)
@@ -390,7 +390,7 @@ def dispatcher(
         return eko_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations)
 
     # NLO
-    if order == 1:
+    if order[0] == 2:
         if method in [
             "iterate-expanded",
             "decompose-expanded",
@@ -400,7 +400,7 @@ def dispatcher(
         # if method in ["iterate-exact", "decompose-exact", "perturbative-exact"]:
         return nlo_exact(gamma_ns, a1, a0, nf)
     # NNLO
-    if order == 2:
+    if order[0] == 3:
         if method in [
             "iterate-expanded",
             "decompose-expanded",
@@ -409,7 +409,7 @@ def dispatcher(
             return nnlo_expanded(gamma_ns, a1, a0, nf)
         return nnlo_exact(gamma_ns, a1, a0, nf)
     # N3LO
-    if order == 3:
+    if order[0] == 4:
         if method in [
             "iterate-expanded",
             "decompose-expanded",

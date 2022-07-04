@@ -40,7 +40,7 @@ generation), it is possible to use the ``-i`` flag.
 We also provide an API with some additional features and possibilities
 such as generating a |PDF| with a custom function for every |pid|
 (through a ``dict`` structure) and filtering custom combination of
-flavors - see :mod:`here <banana.data.genpdf>` for details.
+flavors - see :mod:`here <ekobox.genpdf>` for details.
 
 Examples
 --------

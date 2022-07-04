@@ -4,7 +4,7 @@ pQCD ingredients
 Strong Coupling
 ---------------
 
-Implementation: :class:`~eko.strong_coupling.StrongCoupling`.
+Implementation: :class:`~eko.couplings.Couplings`.
 
 We use perturbative |QCD| with the running coupling
 :math:`a_s(\mu_R^2) = \alpha_s(\mu_R^2)/(4\pi)` given at 5-loop by
@@ -46,9 +46,9 @@ have to be applied :cite:`Schroder:2005hy,Chetyrkin:2005ia`.
 In particular, the matching involved in the change from :math:`n_f` to :math:`n_f-1` schemes
 is presented in equation 3.1 of :cite:`Schroder:2005hy` for |MSbar| masses, while the
 same expression for POLE masses is reported in Appendix A.
-For this reason the boundary conditions of :class:`eko.strong_coupling.StrongCoupling`
+For this reason the boundary conditions of :class:`eko.couplings.Couplings`
 can be specified at ``scale_ref`` along with ``nf_ref`` and, the computed result can
-depend on the number of flavors at the target scale, see :meth:`eko.strong_coupling.StrongCoupling.a_s`
+depend on the number of flavors at the target scale, see :meth:`eko.couplings.Couplings.a_s`
 An example how the evolution path is determined is given :doc:`here</code/Utilities/>`.
 
 
@@ -82,6 +82,16 @@ while :math:`\mathbf{\bar{P}}` are given by
 where :math:`a = \alpha/(4\pi)`.
 The expression of the pure |QED| and of the mixed |QED| :math:`\otimes` |QCD| splitting kernels are given in
 :cite:`deFlorian:2015ujt,deFlorian:2016gvk`
+
+Order specification
+-------------------
+
+In the code ``order=tuple(int,int)`` specifies the |QCD| and |QED| perturbative orders of the splitting functions in terms
+of :math:`a_s = \alpha_s/(4\pi)` and :math:`a_{em} = \alpha_{em}/(4\pi)`. The available perturbative expansions are the following:
+
+- ``order=(0,0)``: it is the non evolution case in which :math:`a_s` and :math:`a_{em}` are kept fixed and the splitting functions are null.
+- ``order=(n,0)``: with :math:`n=1,2,3,4` correspond to the pure |QCD| evolution at |LO|, |NLO|, |NNLO| and |N3LO| in which the |QCD| splitting functions are expanded up to :math:`\mathcal{O}(a_s^n)` and the strong coupling is evolved using the n-th coefficient of the beta function, i.e. :math:`\beta_{n-1}`.
+- ``order=(n,m)``; with :math:`n=1,2,3,4` and :math:`m=1,2` corresponds to the mixed |QED| :math:`\otimes` |QCD| evolution in which the splitting functions are expanded up to :math:`\mathcal{O}(a_s^na_{em}^m)`, the stromg coupling is evolved using up to the n-th coefficient of the beta function and the electromagnetic coupling is kept fixed.
 
 Sum Rules
 ---------
@@ -251,7 +261,7 @@ and :math:`m_{h,0}` is the given initial condition at the scale
 depends on the value :math:`a_s(\mu_{h,0}^2)` which is unknown and depends again
 on the threshold path.
 To overcome this issue, EKO initialize a temporary instance of the class
-:class:`~eko.strong_coupling.StrongCoupling` with a fixed flavor number scheme,
+:class:`~eko.couplings.Couplings` with a fixed flavor number scheme,
 with :math:`n_{f_{ref}}` active flavors at the scale :math:`\mu_{ref}`.
 
 Then we check that, heavy quarks involving a number of active flavors
@@ -299,7 +309,7 @@ Therefore the two solution strategies are:
 
 
 The procedure is iterated on all the heavy quarks, updating the temporary instance
-of :class:`~eko.strong_coupling.StrongCoupling` with the computed masses.
+of :class:`~eko.couplings.Couplings` with the computed masses.
 
 To find coherent solutions and perform the mass running in the correct patches it
 is necessary to always start computing the mass scales closer to :math:`\mu_{ref}`.

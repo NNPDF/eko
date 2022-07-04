@@ -8,32 +8,33 @@ from .aHgstfac import A_Hgstfac
 
 @nb.njit(cache=True)
 def A_Hg(n, sx, nf, L):  # pylint: disable=too-many-locals
-    r"""
-    Computes the |N3LO| singlet |OME| :math:`A_{Hg}^{S,(3)}(N)`.
-    The experssion is presented in :cite:`Bierenbaum:2009mv`.
+    r"""Computes the |N3LO| singlet |OME| :math:`A_{Hg}^{S,(3)}(N)`.
+    The expression is presented in :cite:`Bierenbaum:2009mv`.
 
     When using the code, please cite the complete list of references
     available in :mod:`eko.matching_conditions.as3`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
-        nf : int
-            number of active flavor below the threshold
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
-        A_Hg : complex
-            :math:`A_{Hg}^{S,(3)}(N)`
+    complex
+        :math:`A_{Hg}^{S,(3)}(N)`
+
     See Also
     --------
-        A_Hgstfac: eko.matching_conditions.as3.aHgstfac.A_Hgstfac
-            Incomplete part of the |OME|.
+    A_Hgstfac: eko.matching_conditions.as3.aHgstfac.A_Hgstfac
+        Incomplete part of the |OME|.
+
     """
     S1, _ = sx[0]
     S2, Sm2 = sx[1]

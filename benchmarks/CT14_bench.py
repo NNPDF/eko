@@ -8,6 +8,7 @@ Benchmark CT14 pdf family
 
 from banana import register
 
+from eko import compatibility
 from ekomark.benchmark.runner import Runner
 
 register(__file__)
@@ -37,7 +38,9 @@ class BenchmarkCT14(Runner):
         theory_card.update(
             {
                 "alphas": 0.118000,
+                "alphaqed": 0.007496,
                 "PTO": 0,
+                "QED": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 3,
                 "MaxNfAs": 3,
@@ -67,7 +70,9 @@ class BenchmarkCT14(Runner):
         theory_card.update(
             {
                 "alphas": 0.125000,
+                "alphaqed": 0.007496,
                 "PTO": 0,
+                "QED": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 4,
                 "MaxNfAs": 4,
@@ -93,7 +98,9 @@ class BenchmarkCT14(Runner):
         theory_card.update(
             {
                 "alphas": 0.130000,
+                "alphaqed": 0.007496,
                 "PTO": 0,
+                "QED": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 6,
                 "MaxNfAs": 6,
