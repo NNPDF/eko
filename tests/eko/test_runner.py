@@ -4,10 +4,13 @@ import copy
 import numpy as np
 
 import eko
+from eko import compatibility
 
 theory_card = {
     "alphas": 0.35,
+    "alphaqed": 0.007496,
     "PTO": 0,
+    "QED": 0,
     "fact_to_ren_scale_ratio": 1.0,
     "Qref": np.sqrt(2),
     "nfref": 4,
@@ -39,7 +42,7 @@ operators_card = {
     "interpolation_is_log": True,
     "debug_skip_singlet": True,
     "debug_skip_non_singlet": True,
-    "ev_op_max_order": 1,
+    "ev_op_max_order": (2, 0),
     "ev_op_iterations": 1,
     "backward_inversion": "exact",
     "n_integration_cores": 1,
@@ -125,8 +128,9 @@ def test_vfns():
     oc = copy.deepcopy(operators_card)
     tc["kcThr"] = 1.0
     tc["kbThr"] = 1.0
-    tc["PTO"] = 2
+    tc["order"] = (3, 0)
     oc["debug_skip_non_singlet"] = False
+    # tc,oc = compatibility.update(theory_card,operators_card)
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()
     check_shapes(

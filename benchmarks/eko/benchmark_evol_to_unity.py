@@ -3,10 +3,11 @@ import numpy as np
 import pytest
 
 from eko import basis_rotation as br
+from eko import compatibility
+from eko.couplings import Couplings
 from eko.evolution_operator import Operator
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
-from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
 # from eko.matching_conditions.operator_matrix_element import OperatorMatrixElement
@@ -17,7 +18,9 @@ class BenchmarkBackwardForward:
     # setup objs
     theory_card = {
         "alphas": 0.35,
+        "alphaqed": 0.007496,
         "PTO": 0,
+        "QED": 0,
         "ModEv": "EXA",
         "fact_to_ren_scale_ratio": 1.0,
         "Qref": np.sqrt(2),
@@ -51,12 +54,13 @@ class BenchmarkBackwardForward:
         "backward_inversion": "exact",
         "n_integration_cores": 1,
     }
+    new_theory, new_operators = compatibility.update(theory_card, operators_card)
     g = OperatorGrid.from_dict(
-        theory_card,
-        operators_card,
-        ThresholdsAtlas.from_dict(theory_card),
-        StrongCoupling.from_dict(theory_card),
-        InterpolatorDispatcher.from_dict(operators_card),
+        new_theory,
+        new_operators,
+        ThresholdsAtlas.from_dict(new_theory),
+        Couplings.from_dict(new_theory),
+        InterpolatorDispatcher.from_dict(new_operators),
     )
 
     def test_operator_grid(
@@ -64,11 +68,11 @@ class BenchmarkBackwardForward:
         self,
     ):
         g = OperatorGrid.from_dict(
-            self.theory_card,
-            self.operators_card,
-            ThresholdsAtlas.from_dict(self.theory_card),
-            StrongCoupling.from_dict(self.theory_card),
-            InterpolatorDispatcher.from_dict(self.operators_card),
+            self.new_theory,
+            self.new_operators,
+            ThresholdsAtlas.from_dict(self.new_theory),
+            Couplings.from_dict(self.new_theory),
+            InterpolatorDispatcher.from_dict(self.new_operators),
         )
         q20 = 30
         q21 = 50

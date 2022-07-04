@@ -10,7 +10,7 @@ jobs:
     container:
       image: ghcr.io/n3pdf/bench-evol:latest
       credentials:
-        username: ${{ github.actor }}
+        username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:

@@ -5,8 +5,7 @@ import numpy as np
 
 @nb.njit(cache=True)
 def A_qg(n, sx, nf, L):
-    r"""
-    Computes the |N3LO| singlet |OME| :math:`A_{qg}^{S,(3)}(N)`.
+    r"""Computes the |N3LO| singlet |OME| :math:`A_{qg}^{S,(3)}(N)`.
     The expression is presented in :cite:`Bierenbaum:2009mv`.
 
     When using the code, please cite the complete list of references
@@ -14,19 +13,20 @@ def A_qg(n, sx, nf, L):
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
-        nf : int
-            number of active flavor below the threshold
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
-        A_qg : complex
-            :math:`A_{qg}^{S,(3)}(N)`
+    complex
+        :math:`A_{qg}^{S,(3)}(N)`
+
     """
     S1, _ = sx[0]
     S2, Sm2 = sx[1]
