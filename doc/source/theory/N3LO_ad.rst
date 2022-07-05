@@ -189,6 +189,6 @@ the following terms:
             - |T|
             - |T|
 
-Only the parts proportional to :math:`n_f^3` are known analytical
+Only the parts proportional to :math:`n_f^3` are known analytically
 :cite:`Davies:2016jie` and have been included so far.
 The rest will be approximated using some known limits.
