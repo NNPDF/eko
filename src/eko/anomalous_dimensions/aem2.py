@@ -4,6 +4,7 @@ This file contains the O(aem2) Altarelli-Parisi splitting kernels.
 """
 
 import numba as nb
+import numpy as np
 
 from .. import constants
 from . import as1aem1
@@ -324,3 +325,62 @@ def gamma_ps(N, nf):
         / ((-1 + N) * N**3 * (1 + N) ** 3 * (2 + N) ** 2)
     )
     return 2 * nf * constants.CA * result
+
+
+@nb.njit(cache=True)
+def gamma_singlet(N, nf, sx):
+    nu = constants.uplike_flavors(nf)
+    nd = nf - nu
+    vu = nu / nf
+    vd = nd / nf
+    e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
+    e2m = constants.eu2 - constants.ed2
+    e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
+    gamma_S_01 = np.array(
+        [
+            [0, 0, 0, 0],
+            [
+                0,
+                gamma_phph(nf),
+                vu * constants.eu2 * gamma_phu(N, nf, sx)
+                + vd * constants.ed2 * gamma_phd(N, nf, sx),
+                vu
+                * (
+                    constants.eu2 * gamma_phu(N, nf, sx)
+                    - constants.ed2 * gamma_phd(N, nf, sx)
+                ),
+            ],
+            [
+                0,
+                vu * constants.eu2 * gamma_uph(N, nf, sx)
+                + vd * constants.ed2 * gamma_dph(N, nf, sx),
+                vu * constants.eu2 * gamma_nspu(N, nf, sx)
+                + vd * constants.ed2 * gamma_nspd(N, nf, sx)
+                + e2avg**2 * gamma_ps(N, nf),
+                vu
+                * (
+                    constants.eu2 * gamma_nspu(N, nf, sx)
+                    - constants.ed2 * gamma_nspd(N, nf, sx)
+                    + e2m * e2avg * gamma_ps(N, nf)
+                ),
+            ],
+            [
+                0,
+                vd
+                * (
+                    constants.eu2 * gamma_uph(N, nf, sx)
+                    - constants.ed2 * gamma_dph(N, nf, sx)
+                ),
+                vd
+                * (
+                    constants.eu2 * gamma_nspu(N, nf, sx)
+                    - constants.ed2 * gamma_nspd(N, nf, sx)
+                    + e2m * e2avg * gamma_ps(N, nf)
+                ),
+                vd * constants.eu2 * gamma_nspu(N, nf, sx)
+                + vu * constants.ed2 * gamma_nspd(N, nf, sx)
+                + vu * vd * e2m**2 * gamma_ps(N, nf),
+            ],
+        ]
+    )
+    return gamma_S_01

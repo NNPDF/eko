@@ -79,7 +79,7 @@ def gamma_phph(nf):
 
 
 @nb.njit(cache=True)
-def gamma_ns(N, s1):
+def gamma_ns(N, sx):
     """
     Computes the leading-order non-singlet QED anomalous dimension.
 
@@ -97,11 +97,12 @@ def gamma_ns(N, s1):
       gamma_ns : complex
         Leading-order non-singlet QED anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
+    s1 = sx[0]
     return as1.gamma_ns(N, s1) / constants.CF
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, s1, nf):
+def gamma_singlet(N, nf, sx):
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
     vu = nu / nf
@@ -116,14 +117,14 @@ def gamma_singlet(N, s1, nf):
             [
                 0,
                 e2avg * gamma_qph(N, nf),
-                e2avg * gamma_ns(N, s1),
-                vu * e2m * gamma_ns(N, s1),
+                e2avg * gamma_ns(N, sx),
+                vu * e2m * gamma_ns(N, sx),
             ],
             [
                 0,
                 vd * e2m * gamma_qph(N, nf),
-                vd * e2m * gamma_ns(N, s1),
-                e2delta * gamma_ns(N, s1),
+                vd * e2m * gamma_ns(N, sx),
+                e2delta * gamma_ns(N, sx),
             ],
         ]
     )

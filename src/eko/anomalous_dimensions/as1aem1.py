@@ -359,7 +359,7 @@ def gamma_nsm(N, sx):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, s1, nf):
+def gamma_singlet(N, nf, sx):
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
     vu = nu / nf
@@ -372,8 +372,8 @@ def gamma_singlet(N, s1, nf):
             [
                 nf * e2avg * gamma_gg(),
                 nf * e2avg * gamma_gph(N),
-                nf * e2avg * gamma_gq(N, s1),
-                vu * e2m * gamma_gq(N, s1),
+                nf * e2avg * gamma_gq(N, sx),
+                vu * e2m * gamma_gq(N, sx),
             ],
             [
                 nf * e2avg * gamma_phg(N),
@@ -382,16 +382,16 @@ def gamma_singlet(N, s1, nf):
                 vu * e2m * gamma_phq(N),
             ],
             [
-                e2avg * gamma_qg(N, nf, s1),
+                e2avg * gamma_qg(N, nf, sx),
                 e2avg * gamma_qph(N, nf),
-                e2avg * gamma_nsp(N, s1),
-                vu * e2m * gamma_nsp(N, s1),
+                e2avg * gamma_nsp(N, sx),
+                vu * e2m * gamma_nsp(N, sx),
             ],
             [
-                vd * e2m * gamma_gq(N, s1),
+                vd * e2m * gamma_gq(N, sx),
                 vd * e2m * gamma_qph(N, nf),
-                vd * e2m * gamma_nsp(N, s1),
-                e2delta * gamma_nsp(N, s1),
+                vd * e2m * gamma_nsp(N, sx),
+                e2delta * gamma_nsp(N, sx),
             ],
         ]
     )
