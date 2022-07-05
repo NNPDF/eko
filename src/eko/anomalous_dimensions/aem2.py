@@ -383,3 +383,37 @@ def gamma_singlet(N, nf, sx):
         ]
     )
     return gamma_S_02
+
+
+@nb.njit(cache=True)
+def gamma_valence(N, nf, sx):
+    nu = constants.uplike_flavors(nf)
+    nd = nf - nu
+    vu = nu / nf
+    vd = nd / nf
+    e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
+    e2m = constants.eu2 - constants.ed2
+    e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
+    gamma_V_02 = np.array(
+        [
+            [
+                vu * constants.eu2 * gamma_nsmu(N, nf, sx)
+                + vd * constants.ed2 * gamma_nsmd(N, nf, sx),
+                vu
+                * (
+                    constants.eu2 * gamma_nsmu(N, nf, sx)
+                    - constants.ed2 * gamma_nsmd(N, nf, sx)
+                ),
+            ],
+            [
+                vd
+                * (
+                    constants.eu2 * gamma_nsmu(N, nf, sx)
+                    - constants.ed2 * gamma_nsmd(N, nf, sx)
+                ),
+                vu * constants.eu2 * gamma_nsmu(N, nf, sx)
+                + vd * constants.ed2 * gamma_nsmd(N, nf, sx),
+            ],
+        ]
+    )
+    return gamma_V_02
