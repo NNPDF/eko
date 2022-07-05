@@ -391,9 +391,6 @@ def gamma_valence(N, nf, sx):
     nd = nf - nu
     vu = nu / nf
     vd = nd / nf
-    e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
-    e2m = constants.eu2 - constants.ed2
-    e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
     gamma_V_02 = np.array(
         [
             [
