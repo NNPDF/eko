@@ -335,13 +335,12 @@ def gamma_singlet(N, nf, sx):
     vd = nd / nf
     e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
     e2m = constants.eu2 - constants.ed2
-    e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
     gamma_S_01 = np.array(
         [
             [0, 0, 0, 0],
             [
                 0,
-                gamma_phph(nf),
+                gamma_phph(N, nf),
                 vu * constants.eu2 * gamma_phu(N, nf, sx)
                 + vd * constants.ed2 * gamma_phd(N, nf, sx),
                 vu

@@ -378,8 +378,8 @@ def gamma_singlet(N, nf, sx):
             [
                 nf * e2avg * gamma_phg(N),
                 gamma_phph(nf),
-                e2avg * gamma_phq(N),
-                vu * e2m * gamma_phq(N),
+                e2avg * gamma_phq(N, sx),
+                vu * e2m * gamma_phq(N, sx),
             ],
             [
                 e2avg * gamma_qg(N, nf, sx),
@@ -389,7 +389,7 @@ def gamma_singlet(N, nf, sx):
             ],
             [
                 vd * e2m * gamma_gq(N, sx),
-                vd * e2m * gamma_qph(N, nf),
+                vd * e2m * gamma_qph(N, nf, sx),
                 vd * e2m * gamma_nsp(N, sx),
                 e2delta * gamma_nsp(N, sx),
             ],
