@@ -4,6 +4,7 @@ This file contains the O(aem1) Altarelli-Parisi splitting kernels.
 """
 
 import numba as nb
+import numpy as np
 
 from .. import constants
 from . import as1
@@ -72,7 +73,9 @@ def gamma_phph(nf):
         Leading-order phton-photon anomalous dimension :math:`\\gamma_{\\gamma \\gamma}^{(0)}(N)`
     """
 
-    return 2 / 3 * constants.NC * 2 * nf
+    nu = constants.uplike_flavors(nf)
+    nd = nf - nu
+    return 4 / 3 * constants.NC * (nu * constants.eu2 + nd * constants.ed2)
 
 
 @nb.njit(cache=True)
@@ -95,3 +98,33 @@ def gamma_ns(N, s1):
         Leading-order non-singlet QED anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
     return as1.gamma_ns(N, s1) / constants.CF
+
+
+@nb.njit(cache=True)
+def gamma_singlet(N, s1, nf):
+    nu = constants.uplike_flavors(nf)
+    nd = nf - nu
+    vu = nu / nf
+    vd = nd / nf
+    e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
+    e2m = constants.eu2 - constants.ed2
+    e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
+    gamma_S_01 = np.array(
+        [
+            [0, 0, 0, 0],
+            [0, gamma_phph(nf), e2avg * gamma_phq(N), vu * e2m * gamma_phq(N)],
+            [
+                0,
+                e2avg * gamma_qph(N, nf),
+                e2avg * gamma_ns(N, s1),
+                vu * e2m * gamma_ns(N, s1),
+            ],
+            [
+                0,
+                vd * e2m * gamma_qph(N, nf),
+                vd * e2m * gamma_ns(N, s1),
+                e2delta * gamma_ns(N, s1),
+            ],
+        ]
+    )
+    return gamma_S_01

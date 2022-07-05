@@ -3,6 +3,7 @@
 import numpy as np
 
 from eko import anomalous_dimensions as ad
+from eko import constants
 
 
 def test_number_conservation():
@@ -26,6 +27,11 @@ def test_photon_momentum_conservation():
     # photon momentum
     N = complex(2.0, 0.0)
     for NF in range(2, 6 + 1):
+        NU = constants.uplike_flavors(NF)
+        ND = NF - NU
         np.testing.assert_almost_equal(
-            ad.aem1.gamma_qph(N, NF) + ad.aem1.gamma_phph(NF), 0
+            constants.eu2 * ad.aem1.gamma_qph(N, NU)
+            + constants.ed2 * ad.aem1.gamma_qph(N, ND)
+            + ad.aem1.gamma_phph(NF),
+            0,
         )
