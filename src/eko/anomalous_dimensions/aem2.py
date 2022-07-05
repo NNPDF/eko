@@ -335,7 +335,7 @@ def gamma_singlet(N, nf, sx):
     vd = nd / nf
     e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
     e2m = constants.eu2 - constants.ed2
-    gamma_S_01 = np.array(
+    gamma_S_02 = np.array(
         [
             [0, 0, 0, 0],
             [
@@ -382,4 +382,4 @@ def gamma_singlet(N, nf, sx):
             ],
         ]
     )
-    return gamma_S_01
+    return gamma_S_02
