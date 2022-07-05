@@ -4,6 +4,7 @@ This file contains the O(as1aem1) Altarelli-Parisi splitting kernels.
 """
 
 import numba as nb
+import numpy as np
 
 from .. import constants, harmonics
 from ..harmonics.constants import zeta2, zeta3
@@ -355,3 +356,43 @@ def gamma_nsm(N, sx):
         - 16 * zeta3
     )
     return constants.CF * result
+
+
+@nb.njit(cache=True)
+def gamma_singlet(N, s1, nf):
+    nu = constants.uplike_flavors(nf)
+    nd = nf - nu
+    vu = nu / nf
+    vd = nd / nf
+    e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
+    e2m = constants.eu2 - constants.ed2
+    e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
+    gamma_S_01 = np.array(
+        [
+            [
+                nf * e2avg * gamma_gg(),
+                nf * e2avg * gamma_gph(N),
+                nf * e2avg * gamma_gq(N, s1),
+                vu * e2m * gamma_gq(N, s1),
+            ],
+            [
+                nf * e2avg * gamma_phg(N),
+                gamma_phph(nf),
+                e2avg * gamma_phq(N),
+                vu * e2m * gamma_phq(N),
+            ],
+            [
+                e2avg * gamma_qg(N, nf, s1),
+                e2avg * gamma_qph(N, nf),
+                e2avg * gamma_nsp(N, s1),
+                vu * e2m * gamma_nsp(N, s1),
+            ],
+            [
+                vd * e2m * gamma_gq(N, s1),
+                vd * e2m * gamma_qph(N, nf),
+                vd * e2m * gamma_nsp(N, s1),
+                e2delta * gamma_nsp(N, s1),
+            ],
+        ]
+    )
+    return gamma_S_01
