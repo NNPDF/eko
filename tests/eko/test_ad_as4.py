@@ -2,7 +2,16 @@
 # Test N3LO anomalous dimensions
 import numpy as np
 
-from eko.anomalous_dimensions.as4 import ggg, ggq, gnsm, gnsp, gnsv, gps, gqg
+from eko.anomalous_dimensions.as4 import (
+    gamma_singlet,
+    ggg,
+    ggq,
+    gnsm,
+    gnsp,
+    gnsv,
+    gps,
+    gqg,
+)
 from eko.constants import CA, CF
 from eko.harmonics import compute_harmonics_cache
 
@@ -50,6 +59,19 @@ def test_momentum_conservation():
     )
     np.testing.assert_allclose(
         ggg.gamma_gg_nf3(N, sx_cache) + gqg.gamma_qg_nf3(N, sx_cache), 0, atol=2e-7
+    )
+
+    # total
+    g_singlet = gamma_singlet(N, NF, sx_cache)
+    # TODO: can't test for the time being since ns,+ is complete.
+    # np.testing.assert_allclose(
+    #     g_singlet[0, 0] + g_singlet[1, 0],
+    #     0,
+    # )
+    np.testing.assert_allclose(
+        g_singlet[0, 1] + g_singlet[1, 1],
+        0,
+        atol=2e-5,
     )
 
 
