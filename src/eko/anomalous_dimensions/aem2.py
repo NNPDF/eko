@@ -380,7 +380,8 @@ def gamma_singlet(N, nf, sx):
                 + vu * constants.ed2 * gamma_nspd(N, nf, sx)
                 + vu * vd * e2m**2 * gamma_ps(N, nf),
             ],
-        ]
+        ],
+        np.complex_,
     )
     return gamma_S_02
 
@@ -411,6 +412,7 @@ def gamma_valence(N, nf, sx):
                 vu * constants.eu2 * gamma_nsmu(N, nf, sx)
                 + vd * constants.ed2 * gamma_nsmd(N, nf, sx),
             ],
-        ]
+        ],
+        np.complex_,
     )
     return gamma_V_02

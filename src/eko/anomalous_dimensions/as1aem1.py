@@ -393,7 +393,8 @@ def gamma_singlet(N, nf, sx):
                 vd * e2m * gamma_nsp(N, sx),
                 e2delta * gamma_nsp(N, sx),
             ],
-        ]
+        ],
+        np.complex_,
     )
     return gamma_S_11
 
@@ -411,6 +412,7 @@ def gamma_valence(N, nf, sx):
         [
             [e2avg * gamma_nsm(N, sx), vu * e2m * gamma_nsm(N, sx)],
             [vd * e2m * gamma_nsm(N, sx), e2delta * gamma_nsm(N, sx)],
-        ]
+        ],
+        np.complex_,
     )
     return gamma_V_11
