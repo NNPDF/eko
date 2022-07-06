@@ -275,3 +275,48 @@ def gamma_singlet(n, nf, sx):
         np.complex_,
     )
     return gamma_S_0
+
+
+@nb.njit(cache=True)
+def gamma_QEDsinglet(N, sx, nf):
+    r"""
+      Computes the leading-order singlet anomalous dimension matrix
+
+      .. math::
+          \gamma_S^{(0)} = \left(\begin{array}{cc}
+            \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
+            \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
+          \end{array}\right)
+
+      Parameters
+      ----------
+        N : complex
+          Mellin moment
+        s1 : complex
+          harmonic sum :math:`S_{1}`
+        nf : int
+          Number of active flavors
+
+      Returns
+      -------
+        gamma_S_0 : numpy.ndarray
+          Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
+
+      See Also
+      --------
+        gamma_ns : :math:`\gamma_{qq}^{(0)}`
+        gamma_qg : :math:`\gamma_{qg}^{(0)}`
+        gamma_gq : :math:`\gamma_{gq}^{(0)}`
+        gamma_gg : :math:`\gamma_{gg}^{(0)}`
+    """
+    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf)
+    gamma_S = np.array(
+        [
+            [gamma_gg(N, sx, nf), 0, gamma_gq(N), 0],
+            [0, 0, 0, 0],
+            [gamma_qg(N, nf), 0, gamma_qq, 0],
+            [0, 0, 0, gamma_qq],
+        ],
+        np.complex_,
+    )
+    return gamma_S
