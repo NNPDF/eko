@@ -8,7 +8,7 @@ from . import utils
 
 
 @nb.njit(cache=True)
-def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
+def eko_iterate(gamma_singlet, a1, a0, aem, nf, order, ev_op_iterations):
     """
     Singlet NLO or NNLO iterated (exact) EKO
 
@@ -33,31 +33,32 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
             singlet NLO or NNLO iterated (exact) EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    beta0 = beta.beta_qcd((2, 0), nf)
-    beta1 = beta.beta_qcd((3, 0), nf)
-    if order[0] >= 3:
-        beta2 = beta.beta_qcd((4, 0), nf)
     e = np.identity(4, np.complex_)
     al = a_steps[0]
+    betaQCD = np.array(
+        [
+            [
+                beta.beta_qcd((2, 0), nf),
+                beta.beta_qcd((3, 0), nf),
+                beta.beta_qcd((4, 0), nf),
+                beta.beta_qcd((5, 0), nf),
+            ],
+            [beta.beta_qcd((2, 1), nf), 0, 0, 0],
+            [0, 0, 0, 0],
+        ]
+    )
     for ah in a_steps[1:]:
         a_half = (ah + al) / 2.0
         delta_a = ah - al
-        if order[0] == 2:
-            ln = (
-                (gamma_singlet[0] * a_half + gamma_singlet[1] * a_half**2)
-                / (beta0 * a_half**2 + beta1 * a_half**3)
-                * delta_a
-            )
-        elif order[0] == 3:
-            ln = (
-                (
-                    gamma_singlet[0] * a_half
-                    + gamma_singlet[1] * a_half**2
-                    + gamma_singlet[2] * a_half**3
-                )
-                / (beta0 * a_half**2 + beta1 * a_half**3 + beta2 * a_half**4)
-                * delta_a
-            )
+        gamma = np.zeros((4, 4), np.complex_)
+        betatot = 0
+        for i in range(0, order[0] + 1):
+            for j in range(0, order[1] + 1):
+                betatot += a_half**2 * betaQCD[i, j] * a_half**i * aem**j
+                if (i, j) == (0, 0):
+                    continue  # this is probably useless
+                gamma += gamma_singlet[i, j] * a_half**i * aem**j
+        ln = gamma / betatot * delta_a
         ek = np.ascontiguousarray(ad.exp_singlet(ln)[0])
         e = ek @ e
         al = ah
