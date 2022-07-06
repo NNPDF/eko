@@ -37,7 +37,7 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     beta1 = beta.beta_qcd((3, 0), nf)
     if order[0] >= 3:
         beta2 = beta.beta_qcd((4, 0), nf)
-    e = np.identity(2, np.complex_)
+    e = np.identity(4, np.complex_)
     al = a_steps[0]
     for ah in a_steps[1:]:
         a_half = (ah + al) / 2.0

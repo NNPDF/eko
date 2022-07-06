@@ -365,32 +365,35 @@ def gamma_singlet(N, nf, sx):
     vu = nu / nf
     vd = nd / nf
     e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
+    nfe2avg = nf * e2avg
     e2m = constants.eu2 - constants.ed2
     e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
+    vue2m = vu * e2m
+    vde2m = vd * e2m
     gamma_S_11 = np.array(
         [
             [
-                nf * e2avg * gamma_gg(),
-                nf * e2avg * gamma_gph(N),
-                nf * e2avg * gamma_gq(N, sx),
-                vu * e2m * gamma_gq(N, sx),
+                nfe2avg * gamma_gg(),
+                nfe2avg * gamma_gph(N),
+                nfe2avg * gamma_gq(N, sx),
+                vue2m * gamma_gq(N, sx),
             ],
             [
-                nf * e2avg * gamma_phg(N),
+                nfe2avg * gamma_phg(N),
                 gamma_phph(nf),
                 e2avg * gamma_phq(N, sx),
-                vu * e2m * gamma_phq(N, sx),
+                vue2m * gamma_phq(N, sx),
             ],
             [
                 e2avg * gamma_qg(N, nf, sx),
                 e2avg * gamma_qph(N, nf, sx),
                 e2avg * gamma_nsp(N, sx),
-                vu * e2m * gamma_nsp(N, sx),
+                vue2m * gamma_nsp(N, sx),
             ],
             [
-                vd * e2m * gamma_gq(N, sx),
-                vd * e2m * gamma_qph(N, nf, sx),
-                vd * e2m * gamma_nsp(N, sx),
+                vde2m * gamma_gq(N, sx),
+                vde2m * gamma_qph(N, nf, sx),
+                vde2m * gamma_nsp(N, sx),
                 e2delta * gamma_nsp(N, sx),
             ],
         ],
@@ -410,9 +413,9 @@ def gamma_valence(N, nf, sx):
     e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
     gamma_V_11 = np.array(
         [
-            [e2avg * gamma_nsm(N, sx), vu * e2m * gamma_nsm(N, sx)],
-            [vd * e2m * gamma_nsm(N, sx), e2delta * gamma_nsm(N, sx)],
+            [e2avg, vu * e2m],
+            [vd * e2m, e2delta],
         ],
         np.complex_,
     )
-    return gamma_V_11
+    return gamma_V_11 * gamma_nsm(N, sx)

@@ -110,20 +110,22 @@ def gamma_singlet(N, nf, sx):
     e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
     e2m = constants.eu2 - constants.ed2
     e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
+    vue2m = vu * e2m
+    vde2m = vd * e2m
     gamma_S_01 = np.array(
         [
             [0, 0, 0, 0],
-            [0, gamma_phph(nf), e2avg * gamma_phq(N), vu * e2m * gamma_phq(N)],
+            [0, gamma_phph(nf), e2avg * gamma_phq(N), vue2m * gamma_phq(N)],
             [
                 0,
                 e2avg * gamma_qph(N, nf),
                 e2avg * gamma_ns(N, sx),
-                vu * e2m * gamma_ns(N, sx),
+                vue2m * gamma_ns(N, sx),
             ],
             [
                 0,
-                vd * e2m * gamma_qph(N, nf),
-                vd * e2m * gamma_ns(N, sx),
+                vde2m * gamma_qph(N, nf),
+                vde2m * gamma_ns(N, sx),
                 e2delta * gamma_ns(N, sx),
             ],
         ],
@@ -143,9 +145,9 @@ def gamma_valence(N, nf, sx):
     e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
     gamma_V_01 = np.array(
         [
-            [e2avg * gamma_ns(N, sx), vu * e2m * gamma_ns(N, sx)],
-            [vd * e2m * gamma_ns(N, sx), e2delta * gamma_ns(N, sx)],
+            [e2avg, vu * e2m],
+            [vd * e2m, e2delta],
         ],
         np.complex_,
     )
-    return gamma_V_01
+    return gamma_V_01 * gamma_ns(N, sx)
