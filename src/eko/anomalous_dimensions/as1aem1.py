@@ -365,7 +365,7 @@ def gamma_singlet(N, nf, sx):
     vu = nu / nf
     vd = nd / nf
     e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
-    nfe2avg = nf * e2avg
+    e2_tot = nf * e2avg
     e2m = constants.eu2 - constants.ed2
     e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
     vue2m = vu * e2m
@@ -373,13 +373,13 @@ def gamma_singlet(N, nf, sx):
     gamma_S_11 = np.array(
         [
             [
-                nfe2avg * gamma_gg(),
-                nfe2avg * gamma_gph(N),
-                nfe2avg * gamma_gq(N, sx),
+                e2_tot * gamma_gg(),
+                e2_tot * gamma_gph(N),
+                e2_tot * gamma_gq(N, sx),
                 vue2m * gamma_gq(N, sx),
             ],
             [
-                nfe2avg * gamma_phg(N),
+                e2_tot * gamma_phg(N),
                 gamma_phph(nf),
                 e2avg * gamma_phq(N, sx),
                 vue2m * gamma_phq(N, sx),
