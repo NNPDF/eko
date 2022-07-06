@@ -312,10 +312,10 @@ def gamma_QEDsinglet(N, sx, nf):
     gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf)
     gamma_S = np.array(
         [
-            [gamma_gg(N, sx, nf), 0, gamma_gq(N), 0],
+            [gamma_gg(N, nf, sx), 0, gamma_gq(N, nf, sx), 0],
             [0, 0, 0, 0],
-            [gamma_qg(N, nf), 0, gamma_qq, 0],
-            [0, 0, 0, gamma_qq],
+            [gamma_qg(N, nf, sx), 0, gamma_qq, 0],
+            [0, 0, 0, gamma_nsp(N, nf, sx)],
         ],
         np.complex_,
     )
