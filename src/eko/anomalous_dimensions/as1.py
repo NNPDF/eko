@@ -185,3 +185,15 @@ def gamma_QEDsinglet(N, s1, nf):
         np.complex_,
     )
     return gamma_S
+
+
+@nb.njit(cache=True)
+def gamma_QEDvalence(N, s1):
+    gamma_V = np.array(
+        [
+            [1, 0],
+            [0, 1],
+        ],
+        np.complex_,
+    )
+    return gamma_V * gamma_ns(N, s1)
