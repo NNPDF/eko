@@ -212,7 +212,7 @@ def gamma_4x4sector(order, n, nf):
 
 
 @nb.njit(cache=True)
-def gamma_4x4sector(order, n, nf):
+def gamma_2x2sector(order, n, nf):
     r"""
     Computes the tower of the singlet anomalous dimensions matrices
 
@@ -240,7 +240,7 @@ def gamma_4x4sector(order, n, nf):
     sx = harmonics.sx(n, max_weight=order[0] + 1)
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
     if order[0] >= 1:
-        gamma_s[1, 0] = as1.gamma_QEDvalence(n, sx[0], nf)
+        gamma_s[1, 0] = as1.gamma_QEDvalence(n, sx[0])
     if order[1] >= 1:
         gamma_s[0, 1] = aem1.gamma_valence(n, nf, sx[0])
     if order[0] >= 1 and order[1] >= 1:
