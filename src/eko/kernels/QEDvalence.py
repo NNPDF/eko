@@ -35,25 +35,29 @@ def eko_iterate(gamma_valence, a1, a0, aem, nf, order, ev_op_iterations):
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     e = np.identity(2, np.complex_)
     al = a_steps[0]
-    betaQCD = np.array(
-        [
-            [
-                beta.beta_qcd((2, 0), nf),
-                beta.beta_qcd((3, 0), nf),
-                beta.beta_qcd((4, 0), nf),
-                beta.beta_qcd((5, 0), nf),
-            ],
-            [beta.beta_qcd((2, 1), nf), 0, 0, 0],
-            [0, 0, 0, 0],
-        ]
-    )
+    #    betaQCD = np.array(
+    #        [
+    #            [
+    #                beta.beta_qcd((2, 0), nf),
+    #                beta.beta_qcd((3, 0), nf),
+    #                beta.beta_qcd((4, 0), nf),
+    #                beta.beta_qcd((5, 0), nf),
+    #            ],
+    #            [beta.beta_qcd((2, 1), nf), 0, 0, 0],
+    #            [0, 0, 0, 0],
+    #        ]
+    #    )
+    betaQCD = np.zeros((4, 4), np.complex_)
+    for i in range(4):
+        betaQCD[i, 0] = beta.beta_qcd((i + 2, 0), nf)
+    betaQCD[0, 1] = beta.beta_qcd((2, 1), nf)
     for ah in a_steps[1:]:
         a_half = (ah + al) / 2.0
         delta_a = ah - al
         gamma = np.zeros((2, 2), np.complex_)
         betatot = 0
-        for i in range(0, order[0]):
-            for j in range(0, order[1]):
+        for i in range(0, order[0] + 1):
+            for j in range(0, order[1] + 1):
                 betatot += a_half**2 * betaQCD[i, j] * a_half**i * aem**j
                 gamma += gamma_valence[i, j] * a_half**i * aem**j
         ln = gamma / betatot * delta_a
