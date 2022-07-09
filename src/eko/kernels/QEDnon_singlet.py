@@ -177,7 +177,7 @@ def nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def dispatcher(
-    order, method, gamma_ns, a1, a0, nf, ev_op_iterations
+    order, method, gamma_ns, a1, a0, aem, nf, ev_op_iterations
 ):  # pylint: disable=too-many-return-statements
     """
     Determine used kernel and call it.
@@ -213,16 +213,16 @@ def dispatcher(
         )
     if order[1] == 1:
         if order[0] == 1:
-            return lo_aem1_exact(gamma_ns, a1, a0, nf)
+            return lo_aem1_exact(gamma_ns, a1, a0, aem, nf)
         if order[0] == 2:
-            return nlo_aem1_exact(gamma_ns, a1, a0, nf)
+            return nlo_aem1_exact(gamma_ns, a1, a0, aem, nf)
         if order[0] == 3:
-            return nnlo_aem1_exact(gamma_ns, a1, a0, nf)
+            return nnlo_aem1_exact(gamma_ns, a1, a0, aem, nf)
     if order[1] == 2:
         if order[0] == 1:
-            return lo_aem2_exact(gamma_ns, a1, a0, nf)
+            return lo_aem2_exact(gamma_ns, a1, a0, aem, nf)
         if order[0] == 2:
-            return nlo_aem2_exact(gamma_ns, a1, a0, nf)
+            return nlo_aem2_exact(gamma_ns, a1, a0, aem, nf)
         if order[0] == 3:
-            return nnlo_aem2_exact(gamma_ns, a1, a0, nf)
+            return nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf)
     raise NotImplementedError("Selected order is not implemented")
