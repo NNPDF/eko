@@ -41,6 +41,6 @@ def dispatcher(
     # use always exact in LO
     if order[1] == 0:
         return non_singlet.dispatcher(
-            order, method, gamma_ns, a1, a0, nf, ev_op_iterations
+            order, method, gamma_ns[0], a1, a0, nf, ev_op_iterations
         )
     raise NotImplementedError("Selected order is not implemented")

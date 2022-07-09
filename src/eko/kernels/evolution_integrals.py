@@ -42,6 +42,32 @@ def j00(a1, a0, nf):
 
 
 @nb.njit(cache=True)
+def jm10(a1, a0, nf):
+    r"""
+    LO-LO exact evolution integral.
+
+    .. math::
+        j^{(0,0)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'}
+           = \frac{\ln(a_s/a_s^0)}{\beta_0}
+
+    Parameters
+    ----------
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        j00 : float
+            integral
+    """
+    return (1.0 / a0 - 1.0 / a1) / beta.beta_qcd((2, 0), nf)
+
+
+@nb.njit(cache=True)
 def j11_exact(a1, a0, nf):
     r"""
     NLO-NLO exact evolution integral.
@@ -145,6 +171,37 @@ def j01_expanded(a1, a0, nf):
             integral
     """
     return j00(a1, a0, nf) - beta.b_qcd((3, 0), nf) * j11_expanded(a1, a0, nf)
+
+
+@nb.njit(cache=True)
+def jm11_exact(a1, a0, nf):
+    r"""
+    LO-NLO exact evolution integral.
+
+    .. math::
+        j^{(0,1)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
+                            \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3}
+               = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}(a_s,a_s^0)
+
+    Parameters
+    ----------
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        j11 : float
+            integral
+    """
+    beta0 = beta.beta_qcd((2, 0), nf)
+    b1 = beta.b_qcd((3, 0), nf)
+    return -(1.0 / a1 - 1.0 / a0) / beta0 + b1 / beta0 * (
+        np.log(1.0 + 1.0 / (a1 * b1)) - np.log(1.0 + 1.0 / (a0 * b1))
+    )
 
 
 @nb.njit(cache=True)
@@ -253,6 +310,37 @@ def j02_exact(a1, a0, nf):
         j00(a1, a0, nf)
         - beta.b_qcd((3, 0), nf) * j12_exact(a1, a0, nf)
         - beta.b_qcd((4, 0), nf) * j22_exact(a1, a0, nf)
+    )
+
+
+@nb.njit(cache=True)
+def jm12_exact(a1, a0, nf):
+    """
+    LO-NNLO exact evolution integral.
+
+    .. math::
+        j^{(0,2)}(a_s,a_s^0) &= \\int\\limits_{a_s^0}^{a_s}\\!da_s'\\,
+              \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
+            &= j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}(a_s,a_s^0) - b_2 j^{(2,2)}(a_s,a_s^0)
+
+    Parameters
+    ----------
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        j02 : complex
+            integral
+    """
+    return (
+        jm10(a1, a0, nf)
+        - beta.b_qcd((3, 0), nf) * j02_exact(a1, a0, nf)
+        - beta.b_qcd((4, 0), nf) * j12_exact(a1, a0, nf)
     )
 
 

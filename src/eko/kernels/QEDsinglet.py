@@ -10,28 +10,29 @@ from .singlet import lo_exact
 
 @nb.njit(cache=True)
 def eko_iterate(gamma_singlet, a1, a0, aem, nf, order, ev_op_iterations):
-    """
-    Singlet NLO or NNLO iterated (exact) EKO
+    """Singlet QEDxQCD iterated (exact) EKO
 
     Parameters
     ----------
         gamma_singlet : numpy.ndarray
             singlet anomalous dimensions matrices
         a1 : float
-            target coupling value
+            target strong coupling value
         a0 : float
-            initial coupling value
+            initial strong coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
-        order : int
-            perturbative order
+        order : tuple(int,int)
+            QCDxQED perturbative orders
         ev_op_iterations : int
             number of evolution steps
 
     Returns
     -------
         e_s^{order} : numpy.ndarray
-            singlet NLO or NNLO iterated (exact) EKO
+            singlet QEDxQCD iterated (exact) EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     e = np.identity(4, np.complex_)
