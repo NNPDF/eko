@@ -135,11 +135,11 @@ def gamma_ns(order, mode, n, nf):
     # NNLO and beyond
     if order[0] >= 3:
         if mode == 10101:
-            gamma_ns_2 = -as3.gamma_nsp(n, nf, sx)
+            gamma_ns_2 = as3.gamma_nsp(n, nf, sx)
         elif mode == 10201:
-            gamma_ns_2 = -as3.gamma_nsm(n, nf, sx)
+            gamma_ns_2 = as3.gamma_nsm(n, nf, sx)
         elif mode == 10200:
-            gamma_ns_2 = -as3.gamma_nsv(n, nf, sx)
+            gamma_ns_2 = as3.gamma_nsv(n, nf, sx)
         gamma_ns[2] = gamma_ns_2
     # N3LO
     if order[0] >= 4:
@@ -201,7 +201,7 @@ def gamma_singlet(order, n, nf):
     if order[0] >= 2:
         gamma_s[1] = as2.gamma_singlet(n, nf, sx)
     if order[0] >= 3:
-        gamma_s[2] = -as3.gamma_singlet(n, nf, sx)
+        gamma_s[2] = as3.gamma_singlet(n, nf, sx)
     if order[0] >= 4:
         gamma_s[3] = as4.gamma_singlet(n, nf, full_sx_cache)
     return gamma_s
