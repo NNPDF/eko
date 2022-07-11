@@ -132,7 +132,7 @@ def gamma_ns(order, mode, n, nf):
         gamma_ns[2] = gamma_ns_2
     # N3LO
     if order[0] >= 4:
-        sx = harmonics.compute_harmonics_cache(n, 5, is_singlet=False)
+        sx = harmonics.compute_cache(n, 5, is_singlet=False)
         if mode == 10101:
             gamma_ns_3 = -as4.gamma_nsp(n, nf, sx)
         elif mode == 10201:
@@ -179,6 +179,6 @@ def gamma_singlet(order, n, nf):
         sx = np.append(sx, harmonics.S4(n))
         gamma_s[2] = -as3.gamma_singlet(n, nf, sx)
     if order[0] >= 4:
-        sx = harmonics.compute_harmonics_cache(n, 5, is_singlet=True)
+        sx = harmonics.compute_cache(n, 5, is_singlet=True)
         gamma_s[3] = -as4.gamma_singlet(n, nf, sx)
     return gamma_s

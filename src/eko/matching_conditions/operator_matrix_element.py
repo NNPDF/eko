@@ -196,7 +196,7 @@ def quad_ker(
         return 0.0
 
     max_weight_dict = {1: 2, 2: 3, 3: 5}
-    sx = harmonics.compute_harmonics_cache(
+    sx = harmonics.compute_cache(
         ker_base.n, max_weight_dict[order[0]], ker_base.is_singlet
     )
     sx_ns = sx.copy()

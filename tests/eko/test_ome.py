@@ -8,7 +8,7 @@ from eko import basis_rotation as br
 from eko import interpolation, mellin
 from eko.couplings import Couplings
 from eko.evolution_operator.grid import OperatorGrid
-from eko.harmonics import compute_harmonics_cache
+from eko.harmonics import compute_cache
 from eko.interpolation import InterpolatorDispatcher
 from eko.matching_conditions.operator_matrix_element import (
     A_non_singlet,
@@ -30,10 +30,10 @@ def test_build_ome_as():
     nf = 3
     is_msbar = False
     for o in [1, 2, 3]:
-        sx_singlet = compute_harmonics_cache(N, max_weight_dict[o], True)
+        sx_singlet = compute_cache(N, max_weight_dict[o], True)
         sx_ns = sx_singlet
         if o == 3:
-            sx_ns = compute_harmonics_cache(N, max_weight_dict[o], False)
+            sx_ns = compute_cache(N, max_weight_dict[o], False)
 
         aNS = A_non_singlet((o, 0), N, sx_ns, nf, L)
         aS = A_singlet((o, 0), N, sx_singlet, nf, L, is_msbar, sx_ns)

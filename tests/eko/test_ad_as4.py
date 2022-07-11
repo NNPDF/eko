@@ -13,14 +13,14 @@ from eko.anomalous_dimensions.as4 import (
     gqg,
 )
 from eko.constants import CA, CF
-from eko.harmonics import compute_harmonics_cache
+from eko.harmonics import compute_cache
 
 NF = 5
 
 
 def test_quark_number_conservation():
     N = 1
-    sx_cache = compute_harmonics_cache(N, 5, False)
+    sx_cache = compute_cache(N, 5, False)
 
     # (ns,s)
     # the exact expression (nf^2 part) has an nonphysical pole at N=1,
@@ -47,7 +47,7 @@ def test_quark_number_conservation():
 
 def test_momentum_conservation():
     N = 2
-    sx_cache = compute_harmonics_cache(N, 5, True)
+    sx_cache = compute_cache(N, 5, True)
 
     # nf^3 part
     np.testing.assert_allclose(
@@ -98,7 +98,7 @@ def test_non_singlet_reference_moments():
         2.90857799,
     ]
     for N in [3.0, 5.0, 7.0, 9.0, 11.0, 13.0, 15.0, 17.0]:
-        sx_cache = compute_harmonics_cache(N, 5, False)
+        sx_cache = compute_cache(N, 5, False)
         idx = int((N - 3) / 2)
         if N != 17:
             np.testing.assert_allclose(
@@ -127,7 +127,7 @@ def test_singlet_reference_moments():
         8119.044600816003,
     ]
     for N in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0]:
-        sx_cache = compute_harmonics_cache(N, 5, True)
+        sx_cache = compute_cache(N, 5, True)
         np.testing.assert_allclose(
             gnsp.gamma_nsp(N, NF, sx_cache), nsp_nf4_refs[int((N - 2) / 2)]
         )
@@ -199,7 +199,7 @@ def test_diff_pm_nf2():
     diff = []
     ref_vals = []
     for N in range(10, 51):
-        sx_cache = compute_harmonics_cache(N, 5, not bool(N % 2))
+        sx_cache = compute_cache(N, 5, not bool(N % 2))
         diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
         ref_vals.append(deltaB3(N, sx_cache))
     np.testing.assert_allclose(diff, ref_vals, atol=5e-4)
@@ -207,7 +207,7 @@ def test_diff_pm_nf2():
     diff = []
     ref_vals = []
     for N in range(4, 10):
-        sx_cache = compute_harmonics_cache(N, 5, not bool(N % 2))
+        sx_cache = compute_cache(N, 5, not bool(N % 2))
         diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
         ref_vals.append(deltaB3(N, sx_cache))
     np.testing.assert_allclose(diff, ref_vals, atol=2e-2)

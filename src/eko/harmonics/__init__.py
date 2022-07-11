@@ -178,7 +178,7 @@ def s4x(n, sx, smx, is_singlet):
 
 
 @nb.njit(cache=True)
-def compute_harmonics_cache(n, max_weight, is_singlet):
+def compute_cache(n, max_weight, is_singlet):
     r"""Get the harmonics sums cache.
 
     Parameters
