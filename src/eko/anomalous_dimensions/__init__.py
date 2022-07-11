@@ -107,7 +107,18 @@ def gamma_ns(order, mode, n, nf):
 
     """
     # cache the s-es
-    sx = harmonics.sx(n, max_weight=order[0] + 1)
+    if order[0] >= 4:
+        full_sx_cache = harmonics.compute_cache(n, 5, is_singlet=False)
+        sx = np.array(
+            [
+                full_sx_cache[0][0],
+                full_sx_cache[1][0],
+                full_sx_cache[2][0],
+                full_sx_cache[3][0],
+            ]
+        )
+    else:
+        sx = harmonics.sx(n, max_weight=order[0] + 1)
     # now combine
     gamma_ns = np.zeros(order[0], np.complex_)
     gamma_ns[0] = as1.gamma_ns(n, sx[0])
@@ -132,13 +143,12 @@ def gamma_ns(order, mode, n, nf):
         gamma_ns[2] = gamma_ns_2
     # N3LO
     if order[0] >= 4:
-        sx = harmonics.compute_cache(n, 5, is_singlet=False)
         if mode == 10101:
-            gamma_ns_3 = -as4.gamma_nsp(n, nf, sx)
+            gamma_ns_3 = -as4.gamma_nsp(n, nf, full_sx_cache)
         elif mode == 10201:
-            gamma_ns_3 = -as4.gamma_nsm(n, nf, sx)
+            gamma_ns_3 = -as4.gamma_nsm(n, nf, full_sx_cache)
         elif mode == 10200:
-            gamma_ns_3 = -as4.gamma_nsv(n, nf, sx)
+            gamma_ns_3 = -as4.gamma_nsv(n, nf, full_sx_cache)
         gamma_ns[3] = gamma_ns_3
     return gamma_ns
 
@@ -170,15 +180,28 @@ def gamma_singlet(order, n, nf):
 
     """
     # cache the s-es
-    sx = harmonics.sx(n, max_weight=order[0])
+    if order[0] >= 4:
+        full_sx_cache = harmonics.compute_cache(n, 5, is_singlet=False)
+        sx = np.array(
+            [
+                full_sx_cache[0][0],
+                full_sx_cache[1][0],
+                full_sx_cache[2][0],
+                full_sx_cache[3][0],
+            ]
+        )
+    elif order[0] >= 3:
+        # here we need only S1,S2,S3,S4
+        sx = harmonics.sx(n, max_weight=order[0] + 1)
+    else:
+        sx = harmonics.sx(n, max_weight=order[0])
+
     gamma_s = np.zeros((order[0], 2, 2), np.complex_)
     gamma_s[0] = as1.gamma_singlet(n, sx[0], nf)
     if order[0] >= 2:
         gamma_s[1] = as2.gamma_singlet(n, nf, sx)
     if order[0] >= 3:
-        sx = np.append(sx, harmonics.S4(n))
         gamma_s[2] = -as3.gamma_singlet(n, nf, sx)
     if order[0] >= 4:
-        sx = harmonics.compute_cache(n, 5, is_singlet=True)
-        gamma_s[3] = -as4.gamma_singlet(n, nf, sx)
+        gamma_s[3] = -as4.gamma_singlet(n, nf, full_sx_cache)
     return gamma_s
