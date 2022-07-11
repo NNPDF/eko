@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 # Test LO splitting functions
+import warnings
+
 import numpy as np
 from numpy.testing import assert_allclose, assert_almost_equal, assert_raises
 
@@ -35,11 +37,11 @@ def test_eigensystem_gamma_singlet_0_values():
 
 def test_eigensystem_gamma_singlet_projectors_EV():
     nf = 3
-    for N in [3, 4]:  # N=2 seems close to 0, so test fails
+    for N in [4, 5]:  # N=2 seems close to 0, so test fails
         for o in [(2, 0), (3, 0), (4, 0)]:
-            # N=4 and and NNLO too big numbers, Runtime Warnings
-            if N == 4 and o in [(3, 0), (4, 0)]:
-                continue
+            # NNLO and N3LO too big numbers,
+            # ignore Runtime Warnings
+            warnings.simplefilter("ignore", RuntimeWarning)
             for gamma_S in ad.gamma_singlet(o, N, nf):
                 _exp, l_p, l_m, e_p, e_m = ad.exp_singlet(gamma_S)
                 # projectors behave as P_a . P_b = delta_ab P_a
