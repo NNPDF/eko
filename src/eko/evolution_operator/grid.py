@@ -10,12 +10,11 @@ import numbers
 
 import numpy as np
 
-from eko.thresholds import flavor_shift, is_downward_path
-
 from .. import basis_rotation as br
 from .. import matching_conditions, member
 from .. import scale_variations as sv
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
+from ..thresholds import flavor_shift, is_downward_path
 from . import Operator, flavors, physical
 
 logger = logging.getLogger(__name__)
@@ -34,8 +33,8 @@ class OperatorGrid(sv.ModeMixin):
             configuration dictionary
         q2_grid: array
             Grid in Q2 on where to to compute the operators
-        order: int
-            order in perturbation theory
+        order: tuple(int,int)
+            orders in perturbation theory
         thresholds_config: eko.thresholds.ThresholdsAtlas
             Instance of :class:`~eko.thresholds.Threshold` containing information about the
             thresholds
@@ -56,7 +55,7 @@ class OperatorGrid(sv.ModeMixin):
         interpol_dispatcher,
     ):
         # check
-        order = int(config["order"])
+        order = config["order"]
         method = config["method"]
         if not method in [
             "iterate-exact",
@@ -69,7 +68,7 @@ class OperatorGrid(sv.ModeMixin):
             "perturbative-expanded",
         ]:
             raise ValueError(f"Unknown evolution mode {method}")
-        if order == 0 and method != "iterate-exact":
+        if order == (1, 0) and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")
 
         self.config = config
@@ -111,7 +110,7 @@ class OperatorGrid(sv.ModeMixin):
                 created object
         """
         config = {}
-        config["order"] = int(theory_card["PTO"])
+        config["order"] = tuple(int(o) for o in theory_card["order"])
         method = theory_card["ModEv"]
         mod_ev2method = {
             "EXA": "iterate-exact",

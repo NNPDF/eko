@@ -117,13 +117,13 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
         scale variation kernel
     """
     sv_ker = 1.0
-    if order >= 1:
+    if order[0] >= 2:
         sv_ker += a_s * variation_as1(gamma, L)
-    if order >= 2:
-        beta0 = beta.beta_0(nf)
+    if order[0] >= 3:
+        beta0 = beta.beta_qcd_as2(nf)
         sv_ker += a_s**2 * variation_as2(gamma, L, beta0, gamma[0] ** 2)
-    if order >= 3:
-        beta1 = beta.beta(1, nf)
+    if order[0] >= 4:
+        beta1 = beta.beta_qcd((3, 0), nf)
         g0g1 = gamma[0] * gamma[1]
         sv_ker += a_s**3 * variation_as3(
             gamma, L, beta0, beta1, gamma[0] ** 2, gamma[0] ** 3, g0g1, g0g1
@@ -155,14 +155,14 @@ def singlet_variation(gamma, a_s, order, nf, L):
     """
     sv_ker = np.eye(2, dtype=np.complex_)
     gamma = np.ascontiguousarray(gamma)
-    if order >= 1:
+    if order[0] >= 2:
         sv_ker += a_s * variation_as1(gamma, L)
-    if order >= 2:
-        beta0 = beta.beta_0(nf)
+    if order[0] >= 3:
+        beta0 = beta.beta_qcd_as2(nf)
         gamma0e2 = gamma[0] @ gamma[0]
         sv_ker += a_s**2 * variation_as2(gamma, L, beta0, gamma0e2)
-    if order >= 3:
-        beta1 = beta.beta(1, nf)
+    if order[0] >= 4:
+        beta1 = beta.beta_qcd((3, 0), nf)
         gamma0e3 = gamma0e2 @ gamma[0]
         # here the product is not commutative
         g1g0 = gamma[1] @ gamma[0]

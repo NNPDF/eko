@@ -7,10 +7,11 @@ import pytest
 
 from eko import msbar_masses
 from eko.basis_rotation import quark_names
-from eko.strong_coupling import StrongCoupling
+from eko.couplings import Couplings
 
 theory_dict = {
     "alphas": 0.1180,
+    "alphaem": 0.00781,
     "Qref": 91,
     "nfref": 5,
     "MaxNfPdf": 6,
@@ -27,7 +28,7 @@ theory_dict = {
     "Qmc": 2.1,
     "Qmb": 4.1,
     "Qmt": 174.9,
-    "PTO": 2,
+    "order": (3, 0),
     "ModEv": "TRN",
     "ModSV": None,
 }
@@ -37,12 +38,12 @@ class TestMsbarMasses:
     def test_compute_msbar_mass(self):
         # Test solution of msbar(m) = m
         for method in ["EXA", "EXP"]:
-            for order in [1, 2, 3]:
-                theory_dict.update({"ModEv": method, "PTO": order})
+            for order in [2, 3, 4]:
+                theory_dict.update({"ModEv": method, "order": (order, 0)})
 
                 # compute the scale such msbar(m) = m
                 m2_computed = msbar_masses.compute(theory_dict)
-                strong_coupling = StrongCoupling.from_dict(theory_dict, m2_computed)
+                strong_coupling = Couplings.from_dict(theory_dict, m2_computed)
                 m2_test = []
                 for nf in [3, 4, 5]:
                     # compute msbar( m )
@@ -65,7 +66,7 @@ class TestMsbarMasses:
         theory_dict.update(
             {
                 "ModEv": "TRN",
-                "PTO": 3,
+                "order": (4, 0),
                 "mc": 2.0,
                 "mb": 4.0,
                 "Qmc": 80.0,
@@ -74,7 +75,7 @@ class TestMsbarMasses:
         )
         # compute the scale such msbar(m) = m
         m2_computed = msbar_masses.compute(theory_dict)
-        strong_coupling = StrongCoupling.from_dict(theory_dict, m2_computed)
+        strong_coupling = Couplings.from_dict(theory_dict, m2_computed)
         m2_test = []
         for nf in [3, 4, 5]:
             # compute msbar( m )
