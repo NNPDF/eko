@@ -31,7 +31,7 @@ def U_vec(gamma_ns, nf, order):
         U vector
 
     """
-    U = np.zeros(order[0] + 1, dtype=np.complex_)
+    U = np.zeros(order[0], dtype=np.complex_)
     beta0 = beta.beta_qcd((2, 0), nf)
     R0 = gamma_ns[0] / beta0
     U[0] = 1.0
@@ -294,7 +294,7 @@ def eko_ordered_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations):
     for ah in a_steps[1:]:
         e0 = lo_exact(gamma_ns, ah, al, nf)
         num, den = 0, 0
-        for i in range(order[0] + 1):
+        for i in range(order[0]):
             num += U[i] * ah**i
             den += U[i] * al**i
         e *= e0 * num / den

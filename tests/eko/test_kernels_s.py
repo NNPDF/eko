@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import warnings
+
 import numpy as np
 import pytest
 
@@ -275,6 +277,10 @@ def test_gamma_usage():
         gamma_s = mk_almost_diag_matrix(4)
         gamma_s[order - 1] = np.full((2, 2), np.nan)
         for method in methods:
+            if "iterate" in method:
+                # we are actually dividing by the determinant of
+                # matrix full of np.nan
+                warnings.simplefilter("ignore", RuntimeWarning)
             r = s.dispatcher(
                 (order, 0),
                 method,

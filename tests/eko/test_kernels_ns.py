@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import warnings
+
 import numpy as np
 import pytest
 
@@ -227,6 +229,10 @@ def test_gamma_usage():
         gamma_ns = np.random.rand(order)
         gamma_ns[order - 1] = np.nan
         for method in methods:
+            if method == "ordered-truncated":
+                # we are actually dividing by a np.nan,
+                # since the sum of U vec is nan
+                warnings.simplefilter("ignore", RuntimeWarning)
             r = ns.dispatcher(
                 (order, 0), method, gamma_ns, a1, a0, nf, ev_op_iterations
             )
