@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-lines
+# pylint: skip-file
 import numba as nb
 import numpy as np
 

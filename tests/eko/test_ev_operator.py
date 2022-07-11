@@ -45,6 +45,7 @@ def test_quad_ker(monkeypatch):
             ev_op_iterations=0,
             ev_op_max_order=(0, 0),
             sv_mode=1,
+            is_threshold=False,
         )
         np.testing.assert_allclose(res_ns, 0.0)
         res_s = quad_ker(
@@ -63,6 +64,7 @@ def test_quad_ker(monkeypatch):
             ev_op_iterations=0,
             ev_op_max_order=(0, 0),
             sv_mode=1,
+            is_threshold=False,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -81,6 +83,7 @@ def test_quad_ker(monkeypatch):
             ev_op_iterations=0,
             ev_op_max_order=(0, 0),
             sv_mode=1,
+            is_threshold=False,
         )
         np.testing.assert_allclose(res_s, 0.0)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
@@ -101,6 +104,7 @@ def test_quad_ker(monkeypatch):
                 ev_op_iterations=0,
                 ev_op_max_order=(1, 0),
                 sv_mode=sv,
+                is_threshold=False,
             )
             np.testing.assert_allclose(res_sv, 1.0)
 
@@ -121,6 +125,7 @@ def test_quad_ker(monkeypatch):
         ev_op_iterations=0,
         ev_op_max_order=(0, 0),
         sv_mode=1,
+        is_threshold=False,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
@@ -195,6 +200,9 @@ class TestOperator:
 
     def test_n_pools(self):
         excluded_cores = 3
+        # make sure we actually have more the those cores (e.g. on github we don't)
+        if os.cpu_count() <= excluded_cores:
+            return
         o = Operator(
             dict(
                 order=(2, 0),
@@ -205,8 +213,27 @@ class TestOperator:
             {},
             3,
             1,
+            10,
         )
         assert o.n_pools == os.cpu_count() - excluded_cores
+
+    def test_exponentiated(self):
+        tcard = copy.deepcopy(theory_card)
+        tcard["fact_to_ren_scale_ratio"] = 2.0
+        tcard["ModSV"] = "exponentiated"
+        ocard = copy.deepcopy(operators_card)
+        g = OperatorGrid.from_dict(
+            tcard,
+            ocard,
+            ThresholdsAtlas.from_dict(tcard),
+            Couplings.from_dict(tcard),
+            InterpolatorDispatcher.from_dict(ocard),
+        )
+        # setup objs
+        o = Operator(g.config, g.managers, 3, 2.0, 10.0)
+        np.testing.assert_allclose(o.mur2_shift(40.0), 10.0)
+        o.compute()
+        self.check_lo(o)
 
     def test_compute_parallel(self, monkeypatch):
         tcard = copy.deepcopy(theory_card)
@@ -337,6 +364,7 @@ def test_pegasus_path():
                     ev_op_iterations,
                     10,
                     0,
+                    False,
                 ),
                 epsabs=1e-12,
                 epsrel=1e-5,
