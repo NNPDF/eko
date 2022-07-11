@@ -213,6 +213,24 @@ class TestOperator:
         )
         assert o.n_pools == os.cpu_count() - excluded_cores
 
+    def test_exponentiated(self):
+        tcard = copy.deepcopy(theory_card)
+        tcard["fact_to_ren_scale_ratio"] = 2.0
+        tcard["ModSV"] = "exponentiated"
+        ocard = copy.deepcopy(operators_card)
+        g = OperatorGrid.from_dict(
+            tcard,
+            ocard,
+            ThresholdsAtlas.from_dict(tcard),
+            StrongCoupling.from_dict(tcard),
+            InterpolatorDispatcher.from_dict(ocard),
+        )
+        # setup objs
+        o = Operator(g.config, g.managers, 3, 2.0, 10.0)
+        np.testing.assert_allclose(o.mur2_shift(40.0), 10.0)
+        o.compute()
+        self.check_lo(o)
+
     def test_compute_parallel(self, monkeypatch):
         tcard = copy.deepcopy(theory_card)
         ocard = copy.deepcopy(operators_card)
