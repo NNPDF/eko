@@ -60,7 +60,7 @@ the following terms:
             -
 
 Some of these parts are known analytically exactly (:math:`\propto n_f^2,n_f^3`),
-while others are available only in the large :math`N_c` limit (:math:`\propto n_f^0,n_f^1`).
+while others are available only in the large :math:`N_c` limit (:math:`\propto n_f^0,n_f^1`).
 In |EKO| they are implemented as follows:
 
     * the part proportional to :math:`n_f^3` is common for :math:`\gamma_{ns,+}^{(3)},\gamma_{ns,-}^{(3)},\gamma_{ns,v}^{(3)}`
