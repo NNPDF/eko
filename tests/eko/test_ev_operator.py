@@ -199,6 +199,9 @@ class TestOperator:
 
     def test_n_pools(self):
         excluded_cores = 3
+        # make sure we actually have more the those cores (e.g. on github we don't)
+        if os.cpu_count() <= excluded_cores:
+            return
         o = Operator(
             dict(
                 order=1,
