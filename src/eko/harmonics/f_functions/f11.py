@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint: skip-file
 """This module contains implemtation of F11.
 
 When using it, please cite :cite:`Blumlein:2009ta`.

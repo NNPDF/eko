@@ -30,6 +30,7 @@ theory_dict = {
     "Qmt": 174.9,
     "order": (3, 0),
     "ModEv": "TRN",
+    "ModSV": None,
 }
 
 

@@ -79,12 +79,12 @@ def gamma_ps_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_ps_nf2(n, sx):
+def gamma_ps_nf2(_n, _sx):
     return 0
 
 
 @nb.njit(cache=True)
-def gamma_ps_nf1(n, sx):
+def gamma_ps_nf1(_n, _sx):
     return 0
 
 

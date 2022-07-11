@@ -329,17 +329,17 @@ def gamma_qg_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf2(n, sx):
+def gamma_qg_nf2(_n, _sx):
     return 0
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf1(n, sx):
+def gamma_qg_nf1(_n, _sx):
     return 0
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf0(n, sx):
+def gamma_qg_nf0(_n, _sx):
     return 0
 
 

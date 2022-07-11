@@ -281,27 +281,26 @@ def quad_ker(
 
 
 class OperatorMatrixElement(Operator):
-    """
-    Internal representation of a single |OME|.
+    """Internal representation of a single |OME|.
 
     The actual matrices are computed upon calling :meth:`compute`.
 
     Parameters
     ----------
-        config : dict
-            configuration
-        managers : dict
-            managers
-        is_backward: bool
-            True for backward evolution
-        q2: float
-            matching scale
-        nf: int
-            number of active flavor below threshold
-        L: float
-            log of K threshold squared
-        is_msbar: bool
-            add the |MSbar| contribution
+    config : dict
+        configuration
+    managers : dict
+        managers
+    nf: int
+        number of active flavor below threshold
+    q2: float
+        matching scale
+    is_backward: bool
+        True for backward evolution
+    L: float
+        log of K threshold squared
+    is_msbar: bool
+        add the |MSbar| contribution
     """
 
     log_label = "Matching"
@@ -320,7 +319,7 @@ class OperatorMatrixElement(Operator):
     ]
 
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
-        super().__init__(config, managers, nf, q2)
+        super().__init__(config, managers, nf, q2, None)
         self.backward_method = config["backward_inversion"] if is_backward else ""
         if is_backward:
             self.is_intrinsic = True
@@ -333,13 +332,12 @@ class OperatorMatrixElement(Operator):
 
     @property
     def labels(self):
-        """
-        Compute necessary sector labels to compute.
+        """Computes the necessary sector labels to compute.
 
         Returns
         -------
-            labels : list(str)
-                sector labels
+        list(str)
+            sector labels
         """
 
         labels = []
@@ -375,23 +373,21 @@ class OperatorMatrixElement(Operator):
         return labels
 
     def quad_ker(self, label, logx, areas):
-        """
-        Partially initialized integrand function
+        """Partially initialized integrand function.
 
         Parameters
         ----------
-            label: tuple
-                operator element pids
-            logx: float
-                Mellin inversion point
-            areas : tuple
-                basis function configuration
+        label: tuple
+            operator element pids
+        logx: float
+            Mellin inversion point
+        areas : tuple
+            basis function configuration
 
         Returns
         -------
-            quad_ker : functools.partial
-                partially initialized integration kernel
-
+        functools.partial
+            partially initialized integration kernel
         """
         return functools.partial(
             quad_ker,
@@ -410,17 +406,15 @@ class OperatorMatrixElement(Operator):
 
     @property
     def a_s(self):
-        """
-        Returns the computed values for :math:`a_s`.
+        """Returns the computed values for :math:`a_s`.
+
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
         sc = self.managers["strong_coupling"]
-        return sc.a(self.q2_from / self.fact_to_ren, self.q2_from, nf_to=self.nf + 1)[0]
+        return sc.a_s(self.mur2_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1)
 
     def compute(self):
-        """
-        compute the actual operators (i.e. run the integrations)
-        """
+        """Compute the actual operators (i.e. run the integrations)"""
         self.initialize_op_members()
 
         # At LO you don't need anything else

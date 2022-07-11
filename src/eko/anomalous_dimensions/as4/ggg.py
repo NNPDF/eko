@@ -137,17 +137,17 @@ def gamma_gg_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_gg_nf2(n, sx):
+def gamma_gg_nf2(_n, _sx):
     return 0
 
 
 @nb.njit(cache=True)
-def gamma_gg_nf1(n, sx):
+def gamma_gg_nf1(_n, _sx):
     return 0
 
 
 @nb.njit(cache=True)
-def gamma_gg_nf0(n, sx):
+def gamma_gg_nf0(_n, _sx):
     return 0
 
 
