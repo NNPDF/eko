@@ -108,16 +108,12 @@ class TestOperatorGrid:
         opg = opgrid.compute()
         assert len(opg) == 2
         assert all(
-            k in op
-            for k in ["operators", "operator_errors", "alphas"]
-            for op in opg.values()
+            k in op for k in ["operators", "operator_errors"] for op in opg.values()
         )
         opg = opgrid.compute(3)
         assert len(opg) == 1
         assert all(
-            k in op
-            for k in ["operators", "operator_errors", "alphas"]
-            for op in opg.values()
+            k in op for k in ["operators", "operator_errors"] for op in opg.values()
         )
 
     def test_grid_computation_VFNS(self):
@@ -126,16 +122,6 @@ class TestOperatorGrid:
         qgrid_check = [3, 5, 200**2]
         operators = opgrid.compute(qgrid_check)
         assert len(operators) == len(qgrid_check)
-
-    def test_alphas(self):
-        opgrid = self._get_operator_grid()
-        # q2 has not be precomputed - but should work nevertheless
-        opg = opgrid.compute(3)
-        sv_opgrid = self._get_operator_grid(
-            theory_update={"fact_to_ren_scale_ratio": 2.0}
-        )
-        sv_opg = sv_opgrid.compute(3)
-        assert opg[3]["alphas"] < sv_opg[3]["alphas"]
 
     def test_mod_expanded(self):
         theory_update = {

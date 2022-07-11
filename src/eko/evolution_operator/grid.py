@@ -300,5 +300,4 @@ class OperatorGrid(sv.ModeMixin):
         return {
             "operators": values,
             "operator_errors": errors,
-            "alphas": 0.0,  # TODO drop this completely
         }

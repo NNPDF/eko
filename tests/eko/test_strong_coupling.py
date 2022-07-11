@@ -66,6 +66,7 @@ class TestStrongCoupling:
                     ktThr=1.0,
                     MaxNfAs=6,
                     HQ="POLE",
+                    ModSV=None,
                 )
                 sc2 = StrongCoupling.from_dict(setup)
                 assert sc2.q2_ref == scale_ref

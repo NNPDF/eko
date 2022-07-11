@@ -29,6 +29,7 @@ theory_dict = {
     "Qmt": 174.9,
     "PTO": 2,
     "ModEv": "TRN",
+    "ModSV": None,
 }
 
 
