@@ -143,12 +143,12 @@ def quad_ker(
         quad argument
     order : int
         perturbation order
-    method : str
-        method
     mode0: int
         pid for first sector element
     mode1 : int
         pid for second sector element
+    method : str
+        method
     is_log : boolean
         is a logarithmic interpolation
     logx : float
@@ -203,7 +203,7 @@ def quad_ker(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
+                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -220,7 +220,7 @@ def quad_ker(
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = sv.expanded.non_singlet_variation(gamma_ns, a1, order, nf, L) * ker
+            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
 
     # recombine everthing
     return np.real(ker * integrand)

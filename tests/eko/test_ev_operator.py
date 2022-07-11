@@ -226,7 +226,7 @@ class TestOperator:
             tcard,
             ocard,
             ThresholdsAtlas.from_dict(tcard),
-            StrongCoupling.from_dict(tcard),
+            Couplings.from_dict(tcard),
             InterpolatorDispatcher.from_dict(ocard),
         )
         # setup objs
