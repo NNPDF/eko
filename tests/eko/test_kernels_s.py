@@ -37,28 +37,25 @@ def test_zero_lo(monkeypatch):
         ),
     )
     for method in methods:
-        try:
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (1, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
-                ),
-                np.zeros((2, 2)),
-            )
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (1, 0),
-                    method,
-                    np.zeros((1, 2, 2), dtype=complex),
-                    2,
-                    1,
-                    nf,
-                    ev_op_iterations,
-                    ev_op_max_order,
-                ),
-                np.zeros((2, 2)),
-            )
-        except ZeroDivisionError:
-            pass
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (1, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+            ),
+            np.zeros((2, 2)),
+        )
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (1, 0),
+                method,
+                np.zeros((1, 2, 2), dtype=complex),
+                2,
+                1,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
+            ),
+            np.zeros((2, 2)),
+        )
 
 
 def test_zero_nlo_decompose(monkeypatch):
@@ -82,28 +79,25 @@ def test_zero_nlo_decompose(monkeypatch):
         "decompose-expanded",
         "decompose-exact",
     ]:
-        try:
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (2, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
-                ),
-                np.zeros((2, 2)),
-            )
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (2, 0),
-                    method,
-                    np.zeros((2, 2, 2), dtype=complex),
-                    2,
-                    1,
-                    nf,
-                    ev_op_iterations,
-                    ev_op_max_order,
-                ),
-                np.zeros((2, 2)),
-            )
-        except ZeroDivisionError:
-            pass
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (2, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+            ),
+            np.zeros((2, 2)),
+        )
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (2, 0),
+                method,
+                np.zeros((2, 2, 2), dtype=complex),
+                2,
+                1,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
+            ),
+            np.zeros((2, 2)),
+        )
 
 
 def test_zero_nnlo_decompose(monkeypatch):
@@ -127,28 +121,25 @@ def test_zero_nnlo_decompose(monkeypatch):
         "decompose-expanded",
         "decompose-exact",
     ]:
-        try:
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (3, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
-                ),
-                np.zeros((2, 2)),
-            )
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (3, 0),
-                    method,
-                    np.zeros((3, 2, 2), dtype=complex),
-                    2,
-                    1,
-                    nf,
-                    ev_op_iterations,
-                    ev_op_max_order,
-                ),
-                np.zeros((2, 2)),
-            )
-        except ZeroDivisionError:
-            pass
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (3, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+            ),
+            np.zeros((2, 2)),
+        )
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (3, 0),
+                method,
+                np.zeros((3, 2, 2), dtype=complex),
+                2,
+                1,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
+            ),
+            np.zeros((2, 2)),
+        )
 
 
 def test_zero_n3lo_decompose(monkeypatch):
@@ -172,29 +163,26 @@ def test_zero_n3lo_decompose(monkeypatch):
         "decompose-expanded",
         "decompose-exact",
     ]:
-        try:
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (4, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
-                ),
-                np.zeros((2, 2)),
-                atol=1e-15,
-            )
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (4, 0),
-                    method,
-                    np.zeros((4, 2, 2), dtype=complex),
-                    2,
-                    1,
-                    nf,
-                    ev_op_iterations,
-                    ev_op_max_order,
-                ),
-                np.zeros((2, 2)),
-            )
-        except ZeroDivisionError:
-            pass
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (4, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+            ),
+            np.zeros((2, 2)),
+            atol=1e-15,
+        )
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (4, 0),
+                method,
+                np.zeros((4, 2, 2), dtype=complex),
+                2,
+                1,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
+            ),
+            np.zeros((2, 2)),
+        )
 
 
 def test_similarity():
