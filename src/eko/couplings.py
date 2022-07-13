@@ -673,8 +673,8 @@ class Couplings:
                 fact = 1.0
                 # shift
                 for n in range(1, self.order[0]):
-                    for l in range(n + 1):
-                        fact += new_a[0] ** n * L**l * m_coeffs[n, l]
+                    for l_pow in range(n + 1):
+                        fact += new_a[0] ** n * L**l_pow * m_coeffs[n, l_pow]
                 new_a[0] *= fact
             final_a = new_a
         return final_a
