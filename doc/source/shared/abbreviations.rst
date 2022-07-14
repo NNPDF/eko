@@ -31,13 +31,13 @@
    :abbr:`N3LO (Next-to-Next-to-Next-to-Leading Order)`
 
 .. |LL| replace::
-   :abbr:`LL (Leading Power)`
+   :abbr:`LL (Leading Log)`
 
 .. |NLL| replace::
-   :abbr:`NLO (Next-to-Leading Power)`
+   :abbr:`NLO (Next-to-Leading Log)`
 
 .. |NNLL| replace::
-   :abbr:`NNLO (Next-to-Next-to-Leading Power)`
+   :abbr:`NNLO (Next-to-Next-to-Leading Log)`
 
 .. Names
 
