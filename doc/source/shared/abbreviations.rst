@@ -30,6 +30,15 @@
 .. |N3LO| replace::
    :abbr:`N3LO (Next-to-Next-to-Next-to-Leading Order)`
 
+.. |LL| replace::
+   :abbr:`LL (Leading Power)`
+
+.. |NLL| replace::
+   :abbr:`NLO (Next-to-Leading Power)`
+
+.. |NNLL| replace::
+   :abbr:`NNLO (Next-to-Next-to-Leading Power)`
+
 .. Names
 
 .. |DGLAP| replace::
