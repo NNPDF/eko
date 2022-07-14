@@ -29,8 +29,8 @@ def lo_aem1_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
             |LO| non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j00(a1, a0, nf)
-        + aem * gamma_ns[0, 1] * ei.jm10(a1, a0, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j00_qed(a1, a0, aem, nf)
+        + aem * gamma_ns[0, 1] * ei.jm10(a1, a0, aem, nf)
     )
 
 
@@ -56,8 +56,8 @@ def lo_aem2_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
             |LO| non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j00(a1, a0, nf)
-        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * ei.jm10(a1, a0, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j00_qed(a1, a0, aem, nf)
+        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * ei.jm10(a1, a0, aem, nf)
     )
 
 
@@ -83,9 +83,9 @@ def nlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
             |NLO| non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j01_exact(a1, a0, nf)
-        + gamma_ns[2, 0] * ei.j11_exact(a1, a0, nf)
-        + aem * gamma_ns[0, 1] * ei.jm11_exact(a1, a0, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j01_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[2, 0] * ei.j11_exact_qed(a1, a0, aem, nf)
+        + aem * gamma_ns[0, 1] * ei.jm11_exact(a1, a0, aem, nf)
     )
 
 
@@ -111,9 +111,10 @@ def nlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
             |NLO| non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j01_exact(a1, a0, nf)
-        + gamma_ns[2, 0] * ei.j11_exact(a1, a0, nf)
-        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * ei.jm11_exact(a1, a0, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j01_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[2, 0] * ei.j11_exact_qed(a1, a0, aem, nf)
+        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2])
+        * ei.jm11_exact(a1, a0, aem, nf)
     )
 
 
@@ -139,10 +140,10 @@ def nnlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
             |NNLO| non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j02_exact(a1, a0, nf)
-        + gamma_ns[2, 0] * ei.j12_exact(a1, a0, nf)
-        + gamma_ns[3, 0] * ei.j22_exact(a1, a0, nf)
-        + aem * gamma_ns[0, 1] * ei.jm12_exact(a1, a0, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j02_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[2, 0] * ei.j12_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[3, 0] * ei.j22_exact_qed(a1, a0, aem, nf)
+        + aem * gamma_ns[0, 1] * ei.jm12_exact(a1, a0, aem, nf)
     )
 
 
@@ -168,10 +169,11 @@ def nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
             |NNLO| non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j02_exact(a1, a0, nf)
-        + gamma_ns[2, 0] * ei.j12_exact(a1, a0, nf)
-        + gamma_ns[3, 0] * ei.j22_exact(a1, a0, nf)
-        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * ei.jm12_exact(a1, a0, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j02_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[2, 0] * ei.j12_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[3, 0] * ei.j22_exact_qed(a1, a0, aem, nf)
+        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2])
+        * ei.jm12_exact(a1, a0, aem, nf)
     )
 
 

@@ -241,7 +241,8 @@ def gamma_4x4sector(order, n, nf):
         eko.anomalous_dimensions.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
     """
     # cache the s-es
-    sx = harmonics.sx(n, max_weight=order[0] + 1)
+    max_weight = max(order)
+    sx = harmonics.sx(n, max_weight=max_weight + 1)
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
     if order[0] >= 1:
         gamma_s[1, 0] = as1.gamma_QEDsinglet(n, sx[0], nf)
@@ -285,7 +286,8 @@ def gamma_2x2sector(order, n, nf):
         eko.anomalous_dimensions.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
     """
     # cache the s-es
-    sx = harmonics.sx(n, max_weight=order[0] + 1)
+    max_weight = max(order)
+    sx = harmonics.sx(n, max_weight=max_weight + 1)
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
     if order[0] >= 1:
         gamma_s[1, 0] = as1.gamma_QEDvalence(n, sx[0])
