@@ -103,29 +103,27 @@ def gamma_ns(N, sx):
 
 @nb.njit(cache=True)
 def gamma_singlet(N, nf, sx):
-    nu = constants.uplike_flavors(nf)
-    nd = nf - nu
-    vu = nu / nf
-    vd = nd / nf
-    e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
-    e2m = constants.eu2 - constants.ed2
-    e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
-    vue2m = vu * e2m
-    vde2m = vd * e2m
+    e2avg = constants.e2avg(nf)
+    e2delta = constants.vde2m(nf) - constants.vue2m(nf) + constants.e2avg(nf)
     gamma_S_01 = np.array(
         [
             [0, 0, 0, 0],
-            [0, gamma_phph(nf), e2avg * gamma_phq(N), vue2m * gamma_phq(N)],
+            [
+                0,
+                gamma_phph(nf),
+                e2avg * gamma_phq(N),
+                constants.vue2m(nf) * gamma_phq(N),
+            ],
             [
                 0,
                 e2avg * gamma_qph(N, nf),
                 e2avg * gamma_ns(N, sx),
-                vue2m * gamma_ns(N, sx),
+                constants.vue2m(nf) * gamma_ns(N, sx),
             ],
             [
                 0,
-                vde2m * gamma_qph(N, nf),
-                vde2m * gamma_ns(N, sx),
+                constants.vde2m(nf) * gamma_qph(N, nf),
+                constants.vde2m(nf) * gamma_ns(N, sx),
                 e2delta * gamma_ns(N, sx),
             ],
         ],
@@ -136,17 +134,12 @@ def gamma_singlet(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_valence(N, nf, sx):
-    nu = constants.uplike_flavors(nf)
-    nd = nf - nu
-    vu = nu / nf
-    vd = nd / nf
-    e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
-    e2m = constants.eu2 - constants.ed2
-    e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
+    e2avg = constants.e2avg(nf)
+    e2delta = constants.vde2m(nf) - constants.vue2m(nf) + constants.e2avg(nf)
     gamma_V_01 = np.array(
         [
-            [e2avg, vu * e2m],
-            [vd * e2m, e2delta],
+            [e2avg, constants.vue2m(nf)],
+            [constants.vde2m(nf), e2delta],
         ],
         np.complex_,
     )

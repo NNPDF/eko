@@ -68,3 +68,22 @@ def uplike_flavors(nf):
         raise NotImplementedError("Selected nf is not implemented")
     nu = nf // 2
     return nu
+
+
+@nb.njit(cache=True)
+def e2avg(nf):
+    nu = uplike_flavors(nf)
+    nd = nf - nu
+    return (nu * eu2 + nd * ed2) / nf
+
+
+@nb.njit(cache=True)
+def vue2m(nf):
+    nu = uplike_flavors(nf)
+    return nu / nf * (eu2 - ed2)
+
+
+@nb.njit(cache=True)
+def vde2m(nf):
+    nd = nf - uplike_flavors(nf)
+    return nd / nf * (eu2 - ed2)
