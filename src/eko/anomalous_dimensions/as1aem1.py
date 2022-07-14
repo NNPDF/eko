@@ -360,16 +360,11 @@ def gamma_nsm(N, sx):
 
 @nb.njit(cache=True)
 def gamma_singlet(N, nf, sx):
-    nu = constants.uplike_flavors(nf)
-    nd = nf - nu
-    vu = nu / nf
-    vd = nd / nf
-    e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
+    e2avg = constants.e2avg(nf)
+    e2delta = constants.vde2m(nf) - constants.vue2m(nf) + constants.e2avg(nf)
     e2_tot = nf * e2avg
-    e2m = constants.eu2 - constants.ed2
-    e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
-    vue2m = vu * e2m
-    vde2m = vd * e2m
+    vue2m = constants.vue2m(nf)
+    vde2m = constants.vde2m(nf)
     gamma_S_11 = np.array(
         [
             [
@@ -404,17 +399,14 @@ def gamma_singlet(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_valence(N, nf, sx):
-    nu = constants.uplike_flavors(nf)
-    nd = nf - nu
-    vu = nu / nf
-    vd = nd / nf
-    e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
-    e2m = constants.eu2 - constants.ed2
-    e2delta = (nd * constants.eu2 + nu * constants.ed2) / nf
+    e2avg = constants.e2avg(nf)
+    e2delta = constants.vde2m(nf) - constants.vue2m(nf) + constants.e2avg(nf)
+    vue2m = constants.vue2m(nf)
+    vde2m = constants.vde2m(nf)
     gamma_V_11 = np.array(
         [
-            [e2avg, vu * e2m],
-            [vd * e2m, e2delta],
+            [e2avg, vue2m],
+            [vde2m, e2delta],
         ],
         np.complex_,
     )

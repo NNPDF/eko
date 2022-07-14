@@ -333,7 +333,7 @@ def gamma_singlet(N, nf, sx):
     nd = nf - nu
     vu = nu / nf
     vd = nd / nf
-    e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
+    e2avg = constants.e2avg(nf)
     e2m = constants.eu2 - constants.ed2
     gamma_S_02 = np.array(
         [
