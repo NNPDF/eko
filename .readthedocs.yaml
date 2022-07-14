@@ -25,3 +25,5 @@ python:
       path: .
       extra_requirements:
         - docs
+        - mark
+        - box

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-This module contains the :class:`OperatorGrid` class.
+"""This module contains the :class:`OperatorGrid` class.
 
 The first is the driver class of eko as it is the one that collects all the
 previously instantiated information and does the actual computation of the Q2s.
@@ -11,17 +10,17 @@ import numbers
 
 import numpy as np
 
-from eko.thresholds import flavor_shift, is_downward_path
-
 from .. import basis_rotation as br
 from .. import matching_conditions, member
+from .. import scale_variations as sv
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
+from ..thresholds import flavor_shift, is_downward_path
 from . import Operator, flavors, physical
 
 logger = logging.getLogger(__name__)
 
 
-class OperatorGrid:
+class OperatorGrid(sv.ModeMixin):
     """
     The operator grid is the driver class of the evolution.
 
@@ -34,8 +33,8 @@ class OperatorGrid:
             configuration dictionary
         q2_grid: array
             Grid in Q2 on where to to compute the operators
-        order: int
-            order in perturbation theory
+        order: tuple(int,int)
+            orders in perturbation theory
         thresholds_config: eko.thresholds.ThresholdsAtlas
             Instance of :class:`~eko.thresholds.Threshold` containing information about the
             thresholds
@@ -56,7 +55,7 @@ class OperatorGrid:
         interpol_dispatcher,
     ):
         # check
-        order = int(config["order"])
+        order = config["order"]
         method = config["method"]
         if not method in [
             "iterate-exact",
@@ -69,7 +68,7 @@ class OperatorGrid:
             "perturbative-expanded",
         ]:
             raise ValueError(f"Unknown evolution mode {method}")
-        if order == 0 and method != "iterate-exact":
+        if order == (1, 0) and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")
 
         self.config = config
@@ -111,7 +110,7 @@ class OperatorGrid:
                 created object
         """
         config = {}
-        config["order"] = int(theory_card["PTO"])
+        config["order"] = tuple(int(o) for o in theory_card["order"])
         method = theory_card["ModEv"]
         mod_ev2method = {
             "EXA": "iterate-exact",
@@ -186,7 +185,12 @@ class OperatorGrid:
                 # Compute the operator and store it
                 logger.info("Prepare threshold operator")
                 op_th = Operator(
-                    self.config, self.managers, seg.nf, seg.q2_from, seg.q2_to
+                    self.config,
+                    self.managers,
+                    seg.nf,
+                    seg.q2_from,
+                    seg.q2_to,
+                    is_threshold=True,
                 )
                 op_th.compute()
                 self._threshold_operators[new_op_key] = op_th
@@ -199,18 +203,17 @@ class OperatorGrid:
         return thr_ops
 
     def compute(self, q2grid=None):
-        """
-        Computes all ekos for the q2grid.
+        """Computes all ekos for the `q2grid`.
 
         Parameters
         ----------
-            q2grid: list(float)
-                List of q^2
+        q2grid: list(float)
+            List of :math:`Q^2`
 
         Returns
         -------
-            grid_return: list(dict)
-                List of ekos for each value of q^2
+        list(dict)
+            List of ekos for each value of :math:`Q^2`
         """
         # use input?
         if q2grid is None:
@@ -221,22 +224,27 @@ class OperatorGrid:
         # And now return the grid
         grid_return = {}
         for q2 in q2grid:
-            grid_return[q2] = self.generate(q2)
+            # shift path for expanded scheme
+            q2_gen = (
+                q2 * self.config["fact_to_ren"]
+                if self.sv_mode == sv.Modes.expanded
+                else q2
+            )
+            grid_return[q2] = self.generate(q2_gen)
         return grid_return
 
     def generate(self, q2):
-        """
-        Computes a single EKO.
+        r"""Computes a single EKO.
 
         Parameters
         ----------
-            q2: float
-                Target value of q^2
+        q2: float
+            Target value of :math:`Q^2`
 
         Returns
         -------
-            final_op: dict
-                eko E(q^2 <- q_0^2) in flavor basis as numpy array
+        dict
+            eko :math:`\mathbf E(Q^2 \leftarrow Q_0^2)` in flavor basis as numpy array
         """
         # The lists of areas as produced by the thresholds
         path = self.managers["thresholds_config"].path(q2)
@@ -288,13 +296,7 @@ class OperatorGrid:
                 final_op = final_op @ rot @ matching @ phys_op
 
         values, errors = final_op.to_flavor_basis_tensor()
-        fact_to_ren = self.config["fact_to_ren"]
         return {
             "operators": values,
             "operator_errors": errors,
-            "alphas": self.managers["strong_coupling"].a_s(
-                q2 / fact_to_ren, fact_scale=q2, nf_to=path[-1].nf
-            )
-            * 4.0
-            * np.pi,
         }

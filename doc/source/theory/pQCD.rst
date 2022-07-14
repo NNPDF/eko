@@ -4,7 +4,7 @@ pQCD ingredients
 Strong Coupling
 ---------------
 
-Implementation: :class:`~eko.strong_coupling.StrongCoupling`.
+Implementation: :class:`~eko.couplings.Couplings`.
 
 We use perturbative |QCD| with the running coupling
 :math:`a_s(\mu_R^2) = \alpha_s(\mu_R^2)/(4\pi)` given at 5-loop by
@@ -46,9 +46,9 @@ have to be applied :cite:`Schroder:2005hy,Chetyrkin:2005ia`.
 In particular, the matching involved in the change from :math:`n_f` to :math:`n_f-1` schemes
 is presented in equation 3.1 of :cite:`Schroder:2005hy` for |MSbar| masses, while the
 same expression for POLE masses is reported in Appendix A.
-For this reason the boundary conditions of :class:`eko.strong_coupling.StrongCoupling`
+For this reason the boundary conditions of :class:`eko.couplings.Couplings`
 can be specified at ``scale_ref`` along with ``nf_ref`` and, the computed result can
-depend on the number of flavors at the target scale, see :meth:`eko.strong_coupling.StrongCoupling.a_s`
+depend on the number of flavors at the target scale, see :meth:`eko.couplings.Couplings.a_s`
 An example how the evolution path is determined is given :doc:`here</code/Utilities/>`.
 
 
@@ -82,6 +82,16 @@ while :math:`\mathbf{\bar{P}}` are given by
 where :math:`a = \alpha/(4\pi)`.
 The expression of the pure |QED| and of the mixed |QED| :math:`\otimes` |QCD| splitting kernels are given in
 :cite:`deFlorian:2015ujt,deFlorian:2016gvk`
+
+Order specification
+-------------------
+
+In the code ``order=tuple(int,int)`` specifies the |QCD| and |QED| perturbative orders of the splitting functions in terms
+of :math:`a_s = \alpha_s/(4\pi)` and :math:`a_{em} = \alpha_{em}/(4\pi)`. The available perturbative expansions are the following:
+
+- ``order=(0,0)``: it is the non evolution case in which :math:`a_s` and :math:`a_{em}` are kept fixed and the splitting functions are null.
+- ``order=(n,0)``: with :math:`n=1,2,3,4` correspond to the pure |QCD| evolution at |LO|, |NLO|, |NNLO| and |N3LO| in which the |QCD| splitting functions are expanded up to :math:`\mathcal{O}(a_s^n)` and the strong coupling is evolved using the n-th coefficient of the beta function, i.e. :math:`\beta_{n-1}`.
+- ``order=(n,m)``; with :math:`n=1,2,3,4` and :math:`m=1,2` corresponds to the mixed |QED| :math:`\otimes` |QCD| evolution in which the splitting functions are expanded up to :math:`\mathcal{O}(a_s^na_{em}^m)`, the stromg coupling is evolved using up to the n-th coefficient of the beta function and the electromagnetic coupling is kept fixed.
 
 Sum Rules
 ---------
@@ -146,11 +156,12 @@ This method provides many advantages:
     * it naturally incorporates renormalization group invariance,
       as the perturbative order increases, estimates of |MHOU| decrease;
     * the same procedure can be used for any perturbative process,
-      since the scale dependence of the strong coupling :math:`a_s(\mu^2)` and of PDFs is universal;
+      since the scale dependence of the strong coupling :math:`a_s(\mu^2)` and of |PDF| are universal;
 
 However, there is no unique prescription to determine the specific range of the scale variation,
-the most used prescription specify to vary the factor :math:`\mu_F/\mu_R` in the range:
-:math:`1/2 \le \mu_F/\mu_R \le 2`.
+the most common prescription specify to vary the factor :math:`\mu_F/\mu_R` in the range:
+:math:`1/2 \le \mu_F/\mu_R \le 2`. In the following we express this additional dependency as a function
+of :math:`k = \ln(\mu_F^2/\mu_R^2)`
 
 This variation can be performed at least at two different levels during the |PDF|
 evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
@@ -159,30 +170,28 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
       and the anomalous dimension are then modified using :cite:`Vogt:2004ns`:
 
         .. math ::
-            & \gamma^{(1)}(N) \to \gamma^{(1)}(N) - \beta_0 k \gamma^{(0)} \\
-            & \gamma^{(2)}(N) \to \gamma^{(2)}(N) - 2 \beta_0 k \gamma^{(1)} - ( \beta_1 k - \beta_0^2 k^2) \gamma^{(0)} \\
-            & \gamma^{(3)}(N) \to \gamma^{(3)}(N) - 3 \beta_0 k \gamma^{(2)} - ( 2 \beta_1 k - 3 \beta_0^2 k^2) \gamma^{(1)} - (\beta_2 k - \frac{5}{2} \beta_1 \beta_0 k^2 + \beta_0^3 k^3) \gamma^{(0)} \\
-            & k = \ln(\mu_F^2/\mu_R^2)
+            \gamma^{(1)}(N) &\to \gamma^{(1)}(N) - \beta_0 k \gamma^{(0)} \\
+            \gamma^{(2)}(N) &\to \gamma^{(2)}(N) - 2 \beta_0 k \gamma^{(1)} - ( \beta_1 k - \beta_0^2 k^2) \gamma^{(0)} \\
+            \gamma^{(3)}(N) &\to \gamma^{(3)}(N) - 3 \beta_0 k \gamma^{(2)} - ( 2 \beta_1 k - 3 \beta_0^2 k^2) \gamma^{(1)} - (\beta_2 k - \frac{5}{2} \beta_1 \beta_0 k^2 + \beta_0^3 k^3) \gamma^{(0)}
 
       This procedure corresponds to Eq. (3.32) of :cite:`AbdulKhalek:2019ihb`, and we recommend to use it along with
       ``ModEv='iterate-exact'`` in order to be in agreement with the treatment of the evolution integral expansion.
 
 
-    * In ``ModSV='expanded'`` the |EKO| is multiplied by an additional kernel, such that
-      the scale variation is applied to the whole evolution operator:
+    * In ``ModSV='expanded'`` the full |EKO| is multiplied by an additional kernel:
 
         .. math ::
             \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) & = \tilde{\mathbf{K}}(a_s) \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) \\
             \tilde{\mathbf{K}}(a_s) & = 1 - k \gamma + \frac{1}{2} k^2 \left ( \gamma^{2} - \beta \frac{\partial \gamma}{\partial a_s} \right ) \\
-            & + \frac{1}{6} k^3 \left [ - \beta \frac{\partial}{\partial a_s} \left( \beta \frac{\partial \gamma}{\partial a_s} \right) + 3 \beta \frac{\partial \gamma}{\partial a_s} \gamma - \gamma^3 \right ] + \mathcal{O}(k^4)
+            & \hspace{10pt} + \frac{1}{6} k^3 \left [ - \beta \frac{\partial}{\partial a_s} \left( \beta \frac{\partial \gamma}{\partial a_s} \right) + 3 \beta \frac{\partial \gamma}{\partial a_s} \gamma - \gamma^3 \right ] + \mathcal{O}(k^4)
 
-      where scale variation kernel is expanded consistently order by order in :math:`a_s`,
+      where the scale variation kernel :math:`\tilde{\mathbf{K}}` is expanded consistently order by order in :math:`a_s`,
       leading to:
 
         .. math ::
-            \tilde{\mathbf{K}}(a_s) \approx & 1 - a_s k \gamma^{(0)} + a_s^2 \left [ - k \gamma^{(1)} + \frac{1}{2} k^2 \gamma^{(0)} (\beta_0 + \gamma^{(0)}) \right ] \\
-            & + a_s^3 \left [ -k \gamma^{(2)} + \frac{1}{2} k^2 \left(\beta_1 \gamma^{(0)} + 2 \gamma^{(1)} (\beta_0 + \gamma^{(0)} ) \right) \right. \\
-            & \left. - \frac{1}{6} k^3 \gamma^{(0)} \left(2 \beta_0^2 + 3 \beta_0 \gamma^{(0)}+\gamma^{(0),2} \right) \right] + \mathcal{O}(a^4)
+            \tilde{\mathbf{K}}(a_s) &\approx 1 - a_s k \gamma^{(0)} + a_s^2 \left [ - k \gamma^{(1)} + \frac{1}{2} k^2 \gamma^{(0)} (\beta_0 + \gamma^{(0)}) \right ] \\
+            & \hspace{10pt} + a_s^3 \left [ -k \gamma^{(2)} + \frac{1}{2} k^2 \left(\beta_1 \gamma^{(0)} + 2 \beta_0\gamma^{(1)}  + \gamma^{(1)}\gamma^{(0)} + \gamma^{(0)}\gamma^{(1)} \right) \right. \\
+            & \hspace{35pt} \left. - \frac{1}{6} k^3 \gamma^{(0)} \left(2 \beta_0^2 + 3 \beta_0 \gamma^{(0)} + \left(\gamma^{(0)}\right)^2 \right) \right] + \mathcal{O}(a_s^4)
 
 
       In this way the dependence of the |EKO| on :math:`k` is factorized outside the unvaried evolution kernel.
@@ -190,12 +199,11 @@ evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
       It corresponds to Eq. (3.35) of :cite:`AbdulKhalek:2019ihb`, and we recommend to use it along with
       ``ModEv='truncated'`` in order to keep consistency with the evolution integral expansion.
 
-
-By construction, the corrections of the order :math:`\mathcal{O}(k^n)` will appear
-at the order :math:`n` in the expansion :math:`a_s`.
-This happens because :math:`\beta \approx \mathcal{O}(a_s^2)`, :math:`\gamma \approx \mathcal{O}(a_s)`
-and the contribution proportional to :math:`\mathcal{O}(k^n)` is originated
-by the `n-th` derivative in :math:`\gamma` :cite:`AbdulKhalek:2019ihb`.
+      By construction, the corrections of the order :math:`\mathcal{O}(k^n)` will appear
+      at the order :math:`n` in the expansion :math:`a_s`.
+      This happens because :math:`\beta \approx \mathcal{O}(a_s^2)`, :math:`\gamma \approx \mathcal{O}(a_s)`
+      and the contribution proportional to :math:`\mathcal{O}(k^n)` is originated
+      by the `n-th` derivative in :math:`\gamma` :cite:`AbdulKhalek:2019ihb`.
 
 Furthermore the distance between the varied |EKO| and the unvaried one will decrease while
 keeping higher order terms in :math:`a_s`
@@ -251,7 +259,7 @@ and :math:`m_{h,0}` is the given initial condition at the scale
 depends on the value :math:`a_s(\mu_{h,0}^2)` which is unknown and depends again
 on the threshold path.
 To overcome this issue, EKO initialize a temporary instance of the class
-:class:`~eko.strong_coupling.StrongCoupling` with a fixed flavor number scheme,
+:class:`~eko.couplings.Couplings` with a fixed flavor number scheme,
 with :math:`n_{f_{ref}}` active flavors at the scale :math:`\mu_{ref}`.
 
 Then we check that, heavy quarks involving a number of active flavors
@@ -299,7 +307,7 @@ Therefore the two solution strategies are:
 
 
 The procedure is iterated on all the heavy quarks, updating the temporary instance
-of :class:`~eko.strong_coupling.StrongCoupling` with the computed masses.
+of :class:`~eko.couplings.Couplings` with the computed masses.
 
 To find coherent solutions and perform the mass running in the correct patches it
 is necessary to always start computing the mass scales closer to :math:`\mu_{ref}`.

@@ -10,7 +10,7 @@ from .harmonics.constants import zeta3, zeta4, zeta5
 
 
 @nb.njit(cache=True)
-def gamma_0():
+def gamma_qcd_as1():
     """
     Computes the first coefficient of the QCD gamma function.
 
@@ -25,7 +25,7 @@ def gamma_0():
 
 
 @nb.njit(cache=True)
-def gamma_1(nf):
+def gamma_qcd_as2(nf):
     """
     Computes the second coefficient of the QCD gamma function.
 
@@ -45,7 +45,7 @@ def gamma_1(nf):
 
 
 @nb.njit(cache=True)
-def gamma_2(nf):
+def gamma_qcd_as3(nf):
     """
     Computes the third coefficient of the QCD gamma function.
 
@@ -65,7 +65,7 @@ def gamma_2(nf):
 
 
 @nb.njit(cache=True)
-def gamma_3(nf):
+def gamma_qcd_as4(nf):
     """
     Computes the fourth coefficient of the QCD gamma function.
 
@@ -116,14 +116,14 @@ def gamma(order, nf):
     """
     _gamma = 0.0
 
-    if order == 0:
-        _gamma = gamma_0()
-    elif order == 1:
-        _gamma = gamma_1(nf)
+    if order == 1:
+        _gamma = gamma_qcd_as1()
     elif order == 2:
-        _gamma = gamma_2(nf)
+        _gamma = gamma_qcd_as2(nf)
     elif order == 3:
-        _gamma = gamma_3(nf)
+        _gamma = gamma_qcd_as3(nf)
+    elif order == 4:
+        _gamma = gamma_qcd_as4(nf)
     else:
         raise ValueError("QCD Gamma coefficients beyond N3LO are not implemented!")
     return _gamma

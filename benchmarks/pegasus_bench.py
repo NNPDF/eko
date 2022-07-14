@@ -56,6 +56,8 @@ class BenchmarkVFNS(PegasusBenchmark):
         "ktThr": 1.0,
         "Qref": np.sqrt(2.0),
         "alphas": 0.35,
+        "alphaqed": 0.007496,
+        "QED": 0,
         "Q0": np.sqrt(2.0),
         "nfref": 3,
         "nf0": 3,

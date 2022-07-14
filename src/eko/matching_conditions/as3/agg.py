@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=too-many-lines
+# pylint: skip-file
 import numba as nb
 import numpy as np
 
@@ -8,33 +8,33 @@ from .aggTF2 import A_ggTF2
 
 @nb.njit(cache=True)
 def A_gg(n, sx, nf, L):  # pylint: disable=too-many-locals
-    r"""
-    Computes the |N3LO| singlet |OME| :math:`A_{gg}^{S,(3)}(N)`.
-    The experssion is presented in :cite:`Bierenbaum:2009mv`.
+    r"""Computes the |N3LO| singlet |OME| :math:`A_{gg}^{S,(3)}(N)`.
+    The expression is presented in :cite:`Bierenbaum:2009mv`.
 
     When using the code, please cite the complete list of references
     available in :mod:`eko.matching_conditions.as3`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
-        nf : int
-            number of active flavor below the threshold
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
-        A_gg : complex
-            :math:`A_{gg}^{S,(3)}(N)`
+    complex
+        :math:`A_{gg}^{S,(3)}(N)`
 
     See Also
     --------
-        A_ggTF2: eko.matching_conditions.as3.aggTF2.A_ggTF2
-            Incomplete part proportional to :math:`T_{F}^2`.
+    A_ggTF2: eko.matching_conditions.as3.aggTF2.A_ggTF2
+        Incomplete part proportional to :math:`T_{F}^2`.
+
     """
     S1, _ = sx[0]
     S2, Sm2 = sx[1]

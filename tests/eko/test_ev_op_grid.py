@@ -10,8 +10,8 @@ import numpy as np
 import pytest
 
 from eko import interpolation
+from eko.couplings import Couplings
 from eko.evolution_operator.grid import OperatorGrid
-from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
 
@@ -19,7 +19,8 @@ class TestOperatorGrid:
     def _get_setup(self, use_FFNS):
         theory_card = {
             "alphas": 0.35,
-            "PTO": 0,
+            "alphaem": 0.00781,
+            "order": (1, 0),
             "ModEv": "TRN",
             "fact_to_ren_scale_ratio": 1.0,
             "Qref": np.sqrt(2),
@@ -45,7 +46,7 @@ class TestOperatorGrid:
             "interpolation_is_log": True,
             "debug_skip_singlet": True,
             "debug_skip_non_singlet": False,
-            "ev_op_max_order": 1,
+            "ev_op_max_order": (2, 0),
             "ev_op_iterations": 1,
             "backward_inversion": "exact",
             "n_integration_cores": 1,
@@ -72,7 +73,7 @@ class TestOperatorGrid:
             operators_card
         )
         threshold_holder = ThresholdsAtlas.from_dict(theory_card)
-        a_s = StrongCoupling.from_dict(theory_card)
+        a_s = Couplings.from_dict(theory_card)
         return OperatorGrid.from_dict(
             theory_card,
             operators_card,
@@ -90,7 +91,7 @@ class TestOperatorGrid:
                 operators_card
             )
             threshold_holder = ThresholdsAtlas.from_dict(theory_card)
-            a_s = StrongCoupling.from_dict(theory_card)
+            a_s = Couplings.from_dict(theory_card)
             theory_card.update({"ModEv": "wrong"})
             OperatorGrid.from_dict(
                 theory_card,
@@ -108,16 +109,12 @@ class TestOperatorGrid:
         opg = opgrid.compute()
         assert len(opg) == 2
         assert all(
-            k in op
-            for k in ["operators", "operator_errors", "alphas"]
-            for op in opg.values()
+            k in op for k in ["operators", "operator_errors"] for op in opg.values()
         )
         opg = opgrid.compute(3)
         assert len(opg) == 1
         assert all(
-            k in op
-            for k in ["operators", "operator_errors", "alphas"]
-            for op in opg.values()
+            k in op for k in ["operators", "operator_errors"] for op in opg.values()
         )
 
     def test_grid_computation_VFNS(self):
@@ -127,19 +124,9 @@ class TestOperatorGrid:
         operators = opgrid.compute(qgrid_check)
         assert len(operators) == len(qgrid_check)
 
-    def test_alphas(self):
-        opgrid = self._get_operator_grid()
-        # q2 has not be precomputed - but should work nevertheless
-        opg = opgrid.compute(3)
-        sv_opgrid = self._get_operator_grid(
-            theory_update={"fact_to_ren_scale_ratio": 2.0}
-        )
-        sv_opg = sv_opgrid.compute(3)
-        assert opg[3]["alphas"] < sv_opg[3]["alphas"]
-
     def test_mod_expanded(self):
         theory_update = {
-            "PTO": 1,
+            "order": (1, 0),
             "ModSV": "expanded",
         }
         epsilon = 1e-1

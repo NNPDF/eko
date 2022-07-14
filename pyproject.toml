@@ -5,11 +5,13 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "eko"
 version = "0.0.0"
-description = "Evolution Kernel Operator"
+description = "Evolution Kernel Operators"
 readme = "README.md"
 authors = [
+  "Andrea Barontini <andrea.barontini@mi.infn.it>",
   "A. Candido <alessandro.candido@mi.infn.it>",
   "F. Hekhorn <felix.hekhorn@mi.infn.it>",
+  "N. Laurenti <niccolo.laurenti@mi.infn.it>",
   "G. Magni <gmagni@nikhef.nl>",
 ]
 classifiers = [
@@ -29,7 +31,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.8,<3.11"
-numpy = "^1.21.0"
+numpy = "^1.22"
 scipy = "^1.7.3"
 PyYAML = "^6.0"
 lz4 = "^3.1.10"
@@ -40,7 +42,7 @@ sphinx-rtd-theme = { version = "^1.0.0", optional = true }
 sphinxcontrib-bibtex = { version = "^2.4.1", optional = true }
 nbsphinx = { version = "^0.8.8", optional = true }
 # ekomark
-banana-hep = { version = "^0.6.5", optional = true }
+banana-hep = {version = "^0.6.6", optional = true}
 sqlalchemy = { version = "^1.4.21", optional = true }
 pandas = { version = "^1.3.0", optional = true }
 matplotlib = { version = "^3.5.1", optional = true }

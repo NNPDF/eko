@@ -86,7 +86,7 @@ def gamma_nsm(n, nf, sx):
     )
 
     result = pm2 + nf * pm2_nf + nf**2 * pf2_nfnf
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -163,7 +163,7 @@ def gamma_nsp(n, nf, sx):
     )
 
     result = pp2 + nf * pp2_nf + nf**2 * pf2_nfnf
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -203,7 +203,7 @@ def gamma_nsv(n, nf, sx):
     else:
         B1M = -(S1 - 1.0 / n) / (n - 1.0)
 
-    ps2 = (
+    ps2 = -(
         -163.9 * (B1M + S1 / n)
         - 7.208 * (B11 - B12)
         + 4.82 * (1.0 / (n + 3.0) - 1.0 / (n + 4.0))
@@ -290,7 +290,7 @@ def gamma_ps(n, nf, sx):
     )
 
     result = nf * ps1 + nf**2 * ps2
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -364,7 +364,7 @@ def gamma_qg(n, nf, sx):
     )
 
     result = nf * qg1 + nf**2 * qg2
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -454,7 +454,7 @@ def gamma_gq(n, nf, sx):
 
     result = gq0 + nf * gq1 + nf**2 * gq2
 
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -542,7 +542,7 @@ def gamma_gg(n, nf, sx):
     )
 
     result = gg0 + nf * gg1 + nf**2 * gg2
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -574,8 +574,8 @@ def gamma_singlet(N, nf, sx):
 
       See Also
       --------
-        gamma_nsp : :math:`\gamma_{qq}^{(2)}`
-        gamma_ps : :math:`\gamma_{qq}^{(2)}`
+        gamma_nsp : :math:`\gamma_{ns,+}^{(2)}`
+        gamma_ps : :math:`\gamma_{ps}^{(2)}`
         gamma_qg : :math:`\gamma_{qg}^{(2)}`
         gamma_gq : :math:`\gamma_{gq}^{(2)}`
         gamma_gg : :math:`\gamma_{gg}^{(2)}`

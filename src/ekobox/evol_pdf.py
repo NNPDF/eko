@@ -13,6 +13,7 @@ def evolve_pdfs(
     theory_card,
     operators_card,
     path=None,
+    store_path=None,
     targetgrid=None,
     install=False,
     name="Evolved_PDF",
@@ -35,6 +36,9 @@ def evolve_pdfs(
 
         path : str
             path to cached eko output (if "None" it will be recomputed)
+
+        store_path : str
+            path where the eko is stored (if "None" will not be saved)
 
         targetgrid : list(float)
             target x-grid (if different from input x-grid)
@@ -61,6 +65,8 @@ def evolve_pdfs(
             eko_output = eko.output.Output.load_tar(my_path)
     else:
         eko_output = eko.run_dglap(theory_card, operators_card)
+        if store_path is not None:
+            eko_output.dump_tar(store_path)
 
     evolved_PDF_list = []
     for initial_PDF in initial_PDF_list:
@@ -79,8 +85,8 @@ def evolve_pdfs(
         info_update=info_update,
     )
     all_member_blocks = []
-    all_blocks = []
     for evolved_PDF in evolved_PDF_list:
+        all_blocks = []
         block = genpdf.generate_block(
             lambda pid, x, Q2, evolved_PDF=evolved_PDF: targetgrid[targetgrid.index(x)]
             * evolved_PDF[Q2]["pdfs"][pid][targetgrid.index(x)],

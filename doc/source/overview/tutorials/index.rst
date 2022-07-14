@@ -14,6 +14,7 @@ In case of troubles, feel free to write an issue on the `repository
 
 .. toctree::
 
-    Computing Evolution <dglap.ipynb>
-    Explore the Output <output.ipynb>
+    Computing an EKO <dglap.ipynb>
+    Exploring the Output <output.ipynb>
+    Evolving a PDF <pdf.ipynb>
     Strong Coupling Running <alpha_s.ipynb>

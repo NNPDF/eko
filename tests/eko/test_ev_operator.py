@@ -8,12 +8,12 @@ import scipy.integrate
 from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
 from eko import interpolation, mellin
+from eko.couplings import Couplings
 from eko.evolution_operator import Operator, quad_ker
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
-from eko.strong_coupling import StrongCoupling
 from eko.thresholds import ThresholdsAtlas
 
 
@@ -31,103 +31,109 @@ def test_quad_ker(monkeypatch):
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            order=0,
+            order=(1, 0),
             mode0=br.non_singlet_pids_map["ns+"],
             mode1=0,
             method="",
             is_log=is_log,
             logx=0.0,
             areas=np.zeros(3),
-            a1=1,
-            a0=2,
+            as1=1,
+            as0=2,
             nf=3,
             L=0,
             ev_op_iterations=0,
-            ev_op_max_order=0,
+            ev_op_max_order=(0, 0),
             sv_mode=1,
+            is_threshold=False,
         )
         np.testing.assert_allclose(res_ns, 0.0)
         res_s = quad_ker(
             u=0,
-            order=0,
+            order=(1, 0),
             mode0=100,
             mode1=100,
             method="",
             is_log=is_log,
             logx=0.123,
             areas=np.zeros(3),
-            a1=1,
-            a0=2,
+            as1=1,
+            as0=2,
             nf=3,
             L=0,
             ev_op_iterations=0,
-            ev_op_max_order=0,
+            ev_op_max_order=(0, 0),
             sv_mode=1,
+            is_threshold=False,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            order=0,
+            order=(1, 0),
             mode0=100,
             mode1=21,
             method="",
             is_log=is_log,
             logx=0.0,
             areas=np.zeros(3),
-            a1=1,
-            a0=2,
+            as1=1,
+            as0=2,
             nf=3,
             L=0,
             ev_op_iterations=0,
-            ev_op_max_order=0,
+            ev_op_max_order=(0, 0),
             sv_mode=1,
+            is_threshold=False,
         )
         np.testing.assert_allclose(res_s, 0.0)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
         for sv in [2, 3]:
             res_sv = quad_ker(
                 u=0,
-                order=0,
+                order=(1, 0),
                 mode0=label[0],
                 mode1=label[1],
                 method="",
                 is_log=True,
                 logx=0.123,
                 areas=np.zeros(3),
-                a1=1,
-                a0=2,
+                as1=1,
+                as0=2,
                 nf=3,
                 L=0,
                 ev_op_iterations=0,
-                ev_op_max_order=0,
+                ev_op_max_order=(1, 0),
                 sv_mode=sv,
+                is_threshold=False,
             )
             np.testing.assert_allclose(res_sv, 1.0)
 
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        order=0,
+        order=(1, 0),
         mode0=br.non_singlet_pids_map["ns+"],
         mode1=0,
         method="",
         is_log=True,
         logx=0.0,
         areas=np.zeros(3),
-        a1=1,
-        a0=2,
+        as1=1,
+        as0=2,
         nf=3,
         L=0,
         ev_op_iterations=0,
-        ev_op_max_order=0,
+        ev_op_max_order=(0, 0),
         sv_mode=1,
+        is_threshold=False,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
 
 theory_card = {
     "alphas": 0.35,
-    "PTO": 0,
+    "alphaem": 0.00781,
+    "order": (1, 0),
     "ModEv": "TRN",
     "fact_to_ren_scale_ratio": 1.0,
     "Qref": np.sqrt(2),
@@ -167,7 +173,7 @@ class TestOperator:
     def test_labels(self):
         o = Operator(
             dict(
-                order=2,
+                order=(3, 0),
                 debug_skip_non_singlet=False,
                 debug_skip_singlet=False,
                 n_integration_cores=1,
@@ -180,7 +186,7 @@ class TestOperator:
         assert sorted(o.labels) == sorted(br.full_labels)
         o = Operator(
             dict(
-                order=1,
+                order=(2, 0),
                 debug_skip_non_singlet=True,
                 debug_skip_singlet=True,
                 n_integration_cores=1,
@@ -194,9 +200,12 @@ class TestOperator:
 
     def test_n_pools(self):
         excluded_cores = 3
+        # make sure we actually have more the those cores (e.g. on github we don't)
+        if os.cpu_count() <= excluded_cores:
+            return
         o = Operator(
             dict(
-                order=1,
+                order=(2, 0),
                 debug_skip_non_singlet=True,
                 debug_skip_singlet=True,
                 n_integration_cores=-excluded_cores,
@@ -204,8 +213,27 @@ class TestOperator:
             {},
             3,
             1,
+            10,
         )
         assert o.n_pools == os.cpu_count() - excluded_cores
+
+    def test_exponentiated(self):
+        tcard = copy.deepcopy(theory_card)
+        tcard["fact_to_ren_scale_ratio"] = 2.0
+        tcard["ModSV"] = "exponentiated"
+        ocard = copy.deepcopy(operators_card)
+        g = OperatorGrid.from_dict(
+            tcard,
+            ocard,
+            ThresholdsAtlas.from_dict(tcard),
+            Couplings.from_dict(tcard),
+            InterpolatorDispatcher.from_dict(ocard),
+        )
+        # setup objs
+        o = Operator(g.config, g.managers, 3, 2.0, 10.0)
+        np.testing.assert_allclose(o.mur2_shift(40.0), 10.0)
+        o.compute()
+        self.check_lo(o)
 
     def test_compute_parallel(self, monkeypatch):
         tcard = copy.deepcopy(theory_card)
@@ -215,7 +243,7 @@ class TestOperator:
             tcard,
             ocard,
             ThresholdsAtlas.from_dict(tcard),
-            StrongCoupling.from_dict(tcard),
+            Couplings.from_dict(tcard),
             InterpolatorDispatcher.from_dict(ocard),
         )
         # setup objs
@@ -246,7 +274,7 @@ class TestOperator:
             tcard,
             ocard,
             ThresholdsAtlas.from_dict(tcard),
-            StrongCoupling.from_dict(tcard),
+            Couplings.from_dict(tcard),
             InterpolatorDispatcher.from_dict(ocard),
         )
         # setup objs
@@ -259,7 +287,7 @@ class TestOperator:
         o.compute()
         self.check_lo(o)
         # NLO
-        o.config["order"] = 1
+        o.order = (2, 0)
         o.compute()
         assert not np.allclose(
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
@@ -271,9 +299,9 @@ class TestOperator:
         )
 
         # unity operators
-        for n in range(0, 2 + 1):
+        for n in range(1, 3 + 1):
             o1 = Operator(g.config, g.managers, 3, 2.0, 2.0)
-            o1.config["order"] = n
+            o1.config["order"] = (n, 0)
             o1.compute()
             for k in br.non_singlet_labels:
                 assert k in o1.op_members
@@ -305,7 +333,7 @@ def test_pegasus_path():
     # monkeypatch.setattr(ns, "dispatcher", lambda x, *args: np.exp( - x ** 2 ) )
     xgrid = np.geomspace(1e-7, 1, 10)
     int_disp = InterpolatorDispatcher(xgrid, 1, True)
-    order = 1
+    order = (2, 0)
     mode0 = br.non_singlet_pids_map["ns+"]
     mode1 = 0
     method = ""
@@ -336,6 +364,7 @@ def test_pegasus_path():
                     ev_op_iterations,
                     10,
                     0,
+                    False,
                 ),
                 epsabs=1e-12,
                 epsrel=1e-5,
