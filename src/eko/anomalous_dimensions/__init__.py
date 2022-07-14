@@ -216,6 +216,81 @@ def gamma_singlet(order, n, nf):
 
 
 @nb.njit(cache=True)
+def gamma_ns_qed(order, mode, n, nf):
+    r"""
+    Computes the tower of the non-singlet anomalous dimensions
+
+    Parameters
+    ----------
+        order : tuple(int,int)
+            perturbative orders
+        mode : 10201 | 10101 | 10200
+            sector identifier
+        n : complex
+            Mellin variable
+        nf : int
+            Number of active flavors
+
+    Returns
+    -------
+        gamma_ns : numpy.ndarray
+            non-singlet anomalous dimensions
+
+    See Also
+    --------
+        eko.anomalous_dimensions.as1.gamma_ns : :math:`\gamma_{ns}^{(0)}(N)`
+        eko.anomalous_dimensions.as2.gamma_nsp : :math:`\gamma_{ns,+}^{(1)}(N)`
+        eko.anomalous_dimensions.as2.gamma_nsm : :math:`\gamma_{ns,-}^{(1)}(N)`
+        eko.anomalous_dimensions.as3.gamma_nsp : :math:`\gamma_{ns,+}^{(2)}(N)`
+        eko.anomalous_dimensions.as3.gamma_nsm : :math:`\gamma_{ns,-}^{(2)}(N)`
+        eko.anomalous_dimensions.as3.gamma_nsv : :math:`\gamma_{ns,v}^{(2)}(N)`
+    """
+    # cache the s-es
+    max_weight = max(order)
+    sx = harmonics.sx(n, max_weight=max_weight + 1)
+    # now combine
+    gamma_ns = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
+    if order[0] >= 1:
+        gamma_ns[1, 0] = as1.gamma_ns(n, sx[0])
+    if order[1] >= 1:
+        gamma_ns[0, 1] = aem1.gamma_ns(n, sx[0])
+    if order[0] >= 1 and order[1] >= 1:
+        if mode == 10101:
+            gamma_ns[1, 1] = as1aem1.gamma_nsp(n, sx)
+        elif mode in [10201, 10200]:
+            gamma_ns[1, 1] = as1aem1.gamma_nsm(n, sx)
+        else:
+            raise NotImplementedError("Non-singlet sector is not implemented")
+    # NLO and beyond
+    if order[0] >= 2:
+        if mode == 10101:
+            gamma_ns[2, 0] = as2.gamma_nsp(n, nf, sx)
+        # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
+        elif mode in [10201, 10200]:
+            gamma_ns[2, 0] = as2.gamma_nsm(n, nf, sx)
+        else:
+            raise NotImplementedError("Non-singlet sector is not implemented")
+    if order[1] >= 2:
+        if mode == 10102:
+            gamma_ns[0, 2] = aem2.gamma_nspu(n, nf, sx)
+        if mode == 10103:
+            gamma_ns[0, 2] = aem2.gamma_nspd(n, nf, sx)
+        if mode == 10202:
+            gamma_ns[0, 2] = aem2.gamma_nsmu(n, nf, sx)
+        if mode == 10203:
+            gamma_ns[0, 2] = aem2.gamma_nsmd(n, nf, sx)
+    # NNLO and beyond
+    if order[0] >= 3:
+        if mode == 10101:
+            gamma_ns[3, 0] = -as3.gamma_nsp(n, nf, sx)
+        elif mode == 10201:
+            gamma_ns[3, 0] = -as3.gamma_nsm(n, nf, sx)
+        elif mode == 10200:
+            gamma_ns[3, 0] = -as3.gamma_nsv(n, nf, sx)
+    return gamma_ns
+
+
+@nb.njit(cache=True)
 def gamma_4x4sector(order, n, nf):
     r"""
     Computes the tower of the singlet anomalous dimensions matrices
