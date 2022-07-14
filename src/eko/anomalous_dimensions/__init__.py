@@ -21,7 +21,7 @@ import numba as nb
 import numpy as np
 
 from .. import basis_rotation as br
-from .. import harmonics
+from .. import constants, harmonics
 from . import aem1, aem2, as1, as1aem1, as2, as3
 
 
@@ -253,40 +253,45 @@ def gamma_ns_qed(order, mode, n, nf):
     if order[0] >= 1:
         gamma_ns[1, 0] = as1.gamma_ns(n, sx[0])
     if order[1] >= 1:
-        gamma_ns[0, 1] = aem1.gamma_ns(n, sx[0])
+        if mode in [10102, 10202]:
+            gamma_ns[0, 1] = constants.eu2 * aem1.gamma_ns(n, sx[0])
+        if mode in [10103, 10203]:
+            gamma_ns[0, 1] = constants.ed2 * aem1.gamma_ns(n, sx[0])
     if order[0] >= 1 and order[1] >= 1:
-        if mode == 10101:
-            gamma_ns[1, 1] = as1aem1.gamma_nsp(n, sx)
-        elif mode in [10201, 10200]:
-            gamma_ns[1, 1] = as1aem1.gamma_nsm(n, sx)
+        if mode == 10102:
+            gamma_ns[1, 1] = constants.eu2 * as1aem1.gamma_nsp(n, sx)
+        elif mode == 10103:
+            gamma_ns[1, 1] = constants.ed2 * as1aem1.gamma_nsp(n, sx)
+        elif mode == 10202:
+            gamma_ns[1, 1] = constants.eu2 * as1aem1.gamma_nsm(n, sx)
+        elif mode == 10203:
+            gamma_ns[1, 1] = constants.ed2 * as1aem1.gamma_nsm(n, sx)
         else:
             raise NotImplementedError("Non-singlet sector is not implemented")
     # NLO and beyond
     if order[0] >= 2:
-        if mode == 10101:
+        if mode in [10102, 10103]:
             gamma_ns[2, 0] = as2.gamma_nsp(n, nf, sx)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
-        elif mode in [10201, 10200]:
+        elif mode in [10202, 10203]:
             gamma_ns[2, 0] = as2.gamma_nsm(n, nf, sx)
         else:
             raise NotImplementedError("Non-singlet sector is not implemented")
     if order[1] >= 2:
         if mode == 10102:
-            gamma_ns[0, 2] = aem2.gamma_nspu(n, nf, sx)
+            gamma_ns[0, 2] = constants.eu2 * aem2.gamma_nspu(n, nf, sx)
         if mode == 10103:
-            gamma_ns[0, 2] = aem2.gamma_nspd(n, nf, sx)
+            gamma_ns[0, 2] = constants.ed2 * aem2.gamma_nspd(n, nf, sx)
         if mode == 10202:
-            gamma_ns[0, 2] = aem2.gamma_nsmu(n, nf, sx)
+            gamma_ns[0, 2] = constants.eu2 * aem2.gamma_nsmu(n, nf, sx)
         if mode == 10203:
-            gamma_ns[0, 2] = aem2.gamma_nsmd(n, nf, sx)
+            gamma_ns[0, 2] = constants.ed2 * aem2.gamma_nsmd(n, nf, sx)
     # NNLO and beyond
     if order[0] >= 3:
-        if mode == 10101:
+        if mode in [10102, 10103]:
             gamma_ns[3, 0] = -as3.gamma_nsp(n, nf, sx)
-        elif mode == 10201:
+        elif mode in [10202, 10203]:
             gamma_ns[3, 0] = -as3.gamma_nsm(n, nf, sx)
-        elif mode == 10200:
-            gamma_ns[3, 0] = -as3.gamma_nsv(n, nf, sx)
     return gamma_ns
 
 
