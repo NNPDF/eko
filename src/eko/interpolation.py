@@ -681,7 +681,7 @@ def make_lambert_grid(
     .. math::
         y(x) = 5(1-x)-\log(x)
 
-    This method is implemted in `PineAPPL`, :cite:`Carrazza_2020` eq 2.11 and relative
+    This method is implemented in `PineAPPL`, :cite:`Carrazza_2020` eq 2.11 and relative
     paragraph.
 
     Parameters
