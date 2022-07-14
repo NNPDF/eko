@@ -74,7 +74,7 @@ def exp_singlet(gamma_S):
 
 
 @nb.njit(cache=True)
-def exp_4x4_sector(gamma_S):
+def exp_singlet_sector(gamma_S):
     r"""
     Computes the exponential and the eigensystem of the singlet anomalous dimension matrix
 
@@ -112,12 +112,12 @@ def exp_4x4_sector(gamma_S):
     C = np.linalg.inv(V)
     # compute projectors
     tmp = C.dot(np.transpose(v))
-    e1 = v[:, 0, np.newaxis].dot(tmp[np.newaxis, 0, :])
-    e2 = v[:, 1, np.newaxis].dot(tmp[np.newaxis, 1, :])
-    e3 = v[:, 2, np.newaxis].dot(tmp[np.newaxis, 2, :])
-    e4 = v[:, 3, np.newaxis].dot(tmp[np.newaxis, 3, :])
-    e = np.array([e1, e2, e3, e4])
-    exp = sum(e[i] * np.exp(w[i]) for i in range(4))
+    dim = gamma_S.shape[0]
+    e = np.zeros((dim, dim, dim), np.complex_)
+    for i in range(dim):
+        ei = v[:, i, np.newaxis].dot(tmp[np.newaxis, i, :])
+        e[i] = ei
+    exp = sum(e[i] * np.exp(w[i]) for i in range(dim))
     return exp, w, e
 
 
