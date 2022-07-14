@@ -69,7 +69,15 @@ evol_basis_pids = tuple(
 )
 """|pid| representation of :data:`evol_basis`."""
 
-non_singlet_pids_map = {"ns-": 10201, "ns+": 10101, "nsV": 10200}
+non_singlet_pids_map = {
+    "ns-": 10201,
+    "ns+": 10101,
+    "nsV": 10200,
+    "ns-u": 10202,
+    "ns-d": 10203,
+    "ns+u": 10102,
+    "ns+d": 10103,
+}
 
 singlet_labels = ((100, 100), (100, 21), (21, 100), (21, 21))
 non_singlet_labels = (
