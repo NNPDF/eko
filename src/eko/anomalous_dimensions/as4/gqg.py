@@ -5,11 +5,13 @@ This module contains the anomalous dimension :math:`\\gamma_{qg}^{(3)}`
 import numba as nb
 import numpy as np
 
+from ...harmonics.log_functions import lm13, lm13m1, lm14, lm15
+
 
 @nb.njit(cache=True)
 def gamma_qg_nf3(n, sx):
     """Implements the part proportional to :math:`nf^3` of :math:`\\gamma_{qg}^{(3)}`
-    The expression is copied exact from Eq. 3.12 of :cite:`Davies:2016jie`
+    The expression is copied exact from Eq. 3.12 of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
@@ -329,18 +331,73 @@ def gamma_qg_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf2(_n, _sx):
-    return 0
+def gamma_qg_nf1(n, sx):
+    """Implements the part proportional to :math:`nf^1` of :math:`\\gamma_{qg}^{(3)}`.
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+
+    Returns
+    -------
+    complex
+        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{qg}^{(3)}|_{nf^1}`
+
+    """
+    S1 = sx[0][0]
+    S2 = sx[1][0]
+    S3 = sx[2][0]
+    S4 = sx[3][0]
+    S5 = sx[4][0]
+    return (
+        -7871.5226542038545 / np.power(-1.0 + n, 3)
+        + 13143.091386873139 / np.power(-1.0 + n, 2)
+        - 8555.368284884158 / (-1.0 + n)
+        + 14103.703703703704 / np.power(n, 7)
+        + 2588.8395061728397 / np.power(n, 6)
+        + 68802.34242841466 / np.power(n, 5)
+        - 212.90108988599422 * lm13(n, S1, S2, S3)
+        - 9766.692337529312 * lm13m1(n, S1, S2, S3)
+        - 35.68779444531073 * lm14(n, S1, S2, S3, S4)
+        - 1.8518518518518519 * lm15(n, S1, S2, S3, S4, S5)
+    )
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf1(_n, _sx):
-    return 0
+def gamma_qg_nf2(n, sx):
+    """Implements the part proportional to :math:`nf^2` of :math:`\\gamma_{qg}^{(3)}`.
 
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
 
-@nb.njit(cache=True)
-def gamma_qg_nf0(_n, _sx):
-    return 0
+    Returns
+    -------
+    complex
+        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{qg}^{(3)}|_{nf^2}`
+
+    """
+    S1 = sx[0][0]
+    S2 = sx[1][0]
+    S3 = sx[2][0]
+    S4 = sx[3][0]
+    S5 = sx[4][0]
+    return (
+        314.1395295099842 / np.power(-1.0 + n, 2)
+        + 419.450779112087 / (-1.0 + n)
+        - 1991.111111111111 / np.power(n, 7)
+        + 2069.3333333333335 / np.power(n, 6)
+        - 7229.376633440217 / np.power(n, 5)
+        + 72.72541176281906 * lm13(n, S1, S2, S3)
+        + 0.8816004399720675 * lm13m1(n, S1, S2, S3)
+        + 3.511659807956104 * lm14(n, S1, S2, S3, S4)
+        + 0.411522633744856 * lm15(n, S1, S2, S3, S4, S5)
+    )
 
 
 @nb.njit(cache=True)
@@ -364,15 +421,13 @@ def gamma_qg(n, nf, sx):
 
     See Also
     --------
-    gamma_qg_nf0: :math:`\\gamma_{qg}^{(3)}|_{nf^0}`
     gamma_qg_nf1: :math:`\\gamma_{qg}^{(3)}|_{nf^1}`
     gamma_qg_nf2: :math:`\\gamma_{qg}^{(3)}|_{nf^2}`
     gamma_qg_nf3: :math:`\\gamma_{qg}^{(3)}|_{nf^3}`
 
     """
     return (
-        gamma_qg_nf0(n, sx)
-        + nf * gamma_qg_nf1(n, sx)
+        +nf * gamma_qg_nf1(n, sx)
         + nf**2 * gamma_qg_nf2(n, sx)
         + nf**3 * gamma_qg_nf3(n, sx)
     )

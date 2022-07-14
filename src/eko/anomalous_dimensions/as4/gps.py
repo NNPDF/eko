@@ -79,13 +79,62 @@ def gamma_ps_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_ps_nf2(_n, _sx):
-    return 0
+def gamma_ps_nf1(n, sx):
+    """Implements the part proportional to :math:`nf^1` of :math:`\\gamma_{ps}^{(3)}`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+
+    Returns
+    -------
+    complex
+        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{ps}^{(3)}|_{nf^1}`
+
+    """
+    S1 = sx[0][0]
+    return (
+        -10185.956311680911 * (1 / (-1.0 + n) - 1.0 / n)
+        - 3498.454512979491 / np.power(-1.0 + n, 3)
+        + 6990.974328540751 / np.power(-1.0 + n, 2)
+        + 5404.444444444444 / np.power(n, 7)
+        + 3425.9753086419755 / np.power(n, 6)
+        + 20515.223982421852 / np.power(n, 5)
+        + (418.1883933687789 * np.power(S1, 2)) / np.power(n, 2)
+        - (74.92761620078642 * np.power(S1, 3)) / np.power(n, 2)
+    )
 
 
 @nb.njit(cache=True)
-def gamma_ps_nf1(_n, _sx):
-    return 0
+def gamma_ps_nf2(n, sx):
+    """Implements the part proportional to :math:`nf^2` of :math:`\\gamma_{ps}^{(3)}`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+
+    Returns
+    -------
+    complex
+        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{ps}^{(3)}|_{nf^2}`
+
+    """
+    S1 = sx[0][0]
+    return (
+        -547.9815124741111 * (1 / (-1.0 + n) - 1.0 / n)
+        + 383.72024118761027 / np.power(-1.0 + n, 2)
+        - 568.8888888888889 / np.power(n, 7)
+        + 455.1111111111111 / np.power(n, 6)
+        - 1856.79012345679 / np.power(n, 5)
+        + (64.65057318186398 * np.power(S1, 2)) / np.power(n, 2)
+        - (7.067764355654242 * np.power(S1, 3)) / np.power(n, 2)
+    )
 
 
 @nb.njit(cache=True)

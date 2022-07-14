@@ -5,6 +5,8 @@ This module contains the anomalous dimension :math:`\\gamma_{gg}^{(3)}`
 import numba as nb
 import numpy as np
 
+from ...harmonics.log_functions import lm11
+
 
 @nb.njit(cache=True)
 def gamma_gg_nf3(n, sx):
@@ -21,7 +23,7 @@ def gamma_gg_nf3(n, sx):
     Returns
     -------
     complex
-            |N3LO| non-singlet anomalous dimension :math:`\\gamma_{gg}^{(3)}|_{nf^3}`
+        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{gg}^{(3)}|_{nf^3}`
 
     """
     S1 = sx[0][0]
@@ -137,18 +139,96 @@ def gamma_gg_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_gg_nf2(_n, _sx):
-    return 0
+def gamma_gg_nf1(n, sx):
+    """Implements the part proportional to :math:`nf^1` of :math:`\\gamma_{gg}^{(3)}`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+
+    Returns
+    -------
+    complex
+        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{gg}^{(3)}|_{nf^1}`
+
+    """
+    S1 = sx[0][0]
+    return (
+        18371.82290926215
+        + 1992.766087237516 / np.power(-1.0 + n, 3)
+        - 10452.576219113906 / np.power(-1.0 + n, 2)
+        + 19915.749052258507 / (-1.0 + n)
+        + 20005.925925925927 / np.power(n, 7)
+        - 19449.679012345678 / np.power(n, 6)
+        + 80274.123066115 / np.power(n, 5)
+        - 11714.245609287387 * S1
+        + 18617.18939338288 * lm11(n, S1)
+    )
 
 
 @nb.njit(cache=True)
-def gamma_gg_nf1(_n, _sx):
-    return 0
+def gamma_gg_nf2(n, sx):
+    """Implements the part proportional to :math:`nf^2` of :math:`\\gamma_{gg}^{(3)}`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+
+    Returns
+    -------
+    complex
+        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{gg}^{(3)}|_{nf^2}`
+
+    """
+    S1 = sx[0][0]
+    return (
+        -436.18166675733164
+        + 18.346203400819753 / np.power(-1.0 + n, 2)
+        - 728.2679478666736 / (-1.0 + n)
+        - 568.8888888888889 / np.power(n, 7)
+        + 1725.6296296296296 / np.power(n, 6)
+        - 2196.543209876543 / np.power(n, 5)
+        + 440.0487580115612 * S1
+        - 382.0574816096663 * lm11(n, S1)
+    )
 
 
 @nb.njit(cache=True)
-def gamma_gg_nf0(_n, _sx):
-    return 0
+def gamma_gg_nf0(n, sx):
+    """Implements the part proportional to :math:`nf^0` of :math:`\\gamma_{gg}^{(3)}`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+
+    Returns
+    -------
+    complex
+        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{gg}^{(3)}|_{nf^0}`
+
+    """
+    S1 = sx[0][0]
+    return (
+        -61782.868048046716
+        - 49851.703887834694 / np.power(-1.0 + n, 4)
+        + 213823.9810748423 / np.power(-1.0 + n, 3)
+        - 241732.26024803068 / np.power(-1.0 + n, 2)
+        + 88694.20340182834 / (-1.0 + n)
+        - 103680.0 / np.power(n, 7)
+        - 17280.0 / np.power(n, 6)
+        - 627978.8224813186 / np.power(n, 5)
+        + 40880.33011934297 * S1
+        - 13643.320974357539 * lm11(n, S1)
+    )
 
 
 @nb.njit(cache=True)
