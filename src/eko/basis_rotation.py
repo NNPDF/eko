@@ -85,6 +85,38 @@ non_singlet_labels = (
     (non_singlet_pids_map["ns+"], 0),
     (non_singlet_pids_map["nsV"], 0),
 )
+# Sdelta = 101
+singlet_unified_labels = (
+    (21, 21),
+    (21, 20),
+    (21, 100),
+    (21, 101),
+    (20, 21),
+    (20, 20),
+    (20, 100),
+    (20, 101),
+    (100, 21),
+    (100, 20),
+    (100, 100),
+    (100, 101),
+    (101, 21),
+    (101, 20),
+    (101, 100),
+    (101, 101),
+)
+# Vdelta = 10204
+valence_unified_labels = (
+    (10200, 10200),
+    (10200, 10204),
+    (10204, 10200),
+    (10204, 10204),
+)
+non_singlet_unified_labels = (
+    (non_singlet_pids_map["ns-u"], 0),
+    (non_singlet_pids_map["ns-d"], 0),
+    (non_singlet_pids_map["ns+u"], 0),
+    (non_singlet_pids_map["ns+d"], 0),
+)
 full_labels = (*singlet_labels, *non_singlet_labels)
 anomalous_dimensions_basis = full_labels
 r"""
@@ -140,6 +172,45 @@ map_ad_to_evolution = {
 """
 Map anomalous dimension sectors' names to their members
 """
+
+map_ad_to_intrinsic_evolution = {
+    (21, 21): ["g.g"],
+    (21, 20): ["g.ph"],
+    (21, 100): ["g.S"],
+    (21, 101): ["g.Sdelta"],
+    (20, 21): ["ph.g"],
+    (20, 20): ["ph.ph"],
+    (20, 100): ["ph.S"],
+    (20, 101): ["ph.Sdelta"],
+    (100, 21): ["S.g"],
+    (100, 20): ["S.ph"],
+    (100, 100): ["S.S"],
+    (100, 101): ["S.Sdelta"],
+    (101, 21): ["Sdelta.Sdelta"],
+    (101, 20): ["Sdelta.ph"],
+    (101, 100): ["Sdelta.S"],
+    (101, 101): ["Sdelta.Sdelta"],
+    (10200, 10200): ["V.V"],
+    (10200, 10204): ["V.Vdelta"],
+    (10204, 10200): ["Vdelta.V"],
+    (10204, 10204): ["Vdelta.Vdelta"],
+    (non_singlet_pids_map["ns+u"], 0): [
+        "Tu3.Tu3",
+        "Tu8.Tu8",
+    ],
+    (non_singlet_pids_map["ns+d"], 0): [
+        "Td3.Td3",
+        "Td8.Td8",
+    ],
+    (non_singlet_pids_map["ns-u"], 0): [
+        "Vu3.Vu3",
+        "Vu8.Vu8",
+    ],
+    (non_singlet_pids_map["ns-d"], 0): [
+        "Vd3.Vd3",
+        "Vd8.Vd8",
+    ],
+}
 
 
 def ad_projector(ad_lab, nf):
