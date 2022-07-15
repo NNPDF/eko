@@ -107,8 +107,8 @@ def select_QEDvalence_element(ker, mode0, mode1):
             singlet integration kernel element
     """
 
-    k = 0 if mode0 == 100 else 1
-    l = 0 if mode1 == 100 else 1
+    k = 0 if mode0 == 10200 else 1
+    l = 0 if mode1 == 10200 else 1
     return ker[k, l]
 
 
@@ -497,7 +497,9 @@ class Operator:
         return functools.partial(
             quad_ker,
             # TODO: implement N3LO evolution kernels
-            order=self.config["order"] if self.config["order"] != 3 else 2,
+            order=self.config["order"]
+            if self.config["order"] != 3
+            else 2,  # TODO : check it
             mode0=label[0],
             mode1=label[1],
             method=self.config["method"],
