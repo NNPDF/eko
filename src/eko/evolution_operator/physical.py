@@ -133,7 +133,7 @@ class PhysicalOperator(member.OperatorBase):
         if intrinsic_range is not None:
             hqfl = "cbt"
             op_id = member.OpMember.id_like(
-                op_members[(br.non_singlet_pids_map["nsV"], 0)]
+                op_members[(br.non_singlet_pids_map["nsV"], 0)]  # Probably it is wrong
             )
             for intr_fl in intrinsic_range:
                 if intr_fl <= nf:  # light quarks are not intrinsic
