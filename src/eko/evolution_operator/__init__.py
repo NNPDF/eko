@@ -313,7 +313,7 @@ def quad_ker(
                 )
             ker = select_QEDsinglet_element(ker, mode0, mode1)
         elif ker_base.is_QEDvalence:
-            gamma_v = ad.gamma_2x2sector(order, mode0, ker_base.n, nf)
+            gamma_v = ad.gamma_2x2sector(order, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
                 gamma_v = sv.exponentiated.gamma_variation(gamma_v, order, nf, L)
@@ -326,6 +326,7 @@ def quad_ker(
                 aem,
                 nf,
                 ev_op_iterations,
+                ev_op_max_order,
             )
             # scale var expanded is applied on the kernel
             if sv_mode == sv.Modes.expanded:
@@ -338,7 +339,7 @@ def quad_ker(
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
                 gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
-            ker = qed_v.dispatcher(
+            ker = qed_ns.dispatcher(
                 order,
                 method,
                 gamma_ns,
