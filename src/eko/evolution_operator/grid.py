@@ -111,6 +111,7 @@ class OperatorGrid:
         """
         config = {}
         config["order"] = tuple(int(o) for o in theory_card["order"])
+        config["alphaem"] = theory_card["alphaem"]
         method = theory_card["ModEv"]
         mod_ev2method = {
             "EXA": "iterate-exact",

@@ -494,6 +494,7 @@ class Operator:
             areas=areas,
             as1=self.a_s[1],
             as0=self.a_s[0],
+            aem=self.config["alphaem"],
             nf=self.nf,
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
