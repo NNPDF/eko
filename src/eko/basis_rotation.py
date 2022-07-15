@@ -128,10 +128,10 @@ valence_unified_labels = (
     (10204, 10204),
 )
 non_singlet_unified_labels = (
-    (non_singlet_pids_map["ns-u"], 0),
+    (non_singlet_pids_map["ns+d"], 0),
     (non_singlet_pids_map["ns-d"], 0),
     (non_singlet_pids_map["ns+u"], 0),
-    (non_singlet_pids_map["ns+d"], 0),
+    (non_singlet_pids_map["ns-u"], 0),
 )
 full_labels = (*singlet_labels, *non_singlet_labels)
 anomalous_dimensions_basis = full_labels

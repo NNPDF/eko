@@ -448,20 +448,31 @@ class Operator:
         order = self.config["order"]
         labels = []
         # the NS sector is dynamic
-        if self.config["debug_skip_non_singlet"]:
-            logger.warning("%s: skipping non-singlet sector", self.log_label)
+        if order[1] == 0:
+            if self.config["debug_skip_non_singlet"]:
+                logger.warning("%s: skipping non-singlet sector", self.log_label)
+            else:
+                # add + as default
+                labels.append(br.non_singlet_labels[1])
+                if order[0] >= 2:  # - becomes different starting from NLO
+                    labels.append(br.non_singlet_labels[0])
+                if order[0] >= 3:  # v also becomes different starting from NNLO
+                    labels.append(br.non_singlet_labels[2])
+            # singlet sector is fixed
+            if self.config["debug_skip_singlet"]:
+                logger.warning("%s: skipping singlet sector", self.log_label)
+            else:
+                labels.extend(br.singlet_labels)
         else:
-            # add + as default
-            labels.append(br.non_singlet_labels[1])
-            if order[0] >= 2:  # - becomes different starting from NLO
-                labels.append(br.non_singlet_labels[0])
-            if order[0] >= 3:  # v also becomes different starting from NNLO
-                labels.append(br.non_singlet_labels[2])
-        # singlet sector is fixed
-        if self.config["debug_skip_singlet"]:
-            logger.warning("%s: skipping singlet sector", self.log_label)
-        else:
-            labels.extend(br.singlet_labels)
+            # add +u and +d ad default
+            labels.append(br.non_singlet_unified_labels[0])
+            labels.append(br.non_singlet_unified_labels[2])
+            # -u and -d become different starting from O(as1aem1) or O(aem2)
+            if order[1] >= 2 or order[0] >= 1:
+                labels.append(br.non_singlet_unified_labels[1])
+                labels.append(br.non_singlet_unified_labels[3])
+            labels.append(br.valence_unified_labels)
+            labels.append(br.singlet_unified_labels)
         return labels
 
     def quad_ker(self, label, logx, areas):
