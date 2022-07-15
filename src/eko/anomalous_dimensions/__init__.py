@@ -74,7 +74,7 @@ def exp_singlet(gamma_S):
 
 
 @nb.njit(cache=True)
-def exp_singlet_sector(gamma_S):
+def exp_matrix(gamma_S):
     r"""
     Computes the exponential and the eigensystem of the singlet anomalous dimension matrix
 

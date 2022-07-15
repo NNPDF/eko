@@ -63,7 +63,7 @@ def eko_iterate(gamma_singlet, a1, a0, aem, nf, order, ev_op_iterations):
                 betatot += a_half**2 * betaQCD[i, j] * a_half**i * aem**j
                 gamma += gamma_singlet[i, j] * a_half**i * aem**j
         ln = gamma / betatot * delta_a
-        ek = np.ascontiguousarray(ad.exp_singlet_sector(ln)[0])
+        ek = np.ascontiguousarray(ad.exp_matrix(ln)[0])
         e = ek @ e
         al = ah
     return e
