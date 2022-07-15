@@ -19,6 +19,9 @@ from .. import anomalous_dimensions as ad
 from .. import basis_rotation as br
 from .. import interpolation, mellin
 from .. import scale_variations as sv
+from ..kernels import QEDnon_singlet as qed_ns
+from ..kernels import QEDsinglet as qed_s
+from ..kernels import QEDvalence as qed_v
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
 from ..member import OpMember
@@ -28,6 +31,65 @@ logger = logging.getLogger(__name__)
 
 @nb.njit(cache=True)
 def select_singlet_element(ker, mode0, mode1):
+    """
+    Select element of the singlet matrix
+
+    Parameters
+    ----------
+        ker : numpy.ndarray
+            singlet integration kernel
+        mode0 : int
+            id for first sector element
+        mode1 : int
+            id for second sector element
+    Returns
+    -------
+        ker : complex
+            singlet integration kernel element
+    """
+
+    k = 0 if mode0 == 100 else 1
+    l = 0 if mode1 == 100 else 1
+    return ker[k, l]
+
+
+@nb.njit(cache=True)
+def select_QEDsinglet_element(ker, mode0, mode1):
+    """
+    Select element of the singlet matrix
+
+    Parameters
+    ----------
+        ker : numpy.ndarray
+            singlet integration kernel
+        mode0 : int
+            id for first sector element
+        mode1 : int
+            id for second sector element
+    Returns
+    -------
+        ker : complex
+            singlet integration kernel element
+    """
+    k = 0
+    if mode0 == 22:
+        k = 1
+    elif mode0 == 100:
+        k = 2
+    elif mode0 == 101:
+        k = 3
+    l = 0
+    if mode1 == 22:
+        l = 1
+    elif mode1 == 100:
+        l = 2
+    elif mode1 == 101:
+        l = 3
+    return ker[k, l]
+
+
+@nb.njit(cache=True)
+def select_QEDvalence_element(ker, mode0, mode1):
     """
     Select element of the singlet matrix
 
@@ -77,6 +139,8 @@ class QuadKerBase:
 
     def __init__(self, u, is_log, logx, mode0):
         self.is_singlet = mode0 in [100, 21, 90]
+        self.is_QEDsinglet = mode0 in [100, 101, 21, 22]
+        self.is_QEDvalence = mode0 in [10200, 10204]
         self.is_log = is_log
         self.u = u
         self.logx = logx
@@ -128,6 +192,7 @@ def quad_ker(
     areas,
     as1,
     as0,
+    aem,
     nf,
     L,
     ev_op_iterations,
@@ -179,46 +244,114 @@ def quad_ker(
     integrand = ker_base.integrand(areas)
     if integrand == 0.0:
         return 0.0
-
-    # compute the actual evolution kernel
-    if ker_base.is_singlet:
-        gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
-        # scale var exponentiated is directly applied on gamma
-        if sv_mode == sv.Modes.exponentiated:
-            gamma_singlet = sv.exponentiated.gamma_variation(
-                gamma_singlet, order, nf, L
+    if order[1] == 0:
+        # compute the actual evolution kernel
+        if ker_base.is_singlet:
+            gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
+            # scale var exponentiated is directly applied on gamma
+            if sv_mode == sv.Modes.exponentiated:
+                gamma_singlet = sv.exponentiated.gamma_variation(
+                    gamma_singlet, order, nf, L
+                )
+            ker = s.dispatcher(
+                order,
+                method,
+                gamma_singlet,
+                as1,
+                as0,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
             )
-        ker = s.dispatcher(
-            order,
-            method,
-            gamma_singlet,
-            as1,
-            as0,
-            nf,
-            ev_op_iterations,
-            ev_op_max_order,
-        )
-        # scale var expanded is applied on the kernel
-        if sv_mode == sv.Modes.expanded:
-            ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
+            # scale var expanded is applied on the kernel
+            if sv_mode == sv.Modes.expanded:
+                ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
+                    sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
+                )
+            ker = select_singlet_element(ker, mode0, mode1)
+        else:
+            gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
+            if sv_mode == sv.Modes.exponentiated:
+                gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+            ker = ns.dispatcher(
+                order,
+                method,
+                gamma_ns,
+                as1,
+                as0,
+                nf,
+                ev_op_iterations,
             )
-        ker = select_singlet_element(ker, mode0, mode1)
+            if sv_mode == sv.Modes.expanded:
+                ker = ker * sv.expanded.non_singlet_variation(
+                    gamma_ns, as1, order, nf, L
+                )
     else:
-        gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
-        if sv_mode == sv.Modes.exponentiated:
-            gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
-        ker = ns.dispatcher(
-            order,
-            method,
-            gamma_ns,
-            as1,
-            as0,
-            nf,
-            ev_op_iterations,
-        )
-        if sv_mode == sv.Modes.expanded:
-            ker = ker * sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L)
+        # compute the actual evolution kernel
+        if ker_base.is_QEDsinglet:
+            gamma_singlet = ad.gamma_4x4sector(order, ker_base.n, nf)
+            # scale var exponentiated is directly applied on gamma
+            if sv_mode == sv.Modes.exponentiated:
+                gamma_singlet = sv.exponentiated.gamma_variation(
+                    gamma_singlet, order, nf, L
+                )
+            ker = qed_s.dispatcher(
+                order,
+                method,
+                gamma_singlet,
+                as1,
+                as0,
+                aem,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
+            )
+            # scale var expanded is applied on the kernel
+            if sv_mode == sv.Modes.expanded:
+                ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
+                    sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
+                )
+            ker = select_QEDsinglet_element(ker, mode0, mode1)
+        elif ker_base.is_QEDvalence:
+            gamma_v = ad.gamma_2x2sector(order, mode0, ker_base.n, nf)
+            # scale var exponentiated is directly applied on gamma
+            if sv_mode == sv.Modes.exponentiated:
+                gamma_v = sv.exponentiated.gamma_variation(gamma_v, order, nf, L)
+            ker = qed_v.dispatcher(
+                order,
+                method,
+                gamma_v,
+                as1,
+                as0,
+                aem,
+                nf,
+                ev_op_iterations,
+            )
+            # scale var expanded is applied on the kernel
+            if sv_mode == sv.Modes.expanded:
+                ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
+                    sv.expanded.singlet_variation(gamma_v, as1, order, nf, L)
+                )
+            ker = select_QEDvalence_element(ker, mode0, mode1)
+        else:
+            gamma_ns = ad.gamma_ns_qed(order, mode0, ker_base.n, nf)
+            # scale var exponentiated is directly applied on gamma
+            if sv_mode == sv.Modes.exponentiated:
+                gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+            ker = qed_v.dispatcher(
+                order,
+                method,
+                gamma_ns,
+                as1,
+                as0,
+                aem,
+                nf,
+                ev_op_iterations,
+            )
+            if sv_mode == sv.Modes.expanded:
+                ker = ker * sv.expanded.non_singlet_variation(
+                    gamma_ns, as1, order, nf, L
+                )
 
     # recombine everthing
     return np.real(ker * integrand)
