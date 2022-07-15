@@ -61,6 +61,22 @@ Definition: :ref:`here <theory/FlavorSpace:flavor basis>`.
 corresponding |PDF| : :math:`\gamma, \Sigma, g, V, V_{3}, V_{8}, V_{15}, V_{24},
 V_{35}, T_{3}, T_{8}, T_{15}, T_{24}, T_{35}`
 """
+intrinsic_evol_basis = (
+    "g",
+    "ph",
+    "S",
+    "Sdelta",
+    "V",
+    "Vdelta",
+    "Td3",
+    "Vd3",
+    "Tu3",
+    "Vu3",
+    "Td8",
+    "Vd8",
+    "Tu8",
+    "Vu8",
+)
 
 evol_basis_pids = tuple(
     [22, 100, 21, 200]
@@ -88,19 +104,19 @@ non_singlet_labels = (
 # Sdelta = 101
 singlet_unified_labels = (
     (21, 21),
-    (21, 20),
+    (21, 22),
     (21, 100),
     (21, 101),
-    (20, 21),
-    (20, 20),
-    (20, 100),
-    (20, 101),
+    (22, 21),
+    (22, 22),
+    (22, 100),
+    (22, 101),
     (100, 21),
-    (100, 20),
+    (100, 22),
     (100, 100),
     (100, 101),
     (101, 21),
-    (101, 20),
+    (101, 22),
     (101, 100),
     (101, 101),
 )
@@ -175,19 +191,19 @@ Map anomalous dimension sectors' names to their members
 
 map_ad_to_intrinsic_evolution = {
     (21, 21): ["g.g"],
-    (21, 20): ["g.ph"],
+    (21, 22): ["g.ph"],
     (21, 100): ["g.S"],
     (21, 101): ["g.Sdelta"],
-    (20, 21): ["ph.g"],
-    (20, 20): ["ph.ph"],
-    (20, 100): ["ph.S"],
-    (20, 101): ["ph.Sdelta"],
+    (22, 21): ["ph.g"],
+    (22, 22): ["ph.ph"],
+    (22, 100): ["ph.S"],
+    (22, 101): ["ph.Sdelta"],
     (100, 21): ["S.g"],
-    (100, 20): ["S.ph"],
+    (100, 22): ["S.ph"],
     (100, 100): ["S.S"],
     (100, 101): ["S.Sdelta"],
     (101, 21): ["Sdelta.Sdelta"],
-    (101, 20): ["Sdelta.ph"],
+    (101, 22): ["Sdelta.ph"],
     (101, 100): ["Sdelta.S"],
     (101, 101): ["Sdelta.Sdelta"],
     (10200, 10200): ["V.V"],
