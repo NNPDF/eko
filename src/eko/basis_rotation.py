@@ -202,7 +202,7 @@ map_ad_to_intrinsic_evolution = {
     (100, 22): ["S.ph"],
     (100, 100): ["S.S"],
     (100, 101): ["S.Sdelta"],
-    (101, 21): ["Sdelta.Sdelta"],
+    (101, 21): ["Sdelta.g"],
     (101, 22): ["Sdelta.ph"],
     (101, 100): ["Sdelta.S"],
     (101, 101): ["Sdelta.Sdelta"],

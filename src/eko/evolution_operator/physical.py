@@ -114,7 +114,7 @@ class PhysicalOperator(member.OperatorBase):
             "V.V": op_members[(10200, 10200)],
             "V.Vdelta": op_members[(10200, 10204)],
             "Vdelta.V": op_members[(10204, 10200)],
-            "Vdelta.V": op_members[(10204, 10204)],
+            "Vdelta.Vdelta": op_members[(10204, 10204)],
         }
         # add elements which are already active
         if nf >= 3:
