@@ -75,6 +75,76 @@ class PhysicalOperator(member.OperatorBase):
         # map key to MemberName
         return cls.promote_names(m, q2_final)
 
+    @classmethod
+    def ad_to_uni_evol_map(cls, op_members, nf, q2_final, intrinsic_range):
+        """
+        Obtain map between the 3-dimensional anomalous dimension basis and the
+        4-dimensional evolution basis.
+
+        .. todo:: in VFNS sometimes IC is irrelevant if nf>=4
+
+        Parameters
+        ----------
+            op_members : dict
+                operator members in anomalous dimension basis
+            nf : int
+                number of active light flavors
+            intrinsic_range : sequence
+                intrinsic heavy flavors
+
+        Returns
+        -------
+            m : dict
+                map
+        """
+        # constant elements
+        m = {
+            "g.g": op_members[(21, 21)],
+            "g.ph": op_members[(21, 22)],
+            "g.S": op_members[(21, 100)],
+            "g.Sdelta": op_members[(21, 101)],
+            "ph.g": op_members[(22, 21)],
+            "ph.ph": op_members[(22, 22)],
+            "ph.S": op_members[(22, 100)],
+            "ph.Sdelta": op_members[(22, 101)],
+            "S.g": op_members[(100, 21)],
+            "S.ph": op_members[(100, 22)],
+            "S.S": op_members[(100, 100)],
+            "S.Sdelta": op_members[(100, 101)],
+            "V.V": op_members[(10200, 10200)],
+            "V.Vdelta": op_members[(10200, 10204)],
+            "Vdelta.V": op_members[(10204, 10200)],
+            "Vdelta.V": op_members[(10204, 10204)],
+        }
+        # add elements which are already active
+        if nf >= 3:
+            m["Td3.Td3"] = op_members[(br.non_singlet_pids_map["ns+d"], 0)]
+            m["Vd3.Vd3"] = op_members[(br.non_singlet_pids_map["ns-d"], 0)]
+        if nf >= 4:
+            m["Tu3.Tu3"] = op_members[(br.non_singlet_pids_map["ns+u"], 0)]
+            m["Vu3.Vu3"] = op_members[(br.non_singlet_pids_map["ns-u"], 0)]
+        if nf >= 5:
+            m["Td8.Td8"] = op_members[(br.non_singlet_pids_map["ns+d"], 0)]
+            m["Vd8.Vd8"] = op_members[(br.non_singlet_pids_map["ns-d"], 0)]
+        if nf >= 6:
+            m["Tu8.Tu8"] = op_members[(br.non_singlet_pids_map["ns+u"], 0)]
+            m["Vu8.Vu8"] = op_members[(br.non_singlet_pids_map["ns-u"], 0)]
+        # deal with intrinsic heavy quark PDFs
+        if intrinsic_range is not None:
+            hqfl = "cbt"
+            op_id = member.OpMember.id_like(
+                op_members[(br.non_singlet_pids_map["nsV"], 0)]
+            )
+            for intr_fl in intrinsic_range:
+                if intr_fl <= nf:  # light quarks are not intrinsic
+                    continue
+                hq = hqfl[intr_fl - 4]  # find name
+                # intrinsic means no evolution, i.e. they are evolving with the identity
+                m[f"{hq}+.{hq}+"] = op_id.copy()
+                m[f"{hq}-.{hq}-"] = op_id.copy()
+        # map key to MemberName
+        return cls.promote_names(m, q2_final)
+
     def to_flavor_basis_tensor(self):
         """
         Convert the computations into an rank 4 tensor over flavor operator space and
