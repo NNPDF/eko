@@ -8,16 +8,18 @@ from eko import basis_rotation as br
 from eko import interpolation, mellin
 from eko.couplings import Couplings
 from eko.evolution_operator.grid import OperatorGrid
+from eko.harmonics import compute_cache
 from eko.interpolation import InterpolatorDispatcher
 from eko.matching_conditions.operator_matrix_element import (
     A_non_singlet,
     A_singlet,
     OperatorMatrixElement,
     build_ome,
-    compute_harmonics_cache,
     quad_ker,
 )
 from eko.thresholds import ThresholdsAtlas
+
+max_weight_dict = {1: 2, 2: 3, 3: 5}
 
 
 def test_build_ome_as():
@@ -27,11 +29,11 @@ def test_build_ome_as():
     a_s = 0.0
     nf = 3
     is_msbar = False
-    for o in [2, 3, 4]:
-        sx_singlet = compute_harmonics_cache(N, o - 1, True)
+    for o in [1, 2, 3]:
+        sx_singlet = compute_cache(N, max_weight_dict[o], True)
         sx_ns = sx_singlet
         if o == 3:
-            sx_ns = compute_harmonics_cache(N, o - 1, False)
+            sx_ns = compute_cache(N, max_weight_dict[o], False)
 
         aNS = A_non_singlet((o, 0), N, sx_ns, nf, L)
         aS = A_singlet((o, 0), N, sx_singlet, nf, L, is_msbar, sx_ns)
@@ -55,8 +57,8 @@ def test_build_ome_nlo():
     is_msbar = False
     sx = [[1], [1], [1]]
     nf = 4
-    aNSi = A_non_singlet((2, 0), N, sx, nf, L)
-    aSi = A_singlet((2, 0), N, sx, nf, L, is_msbar)
+    aNSi = A_non_singlet((1, 0), N, sx, nf, L)
+    aSi = A_singlet((1, 0), N, sx, nf, L, is_msbar)
     for a in [aNSi, aSi]:
         for method in ["", "expanded", "exact"]:
             dim = len(a[0])
@@ -64,7 +66,7 @@ def test_build_ome_nlo():
             assert a[0, -1, -1] != 0.0
             # qh
             assert a[0, -2, -1] == 0.0
-            ome = build_ome(a, (2, 0), a_s, method)
+            ome = build_ome(a, (1, 0), a_s, method)
             assert ome.shape == (dim, dim)
             assert ome[-1, -1] != 1.0
             assert ome[-2, -1] == 0.0
@@ -99,7 +101,7 @@ def test_quad_ker(monkeypatch):
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
-            order=(4, 0),
+            order=(3, 0),
             mode0=200,
             mode1=200,
             is_log=is_log,
@@ -114,7 +116,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
             u=0,
-            order=(4, 0),
+            order=(3, 0),
             mode0=100,
             mode1=100,
             is_log=is_log,
@@ -129,7 +131,7 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
-            order=(4, 0),
+            order=(3, 0),
             mode0=100,
             mode1=21,
             is_log=is_log,
@@ -148,7 +150,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=(4, 0),
+            order=(3, 0),
             mode0=label[0],
             mode1=label[1],
             is_log=True,
@@ -181,7 +183,7 @@ def test_quad_ker(monkeypatch):
     for label in labels:
         res_ns = quad_ker(
             u=0,
-            order=(4, 0),
+            order=(3, 0),
             mode0=label[0],
             mode1=label[1],
             is_log=True,
@@ -201,7 +203,7 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 0)
     res_ns = quad_ker(
         u=0,
-        order=(4, 0),
+        order=(3, 0),
         mode0=200,
         mode1=200,
         is_log=True,
@@ -466,13 +468,13 @@ class TestOperatorMatrixElement:
             "interpolation_is_log": True,
             "debug_skip_singlet": False,
             "debug_skip_non_singlet": False,
-            "ev_op_max_order": (2, 0),
+            "ev_op_max_order": (1, 0),
             "ev_op_iterations": 1,
             "backward_inversion": "exact",
             "n_integration_cores": 1,
         }
         t = copy.deepcopy(self.theory_card)
-        t["order"] = (2, 0)
+        t["order"] = (1, 0)
         g = OperatorGrid.from_dict(
             t,
             operators_card,

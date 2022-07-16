@@ -2,19 +2,25 @@
 # Test N3LO anomalous dimensions
 import numpy as np
 
-from eko.anomalous_dimensions.as4 import gnsm, gnsp, gnsv
+from eko.anomalous_dimensions.as4 import (
+    gamma_singlet,
+    ggg,
+    ggq,
+    gnsm,
+    gnsp,
+    gnsv,
+    gps,
+    gqg,
+)
 from eko.constants import CA, CF
-
-# TODO: move this method  out of matching conditions if it will be used
-# also here...
-from eko.matching_conditions.operator_matrix_element import compute_harmonics_cache
+from eko.harmonics import compute_cache
 
 NF = 5
 
 
 def test_quark_number_conservation():
     N = 1
-    sx_cache = compute_harmonics_cache(N, 3, False)
+    sx_cache = compute_cache(N, 5, False)
 
     # (ns,s)
     # the exact expression (nf^2 part) has an nonphysical pole at N=1,
@@ -37,6 +43,36 @@ def test_quark_number_conservation():
     np.testing.assert_allclose(gnsm.gamma_nsm_nf0(N, sx_cache), 0, atol=2e-10)
     # total
     np.testing.assert_allclose(gnsm.gamma_nsm(N, NF, sx_cache), 0, atol=1e-10)
+
+
+def test_momentum_conservation():
+    N = 2
+    sx_cache = compute_cache(N, 5, True)
+
+    # nf^3 part
+    np.testing.assert_allclose(
+        gnsp.gamma_ns_nf3(N, sx_cache)
+        + gps.gamma_ps_nf3(N, sx_cache)
+        + ggq.gamma_gq_nf3(N, sx_cache),
+        0,
+        atol=3e-15,
+    )
+    np.testing.assert_allclose(
+        ggg.gamma_gg_nf3(N, sx_cache) + gqg.gamma_qg_nf3(N, sx_cache), 0, atol=2e-7
+    )
+
+    # total
+    g_singlet = gamma_singlet(N, NF, sx_cache)
+    # TODO: can't test for the time being since ns,+ is complete.
+    # np.testing.assert_allclose(
+    #     g_singlet[0, 0] + g_singlet[1, 0],
+    #     0,
+    # )
+    np.testing.assert_allclose(
+        g_singlet[0, 1] + g_singlet[1, 1],
+        0,
+        atol=2e-5,
+    )
 
 
 def test_non_singlet_reference_moments():
@@ -62,7 +98,7 @@ def test_non_singlet_reference_moments():
         2.90857799,
     ]
     for N in [3.0, 5.0, 7.0, 9.0, 11.0, 13.0, 15.0, 17.0]:
-        sx_cache = compute_harmonics_cache(N, 3, False)
+        sx_cache = compute_cache(N, 5, False)
         idx = int((N - 3) / 2)
         if N != 17:
             np.testing.assert_allclose(
@@ -91,7 +127,7 @@ def test_singlet_reference_moments():
         8119.044600816003,
     ]
     for N in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0]:
-        sx_cache = compute_harmonics_cache(N, 3, True)
+        sx_cache = compute_cache(N, 5, True)
         np.testing.assert_allclose(
             gnsp.gamma_nsp(N, NF, sx_cache), nsp_nf4_refs[int((N - 2) / 2)]
         )
@@ -163,7 +199,7 @@ def test_diff_pm_nf2():
     diff = []
     ref_vals = []
     for N in range(10, 51):
-        sx_cache = compute_harmonics_cache(N, 3, not bool(N % 2))
+        sx_cache = compute_cache(N, 5, not bool(N % 2))
         diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
         ref_vals.append(deltaB3(N, sx_cache))
     np.testing.assert_allclose(diff, ref_vals, atol=5e-4)
@@ -171,7 +207,7 @@ def test_diff_pm_nf2():
     diff = []
     ref_vals = []
     for N in range(4, 10):
-        sx_cache = compute_harmonics_cache(N, 3, not bool(N % 2))
+        sx_cache = compute_cache(N, 5, not bool(N % 2))
         diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
         ref_vals.append(deltaB3(N, sx_cache))
     np.testing.assert_allclose(diff, ref_vals, atol=2e-2)

@@ -52,8 +52,8 @@ so the |EKO| is a rank-4 operator acting both in flavor and momentum fraction sp
 
 The issue of matching conditions when crossing flavor thresholds is discussed in a separate :doc:`document <Matching>`
 
-Leading Order
--------------
+LO evolution
+------------
 
 Expanding the anomalous dimension :math:`\gamma(a_s)` and the beta function :math:`\beta(a_s)`
 to |LO| we obtain the (exact) |EKO|:
@@ -64,8 +64,8 @@ to |LO| we obtain the (exact) |EKO|:
 
 In |LO| we always use the *exact* solution.
 
-LO Non-Singlet Evolution
-^^^^^^^^^^^^^^^^^^^^^^^^
+Non-Singlet
+^^^^^^^^^^^
 
 We find
 
@@ -79,8 +79,8 @@ The |EKO| is then given by a simple exponential :cite:`Vogt:2004ns`
 .. math::
     \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) = \exp\left[\gamma_{ns}^{(0)} \ln(a_s/a_s^0)/\beta_0 \right]
 
-LO Singlet Evolution
-^^^^^^^^^^^^^^^^^^^^
+Singlet
+^^^^^^^
 
 We find
 
@@ -97,7 +97,7 @@ the eigenvalues :math:`\lambda_{\pm}` and the projectors :math:`\mathbf e_{\pm}`
 
 .. math::
     \lambda_{\pm} &= \frac 1 {2} \left( \ln \tilde E_{qq}^{(0)} + \ln \tilde E_{gg}^{(0)} \pm \sqrt{(\ln \tilde E_{qq}^{(0)}-\ln \tilde E_{gg}^{(0)})^2 + 4\ln \tilde E_{qg}^{(0)}\ln \tilde E_{gq}^{(0)}} \right)\\
-    {\mathbf e}_{\pm} &= \frac{1}{\lambda_{\pm} - \lambda_{\mp}} \left( \ln \mathbf{\tilde E}^{(0)}_S  - \lambda_{\mp} \mathbf I \right)
+    {\mathbf e}_{\pm} &= \frac{1}{\lambda_{\pm} - \lambda_{\mp}} \left( \ln \mathbf{\tilde E}^{(0)}_S - \lambda_{\mp} \mathbf I \right)
 
 with :math:`\mathbf I` the 2x2 identity matrix in flavor space and, e.g., :math:`\ln \tilde E_{qq}^{(0)} = \gamma_{qq}^{(0)}j^{(0,0)}(a_s,a_s^0)`.
 
@@ -113,11 +113,11 @@ The |EKO| is then given by
 .. math::
     \ESk{0}{a_s}{a_s^0} = \ep \exp(\lambda_{+}) + \em \exp(\lambda_{-})
 
-Next-to-Leading Order
----------------------
+NLO evolution
+-------------
 
-NLO Non-Singlet Evolution
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Non-Singlet
+^^^^^^^^^^^
 
 We find
 
@@ -141,9 +141,12 @@ Note that we recover the |LO| solution:
 In |NLO| we provide different strategies to define the |EKO|:
 
 - ``method in ['iterate-exact', 'decompose-exact', 'perturbative-exact']``: use the *exact* solution as defined above
-- ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and substitute
-  :math:`j^{(1,1)}(a_s,a_s^0) \to j^{(1,1)}_{exp}(a_s,a_s^0) = \frac 1 {\beta_0}(a_s - a_s^0)`
-  and :math:`j^{(0,1)}(a_s,a_s^0) \to j^{(0,1)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}_{exp}(a_s,a_s^0)`
+- ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and substitute:
+
+    .. math ::
+        j^{(1,1)}(a_s,a_s^0) \to j^{(1,1)}_{exp}(a_s,a_s^0) &= \frac 1 {\beta_0}(a_s - a_s^0) \\
+        j^{(0,1)}(a_s,a_s^0) \to j^{(0,1)}_{exp}(a_s,a_s^0) &= j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}_{exp}(a_s,a_s^0) \\
+
 - ``method = 'ordered-truncated'``: expanding the *argument* of the exponential of the new term but keeping the order we obtain:
 
 .. math::
@@ -154,8 +157,8 @@ In |NLO| we provide different strategies to define the |EKO|:
 .. math::
     \tilde E^{(1)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \left[1 + (a_s - a_s^0)/\beta_0 (\gamma_{ns}^{(1)} - b_1 \gamma_{ns}^{(0)}) \right]
 
-NLO Singlet Evolution
-^^^^^^^^^^^^^^^^^^^^^
+Singlet
+^^^^^^^
 
 We find
 
@@ -187,93 +190,93 @@ using the projector algebra from |LO| to exponentiate the single steps.
 - for ``method in ['perturbative-exact', 'perturbative-expanded', 'ordered-truncated', 'truncated']``
   we seek for an perturbative solution around the (exact) leading order operator:
 
-We set :cite:`Vogt:2004ns`
+  We set :cite:`Vogt:2004ns`
 
-.. math::
-    \frac{d}{da_s} \dSV{1}{a_s} = \frac{\mathbf R (a_s)}{a_s} \cdot \dSV{1}{a_s}\,, \quad
-    \mathbf R (a_s) = \sum\limits_{k=0} a_s^k \mathbf R_{k}
+    .. math::
+        \frac{d}{da_s} \dSV{1}{a_s} = \frac{\mathbf R (a_s)}{a_s} \cdot \dSV{1}{a_s}\,, \quad
+        \mathbf R (a_s) = \sum\limits_{k=0} a_s^k \mathbf R_{k}
 
-where in |NLO| we find
+  where in |NLO| we find
 
-.. math::
-    \mathbf R_0 = \gamma_{S}^{(0)}/\beta_0\,,\quad
-    \mathbf R_1 = \gamma_{S}^{(1)}/\beta_0 - b_1 \gamma_{S}^{(0)} /\beta_0
+    .. math::
+        \mathbf R_0 = \gamma_{S}^{(0)}/\beta_0\,,\quad
+        \mathbf R_1 = \gamma_{S}^{(1)}/\beta_0 - b_1 \gamma_{S}^{(0)} /\beta_0
 
-and for the higher coefficients
+  and for the higher coefficients
 
-- ``method = 'perturbative-exact'``: :math:`\mathbf R_k = - b_1 \mathbf R_{k-1}\,\text{for}\,k>1`
-- ``method = 'perturbative-expanded'``: :math:`\mathbf R_k = 0\,\text{for}\,k>1`
+    - ``method = 'perturbative-exact'``: :math:`\mathbf R_k = - b_1 \mathbf R_{k-1}\,\text{for}\,k>1`
+    - ``method = 'perturbative-expanded'``: :math:`\mathbf R_k = 0\,\text{for}\,k>1`
 
-We make an ansatz for the solution
+  We make an ansatz for the solution
 
-.. math::
-    \ESk{1}{a_s}{a_s^0} = \mathbf U (a_s) \ESk{0}{a_s}{a_s^0} {\mathbf U}^{-1} (a_s^0), \quad
-    \mathbf U (a_s) = \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
+    .. math::
+        \ESk{1}{a_s}{a_s^0} = \mathbf U (a_s) \ESk{0}{a_s}{a_s^0} {\mathbf U}^{-1} (a_s^0), \quad
+        \mathbf U (a_s) = \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
 
-Inserting this ansatz into the differential equation and sorting by powers of :math:`a_s`, we
-obtain a recursive set of commutator relations for the evolution operator coefficients
-:math:`\mathbf U_k`:
+  Inserting this ansatz into the differential equation and sorting by powers of :math:`a_s`, we
+  obtain a recursive set of commutator relations for the evolution operator coefficients
+  :math:`\mathbf U_k`:
 
-.. math::
-    [\mathbf U_1, \mathbf R_0] &= \mathbf R_1 - \mathbf U_1\\
-    [\mathbf U_k, \mathbf R_0] &= \mathbf R_k + \sum\limits_{j=1}^{k-1} \mathbf R_{k-j} \mathbf U_j - k \mathbf U_k = \mathbf{R}_k' - k \mathbf U_k\,,k>1
+    .. math::
+        [\mathbf U_1, \mathbf R_0] &= \mathbf R_1 - \mathbf U_1\\
+        [\mathbf U_k, \mathbf R_0] &= \mathbf R_k + \sum\limits_{j=1}^{k-1} \mathbf R_{k-j} \mathbf U_j - k \mathbf U_k = \mathbf{R}_k' - k \mathbf U_k\,,k>1
 
-Multiplying these equations with :math:`\mathbf e_{\pm}` from left and right and using the identity
+  Multiplying these equations with :math:`\mathbf e_{\pm}` from left and right and using the identity
 
-.. math::
-    \mathbf U_k = \em \mathbf U_k \em + \em \mathbf U_k \ep + \ep \mathbf U_k \em + \ep \mathbf U_k \ep
+    .. math::
+        \mathbf U_k = \em \mathbf U_k \em + \em \mathbf U_k \ep + \ep \mathbf U_k \em + \ep \mathbf U_k \ep
 
-we obtain the :math:`\mathbf U_k`
+  we obtain the :math:`\mathbf U_k`
 
-.. math::
-    \mathbf U_k = \frac{ \em \mathbf{R}_k' \em + \ep \mathbf{R}_k' \ep } k + \frac{\ep \mathbf{R}_k' \em}{r_- - r_+ + k} + \frac{\em \mathbf{R}_k' \ep}{r_+ - r_- + k}
+    .. math::
+        \mathbf U_k = \frac{ \em \mathbf{R}_k' \em + \ep \mathbf{R}_k' \ep } k + \frac{\ep \mathbf{R}_k' \em}{r_- - r_+ + k} + \frac{\em \mathbf{R}_k' \ep}{r_+ - r_- + k}
 
-with :math:`r_{\pm} =\frac 1 {2\beta_0} \left( \gamma_{qq}^{(0)} + \gamma_{gg}^{(0)} \pm \sqrt{(\gamma_{qq}^{(0)}-\gamma_{gg}^{(0)})^2 + 4\gamma_{qg}^{(0)}\gamma_{gq}^{(0)}} \right)`.
+  with :math:`r_{\pm} =\frac 1 {2\beta_0} \left( \gamma_{qq}^{(0)} + \gamma_{gg}^{(0)} \pm \sqrt{(\gamma_{qq}^{(0)}-\gamma_{gg}^{(0)})^2 + 4\gamma_{qg}^{(0)}\gamma_{gq}^{(0)}} \right)`.
 
-So the strategies are
+  So the strategies are
 
-- ``method in ['perturbative-exact', 'perturbative-expanded']``: approximate the full evolution
-  operator :math:`\mathbf U(a_s)` with an expansion up to ``ev_op_max_order``
-- ``method in ['ordered-truncated', 'truncated']``: truncate the evolution operator :math:`\mathbf U(a_s)` and use
+    - ``method in ['perturbative-exact', 'perturbative-expanded']``: approximate the full evolution
+      operator :math:`\mathbf U(a_s)` with an expansion up to ``ev_op_max_order``
+    - ``method in ['ordered-truncated', 'truncated']``: truncate the evolution operator :math:`\mathbf U(a_s)` and use
 
-.. math::
-    \ESk{1}{a_s}{a_s^0} = \ESk{0}{a_s}{a_s^0} + a_s \mathbf U_1 \ESk{0}{a_s}{a_s^0} - a_s^0 \ESk{0}{a_s}{a_s^0} \mathbf U_1
+    .. math::
+        \ESk{1}{a_s}{a_s^0} = \ESk{0}{a_s}{a_s^0} + a_s \mathbf U_1 \ESk{0}{a_s}{a_s^0} - a_s^0 \ESk{0}{a_s}{a_s^0} \mathbf U_1
 
-Next-to-Next-to-Leading Order
------------------------------
+NNLO evolution
+--------------
 
-NNLO Non-Singlet Evolution
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Non-Singlet
+^^^^^^^^^^^
 
 We find
 
 .. math::
     \frac{d}{da_s} \tilde f_{ns}^{(2)}(a_s) = \frac{\gamma_{ns}^{(0)} a_s + \gamma_{ns}^{(1)} a_s^2 + \gamma_{ns}^{(2)} a_s^3 }{\beta_0 a_s^2 + \beta_1 a_s^3 + \beta_2 a_s^4} \cdot \tilde f_{ns}^{(2)}(a_s)
 
-with :math:`\gamma_{ns} \in \{\gamma_{ns,+},\gamma_{ns,-}=\gamma_{ns,v}\}`.
+with :math:`\gamma_{ns} \in \{\gamma_{ns,+},\gamma_{ns,-},\gamma_{ns,v}\}`.
 
 We obtain the (exact) |EKO| :cite:`Vogt:2004ns,Cafarella_2008`:
 
 .. math::
-    \ln \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \gamma^{(0)} \cdot j^{(0,2)}(a_s,a_s^0) + \gamma^{(1)} \cdot j^{(1,2)}(a_s,a_s^0) + \gamma^{(2)} \cdot j^{(2,2)}(a_s,a_s^0)\\
+    \ln \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \gamma_{ns}^{(0)} j^{(0,2)}(a_s,a_s^0) + \gamma_{ns}^{(1)} j^{(1,2)}(a_s,a_s^0) + \gamma_{ns}^{(2)} j^{(2,2)}(a_s,a_s^0)\\
 
 with:
 
 .. math::
     j^{(2,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = \frac{1}{\beta_2}\ln\left(\frac{1 + a_s ( b_1 + b_2 a_s ) }{ 1 + a_s^0 ( b_1 + b_2 a_s^0 )}\right) - \frac{b_1}{ \beta_2 \Delta} \delta \\
-    \delta &= atan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - atan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
+    \delta &= \arctan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - \arctan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
         &= \frac{i}{2} \left[ ln \left( \frac{ \Delta - i (b_1 + 2a_s b_2)}{ \Delta + i (b_1 + 2a_s b_2)}\right) - ln \left( \frac{ \Delta - i (b_1 + 2a_s^0 b_2)}{ \Delta + i (b_1 + 2a_s^0 b_2)}\right) \right] \\
-        &= atan \left( \frac{\Delta ( a_s - a_s^0 )}{ 2 + b_1 (a_s + a_s^0) + 2 a_s a_s^0 b_2 } \right) \\
+        &= \arctan \left( \frac{\Delta ( a_s - a_s^0 )}{ 2 + b_1 (a_s + a_s^0) + 2 a_s a_s^0 b_2 } \right) \\
     \Delta &= \sqrt{4 b_2 - b_1^2 }
 
 and:
 
 .. math::
-    j^{(1,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} =  \frac{2}{\beta_0 \Delta} \delta \\
+    j^{(1,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = \frac{2}{\beta_0 \Delta} \delta \\
     j^{(0,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4} = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}(a_s,a_s^0) - b_2 j^{(2,2)}(a_s,a_s^0)
 
 Note, plugging the numerical values of :math:`\beta_i` we find that the :math:`\Delta \in \mathbb{R}` if :math:`n_f < 6`.
-However you can notice that :math:`\Delta` appears always with :math:`\delta` and the fraction :math:`\frac{\delta}{\Delta} \in  \mathbb{R}, \forall n_f`.
+However you can notice that :math:`\Delta` appears always with :math:`\delta` and the fraction :math:`\frac{\delta}{\Delta} \in \mathbb{R}, \forall n_f`.
 
 We can recover the |LO| solution:
 
@@ -292,36 +295,36 @@ In |NNLO| we provide different strategies to define the |EKO|:
 - ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and expand all functions :math:`j^{(n,m)}(a_s,a_s^0)` to the order :math:`\mathcal o(a_s^3)`. We find:
 
 .. math::
-    j^{(2,2)}(a_s,a_s^0) &\approx j^{(2,2)}_{exp}(a_s,a_s^0) &= \frac{1}{2\beta_0} (a_s^2 - (a_s^0)^{2}) \\
-    j^{(1,2)}(a_s,a_s^0) &\approx j^{(1,2)}_{exp}(a_s,a_s^0) &= \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - (a_s^0)^{2})] \\
-    j^{(0,2)}(a_s,a_s^0) &\approx j^{(0,2)}_{exp}(a_s,a_s^0) &=  j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}_{exp}(a_s,a_s^0) - b_2 j^{(2,2)}_{exp}(a_s,a_s^0) \\
-    & &= j^{(0,0)}(a_s,a_s^0)  - \frac{1}{\beta_0} [ b_1 (a_s - a_s^0) + \frac{b_1^2+b_2}{2} (a_s^2 - (a_s^0)^{2}) ] \\
+    j^{(2,2)}(a_s,a_s^0) \approx j^{(2,2)}_{exp}(a_s,a_s^0) &= \frac{1}{2\beta_0} (a_s^2 - (a_s^0)^{2}) \\
+    j^{(1,2)}(a_s,a_s^0) \approx j^{(1,2)}_{exp}(a_s,a_s^0) &= \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - (a_s^0)^{2})] \\
+    j^{(0,2)}(a_s,a_s^0) \approx j^{(0,2)}_{exp}(a_s,a_s^0) &= j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}_{exp}(a_s,a_s^0) - b_2 j^{(2,2)}_{exp}(a_s,a_s^0) \\
+    &= j^{(0,0)}(a_s,a_s^0) - \frac{1}{\beta_0} [ b_1 (a_s - a_s^0) + \frac{b_1^2-b_2}{2} (a_s^2 - (a_s^0)^{2}) ] \\
 
 This method corresponds to ``IMODEV=2`` of :cite:`Vogt:2004ns`.
 
 - ``method = 'ordered-truncated'``: for this method we follow the prescription from :cite:`Vogt:2004ns` and we get:
 
 .. math::
-    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \frac{ 1 + a_s U_1 + a_s^2 U_2 }{ 1 + a_s^{(0)} U_1 + (a_s^0)^{2} U_2 }
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \frac{ 1 + a_s U_1 + a_s^2 U_2 }{ 1 + a_s^0 U_1 + (a_s^0)^{2} U_2 }
 
-with the unitary matrices defined consistently with the method ``pertubative`` adopted for NLO singlet evolution:
+with the unitary matrices defined consistently with the method ``perturbative`` adopted for NLO singlet evolution:
 
 .. math::
     U_1 &= R_1 = \frac{1}{\beta_0}[ \gamma^{(1)} - b_1 \gamma^{(0)}] \\
     U_2 &= \frac{1}{2}[ R_1^2 + R_2 ] \\
-    R_2 &= \gamma^{(2)}/\beta_0 - b_1 R_1 - b_2 R_0 \\
+    R_2 &= \gamma_{ns}^{(2)}/\beta_0 - b_1 R_1 - b_2 R_0 \\
 
 This method corresponds to ``IMODEV=3`` of :cite:`Vogt:2004ns`.
 
 - ``method = 'truncated'``: we expand the *whole* exponential and keeping terms within :math:`\mathcal o(a_s^3)`. This method is the fastest among the ones provided by our program. We obtain:
 
 .. math::
-    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \left [ 1 + U_1 (a_s - a_s^0) + a_s^2 U_2 - a_s a_s^{(0)} U_1^2 + (a_s^0)^{2} ( U_1^2 - U_2 ) \right]
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \left [ 1 + U_1 (a_s - a_s^0) + a_s^2 U_2 - a_s a_s^0 U_1^2 + (a_s^0)^{2} ( U_1^2 - U_2 ) \right]
 
 
 
-NNLO Singlet Evolution
-^^^^^^^^^^^^^^^^^^^^^^
+Singlet
+^^^^^^^
 
 For the singlet evolution we find:
 
@@ -346,44 +349,163 @@ All the procedure is identical to |NLO|, simply the beat function is now expande
 - for ``method in ['perturbative-exact', 'perturbative-expanded', 'ordered-truncated', 'truncated']``
   we seek for an perturbative solution around the (exact) leading order operator. We set :cite:`Vogt:2004ns`
 
+    .. math::
+        \frac{d}{da_s} \dSV{2}{a_s} = \frac{\mathbf R (a_s)}{a_s} \cdot \dSV{2}{a_s}\,, \quad
+        \mathbf R (a_s) = \sum\limits_{k=0} a_s^k \mathbf R_{k}
+
+  Finding one additional term compared to |NLO|:
+
+    .. math::
+        \mathbf R_2 & = \gamma_{S}^{(2)}/\beta_0 - b_1 \mathbf R_1 - b_2 \mathbf R_0 \\
+        & = \frac{1}{\beta_0} [ \gamma_{S}^{(2)} - b_1 \gamma_{S}^{(1)} - \gamma_{S}^{(0)} ( b_2 - b_1^2 ) ]
+
+  and for the higher coefficients
+
+    - ``method = 'perturbative-exact'``: :math:`\mathbf R_k = - b_1 \mathbf R_{k-1} - b_2 \mathbf R_{k-2} \,\text{for}\,k>2`
+    - ``method = 'perturbative-expanded'``: :math:`\mathbf R_k = 0\,\text{for}\,k>2`
+
+    The solution ansatz becomes:
+
+    .. math::
+        \ESk{2}{a_s}{a_s^0} = \mathbf U (a_s) \ESk{0}{a_s}{a_s^0} {\mathbf U}^{-1} (a_s^0), \quad
+        \mathbf U (a_s) = \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
+
+  with:
+
+    .. math::
+        [\mathbf U_2, \mathbf R_0] &= \mathbf R_2 + \mathbf R_1 \mathbf U_1 - 2 \mathbf U_2\\
+
+  So the strategies are:
+
+    - ``method in ['perturbative-exact', 'perturbative-expanded']``: approximate the full evolution
+      operator :math:`\mathbf U(a_s)` with an expansion up to ``ev_op_max_order``
+    - ``method in ['ordered-truncated', 'truncated']``: truncate the evolution operator :math:`\mathbf U(a_s)` and use
+
+    .. math::
+        \ESk{2}{a_s}{a_s^0} &= \ESk{0}{a_s}{a_s^0} + a_s \mathbf U_1 \ESk{0}{a_s}{a_s^0} - a_s^0 \ESk{0}{a_s}{a_s^0} \mathbf U_1 \\
+        &\hspace{20pt} + a_s^2 \mathbf U_2 \ESk{0}{a_s}{a_s^0} \\
+        &\hspace{20pt} + a_s a_s^0 \mathbf U_1 \ESk{0}{a_s}{a_s^0} \mathbf U_1 \\
+        &\hspace{20pt}- (a_s^0)^{2} \ESk{0}{a_s}{a_s^0} ( \mathbf U_1^2 - \mathbf U_2 )
+
+
+N3LO evolution
+--------------
+
+Non-Singlet
+^^^^^^^^^^^
+
+At |N3LO| the |DGLAP| expansion reads:
+
 .. math::
-    \frac{d}{da_s} \dSV{2}{a_s} = \frac{\mathbf R (a_s)}{a_s} \cdot \dSV{2}{a_s}\,, \quad
-    \mathbf R (a_s) = \sum\limits_{k=0} a_s^k \mathbf R_{k}
+    \frac{d}{da_s} \tilde f_{ns}^{(2)}(a_s) = \frac{\gamma_{ns}^{(0)} a_s + \gamma_{ns}^{(1)} a_s^2 + \gamma_{ns}^{(2)} a_s^3 + \gamma_{ns}^{(3)} a_s^4 }{\beta_0 a_s^2 + \beta_1 a_s^3 + \beta_2 a_s^4 + \beta_3 a_s^5 } \cdot \tilde f_{ns}^{(2)}(a_s)
 
-Finding one additional term compared to |NLO|:
+with :math:`\gamma_{ns} \in \{\gamma_{ns,+},\gamma_{ns,-},\gamma_{ns,v}\}`.
 
-.. math::
-    \mathbf R_2 & = \gamma_{S}^{(2)}/\beta_0 - b_1 \mathbf R_1 - b_2 \mathbf R_0  \\
-    & = \frac{1}{\beta_0} [ \gamma_{S}^{(2)} - b_1 \gamma_{S}^{(1)} - \gamma_{S}^{(0)} ( b_2 - b_1^2 ) ]
-
-and for the higher coefficients
-
-- ``method = 'perturbative-exact'``: :math:`\mathbf R_k = - b_1 \mathbf R_{k-1} - b_2 \mathbf R_{k-1} \,\text{for}\,k>2`
-- ``method = 'perturbative-expanded'``: :math:`\mathbf R_k = 0\,\text{for}\,k>2`
-
-The solution ansatz becomes:
+We obtain the (exact) |EKO| in analogy of the previous orders and recovering the |LO| solution:
 
 .. math::
-    \ESk{2}{a_s}{a_s^0} = \mathbf U (a_s) \ESk{0}{a_s}{a_s^0} {\mathbf U}^{-1} (a_s^0), \quad
-    \mathbf U (a_s) = \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
+    \ln \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) &= \gamma_{ns}^{(0)} j^{(0,3)}(a_s,a_s^0) + \gamma_{ns}^{(1)} j^{(1,3)}(a_s,a_s^0) + \gamma_{ns}^{(2)} j^{(2,3)}(a_s,a_s^0) + \gamma_{ns}^{(3)} j^{(3,3)}(a_s,a_s^0)\\
 
 with:
 
 .. math::
-    [\mathbf U_2, \mathbf R_0] &= \mathbf R_2 + \mathbf R_1 \mathbf U_1 - 2 \mathbf U_2\\
+    j^{(3,3)}(a_s,a_s^0) &= \frac{1}{\beta_0} \sum_{r=r_1}^{r_3} \frac{ r^2 [\ln(a_s-r) - \ln(a_s^0 - r)]}{b_1 + 2 b_2 r + 3 b_3 r^2} \\
+    j^{(2,3)}(a_s,a_s^0) &= \frac{1}{\beta_0} \sum_{r=r_1}^{r_3} \frac{r [\ln(a_s-r) - \ln(a_s^0 - r)]}{b_1 + 2 b_2 r + 3 b_3 r^2} \\
+    j^{(1,3)}(a_s,a_s^0) &= \frac{1}{\beta_0} \sum_{r=r_1}^{r_3} \frac{\ln(a_s-r) - \ln(a_s^0 - r)}{b_1 + 2 b_2 r + 3 b_3 r^2} \\
+    j^{(0,3)}(a_s,a_s^0) &= j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,3)}(a_s,a_s^0) - b_2 j^{(2,3)}(a_s,a_s^0)- b_3 j^{(3,3)}(a_s,a_s^0)
 
-So the strategies are:
+where the sum is carried on the complex roots of the beta function expansion:
 
-- ``method in ['perturbative-exact', 'perturbative-expanded']``: approximate the full evolution
-  operator :math:`\mathbf U(a_s)` with an expansion up to ``ev_op_max_order``
-- ``method in ['ordered-truncated', 'truncated']``: truncate the evolution operator :math:`\mathbf U(a_s)` and use
+.. math ::
+    a_s \in \{r_1, r_2, r_3 \} | \quad 1 + b_1 a_s + b_2 a_s^2 + b_3 a_s^3 = 0
+
+You can notice that in the denominator of the integrals appears always the derivative of this expansion.
+We remark that even though the roots are complex the total integral is real.
+
+Also in this case we provide a we provide different strategies to define the |EKO|:
+
+- ``method in ['iterate-exact', 'decompose-exact', 'perturbative-exact']``: use the *exact* solution as defined above
+- ``method in ['iterate-expanded', 'decompose-expanded', 'perturbative-expanded']``: use the *exact* |LO| solution and expand all functions :math:`j^{(n,m)}(a_s,a_s^0)` to the order :math:`\mathcal o(a_s^3)`. We find:
 
 .. math::
-    \ESk{2}{a_s}{a_s^0} &= \ESk{0}{a_s}{a_s^0} + a_s \mathbf U_1 \ESk{0}{a_s}{a_s^0} - a_s^0 \ESk{0}{a_s}{a_s^0} \mathbf U_1 \\
-    &\hspace{20pt} + a_s^2 \mathbf U_2 \ESk{0}{a_s}{a_s^0} \\
-    &\hspace{20pt} + a_s a_s^0 \mathbf U_1 \ESk{0}{a_s}{a_s^0} \mathbf U_1 \\
-    &\hspace{20pt}- (a_s^0)^{2} \ESk{0}{a_s}{a_s^0} ( \mathbf U_1^2 - \mathbf U_2 )
+    j^{(3,3)}(a_s,a_s^0) &\approx j^{(3,3)}_{exp}(a_s,a_s^0) = \frac{1}{3 \beta_0} (a_s^3 - (a_s^0)^3) \\
+    j^{(2,3)}(a_s,a_s^0) &\approx j^{(2,3)}_{exp}(a_s,a_s^0) = \frac{1}{\beta_0} [ \frac{1}{2} (a_s^2 - (a_s^0)^2) - \frac{b_1}{3} (a_s^3 - (a_s^0)^3) ]\\
+    j^{(1,3)}(a_s,a_s^0) &\approx j^{(1,3)}_{exp}(a_s,a_s^0) = \frac{1}{\beta_0} [ (a_s - a_s^0) - \frac{b_1}{2} (a_s^2 - (a_s^0)^2) + \frac{b_1^2-b_2}{3} (a_s^3 - (a_s^0)^3) ]\\
+    j^{(0,2)}(a_s,a_s^0) &\approx j^{(0,3)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,3)}_{exp}(a_s,a_s^0) - b_2 j^{(2,3)}_{exp}(a_s,a_s^0)- b_3 j^{(3,3)}_{exp}(a_s,a_s^0) \\
 
+
+
+- ``method = 'ordered-truncated'``: performing the expansion one order higher wrt to |NNLO| we get:
+
+.. math::
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0) \frac{ 1 + a_s U_1 + a_s^2 U_2 + a_s^3 U_3 }{ 1 + a_s^0 U_1 + (a_s^0)^{2} U_2 + (a_s^0)^{3} U_3 }
+
+with the new unitary matrices defined:
+
+.. math::
+    U_3 &= \frac{1}{3} [R_3 + R_2 U_1 + R_1 U_2] \\
+    R_3 &= \gamma_{ns}^{(3)}/\beta_0 - b_1 R_2 - b_2 R_1 - b_3 R_0 \\
+
+
+- ``method = 'truncated'``:
+
+.. math::
+    \tilde E^{(2)}_{ns}(a_s \leftarrow a_s^0) = \tilde E^{(0)}_{ns}(a_s \leftarrow a_s^0)  & \left[ \right. 1 \\
+        & + U_1 (a_s - a_s^0) \\
+        & + a_s^2 U_2 - a_s a_s^0 U_1^2 + (a_s^0)^{2} ( U_1^2 - U_2 ) \\
+        & + a_s^3 U_3 - a_s^2 a_s^0 U_2 U_1 + a_s (a_s^0)^{2} U_1 ( U_1^2 - U_2 ) - (a_s^0)^{3} (U_1^3 - 2 U_1 U_2 + U_3) \left. \right] \\
+
+Singlet
+^^^^^^^
+
+For the singlet evolution we find:
+
+.. math::
+    \frac{d}{da_s} \dSV{2}{a_s} = \frac{\gamma_{S}^{(0)} a_s + \gamma_{S}^{(1)} a_s^2 + \gamma_{S}^{(2)} a_s^3 + \gamma_{S}^{(3)} a_s^3}{\beta_0 a_s^2 + \beta_1 a_s^3 + \beta_2 a_s^4 + \beta_3 a_s^5} \cdot \dSV{2}{a_s}
+
+with :math:`\gamma_{S}^{(i)} \gamma_{S}^{(j)} \neq \gamma_{S}^{(j)} \gamma_{S}^{(i)}, \quad i,j=0,1,2,3`.
+
+In analogy to |NLO| we define the following strategies :
+
+- for ``method in ['iterate-exact', 'iterate-expanded']``: the solution strategies is exactly the same
+  as in |NLO| and |NNLO| simply the beat function is now expanded until :math:`\mathcal o(a_s^5)`
+
+- for ``method in ['decompose-exact', 'decompose-expanded']``: use the exact or the approximate exact
+  integrals from the non-singlet sector and then decompose :math:`\ln \tilde{\mathbf E}^{(3)}` -
+  this will neglect the non-commutativity of the singlet matrices.
+
+- for ``method in ['perturbative-exact', 'perturbative-expanded', 'ordered-truncated', 'truncated']``
+  we seek for an perturbative solution around the (exact) leading order operator. Following the notation used for
+  previous orders we have:
+
+
+    .. math::
+        \mathbf R_2 & = \gamma_{S}^{(3)}/\beta_0 - b_1 \mathbf R_2 - b_2 \mathbf R_1 - b_3 \mathbf R_0 \\
+
+  and for the higher coefficients:
+
+    - ``method = 'perturbative-exact'``: :math:`\mathbf R_k = - b_1 \mathbf R_{k-1} - b_2 \mathbf R_{k-2} - b_3 \mathbf R_{k-3} \,\text{for}\,k>3`
+    - ``method = 'perturbative-expanded'``: :math:`\mathbf R_k = 0\,\text{for}\,k>3`
+
+  The new unitary matrix entering in the evolution ansatz follows the commutation relation:
+
+    .. math::
+        [\mathbf U_3, \mathbf R_0] &= \mathbf R_3 + \mathbf R_2 \mathbf U_1 + \mathbf R_1 \mathbf U_2 - 3 \mathbf U_3\\
+
+  So the strategies are:
+
+    - ``method in ['perturbative-exact', 'perturbative-expanded']``: approximate the full evolution
+      operator :math:`\mathbf U(a_s)` with an expansion up to ``ev_op_max_order``
+    - ``method in ['ordered-truncated', 'truncated']``: truncate the evolution operator :math:`\mathbf U(a_s)` and use
+
+    .. math::
+        \ESk{3}{a_s}{a_s^0} = \mathbf E^{0} &+ a_s \mathbf U_1 \mathbf E^{0} - a_s^0 \mathbf E^{0} \mathbf U_1 \\
+        & + a_s^2 \mathbf U_2 \mathbf E^{0} + a_s a_s^0 \mathbf U_1 \mathbf E^{0} \mathbf U_1 - (a_s^0)^{2} \mathbf E^{0} ( \mathbf U_1^2 - \mathbf U_2 ) \\
+        & + a_s^3 \mathbf U_3 \mathbf E^{0} - a_s^2 a_s^0 \mathbf U_2 \mathbf E^{0} \mathbf U_1 + a_s (a_s^0)^2 \mathbf U_1 E^{0} (\mathbf U_1^2 - \mathbf U_2) \\
+        & - (a_s^0)^3 \mathbf E^{0} (\mathbf U_1^3 - \mathbf U_1 \mathbf U_2 - \mathbf U_2 \mathbf U_1 + \mathbf U_3) \\
+
+    .. math ::
+        \mathbf E^{0} = \ESk{0}{a_s}{a_s^0}
 
 Intrinsic evolution
 -------------------

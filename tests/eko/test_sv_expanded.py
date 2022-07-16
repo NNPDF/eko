@@ -63,7 +63,7 @@ def test_scale_variation_a_vs_b():
         """
         :math:`(ker_A - ker_B)/ker_{unv}` for truncated expansion
         Effects due to non commutativity are neglected thus,
-        he accuracy of singlet quantities is slightly worst.
+        the accuracy of singlet quantities is slightly worse.
         """
         if pto[0] >= 2:
             diff = g[0] * k * a0

@@ -170,7 +170,7 @@ class QuadKerBase:
         Returns
         -------
             base_integrand: complex
-                common mellin inversion intgrand
+                common mellin inversion integrand
         """
         if self.logx == 0.0:
             return 0.0
@@ -198,47 +198,49 @@ def quad_ker(
     ev_op_iterations,
     ev_op_max_order,
     sv_mode,
+    is_threshold,
 ):
-    """
-    Raw evolution kernel inside quad.
+    """Raw evolution kernel inside quad.
 
     Parameters
     ----------
-        u : float
-            quad argument
-        order : tuple(int,int)
-            perturbation orders
-        method : str
-            method
-        mode0: int
-            pid for first sector element
-        mode1 : int
-            pid for second sector element
-        is_log : boolean
-            is a logarithmic interpolation
-        logx : float
-            Mellin inversion point
-        areas : tuple
-            basis function configuration
-        as1 : float
-            target coupling value
-        as0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
-        L : float
-            logarithm of the squared ratio of factorization and renormalization scale
-        ev_op_iterations : int
-            number of evolution steps
-        ev_op_max_order : int
-            perturbative expansion order of U
-        sv_mode: int, `enum.IntEnum`
-            scale variation mode, see `eko.scale_variations.Modes`
+    u : float
+        quad argument
+    order : int
+        perturbation order
+    mode0: int
+        pid for first sector element
+    mode1 : int
+        pid for second sector element
+    method : str
+        method
+    is_log : boolean
+        is a logarithmic interpolation
+    logx : float
+        Mellin inversion point
+    areas : tuple
+        basis function configuration
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
+    L : float
+        logarithm of the squared ratio of factorization and renormalization scale
+    ev_op_iterations : int
+        number of evolution steps
+    ev_op_max_order : int
+        perturbative expansion order of U
+    sv_mode: int, `enum.IntEnum`
+        scale variation mode, see `eko.scale_variations.Modes`
+    is_threshold : boolean
+        is this an itermediate threshold operator?
 
     Returns
     -------
-        ker : float
-            evaluated integration kernel
+    float
+        evaluated integration kernel
     """
     ker_base = QuadKerBase(u, is_log, logx, mode0)
     integrand = ker_base.integrand(areas)
@@ -264,10 +266,10 @@ def quad_ker(
                 ev_op_max_order,
             )
             # scale var expanded is applied on the kernel
-            if sv_mode == sv.Modes.expanded:
-                ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
+            if sv_mode == sv.Modes.expanded and not is_threshold:
+                ker = np.ascontiguousarray(
                     sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
-                )
+                ) @ np.ascontiguousarray(ker)
             ker = select_singlet_element(ker, mode0, mode1)
         else:
             gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
@@ -282,9 +284,9 @@ def quad_ker(
                 nf,
                 ev_op_iterations,
             )
-            if sv_mode == sv.Modes.expanded:
-                ker = ker * sv.expanded.non_singlet_variation(
-                    gamma_ns, as1, order, nf, L
+            if sv_mode == sv.Modes.expanded and not is_threshold:
+                ker = (
+                    sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
                 )
     else:
         # compute the actual evolution kernel
@@ -307,7 +309,7 @@ def quad_ker(
                 ev_op_max_order,
             )
             # scale var expanded is applied on the kernel
-            if sv_mode == sv.Modes.expanded:
+            if sv_mode == sv.Modes.expanded and not is_threshold:
                 ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
                     sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
                 )
@@ -329,10 +331,10 @@ def quad_ker(
                 ev_op_max_order,
             )
             # scale var expanded is applied on the kernel
-            if sv_mode == sv.Modes.expanded:
-                ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
+            if sv_mode == sv.Modes.expanded and not is_threshold:
+                ker = np.ascontiguousarray(
                     sv.expanded.singlet_variation(gamma_v, as1, order, nf, L)
-                )
+                ) @ np.ascontiguousarray(ker)
             ker = select_QEDvalence_element(ker, mode0, mode1)
         else:
             gamma_ns = ad.gamma_ns_qed(order, mode0, ker_base.n, nf)
@@ -349,42 +351,45 @@ def quad_ker(
                 nf,
                 ev_op_iterations,
             )
-            if sv_mode == sv.Modes.expanded:
-                ker = ker * sv.expanded.non_singlet_variation(
-                    gamma_ns, as1, order, nf, L
+            if sv_mode == sv.Modes.expanded and not is_threshold:
+                ker = (
+                    sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
                 )
 
-    # recombine everthing
+    # recombine everything
     return np.real(ker * integrand)
 
 
-class Operator:
-    """
-    Internal representation of a single EKO.
+class Operator(sv.ModeMixin):
+    """Internal representation of a single EKO.
 
     The actual matrices are computed upon calling :meth:`compute`.
 
     Parameters
     ----------
-        config : dict
-            configuration
-        managers : dict
-            managers
-        nf : int
-            number of active flavors
-        q2_from : float
-            evolution source
-        q2_to : float
-            evolution target
-        mellin_cut : float
-            cut to the upper limit in the mellin inversion
+    config : dict
+        configuration
+    managers : dict
+        managers
+    nf : int
+        number of active flavors
+    q2_from : float
+        evolution source
+    q2_to : float
+        evolution target
+    mellin_cut : float
+        cut to the upper limit in the mellin inversion
+    is_threshold : bool
+        is this an itermediate threshold operator?
     """
 
     log_label = "Evolution"
     # complete list of possible evolution operators labels
     full_labels = br.full_labels
 
-    def __init__(self, config, managers, nf, q2_from, q2_to=None, mellin_cut=5e-2):
+    def __init__(
+        self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2, is_threshold=False
+    ):
         self.config = config
         self.managers = managers
         self.nf = nf
@@ -392,26 +397,22 @@ class Operator:
         self.q2_to = q2_to
         # TODO make 'cut' external parameter?
         self._mellin_cut = mellin_cut
+        self.is_threshold = is_threshold
         self.op_members = {}
+        self.order = config["order"]
 
     @property
     def n_pools(self):
         n_pools = self.config["n_integration_cores"]
         if n_pools > 0:
             return n_pools
-        return os.cpu_count() + n_pools
+        # so we subtract from the maximum number
+        return max(os.cpu_count() + n_pools, 1)
 
     @property
     def fact_to_ren(self):
         r"""Returns the factor :math:`(\mu_F/\mu_R)^2`"""
         return self.config["fact_to_ren"]
-
-    @property
-    def sv_mode(self):
-        """Returns the scale variation mode"""
-        if self.config["ModSV"] is not None:
-            return sv.Modes[self.config["ModSV"]]
-        return sv.Modes.unvaried
 
     @property
     def int_disp(self):
@@ -423,40 +424,53 @@ class Operator:
         """Returns the grid size"""
         return self.int_disp.xgrid.size
 
+    def mur2_shift(self, q2):
+        """Computes shifted renormalization scale.
+
+        Parameters
+        ----------
+        q2 : float
+            factorization scale
+
+        Returns
+        -------
+        float
+            renormalization scale
+        """
+        if self.sv_mode == sv.Modes.exponentiated:
+            return q2 / self.fact_to_ren
+        return q2
+
     @property
     def a_s(self):
         """Returns the computed values for :math:`a_s`"""
         sc = self.managers["strong_coupling"]
-        as0 = sc.a_s(
-            self.q2_from / self.fact_to_ren, fact_scale=self.q2_from, nf_to=self.nf
+        a0 = sc.a_s(
+            self.mur2_shift(self.q2_from), fact_scale=self.q2_from, nf_to=self.nf
         )
-        as1 = sc.a_s(
-            self.q2_to / self.fact_to_ren, fact_scale=self.q2_to, nf_to=self.nf
-        )
-        return (as0, as1)
+        a1 = sc.a_s(self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf)
+        return (a0, a1)
 
     @property
     def labels(self):
-        """
-        Compute necessary sector labels to compute.
+        """Compute necessary sector labels to compute.
 
         Returns
         -------
-            labels : list(str)
-                sector labels
+        list(str)
+            sector labels
         """
-        order = self.config["order"]
         labels = []
         # the NS sector is dynamic
-        if order[1] == 0:
+        if self.order[1] == 0:
             if self.config["debug_skip_non_singlet"]:
                 logger.warning("%s: skipping non-singlet sector", self.log_label)
             else:
                 # add + as default
                 labels.append(br.non_singlet_labels[1])
-                if order[0] >= 2:  # - becomes different starting from NLO
+                if self.order[0] >= 2:  # - becomes different starting from NLO
                     labels.append(br.non_singlet_labels[0])
-                if order[0] >= 3:  # v also becomes different starting from NNLO
+                if self.order[0] >= 3:  # v also becomes different starting from NNLO
                     labels.append(br.non_singlet_labels[2])
             # singlet sector is fixed
             if self.config["debug_skip_singlet"]:
@@ -476,30 +490,26 @@ class Operator:
         return labels
 
     def quad_ker(self, label, logx, areas):
-        """
-        Partially initialized integrand function
+        """Partially initialized integrand function.
 
         Parameters
         ----------
-            label: tuple
-                operator element pids
-            logx: float
-                Mellin inversion point
-            areas : tuple
-                basis function configuration
+        label: tuple
+            operator element pids
+        logx: float
+            Mellin inversion point
+        areas : tuple
+            basis function configuration
 
         Returns
         -------
-            quad_ker : functools.partial
-                partially initialized intration kernel
+        functools.partial
+            partially initialized integration kernel
 
         """
         return functools.partial(
             quad_ker,
-            # TODO: implement N3LO evolution kernels
-            order=self.config["order"]
-            if self.config["order"] != 3
-            else 2,  # TODO : check it
+            order=self.order,
             mode0=label[0],
             mode1=label[1],
             method=self.config["method"],
@@ -514,6 +524,7 @@ class Operator:
             ev_op_iterations=self.config["ev_op_iterations"],
             ev_op_max_order=self.config["ev_op_max_order"],
             sv_mode=self.sv_mode,
+            is_threshold=self.is_threshold,
         )
 
     def initialize_op_members(self):
@@ -536,18 +547,17 @@ class Operator:
         self,
         log_grid,
     ):
-        """
-        Run the integration for each grid point
+        """Run the integration for each grid point
 
         Parameters
         ----------
-            log_grid : tuple(k, logx)
-                log grid point with relative index
+        log_grid : tuple(k, logx)
+            log grid point with relative index
 
         Returns
         -------
-            column : list
-                computed operators at the give grid point
+        list
+            computed operators at the give grid point
 
         """
         column = []
@@ -582,7 +592,7 @@ class Operator:
         return column
 
     def compute(self):
-        """compute the actual operators (i.e. run the integrations)"""
+        """Compute the actual operators (i.e. run the integrations)."""
         self.initialize_op_members()
 
         # skip computation ?
@@ -603,8 +613,8 @@ class Operator:
         logger.info(
             "%s: µ_R^2 distance: %e -> %e",
             self.log_label,
-            self.q2_from / self.fact_to_ren,
-            self.q2_to / self.fact_to_ren,
+            self.mur2_shift(self.q2_from),
+            self.mur2_shift(self.q2_to),
         )
         if self.sv_mode.name != "unvaried":
             logger.info(
@@ -618,8 +628,8 @@ class Operator:
         logger.info(
             "%s: order: (%d, %d), solution strategy: %s",
             self.log_label,
-            self.config["order"][0],
-            self.config["order"][1],
+            self.order[0],
+            self.order[1],
             self.config["method"],
         )
 
@@ -658,8 +668,7 @@ class Operator:
 
     def copy_ns_ops(self):
         """Copy non-singlet kernels, if necessary"""
-        order = self.config["order"]
-        if order[0] == 1:  # in LO +=-=v
+        if self.order[0] == 1:  # in LO +=-=v
             for label in ["nsV", "ns-"]:
                 self.op_members[
                     (br.non_singlet_pids_map[label], 0)
@@ -671,7 +680,7 @@ class Operator:
                 ].error = self.op_members[
                     (br.non_singlet_pids_map["ns+"], 0)
                 ].error.copy()
-        elif order[0] == 2:  # in NLO -=v
+        elif self.order[0] == 2:  # in NLO -=v
             self.op_members[
                 (br.non_singlet_pids_map["nsV"], 0)
             ].value = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].value.copy()

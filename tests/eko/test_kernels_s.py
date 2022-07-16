@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import warnings
+
 import numpy as np
 import pytest
 
@@ -35,28 +37,25 @@ def test_zero_lo(monkeypatch):
         ),
     )
     for method in methods:
-        try:
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (1, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
-                ),
-                np.zeros((2, 2)),
-            )
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (1, 0),
-                    method,
-                    np.zeros((1, 2, 2), dtype=complex),
-                    2,
-                    1,
-                    nf,
-                    ev_op_iterations,
-                    ev_op_max_order,
-                ),
-                np.zeros((2, 2)),
-            )
-        except ZeroDivisionError:
-            pass
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (1, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+            ),
+            np.zeros((2, 2)),
+        )
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (1, 0),
+                method,
+                np.zeros((1, 2, 2), dtype=complex),
+                2,
+                1,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
+            ),
+            np.zeros((2, 2)),
+        )
 
 
 def test_zero_nlo_decompose(monkeypatch):
@@ -80,28 +79,25 @@ def test_zero_nlo_decompose(monkeypatch):
         "decompose-expanded",
         "decompose-exact",
     ]:
-        try:
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (2, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
-                ),
-                np.zeros((2, 2)),
-            )
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (2, 0),
-                    method,
-                    np.zeros((2, 2, 2), dtype=complex),
-                    2,
-                    1,
-                    nf,
-                    ev_op_iterations,
-                    ev_op_max_order,
-                ),
-                np.zeros((2, 2)),
-            )
-        except ZeroDivisionError:
-            pass
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (2, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+            ),
+            np.zeros((2, 2)),
+        )
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (2, 0),
+                method,
+                np.zeros((2, 2, 2), dtype=complex),
+                2,
+                1,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
+            ),
+            np.zeros((2, 2)),
+        )
 
 
 def test_zero_nnlo_decompose(monkeypatch):
@@ -122,31 +118,71 @@ def test_zero_nnlo_decompose(monkeypatch):
         ),
     )
     for method in [
-        # "decompose-expanded",
+        "decompose-expanded",
         "decompose-exact",
     ]:
-        try:
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (3, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
-                ),
-                np.zeros((2, 2)),
-            )
-            np.testing.assert_allclose(
-                s.dispatcher(
-                    (3, 0),
-                    method,
-                    np.zeros((3, 2, 2), dtype=complex),
-                    2,
-                    1,
-                    nf,
-                    ev_op_iterations,
-                    ev_op_max_order,
-                ),
-                np.zeros((2, 2)),
-            )
-        except ZeroDivisionError:
-            pass
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (3, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+            ),
+            np.zeros((2, 2)),
+        )
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (3, 0),
+                method,
+                np.zeros((3, 2, 2), dtype=complex),
+                2,
+                1,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
+            ),
+            np.zeros((2, 2)),
+        )
+
+
+def test_zero_n3lo_decompose(monkeypatch):
+    """No evolution results in exp(0)"""
+    nf = 3
+    ev_op_iterations = 3
+    ev_op_max_order = 3
+    gamma_s = np.random.rand(4, 2, 2) + np.random.rand(4, 2, 2) * 1j
+    monkeypatch.setattr(
+        ad,
+        "exp_singlet",
+        lambda gamma_S: (
+            gamma_S,
+            1,
+            1,
+            np.array([[1, 0], [0, 0]]),
+            np.array([[0, 0], [0, 1]]),
+        ),
+    )
+    for method in [
+        "decompose-expanded",
+        "decompose-exact",
+    ]:
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (4, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
+            ),
+            np.zeros((2, 2)),
+            atol=1e-15,
+        )
+        np.testing.assert_allclose(
+            s.dispatcher(
+                (4, 0),
+                method,
+                np.zeros((4, 2, 2), dtype=complex),
+                2,
+                1,
+                nf,
+                ev_op_iterations,
+                ev_op_max_order,
+            ),
+            np.zeros((2, 2)),
+        )
 
 
 def test_similarity():
@@ -157,7 +193,7 @@ def test_similarity():
     a1 = a0 + delta_a
     ev_op_iterations = 10
     ev_op_max_order = (10, 0)
-    gamma_s = np.random.rand(3, 2, 2) + np.random.rand(3, 2, 2) * 1j
+    gamma_s = np.random.rand(4, 2, 2) + np.random.rand(4, 2, 2) * 1j
     for order in [
         (1, 0),
         (2, 0),
@@ -192,7 +228,7 @@ def test_similarity():
 
 def test_error():
     with pytest.raises(NotImplementedError):
-        s.dispatcher((3, 0), "AAA", np.random.rand(3, 2, 2), 0.2, 0.1, 3, 10, 10)
+        s.dispatcher((4, 0), "AAA", np.random.rand(3, 2, 2), 0.2, 0.1, 3, 10, 10)
 
 
 def mk_almost_diag_matrix(n, max_ang=np.pi / 8.0):
@@ -209,8 +245,8 @@ def test_gamma_usage():
     ev_op_iterations = 10
     ev_op_max_order = (10, 0)
     # first check that at order=n only uses the matrices up n
-    gamma_s = np.full((3, 2, 2), np.nan)
-    for order in range(1, 4):
+    gamma_s = np.full((4, 2, 2), np.nan)
+    for order in range(1, 5):
         gamma_s[order - 1] = mk_almost_diag_matrix(1)
         for method in methods:
             r = s.dispatcher(
@@ -225,10 +261,14 @@ def test_gamma_usage():
             )
             assert not np.isnan(r).all()
     # second check that at order=n the actual matrix n is used
-    for order in range(1, 4):
-        gamma_s = mk_almost_diag_matrix(3)
+    for order in range(1, 5):
+        gamma_s = mk_almost_diag_matrix(4)
         gamma_s[order - 1] = np.full((2, 2), np.nan)
         for method in methods:
+            if "iterate" in method:
+                # we are actually dividing by the determinant of
+                # matrix full of np.nan
+                warnings.simplefilter("ignore", RuntimeWarning)
             r = s.dispatcher(
                 (order, 0),
                 method,
