@@ -482,7 +482,7 @@ class Operator(sv.ModeMixin):
             labels.append(br.non_singlet_unified_labels[0])
             labels.append(br.non_singlet_unified_labels[2])
             # -u and -d become different starting from O(as1aem1) or O(aem2)
-            if order[1] >= 2 or order[0] >= 1:
+            if self.order[1] >= 2 or self.order[0] >= 1:
                 labels.append(br.non_singlet_unified_labels[1])
                 labels.append(br.non_singlet_unified_labels[3])
             labels.append(br.valence_unified_labels)
