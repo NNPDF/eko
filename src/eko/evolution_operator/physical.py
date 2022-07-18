@@ -133,7 +133,9 @@ class PhysicalOperator(member.OperatorBase):
         if intrinsic_range is not None:
             hqfl = "cbt"
             op_id = member.OpMember.id_like(
-                op_members[(br.non_singlet_pids_map["nsV"], 0)]  # Probably it is wrong
+                op_members[
+                    (br.non_singlet_pids_map["nsV"], 0)
+                ]  # TODO : Probably it is wrong
             )
             for intr_fl in intrinsic_range:
                 if intr_fl <= nf:  # light quarks are not intrinsic
@@ -164,6 +166,44 @@ class PhysicalOperator(member.OperatorBase):
         for name, op in self.op_members.items():
             in_pids = flavors.pids_from_intrinsic_evol(name.input, nf_in, False)
             out_pids = flavors.pids_from_intrinsic_evol(name.target, nf_out, True)
+            for out_idx, out_weight in enumerate(out_pids):
+                for in_idx, in_weight in enumerate(in_pids):
+                    # keep the outer index to the left as we're multiplying from the right
+                    value_tensor[
+                        out_idx,  # output pid (position)
+                        :,  # output momentum fraction
+                        in_idx,  # input pid (position)
+                        :,  # input momentum fraction
+                    ] += out_weight * (op.value * in_weight)
+                    error_tensor[
+                        out_idx,  # output pid (position)
+                        :,  # output momentum fraction
+                        in_idx,  # input pid (position)
+                        :,  # input momentum fraction
+                    ] += out_weight * (op.error * in_weight)
+        return value_tensor, error_tensor
+
+    def to_flavor_basis_tensor_qed(self):
+        """
+        Convert the computations into an rank 4 tensor over flavor operator space and
+        momentum fraction operator space.
+
+        Returns
+        -------
+            tensor : numpy.ndarray
+                EKO
+        """
+        nf_in, nf_out = flavors.get_range(self.op_members.keys())
+        len_pids = len(br.flavor_basis_pids)
+        len_xgrid = list(self.op_members.values())[0].value.shape[0]
+        # dimension will be pids^2 * xgrid^2
+        value_tensor = np.zeros((len_pids, len_xgrid, len_pids, len_xgrid))
+        error_tensor = value_tensor.copy()
+        for name, op in self.op_members.items():
+            in_pids = flavors.pids_from_intrinsic_unified_evol(name.input, nf_in, False)
+            out_pids = flavors.pids_from_intrinsic_unified_evol(
+                name.target, nf_out, True
+            )
             for out_idx, out_weight in enumerate(out_pids):
                 for in_idx, in_weight in enumerate(in_pids):
                     # keep the outer index to the left as we're multiplying from the right

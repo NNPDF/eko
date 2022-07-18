@@ -120,11 +120,10 @@ singlet_unified_labels = (
     (101, 100),
     (101, 101),
 )
-# Vdelta = 10204
 valence_unified_labels = (
     (10200, 10200),
     (10200, 10204),
-    (10204, 10200),
+    (10204, 10200),  # Vdelta = 10204
     (10204, 10204),
 )
 non_singlet_unified_labels = (

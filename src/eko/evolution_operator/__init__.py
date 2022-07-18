@@ -247,7 +247,7 @@ def quad_ker(
     if integrand == 0.0:
         return 0.0
     if order[1] == 0:
-        # compute the actual evolution kernel
+        # compute the actual evolution kernel for pure QCD
         if ker_base.is_singlet:
             gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
@@ -289,7 +289,7 @@ def quad_ker(
                     sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
                 )
     else:
-        # compute the actual evolution kernel
+        # compute the actual evolution kernel for QEDxQCD
         if ker_base.is_QEDsinglet:
             gamma_singlet = ad.gamma_singlet_qed(order, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
