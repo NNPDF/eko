@@ -37,7 +37,7 @@
    :abbr:`NLL (Next-to-Leading Log)`
 
 .. |NNLL| replace::
-   :abbr:`NNLO (Next-to-Next-to-Leading Log)`
+   :abbr:`NNLL (Next-to-Next-to-Leading Log)`
 
 .. Names
 
