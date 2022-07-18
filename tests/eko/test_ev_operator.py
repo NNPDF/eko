@@ -337,7 +337,7 @@ def test_pegasus_path():
     mode0 = br.non_singlet_pids_map["ns+"]
     mode1 = 0
     method = ""
-    logxs = np.log(int_disp.xgrid_raw)
+    logxs = np.log(int_disp.xgrid.raw)
     a1 = 1
     a0 = 2
     nf = 3

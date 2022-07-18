@@ -4,6 +4,7 @@ import copy
 import numpy as np
 
 import eko
+import eko.interpolation
 from eko import compatibility
 
 theory_card = {
@@ -67,7 +68,7 @@ def test_targetgrid():
     oc["rotations"] = dict(targetgrid=tgrid)
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()
-    check_shapes(o, tgrid, o.xgrid, tc, oc)
+    check_shapes(o, eko.interpolation.XGrid(np.array(tgrid)), o.xgrid, tc, oc)
 
 
 def test_targetbasis():
@@ -87,9 +88,9 @@ def check_shapes(o, txs, ixs, theory_card, operators_card):
     op_shape = (tpids, len(txs), ipids, len(ixs))
 
     # check output = input
-    np.testing.assert_allclose(o.xgrid, operators_card["xgrid"])
-    np.testing.assert_allclose(o.rotations.targetgrid, txs)
-    np.testing.assert_allclose(o.rotations.inputgrid, ixs)
+    np.testing.assert_allclose(o.xgrid.raw, operators_card["xgrid"])
+    np.testing.assert_allclose(o.rotations.targetgrid, txs.raw)
+    np.testing.assert_allclose(o.rotations.inputgrid, ixs.raw)
     for k in ["interpolation_polynomial_degree", "interpolation_is_log"]:
         assert getattr(o.configs, k) == operators_card["configs"][k]
     np.testing.assert_allclose(o.Q02, theory_card["Q0"] ** 2)
