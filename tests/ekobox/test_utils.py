@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from ekobox import evol_pdf as ev_p
+import eko
 from ekobox import gen_op as g_o
 from ekobox import gen_theory as g_t
 from ekobox import utils
@@ -11,21 +11,28 @@ from ekobox import utils
 def test_ekos_product():
     # Generating two ekos
     op1 = g_o.gen_op_card(
-        [60.0, 80.0, 100.0], update={"xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
+        [60.0, 80.0, 100.0],
+        update={
+            "xgrid": [0.1, 0.5, 1.0],
+            "configs": {"interpolation_polynomial_degree": 1},
+        },
     )
     theory1 = g_t.gen_theory_card(0, 5.0)
 
     op2 = g_o.gen_op_card(
         [80.0, 100.0, 120.0],
-        update={"xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]},
+        update={
+            "xgrid": [0.1, 0.5, 1.0],
+            "configs": {"interpolation_polynomial_degree": 1},
+        },
     )
     theory2 = g_t.gen_theory_card(0, 10.0)
     theory_err = g_t.gen_theory_card(0, 5.0)
 
-    eko_ini = ev_p.gen_out(theory1, op1)
-    eko_fin = ev_p.gen_out(theory2, op2)
+    eko_ini = eko.run_dglap(theory1, op1)
+    eko_fin = eko.run_dglap(theory2, op2)
     # Test_error
-    eko_fin_err = ev_p.gen_out(theory_err, op2)
+    eko_fin_err = eko.run_dglap(theory_err, op2)
     with pytest.raises(ValueError):
         _ = utils.ekos_product(eko_ini, eko_fin_err)
     # product is copied

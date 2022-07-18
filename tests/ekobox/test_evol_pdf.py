@@ -1,31 +1,50 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
+from banana import toy
 
-import eko.output.legacy
+import eko
+import eko.output.legacy as out
 from ekobox import evol_pdf as ev_p
 from ekobox import gen_op as g_o
 from ekobox import gen_theory as g_t
 
+op = g_o.gen_op_card(
+    [100.0],
+    update={
+        "xgrid": [0.1, 0.5, 1.0],
+        "configs": {"interpolation_polynomial_degree": 1},
+    },
+)
+theory = g_t.gen_theory_card(0, 1.65)
 
-def test_gen_and_dump_out(tmp_path):
-    op = g_o.gen_op_card(
-        [100.0],
-        update={
-            "xgrid": [0.1, 0.5, 1.0],
-            "configs": {"interpolation_polynomial_degree": 1},
-        },
-    )
-    theory = g_t.gen_theory_card(0, 1.0)
 
-    out = ev_p.gen_out(theory, op, path=tmp_path)
+def test_evolve_pdfs_run(fake_lhapdf, cd):
+    n = "test_evolve_pdfs_run"
+    mytmp = fake_lhapdf / "install"
+    mytmp.mkdir()
+    with cd(mytmp):
+        ev_p.evolve_pdfs([toy.mkPDF("", 0)], theory, op, install=True, name=n)
+    p = fake_lhapdf / n
+    assert p.exists()
 
-    ops_id = f"o{op['hash'][:6]}_t{theory['hash'][:6]}"
-    outpath = f"{tmp_path}/{ops_id}.tar"
-    loaded_out = eko.output.legacy.load_tar(outpath)
-    assert out.xgrid.tolist() == loaded_out.xgrid.tolist()
-    for el, loaded_el in zip(out[100.0].operator, loaded_out[100.0].operator):
-        np.testing.assert_allclose(
-            el,
-            loaded_el,
-        )
+
+def test_evolve_pdfs_dump_path(fake_lhapdf, cd):
+    n = "test_evolve_pdfs_dump_path"
+    peko = fake_lhapdf / ev_p.ekofileid(theory, op)
+    out.dump_tar(eko.run_dglap(theory, op), peko)
+    assert peko.exists()
+    with cd(fake_lhapdf):
+        ev_p.evolve_pdfs([toy.mkPDF("", 0)], theory, op, name=n, path=fake_lhapdf)
+    p = fake_lhapdf / n
+    assert p.exists()
+
+
+def test_evolve_pdfs_dump_file(fake_lhapdf, cd):
+    n = "test_evolve_pdfs_dump_file"
+    peko = fake_lhapdf / ev_p.ekofileid(theory, op)
+    out.dump_tar(eko.run_dglap(theory, op), peko)
+    assert peko.exists()
+    with cd(fake_lhapdf):
+        ev_p.evolve_pdfs([toy.mkPDF("", 0)], theory, op, name=n, path=peko)
+    p = fake_lhapdf / n
+    assert p.exists()

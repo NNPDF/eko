@@ -28,39 +28,28 @@ def evolve_pdfs(
     ----------
         initial_PDF_list : list(lhapdf object)
             list of PDF members to be evolved
-
         theory_card : dict
             theory card
-
         operators_card : dict
             operators card
-
         path : str
             path to cached eko output (if "None" it will be recomputed)
-
         store_path : str
             path where the eko is stored (if "None" will not be saved)
-
         targetgrid : list(float)
             target x-grid (if different from input x-grid)
-
         install : bool
             set whether to install evolved PDF to lhapdf directory
-
         name : str
             set name of evolved PDF
-
         info_update : dict
             dict of info to add or update to default info file
-
     """
     eko_output = None
     if path is not None:
         my_path = pathlib.Path(path)
         if my_path.is_dir():
-            ops_id = f"o{operators_card['hash'][:6]}_t{theory_card['hash'][:6]}.tar"
-            ops_id_path = pathlib.Path(ops_id)
-            outpath = my_path / ops_id_path.relative_to(ops_id_path.anchor)
+            outpath = my_path / ekofileid(theory_card, operators_card)
             eko_output = eko.output.legacy.load_tar(outpath)
         else:
             eko_output = eko.output.legacy.load_tar(my_path)
@@ -106,28 +95,5 @@ def evolve_pdfs(
         genpdf.install_pdf(name)
 
 
-def gen_out(theory_card, op_card, path=None):
-    """
-    Generates EKO output from theory and operators cards and, if requested,
-    dumps it in tar format
-
-    Parameters
-    ----------
-        theory_card : dict
-            theory card
-        op_card : dict
-            operators card
-        path : str
-            path of dumped output (if "None" output is not dumped)
-
-    Returns
-    -------
-        : eko.output.Output
-            eko output
-    """
-    eko_output = eko.run_dglap(theory_card, op_card)
-    if path is not None:
-        ops_id = f"o{op_card['hash'][:6]}_t{theory_card['hash'][:6]}"
-        path = f"{path}/{ops_id}.tar"
-        eko.output.legacy.dump_tar(eko_output, path)
-    return eko_output
+def ekofileid(theory_card, operators_card):
+    return f"o{operators_card['hash'][:6]}_t{theory_card['hash'][:6]}.tar"
