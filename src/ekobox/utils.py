@@ -32,8 +32,8 @@ def ekos_product(eko_ini: EKO, eko_fin: EKO, in_place=True) -> EKO:
             "Initial Q2 of final eko operator does not match any final Q2 in"
             " the initial eko operator"
         )
-    ope1 = eko_ini[eko_fin.Q02].operator
-    ope1_error = eko_ini[eko_fin.Q02].error
+    ope1 = eko_ini[eko_fin.Q02].operator.copy()
+    ope1_error = eko_ini[eko_fin.Q02].error.copy()
 
     ope2_dict = {}
     ope2_error_dict = {}
@@ -61,7 +61,14 @@ def ekos_product(eko_ini: EKO, eko_fin: EKO, in_place=True) -> EKO:
     else:
         final_eko = eko_ini
 
-    for q2, op in final_dict.items():
-        final_eko[q2] = op
+    for q2, op2 in eko_fin.items():
+        op = np.einsum("ajbk,bkcl -> ajcl", ope1, op2.operator)
+
+        error = np.einsum("ajbk,bkcl -> ajcl", ope1, op2.error) + np.einsum(
+            "ajbk,bkcl -> ajcl", ope1_error, op2.operator
+        )
+
+        alphas = eko_fin[q2].alphas
+        final_eko[q2] = dict(operator=op, error=error, alphas=alphas)
 
     return final_eko
