@@ -8,23 +8,26 @@ from ekomark.data import operators
 
 
 def gen_op_card(Q2grid, update=None, name=None):
-    """
+    """Generate operators card.
+
     Generates an operator card with some mandatory user choice
     (in this case only the Q2 grid) and some default values which
-    can be changed by the update input dict
+    can be changed by the update input dict.
 
     Parameters
     ----------
-        Q2grid : list(float)
-            grid for Q2
-        update : dict
-            dictionary of info to update in op. card
-        name : str
-            name of exported op.card (if name not None)
+    Q2grid : list(float)
+        grid for Q2
+    update : dict
+        dictionary of info to update in op. card
+    name : str
+        name of exported op.card (if name not None)
+
     Returns
     -------
-        : dict
-            operator card
+    dict
+        operator card
+
     """
     # Constructing the dictionary with some default value
     def_op = copy.deepcopy(operators.default_card)
@@ -43,16 +46,16 @@ def gen_op_card(Q2grid, update=None, name=None):
 
 
 def export_op_card(name, op):
-    """
-    Export the operators card in the current directory
+    """Export the operators card in the current directory
 
     Parameters
     ----------
-        name : str
-            name of the op. card to export
+    name : str
+        name of the op. card to export
 
-        op : dict
-            op card
+    op : dict
+        op card
+
     """
     target = f"{name}.yaml"
     with open(target, "w", encoding="utf-8") as out:
