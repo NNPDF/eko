@@ -236,7 +236,7 @@ The other parts are approximated using some known limits:
         Where again the coefficient :math:`A_4` is |QCD| cusp. However :math:`\gamma_{qq,ps}^{(3)}`
         do not constrain any divergence at large-x or constant term so its expansion will start as
         :math:` \mathcal{O}(\frac{1}{N^2})`.
-        The off-diagonal do not contain any +-distribution or delta but can include divergent logarithms
+        The off-diagonal do not contain any +-distributions or delta distributions but can include divergent logarithms
         of the type :cite:`Soar:2009yh`:
 
             .. math ::
