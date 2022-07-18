@@ -41,12 +41,8 @@ class TestLegacy:
         # rewind and read again
         stream.seek(0)
         o2 = legacy.load_yaml(stream)
-        np.testing.assert_almost_equal(
-            o1.interpolation_xgrid, fake_output["interpolation_xgrid"]
-        )
-        np.testing.assert_almost_equal(
-            o2.interpolation_xgrid, fake_output["interpolation_xgrid"]
-        )
+        np.testing.assert_almost_equal(o1.xgrid, fake_output["interpolation_xgrid"])
+        np.testing.assert_almost_equal(o2.xgrid, fake_output["interpolation_xgrid"])
         # fake output files
         m_out = mock.mock_open(read_data="")
         with mock.patch("builtins.open", m_out) as mock_file:
@@ -60,18 +56,14 @@ class TestLegacy:
             fn = "test.yaml"
             o3 = legacy.load_yaml_from_file(fn)
             mock_file.assert_called_with(fn, encoding="utf-8")
-            np.testing.assert_almost_equal(
-                o3.interpolation_xgrid, fake_output["interpolation_xgrid"]
-            )
+            np.testing.assert_almost_equal(o3.xgrid, fake_output["interpolation_xgrid"])
         # repeat for tar
         fn = "test.tar"
         with tempfile.TemporaryDirectory() as folder:
             fp = pathlib.Path(folder) / fn
             legacy.dump_tar(o1, fp)
             o4 = legacy.load_tar(fp)
-            np.testing.assert_almost_equal(
-                o4.interpolation_xgrid, fake_output["interpolation_xgrid"]
-            )
+            np.testing.assert_almost_equal(o4.xgrid, fake_output["interpolation_xgrid"])
         fn = "test"
         with pytest.raises(ValueError, match="wrong suffix"):
             legacy.dump_tar(o1, fn)
@@ -100,16 +92,12 @@ class TestLegacy:
         o1 = output.EKO.from_dict(fake_output)
         # test streams
         stream = io.StringIO()
-        o1.dump_yaml(stream, False)
+        legacy.dump_yaml(o1, stream, False)
         # rewind and read again
         stream.seek(0)
         o2 = legacy.load_yaml(stream)
-        np.testing.assert_almost_equal(
-            o1.interpolation_xgrid, fake_output.interpolation_xgrid
-        )
-        np.testing.assert_almost_equal(
-            o2.interpolation_xgrid, fake_output.interpolation_xgrid
-        )
+        np.testing.assert_almost_equal(o1.xgrid, fake_output.xgrid)
+        np.testing.assert_almost_equal(o2.xgrid, fake_output.xgrid)
 
 
 class TestManipulate:
@@ -117,7 +105,7 @@ class TestManipulate:
         # create object
         xg = np.geomspace(1e-5, 1.0, 21)
         o1 = output.EKO.from_dict(fake_output)
-        o1.interpolation_xgrid = xg
+        o1.xgrid = xg
         o1.targetgrid = xg
         o1.inputgrid = xg
         o1.Q2grid = {
@@ -184,7 +172,7 @@ class TestManipulate:
         # create object
         xg = np.geomspace(1e-5, 1.0, 21)
         o1 = output.EKO.from_dict(fake_output)
-        o1.interpolation_xgrid = xg
+        o1.xgrid = xg
         o1.targetgrid = xg
         o1.inputgrid = xg
         o1.Q2grid = {
@@ -252,7 +240,7 @@ class TestManipulate:
             [q2_out], len(br.flavor_basis_pids), len(interpolation_xgrid)
         )
         d = dict(
-            interpolation_xgrid=interpolation_xgrid,
+            xgrid=interpolation_xgrid,
             targetgrid=interpolation_xgrid,
             inputgrid=interpolation_xgrid,
             interpolation_polynomial_degree=interpolation_polynomial_degree,

@@ -9,6 +9,7 @@ import numpy as np
 import yaml
 
 from .. import version
+from . import struct
 
 
 def get_raw(obj, binarize=True, skip_q2_grid=False):
@@ -82,7 +83,7 @@ def dump_yaml(obj, stream=None, binarize=True, skip_q2_grid=False):
             Null, if written successfully to stream
     """
     # TODO explicitly silence yaml
-    out = obj.get_raw(binarize, skip_q2_grid=skip_q2_grid)
+    out = get_raw(obj, binarize, skip_q2_grid=skip_q2_grid)
     return yaml.dump(out, stream)
 
 
@@ -185,7 +186,7 @@ def load_yaml(stream, skip_q2_grid=False):
                     v = np.frombuffer(lz4.frame.decompress(v))
                     v = v.reshape(len_tpids, len_tgrid, len_ipids, len_igrid)
                 op[k] = v
-    return cls(obj)
+    return struct.EKO.from_dict(obj)
 
 
 def load_yaml_from_file(filename, skip_q2_grid=False):

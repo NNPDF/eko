@@ -11,7 +11,7 @@ from . import basis_rotation as br
 from . import compatibility, interpolation, msbar_masses
 from .couplings import Couplings
 from .evolution_operator.grid import OperatorGrid
-from .output import Output
+from .output import EKO
 from .thresholds import ThresholdsAtlas
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 """
 
     def __init__(self, theory_card, operators_card):
-        self.out = Output()
+        self.out = EKO()
 
         new_theory, new_operators = compatibility.update(theory_card, operators_card)
 
@@ -82,7 +82,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 
         Returns
         -------
-            ret : eko.output.Output
+            ret : eko.output.EKO
                 output instance
         """
         # add all operators
