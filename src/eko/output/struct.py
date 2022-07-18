@@ -94,6 +94,8 @@ class EKO:
         # TODO: autodump
         if isinstance(op, dict):
             op = Operator.from_dict(op)
+        if not isinstance(op, Operator):
+            raise ValueError("Only operators can be stored.")
         self._operators[q2] = op
 
     def items(self):
@@ -110,8 +112,19 @@ class EKO:
             Q02=dictionary["Q0"] ** 2,
             _operators={q2: None for q2 in dictionary["Q2grid"]},
             configs=Configs.from_dict(dictionary["configs"]),
-            rotations=Rotations.from_dict(dictionary["rotations"]),
+            rotations=Rotations.from_dict(dictionary.get("rotations", {})),
             debug=Debug.from_dict(dictionary.get("debug", {})),
+        )
+
+    @classmethod
+    def load(cls, path):
+        return cls(
+            xgrid=None,
+            Q02=None,
+            _operators={q2: None for q2 in ()},
+            configs=None,
+            rotations=None,
+            debug=None,
         )
 
     @property
