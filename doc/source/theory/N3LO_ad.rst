@@ -150,7 +150,7 @@ Singlet sector
 --------------
 
 In the singlet sector we construct a parametrization for
-:math:`\gamma_{gg}^{(3)},\gamma_{gq}^{(3)},,\gamma_{qg}^{(3)},\gamma_{qq}^{(3)}` where:
+:math:`\gamma_{gg}^{(3)},\gamma_{gq}^{(3)},\gamma_{qg}^{(3)},\gamma_{qq}^{(3)}` where:
 
     .. math ::
         \gamma_{qq}^{(3)} = \gamma_{ns,+}^{(3)} + \gamma_{qq,ps}^{(3)}
