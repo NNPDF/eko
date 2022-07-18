@@ -31,20 +31,14 @@ def benchmark_ekos_product():
         _ = utils.ekos_product(eko_ini, eko_fin_err)
     # product is copied
     eko_res = utils.ekos_product(eko_ini, eko_fin, in_place=False)
+
+    assert eko_res.Q02 == eko_ini.Q02
+    np.testing.assert_allclose(eko_res.Q2grid[1:], eko_fin.Q2grid)
+    np.testing.assert_allclose(eko_ini[80.0].operator, eko_res[80.0].operator)
+
     # product overwrites initial
     eko_res2 = utils.ekos_product(eko_ini, eko_fin)
-    np.testing.assert_allclose(
-        eko_res["Q2grid"][80.0]["operators"], eko_res2["Q2grid"][80.0]["operators"]
-    )
-    np.testing.assert_allclose(eko_res2["q2_ref"], eko_ini["q2_ref"])
-    np.testing.assert_allclose(
-        list(eko_res2["Q2grid"].keys()), list(eko_fin["Q2grid"].keys())
-    )
 
-    np.testing.assert_allclose(
-        eko_ini["Q2grid"][80.0]["operators"], eko_res2["Q2grid"][80.0]["operators"]
-    )
-    np.testing.assert_allclose(eko_res["q2_ref"], eko_ini["q2_ref"])
-    np.testing.assert_allclose(
-        list(eko_res["Q2grid"].keys()), list(eko_fin["Q2grid"].keys())
-    )
+    assert eko_res2.Q02 == eko_ini.Q02
+    np.testing.assert_allclose(eko_res2.Q2grid[1:], eko_fin.Q2grid)
+    np.testing.assert_allclose(eko_res[80.0].operator, eko_res2[80.0].operator)

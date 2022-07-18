@@ -112,12 +112,9 @@ def benchmark_gen_and_dump_out(tmp_path):
     ops_id = f"o{op['hash'][:6]}_t{theory['hash'][:6]}"
     outpath = f"{tmp_path}/{ops_id}.tar"
     loaded_out = eko.output.legacy.load_tar(outpath)
-    for el, load_el in zip(out["xgrid"], loaded_out.xgrid):
-        assert el == load_el
-    for el, load_el in zip(
-        out["Q2grid"][100.0]["operators"], loaded_out[100.0].operator
-    ):
+    assert list(out.xgrid) == list(loaded_out.xgrid)
+    for el, load_el in zip(out[100.0].operator, loaded_out[100.0].operator):
         np.testing.assert_allclose(
-            out["Q2grid"][100.0]["operators"],
-            loaded_out["Q2grid"][100.0]["operators"],
+            out[100.0].operator,
+            loaded_out[100.0].operator,
         )

@@ -129,5 +129,5 @@ def gen_out(theory_card, op_card, path=None):
     if path is not None:
         ops_id = f"o{op_card['hash'][:6]}_t{theory_card['hash'][:6]}"
         path = f"{path}/{ops_id}.tar"
-        eko_output.dump_tar(path)
+        eko.output.legacy.dump_tar(eko_output, path)
     return eko_output
