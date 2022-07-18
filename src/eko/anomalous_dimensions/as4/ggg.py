@@ -9,8 +9,8 @@ from ...harmonics.log_functions import lm11
 
 @nb.njit(cache=True)
 def gamma_gg_nf3(n, sx):
-    r"""Implements the part proportional to :math:`nf^3` of :math:`\gamma_{gg}^{(3)}`
-    The expression is copied exact from Eq. 3.14 of :cite:`Davies:2016jie`.
+    r"""Implements the part proportional to :math:`nf^3` of :math:`\gamma_{gg}^{(3)}`,
+    the expression is copied exact from Eq. 3.14 of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
