@@ -291,7 +291,7 @@ def quad_ker(
     else:
         # compute the actual evolution kernel
         if ker_base.is_QEDsinglet:
-            gamma_singlet = ad.gamma_4x4sector(order, ker_base.n, nf)
+            gamma_singlet = ad.gamma_singlet_qed(order, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
                 gamma_singlet = sv.exponentiated.gamma_variation(
@@ -315,7 +315,7 @@ def quad_ker(
                 )
             ker = select_QEDsinglet_element(ker, mode0, mode1)
         elif ker_base.is_QEDvalence:
-            gamma_v = ad.gamma_2x2sector(order, ker_base.n, nf)
+            gamma_v = ad.gamma_valence_qed(order, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
                 gamma_v = sv.exponentiated.gamma_variation(gamma_v, order, nf, L)

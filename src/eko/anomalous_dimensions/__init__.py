@@ -336,7 +336,7 @@ def gamma_ns_qed(order, mode, n, nf):
 
 
 @nb.njit(cache=True)
-def gamma_4x4sector(order, n, nf):
+def gamma_singlet_qed(order, n, nf):
     r"""
     Computes the tower of the singlet anomalous dimensions matrices
 
@@ -381,7 +381,7 @@ def gamma_4x4sector(order, n, nf):
 
 
 @nb.njit(cache=True)
-def gamma_2x2sector(order, n, nf):
+def gamma_valence_qed(order, n, nf):
     r"""
     Computes the tower of the singlet anomalous dimensions matrices
 
