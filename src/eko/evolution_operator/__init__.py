@@ -435,13 +435,9 @@ class Operator(sv.ModeMixin):
                 )
                 temp_dict[label] = res[:2]
             column.append(temp_dict)
-
         logger.info(
-            "%s: computing operators - %u/%u took: %6f s",
-            self.log_label,
-            k + 1,
-            self.grid_size,
-            (time.perf_counter() - start_time),
+            f"{self.log_label}: computing operators: - {k+1}/{self.grid_size}"
+            f" took: {(time.perf_counter() - start_time):6f} s"
         )
         return column
 
@@ -499,7 +495,7 @@ class Operator(sv.ModeMixin):
 
         # run integration in parallel for each grid point
         # or avoid opening a single pool
-        args = (self.run_op_integration, enumerate(np.log(self.int_disp.xgrid_raw)))
+        args = (self.run_op_integration, enumerate(np.log(self.int_disp.xgrid.raw)))
         if self.n_pools == 1:
             res = map(*args)
         else:

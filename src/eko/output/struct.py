@@ -4,6 +4,7 @@ from typing import Dict, Literal, Optional
 
 import numpy as np
 
+from .. import interpolation
 from .. import version as vmod
 
 
@@ -71,7 +72,7 @@ class EKO:
     to PDFs and dumping to file.
     """
 
-    xgrid: np.ndarray
+    xgrid: interpolation.XGrid
     Q02: float
     _operators: Dict[float, Optional[Operator]]
     configs: Configs
@@ -108,7 +109,7 @@ class EKO:
     @classmethod
     def from_dict(cls, dictionary):
         return cls(
-            xgrid=np.array(dictionary["xgrid"]),
+            xgrid=interpolation.XGrid(dictionary["xgrid"]),
             Q02=dictionary["Q0"] ** 2,
             _operators={q2: None for q2 in dictionary["Q2grid"]},
             configs=Configs.from_dict(dictionary["configs"]),

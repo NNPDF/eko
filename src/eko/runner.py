@@ -69,16 +69,16 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 
         rot = operators_card.get("rotations", {})
         self.post_process = dict(
-            inputgrid=rot.get("inputgrid", bfd.xgrid_raw),
-            targetgrid=rot.get("targetgrid", bfd.xgrid_raw),
+            inputgrid=rot.get("inputgrid", bfd.xgrid.raw),
+            targetgrid=rot.get("targetgrid", bfd.xgrid.raw),
             inputbasis=rot.get("inputbasis"),
             targetbasis=rot.get("targetbasis"),
         )
 
         if "rotations" not in operators_card:
             operators_card["rotations"] = {}
-        operators_card["rotations"]["inputgrid"] = bfd.xgrid_raw
-        operators_card["rotations"]["targetgrid"] = bfd.xgrid_raw
+        operators_card["rotations"]["inputgrid"] = bfd.xgrid.raw
+        operators_card["rotations"]["targetgrid"] = bfd.xgrid.raw
 
         self.out = EKO.from_dict(dict(Q0=np.sqrt(tc.q2_ref), **operators_card))
 
@@ -94,20 +94,20 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         # add all operators
         self.out.rotations.inputpids = np.array(br.flavor_basis_pids)
         self.out.rotations.targetpids = np.array(br.flavor_basis_pids)
-        self.out.rotations.inputgrid = self.out.xgrid
-        self.out.rotations.targetgrid = self.out.xgrid
+        self.out.rotations.inputgrid = self.out.xgrid.grid
+        self.out.rotations.targetgrid = self.out.xgrid.grid
         for final_scale, op in self.op_grid.compute().items():
             self.out[float(final_scale)] = op
 
         # reshape xgrid
         inputgrid = (
             self.post_process["inputgrid"]
-            if self.post_process["inputgrid"] is not self.out.xgrid
+            if self.post_process["inputgrid"] is not self.out.xgrid.grid
             else None
         )
         targetgrid = (
             self.post_process["targetgrid"]
-            if self.post_process["targetgrid"] is not self.out.xgrid
+            if self.post_process["targetgrid"] is not self.out.xgrid.grid
             else None
         )
         if inputgrid is not None or targetgrid is not None:
