@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-This module contains the anomalous dimension :math:`\\gamma_{qg}^{(3)}`
+r"""This module contains the anomalous dimension :math:`\gamma_{qg}^{(3)}`
 """
 import numba as nb
 import numpy as np
@@ -10,7 +9,7 @@ from ...harmonics.log_functions import lm13, lm13m1, lm14, lm15
 
 @nb.njit(cache=True)
 def gamma_qg_nf3(n, sx):
-    """Implements the part proportional to :math:`nf^3` of :math:`\\gamma_{qg}^{(3)}`
+    r"""Implements the part proportional to :math:`nf^3` of :math:`\gamma_{qg}^{(3)}`
     The expression is copied exact from Eq. 3.12 of :cite:`Davies:2016jie`.
 
     Parameters
@@ -23,7 +22,7 @@ def gamma_qg_nf3(n, sx):
     Returns
     -------
     complex
-        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{qg}^{(3)}|_{nf^3}`
+        |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^3}`
 
     """
     S1 = sx[0][0]
@@ -332,7 +331,7 @@ def gamma_qg_nf3(n, sx):
 
 @nb.njit(cache=True)
 def gamma_qg_nf1(n, sx):
-    """Implements the part proportional to :math:`nf^1` of :math:`\\gamma_{qg}^{(3)}`.
+    r"""Implements the part proportional to :math:`nf^1` of :math:`\gamma_{qg}^{(3)}`.
     Parameters
     ----------
     n : complex
@@ -343,7 +342,7 @@ def gamma_qg_nf1(n, sx):
     Returns
     -------
     complex
-        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{qg}^{(3)}|_{nf^1}`
+        |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^1}`
 
     """
     S1 = sx[0][0]
@@ -367,7 +366,7 @@ def gamma_qg_nf1(n, sx):
 
 @nb.njit(cache=True)
 def gamma_qg_nf2(n, sx):
-    """Implements the part proportional to :math:`nf^2` of :math:`\\gamma_{qg}^{(3)}`.
+    r"""Implements the part proportional to :math:`nf^2` of :math:`\gamma_{qg}^{(3)}`.
 
     Parameters
     ----------
@@ -379,7 +378,7 @@ def gamma_qg_nf2(n, sx):
     Returns
     -------
     complex
-        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{qg}^{(3)}|_{nf^2}`
+        |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^2}`
 
     """
     S1 = sx[0][0]
@@ -402,7 +401,7 @@ def gamma_qg_nf2(n, sx):
 
 @nb.njit(cache=True)
 def gamma_qg(n, nf, sx):
-    """Computes the |N3LO| quark-gluon singlet anomalous dimension.
+    r"""Computes the |N3LO| quark-gluon singlet anomalous dimension.
 
     Parameters
     ----------
@@ -417,13 +416,13 @@ def gamma_qg(n, nf, sx):
     -------
     complex
         |N3LO| quark-gluon singlet anomalous dimension
-        :math:`\\gamma_{qg}^{(3)}(N)`
+        :math:`\gamma_{qg}^{(3)}(N)`
 
     See Also
     --------
-    gamma_qg_nf1: :math:`\\gamma_{qg}^{(3)}|_{nf^1}`
-    gamma_qg_nf2: :math:`\\gamma_{qg}^{(3)}|_{nf^2}`
-    gamma_qg_nf3: :math:`\\gamma_{qg}^{(3)}|_{nf^3}`
+    gamma_qg_nf1: :math:`\gamma_{qg}^{(3)}|_{nf^1}`
+    gamma_qg_nf2: :math:`\gamma_{qg}^{(3)}|_{nf^2}`
+    gamma_qg_nf3: :math:`\gamma_{qg}^{(3)}|_{nf^3}`
 
     """
     return (

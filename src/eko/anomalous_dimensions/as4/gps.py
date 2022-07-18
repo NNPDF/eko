@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-This module contains the anomalous dimension :math:`\\gamma_{ps}^{(3)}`
+r"""This module contains the anomalous dimension :math:`\gamma_{ps}^{(3)}`
 """
 import numba as nb
 import numpy as np
@@ -8,7 +7,7 @@ import numpy as np
 
 @nb.njit(cache=True)
 def gamma_ps_nf3(n, sx):
-    """Implements the part proportional to :math:`nf^3` of :math:`\\gamma_{ps}^{(3)}`
+    r"""Implements the part proportional to :math:`nf^3` of :math:`\gamma_{ps}^{(3)}`
     The expression is copied exact from Eq. 3.10 of :cite:`Davies:2016jie`.
 
     Parameters
@@ -21,7 +20,7 @@ def gamma_ps_nf3(n, sx):
     Returns
     -------
     complex
-        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{ps}^{(3)}|_{nf^3}`
+        |N3LO| non-singlet anomalous dimension :math:`\gamma_{ps}^{(3)}|_{nf^3}`
 
     """
     S1 = sx[0][0]
@@ -80,7 +79,7 @@ def gamma_ps_nf3(n, sx):
 
 @nb.njit(cache=True)
 def gamma_ps_nf1(n, sx):
-    """Implements the part proportional to :math:`nf^1` of :math:`\\gamma_{ps}^{(3)}`.
+    r"""Implements the part proportional to :math:`nf^1` of :math:`\gamma_{ps}^{(3)}`.
 
     Parameters
     ----------
@@ -92,7 +91,7 @@ def gamma_ps_nf1(n, sx):
     Returns
     -------
     complex
-        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{ps}^{(3)}|_{nf^1}`
+        |N3LO| non-singlet anomalous dimension :math:`\gamma_{ps}^{(3)}|_{nf^1}`
 
     """
     S1 = sx[0][0]
@@ -110,7 +109,7 @@ def gamma_ps_nf1(n, sx):
 
 @nb.njit(cache=True)
 def gamma_ps_nf2(n, sx):
-    """Implements the part proportional to :math:`nf^2` of :math:`\\gamma_{ps}^{(3)}`.
+    r"""Implements the part proportional to :math:`nf^2` of :math:`\gamma_{ps}^{(3)}`.
 
     Parameters
     ----------
@@ -122,7 +121,7 @@ def gamma_ps_nf2(n, sx):
     Returns
     -------
     complex
-        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{ps}^{(3)}|_{nf^2}`
+        |N3LO| non-singlet anomalous dimension :math:`\gamma_{ps}^{(3)}|_{nf^2}`
 
     """
     S1 = sx[0][0]
@@ -139,7 +138,7 @@ def gamma_ps_nf2(n, sx):
 
 @nb.njit(cache=True)
 def gamma_ps(n, nf, sx):
-    """Computes the |N3LO| pure singlet quark-quark anomalous dimension.
+    r"""Computes the |N3LO| pure singlet quark-quark anomalous dimension.
 
     Parameters
     ----------
@@ -154,13 +153,13 @@ def gamma_ps(n, nf, sx):
     -------
     complex
         |N3LO| pure singlet quark-quark anomalous dimension
-        :math:`\\gamma_{ps}^{(3)}(N)`
+        :math:`\gamma_{ps}^{(3)}(N)`
 
     See Also
     --------
-    gamma_ps_nf1: :math:`\\gamma_{ps}^{(3)}|_{nf^1}`
-    gamma_ps_nf2: :math:`\\gamma_{ps}^{(3)}|_{nf^2}`
-    gamma_ps_nf3: :math:`\\gamma_{ps}^{(3)}|_{nf^3}`
+    gamma_ps_nf1: :math:`\gamma_{ps}^{(3)}|_{nf^1}`
+    gamma_ps_nf2: :math:`\gamma_{ps}^{(3)}|_{nf^2}`
+    gamma_ps_nf3: :math:`\gamma_{ps}^{(3)}|_{nf^3}`
 
     """
     return (
