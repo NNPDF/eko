@@ -228,14 +228,14 @@ The other parts are approximated using some known limits:
 
     *   The large-x limit of the singlet splitting function is different for the diagonal part
         and the off-diagonal.
-        It is known that :cite:`Moch:2021qrk` the diagonal terms diverge in N-space as:
+        It is known that :cite:`Albino:2000cp,Moch:2021qrk` the diagonal terms diverge in N-space as:
 
             .. math ::
                 \gamma_{kk} \approx A_4 S_1(N)  + \mathcal{O}(1)
 
         Where again the coefficient :math:`A_4` is the |QCD| cusp anomalous dimension. However, :math:`\gamma_{qq,ps}^{(3)}`
         do not constrain any divergence at large-x or constant term so its expansion will start as
-        :math:` \mathcal{O}(\frac{1}{N^2})`.
+        :math:`\mathcal{O}(\frac{1}{N^2})`.
         The off-diagonal do not contain any +-distributions or delta distributions but can include divergent logarithms
         of the type :cite:`Soar:2009yh`:
 
