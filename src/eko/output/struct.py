@@ -4,6 +4,7 @@ from typing import Dict, Literal, Optional
 
 import numpy as np
 
+from .. import basis_rotation as br
 from .. import interpolation
 from .. import version as vmod
 
@@ -64,6 +65,12 @@ class Rotations(DictLike):
     targetpids: Optional[np.ndarray] = None
     inputpids: Optional[np.ndarray] = None
 
+    @classmethod
+    def default(cls, xgrid: interpolation.XGrid, pids: np.ndarray):
+        return cls(
+            targetgrid=xgrid.raw, inputgrid=xgrid.raw, targetpids=pids, inputpids=pids
+        )
+
 
 @dataclass
 class EKO:
@@ -78,6 +85,7 @@ class EKO:
     configs: Configs
     rotations: Rotations
     debug: Debug
+    pids: np.ndarray = np.array(br.flavor_basis_pids)
     version: str = vmod.__version__
     data_version: str = vmod.__data_version__
 
@@ -107,14 +115,42 @@ class EKO:
         return np.array(list(self._operators))
 
     @classmethod
-    def from_dict(cls, dictionary):
+    def from_dict(cls, runcard: dict):
+        """Make structure from runcard-like dictionary.
+
+        This constructor is made to be used with loaded runcards, in order to
+        minimize the amount of code needed to init a new object (you just to
+        load the runcard and call this function).
+
+        Note
+        ----
+        An object is initialized with no rotations, since the role of rotations
+        is to keep the current state of the output object after manipulations
+        happened.
+        Since a new object is here in the process of being created, no rotation
+        has to be logged.
+
+        Parameters
+        ----------
+        runcard : dict
+            a dictionary containing the runcard's content
+
+        Returns
+        -------
+        EKO
+            the generated structure
+
+        """
+        xgrid = interpolation.XGrid(runcard["xgrid"])
+        pids = runcard.get("pids", cls.pids)
         return cls(
-            xgrid=interpolation.XGrid(dictionary["xgrid"]),
-            Q02=dictionary["Q0"] ** 2,
-            _operators={q2: None for q2 in dictionary["Q2grid"]},
-            configs=Configs.from_dict(dictionary["configs"]),
-            rotations=Rotations.from_dict(dictionary.get("rotations", {})),
-            debug=Debug.from_dict(dictionary.get("debug", {})),
+            xgrid=xgrid,
+            pids=pids,
+            Q02=runcard["Q0"] ** 2,
+            _operators={q2: None for q2 in runcard["Q2grid"]},
+            configs=Configs.from_dict(runcard["configs"]),
+            rotations=Rotations.default(xgrid, pids),
+            debug=Debug.from_dict(runcard.get("debug", {})),
         )
 
     @classmethod

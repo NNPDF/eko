@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
 import logging
 import warnings
+from typing import Optional
 
 import numpy as np
 
 from .. import basis_rotation as br
 from .. import interpolation
+from .struct import EKO
 
 logger = logging.getLogger(__name__)
 
 
-def xgrid_reshape(eko, targetgrid=None, inputgrid=None, inplace=True):
+def xgrid_reshape(
+    eko: EKO,
+    targetgrid: Optional[np.ndarray] = None,
+    inputgrid: Optional[np.ndarray] = None,
+    inplace: bool = True,
+):
     """
     Changes the operators to have in the output targetgrid and/or in the input inputgrid.
 
@@ -23,7 +30,6 @@ def xgrid_reshape(eko, targetgrid=None, inputgrid=None, inplace=True):
         inputgrid : None or list
             xgrid for the input
     """
-    __import__("pdb").set_trace()
     # calling with no arguments is an error
     if targetgrid is None and inputgrid is None:
         raise ValueError("Nor inputgrid nor targetgrid was given")
@@ -86,7 +92,12 @@ def xgrid_reshape(eko, targetgrid=None, inputgrid=None, inplace=True):
         elem.error = errs
 
 
-def flavor_reshape(eko, targetbasis=None, inputbasis=None, inplace=True):
+def flavor_reshape(
+    eko: EKO,
+    targetbasis: Optional[np.ndarray] = None,
+    inputbasis: Optional[np.ndarray] = None,
+    inplace: bool = True,
+):
     """
     Changes the operators to have in the output targetbasis and/or in the input inputbasis.
 
@@ -147,7 +158,7 @@ def flavor_reshape(eko, targetbasis=None, inputbasis=None, inplace=True):
         eko.rotations.targetpids = [0] * len(eko.rotations.targetpids)
 
 
-def to_evol(eko, source=True, target=False, inplace=True):
+def to_evol(eko: EKO, source: bool = True, target: bool = False, inplace: bool = True):
     """
     Rotate the operator into evolution basis.
 

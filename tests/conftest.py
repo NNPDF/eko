@@ -65,6 +65,7 @@ class FakeOutput:
         Q2grid = self.mk_g([q2_out], len(pids), len(xgrid))
         d = dict(
             xgrid=xgrid,
+            pids=pids,
             rotations=dict(
                 targetgrid=xgrid,
                 inputgrid=xgrid,
