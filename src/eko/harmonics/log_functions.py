@@ -18,7 +18,7 @@ def lm11m1(n, S1):
     ----------
     n : complex
         Mellin moment
-    S1:  complex
+    S1 : complex
         Harmonic sum :math:`S_{1}(N)`
 
     Returns
@@ -37,9 +37,9 @@ def lm12m1(n, S1, S2):
     ----------
     n : complex
         Mellin moment
-    S1:  complex
+    S1 : complex
         Harmonic sum :math:`S_{1}(N)`
-    S2:  complex
+    S2 : complex
         Harmonic sum :math:`S_{2}(N)`
 
     Returns
@@ -65,11 +65,11 @@ def lm13m1(n, S1, S2, S3):
     ----------
     n : complex
         Mellin moment
-    S1:  complex
+    S1 : complex
         Harmonic sum :math:`S_{1}(N)`
-    S2:  complex
+    S2 : complex
         Harmonic sum :math:`S_{2}(N)`
-    S3:  complex
+    S3 : complex
         Harmonic sum :math:`S_{3}(N)`
 
     Returns
@@ -99,7 +99,7 @@ def lm11(n, S1):
     ----------
     n : complex
         Mellin moment
-    S1:  complex
+    S1 : complex
         Harmonic sum :math:`S_{1}(N)`
 
     Returns
@@ -118,11 +118,11 @@ def lm13(n, S1, S2, S3):
     ----------
     n : complex
         Mellin moment
-    S1:  complex
+    S1 : complex
         Harmonic sum :math:`S_{1}(N)`
-    S2:  complex
+    S2 : complex
         Harmonic sum :math:`S_{2}(N)`
-    S3:  complex
+    S3 : complex
         Harmonic sum :math:`S_{3}(N)`
 
     Returns
@@ -141,13 +141,13 @@ def lm14(n, S1, S2, S3, S4):
     ----------
     n : complex
         Mellin moment
-    S1:  complex
+    S1 : complex
         Harmonic sum :math:`S_{1}(N)`
-    S2:  complex
+    S2 : complex
         Harmonic sum :math:`S_{2}(N)`
-    S3:  complex
+    S3 : complex
         Harmonic sum :math:`S_{3}(N)`
-    S4:  complex
+    S4 : complex
         Harmonic sum :math:`S_{4}(N)`
 
     Returns
@@ -166,15 +166,15 @@ def lm15(n, S1, S2, S3, S4, S5):
     ----------
     n : complex
         Mellin moment
-    S1:  complex
+    S1 : complex
         Harmonic sum :math:`S_{1}(N)`
-    S2:  complex
+    S2 : complex
         Harmonic sum :math:`S_{2}(N)`
-    S3:  complex
+    S3 : complex
         Harmonic sum :math:`S_{3}(N)`
-    S4:  complex
+    S4 : complex
         Harmonic sum :math:`S_{4}(N)`
-    S5:  complex
+    S5 : complex
         Harmonic sum :math:`S_{5}(N)`
 
     Returns

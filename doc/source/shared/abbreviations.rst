@@ -69,6 +69,11 @@
 .. |QED| replace::
    :abbr:`QED (Quantum Electrodynamics)`
 
+.. |DIS| replace::
+   :abbr:`DIS (Deep Inelastic Scattering)`
+
+.. |BFKL| replace::
+   :abbr:`BFKL (Balitsky, Fadin, Kuraev and Lipatov equation)`
 .. external
 
 .. |yadism| replace::

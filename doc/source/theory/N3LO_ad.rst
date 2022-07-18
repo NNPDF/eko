@@ -2,10 +2,10 @@ N3LO Anomalous Dimensions
 =========================
 
 The |N3LO| |QCD| anomalous dimensions :math:`\gamma^{(3)}` are not yet fully known,
-since they rely on the calculation of 4-loop DIS integrals.
+since they rely on the calculation of 4-loop |DIS| integrals.
 Moreover the analytical structure of these function is already known to be complicated
 since in Mellin space it will included harmonics sum up to weight 7, for which an
-analytical contribution is not available.
+analytical expression is not available.
 
 Here we describe the various assumptions and limits used in order to reconstruct a parametrization
 that can approximate their contribution.
@@ -18,7 +18,7 @@ while the small-x region corresponds to poles at :math:`N=0,1` depending on the 
 divergence.
 
 In any case |N3LO| |DGLAP| evolution at small-x, especially for singlet-like PDFs, will not be reliable
-until the splitting function resummation will not be available up to NNLL.
+until the splitting function resummation will not be available up to |NNLL|.
 
 Non-singlet sector
 ------------------
@@ -81,7 +81,7 @@ In |EKO| they are implemented as follows:
             This part contains the so called double logarithms:
 
             .. math ::
-                \ln^k(x) \quad k=1,..,6, \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{(k+1)}}
+                \ln^k(x), \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}, \quad k=1,..,6
 
             Note the expressions are evaluated with the exact values of the |QCD|
             Casimir invariants, to better agree with the :cite:`Moch:2017uml` parametrization.
@@ -139,7 +139,7 @@ In |EKO| they are implemented as follows:
 
 
             to help the convergence in the small-N region. Finally we add a polynomial part
-            :math:`x^{2(3)}` which corresponds to simple poles at :math:`N=-2,-3`
+            :math:`x^{2,3}` which corresponds to simple poles at :math:`N=-2,-3`
             respectively for :math:`\gamma_{ns,+},\gamma_{ns,-}`.
 
             Note that the constant coefficient is included in the fit, following the procedure done
@@ -205,14 +205,14 @@ The other parts are approximated using some known limits:
         for the pole at :math:`N=0`:
 
             .. math ::
-                \ln^k(x) \quad k=4,5,6, \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{(k+1)}}
+                \ln^k(x) \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}, \quad k=4,5,6
 
-    *   The small-x limit, coming from BFLK resummation
+    *   The small-x limit, coming from |BFKL| resummation
         :cite:`Bonvini:2018xvt` (see Eq. 2.32, 2.20b, 2.21a, 2.21b)
         which fix the leading terms (|LL|, |NLL|) for the pole at :math:`N=1`:
 
             .. math ::
-                \frac{\ln^k(x)}{x} \quad k=4,5, \quad \mathcal{M}[\frac{\ln^k(x)}{x}] = \frac{1}{(N-1)^{(k+1)}}
+                \frac{\ln^k(x)}{x}, \quad \mathcal{M}[\frac{\ln^k(x)}{x}] = \frac{1}{(N-1)^{k+1}}, \quad k=4,5
 
         Note that in principle also the term :math:`\frac{\ln^6(x)}{x}` could be present at |N3LO|,
         but they are vanishing.
