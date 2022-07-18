@@ -534,8 +534,8 @@ class InterpolatorDispatcher:
             xgrid = make_grid(*xgrid[1:])
         elif xgrid[0] == "make_lambert_grid":
             xgrid = make_lambert_grid(*xgrid[1:])
-        is_log_interpolation = bool(operators_card["interpolation_is_log"])
-        polynom_rank = operators_card["interpolation_polynomial_degree"]
+        is_log_interpolation = bool(operators_card["configs"]["interpolation_is_log"])
+        polynom_rank = operators_card["configs"]["interpolation_polynomial_degree"]
         return cls(
             xgrid,
             polynom_rank,
@@ -608,8 +608,10 @@ class InterpolatorDispatcher:
         """
         ret = {
             "xgrid": self.xgrid_raw,
-            "interpolation_polynomial_degree": self.polynomial_degree,
-            "interpolation_is_log": self.log,
+            "configs": {
+                "interpolation_polynomial_degree": self.polynomial_degree,
+                "interpolation_is_log": self.log,
+            },
         }
         return ret
 

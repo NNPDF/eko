@@ -87,9 +87,7 @@ def apply_pdf_flavor(eko, lhapdf_like, targetgrid=None, flavor_rotation=None):
 
     # rotate/interpolate to target grid
     if targetgrid is not None:
-        b = interpolation.InterpolatorDispatcher.from_dict(
-            eko.configs.raw | dict(xgrid=eko.xgrid), False
-        )
+        b = interpolation.InterpolatorDispatcher.from_dict(eko.raw, False)
         rot = b.get_interpolation(targetgrid)
         for evpdf in out_grid.values():
             for pdf_label in evpdf["pdfs"]:

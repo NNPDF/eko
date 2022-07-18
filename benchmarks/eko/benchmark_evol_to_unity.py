@@ -44,15 +44,19 @@ class BenchmarkBackwardForward:
         "Q2grid": [10],
         # here you need a very dense grid
         "xgrid": np.linspace(1e-1, 1, 30),
-        # "interpolation_xgrid": make_grid(30,30, x_min=1e-3),
-        "interpolation_polynomial_degree": 1,
-        "interpolation_is_log": True,
-        "debug_skip_singlet": False,
-        "debug_skip_non_singlet": False,
-        "ev_op_max_order": 1,
-        "ev_op_iterations": 1,
-        "backward_inversion": "exact",
-        "n_integration_cores": 1,
+        # "xgrid": make_grid(30,30, x_min=1e-3),
+        "configs": {
+            "interpolation_polynomial_degree": 1,
+            "interpolation_is_log": True,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
+            "backward_inversion": "exact",
+            "n_integration_cores": 1,
+        },
+        "debug": {
+            "skip_singlet": False,
+            "skip_non_singlet": False,
+        },
     }
     new_theory, new_operators = compatibility.update(theory_card, operators_card)
     g = OperatorGrid.from_dict(

@@ -53,6 +53,7 @@ class Configs(DictLike):
     interpolation_polynomial_degree: int
     interpolation_is_log: bool
     backward_inversion: Literal["exact", "expanded"]
+    n_integration_cores: int = 1
 
 
 @dataclass
