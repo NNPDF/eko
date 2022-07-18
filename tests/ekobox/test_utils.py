@@ -8,8 +8,7 @@ from ekobox import gen_theory as g_t
 from ekobox import utils
 
 
-@pytest.mark.isolated
-def benchmark_ekos_product():
+def test_ekos_product():
     # Generating two ekos
     op1 = g_o.gen_op_card(
         [60.0, 80.0, 100.0], update={"xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
