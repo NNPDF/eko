@@ -218,7 +218,7 @@ The other parts are approximated using some known limits:
         but they are vanishing.
         These terms are way larger than the previous ones in the small-x limit and
         are effectively determining the raise of the splitting functions at small-x.
-        In particular only the expansion for :math:`\gamma_{gg}^{(3)}` is known at NLL.
+        In particular only the expansion for :math:`\gamma_{gg}^{(3)}` is known at |NLL|.
         |LL| terms respect the representation symmetry :
 
             .. math ::
