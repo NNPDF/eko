@@ -12,7 +12,6 @@ from . import compatibility, interpolation, msbar_masses
 from .couplings import Couplings
 from .evolution_operator.grid import OperatorGrid
 from .output import EKO, manipulate
-from .output.struct import Rotations
 from .thresholds import ThresholdsAtlas
 
 logger = logging.getLogger(__name__)
@@ -93,7 +92,10 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         def similar_to_none(name: str) -> Optional[np.ndarray]:
             grid = self.post_process[name]
 
-            if grid is None or np.allclose(grid, getattr(Rotations, name), atol=1e-12):
+            default = self.out.xgrid.grid if "grid" in name else self.out.pids
+            if grid is None or (
+                len(grid) == default.size and np.allclose(grid, default, atol=1e-12)
+            ):
                 return None
 
             return np.array(grid)
