@@ -72,17 +72,17 @@ def test_eigensystem_gamma_singlet_projectors_EV():
 
 def test_gamma_ns():
     nf = 3
-    # LO
+    # as1
     assert_almost_equal(
         ad.gamma_ns((3, 0), br.non_singlet_pids_map["ns+"], 1, nf)[0], 0.0
     )
-    # NLO
+    # as2
     assert_allclose(
         ad.gamma_ns((2, 0), br.non_singlet_pids_map["ns-"], 1, nf),
         np.zeros(2),
         atol=2e-6,
     )
-    # NNLO
+    # as3
     assert_allclose(
         ad.gamma_ns((3, 0), br.non_singlet_pids_map["ns-"], 1, nf),
         np.zeros(3),
@@ -93,7 +93,7 @@ def test_gamma_ns():
         np.zeros(3),
         atol=8e-4,
     )
-    # N3LO
+    # as4
     assert_allclose(
         ad.gamma_ns((4, 0), br.non_singlet_pids_map["ns-"], 1, nf),
         np.zeros(4),
@@ -110,4 +110,47 @@ def test_gamma_ns():
         assert_allclose,
         ad.gamma_ns((4, 0), br.non_singlet_pids_map["ns+"], 1, nf),
         np.zeros(4),
+    )
+
+
+def test_gamma_ns_qed():
+    nf = 3
+    # aem1
+    assert_almost_equal(
+        ad.gamma_ns_qed((0, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((1, 2)),
+    )
+    assert_almost_equal(
+        ad.gamma_ns_qed((0, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((1, 2)),
+    )
+    assert_almost_equal(
+        ad.gamma_ns_qed((0, 1), br.non_singlet_pids_map["ns+u"], 1, nf),
+        np.zeros((1, 2)),
+    )
+    assert_almost_equal(
+        ad.gamma_ns_qed((0, 1), br.non_singlet_pids_map["ns+d"], 1, nf),
+        np.zeros((1, 2)),
+    )
+    # as1aem1
+    assert_almost_equal(
+        ad.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((2, 3)),
+        decimal=5,
+    )
+    assert_almost_equal(
+        ad.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((2, 3)),
+        decimal=5,
+    )
+    # aem2
+    assert_almost_equal(
+        ad.gamma_ns_qed((0, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((1, 3)),
+        decimal=5,
+    )
+    assert_almost_equal(
+        ad.gamma_ns_qed((0, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((1, 3)),
+        decimal=5,
     )

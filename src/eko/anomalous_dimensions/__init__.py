@@ -289,14 +289,14 @@ def gamma_ns_qed(order, mode, n, nf):
     max_weight = max(order)
     sx = harmonics.sx(n, max_weight=max_weight + 1)
     # now combine
-    gamma_ns = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
+    gamma_ns = np.zeros((order[0] + 1, order[1] + 1), np.complex_)
     if order[0] >= 1:
         gamma_ns[1, 0] = as1.gamma_ns(n, sx[0])
     if order[1] >= 1:
         if mode in [10102, 10202]:
-            gamma_ns[0, 1] = constants.eu2 * aem1.gamma_ns(n, sx[0])
+            gamma_ns[0, 1] = constants.eu2 * aem1.gamma_ns(n, sx)
         if mode in [10103, 10203]:
-            gamma_ns[0, 1] = constants.ed2 * aem1.gamma_ns(n, sx[0])
+            gamma_ns[0, 1] = constants.ed2 * aem1.gamma_ns(n, sx)
     if order[0] >= 1 and order[1] >= 1:
         if mode == 10102:
             gamma_ns[1, 1] = constants.eu2 * as1aem1.gamma_nsp(n, sx)
@@ -367,7 +367,7 @@ def gamma_singlet_qed(order, n, nf):
     if order[0] >= 1:
         gamma_s[1, 0] = as1.gamma_QEDsinglet(n, sx[0], nf)
     if order[1] >= 1:
-        gamma_s[0, 1] = aem1.gamma_singlet(n, nf, sx[0])
+        gamma_s[0, 1] = aem1.gamma_singlet(n, nf, sx)
     if order[0] >= 1 and order[1] >= 1:
         gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, sx)
     if order[0] >= 2:
@@ -412,7 +412,7 @@ def gamma_valence_qed(order, n, nf):
     if order[0] >= 1:
         gamma_s[1, 0] = as1.gamma_QEDvalence(n, sx[0])
     if order[1] >= 1:
-        gamma_s[0, 1] = aem1.gamma_valence(n, nf, sx[0])
+        gamma_s[0, 1] = aem1.gamma_valence(n, nf, sx)
     if order[0] >= 1 and order[1] >= 1:
         gamma_s[1, 1] = as1aem1.gamma_valence(n, nf, sx)
     if order[0] >= 2:
