@@ -114,6 +114,8 @@ def select_QEDvalence_element(ker, mode0, mode1):
 
 spec = [
     ("is_singlet", nb.boolean),
+    ("is_QEDsinglet", nb.boolean),
+    ("is_QEDvalence", nb.boolean),
     ("is_log", nb.boolean),
     ("logx", nb.float64),
     ("u", nb.float64),
