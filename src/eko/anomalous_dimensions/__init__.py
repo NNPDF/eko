@@ -329,9 +329,9 @@ def gamma_ns_qed(order, mode, n, nf):
     # NNLO and beyond
     if order[0] >= 3:
         if mode in [10102, 10103]:
-            gamma_ns[3, 0] = -as3.gamma_nsp(n, nf, sx)
+            gamma_ns[3, 0] = as3.gamma_nsp(n, nf, sx)
         elif mode in [10202, 10203]:
-            gamma_ns[3, 0] = -as3.gamma_nsm(n, nf, sx)
+            gamma_ns[3, 0] = as3.gamma_nsm(n, nf, sx)
     return gamma_ns
 
 
@@ -376,7 +376,7 @@ def gamma_singlet_qed(order, n, nf):
         gamma_s[0, 2] = aem2.gamma_singlet(n, nf, sx)
     if order[0] == 3:
         sx = np.append(sx, harmonics.S4(n))
-        gamma_s[3, 0] = -as3.gamma_QEDsinglet(n, nf, sx)
+        gamma_s[3, 0] = as3.gamma_QEDsinglet(n, nf, sx)
     return gamma_s
 
 
@@ -421,5 +421,5 @@ def gamma_valence_qed(order, n, nf):
         gamma_s[0, 2] = aem2.gamma_valence(n, nf, sx)
     if order[0] == 3:
         sx = np.append(sx, harmonics.S4(n))
-        gamma_s[3, 0] = -as3.gamma_QEDvalence(n, nf, sx)
+        gamma_s[3, 0] = as3.gamma_QEDvalence(n, nf, sx)
     return gamma_s
