@@ -3,16 +3,16 @@ N3LO Anomalous Dimensions
 
 The |N3LO| |QCD| anomalous dimensions :math:`\gamma^{(3)}` are not yet fully known,
 since they rely on the calculation of 4-loop |DIS| integrals.
-Moreover the analytical structure of these function is already known to be complicated
+Moreover, the analytical structure of these function is already known to be complicated
 since in Mellin space it will included harmonics sum up to weight 7, for which an
 analytical expression is not available.
 
-Here we describe the various assumptions and limits used in order to reconstruct a parametrization
+Here, we describe the various assumptions and limits used in order to reconstruct a parametrization
 that can approximate their contribution.
 In particular we will take advantage of some known physical constrain,
 such as large-x limit, small-x limit, and sum rules, in order to make our reconstruction reasonable.
 
-Generally we remark that the large-x limit correspond to large-N in Mellin space
+Generally, we remark that the large-x limit correspond to large-N in Mellin space
 where the leading contribution comes from the harmonics :math:`S_1(N)`,
 while the small-x region corresponds to poles at :math:`N=0,1` depending on the type of
 divergence.
@@ -131,8 +131,8 @@ In |EKO| they are implemented as follows:
                     - :math:`\frac{1}{(N-2)},\frac{1}{(N-3)}`
 
             The first five functions model the sub-leading differences in the :math:`N\to \infty` limit,
-            while the last three help the convergence in the small-N region. Finally we add a polynomial part
-            :math:`x^{2,3}` respectively for :math:`\gamma_{ns,+},\gamma_{ns,-}`.
+            while the last three help the convergence in the small-N region. Finally, we add a polynomial part
+            :math:`x^{2}` or :math:`x^{3}` respectively for :math:`\gamma_{ns,+},\gamma_{ns,-}`.
             For large-N we have the limit:
 
                 .. math ::
