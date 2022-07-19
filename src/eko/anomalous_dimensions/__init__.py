@@ -108,16 +108,22 @@ def exp_matrix(gamma_S):
     """
     # compute Matrix of coefficients
     w, v = np.linalg.eig(gamma_S)
-    V = np.transpose(v).dot(v)
+    vT = np.transpose(v)
+    V = vT.dot(v)
     C = np.linalg.inv(V)
     # compute projectors
-    tmp = C.dot(np.transpose(v))
+    tmp = C.dot(vT)
     dim = gamma_S.shape[0]
     e = np.zeros((dim, dim, dim), np.complex_)
+    # TODO check if this loop can be entirely cast to numpy
     for i in range(dim):
-        ei = v[:, i, np.newaxis].dot(tmp[np.newaxis, i, :])
-        e[i] = ei
-    exp = sum(e[i] * np.exp(w[i]) for i in range(dim))
+        e[i] = np.outer(vT[i], np.transpose(tmp)[i])
+    # TODO use correct np call
+    # exp = sum(e[i] * np.exp(w[i]) for i in range(dim))
+    # exp = np.sum(e * np.exp(w), axis=0)
+    exp = np.zeros((dim, dim), np.complex_)
+    for i in range(dim):
+        exp += e[i] * np.exp(w[i])
     return exp, w, e
 
 
@@ -364,19 +370,20 @@ def gamma_singlet_qed(order, n, nf):
     max_weight = max(order)
     sx = harmonics.sx(n, max_weight=max_weight + 1)
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
-    if order[0] >= 1:
-        gamma_s[1, 0] = as1.gamma_QEDsinglet(n, sx[0], nf)
-    if order[1] >= 1:
-        gamma_s[0, 1] = aem1.gamma_singlet(n, nf, sx)
-    if order[0] >= 1 and order[1] >= 1:
-        gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, sx)
-    if order[0] >= 2:
-        gamma_s[2, 0] = as2.gamma_QEDsinglet(n, nf, sx)
-    if order[1] >= 2:
-        gamma_s[0, 2] = aem2.gamma_singlet(n, nf, sx)
-    if order[0] == 3:
-        sx = np.append(sx, harmonics.S4(n))
-        gamma_s[3, 0] = as3.gamma_QEDsinglet(n, nf, sx)
+    # TODO print(as1.gamma_QEDsinglet(n, sx[0], nf).shape)
+    # if order[0] >= 1:
+    #     gamma_s[1, 0] = as1.gamma_QEDsinglet(n, sx[0], nf)
+    # if order[1] >= 1:
+    #     gamma_s[0, 1] = aem1.gamma_singlet(n, nf, sx)
+    # if order[0] >= 1 and order[1] >= 1:
+    #     gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, sx)
+    # if order[0] >= 2:
+    #     gamma_s[2, 0] = as2.gamma_QEDsinglet(n, nf, sx)
+    # if order[1] >= 2:
+    #     gamma_s[0, 2] = aem2.gamma_singlet(n, nf, sx)
+    # if order[0] == 3:
+    #     sx = np.append(sx, harmonics.S4(n))
+    #     gamma_s[3, 0] = as3.gamma_QEDsinglet(n, nf, sx)
     return gamma_s
 
 
