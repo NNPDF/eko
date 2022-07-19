@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Implementation of some Mellin transformation of functions as:
+r"""Implementation of Mellin transformation of logarithms.
 
-    :math:`(1-x)\\ln^k(1-x), \\quad k = 1,2,3`
-    :math:`\\ln^k(1-x), \\quad k = 1,3,4,5`
+We provide transforms of:
+
+- :math:`(1-x)\ln^k(1-x), \quad k = 1,2,3`
+- :math:`\ln^k(1-x), \quad k = 1,3,4,5`
 
 """
 import numba as nb
@@ -12,7 +14,7 @@ from .constants import zeta3
 
 @nb.njit(cache=True)
 def lm11m1(n, S1):
-    """Mellin transform of :math:`(1-x)\\ln(1-x)`
+    r"""Mellin transform of :math:`(1-x)\ln(1-x)`.
 
     Parameters
     ----------
@@ -24,14 +26,14 @@ def lm11m1(n, S1):
     Returns
     -------
     complex
-
+        :math:`\mathcal{M}[(1-x)\ln(1-x)](N)`
     """
     return 1 / (1 + n) ** 2 - S1 / (1 + n) ** 2 - S1 / (n * (1 + n) ** 2)
 
 
 @nb.njit(cache=True)
 def lm12m1(n, S1, S2):
-    """Mellin transform of :math:`(1-x)\\ln^2(1-x)`
+    r"""Mellin transform of :math:`(1-x)\ln^2(1-x)`.
 
     Parameters
     ----------
@@ -45,6 +47,7 @@ def lm12m1(n, S1, S2):
     Returns
     -------
     complex
+        :math:`\mathcal{M}[(1-x)\ln^2(1-x)](N)`
 
     """
     return (
@@ -59,7 +62,7 @@ def lm12m1(n, S1, S2):
 
 @nb.njit(cache=True)
 def lm13m1(n, S1, S2, S3):
-    """Mellin transform of :math:`(1-x)\\ln^3(1-x)`
+    r"""Mellin transform of :math:`(1-x)\ln^3(1-x)`.
 
     Parameters
     ----------
@@ -75,6 +78,7 @@ def lm13m1(n, S1, S2, S3):
     Returns
     -------
     complex
+        :math:`\mathcal{M}[(1-x)\ln^3(1-x)](N)`
 
     """
     return (
@@ -93,7 +97,7 @@ def lm13m1(n, S1, S2, S3):
 
 @nb.njit(cache=True)
 def lm11(n, S1):
-    """Mellin transform of :math:`\\ln(1-x)`
+    r"""Mellin transform of :math:`\ln(1-x)`.
 
     Parameters
     ----------
@@ -105,6 +109,7 @@ def lm11(n, S1):
     Returns
     -------
     complex
+        :math:`\mathcal{M}[\ln(1-x)](N)`
 
     """
     return -S1 / n
@@ -112,7 +117,7 @@ def lm11(n, S1):
 
 @nb.njit(cache=True)
 def lm13(n, S1, S2, S3):
-    """Mellin transform of :math:`\\ln^3(1-x)`
+    r"""Mellin transform of :math:`\ln^3(1-x)`.
 
     Parameters
     ----------
@@ -128,6 +133,7 @@ def lm13(n, S1, S2, S3):
     Returns
     -------
     complex
+        :math:`\mathcal{M}[\ln^3(1-x)](N)`
 
     """
     return -((S1**3 + 3 * S1 * S2 + 2 * S3) / n)
@@ -135,7 +141,7 @@ def lm13(n, S1, S2, S3):
 
 @nb.njit(cache=True)
 def lm14(n, S1, S2, S3, S4):
-    """Mellin transform of :math:`\\ln^4(1-x)`
+    r"""Mellin transform of :math:`\ln^4(1-x)`.
 
     Parameters
     ----------
@@ -153,6 +159,7 @@ def lm14(n, S1, S2, S3, S4):
     Returns
     -------
     complex
+        :math:`\mathcal{M}[\ln^4(1-x)](N)`
 
     """
     return (S1**4 + 6 * S1**2 * S2 + 3 * S2**2 + 8 * S1 * S3 + 6 * S4) / n
@@ -160,7 +167,7 @@ def lm14(n, S1, S2, S3, S4):
 
 @nb.njit(cache=True)
 def lm15(n, S1, S2, S3, S4, S5):
-    """Mellin transform of :math:`\\ln^5(1-x)`
+    r"""Mellin transform of :math:`\ln^5(1-x)`.
 
     Parameters
     ----------
@@ -180,6 +187,7 @@ def lm15(n, S1, S2, S3, S4, S5):
     Returns
     -------
     complex
+        :math:`\mathcal{M}[\ln^5(1-x)](N)`
 
     """
     return (
