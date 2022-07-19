@@ -73,7 +73,7 @@
    :abbr:`DIS (Deep Inelastic Scattering)`
 
 .. |BFKL| replace::
-   :abbr:`BFKL (Balitsky, Fadin, Kuraev and Lipatov equation)`
+   :abbr:`BFKL (Balitsky-Fadin-Kuraev-Lipatov)`
 .. external
 
 .. |yadism| replace::
