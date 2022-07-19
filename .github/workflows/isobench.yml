@@ -1,6 +1,9 @@
 name: isolated benchmarks
 
-on: push
+on:
+  push:
+    branches-ignore:
+      - feature/composite-output
 
 jobs:
   isobench:
