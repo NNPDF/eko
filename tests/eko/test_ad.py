@@ -4,11 +4,11 @@ import warnings
 
 import numpy as np
 from numpy.testing import assert_allclose, assert_almost_equal, assert_raises
+from scipy.linalg import expm
 
 from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
-from eko.anomalous_dimensions import as1 as ad_as1
-from eko.anomalous_dimensions import harmonics
+from eko.anomalous_dimensions import as1, harmonics
 
 NF = 5
 
@@ -16,7 +16,7 @@ NF = 5
 def test_eigensystem_gamma_singlet_0_values():
     n = 3
     s1 = harmonics.S1(n)
-    gamma_S_0 = ad_as1.gamma_singlet(3, s1, NF)
+    gamma_S_0 = as1.gamma_singlet(3, s1, NF)
     res = ad.exp_singlet(gamma_S_0)
     lambda_p = complex(12.273612971466964, 0)
     lambda_m = complex(5.015275917421917, 0)
@@ -33,6 +33,23 @@ def test_eigensystem_gamma_singlet_0_values():
     assert_almost_equal(lambda_m, res[2])
     assert_allclose(e_p, res[3])
     assert_allclose(e_m, res[4])
+
+
+def test_exp_matrix():
+    n = 3
+    s1 = harmonics.S1(n)
+    gamma_S_0 = as1.gamma_singlet(3, s1, NF)
+    res = ad.exp_singlet(gamma_S_0)[0]
+    res2 = ad.exp_matrix(gamma_S_0)[0]
+    assert_allclose(res, res2)
+    gamma_S_0_qed = as1.gamma_QEDsinglet(3, s1, NF)
+    res = expm(gamma_S_0_qed)
+    res2 = ad.exp_matrix(gamma_S_0_qed)[0]
+    assert_allclose(res, res2)
+    gamma_v_0_qed = as1.gamma_QEDvalence(3, s1)
+    res = expm(gamma_v_0_qed)
+    res2 = ad.exp_matrix(gamma_v_0_qed)[0]
+    assert_allclose(res, res2)
 
 
 def test_eigensystem_gamma_singlet_projectors_EV():
