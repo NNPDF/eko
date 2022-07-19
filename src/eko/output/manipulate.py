@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Manipulate output generate by EKO."""
 import logging
 import warnings
 from typing import Optional
@@ -18,17 +19,17 @@ def xgrid_reshape(
     inputgrid: Optional[np.ndarray] = None,
     inplace: bool = True,
 ):
-    """
-    Changes the operators to have in the output targetgrid and/or in the input inputgrid.
+    """Change the operators to have in the output targetgrid and/or in the input inputgrid.
 
     The operation is in-place.
 
     Parameters
     ----------
-        targetgrid : None or list
-            xgrid for the target
-        inputgrid : None or list
-            xgrid for the input
+    targetgrid : None or list
+        xgrid for the target
+    inputgrid : None or list
+        xgrid for the input
+
     """
     # calling with no arguments is an error
     if targetgrid is None and inputgrid is None:
@@ -98,17 +99,17 @@ def flavor_reshape(
     inputbasis: Optional[np.ndarray] = None,
     inplace: bool = True,
 ):
-    """
-    Changes the operators to have in the output targetbasis and/or in the input inputbasis.
+    """Change the operators to have in the output targetbasis and/or in the input inputbasis.
 
     The operation is in-place.
 
     Parameters
     ----------
-        targetbasis : numpy.ndarray
-            target rotation specified in the flavor basis
-        inputbasis : None or list
-            input rotation specified in the flavor basis
+    targetbasis : numpy.ndarray
+        target rotation specified in the flavor basis
+    inputbasis : None or list
+        input rotation specified in the flavor basis
+
     """
     # calling with no arguments is an error
     if targetbasis is None and inputbasis is None:
@@ -148,8 +149,8 @@ def flavor_reshape(
         else:
             ops = np.einsum("ca,ajbk,bd->cjdk", targetbasis, ops, inv_inputbasis)
             errs = np.einsum("ca,ajbk,bd->cjdk", targetbasis, errs, inv_inputbasis)
-        elem.operators = ops
-        elem.operator_errors = errs
+        elem.operator = ops
+        elem.error = errs
     # drop PIDs - keeping them int nevertheless
     #  there is no meaningful way to set them in general, after rotation
     if inputbasis is not None:
@@ -159,8 +160,7 @@ def flavor_reshape(
 
 
 def to_evol(eko: EKO, source: bool = True, target: bool = False, inplace: bool = True):
-    """
-    Rotate the operator into evolution basis.
+    """Rotate the operator into evolution basis.
 
     This also assigns also the pids. The operation is in-place.
 
@@ -170,6 +170,7 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False, inplace: bool =
             rotate on the input tensor
         target : bool
             rotate on the output tensor
+
     """
     # rotate
     inputbasis = br.rotate_flavor_to_evolution if source else None

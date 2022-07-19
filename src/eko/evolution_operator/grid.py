@@ -21,14 +21,33 @@ logger = logging.getLogger(__name__)
 
 
 class OperatorGrid(sv.ModeMixin):
-    """
+    """Collection of evolution operators for several scales.
+
     The operator grid is the driver class of the evolution.
 
     It receives as input a threshold holder and a generator of a_s.
     From that point onwards it can compute any operator at any q2.
 
-    Parameters
+    Attributes
     ----------
+    config: dict
+    q2_grid: np.ndarray
+    managers: dict
+
+    """
+
+    def __init__(
+        self,
+        config,
+        q2_grid,
+        thresholds_config,
+        strong_coupling,
+        interpol_dispatcher,
+    ):
+        """Initialize `OperatorGrid`.
+
+        Parameters
+        ----------
         config: dict
             configuration dictionary
         q2_grid: array
@@ -44,16 +63,8 @@ class OperatorGrid(sv.ModeMixin):
         kernel_dispatcher: eko.kernel_generation.KernelDispatcher
             Instance of the :class:`~eko.kernel_generation.KernelDispatcher` with the
             information about the kernels
-    """
 
-    def __init__(
-        self,
-        config,
-        q2_grid,
-        thresholds_config,
-        strong_coupling,
-        interpol_dispatcher,
-    ):
+        """
         # check
         order = config["order"]
         method = config["method"]
@@ -203,7 +214,7 @@ class OperatorGrid(sv.ModeMixin):
         return thr_ops
 
     def compute(self, q2grid=None):
-        """Computes all ekos for the `q2grid`.
+        """Compute all ekos for the `q2grid`.
 
         Parameters
         ----------
@@ -234,7 +245,7 @@ class OperatorGrid(sv.ModeMixin):
         return grid_return
 
     def generate(self, q2):
-        r"""Computes a single EKO.
+        r"""Compute a single EKO.
 
         Parameters
         ----------
@@ -298,5 +309,5 @@ class OperatorGrid(sv.ModeMixin):
         values, errors = final_op.to_flavor_basis_tensor()
         return {
             "operators": values,
-            "operator_errors": errors,
+            "errors": errors,
         }
