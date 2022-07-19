@@ -133,6 +133,8 @@ non_singlet_unified_labels = (
     (non_singlet_pids_map["ns-u"], 0),
 )
 full_labels = (*singlet_labels, *non_singlet_labels)
+full_unified_labels = (*singlet_unified_labels, *non_singlet_unified_labels)
+
 anomalous_dimensions_basis = full_labels
 r"""
 Sorted elements in Anomalous Dimensions Basis as :obj:`str`.
@@ -163,7 +165,7 @@ rotate_flavor_to_evolution = np.array(
 Basis rotation matrix between :doc:`Flavor Basis and Evolution Basis </theory/FlavorSpace>`.
 """
 
-# Tranformation from physical basis to QCD evolution basis
+# Tranformation from physical basis to QCDxQED evolution basis
 rotate_flavor_to_unified_evolution = np.array(
     [
         [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],

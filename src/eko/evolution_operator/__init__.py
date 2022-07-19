@@ -386,6 +386,7 @@ class Operator(sv.ModeMixin):
     log_label = "Evolution"
     # complete list of possible evolution operators labels
     full_labels = br.full_labels
+    full_labels_qed = br.full_unified_labels
 
     def __init__(
         self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2, is_threshold=False
@@ -533,15 +534,23 @@ class Operator(sv.ModeMixin):
             np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
         )
         zero = OpMember(*[np.zeros((self.grid_size, self.grid_size))] * 2)
-        for n in self.full_labels:
-            if n in self.labels:
-                # non-singlet evolution and diagonal op are identities
-                if n in br.non_singlet_labels or n[0] == n[1]:
-                    self.op_members[n] = eye.copy()
+        if self.order[1] == 0:
+            for n in self.full_labels:
+                if n in self.labels:
+                    # non-singlet evolution and diagonal op are identities
+                    if n in br.non_singlet_labels or n[0] == n[1]:
+                        self.op_members[n] = eye.copy()
+                    else:
+                        self.op_members[n] = zero.copy()
                 else:
                     self.op_members[n] = zero.copy()
-            else:
-                self.op_members[n] = zero.copy()
+        else:
+            for n in self.full_labels_qed:
+                if n in self.labels:
+                    if n in br.non_singlet_unified_labels or n[0] == n[1]:
+                        self.op_members[n] = eye.copy()
+                    else:
+                        self.op_members[n] = zero.copy()
 
     def run_op_integration(
         self,
@@ -668,22 +677,40 @@ class Operator(sv.ModeMixin):
 
     def copy_ns_ops(self):
         """Copy non-singlet kernels, if necessary"""
-        if self.order[0] == 1:  # in LO +=-=v
-            for label in ["nsV", "ns-"]:
+        if self.order[1] == 0:
+            if self.order[0] == 1:  # in LO +=-=v
+                for label in ["nsV", "ns-"]:
+                    self.op_members[
+                        (br.non_singlet_pids_map[label], 0)
+                    ].value = self.op_members[
+                        (br.non_singlet_pids_map["ns+"], 0)
+                    ].value.copy()
+                    self.op_members[
+                        (br.non_singlet_pids_map[label], 0)
+                    ].error = self.op_members[
+                        (br.non_singlet_pids_map["ns+"], 0)
+                    ].error.copy()
+            elif self.order[0] == 2:  # in NLO -=v
                 self.op_members[
-                    (br.non_singlet_pids_map[label], 0)
+                    (br.non_singlet_pids_map["nsV"], 0)
                 ].value = self.op_members[
-                    (br.non_singlet_pids_map["ns+"], 0)
+                    (br.non_singlet_pids_map["ns-"], 0)
                 ].value.copy()
                 self.op_members[
-                    (br.non_singlet_pids_map[label], 0)
+                    (br.non_singlet_pids_map["nsV"], 0)
                 ].error = self.op_members[
-                    (br.non_singlet_pids_map["ns+"], 0)
+                    (br.non_singlet_pids_map["ns-"], 0)
                 ].error.copy()
-        elif self.order[0] == 2:  # in NLO -=v
+        elif self.order[1] == 1:
             self.op_members[
-                (br.non_singlet_pids_map["nsV"], 0)
-            ].value = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].value.copy()
+                (br.non_singlet_pids_map["ns-u"], 0)
+            ].value = self.op_members[(br.non_singlet_pids_map["ns+u"], 0)].value.copy()
             self.op_members[
-                (br.non_singlet_pids_map["nsV"], 0)
-            ].error = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].error.copy()
+                (br.non_singlet_pids_map["ns-u"], 0)
+            ].error = self.op_members[(br.non_singlet_pids_map["ns+u"], 0)].error.copy()
+            self.op_members[
+                (br.non_singlet_pids_map["ns-d"], 0)
+            ].value = self.op_members[(br.non_singlet_pids_map["ns+d"], 0)].value.copy()
+            self.op_members[
+                (br.non_singlet_pids_map["ns-d"], 0)
+            ].error = self.op_members[(br.non_singlet_pids_map["ns+d"], 0)].error.copy()
