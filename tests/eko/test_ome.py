@@ -314,15 +314,16 @@ class TestOperatorMatrixElement:
     }
     operators_card = {
         "Q2grid": [20],
-        "interpolation_xgrid": [0.1, 1.0],
-        "interpolation_polynomial_degree": 1,
-        "interpolation_is_log": True,
-        "debug_skip_singlet": True,
-        "debug_skip_non_singlet": False,
-        "ev_op_max_order": 1,
-        "ev_op_iterations": 1,
-        "backward_inversion": "exact",
-        "n_integration_cores": 1,
+        "xgrid": [0.1, 1.0],
+        "configs": {
+            "interpolation_polynomial_degree": 1,
+            "interpolation_is_log": True,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
+            "backward_inversion": "exact",
+            "n_integration_cores": 1,
+        },
+        "debug": {"skip_singlet": True, "skip_non_singlet": False},
     }
 
     def test_labels(self):
@@ -421,7 +422,7 @@ class TestOperatorMatrixElement:
     def test_compute_lo(self):
         self.theory_card.update({"PTO": (1, 0)})
         self.operators_card.update(
-            dict(debug={"debug_skip_singlet": False, "skip_non_singlet": False})
+            dict(debug={"skip_singlet": False, "skip_non_singlet": False})
         )
         g = OperatorGrid.from_dict(
             self.theory_card,
