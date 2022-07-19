@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+"""Compatibility functions.
+
+Upgrade old input (NNPDF jargon compatible) to the native one.
+
+"""
 import copy
 
 
@@ -27,9 +32,13 @@ def update(theory, operators):
     if "QED" in new_theory:
         new_theory["order"] = (new_theory.pop("PTO") + 1, new_theory.pop("QED"))
     if operators is not None:
-        if isinstance(new_operators["ev_op_max_order"], int):
-            new_operators["ev_op_max_order"] = (
-                new_operators["ev_op_max_order"],
+        if "configs" not in operators:
+            raise ValueError("No subsections, old format.")
+
+        max_order = new_operators["configs"]["ev_op_max_order"]
+        if isinstance(max_order, int):
+            new_operators["configs"]["ev_op_max_order"] = (
+                max_order,
                 new_theory["order"][1],
             )
     return new_theory, new_operators

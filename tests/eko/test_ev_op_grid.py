@@ -140,5 +140,5 @@ class TestOperatorGrid:
             )
             sv_opg = sv_opgrid.compute(3)
             np.testing.assert_allclose(
-                opg[3]["operator"], sv_opg[3]["operator"], atol=0.7 * epsilon
+                opg[3]["operators"], sv_opg[3]["operators"], atol=0.7 * epsilon
             )
