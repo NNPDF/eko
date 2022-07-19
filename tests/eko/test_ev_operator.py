@@ -157,15 +157,16 @@ theory_card = {
 }
 operators_card = {
     "Q2grid": [1, 10],
-    "interpolation_xgrid": [0.1, 1.0],
-    "interpolation_polynomial_degree": 1,
-    "interpolation_is_log": True,
-    "debug_skip_singlet": False,
-    "debug_skip_non_singlet": False,
-    "ev_op_max_order": 1,
-    "ev_op_iterations": 1,
-    "backward_inversion": "exact",
-    "n_integration_cores": 1,
+    "xgrid": [0.1, 1.0],
+    "configs": {
+        "interpolation_polynomial_degree": 1,
+        "interpolation_is_log": True,
+        "ev_op_max_order": 1,
+        "ev_op_iterations": 1,
+        "backward_inversion": "exact",
+        "n_integration_cores": 1,
+    },
+    "debug": {"skip_singlet": False, "skip_non_singlet": False},
 }
 
 
