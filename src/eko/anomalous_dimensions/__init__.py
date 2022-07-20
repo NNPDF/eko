@@ -370,7 +370,6 @@ def gamma_singlet_qed(order, n, nf):
     max_weight = max(order)
     sx = harmonics.sx(n, max_weight=max_weight + 1)
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
-    # TODO print(as1.gamma_QEDsinglet(n, sx[0], nf).shape)
     if order[0] >= 1:
         gamma_s[1, 0] = as1.gamma_QEDsinglet(n, sx[0], nf)
     if order[1] >= 1:

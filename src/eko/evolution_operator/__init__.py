@@ -294,17 +294,15 @@ def quad_ker(
     else:
         # compute the actual evolution kernel for QEDxQCD
         if ker_base.is_QEDsinglet:
-            gamma_singlet = ad.gamma_singlet_qed(order, ker_base.n, nf)
+            gamma_s = ad.gamma_singlet_qed(order, ker_base.n, nf)
             # TODO check scale variations
             # scale var exponentiated is directly applied on gamma
-            # if sv_mode == sv.Modes.exponentiated:
-            #     gamma_singlet = sv.exponentiated.gamma_variation(
-            #         gamma_singlet, order, nf, L
-            #     )
+            if sv_mode == sv.Modes.exponentiated:
+                gamma_s = sv.exponentiated.gamma_variation_qed(gamma_s, order, nf, L)
             ker = qed_s.dispatcher(
                 order,
                 method,
-                gamma_singlet,
+                gamma_s,
                 as1,
                 as0,
                 aem,
@@ -315,14 +313,14 @@ def quad_ker(
             # scale var expanded is applied on the kernel
             # if sv_mode == sv.Modes.expanded and not is_threshold:
             #     ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
-            #         sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
+            #         sv.expanded.singlet_variation(gamma_s, as1, order, nf, L)
             #     )
             ker = select_QEDsinglet_element(ker, mode0, mode1)
         elif ker_base.is_QEDvalence:
             gamma_v = ad.gamma_valence_qed(order, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
-            # if sv_mode == sv.Modes.exponentiated:
-            #     gamma_v = sv.exponentiated.gamma_variation(gamma_v, order, nf, L)
+            if sv_mode == sv.Modes.exponentiated:
+                gamma_v = sv.exponentiated.gamma_variation_qed(gamma_v, order, nf, L)
             ker = qed_v.dispatcher(
                 order,
                 method,
@@ -343,8 +341,8 @@ def quad_ker(
         else:
             gamma_ns = ad.gamma_ns_qed(order, mode0, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
-            # if sv_mode == sv.Modes.exponentiated:
-            #     gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
+            if sv_mode == sv.Modes.exponentiated:
+                gamma_ns = sv.exponentiated.gamma_variation_qed(gamma_ns, order, nf, L)
             ker = qed_ns.dispatcher(
                 order,
                 method,
