@@ -308,6 +308,6 @@ class OperatorGrid(sv.ModeMixin):
 
         values, errors = final_op.to_flavor_basis_tensor()
         return {
-            "operators": values,
-            "errors": errors,
+            "operator": values,
+            "error": errors,
         }

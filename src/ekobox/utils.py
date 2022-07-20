@@ -3,7 +3,7 @@ import copy
 
 import numpy as np
 
-from eko.output import EKO
+from eko.output import EKO, Operator
 
 
 # TODO: add a control on the theory (but before we need to implement another
@@ -77,7 +77,6 @@ def ekos_product(
             "ajbk,bkcl -> ajcl", ope1_error, op2.operator
         )
 
-        alphas = eko_fin[q2].alphas
-        final_eko[q2] = dict(operator=op, error=error, alphas=alphas)
+        final_eko[q2] = Operator(operator=op, error=error)
 
     return final_eko

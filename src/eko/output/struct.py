@@ -238,6 +238,9 @@ class EKO:
 
     def __setitem__(self, q2: float, op: Optional[Operator], compress: bool = True):
         if op is not None:
+            if not isinstance(op, Operator):
+                raise ValueError("Only an Operator can be added to an EKO")
+
             stream, without_err = op.save(compress)
 
             suffix = "npy" if without_err else "npz"
@@ -448,10 +451,17 @@ class EKO:
             the generated structure
 
         """
-        path = pathlib.Path(
-            path if path is not None else tempfile.mkstemp(suffix=".tar")[1]
-        )
-        path.unlink()
+        givenpath = path is not None
+
+        path = pathlib.Path(path if givenpath else tempfile.mkstemp(suffix=".tar")[1])
+        if path.exists():
+            if givenpath:
+                raise FileExistsError(
+                    f"File exists at given path '{path}', cannot be used for a new operator."
+                )
+            # delete the file created in case of temporary file
+            path.unlink()
+
         with tempfile.TemporaryDirectory() as td:
             td = pathlib.Path(td)
             cls.bootstrap(td, theory=theory, operator=operator)

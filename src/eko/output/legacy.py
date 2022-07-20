@@ -265,7 +265,7 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
         q2grid = metadata["Q2grid"]
         operator_grid = {}
         for q2, slices in zip(q2grid, zip(*grids.values())):
-            operator_grid[q2] = dict(zip(grids.keys(), slices))
+            operator_grid[q2] = struct.Operator(**dict(zip(grids.keys(), slices)))
         metadata["Q2grid"] = operator_grid
 
     eko = struct.EKO.new(theory={}, operator=metadata)

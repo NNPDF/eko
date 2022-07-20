@@ -11,7 +11,7 @@ import numpy as np
 from . import compatibility, interpolation, msbar_masses
 from .couplings import Couplings
 from .evolution_operator.grid import OperatorGrid
-from .output import EKO, manipulate
+from .output import EKO, Operator, manipulate
 from .thresholds import ThresholdsAtlas
 
 logger = logging.getLogger(__name__)
@@ -87,7 +87,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         """
         # add all operators
         for final_scale, op in self.op_grid.compute().items():
-            self.out[float(final_scale)] = op
+            self.out[float(final_scale)] = Operator.from_dict(op)
 
         def similar_to_none(name: str) -> Optional[np.ndarray]:
             grid = self.post_process[name]
