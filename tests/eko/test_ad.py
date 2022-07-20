@@ -52,9 +52,9 @@ def test_exp_matrix():
     assert_allclose(res, res2)
     diag = np.diag([1, 2, 3, 4])
     assert_allclose(np.diag(np.exp([1, 2, 3, 4])), ad.exp_matrix(diag)[0])
-    Id = np.identity(4, np.complex_)
-    Zero = np.zeros((4, 4), np.complex_)
-    assert_allclose(Id, ad.exp_matrix(Zero)[0])
+    id_ = np.identity(4, np.complex_)
+    zero = np.zeros((4, 4), np.complex_)
+    assert_allclose(id_, ad.exp_matrix(zero)[0])
 
 
 def test_eigensystem_gamma_singlet_projectors_EV():
