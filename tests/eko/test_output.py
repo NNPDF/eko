@@ -238,7 +238,7 @@ class TestManipulate:
             ),
         )
         o00 = output.EKO.new(theory={}, operator=d)
-        o00[q2_out] = Q2grid[q2_out]
+        o00[q2_out] = output.Operator(**Q2grid[q2_out])
         o01 = copy.deepcopy(o00)
         manipulate.to_evol(o01)
         o10 = copy.deepcopy(o00)
