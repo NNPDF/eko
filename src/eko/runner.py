@@ -40,8 +40,6 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 """
 
     def __init__(self, theory_card: dict, operators_card: dict):
-        self.out = EKO()
-
         new_theory, new_operators = compatibility.update(theory_card, operators_card)
 
         # Store inputs

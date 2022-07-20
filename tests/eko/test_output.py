@@ -34,6 +34,7 @@ class TestLegacy:
         o1 = output.EKO.new(theory={}, operator=fake_output)
         for q2, op in fake_output["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
+
         # test streams
         stream = io.StringIO()
         legacy.dump_yaml(o1, stream)
@@ -104,7 +105,6 @@ class TestManipulate:
                 dict(
                     operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
                     error=np.zeros((2, len(xg), 2, len(xg))),
-                    alphas=np.random.rand(),
                 )
             )
         }
@@ -169,7 +169,6 @@ class TestManipulate:
                 dict(
                     operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
                     error=np.zeros((2, len(xg), 2, len(xg))),
-                    alphas=np.random.rand(),
                 )
             )
         }

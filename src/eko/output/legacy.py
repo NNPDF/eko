@@ -42,18 +42,17 @@ def get_raw(eko: struct.EKO, binarize: bool = True, skip_q2_grid: bool = False):
     # make operators raw
     if not skip_q2_grid:
         for q2, op in eko.items():
+            q2 = float(q2)
             out["Q2grid"][q2] = {}
             if op is not None:
                 for k, v in dataclasses.asdict(op).items():
-                    if k == "alphas":
-                        out["Q2grid"][q2][k] = float(v)
-                        continue
                     if binarize:
                         out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
                     else:
                         out["Q2grid"][q2][k] = v.tolist()
     else:
         out["Q2grid"] = obj["Q2grid"]
+
     return out
 
 
@@ -141,7 +140,7 @@ def dump_tar(obj: struct.EKO, tarname: Union[str, os.PathLike]):
         with open(yamlname, "w", encoding="utf-8") as fd:
             yaml.dump(metadata, fd)
 
-        for kind in ["alphas", "operator", "error"]:
+        for kind in ["operator", "error"]:
             elements = []
             for q2, op in obj.items():
                 if op is not None:
@@ -189,9 +188,7 @@ def load_yaml(stream: TextIO, skip_q2_grid=False) -> struct.EKO:
     if not skip_q2_grid:
         for op in obj["Q2grid"].values():
             for k, v in op.items():
-                if k == "alphas":
-                    v = float(v)
-                elif isinstance(v, list):
+                if isinstance(v, list):
                     v = np.array(v)
                 elif isinstance(v, bytes):
                     v = np.frombuffer(lz4.frame.decompress(v))

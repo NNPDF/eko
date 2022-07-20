@@ -54,7 +54,6 @@ class DictLike:
 
 @dataclass
 class Operator(DictLike):
-    alphas: float
     operator: np.ndarray
     error: Optional[np.ndarray] = None
 
@@ -94,7 +93,7 @@ class Operator(DictLike):
                 "Not possible to load operator, content format not recognized"
             )
 
-        return cls(alphas=0.0, operator=op, error=err)
+        return cls(operator=op, error=err)
 
 
 @dataclass
@@ -362,7 +361,6 @@ class EKO:
                 )
             content = fd.read().decode()
 
-        __import__("pdb").set_trace()
         return content
 
     @property
@@ -411,7 +409,7 @@ class EKO:
             path=path,
             xgrid=xgrid,
             pids=pids,
-            Q02=operator["Q0"] ** 2,
+            Q02=float(operator["Q0"] ** 2),
             _operators={q2: None for q2 in operator["Q2grid"]},
             configs=Configs.from_dict(operator["configs"]),
             rotations=Rotations.default(xgrid, pids),
