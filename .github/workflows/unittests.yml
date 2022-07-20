@@ -1,9 +1,6 @@
 name: tests
 
-on:
-  push:
-    branches-ignore:
-      - feature/composite-output
+on: push
 
 jobs:
   py38:
