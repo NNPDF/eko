@@ -415,18 +415,18 @@ def gamma_valence_qed(order, n, nf):
     # cache the s-es
     max_weight = max(order)
     sx = harmonics.sx(n, max_weight=max_weight + 1)
-    gamma_s = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
+    gamma_v = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
     if order[0] >= 1:
-        gamma_s[1, 0] = as1.gamma_QEDvalence(n, sx[0])
+        gamma_v[1, 0] = as1.gamma_QEDvalence(n, sx[0])
     if order[1] >= 1:
-        gamma_s[0, 1] = aem1.gamma_valence(n, nf, sx)
+        gamma_v[0, 1] = aem1.gamma_valence(n, nf, sx)
     if order[0] >= 1 and order[1] >= 1:
-        gamma_s[1, 1] = as1aem1.gamma_valence(n, nf, sx)
+        gamma_v[1, 1] = as1aem1.gamma_valence(n, nf, sx)
     if order[0] >= 2:
-        gamma_s[2, 0] = as2.gamma_QEDvalence(n, nf, sx)
+        gamma_v[2, 0] = as2.gamma_QEDvalence(n, nf, sx)
     if order[1] >= 2:
-        gamma_s[0, 2] = aem2.gamma_valence(n, nf, sx)
+        gamma_v[0, 2] = aem2.gamma_valence(n, nf, sx)
     if order[0] == 3:
         sx = np.append(sx, harmonics.S4(n))
-        gamma_s[3, 0] = as3.gamma_QEDvalence(n, nf, sx)
-    return gamma_s
+        gamma_v[3, 0] = as3.gamma_QEDvalence(n, nf, sx)
+    return gamma_v
