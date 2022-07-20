@@ -5,6 +5,7 @@ import logging
 import os
 import pathlib
 import shutil
+import subprocess
 import tarfile
 import tempfile
 import time
@@ -254,6 +255,17 @@ class EKO:
             #  info.uname = os.getlogin()
             #  info.gname = os.getlogin()
 
+            # TODO: unfortunately Python has no native support for deleting
+            # files inside tar, so the proper way is to make that function
+            # ourselves, in the inefficient way of constructing a new archive
+            # from the existing one, but for the file to be removed
+            # at the moment, an implicit dependency on `tar` command has been
+            # introduced -> dangerous for portability
+            # since it's not raising any error, it is fine to run in any case:
+            # if the file is not there, nothing happens
+            subprocess.run(
+                f"tar -f {self.path.absolute()} --delete".split() + [info.name]
+            )
             with tarfile.open(self.path, "a") as tar:
                 tar.addfile(info, fileobj=stream)
 

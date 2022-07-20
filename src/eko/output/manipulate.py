@@ -75,7 +75,7 @@ def xgrid_reshape(
         eko.rotations.inputgrid = np.array(inputgrid)
 
     # build new grid
-    for _, elem in eko.items():
+    for q2, elem in eko.items():
         if elem is None:
             continue
         ops = elem.operator
@@ -91,6 +91,8 @@ def xgrid_reshape(
             errs = np.einsum("ij,ajbk,kl->aibl", target_rot, errs, input_rot)
         elem.operator = ops
         elem.error = errs
+
+        eko[q2] = elem
 
 
 def flavor_reshape(
