@@ -370,19 +370,19 @@ def gamma_singlet_qed(order, n, nf):
     max_weight = max(order)
     sx = harmonics.sx(n, max_weight=max_weight + 1)
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
-    if order[0] >= 1:
-        gamma_s[1, 0] = as1.gamma_QEDsinglet(n, sx[0], nf)
-    if order[1] >= 1:
-        gamma_s[0, 1] = aem1.gamma_singlet(n, nf, sx)
-    if order[0] >= 1 and order[1] >= 1:
-        gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, sx)
-    if order[0] >= 2:
-        gamma_s[2, 0] = as2.gamma_QEDsinglet(n, nf, sx)
-    if order[1] >= 2:
-        gamma_s[0, 2] = aem2.gamma_singlet(n, nf, sx)
-    if order[0] == 3:
-        sx = np.append(sx, harmonics.S4(n))
-        gamma_s[3, 0] = as3.gamma_QEDsinglet(n, nf, sx)
+    # if order[0] >= 1:
+    #     gamma_s[1, 0] = as1.gamma_QEDsinglet(n, sx[0], nf)
+    # if order[1] >= 1:
+    #     gamma_s[0, 1] = aem1.gamma_singlet(n, nf, sx)
+    # if order[0] >= 1 and order[1] >= 1:
+    #     gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, sx)
+    # if order[0] >= 2:
+    #     gamma_s[2, 0] = as2.gamma_QEDsinglet(n, nf, sx)
+    # if order[1] >= 2:
+    #     gamma_s[0, 2] = aem2.gamma_singlet(n, nf, sx)
+    # if order[0] == 3:
+    #     sx = np.append(sx, harmonics.S4(n))
+    #     gamma_s[3, 0] = as3.gamma_QEDsinglet(n, nf, sx)
     return gamma_s
 
 
