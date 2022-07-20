@@ -8,7 +8,7 @@ from scipy.linalg import expm
 
 from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
-from eko.anomalous_dimensions import as1, harmonics
+from eko.anomalous_dimensions import as1, as2, as3, harmonics
 
 NF = 5
 
@@ -159,3 +159,17 @@ def test_gamma_ns_qed():
         np.zeros((1, 3)),
         decimal=5,
     )
+
+
+def test_dim():
+    nf = 3
+    N = 2
+    sx = harmonics.sx(N, max_weight=3 + 1)
+    gamma_singlet = ad.gamma_singlet_qed((3, 2), N, nf)
+    assert gamma_singlet.shape == (4, 3, 4, 4)
+    gamma_singlet_as1 = as1.gamma_QEDsinglet(N, sx[0], nf)
+    assert gamma_singlet_as1.shape == (4, 4)
+    gamma_singlet_as2 = as2.gamma_QEDsinglet(N, nf, sx)
+    assert gamma_singlet_as2.shape == (4, 4)
+    gamma_singlet_as3 = as3.gamma_QEDsinglet(N, nf, sx)
+    assert gamma_singlet_as3.shape == (4, 4)
