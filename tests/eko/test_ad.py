@@ -50,6 +50,11 @@ def test_exp_matrix():
     res = expm(gamma_v_0_qed)
     res2 = ad.exp_matrix(gamma_v_0_qed)[0]
     assert_allclose(res, res2)
+    diag = np.diag([1, 2, 3, 4])
+    assert_allclose(np.diag(np.exp([1, 2, 3, 4])), ad.exp_matrix(diag)[0])
+    Id = np.identity(4, np.complex_)
+    Zero = np.zeros((4, 4), np.complex_)
+    assert_allclose(Id, ad.exp_matrix(Zero)[0])
 
 
 def test_eigensystem_gamma_singlet_projectors_EV():
