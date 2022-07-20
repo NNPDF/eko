@@ -177,10 +177,10 @@ def gamma_QEDsinglet(N, s1, nf):
     gamma_qq = gamma_ns(N, s1)
     gamma_S = np.array(
         [
-            [gamma_gg(N, s1, nf), 0, gamma_gq(N), 0],
-            [0, 0, 0, 0],
-            [gamma_qg(N, nf), 0, gamma_qq, 0],
-            [0, 0, 0, gamma_qq],
+            [gamma_gg(N, s1, nf), 0.0, gamma_gq(N), 0.0],
+            [0.0, 0.0, 0.0, 0.0],
+            [gamma_qg(N, nf), 0.0, gamma_qq, 0.0],
+            [0.0, 0.0, 0.0, gamma_qq],
         ],
         np.complex_,
     )
@@ -191,8 +191,8 @@ def gamma_QEDsinglet(N, s1, nf):
 def gamma_QEDvalence(N, s1):
     gamma_V = np.array(
         [
-            [1, 0],
-            [0, 1],
+            [1.0, 0.0],
+            [0.0, 1.0],
         ],
         np.complex_,
     )

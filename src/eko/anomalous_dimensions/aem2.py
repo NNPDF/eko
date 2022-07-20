@@ -337,9 +337,9 @@ def gamma_singlet(N, nf, sx):
     e2m = constants.eu2 - constants.ed2
     gamma_S_02 = np.array(
         [
-            [0, 0, 0, 0],
+            [0.0, 0.0, 0.0, 0.0],
             [
-                0,
+                0.0,
                 gamma_phph(N, nf),
                 vu * constants.eu2 * gamma_phu(N, nf, sx)
                 + vd * constants.ed2 * gamma_phd(N, nf, sx),
@@ -350,7 +350,7 @@ def gamma_singlet(N, nf, sx):
                 ),
             ],
             [
-                0,
+                0.0,
                 vu * constants.eu2 * gamma_uph(N, nf, sx)
                 + vd * constants.ed2 * gamma_dph(N, nf, sx),
                 vu * constants.eu2 * gamma_nspu(N, nf, sx)
@@ -364,7 +364,7 @@ def gamma_singlet(N, nf, sx):
                 ),
             ],
             [
-                0,
+                0.0,
                 vd
                 * (
                     constants.eu2 * gamma_uph(N, nf, sx)
