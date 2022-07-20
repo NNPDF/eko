@@ -49,7 +49,7 @@ def eko_iterate(gamma_singlet, a1, a0, aem, nf, order, ev_op_iterations):
     #            [0, 0, 0, 0],
     #        ]
     #    )
-    betaQCD = np.zeros((4, 4), np.complex_)
+    betaQCD = np.zeros((4, 3), np.complex_)
     for i in range(4):
         betaQCD[i, 0] = beta.beta_qcd((i + 2, 0), nf)
     betaQCD[0, 1] = beta.beta_qcd((2, 1), nf)
