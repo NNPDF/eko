@@ -137,7 +137,9 @@ def flavor_reshape(
         inv_inputbasis = np.linalg.inv(inputbasis)
 
     # build new grid
-    for q2, elem in eko.items():
+    # for q2, elem in eko.items():
+    for q2 in eko.Q2grid:
+        elem = eko[q2]
         if elem is None:
             continue
         ops = elem.operator
@@ -157,7 +159,7 @@ def flavor_reshape(
         eko[q2] = elem
 
     # drop PIDs - keeping them int nevertheless
-    #  there is no meaningful way to set them in general, after rotation
+    # there is no meaningful way to set them in general, after rotation
     if inputbasis is not None:
         eko.rotations.inputpids = [0] * len(eko.rotations.inputpids)
     if targetbasis is not None:

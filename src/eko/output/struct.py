@@ -262,13 +262,16 @@ class EKO:
             # at the moment, an implicit dependency on `tar` command has been
             # introduced -> dangerous for portability
             # since it's not raising any error, it is fine to run in any case:
-            # if the file is not there, nothing happens
-            subprocess.run(
-                f"tar -f {self.path.absolute()} --delete".split() + [info.name]
-            )
+            has_file = False
+            with tarfile.open(self.path, mode="r") as tar:
+                has_file = f"operators/{q2:8.2f}.{suffix}" in tar.getnames()
+
+            if has_file:
+                subprocess.run(
+                    f"tar -f {self.path.absolute()} --delete".split() + [info.name]
+                )
             with tarfile.open(self.path, "a") as tar:
                 tar.addfile(info, fileobj=stream)
-
         self._operators[q2] = op
 
     def __delitem__(self, q2: float):
