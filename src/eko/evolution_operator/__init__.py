@@ -298,7 +298,9 @@ def quad_ker(
             # TODO check scale variations
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
-                gamma_s = sv.exponentiated.gamma_variation_qed(gamma_s, order, nf, L)
+                gamma_s[0][1:] = sv.exponentiated.gamma_variation(
+                    gamma_s[0][1:], order, nf, L
+                )
             ker = qed_s.dispatcher(
                 order,
                 method,
@@ -320,7 +322,9 @@ def quad_ker(
             gamma_v = ad.gamma_valence_qed(order, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
-                gamma_v = sv.exponentiated.gamma_variation_qed(gamma_v, order, nf, L)
+                gamma_v[0][1:] = sv.exponentiated.gamma_variation(
+                    gamma_v[0][1:], order, nf, L
+                )
             ker = qed_v.dispatcher(
                 order,
                 method,
@@ -342,7 +346,9 @@ def quad_ker(
             gamma_ns = ad.gamma_ns_qed(order, mode0, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
-                gamma_ns = sv.exponentiated.gamma_variation_qed(gamma_ns, order, nf, L)
+                gamma_ns[0][1:] = sv.exponentiated.gamma_variation(
+                    gamma_ns[0][1:], order, nf, L
+                )
             ker = qed_ns.dispatcher(
                 order,
                 method,
