@@ -420,7 +420,7 @@ class TestOperatorMatrixElement:
             np.testing.assert_allclose(mat, np.triu(mat))
 
     def test_compute_lo(self):
-        self.theory_card.update({"PTO": (1, 0)})
+        self.theory_card.update({"order": (1, 0)})
         self.operators_card.update(
             dict(debug={"skip_singlet": False, "skip_non_singlet": False})
         )
