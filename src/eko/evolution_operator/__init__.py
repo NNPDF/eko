@@ -369,6 +369,33 @@ def quad_ker(
     return np.real(ker * integrand)
 
 
+# @nb.njit(cache=True)
+# def choose_matrix(order, mode0, ker_base, nf):
+#     if order[1] == 0:
+#         if ker_base.is_singlet:
+#             return ad.gamma_singlet(order, ker_base.n, nf)
+#         else:
+#             return ad.gamma_ns(order, mode0, ker_base.n, nf)
+#     else :
+#         if ker_base.is_QEDsinglet :
+#             return ad.gamma_singlet_qed(order, ker_base.n, nf)
+#         elif ker_base.is_QEDvalence:
+#             return ad.gamma_valence_qed(order, ker_base.n, nf)
+#         else:
+#             return ad.gamma_ns_qed(order, mode0, ker_base.n, nf)
+
+# @nb.njit(cache=True)
+# def exponentiated_variation(order, gamma, nf, L):
+#     if order[1] == 0:
+#         gamma = sv.exponentiated.gamma_variation(gamma, order, nf, L)
+#         return gamma
+#     else :
+#         gamma[0][1:] = sv.exponentiated.gamma_variation(
+#                     gamma[0][1:], order, nf, L
+#                 )
+#         return gamma
+
+
 class Operator(sv.ModeMixin):
     """Internal representation of a single EKO.
 
@@ -488,7 +515,7 @@ class Operator(sv.ModeMixin):
             else:
                 labels.extend(br.singlet_labels)
         else:
-            # add +u and +d ad default
+            # add +u and +d as default
             labels.append(br.non_singlet_unified_labels[0])
             labels.append(br.non_singlet_unified_labels[2])
             # -u and -d become different starting from O(as1aem1) or O(aem2)
@@ -544,22 +571,20 @@ class Operator(sv.ModeMixin):
         )
         zero = OpMember(*[np.zeros((self.grid_size, self.grid_size))] * 2)
         if self.order[1] == 0:
-            for n in self.full_labels:
-                if n in self.labels:
-                    # non-singlet evolution and diagonal op are identities
-                    if n in br.non_singlet_labels or n[0] == n[1]:
-                        self.op_members[n] = eye.copy()
-                    else:
-                        self.op_members[n] = zero.copy()
+            full_labels = self.full_labels
+            non_singlet_labels = br.non_singlet_labels
+        else:
+            full_labels = self.full_labels_qed
+            non_singlet_labels = br.non_singlet_unified_labels
+        for n in full_labels:
+            if n in self.labels:
+                # non-singlet evolution and diagonal op are identities
+                if n in non_singlet_labels or n[0] == n[1]:
+                    self.op_members[n] = eye.copy()
                 else:
                     self.op_members[n] = zero.copy()
-        else:
-            for n in self.full_labels_qed:
-                if n in self.labels:
-                    if n in br.non_singlet_unified_labels or n[0] == n[1]:
-                        self.op_members[n] = eye.copy()
-                    else:
-                        self.op_members[n] = zero.copy()
+            else:
+                self.op_members[n] = zero.copy()
 
     def run_op_integration(
         self,
