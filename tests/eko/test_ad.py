@@ -3,6 +3,7 @@
 import warnings
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose, assert_almost_equal, assert_raises
 from scipy.linalg import expm
 
@@ -159,9 +160,31 @@ def test_gamma_ns_qed():
         np.zeros((1, 3)),
         decimal=5,
     )
+    # as2
+    assert_almost_equal(
+        ad.gamma_ns_qed((2, 0), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((3, 1)),
+        decimal=5,
+    )
+    assert_almost_equal(
+        ad.gamma_ns_qed((2, 0), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((3, 1)),
+        decimal=5,
+    )
+    # as3
+    assert_almost_equal(
+        ad.gamma_ns_qed((3, 0), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((4, 1)),
+        decimal=3,
+    )
+    assert_almost_equal(
+        ad.gamma_ns_qed((3, 0), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((4, 1)),
+        decimal=3,
+    )
 
 
-def test_dim():
+def test_dim_singlet():
     nf = 3
     N = 2
     sx = harmonics.sx(N, max_weight=3 + 1)
@@ -173,3 +196,31 @@ def test_dim():
     assert gamma_singlet_as2.shape == (4, 4)
     gamma_singlet_as3 = as3.gamma_QEDsinglet(N, nf, sx)
     assert gamma_singlet_as3.shape == (4, 4)
+
+
+def test_dim_valence():
+    nf = 3
+    N = 2
+    sx = harmonics.sx(N, max_weight=3 + 1)
+    gamma_valence = ad.gamma_valence_qed((3, 2), N, nf)
+    assert gamma_valence.shape == (4, 3, 2, 2)
+    gamma_valence_as1 = as1.gamma_QEDvalence(N, sx[0])
+    assert gamma_valence_as1.shape == (2, 2)
+    gamma_valence_as2 = as2.gamma_QEDvalence(N, nf, sx)
+    assert gamma_valence_as2.shape == (2, 2)
+    gamma_valence_as3 = as3.gamma_QEDvalence(N, nf, sx)
+    assert gamma_valence_as3.shape == (2, 2)
+
+
+def test_dim_nsp():
+    nf = 3
+    N = 2
+    sx = harmonics.sx(N, max_weight=3 + 1)
+    gamma_nsup = ad.gamma_ns_qed((3, 2), 10102, N, nf)
+    assert gamma_nsup.shape == (4, 3)
+    gamma_nsdp = ad.gamma_ns_qed((3, 2), 10103, N, nf)
+    assert gamma_nsdp.shape == (4, 3)
+    with pytest.raises(NotImplementedError):
+        gamma_ns = ad.gamma_ns_qed((1, 1), 10106, N, nf)
+    with pytest.raises(NotImplementedError):
+        gamma_ns = ad.gamma_ns_qed((2, 0), 10106, N, nf)
