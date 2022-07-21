@@ -522,8 +522,8 @@ class Operator(sv.ModeMixin):
             if self.order[1] >= 2 or self.order[0] >= 1:
                 labels.append(br.non_singlet_unified_labels[1])
                 labels.append(br.non_singlet_unified_labels[3])
-            labels.append(br.valence_unified_labels)
-            labels.append(br.singlet_unified_labels)
+            labels.extend(br.valence_unified_labels)
+            labels.extend(br.singlet_unified_labels)
         return labels
 
     def quad_ker(self, label, logx, areas):
