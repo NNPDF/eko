@@ -109,10 +109,10 @@ def exp_matrix(gamma_S):
     # compute Matrix of coefficients
     w, v = np.linalg.eig(gamma_S)
     vT = np.transpose(v)
-    V = vT.dot(v)
-    C = np.linalg.inv(V)
+    matV = vT.dot(v)
+    matC = np.linalg.inv(matV)
     # compute projectors
-    tmp = C.dot(vT)
+    tmp = matC.dot(vT)
     dim = gamma_S.shape[0]
     e = np.zeros((dim, dim, dim), np.complex_)
     # TODO check if this loop can be entirely cast to numpy

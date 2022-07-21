@@ -56,6 +56,10 @@ def test_exp_matrix():
     id_ = np.identity(4, np.complex_)
     zero = np.zeros((4, 4), np.complex_)
     assert_allclose(id_, ad.exp_matrix(zero)[0])
+    sigma2 = np.array([[0.0, -1.0j], [1.0j, 0.0]])
+    exp = ad.exp_matrix(sigma2)[0]
+    exp_m = ad.exp_matrix(-sigma2)[0]
+    assert_almost_equal(np.identity(2, np.complex_), exp @ exp_m)
 
 
 def test_eigensystem_gamma_singlet_projectors_EV():
