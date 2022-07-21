@@ -24,6 +24,23 @@ def test_zero():
         np.testing.assert_allclose(fnc(1, 1, nf), 0)
 
 
+def test_zero_qed():
+    """No evolution results in exp(0)"""
+    nf = 3
+    for fnc in [
+        ei.j00_qed,
+        ei.jm10,
+        ei.j11_exact_qed,
+        ei.j01_exact_qed,
+        ei.jm11_exact,
+        ei.j22_exact_qed,
+        ei.j12_exact_qed,
+        ei.j02_exact_qed,
+        ei.jm12_exact,
+    ]:
+        np.testing.assert_allclose(fnc(1, 1, 0.00058, nf), 0)
+
+
 def test_der_lo():
     """LO derivative"""
     nf = 3
