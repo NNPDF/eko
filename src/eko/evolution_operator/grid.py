@@ -295,10 +295,8 @@ class OperatorGrid(sv.ModeMixin):
                     flavors.rotate_matching(op.nf + 1), op.q2_to
                 )
                 final_op = final_op @ rot @ matching @ phys_op
-        if self.config["order"][1] == 0:
-            values, errors = final_op.to_flavor_basis_tensor()
-        else:
-            values, errors = final_op.to_flavor_basis_tensor_qed()
+        is_qed = self.config["order"][1] > 0
+        values, errors = final_op.to_flavor_basis_tensor(is_qed)
         return {
             "operators": values,
             "operator_errors": errors,
