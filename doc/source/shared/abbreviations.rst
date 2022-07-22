@@ -30,6 +30,15 @@
 .. |N3LO| replace::
    :abbr:`N3LO (Next-to-Next-to-Next-to-Leading Order)`
 
+.. |LL| replace::
+   :abbr:`LL (Leading Log)`
+
+.. |NLL| replace::
+   :abbr:`NLL (Next-to-Leading Log)`
+
+.. |NNLL| replace::
+   :abbr:`NNLL (Next-to-Next-to-Leading Log)`
+
 .. Names
 
 .. |DGLAP| replace::
@@ -60,6 +69,11 @@
 .. |QED| replace::
    :abbr:`QED (Quantum Electrodynamics)`
 
+.. |DIS| replace::
+   :abbr:`DIS (Deep Inelastic Scattering)`
+
+.. |BFKL| replace::
+   :abbr:`BFKL (Balitsky-Fadin-Kuraev-Lipatov)`
 .. external
 
 .. |yadism| replace::
