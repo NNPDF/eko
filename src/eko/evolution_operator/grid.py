@@ -260,16 +260,14 @@ class OperatorGrid(sv.ModeMixin):
         is_downward = is_downward_path(path)
         if is_downward:
             intrinsic_range = [4, 5, 6]
+        is_qed = self.config["order"][1] > 0
         final_op = physical.PhysicalOperator.ad_to_evol_map(
-            operator.op_members,
-            operator.nf,
-            operator.q2_to,
-            intrinsic_range,
+            operator.op_members, operator.nf, operator.q2_to, intrinsic_range, is_qed
         )
         # and multiply the lower ones from the right
         for op in reversed(list(thr_ops)):
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
-                op.op_members, op.nf, op.q2_to, intrinsic_range
+                op.op_members, op.nf, op.q2_to, intrinsic_range, is_qed
             )
 
             # join with the basis rotation, since matching requires c+ (or likewise)
@@ -295,7 +293,7 @@ class OperatorGrid(sv.ModeMixin):
                     flavors.rotate_matching(op.nf + 1), op.q2_to
                 )
                 final_op = final_op @ rot @ matching @ phys_op
-        is_qed = self.config["order"][1] > 0
+        # is_qed = self.config["order"][1] > 0
         values, errors = final_op.to_flavor_basis_tensor(is_qed)
         return {
             "operators": values,
