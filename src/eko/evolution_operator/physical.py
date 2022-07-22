@@ -105,7 +105,19 @@ class PhysicalOperator(member.OperatorBase):
             if nf >= 6:
                 m["Tu8.Tu8"] = op_members[(br.non_singlet_pids_map["ns+u"], 0)]
                 m["Vu8.Vu8"] = op_members[(br.non_singlet_pids_map["ns-u"], 0)]
-                # TODO : check intrinsic quarks for QED
+        # deal with intrinsic heavy quark PDFs
+        if intrinsic_range is not None:
+            hqfl = "cbt"
+            op_id = member.OpMember.id_like(
+                op_members[(br.non_singlet_pids_map["nsV"], 0)]
+            )
+            for intr_fl in intrinsic_range:
+                if intr_fl <= nf:  # light quarks are not intrinsic
+                    continue
+                hq = hqfl[intr_fl - 4]  # find name
+                # intrinsic means no evolution, i.e. they are evolving with the identity
+                m[f"{hq}+.{hq}+"] = op_id.copy()
+                m[f"{hq}-.{hq}-"] = op_id.copy()
         # map key to MemberName
         return cls.promote_names(m, q2_final)
 
