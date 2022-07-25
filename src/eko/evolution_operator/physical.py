@@ -106,12 +106,7 @@ class PhysicalOperator(member.OperatorBase):
         # deal with intrinsic heavy quark PDFs
         if intrinsic_range is not None:
             hqfl = "cbt"
-            if not is_qed:
-                op_id = member.OpMember.id_like(op_members[(21, 21)])
-            else:
-                op_id = member.OpMember.id_like(
-                    op_members[br.valence_unified_labels[0]]
-                )
+            op_id = member.OpMember.id_like(op_members[(21, 21)])
             for intr_fl in intrinsic_range:
                 if intr_fl <= nf:  # light quarks are not intrinsic
                     continue
