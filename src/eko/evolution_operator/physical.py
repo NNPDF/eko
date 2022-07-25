@@ -47,14 +47,14 @@ class PhysicalOperator(member.OperatorBase):
                 map
         """
         # constant elements
+        m = {
+            "S.S": op_members[(100, 100)],
+            "S.g": op_members[(100, 21)],
+            "g.g": op_members[(21, 21)],
+            "g.S": op_members[(21, 100)],
+        }
         if not is_qed:
-            m = {
-                "S.S": op_members[(100, 100)],
-                "S.g": op_members[(100, 21)],
-                "g.g": op_members[(21, 21)],
-                "g.S": op_members[(21, 100)],
-                "V.V": op_members[(br.non_singlet_pids_map["nsV"], 0)],
-            }
+            m.update({"V.V": op_members[(br.non_singlet_pids_map["nsV"], 0)]})
             # add elements which are already active
             for f in range(2, nf + 1):
                 n = f**2 - 1
@@ -74,24 +74,22 @@ class PhysicalOperator(member.OperatorBase):
                     m[f"{hq}+.{hq}+"] = op_id.copy()
                     m[f"{hq}-.{hq}-"] = op_id.copy()
         else:
-            m = {
-                "g.g": op_members[(21, 21)],
-                "g.ph": op_members[(21, 22)],
-                "g.S": op_members[(21, 100)],
-                "g.Sdelta": op_members[(21, 101)],
-                "ph.g": op_members[(22, 21)],
-                "ph.ph": op_members[(22, 22)],
-                "ph.S": op_members[(22, 100)],
-                "ph.Sdelta": op_members[(22, 101)],
-                "S.g": op_members[(100, 21)],
-                "S.ph": op_members[(100, 22)],
-                "S.S": op_members[(100, 100)],
-                "S.Sdelta": op_members[(100, 101)],
-                "V.V": op_members[(10200, 10200)],
-                "V.Vdelta": op_members[(10200, 10204)],
-                "Vdelta.V": op_members[(10204, 10200)],
-                "Vdelta.Vdelta": op_members[(10204, 10204)],
-            }
+            m.update(
+                {
+                    "g.ph": op_members[(21, 22)],
+                    "g.Sdelta": op_members[(21, 101)],
+                    "ph.g": op_members[(22, 21)],
+                    "ph.ph": op_members[(22, 22)],
+                    "ph.S": op_members[(22, 100)],
+                    "ph.Sdelta": op_members[(22, 101)],
+                    "S.ph": op_members[(100, 22)],
+                    "S.Sdelta": op_members[(100, 101)],
+                    "V.V": op_members[(10200, 10200)],
+                    "V.Vdelta": op_members[(10200, 10204)],
+                    "Vdelta.V": op_members[(10204, 10200)],
+                    "Vdelta.Vdelta": op_members[(10204, 10204)],
+                }
+            )
             # add elements which are already active
             if nf >= 3:
                 m["Td3.Td3"] = op_members[(br.non_singlet_pids_map["ns+d"], 0)]
