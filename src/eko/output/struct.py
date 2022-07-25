@@ -91,6 +91,21 @@ class DictLike:
 
 @dataclass
 class Operator(DictLike):
+    """Operator representation.
+
+    To be used to hold the result of a computed 4-dim operator (from a given
+    scale to another given one).
+
+    Attributes
+    ----------
+    operator: np.ndarray
+        content of the evolution operator
+    error: np.ndarray or None
+        errors on individual operator elements (mainly used for integration
+        error, but it can host any kind of error)
+
+    """
+
     operator: np.ndarray
     error: Optional[np.ndarray] = None
 
@@ -98,6 +113,7 @@ class Operator(DictLike):
     # disk (keep read from and write to tar file only)
 
     def save(self, compress: bool = True) -> Tuple[io.BytesIO, bool]:
+        """Save content of operator to bytes."""
         stream = io.BytesIO()
         if self.error is None:
             np.save(stream, self.operator)
@@ -115,6 +131,7 @@ class Operator(DictLike):
 
     @classmethod
     def load(cls, stream: BinaryIO, compressed: bool = True):
+        """Load operator from bytes."""
         if compressed:
             stream = io.BytesIO(lz4.frame.decompress(stream.read()))
         content = np.load(stream)
