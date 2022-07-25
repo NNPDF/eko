@@ -109,9 +109,7 @@ class PhysicalOperator(member.OperatorBase):
         if intrinsic_range is not None:
             hqfl = "cbt"
             if not is_qed:
-                op_id = member.OpMember.id_like(
-                    op_members[(br.non_singlet_pids_map["nsV"], 0)]
-                )
+                op_id = member.OpMember.id_like(op_members[(21, 21)])
             else:
                 op_id = member.OpMember.id_like(
                     op_members[br.valence_unified_labels[0]]
