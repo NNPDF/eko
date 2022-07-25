@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Define output representation structures."""
 import contextlib
 import io
 import logging
@@ -28,15 +29,50 @@ PathLike = typing.Union[str, os.PathLike]
 
 
 class DictLike:
+    """Dictionary compatibility base class, for dataclasses.
+
+    This class add compatibility to import and export from Python :class:`dict`,
+    in such a way to support serialization interfaces working with them.
+
+    Some collections and scalar objects are normalized to native Python
+    structures, in order to simplify the on-disk representation.
+
+    """
+
     def __init__(self, **kwargs):
+        """Empty initializer."""
         pass
 
     @classmethod
     def from_dict(cls, dictionary):
+        """Initialize dataclass object from raw dictionary.
+
+        Parameters
+        ----------
+        dictionary: dict
+            the dictionary to be converted to :class:`DictLike`
+
+        Returns
+        -------
+        DictLike
+            instance with `dictionary` content loaded as attributes
+
+        """
         return cls(**dictionary)
 
     @property
     def raw(self):
+        """Convert dataclass object to raw dictionary.
+
+        Normalize :class:`np.ndarray` to lists (possibly nested), and scalars to
+        the corresponding built-in type.
+
+        Returns
+        -------
+        dict
+            dictionary representation
+
+        """
         dictionary = {}
         for field in fields(self):
             value = getattr(self, field.name)
