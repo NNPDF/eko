@@ -133,7 +133,11 @@ non_singlet_unified_labels = (
     (non_singlet_pids_map["ns-u"], 0),
 )
 full_labels = (*singlet_labels, *non_singlet_labels)
-full_unified_labels = (*singlet_unified_labels, *non_singlet_unified_labels)
+full_unified_labels = (
+    *singlet_unified_labels,
+    *valence_unified_labels,
+    *non_singlet_unified_labels,
+)
 
 anomalous_dimensions_basis = full_labels
 r"""
