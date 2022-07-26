@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pytest
 
 from eko import compatibility
 
@@ -23,3 +24,6 @@ def test_compatibility_operators():
     _, new_operator = compatibility.update(theory1, operator_dict)
 
     assert not isinstance(new_operator["configs"]["ev_op_max_order"], int)
+
+    with pytest.raises(ValueError):
+        compatibility.update(theory1, {})
