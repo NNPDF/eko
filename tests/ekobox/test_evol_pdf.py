@@ -22,10 +22,17 @@ def test_evolve_pdfs_run(fake_lhapdf, cd):
     n = "test_evolve_pdfs_run"
     mytmp = fake_lhapdf / "install"
     mytmp.mkdir()
+    store_path = mytmp / "test.tar"
     with cd(mytmp):
-        ev_p.evolve_pdfs([toy.mkPDF("", 0)], theory, op, install=True, name=n)
+        ev_p.evolve_pdfs(
+            [toy.mkPDF("", 0)], theory, op, install=True, name=n, store_path=store_path
+        )
     p = fake_lhapdf / n
     assert p.exists()
+    # check dumped eko
+    assert store_path.exists()
+    assert store_path.is_file()
+    out.load_tar(store_path)
 
 
 def test_evolve_pdfs_dump_path(fake_lhapdf, cd):

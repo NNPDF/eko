@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Tools to evolve actual PDFs."""
 import pathlib
 
 import eko
@@ -20,30 +21,28 @@ def evolve_pdfs(
     name="Evolved_PDF",
     info_update=None,
 ):
-    """
-    This function evolves an initial_PDF using a theory card and an operator card
-    and dump the evolved PDF in lhapdf format
+    """Evolves one or several initial_PDFs and dump the evolved PDFs in lhapdf format.
 
     Parameters
     ----------
-        initial_PDF_list : list(lhapdf object)
-            list of PDF members to be evolved
-        theory_card : dict
-            theory card
-        operators_card : dict
-            operators card
-        path : str
-            path to cached eko output (if "None" it will be recomputed)
-        store_path : str
-            path where the eko is stored (if "None" will not be saved)
-        targetgrid : list(float)
-            target x-grid (if different from input x-grid)
-        install : bool
-            set whether to install evolved PDF to lhapdf directory
-        name : str
-            set name of evolved PDF
-        info_update : dict
-            dict of info to add or update to default info file
+    initial_PDF_list : list(lhapdf object)
+        list of PDF members to be evolved
+    theory_card : dict
+        theory card
+    operators_card : dict
+        operators card
+    path : str
+        path to cached eko output (if "None" it will be recomputed)
+    store_path : str
+        path where the eko is stored (if "None" will not be saved)
+    targetgrid : list(float)
+        target x-grid (if different from input x-grid)
+    install : bool
+        set whether to install evolved PDF to lhapdf directory
+    name : str
+        set name of evolved PDF
+    info_update : dict
+        dict of info to add or update to default info file
     """
     eko_output = None
     if path is not None:
@@ -56,7 +55,7 @@ def evolve_pdfs(
     else:
         eko_output = eko.run_dglap(theory_card, operators_card)
         if store_path is not None:
-            eko_output.dump_tar(store_path)
+            eko.output.legacy.dump_tar(eko_output, store_path)
 
     evolved_PDF_list = []
     for initial_PDF in initial_PDF_list:
