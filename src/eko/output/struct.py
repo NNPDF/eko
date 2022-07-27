@@ -12,7 +12,7 @@ import tarfile
 import tempfile
 import time
 from dataclasses import dataclass, fields
-from typing import BinaryIO, Dict, Literal, Optional, Tuple
+from typing import BinaryIO, Dict, Literal, Optional
 
 import lz4.frame
 import numpy as np
@@ -100,6 +100,11 @@ class Operator(DictLike):
     To be used to hold the result of a computed 4-dim operator (from a given
     scale to another given one).
 
+    Note
+    ----
+    IO works with streams in memory, in order to avoid intermediate write on
+    disk (keep read from and write to tar file only).
+
     Attributes
     ----------
     operator: np.ndarray
@@ -113,12 +118,8 @@ class Operator(DictLike):
     operator: np.ndarray
     error: Optional[np.ndarray] = None
 
-    # IO works with streams in memory, in order to avoid intermediate write on
-    # disk (keep read from and write to tar file only)
-
-    def save(self, compress: bool = True) -> Tuple[io.BytesIO, bool]:
+    def save(self, stream: io.BytesIO, compress: bool = True) -> bool:
         """Save content of operator to bytes."""
-        stream = io.BytesIO()
         if self.error is None:
             np.save(stream, self.operator)
         else:
@@ -129,9 +130,8 @@ class Operator(DictLike):
         if compress:
             stream = io.BytesIO(lz4.frame.compress(stream.read()))
 
-        # return the stream ready to be read, and the type of array dumped (i.e.
-        # 'npy' or 'npz')
-        return stream, self.error is None
+        # return the type of array dumped (i.e. 'npy' or 'npz')
+        return self.error is None
 
     @classmethod
     def load(cls, stream: BinaryIO, compressed: bool = True):
