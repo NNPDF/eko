@@ -290,7 +290,7 @@ def ad_projector(ad_lab, nf, is_qed=False):
         proj = np.zeros_like(rotate_flavor_to_evolution, dtype=float)
         l = map_ad_to_evolution[ad_lab]
         basis = evol_basis
-        rotate = rotate_flavor_to_evolution
+        rotate = rotate_flavor_to_evolution.copy()  # Maybe .copy() is useless
     else:
         proj = np.zeros_like(rotate_flavor_to_unified_evolution, dtype=float)
         l = map_ad_to_unified_evolution[ad_lab]
