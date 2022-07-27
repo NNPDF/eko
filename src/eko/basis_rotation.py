@@ -229,7 +229,7 @@ map_ad_to_evolution = {
 Map anomalous dimension sectors' names to their members
 """
 
-map_ad_to_intrinsic_evolution = {
+map_ad_to_unified_evolution = {
     (21, 21): ["g.g"],
     (21, 22): ["g.ph"],
     (21, 100): ["g.S"],
@@ -269,7 +269,7 @@ map_ad_to_intrinsic_evolution = {
 }
 
 
-def ad_projector(ad_lab, nf):
+def ad_projector(ad_lab, nf, is_qed=False):
     """
     Build a projector (as a numpy array) for the given anomalous dimension
     sector.
@@ -286,8 +286,16 @@ def ad_projector(ad_lab, nf):
     proj : np.ndarray
         projector over the specified sector
     """
-    proj = np.zeros_like(rotate_flavor_to_evolution, dtype=float)
-    l = map_ad_to_evolution[ad_lab]
+    if not is_qed:
+        proj = np.zeros_like(rotate_flavor_to_evolution, dtype=float)
+        l = map_ad_to_evolution[ad_lab]
+        basis = evol_basis
+        rotate = rotate_flavor_to_evolution
+    else:
+        proj = np.zeros_like(rotate_flavor_to_unified_evolution, dtype=float)
+        l = map_ad_to_unified_evolution[ad_lab]
+        basis = unified_evol_basis
+        rotate = rotate_flavor_to_unified_evolution(nf)
     # restrict the evolution basis to light flavors
     # NOTE: the cut is only needed for "NS_p" and "NS_m", but the other lists
     # are 1-long so they are unaffected
@@ -295,10 +303,10 @@ def ad_projector(ad_lab, nf):
 
     for el in l:
         out_name, in_name = el.split(".")
-        out_idx = evol_basis.index(out_name)
-        in_idx = evol_basis.index(in_name)
-        out = rotate_flavor_to_evolution[out_idx].copy()
-        in_ = rotate_flavor_to_evolution[in_idx].copy()
+        out_idx = basis.index(out_name)
+        in_idx = basis.index(in_name)
+        out = rotate[out_idx].copy()
+        in_ = rotate[in_idx].copy()
         out[: 1 + (6 - nf)] = out[len(out) - (6 - nf) :] = 0
         in_[: 1 + (6 - nf)] = in_[len(in_) - (6 - nf) :] = 0
         proj += (out[:, np.newaxis] * in_) / (out @ out)
@@ -306,7 +314,7 @@ def ad_projector(ad_lab, nf):
     return proj
 
 
-def ad_projectors(nf):
+def ad_projectors(nf, is_qed=False):
     """
     Build projectors tensor (as a numpy array), collecting all the individual
     sector projectors.
@@ -323,7 +331,7 @@ def ad_projectors(nf):
     """
     projs = []
     for ad in anomalous_dimensions_basis:
-        projs.append(ad_projector(ad, nf))
+        projs.append(ad_projector(ad, nf, is_qed))
 
     return np.array(projs)
 
