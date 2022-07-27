@@ -109,7 +109,7 @@ def check_shapes(o, txs, ixs, theory_card, operators_card):
 
 
 def test_vfns():
-    # change targetbasis
+    # change targetpids
     tc = copy.deepcopy(theory_card)
     oc = copy.deepcopy(operators_card)
     tc["kcThr"] = 1.0

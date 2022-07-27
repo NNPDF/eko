@@ -148,7 +148,7 @@ class TestManipulate:
             o1[q2] = output.Operator.from_dict(op)
         o2 = copy.deepcopy(o1)
         manipulate.xgrid_reshape(o2, [0.1, 1.0], [0.1, 1.0])
-        manipulate.flavor_reshape(o2, inputbasis=np.array([[1, -1], [1, 1]]))
+        manipulate.flavor_reshape(o2, inputpids=np.array([[1, -1], [1, 1]]))
         # dump
         stream = io.StringIO()
         legacy.dump_yaml(o2, stream)
@@ -189,14 +189,14 @@ class TestManipulate:
         # only input
         input_r = np.array([[1, -1], [1, 1]])
         oi = copy.deepcopy(o1)
-        manipulate.flavor_reshape(oi, inputbasis=input_r)
+        manipulate.flavor_reshape(oi, inputpids=input_r)
         chk_keys(o1.raw, oi.raw)
         assert oi[10].operator.shape == (2, len(xg), 2, len(xg))
         oii = copy.deepcopy(oi)
-        manipulate.flavor_reshape(oii, inputbasis=np.linalg.inv(input_r))
+        manipulate.flavor_reshape(oii, inputpids=np.linalg.inv(input_r))
         np.testing.assert_allclose(oii[10].operator, o1[10].operator)
         with pytest.warns(Warning):
-            manipulate.flavor_reshape(oii, inputbasis=np.eye(2))
+            manipulate.flavor_reshape(oii, inputpids=np.eye(2))
             chk_keys(o1.raw, oii.raw)
             np.testing.assert_allclose(oii[10].operator, o1[10].operator)
 

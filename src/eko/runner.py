@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-    This file contains the main application class of eko
-"""
+"""This file contains the main application class of eko."""
 import copy
 import logging
 from typing import Optional
@@ -18,15 +16,15 @@ logger = logging.getLogger(__name__)
 
 
 class Runner:
-    """
-    Represents a single input configuration.
+    """Represents a single input configuration.
 
     For details about the configuration, see :doc:`here </code/IO>`
 
-    Parameters
+    Attributes
     ----------
-        setup : dict
-            input configurations
+    setup : dict
+        input configurations
+
     """
 
     banner = r"""
@@ -40,6 +38,16 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 """
 
     def __init__(self, theory_card: dict, operators_card: dict):
+        """Initialize runner.
+
+        Parameters
+        ----------
+        theory_card: dict
+            theory parameters and options
+        operators_card: dict
+            operator specific options
+
+        """
         new_theory, new_operators = compatibility.update(theory_card, operators_card)
 
         # Store inputs
@@ -113,7 +121,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         targetpids = similar_to_none("targetpids")
         if inputpids is not None or targetpids is not None:
             manipulate.flavor_reshape(
-                self.out, targetbasis=targetpids, inputbasis=inputpids
+                self.out, targetpids=targetpids, inputpids=inputpids
             )
 
         return copy.deepcopy(self.out)
