@@ -288,41 +288,41 @@ class EKO:
         self._operators[q2] = op
         return op
 
-    def __setitem__(self, q2: float, op: Optional[Operator], compress: bool = True):
-        if op is not None:
-            if not isinstance(op, Operator):
-                raise ValueError("Only an Operator can be added to an EKO")
+    def __setitem__(self, q2: float, op: Operator, compress: bool = True):
+        if not isinstance(op, Operator):
+            raise ValueError("Only an Operator can be added to an EKO")
 
-            stream, without_err = op.save(compress)
+        stream, without_err = op.save(compress)
 
-            suffix = "npy" if without_err else "npz"
-            if compress:
-                suffix += ".lz4"
+        suffix = "npy" if without_err else "npz"
+        if compress:
+            suffix += ".lz4"
 
-            info = tarfile.TarInfo(name=f"operators/{q2:8.2f}.{suffix}")
-            info.size = len(stream.getbuffer())
-            info.mtime = time.time()
-            info.mode = 436
-            #  info.uname = os.getlogin()
-            #  info.gname = os.getlogin()
+        info = tarfile.TarInfo(name=f"operators/{q2:8.2f}.{suffix}")
+        info.size = len(stream.getbuffer())
+        info.mtime = time.time()
+        info.mode = 436
+        #  info.uname = os.getlogin()
+        #  info.gname = os.getlogin()
 
-            # TODO: unfortunately Python has no native support for deleting
-            # files inside tar, so the proper way is to make that function
-            # ourselves, in the inefficient way of constructing a new archive
-            # from the existing one, but for the file to be removed
-            # at the moment, an implicit dependency on `tar` command has been
-            # introduced -> dangerous for portability
-            # since it's not raising any error, it is fine to run in any case:
-            has_file = False
-            with tarfile.open(self.path, mode="r") as tar:
-                has_file = f"operators/{q2:8.2f}.{suffix}" in tar.getnames()
+        # TODO: unfortunately Python has no native support for deleting
+        # files inside tar, so the proper way is to make that function
+        # ourselves, in the inefficient way of constructing a new archive
+        # from the existing one, but for the file to be removed
+        # at the moment, an implicit dependency on `tar` command has been
+        # introduced -> dangerous for portability
+        # since it's not raising any error, it is fine to run in any case:
+        has_file = False
+        with tarfile.open(self.path, mode="r") as tar:
+            has_file = f"operators/{q2:8.2f}.{suffix}" in tar.getnames()
 
-            if has_file:
-                subprocess.run(
-                    f"tar -f {self.path.absolute()} --delete".split() + [info.name]
-                )
-            with tarfile.open(self.path, "a") as tar:
-                tar.addfile(info, fileobj=stream)
+        if has_file:
+            subprocess.run(
+                f"tar -f {self.path.absolute()} --delete".split() + [info.name]
+            )
+        with tarfile.open(self.path, "a") as tar:
+            tar.addfile(info, fileobj=stream)
+
         self._operators[q2] = op
 
     def __delitem__(self, q2: float):
