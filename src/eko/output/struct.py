@@ -10,7 +10,6 @@ import subprocess
 import tarfile
 import tempfile
 import time
-import typing
 from dataclasses import dataclass, fields
 from typing import BinaryIO, Dict, Literal, Optional, Tuple
 
@@ -24,8 +23,6 @@ from .. import interpolation
 from .. import version as vmod
 
 logger = logging.getLogger(__name__)
-
-PathLike = typing.Union[str, os.PathLike]
 
 
 class DictLike:
@@ -412,7 +409,7 @@ class EKO:
         raise ValueError(f"Multiple values of Q2 have been found close to {q2}")
 
     @staticmethod
-    def bootstrap(tdir: PathLike, theory: dict, operator: dict):
+    def bootstrap(tdir: os.PathLike, theory: dict, operator: dict):
         tdir = pathlib.Path(tdir)
         (tdir / "theory.yaml").write_text(yaml.dump(theory), encoding="utf-8")
         (tdir / "operator.yaml").write_text(yaml.dump(operator), encoding="utf-8")
@@ -421,7 +418,7 @@ class EKO:
         (tdir / "operators").mkdir()
 
     @staticmethod
-    def extract(path: PathLike, filename: str) -> str:
+    def extract(path: os.PathLike, filename: str) -> str:
         path = pathlib.Path(path)
 
         with tarfile.open(path, "r") as tar:
@@ -463,7 +460,7 @@ class EKO:
             the theory card
         operator : dict
             the operator card
-        path : str or os.PathLike
+        path : os.PathLike
             the underlying path (it has to be a valid object, but it is not
             guaranteed, see the note)
 
@@ -488,7 +485,7 @@ class EKO:
         )
 
     @classmethod
-    def new(cls, theory: dict, operator: dict, path: Optional[PathLike] = None):
+    def new(cls, theory: dict, operator: dict, path: Optional[os.PathLike] = None):
         """Make structure from runcard-like dictionary.
 
         This constructor is made to be used with loaded runcards, in order to
@@ -509,7 +506,7 @@ class EKO:
             the theory card
         operator : dict
             the operator card
-        path : str or os.PathLike
+        path : os.PathLike
             the underlying path (if not provided, it is created in a temporary
             path)
 
@@ -545,7 +542,7 @@ class EKO:
         return eko
 
     @classmethod
-    def load(cls, path: PathLike):
+    def load(cls, path: os.PathLike):
         path = pathlib.Path(path)
         if not tarfile.is_tarfile(path):
             raise ValueError("EKO: the corresponding file is not a valid tar archive")
