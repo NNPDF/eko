@@ -56,7 +56,7 @@ def pids_from_intrinsic_evol(label, nf, normalize):
     return weights
 
 
-def get_range(evol_labels):
+def get_range(evol_labels, is_qed=False):
     """
     Determine the number of light and heavy flavors participating in the input and output.
 
@@ -73,15 +73,27 @@ def get_range(evol_labels):
     nf_in = 3
     nf_out = 3
 
-    def update(label):
+    def update(label, is_qed=False):
         nf = 3
         if label[0] == "T":
-            nf = round(np.sqrt(int(label[1:]) + 1))
+            if not is_qed:
+                nf = round(np.sqrt(int(label[1:]) + 1))
+            else:
+                if label[1:] == "d3":
+                    nf = 3
+                elif label[1:] == "u3":
+                    nf = 4
+                elif label[1:] == "d8":
+                    nf = 5
+                elif label[1:] == "u8":
+                    nf = 6
+                else:
+                    raise ValueError(f"{label[1:]} is not possible")
         return nf
 
     for op in evol_labels:
-        nf_in = max(update(op.input), nf_in)
-        nf_out = max(update(op.target), nf_out)
+        nf_in = max(update(op.input, is_qed), nf_in)
+        nf_out = max(update(op.target, is_qed), nf_out)
 
     return nf_in, nf_out
 

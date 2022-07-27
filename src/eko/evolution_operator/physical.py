@@ -127,7 +127,7 @@ class PhysicalOperator(member.OperatorBase):
             tensor : numpy.ndarray
                 EKO
         """
-        nf_in, nf_out = flavors.get_range(self.op_members.keys())
+        nf_in, nf_out = flavors.get_range(self.op_members.keys(), is_qed)
         len_pids = len(br.flavor_basis_pids)
         len_xgrid = list(self.op_members.values())[0].value.shape[0]
         # dimension will be pids^2 * xgrid^2
