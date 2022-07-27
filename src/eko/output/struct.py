@@ -25,6 +25,12 @@ from .. import version as vmod
 
 logger = logging.getLogger(__name__)
 
+THEORYFILE = "theory.yaml"
+OPERATORFILE = "operator.yaml"
+RECIPESDIR = "recipes"
+PARTSDIR = "parts"
+OPERATORSDIR = "operators"
+
 
 class DictLike:
     """Dictionary compatibility base class, for dataclasses.
@@ -451,11 +457,11 @@ class EKO:
     @staticmethod
     def bootstrap(tdir: os.PathLike, theory: dict, operator: dict):
         tdir = pathlib.Path(tdir)
-        (tdir / "theory.yaml").write_text(yaml.dump(theory), encoding="utf-8")
-        (tdir / "operator.yaml").write_text(yaml.dump(operator), encoding="utf-8")
-        (tdir / "recipes").mkdir()
-        (tdir / "parts").mkdir()
-        (tdir / "operators").mkdir()
+        (tdir / THEORYFILE).write_text(yaml.dump(theory), encoding="utf-8")
+        (tdir / OPERATORFILE).write_text(yaml.dump(operator), encoding="utf-8")
+        (tdir / RECIPESDIR).mkdir()
+        (tdir / PARTSDIR).mkdir()
+        (tdir / OPERATORSDIR).mkdir()
 
     @staticmethod
     def extract(path: os.PathLike, filename: str) -> str:
@@ -473,7 +479,7 @@ class EKO:
 
     @property
     def theory(self) -> dict:
-        return yaml.safe_load(self.extract(self.path, "theory.yaml"))
+        return yaml.safe_load(self.extract(self.path, THEORYFILE))
 
     @property
     def theory_card(self) -> dict:
@@ -481,7 +487,7 @@ class EKO:
 
     @property
     def operator_card(self) -> dict:
-        return yaml.safe_load(self.extract(self.path, "operator.yaml"))
+        return yaml.safe_load(self.extract(self.path, OPERATORFILE))
 
     @classmethod
     def detached(cls, theory: dict, operator: dict, path: pathlib.Path):
@@ -587,8 +593,8 @@ class EKO:
         if not tarfile.is_tarfile(path):
             raise ValueError("EKO: the corresponding file is not a valid tar archive")
 
-        theory = yaml.safe_load(cls.extract(path, "theory.yaml"))
-        operator = yaml.safe_load(cls.extract(path, "operator.yaml"))
+        theory = yaml.safe_load(cls.extract(path, THEORYFILE))
+        operator = yaml.safe_load(cls.extract(path, OPERATORFILE))
 
         eko = cls.detached(theory, operator, path=path)
         logger.info(f"Operator loaded from path '{path}'")
