@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Runcard definitions."""
-# from dataclasses import dataclass
+from dataclasses import dataclass
 
 
-# @dataclass
-# class TheoryCard:
-#     pto: int
+@dataclass
+class TheoryCard:
+    pto: int
 
 
-# @dataclass
-# class OperatorCard:
-#     xgrid: list
+@dataclass
+class OperatorCard:
+    xgrid: list
