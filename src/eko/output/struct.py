@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Define output representation structures."""
 import contextlib
+import copy
 import io
 import logging
 import os
@@ -407,6 +408,45 @@ class EKO:
         if close.size == 0:
             return None
         raise ValueError(f"Multiple values of Q2 have been found close to {q2}")
+
+    def unload(self):
+        """Fully unload the operators in memory."""
+
+        for q2 in self:
+            del self[q2]
+
+    def deepcopy(self, path: os.PathLike):
+        """Create a deep copy of current instance.
+
+        The managed on-disk object is copied as well, to the new ``path``
+        location.
+        If you don't want to copy the disk, consider using directly::
+
+            copy.deepcopy(myeko)
+
+        It will perform the exact same operation, without propagating it to the
+        disk counterpart.
+
+        Parameters
+        ----------
+        path: os.PathLike
+            path were to copy the disk counterpart of the operator object
+
+        Returns
+        -------
+        EKO
+            the copy created
+
+        """
+        # return the object fully on disk, in order to avoid expensive copies in
+        # memory (they would be copied on-disk in any case)
+        self.unload()
+
+        new = copy.deepcopy(self)
+        new.path = pathlib.Path(path)
+        shutil.copy2(self.path, new.path)
+
+        return new
 
     @staticmethod
     def bootstrap(tdir: os.PathLike, theory: dict, operator: dict):
