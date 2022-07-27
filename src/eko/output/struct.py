@@ -264,16 +264,20 @@ class EKO:
         if not tarfile.is_tarfile(self.path):
             raise ValueError("EKO: the corresponding file is not a valid tar archive")
 
+    @staticmethod
+    def opname(q2: float) -> str:
+        return f"operators/{q2:8.2f}"
+
     def __getitem__(self, q2: float):
         # TODO: autoload
         op = self._operators[q2]
         if op is not None:
             return op
 
-        start = f"operators/{q2:8.2f}"
-
         with tarfile.open(self.path) as tar:
-            names = list(filter(lambda n: n.startswith(start), tar.getnames()))
+            names = list(
+                filter(lambda n: n.startswith(self.opname(q2)), tar.getnames())
+            )
 
             if len(names) == 0:
                 raise ValueError(f"Q2 value '{q2}' not available in '{self.path}'")
@@ -304,7 +308,7 @@ class EKO:
         if compress:
             suffix += ".lz4"
 
-        info = tarfile.TarInfo(name=f"operators/{q2:8.2f}.{suffix}")
+        info = tarfile.TarInfo(name=f"{self.opname(q2)}.{suffix}")
         info.size = len(stream.getbuffer())
         info.mtime = time.time()
         info.mode = 436
