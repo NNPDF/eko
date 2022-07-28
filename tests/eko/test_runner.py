@@ -74,7 +74,6 @@ def test_targetgrid():
     tgrid = [0.1, 1.0]
     oc["rotations"]["targetgrid"] = tgrid
     r = eko.runner.Runner(tc, oc)
-    __import__("pdb").set_trace()
     o = r.get_output()
     check_shapes(o, eko.interpolation.XGrid(tgrid), o.xgrid, tc, oc)
     # check actual value

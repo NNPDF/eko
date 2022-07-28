@@ -12,7 +12,7 @@ import tarfile
 import tempfile
 import time
 from dataclasses import dataclass, fields
-from typing import BinaryIO, Dict, Literal, Optional
+from typing import BinaryIO, Dict, Literal, Optional, Tuple
 
 import lz4.frame
 import numpy as np
@@ -88,6 +88,8 @@ class DictLike:
                 value = float(value)
             elif isinstance(value, interpolation.XGrid):
                 value = value.dump()
+            elif isinstance(value, tuple):
+                value = list(value)
 
             dictionary[field.name] = value
 
@@ -202,7 +204,7 @@ class Debug(DictLike):
 class Configs(DictLike):
     """Solution specific configurations."""
 
-    ev_op_max_order: int
+    ev_op_max_order: Tuple[int]
     """Maximum order to use in U matrices expansion.
     Used only in ``perturbative`` solutions.
     """

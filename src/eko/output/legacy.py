@@ -43,7 +43,7 @@ def get_raw(eko: struct.EKO, binarize: bool = True):
         for key, value in obj[sec].items():
             if key.startswith("_"):
                 key = key[1:]
-            if "grid" in key:
+            if "grid" in key and value is not None:
                 value = value["grid"]
             out[key] = value
 

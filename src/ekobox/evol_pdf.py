@@ -2,6 +2,8 @@
 """Tools to evolve actual PDFs."""
 import pathlib
 
+import numpy as np
+
 import eko
 import eko.output.legacy
 from eko import basis_rotation as br
@@ -62,7 +64,7 @@ def evolve_pdfs(
         evolved_PDF_list.append(apply.apply_pdf(eko_output, initial_PDF, targetgrid))
 
     if targetgrid is None:
-        targetgrid = operators_card["xgrid"]
+        targetgrid = operators_card["interpolation_xgrid"]
     if info_update is None:
         info_update = {}
     info_update["XMin"] = targetgrid[0]
@@ -81,7 +83,7 @@ def evolve_pdfs(
             * evolved_PDF[Q2]["pdfs"][pid][targetgrid.index(x)],
             xgrid=targetgrid,
             Q2grid=operators_card["Q2grid"],
-            pids=br.flavor_basis_pids,
+            pids=np.array(br.flavor_basis_pids),
         )
         # all_blocks will be useful in case there will be necessity to dump many blocks
         # for a single member
