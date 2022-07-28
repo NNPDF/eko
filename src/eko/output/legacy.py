@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Support legacy storage formats."""
 import dataclasses
 import io
 import os
@@ -15,7 +16,7 @@ from .. import version
 from . import struct
 
 
-def get_raw(eko: struct.EKO, binarize: bool = True, skip_q2_grid: bool = False):
+def get_raw(eko: struct.EKO, binarize: bool = True):
     """Serialize result as dict/YAML.
 
     This maps the original numpy matrices to lists.
@@ -40,18 +41,15 @@ def get_raw(eko: struct.EKO, binarize: bool = True, skip_q2_grid: bool = False):
         out[f] = obj[f]
 
     # make operators raw
-    if not skip_q2_grid:
-        for q2, op in eko.items():
-            q2 = float(q2)
-            out["Q2grid"][q2] = {}
-            if op is not None:
-                for k, v in dataclasses.asdict(op).items():
-                    if binarize:
-                        out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
-                    else:
-                        out["Q2grid"][q2][k] = v.tolist()
-    else:
-        out["Q2grid"] = obj["Q2grid"]
+    for q2, op in eko.items():
+        q2 = float(q2)
+        out["Q2grid"][q2] = {}
+        if op is not None:
+            for k, v in dataclasses.asdict(op).items():
+                if binarize:
+                    out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
+                else:
+                    out["Q2grid"][q2][k] = v.tolist()
 
     return out
 
@@ -60,7 +58,6 @@ def dump_yaml(
     obj: struct.EKO,
     stream: Optional[TextIO] = None,
     binarize: bool = True,
-    skip_q2_grid: bool = False,
 ):
     """Serialize result as YAML.
 
@@ -70,9 +67,6 @@ def dump_yaml(
         if given, dump is written on it
     binarize : bool
         dump in binary format (instead of list format)
-    skip_q2_grid : bool
-        avoid dumping Q2grid (i.e. the actual operators) into the yaml
-        file (default: ``False``)
 
     Returns
     -------
@@ -81,7 +75,7 @@ def dump_yaml(
         Null, if written successfully to stream
 
     """
-    out = get_raw(obj, binarize, skip_q2_grid=skip_q2_grid)
+    out = get_raw(obj, binarize)
     return yaml.dump(out, stream)
 
 
@@ -89,9 +83,8 @@ def dump_yaml_to_file(
     obj: struct.EKO,
     filename: Union[str, os.PathLike],
     binarize: bool = True,
-    skip_q2_grid: bool = False,
 ):
-    """Writes YAML representation to a file.
+    """Write YAML representation to a file.
 
     Parameters
     ----------
@@ -99,9 +92,6 @@ def dump_yaml_to_file(
         target file name
     binarize : bool
         dump in binary format (instead of list format)
-    skip_q2_grid : bool
-        avoid dumping Q2grid (i.e. the actual operators) into the yaml
-        file (default: ``False``)
 
     Returns
     -------
@@ -110,12 +100,14 @@ def dump_yaml_to_file(
 
     """
     with open(filename, "w", encoding="utf-8") as f:
-        ret = dump_yaml(obj, f, binarize, skip_q2_grid=skip_q2_grid)
+        ret = dump_yaml(obj, f, binarize)
     return ret
 
 
 def dump_tar(obj: struct.EKO, tarname: Union[str, os.PathLike]):
-    """Writes representation into a tar archive containing:
+    """Write representation into a tar archive.
+
+    The written archive will contain:
 
     - metadata (in YAML)
     - operator (in numpy ``.npy`` format)
@@ -143,10 +135,7 @@ def dump_tar(obj: struct.EKO, tarname: Union[str, os.PathLike]):
         for kind in ["operator", "error"]:
             elements = []
             for q2, op in obj.items():
-                if op is not None:
-                    el = getattr(op, kind)
-                else:
-                    el = np.zeros((len(obj.xgrid), 14, len(obj.xgrid), 14))
+                el = getattr(op, kind)
                 elements.append(el)
             operator = np.stack(elements)
             stream = io.BytesIO()
@@ -159,22 +148,19 @@ def dump_tar(obj: struct.EKO, tarname: Union[str, os.PathLike]):
             tar.add(tmpdir, arcname=tarpath.stem)
 
 
-def load_yaml(stream: TextIO, skip_q2_grid=False) -> struct.EKO:
-    """
-    Load YAML representation from stream
+def load_yaml(stream: TextIO) -> struct.EKO:
+    """Load YAML representation from stream.
 
     Parameters
     ----------
-        stream : TextIO
-            source stream
-        skip_q2_grid : bool
-            avoid loading Q2grid (i.e. the actual operators) from the yaml
-            file (default: ``False``)
+    stream : TextIO
+        source stream
 
     Returns
     -------
-        obj : output
-            loaded object
+    obj : output
+        loaded object
+
     """
     obj = yaml.safe_load(stream)
     len_tpids = len(obj["rotations"]["targetpids"])
@@ -185,57 +171,53 @@ def load_yaml(stream: TextIO, skip_q2_grid=False) -> struct.EKO:
     for k, v in obj["rotations"].items():
         obj["rotations"][k] = np.array(v)
     # make operators numpy
-    if not skip_q2_grid:
-        for op in obj["Q2grid"].values():
-            for k, v in op.items():
-                if isinstance(v, list):
-                    v = np.array(v)
-                elif isinstance(v, bytes):
-                    v = np.frombuffer(lz4.frame.decompress(v))
-                    v = v.reshape(len_tpids, len_tgrid, len_ipids, len_igrid)
-                op[k] = v
+    for op in obj["Q2grid"].values():
+        for k, v in op.items():
+            if isinstance(v, list):
+                v = np.array(v)
+            elif isinstance(v, bytes):
+                v = np.frombuffer(lz4.frame.decompress(v))
+                v = v.reshape(len_tpids, len_tgrid, len_ipids, len_igrid)
+            op[k] = v
+
     return struct.EKO.new(theory={}, operator=obj)
 
 
-def load_yaml_from_file(
-    filename: Union[str, os.PathLike], skip_q2_grid: bool = False
-) -> struct.EKO:
-    """
-    Load YAML representation from file
+def load_yaml_from_file(filename: Union[str, os.PathLike]) -> struct.EKO:
+    """Load YAML representation from file.
 
     Parameters
     ----------
-        filename : str
-            source file name
-        skip_q2_grid : bool
-            avoid loading Q2grid (i.e. the actual operators) from the yaml
-            file (default: ``False``)
+    filename : str
+        source file name
 
     Returns
     -------
-        obj : output
-            loaded object
+    obj : output
+        loaded object
+
     """
     obj = None
     with open(filename, encoding="utf-8") as o:
-        obj = load_yaml(o, skip_q2_grid)
+        obj = load_yaml(o)
     return obj
 
 
 def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
-    """
-    Load tar representation from file (compliant with :meth:`dump_tar`
-    output).
+    """Load tar representation from file.
+
+    Compliant with :meth:`dump_tar` output.
 
     Parameters
     ----------
-        tarname : str
-            source tar name
+    tarname : str
+        source tar name
 
     Returns
     -------
-        obj : output
-            loaded object
+    obj : output
+        loaded object
+
     """
     tarpath = pathlib.Path(tarname)
 
