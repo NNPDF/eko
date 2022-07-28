@@ -19,6 +19,7 @@ import numpy as np
 import numpy.lib.npyio as npyio
 import yaml
 
+from .. import basis_rotation as br
 from .. import interpolation
 from .. import version as vmod
 
@@ -243,6 +244,8 @@ class Rotations(DictLike):
     def __post_init__(self):
         for attr in ("xgrid", "_inputgrid", "_targetgrid"):
             value = getattr(self, attr)
+            if value is None:
+                continue
             if isinstance(value, np.ndarray):
                 setattr(self, attr, interpolation.XGrid(value))
             elif not isinstance(value, interpolation.XGrid):
@@ -634,12 +637,22 @@ class EKO:
             the generated structure
 
         """
+        g = operator["rotations"]
+        g["pids"] = br.flavor_basis_pids
+        for k in ("xgrid", "_inputgrid", "_targetgrid"):
+            if operator["rotations"][k] is None:
+                continue
+            g[k] = {
+                "grid": operator["rotations"][k],
+                "log": operator["configs"]["interpolation_is_log"],
+            }
+
         return cls(
             path=path,
             Q02=float(operator["Q0"] ** 2),
             _operators={q2: None for q2 in operator["Q2grid"]},
             configs=Configs.from_dict(operator["configs"]),
-            rotations=Rotations.from_dict(operator["rotations"]),
+            rotations=Rotations.from_dict(g),
             debug=Debug.from_dict(operator.get("debug", {})),
         )
 
