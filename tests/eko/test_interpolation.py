@@ -134,7 +134,7 @@ class TestInterpolatorDispatcher:
     def test_get_interpolation(self):
         xg = interpolation.XGrid([0.5, 1.0], log=False)
         inter_x = interpolation.InterpolatorDispatcher(xg, 1, False)
-        i = inter_x.get_interpolation(xg)
+        i = inter_x.get_interpolation(xg.raw)
         np.testing.assert_array_almost_equal(i, np.eye(len(xg)))
         # .75 is exactly inbetween
         i = inter_x.get_interpolation([0.75])
