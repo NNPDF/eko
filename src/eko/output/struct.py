@@ -128,7 +128,13 @@ class Operator(DictLike):
 
         # compress if requested
         if compress:
-            stream = io.BytesIO(lz4.frame.compress(stream.read()))
+            compressed = lz4.frame.compress(stream.read())
+            # remove previous content
+            stream.seek(0)
+            stream.truncate()
+            # write compressed data
+            stream.write(compressed)
+            stream.seek(0)
 
         # return the type of array dumped (i.e. 'npy' or 'npz')
         return self.error is None
@@ -302,7 +308,9 @@ class EKO:
         if not isinstance(op, Operator):
             raise ValueError("Only an Operator can be added to an EKO")
 
-        stream, without_err = op.save(compress)
+        stream = io.BytesIO()
+        without_err = op.save(stream, compress)
+        stream.seek(0)
 
         suffix = "npy" if without_err else "npz"
         if compress:
@@ -310,7 +318,7 @@ class EKO:
 
         info = tarfile.TarInfo(name=f"{self.opname(q2)}.{suffix}")
         info.size = len(stream.getbuffer())
-        info.mtime = time.time()
+        info.mtime = int(time.time())
         info.mode = 436
         #  info.uname = os.getlogin()
         #  info.gname = os.getlogin()
