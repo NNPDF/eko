@@ -45,7 +45,6 @@ class DictLike:
 
     def __init__(self, **kwargs):
         """Empty initializer."""
-        pass
 
     @classmethod
     def from_dict(cls, dictionary):
@@ -491,14 +490,18 @@ class EKO:
 
     @property
     def theory(self) -> dict:
+        # TODO: make an actual attribute, move load to `theory_card`, and the
+        # type of the attribute will be `eko.runcards.TheoryCard`
         return yaml.safe_load(self.extract(self.path, THEORYFILE))
 
     @property
     def theory_card(self) -> dict:
+        # TODO: return `eko.runcards.TheoryCard`
         return self.theory
 
     @property
     def operator_card(self) -> dict:
+        # TODO: return `eko.runcards.OperatorCard`
         return yaml.safe_load(self.extract(self.path, OPERATORFILE))
 
     @classmethod
