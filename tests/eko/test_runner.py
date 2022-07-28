@@ -90,8 +90,8 @@ def test_rotate_pids():
     o = r.get_output()
     check_shapes(o, o.xgrid, o.xgrid, tc, oc)
     # check actual values
-    assert all(o.rotations.targetpids == [0] * 14)
-    assert all(o.rotations.inputpids == [0] * 14)
+    assert (o.rotations.targetpids == [0] * 14).all()
+    assert (o.rotations.inputpids == [0] * 14).all()
 
 
 def check_shapes(o, txs, ixs, theory_card, operators_card):

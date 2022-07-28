@@ -77,10 +77,10 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
 
         # save bases manipulations for a post processing step
         rot = operators_card.get("rotations", {})
-        self.post_process = {
-            key: rot.get(key, None)
-            for key in ("inputgrid", "targetgrid", "inputpids", "targetpids")
-        }
+        self.post_process = {}
+        for key in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
+            self.post_process[key] = rot.get(key, None)
+            new_operators["rotations"][key] = None
 
         self.out = EKO.new(
             theory=theory_card, operator=dict(Q0=np.sqrt(tc.q2_ref), **new_operators)

@@ -27,7 +27,7 @@ def update(theory: dict, operators: Optional[dict]):
 
     """
     new_theory = copy.deepcopy(theory)
-    new_operators = copy.deepcopy(operators)
+    new_operators = copy.deepcopy(operators) if operators is not None else {}
 
     if "alphaqed" in new_theory:
         new_theory["alphaem"] = new_theory.pop("alphaqed")
@@ -35,8 +35,6 @@ def update(theory: dict, operators: Optional[dict]):
         new_theory["order"] = (new_theory.pop("PTO") + 1, new_theory.pop("QED"))
 
     if operators is not None and "configs" not in operators:
-        assert new_operators is not None
-
         new_operators["configs"] = {}
         for k in (
             "interpolation_polynomial_degree",
