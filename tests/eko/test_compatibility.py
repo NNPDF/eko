@@ -23,7 +23,7 @@ operator_dict = {"configs": {"ev_op_max_order": 2}}
 def test_compatibility_operators():
     _, new_operator = compatibility.update(theory1, operator_dict)
 
-    assert not isinstance(new_operator["configs"]["ev_op_max_order"], int)
+    assert isinstance(new_operator["configs"]["ev_op_max_order"], int)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(KeyError):
         compatibility.update(theory1, {})

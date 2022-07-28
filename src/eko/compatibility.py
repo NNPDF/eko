@@ -34,7 +34,7 @@ def update(theory: dict, operators: Optional[dict]):
     if "QED" in new_theory:
         new_theory["order"] = (new_theory.pop("PTO") + 1, new_theory.pop("QED"))
 
-    if operators is not None:
+    if operators is not None and "configs" not in operators:
         assert new_operators is not None
 
         new_operators["configs"] = {}
