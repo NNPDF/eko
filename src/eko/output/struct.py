@@ -104,21 +104,33 @@ class Operator(DictLike):
     IO works with streams in memory, in order to avoid intermediate write on
     disk (keep read from and write to tar file only).
 
-    Attributes
-    ----------
-    operator: np.ndarray
-        content of the evolution operator
-    error: np.ndarray or None
-        errors on individual operator elements (mainly used for integration
-        error, but it can host any kind of error)
-
     """
 
     operator: np.ndarray
+    """Content of the evolution operator."""
     error: Optional[np.ndarray] = None
+    """Errors on individual operator elements (mainly used for integration
+    error, but it can host any kind of error).
+    """
 
-    def save(self, stream: io.BytesIO, compress: bool = True) -> bool:
-        """Save content of operator to bytes."""
+    def save(self, stream: BinaryIO, compress: bool = True) -> bool:
+        """Save content of operator to bytes.
+
+        Parameters
+        ----------
+        stream: BinaryIO
+            a stream where to save the operator content (in order to be able to
+            perform the operation both on disk and in memory)
+        compress: bool
+            flag to control optional compression (default: `True`)
+
+        Returns
+        -------
+        bool
+            whether the operator saved contained or not the error (this control
+            even the format, ``npz`` with errors, ``npy`` otherwise)
+
+        """
         if self.error is None:
             np.save(stream, self.operator)
         else:
@@ -140,7 +152,22 @@ class Operator(DictLike):
 
     @classmethod
     def load(cls, stream: BinaryIO, compressed: bool = True):
-        """Load operator from bytes."""
+        """Load operator from bytes.
+
+        Parameters
+        ----------
+        stream: BinaryIO
+            a stream to load the operator from (to support the operation both on
+            disk and in memory)
+        compressed: bool
+            declare whether the stream is or is not compressed (default: `True`)
+
+        Returns
+        -------
+        Operator
+            the loaded instance
+
+        """
         if compressed:
             stream = io.BytesIO(lz4.frame.decompress(stream.read()))
         content = np.load(stream)
@@ -161,6 +188,8 @@ class Operator(DictLike):
 
 @dataclass
 class Debug(DictLike):
+    """Debug configurations."""
+
     skip_singlet: bool = False
     skip_non_singlet: bool = False
 
@@ -208,41 +237,17 @@ class EKO:
     loading is done by this class (for the Python library, other
     implementations are possible and encouraged).
 
-    For this reason, a core component of an :cls:`EKO` object is a path,
+    For this reason, a core component of an :class:`EKO` object is a path,
     referring to the location on disk of the corresponding operator.
-    Any :cls:`EKO` has an associated path:
+    Any :class:`EKO` has an associated path:
 
-    - for the computed object, it corresponds to the path where the actual
-    result of the computation is already saved
-    - for a new object, it is the path at which any result of final or
-    intermediate computation is stored, as soon as it is produced
+        - for the computed object, it corresponds to the path where the actual
+          result of the computation is already saved
+        - for a new object, it is the path at which any result of final or
+          intermediate computation is stored, as soon as it is produced
 
     The computation can be stopped at any time, without the loss of any of the
     intermediate results.
-
-    Attributes
-    ----------
-    path : pathlib.Path
-        path on disk, to which this object is linked (and for which it is
-        essentially an interface)
-    Q02 : float
-        inital scale
-    xgrid : interpolation.XGrid
-        momentum fraction internal grid
-    pids : np.ndarray
-        array of integers, corresponding to internal PIDs
-    configs : Configs
-        specific configuration to be used during the calculation of these
-        operators
-    rotations : Rotations
-        manipulation information, describing the current status of the EKO (e.g.
-        `inputgrid` and `targetgrid`)
-    debug : Debug
-        debug configurations
-    version : str
-        library version used to create the corresponding file
-    data_version : str
-        specs version, to which the file adheres
 
     """
 
@@ -252,16 +257,31 @@ class EKO:
     # -----------------
     # mandatory, identifying features
     path: pathlib.Path
+    """Path on disk, to which this object is linked (and for which it is
+    essentially an interface).
+    """
     Q02: float
+    """Inital scale."""
     xgrid: interpolation.XGrid
+    """Momentum fraction internal grid."""
     pids: np.ndarray
+    """Array of integers, corresponding to internal PIDs."""
     # collections
     configs: Configs
+    """Specific configuration to be used during the calculation of these
+    operators.
+    """
     rotations: Rotations
+    """Manipulation information, describing the current status of the EKO (e.g.
+    `inputgrid` and `targetgrid`).
+    """
     debug: Debug
+    """Debug configurations."""
     # tagging information
     version: str = vmod.__version__
+    """Library version used to create the corresponding file."""
     data_version: str = vmod.__data_version__
+    """Specs version, to which the file adheres."""
 
     def __post_init__(self):
         if self.path.suffix != ".tar":
