@@ -18,7 +18,14 @@ def test_compatibility():
 def operator_dict(xgrid, pids):
     return dict(
         ev_op_max_order=2,
+        ev_op_iterations=1,
         interpolation_xgrid=xgrid,
+        interpolation_polynomial_degree=4,
+        interpolation_is_log=True,
+        backward_inversion=None,
+        n_integration_cores=1,
+        debug_skip_singlet=False,
+        debug_skip_non_singlet=False,
         inputgrid=xgrid,
         targetgrid=xgrid,
         pids=pids,

@@ -637,22 +637,22 @@ class EKO:
             the generated structure
 
         """
-        g = operator["rotations"]
-        g["pids"] = br.flavor_basis_pids
+        bases = operator["rotations"]
+        bases["pids"] = np.array(br.flavor_basis_pids)
         for k in ("xgrid", "_inputgrid", "_targetgrid"):
             if operator["rotations"][k] is None:
                 continue
-            g[k] = {
-                "grid": operator["rotations"][k],
-                "log": operator["configs"]["interpolation_is_log"],
-            }
+            bases[k] = interpolation.XGrid(
+                operator["rotations"][k],
+                log=operator["configs"]["interpolation_is_log"],
+            )
 
         return cls(
             path=path,
             Q02=float(operator["Q0"] ** 2),
             _operators={q2: None for q2 in operator["Q2grid"]},
             configs=Configs.from_dict(operator["configs"]),
-            rotations=Rotations.from_dict(g),
+            rotations=Rotations.from_dict(bases),
             debug=Debug.from_dict(operator.get("debug", {})),
         )
 
