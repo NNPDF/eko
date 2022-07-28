@@ -585,6 +585,28 @@ class EKO:
         # TODO: return `eko.runcards.OperatorCard`
         return yaml.safe_load(self.extract(self.path, OPERATORFILE))
 
+    def interpolator(
+        self, mode_N: bool, use_target: bool
+    ) -> interpolation.InterpolatorDispatcher:
+        """Return associated interpolation.
+
+        Paramters
+        ---------
+        mode_N : bool
+            interpolate in N-space?
+        use_target : bool
+            use target grid? If False, use input grid
+
+        Returns
+        -------
+        interpolation.InterpolatorDispatcher
+            interpolator
+        """
+        grid = self.rotations.targetgrid if use_target else self.rotations.inputgrid
+        return interpolation.InterpolatorDispatcher(
+            grid.raw, self.configs.interpolation_polynomial_degree, grid.log, mode_N
+        )
+
     @classmethod
     def detached(cls, theory: dict, operator: dict, path: pathlib.Path):
         """Build the in-memory object alone.

@@ -60,7 +60,10 @@ def apply_pdf_flavor(eko, lhapdf_like, targetgrid=None, flavor_rotation=None):
         if not lhapdf_like.hasFlavor(pid):
             continue
         pdfs[j] = np.array(
-            [lhapdf_like.xfxQ2(pid, x, eko.Q02) / x for x in eko.rotations.inputgrid]
+            [
+                lhapdf_like.xfxQ2(pid, x, eko.Q02) / x
+                for x in eko.rotations.inputgrid.raw
+            ]
         )
 
     # build output
@@ -87,7 +90,7 @@ def apply_pdf_flavor(eko, lhapdf_like, targetgrid=None, flavor_rotation=None):
 
     # rotate/interpolate to target grid
     if targetgrid is not None:
-        b = interpolation.InterpolatorDispatcher.from_dict(eko.raw, False)
+        b = eko.interpolator(False, True)
         rot = b.get_interpolation(targetgrid)
         for evpdf in out_grid.values():
             for pdf_label in evpdf["pdfs"]:
