@@ -191,31 +191,49 @@ class Debug(DictLike):
     """Debug configurations."""
 
     skip_singlet: bool = False
+    """Whether to skip QCD singlet computation."""
     skip_non_singlet: bool = False
+    """Whether to skip QCD non-singlet computation."""
 
 
 @dataclass
 class Configs(DictLike):
+    """Solution specific configurations."""
+
     ev_op_max_order: int
+    """Maximum order to use in U matrices expansion.
+    Used only in ``perturbative`` solutions.
+    """
     ev_op_iterations: int
+    """Number of intervals in which to break the global path."""
     interpolation_polynomial_degree: int
+    """Degree of elements of the intepolation polynomial basis."""
     interpolation_is_log: bool
+    r"""Whether to use polynomials in :math:`\log(x)`.
+    If `false`, polynomials are in :math:`x`.
+    """
     backward_inversion: Literal["exact", "expanded"]
+    """Which method to use for backward matching conditions."""
     n_integration_cores: int = 1
+    """Number of cores used to parallelize integration."""
 
 
 @dataclass
 class Rotations(DictLike):
+    """Rotations related configurations.
+
+    Here "Rotation" is intended in a broad sense: it includes both rotations in
+    flavor space (labeled with suffix `pids`) and in :math:`x`-space (labeled
+    with suffix `grid`).
+    Rotations in :math:`x`-space correspond to reinterpolate the result on a
+    different basis of polynomials.
+
+    """
+
     targetgrid: Optional[np.ndarray] = None
     inputgrid: Optional[np.ndarray] = None
     targetpids: Optional[np.ndarray] = None
     inputpids: Optional[np.ndarray] = None
-
-    @classmethod
-    def default(cls, xgrid: interpolation.XGrid, pids: np.ndarray):
-        return cls(
-            targetgrid=xgrid.raw, inputgrid=xgrid.raw, targetpids=pids, inputpids=pids
-        )
 
 
 @dataclass
@@ -561,7 +579,7 @@ class EKO:
             Q02=float(operator["Q0"] ** 2),
             _operators={q2: None for q2 in operator["Q2grid"]},
             configs=Configs.from_dict(operator["configs"]),
-            rotations=Rotations.default(xgrid, pids),
+            rotations=Rotations(),
             debug=Debug.from_dict(operator.get("debug", {})),
         )
 
