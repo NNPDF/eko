@@ -235,6 +235,37 @@ class Rotations(DictLike):
     targetpids: Optional[np.ndarray] = None
     inputpids: Optional[np.ndarray] = None
 
+    @classmethod
+    def default(cls, xgrid: interpolation.XGrid, pids: np.ndarray):
+        """Create instance with default rotations.
+
+        Default is no rotation at all, that you can also specify leaving the
+        rotations empty.
+        This method instead set them to the internal values, such that the
+        rotation results in an identity, and no operation is performed.
+
+        Note
+        ----
+        Setting them to `None` is not currently an option, since methods to
+        perform manipulations do not recognize this value.
+
+        Parameters
+        ----------
+        xgrid: interpolation.XGrid
+            the :math:`x`-grid used internally for computation
+        pids: np.ndarray
+            the PIDs used internally for computation
+
+        Returns
+        -------
+        Rotations
+            the instance with default values
+
+        """
+        return cls(
+            targetgrid=xgrid.raw, inputgrid=xgrid.raw, targetpids=pids, inputpids=pids
+        )
+
 
 @dataclass
 class EKO:
@@ -579,7 +610,7 @@ class EKO:
             Q02=float(operator["Q0"] ** 2),
             _operators={q2: None for q2 in operator["Q2grid"]},
             configs=Configs.from_dict(operator["configs"]),
-            rotations=Rotations(),
+            rotations=Rotations.default(xgrid, pids),
             debug=Debug.from_dict(operator.get("debug", {})),
         )
 
