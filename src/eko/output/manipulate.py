@@ -135,10 +135,7 @@ def flavor_reshape(
         inv_inputpids = np.linalg.inv(inputpids)
 
     # build new grid
-    # TODO: restore items
-    # for q2, elem in eko.items():
-    for q2 in eko.Q2grid:
-        elem = eko[q2]
+    for q2, elem in eko.items():
         ops = elem.operator
         errs = elem.error
         if targetpids is not None and inputpids is None:

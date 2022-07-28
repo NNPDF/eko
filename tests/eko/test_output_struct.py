@@ -6,11 +6,11 @@ from eko.output import struct
 class TestLegacy:
     def test_items(self, fake_output):
         """Test autodump, autoload, and manual unload."""
-        eko = output.EKO.new(theory={}, operator=fake_output)
-        for q2, op in fake_output["Q2grid"].items():
+        eko, fake_card = fake_output
+        for q2, op in fake_card["Q2grid"].items():
             eko[q2] = output.Operator.from_dict(op)
 
-        q2 = next(iter(fake_output["Q2grid"]))
+        q2 = next(iter(fake_card["Q2grid"]))
 
         eko._operators[q2] = None
         assert isinstance(eko[q2], struct.Operator)
@@ -22,8 +22,8 @@ class TestLegacy:
 
     def test_iter(self, fake_output):
         """Test managed iteration."""
-        eko = output.EKO.new(theory={}, operator=fake_output)
-        for q2, op in fake_output["Q2grid"].items():
+        eko, fake_card = fake_output
+        for q2, op in fake_card["Q2grid"].items():
             eko[q2] = output.Operator.from_dict(op)
 
         q2prev = None
@@ -35,11 +35,11 @@ class TestLegacy:
 
     def test_context_operator(self, fake_output):
         """Test automated handling through context."""
-        eko = output.EKO.new(theory={}, operator=fake_output)
-        for q2, op in fake_output["Q2grid"].items():
+        eko, fake_card = fake_output
+        for q2, op in fake_card["Q2grid"].items():
             eko[q2] = output.Operator.from_dict(op)
 
-        q2 = next(iter(fake_output["Q2grid"]))
+        q2 = next(iter(fake_card["Q2grid"]))
 
         with eko.operator(q2) as op:
             assert isinstance(op, struct.Operator)

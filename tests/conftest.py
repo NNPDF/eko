@@ -8,6 +8,8 @@ from contextlib import contextmanager
 import numpy as np
 import pytest
 
+from eko import output
+
 
 @pytest.fixture
 def cd():
@@ -82,7 +84,10 @@ class FakeOutput:
             ),
             Q2grid=Q2grid,
         )
-        return d
+        obj = output.EKO.new(theory={}, operator=d)
+        for q2, op in Q2grid.items():
+            obj[q2] = output.struct.Operator.from_dict(op)
+        return obj, d
 
 
 @pytest.fixture

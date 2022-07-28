@@ -31,8 +31,8 @@ def chk_keys(a, b):
 class TestLegacy:
     def test_io(self, fake_output, tmp_path):
         # create object
-        o1 = output.EKO.new(theory={}, operator=fake_output)
-        for q2, op in fake_output["Q2grid"].items():
+        o1, fake_card = fake_output
+        for q2, op in fake_card["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
 
         # test streams
@@ -41,19 +41,19 @@ class TestLegacy:
         # rewind and read again
         stream.seek(0)
         o2 = legacy.load_yaml(stream)
-        np.testing.assert_almost_equal(o1.xgrid.raw, fake_output["xgrid"])
-        np.testing.assert_almost_equal(o2.xgrid.raw, fake_output["xgrid"])
+        np.testing.assert_almost_equal(o1.xgrid.raw, fake_card["xgrid"])
+        np.testing.assert_almost_equal(o2.xgrid.raw, fake_card["xgrid"])
         # fake output files
         fpyaml = tmp_path / "test.yaml"
         legacy.dump_yaml_to_file(o1, fpyaml)
         # fake input file
         o3 = legacy.load_yaml_from_file(fpyaml)
-        np.testing.assert_almost_equal(o3.xgrid.raw, fake_output["xgrid"])
+        np.testing.assert_almost_equal(o3.xgrid.raw, fake_card["xgrid"])
         # repeat for tar
         fptar = tmp_path / "test.tar"
         legacy.dump_tar(o1, fptar)
         o4 = legacy.load_tar(fptar)
-        np.testing.assert_almost_equal(o4.xgrid.raw, fake_output["xgrid"])
+        np.testing.assert_almost_equal(o4.xgrid.raw, fake_card["xgrid"])
         fn = "test"
         with pytest.raises(ValueError, match="wrong suffix"):
             legacy.dump_tar(o1, fn)
@@ -61,8 +61,8 @@ class TestLegacy:
     def test_rename_issue81(self, fake_output):
         # https://github.com/N3PDF/eko/issues/81
         # create object
-        o1 = output.EKO.new(theory={}, operator=fake_output)
-        for q2, op in fake_output["Q2grid"].items():
+        o1, fake_card = fake_output
+        for q2, op in fake_card["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
 
         with tempfile.TemporaryDirectory() as folder:
@@ -75,12 +75,12 @@ class TestLegacy:
             shutil.move(fp1, fp2)
             # reload
             o4 = legacy.load_tar(fp2)
-            np.testing.assert_almost_equal(o4.xgrid.raw, fake_output["xgrid"])
+            np.testing.assert_almost_equal(o4.xgrid.raw, fake_card["xgrid"])
 
     def test_io_bin(self, fake_output):
         # create object
-        o1 = output.EKO.new(theory={}, operator=fake_output)
-        for q2, op in fake_output["Q2grid"].items():
+        o1, fake_card = fake_output
+        for q2, op in fake_card["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
         # test streams
         stream = io.StringIO()
@@ -88,15 +88,15 @@ class TestLegacy:
         # rewind and read again
         stream.seek(0)
         o2 = legacy.load_yaml(stream)
-        np.testing.assert_almost_equal(o1.xgrid.raw, fake_output["xgrid"])
-        np.testing.assert_almost_equal(o2.xgrid.raw, fake_output["xgrid"])
+        np.testing.assert_almost_equal(o1.xgrid.raw, fake_card["xgrid"])
+        np.testing.assert_almost_equal(o2.xgrid.raw, fake_card["xgrid"])
 
 
 class TestManipulate:
     def test_xgrid_reshape(self, fake_output):
         # create object
         xg = np.geomspace(1e-5, 1.0, 21)
-        o1 = output.EKO.new(theory={}, operator=fake_output)
+        o1, _fake_card = fake_output
         o1.xgrid = xg
         o1.rotations.targetgrid = xg
         o1.rotations.inputgrid = xg
@@ -143,8 +143,8 @@ class TestManipulate:
 
     def test_reshape_io(self, fake_output):
         # create object
-        o1 = output.EKO.new(theory={}, operator=fake_output)
-        for q2, op in fake_output["Q2grid"].items():
+        o1, fake_card = fake_output
+        for q2, op in fake_card["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
         o2 = copy.deepcopy(o1)
         manipulate.xgrid_reshape(o2, [0.1, 1.0], [0.1, 1.0])
@@ -157,28 +157,26 @@ class TestManipulate:
         o3 = legacy.load_yaml(stream)
         chk_keys(o1.raw, o3.raw)
 
-    def test_flavor_reshape(self, fake_output):
+    def test_flavor_reshape(self, fake_output, tmp_path):
         # create object
         xg = np.geomspace(1e-5, 1.0, 21)
-        o1 = output.EKO.new(theory={}, operator=fake_output)
+        o1, _fake_card = fake_output
         o1.xgrid = xg
         o1.rotations.targetgrid = xg
         o1.rotations.inputgrid = xg
-        o1._operators = {
-            10: output.Operator.from_dict(
-                dict(
-                    operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
-                    error=np.zeros((2, len(xg), 2, len(xg))),
-                )
+        o1[10.0] = output.Operator.from_dict(
+            dict(
+                operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
+                error=np.zeros((2, len(xg), 2, len(xg))),
             )
-        }
+        )
         # only target
         target_r = np.array([[1, -1], [1, 1]])
-        ot = copy.deepcopy(o1)
+        ot = o1.deepcopy(tmp_path / "ot.tar")
         manipulate.flavor_reshape(ot, target_r)
         chk_keys(o1.raw, ot.raw)
         assert ot[10].operator.shape == (2, len(xg), 2, len(xg))
-        ott = copy.deepcopy(ot)
+        ott = ot.deepcopy(tmp_path / "ott.tar")
         manipulate.flavor_reshape(ott, np.linalg.inv(target_r))
         np.testing.assert_allclose(ott[10].operator, o1[10].operator)
         with pytest.warns(Warning):
@@ -188,7 +186,7 @@ class TestManipulate:
 
         # only input
         input_r = np.array([[1, -1], [1, 1]])
-        oi = copy.deepcopy(o1)
+        oi = o1.deepcopy(tmp_path / "oi.tar")
         manipulate.flavor_reshape(oi, inputpids=input_r)
         chk_keys(o1.raw, oi.raw)
         assert oi[10].operator.shape == (2, len(xg), 2, len(xg))
@@ -201,7 +199,7 @@ class TestManipulate:
             np.testing.assert_allclose(oii[10].operator, o1[10].operator)
 
         # both
-        oit = copy.deepcopy(o1)
+        oit = o1.deepcopy(tmp_path / "oit.tar")
         manipulate.flavor_reshape(
             oit, np.array([[1, -1], [1, 1]]), np.array([[1, -1], [1, 1]])
         )
@@ -210,9 +208,9 @@ class TestManipulate:
         np.testing.assert_allclose(oit[10].operator, op[0], atol=1e-10)
         # error
         with pytest.raises(ValueError):
-            manipulate.flavor_reshape(copy.deepcopy(o1))
+            manipulate.flavor_reshape(o1.deepcopy(tmp_path / "fail.tar"))
 
-    def test_to_evol(self, fake_factory):
+    def test_to_evol(self, fake_factory, tmp_path):
         xgrid = np.array([0.5, 1.0])
         interpolation_polynomial_degree = 1
         interpolation_is_log = False
@@ -239,11 +237,11 @@ class TestManipulate:
         )
         o00 = output.EKO.new(theory={}, operator=d)
         o00[q2_out] = output.Operator(**Q2grid[q2_out])
-        o01 = copy.deepcopy(o00)
+        o01 = o00.deepcopy(tmp_path / "o01.tar")
         manipulate.to_evol(o01)
-        o10 = copy.deepcopy(o00)
+        o10 = o00.deepcopy(tmp_path / "o10.tar")
         manipulate.to_evol(o10, False, True)
-        o11 = copy.deepcopy(o00)
+        o11 = o00.deepcopy(tmp_path / "o11.tar")
         manipulate.to_evol(o11, True, True)
         chk_keys(o00.raw, o11.raw)
 

@@ -221,20 +221,20 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
     """
     tarpath = pathlib.Path(tarname)
 
+    operator_grid = {}
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = pathlib.Path(tmpdir)
 
         with tarfile.open(tarpath, "r") as tar:
             tar.extractall(tmpdir)
 
-        # metadata = cls(**{str(k): v for k, v in obj.items() if k != "Q2grid"})
-        # metadata["Q2grid"] = list(obj["Q2grid"].keys())
-
+        # load metadata
         innerdir = list(tmpdir.glob("*"))[0]
         yamlname = innerdir / "metadata.yaml"
         with open(yamlname, encoding="utf-8") as fd:
             metadata = yaml.safe_load(fd)
 
+        # get actual grids
         grids = {}
         for fp in innerdir.glob("*.npy.lz4"):
             with lz4.frame.open(fp, "rb") as fd:
@@ -245,13 +245,12 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
             fp.unlink()
 
         q2grid = metadata["Q2grid"]
-        operator_grid = {}
         for q2, slices in zip(q2grid, zip(*grids.values())):
-            operator_grid[q2] = struct.Operator(**dict(zip(grids.keys(), slices)))
-        metadata["Q2grid"] = operator_grid
+            operator_grid[q2] = dict(zip(grids.keys(), slices))
 
+    # now eveything is in place
     eko = struct.EKO.new(theory={}, operator=metadata)
-    for q2, op in metadata["Q2grid"].items():
-        eko[q2] = op
+    for q2, op in operator_grid.items():
+        eko[q2] = struct.Operator.from_dict(op)
 
     return eko
