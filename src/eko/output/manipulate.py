@@ -19,16 +19,16 @@ def xgrid_reshape(
     inputgrid: Optional[np.ndarray] = None,
     inplace: bool = True,
 ):
-    """Change the operators to have in the output targetgrid and/or in the input inputgrid.
+    """Reinterpolate operators on output and/or input grids.
 
     The operation is in-place.
 
     Parameters
     ----------
     targetgrid : None or list
-        xgrid for the target
+        xgrid for the target (output PDF)
     inputgrid : None or list
-        xgrid for the input
+        xgrid for the input (input PDF)
 
     """
     # calling with no arguments is an error
@@ -76,8 +76,6 @@ def xgrid_reshape(
 
     # build new grid
     for q2, elem in eko.items():
-        if elem is None:
-            continue
         ops = elem.operator
         errs = elem.error
         if targetgrid is not None and inputgrid is None:
@@ -137,11 +135,10 @@ def flavor_reshape(
         inv_inputpids = np.linalg.inv(inputpids)
 
     # build new grid
+    # TODO: restore items
     # for q2, elem in eko.items():
     for q2 in eko.Q2grid:
         elem = eko[q2]
-        if elem is None:
-            continue
         ops = elem.operator
         errs = elem.error
         if targetpids is not None and inputpids is None:
