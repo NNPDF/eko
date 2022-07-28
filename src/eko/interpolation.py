@@ -452,6 +452,13 @@ class XGrid:
     def tolist(self) -> list:
         return self.raw.tolist()
 
+    def dump(self) -> dict:
+        return dict(grid=self.tolist(), log=self.log)
+
+    @classmethod
+    def load(cls, doc: dict):
+        return cls(doc["grid"], log=doc["log"])
+
 
 class InterpolatorDispatcher:
     """
