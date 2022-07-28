@@ -35,21 +35,22 @@ def update(theory: dict, operators: Optional[dict]):
         new_theory["order"] = (new_theory.pop("PTO") + 1, new_theory.pop("QED"))
 
     if operators is not None:
-        if new_operators is None:
-            raise ValueError("Unreachable.")
-        if "configs" not in operators:
-            raise ValueError("No subsections, old format.")
+        assert new_operators is not None
 
-        max_order = new_operators["configs"]["ev_op_max_order"]
+        new_operators["configs"] = {}
+        new_operators["rotations"] = {}
+        new_operators["debug"] = {}
+
+        max_order = operators["ev_op_max_order"]
         if isinstance(max_order, int):
             new_operators["configs"]["ev_op_max_order"] = (
                 max_order,
                 new_theory["order"][1],
             )
 
-        new_operators["rotations"]["xgrid"] = operators["xgrid"]
+        new_operators["rotations"]["xgrid"] = operators["interpolation_xgrid"]
         for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
-            new_operators["rotations"][f"_{basis}"] = operators["rotations"][basis]
+            new_operators["rotations"][f"_{basis}"] = operators[basis]
 
     return new_theory, new_operators
 
