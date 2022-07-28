@@ -44,15 +44,14 @@ class BenchmarkFFNS(ApfelBenchmark):
         "FNS": "FFNS",
         "ModEv": [
             "EXA",
-            #            "EXP",
-            #            "TRN",
+            # "EXP",
+            # "TRN",
         ],
         "NfFF": 5,
         "kcThr": 0.0,
         "kbThr": 0.0,
         "ktThr": np.inf,
         "Q0": 5.0,
-        #        "Qref": 100.0,
     }
     ffns_theory = tolist(ffns_theory)
 
@@ -70,10 +69,6 @@ class BenchmarkFFNS(ApfelBenchmark):
 
 if __name__ == "__main__":
 
-    # obj = BenchmarkVFNS()
     obj = BenchmarkFFNS()
 
     obj.benchmark_plain(1, 1)
-    # obj.benchmark_sv(2, "exponentiated")
-    # obj.benchmark_kthr(2)
-    # obj.benchmark_msbar(2)
