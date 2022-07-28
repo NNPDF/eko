@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 from eko import basis_rotation as br
-from eko import output
+from eko import interpolation, output
 from eko.output import legacy, manipulate
 
 
@@ -97,7 +97,7 @@ class TestLegacy:
 class TestManipulate:
     def test_xgrid_reshape(self, fake_output):
         # create object
-        xg = np.geomspace(1e-5, 1.0, 21)
+        xg = interpolation.XGrid(np.geomspace(1e-5, 1.0, 21))
         o1, _fake_card = fake_output
         o1.xgrid = xg
         o1.rotations._targetgrid = xg
@@ -110,7 +110,7 @@ class TestManipulate:
                 )
             )
         }
-        xgp = np.geomspace(1e-5, 1.0, 11)
+        xgp = interpolation.XGrid(np.geomspace(1e-5, 1.0, 11))
         # only target
         ot = copy.deepcopy(o1)
         manipulate.xgrid_reshape(ot, xgp)
@@ -149,7 +149,9 @@ class TestManipulate:
         for q2, op in fake_card["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
         o2 = copy.deepcopy(o1)
-        manipulate.xgrid_reshape(o2, [0.1, 1.0], [0.1, 1.0])
+        manipulate.xgrid_reshape(
+            o2, interpolation.XGrid([0.1, 1.0]), interpolation.XGrid([0.1, 1.0])
+        )
         manipulate.flavor_reshape(o2, inputpids=np.array([[1, -1], [1, 1]]))
         # dump
         stream = io.StringIO()

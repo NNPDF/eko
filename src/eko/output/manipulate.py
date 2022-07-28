@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 def xgrid_reshape(
     eko: EKO,
-    targetgrid: Optional[np.ndarray] = None,
-    inputgrid: Optional[np.ndarray] = None,
+    targetgrid: Optional[interpolation.XGrid] = None,
+    inputgrid: Optional[interpolation.XGrid] = None,
 ):
     """Reinterpolate operators on output and/or input grids.
 
@@ -37,14 +37,14 @@ def xgrid_reshape(
     if (
         targetgrid is not None
         and len(targetgrid) == len(eko.rotations.targetgrid)
-        and np.allclose(targetgrid, eko.rotations.targetgrid)
+        and np.allclose(targetgrid.raw, eko.rotations.targetgrid.raw)
     ):
         targetgrid = None
         warnings.warn("The new targetgrid is close to the current targetgrid")
     if (
         inputgrid is not None
         and len(inputgrid) == len(eko.rotations.inputgrid)
-        and np.allclose(inputgrid, eko.rotations.inputgrid)
+        and np.allclose(inputgrid.raw, eko.rotations.inputgrid.raw)
     ):
         inputgrid = None
         warnings.warn("The new inputgrid is close to the current inputgrid")
@@ -58,20 +58,18 @@ def xgrid_reshape(
         b = interpolation.InterpolatorDispatcher(
             eko.rotations.targetgrid,
             eko.configs.interpolation_polynomial_degree,
-            eko.configs.interpolation_is_log,
             False,
         )
-        target_rot = b.get_interpolation(targetgrid)
-        eko.rotations._targetgrid = interpolation.XGrid(targetgrid)
+        target_rot = b.get_interpolation(targetgrid.raw)
+        eko.rotations._targetgrid = targetgrid
     if inputgrid is not None:
         b = interpolation.InterpolatorDispatcher(
             inputgrid,
             eko.configs.interpolation_polynomial_degree,
-            eko.configs.interpolation_is_log,
             False,
         )
-        input_rot = b.get_interpolation(eko.rotations.inputgrid)
-        eko.rotations._inputgrid = interpolation.XGrid(inputgrid)
+        input_rot = b.get_interpolation(eko.rotations.inputgrid.raw)
+        eko.rotations._inputgrid = inputgrid
 
     # build new grid
     for q2, elem in eko.items():

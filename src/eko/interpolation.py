@@ -570,7 +570,7 @@ class InterpolatorDispatcher:
     def __getitem__(self, item):
         return self.basis[item]
 
-    def get_interpolation(self, targetgrid):
+    def get_interpolation(self, targetgrid: Union[npt.NDArray, Sequence]):
         """Computes interpolation matrix between `targetgrid` and `xgrid`.
 
         .. math::
