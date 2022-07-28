@@ -29,9 +29,9 @@ def chk_keys(a, b):
 
 
 class TestLegacy:
-    def test_io(self, fake_output, tmp_path):
+    def test_io(self, fake_legacy, tmp_path):
         # create object
-        o1, fake_card = fake_output
+        o1, fake_card = fake_legacy
         for q2, op in fake_card["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
 
@@ -41,27 +41,27 @@ class TestLegacy:
         # rewind and read again
         stream.seek(0)
         o2 = legacy.load_yaml(stream)
-        np.testing.assert_almost_equal(o1.xgrid.raw, fake_card["xgrid"])
-        np.testing.assert_almost_equal(o2.xgrid.raw, fake_card["xgrid"])
+        np.testing.assert_almost_equal(o1.xgrid.raw, fake_card["interpolation_xgrid"])
+        np.testing.assert_almost_equal(o2.xgrid.raw, fake_card["interpolation_xgrid"])
         # fake output files
         fpyaml = tmp_path / "test.yaml"
         legacy.dump_yaml_to_file(o1, fpyaml)
         # fake input file
         o3 = legacy.load_yaml_from_file(fpyaml)
-        np.testing.assert_almost_equal(o3.xgrid.raw, fake_card["xgrid"])
+        np.testing.assert_almost_equal(o3.xgrid.raw, fake_card["interpolation_xgrid"])
         # repeat for tar
         fptar = tmp_path / "test.tar"
         legacy.dump_tar(o1, fptar)
         o4 = legacy.load_tar(fptar)
-        np.testing.assert_almost_equal(o4.xgrid.raw, fake_card["xgrid"])
+        np.testing.assert_almost_equal(o4.xgrid.raw, fake_card["interpolation_xgrid"])
         fn = "test"
         with pytest.raises(ValueError, match="wrong suffix"):
             legacy.dump_tar(o1, fn)
 
-    def test_rename_issue81(self, fake_output):
+    def test_rename_issue81(self, fake_legacy):
         # https://github.com/N3PDF/eko/issues/81
         # create object
-        o1, fake_card = fake_output
+        o1, fake_card = fake_legacy
         for q2, op in fake_card["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
 
@@ -75,11 +75,13 @@ class TestLegacy:
             shutil.move(fp1, fp2)
             # reload
             o4 = legacy.load_tar(fp2)
-            np.testing.assert_almost_equal(o4.xgrid.raw, fake_card["xgrid"])
+            np.testing.assert_almost_equal(
+                o4.xgrid.raw, fake_card["interpolation_xgrid"]
+            )
 
-    def test_io_bin(self, fake_output):
+    def test_io_bin(self, fake_legacy):
         # create object
-        o1, fake_card = fake_output
+        o1, fake_card = fake_legacy
         for q2, op in fake_card["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
         # test streams
@@ -88,8 +90,8 @@ class TestLegacy:
         # rewind and read again
         stream.seek(0)
         o2 = legacy.load_yaml(stream)
-        np.testing.assert_almost_equal(o1.xgrid.raw, fake_card["xgrid"])
-        np.testing.assert_almost_equal(o2.xgrid.raw, fake_card["xgrid"])
+        np.testing.assert_almost_equal(o1.xgrid.raw, fake_card["interpolation_xgrid"])
+        np.testing.assert_almost_equal(o2.xgrid.raw, fake_card["interpolation_xgrid"])
 
 
 class TestManipulate:
@@ -98,8 +100,8 @@ class TestManipulate:
         xg = np.geomspace(1e-5, 1.0, 21)
         o1, _fake_card = fake_output
         o1.xgrid = xg
-        o1.rotations.targetgrid = xg
-        o1.rotations.inputgrid = xg
+        o1.rotations._targetgrid = xg
+        o1.rotations._inputgrid = xg
         o1._operators = {
             10: output.Operator.from_dict(
                 dict(
@@ -111,7 +113,7 @@ class TestManipulate:
         xgp = np.geomspace(1e-5, 1.0, 11)
         # only target
         ot = copy.deepcopy(o1)
-        manipulate.xgrid_reshape(ot, xgp, inplace=True)
+        manipulate.xgrid_reshape(ot, xgp)
         chk_keys(o1.raw, ot.raw)
         assert ot[10].operator.shape == (2, len(xgp), 2, len(xg))
         ott = copy.deepcopy(o1)
@@ -162,8 +164,8 @@ class TestManipulate:
         xg = np.geomspace(1e-5, 1.0, 21)
         o1, _fake_card = fake_output
         o1.xgrid = xg
-        o1.rotations.targetgrid = xg
-        o1.rotations.inputgrid = xg
+        o1.rotations._targetgrid = xg
+        o1.rotations._inputgrid = xg
         o1[10.0] = output.Operator.from_dict(
             dict(
                 operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0],

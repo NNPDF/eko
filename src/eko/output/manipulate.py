@@ -17,7 +17,6 @@ def xgrid_reshape(
     eko: EKO,
     targetgrid: Optional[np.ndarray] = None,
     inputgrid: Optional[np.ndarray] = None,
-    inplace: bool = True,
 ):
     """Reinterpolate operators on output and/or input grids.
 
@@ -63,7 +62,7 @@ def xgrid_reshape(
             False,
         )
         target_rot = b.get_interpolation(targetgrid)
-        eko.rotations.targetgrid = np.array(targetgrid)
+        eko.rotations._targetgrid = interpolation.XGrid(targetgrid)
     if inputgrid is not None:
         b = interpolation.InterpolatorDispatcher(
             inputgrid,
@@ -72,7 +71,7 @@ def xgrid_reshape(
             False,
         )
         input_rot = b.get_interpolation(eko.rotations.inputgrid)
-        eko.rotations.inputgrid = np.array(inputgrid)
+        eko.rotations._inputgrid = interpolation.XGrid(inputgrid)
 
     # build new grid
     for q2, elem in eko.items():
@@ -97,7 +96,6 @@ def flavor_reshape(
     eko: EKO,
     targetpids: Optional[np.ndarray] = None,
     inputpids: Optional[np.ndarray] = None,
-    inplace: bool = True,
 ):
     """Change the operators to have in the output targetpids and/or in the input inputpids.
 
@@ -155,12 +153,12 @@ def flavor_reshape(
     # drop PIDs - keeping them int nevertheless
     # there is no meaningful way to set them in general, after rotation
     if inputpids is not None:
-        eko.rotations.inputpids = [0] * len(eko.rotations.inputpids)
+        eko.rotations._inputpids = np.array([0] * len(eko.rotations.inputpids))
     if targetpids is not None:
-        eko.rotations.targetpids = [0] * len(eko.rotations.targetpids)
+        eko.rotations._targetpids = np.array([0] * len(eko.rotations.targetpids))
 
 
-def to_evol(eko: EKO, source: bool = True, target: bool = False, inplace: bool = True):
+def to_evol(eko: EKO, source: bool = True, target: bool = False):
     """Rotate the operator into evolution basis.
 
     This also assigns also the pids. The operation is in-place.
@@ -179,6 +177,6 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False, inplace: bool =
     flavor_reshape(eko, inputpids=inputpids, targetpids=targetpids)
     # assign pids
     if source:
-        eko.rotations.inputpids = br.evol_basis_pids
+        eko.rotations._inputpids = br.evol_basis_pids
     if target:
-        eko.rotations.targetpids = br.evol_basis_pids
+        eko.rotations._targetpids = br.evol_basis_pids

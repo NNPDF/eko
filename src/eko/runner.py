@@ -100,7 +100,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         def similar_to_none(name: str) -> Optional[np.ndarray]:
             grid = self.post_process[name]
 
-            default = self.out.xgrid.grid if "grid" in name else self.out.pids
+            default = self.out.xgrid.grid if "grid" in name else self.out.rotations.pids
             if grid is None or (
                 len(grid) == default.size and np.allclose(grid, default, atol=1e-12)
             ):

@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import pytest
-
 from eko import compatibility
 
 theory1 = {
@@ -17,13 +15,23 @@ def test_compatibility():
     assert new_theory["order"][0] == theory1["PTO"] + 1
 
 
-operator_dict = {"configs": {"ev_op_max_order": 2}}
+def operator_dict(xgrid, pids):
+    return dict(
+        ev_op_max_order=2,
+        interpolation_xgrid=xgrid,
+        inputgrid=xgrid,
+        targetgrid=xgrid,
+        pids=pids,
+        inputpids=pids,
+        targetpids=pids,
+    )
 
 
 def test_compatibility_operators():
-    _, new_operator = compatibility.update(theory1, operator_dict)
+    xgrid = [1e-3, 1e-2, 1e-1, 1.0]
+    pids = [21, -1, 1]
 
-    assert isinstance(new_operator["configs"]["ev_op_max_order"], int)
+    _, new_operator = compatibility.update(theory1, operator_dict(xgrid, pids))
 
-    with pytest.raises(KeyError):
-        compatibility.update(theory1, {})
+    assert new_operator is not None
+    assert not isinstance(new_operator["configs"]["ev_op_max_order"], int)

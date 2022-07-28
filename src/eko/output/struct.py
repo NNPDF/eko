@@ -19,7 +19,6 @@ import numpy as np
 import numpy.lib.npyio as npyio
 import yaml
 
-from .. import basis_rotation as br
 from .. import interpolation
 from .. import version as vmod
 
@@ -86,6 +85,8 @@ class DictLike:
             # replace numpy scalars with python ones
             elif isinstance(value, float):
                 value = float(value)
+            elif isinstance(value, interpolation.XGrid):
+                value = value.dump()
 
             dictionary[field.name] = value
 
@@ -230,41 +231,46 @@ class Rotations(DictLike):
 
     """
 
-    targetgrid: Optional[np.ndarray] = None
-    inputgrid: Optional[np.ndarray] = None
-    targetpids: Optional[np.ndarray] = None
-    inputpids: Optional[np.ndarray] = None
+    xgrid: interpolation.XGrid
+    """Momentum fraction internal grid."""
+    pids: np.ndarray
+    """Array of integers, corresponding to internal PIDs."""
+    _targetgrid: Optional[interpolation.XGrid] = None
+    _inputgrid: Optional[interpolation.XGrid] = None
+    _targetpids: Optional[np.ndarray] = None
+    _inputpids: Optional[np.ndarray] = None
 
-    @classmethod
-    def default(cls, xgrid: interpolation.XGrid, pids: np.ndarray):
-        """Create instance with default rotations.
+    def __post_init__(self):
+        for attr in ("xgrid", "_inputgrid", "_targetgrid"):
+            value = getattr(self, attr)
+            if isinstance(value, np.ndarray):
+                setattr(self, attr, interpolation.XGrid(value))
+            elif not isinstance(value, interpolation.XGrid):
+                setattr(self, attr, interpolation.XGrid.load(value))
 
-        Default is no rotation at all, that you can also specify leaving the
-        rotations empty.
-        This method instead set them to the internal values, such that the
-        rotation results in an identity, and no operation is performed.
+    @property
+    def inputpids(self) -> np.ndarray:
+        if self._inputpids is None:
+            return self.pids
+        return self._inputpids
 
-        Note
-        ----
-        Setting them to `None` is not currently an option, since methods to
-        perform manipulations do not recognize this value.
+    @property
+    def targetpids(self) -> np.ndarray:
+        if self._targetpids is None:
+            return self.pids
+        return self._targetpids
 
-        Parameters
-        ----------
-        xgrid: interpolation.XGrid
-            the :math:`x`-grid used internally for computation
-        pids: np.ndarray
-            the PIDs used internally for computation
+    @property
+    def inputgrid(self) -> interpolation.XGrid:
+        if self._inputgrid is None:
+            return self.xgrid
+        return self._inputgrid
 
-        Returns
-        -------
-        Rotations
-            the instance with default values
-
-        """
-        return cls(
-            targetgrid=xgrid.raw, inputgrid=xgrid.raw, targetpids=pids, inputpids=pids
-        )
+    @property
+    def targetgrid(self) -> interpolation.XGrid:
+        if self._targetgrid is None:
+            return self.xgrid
+        return self._targetgrid
 
 
 @dataclass
@@ -311,10 +317,6 @@ class EKO:
     """
     Q02: float
     """Inital scale."""
-    xgrid: interpolation.XGrid
-    """Momentum fraction internal grid."""
-    pids: np.ndarray
-    """Array of integers, corresponding to internal PIDs."""
     # collections
     configs: Configs
     """Specific configuration to be used during the calculation of these
@@ -331,6 +333,16 @@ class EKO:
     """Library version used to create the corresponding file."""
     data_version: str = vmod.__data_version__
     """Specs version, to which the file adheres."""
+
+    @property
+    def xgrid(self) -> interpolation.XGrid:
+        """Momentum fraction internal grid."""
+        return self.rotations.xgrid
+
+    @xgrid.setter
+    def xgrid(self, value: interpolation.XGrid):
+        """Set `xgrid` value."""
+        self.rotations.xgrid = value
 
     def __post_init__(self):
         if self.path.suffix != ".tar":
@@ -600,17 +612,12 @@ class EKO:
             the generated structure
 
         """
-        xgrid = interpolation.XGrid(operator["xgrid"])
-        pids = np.array(operator.get("pids", np.array(br.flavor_basis_pids)))
-
         return cls(
             path=path,
-            xgrid=xgrid,
-            pids=pids,
             Q02=float(operator["Q0"] ** 2),
             _operators={q2: None for q2 in operator["Q2grid"]},
             configs=Configs.from_dict(operator["configs"]),
-            rotations=Rotations.default(xgrid, pids),
+            rotations=Rotations.from_dict(operator["rotations"]),
             debug=Debug.from_dict(operator.get("debug", {})),
         )
 
@@ -688,8 +695,6 @@ class EKO:
     def raw(self):
         return dict(
             path=str(self.path),
-            xgrid=self.xgrid.tolist(),
-            pids=self.pids.tolist(),
             Q0=float(np.sqrt(self.Q02)),
             Q2grid=self.Q2grid,
             configs=self.configs.raw,

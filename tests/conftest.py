@@ -9,6 +9,7 @@ import numpy as np
 import pytest
 
 from eko import output
+from eko.output import legacy
 
 
 @pytest.fixture
@@ -55,8 +56,7 @@ class FakeOutput:
             }
         return Q2grid
 
-    def fake_output(self):
-        # build data
+    def mk_dump(self) -> dict:
         xgrid = np.array([0.5, 1.0])
         interpolation_polynomial_degree = 1
         interpolation_is_log = False
@@ -64,14 +64,14 @@ class FakeOutput:
         q2_ref = 1
         q2_out = 2
         Q2grid = self.mk_g([q2_out], len(pids), len(xgrid))
-        d = dict(
-            xgrid=xgrid,
-            pids=pids,
+        return dict(
             rotations=dict(
-                targetgrid=xgrid,
-                inputgrid=xgrid,
-                inputpids=pids,
-                targetpids=pids,
+                xgrid=xgrid,
+                pids=pids,
+                _targetgrid=xgrid,
+                _inputgrid=xgrid,
+                _inputpids=pids,
+                _targetpids=pids,
             ),
             Q0=np.sqrt(q2_ref),
             couplings=dict(),
@@ -84,8 +84,32 @@ class FakeOutput:
             ),
             Q2grid=Q2grid,
         )
+
+    def fake_output(self):
+        d = self.mk_dump()
+        # build data
         obj = output.EKO.new(theory={}, operator=d)
-        for q2, op in Q2grid.items():
+        for q2, op in d["Q2grid"].items():
+            obj[q2] = output.struct.Operator.from_dict(op)
+        return obj, d
+
+    def fake_legacy(self):
+        d = self.mk_dump()
+        bases = d["rotations"].copy()
+
+        d["inputgrid"] = bases["_inputgrid"]
+        d["targetgrid"] = bases["_targetgrid"]
+        d["inputpids"] = bases["_inputpids"]
+        d["targetpids"] = bases["_targetpids"]
+
+        d["interpolation_xgrid"] = bases["xgrid"]
+        d["pids"] = bases["pids"]
+
+        del d["rotations"]
+
+        # build data
+        obj = output.EKO.new(theory={}, operator=legacy.upgrade(d))
+        for q2, op in d["Q2grid"].items():
             obj[q2] = output.struct.Operator.from_dict(op)
         return obj, d
 
@@ -98,6 +122,11 @@ def fake_factory():
 @pytest.fixture
 def fake_output():
     return FakeOutput().fake_output()
+
+
+@pytest.fixture
+def fake_legacy():
+    return FakeOutput().fake_legacy()
 
 
 @pytest.fixture
