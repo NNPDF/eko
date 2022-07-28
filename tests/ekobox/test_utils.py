@@ -13,8 +13,8 @@ def test_ekos_product():
     op1 = oc.generate(
         [60.0, 80.0, 100.0],
         update={
-            "xgrid": [0.1, 0.5, 1.0],
-            "configs": {"interpolation_polynomial_degree": 1},
+            "interpolation_xgrid": [0.1, 0.5, 1.0],
+            "interpolation_polynomial_degree": 1,
         },
     )
     theory1 = tc.generate(0, 5.0)
@@ -22,8 +22,8 @@ def test_ekos_product():
     op2 = oc.generate(
         [80.0, 100.0, 120.0],
         update={
-            "xgrid": [0.1, 0.5, 1.0],
-            "configs": {"interpolation_polynomial_degree": 1},
+            "interpolation_xgrid": [0.1, 0.5, 1.0],
+            "interpolation_polynomial_degree": 1,
         },
     )
     theory2 = tc.generate(0, 10.0)

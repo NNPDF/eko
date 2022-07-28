@@ -38,8 +38,18 @@ def update(theory: dict, operators: Optional[dict]):
         assert new_operators is not None
 
         new_operators["configs"] = {}
+        for k in (
+            "interpolation_polynomial_degree",
+            "interpolation_is_log",
+            "ev_op_iterations",
+            "backward_inversion",
+            "n_integration_cores",
+        ):
+            new_operators["configs"][k] = operators[k]
         new_operators["rotations"] = {}
         new_operators["debug"] = {}
+        for k in ("debug_skip_non_singlet", "debug_skip_singlet"):
+            new_operators["debug"][k[len("debug_") :]] = operators[k]
 
         max_order = operators["ev_op_max_order"]
         if isinstance(max_order, int):

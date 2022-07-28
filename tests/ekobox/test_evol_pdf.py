@@ -11,8 +11,8 @@ from ekobox import theory_card as tc
 op = oc.generate(
     [100.0],
     update={
-        "xgrid": [0.1, 0.5, 1.0],
-        "configs": {"interpolation_polynomial_degree": 1},
+        "interpolation_xgrid": [0.1, 0.5, 1.0],
+        "interpolation_polynomial_degree": 1,
     },
 )
 theory = tc.generate(0, 1.65)

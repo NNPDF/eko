@@ -83,7 +83,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         }
 
         self.out = EKO.new(
-            theory=theory_card, operator=dict(Q0=np.sqrt(tc.q2_ref), **operators_card)
+            theory=theory_card, operator=dict(Q0=np.sqrt(tc.q2_ref), **new_operators)
         )
 
     def get_output(self) -> EKO:
