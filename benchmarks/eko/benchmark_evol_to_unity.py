@@ -7,7 +7,7 @@ from eko import compatibility
 from eko.couplings import Couplings
 from eko.evolution_operator import Operator
 from eko.evolution_operator.grid import OperatorGrid
-from eko.interpolation import InterpolatorDispatcher
+from eko.interpolation import InterpolatorDispatcher, XGrid
 from eko.thresholds import ThresholdsAtlas
 
 # from eko.matching_conditions.operator_matrix_element import OperatorMatrixElement
@@ -64,7 +64,13 @@ class BenchmarkBackwardForward:
         new_operators,
         ThresholdsAtlas.from_dict(new_theory),
         Couplings.from_dict(new_theory),
-        InterpolatorDispatcher.from_dict(new_operators),
+        InterpolatorDispatcher(
+            XGrid(
+                new_operators["xgrid"],
+                log=new_operators["configs"]["interpolation_is_log"],
+            ),
+            new_operators["configs"]["interpolation_polynomial_degree"],
+        ),
     )
 
     def test_operator_grid(
@@ -76,7 +82,13 @@ class BenchmarkBackwardForward:
             self.new_operators,
             ThresholdsAtlas.from_dict(self.new_theory),
             Couplings.from_dict(self.new_theory),
-            InterpolatorDispatcher.from_dict(self.new_operators),
+            InterpolatorDispatcher(
+                XGrid(
+                    self.new_operators["xgrid"],
+                    log=self.new_operators["configs"]["interpolation_is_log"],
+                ),
+                self.new_operators["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         q20 = 30
         q21 = 50
