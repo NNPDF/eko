@@ -54,7 +54,15 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         self._theory = new_theory
 
         # setup basis grid
-        bfd = interpolation.InterpolatorDispatcher.from_dict(new_operators)
+        bfd = interpolation.InterpolatorDispatcher(
+            xgrid=interpolation.XGrid(
+                new_operators["rotations"]["xgrid"],
+                log=new_operators["configs"]["interpolation_is_log"],
+            ),
+            polynomial_degree=new_operators["configs"][
+                "interpolation_polynomial_degree"
+            ],
+        )
 
         # setup the Threshold path, compute masses if necessary
         masses = None

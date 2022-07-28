@@ -5,7 +5,7 @@ import numpy as np
 
 import eko
 import eko.interpolation
-from eko import compatibility
+from eko import basis_rotation as br
 
 theory_card = {
     "alphas": 0.35,
@@ -38,7 +38,6 @@ theory_card = {
 }
 operators_card = {
     "Q2grid": [10, 100],
-    "xgrid": [0.01, 0.1, 1.0],
     "configs": {
         "interpolation_polynomial_degree": 1,
         "interpolation_is_log": True,
@@ -46,6 +45,14 @@ operators_card = {
         "ev_op_iterations": 1,
         "backward_inversion": "exact",
         "n_integration_cores": 1,
+    },
+    "rotations": {
+        "xgrid": [0.01, 0.1, 1.0],
+        "pids": np.array(br.flavor_basis_pids),
+        "inputgrid": None,
+        "targetgrid": None,
+        "inputpids": None,
+        "targetpids": None,
     },
     "debug": {"skip_singlet": True, "skip_non_singlet": True},
 }

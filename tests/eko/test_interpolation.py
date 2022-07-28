@@ -100,62 +100,29 @@ class TestInterpolatorDispatcher:
         with pytest.raises(ValueError):
             interpolation.InterpolatorDispatcher([], 1)
 
-    def test_from_dict(self):
-        d = {
-            "xgrid": ["make_grid", 3, 3],
-            "configs": {
-                "interpolation_is_log": False,
-                "interpolation_polynomial_degree": 1,
-            },
-        }
-        a = interpolation.InterpolatorDispatcher.from_dict(d)
-        np.testing.assert_array_almost_equal(
-            a.xgrid.grid, np.array([1e-7, 1e-4, 1e-1, 0.55, 1.0])
-        )
-        assert a.polynomial_degree == 1
-        dd = {
-            "xgrid": ["make_lambert_grid", 20],
-            "configs": {
-                "interpolation_is_log": False,
-                "interpolation_polynomial_degree": 1,
-            },
-        }
-        aa = interpolation.InterpolatorDispatcher.from_dict(dd)
-        assert len(aa.xgrid) == 20
-        with pytest.raises(ValueError):
-            d = {
-                "xgrid": [],
-                "configs": {
-                    "interpolation_is_log": False,
-                    "interpolation_polynomial_degree": 1,
-                },
-            }
-            interpolation.InterpolatorDispatcher.from_dict(d)
-
     def test_eq(self):
-        a = interpolation.InterpolatorDispatcher(
-            np.linspace(0.1, 1, 10), 4, log=False, mode_N=False
-        )
-        b = interpolation.InterpolatorDispatcher(
-            np.linspace(0.1, 1, 9), 4, log=False, mode_N=False
-        )
+        # define grids
+        x9 = interpolation.XGrid(np.linspace(0.1, 1, 9), log=False)
+        x10 = interpolation.XGrid(np.linspace(0.1, 1, 10), log=False)
+        # test various options
+        a = interpolation.InterpolatorDispatcher(x10, 4, mode_N=False)
+        b = interpolation.InterpolatorDispatcher(x9, 4, mode_N=False)
         assert a != b
-        c = interpolation.InterpolatorDispatcher(
-            np.linspace(0.1, 1, 10), 3, log=False, mode_N=False
-        )
+        c = interpolation.InterpolatorDispatcher(x10, 3, mode_N=False)
         assert a != c
         d = interpolation.InterpolatorDispatcher(
-            np.linspace(0.1, 1, 10), 4, log=True, mode_N=False
+            np.linspace(0.1, 1, 10), 4, mode_N=False
         )
         assert a != d
-        e = interpolation.InterpolatorDispatcher(
-            np.linspace(0.1, 1, 10), 4, log=False, mode_N=False
-        )
+        e = interpolation.InterpolatorDispatcher(x10, 4, mode_N=False)
         assert a == e
         # via dict
         dd = a.to_dict()
         assert isinstance(dd, dict)
-        assert a == interpolation.InterpolatorDispatcher.from_dict(dd)
+        assert a == interpolation.InterpolatorDispatcher(
+            interpolation.XGrid.load(dd["xgrid"]),
+            polynomial_degree=dd["polynomial_degree"],
+        )
 
     def test_iter(self):
         xgrid = np.linspace(0.1, 1, 10)
@@ -165,8 +132,8 @@ class TestInterpolatorDispatcher:
             assert bf == inter_x[k]
 
     def test_get_interpolation(self):
-        xg = [0.5, 1.0]
-        inter_x = interpolation.InterpolatorDispatcher(xg, 1, False, False)
+        xg = interpolation.XGrid([0.5, 1.0], log=False)
+        inter_x = interpolation.InterpolatorDispatcher(xg, 1, False)
         i = inter_x.get_interpolation(xg)
         np.testing.assert_array_almost_equal(i, np.eye(len(xg)))
         # .75 is exactly inbetween

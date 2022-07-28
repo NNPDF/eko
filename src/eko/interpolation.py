@@ -8,9 +8,11 @@ to evaluate the interpolator.
 """
 import logging
 import math
+from typing import Sequence, Union
 
 import numba as nb
 import numpy as np
+import numpy.typing as npt
 import scipy.special as sp
 
 logger = logging.getLogger(__name__)
@@ -415,7 +417,7 @@ class BasisFunction:
 
 
 class XGrid:
-    def __init__(self, xgrid: np.ndarray, log: bool = True):
+    def __init__(self, xgrid: Union[Sequence, npt.NDArray], log: bool = True):
         ugrid = np.array(np.unique(xgrid), np.float_)
         if len(xgrid) != len(ugrid):
             raise ValueError(f"xgrid is not unique: {xgrid}")
@@ -459,6 +461,20 @@ class XGrid:
     def load(cls, doc: dict):
         return cls(doc["grid"], log=doc["log"])
 
+    @classmethod
+    def fromcard(cls, value: list, log: bool):
+        if len(value) == 0:
+            raise ValueError("Empty xgrid!")
+
+        if value[0] == "make_grid":
+            xgrid = make_grid(*value[1:])
+        elif value[0] == "make_lambert_grid":
+            xgrid = make_lambert_grid(*value[1:])
+        else:
+            xgrid = np.array(value)
+
+        return cls(xgrid, log=log)
+
 
 class InterpolatorDispatcher:
     """
@@ -482,8 +498,12 @@ class InterpolatorDispatcher:
             if true compiles the function on N, otherwise compiles x
     """
 
-    def __init__(self, xgrid, polynomial_degree, log=True, mode_N=True):
-        xgrid = XGrid(xgrid, log=log)
+    def __init__(
+        self, xgrid: Union[XGrid, Sequence, npt.NDArray], polynomial_degree, mode_N=True
+    ):
+        if not isinstance(xgrid, XGrid):
+            xgrid = XGrid(xgrid)
+
         # sanity checks
         if polynomial_degree < 1:
             raise ValueError(
@@ -498,12 +518,12 @@ class InterpolatorDispatcher:
         # Save the different variables
         self.xgrid = xgrid
         self.polynomial_degree = polynomial_degree
-        self.log = log
+        self.log = xgrid.log
         logger.info(
             "Interpolation: number of points = %d, polynomial degree = %d, logarithmic = %s",
             len(xgrid),
             polynomial_degree,
-            log,
+            xgrid.log,
         )
 
         # Create blocks
@@ -528,53 +548,10 @@ class InterpolatorDispatcher:
         basis_functions = []
         for i in range(len(xgrid)):
             new_basis = BasisFunction(
-                xgrid.grid, i, list_of_blocks, mode_log=log, mode_N=mode_N
+                xgrid.grid, i, list_of_blocks, mode_log=xgrid.log, mode_N=mode_N
             )
             basis_functions.append(new_basis)
         self.basis = basis_functions
-
-    @classmethod
-    def from_dict(cls, operators_card, mode_N=True):
-        """
-        Create object from dictionary.
-
-        .. list-table:: operators runcard parameters
-            :header-rows: 1
-
-            *   - Name
-                - Type
-                - description
-            *   - ``xgrid``
-                - :py:obj:`list(float)`
-                - the interpolation grid
-            *   - ``interpolation_polynomial_degree``
-                - :py:obj:`int`
-                - polynomial degree of the interpolating function
-            *   - ``interpolation_is_log``
-                - :py:obj:`bool`
-                - use logarithmic interpolation?
-
-        Parameters
-        ----------
-            operators_card : dict
-                input configurations
-        """
-        # load xgrid
-        xgrid = operators_card["xgrid"]
-        if len(xgrid) == 0:
-            raise ValueError("Empty xgrid!")
-        if xgrid[0] == "make_grid":
-            xgrid = make_grid(*xgrid[1:])
-        elif xgrid[0] == "make_lambert_grid":
-            xgrid = make_lambert_grid(*xgrid[1:])
-        is_log_interpolation = bool(operators_card["configs"]["interpolation_is_log"])
-        polynom_rank = operators_card["configs"]["interpolation_polynomial_degree"]
-        return cls(
-            xgrid,
-            polynom_rank,
-            log=is_log_interpolation,
-            mode_N=mode_N,
-        )
 
     def __eq__(self, other):
         """Checks equality"""
@@ -639,11 +616,9 @@ class InterpolatorDispatcher:
                 full grid configuration
         """
         ret = {
-            "xgrid": self.xgrid.tolist(),
-            "configs": {
-                "interpolation_polynomial_degree": self.polynomial_degree,
-                "interpolation_is_log": self.log,
-            },
+            "xgrid": self.xgrid.dump(),
+            "polynomial_degree": self.polynomial_degree,
+            "is_log": self.log,
         }
         return ret
 
