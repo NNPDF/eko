@@ -37,9 +37,18 @@ def get_raw(eko: struct.EKO, binarize: bool = True):
 
     # prepare output dict
     out = {"Q2grid": {}, "eko_version": version.__version__}
+    out["Q0"] = obj["Q0"]
     # dump raw elements
-    for f in ["Q0", "configs", "rotations"]:
-        out[f] = obj[f]
+    for sec in ["configs", "rotations"]:
+        for key, value in obj[sec].items():
+            if key.startswith("_"):
+                key = key[1:]
+            if "grid" in key:
+                value = value["grid"]
+            out[key] = value
+
+    out["interpolation_xgrid"] = out["xgrid"]
+    del out["xgrid"]
 
     # make operators raw
     for q2, op in eko.items():
@@ -55,8 +64,8 @@ def get_raw(eko: struct.EKO, binarize: bool = True):
     return out
 
 
-def upgrade(raw: dict) -> dict:
-    """Upgrade raw representation to new layout.
+def tocard(raw: dict) -> dict:
+    """Upgrade raw representation to new card.
 
     Parameters
     ----------
@@ -66,19 +75,23 @@ def upgrade(raw: dict) -> dict:
     Returns
     -------
     dict
-        upgraded dict representation
+        new format operator card
 
     """
-    upgraded = copy.deepcopy(raw)
+    card = copy.deepcopy(raw)
 
-    if "rotations" not in raw:
-        upgraded["rotations"] = {}
-        upgraded["rotations"]["xgrid"] = raw["interpolation_xgrid"]
-        upgraded["rotations"]["pids"] = raw["pids"]
-        for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
-            upgraded["rotations"][f"_{basis}"] = raw[basis]
+    card["rotations"] = {}
+    card["rotations"]["xgrid"] = raw["interpolation_xgrid"]
+    card["rotations"]["pids"] = raw["pids"]
+    for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
+        card["rotations"][basis] = raw[basis]
 
-    return upgraded
+    card["configs"] = {}
+    for field in dataclasses.fields(struct.Configs):
+        card["configs"][field.name] = raw[field.name]
+        del card[field.name]
+
+    return card
 
 
 def dump_yaml(
@@ -152,7 +165,7 @@ def dump_tar(obj: struct.EKO, tarname: Union[str, os.PathLike]):
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = pathlib.Path(tmpdir)
 
-        metadata = {str(k): v for k, v in obj.raw.items() if k != "Q2grid"}
+        metadata = {str(k): v for k, v in get_raw(obj).items() if k != "Q2grid"}
         metadata["Q2grid"] = obj.Q2grid.tolist()
 
         yamlname = tmpdir / "metadata.yaml"
@@ -189,11 +202,11 @@ def load_yaml(stream: TextIO) -> struct.EKO:
         loaded object
 
     """
-    obj = upgrade(yaml.safe_load(stream))
-    len_tpids = len(obj["rotations"]["_targetpids"])
-    len_ipids = len(obj["rotations"]["_inputpids"])
-    len_tgrid = len(obj["rotations"]["_targetgrid"])
-    len_igrid = len(obj["rotations"]["_inputgrid"])
+    obj = tocard(yaml.safe_load(stream))
+    len_tpids = len(obj["rotations"]["targetpids"])
+    len_ipids = len(obj["rotations"]["inputpids"])
+    len_tgrid = len(obj["rotations"]["targetgrid"])
+    len_igrid = len(obj["rotations"]["inputgrid"])
     # make operators numpy
     for op in obj["Q2grid"].values():
         for k, v in op.items():
@@ -256,7 +269,7 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
         innerdir = list(tmpdir.glob("*"))[0]
         yamlname = innerdir / "metadata.yaml"
         with open(yamlname, encoding="utf-8") as fd:
-            metadata = upgrade(yaml.safe_load(fd))
+            metadata = tocard(yaml.safe_load(fd))
 
         # get actual grids
         grids = {}

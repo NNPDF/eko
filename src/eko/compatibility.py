@@ -60,7 +60,7 @@ def update(theory: dict, operators: Optional[dict]):
 
         new_operators["rotations"]["xgrid"] = operators["interpolation_xgrid"]
         for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
-            new_operators["rotations"][f"_{basis}"] = operators[basis]
+            new_operators["rotations"][f"{basis}"] = operators[basis]
 
     return new_theory, new_operators
 

@@ -72,7 +72,7 @@ def test_targetgrid():
     tc = copy.deepcopy(theory_card)
     oc = copy.deepcopy(operators_card)
     tgrid = [0.1, 1.0]
-    oc["rotations"] = dict(targetgrid=tgrid)
+    oc["rotations"]["targetgrid"] = tgrid
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()
     check_shapes(o, eko.interpolation.XGrid(np.array(tgrid)), o.xgrid, tc, oc)
@@ -84,7 +84,6 @@ def test_rotate_pids():
     # change pids
     tc = copy.deepcopy(theory_card)
     oc = copy.deepcopy(operators_card)
-    oc["rotations"] = {}
     oc["rotations"]["targetpids"] = np.eye(14) + 0.1 * np.random.rand(14, 14)
     oc["rotations"]["inputpids"] = np.eye(14) + 0.1 * np.random.rand(14, 14)
     r = eko.runner.Runner(tc, oc)
@@ -101,9 +100,9 @@ def check_shapes(o, txs, ixs, theory_card, operators_card):
     op_shape = (tpids, len(txs), ipids, len(ixs))
 
     # check output = input
-    np.testing.assert_allclose(o.xgrid.raw, operators_card["xgrid"])
-    np.testing.assert_allclose(o.rotations.targetgrid, txs.raw)
-    np.testing.assert_allclose(o.rotations.inputgrid, ixs.raw)
+    np.testing.assert_allclose(o.xgrid.raw, operators_card["rotations"]["xgrid"])
+    np.testing.assert_allclose(o.rotations.targetgrid.raw, txs.raw)
+    np.testing.assert_allclose(o.rotations.inputgrid.raw, ixs.raw)
     for k in ["interpolation_polynomial_degree", "interpolation_is_log"]:
         assert getattr(o.configs, k) == operators_card["configs"][k]
     np.testing.assert_allclose(o.Q02, theory_card["Q0"] ** 2)

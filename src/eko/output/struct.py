@@ -709,6 +709,10 @@ class EKO:
 
             shutil.rmtree(td)
 
+        for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
+            operator["rotations"][f"_{basis}"] = operator["rotations"][basis]
+            del operator["rotations"][basis]
+
         eko = cls.detached(theory, operator, path=path)
         logger.info(f"New operator created at path '{path}'")
         return eko

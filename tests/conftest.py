@@ -68,10 +68,10 @@ class FakeOutput:
             rotations=dict(
                 xgrid=xgrid,
                 pids=pids,
-                _targetgrid=xgrid,
-                _inputgrid=xgrid,
-                _inputpids=pids,
-                _targetpids=pids,
+                targetgrid=xgrid,
+                inputgrid=xgrid,
+                inputpids=pids,
+                targetpids=pids,
             ),
             Q0=np.sqrt(q2_ref),
             couplings=dict(),
@@ -97,20 +97,21 @@ class FakeOutput:
         d = self.mk_dump()
         bases = d["rotations"].copy()
 
-        d["inputgrid"] = bases["_inputgrid"]
-        d["targetgrid"] = bases["_targetgrid"]
-        d["inputpids"] = bases["_inputpids"]
-        d["targetpids"] = bases["_targetpids"]
+        # build data
+        obj = output.EKO.new(theory={}, operator=d)
+        for q2, op in d["Q2grid"].items():
+            obj[q2] = output.struct.Operator.from_dict(op)
+
+        d["inputgrid"] = bases["inputgrid"]
+        d["targetgrid"] = bases["targetgrid"]
+        d["inputpids"] = bases["inputpids"]
+        d["targetpids"] = bases["targetpids"]
 
         d["interpolation_xgrid"] = bases["xgrid"]
         d["pids"] = bases["pids"]
 
         del d["rotations"]
 
-        # build data
-        obj = output.EKO.new(theory={}, operator=legacy.upgrade(d))
-        for q2, op in d["Q2grid"].items():
-            obj[q2] = output.struct.Operator.from_dict(op)
         return obj, d
 
 
