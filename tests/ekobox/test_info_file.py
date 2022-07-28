@@ -20,5 +20,5 @@ def test_build():
     assert info["NumMembers"] == 4
     assert info["MTop"] == theory["mt"]
     np.testing.assert_allclose(info["QMin"], math.sqrt(op["Q2grid"][0]), rtol=1e-5)
-    assert info["XMin"] == op["xgrid"][0]
-    assert info["XMax"] == op["xgrid"][-1] == 1.0
+    assert info["XMin"] == op["interpolation_xgrid"][0]
+    assert info["XMax"] == op["interpolation_xgrid"][-1] == 1.0
