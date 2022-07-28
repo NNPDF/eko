@@ -607,7 +607,7 @@ class EKO:
         """
         grid = self.rotations.targetgrid if use_target else self.rotations.inputgrid
         return interpolation.InterpolatorDispatcher(
-            grid.raw, self.configs.interpolation_polynomial_degree, grid.log, mode_N
+            grid, self.configs.interpolation_polynomial_degree, mode_N
         )
 
     @classmethod
