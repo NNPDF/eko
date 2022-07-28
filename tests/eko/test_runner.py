@@ -74,10 +74,11 @@ def test_targetgrid():
     tgrid = [0.1, 1.0]
     oc["rotations"]["targetgrid"] = tgrid
     r = eko.runner.Runner(tc, oc)
+    __import__("pdb").set_trace()
     o = r.get_output()
-    check_shapes(o, eko.interpolation.XGrid(np.array(tgrid)), o.xgrid, tc, oc)
+    check_shapes(o, eko.interpolation.XGrid(tgrid), o.xgrid, tc, oc)
     # check actual value
-    np.testing.assert_allclose(o.rotations.targetgrid, tgrid)
+    np.testing.assert_allclose(o.rotations.targetgrid.raw, tgrid)
 
 
 def test_rotate_pids():
@@ -90,8 +91,8 @@ def test_rotate_pids():
     o = r.get_output()
     check_shapes(o, o.xgrid, o.xgrid, tc, oc)
     # check actual values
-    assert o.rotations.targetpids == [0] * 14
-    assert o.rotations.inputpids == [0] * 14
+    assert all(o.rotations.targetpids == [0] * 14)
+    assert all(o.rotations.inputpids == [0] * 14)
 
 
 def check_shapes(o, txs, ixs, theory_card, operators_card):

@@ -120,6 +120,10 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         inputgrid = similar_to_none("inputgrid")
         targetgrid = similar_to_none("targetgrid")
         if inputgrid is not None or targetgrid is not None:
+            if inputgrid is not None:
+                inputgrid = interpolation.XGrid(inputgrid)
+            if targetgrid is not None:
+                targetgrid = interpolation.XGrid(targetgrid)
             manipulate.xgrid_reshape(
                 self.out, targetgrid=targetgrid, inputgrid=inputgrid
             )
