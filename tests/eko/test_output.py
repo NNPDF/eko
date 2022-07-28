@@ -222,10 +222,10 @@ class TestManipulate:
         q2_out = 2
         Q2grid = fake_factory.mk_g([q2_out], len(br.flavor_basis_pids), len(xgrid))
         d = dict(
-            xgrid=xgrid,
             Q0=np.sqrt(q2_ref),
             Q2grid=Q2grid,
             rotations=dict(
+                xgrid=xgrid,
                 targetgrid=xgrid,
                 inputgrid=xgrid,
                 inputpids=br.flavor_basis_pids,
