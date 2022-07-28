@@ -141,14 +141,14 @@ class TestInterpolatorDispatcher:
         np.testing.assert_array_almost_equal(i, [[0.5, 0.5]])
 
     def test_evaluate_x(self):
-        xgrid = np.linspace(0.1, 1, 10)
         poly_degree = 4
         for log in [True, False]:
+            xgrid = interpolation.XGrid(np.linspace(0.1, 1, 10), log=log)
             inter_x = interpolation.InterpolatorDispatcher(
-                xgrid, poly_degree, log=log, mode_N=False
+                xgrid, poly_degree, mode_N=False
             )
             inter_N = interpolation.InterpolatorDispatcher(
-                xgrid, poly_degree, log=log, mode_N=True
+                xgrid, poly_degree, mode_N=True
             )
             for x in [0.2, 0.5]:
                 for bx, bN in zip(inter_x, inter_N):
@@ -156,16 +156,14 @@ class TestInterpolatorDispatcher:
 
     def test_math(self):
         """Test math properties of interpolator"""
-        xgrid = np.linspace(0.09, 1, 10)
         poly_deg = 4
         for log in [True, False]:
+            xgrid = interpolation.XGrid(np.linspace(0.09, 1, 10), log=log)
             inter_x = interpolation.InterpolatorDispatcher(
-                xgrid, poly_deg, log=log, mode_N=False
+                xgrid, poly_deg, mode_N=False
             )
             check_is_interpolator(inter_x)
-            inter_N = interpolation.InterpolatorDispatcher(
-                xgrid, poly_deg, log=log, mode_N=True
-            )
+            inter_N = interpolation.InterpolatorDispatcher(xgrid, poly_deg, mode_N=True)
             check_correspondence_interpolators(inter_x, inter_N)
 
 
@@ -176,8 +174,8 @@ class TestBasisFunction:
             interpolation.BasisFunction([0.1, 1.0], 0, [])
 
     def test_eval_N(self):
-        xg = [0.0, 1.0]
-        inter_N = interpolation.InterpolatorDispatcher(xg, 1, log=False)
+        xg = interpolation.XGrid([0.0, 1.0], log=False)
+        inter_N = interpolation.InterpolatorDispatcher(xg, 1)
         # p_0(x) = 1-x -> \tilde p_0(N) = 1/N - 1/(N+1)
         p0N = inter_N[0]
         assert len(p0N.areas) == 1
@@ -210,7 +208,7 @@ class TestBasisFunction:
 
     def test_log_eval_N(self):
         xg = [np.exp(-1), 1.0]
-        inter_N = interpolation.InterpolatorDispatcher(xg, 1, log=True)
+        inter_N = interpolation.InterpolatorDispatcher(xg, 1)
         # p_0(x) = -ln(x)
         p0N = inter_N[0]
         assert len(p0N.areas) == 1
@@ -282,9 +280,8 @@ class TestBasisFunction:
                     "res": [True, True, False, False, False],
                 },
             ]:
-                inter_x = interpolation.InterpolatorDispatcher(
-                    cfg["xg"], cfg["pd"], log=log
-                )
+                xg = interpolation.XGrid(cfg["xg"], log=log)
+                inter_x = interpolation.InterpolatorDispatcher(xg, cfg["pd"])
                 actual = [bf.is_below_x(cfg["x"]) for bf in inter_x]
                 assert actual == cfg["res"]
 
