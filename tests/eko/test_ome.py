@@ -9,7 +9,7 @@ from eko import interpolation, mellin
 from eko.couplings import Couplings
 from eko.evolution_operator.grid import OperatorGrid
 from eko.harmonics import compute_cache
-from eko.interpolation import InterpolatorDispatcher
+from eko.interpolation import InterpolatorDispatcher, XGrid
 from eko.matching_conditions.operator_matrix_element import (
     A_non_singlet,
     A_singlet,
@@ -350,7 +350,13 @@ class TestOperatorMatrixElement:
                     operators_card,
                     ThresholdsAtlas.from_dict(self.theory_card),
                     Couplings.from_dict(self.theory_card),
-                    InterpolatorDispatcher.from_dict(operators_card),
+                    InterpolatorDispatcher(
+                        XGrid(
+                            operators_card["xgrid"],
+                            log=operators_card["configs"]["interpolation_is_log"],
+                        ),
+                        operators_card["configs"]["interpolation_polynomial_degree"],
+                    ),
                 )
                 o = OperatorMatrixElement(
                     g.config,
@@ -394,7 +400,13 @@ class TestOperatorMatrixElement:
             self.operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
             Couplings.from_dict(self.theory_card),
-            InterpolatorDispatcher.from_dict(self.operators_card),
+            InterpolatorDispatcher(
+                XGrid(
+                    self.operators_card["xgrid"],
+                    log=self.operators_card["configs"]["interpolation_is_log"],
+                ),
+                self.operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         o = OperatorMatrixElement(
             g.config,
@@ -429,7 +441,13 @@ class TestOperatorMatrixElement:
             self.operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
             Couplings.from_dict(self.theory_card),
-            InterpolatorDispatcher.from_dict(self.operators_card),
+            InterpolatorDispatcher(
+                XGrid(
+                    self.operators_card["xgrid"],
+                    log=self.operators_card["configs"]["interpolation_is_log"],
+                ),
+                self.operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         o = OperatorMatrixElement(
             g.config,
@@ -491,7 +509,13 @@ class TestOperatorMatrixElement:
             operators_card,
             ThresholdsAtlas.from_dict(t),
             Couplings.from_dict(t),
-            InterpolatorDispatcher.from_dict(operators_card),
+            InterpolatorDispatcher(
+                XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         o = OperatorMatrixElement(
             g.config,
