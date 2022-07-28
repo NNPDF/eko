@@ -73,8 +73,12 @@ class TestOperatorGrid:
         if theory_update is not None:
             theory_card.update(theory_update)
         # create objects
-        basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
-            operators_card
+        basis_function_dispatcher = interpolation.InterpolatorDispatcher(
+            interpolation.XGrid(
+                operators_card["xgrid"],
+                log=operators_card["configs"]["interpolation_is_log"],
+            ),
+            operators_card["configs"]["interpolation_polynomial_degree"],
         )
         threshold_holder = ThresholdsAtlas.from_dict(theory_card)
         a_s = Couplings.from_dict(theory_card)
@@ -91,8 +95,12 @@ class TestOperatorGrid:
         # errors
         with pytest.raises(ValueError):
             theory_card, operators_card = self._get_setup(True)
-            basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
-                operators_card
+            basis_function_dispatcher = interpolation.InterpolatorDispatcher(
+                interpolation.XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
             )
             threshold_holder = ThresholdsAtlas.from_dict(theory_card)
             a_s = Couplings.from_dict(theory_card)
