@@ -1,6 +1,80 @@
 # -*- coding: utf-8 -*-
-from eko import output
+import io
+from dataclasses import dataclass
+
+import numpy as np
+import numpy.typing as npt
+import pytest
+import yaml
+
+from eko import interpolation, output
 from eko.output import struct
+
+
+@dataclass
+class MyDictLike(struct.DictLike):
+    l: npt.NDArray
+    f: float
+    x: interpolation.XGrid
+    t: tuple
+    s: str
+
+
+def test_DictLike():
+    d = MyDictLike.from_dict(
+        dict(
+            l=np.arange(5.0),
+            f=np.arange(5.0)[-1],
+            x=interpolation.XGrid([0.1, 1.0]),
+            t=(1.0, 2.0),
+            s="s",
+        )
+    )
+    assert d.f == 4.0
+    dd = MyDictLike.from_dict(d.raw)
+    assert dd.f == 4.0
+    # check we can dump and reload
+    stream = io.StringIO()
+    yaml.safe_dump(d.raw, stream)
+    stream.seek(0)
+    ddd = yaml.safe_load(stream)
+    assert "l" in ddd
+    np.testing.assert_allclose(ddd["l"], np.arange(5.0))
+
+
+class TestOperator:
+    def test_value_only(self):
+        v = np.random.rand(2, 2)
+        opv = struct.Operator(operator=v)
+        assert opv.error is None
+        for compress in (True, False):
+            stream = io.BytesIO()
+            opv.save(stream, compress)
+            stream.seek(0)
+            opv_ = struct.Operator.load(stream, compress)
+            np.testing.assert_allclose(opv.operator, opv_.operator)
+            np.testing.assert_allclose(v, opv_.operator)
+            assert opv_.error is None
+
+    def test_value_and_error(self):
+        v, e = np.random.rand(2, 2, 2)
+        opve = struct.Operator(operator=v, error=e)
+        for compress in (True, False):
+            stream = io.BytesIO()
+            opve.save(stream, compress)
+            stream.seek(0)
+            opve_ = struct.Operator.load(stream, compress)
+            np.testing.assert_allclose(opve.operator, opve_.operator)
+            np.testing.assert_allclose(v, opve_.operator)
+            np.testing.assert_allclose(opve.error, opve_.error)
+            np.testing.assert_allclose(e, opve_.error)
+
+    def test_load_error(self, monkeypatch):
+        # We might consider dropping this exception since np.load will always return a array (or fail on it's own)
+        stream = io.BytesIO()
+        monkeypatch.setattr(np, "load", lambda _: None)
+        with pytest.raises(ValueError):
+            struct.Operator.load(stream, False)
 
 
 class TestLegacy:
