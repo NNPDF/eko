@@ -323,6 +323,27 @@ class TestArea:
             a = interpolation.Area(0, 3, (0, 2), xgrid)
 
 
+class TestXGrid:
+    def test_fromcard(self):
+        aa = [0.1, 1.0]
+        a = interpolation.XGrid.fromcard(aa, False)
+        np.testing.assert_array_almost_equal(a.raw, aa)
+        assert a.size == len(aa)
+
+        bargs = (3, 3)
+        bb = interpolation.make_grid(*bargs)
+        b = interpolation.XGrid.fromcard(["make_grid", *bargs], False)
+        np.testing.assert_array_almost_equal(b.raw, bb)
+
+        cargs = (10,)
+        cc = interpolation.make_lambert_grid(*cargs)
+        c = interpolation.XGrid.fromcard(["make_lambert_grid", *cargs], False)
+        np.testing.assert_array_almost_equal(c.raw, cc)
+
+        with pytest.raises(ValueError):
+            interpolation.XGrid.fromcard([], False)
+
+
 def test_make_grid():
     xg = interpolation.make_grid(3, 3)
     np.testing.assert_array_almost_equal(xg, np.array([1e-7, 1e-4, 1e-1, 0.55, 1.0]))
