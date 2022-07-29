@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Tools to generate operator cards."""
 import copy
 
 import yaml
@@ -8,8 +9,7 @@ from ekomark.data import operators
 
 
 def generate(Q2grid, update=None, name=None):
-    """
-    Generate operators card.
+    """Generate operators card.
 
     Generates an operators card with some mandatory user choice
     (in this case only the Q2 grid) and some default values which
@@ -17,17 +17,17 @@ def generate(Q2grid, update=None, name=None):
 
     Parameters
     ----------
-        Q2grid : list(float)
-            grid for Q2
-        update : dict
-            dictionary of info to update in op. card
-        name : str
-            name of exported op.card (if name not None)
+    Q2grid : list(float)
+        grid for Q2
+    update : dict
+        dictionary of info to update in op. card
+    name : str
+        name of exported op.card (if name not None)
 
     Returns
     -------
-        dict
-            operators card
+    dict
+        operators card
     """
     # Constructing the dictionary with some default value
     def_op = copy.deepcopy(operators.default_card)
@@ -38,11 +38,7 @@ def generate(Q2grid, update=None, name=None):
             if k not in def_op.keys():
                 raise ValueError("Provided key not in operators card")
         for key, value in update.items():
-            # properly update sections
-            if isinstance(value, dict):
-                def_op[key].update(value)
-            else:
-                def_op[key] = value
+            def_op[key] = value
     serialized = sql.serialize(def_op)
     def_op["hash"] = (sql.add_hash(serialized))[-1]
     if name is not None:
@@ -51,8 +47,7 @@ def generate(Q2grid, update=None, name=None):
 
 
 def dump(name, op):
-    """
-    Export the operators card in the current directory
+    """Export the operators card.
 
     Parameters
     ----------
@@ -67,18 +62,17 @@ def dump(name, op):
 
 
 def load(path):
-    """
-    Import the operators card specified by path
+    """Import the operators card.
 
     Parameters
     ----------
-        path : str
-            path to operators card in yaml format
+    path : str
+        path to operators card in yaml format
 
     Returns
     -------
-        dict
-            operators card
+    dict
+        operators card
     """
     with open(path, "r", encoding="utf-8") as o:
         op = yaml.safe_load(o)
