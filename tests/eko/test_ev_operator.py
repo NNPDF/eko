@@ -161,7 +161,7 @@ operators_card = {
     "configs": {
         "interpolation_polynomial_degree": 1,
         "interpolation_is_log": True,
-        "ev_op_max_order": 1,
+        "ev_op_max_order": [1, 1],
         "ev_op_iterations": 1,
         "backward_inversion": "exact",
         "n_integration_cores": 1,
