@@ -77,6 +77,54 @@ class TestOperator:
             struct.Operator.load(stream, False)
 
 
+class TestRotations:
+    def test_fallback(self):
+        pids = np.array([1, 2])
+        xg = interpolation.XGrid([0.1, 1.0])
+        r = struct.Rotations(xgrid=xg, pids=pids)
+        np.testing.assert_allclose(r.pids, pids)
+        np.testing.assert_allclose(r.targetpids, pids)
+        np.testing.assert_allclose(r.inputpids, pids)
+        assert r.xgrid == xg
+        assert r.targetgrid == xg
+        assert r.inputgrid == xg
+
+    def test_overwrite(self):
+        pids = np.array([1, 2])
+        tpids = np.array([3, 4])
+        ipids = np.array([5, 6])
+        xg = interpolation.XGrid([0.1, 1.0])
+        txg = interpolation.XGrid([0.2, 1.0])
+        ixg = interpolation.XGrid([0.3, 1.0])
+        r = struct.Rotations(
+            xgrid=xg,
+            pids=pids,
+            _targetgrid=txg,
+            _inputgrid=ixg,
+            _targetpids=tpids,
+            _inputpids=ipids,
+        )
+        np.testing.assert_allclose(r.pids, pids)
+        np.testing.assert_allclose(r.targetpids, tpids)
+        np.testing.assert_allclose(r.inputpids, ipids)
+        assert r.xgrid == xg
+        assert r.targetgrid == txg
+        assert r.inputgrid == ixg
+
+    def test_init(self):
+        pids = np.array([1, 2])
+        xg = interpolation.XGrid([0.1, 1.0])
+        txg = np.array([0.2, 1.0])
+        ixg = {"grid": [0.3, 1.0], "log": True}
+        r = struct.Rotations(xgrid=xg, pids=pids, _targetgrid=txg, _inputgrid=ixg)
+        assert isinstance(r.xgrid, interpolation.XGrid)
+        assert isinstance(r.targetgrid, interpolation.XGrid)
+        assert isinstance(r.inputgrid, interpolation.XGrid)
+        assert r.xgrid == xg
+        assert r.targetgrid == interpolation.XGrid(txg)
+        assert r.inputgrid == interpolation.XGrid.load(ixg)
+
+
 class TestLegacy:
     def test_items(self, fake_output):
         """Test autodump, autoload, and manual unload."""
