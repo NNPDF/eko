@@ -17,6 +17,7 @@ from typing import BinaryIO, Dict, Literal, Optional, Tuple
 import lz4.frame
 import numpy as np
 import numpy.lib.npyio as npyio
+import numpy.typing as npt
 import yaml
 
 from .. import basis_rotation as br
@@ -114,9 +115,9 @@ class Operator(DictLike):
 
     """
 
-    operator: np.ndarray
+    operator: npt.NDArray
     """Content of the evolution operator."""
-    error: Optional[np.ndarray] = None
+    error: Optional[npt.NDArray] = None
     """Errors on individual operator elements (mainly used for integration
     error, but it can host any kind of error).
     """
@@ -240,12 +241,12 @@ class Rotations(DictLike):
 
     xgrid: interpolation.XGrid
     """Momentum fraction internal grid."""
-    pids: np.ndarray
+    pids: npt.NDArray
     """Array of integers, corresponding to internal PIDs."""
     _targetgrid: Optional[interpolation.XGrid] = None
     _inputgrid: Optional[interpolation.XGrid] = None
-    _targetpids: Optional[np.ndarray] = None
-    _inputpids: Optional[np.ndarray] = None
+    _targetpids: Optional[npt.NDArray] = None
+    _inputpids: Optional[npt.NDArray] = None
 
     def __post_init__(self):
         """Adjust types when loaded from serialized object."""
@@ -259,29 +260,29 @@ class Rotations(DictLike):
                 setattr(self, attr, interpolation.XGrid.load(value))
 
     @property
-    def inputpids(self) -> np.ndarray:
-        """The pids expected on the input PDF."""
+    def inputpids(self) -> npt.NDArray:
+        """Provide pids expected on the input PDF."""
         if self._inputpids is None:
             return self.pids
         return self._inputpids
 
     @property
-    def targetpids(self) -> np.ndarray:
-        """The pids corresponding to the output PDF."""
+    def targetpids(self) -> npt.NDArray:
+        """Provide pids corresponding to the output PDF."""
         if self._targetpids is None:
             return self.pids
         return self._targetpids
 
     @property
     def inputgrid(self) -> interpolation.XGrid:
-        """The :math:`x`-grid expected on the input PDF."""
+        """Provide :math:`x`-grid expected on the input PDF."""
         if self._inputgrid is None:
             return self.xgrid
         return self._inputgrid
 
     @property
     def targetgrid(self) -> interpolation.XGrid:
-        """The :math:`x`-grid corresponding to the output PDF."""
+        """Provide :math:`x`-grid corresponding to the output PDF."""
         if self._targetgrid is None:
             return self.xgrid
         return self._targetgrid
@@ -370,8 +371,23 @@ class EKO:
         """Operator file name from :math:`Q^2` value."""
         return f"operators/{q2:8.2f}"
 
-    def __getitem__(self, q2: float):
-        # TODO: autoload
+    def __getitem__(self, q2: float) -> Operator:
+        """Retrieve operator for given :math:`Q^2`.
+
+        If the operator is not already in memory, it will be automatically
+        loaded.
+
+        Parameters
+        ----------
+        q2: float
+            :math:`Q^2` value labeling the operator to be retrieved
+
+        Returns
+        -------
+        Operator
+            the retrieved operator
+
+        """
         op = self._operators[q2]
         if op is not None:
             return op
@@ -401,6 +417,20 @@ class EKO:
         return op
 
     def __setitem__(self, q2: float, op: Operator, compress: bool = True):
+        """Set operator for given :math:`Q^2`.
+
+        The operator is automatically dumped on disk, .
+
+        Parameters
+        ----------
+        q2: float
+            :math:`Q^2` value labeling the operator to be set
+        op: Operator
+            the retrieved operator
+        compress: bool
+            whether to save the operator compressed or not (default: `True`)
+
+        """
         if not isinstance(op, Operator):
             raise ValueError("Only an Operator can be added to an EKO")
 
@@ -468,17 +498,29 @@ class EKO:
 
     @contextlib.contextmanager
     def operator(self, q2: float):
+        """Retrieve operator and discard immediately.
+
+        To be used as a contextmanager: the operator is automatically loaded as
+        usual, but after the context manager it is dropped from memory.
+
+        Parameters
+        ----------
+        q2: float
+            :math:`Q^2` value labeling the operator to be retrieved
+
+        """
         try:
             yield self[q2]
         finally:
             del self[q2]
 
     @property
-    def Q2grid(self):
+    def Q2grid(self) -> npt.NDArray:
+        """Provide the list of :math:`Q^2` as an array."""
         return np.array(list(self._operators))
 
     def __iter__(self):
-        """Iterate over keys (i.e. Q2 values)
+        """Iterate over keys (i.e. Q2 values).
 
         Yields
         ------
@@ -511,9 +553,45 @@ class EKO:
             del self[q2]
 
     def __contains__(self, q2: float) -> bool:
+        """Check whether :math:`Q^2` operators are present.
+
+        'Present' means, in this case, they are conceptually part of the
+        :class:`EKO`. But it is telling nothing about being loaded in memory or
+        not.
+
+        Returns
+        -------
+        bool
+            the result of checked condition
+
+        """
         return q2 in self._operators
 
-    def approx(self, q2, rtol=1e-6, atol=1e-10) -> Optional[float]:
+    def approx(
+        self, q2: float, rtol: float = 1e-6, atol: float = 1e-10
+    ) -> Optional[float]:
+        """Look for close enough :math:`Q^2` value in the :class:`EKO`.
+
+        Parameters
+        ----------
+        q2: float
+            value of :math:`Q2` in which neighborhood to look
+        rtol: float
+            relative tolerance
+        atol: float
+            absolute tolerance
+
+        Returns
+        -------
+        float or None
+            retrieved value of :math:`Q^2`, if a single one is found
+
+        Raises
+        ------
+        ValueError
+            if multiple values are find in the neighborhood
+
+        """
         q2s = self.Q2grid
         close = q2s[np.isclose(q2, q2s, rtol=rtol, atol=atol)]
 
@@ -525,7 +603,6 @@ class EKO:
 
     def unload(self):
         """Fully unload the operators in memory."""
-
         for q2 in self:
             del self[q2]
 
@@ -563,16 +640,48 @@ class EKO:
         return new
 
     @staticmethod
-    def bootstrap(tdir: os.PathLike, theory: dict, operator: dict):
-        tdir = pathlib.Path(tdir)
-        (tdir / THEORYFILE).write_text(yaml.dump(theory), encoding="utf-8")
-        (tdir / OPERATORFILE).write_text(yaml.dump(operator), encoding="utf-8")
-        (tdir / RECIPESDIR).mkdir()
-        (tdir / PARTSDIR).mkdir()
-        (tdir / OPERATORSDIR).mkdir()
+    def bootstrap(dirpath: os.PathLike, theory: dict, operator: dict):
+        """Create directory structure.
+
+        Parameters
+        ----------
+        dirpath: os.PathLike
+            path to create the directory into
+        theory: dict
+            theory card to be dumped
+        operator: dict
+            operator card to be dumped
+
+        """
+        dirpath = pathlib.Path(dirpath)
+        (dirpath / THEORYFILE).write_text(yaml.dump(theory), encoding="utf-8")
+        (dirpath / OPERATORFILE).write_text(yaml.dump(operator), encoding="utf-8")
+        (dirpath / RECIPESDIR).mkdir()
+        (dirpath / PARTSDIR).mkdir()
+        (dirpath / OPERATORSDIR).mkdir()
 
     @staticmethod
     def extract(path: os.PathLike, filename: str) -> str:
+        """Extract file from disk assets.
+
+        Note
+        ----
+        At the moment, it only support text files (since it is returning the
+        content as a string)
+
+        Parameters
+        ----------
+        path: os.PathLike
+            path to the disk dump
+        filename: str
+            relative path inside the archive of the file to extract
+
+        Returns
+        -------
+        str
+            file content
+
+        """
         path = pathlib.Path(path)
 
         with tarfile.open(path, "r") as tar:
@@ -587,17 +696,20 @@ class EKO:
 
     @property
     def theory(self) -> dict:
+        """Provide theory card, retrieving from the dump."""
         # TODO: make an actual attribute, move load to `theory_card`, and the
         # type of the attribute will be `eko.runcards.TheoryCard`
         return yaml.safe_load(self.extract(self.path, THEORYFILE))
 
     @property
     def theory_card(self) -> dict:
+        """Provide theory card, retrieving from the dump."""
         # TODO: return `eko.runcards.TheoryCard`
         return self.theory
 
     @property
     def operator_card(self) -> dict:
+        """Provide operator card, retrieving from the dump."""
         # TODO: return `eko.runcards.OperatorCard`
         return yaml.safe_load(self.extract(self.path, OPERATORFILE))
 
@@ -732,6 +844,19 @@ class EKO:
 
     @classmethod
     def load(cls, path: os.PathLike):
+        """Load dump into an :class:`EKO` object.
+
+        Parameters
+        ----------
+        path:: os.PathLike
+            path to the dump to load
+
+        Returns
+        -------
+        EKO
+            the loaded instance
+
+        """
         path = pathlib.Path(path)
         if not tarfile.is_tarfile(path):
             raise ValueError("EKO: the corresponding file is not a valid tar archive")
@@ -744,7 +869,16 @@ class EKO:
         return eko
 
     @property
-    def raw(self):
+    def raw(self) -> dict:
+        """Provide raw representation of the full content.
+
+        Returns
+        -------
+        dict
+            nested dictionary, storing all the values in the structure, but the
+            operators themselves
+
+        """
         return dict(
             path=str(self.path),
             Q0=float(np.sqrt(self.Q02)),
@@ -754,9 +888,6 @@ class EKO:
             debug=self.debug.raw,
         )
 
-    def close(self):
-        for q2 in self.Q2grid:
-            del self[q2]
-
     def __del__(self):
-        self.close()
+        """Destroy the memory structure gracefully."""
+        self.unload()
