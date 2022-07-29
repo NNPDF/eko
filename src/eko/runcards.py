@@ -7,13 +7,14 @@
 
 """
 from dataclasses import dataclass
+from typing import Tuple
 
 
 @dataclass
 class TheoryCard:
     """Represent theory card content."""
 
-    order: tuple[int, int]
+    order: Tuple[int, int]
     """Perturbatiive order tuple, ``(QCD, QED)``."""
 
     @classmethod
