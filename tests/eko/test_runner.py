@@ -71,11 +71,15 @@ def test_targetgrid():
     # change targetgrid
     tc = copy.deepcopy(theory_card)
     oc = copy.deepcopy(operators_card)
+    igrid = [0.1, 1.0]
+    oc["rotations"]["inputgrid"] = igrid
     tgrid = [0.1, 1.0]
     oc["rotations"]["targetgrid"] = tgrid
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()
-    check_shapes(o, eko.interpolation.XGrid(tgrid), o.xgrid, tc, oc)
+    check_shapes(
+        o, eko.interpolation.XGrid(tgrid), eko.interpolation.XGrid(igrid), tc, oc
+    )
     # check actual value
     np.testing.assert_allclose(o.rotations.targetgrid.raw, tgrid)
 
