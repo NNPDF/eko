@@ -363,13 +363,11 @@ class EKO:
         """Validate class members."""
         if self.path.suffix != ".tar":
             raise ValueError("Not a valid path for an EKO")
-        if not tarfile.is_tarfile(self.path):
-            raise ValueError("EKO: the corresponding file is not a valid tar archive")
 
     @staticmethod
     def opname(q2: float) -> str:
         """Operator file name from :math:`Q^2` value."""
-        return f"operators/{q2:8.2f}"
+        return f"{OPERATORSDIR}/{q2:8.2f}"
 
     def __getitem__(self, q2: float) -> Operator:
         """Retrieve operator for given :math:`Q^2`.
@@ -379,7 +377,7 @@ class EKO:
 
         Parameters
         ----------
-        q2: float
+        q2 : float
             :math:`Q^2` value labeling the operator to be retrieved
 
         Returns
@@ -388,9 +386,10 @@ class EKO:
             the retrieved operator
 
         """
-        op = self._operators[q2]
-        if op is not None:
-            return op
+        if q2 in self._operators:
+            op = self._operators[q2]
+            if op is not None:
+                return op
 
         with tarfile.open(self.path) as tar:
             names = list(
@@ -399,17 +398,10 @@ class EKO:
 
             if len(names) == 0:
                 raise ValueError(f"Q2 value '{q2}' not available in '{self.path}'")
-            if len(names) > 1:
-                raise ValueError(
-                    f"Q2 value '{q2}' occurs multiple times in '{self.path}'"
-                )
 
             name = names[0]
             compressed = name.endswith(".lz4")
             stream = tar.extractfile(name)
-
-            if stream is None:
-                raise ValueError
 
             op = Operator.load(stream, compressed=compressed)
 
@@ -686,10 +678,6 @@ class EKO:
 
         with tarfile.open(path, "r") as tar:
             fd = tar.extractfile(filename)
-            if fd is None:
-                raise ValueError(
-                    f"The member '{filename}' is not a readable file inside EKO tar"
-                )
             content = fd.read().decode()
 
         return content
@@ -763,6 +751,9 @@ class EKO:
 
         """
         bases = operator["rotations"]
+        for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
+            bases[f"_{basis}"] = bases[basis]
+            del bases[basis]
         bases["pids"] = np.array(br.flavor_basis_pids)
         for k in ("xgrid", "_inputgrid", "_targetgrid"):
             if operator["rotations"][k] is None:
@@ -834,10 +825,6 @@ class EKO:
 
             shutil.rmtree(td)
 
-        for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
-            operator["rotations"][f"_{basis}"] = operator["rotations"][basis]
-            del operator["rotations"][basis]
-
         eko = cls.detached(theory, operator, path=path)
         logger.info(f"New operator created at path '{path}'")
         return eko
@@ -882,7 +869,7 @@ class EKO:
         return dict(
             path=str(self.path),
             Q0=float(np.sqrt(self.Q02)),
-            Q2grid=self.Q2grid,
+            Q2grid=self.Q2grid.tolist(),
             configs=self.configs.raw,
             rotations=self.rotations.raw,
             debug=self.debug.raw,

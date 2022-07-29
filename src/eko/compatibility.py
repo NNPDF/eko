@@ -32,7 +32,7 @@ def update(theory: dict, operators: Optional[dict]):
     if "alphaqed" in new_theory:
         new_theory["alphaem"] = new_theory.pop("alphaqed")
     if "QED" in new_theory:
-        new_theory["order"] = (new_theory.pop("PTO") + 1, new_theory.pop("QED"))
+        new_theory["order"] = [new_theory.pop("PTO") + 1, new_theory.pop("QED")]
 
     if operators is not None and "configs" not in operators:
         new_operators["configs"] = {}
@@ -51,14 +51,15 @@ def update(theory: dict, operators: Optional[dict]):
 
         max_order = operators["ev_op_max_order"]
         if isinstance(max_order, int):
-            new_operators["configs"]["ev_op_max_order"] = (
+            new_operators["configs"]["ev_op_max_order"] = [
                 max_order,
                 new_theory["order"][1],
-            )
+            ]
 
         new_operators["rotations"]["xgrid"] = operators["interpolation_xgrid"]
         for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
             new_operators["rotations"][f"{basis}"] = operators[basis]
+        new_operators["Q0"] = new_theory["Q0"]
 
     return new_theory, new_operators
 

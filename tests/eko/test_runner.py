@@ -38,6 +38,7 @@ theory_card = {
 }
 operators_card = {
     "Q2grid": [10, 100],
+    "Q0": np.sqrt(2),
     "configs": {
         "interpolation_polynomial_degree": 1,
         "interpolation_is_log": True,

@@ -82,9 +82,7 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
             self.post_process[key] = rot.get(key, None)
             new_operators["rotations"][key] = None
 
-        self.out = EKO.new(
-            theory=theory_card, operator=dict(Q0=np.sqrt(tc.q2_ref), **new_operators)
-        )
+        self.out = EKO.new(theory=theory_card, operator=new_operators)
 
     def get_output(self) -> EKO:
         """Run evolution and generate output operator.
