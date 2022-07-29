@@ -67,8 +67,12 @@ class DictLike:
     def raw(self):
         """Convert dataclass object to raw dictionary.
 
-        Normalize :class:`np.ndarray` to lists (possibly nested), and scalars to
-        the corresponding built-in type.
+        Normalize:
+
+            - :class:`np.ndarray` to lists (possibly nested)
+            - scalars to the corresponding built-in type (e.g. :class:`float`)
+            - :class:`tuple` to lists
+            - :class:`interpolation.XGrid` to the intrinsic serialization format
 
         Returns
         -------
@@ -244,6 +248,7 @@ class Rotations(DictLike):
     _inputpids: Optional[np.ndarray] = None
 
     def __post_init__(self):
+        """Adjust types when loaded from serialized object."""
         for attr in ("xgrid", "_inputgrid", "_targetgrid"):
             value = getattr(self, attr)
             if value is None:
@@ -255,24 +260,28 @@ class Rotations(DictLike):
 
     @property
     def inputpids(self) -> np.ndarray:
+        """The pids expected on the input PDF."""
         if self._inputpids is None:
             return self.pids
         return self._inputpids
 
     @property
     def targetpids(self) -> np.ndarray:
+        """The pids corresponding to the output PDF."""
         if self._targetpids is None:
             return self.pids
         return self._targetpids
 
     @property
     def inputgrid(self) -> interpolation.XGrid:
+        """The :math:`x`-grid expected on the input PDF."""
         if self._inputgrid is None:
             return self.xgrid
         return self._inputgrid
 
     @property
     def targetgrid(self) -> interpolation.XGrid:
+        """The :math:`x`-grid corresponding to the output PDF."""
         if self._targetgrid is None:
             return self.xgrid
         return self._targetgrid
@@ -350,6 +359,7 @@ class EKO:
         self.rotations.xgrid = value
 
     def __post_init__(self):
+        """Validate class members."""
         if self.path.suffix != ".tar":
             raise ValueError("Not a valid path for an EKO")
         if not tarfile.is_tarfile(self.path):
@@ -357,6 +367,7 @@ class EKO:
 
     @staticmethod
     def opname(q2: float) -> str:
+        """Operator file name from :math:`Q^2` value."""
         return f"operators/{q2:8.2f}"
 
     def __getitem__(self, q2: float):
