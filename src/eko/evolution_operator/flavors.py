@@ -57,7 +57,7 @@ def pids_from_intrinsic_evol(label, nf, normalize):
     return weights
 
 
-def get_range(evol_labels, is_qed=False):
+def get_range(evol_labels, qed=False):
     """
     Determine the number of light and heavy flavors participating in the input and output.
 
@@ -74,10 +74,10 @@ def get_range(evol_labels, is_qed=False):
     nf_in = 3
     nf_out = 3
 
-    def update(label, is_qed=False):
+    def update(label, qed=False):
         nf = 3
         if label[0] == "T":
-            if not is_qed:
+            if not qed:
                 nf = round(np.sqrt(int(label[1:]) + 1))
             else:
                 if label[1:] == "d3":
@@ -93,8 +93,8 @@ def get_range(evol_labels, is_qed=False):
         return nf
 
     for op in evol_labels:
-        nf_in = max(update(op.input, is_qed), nf_in)
-        nf_out = max(update(op.target, is_qed), nf_out)
+        nf_in = max(update(op.input, qed), nf_in)
+        nf_out = max(update(op.target, qed), nf_out)
 
     return nf_in, nf_out
 
@@ -131,7 +131,7 @@ def rotate_pm_to_flavor(label):
     return l
 
 
-def rotate_matching(nf, is_qed=False, inverse=False):
+def rotate_matching(nf, qed=False, inverse=False):
     """
     Rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis
     (with S,g,...V8,T15,V15).
@@ -152,7 +152,7 @@ def rotate_matching(nf, is_qed=False, inverse=False):
     l = {"g.g": 1.0, "ph.ph": 1.0}
     # already active distributions
     q = br.quark_names[nf - 1]
-    if not is_qed:
+    if not qed:
         for k in range(2, nf):  # nf is the upper, so excluded
             n = k**2 - 1
             l[f"V{n}.V{n}"] = 1.0
@@ -212,8 +212,8 @@ def rotate_matching(nf, is_qed=False, inverse=False):
     return l
 
 
-def rotate_matching_inverse(nf, is_qed=False):
-    return rotate_matching(nf, is_qed, True)
+def rotate_matching_inverse(nf, qed=False):
+    return rotate_matching(nf, qed, True)
 
 
 def a(nf):

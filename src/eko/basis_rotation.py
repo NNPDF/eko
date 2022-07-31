@@ -269,7 +269,7 @@ map_ad_to_unified_evolution = {
 }
 
 
-def ad_projector(ad_lab, nf, is_qed=False):
+def ad_projector(ad_lab, nf, qed=False):
     """
     Build a projector (as a numpy array) for the given anomalous dimension
     sector.
@@ -286,7 +286,7 @@ def ad_projector(ad_lab, nf, is_qed=False):
     proj : np.ndarray
         projector over the specified sector
     """
-    if not is_qed:
+    if not qed:
         proj = np.zeros_like(rotate_flavor_to_evolution, dtype=float)
         l = map_ad_to_evolution[ad_lab]
         basis = evol_basis
@@ -314,7 +314,7 @@ def ad_projector(ad_lab, nf, is_qed=False):
     return proj
 
 
-def ad_projectors(nf, is_qed=False):
+def ad_projectors(nf, qed=False):
     """
     Build projectors tensor (as a numpy array), collecting all the individual
     sector projectors.
@@ -331,7 +331,7 @@ def ad_projectors(nf, is_qed=False):
     """
     projs = []
     for ad in anomalous_dimensions_basis:
-        projs.append(ad_projector(ad, nf, is_qed))
+        projs.append(ad_projector(ad, nf, qed))
 
     return np.array(projs)
 

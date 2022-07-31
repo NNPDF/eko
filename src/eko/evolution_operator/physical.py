@@ -25,7 +25,7 @@ class PhysicalOperator(member.OperatorBase):
     """
 
     @classmethod
-    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range, is_qed=False):
+    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range, qed=False):
         """
         Obtain map between the 3-dimensional anomalous dimension basis and the
         4-dimensional evolution basis.
@@ -53,7 +53,7 @@ class PhysicalOperator(member.OperatorBase):
             "g.g": op_members[(21, 21)],
             "g.S": op_members[(21, 100)],
         }
-        if not is_qed:
+        if not qed:
             m.update({"V.V": op_members[(br.non_singlet_pids_map["nsV"], 0)]})
             # add elements which are already active
             for f in range(2, nf + 1):
@@ -117,7 +117,7 @@ class PhysicalOperator(member.OperatorBase):
         # map key to MemberName
         return cls.promote_names(m, q2_final)
 
-    def to_flavor_basis_tensor(self, is_qed=False):
+    def to_flavor_basis_tensor(self, qed=False):
         """
         Convert the computations into an rank 4 tensor over flavor operator space and
         momentum fraction operator space.
@@ -127,14 +127,14 @@ class PhysicalOperator(member.OperatorBase):
             tensor : numpy.ndarray
                 EKO
         """
-        nf_in, nf_out = flavors.get_range(self.op_members.keys(), is_qed)
+        nf_in, nf_out = flavors.get_range(self.op_members.keys(), qed)
         len_pids = len(br.flavor_basis_pids)
         len_xgrid = list(self.op_members.values())[0].value.shape[0]
         # dimension will be pids^2 * xgrid^2
         value_tensor = np.zeros((len_pids, len_xgrid, len_pids, len_xgrid))
         error_tensor = value_tensor.copy()
         for name, op in self.op_members.items():
-            if not is_qed:
+            if not qed:
                 in_pids = flavors.pids_from_intrinsic_evol(name.input, nf_in, False)
                 out_pids = flavors.pids_from_intrinsic_evol(name.target, nf_out, True)
             else:
