@@ -24,6 +24,7 @@ class MatchingCondition(member.OperatorBase):
         nf,
         q2_thr,
         intrinsic_range,
+        qed=False,
     ):
         """
         Create the instance from the |OME|.
@@ -50,10 +51,22 @@ class MatchingCondition(member.OperatorBase):
         }
 
         # add elements which are already active
-        for f in range(2, nf + 1):
-            n = f**2 - 1
-            m[f"V{n}.V{n}"] = m["V.V"]
-            m[f"T{n}.T{n}"] = m["V.V"]
+        if not qed:
+            for f in range(2, nf + 1):
+                n = f**2 - 1
+                m[f"V{n}.V{n}"] = m["V.V"]
+                m[f"T{n}.T{n}"] = m["V.V"]
+        else:
+            m.update(
+                {
+                    "Sdelta.Sdelta": op_members[(200, 200)],
+                    "Vdelta.Vdelta": op_members[(200, 200)],
+                }
+            )
+            names = {3: "d3", 4: "u3", 5: "d8", 6: "u8"}
+            for k in range(3, nf + 1):
+                m[f"V{names[k]}.V{names[k]}"] = m["V.V"]
+                m[f"T{names[k]}.T{names[k]}"] = m["V.V"]
 
         # activate the next heavy quark
         hq = br.quark_names[nf]

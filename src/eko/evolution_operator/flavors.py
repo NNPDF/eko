@@ -171,13 +171,13 @@ def rotate_matching(nf, qed=False, inverse=False):
                 l[f"{oth}.{tot}"] = 1.0
                 l[f"{oth}.{qpm}"] = -(nf - 1.0)
     else:
-        name = {3: "d3", 4: "u3", 5: "d8", 6: "u8"}
+        names = {3: "d3", 4: "u3", 5: "d8", 6: "u8"}
         for k in range(3, nf):
-            l[f"V{name[k]}.V{name[k]}"] = 1.0
-            l[f"T{name[k]}.T{name[k]}"] = 1.0
+            l[f"V{names[k]}.V{names[k]}"] = 1.0
+            l[f"T{names[k]}.T{names[k]}"] = 1.0
         for (tot, totdelta, oth, qpm) in (
-            ("S", "Sdelta", f"T{name[nf]}", f"{q}+"),
-            ("V", "Vdelta", f"V{name[nf]}", f"{q}-"),
+            ("S", "Sdelta", f"T{names[nf]}", f"{q}+"),
+            ("V", "Vdelta", f"V{names[nf]}", f"{q}-"),
         ):
             a = a(nf)
             b = b(nf)

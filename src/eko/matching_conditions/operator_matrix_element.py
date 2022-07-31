@@ -219,7 +219,7 @@ def quad_ker(
         )
 
     # compute the ome
-    if ker_base.is_singlet:
+    if ker_base.is_singlet or ker_base.is_QEDsinglet:
         indices = {21: 0, 100: 1, 90: 2}
         A = A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
     else:
@@ -273,6 +273,7 @@ class OperatorMatrixElement(Operator):
         (br.matching_hminus_pid, 200),
         (br.matching_hminus_pid, br.matching_hminus_pid),
     ]
+    # still valid in QED since Sdelta and Vdelta matchings are diagonal
 
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
         super().__init__(config, managers, nf, q2, None)

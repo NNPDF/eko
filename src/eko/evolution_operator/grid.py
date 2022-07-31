@@ -277,6 +277,7 @@ class OperatorGrid(sv.ModeMixin):
                     op.nf - 1,
                     op.q2_to,
                     intrinsic_range=intrinsic_range,
+                    qed=qed,
                 )
                 invrot = member.ScalarOperator.promote_names(
                     flavors.rotate_matching_inverse(op.nf, qed), op.q2_to
@@ -288,6 +289,7 @@ class OperatorGrid(sv.ModeMixin):
                     op.nf,
                     op.q2_to,
                     intrinsic_range=intrinsic_range,
+                    qed=qed,
                 )
                 rot = member.ScalarOperator.promote_names(
                     flavors.rotate_matching(op.nf + 1, qed), op.q2_to
