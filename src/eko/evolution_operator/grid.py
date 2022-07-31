@@ -279,7 +279,7 @@ class OperatorGrid(sv.ModeMixin):
                     intrinsic_range=intrinsic_range,
                 )
                 invrot = member.ScalarOperator.promote_names(
-                    flavors.rotate_matching_inverse(op.nf), op.q2_to
+                    flavors.rotate_matching_inverse(op.nf, is_qed), op.q2_to
                 )
                 final_op = final_op @ matching @ invrot @ phys_op
             else:
