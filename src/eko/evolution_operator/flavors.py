@@ -179,31 +179,29 @@ def rotate_matching(nf, qed=False, inverse=False):
             ("S", "Sdelta", f"T{names[nf]}", f"{q}+"),
             ("V", "Vdelta", f"V{names[nf]}", f"{q}-"),
         ):
-            a = a(nf)
-            b = b(nf)
-            c = c(nf)
-            d = d(nf)
+            # TODO : double check it
+            a, b, c, d, e, f = rotation_parameters(nf)
             if inverse:
-                den = c - a - b * d
-                l[f"{tot}.{tot}"] = (c - b * d) / den
-                l[f"{tot}.{totdelta}"] = b / den
-                l[f"{tot}.{oth}"] = -1 / den
-                l[f"{totdelta}.{tot}"] = a * d / den
-                l[f"{totdelta}.{totdelta}"] = (c - a) / den
-                l[f"{totdelta}.{oth}"] = -d / den
-                l[f"{qpm}.{tot}"] = -a / den
-                l[f"{qpm}.{totdelta}"] = -b / den
-                l[f"{qpm}.{oth}"] = 1 / den
+                den = -b * d + a * e - c * e + b * f
+                l[f"{tot}.{tot}"] = (c * e - b * f) / den
+                l[f"{tot}.{totdelta}"] = e / den
+                l[f"{tot}.{oth}"] = -b / den
+                l[f"{totdelta}.{tot}"] = (c * d - a * f) / den
+                l[f"{totdelta}.{totdelta}"] = (f - d) / den
+                l[f"{totdelta}.{oth}"] = (a - c) / den
+                l[f"{qpm}.{tot}"] = (-b * d + a * e) / den
+                l[f"{qpm}.{totdelta}"] = -e / den
+                l[f"{qpm}.{oth}"] = b / den
             else:
                 l[f"{tot}.{tot}"] = 1.0
                 l[f"{tot}.{totdelta}"] = 0.0
                 l[f"{tot}.{qpm}"] = 1.0
-                l[f"{totdelta}.{tot}"] = 0.0
-                l[f"{totdelta}.{totdelta}"] = 1.0
-                l[f"{totdelta}.{qpm}"] = d
-                l[f"{oth}.{tot}"] = a
-                l[f"{oth}.{totdelta}"] = b
-                l[f"{oth}.{qpm}"] = c
+                l[f"{totdelta}.{tot}"] = a
+                l[f"{totdelta}.{totdelta}"] = b
+                l[f"{totdelta}.{qpm}"] = c
+                l[f"{oth}.{tot}"] = d
+                l[f"{oth}.{totdelta}"] = e
+                l[f"{oth}.{qpm}"] = f
     # also higher quarks do not care
     for k in range(nf + 1, 6 + 1):
         q = br.quark_names[k - 1]
@@ -216,36 +214,58 @@ def rotate_matching_inverse(nf, qed=False):
     return rotate_matching(nf, qed, True)
 
 
-def a(nf):
+def rotation_parameters(nf):
+    nu_l = constants.uplike_flavors(nf - 1)
+    nd_l = (nf - 1) - nu_l
+    nu_h = constants.uplike_flavors(nf)
+    nd_h = nf - nu_h
+    a = nd_l / (nf - 1) * (nd_h / nu_h - 1)
+    b = (nd_h / nu_h * nd_l - nu_l) / nf
     if nf in [4, 6]:  # heavy flavor is up-like
-        return constants.uplike_flavors(nf - 1) / (nf - 1)
+        c = nd_l / nu_l
+        d = nu_l / (nf - 1)
+        e = nu_l / (nf - 1)
     elif nf in [3, 5]:  # heavy flavor is down-like
-        nd = (nf - 1) - constants.uplike_flavors(nf - 1)
-        return nd / (nf - 1)
+        c = -1
+        d = nd_l / (nf - 1)
+        e = -nu_l / (nf - 1)
+    if nf in [3, 4]:  # s and c unlock T3d, T3u
+        f = -1
+    elif nf in [5, 6]:  # b and t unlock T8d, T8u
+        f = -2
+    return a, b, c, d, e, f
 
 
-def b(nf):
-    nu_frac_nf = constants.uplike_flavors(nf - 1) / (nf - 1)
-    if nf in [4, 6]:  # heavy flavor is up-like
-        return nu_frac_nf
-    elif nf in [3, 5]:  # heavy flavor is down-like
-        return -nu_frac_nf
+# def a(nf):
+#     if nf in [4, 6]:  # heavy flavor is up-like
+#         return constants.uplike_flavors(nf - 1) / (nf - 1)
+#     elif nf in [3, 5]:  # heavy flavor is down-like
+#         nd = (nf - 1) - constants.uplike_flavors(nf - 1)
+#         return nd / (nf - 1)
 
 
-def c(nf):
-    if nf in [4, 6]:  # heavy flavor is up-like
-        return -1
-    elif nf in [3, 5]:  # heavy flavor is down-like
-        return -2
+# def b(nf):
+#     nu_frac_nf = constants.uplike_flavors(nf - 1) / (nf - 1)
+#     if nf in [4, 6]:  # heavy flavor is up-like
+#         return nu_frac_nf
+#     elif nf in [3, 5]:  # heavy flavor is down-like
+#         return -nu_frac_nf
 
 
-def d(nf):
-    if nf in [4, 6]:  # heavy flavor is up-like
-        nu = constants.uplike_flavors(nf - 1)
-        nd = (nf - 1) - nu
-        return nd / nu
-    elif nf in [3, 5]:  # heavy flavor is down-like
-        return -1
+# def c(nf):
+#     if nf in [4, 6]:  # heavy flavor is up-like
+#         return -1
+#     elif nf in [3, 5]:  # heavy flavor is down-like
+#         return -2
+
+
+# def d(nf):
+#     if nf in [4, 6]:  # heavy flavor is up-like
+#         nu = constants.uplike_flavors(nf - 1)
+#         nd = (nf - 1) - nu
+#         return nd / nu
+#     elif nf in [3, 5]:  # heavy flavor is down-like
+#         return -1
 
 
 def pids_from_intrinsic_unified_evol(label, nf, normalize):
