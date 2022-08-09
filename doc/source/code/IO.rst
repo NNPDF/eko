@@ -206,4 +206,4 @@ The ``Q2grid`` values are the actual tensor for the requested :math:`Q^2`. Each 
   parameter of the output and the order of ``x_out/x_in`` by ``interpolation_xgrid``.
 
 To further explore how an :class:`~eko.output.Output` object looks like
-you can follow `this tutorial <overview/tutorials/output.ipynb>`_.
+you can follow :doc:`this tutorial </overview/tutorials/output>`.
