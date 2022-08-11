@@ -201,9 +201,10 @@ The ``Q2grid`` values are the actual tensor for the requested :math:`Q^2`. Each 
   (as provided by :py:meth:`numpy.ndarray.tobytes`)
 - ``operator_errors`` a :py:obj:`dict` with the integration errors associated to the respective operators following the same conventions as
   the ``operator`` dictionary
-- each element (|EKO|) is a rank-4 tensor with the indices ordered in the following way: ``EKO[pid_out][x_out][pid_in][x_in]`` where ``pid_out`` and ``x_out``
-  refer to the outgoing |PDF| and ``pid_in`` and ``x_in`` to the incoming |PDF|. The ordering of ``pid_out/pid_in`` is determined by the ``pids``
-  parameter of the output and the order of ``x_out/x_in`` by ``interpolation_xgrid``.
+
+Each element (|EKO|) is a rank-4 tensor with the indices ordered in the following way: ``EKO[pid_out][x_out][pid_in][x_in]`` where ``pid_out`` and ``x_out``
+refer to the outgoing |PDF| and ``pid_in`` and ``x_in`` to the incoming |PDF|. The ordering of ``pid_out/pid_in`` is determined by the ``targetpids/inputpids``
+parameter of the output and the order of ``x_out/x_in`` by ``targetgrid/inputgrid``.
 
 To further explore how an :class:`~eko.output.Output` object looks like
 you can follow :doc:`this tutorial </overview/tutorials/output>`.
