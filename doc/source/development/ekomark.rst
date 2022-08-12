@@ -6,21 +6,9 @@ The specific purpose of this package is to contain all the utils to benchmark ef
 The underlying infrastructure is coming from `sqlite3` and `git-lfs` and it
 is implemented in the package |banana|.
 
-To install `ekomark` you can type:
-
-``pip install ekomark``
-
-.. important::
-
-   Due to a problem in |banana| the only working version of ekomark can be installed locally
-   with:
-
-   ``cd benchmarks && pip install -e .``
-
 Among the external programs  only |APFEL| provides a python wrapper, while |Pegasus|
 bindings are available in: `N3PDF/external <https://github.com/N3PDF/external>`_.
 No external program are needed to run the LHA benchmarks.
-
 
 Ekomark is composed by four subpackages:
 
