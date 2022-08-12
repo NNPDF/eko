@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-r"""
-This module holds the classes that define the |FNS|.
-"""
+r"""Holds the classes that define the |FNS|."""
 import logging
 
 import numpy as np
@@ -10,17 +8,25 @@ logger = logging.getLogger(__name__)
 
 
 class PathSegment:
-    """
-    Oriented path in the threshold landscape.
+    """Oriented path in the threshold landscape.
+
+    Attributes
+    ----------
+    q2_from : float
+        starting point
+    q2_to : float
+        final point
+    nf : int
+        number of active flavors
 
     Parameters
     ----------
-        q2_from : float
-            starting point
-        q2_to : float
-            final point
-        nf : int
-            number of active flavors
+    q2_from : float
+        starting point
+    q2_to : float
+        final point
+    nf : int
+        number of active flavors
     """
 
     def __init__(self, q2_from, q2_to, nf):
@@ -30,36 +36,21 @@ class PathSegment:
 
     @property
     def is_downward_q2(self):
-        """True if q2_from bigger than q2_to"""
+        """Return True if ``q2_from`` is bigger than ``q2_to``."""
         return self.q2_from > self.q2_to
 
     @property
     def tuple(self):
-        """Tuple representation suitable for hashing."""
+        """Return tuple representation suitable for hashing."""
         return (self.q2_from, self.q2_to, self.nf)
 
     def __repr__(self):
+        """Return string representation."""
         return f"PathSegment({self.q2_from} -> {self.q2_to}, nf={self.nf})"
 
 
 class ThresholdsAtlas:
-    r"""
-    Holds information about the matching scales any Q2 has to pass in order to get
-    there from a given q2_ref.
-
-    Parameters
-    ----------
-        masses: list(float)
-            list of quark masses squared
-        q2_ref: float
-            reference scale
-        nf_ref: int
-            number of active flavors at the reference scale
-        thresholds_ratios: list(float)
-            list of ratios between masses and matching scales squared
-        max_nf: int
-            maximum number of active flavors
-    """
+    r"""Holds information about the matching scales that any :math:`Q^2` has to pass in order to get there from a given :math:`Q^2_{ref}`."""
 
     def __init__(
         self,
@@ -69,6 +60,21 @@ class ThresholdsAtlas:
         thresholds_ratios=None,
         max_nf=None,
     ):
+        """Create basic atlas.
+
+        Parameters
+        ----------
+        masses : list(float)
+            list of quark masses squared
+        q2_ref : float
+            reference scale
+        nf_ref : int
+            number of active flavors at the reference scale
+        thresholds_ratios : list(float)
+            list of ratios between masses and matching scales squared
+        max_nf : int
+            maximum number of active flavors
+        """
         masses = list(masses)
         if masses != sorted(masses):
             raise ValueError("masses need to be sorted")
@@ -104,41 +110,46 @@ class ThresholdsAtlas:
         logger.info(str(self))
 
     def __repr__(self):
+        """Return string representation."""
         walls = " - ".join([f"{w:.2e}" for w in self.area_walls])
         return f"ThresholdsAtlas [{walls}], ref={self.q2_ref} @ {self.nf_ref}"
 
     @classmethod
     def ffns(cls, nf, q2_ref=None):
-        """
-        Create a |FFNS| setup.
+        """Create a |FFNS| setup.
 
-        The function creates simply sufficient thresholds at `0` (in the
+        The function creates simply sufficient thresholds at ``0`` (in the
         beginning), since the number of flavors is determined by counting
         from below.
 
         Parameters
         ----------
-            nf : int
-                number of light flavors
-            q2_ref : float
-                reference scale
+        nf : int
+            number of light flavors
+        q2_ref : float
+            reference scale
         """
         return cls([0] * (nf - 3) + [np.inf] * (6 - nf), q2_ref)
 
     @staticmethod
     def build_area_walls(masses, thresholds_ratios=None, max_nf=None):
-        r"""
-        Create the object from the run card.
+        r"""Create the object from the informations on the run card.
 
         The thresholds are computed by :math:`(m_q \cdot k_q^{Thr})`.
 
         Parameters
         ----------
+        masses : list(float)
+            heavy quark masses squared
+        thresholds_ratios : list(float)
+            list of ratios between masses and matching scales squared
+        max_nf : int
+            maximum number of flavors
 
         Returns
         -------
-            list :
-                threshold list
+        list
+            threshold list
         """
         if len(masses) != 3:
             raise ValueError("There have to be 3 quark masses")
@@ -158,24 +169,23 @@ class ThresholdsAtlas:
 
     @classmethod
     def from_dict(cls, theory_card, prefix="k", max_nf_name="MaxNfPdf", masses=None):
-        r"""
-        Create the object from the run card.
+        r"""Create the atlas from the run card.
 
         The thresholds are computed by :math:`(m_q \cdot k_q^{Thr})`.
 
         Parameters
         ----------
-            theory_card : dict
-                run card with the keys given at the head of the :mod:`module <eko.thresholds>`
-            prefix : str
-                prefix for the ratio parameters
-            masses: list
-                list of |MSbar| masses squared or None if POLE masses are used
+        theory_card : dict
+            run card with the keys given at the head of the :mod:`module <eko.thresholds>`
+        prefix : str
+            prefix for the ratio parameters
+        masses : list
+            list of |MSbar| masses squared or None if POLE masses are used
 
         Returns
         -------
-            ThresholdsAtlas :
-                created object
+        ThresholdsAtlas
+            created atlas
         """
         heavy_flavors = "cbt"
         if masses is None:
@@ -199,21 +209,20 @@ class ThresholdsAtlas:
         )
 
     def path(self, q2_to, nf_to=None, q2_from=None, nf_from=None):
-        """
-        Get path from q2_from to q2_to.
+        """Get path from ``q2_from`` to ``q2_to``.
 
         Parameters
         ----------
-            q2_to: float
-                target value of q2
-            q2_from: float
-                starting value of q2
+        q2_to: float
+            target value of q2
+        q2_from: float
+            starting value of q2
 
         Returns
         -------
-            path: list(PathSegment)
-                List of :class:`PathSegment` to go through in order to get from q2_from
-                to q2_to.
+        list(PathSegment)
+            List of :class:`PathSegment` to go through in order to get from ``q2_from``
+            to ``q2_to``.
         """
         # fallback to init config
         if q2_from is None:
@@ -245,38 +254,40 @@ class ThresholdsAtlas:
         return segs
 
     def nf(self, q2):
-        """
-        Finds the number of flavor active at the given scale.
+        """Find the number of flavors active at the given scale.
 
         Parameters
         ----------
-            q2 : float
-                reference scale
+        q2 : float
+            reference scale
 
         Returns
         -------
-            nf : int
-                number of active flavors
+        int
+            number of active flavors
         """
         ref_idx = np.digitize(q2, self.area_walls)
         return 2 + ref_idx
 
 
 def is_downward_path(path):
-    """
-    Determine if a path is downward:
-        - in the number of active flavors when the path list contains more than one `PathSegment`,
-           note this can be different from each `PathSegment.is_downward`
-        - in :math:`Q^2` when just one single `PathSegment` is given
+    """Determine if a path is downward.
+
+    Criterias are:
+
+    - in the number of active flavors when the path list contains more than one :class:`PathSegment`,
+      note this can be different from each :attr:`PathSegment.is_downward_q2`
+    - in :math:`Q^2` when just one single :class:`PathSegment` is given
 
     Parameters
     ----------
-        path: list(`eko.thresholds.PathSegment`)
+    path : list(PathSegment)
+        path
 
     Returns
     -------
-        is_downward: bool
-            True for a downward path
+    bool
+        True for a downward path
     """
     if len(path) == 1:
         return path[0].is_downward_q2
@@ -284,17 +295,16 @@ def is_downward_path(path):
 
 
 def flavor_shift(is_downward):
-    """
-    Determine the shift to number of light flavors
+    """Determine the shift to number of light flavors.
 
     Parameters
     ----------
-        is_downward: bool
-            True for a downward path
+    is_downward : bool
+        True for a downward path
 
     Returns
     -------
-        shift: 3, 4
-            shift to number of light flavors
+    int
+        shift to number of light flavors which can be 3 or 4
     """
     return 4 if is_downward else 3

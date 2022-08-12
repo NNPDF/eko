@@ -48,7 +48,7 @@ def Talbot_path(t, r, o):
     """
     theta = np.pi * (2.0 * t - 1.0)
     re = 0.0
-    if t == 0.5:  # treat singular point seperately
+    if t == 0.5:  # treat singular point separately
         re = 1.0
     else:
         re = theta / np.tan(theta)
@@ -81,7 +81,7 @@ def Talbot_jac(t, r, o):  # pylint: disable=unused-argument
     """
     theta = np.pi * (2.0 * t - 1.0)
     re = 0.0
-    if t == 0.5:  # treat singular point seperately
+    if t == 0.5:  # treat singular point separately
         re = 0.0
     else:
         re = 1.0 / np.tan(theta)
