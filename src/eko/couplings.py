@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-r"""
-This file contains the QCD beta function coefficients and the handling of the running
-coupling :math:`\alpha_s`.
+r"""Contains the QCD beta function coefficients and the handling of the running coupling :math:`\alpha_s`.
 
 See :doc:`pQCD ingredients </theory/pQCD>`.
 """
@@ -19,7 +17,18 @@ logger = logging.getLogger(__name__)
 
 
 def couplings_mod_ev(mod_ev):
-    """Map ModEv key to the available strong coupling evolution methods"""
+    """Map ModEv key to the available strong coupling evolution methods.
+
+    Parameters
+    ----------
+    mod_ev : str
+        evolution mode
+
+    Returns
+    -------
+    str
+        coupling mode
+    """
     if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
         return "exact"
     if mod_ev in [
@@ -41,18 +50,17 @@ def exact_lo(ref, beta0, lmu):
 
     Parameters
     ----------
-        ref: float
-            reference value of the coupling
-        beta0: float
-            first coefficient of the beta function
-        lmu: float
-            logarithm of the ratio between target and reference scales
+    ref : float
+        reference value of the coupling
+    beta0 : float
+        first coefficient of the beta function
+    lmu : float
+        logarithm of the ratio between target and reference scales
 
     Returns
     -------
-        a : float
-            coupling at target scale :math:`a(\mu_R^2)`
-
+    float
+        coupling at target scale :math:`a(\mu_R^2)`
     """
     den = 1.0 + beta0 * ref * lmu
     return ref / den
@@ -66,20 +74,19 @@ def expanded_nlo(ref, beta0, b1, lmu):
 
     Parameters
     ----------
-        ref: float
-            reference value of the coupling
-        beta0: float
-            first coefficient of the beta function
-        b1: float
-            second coefficient of the b function
-        lmu: float
-            logarithm of the ratio between target and reference scales
+    ref : float
+        reference value of the coupling
+    beta0 : float
+        first coefficient of the beta function
+    b1 : float
+        second coefficient of the b function
+    lmu : float
+        logarithm of the ratio between target and reference scales
 
     Returns
     -------
-        a : float
-            coupling at target scale :math:`a(\mu_R^2)`
-
+    float
+        coupling at target scale :math:`a(\mu_R^2)`
     """
     den = 1.0 + beta0 * ref * lmu
     a_LO = exact_lo(ref, beta0, lmu)
@@ -95,22 +102,21 @@ def expanded_nnlo(ref, beta0, b1, b2, lmu):
 
     Parameters
     ----------
-        ref: float
-            reference value of the coupling
-        beta0: float
-            first coefficient of the beta function
-        b1: float
-            second coefficient of the b function
-        b2: float
-            third coefficient of the b function
-        lmu: float
-            logarithm of the ratio between target and reference scales
+    ref : float
+        reference value of the coupling
+    beta0 : float
+        first coefficient of the beta function
+    b1 : float
+        second coefficient of the b function
+    b2 : float
+        third coefficient of the b function
+    lmu : float
+        logarithm of the ratio between target and reference scales
 
     Returns
     -------
-        a : float
-            coupling at target scale :math:`a(\mu_R^2)`
-
+    float
+        coupling at target scale :math:`a(\mu_R^2)`
     """
     a_LO = exact_lo(ref, beta0, lmu)
     a_NLO = expanded_nlo(ref, beta0, b1, lmu)
@@ -128,24 +134,23 @@ def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
 
     Parameters
     ----------
-        ref: float
-            reference value of the coupling
-        beta0: float
-            first coefficient of the beta function
-        b1: float
-            second coefficient of the b function
-        b2: float
-            third coefficient of the b function
-        b3: float
-            fourth coefficient of the b function
-        lmu: float
-            logarithm of the ratio between target and reference scales
+    ref : float
+        reference value of the coupling
+    beta0 : float
+        first coefficient of the beta function
+    b1 : float
+        second coefficient of the b function
+    b2 : float
+        third coefficient of the b function
+    b3 : float
+        fourth coefficient of the b function
+    lmu : float
+        logarithm of the ratio between target and reference scales
 
     Returns
     -------
-        a : float
-            coupling at target scale :math:`a(\mu_R^2)`
-
+    float
+        coupling at target scale :math:`a(\mu_R^2)`
     """
     a_LO = exact_lo(ref, beta0, lmu)
     log_fact = np.log(a_LO)
@@ -182,24 +187,23 @@ def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
 
 @nb.njit(cache=True)
 def expanded_qcd(ref, order, nf, lmu):
-    r"""Compute QCD expanded solution at a give order.
+    r"""Compute QCD expanded solution at a given order.
 
     Parameters
     ----------
-        ref: float
-            reference value of the strong coupling
-        order: int
-            QCD order
-        nf: int
-            number of flavors
-        lmu: float
-            logarithm of the ratio between target and reference scales
+    ref : float
+        reference value of the strong coupling
+    order : int
+        QCD order
+    nf : int
+        number of flavors
+    lmu : float
+        logarithm of the ratio between target and reference scales
 
     Returns
     -------
-        a_s : float
-            strong coupling at target scale :math:`a_s(\mu_R^2)`
-
+    float
+        strong coupling at target scale :math:`a_s(\mu_R^2)`
     """
     res_as = ref
     if order >= 1:
@@ -234,24 +238,23 @@ def expanded_qcd(ref, order, nf, lmu):
 
 @nb.njit(cache=True)
 def expanded_qed(ref, order, nf, lmu):
-    r"""Compute QED expanded solution at a give order.
+    r"""Compute QED expanded solution at a given order.
 
     Parameters
     ----------
-        ref: float
-            reference value of the QED coupling
-        order: int
-            QED order
-        nf: int
-            number of flavors
-        lmu: float
+    ref : float
+        reference value of the QED coupling
+    order : int
+        QED order
+    nf : int
+        number of flavors
+    lmu : float
             logarithm of the ratio between target and reference scales
 
     Returns
     -------
-        a_em : float
-            QED coupling at target scale :math:`a_em(\mu_R^2)`
-
+    float
+        QED coupling at target scale :math:`a_em(\mu_R^2)`
     """
     res_aem = ref
     if order >= 1:
@@ -269,26 +272,25 @@ def expanded_qed(ref, order, nf, lmu):
 
 @nb.njit(cache=True)
 def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
-    r"""
-    Compute expanded expression.
+    r"""Compute expanded expression.
 
     Parameters
     ----------
-        order: tuple(int, int)
-            perturbation order
-        couplings_ref: np array
-            reference alpha_s and alpha
-        nf: int
-            value of nf for computing the couplings
-        scale_from: float
-            reference scale
-        scale_to : float
-            target scale
+    order : tuple(int, int)
+        perturbation order
+    couplings_ref : numpy.ndarray
+        reference alpha_s and alpha
+    nf : int
+        value of nf for computing the couplings
+    scale_from : float
+        reference scale
+    scale_to : float
+        target scale
 
     Returns
     -------
-        a : np array
-            couplings at target scale :math:`a(\mu_R^2)`
+    numpy.ndarray
+        couplings at target scale :math:`a(\mu_R^2)`
     """
     # common vars
     lmu = np.log(scale_to / scale_from)
@@ -311,48 +313,47 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
 
 
 class Couplings:
-    r"""
-        Computes the strong and electromagnetic coupling constants :math:`a_s, a_{em}`.
+    r"""Compute the strong and electromagnetic coupling constants :math:`a_s, a_{em}`.
 
-        Note that
+    Note that
 
-        - all scale parameters (``scale_ref`` and ``scale_to``),
-          have to be given as squared values, i.e. in units of :math:`\text{GeV}^2`
-        - although, we only provide methods for
-          :math:`a_i = \frac{\alpha_i(\mu^2)}{4\pi}` the reference value has to be
-          given in terms of :math:`\alpha_i(\mu_0^2)` due to legacy reasons
-        - the ``order`` refers to the perturbative order of the beta function, thus
-          ``order=(0,0)`` means leading order beta function, means evolution with :math:`\beta_qcd_as2`,
-          means running at 1-loop - so there is a natural mismatch between ``order`` and the
-          number of loops by one unit
+    - all scale parameters (``scale_ref`` and ``scale_to``),
+      have to be given as squared values, i.e. in units of :math:`\text{GeV}^2`
+    - although, we only provide methods for
+      :math:`a_i = \frac{\alpha_i(\mu^2)}{4\pi}` the reference value has to be
+      given in terms of :math:`\alpha_i(\mu_0^2)` due to legacy reasons
+    - the ``order`` refers to the perturbative order of the beta function, thus
+      ``order=(0,0)`` means leading order beta function, means evolution with :math:`\beta_qcd_as2`,
+      means running at 1-loop - so there is a natural mismatch between ``order`` and the
+      number of loops by one unit
 
-        Normalization is given by :cite:`Herzog:2017ohr`:
+    Normalization is given by :cite:`Herzog:2017ohr`:
 
-        .. math::
-            \frac{da_s(\mu^2)}{d\ln\mu^2} = \beta(a_s) \
-            = - \sum\limits_{n=0} \beta_n a_s^{n+2}(\mu^2) \quad
-            \text{with}~ a_s = \frac{\alpha_s(\mu^2)}{4\pi}
+    .. math::
+        \frac{da_s(\mu^2)}{d\ln\mu^2} = \beta(a_s) \
+        = - \sum\limits_{n=0} \beta_n a_s^{n+2}(\mu^2) \quad
+        \text{with}~ a_s = \frac{\alpha_s(\mu^2)}{4\pi}
 
-        See :doc:`pQCD ingredients </theory/pQCD>`.
+    See :doc:`pQCD ingredients </theory/pQCD>`.
 
-        Parameters
-        ----------
-            couplings_ref : np array
-                alpha_s and \alpha(!) at the reference scale :math:`\alpha_s(\mu_0^2),\alpha(\mu_0^2)`
-            scale_ref : float
-                reference scale :math:`\mu_0^2`
-            masses : list(float)
-                list with quark masses squared
-            thresholds_ratios : list(float)
-                list with ratios between the mass and the matching scales squared
-            order: tuple(int,int)
-                Evaluated order of the beta function: ``0`` = LO, ...
-            method : ["expanded", "exact"]
-                Applied method to solve the beta function
-            nf_ref : int
-                if given, the number of flavors at the reference scale
-            max_nf : int
-                if given, the maximum number of flavors
+    Parameters
+    ----------
+    couplings_ref : numpy.ndarray
+        alpha_s and \alpha(!) at the reference scale :math:`\alpha_s(\mu_0^2),\alpha(\mu_0^2)`
+    scale_ref : float
+        reference scale :math:`\mu_0^2`
+    masses : list(float)
+        list with quark masses squared
+    thresholds_ratios : list(float)
+        list with ratios between the mass and the matching scales squared
+    order: tuple(int,int)
+        Evaluated order of the beta function: ``0`` = LO, ...
+    method : ["expanded", "exact"]
+        Applied method to solve the beta function
+    nf_ref : int
+        if given, the number of flavors at the reference scale
+    max_nf : int
+        if given, the maximum number of flavors
     """
 
     def __init__(
@@ -386,7 +387,7 @@ class Couplings:
         self.method = method
 
         # create new threshold object
-        self.a_ref = couplings_ref / 4.0 / np.pi  # convert to a_s and a_em
+        self.a_ref = couplings_ref.copy() / 4.0 / np.pi  # convert to a_s and a_em
         self.thresholds = thresholds.ThresholdsAtlas(
             masses,
             scale_ref,
@@ -411,25 +412,24 @@ class Couplings:
 
     @property
     def q2_ref(self):
-        """reference scale"""
+        """Return reference scale."""
         return self.thresholds.q2_ref
 
     @classmethod
     def from_dict(cls, theory_card, masses=None):
-        r"""
-        Create object from theory dictionary.
+        r"""Create object from theory dictionary.
 
         Parameters
         ----------
-            theory_card : dict
-                theory dictionary
-            masses: list
-                list of |MSbar| masses squared or None if POLE masses are used
+        theory_card : dict
+            theory dictionary
+        masses : list
+            list of |MSbar| masses squared or None if POLE masses are used
 
         Returns
         -------
-            cls : Couplings
-                created object
+        Couplings
+            created object
         """
         # read my values
         # TODO cast to a_s here
@@ -469,24 +469,23 @@ class Couplings:
         )
 
     def compute_exact(self, a_ref, nf, scale_from, scale_to):
-        """
-        Compute via |RGE|.
+        """Compute couplings via |RGE|.
 
         Parameters
         ----------
-            as_ref: np array
-                reference alpha_s and alpha
-            nf: int
-                value of nf for computing alpha_i
-            scale_from: float
-                reference scale
-            scale_to : float
-                target scale
+        as_ref : numpy.ndarray
+            reference alpha_s and alpha
+        nf : int
+            value of nf for computing alpha_i
+        scale_from : float
+            reference scale
+        scale_to : float
+            target scale
 
         Returns
         -------
-            a : np array
-                couplings at target scale :math:`a(Q^2)`
+        numpy.ndarray
+            couplings at target scale :math:`a(Q^2)`
         """
         # in LO fallback to expanded, as this is the full solution
         u = np.log(scale_to / scale_from)
@@ -586,25 +585,26 @@ class Couplings:
         return np.array([res.y[0][-1], res.y[1][-1]])
 
     def compute(self, a_ref, nf, scale_from, scale_to):
-        """
-        Wrapper in order to pass the computation to the corresponding
-        method (depending on the calculation method).
+        """Compute actual couplings.
+
+        This is a wrapper in order to pass the computation to the corresponding method
+        (depending on the calculation method).
 
         Parameters
         ----------
-            a_ref: np array
-                reference a
-            nf: int
-                value of nf for computing alpha
-            scale_from: float
-                reference scale
-            scale_to : float
-                target scale
+        a_ref : numpy.ndarray
+            reference a
+        nf : int
+            value of nf for computing alpha
+        scale_from : float
+            reference scale
+        scale_to : float
+            target scale
 
         Returns
         -------
-            a : np array
-                couplings at target scale :math:`a(Q^2)`
+        numpy.ndarray
+            couplings at target scale :math:`a(Q^2)`
         """
         key = (float(a_ref[0]), float(a_ref[1]), nf, scale_from, float(scale_to))
         try:
@@ -628,23 +628,22 @@ class Couplings:
         fact_scale=None,
         nf_to=None,
     ):
-        r"""
-        Computes couplings :math:`a_i(\mu_R^2) = \frac{\alpha_i(\mu_R^2)}{4\pi}`.
+        r"""Compute couplings :math:`a_i(\mu_R^2) = \frac{\alpha_i(\mu_R^2)}{4\pi}`.
 
         Parameters
         ----------
-            scale_to : float
-                final scale to evolve to :math:`\mu_R^2`
-            fact_scale : float
-                factorization scale (if different from final scale)
+        scale_to : float
+            final scale to evolve to :math:`\mu_R^2`
+        fact_scale : float
+            factorization scale (if different from final scale)
 
         Returns
         -------
-            a : np array
-                couplings :math:`a_i(\mu_R^2) = \frac{\alpha_i(\mu_R^2)}{4\pi}`
+        numpy.ndarray
+            couplings :math:`a_i(\mu_R^2) = \frac{\alpha_i(\mu_R^2)}{4\pi}`
         """
         # Set up the path to follow in order to go from q2_0 to q2_ref
-        final_a = self.a_ref
+        final_a = self.a_ref.copy()
         path = self.thresholds.path(scale_to, nf_to)
         is_downward = thresholds.is_downward_path(path)
         shift = thresholds.flavor_shift(is_downward)
@@ -680,33 +679,33 @@ class Couplings:
         return final_a
 
     def a_s(self, scale_to, fact_scale=None, nf_to=None):
-        r"""
-        Computes coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
+        r"""Compute coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
 
         Parameters
         ----------
-            scale_to : float
-                final scale to evolve to :math:`\mu_R^2`
-            fact_scale : float
-                factorization scale (if different from final scale)
+        scale_to : float
+            final scale to evolve to :math:`\mu_R^2`
+        fact_scale : float
+            factorization scale (if different from final scale)
 
         Returns
         -------
-            a_s : float
-                couplings :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
+        a_s : float
+            couplings :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
         """
         return self.a(scale_to, fact_scale, nf_to)[0]
 
 
 def compute_matching_coeffs_up(mass_scheme, nf):
-    r"""
-    Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia,Vogt:2004ns`
-    at threshold when moving to a regime with *more* flavors.
+    r"""Compute the upward matching coefficients.
 
-    We follow notation of :cite:`Vogt:2004ns` (eq 2.43) for POLE masses
+    The matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia,Vogt:2004ns`
+    are normalized at threshold when moving to a regime with *more* flavors.
+
+    We follow notation of :cite:`Vogt:2004ns` (eq 2.43) for POLE masses.
 
     The *inverse* |MSbar| values instead are given in :cite:`Schroder:2005hy` (eq 3.1)
-    multiplied by a factor of 4 (and 4^2 ...)
+    multiplied by a factor of 4 (and 4^2 ...).
 
     .. math::
         a_s^{(n_l+1)} = a_s^{(n_l)} + \sum\limits_{n=1} (a_s^{(n_l)})^n
@@ -714,15 +713,15 @@ def compute_matching_coeffs_up(mass_scheme, nf):
 
     Parameters
     ----------
-        mass_scheme:
-            Heavy quark mass scheme: "POLE" or "MSBAR"
-        nf:
-            number of active flavors in the lower patch
+    mass_scheme : str
+        Heavy quark mass scheme: "POLE" or "MSBAR"
+    nf : int
+        number of active flavors in the lower patch
 
     Returns
     -------
-        matching_coeffs_down:
-            forward matching coefficient matrix
+    numpy.ndarray
+        forward matching coefficient matrix
     """
     matching_coeffs_up = np.zeros((4, 4))
     if mass_scheme == "MSBAR":
@@ -751,29 +750,30 @@ def compute_matching_coeffs_up(mass_scheme, nf):
 
 # inversion of the matching coefficients
 def compute_matching_coeffs_down(mass_scheme, nf):
-    """
-    Matching coefficients :cite:`Schroder:2005hy,Chetyrkin:2005ia` at threshold
-    when moving to a regime with *less* flavors.
+    """Compute the downward matching coefficients.
+
+    This is the inverse function to :meth:`compute_matching_coeffs_up`.
 
     Parameters
     ----------
-        mass_scheme:
-            Heavy quark mass scheme: "POLE" or "MSBAR"
-        nf:
-            number of active flavors in the lower patch
+    mass_scheme : str
+        Heavy quark mass scheme: "POLE" or "MSBAR"
+    nf : int
+        number of active flavors in the lower patch
 
     Returns
     -------
-        matching_coeffs_down:
-            downward matching coefficient matrix
+    numpy.ndarray
+        downward matching coefficient matrix
     """
     c_up = compute_matching_coeffs_up(mass_scheme, nf)
     return invert_matching_coeffs(c_up)
 
 
 def invert_matching_coeffs(c_up):
-    """
-    This is the perturbative inverse of :data:`matching_coeffs_up` and has been obtained via
+    """Compute the perturbative inverse of the matching conditions.
+
+    They can be obtained e.g. via Mathematica by:
 
     .. code-block:: Mathematica
 
@@ -791,13 +791,13 @@ def invert_matching_coeffs(c_up):
 
     Parameters
     ----------
-        c_up : numpy.ndarray
-            forward matching coefficient matrix
+    c_up : numpy.ndarray
+        forward matching coefficient matrix
 
     Returns
     -------
-        matching_coeffs_down:
-            downward matching coefficient matrix
+    numpy.ndarray
+        downward matching coefficient matrix
     """
     matching_coeffs_down = np.zeros_like(c_up)
     matching_coeffs_down[1, 1] = -c_up[1, 1]
