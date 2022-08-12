@@ -215,6 +215,19 @@ def rotate_matching_inverse(nf, qed=False):
 
 
 def rotation_parameters(nf):
+    """Parameters of the basis rotation from (S, Sdelta, h+)
+    into (S, Sdelta, T_i), or equivalentely for V, Vdelta, V_i, h-.
+
+    Parameters
+    ----------
+        nf : int
+            number of active flavors in the higher patch: to activate T3u V3u nf=4
+
+    Returns
+    -------
+        a,b,c,d,e,f : float
+            Parameters of the rotation: Sdelta = a*S + b*Sdelta + c*h+
+    """
     nu_l = constants.uplike_flavors(nf - 1)
     nd_l = (nf - 1) - nu_l
     nu_h = constants.uplike_flavors(nf)
@@ -229,10 +242,12 @@ def rotation_parameters(nf):
         c = -1
         d = nd_l / (nf - 1)
         e = -nu_l / (nf - 1)
-    if nf in [3, 4]:  # s and c unlock T3d, T3u
+    if nf in [3, 4]:
         f = -1
-    elif nf in [5, 6]:  # b and t unlock T8d, T8u
+        # s and c unlock T3d, T3u that have -h+
+    elif nf in [5, 6]:
         f = -2
+        # b and t unlock T8d, T8u that have -2h+
     return a, b, c, d, e, f
 
 
