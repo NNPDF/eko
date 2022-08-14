@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-This module contains the definitions of the
-:doc:`Flavor Basis and Evolution Basis </theory/FlavorSpace>`.
-"""
+"""Contains the definitions of the :doc:`Flavor Basis and Evolution Basis </theory/FlavorSpace>`."""
 
 import numpy as np
 
@@ -111,12 +108,11 @@ non_singlet_labels = (
     (non_singlet_pids_map["ns+"], 0),
     (non_singlet_pids_map["nsV"], 0),
 )
-# Sdelta = 101
 singlet_unified_labels = (
     (21, 21),
     (21, 22),
     (21, 100),
-    (21, 101),
+    (21, 101),  # Sdelta = 101
     (22, 21),
     (22, 22),
     (22, 100),
@@ -132,8 +128,8 @@ singlet_unified_labels = (
 )
 valence_unified_labels = (
     (10200, 10200),
-    (10200, 10204),
-    (10204, 10200),  # Vdelta = 10204
+    (10200, 10204),  # Vdelta = 10204
+    (10204, 10200),
     (10204, 10204),
 )
 non_singlet_unified_labels = (
@@ -181,6 +177,19 @@ Basis rotation matrix between :doc:`Flavor Basis and Evolution Basis </theory/Fl
 
 # Tranformation from physical basis to QCDxQED evolution basis
 def rotate_flavor_to_unified_evolution(nf):
+    """
+    Basis rotation matrix between :doc:`Flavor Basis and Evolution Basis </theory/FlavorSpace>`.
+
+    Parameters
+    ----------
+    nf : int
+        number of light flavors
+
+    Returns
+    -------
+    rot : np.ndarray
+        matrix rotation from flavor to unified evolution basis
+    """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
     rn = nd / nu
@@ -271,8 +280,7 @@ map_ad_to_unified_evolution = {
 
 def ad_projector(ad_lab, nf, qed=False):
     """
-    Build a projector (as a numpy array) for the given anomalous dimension
-    sector.
+    Build a projector (as a numpy array) for the given anomalous dimension sector.
 
     Parameters
     ----------
@@ -316,8 +324,7 @@ def ad_projector(ad_lab, nf, qed=False):
 
 def ad_projectors(nf, qed=False):
     """
-    Build projectors tensor (as a numpy array), collecting all the individual
-    sector projectors.
+    Build projectors tensor (as a numpy array), collecting all the individual sector projectors.
 
     Parameters
     ----------

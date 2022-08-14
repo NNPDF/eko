@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-"""
-This module defines the |OME| for the non-trivial matching conditions in the
-|VFNS| evolution.
-"""
+"""Defines the |OME| for the non-trivial matching conditions in the |VFNS| evolution."""
 
+import copy
 import functools
 import logging
 
@@ -21,7 +19,7 @@ logger = logging.getLogger(__name__)
 @nb.njit(cache=True)
 def A_singlet(matching_order, n, sx, nf, L, is_msbar, sx_ns=None):
     r"""
-    Computes the tower of the singlet |OME|.
+    Compute the tower of the singlet |OME|.
 
     Parameters
     ----------
@@ -65,7 +63,7 @@ def A_singlet(matching_order, n, sx, nf, L, is_msbar, sx_ns=None):
 @nb.njit(cache=True)
 def A_non_singlet(matching_order, n, sx, nf, L):
     r"""
-    Computes the tower of the non-singlet |OME|
+    Compute the tower of the non-singlet |OME|.
 
     Parameters
     ----------
@@ -157,7 +155,7 @@ def quad_ker(
     u, order, mode0, mode1, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
 ):
     """
-    Raw kernel inside quad
+    Raw kernel inside quad.
 
     Parameters
     ----------
@@ -274,6 +272,7 @@ class OperatorMatrixElement(Operator):
         (br.matching_hminus_pid, br.matching_hminus_pid),
     ]
     # still valid in QED since Sdelta and Vdelta matchings are diagonal
+    full_labels_qed = copy.deepcopy(full_labels)
 
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
         super().__init__(config, managers, nf, q2, None)
@@ -289,14 +288,13 @@ class OperatorMatrixElement(Operator):
 
     @property
     def labels(self):
-        """Computes the necessary sector labels to compute.
+        """Compute the necessary sector labels to compute.
 
         Returns
         -------
         list(str)
             sector labels
         """
-
         labels = []
         # non-singlet labels
         if self.config["debug_skip_non_singlet"]:
@@ -330,7 +328,7 @@ class OperatorMatrixElement(Operator):
         return labels
 
     def quad_ker(self, label, logx, areas):
-        """Partially initialized integrand function.
+        """Compute partially initialized integrand function.
 
         Parameters
         ----------
@@ -363,7 +361,7 @@ class OperatorMatrixElement(Operator):
 
     @property
     def a_s(self):
-        """Returns the computed values for :math:`a_s`.
+        """Return the computed values for :math:`a_s`.
 
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
@@ -371,7 +369,7 @@ class OperatorMatrixElement(Operator):
         return sc.a_s(self.mur2_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1)
 
     def compute(self):
-        """Compute the actual operators (i.e. run the integrations)"""
+        """Compute the actual operators (i.e. run the integrations)."""
         self.initialize_op_members()
 
         # At LO you don't need anything else
