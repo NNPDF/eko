@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-This file contains the output management
-"""
+"""Contains the output management."""
 import io
 import logging
 import pathlib
@@ -20,14 +18,11 @@ logger = logging.getLogger(__name__)
 
 
 class Output(dict):
-    """
-    Wrapper for the output to help with application
-    to PDFs and dumping to file.
-    """
+    """Wrapper for the output to help with application to PDFs and dumping to file."""
 
     def xgrid_reshape(self, targetgrid=None, inputgrid=None):
         """
-        Changes the operators to have in the output targetgrid and/or in the input inputgrid.
+        Change the operators to have in the output targetgrid and/or in the input inputgrid.
 
         The operation is in-place.
 
@@ -99,7 +94,7 @@ class Output(dict):
 
     def flavor_reshape(self, targetbasis=None, inputbasis=None):
         """
-        Changes the operators to have in the output targetbasis and/or in the input inputbasis.
+        Change the operators to have in the output targetbasis and/or in the input inputbasis.
 
         The operation is in-place.
 
@@ -177,6 +172,29 @@ class Output(dict):
         if target:
             self["targetpids"] = br.evol_basis_pids
 
+    def to_uni_evol(self, nf, source=True, target=False):
+        """
+        Rotate the operator into unified evolution basis.
+
+        This also assigns also the pids. The operation is in-place.
+
+        Parameters
+        ----------
+            source : bool
+                rotate on the input tensor
+            target : bool
+                rotate on the output tensor
+        """
+        # rotate
+        inputbasis = br.rotate_flavor_to_unified_evolution(nf) if source else None
+        targetbasis = br.rotate_flavor_to_unified_evolution(nf) if target else None
+        self.flavor_reshape(inputbasis=inputbasis, targetbasis=targetbasis)
+        # assign pids
+        if source:
+            self["inputpids"] = br.unified_evol_basis_pids
+        if target:
+            self["targetpids"] = br.unified_evol_basis_pids
+
     def get_raw(self, binarize=True, skip_q2_grid=False):
         """
         Serialize result as dict/YAML.
@@ -252,7 +270,7 @@ class Output(dict):
 
     def dump_yaml_to_file(self, filename, binarize=True, skip_q2_grid=False):
         """
-        Writes YAML representation to a file.
+        Write YAML representation to a file.
 
         Parameters
         ----------
@@ -275,10 +293,7 @@ class Output(dict):
 
     def dump_tar(self, tarname):
         """
-        Writes representation into a tar archive containing:
-
-        - metadata (in YAML)
-        - operator (in numpy ``.npy`` format)
+        Write representation into a tar archive containing metadata (in YAML) and operator (in numpy ``.npy`` format).
 
         Parameters
         ----------
@@ -315,7 +330,7 @@ class Output(dict):
     @classmethod
     def load_yaml(cls, stream, skip_q2_grid=False):
         """
-        Load YAML representation from stream
+        Load YAML representation from stream.
 
         Parameters
         ----------
@@ -355,7 +370,7 @@ class Output(dict):
     @classmethod
     def load_yaml_from_file(cls, filename, skip_q2_grid=False):
         """
-        Load YAML representation from file
+        Load YAML representation from file.
 
         Parameters
         ----------
@@ -378,8 +393,7 @@ class Output(dict):
     @classmethod
     def load_tar(cls, tarname):
         """
-        Load tar representation from file (compliant with :meth:`dump_tar`
-        output).
+        Load tar representation from file (compliant with :meth:`dump_tar` output).
 
         Parameters
         ----------
