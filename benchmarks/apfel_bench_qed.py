@@ -34,7 +34,7 @@ class ApfelBenchmark(Runner):
     @staticmethod
     def skip_pdfs(_theory):
         # pdf to skip
-        return [-6, 6, "T35", "V35"]
+        return [-6, 6, "Tu8", "Vu8"]
 
 
 class BenchmarkFFNS(ApfelBenchmark):

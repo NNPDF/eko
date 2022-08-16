@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-r"""
-The write-up of the matching conditions is given in
-:doc:`Matching Conditions </theory/Matching>`.
-
-"""
+r"""The write-up of the matching conditions is given in :doc:`Matching Conditions </theory/Matching>`."""
 
 import numpy as np
 
@@ -13,7 +9,7 @@ from .. import constants
 
 def pids_from_intrinsic_evol(label, nf, normalize):
     r"""
-    Obtain the list of pids with their corresponding weight, that are contributing to ``evol``
+    Obtain the list of pids with their corresponding weight, that are contributing to ``evol``.
 
     The normalization of the weights is only needed for the output rotation:
 
@@ -133,13 +129,14 @@ def rotate_pm_to_flavor(label):
 
 def rotate_matching(nf, qed=False, inverse=False):
     """
-    Rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis
-    (with S,g,...V8,T15,V15).
+    Rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis (with S,g,...V8,T15,V15).
 
     Parameters
     ----------
         nf : int
             number of active flavors in the higher patch: to activate T15, nf=4
+        qed : bool
+            use qed?
         inverse : bool
             use inverse conditions?
 
@@ -211,12 +208,27 @@ def rotate_matching(nf, qed=False, inverse=False):
 
 
 def rotate_matching_inverse(nf, qed=False):
+    """
+    Inverse rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis (with S,g,...V8,T15,V15).
+
+    Parameters
+    ----------
+        nf : int
+            number of active flavors in the higher patch: to activate T15, nf=4
+        qed : bool
+            use qed?
+
+    Returns
+    -------
+        l : dict
+            mapping in dot notation between the bases
+    """
     return rotate_matching(nf, qed, True)
 
 
 def rotation_parameters(nf):
-    """Parameters of the basis rotation from (S, Sdelta, h+)
-    into (S, Sdelta, T_i), or equivalentely for V, Vdelta, V_i, h-.
+    """
+    Parameters of the basis rotation from (S, Sdelta, h+) into (S, Sdelta, T_i), or equivalentely for V, Vdelta, V_i, h-.
 
     Parameters
     ----------
@@ -251,42 +263,9 @@ def rotation_parameters(nf):
     return a, b, c, d, e, f
 
 
-# def a(nf):
-#     if nf in [4, 6]:  # heavy flavor is up-like
-#         return constants.uplike_flavors(nf - 1) / (nf - 1)
-#     elif nf in [3, 5]:  # heavy flavor is down-like
-#         nd = (nf - 1) - constants.uplike_flavors(nf - 1)
-#         return nd / (nf - 1)
-
-
-# def b(nf):
-#     nu_frac_nf = constants.uplike_flavors(nf - 1) / (nf - 1)
-#     if nf in [4, 6]:  # heavy flavor is up-like
-#         return nu_frac_nf
-#     elif nf in [3, 5]:  # heavy flavor is down-like
-#         return -nu_frac_nf
-
-
-# def c(nf):
-#     if nf in [4, 6]:  # heavy flavor is up-like
-#         return -1
-#     elif nf in [3, 5]:  # heavy flavor is down-like
-#         return -2
-
-
-# def d(nf):
-#     if nf in [4, 6]:  # heavy flavor is up-like
-#         nu = constants.uplike_flavors(nf - 1)
-#         nd = (nf - 1) - nu
-#         return nd / nu
-#     elif nf in [3, 5]:  # heavy flavor is down-like
-#         return -1
-
-
 def pids_from_intrinsic_unified_evol(label, nf, normalize):
     r"""
-    Obtain the list of pids with their corresponding weight, that are contributing to intrinsic
-    unified evolution.
+    Obtain the list of pids with their corresponding weight, that are contributing to intrinsic unified evolution.
 
     Parameters
     ----------
