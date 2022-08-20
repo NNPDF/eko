@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
+"""Apply all available operators to the input PDFs."""
 import numpy as np
 
 from eko import basis_rotation as br
 from eko import interpolation
 
 
-def apply_pdf(output, lhapdf_like, targetgrid=None, rotate_to_evolution_basis=False):
+def apply_pdf(
+    output,
+    lhapdf_like,
+    targetgrid=None,
+    rotate_to_evolution_basis=False,
+    qed=False,
+):
     """
     Apply all available operators to the input PDFs.
 
@@ -27,13 +34,19 @@ def apply_pdf(output, lhapdf_like, targetgrid=None, rotate_to_evolution_basis=Fa
             output PDFs and their associated errors for the computed Q2grid
     """
     if rotate_to_evolution_basis:
+        if not qed:
+            rotate_flavor_to_evolution = br.rotate_flavor_to_evolution
+        else:
+            rotate_flavor_to_evolution = br.rotate_flavor_to_unified_evolution
         return apply_pdf_flavor(
-            output, lhapdf_like, targetgrid, br.rotate_flavor_to_evolution
+            output, lhapdf_like, targetgrid, rotate_flavor_to_evolution, qed
         )
     return apply_pdf_flavor(output, lhapdf_like, targetgrid)
 
 
-def apply_pdf_flavor(output, lhapdf_like, targetgrid=None, flavor_rotation=None):
+def apply_pdf_flavor(
+    output, lhapdf_like, targetgrid=None, flavor_rotation=None, qed=False
+):
     """
     Apply all available operators to the input PDFs.
 
@@ -85,8 +98,12 @@ def apply_pdf_flavor(output, lhapdf_like, targetgrid=None, flavor_rotation=None)
             errors = flavor_rotation @ np.array(
                 [op["errors"][pid] for pid in br.flavor_basis_pids]
             )
-            op["pdfs"] = dict(zip(br.evol_basis, pdf))
-            op["errors"] = dict(zip(br.evol_basis, errors))
+            if not qed:
+                evol_basis = br.evol_basis
+            else:
+                evol_basis = br.unified_evol_basis
+            op["pdfs"] = dict(zip(evol_basis, pdf))
+            op["errors"] = dict(zip(evol_basis, errors))
 
     # rotate/interpolate to target grid
     if targetgrid is not None:

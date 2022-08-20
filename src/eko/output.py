@@ -172,7 +172,7 @@ class Output(dict):
         if target:
             self["targetpids"] = br.evol_basis_pids
 
-    def to_uni_evol(self, nf, source=True, target=False):
+    def to_uni_evol(self, source=True, target=False):
         """
         Rotate the operator into unified evolution basis.
 
@@ -186,8 +186,8 @@ class Output(dict):
                 rotate on the output tensor
         """
         # rotate
-        inputbasis = br.rotate_flavor_to_unified_evolution(nf) if source else None
-        targetbasis = br.rotate_flavor_to_unified_evolution(nf) if target else None
+        inputbasis = br.rotate_flavor_to_unified_evolution if source else None
+        targetbasis = br.rotate_flavor_to_unified_evolution if target else None
         self.flavor_reshape(inputbasis=inputbasis, targetbasis=targetbasis)
         # assign pids
         if source:

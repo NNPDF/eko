@@ -176,41 +176,27 @@ Basis rotation matrix between :doc:`Flavor Basis and Evolution Basis </theory/Fl
 """
 
 # Tranformation from physical basis to QCDxQED evolution basis
-def rotate_flavor_to_unified_evolution(nf):
-    """
-    Basis rotation matrix between :doc:`Flavor Basis and Evolution Basis </theory/FlavorSpace>`.
-
-    Parameters
-    ----------
-    nf : int
-        number of light flavors
-
-    Returns
-    -------
-    rot : np.ndarray
-        matrix rotation from flavor to unified evolution basis
-    """
-    nu = constants.uplike_flavors(nf)
-    nd = nf - nu
-    rn = nd / nu
-    return np.array(
-        [
-            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-            [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
-            [0, rn, -1, rn, -1, rn, -1, 0, -1, rn, -1, rn, -1, rn],
-            [0, -1, -1, -1, -1, -1, -1, 0, 1, 1, 1, 1, 1, 1],
-            [0, -rn, 1, -rn, 1, -rn, 1, 0, -1, rn, -1, rn, -1, rn],
-            [0, 0, 0, 0, -1, 0, 1, 0, 1, 0, -1, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, -1, 0, 1, 0, -1, 0, 0, 0],
-            [0, 0, 0, -1, 0, 1, 0, 0, 0, 1, 0, -1, 0, 0],
-            [0, 0, 0, 1, 0, -1, 0, 0, 0, 1, 0, -1, 0, 0],
-            [0, 0, -2, 0, 1, 0, 1, 0, 1, 0, 1, 0, -2, 0],
-            [0, 0, 2, 0, -1, 0, -1, 0, 1, 0, 1, 0, -2, 0],
-            [0, -2, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, -2],
-            [0, 2, 0, -1, 0, -1, 0, 0, 0, 1, 0, 1, 0, -2],
-        ]
-    )
+rotate_flavor_to_unified_evolution = np.array(
+    [
+        [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+        [0, 1, -1, 1, -1, 1, -1, 0, -1, 1, -1, 1, -1, 1],
+        [0, -1, -1, -1, -1, -1, -1, 0, 1, 1, 1, 1, 1, 1],
+        [0, -1, 1, -1, 1, -1, 1, 0, -1, 1, -1, 1, -1, 1],
+        [0, 0, 0, 0, -1, 0, 1, 0, 1, 0, -1, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, -1, 0, 1, 0, -1, 0, 0, 0],
+        [0, 0, 0, -1, 0, 1, 0, 0, 0, 1, 0, -1, 0, 0],
+        [0, 0, 0, 1, 0, -1, 0, 0, 0, 1, 0, -1, 0, 0],
+        [0, 0, -2, 0, 1, 0, 1, 0, 1, 0, 1, 0, -2, 0],
+        [0, 0, 2, 0, -1, 0, -1, 0, 1, 0, 1, 0, -2, 0],
+        [0, -2, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, -2],
+        [0, 2, 0, -1, 0, -1, 0, 0, 0, 1, 0, 1, 0, -2],
+    ]
+)
+"""
+Basis rotation matrix between :doc:`Flavor Basis and Unified Evolution Basis </theory/FlavorSpace>`.
+"""
 
 
 map_ad_to_evolution = {
@@ -303,7 +289,7 @@ def ad_projector(ad_lab, nf, qed=False):
         proj = np.zeros_like(rotate_flavor_to_unified_evolution, dtype=float)
         l = map_ad_to_unified_evolution[ad_lab]
         basis = unified_evol_basis
-        rotate = rotate_flavor_to_unified_evolution(nf)
+        rotate = rotate_flavor_to_unified_evolution
     # restrict the evolution basis to light flavors
     # NOTE: the cut is only needed for "NS_p" and "NS_m", but the other lists
     # are 1-long so they are unaffected
