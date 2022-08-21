@@ -244,7 +244,7 @@ def rotation_parameters(nf):
     nd_l = (nf - 1) - nu_l
     nu_h = constants.uplike_flavors(nf)
     nd_h = nf - nu_h
-    a = (nd_h / nu_h - nd_l) / (nf - 1)
+    a = (nd_h / nu_h * nu_l - nd_l) / (nf - 1)
     b = nf / nu_h * nu_l / (nf - 1)
     if nf in [4, 6]:  # heavy flavor is up-like
         c = nd_h / nu_h
