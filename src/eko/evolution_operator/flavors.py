@@ -191,7 +191,7 @@ def rotate_matching(nf, qed=False, inverse=False):
                 l[f"{qpm}.{oth}"] = b / den
             else:
                 l[f"{tot}.{tot}"] = 1.0
-                l[f"{tot}.{totdelta}"] = 0.0
+                # l[f"{tot}.{totdelta}"] = 0.0
                 l[f"{tot}.{qpm}"] = 1.0
                 l[f"{totdelta}.{tot}"] = a
                 l[f"{totdelta}.{totdelta}"] = b
@@ -244,10 +244,10 @@ def rotation_parameters(nf):
     nd_l = (nf - 1) - nu_l
     nu_h = constants.uplike_flavors(nf)
     nd_h = nf - nu_h
-    a = nd_l / (nf - 1) * (nd_h / nu_h - 1)
-    b = (nd_h / nu_h * nd_l - nu_l) / nf
+    a = (nd_h / nu_h - nd_l) / (nf - 1)
+    b = nf / nu_h * nu_l / (nf - 1)
     if nf in [4, 6]:  # heavy flavor is up-like
-        c = nd_l / nu_l
+        c = nd_h / nu_h
         d = nu_l / (nf - 1)
         e = nu_l / (nf - 1)
     elif nf in [3, 5]:  # heavy flavor is down-like
