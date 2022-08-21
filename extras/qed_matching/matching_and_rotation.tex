@@ -1,0 +1,141 @@
+\documentclass[a4paper,oneside]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+
+%\usepackage[a4paper,top=3cm,bottom=3cm,left=3cm,right=3cm]{geometry}
+\usepackage[a4paper,top=1.5cm,bottom=1.5cm,left=1.5cm,right=1.5cm]{geometry}
+
+
+\title{Matching and Basis Rotation for the Intrinsic Unified Evolution Basis}
+\author{Niccolò Laurenti}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+In this document we will explain how the matching and the basis rotation are performed in the Intrinsic Unified Evolution Basis.
+
+\section{Matching}
+Fist of all, we have to perform the matching between the basis vectors in the two different flavor schemes, i.e.\ the $n_f$ and the $n_f+1$ flavor schemes. The matching of the gluon, light quark and heavy quark PDFs are the followings:
+\begin{align*}
+g^{(n_f+1)}&=A^S_{gg}g^{(n_f)}+A^S_{gq}\Sigma^{(n_f)}_{(n_f)}+A^S_{gH}h^{(n_f)} \\
+l^{(n_f+1)} &= A^{ns}_{qq} l^{(n_f)} + {1\over2n_f} A^S_{qg}g^{(n_f)} \quad \text{and the same for $\bar{l}$}\\
+h^{(n_f+1)} &= {1\over2} A^{S}_{Hg} g^{(n_f)}_{(n_f)}+ {1\over2} A^{ps}_{Hq} \Sigma^{(n_f)}_{(n_f)} + A_{HH}h^{(n_f)} \quad \text{and the same for $\bar{h}$}
+\end{align*}
+From the second relation we get that
+\begin{align*}
+l^{(n_f+1)}_+ &= A^{ns}_{qq} l^{(n_f)}_+ + {1\over n_f} A^S_{qg}g^{(n_f)} \\
+l^{(n_f+1)}_- &= A^{ns}_{qq} l^{(n_f)}_- \\
+\Sigma^{(n_f+1)}_{(n_f)}&=A^S_{qg}g^{(n_f)}+A^{ns}_{qq}\Sigma^{(n_f)}_{(n_f)} \\
+V^{(n_f+1)}_{(n_f)}&=A^{ns}_{qq}V^{(n_f)}_{(n_f)}
+\end{align*}
+while from the third relation we get that
+\begin{align*}
+h^{(n_f+1)}_+ &= A^{S}_{Hg} g^{(n_f)}_{(n_f)}+A^{ps}_{Hq} \Sigma^{(n_f)}_{(n_f)} + A_{HH}h^{(n_f)}_+ \\
+h^{(n_f+1)}_- &= A_{HH}h^{(n_f)}_-
+\end{align*}
+ The matching of the components $\Sigma_{\Delta(n_f)}$, $V_{\Delta(n_f)}$, $T_i$, $V_i$ are diagonal. For the $V$s this is trivial since they are composed by $l_-$. For $\Sigma_{\Delta(n_f)}$ instead: being it defined as
+ \begin{align*}
+ \Sigma^{(n_f+1)}_{\Delta(n_f)} & = \frac{n_d(n_f)}{n_u(n_f)} \sum_{i=1}^{n_u} u_{+\,i}^{(n_f+1)} - \sum_{i=1}^{n_d} d_{+\,i}^{(n_f+1)}
+ \end{align*}
+ the gluon contribution cancels, giving the relation
+ \begin{equation*}
+ \Sigma^{(n_f+1)}_{\Delta(n_f)}=A^{ns}_{qq}\Sigma^{(n_f+1)}_{\Delta(n_f)}
+\end{equation*}
+The same holds for the $T_i$ components.
+
+Observe that this holds up to NNLO, since that at N$^3$LO we have to consider also the pure singlet components of the light quark matching (I think that we have to add $\frac{1}{2n_f}A^{ps}_{qq}\Sigma^{nf}_{(nf)}$ to the matching of $l^{(n_f+1)}$, but I'm not 100\% sure. In this way the matching of $l_-$ remains diagonal, as it should be, and the same hold for $\Sigma_{\Delta(n_f)}$ and $T_i$).
+
+Up to second order the perturbative expansion of the matching terms is given by
+\begin{align*}
+A^S_{gg} & = 1+ a_s A^{S(1)}_{gg} + a_s^2 A^{S(2)}_{gg} \\
+A^S_{gq} & = 1+ a_s^2 A^{S(2)}_{gq} \\
+A^S_{gH} & = 1+ a_s A^{S(1)}_{gH} \\
+A^S_{qg} & = 1 \\
+A^{ns}_{qq} &= 1+ a_s^2 A^{ns(1)}_{qq}  \\
+A^S_{Hg} & = 1+ a_s A^{S(1)}_{Hg} + a_s^2 A^{S(2)}_{Hg} \\
+A^{ps}_{Hq} & = 1+ a_s^2 A^{ps(2)}_{Hq} \\
+A_{HH} & = 1+ a_s A^{(2)}_{HH}
+\end{align*}
+
+\section{Basis Rotation}
+
+After the matching we have to perform the basis rotation from the basis with $\Sigma_{(n_f)}^{(n_f+1)}$, $\Sigma_{\Delta(n_f)}^{(n_f+1)}$, $h_+^{(n_f+1)}$ to the basis with $\Sigma_{(n_f+1)}^{(n_f+1)}$, $\Sigma_{\Delta(n_f+1)}^{(n_f+1)}$, $T_i^{(n_f+1)}$ (all the considerations that we will do for this basis rotation apply identically to the components $V$, $V_\Delta$, $h_-$, $V_i$). Being all the PDFs in the $n_f+1$ flavor scheme, from now on we will drop the superscript $(n_f+1)$.
+
+\subsection{$\Sigma$}
+For the $\Sigma$ component the basis rotation is very simple, being
+\begin{equation*}
+\Sigma_{(n_f+1)}=\Sigma_{(n_f)}+h_+
+\end{equation*}
+\subsection{$\Sigma_{\Delta}$}
+This component requires a bit more work: starting from
+\begin{equation*}
+\begin{cases}
+\Sigma &= \Sigma_u+\Sigma_d \\
+\Sigma_{\Delta} &= \frac{n_d}{n_u}\Sigma_u-\Sigma_d
+\end{cases}
+\end{equation*}
+we obtain that
+\begin{equation*}
+\begin{cases}
+\Sigma_u &= \frac{n_u}{n_f}\Bigl(\Sigma+\Sigma_{\Delta} \Bigr)\\
+\Sigma_d &= \frac{n_d}{n_f}\Sigma-\frac{n_u}{n_f}\Sigma_{\Delta}
+\end{cases}
+\end{equation*}
+
+Therefore, we find
+\begin{align*}
+\Sigma_{\Delta(n_f+1)} &= \frac{n_u(n_f+1)}{n_d(n_f+1)}\Sigma_{u(n_f)} - \Sigma_{d(n_f)} + k(n_f) h_+
+\end{align*}
+where
+\begin{equation*}
+k(n_f) =
+\begin{cases}
+ \frac{n_u(n_f+1)}{n_d(n_f+1)} \quad \text{if h=up-like}\\
+-1  \quad \text{if h=down-like}
+\end{cases}
+\end{equation*}
+
+In the end we find that
+\begin{align*}
+\Sigma_{\Delta(n_f+1)} &= \Bigl(\frac{n_d(n_f+1)}{n_u(n_f+1)}n_u(n_f)-n_d(n_f)\Bigr)\Sigma_{(n_f)} + \frac{n_f+1}{n_u(n_f+1)}\frac{n_u(n_f)}{n_f}\Sigma_{\Delta(n_f)} + k(n_f) h_+
+\end{align*}
+
+\subsection{$T_i$}
+In the end, we have to find the rotation for the $T_i$ component: being
+\begin{align*}
+T_3^d &=d^+ - s^+ = \Sigma_{d(n_f)} - h_+\quad \text{for $n_f=3$}\\
+T_3^u &=u^+ - c^+ =\Sigma_{u(n_f)} - h_+\quad \text{for $n_f=4$}\\
+T_8^d &=d^+ + s^+ - 2b^+ =\Sigma_{d(n_f)} - 2h_+\quad \text{for $n_f=5$}\\
+T_8^u &=u^+ + c^+ - 2t^+ =\Sigma_{u(n_f)} - 2h_+\quad \text{for $n_f=6$}
+\end{align*}
+
+Using the expressions of $\Sigma_u$ and $\Sigma_d$ as a function of $\Sigma$ and $\Sigma_\Delta$, we can write that
+\begin{equation*}
+T_i = f_1(n_f) \Sigma_{(n_f)} + f_2(n_f)\Sigma_{\Delta(n_f)} + f_3(n_f)h_+
+\end{equation*}
+with
+\begin{align*}
+f_1(n_f) &=
+\begin{cases}
+&\frac{n_u(n_f)}{n_f} \quad \text{if $h$ is up-like ($n_f$=3,5)} \\
+&\frac{n_d(n_f)}{n_f} \quad \text{if $h$ is down-like ($n_f$=2,4)}
+\end{cases} \\
+f_2(n_f) &=
+\begin{cases}
+&\frac{n_u(n_f)}{n_f} \quad \text{if $h$ is up-like} \\
+&-\frac{n_u(n_f)}{n_f} \quad \text{if $h$ is down-like}
+\end{cases} \\
+f_3(n_f) &=
+\begin{cases}
+&-1\quad \text{if $h$ is $s$, $c$  ($n_f$=2,3)} \\
+&-2 \quad \text{if $h$ is $b$, $t$  ($n_f$=4,5)}
+\end{cases}
+\end{align*}
+
+\end{document}
