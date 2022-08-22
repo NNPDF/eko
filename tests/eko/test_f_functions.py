@@ -4,6 +4,7 @@
 import numpy as np
 
 from eko import harmonics
+from eko.harmonics import w5
 
 zeta2 = harmonics.constants.zeta2
 zeta3 = harmonics.constants.zeta3
@@ -63,7 +64,7 @@ def test_F9():
         S1 = harmonics.S1(N)
         S2 = harmonics.S2(N)
         S3 = harmonics.S3(N)
-        S41 = harmonics.S41(N, S1, S2, S3)
+        S41 = w5.S41(N, S1, S2, S3)
         np.testing.assert_allclose(S41, vals, atol=1e-05)
 
 
@@ -71,7 +72,7 @@ def test_F11():
     for N, vals in zip(testN, refvals["S311"]):
         S1 = harmonics.S1(N)
         S2 = harmonics.S2(N)
-        S311 = harmonics.S311(N, S1, S2)
+        S311 = w5.S311(N, S1, S2)
         np.testing.assert_allclose(S311, vals, atol=1e-05)
 
 
@@ -80,7 +81,7 @@ def test_F13():
         S1 = harmonics.S1(N)
         S2 = harmonics.S2(N)
         S21 = harmonics.S21(N, S1, S2)
-        S221 = harmonics.S221(N, S1, S2, S21)
+        S221 = w5.S221(N, S1, S2, S21)
         np.testing.assert_allclose(S221, vals, atol=1e-05)
 
 
@@ -92,7 +93,7 @@ def test_F12_F14():
         Sm1 = harmonics.Sm1(N, S1)
         S21 = harmonics.S21(N, S1, S2)
         Sm21 = harmonics.Sm21(N, S1, Sm1)
-        Sm221 = harmonics.Sm221(N, S1, Sm1, S21, Sm21)
+        Sm221 = w5.Sm221(N, S1, Sm1, S21, Sm21)
         np.testing.assert_allclose(Sm221, vals, atol=1e-05)
 
 
@@ -107,7 +108,7 @@ def test_F16():
         S21 = harmonics.S21(N, S1, S2)
         S2m1 = harmonics.S2m1(N, S2, Sm1, Sm2)
         Sm21 = harmonics.Sm21(N, S1, Sm1)
-        S21m2 = harmonics.S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1)
+        S21m2 = w5.S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1)
         np.testing.assert_allclose(S21m2, vals, atol=1e-04)
 
 
@@ -116,7 +117,7 @@ def test_F17():
         S1 = harmonics.S1(N)
         S2 = harmonics.S2(N)
         S3 = harmonics.S3(N)
-        S2111 = harmonics.S2111(N, S1, S2, S3)
+        S2111 = w5.S2111(N, S1, S2, S3)
         np.testing.assert_allclose(S2111, vals, atol=1e-05)
 
 
@@ -126,7 +127,7 @@ def test_F18():
         S2 = harmonics.S2(N)
         S3 = harmonics.S3(N)
         Sm1 = harmonics.Sm1(N, S1)
-        Sm2111 = harmonics.Sm2111(N, S1, S2, S3, Sm1)
+        Sm2111 = w5.Sm2111(N, S1, S2, S3, Sm1)
         np.testing.assert_allclose(Sm2111, vals, atol=1e-05)
 
 
@@ -136,7 +137,7 @@ def test_F19():
         S1 = harmonics.S1(N)
         S2 = harmonics.S2(N)
         S3 = harmonics.S3(N)
-        S23 = harmonics.S23(N, S1, S2, S3)
+        S23 = w5.S23(N, S1, S2, S3)
         np.testing.assert_allclose(S23, vals, rtol=2e-03)
 
 
@@ -149,7 +150,7 @@ def test_F20():
         Sm3 = harmonics.Sm3(N, S3)
         Sm2 = harmonics.Sm2(N, S2)
         Sm1 = harmonics.Sm1(N, S1)
-        Sm23 = harmonics.Sm23(N, Sm1, Sm2, Sm3)
+        Sm23 = w5.Sm23(N, Sm1, Sm2, Sm3)
         np.testing.assert_allclose(Sm23, vals, rtol=1e-03)
 
 
@@ -162,5 +163,5 @@ def test_F21():
         Sm3 = harmonics.Sm3(N, S3)
         Sm2 = harmonics.Sm2(N, S2)
         Sm1 = harmonics.Sm1(N, S1)
-        S2m3 = harmonics.S2m3(N, S2, Sm1, Sm2, Sm3)
+        S2m3 = w5.S2m3(N, S2, Sm1, Sm2, Sm3)
         np.testing.assert_allclose(S2m3, vals, rtol=1e-03)
