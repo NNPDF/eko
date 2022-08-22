@@ -176,7 +176,6 @@ def rotate_matching(nf, qed=False, inverse=False):
             ("S", "Sdelta", f"T{names[nf]}", f"{q}+"),
             ("V", "Vdelta", f"V{names[nf]}", f"{q}-"),
         ):
-            # TODO : double check it
             a, b, c, d, e, f = rotation_parameters(nf)
             if inverse:
                 den = -b * d + a * e - c * e + b * f

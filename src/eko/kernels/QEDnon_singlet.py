@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Collection of QED non-singlet EKOs."""
 import numba as nb
 import numpy as np
 
@@ -10,7 +11,7 @@ from . import non_singlet, utils
 @nb.njit(cache=True)
 def lo_aem1_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
     """
-    |LO| non-singlet exact EKO
+    |LO| non-singlet exact EKO.
 
     Parameters
     ----------
@@ -37,7 +38,7 @@ def lo_aem1_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
 @nb.njit(cache=True)
 def lo_aem2_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
     """
-    |LO| non-singlet exact EKO
+    |LO| non-singlet exact EKO.
 
     Parameters
     ----------
@@ -64,7 +65,7 @@ def lo_aem2_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
 @nb.njit(cache=True)
 def nlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
     """
-    |NLO| non-singlet exact EKO
+    |NLO| non-singlet exact EKO.
 
     Parameters
     ----------
@@ -92,7 +93,7 @@ def nlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
 @nb.njit(cache=True)
 def nlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
     """
-    |NLO| non-singlet exact EKO
+    |NLO| non-singlet exact EKO.
 
     Parameters
     ----------
@@ -121,7 +122,7 @@ def nlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
 @nb.njit(cache=True)
 def nnlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
     """
-    |NNLO| non-singlet exact EKO
+    |NNLO| non-singlet exact EKO.
 
     Parameters
     ----------
@@ -150,7 +151,7 @@ def nnlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
 @nb.njit(cache=True)
 def nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
     """
-    |NNLO| non-singlet exact EKO
+    |NNLO| non-singlet exact EKO.
 
     Parameters
     ----------
@@ -213,6 +214,8 @@ def dispatcher(
         return non_singlet.dispatcher(
             order, method, gamma_ns[0], a1, a0, nf, ev_op_iterations
         )
+        # this if is probably useless since when order[1] == 0
+        # the code never enters in this module
     if order[1] == 1:
         if order[0] == 1:
             return lo_aem1_exact(gamma_ns, a1, a0, aem, nf)
