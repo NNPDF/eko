@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-This file contains the O(as1aem1) Altarelli-Parisi splitting kernels.
-"""
+"""Contains the O(as1aem1) Altarelli-Parisi splitting kernels."""
 
 import numba as nb
 import numpy as np
@@ -12,7 +10,7 @@ from ..harmonics.constants import zeta2, zeta3
 
 @nb.njit(cache=True)
 def gamma_phq(N, sx):
-    """Computes the O(as1aem1) photon-quark anomalous dimension
+    r"""Compute the O(as1aem1) photon-quark anomalous dimension.
 
     Implements Eq. (36) of :cite:`deFlorian:2015ujt`.
 
@@ -49,7 +47,7 @@ def gamma_phq(N, sx):
 
 @nb.njit(cache=True)
 def gamma_qph(N, nf, sx):
-    """Computes the O(as1aem1) quark-photon anomalous dimension
+    r"""Compute the O(as1aem1) quark-photon anomalous dimension.
 
     Implements Eq. (26) of :cite:`deFlorian:2015ujt`.
 
@@ -97,7 +95,7 @@ def gamma_qph(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_gph(N):
-    """Computes the O(as1aem1) gluon-photon anomalous dimension
+    r"""Compute the O(as1aem1) gluon-photon anomalous dimension.
 
     Implements Eq. (27) of :cite:`deFlorian:2015ujt`.
 
@@ -122,7 +120,7 @@ def gamma_gph(N):
 
 @nb.njit(cache=True)
 def gamma_phg(N):
-    """Computes the O(as1aem1) photon-gluon anomalous dimension
+    r"""Compute the O(as1aem1) photon-gluon anomalous dimension.
 
     Implements Eq. (30) of :cite:`deFlorian:2015ujt`.
 
@@ -142,7 +140,7 @@ def gamma_phg(N):
 
 @nb.njit(cache=True)
 def gamma_qg(N, nf, sx):
-    """Computes the O(as1aem1) quark-gluon singlet anomalous dimension.
+    r"""Compute the O(as1aem1) quark-gluon singlet anomalous dimension.
 
     Implements Eq. (29) of :cite:`deFlorian:2015ujt`.
 
@@ -167,7 +165,7 @@ def gamma_qg(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_gq(N, sx):
-    """Computes the O(as1aem1) gluon-quark singlet anomalous dimension.
+    r"""Compute the O(as1aem1) gluon-quark singlet anomalous dimension.
 
     Implements Eq. (35) of :cite:`deFlorian:2015ujt`.
 
@@ -190,7 +188,7 @@ def gamma_gq(N, sx):
 
 @nb.njit(cache=True)
 def gamma_phph(nf):
-    """Computes the O(as1aem1) photon-photon singlet anomalous dimension.
+    r"""Compute the O(as1aem1) photon-photon singlet anomalous dimension.
 
     Implements Eq. (28) of :cite:`deFlorian:2015ujt`.
 
@@ -213,12 +211,9 @@ def gamma_phph(nf):
 
 @nb.njit(cache=True)
 def gamma_gg():
-    """Computes the O(as1aem1) gluon-gluon singlet anomalous dimension.
+    r"""Compute the O(as1aem1) gluon-gluon singlet anomalous dimension.
 
     Implements Eq. (31) of :cite:`deFlorian:2015ujt`.
-
-    Parameters
-    ----------
 
     Returns
     -------
@@ -232,7 +227,7 @@ def gamma_gg():
 
 @nb.njit(cache=True)
 def gamma_nsp(N, sx):
-    """Computes the O(as1aem1) singlet-like non-singlet anomalous dimension.
+    r"""Compute the O(as1aem1) singlet-like non-singlet anomalous dimension.
 
     Implements sum of Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
 
@@ -295,7 +290,7 @@ def gamma_nsp(N, sx):
 
 @nb.njit(cache=True)
 def gamma_nsm(N, sx):
-    """Computes the O(as1aem1) valence-like non-singlet anomalous dimension.
+    r"""Compute the O(as1aem1) valence-like non-singlet anomalous dimension.
 
     Implements difference between Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
 
@@ -360,6 +355,22 @@ def gamma_nsm(N, sx):
 
 @nb.njit(cache=True)
 def gamma_singlet(N, nf, sx):
+    r"""Compute the O(as1aem1) singlet sector.
+
+    Parameters
+    ----------
+        N : complex
+            Mellin moment
+        nf : int
+            Number of active flavors
+        sx : np array
+            List of harmonic sums
+
+    Returns
+    -------
+        gamma_singlet : numpy.ndarray
+            O(as1aem1) singlet anomalous dimension :math:`\\gamma_{S}^{(1,1)}(N,nf,sx)`
+    """
     e2avg = constants.e2avg(nf)
     e2delta = constants.vde2m(nf) - constants.vue2m(nf) + constants.e2avg(nf)
     e2_tot = nf * e2avg
@@ -370,7 +381,7 @@ def gamma_singlet(N, nf, sx):
             [
                 e2_tot * gamma_gg(),
                 e2_tot * gamma_gph(N),
-                e2_tot * gamma_gq(N, sx),
+                e2avg * gamma_gq(N, sx),
                 vue2m * gamma_gq(N, sx),
             ],
             [
@@ -386,7 +397,7 @@ def gamma_singlet(N, nf, sx):
                 vue2m * gamma_nsp(N, sx),
             ],
             [
-                vde2m * gamma_gq(N, sx),
+                vde2m * gamma_qg(N, nf, sx),
                 vde2m * gamma_qph(N, nf, sx),
                 vde2m * gamma_nsp(N, sx),
                 e2delta * gamma_nsp(N, sx),
@@ -399,6 +410,22 @@ def gamma_singlet(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_valence(N, nf, sx):
+    r"""Compute the O(as1aem1) valence sector.
+
+    Parameters
+    ----------
+        N : complex
+            Mellin moment
+        nf : int
+            Number of active flavors
+        sx : np array
+            List of harmonic sums
+
+    Returns
+    -------
+        gamma_singlet : numpy.ndarray
+            O(as1aem1) valence anomalous dimension :math:`\\gamma_{V}^{(1,1)}(N,nf,sx)`
+    """
     e2avg = constants.e2avg(nf)
     e2delta = constants.vde2m(nf) - constants.vue2m(nf) + constants.e2avg(nf)
     vue2m = constants.vue2m(nf)
