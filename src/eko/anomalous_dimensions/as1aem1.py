@@ -427,9 +427,9 @@ def gamma_valence(N, nf, sx):
             O(as1aem1) valence anomalous dimension :math:`\\gamma_{V}^{(1,1)}(N,nf,sx)`
     """
     e2avg = constants.e2avg(nf)
-    e2delta = constants.vde2m(nf) - constants.vue2m(nf) + constants.e2avg(nf)
     vue2m = constants.vue2m(nf)
     vde2m = constants.vde2m(nf)
+    e2delta = vde2m - vue2m + e2avg
     gamma_V_11 = np.array(
         [
             [e2avg, vue2m],
