@@ -172,7 +172,7 @@ Here the strategies are:
 - for ``method in ['iterate-exact', 'iterate-expanded']`` we use a discretized path-ordering :cite:`Bonvini:2012sh`:
 
 .. math::
-    \ESk{1}{a_s}{a_s^0} = \prod\limits_{k=n}^{0} \ESk{1}{a_s^{k+1}}{a_s^{k}}\quad \text{with} a_s^{n+1} = a_s
+    \ESk{1}{a_s}{a_s^0} = \prod\limits_{k=n}^{0} \ESk{1}{a_s^{k+1}}{a_s^{k}}\quad \text{with}\quad a_s^{n+1} = a_s
 
 where the order of the product is such that later |EKO| are to the left and
 

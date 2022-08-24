@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 r"""
-This module contains the central operator classes.
+Contains the central operator classes.
 
 See :doc:`Operator overview </code/Operators>`.
 """
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 @nb.njit(cache=True)
 def select_singlet_element(ker, mode0, mode1):
     """
-    Select element of the singlet matrix
+    Select element of the singlet matrix.
 
     Parameters
     ----------
@@ -47,7 +47,6 @@ def select_singlet_element(ker, mode0, mode1):
         ker : complex
             singlet integration kernel element
     """
-
     k = 0 if mode0 == 100 else 1
     l = 0 if mode1 == 100 else 1
     return ker[k, l]
@@ -56,7 +55,7 @@ def select_singlet_element(ker, mode0, mode1):
 @nb.njit(cache=True)
 def select_QEDsinglet_element(ker, mode0, mode1):
     """
-    Select element of the singlet matrix
+    Select element of the singlet matrix.
 
     Parameters
     ----------
@@ -91,7 +90,7 @@ def select_QEDsinglet_element(ker, mode0, mode1):
 @nb.njit(cache=True)
 def select_QEDvalence_element(ker, mode0, mode1):
     """
-    Select element of the singlet matrix
+    Select element of the singlet matrix.
 
     Parameters
     ----------
@@ -106,7 +105,6 @@ def select_QEDvalence_element(ker, mode0, mode1):
         ker : complex
             singlet integration kernel element
     """
-
     k = 0 if mode0 == 10200 else 1
     l = 0 if mode1 == 10200 else 1
     return ker[k, l]
@@ -125,7 +123,7 @@ spec = [
 @nb.experimental.jitclass(spec)
 class QuadKerBase:
     """
-    Manage the common part of Mellin inversion integral
+    Manage the common part of Mellin inversion integral.
 
     Parameters
     ----------
@@ -141,20 +139,20 @@ class QuadKerBase:
 
     def __init__(self, u, is_log, logx, mode0):
         self.is_singlet = mode0 in [100, 21, 90]
-        self.is_QEDsinglet = mode0 in [100, 101, 21, 22]
-        self.is_QEDvalence = mode0 in [10200, 10204]
+        self.is_QEDsinglet = mode0 in [100, 101, 21, 22, 90]
+        self.is_QEDvalence = mode0 in [10200, 10204, 91]
         self.is_log = is_log
         self.u = u
         self.logx = logx
 
     @property
     def path(self):
-        """Returns the associated instance of :class:`eko.mellin.Path`"""
+        """Return the associated instance of :class:`eko.mellin.Path`."""
         return mellin.Path(self.u, self.logx, self.is_singlet)
 
     @property
     def n(self):
-        """Returns the Mellin moment N"""
+        """Return the Mellin moment N."""
         return self.path.n
 
     def integrand(
@@ -162,7 +160,7 @@ class QuadKerBase:
         areas,
     ):
         """
-        Get transformation to Mellin space integral
+        Get transformation to Mellin space integral.
 
         Parameters
         ----------
@@ -369,33 +367,6 @@ def quad_ker(
     return np.real(ker * integrand)
 
 
-# @nb.njit(cache=True)
-# def choose_matrix(order, mode0, ker_base, nf):
-#     if order[1] == 0:
-#         if ker_base.is_singlet:
-#             return ad.gamma_singlet(order, ker_base.n, nf)
-#         else:
-#             return ad.gamma_ns(order, mode0, ker_base.n, nf)
-#     else :
-#         if ker_base.is_QEDsinglet :
-#             return ad.gamma_singlet_qed(order, ker_base.n, nf)
-#         elif ker_base.is_QEDvalence:
-#             return ad.gamma_valence_qed(order, ker_base.n, nf)
-#         else:
-#             return ad.gamma_ns_qed(order, mode0, ker_base.n, nf)
-
-# @nb.njit(cache=True)
-# def exponentiated_variation(order, gamma, nf, L):
-#     if order[1] == 0:
-#         gamma = sv.exponentiated.gamma_variation(gamma, order, nf, L)
-#         return gamma
-#     else :
-#         gamma[0][1:] = sv.exponentiated.gamma_variation(
-#                     gamma[0][1:], order, nf, L
-#                 )
-#         return gamma
-
-
 class Operator(sv.ModeMixin):
     """Internal representation of a single EKO.
 
@@ -440,6 +411,7 @@ class Operator(sv.ModeMixin):
 
     @property
     def n_pools(self):
+        """Return the number of integration cores."""
         n_pools = self.config["n_integration_cores"]
         if n_pools > 0:
             return n_pools
@@ -448,21 +420,21 @@ class Operator(sv.ModeMixin):
 
     @property
     def fact_to_ren(self):
-        r"""Returns the factor :math:`(\mu_F/\mu_R)^2`"""
+        r"""Return the factor :math:`(\mu_F/\mu_R)^2`."""
         return self.config["fact_to_ren"]
 
     @property
     def int_disp(self):
-        """Returns the interpolation dispatcher"""
+        """Return the interpolation dispatcher."""
         return self.managers["interpol_dispatcher"]
 
     @property
     def grid_size(self):
-        """Returns the grid size"""
+        """Return the grid size."""
         return self.int_disp.xgrid.size
 
     def mur2_shift(self, q2):
-        """Computes shifted renormalization scale.
+        """Compute shifted renormalization scale.
 
         Parameters
         ----------
@@ -480,7 +452,7 @@ class Operator(sv.ModeMixin):
 
     @property
     def a_s(self):
-        """Returns the computed values for :math:`a_s`"""
+        """Return the computed values for :math:`a_s`."""
         sc = self.managers["strong_coupling"]
         a0 = sc.a_s(
             self.mur2_shift(self.q2_from), fact_scale=self.q2_from, nf_to=self.nf
@@ -527,7 +499,7 @@ class Operator(sv.ModeMixin):
         return labels
 
     def quad_ker(self, label, logx, areas):
-        """Partially initialized integrand function.
+        """Compute partially initialized integrand function.
 
         Parameters
         ----------
@@ -565,7 +537,7 @@ class Operator(sv.ModeMixin):
         )
 
     def initialize_op_members(self):
-        """Init all ops with identity or zeros if we skip them"""
+        """Init all ops with identity or zeros if we skip them."""
         eye = OpMember(
             np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
         )
@@ -590,7 +562,7 @@ class Operator(sv.ModeMixin):
         self,
         log_grid,
     ):
-        """Run the integration for each grid point
+        """Run the integration for each grid point.
 
         Parameters
         ----------
@@ -683,7 +655,7 @@ class Operator(sv.ModeMixin):
     def integrate(
         self,
     ):
-        """Run the integration"""
+        """Run the integration."""
         tot_start_time = time.perf_counter()
 
         # run integration in parallel for each grid point
@@ -710,7 +682,7 @@ class Operator(sv.ModeMixin):
         )
 
     def copy_ns_ops(self):
-        """Copy non-singlet kernels, if necessary"""
+        """Copy non-singlet kernels, if necessary."""
         if self.order[1] == 0:
             if self.order[0] == 1:  # in LO +=-=v
                 for label in ["nsV", "ns-"]:

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Contains the :class:`PhysicalOperator` class."""
 import numpy as np
 
 from .. import basis_rotation as br
@@ -8,7 +9,7 @@ from . import flavors
 
 class PhysicalOperator(member.OperatorBase):
     """
-    This joins several fixed flavor scheme operators together.
+    Join several fixed flavor scheme operators together.
 
     - provides the connection between the 7-dimensional anomalous dimension
       basis and the 15-dimensional evolution basis
@@ -27,8 +28,7 @@ class PhysicalOperator(member.OperatorBase):
     @classmethod
     def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range, qed=False):
         """
-        Obtain map between the 3-dimensional anomalous dimension basis and the
-        4-dimensional evolution basis.
+        Obtain map between the 3-dimensional anomalous dimension basis and the 4-dimensional evolution basis.
 
         .. todo:: in VFNS sometimes IC is irrelevant if nf>=4
 
@@ -84,6 +84,10 @@ class PhysicalOperator(member.OperatorBase):
                     "ph.Sdelta": op_members[(22, 101)],
                     "S.ph": op_members[(100, 22)],
                     "S.Sdelta": op_members[(100, 101)],
+                    "Sdelta.g": op_members[(101, 21)],
+                    "Sdelta.ph": op_members[(101, 22)],
+                    "Sdelta.S": op_members[(101, 100)],
+                    "Sdelta.Sdelta": op_members[(101, 101)],
                     "V.V": op_members[(10200, 10200)],
                     "V.Vdelta": op_members[(10200, 10204)],
                     "Vdelta.V": op_members[(10204, 10200)],
@@ -119,8 +123,7 @@ class PhysicalOperator(member.OperatorBase):
 
     def to_flavor_basis_tensor(self, qed=False):
         """
-        Convert the computations into an rank 4 tensor over flavor operator space and
-        momentum fraction operator space.
+        Convert the computations into an rank 4 tensor over flavor operator space and momentum fraction operator space.
 
         Returns
         -------
