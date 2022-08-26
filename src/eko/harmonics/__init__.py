@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Module containing the harmonics sums implementation.
 
-Definitions are coming from :cite:`MuselliPhD,Bl_mlein_2000,Blumlein :2009ta`.
+Definitions are coming from :cite:`MuselliPhD,Bl_mlein_2000,Blumlein:2009ta`.
 """
 import numba as nb
 import numpy as np
