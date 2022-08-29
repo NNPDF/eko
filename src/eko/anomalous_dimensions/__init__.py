@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 r"""
-This module contains the Altarelli-Parisi splitting kernels.
+Contains the Altarelli-Parisi splitting kernels.
 
 Normalization is given by
 
@@ -28,7 +28,7 @@ from . import aem1, aem2, as1, as1aem1, as2, as3, as4
 @nb.njit(cache=True)
 def exp_singlet(gamma_S):
     r"""
-    Computes the exponential and the eigensystem of the singlet anomalous dimension matrix
+    Compute the exponential and the eigensystem of the singlet anomalous dimension matrix.
 
     Parameters
     ----------
@@ -76,7 +76,7 @@ def exp_singlet(gamma_S):
 @nb.njit(cache=True)
 def exp_matrix(gamma_S):
     r"""
-    Computes the exponential and the eigensystem of the singlet anomalous dimension matrix
+    Compute the exponential and the eigensystem of the singlet anomalous dimension matrix.
 
     Parameters
     ----------
@@ -129,7 +129,7 @@ def exp_matrix(gamma_S):
 
 @nb.njit(cache=True)
 def gamma_ns(order, mode, n, nf):
-    r"""Computes the tower of the non-singlet anomalous dimensions
+    r"""Compute the tower of the non-singlet anomalous dimensions.
 
     Parameters
     ----------
@@ -209,7 +209,7 @@ def gamma_ns(order, mode, n, nf):
 
 @nb.njit(cache=True)
 def gamma_singlet(order, n, nf):
-    r"""Computes the tower of the singlet anomalous dimensions matrices
+    r"""Compute the tower of the singlet anomalous dimensions matrices.
 
     Parameters
     ----------
@@ -264,7 +264,7 @@ def gamma_singlet(order, n, nf):
 @nb.njit(cache=True)
 def gamma_ns_qed(order, mode, n, nf):
     r"""
-    Computes the tower of the non-singlet anomalous dimensions
+    Compute the tower of the non-singlet anomalous dimensions.
 
     Parameters
     ----------
@@ -293,7 +293,11 @@ def gamma_ns_qed(order, mode, n, nf):
     """
     # cache the s-es
     max_weight = max(order)
-    sx = harmonics.sx(n, max_weight=max_weight + 1)
+    if max_weight >= 3:
+        # here we need only S1,S2,S3,S4
+        sx = harmonics.sx(n, max_weight=max_weight + 1)
+    else:
+        sx = harmonics.sx(n, max_weight=max_weight)
     # now combine
     gamma_ns = np.zeros((order[0] + 1, order[1] + 1), np.complex_)
     if order[0] >= 1:
@@ -344,7 +348,7 @@ def gamma_ns_qed(order, mode, n, nf):
 @nb.njit(cache=True)
 def gamma_singlet_qed(order, n, nf):
     r"""
-    Computes the tower of the singlet anomalous dimensions matrices
+    Compute the tower of the singlet anomalous dimensions matrices.
 
     Parameters
     ----------
@@ -368,7 +372,11 @@ def gamma_singlet_qed(order, n, nf):
     """
     # cache the s-es
     max_weight = max(order)
-    sx = harmonics.sx(n, max_weight=max_weight + 1)
+    if max_weight >= 3:
+        # here we need only S1,S2,S3,S4
+        sx = harmonics.sx(n, max_weight=max_weight + 1)
+    else:
+        sx = harmonics.sx(n, max_weight=max_weight)
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
     if order[0] >= 1:
         gamma_s[1, 0] = as1.gamma_QEDsinglet(n, sx[0], nf)
@@ -381,7 +389,6 @@ def gamma_singlet_qed(order, n, nf):
     if order[1] >= 2:
         gamma_s[0, 2] = aem2.gamma_singlet(n, nf, sx)
     if order[0] == 3:
-        sx = np.append(sx, harmonics.S4(n))
         gamma_s[3, 0] = as3.gamma_QEDsinglet(n, nf, sx)
     return gamma_s
 
@@ -389,7 +396,7 @@ def gamma_singlet_qed(order, n, nf):
 @nb.njit(cache=True)
 def gamma_valence_qed(order, n, nf):
     r"""
-    Computes the tower of the singlet anomalous dimensions matrices
+    Compute the tower of the singlet anomalous dimensions matrices.
 
     Parameters
     ----------
@@ -413,7 +420,11 @@ def gamma_valence_qed(order, n, nf):
     """
     # cache the s-es
     max_weight = max(order)
-    sx = harmonics.sx(n, max_weight=max_weight + 1)
+    if max_weight >= 3:
+        # here we need only S1,S2,S3,S4
+        sx = harmonics.sx(n, max_weight=max_weight + 1)
+    else:
+        sx = harmonics.sx(n, max_weight=max_weight)
     gamma_v = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
     if order[0] >= 1:
         gamma_v[1, 0] = as1.gamma_QEDvalence(n, sx[0])
