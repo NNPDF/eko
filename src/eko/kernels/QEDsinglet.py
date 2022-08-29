@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
+"""Collection of QED singlet EKOs."""
 import numba as nb
 import numpy as np
 
 from .. import anomalous_dimensions as ad
 from .. import beta
 from . import utils
-from .singlet import lo_exact
 
 
 @nb.njit(cache=True)
 def eko_iterate(gamma_singlet, a1, a0, aem, nf, order, ev_op_iterations):
-    """Singlet QEDxQCD iterated (exact) EKO
+    """Singlet QEDxQCD iterated (exact) EKO.
 
     Parameters
     ----------

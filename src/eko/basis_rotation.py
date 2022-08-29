@@ -3,8 +3,6 @@
 
 import numpy as np
 
-from . import constants
-
 flavor_basis_pids = tuple([22] + list(range(-6, -1 + 1)) + [21] + list(range(1, 6 + 1)))
 r"""
 Sorted elements in Flavor Basis as |pid|.

@@ -70,19 +70,21 @@ def select_QEDsinglet_element(ker, mode0, mode1):
         ker : complex
             singlet integration kernel element
     """
-    k = 0
-    if mode0 == 22:
+    if mode0 == 21:
+        k = 0
+    elif mode0 == 22:
         k = 1
     elif mode0 == 100:
         k = 2
-    elif mode0 == 101:
+    else:
         k = 3
-    l = 0
-    if mode1 == 22:
+    if mode1 == 21:
+        l = 0
+    elif mode1 == 22:
         l = 1
     elif mode1 == 100:
         l = 2
-    elif mode1 == 101:
+    else:
         l = 3
     return ker[k, l]
 
@@ -139,6 +141,7 @@ class QuadKerBase:
 
     def __init__(self, u, is_log, logx, mode0):
         self.is_singlet = mode0 in [100, 21, 90]
+        # TODO : check 90 in is_QEDsinglet and 91 in is_QEDvalence
         self.is_QEDsinglet = mode0 in [100, 101, 21, 22, 90]
         self.is_QEDvalence = mode0 in [10200, 10204]
         self.is_log = is_log
