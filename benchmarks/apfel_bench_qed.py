@@ -76,7 +76,7 @@ class BenchmarkFFNS(ApfelBenchmark):
         self.run(
             cartesian_product(th),
             operators.build(operators.apfel_config),
-            ["NNPDF23_nnlo_as_0118_qed"],
+            ["NNPDF31_nnlo_as_0118_luxqed"],
         )
 
 
