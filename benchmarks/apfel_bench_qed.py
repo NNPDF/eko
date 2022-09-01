@@ -119,4 +119,4 @@ if __name__ == "__main__":
 
     obj = BenchmarkFFNS()
 
-    obj.benchmark_plain(2, 1)
+    obj.benchmark_plain(2, 2)

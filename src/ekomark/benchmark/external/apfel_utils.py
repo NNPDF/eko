@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-APFEL interface
-"""
+"""APFEL interface."""
 import time
 
 import numpy as np
@@ -13,7 +11,6 @@ from eko import basis_rotation as br
 def compute_apfel_data(
     theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False
 ):
-
     """
     Run APFEL to compute operators.
 
@@ -35,7 +32,6 @@ def compute_apfel_data(
         ref : dict
             output containing: target_xgrid, values
     """
-
     target_xgrid = operators["interpolation_xgrid"]
     pdf_name = pdf.set().name
 
@@ -90,7 +86,10 @@ def compute_apfel_data(
             # collect APFEL
             apf = []
             for x in target_xgrid:
-                xf = apfel.xPDF(pid if pid != 21 else 0, x)
+                if pid != 22:
+                    xf = apfel.xPDF(pid if pid != 21 else 0, x)
+                else:
+                    xf = apfel.xgamma(x)
                 # if pid == 4:
                 #     print(pid,x,xf)
                 apf.append(xf)

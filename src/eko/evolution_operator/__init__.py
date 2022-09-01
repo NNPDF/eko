@@ -710,7 +710,7 @@ class Operator(sv.ModeMixin):
                 ].error = self.op_members[
                     (br.non_singlet_pids_map["ns-"], 0)
                 ].error.copy()
-        elif self.order[1] == 1 and self.order[0] == 0:
+        elif self.order[1] == 1 and self.order[0] == 0:  # TODO : double check it
             self.op_members[
                 (br.non_singlet_pids_map["ns-u"], 0)
             ].value = self.op_members[(br.non_singlet_pids_map["ns+u"], 0)].value.copy()
