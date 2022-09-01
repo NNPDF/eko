@@ -6,6 +6,7 @@ import numpy as np
 from banana import register
 from banana.data import cartesian_product
 
+from eko import interpolation
 from ekomark.benchmark.runner import Runner
 from ekomark.data import operators
 
@@ -71,11 +72,19 @@ class BenchmarkFFNS(ApfelBenchmark):
     def benchmark_plain(self, pto, qed):
         """Plain configuration"""
 
+        oper_card = operators.build(operators.apfel_config)
+        oper_card.update(
+            {
+                "interpolation_xgrid": interpolation.make_lambert_grid(30),
+                "debug_skip_singlet": True,
+            }
+        )
+
         th = self.ffns_theory.copy()
         th.update({"PTO": [pto], "QED": [qed]})
         self.run(
             cartesian_product(th),
-            operators.build(operators.apfel_config),
+            oper_card,
             ["NNPDF31_nnlo_as_0118_luxqed"],
         )
 
