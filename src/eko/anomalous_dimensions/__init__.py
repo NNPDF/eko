@@ -293,7 +293,11 @@ def gamma_ns_qed(order, mode, n, nf):
     """
     # cache the s-es
     max_weight = max(order)
-    if max_weight >= 3:
+    if order == (1, 1):
+        sx = harmonics.sx(n, max_weight=3)
+    elif order[1] == 2 and order[0] <= 2:
+        sx = harmonics.sx(n, max_weight=3)
+    elif max_weight >= 3:
         # here we need only S1,S2,S3,S4
         sx = harmonics.sx(n, max_weight=max_weight + 1)
     else:
@@ -372,7 +376,11 @@ def gamma_singlet_qed(order, n, nf):
     """
     # cache the s-es
     max_weight = max(order)
-    if max_weight >= 3:
+    if order == (1, 1):
+        sx = harmonics.sx(n, max_weight=3)
+    elif order[1] == 2 and order[0] <= 2:
+        sx = harmonics.sx(n, max_weight=3)
+    elif max_weight >= 3:
         # here we need only S1,S2,S3,S4
         sx = harmonics.sx(n, max_weight=max_weight + 1)
     else:
@@ -420,7 +428,11 @@ def gamma_valence_qed(order, n, nf):
     """
     # cache the s-es
     max_weight = max(order)
-    if max_weight >= 3:
+    if order == (1, 1):
+        sx = harmonics.sx(n, max_weight=3)
+    elif order[1] == 2 and order[0] <= 2:
+        sx = harmonics.sx(n, max_weight=3)
+    elif max_weight >= 3:
         # here we need only S1,S2,S3,S4
         sx = harmonics.sx(n, max_weight=max_weight + 1)
     else:
