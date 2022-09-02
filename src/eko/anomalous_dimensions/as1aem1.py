@@ -93,6 +93,7 @@ def gamma_qph(N, nf, sx):
     )
 
 
+# TODO : check the Nc factors in gg gph phg phph
 @nb.njit(cache=True)
 def gamma_gph(N):
     r"""Compute the O(as1aem1) gluon-photon anomalous dimension.

@@ -490,10 +490,10 @@ class Operator(sv.ModeMixin):
             else:
                 labels.extend(br.singlet_labels)
         else:
-            # add +u and +d as default
             if self.config["debug_skip_non_singlet"]:
                 logger.warning("%s: skipping non-singlet sector", self.log_label)
             else:
+                # add +u and +d as default
                 labels.append(br.non_singlet_unified_labels[0])
                 labels.append(br.non_singlet_unified_labels[2])
                 # -u and -d become different starting from O(as1aem1) or O(aem2)

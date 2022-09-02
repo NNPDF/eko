@@ -169,6 +169,7 @@ class Runner(BenchmarkRunner):
 
             # here theory card is not needed
             return lhapdf_utils.compute_LHAPDF_data(
+                theory,
                 ocard,
                 pdf,
                 self.skip_pdfs(theory),
@@ -242,24 +243,10 @@ class Runner(BenchmarkRunner):
             qed=qed,
         )
 
-        def rotate_ev_to_uni_ev(ref_pdf):
-            import numpy as np
-
-            rotate_evolution_to_flavour = np.linalg.inv(br.rotate_flavor_to_evolution)
-            rotation = (
-                br.rotate_flavor_to_unified_evolution @ rotate_evolution_to_flavour
-            )
-            ref_pdf_tmp = np.array([ref_pdf[pid] for pid in br.evol_basis])
-            new_ref_pdfs_tmp = rotation @ ref_pdf_tmp
-            return {br.unified_evol_basis[i]: new_ref_pdfs_tmp[i] for i in range(14)}
-
         for q2 in q2s:
 
             log_tab = dfdict.DFdict()
-            if qed and self.rotate_to_evolution_basis:
-                ref_pdfs = rotate_ev_to_uni_ev(ext["values"][q2])
-            else:
-                ref_pdfs = ext["values"][q2]
+            ref_pdfs = ext["values"][q2]
             res = pdf_grid[q2]
             my_pdfs = res["pdfs"]
             my_pdf_errs = res["errors"]
