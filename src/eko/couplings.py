@@ -381,7 +381,7 @@ class Couplings:
             raise NotImplementedError("a_s beyond N3LO is not implemented")
         if order[1] not in [0, 1, 2]:
             raise NotImplementedError("a_em beyond NLO is not implemented")
-        self.order = order
+        self.order = tuple(order)
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
         self.method = method
