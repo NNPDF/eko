@@ -97,7 +97,7 @@ def test_momentum_conservation():
     np.testing.assert_allclose(
         ggg.gamma_gg_nf1(N, sx_cache) + gqg.gamma_qg_nf1(N, sx_cache),
         0,
-        atol=4e-11,
+        atol=5e-11,
     )
 
     # nf^0 part

@@ -503,7 +503,7 @@ class TestOperatorMatrixElement:
             },
         }
         t = copy.deepcopy(self.theory_card)
-        t["order"] = (1, 0)
+        t["order"] = (2, 0)
         g = OperatorGrid.from_dict(
             t,
             operators_card,

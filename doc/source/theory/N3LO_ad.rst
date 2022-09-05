@@ -2,23 +2,23 @@ N3LO Anomalous Dimensions
 =========================
 
 The |N3LO| |QCD| anomalous dimensions :math:`\gamma^{(3)}` are not yet fully known,
-since they rely on the calculation of 4-loop DIS integrals.
-Moreover the analytical structure of these function is already known to be complicated
+since they rely on the calculation of 4-loop |DIS| integrals.
+Moreover, the analytical structure of these function is already known to be complicated
 since in Mellin space it will included harmonics sum up to weight 7, for which an
-analytical contribution is not available.
+analytical expression is not available.
 
-Here we describe the various assumptions and limits used in order to reconstruct a parametrization
+Here, we describe the various assumptions and limits used in order to reconstruct a parametrization
 that can approximate their contribution.
 In particular we will take advantage of some known physical constrain,
 such as large-x limit, small-x limit, and sum rules, in order to make our reconstruction reasonable.
 
-Generally we remark that the large-x limit correspond to large-N in Mellin space
+Generally, we remark that the large-x limit correspond to large-N in Mellin space
 where the leading contribution comes from the harmonics :math:`S_1(N)`,
 while the small-x region corresponds to poles at :math:`N=0,1` depending on the type of
 divergence.
 
 In any case |N3LO| |DGLAP| evolution at small-x, especially for singlet-like PDFs, will not be reliable
-until the splitting function resummation will not be available up to NNLL.
+until the splitting function resummation will not be available up to |NNLL|.
 
 Non-singlet sector
 ------------------
@@ -81,7 +81,7 @@ In |EKO| they are implemented as follows:
             This part contains the so called double logarithms:
 
             .. math ::
-                \ln^k(x) \quad k=1,..,6, \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{(k+1)}}
+                \ln^k(x), \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}, \quad k=1,..,6
 
             Note the expressions are evaluated with the exact values of the |QCD|
             Casimir invariants, to better agree with the :cite:`Moch:2017uml` parametrization.
@@ -107,7 +107,7 @@ In |EKO| they are implemented as follows:
         -   The difference between the known moments and the known limits is parametrized
             in Mellin space. The basis includes:
 
-            .. list-table::
+            .. list-table:: :math:`\gamma_{ns,\pm}^{(3)}` parametrization basis
                 :align: center
                 :header-rows: 1
 
@@ -116,31 +116,27 @@ In |EKO| they are implemented as follows:
                 *   - :math:`\delta(1-x)`
                     - 1
                 *   - :math:`(1-x)\ln(1-x)`
-                    - :math:`\mathcal{M}[(1-x)\ln(1-x)] \approx \frac{S_1(N)}{N^2}`
+                    - :math:`\mathcal{M}[(1-x)\ln(1-x)]`
                 *   - :math:`(1-x)\ln^2(1-x)`
-                    - :math:`\mathcal{M}[(1-x)\ln^2(1-x)] \approx \frac{S_1^2(N)}{N^2}`
+                    - :math:`\mathcal{M}[(1-x)\ln^2(1-x)]`
                 *   - :math:`(1-x)\ln^3(1-x)`
-                    - :math:`\mathcal{M}[(1-x)\ln^3(1-x)] \approx \frac{S_1^3(N)}{N^2}`
-                *   - :math:`- Li_2(x) + \zeta_2`
+                    - :math:`\mathcal{M}[(1-x)\ln^3(1-x)]`
+                *   - :math:`- \rm{Li_2}(x) + \zeta_2`
                     - :math:`\frac{S_1(N)}{N^2}`
-
-            which model the sub-leading differences in the :math:`N\to \infty` limit, and:
-
-            .. list-table::
-                :align: center
-                :header-rows: 1
-
-                *   - x-space
-                    - N-space
                 *   - :math:`x\ln(x)`
                     - :math:`\frac{1}{(N+1)^2}`
                 *   - :math:`\frac{x}{2}\ln^2(x)`
                     - :math:`\frac{1}{(N+1)^3}`
+                *   - :math:`x^{2}, x^{3}`
+                    - :math:`\frac{1}{(N-2)},\frac{1}{(N-3)}`
 
+            The first five functions model the sub-leading differences in the :math:`N\to \infty` limit,
+            while the last three help the convergence in the small-N region. Finally, we add a polynomial part
+            :math:`x^{2}` or :math:`x^{3}` respectively for :math:`\gamma_{ns,+},\gamma_{ns,-}`.
+            For large-N we have the limit:
 
-            to help the convergence in the small-N region. Finally we add a polynomial part
-            :math:`x^{2(3)}` which corresponds to simple poles at :math:`N=-2,-3`
-            respectively for :math:`\gamma_{ns,+},\gamma_{ns,-}`.
+                .. math ::
+                    \mathcal{M}[(1-x)\ln^k(1-x)] \approx \frac{S_1^k(N)}{N^2}
 
             Note that the constant coefficient is included in the fit, following the procedure done
             in :cite:`Moch:2017uml` (section 4), to achieve a better accuracy.
@@ -205,20 +201,20 @@ The other parts are approximated using some known limits:
         for the pole at :math:`N=0`:
 
             .. math ::
-                \ln^k(x) \quad k=4,5,6, \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{(k+1)}}
+                \ln^k(x), \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}, \quad k=4,5,6
 
-    *   The small-x limit, coming from BFLK resummation
+    *   The small-x limit, coming from |BFKL| resummation
         :cite:`Bonvini:2018xvt` (see Eq. 2.32, 2.20b, 2.21a, 2.21b)
         which fix the leading terms (|LL|, |NLL|) for the pole at :math:`N=1`:
 
             .. math ::
-                \frac{\ln^k(x)}{x} \quad k=4,5, \quad \mathcal{M}[\frac{\ln^k(x)}{x}] = \frac{1}{(N-1)^{(k+1)}}
+                \frac{\ln^k(x)}{x}, \quad \mathcal{M}[\frac{\ln^k(x)}{x}] = \frac{1}{(N-1)^{k+1}}, \quad k=4,5
 
         Note that in principle also the term :math:`\frac{\ln^6(x)}{x}` could be present at |N3LO|,
         but they are vanishing.
         These terms are way larger than the previous ones in the small-x limit and
         are effectively determining the raise of the splitting functions at small-x.
-        In particular only the expansion for :math:`\gamma_{gg}^{(3)}` is known at NLL.
+        In particular only the expansion for :math:`\gamma_{gg}^{(3)}` is known at |NLL|.
         |LL| terms respect the representation symmetry :
 
             .. math ::
@@ -228,21 +224,21 @@ The other parts are approximated using some known limits:
 
     *   The large-x limit of the singlet splitting function is different for the diagonal part
         and the off-diagonal.
-        It is known that :cite:`Moch:2021qrk` the diagonal terms diverge in N-space as:
+        It is known that :cite:`Albino:2000cp,Moch:2021qrk` the diagonal terms diverge in N-space as:
 
             .. math ::
                 \gamma_{kk} \approx A_4 S_1(N)  + \mathcal{O}(1)
 
-        Where again the coefficient :math:`A_4` is |QCD| cusp. However :math:`\gamma_{qq,ps}^{(3)}`
+        Where again the coefficient :math:`A_4` is the |QCD| cusp anomalous dimension. However, :math:`\gamma_{qq,ps}^{(3)}`
         do not constrain any divergence at large-x or constant term so its expansion will start as
-        :math:` \mathcal{O}(\frac{1}{N^2})`.
-        The off-diagonal do not contain any +-distribution or delta but can include divergent logarithms
+        :math:`\mathcal{O}(\frac{1}{N^2})`.
+        The off-diagonal do not contain any +-distributions or delta distributions but can include divergent logarithms
         of the type :cite:`Soar:2009yh`:
 
             .. math ::
-                \frac{\ln^k(1-x)}{x} \quad k=1,..,6
+                \ln^k(1-x) \quad k=1,..,6
 
-        where also in this case the term :math:`k=6` vanished. The values of the coefficient for :math:`k=4,5`
+        where also in this case the term :math:`k=6` vanish. The values of the coefficient for :math:`k=4,5`
         can be guessed from the lower order splitting functions. These logarithms are not present in the diagonal
         splitting function, which can include at most term :math:`(1-x)\ln^4(1-x)`.
 

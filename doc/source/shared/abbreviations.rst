@@ -34,10 +34,10 @@
    :abbr:`LL (Leading Log)`
 
 .. |NLL| replace::
-   :abbr:`NLO (Next-to-Leading Log)`
+   :abbr:`NLL (Next-to-Leading Log)`
 
 .. |NNLL| replace::
-   :abbr:`NNLO (Next-to-Next-to-Leading Log)`
+   :abbr:`NNLL (Next-to-Next-to-Leading Log)`
 
 .. Names
 
@@ -69,6 +69,11 @@
 .. |QED| replace::
    :abbr:`QED (Quantum Electrodynamics)`
 
+.. |DIS| replace::
+   :abbr:`DIS (Deep Inelastic Scattering)`
+
+.. |BFKL| replace::
+   :abbr:`BFKL (Balitsky-Fadin-Kuraev-Lipatov)`
 .. external
 
 .. |yadism| replace::
