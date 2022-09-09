@@ -267,6 +267,33 @@ class TestOperator:
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
         )
 
+    def test_compute_no_skip_sv(self, monkeypatch):
+        tcard = copy.deepcopy(theory_card)
+        tcard["fact_to_ren_scale_ratio"] = 2.0
+        tcard["ModSV"] = "expanded"
+        ocard = copy.deepcopy(operators_card)
+        g = OperatorGrid.from_dict(
+            tcard,
+            ocard,
+            ThresholdsAtlas.from_dict(tcard),
+            Couplings.from_dict(tcard),
+            InterpolatorDispatcher.from_dict(ocard),
+        )
+        # setup objs
+        o = Operator(g.config, g.managers, 3, 2.0, 2.0)
+        # fake quad
+        v = 0.1234
+        monkeypatch.setattr(
+            scipy.integrate, "quad", lambda *args, v=v, **kwargs: (v, 0.56)
+        )
+        o.compute()
+        # ns are all diagonal, so they start from an identity matrix
+        for k in br.non_singlet_labels:
+            assert k in o.op_members
+            np.testing.assert_allclose(
+                o.op_members[k].value, [[v, v], [v, 1]], err_msg=k
+            )
+
     def test_compute(self, monkeypatch):
         tcard = copy.deepcopy(theory_card)
         ocard = copy.deepcopy(operators_card)
