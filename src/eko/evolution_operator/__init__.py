@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-r"""
-Contains the central operator classes.
+r"""Contains the central operator classes.
 
 See :doc:`Operator overview </code/Operators>`.
 """
@@ -31,21 +30,21 @@ logger = logging.getLogger(__name__)
 
 @nb.njit(cache=True)
 def select_singlet_element(ker, mode0, mode1):
-    """
-    Select element of the singlet matrix.
+    """Select element of the singlet matrix.
 
     Parameters
     ----------
-        ker : numpy.ndarray
-            singlet integration kernel
-        mode0 : int
-            id for first sector element
-        mode1 : int
-            id for second sector element
+    ker : numpy.ndarray
+        singlet integration kernel
+    mode0 : int
+        id for first sector element
+    mode1 : int
+        id for second sector element
+
     Returns
     -------
-        ker : complex
-            singlet integration kernel element
+    complex
+        singlet integration kernel element
     """
     k = 0 if mode0 == 100 else 1
     l = 0 if mode1 == 100 else 1
@@ -124,19 +123,18 @@ spec = [
 
 @nb.experimental.jitclass(spec)
 class QuadKerBase:
-    """
-    Manage the common part of Mellin inversion integral.
+    """Manage the common part of Mellin inversion integral.
 
     Parameters
     ----------
-        u : float
-            quad argument
-        is_log : boolean
-            is a logarithmic interpolation
-        logx : float
-            Mellin inversion point
-        mode0 : str
-            first sector element
+    u : float
+        quad argument
+    is_log : boolean
+        is a logarithmic interpolation
+    logx : float
+        Mellin inversion point
+    mode0 : str
+        first sector element
     """
 
     def __init__(self, u, is_log, logx, mode0):
@@ -155,25 +153,24 @@ class QuadKerBase:
 
     @property
     def n(self):
-        """Return the Mellin moment N."""
+        """Returs the Mellin moment :math:`N`."""
         return self.path.n
 
     def integrand(
         self,
         areas,
     ):
-        """
-        Get transformation to Mellin space integral.
+        """Get transformation to Mellin space integral.
 
         Parameters
         ----------
-            areas : tuple
-                basis function configuration
+        areas : tuple
+            basis function configuration
 
         Returns
         -------
-            base_integrand: complex
-                common mellin inversion integrand
+        complex
+            common mellin inversion integrand
         """
         if self.logx == 0.0:
             return 0.0
@@ -414,7 +411,7 @@ class Operator(sv.ModeMixin):
 
     @property
     def n_pools(self):
-        """Return the number of integration cores."""
+        """Return number of parallel cores."""
         n_pools = self.config["n_integration_cores"]
         if n_pools > 0:
             return n_pools
@@ -423,7 +420,7 @@ class Operator(sv.ModeMixin):
 
     @property
     def fact_to_ren(self):
-        r"""Return the factor :math:`(\mu_F/\mu_R)^2`."""
+        r"""Return scale variation factor :math:`(\mu_F/\mu_R)^2`."""
         return self.config["fact_to_ren"]
 
     @property
@@ -508,7 +505,7 @@ class Operator(sv.ModeMixin):
         return labels
 
     def quad_ker(self, label, logx, areas):
-        """Compute partially initialized integrand function.
+        """Return partially initialized integrand function.
 
         Parameters
         ----------
@@ -546,7 +543,7 @@ class Operator(sv.ModeMixin):
         )
 
     def initialize_op_members(self):
-        """Init all ops with identity or zeros if we skip them."""
+        """Init all operators with the identity or zeros."""
         eye = OpMember(
             np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
         )
@@ -582,7 +579,6 @@ class Operator(sv.ModeMixin):
         -------
         list
             computed operators at the give grid point
-
         """
         column = []
         k, logx = log_grid
@@ -619,13 +615,19 @@ class Operator(sv.ModeMixin):
         """Compute the actual operators (i.e. run the integrations)."""
         self.initialize_op_members()
 
-        # skip computation ?
+        # skip computation?
         if np.isclose(self.q2_from, self.q2_to):
-            logger.info(
-                "%s: skipping unity operator at %e", self.log_label, self.q2_from
-            )
-            self.copy_ns_ops()
-            return
+            # unless we have to do some scale variation
+            # TODO remove if K is factored out of here
+            if not (
+                self.sv_mode == sv.Modes.expanded
+                and not np.isclose(self.fact_to_ren, 1.0)
+            ):
+                logger.info(
+                    "%s: skipping unity operator at %e", self.log_label, self.q2_from
+                )
+                self.copy_ns_ops()
+                return
 
         logger.info(
             "%s: computing operators %e -> %e, nf=%d",
@@ -640,7 +642,7 @@ class Operator(sv.ModeMixin):
             self.mur2_shift(self.q2_from),
             self.mur2_shift(self.q2_to),
         )
-        if self.sv_mode.name != "unvaried":
+        if self.sv_mode != sv.Modes.unvaried:
             logger.info(
                 "Scale Variation: (µ_F/µ_R)^2 = %e, mode: %s",
                 self.fact_to_ren,
