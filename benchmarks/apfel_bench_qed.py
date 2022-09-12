@@ -72,19 +72,11 @@ class BenchmarkFFNS(ApfelBenchmark):
     def benchmark_plain(self, pto, qed):
         """Plain configuration"""
 
-        oper_card = operators.build(operators.apfel_config)[0]
-        oper_card.update(
-            {
-                "interpolation_xgrid": interpolation.make_lambert_grid(30),
-                "debug_skip_singlet": True,
-            }
-        )
-
         th = self.ffns_theory.copy()
         th.update({"PTO": [pto], "QED": [qed]})
         self.run(
             cartesian_product(th),
-            list(oper_card),
+            operators.build(operators.apfel_config),
             ["NNPDF31_nnlo_as_0118_luxqed"],
         )
 
