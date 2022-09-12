@@ -19,7 +19,7 @@ methods = [
 ]
 
 
-def test_zero_lo(monkeypatch):
+def test_zero(monkeypatch):
     """No evolution results in exp(0)"""
     nf = 3
     ev_op_iterations = 2
