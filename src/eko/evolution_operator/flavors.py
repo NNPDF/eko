@@ -179,7 +179,7 @@ def rotate_matching(nf, qed=False, inverse=False):
             a, b, c, d, e, f = rotation_parameters(nf)
             if inverse:
                 den = -b * d + a * e - c * e + b * f
-                l[f"{tot}.{tot}"] = (c * e - b * f) / den
+                l[f"{tot}.{tot}"] = -(c * e - b * f) / den
                 l[f"{tot}.{totdelta}"] = e / den
                 l[f"{tot}.{oth}"] = -b / den
                 l[f"{totdelta}.{tot}"] = (c * d - a * f) / den
