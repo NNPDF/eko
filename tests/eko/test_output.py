@@ -284,3 +284,51 @@ class TestOutput:
             o10["Q2grid"][q2_out]["operators"], o11["Q2grid"][q2_out]["operators"]
         )
         chk_keys(o00, o10)
+
+    def test_to_uni_evol(self, fake_factory):
+        interpolation_xgrid = np.array([0.5, 1.0])
+        interpolation_polynomial_degree = 1
+        interpolation_is_log = False
+        q2_ref = 1
+        q2_out = 2
+        Q2grid = fake_factory.mk_g(
+            [q2_out], len(br.flavor_basis_pids), len(interpolation_xgrid)
+        )
+        d = dict(
+            interpolation_xgrid=interpolation_xgrid,
+            targetgrid=interpolation_xgrid,
+            inputgrid=interpolation_xgrid,
+            interpolation_polynomial_degree=interpolation_polynomial_degree,
+            interpolation_is_log=interpolation_is_log,
+            q2_ref=q2_ref,
+            inputpids=br.flavor_basis_pids,
+            targetpids=br.flavor_basis_pids,
+            Q2grid=Q2grid,
+        )
+        o00 = output.Output(d)
+        o01 = copy.copy(o00)
+        o01.to_uni_evol()
+        o10 = copy.copy(o00)
+        o10.to_uni_evol(False, True)
+        o11 = copy.copy(o00)
+        o11.to_uni_evol(True, True)
+        chk_keys(o00, o11)
+
+        # check the input rotated one
+        np.testing.assert_allclose(o01["inputpids"], br.unified_evol_basis_pids)
+        np.testing.assert_allclose(o01["targetpids"], br.flavor_basis_pids)
+        # rotate also target
+        o01.to_uni_evol(False, True)
+        np.testing.assert_allclose(
+            o01["Q2grid"][q2_out]["operators"], o11["Q2grid"][q2_out]["operators"]
+        )
+        chk_keys(o00, o01)
+        # check the target rotated one
+        np.testing.assert_allclose(o10["inputpids"], br.flavor_basis_pids)
+        np.testing.assert_allclose(o10["targetpids"], br.unified_evol_basis_pids)
+        # rotate also input
+        o10.to_uni_evol()
+        np.testing.assert_allclose(
+            o10["Q2grid"][q2_out]["operators"], o11["Q2grid"][q2_out]["operators"]
+        )
+        chk_keys(o00, o10)
