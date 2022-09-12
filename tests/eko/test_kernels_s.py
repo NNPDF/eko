@@ -41,7 +41,7 @@ def test_zero_lo(monkeypatch):
             s.dispatcher(
                 (1, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
             ),
-            np.zeros((2, 2)),
+            np.eye(2),
         )
         np.testing.assert_allclose(
             s.dispatcher(
@@ -83,7 +83,7 @@ def test_zero_nlo_decompose(monkeypatch):
             s.dispatcher(
                 (2, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
             ),
-            np.zeros((2, 2)),
+            np.eye(2),
         )
         np.testing.assert_allclose(
             s.dispatcher(
@@ -125,7 +125,7 @@ def test_zero_nnlo_decompose(monkeypatch):
             s.dispatcher(
                 (3, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
             ),
-            np.zeros((2, 2)),
+            np.eye(2),
         )
         np.testing.assert_allclose(
             s.dispatcher(
@@ -167,7 +167,7 @@ def test_zero_n3lo_decompose(monkeypatch):
             s.dispatcher(
                 (4, 0), method, gamma_s, 1, 1, nf, ev_op_iterations, ev_op_max_order
             ),
-            np.zeros((2, 2)),
+            np.eye(2),
             atol=1e-15,
         )
         np.testing.assert_allclose(
