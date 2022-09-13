@@ -66,7 +66,7 @@ def test_momentum_conservation():
         np.testing.assert_allclose(
             gnsp.gamma_nsp_nf2(N, sx_cache)
             + gps.gamma_ps_nf2(N, sx_cache)
-            + ggq.gamma_gq_nf2(N, sx_cache),
+            + ggq.gamma_gq_nf2(N, sx_cache, variation),
             0,
             atol=3e-13,
         )
@@ -80,8 +80,9 @@ def test_momentum_conservation():
         np.testing.assert_allclose(
             gnsp.gamma_nsp_nf1(N, sx_cache)
             + gps.gamma_ps_nf1(N, sx_cache)
-            + ggq.gamma_gq_nf1(N, sx_cache),
+            + ggq.gamma_gq_nf1(N, sx_cache, variation),
             0,
+            atol=4e-12,
         )
         np.testing.assert_allclose(
             ggg.gamma_gg_nf1(N, sx_cache, variation) + gqg.gamma_qg_nf1(N, sx_cache),
@@ -91,7 +92,7 @@ def test_momentum_conservation():
 
         # nf^0 part
         np.testing.assert_allclose(
-            gnsp.gamma_nsp_nf0(N, sx_cache) + ggq.gamma_gq_nf0(N, sx_cache),
+            gnsp.gamma_nsp_nf0(N, sx_cache) + ggq.gamma_gq_nf0(N, sx_cache, variation),
             0,
             atol=3e-11,
         )

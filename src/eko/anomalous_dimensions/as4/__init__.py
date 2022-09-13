@@ -56,7 +56,7 @@ def gamma_singlet(N, nf, sx, variation):
     gamma_S_0 = np.array(
         [
             [gamma_qq, gamma_qg(N, nf, sx)],
-            [gamma_gq(N, nf, sx), gamma_gg(N, nf, sx, variation)],
+            [gamma_gq(N, nf, sx, variation), gamma_gg(N, nf, sx, variation)],
         ],
         np.complex_,
     )
