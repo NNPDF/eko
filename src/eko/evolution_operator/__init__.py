@@ -718,17 +718,20 @@ class Operator(sv.ModeMixin):
                 ].error = self.op_members[
                     (br.non_singlet_pids_map["ns-"], 0)
                 ].error.copy()
-        elif self.order[1] == 1 and self.order[0] == 0:  # at O(as0aem1) u-=u+, d-=d+
-            self.op_members[
-                (br.non_singlet_pids_map["ns-u"], 0)
-            ].value = self.op_members[(br.non_singlet_pids_map["ns+u"], 0)].value.copy()
-            self.op_members[
-                (br.non_singlet_pids_map["ns-u"], 0)
-            ].error = self.op_members[(br.non_singlet_pids_map["ns+u"], 0)].error.copy()
-            self.op_members[
-                (br.non_singlet_pids_map["ns-d"], 0)
-            ].value = self.op_members[(br.non_singlet_pids_map["ns+d"], 0)].value.copy()
-            self.op_members[
-                (br.non_singlet_pids_map["ns-d"], 0)
-            ].error = self.op_members[(br.non_singlet_pids_map["ns+d"], 0)].error.copy()
+        # at O(as0aem1) u-=u+, d-=d+
         # starting from O(as1aem1) P+ != P-
+        # However the solution with pure QED are not implemented in EKO
+        # so the ns anomalous dimensions are always different
+        # elif self.order[1] == 1 and self.order[0] == 0:
+        #     self.op_members[
+        #         (br.non_singlet_pids_map["ns-u"], 0)
+        #     ].value = self.op_members[(br.non_singlet_pids_map["ns+u"], 0)].value.copy()
+        #     self.op_members[
+        #         (br.non_singlet_pids_map["ns-u"], 0)
+        #     ].error = self.op_members[(br.non_singlet_pids_map["ns+u"], 0)].error.copy()
+        #     self.op_members[
+        #         (br.non_singlet_pids_map["ns-d"], 0)
+        #     ].value = self.op_members[(br.non_singlet_pids_map["ns+d"], 0)].value.copy()
+        #     self.op_members[
+        #         (br.non_singlet_pids_map["ns-d"], 0)
+        #     ].error = self.op_members[(br.non_singlet_pids_map["ns+d"], 0)].error.copy()

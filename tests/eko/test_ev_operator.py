@@ -71,6 +71,26 @@ def test_quad_ker(monkeypatch):
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
             u=0,
+            order=(1, 1),
+            mode0=100,
+            mode1=100,
+            method="iterate-exact",
+            is_log=is_log,
+            logx=0.123,
+            areas=np.zeros(3),
+            as1=1,
+            as0=2,
+            aem=0.00058,
+            nf=3,
+            L=0,
+            ev_op_iterations=0,
+            ev_op_max_order=(0, 0),
+            sv_mode=1,
+            is_threshold=False,
+        )
+        np.testing.assert_allclose(res_s, 1.0)
+        res_s = quad_ker(
+            u=0,
             order=(1, 0),
             mode0=100,
             mode1=21,
@@ -89,6 +109,66 @@ def test_quad_ker(monkeypatch):
             is_threshold=False,
         )
         np.testing.assert_allclose(res_s, 0.0)
+        res_s = quad_ker(
+            u=0,
+            order=(1, 1),
+            mode0=100,
+            mode1=21,
+            method="iterate-exact",
+            is_log=is_log,
+            logx=0.0,
+            areas=np.zeros(3),
+            as1=1,
+            as0=2,
+            aem=0.00058,
+            nf=3,
+            L=0,
+            ev_op_iterations=0,
+            ev_op_max_order=(0, 0),
+            sv_mode=1,
+            is_threshold=False,
+        )
+        np.testing.assert_allclose(res_s, 0.0)
+        res_v = quad_ker(
+            u=0,
+            order=(1, 1),
+            mode0=10200,
+            mode1=10200,
+            method="iterate-exact",
+            is_log=is_log,
+            logx=0.123,
+            areas=np.zeros(3),
+            as1=1,
+            as0=2,
+            aem=0.00058,
+            nf=3,
+            L=0,
+            ev_op_iterations=0,
+            ev_op_max_order=(0, 0),
+            sv_mode=1,
+            is_threshold=False,
+        )
+        np.testing.assert_allclose(res_v, 1.0)
+        res_v = quad_ker(
+            u=0,
+            order=(1, 1),
+            mode0=10200,
+            mode1=10201,
+            method="iterate-exact",
+            is_log=is_log,
+            logx=0.123,
+            areas=np.zeros(3),
+            as1=1,
+            as0=2,
+            aem=0.00058,
+            nf=3,
+            L=0,
+            ev_op_iterations=0,
+            ev_op_max_order=(0, 0),
+            sv_mode=1,
+            is_threshold=False,
+        )
+        np.testing.assert_allclose(res_v, 0.0)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
         for sv in [2, 3]:
             res_sv = quad_ker(
@@ -97,6 +177,28 @@ def test_quad_ker(monkeypatch):
                 mode0=label[0],
                 mode1=label[1],
                 method="",
+                is_log=True,
+                logx=0.123,
+                areas=np.zeros(3),
+                as1=1,
+                as0=2,
+                aem=0.00058,
+                nf=3,
+                L=0,
+                ev_op_iterations=0,
+                ev_op_max_order=(1, 0),
+                sv_mode=sv,
+                is_threshold=False,
+            )
+            np.testing.assert_allclose(res_sv, 1.0)
+    for label in [(100, 100), (10200, 10200)]:
+        for sv in [2, 3]:
+            res_sv = quad_ker(
+                u=0,
+                order=(1, 1),
+                mode0=label[0],
+                mode1=label[1],
+                method="iterate-exact",
                 is_log=True,
                 logx=0.123,
                 areas=np.zeros(3),
@@ -192,6 +294,34 @@ class TestOperator:
         o = Operator(
             dict(
                 order=(2, 0),
+                debug_skip_non_singlet=True,
+                debug_skip_singlet=True,
+                n_integration_cores=1,
+            ),
+            {},
+            3,
+            1,
+            2,
+        )
+        assert sorted(o.labels) == []
+
+    def test_labels_qed(self):
+        o = Operator(
+            dict(
+                order=(3, 1),
+                debug_skip_non_singlet=False,
+                debug_skip_singlet=False,
+                n_integration_cores=1,
+            ),
+            {},
+            3,
+            1,
+            2,
+        )
+        assert sorted(o.labels) == sorted(br.full_unified_labels)
+        o = Operator(
+            dict(
+                order=(2, 1),
                 debug_skip_non_singlet=True,
                 debug_skip_singlet=True,
                 n_integration_cores=1,
@@ -338,6 +468,18 @@ class TestOperator:
             for k in br.non_singlet_labels:
                 assert k in o1.op_members
                 np.testing.assert_allclose(o1.op_members[k].value, np.eye(2), err_msg=k)
+
+        for n in range(1, 3 + 1):
+            for qed in range(1, 2 + 1):
+                g.config["order"] = (n, qed)
+                o1 = Operator(g.config, g.managers, 3, 2.0, 2.0)
+                # o1.config["order"] = (n, qed)
+                o1.compute()
+                for k in br.non_singlet_unified_labels:
+                    assert k in o1.op_members
+                    np.testing.assert_allclose(
+                        o1.op_members[k].value, np.eye(2), err_msg=k
+                    )
 
 
 def test_pegasus_path():

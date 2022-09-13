@@ -296,12 +296,8 @@ def gamma_ns_qed(order, mode, n, nf):
     if max_weight >= 3:
         # here we need only S1,S2,S3,S4
         sx = harmonics.sx(n, max_weight=max_weight + 1)
-    elif order[0] >= 1 and order[1] >= 1:
-        sx = harmonics.sx(n, max_weight=3)
-    elif order[1] == 2:
-        sx = harmonics.sx(n, max_weight=3)
     else:
-        sx = harmonics.sx(n, max_weight=max_weight)
+        sx = harmonics.sx(n, max_weight=3)
     # now combine
     gamma_ns = np.zeros((order[0] + 1, order[1] + 1), np.complex_)
     if order[0] >= 1:
@@ -379,12 +375,8 @@ def gamma_singlet_qed(order, n, nf):
     if max_weight >= 3:
         # here we need only S1,S2,S3,S4
         sx = harmonics.sx(n, max_weight=max_weight + 1)
-    elif order[0] >= 1 and order[1] >= 1:
-        sx = harmonics.sx(n, max_weight=3)
-    elif order[1] == 2:
-        sx = harmonics.sx(n, max_weight=3)
     else:
-        sx = harmonics.sx(n, max_weight=max_weight)
+        sx = harmonics.sx(n, max_weight=3)
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
     if order[0] >= 1:
         gamma_s[1, 0] = as1.gamma_QEDsinglet(n, sx[0], nf)
@@ -432,12 +424,8 @@ def gamma_valence_qed(order, n, nf):
     if max_weight >= 3:
         # here we need only S1,S2,S3,S4
         sx = harmonics.sx(n, max_weight=max_weight + 1)
-    elif order[0] >= 1 and order[1] >= 1:
-        sx = harmonics.sx(n, max_weight=3)
-    elif order[1] == 2:
-        sx = harmonics.sx(n, max_weight=3)
     else:
-        sx = harmonics.sx(n, max_weight=max_weight)
+        sx = harmonics.sx(n, max_weight=3)
     gamma_v = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
     if order[0] >= 1:
         gamma_v[1, 0] = as1.gamma_QEDvalence(n, sx[0])
