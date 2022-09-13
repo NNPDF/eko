@@ -154,7 +154,7 @@ class OperatorGrid(sv.ModeMixin):
         The internal dictionary is self._threshold_operators and its structure is:
         (q2_from, q2_to) -> eko.operators.Operator
 
-        It Compute and stores the necessary macthing operators
+        It computes and stores the necessary macthing operators
         Parameters
         ----------
             path: list(`eko.thresholds.PathSegment`)
