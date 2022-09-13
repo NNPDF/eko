@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-r"""
-This module contains the Altarelli-Parisi splitting kernels.
+r"""The Altarelli-Parisi splitting kernels.
 
 Normalization is given by
 
@@ -27,30 +26,29 @@ from . import aem1, aem2, as1, as1aem1, as2, as3, as4
 
 @nb.njit(cache=True)
 def exp_singlet(gamma_S):
-    r"""
-    Computes the exponential and the eigensystem of the singlet anomalous dimension matrix
+    r"""Compute the exponential and the eigensystem of the singlet anomalous dimension matrix.
 
     Parameters
     ----------
-        gamma_S : numpy.ndarray
-            singlet anomalous dimension matrix
+    gamma_S : numpy.ndarray
+        singlet anomalous dimension matrix
 
     Returns
     -------
-        exp : numpy.ndarray
-            exponential of the singlet anomalous dimension matrix :math:`\gamma_{S}(N)`
-        lambda_p : complex
-            positive eigenvalue of the singlet anomalous dimension matrix
-            :math:`\gamma_{S}(N)`
-        lambda_m : complex
-            negative eigenvalue of the singlet anomalous dimension matrix
-            :math:`\gamma_{S}(N)`
-        e_p : numpy.ndarray
-            projector for the positive eigenvalue of the singlet anomalous
-            dimension matrix :math:`\gamma_{S}(N)`
-        e_m : numpy.ndarray
-            projector for the negative eigenvalue of the singlet anomalous
-            dimension matrix :math:`\gamma_{S}(N)`
+    exp : numpy.ndarray
+        exponential of the singlet anomalous dimension matrix :math:`\gamma_{S}(N)`
+    lambda_p : complex
+        positive eigenvalue of the singlet anomalous dimension matrix
+        :math:`\gamma_{S}(N)`
+    lambda_m : complex
+        negative eigenvalue of the singlet anomalous dimension matrix
+        :math:`\gamma_{S}(N)`
+    e_p : numpy.ndarray
+        projector for the positive eigenvalue of the singlet anomalous
+        dimension matrix :math:`\gamma_{S}(N)`
+    e_m : numpy.ndarray
+        projector for the negative eigenvalue of the singlet anomalous
+        dimension matrix :math:`\gamma_{S}(N)`
 
     See Also
     --------
@@ -75,7 +73,7 @@ def exp_singlet(gamma_S):
 
 @nb.njit(cache=True)
 def gamma_ns(order, mode, n, nf):
-    r"""Computes the tower of the non-singlet anomalous dimensions
+    r"""Compute the tower of the non-singlet anomalous dimensions.
 
     Parameters
     ----------
@@ -154,8 +152,8 @@ def gamma_ns(order, mode, n, nf):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(order, n, nf):
-    r"""Computes the tower of the singlet anomalous dimensions matrices
+def gamma_singlet(order, n, nf, n3lo_ad_variation):
+    r"""Compute the tower of the singlet anomalous dimensions matrices.
 
     Parameters
     ----------
@@ -165,6 +163,8 @@ def gamma_singlet(order, n, nf):
         Mellin variable
     nf : int
         Number of active flavors
+    n3lo_ad_variation : str
+        |N3LO| anomalous dimension variation: "a" ,"b", "best"
 
     Returns
     -------
@@ -203,5 +203,5 @@ def gamma_singlet(order, n, nf):
     if order[0] >= 3:
         gamma_s[2] = as3.gamma_singlet(n, nf, sx)
     if order[0] >= 4:
-        gamma_s[3] = as4.gamma_singlet(n, nf, full_sx_cache)
+        gamma_s[3] = as4.gamma_singlet(n, nf, full_sx_cache, n3lo_ad_variation)
     return gamma_s

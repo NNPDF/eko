@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-r"""This module contains the anomalous dimension :math:`\gamma_{gg}^{(3)}`
-"""
+r"""The anomalous dimension :math:`\gamma_{gg}^{(3)}`."""
 import numba as nb
 import numpy as np
 
@@ -9,8 +8,9 @@ from ...harmonics.log_functions import lm11
 
 @nb.njit(cache=True)
 def gamma_gg_nf3(n, sx):
-    r"""Implements the part proportional to :math:`nf^3` of :math:`\gamma_{gg}^{(3)}`,
-    the expression is copied exact from Eq. 3.14 of :cite:`Davies:2016jie`.
+    r"""Implement the part proportional to :math:`nf^3` of :math:`\gamma_{gg}^{(3)}`.
+
+    The expression is copied exact from Eq. 3.14 of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
@@ -138,8 +138,8 @@ def gamma_gg_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_gg_nf1(n, sx):
-    r"""Implements the part proportional to :math:`nf^1` of :math:`\gamma_{gg}^{(3)}`.
+def gamma_gg_nf1(n, sx, variation):
+    r"""Implement the part proportional to :math:`nf^1` of :math:`\gamma_{gg}^{(3)}`.
 
     Parameters
     ----------
@@ -155,22 +155,39 @@ def gamma_gg_nf1(n, sx):
 
     """
     S1 = sx[0][0]
-    return (
-        18371.82290926215
-        + 1992.766087237516 / np.power(-1.0 + n, 3)
-        - 10452.576219113906 / np.power(-1.0 + n, 2)
-        + 19915.749052258507 / (-1.0 + n)
+    common = (
+        1992.766087237516 / np.power(-1.0 + n, 3)
         + 20005.925925925927 / np.power(n, 7)
         - 19449.679012345678 / np.power(n, 6)
         + 80274.123066115 / np.power(n, 5)
         - 11714.245609287387 * S1
-        + 18617.18939338288 * lm11(n, S1)
     )
+
+    if variation != "b":
+        fit_a = (
+            18371.822909262126
+            - 10452.576219113804 / np.power(-1.0 + n, 2)
+            + 19915.749052258336 / (-1.0 + n)
+            + 18617.189393382712 * lm11(n, S1)
+        )
+
+        fit = fit_a
+    if variation != "a":
+        fit_b = (
+            28440.340485681998
+            + 1164.9440613702425 / np.power(-1.0 + n, 2)
+            + 502762.0205192508 / (2.0 + n)
+            + 188564.91463932706 * lm11(n, S1)
+        )
+        fit = fit_b
+    if variation == "best":
+        fit = (fit_a + fit_b) / 2
+    return common + fit
 
 
 @nb.njit(cache=True)
-def gamma_gg_nf2(n, sx):
-    r"""Implements the part proportional to :math:`nf^2` of :math:`\gamma_{gg}^{(3)}`.
+def gamma_gg_nf2(n, sx, variation):
+    r"""Implement the part proportional to :math:`nf^2` of :math:`\gamma_{gg}^{(3)}`.
 
     Parameters
     ----------
@@ -186,21 +203,36 @@ def gamma_gg_nf2(n, sx):
 
     """
     S1 = sx[0][0]
-    return (
-        -436.18166675733164
-        + 18.346203400819753 / np.power(-1.0 + n, 2)
-        - 728.2679478666736 / (-1.0 + n)
-        - 568.8888888888889 / np.power(n, 7)
+    common = (
+        -568.8888888888889 / np.power(n, 7)
         + 1725.6296296296296 / np.power(n, 6)
         - 2196.543209876543 / np.power(n, 5)
         + 440.0487580115612 * S1
-        - 382.0574816096663 * lm11(n, S1)
     )
+    if variation != "b":
+        fit_a = (
+            -436.18166675733073
+            + 18.346203400817526 / np.power(-1.0 + n, 2)
+            - 728.2679478666695 / (-1.0 + n)
+            - 382.05748160966226 * lm11(n, S1)
+        )
+        fit = fit_a
+    if variation != "a":
+        fit_b = (
+            -804.3615737343886
+            - 406.47676618807304 / np.power(-1.0 + n, 2)
+            - 18384.719750590597 / (2.0 + n)
+            - 6596.6106367389 * lm11(n, S1)
+        )
+        fit = fit_b
+    if variation == "best":
+        fit = (fit_a + fit_b) / 2
+    return common + fit
 
 
 @nb.njit(cache=True)
-def gamma_gg_nf0(n, sx):
-    r"""Implements the part proportional to :math:`nf^0` of :math:`\gamma_{gg}^{(3)}`.
+def gamma_gg_nf0(n, sx, variation):
+    r"""Implement the part proportional to :math:`nf^0` of :math:`\gamma_{gg}^{(3)}`.
 
     Parameters
     ----------
@@ -216,23 +248,38 @@ def gamma_gg_nf0(n, sx):
 
     """
     S1 = sx[0][0]
-    return (
-        -61782.868048046716
-        - 49851.703887834694 / np.power(-1.0 + n, 4)
+    common = (
+        -49851.703887834694 / np.power(-1.0 + n, 4)
         + 213823.9810748423 / np.power(-1.0 + n, 3)
-        - 241732.26024803068 / np.power(-1.0 + n, 2)
-        + 88694.20340182834 / (-1.0 + n)
         - 103680.0 / np.power(n, 7)
         - 17280.0 / np.power(n, 6)
         - 627978.8224813186 / np.power(n, 5)
         + 40880.33011934297 * S1
-        - 13643.320974357539 * lm11(n, S1)
     )
+    if variation != "b":
+        fit_a = (
+            -61782.868048046665
+            - 241732.2602480308 / np.power(-1.0 + n, 2)
+            + 88694.20340182862 / (-1.0 + n)
+            - 13643.320974357292 * lm11(n, S1)
+        )
+        fit = fit_a
+    if variation != "a":
+        fit_b = (
+            -16943.0207726746
+            - 189993.97493029767 / np.power(-1.0 + n, 2)
+            + 2.2390358903218643e6 / (2.0 + n)
+            + 743213.8813879665 * lm11(n, S1)
+        )
+        fit = fit_b
+    if variation == "best":
+        fit = (fit_a + fit_b) / 2
+    return common + fit
 
 
 @nb.njit(cache=True)
-def gamma_gg(n, nf, sx):
-    r"""Computes the |N3LO| gluon-gluon singlet anomalous dimension.
+def gamma_gg(n, nf, sx, variation):
+    r"""Compute the |N3LO| gluon-gluon singlet anomalous dimension.
 
     Parameters
     ----------
@@ -258,8 +305,8 @@ def gamma_gg(n, nf, sx):
 
     """
     return (
-        gamma_gg_nf0(n, sx)
-        + nf * gamma_gg_nf1(n, sx)
-        + nf**2 * gamma_gg_nf2(n, sx)
+        gamma_gg_nf0(n, sx, variation)
+        + nf * gamma_gg_nf1(n, sx, variation)
+        + nf**2 * gamma_gg_nf2(n, sx, variation)
         + nf**3 * gamma_gg_nf3(n, sx)
     )

@@ -130,6 +130,7 @@ def quad_ker(
     ev_op_max_order,
     sv_mode,
     is_threshold,
+    n3lo_ad_variation,
 ):
     """Raw evolution kernel inside quad.
 
@@ -166,7 +167,9 @@ def quad_ker(
     sv_mode: int, `enum.IntEnum`
         scale variation mode, see `eko.scale_variations.Modes`
     is_threshold : boolean
-        is this an itermediate threshold operator?
+        is this an intermediate threshold operator?
+    n3lo_ad_variation : str
+        |N3LO| anomalous dimension variation: "a" ,"b", "best"
 
     Returns
     -------
@@ -180,7 +183,7 @@ def quad_ker(
 
     # compute the actual evolution kernel
     if ker_base.is_singlet:
-        gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
+        gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf, n3lo_ad_variation)
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_singlet = sv.exponentiated.gamma_variation(
@@ -376,6 +379,7 @@ class Operator(sv.ModeMixin):
             ev_op_max_order=self.config["ev_op_max_order"],
             sv_mode=self.sv_mode,
             is_threshold=self.is_threshold,
+            n3lo_ad_variation=self.config["n3lo_ad_variation"],
         )
 
     def initialize_op_members(self):
