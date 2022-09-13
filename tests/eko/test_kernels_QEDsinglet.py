@@ -24,8 +24,8 @@ def test_zero(monkeypatch):
     nf = 3
     ev_op_iterations = 2
     ev_op_max_order = (3, 0)
-    for qcd in range(0, 3):
-        for qed in range(0, 2):
+    for qcd in range(0, 3 + 1):
+        for qed in range(0, 2 + 1):
             order = (qcd, qed)
             if order == (0, 0):
                 continue
@@ -33,6 +33,62 @@ def test_zero(monkeypatch):
                 np.random.rand(qcd + 1, qed + 1, 4, 4)
                 + np.random.rand(qcd + 1, qed + 1, 4, 4) * 1j
             )
+            # monkeypatch.setattr(
+            #     ad,
+            #     "exp_singlet",
+            #     lambda gamma_S: (
+            #         gamma_S,
+            #         1,
+            #         1,
+            #         np.array([[1, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]),
+            #         np.array([[0, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]),
+            #         np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 1, 0], [0, 0, 0, 0]]),
+            #         np.array([[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 1]]),
+            #     ),
+            # )
+            for method in methods:
+                np.testing.assert_allclose(
+                    s.dispatcher(
+                        order,
+                        method,
+                        gamma_s,
+                        1,
+                        1,
+                        1,
+                        nf,
+                        ev_op_iterations,
+                        ev_op_max_order,
+                    ),
+                    np.eye(4),
+                )
+                np.testing.assert_allclose(
+                    s.dispatcher(
+                        order,
+                        method,
+                        np.zeros((qcd + 1, qed + 1, 4, 4), dtype=complex),
+                        2,
+                        1,
+                        1,
+                        nf,
+                        ev_op_iterations,
+                        ev_op_max_order,
+                    ),
+                    np.eye(4),
+                )
+
+
+def test_zero_true_gamma(monkeypatch):
+    """No evolution results in exp(0)"""
+    nf = 3
+    ev_op_iterations = 2
+    ev_op_max_order = (3, 0)
+    for qcd in range(0, 3 + 1):
+        for qed in range(0, 2 + 1):
+            order = (qcd, qed)
+            if order == (0, 0):
+                continue
+            n = np.random.rand()
+            gamma_s = ad.gamma_singlet_qed(order, n, nf)
             # monkeypatch.setattr(
             #     ad,
             #     "exp_singlet",
