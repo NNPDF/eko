@@ -24,11 +24,9 @@ def test_zero(monkeypatch):
     nf = 3
     ev_op_iterations = 2
     ev_op_max_order = (3, 0)
-    for qcd in range(0, 3 + 1):
-        for qed in range(0, 2 + 1):
+    for qcd in range(1, 3 + 1):
+        for qed in range(1, 2 + 1):
             order = (qcd, qed)
-            if order == (0, 0):
-                continue
             gamma_s = (
                 np.random.rand(qcd + 1, qed + 1, 4, 4)
                 + np.random.rand(qcd + 1, qed + 1, 4, 4) * 1j
@@ -82,11 +80,9 @@ def test_zero_true_gamma(monkeypatch):
     nf = 3
     ev_op_iterations = 2
     ev_op_max_order = (3, 0)
-    for qcd in range(0, 3 + 1):
-        for qed in range(0, 2 + 1):
+    for qcd in range(1, 3 + 1):
+        for qed in range(1, 2 + 1):
             order = (qcd, qed)
-            if order == (0, 0):
-                continue
             n = np.random.rand()
             gamma_s = ad.gamma_singlet_qed(order, n, nf)
             # monkeypatch.setattr(
