@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This module contains the :class:`OperatorGrid` class.
+"""The :class:`OperatorGrid` class.
 
 The first is the driver class of eko as it is the one that collects all the
 previously instantiated information and does the actual computation of the Q2s.
@@ -128,6 +128,7 @@ class OperatorGrid(sv.ModeMixin):
         config["n_integration_cores"] = operators_card["n_integration_cores"]
         config["HQ"] = theory_card["HQ"]
         config["ModSV"] = theory_card["ModSV"]
+        config["n3lo_ad_variation"] = theory_card["n3lo_ad_variation"]
         q2_grid = np.array(operators_card["Q2grid"], np.float_)
         intrinsic_range = []
         if int(theory_card["IC"]) == 1:
@@ -153,7 +154,7 @@ class OperatorGrid(sv.ModeMixin):
         The internal dictionary is self._threshold_operators and its structure is:
         (q2_from, q2_to) -> eko.operators.Operator
 
-        It computes and stores the necessary macthing operators
+        It Compute and stores the necessary macthing operators
         Parameters
         ----------
             path: list(`eko.thresholds.PathSegment`)
@@ -203,7 +204,7 @@ class OperatorGrid(sv.ModeMixin):
         return thr_ops
 
     def compute(self, q2grid=None):
-        """Computes all ekos for the `q2grid`.
+        """Compute all ekos for the `q2grid`.
 
         Parameters
         ----------
@@ -234,7 +235,7 @@ class OperatorGrid(sv.ModeMixin):
         return grid_return
 
     def generate(self, q2):
-        r"""Computes a single EKO.
+        r"""Compute a single EKO.
 
         Parameters
         ----------

@@ -34,6 +34,7 @@ theory_card = {
     "Qmb": 4.75,
     "Qmt": 173.0,
     "ModSV": None,
+    "n3lo_ad_variation": None,
 }
 operators_card = {
     "Q2grid": [10, 100],

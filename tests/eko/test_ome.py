@@ -311,6 +311,7 @@ class TestOperatorMatrixElement:
         "MaxNfAs": 6,
         "HQ": "POLE",
         "ModSV": None,
+        "n3lo_ad_variation": None,
     }
     operators_card = {
         "Q2grid": [20],
