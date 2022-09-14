@@ -12,6 +12,7 @@ from eko.couplings import Couplings
 from eko.evolution_operator import Operator, quad_ker
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher
+from eko.kernels import QEDnon_singlet as qed_ns
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
 from eko.thresholds import ThresholdsAtlas
@@ -27,12 +28,33 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(ns, "dispatcher", lambda *args: 1.0)
+    monkeypatch.setattr(qed_ns, "dispatcher", lambda *args: 1.0)
     monkeypatch.setattr(s, "dispatcher", lambda *args: np.identity(2))
     for is_log in [True, False]:
         res_ns = quad_ker(
             u=0,
             order=(1, 0),
             mode0=br.non_singlet_pids_map["ns+"],
+            mode1=0,
+            method="",
+            is_log=is_log,
+            logx=0.0,
+            areas=np.zeros(3),
+            as1=1,
+            as0=2,
+            aem=0.00058,
+            nf=3,
+            L=0,
+            ev_op_iterations=0,
+            ev_op_max_order=(0, 0),
+            sv_mode=1,
+            is_threshold=False,
+        )
+        np.testing.assert_allclose(res_ns, 0.0)
+        res_ns = quad_ker(
+            u=0,
+            order=(3, 1),
+            mode0=br.non_singlet_pids_map["ns+u"],
             mode1=0,
             method="",
             is_log=is_log,
@@ -153,7 +175,7 @@ def test_quad_ker(monkeypatch):
             u=0,
             order=(1, 1),
             mode0=10200,
-            mode1=10201,
+            mode1=10204,
             method="iterate-exact",
             is_log=is_log,
             logx=0.123,
@@ -191,7 +213,15 @@ def test_quad_ker(monkeypatch):
                 is_threshold=False,
             )
             np.testing.assert_allclose(res_sv, 1.0)
-    for label in [(100, 100), (10200, 10200)]:
+    for label in [
+        (100, 100),
+        (21, 21),
+        (22, 22),
+        (101, 101),
+        (10200, 10200),
+        (10204, 10204),
+        (10202, 0),
+    ]:
         for sv in [2, 3]:
             res_sv = quad_ker(
                 u=0,
