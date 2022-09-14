@@ -303,21 +303,9 @@ def gamma_ns_qed(order, mode, n, nf):
     if order[0] >= 1:
         gamma_ns[1, 0] = as1.gamma_ns(n, sx[0])
     if order[1] >= 1:
-        if mode in [10102, 10202]:
-            gamma_ns[0, 1] = constants.eu2 * aem1.gamma_ns(n, sx)
-        if mode in [10103, 10203]:
-            gamma_ns[0, 1] = constants.ed2 * aem1.gamma_ns(n, sx)
+        gamma_ns[0, 1] = choose_ad_aem1(mode, n, sx)
     if order[0] >= 1 and order[1] >= 1:
-        if mode == 10102:
-            gamma_ns[1, 1] = constants.eu2 * as1aem1.gamma_nsp(n, sx)
-        elif mode == 10103:
-            gamma_ns[1, 1] = constants.ed2 * as1aem1.gamma_nsp(n, sx)
-        elif mode == 10202:
-            gamma_ns[1, 1] = constants.eu2 * as1aem1.gamma_nsm(n, sx)
-        elif mode == 10203:
-            gamma_ns[1, 1] = constants.ed2 * as1aem1.gamma_nsm(n, sx)
-        else:
-            raise NotImplementedError("Non-singlet sector is not implemented")
+        gamma_ns[1, 1] = choose_ad_as1aem1(mode, n, sx)
     # NLO and beyond
     if order[0] >= 2:
         if mode in [10102, 10103]:
@@ -328,14 +316,7 @@ def gamma_ns_qed(order, mode, n, nf):
         else:
             raise NotImplementedError("Non-singlet sector is not implemented")
     if order[1] >= 2:
-        if mode == 10102:
-            gamma_ns[0, 2] = constants.eu2 * aem2.gamma_nspu(n, nf, sx)
-        if mode == 10103:
-            gamma_ns[0, 2] = constants.ed2 * aem2.gamma_nspd(n, nf, sx)
-        if mode == 10202:
-            gamma_ns[0, 2] = constants.eu2 * aem2.gamma_nsmu(n, nf, sx)
-        if mode == 10203:
-            gamma_ns[0, 2] = constants.ed2 * aem2.gamma_nsmd(n, nf, sx)
+        gamma_ns[0, 2] = choose_ad_aem2(mode, n, nf, sx)
     # NNLO and beyond
     if order[0] >= 3:
         if mode in [10102, 10103]:
@@ -343,6 +324,91 @@ def gamma_ns_qed(order, mode, n, nf):
         elif mode in [10202, 10203]:
             gamma_ns[3, 0] = as3.gamma_nsm(n, nf, sx)
     return gamma_ns
+
+
+@nb.njit(cache=True)
+def choose_ad_aem1(mode, n, sx):
+    r"""
+    Select the non-singlet anomalous dimension at O(aem1) with the correct charge factor.
+
+    Parameters
+    ----------
+        mode : 10102 | 10202 | 10103 | 10203
+            sector identifier
+        n : complex
+            Mellin variable
+        nf : int
+            Number of active flavors
+
+    Returns
+    -------
+        gamma_ns : numpy.ndarray
+            non-singlet anomalous dimensions
+    """
+    if mode in [10102, 10202]:
+        return constants.eu2 * aem1.gamma_ns(n, sx)
+    if mode in [10103, 10203]:
+        return constants.ed2 * aem1.gamma_ns(n, sx)
+    else:
+        raise NotImplementedError("Non-singlet sector is not implemented")
+
+
+@nb.njit(cache=True)
+def choose_ad_as1aem1(mode, n, sx):
+    r"""
+    Select the non-singlet anomalous dimension at O(as1aem1) with the correct charge factor.
+
+    Parameters
+    ----------
+        mode : 10102 | 10202 | 10103 | 10203
+            sector identifier
+        n : complex
+            Mellin variable
+        nf : int
+            Number of active flavors
+
+    Returns
+    -------
+        gamma_ns : numpy.ndarray
+            non-singlet anomalous dimensions
+    """
+    if mode == 10102:
+        return constants.eu2 * as1aem1.gamma_nsp(n, sx)
+    elif mode == 10103:
+        return constants.ed2 * as1aem1.gamma_nsp(n, sx)
+    elif mode == 10202:
+        return constants.eu2 * as1aem1.gamma_nsm(n, sx)
+    elif mode == 10203:
+        return constants.ed2 * as1aem1.gamma_nsm(n, sx)
+
+
+@nb.njit(cache=True)
+def choose_ad_aem2(mode, n, nf, sx):
+    r"""
+    Select the non-singlet anomalous dimension at O(aem2) with the correct charge factor.
+
+    Parameters
+    ----------
+        mode : 10102 | 10202 | 10103 | 10203
+            sector identifier
+        n : complex
+            Mellin variable
+        nf : int
+            Number of active flavors
+
+    Returns
+    -------
+        gamma_ns : numpy.ndarray
+            non-singlet anomalous dimensions
+    """
+    if mode == 10102:
+        return constants.eu2 * aem2.gamma_nspu(n, nf, sx)
+    elif mode == 10103:
+        return constants.ed2 * aem2.gamma_nspd(n, nf, sx)
+    elif mode == 10202:
+        return constants.eu2 * aem2.gamma_nsmu(n, nf, sx)
+    elif mode == 10203:
+        return constants.ed2 * aem2.gamma_nsmd(n, nf, sx)
 
 
 @nb.njit(cache=True)
