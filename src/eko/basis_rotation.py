@@ -280,20 +280,21 @@ def ad_projector(ad_lab, nf, qed=False):
     """
     if not qed:
         proj = np.zeros_like(rotate_flavor_to_evolution, dtype=float)
-        l = map_ad_to_evolution[ad_lab]
+        sector = map_ad_to_evolution[ad_lab]
         basis = evol_basis
         rotate = rotate_flavor_to_evolution.copy()
     else:
         proj = np.zeros_like(rotate_flavor_to_unified_evolution, dtype=float)
-        l = map_ad_to_unified_evolution[ad_lab]
+        sector = map_ad_to_unified_evolution[ad_lab]
         basis = unified_evol_basis
         rotate = rotate_flavor_to_unified_evolution.copy()
     # restrict the evolution basis to light flavors
     # NOTE: the cut is only needed for "NS_p" and "NS_m", but the other lists
     # are 1-long so they are unaffected
-    l = l[: (nf - 1)]
+    # TODO : check this for unified evol
+    sector = sector[: (nf - 1)]
 
-    for el in l:
+    for el in sector:
         out_name, in_name = el.split(".")
         out_idx = basis.index(out_name)
         in_idx = basis.index(in_name)
