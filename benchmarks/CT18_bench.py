@@ -30,14 +30,14 @@ class BenchmarkCT18(Runner):
     # Rotate to evolution basis
     rotate_to_evolution_basis = True
 
-    def benchmark_nnlo(self, Q0=5.0, Q2grid=(1e4,)):
+    def benchmark_nnlo(self, Q0=1.295, Q2grid=(1e4,)):
         theory_card = base_theory.copy()
         theory_card.update(
             {
                 "alphas": 0.118000,
                 "alphaqed": 0.007496,
                 "PTO": 2,
-                "QED": 1,
+                "QED": 0,
                 "Q0": Q0,
                 "MaxNfPdf": 5,
                 "MaxNfAs": 5,
@@ -46,13 +46,13 @@ class BenchmarkCT18(Runner):
         operator_card = {"Q2grid": list(Q2grid)}
         self.skip_pdfs = lambda _theory: [
             -6,
-            # 6,
-            # 22,
-            # "ph",
-            "Tu8",
-            "Vu8",
+            6,
+            22,
+            "ph",
+            "T35",
+            "V35",
         ]
-        self.run([theory_card], [operator_card], ["NNPDF31_nnlo_as_0118_luxqed"])
+        self.run([theory_card], [operator_card], ["CT18NNLO"])
 
     def benchmark_znnlo(self, Q0=1.3, Q2grid=(1e4,)):
         theory_card = base_theory.copy()
