@@ -225,6 +225,6 @@ def test_dim_nsp():
     gamma_nsdp = ad.gamma_ns_qed((3, 2), 10103, N, nf)
     assert gamma_nsdp.shape == (4, 3)
     with pytest.raises(NotImplementedError):
-        gamma_ns = ad.gamma_ns_qed((2, 2), 10106, N, nf)
+        gamma_ns = ad.gamma_ns_qed((1, 1), 10106, N, nf)
     with pytest.raises(NotImplementedError):
         gamma_ns = ad.gamma_ns_qed((2, 0), 10106, N, nf)
