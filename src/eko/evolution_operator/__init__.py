@@ -70,22 +70,22 @@ def select_QEDsinglet_element(ker, mode0, mode1):
             singlet integration kernel element
     """
     if mode0 == 21:
-        k = 0
+        index1 = 0
     elif mode0 == 22:
-        k = 1
+        index1 = 1
     elif mode0 == 100:
-        k = 2
+        index1 = 2
     else:
-        k = 3
+        index1 = 3
     if mode1 == 21:
-        l = 0
+        index2 = 0
     elif mode1 == 22:
-        l = 1
+        index2 = 1
     elif mode1 == 100:
-        l = 2
+        index2 = 2
     else:
-        l = 3
-    return ker[k, l]
+        index2 = 3
+    return ker[index1, index2]
 
 
 @nb.njit(cache=True)
@@ -106,9 +106,9 @@ def select_QEDvalence_element(ker, mode0, mode1):
         ker : complex
             singlet integration kernel element
     """
-    k = 0 if mode0 == 10200 else 1
-    l = 0 if mode1 == 10200 else 1
-    return ker[k, l]
+    index1 = 0 if mode0 == 10200 else 1
+    index2 = 0 if mode1 == 10200 else 1
+    return ker[index1, index2]
 
 
 spec = [
