@@ -336,7 +336,6 @@ def gamma_ns_qed(order, mode, n, nf):
     return gamma_ns
 
 
-@nb.njit(cache=True)
 def e2(mode):
     r"""
     Compute the charge of a given non-singlet mode.
