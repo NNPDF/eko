@@ -303,21 +303,12 @@ def gamma_ns_qed(order, mode, n, nf):
     if order[0] >= 1:
         gamma_ns[1, 0] = as1.gamma_ns(n, sx[0])
     if order[1] >= 1:
-        if mode in [10102, 10202]:
-            gamma_ns[0, 1] = constants.eu2 * aem1.gamma_ns(n, sx)
-        if mode in [10103, 10203]:
-            gamma_ns[0, 1] = constants.ed2 * aem1.gamma_ns(n, sx)
+        gamma_ns[0, 1] = e2(mode) * aem1.gamma_ns(n, sx)
     if order[0] >= 1 and order[1] >= 1:
-        if mode == 10102:
-            gamma_ns[1, 1] = constants.eu2 * as1aem1.gamma_nsp(n, sx)
-        elif mode == 10103:
-            gamma_ns[1, 1] = constants.ed2 * as1aem1.gamma_nsp(n, sx)
-        elif mode == 10202:
-            gamma_ns[1, 1] = constants.eu2 * as1aem1.gamma_nsm(n, sx)
-        elif mode == 10203:
-            gamma_ns[1, 1] = constants.ed2 * as1aem1.gamma_nsm(n, sx)
-        else:
-            raise NotImplementedError("Non-singlet sector is not implemented")
+        if mode in [10102, 10103]:
+            gamma_ns[1, 1] = e2(mode) * as1aem1.gamma_nsp(n, sx)
+        elif mode in [10202, 10203]:
+            gamma_ns[1, 1] = e2(mode) * as1aem1.gamma_nsm(n, sx)
     # NLO and beyond
     if order[0] >= 2:
         if mode in [10102, 10103]:
@@ -343,6 +334,28 @@ def gamma_ns_qed(order, mode, n, nf):
         elif mode in [10202, 10203]:
             gamma_ns[3, 0] = as3.gamma_nsm(n, nf, sx)
     return gamma_ns
+
+
+def e2(mode):
+    r"""
+    Compute the charge of a given non-singlet mode.
+
+    Parameters
+    ----------
+        mode : int
+            evolution mode
+
+    Returns
+    -------
+        charge : float
+            charge of selected mode
+    """
+    if mode in [br.non_singlet_pids_map["ns-u"], br.non_singlet_pids_map["ns+u"]]:
+        return constants.eu2
+    elif mode in [br.non_singlet_pids_map["ns-d"], br.non_singlet_pids_map["ns+d"]]:
+        return constants.ed2
+    else:
+        raise NotImplementedError("Non-singlet sector is not implemented")
 
 
 @nb.njit(cache=True)
