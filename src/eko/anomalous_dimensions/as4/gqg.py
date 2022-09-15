@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-r"""This module contains the anomalous dimension :math:`\gamma_{qg}^{(3)}`
-"""
+r"""The anomalous dimension :math:`\gamma_{qg}^{(3)}`."""
 import numba as nb
 import numpy as np
 
-from ...harmonics.log_functions import lm13, lm13m1, lm14, lm15
+from ...harmonics.log_functions import lm11, lm11m1, lm13, lm14, lm15
 
 
 @nb.njit(cache=True)
 def gamma_qg_nf3(n, sx):
-    r"""Implements the part proportional to :math:`nf^3` of :math:`\gamma_{qg}^{(3)}`,
-    the expression is copied exact from Eq. 3.12 of :cite:`Davies:2016jie`.
+    r"""Implement the part proportional to :math:`nf^3` of :math:`\gamma_{qg}^{(3)}`.
+
+    The expression is copied exact from Eq. 3.12 of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
@@ -330,8 +330,8 @@ def gamma_qg_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf1(n, sx):
-    r"""Implements the part proportional to :math:`nf^1` of :math:`\gamma_{qg}^{(3)}`.
+def gamma_qg_nf1(n, sx, variation):
+    r"""Implement the part proportional to :math:`nf^1` of :math:`\gamma_{qg}^{(3)}`.
 
     Parameters
     ----------
@@ -339,6 +339,8 @@ def gamma_qg_nf1(n, sx):
         Mellin moment
     sx : list
         harmonic sums cache
+    variation : str
+        |N3LO| anomalous dimension variation: "a" ,"b", "best"
 
     Returns
     -------
@@ -351,23 +353,38 @@ def gamma_qg_nf1(n, sx):
     S3 = sx[2][0]
     S4 = sx[3][0]
     S5 = sx[4][0]
-    return (
+    common = (
         -7871.5226542038545 / np.power(-1.0 + n, 3)
-        + 13490.08729769531 / np.power(-1.0 + n, 2)
-        - 8680.177926532133 / (-1.0 + n)
         + 14103.703703703704 / np.power(n, 7)
         + 2588.8395061728397 / np.power(n, 6)
         + 68802.34242841466 / np.power(n, 5)
-        - 92.30369362429062 * lm13(n, S1, S2, S3)
-        - 10782.474427912908 * lm13m1(n, S1, S2, S3)
         - 35.68779444531073 * lm14(n, S1, S2, S3, S4)
         - 1.8518518518518519 * lm15(n, S1, S2, S3, S4, S5)
     )
+    if variation != "b":
+        fit_a = (
+            17228.48808046251 / np.power(-1.0 + n, 2)
+            - 575.2054722554474 / (-1.0 + n)
+            - 96777.33651127397 / np.power(n, 3)
+            - 172.66249763233105 * lm13(n, S1, S2, S3)
+        )
+        fit = fit_a
+    if variation != "a":
+        fit_b = (
+            17893.62867039771 / (-1.0 + n)
+            + 130432.62292026772 / (1.0 + n)
+            + 29625.839715278304 * lm11(n, S1)
+            + 242096.0238999495 * lm11m1(n, S1)
+        )
+        fit = fit_b
+    if variation == "best":
+        fit = (fit_a + fit_b) / 2
+    return common + fit
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf2(n, sx):
-    r"""Implements the part proportional to :math:`nf^2` of :math:`\gamma_{qg}^{(3)}`.
+def gamma_qg_nf2(n, sx, variation):
+    r"""Implement the part proportional to :math:`nf^2` of :math:`\gamma_{qg}^{(3)}`.
 
     Parameters
     ----------
@@ -375,6 +392,8 @@ def gamma_qg_nf2(n, sx):
         Mellin moment
     sx : list
         harmonic sums cache
+    variation : str
+        |N3LO| anomalous dimension variation: "a" ,"b", "best"
 
     Returns
     -------
@@ -387,22 +406,37 @@ def gamma_qg_nf2(n, sx):
     S3 = sx[2][0]
     S4 = sx[3][0]
     S5 = sx[4][0]
-    return (
-        237.02932710506118 / np.power(-1.0 + n, 2)
-        + 447.1862550338544 / (-1.0 + n)
-        - 1991.111111111111 / np.power(n, 7)
+    common = (
+        -1991.111111111111 / np.power(n, 7)
         + 2069.3333333333335 / np.power(n, 6)
         - 7229.376633440217 / np.power(n, 5)
-        + 45.9259903713295 * lm13(n, S1, S2, S3)
-        + 226.61095385854318 * lm13m1(n, S1, S2, S3)
         + 3.511659807956104 * lm14(n, S1, S2, S3, S4)
         + 0.411522633744856 * lm15(n, S1, S2, S3, S4, S5)
     )
+    if variation != "b":
+        fit_a = (
+            158.46085259096282 / np.power(-1.0 + n, 2)
+            + 276.84728960063313 / (-1.0 + n)
+            + 2033.930586650497 / np.power(n, 3)
+            + 47.614859225036426 * lm13(n, S1, S2, S3)
+        )
+        fit = fit_a
+    if variation != "a":
+        fit_b = (
+            1216.674857862684 / (-1.0 + n)
+            + 8756.918507324614 / (1.0 + n)
+            + 3103.3863052978068 * lm11(n, S1)
+            + 9982.022992431272 * lm11m1(n, S1)
+        )
+        fit = fit_b
+    if variation == "best":
+        fit = (fit_a + fit_b) / 2
+    return common + fit
 
 
 @nb.njit(cache=True)
-def gamma_qg(n, nf, sx):
-    r"""Computes the |N3LO| quark-gluon singlet anomalous dimension.
+def gamma_qg(n, nf, sx, variation):
+    r"""Compute the |N3LO| quark-gluon singlet anomalous dimension.
 
     Parameters
     ----------
@@ -412,6 +446,8 @@ def gamma_qg(n, nf, sx):
         Number of active flavors
     sx : list
         harmonic sums cache
+    variation : str
+        |N3LO| anomalous dimension variation: "a" ,"b", "best"
 
     Returns
     -------
@@ -427,7 +463,7 @@ def gamma_qg(n, nf, sx):
 
     """
     return (
-        +nf * gamma_qg_nf1(n, sx)
-        + nf**2 * gamma_qg_nf2(n, sx)
+        +nf * gamma_qg_nf1(n, sx, variation)
+        + nf**2 * gamma_qg_nf2(n, sx, variation)
         + nf**3 * gamma_qg_nf3(n, sx)
     )

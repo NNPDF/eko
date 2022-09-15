@@ -52,10 +52,10 @@ def gamma_singlet(N, nf, sx, variation):
     gamma_gg : :math:`\gamma_{gg}^{(3)}`
 
     """
-    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx)
+    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx, variation)
     gamma_S_0 = np.array(
         [
-            [gamma_qq, gamma_qg(N, nf, sx)],
+            [gamma_qq, gamma_qg(N, nf, sx, variation)],
             [gamma_gq(N, nf, sx, variation), gamma_gg(N, nf, sx, variation)],
         ],
         np.complex_,
