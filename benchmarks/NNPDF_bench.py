@@ -63,6 +63,33 @@ class BenchmarkNNPDF31(BenchmarkNNPDF):
         self.run([theory_card], [operator_card], ["NNPDF31_nlo_as_0118"])
 
 
+class BenchmarkNNPDF31_luxqed(BenchmarkNNPDF):
+    """Benchmark NNPDF3.1_luxqed"""
+
+    def benchmark_nnlo(self, Q0=1.65, Q2grid=(100,)):
+        theory_card = {
+            **base_theory,
+            "PTO": 2,
+            "QED": 1,
+            "Q0": Q0,
+        }
+        theory_card.update(
+            {
+                "ModEv": "iterate-exact",
+            }
+        )
+
+        self.skip_pdfs = lambda _theory: [
+            -6,
+            6,
+            "Tu8",
+            "Vu8",
+        ]
+
+        operator_card = {**base_operator, "Q2grid": list(Q2grid)}
+        self.run([theory_card], [operator_card], ["NNPDF31_nnlo_as_0118_luxqed"])
+
+
 class BenchmarkNNPDF40(BenchmarkNNPDF):
     """Benchmark NNPDF4.0"""
 
@@ -99,6 +126,8 @@ if __name__ == "__main__":
     # nn31.benchmark_nlo(Q0=np.sqrt(low2), Q2grid=[10])
     # # test backward
     # #nn31.benchmark_nlo(Q0=np.sqrt(high2), Q2grid=[low2])
-    nn40 = BenchmarkNNPDF40()
+    nn31qed = BenchmarkNNPDF31_luxqed()
+    nn31qed.benchmark_nnlo(Q0=30.0, Q2grid=(10000,))
+    # nn40 = BenchmarkNNPDF40()
     # nn40.benchmark_nnlo(Q2grid=[100])
-    nn40.benchmark_nnlo(Q0=np.sqrt(high2), Q2grid=[low2])
+    # nn40.benchmark_nnlo(Q0=np.sqrt(high2), Q2grid=[low2])
