@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This file contains the leading-order Altarelli-Parisi splitting kernels."""
+"""Compute the leading-order Altarelli-Parisi splitting kernels."""
 
 import numba as nb
 import numpy as np
@@ -9,8 +9,8 @@ from .. import constants
 
 @nb.njit(cache=True)
 def gamma_ns(N, s1):
-    """
-    Computes the leading-order non-singlet anomalous dimension.
+    r"""
+    Compute the leading-order non-singlet anomalous dimension.
 
     Implements Eq. (3.4) of :cite:`Moch:2004pa`.
 
@@ -33,8 +33,8 @@ def gamma_ns(N, s1):
 
 @nb.njit(cache=True)
 def gamma_qg(N, nf):
-    """
-    Computes the leading-order quark-gluon anomalous dimension
+    r"""
+    Compute the leading-order quark-gluon anomalous dimension.
 
     Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
 
@@ -57,8 +57,8 @@ def gamma_qg(N, nf):
 
 @nb.njit(cache=True)
 def gamma_gq(N):
-    """
-    Computes the leading-order gluon-quark anomalous dimension
+    r"""
+    Compute the leading-order gluon-quark anomalous dimension.
 
     Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
 
@@ -79,8 +79,8 @@ def gamma_gq(N):
 
 @nb.njit(cache=True)
 def gamma_gg(N, s1, nf):
-    """
-    Computes the leading-order gluon-gluon anomalous dimension
+    r"""
+    Compute the leading-order gluon-gluon anomalous dimension.
 
     Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
 
@@ -106,34 +106,34 @@ def gamma_gg(N, s1, nf):
 @nb.njit(cache=True)
 def gamma_singlet(N, s1, nf):
     r"""
-      Computes the leading-order singlet anomalous dimension matrix
+    Compute the leading-order singlet anomalous dimension matrix.
 
-      .. math::
-          \gamma_S^{(0)} = \left(\begin{array}{cc}
-            \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
-            \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
-          \end{array}\right)
+    .. math::
+        \gamma_S^{(0)} = \left(\begin{array}{cc}
+        \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
+        \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
+        \end{array}\right)
 
-      Parameters
-      ----------
-        N : complex
-          Mellin moment
-        s1 : complex
-          harmonic sum :math:`S_{1}`
-        nf : int
-          Number of active flavors
+    Parameters
+    ----------
+    N : complex
+        Mellin moment
+    s1 : complex
+        harmonic sum :math:`S_{1}`
+    nf : int
+        Number of active flavors
 
-      Returns
-      -------
-        gamma_S_0 : numpy.ndarray
-          Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
+    Returns
+    -------
+    gamma_S_0 : numpy.ndarray
+        Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
 
-      See Also
-      --------
-        gamma_ns : :math:`\gamma_{qq}^{(0)}`
-        gamma_qg : :math:`\gamma_{qg}^{(0)}`
-        gamma_gq : :math:`\gamma_{gq}^{(0)}`
-        gamma_gg : :math:`\gamma_{gg}^{(0)}`
+    See Also
+    --------
+    gamma_ns : :math:`\gamma_{qq}^{(0)}`
+    gamma_qg : :math:`\gamma_{qg}^{(0)}`
+    gamma_gq : :math:`\gamma_{gq}^{(0)}`
+    gamma_gg : :math:`\gamma_{gg}^{(0)}`
     """
     gamma_qq = gamma_ns(N, s1)
     gamma_S_0 = np.array(
@@ -145,56 +145,78 @@ def gamma_singlet(N, s1, nf):
 @nb.njit(cache=True)
 def gamma_QEDsinglet(N, s1, nf):
     r"""
-      Computes the leading-order singlet anomalous dimension matrix
+    Compute the leading-order singlet anomalous dimension matrix.
 
-      .. math::
-          \gamma_S^{(0)} = \left(\begin{array}{cc}
-            \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
-            \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
-          \end{array}\right)
+    .. math::
+        \gamma_S^{(0)} = \left(\begin{array}{cc}
+        \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
+        \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
+        \end{array}\right)
 
-      Parameters
-      ----------
-        N : complex
-          Mellin moment
-        s1 : complex
-          harmonic sum :math:`S_{1}`
-        nf : int
-          Number of active flavors
+    Parameters
+    ----------
+    N : complex
+        Mellin moment
+    s1 : complex
+        harmonic sum :math:`S_{1}`
+    nf : int
+        Number of active flavors
 
-      Returns
-      -------
-        gamma_S_0 : numpy.ndarray
-          Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
+    Returns
+    -------
+    gamma_S_0 : numpy.ndarray
+        Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
 
-      See Also
-      --------
-        gamma_ns : :math:`\gamma_{qq}^{(0)}`
-        gamma_qg : :math:`\gamma_{qg}^{(0)}`
-        gamma_gq : :math:`\gamma_{gq}^{(0)}`
-        gamma_gg : :math:`\gamma_{gg}^{(0)}`
+    See Also
+    --------
+    gamma_ns : :math:`\gamma_{qq}^{(0)}`
+    gamma_qg : :math:`\gamma_{qg}^{(0)}`
+    gamma_gq : :math:`\gamma_{gq}^{(0)}`
+    gamma_gg : :math:`\gamma_{gg}^{(0)}`
     """
     gamma_qq = gamma_ns(N, s1)
-    gamma_S = np.zeros((4, 4), np.complex_)
-    gamma_S[0, 0] = gamma_gg(N, s1, nf)
-    gamma_S[0, 2] = gamma_gq(N)
-    gamma_S[2, 0] = gamma_qg(N, nf)
-    gamma_S[2, 2] = gamma_qq
-    gamma_S[3, 3] = gamma_qq
-    # gamma_S = np.array(
-    #     [
-    #         [gamma_gg(N, s1, nf), 0.0, gamma_gq(N), 0.0],
-    #         [0.0, 0.0, 0.0, 0.0],
-    #         [gamma_qg(N, nf), 0.0, gamma_qq, 0.0],
-    #         [0.0, 0.0, 0.0, gamma_qq],
-    #     ],
-    #     np.complex_,
-    # )
+    gamma_S = np.array(
+        [
+            [gamma_gg(N, s1, nf), 0.0 + 0.0j, gamma_gq(N), 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
+            [gamma_qg(N, nf), 0.0 + 0.0j, gamma_qq, 0.0 + 0.0j],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, gamma_qq],
+        ],
+        np.complex_,
+    )
     return gamma_S
 
 
 @nb.njit(cache=True)
 def gamma_QEDvalence(N, s1):
+    r"""
+    Compute the leading-order valence anomalous dimension matrix.
+
+    .. math::
+        \gamma_S^{(0)} = \left(\begin{array}{cc}
+        \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
+        \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
+        \end{array}\right)
+
+    Parameters
+    ----------
+    N : complex
+        Mellin moment
+    s1 : complex
+        harmonic sum :math:`S_{1}`
+
+    Returns
+    -------
+    gamma_S_0 : numpy.ndarray
+        Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
+
+    See Also
+    --------
+    gamma_ns : :math:`\gamma_{qq}^{(0)}`
+    gamma_qg : :math:`\gamma_{qg}^{(0)}`
+    gamma_gq : :math:`\gamma_{gq}^{(0)}`
+    gamma_gg : :math:`\gamma_{gg}^{(0)}`
+    """
     gamma_V = np.array(
         [
             [1.0, 0.0],
