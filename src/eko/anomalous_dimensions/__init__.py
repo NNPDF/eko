@@ -303,9 +303,9 @@ def gamma_ns_qed(order, mode, n, nf):
     if order[0] >= 1:
         gamma_ns[1, 0] = as1.gamma_ns(n, sx[0])
     if order[1] >= 1:
-        gamma_ns[0, 1] = choose_ad_aem1(mode, n, sx)
+        gamma_ns[0, 1] = choose_ns_ad_aem1(mode, n, sx)
     if order[0] >= 1 and order[1] >= 1:
-        gamma_ns[1, 1] = choose_ad_as1aem1(mode, n, sx)
+        gamma_ns[1, 1] = choose_ns_ad_as1aem1(mode, n, sx)
     # NLO and beyond
     if order[0] >= 2:
         if mode in [10102, 10103]:
@@ -316,7 +316,7 @@ def gamma_ns_qed(order, mode, n, nf):
         else:
             raise NotImplementedError("Non-singlet sector is not implemented")
     if order[1] >= 2:
-        gamma_ns[0, 2] = choose_ad_aem2(mode, n, nf, sx)
+        gamma_ns[0, 2] = choose_ns_ad_aem2(mode, n, nf, sx)
     # NNLO and beyond
     if order[0] >= 3:
         if mode in [10102, 10103]:
@@ -327,7 +327,7 @@ def gamma_ns_qed(order, mode, n, nf):
 
 
 @nb.njit(cache=True)
-def choose_ad_aem1(mode, n, sx):
+def choose_ns_ad_aem1(mode, n, sx):
     r"""
     Select the non-singlet anomalous dimension at O(aem1) with the correct charge factor.
 
@@ -354,7 +354,7 @@ def choose_ad_aem1(mode, n, sx):
 
 
 @nb.njit(cache=True)
-def choose_ad_as1aem1(mode, n, sx):
+def choose_ns_ad_as1aem1(mode, n, sx):
     r"""
     Select the non-singlet anomalous dimension at O(as1aem1) with the correct charge factor.
 
@@ -383,7 +383,7 @@ def choose_ad_as1aem1(mode, n, sx):
 
 
 @nb.njit(cache=True)
-def choose_ad_aem2(mode, n, nf, sx):
+def choose_ns_ad_aem2(mode, n, nf, sx):
     r"""
     Select the non-singlet anomalous dimension at O(aem2) with the correct charge factor.
 
