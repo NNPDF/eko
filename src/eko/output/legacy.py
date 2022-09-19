@@ -279,8 +279,6 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
                 stream.seek(0)
                 grids[pathlib.Path(fp.stem).stem] = np.load(stream)
 
-            fp.unlink()
-
         q2grid = metadata["Q2grid"]
         for q2, slices in zip(q2grid, zip(*grids.values())):
             operator_grid[q2] = dict(zip(grids.keys(), slices))
