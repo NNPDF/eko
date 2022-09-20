@@ -76,6 +76,7 @@ class BenchmarkNNPDF31_luxqed(BenchmarkNNPDF):
         theory_card.update(
             {
                 "ModEv": "iterate-exact",
+                "FNS": "VFNS",
             }
         )
 
@@ -127,7 +128,7 @@ if __name__ == "__main__":
     # # test backward
     # #nn31.benchmark_nlo(Q0=np.sqrt(high2), Q2grid=[low2])
     nn31qed = BenchmarkNNPDF31_luxqed()
-    nn31qed.benchmark_nnlo(Q0=30.0, Q2grid=(10000,))
+    nn31qed.benchmark_nnlo()
     # nn40 = BenchmarkNNPDF40()
     # nn40.benchmark_nnlo(Q2grid=[100])
     # nn40.benchmark_nnlo(Q0=np.sqrt(high2), Q2grid=[low2])

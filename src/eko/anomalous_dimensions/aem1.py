@@ -130,9 +130,9 @@ def gamma_singlet(N, nf, sx):
     gamma_gg : :math:`\gamma_{gg}^{(0)}`
     """
     e2avg = constants.e2avg(nf)
-    e2delta = constants.vde2m(nf) - constants.vue2m(nf) + constants.e2avg(nf)
     vue2m = constants.vue2m(nf)
     vde2m = constants.vde2m(nf)
+    e2delta = vde2m - vue2m + e2avg
     gamma_S_01 = np.array(
         [
             [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
