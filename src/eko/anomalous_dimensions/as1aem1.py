@@ -30,17 +30,25 @@ def gamma_phq(N, sx):
     S1 = sx[0]
     S2 = sx[1]
     tmp_const = (
-        2
-        * (-4 - 12 * N - N**2 + 28 * N**3 + 43 * N**4 + 30 * N**5 + 12 * N**6)
-        / ((-1 + N) * N**3 * (1 + N) ** 3)
+        2.0
+        * (
+            -4.0
+            - 12.0 * N
+            - N**2
+            + 28.0 * N**3
+            + 43.0 * N**4
+            + 30.0 * N**5
+            + 12.0 * N**6
+        )
+        / ((-1.0 + N) * N**3 * (1.0 + N) ** 3)
     )
     tmp_S1 = (
-        -4
-        * (10 + 27 * N + 25 * N**2 + 13 * N**3 + 5 * N**4)
-        / ((-1 + N) * N * (1 + N) ** 3)
+        -4.0
+        * (10.0 + 27.0 * N + 25.0 * N**2 + 13.0 * N**3 + 5.0 * N**4)
+        / ((-1.0 + N) * N * (1.0 + N) ** 3)
     )
-    tmp_S12 = 4 * (2 + N + N**2) / ((-1 + N) * N * (1 + N))
-    tmp_S2 = 4 * (2 + N + N**2) / ((-1 + N) * N * (1 + N))
+    tmp_S12 = 4.0 * (2.0 + N + N**2) / ((-1.0 + N) * N * (1.0 + N))
+    tmp_S2 = 4.0 * (2.0 + N + N**2) / ((-1.0 + N) * N * (1.0 + N))
 
     return constants.CF * (tmp_const + tmp_S1 * S1 + tmp_S12 * S1**2 + tmp_S2 * S2)
 
@@ -69,23 +77,23 @@ def gamma_qph(N, nf, sx):
     S1 = sx[0]
     S2 = sx[1]
     tmp_const = (
-        -2
+        -2.0
         * (
-            4
-            + 8 * N
-            + 25 * N**2
-            + 51 * N**3
-            + 36 * N**4
-            + 15 * N**5
-            + 5 * N**6
+            4.0
+            + 8.0 * N
+            + 25.0 * N**2
+            + 51.0 * N**3
+            + 36.0 * N**4
+            + 15.0 * N**5
+            + 5.0 * N**6
         )
-        / (N**3 * (1 + N) ** 3 * (2 + N))
+        / (N**3 * (1.0 + N) ** 3 * (2.0 + N))
     )
-    tmp_S1 = 8 / N**2
-    tmp_S12 = -4 * (2 + N + N**2) / (N * (1 + N) * (2 + N))
-    tmp_S2 = 4 * (2 + N + N**2) / (N * (1 + N) * (2 + N))
+    tmp_S1 = 8.0 / N**2
+    tmp_S12 = -4.0 * (2.0 + N + N**2) / (N * (1.0 + N) * (2.0 + N))
+    tmp_S2 = 4.0 * (2.0 + N + N**2) / (N * (1.0 + N) * (2.0 + N))
     return (
-        2
+        2.0
         * nf
         * constants.CA
         * constants.CF
@@ -114,8 +122,14 @@ def gamma_gph(N):
     return (
         constants.CF
         * constants.CA
-        * (8 * (-4 + N * (-4 + N * (-5 + N * (-10 + N + 2 * N**2 * (2 + N))))))
-        / (N**3 * (1 + N) ** 3 * (-2 + N + N**2))
+        * (
+            8.0
+            * (
+                -4.0
+                + N * (-4.0 + N * (-5.0 + N * (-10.0 + N + 2.0 * N**2 * (2.0 + N))))
+            )
+        )
+        / (N**3 * (1.0 + N) ** 3 * (-2.0 + N + N**2))
     )
 
 
@@ -207,7 +221,7 @@ def gamma_phph(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    return 4 * constants.CF * constants.CA * (nu * constants.eu2 + nd * constants.ed2)
+    return 4.0 * constants.CF * constants.CA * (nu * constants.eu2 + nd * constants.ed2)
 
 
 @nb.njit(cache=True)
@@ -223,7 +237,7 @@ def gamma_gg():
             :math:`\\gamma_{gg}^{(1,1)}(N)`
 
     """
-    return 4 * constants.TR
+    return 4.0 * constants.TR
 
 
 @nb.njit(cache=True)
@@ -249,42 +263,47 @@ def gamma_nsp(N, sx):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1h = harmonics.S1(N / 2)
-    S2h = harmonics.S2(N / 2)
-    S3h = harmonics.S3(N / 2)
-    S1p1h = harmonics.S1((N + 1.0) / 2)
-    S2p1h = harmonics.S2((N + 1) / 2)
-    S3p1h = harmonics.S3((N + 1) / 2)
+    S1h = harmonics.S1(N / 2.0)
+    S2h = harmonics.S2(N / 2.0)
+    S3h = harmonics.S3(N / 2.0)
+    S1p1h = harmonics.S1((N + 1.0) / 2.0)
+    S2p1h = harmonics.S2((N + 1.0) / 2.0)
+    S3p1h = harmonics.S3((N + 1.0) / 2.0)
     g3N = harmonics.g_functions.mellin_g3(N, S1)
     S1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
-    g3Np2 = harmonics.g_functions.mellin_g3(N + 2, S1p2)
+    g3Np2 = harmonics.g_functions.mellin_g3(N + 2.0, S1p2)
     result = (
-        +32 * zeta2 * S1h
-        - 32 * zeta2 * S1p1h
+        +32.0 * zeta2 * S1h
+        - 32.0 * zeta2 * S1p1h
         + 8.0 / (N + N**2) * S2h
-        - 4 * S3h
-        + (24 + 16 / (N + N**2)) * S2
-        - 32 * S3
+        - 4.0 * S3h
+        + (24.0 + 16.0 / (N + N**2)) * S2
+        - 32.0 * S3
         - 8.0 / (N + N**2) * S2p1h
         + S1
         * (
-            +16 * (3 / N**2 - 3 / (1 + N) ** 2 + 2 * zeta2)
-            - 16 * S2h
-            - 32 * S2
-            + 16 * S2p1h
+            +16.0 * (3.0 / N**2 - 3.0 / (1.0 + N) ** 2 + 2.0 * zeta2)
+            - 16.0 * S2h
+            - 32.0 * S2
+            + 16.0 * S2p1h
         )
         + (
-            -8
+            -8.0
             + N
             * (
-                -32
-                + N * (-8 - 3 * N * (3 + N) * (3 + N**2) - 48 * (1 + N) ** 2 * zeta2)
+                -32.0
+                + N
+                * (
+                    -8.0
+                    - 3.0 * N * (3.0 + N) * (3.0 + N**2)
+                    - 48.0 * (1.0 + N) ** 2 * zeta2
+                )
             )
         )
-        / (N**3 * (1 + N) ** 3)
-        + 32 * (g3N + g3Np2)
-        + 4 * S3p1h
-        - 16 * zeta3
+        / (N**3 * (1.0 + N) ** 3)
+        + 32.0 * (g3N + g3Np2)
+        + 4.0 * S3p1h
+        - 16.0 * zeta3
     )
     return constants.CF * result
 
@@ -312,44 +331,44 @@ def gamma_nsm(N, sx):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1h = harmonics.S1(N / 2)
-    S2h = harmonics.S2(N / 2)
-    S3h = harmonics.S3(N / 2)
-    S1p1h = harmonics.S1((N + 1.0) / 2)
-    S2p1h = harmonics.S2((N + 1) / 2)
-    S3p1h = harmonics.S3((N + 1) / 2)
+    S1h = harmonics.S1(N / 2.0)
+    S2h = harmonics.S2(N / 2.0)
+    S3h = harmonics.S3(N / 2.0)
+    S1p1h = harmonics.S1((N + 1.0) / 2.0)
+    S2p1h = harmonics.S2((N + 1.0) / 2.0)
+    S3p1h = harmonics.S3((N + 1.0) / 2.0)
     g3N = harmonics.g_functions.mellin_g3(N, S1)
     S1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
-    g3Np2 = harmonics.g_functions.mellin_g3(N + 2, S1p2)
+    g3Np2 = harmonics.g_functions.mellin_g3(N + 2.0, S1p2)
 
     result = (
         -32.0 * zeta2 * S1h
         - 8.0 / (N + N**2) * S2h
-        + (24 + 16 / (N + N**2)) * S2
+        + (24.0 + 16.0 / (N + N**2)) * S2
         + 8.0 / (N + N**2) * S2p1h
         + S1
         * (
-            16 * (-1 / N**2 + 1 / (1 + N) ** 2 + 2 * zeta2)
-            + 16 * S2h
-            - 32 * S2
-            - 16 * S2p1h
+            16.0 * (-1.0 / N**2 + 1.0 / (1.0 + N) ** 2 + 2.0 * zeta2)
+            + 16.0 * S2h
+            - 32.0 * S2
+            - 16.0 * S2p1h
         )
         + (
-            72
+            72.0
             + N
             * (
-                96
-                - 3 * N * (8 + 3 * N * (3 + N) * (3 + N**2))
-                + 48 * N * (1 + N) ** 2 * zeta2
+                96.0
+                - 3.0 * N * (8.0 + 3.0 * N * (3.0 + N) * (3.0 + N**2))
+                + 48.0 * N * (1.0 + N) ** 2 * zeta2
             )
         )
-        / (3.0 * N**3 * (1 + N) ** 3)
-        - 32 * (g3N + g3Np2)
+        / (3.0 * N**3 * (1.0 + N) ** 3)
+        - 32.0 * (g3N + g3Np2)
         + 32.0 * zeta2 * S1p1h
-        + 4 * S3h
-        - 32 * S3
-        - 4 * S3p1h
-        - 16 * zeta3
+        + 4.0 * S3h
+        - 32.0 * S3
+        - 4.0 * S3p1h
+        - 16.0 * zeta3
     )
     return constants.CF * result
 

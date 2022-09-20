@@ -71,7 +71,7 @@ def gamma_phph(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    return 4 / 3 * constants.NC * (nu * constants.eu2 + nd * constants.ed2)
+    return 4.0 / 3.0 * constants.NC * (nu * constants.eu2 + nd * constants.ed2)
 
 
 @nb.njit(cache=True)
