@@ -140,7 +140,7 @@ class QuadKerBase:
     def __init__(self, u, is_log, logx, mode0):
         self.is_singlet = mode0 in [100, 21, 90]
         # TODO : check 90 in is_QEDsinglet and 91 in is_QEDvalence
-        self.is_QEDsinglet = mode0 in [100, 101, 21, 22, 90]
+        self.is_QEDsinglet = mode0 in [21, 22, 100, 101, 90]
         self.is_QEDvalence = mode0 in [10200, 10204]
         self.is_log = is_log
         self.u = u
@@ -149,7 +149,10 @@ class QuadKerBase:
     @property
     def path(self):
         """Return the associated instance of :class:`eko.mellin.Path`."""
-        return mellin.Path(self.u, self.logx, self.is_singlet)
+        if self.is_singlet or self.is_QEDsinglet:
+            return mellin.Path(self.u, self.logx, True)
+        else:
+            return mellin.Path(self.u, self.logx, False)
 
     @property
     def n(self):
