@@ -45,7 +45,6 @@ class MatchingCondition(member.OperatorBase):
             "g.S": op_members[(21, 100)],
             "g.g": op_members[(21, 21)],
             "V.V": op_members[(200, 200)],
-            "ph.ph": member.OpMember.id_like(op_members[(200, 200)]).copy(),
         }
 
         # add elements which are already active
@@ -59,6 +58,7 @@ class MatchingCondition(member.OperatorBase):
                 {
                     "Sdelta.Sdelta": op_members[(200, 200)],
                     "Vdelta.Vdelta": op_members[(200, 200)],
+                    "ph.ph": member.OpMember.id_like(op_members[(200, 200)]).copy(),
                 }
             )
             names = {3: "d3", 4: "u3", 5: "d8", 6: "u8"}

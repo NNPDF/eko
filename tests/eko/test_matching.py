@@ -131,6 +131,7 @@ class TestMatchingCondition:
         ome = self.mkOME()
         a = MatchingCondition.split_ad_to_evol_map(ome, 3, 1, [], qed=True)
         triv_keys = [
+            "ph.ph",
             "S.S",
             "S.g",
             "g.S",
