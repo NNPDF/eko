@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-This module defines the matching conditions for the |VFNS| evolution.
-"""
+"""Defines the matching conditions for the |VFNS| evolution."""
 
 from .. import basis_rotation as br
 from .. import member
@@ -41,13 +39,13 @@ class MatchingCondition(member.OperatorBase):
             intrinsic_range : list
                 list of intrinsic quark pids
         """
-
         m = {
             "S.S": op_members[(100, 100)],
             "S.g": op_members[(100, 21)],
             "g.S": op_members[(21, 100)],
             "g.g": op_members[(21, 21)],
             "V.V": op_members[(200, 200)],
+            "ph.ph": member.OpMember.id_like(op_members[(200, 200)]).copy(),
         }
 
         # add elements which are already active
