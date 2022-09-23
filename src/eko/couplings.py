@@ -351,20 +351,24 @@ def couplings_expanded_fixed_alphaem(order, couplings_ref, nf, scale_from, scale
     if order[1] >= 1:
         beta_qcd0 += aem * beta_qcd((2, 1), nf)
     # QCD LO
-    as_LO = exact_lo(couplings_ref[0], beta_qcd0, lmu)
-    res_as = as_LO
+    if order[0] == 1:
+        as_LO = exact_lo(couplings_ref[0], beta_qcd0, lmu)
+        res_as = as_LO
     # NLO
-    if order[0] >= 2:
+    if order[0] == 2:
         b_qcd1 = beta_qcd((3, 0), nf) / beta_qcd0
         as_NLO = expanded_nlo(couplings_ref[0], beta_qcd0, b_qcd1, lmu)
         res_as = as_NLO
     # NNLO
-    if order[0] >= 3:
+    if order[0] == 3:
+        b_qcd1 = beta_qcd((3, 0), nf) / beta_qcd0
         b_qcd2 = beta_qcd((4, 0), nf) / beta_qcd0
         as_NNLO = expanded_nnlo(couplings_ref[0], beta_qcd0, b_qcd1, b_qcd2, lmu)
         res_as = as_NNLO
     # N3LO
-    if order[0] >= 4:
+    if order[0] == 4:
+        b_qcd1 = beta_qcd((3, 0), nf) / beta_qcd0
+        b_qcd2 = beta_qcd((4, 0), nf) / beta_qcd0
         b_qcd3 = beta_qcd((5, 0), nf) / beta_qcd0
         as_N3LO = expanded_n3lo(
             couplings_ref[0],
@@ -608,7 +612,6 @@ class Couplings:
         # NLO
         if self.order[0] >= 2:
             beta_qcd_vec.append(beta_qcd((3, 0), nf))
-            # beta_qed_mix = beta_qed((1, 2), nf)
             # NNLO
             if self.order[0] >= 3:
                 beta_qcd_vec.append(beta_qcd((4, 0), nf))
@@ -686,8 +689,7 @@ class Couplings:
                 self.order, a_ref, nf, scale_from, float(scale_to)
             )
 
-        beta0 = beta_qcd((2, 0), nf)
-        beta_vec = []
+        beta_vec = [beta_qcd((2, 0), nf)]
         # NLO
         if self.order[0] >= 2:
             beta_vec.append(beta_qcd((3, 0), nf))
@@ -699,11 +701,10 @@ class Couplings:
                 if self.order[0] >= 4:
                     beta_vec.append(beta_qcd((5, 0), nf))
         if self.order[1] >= 1:
-            beta0 += a_ref[1] * beta_qcd((2, 1), nf)
-        b_vec = [i / beta0 for i in beta_vec]
-        b_vec.insert(0, 1.0)
+            beta_vec[0] += a_ref[1] * beta_qcd((2, 1), nf)
+        b_vec = [i / beta_vec[0] for i in beta_vec]
         rge_qcd = self.unidimensional_exact(
-            beta0,
+            beta_vec[0],
             b_vec,
             u,
             a_ref[0],
