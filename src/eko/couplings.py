@@ -271,7 +271,7 @@ def expanded_qed(ref, order, nf, lmu):
 
 
 @nb.njit(cache=True)
-def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
+def couplings_expanded_running_alphaem(order, couplings_ref, nf, scale_from, scale_to):
     r"""Compute expanded expression.
 
     Parameters
@@ -296,7 +296,9 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
     lmu = np.log(scale_to / scale_from)
     res_as = expanded_qcd(couplings_ref[0], order[0], nf, lmu)
     res_aem = expanded_qed(couplings_ref[1], order[1], nf, lmu)
-    if order[0] >= 2 and order[1] >= 2:
+    # if order[0] >= 1 and order[1] >= 1:
+    # order[0] is always >=1
+    if order[1] >= 1:
         beta_qcd0 = beta_qcd((2, 0), nf)
         beta_qed0 = beta_qed((0, 2), nf)
         res_as += (
@@ -310,6 +312,63 @@ def couplings_expanded(order, couplings_ref, nf, scale_from, scale_to):
             * np.log(1 + beta_qed0 * couplings_ref[0] * lmu)
         )
     return np.array([res_as, res_aem])
+
+
+@nb.njit(cache=True)
+def couplings_expanded_fixed_alphaem(order, couplings_ref, nf, scale_from, scale_to):
+    r"""Compute expanded expression.
+
+    Parameters
+    ----------
+    order : tuple(int, int)
+        perturbation order
+    couplings_ref : numpy.ndarray
+        reference alpha_s and alpha
+    nf : int
+        value of nf for computing the couplings
+    scale_from : float
+        reference scale
+    scale_to : float
+        target scale
+
+    Returns
+    -------
+    numpy.ndarray
+        couplings at target scale :math:`a(\mu_R^2)`
+    """
+    # common vars
+    lmu = np.log(scale_to / scale_from)
+    res_as = couplings_ref[0]
+    aem = couplings_ref[1]
+    beta_qcd0 = beta_qcd((2, 0), nf)
+    if order[1] >= 1:
+        beta_qcd0 += aem * beta_qcd((2, 1), nf)
+    # QCD LO
+    as_LO = exact_lo(couplings_ref[0], beta_qcd0, lmu)
+    res_as = as_LO
+    # NLO
+    if order[0] >= 2:
+        b_qcd1 = beta_qcd((3, 0), nf) / beta_qcd0
+        as_NLO = expanded_nlo(couplings_ref[0], beta_qcd0, b_qcd1, lmu)
+        res_as = as_NLO
+    # NNLO
+    if order[0] >= 3:
+        b_qcd2 = beta_qcd((4, 0), nf) / beta_qcd0
+        as_NNLO = expanded_nnlo(couplings_ref[0], beta_qcd0, b_qcd1, b_qcd2, lmu)
+        res_as = as_NNLO
+    # N3LO
+    if order[0] >= 4:
+        b_qcd3 = beta_qcd((5, 0), nf) / beta_qcd0
+        as_N3LO = expanded_n3lo(
+            couplings_ref[0],
+            beta_qcd0,
+            b_qcd1,
+            b_qcd2,
+            b_qcd3,
+            lmu,
+        )
+        res_as = as_N3LO
+    return np.array([res_as, aem])
 
 
 class Couplings:
@@ -367,6 +426,7 @@ class Couplings:
         nf_ref=None,
         max_nf=None,
         hqm_scheme="POLE",
+        running_alphaem=False,
     ):
         # Sanity checks
         if couplings_ref[0] <= 0:
@@ -381,10 +441,13 @@ class Couplings:
             raise NotImplementedError("a_s beyond N3LO is not implemented")
         if order[1] not in [0, 1, 2]:
             raise NotImplementedError("a_em beyond NLO is not implemented")
+        if order[0] == 0:
+            raise ValueError("QCD evolution order must be at least 1 (PTO>=0)")
         self.order = order
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
         self.method = method
+        self.running_alphaem = running_alphaem
 
         # create new threshold object
         self.a_ref = couplings_ref.copy() / 4.0 / np.pi  # convert to a_s and a_em
@@ -416,7 +479,7 @@ class Couplings:
         return self.thresholds.q2_ref
 
     @classmethod
-    def from_dict(cls, theory_card, masses=None):
+    def from_dict(cls, theory_card, masses=None, running_alphaem=False):
         r"""Create object from theory dictionary.
 
         Parameters
@@ -466,9 +529,44 @@ class Couplings:
             nf_ref,
             max_nf,
             hqm_scheme,
+            running_alphaem,
         )
 
-    def compute_exact(self, a_ref, nf, scale_from, scale_to):
+    def unidimensional_exact(self, beta0, b_vec, u, a_ref, method, rtol):
+        """Compute single coupling via decoupled |RGE|.
+
+        Parameters
+        ----------
+        as_ref : float
+            reference alpha_s or alpha
+        nf : int
+            value of nf for computing alpha_i
+        scale_from : float
+            reference scale
+        scale_to : float
+            target scale
+
+        Returns
+        -------
+        float
+            coupling at target scale :math:`a(Q^2)`
+        """
+
+        def rge(_t, a, b_vec):
+            rge = -(a**2) * (np.sum([a**k * b for k, b in enumerate(b_vec)]))
+            return rge
+
+        res = scipy.integrate.solve_ivp(
+            rge,
+            (0, beta0 * u),
+            (a_ref,),
+            args=[b_vec],
+            method=method,
+            rtol=rtol,
+        )
+        return res.y[0][-1]
+
+    def compute_exact_running_alphaem(self, a_ref, nf, scale_from, scale_to):
         """Compute couplings via |RGE|.
 
         Parameters
@@ -490,75 +588,44 @@ class Couplings:
         # in LO fallback to expanded, as this is the full solution
         u = np.log(scale_to / scale_from)
 
-        def unidimensional_exact(beta0, b_vec, u, a_ref, method, rtol):
-            def rge(_t, a, b_vec):
-                rge = -(a**2) * (np.sum([a**k * b for k, b in enumerate(b_vec)]))
-                return rge
+        if self.order == (1, 0):
+            return couplings_expanded_fixed_alphaem(
+                self.order, a_ref, nf, scale_from, float(scale_to)
+            )
 
-            res = scipy.integrate.solve_ivp(
-                rge,
-                (0, beta0 * u),
-                (a_ref,),
-                args=[b_vec],
-                method=method,
-                rtol=rtol,
-            )
-            return res.y[0][-1]
-
-        if self.order in [(0, 0), (0, 1), (1, 0), (1, 1)]:
-            return couplings_expanded(
-                self.order, a_ref, nf, scale_from, float(scale_to)
-            )
-        if self.order[0] in [0, 1]:
-            # return expanded solution for a_s and exact for a_em
-            a_s = couplings_expanded(
-                self.order, a_ref, nf, scale_from, float(scale_to)
-            )[0]
-            beta0_qed = beta_qed((0, 2), nf)
-            b_qed_vec = [1.0]
-            # NLO
-            # if self.order[1] >= 2:  # I think that at this point this if is always true
-            b_qed_vec.append(b_qed((0, 3), nf))
-            a_em = unidimensional_exact(
-                beta0_qed, b_qed_vec, u, a_ref[1], "Radau", 1e-6
-            )
-            return np.array([a_s, a_em])
-        if self.order[1] in [0, 1]:
-            # return expanded solution for a_em and exact for a_s
-            a_em = couplings_expanded(
-                self.order, a_ref, nf, scale_from, float(scale_to)
-            )[1]
-            beta0_qcd = beta_qcd((2, 0), nf)
-            b_qcd_vec = [1.0]
-            # NLO
-            if self.order[0] >= 2:
-                b_qcd_vec.append(b_qcd((3, 0), nf))
-                # NNLO
-                if self.order[0] >= 3:
-                    b_qcd_vec.append(b_qcd((4, 0), nf))
-                    # N3LO
-                    if self.order[0] >= 4:
-                        b_qcd_vec.append(b_qcd((5, 0), nf))
-            a_s = unidimensional_exact(beta0_qcd, b_qcd_vec, u, a_ref[0], "Radau", 1e-6)
-            return np.array([a_s, a_em])
-        # otherwise rescale the RGE to run in terms of
-        # u = ln(scale_to/scale_from)
         beta_qcd_vec = [beta_qcd((2, 0), nf)]
         beta_qcd_mix = 0
+        beta_qed_mix = 0
         # NLO
         if self.order[0] >= 2:
             beta_qcd_vec.append(beta_qcd((3, 0), nf))
-            beta_qed_mix = beta_qed((1, 2), nf)
+            # beta_qed_mix = beta_qed((1, 2), nf)
             # NNLO
             if self.order[0] >= 3:
                 beta_qcd_vec.append(beta_qcd((4, 0), nf))
                 # N3LO
                 if self.order[0] >= 4:
                     beta_qcd_vec.append(beta_qcd((5, 0), nf))
-        beta_qed_vec = [beta_qed((0, 2), nf)]
-        beta_qed_mix = 0
-        if self.order[1] >= 2:
+        if self.order[1] == 0:
+            b_qcd_vec = [
+                beta_qcd_vec[i] / beta_qcd_vec[0] for i in range(self.order[0])
+            ]
+            rge_qcd = self.unidimensional_exact(
+                beta_qcd_vec[0],
+                b_qcd_vec,
+                u,
+                a_ref[0],
+                method="Radau",
+                rtol=1e-6,
+            )
+            # for order = (qcd, 0) with qcd > 1 we return the exact solution for the QCD RGE
+            # while aem is constant
+            return np.array([rge_qcd, a_ref[1]])
+        if self.order[1] >= 1:
+            beta_qed_vec = [beta_qed((0, 2), nf)]
             beta_qcd_mix = beta_qcd((2, 1), nf)
+            beta_qed_mix = beta_qed((1, 2), nf)  # order[0] is always at least 1
+        if self.order[1] >= 2:
             beta_qed_vec.append(beta_qed((0, 3), nf))
         # integration kernel
         def rge(_t, a, beta_qcd_vec, beta_qed_vec):
@@ -583,6 +650,58 @@ class Couplings:
             rtol=1e-6,
         )
         return np.array([res.y[0][-1], res.y[1][-1]])
+
+    def compute_exact_fixed_alphaem(self, a_ref, nf, scale_from, scale_to):
+        """Compute couplings via |RGE|.
+
+        Parameters
+        ----------
+        as_ref : numpy.ndarray
+            reference alpha_s and alpha
+        nf : int
+            value of nf for computing alpha_i
+        scale_from : float
+            reference scale
+        scale_to : float
+            target scale
+
+        Returns
+        -------
+        numpy.ndarray
+            couplings at target scale :math:`a(Q^2)`
+        """
+        u = np.log(scale_to / scale_from)
+
+        if self.order in [(1, 0), (1, 1)]:
+            return couplings_expanded_fixed_alphaem(
+                self.order, a_ref, nf, scale_from, float(scale_to)
+            )
+
+        beta0 = beta_qcd((2, 0), nf)
+        beta_vec = []
+        # NLO
+        if self.order[0] >= 2:
+            beta_vec.append(beta_qcd((3, 0), nf))
+            # beta_qed_mix = beta_qed((1, 2), nf)
+            # NNLO
+            if self.order[0] >= 3:
+                beta_vec.append(beta_qcd((4, 0), nf))
+                # N3LO
+                if self.order[0] >= 4:
+                    beta_vec.append(beta_qcd((5, 0), nf))
+        if self.order[1] >= 1:
+            beta0 += a_ref[1] * beta_qcd((2, 1), nf)
+        b_vec = [i / beta0 for i in beta_vec]
+        b_vec.insert(0, 1.0)
+        rge_qcd = self.unidimensional_exact(
+            beta0,
+            b_vec,
+            u,
+            a_ref[0],
+            method="Radau",
+            rtol=1e-6,
+        )
+        return np.array([rge_qcd, a_ref[1]])
 
     def compute(self, a_ref, nf, scale_from, scale_to):
         """Compute actual couplings.
@@ -612,13 +731,23 @@ class Couplings:
         except KeyError:
             # at the moment everything is expanded - and type has been checked in the constructor
             if self.method == "exact":
-                a_new = self.compute_exact(
-                    a_ref.astype(float), nf, scale_from, scale_to
-                )
+                if self.running_alphaem:
+                    a_new = self.compute_exact_running_alphaem(
+                        a_ref.astype(float), nf, scale_from, scale_to
+                    )
+                else:
+                    a_new = self.compute_exact_fixed_alphaem(
+                        a_ref.astype(float), nf, scale_from, scale_to
+                    )
             else:
-                a_new = couplings_expanded(
-                    self.order, a_ref.astype(float), nf, scale_from, float(scale_to)
-                )
+                if self.running_alphaem:
+                    a_new = couplings_expanded_running_alphaem(
+                        self.order, a_ref.astype(float), nf, scale_from, float(scale_to)
+                    )
+                else:
+                    a_new = couplings_expanded_fixed_alphaem(
+                        self.order, a_ref.astype(float), nf, scale_from, float(scale_to)
+                    )
             self.cache[key] = a_new.copy()
             return a_new
 
