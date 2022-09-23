@@ -448,6 +448,8 @@ class Couplings:
             raise ValueError(f"Unknown method {method}")
         self.method = method
         self.running_alphaem = running_alphaem
+        # running_alphaem is put for a future implementation of the DGLAP solution
+        # with running alpha. For the moment in must remain set to False
 
         # create new threshold object
         self.a_ref = couplings_ref.copy() / 4.0 / np.pi  # convert to a_s and a_em
