@@ -94,6 +94,14 @@ class TestCouplings:
             )
         with pytest.raises(ValueError):
             Couplings(
+                [couplings_ref[0], couplings_ref[1]],
+                scale_ref,
+                threshold_holder.area_walls[1:-1],
+                (1.0, 1.0, 1.0),
+                (0, 2),
+            )
+        with pytest.raises(ValueError):
+            Couplings(
                 [couplings_ref[0], 0],
                 scale_ref,
                 threshold_holder.area_walls[1:-1],
@@ -223,30 +231,72 @@ class TestCouplings:
         alphaem_ref = 0.00781
         scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
-            # in LO expanded  = exact
-            sc_expanded = Couplings(
-                np.array([alphas_ref, alphaem_ref]),
-                scale_ref,
-                thresh_setup,
-                (1.0, 1.0, 1.0),
-                (1, 0),
-                "expanded",
-            )
-            sc_exact = Couplings(
-                np.array([alphas_ref, alphaem_ref]),
-                scale_ref,
-                thresh_setup,
-                (1.0, 1.0, 1.0),
-                (1, 0),
-                "exact",
-            )
-            for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[0], sc_exact.a(q2)[0], rtol=5e-4
+            for running_alphaem in [True, False]:
+                # in LO expanded  = exact
+                sc_expanded = Couplings(
+                    np.array([alphas_ref, alphaem_ref]),
+                    scale_ref,
+                    thresh_setup,
+                    (1.0, 1.0, 1.0),
+                    (1, 0),
+                    "expanded",
+                    running_alphaem=running_alphaem,
                 )
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[1], sc_exact.a(q2)[1], rtol=5e-4
+                sc_exact = Couplings(
+                    np.array([alphas_ref, alphaem_ref]),
+                    scale_ref,
+                    thresh_setup,
+                    (1.0, 1.0, 1.0),
+                    (1, 0),
+                    "exact",
+                    running_alphaem=running_alphaem,
                 )
+                for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
+                    np.testing.assert_allclose(
+                        sc_expanded.a(q2)[0], sc_exact.a(q2)[0], rtol=5e-4
+                    )
+                    np.testing.assert_allclose(
+                        sc_expanded.a(q2)[1], sc_exact.a(q2)[1], rtol=5e-4
+                    )
+
+    def test_exact_NLO(self):
+        # prepare
+        thresh_setups = [
+            (np.inf, np.inf, np.inf),
+            (0, np.inf, np.inf),
+            (2, 4, 175),
+        ]
+        alphas_ref = 0.118
+        alphaem_ref = 0.00781
+        scale_ref = 91.0**2
+        for thresh_setup in thresh_setups:
+            for running_alphaem in [True, False]:
+                # in LO expanded  = exact
+                sc_expanded = Couplings(
+                    np.array([alphas_ref, alphaem_ref]),
+                    scale_ref,
+                    thresh_setup,
+                    (1.0, 1.0, 1.0),
+                    (2, 0),
+                    "expanded",
+                    running_alphaem=running_alphaem,
+                )
+                sc_exact = Couplings(
+                    np.array([alphas_ref, alphaem_ref]),
+                    scale_ref,
+                    thresh_setup,
+                    (1.0, 1.0, 1.0),
+                    (2, 0),
+                    "exact",
+                    running_alphaem=running_alphaem,
+                )
+                for q2 in [1e2, 1e3, 1e4]:
+                    np.testing.assert_allclose(
+                        sc_expanded.a(q2)[0], sc_exact.a(q2)[0], atol=5e-4
+                    )
+                    np.testing.assert_allclose(
+                        sc_expanded.a(q2)[1], sc_exact.a(q2)[1], atol=5e-4
+                    )
 
     def test_exact_LO_QED(self):
         # prepare
