@@ -206,23 +206,29 @@ def expanded_qcd(ref, order, nf, lmu):
         strong coupling at target scale :math:`a_s(\mu_R^2)`
     """
     res_as = ref
-    if order >= 1:
+    if order == 1:
         beta_qcd0 = beta_qcd((2, 0), nf)
         # QCD LO
         as_LO = exact_lo(ref, beta_qcd0, lmu)
         res_as = as_LO
     # NLO
-    if order >= 2:
+    if order == 2:
+        beta_qcd0 = beta_qcd((2, 0), nf)
         b_qcd1 = b_qcd((3, 0), nf)
         as_NLO = expanded_nlo(ref, beta_qcd0, b_qcd1, lmu)
         res_as = as_NLO
     # NNLO
-    if order >= 3:
+    if order == 3:
+        beta_qcd0 = beta_qcd((2, 0), nf)
+        b_qcd1 = b_qcd((3, 0), nf)
         b_qcd2 = b_qcd((4, 0), nf)
         as_NNLO = expanded_nnlo(ref, beta_qcd0, b_qcd1, b_qcd2, lmu)
         res_as = as_NNLO
     # N3LO
-    if order >= 4:
+    if order == 4:
+        beta_qcd0 = beta_qcd((2, 0), nf)
+        b_qcd1 = b_qcd((3, 0), nf)
+        b_qcd2 = b_qcd((4, 0), nf)
         b_qcd3 = b_qcd((5, 0), nf)
         as_N3LO = expanded_n3lo(
             ref,
@@ -257,13 +263,14 @@ def expanded_qed(ref, order, nf, lmu):
         QED coupling at target scale :math:`a_em(\mu_R^2)`
     """
     res_aem = ref
-    if order >= 1:
+    if order == 1:
         beta_qed0 = beta_qed((0, 2), nf)
         # QED LO
         aem_LO = exact_lo(ref, beta_qed0, lmu)
         res_aem = aem_LO
     # NLO
-    if order >= 2:
+    if order == 2:
+        beta_qed0 = beta_qed((0, 2), nf)
         b_qed1 = b_qed((0, 3), nf)
         aem_NLO = expanded_nlo(ref, beta_qed0, b_qed1, lmu)
         res_aem = aem_NLO

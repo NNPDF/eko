@@ -527,3 +527,60 @@ class TestCouplings:
         np.testing.assert_allclose(
             mathematica_val, as_N3LO.a(Q2)[0] - as_NNLO.a(Q2)[0], rtol=3e-6
         )
+
+    def test_running_alpha(self):
+        # prepare
+        thresh_setups = [
+            (np.inf, np.inf, np.inf),
+            (0, np.inf, np.inf),
+            (2, 4, 175),
+        ]
+        alphas_ref = 0.118
+        alphaem_ref = 0.00781
+        scale_ref = 91.0**2
+        for thresh_setup in thresh_setups:
+            for qcd in range(1, 4 + 1):
+                sc_expanded_running = Couplings(
+                    np.array([alphas_ref, alphaem_ref]),
+                    scale_ref,
+                    thresh_setup,
+                    (1.0, 1.0, 1.0),
+                    (qcd, 0),
+                    "expanded",
+                    running_alphaem=True,
+                )
+                sc_expanded_fixed = Couplings(
+                    np.array([alphas_ref, alphaem_ref]),
+                    scale_ref,
+                    thresh_setup,
+                    (1.0, 1.0, 1.0),
+                    (qcd, 0),
+                    "expanded",
+                    running_alphaem=False,
+                )
+                sc_exact_running = Couplings(
+                    np.array([alphas_ref, alphaem_ref]),
+                    scale_ref,
+                    thresh_setup,
+                    (1.0, 1.0, 1.0),
+                    (qcd, 0),
+                    "exact",
+                    running_alphaem=True,
+                )
+                sc_exact_fixed = Couplings(
+                    np.array([alphas_ref, alphaem_ref]),
+                    scale_ref,
+                    thresh_setup,
+                    (1.0, 1.0, 1.0),
+                    (qcd, 0),
+                    "exact",
+                    running_alphaem=False,
+                )
+                for q2 in [1e1, 1e2, 1e3, 1e4]:
+                    # for pure qcd running or fixed alpha must be equal
+                    np.testing.assert_allclose(
+                        sc_expanded_running.a(q2), sc_expanded_fixed.a(q2), rtol=1e-10
+                    )
+                    np.testing.assert_allclose(
+                        sc_exact_running.a(q2), sc_exact_fixed.a(q2), rtol=1e-10
+                    )
