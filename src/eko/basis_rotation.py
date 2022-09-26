@@ -74,6 +74,14 @@ unified_evol_basis = (
     "Tu8",
     "Vu8",
 )
+r"""
+Sorted elements in Unified Evolution Basis as :obj:`str`.
+
+Definition: :ref:`here <theory/FlavorSpace:flavor basis>`.
+
+corresponding |PDF| : :math:`g, \gamma, \Sigma, \Sigma_\Delta, V, V_\Delta, T^d_3, V^d_3,
+T^u_3, V^u_3, T^d_8, V^d_8, T^u_8, V^u_8`
+"""
 
 evol_basis_pids = tuple(
     [22, 100, 21, 200]
@@ -89,6 +97,7 @@ unified_evol_basis_pids = tuple(
     + [108 + 2, 208 + 2]
     + [108 + 1, 208 + 1]
 )
+"""|pid| representation of :data:`unified_evol_basis`."""
 
 non_singlet_pids_map = {
     "ns-": 10201,
