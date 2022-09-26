@@ -281,6 +281,8 @@ def ad_projector(ad_lab, nf, qed=False):
         name of anomalous dimension sector
     nf : int
         number of light flavors
+    qed : bool
+        activate qed
 
     Returns
     -------
@@ -324,6 +326,8 @@ def ad_projectors(nf, qed=False):
     ----------
     nf : int
         number of light flavors
+    qed : bool
+        activate qed
 
     Returns
     -------

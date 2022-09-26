@@ -38,6 +38,8 @@ class MatchingCondition(member.OperatorBase):
                 threshold value
             intrinsic_range : list
                 list of intrinsic quark pids
+            qed : bool
+                activate qed
         """
         m = {
             "S.S": op_members[(100, 100)],

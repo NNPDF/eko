@@ -40,6 +40,8 @@ class PhysicalOperator(member.OperatorBase):
                 number of active light flavors
             intrinsic_range : sequence
                 intrinsic heavy flavors
+            qed : bool
+                activate qed
 
         Returns
         -------
@@ -111,6 +113,11 @@ class PhysicalOperator(member.OperatorBase):
     def to_flavor_basis_tensor(self, qed=False):
         """
         Convert the computations into an rank 4 tensor over flavor operator space and momentum fraction operator space.
+
+        Parameters
+        ----------
+            qed : bool
+                activate qed
 
         Returns
         -------

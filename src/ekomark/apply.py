@@ -61,6 +61,8 @@ def apply_pdf_flavor(
             if given, interpolates to the pdfs given at targetgrid (instead of xgrid)
         flavor_rotation : np.ndarray
             Rotation matrix in flavor space
+        qed : bool
+            activate qed
 
     Returns
     -------

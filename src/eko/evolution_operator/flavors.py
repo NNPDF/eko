@@ -60,6 +60,11 @@ def get_range(evol_labels, qed=False):
     Here, we assume that the T distributions (e.g. T15) appears *always*
     before the corresponding V distribution (e.g. V15).
 
+    Parameters
+    ----------
+    qed : bool
+        activate qed
+
     Returns
     -------
         nf_in : int
@@ -237,7 +242,7 @@ def rotation_parameters(nf):
     Returns
     -------
         a,b,c,d,e,f : float
-            Parameters of the rotation: Sdelta = a*S + b*Sdelta + c*h+
+            Parameters of the rotation: Sdelta = a*S + b*Sdelta + c*h+, T_i = d*S + e*Sdelta + f*h+
     """
     nu_l = constants.uplike_flavors(nf - 1)
     nd_l = (nf - 1) - nu_l
