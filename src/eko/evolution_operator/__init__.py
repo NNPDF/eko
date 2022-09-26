@@ -54,12 +54,12 @@ def select_singlet_element(ker, mode0, mode1):
 @nb.njit(cache=True)
 def select_QEDsinglet_element(ker, mode0, mode1):
     """
-    Select element of the singlet matrix.
+    Select element of the QEDsinglet matrix.
 
     Parameters
     ----------
         ker : numpy.ndarray
-            singlet integration kernel
+            QEDsinglet integration kernel
         mode0 : int
             id for first sector element
         mode1 : int
@@ -67,7 +67,7 @@ def select_QEDsinglet_element(ker, mode0, mode1):
     Returns
     -------
         ker : complex
-            singlet integration kernel element
+            QEDsinglet integration kernel element
     """
     if mode0 == 21:
         index1 = 0
@@ -91,12 +91,12 @@ def select_QEDsinglet_element(ker, mode0, mode1):
 @nb.njit(cache=True)
 def select_QEDvalence_element(ker, mode0, mode1):
     """
-    Select element of the singlet matrix.
+    Select element of the QEDvalence matrix.
 
     Parameters
     ----------
         ker : numpy.ndarray
-            singlet integration kernel
+            QEDvalence integration kernel
         mode0 : int
             id for first sector element
         mode1 : int
@@ -104,7 +104,7 @@ def select_QEDvalence_element(ker, mode0, mode1):
     Returns
     -------
         ker : complex
-            singlet integration kernel element
+            QEDvalence integration kernel element
     """
     index1 = 0 if mode0 == 10200 else 1
     index2 = 0 if mode1 == 10200 else 1
@@ -226,6 +226,8 @@ def quad_ker(
         target coupling value
     a0 : float
         initial coupling value
+    aem : float
+        electromagnetic coupling value
     nf : int
         number of active flavors
     L : float
