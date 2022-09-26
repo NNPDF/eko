@@ -74,55 +74,37 @@ def exp_singlet(gamma_S):
 
 
 @nb.njit(cache=True)
-def exp_matrix(gamma_S):
+def exp_matrix(gamma):
     r"""
-    Compute the exponential and the eigensystem of the singlet anomalous dimension matrix.
+    Compute the exponential and the eigensystem of a matrix.
 
     Parameters
     ----------
-        gamma_S : numpy.ndarray
-            singlet anomalous dimension matrix
+        gamma : numpy.ndarray
+            input matrix
 
     Returns
     -------
         exp : numpy.ndarray
-            exponential of the singlet anomalous dimension matrix :math:`\gamma_{S}(N)`
-        lambda_p : complex
-            positive eigenvalue of the singlet anomalous dimension matrix
-            :math:`\gamma_{S}(N)`
-        lambda_m : complex
-            negative eigenvalue of the singlet anomalous dimension matrix
-            :math:`\gamma_{S}(N)`
-        e_p : numpy.ndarray
-            projector for the positive eigenvalue of the singlet anomalous
-            dimension matrix :math:`\gamma_{S}(N)`
-        e_m : numpy.ndarray
-            projector for the negative eigenvalue of the singlet anomalous
-            dimension matrix :math:`\gamma_{S}(N)`
-
-    See Also
-    --------
-        eko.anomalous_dimensions.as1.gamma_singlet : :math:`\gamma_{S}^{(0)}(N)`
-        eko.anomalous_dimensions.as2.gamma_singlet : :math:`\gamma_{S}^{(1)}(N)`
-        eko.anomalous_dimensions.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
+            exponential of the matrix gamma :math:`\gamma(N)`
+        w : numpy.ndarray
+            array of the eigenvalues of the matrix lambda
+        e : numpy.ndarray
+            projectors on the eigenspaces of the matrix gamma :math:`\gamma(N)`
     """
     # compute Matrix of coefficients
-    w, v = np.linalg.eig(gamma_S)
+    w, v = np.linalg.eig(gamma)
     vT = np.transpose(v)
-    matV = vT.dot(v)
+    matV = vT @ v
     matC = np.linalg.inv(matV)
     # compute projectors
-    tmp = matC.dot(vT)
-    dim = gamma_S.shape[0]
+    tmp = matC @ vT
+    dim = gamma.shape[0]
     e = np.zeros((dim, dim, dim), np.complex_)
+    exp = np.zeros((dim, dim), np.complex_)
     # TODO check if this loop can be entirely cast to numpy
     for i in range(dim):
         e[i] = np.outer(vT[i], tmp[i])
-    # TODO use correct np call
-    # exp = sum(e[i] * np.exp(w[i]) for i in range(dim))
-    # exp = np.sum(e * np.exp(w), axis=0)
-    exp = np.zeros((dim, dim), np.complex_)
-    for i in range(dim):
         exp += e[i] * np.exp(w[i])
     return exp, w, e
 
@@ -264,13 +246,13 @@ def gamma_singlet(order, n, nf):
 @nb.njit(cache=True)
 def gamma_ns_qed(order, mode, n, nf):
     r"""
-    Compute the tower of the non-singlet anomalous dimensions.
+    Compute the grid of the QED non-singlet anomalous dimensions.
 
     Parameters
     ----------
         order : tuple(int,int)
             perturbative orders
-        mode : 10201 | 10101 | 10200
+        mode : 10102 | 10103 | 10202 | 10203
             sector identifier
         n : complex
             Mellin variable
@@ -280,7 +262,7 @@ def gamma_ns_qed(order, mode, n, nf):
     Returns
     -------
         gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
+            non-singlet QED anomalous dimensions
 
     See Also
     --------
@@ -290,6 +272,14 @@ def gamma_ns_qed(order, mode, n, nf):
         eko.anomalous_dimensions.as3.gamma_nsp : :math:`\gamma_{ns,+}^{(2)}(N)`
         eko.anomalous_dimensions.as3.gamma_nsm : :math:`\gamma_{ns,-}^{(2)}(N)`
         eko.anomalous_dimensions.as3.gamma_nsv : :math:`\gamma_{ns,v}^{(2)}(N)`
+        eko.anomalous_dimensions.aem1.gamma_ns : :math:`\gamma_{ns}^{(0,1)}(N)`
+        eko.anomalous_dimensions.aem1.gamma_ns : :math:`\gamma_{ns,v}^{(0,1)}(N)`
+        eko.anomalous_dimensions.as1aem1.gamma_nsp : :math:`\gamma_{ns,p}^{(1,1)}(N)`
+        eko.anomalous_dimensions.as1aem1.gamma_nsm : :math:`\gamma_{ns,m}^{(1,1)}(N)`
+        eko.anomalous_dimensions.aem2.gamma_nspu : :math:`\gamma_{ns,pu}^{(0,2)}(N)`
+        eko.anomalous_dimensions.aem2.gamma_nsmu : :math:`\gamma_{ns,mu}^{(0,2)}(N)`
+        eko.anomalous_dimensions.aem2.gamma_nspd : :math:`\gamma_{ns,pd}^{(0,2)}(N)`
+        eko.anomalous_dimensions.aem2.gamma_nsmd : :math:`\gamma_{ns,md}^{(0,2)}(N)`
     """
     # cache the s-es
     max_weight = max(order)
@@ -414,7 +404,7 @@ def choose_ns_ad_aem2(mode, n, nf, sx):
 @nb.njit(cache=True)
 def gamma_singlet_qed(order, n, nf):
     r"""
-    Compute the tower of the singlet anomalous dimensions matrices.
+    Compute the grid of the QED singlet anomalous dimensions matrices.
 
     Parameters
     ----------
@@ -432,9 +422,12 @@ def gamma_singlet_qed(order, n, nf):
 
     See Also
     --------
-        eko.anomalous_dimensions.as1.gamma_singlet : :math:`\gamma_{S}^{(0)}(N)`
-        eko.anomalous_dimensions.as2.gamma_singlet : :math:`\gamma_{S}^{(1)}(N)`
-        eko.anomalous_dimensions.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
+        eko.anomalous_dimensions.as1.gamma_QEDsinglet : :math:`\gamma_{S}^{(0)}(N)`
+        eko.anomalous_dimensions.as2.gamma_QEDsinglet : :math:`\gamma_{S}^{(1)}(N)`
+        eko.anomalous_dimensions.as3.gamma_QEDsinglet : :math:`\gamma_{S}^{(2)}(N)`
+        eko.anomalous_dimensions.aem1.gamma_singlet : :math:`\gamma_{S}^{(0,1)}(N)`
+        eko.anomalous_dimensions.as1aem1.gamma_singlet : :math:`\gamma_{S}^{(1,1)}(N)`
+        eko.anomalous_dimensions.aem2.gamma_singlet : :math:`\gamma_{S}^{(0,2)}(N)`
     """
     # cache the s-es
     max_weight = max(order)
@@ -462,7 +455,7 @@ def gamma_singlet_qed(order, n, nf):
 @nb.njit(cache=True)
 def gamma_valence_qed(order, n, nf):
     r"""
-    Compute the tower of the singlet anomalous dimensions matrices.
+    Compute the grid of the QED valence anomalous dimensions matrices.
 
     Parameters
     ----------
@@ -475,14 +468,17 @@ def gamma_valence_qed(order, n, nf):
 
     Returns
     -------
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
+        gamma_valence : numpy.ndarray
+            valence anomalous dimensions matrices
 
     See Also
     --------
-        eko.anomalous_dimensions.as1.gamma_singlet : :math:`\gamma_{S}^{(0)}(N)`
-        eko.anomalous_dimensions.as2.gamma_singlet : :math:`\gamma_{S}^{(1)}(N)`
-        eko.anomalous_dimensions.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
+        eko.anomalous_dimensions.as1.gamma_QEDvalence : :math:`\gamma_{V}^{(0)}(N)`
+        eko.anomalous_dimensions.as2.gamma_QEDvalence : :math:`\gamma_{V}^{(1)}(N)`
+        eko.anomalous_dimensions.as3.gamma_QEDvalence : :math:`\gamma_{V}^{(2)}(N)`
+        eko.anomalous_dimensions.aem1.gamma_valence : :math:`\gamma_{V}^{(0,1)}(N)`
+        eko.anomalous_dimensions.as1aem1.gamma_valence : :math:`\gamma_{V}^{(1,1)}(N)`
+        eko.anomalous_dimensions.aem2.gamma_valence : :math:`\gamma_{V}^{(0,2)}(N)`
     """
     # cache the s-es
     max_weight = max(order)
