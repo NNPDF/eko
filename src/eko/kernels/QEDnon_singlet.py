@@ -11,7 +11,7 @@ from . import non_singlet, utils
 @nb.njit(cache=True)
 def lo_aem1_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
     """
-    |LO| non-singlet exact EKO.
+    O(as1aem1) non-singlet exact EKO.
 
     Parameters
     ----------
@@ -21,13 +21,15 @@ def lo_aem1_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
     Returns
     -------
         e_ns^0 : complex
-            |LO| non-singlet exact EKO
+            O(as1aem1) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j00_qed(a1, a0, aem, nf)
@@ -38,7 +40,7 @@ def lo_aem1_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
 @nb.njit(cache=True)
 def lo_aem2_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
     """
-    |LO| non-singlet exact EKO.
+    O(as1aem2) non-singlet exact EKO.
 
     Parameters
     ----------
@@ -48,13 +50,15 @@ def lo_aem2_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
     Returns
     -------
         e_ns^0 : complex
-            |LO| non-singlet exact EKO
+            O(as1aem2) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j00_qed(a1, a0, aem, nf)
@@ -65,7 +69,7 @@ def lo_aem2_exact(gamma_ns, a1, a0, aem, nf):  # lo refers to the order in as1
 @nb.njit(cache=True)
 def nlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
     """
-    |NLO| non-singlet exact EKO.
+    O(as2aem1) non-singlet exact EKO.
 
     Parameters
     ----------
@@ -75,13 +79,15 @@ def nlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
     Returns
     -------
         e_ns^1 : complex
-            |NLO| non-singlet exact EKO
+            O(as2aem1) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j01_exact_qed(a1, a0, aem, nf)
@@ -93,7 +99,7 @@ def nlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
 @nb.njit(cache=True)
 def nlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
     """
-    |NLO| non-singlet exact EKO.
+    O(as2aem2) non-singlet exact EKO.
 
     Parameters
     ----------
@@ -103,13 +109,15 @@ def nlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
     Returns
     -------
         e_ns^1 : complex
-            |NLO| non-singlet exact EKO
+            O(as2aem2) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j01_exact_qed(a1, a0, aem, nf)
@@ -122,7 +130,7 @@ def nlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
 @nb.njit(cache=True)
 def nnlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
     """
-    |NNLO| non-singlet exact EKO.
+    O(as3aem1) non-singlet exact EKO.
 
     Parameters
     ----------
@@ -132,13 +140,15 @@ def nnlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
     Returns
     -------
         e_ns^2 : complex
-            |NNLO| non-singlet exact EKO
+            O(as3aem1) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j02_exact_qed(a1, a0, aem, nf)
@@ -151,7 +161,7 @@ def nnlo_aem1_exact(gamma_ns, a1, a0, aem, nf):
 @nb.njit(cache=True)
 def nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
     """
-    |NNLO| non-singlet exact EKO.
+    O(as3aem2) non-singlet exact EKO.
 
     Parameters
     ----------
@@ -161,13 +171,15 @@ def nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
     Returns
     -------
         e_ns^2 : complex
-            |NNLO| non-singlet exact EKO
+            O(as3aem2) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j02_exact_qed(a1, a0, aem, nf)
@@ -199,6 +211,8 @@ def dispatcher(
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
         ev_op_iterations : int
