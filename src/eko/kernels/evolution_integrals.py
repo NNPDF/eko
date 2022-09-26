@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-r"""
+r"""Compute evolution integrals.
+
 Integrals needed for the exact evolutions are given by:
 
 .. math::
@@ -44,11 +45,11 @@ def j00(a1, a0, nf):
 @nb.njit(cache=True)
 def j00_qed(a1, a0, aem, nf):
     r"""
-    LO-LO exact evolution integral.
+    LO-LO QED exact evolution integral.
 
     .. math::
-        j^{(0,0)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'}
-           = \frac{\ln(a_s/a_s^0)}{\beta_0}
+        j^{(0,0)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'}
+           = \frac{\ln(a_s/a_s^0)}{\beta_0 + aem \beta_{0,1}}
 
     Parameters
     ----------
@@ -56,6 +57,8 @@ def j00_qed(a1, a0, aem, nf):
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
@@ -71,11 +74,11 @@ def j00_qed(a1, a0, aem, nf):
 @nb.njit(cache=True)
 def jm10(a1, a0, aem, nf):
     r"""
-    LO-LO exact evolution integral.
+    LO-LO QED exact evolution integral.
 
     .. math::
-        j^{(0,0)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'}
-           = \frac{\ln(a_s/a_s^0)}{\beta_0}
+        j^{(-1,0)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2}
+           = (1.0 / a0 - 1.0 / a1) / (\beta_0 + aem \beta_{0,1})
 
     Parameters
     ----------
@@ -83,6 +86,8 @@ def jm10(a1, a0, aem, nf):
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
@@ -131,7 +136,7 @@ def j11_exact_qed(a1, a0, aem, nf):
 
     .. math::
         j^{(1,1)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
-                                \frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3}
+                                \frac{a_s'^2}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3}
             = \frac{1}{\beta_1}\ln\left(\frac{1+b_1 a_s}{1+b_1 a_s^0}\right)
 
     Parameters
@@ -140,6 +145,8 @@ def j11_exact_qed(a1, a0, aem, nf):
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
@@ -209,10 +216,10 @@ def j01_exact(a1, a0, nf):
 @nb.njit(cache=True)
 def j01_exact_qed(a1, a0, aem, nf):
     r"""
-    LO-NLO exact evolution integral.
+    LO-NLO QED exact evolution integral.
 
     .. math::
-        j^{(0,1)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
+        j^{(0,1)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
                             \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3}
                = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}(a_s,a_s^0)
 
@@ -222,6 +229,8 @@ def j01_exact_qed(a1, a0, aem, nf):
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
@@ -357,6 +366,8 @@ def j22_exact_qed(a1, a0, aem, nf):
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
@@ -431,6 +442,8 @@ def j12_exact_qed(a1, a0, aem, nf):
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
@@ -497,6 +510,8 @@ def j02_exact_qed(a1, a0, aem, nf):
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
 
@@ -517,7 +532,7 @@ def j02_exact_qed(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def jm12_exact(a1, a0, aem, nf):
-    """
+    r"""
     LO-NNLO exact evolution integral.
 
     .. math::
