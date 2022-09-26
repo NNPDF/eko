@@ -64,8 +64,6 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     """
     Determine used kernel and call it.
 
-    In LO we always use the exact solution.
-
     Parameters
     ----------
         order : tuple(int,int)
@@ -78,6 +76,8 @@ def dispatcher(  # pylint: disable=too-many-return-statements
             target coupling value
         a0 : float
             initial coupling value
+        aem : float
+            electromagnetic coupling value
         nf : int
             number of active flavors
         ev_op_iterations : int
@@ -90,30 +90,6 @@ def dispatcher(  # pylint: disable=too-many-return-statements
         e_s : numpy.ndarray
             singlet EKO
     """
-    # use always exact in LO
-    #    if order == (1,0):
-    #        return lo_exact(gamma_singlet, a1, a0, nf)
-
     if method in ["iterate-exact", "iterate-expanded"]:
         return eko_iterate(gamma_singlet, a1, a0, aem, nf, order, ev_op_iterations)
-
-    #    if method == "perturbative-exact":
-    #        return eko_perturbative(
-    #            gamma_singlet, a1, a0, nf, order, ev_op_iterations, ev_op_max_order, True
-    #        )
-    #    if method == "perturbative-expanded":
-    #        return eko_perturbative(
-    #            gamma_singlet, a1, a0, nf, order, ev_op_iterations, ev_op_max_order, False
-    #        )
-    #    if method in ["truncated", "ordered-truncated"]:
-    #        return eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations)
-    #    # These methods are scattered for nlo and nnlo
-    #    if method == "decompose-exact":
-    #        if order[0] == 2:
-    #            return nlo_decompose_exact(gamma_singlet, a1, a0, nf)
-    #        return nnlo_decompose_exact(gamma_singlet, a1, a0, nf)
-    #    if method == "decompose-expanded":
-    #        if order[0] == 2:
-    #            return nlo_decompose_expanded(gamma_singlet, a1, a0, nf)
-    #        return nnlo_decompose_expanded(gamma_singlet, a1, a0, nf)
     raise NotImplementedError("Selected method is not implemented")
