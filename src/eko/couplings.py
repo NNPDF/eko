@@ -206,39 +206,25 @@ def expanded_qcd(ref, order, nf, lmu):
         strong coupling at target scale :math:`a_s(\mu_R^2)`
     """
     res_as = ref
+    beta_vec = [beta_qcd((2, 0), nf)]
+    for i in range(2, order + 1):
+        beta_vec.append(b_qcd((i + 1, 0), nf))
+    # LO
     if order == 1:
-        beta_qcd0 = beta_qcd((2, 0), nf)
-        # QCD LO
-        as_LO = exact_lo(ref, beta_qcd0, lmu)
-        res_as = as_LO
+        res_as = exact_lo(ref, *beta_vec, lmu)
     # NLO
     if order == 2:
-        beta_qcd0 = beta_qcd((2, 0), nf)
-        b_qcd1 = b_qcd((3, 0), nf)
-        as_NLO = expanded_nlo(ref, beta_qcd0, b_qcd1, lmu)
-        res_as = as_NLO
+        res_as = expanded_nlo(ref, *beta_vec, lmu)
     # NNLO
     if order == 3:
-        beta_qcd0 = beta_qcd((2, 0), nf)
-        b_qcd1 = b_qcd((3, 0), nf)
-        b_qcd2 = b_qcd((4, 0), nf)
-        as_NNLO = expanded_nnlo(ref, beta_qcd0, b_qcd1, b_qcd2, lmu)
-        res_as = as_NNLO
+        res_as = expanded_nnlo(ref, *beta_vec, lmu)
     # N3LO
     if order == 4:
-        beta_qcd0 = beta_qcd((2, 0), nf)
-        b_qcd1 = b_qcd((3, 0), nf)
-        b_qcd2 = b_qcd((4, 0), nf)
-        b_qcd3 = b_qcd((5, 0), nf)
-        as_N3LO = expanded_n3lo(
+        res_as = expanded_n3lo(
             ref,
-            beta_qcd0,
-            b_qcd1,
-            b_qcd2,
-            b_qcd3,
+            *beta_vec,
             lmu,
         )
-        res_as = as_N3LO
     return res_as
 
 
@@ -263,23 +249,23 @@ def expanded_qed(ref, order, nf, lmu):
         QED coupling at target scale :math:`a_em(\mu_R^2)`
     """
     res_aem = ref
+    beta_vec = [beta_qed((0, 2), nf)]
+    for i in range(2, order + 1):
+        beta_vec.append(b_qed((0, i + 1), nf))
+    # LO
     if order == 1:
-        beta_qed0 = beta_qed((0, 2), nf)
-        # QED LO
-        aem_LO = exact_lo(ref, beta_qed0, lmu)
-        res_aem = aem_LO
+        res_aem = exact_lo(ref, *beta_vec, lmu)
     # NLO
     if order == 2:
-        beta_qed0 = beta_qed((0, 2), nf)
-        b_qed1 = b_qed((0, 3), nf)
-        aem_NLO = expanded_nlo(ref, beta_qed0, b_qed1, lmu)
-        res_aem = aem_NLO
+        res_aem = expanded_nlo(ref, *beta_vec, lmu)
     return res_aem
 
 
 @nb.njit(cache=True)
 def couplings_expanded_running_alphaem(order, couplings_ref, nf, scale_from, scale_to):
-    r"""Compute expanded expression.
+    r"""Compute coupled expanded expression of the couplings for running alphaem.
+
+    Implement Eqs. (17-18) from :cite:`Surguladze:1996hx`
 
     Parameters
     ----------
@@ -323,7 +309,7 @@ def couplings_expanded_running_alphaem(order, couplings_ref, nf, scale_from, sca
 
 @nb.njit(cache=True)
 def couplings_expanded_fixed_alphaem(order, couplings_ref, nf, scale_from, scale_to):
-    r"""Compute expanded expression.
+    r"""Compute coupled expanded expression of the couplings for fixed alphaem.
 
     Parameters
     ----------
@@ -350,35 +336,25 @@ def couplings_expanded_fixed_alphaem(order, couplings_ref, nf, scale_from, scale
     beta_qcd0 = beta_qcd((2, 0), nf)
     if order[1] >= 1:
         beta_qcd0 += aem * beta_qcd((2, 1), nf)
-    # QCD LO
+    beta_vec = [beta_qcd0]
+    for i in range(2, order[0] + 1):
+        beta_vec.append(beta_qcd((i + 1, 0), nf) / beta_qcd0)
+    # LO
     if order[0] == 1:
-        as_LO = exact_lo(couplings_ref[0], beta_qcd0, lmu)
-        res_as = as_LO
+        res_as = exact_lo(couplings_ref[0], *beta_vec, lmu)
     # NLO
     if order[0] == 2:
-        b_qcd1 = beta_qcd((3, 0), nf) / beta_qcd0
-        as_NLO = expanded_nlo(couplings_ref[0], beta_qcd0, b_qcd1, lmu)
-        res_as = as_NLO
+        res_as = expanded_nlo(couplings_ref[0], *beta_vec, lmu)
     # NNLO
     if order[0] == 3:
-        b_qcd1 = beta_qcd((3, 0), nf) / beta_qcd0
-        b_qcd2 = beta_qcd((4, 0), nf) / beta_qcd0
-        as_NNLO = expanded_nnlo(couplings_ref[0], beta_qcd0, b_qcd1, b_qcd2, lmu)
-        res_as = as_NNLO
+        res_as = expanded_nnlo(couplings_ref[0], *beta_vec, lmu)
     # N3LO
     if order[0] == 4:
-        b_qcd1 = beta_qcd((3, 0), nf) / beta_qcd0
-        b_qcd2 = beta_qcd((4, 0), nf) / beta_qcd0
-        b_qcd3 = beta_qcd((5, 0), nf) / beta_qcd0
-        as_N3LO = expanded_n3lo(
+        res_as = expanded_n3lo(
             couplings_ref[0],
-            beta_qcd0,
-            b_qcd1,
-            b_qcd2,
-            b_qcd3,
+            *beta_vec,
             lmu,
         )
-        res_as = as_N3LO
     return np.array([res_as, aem])
 
 
@@ -580,7 +556,7 @@ class Couplings:
         return res.y[0][-1]
 
     def compute_exact_running_alphaem(self, a_ref, nf, scale_from, scale_to):
-        """Compute couplings via |RGE|.
+        """Compute couplings via |RGE| with running alphaem.
 
         Parameters
         ----------
@@ -664,7 +640,7 @@ class Couplings:
         return np.array([res.y[0][-1], res.y[1][-1]])
 
     def compute_exact_fixed_alphaem(self, a_ref, nf, scale_from, scale_to):
-        """Compute couplings via |RGE|.
+        """Compute couplings via |RGE| with fixed alphaem.
 
         Parameters
         ----------
