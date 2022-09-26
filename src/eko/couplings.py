@@ -211,18 +211,21 @@ def expanded_qcd(ref, order, nf, lmu):
         beta_vec.append(b_qcd((i + 1, 0), nf))
     # LO
     if order == 1:
-        res_as = exact_lo(ref, *beta_vec, lmu)
+        res_as = exact_lo(ref, beta_vec[0], lmu)
     # NLO
     if order == 2:
-        res_as = expanded_nlo(ref, *beta_vec, lmu)
+        res_as = expanded_nlo(ref, beta_vec[0], beta_vec[1], lmu)
     # NNLO
     if order == 3:
-        res_as = expanded_nnlo(ref, *beta_vec, lmu)
+        res_as = expanded_nnlo(ref, beta_vec[0], beta_vec[1], beta_vec[2], lmu)
     # N3LO
     if order == 4:
         res_as = expanded_n3lo(
             ref,
-            *beta_vec,
+            beta_vec[0],
+            beta_vec[1],
+            beta_vec[2],
+            beta_vec[3],
             lmu,
         )
     return res_as
@@ -254,10 +257,10 @@ def expanded_qed(ref, order, nf, lmu):
         beta_vec.append(b_qed((0, i + 1), nf))
     # LO
     if order == 1:
-        res_aem = exact_lo(ref, *beta_vec, lmu)
+        res_aem = exact_lo(ref, beta_vec[0], lmu)
     # NLO
     if order == 2:
-        res_aem = expanded_nlo(ref, *beta_vec, lmu)
+        res_aem = expanded_nlo(ref, beta_vec[0], beta_vec[1], lmu)
     return res_aem
 
 
@@ -341,18 +344,23 @@ def couplings_expanded_fixed_alphaem(order, couplings_ref, nf, scale_from, scale
         beta_vec.append(beta_qcd((i + 1, 0), nf) / beta_qcd0)
     # LO
     if order[0] == 1:
-        res_as = exact_lo(couplings_ref[0], *beta_vec, lmu)
+        res_as = exact_lo(couplings_ref[0], beta_vec[0], lmu)
     # NLO
     if order[0] == 2:
-        res_as = expanded_nlo(couplings_ref[0], *beta_vec, lmu)
+        res_as = expanded_nlo(couplings_ref[0], beta_vec[0], beta_vec[1], lmu)
     # NNLO
     if order[0] == 3:
-        res_as = expanded_nnlo(couplings_ref[0], *beta_vec, lmu)
+        res_as = expanded_nnlo(
+            couplings_ref[0], beta_vec[0], beta_vec[1], beta_vec[2], lmu
+        )
     # N3LO
     if order[0] == 4:
         res_as = expanded_n3lo(
             couplings_ref[0],
-            *beta_vec,
+            beta_vec[0],
+            beta_vec[1],
+            beta_vec[2],
+            beta_vec[3],
             lmu,
         )
     return np.array([res_as, aem])
