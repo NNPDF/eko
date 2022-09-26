@@ -139,7 +139,6 @@ class QuadKerBase:
 
     def __init__(self, u, is_log, logx, mode0):
         self.is_singlet = mode0 in [100, 21, 90]
-        # TODO : check 90 in is_QEDsinglet and 91 in is_QEDvalence
         self.is_QEDsinglet = mode0 in [21, 22, 100, 101, 90]
         self.is_QEDvalence = mode0 in [10200, 10204]
         self.is_log = is_log
