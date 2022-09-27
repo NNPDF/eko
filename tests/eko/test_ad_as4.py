@@ -36,7 +36,7 @@ def test_quark_number_conservation():
     # nf^3 part
     np.testing.assert_allclose(gnsp.gamma_ns_nf3(N, sx_cache), 0, atol=3e-15)
     # nf^2 part
-    np.testing.assert_allclose(gnsm.gamma_nsm_nf2(N, sx_cache), 0, atol=3e-13)
+    np.testing.assert_allclose(gnsm.gamma_nsm_nf2(N, sx_cache), 0, atol=4e-13)
     # nf^1 part
     np.testing.assert_allclose(gnsm.gamma_nsm_nf1(N, sx_cache), 0, atol=2e-11)
     # nf^0 part
@@ -241,7 +241,7 @@ def test_diff_pm_nf2():
 
     diff = []
     ref_vals = []
-    for N in range(10, 51):
+    for N in range(10, 35):
         sx_cache = compute_cache(N, 5, not bool(N % 2))
         diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
         ref_vals.append(deltaB3(N, sx_cache))
