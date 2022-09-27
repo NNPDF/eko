@@ -78,7 +78,7 @@ def jm10(a1, a0, aem, nf):
 
     .. math::
         j^{(-1,0)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2}
-           = (1.0 / a0 - 1.0 / a1) / (\beta_0 + aem \beta_{0,1})
+           = \frac{1.0 / a0 - 1.0 / as}{\beta_0 + aem \beta_{0,1}}
 
     Parameters
     ----------
@@ -220,8 +220,8 @@ def j01_exact_qed(a1, a0, aem, nf):
 
     .. math::
         j^{(0,1)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
-                            \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3}
-               = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}(a_s,a_s^0)
+                            \frac{a_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3}
+               = j^{(0,0)}(a_s,a_s^0,aem) - b_1 j^{(1,1)}(a_s,a_s^0,aem)
 
     Parameters
     ----------
@@ -276,9 +276,8 @@ def jm11_exact(a1, a0, aem, nf):
     LO-NLO exact evolution integral.
 
     .. math::
-        j^{(0,1)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
-                            \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3}
-               = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}(a_s,a_s^0)
+        j^{(-1,1)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3}
+            = \frac{1.0 / a0 - 1.0 / as}{\beta_0 + aem \beta_{0,1}} + \frac{b_1}{(\beta_0 + aem \beta_{0,1}}  \left(\log(1 + 1 / (as b_1)) - \log(1 + 1 / (a0 b_1)\right)
 
     Parameters
     ----------
@@ -350,9 +349,9 @@ def j22_exact_qed(a1, a0, aem, nf):
     NNLO-NNLO exact evolution integral.
 
     .. math::
-        j^{(2,2)}(a_s,a_s^0) &=
+        j^{(2,2)}(a_s,a_s^0,aem) &=
             \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}
-                        {\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}
+                        {(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}
             = \frac{1}{\beta_2}\ln\left(
                     \frac{1 + a_s ( b_1 + b_2 a_s ) }{ 1 + a_s^0 ( b_1 + b_2 a_s^0 )}\right)
                 - \frac{b_1 \delta}{ \beta_2 \Delta} \\
@@ -431,7 +430,7 @@ def j12_exact_qed(a1, a0, aem, nf):
     NLO-NNLO exact evolution integral.
 
     .. math::
-        j^{(1,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
+        j^{(1,2)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
                &= \frac{2 \delta}{\beta_0 \Delta}  \\
         \delta &= \atan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - \atan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
         \Delta &= \sqrt{4 b_2 - b_1^2}
@@ -500,8 +499,8 @@ def j02_exact_qed(a1, a0, aem, nf):
     LO-NNLO exact evolution integral.
 
     .. math::
-        j^{(0,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
-              \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
+        j^{(0,2)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
+              \frac{a_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
             &= j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}(a_s,a_s^0) - b_2 j^{(2,2)}(a_s,a_s^0)
 
     Parameters
@@ -536,9 +535,9 @@ def jm12_exact(a1, a0, aem, nf):
     LO-NNLO exact evolution integral.
 
     .. math::
-        j^{(0,2)}(a_s,a_s^0) &= \\int\\limits_{a_s^0}^{a_s}\\!da_s'\\,
-              \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
-            &= j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}(a_s,a_s^0) - b_2 j^{(2,2)}(a_s,a_s^0)
+        j^{(-1,2)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
+            \frac{1}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
+            &= j^{(-1,0)}(a_s,a_s^0,aem) - b_1 j^{(0,2)}(a_s,a_s^0) - b_2 j^{(1,2)}(a_s,a_s^0)
 
     Parameters
     ----------
