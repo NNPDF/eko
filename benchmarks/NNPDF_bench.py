@@ -70,7 +70,7 @@ class BenchmarkNNPDF31_luxqed(BenchmarkNNPDF):
         theory_card = {
             **base_theory,
             "PTO": 2,
-            "QED": 1,
+            "QED": 2,
             "Q0": Q0,
         }
         theory_card.update(
