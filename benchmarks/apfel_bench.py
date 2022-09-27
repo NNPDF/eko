@@ -244,11 +244,10 @@ class BenchmarkVFNS_qed(ApfelBenchmark):
             # "EXP",
             # "TRN",
         ],
-        "NfFF": 5,
-        "kcThr": 0.0,
-        "kbThr": 0.0,
-        "ktThr": np.inf,
-        "Q0": 5.0,
+        "kcThr": 1.0,
+        "kbThr": 1.0,
+        "ktThr": 1.0,
+        "Q0": 1.25,
         "alphas": 0.118000,
         "alphaqed": 0.007496,
     }
@@ -274,14 +273,14 @@ class BenchmarkVFNS_qed(ApfelBenchmark):
 
 if __name__ == "__main__":
 
-    obj = BenchmarkVFNS()
+    # obj = BenchmarkVFNS()
     # obj = BenchmarkFFNS()
 
     # obj.benchmark_plain(2)
-    obj.benchmark_sv(2, "exponentiated")
+    # obj.benchmark_sv(2, "exponentiated")
     # obj.benchmark_kthr(2)
     # obj.benchmark_msbar(2)
 
-    # obj = BenchmarkFFNS()
-    # obj = BenchmarkVFNS()
-    # obj.benchmark_plain(2, 2)
+    # obj = BenchmarkFFNS_qed()
+    obj = BenchmarkVFNS_qed()
+    obj.benchmark_plain(2, 2)
