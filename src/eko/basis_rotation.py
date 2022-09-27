@@ -291,19 +291,18 @@ def ad_projector(ad_lab, nf, qed=False):
     """
     if not qed:
         proj = np.zeros_like(rotate_flavor_to_evolution, dtype=float)
-        sector = map_ad_to_evolution[ad_lab]
+        # restrict the evolution basis to light flavors
+        # NOTE: the cut is only needed for "NS_p" and "NS_m", but the other lists
+        # are 1-long so they are unaffected
+        sector = map_ad_to_evolution[ad_lab][: (nf - 1)]
         basis = evol_basis
         rotate = rotate_flavor_to_evolution.copy()
     else:
         proj = np.zeros_like(rotate_flavor_to_unified_evolution, dtype=float)
-        sector = map_ad_to_unified_evolution[ad_lab]
+        # restrict the evolution basis to light flavors
+        sector = select_light_flavors_uni_ev(ad_lab, nf)
         basis = unified_evol_basis
         rotate = rotate_flavor_to_unified_evolution.copy()
-    # restrict the evolution basis to light flavors
-    # NOTE: the cut is only needed for "NS_p" and "NS_m", but the other lists
-    # are 1-long so they are unaffected
-    # TODO : check this for unified evol
-    sector = sector[: (nf - 1)]
 
     for el in sector:
         out_name, in_name = el.split(".")
@@ -316,6 +315,40 @@ def ad_projector(ad_lab, nf, qed=False):
         proj += (out[:, np.newaxis] * in_) / (out @ out)
 
     return proj
+
+
+def select_light_flavors_uni_ev(ad_lab, nf):
+    """
+    Select light flavors for a given ad_lab.
+
+    Parameters
+    ----------
+    ad_lab : str
+        name of anomalous dimension sector
+    nf : int
+        number of light flavors
+
+    Returns
+    -------
+    sector : list
+        list of sector for a given ad_lab
+    """
+    if ad_lab[0] in [non_singlet_pids_map["ns+d"], non_singlet_pids_map["ns-d"]]:
+        if nf < 5:
+            # return only Td3 or Vd3
+            return [map_ad_to_unified_evolution[ad_lab][0]]
+        else:
+            return map_ad_to_unified_evolution[ad_lab]
+    elif ad_lab[0] in [non_singlet_pids_map["ns+u"], non_singlet_pids_map["ns-u"]]:
+        if nf < 4:
+            return []
+        elif nf < 6 and nf >= 4:
+            # return only Td3 or Vd3
+            return [map_ad_to_unified_evolution[ad_lab][0]]
+        else:
+            return map_ad_to_unified_evolution[ad_lab]
+    else:
+        return map_ad_to_evolution[ad_lab]
 
 
 def ad_projectors(nf, qed=False):
