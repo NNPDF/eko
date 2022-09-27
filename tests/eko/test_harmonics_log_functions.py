@@ -10,7 +10,7 @@ def test_lm1pm1():
     def mellin_lm1pm1(x, k):
         return x ** (N - 1) * (1 - x) * np.log(1 - x) ** k
 
-    Ns = [12.345, 81.113, 27.787]
+    Ns = 100 * np.random.rand(3)
     for N in Ns:
         sx = h.sx(N, 3)
 
@@ -22,7 +22,7 @@ def test_lm1pm1():
 
         for k in [1, 2, 3]:
             test_value = quad(mellin_lm1pm1, 0, 1, args=(k))[0]
-            np.testing.assert_allclose(test_value, ref_values[k], atol=5e-4)
+            np.testing.assert_allclose(test_value, ref_values[k])
 
 
 def test_lm1p():
@@ -30,7 +30,7 @@ def test_lm1p():
     def mellin_lm1p(x, k):
         return x ** (N - 1) * np.log(1 - x) ** k
 
-    Ns = [65.780, 56.185, 94.872]
+    Ns = 100 * np.random.rand(3)
     for N in Ns:
         sx = h.sx(N, 5)
 
