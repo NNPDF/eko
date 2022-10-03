@@ -9,7 +9,7 @@ from . import utils
 
 
 @nb.njit(cache=True)
-def eko_iterate(gamma_singlet, a1, a0, aem, nf, order, ev_op_iterations):
+def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations):
     """Singlet QEDxQCD iterated (exact) EKO.
 
     Parameters
@@ -41,15 +41,15 @@ def eko_iterate(gamma_singlet, a1, a0, aem, nf, order, ev_op_iterations):
     for i in range(1, 3 + 1):
         betaQCD[i, 0] = beta.beta_qcd((i + 1, 0), nf)
     betaQCD[1, 1] = beta.beta_qcd((2, 1), nf)
-    for ah in a_steps[1:]:
+    for (i, ah) in enumerate(a_steps[1:]):
         a_half = (ah + al) / 2.0
         delta_a = ah - al
         gamma = np.zeros((4, 4), np.complex_)
         betatot = 0
         for i in range(0, order[0] + 1):
             for j in range(0, order[1] + 1):
-                betatot += a_half**1 * betaQCD[i, j] * a_half**i * aem**j
-                gamma += gamma_singlet[i, j] * a_half**i * aem**j
+                betatot += a_half**1 * betaQCD[i, j] * a_half**i * aem_list[i] ** j
+                gamma += gamma_singlet[i, j] * a_half**i * aem_list[i] ** j
         ln = gamma / betatot * delta_a
         ek = np.ascontiguousarray(ad.exp_matrix(ln)[0])
         e = ek @ e
@@ -59,7 +59,15 @@ def eko_iterate(gamma_singlet, a1, a0, aem, nf, order, ev_op_iterations):
 
 @nb.njit(cache=True)
 def dispatcher(  # pylint: disable=too-many-return-statements
-    order, method, gamma_singlet, a1, a0, aem, nf, ev_op_iterations, ev_op_max_order
+    order,
+    method,
+    gamma_singlet,
+    a1,
+    a0,
+    aem_list,
+    nf,
+    ev_op_iterations,
+    ev_op_max_order,
 ):
     """
     Determine used kernel and call it.
@@ -91,5 +99,5 @@ def dispatcher(  # pylint: disable=too-many-return-statements
             singlet EKO
     """
     if method in ["iterate-exact", "iterate-expanded"]:
-        return eko_iterate(gamma_singlet, a1, a0, aem, nf, order, ev_op_iterations)
+        return eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations)
     raise NotImplementedError("Selected method is not implemented")

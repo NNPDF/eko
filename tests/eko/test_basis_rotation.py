@@ -38,7 +38,6 @@ def test_ad_projector_qed():
     vu8 = br.rotate_flavor_to_unified_evolution[br.unified_evol_basis.index("Vu8")]
 
     s_to_s = br.ad_projector((100, 100), nf=6, qed=True)
-    # import pdb; pdb.set_trace()
     np.testing.assert_allclose(s @ s_to_s, s)
     np.testing.assert_allclose(g @ s_to_s, 0.0)
     np.testing.assert_allclose(vd3 @ s_to_s, 0.0)

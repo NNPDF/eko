@@ -172,7 +172,6 @@ def test_rotate_matching_is_inv_qed():
     for nf in range(4, 6 + 1):
         m = load(flavors.rotate_matching(nf, True))
         minv = load(flavors.rotate_matching_inverse(nf, True))
-        # import pdb; pdb.set_trace()
         print(m @ minv)
         np.testing.assert_allclose(
             m @ minv, np.eye(len(br.unified_evol_basis)), atol=1e-10

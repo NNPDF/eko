@@ -624,7 +624,7 @@ class Couplings:
         if self.order[1] >= 2:
             beta_qed_vec.append(beta_qed((0, 3), nf))
         # integration kernel
-        def rge(_t, a, beta_qcd_vec, beta_qed_vec):
+        def rge(_t, a, beta_qcd_vec, beta_qcd_mix, beta_qed_vec, beta_qed_mix):
             rge_qcd = -(a[0] ** 2) * (
                 np.sum([a[0] ** k * b for k, b in enumerate(beta_qcd_vec)])
                 + a[1] * beta_qcd_mix
@@ -641,7 +641,7 @@ class Couplings:
             rge,
             (0, u),
             a_ref,
-            args=[beta_qcd_vec, beta_qed_vec],
+            args=[beta_qcd_vec, beta_qcd_mix, beta_qed_vec, beta_qed_mix],
             method="Radau",
             rtol=1e-6,
         )
@@ -696,6 +696,66 @@ class Couplings:
             rtol=1e-6,
         )
         return np.array([rge_qcd, a_ref[1]])
+
+    def compute_aem_as(self, as_to, nf):
+        """Compute :math:`a_{em}` as a function of :math:`a_s`.
+
+        Parameters
+        ----------
+        as_to : float
+            target a_s
+        nf : int
+            value of nf for computing alpha_i
+
+        Returns
+        -------
+        float
+            a_em at target a_s :math:`a_em(a_s)`
+        """
+        if not self.running_alphaem:
+            return self.a_ref[1]
+        beta_qcd_vec = [beta_qcd((2, 0), nf)]
+        beta_qed_vec = []
+        beta_qcd_mix = 0
+        beta_qed_mix = 0
+        # NLO
+        if self.order[0] >= 2:
+            beta_qcd_vec.append(beta_qcd((3, 0), nf))
+            # NNLO
+            if self.order[0] >= 3:
+                beta_qcd_vec.append(beta_qcd((4, 0), nf))
+                # N3LO
+                if self.order[0] >= 4:
+                    beta_qcd_vec.append(beta_qcd((5, 0), nf))
+        if self.order[1] >= 1:
+            beta_qed_vec = [beta_qed((0, 2), nf)]
+            beta_qcd_mix = beta_qcd((2, 1), nf)
+            beta_qed_mix = beta_qed((1, 2), nf)  # order[0] is always at least 1
+        if self.order[1] >= 2:
+            beta_qed_vec.append(beta_qed((0, 3), nf))
+
+        def rge(_as, a_em, beta_qcd_vec, beta_qcd_mix, beta_qed_vec, beta_qed_mix):
+            rge_qed = -(
+                a_em**2
+                * (np.sum([a_em**k * b for k, b in enumerate(beta_qed_vec)]))
+                + beta_qed_mix * _as
+            )
+            rge_qcd = -(
+                _as**2 * (np.sum([_as**k * b for k, b in enumerate(beta_qcd_vec)]))
+                + beta_qcd_mix * a_em
+            )
+
+            return rge_qed / rge_qcd
+
+        res = scipy.integrate.solve_ivp(
+            rge,
+            (self.a_ref[0], as_to),
+            (self.a_ref[1],),
+            args=[beta_qcd_vec, beta_qcd_mix, beta_qed_vec, beta_qed_mix],
+            method="Radau",
+            rtol=1e-6,
+        )
+        return res.y[0][-1]
 
     def compute(self, a_ref, nf, scale_from, scale_to):
         """Compute actual couplings.

@@ -23,6 +23,7 @@ from ..kernels import QEDsinglet as qed_s
 from ..kernels import QEDvalence as qed_v
 from ..kernels import non_singlet as ns
 from ..kernels import singlet as s
+from ..kernels import utils
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)
@@ -194,7 +195,7 @@ def quad_ker(
     areas,
     as1,
     as0,
-    aem,
+    aem_list,
     nf,
     L,
     ev_op_iterations,
@@ -310,7 +311,7 @@ def quad_ker(
                 gamma_s,
                 as1,
                 as0,
-                aem,
+                aem_list,
                 nf,
                 ev_op_iterations,
                 ev_op_max_order,
@@ -335,7 +336,7 @@ def quad_ker(
                 gamma_v,
                 as1,
                 as0,
-                aem,
+                aem_list,
                 nf,
                 ev_op_iterations,
                 ev_op_max_order,
@@ -359,7 +360,7 @@ def quad_ker(
                 gamma_ns,
                 as1,
                 as0,
-                aem,
+                aem_list,
                 nf,
                 ev_op_iterations,
             )
@@ -458,12 +459,25 @@ class Operator(sv.ModeMixin):
     @property
     def a_s(self):
         """Return the computed values for :math:`a_s`."""
-        sc = self.managers["strong_coupling"]
+        sc = self.managers["couplings"]
         a0 = sc.a_s(
             self.mur2_shift(self.q2_from), fact_scale=self.q2_from, nf_to=self.nf
         )
         a1 = sc.a_s(self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf)
         return (a0, a1)
+
+    def aem_list_as(self, a0, a1):
+        """Return the list of the couplings for the different values of :math:`a_s`."""
+        sc = self.managers["couplings"]
+        ev_op_iterations = self.config["ev_op_iterations"]
+        as_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+        as_l = as_steps[0]
+        aem_list = []
+        for as_h in as_steps[1:]:
+            as_half = (as_h + as_l) / 2.0
+            aem_list.append(sc.compute_aem_as(as_to=as_half, nf=self.nf))
+            as_l = as_h
+        return aem_list
 
     @property
     def labels(self):
@@ -527,6 +541,8 @@ class Operator(sv.ModeMixin):
             partially initialized integration kernel
 
         """
+        as1 = self.a_s[1]
+        as0 = self.a_s[0]
         return functools.partial(
             quad_ker,
             order=self.order,
@@ -536,9 +552,9 @@ class Operator(sv.ModeMixin):
             is_log=self.int_disp.log,
             logx=logx,
             areas=areas,
-            as1=self.a_s[1],
-            as0=self.a_s[0],
-            aem=self.config["alphaem"] / 4 / np.pi,
+            as1=as1,
+            as0=as0,
+            aem_list=self.aem_list_as(a0=as0, a1=as1),
             nf=self.nf,
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],

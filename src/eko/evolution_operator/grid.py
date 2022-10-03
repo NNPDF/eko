@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This module contains the :class:`OperatorGrid` class.
+"""Contain the :class:`OperatorGrid` class.
 
 The first is the driver class of eko as it is the one that collects all the
 previously instantiated information and does the actual computation of the Q2s.
@@ -38,8 +38,8 @@ class OperatorGrid(sv.ModeMixin):
         thresholds_config: eko.thresholds.ThresholdsAtlas
             Instance of :class:`~eko.thresholds.Threshold` containing information about the
             thresholds
-        strong_coupling: eko.strong_coupling.StrongCoupling
-            Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
+        couplings: eko.couplings.StrongCoupling
+            Instance of :class:`~eko.couplings.StrongCoupling` able to generate a_s for
             any q
         kernel_dispatcher: eko.kernel_generation.KernelDispatcher
             Instance of the :class:`~eko.kernel_generation.KernelDispatcher` with the
@@ -51,7 +51,7 @@ class OperatorGrid(sv.ModeMixin):
         config,
         q2_grid,
         thresholds_config,
-        strong_coupling,
+        couplings,
         interpol_dispatcher,
     ):
         # check
@@ -75,7 +75,7 @@ class OperatorGrid(sv.ModeMixin):
         self.q2_grid = q2_grid
         self.managers = dict(
             thresholds_config=thresholds_config,
-            strong_coupling=strong_coupling,
+            couplings=couplings,
             interpol_dispatcher=interpol_dispatcher,
         )
         self._threshold_operators = {}
@@ -87,7 +87,7 @@ class OperatorGrid(sv.ModeMixin):
         theory_card,
         operators_card,
         thresholds_config,
-        strong_coupling,
+        couplings,
         interpol_dispatcher,
     ):
         """
@@ -99,7 +99,7 @@ class OperatorGrid(sv.ModeMixin):
                 theory dictionary
             thresholds_config : eko.thresholds.ThresholdsAtlas
                 An instance of the ThresholdsAtlas class
-            strong_coupling : eko.strong_coupling.StrongCoupling
+            couplings : eko.couplings.StrongCoupling
                 An instance of the StrongCoupling class
             interpol_dispatcher : eko.interpolation.InterpolatorDispatcher
                 An instance of the InterpolatorDispatcher class
@@ -138,9 +138,7 @@ class OperatorGrid(sv.ModeMixin):
         config["intrinsic_range"] = intrinsic_range
         for hq in br.quark_names[3:]:
             config[f"m{hq}"] = theory_card[f"m{hq}"]
-        return cls(
-            config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher
-        )
+        return cls(config, q2_grid, thresholds_config, couplings, interpol_dispatcher)
 
     def get_threshold_operators(self, path):
         """
@@ -204,7 +202,7 @@ class OperatorGrid(sv.ModeMixin):
         return thr_ops
 
     def compute(self, q2grid=None):
-        """Computes all ekos for the `q2grid`.
+        """Compute all ekos for the `q2grid`.
 
         Parameters
         ----------
@@ -235,7 +233,7 @@ class OperatorGrid(sv.ModeMixin):
         return grid_return
 
     def generate(self, q2):
-        r"""Computes a single EKO.
+        r"""Compute a single EKO.
 
         Parameters
         ----------

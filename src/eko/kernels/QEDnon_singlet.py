@@ -192,7 +192,7 @@ def nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def dispatcher(
-    order, method, gamma_ns, a1, a0, aem, nf, ev_op_iterations
+    order, method, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
 ):  # pylint: disable=too-many-return-statements
     """
     Determine used kernel and call it.
@@ -224,6 +224,7 @@ def dispatcher(
             non-singlet EKO
     """
     # use always exact in LO
+    aem = aem_list[0]
     if order[1] == 0:
         return non_singlet.dispatcher(
             order, method, gamma_ns[1:, 0], a1, a0, nf, ev_op_iterations
