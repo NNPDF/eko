@@ -470,7 +470,7 @@ class Operator(sv.ModeMixin):
     def aem_list_as(self):
         """Return the list of the couplings for the different values of :math:`a_s`."""
         if self.config["order"][1] == 0:
-            return []
+            return np.array([])
         a0 = self.a_s[0]
         a1 = self.a_s[1]
         sc = self.managers["couplings"]
@@ -482,7 +482,7 @@ class Operator(sv.ModeMixin):
             as_half = (as_h + as_l) / 2.0
             aem_list.append(sc.compute_aem_as(as_to=as_half, nf=self.nf))
             as_l = as_h
-        return aem_list
+        return np.array(aem_list)
 
     @property
     def labels(self):
