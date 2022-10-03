@@ -523,7 +523,7 @@ class Operator(sv.ModeMixin):
                 labels.extend(br.singlet_unified_labels)
         return labels
 
-    def quad_ker(self, label, logx, areas):
+    def quad_ker(self, label, logx, areas, aem_list):
         """Return partially initialized integrand function.
 
         Parameters
@@ -541,8 +541,6 @@ class Operator(sv.ModeMixin):
             partially initialized integration kernel
 
         """
-        as1 = self.a_s[1]
-        as0 = self.a_s[0]
         return functools.partial(
             quad_ker,
             order=self.order,
@@ -552,9 +550,9 @@ class Operator(sv.ModeMixin):
             is_log=self.int_disp.log,
             logx=logx,
             areas=areas,
-            as1=as1,
-            as0=as0,
-            aem_list=self.aem_list_as(a0=as0, a1=as1),
+            as1=self.a_s[1],
+            as0=self.a_s[0],
+            aem_list=aem_list,
             nf=self.nf,
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
@@ -604,6 +602,8 @@ class Operator(sv.ModeMixin):
         column = []
         k, logx = log_grid
         start_time = time.perf_counter()
+        # import pdb; pdb.set_trace()
+        aem_list = self.aem_list_as(self.a_s[0], self.a_s[1])
         # iterate basis functions
         for l, bf in enumerate(self.int_disp):
             if k == l and l == self.grid_size - 1:
@@ -612,7 +612,7 @@ class Operator(sv.ModeMixin):
             # iterate sectors
             for label in self.labels:
                 res = integrate.quad(
-                    self.quad_ker(label, logx, bf.areas_representation),
+                    self.quad_ker(label, logx, bf.areas_representation, aem_list),
                     0.5,
                     1.0 - self._mellin_cut,
                     epsabs=1e-12,

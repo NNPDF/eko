@@ -42,15 +42,15 @@ def eko_iterate(gamma_valence, a1, a0, aem_list, nf, order, ev_op_iterations):
     for i in range(1, 3 + 1):
         betaQCD[i, 0] = beta.beta_qcd((i + 1, 0), nf)
     betaQCD[1, 1] = beta.beta_qcd((2, 1), nf)
-    for (i, ah) in enumerate(a_steps[1:]):
+    for (step, ah) in enumerate(a_steps[1:]):
         a_half = (ah + al) / 2.0
         delta_a = ah - al
         gamma = np.zeros((2, 2), np.complex_)
         betatot = 0
         for i in range(0, order[0] + 1):
             for j in range(0, order[1] + 1):
-                betatot += a_half**1 * betaQCD[i, j] * a_half**i * aem_list[i] ** j
-                gamma += gamma_valence[i, j] * a_half**i * aem_list[i] ** j
+                betatot += a_half**1 * betaQCD[i, j] * a_half**i * aem_list[step] ** j
+                gamma += gamma_valence[i, j] * a_half**i * aem_list[step] ** j
         ln = gamma / betatot * delta_a
         ek = np.ascontiguousarray(ad.exp_matrix(ln)[0])
         e = ek @ e

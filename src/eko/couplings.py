@@ -442,7 +442,8 @@ class Couplings:
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
         self.method = method
-        self.running_alphaem = running_alphaem
+        # self.running_alphaem = running_alphaem
+        self.running_alphaem = True
         # running_alphaem is put for a future implementation of the DGLAP solution
         # with running alpha. For the moment in must remain set to False
 
