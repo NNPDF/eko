@@ -466,8 +466,13 @@ class Operator(sv.ModeMixin):
         a1 = sc.a_s(self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf)
         return (a0, a1)
 
-    def aem_list_as(self, a0, a1):
+    @property
+    def aem_list_as(self):
         """Return the list of the couplings for the different values of :math:`a_s`."""
+        if self.config["order"][1] == 0:
+            return []
+        a0 = self.a_s[0]
+        a1 = self.a_s[1]
         sc = self.managers["couplings"]
         ev_op_iterations = self.config["ev_op_iterations"]
         as_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
@@ -523,7 +528,7 @@ class Operator(sv.ModeMixin):
                 labels.extend(br.singlet_unified_labels)
         return labels
 
-    def quad_ker(self, label, logx, areas, aem_list):
+    def quad_ker(self, label, logx, areas):
         """Return partially initialized integrand function.
 
         Parameters
@@ -552,7 +557,7 @@ class Operator(sv.ModeMixin):
             areas=areas,
             as1=self.a_s[1],
             as0=self.a_s[0],
-            aem_list=aem_list,
+            aem_list=self.aem_list_as,
             nf=self.nf,
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
@@ -602,8 +607,6 @@ class Operator(sv.ModeMixin):
         column = []
         k, logx = log_grid
         start_time = time.perf_counter()
-        # import pdb; pdb.set_trace()
-        aem_list = self.aem_list_as(self.a_s[0], self.a_s[1])
         # iterate basis functions
         for l, bf in enumerate(self.int_disp):
             if k == l and l == self.grid_size - 1:
@@ -612,7 +615,9 @@ class Operator(sv.ModeMixin):
             # iterate sectors
             for label in self.labels:
                 res = integrate.quad(
-                    self.quad_ker(label, logx, bf.areas_representation, aem_list),
+                    self.quad_ker(
+                        label=label, logx=logx, areas=bf.areas_representation
+                    ),
                     0.5,
                     1.0 - self._mellin_cut,
                     epsabs=1e-12,
