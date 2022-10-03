@@ -877,6 +877,23 @@ class Couplings:
             couplings :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
         """
         return self.a(scale_to, fact_scale, nf_to)[0]
+    
+    def a_em(self, scale_to, fact_scale=None, nf_to=None):
+        r"""Compute coupling :math:`a_em(\mu_R^2) = \frac{\alpha_em(\mu_R^2)}{4\pi}`.
+
+        Parameters
+        ----------
+        scale_to : float
+            final scale to evolve to :math:`\mu_R^2`
+        fact_scale : float
+            factorization scale (if different from final scale)
+
+        Returns
+        -------
+        a_em : float
+            couplings :math:`a_em(\mu_R^2) = \frac{\alpha_em(\mu_R^2)}{4\pi}`
+        """
+        return self.a(scale_to, fact_scale, nf_to)[1]
 
 
 def compute_matching_coeffs_up(mass_scheme, nf):
