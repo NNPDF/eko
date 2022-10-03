@@ -736,13 +736,12 @@ class Couplings:
             beta_qed_vec.append(beta_qed((0, 3), nf))
 
         def rge(_as, a_em, beta_qcd_vec, beta_qcd_mix, beta_qed_vec, beta_qed_mix):
-            rge_qed = -(
-                a_em**2
-                * (np.sum([a_em**k * b for k, b in enumerate(beta_qed_vec)]))
+            rge_qed = - a_em**2 * (
+                np.sum([a_em**k * b for k, b in enumerate(beta_qed_vec)])
                 + beta_qed_mix * _as
             )
-            rge_qcd = -(
-                _as**2 * (np.sum([_as**k * b for k, b in enumerate(beta_qcd_vec)]))
+            rge_qcd = - _as**2 * (
+                np.sum([_as**k * b for k, b in enumerate(beta_qcd_vec)])
                 + beta_qcd_mix * a_em
             )
 

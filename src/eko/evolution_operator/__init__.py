@@ -469,7 +469,7 @@ class Operator(sv.ModeMixin):
     @property
     def aem_list_as(self):
         """Return the list of the couplings for the different values of :math:`a_s`."""
-        if self.config["order"][1] == 0:
+        if self.order[1] == 0:
             return np.array([])
         a0 = self.a_s[0]
         a1 = self.a_s[1]
