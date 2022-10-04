@@ -265,7 +265,7 @@ def expanded_qed(ref, order, nf, lmu):
 
 
 @nb.njit(cache=True)
-def couplings_expanded_running_alphaem(order, couplings_ref, nf, scale_from, scale_to):
+def couplings_expanded_alphaem_running(order, couplings_ref, nf, scale_from, scale_to):
     r"""Compute coupled expanded expression of the couplings for running alphaem.
 
     Implement Eqs. (17-18) from :cite:`Surguladze:1996hx`
@@ -421,7 +421,7 @@ class Couplings:
         nf_ref=None,
         max_nf=None,
         hqm_scheme="POLE",
-        running_alphaem=False,
+        alphaem_running=False,
     ):
         # Sanity checks
         if couplings_ref[0] <= 0:
@@ -442,9 +442,8 @@ class Couplings:
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
         self.method = method
-        # self.running_alphaem = running_alphaem
-        self.running_alphaem = True
-        # running_alphaem is put for a future implementation of the DGLAP solution
+        self.alphaem_running = alphaem_running
+        # alphaem_running is put for a future implementation of the DGLAP solution
         # with running alpha. For the moment in must remain set to False
 
         # create new threshold object
@@ -477,7 +476,7 @@ class Couplings:
         return self.thresholds.q2_ref
 
     @classmethod
-    def from_dict(cls, theory_card, masses=None, running_alphaem=False):
+    def from_dict(cls, theory_card, masses=None):
         r"""Create object from theory dictionary.
 
         Parameters
@@ -517,6 +516,10 @@ class Couplings:
             [theory_card[f"k{q}Thr"] for q in heavy_flavors], 2
         )
         max_nf = theory_card["MaxNfAs"]
+        if order[1] > 0:
+            alphaem_running = theory_card["alphaem_running"]
+        else:
+            alphaem_running = False
         return cls(
             couplings_ref,
             q2_alpha,
@@ -527,7 +530,7 @@ class Couplings:
             nf_ref,
             max_nf,
             hqm_scheme,
-            running_alphaem,
+            alphaem_running,
         )
 
     def unidimensional_exact(self, beta0, b_vec, u, a_ref, method, rtol):
@@ -564,7 +567,7 @@ class Couplings:
         )
         return res.y[0][-1]
 
-    def compute_exact_running_alphaem(self, a_ref, nf, scale_from, scale_to):
+    def compute_exact_alphaem_running(self, a_ref, nf, scale_from, scale_to):
         """Compute couplings via |RGE| with running alphaem.
 
         Parameters
@@ -713,7 +716,7 @@ class Couplings:
         float
             a_em at target a_s :math:`a_em(a_s)`
         """
-        if not self.running_alphaem:
+        if not self.alphaem_running:
             return self.a_ref[1]
         beta_qcd_vec = [beta_qcd((2, 0), nf)]
         beta_qed_vec = []
@@ -785,8 +788,8 @@ class Couplings:
         except KeyError:
             # at the moment everything is expanded - and type has been checked in the constructor
             if self.method == "exact":
-                if self.running_alphaem:
-                    a_new = self.compute_exact_running_alphaem(
+                if self.alphaem_running:
+                    a_new = self.compute_exact_alphaem_running(
                         a_ref.astype(float), nf, scale_from, scale_to
                     )
                 else:
@@ -794,8 +797,8 @@ class Couplings:
                         a_ref.astype(float), nf, scale_from, scale_to
                     )
             else:
-                if self.running_alphaem:
-                    a_new = couplings_expanded_running_alphaem(
+                if self.alphaem_running:
+                    a_new = couplings_expanded_alphaem_running(
                         self.order, a_ref.astype(float), nf, scale_from, float(scale_to)
                     )
                 else:

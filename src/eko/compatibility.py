@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Transform the theory_card in order to be compatible with EKO."""
 import copy
 
 
@@ -26,6 +27,9 @@ def update(theory, operators):
         new_theory["alphaem"] = new_theory.pop("alphaqed")
     if "QED" in new_theory:
         new_theory["order"] = (new_theory.pop("PTO") + 1, new_theory.pop("QED"))
+    if "alphaem_running" not in new_theory:
+        new_theory["alphaem_running"] = False
+        # TODO : add alphaem_running to the runcard
     if operators is not None:
         if isinstance(new_operators["ev_op_max_order"], int):
             new_operators["ev_op_max_order"] = (

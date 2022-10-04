@@ -30,6 +30,7 @@ class TestCouplings:
             "MaxNfAs": 6,
             "HQ": "POLE",
             "ModSV": None,
+            "alphaem_running": False,
         }
         sc = Couplings.from_dict(theory_dict)
         assert sc.a(theory_dict["Qref"] ** 2)[0] == theory_dict["alphas"] / (
@@ -78,6 +79,7 @@ class TestCouplings:
                         MaxNfAs=6,
                         HQ="POLE",
                         ModSV=None,
+                        alphaem_running=False,
                     )
                     sc2 = Couplings.from_dict(setup)
                     assert sc2.q2_ref == scale_ref
@@ -173,7 +175,7 @@ class TestCouplings:
             for order_s in [1, 2, 3, 4]:
                 for order_em in [0, 1, 2]:
                     for method in ["exact", "expanded"]:
-                        for running_alphaem in [True, False]:
+                        for alphaem_running in [True, False]:
                             # if order_em == 1 and method == "expanded" and order_s != 0:
                             #    continue
                             # create
@@ -184,7 +186,7 @@ class TestCouplings:
                                 (1.0, 1.0, 1.0),
                                 (order_s, order_em),
                                 method,
-                                running_alphaem=running_alphaem,
+                                alphaem_running=alphaem_running,
                             )
                             np.testing.assert_approx_equal(
                                 sc.a(scale_ref)[0], alphas_ref / 4.0 / np.pi
@@ -231,7 +233,7 @@ class TestCouplings:
         alphaem_ref = 0.00781
         scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
-            for running_alphaem in [True, False]:
+            for alphaem_running in [True, False]:
                 # in LO expanded  = exact
                 sc_expanded = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -240,7 +242,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (1, 0),
                     "expanded",
-                    running_alphaem=running_alphaem,
+                    alphaem_running=alphaem_running,
                 )
                 sc_exact = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -249,7 +251,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (1, 0),
                     "exact",
-                    running_alphaem=running_alphaem,
+                    alphaem_running=alphaem_running,
                 )
                 for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
                     np.testing.assert_allclose(
@@ -270,7 +272,7 @@ class TestCouplings:
         alphaem_ref = 0.00781
         scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
-            for running_alphaem in [True, False]:
+            for alphaem_running in [True, False]:
                 # in LO expanded  = exact
                 sc_expanded = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -279,7 +281,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (2, 0),
                     "expanded",
-                    running_alphaem=running_alphaem,
+                    alphaem_running=alphaem_running,
                 )
                 sc_exact = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -288,7 +290,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (2, 0),
                     "exact",
-                    running_alphaem=running_alphaem,
+                    alphaem_running=alphaem_running,
                 )
                 for q2 in [1e2, 1e3, 1e4]:
                     np.testing.assert_allclose(
@@ -310,7 +312,7 @@ class TestCouplings:
         scale_ref = 91.0**2
         for PTOs in range(1, 2 + 1):
             for thresh_setup in thresh_setups:
-                for running_alphaem in [True, False]:
+                for alphaem_running in [True, False]:
                     # in LO expanded  = exact
                     sc_expanded = Couplings(
                         np.array([alphas_ref, alphaem_ref]),
@@ -319,7 +321,7 @@ class TestCouplings:
                         (1.0, 1.0, 1.0),
                         (PTOs, 1),
                         "expanded",
-                        running_alphaem=running_alphaem,
+                        alphaem_running=alphaem_running,
                     )
                     sc_exact = Couplings(
                         np.array([alphas_ref, alphaem_ref]),
@@ -328,7 +330,7 @@ class TestCouplings:
                         (1.0, 1.0, 1.0),
                         (PTOs, 1),
                         "exact",
-                        running_alphaem=running_alphaem,
+                        alphaem_running=alphaem_running,
                     )
                     for q2 in [1e2, 1e3, 1e4]:
                         np.testing.assert_allclose(
@@ -350,7 +352,7 @@ class TestCouplings:
         scale_ref = 91.0**2
         for PTOs in range(1, 4 + 1):
             for thresh_setup in thresh_setups:
-                for running_alphaem in [True, False]:
+                for alphaem_running in [True, False]:
                     # in LO expanded  = exact
                     sc_expanded = Couplings(
                         np.array([alphas_ref, alphaem_ref]),
@@ -359,7 +361,7 @@ class TestCouplings:
                         (1.0, 1.0, 1.0),
                         (PTOs, 2),
                         "expanded",
-                        running_alphaem=running_alphaem,
+                        alphaem_running=alphaem_running,
                     )
                     sc_exact = Couplings(
                         np.array([alphas_ref, alphaem_ref]),
@@ -368,7 +370,7 @@ class TestCouplings:
                         (1.0, 1.0, 1.0),
                         (PTOs, 2),
                         "exact",
-                        running_alphaem=running_alphaem,
+                        alphaem_running=alphaem_running,
                     )
                     for q2 in [1e2, 1e3, 1e4]:
                         np.testing.assert_allclose(
@@ -389,7 +391,7 @@ class TestCouplings:
         alphaem_ref = 0.00781
         scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
-            for running_alphaem in [True, False]:
+            for alphaem_running in [True, False]:
                 # in LO expanded  = exact
                 sc_expanded = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -398,7 +400,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (2, 2),
                     "expanded",
-                    running_alphaem=running_alphaem,
+                    alphaem_running=alphaem_running,
                 )
                 sc_exact = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -407,7 +409,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (2, 2),
                     "exact",
-                    running_alphaem=running_alphaem,
+                    alphaem_running=alphaem_running,
                 )
                 for q2 in [1e2, 1e3, 1e4]:
                     np.testing.assert_allclose(
@@ -428,7 +430,7 @@ class TestCouplings:
         alphaem_ref = 0.00781
         scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
-            for running_alphaem in [True, False]:
+            for alphaem_running in [True, False]:
                 # in LO expanded  = exact
                 sc_expanded = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -437,7 +439,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (3, 2),
                     "expanded",
-                    running_alphaem=running_alphaem,
+                    alphaem_running=alphaem_running,
                 )
                 sc_exact = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -446,7 +448,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (3, 2),
                     "exact",
-                    running_alphaem=running_alphaem,
+                    alphaem_running=alphaem_running,
                 )
                 for q2 in [1e1, 1e2, 1e3, 1e4]:
                     np.testing.assert_allclose(
@@ -467,7 +469,7 @@ class TestCouplings:
         alphaem_ref = 0.00781
         scale_ref = 91.0**2
         for thresh_setup in thresh_setups:
-            for running_alphaem in [True, False]:
+            for alphaem_running in [True, False]:
                 # in LO expanded  = exact
                 sc_expanded = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -476,7 +478,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (4, 2),
                     "expanded",
-                    running_alphaem=running_alphaem,
+                    alphaem_running=alphaem_running,
                 )
                 sc_exact = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -485,7 +487,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (4, 2),
                     "exact",
-                    running_alphaem=running_alphaem,
+                    alphaem_running=alphaem_running,
                 )
                 for q2 in [1e1, 1e2, 1e3, 1e4]:
                     np.testing.assert_allclose(
@@ -547,7 +549,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (qcd, 0),
                     "expanded",
-                    running_alphaem=True,
+                    alphaem_running=True,
                 )
                 sc_expanded_fixed = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -556,7 +558,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (qcd, 0),
                     "expanded",
-                    running_alphaem=False,
+                    alphaem_running=False,
                 )
                 sc_exact_running = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -565,7 +567,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (qcd, 0),
                     "exact",
-                    running_alphaem=True,
+                    alphaem_running=True,
                 )
                 sc_exact_fixed = Couplings(
                     np.array([alphas_ref, alphaem_ref]),
@@ -574,7 +576,7 @@ class TestCouplings:
                     (1.0, 1.0, 1.0),
                     (qcd, 0),
                     "exact",
-                    running_alphaem=False,
+                    alphaem_running=False,
                 )
                 for q2 in [1e1, 1e2, 1e3, 1e4]:
                     # for pure qcd running or fixed alpha must be equal
