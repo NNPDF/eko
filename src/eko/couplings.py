@@ -622,8 +622,8 @@ class Couplings:
             beta_qed_vec = [beta_qed((0, 2), nf)]
             beta_qcd_mix = beta_qcd((2, 1), nf)
             beta_qed_mix = beta_qed((1, 2), nf)  # order[0] is always at least 1
-        if self.order[1] >= 2:
-            beta_qed_vec.append(beta_qed((0, 3), nf))
+            if self.order[1] >= 2:
+                beta_qed_vec.append(beta_qed((0, 3), nf))
         # integration kernel
         def rge(_t, a, beta_qcd_vec, beta_qcd_mix, beta_qed_vec, beta_qed_mix):
             rge_qcd = -(a[0] ** 2) * (
@@ -732,15 +732,15 @@ class Couplings:
             beta_qed_vec = [beta_qed((0, 2), nf)]
             beta_qcd_mix = beta_qcd((2, 1), nf)
             beta_qed_mix = beta_qed((1, 2), nf)  # order[0] is always at least 1
-        if self.order[1] >= 2:
-            beta_qed_vec.append(beta_qed((0, 3), nf))
+            if self.order[1] >= 2:
+                beta_qed_vec.append(beta_qed((0, 3), nf))
 
         def rge(_as, a_em, beta_qcd_vec, beta_qcd_mix, beta_qed_vec, beta_qed_mix):
-            rge_qed = - a_em**2 * (
+            rge_qed = -(a_em**2) * (
                 np.sum([a_em**k * b for k, b in enumerate(beta_qed_vec)])
                 + beta_qed_mix * _as
             )
-            rge_qcd = - _as**2 * (
+            rge_qcd = -(_as**2) * (
                 np.sum([_as**k * b for k, b in enumerate(beta_qcd_vec)])
                 + beta_qcd_mix * a_em
             )
@@ -877,7 +877,7 @@ class Couplings:
             couplings :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
         """
         return self.a(scale_to, fact_scale, nf_to)[0]
-    
+
     def a_em(self, scale_to, fact_scale=None, nf_to=None):
         r"""Compute coupling :math:`a_em(\mu_R^2) = \frac{\alpha_em(\mu_R^2)}{4\pi}`.
 
