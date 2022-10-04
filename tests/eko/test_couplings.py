@@ -596,7 +596,7 @@ class TestCouplings:
             # (0, np.inf, np.inf),
             (2, 4, 175),
         ]
-        scale_target = [5, 10, 50, 100]
+        scale_target = [1, 5, 10, 50, 100, 500]
         for running_alphaem in [True, False]:
             for thresh_setup in thresh_setups:
                 for qcd in range(1, 4 + 1):
@@ -613,7 +613,6 @@ class TestCouplings:
                         for Qf in scale_target:
                             a_values = []
                             a_values.append(couplings.a(Qf**2))
-                            aem_values = []
                             for a in a_values:
                                 aem = couplings.compute_aem_as(a[0], nf=5)
                                 np.testing.assert_allclose(

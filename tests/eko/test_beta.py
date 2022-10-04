@@ -27,7 +27,7 @@ def test_beta_as2():
 
 def test_beta_aem2():
     """Test first beta function coefficient"""
-    # from hep-ph/9706430
+    # from hep-ph/9803211
     np.testing.assert_approx_equal(
         beta.beta_qed_aem2(5), -4.0 / 3 * 3 * (3 + 2 * 4 / 9 + 3 * 1 / 9)
     )
@@ -42,7 +42,7 @@ def test_beta_as3():
 
 def test_beta_aem3():
     """Test second beta function coefficient"""
-    # from hep-ph/9706430
+    # from hep-ph/9803211
     np.testing.assert_approx_equal(
         beta.beta_qed_aem3(5), -4.0 * 3 * (3 + 2 * 16 / 81 + 3 * 1 / 81)
     )
