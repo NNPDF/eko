@@ -189,6 +189,18 @@ def nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
         * ei.jm12_exact(a1, a0, aem, nf)
     )
 
+@nb.njit(cache=True)
+def solution_running_alpha(func, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations):
+    """
+    ...
+    """
+    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    al = a_steps[0]
+    res = np.prod(
+        [ func(gamma_ns, ah, a_steps[step], aem_list[step], nf) for step, ah in enumerate(a_steps[1:])]
+    )
+    return res
+
 
 @nb.njit(cache=True)
 def dispatcher(
@@ -224,7 +236,6 @@ def dispatcher(
             non-singlet EKO
     """
     # use always exact in LO
-    aem = aem_list[0]
     if order[1] == 0:
         return non_singlet.dispatcher(
             order, method, gamma_ns[1:, 0], a1, a0, nf, ev_op_iterations
@@ -233,16 +244,16 @@ def dispatcher(
         # the code never enters in this module
     if order[1] == 1:
         if order[0] == 1:
-            return lo_aem1_exact(gamma_ns, a1, a0, aem, nf)
+            return solution_running_alpha(lo_aem1_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations)
         if order[0] == 2:
-            return nlo_aem1_exact(gamma_ns, a1, a0, aem, nf)
+            return solution_running_alpha(nlo_aem1_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations)
         if order[0] == 3:
-            return nnlo_aem1_exact(gamma_ns, a1, a0, aem, nf)
+            return solution_running_alpha(nnlo_aem1_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations)
     if order[1] == 2:
         if order[0] == 1:
-            return lo_aem2_exact(gamma_ns, a1, a0, aem, nf)
+            return solution_running_alpha(lo_aem2_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations)
         if order[0] == 2:
-            return nlo_aem2_exact(gamma_ns, a1, a0, aem, nf)
+            return solution_running_alpha(nlo_aem2_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations)
         if order[0] == 3:
-            return nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf)
+            return solution_running_alpha(nnlo_aem2_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations)
     raise NotImplementedError("Selected order is not implemented")
