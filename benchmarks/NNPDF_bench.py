@@ -35,6 +35,7 @@ base_operator = {"ev_op_iterations": 1, "backward_inversion": "exact"}
 
 base_theory = {
     "Qref": 91.2,
+    "Qedref": 91.2,
     "mc": 1.51,
     "mb": 4.92,
     "mt": 172.5,
@@ -128,7 +129,7 @@ if __name__ == "__main__":
     # # test backward
     # #nn31.benchmark_nlo(Q0=np.sqrt(high2), Q2grid=[low2])
     nn31qed = BenchmarkNNPDF31_luxqed()
-    nn31qed.benchmark_nnlo()
+    nn31qed.benchmark_nnlo(Q0=5., Q2grid=(10000,))
     # nn40 = BenchmarkNNPDF40()
     # nn40.benchmark_nnlo(Q2grid=[100])
     # nn40.benchmark_nnlo(Q0=np.sqrt(high2), Q2grid=[low2])
