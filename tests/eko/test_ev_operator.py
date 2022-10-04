@@ -15,6 +15,7 @@ from eko.interpolation import InterpolatorDispatcher
 from eko.kernels import QEDnon_singlet as qed_ns
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
+from eko.kernels import utils
 from eko.thresholds import ThresholdsAtlas
 
 
@@ -420,6 +421,36 @@ class TestOperator:
         # LO
         o.compute()
         self.check_lo(o)
+
+    def test_aem_list(self):
+        tcard = copy.deepcopy(theory_card)
+        ocard = copy.deepcopy(operators_card)
+        ocard["n_integration_cores"] = 2
+        ocard["ev_op_iterations"] = 10
+        for qcd in range(1, 3 + 1):
+            for qed in range(1, 2 + 1):
+                for aem_running in [True, False]:
+                    tcard["order"] = (qcd, qed)
+                    tcard["alphaem_running"] = aem_running
+                    g = OperatorGrid.from_dict(
+                        tcard,
+                        ocard,
+                        ThresholdsAtlas.from_dict(tcard),
+                        Couplings.from_dict(tcard),
+                        InterpolatorDispatcher.from_dict(ocard),
+                    )
+                    o = Operator(g.config, g.managers, 3, 2.0, 2.0)
+                    couplings = Couplings.from_dict(tcard)
+                    aem_list = o.aem_list_as
+                    (a0, a1) = o.a_s
+                    ev_op_iterations = ocard["ev_op_iterations"]
+                    as_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+                    as_l = as_steps[0]
+                    for step, as_h in enumerate(as_steps[1:]):
+                        as_half = (as_h + as_l) / 2.0
+                        aem = couplings.compute_aem_as(as_half, 3)
+                        np.testing.assert_allclose(aem, aem_list[step])
+                        as_l = as_h
 
     def check_lo(self, o):
         assert (br.non_singlet_pids_map["ns-"], 0) in o.op_members
