@@ -603,6 +603,7 @@ class TestCouplings:
                         (1.0, 1.0, 1.0),
                         (qcd, qed),
                         "exact",
+                        nf_ref=5,
                         alphaem_running=running_alphaem,
                     )
                     for Qf in scale_target:
@@ -623,6 +624,7 @@ class TestCouplings:
                         (1.0, 1.0, 1.0),
                         (qcd, qed),
                         "exact",
+                        nf_ref=5,
                         alphaem_running=running_alphaem,
                     )
                     for Qf in scale_target:
@@ -643,6 +645,7 @@ class TestCouplings:
                         (1.0, 1.0, 1.0),
                         (qcd, qed),
                         "exact",
+                        nf_ref=5,
                         alphaem_running=running_alphaem,
                     )
                     for Qf in scale_target:
