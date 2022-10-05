@@ -190,42 +190,45 @@ def nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
     )
 
 
-@nb.njit(cache=True)
-def solution_running_alpha(func, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations):
-    """
-    Compute non-singlet EKO with running alphaem.
+# @nb.njit(cache=True)
+# def solution_running_alpha(func, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations):
+#     """
+#     Compute non-singlet EKO with running alphaem.
 
-    Parameters
-    ----------
-        func: function
-            solution for fixed alphaem
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        aem_list : numpy.ndarray
-            electromagnetic coupling values
-        nf : int
-            number of active flavors
-        ev_op_iterations : int
-            number of evolution steps
+#     Parameters
+#     ----------
+#         func: function
+#             solution for fixed alphaem
+#         gamma_ns : numpy.ndarray
+#             non-singlet anomalous dimensions
+#         a1 : float
+#             target coupling value
+#         a0 : float
+#             initial coupling value
+#         aem_list : numpy.ndarray
+#             electromagnetic coupling values
+#         nf : int
+#             number of active flavors
+#         ev_op_iterations : int
+#             number of evolution steps
 
-    Returns
-    -------
-        e_ns : complex
-            non-singlet EKO
+#     Returns
+#     -------
+#         e_ns : complex
+#             non-singlet EKO
 
-    """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    res = np.prod(
-        [
-            func(gamma_ns, ah, a_steps[step], aem_list[step], nf)
-            for step, ah in enumerate(a_steps[1:])
-        ]
-    )
-    return res
+#     """
+#     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+#     # res = np.prod(
+#     #     [
+#     #         func(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+#     #         for step, ah in enumerate(a_steps[1:])
+#     #     ]
+#     # )
+#     res = 1.
+#     for step, ah in enumerate(a_steps[1:]):
+#         res *= func(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+#     return res
 
 
 @nb.njit(cache=True)
@@ -268,30 +271,34 @@ def dispatcher(
         )
         # this if is probably useless since when order[1] == 0
         # the code never enters in this module
+    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    res = 1.
+    # For the moment implemented in this way to make numba compile it
+    # TODO : implement it with np.prod in a way that numba compiles it
     if order[1] == 1:
         if order[0] == 1:
-            return solution_running_alpha(
-                lo_aem1_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
-            )
+            for step, ah in enumerate(a_steps[1:]):
+                res *= lo_aem1_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+            return res
         if order[0] == 2:
-            return solution_running_alpha(
-                nlo_aem1_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
-            )
+            for step, ah in enumerate(a_steps[1:]):
+                res *= nlo_aem1_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+            return res
         if order[0] == 3:
-            return solution_running_alpha(
-                nnlo_aem1_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
-            )
+            for step, ah in enumerate(a_steps[1:]):
+                res *= nnlo_aem1_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+            return res
     if order[1] == 2:
         if order[0] == 1:
-            return solution_running_alpha(
-                lo_aem2_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
-            )
+            for step, ah in enumerate(a_steps[1:]):
+                res *= lo_aem2_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+            return res
         if order[0] == 2:
-            return solution_running_alpha(
-                nlo_aem2_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
-            )
+            for step, ah in enumerate(a_steps[1:]):
+                res *= nlo_aem2_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+            return res
         if order[0] == 3:
-            return solution_running_alpha(
-                nnlo_aem2_exact, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
-            )
+            for step, ah in enumerate(a_steps[1:]):
+                res *= nnlo_aem2_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+            return res
     raise NotImplementedError("Selected order is not implemented")
