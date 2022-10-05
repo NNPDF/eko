@@ -51,7 +51,7 @@ def beta_qed_aem2(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    nl = 3  # TODO : pass nf as an argument??
+    nl = 3  # TODO : pass nl as an argument??
     beta_qed_aem2 = (
         -4.0 / 3 * constants.NC * (nl + nu * constants.eu2 + nd * constants.ed2)
     )
@@ -102,7 +102,7 @@ def beta_qed_aem3(nf):
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
-    nl = 3  # TODO : pass nf as an argument??
+    nl = 3  # TODO : pass nl as an argument??
     beta_qed_aem3 = (
         -4.0 * constants.NC * (nl + nu * constants.eu2**2 + nd * constants.ed2**2)
     )

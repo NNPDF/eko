@@ -591,30 +591,63 @@ class TestCouplings:
         alphas_ref = 0.118
         alphaem_ref = 0.00781
         scale_ref = 91.2**2
-        thresh_setups = [
-            # (np.inf, np.inf, np.inf),
-            # (0, np.inf, np.inf),
-            (2, 4, 175),
-        ]
-        scale_target = [1, 5, 10, 50, 100, 500]
+        thresh_setup = (2, 4, 175)
+        scale_target = [10, 50, 100]  # nf = 5
+        for running_alphaem in [False]:
+            for qcd in range(1, 4 + 1):
+                for qed in range(0, 2 + 1):
+                    couplings = Couplings(
+                        np.array([alphas_ref, alphaem_ref]),
+                        scale_ref,
+                        thresh_setup,
+                        (1.0, 1.0, 1.0),
+                        (qcd, qed),
+                        "exact",
+                        alphaem_running=running_alphaem,
+                    )
+                    for Qf in scale_target:
+                        a_values = []
+                        a_values.append(couplings.a(Qf**2))
+                        for a in a_values:
+                            aem = couplings.compute_aem_as(a[0], nf=5)
+                            np.testing.assert_allclose(
+                                aem, a[1], atol=1e-10, rtol=1e-10
+                            )
         for running_alphaem in [True, False]:
-            for thresh_setup in thresh_setups:
-                for qcd in range(1, 4 + 1):
-                    for qed in range(0, 2 + 1):
-                        couplings = Couplings(
-                            np.array([alphas_ref, alphaem_ref]),
-                            scale_ref,
-                            thresh_setup,
-                            (1.0, 1.0, 1.0),
-                            (qcd, qed),
-                            "exact",
-                            alphaem_running=running_alphaem,
-                        )
-                        for Qf in scale_target:
-                            a_values = []
-                            a_values.append(couplings.a(Qf**2))
-                            for a in a_values:
-                                aem = couplings.compute_aem_as(a[0], nf=5)
-                                np.testing.assert_allclose(
-                                    aem, a[1], atol=1e-6, rtol=1e-2
-                                )
+            for qcd in range(1, 4 + 1):
+                for qed in range(0, 0 + 1):
+                    couplings = Couplings(
+                        np.array([alphas_ref, alphaem_ref]),
+                        scale_ref,
+                        thresh_setup,
+                        (1.0, 1.0, 1.0),
+                        (qcd, qed),
+                        "exact",
+                        alphaem_running=running_alphaem,
+                    )
+                    for Qf in scale_target:
+                        a_values = []
+                        a_values.append(couplings.a(Qf**2))
+                        for a in a_values:
+                            aem = couplings.compute_aem_as(a[0], nf=5)
+                            np.testing.assert_allclose(
+                                aem, a[1], atol=1e-10, rtol=1e-10
+                            )
+        for running_alphaem in [True]:
+            for qcd in range(1, 4 + 1):
+                for qed in range(1, 2 + 1):
+                    couplings = Couplings(
+                        np.array([alphas_ref, alphaem_ref]),
+                        scale_ref,
+                        thresh_setup,
+                        (1.0, 1.0, 1.0),
+                        (qcd, qed),
+                        "exact",
+                        alphaem_running=running_alphaem,
+                    )
+                    for Qf in scale_target:
+                        a_values = []
+                        a_values.append(couplings.a(Qf**2))
+                        for a in a_values:
+                            aem = couplings.compute_aem_as(a[0], nf=5)
+                            np.testing.assert_allclose(aem, a[1], atol=1e-6, rtol=1e-2)

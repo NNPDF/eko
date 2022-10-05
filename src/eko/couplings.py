@@ -681,7 +681,6 @@ class Couplings:
         # NLO
         if self.order[0] >= 2:
             beta_vec.append(beta_qcd((3, 0), nf))
-            # beta_qed_mix = beta_qed((1, 2), nf)
             # NNLO
             if self.order[0] >= 3:
                 beta_vec.append(beta_qcd((4, 0), nf))
