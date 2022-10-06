@@ -7,7 +7,7 @@ jobs:
     uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
     with:
       python-version: "3.8"
-  #     poetry-extras: "-E mark"
+      poetry-extras: "-E mark"
 
   # py39:
   #   uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
