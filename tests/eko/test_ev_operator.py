@@ -448,7 +448,12 @@ class TestOperator:
                     as_l = as_steps[0]
                     for step, as_h in enumerate(as_steps[1:]):
                         as_half = (as_h + as_l) / 2.0
-                        aem = couplings.compute_aem_as(as_half, 3)
+                        aem = couplings.compute_aem_as(
+                            tcard["alphaem"] / 4 / np.pi,
+                            tcard["alphas"] / 4 / np.pi,
+                            as_half,
+                            3,
+                        )
                         np.testing.assert_allclose(aem, aem_list[step])
                         as_l = as_h
 

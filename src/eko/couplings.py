@@ -700,7 +700,7 @@ class Couplings:
         )
         return np.array([rge_qcd, a_ref[1]])
 
-    def compute_aem_as(self, as_to, nf):
+    def compute_aem_as(self, aem_ref, as_from, as_to, nf):
         """Compute :math:`a_{em}` as a function of :math:`a_s`.
 
         Parameters
@@ -751,8 +751,8 @@ class Couplings:
 
         res = scipy.integrate.solve_ivp(
             rge,
-            (self.a_ref[0], as_to),
-            (self.a_ref[1],),
+            (as_from, as_to),
+            (aem_ref,),
             args=[beta_qcd_vec, beta_qcd_mix, beta_qed_vec, beta_qed_mix],
             method="Radau",
             rtol=1e-6,

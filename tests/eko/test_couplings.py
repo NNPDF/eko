@@ -610,7 +610,9 @@ class TestCouplings:
                     for Qf in scale_target:
                         a_values.append(couplings.a(Qf**2))
                     for a in a_values:
-                        aem = couplings.compute_aem_as(a[0], nf=5)
+                        aem = couplings.compute_aem_as(
+                            alphaem_ref / 4 / np.pi, alphas_ref / 4 / np.pi, a[0], nf=5
+                        )
                         np.testing.assert_allclose(aem, a[1], atol=1e-10, rtol=1e-10)
         for running_alphaem in [True, False]:
             for qcd in range(1, 4 + 1):
@@ -629,7 +631,9 @@ class TestCouplings:
                     for Qf in scale_target:
                         a_values.append(couplings.a(Qf**2))
                     for a in a_values:
-                        aem = couplings.compute_aem_as(a[0], nf=5)
+                        aem = couplings.compute_aem_as(
+                            alphaem_ref / 4 / np.pi, alphas_ref / 4 / np.pi, a[0], nf=5
+                        )
                         np.testing.assert_allclose(aem, a[1], atol=1e-10, rtol=1e-10)
         for running_alphaem in [True]:
             for qcd in range(1, 4 + 1):
@@ -648,5 +652,7 @@ class TestCouplings:
                     for Qf in scale_target:
                         a_values.append(couplings.a(Qf**2))
                     for a in a_values:
-                        aem = couplings.compute_aem_as(a[0], nf=5)
+                        aem = couplings.compute_aem_as(
+                            alphaem_ref / 4 / np.pi, alphas_ref / 4 / np.pi, a[0], nf=5
+                        )
                         np.testing.assert_allclose(aem, a[1], atol=1e-6, rtol=1e-2)

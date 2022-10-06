@@ -465,7 +465,7 @@ class Operator(sv.ModeMixin):
         )
         a1 = sc.a_s(self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf)
         return (a0, a1)
-    
+
     @property
     def a_em(self):
         """Return the computed values for :math:`a_{em}`."""
@@ -481,16 +481,33 @@ class Operator(sv.ModeMixin):
         """Return the list of the couplings for the different values of :math:`a_s`."""
         if self.order[1] == 0:
             return np.array([])
-        a0 = self.a_s[0]
-        a1 = self.a_s[1]
+        as0 = self.a_s[0]
+        as1 = self.a_s[1]
+        aem0 = self.a_em[0]
+        aem1 = self.a_em[1]
+        q2ref = self.managers["couplings"].q2_ref
+        delta_from = abs(self.q2_from - q2ref)
+        delta_to = abs(self.q2_to - q2ref)
+        # I compute the values in aem_list_as starting from the as
+        # that is closer to as_ref.
+        if delta_from > delta_to:
+            as_start = as1
+            aem_start = aem1
+        else:
+            as_start = as0
+            aem_start = aem0
         sc = self.managers["couplings"]
         ev_op_iterations = self.config["ev_op_iterations"]
-        as_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+        as_steps = utils.geomspace(as0, as1, 1 + ev_op_iterations)
         as_l = as_steps[0]
         aem_list = []
         for as_h in as_steps[1:]:
             as_half = (as_h + as_l) / 2.0
-            aem_list.append(sc.compute_aem_as(as_to=as_half, nf=self.nf))
+            aem_list.append(
+                sc.compute_aem_as(
+                    aem_ref=aem_start, as_from=as_start, as_to=as_half, nf=self.nf
+                )
+            )
             as_l = as_h
         return np.array(aem_list)
 
