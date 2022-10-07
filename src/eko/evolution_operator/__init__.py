@@ -705,7 +705,11 @@ class Operator(sv.ModeMixin):
             "%s: a_s distance: %e -> %e", self.log_label, self.a_s[0], self.a_s[1]
         )
         logger.info(
-            "%s: a_em distance: %e -> %e", self.log_label, self.a_em[0], self.a_em[1]
+            "%s: a_em distance: %e -> %e, running alphaem: %r",
+            self.log_label,
+            self.a_em[0],
+            self.a_em[1],
+            self.managers["couplings"].alphaem_running,
         )
         logger.info(
             "%s: order: (%d, %d), solution strategy: %s",
