@@ -457,24 +457,26 @@ class Operator(sv.ModeMixin):
         return q2
 
     @property
-    def a_s(self):
-        """Return the computed values for :math:`a_s`."""
-        sc = self.managers["couplings"]
-        a0 = sc.a_s(
+    def a(self):
+        """Return the computed values for :math:`a_s` and :math:`a_{em}`."""
+        coupling = self.managers["couplings"]
+        a0 = coupling.a(
             self.mur2_shift(self.q2_from), fact_scale=self.q2_from, nf_to=self.nf
         )
-        a1 = sc.a_s(self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf)
+        a1 = coupling.a(
+            self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf
+        )
         return (a0, a1)
+
+    @property
+    def a_s(self):
+        """Return the computed values for :math:`a_s`."""
+        return (self.a[0][0], self.a[1][0])
 
     @property
     def a_em(self):
         """Return the computed values for :math:`a_{em}`."""
-        emc = self.managers["couplings"]
-        a0 = emc.a_em(
-            self.mur2_shift(self.q2_from), fact_scale=self.q2_from, nf_to=self.nf
-        )
-        a1 = emc.a_em(self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf)
-        return (a0, a1)
+        return (self.a[0][1], self.a[1][1])
 
     @property
     def aem_list_as(self):
@@ -704,13 +706,14 @@ class Operator(sv.ModeMixin):
         logger.info(
             "%s: a_s distance: %e -> %e", self.log_label, self.a_s[0], self.a_s[1]
         )
-        logger.info(
-            "%s: a_em distance: %e -> %e, running alphaem: %r",
-            self.log_label,
-            self.a_em[0],
-            self.a_em[1],
-            self.managers["couplings"].alphaem_running,
-        )
+        if self.order[1] > 0:
+            logger.info(
+                "%s: a_em distance: %e -> %e, running alphaem: %r",
+                self.log_label,
+                self.a_em[0],
+                self.a_em[1],
+                self.managers["couplings"].alphaem_running,
+            )
         logger.info(
             "%s: order: (%d, %d), solution strategy: %s",
             self.log_label,
