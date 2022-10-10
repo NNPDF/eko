@@ -290,7 +290,13 @@ class TestOperator:
             ocard,
             ThresholdsAtlas.from_dict(tcard),
             Couplings.from_dict(tcard),
-            InterpolatorDispatcher.from_dict(ocard),
+            InterpolatorDispatcher(
+                XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 2.0)
