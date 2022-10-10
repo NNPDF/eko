@@ -11,20 +11,37 @@ from eko import basis_rotation as br
 from . import export, flavors, load
 
 
-def take_data(parent_pdf_set=None, members=False):
+def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
     """
-    Auxiliary function for generate_pdf. It provides the info, the heads
-    of the member files and the blocks to be generated to generate_pdf.
+    Auxiliary function for `generate_pdf`.
+
+    It provides the info, the heads of the member files and the blocks
+    to be generated to `generate_pdf`.
 
     Parameters
     ----------
-        parent_pdf_set :
-            the PDF set to be used as parent
+        parent_pdf_set : None or str or dict
+            the PDF set to be used as parent set
         members : bool
-            if true every member of the parent are loaded
+            if true every member of the parent is loaded
+        xgrid : list(float)
+            produced x grid if given
+        Q2grid : list(float)
+            produced Q2 grid if given
+
+    Returns
+    -------
+        info : dict
+            info dictionary
+        heads : list(str)
+            heads of member files if necessary
+        blocks : list(dict)
+            data blocks
     """
-    xgrid = np.geomspace(1e-9, 1, 240)
-    Q2grid = np.geomspace(1.3, 1e5, 35)
+    if xgrid is None:
+        xgrid = np.geomspace(1e-9, 1, 240)
+    if Q2grid is None:
+        Q2grid = np.geomspace(1.3, 1e5, 35)
     # collect blocks
     all_blocks = []
     info = None
@@ -44,9 +61,9 @@ def take_data(parent_pdf_set=None, members=False):
             info = load.load_info_from_file(parent_pdf_set)
             # iterate on members
             for m in range(int(info["NumMembers"])):
-                dat = load.load_blocks_from_file(parent_pdf_set, m)
-                heads.append(dat[0])
-                all_blocks.append(dat[1])
+                head, blocks = load.load_blocks_from_file(parent_pdf_set, m)
+                heads.append(head)
+                all_blocks.append(blocks)
                 if not members:
                     break
     elif isinstance(parent_pdf_set, dict):
@@ -65,37 +82,44 @@ def take_data(parent_pdf_set=None, members=False):
         )
     else:
         raise ValueError("Unknown parent pdf type")
-    return heads, info, all_blocks
+    return info, heads, all_blocks
 
 
 def generate_pdf(
-    name, labels, parent_pdf_set=None, members=False, info_update=None, install=False
+    name,
+    labels,
+    parent_pdf_set=None,
+    members=False,
+    info_update=None,
+    install=False,
+    xgrid=None,
+    Q2grid=None,
 ):
     """
     Generate a new PDF from a parent PDF with a set of flavors.
 
-    If parent_pdf_set is the name of an available PDF set,
+    If `parent_pdf_set` is the name of an available PDF set,
     it will be used as parent. In order to use the toy PDF
-    as parent, it is enough to set parent_pdf_set = "toy" or "toylh".
-    If parent_pdf_set is not specified, a debug PDF constructed as
-    x * (1-x) for every flavor will be usedas parent.
+    as parent, it is enough to set `parent_pdf_set` to "toy" or "toylh".
+    If `parent_pdf_set` is not specified, a debug PDF constructed as
+    x * (1-x) for every flavor will be used as parent.
     It is also possible to provide custom functions for each flavor
-    in the form of a dictionary: {pid: f(x,Q2)}.
+    in the form of a dictionary: `{pid: f(x,Q2)}`.
 
-    In labels it is possible to pass a list of PIDs or evolution basis
+    With `labels` it is possible to pass a list of PIDs or evolution basis
     combinations to keep in the generated PDF. In order to project
     on custom combinations of PIDs, it is also possible to pass a list
     containing the desired factors for each flavor.
 
     The default behaviour is to generate only one member for a PDF set
-    (the zero member) but it can be changed setting to True the member flag.
+    (the zero member) but it can be changed setting to True the `members` flag.
 
-    The info_update argument is a dictionary and provide to the user a way
-    to change the info file of the generated PDF set. If a key of info_update
+    The `info_update` argument is a dictionary and provide to the user as a way
+    to change the info file of the generated PDF set. If a key of `info_update`
     matches with one key of the standard info file, the information
     are updated, otherwise they are simply added.
 
-    Turning True the value of the install flag, it is possible to autmatically
+    Turning True the value of the `install` flag, it is possible to automatically
     install the generated PDF to the lhapdf directory. By default install is False.
 
     Parameters
@@ -110,6 +134,10 @@ def generate_pdf(
             iterate on members
         install : bool
             install on LHAPDF path
+        xgrid : list(float)
+            produced x grid if given
+        Q2grid : list(float)
+            produced Q2 grid if given
 
     Examples
     --------
@@ -126,7 +154,7 @@ def generate_pdf(
         through the pure-singlet contributions (starting at |NNLO|)
 
         >>> from eko import basis_rotation as br
-        >>> from ekobox.tools import genpdf
+        >>> from ekobox import genpdf
         >>> import numpy as np
         >>> anti_qed_singlet = np.zeros_like(br.flavor_basis_pids, dtype=np.float_)
         >>> anti_qed_singlet[br.flavor_basis_pids.index(1)] = -4
@@ -147,7 +175,9 @@ def generate_pdf(
         flavor_combinations = flavors.pid_to_flavor(labels)
 
     # labels = verify_labels(args.labels)
-    heads, info, all_blocks = take_data(parent_pdf_set=parent_pdf_set, members=members)
+    info, heads, all_blocks = take_data(
+        parent_pdf_set, members, xgrid=xgrid, Q2grid=Q2grid
+    )
 
     # filter the PDF
     new_all_blocks = []
@@ -156,10 +186,7 @@ def generate_pdf(
 
     # changing info file according to user choice
     if info_update is not None:
-        if isinstance(info_update, dict):
-            info.update(info_update)
-        else:
-            raise TypeError("Info to update are not in a dictionary format")
+        info.update(info_update)
     # write
     info["Flavors"] = [int(pid) for pid in br.flavor_basis_pids]
     info["NumFlavors"] = len(br.flavor_basis_pids)
@@ -190,8 +217,8 @@ def install_pdf(name):
     print(f"install_pdf {name}")
     target = pathlib.Path(lhapdf.paths()[0])
     src = pathlib.Path(name)
-    if not src.exists():
-        raise FileExistsError(src)
+    # shutil.move only accepts paths since 3.9 so we need to cast
+    # https://docs.python.org/3/library/shutil.html?highlight=shutil#shutil.move
     shutil.move(str(src), str(target))
 
 
@@ -212,7 +239,7 @@ def generate_block(xfxQ2, xgrid, Q2grid, pids):
 
     Returns
     -------
-        dict :
+        dict
             PDF block
     """
     block = dict(Q2grid=Q2grid, pids=pids, xgrid=xgrid)

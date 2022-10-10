@@ -9,7 +9,7 @@ from eko import interpolation, mellin
 from eko.couplings import Couplings
 from eko.evolution_operator.grid import OperatorGrid
 from eko.harmonics import compute_cache
-from eko.interpolation import InterpolatorDispatcher
+from eko.interpolation import InterpolatorDispatcher, XGrid
 from eko.matching_conditions.operator_matrix_element import (
     A_non_singlet,
     A_singlet,
@@ -314,15 +314,16 @@ class TestOperatorMatrixElement:
     }
     operators_card = {
         "Q2grid": [20],
-        "interpolation_xgrid": [0.1, 1.0],
-        "interpolation_polynomial_degree": 1,
-        "interpolation_is_log": True,
-        "debug_skip_singlet": True,
-        "debug_skip_non_singlet": False,
-        "ev_op_max_order": 1,
-        "ev_op_iterations": 1,
-        "backward_inversion": "exact",
-        "n_integration_cores": 1,
+        "xgrid": [0.1, 1.0],
+        "configs": {
+            "interpolation_polynomial_degree": 1,
+            "interpolation_is_log": True,
+            "ev_op_max_order": 1,
+            "ev_op_iterations": 1,
+            "backward_inversion": "exact",
+            "n_integration_cores": 1,
+        },
+        "debug": {"skip_singlet": True, "skip_non_singlet": False},
     }
 
     def test_labels(self):
@@ -330,22 +331,32 @@ class TestOperatorMatrixElement:
             for skip_ns in [True, False]:
                 operators_card = {
                     "Q2grid": [1, 10],
-                    "interpolation_xgrid": [0.1, 1.0],
-                    "interpolation_polynomial_degree": 1,
-                    "interpolation_is_log": True,
-                    "debug_skip_singlet": skip_singlet,
-                    "debug_skip_non_singlet": skip_ns,
-                    "ev_op_max_order": (2, 0),
-                    "ev_op_iterations": 1,
-                    "backward_inversion": "exact",
-                    "n_integration_cores": 1,
+                    "xgrid": [0.1, 1.0],
+                    "configs": {
+                        "interpolation_polynomial_degree": 1,
+                        "interpolation_is_log": True,
+                        "ev_op_max_order": (2, 0),
+                        "ev_op_iterations": 1,
+                        "backward_inversion": "exact",
+                        "n_integration_cores": 1,
+                    },
+                    "debug": {
+                        "skip_singlet": skip_singlet,
+                        "skip_non_singlet": skip_ns,
+                    },
                 }
                 g = OperatorGrid.from_dict(
                     self.theory_card,
                     operators_card,
                     ThresholdsAtlas.from_dict(self.theory_card),
                     Couplings.from_dict(self.theory_card),
-                    InterpolatorDispatcher.from_dict(operators_card),
+                    InterpolatorDispatcher(
+                        XGrid(
+                            operators_card["xgrid"],
+                            log=operators_card["configs"]["interpolation_is_log"],
+                        ),
+                        operators_card["configs"]["interpolation_polynomial_degree"],
+                    ),
                 )
                 o = OperatorMatrixElement(
                     g.config,
@@ -389,7 +400,13 @@ class TestOperatorMatrixElement:
             self.operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
             Couplings.from_dict(self.theory_card),
-            InterpolatorDispatcher.from_dict(self.operators_card),
+            InterpolatorDispatcher(
+                XGrid(
+                    self.operators_card["xgrid"],
+                    log=self.operators_card["configs"]["interpolation_is_log"],
+                ),
+                self.operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         o = OperatorMatrixElement(
             g.config,
@@ -416,13 +433,21 @@ class TestOperatorMatrixElement:
 
     def test_compute_lo(self):
         self.theory_card.update({"order": (1, 0)})
-        self.operators_card.update({"debug_skip_singlet": False})
+        self.operators_card.update(
+            dict(debug={"skip_singlet": False, "skip_non_singlet": False})
+        )
         g = OperatorGrid.from_dict(
             self.theory_card,
             self.operators_card,
             ThresholdsAtlas.from_dict(self.theory_card),
             Couplings.from_dict(self.theory_card),
-            InterpolatorDispatcher.from_dict(self.operators_card),
+            InterpolatorDispatcher(
+                XGrid(
+                    self.operators_card["xgrid"],
+                    log=self.operators_card["configs"]["interpolation_is_log"],
+                ),
+                self.operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         o = OperatorMatrixElement(
             g.config,
@@ -463,15 +488,19 @@ class TestOperatorMatrixElement:
     def test_compute_nlo(self):
         operators_card = {
             "Q2grid": [20],
-            "interpolation_xgrid": [0.001, 0.01, 0.1, 1.0],
-            "interpolation_polynomial_degree": 1,
-            "interpolation_is_log": True,
-            "debug_skip_singlet": False,
-            "debug_skip_non_singlet": False,
-            "ev_op_max_order": (1, 0),
-            "ev_op_iterations": 1,
-            "backward_inversion": "exact",
-            "n_integration_cores": 1,
+            "xgrid": [0.001, 0.01, 0.1, 1.0],
+            "configs": {
+                "interpolation_polynomial_degree": 1,
+                "interpolation_is_log": True,
+                "ev_op_max_order": (2, 0),
+                "ev_op_iterations": 1,
+                "backward_inversion": "exact",
+                "n_integration_cores": 1,
+            },
+            "debug": {
+                "skip_singlet": False,
+                "skip_non_singlet": False,
+            },
         }
         t = copy.deepcopy(self.theory_card)
         t["order"] = (2, 0)
@@ -480,7 +509,13 @@ class TestOperatorMatrixElement:
             operators_card,
             ThresholdsAtlas.from_dict(t),
             Couplings.from_dict(t),
-            InterpolatorDispatcher.from_dict(operators_card),
+            InterpolatorDispatcher(
+                XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         o = OperatorMatrixElement(
             g.config,
@@ -493,7 +528,7 @@ class TestOperatorMatrixElement:
         )
         o.compute()
 
-        dim = len(operators_card["interpolation_xgrid"])
+        dim = len(operators_card["xgrid"])
         shape = (dim, dim)
         for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
             assert o.op_members[(indices[0], indices[0])].value.shape == shape

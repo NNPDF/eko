@@ -82,10 +82,13 @@ files = ["src/eko/version.py"]
 [tool.poetry.scripts]
 ekonav = "ekomark.navigator:launch_navigator"
 genpdf = "ekobox.genpdf.cli:cli"
+eko = "ekobox.cli:command"
 
 [tool.poe.tasks]
 test = "pytest tests"
-bench = "pytest benchmarks"
+coverage = "$BROWSER htmlcov/index.html"
+test-cov = ["test", "coverage"]
+bench = ["bench-iso", "bench-run"]
 bench-iso.cmd = "pytest benchmarks -m isolated"
 bench-iso.env.NUMBA_DISABLE_JIT.default = "0"
 bench-run.cmd = "pytest benchmarks -m 'not isolated'"
@@ -116,7 +119,7 @@ python_classes = ['Test*', 'Benchmark*']
 python_functions = ['test_*', 'benchmark_*']
 addopts = [
   '--cov=eko',
-  # '--cov=ekobox',
+  '--cov=ekobox',
   '--cov-report=html',
   '--cov-report=xml',
   '--strict-markers',
