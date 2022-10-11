@@ -118,14 +118,14 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
     """
     sv_ker = 1.0
     if order[0] >= 2:
-        sv_ker += a_s * variation_as1(gamma, L)
+        sv_ker -= a_s * variation_as1(gamma, L)
     if order[0] >= 3:
         beta0 = beta.beta_qcd_as2(nf)
-        sv_ker += a_s**2 * variation_as2(gamma, L, beta0, gamma[0] ** 2)
+        sv_ker -= a_s**2 * variation_as2(gamma, L, beta0, gamma[0] ** 2)
     if order[0] >= 4:
         beta1 = beta.beta_qcd((3, 0), nf)
         g0g1 = gamma[0] * gamma[1]
-        sv_ker += a_s**3 * variation_as3(
+        sv_ker -= a_s**3 * variation_as3(
             gamma, L, beta0, beta1, gamma[0] ** 2, gamma[0] ** 3, g0g1, g0g1
         )
     return sv_ker
