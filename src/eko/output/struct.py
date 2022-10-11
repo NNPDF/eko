@@ -330,6 +330,8 @@ class EKO:
     """Path on disk, to which this object is linked (and for which it is
     essentially an interface).
     """
+    working_dir: pathlib.Path
+    """Path to temporary working dir on disk."""
     Q02: float
     """Inital scale."""
     # collections
@@ -391,20 +393,15 @@ class EKO:
             if op is not None:
                 return op
 
-        with tarfile.open(self.path) as tar:
-            names = list(
-                filter(lambda n: n.startswith(self.opname(q2)), tar.getnames())
-            )
+        # search for value
+        names = list(self.working_dir.glob(self.opname(q2) + "*"))
+        if len(names) == 0:
+            raise ValueError(f"Q2 value '{q2}' not available in '{self.path}'")
+        name = names[0]
 
-            if len(names) == 0:
-                raise ValueError(f"Q2 value '{q2}' not available in '{self.path}'")
-
-            name = names[0]
-            compressed = name.endswith(".lz4")
-            stream = tar.extractfile(name)
-
-            op = Operator.load(stream, compressed=compressed)
-
+        # load the array
+        compressed = name.suffix == ".lz4"
+        op = Operator.load(name.open(mode="rb"), compressed=compressed)
         self._operators[q2] = op
         return op
 
@@ -426,38 +423,17 @@ class EKO:
         if not isinstance(op, Operator):
             raise ValueError("Only an Operator can be added to an EKO")
 
+        # write first to stream
         stream = io.BytesIO()
         without_err = op.save(stream, compress)
         stream.seek(0)
 
+        # and then to file
         suffix = "npy" if without_err else "npz"
         if compress:
             suffix += ".lz4"
-
-        info = tarfile.TarInfo(name=f"{self.opname(q2)}.{suffix}")
-        info.size = len(stream.getbuffer())
-        info.mtime = int(time.time())
-        info.mode = 436
-        #  info.uname = os.getlogin()
-        #  info.gname = os.getlogin()
-
-        # TODO: unfortunately Python has no native support for deleting
-        # files inside tar, so the proper way is to make that function
-        # ourselves, in the inefficient way of constructing a new archive
-        # from the existing one, but for the file to be removed
-        # at the moment, an implicit dependency on `tar` command has been
-        # introduced -> dangerous for portability
-        # since it's not raising any error, it is fine to run in any case:
-        has_file = False
-        with tarfile.open(self.path, mode="r") as tar:
-            has_file = f"operators/{q2:8.2f}.{suffix}" in tar.getnames()
-
-        if has_file:
-            subprocess.run(
-                f"tar -f {self.path.absolute()} --delete".split() + [info.name]
-            )
-        with tarfile.open(self.path, "a") as tar:
-            tar.addfile(info, fileobj=stream)
+        target = self.working_dir / f"{self.opname(q2)}.{suffix}"
+        target.write_bytes(stream.read())
 
         self._operators[q2] = op
 
@@ -484,22 +460,20 @@ class EKO:
         q2 : float
             the value of :math:`Q^2` for which the corresponding operator
             should be dropped
-
         """
         self._operators[q2] = None
 
     @contextlib.contextmanager
     def operator(self, q2: float):
-        """Retrieve operator and discard immediately.
+        """Retrieve an operator and discard it afterwards.
 
         To be used as a contextmanager: the operator is automatically loaded as
-        usual, but after the context manager it is dropped from memory.
+        usual, but on the closing of the context manager it is dropped from memory.
 
         Parameters
         ----------
-        q2: float
+        q2 : float
             :math:`Q^2` value labeling the operator to be retrieved
-
         """
         try:
             yield self[q2]
@@ -518,7 +492,6 @@ class EKO:
         ------
         float
             q2 values
-
         """
         for q2 in self._operators:
             yield q2
@@ -536,9 +509,8 @@ class EKO:
         Yields
         ------
         tuple
-            couples of ``(q2, operator)``, loaded immediately before, unloaded
+            tuples of ``(q2, operator)``, loaded immediately before, unloaded
             immediately after
-
         """
         for q2 in self.Q2grid:
             yield q2, self[q2]
@@ -555,7 +527,6 @@ class EKO:
         -------
         bool
             the result of checked condition
-
         """
         return q2 in self._operators
 
@@ -567,7 +538,7 @@ class EKO:
         Parameters
         ----------
         q2: float
-            value of :math:`Q2` in which neighborhood to look
+            value of :math:`Q2` in which neighbourhood to look
         rtol: float
             relative tolerance
         atol: float
@@ -581,8 +552,7 @@ class EKO:
         Raises
         ------
         ValueError
-            if multiple values are find in the neighborhood
-
+            if multiple values are found in the neighbourhood
         """
         q2s = self.Q2grid
         close = q2s[np.isclose(q2, q2s, rtol=rtol, atol=atol)]
@@ -598,38 +568,37 @@ class EKO:
         for q2 in self:
             del self[q2]
 
-    def deepcopy(self, path: os.PathLike):
-        """Create a deep copy of current instance.
+    # def deepcopy(self, path: os.PathLike):
+    #     """Create a deep copy of current instance.
 
-        The managed on-disk object is copied as well, to the new ``path``
-        location.
-        If you don't want to copy the disk, consider using directly::
+    #     The managed on-disk object is copied as well, to the new ``path``
+    #     location.
+    #     If you don't want to copy the disk, consider using directly::
 
-            copy.deepcopy(myeko)
+    #         copy.deepcopy(myeko)
 
-        It will perform the exact same operation, without propagating it to the
-        disk counterpart.
+    #     It will perform the exact same operation, without propagating it to the
+    #     disk counterpart.
 
-        Parameters
-        ----------
-        path: os.PathLike
-            path were to copy the disk counterpart of the operator object
+    #     Parameters
+    #     ----------
+    #     path: os.PathLike
+    #         path were to copy the disk counterpart of the operator object
 
-        Returns
-        -------
-        EKO
-            the copy created
+    #     Returns
+    #     -------
+    #     EKO
+    #         the copy created
+    #     """
+    #     # return the object fully on disk, in order to avoid expensive copies in
+    #     # memory (they would be copied on-disk in any case)
+    #     self.unload()
 
-        """
-        # return the object fully on disk, in order to avoid expensive copies in
-        # memory (they would be copied on-disk in any case)
-        self.unload()
+    #     new = copy.deepcopy(self)
+    #     new.path = pathlib.Path(path)
+    #     shutil.copy2(self.path, new.path)
 
-        new = copy.deepcopy(self)
-        new.path = pathlib.Path(path)
-        shutil.copy2(self.path, new.path)
-
-        return new
+    #     return new
 
     @staticmethod
     def bootstrap(dirpath: os.PathLike, theory: dict, operator: dict):
@@ -652,42 +621,60 @@ class EKO:
         (dirpath / PARTSDIR).mkdir()
         (dirpath / OPERATORSDIR).mkdir()
 
-    @staticmethod
-    def extract(path: os.PathLike, filename: str) -> str:
-        """Extract file from disk assets.
-
-        Note
-        ----
-        At the moment, it only support text files (since it is returning the
-        content as a string)
+    @classmethod
+    def open_tar(cls, path: os.PathLike):
+        """Extract EKO into a temporary folder.
 
         Parameters
         ----------
-        path: os.PathLike
-            path to the disk dump
-        filename: str
-            relative path inside the archive of the file to extract
-
-        Returns
-        -------
-        str
-            file content
-
+        path : os.PathLike
+            EKO file name
         """
+        if not tarfile.is_tarfile(path):
+            raise ValueError("The corresponding file is not a valid tar archive")
         path = pathlib.Path(path)
 
-        with tarfile.open(path, "r") as tar:
-            fd = tar.extractfile(filename)
-            content = fd.read().decode()
+        # dump to temporary directory
+        target = tempfile.mkdtemp()
+        target = pathlib.Path(target)
+        shutil.unpack_archive(path, target, "tar")
 
-        return content
+        # load necessary assets
+        theory = yaml.safe_load((target / THEORYFILE).read_text())
+        operator = yaml.safe_load((target / OPERATORFILE).read_text())
+
+        eko = cls.detached(theory, operator, path=path, working_dir=target)
+        logger.info(f"Operator loaded from path '{path}' into '{target}'")
+        return eko
+
+    def write_tar(self):
+        """Write the operator back to disk."""
+        shutil.make_archive(self.path.stem, "tar", self.working_dir)
+
+    @classmethod
+    @contextlib.contextmanager
+    def open(cls, path: os.PathLike):
+        """Open the EKO object for reading.
+
+        Parameters
+        ----------
+        path : os.PathLike
+            EKO file name
+        """
+        obj = None
+        try:
+            obj = cls.open_tar(path)
+            yield obj
+        finally:
+            obj.write_tar()
+            shutil.rmtree(obj.working_dir)
 
     @property
     def theory(self) -> dict:
         """Provide theory card, retrieving from the dump."""
         # TODO: make an actual attribute, move load to `theory_card`, and the
         # type of the attribute will be `eko.runcards.TheoryCard`
-        return yaml.safe_load(self.extract(self.path, THEORYFILE))
+        return yaml.safe_load((self.working_dir / THEORYFILE).read_text())
 
     @property
     def theory_card(self) -> dict:
@@ -699,7 +686,7 @@ class EKO:
     def operator_card(self) -> dict:
         """Provide operator card, retrieving from the dump."""
         # TODO: return `eko.runcards.OperatorCard`
-        return yaml.safe_load(self.extract(self.path, OPERATORFILE))
+        return yaml.safe_load((self.working_dir / OPERATORFILE).read_text())
 
     def interpolator(
         self, mode_N: bool, use_target: bool
@@ -724,7 +711,9 @@ class EKO:
         )
 
     @classmethod
-    def detached(cls, theory: dict, operator: dict, path: pathlib.Path):
+    def detached(
+        cls, theory: dict, operator: dict, path: os.PathLike, working_dir: os.PathLike
+    ):
         """Build the in-memory object alone.
 
         Note
@@ -743,12 +732,13 @@ class EKO:
         path : os.PathLike
             the underlying path (it has to be a valid object, but it is not
             guaranteed, see the note)
+        working_dir : os.PathLike
+            path to temporary working directory
 
         Returns
         -------
         EKO
             the generated structure
-
         """
         bases = operator["rotations"]
         for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
@@ -765,6 +755,7 @@ class EKO:
 
         return cls(
             path=path,
+            working_dir=working_dir,
             Q02=float(operator["Q0"] ** 2),
             _operators={q2: None for q2 in operator["Q2grid"]},
             configs=Configs.from_dict(operator["configs"]),
@@ -773,20 +764,9 @@ class EKO:
         )
 
     @classmethod
-    def new(cls, theory: dict, operator: dict, path: Optional[os.PathLike] = None):
+    @contextlib.contextmanager
+    def create(cls, theory: dict, operator: dict, path: Optional[os.PathLike] = None):
         """Make structure from runcard-like dictionary.
-
-        This constructor is made to be used with loaded runcards, in order to
-        minimize the amount of code needed to init a new object (you just to
-        load the runcard and call this function).
-
-        Note
-        ----
-        An object is initialized with no rotations, since the role of rotations
-        is to keep the current state of the output object after manipulations
-        happened.
-        Since a new object is here in the process of being created, no rotation
-        has to be logged.
 
         Parameters
         ----------
@@ -802,10 +782,36 @@ class EKO:
         -------
         EKO
             the generated structure
-
         """
-        givenpath = path is not None
+        obj = None
+        try:
+            obj = cls.new(theory, operator, path)
+            yield obj
+        finally:
+            obj.write_tar()
+            shutil.rmtree(obj.working_dir)
 
+    @classmethod
+    def new(cls, theory: dict, operator: dict, path: Optional[os.PathLike] = None):
+        """Make structure from runcard-like dictionary.
+
+        Parameters
+        ----------
+        theory : dict
+            the theory card
+        operator : dict
+            the operator card
+        path : os.PathLike
+            the underlying path (if not provided, it is created in a temporary
+            path)
+
+        Returns
+        -------
+        EKO
+            the generated structure
+        """
+        # check path
+        givenpath = path is not None
         path = pathlib.Path(path if givenpath else tempfile.mkstemp(suffix=".tar")[1])
         if path.exists():
             if givenpath:
@@ -815,44 +821,12 @@ class EKO:
             # delete the file created in case of temporary file
             path.unlink()
 
-        with tempfile.TemporaryDirectory() as td:
-            td = pathlib.Path(td)
-            cls.bootstrap(td, theory=theory, operator=operator)
+        # init the empty working dir
+        td = tempfile.mkdtemp()
+        cls.bootstrap(td, theory=theory, operator=operator)
 
-            with tarfile.open(path, mode="w") as tar:
-                for element in td.glob("*"):
-                    tar.add(element, arcname=element.name)
-
-            shutil.rmtree(td)
-
-        eko = cls.detached(theory, operator, path=path)
-        logger.info(f"New operator created at path '{path}'")
-        return eko
-
-    @classmethod
-    def load(cls, path: os.PathLike):
-        """Load dump into an :class:`EKO` object.
-
-        Parameters
-        ----------
-        path:: os.PathLike
-            path to the dump to load
-
-        Returns
-        -------
-        EKO
-            the loaded instance
-
-        """
-        path = pathlib.Path(path)
-        if not tarfile.is_tarfile(path):
-            raise ValueError("EKO: the corresponding file is not a valid tar archive")
-
-        theory = yaml.safe_load(cls.extract(path, THEORYFILE))
-        operator = yaml.safe_load(cls.extract(path, OPERATORFILE))
-
-        eko = cls.detached(theory, operator, path=path)
-        logger.info(f"Operator loaded from path '{path}'")
+        eko = cls.detached(theory, operator, path=path, working_dir=td)
+        logger.info(f"New operator created at '{td}' for '{path}'")
         return eko
 
     @property
@@ -864,7 +838,6 @@ class EKO:
         dict
             nested dictionary, storing all the values in the structure, but the
             operators themselves
-
         """
         return dict(
             path=str(self.path),

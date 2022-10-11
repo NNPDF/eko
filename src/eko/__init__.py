@@ -1,14 +1,22 @@
 # -*- coding: utf-8 -*-
+"""EKO main module.
 
+Please refer to our documentation for a full overview of the possibilities.
+"""
 from . import output, runner, version
 
+# export public constants
 __version__ = version.__version__
 
+# export public methods
+open = output.struct.EKO.open  # pylint: disable=redefined-builtin
+create = output.struct.EKO.create
 
-def run_dglap(theory_card, operators_card):
-    r"""
-    This function takes a DGLAP theory configuration dictionary
-    and performs the solution of the DGLAP equations.
+
+def run_dglap(theory_card: dict, operators_card: dict) -> output.EKO:
+    r"""Solve DGLAP equations in terms of evolution kernel operators (EKO).
+
+    The configuration as to be given as two configuration dictionaries.
 
     The EKO :math:`\mathbf E_{k,j}(a_s^1\leftarrow a_s^0)` is determined in order
     to fullfill the following evolution
@@ -18,14 +26,12 @@ def run_dglap(theory_card, operators_card):
 
     Parameters
     ----------
-        setup : dict
-            input card - see :doc:`/code/IO`
+    setup : dict
+        input card - see :doc:`/code/IO`
 
     Returns
     -------
-        output : dict
-            output dictionary - see :doc:`/code/IO`
+    output.EKO
+        output object - see :doc:`/code/IO`
     """
-    r = runner.Runner(theory_card, operators_card)
-    output = r.get_output()
-    return output
+    return runner.Runner(theory_card, operators_card).get_output()
