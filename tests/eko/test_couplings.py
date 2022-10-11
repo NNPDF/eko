@@ -677,3 +677,36 @@ class TestCouplings:
                     for a in a_values:
                         aem = couplings.compute_aem_as(a_ref[1], a_ref[0], a[0], nf=4)
                         np.testing.assert_allclose(aem, a[1], atol=1e-6, rtol=1e-4)
+    
+    def test_as_aem(self):
+        # prepare
+        thresh_setups = [
+            (np.inf, np.inf, np.inf),
+            (0, np.inf, np.inf),
+            (2, 4, 175),
+        ]
+        alphas_ref = 0.118
+        alphaem_ref = 0.00781
+        scale_ref = 91.0**2
+        for thresh_setup in thresh_setups:
+            for qcd in range(1, 4 + 1):
+                for qed in range(2+1):
+                    for mode_ev in ["expanded", "exact"]:
+                        for q2 in [1.**2, 3.**2, 4.**2, 10.**2, 50**2, 100**2, 150.**2, 180.**2]:
+                            for fact_scale_ratio in [0.5**2, 1.**2, 2.**2]:
+                                for alphaem_running in [True, False]:
+                                    coupling = Couplings(
+                                        np.array([alphas_ref, alphaem_ref]),
+                                        scale_ref,
+                                        thresh_setup,
+                                        (1.0, 1.0, 1.0),
+                                        (qcd, qed),
+                                        mode_ev,
+                                        alphaem_running=alphaem_running,
+                                    )
+                                    np.testing.assert_allclose(
+                                        coupling.a(q2, fact_scale=q2*fact_scale_ratio)[0], coupling.a_s(q2,fact_scale=q2*fact_scale_ratio), rtol=1e-10
+                                    )
+                                    np.testing.assert_allclose(
+                                        coupling.a(q2,fact_scale=q2*fact_scale_ratio)[1], coupling.a_em(q2,fact_scale=q2*fact_scale_ratio), rtol=1e-10
+                                    )
