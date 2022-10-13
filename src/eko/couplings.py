@@ -552,7 +552,9 @@ class Couplings:
         float
             coupling at target scale :math:`a(Q^2)`
         """
-
+        if len(b_vec) == 1 :
+            return exact_lo(a_ref, beta0, u)
+        
         def rge(_t, a, b_vec):
             rge = -(a**2) * (np.sum([a**k * b for k, b in enumerate(b_vec)]))
             return rge

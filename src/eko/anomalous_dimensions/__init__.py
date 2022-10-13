@@ -447,7 +447,7 @@ def gamma_singlet_qed(order, n, nf):
         gamma_s[2, 0] = as2.gamma_QEDsinglet(n, nf, sx)
     if order[1] >= 2:
         gamma_s[0, 2] = aem2.gamma_singlet(n, nf, sx)
-    if order[0] == 3:
+    if order[0] >= 3:
         gamma_s[3, 0] = as3.gamma_QEDsinglet(n, nf, sx)
     return gamma_s
 
@@ -499,7 +499,6 @@ def gamma_valence_qed(order, n, nf):
         gamma_v[2, 0] = as2.gamma_QEDvalence(n, nf, sx)
     if order[1] >= 2:
         gamma_v[0, 2] = aem2.gamma_valence(n, nf, sx)
-    if order[0] == 3:
-        sx = np.append(sx, harmonics.S4(n))
+    if order[0] >= 3:
         gamma_v[3, 0] = as3.gamma_QEDvalence(n, nf, sx)
     return gamma_v
