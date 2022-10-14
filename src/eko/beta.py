@@ -53,7 +53,7 @@ def beta_qed_aem2(nf):
     nd = nf - nu
     nl = 3  # TODO : pass nl as an argument??
     beta_qed_aem2 = (
-        -4.0 / 3 * constants.NC * (nl + nu * constants.eu2 + nd * constants.ed2)
+        -4.0 / 3 * (nl + constants.NC * (nu * constants.eu2 + nd * constants.ed2) )
     )
     return beta_qed_aem2
 
@@ -104,7 +104,7 @@ def beta_qed_aem3(nf):
     nd = nf - nu
     nl = 3  # TODO : pass nl as an argument??
     beta_qed_aem3 = (
-        -4.0 * constants.NC * (nl + nu * constants.eu2**2 + nd * constants.ed2**2)
+        -4.0 * (nl + constants.NC * ( nu * constants.eu2**2 + nd * constants.ed2**2) )
     )
     return beta_qed_aem3
 
