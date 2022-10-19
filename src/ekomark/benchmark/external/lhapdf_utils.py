@@ -27,6 +27,7 @@ def compute_LHAPDF_data(
         ref : dict
             output containing: target_xgrid, values
     """
+
     target_xgrid = operators["interpolation_xgrid"]
 
     out_tabs = {}

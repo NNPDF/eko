@@ -438,7 +438,7 @@ class Couplings:
             raise NotImplementedError("a_em beyond NLO is not implemented")
         if order[0] == 0:
             raise ValueError("QCD evolution order must be at least 1 (PTO>=0)")
-        self.order = order
+        self.order = tuple(order)
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
         self.method = method

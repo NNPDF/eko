@@ -32,6 +32,7 @@ def compute_apfel_data(
         ref : dict
             output containing: target_xgrid, values
     """
+
     target_xgrid = operators["interpolation_xgrid"]
     pdf_name = pdf.set().name
 

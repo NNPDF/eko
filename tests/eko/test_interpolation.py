@@ -24,7 +24,7 @@ def check_is_interpolator(interpolator):
         assert_almost_equal(one, 1.0)
 
     # polynoms need to be "orthogonal" at grid points
-    for j, (basis_j, xj) in enumerate(zip(interpolator, interpolator.xgrid_raw)):
+    for j, (basis_j, xj) in enumerate(zip(interpolator, interpolator.xgrid.raw)):
         one = basis_j(xj)
         assert_almost_equal(
             one,
@@ -100,56 +100,29 @@ class TestInterpolatorDispatcher:
         with pytest.raises(ValueError):
             interpolation.InterpolatorDispatcher([], 1)
 
-    def test_from_dict(self):
-        d = {
-            "interpolation_xgrid": ["make_grid", 3, 3],
-            "interpolation_is_log": False,
-            "interpolation_polynomial_degree": 1,
-        }
-        a = interpolation.InterpolatorDispatcher.from_dict(d)
-        np.testing.assert_array_almost_equal(
-            a.xgrid, np.array([1e-7, 1e-4, 1e-1, 0.55, 1.0])
-        )
-        assert a.polynomial_degree == 1
-        dd = {
-            "interpolation_xgrid": ["make_lambert_grid", 20],
-            "interpolation_is_log": False,
-            "interpolation_polynomial_degree": 1,
-        }
-        aa = interpolation.InterpolatorDispatcher.from_dict(dd)
-        assert len(aa.xgrid) == 20
-        with pytest.raises(ValueError):
-            d = {
-                "interpolation_xgrid": [],
-                "interpolation_is_log": False,
-                "interpolation_polynomial_degree": 1,
-            }
-            interpolation.InterpolatorDispatcher.from_dict(d)
-
     def test_eq(self):
-        a = interpolation.InterpolatorDispatcher(
-            np.linspace(0.1, 1, 10), 4, log=False, mode_N=False
-        )
-        b = interpolation.InterpolatorDispatcher(
-            np.linspace(0.1, 1, 9), 4, log=False, mode_N=False
-        )
+        # define grids
+        x9 = interpolation.XGrid(np.linspace(0.1, 1, 9), log=False)
+        x10 = interpolation.XGrid(np.linspace(0.1, 1, 10), log=False)
+        # test various options
+        a = interpolation.InterpolatorDispatcher(x10, 4, mode_N=False)
+        b = interpolation.InterpolatorDispatcher(x9, 4, mode_N=False)
         assert a != b
-        c = interpolation.InterpolatorDispatcher(
-            np.linspace(0.1, 1, 10), 3, log=False, mode_N=False
-        )
+        c = interpolation.InterpolatorDispatcher(x10, 3, mode_N=False)
         assert a != c
         d = interpolation.InterpolatorDispatcher(
-            np.linspace(0.1, 1, 10), 4, log=True, mode_N=False
+            np.linspace(0.1, 1, 10), 4, mode_N=False
         )
         assert a != d
-        e = interpolation.InterpolatorDispatcher(
-            np.linspace(0.1, 1, 10), 4, log=False, mode_N=False
-        )
+        e = interpolation.InterpolatorDispatcher(x10, 4, mode_N=False)
         assert a == e
         # via dict
         dd = a.to_dict()
         assert isinstance(dd, dict)
-        assert a == interpolation.InterpolatorDispatcher.from_dict(dd)
+        assert a == interpolation.InterpolatorDispatcher(
+            interpolation.XGrid.load(dd["xgrid"]),
+            polynomial_degree=dd["polynomial_degree"],
+        )
 
     def test_iter(self):
         xgrid = np.linspace(0.1, 1, 10)
@@ -159,23 +132,23 @@ class TestInterpolatorDispatcher:
             assert bf == inter_x[k]
 
     def test_get_interpolation(self):
-        xg = [0.5, 1.0]
-        inter_x = interpolation.InterpolatorDispatcher(xg, 1, False, False)
-        i = inter_x.get_interpolation(xg)
+        xg = interpolation.XGrid([0.5, 1.0], log=False)
+        inter_x = interpolation.InterpolatorDispatcher(xg, 1, False)
+        i = inter_x.get_interpolation(xg.raw)
         np.testing.assert_array_almost_equal(i, np.eye(len(xg)))
         # .75 is exactly inbetween
         i = inter_x.get_interpolation([0.75])
         np.testing.assert_array_almost_equal(i, [[0.5, 0.5]])
 
     def test_evaluate_x(self):
-        xgrid = np.linspace(0.1, 1, 10)
         poly_degree = 4
         for log in [True, False]:
+            xgrid = interpolation.XGrid(np.linspace(0.1, 1, 10), log=log)
             inter_x = interpolation.InterpolatorDispatcher(
-                xgrid, poly_degree, log=log, mode_N=False
+                xgrid, poly_degree, mode_N=False
             )
             inter_N = interpolation.InterpolatorDispatcher(
-                xgrid, poly_degree, log=log, mode_N=True
+                xgrid, poly_degree, mode_N=True
             )
             for x in [0.2, 0.5]:
                 for bx, bN in zip(inter_x, inter_N):
@@ -183,16 +156,14 @@ class TestInterpolatorDispatcher:
 
     def test_math(self):
         """Test math properties of interpolator"""
-        xgrid = np.linspace(0.09, 1, 10)
         poly_deg = 4
         for log in [True, False]:
+            xgrid = interpolation.XGrid(np.linspace(0.09, 1, 10), log=log)
             inter_x = interpolation.InterpolatorDispatcher(
-                xgrid, poly_deg, log=log, mode_N=False
+                xgrid, poly_deg, mode_N=False
             )
             check_is_interpolator(inter_x)
-            inter_N = interpolation.InterpolatorDispatcher(
-                xgrid, poly_deg, log=log, mode_N=True
-            )
+            inter_N = interpolation.InterpolatorDispatcher(xgrid, poly_deg, mode_N=True)
             check_correspondence_interpolators(inter_x, inter_N)
 
 
@@ -203,22 +174,28 @@ class TestBasisFunction:
             interpolation.BasisFunction([0.1, 1.0], 0, [])
 
     def test_eval_N(self):
-        xg = [0.0, 1.0]
-        inter_N = interpolation.InterpolatorDispatcher(xg, 1, log=False)
+        xg = interpolation.XGrid([0.0, 1.0], log=False)
+        inter_N = interpolation.InterpolatorDispatcher(xg, 1)
         # p_0(x) = 1-x -> \tilde p_0(N) = 1/N - 1/(N+1)
         p0N = inter_N[0]
         assert len(p0N.areas) == 1
         p0_cs_ref = [1, -1]
         for act_c, res_c in zip(p0N.areas[0], p0_cs_ref):
             assert_almost_equal(act_c, res_c)
-        p0Nref = lambda N, lnx: (1 / N - 1 / (N + 1)) * np.exp(-N * lnx)
+
+        def p0Nref(N, lnx):
+            return (1 / N - 1 / (N + 1)) * np.exp(-N * lnx)
+
         # p_1(x) = x -> \tilde p_1(N) = 1/(N+1)
         p1N = inter_N[1]
         assert len(p1N.areas) == 1
         p1_cs_ref = [0, 1]
         for act_c, res_c in zip(p1N.areas[0], p1_cs_ref):
             assert_almost_equal(act_c, res_c)
-        p1Nref = lambda N, lnx: (1 / (N + 1)) * np.exp(-N * lnx)
+
+        def p1Nref(N, lnx):
+            return (1 / (N + 1)) * np.exp(-N * lnx)
+
         # iterate configurations
         for N in [1.0, 2.0, complex(1.0, 1.0)]:
             # check skip
@@ -231,29 +208,41 @@ class TestBasisFunction:
 
     def test_log_eval_N(self):
         xg = [np.exp(-1), 1.0]
-        inter_N = interpolation.InterpolatorDispatcher(xg, 1, log=True)
+        inter_N = interpolation.InterpolatorDispatcher(xg, 1)
         # p_0(x) = -ln(x)
         p0N = inter_N[0]
         assert len(p0N.areas) == 1
         p0_cs_ref = [0, -1]
         for act_c, res_c in zip(p0N.areas[0], p0_cs_ref):
             assert_almost_equal(act_c, res_c)
-        # Full -> \tilde p_0(N) = exp(-N)(exp(N)-1-N)/N^2
-        # MMa: Integrate[x^(n-1) (-Log[x]),{x,1/E,1}]
-        p0Nref_full = lambda N, lnx: ((np.exp(N) - 1 - N) / N**2) * np.exp(
-            -N * (lnx + 1)
-        )
-        # partial = lower bound is neglected;
-        p0Nref_partial = lambda N, lnx: (1 / N**2) * np.exp(-N * lnx)
+
+        def p0Nref_full(N, lnx):
+            r"""
+            Full -> \tilde p_0(N) = exp(-N)(exp(N)-1-N)/N^2
+            MMa: Integrate[x^(n-1) (-Log[x]),{x,1/E,1}]
+            """
+            return ((np.exp(N) - 1 - N) / N**2) * np.exp(-N * (lnx + 1))
+
+        def p0Nref_partial(N, lnx):
+            "partial = lower bound is neglected"
+            return (1 / N**2) * np.exp(-N * lnx)
+
         p1N = inter_N[1]
         assert len(p1N.areas) == 1
         p1_cs_ref = [1, 1]
         for act_c, res_c in zip(p1N.areas[0], p1_cs_ref):
             assert_almost_equal(act_c, res_c)
-        # p_1(x) = 1+\ln(x) -> \tilde p_1(N) = (exp(-N)-1+N)/N^2
-        # MMa: Integrate[x^(n-1) (1+Log[x]),{x,1/E,1}]
-        p1Nref_full = lambda N, lnx: ((np.exp(-N) - 1 + N) / N**2) * np.exp(-N * lnx)
-        p1Nref_partial = lambda N, lnx: (1 / N - 1 / N**2) * np.exp(-N * lnx)
+
+        def p1Nref_full(N, lnx):
+            r"""
+            p_1(x) = 1+\ln(x) -> \tilde p_1(N) = (exp(-N)-1+N)/N^2
+            MMa: Integrate[x^(n-1) (1+Log[x]),{x,1/E,1}]
+            """
+            return ((np.exp(-N) - 1 + N) / N**2) * np.exp(-N * lnx)
+
+        def p1Nref_partial(N, lnx):
+            return (1 / N - 1 / N**2) * np.exp(-N * lnx)
+
         # iterate configurations
         for N in [1.0, 2.0, complex(1.0, 1.0)]:
             # check skip
@@ -291,9 +280,8 @@ class TestBasisFunction:
                     "res": [True, True, False, False, False],
                 },
             ]:
-                inter_x = interpolation.InterpolatorDispatcher(
-                    cfg["xg"], cfg["pd"], log=log
-                )
+                xg = interpolation.XGrid(cfg["xg"], log=log)
+                inter_x = interpolation.InterpolatorDispatcher(xg, cfg["pd"])
                 actual = [bf.is_below_x(cfg["x"]) for bf in inter_x]
                 assert actual == cfg["res"]
 
@@ -333,6 +321,27 @@ class TestArea:
         # errors
         with pytest.raises(ValueError):
             a = interpolation.Area(0, 3, (0, 2), xgrid)
+
+
+class TestXGrid:
+    def test_fromcard(self):
+        aa = [0.1, 1.0]
+        a = interpolation.XGrid.fromcard(aa, False)
+        np.testing.assert_array_almost_equal(a.raw, aa)
+        assert a.size == len(aa)
+
+        bargs = (3, 3)
+        bb = interpolation.make_grid(*bargs)
+        b = interpolation.XGrid.fromcard(["make_grid", *bargs], False)
+        np.testing.assert_array_almost_equal(b.raw, bb)
+
+        cargs = (10,)
+        cc = interpolation.make_lambert_grid(*cargs)
+        c = interpolation.XGrid.fromcard(["make_lambert_grid", *cargs], False)
+        np.testing.assert_array_almost_equal(c.raw, cc)
+
+        with pytest.raises(ValueError):
+            interpolation.XGrid.fromcard([], False)
 
 
 def test_make_grid():

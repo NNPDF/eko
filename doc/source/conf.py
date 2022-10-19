@@ -103,6 +103,9 @@ exclude_patterns = ["shared/*"]
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
+# Criterion to sort class members
+autodoc_member_order = "bysource"
+
 # A string to be included at the beginning of all files
 shared = here / "shared"
 rst_prolog = "\n".join(
