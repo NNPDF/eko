@@ -171,3 +171,168 @@ def singlet_variation(gamma, a_s, order, nf, L):
             gamma, L, beta0, beta1, gamma0e2, gamma0e3, g1g0, g0g1
         )
     return sv_ker
+
+@nb.njit(cache=True)
+def QEDnon_singlet_variation(gamma, a_s, a_em, alphaem_running, order, nf, L):
+    """Non-singlet scale variation dispatcher.
+
+    Parameters
+    ----------
+    gamma : numpy.ndarray
+        anomalous dimensions
+    a_s :  float
+        target coupling value
+    order : int
+        perturbation order
+    nf : int
+        number of active flavors
+    L : float
+        logarithmic ratio of factorization and renormalization scale
+
+    Returns
+    -------
+    complex
+        scale variation kernel
+    """
+    if not alphaem_running :
+        return non_singlet_variation(gamma[1:, 0], a_s, order, nf, L)
+    else :
+        sv_ker = 1.0
+        if order[0] >= 2:
+            sv_ker += a_s * variation_as1(gamma[1:, 0], L)
+        if order[1] >= 2:
+            sv_ker += a_em * variation_as1(gamma[0, 1:], L)
+        if order[0] >= 3:
+            beta0 = beta.beta_qcd_as2(nf)
+            sv_ker += a_s**2 * variation_as2(gamma[1:, 0], L, beta0, gamma[1,0] ** 2)
+        if order[0] >= 4:
+            beta1 = beta.beta_qcd((3, 0), nf)
+            g0g1 = gamma[1,0] * gamma[2,0]
+            sv_ker += a_s**3 * variation_as3(
+                gamma[1:, 0], L, beta0, beta1, gamma[1,0] ** 2, gamma[1,0] ** 3, g0g1, g0g1
+            )
+        return sv_ker
+
+@nb.njit(cache=True)
+def QEDsinglet_variation(gamma, a_s, a_em, alphaem_running, order, nf, L):
+    """Singlet scale variation dispatcher.
+
+    Parameters
+    ----------
+    gamma : numpy.ndarray
+        anomalous dimensions
+    a_s :  float
+        target coupling value
+    order : int
+        perturbation order
+    nf : int
+        number of active flavors
+    L : float
+        logarithmic ratio of factorization and renormalization scale
+
+    Returns
+    -------
+    numpy.ndarray
+        scale variation kernel
+    """
+    sv_ker = np.eye(4, dtype=np.complex_)
+    gamma = np.ascontiguousarray(gamma)
+    if not alphaem_running :
+        if order[0] >= 2:
+            sv_ker += a_s * variation_as1(gamma[1:, 0], L)
+        if order[0] >= 3:
+            beta0 = beta.beta_qcd_as2(nf)
+            gamma10e2 = gamma[1, 0] @ gamma[1, 0]
+            sv_ker += a_s**2 * variation_as2(gamma[1:, 0], L, beta0, gamma10e2)
+        if order[0] >= 4:
+            beta1 = beta.beta_qcd((3, 0), nf)
+            gamma10e3 = gamma10e2 @ gamma[1,0]
+            # here the product is not commutative
+            g20g10 = gamma[2,0] @ gamma[1,0]
+            g10g20 = gamma[1,0] @ gamma[2,0]
+            sv_ker += a_s**3 * variation_as3(
+                gamma[1:, 0], L, beta0, beta1, gamma10e2, gamma10e3, g20g10, g10g20
+            )
+    else :
+        if order[0] >= 2:
+            sv_ker += a_s * variation_as1(gamma[1:, 0], L)
+        if order[1] >= 2:
+            sv_ker += a_em * variation_as1(gamma[0, 1:], L)
+        if order[0] >= 3:
+            beta0 = beta.beta_qcd_as2(nf)
+            gamma10e2 = gamma[1, 0] @ gamma[1, 0]
+            sv_ker += a_s**2 * variation_as2(gamma[1:, 0], L, beta0, gamma10e2)
+        if order[0] >= 4:
+            beta1 = beta.beta_qcd((3, 0), nf)
+            gamma10e3 = gamma10e2 @ gamma[1,0]
+            # here the product is not commutative
+            g20g10 = gamma[2,0] @ gamma[1,0]
+            g10g20 = gamma[1,0] @ gamma[2,0]
+            sv_ker += a_s**3 * variation_as3(
+                gamma[1:, 0], L, beta0, beta1, gamma10e2, gamma10e3, g20g10, g10g20
+            )
+    return sv_ker
+
+@nb.njit(cache=True)
+def QEDvalence_variation(gamma, a_s, a_em, alphaem_running, order, nf, L):
+    """Singlet scale variation dispatcher.
+
+    Parameters
+    ----------
+    gamma : numpy.ndarray
+        anomalous dimensions
+    a_s :  float
+        target coupling value
+    order : int
+        perturbation order
+    nf : int
+        number of active flavors
+    L : float
+        logarithmic ratio of factorization and renormalization scale
+
+    Returns
+    -------
+    numpy.ndarray
+        scale variation kernel
+    """
+    sv_ker = np.eye(2, dtype=np.complex_)
+    gamma = np.ascontiguousarray(gamma)
+    if not alphaem_running :
+        sv_ker = np.eye(2, dtype=np.complex_)
+        gamma = np.ascontiguousarray(gamma)
+        if order[0] >= 2:
+            sv_ker += a_s * variation_as1(gamma[1:, 0], L)
+        if order[0] >= 3:
+            beta0 = beta.beta_qcd_as2(nf)
+            gamma10e2 = gamma[1, 0] @ gamma[1, 0]
+            sv_ker += a_s**2 * variation_as2(gamma[1:, 0], L, beta0, gamma10e2)
+        if order[0] >= 4:
+            beta1 = beta.beta_qcd((3, 0), nf)
+            gamma10e3 = gamma10e2 @ gamma[1,0]
+            # here the product is not commutative
+            g20g10 = gamma[2,0] @ gamma[1,0]
+            g10g20 = gamma[1,0] @ gamma[2,0]
+            sv_ker += a_s**3 * variation_as3(
+                gamma[1:, 0], L, beta0, beta1, gamma10e2, gamma10e3, g20g10, g10g20
+            )
+    else :
+        sv_ker = np.eye(2, dtype=np.complex_)
+        gamma = np.ascontiguousarray(gamma)
+        if order[0] >= 2:
+            sv_ker += a_s * variation_as1(gamma[1:, 0], L)
+        if order[1] >= 2:
+            sv_ker += a_em * variation_as1(gamma[0, 1:], L)
+        if order[0] >= 3:
+            beta0 = beta.beta_qcd_as2(nf)
+            gamma10e2 = gamma[1, 0] @ gamma[1, 0]
+            sv_ker += a_s**2 * variation_as2(gamma[1:, 0], L, beta0, gamma10e2)
+        if order[0] >= 4:
+            beta1 = beta.beta_qcd((3, 0), nf)
+            gamma10e3 = gamma10e2 @ gamma[1,0]
+            # here the product is not commutative
+            g20g10 = gamma[2,0] @ gamma[1,0]
+            g10g20 = gamma[1,0] @ gamma[2,0]
+            sv_ker += a_s**3 * variation_as3(
+                gamma[1:, 0], L, beta0, beta1, gamma10e2, gamma10e3, g20g10, g10g20
+            )
+    return sv_ker
