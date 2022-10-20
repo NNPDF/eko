@@ -229,6 +229,42 @@ class BenchmarkFFNS_qed(ApfelBenchmark):
             ["NNPDF31_nnlo_as_0118_luxqed"],
         )
 
+    def benchmark_sv(self, pto, qed, svmode):
+        """Scale Variation"""
+
+        ts = []
+        th = self.ffns_theory.copy()
+        th.update(
+            {
+                "PTO": [pto],
+                "QED": [qed],
+                "XIR": [np.sqrt(0.5)],
+                "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
+                "ModSV": [svmode],
+                "EScaleVar": [0],
+            }
+        )
+        ts.extend(cartesian_product(th))
+        th = self.ffns_theory.copy()
+        th.update(
+            {
+                "PTO": [pto],
+                "QED": [qed],
+                "XIR": [np.sqrt(2.0)],
+                "fact_to_ren_scale_ratio": [np.sqrt(0.5)],
+                "ModSV": [svmode],
+                "EScaleVar": [0],
+            }
+        )
+        ts.extend(cartesian_product(th))
+        self.skip_pdfs = lambda _theory: [
+            -6,
+            6,
+            "Tu8",
+            "Vu8",
+        ]
+        self.run(ts, operators.build(operators.apfel_config), ["ToyLH"])
+
 
 class BenchmarkVFNS_qed(ApfelBenchmark):
     """Benckmark FFNS"""
