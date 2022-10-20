@@ -196,6 +196,7 @@ def quad_ker(
     as1,
     as0,
     aem_list,
+    alphaem_running,
     nf,
     L,
     ev_op_iterations,
@@ -303,7 +304,7 @@ def quad_ker(
                 # the aem terms do not get scale variations
                 # TODO : double check it
                 gamma_s = sv.exponentiated.gamma_variation_qed(
-                    gamma_s, order, nf, L
+                    gamma_s, order, nf, L, aem_list[0], alphaem_running
                 )
             ker = qed_s.dispatcher(
                 order,
@@ -328,7 +329,7 @@ def quad_ker(
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
                 gamma_v = sv.exponentiated.gamma_variation_qed(
-                    gamma_v, order, nf, L
+                    gamma_v, order, nf, L, aem_list[0], alphaem_running
                 )
             ker = qed_v.dispatcher(
                 order,
@@ -352,7 +353,7 @@ def quad_ker(
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
                 gamma_ns = sv.exponentiated.gamma_variation_qed(
-                    gamma_ns, order, nf, L
+                    gamma_ns, order, nf, L, aem_list[0], alphaem_running
                 )
             ker = qed_ns.dispatcher(
                 order,
@@ -361,6 +362,7 @@ def quad_ker(
                 as1,
                 as0,
                 aem_list,
+                alphaem_running,
                 nf,
                 ev_op_iterations,
             )
@@ -477,6 +479,11 @@ class Operator(sv.ModeMixin):
     def a_em(self):
         """Return the computed values for :math:`a_{em}`."""
         return (self.a[0][1], self.a[1][1])
+    
+    @property
+    def alphaem_running(self):
+        """Return the value of alphaem_running"""
+        return self.managers["couplings"].alphaem_running
 
     @property
     def aem_list_as(self):
@@ -587,6 +594,7 @@ class Operator(sv.ModeMixin):
             as1=self.a_s[1],
             as0=self.a_s[0],
             aem_list=self.aem_list_as,
+            alphaem_running=self.alphaem_running,
             nf=self.nf,
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],

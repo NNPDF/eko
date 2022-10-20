@@ -593,7 +593,7 @@ class TestCouplings:
         scale_ref = 91.2**2
         thresh_setup = (2, 4, 175)
         scale_target = [5, 10, 50, 100, 150]  # nf = 5
-        for running_alphaem in [False]:
+        for alphaem_running in [False]:
             for qcd in range(1, 4 + 1):
                 for qed in range(0, 2 + 1):
                     couplings = Couplings(
@@ -604,7 +604,7 @@ class TestCouplings:
                         (qcd, qed),
                         "exact",
                         nf_ref=5,
-                        alphaem_running=running_alphaem,
+                        alphaem_running=alphaem_running,
                     )
                     a_values = []
                     for Qf in scale_target:
@@ -614,7 +614,7 @@ class TestCouplings:
                             alphaem_ref / 4 / np.pi, alphas_ref / 4 / np.pi, a[0], nf=5
                         )
                         np.testing.assert_allclose(aem, a[1], atol=1e-10, rtol=1e-10)
-        for running_alphaem in [True, False]:
+        for alphaem_running in [True, False]:
             for qcd in range(1, 4 + 1):
                 for qed in range(0, 0 + 1):
                     couplings = Couplings(
@@ -625,7 +625,7 @@ class TestCouplings:
                         (qcd, qed),
                         "exact",
                         nf_ref=5,
-                        alphaem_running=running_alphaem,
+                        alphaem_running=alphaem_running,
                     )
                     a_values = []
                     for Qf in scale_target:
@@ -635,7 +635,7 @@ class TestCouplings:
                             alphaem_ref / 4 / np.pi, alphas_ref / 4 / np.pi, a[0], nf=5
                         )
                         np.testing.assert_allclose(aem, a[1], atol=1e-10, rtol=1e-10)
-        for running_alphaem in [True]:
+        for alphaem_running in [True]:
             for qcd in range(1, 4 + 1):
                 for qed in range(1, 2 + 1):
                     couplings = Couplings(
@@ -646,7 +646,7 @@ class TestCouplings:
                         (qcd, qed),
                         "exact",
                         nf_ref=5,
-                        alphaem_running=running_alphaem,
+                        alphaem_running=alphaem_running,
                     )
                     a_values = []
                     for Qf in scale_target:
@@ -657,7 +657,7 @@ class TestCouplings:
                         )
                         np.testing.assert_allclose(aem, a[1], atol=1e-6, rtol=1e-2)
         scale_target = [2.1, 2.5, 3.0, 3.5]  # nf = 4
-        for running_alphaem in [True]:
+        for alphaem_running in [True]:
             for qcd in range(1, 4 + 1):
                 for qed in range(1, 2 + 1):
                     couplings = Couplings(
@@ -668,7 +668,7 @@ class TestCouplings:
                         (qcd, qed),
                         "exact",
                         nf_ref=5,
-                        alphaem_running=running_alphaem,
+                        alphaem_running=alphaem_running,
                     )
                     a_ref = couplings.a(4.0**2, nf_to=4)
                     a_values = []

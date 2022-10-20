@@ -34,7 +34,7 @@ def test_zero():
             for method in methods:
                 np.testing.assert_allclose(
                     ns.dispatcher(
-                        order, method, gamma_ns, 1.0, 1.0, [1.0, 1.0], nf, ev_op_iterations
+                        order, method, gamma_ns, 1.0, 1.0, [1.0, 1.0], False, nf, ev_op_iterations
                     ),
                     1.0,
                 )
@@ -46,6 +46,7 @@ def test_zero():
                         2.0,
                         1.0,
                         [1.0, 1.0],
+                        False,
                         nf,
                         ev_op_iterations,
                     ),
@@ -68,7 +69,7 @@ def test_zero_true_gamma():
                 for method in methods:
                     np.testing.assert_allclose(
                         ns.dispatcher(
-                            order, method, gamma_ns, 1.0, 1.0, [1.0, 1.0], nf, ev_op_iterations
+                            order, method, gamma_ns, 1.0, 1.0, [1.0, 1.0], False, nf, ev_op_iterations
                         ),
                         1.0,
                     )
@@ -80,6 +81,7 @@ def test_zero_true_gamma():
                             2.0,
                             1.0,
                             [1.0, 1.0],
+                            False,
                             nf,
                             ev_op_iterations,
                         ),
@@ -120,7 +122,7 @@ def test_ode():
                 r = gammatot / betatot
                 for method in methods:
                     rhs = r * ns.dispatcher(
-                        order, method, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
+                        order, method, gamma_ns, a1, a0, aem_list, False, nf, ev_op_iterations
                     )
                     lhs = (
                         ns.dispatcher(
@@ -130,6 +132,7 @@ def test_ode():
                             a1 + 0.5 * delta_a,
                             a0,
                             aem_list,
+                            False,
                             nf,
                             ev_op_iterations,
                         )
@@ -140,6 +143,7 @@ def test_ode():
                             a1 - 0.5 * delta_a,
                             a0,
                             aem_list,
+                            False,
                             nf,
                             ev_op_iterations,
                         )
@@ -176,7 +180,7 @@ def test_ode_true_gamma():
                     r = gammatot / betatot
                     for method in methods:
                         rhs = r * ns.dispatcher(
-                            order, method, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
+                            order, method, gamma_ns, a1, a0, aem_list, False, nf, ev_op_iterations
                         )
                         lhs = (
                             ns.dispatcher(
@@ -186,6 +190,7 @@ def test_ode_true_gamma():
                                 a1 + 0.5 * delta_a,
                                 a0,
                                 aem_list,
+                                False,
                                 nf,
                                 ev_op_iterations,
                             )
@@ -196,6 +201,7 @@ def test_ode_true_gamma():
                                 a1 - 0.5 * delta_a,
                                 a0,
                                 aem_list,
+                                False,
                                 nf,
                                 ev_op_iterations,
                             )
@@ -206,5 +212,5 @@ def test_ode_true_gamma():
 def test_error():
     with pytest.raises(NotImplementedError):
         ns.dispatcher(
-            (4, 2), "iterate-exact", np.random.rand(4, 3), 0.2, 0.1, [0.01], 3, 10
+            (4, 2), "iterate-exact", np.random.rand(4, 3), 0.2, 0.1, [0.01], False, 3, 10
         )
