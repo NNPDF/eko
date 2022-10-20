@@ -252,8 +252,10 @@ def dispatcher(
             target coupling value
         a0 : float
             initial coupling value
-        aem : float
-            electromagnetic coupling value
+        aem_list : numpy.ndarray
+            electromagnetic coupling values
+        alphaem_running : Bool
+            running of alphaem
         nf : int
             number of active flavors
         ev_op_iterations : int
@@ -272,13 +274,36 @@ def dispatcher(
         # this if is probably useless since when order[1] == 0
         # the code never enters in this module
     if not alphaem_running :
-        return fixed_alpha_solution(order, gamma_ns, a1, a0, aem_list, nf)
+        aem = aem_list[0]
+        return fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf)
     else :
-        return running_alpha_solution(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations)
+        return running_alphaem_exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations)
 
 @nb.njit(cache=True)
-def fixed_alpha_solution(order, gamma_ns, a1, a0, aem_list, nf):
-    aem = aem_list[0]
+def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf):
+    """
+    Compute exact solution for fixed alphaem.
+
+    Parameters
+    ----------
+        order : tuple(int,int)
+            perturbation order
+        gamma_ns : numpy.ndarray
+            non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        aem : float
+            electromagnetic coupling value
+        nf : int
+            number of active flavors
+
+    Returns
+    -------
+        e_ns : complex
+            non-singlet EKO
+    """
     if order[1] == 1:
         if order[0] == 1:
             return lo_aem1_exact(gamma_ns, a1, a0, aem, nf)
@@ -296,7 +321,32 @@ def fixed_alpha_solution(order, gamma_ns, a1, a0, aem_list, nf):
     raise NotImplementedError("Selected order is not implemented")
 
 @nb.njit(cache=True)
-def running_alpha_solution(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations):
+def running_alphaem_exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations):
+    """
+    Compute exact solution for running alphaem.
+
+    Parameters
+    ----------
+        order : tuple(int,int)
+            perturbation order
+        gamma_ns : numpy.ndarray
+            non-singlet anomalous dimensions
+        a1 : float
+            target coupling value
+        a0 : float
+            initial coupling value
+        aem_list : numpy.ndarray
+            electromagnetic coupling values
+        nf : int
+            number of active flavors
+        ev_op_iterations : int
+            number of evolution steps
+
+    Returns
+    -------
+        e_ns : complex
+            non-singlet EKO
+    """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     res = 1.
     # For the moment implemented in this way to make numba compile it
