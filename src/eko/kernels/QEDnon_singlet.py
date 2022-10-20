@@ -190,47 +190,6 @@ def nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf):
     )
 
 
-# @nb.njit(cache=True)
-# def solution_running_alpha(func, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations):
-#     """
-#     Compute non-singlet EKO with running alphaem.
-
-#     Parameters
-#     ----------
-#         func: function
-#             solution for fixed alphaem
-#         gamma_ns : numpy.ndarray
-#             non-singlet anomalous dimensions
-#         a1 : float
-#             target coupling value
-#         a0 : float
-#             initial coupling value
-#         aem_list : numpy.ndarray
-#             electromagnetic coupling values
-#         nf : int
-#             number of active flavors
-#         ev_op_iterations : int
-#             number of evolution steps
-
-#     Returns
-#     -------
-#         e_ns : complex
-#             non-singlet EKO
-
-#     """
-#     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-#     # res = np.prod(
-#     #     [
-#     #         func(gamma_ns, ah, a_steps[step], aem_list[step], nf)
-#     #         for step, ah in enumerate(a_steps[1:])
-#     #     ]
-#     # )
-#     res = 1.
-#     for step, ah in enumerate(a_steps[1:]):
-#         res *= func(gamma_ns, ah, a_steps[step], aem_list[step], nf)
-#     return res
-
-
 @nb.njit(cache=True)
 def dispatcher(
     order, method, gamma_ns, a1, a0, aem_list, alphaem_running, nf, ev_op_iterations

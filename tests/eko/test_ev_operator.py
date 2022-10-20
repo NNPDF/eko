@@ -3,6 +3,7 @@ import copy
 import os
 
 import numpy as np
+import pytest
 import scipy.integrate
 
 from eko import anomalous_dimensions as ad
