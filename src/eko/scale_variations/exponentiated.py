@@ -73,7 +73,8 @@ def gamma_variation_qed(gamma, order, nf, L, alphaem_running):
         # if alphaem is fixed then only alphas is varied so gamma[0,1] and gamma[0,2]
         # don't get a variation while gamma[1,1] gets a variation that is O(as2aem1)
         # that we are neglecting
-        return gamma_variation(gamma[1:, 0], order, nf, L)
+        gamma[1:, 0] = gamma_variation(gamma[1:, 0], order, nf, L)
+        return gamma
     else:
         beta0qcd = beta.beta_qcd((2, 0), nf)
         beta1qcd = beta.beta_qcd((3, 0), nf)
