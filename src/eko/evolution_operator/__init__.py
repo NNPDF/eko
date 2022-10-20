@@ -302,8 +302,8 @@ def quad_ker(
             if sv_mode == sv.Modes.exponentiated:
                 # the aem terms do not get scale variations
                 # TODO : double check it
-                gamma_s[1:, 0] = sv.exponentiated.gamma_variation(
-                    gamma_s[1:, 0], order, nf, L
+                gamma_s = sv.exponentiated.gamma_variation_qed(
+                    gamma_s, order, nf, L
                 )
             ker = qed_s.dispatcher(
                 order,
@@ -327,8 +327,8 @@ def quad_ker(
             gamma_v = ad.gamma_valence_qed(order, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
-                gamma_v[1:, 0] = sv.exponentiated.gamma_variation(
-                    gamma_v[1:, 0], order, nf, L
+                gamma_v = sv.exponentiated.gamma_variation_qed(
+                    gamma_v, order, nf, L
                 )
             ker = qed_v.dispatcher(
                 order,
@@ -351,8 +351,8 @@ def quad_ker(
             gamma_ns = ad.gamma_ns_qed(order, mode0, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
-                gamma_ns[1:, 0] = sv.exponentiated.gamma_variation(
-                    gamma_ns[1:, 0], order, nf, L
+                gamma_ns = sv.exponentiated.gamma_variation_qed(
+                    gamma_ns, order, nf, L
                 )
             ker = qed_ns.dispatcher(
                 order,

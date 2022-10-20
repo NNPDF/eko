@@ -46,47 +46,57 @@ def gamma_variation(gamma, order, nf, L):
     return gamma
 
 
-# @nb.njit(cache=True)
-# def gamma_variation_qed(gamma, order, nf, L):
-#     """
-#     Adjust the anomalous dimensions with the scale variations.
+@nb.njit(cache=True)
+def gamma_variation_qed(gamma, order, nf, L):
+    """
+    Adjust the anomalous dimensions with the scale variations.
 
-#     Parameters
-#     ----------
-#         gamma : numpy.ndarray
-#             anomalous dimensions
-#         order : tuple(int,int)
-#             perturbation order
-#         nf : int
-#             number of active flavors
-#         L : float
-#             logarithmic ratio of factorization and renormalization scale
+    Parameters
+    ----------
+        gamma : numpy.ndarray
+            anomalous dimensions
+        order : tuple(int,int)
+            perturbation order
+        nf : int
+            number of active flavors
+        L : float
+            logarithmic ratio of factorization and renormalization scale
 
-#     Returns
-#     -------
-#         gamma : numpy.ndarray
-#             adjusted anomalous dimensions
-#     """
-#     # since we are modifying *in-place* be carefull, that the order matters!
-#     # and indeed, we need to adjust the high elements first
-#     beta0 = beta.beta_qcd((2, 0), nf)
-#     beta1 = beta.beta_qcd((3, 0), nf)
-#     if order[0] >= 4:
-#         gamma[4, 0] -= (
-#             3 * beta0 * L * gamma[3, 0]
-#             + (2 * beta1 * L - 3 * beta0**2 * L**2) * gamma[2, 0]
-#             + (
-#                 beta.beta_qcd((4, 0), nf) * L
-#                 - 5 / 2 * beta1 * beta0 * L**2
-#                 + beta0**3 * L**3
-#             )
-#             * gamma[1, 0]
-#         )
-#     if order[0] >= 3:
-#         gamma[3, 0] -= (
-#             2 * beta0 * gamma[2, 0] * L
-#             + (beta1 * L - beta0**2 * L**2) * gamma[1, 0]
-#         )
-#     if order[0] >= 2:
-#         gamma[2, 0] -= beta0 * gamma[1, 0] * L
-#     return gamma
+    Returns
+    -------
+        gamma : numpy.ndarray
+            adjusted anomalous dimensions
+    """
+    # TODO : Implement scale variations for fixed alpha_em
+    # since we are modifying *in-place* be carefull, that the order matters!
+    # and indeed, we need to adjust the high elements first
+    beta0qcd = beta.beta_qcd((2, 0), nf)
+    beta1qcd = beta.beta_qcd((3, 0), nf)
+    beta2qcd = beta.beta_qcd((4, 0), nf)
+    beta0qed = beta.beta_qed((0, 2), nf)
+    # beta1qed = beta.beta_qcd((0, 3), nf)
+    # beta01qcd = beta.beta_qcd((2, 1), nf)
+    if order[0] >= 4:
+        gamma[4, 0] -= (
+            3 * beta0qcd * L * gamma[3, 0]
+            + (2 * beta1qcd * L - 3 * beta0qcd**2 * L**2) * gamma[2, 0]
+            + (
+                beta2qcd * L
+                - 5 / 2 * beta1qcd * beta0qcd * L**2
+                + beta0qcd**3 * L**3
+            )
+            * gamma[1, 0]
+        )
+    if order[0] >= 3:
+        gamma[3, 0] -= (
+            2 * beta0qcd * gamma[2, 0] * L
+            + (beta1qcd * L - beta0qcd**2 * L**2) * gamma[1, 0]
+        )
+    if order[0] >= 2:
+        gamma[2, 0] -= beta0qcd * gamma[1, 0] * L
+        # we are neglecting the order (2,1)
+        # if order[1] >= 1:
+        #     gamma[2, 1] -= -L * (beta01qcd * gamma[1,0] + beta0qcd * gamma[1,1])
+    if order[1] >= 2 :
+        gamma[0, 2] -= beta0qed * gamma[0, 1] * L
+    return gamma
