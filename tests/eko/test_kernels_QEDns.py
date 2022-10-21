@@ -25,6 +25,7 @@ def test_zero():
     """No evolution results in exp(0)"""
     nf = 3
     ev_op_iterations = 2
+    running_alpha = [True, False]
     for qcd in range(1, 3 + 1):
         for qed in range(0, 2 + 1):
             order = (qcd, qed)
@@ -32,49 +33,7 @@ def test_zero():
                 np.random.rand(qcd + 1, qed + 1) + np.random.rand(qcd + 1, qed + 1) * 1j
             )
             for method in methods:
-                np.testing.assert_allclose(
-                    ns.dispatcher(
-                        order,
-                        method,
-                        gamma_ns,
-                        1.0,
-                        1.0,
-                        [1.0, 1.0],
-                        False,
-                        nf,
-                        ev_op_iterations,
-                    ),
-                    1.0,
-                )
-                np.testing.assert_allclose(
-                    ns.dispatcher(
-                        order,
-                        method,
-                        np.zeros((qcd + 1, qed + 1), dtype=complex),
-                        2.0,
-                        1.0,
-                        [1.0, 1.0],
-                        False,
-                        nf,
-                        ev_op_iterations,
-                    ),
-                    1.0,
-                )
-
-
-def test_zero_true_gamma():
-    """No evolution results in exp(0)"""
-    nf = 3
-    ev_op_iterations = 2
-    for mode in br.non_singlet_pids_map.values():
-        if mode in [10201, 10101, 10200]:
-            continue
-        for qcd in range(1, 3 + 1):
-            for qed in range(0, 2 + 1):
-                order = (qcd, qed)
-                n = np.random.rand()
-                gamma_ns = ad.gamma_ns_qed(order, mode, n, nf)
-                for method in methods:
+                for running in running_alpha:
                     np.testing.assert_allclose(
                         ns.dispatcher(
                             order,
@@ -83,7 +42,7 @@ def test_zero_true_gamma():
                             1.0,
                             1.0,
                             [1.0, 1.0],
-                            False,
+                            running,
                             nf,
                             ev_op_iterations,
                         ),
@@ -97,12 +56,57 @@ def test_zero_true_gamma():
                             2.0,
                             1.0,
                             [1.0, 1.0],
-                            False,
+                            running,
                             nf,
                             ev_op_iterations,
                         ),
                         1.0,
                     )
+
+
+def test_zero_true_gamma():
+    """No evolution results in exp(0)"""
+    nf = 3
+    ev_op_iterations = 2
+    running_alpha = [True, False]
+    for mode in br.non_singlet_pids_map.values():
+        if mode in [10201, 10101, 10200]:
+            continue
+        for qcd in range(1, 3 + 1):
+            for qed in range(0, 2 + 1):
+                order = (qcd, qed)
+                n = np.random.rand()
+                gamma_ns = ad.gamma_ns_qed(order, mode, n, nf)
+                for method in methods:
+                    for running in running_alpha:
+                        np.testing.assert_allclose(
+                            ns.dispatcher(
+                                order,
+                                method,
+                                gamma_ns,
+                                1.0,
+                                1.0,
+                                [1.0, 1.0],
+                                running,
+                                nf,
+                                ev_op_iterations,
+                            ),
+                            1.0,
+                        )
+                        np.testing.assert_allclose(
+                            ns.dispatcher(
+                                order,
+                                method,
+                                np.zeros((qcd + 1, qed + 1), dtype=complex),
+                                2.0,
+                                1.0,
+                                [1.0, 1.0],
+                                running,
+                                nf,
+                                ev_op_iterations,
+                            ),
+                            1.0,
+                        )
 
 
 def test_ode():
@@ -244,15 +248,16 @@ def test_ode_true_gamma():
 
 
 def test_error():
-    with pytest.raises(NotImplementedError):
-        ns.dispatcher(
-            (4, 2),
-            "iterate-exact",
-            np.random.rand(4, 3),
-            0.2,
-            0.1,
-            [0.01],
-            False,
-            3,
-            10,
-        )
+    for running in [True, False]:
+        with pytest.raises(NotImplementedError):
+            ns.dispatcher(
+                (4, 2),
+                "iterate-exact",
+                np.random.rand(4, 3),
+                0.2,
+                0.1,
+                [0.01],
+                running,
+                3,
+                10,
+            )
