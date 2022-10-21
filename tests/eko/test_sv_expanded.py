@@ -30,6 +30,19 @@ def test_ns_sv_dispacher():
     )
 
 
+def test_ns_sv_dispacher_qed():
+    """Test to identity"""
+    order = (4, 2)
+    gamma_ns = np.random.rand(order[0], order[1])
+    L = 0
+    nf = 5
+    a_s = 0.35
+    a_em = 0.01
+    np.testing.assert_allclose(
+        expanded.QEDnon_singlet_variation(gamma_ns, a_s, a_em, True, order, nf, L), 1.0
+    )
+
+
 def test_singlet_sv_dispacher():
     """Test to identity"""
     order = (4, 0)
@@ -39,6 +52,34 @@ def test_singlet_sv_dispacher():
     a_s = 0.35
     np.testing.assert_allclose(
         expanded.singlet_variation(gamma_singlet, a_s, order, nf, L), np.eye(2)
+    )
+
+
+def test_singlet_sv_dispacher_qed():
+    """Test to identity"""
+    order = (4, 2)
+    gamma_singlet = np.random.rand(order[0], order[1], 4, 4)
+    L = 0
+    nf = 5
+    a_s = 0.35
+    a_em = 0.01
+    np.testing.assert_allclose(
+        expanded.QEDsinglet_variation(gamma_singlet, a_s, a_em, True, order, nf, L),
+        np.eye(4),
+    )
+
+
+def test_valence_sv_dispacher_qed():
+    """Test to identity"""
+    order = (4, 2)
+    gamma_valence = np.random.rand(order[0], order[1], 2, 2)
+    L = 0
+    nf = 5
+    a_s = 0.35
+    a_em = 0.01
+    np.testing.assert_allclose(
+        expanded.QEDvalence_variation(gamma_valence, a_s, a_em, True, order, nf, L),
+        np.eye(2),
     )
 
 
