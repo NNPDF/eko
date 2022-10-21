@@ -38,9 +38,13 @@ def test_ns_sv_dispacher_qed():
     nf = 5
     a_s = 0.35
     a_em = 0.01
-    np.testing.assert_allclose(
-        expanded.QEDnon_singlet_variation(gamma_ns, a_s, a_em, True, order, nf, L), 1.0
-    )
+    for alphaem_running in [True, False]:
+        np.testing.assert_allclose(
+            expanded.QEDnon_singlet_variation(
+                gamma_ns, a_s, a_em, alphaem_running, order, nf, L
+            ),
+            1.0,
+        )
 
 
 def test_singlet_sv_dispacher():
@@ -63,10 +67,13 @@ def test_singlet_sv_dispacher_qed():
     nf = 5
     a_s = 0.35
     a_em = 0.01
-    np.testing.assert_allclose(
-        expanded.QEDsinglet_variation(gamma_singlet, a_s, a_em, True, order, nf, L),
-        np.eye(4),
-    )
+    for alphaem_running in [True, False]:
+        np.testing.assert_allclose(
+            expanded.QEDsinglet_variation(
+                gamma_singlet, a_s, a_em, alphaem_running, order, nf, L
+            ),
+            np.eye(4),
+        )
 
 
 def test_valence_sv_dispacher_qed():
@@ -77,10 +84,13 @@ def test_valence_sv_dispacher_qed():
     nf = 5
     a_s = 0.35
     a_em = 0.01
-    np.testing.assert_allclose(
-        expanded.QEDvalence_variation(gamma_valence, a_s, a_em, True, order, nf, L),
-        np.eye(2),
-    )
+    for alphaem_running in [True, False]:
+        np.testing.assert_allclose(
+            expanded.QEDvalence_variation(
+                gamma_valence, a_s, a_em, alphaem_running, order, nf, L
+            ),
+            np.eye(2),
+        )
 
 
 def test_scale_variation_a_vs_b():
