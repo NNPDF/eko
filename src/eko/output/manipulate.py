@@ -178,26 +178,27 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False):
         eko.rotations._inputpids = br.evol_basis_pids
     if target:
         eko.rotations._targetpids = br.evol_basis_pids
-    
+
+
 def to_uni_evol(eko: EKO, source: bool = True, target: bool = False):
-        """
-        Rotate the operator into unified evolution basis.
+    """
+    Rotate the operator into unified evolution basis.
 
-        This also assigns also the pids. The operation is in-place.
+    This also assigns also the pids. The operation is in-place.
 
-        Parameters
-        ----------
-            source : bool
-                rotate on the input tensor
-            target : bool
-                rotate on the output tensor
-        """
-        # rotate
-        inputpids = br.rotate_flavor_to_unified_evolution if source else None
-        targetpids = br.rotate_flavor_to_unified_evolution if target else None
-        flavor_reshape(eko, inputpids=inputpids, targetpids=targetpids)
-        # assign pids
-        if source:
-            eko.rotations._inputpids = br.unified_evol_basis_pids
-        if target:
-            eko.rotations._targetpids = br.unified_evol_basis_pids
+    Parameters
+    ----------
+        source : bool
+            rotate on the input tensor
+        target : bool
+            rotate on the output tensor
+    """
+    # rotate
+    inputpids = br.rotate_flavor_to_unified_evolution if source else None
+    targetpids = br.rotate_flavor_to_unified_evolution if target else None
+    flavor_reshape(eko, inputpids=inputpids, targetpids=targetpids)
+    # assign pids
+    if source:
+        eko.rotations._inputpids = br.unified_evol_basis_pids
+    if target:
+        eko.rotations._targetpids = br.unified_evol_basis_pids

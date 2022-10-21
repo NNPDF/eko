@@ -87,7 +87,11 @@ class BenchmarkNNPDF31_luxqed(BenchmarkNNPDF):
             "Vu8",
         ]
 
-        operator_card = {**base_operator, "Q2grid": list(Q2grid), "ev_op_iterations": 10}
+        operator_card = {
+            **base_operator,
+            "Q2grid": list(Q2grid),
+            "ev_op_iterations": 10,
+        }
         self.run([theory_card], [operator_card], ["NNPDF31_nnlo_as_0118_luxqed"])
 
 

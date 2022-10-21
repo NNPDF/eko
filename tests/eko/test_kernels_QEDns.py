@@ -34,7 +34,15 @@ def test_zero():
             for method in methods:
                 np.testing.assert_allclose(
                     ns.dispatcher(
-                        order, method, gamma_ns, 1.0, 1.0, [1.0, 1.0], False, nf, ev_op_iterations
+                        order,
+                        method,
+                        gamma_ns,
+                        1.0,
+                        1.0,
+                        [1.0, 1.0],
+                        False,
+                        nf,
+                        ev_op_iterations,
                     ),
                     1.0,
                 )
@@ -69,7 +77,15 @@ def test_zero_true_gamma():
                 for method in methods:
                     np.testing.assert_allclose(
                         ns.dispatcher(
-                            order, method, gamma_ns, 1.0, 1.0, [1.0, 1.0], False, nf, ev_op_iterations
+                            order,
+                            method,
+                            gamma_ns,
+                            1.0,
+                            1.0,
+                            [1.0, 1.0],
+                            False,
+                            nf,
+                            ev_op_iterations,
                         ),
                         1.0,
                     )
@@ -116,13 +132,21 @@ def test_ode():
                 betatot = 0.0
                 for i in range(0, order[0] + 1):
                     for j in range(0, order[1] + 1):
-                        gammatot += gamma_ns[i, j] * a1**i * aem_list[0]**j
-                        betatot += a1**1 * betaQCD[i, j] * a1**i * aem_list[0]**j
+                        gammatot += gamma_ns[i, j] * a1**i * aem_list[0] ** j
+                        betatot += a1**1 * betaQCD[i, j] * a1**i * aem_list[0] ** j
 
                 r = gammatot / betatot
                 for method in methods:
                     rhs = r * ns.dispatcher(
-                        order, method, gamma_ns, a1, a0, aem_list, False, nf, ev_op_iterations
+                        order,
+                        method,
+                        gamma_ns,
+                        a1,
+                        a0,
+                        aem_list,
+                        False,
+                        nf,
+                        ev_op_iterations,
                     )
                     lhs = (
                         ns.dispatcher(
@@ -174,13 +198,23 @@ def test_ode_true_gamma():
                     betatot = 0.0
                     for i in range(0, order[0] + 1):
                         for j in range(0, order[1] + 1):
-                            gammatot += gamma_ns[i, j] * a1**i * aem_list[0]**j
-                            betatot += a1**1 * betaQCD[i, j] * a1**i * aem_list[0]**j
+                            gammatot += gamma_ns[i, j] * a1**i * aem_list[0] ** j
+                            betatot += (
+                                a1**1 * betaQCD[i, j] * a1**i * aem_list[0] ** j
+                            )
 
                     r = gammatot / betatot
                     for method in methods:
                         rhs = r * ns.dispatcher(
-                            order, method, gamma_ns, a1, a0, aem_list, False, nf, ev_op_iterations
+                            order,
+                            method,
+                            gamma_ns,
+                            a1,
+                            a0,
+                            aem_list,
+                            False,
+                            nf,
+                            ev_op_iterations,
                         )
                         lhs = (
                             ns.dispatcher(
@@ -212,5 +246,13 @@ def test_ode_true_gamma():
 def test_error():
     with pytest.raises(NotImplementedError):
         ns.dispatcher(
-            (4, 2), "iterate-exact", np.random.rand(4, 3), 0.2, 0.1, [0.01], False, 3, 10
+            (4, 2),
+            "iterate-exact",
+            np.random.rand(4, 3),
+            0.2,
+            0.1,
+            [0.01],
+            False,
+            3,
+            10,
         )

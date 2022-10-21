@@ -454,7 +454,7 @@ class TestOperator:
         ocard["configs"]["ev_op_iterations"] = 10
         for qcd in range(1, 3 + 1):
             for qed in range(1, 2 + 1):
-                for q0 in [np.sqrt(2.), 2., 4.5]:
+                for q0 in [np.sqrt(2.0), 2.0, 4.5]:
                     for q2to in ocard["Q2grid"]:
                         for aem_running in [True, False]:
                             tcard["order"] = (qcd, qed)
@@ -468,9 +468,13 @@ class TestOperator:
                                 InterpolatorDispatcher(
                                     XGrid(
                                         operators_card["xgrid"],
-                                        log=operators_card["configs"]["interpolation_is_log"],
+                                        log=operators_card["configs"][
+                                            "interpolation_is_log"
+                                        ],
                                     ),
-                                    operators_card["configs"]["interpolation_polynomial_degree"],
+                                    operators_card["configs"][
+                                        "interpolation_polynomial_degree"
+                                    ],
                                 ),
                             )
                             o = Operator(g.config, g.managers, 3, q0**2, q2to)
@@ -488,7 +492,9 @@ class TestOperator:
                                     as_half,
                                     3,
                                 )
-                                np.testing.assert_allclose(aem, aem_list[step], rtol=1e-4)
+                                np.testing.assert_allclose(
+                                    aem, aem_list[step], rtol=1e-4
+                                )
                                 as_l = as_h
 
     def check_lo(self, o):

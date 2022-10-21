@@ -67,9 +67,7 @@ def gamma_variation_qed(gamma, order, nf, L, alphaem_running):
         gamma : numpy.ndarray
             adjusted anomalous dimensions
     """
-    # since we are modifying *in-place* be carefull, that the order matters!
-    # and indeed, we need to adjust the high elements first
-    if not alphaem_running :
+    if not alphaem_running:
         # if alphaem is fixed then only alphas is varied so gamma[0,1] and gamma[0,2]
         # don't get a variation while gamma[1,1] gets a variation that is O(as2aem1)
         # that we are neglecting
@@ -103,6 +101,6 @@ def gamma_variation_qed(gamma, order, nf, L, alphaem_running):
             # we are neglecting the order (2,1)
             # if order[1] >= 1:
             #     gamma[2, 1] -= -L * (beta01qcd * gamma[1,0] + beta0qcd * gamma[1,1])
-        if order[1] >= 2 :
+        if order[1] >= 2:
             gamma[0, 2] -= beta0qed * gamma[0, 1] * L
         return gamma

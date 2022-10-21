@@ -550,9 +550,9 @@ class Couplings:
         float
             coupling at target scale :math:`a(Q^2)`
         """
-        if len(b_vec) == 1 :
+        if len(b_vec) == 1:
             return exact_lo(a_ref, beta0, u)
-        
+
         def rge(_t, a, b_vec):
             rge = -(a**2) * (np.sum([a**k * b for k, b in enumerate(b_vec)]))
             return rge
@@ -699,7 +699,7 @@ class Couplings:
             rtol=1e-6,
         )
         return np.array([rge_qcd, a_ref[1]])
-    
+
     # def compute_exact_decoupled_running(self, a_ref, nf, scale_qcd_from, scale_qed_from, scale_to):
     #     """Compute couplings via |RGE| with running alphaem without the mixed terms.
 
@@ -829,7 +829,7 @@ class Couplings:
             rtol=1e-6,
         )
         return res.y[0][-1]
-    
+
     # def compute_aem_as_decoupled(self, aem_ref, as_from, as_to, nf):
     #     """Compute :math:`a_{em}` as a function of :math:`a_s` with no mixing terms.
 

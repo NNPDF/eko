@@ -301,7 +301,6 @@ def quad_ker(
             gamma_s = ad.gamma_singlet_qed(order, ker_base.n, nf)
             # scale var exponentiated is directly applied on gamma
             if sv_mode == sv.Modes.exponentiated:
-                # TODO : double check it
                 gamma_s = sv.exponentiated.gamma_variation_qed(
                     gamma_s, order, nf, L, alphaem_running
                 )
@@ -320,7 +319,9 @@ def quad_ker(
             # TODO : check expanded scale variations
             if sv_mode == sv.Modes.expanded and not is_threshold:
                 ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
-                    sv.expanded.QEDsinglet_variation(gamma_s, as1, aem_list[-1], alphaem_running, order, nf, L)
+                    sv.expanded.QEDsinglet_variation(
+                        gamma_s, as1, aem_list[-1], alphaem_running, order, nf, L
+                    )
                 )
             ker = select_QEDsinglet_element(ker, mode0, mode1)
         elif ker_base.is_QEDvalence:
@@ -344,7 +345,9 @@ def quad_ker(
             # scale var expanded is applied on the kernel
             if sv_mode == sv.Modes.expanded and not is_threshold:
                 ker = np.ascontiguousarray(
-                    sv.expanded.QEDvalence_variation(gamma_v, as1, aem_list[-1], alphaem_running, order, nf, L)
+                    sv.expanded.QEDvalence_variation(
+                        gamma_v, as1, aem_list[-1], alphaem_running, order, nf, L
+                    )
                 ) @ np.ascontiguousarray(ker)
             ker = select_QEDvalence_element(ker, mode0, mode1)
         else:
@@ -367,7 +370,10 @@ def quad_ker(
             )
             if sv_mode == sv.Modes.expanded and not is_threshold:
                 ker = (
-                    sv.expanded.QEDnon_singlet_variation(gamma_ns, as1, aem_list[-1], alphaem_running, order, nf, L) * ker
+                    sv.expanded.QEDnon_singlet_variation(
+                        gamma_ns, as1, aem_list[-1], alphaem_running, order, nf, L
+                    )
+                    * ker
                 )
 
     # recombine everything
@@ -478,7 +484,7 @@ class Operator(sv.ModeMixin):
     def a_em(self):
         """Return the computed values for :math:`a_{em}`."""
         return (self.a[0][1], self.a[1][1])
-    
+
     @property
     def alphaem_running(self):
         """Return the value of alphaem_running"""

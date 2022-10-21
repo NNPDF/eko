@@ -174,7 +174,9 @@ def gamma_qg(N, nf, sx):
             :math:`\\gamma_{qg}^{(1,1)}(N)`
 
     """
-    return constants.TR / constants.CF / constants.CA * constants.NC * gamma_qph(N, nf, sx)
+    return (
+        constants.TR / constants.CF / constants.CA * constants.NC * gamma_qph(N, nf, sx)
+    )
 
 
 @nb.njit(cache=True)

@@ -232,11 +232,14 @@ def dispatcher(
         )
         # this if is probably useless since when order[1] == 0
         # the code never enters in this module
-    if not alphaem_running :
+    if not alphaem_running:
         aem = aem_list[0]
         return fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf)
-    else :
-        return running_alphaem_exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations)
+    else:
+        return running_alphaem_exact(
+            order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
+        )
+
 
 @nb.njit(cache=True)
 def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf):
@@ -279,6 +282,7 @@ def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf):
             return nnlo_aem2_exact(gamma_ns, a1, a0, aem, nf)
     raise NotImplementedError("Selected order is not implemented")
 
+
 @nb.njit(cache=True)
 def running_alphaem_exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations):
     """
@@ -307,7 +311,7 @@ def running_alphaem_exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iteration
             non-singlet EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    res = 1.
+    res = 1.0
     # For the moment implemented in this way to make numba compile it
     # TODO : implement it with np.prod in a way that numba compiles it
     if order[1] == 1:
