@@ -183,6 +183,33 @@ class TestCouplings:
                             sc.a(scale_ref)[1], alphaem_ref / 4.0 / np.pi
                         )
 
+    def test_ref_copy_e841b0dfdee2f31d9ccc1ecee4d9d1a6f6624313(self):
+        """Reference settings are an array with QED, but were not copied."""
+        thresh_setup = (2.0, 4.75**2.0, 175.0**2.0)
+        alphas_ref = 0.35
+        alphaem_ref = 0.00781
+        scale_ref = 2.0
+        couplings_ref = np.array([alphas_ref, alphaem_ref])
+        sc = Couplings(
+            couplings_ref,
+            scale_ref,
+            thresh_setup,
+            (1.0, 1.0, 1.0),
+            (4, 0),
+            nf_ref=3,  # reference nf is needed to force the matching
+        )
+        np.testing.assert_allclose(couplings_ref, np.array([alphas_ref, alphaem_ref]))
+        np.testing.assert_allclose(
+            sc.a_ref, np.array([alphas_ref, alphaem_ref]) / (4.0 * np.pi)
+        )
+        # force matching
+        sc.a_s(2.0, nf_to=4)
+        # of course the object should not have changed!
+        np.testing.assert_allclose(couplings_ref, np.array([alphas_ref, alphaem_ref]))
+        np.testing.assert_allclose(
+            sc.a_ref, np.array([alphas_ref, alphaem_ref]) / (4.0 * np.pi)
+        )
+
     def test_exact_LO(self):
         # prepare
         thresh_setups = [

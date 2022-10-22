@@ -41,15 +41,19 @@ class TestOperatorGrid:
         }
         operators_card = {
             "Q2grid": [1, 100**2],
-            "interpolation_xgrid": [0.1, 1.0],
-            "interpolation_polynomial_degree": 1,
-            "interpolation_is_log": True,
-            "debug_skip_singlet": True,
-            "debug_skip_non_singlet": False,
-            "ev_op_max_order": (2, 0),
-            "ev_op_iterations": 1,
-            "backward_inversion": "exact",
-            "n_integration_cores": 1,
+            "xgrid": [0.1, 1.0],
+            "configs": {
+                "interpolation_polynomial_degree": 1,
+                "interpolation_is_log": True,
+                "ev_op_max_order": (2, 0),
+                "ev_op_iterations": 1,
+                "backward_inversion": "exact",
+                "n_integration_cores": 1,
+            },
+            "debug": {
+                "skip_singlet": True,
+                "skip_non_singlet": False,
+            },
         }
         if use_FFNS:
             theory_card["FNS"] = "FFNS"
@@ -69,8 +73,12 @@ class TestOperatorGrid:
         if theory_update is not None:
             theory_card.update(theory_update)
         # create objects
-        basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
-            operators_card
+        basis_function_dispatcher = interpolation.InterpolatorDispatcher(
+            interpolation.XGrid(
+                operators_card["xgrid"],
+                log=operators_card["configs"]["interpolation_is_log"],
+            ),
+            operators_card["configs"]["interpolation_polynomial_degree"],
         )
         threshold_holder = ThresholdsAtlas.from_dict(theory_card)
         a_s = Couplings.from_dict(theory_card)
@@ -87,8 +95,12 @@ class TestOperatorGrid:
         # errors
         with pytest.raises(ValueError):
             theory_card, operators_card = self._get_setup(True)
-            basis_function_dispatcher = interpolation.InterpolatorDispatcher.from_dict(
-                operators_card
+            basis_function_dispatcher = interpolation.InterpolatorDispatcher(
+                interpolation.XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
             )
             threshold_holder = ThresholdsAtlas.from_dict(theory_card)
             a_s = Couplings.from_dict(theory_card)
@@ -108,14 +120,10 @@ class TestOperatorGrid:
         # we can also pass a single number
         opg = opgrid.compute()
         assert len(opg) == 2
-        assert all(
-            k in op for k in ["operators", "operator_errors"] for op in opg.values()
-        )
+        assert all(k in op for k in ["operator", "error"] for op in opg.values())
         opg = opgrid.compute(3)
         assert len(opg) == 1
-        assert all(
-            k in op for k in ["operators", "operator_errors"] for op in opg.values()
-        )
+        assert all(k in op for k in ["operator", "error"] for op in opg.values())
 
     def test_grid_computation_VFNS(self):
         """Checks that the grid can be computed"""
@@ -140,5 +148,5 @@ class TestOperatorGrid:
             )
             sv_opg = sv_opgrid.compute(3)
             np.testing.assert_allclose(
-                opg[3]["operators"], sv_opg[3]["operators"], atol=0.7 * epsilon
+                opg[3]["operator"], sv_opg[3]["operator"], atol=0.7 * epsilon
             )

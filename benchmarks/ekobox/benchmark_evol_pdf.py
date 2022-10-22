@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 import pathlib
 
-import lhapdf
 import numpy as np
 import pytest
 
 from eko import basis_rotation as br
-from eko import output
 from ekobox import evol_pdf as ev_p
-from ekobox import gen_op as g_o
-from ekobox import gen_theory as g_t
+from ekobox import operators_card as oc
+from ekobox import theory_card as tc
 from ekobox.genpdf import load
 
 test_pdf = pathlib.Path(__file__).parent / "fakepdf"
+lhapdf = pytest.importorskip("lhapdf")
 
 
 @pytest.mark.isolated
@@ -22,8 +21,8 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
         100.0,
         10000.0,
     ]
-    op = g_o.gen_op_card(q2grid)
-    theory = g_t.gen_theory_card(
+    op = oc.generate(q2grid)
+    theory = tc.generate(
         0,
         5.0,
         update={
@@ -80,10 +79,10 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
 
 @pytest.mark.isolated
 def benchmark_evolve_more_members(tmp_path, cd, lhapdf_path):
-    op = g_o.gen_op_card(
+    op = oc.generate(
         [10, 100], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
     )
-    theory = g_t.gen_theory_card(0, 1.0)
+    theory = tc.generate(0, 1.0)
     with lhapdf_path(test_pdf):
         pdfs = lhapdf.mkPDFs("myMSTW2008nlo90cl")
     d = tmp_path / "sub"
@@ -102,28 +101,3 @@ def benchmark_evolve_more_members(tmp_path, cd, lhapdf_path):
         for x in [1e-7, 0.01, 0.1, 0.2, 0.3]:
             for pid in [21, 1, 2]:
                 assert new_pdf_1.xfxQ2(pid, x, Q2) != new_pdf_2.xfxQ2(pid, x, Q2)
-
-
-@pytest.mark.isolated
-def benchmark_gen_and_dump_out(tmp_path):
-    op = g_o.gen_op_card(
-        [100.0], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
-    )
-    theory = g_t.gen_theory_card(0, 1.0)
-
-    out = ev_p.gen_out(theory, op, path=tmp_path)
-
-    ops_id = f"o{op['hash'][:6]}_t{theory['hash'][:6]}"
-    outpath = f"{tmp_path}/{ops_id}.tar"
-    loaded_out = output.Output.load_tar(outpath)
-    for el, load_el in zip(
-        out["interpolation_xgrid"], loaded_out["interpolation_xgrid"]
-    ):
-        assert el == load_el
-    for el, load_el in zip(
-        out["Q2grid"][100.0]["operators"], loaded_out["Q2grid"][100.0]["operators"]
-    ):
-        np.testing.assert_allclose(
-            out["Q2grid"][100.0]["operators"],
-            loaded_out["Q2grid"][100.0]["operators"],
-        )

@@ -1,5 +1,8 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+ci:
+  autofix_prs: false
+  autoupdate_branch: develop
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.3.0
@@ -35,3 +38,7 @@ repos:
         files: ^src/
         additional_dependencies:
           - toml
+  - repo: https://github.com/pre-commit/pre-commit
+    rev: v2.20.0
+    hooks:
+      - id: validate_manifest

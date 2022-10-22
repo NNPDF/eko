@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Plotting tools to show the evolved PDF and the computed operators
-"""
+"""Plotting tools to show the evolved PDF and the computed operators."""
 import io
 import pprint
 
@@ -15,22 +13,22 @@ from eko import basis_rotation as br
 
 
 def input_figure(theory, ops, pdf_name=None):
-    """
-    Pretty-prints the setup to a figure
+    """Pretty-prints the setup to a figure.
 
     Parameters
     ----------
-        theory : dict
-            theory card
-        ops : dict
-            operator card
-        pdf_name : str
-            PDF name
+    theory : dict
+        theory card
+    ops : dict
+        operator card
+    pdf_name : str
+        PDF name
 
     Returns
     -------
-        firstPage : matplotlib.pyplot.Figure
-            figure
+    firstPage : matplotlib.pyplot.Figure
+        figure
+
     """
     firstPage = plt.figure(figsize=(25, 20))
     # theory
@@ -56,8 +54,7 @@ def input_figure(theory, ops, pdf_name=None):
 
 
 def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
-    """
-    Compare two distributions.
+    """Compare two distributions.
 
     Generates a plot with 3 areas:
 
@@ -68,28 +65,29 @@ def plot_dist(x, y, yerr, yref, title=None, oMx_min=1e-2, oMx_max=0.5):
 
     Parameters
     ----------
-        x : numpy.ndarray
-            list of abscisses
-        y : numpy.ndarray
-            computed list of ordinates
-        yerr : numpy.ndarray
-            list of ordinate errors
-        yref : numpy.ndarray
-            reference list of ordinates
+    x : numpy.ndarray
+        list of abscisses
+    y : numpy.ndarray
+        computed list of ordinates
+    yerr : numpy.ndarray
+        list of ordinate errors
+    yref : numpy.ndarray
+        reference list of ordinates
 
     Other Parameters
     ----------------
-        title : str, optional
-            additional overall title
-        oMx_min : float
-            maximum value for the large x region, i.e. 1-x > 1 - `oMx_min`
-        oMx_max : float
-            minimum value for the large x region, i.e. 1 - `oMx_max` > 1-x
+    title : str, optional
+        additional overall title
+    oMx_min : float
+        maximum value for the large x region, i.e. 1-x > 1 - `oMx_min`
+    oMx_max : float
+        minimum value for the large x region, i.e. 1 - `oMx_max` > 1-x
 
     Returns
     -------
-        fig : matplotlib.pyplot.figure
-            created figure
+    fig : matplotlib.pyplot.figure
+        created figure
+
     """
     np.seterr(divide="ignore", invalid="ignore")
     fig = plt.figure(figsize=(15, 5))
@@ -164,7 +162,7 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
     """
     # get
     # op = ret["operators"][var_name]
-    # op_err = ret["operator_errors"][var_name]
+    # op_err = ret["errors"][var_name]
 
     # empty?
     thre = 1e-8
@@ -244,7 +242,7 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs, change_lab=False):
         # it's necessary to reshuffle the eko output
         for q2 in me["Q2grid"]:
             results = me["Q2grid"][q2]["operators"]
-            errors = me["Q2grid"][q2]["operator_errors"]
+            errors = me["Q2grid"][q2]["errors"]
 
             # loop on pids
             for label_out, res, res_err in zip(ops_names, results, errors):
@@ -253,7 +251,7 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs, change_lab=False):
                 new_op = {}
                 new_op_err = {}
                 # loop on xgrid point
-                for j in range(len(me["interpolation_xgrid"])):
+                for j in range(len(me["xgrid"])):
                     # loop on pid in
                     for label_in, val, val_err in zip(ops_names, res[j], res_err[j]):
                         if label_in in skip_pdfs:

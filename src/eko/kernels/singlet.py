@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Collection of singlet EKOs.
-"""
+"""Collection of singlet EKOs."""
 
 import numba as nb
 import numpy as np
@@ -15,76 +13,73 @@ from . import utils
 
 @nb.njit(cache=True)
 def lo_exact(gamma_singlet, a1, a0, nf):
-    """
-    Singlet leading order exact EKO
+    """Singlet leading order exact EKO.
 
     Parameters
     ----------
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
+    gamma_singlet : numpy.ndarray
+        singlet anomalous dimensions matrices
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_s^0 : numpy.ndarray
-            singlet leading order exact EKO
+    numpy.ndarray
+        singlet leading order exact EKO
     """
     return ad.exp_singlet(gamma_singlet[0] * ei.j00(a1, a0, nf))[0]
 
 
 @nb.njit(cache=True)
 def nlo_decompose(gamma_singlet, j01, j11):
-    """
-    Singlet next-to-leading order decompose EKO
+    """Singlet next-to-leading order decompose EKO.
 
     Parameters
     ----------
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
-        j01 : float
-            LO-NLO evolution integral
-        j11 : float
-            NLO-NLO evolution integral
+    gamma_singlet : numpy.ndarray
+        singlet anomalous dimensions matrices
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
+    j01 : float
+        |LO|-|NLO| evolution integral
+    j11 : float
+        |NLO|-|NLO| evolution integral
 
     Returns
     -------
-        e_s^1 : numpy.ndarray
-            singlet next-to-leading order decompose EKO
+    numpy.ndarray
+        singlet next-to-leading order decompose EKO
     """
     return ad.exp_singlet(gamma_singlet[0] * j01 + gamma_singlet[1] * j11)[0]
 
 
 @nb.njit(cache=True)
 def nlo_decompose_exact(gamma_singlet, a1, a0, nf):
-    """
-    Singlet next-to-leading order decompose-exact EKO
+    """Singlet next-to-leading order decompose-exact EKO.
 
     Parameters
     ----------
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
+    gamma_singlet : numpy.ndarray
+        singlet anomalous dimensions matrices
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_s^1 : numpy.ndarray
-            singlet next-to-leading order decompose-exact EKO
+    numpy.ndarray
+        singlet next-to-leading order decompose-exact EKO
     """
     return nlo_decompose(
         gamma_singlet, ei.j01_exact(a1, a0, nf), ei.j11_exact(a1, a0, nf)
@@ -93,24 +88,23 @@ def nlo_decompose_exact(gamma_singlet, a1, a0, nf):
 
 @nb.njit(cache=True)
 def nlo_decompose_expanded(gamma_singlet, a1, a0, nf):
-    """
-    Singlet next-to-leading order decompose-expanded EKO
+    """Singlet next-to-leading order decompose-expanded EKO.
 
     Parameters
     ----------
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
+    gamma_singlet : numpy.ndarray
+        singlet anomalous dimensions matrices
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_s^1 : numpy.ndarray
-            singlet next-to-leading order decompose-expanded EKO
+    numpy.ndarray
+        singlet next-to-leading order decompose-expanded EKO
     """
     return nlo_decompose(
         gamma_singlet, ei.j01_expanded(a1, a0, nf), ei.j11_expanded(a1, a0, nf)
@@ -119,29 +113,29 @@ def nlo_decompose_expanded(gamma_singlet, a1, a0, nf):
 
 @nb.njit(cache=True)
 def nnlo_decompose(gamma_singlet, j02, j12, j22):
-    """
-    Singlet next-to-next-to-leading order decompose EKO
+    """Singlet next-to-next-to-leading order decompose EKO.
 
     Parameters
     ----------
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
-        j02 : float
-            LO-NNLO evolution integral
-        j12 : float
-            NLO-NNLO evolution integral
-        j22 : float
-            NNLO-NNLO evolution integral
+    gamma_singlet : numpy.ndarray
+        singlet anomalous dimensions matrices
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
+    j02 : float
+        LO-NNLO evolution integral
+    j12 : float
+        NLO-NNLO evolution integral
+    j22 : float
+        NNLO-NNLO evolution integral
+
     Returns
     -------
-        e_s^2 : numpy.ndarray
-            singlet next-to-next-to-leading order decompose EKO
+    numpy.ndarray
+        singlet next-to-next-to-leading order decompose EKO
     """
     return ad.exp_singlet(
         gamma_singlet[0] * j02 + gamma_singlet[1] * j12 + gamma_singlet[2] * j22
@@ -150,24 +144,23 @@ def nnlo_decompose(gamma_singlet, j02, j12, j22):
 
 @nb.njit(cache=True)
 def nnlo_decompose_exact(gamma_singlet, a1, a0, nf):
-    """
-    Singlet next-to-next-to-leading order decompose-exact EKO
+    """Singlet next-to-next-to-leading order decompose-exact EKO.
 
     Parameters
     ----------
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
+    gamma_singlet : numpy.ndarray
+        singlet anomalous dimensions matrices
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_s^2 : numpy.ndarray
-            singlet next-to-next-to-leading order decompose-exact EKO
+    numpy.ndarray
+        singlet next-to-next-to-leading order decompose-exact EKO
     """
     return nnlo_decompose(
         gamma_singlet,
@@ -179,24 +172,23 @@ def nnlo_decompose_exact(gamma_singlet, a1, a0, nf):
 
 @nb.njit(cache=True)
 def nnlo_decompose_expanded(gamma_singlet, a1, a0, nf):
-    """
-    Singlet next-to-next-to-leading order decompose-expanded EKO
+    """Singlet next-to-next-to-leading order decompose-expanded EKO.
 
     Parameters
     ----------
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
+    gamma_singlet : numpy.ndarray
+        singlet anomalous dimensions matrices
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_s^2 : numpy.ndarray
-            singlet next-to-next-to-leading order decompose-expanded EKO
+    numpy.ndarray
+        singlet next-to-next-to-leading order decompose-expanded EKO
     """
     return nnlo_decompose(
         gamma_singlet,
@@ -208,7 +200,7 @@ def nnlo_decompose_expanded(gamma_singlet, a1, a0, nf):
 
 @nb.njit(cache=True)
 def n3lo_decompose(gamma_singlet, j03, j13, j23, j33):
-    """Singlet |N3LO| decompose EKO
+    """Singlet |N3LO| decompose EKO.
 
     Parameters
     ----------
@@ -233,7 +225,6 @@ def n3lo_decompose(gamma_singlet, j03, j13, j23, j33):
     -------
     numpy.ndarray
         singlet |N3LO| decompose EKO
-
     """
     return ad.exp_singlet(
         gamma_singlet[0] * j03
@@ -245,7 +236,7 @@ def n3lo_decompose(gamma_singlet, j03, j13, j23, j33):
 
 @nb.njit(cache=True)
 def n3lo_decompose_exact(gamma_singlet, a1, a0, nf):
-    """Singlet |N3LO| decompose-exact EKO
+    """Singlet |N3LO| decompose-exact EKO.
 
     Parameters
     ----------
@@ -262,7 +253,6 @@ def n3lo_decompose_exact(gamma_singlet, a1, a0, nf):
     -------
     numpy.ndarray
         singlet |N3LO| decompose-exact EKO
-
     """
     beta0 = beta.beta_qcd((2, 0), nf)
     b_list = [
@@ -282,7 +272,7 @@ def n3lo_decompose_exact(gamma_singlet, a1, a0, nf):
 
 @nb.njit(cache=True)
 def n3lo_decompose_expanded(gamma_singlet, a1, a0, nf):
-    """Singlet |N3LO| decompose-expanded EKO
+    """Singlet |N3LO| decompose-expanded EKO.
 
     Parameters
     ----------
@@ -299,7 +289,6 @@ def n3lo_decompose_expanded(gamma_singlet, a1, a0, nf):
     -------
     numpy.ndarray
         singlet |N3LO| decompose-expanded EKO
-
     """
     beta0 = beta.beta_qcd((2, 0), nf)
     b_list = [
@@ -318,7 +307,7 @@ def n3lo_decompose_expanded(gamma_singlet, a1, a0, nf):
 
 @nb.njit(cache=True)
 def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
-    """Singlet |NLO|, |NNLO| or |N3LO| iterated (exact) EKO
+    """Singlet |NLO|, |NNLO| or |N3LO| iterated (exact) EKO.
 
     Parameters
     ----------
@@ -339,7 +328,6 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     -------
     numpy.ndarray
         singlet iterated (exact) EKO
-
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     beta_vec = [beta.beta_qcd((2, 0), nf), beta.beta_qcd((3, 0), nf)]
@@ -389,7 +377,6 @@ def r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact):
     -------
     np.ndarray
         R vector
-
     """
     r = np.zeros(
         (ev_op_max_order[0] + 1, 2, 2), dtype=np.complex_
@@ -439,7 +426,6 @@ def u_vec(r, ev_op_max_order):
     -------
     numpy.ndarray
         U vector
-
     """
     u = np.zeros((ev_op_max_order[0], 2, 2), np.complex_)  # k = 0 .. max_order
     # init
@@ -463,8 +449,7 @@ def u_vec(r, ev_op_max_order):
 
 @nb.njit(cache=True)
 def sum_u(uvec, a):
-    r"""Sums up the actual U operator.
-
+    r"""Sum up the actual U operator.
 
     .. math::
         \mathbf U (a_s) = \mathbf I + \sum\limits_{k=1} a_s^k \mathbf U_k
@@ -480,7 +465,6 @@ def sum_u(uvec, a):
     -------
     numpy.ndarray
         sum
-
     """
     p = 1.0
     res = np.zeros((2, 2), dtype=np.complex_)
@@ -497,7 +481,7 @@ def sum_u(uvec, a):
 def eko_perturbative(
     gamma_singlet, a1, a0, nf, order, ev_op_iterations, ev_op_max_order, is_exact
 ):
-    """Singlet |NLO|,|NNLO| or |N3LO| perturbative EKO, depending on which r is passed
+    """Singlet |NLO|,|NNLO| or |N3LO| perturbative EKO, depending on which r is passed.
 
     Parameters
     ----------
@@ -522,7 +506,6 @@ def eko_perturbative(
     -------
     numpy.ndarray
         singlet perturbative EKO
-
     """
     r = r_vec(gamma_singlet, nf, ev_op_max_order, order, is_exact)
     uk = u_vec(r, ev_op_max_order)
@@ -543,7 +526,7 @@ def eko_perturbative(
 
 @nb.njit(cache=True)
 def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
-    """Singlet |NLO|, |NNLO| or |N3LO| truncated EKO
+    """Singlet |NLO|, |NNLO| or |N3LO| truncated EKO.
 
     Parameters
     ----------
@@ -564,7 +547,6 @@ def eko_truncated(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
     -------
     numpy.ndarray
         singlet truncated EKO
-
     """
     r = r_vec(gamma_singlet, nf, order, order, False)
     u = u_vec(r, order)
@@ -628,8 +610,11 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     -------
     numpy.ndarray
         singlet EKO
-
     """
+    # for SV expanded we still fall in here, but we don't need to do anything
+    if a1 == a0:
+        return np.eye(len(gamma_singlet[0]), dtype=np.complex_)
+
     # use always exact in LO
     if order[0] == 1:
         return lo_exact(gamma_singlet, a1, a0, nf)
