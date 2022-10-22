@@ -3,20 +3,12 @@ name: tests
 on: push
 
 jobs:
-  py38:
-    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
-    with:
-      python-version: "3.8"
-      poetry-extras: "-E mark"
+  test:
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
 
-  py39:
-    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
+    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@v2
     with:
-      python-version: "3.9"
-      poetry-extras: "-E mark"
-
-  py310:
-    uses: N3PDF/workflows/.github/workflows/python-poetry-tests.yml@main
-    with:
-      python-version: "3.10"
+      python-version: ${{ matrix.python-version }}
       poetry-extras: "-E mark"

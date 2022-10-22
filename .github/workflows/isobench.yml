@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: ghcr.io/n3pdf/bench-evol:latest
+      image: ghcr.io/n3pdf/bench-evol:v2
       credentials:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -36,7 +36,7 @@ jobs:
           ${PIP} install poetry-dynamic-versioning
       - name: Install project
         run: |
-          poetry install --no-interaction -E mark -E box
+          poetry install --no-interaction --with test -E mark -E box
       - name: Install task runner
         run: pip install poethepoet
       - name: Lint with pylint
