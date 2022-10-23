@@ -11,13 +11,7 @@ import pytest
 from eko import basis_rotation as br
 from eko import interpolation, output
 from eko.output import legacy, manipulate, struct
-
-
-def eko_identity(shape):
-    i, k = np.ogrid[: shape[1], : shape[2]]
-    eko_identity = np.zeros(shape[1:], int)
-    eko_identity[i, k, i, k] = 1
-    return np.broadcast_to(eko_identity[np.newaxis, :, :, :, :], shape)
+from ekobox.mock import eko_identity
 
 
 def chk_keys(a, b):
@@ -153,9 +147,9 @@ class TestManipulate:
                     assert op.operator.shape == (2, len(xgp), 2, len(xgp))
                     id_op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
                     np.testing.assert_allclose(op.operator, id_op[0], atol=1e-10)
-        # error
-        with pytest.raises(ValueError):
-            manipulate.xgrid_reshape({})
+            # error
+            with pytest.raises(ValueError):
+                manipulate.xgrid_reshape(eko0, {})
 
     # def test_reshape_io(self, fake_output):
     #     # create object
@@ -175,58 +169,70 @@ class TestManipulate:
     #     o3 = legacy.load_yaml(stream)
     #     chk_keys(o1.raw, o3.raw)
 
-    def test_flavor_reshape(self, fake_output, tmp_path):
+    def test_flavor_reshape(self, tmp_path, default_cards):
         # create object
-        xg = np.geomspace(1e-5, 1.0, 21)
-        o1, _fake_card = fake_output
-        o1.xgrid = xg
-        o1.rotations._targetgrid = xg
-        o1.rotations._inputgrid = xg
-        o1[10.0] = output.Operator.from_dict(
+        xg = np.geomspace(1e-5, 1.0, 21).tolist()
+        tc, oc = default_cards
+        oc["xgrid"] = xg
+        oc["rotations"]["inputpids"] = [1, 2]
+        oc["rotations"]["targetpids"] = [1, 2]
+        q2, op = 10.0, output.Operator.from_dict(
             dict(
                 operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
                 error=np.zeros((2, len(xg), 2, len(xg))),
             )
         )
-        # only target
-        target_r = np.array([[1, -1], [1, 1]])
-        ot = o1.deepcopy(tmp_path / "ot.tar")
-        manipulate.flavor_reshape(ot, target_r)
-        chk_keys(o1.raw, ot.raw)
-        assert ot[10].operator.shape == (2, len(xg), 2, len(xg))
-        ott = ot.deepcopy(tmp_path / "ott.tar")
-        manipulate.flavor_reshape(ott, np.linalg.inv(target_r))
-        np.testing.assert_allclose(ott[10].operator, o1[10].operator)
-        with pytest.warns(Warning):
-            manipulate.flavor_reshape(ott, np.eye(2))
-            chk_keys(o1.raw, ott.raw)
-            np.testing.assert_allclose(ott[10].operator, o1[10].operator)
+        with struct.EKO.create(tc, oc) as eko0:
+            eko0[q2] = op
 
-        # only input
-        input_r = np.array([[1, -1], [1, 1]])
-        oi = o1.deepcopy(tmp_path / "oi.tar")
-        manipulate.flavor_reshape(oi, inputpids=input_r)
-        chk_keys(o1.raw, oi.raw)
-        assert oi[10].operator.shape == (2, len(xg), 2, len(xg))
-        oii = copy.deepcopy(oi)
-        manipulate.flavor_reshape(oii, inputpids=np.linalg.inv(input_r))
-        np.testing.assert_allclose(oii[10].operator, o1[10].operator)
-        with pytest.warns(Warning):
-            manipulate.flavor_reshape(oii, inputpids=np.eye(2))
-            chk_keys(o1.raw, oii.raw)
-            np.testing.assert_allclose(oii[10].operator, o1[10].operator)
+            # only target
+            pt = tmp_path / "ekot.tar"
+            ptt = tmp_path / "ekott.tar"
+            eko0.deepcopy(pt)
+            with struct.EKO.open(pt) as ekot:
+                target_r = np.array([[1, -1], [1, 1]])
+                manipulate.flavor_reshape(ekot, target_r)
+                with ekot.operator(q2) as op:
+                    assert op.operator.shape == (2, len(xg), 2, len(xg))
+                ekot.deepcopy(ptt)
+            # revert operation should return to original
+            with struct.EKO.open(ptt) as ekott:
+                with pytest.warns(Warning):
+                    manipulate.flavor_reshape(ekott, np.linalg.inv(target_r))
+                with ekott.operator(q2) as op:
+                    np.testing.assert_allclose(ekott[10].operator, op.operator)
 
-        # both
-        oit = o1.deepcopy(tmp_path / "oit.tar")
-        manipulate.flavor_reshape(
-            oit, np.array([[1, -1], [1, 1]]), np.array([[1, -1], [1, 1]])
-        )
-        chk_keys(o1.raw, oit.raw)
-        op = eko_identity([1, 2, len(xg), 2, len(xg)]).copy()
-        np.testing.assert_allclose(oit[10].operator, op[0], atol=1e-10)
-        # error
-        with pytest.raises(ValueError):
-            manipulate.flavor_reshape(o1.deepcopy(tmp_path / "fail.tar"))
+            # only input
+            pi = tmp_path / "ekoi.tar"
+            pii = tmp_path / "ekoii.tar"
+            eko0.deepcopy(pi)
+            with struct.EKO.open(pi) as ekoi:
+                input_r = np.array([[1, -1], [1, 1]])
+                manipulate.flavor_reshape(ekoi, inputpids=input_r)
+                with ekoi.operator(q2) as op:
+                    assert op.operator.shape == (2, len(xg), 2, len(xg))
+                ekoi.deepcopy(pii)
+            # revert operation should return to original
+            with struct.EKO.open(pii) as ekoii:
+                with pytest.warns(Warning):
+                    manipulate.flavor_reshape(ekoii, np.linalg.inv(input_r))
+                with ekoii.operator(q2) as op:
+                    np.testing.assert_allclose(ekoii[10].operator, op.operator)
+
+            # both
+            pit = tmp_path / "ekoit.tar"
+            eko0.deepcopy(pit)
+            with struct.EKO.open(pit) as ekoit:
+                manipulate.flavor_reshape(
+                    ekoit, np.array([[1, -1], [1, 1]]), np.array([[1, -1], [1, 1]])
+                )
+                with ekoit.operator(q2) as op:
+                    assert op.operator.shape == (2, len(xg), 2, len(xg))
+                    id_op = eko_identity([1, 2, len(xg), 2, len(xg)])
+                    np.testing.assert_allclose(op.operator, id_op[0], atol=1e-10)
+            # error
+            with pytest.raises(TypeError):
+                manipulate.flavor_reshape(eko0, {})
 
     def test_to_evol(self, fake_factory, tmp_path):
         xgrid = np.array([0.5, 1.0])
