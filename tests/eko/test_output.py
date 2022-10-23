@@ -234,52 +234,45 @@ class TestManipulate:
             with pytest.raises(TypeError):
                 manipulate.flavor_reshape(eko0, {})
 
-    def test_to_evol(self, fake_factory, tmp_path):
-        xgrid = np.array([0.5, 1.0])
-        interpolation_polynomial_degree = 1
-        interpolation_is_log = False
-        q2_ref = 1
-        q2_out = 2
-        Q2grid = fake_factory.mk_g([q2_out], len(br.flavor_basis_pids), len(xgrid))
-        d = dict(
-            Q0=np.sqrt(q2_ref),
-            Q2grid=Q2grid,
-            rotations=dict(
-                xgrid=xgrid,
-                targetgrid=xgrid,
-                inputgrid=xgrid,
-                inputpids=br.flavor_basis_pids,
-                targetpids=br.flavor_basis_pids,
-            ),
-            configs=dict(
-                interpolation_polynomial_degree=interpolation_polynomial_degree,
-                interpolation_is_log=interpolation_is_log,
-                ev_op_max_order=1,
-                ev_op_iterations=1,
-                backward_inversion="exact",
-            ),
+    def test_to_evol(self, tmp_path, default_cards):
+        xg = np.array([0.5, 1.0]).tolist()
+        tc, oc = default_cards
+        q2, op = 10.0, output.Operator.from_dict(
+            dict(
+                operator=eko_identity([1, 14, len(xg), 14, len(xg)])[0],
+                error=np.zeros((14, len(xg), 14, len(xg))),
+            )
         )
-        o00 = output.EKO.new(theory={}, operator=d)
-        o00[q2_out] = output.Operator(**Q2grid[q2_out])
-        o01 = o00.deepcopy(tmp_path / "o01.tar")
-        manipulate.to_evol(o01)
-        o10 = o00.deepcopy(tmp_path / "o10.tar")
-        manipulate.to_evol(o10, False, True)
-        o11 = o00.deepcopy(tmp_path / "o11.tar")
-        manipulate.to_evol(o11, True, True)
-        chk_keys(o00.raw, o11.raw)
+        with struct.EKO.create(tc, oc) as o00:
+            o00[q2] = op
 
-        # check the input rotated one
-        np.testing.assert_allclose(o01.rotations.inputpids, br.evol_basis_pids)
-        np.testing.assert_allclose(o01.rotations.targetpids, br.flavor_basis_pids)
-        # rotate also target
-        manipulate.to_evol(o01, False, True)
-        np.testing.assert_allclose(o01[q2_out].operator, o11[q2_out].operator)
-        chk_keys(o00.raw, o01.raw)
-        # check the target rotated one
-        np.testing.assert_allclose(o10.rotations.inputpids, br.flavor_basis_pids)
-        np.testing.assert_allclose(o10.rotations.targetpids, br.evol_basis_pids)
-        # rotate also input
-        manipulate.to_evol(o10)
-        np.testing.assert_allclose(o10[q2_out].operator, o11[q2_out].operator)
-        chk_keys(o00.raw, o10.raw)
+            # rotate input
+            p01 = tmp_path / "o01.tar"
+            p02 = tmp_path / "o02.tar"
+            o00.deepcopy(p01)
+            with output.EKO.open(p01) as o01:
+                manipulate.to_evol(o01)
+                np.testing.assert_allclose(o01.rotations.inputpids, br.evol_basis_pids)
+                np.testing.assert_allclose(
+                    o01.rotations.targetpids, br.flavor_basis_pids
+                )
+                o01.deepcopy(p02)
+            # rotate target
+            p10 = tmp_path / "o10.tar"
+            p20 = tmp_path / "o20.tar"
+            o00.deepcopy(p10)
+            with output.EKO.open(p10) as o10:
+                manipulate.to_evol(o10, False, True)
+                np.testing.assert_allclose(
+                    o10.rotations.inputpids, br.flavor_basis_pids
+                )
+                np.testing.assert_allclose(o10.rotations.targetpids, br.evol_basis_pids)
+                o10.deepcopy(p20)
+            # doing both does not matter on order
+            with output.EKO.open(p20) as o20:
+                with output.EKO.open(p02) as o02:
+                    manipulate.to_evol(o02, False, True)
+                    manipulate.to_evol(o20)
+                    with o20.operator(q2) as opa:
+                        with o02.operator(q2) as opb:
+                            np.testing.assert_allclose(opa.operator, opb.operator)
