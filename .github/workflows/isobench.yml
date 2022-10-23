@@ -19,21 +19,10 @@ jobs:
           # tags needed for dynamic versioning
           fetch-depth: 0
       - name: Install and configure Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          # update path for this and the other steps
-          export PATH=$HOME/.local/bin:$PATH
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-          # prevent poetry environments
-          # in order to access container pre-installed packages
-          poetry config virtualenvs.create false
-          # log all configurations
-          poetry config --list
-      - name: Install version management tool
-        run: |
-          # same poetry env
-          PIP="$(head -n1 $(which poetry) | cut -c 3-) -m pip"
-          ${PIP} install poetry-dynamic-versioning
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
+          installer-parallel: true
       - name: Install project
         run: |
           poetry install --no-interaction --with test -E mark -E box
