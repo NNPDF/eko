@@ -644,8 +644,6 @@ class EKO:
         try:
             obj = cls.open_tar(path)
             yield obj
-        except OutputError as e:
-            raise e
         finally:
             obj.write_tar()
             shutil.rmtree(obj.working_dir)
@@ -772,8 +770,6 @@ class EKO:
         try:
             obj = cls.new(theory, operator, path)
             yield obj
-        except OutputError as e:
-            raise e
         finally:
             if path is not None:
                 obj.write_tar()
