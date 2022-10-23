@@ -363,7 +363,7 @@ class EKO:
 
     def __post_init__(self):
         """Validate class members."""
-        if self.path.suffix != ".tar":
+        if self.path is not None and self.path.suffix != ".tar":
             raise ValueError("Not a valid path for an EKO")
 
     @staticmethod
@@ -752,6 +752,10 @@ class EKO:
                 operator["rotations"][k],
                 log=operator["configs"]["interpolation_is_log"],
             )
+        if path is not None:
+            path = pathlib.Path(path)
+        if working_dir is not None:
+            working_dir = pathlib.Path(working_dir)
 
         return cls(
             path=path,
@@ -788,7 +792,8 @@ class EKO:
             obj = cls.new(theory, operator, path)
             yield obj
         finally:
-            obj.write_tar()
+            if path is not None:
+                obj.write_tar()
             shutil.rmtree(obj.working_dir)
 
     @classmethod
@@ -810,17 +815,6 @@ class EKO:
         EKO
             the generated structure
         """
-        # check path
-        givenpath = path is not None
-        path = pathlib.Path(path if givenpath else tempfile.mkstemp(suffix=".tar")[1])
-        if path.exists():
-            if givenpath:
-                raise FileExistsError(
-                    f"File exists at given path '{path}', cannot be used for a new operator."
-                )
-            # delete the file created in case of temporary file
-            path.unlink()
-
         # init the empty working dir
         td = tempfile.mkdtemp()
         cls.bootstrap(td, theory=theory, operator=operator)
