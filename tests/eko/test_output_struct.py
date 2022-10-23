@@ -71,13 +71,6 @@ class TestOperator:
             np.testing.assert_allclose(opve.error, opve_.error)
             np.testing.assert_allclose(e, opve_.error)
 
-    def test_load_error(self, monkeypatch):
-        # We might consider dropping this exception since np.load will always return a array (or fail on it's own)
-        stream = io.BytesIO()
-        monkeypatch.setattr(np, "load", lambda _: None)
-        with pytest.raises(ValueError):
-            struct.Operator.load(stream, False)
-
 
 class TestRotations:
     def test_fallback(self):
@@ -133,23 +126,23 @@ class TestEKO:
         o = oc.generate([10.0])
         return compatibility.update(t, o)
 
-    # def test_new_error(self, tmp_path):
-    #     nt, no = self._default_cards()
-    #     # try to write to a file different from bla
-    #     no_tar_path = tmp_path / "Blub.bla"
-    #     with pytest.raises(ValueError):
-    #         struct.EKO.new(nt, no, no_tar_path)
-    #     # try to overwrite an existing file
-    #     exists_path = tmp_path / "Blub.tar"
-    #     exists_path.write_text("Blub", encoding="utf-8")
-    #     with pytest.raises(FileExistsError):
-    #         struct.EKO.new(nt, no, exists_path)
+    def test_new_error(self, tmp_path):
+        nt, no = self._default_cards()
+        # try to write to a file different from bla
+        no_tar_path = tmp_path / "Blub.bla"
+        with pytest.raises(struct.OutputNotTar):
+            struct.EKO.new(nt, no, no_tar_path)
+        # try to overwrite an existing file
+        exists_path = tmp_path / "Blub.tar"
+        exists_path.write_text("Blub", encoding="utf-8")
+        with pytest.raises(struct.OutputExistsError):
+            struct.EKO.new(nt, no, exists_path)
 
     def test_load_error(self, tmp_path):
         # try to read from a non-tar path
         no_tar_path = tmp_path / "Blub.tar"
         no_tar_path.write_text("Blub", encoding="utf-8")
-        with pytest.raises(ValueError):
+        with pytest.raises(struct.OutputNotTar):
             struct.EKO.open_tar(no_tar_path)
 
     def test_properties(self):
@@ -215,24 +208,34 @@ class TestEKO:
             assert ekoo.interpolator(False, True).xgrid == interpolation.XGrid(txg)
             assert ekoo.interpolator(False, False).xgrid == interpolation.XGrid(ixg)
 
-    # def test_copy(self, tmp_path):
-    #     v = np.random.rand(2, 2)
-    #     opv = struct.Operator(operator=v)
-    #     eko1 = struct.EKO.new(*self._default_cards())
-    #     eko1[10.0] = opv
-    #     np.testing.assert_allclose(eko1[10.0].operator, v)
-    #     p = tmp_path / "eko2.tar"
-    #     eko2 = eko1.deepcopy(p)
-    #     np.testing.assert_allclose(eko1[10.0].operator, v)
-    #     np.testing.assert_allclose(eko2[10.0].operator, v)
-    #     vv = np.random.rand(2, 2)
-    #     opvv = struct.Operator(operator=vv)
-    #     eko2[10.0] = opvv
-    #     np.testing.assert_allclose(eko1[10.0].operator, v)
-    #     np.testing.assert_allclose(eko2[10.0].operator, vv)
-    #     # try loading again
-    #     eko2_ = struct.EKO.load(p)
-    #     assert eko2.raw == eko2_.raw
+    def test_create(self, tmp_path):
+        p = tmp_path / "eko.tar"
+        with struct.EKO.create(*self._default_cards(), p) as _ekoo:
+            pass
+        assert p.exists()
+
+    def test_copy(self, tmp_path):
+        v = np.random.rand(2, 2)
+        vv = np.random.rand(2, 2)
+        opv = struct.Operator(operator=v)
+        p = tmp_path / "eko2.tar"
+        with struct.EKO.create(*self._default_cards()) as eko1:
+            eko1[10.0] = opv
+            np.testing.assert_allclose(eko1[10.0].operator, v)
+            eko1.deepcopy(p)
+            assert p.exists()
+            with struct.EKO.open(p) as eko2:
+                np.testing.assert_allclose(eko1[10.0].operator, v)
+                np.testing.assert_allclose(eko2[10.0].operator, v)
+                opvv = struct.Operator(operator=vv)
+                eko2[10.0] = opvv
+                np.testing.assert_allclose(eko1[10.0].operator, v)
+                np.testing.assert_allclose(eko2[10.0].operator, vv)
+            # even after eko2 has be closed, eko1 has to remain the same
+            np.testing.assert_allclose(eko1[10.0].operator, v)
+        # even after eko1 has be closed, eko2 has to remain the same
+        with struct.EKO.open(p) as eko2:
+            np.testing.assert_allclose(eko2[10.0].operator, vv)
 
 
 # class TestLegacy:

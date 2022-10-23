@@ -33,6 +33,18 @@ PARTSDIR = "parts"
 OPERATORSDIR = "operators"
 
 
+class OutputError(Exception):
+    """Generic Output Error."""
+
+
+class OutputExistsError(FileExistsError, OutputError):
+    """Output file already exists."""
+
+
+class OutputNotTar(ValueError, OutputError):
+    """Specified file is not a .tar archive."""
+
+
 class DictLike:
     """Dictionary compatibility base class, for dataclasses.
 
@@ -41,7 +53,6 @@ class DictLike:
 
     Some collections and scalar objects are normalized to native Python
     structures, in order to simplify the on-disk representation.
-
     """
 
     def __init__(self, **kwargs):
@@ -60,7 +71,6 @@ class DictLike:
         -------
         DictLike
             instance with `dictionary` content loaded as attributes
-
         """
         return cls(**dictionary)
 
@@ -79,7 +89,6 @@ class DictLike:
         -------
         dict
             dictionary representation
-
         """
         dictionary = {}
         for field in fields(self):
@@ -112,7 +121,6 @@ class Operator(DictLike):
     ----
     IO works with streams in memory, in order to avoid intermediate write on
     disk (keep read from and write to tar file only).
-
     """
 
     operator: npt.NDArray
@@ -127,10 +135,10 @@ class Operator(DictLike):
 
         Parameters
         ----------
-        stream: BinaryIO
+        stream : BinaryIO
             a stream where to save the operator content (in order to be able to
             perform the operation both on disk and in memory)
-        compress: bool
+        compress : bool
             flag to control optional compression (default: `True`)
 
         Returns
@@ -138,7 +146,6 @@ class Operator(DictLike):
         bool
             whether the operator saved contained or not the error (this control
             even the format, ``npz`` with errors, ``npy`` otherwise)
-
         """
         if self.error is None:
             np.save(stream, self.operator)
@@ -165,17 +172,16 @@ class Operator(DictLike):
 
         Parameters
         ----------
-        stream: BinaryIO
+        stream : BinaryIO
             a stream to load the operator from (to support the operation both on
             disk and in memory)
-        compressed: bool
+        compressed : bool
             declare whether the stream is or is not compressed (default: `True`)
 
         Returns
         -------
         Operator
             the loaded instance
-
         """
         if compressed:
             stream = io.BytesIO(lz4.frame.decompress(stream.read()))
@@ -187,10 +193,6 @@ class Operator(DictLike):
         elif isinstance(content, npyio.NpzFile):
             op = content["operator"]
             err = content["error"]
-        else:
-            raise ValueError(
-                "Not possible to load operator, content format not recognized"
-            )
 
         return cls(operator=op, error=err)
 
@@ -236,7 +238,6 @@ class Rotations(DictLike):
     with suffix `grid`).
     Rotations in :math:`x`-space correspond to reinterpolate the result on a
     different basis of polynomials.
-
     """
 
     xgrid: interpolation.XGrid
@@ -318,7 +319,6 @@ class EKO:
 
     The computation can be stopped at any time, without the loss of any of the
     intermediate results.
-
     """
 
     # operators cache, contains the Q2 grid information
@@ -364,7 +364,7 @@ class EKO:
     def __post_init__(self):
         """Validate class members."""
         if self.path is not None and self.path.suffix != ".tar":
-            raise ValueError("Not a valid path for an EKO")
+            raise OutputNotTar
 
     @staticmethod
     def opname(q2: float) -> str:
@@ -386,7 +386,6 @@ class EKO:
         -------
         Operator
             the retrieved operator
-
         """
         if q2 in self._operators:
             op = self._operators[q2]
@@ -418,7 +417,6 @@ class EKO:
             the retrieved operator
         compress: bool
             whether to save the operator compressed or not (default: `True`)
-
         """
         if not isinstance(op, Operator):
             raise ValueError("Only an Operator can be added to an EKO")
@@ -568,37 +566,17 @@ class EKO:
         for q2 in self:
             del self[q2]
 
-    # def deepcopy(self, path: os.PathLike):
-    #     """Create a deep copy of current instance.
+    def deepcopy(self, path: os.PathLike):
+        """Create a deep copy of current instance.
 
-    #     The managed on-disk object is copied as well, to the new ``path``
-    #     location.
-    #     If you don't want to copy the disk, consider using directly::
-
-    #         copy.deepcopy(myeko)
-
-    #     It will perform the exact same operation, without propagating it to the
-    #     disk counterpart.
-
-    #     Parameters
-    #     ----------
-    #     path: os.PathLike
-    #         path were to copy the disk counterpart of the operator object
-
-    #     Returns
-    #     -------
-    #     EKO
-    #         the copy created
-    #     """
-    #     # return the object fully on disk, in order to avoid expensive copies in
-    #     # memory (they would be copied on-disk in any case)
-    #     self.unload()
-
-    #     new = copy.deepcopy(self)
-    #     new.path = pathlib.Path(path)
-    #     shutil.copy2(self.path, new.path)
-
-    #     return new
+        Parameters
+        ----------
+        path: os.PathLike
+            path were to copy the disk counterpart of the operator object
+        """
+        # create a new and copy working dir inside
+        with EKO.create(self.theory_card, self.operator_card, path) as new:
+            shutil.copytree(self.working_dir, new.working_dir, dirs_exist_ok=True)
 
     @staticmethod
     def bootstrap(dirpath: os.PathLike, theory: dict, operator: dict):
@@ -631,7 +609,7 @@ class EKO:
             EKO file name
         """
         if not tarfile.is_tarfile(path):
-            raise ValueError("The corresponding file is not a valid tar archive")
+            raise OutputNotTar
         path = pathlib.Path(path)
 
         # dump to temporary directory
@@ -650,6 +628,7 @@ class EKO:
     def write_tar(self):
         """Write the operator back to disk."""
         shutil.make_archive(self.path.stem, "tar", self.working_dir)
+        shutil.move(self.path.name, self.path)
 
     @classmethod
     @contextlib.contextmanager
@@ -665,6 +644,8 @@ class EKO:
         try:
             obj = cls.open_tar(path)
             yield obj
+        except OutputError as e:
+            raise e
         finally:
             obj.write_tar()
             shutil.rmtree(obj.working_dir)
@@ -791,6 +772,8 @@ class EKO:
         try:
             obj = cls.new(theory, operator, path)
             yield obj
+        except OutputError as e:
+            raise e
         finally:
             if path is not None:
                 obj.write_tar()
@@ -815,6 +798,10 @@ class EKO:
         EKO
             the generated structure
         """
+        if path is not None:
+            path = pathlib.Path(path)
+            if path.exists():
+                raise OutputExistsError
         # init the empty working dir
         td = tempfile.mkdtemp()
         cls.bootstrap(td, theory=theory, operator=operator)
