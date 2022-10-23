@@ -8,8 +8,9 @@ from contextlib import contextmanager
 import numpy as np
 import pytest
 
-from eko import output
-from eko.output import legacy
+from eko import compatibility, output
+from ekobox import operators_card as oc
+from ekobox import theory_card as tc
 
 
 @pytest.fixture
@@ -38,6 +39,13 @@ class FakePDF:
 @pytest.fixture
 def fake_pdf():
     return FakePDF()
+
+
+@pytest.fixture
+def default_cards():
+    t = tc.generate(0, 1.0)
+    o = oc.generate([10.0])
+    return compatibility.update(t, o)
 
 
 class FakeOutput:

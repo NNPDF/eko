@@ -7,10 +7,8 @@ import numpy.typing as npt
 import pytest
 import yaml
 
-from eko import compatibility, interpolation, output
+from eko import compatibility, interpolation
 from eko.output import struct
-from ekobox import operators_card as oc
-from ekobox import theory_card as tc
 
 
 @dataclass
@@ -121,13 +119,8 @@ class TestRotations:
 
 
 class TestEKO:
-    def _default_cards(self):
-        t = tc.generate(0, 1.0)
-        o = oc.generate([10.0])
-        return compatibility.update(t, o)
-
-    def test_new_error(self, tmp_path):
-        nt, no = self._default_cards()
+    def test_new_error(self, tmp_path, default_cards):
+        nt, no = default_cards
         # try to write to a file different from bla
         no_tar_path = tmp_path / "Blub.bla"
         with pytest.raises(struct.OutputNotTar):
@@ -145,8 +138,8 @@ class TestEKO:
         with pytest.raises(struct.OutputNotTar):
             struct.EKO.open_tar(no_tar_path)
 
-    def test_properties(self):
-        with struct.EKO.create(*self._default_cards()) as ekoo:
+    def test_properties(sel, default_cards):
+        with struct.EKO.create(*default_cards) as ekoo:
             assert "mc" in ekoo.theory_card
             assert "debug" in ekoo.operator_card
             np.testing.assert_allclose(ekoo.Q2grid, np.array([10.0]))
@@ -166,10 +159,10 @@ class TestEKO:
             # raw_eko = yaml.safe_load(stream)
             # assert "debug" in raw_eko
 
-    def test_ops(self):
+    def test_ops(self, default_cards):
         v = np.random.rand(2, 2)
         opv = struct.Operator(operator=v)
-        with struct.EKO.create(*self._default_cards()) as ekoo:
+        with struct.EKO.create(*default_cards) as ekoo:
             # try setting not an operator
             with pytest.raises(ValueError):
                 ekoo[10.0] = "bla"
@@ -198,8 +191,8 @@ class TestEKO:
             ekoo[11.0] = opvv
             np.testing.assert_allclose(vv, ekoo[11.0].operator)
 
-    def test_interpolator(self):
-        nt, no = self._default_cards()
+    def test_interpolator(self, default_cards):
+        nt, no = default_cards
         txg = np.geomspace(0.1, 1.0, 5)
         ixg = np.geomspace(0.01, 1.0, 5)
         no["rotations"]["targetgrid"] = txg
@@ -208,18 +201,18 @@ class TestEKO:
             assert ekoo.interpolator(False, True).xgrid == interpolation.XGrid(txg)
             assert ekoo.interpolator(False, False).xgrid == interpolation.XGrid(ixg)
 
-    def test_create(self, tmp_path):
+    def test_create(self, tmp_path, default_cards):
         p = tmp_path / "eko.tar"
-        with struct.EKO.create(*self._default_cards(), p) as _ekoo:
+        with struct.EKO.create(*default_cards, p) as _ekoo:
             pass
         assert p.exists()
 
-    def test_copy(self, tmp_path):
+    def test_copy(self, tmp_path, default_cards):
         v = np.random.rand(2, 2)
         vv = np.random.rand(2, 2)
         opv = struct.Operator(operator=v)
         p = tmp_path / "eko2.tar"
-        with struct.EKO.create(*self._default_cards()) as eko1:
+        with struct.EKO.create(*default_cards) as eko1:
             eko1[10.0] = opv
             np.testing.assert_allclose(eko1[10.0].operator, v)
             eko1.deepcopy(p)
