@@ -147,9 +147,6 @@ class TestManipulate:
                     assert op.operator.shape == (2, len(xgp), 2, len(xgp))
                     id_op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
                     np.testing.assert_allclose(op.operator, id_op[0], atol=1e-10)
-            # error
-            with pytest.raises(ValueError):
-                manipulate.xgrid_reshape(eko0, {})
 
     # def test_reshape_io(self, fake_output):
     #     # create object
@@ -230,9 +227,6 @@ class TestManipulate:
                     assert op.operator.shape == (2, len(xg), 2, len(xg))
                     id_op = eko_identity([1, 2, len(xg), 2, len(xg)])
                     np.testing.assert_allclose(op.operator, id_op[0], atol=1e-10)
-            # error
-            with pytest.raises(TypeError):
-                manipulate.flavor_reshape(eko0, {})
 
     def test_to_evol(self, tmp_path, default_cards):
         xg = np.array([0.5, 1.0]).tolist()
