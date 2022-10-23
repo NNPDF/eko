@@ -10,3 +10,5 @@ jobs:
     uses: N3PDF/workflows/.github/workflows/python-poetry-pypi.yml@v2
     secrets:
       PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+    with:
+      poetry-extras: "-E mark -E box"
