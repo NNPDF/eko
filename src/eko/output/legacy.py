@@ -294,7 +294,8 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
     eko = struct.EKO.new(theory={}, operator=metadata)
     for q2, op in operator_grid.items():
         # the layout of the operator is slifhtly different from the past one
-        op = dict(operator=op["operators"], error=op["operator_errors"])
+        if "operators" in op:
+            op = dict(operator=op["operators"], error=op["operator_errors"])
         eko[q2] = struct.Operator.from_dict(op)
 
     return eko
