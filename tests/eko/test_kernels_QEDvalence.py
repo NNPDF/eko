@@ -31,17 +31,17 @@ def test_zero(monkeypatch):
                 np.random.rand(qcd + 1, qed + 1, 2, 2)
                 + np.random.rand(qcd + 1, qed + 1, 2, 2) * 1j
             )
-            # monkeypatch.setattr(
-            #     ad,
-            #     "exp_matrix",
-            #     lambda gamma_S: (
-            #         gamma_S,
-            #         1,
-            #         1,
-            #         np.array([[1, 0], [0, 0]]),
-            #         np.array([[0, 0], [0, 1]]),
-            #     ),
-            # )
+            monkeypatch.setattr(
+                ad,
+                "exp_matrix_2D",
+                lambda gamma_v: (
+                    gamma_v,
+                    1,
+                    1,
+                    np.array([[1, 0], [0, 0]]),
+                    np.array([[0, 0], [0, 1]]),
+                ),
+            )
             for method in methods:
                 np.testing.assert_allclose(
                     val.dispatcher(
@@ -55,7 +55,7 @@ def test_zero(monkeypatch):
                         ev_op_iterations,
                         ev_op_max_order,
                     ),
-                    np.eye(2),
+                    np.zeros((2, 2)),
                 )
                 np.testing.assert_allclose(
                     val.dispatcher(
@@ -69,7 +69,7 @@ def test_zero(monkeypatch):
                         ev_op_iterations,
                         ev_op_max_order,
                     ),
-                    np.eye(2),
+                    np.zeros((2, 2)),
                 )
 
 
@@ -83,17 +83,17 @@ def test_zero_true_gamma(monkeypatch):
             order = (qcd, qed)
             n = np.random.rand()
             gamma_v = ad.gamma_valence_qed(order, n, nf)
-            # monkeypatch.setattr(
-            #     ad,
-            #     "exp_matrix",
-            #     lambda gamma_S: (
-            #         gamma_S,
-            #         1,
-            #         1,
-            #         np.array([[1, 0], [0, 0]]),
-            #         np.array([[0, 0], [0, 1]]),
-            #     ),
-            # )
+            monkeypatch.setattr(
+                ad,
+                "exp_matrix_2D",
+                lambda gamma_v: (
+                    gamma_v,
+                    1,
+                    1,
+                    np.array([[1, 0], [0, 0]]),
+                    np.array([[0, 0], [0, 1]]),
+                ),
+            )
             for method in methods:
                 np.testing.assert_allclose(
                     val.dispatcher(
@@ -107,7 +107,7 @@ def test_zero_true_gamma(monkeypatch):
                         ev_op_iterations,
                         ev_op_max_order,
                     ),
-                    np.eye(2),
+                    np.zeros((2, 2)),
                 )
                 np.testing.assert_allclose(
                     val.dispatcher(
@@ -121,7 +121,7 @@ def test_zero_true_gamma(monkeypatch):
                         ev_op_iterations,
                         ev_op_max_order,
                     ),
-                    np.eye(2),
+                    np.zeros((2, 2)),
                 )
 
 
