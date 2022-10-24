@@ -26,13 +26,13 @@ from . import aem1, aem2, as1, as1aem1, as2, as3, as4
 
 
 @nb.njit(cache=True)
-def exp_singlet(gamma_S):
+def exp_matrix_2D(gamma):
     r"""
     Compute the exponential and the eigensystem of the singlet anomalous dimension matrix.
 
     Parameters
     ----------
-        gamma_S : numpy.ndarray
+        gamma : numpy.ndarray
             singlet anomalous dimension matrix
 
     Returns
@@ -60,15 +60,15 @@ def exp_singlet(gamma_S):
     """
     # compute eigenvalues
     det = np.sqrt(
-        np.power(gamma_S[0, 0] - gamma_S[1, 1], 2) + 4.0 * gamma_S[0, 1] * gamma_S[1, 0]
+        np.power(gamma[0, 0] - gamma[1, 1], 2) + 4.0 * gamma[0, 1] * gamma[1, 0]
     )
-    lambda_p = 1.0 / 2.0 * (gamma_S[0, 0] + gamma_S[1, 1] + det)
-    lambda_m = 1.0 / 2.0 * (gamma_S[0, 0] + gamma_S[1, 1] - det)
+    lambda_p = 1.0 / 2.0 * (gamma[0, 0] + gamma[1, 1] + det)
+    lambda_m = 1.0 / 2.0 * (gamma[0, 0] + gamma[1, 1] - det)
     # compute projectors
     identity = np.identity(2, np.complex_)
     c = 1.0 / det
-    e_p = +c * (gamma_S - lambda_m * identity)
-    e_m = -c * (gamma_S - lambda_p * identity)
+    e_p = +c * (gamma - lambda_m * identity)
+    e_m = -c * (gamma - lambda_p * identity)
     exp = e_m * np.exp(lambda_m) + e_p * np.exp(lambda_p)
     return exp, lambda_p, lambda_m, e_p, e_m
 

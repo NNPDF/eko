@@ -18,7 +18,7 @@ def test_eigensystem_gamma_singlet_0_values():
     n = 3
     s1 = harmonics.S1(n)
     gamma_S_0 = as1.gamma_singlet(3, s1, NF)
-    res = ad.exp_singlet(gamma_S_0)
+    res = ad.exp_matrix_2D(gamma_S_0)
     lambda_p = complex(12.273612971466964, 0)
     lambda_m = complex(5.015275917421917, 0)
     e_p = np.array(
@@ -40,7 +40,7 @@ def test_exp_matrix():
     n = 3
     s1 = harmonics.S1(n)
     gamma_S_0 = as1.gamma_singlet(3, s1, NF)
-    res = ad.exp_singlet(gamma_S_0)[0]
+    res = ad.exp_matrix_2D(gamma_S_0)[0]
     res2 = ad.exp_matrix(gamma_S_0)[0]
     assert_allclose(res, res2)
     gamma_S_0_qed = as1.gamma_QEDsinglet(3, s1, NF)
@@ -70,7 +70,7 @@ def test_eigensystem_gamma_singlet_projectors_EV():
             # ignore Runtime Warnings
             warnings.simplefilter("ignore", RuntimeWarning)
             for gamma_S in ad.gamma_singlet(o, N, nf):
-                _exp, l_p, l_m, e_p, e_m = ad.exp_singlet(gamma_S)
+                _exp, l_p, l_m, e_p, e_m = ad.exp_matrix_2D(gamma_S)
                 # projectors behave as P_a . P_b = delta_ab P_a
                 assert_allclose(np.dot(e_p, e_p), e_p)
                 assert_almost_equal(np.dot(e_p, e_m), np.zeros((2, 2)))

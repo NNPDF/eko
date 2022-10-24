@@ -54,7 +54,7 @@ def eko_iterate(gamma_valence, a1, a0, aem_list, nf, order, ev_op_iterations):
                 )
                 gamma += gamma_valence[i, j] * a_half**i * aem_list[step] ** j
         ln = gamma / betatot * delta_a
-        ek = np.ascontiguousarray(ad.exp_matrix(ln)[0])
+        ek = np.ascontiguousarray(ad.exp_matrix_2D(ln)[0])
         e = ek @ e
         al = ah
     return e

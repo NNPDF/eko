@@ -31,7 +31,7 @@ def lo_exact(gamma_singlet, a1, a0, nf):
     numpy.ndarray
         singlet leading order exact EKO
     """
-    return ad.exp_singlet(gamma_singlet[0] * ei.j00(a1, a0, nf))[0]
+    return ad.exp_matrix_2D(gamma_singlet[0] * ei.j00(a1, a0, nf))[0]
 
 
 @nb.njit(cache=True)
@@ -58,7 +58,7 @@ def nlo_decompose(gamma_singlet, j01, j11):
     numpy.ndarray
         singlet next-to-leading order decompose EKO
     """
-    return ad.exp_singlet(gamma_singlet[0] * j01 + gamma_singlet[1] * j11)[0]
+    return ad.exp_matrix_2D(gamma_singlet[0] * j01 + gamma_singlet[1] * j11)[0]
 
 
 @nb.njit(cache=True)
@@ -137,7 +137,7 @@ def nnlo_decompose(gamma_singlet, j02, j12, j22):
     numpy.ndarray
         singlet next-to-next-to-leading order decompose EKO
     """
-    return ad.exp_singlet(
+    return ad.exp_matrix_2D(
         gamma_singlet[0] * j02 + gamma_singlet[1] * j12 + gamma_singlet[2] * j22
     )[0]
 
@@ -226,7 +226,7 @@ def n3lo_decompose(gamma_singlet, j03, j13, j23, j33):
     numpy.ndarray
         singlet |N3LO| decompose EKO
     """
-    return ad.exp_singlet(
+    return ad.exp_matrix_2D(
         gamma_singlet[0] * j03
         + gamma_singlet[1] * j13
         + gamma_singlet[2] * j23
@@ -346,7 +346,7 @@ def eko_iterate(gamma_singlet, a1, a0, nf, order, ev_op_iterations):
             gamma_summed += gamma_singlet[i] * a_half**i
             beta_summed += beta_vec[i] * a_half ** (i + 1)
         ln = gamma_summed / beta_summed * delta_a
-        ek = np.ascontiguousarray(ad.exp_singlet(ln)[0])
+        ek = np.ascontiguousarray(ad.exp_matrix_2D(ln)[0])
         e = ek @ e
         al = ah
     return e
@@ -430,7 +430,7 @@ def u_vec(r, ev_op_max_order):
     u = np.zeros((ev_op_max_order[0], 2, 2), np.complex_)  # k = 0 .. max_order
     # init
     u[0] = np.identity(2, np.complex_)
-    _, r_p, r_m, e_p, e_m = ad.exp_singlet(r[0])
+    _, r_p, r_m, e_p, e_m = ad.exp_matrix_2D(r[0])
     e_p = np.ascontiguousarray(e_p)
     e_m = np.ascontiguousarray(e_m)
     for kk in range(1, ev_op_max_order[0]):

@@ -33,7 +33,7 @@ def test_zero(monkeypatch):
             )
             # monkeypatch.setattr(
             #     ad,
-            #     "exp_singlet",
+            #     "exp_matrix_2D",
             #     lambda gamma_S: (
             #         gamma_S,
             #         1,
@@ -87,7 +87,7 @@ def test_zero_true_gamma(monkeypatch):
             gamma_s = ad.gamma_singlet_qed(order, n, nf)
             # monkeypatch.setattr(
             #     ad,
-            #     "exp_singlet",
+            #     "exp_matrix_2D",
             #     lambda gamma_S: (
             #         gamma_S,
             #         1,
