@@ -91,6 +91,52 @@ def lm13m1(n, S1, S2, S3):
 
 
 @nb.njit(cache=True)
+def lm14m1(n, S1, S2, S3, S4):
+    r"""Mellin transform of :math:`(1-x)\ln^4(1-x)`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    S1 : complex
+        Harmonic sum :math:`S_{1}(N)`
+    S2 : complex
+        Harmonic sum :math:`S_{2}(N)`
+    S3 : complex
+        Harmonic sum :math:`S_{3}(N)`
+    S4 : complex
+        Harmonic sum :math:`S_{4}(N)`
+
+    Returns
+    -------
+    complex
+        :math:`\mathcal{M}[(1-x)\ln^4(1-x)](N)`
+
+    """
+    return (
+        -24 * n
+        - 4 * n * (1 + n) ** 3 * S1**3
+        + (1 + n) ** 4 * S1**4
+        - 12 * n * (1 + n) ** 2 * S2
+        + 3 * (1 + n) ** 4 * S2**2
+        + 6 * (1 + n) ** 2 * S1**2 * (-2 * n + (1 + n) ** 2 * S2)
+        - 8 * n * S3
+        - 24 * n**2 * S3
+        - 24 * n**3 * S3
+        - 8 * n**4 * S3
+        - 4
+        * (1 + n)
+        * S1
+        * (3 * n * (1 + n) ** 2 * S2 - 2 * (-3 * n + (1 + n) ** 3 * S3))
+        + 6 * S4
+        + 24 * n * S4
+        + 36 * n**2 * S4
+        + 24 * n**3 * S4
+        + 6 * n**4 * S4
+    ) / (n * (1 + n) ** 5)
+
+
+@nb.njit(cache=True)
 def lm11(n, S1):
     r"""Mellin transform of :math:`\ln(1-x)`.
 
@@ -108,6 +154,28 @@ def lm11(n, S1):
 
     """
     return -S1 / n
+
+
+@nb.njit(cache=True)
+def lm12(n, S1, S2):
+    r"""Mellin transform of :math:`\ln^2(1-x)`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    S1 : complex
+        Harmonic sum :math:`S_{1}(N)`
+    S2 : complex
+        Harmonic sum :math:`S_{2}(N)`
+
+    Returns
+    -------
+    complex
+        :math:`\mathcal{M}[\ln^2(1-x)](N)`
+
+    """
+    return (S1**2 + S2) / n
 
 
 @nb.njit(cache=True)

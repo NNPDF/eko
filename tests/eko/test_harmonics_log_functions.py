@@ -12,12 +12,13 @@ def test_lm1pm1():
 
     Ns = 100 * np.random.rand(3)
     for N in Ns:
-        sx = h.sx(N, 3)
+        sx = h.sx(N, 4)
 
         ref_values = {
             1: h.log_functions.lm11m1(N, sx[0]),
             2: h.log_functions.lm12m1(N, sx[0], sx[1]),
             3: h.log_functions.lm13m1(N, sx[0], sx[1], sx[2]),
+            4: h.log_functions.lm14m1(N, sx[0], sx[1], sx[2], sx[3]),
         }
 
         for k in [1, 2, 3]:
@@ -36,6 +37,7 @@ def test_lm1p():
 
         ref_values = {
             1: h.log_functions.lm11(N, sx[0]),
+            2: h.log_functions.lm12(N, sx[0], sx[1]),
             3: h.log_functions.lm13(N, sx[0], sx[1], sx[2]),
             4: h.log_functions.lm14(N, sx[0], sx[1], sx[2], sx[3]),
             5: h.log_functions.lm15(N, sx[0], sx[1], sx[2], sx[3], sx[4]),
