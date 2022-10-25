@@ -92,7 +92,7 @@ def gamma_ps_nf1(n, sx, variation):
     sx : list
         harmonic sums cache
     variation : str
-        |N3LO| anomalous dimension variation: "a" ,"b", "best"
+        |N3LO| anomalous dimension variation
 
     Returns
     -------
@@ -159,7 +159,7 @@ def gamma_ps_nf2(n, sx, variation):
     sx : list
         harmonic sums cache
     variation : str
-        |N3LO| anomalous dimension variation: "a" ,"b", "best"
+        |N3LO| anomalous dimension variation
 
     Returns
     -------
@@ -228,7 +228,7 @@ def gamma_ps(n, nf, sx, variation):
     sx : list
         harmonic sums cache
     variation : str
-        |N3LO| anomalous dimension variation: "a" ,"b", "best"
+        |N3LO| anomalous dimension variation
 
     Returns
     -------

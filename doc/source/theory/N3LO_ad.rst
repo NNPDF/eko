@@ -81,7 +81,8 @@ In |EKO| they are implemented as follows:
             This part contains the so called double logarithms:
 
             .. math ::
-                \ln^k(x), \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}, \quad k=1,..,6
+                \gamma_{ns} \approx \sum_{k=1}^{6} c^{(k)} \ln^k(x) \quad \text{with:}  \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}
+
 
             Note the expressions are evaluated with the exact values of the |QCD|
             Casimir invariants, to better agree with the :cite:`Moch:2017uml` parametrization.
@@ -193,22 +194,20 @@ Only the parts proportional to :math:`n_f^3` are known analytically
 :cite:`Davies:2016jie` and have been included so far.
 The other parts are approximated using some known limits:
 
-* The remaining contributions include the following constrains.
-
     *   The small-x limit, given in the large :math:`N_c` approximation by
         :cite:`Davies:2022ofz` (see Eq. 5.9, 5.10, 5.11, 5.12) and coming
         from small-x resummation of double-logarithms which fix the leading terms
         for the pole at :math:`N=0`:
 
             .. math ::
-                \ln^k(x), \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}, \quad k=4,5,6
+                \gamma_{ij} \approx c^{(6)}_{ij} \ln^6(x) + c^{(5)}_{ij} \ln^5(x) + c^{(4)}_{ij} \ln^5(x) + \dots \quad \text{with:}  \quad  \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}
 
     *   The small-x limit, coming from |BFKL| resummation
         :cite:`Bonvini:2018xvt` (see Eq. 2.32, 2.20b, 2.21a, 2.21b)
         which fix the leading terms (|LL|, |NLL|) for the pole at :math:`N=1`:
 
             .. math ::
-                \frac{\ln^k(x)}{x}, \quad \mathcal{M}[\frac{\ln^k(x)}{x}] = \frac{1}{(N-1)^{k+1}}, \quad k=4,5
+                \gamma_{ij} \approx d^{(3)}_{ij} \frac{\ln^3(x)}{x} + d^{(2)}_{ij} \frac{\ln^2(x)}{x} + \dots \quad \text{with:}  \quad  \mathcal{M}[\frac{\ln^k(x)}{x}] = \frac{1}{(N-1)^{k+1}}
 
         Note that in principle also the term :math:`\frac{\ln^6(x)}{x}` could be present at |N3LO|,
         but they are vanishing.
@@ -240,7 +239,12 @@ The other parts are approximated using some known limits:
 
         where also in this case the term :math:`k=6` vanish. The values of the coefficient for :math:`k=4,5`
         can be guessed from the lower order splitting functions. These logarithms are not present in the diagonal
-        splitting function, which can include at most term :math:`(1-x)\ln^4(1-x)`.
+        splitting function, which can include at most terms :math:`(1-x)\ln^4(1-x)`. While for :math:`\gamma_{gg}`
+        these contributions are beyond the accuracy of our implementation, they are relevant for :math:`\gamma_{qq,ps}`.
+        At large-x we have :cite:`Soar:2009yh`:
+
+            .. math ::
+                \gamma_{qq,ps} \approx (1-x)[c_{4} \ln^4(1-x) + c_{3} \ln^3(1-x)] + \mathcal{O}((1-x)\ln^2(1-x))
 
 
     *   The 4 lowest even N moments provided in :cite:`Moch:2021qrk`, where we can use momentum conservation
@@ -250,45 +254,70 @@ The other parts are approximated using some known limits:
                 & \gamma_{qg}(2) + \gamma_{gg}(2) = 0 \\
                 & \gamma_{qq}(2) + \gamma_{gq}(2) = 0 \\
 
-    *   Finally difference between the known moments and the known limits is parametrized
-        in Mellin space. The basis used in this approximation is different for each splitting
-        function as listed in the following tables.
+The difference between the known moments and the known limits is parametrized
+in Mellin space using different basis, in order to estimate the uncertainties of
+our determination.
 
 
-        .. list-table::  :math:`\gamma_{gg}^{(3)}` parametrization basis
-            :align: center
+Uncertainties estimation
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-            *   - :math:`\frac{1}{(N-1)^2}`
-                - :math:`\frac{1}{(N-1)}`
-                - :math:`1`
-                - :math:`\mathcal{M}[\ln(1-x)](N)`
+Since the available constrain on the singlet anomalous dimension are not sufficient
+to determine their behavior exactly, for instance the poles at :math:`N=1` and :math:`N=0` are not fully known,
+we need to account for a possible source of uncertainties
+(This uncertainty is neglected in the non-singlet case).
 
-        .. list-table::  :math:`\gamma_{gq}^{(3)}` parametrization basis
-            :align: center
+For each different anomalous dimension we solve the system associated to the 4 known
+moments, minus the known limits, using a different functional basis. Each candidate is independent form the others
+and one can take the spread of all the solutions as an estimate of the parametrization uncertainties.
+Note that when looking at the x-space results we must invert/perform the evolution with each solution
+and then compute the statical estimators on the final ensemble.
+The "best" result is always taken as the average on all the possible variations.
 
-            *   - :math:`\frac{1}{(N-1)^3}`
-                - :math:`\frac{1}{(N-1)^2}`
-                - :math:`\mathcal{M}[\ln^3(1-x)](N)`
-                - :math:`\mathcal{M}[(1-x)\ln^3(1-x)](N)`
+A selected functional basis contains 4 elements, obtained with the following prescription:
 
-        .. list-table::  :math:`\gamma_{qg}^{(3)}` parametrization basis
-            :align: center
+    1. one function is the leading large-N unknown contribution,
 
-            *   - :math:`\frac{1}{(N-1)^2}`
-                - :math:`\frac{1}{(N-1)}`
-                - :math:`\mathcal{M}[\ln^3(1-x)](N)`
-                - :math:`\mathcal{M}[(1-x)\ln^3(1-x)](N)`
+    2. one function is leading small-N unknown contribution, which correspond to the highest power unknown for the pole at :math:`N=1`,
 
-        .. list-table::  :math:`\gamma_{qq,ps}^{(3)}` parametrization basis
-            :align: center
+    3. one function is chosen between the leading sub-leading small-N or large-N unknown contribution
 
-            *   - :math:`\frac{1}{(N-1)^2} - \frac{1}{N^2}`
-                - :math:`\frac{1}{(N-1)} - \frac{1}{N}`
-                - :math:`\frac{S_1^3(N)}{N^2}`
-                - :math:`\frac{S_1^2(N)}{N^2}`
+    4. the remaining function is chosen from of a batch of functions describing sub-leading unknown terms both for the small-N and large-N limit (pairs containing the same function chosen at 3 are rejected)
 
-        Note that for :math:`\gamma_{qq,ps},\gamma_{qg}` the parts proportional
-        to :math:`n_f^0` are not present.
-        Furthermore for the part :math:`\propto n_f^2` in :math:`\gamma_{gq}^{(3)}`
-        we adopt a slightly different basis to account fot the fact that the leading
-        contribution for the pole at :math:`N=1` is :math:`\frac{1}{(N-1)^2}`.
+The following tables list all the considered input functions.
+
+    .. list-table::  :math:`\gamma_{gg}^{(3)}` parametrization basis
+        :align: center
+
+        *   - :math:`f_1(N)`
+            - :math:`\frac{1}{(N-1)^2}`
+        *   - :math:`f_2(N)`
+            - :math:`1`
+        *   - :math:`f_3(N)`
+            - :math:`\frac{1}{N-1},\ \frac{S_1(N)}{N}`
+        *   - :math:`f_4(N)`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N)}{N},\ \mathcal{M}[(1-x)\ln(1-x)],\ \frac{S_1(N)}{N^2}`
+
+
+    .. list-table::  :math:`\gamma_{qq,ps}^{(3)}` parametrization basis
+        :align: center
+
+        *   - :math:`f_1(N)`
+            - :math:`\frac{1}{(N-1)^2}`
+        *   - :math:`f_2(N)`
+            - :math:`\frac{S_1^2(N)}{N^2}`
+        *   - :math:`f_3(N)`
+            - :math:`\frac{1}{N^4},\ \frac{S_1(N)}{N^2}`
+        *   - :math:`f_4(N)`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N-1}-\frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N)}{N^2},\ \mathcal{M}[(1-x)\ln(1-x)],\ \mathcal{M}[(1-x)\ln^2(1-x)]`
+
+
+Note that for :math:`\gamma_{qq,ps},\gamma_{qg}` the parts proportional
+to :math:`n_f^0` are not present.
+Furthermore for the part :math:`\propto n_f^2` in :math:`\gamma_{gq}^{(3)}`
+we adopt a slightly different basis to account fot the fact that the leading
+contribution for the pole at :math:`N=1` is :math:`\frac{1}{(N-1)^2}`.
+
+Finally, by looking at the x-space line integral, we discard any possible outlier
+that can be generated by numerical cancellations. This way we can achieve
+a smoother result and improve the speed of the calculation.
