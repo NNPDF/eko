@@ -352,50 +352,47 @@ def gamma_singlet(N, nf, sx):
     vd = nd / nf
     e2avg = constants.e2avg(nf)
     e2m = constants.eu2 - constants.ed2
+    gamma_ph_u = gamma_phu(N, nf, sx)
+    gamma_ph_d = gamma_phd(N, nf, sx)
+    gamma_u_ph = gamma_uph(N, nf, sx)
+    gamma_d_ph = gamma_dph(N, nf, sx)
+    gamma_ns_p_u = gamma_nspu(N, nf, sx)
+    gamma_ns_p_d = gamma_nspd(N, nf, sx)
+    gamma_pure_singlet = gamma_ps(N, nf)
     gamma_S_02 = np.array(
         [
             [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
             [
                 0.0 + 0.0j,
                 gamma_phph(N, nf),
-                vu * constants.eu2 * gamma_phu(N, nf, sx)
-                + vd * constants.ed2 * gamma_phd(N, nf, sx),
+                vu * constants.eu2 * gamma_ph_u + vd * constants.ed2 * gamma_ph_d,
+                vu * (constants.eu2 * gamma_ph_u - constants.ed2 * gamma_ph_d),
+            ],
+            [
+                0.0 + 0.0j,
+                vu * constants.eu2 * gamma_u_ph + vd * constants.ed2 * gamma_d_ph,
+                vu * constants.eu2 * gamma_ns_p_u
+                + vd * constants.ed2 * gamma_ns_p_d
+                + e2avg**2 * gamma_pure_singlet,
                 vu
                 * (
-                    constants.eu2 * gamma_phu(N, nf, sx)
-                    - constants.ed2 * gamma_phd(N, nf, sx)
+                    constants.eu2 * gamma_ns_p_u
+                    - constants.ed2 * gamma_ns_p_d
+                    + e2m * e2avg * gamma_pure_singlet
                 ),
             ],
             [
                 0.0 + 0.0j,
-                vu * constants.eu2 * gamma_uph(N, nf, sx)
-                + vd * constants.ed2 * gamma_dph(N, nf, sx),
-                vu * constants.eu2 * gamma_nspu(N, nf, sx)
-                + vd * constants.ed2 * gamma_nspd(N, nf, sx)
-                + e2avg**2 * gamma_ps(N, nf),
-                vu
-                * (
-                    constants.eu2 * gamma_nspu(N, nf, sx)
-                    - constants.ed2 * gamma_nspd(N, nf, sx)
-                    + e2m * e2avg * gamma_ps(N, nf)
-                ),
-            ],
-            [
-                0.0 + 0.0j,
+                vd * (constants.eu2 * gamma_u_ph - constants.ed2 * gamma_d_ph),
                 vd
                 * (
-                    constants.eu2 * gamma_uph(N, nf, sx)
-                    - constants.ed2 * gamma_dph(N, nf, sx)
+                    constants.eu2 * gamma_ns_p_u
+                    - constants.ed2 * gamma_ns_p_d
+                    + e2m * e2avg * gamma_pure_singlet
                 ),
-                vd
-                * (
-                    constants.eu2 * gamma_nspu(N, nf, sx)
-                    - constants.ed2 * gamma_nspd(N, nf, sx)
-                    + e2m * e2avg * gamma_ps(N, nf)
-                ),
-                vd * constants.eu2 * gamma_nspu(N, nf, sx)
-                + vu * constants.ed2 * gamma_nspd(N, nf, sx)
-                + vu * vd * e2m**2 * gamma_ps(N, nf),
+                vd * constants.eu2 * gamma_ns_p_u
+                + vu * constants.ed2 * gamma_ns_p_d
+                + vu * vd * e2m**2 * gamma_pure_singlet,
             ],
         ],
         np.complex_,
@@ -425,25 +422,17 @@ def gamma_valence(N, nf, sx):
     nd = nf - nu
     vu = nu / nf
     vd = nd / nf
+    gamma_ns_m_u = gamma_nsmu(N, nf, sx)
+    gamma_ns_m_d = gamma_nsmd(N, nf, sx)
     gamma_V_02 = np.array(
         [
             [
-                vu * constants.eu2 * gamma_nsmu(N, nf, sx)
-                + vd * constants.ed2 * gamma_nsmd(N, nf, sx),
-                vu
-                * (
-                    constants.eu2 * gamma_nsmu(N, nf, sx)
-                    - constants.ed2 * gamma_nsmd(N, nf, sx)
-                ),
+                vu * constants.eu2 * gamma_ns_m_u + vd * constants.ed2 * gamma_ns_m_d,
+                vu * (constants.eu2 * gamma_ns_m_u - constants.ed2 * gamma_ns_m_d),
             ],
             [
-                vd
-                * (
-                    constants.eu2 * gamma_nsmu(N, nf, sx)
-                    - constants.ed2 * gamma_nsmd(N, nf, sx)
-                ),
-                vd * constants.eu2 * gamma_nsmu(N, nf, sx)
-                + vu * constants.ed2 * gamma_nsmd(N, nf, sx),
+                vd * (constants.eu2 * gamma_ns_m_u - constants.ed2 * gamma_ns_m_d),
+                vd * constants.eu2 * gamma_ns_m_u + vu * constants.ed2 * gamma_ns_m_d,
             ],
         ],
         np.complex_,

@@ -397,31 +397,36 @@ def gamma_singlet(N, nf, sx):
     e2_tot = nf * e2avg
     vue2m = constants.vue2m(nf)
     vde2m = constants.vde2m(nf)
+    gamma_g_q = gamma_gq(N, sx)
+    gamma_ph_q = gamma_phq(N, sx)
+    gamma_q_g = gamma_qg(N, nf, sx)
+    gamma_q_ph = gamma_qph(N, nf, sx)
+    gamma_ns_p = gamma_nsp(N, sx)
     gamma_S_11 = np.array(
         [
             [
                 e2_tot * gamma_gg(),
                 e2_tot * gamma_gph(N),
-                e2avg * gamma_gq(N, sx),
-                vue2m * gamma_gq(N, sx),
+                e2avg * gamma_g_q,
+                vue2m * gamma_g_q,
             ],
             [
                 e2_tot * gamma_phg(N),
                 gamma_phph(nf),
-                e2avg * gamma_phq(N, sx),
-                vue2m * gamma_phq(N, sx),
+                e2avg * gamma_ph_q,
+                vue2m * gamma_ph_q,
             ],
             [
-                e2avg * gamma_qg(N, nf, sx),
-                e2avg * gamma_qph(N, nf, sx),
-                e2avg * gamma_nsp(N, sx),
-                vue2m * gamma_nsp(N, sx),
+                e2avg * gamma_q_g,
+                e2avg * gamma_q_ph,
+                e2avg * gamma_ns_p,
+                vue2m * gamma_ns_p,
             ],
             [
-                vde2m * gamma_qg(N, nf, sx),
-                vde2m * gamma_qph(N, nf, sx),
-                vde2m * gamma_nsp(N, sx),
-                e2delta * gamma_nsp(N, sx),
+                vde2m * gamma_q_g,
+                vde2m * gamma_q_ph,
+                vde2m * gamma_ns_p,
+                e2delta * gamma_ns_p,
             ],
         ],
         np.complex_,
