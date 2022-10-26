@@ -421,6 +421,8 @@ class Operator(sv.ModeMixin):
         self.is_threshold = is_threshold
         self.op_members = {}
         self.order = tuple(config["order"])
+        self.alphaem_running = self.managers["couplings"].alphaem_running
+        self.aem_list_as = self.compute_aem_list_as()
 
     @property
     def n_pools(self):
@@ -485,13 +487,7 @@ class Operator(sv.ModeMixin):
         """Return the computed values for :math:`a_{em}`."""
         return (self.a[0][1], self.a[1][1])
 
-    @property
-    def alphaem_running(self):
-        """Return the value of alphaem_running"""
-        return self.managers["couplings"].alphaem_running
-
-    @property
-    def aem_list_as(self):
+    def compute_aem_list_as(self):
         """Return the list of the couplings for the different values of :math:`a_s`."""
         if self.order[1] == 0:
             return np.array([])
