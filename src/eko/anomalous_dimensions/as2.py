@@ -308,13 +308,14 @@ def gamma_QEDsinglet(N, nf, sx):
     gamma_gq : :math:`\gamma_{gq}^{(0)}`
     gamma_gg : :math:`\gamma_{gg}^{(0)}`
     """
-    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf)
+    gamma_ns_p = gamma_nsp(N, nf, sx)
+    gamma_qq = gamma_ns_p + gamma_ps(N, nf)
     gamma_S = np.array(
         [
             [gamma_gg(N, nf, sx), 0.0 + 0.0j, gamma_gq(N, nf, sx), 0.0 + 0.0j],
             [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
             [gamma_qg(N, nf, sx), 0.0 + 0.0j, gamma_qq, 0.0 + 0.0j],
-            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, gamma_nsp(N, nf, sx)],
+            [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, gamma_ns_p],
         ],
         np.complex_,
     )
