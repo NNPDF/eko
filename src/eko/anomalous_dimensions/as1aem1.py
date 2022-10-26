@@ -341,7 +341,6 @@ def gamma_nsm(N, sx):
     g3N = harmonics.g_functions.mellin_g3(N, S1)
     S1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
     g3Np2 = harmonics.g_functions.mellin_g3(N + 2.0, S1p2)
-
     result = (
         -32.0 * zeta2 * S1h
         - 8.0 / (N + N**2) * S2h

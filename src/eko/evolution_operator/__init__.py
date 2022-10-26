@@ -422,7 +422,9 @@ class Operator(sv.ModeMixin):
         self.op_members = {}
         self.order = tuple(config["order"])
         self.alphaem_running = self.managers["couplings"].alphaem_running
-        self.aem_list_as = self.compute_aem_list_as()
+        if self.log_label == "Evolution":
+            self.a = self.compute_a()
+            self.aem_list_as = self.compute_aem_list_as()
 
     @property
     def n_pools(self):
@@ -465,8 +467,7 @@ class Operator(sv.ModeMixin):
             return q2 / self.fact_to_ren
         return q2
 
-    @property
-    def a(self):
+    def compute_a(self):
         """Return the computed values for :math:`a_s` and :math:`a_{em}`."""
         coupling = self.managers["couplings"]
         a0 = coupling.a(
