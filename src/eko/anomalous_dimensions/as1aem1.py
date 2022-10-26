@@ -393,10 +393,10 @@ def gamma_singlet(N, nf, sx):
             O(as1aem1) singlet anomalous dimension :math:`\\gamma_{S}^{(1,1)}(N,nf,sx)`
     """
     e2avg = constants.e2avg(nf)
-    e2delta = constants.vde2m(nf) - constants.vue2m(nf) + constants.e2avg(nf)
-    e2_tot = nf * e2avg
     vue2m = constants.vue2m(nf)
     vde2m = constants.vde2m(nf)
+    e2delta = vde2m - vue2m + e2avg
+    e2_tot = nf * e2avg
     gamma_g_q = gamma_gq(N, sx)
     gamma_ph_q = gamma_phq(N, sx)
     gamma_q_g = gamma_qg(N, nf, sx)
