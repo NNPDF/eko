@@ -322,14 +322,30 @@ operators_card = {
 
 class TestOperator:
     def test_labels(self):
+        tcard = copy.deepcopy(theory_card)
+        ocard = copy.deepcopy(operators_card)
+        g = OperatorGrid.from_dict(
+            tcard,
+            ocard,
+            ThresholdsAtlas.from_dict(tcard),
+            Couplings.from_dict(tcard),
+            InterpolatorDispatcher(
+                XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
+        )
         o = Operator(
             dict(
                 order=(3, 0),
                 debug_skip_non_singlet=False,
                 debug_skip_singlet=False,
                 n_integration_cores=1,
+                ModSV=None,
             ),
-            {},
+            g.managers,
             3,
             1,
             2,
@@ -341,8 +357,9 @@ class TestOperator:
                 debug_skip_non_singlet=True,
                 debug_skip_singlet=True,
                 n_integration_cores=1,
+                ModSV=None,
             ),
-            {},
+            g.managers,
             3,
             1,
             2,
@@ -350,14 +367,31 @@ class TestOperator:
         assert sorted(o.labels) == []
 
     def test_labels_qed(self):
+        tcard = copy.deepcopy(theory_card)
+        ocard = copy.deepcopy(operators_card)
+        g = OperatorGrid.from_dict(
+            tcard,
+            ocard,
+            ThresholdsAtlas.from_dict(tcard),
+            Couplings.from_dict(tcard),
+            InterpolatorDispatcher(
+                XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
+        )
         o = Operator(
             dict(
                 order=(3, 1),
                 debug_skip_non_singlet=False,
                 debug_skip_singlet=False,
                 n_integration_cores=1,
+                ModSV=None,
+                ev_op_iterations=1,
             ),
-            {},
+            g.managers,
             3,
             1,
             2,
@@ -369,8 +403,10 @@ class TestOperator:
                 debug_skip_non_singlet=True,
                 debug_skip_singlet=True,
                 n_integration_cores=1,
+                ModSV=None,
+                ev_op_iterations=1,
             ),
-            {},
+            g.managers,
             3,
             1,
             2,
@@ -382,14 +418,30 @@ class TestOperator:
         # make sure we actually have more the those cores (e.g. on github we don't)
         if os.cpu_count() <= excluded_cores:
             return
+        tcard = copy.deepcopy(theory_card)
+        ocard = copy.deepcopy(operators_card)
+        g = OperatorGrid.from_dict(
+            tcard,
+            ocard,
+            ThresholdsAtlas.from_dict(tcard),
+            Couplings.from_dict(tcard),
+            InterpolatorDispatcher(
+                XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
+        )
         o = Operator(
             dict(
                 order=(2, 0),
                 debug_skip_non_singlet=True,
                 debug_skip_singlet=True,
                 n_integration_cores=-excluded_cores,
+                ModSV=None,
             ),
-            {},
+            g.managers,
             3,
             1,
             10,
