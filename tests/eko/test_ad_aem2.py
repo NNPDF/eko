@@ -11,9 +11,14 @@ def test_number_conservation():
     # number
     N = complex(1.0, 0.0)
     sx = h.sx(N, 3)
+    sx_ns_qed = h.compute_qed_ns_cache(N, sx[0])
     for NF in range(2, 6 + 1):
-        np.testing.assert_almost_equal(ad.aem2.gamma_nsmu(N, NF, sx), 0, decimal=4)
-        np.testing.assert_almost_equal(ad.aem2.gamma_nsmd(N, NF, sx), 0, decimal=4)
+        np.testing.assert_almost_equal(
+            ad.aem2.gamma_nsmu(N, NF, sx, sx_ns_qed), 0, decimal=4
+        )
+        np.testing.assert_almost_equal(
+            ad.aem2.gamma_nsmd(N, NF, sx, sx_ns_qed), 0, decimal=4
+        )
 
 
 def test_photon_momentum_conservation():
@@ -35,11 +40,12 @@ def test_quark_momentum_conservation():
     # quark momentum
     N = complex(2.0, 0.0)
     sx = h.sx(N, 3)
+    sx_ns_qed = h.compute_qed_ns_cache(N, sx[0])
     NF = 6
     NU = constants.uplike_flavors(NF)
     ND = NF - NU
     np.testing.assert_almost_equal(
-        ad.aem2.gamma_nspu(N, NF, sx)
+        ad.aem2.gamma_nspu(N, NF, sx, sx_ns_qed)
         + constants.eu2 * ad.aem2.gamma_ps(N, NU)
         + constants.ed2 * ad.aem2.gamma_ps(N, ND)
         + ad.aem2.gamma_phu(N, NF, sx),
@@ -47,7 +53,7 @@ def test_quark_momentum_conservation():
         decimal=4,
     )
     np.testing.assert_almost_equal(
-        ad.aem2.gamma_nspd(N, NF, sx)
+        ad.aem2.gamma_nspd(N, NF, sx, sx_ns_qed)
         + constants.eu2 * ad.aem2.gamma_ps(N, NU)
         + constants.ed2 * ad.aem2.gamma_ps(N, ND)
         + ad.aem2.gamma_phd(N, NF, sx),

@@ -288,6 +288,8 @@ def gamma_ns_qed(order, mode, n, nf):
         sx = harmonics.sx(n, max_weight=max_weight + 1)
     else:
         sx = harmonics.sx(n, max_weight=3)
+    if order[1] >= 1:
+        sx_ns_qed = harmonics.compute_qed_ns_cache(n, sx[0])
     # now combine
     gamma_ns = np.zeros((order[0] + 1, order[1] + 1), np.complex_)
     if order[0] >= 1:
@@ -295,7 +297,7 @@ def gamma_ns_qed(order, mode, n, nf):
     if order[1] >= 1:
         gamma_ns[0, 1] = choose_ns_ad_aem1(mode, n, sx)
     if order[0] >= 1 and order[1] >= 1:
-        gamma_ns[1, 1] = choose_ns_ad_as1aem1(mode, n, sx)
+        gamma_ns[1, 1] = choose_ns_ad_as1aem1(mode, n, sx, sx_ns_qed)
     # NLO and beyond
     if order[0] >= 2:
         if mode in [10102, 10103]:
@@ -306,7 +308,7 @@ def gamma_ns_qed(order, mode, n, nf):
         else:
             raise NotImplementedError("Non-singlet sector is not implemented")
     if order[1] >= 2:
-        gamma_ns[0, 2] = choose_ns_ad_aem2(mode, n, nf, sx)
+        gamma_ns[0, 2] = choose_ns_ad_aem2(mode, n, nf, sx, sx_ns_qed)
     # NNLO and beyond
     if order[0] >= 3:
         if mode in [10102, 10103]:
@@ -344,7 +346,7 @@ def choose_ns_ad_aem1(mode, n, sx):
 
 
 @nb.njit(cache=True)
-def choose_ns_ad_as1aem1(mode, n, sx):
+def choose_ns_ad_as1aem1(mode, n, sx, sx_ns_qed):
     r"""
     Select the non-singlet anomalous dimension at O(as1aem1) with the correct charge factor.
 
@@ -363,17 +365,17 @@ def choose_ns_ad_as1aem1(mode, n, sx):
             non-singlet anomalous dimensions
     """
     if mode == 10102:
-        return constants.eu2 * as1aem1.gamma_nsp(n, sx)
+        return constants.eu2 * as1aem1.gamma_nsp(n, sx, sx_ns_qed)
     elif mode == 10103:
-        return constants.ed2 * as1aem1.gamma_nsp(n, sx)
+        return constants.ed2 * as1aem1.gamma_nsp(n, sx, sx_ns_qed)
     elif mode == 10202:
-        return constants.eu2 * as1aem1.gamma_nsm(n, sx)
+        return constants.eu2 * as1aem1.gamma_nsm(n, sx, sx_ns_qed)
     elif mode == 10203:
-        return constants.ed2 * as1aem1.gamma_nsm(n, sx)
+        return constants.ed2 * as1aem1.gamma_nsm(n, sx, sx_ns_qed)
 
 
 @nb.njit(cache=True)
-def choose_ns_ad_aem2(mode, n, nf, sx):
+def choose_ns_ad_aem2(mode, n, nf, sx, sx_ns_qed):
     r"""
     Select the non-singlet anomalous dimension at O(aem2) with the correct charge factor.
 
@@ -392,13 +394,13 @@ def choose_ns_ad_aem2(mode, n, nf, sx):
             non-singlet anomalous dimensions
     """
     if mode == 10102:
-        return constants.eu2 * aem2.gamma_nspu(n, nf, sx)
+        return constants.eu2 * aem2.gamma_nspu(n, nf, sx, sx_ns_qed)
     elif mode == 10103:
-        return constants.ed2 * aem2.gamma_nspd(n, nf, sx)
+        return constants.ed2 * aem2.gamma_nspd(n, nf, sx, sx_ns_qed)
     elif mode == 10202:
-        return constants.eu2 * aem2.gamma_nsmu(n, nf, sx)
+        return constants.eu2 * aem2.gamma_nsmu(n, nf, sx, sx_ns_qed)
     elif mode == 10203:
-        return constants.ed2 * aem2.gamma_nsmd(n, nf, sx)
+        return constants.ed2 * aem2.gamma_nsmd(n, nf, sx, sx_ns_qed)
 
 
 @nb.njit(cache=True)
@@ -436,17 +438,19 @@ def gamma_singlet_qed(order, n, nf):
         sx = harmonics.sx(n, max_weight=max_weight + 1)
     else:
         sx = harmonics.sx(n, max_weight=3)
+    if order[1] >= 1:
+        sx_ns_qed = harmonics.compute_qed_ns_cache(n, sx[0])
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
     if order[0] >= 1:
         gamma_s[1, 0] = as1.gamma_QEDsinglet(n, sx[0], nf)
     if order[1] >= 1:
         gamma_s[0, 1] = aem1.gamma_singlet(n, nf, sx)
     if order[0] >= 1 and order[1] >= 1:
-        gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, sx)
+        gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, sx, sx_ns_qed)
     if order[0] >= 2:
         gamma_s[2, 0] = as2.gamma_QEDsinglet(n, nf, sx)
     if order[1] >= 2:
-        gamma_s[0, 2] = aem2.gamma_singlet(n, nf, sx)
+        gamma_s[0, 2] = aem2.gamma_singlet(n, nf, sx, sx_ns_qed)
     if order[0] >= 3:
         gamma_s[3, 0] = as3.gamma_QEDsinglet(n, nf, sx)
     return gamma_s
@@ -488,17 +492,19 @@ def gamma_valence_qed(order, n, nf):
         sx = harmonics.sx(n, max_weight=max_weight + 1)
     else:
         sx = harmonics.sx(n, max_weight=3)
+    if order[1] >= 1:
+        sx_ns_qed = harmonics.compute_qed_ns_cache(n, sx[0])
     gamma_v = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
     if order[0] >= 1:
         gamma_v[1, 0] = as1.gamma_QEDvalence(n, sx[0])
     if order[1] >= 1:
         gamma_v[0, 1] = aem1.gamma_valence(n, nf, sx)
     if order[0] >= 1 and order[1] >= 1:
-        gamma_v[1, 1] = as1aem1.gamma_valence(n, nf, sx)
+        gamma_v[1, 1] = as1aem1.gamma_valence(n, nf, sx, sx_ns_qed)
     if order[0] >= 2:
         gamma_v[2, 0] = as2.gamma_QEDvalence(n, nf, sx)
     if order[1] >= 2:
-        gamma_v[0, 2] = aem2.gamma_valence(n, nf, sx)
+        gamma_v[0, 2] = aem2.gamma_valence(n, nf, sx, sx_ns_qed)
     if order[0] >= 3:
         gamma_v[3, 0] = as3.gamma_QEDvalence(n, nf, sx)
     return gamma_v

@@ -242,7 +242,7 @@ def gamma_gg():
 
 
 @nb.njit(cache=True)
-def gamma_nsp(N, sx):
+def gamma_nsp(N, sx, sx_ns_qed):
     r"""Compute the O(as1aem1) singlet-like non-singlet anomalous dimension.
 
     Implements sum of Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
@@ -264,15 +264,14 @@ def gamma_nsp(N, sx):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1h = harmonics.S1(N / 2.0)
-    S2h = harmonics.S2(N / 2.0)
-    S3h = harmonics.S3(N / 2.0)
-    S1p1h = harmonics.S1((N + 1.0) / 2.0)
-    S2p1h = harmonics.S2((N + 1.0) / 2.0)
-    S3p1h = harmonics.S3((N + 1.0) / 2.0)
-    g3N = harmonics.g_functions.mellin_g3(N, S1)
-    S1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
-    g3Np2 = harmonics.g_functions.mellin_g3(N + 2.0, S1p2)
+    S1h = sx_ns_qed[0]
+    S2h = sx_ns_qed[1]
+    S3h = sx_ns_qed[2]
+    S1p1h = sx_ns_qed[3]
+    S2p1h = sx_ns_qed[4]
+    S3p1h = sx_ns_qed[5]
+    g3N = sx_ns_qed[6]
+    g3Np2 = sx_ns_qed[7]
     result = (
         +32.0 * zeta2 * S1h
         - 32.0 * zeta2 * S1p1h
@@ -310,7 +309,7 @@ def gamma_nsp(N, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsm(N, sx):
+def gamma_nsm(N, sx, sx_ns_qed):
     r"""Compute the O(as1aem1) valence-like non-singlet anomalous dimension.
 
     Implements difference between Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
@@ -332,15 +331,14 @@ def gamma_nsm(N, sx):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1h = harmonics.S1(N / 2.0)
-    S2h = harmonics.S2(N / 2.0)
-    S3h = harmonics.S3(N / 2.0)
-    S1p1h = harmonics.S1((N + 1.0) / 2.0)
-    S2p1h = harmonics.S2((N + 1.0) / 2.0)
-    S3p1h = harmonics.S3((N + 1.0) / 2.0)
-    g3N = harmonics.g_functions.mellin_g3(N, S1)
-    S1p2 = harmonics.polygamma.recursive_harmonic_sum(S1, N, 2, 1)
-    g3Np2 = harmonics.g_functions.mellin_g3(N + 2.0, S1p2)
+    S1h = sx_ns_qed[0]
+    S2h = sx_ns_qed[1]
+    S3h = sx_ns_qed[2]
+    S1p1h = sx_ns_qed[3]
+    S2p1h = sx_ns_qed[4]
+    S3p1h = sx_ns_qed[5]
+    g3N = sx_ns_qed[6]
+    g3Np2 = sx_ns_qed[7]
     result = (
         -32.0 * zeta2 * S1h
         - 8.0 / (N + N**2) * S2h
@@ -374,7 +372,7 @@ def gamma_nsm(N, sx):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf, sx):
+def gamma_singlet(N, nf, sx, sx_ns_qed):
     r"""Compute the O(as1aem1) singlet sector.
 
     Parameters
@@ -400,7 +398,7 @@ def gamma_singlet(N, nf, sx):
     gamma_ph_q = gamma_phq(N, sx)
     gamma_q_g = gamma_qg(N, nf, sx)
     gamma_q_ph = gamma_qph(N, nf, sx)
-    gamma_ns_p = gamma_nsp(N, sx)
+    gamma_ns_p = gamma_nsp(N, sx, sx_ns_qed)
     gamma_S_11 = np.array(
         [
             [
@@ -434,7 +432,7 @@ def gamma_singlet(N, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_valence(N, nf, sx):
+def gamma_valence(N, nf, sx, sx_ns_qed):
     r"""Compute the O(as1aem1) valence sector.
 
     Parameters
@@ -462,4 +460,4 @@ def gamma_valence(N, nf, sx):
         ],
         np.complex_,
     )
-    return gamma_V_11 * gamma_nsm(N, sx)
+    return gamma_V_11 * gamma_nsm(N, sx, sx_ns_qed)
