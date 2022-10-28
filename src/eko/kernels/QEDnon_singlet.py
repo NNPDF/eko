@@ -316,28 +316,48 @@ def running_alphaem_exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iteration
     # TODO : implement it with np.prod in a way that numba compiles it
     if order[1] == 1:
         if order[0] == 1:
-            for step, ah in enumerate(a_steps[1:]):
-                res *= lo_aem1_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+            for step in range(1, ev_op_iterations + 1):
+                res *= lo_aem1_exact(
+                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                )
             return res
         if order[0] == 2:
-            for step, ah in enumerate(a_steps[1:]):
-                res *= nlo_aem1_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+            for step in range(1, ev_op_iterations + 1):
+                res *= nlo_aem1_exact(
+                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                )
             return res
         if order[0] == 3:
-            for step, ah in enumerate(a_steps[1:]):
-                res *= nnlo_aem1_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
-            return res
+            for step in range(1, ev_op_iterations + 1):
+                res *= nnlo_aem1_exact(
+                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                )
     if order[1] == 2:
         if order[0] == 1:
-            for step, ah in enumerate(a_steps[1:]):
-                res *= lo_aem2_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+            for step in range(1, ev_op_iterations + 1):
+                res *= lo_aem2_exact(
+                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                )
             return res
         if order[0] == 2:
-            for step, ah in enumerate(a_steps[1:]):
-                res *= nlo_aem2_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+            for step in range(1, ev_op_iterations + 1):
+                res *= nlo_aem2_exact(
+                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                )
             return res
         if order[0] == 3:
-            for step, ah in enumerate(a_steps[1:]):
-                res *= nnlo_aem2_exact(gamma_ns, ah, a_steps[step], aem_list[step], nf)
+            for step in range(1, ev_op_iterations + 1):
+                res *= nnlo_aem2_exact(
+                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                )
+                # res = np.prod(
+                #   [
+                #       nnlo_aem2_exact(
+                #           gamma_ns, a_steps[i],
+                #           a_steps[i-1], aem_list[step],
+                #           nf
+                #       ) for i in range(1, 1 + ev_op_iterations)
+                #   ]
+                # )
             return res
     raise NotImplementedError("Selected order is not implemented")

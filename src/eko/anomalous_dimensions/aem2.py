@@ -254,12 +254,12 @@ def gamma_nsmu(N, nf, sx):
     eSigma2 = constants.NC * (nu * constants.eu2 + nd * constants.ed2)
     tmp = (
         2
-        * (-12 + 20 * N + 47 * N**2 + 6 * N**3 + 3 * N**4)
-        / (9.0 * N**2 * (1 + N) ** 2)
-        - 80 / 9 * S1
-        + 16 / 3 * S2
+        * (-12.0 + 20.0 * N + 47.0 * N**2 + 6.0 * N**3 + 3.0 * N**4)
+        / (9.0 * N**2 * (1.0 + N) ** 2)
+        - 80.0 / 9.0 * S1
+        + 16.0 / 3.0 * S2
     ) * eSigma2
-    return constants.eu2 * as1aem1.gamma_nsm(N, sx) / constants.CF / 2 + tmp
+    return constants.eu2 * as1aem1.gamma_nsm(N, sx) / constants.CF / 2.0 + tmp
 
 
 @nb.njit(cache=True)
