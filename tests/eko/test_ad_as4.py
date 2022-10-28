@@ -61,7 +61,7 @@ def test_momentum_conservation():
         ggg.gamma_gg_nf3(N, sx_cache) + gqg.gamma_qg_nf3(N, sx_cache), 0, atol=2e-7
     )
 
-    for variation in ["a", "b", "best"]:
+    for variation in [0]:
         # nf^2 part
         np.testing.assert_allclose(
             gnsp.gamma_nsp_nf2(N, sx_cache)

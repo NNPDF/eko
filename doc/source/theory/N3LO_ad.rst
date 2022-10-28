@@ -298,6 +298,29 @@ The following tables list all the considered input functions.
         *   - :math:`f_4(N)`
             - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N)}{N},\ \mathcal{M}[(1-x)\ln(1-x)],\ \frac{S_1(N)}{N^2}`
 
+    .. list-table::  :math:`\gamma_{gq}^{(3)}` parametrization basis
+        :align: center
+
+        *   - :math:`f_1(N)`
+            - :math:`\frac{S_3(N-2)}{N}`
+        *   - :math:`f_2(N)`
+            - :math:`\frac{S_1^3(N)}{N}`
+        *   - :math:`f_3(N)`
+            - :math:`\frac{S_2(N-2)}{N},\ \frac{1}{N^3}`
+        *   - :math:`f_4(N)`
+            - :math:`\frac{S_2(N-2)}{N},\ \frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N-2)}{N},\ \mathcal{M}[\ln^3(1-x)],\ \mathcal{M}[\ln^2(1-x)],\ \mathcal{M}[\ln(1-x)],\ \frac{S_1^2(N)}{N}`
+
+    .. list-table::  :math:`\gamma_{qg}^{(3)}` parametrization basis
+        :align: center
+
+        *   - :math:`f_1(N)`
+            - :math:`\frac{1}{(N-1)^2}`
+        *   - :math:`f_2(N)`
+            - :math:`\frac{S_1^3(N)}{N}`
+        *   - :math:`f_3(N)`
+            - :math:`\frac{1}{N-1},\ \mathcal{M}[\ln^3(1-x)]`
+        *   - :math:`f_4(N)`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1^2(N)}{N},\ \mathcal{M}[\ln(1-x)],\ \mathcal{M}[\ln^2(1-x)]`,\ \mathcal{M}[\ln^3(1-x)]
 
     .. list-table::  :math:`\gamma_{qq,ps}^{(3)}` parametrization basis
         :align: center
@@ -305,11 +328,11 @@ The following tables list all the considered input functions.
         *   - :math:`f_1(N)`
             - :math:`\frac{1}{(N-1)^2}`
         *   - :math:`f_2(N)`
-            - :math:`\frac{S_1^2(N)}{N^2}`
+            - :math:`\frac{S_1^3(N)}{N^2}`
         *   - :math:`f_3(N)`
             - :math:`\frac{1}{N^4},\ \frac{S_1(N)}{N^2}`
         *   - :math:`f_4(N)`
-            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N-1}-\frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N)}{N^2},\ \mathcal{M}[(1-x)\ln(1-x)],\ \mathcal{M}[(1-x)\ln^2(1-x)]`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N-1}-\frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N)}{N^2},\  \frac{S_1^2(N)}{N^2},\ \mathcal{M}[(1-x)\ln(1-x)],\ \mathcal{M}[(1-x)\ln^2(1-x)]`
 
 
 Note that for :math:`\gamma_{qq,ps},\gamma_{qg}` the parts proportional
