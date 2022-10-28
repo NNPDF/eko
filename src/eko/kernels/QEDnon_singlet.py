@@ -332,6 +332,7 @@ def running_alphaem_exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iteration
                 res *= nnlo_aem1_exact(
                     gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
                 )
+            return res
     if order[1] == 2:
         if order[0] == 1:
             for step in range(1, ev_op_iterations + 1):
