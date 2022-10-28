@@ -123,8 +123,8 @@ def quad_ker(
     logx,
     areas,
     as1,
-    as_raw,
     as0,
+    as_raw,
     nf,
     L,
     ev_op_iterations,
@@ -154,10 +154,10 @@ def quad_ker(
         basis function configuration
     as1 : float
         target coupling value
-    as_raw : float
-        coupling value at the process scale
     as0 : float
         initial coupling value
+    as_raw : float
+        coupling value at the process scale
     nf : int
         number of active flavors
     L : float
@@ -375,8 +375,8 @@ class Operator(sv.ModeMixin):
             logx=logx,
             areas=areas,
             as1=self.a_s[1],
-            as_raw=self.a_s[2],
             as0=self.a_s[0],
+            as_raw=self.a_s[2],
             nf=self.nf,
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
