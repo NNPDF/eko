@@ -51,7 +51,7 @@ def eko_iterate(gamma_valence, a1, a0, aem_list, nf, order, ev_op_iterations):
         for i in range(0, order[0] + 1):
             for j in range(0, order[1] + 1):
                 betatot += betaQCD[i, j] * a_half ** (i + 1) * aem_list[step - 1] ** j
-                gamma += gamma_singlet[i, j] * a_half**i * aem_list[step - 1] ** j
+                gamma += gamma_valence[i, j] * a_half**i * aem_list[step - 1] ** j
         ln = gamma / betatot * delta_a
         ek = np.ascontiguousarray(ad.exp_matrix_2D(ln)[0])
         e = ek @ e
