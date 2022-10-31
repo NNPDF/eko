@@ -94,17 +94,13 @@ def exp_matrix(gamma):
     """
     # compute Matrix of coefficients
     w, v = np.linalg.eig(gamma)
-    vT = np.transpose(v)
-    matV = vT @ v
-    matC = np.linalg.inv(matV)
-    # compute projectors
-    tmp = matC @ vT
+    tmp = np.linalg.inv(v)
     dim = gamma.shape[0]
     e = np.zeros((dim, dim, dim), np.complex_)
     exp = np.zeros((dim, dim), np.complex_)
     # TODO check if this loop can be entirely cast to numpy
     for i in range(dim):
-        e[i] = np.outer(vT[i], tmp[i])
+        e[i] = np.outer(v[:, i], tmp[i])
         exp += e[i] * np.exp(w[i])
     return exp, w, e
 
