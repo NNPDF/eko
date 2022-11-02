@@ -7,7 +7,7 @@ from eko import compatibility
 from eko.couplings import Couplings
 from eko.evolution_operator import Operator
 from eko.evolution_operator.grid import OperatorGrid
-from eko.interpolation import InterpolatorDispatcher
+from eko.interpolation import InterpolatorDispatcher, XGrid
 from eko.thresholds import ThresholdsAtlas
 
 # from eko.matching_conditions.operator_matrix_element import OperatorMatrixElement
@@ -44,16 +44,20 @@ class BenchmarkBackwardForward:
     operators_card = {
         "Q2grid": [10],
         # here you need a very dense grid
-        "interpolation_xgrid": np.linspace(1e-1, 1, 30),
-        # "interpolation_xgrid": make_grid(30,30, x_min=1e-3),
-        "interpolation_polynomial_degree": 1,
-        "interpolation_is_log": True,
-        "debug_skip_singlet": False,
-        "debug_skip_non_singlet": False,
-        "ev_op_max_order": 1,
-        "ev_op_iterations": 1,
-        "backward_inversion": "exact",
-        "n_integration_cores": 1,
+        "xgrid": np.linspace(1e-1, 1, 30),
+        # "xgrid": make_grid(30,30, x_min=1e-3),
+        "configs": {
+            "interpolation_polynomial_degree": 1,
+            "interpolation_is_log": True,
+            "ev_op_max_order": (2, 0),
+            "ev_op_iterations": 1,
+            "backward_inversion": "exact",
+            "n_integration_cores": 1,
+        },
+        "debug": {
+            "skip_singlet": False,
+            "skip_non_singlet": False,
+        },
     }
     new_theory, new_operators = compatibility.update(theory_card, operators_card)
     g = OperatorGrid.from_dict(
@@ -61,7 +65,13 @@ class BenchmarkBackwardForward:
         new_operators,
         ThresholdsAtlas.from_dict(new_theory),
         Couplings.from_dict(new_theory),
-        InterpolatorDispatcher.from_dict(new_operators),
+        InterpolatorDispatcher(
+            XGrid(
+                new_operators["xgrid"],
+                log=new_operators["configs"]["interpolation_is_log"],
+            ),
+            new_operators["configs"]["interpolation_polynomial_degree"],
+        ),
     )
 
     def test_operator_grid(
@@ -73,7 +83,13 @@ class BenchmarkBackwardForward:
             self.new_operators,
             ThresholdsAtlas.from_dict(self.new_theory),
             Couplings.from_dict(self.new_theory),
-            InterpolatorDispatcher.from_dict(self.new_operators),
+            InterpolatorDispatcher(
+                XGrid(
+                    self.new_operators["xgrid"],
+                    log=self.new_operators["configs"]["interpolation_is_log"],
+                ),
+                self.new_operators["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         q20 = 30
         q21 = 50

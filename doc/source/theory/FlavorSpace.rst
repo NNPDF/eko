@@ -187,14 +187,14 @@ For :math:`n_f=5` light flavors we find:
   V_3^d &=d^- - s^- \\
   T_8^d &=d^+ + s^+ - 2b^+ \\
   V_8^d &=d^- + s^- - 2b^- \\
-  \mathcal F \sim  \mathcal F_{uni,iev,5} &= \span(\gamma, g, \Sigma_{(4)}, \Sigma_{\Delta,(4)}, V_{(4)}, V_{\Delta,(4)}, V_3^d, T_3^d, V_3^u, T_3^u, T_8^d, V_8^d, t^+, t^-)
+  \mathcal F \sim  \mathcal F_{uni,iev,5} &= \span(\gamma, g, \Sigma_{(5)}, \Sigma_{\Delta,(5)}, V_{(5)}, V_{\Delta,(5)}, V_3^d, T_3^d, V_3^u, T_3^u, T_8^d, V_8^d, t^+, t^-)
 
 For :math:`n_f=6` light flavors the Intrinsic Unified Evolution Basis coincides with the :ref:`theory/FlavorSpace:Unified Evolution Basis`.
 
 - this basis is *not* normalized with respect to the canonical Flavor Basis
 - the basis transformation from the Flavor Basis is implemented in
-  :meth:`~eko.evolution_operator.flavors.pids_from_intrinsic_evol`
-- the factors 3/2 in the definition of :math:`V_{0,(5)}` and :math:`T_{0,(5)}` are needed in order to have an orthogonal basis for :math:`n_f=5`
+  :meth:`~eko.evolution_operator.flavors.pids_from_intrinsic_unified_evol`
+- the factors 3/2 in the definition of :math:`V_{\Delta,(5)}` and :math:`\Sigma_{\Delta,(5)}` are needed in order to have an orthogonal basis for :math:`n_f=5`
 
 Other Bases
 -----------

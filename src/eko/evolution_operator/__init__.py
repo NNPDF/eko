@@ -264,7 +264,7 @@ class Operator(sv.ModeMixin):
         self._mellin_cut = mellin_cut
         self.is_threshold = is_threshold
         self.op_members = {}
-        self.order = config["order"]
+        self.order = tuple(config["order"])
 
     @property
     def n_pools(self):
@@ -381,7 +381,7 @@ class Operator(sv.ModeMixin):
             nf=self.nf,
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
-            ev_op_max_order=self.config["ev_op_max_order"],
+            ev_op_max_order=tuple(self.config["ev_op_max_order"]),
             sv_mode=self.sv_mode,
             is_threshold=self.is_threshold,
             n3lo_ad_variation=n3lo_var,
@@ -440,7 +440,6 @@ class Operator(sv.ModeMixin):
                 )
                 temp_dict[label] = res[:2]
             column.append(temp_dict)
-
         logger.info(
             "%s: computing operators - %u/%u took: %6f s",
             self.log_label,
@@ -510,7 +509,7 @@ class Operator(sv.ModeMixin):
 
         # run integration in parallel for each grid point
         # or avoid opening a single pool
-        args = (self.run_op_integration, enumerate(np.log(self.int_disp.xgrid_raw)))
+        args = (self.run_op_integration, enumerate(np.log(self.int_disp.xgrid.raw)))
         if self.n_pools == 1:
             res = map(*args)
         else:

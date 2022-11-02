@@ -11,7 +11,7 @@ from eko import interpolation, mellin
 from eko.couplings import Couplings
 from eko.evolution_operator import Operator, quad_ker
 from eko.evolution_operator.grid import OperatorGrid
-from eko.interpolation import InterpolatorDispatcher
+from eko.interpolation import InterpolatorDispatcher, XGrid
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
 from eko.thresholds import ThresholdsAtlas
@@ -163,15 +163,16 @@ theory_card = {
 }
 operators_card = {
     "Q2grid": [1, 10],
-    "interpolation_xgrid": [0.1, 1.0],
-    "interpolation_polynomial_degree": 1,
-    "interpolation_is_log": True,
-    "debug_skip_singlet": False,
-    "debug_skip_non_singlet": False,
-    "ev_op_max_order": 1,
-    "ev_op_iterations": 1,
-    "backward_inversion": "exact",
-    "n_integration_cores": 1,
+    "xgrid": [0.1, 1.0],
+    "configs": {
+        "interpolation_polynomial_degree": 1,
+        "interpolation_is_log": True,
+        "ev_op_max_order": [1, 1],
+        "ev_op_iterations": 1,
+        "backward_inversion": "exact",
+        "n_integration_cores": 1,
+    },
+    "debug": {"skip_singlet": False, "skip_non_singlet": False},
 }
 
 
@@ -233,7 +234,13 @@ class TestOperator:
             ocard,
             ThresholdsAtlas.from_dict(tcard),
             Couplings.from_dict(tcard),
-            InterpolatorDispatcher.from_dict(ocard),
+            InterpolatorDispatcher(
+                XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 10.0)
@@ -250,7 +257,13 @@ class TestOperator:
             ocard,
             ThresholdsAtlas.from_dict(tcard),
             Couplings.from_dict(tcard),
-            InterpolatorDispatcher.from_dict(ocard),
+            InterpolatorDispatcher(
+                XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 10.0)
@@ -283,7 +296,13 @@ class TestOperator:
             ocard,
             ThresholdsAtlas.from_dict(tcard),
             Couplings.from_dict(tcard),
-            InterpolatorDispatcher.from_dict(ocard),
+            InterpolatorDispatcher(
+                XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 2.0)
@@ -308,7 +327,13 @@ class TestOperator:
             ocard,
             ThresholdsAtlas.from_dict(tcard),
             Couplings.from_dict(tcard),
-            InterpolatorDispatcher.from_dict(ocard),
+            InterpolatorDispatcher(
+                XGrid(
+                    operators_card["xgrid"],
+                    log=operators_card["configs"]["interpolation_is_log"],
+                ),
+                operators_card["configs"]["interpolation_polynomial_degree"],
+            ),
         )
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 10.0)
@@ -370,7 +395,7 @@ def test_pegasus_path():
     mode0 = br.non_singlet_pids_map["ns+"]
     mode1 = 0
     method = ""
-    logxs = np.log(int_disp.xgrid_raw)
+    logxs = np.log(int_disp.xgrid.raw)
     a1 = 1
     a0 = 2
     nf = 3

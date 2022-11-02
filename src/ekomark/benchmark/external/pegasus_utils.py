@@ -29,7 +29,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
     """
     import pegasus  # pylint:disable=import-error,import-outside-toplevel
 
-    target_xgrid = operators["interpolation_xgrid"]
+    target_xgrid = operators["xgrid"]
 
     # init pegasus
     nf = theory["NfFF"]
