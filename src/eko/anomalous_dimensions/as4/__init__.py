@@ -34,8 +34,8 @@ def gamma_singlet(N, nf, sx, variation):
       Number of active flavors
     sx : list
       harmonic sums cache
-    variation : str
-        |N3LO| anomalous dimension variation: "a" ,"b", "best"
+    variation : tuple
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
 
     Returns
     -------
@@ -52,11 +52,11 @@ def gamma_singlet(N, nf, sx, variation):
     gamma_gg : :math:`\gamma_{gg}^{(3)}`
 
     """
-    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx, variation)
+    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx, variation[3])
     gamma_S_0 = np.array(
         [
-            [gamma_qq, gamma_qg(N, nf, sx, variation)],
-            [gamma_gq(N, nf, sx, variation), gamma_gg(N, nf, sx, variation)],
+            [gamma_qq, gamma_qg(N, nf, sx, variation[2])],
+            [gamma_gq(N, nf, sx, variation[1]), gamma_gg(N, nf, sx, variation[0])],
         ],
         np.complex_,
     )

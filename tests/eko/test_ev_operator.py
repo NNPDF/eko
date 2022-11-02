@@ -46,7 +46,7 @@ def test_quad_ker(monkeypatch):
             ev_op_max_order=(0, 0),
             sv_mode=1,
             is_threshold=False,
-            n3lo_ad_variation="best",
+            n3lo_ad_variation=(0, 0, 0, 0),
         )
         np.testing.assert_allclose(res_ns, 0.0)
         res_s = quad_ker(
@@ -66,7 +66,7 @@ def test_quad_ker(monkeypatch):
             ev_op_max_order=(0, 0),
             sv_mode=1,
             is_threshold=False,
-            n3lo_ad_variation="best",
+            n3lo_ad_variation=(0, 0, 0, 0),
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -86,7 +86,7 @@ def test_quad_ker(monkeypatch):
             ev_op_max_order=(0, 0),
             sv_mode=1,
             is_threshold=False,
-            n3lo_ad_variation="best",
+            n3lo_ad_variation=(0, 0, 0, 0),
         )
         np.testing.assert_allclose(res_s, 0.0)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
@@ -108,7 +108,7 @@ def test_quad_ker(monkeypatch):
                 ev_op_max_order=(1, 0),
                 sv_mode=sv,
                 is_threshold=False,
-                n3lo_ad_variation="best",
+                n3lo_ad_variation=(0, 0, 0, 0),
             )
             np.testing.assert_allclose(res_sv, 1.0)
 
@@ -130,7 +130,7 @@ def test_quad_ker(monkeypatch):
         ev_op_max_order=(0, 0),
         sv_mode=1,
         is_threshold=False,
-        n3lo_ad_variation="best",
+        n3lo_ad_variation=(0, 0, 0, 0),
     )
     np.testing.assert_allclose(res_ns, 0.0)
 

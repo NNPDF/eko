@@ -163,8 +163,8 @@ def gamma_singlet(order, n, nf, n3lo_ad_variation):
         Mellin variable
     nf : int
         Number of active flavors
-    n3lo_ad_variation : str
-        |N3LO| anomalous dimension variation: "a" ,"b", "best"
+    n3lo_ad_variation : tuple
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
 
     Returns
     -------

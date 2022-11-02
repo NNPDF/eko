@@ -42,7 +42,7 @@ def test_eigensystem_gamma_singlet_projectors_EV():
             # NNLO and N3LO too big numbers,
             # ignore Runtime Warnings
             warnings.simplefilter("ignore", RuntimeWarning)
-            for gamma_S in ad.gamma_singlet(o, N, nf, n3lo_ad_variation="best"):
+            for gamma_S in ad.gamma_singlet(o, N, nf, n3lo_ad_variation=[0, 0, 0, 0]):
                 _exp, l_p, l_m, e_p, e_m = ad.exp_singlet(gamma_S)
                 # projectors behave as P_a . P_b = delta_ab P_a
                 assert_allclose(np.dot(e_p, e_p), e_p)

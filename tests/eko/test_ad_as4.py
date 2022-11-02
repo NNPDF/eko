@@ -61,18 +61,18 @@ def test_momentum_conservation():
         ggg.gamma_gg_nf3(N, sx_cache) + gqg.gamma_qg_nf3(N, sx_cache), 0, atol=2e-7
     )
 
-    for variation in [0]:
+    for variation in [(0, 0, 0, 0)]:
         # nf^2 part
         np.testing.assert_allclose(
             gnsp.gamma_nsp_nf2(N, sx_cache)
-            + gps.gamma_ps_nf2(N, sx_cache, variation)
-            + ggq.gamma_gq_nf2(N, sx_cache, variation),
+            + gps.gamma_ps_nf2(N, sx_cache, variation[3])
+            + ggq.gamma_gq_nf2(N, sx_cache, variation[1]),
             0,
             atol=2e-12,
         )
         np.testing.assert_allclose(
-            ggg.gamma_gg_nf2(N, sx_cache, variation)
-            + gqg.gamma_qg_nf2(N, sx_cache, variation),
+            ggg.gamma_gg_nf2(N, sx_cache, variation[0])
+            + gqg.gamma_qg_nf2(N, sx_cache, variation[2]),
             0,
             atol=1e-12,
         )
@@ -80,26 +80,27 @@ def test_momentum_conservation():
         # nf^1 part
         np.testing.assert_allclose(
             gnsp.gamma_nsp_nf1(N, sx_cache)
-            + gps.gamma_ps_nf1(N, sx_cache, variation)
-            + ggq.gamma_gq_nf1(N, sx_cache, variation),
+            + gps.gamma_ps_nf1(N, sx_cache, variation[3])
+            + ggq.gamma_gq_nf1(N, sx_cache, variation[1]),
             0,
             atol=2e-11,
         )
         np.testing.assert_allclose(
-            ggg.gamma_gg_nf1(N, sx_cache, variation)
-            + gqg.gamma_qg_nf1(N, sx_cache, variation),
+            ggg.gamma_gg_nf1(N, sx_cache, variation[0])
+            + gqg.gamma_qg_nf1(N, sx_cache, variation[2]),
             0,
             atol=5e-11,
         )
 
         # nf^0 part
         np.testing.assert_allclose(
-            gnsp.gamma_nsp_nf0(N, sx_cache) + ggq.gamma_gq_nf0(N, sx_cache, variation),
+            gnsp.gamma_nsp_nf0(N, sx_cache)
+            + ggq.gamma_gq_nf0(N, sx_cache, variation[1]),
             0,
             atol=3e-11,
         )
         np.testing.assert_allclose(
-            ggg.gamma_gg_nf0(N, sx_cache, variation),
+            ggg.gamma_gg_nf0(N, sx_cache, variation[0]),
             0,
             atol=2e-10,
         )

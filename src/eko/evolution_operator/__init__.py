@@ -168,8 +168,8 @@ def quad_ker(
         scale variation mode, see `eko.scale_variations.Modes`
     is_threshold : boolean
         is this an intermediate threshold operator?
-    n3lo_ad_variation : str
-        |N3LO| anomalous dimension variation: "a" ,"b", "best"
+    n3lo_ad_variation : tuple
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
 
     Returns
     -------
@@ -365,7 +365,7 @@ class Operator(sv.ModeMixin):
         n3lo_var = (
             self.config["n3lo_ad_variation"]
             if self.config["n3lo_ad_variation"] is not None
-            else "best"
+            else (0, 0, 0, 0)
         )
         return functools.partial(
             quad_ker,

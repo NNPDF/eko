@@ -64,7 +64,7 @@ def gamma_gq_nf0(n, sx, variation):
         Mellin moment
     sx : list
         harmonic sums cache
-    variation : str
+    variation : int
         |N3LO| anomalous dimension variation
 
     Returns
@@ -145,7 +145,7 @@ def gamma_gq_nf1(n, sx, variation):
         Mellin moment
     sx : list
         harmonic sums cache
-    variation : str
+    variation : int
         |N3LO| anomalous dimension variation
 
     Returns
@@ -227,7 +227,7 @@ def gamma_gq_nf2(n, sx, variation):
         Mellin moment
     sx : list
         harmonic sums cache
-    variation : str
+    variation : int
         |N3LO| anomalous dimension variation
 
     Returns
@@ -308,8 +308,8 @@ def gamma_gq(n, nf, sx, variation):
         Number of active flavors
     sx : list
         harmonic sums cache
-    variation : str
-        |N3LO| anomalous dimension variation: "a" ,"b", "best"
+    variation : int
+        |N3LO| anomalous dimension variation
 
     Returns
     -------
