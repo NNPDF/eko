@@ -17,6 +17,21 @@ from eko.harmonics import compute_cache
 
 NF = 5
 
+n3lo_vars_dict = {
+    "qq": 17,
+    "gg": 22,
+    "gq": 24,
+    "qg": 20,
+}
+
+
+def build_n3lo_var():
+    variations = [(0, 0, 0, 0)]
+    for max_var in n3lo_vars_dict.values():
+        for idx in range(1, max_var + 1):
+            variations.append((idx, 0, 0, 0))
+    return variations
+
 
 def test_quark_number_conservation():
     N = 1
@@ -61,62 +76,80 @@ def test_momentum_conservation():
         ggg.gamma_gg_nf3(N, sx_cache) + gqg.gamma_qg_nf3(N, sx_cache), 0, atol=2e-7
     )
 
-    for variation in [(0, 0, 0, 0)]:
-        # nf^2 part
-        np.testing.assert_allclose(
-            gnsp.gamma_nsp_nf2(N, sx_cache)
-            + gps.gamma_ps_nf2(N, sx_cache, variation[3])
-            + ggq.gamma_gq_nf2(N, sx_cache, variation[1]),
-            0,
-            atol=2e-12,
-        )
-        np.testing.assert_allclose(
-            ggg.gamma_gg_nf2(N, sx_cache, variation[0])
-            + gqg.gamma_qg_nf2(N, sx_cache, variation[2]),
-            0,
-            atol=1e-12,
-        )
-
-        # nf^1 part
-        np.testing.assert_allclose(
-            gnsp.gamma_nsp_nf1(N, sx_cache)
-            + gps.gamma_ps_nf1(N, sx_cache, variation[3])
-            + ggq.gamma_gq_nf1(N, sx_cache, variation[1]),
-            0,
-            atol=2e-11,
-        )
-        np.testing.assert_allclose(
-            ggg.gamma_gg_nf1(N, sx_cache, variation[0])
-            + gqg.gamma_qg_nf1(N, sx_cache, variation[2]),
-            0,
-            atol=5e-11,
-        )
-
-        # nf^0 part
-        np.testing.assert_allclose(
-            gnsp.gamma_nsp_nf0(N, sx_cache)
-            + ggq.gamma_gq_nf0(N, sx_cache, variation[1]),
-            0,
-            atol=3e-11,
-        )
-        np.testing.assert_allclose(
+    variations = build_n3lo_var()
+    g_singlet = np.zeros((len(variations), 2, 2), dtype=complex)
+    g_ps = np.zeros((len(variations), 2), dtype=complex)
+    g_gq = np.zeros((len(variations), 3), dtype=complex)
+    g_qg = np.zeros((len(variations), 2), dtype=complex)
+    g_gg = np.zeros((len(variations), 3), dtype=complex)
+    for i, variation in enumerate(variations):
+        g_singlet[i, :, :] = gamma_singlet(N, NF, sx_cache, variation)
+        g_gg[i, :] = [
             ggg.gamma_gg_nf0(N, sx_cache, variation[0]),
-            0,
-            atol=2e-10,
-        )
+            ggg.gamma_gg_nf1(N, sx_cache, variation[0]),
+            ggg.gamma_gg_nf2(N, sx_cache, variation[0]),
+        ]
+        g_gq[i, :] = [
+            ggq.gamma_gq_nf0(N, sx_cache, variation[1]),
+            ggq.gamma_gq_nf1(N, sx_cache, variation[1]),
+            ggq.gamma_gq_nf2(N, sx_cache, variation[1]),
+        ]
+        g_qg[i, :] = [
+            gqg.gamma_qg_nf1(N, sx_cache, variation[2]),
+            gqg.gamma_qg_nf2(N, sx_cache, variation[2]),
+        ]
+        g_ps[i, :] = [
+            gps.gamma_ps_nf1(N, sx_cache, variation[3]),
+            gps.gamma_ps_nf2(N, sx_cache, variation[3]),
+        ]
 
-        # total
-        g_singlet = gamma_singlet(N, NF, sx_cache, variation)
-        np.testing.assert_allclose(
-            g_singlet[0, 0] + g_singlet[1, 0],
-            0,
-            atol=2e-10,
-        )
-        np.testing.assert_allclose(
-            g_singlet[0, 1] + g_singlet[1, 1],
-            0,
-            atol=2e-5,
-        )
+    # nf^2 part
+    np.testing.assert_allclose(
+        gnsp.gamma_nsp_nf2(N, sx_cache) + g_ps[:, 1] + g_gq[:, 2],
+        0,
+        atol=2e-12,
+    )
+    np.testing.assert_allclose(
+        +g_gg[:, 2] + g_qg[:, 1],
+        0,
+        atol=4e-12,
+    )
+
+    # nf^1 part
+    np.testing.assert_allclose(
+        gnsp.gamma_nsp_nf1(N, sx_cache) + g_ps[:, 0] + g_gq[:, 1],
+        0,
+        atol=2e-11,
+    )
+    np.testing.assert_allclose(
+        g_gg[:, 1] + g_qg[:, 0],
+        0,
+        atol=2e-10,
+    )
+
+    # nf^0 part
+    np.testing.assert_allclose(
+        gnsp.gamma_nsp_nf0(N, sx_cache) + g_gq[:, 0],
+        0,
+        atol=3e-11,
+    )
+    np.testing.assert_allclose(
+        g_gg[:, 0],
+        0,
+        atol=4e-10,
+    )
+
+    # total
+    np.testing.assert_allclose(
+        g_singlet[:, 0, 0] + g_singlet[:, 1, 0],
+        0,
+        atol=2e-10,
+    )
+    np.testing.assert_allclose(
+        g_singlet[:, 0, 1] + g_singlet[:, 1, 1],
+        0,
+        atol=2e-5,
+    )
 
 
 def test_non_singlet_reference_moments():
