@@ -18,18 +18,20 @@ from eko.harmonics import compute_cache
 NF = 5
 
 n3lo_vars_dict = {
-    "qq": 17,
     "gg": 22,
     "gq": 24,
     "qg": 20,
+    "qq": 17,
 }
 
 
 def build_n3lo_var():
-    variations = [(0, 0, 0, 0)]
-    for max_var in n3lo_vars_dict.values():
+    variations = [[0, 0, 0, 0]]
+    for entry, max_var in enumerate(n3lo_vars_dict.values()):
         for idx in range(1, max_var + 1):
-            variations.append((idx, 0, 0, 0))
+            variation = [0, 0, 0, 0]
+            variation[entry] = idx
+            variations.append(variation)
     return variations
 
 
@@ -112,7 +114,7 @@ def test_momentum_conservation():
     np.testing.assert_allclose(
         +g_gg[:, 2] + g_qg[:, 1],
         0,
-        atol=4e-12,
+        atol=6e-12,
     )
 
     # nf^1 part
@@ -131,7 +133,7 @@ def test_momentum_conservation():
     np.testing.assert_allclose(
         gnsp.gamma_nsp_nf0(N, sx_cache) + g_gq[:, 0],
         0,
-        atol=3e-11,
+        atol=8e-11,
     )
     np.testing.assert_allclose(
         g_gg[:, 0],
