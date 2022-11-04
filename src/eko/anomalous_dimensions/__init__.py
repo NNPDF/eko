@@ -28,29 +28,27 @@ from . import aem1, aem2, as1, as1aem1, as2, as3, as4
 @nb.njit(cache=True)
 def exp_matrix_2D(gamma):
     r"""
-    Compute the exponential and the eigensystem of the singlet anomalous dimension matrix.
+    Compute the exponential and the eigensystem of a 2D matrix.
 
     Parameters
     ----------
         gamma : numpy.ndarray
-            singlet anomalous dimension matrix
+            2D matrix
 
     Returns
     -------
         exp : numpy.ndarray
-            exponential of the singlet anomalous dimension matrix :math:`\gamma_{S}(N)`
+            exponential of the 2D matrix :math:`\gamma(N)`
         lambda_p : complex
-            positive eigenvalue of the singlet anomalous dimension matrix
-            :math:`\gamma_{S}(N)`
+            positive eigenvalue of the 2D matrix
+            :math:`\gamma(N)`
         lambda_m : complex
-            negative eigenvalue of the singlet anomalous dimension matrix
-            :math:`\gamma_{S}(N)`
+            negative eigenvalue of the 2D matrix
+            :math:`\gamma(N)`
         e_p : numpy.ndarray
-            projector for the positive eigenvalue of the singlet anomalous
-            dimension matrix :math:`\gamma_{S}(N)`
+            projector for the positive eigenvalue of the 2D matrix :math:`\gamma(N)`
         e_m : numpy.ndarray
-            projector for the negative eigenvalue of the singlet anomalous
-            dimension matrix :math:`\gamma_{S}(N)`
+            projector for the negative eigenvalue of the 2D matrix :math:`\gamma(N)`
 
     See Also
     --------
