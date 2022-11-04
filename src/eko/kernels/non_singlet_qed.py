@@ -351,14 +351,5 @@ def running_alphaem_exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iteration
                 res *= nnlo_aem2_exact(
                     gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
                 )
-                # res = np.prod(
-                #   [
-                #       nnlo_aem2_exact(
-                #           gamma_ns, a_steps[i],
-                #           a_steps[i-1], aem_list[step],
-                #           nf
-                #       ) for i in range(1, 1 + ev_op_iterations)
-                #   ]
-                # )
             return res
     raise NotImplementedError("Selected order is not implemented")
