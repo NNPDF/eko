@@ -195,7 +195,6 @@ def rotate_matching(nf, qed=False, inverse=False):
                 l[f"{qpm}.{oth}"] = b / den
             else:
                 l[f"{tot}.{tot}"] = 1.0
-                # l[f"{tot}.{totdelta}"] = 0.0
                 l[f"{tot}.{qpm}"] = 1.0
                 l[f"{totdelta}.{tot}"] = a
                 l[f"{totdelta}.{totdelta}"] = b

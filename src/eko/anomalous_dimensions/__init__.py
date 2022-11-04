@@ -92,7 +92,6 @@ def exp_matrix(gamma):
         e : numpy.ndarray
             projectors on the eigenspaces of the matrix gamma :math:`\gamma(N)`
     """
-    # compute Matrix of coefficients
     w, v = np.linalg.eig(gamma)
     tmp = np.linalg.inv(v)
     dim = gamma.shape[0]

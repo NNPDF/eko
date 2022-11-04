@@ -13,8 +13,8 @@ from eko.couplings import Couplings
 from eko.evolution_operator import Operator, quad_ker
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher, XGrid
-from eko.kernels import QEDnon_singlet as qed_ns
 from eko.kernels import non_singlet as ns
+from eko.kernels import non_singlet_qed as qed_ns
 from eko.kernels import singlet as s
 from eko.kernels import utils
 from eko.thresholds import ThresholdsAtlas

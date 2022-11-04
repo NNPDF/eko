@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from eko import anomalous_dimensions as ad
-from eko.kernels import QEDsinglet as s
+from eko.kernels import singlet_qed as s
 
 methods = [
     # "iterate-expanded",

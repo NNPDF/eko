@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from eko import anomalous_dimensions as ad
-from eko.kernels import QEDvalence as val
+from eko.kernels import valence_qed as val
 
 methods = [
     # "iterate-expanded",

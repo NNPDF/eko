@@ -18,12 +18,12 @@ from .. import anomalous_dimensions as ad
 from .. import basis_rotation as br
 from .. import interpolation, mellin
 from .. import scale_variations as sv
-from ..kernels import QEDnon_singlet as qed_ns
-from ..kernels import QEDsinglet as qed_s
-from ..kernels import QEDvalence as qed_v
 from ..kernels import non_singlet as ns
+from ..kernels import non_singlet_qed as qed_ns
 from ..kernels import singlet as s
+from ..kernels import singlet_qed as qed_s
 from ..kernels import utils
+from ..kernels import valence_qed as qed_v
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)

@@ -7,7 +7,7 @@ import pytest
 from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
 from eko import beta
-from eko.kernels import QEDnon_singlet as ns
+from eko.kernels import non_singlet_qed as ns
 
 methods = [
     # "iterate-expanded",
