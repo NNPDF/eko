@@ -96,10 +96,9 @@ def exp_matrix(gamma):
     e = np.zeros((dim, dim, dim), np.complex_)
     exp = np.zeros((dim, dim), np.complex_)
     # TODO check if this loop can be entirely cast to numpy
-    # for i in range(dim):
-    #     e[i] = np.outer(v[:, i], v_inv[i])
-    #     exp += e[i] * np.exp(w[i])
-    exp = np.einsum("ij,j,jk->ik", v, np.exp(w), v_inv)
+    for i in range(dim):
+        e[i] = np.outer(v[:, i], v_inv[i])
+        exp += e[i] * np.exp(w[i])
     return exp, w, e
 
 
