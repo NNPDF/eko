@@ -91,7 +91,12 @@ def test_scale_variation_a_vs_b():
             )
             ker_b = ker * expanded.non_singlet_variation(gns, a1, order, nf, L)
             ns_diff = scheme_diff(gns, L, order, False)
-            np.testing.assert_allclose((ker_a - ker_b) / ker, ns_diff, atol=1e-3)
+            np.testing.assert_allclose(
+                (ker_a - ker_b) / ker,
+                ns_diff,
+                atol=1e-3,
+                err_msg=f"L={L},order={order},non-singlet",
+            )
 
             # Singlet kernels
             gs = gamma_singlet(order, n, nf)
@@ -105,5 +110,8 @@ def test_scale_variation_a_vs_b():
             ker_b = ker @ expanded.singlet_variation(gs, a1, order, nf, L)
             s_diff = scheme_diff(gs, L, order, True)
             np.testing.assert_allclose(
-                (ker_a - ker_b) @ np.linalg.inv(ker), s_diff, atol=5e-3
+                (ker_a - ker_b) @ np.linalg.inv(ker),
+                s_diff,
+                atol=5e-3,
+                err_msg=f"L={L},order={order},singlet",
             )
