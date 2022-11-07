@@ -75,13 +75,6 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         # setup operator grid
         self.op_grid = OperatorGrid.from_dict(new_theory, new_operators, tc, sc, bfd)
 
-        # save bases manipulations for a post processing step
-        rot = operators_card.get("rotations", {})
-        self.post_process = {}
-        for key in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
-            self.post_process[key] = rot.get(key, None)
-            new_operators["rotations"][key] = None
-
         self.out = EKO.new(theory=theory_card, operator=new_operators)
 
     def get_output(self) -> EKO:
