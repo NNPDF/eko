@@ -1,12 +1,14 @@
 """Evolution Kernel Operators."""
 
-from . import output, runner, version
+from . import output, version
+from .runner import legacy as runner
 
 __version__ = version.__version__
 
 
 def run_dglap(theory_card, operators_card):
-    r"""
+    r"""Compute evolution operator from runcards.
+
     This function takes a DGLAP theory configuration dictionary
     and performs the solution of the DGLAP equations.
 
@@ -18,14 +20,15 @@ def run_dglap(theory_card, operators_card):
 
     Parameters
     ----------
-        setup : dict
-            input card - see :doc:`/code/IO`
+    setup : dict
+        input card - see :doc:`/code/IO`
 
     Returns
     -------
-        output : dict
-            output dictionary - see :doc:`/code/IO`
+    output : dict
+        output dictionary - see :doc:`/code/IO`
+
     """
     r = runner.Runner(theory_card, operators_card)
-    output = r.get_output()
-    return output
+    out = r.get_output()
+    return out

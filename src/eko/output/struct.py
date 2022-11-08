@@ -22,11 +22,10 @@ import yaml
 from .. import basis_rotation as br
 from .. import interpolation
 from .. import version as vmod
+from ..runner.meta import OPERATORFILE, THEORYFILE
 
 logger = logging.getLogger(__name__)
 
-THEORYFILE = "theory.yaml"
-OPERATORFILE = "operator.yaml"
 RECIPESDIR = "recipes"
 PARTSDIR = "parts"
 OPERATORSDIR = "operators"
