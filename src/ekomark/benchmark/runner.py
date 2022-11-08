@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Abstract layer for running the benchmarks
 """

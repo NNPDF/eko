@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Main application class of eko."""
 import copy
 import logging

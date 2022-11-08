@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This module defines the |OME| for the non-trivial matching conditions in the
 |VFNS| evolution.

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Benchmark to Pegasus :cite:`Vogt:2004ns`
 """

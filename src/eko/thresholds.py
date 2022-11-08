@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""Holds the classes that define the |FNS|."""
 import logging
 

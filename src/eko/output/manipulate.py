@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Manipulate output generate by EKO."""
 import logging
 import warnings

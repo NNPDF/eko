@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""Contains the QCD beta function coefficients and the handling of the running coupling :math:`\alpha_s`.
 
 See :doc:`pQCD ingredients </theory/pQCD>`.

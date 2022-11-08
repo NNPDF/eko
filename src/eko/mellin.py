@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""
 This module contains the implementation of the
 `inverse Mellin transformation <https://en.wikipedia.org/wiki/Mellin_inversion_theorem>`_.

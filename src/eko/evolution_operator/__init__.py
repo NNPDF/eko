@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""Contains the central operator classes.
 
 See :doc:`Operator overview </code/Operators>`.

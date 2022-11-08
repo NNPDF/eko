@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""
 This module contains the |NLO| |OME| (OMEs)
 for the matching conditions in the |VFNS|.

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""
 This module contains the |NNLO| |OME| for the matching conditions in the |VFNS|
 (see, :cite:`Buza_1998` appendix B).
