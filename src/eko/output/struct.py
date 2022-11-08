@@ -753,10 +753,10 @@ class EKO:
         bases = operator["rotations"]
         bases["pids"] = np.array(br.flavor_basis_pids)
         if operator["rotations"]["xgrid"] is not None:
-        	bases["xgrid"] = interpolation.XGrid(
-                	operator["rotations"]["xgrid"],
-                	log=operator["configs"]["interpolation_is_log"],
-            	)
+            bases["xgrid"] = interpolation.XGrid(
+                operator["rotations"]["xgrid"],
+                log=operator["configs"]["interpolation_is_log"],
+            )
         return cls(
             path=path,
             Q02=float(operator["Q0"] ** 2),
