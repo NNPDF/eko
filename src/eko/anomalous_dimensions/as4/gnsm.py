@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""The anomalous dimension :math:`\\gamma_{ns,-}^{(3)}`."""
 import numba as nb
 

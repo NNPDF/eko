@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """LHAPDF info file utilities."""
 import copy
 import math

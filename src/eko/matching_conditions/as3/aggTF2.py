@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import numba as nb
 import numpy as np
 

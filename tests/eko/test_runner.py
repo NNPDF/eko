@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import copy
 
 import numpy as np
@@ -79,8 +78,14 @@ def test_targetgrid():
     oc["rotations"]["targetgrid"] = tgrid
     r = eko.runner.Runner(tc, oc)
     o = r.get_output()
+    # We are testing if (as expected) the runner ignores inputgrid and targetgrid.
+    actual_grid = oc["rotations"]["xgrid"]
     check_shapes(
-        o, eko.interpolation.XGrid(tgrid), eko.interpolation.XGrid(igrid), tc, oc
+        o,
+        eko.interpolation.XGrid(actual_grid),
+        eko.interpolation.XGrid(actual_grid),
+        tc,
+        oc,
     )
     # check actual value
     np.testing.assert_allclose(o.rotations.targetgrid.raw, tgrid)
@@ -96,8 +101,8 @@ def test_rotate_pids():
     o = r.get_output()
     check_shapes(o, o.xgrid, o.xgrid, tc, oc)
     # check actual values
-    assert (o.rotations.targetpids == [0] * 14).all()
-    assert (o.rotations.inputpids == [0] * 14).all()
+    assert (o.rotations.targetpids == oc["rotations"]["targetpids"]).all()
+    assert (o.rotations.inputpids == oc["rotations"]["inputpids"]).all()
 
 
 def check_shapes(o, txs, ixs, theory_card, operators_card):
@@ -105,10 +110,17 @@ def check_shapes(o, txs, ixs, theory_card, operators_card):
     ipids = len(o.rotations.inputpids)
     op_shape = (tpids, len(txs), ipids, len(ixs))
 
+    op_targetgrid = operators_card["rotations"]["targetgrid"]
+    op_inputgrid = operators_card["rotations"]["inputgrid"]
     # check output = input
     np.testing.assert_allclose(o.xgrid.raw, operators_card["rotations"]["xgrid"])
-    np.testing.assert_allclose(o.rotations.targetgrid.raw, txs.raw)
-    np.testing.assert_allclose(o.rotations.inputgrid.raw, ixs.raw)
+    np.testing.assert_allclose(
+        o.rotations.targetgrid.raw,
+        op_targetgrid if op_targetgrid is not None else txs.raw,
+    )
+    np.testing.assert_allclose(
+        o.rotations.inputgrid.raw, op_inputgrid if op_inputgrid is not None else ixs.raw
+    )
     for k in ["interpolation_polynomial_degree", "interpolation_is_log"]:
         assert getattr(o.configs, k) == operators_card["configs"][k]
     np.testing.assert_allclose(o.Q02, theory_card["Q0"] ** 2)

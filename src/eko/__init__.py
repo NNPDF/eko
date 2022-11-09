@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+"""Evolution Kernel Operators."""
 
 from . import output, runner, version
 

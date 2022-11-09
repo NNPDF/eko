@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""The Altarelli-Parisi splitting kernels.
 
 Normalization is given by

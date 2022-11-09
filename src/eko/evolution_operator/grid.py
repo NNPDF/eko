@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """The :class:`OperatorGrid` class.
 
 The first is the driver class of eko as it is the one that collects all the

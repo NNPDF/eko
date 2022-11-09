@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from eko import runcards as rc
 
 fake_theory = dict(order=(2, 0))

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: skip-file
 # fmt: off
 r"""The anomalous dimension :math:`\gamma_{ps}^{(3)}`."""

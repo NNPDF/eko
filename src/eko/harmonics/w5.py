@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Weight 5 harmonic sums."""
 
 import numba as nb
