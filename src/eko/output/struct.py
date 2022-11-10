@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 THEORYFILE = "theory.yaml"
 OPERATORFILE = "operator.yaml"
+METADATAFILE = "metadata.yaml"
 RECIPESDIR = "recipes"
 PARTSDIR = "parts"
 OPERATORSDIR = "operators"
@@ -630,7 +631,7 @@ class EKO:
         return new
 
     @staticmethod
-    def bootstrap(dirpath: os.PathLike, theory: dict, operator: dict):
+    def bootstrap(dirpath: os.PathLike, theory: dict, operator: dict, metadata: dict):
         """Create directory structure.
 
         Parameters
@@ -641,11 +642,13 @@ class EKO:
             theory card to be dumped
         operator: dict
             operator card to be dumped
-
+        metadata: dict
+            metadata of the operator
         """
         dirpath = pathlib.Path(dirpath)
         (dirpath / THEORYFILE).write_text(yaml.dump(theory), encoding="utf-8")
         (dirpath / OPERATORFILE).write_text(yaml.dump(operator), encoding="utf-8")
+        (dirpath / METADATAFILE).write_test(yaml.dump(metadata), encoding="utf-8")
         (dirpath / RECIPESDIR).mkdir()
         (dirpath / PARTSDIR).mkdir()
         (dirpath / OPERATORSDIR).mkdir()
@@ -787,6 +790,8 @@ class EKO:
             the theory card
         operator : dict
             the operator card
+        metadata: dict
+            metadata of the operator
         path : os.PathLike
             the underlying path (if not provided, it is created in a temporary
             path)
@@ -807,10 +812,15 @@ class EKO:
                 )
             # delete the file created in case of temporary file
             path.unlink()
-
+        # Constructing initial metadata
+        metadata = {}
+        metadata["targetgrid"] = operator["rotations"]["xgrid"]
+        metadata["inputgrid"] = operator["rotations"]["xgrid"]
+        metadata["targetpids"] = operator["rotations"]["pids"]
+        metadata["inputpids"] = operator["rotations"]["pids"]
         with tempfile.TemporaryDirectory() as td:
             td = pathlib.Path(td)
-            cls.bootstrap(td, theory=theory, operator=operator)
+            cls.bootstrap(td, theory=theory, operator=operator, metadata=metadata)
 
             with tarfile.open(path, mode="w") as tar:
                 for element in td.glob("*"):
