@@ -67,10 +67,6 @@ class FakeOutput:
             rotations=dict(
                 xgrid=xgrid,
                 pids=pids,
-                targetgrid=xgrid,
-                inputgrid=xgrid,
-                inputpids=pids,
-                targetpids=pids,
             ),
             Q0=np.sqrt(q2_ref),
             couplings=dict(),
@@ -101,10 +97,10 @@ class FakeOutput:
         for q2, op in d["Q2grid"].items():
             obj[q2] = output.struct.Operator.from_dict(op)
 
-        d["inputgrid"] = bases["inputgrid"]
-        d["targetgrid"] = bases["targetgrid"]
-        d["inputpids"] = bases["inputpids"]
-        d["targetpids"] = bases["targetpids"]
+        d["inputgrid"] = bases["xgrid"]
+        d["targetgrid"] = bases["xgrid"]
+        d["inputpids"] = bases["pids"]
+        d["targetpids"] = bases["pids"]
 
         d["interpolation_xgrid"] = bases["xgrid"]
         d["pids"] = bases["pids"]

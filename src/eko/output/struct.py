@@ -749,19 +749,12 @@ class EKO:
 
         """
         bases = operator["rotations"]
-        for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
-            if basis in bases:
-                bases[f"_{basis}"] = bases[basis]
-                del bases[basis]
         bases["pids"] = np.array(br.flavor_basis_pids)
-        for k in ("xgrid", "_inputgrid", "_targetgrid"):
-            if k in operator["rotations"]:
-                if operator["rotations"][k] is None:
-                    continue
-                bases[k] = interpolation.XGrid(
-                    operator["rotations"][k],
-                    log=operator["configs"]["interpolation_is_log"],
-                )
+        if operator["rotations"]["xgrid"] is not None:
+            bases["xgrid"] = interpolation.XGrid(
+                operator["rotations"]["xgrid"],
+                log=operator["configs"]["interpolation_is_log"],
+            )
 
         return cls(
             path=path,
