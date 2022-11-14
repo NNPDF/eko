@@ -648,7 +648,7 @@ class EKO:
         dirpath = pathlib.Path(dirpath)
         (dirpath / THEORYFILE).write_text(yaml.dump(theory), encoding="utf-8")
         (dirpath / OPERATORFILE).write_text(yaml.dump(operator), encoding="utf-8")
-        (dirpath / METADATAFILE).write_test(yaml.dump(metadata), encoding="utf-8")
+        (dirpath / METADATAFILE).write_text(yaml.dump(metadata), encoding="utf-8")
         (dirpath / RECIPESDIR).mkdir()
         (dirpath / PARTSDIR).mkdir()
         (dirpath / OPERATORSDIR).mkdir()
