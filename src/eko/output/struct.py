@@ -838,7 +838,7 @@ class EKO:
 
             shutil.rmtree(td)
 
-        eko = cls.detached(theory, operator, path=path)
+        eko = cls.detached(theory, operator, metadata, path=path)
         logger.info(f"New operator created at path '{path}'")
         return eko
 
