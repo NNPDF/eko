@@ -90,12 +90,15 @@ In |EKO| they are implemented as follows:
         -   The large-N limit :cite:`Moch:2017uml`, which reads (Eq. 2.17):
 
             .. math ::
-                \gamma_{ns} \approx A_4 S_1(N) - B_4 + C_4 \frac{S_1(N)}{N} - (D_4 + \frac{1}{2} A_4) \frac{1}{N} + \mathcal{O}(\frac{\ln^k(N)}{N^2})
+                \gamma_{ns} \approx A^{(f)}_4 S_1(N) - B_4 + C_4 \frac{S_1(N)}{N} - (D_4 + \frac{1}{2} A^{(f)}_4) \frac{1}{N} + \mathcal{O}(\frac{\ln^k(N)}{N^2})
 
             This limit is common for all :math:`\gamma_{ns,+}^{(3)},\gamma_{ns,-}^{(3)},\gamma_{ns,v}^{(3)}`.
-            The coefficient :math:`A_4`, being related to the twist-2 spin-N operators,
+            The coefficient :math:`A^{(f)}_4`, being related to the twist-2 spin-N operators,
             can be obtained from the |QCD| cusp calculation
-            :cite:`Henn:2019swt`, while the :math:`B_4` is fixed by the integral of the 4-loop splitting function.
+            :cite:`Henn:2019swt`, while the :math:`B_4` is fixed by the integral of the 4-loop splitting function
+            and has been firstly computed in :cite:`Moch:2017uml` in the large :math:`n_c` limit.
+            More recently :cite:`Duhr:2022cob,` it has been determined  in the full color expansion
+            by computing various |N3LO| cross sections in the soft limit.
             :math:`C_4,D_4` instead can be computed directly from lower order splitting functions.
             From large-x resummation :cite:`Davies:2016jie`, it is possible to infer further constrains
             on sub-leading terms :math:`\frac{\ln^k(N)}{N^2}`, since the non-singlet splitting
@@ -226,10 +229,11 @@ The other parts are approximated using some known limits:
         It is known that :cite:`Albino:2000cp,Moch:2021qrk` the diagonal terms diverge in N-space as:
 
             .. math ::
-                \gamma_{kk} \approx A_4 S_1(N)  + \mathcal{O}(1)
+                \gamma_{kk} \approx A^{(r)}_4 S_1(N)  + B^{(r)}_4 \delta(1-x) + \mathcal{O}(1)
 
-        Where again the coefficient :math:`A_4` is the |QCD| cusp anomalous dimension. However, :math:`\gamma_{qq,ps}^{(3)}`
-        do not constrain any divergence at large-x or constant term so its expansion will start as
+        Where again the coefficient :math:`A^{(r)}_4` is the |QCD| cusp anomalous dimension for the adjoint or fundamental representation.
+        Again the coefficient :math:`B^{(r)}_4` has been extracted from soft anomalous dimensions :math:`Duhr:2022cob`.
+        However, :math:`\gamma_{qq,ps}^{(3)}` do not constrain any divergence at large-x or constant term so its expansion will start as
         :math:`\mathcal{O}(\frac{1}{N^2})`.
         The off-diagonal do not contain any +-distributions or delta distributions but can include divergent logarithms
         of the type :cite:`Soar:2009yh`:
@@ -290,11 +294,11 @@ The following tables list all the considered input functions.
         :align: center
 
         *   - :math:`f_1(N)`
-            - :math:`\frac{1}{(N-1)^2}`
+            - :math:`\frac{S_2(N-2)}{N}`
         *   - :math:`f_2(N)`
-            - :math:`1`
+            - :math:`\frac{S_1(N)}{N}`
         *   - :math:`f_3(N)`
-            - :math:`\frac{1}{N-1},\ \frac{S_1(N)}{N}`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N}`
         *   - :math:`f_4(N)`
             - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N)}{N},\ \mathcal{M}[(1-x)\ln(1-x)],\ \frac{S_1(N)}{N^2}`
 
@@ -308,7 +312,7 @@ The following tables list all the considered input functions.
         *   - :math:`f_3(N)`
             - :math:`\frac{S_2(N-2)}{N},\ \frac{1}{N^3}`
         *   - :math:`f_4(N)`
-            - :math:`\frac{S_2(N-2)}{N},\ \frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N-2)}{N},\ \mathcal{M}[\ln^3(1-x)],\ \mathcal{M}[\ln^2(1-x)],\ \mathcal{M}[\ln(1-x)],\ \frac{S_1^2(N)}{N}`
+            - :math:`\frac{S_2(N-2)}{N},\ \frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N-2)}{N},\ \mathcal{M}[\ln^3(1-x)],\ \mathcal{M}[\ln^2(1-x)], \frac{S_1(N)}{N},\ \frac{S_1^2(N)}{N}`
 
     .. list-table::  :math:`\gamma_{qg}^{(3)}` parametrization basis
         :align: center
@@ -320,7 +324,7 @@ The following tables list all the considered input functions.
         *   - :math:`f_3(N)`
             - :math:`\frac{1}{N-1},\ \mathcal{M}[\ln^3(1-x)]`
         *   - :math:`f_4(N)`
-            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1^2(N)}{N},\ \mathcal{M}[\ln(1-x)],\ \mathcal{M}[\ln^2(1-x)]`,\ \mathcal{M}[\ln^3(1-x)]
+            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1^2(N)}{N},\ \frac{S_1(N-2)}{N},\ \frac{S_1(N)}{N},\ \mathcal{M}[\ln^2(1-x)],\ \mathcal{M}[\ln^3(1-x)]`
 
     .. list-table::  :math:`\gamma_{qq,ps}^{(3)}` parametrization basis
         :align: center
