@@ -697,6 +697,16 @@ class EKO:
         return self.theory
 
     @property
+    def metadata(self) -> dict:
+        """Provide metadata, retrieving from the dump."""
+        return yaml.safe_load(self.extract(self.path, METADATAFILE))
+
+    @property
+    def metadata_card(self) -> dict:
+        """Provide metadata, retrieving from the dump."""
+        return self.metadata
+
+    @property
     def operator_card(self) -> dict:
         """Provide operator card, retrieving from the dump."""
         # TODO: return `eko.runcards.OperatorCard`
