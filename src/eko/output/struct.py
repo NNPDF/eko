@@ -735,7 +735,7 @@ class EKO:
         )
 
     @classmethod
-    def detached(cls, theory: dict, operator: dict, path: pathlib.Path):
+    def detached(cls, theory: dict, operator: dict, metadata: dict, path: pathlib.Path):
         """Build the in-memory object alone.
 
         Note
@@ -761,7 +761,7 @@ class EKO:
             the generated structure
 
         """
-        bases = operator["rotations"]
+        bases = metadata
         bases["pids"] = np.array(br.flavor_basis_pids)
         if operator["rotations"]["xgrid"] is not None:
             bases["xgrid"] = interpolation.XGrid(
@@ -863,8 +863,9 @@ class EKO:
 
         theory = yaml.safe_load(cls.extract(path, THEORYFILE))
         operator = yaml.safe_load(cls.extract(path, OPERATORFILE))
+        metadata = yaml.safe_load(cls.extract(path, METADATAFILE))
 
-        eko = cls.detached(theory, operator, path=path)
+        eko = cls.detached(theory, operator, metadata, path=path)
         logger.info(f"Operator loaded from path '{path}'")
         return eko
 
