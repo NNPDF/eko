@@ -98,7 +98,7 @@ def plot_ad_ratio(entry, q2=None, nf=4):
 
 if __name__ == "__main__":
 
-    for k in ["gq", "qq", "qg"]:
+    for k in ["gg"]:
 
         # linear plots
         x_grid = make_lambert_grid(60, x_min=1e-1)

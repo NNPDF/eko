@@ -44,6 +44,22 @@ python module msht_n3lo ! in
             double precision intent(in) :: a
             double precision intent(out) :: pgg3a
         end function pgg3a
+        function Pqqps3exactA(x) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(out) :: Pqqps3exactA
+        end function Pqqps3exactA
+        function Pgg3exactA(x) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(out) :: Pgg3exactA
+        end function Pgg3exactA
+        function Pqg3exactA(x) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(out) :: Pqg3exactA
+        end function Pqg3exactA
+        function Pgq3exactA(x) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(out) :: Pgq3exactA
+        end function Pgq3exactA
     end interface 
 end python module msht_n3lo
 
