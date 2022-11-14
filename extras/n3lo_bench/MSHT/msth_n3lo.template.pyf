@@ -1,0 +1,52 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module msht_n3lo ! in 
+    interface  ! in :msht_n3lo
+        function p3nsa(y,ans,ipm,flavor) ! in :msht_n3lo:split.F
+            double precision intent(in) :: y
+            double precision intent(in) :: ans
+            integer intent(in) :: ipm
+            double precision intent(in) :: flavor
+            double precision intent(out) :: p3nsa
+        end function p3nsa
+        function p3nsb(y,ans,ipm,flavor) ! in :msht_n3lo:split.F
+            double precision intent(in) :: y
+            double precision intent(in) :: ans
+            integer intent(in) :: ipm
+            double precision :: flavor
+            double precision intent(out) :: p3nsb
+        end function p3nsb
+        function p3nsc(y,ans,ipm,flavor) ! in :msht_n3lo:split.F
+            double precision intent(in) :: y
+            double precision intent(in) :: ans
+            integer intent(in) :: ipm
+            double precision intent(in) :: flavor
+            double precision intent(out) :: p3nsc
+        end function p3nsc
+        function pqqps3a(x,a) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: pqqps3a
+        end function pqqps3a
+        function pqg3a(x,a) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: pqg3a
+        end function pqg3a
+        function pgq3a(x,a) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: pgq3a
+        end function pgq3a
+        function pgg3a(x,a) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: pgg3a
+        end function pgg3a
+    end interface 
+end python module msht_n3lo
+
+! This file was auto-generated with f2py (version:1.22.4).
+! See:
+! https://web.archive.org/web/20140822061353/http://cens.ioc.ee/projects/f2py2e

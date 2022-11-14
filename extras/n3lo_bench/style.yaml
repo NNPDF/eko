@@ -1,0 +1,78 @@
+axes:
+  axisbelow: true
+  edgecolor: ".8"
+  facecolor: white
+  grid: true
+  labelcolor: ".15"
+  labelsize: 12.0
+  linewidth: 1.0
+  # prop_cycle:
+  #   color: ["#001D66", "#D62828", "#F77F00", "#FCBF49", "#EAE2B7", "#FFF180"]
+  titlesize: 14.0
+  titlepad: 9.0
+  xmargin: 0.
+figure:
+  facecolor: white
+font:
+  family:
+    - serif
+  sans-serif:
+    - Arial
+    - Liberation Sans
+    - DejaVu Sans
+    - Bitstream Vera Sans
+    - sans-serif
+grid:
+  alpha: .5
+  color: ".8"
+  linestyle: "--"
+hatch:
+  linewidth: 1.0
+image:
+  cmap: Greys
+legend:
+  facecolor: white
+  fancybox: false
+  fontsize: 10.0
+  framealpha: 0.3
+  frameon: true
+  handleheight: 1
+  numpoints: 1
+  scatterpoints: 1
+lines:
+  linewidth: 1.75
+  markeredgewidth: 0.0
+  markersize: 7.0
+  solid_capstyle: round
+patch:
+  facecolor: "#4C72B0"
+  linewidth: 0.7
+text:
+  color: ".15"
+xtick:
+  color: ".6"
+  labelcolor: ".4"
+  labelsize: 8.0
+  direction: in
+  major.size: 4.0
+  major.width: 1.0
+  major.top: true
+  major.bottom: true
+  minor.size: 2.0
+  minor.width: 0.5
+  minor.top: true
+  minor.bottom: true
+ytick:
+  color: ".6"
+  labelcolor: ".4"
+  labelsize: 8.0
+  direction: in
+  major.size: 4.0
+  major.width: 1.0
+  major.left: true
+  major.right: true
+  minor.size: 2.0
+  minor.width: 0.5
+  minor.left: true
+  minor.right: true
+
