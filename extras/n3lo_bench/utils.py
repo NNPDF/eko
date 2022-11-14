@@ -3,7 +3,7 @@ import yaml
 import itertools
 import cycler
 import matplotlib as mpl
-
+import pathlib
 
 here = pathlib.Path(__file__).parent
 
@@ -19,7 +19,7 @@ def flatten(d):
 
 def load_style():
     path = here / "style.yaml"
-    style = flatten(yaml.safe_load(path))
+    style = flatten(yaml.safe_load(pathlib.Path(path).read_text()))
 
     capstyle = "lines.solid_capstyle"
     prop_cycle = "axes.prop_cycle"
