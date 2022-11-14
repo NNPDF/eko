@@ -344,7 +344,7 @@ class Couplings:
     masses : list(float)
         list with quark masses squared
     thresholds_ratios : list(float)
-        list with ratios between the mass and the matching scales squared
+        list with ratios between the matching scales and the mass squared
     order: tuple(int,int)
         Evaluated order of the beta function: ``0`` = LO, ...
     method : ["expanded", "exact"]
