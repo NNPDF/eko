@@ -713,7 +713,7 @@ class EKO:
         yaml.safe_dump(self.metadata, stream)
         stream.seek(0)
         info = tarfile.TarInfo(name=METADATAFILE)
-        info.size = len(stream.len)
+        info.size = len(stream.tell())
         info.mtime = int(time.time())
         info.mode = 436
         with tarfile.open(self.path, "a") as tar:
