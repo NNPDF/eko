@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import pathlib
+import eko
 
+eko_path = eko.__path__
 fps = pathlib.Path(__file__).parent.glob("*.c")
 out = {}
 for fp in fps:
@@ -24,7 +26,7 @@ for fp in fps:
     gamma_name = str(fp).split('/')[-1].split('3')[0]
     if gamma_name =="gqq":
         gamma_name = "gqqPS"
-    with open(f"/Volumes/Git_Workspace/physicstools/NN3PDF/eko/src/eko/anomalous_dimensions/as4/{gamma_name}_1.py", "w", encoding="utf-8") as oo:
+    with open(f"{eko_path}/anomalous_dimensions/as4/{gamma_name}_1.py", "w", encoding="utf-8") as oo:
         oo.write(
             "# -*- coding: utf-8 -*-\n"
         )
