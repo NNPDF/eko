@@ -209,6 +209,7 @@ class BenchmarkFFNS_qed(ApfelBenchmark):
         "Q0": 5.0,
         "alphas": 0.118000,
         "alphaqed": 0.007496,
+        "alphaem_running": True,
     }
     ffns_theory = tolist(ffns_theory)
 
@@ -286,6 +287,7 @@ class BenchmarkVFNS_qed(ApfelBenchmark):
         "Q0": 1.25,
         "alphas": 0.118000,
         "alphaqed": 0.007496,
+        "alphaem_running": True,
     }
     vfns_theory = tolist(vfns_theory)
 

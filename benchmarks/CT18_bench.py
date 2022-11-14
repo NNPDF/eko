@@ -65,6 +65,7 @@ class BenchmarkCT18(Runner):
                 "Q0": Q0,
                 "MaxNfPdf": 5,
                 "MaxNfAs": 5,
+                "alphaem_running": True,
             }
         )
         operator_card = {"Q2grid": list(Q2grid)}

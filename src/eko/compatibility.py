@@ -35,7 +35,6 @@ def update(theory: dict, operators: Optional[dict]):
         new_theory["order"] = [new_theory.pop("PTO") + 1, new_theory.pop("QED")]
     if "alphaem_running" not in new_theory:
         new_theory["alphaem_running"] = False
-        # TODO : add alphaem_running to the runcard
 
     if operators is not None and "configs" not in operators:
         new_operators["configs"] = {}
