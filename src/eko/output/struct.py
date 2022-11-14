@@ -706,6 +706,19 @@ class EKO:
         """Provide metadata, retrieving from the dump."""
         return self.metadata
 
+    def update_metadata(self, to_update: dict):
+        """Update the metadata file with the info in to_update."""
+        self.metadata.update(to_update)
+        stream = io.StringIO()
+        yaml.safe_dump(self.metadata, stream)
+        stream.seek(0)
+        info = tarfile.TarInfo(name=METADATAFILE)
+        info.size = len(stream.getbuffer())
+        info.mtime = int(time.time())
+        info.mode = 436
+        with tarfile.open(self.path, "a") as tar:
+            tar.addfile(info, fileobj=stream)
+
     @property
     def operator_card(self) -> dict:
         """Provide operator card, retrieving from the dump."""
@@ -761,7 +774,7 @@ class EKO:
             the generated structure
 
         """
-        bases = copy.deepcopy(metadata)
+        bases = copy.deepcopy(metadata["rotations"])
         bases["pids"] = np.array(br.flavor_basis_pids)
         bases["xgrid"] = interpolation.XGrid(
             operator["rotations"]["xgrid"],
@@ -822,11 +835,11 @@ class EKO:
             # delete the file created in case of temporary file
             path.unlink()
         # Constructing initial metadata
-        metadata = {}
-        metadata["_targetgrid"] = operator["rotations"]["xgrid"]
-        metadata["_inputgrid"] = operator["rotations"]["xgrid"]
-        metadata["_targetpids"] = operator["rotations"]["pids"]
-        metadata["_inputpids"] = operator["rotations"]["pids"]
+        metadata = dict(rotations=dict())
+        metadata["rotations"]["_targetgrid"] = operator["rotations"]["xgrid"]
+        metadata["rotations"]["_inputgrid"] = operator["rotations"]["xgrid"]
+        metadata["rotations"]["_targetpids"] = operator["rotations"]["pids"]
+        metadata["rotations"]["_inputpids"] = operator["rotations"]["pids"]
         with tempfile.TemporaryDirectory() as td:
             td = pathlib.Path(td)
             cls.bootstrap(td, theory=theory, operator=operator, metadata=metadata)
