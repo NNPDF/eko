@@ -824,10 +824,10 @@ class EKO:
             path.unlink()
         # Constructing initial metadata
         metadata = {}
-        metadata["targetgrid"] = operator["rotations"]["xgrid"]
-        metadata["inputgrid"] = operator["rotations"]["xgrid"]
-        metadata["targetpids"] = operator["rotations"]["pids"]
-        metadata["inputpids"] = operator["rotations"]["pids"]
+        metadata["_targetgrid"] = operator["rotations"]["xgrid"]
+        metadata["_inputgrid"] = operator["rotations"]["xgrid"]
+        metadata["_targetpids"] = operator["rotations"]["pids"]
+        metadata["_inputpids"] = operator["rotations"]["pids"]
         with tempfile.TemporaryDirectory() as td:
             td = pathlib.Path(td)
             cls.bootstrap(td, theory=theory, operator=operator, metadata=metadata)
