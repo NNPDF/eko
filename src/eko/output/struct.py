@@ -764,6 +764,8 @@ class EKO:
             the theory card
         operator : dict
             the operator card
+        metadata: dict
+            the metadata card
         path : os.PathLike
             the underlying path (it has to be a valid object, but it is not
             guaranteed, see the note)
