@@ -276,6 +276,7 @@ class Rotations(DictLike):
     @property
     def inputgrid(self) -> interpolation.XGrid:
         """Provide :math:`x`-grid expected on the input PDF."""
+        self.__post_init__()
         if self._inputgrid is None:
             return self.xgrid
         return self._inputgrid
@@ -283,6 +284,7 @@ class Rotations(DictLike):
     @property
     def targetgrid(self) -> interpolation.XGrid:
         """Provide :math:`x`-grid corresponding to the output PDF."""
+        self.__post_init__()
         if self._targetgrid is None:
             return self.xgrid
         return self._targetgrid
