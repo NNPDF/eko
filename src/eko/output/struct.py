@@ -777,6 +777,9 @@ class EKO:
 
         """
         bases = copy.deepcopy(metadata["rotations"])
+        # cast bases list to numpy array
+        for attr in bases:
+            bases[attr] = np.array(bases[attr])
         bases["pids"] = np.array(br.flavor_basis_pids)
         bases["xgrid"] = interpolation.XGrid(
             operator["rotations"]["xgrid"],
@@ -838,17 +841,17 @@ class EKO:
             path.unlink()
         # Constructing initial metadata
         metadata = dict(rotations=dict())
-        metadata["rotations"]["_targetgrid"] = np.array(
-            copy.deepcopy(operator["rotations"]["xgrid"])
+        metadata["rotations"]["_targetgrid"] = copy.deepcopy(
+            operator["rotations"]["xgrid"]
         )
-        metadata["rotations"]["_inputgrid"] = np.array(
-            copy.deepcopy(operator["rotations"]["xgrid"])
+        metadata["rotations"]["_inputgrid"] = copy.deepcopy(
+            operator["rotations"]["xgrid"]
         )
-        metadata["rotations"]["_targetpids"] = np.array(
-            copy.deepcopy(operator["rotations"]["pids"])
+        metadata["rotations"]["_targetpids"] = copy.deepcopy(
+            operator["rotations"]["pids"]
         )
-        metadata["rotations"]["_inputpids"] = np.array(
-            copy.deepcopy(operator["rotations"]["pids"])
+        metadata["rotations"]["_inputpids"] = copy.deepcopy(
+            operator["rotations"]["pids"]
         )
         with tempfile.TemporaryDirectory() as td:
             td = pathlib.Path(td)
@@ -857,9 +860,7 @@ class EKO:
             with tarfile.open(path, mode="w") as tar:
                 for element in td.glob("*"):
                     tar.add(element, arcname=element.name)
-
             shutil.rmtree(td)
-
         eko = cls.detached(theory, operator, metadata, path=path)
         logger.info(f"New operator created at path '{path}'")
         return eko
