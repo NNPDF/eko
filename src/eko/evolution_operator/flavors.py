@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""The write-up of the matching conditions is given in :doc:`Matching Conditions </theory/Matching>`."""
 
 import numpy as np

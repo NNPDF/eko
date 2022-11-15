@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """LHAPDF interface."""
+
 import numpy as np
 
 from eko import basis_rotation as br
@@ -27,7 +27,6 @@ def compute_LHAPDF_data(
         ref : dict
             output containing: target_xgrid, values
     """
-
     target_xgrid = operators["interpolation_xgrid"]
 
     out_tabs = {}

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Compute the |NNLO| Altarelli-Parisi splitting kernels.
 

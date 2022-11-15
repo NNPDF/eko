@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Defines the matching conditions for the |VFNS| evolution."""
 
 from .. import basis_rotation as br

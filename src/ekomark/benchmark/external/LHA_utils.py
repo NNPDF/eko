@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO)
 """

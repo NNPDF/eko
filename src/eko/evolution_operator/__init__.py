@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""Contains the central operator classes.
 
 See :doc:`Operator overview </code/Operators>`.
@@ -195,6 +194,7 @@ def quad_ker(
     areas,
     as1,
     as0,
+    as_raw,
     aem_list,
     alphaem_running,
     nf,
@@ -224,10 +224,12 @@ def quad_ker(
         Mellin inversion point
     areas : tuple
         basis function configuration
-    a1 : float
+    as1 : float
         target coupling value
-    a0 : float
+    as0 : float
         initial coupling value
+    as_raw : float
+        coupling value at the process scale
     aem : float
         electromagnetic coupling value
     nf : int
@@ -275,7 +277,7 @@ def quad_ker(
             # scale var expanded is applied on the kernel
             if sv_mode == sv.Modes.expanded and not is_threshold:
                 ker = np.ascontiguousarray(
-                    sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
+                    sv.expanded.singlet_variation(gamma_singlet, as_raw, order, nf, L)
                 ) @ np.ascontiguousarray(ker)
             ker = select_singlet_element(ker, mode0, mode1)
         else:
@@ -293,7 +295,8 @@ def quad_ker(
             )
             if sv_mode == sv.Modes.expanded and not is_threshold:
                 ker = (
-                    sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+                    sv.expanded.non_singlet_variation(gamma_ns, as_raw, order, nf, L)
+                    * ker
                 )
     else:
         # compute the actual evolution kernel for QEDxQCD
@@ -316,11 +319,11 @@ def quad_ker(
                 ev_op_max_order,
             )
             # scale var expanded is applied on the kernel
-            # TODO : check expanded scale variations
+            # TODO : check as_raw and a_em in expanded scale variations
             if sv_mode == sv.Modes.expanded and not is_threshold:
                 ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
                     sv.expanded.QEDsinglet_variation(
-                        gamma_s, as1, aem_list[-1], alphaem_running, order, nf, L
+                        gamma_s, as_raw, aem_list[-1], alphaem_running, order, nf, L
                     )
                 )
             ker = select_QEDsinglet_element(ker, mode0, mode1)
@@ -346,7 +349,7 @@ def quad_ker(
             if sv_mode == sv.Modes.expanded and not is_threshold:
                 ker = np.ascontiguousarray(
                     sv.expanded.QEDvalence_variation(
-                        gamma_v, as1, aem_list[-1], alphaem_running, order, nf, L
+                        gamma_v, as_raw, aem_list[-1], alphaem_running, order, nf, L
                     )
                 ) @ np.ascontiguousarray(ker)
             ker = select_QEDvalence_element(ker, mode0, mode1)
@@ -371,7 +374,7 @@ def quad_ker(
             if sv_mode == sv.Modes.expanded and not is_threshold:
                 ker = (
                     sv.expanded.QEDnon_singlet_variation(
-                        gamma_ns, as1, aem_list[-1], alphaem_running, order, nf, L
+                        gamma_ns, as_raw, aem_list[-1], alphaem_running, order, nf, L
                     )
                     * ker
                 )
@@ -476,17 +479,18 @@ class Operator(sv.ModeMixin):
         a1 = coupling.a(
             self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf
         )
-        return (a0, a1)
+        a_raw = coupling.a(self.q2_to, fact_scale=self.q2_to, nf_to=self.nf)
+        return (a0, a1, a_raw)
 
     @property
     def a_s(self):
         """Return the computed values for :math:`a_s`."""
-        return (self.a[0][0], self.a[1][0])
+        return (self.a[0][0], self.a[1][0], self.a[2][0])
 
     @property
     def a_em(self):
         """Return the computed values for :math:`a_{em}`."""
-        return (self.a[0][1], self.a[1][1])
+        return (self.a[0][1], self.a[1][1], self.a[2][1])
 
     def compute_aem_list_as(self):
         """Return the list of the couplings for the different values of :math:`a_s`."""
@@ -595,6 +599,7 @@ class Operator(sv.ModeMixin):
             areas=areas,
             as1=self.a_s[1],
             as0=self.a_s[0],
+            as_raw=self.a_s[2],
             aem_list=self.aem_list_as,
             alphaem_running=self.alphaem_running,
             nf=self.nf,

@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """Contains the :class:`PhysicalOperator` class."""
+
 import numpy as np
 
 from .. import basis_rotation as br

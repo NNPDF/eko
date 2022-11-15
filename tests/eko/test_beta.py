@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     This module tests the implemented beta functions and the value
     of alpha_s for different orders.

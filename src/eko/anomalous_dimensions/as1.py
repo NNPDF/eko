@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Compute the leading-order Altarelli-Parisi splitting kernels."""
 
 import numba as nb

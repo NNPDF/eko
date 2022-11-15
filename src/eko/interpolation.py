@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Library providing all necessary tools for PDF interpolation.
 
@@ -74,8 +73,7 @@ class Area:
 
     def __iter__(self):
         """Iterates the generated coefficients"""
-        for coef in self.coefs:
-            yield coef
+        yield from self.coefs
 
 
 @nb.njit(cache=True)
@@ -407,8 +405,7 @@ class BasisFunction:
             self.callable = evaluate_Nx
 
     def __iter__(self):
-        for area in self.areas:
-            yield area
+        yield from self.areas
 
     def __call__(self, *args, **kwargs):
         args = list(args)
@@ -564,8 +561,7 @@ class InterpolatorDispatcher:
 
     def __iter__(self):
         # return iter(self.basis)
-        for basis in self.basis:
-            yield basis
+        yield from self.basis
 
     def __getitem__(self, item):
         return self.basis[item]

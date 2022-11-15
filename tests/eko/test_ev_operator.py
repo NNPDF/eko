@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import copy
 import os
 
@@ -44,6 +43,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
+            as_raw=1,
             aem_list=[0.00058],
             alphaem_running=False,
             nf=3,
@@ -65,6 +65,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
+            as_raw=1,
             aem_list=[0.00058],
             alphaem_running=False,
             nf=3,
@@ -86,6 +87,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
+            as_raw=1,
             aem_list=[0.00058],
             alphaem_running=False,
             nf=3,
@@ -107,6 +109,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
+            as_raw=1,
             aem_list=[0.00058],
             alphaem_running=False,
             nf=3,
@@ -128,6 +131,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
+            as_raw=1,
             aem_list=[0.00058],
             alphaem_running=False,
             nf=3,
@@ -149,6 +153,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
+            as_raw=1,
             aem_list=[0.00058],
             alphaem_running=False,
             nf=3,
@@ -170,6 +175,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
+            as_raw=1,
             aem_list=[0.00058],
             alphaem_running=False,
             nf=3,
@@ -191,6 +197,7 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
+            as_raw=1,
             aem_list=[0.00058],
             alphaem_running=False,
             nf=3,
@@ -214,6 +221,7 @@ def test_quad_ker(monkeypatch):
                 areas=np.zeros(3),
                 as1=1,
                 as0=2,
+                as_raw=1,
                 aem_list=[0.00058],
                 alphaem_running=False,
                 nf=3,
@@ -245,6 +253,7 @@ def test_quad_ker(monkeypatch):
                 areas=np.zeros(3),
                 as1=1,
                 as0=2,
+                as_raw=1,
                 aem_list=[0.00058],
                 alphaem_running=False,
                 nf=3,
@@ -268,6 +277,7 @@ def test_quad_ker(monkeypatch):
         areas=np.zeros(3),
         as1=1,
         as0=2,
+        as_raw=1,
         aem_list=[0.00058],
         alphaem_running=False,
         nf=3,
@@ -532,7 +542,7 @@ class TestOperator:
                             o = Operator(g.config, g.managers, 3, q0**2, q2to)
                             couplings = Couplings.from_dict(tcard)
                             aem_list = o.aem_list_as
-                            (a0, a1) = o.a_s
+                            (a0, a1, _) = o.a_s
                             ev_op_iterations = ocard["configs"]["ev_op_iterations"]
                             as_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
                             as_l = as_steps[0]
@@ -688,7 +698,7 @@ def test_pegasus_path():
     mode1 = 0
     method = ""
     logxs = np.log(int_disp.xgrid.raw)
-    a1 = 1
+    as_raw = a1 = 1
     a0 = 2
     nf = 3
     L = 0
@@ -709,6 +719,7 @@ def test_pegasus_path():
                     bf.areas_representation,
                     a1,
                     a0,
+                    as_raw,
                     [0.00058],
                     False,
                     nf,

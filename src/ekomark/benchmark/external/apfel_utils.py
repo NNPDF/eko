@@ -1,5 +1,5 @@
-# -*- coding: utf-8 -*-
 """APFEL interface."""
+
 import time
 
 import numpy as np
@@ -32,7 +32,6 @@ def compute_apfel_data(
         ref : dict
             output containing: target_xgrid, values
     """
-
     target_xgrid = operators["interpolation_xgrid"]
     pdf_name = pdf.set().name
 

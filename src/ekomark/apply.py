@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Apply all available operators to the input PDFs."""
 import numpy as np
 

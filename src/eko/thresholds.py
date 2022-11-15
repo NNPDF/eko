@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""Holds the classes that define the |FNS|."""
 import logging
 
@@ -71,7 +70,7 @@ class ThresholdsAtlas:
         nf_ref : int
             number of active flavors at the reference scale
         thresholds_ratios : list(float)
-            list of ratios between masses and matching scales squared
+            list of ratios between matching scales and masses squared
         max_nf : int
             maximum number of active flavors
         """
@@ -142,7 +141,7 @@ class ThresholdsAtlas:
         masses : list(float)
             heavy quark masses squared
         thresholds_ratios : list(float)
-            list of ratios between masses and matching scales squared
+            list of ratios between matching scales and masses squared
         max_nf : int
             maximum number of flavors
 

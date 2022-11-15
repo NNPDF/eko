@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 
 from ekobox import operators_card as oc

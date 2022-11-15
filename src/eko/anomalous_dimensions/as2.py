@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Compute the |NLO| Altarelli-Parisi splitting kernels.
 
 These expression have been obtained using the procedure described in the

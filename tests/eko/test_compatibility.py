@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from eko import compatibility
 
 theory1 = {"alphas": 0.1180, "alphaqed": 0.007496, "PTO": 2, "QED": 0, "Q0": 1.0}

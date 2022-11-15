@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-"""This file contains the main application class of eko."""
+"""Main application class of eko."""
 import copy
 import logging
 from typing import Optional
@@ -75,13 +74,6 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         # setup operator grid
         self.op_grid = OperatorGrid.from_dict(new_theory, new_operators, tc, sc, bfd)
 
-        # save bases manipulations for a post processing step
-        rot = operators_card.get("rotations", {})
-        self.post_process = {}
-        for key in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
-            self.post_process[key] = rot.get(key, None)
-            new_operators["rotations"][key] = None
-
         self.out = EKO.new(theory=theory_card, operator=new_operators)
 
     def get_output(self) -> EKO:
@@ -102,36 +94,5 @@ o888ooooood8 o888o  o888o     `Y8bood8P'
         # add all operators
         for final_scale, op in self.op_grid.compute().items():
             self.out[float(final_scale)] = Operator.from_dict(op)
-
-        def similar_to_none(name: str) -> Optional[np.ndarray]:
-            grid = self.post_process[name]
-
-            default = self.out.xgrid.grid if "grid" in name else self.out.rotations.pids
-            if grid is None or (
-                len(grid) == default.size and np.allclose(grid, default, atol=1e-12)
-            ):
-                return None
-
-            return np.array(grid)
-
-        # reshape xgrid
-        inputgrid = similar_to_none("inputgrid")
-        targetgrid = similar_to_none("targetgrid")
-        if inputgrid is not None or targetgrid is not None:
-            if inputgrid is not None:
-                inputgrid = interpolation.XGrid(inputgrid)
-            if targetgrid is not None:
-                targetgrid = interpolation.XGrid(targetgrid)
-            manipulate.xgrid_reshape(
-                self.out, targetgrid=targetgrid, inputgrid=inputgrid
-            )
-
-        # reshape flavors
-        inputpids = similar_to_none("inputpids")
-        targetpids = similar_to_none("targetpids")
-        if inputpids is not None or targetpids is not None:
-            manipulate.flavor_reshape(
-                self.out, targetpids=targetpids, inputpids=inputpids
-            )
 
         return copy.deepcopy(self.out)

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""
 Contains the Altarelli-Parisi splitting kernels.
 

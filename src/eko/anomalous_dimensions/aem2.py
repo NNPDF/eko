@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains the O(aem2) Altarelli-Parisi splitting kernels."""
 
 import numba as nb

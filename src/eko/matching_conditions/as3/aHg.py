@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: skip-file
 import numba as nb
 import numpy as np
@@ -23,7 +22,7 @@ def A_Hg(n, sx, nf, L):  # pylint: disable=too-many-locals
     nf : int
         number of active flavor below the threshold
     L : float
-        :math:`\ln(\mu_F^2 / m_h^2)`
+        :math:`\ln(q^2 / m_h^2)`
 
     Returns
     -------

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Defines the |OME| for the non-trivial matching conditions in the |VFNS| evolution."""
 
 import copy
@@ -235,7 +234,7 @@ def quad_ker(
 
 
 class OperatorMatrixElement(Operator):
-    """Internal representation of a single |OME|.
+    r"""Internal representation of a single |OME|.
 
     The actual matrices are computed upon calling :meth:`compute`.
 
@@ -252,7 +251,7 @@ class OperatorMatrixElement(Operator):
     is_backward: bool
         True for backward evolution
     L: float
-        log of K threshold squared
+        :math:`\ln(q^2 / m_h^2)`
     is_msbar: bool
         add the |MSbar| contribution
     """

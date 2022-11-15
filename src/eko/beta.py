@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""
 Compute the QCD beta function coefficients.
 

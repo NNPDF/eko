@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Compatibility functions.
 
 Upgrade old input (NNPDF jargon compatible) to the native one.

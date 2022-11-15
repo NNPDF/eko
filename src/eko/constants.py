@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-"""This files sets the physical constants."""
+"""Sets the physical constants."""
 
 import numba as nb
 
@@ -32,7 +31,7 @@ ed2 = 1.0 / 9
 
 
 def update_colors(nc):
-    """Updates the number of colors to :math:`NC = nc`.
+    """Update the number of colors to :math:`NC = nc`.
 
     The Casimirs for a generic value of :math:`NC` are consistenly updated as
     well.
@@ -52,7 +51,7 @@ def update_colors(nc):
 
 @nb.njit(cache=True)
 def uplike_flavors(nf):
-    """Computes the number of up flavors
+    """Compute the number of up flavors.
 
     Parameters
     ----------
@@ -72,7 +71,7 @@ def uplike_flavors(nf):
 
 @nb.njit(cache=True)
 def e2avg(nf):
-    """Computes the charge squared average
+    """Compute the charge squared average.
 
     Parameters
     ----------
@@ -91,7 +90,7 @@ def e2avg(nf):
 
 @nb.njit(cache=True)
 def vue2m(nf):
-    """Computes the product nu / nf * (e2u - e2d)
+    """Compute the product nu / nf * (e2u - e2d).
 
     Parameters
     ----------
@@ -109,7 +108,7 @@ def vue2m(nf):
 
 @nb.njit(cache=True)
 def vde2m(nf):
-    """Computes the product nd / nf * (e2u - e2d)
+    """Compute the product nd / nf * (e2u - e2d).
 
     Parameters
     ----------

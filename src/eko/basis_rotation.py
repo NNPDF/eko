@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Contains the definitions of the :doc:`Flavor Basis and Evolution Basis </theory/FlavorSpace>`."""
 
 import numpy as np

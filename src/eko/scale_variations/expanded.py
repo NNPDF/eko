@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-r"""This module contains the scale variation operator for the expanded scheme (``ModSV=expanded``).
+r"""Contains the scale variation operator for the expanded scheme (``ModSV=expanded``).
 
 The expressions can be obtained using Eqs. (3.33) and (3.38) of :cite:`AbdulKhalek:2019ihb`.
 Be aware that corresponding the signs of the ingredients there are a number of differences.
@@ -15,7 +14,7 @@ from .. import beta
 
 @nb.njit(cache=True)
 def variation_as1(gamma, L):
-    r"""Computes the |NLO| anomalous dimension variation.
+    r"""Compute the |NLO| anomalous dimension variation.
 
     Parameters
     ----------
@@ -34,7 +33,7 @@ def variation_as1(gamma, L):
 
 @nb.njit(cache=True)
 def variation_as2(gamma, L, beta0, g0e2):
-    r"""Computes the |NNLO| anomalous dimension variation.
+    r"""Compute the |NNLO| anomalous dimension variation.
 
     Parameters
     ----------
@@ -57,7 +56,7 @@ def variation_as2(gamma, L, beta0, g0e2):
 
 @nb.njit(cache=True)
 def variation_as3(gamma, L, beta0, beta1, g0e2, g0e3, g1g0, g0g1):
-    r"""Computes the |N3LO| anomalous dimension variation.
+    r"""Compute the |N3LO| anomalous dimension variation.
 
     Parameters
     ----------
