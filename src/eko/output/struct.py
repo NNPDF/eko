@@ -646,9 +646,45 @@ class EKO:
             metadata of the operator
         """
         dirpath = pathlib.Path(dirpath)
+        operator_to_dump = copy.deepcopy(operator)
+        metadata_to_dump = copy.deepcopy(metadata)
+        # cast arrays to list in order to dump them
+        for attr in operator_to_dump:
+            if isinstance(operator_to_dump[attr], np.float64):
+                operator_to_dump[attr] = operator_to_dump[attr].tolist()
+        for attr in operator_to_dump["rotations"]:
+            if isinstance(operator_to_dump["rotations"][attr], np.ndarray):
+                operator_to_dump["rotations"][attr] = operator_to_dump["rotations"][
+                    attr
+                ].tolist()
+        for attr in operator_to_dump["Q2grid"]:
+            try:
+                if isinstance(operator_to_dump["Q2grid"][attr]["operator"], np.ndarray):
+                    operator_to_dump["Q2grid"][attr]["operator"] = operator_to_dump[
+                        "Q2grid"
+                    ][attr]["operator"].tolist()
+            except IndexError:
+                continue
+        for attr in operator_to_dump["Q2grid"]:
+            try:
+                if isinstance(operator_to_dump["Q2grid"][attr]["error"], np.ndarray):
+                    operator_to_dump["Q2grid"][attr]["error"] = operator_to_dump[
+                        "Q2grid"
+                    ][attr]["error"].tolist()
+            except IndexError:
+                continue
+        for attr in metadata_to_dump["rotations"]:
+            if isinstance(metadata_to_dump["rotations"][attr], np.ndarray):
+                metadata_to_dump["rotations"][attr] = metadata_to_dump["rotations"][
+                    attr
+                ].tolist()
         (dirpath / THEORYFILE).write_text(yaml.dump(theory), encoding="utf-8")
-        (dirpath / OPERATORFILE).write_text(yaml.dump(operator), encoding="utf-8")
-        (dirpath / METADATAFILE).write_text(yaml.dump(metadata), encoding="utf-8")
+        (dirpath / OPERATORFILE).write_text(
+            yaml.dump(operator_to_dump), encoding="utf-8"
+        )
+        (dirpath / METADATAFILE).write_text(
+            yaml.dump(metadata_to_dump), encoding="utf-8"
+        )
         (dirpath / RECIPESDIR).mkdir()
         (dirpath / PARTSDIR).mkdir()
         (dirpath / OPERATORSDIR).mkdir()
@@ -708,12 +744,16 @@ class EKO:
 
     def update_metadata(self, to_update: dict):
         """Update the metadata file with the info in to_update."""
-        self.metadata.update(to_update)
+        # cast to update to list
+        for attr in to_update["rotations"]:
+            to_update["rotations"][attr] = to_update["rotations"][attr].tolist()
+        new_metadata = copy.deepcopy(self.metadata)
+        new_metadata["rotations"].update(to_update["rotations"])
         stream = io.StringIO()
-        yaml.safe_dump(self.metadata, stream)
+        yaml.safe_dump(new_metadata, stream)
         stream.seek(0)
         info = tarfile.TarInfo(name=METADATAFILE)
-        info.size = len(stream.tell())
+        info.size = len(stream.getvalue())
         info.mtime = int(time.time())
         info.mode = 436
         with tarfile.open(self.path, "a") as tar:
