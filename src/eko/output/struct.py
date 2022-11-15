@@ -838,10 +838,18 @@ class EKO:
             path.unlink()
         # Constructing initial metadata
         metadata = dict(rotations=dict())
-        metadata["rotations"]["_targetgrid"] = operator["rotations"]["xgrid"]
-        metadata["rotations"]["_inputgrid"] = operator["rotations"]["xgrid"]
-        metadata["rotations"]["_targetpids"] = operator["rotations"]["pids"]
-        metadata["rotations"]["_inputpids"] = operator["rotations"]["pids"]
+        metadata["rotations"]["_targetgrid"] = np.array(
+            copy.deepcopy(operator["rotations"]["xgrid"])
+        )
+        metadata["rotations"]["_inputgrid"] = np.array(
+            copy.deepcopy(operator["rotations"]["xgrid"])
+        )
+        metadata["rotations"]["_targetpids"] = np.array(
+            copy.deepcopy(operator["rotations"]["pids"])
+        )
+        metadata["rotations"]["_inputpids"] = np.array(
+            copy.deepcopy(operator["rotations"]["pids"])
+        )
         with tempfile.TemporaryDirectory() as td:
             td = pathlib.Path(td)
             cls.bootstrap(td, theory=theory, operator=operator, metadata=metadata)
