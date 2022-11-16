@@ -191,8 +191,8 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False):
     if source:
         eko.rotations._inputpids = br.evol_basis_pids
         # update metadata
-        eko.update_metadata({"rotations": {"_inputpids": inputpids}})
+        eko.update_metadata({"rotations": {"_inputpids": br.evol_basis_pids}})
     if target:
         eko.rotations._targetpids = br.evol_basis_pids
         # update metadata
-        eko.update_metadata({"rotations": {"_targetpids": targetpids}})
+        eko.update_metadata({"rotations": {"_targetpids": br.evol_basis_pids}})
