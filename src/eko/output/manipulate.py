@@ -139,18 +139,14 @@ def flavor_reshape(
         errs = elem.error
         if targetpids is not None and inputpids is None:
             # update metadata
-            eko.update_metadata({"rotations": {"_targetpids": targetpids}})
             ops = np.einsum("ca,ajbk->cjbk", targetpids, ops)
             errs = np.einsum("ca,ajbk->cjbk", targetpids, errs)
         elif inputpids is not None and targetpids is None:
             # update metadata
-            eko.update_metadata({"rotations": {"_inputpids": inputpids}})
             ops = np.einsum("ajbk,bd->ajdk", ops, inv_inputpids)
             errs = np.einsum("ajbk,bd->ajdk", errs, inv_inputpids)
         else:
             # update metadata
-            eko.update_metadata({"rotations": {"_inputpids": inputpids}})
-            eko.update_metadata({"rotations": {"_targetpids": targetpids}})
             ops = np.einsum("ca,ajbk,bd->cjdk", targetpids, ops, inv_inputpids)
             errs = np.einsum("ca,ajbk,bd->cjdk", targetpids, errs, inv_inputpids)
         elem.operator = ops
@@ -162,8 +158,10 @@ def flavor_reshape(
     # there is no meaningful way to set them in general, after rotation
     if inputpids is not None:
         eko.rotations._inputpids = np.array([0] * len(eko.rotations.inputpids))
+        eko.update_metadata({"rotations": {"_inputpids": inputpids}})
     if targetpids is not None:
         eko.rotations._targetpids = np.array([0] * len(eko.rotations.targetpids))
+        eko.update_metadata({"rotations": {"_targetpids": targetpids}})
 
 
 def to_evol(eko: EKO, source: bool = True, target: bool = False):
