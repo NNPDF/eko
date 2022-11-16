@@ -11,7 +11,7 @@ class TestApply:
         pdf_grid = apply.apply_pdf(o, fake_pdf)
         assert len(pdf_grid) == len(fake_card["Q2grid"])
         pdfs = pdf_grid[q2_out]["pdfs"]
-        assert list(pdfs.keys()) == o.rotations.targetpids
+        assert list(pdfs.keys()) == list(o.rotations.targetpids)
         ref_pid1 = fake_card["Q2grid"][q2_out]["operator"][0, :, 1, :] @ np.ones(
             len(o.rotations.xgrid)
         )
@@ -25,7 +25,7 @@ class TestApply:
         pdf_grid = apply.apply_pdf(o, fake_pdf, target_grid)
         assert len(pdf_grid) == 1
         pdfs = pdf_grid[q2_out]["pdfs"]
-        assert list(pdfs.keys()) == o.rotations.targetpids
+        assert list(pdfs.keys()) == list(o.rotations.targetpids)
 
     def test_apply_flavor(self, fake_legacy, fake_pdf, monkeypatch):
         o, fake_card = fake_legacy
