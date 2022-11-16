@@ -130,7 +130,9 @@ class TestEKO:
     def _default_cards(self):
         t = tc.generate(0, 1.0)
         o = oc.generate([10.0])
-        return compatibility.update(t, o)
+        nt, no = compatibility.update(t, o)
+        no["rotations"]["pids"] = no["rotations"]["targetpids"]
+        return nt, no
 
     def test_new_error(self, tmp_path):
         nt, no = self._default_cards()
@@ -211,6 +213,17 @@ class TestEKO:
         no["rotations"]["targetgrid"] = txg
         no["rotations"]["inputgrid"] = ixg
         eko = struct.EKO.new(nt, no)
+        # Targetgrid and inputgrid should not be anymore in the opcard
+        # They are not used anymore
+        assert eko.interpolator(False, True).xgrid == interpolation.XGrid(
+            no["rotations"]["xgrid"]
+        )
+        assert eko.interpolator(False, False).xgrid == interpolation.XGrid(
+            no["rotations"]["xgrid"]
+        )
+        # However you can esplicitly set them
+        eko.rotations._targetgrid = interpolation.XGrid(txg)
+        eko.rotations._inputgrid = interpolation.XGrid(ixg)
         assert eko.interpolator(False, True).xgrid == interpolation.XGrid(txg)
         assert eko.interpolator(False, False).xgrid == interpolation.XGrid(ixg)
 
