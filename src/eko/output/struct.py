@@ -667,6 +667,8 @@ class EKO:
                     ][attr]["operator"].tolist()
             except IndexError:
                 continue
+            except TypeError:
+                continue
         for attr in operator_to_dump["Q2grid"]:
             try:
                 if isinstance(operator_to_dump["Q2grid"][attr]["error"], np.ndarray):
@@ -674,6 +676,8 @@ class EKO:
                         "Q2grid"
                     ][attr]["error"].tolist()
             except IndexError:
+                continue
+            except TypeError:
                 continue
         for attr in metadata_to_dump["rotations"]:
             if isinstance(metadata_to_dump["rotations"][attr], np.ndarray):
