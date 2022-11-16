@@ -751,15 +751,15 @@ class EKO:
             to_update["rotations"][attr] = to_update["rotations"][attr].tolist()
         new_metadata = copy.deepcopy(self.metadata)
         new_metadata["rotations"].update(to_update["rotations"])
-        stream = io.StringIO()
-        yaml.safe_dump(new_metadata, stream)
-        stream.seek(0)
-        info = tarfile.TarInfo(name=METADATAFILE)
-        info.size = len(stream.getvalue())
-        info.mtime = int(time.time())
-        info.mode = 436
-        with tarfile.open(self.path, "a") as tar:
-            tar.addfile(info, fileobj=stream)
+        # stream = io.StringIO()
+        # yaml.safe_dump(new_metadata, stream)
+        # stream.seek(0)
+        # info = tarfile.TarInfo(name=METADATAFILE)
+        # info.size = len(stream.getvalue())
+        # info.mtime = int(time.time())
+        # info.mode = 436
+        # with tarfile.open(self.path, "a") as tar:
+        #    tar.addfile(info, fileobj=stream)
 
     @property
     def operator_card(self) -> dict:
@@ -889,11 +889,11 @@ class EKO:
         metadata["rotations"]["_inputgrid"] = copy.deepcopy(
             operator["rotations"]["xgrid"]
         )
-        metadata["rotations"]["_targetpids"] = copy.deepcopy(
-            operator["rotations"]["pids"]
+        metadata["rotations"]["_targetpids"] = np.array(
+            copy.deepcopy(operator["rotations"]["pids"])
         )
-        metadata["rotations"]["_inputpids"] = copy.deepcopy(
-            operator["rotations"]["pids"]
+        metadata["rotations"]["_inputpids"] = np.array(
+            copy.deepcopy(operator["rotations"]["pids"])
         )
         with tempfile.TemporaryDirectory() as td:
             td = pathlib.Path(td)
