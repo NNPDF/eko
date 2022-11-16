@@ -250,7 +250,9 @@ class TestManipulate:
         chk_keys(o00.raw, o11.raw)
 
         # check the input rotated one
-        np.testing.assert_allclose(o01.rotations.inputpids, br.evol_basis_pids)
+        np.testing.assert_allclose(
+            o01.rotations.inputpids, br.rotate_flavor_to_evolution
+        )
         np.testing.assert_allclose(o01.rotations.targetpids, br.flavor_basis_pids)
         # rotate also target
         manipulate.to_evol(o01, False, True)
@@ -258,7 +260,9 @@ class TestManipulate:
         chk_keys(o00.raw, o01.raw)
         # check the target rotated one
         np.testing.assert_allclose(o10.rotations.inputpids, br.flavor_basis_pids)
-        np.testing.assert_allclose(o10.rotations.targetpids, br.evol_basis_pids)
+        np.testing.assert_allclose(
+            o10.rotations.targetpids, br.rotate_flavor_to_evolution
+        )
         # rotate also input
         manipulate.to_evol(o10)
         np.testing.assert_allclose(o10[q2_out].operator, o11[q2_out].operator)
