@@ -27,12 +27,10 @@ def update(theory: dict, operators: Optional[dict]):
     """
     new_theory = copy.deepcopy(theory)
     new_operators = copy.deepcopy(operators) if operators is not None else {}
-
     if "alphaqed" in new_theory:
         new_theory["alphaem"] = new_theory.pop("alphaqed")
     if "QED" in new_theory:
         new_theory["order"] = [new_theory.pop("PTO") + 1, new_theory.pop("QED")]
-
     if operators is not None and "configs" not in operators:
         new_operators["configs"] = {}
         for k in (
@@ -54,12 +52,11 @@ def update(theory: dict, operators: Optional[dict]):
                 max_order,
                 new_theory["order"][1],
             ]
-
+        new_operators["rotations"]["pids"] = operators["pids"]
         new_operators["rotations"]["xgrid"] = operators["interpolation_xgrid"]
         for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
             new_operators["rotations"][f"{basis}"] = operators[basis]
         new_operators["Q0"] = new_theory["Q0"]
-
     return new_theory, new_operators
 
 

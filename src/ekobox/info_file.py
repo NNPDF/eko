@@ -35,7 +35,10 @@ def build(theory_card, operators_card, num_members, info_update):
     template_info["XMin"] = operators_card["interpolation_xgrid"][0]
     template_info["XMax"] = operators_card["interpolation_xgrid"][-1]
     template_info["NumMembers"] = num_members
-    template_info["OrderQCD"] = theory_card["PTO"]
+    try:
+        template_info["OrderQCD"] = theory_card["PTO"]
+    except KeyError:
+        template_info["OrderQCD"] = theory_card["order"][0]
     template_info["QMin"] = round(math.sqrt(operators_card["Q2grid"][0]), 4)
     template_info["QMax"] = round(math.sqrt(operators_card["Q2grid"][-1]), 4)
     template_info["MZ"] = theory_card["MZ"]
@@ -46,6 +49,9 @@ def build(theory_card, operators_card, num_members, info_update):
     template_info["MBottom"] = theory_card["mb"]
     template_info["MTop"] = theory_card["mt"]
     template_info["AlphaS_MZ"] = theory_card["alphas"]
-    template_info["AlphaS_OrderQCD"] = theory_card["PTO"]
+    try:
+        template_info["AlphaS_OrderQCD"] = theory_card["PTO"]
+    except KeyError:
+        template_info["AlphaS_OrderQCD"] = theory_card["order"][0]
     # NB: Maybe I need the actual operator to obtain AlphaS_Qs
     return template_info

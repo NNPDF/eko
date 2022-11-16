@@ -4,6 +4,7 @@ import copy
 import yaml
 from banana.data import sql
 
+from eko import basis_rotation as br
 from ekomark.data import operators
 
 
@@ -31,6 +32,7 @@ def generate(Q2grid, update=None, name=None):
     # Constructing the dictionary with some default value
     def_op = copy.deepcopy(operators.default_card)
     # Adding the mandatory inputs
+    def_op["pids"] = br.flavor_basis_pids
     def_op["Q2grid"] = Q2grid
     if isinstance(update, dict):
         for k in update.keys():
