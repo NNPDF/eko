@@ -2,6 +2,7 @@ from banana import toy
 
 import eko
 import eko.output.legacy as out
+from eko import compatibility
 from ekobox import evol_pdf as ev_p
 from ekobox import operators_card as oc
 from ekobox import theory_card as tc
@@ -21,9 +22,10 @@ def test_evolve_pdfs_run(fake_lhapdf, cd):
     mytmp = fake_lhapdf / "install"
     mytmp.mkdir()
     store_path = mytmp / "test.tar"
+    nt, no = compatibility.update(theory, op)
     with cd(mytmp):
         ev_p.evolve_pdfs(
-            [toy.mkPDF("", 0)], theory, op, install=True, name=n, store_path=store_path
+            [toy.mkPDF("", 0)], nt, no, install=True, name=n, store_path=store_path
         )
     p = fake_lhapdf / n
     assert p.exists()
