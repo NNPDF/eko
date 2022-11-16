@@ -138,15 +138,12 @@ def flavor_reshape(
         ops = elem.operator
         errs = elem.error
         if targetpids is not None and inputpids is None:
-            # update metadata
             ops = np.einsum("ca,ajbk->cjbk", targetpids, ops)
             errs = np.einsum("ca,ajbk->cjbk", targetpids, errs)
         elif inputpids is not None and targetpids is None:
-            # update metadata
             ops = np.einsum("ajbk,bd->ajdk", ops, inv_inputpids)
             errs = np.einsum("ajbk,bd->ajdk", errs, inv_inputpids)
         else:
-            # update metadata
             ops = np.einsum("ca,ajbk,bd->cjdk", targetpids, ops, inv_inputpids)
             errs = np.einsum("ca,ajbk,bd->cjdk", targetpids, errs, inv_inputpids)
         elem.operator = ops
@@ -158,10 +155,10 @@ def flavor_reshape(
     # there is no meaningful way to set them in general, after rotation
     if inputpids is not None:
         eko.rotations._inputpids = np.array([0] * len(eko.rotations.inputpids))
-        eko.update_metadata({"rotations": {"_inputpids": inputpids}})
+        eko.update_metadata({"rotations": {"_inputpids": eko.rotations._inputpids}})
     if targetpids is not None:
         eko.rotations._targetpids = np.array([0] * len(eko.rotations.targetpids))
-        eko.update_metadata({"rotations": {"_targetpids": targetpids}})
+        eko.update_metadata({"rotations": {"_targetpids": eko.rotations._targetpids}})
 
 
 def to_evol(eko: EKO, source: bool = True, target: bool = False):
@@ -183,10 +180,10 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False):
     flavor_reshape(eko, inputpids=inputpids, targetpids=targetpids)
     # assign pids
     if source:
-        eko.rotations._inputpids = br.evol_basis_pids
+        eko.rotations._inputpids = inputpids
         # update metadata
-        eko.update_metadata({"rotations": {"_inputpids": br.evol_basis_pids}})
+        eko.update_metadata({"rotations": {"_inputpids": inputpids}})
     if target:
-        eko.rotations._targetpids = br.evol_basis_pids
+        eko.rotations._targetpids = targetpids
         # update metadata
-        eko.update_metadata({"rotations": {"_targetpids": br.evol_basis_pids}})
+        eko.update_metadata({"rotations": {"_targetpids": targetpids}})
