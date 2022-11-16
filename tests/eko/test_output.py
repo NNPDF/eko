@@ -229,6 +229,7 @@ class TestManipulate:
                 inputgrid=xgrid,
                 inputpids=br.flavor_basis_pids,
                 targetpids=br.flavor_basis_pids,
+                pids=br.flavor_basis_pids,
             ),
             configs=dict(
                 interpolation_polynomial_degree=interpolation_polynomial_degree,
