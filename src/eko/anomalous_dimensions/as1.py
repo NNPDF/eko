@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """This file contains the leading-order Altarelli-Parisi splitting kernels."""
 
 import numba as nb

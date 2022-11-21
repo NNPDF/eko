@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-"""EKO main module.
+"""Evolution Kernel Operators.
 
 Please refer to our documentation for a full overview of the possibilities.
 """

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Manipulate output generate by EKO."""
 import logging
 import warnings
@@ -76,14 +75,18 @@ def xgrid_reshape(
         ops = elem.operator
         errs = elem.error
         if targetgrid is not None and inputgrid is None:
-            ops = np.einsum("ij,ajbk->aibk", target_rot, ops)
-            errs = np.einsum("ij,ajbk->aibk", target_rot, errs)
+            ops = np.einsum("ij,ajbk->aibk", target_rot, ops, optimize="optimal")
+            errs = np.einsum("ij,ajbk->aibk", target_rot, errs, optimize="optimal")
         elif inputgrid is not None and targetgrid is None:
-            ops = np.einsum("ajbk,kl->ajbl", ops, input_rot)
-            errs = np.einsum("ajbk,kl->ajbl", errs, input_rot)
+            ops = np.einsum("ajbk,kl->ajbl", ops, input_rot, optimize="optimal")
+            errs = np.einsum("ajbk,kl->ajbl", errs, input_rot, optimize="optimal")
         else:
-            ops = np.einsum("ij,ajbk,kl->aibl", target_rot, ops, input_rot)
-            errs = np.einsum("ij,ajbk,kl->aibl", target_rot, errs, input_rot)
+            ops = np.einsum(
+                "ij,ajbk,kl->aibl", target_rot, ops, input_rot, optimize="optimal"
+            )
+            errs = np.einsum(
+                "ij,ajbk,kl->aibl", target_rot, errs, input_rot, optimize="optimal"
+            )
         elem.operator = ops
         elem.error = errs
 
@@ -135,14 +138,18 @@ def flavor_reshape(
         ops = elem.operator
         errs = elem.error
         if targetpids is not None and inputpids is None:
-            ops = np.einsum("ca,ajbk->cjbk", targetpids, ops)
-            errs = np.einsum("ca,ajbk->cjbk", targetpids, errs)
+            ops = np.einsum("ca,ajbk->cjbk", targetpids, ops, optimize="optimal")
+            errs = np.einsum("ca,ajbk->cjbk", targetpids, errs, optimize="optimal")
         elif inputpids is not None and targetpids is None:
-            ops = np.einsum("ajbk,bd->ajdk", ops, inv_inputpids)
-            errs = np.einsum("ajbk,bd->ajdk", errs, inv_inputpids)
+            ops = np.einsum("ajbk,bd->ajdk", ops, inv_inputpids, optimize="optimal")
+            errs = np.einsum("ajbk,bd->ajdk", errs, inv_inputpids, optimize="optimal")
         else:
-            ops = np.einsum("ca,ajbk,bd->cjdk", targetpids, ops, inv_inputpids)
-            errs = np.einsum("ca,ajbk,bd->cjdk", targetpids, errs, inv_inputpids)
+            ops = np.einsum(
+                "ca,ajbk,bd->cjdk", targetpids, ops, inv_inputpids, optimize="optimal"
+            )
+            errs = np.einsum(
+                "ca,ajbk,bd->cjdk", targetpids, errs, inv_inputpids, optimize="optimal"
+            )
         elem.operator = ops
         elem.error = errs
 

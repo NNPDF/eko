@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Define output representation structures."""
 import contextlib
 import copy
@@ -497,8 +496,7 @@ class EKO:
         float
             q2 values
         """
-        for q2 in self._operators:
-            yield q2
+        yield from self._operators
 
     def items(self):
         """Iterate operators, with minimal load.

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Test N3LO anomalous dimensions
 import numpy as np
 

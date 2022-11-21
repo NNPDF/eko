@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import copy
 
 import yaml
@@ -75,6 +74,6 @@ def load(path):
         dict
             theory card
     """
-    with open(path, "r", encoding="utf-8") as o:
+    with open(path, encoding="utf-8") as o:
         theory = yaml.safe_load(o)
     return theory

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Test eko.matching_conditions.OperatorMatrixElement
 import copy
 

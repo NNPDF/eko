@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 # class TestLegacy:
 #     def test_io(self, fake_legacy, tmp_path):
 #         # create object

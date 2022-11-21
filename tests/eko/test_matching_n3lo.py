@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Test N3LO OME
 import numpy as np
 

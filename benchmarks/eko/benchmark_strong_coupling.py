@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """This module benchmarks alpha_s against LHAPDF and APFEL."""
 from ast import operator
 

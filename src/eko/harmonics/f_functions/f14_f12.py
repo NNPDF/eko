@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: skip-file
 """This module contains implemtation of F14 - F12.
 

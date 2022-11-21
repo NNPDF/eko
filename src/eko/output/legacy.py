@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Support legacy storage formats."""
 import copy
 import dataclasses
@@ -82,14 +81,21 @@ def tocard(raw: dict) -> dict:
 
     card["rotations"] = {}
     card["rotations"]["xgrid"] = raw["interpolation_xgrid"]
-    card["rotations"]["pids"] = raw["pids"]
+    # being an internal detail, "pids" field was often (or always) omitted
+    card["rotations"]["pids"] = raw.get("pids")
     for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
         card["rotations"][basis] = raw[basis]
 
     card["configs"] = {}
     for field in dataclasses.fields(struct.Configs):
-        card["configs"][field.name] = raw[field.name]
-        del card[field.name]
+        # not all the required attributes were stored in the metadata
+        card["configs"][field.name] = raw.get(field.name)
+        if field.name in card:
+            del card[field.name]
+
+    if "Q0" not in card:
+        # Q0 was not stored for some metadata
+        card["Q0"] = 0.0
 
     return card
 
@@ -286,6 +292,9 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
     # now eveything is in place
     eko = struct.EKO.new(theory={}, operator=metadata)
     for q2, op in operator_grid.items():
+        # the layout of the operator is slifhtly different from the past one
+        if "operators" in op:
+            op = dict(operator=op["operators"], error=op["operator_errors"])
         eko[q2] = struct.Operator.from_dict(op)
 
     return eko

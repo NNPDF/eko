@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""
 This module contains the |RGE| for the |MSbar| masses
 """
