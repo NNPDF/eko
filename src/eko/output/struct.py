@@ -53,6 +53,7 @@ class DictLike:
 
     Some collections and scalar objects are normalized to native Python
     structures, in order to simplify the on-disk representation.
+
     """
 
     def __init__(self, **kwargs):
@@ -71,6 +72,7 @@ class DictLike:
         -------
         DictLike
             instance with `dictionary` content loaded as attributes
+
         """
         return cls(**dictionary)
 
@@ -89,6 +91,7 @@ class DictLike:
         -------
         dict
             dictionary representation
+
         """
         dictionary = {}
         for field in fields(self):
@@ -146,6 +149,7 @@ class Operator(DictLike):
         bool
             whether the operator saved contained or not the error (this control
             even the format, ``npz`` with errors, ``npy`` otherwise)
+
         """
         if self.error is None:
             np.save(stream, self.operator)
@@ -182,6 +186,7 @@ class Operator(DictLike):
         -------
         Operator
             the loaded instance
+
         """
         if compressed:
             stream = io.BytesIO(lz4.frame.decompress(stream.read()))
