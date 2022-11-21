@@ -25,7 +25,7 @@ and the equations to solve become
 
 This assumes the factorization scale :math:`\mu_F^2` (the inherit scale of the |PDF|) and the
 renormalization scale :math:`\mu_R^2` (the inherit scale for the strong coupling) to be equal,
-but tis constraint can however be lifted (see :ref:`theory/pQCD:scale variations`).
+but this constraint can however be lifted (see :ref:`theory/pQCD:scale variations`).
 
 The (formal) solution can then be written in terms of an |EKO| :math:`\mathbf E` :cite:`Bonvini:2012sh`
 
