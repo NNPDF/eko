@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import numpy as np
 import pytest
 
@@ -39,7 +38,7 @@ def test_xgrid_reshape(tmp_path, default_cards):
             with pytest.warns(Warning):
                 manipulate.xgrid_reshape(ekott, interpolation.XGrid(xg))
             with ekott.operator(q2) as op:
-                np.testing.assert_allclose(ekott[10].operator, op.operator)
+                np.testing.assert_allclose(ekott[q2].operator, op.operator)
 
         # only input
         pi = tmp_path / "ekoi.tar"
@@ -55,7 +54,7 @@ def test_xgrid_reshape(tmp_path, default_cards):
             with pytest.warns(Warning):
                 manipulate.xgrid_reshape(ekoii, interpolation.XGrid(xg))
             with ekoii.operator(q2) as op:
-                np.testing.assert_allclose(ekoii[10].operator, op.operator)
+                np.testing.assert_allclose(ekoii[q2].operator, op.operator)
 
         # both
         pit = tmp_path / "ekoit.tar"
@@ -66,6 +65,22 @@ def test_xgrid_reshape(tmp_path, default_cards):
                 assert op.operator.shape == (2, len(xgp), 2, len(xgp))
                 id_op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
                 np.testing.assert_allclose(op.operator, id_op[0], atol=1e-10)
+
+        # doing nothing
+        nt = tmp_path / "ekont.tar"
+        eko0.deepcopy(nt)
+        with struct.EKO.open(nt) as ekont:
+            with pytest.warns(None, match="targetgrid"):
+                manipulate.xgrid_reshape(ekont, interpolation.XGrid(xg))
+            with ekont.operator(q2) as op:
+                np.testing.assert_allclose(eko0[q2].operator, op.operator)
+        ni = tmp_path / "ekoni.tar"
+        eko0.deepcopy(ni)
+        with struct.EKO.open(ni) as ekoni:
+            with pytest.warns(None, match="inputgrid"):
+                manipulate.xgrid_reshape(ekoni, inputgrid=interpolation.XGrid(xg))
+            with ekoni.operator(q2) as op:
+                np.testing.assert_allclose(eko0[q2].operator, op.operator)
 
         # error
         with pytest.raises(ValueError):
@@ -122,7 +137,7 @@ def test_flavor_reshape(tmp_path, default_cards):
             with pytest.warns(Warning):
                 manipulate.flavor_reshape(ekott, np.linalg.inv(target_r))
             with ekott.operator(q2) as op:
-                np.testing.assert_allclose(ekott[10].operator, op.operator)
+                np.testing.assert_allclose(ekott[q2].operator, op.operator)
 
         # only input
         pi = tmp_path / "ekoi.tar"
@@ -139,7 +154,7 @@ def test_flavor_reshape(tmp_path, default_cards):
             with pytest.warns(Warning):
                 manipulate.flavor_reshape(ekoii, np.linalg.inv(input_r))
             with ekoii.operator(q2) as op:
-                np.testing.assert_allclose(ekoii[10].operator, op.operator)
+                np.testing.assert_allclose(ekoii[q2].operator, op.operator)
 
         # both
         pit = tmp_path / "ekoit.tar"
@@ -152,6 +167,22 @@ def test_flavor_reshape(tmp_path, default_cards):
                 assert op.operator.shape == (2, len(xg), 2, len(xg))
                 id_op = eko_identity([1, 2, len(xg), 2, len(xg)])
                 np.testing.assert_allclose(op.operator, id_op[0], atol=1e-10)
+
+        # doing nothing
+        nt = tmp_path / "ekont.tar"
+        eko0.deepcopy(nt)
+        with struct.EKO.open(nt) as ekont:
+            with pytest.warns(None, match="targetpids"):
+                manipulate.flavor_reshape(ekont, np.eye(2))
+            with ekont.operator(q2) as op:
+                np.testing.assert_allclose(eko0[q2].operator, op.operator)
+        ni = tmp_path / "ekoni.tar"
+        eko0.deepcopy(ni)
+        with struct.EKO.open(ni) as ekoni:
+            with pytest.warns(None, match="inputpids"):
+                manipulate.flavor_reshape(ekoni, inputpids=np.eye(2))
+            with ekoni.operator(q2) as op:
+                np.testing.assert_allclose(eko0[q2].operator, op.operator)
 
         # error
         with pytest.raises(ValueError):
