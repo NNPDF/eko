@@ -324,6 +324,7 @@ class EKO:
 
     The computation can be stopped at any time, without the loss of any of the
     intermediate results.
+
     """
 
     # operators cache, contains the Q2 grid information
@@ -798,6 +799,7 @@ class EKO:
         -------
         EKO
             the generated structure
+
         """
         if path is not None:
             path = pathlib.Path(path)
