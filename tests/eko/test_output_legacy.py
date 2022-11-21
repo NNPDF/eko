@@ -1,3 +1,4 @@
+import copy
 import io
 import pathlib
 import shutil
@@ -39,6 +40,16 @@ class TestLegacy:
         fn = "test"
         with pytest.raises(ValueError, match="wrong suffix"):
             legacy.dump_tar(o1, fn)
+
+    def test_tocards(self, fake_legacy):
+        o1, _fake_card = fake_legacy
+        raw = legacy.get_raw(o1)
+        card = legacy.tocard(raw)
+        assert "Q0" in card
+        rraw = copy.deepcopy(raw)
+        del rraw["Q0"]
+        ccard = legacy.tocard(rraw)
+        assert "Q0" in ccard
 
     def test_rename_issue81(self, fake_legacy):
         # https://github.com/N3PDF/eko/issues/81
