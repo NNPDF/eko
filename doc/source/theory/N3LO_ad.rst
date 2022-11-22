@@ -97,7 +97,7 @@ In |EKO| they are implemented as follows:
             can be obtained from the |QCD| cusp calculation
             :cite:`Henn:2019swt`, while the :math:`B_4` is fixed by the integral of the 4-loop splitting function
             and has been firstly computed in :cite:`Moch:2017uml` in the large :math:`n_c` limit.
-            More recently :cite:`Duhr:2022cob,` it has been determined  in the full color expansion
+            More recently :cite:`Duhr:2022cob`, it has been determined  in the full color expansion
             by computing various |N3LO| cross sections in the soft limit.
             :math:`C_4,D_4` instead can be computed directly from lower order splitting functions.
             From large-x resummation :cite:`Davies:2016jie`, it is possible to infer further constrains
@@ -232,7 +232,7 @@ The other parts are approximated using some known limits:
                 \gamma_{kk} \approx A^{(r)}_4 S_1(N)  + B^{(r)}_4 \delta(1-x) + \mathcal{O}(1)
 
         Where again the coefficient :math:`A^{(r)}_4` is the |QCD| cusp anomalous dimension for the adjoint or fundamental representation.
-        Again the coefficient :math:`B^{(r)}_4` has been extracted from soft anomalous dimensions :math:`Duhr:2022cob`.
+        Again the coefficient :math:`B^{(r)}_4` has been extracted from soft anomalous dimensions :cite:`Duhr:2022cob`.
         However, :math:`\gamma_{qq,ps}^{(3)}` do not constrain any divergence at large-x or constant term so its expansion will start as
         :math:`\mathcal{O}(\frac{1}{N^2})`.
         The off-diagonal do not contain any +-distributions or delta distributions but can include divergent logarithms
@@ -306,13 +306,17 @@ The following tables list all the considered input functions.
         :align: center
 
         *   - :math:`f_1(N)`
-            - :math:`\frac{S_3(N-2)}{N}`
+            - :math:`\frac{S_2(N-2)}{N}`
         *   - :math:`f_2(N)`
             - :math:`\frac{S_1^3(N)}{N}`
         *   - :math:`f_3(N)`
-            - :math:`\frac{S_2(N-2)}{N},\ \frac{1}{N^3}`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N^4}`
         *   - :math:`f_4(N)`
-            - :math:`\frac{S_2(N-2)}{N},\ \frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N-2)}{N},\ \mathcal{M}[\ln^3(1-x)],\ \mathcal{M}[\ln^2(1-x)], \frac{S_1(N)}{N},\ \frac{S_1^2(N)}{N}`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N-2)}{N},\ \mathcal{M}[\ln^3(1-x)],\ \mathcal{M}[\ln^2(1-x)], \frac{S_1(N)}{N},\ \frac{S_1^2(N)}{N}`
+
+    Note that this table refers only to the :math:`n_f^0` part where we have assumed no violation of the scaling with :math:`\gamma_{gg}`
+    also for the |NLL| term, to help the convergence. We expect that any possible deviation can be parametrized as a shift in he |NNLL| terms 
+    and in the |NLL| :math:`n_f^1` which are free to vary independently.
 
     .. list-table::  :math:`\gamma_{qg}^{(3)}` parametrization basis
         :align: center

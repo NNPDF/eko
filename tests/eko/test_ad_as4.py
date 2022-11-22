@@ -132,7 +132,7 @@ def test_momentum_conservation():
     np.testing.assert_allclose(
         gnsp.gamma_nsp_nf0(N, sx_cache) + g_gq[:, 0],
         0,
-        atol=8e-11,
+        atol=2e-10,
     )
     np.testing.assert_allclose(
         g_gg[:, 0],
