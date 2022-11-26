@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Test LO splitting functions
 import numpy as np
 

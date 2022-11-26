@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""
 This module contains the |NLO| |OME| (OMEs)
 for the matching conditions in the |VFNS|.
@@ -26,7 +25,7 @@ def A_hh(n, sx, L):
         sx : list
             harmonic sums cache
         L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+            :math:`\ln(q^2 / m_h^2)`
 
     Returns
     -------
@@ -58,7 +57,7 @@ def A_gh(n, L):
         n : complex
             Mellin moment
         L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+            :math:`\ln(q^2 / m_h^2)`
 
     Returns
     -------
@@ -84,7 +83,7 @@ def A_hg(n, L):
         n : complex
             Mellin moment
         L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+            :math:`\ln(q^2 / m_h^2)`
 
     Returns
     -------
@@ -105,7 +104,7 @@ def A_gg(L):
     Parameters
     ----------
         L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+            :math:`\ln(q^2 / m_h^2)`
 
     Returns
     -------
@@ -134,7 +133,7 @@ def A_singlet(n, sx, L):
         sx : list
             harmonic sums cache containing: [[:math:`S_1`][:math:`S_2`]]
         L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+            :math:`\ln(q^2 / m_h^2)`
 
       Returns
       -------
@@ -177,7 +176,7 @@ def A_ns(n, sx, L):
         sx : list
             harmonic sums cache containing: [[:math:`S_1`][:math:`S_2`]]
         L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+            :math:`\ln(q^2 / m_h^2)`
       Returns
       -------
         A_NS : numpy.ndarray

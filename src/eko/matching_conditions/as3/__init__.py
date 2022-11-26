@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""This module defines the matching conditions for the N3LO |VFNS| evolution.
 
 The expressions are based on:
@@ -101,7 +100,7 @@ def A_singlet(n, sx_singlet, sx_non_singlet, nf, L):
     nf : int
         number of active flavor below the threshold
     L : float
-        :math:`\ln(\mu_F^2 / m_h^2)`
+        :math:`\ln(q^2 / m_h^2)`
 
     Returns
     -------
@@ -160,7 +159,7 @@ def A_ns(n, sx_all, nf, L):
     nf : int
         number of active flavor below the threshold
     L : float
-        :math:`\ln(\mu_F^2 / m_h^2)`
+        :math:`\ln(q^2 / m_h^2)`
 
     Returns
     -------

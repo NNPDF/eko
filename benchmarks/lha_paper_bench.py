@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
 """

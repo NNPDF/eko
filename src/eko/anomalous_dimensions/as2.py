@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This file contains the |NLO| Altarelli-Parisi splitting kernels.
 

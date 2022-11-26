@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tools to generate operator cards."""
 import copy
 
@@ -74,6 +73,6 @@ def load(path):
     dict
         operators card
     """
-    with open(path, "r", encoding="utf-8") as o:
+    with open(path, encoding="utf-8") as o:
         op = yaml.safe_load(o)
     return op

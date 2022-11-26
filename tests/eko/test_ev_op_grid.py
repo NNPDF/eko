@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
     Checks that the operator grid works as intended
     These test can be slow as they require the computation of several values of Q

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Test G functions implemented by Muselli PhD
 
 import numpy as np

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Test O(as1aem1) splitting functions
 import numpy as np
 

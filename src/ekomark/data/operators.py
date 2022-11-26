@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Operator card configurations."""
 from banana.data import cartesian_product, sql
 

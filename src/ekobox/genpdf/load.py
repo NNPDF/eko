@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pathlib
 
 import numpy as np
@@ -6,9 +5,9 @@ import yaml
 
 here = pathlib.Path(__file__).parent
 # Expose the default template
-with open(here / "templatePDF.info", "r", encoding="utf-8") as o:
+with open(here / "templatePDF.info", encoding="utf-8") as o:
     template_info = yaml.safe_load(o)
-with open(here / "Toy.info", "r", encoding="utf-8") as t:
+with open(here / "Toy.info", encoding="utf-8") as t:
     Toy_info = yaml.safe_load(t)
 
 
@@ -29,7 +28,7 @@ def load_info_from_file(pdfset_name):
     import lhapdf  # pylint: disable=import-error, import-outside-toplevel
 
     src = pathlib.Path(lhapdf.paths()[0]) / pdfset_name
-    with open(src / f"{pdfset_name}.info", "r", encoding="utf-8") as o:
+    with open(src / f"{pdfset_name}.info", encoding="utf-8") as o:
         info = yaml.safe_load(o)
     return info
 
@@ -58,7 +57,7 @@ def load_blocks_from_file(pdfset_name, member):
     src = pathlib.Path(lhapdf.paths()[0]) / pdfset_name
     # read actual file
     cnt = []
-    with open(src / f"{pdfset_name}_{member:04d}.dat", "r", encoding="utf-8") as o:
+    with open(src / f"{pdfset_name}_{member:04d}.dat", encoding="utf-8") as o:
         cnt = o.readlines()
     # file head
     head = cnt[0]
