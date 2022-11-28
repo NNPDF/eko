@@ -66,40 +66,12 @@ def gamma_variation_qed(gamma, order, nf, L, alphaem_running):
         gamma : numpy.ndarray
             adjusted anomalous dimensions
     """
-    if not alphaem_running:
-        # if alphaem is fixed then only alphas is varied so gamma[0,1] and gamma[0,2]
-        # don't get a variation while gamma[1,1] gets a variation that is O(as2aem1)
-        # that we are neglecting
-        gamma[1:, 0] = gamma_variation(gamma[1:, 0], order, nf, L)
-        return gamma
-    else:
-        beta0qcd = beta.beta_qcd((2, 0), nf)
-        beta1qcd = beta.beta_qcd((3, 0), nf)
-        beta2qcd = beta.beta_qcd((4, 0), nf)
-        beta0qed = beta.beta_qed((0, 2), nf)
-        # beta1qed = beta.beta_qcd((0, 3), nf)
-        # beta01qcd = beta.beta_qcd((2, 1), nf)
-        if order[0] >= 4:
-            gamma[4, 0] -= (
-                3 * beta0qcd * L * gamma[3, 0]
-                + (2 * beta1qcd * L - 3 * beta0qcd**2 * L**2) * gamma[2, 0]
-                + (
-                    beta2qcd * L
-                    - 5 / 2 * beta1qcd * beta0qcd * L**2
-                    + beta0qcd**3 * L**3
-                )
-                * gamma[1, 0]
-            )
-        if order[0] >= 3:
-            gamma[3, 0] -= (
-                2 * beta0qcd * gamma[2, 0] * L
-                + (beta1qcd * L - beta0qcd**2 * L**2) * gamma[1, 0]
-            )
-        if order[0] >= 2:
-            gamma[2, 0] -= beta0qcd * gamma[1, 0] * L
-            # we are neglecting the order (2,1)
-            # if order[1] >= 1:
-            #     gamma[2, 1] -= -L * (beta01qcd * gamma[1,0] + beta0qcd * gamma[1,1])
+    # if alphaem is fixed then only alphas is varied so gamma[0,1] and gamma[0,2]
+    # don't get a variation while gamma[1,1] gets a variation that is O(as2aem1)
+    # that we are neglecting
+    gamma[1:, 0] = gamma_variation(gamma[1:, 0], order, nf, L)
+    if alphaem_running:
         if order[1] >= 2:
+            beta0qed = beta.beta_qed((0, 2), nf)
             gamma[0, 2] -= beta0qed * gamma[0, 1] * L
         return gamma
