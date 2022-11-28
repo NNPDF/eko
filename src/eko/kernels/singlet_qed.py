@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Collection of QED singlet EKOs."""
 import numba as nb
 import numpy as np
@@ -100,4 +99,4 @@ def dispatcher(  # pylint: disable=too-many-return-statements
     """
     if method in ["iterate-exact", "iterate-expanded"]:
         return eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations)
-    raise NotImplementedError("Selected method is not implemented")
+    raise NotImplementedError('Only "iterate-exact" is implemented with QED')
