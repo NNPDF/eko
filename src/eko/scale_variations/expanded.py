@@ -307,8 +307,6 @@ def QEDvalence_variation(gamma, a_s, a_em, alphaem_running, order, nf, L):
     sv_ker = np.eye(2, dtype=np.complex_)
     gamma = np.ascontiguousarray(gamma)
     if not alphaem_running:
-        sv_ker = np.eye(2, dtype=np.complex_)
-        gamma = np.ascontiguousarray(gamma)
         if order[0] >= 2:
             sv_ker += a_s * variation_as1(gamma[1:, 0], L)
         if order[0] >= 3:
@@ -325,8 +323,6 @@ def QEDvalence_variation(gamma, a_s, a_em, alphaem_running, order, nf, L):
                 gamma[1:, 0], L, beta0, beta1, gamma10e2, gamma10e3, g20g10, g10g20
             )
     else:
-        sv_ker = np.eye(2, dtype=np.complex_)
-        gamma = np.ascontiguousarray(gamma)
         if order[0] >= 2:
             sv_ker += a_s * variation_as1(gamma[1:, 0], L)
         if order[1] >= 2:

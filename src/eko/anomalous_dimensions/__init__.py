@@ -476,7 +476,6 @@ def gamma_valence_qed(order, n, nf):
     """
     # cache the s-es
     max_weight = max(order)
-    max_weight = max(order)
     if max_weight >= 3:
         # here we need only S1,S2,S3,S4
         sx = harmonics.sx(n, max_weight=max_weight + 1)
