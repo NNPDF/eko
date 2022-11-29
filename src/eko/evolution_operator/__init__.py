@@ -476,7 +476,7 @@ def quad_ker_qed(
         # TODO : check as_raw and a_em in expanded scale variations
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
-                sv.expanded.QEDsinglet_variation(
+                sv.expanded.singlet_variation_qed(
                     gamma_s, as_raw, aem_list[-1], alphaem_running, order, nf, L
                 )
             )
@@ -502,7 +502,7 @@ def quad_ker_qed(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.QEDvalence_variation(
+                sv.expanded.valence_variation_qed(
                     gamma_v, as_raw, aem_list[-1], alphaem_running, order, nf, L
                 )
             ) @ np.ascontiguousarray(ker)
@@ -527,7 +527,7 @@ def quad_ker_qed(
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = (
-                sv.expanded.QEDnon_singlet_variation(
+                sv.expanded.non_singlet_variation_qed(
                     gamma_ns, as_raw, aem_list[-1], alphaem_running, order, nf, L
                 )
                 * ker

@@ -173,7 +173,7 @@ def singlet_variation(gamma, a_s, order, nf, L):
 
 
 @nb.njit(cache=True)
-def QEDnon_singlet_variation(gamma, a_s, a_em, alphaem_running, order, nf, L):
+def non_singlet_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
     """Non-singlet scale variation dispatcher.
 
     Parameters
@@ -202,7 +202,7 @@ def QEDnon_singlet_variation(gamma, a_s, a_em, alphaem_running, order, nf, L):
 
 
 @nb.njit(cache=True)
-def QEDsinglet_variation(gamma, a_s, a_em, alphaem_running, order, nf, L):
+def singlet_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
     """Singlet scale variation dispatcher.
 
     Parameters
@@ -247,7 +247,7 @@ def QEDsinglet_variation(gamma, a_s, a_em, alphaem_running, order, nf, L):
 
 
 @nb.njit(cache=True)
-def QEDvalence_variation(gamma, a_s, a_em, alphaem_running, order, nf, L):
+def valence_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
     """Singlet scale variation dispatcher.
 
     Parameters

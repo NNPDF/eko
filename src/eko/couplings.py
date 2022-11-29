@@ -293,6 +293,8 @@ def couplings_expanded_alphaem_running(order, couplings_ref, nf, scale_from, sca
     res_aem = expanded_qed(couplings_ref[1], order[1], nf, lmu)
     # if order[0] >= 1 and order[1] >= 1:
     # order[0] is always >=1
+    # TODO : implement decoupled running
+    # if not decoupled_running
     if order[1] >= 1:
         beta_qcd0 = beta_qcd((2, 0), nf)
         beta_qed0 = beta_qed((0, 2), nf)
@@ -699,6 +701,7 @@ class Couplings:
         )
         return np.array([rge_qcd, a_ref[1]])
 
+    # TODO : implement decoupled running
     # def compute_exact_decoupled_running(self, a_ref, nf, scale_qcd_from, scale_qed_from, scale_to):
     #     """Compute couplings via |RGE| with running alphaem without the mixed terms.
 
@@ -829,6 +832,7 @@ class Couplings:
         )
         return res.y[0][-1]
 
+    # TODO : implement decoupled running
     # def compute_aem_as_decoupled(self, aem_ref, as_from, as_to, nf):
     #     """Compute :math:`a_{em}` as a function of :math:`a_s` with no mixing terms.
 
