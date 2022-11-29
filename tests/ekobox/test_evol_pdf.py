@@ -37,21 +37,23 @@ def test_evolve_pdfs_run(fake_lhapdf, cd):
 
 def test_evolve_pdfs_dump_path(fake_lhapdf, cd):
     n = "test_evolve_pdfs_dump_path"
-    peko = fake_lhapdf / ev_p.ekofileid(theory, op)
-    out.dump_tar(eko.run_dglap(theory, op), peko)
+    nt, no = compatibility.update(theory, op)
+    peko = fake_lhapdf / ev_p.ekofileid(nt, no)
+    out.dump_tar(eko.run_dglap(nt, no), peko)
     assert peko.exists()
     with cd(fake_lhapdf):
-        ev_p.evolve_pdfs([toy.mkPDF("", 0)], theory, op, name=n, path=fake_lhapdf)
+        ev_p.evolve_pdfs([toy.mkPDF("", 0)], nt, no, name=n, path=fake_lhapdf)
     p = fake_lhapdf / n
     assert p.exists()
 
 
 def test_evolve_pdfs_dump_file(fake_lhapdf, cd):
     n = "test_evolve_pdfs_dump_file"
-    peko = fake_lhapdf / ev_p.ekofileid(theory, op)
-    out.dump_tar(eko.run_dglap(theory, op), peko)
+    nt, no = compatibility.update(theory, op)
+    peko = fake_lhapdf / ev_p.ekofileid(nt, no)
+    out.dump_tar(eko.run_dglap(nt, no), peko)
     assert peko.exists()
     with cd(fake_lhapdf):
-        ev_p.evolve_pdfs([toy.mkPDF("", 0)], theory, op, name=n, path=peko)
+        ev_p.evolve_pdfs([toy.mkPDF("", 0)], nt, no, name=n, path=peko)
     p = fake_lhapdf / n
     assert p.exists()

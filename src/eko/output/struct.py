@@ -10,7 +10,7 @@ import subprocess
 import tarfile
 import tempfile
 import time
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from typing import BinaryIO, Dict, Literal, Optional, Tuple
 
 import lz4.frame
@@ -92,7 +92,7 @@ class DictLike:
             elif isinstance(value, float):
                 value = float(value)
             elif isinstance(value, interpolation.XGrid):
-                value = value.dump()
+                value = value.dump()["grid"]
             elif isinstance(value, tuple):
                 value = list(value)
 
@@ -254,7 +254,7 @@ class Rotations(DictLike):
             value = getattr(self, attr)
             if value is None:
                 continue
-            if isinstance(value, np.ndarray):
+            if isinstance(value, np.ndarray) or isinstance(value, list):
                 setattr(self, attr, interpolation.XGrid(value))
             elif not isinstance(value, interpolation.XGrid):
                 setattr(self, attr, interpolation.XGrid.load(value))
@@ -288,6 +288,39 @@ class Rotations(DictLike):
         if self._targetgrid is None:
             return self.xgrid
         return self._targetgrid
+
+
+@dataclass
+class OperatorCard(DictLike):
+    """Operator Card info."""
+
+    rotations: dict
+    """Rotations configurations. The operator card will only contain
+    the interpolation xgrid and the pids.
+    """
+    Q0: float
+    """Initial scale."""
+    configs: dict
+    """Configs info.
+    """
+    Q2grid: npt.NDArray
+    """Array of q2 points."""
+    debug: Optional[dict] = field(
+        default_factory=lambda: {"skip_singlet": False, "skip_non_singlet": False}
+    )
+    eko_version: Optional[str] = vmod.__version__
+    """Perturbative order of the QCD and QED couplings."""
+
+    @property
+    def raw(self):
+        """Return the raw dictionary to be dumped."""
+        dictionary = dict(
+            Q0=float(self.Q0), Q2grid=self.Q2grid.tolist(), eko_version=self.eko_version
+        )
+        dictionary["rotations"] = Rotations.from_dict(self.rotations).raw
+        dictionary["configs"] = Configs.from_dict(self.configs).raw
+        dictionary["debug"] = Debug.from_dict(self.debug).raw
+        return dictionary
 
 
 @dataclass
@@ -649,48 +682,25 @@ class EKO:
         """
         dirpath = pathlib.Path(dirpath)
         operator_to_dump = copy.deepcopy(operator)
+        # keep only q2 grid
+        operator_to_dump["Q2grid"] = np.array(
+            list(operator_to_dump["Q2grid"].keys())
+            if isinstance(operator_to_dump["Q2grid"], dict)
+            else operator_to_dump["Q2grid"]
+        )
         metadata_to_dump = copy.deepcopy(metadata)
-        # cast arrays to list in order to dump them
-        for attr in operator_to_dump:
-            if isinstance(operator_to_dump[attr], np.float64):
-                operator_to_dump[attr] = operator_to_dump[attr].tolist()
-        for attr in operator_to_dump["rotations"]:
-            if isinstance(operator_to_dump["rotations"][attr], np.ndarray):
-                operator_to_dump["rotations"][attr] = operator_to_dump["rotations"][
-                    attr
-                ].tolist()
-        for attr in operator_to_dump["Q2grid"]:
-            try:
-                if isinstance(operator_to_dump["Q2grid"][attr]["operator"], np.ndarray):
-                    operator_to_dump["Q2grid"][attr]["operator"] = operator_to_dump[
-                        "Q2grid"
-                    ][attr]["operator"].tolist()
-            except IndexError:
-                continue
-            except TypeError:
-                continue
-        for attr in operator_to_dump["Q2grid"]:
-            try:
-                if isinstance(operator_to_dump["Q2grid"][attr]["error"], np.ndarray):
-                    operator_to_dump["Q2grid"][attr]["error"] = operator_to_dump[
-                        "Q2grid"
-                    ][attr]["error"].tolist()
-            except IndexError:
-                continue
-            except TypeError:
-                continue
-        for attr in metadata_to_dump["rotations"]:
-            if isinstance(metadata_to_dump["rotations"][attr], np.ndarray):
-                metadata_to_dump["rotations"][attr] = metadata_to_dump["rotations"][
-                    attr
-                ].tolist()
+        metadata_to_dump["rotations"]["xgrid"] = copy.deepcopy(
+            operator_to_dump["rotations"]["xgrid"]
+        )
+        metadata_to_dump["rotations"]["pids"] = br.flavor_basis_pids
+        operator_obj = OperatorCard.from_dict(operator_to_dump).raw
+        metadata_obj = {}
+        metadata_obj["rotations"] = Rotations.from_dict(
+            metadata_to_dump["rotations"]
+        ).raw
         (dirpath / THEORYFILE).write_text(yaml.dump(theory), encoding="utf-8")
-        (dirpath / OPERATORFILE).write_text(
-            yaml.dump(operator_to_dump), encoding="utf-8"
-        )
-        (dirpath / METADATAFILE).write_text(
-            yaml.dump(metadata_to_dump), encoding="utf-8"
-        )
+        (dirpath / OPERATORFILE).write_text(yaml.dump(operator_obj), encoding="utf-8")
+        (dirpath / METADATAFILE).write_text(yaml.dump(metadata_obj), encoding="utf-8")
         (dirpath / RECIPESDIR).mkdir()
         (dirpath / PARTSDIR).mkdir()
         (dirpath / OPERATORSDIR).mkdir()
@@ -876,7 +886,6 @@ class EKO:
 
         """
         givenpath = path is not None
-
         path = pathlib.Path(path if givenpath else tempfile.mkstemp(suffix=".tar")[1])
         if path.exists():
             if givenpath:
@@ -899,6 +908,9 @@ class EKO:
         metadata["rotations"]["_inputpids"] = np.array(
             copy.deepcopy(operator["rotations"]["pids"])
         )
+        for bases in ["inputgrid", "targetgrid", "inputpids", "targetpids"]:
+            if bases in operator["rotations"]:
+                del operator["rotations"][bases]
         with tempfile.TemporaryDirectory() as td:
             td = pathlib.Path(td)
             cls.bootstrap(td, theory=theory, operator=operator, metadata=metadata)

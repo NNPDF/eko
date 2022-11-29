@@ -41,22 +41,29 @@ def update(theory: dict, operators: Optional[dict]):
             "n_integration_cores",
         ):
             new_operators["configs"][k] = operators[k]
+            del new_operators[k]
         new_operators["rotations"] = {}
         new_operators["debug"] = {}
         for k in ("debug_skip_non_singlet", "debug_skip_singlet"):
             new_operators["debug"][k[len("debug_") :]] = operators[k]
-
+            del new_operators[k]
         max_order = operators["ev_op_max_order"]
         if isinstance(max_order, int):
             new_operators["configs"]["ev_op_max_order"] = [
                 max_order,
                 new_theory["order"][1],
             ]
+        del new_operators["ev_op_max_order"]
         new_operators["rotations"]["pids"] = operators["pids"]
+        del new_operators["pids"]
         new_operators["rotations"]["xgrid"] = operators["interpolation_xgrid"]
+        del new_operators["interpolation_xgrid"]
         for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
             new_operators["rotations"][f"{basis}"] = operators[basis]
+            del new_operators[basis]
         new_operators["Q0"] = new_theory["Q0"]
+        if "hash" in new_operators:
+            del new_operators["hash"]
     return new_theory, new_operators
 
 
