@@ -69,7 +69,6 @@ class FakeOutput:
                 pids=pids,
             ),
             Q0=np.sqrt(q2_ref),
-            couplings=dict(),
             configs=dict(
                 ev_op_max_order=1,
                 ev_op_iterations=1,

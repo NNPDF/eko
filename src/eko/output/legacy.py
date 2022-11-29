@@ -33,7 +33,6 @@ def get_raw(eko: struct.EKO, binarize: bool = True):
 
     """
     obj = eko.raw
-
     # prepare output dict
     out = {"Q2grid": {}, "eko_version": version.__version__}
     out["Q0"] = obj["Q0"]
@@ -42,8 +41,6 @@ def get_raw(eko: struct.EKO, binarize: bool = True):
         for key, value in obj[sec].items():
             if key.startswith("_"):
                 key = key[1:]
-            if "grid" in key and value is not None:
-                value = value["grid"]
             out[key] = value
 
     out["interpolation_xgrid"] = out["xgrid"]
@@ -81,10 +78,13 @@ def tocard(raw: dict) -> dict:
 
     card["rotations"] = {}
     card["rotations"]["xgrid"] = raw["interpolation_xgrid"]
+    del card["interpolation_xgrid"]
     # being an internal detail, "pids" field was often (or always) omitted
     card["rotations"]["pids"] = raw.get("pids")
+    del card["pids"]
     for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
         card["rotations"][basis] = raw[basis]
+        del card[basis]
 
     card["configs"] = {}
     for field in dataclasses.fields(struct.Configs):

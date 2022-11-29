@@ -33,7 +33,6 @@ class TestLegacy:
         o1, fake_card = fake_legacy
         for q2, op in fake_card["Q2grid"].items():
             o1[q2] = output.Operator.from_dict(op)
-
         # test streams
         stream = io.StringIO()
         legacy.dump_yaml(o1, stream)

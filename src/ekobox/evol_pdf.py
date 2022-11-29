@@ -6,6 +6,7 @@ import numpy as np
 import eko
 import eko.output.legacy
 from eko import basis_rotation as br
+from eko import compatibility
 from ekomark import apply
 
 from . import genpdf, info_file
@@ -45,6 +46,7 @@ def evolve_pdfs(
     info_update : dict
         dict of info to add or update to default info file
     """
+    # update op and th cards
     eko_output = None
     if path is not None:
         my_path = pathlib.Path(path)
@@ -63,7 +65,7 @@ def evolve_pdfs(
         evolved_PDF_list.append(apply.apply_pdf(eko_output, initial_PDF, targetgrid))
 
     if targetgrid is None:
-        targetgrid = operators_card["interpolation_xgrid"]
+        targetgrid = operators_card["rotations"]["xgrid"]
     if info_update is None:
         info_update = {}
     info_update["XMin"] = targetgrid[0]
@@ -111,4 +113,7 @@ def ekofileid(theory_card, operators_card):
     str
         file name
     """
-    return f"o{operators_card['hash'][:6]}_t{theory_card['hash'][:6]}.tar"
+    try:
+        return f"o{operators_card['hash'][:6]}_t{theory_card['hash'][:6]}.tar"
+    except KeyError:
+        return "o000000_t000000.tar"
