@@ -765,15 +765,15 @@ class EKO:
             to_update["rotations"][attr] = to_update["rotations"][attr].tolist()
         new_metadata = copy.deepcopy(self.metadata)
         new_metadata["rotations"].update(to_update["rotations"])
-        # stream = io.StringIO()
-        # yaml.safe_dump(new_metadata, stream)
-        # stream.seek(0)
-        # info = tarfile.TarInfo(name=METADATAFILE)
-        # info.size = len(stream.getvalue())
-        # info.mtime = int(time.time())
-        # info.mode = 436
-        # with tarfile.open(self.path, "a") as tar:
-        #    tar.addfile(info, fileobj=stream)
+        new_metadata_string = yaml.safe_dump(new_metadata).encode()
+        stream = io.BytesIO(new_metadata_string)
+        stream.seek(0)
+        info = tarfile.TarInfo(name=f"metadata.yaml")
+        info.size = len(stream.getbuffer())
+        info.mtime = int(time.time())
+        info.mode = 436
+        with tarfile.open(self.path, "a") as tar:
+            tar.addfile(info, fileobj=stream)
 
     @property
     def operator_card(self) -> dict:
