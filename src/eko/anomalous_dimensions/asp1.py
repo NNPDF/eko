@@ -4,8 +4,8 @@
 import numba as nb
 import numpy as np
 
-from ekopolarised import constants
-from ekopolarised.anomalous_dimensions.as1 import gamma_ns as gamma_pns 
+from eko import constants
+from eko.anomalous_dimensions.as1 import gamma_ns as gamma_pns 
 
 
 #@nb.njit(cache=True)

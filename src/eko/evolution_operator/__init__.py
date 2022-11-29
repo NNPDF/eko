@@ -12,15 +12,14 @@ from multiprocessing import Pool
 
 import numba as nb
 import numpy as np
+from eko import anomalous_dimensions as ad
+from eko import basis_rotation as br
+from eko import interpolation, mellin
+from eko import scale_variations as sv
+from eko.kernels import non_singlet as ns
+from eko.kernels import singlet as s
+from eko.member import OpMember
 from scipy import integrate
-
-from .. import anomalous_dimensions as ad
-from .. import basis_rotation as br
-from .. import interpolation, mellin
-from .. import scale_variations as sv
-from ..kernels import non_singlet as ns
-from ..kernels import singlet as s
-from ..member import OpMember
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +84,7 @@ class QuadKerBase:
 
     @property
     def n(self):
-        """Returs the Mellin moment :math:`N`."""
+        """Returns the Mellin moment :math:`N`."""
         return self.path.n
 
     def integrand(
@@ -122,9 +121,10 @@ def quad_ker(
     is_log,
     logx,
     areas,
-    as1,
-    as0,
-    nf,
+    a1,
+    a0,
+    nf, 
+    p,
     L,
     ev_op_iterations,
     ev_op_max_order,
@@ -157,6 +157,8 @@ def quad_ker(
         initial coupling value
     nf : int
         number of active flavors
+    p : Boolean
+        Polarised (True) or un-Polarised (False)
     L : float
         logarithm of the squared ratio of factorization and renormalization scale
     ev_op_iterations : int
@@ -180,7 +182,7 @@ def quad_ker(
 
     # compute the actual evolution kernel
     if ker_base.is_singlet:
-        gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
+        gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf, p)
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_singlet = sv.exponentiated.gamma_variation(
@@ -190,37 +192,41 @@ def quad_ker(
             order,
             method,
             gamma_singlet,
-            as1,
-            as0,
+            a1,
+            a0,
             nf,
             ev_op_iterations,
             ev_op_max_order,
         )
+        #is there not a mistake with variables as1 and as1, aren't these supposed to be a1 and a0 (there is also no as0 anyway)
         # scale var expanded is applied on the kernel
+
+
+        ##################### until now it all makes sense 
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
+                sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
-        gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
+        gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf, p)
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
             order,
             method,
             gamma_ns,
-            as1,
-            as0,
+            a1,
+            a0,
             nf,
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+            ker = sv.expanded.non_singlet_variation(gamma_ns, a1, order, nf, L) * ker
 
     # recombine everything
     return np.real(ker * integrand)
-
+##################################################################### will have to add label for polarised here, when ive figured it out. highly confusing. 
 
 class Operator(sv.ModeMixin):
     """Internal representation of a single EKO.
@@ -250,11 +256,12 @@ class Operator(sv.ModeMixin):
     full_labels = br.full_labels
 
     def __init__(
-        self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2, is_threshold=False
+        self, config, managers, nf, p, q2_from, q2_to, mellin_cut=5e-2, is_threshold=False
     ):
         self.config = config
         self.managers = managers
         self.nf = nf
+        self.p = p 
         self.q2_from = q2_from
         self.q2_to = q2_to
         # TODO make 'cut' external parameter?
@@ -262,6 +269,9 @@ class Operator(sv.ModeMixin):
         self.is_threshold = is_threshold
         self.op_members = {}
         self.order = tuple(config["order"])
+
+
+###################### p is a property so im guessing it should be here (self.p), test this to be sure
 
     @property
     def n_pools(self):
@@ -313,6 +323,7 @@ class Operator(sv.ModeMixin):
         )
         a1 = sc.a_s(self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf)
         return (a0, a1)
+    #pretty sure this is where the confusion was from
 
     @property
     def labels(self):
@@ -368,15 +379,18 @@ class Operator(sv.ModeMixin):
             is_log=self.int_disp.log,
             logx=logx,
             areas=areas,
-            as1=self.a_s[1],
-            as0=self.a_s[0],
+            a1=self.a_s[1],
+            a0=self.a_s[0],
             nf=self.nf,
+            p = self.p,
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
             ev_op_max_order=tuple(self.config["ev_op_max_order"]),
             sv_mode=self.sv_mode,
             is_threshold=self.is_threshold,
         )
+
+        ###################again i have added p although i doubt its necessary since it isnt manipulated in anyway in this function, but keeping here for now
 
     def initialize_op_members(self):
         """Init all operators with the identity or zeros."""

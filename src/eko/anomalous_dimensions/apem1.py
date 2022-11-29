@@ -6,8 +6,8 @@ This file contains the O(aem1) Altarelli-Parisi splitting kernels.
 import numba as nb
 
 from eko import constants
-from ekopolarised.anomalous_dimensions import asp1
-from ekopolarised.anomalous_dimensions.aem1 import gamma_phph
+from eko.anomalous_dimensions import asp1
+from eko.anomalous_dimensions.aem1 import gamma_phph
 
 @nb.njit(cache=True)
 def gamma_phpq(N):
