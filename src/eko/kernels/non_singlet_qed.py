@@ -2,9 +2,8 @@
 import numba as nb
 import numpy as np
 
-from .. import beta
-from . import evolution_integrals as ei
-from . import non_singlet, utils
+from . import evolution_integrals_qed as ei_qed
+from . import utils
 
 
 @nb.njit(cache=True)
@@ -31,8 +30,8 @@ def as1aem1_exact(gamma_ns, a1, a0, aem, nf):
             O(as1aem1) non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j00_qed(a1, a0, aem, nf)
-        + aem * gamma_ns[0, 1] * ei.jm10(a1, a0, aem, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j00_qed(a1, a0, aem, nf)
+        + aem * gamma_ns[0, 1] * ei_qed.jm10(a1, a0, aem, nf)
     )
 
 
@@ -60,8 +59,9 @@ def as1aem2_exact(gamma_ns, a1, a0, aem, nf):
             O(as1aem2) non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j00_qed(a1, a0, aem, nf)
-        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * ei.jm10(a1, a0, aem, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j00_qed(a1, a0, aem, nf)
+        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2])
+        * ei_qed.jm10(a1, a0, aem, nf)
     )
 
 
@@ -89,9 +89,9 @@ def as2aem1_exact(gamma_ns, a1, a0, aem, nf):
             O(as2aem1) non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j01_exact_qed(a1, a0, aem, nf)
-        + gamma_ns[2, 0] * ei.j11_exact_qed(a1, a0, aem, nf)
-        + aem * gamma_ns[0, 1] * ei.jm11_exact(a1, a0, aem, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j01_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[2, 0] * ei_qed.j11_exact_qed(a1, a0, aem, nf)
+        + aem * gamma_ns[0, 1] * ei_qed.jm11_exact(a1, a0, aem, nf)
     )
 
 
@@ -119,10 +119,10 @@ def as2aem2_exact(gamma_ns, a1, a0, aem, nf):
             O(as2aem2) non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j01_exact_qed(a1, a0, aem, nf)
-        + gamma_ns[2, 0] * ei.j11_exact_qed(a1, a0, aem, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j01_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[2, 0] * ei_qed.j11_exact_qed(a1, a0, aem, nf)
         + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2])
-        * ei.jm11_exact(a1, a0, aem, nf)
+        * ei_qed.jm11_exact(a1, a0, aem, nf)
     )
 
 
@@ -150,10 +150,10 @@ def as3aem1_exact(gamma_ns, a1, a0, aem, nf):
             O(as3aem1) non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j02_exact_qed(a1, a0, aem, nf)
-        + gamma_ns[2, 0] * ei.j12_exact_qed(a1, a0, aem, nf)
-        + gamma_ns[3, 0] * ei.j22_exact_qed(a1, a0, aem, nf)
-        + aem * gamma_ns[0, 1] * ei.jm12_exact(a1, a0, aem, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j02_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[2, 0] * ei_qed.j12_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[3, 0] * ei_qed.j22_exact_qed(a1, a0, aem, nf)
+        + aem * gamma_ns[0, 1] * ei_qed.jm12_exact(a1, a0, aem, nf)
     )
 
 
@@ -181,11 +181,11 @@ def as3aem2_exact(gamma_ns, a1, a0, aem, nf):
             O(as3aem2) non-singlet exact EKO
     """
     return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j02_exact_qed(a1, a0, aem, nf)
-        + gamma_ns[2, 0] * ei.j12_exact_qed(a1, a0, aem, nf)
-        + gamma_ns[3, 0] * ei.j22_exact_qed(a1, a0, aem, nf)
+        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j02_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[2, 0] * ei_qed.j12_exact_qed(a1, a0, aem, nf)
+        + gamma_ns[3, 0] * ei_qed.j22_exact_qed(a1, a0, aem, nf)
         + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2])
-        * ei.jm12_exact(a1, a0, aem, nf)
+        * ei_qed.jm12_exact(a1, a0, aem, nf)
     )
 
 
