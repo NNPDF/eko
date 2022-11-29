@@ -1,4 +1,4 @@
-"""Contains the O(aem2) Altarelli-Parisi splitting kernels."""
+"""The :math:`O(a_{em}^2)` Altarelli-Parisi splitting kernels."""
 
 import numba as nb
 import numpy as np
@@ -9,7 +9,7 @@ from . import as1aem1
 
 @nb.njit(cache=True)
 def gamma_phph(N, nf):
-    r"""Compute the O(aem2) photon-photon singlet anomalous dimension.
+    r"""Compute the :math:`O(a_{em}^2)` photon-photon singlet anomalous dimension.
 
     Implements Eq. (68) of :cite:`deFlorian:2016gvk`.
 
@@ -23,7 +23,7 @@ def gamma_phph(N, nf):
     Returns
     -------
         gamma_gg : complex
-            O(aem2) photon-photon singlet anomalous dimension
+            :math:`O(a_{em}^2)` photon-photon singlet anomalous dimension
             :math:`\\gamma_{\\gamma \\gamma}^{(0,2)}(N)`
 
     """
@@ -38,7 +38,7 @@ def gamma_phph(N, nf):
 
 @nb.njit(cache=True)
 def gamma_uph(N, nf, sx):
-    r"""Compute the O(aem2) quark-photon anomalous dimension for up quarks.
+    r"""Compute the :math:`O(a_{em}^2)` quark-photon anomalous dimension for up quarks.
 
     Implements Eq. (55) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -54,7 +54,7 @@ def gamma_uph(N, nf, sx):
     Returns
     -------
       gamma_uph : complex
-        O(aem2) quark-photon anomalous dimension :math:`\\gamma_{u \\gamma}^{(0,2)}(N)`
+        :math:`O(a_{em}^2)` quark-photon anomalous dimension :math:`\\gamma_{u \\gamma}^{(0,2)}(N)`
 
     """
     return constants.eu2 * as1aem1.gamma_qph(N, nf, sx) / constants.CF
@@ -62,7 +62,7 @@ def gamma_uph(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_dph(N, nf, sx):
-    r"""Compute the O(aem2) quark-photon anomalous dimension for down quarks.
+    r"""Compute the :math:`O(a_{em}^2)` quark-photon anomalous dimension for down quarks.
 
     Implements Eq. (55) of :cite:`deFlorian:2016gvk` for q=d.
 
@@ -78,7 +78,7 @@ def gamma_dph(N, nf, sx):
     Returns
     -------
       gamma_dph : complex
-        O(aem2) quark-photon anomalous dimension :math:`\\gamma_{d \\gamma}^{(0,2)}(N)`
+        :math:`O(a_{em}^2)` quark-photon anomalous dimension :math:`\\gamma_{d \\gamma}^{(0,2)}(N)`
 
     """
     return constants.ed2 * as1aem1.gamma_qph(N, nf, sx) / constants.CF
@@ -86,7 +86,7 @@ def gamma_dph(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_phu(N, nf, sx):
-    r"""Compute the O(aem2) photon-quark anomalous dimension for up quarks.
+    r"""Compute the :math:`O(a_{em}^2)` photon-quark anomalous dimension for up quarks.
 
     Implements Eq. (56) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -102,7 +102,7 @@ def gamma_phu(N, nf, sx):
     Returns
     -------
       gamma_phu : complex
-        O(aem2) photon-quark anomalous dimension :math:`\\gamma_{\\gamma u}^{(0,2)}(N)`
+        :math:`O(a_{em}^2)` photon-quark anomalous dimension :math:`\\gamma_{\\gamma u}^{(0,2)}(N)`
 
     """
     nu = constants.uplike_flavors(nf)
@@ -119,7 +119,7 @@ def gamma_phu(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_phd(N, nf, sx):
-    r"""Compute the O(aem2) photon-quark anomalous dimension for down quarks.
+    r"""Compute the :math:`O(a_{em}^2)` photon-quark anomalous dimension for down quarks.
 
     Implements Eq. (56) of :cite:`deFlorian:2016gvk` for q=d.
 
@@ -135,7 +135,7 @@ def gamma_phd(N, nf, sx):
     Returns
     -------
       gamma_phd : complex
-        O(aem2) photon-quark anomalous dimension :math:`\\gamma_{\\gamma d}^{(0,2)}(N)`
+        :math:`O(a_{em}^2)` photon-quark anomalous dimension :math:`\\gamma_{\\gamma d}^{(0,2)}(N)`
 
     """
     nu = constants.uplike_flavors(nf)
@@ -152,7 +152,7 @@ def gamma_phd(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_nspu(N, nf, sx, sx_ns_qed):
-    r"""Compute the O(aem2) singlet-like non-singlet anomalous dimension for up quarks.
+    r"""Compute the :math:`O(a_{em}^2)` singlet-like non-singlet anomalous dimension for up quarks.
 
     Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -168,7 +168,7 @@ def gamma_nspu(N, nf, sx, sx_ns_qed):
     Returns
     -------
         gamma_nspu : complex
-            O(aem2) singlet-like non-singlet anomalous dimension
+            :math:`O(a_{em}^2)` singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,+,u}^{(0,2)}(N)`
 
     """
@@ -191,7 +191,7 @@ def gamma_nspu(N, nf, sx, sx_ns_qed):
 
 @nb.njit(cache=True)
 def gamma_nspd(N, nf, sx, sx_ns_qed):
-    r"""Compute the O(aem2) singlet-like non-singlet anomalous dimension for down quarks.
+    r"""Compute the :math:`O(a_{em}^2)` singlet-like non-singlet anomalous dimension for down quarks.
 
     Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
 
@@ -207,7 +207,7 @@ def gamma_nspd(N, nf, sx, sx_ns_qed):
     Returns
     -------
         gamma_nspd : complex
-            O(aem2) singlet-like non-singlet anomalous dimension
+            :math:`O(a_{em}^2)` singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,+,d}^{(0,2)}(N)`
 
     """
@@ -230,7 +230,7 @@ def gamma_nspd(N, nf, sx, sx_ns_qed):
 
 @nb.njit(cache=True)
 def gamma_nsmu(N, nf, sx, sx_ns_qed):
-    r"""Compute the O(aem2) valence-like non-singlet anomalous dimension for up quarks.
+    r"""Compute the :math:`O(a_{em}^2)` valence-like non-singlet anomalous dimension for up quarks.
 
     Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
 
@@ -246,7 +246,7 @@ def gamma_nsmu(N, nf, sx, sx_ns_qed):
     Returns
     -------
         gamma_nsp : complex
-            O(aem2) valence-like non-singlet anomalous dimension
+            :math:`O(a_{em}^2)` valence-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,-,u}^{(0,2)}(N)`
 
     """
@@ -269,7 +269,7 @@ def gamma_nsmu(N, nf, sx, sx_ns_qed):
 
 @nb.njit(cache=True)
 def gamma_nsmd(N, nf, sx, sx_ns_qed):
-    r"""Compute the O(aem2) valence-like non-singlet anomalous dimension for down quarks.
+    r"""Compute the :math:`O(a_{em}^2)` valence-like non-singlet anomalous dimension for down quarks.
 
     Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
 
@@ -285,7 +285,7 @@ def gamma_nsmd(N, nf, sx, sx_ns_qed):
     Returns
     -------
         gamma_nsp : complex
-            O(aem2) valence-like non-singlet anomalous dimension
+            :math:`O(a_{em}^2)` valence-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,-,d}^{(0,2)}(N)`
 
     """
@@ -308,7 +308,7 @@ def gamma_nsmd(N, nf, sx, sx_ns_qed):
 
 @nb.njit(cache=True)
 def gamma_ps(N, nf):
-    r"""Compute the O(aem2) pure-singlet quark-quark anomalous dimension.
+    r"""Compute the :math:`O(a_{em}^2)` pure-singlet quark-quark anomalous dimension.
 
     Implements Eq. (59) of :cite:`deFlorian:2016gvk`.
 
@@ -322,7 +322,7 @@ def gamma_ps(N, nf):
     Returns
     -------
         gamma_ps : complex
-            O(aem2) pure-singlet quark-quark anomalous dimension
+            :math:`O(a_{em}^2)` pure-singlet quark-quark anomalous dimension
             :math:`\\gamma_{ps}^{(0,2)}(N)`
 
     """
@@ -337,7 +337,7 @@ def gamma_ps(N, nf):
 
 @nb.njit(cache=True)
 def gamma_singlet(N, nf, sx, sx_ns_qed):
-    r"""Compute the O(aem2) singlet sector.
+    r"""Compute the :math:`O(a_{em}^2)` singlet sector.
 
     Parameters
     ----------
@@ -351,7 +351,7 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
     Returns
     -------
         gamma_singlet : numpy.ndarray
-            O(aem2) singlet anomalous dimension :math:`\\gamma_{S}^{(0,2)}(N,nf,sx)`
+            :math:`O(a_{em}^2)` singlet anomalous dimension :math:`\\gamma_{S}^{(0,2)}(N,nf,sx)`
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -409,7 +409,7 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
 
 @nb.njit(cache=True)
 def gamma_valence(N, nf, sx, sx_ns_qed):
-    r"""Compute the O(aem2) valence sector.
+    r"""Compute the :math:`O(a_{em}^2)` valence sector.
 
     Parameters
     ----------
@@ -423,7 +423,7 @@ def gamma_valence(N, nf, sx, sx_ns_qed):
     Returns
     -------
         gamma_singlet : numpy.ndarray
-            O(aem2) valence anomalous dimension :math:`\\gamma_{V}^{(0,2)}(N,nf,sx)`
+            :math:`O(a_{em}^2)` valence anomalous dimension :math:`\\gamma_{V}^{(0,2)}(N,nf,sx)`
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu

@@ -1,4 +1,4 @@
-"""Contains the O(as1aem1) Altarelli-Parisi splitting kernels."""
+"""The :math:`O(a_s^1a_{em}^1)` Altarelli-Parisi splitting kernels."""
 
 import numba as nb
 import numpy as np
@@ -9,7 +9,7 @@ from ..harmonics.constants import zeta2, zeta3
 
 @nb.njit(cache=True)
 def gamma_phq(N, sx):
-    r"""Compute the O(as1aem1) photon-quark anomalous dimension.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` photon-quark anomalous dimension.
 
     Implements Eq. (36) of :cite:`deFlorian:2015ujt`.
 
@@ -23,7 +23,7 @@ def gamma_phq(N, sx):
     Returns
     -------
       gamma_phq : complex
-        O(as1aem1) photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(1,1)}(N)`
+        :math:`O(a_s^1a_{em}^1)` photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(1,1)}(N)`
 
     """
     S1 = sx[0]
@@ -54,7 +54,7 @@ def gamma_phq(N, sx):
 
 @nb.njit(cache=True)
 def gamma_qph(N, nf, sx):
-    r"""Compute the O(as1aem1) quark-photon anomalous dimension.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` quark-photon anomalous dimension.
 
     Implements Eq. (26) of :cite:`deFlorian:2015ujt`.
 
@@ -70,7 +70,7 @@ def gamma_qph(N, nf, sx):
     Returns
     -------
       gamma_qph : complex
-        O(as1aem1) quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(1,1)}(N)`
+        :math:`O(a_s^1a_{em}^1)` quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(1,1)}(N)`
 
     """
     S1 = sx[0]
@@ -102,7 +102,7 @@ def gamma_qph(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_gph(N):
-    r"""Compute the O(as1aem1) gluon-photon anomalous dimension.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` gluon-photon anomalous dimension.
 
     Implements Eq. (27) of :cite:`deFlorian:2015ujt`.
 
@@ -114,7 +114,7 @@ def gamma_gph(N):
     Returns
     -------
       gamma_qph : complex
-        O(as1aem1) gluon-photon anomalous dimension :math:`\\gamma_{g \\gamma}^{(1,1)}(N)`
+        :math:`O(a_s^1a_{em}^1)` gluon-photon anomalous dimension :math:`\\gamma_{g \\gamma}^{(1,1)}(N)`
 
     """
     return (
@@ -133,7 +133,7 @@ def gamma_gph(N):
 
 @nb.njit(cache=True)
 def gamma_phg(N):
-    r"""Compute the O(as1aem1) photon-gluon anomalous dimension.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` photon-gluon anomalous dimension.
 
     Implements Eq. (30) of :cite:`deFlorian:2015ujt`.
 
@@ -145,7 +145,7 @@ def gamma_phg(N):
     Returns
     -------
       gamma_qph : complex
-        O(as1aem1) photon-gluon anomalous dimension :math:`\\gamma_{\\gamma g}^{(1,1)}(N)`
+        :math:`O(a_s^1a_{em}^1)` photon-gluon anomalous dimension :math:`\\gamma_{\\gamma g}^{(1,1)}(N)`
 
     """
     return constants.TR / constants.CF / constants.CA * constants.NC * gamma_gph(N)
@@ -153,7 +153,7 @@ def gamma_phg(N):
 
 @nb.njit(cache=True)
 def gamma_qg(N, nf, sx):
-    r"""Compute the O(as1aem1) quark-gluon singlet anomalous dimension.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` quark-gluon singlet anomalous dimension.
 
     Implements Eq. (29) of :cite:`deFlorian:2015ujt`.
 
@@ -169,7 +169,7 @@ def gamma_qg(N, nf, sx):
     Returns
     -------
         gamma_qg : complex
-            O(as1aem1) quark-gluon singlet anomalous dimension
+            :math:`O(a_s^1a_{em}^1)` quark-gluon singlet anomalous dimension
             :math:`\\gamma_{qg}^{(1,1)}(N)`
 
     """
@@ -180,7 +180,7 @@ def gamma_qg(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_gq(N, sx):
-    r"""Compute the O(as1aem1) gluon-quark singlet anomalous dimension.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` gluon-quark singlet anomalous dimension.
 
     Implements Eq. (35) of :cite:`deFlorian:2015ujt`.
 
@@ -194,7 +194,7 @@ def gamma_gq(N, sx):
     Returns
     -------
         gamma_gq : complex
-            O(as1aem1) gluon-quark singlet anomalous dimension
+            :math:`O(a_s^1a_{em}^1)` gluon-quark singlet anomalous dimension
             :math:`\\gamma_{gq}^{(1,1)}(N)`
 
     """
@@ -203,7 +203,7 @@ def gamma_gq(N, sx):
 
 @nb.njit(cache=True)
 def gamma_phph(nf):
-    r"""Compute the O(as1aem1) photon-photon singlet anomalous dimension.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` photon-photon singlet anomalous dimension.
 
     Implements Eq. (28) of :cite:`deFlorian:2015ujt`.
 
@@ -215,7 +215,7 @@ def gamma_phph(nf):
     Returns
     -------
         gamma_gg : complex
-            O(as1aem1) photon-photon singlet anomalous dimension
+            :math:`O(a_s^1a_{em}^1)` photon-photon singlet anomalous dimension
             :math:`\\gamma_{\\gamma \\gamma}^{(1,1)}(N)`
 
     """
@@ -226,14 +226,14 @@ def gamma_phph(nf):
 
 @nb.njit(cache=True)
 def gamma_gg():
-    r"""Compute the O(as1aem1) gluon-gluon singlet anomalous dimension.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` gluon-gluon singlet anomalous dimension.
 
     Implements Eq. (31) of :cite:`deFlorian:2015ujt`.
 
     Returns
     -------
         gamma_gg : complex
-            O(as1aem1) gluon-gluon singlet anomalous dimension
+            :math:`O(a_s^1a_{em}^1)` gluon-gluon singlet anomalous dimension
             :math:`\\gamma_{gg}^{(1,1)}(N)`
 
     """
@@ -242,7 +242,7 @@ def gamma_gg():
 
 @nb.njit(cache=True)
 def gamma_nsp(N, sx, sx_ns_qed):
-    r"""Compute the O(as1aem1) singlet-like non-singlet anomalous dimension.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` singlet-like non-singlet anomalous dimension.
 
     Implements sum of Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
 
@@ -256,7 +256,7 @@ def gamma_nsp(N, sx, sx_ns_qed):
     Returns
     -------
         gamma_nsp : complex
-            O(as1aem1) singlet-like non-singlet anomalous dimension
+            :math:`O(a_s^1a_{em}^1)` singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,+}^{(1)}(N)`
 
     """
@@ -309,7 +309,7 @@ def gamma_nsp(N, sx, sx_ns_qed):
 
 @nb.njit(cache=True)
 def gamma_nsm(N, sx, sx_ns_qed):
-    r"""Compute the O(as1aem1) valence-like non-singlet anomalous dimension.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` valence-like non-singlet anomalous dimension.
 
     Implements difference between Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
 
@@ -323,7 +323,7 @@ def gamma_nsm(N, sx, sx_ns_qed):
     Returns
     -------
         gamma_nsm : complex
-            O(as1aem1) singlet-like non-singlet anomalous dimension
+            :math:`O(a_s^1a_{em}^1)` singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,-}^{(1,1)}(N)`
 
     """
@@ -372,7 +372,7 @@ def gamma_nsm(N, sx, sx_ns_qed):
 
 @nb.njit(cache=True)
 def gamma_singlet(N, nf, sx, sx_ns_qed):
-    r"""Compute the O(as1aem1) singlet sector.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` singlet sector.
 
     Parameters
     ----------
@@ -386,7 +386,7 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
     Returns
     -------
         gamma_singlet : numpy.ndarray
-            O(as1aem1) singlet anomalous dimension :math:`\\gamma_{S}^{(1,1)}(N,nf,sx)`
+            :math:`O(a_s^1a_{em}^1)` singlet anomalous dimension :math:`\\gamma_{S}^{(1,1)}(N,nf,sx)`
     """
     e2avg = constants.e2avg(nf)
     vue2m = constants.vue2m(nf)
@@ -432,7 +432,7 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
 
 @nb.njit(cache=True)
 def gamma_valence(N, nf, sx, sx_ns_qed):
-    r"""Compute the O(as1aem1) valence sector.
+    r"""Compute the :math:`O(a_s^1a_{em}^1)` valence sector.
 
     Parameters
     ----------
@@ -446,7 +446,7 @@ def gamma_valence(N, nf, sx, sx_ns_qed):
     Returns
     -------
         gamma_singlet : numpy.ndarray
-            O(as1aem1) valence anomalous dimension :math:`\\gamma_{V}^{(1,1)}(N,nf,sx)`
+            :math:`O(a_s^1a_{em}^1)` valence anomalous dimension :math:`\\gamma_{V}^{(1,1)}(N,nf,sx)`
     """
     e2avg = constants.e2avg(nf)
     vue2m = constants.vue2m(nf)

@@ -1,4 +1,4 @@
-"""Contains the O(aem1) Altarelli-Parisi splitting kernels."""
+"""The :math:`O(a_{em}^1)` Altarelli-Parisi splitting kernels."""
 
 import numba as nb
 import numpy as np
