@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from eko import basis_rotation as br
+from eko import compatibility
 from ekobox import evol_pdf as ev_p
 from ekobox import operators_card as oc
 from ekobox import theory_card as tc
@@ -39,14 +40,15 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
             "ktThr": 1,
         },
     )
+    nt, no = compatibility.update(theory, op)
     # lhapdf import (maybe i have to dump with a x*), do plots)
     with lhapdf_path(test_pdf):
         pdf = lhapdf.mkPDF("myCT14llo_NF3", 0)
     with cd(tmp_path):
         ev_p.evolve_pdfs(
             [pdf],
-            theory,
-            op,
+            nt,
+            no,
             name="EvPDF",
             info_update={"SetDesc": "MyEvolvedPDF", "MZ": 0.2, "Debug": "Debug"},
         )
@@ -54,11 +56,11 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
         all_blocks = (load.load_blocks_from_file("EvPDF", 0))[1]
         info = load.load_info_from_file("EvPDF")
         ev_pdf = lhapdf.mkPDF("EvPDF", 0)
-    assert info["XMin"] == op["interpolation_xgrid"][0]
+    assert info["XMin"] == no["rotations"]["xgrid"][0]
     assert info["SetDesc"] == "MyEvolvedPDF"
-    assert info["MZ"] == theory["MZ"]
+    assert info["MZ"] == nt["MZ"]
     assert info["Debug"] == "Debug"
-    xgrid = op["interpolation_xgrid"]
+    xgrid = no["rotations"]["xgrid"]
     for Q2 in [20.0, 100.0, 10000.0]:
         for x in xgrid[10:40]:
             for pid in [21, 1, -1, 2, -2, 3, -3]:
@@ -82,19 +84,20 @@ def benchmark_evolve_more_members(tmp_path, cd, lhapdf_path):
         [10, 100], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
     )
     theory = tc.generate(0, 1.0)
+    nt, no = compatibility.update(theory, op)
     with lhapdf_path(test_pdf):
         pdfs = lhapdf.mkPDFs("myMSTW2008nlo90cl")
     d = tmp_path / "sub"
     d.mkdir()
     with lhapdf_path(d):
         with cd(tmp_path):
-            ev_p.evolve_pdfs(pdfs, theory, op, install=True, name="Debug")
+            ev_p.evolve_pdfs(pdfs, nt, no, install=True, name="Debug")
         # ev_pdfs
         new_pdfs = lhapdf.mkPDFs("Debug")
         new_pdf_1 = lhapdf.mkPDF("Debug", 0)
         new_pdf_2 = lhapdf.mkPDF("Debug", 1)
         info = load.load_info_from_file("Debug")
-    assert info["XMin"] == op["interpolation_xgrid"][0]
+    assert info["XMin"] == no["rotations"]["xgrid"][0]
     assert len(pdfs) == len(new_pdfs)
     for Q2 in [10, 100]:
         for x in [1e-7, 0.01, 0.1, 0.2, 0.3]:
