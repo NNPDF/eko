@@ -265,3 +265,96 @@ def compute_qed_ns_cache(n, s1):
     g3Np2 = g_functions.mellin_g3(n + 2.0, S1p2)
     sx_qed_ns.append(g3Np2)
     return sx_qed_ns
+
+
+@nb.njit(cache=True)
+def compute_cache_S_n_half(n):
+    r"""Get the harmonics sums cache S_i(n/2).
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+
+    Returns
+    -------
+    list
+        harmonic sums cache. It contains:
+
+        .. math ::
+            [S_1(n/2), S_2(n/2), S_3(n/2)]
+    """
+    return [S1(n / 2.0), S2(n / 2.0), S3(n / 2.0)]
+
+
+@nb.njit(cache=True)
+def compute_cache_S_n_half_minus_1halph(n):
+    r"""Get the harmonics sums cache S_i((n-1)/2).
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+
+    Returns
+    -------
+    list
+        harmonic sums cache. It contains:
+
+        .. math ::
+            [S_1((n-1)/2), S_2((n-1)/2), S_3((n-1)/2)]
+    """
+    return [S1((n - 1) / 2), S2((n - 1) / 2), S3((n - 1) / 2)]
+
+
+@nb.njit(cache=True)
+def compute_cache_S_n_half_plus_1halph(n, sx):
+    r"""Get the harmonics sums cache S_i((n+1)/2).
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache S_i((n-1)/2)
+
+    Returns
+    -------
+    list
+        harmonic sums cache. It contains:
+
+        .. math ::
+            [S_1((n+1)/2), S_2((n+1)/2), S_3((n+1)/2)]
+    """
+    S1_nh = polygamma.recursive_harmonic_sum(sx[0], n, 1, 1)
+    S2_nh = polygamma.recursive_harmonic_sum(sx[1], n, 1, 2)
+    S3_nh = polygamma.recursive_harmonic_sum(sx[2], n, 1, 3)
+    return [S1_nh, S2_nh, S3_nh]
+
+
+@nb.njit(cache=True)
+def compute_cache_g3(n, s1, qed):
+    r"""Get the functionis g3(n) and g3(n+2).
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    s1 : list
+        harmonic sum :math:`S_1(n)`
+
+
+    Returns
+    -------
+    list
+        g3 functions cache. It contains:
+
+        .. math ::
+            [g3(n), g3(n+2)]
+    """
+    g_list = [g_functions.mellin_g3(n, s1)]
+    if qed:
+        S1p2 = polygamma.recursive_harmonic_sum(s1, n, 2, 1)
+        g3Np2 = g_functions.mellin_g3(n + 2.0, S1p2)
+        g_list.append(g3Np2)
+    return g_list
