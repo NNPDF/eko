@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import warnings
 
 import numpy as np
@@ -27,7 +26,7 @@ def test_zero():
     ev_op_iterations = 2
     running_alpha = [True, False]
     for qcd in range(1, 3 + 1):
-        for qed in range(0, 2 + 1):
+        for qed in range(1, 2 + 1):
             order = (qcd, qed)
             gamma_ns = (
                 np.random.rand(qcd + 1, qed + 1) + np.random.rand(qcd + 1, qed + 1) * 1j
@@ -73,7 +72,7 @@ def test_zero_true_gamma():
         if mode in [10201, 10101, 10200]:
             continue
         for qcd in range(1, 3 + 1):
-            for qed in range(0, 2 + 1):
+            for qed in range(1, 2 + 1):
                 order = (qcd, qed)
                 n = np.random.rand()
                 gamma_ns = ad.gamma_ns_qed(order, mode, n, nf)

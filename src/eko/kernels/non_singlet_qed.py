@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Collection of QED non-singlet EKOs."""
 import numba as nb
 import numpy as np
@@ -193,7 +192,7 @@ def as3aem2_exact(gamma_ns, a1, a0, aem, nf):
 @nb.njit(cache=True)
 def dispatcher(
     order, method, gamma_ns, a1, a0, aem_list, alphaem_running, nf, ev_op_iterations
-):  # pylint: disable=too-many-return-statements
+):
     """
     Determine used kernel and call it.
 
@@ -225,13 +224,6 @@ def dispatcher(
         e_ns : complex
             non-singlet EKO
     """
-    # use always exact in LO
-    if order[1] == 0:
-        return non_singlet.dispatcher(
-            order, method, gamma_ns[1:, 0], a1, a0, nf, ev_op_iterations
-        )
-        # this if is probably useless since when order[1] == 0
-        # the code never enters in this module
     if not alphaem_running:
         aem = aem_list[0]
         return fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf)

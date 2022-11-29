@@ -57,7 +57,7 @@ def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations):
 
 
 @nb.njit(cache=True)
-def dispatcher(  # pylint: disable=too-many-return-statements
+def dispatcher(
     order,
     method,
     gamma_singlet,
