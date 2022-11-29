@@ -281,19 +281,21 @@ def gamma_singlet_qed(N, nf, sx):
     Compute the leading-order singlet anomalous dimension matrix.
 
     .. math::
-        \gamma_S^{(0)} = \left(\begin{array}{cc}
-        \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
-        \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
+        \gamma_S^{(2,0)} = \left(\begin{array}{cccc}
+        \gamma_{gg}^{(2,0)} & 0 & \gamma_{gq}^{(2,0)} & 0\\
+        0 & 0 & 0 & 0 \\
+        \gamma_{qg}^{(2,0)} & 0 & \gamma_{qq}^{(2,0)} & 0 \\
+        0 & 0 & 0 & \gamma_{qq}^{(2,0)} \\
         \end{array}\right)
 
     Parameters
     ----------
     N : complex
         Mellin moment
-    s1 : complex
-        harmonic sum :math:`S_{1}`
     nf : int
         Number of active flavors
+    s1 : complex
+        harmonic sum :math:`S_{1}`
 
     Returns
     -------
@@ -327,15 +329,17 @@ def gamma_valence_qed(N, nf, sx):
     Compute the leading-order valence anomalous dimension matrix.
 
     .. math::
-        \gamma_S^{(0)} = \left(\begin{array}{cc}
-        \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
-        \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
+        \gamma_V^{(2,0)} = \left(\begin{array}{cc}
+        \gamma_{ns-}^{(2,0)} & 0\\
+        0 & \gamma_{ns-}^{(2,0)}
         \end{array}\right)
 
     Parameters
     ----------
     N : complex
         Mellin moment
+    nf : int
+        Number of active flavors
     s1 : complex
         harmonic sum :math:`S_{1}`
 

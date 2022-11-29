@@ -22,7 +22,7 @@ def gamma_phq(N):
     Returns
     -------
       gamma_phq : complex
-        Leading-order photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(0)}(N)`
+        Leading-order photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(0,1)}(N)`
     """
     return as1.gamma_gq(N) / constants.CF
 
@@ -46,7 +46,7 @@ def gamma_qph(N, nf):
     Returns
     -------
       gamma_qph : complex
-        Leading-order quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(0)}(N)`
+        Leading-order quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(0,1)}(N)`
     """
     return as1.gamma_qg(N, nf) / constants.TR * constants.NC
 
@@ -66,7 +66,7 @@ def gamma_phph(nf):
     Returns
     -------
       gamma_phph : complex
-        Leading-order phton-photon anomalous dimension :math:`\\gamma_{\\gamma \\gamma}^{(0)}(N)`
+        Leading-order phton-photon anomalous dimension :math:`\\gamma_{\\gamma \\gamma}^{(0,1)}(N)`
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -90,7 +90,7 @@ def gamma_ns(N, sx):
     Returns
     -------
       gamma_ns : complex
-        Leading-order non-singlet QED anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
+        Leading-order non-singlet QED anomalous dimension :math:`\\gamma_{ns}^{(0,1)}(N)`
     """
     s1 = sx[0]
     return as1.gamma_ns(N, s1) / constants.CF
@@ -103,8 +103,10 @@ def gamma_singlet(N, nf, sx):
 
     .. math::
         \gamma_S^{(0)} = \left(\begin{array}{cc}
-        \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
-        \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
+        0 & 0 & 0 & 0 \\
+        0 & \gamma_{\gamma \gamma}^{(0,1)} & \langle e^2 \rangle \gamma_{\gamma q}^{(0,1)} & \nu_u e^2_- \gamma_{\gamma q}^{(0,1)}\\
+        0 & \langle e^2 \rangle\gamma_{q \gamma}^{(0,1)} & \langle e^2 \rangle \gamma_{ns}^{(0,1)} & \nu_u e^2_- \gamma_{ns}^{(0,1)}\\
+        0 & \nu_d e^2_- \gamma_{q \gamma}^{(0,1)} & \nu_d e^2_- \gamma_{ns}^{(0,1)} & e^2_\Delta \gamma_{ns}^{(0,1)}
         \end{array}\right)
 
     Parameters
@@ -168,9 +170,9 @@ def gamma_valence(N, nf, sx):
     Compute the leading-order valence anomalous dimension matrix.
 
     .. math::
-        \gamma_S^{(0)} = \left(\begin{array}{cc}
-        \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
-        \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
+        \gamma_V^{(0,1)} = \left(\begin{array}{cc}
+        \langle e^2 \rangle \gamma_{ns}^{(0,1)} & \nu_u e^2_- \gamma_{ns}^{(0,1)}\\
+        \nu_d e^2_- \gamma_{ns}^{(0,1)} & e^2_\Delta \gamma_{ns}^{(0,1)}
         \end{array}\right)
 
     Parameters

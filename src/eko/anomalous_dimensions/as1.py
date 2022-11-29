@@ -147,9 +147,11 @@ def gamma_singlet_qed(N, s1, nf):
     Compute the leading-order singlet anomalous dimension matrix.
 
     .. math::
-        \gamma_S^{(0)} = \left(\begin{array}{cc}
-        \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
-        \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
+        \gamma_S^{(1,0)} = \left(\begin{array}{cccc}
+        \gamma_{gg}^{(1,0)} & 0 & \gamma_{gq}^{(1,0)} & 0\\
+        0 & 0 & 0 & 0 \\
+        \gamma_{qg}^{(1,0)} & 0 & \gamma_{qq}^{(1,0)} & 0 \\
+        0 & 0 & 0 & \gamma_{qq}^{(1,0)} \\
         \end{array}\right)
 
     Parameters
@@ -192,9 +194,9 @@ def gamma_valence_qed(N, s1):
     Compute the leading-order valence anomalous dimension matrix.
 
     .. math::
-        \gamma_S^{(0)} = \left(\begin{array}{cc}
-        \gamma_{qq}^{(0)} & \gamma_{qg}^{(0)}\\
-        \gamma_{gq}^{(0)} & \gamma_{gg}^{(0)}
+        \gamma_V^{(1,0)} = \left(\begin{array}{cc}
+        \gamma_{ns}^{(1,0)} & 0\\
+        0 & \gamma_{ns}^{(1,0)}
         \end{array}\right)
 
     Parameters
