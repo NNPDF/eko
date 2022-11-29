@@ -413,9 +413,9 @@ def gamma_singlet_qed(order, n, nf):
 
     See Also
     --------
-        eko.anomalous_dimensions.as1.gamma_QEDsinglet : :math:`\gamma_{S}^{(0)}(N)`
-        eko.anomalous_dimensions.as2.gamma_QEDsinglet : :math:`\gamma_{S}^{(1)}(N)`
-        eko.anomalous_dimensions.as3.gamma_QEDsinglet : :math:`\gamma_{S}^{(2)}(N)`
+        eko.anomalous_dimensions.as1.gamma_singlet_qed : :math:`\gamma_{S}^{(0)}(N)`
+        eko.anomalous_dimensions.as2.gamma_singlet_qed : :math:`\gamma_{S}^{(1)}(N)`
+        eko.anomalous_dimensions.as3.gamma_singlet_qed : :math:`\gamma_{S}^{(2)}(N)`
         eko.anomalous_dimensions.aem1.gamma_singlet : :math:`\gamma_{S}^{(0,1)}(N)`
         eko.anomalous_dimensions.as1aem1.gamma_singlet : :math:`\gamma_{S}^{(1,1)}(N)`
         eko.anomalous_dimensions.aem2.gamma_singlet : :math:`\gamma_{S}^{(0,2)}(N)`
@@ -430,17 +430,17 @@ def gamma_singlet_qed(order, n, nf):
     sx_ns_qed = harmonics.compute_qed_ns_cache(n, sx[0])
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
     if order[0] >= 1:
-        gamma_s[1, 0] = as1.gamma_QEDsinglet(n, sx[0], nf)
+        gamma_s[1, 0] = as1.gamma_singlet_qed(n, sx[0], nf)
     if order[1] >= 1:
         gamma_s[0, 1] = aem1.gamma_singlet(n, nf, sx)
     if order[0] >= 1 and order[1] >= 1:
         gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, sx, sx_ns_qed)
     if order[0] >= 2:
-        gamma_s[2, 0] = as2.gamma_QEDsinglet(n, nf, sx)
+        gamma_s[2, 0] = as2.gamma_singlet_qed(n, nf, sx)
     if order[1] >= 2:
         gamma_s[0, 2] = aem2.gamma_singlet(n, nf, sx, sx_ns_qed)
     if order[0] >= 3:
-        gamma_s[3, 0] = as3.gamma_QEDsinglet(n, nf, sx)
+        gamma_s[3, 0] = as3.gamma_singlet_qed(n, nf, sx)
     return gamma_s
 
 
@@ -465,9 +465,9 @@ def gamma_valence_qed(order, n, nf):
 
     See Also
     --------
-        eko.anomalous_dimensions.as1.gamma_QEDvalence : :math:`\gamma_{V}^{(0)}(N)`
-        eko.anomalous_dimensions.as2.gamma_QEDvalence : :math:`\gamma_{V}^{(1)}(N)`
-        eko.anomalous_dimensions.as3.gamma_QEDvalence : :math:`\gamma_{V}^{(2)}(N)`
+        eko.anomalous_dimensions.as1.gamma_valence_qed : :math:`\gamma_{V}^{(0)}(N)`
+        eko.anomalous_dimensions.as2.gamma_valence_qed : :math:`\gamma_{V}^{(1)}(N)`
+        eko.anomalous_dimensions.as3.gamma_valence_qed : :math:`\gamma_{V}^{(2)}(N)`
         eko.anomalous_dimensions.aem1.gamma_valence : :math:`\gamma_{V}^{(0,1)}(N)`
         eko.anomalous_dimensions.as1aem1.gamma_valence : :math:`\gamma_{V}^{(1,1)}(N)`
         eko.anomalous_dimensions.aem2.gamma_valence : :math:`\gamma_{V}^{(0,2)}(N)`
@@ -482,15 +482,15 @@ def gamma_valence_qed(order, n, nf):
     sx_ns_qed = harmonics.compute_qed_ns_cache(n, sx[0])
     gamma_v = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
     if order[0] >= 1:
-        gamma_v[1, 0] = as1.gamma_QEDvalence(n, sx[0])
+        gamma_v[1, 0] = as1.gamma_valence_qed(n, sx[0])
     if order[1] >= 1:
         gamma_v[0, 1] = aem1.gamma_valence(n, nf, sx)
     if order[0] >= 1 and order[1] >= 1:
         gamma_v[1, 1] = as1aem1.gamma_valence(n, nf, sx, sx_ns_qed)
     if order[0] >= 2:
-        gamma_v[2, 0] = as2.gamma_QEDvalence(n, nf, sx)
+        gamma_v[2, 0] = as2.gamma_valence_qed(n, nf, sx)
     if order[1] >= 2:
         gamma_v[0, 2] = aem2.gamma_valence(n, nf, sx, sx_ns_qed)
     if order[0] >= 3:
-        gamma_v[3, 0] = as3.gamma_QEDvalence(n, nf, sx)
+        gamma_v[3, 0] = as3.gamma_valence_qed(n, nf, sx)
     return gamma_v
