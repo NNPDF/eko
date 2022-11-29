@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Additional package to benchmark eko.
 """

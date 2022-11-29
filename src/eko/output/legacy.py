@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Support legacy storage formats."""
 import copy
 import dataclasses

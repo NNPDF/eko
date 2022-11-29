@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from click.testing import CliRunner
 
 from ekobox.cli import command

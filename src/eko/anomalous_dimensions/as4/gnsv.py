@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """This module contains the anomalous dimension :math:`\\gamma_{ns,v}^{(3)}`
 
 """

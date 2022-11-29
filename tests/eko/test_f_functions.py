@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Test F functions implementing w5 harmonics sums
 
 import numpy as np

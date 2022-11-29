@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Structures to hold runcard information.
 
 .. todo::

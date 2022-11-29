@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """This module benchmarks MSbar mass evolution against APFEL."""
 import copy
 

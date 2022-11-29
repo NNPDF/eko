@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""Contains the central operator classes.
 
 See :doc:`Operator overview </code/Operators>`.
@@ -121,9 +120,10 @@ def quad_ker(
     is_log,
     logx,
     areas,
-    a1,
-    a0,
-    nf, 
+    as1,
+    as0,
+    as_raw,
+    nf,
     p,
     L,
     ev_op_iterations,
@@ -151,10 +151,12 @@ def quad_ker(
         Mellin inversion point
     areas : tuple
         basis function configuration
-    a1 : float
+    as1 : float
         target coupling value
-    a0 : float
+    as0 : float
         initial coupling value
+    as_raw : float
+        coupling value at the process scale
     nf : int
         number of active flavors
     p : Boolean
@@ -192,8 +194,8 @@ def quad_ker(
             order,
             method,
             gamma_singlet,
-            a1,
-            a0,
+            as1,
+            as0,
             nf,
             ev_op_iterations,
             ev_op_max_order,
@@ -205,7 +207,7 @@ def quad_ker(
         ##################### until now it all makes sense 
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, a1, order, nf, L)
+                sv.expanded.singlet_variation(gamma_singlet, as_raw, order, nf, L)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -216,13 +218,15 @@ def quad_ker(
             order,
             method,
             gamma_ns,
-            a1,
-            a0,
+            as1,
+            as0,
             nf,
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = sv.expanded.non_singlet_variation(gamma_ns, a1, order, nf, L) * ker
+            ker = (
+                sv.expanded.non_singlet_variation(gamma_ns, as_raw, order, nf, L) * ker
+            )
 
     # recombine everything
     return np.real(ker * integrand)
@@ -322,8 +326,8 @@ class Operator(sv.ModeMixin):
             self.mur2_shift(self.q2_from), fact_scale=self.q2_from, nf_to=self.nf
         )
         a1 = sc.a_s(self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf)
-        return (a0, a1)
-    #pretty sure this is where the confusion was from
+        a_raw = sc.a_s(self.q2_to, fact_scale=self.q2_to, nf_to=self.nf)
+        return (a0, a1, a_raw)
 
     @property
     def labels(self):
@@ -379,8 +383,9 @@ class Operator(sv.ModeMixin):
             is_log=self.int_disp.log,
             logx=logx,
             areas=areas,
-            a1=self.a_s[1],
-            a0=self.a_s[0],
+            as1=self.a_s[1],
+            as0=self.a_s[0],
+            as_raw=self.a_s[2],
             nf=self.nf,
             p = self.p,
             L=np.log(self.fact_to_ren),

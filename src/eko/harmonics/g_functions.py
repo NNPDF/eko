@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Implementations of some mellin transformations :cite:`MuselliPhD`
 appearing in the analytic continuation of harmonics sums of weight = 3,4.
