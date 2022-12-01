@@ -8,26 +8,25 @@ from . import utils
 
 @nb.njit(cache=True)
 def as1aem1_exact(gamma_ns, a1, a0, aem, nf):
-    """
-    O(as1aem1) non-singlet exact EKO.
+    """O(as1aem1) non-singlet exact EKO.
 
     Parameters
     ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        aem : float
-            electromagnetic coupling value
-        nf : int
-            number of active flavors
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem : float
+        electromagnetic coupling value
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_ns^0 : complex
-            O(as1aem1) non-singlet exact EKO
+    e_ns^0 : complex
+        O(as1aem1) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j00_qed(a1, a0, aem, nf)
@@ -42,21 +41,21 @@ def as1aem2_exact(gamma_ns, a1, a0, aem, nf):
 
     Parameters
     ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        aem : float
-            electromagnetic coupling value
-        nf : int
-            number of active flavors
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem : float
+        electromagnetic coupling value
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_ns^0 : complex
-            O(as1aem2) non-singlet exact EKO
+    e_ns^0 : complex
+        O(as1aem2) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j00_qed(a1, a0, aem, nf)
@@ -67,26 +66,25 @@ def as1aem2_exact(gamma_ns, a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def as2aem1_exact(gamma_ns, a1, a0, aem, nf):
-    """
-    O(as2aem1) non-singlet exact EKO.
+    """O(as2aem1) non-singlet exact EKO.
 
     Parameters
     ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        aem : float
-            electromagnetic coupling value
-        nf : int
-            number of active flavors
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem : float
+        electromagnetic coupling value
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_ns^1 : complex
-            O(as2aem1) non-singlet exact EKO
+    e_ns^1 : complex
+        O(as2aem1) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j01_exact_qed(a1, a0, aem, nf)
@@ -97,26 +95,25 @@ def as2aem1_exact(gamma_ns, a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def as2aem2_exact(gamma_ns, a1, a0, aem, nf):
-    """
-    O(as2aem2) non-singlet exact EKO.
+    """O(as2aem2) non-singlet exact EKO.
 
     Parameters
     ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        aem : float
-            electromagnetic coupling value
-        nf : int
-            number of active flavors
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem : float
+        electromagnetic coupling value
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_ns^1 : complex
-            O(as2aem2) non-singlet exact EKO
+    e_ns^1 : complex
+        O(as2aem2) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j01_exact_qed(a1, a0, aem, nf)
@@ -128,26 +125,25 @@ def as2aem2_exact(gamma_ns, a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def as3aem1_exact(gamma_ns, a1, a0, aem, nf):
-    """
-    O(as3aem1) non-singlet exact EKO.
+    """O(as3aem1) non-singlet exact EKO.
 
     Parameters
     ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        aem : float
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem : float
             electromagnetic coupling value
-        nf : int
-            number of active flavors
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_ns^2 : complex
-            O(as3aem1) non-singlet exact EKO
+    e_ns^2 : complex
+        O(as3aem1) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j02_exact_qed(a1, a0, aem, nf)
@@ -164,21 +160,21 @@ def as3aem2_exact(gamma_ns, a1, a0, aem, nf):
 
     Parameters
     ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        aem : float
-            electromagnetic coupling value
-        nf : int
-            number of active flavors
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem : float
+        electromagnetic coupling value
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_ns^2 : complex
-            O(as3aem2) non-singlet exact EKO
+    e_ns^2 : complex
+        O(as3aem2) non-singlet exact EKO
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei_qed.j02_exact_qed(a1, a0, aem, nf)
@@ -193,36 +189,35 @@ def as3aem2_exact(gamma_ns, a1, a0, aem, nf):
 def dispatcher(
     order, method, gamma_ns, a1, a0, aem_list, alphaem_running, nf, ev_op_iterations
 ):
-    """
-    Determine used kernel and call it.
+    r"""Determine used kernel and call it.
 
     In LO we always use the exact solution.
 
     Parameters
     ----------
-        order : tuple(int,int)
-            perturbation order
-        method : str
-            method
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        aem_list : numpy.ndarray
-            electromagnetic coupling values
-        alphaem_running : Bool
-            running of alphaem
-        nf : int
-            number of active flavors
-        ev_op_iterations : int
-            number of evolution steps
+    order : tuple(int,int)
+        perturbation order
+    method : str
+        method
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem_list : numpy.ndarray
+        electromagnetic coupling values
+    alphaem_running : Bool
+        running of alphaem
+    nf : int
+        number of active flavors
+    ev_op_iterations : int
+        number of evolution steps
 
     Returns
     -------
-        e_ns : complex
-            non-singlet EKO
+    e_ns : complex
+        non-singlet EKO
     """
     if not alphaem_running:
         aem = aem_list[0]
@@ -235,28 +230,27 @@ def dispatcher(
 
 @nb.njit(cache=True)
 def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf):
-    """
-    Compute exact solution for fixed alphaem.
+    """Compute exact solution for fixed alphaem.
 
     Parameters
     ----------
-        order : tuple(int,int)
-            perturbation order
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        aem : float
-            electromagnetic coupling value
-        nf : int
-            number of active flavors
+    order : tuple(int,int)
+        perturbation order
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem : float
+        electromagnetic coupling value
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        e_ns : complex
-            non-singlet EKO
+    e_ns : complex
+        non-singlet EKO
     """
     if order[1] == 1:
         if order[0] == 1:
@@ -277,30 +271,29 @@ def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def running_alphaem_exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations):
-    """
-    Compute exact solution for running alphaem.
+    """Compute exact solution for running alphaem.
 
     Parameters
     ----------
-        order : tuple(int,int)
-            perturbation order
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        aem_list : numpy.ndarray
-            electromagnetic coupling values
-        nf : int
-            number of active flavors
-        ev_op_iterations : int
-            number of evolution steps
+    order : tuple(int,int)
+        perturbation order
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem_list : numpy.ndarray
+        electromagnetic coupling values
+    nf : int
+        number of active flavors
+    ev_op_iterations : int
+        number of evolution steps
 
     Returns
     -------
-        e_ns : complex
-            non-singlet EKO
+    e_ns : complex
+        non-singlet EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     res = 1.0
