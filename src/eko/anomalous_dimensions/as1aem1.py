@@ -15,14 +15,14 @@ def gamma_phq(N, sx):
 
     Parameters
     ----------
-        N : complex
-            Mellin moment
-        sx : np array
-            List of harmonic sums
+    N : complex
+        Mellin moment
+    sx : np array
+        List of harmonic sums
 
     Returns
     -------
-      gamma_phq : complex
+    gamma_phq : complex
         :math:`O(a_s^1a_{em}^1)` photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(1,1)}(N)`
 
     """
@@ -60,16 +60,16 @@ def gamma_qph(N, nf, sx):
 
     Parameters
     ----------
-        N : complex
-            Mellin moment
-        nf : int
-            Number of active flavors
-        sx : np array
-            List of harmonic sums
+    N : complex
+        Mellin moment
+    nf : int
+        Number of active flavors
+    sx : np array
+        List of harmonic sums
 
     Returns
     -------
-      gamma_qph : complex
+    gamma_qph : complex
         :math:`O(a_s^1a_{em}^1)` quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(1,1)}(N)`
 
     """
@@ -108,12 +108,12 @@ def gamma_gph(N):
 
     Parameters
     ----------
-      N : complex
+    N : complex
         Mellin moment
 
     Returns
     -------
-      gamma_qph : complex
+    gamma_qph : complex
         :math:`O(a_s^1a_{em}^1)` gluon-photon anomalous dimension :math:`\\gamma_{g \\gamma}^{(1,1)}(N)`
 
     """
@@ -139,12 +139,12 @@ def gamma_phg(N):
 
     Parameters
     ----------
-      N : complex
+    N : complex
         Mellin moment
 
     Returns
     -------
-      gamma_qph : complex
+    gamma_qph : complex
         :math:`O(a_s^1a_{em}^1)` photon-gluon anomalous dimension :math:`\\gamma_{\\gamma g}^{(1,1)}(N)`
 
     """
@@ -159,18 +159,18 @@ def gamma_qg(N, nf, sx):
 
     Parameters
     ----------
-        N : complex
-            Mellin moment
-        nf : int
-            Number of active flavors
-        sx : np array
-            List of harmonic sums
+    N : complex
+        Mellin moment
+    nf : int
+        Number of active flavors
+    sx : np array
+        List of harmonic sums
 
     Returns
     -------
-        gamma_qg : complex
-            :math:`O(a_s^1a_{em}^1)` quark-gluon singlet anomalous dimension
-            :math:`\\gamma_{qg}^{(1,1)}(N)`
+    gamma_qg : complex
+        :math:`O(a_s^1a_{em}^1)` quark-gluon singlet anomalous dimension
+        :math:`\\gamma_{qg}^{(1,1)}(N)`
 
     """
     return (
@@ -186,16 +186,16 @@ def gamma_gq(N, sx):
 
     Parameters
     ----------
-        N : complex
-            Mellin moment
-        sx : np array
-            List of harmonic sums
+    N : complex
+        Mellin moment
+    sx : np array
+        List of harmonic sums
 
     Returns
     -------
-        gamma_gq : complex
-            :math:`O(a_s^1a_{em}^1)` gluon-quark singlet anomalous dimension
-            :math:`\\gamma_{gq}^{(1,1)}(N)`
+    gamma_gq : complex
+        :math:`O(a_s^1a_{em}^1)` gluon-quark singlet anomalous dimension
+        :math:`\\gamma_{gq}^{(1,1)}(N)`
 
     """
     return gamma_phq(N, sx)
@@ -209,14 +209,14 @@ def gamma_phph(nf):
 
     Parameters
     ----------
-        nf : int
-            Number of active flavors
+    nf : int
+        Number of active flavors
 
     Returns
     -------
-        gamma_gg : complex
-            :math:`O(a_s^1a_{em}^1)` photon-photon singlet anomalous dimension
-            :math:`\\gamma_{\\gamma \\gamma}^{(1,1)}(N)`
+    gamma_gg : complex
+        :math:`O(a_s^1a_{em}^1)` photon-photon singlet anomalous dimension
+        :math:`\\gamma_{\\gamma \\gamma}^{(1,1)}(N)`
 
     """
     nu = constants.uplike_flavors(nf)
@@ -232,9 +232,9 @@ def gamma_gg():
 
     Returns
     -------
-        gamma_gg : complex
-            :math:`O(a_s^1a_{em}^1)` gluon-gluon singlet anomalous dimension
-            :math:`\\gamma_{gg}^{(1,1)}(N)`
+    gamma_gg : complex
+        :math:`O(a_s^1a_{em}^1)` gluon-gluon singlet anomalous dimension
+        :math:`\\gamma_{gg}^{(1,1)}(N)`
 
     """
     return 4.0 * constants.TR * constants.NC
@@ -248,16 +248,16 @@ def gamma_nsp(N, sx, sx_ns_qed):
 
     Parameters
     ----------
-        N : complex
-            Mellin moment
-        sx : np array
-            List of harmonic sums
+    N : complex
+        Mellin moment
+    sx : np array
+        List of harmonic sums
 
     Returns
     -------
-        gamma_nsp : complex
-            :math:`O(a_s^1a_{em}^1)` singlet-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,+}^{(1)}(N)`
+    gamma_nsp : complex
+        :math:`O(a_s^1a_{em}^1)` singlet-like non-singlet anomalous dimension
+        :math:`\\gamma_{ns,+}^{(1)}(N)`
 
     """
     S1 = sx[0]
@@ -315,16 +315,16 @@ def gamma_nsm(N, sx, sx_ns_qed):
 
     Parameters
     ----------
-        N : complex
-            Mellin moment
-        sx : np array
-            List of harmonic sums
+    N : complex
+        Mellin moment
+    sx : np array
+        List of harmonic sums
 
     Returns
     -------
-        gamma_nsm : complex
-            :math:`O(a_s^1a_{em}^1)` singlet-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,-}^{(1,1)}(N)`
+    gamma_nsm : complex
+        :math:`O(a_s^1a_{em}^1)` singlet-like non-singlet anomalous dimension
+        :math:`\\gamma_{ns,-}^{(1,1)}(N)`
 
     """
     S1 = sx[0]
@@ -376,17 +376,17 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
 
     Parameters
     ----------
-        N : complex
-            Mellin moment
-        nf : int
-            Number of active flavors
-        sx : np array
-            List of harmonic sums
+    N : complex
+        Mellin moment
+    nf : int
+        Number of active flavors
+    sx : np array
+        List of harmonic sums
 
     Returns
     -------
-        gamma_singlet : numpy.ndarray
-            :math:`O(a_s^1a_{em}^1)` singlet anomalous dimension :math:`\\gamma_{S}^{(1,1)}(N,nf,sx)`
+    gamma_singlet : numpy.ndarray
+        :math:`O(a_s^1a_{em}^1)` singlet anomalous dimension :math:`\\gamma_{S}^{(1,1)}(N,nf,sx)`
     """
     e2avg = constants.e2avg(nf)
     vue2m = constants.vue2m(nf)
@@ -436,17 +436,17 @@ def gamma_valence(N, nf, sx, sx_ns_qed):
 
     Parameters
     ----------
-        N : complex
-            Mellin moment
-        nf : int
-            Number of active flavors
-        sx : np array
-            List of harmonic sums
+    N : complex
+        Mellin moment
+    nf : int
+        Number of active flavors
+    sx : np array
+        List of harmonic sums
 
     Returns
     -------
-        gamma_singlet : numpy.ndarray
-            :math:`O(a_s^1a_{em}^1)` valence anomalous dimension :math:`\\gamma_{V}^{(1,1)}(N,nf,sx)`
+    gamma_singlet : numpy.ndarray
+        :math:`O(a_s^1a_{em}^1)` valence anomalous dimension :math:`\\gamma_{V}^{(1,1)}(N,nf,sx)`
     """
     e2avg = constants.e2avg(nf)
     vue2m = constants.vue2m(nf)
