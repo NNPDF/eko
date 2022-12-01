@@ -254,7 +254,7 @@ class Rotations(DictLike):
             value = getattr(self, attr)
             if value is None:
                 continue
-            if isinstance(value, np.ndarray) or isinstance(value, list):
+            if isinstance(value, (np.ndarray, list)):
                 setattr(self, attr, interpolation.XGrid(value))
             elif not isinstance(value, interpolation.XGrid):
                 setattr(self, attr, interpolation.XGrid.load(value))
