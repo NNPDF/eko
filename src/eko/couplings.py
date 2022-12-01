@@ -433,12 +433,12 @@ class Couplings:
             )
         if scale_ref <= 0:
             raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
-        if order[0] not in [0, 1, 2, 3, 4]:
-            raise NotImplementedError("a_s beyond N3LO is not implemented")
+        if order[0] not in [1, 2, 3, 4]:
+            raise NotImplementedError(
+                "QCD perturbative order must be at least 1 and at most 4"
+            )
         if order[1] not in [0, 1, 2]:
             raise NotImplementedError("a_em beyond NLO is not implemented")
-        if order[0] == 0:
-            raise ValueError("QCD evolution order must be at least 1 (PTO>=0)")
         self.order = tuple(order)
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
