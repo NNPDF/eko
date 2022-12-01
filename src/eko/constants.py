@@ -55,12 +55,12 @@ def uplike_flavors(nf):
 
     Parameters
     ----------
-        nf : int
-            Number of active flavors
+    nf : int
+        Number of active flavors
 
     Returns
     -------
-        nu : int
+    nu : int
 
     """
     if nf not in range(2, 6 + 1):
@@ -75,12 +75,12 @@ def e2avg(nf):
 
     Parameters
     ----------
-        nf : int
-            Number of active flavors
+    nf : int
+        Number of active flavors
 
     Returns
     -------
-        e2avg : float
+    e2avg : float
 
     """
     nu = uplike_flavors(nf)
@@ -94,12 +94,12 @@ def vue2m(nf):
 
     Parameters
     ----------
-        nf : int
-            Number of active flavors
+    nf : int
+        Number of active flavors
 
     Returns
     -------
-        vu * e2m : float
+    vu * e2m : float
 
     """
     nu = uplike_flavors(nf)
@@ -112,12 +112,12 @@ def vde2m(nf):
 
     Parameters
     ----------
-        nf : int
-            Number of active flavors
+    nf : int
+        Number of active flavors
 
     Returns
     -------
-        vd * e2m : float
+    vd * e2m : float
 
     """
     nd = nf - uplike_flavors(nf)
