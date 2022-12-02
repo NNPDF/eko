@@ -191,11 +191,12 @@ def test_dim_singlet():
     nf = 3
     N = 2
     sx = harmonics.sx(N, max_weight=3 + 1)
+    sx_new = harmonics.compute_new_sx_cache(N, sx[0], False, True)
     gamma_singlet = ad.gamma_singlet_qed((3, 2), N, nf)
     assert gamma_singlet.shape == (4, 3, 4, 4)
     gamma_singlet_as1 = as1.gamma_singlet_qed(N, sx[0], nf)
     assert gamma_singlet_as1.shape == (4, 4)
-    gamma_singlet_as2 = as2.gamma_singlet_qed(N, nf, sx)
+    gamma_singlet_as2 = as2.gamma_singlet_qed(N, nf, sx, sx_new)
     assert gamma_singlet_as2.shape == (4, 4)
     gamma_singlet_as3 = as3.gamma_singlet_qed(N, nf, sx)
     assert gamma_singlet_as3.shape == (4, 4)
@@ -205,11 +206,12 @@ def test_dim_valence():
     nf = 3
     N = 2
     sx = harmonics.sx(N, max_weight=3 + 1)
+    sx_new = harmonics.compute_new_sx_cache(N, sx[0], False, False)
     gamma_valence = ad.gamma_valence_qed((3, 2), N, nf)
     assert gamma_valence.shape == (4, 3, 2, 2)
     gamma_valence_as1 = as1.gamma_valence_qed(N, sx[0])
     assert gamma_valence_as1.shape == (2, 2)
-    gamma_valence_as2 = as2.gamma_valence_qed(N, nf, sx)
+    gamma_valence_as2 = as2.gamma_valence_qed(N, nf, sx, sx_new)
     assert gamma_valence_as2.shape == (2, 2)
     gamma_valence_as3 = as3.gamma_valence_qed(N, nf, sx)
     assert gamma_valence_as3.shape == (2, 2)

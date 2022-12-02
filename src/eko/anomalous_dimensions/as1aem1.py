@@ -241,7 +241,7 @@ def gamma_gg():
 
 
 @nb.njit(cache=True)
-def gamma_nsp(N, sx, sx_ns_qed):
+def gamma_nsp(N, sx, sx_new):
     r"""Compute the :math:`O(a_s^1a_{em}^1)` singlet-like non-singlet anomalous dimension.
 
     Implements sum of Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
@@ -263,14 +263,14 @@ def gamma_nsp(N, sx, sx_ns_qed):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1h = sx_ns_qed[0]
-    S2h = sx_ns_qed[1]
-    S3h = sx_ns_qed[2]
-    S1p1h = sx_ns_qed[3]
-    S2p1h = sx_ns_qed[4]
-    S3p1h = sx_ns_qed[5]
-    g3N = sx_ns_qed[6]
-    g3Np2 = sx_ns_qed[7]
+    S1h = sx_new[0]
+    S2h = sx_new[1]
+    S3h = sx_new[2]
+    g3N = sx_new[3]
+    g3Np2 = sx_new[7]
+    S1p1h = sx_new[8]
+    S2p1h = sx_new[9]
+    S3p1h = sx_new[10]
     result = (
         +32.0 * zeta2 * S1h
         - 32.0 * zeta2 * S1p1h
@@ -308,7 +308,7 @@ def gamma_nsp(N, sx, sx_ns_qed):
 
 
 @nb.njit(cache=True)
-def gamma_nsm(N, sx, sx_ns_qed):
+def gamma_nsm(N, sx, sx_new):
     r"""Compute the :math:`O(a_s^1a_{em}^1)` valence-like non-singlet anomalous dimension.
 
     Implements difference between Eqs. (33-34) of :cite:`deFlorian:2015ujt`.
@@ -330,14 +330,14 @@ def gamma_nsm(N, sx, sx_ns_qed):
     S1 = sx[0]
     S2 = sx[1]
     S3 = sx[2]
-    S1h = sx_ns_qed[0]
-    S2h = sx_ns_qed[1]
-    S3h = sx_ns_qed[2]
-    S1p1h = sx_ns_qed[3]
-    S2p1h = sx_ns_qed[4]
-    S3p1h = sx_ns_qed[5]
-    g3N = sx_ns_qed[6]
-    g3Np2 = sx_ns_qed[7]
+    S1h = sx_new[0]
+    S2h = sx_new[1]
+    S3h = sx_new[2]
+    g3N = sx_new[3]
+    g3Np2 = sx_new[7]
+    S1p1h = sx_new[8]
+    S2p1h = sx_new[9]
+    S3p1h = sx_new[10]
     result = (
         -32.0 * zeta2 * S1h
         - 8.0 / (N + N**2) * S2h
@@ -371,7 +371,7 @@ def gamma_nsm(N, sx, sx_ns_qed):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf, sx, sx_ns_qed):
+def gamma_singlet(N, nf, sx, sx_new):
     r"""Compute the :math:`O(a_s^1a_{em}^1)` singlet sector.
 
     Parameters
@@ -397,7 +397,7 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
     gamma_ph_q = gamma_phq(N, sx)
     gamma_q_g = gamma_qg(N, nf, sx)
     gamma_q_ph = gamma_qph(N, nf, sx)
-    gamma_ns_p = gamma_nsp(N, sx, sx_ns_qed)
+    gamma_ns_p = gamma_nsp(N, sx, sx_new)
     gamma_S_11 = np.array(
         [
             [
@@ -431,7 +431,7 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
 
 
 @nb.njit(cache=True)
-def gamma_valence(N, nf, sx, sx_ns_qed):
+def gamma_valence(N, nf, sx, sx_new):
     r"""Compute the :math:`O(a_s^1a_{em}^1)` valence sector.
 
     Parameters
@@ -459,4 +459,4 @@ def gamma_valence(N, nf, sx, sx_ns_qed):
         ],
         np.complex_,
     )
-    return gamma_V_11 * gamma_nsm(N, sx, sx_ns_qed)
+    return gamma_V_11 * gamma_nsm(N, sx, sx_new)

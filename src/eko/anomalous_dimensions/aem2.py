@@ -151,7 +151,7 @@ def gamma_phd(N, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nspu(N, nf, sx, sx_ns_qed):
+def gamma_nspu(N, nf, sx, sx_new):
     r"""Compute the :math:`O(a_{em}^2)` singlet-like non-singlet anomalous dimension for up quarks.
 
     Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
@@ -184,13 +184,11 @@ def gamma_nspu(N, nf, sx, sx_ns_qed):
         - 80.0 / 9.0 * S1
         + 16.0 / 3.0 * S2
     ) * eSigma2
-    return (
-        constants.eu2 * as1aem1.gamma_nsp(N, sx, sx_ns_qed) / constants.CF / 2.0 + tmp
-    )
+    return constants.eu2 * as1aem1.gamma_nsp(N, sx, sx_new) / constants.CF / 2.0 + tmp
 
 
 @nb.njit(cache=True)
-def gamma_nspd(N, nf, sx, sx_ns_qed):
+def gamma_nspd(N, nf, sx, sx_new):
     r"""Compute the :math:`O(a_{em}^2)` singlet-like non-singlet anomalous dimension for down quarks.
 
     Implements sum of Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
@@ -223,13 +221,11 @@ def gamma_nspd(N, nf, sx, sx_ns_qed):
         - 80.0 / 9.0 * S1
         + 16.0 / 3.0 * S2
     ) * eSigma2
-    return (
-        constants.ed2 * as1aem1.gamma_nsp(N, sx, sx_ns_qed) / constants.CF / 2.0 + tmp
-    )
+    return constants.ed2 * as1aem1.gamma_nsp(N, sx, sx_new) / constants.CF / 2.0 + tmp
 
 
 @nb.njit(cache=True)
-def gamma_nsmu(N, nf, sx, sx_ns_qed):
+def gamma_nsmu(N, nf, sx, sx_new):
     r"""Compute the :math:`O(a_{em}^2)` valence-like non-singlet anomalous dimension for up quarks.
 
     Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=u.
@@ -262,13 +258,11 @@ def gamma_nsmu(N, nf, sx, sx_ns_qed):
         - 80.0 / 9.0 * S1
         + 16.0 / 3.0 * S2
     ) * eSigma2
-    return (
-        constants.eu2 * as1aem1.gamma_nsm(N, sx, sx_ns_qed) / constants.CF / 2.0 + tmp
-    )
+    return constants.eu2 * as1aem1.gamma_nsm(N, sx, sx_new) / constants.CF / 2.0 + tmp
 
 
 @nb.njit(cache=True)
-def gamma_nsmd(N, nf, sx, sx_ns_qed):
+def gamma_nsmd(N, nf, sx, sx_new):
     r"""Compute the :math:`O(a_{em}^2)` valence-like non-singlet anomalous dimension for down quarks.
 
     Implements difference between Eqs. (57-58) of :cite:`deFlorian:2016gvk` for q=d.
@@ -301,9 +295,7 @@ def gamma_nsmd(N, nf, sx, sx_ns_qed):
         - 80.0 / 9.0 * S1
         + 16.0 / 3.0 * S2
     ) * eSigma2
-    return (
-        constants.ed2 * as1aem1.gamma_nsm(N, sx, sx_ns_qed) / constants.CF / 2.0 + tmp
-    )
+    return constants.ed2 * as1aem1.gamma_nsm(N, sx, sx_new) / constants.CF / 2.0 + tmp
 
 
 @nb.njit(cache=True)
@@ -336,7 +328,7 @@ def gamma_ps(N, nf):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf, sx, sx_ns_qed):
+def gamma_singlet(N, nf, sx, sx_new):
     r"""Compute the :math:`O(a_{em}^2)` singlet sector.
 
     Parameters
@@ -363,8 +355,8 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
     gamma_ph_d = gamma_phd(N, nf, sx)
     gamma_u_ph = gamma_uph(N, nf, sx)
     gamma_d_ph = gamma_dph(N, nf, sx)
-    gamma_ns_p_u = gamma_nspu(N, nf, sx, sx_ns_qed)
-    gamma_ns_p_d = gamma_nspd(N, nf, sx, sx_ns_qed)
+    gamma_ns_p_u = gamma_nspu(N, nf, sx, sx_new)
+    gamma_ns_p_d = gamma_nspd(N, nf, sx, sx_new)
     gamma_pure_singlet = gamma_ps(N, nf)
     gamma_S_02 = np.array(
         [
@@ -408,7 +400,7 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
 
 
 @nb.njit(cache=True)
-def gamma_valence(N, nf, sx, sx_ns_qed):
+def gamma_valence(N, nf, sx, sx_new):
     r"""Compute the :math:`O(a_{em}^2)` valence sector.
 
     Parameters
@@ -429,8 +421,8 @@ def gamma_valence(N, nf, sx, sx_ns_qed):
     nd = nf - nu
     vu = nu / nf
     vd = nd / nf
-    gamma_ns_m_u = gamma_nsmu(N, nf, sx, sx_ns_qed)
-    gamma_ns_m_d = gamma_nsmd(N, nf, sx, sx_ns_qed)
+    gamma_ns_m_u = gamma_nsmu(N, nf, sx, sx_new)
+    gamma_ns_m_d = gamma_nsmd(N, nf, sx, sx_new)
     gamma_V_02 = np.array(
         [
             [

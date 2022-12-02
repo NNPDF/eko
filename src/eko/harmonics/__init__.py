@@ -221,7 +221,7 @@ def compute_cache(n, max_weight, is_singlet):
 
 
 @nb.njit(cache=True)
-def compute_qed_ns_cache(n, s1):
+def compute_new_sx_cache(n, s1, qcd_singlet, qed):  # TODO : change name
     r"""Get the harmonics sums cache needed for the qed non singlet AD.
 
     Parameters
@@ -249,21 +249,29 @@ def compute_qed_ns_cache(n, s1):
     """
     s1h = S1(n / 2.0)
     sx_qed_ns = [s1h]
-    S2h = S2(n / 2.0)
-    sx_qed_ns.append(S2h)
-    S3h = S3(n / 2.0)
-    sx_qed_ns.append(S3h)
-    S1p1h = S1((n + 1.0) / 2.0)
-    sx_qed_ns.append(S1p1h)
-    S2p1h = S2((n + 1.0) / 2.0)
-    sx_qed_ns.append(S2p1h)
-    S3p1h = S3((n + 1.0) / 2.0)
-    sx_qed_ns.append(S3p1h)
+    s2h = S2(n / 2.0)
+    sx_qed_ns.append(s2h)
+    s3h = S3(n / 2.0)
+    sx_qed_ns.append(s3h)
     g3N = g_functions.mellin_g3(n, s1)
     sx_qed_ns.append(g3N)
-    S1p2 = polygamma.recursive_harmonic_sum(s1, n, 2, 1)
-    g3Np2 = g_functions.mellin_g3(n + 2.0, S1p2)
-    sx_qed_ns.append(g3Np2)
+    if not qcd_singlet:
+        s1_nm1_h = S1((n - 1.0) / 2.0)
+        sx_qed_ns.append(s1_nm1_h)
+        s2_nm1_h = S2((n - 1.0) / 2.0)
+        sx_qed_ns.append(s2_nm1_h)
+        s3_nm1_h = S3((n - 1.0) / 2.0)
+        sx_qed_ns.append(s3_nm1_h)
+    if qed:
+        S1p2 = polygamma.recursive_harmonic_sum(s1, n, 2, 1)
+        g3Np2 = g_functions.mellin_g3(n + 2.0, S1p2)
+        sx_qed_ns.append(g3Np2)
+        s1_np1_h = polygamma.recursive_harmonic_sum(s1_nm1_h, (n - 1) / 2, 1, 1)
+        sx_qed_ns.append(s1_np1_h)
+        s2_np1_h = polygamma.recursive_harmonic_sum(s2_nm1_h, (n - 1) / 2, 1, 2)
+        sx_qed_ns.append(s2_np1_h)
+        s3_np1_h = polygamma.recursive_harmonic_sum(s3_nm1_h, (n - 1) / 2, 1, 3)
+        sx_qed_ns.append(s3_np1_h)
     return sx_qed_ns
 
 
