@@ -337,7 +337,7 @@ def choose_ns_ad_aem1(mode, n, sx):
 
 
 @nb.njit(cache=True)
-def choose_ns_ad_as1aem1(mode, n, sx, sx_ns_qed):
+def choose_ns_ad_as1aem1(mode, n, sx, sx_new):
     r"""
     Select the non-singlet anomalous dimension at O(as1aem1) with the correct charge factor.
 
@@ -356,17 +356,17 @@ def choose_ns_ad_as1aem1(mode, n, sx, sx_ns_qed):
             non-singlet anomalous dimensions
     """
     if mode == 10102:
-        return constants.eu2 * as1aem1.gamma_nsp(n, sx, sx_ns_qed)
+        return constants.eu2 * as1aem1.gamma_nsp(n, sx, sx_new)
     elif mode == 10103:
-        return constants.ed2 * as1aem1.gamma_nsp(n, sx, sx_ns_qed)
+        return constants.ed2 * as1aem1.gamma_nsp(n, sx, sx_new)
     elif mode == 10202:
-        return constants.eu2 * as1aem1.gamma_nsm(n, sx, sx_ns_qed)
+        return constants.eu2 * as1aem1.gamma_nsm(n, sx, sx_new)
     elif mode == 10203:
-        return constants.ed2 * as1aem1.gamma_nsm(n, sx, sx_ns_qed)
+        return constants.ed2 * as1aem1.gamma_nsm(n, sx, sx_new)
 
 
 @nb.njit(cache=True)
-def choose_ns_ad_aem2(mode, n, nf, sx, sx_ns_qed):
+def choose_ns_ad_aem2(mode, n, nf, sx, sx_new):
     r"""
     Select the non-singlet anomalous dimension at O(aem2) with the correct charge factor.
 
@@ -385,13 +385,13 @@ def choose_ns_ad_aem2(mode, n, nf, sx, sx_ns_qed):
             non-singlet anomalous dimensions
     """
     if mode == 10102:
-        return constants.eu2 * aem2.gamma_nspu(n, nf, sx, sx_ns_qed)
+        return constants.eu2 * aem2.gamma_nspu(n, nf, sx, sx_new)
     elif mode == 10103:
-        return constants.ed2 * aem2.gamma_nspd(n, nf, sx, sx_ns_qed)
+        return constants.ed2 * aem2.gamma_nspd(n, nf, sx, sx_new)
     elif mode == 10202:
-        return constants.eu2 * aem2.gamma_nsmu(n, nf, sx, sx_ns_qed)
+        return constants.eu2 * aem2.gamma_nsmu(n, nf, sx, sx_new)
     elif mode == 10203:
-        return constants.ed2 * aem2.gamma_nsmd(n, nf, sx, sx_ns_qed)
+        return constants.ed2 * aem2.gamma_nsmd(n, nf, sx, sx_new)
 
 
 @nb.njit(cache=True)

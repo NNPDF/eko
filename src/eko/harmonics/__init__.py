@@ -240,11 +240,14 @@ def compute_new_sx_cache(n, s1, qcd_singlet, qed):  # TODO : change name
             [S_1(n/2),
             S_2(n/2),
             S_{3}(n/2),
+            g_3(n),
+            S_1((n-1)/2),
+            S_2((n-1)/2),
+            S_{3}((n-1)/2),
+            g_3(n+2),
             S_1((n+1)/2),
             S_2((n+1)/2),
-            S_{3}((n+1)/2),
-            g_3(n),
-            g_3(n+2)]
+            S_{3}((n+1)/2),]
 
     """
     s1h = S1(n / 2.0)
