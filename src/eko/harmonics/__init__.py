@@ -224,6 +224,15 @@ def compute_cache(n, max_weight, is_singlet):
 def compute_new_sx_cache(n, s1, qcd_singlet, qed):  # TODO : change name
     r"""Get the harmonics sums cache needed for the qed non singlet AD.
 
+    We have three cases :
+    - 1 : for qcd singlet we need only S_1(n/2), S_2(n/2), S_{3}(n/2) and g_3(n)
+    - 2 : for qcd non singlet we need also S_1((n-1)/2), S_2((n-1)/2), S_{3}((n-1)/2)
+    - 3 : for qed we need also g_3(n+2), S_1((n-1)/2), S_2((n-1)/2), S_{3}((n-1)/2)
+    These three cases are called with (qcd_singlet, qed) = :
+    - 1 : (True, False)
+    - 2 : (False, False)
+    - 3 : (False, True)
+
     Parameters
     ----------
     n : complex
