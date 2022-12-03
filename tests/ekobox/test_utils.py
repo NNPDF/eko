@@ -2,31 +2,29 @@ import numpy as np
 import pytest
 
 import eko
-from ekobox import operators_card as oc
-from ekobox import theory_card as tc
-from ekobox import utils
+from ekobox import cards, utils
 
 
 def test_ekos_product():
     # Generating two ekos
-    op1 = oc.generate(
+    op1 = cards.generate_operator(
         [60.0, 80.0, 100.0],
         update={
             "interpolation_xgrid": [0.1, 0.5, 1.0],
             "interpolation_polynomial_degree": 1,
         },
     )
-    theory1 = tc.generate(0, 5.0)
+    theory1 = cards.generate_theory(0, 5.0)
 
-    op2 = oc.generate(
+    op2 = cards.generate_operator(
         [80.0, 100.0, 120.0],
         update={
             "interpolation_xgrid": [0.1, 0.5, 1.0],
             "interpolation_polynomial_degree": 1,
         },
     )
-    theory2 = tc.generate(0, 10.0)
-    theory_err = tc.generate(0, 5.0)
+    theory2 = cards.generate_theory(0, 10.0)
+    theory_err = cards.generate_theory(0, 5.0)
 
     eko_ini = eko.run_dglap(theory1, op1)
     eko_fin = eko.run_dglap(theory2, op2)

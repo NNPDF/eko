@@ -8,8 +8,7 @@ import yaml
 
 from eko import compatibility, interpolation, output
 from eko.output import struct
-from ekobox import operators_card as oc
-from ekobox import theory_card as tc
+from ekobox import cards
 
 
 @dataclass
@@ -71,7 +70,8 @@ class TestOperator:
             np.testing.assert_allclose(e, opve_.error)
 
     def test_load_error(self, monkeypatch):
-        # We might consider dropping this exception since np.load will always return a array (or fail on it's own)
+        # We might consider dropping this exception since np.load will always
+        # return a array (or fail on it's own)
         stream = io.BytesIO()
         monkeypatch.setattr(np, "load", lambda _: None)
         with pytest.raises(ValueError):
@@ -128,8 +128,8 @@ class TestRotations:
 
 class TestEKO:
     def _default_cards(self):
-        t = tc.generate(0, 1.0)
-        o = oc.generate([10.0])
+        t = cards.generate_theory(0, 1.0)
+        o = cards.generate_operator([10.0])
         nt, no = compatibility.update(t, o)
         no["rotations"]["pids"] = no["rotations"]["targetpids"]
         return nt, no

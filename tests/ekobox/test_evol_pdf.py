@@ -3,18 +3,17 @@ from banana import toy
 import eko
 import eko.output.legacy as out
 from eko import compatibility
+from ekobox import cards
 from ekobox import evol_pdf as ev_p
-from ekobox import operators_card as oc
-from ekobox import theory_card as tc
 
-op = oc.generate(
+op = cards.generate_operator(
     [100.0],
     update={
         "interpolation_xgrid": [0.1, 0.5, 1.0],
         "interpolation_polynomial_degree": 1,
     },
 )
-theory = tc.generate(0, 1.65)
+theory = cards.generate_theory(0, 1.65)
 
 
 def test_evolve_pdfs_run(fake_lhapdf, cd):

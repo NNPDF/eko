@@ -5,9 +5,8 @@ import pytest
 
 from eko import basis_rotation as br
 from eko import compatibility
+from ekobox import cards
 from ekobox import evol_pdf as ev_p
-from ekobox import operators_card as oc
-from ekobox import theory_card as tc
 from ekobox.genpdf import load
 
 test_pdf = pathlib.Path(__file__).parent / "fakepdf"
@@ -21,8 +20,8 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
         100.0,
         10000.0,
     ]
-    op = oc.generate(q2grid)
-    theory = tc.generate(
+    op = cards.generate_operator(q2grid)
+    theory = cards.generate_theory(
         0,
         5.0,
         update={
@@ -80,10 +79,10 @@ def benchmark_evolve_single_member(tmp_path, cd, lhapdf_path):
 
 @pytest.mark.isolated
 def benchmark_evolve_more_members(tmp_path, cd, lhapdf_path):
-    op = oc.generate(
+    op = cards.generate_operator(
         [10, 100], update={"interpolation_xgrid": [1e-7, 0.01, 0.1, 0.2, 0.3]}
     )
-    theory = tc.generate(0, 1.0)
+    theory = cards.generate_theory(0, 1.0)
     nt, no = compatibility.update(theory, op)
     with lhapdf_path(test_pdf):
         pdfs = lhapdf.mkPDFs("myMSTW2008nlo90cl")
