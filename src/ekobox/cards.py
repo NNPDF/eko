@@ -1,7 +1,7 @@
 """Tools to generate runcards."""
 import copy
 import os
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 
 import yaml
 from banana.data import sql, theories
@@ -9,11 +9,11 @@ from banana.data import sql, theories
 from eko import basis_rotation as br
 from ekomark.data import operators
 
-Card = dict[str, Any]
+Card = Dict[str, Any]
 
 
 def generate_operator(
-    Q2grid: list[float],
+    Q2grid: List[float],
     update: Optional[Card] = None,
     path: Optional[os.PathLike] = None,
 ) -> Card:
