@@ -1,6 +1,7 @@
+"""Launch EKO calculations, with legacy Q2grid mode."""
 import click
 
-from ._base import command
+from .base import command
 
 
 @command.command("run")
@@ -8,10 +9,7 @@ from ._base import command
 def subcommand(q2):
     """Launch EKO computation.
 
-    Parameters
-    ----------
-    q2: sequence[float]
-        sequnce of q2 to compute
+    Compute the EKO to evolve to a given Q2 value.
 
     """
     print(f"Running EKO for {q2}")
