@@ -3,14 +3,12 @@ import math
 import numpy as np
 
 from eko import compatibility
-from ekobox import info_file
-from ekobox import operators_card as oc
-from ekobox import theory_card as tc
+from ekobox import cards, info_file
 
 
 def test_build():
-    op = oc.generate([10, 100])
-    theory = tc.generate(1, 10.0, update={"alphas": 0.2})
+    op = cards.generate_operator([10, 100])
+    theory = cards.generate_theory(1, 10.0, update={"alphas": 0.2})
     nt, no = compatibility.update(theory, op)
     info = info_file.build(
         nt, no, 4, info_update={"SetDesc": "Prova", "NewArg": 15.3, "MTop": 1.0}
