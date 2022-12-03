@@ -3,6 +3,10 @@ import pathlib
 
 import click
 
+THEORY = "theory.yaml"
+OPERATOR = "operator.yaml"
+OUTPUT = "eko.tar"
+
 
 def destination(dest: pathlib.Path):
     """Build click option for destination.
