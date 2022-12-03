@@ -8,10 +8,7 @@ import yaml
 import eko
 
 from .base import command
-
-THEORY = "theory.yaml"
-OPERATOR = "operator.yaml"
-OUTPUT = "eko.tar"
+from .library import OPERATOR, OUTPUT, THEORY
 
 
 @command.command("run")
