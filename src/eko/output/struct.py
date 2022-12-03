@@ -315,7 +315,9 @@ class OperatorCard(DictLike):
     def raw(self):
         """Return the raw dictionary to be dumped."""
         dictionary = dict(
-            Q0=float(self.Q0), Q2grid=self.Q2grid.tolist(), eko_version=self.eko_version
+            Q0=float(self.Q0),
+            Q2grid=self.mu2grid.tolist(),
+            eko_version=self.eko_version,
         )
         dictionary["rotations"] = Rotations.from_dict(self.rotations).raw
         dictionary["configs"] = Configs.from_dict(self.configs).raw
@@ -542,7 +544,7 @@ class EKO:
             del self[q2]
 
     @property
-    def Q2grid(self) -> npt.NDArray:
+    def mu2grid(self) -> npt.NDArray:
         """Provide the list of :math:`Q^2` as an array."""
         return np.array(list(self._operators))
 
@@ -574,7 +576,7 @@ class EKO:
             immediately after
 
         """
-        for q2 in self.Q2grid:
+        for q2 in self.mu2grid:
             yield q2, self[q2]
             del self[q2]
 
@@ -618,7 +620,7 @@ class EKO:
             if multiple values are find in the neighborhood
 
         """
-        q2s = self.Q2grid
+        q2s = self.mu2grid
         close = q2s[np.isclose(q2, q2s, rtol=rtol, atol=atol)]
 
         if close.size == 1:
@@ -964,7 +966,7 @@ class EKO:
         return dict(
             path=str(self.path),
             Q0=float(np.sqrt(self.Q02)),
-            Q2grid=self.Q2grid.tolist(),
+            Q2grid=self.mu2grid.tolist(),
             configs=self.configs.raw,
             rotations=self.rotations.raw,
             debug=self.debug.raw,
