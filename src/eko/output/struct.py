@@ -1,6 +1,7 @@
 """Define output representation structures."""
 import contextlib
 import copy
+import dataclasses
 import io
 import logging
 import os
@@ -10,7 +11,7 @@ import subprocess
 import tarfile
 import tempfile
 import time
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass
 from typing import BinaryIO, Dict, Literal, Optional, Tuple
 
 import lz4.frame
@@ -82,7 +83,7 @@ class DictLike:
 
         """
         dictionary = {}
-        for field in fields(self):
+        for field in dataclasses.fields(self):
             value = getattr(self, field.name)
 
             # replace numpy arrays with lists
@@ -305,7 +306,7 @@ class OperatorCard(DictLike):
     """
     Q2grid: npt.NDArray
     """Array of q2 points."""
-    debug: Optional[dict] = field(
+    debug: Optional[dict] = dataclasses.field(
         default_factory=lambda: {"skip_singlet": False, "skip_non_singlet": False}
     )
     eko_version: Optional[str] = vmod.__version__
@@ -316,7 +317,7 @@ class OperatorCard(DictLike):
         """Return the raw dictionary to be dumped."""
         dictionary = dict(
             Q0=float(self.Q0),
-            Q2grid=self.mu2grid.tolist(),
+            Q2grid=self.Q2grid.tolist(),
             eko_version=self.eko_version,
         )
         dictionary["rotations"] = Rotations.from_dict(self.rotations).raw
@@ -770,7 +771,7 @@ class EKO:
         new_metadata_string = yaml.safe_dump(new_metadata).encode()
         stream = io.BytesIO(new_metadata_string)
         stream.seek(0)
-        info = tarfile.TarInfo(name=f"metadata.yaml")
+        info = tarfile.TarInfo(name="metadata.yaml")
         info.size = len(stream.getbuffer())
         info.mtime = int(time.time())
         info.mode = 436
