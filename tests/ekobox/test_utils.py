@@ -36,12 +36,12 @@ def test_ekos_product():
     eko_res = utils.ekos_product(eko_ini, eko_fin, in_place=False)
 
     assert eko_res.Q02 == eko_ini.Q02
-    np.testing.assert_allclose(eko_res.Q2grid[1:], eko_fin.Q2grid)
+    np.testing.assert_allclose(eko_res.mu2grid[1:], eko_fin.mu2grid)
     np.testing.assert_allclose(eko_ini[80.0].operator, eko_res[80.0].operator)
 
     # product overwrites initial
     eko_res2 = utils.ekos_product(eko_ini, eko_fin)
 
     assert eko_res2.Q02 == eko_ini.Q02
-    np.testing.assert_allclose(eko_res2.Q2grid[1:], eko_fin.Q2grid)
+    np.testing.assert_allclose(eko_res2.mu2grid[1:], eko_fin.mu2grid)
     np.testing.assert_allclose(eko_res[80.0].operator, eko_res2[80.0].operator)

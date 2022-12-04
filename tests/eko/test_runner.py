@@ -125,8 +125,8 @@ def check_shapes(o, txs, ixs, theory_card, operators_card):
         assert getattr(o.configs, k) == operators_card["configs"][k]
     np.testing.assert_allclose(o.Q02, theory_card["Q0"] ** 2)
     # check available operators
-    assert len(o.Q2grid) == len(operators_card["Q2grid"])
-    assert list(o.Q2grid) == operators_card["Q2grid"]
+    assert len(o.mu2grid) == len(operators_card["Q2grid"])
+    assert list(o.mu2grid) == operators_card["Q2grid"]
     for _, ops in o.items():
         assert ops.operator.shape == op_shape
         assert ops.error.shape == op_shape
