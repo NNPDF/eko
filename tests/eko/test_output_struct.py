@@ -157,7 +157,7 @@ class TestEKO:
         eko = struct.EKO.new(*self._default_cards())
         assert "mc" in eko.theory_card
         assert "debug" in eko.operator_card
-        np.testing.assert_allclose(eko.Q2grid, np.array([10.0]))
+        np.testing.assert_allclose(eko.mu2grid, np.array([10.0]))
         assert 10.0 in eko
         default_grid = interpolation.XGrid(eko.operator_card["rotations"]["xgrid"])
         assert eko.xgrid == default_grid
