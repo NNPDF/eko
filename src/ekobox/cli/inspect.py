@@ -1,10 +1,8 @@
 """Launch EKO calculations, with legacy Q2grid mode."""
 import pathlib
-from typing import Sequence
 
 import click
 import rich
-import yaml
 
 from eko.output import EKO
 
@@ -29,6 +27,13 @@ def subcommand(ctx, path: pathlib.Path):
 
 @subcommand.command("mu2grid")
 @pass_operator
-def sub_mu2(operator):
+def sub_mu2(operator: EKO):
     """Check operator's mu2grid."""
     rich.print_json(data=operator.mu2grid.tolist())
+
+
+@subcommand.command("cards")
+@pass_operator
+def sub_cards(operator: EKO):
+    """Check operator's mu2grid."""
+    rich.print_json(data=dict(theory=operator.theory, operator=operator.operator_card))

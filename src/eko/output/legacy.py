@@ -172,7 +172,7 @@ def dump_tar(obj: struct.EKO, tarname: Union[str, os.PathLike]):
         tmpdir = pathlib.Path(tmpdir)
 
         metadata = {str(k): v for k, v in get_raw(obj).items() if k != "Q2grid"}
-        metadata["Q2grid"] = obj.Q2grid.tolist()
+        metadata["Q2grid"] = obj.mu2grid.tolist()
 
         yamlname = tmpdir / "metadata.yaml"
         with open(yamlname, "w", encoding="utf-8") as fd:
