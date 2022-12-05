@@ -281,7 +281,12 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
         grids = {}
         for fp in innerdir.glob("*.npy.lz4"):
             with lz4.frame.open(fp, "rb") as fd:
-                stream = io.BytesIO(fd.read())
+                # static analyzer can not guarantee the content to be bytes
+                content = fd.read()
+                if isinstance(content, str):
+                    raise RuntimeError("Bytes expected")
+
+                stream = io.BytesIO(content)
                 stream.seek(0)
                 grids[pathlib.Path(fp.stem).stem] = np.load(stream)
 
@@ -292,7 +297,7 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
     # now eveything is in place
     eko = struct.EKO.new(theory={}, operator=metadata)
     for q2, op in operator_grid.items():
-        # the layout of the operator is slifhtly different from the past one
+        # the layout of the operator is slightly different from the past one
         if "operators" in op:
             op = dict(operator=op["operators"], error=op["operator_errors"])
         eko[q2] = struct.Operator.from_dict(op)
