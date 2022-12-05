@@ -1,14 +1,12 @@
 """Evolution Kernel Operators."""
-
 from . import output, runner, version
+from .output.struct import EKO
 
 __version__ = version.__version__
 
 
 def run_dglap(theory_card, operators_card):
-    r"""
-    This function takes a DGLAP theory configuration dictionary
-    and performs the solution of the DGLAP equations.
+    r"""Solve DGLAP equations in terms of evolution kernel operators (EKO).
 
     The EKO :math:`\mathbf E_{k,j}(a_s^1\leftarrow a_s^0)` is determined in order
     to fullfill the following evolution
@@ -16,16 +14,29 @@ def run_dglap(theory_card, operators_card):
     .. math::
         \mathbf f(x_k,a_s^1) = \mathbf E_{k,j}(a_s^1\leftarrow a_s^0) \mathbf f(x_j,a_s^0)
 
+    The configuration is split between the theory settings, representing
+    Standard Model parameters and other defining features of the theory
+    calculation, and the operator settings, those that are more closely related
+    to the solution of the |DGLAP| equation itself, and determine the resulting
+    operator features.
+
     Parameters
     ----------
-        setup : dict
-            input card - see :doc:`/code/IO`
+    theory_card : dict
+        theory parameters and related settings
+    operator_card : dict
+        solution configurations, and further EKO options
 
     Returns
     -------
-        output : dict
-            output dictionary - see :doc:`/code/IO`
+    EKO
+        computed operator
+
+    Note
+    ----
+        For further information about EKO inputs and output see :doc:`/code/IO`
+
     """
     r = runner.Runner(theory_card, operators_card)
-    output = r.get_output()
-    return output
+    out = r.get_output()
+    return out
