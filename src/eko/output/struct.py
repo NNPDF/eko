@@ -580,10 +580,11 @@ class EKO:
 
     @contextlib.contextmanager
     def operator(self, q2: float):
-        """Retrieve operator and discard immediately.
+        """Retrieve an operator and discard it afterwards.
 
         To be used as a contextmanager: the operator is automatically loaded as
-        usual, but after the context manager it is dropped from memory.
+        usual, but on the closing of the context manager it is dropped from
+        memory.
 
         Parameters
         ----------
@@ -737,6 +738,16 @@ class EKO:
 
         """
         dirpath = pathlib.Path(dirpath)
+
+        # upgrade metadata
+        # TODO: why?
+        metadata_to_dump = copy.deepcopy(metadata)
+        metadata_to_dump["rotations"]["xgrid"] = copy.deepcopy(
+            operator["rotations"]["xgrid"]
+        )
+        metadata_to_dump["rotations"]["pids"] = br.flavor_basis_pids
+        # upgrade operator
+        # TODO: why?
         operator_to_dump = copy.deepcopy(operator)
         # keep only q2 grid
         operator_to_dump["Q2grid"] = np.array(
@@ -744,59 +755,33 @@ class EKO:
             if isinstance(operator_to_dump["Q2grid"], dict)
             else operator_to_dump["Q2grid"]
         )
-        metadata_to_dump = copy.deepcopy(metadata)
-        metadata_to_dump["rotations"]["xgrid"] = copy.deepcopy(
-            operator_to_dump["rotations"]["xgrid"]
-        )
-        metadata_to_dump["rotations"]["pids"] = br.flavor_basis_pids
+        # TODO: this looks like some operations are being done twice and undone
         operator_obj = OperatorCard.from_dict(operator_to_dump).raw
         metadata_obj = {}
         metadata_obj["rotations"] = Rotations.from_dict(
             metadata_to_dump["rotations"]
         ).raw
-        (dirpath / THEORYFILE).write_text(yaml.dump(theory), encoding="utf-8")
-        (dirpath / OPERATORFILE).write_text(yaml.dump(operator_obj), encoding="utf-8")
-        (dirpath / METADATAFILE).write_text(yaml.dump(metadata_obj), encoding="utf-8")
-        (dirpath / RECIPESDIR).mkdir()
-        (dirpath / PARTSDIR).mkdir()
-        (dirpath / OPERATORSDIR).mkdir()
 
-    @staticmethod
-    def extract(path: os.PathLike, filename: str) -> str:
-        """Extract file from disk assets.
+        # write objects
+        paths = InternalPaths(dirpath)
+        paths.metadata.write_text(yaml.dump(metadata_obj), encoding="utf-8")
+        paths.theory_card.write_text(yaml.dump(theory), encoding="utf-8")
+        paths.operator_card.write_text(yaml.dump(operator_obj), encoding="utf-8")
+        paths.recipes.mkdir()
+        paths.parts.mkdir()
+        paths.operators.mkdir()
 
-        Note
-        ----
-        At the moment, it only support text files (since it is returning the
-        content as a string)
-
-        Parameters
-        ----------
-        path : os.PathLike
-            path to the disk dump
-        filename : str
-            relative path inside the archive of the file to extract
-
-        Returns
-        -------
-        str
-            file content
-
-        """
-        path = pathlib.Path(path)
-
-        with tarfile.open(path, "r") as tar:
-            fd = tar.extractfile(filename)
-            content = fd.read().decode()
-
-        return content
+    @property
+    def metadata(self) -> dict:
+        """Provide metadata, retrieving from the dump."""
+        return yaml.safe_load(self.paths.metadata.read_text(encoding="utf-8"))
 
     @property
     def theory(self) -> dict:
         """Provide theory card, retrieving from the dump."""
         # TODO: make an actual attribute, move load to `theory_card`, and the
         # type of the attribute will be `eko.runcards.TheoryCard`
-        return yaml.safe_load(self.extract(self.path, THEORYFILE))
+        return yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
 
     @property
     def theory_card(self) -> dict:
@@ -805,14 +790,10 @@ class EKO:
         return self.theory
 
     @property
-    def metadata(self) -> dict:
-        """Provide metadata, retrieving from the dump."""
-        return yaml.safe_load(self.extract(self.path, METADATAFILE))
-
-    @property
-    def metadata_card(self) -> dict:
-        """Provide metadata, retrieving from the dump."""
-        return self.metadata
+    def operator_card(self) -> dict:
+        """Provide operator card, retrieving from the dump."""
+        # TODO: return `eko.runcards.OperatorCard`
+        return yaml.safe_load(self.extract(self.path, OPERATORFILE))
 
     def update_metadata(self, to_update: dict):
         """Update the metadata file with the info in to_update."""
@@ -830,12 +811,6 @@ class EKO:
         info.mode = 436
         with tarfile.open(self.path, "a") as tar:
             tar.addfile(info, fileobj=stream)
-
-    @property
-    def operator_card(self) -> dict:
-        """Provide operator card, retrieving from the dump."""
-        # TODO: return `eko.runcards.OperatorCard`
-        return yaml.safe_load(self.extract(self.path, OPERATORFILE))
 
     def interpolator(
         self, mode_N: bool, use_target: bool
