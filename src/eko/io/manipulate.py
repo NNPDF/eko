@@ -62,7 +62,7 @@ def xgrid_reshape(
         target_rot = b.get_interpolation(targetgrid.raw)
         eko.rotations._targetgrid = targetgrid
         # update metadata
-        eko.update_metadata({"rotations": {"_targetgrid": targetgrid}})
+        eko.metadata.rotations = {"_targetgrid": targetgrid}
     if inputgrid is not None:
         b = interpolation.InterpolatorDispatcher(
             inputgrid,
