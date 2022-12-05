@@ -7,7 +7,6 @@ import logging
 import os
 import pathlib
 import shutil
-import subprocess
 import tarfile
 import tempfile
 import time
@@ -32,6 +31,8 @@ METADATAFILE = "metadata.yaml"
 RECIPESDIR = "recipes"
 PARTSDIR = "parts"
 OPERATORSDIR = "operators"
+
+COMPRESSED_SUFFIX = ".lz4"
 
 
 class OutputError(Exception):
@@ -343,6 +344,59 @@ class OperatorCard(DictLike):
 
 
 @dataclass
+class InternalPaths:
+    """Paths inside an EKO folder.
+
+    This structure exists to locate in a single place the internal structure of
+    an EKO folder.
+
+    The only value required is the root path, everything else is computed
+    relative to this root.
+    In case only the relative paths are required, just create this structure
+    with :attribute:`root` equal to emtpty string or ``"."``.
+
+    """
+
+    root: pathlib.Path
+    "The root of the EKO folder (use placeholder if not relevant)"
+
+    @property
+    def metadata(self):
+        """Metadata file."""
+        return self.root / METADATAFILE
+
+    @property
+    def recipes(self):
+        """Recipes folder."""
+        return self.root / RECIPESDIR
+
+    @property
+    def parts(self):
+        """Parts folder."""
+        return self.root / PARTSDIR
+
+    @property
+    def operators(self):
+        """Operators folder.
+
+        This is the one containing the actual EKO components, after
+        computation has been performed.
+
+        """
+        return self.root / OPERATORSDIR
+
+    @property
+    def theory_card(self):
+        """Theory card dump."""
+        return self.root / THEORYFILE
+
+    @property
+    def operator_card(self):
+        """Operator card dump."""
+        return self.root / OPERATORFILE
+
+
+@dataclass
 class EKO:
     """Operator interface.
 
@@ -380,7 +434,7 @@ class EKO:
     # public attributes
     # -----------------
     # mandatory, identifying features
-    path: pathlib.Path
+    _path: pathlib.Path
     """Path on disk, to which this object is linked (and for which it is
     essentially an interface).
     """
@@ -404,6 +458,11 @@ class EKO:
     """Specs version, to which the file adheres."""
 
     @property
+    def paths(self) -> InternalPaths:
+        """Accessor for internal paths."""
+        return InternalPaths(self._path)
+
+    @property
     def xgrid(self) -> interpolation.XGrid:
         """Momentum fraction internal grid."""
         return self.rotations.xgrid
@@ -413,15 +472,10 @@ class EKO:
         """Set `xgrid` value."""
         self.rotations.xgrid = value
 
-    def __post_init__(self):
-        """Validate class members."""
-        if self.path.suffix != ".tar":
-            raise ValueError("Not a valid path for an EKO")
-
     @staticmethod
     def opname(q2: float) -> str:
         """Operator file name from :math:`Q^2` value."""
-        return f"{OPERATORSDIR}/{q2:8.2f}"
+        return f"{q2:8.2f}"
 
     def __getitem__(self, q2: float) -> Operator:
         """Retrieve operator for given :math:`Q^2`.
@@ -445,19 +499,23 @@ class EKO:
             if op is not None:
                 return op
 
-        with tarfile.open(self.path) as tar:
-            names = list(
-                filter(lambda n: n.startswith(self.opname(q2)), tar.getnames())
+        name = self.opname(q2)
+        op_paths = list(
+            filter(
+                lambda path: path.name.startswith(name), self.paths.operators.iterdir()
             )
+        )
 
-            if len(names) == 0:
-                raise ValueError(f"Q2 value '{q2}' not available in '{self.path}'")
+        if len(op_paths) == 0:
+            raise ValueError(f"Q2 value '{q2}' not available.")
+        elif len(op_paths) > 1:
+            raise ValueError(f"Too many operators associated to '{q2}'")
 
-            name = names[0]
-            compressed = name.endswith(".lz4")
-            stream = tar.extractfile(name)
+        op_path = op_paths[0]
+        compressed = op_path.suffix == COMPRESSED_SUFFIX
 
-            op = Operator.load(stream, compressed=compressed)
+        with open(op_path, "rb") as fd:
+            op = Operator.load(fd, compressed=compressed)
 
         self._operators[q2] = op
         return op
@@ -480,38 +538,16 @@ class EKO:
         if not isinstance(op, Operator):
             raise ValueError("Only an Operator can be added to an EKO")
 
-        stream = io.BytesIO()
-        without_err = op.save(stream, compress)
-        stream.seek(0)
-
+        without_err = op.error is None
         suffix = "npy" if without_err else "npz"
         if compress:
-            suffix += ".lz4"
+            suffix += COMPRESSED_SUFFIX
 
-        info = tarfile.TarInfo(name=f"{self.opname(q2)}.{suffix}")
-        info.size = len(stream.getbuffer())
-        info.mtime = int(time.time())
-        info.mode = 436
-        #  info.uname = os.getlogin()
-        #  info.gname = os.getlogin()
+        op_path = (self.paths.operators / self.opname(q2)).with_suffix(suffix)
 
-        # TODO: unfortunately Python has no native support for deleting
-        # files inside tar, so the proper way is to make that function
-        # ourselves, in the inefficient way of constructing a new archive
-        # from the existing one, but for the file to be removed
-        # at the moment, an implicit dependency on `tar` command has been
-        # introduced -> dangerous for portability
-        # since it's not raising any error, it is fine to run in any case:
-        has_file = False
-        with tarfile.open(self.path, mode="r") as tar:
-            has_file = f"operators/{q2:8.2f}.{suffix}" in tar.getnames()
-
-        if has_file:
-            subprocess.run(
-                f"tar -f {self.path.absolute()} --delete".split() + [info.name]
-            )
-        with tarfile.open(self.path, "a") as tar:
-            tar.addfile(info, fileobj=stream)
+        with open(op_path, "wb") as fd:
+            without_err2 = op.save(fd, compress)
+        assert without_err == without_err2
 
         self._operators[q2] = op
 
@@ -620,7 +656,7 @@ class EKO:
         Parameters
         ----------
         q2 : float
-            value of :math:`Q2` in which neighborhood to look
+            value of :math:`Q2` in which neighbourhood to look
         rtol : float
             relative tolerance
         atol : float
@@ -634,7 +670,7 @@ class EKO:
         Raises
         ------
         ValueError
-            if multiple values are find in the neighborhood
+            if multiple values are find in the neighbourhood
 
         """
         q2s = self.mu2grid
@@ -961,7 +997,7 @@ class EKO:
         """
         path = pathlib.Path(path)
         if not tarfile.is_tarfile(path):
-            raise ValueError("EKO: the corresponding file is not a valid tar archive")
+            raise OutputNotTar(f"Not a valid tar archive: '{path}'")
 
         theory = yaml.safe_load(cls.extract(path, THEORYFILE))
         operator = yaml.safe_load(cls.extract(path, OPERATORFILE))
