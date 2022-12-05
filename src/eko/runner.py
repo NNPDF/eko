@@ -1,14 +1,11 @@
 """Main application class of eko."""
 import copy
 import logging
-from typing import Optional
-
-import numpy as np
 
 from . import compatibility, interpolation, msbar_masses
 from .couplings import Couplings
 from .evolution_operator.grid import OperatorGrid
-from .output import EKO, Operator, manipulate
+from .io import EKO, Operator
 from .thresholds import ThresholdsAtlas
 
 logger = logging.getLogger(__name__)
