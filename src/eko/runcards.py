@@ -1,8 +1,8 @@
 """Structures to hold runcard information.
 
 .. todo::
-    Inherit from :class:`eko.output.struct.DictLike`, to get
-    :meth:`eko.output.struct.DictLike.raw` for free and avoid duplication.
+    Inherit from :class:`eko.io.struct.DictLike`, to get
+    :meth:`eko.io.struct.DictLike.raw` for free and avoid duplication.
 
 """
 from dataclasses import dataclass

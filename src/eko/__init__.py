@@ -1,6 +1,6 @@
 """Evolution Kernel Operators."""
-from . import output, runner, version
-from .output.struct import EKO
+from . import io, runner, version
+from .io.struct import EKO
 
 __version__ = version.__version__
 
