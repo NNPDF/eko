@@ -281,7 +281,12 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
         grids = {}
         for fp in innerdir.glob("*.npy.lz4"):
             with lz4.frame.open(fp, "rb") as fd:
-                stream = io.BytesIO(fd.read())
+                # static analyzer can not guarantee the content to be bytes
+                content = fd.read()
+                if isinstance(content, str):
+                    raise RuntimeError("Bytes expected")
+
+                stream = io.BytesIO(content)
                 stream.seek(0)
                 grids[pathlib.Path(fp.stem).stem] = np.load(stream)
 
