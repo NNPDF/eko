@@ -1,0 +1,28 @@
+"""Upgrade old files."""
+import pathlib
+from typing import Optional
+
+import click
+
+from eko.output import legacy
+
+from .base import command
+
+
+@command.command("convert")
+@click.argument(
+    "old",
+    type=click.Path(path_type=pathlib.Path),
+)
+@click.option("-n", "--new", type=click.Path(path_type=pathlib.Path), default=None)
+def subcommand(old: pathlib.Path, new: Optional[pathlib.Path]):
+    """Convert old EKO files to new format.
+
+    The OLD file path is used also for the new one, appending "-new" to its
+    stem, unless it is explicitly specified with the dedicated option.
+    """
+    if new is None:
+        new = old.parent / old.with_stem(old.stem + "-new")
+
+    operator = legacy.load_tar(old)
+    operator.deepcopy(new)
