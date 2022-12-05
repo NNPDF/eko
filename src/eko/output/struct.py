@@ -12,7 +12,7 @@ import tarfile
 import tempfile
 import time
 from dataclasses import dataclass
-from typing import BinaryIO, Dict, Literal, Optional, Tuple
+from typing import Any, BinaryIO, Dict, Literal, Optional, Tuple
 
 import lz4.frame
 import numpy as np
@@ -46,6 +46,10 @@ class OutputNotTar(ValueError, OutputError):
     """Specified file is not a .tar archive."""
 
 
+class OperatorLoadingError(ValueError, OutputError):
+    """Issue encountered while loading an operator."""
+
+
 class DictLike:
     """Dictionary compatibility base class, for dataclasses.
 
@@ -66,7 +70,7 @@ class DictLike:
 
         Parameters
         ----------
-        dictionary: dict
+        dictionary : dict
             the dictionary to be converted to :class:`DictLike`
 
         Returns
@@ -140,10 +144,10 @@ class Operator(DictLike):
 
         Parameters
         ----------
-        stream: BinaryIO
+        stream : BinaryIO
             a stream where to save the operator content (in order to be able to
             perform the operation both on disk and in memory)
-        compress: bool
+        compress : bool
             flag to control optional compression (default: `True`)
 
         Returns
@@ -178,10 +182,10 @@ class Operator(DictLike):
 
         Parameters
         ----------
-        stream: BinaryIO
+        stream : BinaryIO
             a stream to load the operator from (to support the operation both on
             disk and in memory)
-        compressed: bool
+        compressed : bool
             declare whether the stream is or is not compressed (default: `True`)
 
         Returns
@@ -201,7 +205,7 @@ class Operator(DictLike):
             op = content["operator"]
             err = content["error"]
         else:
-            raise ValueError(
+            raise OperatorLoadingError(
                 "Not possible to load operator, content format not recognized"
             )
 
@@ -327,7 +331,7 @@ class OperatorCard(DictLike):
     @property
     def raw(self):
         """Return the raw dictionary to be dumped."""
-        dictionary = dict(
+        dictionary: Dict[str, Any] = dict(
             Q0=float(self.Q0),
             Q2grid=self.Q2grid.tolist(),
             eko_version=self.eko_version,
@@ -465,11 +469,11 @@ class EKO:
 
         Parameters
         ----------
-        q2: float
+        q2 : float
             :math:`Q^2` value labeling the operator to be set
-        op: Operator
+        op : Operator
             the retrieved operator
-        compress: bool
+        compress : bool
             whether to save the operator compressed or not (default: `True`)
 
         """
@@ -547,7 +551,7 @@ class EKO:
 
         Parameters
         ----------
-        q2: float
+        q2 : float
             :math:`Q^2` value labeling the operator to be retrieved
 
         """
@@ -615,11 +619,11 @@ class EKO:
 
         Parameters
         ----------
-        q2: float
+        q2 : float
             value of :math:`Q2` in which neighborhood to look
-        rtol: float
+        rtol : float
             relative tolerance
-        atol: float
+        atol : float
             absolute tolerance
 
         Returns
@@ -661,7 +665,7 @@ class EKO:
 
         Parameters
         ----------
-        path: os.PathLike
+        path : os.PathLike
             path were to copy the disk counterpart of the operator object
 
         Returns
@@ -686,14 +690,15 @@ class EKO:
 
         Parameters
         ----------
-        dirpath: os.PathLike
+        dirpath : os.PathLike
             path to create the directory into
-        theory: dict
+        theory : dict
             theory card to be dumped
-        operator: dict
+        operator : dict
             operator card to be dumped
-        metadata: dict
+        metadata : dict
             metadata of the operator
+
         """
         dirpath = pathlib.Path(dirpath)
         operator_to_dump = copy.deepcopy(operator)
@@ -731,9 +736,9 @@ class EKO:
 
         Parameters
         ----------
-        path: os.PathLike
+        path : os.PathLike
             path to the disk dump
-        filename: str
+        filename : str
             relative path inside the archive of the file to extract
 
         Returns
@@ -812,6 +817,7 @@ class EKO:
         -------
         interpolation.InterpolatorDispatcher
             interpolator
+
         """
         grid = self.rotations.targetgrid if use_target else self.rotations.inputgrid
         return interpolation.InterpolatorDispatcher(
@@ -944,7 +950,7 @@ class EKO:
 
         Parameters
         ----------
-        path:: os.PathLike
+        path : os.PathLike
             path to the dump to load
 
         Returns
