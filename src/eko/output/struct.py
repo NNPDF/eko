@@ -34,6 +34,18 @@ PARTSDIR = "parts"
 OPERATORSDIR = "operators"
 
 
+class OutputError(Exception):
+    """Generic Output Error."""
+
+
+class OutputExistsError(FileExistsError, OutputError):
+    """Output file already exists."""
+
+
+class OutputNotTar(ValueError, OutputError):
+    """Specified file is not a .tar archive."""
+
+
 class DictLike:
     """Dictionary compatibility base class, for dataclasses.
 
