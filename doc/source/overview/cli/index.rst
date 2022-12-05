@@ -26,12 +26,17 @@ The following subcommands are currently available:
 |command_inspect|_
    Inspect the content of EKO files
 
+|command_convert|_
+   Convert an old EKO file to current format
+
 .. |command_run| replace:: ``run``
-.. _command_run: ./run.rst
+.. _command_run: run.rst
 .. |command_runcards| replace:: ``runcards``
-.. _command_runcards: ./runcards.rst
+.. _command_runcards: runcards.rst
 .. |command_inspect| replace:: ``inspect``
-.. _command_inspect: ./inspect.rst
+.. _command_inspect: inspect.rst
+.. |command_convert| replace:: ``convert``
+.. _command_convert: convert.rst
 
 For detailed information about command structure and flags query the command
 help itself::
