@@ -1,7 +1,6 @@
 """Define output representation structures."""
 import contextlib
 import copy
-import dataclasses
 import io
 import logging
 import os
@@ -11,7 +10,7 @@ import tarfile
 import tempfile
 import time
 from dataclasses import dataclass
-from typing import Any, BinaryIO, Dict, Literal, Optional, Tuple
+from typing import BinaryIO, Dict, Optional
 
 import lz4.frame
 import numpy as np
@@ -22,6 +21,9 @@ import yaml
 from .. import basis_rotation as br
 from .. import interpolation
 from .. import version as vmod
+from . import exceptions
+from .dictlike import DictLike
+from .runcards import Configs, Debug, OperatorCard, Rotations
 
 logger = logging.getLogger(__name__)
 
@@ -33,90 +35,6 @@ PARTSDIR = "parts"
 OPERATORSDIR = "operators"
 
 COMPRESSED_SUFFIX = ".lz4"
-
-
-class OutputError(Exception):
-    """Generic Output Error."""
-
-
-class OutputExistsError(FileExistsError, OutputError):
-    """Output file already exists."""
-
-
-class OutputNotTar(ValueError, OutputError):
-    """Specified file is not a .tar archive."""
-
-
-class OperatorLoadingError(ValueError, OutputError):
-    """Issue encountered while loading an operator."""
-
-
-class DictLike:
-    """Dictionary compatibility base class, for dataclasses.
-
-    This class add compatibility to import and export from Python :class:`dict`,
-    in such a way to support serialization interfaces working with them.
-
-    Some collections and scalar objects are normalized to native Python
-    structures, in order to simplify the on-disk representation.
-
-    """
-
-    def __init__(self, **kwargs):
-        """Empty initializer."""
-
-    @classmethod
-    def from_dict(cls, dictionary):
-        """Initialize dataclass object from raw dictionary.
-
-        Parameters
-        ----------
-        dictionary : dict
-            the dictionary to be converted to :class:`DictLike`
-
-        Returns
-        -------
-        DictLike
-            instance with `dictionary` content loaded as attributes
-
-        """
-        return cls(**dictionary)
-
-    @property
-    def raw(self):
-        """Convert dataclass object to raw dictionary.
-
-        Normalize:
-
-            - :class:`np.ndarray` to lists (possibly nested)
-            - scalars to the corresponding built-in type (e.g. :class:`float`)
-            - :class:`tuple` to lists
-            - :class:`interpolation.XGrid` to the intrinsic serialization format
-
-        Returns
-        -------
-        dict
-            dictionary representation
-
-        """
-        dictionary = {}
-        for field in dataclasses.fields(self):
-            value = getattr(self, field.name)
-
-            # replace numpy arrays with lists
-            if isinstance(value, np.ndarray):
-                value = value.tolist()
-            # replace numpy scalars with python ones
-            elif isinstance(value, float):
-                value = float(value)
-            elif isinstance(value, interpolation.XGrid):
-                value = value.dump()["grid"]
-            elif isinstance(value, tuple):
-                value = list(value)
-
-            dictionary[field.name] = value
-
-        return dictionary
 
 
 @dataclass
@@ -206,141 +124,11 @@ class Operator(DictLike):
             op = content["operator"]
             err = content["error"]
         else:
-            raise OperatorLoadingError(
+            raise exceptions.OperatorLoadingError(
                 "Not possible to load operator, content format not recognized"
             )
 
         return cls(operator=op, error=err)
-
-
-@dataclass
-class Debug(DictLike):
-    """Debug configurations."""
-
-    skip_singlet: bool = False
-    """Whether to skip QCD singlet computation."""
-    skip_non_singlet: bool = False
-    """Whether to skip QCD non-singlet computation."""
-
-
-@dataclass
-class Configs(DictLike):
-    """Solution specific configurations."""
-
-    ev_op_max_order: Tuple[int]
-    """Maximum order to use in U matrices expansion.
-    Used only in ``perturbative`` solutions.
-    """
-    ev_op_iterations: int
-    """Number of intervals in which to break the global path."""
-    interpolation_polynomial_degree: int
-    """Degree of elements of the intepolation polynomial basis."""
-    interpolation_is_log: bool
-    r"""Whether to use polynomials in :math:`\log(x)`.
-    If `false`, polynomials are in :math:`x`.
-    """
-    backward_inversion: Literal["exact", "expanded"]
-    """Which method to use for backward matching conditions."""
-    n_integration_cores: int = 1
-    """Number of cores used to parallelize integration."""
-
-
-@dataclass
-class Rotations(DictLike):
-    """Rotations related configurations.
-
-    Here "Rotation" is intended in a broad sense: it includes both rotations in
-    flavor space (labeled with suffix `pids`) and in :math:`x`-space (labeled
-    with suffix `grid`).
-    Rotations in :math:`x`-space correspond to reinterpolate the result on a
-    different basis of polynomials.
-
-    """
-
-    xgrid: interpolation.XGrid
-    """Momentum fraction internal grid."""
-    pids: npt.NDArray
-    """Array of integers, corresponding to internal PIDs."""
-    _targetgrid: Optional[interpolation.XGrid] = None
-    _inputgrid: Optional[interpolation.XGrid] = None
-    _targetpids: Optional[npt.NDArray] = None
-    _inputpids: Optional[npt.NDArray] = None
-
-    def __post_init__(self):
-        """Adjust types when loaded from serialized object."""
-        for attr in ("xgrid", "_inputgrid", "_targetgrid"):
-            value = getattr(self, attr)
-            if value is None:
-                continue
-            if isinstance(value, (np.ndarray, list)):
-                setattr(self, attr, interpolation.XGrid(value))
-            elif not isinstance(value, interpolation.XGrid):
-                setattr(self, attr, interpolation.XGrid.load(value))
-
-    @property
-    def inputpids(self) -> npt.NDArray:
-        """Provide pids expected on the input PDF."""
-        if self._inputpids is None:
-            return self.pids
-        return self._inputpids
-
-    @property
-    def targetpids(self) -> npt.NDArray:
-        """Provide pids corresponding to the output PDF."""
-        if self._targetpids is None:
-            return self.pids
-        return self._targetpids
-
-    @property
-    def inputgrid(self) -> interpolation.XGrid:
-        """Provide :math:`x`-grid expected on the input PDF."""
-        self.__post_init__()
-        if self._inputgrid is None:
-            return self.xgrid
-        return self._inputgrid
-
-    @property
-    def targetgrid(self) -> interpolation.XGrid:
-        """Provide :math:`x`-grid corresponding to the output PDF."""
-        self.__post_init__()
-        if self._targetgrid is None:
-            return self.xgrid
-        return self._targetgrid
-
-
-@dataclass
-class OperatorCard(DictLike):
-    """Operator Card info."""
-
-    rotations: dict
-    """Rotations configurations. The operator card will only contain
-    the interpolation xgrid and the pids.
-    """
-    Q0: float
-    """Initial scale."""
-    configs: dict
-    """Configs info.
-    """
-    Q2grid: npt.NDArray
-    """Array of q2 points."""
-    debug: Optional[dict] = dataclasses.field(
-        default_factory=lambda: {"skip_singlet": False, "skip_non_singlet": False}
-    )
-    eko_version: Optional[str] = vmod.__version__
-    """Perturbative order of the QCD and QED couplings."""
-
-    @property
-    def raw(self):
-        """Return the raw dictionary to be dumped."""
-        dictionary: Dict[str, Any] = dict(
-            Q0=float(self.Q0),
-            Q2grid=self.Q2grid.tolist(),
-            eko_version=self.eko_version,
-        )
-        dictionary["rotations"] = Rotations.from_dict(self.rotations).raw
-        dictionary["configs"] = Configs.from_dict(self.configs).raw
-        dictionary["debug"] = Debug.from_dict(self.debug).raw
-        return dictionary
 
 
 @dataclass
@@ -440,17 +228,10 @@ class EKO:
     """
     Q02: float
     """Inital scale."""
-    # collections
-    configs: Configs
-    """Specific configuration to be used during the calculation of these
-    operators.
-    """
     rotations: Rotations
     """Manipulation information, describing the current status of the EKO (e.g.
     `inputgrid` and `targetgrid`).
     """
-    debug: Debug
-    """Debug configurations."""
     # tagging information
     version: str = vmod.__version__
     """Library version used to create the corresponding file."""
@@ -972,7 +753,7 @@ class EKO:
         """
         path = pathlib.Path(path)
         if not tarfile.is_tarfile(path):
-            raise OutputNotTar(f"Not a valid tar archive: '{path}'")
+            raise exceptions.OutputNotTar(f"Not a valid tar archive: '{path}'")
 
         theory = yaml.safe_load(cls.extract(path, THEORYFILE))
         operator = yaml.safe_load(cls.extract(path, OPERATORFILE))
@@ -994,12 +775,9 @@ class EKO:
 
         """
         return dict(
-            path=str(self.path),
             Q0=float(np.sqrt(self.Q02)),
             Q2grid=self.mu2grid.tolist(),
-            configs=self.configs.raw,
             rotations=self.rotations.raw,
-            debug=self.debug.raw,
         )
 
     def __del__(self):
