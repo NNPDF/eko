@@ -3,7 +3,7 @@ import pathlib
 import numpy as np
 from eko.interpolation import make_lambert_grid
 
-from plot_msht import msht_splitting_xpx,build_n3lo_var, n3lo_vars_dict
+from plot_msht import msht_splitting_xpx, build_n3lo_var, n3lo_vars_dict
 from splitting_function_utils import compute_a_s, splitting_function
 import utils
 
@@ -26,16 +26,13 @@ def plot_ad_ratio(entry, q2=None, nf=4):
 
     g_n3lo_var = []
     for idx in range(1, n3lo_vars_dict[entry] + 1):
-        var = np.array(build_n3lo_var(entry, idx))
+        var = build_n3lo_var(entry, idx)
         g_n3lo_var.append(splitting_function(entry, grid, nf, var, [3])[:, 0])
-        # plt.plot(grid, splitting_function(entry, grid, nf, var, [3])[:, 0])
-        # plt.plot(grid, [-x * (np.log(x)**2/(2 * (-1 + x)) - np.log(x)**2/(2* x)) for x in grid])
-        # import pdb; pdb.set_trace()
 
     g_n3lo_var = np.array(g_n3lo_var)
     g_n3lo_min = g_n3lo - g_n3lo_var.std(axis=0) * a_s**4
     g_n3lo_max = g_n3lo + g_n3lo_var.std(axis=0) * a_s**4
-    
+
     g_msht_n3lo_min, g_msht_n3lo_max = msht_splitting_xpx(entry, grid, nf)
     g_msht_n3lo = (g_msht_n3lo_min + g_msht_n3lo_max) / 2
 
@@ -43,7 +40,7 @@ def plot_ad_ratio(entry, q2=None, nf=4):
     g_msht_n3lo_max = g_msht_n3lo_max * a_s**4 + g_nnlo
     g_msht_n3lo = g_msht_n3lo * a_s**4 + g_nnlo
 
-    ax.plot(grid, g_msht_n3lo / g_nnlo, label="MSHT@N3LO")
+    ax.plot(grid, g_msht_n3lo / g_nnlo, label="MSHTaN3LO")
     ax.fill_between(
         grid,
         g_msht_n3lo_min / g_nnlo,
@@ -87,18 +84,18 @@ def plot_ad_ratio(entry, q2=None, nf=4):
         linewidth=0.5,
     )
     plt.title(title)
-    plt.grid(visible=True, which='major', color='black', linestyle='dotted', alpha=0.2)
+    plt.grid(visible=True, which="major", color="black", linestyle="dotted", alpha=0.2)
     ax.legend()
 
     # save
     plt.tight_layout()
-    pathlib.Path(utils.here/"compare_msht").mkdir(parents=True, exist_ok=True)
+    pathlib.Path(utils.here / "compare_msht").mkdir(parents=True, exist_ok=True)
     plt.savefig(f"compare_msht/gamma_{entry}_msht_ratio.pdf")
 
 
 if __name__ == "__main__":
 
-    for k in ["gg"]:
+    for k in ["gq", "gg", "qg", "qq"]:
 
         # linear plots
         x_grid = make_lambert_grid(60, x_min=1e-1)

@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import msht_n3lo as msht
 import numpy as np
 from eko.interpolation import make_lambert_grid
+from eko.constants import CA, CF
 
 from splitting_function_utils import compute_a_s, splitting_function
 from small_x_limit import singlet_to_0
@@ -38,9 +39,13 @@ def msht_splitting(entry, x, nf):
         return msht.pgg3a(x, a1), msht.pgg3a(x, a2)
     if entry == "gq":
         a1, a2 = -1.8, -1.5
+        # val = - (106911.99053742114 + 996.3830436187579 * 4)/ (4 * np.pi )**4 * CF/CA
+        # a1, a2 = val - 0.5, val +0.5
+        # a1, a2 = -1.5, -1.2
         return msht.pgq3a(x, a1), msht.pgq3a(x, a2)
     if entry == "qg":
         a1, a2 = -2.5, -0.8
+        # a1, a2 =  -0.7 * CA / CF, 0
         return nf * msht.pqg3a(x, a1), nf * msht.pqg3a(x, a2)
     if entry == "qq":
         aps1, aps2 = -0.7, 0
@@ -62,7 +67,7 @@ def msht_splitting_xpx(entry, grid, nf):
     return np.array(msht_grid_min), np.array(msht_grid_max)
 
 
-def plot_ad(entry, q2=None, nf=4, logscale=True, show_candidates=False):
+def plot_ad(entry, q2=None, nf=4, logscale=True, show_candidates=False, plot_scaling=False):
     fig = plt.figure(figsize=(7, 5))
     gs = fig.add_gridspec(5, 1)
     ax = plt.subplot(gs[:, 0])
@@ -93,7 +98,7 @@ def plot_ad(entry, q2=None, nf=4, logscale=True, show_candidates=False):
     g_msht_n3lo_max = g_msht_n3lo_max * a_s**4 + g_nnlo
     g_msht_n3lo = g_msht_n3lo * a_s**4 + g_nnlo
 
-    ax.plot(grid, g_msht_n3lo, label="MSHT@N3LO")
+    ax.plot(grid, g_msht_n3lo, label="MSHTaN3LO")
     ax.fill_between(
         grid,
         g_msht_n3lo_min,
@@ -117,8 +122,22 @@ def plot_ad(entry, q2=None, nf=4, logscale=True, show_candidates=False):
     ax.plot(grid, g_nnlo, linestyle="dashed", label="NNLO")
     ax.plot(grid, g_nlo, linestyle="dashdot", label="NLO")
     ax.plot(grid, g_lo, linestyle="dotted", label="LO")
-    if logscale:
-        ax.plot(grid[:10], small_x[:10], linestyle="dashdot", color="black", alpha=0.7)
+
+    if plot_scaling :
+        if entry == "gq":
+            gg = splitting_function('gg', grid, nf, (0,0,0,0))
+            gg_lo = gg[:, 0] * a_s
+            gg_nlo = gg_lo + gg[:, 1] * a_s**2
+            gg_nnlo = gg_nlo + gg[:, 2] * a_s**3
+            gg_n3lo = gg_nnlo + gg[:, 3] * a_s**4
+            ax.plot(grid[:10], gg_n3lo[:10] * CF/CA, linestyle="dashdot", color="black", label=r"$C_f/C_A P_{gg}$", alpha=0.5)
+        elif entry == "qg":
+            qq = splitting_function('qq', grid, nf, (0,0,0,0))
+            qq_lo = qq[:, 0] * a_s
+            qq_nlo = qq_lo + qq[:, 1] * a_s**2
+            qq_nnlo = qq_nlo + qq[:, 2] * a_s**3
+            qq_n3lo = qq_nnlo + qq[:, 3] * a_s**4
+            ax.plot(grid[:10], qq_n3lo[:10] * CA/CF, linestyle="dashdot", color="black", label=r"$C_A/C_f P_{qq}$", alpha=0.5)            
 
     grid_min, grid_max = grid.min(), grid.max()
     if logscale:
@@ -151,7 +170,7 @@ def plot_ad(entry, q2=None, nf=4, logscale=True, show_candidates=False):
 
     # save
     plt.tight_layout()
-    pathlib.Path(utils.here/"compare_msht").mkdir(parents=True, exist_ok=True)
+    pathlib.Path(utils.here / "compare_msht").mkdir(parents=True, exist_ok=True)
     if logscale and not show_candidates:
         plt.savefig(f"compare_msht/gamma_{entry}_msht_logx.pdf")
     elif show_candidates:
@@ -170,4 +189,4 @@ if __name__ == "__main__":
 
         # log plots
         x_grid = make_lambert_grid(60, x_min=1e-7)
-        plot_ad(k)
+        plot_ad(k,plot_scaling=True)
