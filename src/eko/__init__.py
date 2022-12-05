@@ -37,6 +37,4 @@ def run_dglap(theory_card, operators_card):
         For further information about EKO inputs and output see :doc:`/code/IO`
 
     """
-    r = runner.Runner(theory_card, operators_card)
-    out = r.get_output()
-    return out
+    return runner.Runner(theory_card, operators_card).get_output()
