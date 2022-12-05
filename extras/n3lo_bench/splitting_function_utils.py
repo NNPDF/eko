@@ -88,7 +88,7 @@ def splitting_function(entry, x_grid, nf, n3lo_variation=(0,0,0,0), orders=None)
     return np.array(gamma_x).T
 
 
-def compute_a_s(q2, nf=None):
+def compute_a_s(q2=None, nf=None):
     if q2 is not None:
         sc = Couplings(
             scale_ref=91.00**2,
