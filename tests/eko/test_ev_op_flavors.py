@@ -122,6 +122,18 @@ def test_rotate_matching_qed():
     m = flavors.rotate_matching(4, True)
     assert len(list(filter(lambda e: "c+" in e, m.keys()))) == 3
     assert len(list(filter(lambda e: "b-" in e, m.keys()))) == 1
+    # S' = S + c+
+    np.testing.assert_allclose(m["S.S"], 1.0)
+    np.testing.assert_allclose(m["S.c+"], 1.0)
+    # T3u' = u+ - c+ = 1/3(S + Sdelta) - c+
+    np.testing.assert_allclose(m["Tu3.S"], 1.0 / 3.0)
+    np.testing.assert_allclose(m["Tu3.Sdelta"], 1.0 / 3.0)
+    np.testing.assert_allclose(m["Tu3.c+"], -1.0)
+    # Sdelta' = u+ + c+ - d+ - s+ = 1/3(2 Sdelta - S) + c+
+    np.testing.assert_allclose(m["Sdelta.Sdelta"], 2.0 / 3.0)
+    np.testing.assert_allclose(m["Sdelta.S"], -1.0 / 3.0)
+    np.testing.assert_allclose(m["Sdelta.c+"], +1.0)
+
     m = flavors.rotate_matching(5, True)
     assert len(list(filter(lambda e: "b-" in e, m.keys()))) == 3
     assert len(list(filter(lambda e: "t+" in e, m.keys()))) == 1
