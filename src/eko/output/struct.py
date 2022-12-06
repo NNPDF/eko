@@ -789,8 +789,8 @@ class EKO:
     ) -> interpolation.InterpolatorDispatcher:
         """Return associated interpolation.
 
-        Paramters
-        ---------
+        Parameters
+        ----------
         mode_N : bool
             interpolate in N-space?
         use_target : bool
