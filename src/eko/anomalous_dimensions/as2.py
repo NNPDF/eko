@@ -37,6 +37,8 @@ def gamma_nsm(n, nf, sx):
     S2 = sx[1]
     # Here, Sp refers to S' ("s-prime") (german: "s-strich" or in Pegasus language: SSTR)
     # of :cite:`Gluck:1989ze` and NOT to the Spence function a.k.a. dilogarithm
+    # TODO : these harmonic sums are computed also for the QED sector then we can use
+    # the ones that are passed to the O(as1aem1) anomalous dimensions
     Sp1m = harmonics.S1((n - 1) / 2)
     Sp2m = harmonics.S2((n - 1) / 2)
     Sp3m = harmonics.S3((n - 1) / 2)
