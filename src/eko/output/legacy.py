@@ -94,8 +94,8 @@ def tocard(raw: dict) -> dict:
             del card[field.name]
 
     if "Q0" not in card:
-        # Q0 was not stored for some metadata
-        card["Q0"] = 0.0
+        # in old metadata this was call q2_ref
+        card["Q0"] = np.sqrt(card.get("q2_ref", 0))
 
     return card
 
@@ -289,10 +289,10 @@ def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
         for q2, slices in zip(q2grid, zip(*grids.values())):
             operator_grid[q2] = dict(zip(grids.keys(), slices))
 
-    # now eveything is in place
+    # now everything is in place
     eko = struct.EKO.new(theory={}, operator=metadata)
     for q2, op in operator_grid.items():
-        # the layout of the operator is slifhtly different from the past one
+        # the layout of the operator is slightly different from the past one
         if "operators" in op:
             op = dict(operator=op["operators"], error=op["operator_errors"])
         eko[q2] = struct.Operator.from_dict(op)
