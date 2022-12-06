@@ -89,7 +89,7 @@ class Runner(BenchmarkRunner):
             else:
                 # load
                 print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
-                out = eko.output.Output.load_tar(path)
+                out = eko.output.legacy.load_tar(path)
 
             if self.plot_operator:
 
@@ -101,7 +101,7 @@ class Runner(BenchmarkRunner):
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
                 # rotating to evolution basis if requested
-                out_copy = eko.output.Output.load_tar(path)
+                out_copy = eko.output.legacy.load_tar(path)
                 change_lab = False
                 if self.rotate_to_evolution_basis:
                     out_copy.to_evol(source=True, target=True)

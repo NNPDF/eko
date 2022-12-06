@@ -260,7 +260,7 @@ def A_gg(n, sx, nf, L):
     nf : int
         number of active flavor below the threshold
     L : float
-        :math:`\ln(\mu_F^2 / m_h^2)`
+        :math:`\ln(q^2 / m_h^2)`
 
     Returns
     -------
