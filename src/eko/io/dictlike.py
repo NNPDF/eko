@@ -11,6 +11,7 @@ import numpy as np
 from .. import interpolation
 
 
+# TODO: add typing.dataclass_transform, new in Python 3.11
 class DictLike:
     """Dictionary compatibility base class, for dataclasses.
 

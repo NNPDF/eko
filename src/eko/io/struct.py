@@ -8,9 +8,9 @@ import pathlib
 import shutil
 import tarfile
 import tempfile
-import time
+import typing
 from dataclasses import dataclass
-from typing import Any, BinaryIO, Dict, Optional
+from typing import BinaryIO, Dict, Optional
 
 import lz4.frame
 import numpy as np
@@ -23,7 +23,7 @@ from .. import interpolation
 from .. import version as vmod
 from . import exceptions
 from .dictlike import DictLike
-from .runcards import Configs, Debug, OperatorCard, Rotations
+from .runcards import OperatorCard, Rotations, TheoryCard
 
 logger = logging.getLogger(__name__)
 
@@ -183,23 +183,113 @@ class InternalPaths:
         """Operator card dump."""
         return self.root / OPERATORFILE
 
+    def bootstrap(self, theory: dict, operator: dict, metadata: dict):
+        """Create directory structure.
+
+        Parameters
+        ----------
+        dirpath : os.PathLike
+            path to create the directory into
+        theory : dict
+            theory card to be dumped
+        operator : dict
+            operator card to be dumped
+        metadata : dict
+            metadata of the operator
+
+        """
+        self.metadata.write_text(yaml.dump(metadata), encoding="utf-8")
+        self.theory_card.write_text(yaml.dump(theory), encoding="utf-8")
+        self.operator_card.write_text(yaml.dump(operator), encoding="utf-8")
+        self.recipes.mkdir()
+        self.parts.mkdir()
+        self.operators.mkdir()
+
+    @staticmethod
+    def opname(mu2: float) -> str:
+        r"""Operator file name from :math:`\mu^2` value."""
+        return f"{mu2:8.2f}"
+
+    def oppath(self, mu2: float) -> pathlib.Path:
+        r"""Operator file name from :math:`\mu^2` value."""
+
+        name = self.opname(mu2)
+        oppaths = list(
+            filter(lambda path: path.name.startswith(name), self.operators.iterdir())
+        )
+
+        if len(oppaths) == 0:
+            raise ValueError(f"mu2 value '{mu2}' not available.")
+        elif len(oppaths) > 1:
+            raise ValueError(f"Too many operators associated to '{mu2}'")
+
+        return oppaths[0]
+
+    @staticmethod
+    def opcompressed(path: pathlib.Path) -> bool:
+        return path.suffix == COMPRESSED_SUFFIX
+
+    @staticmethod
+    def opmu2(path: pathlib.Path) -> float:
+        return float(path.stem)
+
+    def opnewpath(
+        self, mu2: float, compress: bool = True, without_err: bool = True
+    ) -> pathlib.Path:
+        suffix = "npy" if without_err else "npz"
+        if compress:
+            suffix += COMPRESSED_SUFFIX
+        return (self.operators / self.opname(mu2)).with_suffix(suffix)
+
+    @property
+    def mu2grid(self) -> npt.NDArray[np.float64]:
+        if self.root is None:
+            raise RuntimeError()
+
+        return np.array(
+            sorted(
+                map(
+                    lambda p: self.opmu2(p),
+                    InternalPaths(self.root).operators.iterdir(),
+                )
+            )
+        )
+
 
 @dataclass
 class AccessConfigs:
     """Configurations specified during opening of an EKO."""
 
     path: pathlib.Path
-    """The path related """
+    """The path to the permanent object."""
     readonly: bool
+    "Read-only flag"
+
+
+OptionalPath = typing.TypeVar("OptionalPath", bound=Optional[pathlib.Path])
 
 
 @dataclass
-class Metadata(DictLike):
-    _path: Optional[pathlib.Path]
-    """Path to metadata file."""
+class Metadata(DictLike, typing.Generic[OptionalPath]):
+    """Manage metadata, and keep them synced on disk.
+
+    It is possible to have a metadata view, in which the path is not actually
+    connected (i.e. it is set to ``None``). In this case, no update will be
+    possible, of course.
+
+    Note
+    ----
+    Unfortunately, for nested structures it is not possible to detect a change
+    in their attributes, so a call to :meth:`update` has to be performed
+    manually.
+
+    """
+
+    _path: OptionalPath
+    """Path to temporary dir."""
     Q02: float
     """Inital scale."""
-    _rotations: Rotations
+    rotations: Rotations
     """Manipulation information, describing the current status of the EKO (e.g.
     `inputgrid` and `targetgrid`).
     """
@@ -209,34 +299,94 @@ class Metadata(DictLike):
     data_version: str = vmod.__data_version__
     """Specs version, to which the file adheres."""
 
-    @property
-    def rotations(self):
-        return self._rotations
+    @classmethod
+    def from_dict(cls, dictionary):
+        metadata = dictionary.copy()
+        metadata["rotations"] = Rotations.from_dict(metadata["rotations"])
+        return cls(_path=None, **metadata)
 
-    @rotations.setter
-    def rotations(self, update: dict):
-        """Hijack setter to update rotations.
+    @classmethod
+    def load(cls, path: pathlib.Path):
+        content = cls.from_dict(yaml.safe_load(path.read_text(encoding="utf-8")))
+        content._path = path
+        return content
 
-        Parameters
-        ----------
-        update : dict
-            rotations update
-
-        """
-        for key, value in update.items():
-            setattr(self._rotations, key, value)
-
+    def update(self):
         if self._path is None:
             logger.info("Impossible to set metadata, no file attached.")
         else:
             with open(self._path, "w") as fd:
-                yaml.safe_dump(self.raw)
+                yaml.safe_dump(self.raw, fd)
 
-        return self._rotations
+    def __setattr__(self, name, value):
+        """Update metadata content and sync disk."""
+        super().__setattr__(name, value)
 
+        # all objects starting with "_" are used for the in-memory structure,
+        # but they do not need to be serialized, so they do not trigger an
+        # update
+        if name.startswith("_"):
+            return
+
+        self.update()
+
+    @property
     def raw(self):
-        pass
-        # TODO: rename _rotations to rotations, drop _path
+        raw = super().raw
+
+        for key in raw:
+            if key.startswith("_"):
+                del raw[key]
+
+        return raw
+
+
+# The metadata class can be instantiated with an optional path, but it is
+# optional only if it is a view, and not the actual metadata associated to an
+# open EKO
+MetadataView = Metadata[Optional[pathlib.Path]]
+Metadata = Metadata[pathlib.Path]
+
+
+@dataclass
+class Builder:
+    path: pathlib.Path
+    """Path on disk to ."""
+    access: AccessConfigs
+    """Access related configurations."""
+
+    # optional arguments
+    theory: Optional[TheoryCard] = None
+    operator: Optional[OperatorCard] = None
+
+    def load_cards(self, theory: dict, operator: dict):
+        self.theory = TheoryCard.from_dict(theory)
+        self.operator = OperatorCard.from_dict(operator)
+
+    def build(self):
+        missing = []
+        for card in ["theory", "operator"]:
+            if getattr(self, card) is None:
+                missing.append(card)
+
+        if len(missing) > 0:
+            raise RuntimeError(
+                f"Can not build an EKO, since following cards are missing: {missing}"
+            )
+        # tell the static analyzer as well
+        assert self.operator is not None
+
+        metadata = Metadata(
+            _path=self.path,
+            Q02=self.operator.Q0**2,
+            rotations=copy.deepcopy(self.operator.rotations),
+        )
+
+        return EKO(
+            _operators={q2: None for q2 in self.operator.Q2grid},
+            metadata=metadata,
+            access=self.access,
+        )
 
 
 @dataclass
@@ -277,11 +427,6 @@ class EKO:
     # public attributes
     # -----------------
     # mandatory, identifying features
-    _path: pathlib.Path
-    """Path on disk.
-
-    The object is linked to this path, for which it is essentially an interface.
-    """
     metadata: Metadata
     """Operator metadata."""
     access: AccessConfigs
@@ -290,7 +435,7 @@ class EKO:
     @property
     def paths(self) -> InternalPaths:
         """Accessor for internal paths."""
-        return InternalPaths(self._path)
+        return InternalPaths(self.metadata._path)
 
     @property
     def rotations(self) -> Rotations:
@@ -300,28 +445,24 @@ class EKO:
     @property
     def xgrid(self) -> interpolation.XGrid:
         """Momentum fraction internal grid."""
-        return self.metadata.rotations.xgrid
+        return self.rotations.xgrid
 
     @xgrid.setter
     def xgrid(self, value: interpolation.XGrid):
         """Set `xgrid` value."""
-        self.metadata.rotations.xgrid = value
+        self.rotations.xgrid = value
+        self.metadata.update()
 
-    @staticmethod
-    def opname(q2: float) -> str:
-        """Operator file name from :math:`Q^2` value."""
-        return f"{q2:8.2f}"
-
-    def __getitem__(self, q2: float) -> Operator:
-        """Retrieve operator for given :math:`Q^2`.
+    def __getitem__(self, mu2: float) -> Operator:
+        r"""Retrieve operator for given :math:`\mu^2`.
 
         If the operator is not already in memory, it will be automatically
         loaded.
 
         Parameters
         ----------
-        q2 : float
-            :math:`Q^2` value labeling the operator to be retrieved
+        mu2 : float
+            :math:`\mu^2` value labeling the operator to be retrieved
 
         Returns
         -------
@@ -329,33 +470,21 @@ class EKO:
             the retrieved operator
 
         """
-        if q2 in self._operators:
-            op = self._operators[q2]
+        if mu2 in self._operators:
+            op = self._operators[mu2]
             if op is not None:
                 return op
 
-        name = self.opname(q2)
-        op_paths = list(
-            filter(
-                lambda path: path.name.startswith(name), self.paths.operators.iterdir()
-            )
-        )
+        oppath = self.paths.oppath(mu2)
+        compressed = self.paths.opcompressed(oppath)
 
-        if len(op_paths) == 0:
-            raise ValueError(f"Q2 value '{q2}' not available.")
-        elif len(op_paths) > 1:
-            raise ValueError(f"Too many operators associated to '{q2}'")
-
-        op_path = op_paths[0]
-        compressed = op_path.suffix == COMPRESSED_SUFFIX
-
-        with open(op_path, "rb") as fd:
+        with open(oppath, "rb") as fd:
             op = Operator.load(fd, compressed=compressed)
 
-        self._operators[q2] = op
+        self._operators[mu2] = op
         return op
 
-    def __setitem__(self, q2: float, op: Operator, compress: bool = True):
+    def __setitem__(self, mu2: float, op: Operator, compress: bool = True):
         """Set operator for given :math:`Q^2`.
 
         The operator is automatically dumped on disk, .
@@ -374,17 +503,13 @@ class EKO:
             raise ValueError("Only an Operator can be added to an EKO")
 
         without_err = op.error is None
-        suffix = "npy" if without_err else "npz"
-        if compress:
-            suffix += COMPRESSED_SUFFIX
+        oppath = self.paths.opnewpath(mu2, compress=compress, without_err=without_err)
 
-        op_path = (self.paths.operators / self.opname(q2)).with_suffix(suffix)
-
-        with open(op_path, "wb") as fd:
+        with open(oppath, "wb") as fd:
             without_err2 = op.save(fd, compress)
         assert without_err == without_err2
 
-        self._operators[q2] = op
+        self._operators[mu2] = op
 
     def __delitem__(self, q2: float):
         """Drop operator from memory.
@@ -589,123 +714,13 @@ class EKO:
         """
         grid = self.rotations.targetgrid if use_target else self.rotations.inputgrid
         return interpolation.InterpolatorDispatcher(
-            grid, self.configs.interpolation_polynomial_degree, mode_N
+            grid, self.operator_card.configs.interpolation_polynomial_degree, mode_N
         )
 
-    @classmethod
-    def _detached(
-        cls, theory: dict, operator: dict, metadata: dict, path: pathlib.Path
-    ):
-        """Build the in-memory object alone.
-
-        Note
-        ----
-        This constructor is meant for internal use, backing the usual ones (like
-        :meth:`new` or :meth:`load`), but it should not be used directly, since
-        it has no guarantee that the underlying path is valid, breaking the
-        object semantic.
-
-        Parameters
-        ----------
-        theory : dict
-            the theory card
-        operator : dict
-            the operator card
-        metadata: dict
-            the metadata card
-        path : os.PathLike
-            the underlying path (it has to be a valid object, but it is not
-            guaranteed, see the note)
-
-        Returns
-        -------
-        EKO
-            the generated structure
-
-        """
-        bases = copy.deepcopy(metadata["rotations"])
-        # cast bases list to numpy array
-        for attr in bases:
-            bases[attr] = np.array(bases[attr])
-        bases["pids"] = np.array(br.flavor_basis_pids)
-        bases["xgrid"] = interpolation.XGrid(
-            operator["rotations"]["xgrid"],
-            log=operator["configs"]["interpolation_is_log"],
-        )
-
-        return cls(
-            path=path,
-            Q02=float(operator["Q0"] ** 2),
-            _operators={q2: None for q2 in operator["Q2grid"]},
-            configs=Configs.from_dict(operator["configs"]),
-            rotations=Rotations.from_dict(bases),
-            debug=Debug.from_dict(operator.get("debug", {})),
-        )
-
-    @classmethod
-    def new(cls, theory: dict, operator: dict, path: Optional[os.PathLike] = None):
-        """Make structure from runcard-like dictionary.
-
-        This constructor is made to be used with loaded runcards, in order to
-        minimize the amount of code needed to init a new object (you just to
-        load the runcard and call this function).
-
-        Note
-        ----
-        An object is initialized with no rotations, since the role of rotations
-        is to keep the current state of the output object after manipulations
-        happened.
-        Since a new object is here in the process of being created, no rotation
-        has to be logged.
-
-        Parameters
-        ----------
-        theory : dict
-            the theory card
-        operator : dict
-            the operator card
-        metadata: dict
-            metadata of the operator
-        path : os.PathLike
-            the underlying path (if not provided, it is created in a temporary
-            path)
-
-        Returns
-        -------
-        EKO
-            the generated structure
-
-        """
-        givenpath = path is not None
-        path = pathlib.Path(path if givenpath else tempfile.mkstemp(suffix=".tar")[1])
-        if path.exists():
-            if givenpath:
-                raise FileExistsError(
-                    f"File exists at given path '{path}', cannot be used for a new operator."
-                )
-            # delete the file created in case of temporary file
-            path.unlink()
-
-        with tempfile.TemporaryDirectory() as td:
-            td = pathlib.Path(td)
-            cls.bootstrap(td, theory=theory, operator=operator, metadata=metadata)
-
-            with tarfile.open(path, mode="w") as tar:
-                for element in td.glob("*"):
-                    tar.add(element, arcname=element.name)
-            shutil.rmtree(td)
-        eko = cls.detached(theory, operator, metadata, path=path)
-        return eko
-
-    def __enter__(self):
-        """Allow EKO to be used in :obj:`with` statements."""
-        return self
-
-    def __exit__(self, exc_type: type, exc_value, traceback):
-        if exc_type is not None:
-            return
-
-        self.close()
+    @staticmethod
+    def load(tarpath: pathlib.Path, tmppath: pathlib.Path):
+        with tarfile.open(tarpath) as tar:
+            tar.extractall(tmppath)
 
     @classmethod
     def open(cls, path, mode="r"):
@@ -727,21 +742,35 @@ class EKO:
             if not tarfile.is_tarfile(path):
                 raise exceptions.OutputNotTar(f"Not a valid tar archive: '{path}'")
 
-        tdir = tempfile.gettempdir()
+        tmpdir = pathlib.Path(tempfile.gettempdir())
         if load:
-            ...
+            cls.load(path, tmpdir)
+            opened = cls(_operators={}, metadata=Metadata.load(tmpdir), access=access)
         else:
-            # create
-            ...
+            opened = Builder(path=tmpdir, access=access)
 
-        return cls()
+        return opened
+
+    def __enter__(self):
+        """Allow EKO to be used in :obj:`with` statements."""
+        return self
+
+    def dump(self):
+        with tarfile.open(self.access.path, "w") as tar:
+            tar.add(self.metadata._path)
 
     def close(self):
         if not self.access.readonly:
             self.access.path.unlink()
             self.dump()
 
-        shutil.rmtree(self._path)
+        shutil.rmtree(self.metadata._path)
+
+    def __exit__(self, exc_type: type, exc_value, traceback):
+        if exc_type is not None:
+            return
+
+        self.close()
 
     @property
     def raw(self) -> dict:
@@ -754,50 +783,10 @@ class EKO:
             operators themselves
 
         """
-        return dict(
-            Q0=float(np.sqrt(self.Q02)),
-            Q2grid=self.mu2grid.tolist(),
-            rotations=self.rotations.raw,
-        )
-
-    def __del__(self):
-        """Destroy the memory structure gracefully."""
-        self.unload()
+        return dict(Q2grid=self.mu2grid.tolist(), metadata=self.metadata.raw)
 
 
-def initial_metadata(operator):
-    # Constructing initial metadata
-    metadata = dict(rotations=dict())
-    metadata["rotations"]["_targetgrid"] = copy.deepcopy(operator["rotations"]["xgrid"])
-    metadata["rotations"]["_inputgrid"] = copy.deepcopy(operator["rotations"]["xgrid"])
-    metadata["rotations"]["_targetpids"] = np.array(
-        copy.deepcopy(operator["rotations"]["pids"])
-    )
-    metadata["rotations"]["_inputpids"] = np.array(
-        copy.deepcopy(operator["rotations"]["pids"])
-    )
-    for bases in ["inputgrid", "targetgrid", "inputpids", "targetpids"]:
-        if bases in operator["rotations"]:
-            del operator["rotations"][bases]
-
-
-def bootstrap(dirpath: os.PathLike, theory: dict, operator: dict, metadata: dict):
-    """Create directory structure.
-
-    Parameters
-    ----------
-    dirpath : os.PathLike
-        path to create the directory into
-    theory : dict
-        theory card to be dumped
-    operator : dict
-        operator card to be dumped
-    metadata : dict
-        metadata of the operator
-
-    """
-    dirpath = pathlib.Path(dirpath)
-
+def init(self, metadata, operator):
     # upgrade metadata
     # TODO: why?
     metadata_to_dump = copy.deepcopy(metadata)
@@ -819,11 +808,4 @@ def bootstrap(dirpath: os.PathLike, theory: dict, operator: dict, metadata: dict
     metadata_obj = {}
     metadata_obj["rotations"] = Rotations.from_dict(metadata_to_dump["rotations"]).raw
 
-    # write objects
-    paths = InternalPaths(dirpath)
-    paths.metadata.write_text(yaml.dump(metadata_obj), encoding="utf-8")
-    paths.theory_card.write_text(yaml.dump(theory), encoding="utf-8")
-    paths.operator_card.write_text(yaml.dump(operator_obj), encoding="utf-8")
-    paths.recipes.mkdir()
-    paths.parts.mkdir()
-    paths.operators.mkdir()
+    return operator_obj, metadata_obj
