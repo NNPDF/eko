@@ -106,6 +106,10 @@ class Rotations(DictLike):
             return self.pids
         return self._inputpids
 
+    @inputpids.setter
+    def inputpids(self, value):
+        self._inputpids = value
+
     @property
     def targetpids(self) -> npt.NDArray:
         """Provide pids corresponding to the output PDF."""
@@ -113,21 +117,31 @@ class Rotations(DictLike):
             return self.pids
         return self._targetpids
 
+    @targetpids.setter
+    def targetpids(self, value):
+        self._targetpids = value
+
     @property
     def inputgrid(self) -> interpolation.XGrid:
         """Provide :math:`x`-grid expected on the input PDF."""
-        self.__post_init__()
         if self._inputgrid is None:
             return self.xgrid
         return self._inputgrid
 
+    @inputgrid.setter
+    def inputgrid(self, value):
+        self._inputgrid = value
+
     @property
     def targetgrid(self) -> interpolation.XGrid:
         """Provide :math:`x`-grid corresponding to the output PDF."""
-        self.__post_init__()
         if self._targetgrid is None:
             return self.xgrid
         return self._targetgrid
+
+    @targetgrid.setter
+    def targetgrid(self, value):
+        self._targetgrid = value
 
 
 @dataclass

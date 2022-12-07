@@ -60,9 +60,7 @@ def xgrid_reshape(
             False,
         )
         target_rot = b.get_interpolation(targetgrid.raw)
-        eko.rotations._targetgrid = targetgrid
-        # update metadata
-        eko.metadata.rotations = {"_targetgrid": targetgrid}
+        eko.rotations = {"targetgrid": targetgrid}
     if inputgrid is not None:
         b = interpolation.InterpolatorDispatcher(
             inputgrid,
@@ -70,9 +68,7 @@ def xgrid_reshape(
             False,
         )
         input_rot = b.get_interpolation(eko.rotations.inputgrid.raw)
-        eko.rotations._inputgrid = inputgrid
-        # update metadata
-        eko.update_metadata({"rotations": {"_inputgrid": inputgrid}})
+        eko.rotations = {"inputgrid": inputgrid}
 
     # build new grid
     for q2, elem in eko.items():
@@ -158,11 +154,9 @@ def flavor_reshape(
     # drop PIDs - keeping them int nevertheless
     # there is no meaningful way to set them in general, after rotation
     if inputpids is not None:
-        eko.rotations._inputpids = np.array([0] * len(eko.rotations.inputpids))
-        eko.update_metadata({"rotations": {"_inputpids": eko.rotations._inputpids}})
+        eko.rotations.inputpids = np.array([0] * len(eko.rotations.inputpids))
     if targetpids is not None:
-        eko.rotations._targetpids = np.array([0] * len(eko.rotations.targetpids))
-        eko.update_metadata({"rotations": {"_targetpids": eko.rotations._targetpids}})
+        eko.rotations.targetpids = np.array([0] * len(eko.rotations.targetpids))
 
 
 def to_evol(eko: EKO, source: bool = True, target: bool = False):
@@ -184,10 +178,8 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False):
     flavor_reshape(eko, inputpids=inputpids, targetpids=targetpids)
     # assign pids
     if source:
-        eko.rotations._inputpids = inputpids
-        # update metadata
-        eko.update_metadata({"rotations": {"_inputpids": inputpids}})
+        eko.rotations.inputpids = inputpids
     if target:
-        eko.rotations._targetpids = targetpids
-        # update metadata
-        eko.update_metadata({"rotations": {"_targetpids": targetpids}})
+        eko.rotations.targetpids = targetpids
+
+    eko.metadata.update()
