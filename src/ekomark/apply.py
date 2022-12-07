@@ -1,3 +1,5 @@
+"""Apply operator evolution to PDF set."""
+
 import numpy as np
 
 from eko import basis_rotation as br
@@ -89,7 +91,12 @@ def apply_pdf_flavor(eko, lhapdf_like, targetgrid=None, flavor_rotation=None):
 
     # rotate/interpolate to target grid
     if targetgrid is not None:
-        b = eko.interpolator(False, True)
+        b = interpolation.InterpolatorDispatcher(
+            xgrid=eko.rotations.targetgrid,
+            polynomial_degree=eko.operator_card.configs.interpolation_polynomial_degree,
+            mode_N=False,
+        )
+
         rot = b.get_interpolation(targetgrid)
         for evpdf in out_grid.values():
             for pdf_label in evpdf["pdfs"]:

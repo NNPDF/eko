@@ -1,4 +1,5 @@
 """IO generic exceptions."""
+import os
 
 
 class OutputError(Exception):
@@ -15,3 +16,11 @@ class OutputNotTar(ValueError, OutputError):
 
 class OperatorLoadingError(ValueError, OutputError):
     """Issue encountered while loading an operator."""
+
+
+class OperatorLocationError(ValueError, OutputError):
+    """Path supposed to store an operator in wrong location."""
+
+    def __init__(self, path: os.PathLike):
+        self.path = path
+        super().__init__(f"Path '{path}' not in operators folder")

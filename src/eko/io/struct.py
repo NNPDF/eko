@@ -18,7 +18,6 @@ import numpy.lib.npyio as npyio
 import numpy.typing as npt
 import yaml
 
-from .. import basis_rotation as br
 from .. import interpolation
 from .. import version as vmod
 from . import exceptions
@@ -211,8 +210,27 @@ class InternalPaths:
         return f"{mu2:8.2f}"
 
     def oppath(self, mu2: float) -> pathlib.Path:
-        r"""Operator file name from :math:`\mu^2` value."""
+        r"""Retrieve operator file path from :math:`\mu^2` value.
 
+        This method looks for an existing path matching.
+
+        Parameters
+        ----------
+        mu2: float
+            :math:`\mu2` scale specified
+
+        Returns
+        -------
+        pathlib.Path
+            the path retrieved, guaranteed to exist
+
+        Raises
+        ------
+        ValueError
+            if the path is not found, or more than one are matching the
+            specified value of :math:`\mu2`
+
+        """
         name = self.opname(mu2)
         oppaths = list(
             filter(lambda path: path.name.startswith(name), self.operators.iterdir())
@@ -221,21 +239,76 @@ class InternalPaths:
         if len(oppaths) == 0:
             raise ValueError(f"mu2 value '{mu2}' not available.")
         elif len(oppaths) > 1:
-            raise ValueError(f"Too many operators associated to '{mu2}'")
+            raise ValueError(f"Too many operators associated to '{mu2}':\n{oppaths}")
 
         return oppaths[0]
 
-    @staticmethod
-    def opcompressed(path: pathlib.Path) -> bool:
+    def opcompressed(self, path: os.PathLike) -> bool:
+        """Check if the operator at the path specified is compressed.
+
+        Parameters
+        ----------
+        path: os.PathLike
+            the path to the operator to check
+
+        Returns
+        -------
+        bool
+            whether it is compressed
+
+        Raises
+        ------
+        OperatorLocationError
+            if the path is not inside the operators folder
+
+        """
+        path = pathlib.Path(path)
+        if self.operators not in path.parents:
+            raise exceptions.OperatorLocationError(path)
+
         return path.suffix == COMPRESSED_SUFFIX
 
-    @staticmethod
-    def opmu2(path: pathlib.Path) -> float:
+    def opmu2(self, path: os.PathLike) -> float:
+        r"""Extract :math:`\mu2` value from operator path.
+
+        Parameters
+        ----------
+        path: os.PathLike
+            the path to the operator
+
+        Returns
+        -------
+        bool
+            the :math:`\mu2` value associated to the operator
+
+        Raises
+        ------
+        OperatorLocationError
+            if the path is not inside the operators folder
+
+        """
+        path = pathlib.Path(path)
+        if self.operators not in path.parents:
+            raise exceptions.OperatorLocationError(path)
+
         return float(path.stem)
 
     def opnewpath(
         self, mu2: float, compress: bool = True, without_err: bool = True
     ) -> pathlib.Path:
+        r"""Compute the path associated to :math:`\mu^2` value.
+
+        Parameters
+        ----------
+        mu2: float
+            :math:`\mu2` scale specified
+
+        Returns
+        -------
+        pathlib.Path
+            the path computed, it might already exists
+
+        """
         suffix = "npy" if without_err else "npz"
         if compress:
             suffix += COMPRESSED_SUFFIX
@@ -243,6 +316,7 @@ class InternalPaths:
 
     @property
     def mu2grid(self) -> npt.NDArray[np.float64]:
+        r"""Provide the array of :math:`\mu2` values of existing operators."""
         if self.root is None:
             raise RuntimeError()
 
@@ -301,17 +375,35 @@ class Metadata(DictLike, typing.Generic[OptionalPath]):
 
     @classmethod
     def from_dict(cls, dictionary):
+        """Override default :meth:`DictLike.from_dict` to load rotations."""
         metadata = dictionary.copy()
         metadata["rotations"] = Rotations.from_dict(metadata["rotations"])
         return cls(_path=None, **metadata)
 
     @classmethod
-    def load(cls, path: pathlib.Path):
-        content = cls.from_dict(yaml.safe_load(path.read_text(encoding="utf-8")))
+    def load(cls, path: os.PathLike):
+        """Load metadata from open folder.
+
+        Parameters
+        ----------
+        path: os.PathLike
+            the path to the open EKO folder
+
+        Returns
+        -------
+        bool
+            loaded metadata
+
+        """
+        path = pathlib.Path(path)
+        content = cls.from_dict(
+            yaml.safe_load(InternalPaths(path).metadata.read_text(encoding="utf-8"))
+        )
         content._path = path
         return content
 
     def update(self):
+        """Update the disk copy of metadata."""
         if self._path is None:
             logger.info("Impossible to set metadata, no file attached.")
         else:
@@ -332,6 +424,7 @@ class Metadata(DictLike, typing.Generic[OptionalPath]):
 
     @property
     def raw(self):
+        """Override default :meth:`DictLike.raw` representation to exclude path."""
         raw = super().raw
 
         for key in raw:
@@ -350,20 +443,45 @@ Metadata = Metadata[pathlib.Path]
 
 @dataclass
 class Builder:
+    """Build EKO instances."""
+
     path: pathlib.Path
     """Path on disk to ."""
     access: AccessConfigs
     """Access related configurations."""
 
-    # optional arguments
+    # optional arguments, required at build time
     theory: Optional[TheoryCard] = None
     operator: Optional[OperatorCard] = None
 
     def load_cards(self, theory: dict, operator: dict):
+        """Load both theory and operator card.
+
+        Parameters
+        ----------
+        theory: dict
+            a valid theory card, see :cls:`TheoryCard`
+        operator: dict
+            a valid operator card, see :cls:`OperatorCard`
+
+        """
         self.theory = TheoryCard.from_dict(theory)
         self.operator = OperatorCard.from_dict(operator)
 
     def build(self):
+        """Build EKO instance.
+
+        Returns
+        -------
+        EKO
+            the constructed instance
+
+        Raises
+        ------
+        RuntimeError
+            if not enough information is available (at least one card missing)
+
+        """
         missing = []
         for card in ["theory", "operator"]:
             if getattr(self, card) is None:
@@ -424,14 +542,16 @@ class EKO:
 
     # operators cache, contains the Q2 grid information
     _operators: Dict[float, Optional[Operator]]
-    # public attributes
+
+    # public containers
     # -----------------
-    # mandatory, identifying features
     metadata: Metadata
     """Operator metadata."""
     access: AccessConfigs
     """Access related configurations."""
 
+    # shortcut properties
+    # -------------------
     @property
     def paths(self) -> InternalPaths:
         """Accessor for internal paths."""
@@ -453,6 +573,26 @@ class EKO:
         self.rotations.xgrid = value
         self.metadata.update()
 
+    @property
+    def mu2grid(self) -> npt.NDArray:
+        """Provide the list of :math:`Q^2` as an array."""
+        return np.array(list(self._operators))
+
+    @property
+    def theory_card(self) -> dict:
+        """Provide theory card, retrieving from the dump."""
+        # TODO: return `eko.io.runcards.TheoryCard`
+        return yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
+
+    @property
+    def operator_card(self) -> OperatorCard:
+        """Provide operator card, retrieving from the dump."""
+        return OperatorCard.from_dict(
+            yaml.safe_load(self.paths.operator_card.read_text(encoding="utf-8"))
+        )
+
+    # operator management
+    # -------------------
     def __getitem__(self, mu2: float) -> Operator:
         r"""Retrieve operator for given :math:`\mu^2`.
 
@@ -557,11 +697,6 @@ class EKO:
         finally:
             del self[q2]
 
-    @property
-    def mu2grid(self) -> npt.NDArray:
-        """Provide the list of :math:`Q^2` as an array."""
-        return np.array(list(self._operators))
-
     def __iter__(self):
         """Iterate over keys (i.e. Q2 values).
 
@@ -648,6 +783,9 @@ class EKO:
         for q2 in self:
             del self[q2]
 
+    # operator management
+    # -------------------
+
     def deepcopy(self, path: os.PathLike):
         """Create a deep copy of current instance.
 
@@ -671,56 +809,30 @@ class EKO:
             the copy created
 
         """
-        # return the object fully on disk, in order to avoid expensive copies in
-        # memory (they would be copied on-disk in any case)
+        # return the object fully on disk, in order to avoid expensive copies
+        # also in memory (they would be copied on-disk in any case)
         self.unload()
 
         new = copy.deepcopy(self)
-        new.path = pathlib.Path(path)
-        shutil.copy2(self.path, new.path)
+        new.metadata._path = pathlib.Path(path)
+        shutil.copy2(self.paths.root, new.paths.root)
 
         return new
 
-    @property
-    def theory_card(self) -> dict:
-        """Provide theory card, retrieving from the dump."""
-        # TODO: return `eko.io.runcards.TheoryCard`
-        return yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
+    @staticmethod
+    def load(tarpath: os.PathLike, dest: os.PathLike):
+        """Load the content of archive in a target directory.
 
-    @property
-    def operator_card(self) -> OperatorCard:
-        """Provide operator card, retrieving from the dump."""
-        return OperatorCard.from_dict(
-            yaml.safe_load(self.paths.operator_card.read_text(encoding="utf-8"))
-        )
-
-    def interpolator(
-        self, mode_N: bool, use_target: bool
-    ) -> interpolation.InterpolatorDispatcher:
-        """Return associated interpolation.
-
-        Paramters
-        ---------
-        mode_N : bool
-            interpolate in N-space?
-        use_target : bool
-            use target grid? If False, use input grid
-
-        Returns
-        -------
-        interpolation.InterpolatorDispatcher
-            interpolator
+        Parameters
+        ----------
+        tarpath: os.PathLike
+            the archive to extract
+        tmppath: os.PathLike
+            the destination directory
 
         """
-        grid = self.rotations.targetgrid if use_target else self.rotations.inputgrid
-        return interpolation.InterpolatorDispatcher(
-            grid, self.operator_card.configs.interpolation_polynomial_degree, mode_N
-        )
-
-    @staticmethod
-    def load(tarpath: pathlib.Path, tmppath: pathlib.Path):
         with tarfile.open(tarpath) as tar:
-            tar.extractall(tmppath)
+            tar.extractall(dest)
 
     @classmethod
     def open(cls, path, mode="r"):
@@ -755,18 +867,46 @@ class EKO:
         """Allow EKO to be used in :obj:`with` statements."""
         return self
 
-    def dump(self):
-        with tarfile.open(self.access.path, "w") as tar:
+    def dump(self, archive: Optional[os.PathLike] = None):
+        """Dump the current content to archive.
+
+        Parameters
+        ----------
+        archive: os.PathLike or None
+            path to archive, in general you should keep the default, that will
+            make use of the registered path (default: ``None``)
+
+        Raises
+        ------
+        ValueError
+            when trying to dump on default archive in read-only mode
+
+        """
+        if archive is None:
+            if self.access.readonly:
+                raise ValueError(
+                    "Not possible to dump on default archive in read-only mode"
+                )
+            archive = self.access.path
+
+        with tarfile.open(archive, "w") as tar:
             tar.add(self.metadata._path)
 
     def close(self):
+        """Close the current object, cleaning up.
+
+        If not in read-only mode, dump to permanent storage.
+        Remove the temporary directory used.
+
+        """
         if not self.access.readonly:
             self.access.path.unlink()
             self.dump()
 
         shutil.rmtree(self.metadata._path)
 
-    def __exit__(self, exc_type: type, exc_value, traceback):
+    def __exit__(self, exc_type: type, _exc_value, _traceback):
+        """Ensure EKO to be closed properly."""
         if exc_type is not None:
             return
 
@@ -784,28 +924,3 @@ class EKO:
 
         """
         return dict(Q2grid=self.mu2grid.tolist(), metadata=self.metadata.raw)
-
-
-def init(self, metadata, operator):
-    # upgrade metadata
-    # TODO: why?
-    metadata_to_dump = copy.deepcopy(metadata)
-    metadata_to_dump["rotations"]["xgrid"] = copy.deepcopy(
-        operator["rotations"]["xgrid"]
-    )
-    metadata_to_dump["rotations"]["pids"] = br.flavor_basis_pids
-    # upgrade operator
-    # TODO: why?
-    operator_to_dump = copy.deepcopy(operator)
-    # keep only q2 grid
-    operator_to_dump["Q2grid"] = np.array(
-        list(operator_to_dump["Q2grid"].keys())
-        if isinstance(operator_to_dump["Q2grid"], dict)
-        else operator_to_dump["Q2grid"]
-    )
-    # TODO: this looks like some operations are being done twice and undone
-    operator_obj = OperatorCard.from_dict(operator_to_dump).raw
-    metadata_obj = {}
-    metadata_obj["rotations"] = Rotations.from_dict(metadata_to_dump["rotations"]).raw
-
-    return operator_obj, metadata_obj
