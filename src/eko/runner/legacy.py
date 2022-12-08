@@ -2,10 +2,10 @@
 import copy
 import logging
 
-from .. import compatibility, interpolation, msbar_masses
+from .. import interpolation, msbar_masses
 from ..couplings import Couplings
 from ..evolution_operator.grid import OperatorGrid
-from ..io import EKO, Operator
+from ..io import EKO, Operator, compatibility
 from ..thresholds import ThresholdsAtlas
 from . import commons
 
