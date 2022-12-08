@@ -2,11 +2,12 @@
 import copy
 import logging
 
-from . import compatibility, interpolation, msbar_masses
-from .couplings import Couplings
-from .evolution_operator.grid import OperatorGrid
-from .io import EKO, Operator
-from .thresholds import ThresholdsAtlas
+from .. import compatibility, interpolation, msbar_masses
+from ..couplings import Couplings
+from ..evolution_operator.grid import OperatorGrid
+from ..io import EKO, Operator
+from ..thresholds import ThresholdsAtlas
+from . import commons
 
 logger = logging.getLogger(__name__)
 
@@ -23,18 +24,10 @@ class Runner:
 
     """
 
-    banner = r"""
-oooooooooooo oooo    oooo  \\ .oooooo.
-`888'     `8 `888   .8P'  //////    `Y8b
- 888          888  d8'   \\o\/////    888
- 888oooo8     88888     \\\\/8/////   888
- 888    "     888`88b.      888 ///   888
- 888       o  888  `88b.    `88b //  d88'
-o888ooooood8 o888o  o888o     `Y8bood8P'
-"""
+    banner = commons.BANNER
 
     def __init__(self, theory_card: dict, operators_card: dict):
-        """Initialize runner.
+        """Initialie runner.
 
         Parameters
         ----------
