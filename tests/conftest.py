@@ -7,8 +7,7 @@ from contextlib import contextmanager
 import numpy as np
 import pytest
 
-from eko import output
-from eko.output import legacy
+from eko import io
 
 
 @pytest.fixture
@@ -82,13 +81,13 @@ class FakeOutput:
     def fake_output(self):
         d = self.mk_dump()
         # build data
-        obj = output.EKO.new(theory={}, operator=d)
+        obj = io.EKO.new(theory={}, operator=d)
         obj.rotations._targetgrid = d["rotations"]["xgrid"]
         obj.rotations._inputgrid = d["rotations"]["xgrid"]
         obj.rotations._targetpids = d["rotations"]["pids"]
         obj.rotations._inputpids = d["rotations"]["pids"]
         for q2, op in d["Q2grid"].items():
-            obj[q2] = output.struct.Operator.from_dict(op)
+            obj[q2] = io.struct.Operator.from_dict(op)
         return obj, d
 
     def fake_legacy(self):
@@ -96,9 +95,9 @@ class FakeOutput:
         bases = d["rotations"].copy()
 
         # build data
-        obj = output.EKO.new(theory={}, operator=d)
+        obj = io.EKO.new(theory={}, operator=d)
         for q2, op in d["Q2grid"].items():
-            obj[q2] = output.struct.Operator.from_dict(op)
+            obj[q2] = io.struct.Operator.from_dict(op)
 
         d["inputgrid"] = bases["xgrid"]
         d["targetgrid"] = bases["xgrid"]
