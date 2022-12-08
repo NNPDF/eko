@@ -26,22 +26,22 @@ def test_ekos_product():
     theory2 = cards.generate_theory(0, 10.0)
     theory_err = cards.generate_theory(0, 5.0)
 
-    eko_ini = eko.run_dglap(theory1, op1)
-    eko_fin = eko.run_dglap(theory2, op2)
+    eko_ini = eko.solve(theory1, op1)
+    eko_fin = eko.solve(theory2, op2)
     # Test_error
-    eko_fin_err = eko.run_dglap(theory_err, op2)
+    eko_fin_err = eko.solve(theory_err, op2)
     with pytest.raises(ValueError):
         _ = utils.ekos_product(eko_ini, eko_fin_err)
     # product is copied
     eko_res = utils.ekos_product(eko_ini, eko_fin, in_place=False)
 
-    assert eko_res.Q02 == eko_ini.Q02
+    assert eko_res.operator_card.mu20 == eko_ini.operator_card.mu20
     np.testing.assert_allclose(eko_res.mu2grid[1:], eko_fin.mu2grid)
     np.testing.assert_allclose(eko_ini[80.0].operator, eko_res[80.0].operator)
 
     # product overwrites initial
     eko_res2 = utils.ekos_product(eko_ini, eko_fin)
 
-    assert eko_res2.Q02 == eko_ini.Q02
+    assert eko_res2.operator_card.mu20 == eko_ini.operator_card.mu20
     np.testing.assert_allclose(eko_res2.mu2grid[1:], eko_fin.mu2grid)
     np.testing.assert_allclose(eko_res[80.0].operator, eko_res2[80.0].operator)
