@@ -5,7 +5,7 @@ import logging
 from .. import interpolation, msbar_masses
 from ..couplings import Couplings
 from ..evolution_operator.grid import OperatorGrid
-from ..io import EKO, Operator, compatibility
+from ..io import EKO, Operator, runcards
 from ..thresholds import ThresholdsAtlas
 from . import commons
 
@@ -37,7 +37,9 @@ class Runner:
             operator specific options
 
         """
-        new_theory, new_operators = compatibility.update(theory_card, operators_card)
+        legacy_cards = runcards.Legacy(theory_card, operators_card)
+        new_theory = legacy_cards.theory
+        new_operators = legacy_cards.operator
 
         # Store inputs
         self._theory = new_theory
