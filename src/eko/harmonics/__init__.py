@@ -239,6 +239,10 @@ def compute_new_sx_cache(n, s1, qcd_singlet, qed):  # TODO : change name
         Mellin moment
     s1 : float
         harmonic sum :math:`S_1(N)`
+    qcd_singlet : bool
+        True if singlet for pure QCD evolution
+    qed : bool
+        True if QED evolution activated
 
     Returns
     -------
@@ -256,7 +260,7 @@ def compute_new_sx_cache(n, s1, qcd_singlet, qed):  # TODO : change name
             g_3(n+2),
             S_1((n+1)/2),
             S_2((n+1)/2),
-            S_{3}((n+1)/2),]
+            S_{3}((n+1)/2)]
 
     """
     s1h = S1(n / 2.0)
@@ -278,10 +282,10 @@ def compute_new_sx_cache(n, s1, qcd_singlet, qed):  # TODO : change name
         S1p2 = polygamma.recursive_harmonic_sum(s1, n, 2, 1)
         g3Np2 = g_functions.mellin_g3(n + 2.0, S1p2)
         sx_qed_ns.append(g3Np2)
-        s1_np1_h = polygamma.recursive_harmonic_sum(s1_nm1_h, (n - 1) / 2, 1, 1)
+        s1_np1_h = polygamma.recursive_harmonic_sum(s1_nm1_h, (n - 1.0) / 2.0, 1, 1)
         sx_qed_ns.append(s1_np1_h)
-        s2_np1_h = polygamma.recursive_harmonic_sum(s2_nm1_h, (n - 1) / 2, 1, 2)
+        s2_np1_h = polygamma.recursive_harmonic_sum(s2_nm1_h, (n - 1.0) / 2.0, 1, 2)
         sx_qed_ns.append(s2_np1_h)
-        s3_np1_h = polygamma.recursive_harmonic_sum(s3_nm1_h, (n - 1) / 2, 1, 3)
+        s3_np1_h = polygamma.recursive_harmonic_sum(s3_nm1_h, (n - 1.0) / 2.0, 1, 3)
         sx_qed_ns.append(s3_np1_h)
     return sx_qed_ns
