@@ -1,12 +1,25 @@
 """Structures to hold runcards information."""
 from dataclasses import dataclass
-from typing import Any, Dict, Literal, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import numpy as np
 import numpy.typing as npt
 
 from .. import interpolation
 from .. import version as vmod
+from ..types import (
+    CouplingConstants,
+    EvolutionMethod,
+    FlavorsNumber,
+    FlavorsNumberRef,
+    HeavyQuarkMasses,
+    IntrinsicFlavors,
+    InversionMethod,
+    MatchingScales,
+    Order,
+    QuarkMassSchemes,
+    ScaleVariationsMethod,
+)
 from .dictlike import DictLike
 
 
@@ -14,11 +27,38 @@ from .dictlike import DictLike
 class TheoryCard(DictLike):
     """Represent theory card content."""
 
-    order: Tuple[int, int]
+    order: Order
     """Perturbatiive order tuple, ``(QCD, QED)``."""
+    couplings: CouplingConstants
+    """"""
+    num_flavs_ref: FlavorsNumberRef
+    r"""Number of active flavors at reference scale.
+
+    This is the scale :math:`\mu^2_{\text{ref}}` appearing in
+    :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`.
+
+    """
+    num_flavs_init: FlavorsNumber
+    """"""
+    num_flavs_max_as: FlavorsNumber
+    """"""
+    intrinsic_flavors: IntrinsicFlavors
+    """"""
+    quark_masses: HeavyQuarkMasses
+    """"""
+    matching: MatchingScales
+    """"""
+    heavy_quark_masses: QuarkMassSchemes
+    """Scheme used to specify heavy quark masses."""
+
+    def validate(self) -> bool:
+        """Validate attributes compatibility."""
+        if self.heavy_quark_masses:
+            return False
+        return True
 
     @classmethod
-    def load(cls, card: dict):
+    def from_dict(cls, card: dict):
         """Load from runcard raw content.
 
         Parameters
@@ -32,7 +72,9 @@ class TheoryCard(DictLike):
             the loaded instance
 
         """
-        return cls(order=tuple(card["order"]))
+        for entry in ["order", "quark_masses", "num_flavs_ref"]:
+            card[entry] = tuple(card[entry])
+        return super().from_dict(card)
 
 
 @dataclass
@@ -49,7 +91,9 @@ class Debug(DictLike):
 class Configs(DictLike):
     """Solution specific configurations."""
 
-    ev_op_max_order: Tuple[int]
+    evolution_method: EvolutionMethod
+    """Evolution mode."""
+    ev_op_max_order: Order
     """Maximum order to use in U matrices expansion.
     Used only in ``perturbative`` solutions.
     """
@@ -61,7 +105,9 @@ class Configs(DictLike):
     r"""Whether to use polynomials in :math:`\log(x)`.
     If `false`, polynomials are in :math:`x`.
     """
-    backward_inversion: Literal["exact", "expanded"]
+    scvar_method: ScaleVariationsMethod
+    """"""
+    backward_inversion: InversionMethod
     """Which method to use for backward matching conditions."""
     n_integration_cores: int = 1
     """Number of cores used to parallelize integration."""
@@ -148,7 +194,7 @@ class Rotations(DictLike):
 class OperatorCard(DictLike):
     """Operator Card info."""
 
-    Q0: float
+    mu0: float
     """Initial scale."""
 
     # collections
@@ -163,7 +209,7 @@ class OperatorCard(DictLike):
     debug: Debug
     """Debug configurations."""
 
-    Q2grid: npt.NDArray
+    mu2grid: npt.NDArray
     """Array of q2 points."""
     eko_version: Optional[str] = vmod.__version__
     """Perturbative order of the QCD and QED couplings."""
@@ -172,11 +218,71 @@ class OperatorCard(DictLike):
     def raw(self):
         """Return the raw dictionary to be dumped."""
         dictionary: Dict[str, Any] = dict(
-            Q0=float(self.Q0),
-            Q2grid=self.Q2grid.tolist(),
+            mu0=self.mu0,
+            mu2grid=self.mu2grid.tolist(),
             eko_version=self.eko_version,
         )
         dictionary["rotations"] = Rotations.from_dict(self.rotations).raw
         dictionary["configs"] = Configs.from_dict(self.configs).raw
         dictionary["debug"] = Debug.from_dict(self.debug).raw
         return dictionary
+
+
+@dataclass
+class Legacy:
+    """Upgrade legacy runcards."""
+
+    theory: dict
+    operator: dict
+
+    MOD_EV2METHOD = {
+        "EXA": "iterate-exact",
+        "EXP": "iterate-expanded",
+        "TRN": "truncated",
+    }
+    HEAVY = "cbt"
+
+    @property
+    def new_theory(self):
+        """Build new format theory runcard."""
+        old = self.theory
+        new = {}
+
+        def heavies(pattern: str):
+            return [old[pattern % q] for q in self.HEAVY]
+
+        new["order"] = [old["PTO"] + 1, old["QED"]]
+        new["couplings"] = [[old["alphas"], old["Qref"]], [old["alphaem"], 0.0]]
+        new["num_flavs_ref"] = (old["nfref"], old["Qref"])
+        new["num_flavs_init"] = old["nf0"]
+        new["num_flavs_max_as"] = old["MaxNfAs"]
+        intrinsic = []
+        for idx, q in enumerate(self.HEAVY):
+            if old[f"i{q}".upper()] == 1:
+                intrinsic.append(idx + 4)
+        new["intrinsic_flavors"] = intrinsic
+        new["matching"] = heavies("k%sThr")
+        new["heavy_quark_masses"] = old["HQ"]
+        if old["HQ"] == "POLE":
+            new["quark_masses"] = heavies("m%s")
+        elif old["HQ"] == "MSBAR":
+            new["quark_masses"] = list(zip(heavies("m%s"), heavies("Qm%s")))
+        else:
+            raise ValueError()
+
+        return TheoryCard.from_dict(new)
+
+    @property
+    def new_operator(self):
+        """Build new format operator runcard."""
+        old = self.operator
+        old_th = self.theory
+        new = {}
+
+        new["mu0"] = old_th["Q0"]
+        new["mugrid"] = np.sqrt(old["Q2grid"]).tolist()
+        evmod = old_th["EvMod"]
+        new["evolution_method"] = self.MOD_EV2METHOD.get(evmod, evmod)
+        new["inversion_method"] = old_th["backward_inversion"]
+
+        return OperatorCard.from_dict(new)
