@@ -2,7 +2,7 @@
 import numba as nb
 import numpy as np
 
-from .aHgstfac import a_Hg3
+from .aHg_param import a_Hg3
 
 
 @nb.njit(cache=True)
@@ -31,7 +31,7 @@ def A_Hg(n, sx, nf, L):
 
     See Also
     --------
-    a_Hg3: eko.matching_conditions.as3.aHgstfac.a_Hg3
+    a_Hg3: eko.matching_conditions.as3.aHg_param.a_Hg3
         Incomplete part of the |OME|  :math:`a_{Hg}^{S,(3)}(N)`.
 
     """
