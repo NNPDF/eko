@@ -2,7 +2,7 @@ r"""
 This module contains the |NNLO| |OME| for the matching conditions in the |VFNS|
 (see, :cite:`Buza_1998` appendix B).
 The expession for :math:`\mu_F^2 = m_H^2` are taken from :cite:`Vogt:2004ns` directly in N space.
-While the parts proportional to :math:`\ln(\mu^2 / m_h^2)` comes |QCDNUM|
+While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes |QCDNUM|
 (https://github.com/N3PDF/external/blob/master/qcdnum/qcdnum/pij/ome.f)
 and Mellin transformed with Mathematica.
 
@@ -30,7 +30,7 @@ def A_qq_ns(n, sx, L):
         sx : list
             harmonic sums cache
         L : float
-            :math:`\ln(\mu^2 / m_h^2)`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -85,7 +85,7 @@ def A_hq_ps(n, sx, L):
         sx : list
             harmonic sums cache
         L : float
-            :math:`\ln(\mu^2 / m_h^2)`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -149,7 +149,7 @@ def A_hg(n, sx, L):
         sx : list
             harmonic sums cache
         L : float
-            :math:`\ln(\mu^2 / m_h^2)`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -288,7 +288,7 @@ def A_gq(n, sx, L):
         sx : list
             harmonic sums cache
         L : float
-            :math:`\ln(\mu^2 / m_h^2)`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -338,7 +338,7 @@ def A_gg(n, sx, L):
         sx : list
             harmonic sums cache
         L : float
-            :math:`\ln(\mu^2 / m_h^2)`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -432,7 +432,7 @@ def A_singlet(n, sx, L, is_msbar=False):
             harmonic sums cache containing:
                 [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
         L : float
-            :math:`\ln(\mu^2 / m_h^2)`
+            :math:`\ln(\mu_F^2 / m_h^2)`
         is_msbar: bool
             add the |MSbar| contribution
 
@@ -482,7 +482,7 @@ def A_ns(n, sx, L):
             harmonic sums cache containing:
                 [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
         L : float
-            :math:`\ln(\mu^2 / m_h^2)`
+            :math:`\ln(\mu_F^2 / m_h^2)`
 
       Returns
       -------
