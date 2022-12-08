@@ -1,7 +1,9 @@
 """Common type definitions, only used for static analysis."""
 import enum
 import typing
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
+
+T = typing.TypeVar("T")
 
 Quantity = typing.TypeVar("Quantity", bound=typing.Union[int, float])
 RunningReference = Tuple[Quantity, float]
@@ -57,3 +59,6 @@ class InversionMethod(enum.Enum):
 
     EXACT = "exact"
     EXPANDED = "expanded"
+
+
+RawCard = Dict[str, Any]
