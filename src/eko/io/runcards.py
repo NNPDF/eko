@@ -212,17 +212,29 @@ class OperatorCard(DictLike):
     debug: Debug
     """Debug configurations."""
 
-    mu2grid: npt.NDArray
+    mugrid: npt.NDArray
     """Array of q2 points."""
     eko_version: Optional[str] = vmod.__version__
     """Perturbative order of the QCD and QED couplings."""
 
+    # a few properties, for ease of use and compatibility
+    @property
+    def mu20(self):
+        """Squared value of initial scale."""
+        return self.mu0**2
+
+    @property
+    def mu2grid(self):
+        """Grid of squared final scales."""
+        return self.mugrid**2
+
+    # redefine raw, to account for the nested structure
     @property
     def raw(self):
         """Return the raw dictionary to be dumped."""
         dictionary: RawCard = dict(
             mu0=self.mu0,
-            mu2grid=self.mu2grid.tolist(),
+            mugrid=self.mugrid.tolist(),
             eko_version=self.eko_version,
         )
         dictionary["rotations"] = Rotations.from_dict(self.rotations).raw
@@ -263,7 +275,7 @@ class Legacy:
         new = {}
 
         def heavies(pattern: str):
-            return [old[pattern % q] for q in self.HEAVY]
+            return {q: old[pattern % q] for q in self.HEAVY}
 
         new["order"] = [old["PTO"] + 1, old["QED"]]
         alphaem = self.fallback(old.get("alphaqed"), old.get("alphaem"), default=0.0)
@@ -281,7 +293,9 @@ class Legacy:
         if old["HQ"] == "POLE":
             new["quark_masses"] = heavies("m%s")
         elif old["HQ"] == "MSBAR":
-            new["quark_masses"] = list(zip(heavies("m%s"), heavies("Qm%s")))
+            ms = heavies("m%s")
+            mus = heavies("Qm%s")
+            new["quark_masses"] = {q: (ms[q], mus[q]) for q in self.HEAVY}
         else:
             raise ValueError()
 
@@ -325,3 +339,14 @@ class Legacy:
             new["rotations"][basis] = old[basis]
 
         return OperatorCard.from_dict(new)
+
+
+def update(theory, operator):
+    """Update legacy runcards.
+
+    This function is mainly defined for compatibility with the old interface.
+    Prefer direct usage of :cls:`Legacy` in new code.
+
+    """
+    cards = Legacy(theory, operator)
+    return cards.new_theory, cards.new_operator

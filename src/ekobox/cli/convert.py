@@ -4,7 +4,7 @@ from typing import Optional
 
 import click
 
-from eko.output import legacy
+from eko.io import legacy
 
 from .base import command
 

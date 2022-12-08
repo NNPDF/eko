@@ -16,11 +16,24 @@ FlavorsNumber = int
 FlavorsNumberRef = IntRef
 FlavorIndex = int
 IntrinsicFlavors = List[FlavorIndex]
+
+
+class HeavyQuark(typing.Generic[T]):
+    """Access heavy quarks attributes by name."""
+
+    c: T
+    """Charm quark."""
+    b: T
+    """Bottom quark."""
+    t: T
+    """Top quark."""
+
+
 QuarkMass = float
 QuarkMassRef = typing.Union[FloatRef, QuarkMass]
-HeavyQuarkMasses = Tuple[QuarkMassRef, QuarkMassRef, QuarkMassRef]
+HeavyQuarkMasses = HeavyQuark[QuarkMassRef]
 MatchingScale = float
-MatchingScales = Tuple[MatchingScale, MatchingScale, MatchingScale]
+MatchingScales = HeavyQuark[MatchingScale]
 
 # TODO: upgrade all the following to StrEnum, new in py3.11
 # with that, it is possible to replace all non-alias right sides with calls to

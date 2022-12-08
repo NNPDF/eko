@@ -7,9 +7,10 @@ import tempfile
 import numpy as np
 import pytest
 
+import eko
 from eko import basis_rotation as br
-from eko import interpolation, output
-from eko.output import legacy, manipulate
+from eko import interpolation
+from eko.io import legacy, manipulate
 
 
 def eko_identity(shape):
@@ -32,7 +33,7 @@ class TestLegacy:
         # create object
         o1, fake_card = fake_legacy
         for q2, op in fake_card["Q2grid"].items():
-            o1[q2] = output.Operator.from_dict(op)
+            o1[q2] = eko.io.Operator.from_dict(op)
         # test streams
         stream = io.StringIO()
         legacy.dump_yaml(o1, stream)
@@ -41,7 +42,7 @@ class TestLegacy:
         o2 = legacy.load_yaml(stream)
         np.testing.assert_almost_equal(o1.xgrid.raw, fake_card["interpolation_xgrid"])
         np.testing.assert_almost_equal(o2.xgrid.raw, fake_card["interpolation_xgrid"])
-        # fake output files
+        # fake eko.io files
         fpyaml = tmp_path / "test.yaml"
         legacy.dump_yaml_to_file(o1, fpyaml)
         # fake input file
@@ -61,7 +62,7 @@ class TestLegacy:
         # create object
         o1, fake_card = fake_legacy
         for q2, op in fake_card["Q2grid"].items():
-            o1[q2] = output.Operator.from_dict(op)
+            o1[q2] = eko.io.Operator.from_dict(op)
 
         with tempfile.TemporaryDirectory() as folder:
             # dump
@@ -81,7 +82,7 @@ class TestLegacy:
         # create object
         o1, fake_card = fake_legacy
         for q2, op in fake_card["Q2grid"].items():
-            o1[q2] = output.Operator.from_dict(op)
+            o1[q2] = eko.io.Operator.from_dict(op)
         # test streams
         stream = io.StringIO()
         legacy.dump_yaml(o1, stream, False)
@@ -101,7 +102,7 @@ class TestManipulate:
         o1.rotations._targetgrid = xg
         o1.rotations._inputgrid = xg
         o1._operators = {
-            10: output.Operator.from_dict(
+            10: eko.io.Operator.from_dict(
                 dict(
                     operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
                     error=np.zeros((2, len(xg), 2, len(xg))),
@@ -145,7 +146,7 @@ class TestManipulate:
         # create object
         o1, fake_card = fake_output
         for q2, op in fake_card["Q2grid"].items():
-            o1[q2] = output.Operator.from_dict(op)
+            o1[q2] = eko.io.Operator.from_dict(op)
         o2 = copy.deepcopy(o1)
         manipulate.xgrid_reshape(
             o2, interpolation.XGrid([0.1, 1.0]), interpolation.XGrid([0.1, 1.0])
@@ -166,7 +167,7 @@ class TestManipulate:
         o1.xgrid = xg
         o1.rotations._targetgrid = xg
         o1.rotations._inputgrid = xg
-        o1[10.0] = output.Operator.from_dict(
+        o1[10.0] = eko.io.Operator.from_dict(
             dict(
                 operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
                 error=np.zeros((2, len(xg), 2, len(xg))),
@@ -238,8 +239,8 @@ class TestManipulate:
                 backward_inversion="exact",
             ),
         )
-        o00 = output.EKO.new(theory={}, operator=d)
-        o00[q2_out] = output.Operator(**Q2grid[q2_out])
+        o00 = eko.io.EKO.new(theory={}, operator=d)
+        o00[q2_out] = eko.io.Operator(**Q2grid[q2_out])
         o01 = o00.deepcopy(tmp_path / "o01.tar")
         manipulate.to_evol(o01)
         o10 = o00.deepcopy(tmp_path / "o10.tar")

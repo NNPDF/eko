@@ -1,8 +1,8 @@
 from banana import toy
 
 import eko
-import eko.output.legacy as out
-from eko import compatibility
+import eko.io.legacy as out
+from eko.io import runcards
 from ekobox import cards
 from ekobox import evol_pdf as ev_p
 
@@ -21,7 +21,7 @@ def test_evolve_pdfs_run(fake_lhapdf, cd):
     mytmp = fake_lhapdf / "install"
     mytmp.mkdir()
     store_path = mytmp / "test.tar"
-    nt, no = compatibility.update(theory, op)
+    nt, no = runcards.update(theory, op)
     with cd(mytmp):
         ev_p.evolve_pdfs(
             [toy.mkPDF("", 0)], nt, no, install=True, name=n, store_path=store_path
@@ -36,9 +36,9 @@ def test_evolve_pdfs_run(fake_lhapdf, cd):
 
 def test_evolve_pdfs_dump_path(fake_lhapdf, cd):
     n = "test_evolve_pdfs_dump_path"
-    nt, no = compatibility.update(theory, op)
+    nt, no = runcards.update(theory, op)
     peko = fake_lhapdf / ev_p.ekofileid(nt, no)
-    out.dump_tar(eko.run_dglap(nt, no), peko)
+    out.dump_tar(eko.solve(nt, no), peko)
     assert peko.exists()
     with cd(fake_lhapdf):
         ev_p.evolve_pdfs([toy.mkPDF("", 0)], nt, no, name=n, path=fake_lhapdf)
@@ -48,9 +48,9 @@ def test_evolve_pdfs_dump_path(fake_lhapdf, cd):
 
 def test_evolve_pdfs_dump_file(fake_lhapdf, cd):
     n = "test_evolve_pdfs_dump_file"
-    nt, no = compatibility.update(theory, op)
+    nt, no = runcards.update(theory, op)
     peko = fake_lhapdf / ev_p.ekofileid(nt, no)
-    out.dump_tar(eko.run_dglap(nt, no), peko)
+    out.dump_tar(eko.solve(nt, no), peko)
     assert peko.exists()
     with cd(fake_lhapdf):
         ev_p.evolve_pdfs([toy.mkPDF("", 0)], nt, no, name=n, path=peko)

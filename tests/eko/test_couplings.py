@@ -5,7 +5,7 @@
 import numpy as np
 import pytest
 
-from eko import compatibility, thresholds
+from eko import thresholds
 from eko.couplings import Couplings
 
 
