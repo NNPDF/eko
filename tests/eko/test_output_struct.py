@@ -6,8 +6,8 @@ import numpy.typing as npt
 import pytest
 import yaml
 
-from eko import compatibility, interpolation, output
-from eko.output import struct
+from eko import interpolation
+from eko.io import runcards, struct
 from ekobox import cards
 
 
@@ -130,7 +130,7 @@ class TestEKO:
     def _default_cards(self):
         t = cards.generate_theory(0, 1.0)
         o = cards.generate_operator([10.0])
-        nt, no = compatibility.update(t, o)
+        nt, no = runcards.update(t, o)
         no["rotations"]["pids"] = no["rotations"]["targetpids"]
         return nt, no
 
@@ -264,7 +264,7 @@ class TestLegacy:
         """Test autodump, autoload, and manual unload."""
         eko, fake_card = fake_output
         for q2, op in fake_card["Q2grid"].items():
-            eko[q2] = output.Operator.from_dict(op)
+            eko[q2] = eko.io.Operator.from_dict(op)
 
         q2 = next(iter(fake_card["Q2grid"]))
 
@@ -280,7 +280,7 @@ class TestLegacy:
         """Test managed iteration."""
         eko, fake_card = fake_output
         for q2, op in fake_card["Q2grid"].items():
-            eko[q2] = output.Operator.from_dict(op)
+            eko[q2] = eko.io.Operator.from_dict(op)
 
         q2prev = None
         for q2, op in eko.items():
@@ -293,7 +293,7 @@ class TestLegacy:
         """Test automated handling through context."""
         eko, fake_card = fake_output
         for q2, op in fake_card["Q2grid"].items():
-            eko[q2] = output.Operator.from_dict(op)
+            eko[q2] = eko.io.Operator.from_dict(op)
 
         q2 = next(iter(fake_card["Q2grid"]))
 

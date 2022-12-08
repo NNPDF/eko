@@ -1,8 +1,9 @@
+"""Generic utilities to work with EKOs."""
 import copy
 
 import numpy as np
 
-from eko.output import EKO, Operator
+from eko.io.struct import EKO, Operator
 
 
 # TODO: add a control on the theory (but before we need to implement another
@@ -10,7 +11,7 @@ from eko.output import EKO, Operator
 def ekos_product(
     eko_ini: EKO, eko_fin: EKO, rtol: float = 1e-6, atol: float = 1e-10, in_place=True
 ) -> EKO:
-    """Returns the product of two ekos
+    """Return the product of two ekos.
 
     Parameters
     ----------
@@ -31,14 +32,16 @@ def ekos_product(
         eko operator
 
     """
-    q2match = eko_ini.approx(eko_fin.Q02, rtol=rtol, atol=atol)
+    q2match = eko_ini.approx(eko_fin.operator_card.mu0**2, rtol=rtol, atol=atol)
     if q2match is None:
         raise ValueError(
             "Initial Q2 of final eko operator does not match any final Q2 in"
             " the initial eko operator"
         )
     ope1 = eko_ini[q2match].operator.copy()
-    ope1_error = eko_ini[q2match].error.copy()
+    ope1_error = eko_ini[q2match].error
+    if ope1_error is not None:
+        ope1_error = ope1_error.copy()
 
     ope2_dict = {}
     ope2_error_dict = {}
@@ -52,9 +55,13 @@ def ekos_product(
     for q2, op2 in ope2_dict.items():
         final_op_dict[q2] = np.einsum("ajbk,bkcl -> ajcl", ope1, op2)
 
-        final_op_error_dict[q2] = np.einsum(
-            "ajbk,bkcl -> ajcl", ope1, ope2_error_dict[q2]
-        ) + np.einsum("ajbk,bkcl -> ajcl", ope1_error, op2)
+        ope2_error = ope2_error_dict[q2]
+        if ope1_error is not None and ope2_error is not None:
+            final_op_error_dict[q2] = np.einsum(
+                "ajbk,bkcl -> ajcl", ope1, ope2_error
+            ) + np.einsum("ajbk,bkcl -> ajcl", ope1_error, op2)
+        else:
+            final_op_error_dict[q2] = None
 
         final_dict[q2] = {
             "operator": final_op_dict[q2],
@@ -72,9 +79,12 @@ def ekos_product(
 
         op = np.einsum("ajbk,bkcl -> ajcl", ope1, op2.operator)
 
-        error = np.einsum("ajbk,bkcl -> ajcl", ope1, op2.error) + np.einsum(
-            "ajbk,bkcl -> ajcl", ope1_error, op2.operator
-        )
+        if ope1_error is not None and op2.error is not None:
+            error = np.einsum("ajbk,bkcl -> ajcl", ope1, op2.error) + np.einsum(
+                "ajbk,bkcl -> ajcl", ope1_error, op2.operator
+            )
+        else:
+            error = None
 
         final_eko[q2] = Operator(operator=op, error=error)
 

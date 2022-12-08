@@ -4,9 +4,8 @@ import pathlib
 import numpy as np
 
 import eko
-import eko.output.legacy
 from eko import basis_rotation as br
-from eko import compatibility
+from eko.io import legacy
 from ekomark import apply
 
 from . import genpdf, info_file
@@ -52,13 +51,13 @@ def evolve_pdfs(
         my_path = pathlib.Path(path)
         if my_path.is_dir():
             outpath = my_path / ekofileid(theory_card, operators_card)
-            eko_output = eko.output.legacy.load_tar(outpath)
+            eko_output = legacy.load_tar(outpath)
         else:
-            eko_output = eko.output.legacy.load_tar(my_path)
+            eko_output = legacy.load_tar(my_path)
     else:
-        eko_output = eko.run_dglap(theory_card, operators_card)
+        eko_output = eko.solve(theory_card, operators_card)
         if store_path is not None:
-            eko.output.legacy.dump_tar(eko_output, store_path)
+            legacy.dump_tar(eko_output, store_path)
 
     evolved_PDF_list = []
     for initial_PDF in initial_PDF_list:

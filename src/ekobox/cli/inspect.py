@@ -4,7 +4,7 @@ import pathlib
 import click
 import rich
 
-from eko.output import EKO
+from eko.io import EKO
 
 from .base import command
 from .library import OUTPUT
