@@ -4,20 +4,24 @@ import numpy as np
 
 
 @nb.njit(cache=True)
-def A_Hgstfac(n, sx, nf):
-    r"""Computes the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)`
-    proportional to :math:`T_{F}`.
-    The expression is presented in :cite:`Blumlein:2017wxd` (eq 3.1).
+def a_Hg3(n, sx, nf):
+    r"""Computes the approximate part of :math:`a_{Hg}^{S,(3)}(N)`.
+    
+    This is composed by two different part:
+        1. the known part proportional to :math:`T_{F}` and 
+        presented in :cite:`Blumlein:2017wxd` (eq 3.1).
+
+        2. A parametrized part for the unknown factors, 
+        which is constructed from the 5 lowest moments
+        presented in :cite:`Bierenbaum:2009mv` (eq 8.50-8.54) and the 
+        |LL| small-x contribution from :math:`Kawamura:2012cr` (eq 3.47)
+
+    The parametrized part has been tested to be in reasonable agreement 
+    with the one provided in :math:`Kawamura:2012cr` (eq 3.49, 3.50).
+    The :math:`n_f` part is exact.
 
     When using the code, please cite the complete list of references
     available in :mod:`eko.matching_conditions.as3`.
-
-    The expression contains some unknown parts which are set to 0.
-    However we have included a shift to impose the gluon
-    momentum conservation for both the parts proportional to
-    :math:`n_{f}^{0,1}` independently.
-    In oder to do a minimal corrections we have added terms which
-    can modify only the sub-leading terms for N to 0,1,infinity.
 
     Parameters
     ----------
@@ -35,10 +39,18 @@ def A_Hgstfac(n, sx, nf):
     S2, Sm2 = sx[1]
     S3, S21, _, Sm21, _, Sm3 = sx[2]
     S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
-    momentum_conservation_shift = (
-        -136.47358087568801 / n**3 * nf - 375.88217393160176 / n**2
+    parametrized_part = (
+        -(6649.4461758486095 / n**2)
+        + (-7592.941358147846 + 6307.239141492633 * n) / (-1.0 + n) ** 2
+        + (
+            -4874.067051829699
+            - 834.8649717514339 * S1
+            - 106.571000154652 * S1**2
+            - 228.16722542830036 * S1**3
+        )
+        / n
     )
-    return momentum_conservation_shift + (
+    return parametrized_part + (
         (-1.0684950250307503 * (2.0 + n + np.power(n, 2))) / (n * (1.0 + n) * (2.0 + n))
         + 1.3333333333333333
         * (

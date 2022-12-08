@@ -2,11 +2,11 @@
 import numba as nb
 import numpy as np
 
-from .aHgstfac import A_Hgstfac
+from .aHgstfac import a_Hg3
 
 
 @nb.njit(cache=True)
-def A_Hg(n, sx, nf, L):  # pylint: disable=too-many-locals
+def A_Hg(n, sx, nf, L):
     r"""Computes the |N3LO| singlet |OME| :math:`A_{Hg}^{S,(3)}(N)`.
     The expression is presented in :cite:`Bierenbaum:2009mv`.
 
@@ -31,8 +31,8 @@ def A_Hg(n, sx, nf, L):  # pylint: disable=too-many-locals
 
     See Also
     --------
-    A_Hgstfac: eko.matching_conditions.as3.aHgstfac.A_Hgstfac
-        Incomplete part of the |OME|.
+    a_Hg3: eko.matching_conditions.as3.aHgstfac.a_Hg3
+        Incomplete part of the |OME|  :math:`a_{Hg}^{S,(3)}(N)`.
 
     """
     S1, _ = sx[0]
@@ -40,7 +40,7 @@ def A_Hg(n, sx, nf, L):  # pylint: disable=too-many-locals
     S3, S21, _, Sm21, _, Sm3 = sx[2]
     S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
     a_Hg_l0 = (
-        A_Hgstfac(n, sx, nf)
+        a_Hg3(n, sx, nf)
         + (1.0684950250307503 * (2.0 + n + np.power(n, 2)))
         / (n * (1.0 + n) * (2.0 + n))
         + 0.3333333333333333
