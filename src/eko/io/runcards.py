@@ -1,10 +1,11 @@
 """Structures to hold runcards information."""
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Optional
 
 import numpy as np
 import numpy.typing as npt
 
+from .. import basis_rotation as br
 from .. import interpolation
 from .. import version as vmod
 from ..types import (
@@ -18,7 +19,9 @@ from ..types import (
     MatchingScales,
     Order,
     QuarkMassSchemes,
+    RawCard,
     ScaleVariationsMethod,
+    T,
 )
 from .dictlike import DictLike
 
@@ -217,7 +220,7 @@ class OperatorCard(DictLike):
     @property
     def raw(self):
         """Return the raw dictionary to be dumped."""
-        dictionary: Dict[str, Any] = dict(
+        dictionary: RawCard = dict(
             mu0=self.mu0,
             mu2grid=self.mu2grid.tolist(),
             eko_version=self.eko_version,
@@ -232,8 +235,8 @@ class OperatorCard(DictLike):
 class Legacy:
     """Upgrade legacy runcards."""
 
-    theory: dict
-    operator: dict
+    theory: RawCard
+    operator: RawCard
 
     MOD_EV2METHOD = {
         "EXA": "iterate-exact",
@@ -241,6 +244,17 @@ class Legacy:
         "TRN": "truncated",
     }
     HEAVY = "cbt"
+
+    @staticmethod
+    def fallback(*args: T, default: Optional[T] = None) -> T:
+        """Return the first not None argument."""
+        for arg in args:
+            if arg is not None:
+                return arg
+
+        if default is None:
+            return args[-1]
+        return default
 
     @property
     def new_theory(self):
@@ -252,7 +266,8 @@ class Legacy:
             return [old[pattern % q] for q in self.HEAVY]
 
         new["order"] = [old["PTO"] + 1, old["QED"]]
-        new["couplings"] = [[old["alphas"], old["Qref"]], [old["alphaem"], 0.0]]
+        alphaem = self.fallback(old.get("alphaqed"), old.get("alphaem"), default=0.0)
+        new["couplings"] = [[old["alphas"], old["Qref"]], [alphaem, 0.0]]
         new["num_flavs_ref"] = (old["nfref"], old["Qref"])
         new["num_flavs_init"] = old["nf0"]
         new["num_flavs_max_as"] = old["MaxNfAs"]
@@ -284,5 +299,29 @@ class Legacy:
         evmod = old_th["EvMod"]
         new["evolution_method"] = self.MOD_EV2METHOD.get(evmod, evmod)
         new["inversion_method"] = old_th["backward_inversion"]
+
+        new["configs"] = {}
+        for k in (
+            "interpolation_polynomial_degree",
+            "interpolation_is_log",
+            "ev_op_iterations",
+            "backward_inversion",
+            "n_integration_cores",
+        ):
+            new["configs"][k] = old[k]
+        max_order = old["ev_op_max_order"]
+        if isinstance(max_order, int):
+            new["configs"]["ev_op_max_order"] = [max_order, old_th["QED"]]
+
+        new["debug"] = {}
+        lpref = len("debug_")
+        for k in ("debug_skip_non_singlet", "debug_skip_singlet"):
+            new["debug"][k[lpref:]] = old[k]
+
+        new["rotations"] = {}
+        new["rotations"]["pids"] = old.get("pids", br.flavor_basis_pids)
+        new["rotations"]["xgrid"] = old["interpolation_xgrid"]
+        for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
+            new["rotations"][basis] = old[basis]
 
         return OperatorCard.from_dict(new)
