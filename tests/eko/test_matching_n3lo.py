@@ -21,11 +21,8 @@ def test_A_3():
 
         N = 2.0
         sx_cache = compute_cache(N, 5, True)
-        # reference value comes form Mathematica, Hg is not fully complete
-        # thus the reference value is not 0.0 but 145.14813631128334.
-        # Here we have imposed a small shift in A_Hgstfac such that
-        # both the part proportional to nf^0 and nf^1 will vanish.
-        # The accuracy of this test depends on the approximation of AggTF2.
+        # The accuracy of this test depends on the approximation of aHg3.
+        # which is not fully available.
         atol = 2e-4 if L == 0 else 2e-3
         np.testing.assert_allclose(
             as3.A_gg(N, sx_cache, nf, L)
@@ -46,9 +43,10 @@ def test_A_3():
             atol = 2e-5
             N = 2.0 + eps
             sx_cache = compute_cache(N, 5, True)
+            ns_sx_cache = compute_cache(N, 5, False)
             np.testing.assert_allclose(
                 as3.A_gq(N, sx_cache, nf, L)
-                + as3.A_qqNS(N, sx_cache, nf, L)
+                + as3.A_qqNS(N, ns_sx_cache, nf, L)
                 + as3.A_qqPS(N, sx_cache, nf, L)
                 + as3.A_Hq(N, sx_cache, nf, L),
                 0,
@@ -84,9 +82,21 @@ def test_Blumlein_3():
         ],
         10: [-18344.3, -41742.6, -50808.5, -61319.1, -108626.0],
     }
-    ref_val_ggTF2 = {
-        0: [-33.4281, -187.903, -239.019, -294.571, -524.765],
-        10: [-33.4281, -187.903, -239.019, -294.571, -524.765],
+    ref_val_a_gg = {
+        0: [
+            30.3552,
+            1278.452724646308,
+            1657.6142867299966,
+            2043.4730165095527,
+            3477.048152567501,
+        ],
+        10: [
+            30.3552,
+            1278.452724646308,
+            1657.6142867299966,
+            2043.4730165095527,
+            3477.048152567501,
+        ],
     }
     # diverging for N=2
     ref_val_gq = {
@@ -94,7 +104,13 @@ def test_Blumlein_3():
         10: [0, 4408.98, 2488.62, 1281.9650, 53.907],
     }
     ref_val_Hg = {
-        0: [461.219, 682.728, 676.549, 626.857, 294.313],
+        0: [
+            461.2193170394263,
+            682.7275943268593,
+            676.5491752546094,
+            626.8567254890951,
+            294.3132833764657,
+        ],
         10: [
             18487.47133439009,
             23433.42707514685,
@@ -103,20 +119,20 @@ def test_Blumlein_3():
             3386.8649353946803,
         ],
     }
-    ref_val_Hgstfac = {
+    ref_val_a_Hg = {
         0: [
-            109.766 - 145.148,
-            64.7224 - 29.8898,
-            25.1745 - 12.3366,
-            -11.5071 - 4.16824,
-            -37.9846 - 0.0379976,
+            -99.16581867356965,
+            -676.0759818186247,
+            -768.6183629349141,
+            -789.7519719852811,
+            -414.2873373741821,
         ],
         10: [
-            109.766 - 145.148,
-            64.7224 - 29.8898,
-            25.1745 - 12.3366,
-            -11.5071 - 4.16824,
-            -37.9846 - 0.0379976,
+            -99.16581867356965,
+            -676.0759818186247,
+            -768.6183629349141,
+            -789.7519719852811,
+            -414.2873373741821,
         ],
     }
     ref_val_Hq = {
@@ -156,13 +172,13 @@ def test_Blumlein_3():
             aS3 = A_singlet(N, sx_cache, ns_sx_cache, nf, L)
 
             np.testing.assert_allclose(
-                aS3[0, 0], ref_val_gg[L][idx] + ref_val_ggTF2[L][idx], rtol=3e-6
+                aS3[0, 0], ref_val_gg[L][idx] + ref_val_a_gg[L][idx], rtol=3e-6
             )
 
             np.testing.assert_allclose(aS3[0, 1], ref_val_gq[L][idx], rtol=2e-6)
             np.testing.assert_allclose(aS3[1, 0], ref_val_qg[L][idx], rtol=2e-6)
             np.testing.assert_allclose(
-                aS3[2, 0], ref_val_Hg[L][idx] + ref_val_Hgstfac[L][idx], rtol=2e-6
+                aS3[2, 0], ref_val_Hg[L][idx] + ref_val_a_Hg[L][idx], rtol=6e-6
             )
 
             np.testing.assert_allclose(
@@ -180,10 +196,10 @@ def test_Blumlein_3():
     # Here we test the critical parts
     for idx, N in enumerate([2.0, 4.0, 6.0, 10.0, 100.0]):
         sx_cache = compute_cache(N, 5, True)
-        Aggtf2 = as3.aggTF2.A_ggTF2(N, sx_cache)
-        np.testing.assert_allclose(Aggtf2, ref_val_ggTF2[0][idx], rtol=3e-6)
+        agg3 = as3.agg.a_gg3(N, sx_cache, nf)
+        np.testing.assert_allclose(agg3, ref_val_a_gg[0][idx], rtol=3e-6)
         np.testing.assert_allclose(
-            as3.agg.A_gg(N, sx_cache, nf, L=0) - Aggtf2,
+            as3.agg.A_gg(N, sx_cache, nf, L=0) - agg3,
             ref_val_gg[0][idx],
             rtol=3e-6,
         )
@@ -193,7 +209,7 @@ def test_Blumlein_3():
     for N, ref in zip([3.0, 15.0, 101.0], ref_qqNS_odd):
         sx_cache = compute_cache(N, 5, False)
         np.testing.assert_allclose(
-            as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0), ref, rtol=1e-4
+            as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0), ref, rtol=5e-4
         )
 
 
