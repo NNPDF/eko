@@ -8,6 +8,7 @@ from .. import constants
 from . import as1
 from . import asp1
 
+
 @nb.njit(cache=True)
 def gamma_phq(N):
     """

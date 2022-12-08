@@ -41,6 +41,7 @@ def test_quad_ker(monkeypatch):
             as0=2,
             as_raw=1,
             nf=3,
+            p=False,
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=(0, 0),
@@ -61,6 +62,7 @@ def test_quad_ker(monkeypatch):
             as0=2,
             as_raw=1,
             nf=3,
+            p=False,
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=(0, 0),
@@ -81,6 +83,7 @@ def test_quad_ker(monkeypatch):
             as0=2,
             as_raw=1,
             nf=3,
+            p=False,
             L=0,
             ev_op_iterations=0,
             ev_op_max_order=(0, 0),
@@ -103,6 +106,7 @@ def test_quad_ker(monkeypatch):
                 as0=2,
                 as_raw=1,
                 nf=3,
+                p=False,
                 L=0,
                 ev_op_iterations=0,
                 ev_op_max_order=(1, 0),
@@ -125,6 +129,7 @@ def test_quad_ker(monkeypatch):
         as0=2,
         as_raw=1,
         nf=3,
+        p=False,
         L=0,
         ev_op_iterations=0,
         ev_op_max_order=(0, 0),
@@ -366,13 +371,13 @@ class TestOperator:
 
 def test_pegasus_path():
     def quad_ker_pegasus(
-        u, order, mode0, method, logx, areas, a1, a0, nf, ev_op_iterations
+        u, order, mode0, method, logx, areas, a1, a0, nf, p, ev_op_iterations
     ):
         # compute the mellin inversion as done in pegasus
         phi = 3 / 4 * np.pi
         c = 1.9
         n = complex(c + u * np.exp(1j * phi))
-        gamma_ns = ad.gamma_ns(order, mode0, n, nf)
+        gamma_ns = ad.gamma_ns(order, mode0, n, nf, p)
         ker = ns.dispatcher(
             order,
             method,
@@ -397,6 +402,7 @@ def test_pegasus_path():
     as_raw = a1 = 1
     a0 = 2
     nf = 3
+    p = False
     L = 0
     ev_op_iterations = 10
     for logx in logxs:
@@ -417,6 +423,7 @@ def test_pegasus_path():
                     a0,
                     as_raw,
                     nf,
+                    p,
                     L,
                     ev_op_iterations,
                     10,
@@ -442,6 +449,7 @@ def test_pegasus_path():
                     a1,
                     a0,
                     nf,
+                    p,
                     ev_op_iterations,
                 ),
                 epsabs=1e-12,

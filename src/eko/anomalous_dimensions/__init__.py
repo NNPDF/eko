@@ -19,9 +19,9 @@ terms of the anomalous dimensions (note the additional sign!)
 import numba as nb
 import numpy as np
 
-from eko import basis_rotation as br
-from eko import harmonics
-from eko.anomalous_dimensions import aem1, aem2, as1, as1aem1, as2, as3, as4, asp1, apem1
+from .. import basis_rotation as br
+from .. import harmonics
+from . import aem1, aem2, as1, as1aem1, as2, as3, as4, asp1
 
 
 @nb.njit(cache=True)
@@ -122,12 +122,12 @@ def gamma_ns(order, mode, n, nf, p):
         sx = harmonics.sx(n, max_weight=order[0] + 1)
     # now combine
     gamma_ns = np.zeros(order[0], np.complex_)
-    if p==False:
+    if p == False:
         gamma_ns[0] = as1.gamma_ns(n, sx[0])
-    elif p==True:
+    elif p == True:
         gamma_ns[0] = asp1.gamma_pns(n, sx[0])
     # NLO and beyondd
-    if order[0] >= 2 and p==False:
+    if order[0] >= 2 and p == False:
         if mode == 10101:
             gamma_ns_1 = as2.gamma_nsp(n, nf, sx)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
@@ -137,11 +137,11 @@ def gamma_ns(order, mode, n, nf, p):
             raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
 
-    elif order[0] >= 2 and p==True:
+    elif order[0] >= 2 and p == True:
         raise Exception("Polarised case is not known at this order")
 
     # NNLO and beyond
-    if order[0] >= 3 and p==False:
+    if order[0] >= 3 and p == False:
         if mode == 10101:
             gamma_ns_2 = as3.gamma_nsp(n, nf, sx)
         elif mode == 10201:
@@ -150,11 +150,11 @@ def gamma_ns(order, mode, n, nf, p):
             gamma_ns_2 = as3.gamma_nsv(n, nf, sx)
         gamma_ns[2] = gamma_ns_2
 
-    elif order[0] >= 3 and p==True:
+    elif order[0] >= 3 and p == True:
         raise Exception("Polarised case is not known at this order")
 
     # N3LO
-    if order[0] >= 4 and p==False:
+    if order[0] >= 4 and p == False:
         if mode == 10101:
             gamma_ns_3 = as4.gamma_nsp(n, nf, full_sx_cache)
         elif mode == 10201:
@@ -163,7 +163,7 @@ def gamma_ns(order, mode, n, nf, p):
             gamma_ns_3 = as4.gamma_nsv(n, nf, full_sx_cache)
         gamma_ns[3] = gamma_ns_3
 
-    elif order[0] >= 4 and p==True:
+    elif order[0] >= 4 and p == True:
         raise Exception("Polarised case is not known at this order")
 
     return gamma_ns
@@ -180,7 +180,7 @@ def gamma_singlet(order, n, nf, p):
     n : complex
         Mellin variable
     nf : int
-        Number of active flavors    
+        Number of active flavors
     p : Boolean
         Polarised (True) or un-Polarised (False)
     Returns
@@ -214,26 +214,25 @@ def gamma_singlet(order, n, nf, p):
         sx = harmonics.sx(n, max_weight=order[0])
 
     gamma_s = np.zeros((order[0], 2, 2), np.complex_)
-    
+
     if p == False:
         gamma_s[0] = as1.gamma_singlet(n, sx[0], nf)
     elif p == True:
         gamma_s[0] = asp1.gamma_psinglet(n, sx[0], nf)
 
-
-    if order[0] >= 2 and p== False:
+    if order[0] >= 2 and p == False:
         gamma_s[1] = as2.gamma_singlet(n, nf, sx)
-    elif order[0] >= 2 and p== True:
+    elif order[0] >= 2 and p == True:
         raise Exception("Polarised case is not known at this order")
 
-    if order[0] >= 3 and p== False:
+    if order[0] >= 3 and p == False:
         gamma_s[2] = as3.gamma_singlet(n, nf, sx)
-    elif order[0] >=3 and p== True:
+    elif order[0] >= 3 and p == True:
         raise Exception("Polarised case is not known at this order")
 
-    if order[0] >= 4 and p==False:
+    if order[0] >= 4 and p == False:
         gamma_s[3] = as4.gamma_singlet(n, nf, full_sx_cache)
-    elif order[0] >= 4 and p==True:
+    elif order[0] >= 4 and p == True:
         raise Exception("Polarised case is not known at this order")
 
     return gamma_s

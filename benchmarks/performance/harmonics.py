@@ -17,12 +17,12 @@ class TimeSuite:
 
     def time_as1_sing(self):
         for n in self.ns:
-            ad.gamma_singlet(0, n, NF)
+            ad.gamma_singlet(0, n, NF, p=False)
 
     def time_as2_sing(self):
         for n in self.ns:
-            ad.gamma_singlet(1, n, NF)
+            ad.gamma_singlet(1, n, NF, p=False)
 
     def time_as3_sing(self):
         for n in self.ns:
-            ad.gamma_singlet(2, n, NF)
+            ad.gamma_singlet(2, n, NF, p=False)

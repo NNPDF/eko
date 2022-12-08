@@ -4,26 +4,24 @@
 import numba as nb
 import numpy as np
 
-from eko import constants
-from eko.anomalous_dimensions.as1 import gamma_ns as gamma_pns 
+from .. import constants
+from .as1 import gamma_ns as gamma_pns
 
+# @nb.njit(cache=True)
+# def gamma_pns(N, s1):
+# Computes the leading-order non-singlet anomalous dimension for the polarised case.
+# This is going to be the same expression as the one for the unpolarised case.
 
-#@nb.njit(cache=True)
-#def gamma_pns(N, s1):
-    #Computes the leading-order non-singlet anomalous dimension for the polarised case. 
-    #This is going to be the same expression as the one for the unpolarised case.
-
-   # gamma = -(3.0 - 4.0 * s1 + 2.0 / N / (N + 1.0))
-   # result = constants.CF * gamma
-   # return result
-
+# gamma = -(3.0 - 4.0 * s1 + 2.0 / N / (N + 1.0))
+# result = constants.CF * gamma
+# return result
 
 
 @nb.njit(cache=True)
 def gamma_pqg(N, nf):
     """
     Computes the leading-order polarised quark-gluon anomalous dimension
-    #requires citation 
+    #requires citation
 
     Parameters
     ----------
@@ -37,7 +35,7 @@ def gamma_pqg(N, nf):
       gamma_qg : complex
         Leading-order polarised quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
-    gamma = (N-1) / N / (N+1)
+    gamma = (N - 1) / N / (N + 1)
     result = 2.0 * constants.TR * 2.0 * nf * gamma
     return result
 
@@ -58,10 +56,9 @@ def gamma_pgq(N):
       gamma_gq : complex
         Leading-order gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(0)}(N)`
     """
-    gamma =  (N+2) / N / (N+1)
+    gamma = (N + 2) / N / (N + 1)
     result = 2.0 * constants.CF * gamma
     return result
-
 
 
 @nb.njit(cache=True)
@@ -84,10 +81,13 @@ def gamma_pgg(N, s1, nf):
       gamma_gg : complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    gamma = s1- 2 / N / (N+1)
+    gamma = s1 - 2 / N / (N + 1)
     result = constants.CA * (4.0 * gamma - 11.0 / 3.0) + 4.0 / 3.0 * constants.TR * nf
     return result
-#I think that there is a problem with the sign here (maybe the constants have the opp. sign)
+
+
+# I think that there is a problem with the sign here (maybe the constants have the opp. sign)
+
 
 @nb.njit(cache=True)
 def gamma_psinglet(N, s1, nf):
@@ -123,12 +123,7 @@ def gamma_psinglet(N, s1, nf):
     """
     gamma_pqq = gamma_pns(N, s1)
     gamma_pS_0 = np.array(
-        [[gamma_pqq, gamma_pqg(N, nf)], [gamma_pgq(N), gamma_pgg(N, s1, nf)]], np.complex_
+        [[gamma_pqq, gamma_pqg(N, nf)], [gamma_pgq(N), gamma_pgg(N, s1, nf)]],
+        np.complex_,
     )
     return gamma_pS_0
-
-
-
-   
-       
-       

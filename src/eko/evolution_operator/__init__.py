@@ -11,13 +11,13 @@ from multiprocessing import Pool
 
 import numba as nb
 import numpy as np
-from eko import anomalous_dimensions as ad
-from eko import basis_rotation as br
-from eko import interpolation, mellin
-from eko import scale_variations as sv
-from eko.kernels import non_singlet as ns
-from eko.kernels import singlet as s
-from eko.member import OpMember
+from .. import anomalous_dimensions as ad
+from .. import basis_rotation as br
+from .. import interpolation, mellin
+from .. import scale_variations as sv
+from ..kernels import non_singlet as ns
+from ..kernels import singlet as s
+from ..member import OpMember
 from scipy import integrate
 
 logger = logging.getLogger(__name__)
@@ -200,11 +200,7 @@ def quad_ker(
             ev_op_iterations,
             ev_op_max_order,
         )
-        #is there not a mistake with variables as1 and as1, aren't these supposed to be a1 and a0 (there is also no as0 anyway)
-        # scale var expanded is applied on the kernel
 
-
-        ##################### until now it all makes sense 
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
                 sv.expanded.singlet_variation(gamma_singlet, as_raw, order, nf, L)
@@ -230,7 +226,7 @@ def quad_ker(
 
     # recombine everything
     return np.real(ker * integrand)
-##################################################################### will have to add label for polarised here, when ive figured it out. highly confusing. 
+
 
 class Operator(sv.ModeMixin):
     """Internal representation of a single EKO.
@@ -245,6 +241,8 @@ class Operator(sv.ModeMixin):
         managers
     nf : int
         number of active flavors
+    p : Boolean
+        Polarised (True) or un-Polarised (False)
     q2_from : float
         evolution source
     q2_to : float
@@ -260,12 +258,20 @@ class Operator(sv.ModeMixin):
     full_labels = br.full_labels
 
     def __init__(
-        self, config, managers, nf, p, q2_from, q2_to, mellin_cut=5e-2, is_threshold=False
+        self,
+        config,
+        managers,
+        nf,
+        p,
+        q2_from,
+        q2_to,
+        mellin_cut=5e-2,
+        is_threshold=False,
     ):
         self.config = config
         self.managers = managers
         self.nf = nf
-        self.p = p 
+        self.p = p
         self.q2_from = q2_from
         self.q2_to = q2_to
         # TODO make 'cut' external parameter?
@@ -273,9 +279,6 @@ class Operator(sv.ModeMixin):
         self.is_threshold = is_threshold
         self.op_members = {}
         self.order = tuple(config["order"])
-
-
-###################### p is a property so im guessing it should be here (self.p), test this to be sure
 
     @property
     def n_pools(self):
@@ -387,15 +390,13 @@ class Operator(sv.ModeMixin):
             as0=self.a_s[0],
             as_raw=self.a_s[2],
             nf=self.nf,
-            p = self.p,
+            p=self.p,
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
             ev_op_max_order=tuple(self.config["ev_op_max_order"]),
             sv_mode=self.sv_mode,
             is_threshold=self.is_threshold,
         )
-
-        ###################again i have added p although i doubt its necessary since it isnt manipulated in anyway in this function, but keeping here for now
 
     def initialize_op_members(self):
         """Init all operators with the identity or zeros."""

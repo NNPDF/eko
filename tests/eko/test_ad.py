@@ -36,12 +36,13 @@ def test_eigensystem_gamma_singlet_0_values():
 
 def test_eigensystem_gamma_singlet_projectors_EV():
     nf = 3
+    p = False
     for N in [3, 4]:  # N=2 seems close to 0, so test fails
         for o in [(2, 0), (3, 0), (4, 0)]:
             # NNLO and N3LO too big numbers,
             # ignore Runtime Warnings
             warnings.simplefilter("ignore", RuntimeWarning)
-            for gamma_S in ad.gamma_singlet(o, N, nf):
+            for gamma_S in ad.gamma_singlet(o, N, nf, p):
                 _exp, l_p, l_m, e_p, e_m = ad.exp_singlet(gamma_S)
                 # projectors behave as P_a . P_b = delta_ab P_a
                 assert_allclose(np.dot(e_p, e_p), e_p)
@@ -54,42 +55,44 @@ def test_eigensystem_gamma_singlet_projectors_EV():
 
 def test_gamma_ns():
     nf = 3
+    p = False
     # LO
     assert_almost_equal(
-        ad.gamma_ns((3, 0), br.non_singlet_pids_map["ns+"], 1, nf)[0], 0.0
+        ad.gamma_ns((3, 0), br.non_singlet_pids_map["ns+"], 1, nf, p)[0],
+        0.0,
     )
     # NLO
     assert_allclose(
-        ad.gamma_ns((2, 0), br.non_singlet_pids_map["ns-"], 1, nf),
+        ad.gamma_ns((2, 0), br.non_singlet_pids_map["ns-"], 1, nf, p),
         np.zeros(2),
         atol=2e-6,
     )
     # NNLO
     assert_allclose(
-        ad.gamma_ns((3, 0), br.non_singlet_pids_map["ns-"], 1, nf),
+        ad.gamma_ns((3, 0), br.non_singlet_pids_map["ns-"], 1, nf, p),
         np.zeros(3),
         atol=2e-4,
     )
     assert_allclose(
-        ad.gamma_ns((3, 0), br.non_singlet_pids_map["nsV"], 1, nf),
+        ad.gamma_ns((3, 0), br.non_singlet_pids_map["nsV"], 1, nf, p),
         np.zeros(3),
         atol=8e-4,
     )
     # N3LO
     assert_allclose(
-        ad.gamma_ns((4, 0), br.non_singlet_pids_map["ns-"], 1, nf),
+        ad.gamma_ns((4, 0), br.non_singlet_pids_map["ns-"], 1, nf, p),
         np.zeros(4),
         atol=2e-4,
     )
     # N3LO valence has a spurious pole, need to add a small shift
     assert_allclose(
-        ad.gamma_ns((4, 0), br.non_singlet_pids_map["nsV"], 1 + 1e-6, nf),
+        ad.gamma_ns((4, 0), br.non_singlet_pids_map["nsV"], 1 + 1e-6, nf, p),
         np.zeros(4),
         atol=5e-4,
     )
     assert_raises(
         AssertionError,
         assert_allclose,
-        ad.gamma_ns((4, 0), br.non_singlet_pids_map["ns+"], 1, nf),
+        ad.gamma_ns((4, 0), br.non_singlet_pids_map["ns+"], 1, nf, p),
         np.zeros(4),
     )

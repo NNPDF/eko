@@ -92,8 +92,9 @@ class BenchmarkBackwardForward:
         q20 = 30
         q21 = 50
         nf = 4
-        o = Operator(g.config, g.managers, nf, q20, q21)
-        o_back = Operator(g.config, g.managers, nf, q21, q20)
+        p = False
+        o = Operator(g.config, g.managers, nf, p, q20, q21)
+        o_back = Operator(g.config, g.managers, nf, p, q21, q20)
         o.compute()
         o_back.compute()
 
