@@ -22,7 +22,7 @@ def A_Hg(n, sx, nf, L):
     nf : int
         number of active flavor below the threshold
     L : float
-        :math:`\ln(q^2 / m_h^2)`
+        :math:`\ln(\mu^2 / m_h^2)`
 
     Returns
     -------
