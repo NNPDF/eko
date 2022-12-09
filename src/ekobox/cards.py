@@ -50,7 +50,6 @@ def generate_operator(
         for key, value in update.items():
             def_op[key] = value
     serialized = sql.serialize(def_op)
-    def_op["hash"] = (sql.add_hash(serialized))[-1]
     if path is not None:
         dump(path, def_op)
     return def_op
@@ -95,7 +94,6 @@ def generate_theory(
                 raise ValueError("Provided key not in theory card")
         theory.update(update)
     serialized = sql.serialize(theory)
-    theory["hash"] = sql.add_hash(serialized)[-1]
     if path is not None:
         dump(path, theory)
     return theory

@@ -28,6 +28,14 @@ class HeavyQuark(typing.Generic[T]):
     t: T
     """Top quark."""
 
+    def __getitem__(self, key: int):
+        """Allow access by index.
+
+        Consequently it allows iteration and containing check.
+
+        """
+        return getattr(self, "cbt"[key])
+
 
 QuarkMass = float
 QuarkMassRef = typing.Union[FloatRef, QuarkMass]

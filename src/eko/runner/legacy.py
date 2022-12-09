@@ -7,6 +7,7 @@ from ..couplings import Couplings
 from ..evolution_operator.grid import OperatorGrid
 from ..io import EKO, Operator, runcards
 from ..thresholds import ThresholdsAtlas
+from ..types import QuarkMassSchemes
 from . import commons
 
 logger = logging.getLogger(__name__)
@@ -37,36 +38,29 @@ class Runner:
             operator specific options
 
         """
-        legacy_cards = runcards.Legacy(theory_card, operators_card)
-        new_theory = legacy_cards.theory
-        new_operators = legacy_cards.operator
+        new_theory, new_operator = runcards.update(theory_card, operators_card)
 
         # Store inputs
         self._theory = new_theory
 
         # setup basis grid
         bfd = interpolation.InterpolatorDispatcher(
-            xgrid=interpolation.XGrid(
-                new_operators["rotations"]["xgrid"],
-                log=new_operators["configs"]["interpolation_is_log"],
-            ),
-            polynomial_degree=new_operators["configs"][
-                "interpolation_polynomial_degree"
-            ],
+            xgrid=new_operator.rotations.xgrid,
+            polynomial_degree=new_operator.configs.interpolation_polynomial_degree,
         )
 
         # setup the Threshold path, compute masses if necessary
         masses = None
-        if new_theory["HQ"] == "MSBAR":
+        if new_theory.quark_masses_scheme is QuarkMassSchemes.MSBAR:
             masses = msbar_masses.compute(new_theory)
         tc = ThresholdsAtlas.from_dict(new_theory, masses=masses)
 
         # strong coupling
         sc = Couplings.from_dict(new_theory, masses=masses)
         # setup operator grid
-        self.op_grid = OperatorGrid.from_dict(new_theory, new_operators, tc, sc, bfd)
+        self.op_grid = OperatorGrid.from_dict(new_theory, new_operator, tc, sc, bfd)
 
-        self.out = EKO.new(theory=theory_card, operator=new_operators)
+        self.out = EKO.new(theory=theory_card, operator=new_operator)
 
     def get_output(self) -> EKO:
         """Run evolution and generate output operator.
