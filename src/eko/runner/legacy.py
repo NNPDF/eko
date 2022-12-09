@@ -58,11 +58,10 @@ class Runner:
 
         masses = tuple(mq.value**2 for mq in new_theory.quark_masses)
         thresholds_ratios = list(new_theory.matching)
-        nf_ref = new_theory.num_flavs_ref
         tc = ThresholdsAtlas(
             masses=masses,
-            q2_ref=new_theory.couplings.alphas.scale,
-            nf_ref=nf_ref,
+            q2_ref=new_operator.mu20,
+            nf_ref=new_theory.num_flavs_init,
             thresholds_ratios=thresholds_ratios,
             max_nf=new_theory.num_flavs_max_pdf,
         )
@@ -75,7 +74,7 @@ class Runner:
             masses=masses,  # TODO: before rescaled with fact_to_ren
             order=new_theory.order,
             method=couplings_mod_ev(new_operator.configs.evolution_method.value),
-            nf_ref=nf_ref,
+            nf_ref=new_theory.num_flavs_ref,
             max_nf=new_theory.num_flavs_max_as,
         )
         # setup operator grid
