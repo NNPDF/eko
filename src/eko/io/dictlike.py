@@ -107,11 +107,19 @@ class DictLike:
 
 
 def load_field(field, value):
+    """Deserialize dataclass field."""
     # TODO: nice place for a match statement...
-    if inspect.isclass(field.type) and issubclass(field.type, DictLike):
-        return field.type.from_dict(value)
     if typing.get_origin(field.type) is not None:
+        # this has to go first since for followin ones I will assume they are
+        # valid classes, cf. the module docstring
         return load_typing(field, value)
+
+    assert inspect.isclass(field.type)
+
+    if issubclass(field.type, DictLike):
+        return field.type.from_dict(value)
+    if issubclass(field.type, DictLike):
+        return field.type.from_dict(value)
     if issubclass(field.type, enum.Enum):
         return load_enum(field, value)
 
@@ -119,6 +127,11 @@ def load_field(field, value):
 
 
 def load_enum(field, value):
+    """Deserialize enum variant.
+
+    Accepts both the name and value of variants, attempted in this order.
+
+    """
     try:
         return field.type(value)
     except ValueError:
@@ -126,6 +139,7 @@ def load_enum(field, value):
 
 
 def load_typing(field, value):
+    """Deserialize type hint associated field."""
     origin = typing.get_origin(field.type)
     assert origin is not None
 
@@ -153,6 +167,7 @@ def load_typing(field, value):
 
 
 def raw_field(value):
+    """Serialize DictLike field."""
     # replace numpy arrays with lists
     if isinstance(value, np.ndarray):
         return value.tolist()
