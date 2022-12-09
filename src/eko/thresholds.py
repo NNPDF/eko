@@ -166,44 +166,6 @@ class ThresholdsAtlas:
         thresholds = thresholds[: max_nf - 3]
         return thresholds
 
-    @classmethod
-    def from_dict(cls, theory_card, prefix="k", max_nf_name="MaxNfPdf", masses=None):
-        r"""Create the atlas from the run card.
-
-        The thresholds are computed by :math:`(m_q \cdot k_q^{Thr})`.
-
-        Parameters
-        ----------
-        theory_card : dict
-            run card with the keys given at the head of the :mod:`module <eko.thresholds>`
-        prefix : str
-            prefix for the ratio parameters
-        masses : list
-            list of |MSbar| masses squared or None if POLE masses are used
-
-        Returns
-        -------
-        ThresholdsAtlas
-            created atlas
-        """
-        heavy_flavors = "cbt"
-        if masses is None:
-            masses = np.power([theory_card[f"m{q}"] for q in heavy_flavors], 2)
-        thresholds_ratios = [theory_card[f"{prefix}{q}Thr"] for q in heavy_flavors]
-        max_nf = theory_card[max_nf_name]
-        # preset ref scale
-        q2_ref = pow(theory_card["Q0"], 2)
-
-        # MSbar or Pole masses
-        nf_ref = theory_card.num_flavs_init
-        return cls(
-            masses,
-            q2_ref,
-            nf_ref,
-            thresholds_ratios=np.power(thresholds_ratios, 2),
-            max_nf=max_nf,
-        )
-
     def path(self, q2_to, nf_to=None, q2_from=None, nf_from=None):
         """Get path from ``q2_from`` to ``q2_to``.
 
