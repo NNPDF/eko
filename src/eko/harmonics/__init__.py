@@ -221,7 +221,7 @@ def compute_cache(n, max_weight, is_singlet):
 
 
 @nb.njit(cache=True)
-def compute_new_sx_cache(n, s1, qcd_singlet, qed):  # TODO : change name
+def compute_additional_sx_cache(n, s1, qcd_singlet, qed):
     r"""Get the harmonics sums cache needed for the qed non singlet AD.
 
     We have three cases :

@@ -11,11 +11,11 @@ NF = 5
 def test_gamma_1():
     # number conservation
     sx_n1 = h.sx(1, 2)
-    sx_new1 = h.compute_new_sx_cache(1, sx_n1[0], False, False)
+    sx_new1 = h.compute_additional_sx_cache(1, sx_n1[0], False, False)
     np.testing.assert_allclose(ad_as2.gamma_nsm(1, NF, sx_n1, sx_new1), 0.0, atol=2e-6)
 
     sx_n2 = h.sx(2, 2)
-    sx_new2 = h.compute_new_sx_cache(2, sx_n2[0], True, False)
+    sx_new2 = h.compute_additional_sx_cache(2, sx_n2[0], True, False)
     gS1 = ad_as2.gamma_singlet(2, NF, sx_n2, sx_new2)
     # gluon momentum conservation
     # the CA*NF term seems to be tough to compute, so raise the constraint ...
@@ -41,7 +41,7 @@ def test_gamma_1():
     )  # gq
 
     # add additional point at (analytical) continuation point
-    sx_new2 = h.compute_new_sx_cache(2, sx_n2[0], False, False)
+    sx_new2 = h.compute_additional_sx_cache(2, sx_n2[0], False, False)
     np.testing.assert_allclose(
         ad_as2.gamma_nsm(2, NF, sx_n2, sx_new2),
         (
@@ -55,8 +55,8 @@ def test_gamma_1():
     )
     sx_n3 = h.sx(3, 2)
     sx_n4 = h.sx(4, 2)
-    sx_new3 = h.compute_new_sx_cache(3, sx_n3[0], True, False)
-    sx_new4 = h.compute_new_sx_cache(4, sx_n4[0], True, False)
+    sx_new3 = h.compute_additional_sx_cache(3, sx_n3[0], True, False)
+    sx_new4 = h.compute_additional_sx_cache(4, sx_n4[0], True, False)
     np.testing.assert_allclose(
         ad_as2.gamma_nsp(3, NF, sx_n3, sx_new3),
         (

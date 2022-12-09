@@ -152,7 +152,7 @@ def gamma_ns(order, mode, n, nf):
     gamma_ns[0] = as1.gamma_ns(n, sx[0])
     # NLO and beyond
     if order[0] >= 2:
-        sx_new = harmonics.compute_new_sx_cache(n, sx[0], False, False)
+        sx_new = harmonics.compute_additional_sx_cache(n, sx[0], False, False)
         if mode == 10101:
             gamma_ns_1 = as2.gamma_nsp(n, nf, sx, sx_new)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
@@ -228,7 +228,7 @@ def gamma_singlet(order, n, nf):
     gamma_s = np.zeros((order[0], 2, 2), np.complex_)
     gamma_s[0] = as1.gamma_singlet(n, sx[0], nf)
     if order[0] >= 2:
-        sx_new = harmonics.compute_new_sx_cache(n, sx[0], True, False)
+        sx_new = harmonics.compute_additional_sx_cache(n, sx[0], True, False)
         gamma_s[1] = as2.gamma_singlet(n, nf, sx, sx_new)
     if order[0] >= 3:
         gamma_s[2] = as3.gamma_singlet(n, nf, sx)
@@ -282,7 +282,7 @@ def gamma_ns_qed(order, mode, n, nf):
         sx = harmonics.sx(n, max_weight=max_weight + 1)
     else:
         sx = harmonics.sx(n, max_weight=3)
-    sx_new = harmonics.compute_new_sx_cache(n, sx[0], False, True)
+    sx_new = harmonics.compute_additional_sx_cache(n, sx[0], False, True)
     # now combine
     gamma_ns = np.zeros((order[0] + 1, order[1] + 1), np.complex_)
     if order[0] >= 1:
@@ -429,7 +429,7 @@ def gamma_singlet_qed(order, n, nf):
         sx = harmonics.sx(n, max_weight=max_weight + 1)
     else:
         sx = harmonics.sx(n, max_weight=3)
-    sx_new = harmonics.compute_new_sx_cache(n, sx[0], False, True)
+    sx_new = harmonics.compute_additional_sx_cache(n, sx[0], False, True)
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
     if order[0] >= 1:
         gamma_s[1, 0] = as1.gamma_singlet_qed(n, sx[0], nf)
@@ -481,7 +481,7 @@ def gamma_valence_qed(order, n, nf):
         sx = harmonics.sx(n, max_weight=max_weight + 1)
     else:
         sx = harmonics.sx(n, max_weight=3)
-    sx_new = harmonics.compute_new_sx_cache(n, sx[0], False, True)
+    sx_new = harmonics.compute_additional_sx_cache(n, sx[0], False, True)
     gamma_v = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
     if order[0] >= 1:
         gamma_v[1, 0] = as1.gamma_valence_qed(n, sx[0])
