@@ -93,7 +93,7 @@ class TestCouplings:
                 threshold_holder.area_walls[1:-1],
                 (1.0, 1.0, 1.0),
             )
-        with pytest.raises(ValueError):
+        with pytest.raises(NotImplementedError):
             Couplings(
                 [couplings_ref[0], couplings_ref[1]],
                 scale_ref,

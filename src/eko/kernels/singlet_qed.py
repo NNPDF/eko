@@ -13,25 +13,25 @@ def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations):
 
     Parameters
     ----------
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
-        a1 : float
-            target strong coupling value
-        a0 : float
-            initial strong coupling value
-        aem : float
-            electromagnetic coupling value
-        nf : int
-            number of active flavors
-        order : tuple(int,int)
-            QCDxQED perturbative orders
-        ev_op_iterations : int
-            number of evolution steps
+    gamma_singlet : numpy.ndarray
+        singlet anomalous dimensions matrices
+    a1 : float
+        target strong coupling value
+    a0 : float
+        initial strong coupling value
+    aem : float
+        electromagnetic coupling value
+    nf : int
+        number of active flavors
+    order : tuple(int,int)
+        QCDxQED perturbative orders
+    ev_op_iterations : int
+        number of evolution steps
 
     Returns
     -------
-        e_s^{order} : numpy.ndarray
-            singlet QEDxQCD iterated (exact) EKO
+    e_s^{order} : numpy.ndarray
+        singlet QEDxQCD iterated (exact) EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     e = np.identity(4, np.complex_)
@@ -68,34 +68,33 @@ def dispatcher(
     ev_op_iterations,
     ev_op_max_order,
 ):
-    """
-    Determine used kernel and call it.
+    """Determine used kernel and call it.
 
     Parameters
     ----------
-        order : tuple(int,int)
-            perturbative order
-        method : str
-            method
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        aem : float
-            electromagnetic coupling value
-        nf : int
-            number of active flavors
-        ev_op_iterations : int
-            number of evolution steps
-        ev_op_max_order : tuple(int,int)
-            perturbative expansion order of U
+    order : tuple(int,int)
+        perturbative order
+    method : str
+        method
+    gamma_singlet : numpy.ndarray
+        singlet anomalous dimensions matrices
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem : float
+        electromagnetic coupling value
+    nf : int
+        number of active flavors
+    ev_op_iterations : int
+        number of evolution steps
+    ev_op_max_order : tuple(int,int)
+        perturbative expansion order of U
 
     Returns
     -------
-        e_s : numpy.ndarray
-            singlet EKO
+    e_s : numpy.ndarray
+        singlet EKO
     """
     if method in ["iterate-exact", "iterate-expanded"]:
         return eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations)

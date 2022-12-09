@@ -9,19 +9,18 @@ from . import as1
 
 @nb.njit(cache=True)
 def gamma_phq(N):
-    r"""
-    Compute the leading-order photon-quark anomalous dimension.
+    r"""Compute the leading-order photon-quark anomalous dimension.
 
     Implements Eq. (2.5) of :cite:`Carrazza:2015dea`.
 
     Parameters
     ----------
-      N : complex
+    N : complex
         Mellin moment
 
     Returns
     -------
-      gamma_phq : complex
+    gamma_phq : complex
         Leading-order photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(0,1)}(N)`
     """
     return as1.gamma_gq(N) / constants.CF
@@ -29,8 +28,7 @@ def gamma_phq(N):
 
 @nb.njit(cache=True)
 def gamma_qph(N, nf):
-    r"""
-    Compute the leading-order quark-photon anomalous dimension.
+    r"""Compute the leading-order quark-photon anomalous dimension.
 
     Implements Eq. (2.5) of :cite:`Carrazza:2015dea`.
     But adding the :math:`N_C` and the :math:`2n_f` factors from :math:`\\theta` inside the
@@ -38,14 +36,14 @@ def gamma_qph(N, nf):
 
     Parameters
     ----------
-      N : complex
+    N : complex
         Mellin moment
-      nf : int
+    nf : int
         Number of active flavors
 
     Returns
     -------
-      gamma_qph : complex
+    gamma_qph : complex
         Leading-order quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(0,1)}(N)`
     """
     return as1.gamma_qg(N, nf) / constants.TR * constants.NC
@@ -53,19 +51,18 @@ def gamma_qph(N, nf):
 
 @nb.njit(cache=True)
 def gamma_phph(nf):
-    r"""
-    Compute the leading-order photon-photon anomalous dimension.
+    r"""Compute the leading-order photon-photon anomalous dimension.
 
     Implements Eq. (2.5) of :cite:`Carrazza:2015dea`.
 
     Parameters
     ----------
-      nf : int
+    nf : int
         Number of active flavors
 
     Returns
     -------
-      gamma_phph : complex
+    gamma_phph : complex
         Leading-order phton-photon anomalous dimension :math:`\\gamma_{\\gamma \\gamma}^{(0,1)}(N)`
     """
     nu = constants.uplike_flavors(nf)
@@ -75,21 +72,20 @@ def gamma_phph(nf):
 
 @nb.njit(cache=True)
 def gamma_ns(N, sx):
-    r"""
-    Compute the leading-order non-singlet QED anomalous dimension.
+    r"""Compute the leading-order non-singlet QED anomalous dimension.
 
     Implements Eq. (2.5) of :cite:`Carrazza:2015dea`.
 
     Parameters
     ----------
-      N : complex
+    N : complex
         Mellin moment
-      s1 : complex
+    s1 : complex
         S1(N)
 
     Returns
     -------
-      gamma_ns : complex
+    gamma_ns : complex
         Leading-order non-singlet QED anomalous dimension :math:`\\gamma_{ns}^{(0,1)}(N)`
     """
     s1 = sx[0]
@@ -98,16 +94,15 @@ def gamma_ns(N, sx):
 
 @nb.njit(cache=True)
 def gamma_singlet(N, nf, sx):
-    r"""
-    Compute the leading-order singlet anomalous dimension matrix.
+    r"""Compute the leading-order singlet anomalous dimension matrix.
 
     .. math::
-        \gamma_S^{(0)} = \left(\begin{array}{cc}
+        \\gamma_S^{(0)} = \\left(\begin{array}{cc}
         0 & 0 & 0 & 0 \\
-        0 & \gamma_{\gamma \gamma}^{(0,1)} & \langle e^2 \rangle \gamma_{\gamma q}^{(0,1)} & \nu_u e^2_- \gamma_{\gamma q}^{(0,1)}\\
-        0 & \langle e^2 \rangle\gamma_{q \gamma}^{(0,1)} & \langle e^2 \rangle \gamma_{ns}^{(0,1)} & \nu_u e^2_- \gamma_{ns}^{(0,1)}\\
-        0 & \nu_d e^2_- \gamma_{q \gamma}^{(0,1)} & \nu_d e^2_- \gamma_{ns}^{(0,1)} & e^2_\Delta \gamma_{ns}^{(0,1)}
-        \end{array}\right)
+        0 & \\gamma_{\\gamma \\gamma}^{(0,1)} & \\langle e^2 \rangle \\gamma_{\\gamma q}^{(0,1)} & \nu_u e^2_- \\gamma_{\\gamma q}^{(0,1)}\\
+        0 & \\langle e^2 \rangle\\gamma_{q \\gamma}^{(0,1)} & \\langle e^2 \rangle \\gamma_{ns}^{(0,1)} & \nu_u e^2_- \\gamma_{ns}^{(0,1)}\\
+        0 & \nu_d e^2_- \\gamma_{q \\gamma}^{(0,1)} & \nu_d e^2_- \\gamma_{ns}^{(0,1)} & e^2_\\Delta \\gamma_{ns}^{(0,1)}
+        \\end{array}\right)
 
     Parameters
     ----------
@@ -121,14 +116,14 @@ def gamma_singlet(N, nf, sx):
     Returns
     -------
     gamma_S_0 : numpy.ndarray
-        Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
+        Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(0)}(N)`
 
     See Also
     --------
-    gamma_ns : :math:`\gamma_{qq}^{(0)}`
-    gamma_qg : :math:`\gamma_{qg}^{(0)}`
-    gamma_gq : :math:`\gamma_{gq}^{(0)}`
-    gamma_gg : :math:`\gamma_{gg}^{(0)}`
+    gamma_ns : :math:`\\gamma_{qq}^{(0)}`
+    gamma_qg : :math:`\\gamma_{qg}^{(0)}`
+    gamma_gq : :math:`\\gamma_{gq}^{(0)}`
+    gamma_gg : :math:`\\gamma_{gg}^{(0)}`
     """
     e2avg = constants.e2avg(nf)
     vue2m = constants.vue2m(nf)
@@ -166,14 +161,13 @@ def gamma_singlet(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_valence(N, nf, sx):
-    r"""
-    Compute the leading-order valence anomalous dimension matrix.
+    r"""Compute the leading-order valence anomalous dimension matrix.
 
     .. math::
-        \gamma_V^{(0,1)} = \left(\begin{array}{cc}
-        \langle e^2 \rangle \gamma_{ns}^{(0,1)} & \nu_u e^2_- \gamma_{ns}^{(0,1)}\\
-        \nu_d e^2_- \gamma_{ns}^{(0,1)} & e^2_\Delta \gamma_{ns}^{(0,1)}
-        \end{array}\right)
+        \\gamma_V^{(0,1)} = \\left(\begin{array}{cc}
+        \\langle e^2 \rangle \\gamma_{ns}^{(0,1)} & \nu_u e^2_- \\gamma_{ns}^{(0,1)}\\
+        \nu_d e^2_- \\gamma_{ns}^{(0,1)} & e^2_\\Delta \\gamma_{ns}^{(0,1)}
+        \\end{array}\right)
 
     Parameters
     ----------
@@ -185,14 +179,14 @@ def gamma_valence(N, nf, sx):
     Returns
     -------
     gamma_S_0 : numpy.ndarray
-        Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
+        Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(0)}(N)`
 
     See Also
     --------
-    gamma_ns : :math:`\gamma_{qq}^{(0)}`
-    gamma_qg : :math:`\gamma_{qg}^{(0)}`
-    gamma_gq : :math:`\gamma_{gq}^{(0)}`
-    gamma_gg : :math:`\gamma_{gg}^{(0)}`
+    gamma_ns : :math:`\\gamma_{qq}^{(0)}`
+    gamma_qg : :math:`\\gamma_{qg}^{(0)}`
+    gamma_gq : :math:`\\gamma_{gq}^{(0)}`
+    gamma_gg : :math:`\\gamma_{gg}^{(0)}`
     """
     e2avg = constants.e2avg(nf)
     vue2m = constants.vue2m(nf)

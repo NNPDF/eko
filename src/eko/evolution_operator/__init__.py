@@ -53,21 +53,20 @@ def select_singlet_element(ker, mode0, mode1):
 
 @nb.njit(cache=True)
 def select_QEDsinglet_element(ker, mode0, mode1):
-    """
-    Select element of the QEDsinglet matrix.
+    """Select element of the QEDsinglet matrix.
 
     Parameters
     ----------
-        ker : numpy.ndarray
-            QEDsinglet integration kernel
-        mode0 : int
-            id for first sector element
-        mode1 : int
-            id for second sector element
+    ker : numpy.ndarray
+        QEDsinglet integration kernel
+    mode0 : int
+        id for first sector element
+    mode1 : int
+        id for second sector element
     Returns
     -------
-        ker : complex
-            QEDsinglet integration kernel element
+    ker : complex
+        QEDsinglet integration kernel element
     """
     if mode0 == 21:
         index1 = 0
@@ -95,16 +94,16 @@ def select_QEDvalence_element(ker, mode0, mode1):
 
     Parameters
     ----------
-        ker : numpy.ndarray
-            QEDvalence integration kernel
-        mode0 : int
-            id for first sector element
-        mode1 : int
-            id for second sector element
+    ker : numpy.ndarray
+        QEDvalence integration kernel
+    mode0 : int
+        id for first sector element
+    mode1 : int
+        id for second sector element
     Returns
     -------
-        ker : complex
-            QEDvalence integration kernel element
+    ker : complex
+        QEDvalence integration kernel element
     """
     index1 = 0 if mode0 == 10200 else 1
     index2 = 0 if mode1 == 10200 else 1

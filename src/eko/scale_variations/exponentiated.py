@@ -47,24 +47,23 @@ def gamma_variation(gamma, order, nf, L):
 
 @nb.njit(cache=True)
 def gamma_variation_qed(gamma, order, nf, L, alphaem_running):
-    """
-    Adjust the anomalous dimensions with the scale variations.
+    """Adjust the anomalous dimensions with the scale variations.
 
     Parameters
     ----------
-        gamma : numpy.ndarray
-            anomalous dimensions
-        order : tuple(int,int)
-            perturbation order
-        nf : int
-            number of active flavors
-        L : float
-            logarithmic ratio of factorization and renormalization scale
+    gamma : numpy.ndarray
+        anomalous dimensions
+    order : tuple(int,int)
+        perturbation order
+    nf : int
+        number of active flavors
+    L : float
+        logarithmic ratio of factorization and renormalization scale
 
     Returns
     -------
-        gamma : numpy.ndarray
-            adjusted anomalous dimensions
+    gamma : numpy.ndarray
+        adjusted anomalous dimensions
     """
     # if alphaem is fixed then only alphas is varied so gamma[0,1] and gamma[0,2]
     # don't get a variation while gamma[1,1] gets a variation that is O(as2aem1)

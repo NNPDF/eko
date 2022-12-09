@@ -94,7 +94,6 @@ def exp_matrix(gamma):
     dim = gamma.shape[0]
     e = np.zeros((dim, dim, dim), np.complex_)
     exp = np.zeros((dim, dim), np.complex_)
-    # TODO check if this loop can be entirely cast to numpy
     for i in range(dim):
         e[i] = np.outer(v[:, i], v_inv[i])
         exp += e[i] * np.exp(w[i])
