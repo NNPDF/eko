@@ -49,7 +49,12 @@ class PathSegment:
 
 
 class ThresholdsAtlas:
-    r"""Holds information about the matching scales that any :math:`Q^2` has to pass in order to get there from a given :math:`Q^2_{ref}`."""
+    r"""Holds information about the matching scales.
+
+    These scales are the :math:`Q^2` has to pass in order to get there from a
+    given :math:`Q^2_{ref}`.
+
+    """
 
     def __init__(
         self,
@@ -233,8 +238,9 @@ def is_downward_path(path):
 
     Criterias are:
 
-    - in the number of active flavors when the path list contains more than one :class:`PathSegment`,
-      note this can be different from each :attr:`PathSegment.is_downward_q2`
+    - in the number of active flavors when the path list contains more than one
+      :class:`PathSegment`, note this can be different from each
+      :attr:`PathSegment.is_downward_q2`
     - in :math:`Q^2` when just one single :class:`PathSegment` is given
 
     Parameters
