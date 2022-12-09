@@ -30,7 +30,7 @@ import typing
 from math import nan
 from typing import Any, Dict, List, Tuple
 
-from .io.dictlike import DictLike
+from .dictlike import DictLike
 
 T = typing.TypeVar("T")
 Quantity = typing.TypeVar("Quantity", bound=typing.Union[int, float])

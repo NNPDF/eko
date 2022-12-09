@@ -8,8 +8,8 @@ from .. import interpolation, msbar_masses
 from ..couplings import Couplings, couplings_mod_ev
 from ..evolution_operator.grid import OperatorGrid
 from ..io import EKO, Operator, runcards
+from ..io.types import QuarkMassSchemes
 from ..thresholds import ThresholdsAtlas
-from ..types import QuarkMassSchemes
 from . import commons
 
 logger = logging.getLogger(__name__)
