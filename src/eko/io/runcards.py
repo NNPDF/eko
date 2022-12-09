@@ -1,6 +1,8 @@
 """Structures to hold runcards information."""
+import copy
+import dataclasses
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -18,6 +20,7 @@ from ..types import (
     InversionMethod,
     MatchingScales,
     Order,
+    QuarkMass,
     QuarkMassSchemes,
     RawCard,
     ScaleVariationsMethod,
@@ -49,15 +52,20 @@ class TheoryCard(DictLike):
     """"""
     quark_masses: HeavyQuarkMasses
     """"""
+    quark_masses_scheme: QuarkMassSchemes
+    """Scheme used to specify heavy quark masses."""
     matching: MatchingScales
     """"""
-    heavy_quark_masses: QuarkMassSchemes
-    """Scheme used to specify heavy quark masses."""
 
     def validate(self) -> bool:
         """Validate attributes compatibility."""
-        if self.heavy_quark_masses:
-            return False
+        if self.quark_masses_scheme is QuarkMassSchemes.MSBAR:
+            if all(isinstance(qm, tuple) for qm in self.quark_masses):
+                return False
+        else:
+            if all(isinstance(qm, QuarkMass) for qm in self.quark_masses):
+                return False
+
         return True
 
     @classmethod
@@ -110,7 +118,7 @@ class Configs(DictLike):
     """
     scvar_method: ScaleVariationsMethod
     """"""
-    backward_inversion: InversionMethod
+    inversion_method: InversionMethod
     """Which method to use for backward matching conditions."""
     n_integration_cores: int = 1
     """Number of cores used to parallelize integration."""
@@ -199,22 +207,23 @@ class OperatorCard(DictLike):
 
     mu0: float
     """Initial scale."""
+    mugrid: npt.NDArray
+    """Array of q2 points."""
 
     # collections
     configs: Configs
     """Specific configuration to be used during the calculation of these operators."""
+    debug: Debug
+    """Debug configurations."""
     rotations: Rotations
     """Rotations configurations.
 
     The operator card will only contain the interpolation xgrid and the pids.
 
     """
-    debug: Debug
-    """Debug configurations."""
 
-    mugrid: npt.NDArray
-    """Array of q2 points."""
-    eko_version: Optional[str] = vmod.__version__
+    # optional
+    eko_version: str = vmod.__version__
     """Perturbative order of the QCD and QED couplings."""
 
     # a few properties, for ease of use and compatibility
@@ -227,20 +236,6 @@ class OperatorCard(DictLike):
     def mu2grid(self):
         """Grid of squared final scales."""
         return self.mugrid**2
-
-    # redefine raw, to account for the nested structure
-    @property
-    def raw(self):
-        """Return the raw dictionary to be dumped."""
-        dictionary: RawCard = dict(
-            mu0=self.mu0,
-            mugrid=self.mugrid.tolist(),
-            eko_version=self.eko_version,
-        )
-        dictionary["rotations"] = Rotations.from_dict(self.rotations).raw
-        dictionary["configs"] = Configs.from_dict(self.configs).raw
-        dictionary["debug"] = Debug.from_dict(self.debug).raw
-        return dictionary
 
 
 @dataclass
@@ -285,11 +280,11 @@ class Legacy:
         new["num_flavs_max_as"] = old["MaxNfAs"]
         intrinsic = []
         for idx, q in enumerate(self.HEAVY):
-            if old[f"i{q}".upper()] == 1:
+            if old.get(f"i{q}".upper()) == 1:
                 intrinsic.append(idx + 4)
         new["intrinsic_flavors"] = intrinsic
         new["matching"] = heavies("k%sThr")
-        new["heavy_quark_masses"] = old["HQ"]
+        new["quark_masses_scheme"] = old["HQ"]
         if old["HQ"] == "POLE":
             new["quark_masses"] = heavies("m%s")
         elif old["HQ"] == "MSBAR":
@@ -310,16 +305,18 @@ class Legacy:
 
         new["mu0"] = old_th["Q0"]
         new["mugrid"] = np.sqrt(old["Q2grid"]).tolist()
-        evmod = old_th["EvMod"]
-        new["evolution_method"] = self.MOD_EV2METHOD.get(evmod, evmod)
-        new["inversion_method"] = old_th["backward_inversion"]
 
         new["configs"] = {}
+        evmod = old_th["ModEv"]
+        new["configs"]["evolution_method"] = self.MOD_EV2METHOD.get(evmod, evmod)
+        new["configs"]["inversion_method"] = old_th.get(
+            "backward_inversion", "expanded"
+        )
+        new["configs"]["scvar_method"] = old_th.get("ModSV", "expanded")
         for k in (
             "interpolation_polynomial_degree",
             "interpolation_is_log",
             "ev_op_iterations",
-            "backward_inversion",
             "n_integration_cores",
         ):
             new["configs"][k] = old[k]
@@ -336,17 +333,25 @@ class Legacy:
         new["rotations"]["pids"] = old.get("pids", br.flavor_basis_pids)
         new["rotations"]["xgrid"] = old["interpolation_xgrid"]
         for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
-            new["rotations"][basis] = old[basis]
+            new["rotations"][f"_{basis}"] = old[basis]
 
         return OperatorCard.from_dict(new)
 
 
-def update(theory, operator):
+def update(theory: Union[RawCard, TheoryCard], operator: Union[RawCard, OperatorCard]):
     """Update legacy runcards.
 
     This function is mainly defined for compatibility with the old interface.
     Prefer direct usage of :cls:`Legacy` in new code.
 
+    Consecutive applications of this function yield identical results::
+
+        cards = update(theory, operator)
+        assert update(*cards) == cards
+
     """
+    if isinstance(theory, TheoryCard) or isinstance(operator, OperatorCard):
+        return theory, operator
+
     cards = Legacy(theory, operator)
     return cards.new_theory, cards.new_operator

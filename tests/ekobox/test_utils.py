@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 import eko
+from eko.io import runcards
 from ekobox import cards, utils
 
 
@@ -26,8 +27,11 @@ def test_ekos_product():
     theory2 = cards.generate_theory(0, 10.0)
     theory_err = cards.generate_theory(0, 5.0)
 
-    eko_ini = eko.solve(theory1, op1)
-    eko_fin = eko.solve(theory2, op2)
+    new_theory1, new_op1 = runcards.update(theory1, op1)
+    new_theory2, new_op2 = runcards.update(theory2, op2)
+
+    eko_ini = eko.solve(new_theory1, new_op1)
+    eko_fin = eko.solve(new_theory2, new_op2)
     # Test_error
     eko_fin_err = eko.solve(theory_err, op2)
     with pytest.raises(ValueError):

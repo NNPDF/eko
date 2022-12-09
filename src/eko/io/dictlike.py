@@ -4,14 +4,17 @@ A few known types are directly registered here, in order to be transparently
 codified in more native structures.
 
 """
+import copy
 import dataclasses
 
 import numpy as np
 
 from .. import interpolation
 
+# TODO: use typing.dataclass_transform, new in Python 3.11, since all child
+# classes are supposed to be dataclasses
 
-# TODO: add typing.dataclass_transform, new in Python 3.11
+
 class DictLike:
     """Dictionary compatibility base class, for dataclasses.
 
@@ -20,6 +23,18 @@ class DictLike:
 
     Some collections and scalar objects are normalized to native Python
     structures, in order to simplify the on-disk representation.
+
+    Note
+    ----
+    It is possible to automatically serialize and deserialize nested
+    :cls:`DictLike` objects, but they are recognized from the presence of
+    :meth:`from_dict`, since the class itself is not yet available during the
+    construction (so ``isinstance(obj, DictLike)`` is not possible), and using
+    ``cls`` or ``type(self)`` would not resolve in ``DictLike`` for subclasses.
+    This would be solved by the introduction of |Self|_.
+
+    .. |Self| replace:: ``Self``
+    .. _Self: https://docs.python.org/3/library/typing.html#typing.Self
 
     """
 
@@ -41,6 +56,12 @@ class DictLike:
             instance with `dictionary` content loaded as attributes
 
         """
+        dictionary = copy.deepcopy(dictionary)
+        for field in dataclasses.fields(cls):
+            if not hasattr(field.type, "from_dict"):
+                # see class docstring
+                continue
+            dictionary[field.name] = field.type.from_dict(dictionary[field.name])
         return cls(**dictionary)
 
     @property
@@ -74,6 +95,9 @@ class DictLike:
                 value = value.dump()["grid"]
             elif isinstance(value, tuple):
                 value = list(value)
+            elif hasattr(value, "raw"):
+                # see class docstring
+                value = value.raw
 
             dictionary[field.name] = value
 
