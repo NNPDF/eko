@@ -15,7 +15,8 @@ import numpy.typing as npt
 from .. import basis_rotation as br
 from .. import interpolation
 from .. import version as vmod
-from ..types import (
+from .dictlike import DictLike
+from .types import (
     CouplingsRef,
     EvolutionMethod,
     FlavorsNumber,
@@ -29,7 +30,6 @@ from ..types import (
     ScaleVariationsMethod,
     T,
 )
-from .dictlike import DictLike
 
 
 @dataclass
