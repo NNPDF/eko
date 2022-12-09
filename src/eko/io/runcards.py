@@ -65,6 +65,8 @@ class TheoryCard(DictLike):
     """Scheme used to specify heavy quark masses."""
     matching: MatchingScales
     """"""
+    # TODO: drop this
+    fact_to_ren: float
 
     def validate(self) -> bool:
         """Validate attributes compatibility."""
@@ -279,6 +281,8 @@ class Legacy:
             new["quark_masses"] = {q: (ms[q], mus[q]) for q in self.HEAVY}
         else:
             raise ValueError()
+
+        new["fact_to_ren"] = old["fact_to_ren_scale_ratio"]
 
         return TheoryCard.from_dict(new)
 

@@ -1,17 +1,19 @@
-"""This module contains the :class:`OperatorGrid` class.
+"""Define operators container and computing workflow.
 
 The first is the driver class of eko as it is the one that collects all the
 previously instantiated information and does the actual computation of the Q2s.
+
 """
 
 import logging
 import numbers
 
 import numpy as np
+import numpy.typing as npt
 
-from .. import basis_rotation as br
 from .. import matching_conditions, member
 from .. import scale_variations as sv
+from ..io.runcards import Configs, Debug
 from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
 from ..thresholds import flavor_shift, is_downward_path
 from . import Operator, flavors, physical
@@ -37,8 +39,14 @@ class OperatorGrid(sv.ModeMixin):
 
     def __init__(
         self,
-        config,
-        q2_grid,
+        mu2grid: npt.NDArray,
+        order: tuple,
+        masses: tuple,
+        mass_scheme,
+        intrinsic_flavors: list,
+        fact_to_ren: float,
+        configs: Configs,
+        debug: Debug,
         thresholds_config,
         strong_coupling,
         interpol_dispatcher,
@@ -65,8 +73,23 @@ class OperatorGrid(sv.ModeMixin):
 
         """
         # check
-        order = config["order"]
-        method = config["method"]
+        config = {}
+        config["order"] = order
+        config["intrinsic_range"] = intrinsic_flavors
+        config["fact_to_ren"] = fact_to_ren**2
+        config["HQ"] = mass_scheme
+        config["ModSV"] = configs.scvar_method
+
+        for i, q in enumerate("cbt"):
+            config[f"m{q}"] = masses[i]
+        method = config["method"] = configs.evolution_method.value
+        config["backward_inversion"] = configs.inversion_method
+        config["ev_op_max_order"] = configs.ev_op_max_order
+        config["ev_op_iterations"] = configs.ev_op_iterations
+        config["n_integration_cores"] = configs.n_integration_cores
+        config["debug_skip_singlet"] = debug.skip_singlet
+        config["debug_skip_non_singlet"] = debug.skip_non_singlet
+
         if method not in [
             "iterate-exact",
             "iterate-expanded",
@@ -82,7 +105,7 @@ class OperatorGrid(sv.ModeMixin):
             logger.warning("Evolution: In LO we use the exact solution always!")
 
         self.config = config
-        self.q2_grid = q2_grid
+        self.q2_grid = mu2grid
         self.managers = dict(
             thresholds_config=thresholds_config,
             strong_coupling=strong_coupling,
@@ -90,66 +113,6 @@ class OperatorGrid(sv.ModeMixin):
         )
         self._threshold_operators = {}
         self._matching_operators = {}
-
-    @classmethod
-    def from_dict(
-        cls,
-        theory_card,
-        operators_card,
-        thresholds_config,
-        strong_coupling,
-        interpol_dispatcher,
-    ):
-        """
-        Create the object from the theory dictionary.
-
-        Parameters
-        ----------
-            theory_card : dict
-                theory dictionary
-            thresholds_config : eko.thresholds.ThresholdsAtlas
-                An instance of the ThresholdsAtlas class
-            strong_coupling : eko.strong_coupling.StrongCoupling
-                An instance of the StrongCoupling class
-            interpol_dispatcher : eko.interpolation.InterpolatorDispatcher
-                An instance of the InterpolatorDispatcher class
-
-        Returns
-        -------
-            obj : cls
-                created object
-        """
-        config = {}
-        config["order"] = tuple(int(o) for o in theory_card["order"])
-        method = theory_card["ModEv"]
-        mod_ev2method = {
-            "EXA": "iterate-exact",
-            "EXP": "iterate-expanded",
-            "TRN": "truncated",
-        }
-        method = mod_ev2method.get(method, method)
-        config["method"] = method
-        config["backward_inversion"] = operators_card["configs"]["backward_inversion"]
-        config["fact_to_ren"] = (theory_card["fact_to_ren_scale_ratio"]) ** 2
-        config["ev_op_max_order"] = operators_card["configs"]["ev_op_max_order"]
-        config["ev_op_iterations"] = operators_card["configs"]["ev_op_iterations"]
-        config["n_integration_cores"] = operators_card["configs"]["n_integration_cores"]
-        config["debug_skip_singlet"] = operators_card["debug"]["skip_singlet"]
-        config["debug_skip_non_singlet"] = operators_card["debug"]["skip_non_singlet"]
-        config["HQ"] = theory_card["HQ"]
-        config["ModSV"] = theory_card["ModSV"]
-        q2_grid = np.array(operators_card["Q2grid"], np.float_)
-        intrinsic_range = []
-        if int(theory_card["IC"]) == 1:
-            intrinsic_range.append(4)
-        if int(theory_card["IB"]) == 1:
-            intrinsic_range.append(5)
-        config["intrinsic_range"] = intrinsic_range
-        for hq in br.quark_names[3:]:
-            config[f"m{hq}"] = theory_card[f"m{hq}"]
-        return cls(
-            config, q2_grid, thresholds_config, strong_coupling, interpol_dispatcher
-        )
 
     def get_threshold_operators(self, path):
         """

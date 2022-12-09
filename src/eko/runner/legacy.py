@@ -57,7 +57,9 @@ class Runner:
             masses = msbar_masses.compute(new_theory)
 
         masses = tuple(mq.value**2 for mq in new_theory.quark_masses)
-        thresholds_ratios = list(new_theory.matching)
+        # call explicitly iter to explain the static analyzer that is an
+        # iterable
+        thresholds_ratios = list(iter(new_theory.matching))
         tc = ThresholdsAtlas(
             masses=masses,
             q2_ref=new_operator.mu20,
@@ -71,14 +73,26 @@ class Runner:
             couplings_ref=np.array(new_theory.couplings.values),
             scale_ref=new_theory.couplings.alphas.scale**2,
             thresholds_ratios=thresholds_ratios,
-            masses=masses,  # TODO: before rescaled with fact_to_ren
+            masses=tuple(m2 / new_theory.fact_to_ren**2 for m2 in masses),
             order=new_theory.order,
             method=couplings_mod_ev(new_operator.configs.evolution_method.value),
             nf_ref=new_theory.num_flavs_ref,
             max_nf=new_theory.num_flavs_max_as,
         )
         # setup operator grid
-        self.op_grid = OperatorGrid.from_dict(new_theory, new_operator, tc, sc, bfd)
+        self.op_grid = OperatorGrid(
+            mu2grid=new_operator.mu2grid,
+            order=new_theory.order,
+            masses=masses,
+            mass_scheme=new_theory.quark_masses_scheme.value,
+            intrinsic_flavors=new_theory.intrinsic_flavors,
+            fact_to_ren=new_theory.fact_to_ren,
+            configs=new_operator.configs,
+            debug=new_operator.debug,
+            thresholds_config=tc,
+            strong_coupling=sc,
+            interpol_dispatcher=bfd,
+        )
 
         self.out = EKO.new(theory=theory_card, operator=new_operator)
 
