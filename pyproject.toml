@@ -76,6 +76,7 @@ ipython = "^8.0"
 # benchmark
 asv = "^0.4.2"
 virtualenv = "^20.13.2"
+devtools = "^0.10.0"
 
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex", "nbsphinx"]
