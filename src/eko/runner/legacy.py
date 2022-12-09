@@ -28,7 +28,7 @@ class Runner:
     banner = commons.BANNER
 
     def __init__(self, theory_card: dict, operators_card: dict):
-        """Initialie runner.
+        """Initialize runner.
 
         Parameters
         ----------
@@ -53,7 +53,14 @@ class Runner:
         masses = None
         if new_theory.quark_masses_scheme is QuarkMassSchemes.MSBAR:
             masses = msbar_masses.compute(new_theory)
-        tc = ThresholdsAtlas.from_dict(new_theory, masses=masses)
+
+        tc = ThresholdsAtlas(
+            masses=(mq.value**2 for mq in new_theory.quark_masses),
+            q2_ref=new_theory.num_flavs_ref.scale,
+            nf_ref=new_theory.num_flavs_ref.value,
+            thresholds_ratios=list(new_theory.matching),
+            max_nf=new_theory.num_flavs_max_pdf,
+        )
 
         # strong coupling
         sc = Couplings.from_dict(new_theory, masses=masses)
