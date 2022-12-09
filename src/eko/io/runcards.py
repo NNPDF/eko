@@ -1,6 +1,5 @@
 """Structures to hold runcards information."""
-import copy
-import dataclasses
+import math
 from dataclasses import dataclass
 from typing import Optional, Union
 
@@ -20,7 +19,6 @@ from ..types import (
     InversionMethod,
     MatchingScales,
     Order,
-    QuarkMass,
     QuarkMassSchemes,
     RawCard,
     ScaleVariationsMethod,
@@ -44,9 +42,11 @@ class TheoryCard(DictLike):
     :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`.
 
     """
-    num_flavs_init: FlavorsNumber
+    num_flavs_init: Optional[FlavorsNumber]
     """"""
     num_flavs_max_as: FlavorsNumber
+    """"""
+    num_flavs_max_pdf: FlavorsNumber
     """"""
     intrinsic_flavors: IntrinsicFlavors
     """"""
@@ -59,33 +59,7 @@ class TheoryCard(DictLike):
 
     def validate(self) -> bool:
         """Validate attributes compatibility."""
-        if self.quark_masses_scheme is QuarkMassSchemes.MSBAR:
-            if all(isinstance(qm, tuple) for qm in self.quark_masses):
-                return False
-        else:
-            if all(isinstance(qm, QuarkMass) for qm in self.quark_masses):
-                return False
-
         return True
-
-    @classmethod
-    def from_dict(cls, card: dict):
-        """Load from runcard raw content.
-
-        Parameters
-        ----------
-        card: dict
-            content of the theory runcard
-
-        Returns
-        -------
-        TheoryCard
-            the loaded instance
-
-        """
-        for entry in ["order", "quark_masses", "num_flavs_ref"]:
-            card[entry] = tuple(card[entry])
-        return super().from_dict(card)
 
 
 @dataclass
@@ -116,7 +90,7 @@ class Configs(DictLike):
     r"""Whether to use polynomials in :math:`\log(x)`.
     If `false`, polynomials are in :math:`x`.
     """
-    scvar_method: ScaleVariationsMethod
+    scvar_method: Optional[ScaleVariationsMethod]
     """"""
     inversion_method: InversionMethod
     """Which method to use for backward matching conditions."""
@@ -278,6 +252,7 @@ class Legacy:
         new["num_flavs_ref"] = (old["nfref"], old["Qref"])
         new["num_flavs_init"] = old["nf0"]
         new["num_flavs_max_as"] = old["MaxNfAs"]
+        new["num_flavs_max_pdf"] = old["MaxNfPdf"]
         intrinsic = []
         for idx, q in enumerate(self.HEAVY):
             if old.get(f"i{q}".upper()) == 1:
@@ -285,11 +260,11 @@ class Legacy:
         new["intrinsic_flavors"] = intrinsic
         new["matching"] = heavies("k%sThr")
         new["quark_masses_scheme"] = old["HQ"]
+        ms = heavies("m%s")
+        mus = heavies("Qm%s")
         if old["HQ"] == "POLE":
-            new["quark_masses"] = heavies("m%s")
+            new["quark_masses"] = {q: (ms[q], math.nan) for q in self.HEAVY}
         elif old["HQ"] == "MSBAR":
-            ms = heavies("m%s")
-            mus = heavies("Qm%s")
             new["quark_masses"] = {q: (ms[q], mus[q]) for q in self.HEAVY}
         else:
             raise ValueError()
@@ -351,6 +326,9 @@ def update(theory: Union[RawCard, TheoryCard], operator: Union[RawCard, Operator
 
     """
     if isinstance(theory, TheoryCard) or isinstance(operator, OperatorCard):
+        # if one is not a dict, both have to be new cards
+        assert isinstance(theory, TheoryCard)
+        assert isinstance(operator, OperatorCard)
         return theory, operator
 
     cards = Legacy(theory, operator)

@@ -1,14 +1,52 @@
-"""Common type definitions, only used for static analysis."""
+"""Common type definitions, only used for static analysis.
+
+Unfortunately, Python has still some discrepancies between runtime classes and
+type hints, so it is better not to mix dataclasses and generics.
+
+E.g. before it was implemented::
+
+    @dataclasses.dataclass
+    class RunningReference(DictLike, Generic[Quantity]):
+        value: Quantity
+        scale: float
+
+but in this way it is not possible to determine that ``RunningReference`` is
+subclassing ``DictLike``, indeed::
+
+    inspec.isclass(RunningReference)  # False
+    issubclass(RunningReference, DictLike)  # raise an error, since
+                                            # RunningReference is not a class
+
+Essentially classes can be used for type hints, but types are not all classes,
+especially when they involve generics.
+
+For this reason I prefer the less elegant dynamic generation, that seems to
+preserve type hints.
+
+"""
+import dataclasses
 import enum
 import typing
 from typing import Any, Dict, List, Tuple
 
-T = typing.TypeVar("T")
+from .io.dictlike import DictLike
 
+T = typing.TypeVar("T")
 Quantity = typing.TypeVar("Quantity", bound=typing.Union[int, float])
-RunningReference = Tuple[Quantity, float]
-IntRef = RunningReference[int]
-FloatRef = RunningReference[float]
+
+
+def reference_running(quantity: typing.Type[Quantity]):
+    @dataclasses.dataclass
+    class ReferenceRunning(DictLike):
+        value: quantity
+        scale: float
+
+    return ReferenceRunning
+
+
+IntRef = reference_running(int)
+FloatRef = reference_running(float)
+
 
 Order = Tuple[int, int]
 CouplingConstants = Tuple[FloatRef, FloatRef]
@@ -18,30 +56,41 @@ FlavorIndex = int
 IntrinsicFlavors = List[FlavorIndex]
 
 
-class HeavyQuark(typing.Generic[T]):
-    """Access heavy quarks attributes by name."""
+def heavy_quark(quarkattr):
+    @dataclasses.dataclass
+    class HeavyQuarks(DictLike):
+        """Access heavy quarks attributes by name."""
 
-    c: T
-    """Charm quark."""
-    b: T
-    """Bottom quark."""
-    t: T
-    """Top quark."""
+        c: quarkattr
+        """Charm quark."""
+        b: quarkattr
+        """Bottom quark."""
+        t: quarkattr
+        """Top quark."""
 
-    def __getitem__(self, key: int):
-        """Allow access by index.
+        def __getitem__(self, key: int):
+            """Allow access by index.
 
-        Consequently it allows iteration and containing check.
+            Consequently it allows iteration and containing check.
 
-        """
-        return getattr(self, "cbt"[key])
+            """
+            return getattr(self, "cbt"[key])
+
+        @classmethod
+        def from_dict(cls, dictionary):
+            if dataclasses.is_dataclass(quarkattr):
+                return cls(**{k: quarkattr(*v) for k, v in dictionary.items()})
+            else:
+                return cls(**dictionary)
+
+    return HeavyQuarks
 
 
-QuarkMass = float
-QuarkMassRef = typing.Union[FloatRef, QuarkMass]
-HeavyQuarkMasses = HeavyQuark[QuarkMassRef]
+QuarkMassRef = FloatRef
+HeavyQuarkMasses = heavy_quark(QuarkMassRef)
 MatchingScale = float
-MatchingScales = HeavyQuark[MatchingScale]
+MatchingScales = heavy_quark(MatchingScale)
+
 
 # TODO: upgrade all the following to StrEnum, new in py3.11
 # with that, it is possible to replace all non-alias right sides with calls to
