@@ -1,6 +1,12 @@
-"""Structures to hold runcards information."""
-import math
+"""Structures to hold runcards information.
+
+All energy scales in the runcards should be saved linearly, not the squared
+value, for consistency.
+Squares are consistenly taken inside.
+
+"""
 from dataclasses import dataclass
+from math import nan
 from typing import Optional, Union
 
 import numpy as np
@@ -10,10 +16,9 @@ from .. import basis_rotation as br
 from .. import interpolation
 from .. import version as vmod
 from ..types import (
-    CouplingConstants,
+    CouplingsRef,
     EvolutionMethod,
     FlavorsNumber,
-    FlavorsNumberRef,
     HeavyQuarkMasses,
     IntrinsicFlavors,
     InversionMethod,
@@ -33,10 +38,10 @@ class TheoryCard(DictLike):
 
     order: Order
     """Perturbatiive order tuple, ``(QCD, QED)``."""
-    couplings: CouplingConstants
+    couplings: CouplingsRef
     """"""
-    num_flavs_ref: FlavorsNumberRef
-    r"""Number of active flavors at reference scale.
+    num_flavs_ref: Optional[FlavorsNumber]
+    r"""Number of active flavors at strong coupling reference scale.
 
     This is the scale :math:`\mu^2_{\text{ref}}` appearing in
     :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`.
@@ -248,8 +253,10 @@ class Legacy:
 
         new["order"] = [old["PTO"] + 1, old["QED"]]
         alphaem = self.fallback(old.get("alphaqed"), old.get("alphaem"), default=0.0)
-        new["couplings"] = [[old["alphas"], old["Qref"]], [alphaem, 0.0]]
-        new["num_flavs_ref"] = (old["nfref"], old["Qref"])
+        new["couplings"] = dict(
+            alphas=(old["alphas"], old["Qref"]), alphaem=(alphaem, nan)
+        )
+        new["num_flavs_ref"] = old["nfref"]
         new["num_flavs_init"] = old["nf0"]
         new["num_flavs_max_as"] = old["MaxNfAs"]
         new["num_flavs_max_pdf"] = old["MaxNfPdf"]
@@ -263,7 +270,7 @@ class Legacy:
         ms = heavies("m%s")
         mus = heavies("Qm%s")
         if old["HQ"] == "POLE":
-            new["quark_masses"] = {q: (ms[q], math.nan) for q in self.HEAVY}
+            new["quark_masses"] = {q: (ms[q], nan) for q in self.HEAVY}
         elif old["HQ"] == "MSBAR":
             new["quark_masses"] = {q: (ms[q], mus[q]) for q in self.HEAVY}
         else:

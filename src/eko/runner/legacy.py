@@ -2,8 +2,10 @@
 import copy
 import logging
 
+import numpy as np
+
 from .. import interpolation, msbar_masses
-from ..couplings import Couplings
+from ..couplings import Couplings, couplings_mod_ev
 from ..evolution_operator.grid import OperatorGrid
 from ..io import EKO, Operator, runcards
 from ..thresholds import ThresholdsAtlas
@@ -54,16 +56,28 @@ class Runner:
         if new_theory.quark_masses_scheme is QuarkMassSchemes.MSBAR:
             masses = msbar_masses.compute(new_theory)
 
+        masses = tuple(mq.value**2 for mq in new_theory.quark_masses)
+        thresholds_ratios = list(new_theory.matching)
+        nf_ref = new_theory.num_flavs_ref
         tc = ThresholdsAtlas(
-            masses=(mq.value**2 for mq in new_theory.quark_masses),
-            q2_ref=new_theory.num_flavs_ref.scale,
-            nf_ref=new_theory.num_flavs_ref.value,
-            thresholds_ratios=list(new_theory.matching),
+            masses=masses,
+            q2_ref=new_theory.couplings.alphas.scale,
+            nf_ref=nf_ref,
+            thresholds_ratios=thresholds_ratios,
             max_nf=new_theory.num_flavs_max_pdf,
         )
 
         # strong coupling
-        sc = Couplings.from_dict(new_theory, masses=masses)
+        sc = Couplings(
+            couplings_ref=np.array(new_theory.couplings.values),
+            scale_ref=new_theory.couplings.alphas.scale**2,
+            thresholds_ratios=thresholds_ratios,
+            masses=masses,  # TODO: before rescaled with fact_to_ren
+            order=new_theory.order,
+            method=couplings_mod_ev(new_operator.configs.evolution_method.value),
+            nf_ref=nf_ref,
+            max_nf=new_theory.num_flavs_max_as,
+        )
         # setup operator grid
         self.op_grid = OperatorGrid.from_dict(new_theory, new_operator, tc, sc, bfd)
 

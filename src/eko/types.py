@@ -27,6 +27,7 @@ preserve type hints.
 import dataclasses
 import enum
 import typing
+from math import nan
 from typing import Any, Dict, List, Tuple
 
 from .io.dictlike import DictLike
@@ -36,6 +37,12 @@ Quantity = typing.TypeVar("Quantity", bound=typing.Union[int, float])
 
 
 def reference_running(quantity: typing.Type[Quantity]):
+    """Generate running quantities reference point classes.
+
+    The motivation for dynamic generation is provided in module docstring.
+
+    """
+
     @dataclasses.dataclass
     class ReferenceRunning(DictLike):
         value: quantity
@@ -49,14 +56,43 @@ FloatRef = reference_running(float)
 
 
 Order = Tuple[int, int]
-CouplingConstants = Tuple[FloatRef, FloatRef]
+
+
+@dataclasses.dataclass
+class CouplingsRef(DictLike):
+    """Reference values for coupling constants."""
+
+    alphas: FloatRef
+    alphaem: FloatRef
+
+    def __post_init__(self):
+        """Validate couplings.
+
+        If they are both running, they have to be defined at the same scale.
+
+        Usually :attr:`alphaem` is not running, thus its scale is set to nan.
+
+        """
+        assert self.alphas.scale == self.alphaem.scale or self.alphaem.scale is nan
+
+    @property
+    def values(self):
+        """Collect only couplings values."""
+        return (self.alphas.value, self.alphaem.value)
+
+
 FlavorsNumber = int
-FlavorsNumberRef = IntRef
 FlavorIndex = int
 IntrinsicFlavors = List[FlavorIndex]
 
 
 def heavy_quark(quarkattr):
+    """Generate heavy quark properties container classes.
+
+    The motivation for dynamic generation is provided in module docstring.
+
+    """
+
     @dataclasses.dataclass
     class HeavyQuarks(DictLike):
         """Access heavy quarks attributes by name."""
