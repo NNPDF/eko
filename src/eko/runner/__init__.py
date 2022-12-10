@@ -1,9 +1,10 @@
 """Manage steps to DGLAP solution, and operator creation."""
+import os
 
 from . import legacy
 
 
-def solve(theory_card, operators_card):
+def solve(theory_card, operators_card, path: os.PathLike):
     r"""Solve DGLAP equations in terms of evolution kernel operators (EKO).
 
     The EKO :math:`\mathbf E_{k,j}(a_s^1\leftarrow a_s^0)` is determined in order
@@ -35,4 +36,4 @@ def solve(theory_card, operators_card):
         For further information about EKO inputs and output see :doc:`/code/IO`
 
     """
-    return legacy.Runner(theory_card, operators_card).get_output()
+    return legacy.Runner(theory_card, operators_card, path).get_output()
