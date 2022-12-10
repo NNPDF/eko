@@ -75,7 +75,7 @@ class DictLike:
 
             # load nested: the field has a definite type, and we will use this
             # information to automatically implement the loader
-            dictionary[field.name] = load_field(field, dictionary[field.name])
+            dictionary[field.name] = load_field(field.type, dictionary[field.name])
 
         # finally construct the class, just passing the arguments by name
         return cls(**dictionary)
@@ -106,64 +106,63 @@ class DictLike:
         return dictionary
 
 
-def load_field(field, value):
+def load_field(type_, value):
     """Deserialize dataclass field."""
     # TODO: nice place for a match statement...
-    if typing.get_origin(field.type) is not None:
+    if typing.get_origin(type_) is not None:
         # this has to go first since for followin ones I will assume they are
         # valid classes, cf. the module docstring
-        return load_typing(field, value)
+        return load_typing(type_, value)
 
-    assert inspect.isclass(field.type)
+    assert inspect.isclass(type_)
 
-    if issubclass(field.type, DictLike):
-        return field.type.from_dict(value)
-    if issubclass(field.type, DictLike):
-        return field.type.from_dict(value)
-    if issubclass(field.type, enum.Enum):
-        return load_enum(field, value)
+    if issubclass(type_, DictLike):
+        return type_.from_dict(value)
+    if issubclass(type_, enum.Enum):
+        return load_enum(type_, value)
+    if issubclass(type_, np.ndarray):
+        return np.array(value)
+    if isinstance(value, dict):
+        return type_(**value)
 
-    return field.type(value)
+    return type_(value)
 
 
-def load_enum(field, value):
+def load_enum(type_, value):
     """Deserialize enum variant.
 
     Accepts both the name and value of variants, attempted in this order.
 
+    Raises
+    ------
+    ValueError
+        if `value` is not the name nor the value of any enum variant
+
     """
     try:
-        return field.type(value)
-    except ValueError:
-        return field.type[value]
+        return type_[value]
+    except KeyError:
+        return type_(value)
 
 
-def load_typing(field, value):
+def load_typing(type_, value):
     """Deserialize type hint associated field."""
-    origin = typing.get_origin(field.type)
+    origin = typing.get_origin(type_)
     assert origin is not None
 
+    # unions have to be explored over their variants
     if origin is typing.Union:
-        for variant in typing.get_args(field.type):
+        for variant in typing.get_args(type_):
             try:
-                loaded = variant(value)
-                break
+                return load_field(variant, value)
             except (TypeError, ValueError):
                 ...
-        else:
-            if type(None) in field.type.__args__:
-                loaded = None
-            else:
-                raise TypeError
-    else:
-        if isinstance(value, dict):
-            loaded = origin(**value)
-        elif issubclass(np.ndarray, origin):
-            loaded = np.array(value)
-        else:
-            loaded = origin(value)
 
-    return loaded
+        if type(None) in type_.__args__:
+            return None
+        raise TypeError
+
+    return load_field(origin, value)
 
 
 def raw_field(value):
@@ -178,6 +177,8 @@ def raw_field(value):
         return value.dump()["grid"]
     if isinstance(value, tuple):
         return list(value)
+    if isinstance(value, enum.Enum):
+        return value.value
     if isinstance(value, DictLike):
         return value.raw
 

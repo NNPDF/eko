@@ -192,8 +192,6 @@ class OperatorCard(DictLike):
 
     mu0: float
     """Initial scale."""
-    mugrid: npt.NDArray
-    """Array of q2 points."""
 
     # collections
     configs: Configs
@@ -206,6 +204,13 @@ class OperatorCard(DictLike):
     The operator card will only contain the interpolation xgrid and the pids.
 
     """
+
+    # TODO: drop legacy compatibility, only linear scales in runcards, such
+    # that we will always avoid taking square roots, and we are consistent with
+    # the other scales
+    _mugrid: Optional[npt.NDArray] = None
+    _mu2grid: Optional[npt.NDArray] = None
+    """Array of final scales."""
 
     # optional
     eko_version: str = vmod.__version__
@@ -220,7 +225,12 @@ class OperatorCard(DictLike):
     @property
     def mu2grid(self):
         """Grid of squared final scales."""
-        return self.mugrid**2
+        if self._mugrid is not None:
+            return self._mugrid**2
+        if self._mu2grid is not None:
+            return self._mu2grid
+
+        raise RuntimeError("Mu2 grid has not been initialized")
 
 
 @dataclass
@@ -294,7 +304,7 @@ class Legacy:
         new = {}
 
         new["mu0"] = old_th["Q0"]
-        new["mugrid"] = np.sqrt(old["Q2grid"]).tolist()
+        new["_mu2grid"] = old["Q2grid"]
 
         new["configs"] = {}
         evmod = old_th["ModEv"]

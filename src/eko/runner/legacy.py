@@ -1,6 +1,7 @@
 """Main application class of eko."""
 import copy
 import logging
+import os
 
 import numpy as np
 
@@ -29,7 +30,7 @@ class Runner:
 
     banner = commons.BANNER
 
-    def __init__(self, theory_card: dict, operators_card: dict):
+    def __init__(self, theory_card: dict, operators_card: dict, path: os.PathLike):
         """Initialize runner.
 
         Parameters
@@ -94,7 +95,7 @@ class Runner:
             interpol_dispatcher=bfd,
         )
 
-        self.out = EKO.new(theory=theory_card, operator=new_operator)
+        self.out = EKO.create(path).load_cards(new_theory, new_operator).build()
 
     def get_output(self) -> EKO:
         """Run evolution and generate output operator.

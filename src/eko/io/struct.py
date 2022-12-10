@@ -8,7 +8,6 @@ import pathlib
 import shutil
 import tarfile
 import tempfile
-import typing
 from dataclasses import dataclass
 from typing import BinaryIO, Dict, Optional
 
@@ -75,21 +74,22 @@ class Operator(DictLike):
             even the format, ``npz`` with errors, ``npy`` otherwise)
 
         """
+        aux = io.BytesIO()
         if self.error is None:
-            np.save(stream, self.operator)
+            np.save(aux, self.operator)
         else:
-            np.savez(stream, operator=self.operator, error=self.error)
-        stream.seek(0)
+            np.savez(aux, operator=self.operator, error=self.error)
+        aux.seek(0)
 
         # compress if requested
         if compress:
-            compressed = lz4.frame.compress(stream.read())
-            # remove previous content
-            stream.seek(0)
-            stream.truncate()
-            # write compressed data
-            stream.write(compressed)
-            stream.seek(0)
+            content = lz4.frame.compress(aux.read())
+        else:
+            content = aux.read()
+
+        # write compressed data
+        stream.write(content)
+        stream.seek(0)
 
         # return the type of array dumped (i.e. 'npy' or 'npz')
         return self.error is None
@@ -207,7 +207,7 @@ class InternalPaths:
     @staticmethod
     def opname(mu2: float) -> str:
         r"""Operator file name from :math:`\mu^2` value."""
-        return f"{mu2:8.2f}"
+        return np.float64(mu2).hex()
 
     def oppath(self, mu2: float) -> pathlib.Path:
         r"""Retrieve operator file path from :math:`\mu^2` value.
@@ -291,7 +291,7 @@ class InternalPaths:
         if self.operators not in path.parents:
             raise exceptions.OperatorLocationError(path)
 
-        return float(path.stem)
+        return float(np.float64.fromhex(".".join(path.stem.split(".")[:2])))
 
     def opnewpath(
         self, mu2: float, compress: bool = True, without_err: bool = True
@@ -309,10 +309,10 @@ class InternalPaths:
             the path computed, it might already exists
 
         """
-        suffix = "npy" if without_err else "npz"
+        suffix = ".npy" if without_err else ".npz"
         if compress:
             suffix += COMPRESSED_SUFFIX
-        return (self.operators / self.opname(mu2)).with_suffix(suffix)
+        return self.operators / (self.opname(mu2) + suffix)
 
     @property
     def mu2grid(self) -> npt.NDArray[np.float64]:
@@ -340,11 +340,8 @@ class AccessConfigs:
     "Read-only flag"
 
 
-OptionalPath = typing.TypeVar("OptionalPath", bound=Optional[pathlib.Path])
-
-
 @dataclass
-class Metadata(DictLike, typing.Generic[OptionalPath]):
+class Metadata(DictLike):
     """Manage metadata, and keep them synced on disk.
 
     It is possible to have a metadata view, in which the path is not actually
@@ -359,26 +356,19 @@ class Metadata(DictLike, typing.Generic[OptionalPath]):
 
     """
 
-    _path: OptionalPath
-    """Path to temporary dir."""
-    Q02: float
+    mu20: float
     """Inital scale."""
     rotations: Rotations
     """Manipulation information, describing the current status of the EKO (e.g.
     `inputgrid` and `targetgrid`).
     """
     # tagging information
+    _path: Optional[pathlib.Path] = None
+    """Path to temporary dir."""
     version: str = vmod.__version__
     """Library version used to create the corresponding file."""
     data_version: str = vmod.__data_version__
     """Specs version, to which the file adheres."""
-
-    @classmethod
-    def from_dict(cls, dictionary):
-        """Override default :meth:`DictLike.from_dict` to load rotations."""
-        metadata = dictionary.copy()
-        metadata["rotations"] = Rotations.from_dict(metadata["rotations"])
-        return cls(_path=None, **metadata)
 
     @classmethod
     def load(cls, path: os.PathLike):
@@ -407,38 +397,19 @@ class Metadata(DictLike, typing.Generic[OptionalPath]):
         if self._path is None:
             logger.info("Impossible to set metadata, no file attached.")
         else:
-            with open(self._path, "w") as fd:
+            with open(InternalPaths(self._path).metadata, "w") as fd:
                 yaml.safe_dump(self.raw, fd)
-
-    def __setattr__(self, name, value):
-        """Update metadata content and sync disk."""
-        super().__setattr__(name, value)
-
-        # all objects starting with "_" are used for the in-memory structure,
-        # but they do not need to be serialized, so they do not trigger an
-        # update
-        if name.startswith("_"):
-            return
-
-        self.update()
 
     @property
     def raw(self):
         """Override default :meth:`DictLike.raw` representation to exclude path."""
         raw = super().raw
 
-        for key in raw:
+        for key in raw.copy():
             if key.startswith("_"):
                 del raw[key]
 
         return raw
-
-
-# The metadata class can be instantiated with an optional path, but it is
-# optional only if it is a view, and not the actual metadata associated to an
-# open EKO
-MetadataView = Metadata[Optional[pathlib.Path]]
-Metadata = Metadata[pathlib.Path]
 
 
 @dataclass
@@ -454,19 +425,12 @@ class Builder:
     theory: Optional[TheoryCard] = None
     operator: Optional[OperatorCard] = None
 
-    def load_cards(self, theory: dict, operator: dict):
-        """Load both theory and operator card.
+    def load_cards(self, theory: TheoryCard, operator: OperatorCard):
+        """Load both theory and operator card."""
+        self.theory = theory
+        self.operator = operator
 
-        Parameters
-        ----------
-        theory: dict
-            a valid theory card, see :cls:`TheoryCard`
-        operator: dict
-            a valid operator card, see :cls:`OperatorCard`
-
-        """
-        self.theory = TheoryCard.from_dict(theory)
-        self.operator = OperatorCard.from_dict(operator)
+        return self
 
     def build(self):
         """Build EKO instance.
@@ -492,16 +456,22 @@ class Builder:
                 f"Can not build an EKO, since following cards are missing: {missing}"
             )
         # tell the static analyzer as well
+        assert self.theory is not None
         assert self.operator is not None
 
         metadata = Metadata(
             _path=self.path,
-            Q02=self.operator.Q0**2,
+            mu20=self.operator.mu20,
             rotations=copy.deepcopy(self.operator.rotations),
+        )
+        InternalPaths(self.path).bootstrap(
+            theory=self.theory.raw,
+            operator=self.operator.raw,
+            metadata=metadata.raw,
         )
 
         return EKO(
-            _operators={q2: None for q2 in self.operator.Q2grid},
+            _operators={mu2: None for mu2 in self.operator.mu2grid},
             metadata=metadata,
             access=self.access,
         )
@@ -572,6 +542,11 @@ class EKO:
         """Set `xgrid` value."""
         self.rotations.xgrid = value
         self.metadata.update()
+
+    @property
+    def mu20(self) -> float:
+        """Provide squared initial scale."""
+        return self.metadata.mu20
 
     @property
     def mu2grid(self) -> npt.NDArray:
@@ -835,8 +810,9 @@ class EKO:
             tar.extractall(dest)
 
     @classmethod
-    def open(cls, path, mode="r"):
+    def open(cls, path: os.PathLike, mode="r"):
         """Open EKO object in the specified mode."""
+        path = pathlib.Path(path)
         access = AccessConfigs(path, readonly=False)
         load = False
         if mode == "r":
@@ -849,12 +825,10 @@ class EKO:
         else:
             raise ValueError
 
-        if load:
-            path = pathlib.Path(path)
-            if not tarfile.is_tarfile(path):
-                raise exceptions.OutputNotTar(f"Not a valid tar archive: '{path}'")
+        if load and not tarfile.is_tarfile(path):
+            raise exceptions.OutputNotTar(f"Not a valid tar archive: '{path}'")
 
-        tmpdir = pathlib.Path(tempfile.gettempdir())
+        tmpdir = pathlib.Path(tempfile.mkdtemp())
         if load:
             cls.load(path, tmpdir)
             opened = cls(_operators={}, metadata=Metadata.load(tmpdir), access=access)
@@ -862,6 +836,12 @@ class EKO:
             opened = Builder(path=tmpdir, access=access)
 
         return opened
+
+    @classmethod
+    def create(cls, path: os.PathLike):
+        builder = cls.open(path, "w")
+        assert isinstance(builder, Builder)
+        return builder
 
     def __enter__(self):
         """Allow EKO to be used in :obj:`with` statements."""
