@@ -838,10 +838,43 @@ class EKO:
         return opened
 
     @classmethod
+    def read(cls, path: os.PathLike):
+        """Read the content of an EKO.
+
+        Type-safe alias for::
+
+            EKO.open(... , "r")
+
+        """
+        eko = cls.open(path, "r")
+        assert isinstance(eko, EKO)
+        return eko
+
+    @classmethod
     def create(cls, path: os.PathLike):
+        """Create a new EKO.
+
+        Type-safe alias for::
+
+            EKO.open(... , "w")
+
+        """
         builder = cls.open(path, "w")
         assert isinstance(builder, Builder)
         return builder
+
+    @classmethod
+    def append(cls, path: os.PathLike):
+        """Read from and write on existing EKO.
+
+        Type-safe alias for::
+
+            EKO.open(... , "a")
+
+        """
+        eko = cls.open(path, "a")
+        assert isinstance(eko, EKO)
+        return eko
 
     def __enter__(self):
         """Allow EKO to be used in :obj:`with` statements."""
