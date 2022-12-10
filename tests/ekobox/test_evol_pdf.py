@@ -7,13 +7,14 @@ from ekobox import cards
 from ekobox import evol_pdf as ev_p
 
 op = cards.generate_operator(
+    1.65,
     [100.0],
     update={
         "interpolation_xgrid": [0.1, 0.5, 1.0],
         "interpolation_polynomial_degree": 1,
     },
 )
-theory = cards.generate_theory(0, 1.65)
+theory = cards.generate_theory(0)
 
 
 def test_evolve_pdfs_run(fake_lhapdf, cd):

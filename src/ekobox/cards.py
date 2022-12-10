@@ -51,26 +51,22 @@ _operator = dict(
 class example:
     """Provide runcards examples."""
 
-    @property
     @classmethod
     def theory(cls) -> runcards.TheoryCard:
         """Provide example theory card object."""
         return runcards.TheoryCard.from_dict(_theory)
 
-    @property
     @classmethod
     def operator(cls) -> runcards.OperatorCard:
         """Provide example operator card object."""
         return runcards.OperatorCard.from_dict(_operator)
 
-    @property
     @classmethod
     def raw_theory(cls):
         """Provide example theory card unstructured."""
-        # TODO: consider to return instead `cls.theory.raw`
+        # TODO: consider to return instead `cls.theory().raw`
         return _theory.copy()
 
-    @property
     @classmethod
     def raw_operator(cls):
         """Provide example operator card unstructured."""
@@ -112,7 +108,7 @@ def generate_theory(
             theory card
     """
     # Constructing the dictionary with some default values
-    theory = example.theory
+    theory = example.theory()
     # Adding the mandatory inputs
     theory.order = (pto, theory.order[1])
     # Update user choice
@@ -153,7 +149,7 @@ def generate_operator(
 
     """
     # Constructing the dictionary with some default value
-    operator = example.operator
+    operator = example.operator()
     # Adding the mandatory inputs
     operator.mu0 = initial_scale
     operator._mu2grid = np.array(Q2grid)
