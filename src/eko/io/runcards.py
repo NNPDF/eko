@@ -89,7 +89,7 @@ class Configs(DictLike):
 
     evolution_method: EvolutionMethod
     """Evolution mode."""
-    ev_op_max_order: Order
+    ev_op_max_order: int
     """Maximum order to use in U matrices expansion.
     Used only in ``perturbative`` solutions.
     """
@@ -103,7 +103,7 @@ class Configs(DictLike):
     """
     scvar_method: Optional[ScaleVariationsMethod]
     """"""
-    inversion_method: InversionMethod
+    inversion_method: Optional[InversionMethod]
     """Which method to use for backward matching conditions."""
     n_integration_cores: int = 1
     """Number of cores used to parallelize integration."""

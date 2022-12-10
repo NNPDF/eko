@@ -1,5 +1,6 @@
 """Tools to generate runcards."""
 import os
+from math import nan
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -11,39 +12,39 @@ from eko.io import runcards
 Card = Dict[str, Any]
 
 _theory = dict(
-    order=None,
-    couplings=None,
+    order=[1, 0],
+    couplings=dict(alphas=[0.118, 91.2], alphaem=[0.007496252, nan]),
     num_flavs_ref=None,
     num_flavs_init=None,
-    num_flavs_max_as=None,
-    num_flavs_max_pdf=None,
-    intrinsic_flavors=None,
-    quark_masses=None,
-    quark_masses_scheme=None,
-    matching=None,
-    fact_to_ren=None,
+    num_flavs_max_as=6,
+    num_flavs_max_pdf=6,
+    intrinsic_flavors=[4],
+    quark_masses=[2.0, 4.5, 173.07],
+    quark_masses_scheme="POLE",
+    matching=[1.0, 1.0, 1.0],
+    fact_to_ren=1.0,
 )
 
 _operator = dict(
-    mu0=None,
-    _mugrid=None,
+    mu0=1.65,
+    _mugrid=[100.0],
     configs=dict(
-        evolution_method=None,
-        ev_op_max_order=None,
-        ev_op_iterations=None,
-        interpolation_polynomial_degree=None,
-        interpolation_is_log=None,
+        evolution_method="iterate-exact",
+        ev_op_max_order=10,
+        ev_op_iterations=10,
+        interpolation_polynomial_degree=4,
+        interpolation_is_log=True,
         scvar_method=None,
         inversion_method=None,
-        n_integration_cores=None,
+        n_integration_cores=0,
     ),
     debug=dict(
-        skip_singlet=None,
-        skip_non_singlet=None,
+        skip_singlet=False,
+        skip_non_singlet=False,
     ),
     rotations=dict(
-        xgrid=None,
-        pids=None,
+        xgrid=np.geomspace(1e-7, 1.0, 50).tolist(),
+        pids=list(br.flavor_basis_pids),
     ),
 )
 
@@ -77,7 +78,7 @@ def update_card(card: runcards.Card, update: Card):
     """Update card with dictionary content."""
     for k, v in update.items():
         if not hasattr(card, k):
-            raise ValueError("Provided key not in theory card")
+            raise ValueError(f"The key '{k}' is not in '{type(card)}'")
         setattr(card, k, v)
 
 
