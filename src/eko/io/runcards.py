@@ -233,6 +233,9 @@ class OperatorCard(DictLike):
         raise RuntimeError("Mu2 grid has not been initialized")
 
 
+Card = Union[TheoryCard, OperatorCard]
+
+
 @dataclass
 class Legacy:
     """Upgrade legacy runcards."""
