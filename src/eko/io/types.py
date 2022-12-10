@@ -111,13 +111,6 @@ def heavy_quark(quarkattr):
             """
             return getattr(self, "cbt"[key])
 
-        @classmethod
-        def from_dict(cls, dictionary):
-            if dataclasses.is_dataclass(quarkattr):
-                return cls(**{k: quarkattr(*v) for k, v in dictionary.items()})
-            else:
-                return cls(**dictionary)
-
     return HeavyQuarks
 
 

@@ -1,19 +1,18 @@
+import numpy as np
 from banana import toy
 
 import eko
 import eko.io.legacy as out
+from eko.interpolation import XGrid
 from eko.io import runcards
 from ekobox import cards
 from ekobox import evol_pdf as ev_p
 
-op = cards.generate_operator(
-    1.65,
-    [100.0],
-    update={
-        "interpolation_xgrid": [0.1, 0.5, 1.0],
-        "interpolation_polynomial_degree": 1,
-    },
-)
+op = cards.example.operator()
+op.mu0 = 1.65
+op.rotations.xgrid = XGrid([0.1, 0.5, 1.0])
+op.rotations.pids = np.array([0, 1])
+op.configs.interpolation_polynomial_degree = 1
 theory = cards.generate_theory(0)
 
 

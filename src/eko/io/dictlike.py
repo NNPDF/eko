@@ -56,7 +56,7 @@ class DictLike:
         # not any longer the best. And it is good in any case to drop the old
         # `from_dict` name, and solve part of the ambiguity with existing
         # methods
-        if isinstance(dictionary, tuple):
+        if any(isinstance(dictionary, cls) for cls in [tuple, list]):
             return cls(*dictionary)
 
         # support nesting, modifying the copied dictionary
