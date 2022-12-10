@@ -89,7 +89,7 @@ class Configs(DictLike):
 
     evolution_method: EvolutionMethod
     """Evolution mode."""
-    ev_op_max_order: int
+    ev_op_max_order: Order
     """Maximum order to use in U matrices expansion.
     Used only in ``perturbative`` solutions.
     """
