@@ -11,6 +11,7 @@ import pytest
 
 from eko import interpolation
 from eko.io.struct import EKO, AccessConfigs, Metadata, Operator, Rotations
+from ekobox import cards
 
 
 @pytest.fixture
@@ -39,6 +40,31 @@ class FakePDF:
 @pytest.fixture
 def fake_pdf():
     return FakePDF()
+
+
+@pytest.fixture
+def theory_card():
+    return cards.example.theory()
+
+
+@pytest.fixture()
+def theory_ffns(theory_card):
+    def set_(flavors: int):
+        for q in "cbt":
+            setattr(theory_card.matching, q, np.inf)
+        return theory_card
+
+    return set_
+
+
+@pytest.fixture
+def operator_card():
+    card = cards.example.operator()
+    card.rotations.xgrid = interpolation.XGrid([0.1, 0.3, 0.5, 1.0])
+    card.rotations.pids = np.array([0, 1])
+    card.configs.interpolation_polynomial_degree = 2
+
+    return card
 
 
 class EKOFactory:

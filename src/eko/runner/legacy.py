@@ -56,8 +56,11 @@ class Runner:
         masses = None
         if new_theory.quark_masses_scheme is QuarkMassSchemes.MSBAR:
             masses = msbar_masses.compute(new_theory)
+        elif new_theory.quark_masses_scheme is QuarkMassSchemes.POLE:
+            masses = tuple(mq**2 for mq in new_theory.quark_masses)
+        else:
+            raise ValueError(f"Unknown mass scheme '{new_theory.quark_masses_scheme}'")
 
-        masses = tuple(mq.value**2 for mq in new_theory.quark_masses)
         # call explicitly iter to explain the static analyzer that is an
         # iterable
         thresholds_ratios = list(iter(new_theory.matching))
