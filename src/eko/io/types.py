@@ -28,7 +28,7 @@ import dataclasses
 import enum
 import typing
 from math import nan
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict
 
 from .dictlike import DictLike
 
@@ -54,8 +54,7 @@ def reference_running(quantity: typing.Type[Quantity]):
 IntRef = reference_running(int)
 FloatRef = reference_running(float)
 
-
-Order = Tuple[int, int]
+Order = typing.Tuple[int, int]
 
 
 @dataclasses.dataclass
@@ -83,7 +82,7 @@ class CouplingsRef(DictLike):
 
 FlavorsNumber = int
 FlavorIndex = int
-IntrinsicFlavors = List[FlavorIndex]
+IntrinsicFlavors = typing.List[FlavorIndex]
 
 
 def heavy_quark(quarkattr):

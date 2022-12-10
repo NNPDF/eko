@@ -1,18 +1,132 @@
 """Tools to generate runcards."""
-import copy
 import os
 from typing import Any, Dict, List, Optional
 
+import numpy as np
 import yaml
-from banana.data import sql, theories
 
 from eko import basis_rotation as br
-from ekomark.data import operators
+from eko.io import runcards
 
 Card = Dict[str, Any]
 
+_theory = dict(
+    order=None,
+    couplings=None,
+    num_flavs_ref=None,
+    num_flavs_init=None,
+    num_flavs_max_as=None,
+    num_flavs_max_pdf=None,
+    intrinsic_flavors=None,
+    quark_masses=None,
+    quark_masses_scheme=None,
+    matching=None,
+    fact_to_ren=None,
+)
+
+_operator = dict(
+    mu0=None,
+    _mugrid=None,
+    configs=dict(
+        evolution_method=None,
+        ev_op_max_order=None,
+        ev_op_iterations=None,
+        interpolation_polynomial_degree=None,
+        interpolation_is_log=None,
+        scvar_method=None,
+        inversion_method=None,
+        n_integration_cores=None,
+    ),
+    debug=dict(
+        skip_singlet=None,
+        skip_non_singlet=None,
+    ),
+    rotations=dict(
+        xgrid=None,
+        pids=None,
+    ),
+)
+
+
+class example:
+    """Provide runcards examples."""
+
+    @property
+    @classmethod
+    def theory(cls) -> runcards.TheoryCard:
+        """Provide example theory card object."""
+        return runcards.TheoryCard.from_dict(_theory)
+
+    @property
+    @classmethod
+    def operator(cls) -> runcards.OperatorCard:
+        """Provide example operator card object."""
+        return runcards.OperatorCard.from_dict(_operator)
+
+    @property
+    @classmethod
+    def raw_theory(cls):
+        """Provide example theory card unstructured."""
+        # TODO: consider to return instead `cls.theory.raw`
+        return _theory.copy()
+
+    @property
+    @classmethod
+    def raw_operator(cls):
+        """Provide example operator card unstructured."""
+        return _theory.copy()
+
+
+def update_card(card: runcards.Card, update: Card):
+    """Update card with dictionary content."""
+    for k, v in update.items():
+        if not hasattr(card, k):
+            raise ValueError("Provided key not in theory card")
+        setattr(card, k, v)
+
+
+def generate_theory(
+    pto: int,
+    update: Optional[Card] = None,
+    path: Optional[os.PathLike] = None,
+) -> Card:
+    """Generate theory card.
+
+    Generates a theory card with some mandatory user choice and some
+    default values which can be changed by the update input dict
+
+    Parameters
+    ----------
+        pto : int
+            perturbation theory order
+        initial_scale: float
+            initial scale of evolution [GeV]
+        update : dict
+            info to update to default theory card
+        name : str
+            name of exported theory card (if name is not None )
+
+    Returns
+    -------
+        dict
+            theory card
+    """
+    # Constructing the dictionary with some default values
+    theory = example.theory
+    # Adding the mandatory inputs
+    theory.order = (pto, theory.order[1])
+    # Update user choice
+    if update is not None:
+        update_card(theory, update)
+
+    raw = theory.raw
+    if path is not None:
+        dump(path, raw)
+    return raw
+
 
 def generate_operator(
+    initial_scale: float,
     Q2grid: List[float],
     update: Optional[Card] = None,
     path: Optional[os.PathLike] = None,
@@ -39,64 +153,19 @@ def generate_operator(
 
     """
     # Constructing the dictionary with some default value
-    def_op = copy.deepcopy(operators.default_card)
+    operator = example.operator
     # Adding the mandatory inputs
-    def_op["pids"] = list(br.flavor_basis_pids)
-    def_op["Q2grid"] = Q2grid
-    if isinstance(update, dict):
-        for k in update.keys():
-            if k not in def_op.keys():
-                raise ValueError("Provided key not in operators card")
-        for key, value in update.items():
-            def_op[key] = value
-    serialized = sql.serialize(def_op)
-    if path is not None:
-        dump(path, def_op)
-    return def_op
-
-
-def generate_theory(
-    pto: int,
-    initial_scale: float,
-    update: Optional[Card] = None,
-    path: Optional[os.PathLike] = None,
-) -> Card:
-    """Generate theory card.
-
-    Generates a theory card with some mandatory user choice and some
-    default values which can be changed by the update input dict
-
-    Parameters
-    ----------
-        pto : int
-            perturbation theory order
-        initial_scale: float
-            initial scale of evolution [GeV]
-        update : dict
-            info to update to default theory card
-        name : str
-            name of exported theory card (if name is not None )
-
-    Returns
-    -------
-        dict
-            theory card
-    """
-    # Constructing the dictionary with some default values
-    theory = copy.deepcopy(theories.default_card)
-    # Adding the mandatory inputs
-    theory["PTO"] = pto
-    theory["Q0"] = initial_scale
+    operator.mu0 = initial_scale
+    operator._mu2grid = np.array(Q2grid)
+    operator.rotations.pids = np.array(br.flavor_basis_pids)
     # Update user choice
     if update is not None:
-        for k in update.keys():
-            if k not in theory.keys():
-                raise ValueError("Provided key not in theory card")
-        theory.update(update)
-    serialized = sql.serialize(theory)
+        update_card(operator, update)
+
+    raw = operator.raw
     if path is not None:
-        dump(path, theory)
-    return theory
+        dump(path, raw)
+    return raw
 
 
 def dump(path: os.PathLike, card: Card):
