@@ -1,13 +1,16 @@
+import dataclasses
 import os
 import pathlib
 import shutil
 import sys
 from contextlib import contextmanager
+from typing import Optional, Sequence, Tuple
 
 import numpy as np
 import pytest
 
-from eko import io
+from eko import interpolation
+from eko.io.struct import EKO, AccessConfigs, Metadata, Operator, Rotations
 
 
 @pytest.fixture
@@ -38,93 +41,72 @@ def fake_pdf():
     return FakePDF()
 
 
-class FakeOutput:
-    shape = (2, 2)
+class EKOFactory:
+    def __init__(self):
+        self.cache: Optional[EKO] = None
 
-    def mkO(self):
-        ma, mae = np.random.rand(2, *self.shape)
-        return ma, mae
+    @staticmethod
+    def _operators(mugrid: Sequence[float], shape: Tuple[int, int]):
+        ops = {}
+        for mu in mugrid:
+            ops[2.0] = Operator(np.random.rand(*shape, *shape))
 
-    def mk_g(self, q2s, lpids, lx):
-        Q2grid = {}
-        for q2 in q2s:
-            Q2grid[q2] = {
-                "operator": np.random.rand(lpids, lx, lpids, lx),
-                "error": np.random.rand(lpids, lx, lpids, lx),
-            }
-        return Q2grid
+        return ops
 
-    def mk_dump(self) -> dict:
-        xgrid = np.array([0.5, 1.0])
-        interpolation_polynomial_degree = 1
-        interpolation_is_log = False
-        pids = [0, 1]
-        q2_ref = 1
-        q2_out = 2
-        Q2grid = self.mk_g([q2_out], len(pids), len(xgrid))
-        return dict(
-            rotations=dict(
-                xgrid=xgrid,
-                pids=pids,
-            ),
-            Q0=np.sqrt(q2_ref),
-            configs=dict(
-                ev_op_max_order=1,
-                ev_op_iterations=1,
-                interpolation_polynomial_degree=interpolation_polynomial_degree,
-                interpolation_is_log=interpolation_is_log,
-                backward_inversion="exact",
-            ),
-            Q2grid=Q2grid,
+    def _create(self, update: Optional[dict]):
+        @dataclasses.dataclass
+        class defaults:
+            mu0 = 0.0
+            mugrid = [2.0]
+            xgrid = interpolation.XGrid([0.5, 1.0])
+            pids = np.array([0, 1])
+            path = pathlib.Path.cwd() / "test-eko-invalid-path"
+
+        if update is not None:
+            pars = defaults(**update)
+        else:
+            pars = defaults()
+
+        lx = len(pars.xgrid)
+        lpids = len(pars.pids)
+
+        access = AccessConfigs(pars.path, False)
+        metadata = Metadata(pars.mu0, Rotations(xgrid=pars.xgrid, pids=pars.pids))
+        self.cache = EKO(
+            _operators=self._operators(mugrid=pars.mugrid, shape=(lx, lpids)),
+            access=access,
+            metadata=metadata,
         )
 
-    def fake_output(self):
-        d = self.mk_dump()
-        # build data
-        obj = io.EKO.new(theory={}, operator=d)
-        obj.rotations._targetgrid = d["rotations"]["xgrid"]
-        obj.rotations._inputgrid = d["rotations"]["xgrid"]
-        obj.rotations._targetpids = d["rotations"]["pids"]
-        obj.rotations._inputpids = d["rotations"]["pids"]
-        for q2, op in d["Q2grid"].items():
-            obj[q2] = io.struct.Operator.from_dict(op)
-        return obj, d
+        return self.cache
 
-    def fake_legacy(self):
-        d = self.mk_dump()
-        bases = d["rotations"].copy()
+    def _clean(self):
+        self.cache = None
 
-        # build data
-        obj = io.EKO.new(theory={}, operator=d)
-        for q2, op in d["Q2grid"].items():
-            obj[q2] = io.struct.Operator.from_dict(op)
+    def get(self, update: Optional[dict] = None):
+        """Get a fake output.
 
-        d["inputgrid"] = bases["xgrid"]
-        d["targetgrid"] = bases["xgrid"]
-        d["inputpids"] = bases["pids"]
-        d["targetpids"] = bases["pids"]
+        To force a new output, keeping all the defaults, just pass an empty
+        dictionary::
 
-        d["interpolation_xgrid"] = bases["xgrid"]
-        d["pids"] = bases["pids"]
+            factory.get({})
 
-        del d["rotations"]
 
-        return obj, d
+        Pay attention that the EKO created is an invalid one, since no path is
+        actually connected.
+
+        """
+        if self.cache is None or update is not None:
+            self.cache = self._create(update=update)
+
+        return self.cache
 
 
 @pytest.fixture
-def fake_factory():
-    return FakeOutput()
-
-
-@pytest.fixture
-def fake_output():
-    return FakeOutput().fake_output()
-
-
-@pytest.fixture
-def fake_legacy():
-    return FakeOutput().fake_legacy()
+def eko_factory():
+    factory = EKOFactory()
+    yield factory
+    factory._clean()
 
 
 @pytest.fixture
