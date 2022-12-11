@@ -401,6 +401,27 @@ class Metadata(DictLike):
                 yaml.safe_dump(self.raw, fd)
 
     @property
+    def path(self):
+        """Access temporary dir path.
+
+        Raises
+        ------
+        RuntimeError
+            if path has not been initialized before
+
+        """
+        if self._path is None:
+            raise RuntimeError(
+                "Access to EKO directory attempted, but not dir has been set."
+            )
+        return self._path
+
+    @path.setter
+    def path(self, value: pathlib.Path):
+        """Set temporary dir path."""
+        self._path = value
+
+    @property
     def raw(self):
         """Override default :meth:`DictLike.raw` representation to exclude path."""
         raw = super().raw
@@ -840,7 +861,7 @@ class EKO:
             archive = self.access.path
 
         with tarfile.open(archive, "w") as tar:
-            tar.add(self.metadata._path)
+            tar.add(self.metadata.path)
 
     def close(self):
         """Close the current object, cleaning up.
@@ -850,10 +871,11 @@ class EKO:
 
         """
         if not self.access.readonly:
-            self.access.path.unlink()
+            # clean given path, to overwrite it - default 'w'rite behavior
+            self.access.path.unlink(missing_ok=True)
             self.dump()
 
-        shutil.rmtree(self.metadata._path)
+        shutil.rmtree(self.metadata.path)
 
     def __exit__(self, exc_type: type, _exc_value, _traceback):
         """Ensure EKO to be closed properly."""
