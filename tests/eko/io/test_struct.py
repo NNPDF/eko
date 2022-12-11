@@ -233,58 +233,46 @@ class TestEKO:
         eko2_ = struct.EKO.read(p)
         assert eko2.raw == eko2_.raw
 
-    def test_extract(self, tmp_path):
-        p = tmp_path / "test.tar"
-        eko = struct.EKO.new(*self._default_cards(), p)
-        # check theory file
-        t = struct.EKO.extract(p, struct.THEORYFILE)
-        assert isinstance(t, str)
-        tt = yaml.safe_load(io.StringIO(t))
-        assert tt == eko.theory_card
-        # try a wrong file
-        with pytest.raises(KeyError):
-            t = struct.EKO.extract(p, "Blub.bla")
-
 
 class TestLegacy:
-    def test_items(self, fake_output):
+    def test_items(self, eko_factory: EKOFactory):
         """Test autodump, autoload, and manual unload."""
-        eko, fake_card = fake_output
-        for q2, op in fake_card["Q2grid"].items():
-            eko[q2] = eko.io.Operator.from_dict(op)
+        eko = eko_factory.get()
+        v = np.random.rand(2, 2)
+        opv = struct.Operator(operator=v)
+        for mu2 in eko.operator_card.mu2grid:
+            eko[mu2] = opv
 
-        q2 = next(iter(fake_card["Q2grid"]))
+        mu2 = next(iter(eko.mu2grid))
 
-        eko._operators[q2] = None
-        assert isinstance(eko[q2], struct.Operator)
-        assert isinstance(eko._operators[q2], struct.Operator)
+        # unload
+        eko._operators[mu2] = None
+        # test autoloading
+        assert isinstance(eko[mu2], struct.Operator)
+        assert isinstance(eko._operators[mu2], struct.Operator)
 
-        del eko[q2]
+        del eko[mu2]
 
-        assert eko._operators[q2] is None
+        assert eko._operators[mu2] is None
 
-    def test_iter(self, fake_output):
+    def test_iter(self, eko_factory):
         """Test managed iteration."""
-        eko, fake_card = fake_output
-        for q2, op in fake_card["Q2grid"].items():
-            eko[q2] = eko.io.Operator.from_dict(op)
+        eko_factory.operator.mugrid = np.array([5.0, 20.0, 100.0])
+        eko = eko_factory.get()
 
-        q2prev = None
-        for q2, op in eko.items():
-            if q2prev is not None:
-                assert eko._operators[q2prev] is None
+        mu2prev = None
+        for mu2, op in eko.items():
+            if mu2prev is not None:
+                assert eko._operators[mu2prev] is None
             assert isinstance(op, struct.Operator)
-            q2prev = q2
+            mu2prev = mu2
 
-    def test_context_operator(self, fake_output):
+    def test_context_operator(self, eko_factory):
         """Test automated handling through context."""
-        eko, fake_card = fake_output
-        for q2, op in fake_card["Q2grid"].items():
-            eko[q2] = eko.io.Operator.from_dict(op)
+        eko = eko_factory.get()
+        mu2 = eko.mu2grid[0]
 
-        q2 = next(iter(fake_card["Q2grid"]))
-
-        with eko.operator(q2) as op:
+        with eko.operator(mu2) as op:
             assert isinstance(op, struct.Operator)
 
-        assert eko._operators[q2] is None
+        assert eko._operators[mu2] is None
