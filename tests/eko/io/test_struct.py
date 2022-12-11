@@ -149,10 +149,10 @@ class TestEKO:
         with pytest.raises(ValueError):
             struct.EKO.read(no_tar_path)
 
-    def test_properties(self):
-        eko = struct.EKO.new(*self._default_cards())
-        assert "mc" in eko.theory_card
-        assert "debug" in eko.operator_card
+    def test_properties(self, eko_factory):
+        eko: struct.EKO = eko_factory.get()
+        assert hasattr(eko.theory_card, "quark_masses")
+        assert hasattr(eko.operator_card, "debug")
         np.testing.assert_allclose(eko.mu2grid, np.array([10.0]))
         assert 10.0 in eko
         default_grid = interpolation.XGrid(eko.operator_card["rotations"]["xgrid"])

@@ -1,16 +1,16 @@
-import dataclasses
 import os
 import pathlib
 import shutil
 import sys
 from contextlib import contextmanager
-from typing import Optional, Sequence, Tuple
+from typing import Iterable, Optional, Tuple
 
 import numpy as np
 import pytest
 
 from eko import interpolation
-from eko.io.struct import EKO, AccessConfigs, Metadata, Operator, Rotations
+from eko.io.runcards import OperatorCard, TheoryCard
+from eko.io.struct import EKO, Operator
 from ekobox import cards
 
 
@@ -49,8 +49,8 @@ def theory_card():
 
 @pytest.fixture()
 def theory_ffns(theory_card):
-    def set_(flavors: int):
-        for q in "cbt":
+    def set_(flavors: int) -> TheoryCard:
+        for q in "cbt"[flavors - 3 :]:
             setattr(theory_card.matching, q, np.inf)
         return theory_card
 
@@ -67,45 +67,37 @@ def operator_card():
 
 
 class EKOFactory:
-    def __init__(self):
+    def __init__(self, theory: TheoryCard, operator: OperatorCard, path: os.PathLike):
+        self.path = path
+        self.theory = theory
+        self.operator = operator
         self.cache: Optional[EKO] = None
 
     @staticmethod
-    def _operators(mugrid: Sequence[float], shape: Tuple[int, int]):
+    def _operators(mugrid: Iterable[float], shape: Tuple[int, int]):
         ops = {}
         for mu in mugrid:
             ops[2.0] = Operator(np.random.rand(*shape, *shape))
 
         return ops
 
-    def _create(self, update: Optional[dict]):
-        @dataclasses.dataclass
-        class defaults:
-            mu0 = 0.0
-            mugrid = [2.0]
-            xgrid = interpolation.XGrid([0.5, 1.0])
-            pids = np.array([0, 1])
-            path = pathlib.Path.cwd() / "test-eko-invalid-path"
-
-        if update is not None:
-            pars = defaults(**update)
-        else:
-            pars = defaults()
-
-        lx = len(pars.xgrid)
-        lpids = len(pars.pids)
-
-        access = AccessConfigs(pars.path, False)
-        metadata = Metadata(pars.mu0, Rotations(xgrid=pars.xgrid, pids=pars.pids))
-        self.cache = EKO(
-            _operators=self._operators(mugrid=pars.mugrid, shape=(lx, lpids)),
-            access=access,
-            metadata=metadata,
+    def _create(self):
+        self.cache = (
+            EKO.create(self.path).load_cards(self.theory, self.operator).build()
         )
+        lx = len(self.operator.rotations.xgrid)
+        lpids = len(self.operator.rotations.pids)
+        for q2, op in self._operators(
+            mugrid=self.operator.mu2grid, shape=(lx, lpids)
+        ).items():
+            self.cache[q2] = op
 
         return self.cache
 
     def _clean(self):
+        if self.cache is not None:
+            self.cache.close()
+            self.cache.access.path.unlink()
         self.cache = None
 
     def get(self, update: Optional[dict] = None):
@@ -122,14 +114,16 @@ class EKOFactory:
 
         """
         if self.cache is None or update is not None:
-            self.cache = self._create(update=update)
+            self.cache = self._create()
 
         return self.cache
 
 
 @pytest.fixture
-def eko_factory():
-    factory = EKOFactory()
+def eko_factory(theory_ffns, operator_card, tmp_path: pathlib.Path):
+    factory = EKOFactory(
+        theory=theory_ffns(3), operator=operator_card, path=tmp_path / "eko.tar"
+    )
     yield factory
     factory._clean()
 
