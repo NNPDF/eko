@@ -741,8 +741,11 @@ class EKO:
             the destination directory
 
         """
-        with tarfile.open(tarpath) as tar:
-            tar.extractall(dest)
+        try:
+            with tarfile.open(tarpath) as tar:
+                tar.extractall(dest)
+        except tarfile.ReadError as e:
+            raise exceptions.OutputNotTar(f"Not a valid tar archive: '{tarpath}'")
 
     @classmethod
     def open(cls, path: os.PathLike, mode="r"):
@@ -759,9 +762,6 @@ class EKO:
             load = True
         else:
             raise ValueError
-
-        if load and not tarfile.is_tarfile(path):
-            raise exceptions.OutputNotTar(f"Not a valid tar archive: '{path}'")
 
         tmpdir = pathlib.Path(tempfile.mkdtemp())
         if load:
@@ -891,7 +891,7 @@ class Builder:
 
     def __post_init__(self):
         """Validate paths."""
-        if not tarfile.is_tarfile(self.access.path):
+        if self.access.path.suffix != ".tar":
             raise exceptions.OutputNotTar(self.path)
         if self.access.path.exists():
             raise exceptions.OutputExistsError(self.path)
