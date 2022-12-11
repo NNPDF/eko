@@ -481,7 +481,7 @@ class EKO:
     @property
     def paths(self) -> InternalPaths:
         """Accessor for internal paths."""
-        return InternalPaths(self.metadata._path)
+        return InternalPaths(self.metadata.path)
 
     @property
     def rotations(self) -> Rotations:
@@ -734,7 +734,8 @@ class EKO:
         Parameters
         ----------
         path : os.PathLike
-            path were to copy the disk counterpart of the operator object
+            path to the permanent location of the new object (not the temporary
+            directory)
 
         Returns
         -------
@@ -747,8 +748,13 @@ class EKO:
         self.unload()
 
         new = copy.deepcopy(self)
-        new.metadata._path = pathlib.Path(path)
-        shutil.copy2(self.paths.root, new.paths.root)
+        new.access.path = pathlib.Path(path)
+
+        tmpdir = pathlib.Path(tempfile.mkdtemp())
+        new.metadata.path = tmpdir
+        # copy old dir to new dir
+        tmpdir.rmdir()
+        shutil.copytree(self.paths.root, new.paths.root)
 
         return new
 
@@ -789,7 +795,12 @@ class EKO:
         tmpdir = pathlib.Path(tempfile.mkdtemp())
         if load:
             cls.load(path, tmpdir)
-            opened = cls(_operators={}, metadata=Metadata.load(tmpdir), access=access)
+            metadata = Metadata.load(tmpdir)
+            opened = cls(
+                _operators={mu2: None for mu2 in InternalPaths(metadata.path).mu2grid},
+                metadata=metadata,
+                access=access,
+            )
         else:
             opened = Builder(path=tmpdir, access=access)
 
@@ -861,7 +872,7 @@ class EKO:
             archive = self.access.path
 
         with tarfile.open(archive, "w") as tar:
-            tar.add(self.metadata.path)
+            tar.add(self.metadata.path, arcname=".")
 
     def close(self):
         """Close the current object, cleaning up.
