@@ -61,7 +61,6 @@ def theory_ffns(theory_card):
 def operator_card():
     card = cards.example.operator()
     card.rotations.xgrid = interpolation.XGrid([0.1, 0.3, 0.5, 1.0])
-    card.rotations.pids = np.array([0, 1])
     card.configs.interpolation_polynomial_degree = 2
 
     return card
