@@ -63,7 +63,7 @@ class Runner:
         if new_theory.quark_masses_scheme is QuarkMassSchemes.MSBAR:
             masses = msbar_masses.compute(new_theory)
         elif new_theory.quark_masses_scheme is QuarkMassSchemes.POLE:
-            masses = tuple(mq**2 for mq in new_theory.quark_masses)
+            masses = tuple(mq.value**2 for mq in new_theory.quark_masses)
         else:
             raise ValueError(f"Unknown mass scheme '{new_theory.quark_masses_scheme}'")
 
