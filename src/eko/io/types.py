@@ -27,7 +27,7 @@ preserve type hints.
 import dataclasses
 import enum
 import typing
-from math import nan
+from math import isnan
 from typing import Any, Dict
 
 from .dictlike import DictLike
@@ -72,7 +72,7 @@ class CouplingsRef(DictLike):
         Usually :attr:`alphaem` is not running, thus its scale is set to nan.
 
         """
-        assert self.alphas.scale == self.alphaem.scale or self.alphaem.scale is nan
+        assert self.alphas.scale == self.alphaem.scale or isnan(self.alphaem.scale)
 
     @property
     def values(self):

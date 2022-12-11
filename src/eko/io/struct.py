@@ -489,13 +489,15 @@ class EKO:
         return np.array(list(self._operators))
 
     @property
-    def theory_card(self) -> dict:
+    def theory_card(self):
         """Provide theory card, retrieving from the dump."""
         # TODO: return `eko.io.runcards.TheoryCard`
-        return yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
+        return TheoryCard.from_dict(
+            yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
+        )
 
     @property
-    def operator_card(self) -> OperatorCard:
+    def operator_card(self):
         """Provide operator card, retrieving from the dump."""
         return OperatorCard.from_dict(
             yaml.safe_load(self.paths.operator_card.read_text(encoding="utf-8"))
@@ -744,7 +746,7 @@ class EKO:
         try:
             with tarfile.open(tarpath) as tar:
                 tar.extractall(dest)
-        except tarfile.ReadError as e:
+        except tarfile.ReadError:
             raise exceptions.OutputNotTar(f"Not a valid tar archive: '{tarpath}'")
 
     @classmethod
