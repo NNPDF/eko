@@ -11,6 +11,7 @@ import yaml
 from eko import interpolation
 from eko.io import dictlike, runcards, struct
 from ekobox import cards
+from tests.conftest import EKOFactory
 
 
 @dataclass
@@ -149,26 +150,26 @@ class TestEKO:
         with pytest.raises(ValueError):
             struct.EKO.read(no_tar_path)
 
-    def test_properties(self, eko_factory):
+    def test_properties(self, eko_factory: EKOFactory):
+        mugrid = np.array([10.0])
+        eko_factory.operator.mugrid = mugrid
         eko: struct.EKO = eko_factory.get()
         assert hasattr(eko.theory_card, "quark_masses")
         assert hasattr(eko.operator_card, "debug")
-        np.testing.assert_allclose(eko.mu2grid, np.array([10.0]))
-        assert 10.0 in eko
-        default_grid = interpolation.XGrid(eko.operator_card["rotations"]["xgrid"])
+        np.testing.assert_allclose(eko.mu2grid, mugrid**2)
+        assert mugrid[0] ** 2 in eko
+        default_grid = eko.operator_card.rotations.xgrid
         assert eko.xgrid == default_grid
-        for use_target in (True, False):
-            assert eko.interpolator(False, use_target).xgrid == default_grid
         xg = interpolation.XGrid([0.1, 1.0])
         eko.xgrid = xg
         assert eko.xgrid == xg
-        assert "debug" in eko.raw
+        assert "metadata" in eko.raw
         # check we can dump and reload
         stream = io.StringIO()
         yaml.safe_dump(eko.raw, stream)
         stream.seek(0)
         raw_eko = yaml.safe_load(stream)
-        assert "debug" in raw_eko
+        assert "metadata" in raw_eko
 
     def test_ops(self):
         v = np.random.rand(2, 2)

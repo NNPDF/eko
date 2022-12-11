@@ -77,7 +77,7 @@ class EKOFactory:
     def _operators(mugrid: Iterable[float], shape: Tuple[int, int]):
         ops = {}
         for mu in mugrid:
-            ops[2.0] = Operator(np.random.rand(*shape, *shape))
+            ops[mu] = Operator(np.random.rand(*shape, *shape))
 
         return ops
 

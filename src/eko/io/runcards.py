@@ -223,6 +223,17 @@ class OperatorCard(DictLike):
         return self.mu0**2
 
     @property
+    def mugrid(self):
+        """Only setter enabled, access only to :attr:`mu2grid`."""
+        raise ValueError("Use mu2grid")
+
+    @mugrid.setter
+    def mugrid(self, value):
+        """Set scale grid with linear values."""
+        self._mugrid = value
+        self._mu2grid = None
+
+    @property
     def mu2grid(self):
         """Grid of squared final scales."""
         if self._mugrid is not None:
@@ -231,6 +242,12 @@ class OperatorCard(DictLike):
             return self._mu2grid
 
         raise RuntimeError("Mu2 grid has not been initialized")
+
+    @mu2grid.setter
+    def mu2grid(self, value):
+        """Set scale grid with quadratic values."""
+        self._mugrid = None
+        self._mu2grid = value
 
 
 Card = Union[TheoryCard, OperatorCard]
