@@ -9,8 +9,7 @@ import pytest
 import yaml
 
 from eko import interpolation
-from eko.io import dictlike, runcards, struct
-from ekobox import cards
+from eko.io import dictlike, struct
 from tests.conftest import EKOFactory
 
 
@@ -153,7 +152,7 @@ class TestEKO:
     def test_properties(self, eko_factory: EKOFactory):
         mugrid = np.array([10.0])
         eko_factory.operator.mugrid = mugrid
-        eko: struct.EKO = eko_factory.get()
+        eko = eko_factory.get()
         assert hasattr(eko.theory_card, "quark_masses")
         assert hasattr(eko.operator_card, "debug")
         np.testing.assert_allclose(eko.mu2grid, mugrid**2)
@@ -171,76 +170,67 @@ class TestEKO:
         raw_eko = yaml.safe_load(stream)
         assert "metadata" in raw_eko
 
-    def test_ops(self):
+    def test_ops(self, eko_factory: EKOFactory):
+        mu = 10.0
+        mu2 = mu**2
+        mugrid = np.array([mu])
+        eko_factory.operator.mugrid = mugrid
+        eko = eko_factory.get()
         v = np.random.rand(2, 2)
         opv = struct.Operator(operator=v)
-        eko = struct.EKO.new(*self._default_cards())
         # try setting not an operator
         with pytest.raises(ValueError):
-            eko[10.0] = "bla"
+            eko[mu2] = "bla"
         # approx
-        eko[10.0] = opv
-        assert eko.approx(20.0) is None
-        assert eko.approx(11.0, atol=2) == 10.0
-        eko[11.0] = opv
+        eko[mu2] = opv
+        assert eko.approx(2 * mu2) is None
+        assert eko.approx(mu2 + 1.0, atol=2) == mu2
+        eko[mu2 + 1.0] = opv
         with pytest.raises(ValueError):
-            eko.approx(10.5, atol=2)
+            eko.approx(mu2 + 0.5, atol=2)
         # iterate
-        for q2, q2eko in zip((10.0, 11.0), eko):
+        for q2, q2eko in zip((mu2, mu2 + 1.0), eko):
             assert q2 == q2eko
             np.testing.assert_allclose(v, eko[q2].operator)
-        for q2, (q2eko, op) in zip((10.0, 11.0), eko.items()):
+        for q2, (q2eko, op) in zip((mu2, mu2 + 1.0), eko.items()):
             assert q2 == q2eko
             np.testing.assert_allclose(v, op.operator)
         # getter
         with pytest.raises(ValueError):
-            eko[12.0]
-        with eko.operator(10.0) as op:
+            eko[mu2 + 2.0]
+        with eko.operator(mu2) as op:
             np.testing.assert_allclose(v, op.operator)
         # overwrite
         vv = np.random.rand(2, 2)
         opvv = struct.Operator(operator=vv)
-        eko[11.0] = opvv
-        np.testing.assert_allclose(vv, eko[11.0].operator)
+        eko[mu2 + 1.0] = opvv
+        np.testing.assert_allclose(vv, eko[mu2 + 1.0].operator)
 
-    def test_interpolator(self):
-        nt, no = self._default_cards()
-        txg = np.geomspace(0.1, 1.0, 5)
-        ixg = np.geomspace(0.01, 1.0, 5)
-        no["rotations"]["targetgrid"] = txg
-        no["rotations"]["inputgrid"] = ixg
-        eko = struct.EKO.new(nt, no)
-        # Targetgrid and inputgrid should not be anymore in the opcard
-        # They are not used anymore
-        assert eko.interpolator(False, True).xgrid == interpolation.XGrid(
-            no["rotations"]["xgrid"]
-        )
-        assert eko.interpolator(False, False).xgrid == interpolation.XGrid(
-            no["rotations"]["xgrid"]
-        )
-        # However you can esplicitly set them
-        eko.rotations._targetgrid = interpolation.XGrid(txg)
-        eko.rotations._inputgrid = interpolation.XGrid(ixg)
-        assert eko.interpolator(False, True).xgrid == interpolation.XGrid(txg)
-        assert eko.interpolator(False, False).xgrid == interpolation.XGrid(ixg)
-
-    def test_copy(self, tmp_path):
+    def test_copy(self, eko_factory, tmp_path):
+        mu = 10.0
+        mu2 = mu**2
+        mugrid = np.array([mu])
+        eko_factory.operator.mugrid = mugrid
+        eko1 = eko_factory.get()
         v = np.random.rand(2, 2)
         opv = struct.Operator(operator=v)
-        eko1 = struct.EKO.new(*self._default_cards())
-        eko1[10.0] = opv
-        np.testing.assert_allclose(eko1[10.0].operator, v)
+        eko1[mu2] = opv
+        np.testing.assert_allclose(eko1[mu2].operator, v)
         p = tmp_path / "eko2.tar"
         eko2 = eko1.deepcopy(p)
-        np.testing.assert_allclose(eko1[10.0].operator, v)
-        np.testing.assert_allclose(eko2[10.0].operator, v)
+        np.testing.assert_allclose(eko1[mu2].operator, v)
+        np.testing.assert_allclose(eko2[mu2].operator, v)
         vv = np.random.rand(2, 2)
         opvv = struct.Operator(operator=vv)
-        eko2[10.0] = opvv
-        np.testing.assert_allclose(eko1[10.0].operator, v)
-        np.testing.assert_allclose(eko2[10.0].operator, vv)
+        eko2[mu2] = opvv
+        np.testing.assert_allclose(eko1[mu2].operator, v)
+        np.testing.assert_allclose(eko2[mu2].operator, vv)
+        # dump does not happen before closing, unless explicitly called, and
+        # without a dump the path would be empty
+        eko2.dump()
+        eko2.unload()
         # try loading again
-        eko2_ = struct.EKO.load(p)
+        eko2_ = struct.EKO.read(p)
         assert eko2.raw == eko2_.raw
 
     def test_extract(self, tmp_path):
