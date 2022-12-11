@@ -2,6 +2,7 @@
 import copy
 import logging
 import os
+from typing import Union
 
 import numpy as np
 
@@ -9,7 +10,7 @@ from .. import interpolation, msbar_masses
 from ..couplings import Couplings, couplings_mod_ev
 from ..evolution_operator.grid import OperatorGrid
 from ..io import EKO, Operator, runcards
-from ..io.types import QuarkMassSchemes
+from ..io.types import QuarkMassSchemes, RawCard
 from ..thresholds import ThresholdsAtlas
 from . import commons
 
@@ -30,7 +31,12 @@ class Runner:
 
     banner = commons.BANNER
 
-    def __init__(self, theory_card: dict, operators_card: dict, path: os.PathLike):
+    def __init__(
+        self,
+        theory_card: Union[RawCard, runcards.TheoryCard],
+        operators_card: Union[RawCard, runcards.OperatorCard],
+        path: os.PathLike,
+    ):
         """Initialize runner.
 
         Parameters

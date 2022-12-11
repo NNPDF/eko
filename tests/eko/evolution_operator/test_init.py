@@ -4,6 +4,7 @@ import os
 import numpy as np
 import scipy.integrate
 
+import eko.runner.legacy
 from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
 from eko import interpolation, mellin
@@ -11,6 +12,7 @@ from eko.couplings import Couplings
 from eko.evolution_operator import Operator, quad_ker
 from eko.evolution_operator.grid import OperatorGrid
 from eko.interpolation import InterpolatorDispatcher, XGrid
+from eko.io.runcards import OperatorCard, ScaleVariationsMethod, TheoryCard
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
 from eko.thresholds import ThresholdsAtlas
@@ -134,46 +136,6 @@ def test_quad_ker(monkeypatch):
     np.testing.assert_allclose(res_ns, 0.0)
 
 
-theory_card = {
-    "alphas": 0.35,
-    "alphaem": 0.00781,
-    "order": (1, 0),
-    "ModEv": "TRN",
-    "fact_to_ren_scale_ratio": 1.0,
-    "Qref": np.sqrt(2),
-    "nfref": None,
-    "Q0": np.sqrt(2),
-    "nf0": 3,
-    "FNS": "FFNS",
-    "NfFF": 3,
-    "IC": 0,
-    "IB": 0,
-    "mc": 1.0,
-    "mb": 4.75,
-    "mt": 173.0,
-    "kcThr": np.inf,
-    "kbThr": np.inf,
-    "ktThr": np.inf,
-    "MaxNfPdf": 6,
-    "MaxNfAs": 6,
-    "HQ": "POLE",
-    "ModSV": None,
-}
-operators_card = {
-    "Q2grid": [1, 10],
-    "xgrid": [0.1, 1.0],
-    "configs": {
-        "interpolation_polynomial_degree": 1,
-        "interpolation_is_log": True,
-        "ev_op_max_order": [1, 1],
-        "ev_op_iterations": 1,
-        "backward_inversion": "exact",
-        "n_integration_cores": 1,
-    },
-    "debug": {"skip_singlet": False, "skip_non_singlet": False},
-}
-
-
 class TestOperator:
     def test_labels(self):
         o = Operator(
@@ -222,47 +184,25 @@ class TestOperator:
         )
         assert o.n_pools == os.cpu_count() - excluded_cores
 
-    def test_exponentiated(self):
-        tcard = copy.deepcopy(theory_card)
-        tcard["fact_to_ren_scale_ratio"] = 2.0
-        tcard["ModSV"] = "exponentiated"
-        ocard = copy.deepcopy(operators_card)
-        g = OperatorGrid.from_dict(
-            tcard,
-            ocard,
-            ThresholdsAtlas.from_dict(tcard),
-            Couplings.from_dict(tcard),
-            InterpolatorDispatcher(
-                XGrid(
-                    operators_card["xgrid"],
-                    log=operators_card["configs"]["interpolation_is_log"],
-                ),
-                operators_card["configs"]["interpolation_polynomial_degree"],
-            ),
-        )
+    def test_exponentiated(self, theory_ffns, operator_card, tmp_path):
+        tcard: TheoryCard = theory_ffns(3)
+        tcard.fact_to_ren = 2.0
+        ocard: OperatorCard = operator_card
+        ocard.configs.scvar_method = ScaleVariationsMethod.EXPONENTIATED
+        r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
+        g = r.op_grid
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 10.0)
         np.testing.assert_allclose(o.mur2_shift(40.0), 10.0)
         o.compute()
         self.check_lo(o)
 
-    def test_compute_parallel(self, monkeypatch):
-        tcard = copy.deepcopy(theory_card)
-        ocard = copy.deepcopy(operators_card)
-        ocard["n_integration_cores"] = 2
-        g = OperatorGrid.from_dict(
-            tcard,
-            ocard,
-            ThresholdsAtlas.from_dict(tcard),
-            Couplings.from_dict(tcard),
-            InterpolatorDispatcher(
-                XGrid(
-                    operators_card["xgrid"],
-                    log=operators_card["configs"]["interpolation_is_log"],
-                ),
-                operators_card["configs"]["interpolation_polynomial_degree"],
-            ),
-        )
+    def test_compute_parallel(self, monkeypatch, theory_ffns, operator_card, tmp_path):
+        tcard: TheoryCard = theory_ffns(3)
+        ocard: OperatorCard = operator_card
+        ocard.configs.n_integration_cores = 2
+        r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
+        g = r.op_grid
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 10.0)
         # fake quad
@@ -284,24 +224,15 @@ class TestOperator:
             o.op_members[(br.non_singlet_pids_map["ns+"], 0)].value,
         )
 
-    def test_compute_no_skip_sv(self, monkeypatch):
-        tcard = copy.deepcopy(theory_card)
-        tcard["fact_to_ren_scale_ratio"] = 2.0
-        tcard["ModSV"] = "expanded"
-        ocard = copy.deepcopy(operators_card)
-        g = OperatorGrid.from_dict(
-            tcard,
-            ocard,
-            ThresholdsAtlas.from_dict(tcard),
-            Couplings.from_dict(tcard),
-            InterpolatorDispatcher(
-                XGrid(
-                    operators_card["xgrid"],
-                    log=operators_card["configs"]["interpolation_is_log"],
-                ),
-                operators_card["configs"]["interpolation_polynomial_degree"],
-            ),
-        )
+    def test_compute_no_skip_sv(
+        self, monkeypatch, theory_ffns, operator_card, tmp_path
+    ):
+        tcard: TheoryCard = theory_ffns(3)
+        tcard.fact_to_ren = 2.0
+        ocard: OperatorCard = operator_card
+        ocard.configs.scvar_method = ScaleVariationsMethod.EXPANDED
+        r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
+        g = r.op_grid
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 2.0)
         # fake quad
@@ -310,30 +241,19 @@ class TestOperator:
             scipy.integrate, "quad", lambda *args, v=v, **kwargs: (v, 0.56)
         )
         o.compute()
+        lx = len(ocard.rotations.xgrid.raw)
+        res = np.full((lx, lx), v)
+        res[-1, -1] = 1.0
         # ns are all diagonal, so they start from an identity matrix
         for k in br.non_singlet_labels:
             assert k in o.op_members
-            np.testing.assert_allclose(
-                o.op_members[k].value, [[v, v], [v, 1]], err_msg=k
-            )
+            np.testing.assert_allclose(o.op_members[k].value, res, err_msg=k)
 
-    def test_compute(self, monkeypatch):
-        tcard = copy.deepcopy(theory_card)
-        ocard = copy.deepcopy(operators_card)
-        g = OperatorGrid.from_dict(
-            tcard,
-            ocard,
-            ThresholdsAtlas.from_dict(tcard),
-            Couplings.from_dict(tcard),
-            InterpolatorDispatcher(
-                XGrid(
-                    operators_card["xgrid"],
-                    log=operators_card["configs"]["interpolation_is_log"],
-                ),
-                operators_card["configs"]["interpolation_polynomial_degree"],
-            ),
-        )
-        # setup objs
+    def test_compute(self, monkeypatch, theory_ffns, operator_card, tmp_path):
+        tcard: TheoryCard = theory_ffns(3)
+        ocard: OperatorCard = operator_card
+        r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
+        g = r.op_grid
         o = Operator(g.config, g.managers, 3, 2.0, 10.0)
         # fake quad
         monkeypatch.setattr(
@@ -361,7 +281,11 @@ class TestOperator:
             o1.compute()
             for k in br.non_singlet_labels:
                 assert k in o1.op_members
-                np.testing.assert_allclose(o1.op_members[k].value, np.eye(2), err_msg=k)
+                np.testing.assert_allclose(
+                    o1.op_members[k].value,
+                    np.eye(len(ocard.rotations.xgrid.raw)),
+                    err_msg=k,
+                )
 
 
 def test_pegasus_path():
