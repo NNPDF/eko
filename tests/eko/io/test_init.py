@@ -29,11 +29,9 @@ def chk_keys(a, b):
 
 
 class TestLegacy:
-    def test_io(self, fake_legacy, tmp_path):
+    def test_io(self, eko_factory, tmp_path):
         # create object
-        o1, fake_card = fake_legacy
-        for q2, op in fake_card["Q2grid"].items():
-            o1[q2] = eko.io.Operator.from_dict(op)
+        o1 = eko_factory.get()
         # test streams
         stream = io.StringIO()
         legacy.dump_yaml(o1, stream)
