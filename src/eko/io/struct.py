@@ -889,6 +889,13 @@ class Builder:
 
     eko: Optional[EKO] = None
 
+    def __post_init__(self):
+        """Validate paths."""
+        if not tarfile.is_tarfile(self.access.path):
+            raise exceptions.OutputNotTar(self.path)
+        if self.access.path.exists():
+            raise exceptions.OutputExistsError(self.path)
+
     def load_cards(self, theory: TheoryCard, operator: OperatorCard):
         """Load both theory and operator card."""
         self.theory = theory
@@ -919,6 +926,7 @@ class Builder:
             raise RuntimeError(
                 f"Can not build an EKO, since following cards are missing: {missing}"
             )
+
         # tell the static analyzer as well
         assert self.theory is not None
         assert self.operator is not None

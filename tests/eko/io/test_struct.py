@@ -1,4 +1,6 @@
 import io
+import pathlib
+import tarfile
 from dataclasses import dataclass
 
 import numpy as np
@@ -7,12 +9,12 @@ import pytest
 import yaml
 
 from eko import interpolation
-from eko.io import runcards, struct
+from eko.io import dictlike, runcards, struct
 from ekobox import cards
 
 
 @dataclass
-class MyDictLike(struct.DictLike):
+class MyDictLike(dictlike.DictLike):
     l: npt.NDArray
     f: float
     x: interpolation.XGrid
@@ -25,7 +27,7 @@ def test_DictLike():
         dict(
             l=np.arange(5.0),
             f=np.arange(5.0)[-1],
-            x=interpolation.XGrid([0.1, 1.0]),
+            x=[0.1, 1.0],
             t=(1.0, 2.0),
             s="s",
         )
@@ -127,31 +129,25 @@ class TestRotations:
 
 
 class TestEKO:
-    def _default_cards(self):
-        t = cards.generate_theory(0, 1.0)
-        o = cards.generate_operator([10.0])
-        nt, no = runcards.update(t, o)
-        no["rotations"]["pids"] = no["rotations"]["targetpids"]
-        return nt, no
-
-    def test_new_error(self, tmp_path):
-        nt, no = self._default_cards()
+    def test_new_error(self, tmp_path: pathlib.Path):
         # try to write to a file different from bla
         no_tar_path = tmp_path / "Blub.bla"
+        no_tar_path.touch()
         with pytest.raises(ValueError):
-            struct.EKO.new(nt, no, no_tar_path)
+            struct.EKO.create(no_tar_path)
         # try to overwrite an existing file
         exists_path = tmp_path / "Blub.tar"
-        exists_path.write_text("Blub", encoding="utf-8")
+        with tarfile.open(exists_path, "w") as tar:
+            tar.add(no_tar_path)
         with pytest.raises(FileExistsError):
-            struct.EKO.new(nt, no, exists_path)
+            struct.EKO.create(exists_path)
 
     def test_load_error(self, tmp_path):
         # try to read from a non-tar path
         no_tar_path = tmp_path / "Blub.tar"
         no_tar_path.write_text("Blub", encoding="utf-8")
         with pytest.raises(ValueError):
-            struct.EKO.load(no_tar_path)
+            struct.EKO.read(no_tar_path)
 
     def test_properties(self):
         eko = struct.EKO.new(*self._default_cards())
