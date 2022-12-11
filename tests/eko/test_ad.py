@@ -126,20 +126,24 @@ def test_gamma_ns_qed():
     nf = 3
     # aem1
     assert_almost_equal(
-        ad.gamma_ns_qed((0, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
-        np.zeros((1, 2)),
+        ad.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((2, 2)),
+        decimal=5,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((0, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
-        np.zeros((1, 2)),
+        ad.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((2, 2)),
+        decimal=5,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((0, 1), br.non_singlet_pids_map["ns+u"], 1, nf),
-        np.zeros((1, 2)),
+        ad.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns+u"], 1, nf)[0, 1],
+        0,
+        decimal=5,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((0, 1), br.non_singlet_pids_map["ns+d"], 1, nf),
-        np.zeros((1, 2)),
+        ad.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns+d"], 1, nf)[0, 1],
+        0,
+        decimal=5,
     )
     # as1aem1
     assert_almost_equal(
@@ -154,35 +158,35 @@ def test_gamma_ns_qed():
     )
     # aem2
     assert_almost_equal(
-        ad.gamma_ns_qed((0, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
-        np.zeros((1, 3)),
+        ad.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((2, 3)),
         decimal=5,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((0, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
-        np.zeros((1, 3)),
+        ad.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((2, 3)),
         decimal=5,
     )
     # as2
     assert_almost_equal(
-        ad.gamma_ns_qed((2, 0), br.non_singlet_pids_map["ns-u"], 1, nf),
-        np.zeros((3, 1)),
+        ad.gamma_ns_qed((2, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((3, 2)),
         decimal=5,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((2, 0), br.non_singlet_pids_map["ns-d"], 1, nf),
-        np.zeros((3, 1)),
+        ad.gamma_ns_qed((2, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((3, 2)),
         decimal=5,
     )
     # as3
     assert_almost_equal(
-        ad.gamma_ns_qed((3, 0), br.non_singlet_pids_map["ns-u"], 1, nf),
-        np.zeros((4, 1)),
+        ad.gamma_ns_qed((3, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((4, 2)),
         decimal=3,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((3, 0), br.non_singlet_pids_map["ns-d"], 1, nf),
-        np.zeros((4, 1)),
+        ad.gamma_ns_qed((3, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((4, 2)),
         decimal=3,
     )
 
