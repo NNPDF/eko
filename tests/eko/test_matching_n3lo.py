@@ -13,11 +13,11 @@ def test_A_3():
     for L in logs:
         N = 1.0
         sx_cache = compute_cache(N, 5, False)
-        aNSqq3 = A_qqNS(N, sx_cache, nf, L)
+        aNSqq3 = A_qqNS(N, sx_cache, nf, L, eta=-1)
         # quark number conservation
         # the accuracy of this test depends directly on the precision of the
         # fitted part of aNSqq3
-        np.testing.assert_allclose(aNSqq3, 0.0, atol=5e-5)
+        np.testing.assert_allclose(aNSqq3, 0.0, atol=6e-5)
 
         N = 2.0
         sx_cache = compute_cache(N, 5, True)
@@ -40,13 +40,12 @@ def test_A_3():
         # independently.
         if L == 0:
             eps = 1e-6
-            atol = 2e-5
+            atol = 3e-5
             N = 2.0 + eps
             sx_cache = compute_cache(N, 5, True)
-            ns_sx_cache = compute_cache(N, 5, False)
             np.testing.assert_allclose(
                 as3.A_gq(N, sx_cache, nf, L)
-                + as3.A_qqNS(N, ns_sx_cache, nf, L)
+                + as3.A_qqNS(N, sx_cache, nf, L, 1)
                 + as3.A_qqPS(N, sx_cache, nf, L)
                 + as3.A_Hq(N, sx_cache, nf, L),
                 0,
@@ -55,15 +54,14 @@ def test_A_3():
 
     N = 3 + 2j
     sx_cache = compute_cache(np.random.rand(), 5, True)
-    ns_sx_cache = compute_cache(np.random.rand(), 5, False)
-    aS3 = A_singlet(N, sx_cache, ns_sx_cache, nf, L)
-    aNS3 = A_ns(N, ns_sx_cache, nf, L)
+    aS3 = A_singlet(N, sx_cache, nf, L)
+    aNS3 = A_ns(N, sx_cache, nf, L)
     assert aNS3.shape == (2, 2)
     assert aS3.shape == (3, 3)
 
     np.testing.assert_allclose(aS3[:, 2], np.zeros(3))
     np.testing.assert_allclose(aNS3[1, 1], 0)
-    np.testing.assert_allclose(aNS3[0, 0], as3.A_qqNS(N, ns_sx_cache, nf, L))
+    np.testing.assert_allclose(aNS3[0, 0], as3.A_qqNS(N, sx_cache, nf, L, -1))
 
 
 def test_Blumlein_3():
@@ -156,20 +154,19 @@ def test_Blumlein_3():
         10: [-74.4038, -1347.17, -1278.72, -1080.31, -291.084],
     }
     ref_val_qqNS = {
-        0: [-36.5531, -40.1257, -36.0358, -28.3555, 6.83735],
-        10: [-7562.97, -14129.7, -17928.6, -22768.1, -45326.9],
+        0: [-37.02436747945553, -40.156206321394976, -36.035766608587835, -28.35058671616347, 6.837590678286162],
+        10: [-7574.851254907043, -14130.328640707816, -17928.587311540465,-22767.991224937196, -45326.8491411019]
     }
     ref_val_qqPS = {
-        0: [-8.65731, -0.766936, -0.0365199, 0.147675, 0.0155598],
-        10: [1672.99, 260.601, 112.651, 43.5204, 0.756621],
+        0: [-8.657307152008933, -0.7669358960417618, -0.036519930744266293,0.14767512009641925, 0.01555975620686876],
+        10: [1672.9887833829705, 260.6010476430529, 112.65066658104867, 43.5204392378118, 0.7566205641145347]
     }
     nf = 3
     for i, N in enumerate([4.0, 6.0, 10.0, 100.0]):
         idx = i + 1
         for L in [0, 10]:
             sx_cache = compute_cache(N, 5, True)
-            ns_sx_cache = compute_cache(N, 5, False)
-            aS3 = A_singlet(N, sx_cache, ns_sx_cache, nf, L)
+            aS3 = A_singlet(N, sx_cache, nf, L)
 
             np.testing.assert_allclose(
                 aS3[0, 0], ref_val_gg[L][idx] + ref_val_a_gg[L][idx], rtol=3e-6
@@ -184,13 +181,8 @@ def test_Blumlein_3():
             np.testing.assert_allclose(
                 aS3[2, 1], ref_val_Hq[L][idx], rtol=2e-5, atol=2e-6
             )
-
-            # here we have a different convention for (-1)^N,
-            # for even values qqNS is analytically continued
-            # as non-singlet. The accuracy is worst for large N
-            # due to the approximations of F functions.
             np.testing.assert_allclose(
-                aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=8e-4
+                aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=3e-3
             )
 
     # Here we test the critical parts
@@ -209,7 +201,7 @@ def test_Blumlein_3():
     for N, ref in zip([3.0, 15.0, 101.0], ref_qqNS_odd):
         sx_cache = compute_cache(N, 5, False)
         np.testing.assert_allclose(
-            as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0), ref, rtol=5e-4
+            as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0, eta=-1), ref, rtol=3e-3
         )
 
 
