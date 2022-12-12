@@ -4,7 +4,7 @@ from ekomark import apply
 
 
 class TestApply:
-    def test_apply(self, fake_legacy, fake_pdf):
+    def test_apply(self, fake_pdf):
         o, fake_card = fake_legacy
         q2_out = list(fake_card["Q2grid"].keys())[0]
         # fake pdfs
@@ -27,7 +27,7 @@ class TestApply:
         pdfs = pdf_grid[q2_out]["pdfs"]
         assert list(pdfs.keys()) == list(o.rotations.targetpids)
 
-    def test_apply_flavor(self, fake_legacy, fake_pdf, monkeypatch):
+    def test_apply_flavor(self, fake_pdf, monkeypatch):
         o, fake_card = fake_legacy
         q2_out = list(fake_card["Q2grid"].keys())[0]
         # fake pdfs

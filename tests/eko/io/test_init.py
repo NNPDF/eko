@@ -11,6 +11,7 @@ import eko
 from eko import basis_rotation as br
 from eko import interpolation
 from eko.io import legacy, manipulate
+from tests.conftest import EKOFactory
 
 
 def eko_identity(shape):
@@ -29,7 +30,7 @@ def chk_keys(a, b):
 
 
 class TestLegacy:
-    def test_io(self, eko_factory, tmp_path):
+    def test_io(self, eko_factory: EKOFactory, tmp_path):
         # create object
         o1 = eko_factory.get()
         # test streams
@@ -38,24 +39,25 @@ class TestLegacy:
         # rewind and read again
         stream.seek(0)
         o2 = legacy.load_yaml(stream)
-        np.testing.assert_almost_equal(o1.xgrid.raw, fake_card["interpolation_xgrid"])
-        np.testing.assert_almost_equal(o2.xgrid.raw, fake_card["interpolation_xgrid"])
+        xgrid = eko_factory.operator.rotations.xgrid
+        np.testing.assert_almost_equal(o1.xgrid.raw, xgrid.raw)
+        np.testing.assert_almost_equal(o2.xgrid.raw, xgrid.raw)
         # fake eko.io files
         fpyaml = tmp_path / "test.yaml"
         legacy.dump_yaml_to_file(o1, fpyaml)
         # fake input file
         o3 = legacy.load_yaml_from_file(fpyaml)
-        np.testing.assert_almost_equal(o3.xgrid.raw, fake_card["interpolation_xgrid"])
+        np.testing.assert_almost_equal(o3.xgrid.raw, xgrid.raw)
         # repeat for tar
         fptar = tmp_path / "test.tar"
         legacy.dump_tar(o1, fptar)
         o4 = legacy.load_tar(fptar)
-        np.testing.assert_almost_equal(o4.xgrid.raw, fake_card["interpolation_xgrid"])
+        np.testing.assert_almost_equal(o4.xgrid.raw, xgrid.raw)
         fn = "test"
         with pytest.raises(ValueError, match="wrong suffix"):
             legacy.dump_tar(o1, fn)
 
-    def test_rename_issue81(self, fake_legacy):
+    def test_rename_issue81(self):
         # https://github.com/N3PDF/eko/issues/81
         # create object
         o1, fake_card = fake_legacy
@@ -76,7 +78,7 @@ class TestLegacy:
                 o4.xgrid.raw, fake_card["interpolation_xgrid"]
             )
 
-    def test_io_bin(self, fake_legacy):
+    def test_io_bin(self):
         # create object
         o1, fake_card = fake_legacy
         for q2, op in fake_card["Q2grid"].items():
@@ -92,7 +94,7 @@ class TestLegacy:
 
 
 class TestManipulate:
-    def test_xgrid_reshape(self, fake_output):
+    def test_xgrid_reshape(self):
         # create object
         xg = interpolation.XGrid(np.geomspace(1e-5, 1.0, 21))
         o1, _fake_card = fake_output
@@ -140,7 +142,7 @@ class TestManipulate:
         with pytest.raises(ValueError):
             manipulate.xgrid_reshape(copy.deepcopy(o1))
 
-    def test_reshape_io(self, fake_output):
+    def test_reshape_io(self):
         # create object
         o1, fake_card = fake_output
         for q2, op in fake_card["Q2grid"].items():
@@ -158,7 +160,7 @@ class TestManipulate:
         o3 = legacy.load_yaml(stream)
         chk_keys(o1.raw, o3.raw)
 
-    def test_flavor_reshape(self, fake_output, tmp_path):
+    def test_flavor_reshape(self, tmp_path):
         # create object
         xg = np.geomspace(1e-5, 1.0, 21)
         o1, _fake_card = fake_output
@@ -211,7 +213,7 @@ class TestManipulate:
         with pytest.raises(ValueError):
             manipulate.flavor_reshape(o1.deepcopy(tmp_path / "fail.tar"))
 
-    def test_to_evol(self, fake_factory, tmp_path):
+    def test_to_evol(self, eko_factory, tmp_path):
         xgrid = np.array([0.5, 1.0])
         interpolation_polynomial_degree = 1
         interpolation_is_log = False

@@ -4,6 +4,7 @@ import numpy as np
 
 from eko import basis_rotation as br
 from eko import interpolation
+from eko.io import EKO
 
 
 def apply_pdf(eko, lhapdf_like, targetgrid=None, rotate_to_evolution_basis=False):
@@ -34,7 +35,7 @@ def apply_pdf(eko, lhapdf_like, targetgrid=None, rotate_to_evolution_basis=False
     return apply_pdf_flavor(eko, lhapdf_like, targetgrid)
 
 
-def apply_pdf_flavor(eko, lhapdf_like, targetgrid=None, flavor_rotation=None):
+def apply_pdf_flavor(eko: EKO, lhapdf_like, targetgrid=None, flavor_rotation=None):
     """
     Apply all available operators to the input PDFs.
 
@@ -62,17 +63,18 @@ def apply_pdf_flavor(eko, lhapdf_like, targetgrid=None, flavor_rotation=None):
             continue
         pdfs[j] = np.array(
             [
-                lhapdf_like.xfxQ2(pid, x, eko.Q02) / x
+                lhapdf_like.xfxQ2(pid, x, eko.mu20) / x
                 for x in eko.rotations.inputgrid.raw
             ]
         )
 
     # build output
     out_grid = {}
-    for q2, elem in eko.items():
+    for mu2, elem in eko.items():
         pdf_final = np.einsum("ajbk,bk", elem.operator, pdfs)
-        error_final = np.einsum("ajbk,bk", elem.error, pdfs)
-        out_grid[q2] = {
+        if elem.error is not None:
+            error_final = np.einsum("ajbk,bk", elem.error, pdfs)
+        out_grid[mu2] = {
             "pdfs": dict(zip(eko.rotations.targetpids, pdf_final)),
             "errors": dict(zip(eko.rotations.targetpids, error_final)),
         }
