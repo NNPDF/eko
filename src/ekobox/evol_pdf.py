@@ -5,10 +5,12 @@ import numpy as np
 
 import eko
 from eko import basis_rotation as br
-from eko.io import legacy
+from eko.io import EKO
 from ekomark import apply
 
 from . import genpdf, info_file
+
+DEFAULT_NAME = "eko.tar"
 
 
 def evolve_pdfs(
@@ -48,16 +50,14 @@ def evolve_pdfs(
     # update op and th cards
     eko_output = None
     if path is not None:
-        my_path = pathlib.Path(path)
-        if my_path.is_dir():
-            outpath = my_path / ekofileid(theory_card, operators_card)
-            eko_output = legacy.load_tar(outpath)
-        else:
-            eko_output = legacy.load_tar(my_path)
+        eko_path = pathlib.Path(path)
+        if eko_path.is_dir():
+            eko_path = eko_path / DEFAULT_NAME
+        eko_output = EKO.read(eko_path)
     else:
-        eko_output = eko.solve(theory_card, operators_card)
-        if store_path is not None:
-            legacy.dump_tar(eko_output, store_path)
+        if store_path is None:
+            raise ValueError("'store_path' required to recompute EKO.")
+        eko_output = eko.solve(theory_card, operators_card, path=store_path)
 
     evolved_PDF_list = []
     for initial_PDF in initial_PDF_list:
@@ -94,25 +94,3 @@ def evolve_pdfs(
 
     if install:
         genpdf.install_pdf(name)
-
-
-def ekofileid(theory_card, operators_card):
-    """
-    Return a common filename composed by the hashes.
-
-    Parameters
-    ----------
-    theory_card : dict
-        theory card
-    operators_card : dict
-        operators card
-
-    Returns
-    -------
-    str
-        file name
-    """
-    try:
-        return f"o{operators_card['hash'][:6]}_t{theory_card['hash'][:6]}.tar"
-    except KeyError:
-        return "o000000_t000000.tar"
