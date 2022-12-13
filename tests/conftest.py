@@ -88,7 +88,7 @@ class EKOFactory:
         lx = len(self.operator.rotations.xgrid)
         lpids = len(self.operator.rotations.pids)
         for q2, op in self._operators(
-            mugrid=self.operator.mu2grid, shape=(lx, lpids)
+            mugrid=self.operator.mu2grid, shape=(lpids, lx)
         ).items():
             self.cache[q2] = op
 

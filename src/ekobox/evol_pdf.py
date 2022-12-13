@@ -48,20 +48,22 @@ def evolve_pdfs(
         dict of info to add or update to default info file
     """
     # update op and th cards
-    eko_output = None
     if path is not None:
         eko_path = pathlib.Path(path)
         if eko_path.is_dir():
             eko_path = eko_path / DEFAULT_NAME
-        eko_output = EKO.read(eko_path)
     else:
         if store_path is None:
-            raise ValueError("'store_path' required to recompute EKO.")
-        eko_output = eko.solve(theory_card, operators_card, path=store_path)
+            raise ValueError("'store_path' required if 'path' is not provided.")
+        eko.solve(theory_card, operators_card, path=store_path)
+        eko_path = store_path
 
     evolved_PDF_list = []
-    for initial_PDF in initial_PDF_list:
-        evolved_PDF_list.append(apply.apply_pdf(eko_output, initial_PDF, targetgrid))
+    with EKO.read(eko_path) as eko_output:
+        for initial_PDF in initial_PDF_list:
+            evolved_PDF_list.append(
+                apply.apply_pdf(eko_output, initial_PDF, targetgrid)
+            )
 
     if targetgrid is None:
         targetgrid = operators_card.rotations.xgrid

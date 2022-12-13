@@ -14,9 +14,9 @@ class TestApply:
         assert len(pdf_grid) == len(eko.mu2grid)
         pdfs = pdf_grid[mu2_out]["pdfs"]
         assert list(pdfs.keys()) == list(eko.rotations.targetpids)
-        ref_pid1 = eko[mu2_out].operator[:, 0, :, 1] @ np.ones(len(eko.xgrid))
+        ref_pid1 = eko[mu2_out].operator[0, :, 1, :] @ np.ones(len(eko.xgrid))
         np.testing.assert_allclose(pdfs[0], ref_pid1)
-        ref_pid2 = eko[mu2_out].operator[:, 1, :, 1] @ np.ones(len(eko.xgrid))
+        ref_pid2 = eko[mu2_out].operator[1, :, 1, :] @ np.ones(len(eko.xgrid))
         np.testing.assert_allclose(pdfs[1], ref_pid2)
         # rotate to target_grid
         target_grid = [0.75]
@@ -44,6 +44,6 @@ class TestApply:
         pdfs = pdf_grid[q2_out]["pdfs"]
         assert list(pdfs.keys()) == list(fake_evol_basis)
         ref_a = (
-            eko[q2_out].operator[:, 0, :, 1] + eko[q2_out].operator[:, 1, :, 1]
+            eko[q2_out].operator[0, :, 1, :] + eko[q2_out].operator[1, :, 1, :]
         ) @ np.ones(len(eko.rotations.xgrid))
         np.testing.assert_allclose(pdfs["a"], ref_a)

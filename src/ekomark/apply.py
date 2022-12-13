@@ -36,6 +36,7 @@ def apply_pdf(eko: EKO, lhapdf_like, targetgrid=None, rotate_to_evolution_basis=
 
 
 CONTRACTION = "ajbk,bk"
+#  CONTRACTION = "jakb,bk"
 
 
 def apply_pdf_flavor(eko: EKO, lhapdf_like, targetgrid=None, flavor_rotation=None):
