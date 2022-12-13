@@ -17,7 +17,7 @@ def test_A_3():
         # quark number conservation
         # the accuracy of this test depends directly on the precision of the
         # fitted part of aNSqq3
-        np.testing.assert_allclose(aNSqq3, 0.0, atol=7e-6)
+        np.testing.assert_allclose(aNSqq3, 0.0, atol=6e-5)
 
         N = 2.0
         sx_cache = compute_cache(N, 5, True)
