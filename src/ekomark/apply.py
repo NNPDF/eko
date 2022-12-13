@@ -74,6 +74,8 @@ def apply_pdf_flavor(eko: EKO, lhapdf_like, targetgrid=None, flavor_rotation=Non
         pdf_final = np.einsum("ajbk,bk", elem.operator, pdfs)
         if elem.error is not None:
             error_final = np.einsum("ajbk,bk", elem.error, pdfs)
+        else:
+            error_final = None
         out_grid[mu2] = {
             "pdfs": dict(zip(eko.rotations.targetpids, pdf_final)),
             "errors": dict(zip(eko.rotations.targetpids, error_final)),

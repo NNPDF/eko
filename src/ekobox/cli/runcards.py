@@ -2,8 +2,7 @@
 import logging
 import pathlib
 
-from ..cards import generate_operator as opgen
-from ..cards import generate_theory as thgen
+from .. import cards
 from . import library as lib
 from .base import command
 
@@ -30,6 +29,11 @@ def sub_example(destination: pathlib.Path):
 
     """
     destination.mkdir(parents=True, exist_ok=True)
-    thgen(0, 1.65, path=destination / "theory.yaml")
-    opgen([1e5], path=destination / "operator.yaml")
+    theory = cards.example.theory()
+    theory.order = (1, 0)
+    cards.dump(theory.raw, path=destination / "theory.yaml")
+    operator = cards.example.operator()
+    operator.mu0 = 1.65
+    operator.mu2grid = [1e5]
+    cards.dump(operator.raw, path=destination / "operator.yaml")
     _logger.info(f"Runcards generated to '{destination}'")
