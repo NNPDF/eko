@@ -17,7 +17,7 @@ def test_A_3():
         # quark number conservation
         # the accuracy of this test depends directly on the precision of the
         # fitted part of aNSqq3
-        np.testing.assert_allclose(aNSqq3, 0.0, atol=6e-5)
+        np.testing.assert_allclose(aNSqq3, 0.0, atol=7e-6)
 
         N = 2.0
         sx_cache = compute_cache(N, 5, True)
@@ -182,7 +182,7 @@ def test_Blumlein_3():
                 aS3[2, 1], ref_val_Hq[L][idx], rtol=2e-5, atol=2e-6
             )
             np.testing.assert_allclose(
-                aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=3e-3
+                aS3[1, 1], ref_val_qqNS[L][idx] + ref_val_qqPS[L][idx], rtol=2e-6
             )
 
     # Here we test the critical parts
@@ -201,7 +201,7 @@ def test_Blumlein_3():
     for N, ref in zip([3.0, 15.0, 101.0], ref_qqNS_odd):
         sx_cache = compute_cache(N, 5, False)
         np.testing.assert_allclose(
-            as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0, eta=-1), ref, rtol=3e-3
+            as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0, eta=-1), ref, rtol=2e-6
         )
 
 
