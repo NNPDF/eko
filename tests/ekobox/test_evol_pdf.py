@@ -1,8 +1,7 @@
-import numpy as np
 from banana import toy
 
 import eko
-import eko.io.legacy as out
+from eko import EKO
 from eko.interpolation import XGrid
 from ekobox import cards
 from ekobox import evol_pdf as ev_p
@@ -29,14 +28,15 @@ def test_evolve_pdfs_run(fake_lhapdf, cd):
     # check dumped eko
     assert store_path.exists()
     assert store_path.is_file()
-    out.load_tar(store_path)
+    with EKO.read(store_path):
+        pass
 
 
 def test_evolve_pdfs_dump_path(fake_lhapdf, cd):
     n = "test_evolve_pdfs_dump_path"
     peko = fake_lhapdf / ev_p.DEFAULT_NAME
     eko.solve(theory, op, peko)
-    assert peko.exists().dump()
+    assert peko.exists()
     with cd(fake_lhapdf):
         ev_p.evolve_pdfs([toy.mkPDF("", 0)], theory, op, name=n, path=fake_lhapdf)
     p = fake_lhapdf / n
