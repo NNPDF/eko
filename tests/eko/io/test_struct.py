@@ -8,7 +8,7 @@ import numpy.typing as npt
 import pytest
 import yaml
 
-from eko import interpolation
+from eko import EKO, interpolation
 from eko.io import dictlike, struct
 from tests.conftest import EKOFactory
 
@@ -206,7 +206,7 @@ class TestEKO:
         eko[mu2 + 1.0] = opvv
         np.testing.assert_allclose(vv, eko[mu2 + 1.0].operator)
 
-    def test_copy(self, eko_factory, tmp_path):
+    def test_copy(self, eko_factory: EKOFactory, tmp_path: pathlib.Path):
         mu = 10.0
         mu2 = mu**2
         mugrid = np.array([mu])
@@ -217,21 +217,22 @@ class TestEKO:
         eko1[mu2] = opv
         np.testing.assert_allclose(eko1[mu2].operator, v)
         p = tmp_path / "eko2.tar"
-        eko2 = eko1.deepcopy(p)
-        np.testing.assert_allclose(eko1[mu2].operator, v)
-        np.testing.assert_allclose(eko2[mu2].operator, v)
-        vv = np.random.rand(2, 2)
-        opvv = struct.Operator(operator=vv)
-        eko2[mu2] = opvv
-        np.testing.assert_allclose(eko1[mu2].operator, v)
-        np.testing.assert_allclose(eko2[mu2].operator, vv)
-        # dump does not happen before closing, unless explicitly called, and
-        # without a dump the path would be empty
-        eko2.dump()
-        eko2.unload()
-        # try loading again
-        eko2_ = struct.EKO.read(p)
-        assert eko2.raw == eko2_.raw
+        eko1.deepcopy(p)
+        with EKO.append(p) as eko2:
+            np.testing.assert_allclose(eko1[mu2].operator, v)
+            np.testing.assert_allclose(eko2[mu2].operator, v)
+            vv = np.random.rand(2, 2)
+            opvv = struct.Operator(operator=vv)
+            eko2[mu2] = opvv
+            np.testing.assert_allclose(eko1[mu2].operator, v)
+            np.testing.assert_allclose(eko2[mu2].operator, vv)
+            # dump does not happen before closing, unless explicitly called, and
+            # without a dump the path would be empty
+            eko2.dump()
+            eko2.unload()
+            # try loading again
+            eko2_ = struct.EKO.read(p)
+            assert eko2.raw == eko2_.raw
 
 
 class TestLegacy:
