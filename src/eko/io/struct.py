@@ -832,7 +832,7 @@ class EKO:
         return builder
 
     @classmethod
-    def append(cls, path: os.PathLike):
+    def edit(cls, path: os.PathLike):
         """Read from and write on existing EKO.
 
         Type-safe alias for::

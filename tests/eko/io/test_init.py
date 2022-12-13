@@ -151,7 +151,7 @@ class TestManipulate:
         o1 = eko_factory.get()
         path_copy = tmp_path / "eko_copy.tar"
         o1.deepcopy(path_copy)
-        with EKO.append(path_copy) as o2:
+        with EKO.edit(path_copy) as o2:
             manipulate.xgrid_reshape(
                 o2, interpolation.XGrid([0.1, 1.0]), interpolation.XGrid([0.1, 1.0])
             )
@@ -180,12 +180,12 @@ class TestManipulate:
         tpath = tmp_path / "ot.tar"
         ttpath = tmp_path / "ott.tar"
         o1.deepcopy(tpath)
-        with EKO.append(tpath) as ot:
+        with EKO.edit(tpath) as ot:
             manipulate.flavor_reshape(ot, target_r)
             chk_keys(o1.raw, ot.raw)
             assert ot[mu2out].operator.shape == (2, len(xg), 2, len(xg))
             ot.deepcopy(ttpath)
-        with EKO.append(ttpath) as ott:
+        with EKO.edit(ttpath) as ott:
             manipulate.flavor_reshape(ott, np.linalg.inv(target_r))
             np.testing.assert_allclose(ott[mu2out].operator, o1[mu2out].operator)
             with pytest.warns(Warning):
@@ -198,12 +198,12 @@ class TestManipulate:
         ipath = tmp_path / "oi.tar"
         iipath = tmp_path / "oii.tar"
         o1.deepcopy(ipath)
-        with EKO.append(ipath) as oi:
+        with EKO.edit(ipath) as oi:
             manipulate.flavor_reshape(oi, inputpids=input_r)
             chk_keys(o1.raw, oi.raw)
             assert oi[mu2out].operator.shape == (2, len(xg), 2, len(xg))
             oi.deepcopy(iipath)
-        with EKO.append(iipath) as oii:
+        with EKO.edit(iipath) as oii:
             manipulate.flavor_reshape(oii, inputpids=np.linalg.inv(input_r))
             np.testing.assert_allclose(oii[mu2out].operator, o1[mu2out].operator)
             with pytest.warns(Warning):
@@ -214,7 +214,7 @@ class TestManipulate:
         # both
         itpath = tmp_path / "oit.tar"
         o1.deepcopy(itpath)
-        with EKO.append(itpath) as oit:
+        with EKO.edit(itpath) as oit:
             manipulate.flavor_reshape(
                 oit, np.array([[1, -1], [1, 1]]), np.array([[1, -1], [1, 1]])
             )
@@ -225,7 +225,7 @@ class TestManipulate:
         fpath = tmp_path / "fail.tar"
         o1.deepcopy(fpath)
         with pytest.raises(ValueError):
-            with EKO.append(fpath) as of:
+            with EKO.edit(fpath) as of:
                 manipulate.flavor_reshape(of)
 
     def test_to_evol(self, eko_factory: EKOFactory, tmp_path):
@@ -248,15 +248,15 @@ class TestManipulate:
         o00 = eko_factory.get()
         o01_path = tmp_path / "o01.tar"
         o00.deepcopy(o01_path)
-        with EKO.append(o01_path) as o01:
+        with EKO.edit(o01_path) as o01:
             manipulate.to_evol(o01)
         o10_path = tmp_path / "o10.tar"
         o00.deepcopy(o10_path)
-        with EKO.append(o10_path) as o10:
+        with EKO.edit(o10_path) as o10:
             manipulate.to_evol(o10, False, True)
         o11_path = tmp_path / "o11.tar"
         o00.deepcopy(o11_path)
-        with EKO.append(o11_path) as o11:
+        with EKO.edit(o11_path) as o11:
             manipulate.to_evol(o11, True, True)
             chk_keys(o00.raw, o11.raw)
 

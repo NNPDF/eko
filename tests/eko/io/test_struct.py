@@ -218,7 +218,7 @@ class TestEKO:
         np.testing.assert_allclose(eko1[mu2].operator, v)
         p = tmp_path / "eko2.tar"
         eko1.deepcopy(p)
-        with EKO.append(p) as eko2:
+        with EKO.edit(p) as eko2:
             np.testing.assert_allclose(eko1[mu2].operator, v)
             np.testing.assert_allclose(eko2[mu2].operator, v)
             vv = np.random.rand(2, 2)

@@ -1,5 +1,4 @@
 """Main application class of eko."""
-import copy
 import logging
 import os
 from typing import Union
@@ -118,7 +117,7 @@ class Runner:
         2. bases manipulations specified in the runcard are applied
 
         """
-        with EKO.append(self.path) as eko:
+        with EKO.edit(self.path) as eko:
             # add all operators
             for final_scale, op in self.op_grid.compute().items():
                 eko[float(final_scale)] = Operator.from_dict(op)
