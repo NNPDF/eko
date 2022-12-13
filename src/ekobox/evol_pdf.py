@@ -64,11 +64,11 @@ def evolve_pdfs(
         evolved_PDF_list.append(apply.apply_pdf(eko_output, initial_PDF, targetgrid))
 
     if targetgrid is None:
-        targetgrid = operators_card["rotations"]["xgrid"]
+        targetgrid = operators_card.rotations.xgrid
     if info_update is None:
         info_update = {}
-    info_update["XMin"] = targetgrid[0]
-    info_update["XMax"] = targetgrid[-1]
+    info_update["XMin"] = targetgrid.raw[0]
+    info_update["XMax"] = targetgrid.raw[-1]
     info = info_file.build(
         theory_card,
         operators_card,
@@ -76,13 +76,14 @@ def evolve_pdfs(
         info_update=info_update,
     )
     all_member_blocks = []
+    targetlist = targetgrid.raw.tolist()
     for evolved_PDF in evolved_PDF_list:
         all_blocks = []
         block = genpdf.generate_block(
-            lambda pid, x, Q2, evolved_PDF=evolved_PDF: targetgrid[targetgrid.index(x)]
-            * evolved_PDF[Q2]["pdfs"][pid][targetgrid.index(x)],
-            xgrid=targetgrid,
-            Q2grid=operators_card["Q2grid"],
+            lambda pid, x, Q2, evolved_PDF=evolved_PDF: targetlist[targetlist.index(x)]
+            * evolved_PDF[Q2]["pdfs"][pid][targetlist.index(x)],
+            xgrid=targetlist,
+            Q2grid=operators_card.mu2grid,
             pids=np.array(br.flavor_basis_pids),
         )
         # all_blocks will be useful in case there will be necessity to dump many blocks

@@ -4,14 +4,12 @@ from banana import toy
 import eko
 import eko.io.legacy as out
 from eko.interpolation import XGrid
-from eko.io import runcards
 from ekobox import cards
 from ekobox import evol_pdf as ev_p
 
 op = cards.example.operator()
 op.mu0 = 1.65
 op.rotations.xgrid = XGrid([0.1, 0.5, 1.0])
-op.rotations.pids = np.array([0, 1])
 op.configs.interpolation_polynomial_degree = 1
 theory = cards.example.theory()
 theory.order = (1, 0)
@@ -22,10 +20,9 @@ def test_evolve_pdfs_run(fake_lhapdf, cd):
     mytmp = fake_lhapdf / "install"
     mytmp.mkdir()
     store_path = mytmp / "test.tar"
-    nt, no = runcards.update(theory, op)
     with cd(mytmp):
         ev_p.evolve_pdfs(
-            [toy.mkPDF("", 0)], nt, no, install=True, name=n, store_path=store_path
+            [toy.mkPDF("", 0)], theory, op, install=True, name=n, store_path=store_path
         )
     p = fake_lhapdf / n
     assert p.exists()
@@ -48,11 +45,10 @@ def test_evolve_pdfs_dump_path(fake_lhapdf, cd):
 
 def test_evolve_pdfs_dump_file(fake_lhapdf, cd):
     n = "test_evolve_pdfs_dump_file"
-    nt, no = runcards.update(theory, op)
     peko = fake_lhapdf / ev_p.DEFAULT_NAME
-    eko.solve(nt, no, peko).dump()
+    eko.solve(theory, op, peko)
     assert peko.exists()
     with cd(fake_lhapdf):
-        ev_p.evolve_pdfs([toy.mkPDF("", 0)], nt, no, name=n, path=peko)
+        ev_p.evolve_pdfs([toy.mkPDF("", 0)], theory, op, name=n, path=peko)
     p = fake_lhapdf / n
     assert p.exists()

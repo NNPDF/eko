@@ -1,4 +1,6 @@
 # Test eko.matching_conditions.OperatorMatrixElement
+import pathlib
+
 import numpy as np
 
 from eko import basis_rotation as br
@@ -283,14 +285,14 @@ def test_quad_ker(monkeypatch):
 
 
 class TestOperatorMatrixElement:
-    def test_labels(self, theory_ffns, operator_card, tmp_path):
+    def test_labels(self, theory_ffns, operator_card, tmp_path: pathlib.Path):
+        path = tmp_path / "eko.tar"
         for skip_singlet in [True, False]:
             for skip_ns in [True, False]:
                 operator_card.debug.skip_singlet = skip_singlet
                 operator_card.debug.skip_non_singlet = skip_ns
-                g = legacy.Runner(
-                    theory_ffns(3), operator_card, path=tmp_path / "eko.tar"
-                ).op_grid
+                path.unlink(missing_ok=True)
+                g = legacy.Runner(theory_ffns(3), operator_card, path=path).op_grid
                 o = OperatorMatrixElement(
                     g.config,
                     g.managers,

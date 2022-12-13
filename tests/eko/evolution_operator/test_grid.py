@@ -5,6 +5,8 @@
     It does *not* test whether the result is correct, it can just test that it is sane
 """
 
+import pathlib
+
 import numpy as np
 
 import eko.io.types
@@ -38,13 +40,16 @@ class TestOperatorGrid:
         operators = opgrid.compute(qgrid_check)
         assert len(operators) == len(qgrid_check)
 
-    def test_mod_expanded(self, theory_card, theory_ffns, operator_card, tmp_path):
+    def test_mod_expanded(
+        self, theory_card, theory_ffns, operator_card, tmp_path: pathlib.Path
+    ):
         operator_card.configs.scvar_method = eko.io.types.ScaleVariationsMethod.EXPANDED
         theory_update = {
             "order": (1, 0),
             "ModSV": "expanded",
         }
         epsilon = 1e-1
+        path = tmp_path / "eko.tar"
         for is_ffns, nf0 in zip([False, True], [5, 3]):
             if is_ffns:
                 theory = theory_ffns(nf0)
@@ -54,15 +59,13 @@ class TestOperatorGrid:
             theory.num_flavs_init = nf0
             theory.matching
             theory.fact_to_ren = 1.0
-            opgrid = legacy.Runner(
-                theory, operator_card, path=tmp_path / "eko.tar"
-            ).op_grid
+            path.unlink(missing_ok=True)
+            opgrid = legacy.Runner(theory, operator_card, path=path).op_grid
             opg = opgrid.compute(3)
             theory.fact_to_ren = 1.0 + epsilon
             theory_update["fact_to_ren_scale_ratio"] = 1.0 + epsilon
-            sv_opgrid = legacy.Runner(
-                theory, operator_card, path=tmp_path / "eko.tar"
-            ).op_grid
+            path.unlink(missing_ok=True)
+            sv_opgrid = legacy.Runner(theory, operator_card, path=path).op_grid
             sv_opg = sv_opgrid.compute(3)
             np.testing.assert_allclose(
                 opg[3]["operator"], sv_opg[3]["operator"], atol=2.5 * epsilon

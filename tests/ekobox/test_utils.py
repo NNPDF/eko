@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 import eko
-from eko import interpolation
+from eko import EKO, interpolation
 from ekobox import cards, utils
 
 
@@ -35,22 +35,30 @@ def test_ekos_product(tmp_path):
     op_err = copy.deepcopy(op2)
     op_err.mu0 = mu01
 
-    eko_ini = eko.solve(theory, op1, path=tmp_path / "ini.tar")
-    eko_fin = eko.solve(theory, op2, path=tmp_path / "fin.tar")
+    ini_path = tmp_path / "ini.tar"
+    eko.solve(theory, op1, path=ini_path)
+    fin_path = tmp_path / "fin.tar"
+    eko.solve(theory, op2, path=fin_path)
     # Test_error
-    eko_fin_err = eko.solve(theory, op_err, path=tmp_path / "fin_err.tar")
-    with pytest.raises(ValueError):
-        _ = utils.ekos_product(eko_ini, eko_fin_err)
-    # product is copied
-    eko_res = utils.ekos_product(eko_ini, eko_fin, in_place=False)
+    fin_err_path = tmp_path / "fin_err.tar"
+    eko_fin_err = eko.solve(theory, op_err, path=fin_err_path)
+    with (
+        EKO.read(ini_path) as eko_ini,
+        EKO.read(fin_path) as eko_fin,
+        EKO.read(fin_err_path) as eko_fin_err,
+    ):
+        with pytest.raises(ValueError):
+            _ = utils.ekos_product(eko_ini, eko_fin_err)
+        # product is copied
+        eko_res = utils.ekos_product(eko_ini, eko_fin, in_place=False)
 
-    assert eko_res.operator_card.mu20 == eko_ini.operator_card.mu20
-    np.testing.assert_allclose(eko_res.mu2grid[1:], eko_fin.mu2grid)
-    np.testing.assert_allclose(eko_ini[80.0].operator, eko_res[80.0].operator)
+        assert eko_res.operator_card.mu20 == eko_ini.operator_card.mu20
+        np.testing.assert_allclose(eko_res.mu2grid[1:], eko_fin.mu2grid)
+        np.testing.assert_allclose(eko_ini[80.0].operator, eko_res[80.0].operator)
 
-    # product overwrites initial
-    eko_res2 = utils.ekos_product(eko_ini, eko_fin)
+        # product overwrites initial
+        eko_res2 = utils.ekos_product(eko_ini, eko_fin)
 
-    assert eko_res2.operator_card.mu20 == eko_ini.operator_card.mu20
-    np.testing.assert_allclose(eko_res2.mu2grid[1:], eko_fin.mu2grid)
-    np.testing.assert_allclose(eko_res[80.0].operator, eko_res2[80.0].operator)
+        assert eko_res2.operator_card.mu20 == eko_ini.operator_card.mu20
+        np.testing.assert_allclose(eko_res2.mu2grid[1:], eko_fin.mu2grid)
+        np.testing.assert_allclose(eko_res[80.0].operator, eko_res2[80.0].operator)

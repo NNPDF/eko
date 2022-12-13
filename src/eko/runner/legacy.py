@@ -50,6 +50,7 @@ class Runner:
         new_theory, new_operator = runcards.update(theory_card, operators_card)
 
         # Store inputs
+        self.path = path
         self._theory = new_theory
 
         # setup basis grid
@@ -104,9 +105,10 @@ class Runner:
             interpol_dispatcher=bfd,
         )
 
-        self.out = EKO.create(path).load_cards(new_theory, new_operator).build()
+        with EKO.create(path) as builder:
+            builder.load_cards(new_theory, new_operator).build()
 
-    def get_output(self) -> EKO:
+    def compute(self):
         """Run evolution and generate output operator.
 
         Two steps are applied sequentially:
@@ -115,14 +117,8 @@ class Runner:
            internal flavor and x-space basis
         2. bases manipulations specified in the runcard are applied
 
-        Returns
-        -------
-        EKO
-            output instance
-
         """
-        # add all operators
-        for final_scale, op in self.op_grid.compute().items():
-            self.out[float(final_scale)] = Operator.from_dict(op)
-
-        return copy.deepcopy(self.out)
+        with EKO.append(self.path) as eko:
+            # add all operators
+            for final_scale, op in self.op_grid.compute().items():
+                eko[float(final_scale)] = Operator.from_dict(op)

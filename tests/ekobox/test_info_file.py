@@ -2,22 +2,24 @@ import math
 
 import numpy as np
 
-from eko.io import legacy, runcards
 from ekobox import cards, info_file
 
 
 def test_build():
-    op = cards.generate_operator([10, 100])
-    theory = cards.generate_theory(1, 10.0, update={"alphas": 0.2})
-    nt, no = runcards.update(theory, op)
+    theory = cards.example.theory()
+    theory.order = (2, 0)
+    theory.couplings.alphas.value = 0.2
+    op = cards.example.operator()
+    op.mu0 = 1.0
+    op.mu2grid = [10.0, 100.0]
     info = info_file.build(
-        nt, no, 4, info_update={"SetDesc": "Prova", "NewArg": 15.3, "MTop": 1.0}
+        theory, op, 4, info_update={"SetDesc": "Prova", "NewArg": 15.3, "MTop": 1.0}
     )
     assert info["AlphaS_MZ"] == 0.2
     assert info["SetDesc"] == "Prova"
     assert info["NewArg"] == 15.3
     assert info["NumMembers"] == 4
-    assert info["MTop"] == nt.quark_masses.t
-    np.testing.assert_allclose(info["QMin"], math.sqrt(no.mu2grid[0]), rtol=1e-5)
-    assert info["XMin"] == no["rotations"]["xgrid"][0]
-    assert info["XMax"] == no["rotations"]["xgrid"][-1] == 1.0
+    assert info["MTop"] == theory.quark_masses.t.value
+    np.testing.assert_allclose(info["QMin"], math.sqrt(op.mu2grid[0]), rtol=1e-5)
+    assert info["XMin"] == op.rotations.xgrid.raw[0]
+    assert info["XMax"] == op.rotations.xgrid.raw[-1] == 1.0

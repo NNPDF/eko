@@ -3,17 +3,18 @@ import copy
 import numpy as np
 
 import eko
-from eko import basis_rotation as br
-from eko.interpolation import XGrid
+from eko import EKO
 
 
 def test_raw(theory_card, operator_card, tmp_path):
     """we don't check the content here, but only the shape"""
+    path = tmp_path / "eko.tar"
     tc = theory_card
     oc = operator_card
-    r = eko.runner.legacy.Runner(tc, oc, path=tmp_path / "eko.tar")
-    o = r.get_output()
-    check_shapes(o, o.xgrid, o.xgrid, tc, oc)
+    r = eko.runner.legacy.Runner(tc, oc, path=path)
+    r.compute()
+    with EKO.read(path) as eko_:
+        check_shapes(eko_, eko_.xgrid, eko_.xgrid, tc, oc)
 
 
 def check_shapes(o, txs, ixs, theory_card, operators_card):
@@ -21,8 +22,6 @@ def check_shapes(o, txs, ixs, theory_card, operators_card):
     ipids = len(o.rotations.inputpids)
     op_shape = (tpids, len(txs), ipids, len(ixs))
 
-    op_targetgrid = operators_card.rotations.targetgrid
-    op_inputgrid = operators_card.rotations.inputgrid
     # check output = input
     np.testing.assert_allclose(o.xgrid.raw, operators_card.rotations.xgrid.raw)
     # targetgrid and inputgrid in the opcard are now ignored, we are testing this
@@ -42,12 +41,14 @@ def check_shapes(o, txs, ixs, theory_card, operators_card):
 
 def test_vfns(theory_ffns, operator_card, tmp_path):
     # change targetpids
+    path = tmp_path / "eko.tar"
     tc = theory_ffns(3)
     oc = copy.deepcopy(operator_card)
     tc.matching.c = 1.0
     tc.matching.b = 1.0
     tc.order = (2, 0)
     oc.debug.skip_non_singlet = False
-    r = eko.runner.legacy.Runner(tc, oc, path=tmp_path / "eko.tar")
-    o = r.get_output()
-    check_shapes(o, o.xgrid, o.xgrid, tc, oc)
+    r = eko.runner.legacy.Runner(tc, oc, path=path)
+    r.compute()
+    with EKO.read(path) as eko_:
+        check_shapes(eko_, eko_.xgrid, eko_.xgrid, tc, oc)

@@ -26,14 +26,9 @@ def solve(theory_card, operators_card, path: os.PathLike):
     operator_card : dict
         solution configurations, and further EKO options
 
-    Returns
-    -------
-    EKO
-        computed operator
-
     Note
     ----
         For further information about EKO inputs and output see :doc:`/code/IO`
 
     """
-    return legacy.Runner(theory_card, operators_card, path).get_output()
+    legacy.Runner(theory_card, operators_card, path).compute()

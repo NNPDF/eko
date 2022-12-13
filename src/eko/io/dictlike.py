@@ -121,7 +121,10 @@ def load_field(type_, value):
     if issubclass(type_, enum.Enum):
         return load_enum(type_, value)
     if issubclass(type_, np.ndarray):
-        return np.array(value)
+        # do not apply array on scalars
+        if isinstance(value, list):
+            return np.array(value)
+        return value
     if isinstance(value, dict):
         return type_(**value)
 
