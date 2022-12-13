@@ -2,5 +2,5 @@
 This subpackage orchestrate the calculation workflow.
 """
 
-from . import manipulate
+from . import manipulate, legacy
 from .struct import EKO, Operator

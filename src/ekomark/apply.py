@@ -68,8 +68,8 @@ def apply_pdf_flavor(eko, lhapdf_like, targetgrid=None, flavor_rotation=None):
     # build output
     out_grid = {}
     for q2, elem in eko.items():
-        pdf_final = np.einsum("ajbk,bk", elem.operator, pdfs)
-        error_final = np.einsum("ajbk,bk", elem.error, pdfs)
+        pdf_final = np.einsum("ajbk,bk", elem.operator, pdfs, optimize="optimal")
+        error_final = np.einsum("ajbk,bk", elem.error, pdfs, optimize="optimal")
         out_grid[q2] = {
             "pdfs": dict(zip(eko.rotations.targetpids, pdf_final)),
             "errors": dict(zip(eko.rotations.targetpids, error_final)),

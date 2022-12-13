@@ -54,6 +54,12 @@ The expressions are based on:
       dimension. Nuclear Physics B, 890:48-151, Jan 2015. URL:
       http://dx.doi.org/10.1016/j.nuclphysb.2014.10.008,
       doi:10.1016/j.nuclphysb.2014.10.008.
+    - :cite:`Ablinger:2022wbb`. J. Ablinger, J. and A. Behring, J. Blümlein, A. De
+      Freitas, C. Schneider, A. Goedicke, C. von Manteuffel and K. Schonwald.
+      The Unpolarized and Polarized Single-Mass Three-Loop Heavy Flavor Operator 
+      Matrix Elements $A_{gg,Q}$ and $\Delta A_{gg,Q}$}.
+      DESY 15-112, DO-TH 22/26, CERN-TH-2022-179, ZU-TH 53/22, RISC Report Series 22-25, MSUHEP-22-036
+
 """
 
 import numba as nb
@@ -69,7 +75,7 @@ from .aqqPS import A_qqPS
 
 
 @nb.njit(cache=True)
-def A_singlet(n, sx_singlet, sx_non_singlet, nf, L):
+def A_singlet(n, sx_singlet, nf, L):
     r"""Computes the |N3LO| singlet |OME|.
 
     .. math::
@@ -95,8 +101,6 @@ def A_singlet(n, sx_singlet, sx_non_singlet, nf, L):
             [S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}],
             [S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}],]
 
-    sx_non_singlet: list
-        same as sx_singlet but now for non-singlet like harmonics
     nf : int
         number of active flavor below the threshold
     L : float
@@ -115,7 +119,7 @@ def A_singlet(n, sx_singlet, sx_non_singlet, nf, L):
     A_gg_3 = A_gg(n, sx_singlet, nf, L)
 
     A_qq_ps_3 = A_qqPS(n, sx_singlet, nf, L)
-    A_qq_ns_3 = A_qqNS(n, sx_non_singlet, nf, L)
+    A_qq_ns_3 = A_qqNS(n, sx_singlet, nf, L, 1)
     A_qg_3 = A_qg(n, sx_singlet, nf, L)
 
     A_S = np.array(
@@ -171,4 +175,4 @@ def A_ns(n, sx_all, nf, L):
     A_qqNS_3 : :math:`A_{qq,H}^{NS,(3))}`
 
     """
-    return np.array([[A_qqNS(n, sx_all, nf, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)
+    return np.array([[A_qqNS(n, sx_all, nf, L, -1), 0.0], [0 + 0j, 0 + 0j]], np.complex_)

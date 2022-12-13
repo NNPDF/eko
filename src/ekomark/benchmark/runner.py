@@ -85,7 +85,7 @@ class Runner(BenchmarkRunner):
                 new_theory, new_operators = compatibility.update(theory, ocard)
                 out = eko.run_dglap(new_theory, new_operators)
                 print(f"Writing operator to {path}")
-                out.dump_tar(path)
+                eko.output.legacy.dump_tar(out, path)
             else:
                 # load
                 print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")

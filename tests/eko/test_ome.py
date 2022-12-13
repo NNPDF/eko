@@ -35,7 +35,7 @@ def test_build_ome_as():
             sx_ns = compute_cache(N, max_weight_dict[o], False)
 
         aNS = A_non_singlet((o, 0), N, sx_ns, nf, L)
-        aS = A_singlet((o, 0), N, sx_singlet, nf, L, is_msbar, sx_ns)
+        aS = A_singlet((o, 0), N, sx_singlet, nf, L, is_msbar)
 
         for a in [aNS, aS]:
             for method in ["", "expanded", "exact"]:
