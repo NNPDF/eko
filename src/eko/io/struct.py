@@ -755,8 +755,7 @@ class EKO:
         # copy old dir to new dir
         tmpdir.rmdir()
         shutil.copytree(self.paths.root, new.paths.root)
-
-        return new
+        new.close()
 
     @staticmethod
     def load(tarpath: os.PathLike, dest: os.PathLike):

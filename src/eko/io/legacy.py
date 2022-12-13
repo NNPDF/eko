@@ -12,8 +12,9 @@ import lz4.frame
 import numpy as np
 import yaml
 
+from .. import basis_rotation as br
 from .. import version
-from . import struct
+from . import runcards, struct
 
 
 def get_raw(eko: struct.EKO, binarize: bool = True):
@@ -32,13 +33,12 @@ def get_raw(eko: struct.EKO, binarize: bool = True):
         dictionary which will be written on output
 
     """
-    obj = eko.raw
     # prepare output dict
     out = {"Q2grid": {}, "eko_version": version.__version__}
-    out["Q0"] = obj["Q0"]
+    out["Q0"] = float(np.sqrt(eko.metadata.mu20))
     # dump raw elements
     for sec in ["configs", "rotations"]:
-        for key, value in obj[sec].items():
+        for key, value in getattr(eko.operator_card, sec).raw.items():
             if key.startswith("_"):
                 key = key[1:]
             out[key] = value
@@ -49,13 +49,15 @@ def get_raw(eko: struct.EKO, binarize: bool = True):
     # make operators raw
     for q2, op in eko.items():
         q2 = float(q2)
-        out["Q2grid"][q2] = {}
+        outop = out["Q2grid"][q2] = {}
         if op is not None:
             for k, v in dataclasses.asdict(op).items():
-                if binarize:
-                    out["Q2grid"][q2][k] = lz4.frame.compress(v.tobytes())
+                if v is None:
+                    outop[k] = None
+                elif binarize:
+                    outop[k] = lz4.frame.compress(v.tobytes())
                 else:
-                    out["Q2grid"][q2][k] = v.tolist()
+                    outop[k] = v.tolist()
 
     return out
 
@@ -87,7 +89,7 @@ def tocard(raw: dict) -> dict:
         del card[basis]
 
     card["configs"] = {}
-    for field in dataclasses.fields(struct.Configs):
+    for field in dataclasses.fields(runcards.Configs):
         # not all the required attributes were stored in the metadata
         card["configs"][field.name] = raw.get(field.name)
         if field.name in card:
@@ -209,10 +211,16 @@ def load_yaml(stream: TextIO) -> struct.EKO:
 
     """
     obj = tocard(yaml.safe_load(stream))
-    len_tpids = len(obj["rotations"]["targetpids"])
-    len_ipids = len(obj["rotations"]["inputpids"])
-    len_tgrid = len(obj["rotations"]["targetgrid"])
-    len_igrid = len(obj["rotations"]["inputgrid"])
+    pids = obj["rotations"].get("pids", br.flavor_basis_pids)
+    tpids = obj["rotations"]["targetpids"]
+    ipids = obj["rotations"]["inputpids"]
+    len_tpids = len(tpids) if tpids is not None else len(pids)
+    len_ipids = len(ipids) if ipids is not None else len(pids)
+    xgrid = obj["rotations"]["xgrid"]
+    tgrid = obj["rotations"]["targetgrid"]
+    igrid = obj["rotations"]["inputgrid"]
+    len_tgrid = len(tgrid) if tgrid is not None else len(xgrid)
+    len_igrid = len(igrid) if igrid is not None else len(xgrid)
     # make operators numpy
     for op in obj["Q2grid"].values():
         for k, v in op.items():

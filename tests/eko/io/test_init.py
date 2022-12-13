@@ -8,9 +8,10 @@ import numpy as np
 import pytest
 
 import eko
+from eko import EKO
 from eko import basis_rotation as br
 from eko import interpolation
-from eko.io import legacy, manipulate
+from eko.io import legacy, manipulate, runcards
 from tests.conftest import EKOFactory
 
 
@@ -94,10 +95,10 @@ class TestLegacy:
 
 
 class TestManipulate:
-    def test_xgrid_reshape(self):
+    def test_xgrid_reshape(self, eko_factory: EKOFactory):
         # create object
         xg = interpolation.XGrid(np.geomspace(1e-5, 1.0, 21))
-        o1, _fake_card = fake_output
+        o1 = eko_factory.get()
         o1.xgrid = xg
         o1.rotations._targetgrid = xg
         o1.rotations._inputgrid = xg
@@ -142,128 +143,143 @@ class TestManipulate:
         with pytest.raises(ValueError):
             manipulate.xgrid_reshape(copy.deepcopy(o1))
 
-    def test_reshape_io(self):
+    def test_reshape_io(self, eko_factory: EKOFactory, tmp_path):
+        eko_factory.path = tmp_path / "eko.tar"
+        eko_factory.operator.rotations.pids = np.array([0, 1])
+        eko_factory.operator.configs.interpolation_polynomial_degree = 1
         # create object
-        o1, fake_card = fake_output
-        for q2, op in fake_card["Q2grid"].items():
-            o1[q2] = eko.io.Operator.from_dict(op)
-        o2 = copy.deepcopy(o1)
-        manipulate.xgrid_reshape(
-            o2, interpolation.XGrid([0.1, 1.0]), interpolation.XGrid([0.1, 1.0])
-        )
-        manipulate.flavor_reshape(o2, inputpids=np.array([[1, -1], [1, 1]]))
-        # dump
-        stream = io.StringIO()
-        legacy.dump_yaml(o2, stream)
-        # reload
-        stream.seek(0)
-        o3 = legacy.load_yaml(stream)
-        chk_keys(o1.raw, o3.raw)
-
-    def test_flavor_reshape(self, tmp_path):
-        # create object
-        xg = np.geomspace(1e-5, 1.0, 21)
-        o1, _fake_card = fake_output
-        o1.xgrid = xg
-        o1.rotations._targetgrid = xg
-        o1.rotations._inputgrid = xg
-        o1[10.0] = eko.io.Operator.from_dict(
-            dict(
-                operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
-                error=np.zeros((2, len(xg), 2, len(xg))),
+        o1 = eko_factory.get()
+        path_copy = tmp_path / "eko_copy.tar"
+        o1.deepcopy(path_copy)
+        with EKO.append(path_copy) as o2:
+            manipulate.xgrid_reshape(
+                o2, interpolation.XGrid([0.1, 1.0]), interpolation.XGrid([0.1, 1.0])
             )
+            manipulate.flavor_reshape(o2, inputpids=np.array([[1, -1], [1, 1]]))
+        # reload
+        with EKO.read(path_copy) as o3:
+            chk_keys(o1.raw, o3.raw)
+
+    def test_flavor_reshape(self, eko_factory: EKOFactory, tmp_path: pathlib.Path):
+        # create object
+        xg = interpolation.XGrid(np.geomspace(1e-5, 1.0, 21))
+        pids = np.array([0, 1])
+        mu2out = 10.0
+        eko_factory.operator.rotations.xgrid = xg
+        eko_factory.operator.rotations.pids = pids
+        eko_factory.operator.mu2grid = np.array([mu2out])
+        o1 = eko_factory.get()
+        lpids = len(pids)
+        lx = len(xg)
+        o1[mu2out] = eko.io.Operator(
+            operator=eko_identity([1, lpids, lx, lpids, lx])[0],
+            error=None,
         )
         # only target
         target_r = np.array([[1, -1], [1, 1]])
-        ot = o1.deepcopy(tmp_path / "ot.tar")
-        manipulate.flavor_reshape(ot, target_r)
-        chk_keys(o1.raw, ot.raw)
-        assert ot[10].operator.shape == (2, len(xg), 2, len(xg))
-        ott = ot.deepcopy(tmp_path / "ott.tar")
-        manipulate.flavor_reshape(ott, np.linalg.inv(target_r))
-        np.testing.assert_allclose(ott[10].operator, o1[10].operator)
-        with pytest.warns(Warning):
-            manipulate.flavor_reshape(ott, np.eye(2))
-            chk_keys(o1.raw, ott.raw)
-            np.testing.assert_allclose(ott[10].operator, o1[10].operator)
+        tpath = tmp_path / "ot.tar"
+        ttpath = tmp_path / "ott.tar"
+        o1.deepcopy(tpath)
+        with EKO.append(tpath) as ot:
+            manipulate.flavor_reshape(ot, target_r)
+            chk_keys(o1.raw, ot.raw)
+            assert ot[mu2out].operator.shape == (2, len(xg), 2, len(xg))
+            ot.deepcopy(ttpath)
+        with EKO.append(ttpath) as ott:
+            manipulate.flavor_reshape(ott, np.linalg.inv(target_r))
+            np.testing.assert_allclose(ott[mu2out].operator, o1[mu2out].operator)
+            with pytest.warns(Warning):
+                manipulate.flavor_reshape(ott, np.eye(2))
+                chk_keys(o1.raw, ott.raw)
+                np.testing.assert_allclose(ott[mu2out].operator, o1[mu2out].operator)
 
         # only input
         input_r = np.array([[1, -1], [1, 1]])
-        oi = o1.deepcopy(tmp_path / "oi.tar")
-        manipulate.flavor_reshape(oi, inputpids=input_r)
-        chk_keys(o1.raw, oi.raw)
-        assert oi[10].operator.shape == (2, len(xg), 2, len(xg))
-        oii = copy.deepcopy(oi)
-        manipulate.flavor_reshape(oii, inputpids=np.linalg.inv(input_r))
-        np.testing.assert_allclose(oii[10].operator, o1[10].operator)
-        with pytest.warns(Warning):
-            manipulate.flavor_reshape(oii, inputpids=np.eye(2))
-            chk_keys(o1.raw, oii.raw)
-            np.testing.assert_allclose(oii[10].operator, o1[10].operator)
+        ipath = tmp_path / "oi.tar"
+        iipath = tmp_path / "oii.tar"
+        o1.deepcopy(ipath)
+        with EKO.append(ipath) as oi:
+            manipulate.flavor_reshape(oi, inputpids=input_r)
+            chk_keys(o1.raw, oi.raw)
+            assert oi[mu2out].operator.shape == (2, len(xg), 2, len(xg))
+            oi.deepcopy(iipath)
+        with EKO.append(iipath) as oii:
+            manipulate.flavor_reshape(oii, inputpids=np.linalg.inv(input_r))
+            np.testing.assert_allclose(oii[mu2out].operator, o1[mu2out].operator)
+            with pytest.warns(Warning):
+                manipulate.flavor_reshape(oii, inputpids=np.eye(2))
+                chk_keys(o1.raw, oii.raw)
+                np.testing.assert_allclose(oii[mu2out].operator, o1[mu2out].operator)
 
         # both
-        oit = o1.deepcopy(tmp_path / "oit.tar")
-        manipulate.flavor_reshape(
-            oit, np.array([[1, -1], [1, 1]]), np.array([[1, -1], [1, 1]])
-        )
-        chk_keys(o1.raw, oit.raw)
-        op = eko_identity([1, 2, len(xg), 2, len(xg)]).copy()
-        np.testing.assert_allclose(oit[10].operator, op[0], atol=1e-10)
+        itpath = tmp_path / "oit.tar"
+        o1.deepcopy(itpath)
+        with EKO.append(itpath) as oit:
+            manipulate.flavor_reshape(
+                oit, np.array([[1, -1], [1, 1]]), np.array([[1, -1], [1, 1]])
+            )
+            chk_keys(o1.raw, oit.raw)
+            op = eko_identity([1, 2, len(xg), 2, len(xg)]).copy()
+            np.testing.assert_allclose(oit[mu2out].operator, op[0], atol=1e-10)
         # error
+        fpath = tmp_path / "fail.tar"
+        o1.deepcopy(fpath)
         with pytest.raises(ValueError):
-            manipulate.flavor_reshape(o1.deepcopy(tmp_path / "fail.tar"))
+            with EKO.append(fpath) as of:
+                manipulate.flavor_reshape(of)
 
-    def test_to_evol(self, eko_factory, tmp_path):
-        xgrid = np.array([0.5, 1.0])
+    def test_to_evol(self, eko_factory: EKOFactory, tmp_path):
+        xgrid = interpolation.XGrid([0.5, 1.0])
         interpolation_polynomial_degree = 1
         interpolation_is_log = False
-        q2_ref = 1
-        q2_out = 2
-        Q2grid = fake_factory.mk_g([q2_out], len(br.flavor_basis_pids), len(xgrid))
-        d = dict(
-            Q0=np.sqrt(q2_ref),
-            Q2grid=Q2grid,
-            rotations=dict(
-                xgrid=xgrid,
-                targetgrid=xgrid,
-                inputgrid=xgrid,
-                inputpids=br.flavor_basis_pids,
-                targetpids=br.flavor_basis_pids,
-                pids=br.flavor_basis_pids,
-            ),
-            configs=dict(
-                interpolation_polynomial_degree=interpolation_polynomial_degree,
-                interpolation_is_log=interpolation_is_log,
-                ev_op_max_order=1,
-                ev_op_iterations=1,
-                backward_inversion="exact",
-            ),
+        mu2_ref = 1.0
+        mu2_out = 2.0
+        eko_factory.operator.mu0 = float(np.sqrt(mu2_ref))
+        eko_factory.operator.mu2grid = np.array([mu2_out])
+        eko_factory.operator.rotations.xgrid = xgrid
+        eko_factory.operator.rotations.pids = np.array(br.flavor_basis_pids)
+        eko_factory.operator.configs.interpolation_polynomial_degree = (
+            interpolation_polynomial_degree
         )
-        o00 = eko.io.EKO.new(theory={}, operator=d)
-        o00[q2_out] = eko.io.Operator(**Q2grid[q2_out])
-        o01 = o00.deepcopy(tmp_path / "o01.tar")
-        manipulate.to_evol(o01)
-        o10 = o00.deepcopy(tmp_path / "o10.tar")
-        manipulate.to_evol(o10, False, True)
-        o11 = o00.deepcopy(tmp_path / "o11.tar")
-        manipulate.to_evol(o11, True, True)
-        chk_keys(o00.raw, o11.raw)
+        eko_factory.operator.configs.interpolation_is_log = interpolation_is_log
+        eko_factory.operator.configs.ev_op_max_order = (2, 0)
+        eko_factory.operator.configs.ev_op_iterations = 1
+        eko_factory.operator.configs.inversion_method = runcards.InversionMethod.EXACT
+        o00 = eko_factory.get()
+        o01_path = tmp_path / "o01.tar"
+        o00.deepcopy(o01_path)
+        with EKO.append(o01_path) as o01:
+            manipulate.to_evol(o01)
+        o10_path = tmp_path / "o10.tar"
+        o00.deepcopy(o10_path)
+        with EKO.append(o10_path) as o10:
+            manipulate.to_evol(o10, False, True)
+        o11_path = tmp_path / "o11.tar"
+        o00.deepcopy(o11_path)
+        with EKO.append(o11_path) as o11:
+            manipulate.to_evol(o11, True, True)
+            chk_keys(o00.raw, o11.raw)
 
-        # check the input rotated one
-        np.testing.assert_allclose(
-            o01.rotations.inputpids, br.rotate_flavor_to_evolution
-        )
-        np.testing.assert_allclose(o01.rotations.targetpids, br.flavor_basis_pids)
-        # rotate also target
-        manipulate.to_evol(o01, False, True)
-        np.testing.assert_allclose(o01[q2_out].operator, o11[q2_out].operator)
-        chk_keys(o00.raw, o01.raw)
-        # check the target rotated one
-        np.testing.assert_allclose(o10.rotations.inputpids, br.flavor_basis_pids)
-        np.testing.assert_allclose(
-            o10.rotations.targetpids, br.rotate_flavor_to_evolution
-        )
-        # rotate also input
-        manipulate.to_evol(o10)
-        np.testing.assert_allclose(o10[q2_out].operator, o11[q2_out].operator)
-        chk_keys(o00.raw, o10.raw)
+        with (
+            EKO.read(o01_path) as o01,
+            EKO.read(o10_path) as o10,
+            EKO.read(o11_path) as o11,
+        ):
+            # check the input rotated one
+            np.testing.assert_allclose(
+                o01.rotations.inputpids, br.rotate_flavor_to_evolution
+            )
+            np.testing.assert_allclose(o01.rotations.targetpids, br.flavor_basis_pids)
+            # rotate also target
+            manipulate.to_evol(o01, False, True)
+            np.testing.assert_allclose(o01[mu2_out].operator, o11[mu2_out].operator)
+            chk_keys(o00.raw, o01.raw)
+            # check the target rotated one
+            np.testing.assert_allclose(o10.rotations.inputpids, br.flavor_basis_pids)
+            np.testing.assert_allclose(
+                o10.rotations.targetpids, br.rotate_flavor_to_evolution
+            )
+            # rotate also input
+            manipulate.to_evol(o10)
+            np.testing.assert_allclose(o10[mu2_out].operator, o11[mu2_out].operator)
+            chk_keys(o00.raw, o10.raw)

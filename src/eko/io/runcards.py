@@ -171,7 +171,7 @@ class Rotations(DictLike):
         return self._inputgrid
 
     @inputgrid.setter
-    def inputgrid(self, value):
+    def inputgrid(self, value: interpolation.XGrid):
         self._inputgrid = value
 
     @property
@@ -182,7 +182,7 @@ class Rotations(DictLike):
         return self._targetgrid
 
     @targetgrid.setter
-    def targetgrid(self, value):
+    def targetgrid(self, value: interpolation.XGrid):
         self._targetgrid = value
 
 

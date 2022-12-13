@@ -56,36 +56,44 @@ def xgrid_reshape(
     if targetgrid is not None:
         b = interpolation.InterpolatorDispatcher(
             eko.rotations.targetgrid,
-            eko.configs.interpolation_polynomial_degree,
+            eko.operator_card.configs.interpolation_polynomial_degree,
             False,
         )
         target_rot = b.get_interpolation(targetgrid.raw)
-        eko.rotations = {"targetgrid": targetgrid}
+        eko.rotations.targetgrid = targetgrid
     if inputgrid is not None:
         b = interpolation.InterpolatorDispatcher(
             inputgrid,
-            eko.configs.interpolation_polynomial_degree,
+            eko.operator_card.configs.interpolation_polynomial_degree,
             False,
         )
         input_rot = b.get_interpolation(eko.rotations.inputgrid.raw)
-        eko.rotations = {"inputgrid": inputgrid}
+        eko.rotations.inputgrid = inputgrid
 
     # build new grid
     for q2, elem in eko.items():
         ops = elem.operator
         errs = elem.error
         if targetgrid is not None and inputgrid is None:
-            ops = np.einsum("ij,ajbk->aibk", target_rot, ops, optimize="optimal")
-            errs = np.einsum("ij,ajbk->aibk", target_rot, errs, optimize="optimal")
-        elif inputgrid is not None and targetgrid is None:
-            ops = np.einsum("ajbk,kl->ajbl", ops, input_rot, optimize="optimal")
-            errs = np.einsum("ajbk,kl->ajbl", errs, input_rot, optimize="optimal")
-        else:
-            ops = np.einsum(
-                "ij,ajbk,kl->aibl", target_rot, ops, input_rot, optimize="optimal"
+            ops = np.einsum("ij,ajbk->aibk", target_rot, ops)
+            errs = (
+                np.einsum("ij,ajbk->aibk", target_rot, errs)
+                if errs is not None
+                else None
             )
-            errs = np.einsum(
-                "ij,ajbk,kl->aibl", target_rot, errs, input_rot, optimize="optimal"
+        elif inputgrid is not None and targetgrid is None:
+            ops = np.einsum("ajbk,kl->ajbl", ops, input_rot)
+            errs = (
+                np.einsum("ajbk,kl->ajbl", errs, input_rot)
+                if errs is not None
+                else None
+            )
+        else:
+            ops = np.einsum("ij,ajbk,kl->aibl", target_rot, ops, input_rot)
+            errs = (
+                np.einsum("ij,ajbk,kl->aibl", target_rot, errs, input_rot)
+                if errs is not None
+                else None
             )
         elem.operator = ops
         elem.error = errs
@@ -139,13 +147,25 @@ def flavor_reshape(
         errs = elem.error
         if targetpids is not None and inputpids is None:
             ops = np.einsum("ca,ajbk->cjbk", targetpids, ops)
-            errs = np.einsum("ca,ajbk->cjbk", targetpids, errs)
+            errs = (
+                np.einsum("ca,ajbk->cjbk", targetpids, errs)
+                if errs is not None
+                else None
+            )
         elif inputpids is not None and targetpids is None:
             ops = np.einsum("ajbk,bd->ajdk", ops, inv_inputpids)
-            errs = np.einsum("ajbk,bd->ajdk", errs, inv_inputpids)
+            errs = (
+                np.einsum("ajbk,bd->ajdk", errs, inv_inputpids)
+                if errs is not None
+                else None
+            )
         else:
             ops = np.einsum("ca,ajbk,bd->cjdk", targetpids, ops, inv_inputpids)
-            errs = np.einsum("ca,ajbk,bd->cjdk", targetpids, errs, inv_inputpids)
+            errs = (
+                np.einsum("ca,ajbk,bd->cjdk", targetpids, errs, inv_inputpids)
+                if errs is not None
+                else None
+            )
         elem.operator = ops
         elem.error = errs
 
