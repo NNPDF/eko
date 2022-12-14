@@ -40,10 +40,12 @@ class Runner:
 
         Parameters
         ----------
-        theory_card: dict
+        theory_card :
             theory parameters and options
-        operators_card: dict
+        operators_card :
             operator specific options
+        path :
+            path where to store the computed operator
 
         """
         new_theory, new_operator = runcards.update(theory_card, operators_card)
