@@ -10,10 +10,7 @@ from .base import command
 
 
 @command.command("convert")
-@click.argument(
-    "old",
-    type=click.Path(path_type=pathlib.Path),
-)
+@click.argument("old", type=click.Path(path_type=pathlib.Path, exists=True))
 @click.option("-n", "--new", type=click.Path(path_type=pathlib.Path), default=None)
 def subcommand(old: pathlib.Path, new: Optional[pathlib.Path]):
     """Convert old EKO files to new format.

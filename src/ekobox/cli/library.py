@@ -25,7 +25,7 @@ def destination(dest: pathlib.Path):
     return click.option(
         "-d",
         "--destination",
-        type=click.Path(path_type=pathlib.Path),
+        type=click.Path(path_type=pathlib.Path, exists=True),
         default=dest,
         help="Alternative destination path to store the resulting table (default: $PWD/theory)",
     )

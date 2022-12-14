@@ -14,7 +14,7 @@ from .library import OUTPUT
 @click.option(
     "-p",
     "--path",
-    type=click.Path(path_type=pathlib.Path),
+    type=click.Path(path_type=pathlib.Path, exists=True),
     default=pathlib.Path.cwd() / OUTPUT,
 )
 @click.pass_context
