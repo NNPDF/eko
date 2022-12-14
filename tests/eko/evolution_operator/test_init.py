@@ -182,7 +182,7 @@ class TestOperator:
 
     def test_exponentiated(self, theory_ffns, operator_card, tmp_path):
         tcard: TheoryCard = theory_ffns(3)
-        tcard.fact_to_ren = 2.0
+        tcard.xif = 2.0
         ocard: OperatorCard = operator_card
         ocard.configs.scvar_method = ScaleVariationsMethod.EXPONENTIATED
         r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
@@ -224,7 +224,7 @@ class TestOperator:
         self, monkeypatch, theory_ffns, operator_card, tmp_path
     ):
         tcard: TheoryCard = theory_ffns(3)
-        tcard.fact_to_ren = 2.0
+        tcard.xif = 2.0
         ocard: OperatorCard = operator_card
         ocard.configs.scvar_method = ScaleVariationsMethod.EXPANDED
         r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
