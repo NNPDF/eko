@@ -108,10 +108,6 @@ class EKOFactory:
 
             factory.get({})
 
-
-        Pay attention that the EKO created is an invalid one, since no path is
-        actually connected.
-
         """
         if self.cache is None or update is not None:
             self.cache = self._create()

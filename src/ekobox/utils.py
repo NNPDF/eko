@@ -5,6 +5,7 @@ import numpy as np
 
 from eko.io.struct import EKO, Operator
 
+CONTRACTION = "ajbk,bkcl -> ajcl"
 
 # TODO: add a control on the theory (but before we need to implement another
 # kind of output which includes the theory and operator runcards)
@@ -53,13 +54,13 @@ def ekos_product(
     final_op_error_dict = {}
     final_dict = {}
     for q2, op2 in ope2_dict.items():
-        final_op_dict[q2] = np.einsum("ajbk,bkcl -> ajcl", ope1, op2)
+        final_op_dict[q2] = np.einsum(CONTRACTION, ope1, op2)
 
         ope2_error = ope2_error_dict[q2]
         if ope1_error is not None and ope2_error is not None:
             final_op_error_dict[q2] = np.einsum(
-                "ajbk,bkcl -> ajcl", ope1, ope2_error
-            ) + np.einsum("ajbk,bkcl -> ajcl", ope1_error, op2)
+                CONTRACTION, ope1, ope2_error
+            ) + np.einsum(CONTRACTION, ope1_error, op2)
         else:
             final_op_error_dict[q2] = None
 
@@ -77,11 +78,11 @@ def ekos_product(
         if q2 in eko_ini:
             continue
 
-        op = np.einsum("ajbk,bkcl -> ajcl", ope1, op2.operator)
+        op = np.einsum(CONTRACTION, ope1, op2.operator)
 
         if ope1_error is not None and op2.error is not None:
-            error = np.einsum("ajbk,bkcl -> ajcl", ope1, op2.error) + np.einsum(
-                "ajbk,bkcl -> ajcl", ope1_error, op2.operator
+            error = np.einsum(CONTRACTION, ope1, op2.error) + np.einsum(
+                CONTRACTION, ope1_error, op2.operator
             )
         else:
             error = None

@@ -1,4 +1,3 @@
-import copy
 import io
 import pathlib
 import shutil
@@ -12,14 +11,8 @@ from eko import EKO
 from eko import basis_rotation as br
 from eko import interpolation
 from eko.io import legacy, manipulate, runcards
+from ekobox.mock import eko_identity
 from tests.conftest import EKOFactory
-
-
-def eko_identity(shape):
-    i, k = np.ogrid[: shape[1], : shape[2]]
-    eko_identity = np.zeros(shape[1:], int)
-    eko_identity[i, k, i, k] = 1
-    return np.broadcast_to(eko_identity[np.newaxis, :, :, :, :], shape)
 
 
 def chk_keys(a, b):
@@ -95,53 +88,57 @@ class TestLegacy:
 
 
 class TestManipulate:
-    def test_xgrid_reshape(self, eko_factory: EKOFactory):
+    def test_xgrid_reshape(self, eko_factory: EKOFactory, tmp_path: pathlib.Path):
         # create object
+        mu2out = 10.0
         xg = interpolation.XGrid(np.geomspace(1e-5, 1.0, 21))
+        eko_factory.operator.mu2grid = [mu2out]
+        eko_factory.operator.rotations.xgrid = xg
         o1 = eko_factory.get()
-        o1.xgrid = xg
-        o1.rotations._targetgrid = xg
-        o1.rotations._inputgrid = xg
-        o1._operators = {
-            10: eko.io.Operator.from_dict(
-                dict(
-                    operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0],
-                    error=np.zeros((2, len(xg), 2, len(xg))),
-                )
-            )
-        }
+        o1[mu2out] = eko.io.Operator(
+            operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0]
+        )
         xgp = interpolation.XGrid(np.geomspace(1e-5, 1.0, 11))
         # only target
-        ot = copy.deepcopy(o1)
-        manipulate.xgrid_reshape(ot, xgp)
-        chk_keys(o1.raw, ot.raw)
-        assert ot[10].operator.shape == (2, len(xgp), 2, len(xg))
-        ott = copy.deepcopy(o1)
-        with pytest.warns(Warning):
+        otpath = tmp_path / "ot.tar"
+        o1.deepcopy(otpath)
+        with EKO.read(otpath) as ot:
+            manipulate.xgrid_reshape(ot, xgp)
+            chk_keys(o1.raw, ot.raw)
+            assert ot[10].operator.shape == (2, len(xgp), 2, len(xg))
+        ottpath = tmp_path / "ott.tar"
+        o1.deepcopy(ottpath)
+        with EKO.read(ottpath) as ott, pytest.warns(Warning):
             manipulate.xgrid_reshape(ott, xg)
             chk_keys(o1.raw, ott.raw)
             np.testing.assert_allclose(ott[10].operator, o1[10].operator)
 
         # only input
-        oi = copy.deepcopy(o1)
-        manipulate.xgrid_reshape(oi, inputgrid=xgp)
-        assert oi[10].operator.shape == (2, len(xg), 2, len(xgp))
-        chk_keys(o1.raw, oi.raw)
-        oii = copy.deepcopy(o1)
-        with pytest.warns(Warning):
+        oipath = tmp_path / "oi.tar"
+        o1.deepcopy(oipath)
+        with EKO.read(oipath) as oi:
+            manipulate.xgrid_reshape(oi, inputgrid=xgp)
+            assert oi[10].operator.shape == (2, len(xg), 2, len(xgp))
+            chk_keys(o1.raw, oi.raw)
+        oiipath = tmp_path / "oii.tar"
+        o1.deepcopy(oiipath)
+        with EKO.read(oiipath) as oii, pytest.warns(Warning):
             manipulate.xgrid_reshape(oii, inputgrid=xg)
             chk_keys(o1.raw, oii.raw)
             np.testing.assert_allclose(oii[10].operator, o1[10].operator)
 
         # both
-        oit = copy.deepcopy(o1)
-        manipulate.xgrid_reshape(oit, xgp, xgp)
-        chk_keys(o1.raw, oit.raw)
-        op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
-        np.testing.assert_allclose(oit[10].operator, op[0], atol=1e-10)
+        oitpath = tmp_path / "oit.tar"
+        o1.deepcopy(oitpath)
+        with EKO.read(oitpath) as oit:
+            manipulate.xgrid_reshape(oit, xgp, xgp)
+            chk_keys(o1.raw, oit.raw)
+            op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
+            np.testing.assert_allclose(oit[10].operator, op[0], atol=1e-10)
+
         # error
         with pytest.raises(ValueError):
-            manipulate.xgrid_reshape(copy.deepcopy(o1))
+            manipulate.xgrid_reshape(o1)
 
     def test_reshape_io(self, eko_factory: EKOFactory, tmp_path):
         eko_factory.path = tmp_path / "eko.tar"
@@ -230,18 +227,13 @@ class TestManipulate:
 
     def test_to_evol(self, eko_factory: EKOFactory, tmp_path):
         xgrid = interpolation.XGrid([0.5, 1.0])
-        interpolation_polynomial_degree = 1
-        interpolation_is_log = False
-        mu2_ref = 1.0
         mu2_out = 2.0
-        eko_factory.operator.mu0 = float(np.sqrt(mu2_ref))
+        eko_factory.operator.mu0 = float(np.sqrt(1.0))
         eko_factory.operator.mu2grid = np.array([mu2_out])
         eko_factory.operator.rotations.xgrid = xgrid
         eko_factory.operator.rotations.pids = np.array(br.flavor_basis_pids)
-        eko_factory.operator.configs.interpolation_polynomial_degree = (
-            interpolation_polynomial_degree
-        )
-        eko_factory.operator.configs.interpolation_is_log = interpolation_is_log
+        eko_factory.operator.configs.interpolation_polynomial_degree = 1
+        eko_factory.operator.configs.interpolation_is_log = False
         eko_factory.operator.configs.ev_op_max_order = (2, 0)
         eko_factory.operator.configs.ev_op_iterations = 1
         eko_factory.operator.configs.inversion_method = runcards.InversionMethod.EXACT

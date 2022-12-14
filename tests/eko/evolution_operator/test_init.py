@@ -1,4 +1,3 @@
-import copy
 import os
 
 import numpy as np
@@ -8,14 +7,11 @@ import eko.runner.legacy
 from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
 from eko import interpolation, mellin
-from eko.couplings import Couplings
 from eko.evolution_operator import Operator, quad_ker
-from eko.evolution_operator.grid import OperatorGrid
-from eko.interpolation import InterpolatorDispatcher, XGrid
+from eko.interpolation import InterpolatorDispatcher
 from eko.io.runcards import OperatorCard, ScaleVariationsMethod, TheoryCard
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
-from eko.thresholds import ThresholdsAtlas
 
 
 def test_quad_ker(monkeypatch):
