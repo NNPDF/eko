@@ -443,14 +443,12 @@ class Couplings:
         if hqm_scheme not in ["MSBAR", "POLE"]:
             raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
         # adjust factorization scale / renormalization scale
-        fact_to_ren = theory_card["fact_to_ren_scale_ratio"]
+        xif = theory_card["fact_to_ren_scale_ratio"]
         heavy_flavors = "cbt"
         if masses is None:
-            masses = np.power(
-                [theory_card[f"m{q}"] / fact_to_ren for q in heavy_flavors], 2
-            )
+            masses = np.power([theory_card[f"m{q}"] / xif for q in heavy_flavors], 2)
         else:
-            masses = masses / fact_to_ren**2
+            masses = masses / xif**2
         thresholds_ratios = np.power(
             [theory_card[f"k{q}Thr"] for q in heavy_flavors], 2
         )

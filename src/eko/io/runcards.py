@@ -66,7 +66,8 @@ class TheoryCard(DictLike):
     matching: MatchingScales
     """"""
     # TODO: drop this
-    fact_to_ren: float
+    xif: float
+    """"""
 
     def validate(self) -> bool:
         """Validate attributes compatibility."""
@@ -312,7 +313,7 @@ class Legacy:
         else:
             raise ValueError()
 
-        new["fact_to_ren"] = old["fact_to_ren_scale_ratio"]
+        new["xif"] = old["fact_to_ren_scale_ratio"]
 
         return TheoryCard.from_dict(new)
 

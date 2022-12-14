@@ -22,7 +22,7 @@ _theory = dict(
     quark_masses={q: [mq, nan] for mq, q in zip((2.0, 4.5, 173.07), "cbt")},
     quark_masses_scheme="POLE",
     matching=[1.0, 1.0, 1.0],
-    fact_to_ren=1.0,
+    xif=1.0,
 )
 
 _operator = dict(
