@@ -53,7 +53,7 @@ class TestMsbarMasses:
                             m2_ref,
                             Q2m_ref,
                             strong_coupling=strong_coupling,
-                            xif=theory_dict["fact_to_ren_scale_ratio"] ** 2,
+                            xif2=theory_dict["fact_to_ren_scale_ratio"] ** 2,
                             q2_to=m2_computed[nf - 3],
                         )
                     )
@@ -85,7 +85,7 @@ class TestMsbarMasses:
                     m2_ref,
                     Q2m_ref,
                     strong_coupling=strong_coupling,
-                    xif=theory_dict["fact_to_ren_scale_ratio"] ** 2,
+                    xif2=theory_dict["fact_to_ren_scale_ratio"] ** 2,
                     q2_to=m2_computed[nf - 3],
                 )
             )
