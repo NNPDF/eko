@@ -277,7 +277,7 @@ class Operator(sv.ModeMixin):
         return max(os.cpu_count() + n_pools, 1)
 
     @property
-    def xif(self):
+    def xif2(self):
         r"""Return scale variation factor :math:`(\mu_F/\mu_R)^2`."""
         return self.config["xif"]
 
@@ -305,7 +305,7 @@ class Operator(sv.ModeMixin):
             renormalization scale
         """
         if self.sv_mode == sv.Modes.exponentiated:
-            return q2 / self.xif
+            return q2 / self.xif2
         return q2
 
     @property
@@ -377,7 +377,7 @@ class Operator(sv.ModeMixin):
             as0=self.a_s[0],
             as_raw=self.a_s[2],
             nf=self.nf,
-            L=np.log(self.xif),
+            L=np.log(self.xif2),
             ev_op_iterations=self.config["ev_op_iterations"],
             ev_op_max_order=tuple(self.config["ev_op_max_order"]),
             sv_mode=self.sv_mode,
@@ -455,7 +455,7 @@ class Operator(sv.ModeMixin):
             # unless we have to do some scale variation
             # TODO remove if K is factored out of here
             if not (
-                self.sv_mode == sv.Modes.expanded and not np.isclose(self.xif, 1.0)
+                self.sv_mode == sv.Modes.expanded and not np.isclose(self.xif2, 1.0)
             ):
                 logger.info(
                     "%s: skipping unity operator at %e", self.log_label, self.q2_from
@@ -479,7 +479,7 @@ class Operator(sv.ModeMixin):
         if self.sv_mode != sv.Modes.unvaried:
             logger.info(
                 "Scale Variation: (µ_F/µ_R)^2 = %e, mode: %s",
-                self.xif,
+                self.xif2,
                 self.sv_mode.name,
             )
         logger.info(
