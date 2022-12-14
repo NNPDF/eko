@@ -1,15 +1,13 @@
 """Tools to generate runcards."""
 import os
 from math import nan
-from typing import Any, Dict
 
 import numpy as np
 import yaml
 
 from eko import basis_rotation as br
 from eko.io import runcards
-
-Card = Dict[str, Any]
+from eko.io.types import RawCard
 
 _theory = dict(
     order=[1, 0],
@@ -74,7 +72,7 @@ class example:
         return _theory.copy()
 
 
-def dump(card: Card, path: os.PathLike):
+def dump(card: RawCard, path: os.PathLike):
     """Export the operators card.
 
     Parameters
@@ -89,7 +87,7 @@ def dump(card: Card, path: os.PathLike):
         yaml.safe_dump(card, fd)
 
 
-def load(path) -> Card:
+def load(path) -> RawCard:
     """Import the theory card specified by path.
 
     Parameters
