@@ -51,8 +51,8 @@ def subcommand(paths: Sequence[pathlib.Path]):
     else:
         output = operator.parent / OUTPUT
 
-    out = eko.run_dglap(
+    eko.solve(
         yaml.safe_load(theory.read_text(encoding="utf-8")),
         yaml.safe_load(operator.read_text(encoding="utf-8")),
+        path=output,
     )
-    out.deepcopy(output)

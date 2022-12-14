@@ -9,8 +9,6 @@ from eko.io import EKO
 from .base import command
 from .library import OUTPUT
 
-pass_operator = click.make_pass_decorator(EKO)
-
 
 @command.group("inspect")
 @click.option(
@@ -22,18 +20,20 @@ pass_operator = click.make_pass_decorator(EKO)
 @click.pass_context
 def subcommand(ctx, path: pathlib.Path):
     """Inspect EKO content."""
-    ctx.obj = EKO.load(path)
+    ctx.obj = ctx.with_resource(EKO.read(path))
 
 
 @subcommand.command("mu2grid")
-@pass_operator
+@click.pass_obj
 def sub_mu2(operator: EKO):
     """Check operator's mu2grid."""
     rich.print_json(data=operator.mu2grid.tolist())
 
 
 @subcommand.command("cards")
-@pass_operator
+@click.pass_obj
 def sub_cards(operator: EKO):
     """Check operator's mu2grid."""
-    rich.print_json(data=dict(theory=operator.theory, operator=operator.operator_card))
+    rich.print_json(
+        data=dict(theory=operator.theory_card.raw, operator=operator.operator_card.raw)
+    )
