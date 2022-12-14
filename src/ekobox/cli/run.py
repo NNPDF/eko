@@ -6,6 +6,7 @@ import click
 import yaml
 
 import eko
+from eko.io.runcards import OperatorCard, TheoryCard
 
 from .base import command
 from .library import OPERATOR, OUTPUT, THEORY
@@ -51,8 +52,11 @@ def subcommand(paths: Sequence[pathlib.Path]):
     else:
         output = operator.parent / OUTPUT
 
-    eko.solve(
-        yaml.safe_load(theory.read_text(encoding="utf-8")),
-        yaml.safe_load(operator.read_text(encoding="utf-8")),
-        path=output,
-    )
+    theory = yaml.safe_load(theory.read_text(encoding="utf-8"))
+    if "order" in theory:
+        theory = TheoryCard.from_dict(theory)
+    operator = yaml.safe_load(operator.read_text(encoding="utf-8"))
+    if "configs" in operator:
+        operator = OperatorCard.from_dict(operator)
+
+    eko.solve(theory, operator, path=output)
