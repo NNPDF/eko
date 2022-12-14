@@ -138,7 +138,7 @@ def ker_expanded(a0, a1, order, nf):
     return ev_mass * num / den
 
 
-def ker_dispatcher(q2_to, q2m_ref, strong_coupling, xif, nf):
+def ker_dispatcher(q2_to, q2m_ref, strong_coupling, xif2, nf):
     r"""Select the |MSbar| kernel and compute the strong coupling values.
 
     Parameters
@@ -150,7 +150,7 @@ def ker_dispatcher(q2_to, q2m_ref, strong_coupling, xif, nf):
     strong_coupling : eko.strong_coupling.StrongCoupling
         Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
         any q
-    xif : float
+    xif2 : float
         factorization to renormalization scale ratio
     nf : int
         number of active flavours
@@ -161,8 +161,8 @@ def ker_dispatcher(q2_to, q2m_ref, strong_coupling, xif, nf):
         Expanded or exact |MSbar| kernel
 
     """
-    a0 = strong_coupling.a(q2m_ref / xif, q2m_ref, nf)[0]
-    a1 = strong_coupling.a(q2_to / xif, q2_to, nf)[0]
+    a0 = strong_coupling.a(q2m_ref / xif2, q2m_ref, nf)[0]
+    a1 = strong_coupling.a(q2_to / xif2, q2_to, nf)[0]
     method = strong_coupling.method
     order = strong_coupling.order
     if method == "expanded":
@@ -224,7 +224,7 @@ def compute_matching_coeffs_down(nf: int):
     return invert_matching_coeffs(c_up)
 
 
-def solve(m2_ref, q2m_ref, strong_coupling, nf_ref, xif):
+def solve(m2_ref, q2m_ref, strong_coupling, nf_ref, xif2):
     r"""Compute the |MSbar| masses.
 
     Solves the equation :math:`m_{\overline{MS}}(m) = m` for a fixed number of
@@ -241,7 +241,7 @@ def solve(m2_ref, q2m_ref, strong_coupling, nf_ref, xif):
         any q
     nf_ref : int
         number of active flavours at the scale q2m_ref, where the solution is searched
-    xif : float
+    xif2 : float
         :math:`\mu_F^2/\mu_R^2`
 
     Returns
@@ -251,18 +251,19 @@ def solve(m2_ref, q2m_ref, strong_coupling, nf_ref, xif):
 
     """
 
-    def rge(m2, q2m_ref, strong_coupling, xif, nf_ref):
+    def rge(m2, q2m_ref, strong_coupling, xif2, nf_ref):
         return (
-            m2_ref * ker_dispatcher(m2, q2m_ref, strong_coupling, xif, nf_ref) ** 2 - m2
+            m2_ref * ker_dispatcher(m2, q2m_ref, strong_coupling, xif2, nf_ref) ** 2
+            - m2
         )
 
     msbar_mass = optimize.fsolve(
-        rge, q2m_ref, args=(q2m_ref, strong_coupling, xif, nf_ref)
+        rge, q2m_ref, args=(q2m_ref, strong_coupling, xif2, nf_ref)
     )
     return float(msbar_mass)
 
 
-def evolve(m2_ref, q2m_ref, strong_coupling, xif, q2_to, nf_ref=None, nf_to=None):
+def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=None):
     r"""Perform the |MSbar| mass evolution up to given scale.
 
     It allows for different number of active flavors.
@@ -276,7 +277,7 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif, q2_to, nf_ref=None, nf_to=None
     strong_coupling : eko.strong_coupling.StrongCoupling
         Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
         any q
-    xif : float
+    xif2 : float
         :math:`\mu_F^2/\mu_R^2`
     q2_to : float
         scale at which the mass is computed
@@ -307,7 +308,7 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif, q2_to, nf_ref=None, nf_to=None
         ker_evol = 1.0
         if not np.isclose(seg.q2_from, seg.q2_to):
             ker_evol = (
-                ker_dispatcher(seg.q2_to, seg.q2_from, strong_coupling, xif, seg.nf)
+                ker_dispatcher(seg.q2_to, seg.q2_from, strong_coupling, xif2, seg.nf)
                 ** 2
             )
         # apply matching condition
@@ -323,7 +324,7 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif, q2_to, nf_ref=None, nf_to=None
             for pto in range(1, strong_coupling.order[0]):
                 for l in range(pto + 1):
                     as_thr = strong_coupling.a(
-                        seg.q2_to / xif, seg.q2_to, seg.nf - shift + 4
+                        seg.q2_to / xif2, seg.q2_to, seg.nf - shift + 4
                     )[0]
                     matching += as_thr**pto * L**l * m_coeffs[pto, l]
             ker_evol *= matching
@@ -353,7 +354,7 @@ def compute(theory_card):
 
     q2_ref = np.power(theory_card["Qref"], 2)
     masses = np.concatenate((np.zeros(nfa_ref - 3), np.full(6 - nfa_ref, np.inf)))
-    xif = theory_card["fact_to_ren_scale_ratio"] ** 2
+    xif2 = theory_card["fact_to_ren_scale_ratio"] ** 2
 
     def sc(thr_masses):
         return Couplings.from_dict(theory_card, masses=thr_masses)
@@ -421,7 +422,7 @@ def compute(theory_card):
                 m2_ref,
                 q2m_ref,
                 sc(masses),
-                xif,
+                xif2,
                 q2_to,
                 nf_ref=nf_ref,
                 nf_to=nf_target,
@@ -434,7 +435,7 @@ def compute(theory_card):
             q2m_ref,
             sc(masses),
             nf_target,
-            xif,
+            xif2,
         )
 
     # Check the msbar ordering
