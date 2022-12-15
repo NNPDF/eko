@@ -367,7 +367,7 @@ class Metadata(DictLike):
     """Path to temporary dir."""
     version: str = vmod.__version__
     """Library version used to create the corresponding file."""
-    data_version: str = vmod.__data_version__
+    data_version: int = vmod.__data_version__
     """Specs version, to which the file adheres."""
 
     @classmethod

@@ -1,313 +1,183 @@
 """Support legacy storage formats."""
-import copy
 import dataclasses
 import io
+import logging
 import os
 import pathlib
 import tarfile
 import tempfile
-from typing import Optional, TextIO, Union
 
 import lz4.frame
 import numpy as np
+import numpy.typing as npt
 import yaml
 
+from eko.interpolation import XGrid
+from eko.io.runcards import Rotations
+
 from .. import basis_rotation as br
-from .. import version
-from . import runcards, struct
+from .dictlike import DictLike
+from .struct import EKO, Operator
+from .types import RawCard
 
 
-def get_raw(eko: struct.EKO, binarize: bool = True):
-    """Serialize result as dict/YAML.
-
-    This maps the original numpy matrices to lists.
-
-    Parameters
-    ----------
-    binarize : bool
-        dump in binary format (instead of list format)
-
-    Returns
-    -------
-    out : dict
-        dictionary which will be written on output
-
-    """
-    # prepare output dict
-    out = {"Q2grid": {}, "eko_version": version.__version__}
-    out["Q0"] = float(np.sqrt(eko.metadata.mu20))
-    # dump raw elements
-    for sec in ["configs", "rotations"]:
-        for key, value in getattr(eko.operator_card, sec).raw.items():
-            if key.startswith("_"):
-                key = key[1:]
-            out[key] = value
-
-    out["interpolation_xgrid"] = out["xgrid"]
-    del out["xgrid"]
-
-    # make operators raw
-    for q2, op in eko.items():
-        q2 = float(q2)
-        outop = out["Q2grid"][q2] = {}
-        if op is not None:
-            for k, v in dataclasses.asdict(op).items():
-                if v is None:
-                    outop[k] = None
-                elif binarize:
-                    outop[k] = lz4.frame.compress(v.tobytes())
-                else:
-                    outop[k] = v.tolist()
-
-    return out
-
-
-def tocard(raw: dict) -> dict:
-    """Upgrade raw representation to new card.
-
-    Parameters
-    ----------
-    raw: dict
-        legacy raw representation of Output
-
-    Returns
-    -------
-    dict
-        new format operator card
-
-    """
-    card = copy.deepcopy(raw)
-
-    card["rotations"] = {}
-    card["rotations"]["xgrid"] = raw["interpolation_xgrid"]
-    del card["interpolation_xgrid"]
-    # being an internal detail, "pids" field was often (or always) omitted
-    card["rotations"]["pids"] = raw.get("pids")
-    del card["pids"]
-    for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
-        card["rotations"][basis] = raw[basis]
-        del card[basis]
-
-    card["configs"] = {}
-    for field in dataclasses.fields(runcards.Configs):
-        # not all the required attributes were stored in the metadata
-        card["configs"][field.name] = raw.get(field.name)
-        if field.name in card:
-            del card[field.name]
-
-    if "Q0" not in card:
-        # in old metadata this was call q2_ref
-        card["Q0"] = np.sqrt(card.get("q2_ref", 0))
-
-    return card
-
-
-def dump_yaml(
-    obj: struct.EKO,
-    stream: Optional[TextIO] = None,
-    binarize: bool = True,
-):
-    """Serialize result as YAML.
-
-    Parameters
-    ----------
-    stream : None or stream
-        if given, dump is written on it
-    binarize : bool
-        dump in binary format (instead of list format)
-
-    Returns
-    -------
-    dump : any
-        result of dump(output, stream), i.e. a string, if no stream is given or
-        Null, if written successfully to stream
-
-    """
-    out = get_raw(obj, binarize)
-    return yaml.dump(out, stream)
-
-
-def dump_yaml_to_file(
-    obj: struct.EKO,
-    filename: Union[str, os.PathLike],
-    binarize: bool = True,
-):
-    """Write YAML representation to a file.
-
-    Parameters
-    ----------
-    filename : str
-        target file name
-    binarize : bool
-        dump in binary format (instead of list format)
-
-    Returns
-    -------
-    ret : any
-        result of dump(output, stream), i.e. Null if written successfully
-
-    """
-    with open(filename, "w", encoding="utf-8") as f:
-        ret = dump_yaml(obj, f, binarize)
-    return ret
-
-
-def dump_tar(obj: struct.EKO, tarname: Union[str, os.PathLike]):
-    """Write representation into a tar archive.
-
-    The written archive will contain:
-
-    - metadata (in YAML)
-    - operator (in numpy ``.npy`` format)
-
-    Parameters
-    ----------
-    tarname : str
-        target file name
-
-    """
-    tarpath = pathlib.Path(tarname)
-    if tarpath.suffix != ".tar":
-        raise ValueError(f"'{tarname}' is not a valid tar filename, wrong suffix")
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmpdir = pathlib.Path(tmpdir)
-
-        metadata = {str(k): v for k, v in get_raw(obj).items() if k != "Q2grid"}
-        metadata["Q2grid"] = obj.mu2grid.tolist()
-
-        yamlname = tmpdir / "metadata.yaml"
-        with open(yamlname, "w", encoding="utf-8") as fd:
-            yaml.dump(metadata, fd)
-
-        for kind in ["operator", "error"]:
-            elements = []
-            for q2, op in obj.items():
-                el = getattr(op, kind)
-                elements.append(el)
-            operator = np.stack(elements)
-            stream = io.BytesIO()
-            np.save(stream, operator)
-            stream.seek(0)
-            with lz4.frame.open((tmpdir / kind).with_suffix(".npy.lz4"), "wb") as fo:
-                fo.write(stream.read())
-
-        with tarfile.open(tarpath, "w") as tar:
-            tar.add(tmpdir, arcname=tarpath.stem)
-
-
-def load_yaml(stream: TextIO) -> struct.EKO:
-    """Load YAML representation from stream.
-
-    Parameters
-    ----------
-    stream : TextIO
-        source stream
-
-    Returns
-    -------
-    obj : output
-        loaded object
-
-    """
-    obj = tocard(yaml.safe_load(stream))
-    pids = obj["rotations"].get("pids", br.flavor_basis_pids)
-    tpids = obj["rotations"]["targetpids"]
-    ipids = obj["rotations"]["inputpids"]
-    len_tpids = len(tpids) if tpids is not None else len(pids)
-    len_ipids = len(ipids) if ipids is not None else len(pids)
-    xgrid = obj["rotations"]["xgrid"]
-    tgrid = obj["rotations"]["targetgrid"]
-    igrid = obj["rotations"]["inputgrid"]
-    len_tgrid = len(tgrid) if tgrid is not None else len(xgrid)
-    len_igrid = len(igrid) if igrid is not None else len(xgrid)
-    # make operators numpy
-    for op in obj["Q2grid"].values():
-        for k, v in op.items():
-            if isinstance(v, list):
-                v = np.array(v)
-            elif isinstance(v, bytes):
-                v = np.frombuffer(lz4.frame.decompress(v))
-                v = v.reshape(len_tpids, len_tgrid, len_ipids, len_igrid)
-            op[k] = v
-
-    return struct.EKO.new(theory={}, operator=obj)
-
-
-def load_yaml_from_file(filename: Union[str, os.PathLike]) -> struct.EKO:
-    """Load YAML representation from file.
-
-    Parameters
-    ----------
-    filename : str
-        source file name
-
-    Returns
-    -------
-    obj : output
-        loaded object
-
-    """
-    obj = None
-    with open(filename, encoding="utf-8") as o:
-        obj = load_yaml(o)
-    return obj
-
-
-def load_tar(tarname: Union[str, os.PathLike]) -> struct.EKO:
+def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
     """Load tar representation from file.
 
     Compliant with :meth:`dump_tar` output.
 
     Parameters
     ----------
-    tarname : str
+    source :
         source tar name
-
-    Returns
-    -------
-    obj : output
-        loaded object
+    dest :
+        dest tar name
+    errors :
+        whether to load also errors (default ``False``)
 
     """
-    tarpath = pathlib.Path(tarname)
-
-    operator_grid = {}
     with tempfile.TemporaryDirectory() as tmpdir:
         tmpdir = pathlib.Path(tmpdir)
 
-        with tarfile.open(tarpath, "r") as tar:
+        with tarfile.open(source, "r") as tar:
             tar.extractall(tmpdir)
 
         # load metadata
         innerdir = list(tmpdir.glob("*"))[0]
-        yamlname = innerdir / "metadata.yaml"
-        with open(yamlname, encoding="utf-8") as fd:
-            metadata = tocard(yaml.safe_load(fd))
+        metapath = innerdir / "metadata.yaml"
+        metaold = yaml.safe_load(metapath.read_text(encoding="utf-8"))
+
+        theory = PseudoTheory.from_old(metaold)
+        operator = PseudoOperator.from_old(metaold)
 
         # get actual grids
-        grids = {}
-        for fp in innerdir.glob("*.npy.lz4"):
-            with lz4.frame.open(fp, "rb") as fd:
-                # static analyzer can not guarantee the content to be bytes
-                content = fd.read()
-                if isinstance(content, str):
-                    raise RuntimeError("Bytes expected")
+        arrays = load_arrays(innerdir)
 
-                stream = io.BytesIO(content)
-                stream.seek(0)
-                grids[pathlib.Path(fp.stem).stem] = np.load(stream)
+    grid = op5to4(metaold["Q2grid"], arrays)
 
-        q2grid = metadata["Q2grid"]
-        for q2, slices in zip(q2grid, zip(*grids.values())):
-            operator_grid[q2] = dict(zip(grids.keys(), slices))
+    with EKO.create(dest) as builder:
+        # here I'm plainly ignoring the static analyzer, the types are faking
+        # the actual ones - not sure if I should fix builder interface to
+        # accept also these
+        eko = builder.load_cards(theory, operator).build()
 
-    # now everything is in place
-    eko = struct.EKO.new(theory={}, operator=metadata)
-    for q2, op in operator_grid.items():
-        # the layout of the operator is slightly different from the past one
-        if "operators" in op:
-            op = dict(operator=op["operators"], error=op["operator_errors"])
-        eko[q2] = struct.Operator.from_dict(op)
+        for mu2, op in grid.items():
+            eko[mu2] = op
 
-    return eko
+        eko.metadata.version = metaold.get("eko_version", "")
+        eko.metadata.data_version = 0
+
+
+@dataclasses.dataclass
+class PseudoTheory(DictLike):
+    """Fake theory, mocking :cls:`eko.io.runcards.TheoryCard`.
+
+    Used to provide a theory for the :cls:`EKO` builder, even when the theory
+    information is not available.
+
+    """
+
+    _void: str
+
+    @classmethod
+    def from_old(cls, old: RawCard):
+        """Load from old metadata."""
+        return cls(_void="")
+
+
+@dataclasses.dataclass
+class PseudoOperator(DictLike):
+    """Fake operator, mocking :cls:`eko.io.runcards.OperatorCard`.
+
+    Used to provide a theory for the :cls:`EKO` builder, even when the operator
+    information is not fully available.
+
+    """
+
+    mu20: float
+    mu2grid: npt.NDArray
+    rotations: Rotations
+    configs: dict
+
+    @classmethod
+    def from_old(cls, old: RawCard):
+        """Load from old metadata."""
+        mu20 = float(old["q2_ref"])
+        mu2grid = np.array(old["Q2grid"])
+
+        xgrid = XGrid(old["interpolation_xgrid"])
+        pids = old.get("pids", np.array(br.flavor_basis_pids))
+
+        rotations = Rotations(xgrid=xgrid, pids=pids)
+
+        def set_if_different(name: str, default: npt.NDArray):
+            basis = old.get(name)
+            if basis is not None and not np.allclose(basis, default):
+                setattr(rotations, name, basis)
+
+        set_if_different("inputpids", pids)
+        set_if_different("targetpids", pids)
+        set_if_different("inputgrid", xgrid.raw)
+        set_if_different("targetgrid", xgrid.raw)
+
+        configs = dict(
+            interpolation_polynomial_degree=old.get("interpolation_polynomial_degree"),
+            interpolation_is_log=old.get("interpolation_is_log"),
+        )
+
+        return cls(mu20=mu20, mu2grid=mu2grid, rotations=rotations, configs=configs)
+
+
+ARRAY_SUFFIX = ".npy.lz4"
+"""Suffix for array files inside the tarball."""
+
+
+def load_arrays(dir: pathlib.Path) -> dict:
+    """Load arrays from compressed dumps."""
+    arrays = {}
+    for fp in dir.glob(f"*{ARRAY_SUFFIX}"):
+        with lz4.frame.open(fp, "rb") as fd:
+            # static analyzer can not guarantee the content to be bytes
+            content = fd.read()
+            if isinstance(content, str):
+                raise RuntimeError("Bytes expected")
+
+            stream = io.BytesIO(content)
+            stream.seek(0)
+            arrays[pathlib.Path(fp.stem).stem] = np.load(stream)
+
+    return arrays
+
+
+OPERATOR = "operator"
+"""File name stem for operators."""
+ERROR = "operator_error"
+"""File name stem for operator errrors."""
+
+
+def op5to4(mu2grid: list, arrays: dict) -> dict:
+    """Load dictionary of 4-dim operators, from a single 5-dim one."""
+
+    def plural(name: str) -> list:
+        return [name, f"{name}s"]
+
+    op5 = None  # 5 dimensional operator
+    err5 = None
+    for name, ar in arrays.items():
+        if name in plural(OPERATOR):
+            op5 = ar
+        elif name in plural(ERROR):
+            err5 = ar
+        else:
+            logging.warn(f"Unrecognized array loaded, '{name}'")
+
+    if op5 is None:
+        raise RuntimeError("Operator not found")
+    if err5 is None:
+        err5 = [None] * len(op5)
+
+    grid = {}
+    for mu2, op4, err4 in zip(mu2grid, op5, err5):
+        grid[mu2] = Operator(operator=op4, error=err4)
+
+    return grid
