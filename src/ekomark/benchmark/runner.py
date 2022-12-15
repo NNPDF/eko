@@ -12,8 +12,9 @@ from banana.benchmark.runner import BenchmarkRunner
 from banana.data import dfdict
 
 import eko
+from eko import EKO
 from eko import basis_rotation as br
-from eko import compatibility
+from eko.io import manipulate
 
 from .. import apply, pdfname
 from ..data import db, operators
@@ -67,13 +68,14 @@ class Runner(BenchmarkRunner):
         logging.getLogger("eko").addHandler(logStdout)
         logging.getLogger("eko").setLevel(logging.INFO)
 
+        ops_id = f"o{ocard['hash'][:6]}_t{theory['hash'][:6]}"
+        root = banana_cfg.cfg["paths"]["database"].parents[0]
+        path = root / f"{ops_id}.tar"
+
         # if sandbox check for cache, dump eko to yaml
         # and plot the operators
         if self.sandbox:
             rerun = True
-            ops_id = f"o{ocard['hash'][:6]}_t{theory['hash'][:6]}"
-            root = banana_cfg.cfg["paths"]["database"].parents[0]
-            path = f"{root}/{ops_id}.tar"
 
             if os.path.exists(path):
                 rerun = False
@@ -82,14 +84,11 @@ class Runner(BenchmarkRunner):
                     rerun = True
 
             if rerun:
-                new_theory, new_operators = compatibility.update(theory, ocard)
-                out = eko.run_dglap(new_theory, new_operators)
-                print(f"Writing operator to {path}")
-                out.dump_tar(path)
+                eko.solve(theory, ocard, path)
+                print(f"Operator written to {path}")
             else:
                 # load
                 print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
-                out = eko.output.legacy.load_tar(path)
 
             if self.plot_operator:
 
@@ -101,24 +100,22 @@ class Runner(BenchmarkRunner):
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
                 # rotating to evolution basis if requested
-                out_copy = eko.output.legacy.load_tar(path)
-                change_lab = False
-                if self.rotate_to_evolution_basis:
-                    out_copy.to_evol(source=True, target=True)
-                    change_lab = True
+                with EKO.read(path) as out_copy:
+                    change_lab = False
+                    if self.rotate_to_evolution_basis:
+                        manipulate.to_evol(out_copy, source=True, target=True)
+                        change_lab = True
 
-                save_operators_to_pdf(
-                    output_path,
-                    theory,
-                    ocard,
-                    out_copy,
-                    self.skip_pdfs(theory),
-                    change_lab,
-                )
+                    save_operators_to_pdf(
+                        output_path,
+                        theory,
+                        ocard,
+                        out_copy,
+                        self.skip_pdfs(theory),
+                        change_lab,
+                    )
         else:
-            out = eko.run_dglap(theory, ocard)
-
-        return out
+            eko.solve(theory, ocard, path)
 
     def run_external(self, theory, ocard, pdf):
         # pylint:disable=import-error,import-outside-toplevel
