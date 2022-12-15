@@ -21,5 +21,4 @@ def subcommand(old: pathlib.Path, new: Optional[pathlib.Path]):
     if new is None:
         new = old.parent / old.with_stem(old.stem + "-new")
 
-    operator = legacy.load_tar(old)
-    operator.deepcopy(new)
+    legacy.load_tar(old, new)

@@ -34,6 +34,14 @@ def sub_mu2(operator: EKO):
 @click.pass_obj
 def sub_cards(operator: EKO):
     """Check operator's mu2grid."""
-    rich.print_json(
-        data=dict(theory=operator.theory_card.raw, operator=operator.operator_card.raw)
-    )
+    try:
+        theory_card = operator.theory_card.raw
+    except KeyError as e:
+        theory_card = dict(error=f"Key '{e.args}' missing in theory_card")
+
+    try:
+        operator_card = operator.operator_card.raw
+    except KeyError as e:
+        operator_card = dict(error=f"Key '{e.args}' missing in operator_card")
+
+    rich.print_json(data=dict(theory=theory_card, operator=operator_card))
