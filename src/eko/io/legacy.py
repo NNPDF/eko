@@ -1,11 +1,11 @@
 """Support legacy storage formats."""
 import dataclasses
 import io
-import logging
 import os
 import pathlib
 import tarfile
 import tempfile
+import warnings
 
 import lz4.frame
 import numpy as np
@@ -66,6 +66,7 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
 
         eko.metadata.version = metaold.get("eko_version", "")
         eko.metadata.data_version = 0
+        eko.metadata.update()
 
 
 @dataclasses.dataclass
@@ -169,7 +170,7 @@ def op5to4(mu2grid: list, arrays: dict) -> dict:
         elif name in plural(ERROR):
             err5 = ar
         else:
-            logging.warn(f"Unrecognized array loaded, '{name}'")
+            warnings.warn(f"Unrecognized array loaded, '{name}'")
 
     if op5 is None:
         raise RuntimeError("Operator not found")
