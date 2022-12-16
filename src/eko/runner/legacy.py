@@ -107,7 +107,9 @@ class Runner:
         )
 
         with EKO.create(path) as builder:
-            builder.load_cards(new_theory, new_operator).build()
+            builder.load_cards(  # pylint: disable=E1101
+                new_theory, new_operator
+            ).build()
 
     def compute(self):
         """Run evolution and generate output operator.

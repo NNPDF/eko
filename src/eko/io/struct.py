@@ -291,7 +291,7 @@ class InternalPaths:
         if self.operators not in path.parents:
             raise exceptions.OperatorLocationError(path)
 
-        return float(np.float64.fromhex(".".join(path.stem.split(".")[:2])))
+        return float.fromhex(".".join(path.stem.split(".")[:2]))
 
     def opnewpath(
         self, mu2: float, compress: bool = True, without_err: bool = True

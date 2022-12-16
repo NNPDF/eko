@@ -59,7 +59,7 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
         # here I'm plainly ignoring the static analyzer, the types are faking
         # the actual ones - not sure if I should fix builder interface to
         # accept also these
-        eko = builder.load_cards(theory, operator).build()
+        eko = builder.load_cards(theory, operator).build()  # pylint: disable=E1101
 
         for mu2, op in grid.items():
             eko[mu2] = op
