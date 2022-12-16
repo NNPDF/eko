@@ -11,6 +11,11 @@ from .struct import EKO
 
 logger = logging.getLogger(__name__)
 
+TARGETGRID_ROTATION = "ij,ajbk->aibk"
+INPUTGRID_ROTATION = "ajbk,kl->ajbl"
+SIMGRID_ROTATION = "ij,ajbk,kl->aibl"
+"""Simultaneous grid rotation contraction indices."""
+
 
 def xgrid_reshape(
     eko: EKO,
@@ -75,23 +80,23 @@ def xgrid_reshape(
         ops = elem.operator
         errs = elem.error
         if targetgrid is not None and inputgrid is None:
-            ops = np.einsum("ij,ajbk->aibk", target_rot, ops)
+            ops = np.einsum(TARGETGRID_ROTATION, target_rot, ops)
             errs = (
-                np.einsum("ij,ajbk->aibk", target_rot, errs)
+                np.einsum(TARGETGRID_ROTATION, target_rot, errs)
                 if errs is not None
                 else None
             )
         elif inputgrid is not None and targetgrid is None:
-            ops = np.einsum("ajbk,kl->ajbl", ops, input_rot)
+            ops = np.einsum(INPUTGRID_ROTATION, ops, input_rot)
             errs = (
-                np.einsum("ajbk,kl->ajbl", errs, input_rot)
+                np.einsum(INPUTGRID_ROTATION, errs, input_rot)
                 if errs is not None
                 else None
             )
         else:
-            ops = np.einsum("ij,ajbk,kl->aibl", target_rot, ops, input_rot)
+            ops = np.einsum(SIMGRID_ROTATION, target_rot, ops, input_rot)
             errs = (
-                np.einsum("ij,ajbk,kl->aibl", target_rot, errs, input_rot)
+                np.einsum(SIMGRID_ROTATION, target_rot, errs, input_rot)
                 if errs is not None
                 else None
             )
@@ -99,6 +104,12 @@ def xgrid_reshape(
         elem.error = errs
 
         eko[q2] = elem
+
+
+TARGETPIDS_ROTATION = "ca,ajbk->cjbk"
+INPUTPIDS_ROTATION = "ajbk,bd->ajdk"
+SIMPIDS_ROTATION = "ca,ajbk,bd->cjdk"
+"""Simultaneous grid rotation contraction indices."""
 
 
 def flavor_reshape(
@@ -146,23 +157,23 @@ def flavor_reshape(
         ops = elem.operator
         errs = elem.error
         if targetpids is not None and inputpids is None:
-            ops = np.einsum("ca,ajbk->cjbk", targetpids, ops)
+            ops = np.einsum(TARGETPIDS_ROTATION, targetpids, ops)
             errs = (
-                np.einsum("ca,ajbk->cjbk", targetpids, errs)
+                np.einsum(TARGETPIDS_ROTATION, targetpids, errs)
                 if errs is not None
                 else None
             )
         elif inputpids is not None and targetpids is None:
-            ops = np.einsum("ajbk,bd->ajdk", ops, inv_inputpids)
+            ops = np.einsum(INPUTPIDS_ROTATION, ops, inv_inputpids)
             errs = (
-                np.einsum("ajbk,bd->ajdk", errs, inv_inputpids)
+                np.einsum(INPUTPIDS_ROTATION, errs, inv_inputpids)
                 if errs is not None
                 else None
             )
         else:
-            ops = np.einsum("ca,ajbk,bd->cjdk", targetpids, ops, inv_inputpids)
+            ops = np.einsum(SIMPIDS_ROTATION, targetpids, ops, inv_inputpids)
             errs = (
-                np.einsum("ca,ajbk,bd->cjdk", targetpids, errs, inv_inputpids)
+                np.einsum(SIMPIDS_ROTATION, targetpids, errs, inv_inputpids)
                 if errs is not None
                 else None
             )
