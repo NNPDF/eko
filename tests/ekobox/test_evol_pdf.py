@@ -6,15 +6,19 @@ from eko.interpolation import XGrid
 from ekobox import cards
 from ekobox import evol_pdf as ev_p
 
-op = cards.example.operator()
-op.mu0 = 1.65
-op.rotations.xgrid = XGrid([0.1, 0.5, 1.0])
-op.configs.interpolation_polynomial_degree = 1
-theory = cards.example.theory()
-theory.order = (1, 0)
+
+def init_cards():
+    op = cards.example.operator()
+    op.mu0 = 1.65
+    op.rotations.xgrid = XGrid([0.1, 0.5, 1.0])
+    op.configs.interpolation_polynomial_degree = 1
+    theory = cards.example.theory()
+    theory.order = (1, 0)
+    return theory, op
 
 
 def test_evolve_pdfs_run(fake_lhapdf, cd):
+    theory, op = init_cards()
     n = "test_evolve_pdfs_run"
     mytmp = fake_lhapdf / "install"
     mytmp.mkdir()
@@ -33,6 +37,7 @@ def test_evolve_pdfs_run(fake_lhapdf, cd):
 
 
 def test_evolve_pdfs_dump_path(fake_lhapdf, cd):
+    theory, op = init_cards()
     n = "test_evolve_pdfs_dump_path"
     peko = fake_lhapdf / ev_p.DEFAULT_NAME
     eko.solve(theory, op, peko)
@@ -44,6 +49,7 @@ def test_evolve_pdfs_dump_path(fake_lhapdf, cd):
 
 
 def test_evolve_pdfs_dump_file(fake_lhapdf, cd):
+    theory, op = init_cards()
     n = "test_evolve_pdfs_dump_file"
     peko = fake_lhapdf / ev_p.DEFAULT_NAME
     eko.solve(theory, op, peko)
