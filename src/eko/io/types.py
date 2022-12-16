@@ -33,10 +33,9 @@ from typing import Any, Dict
 from .dictlike import DictLike
 
 T = typing.TypeVar("T")
-Quantity = typing.TypeVar("Quantity", bound=typing.Union[int, float])
 
 
-def reference_running(quantity: typing.Type[Quantity]):
+def reference_running(quantity: typing.Type[typing.Union[int, float]]):
     """Generate running quantities reference point classes.
 
     The motivation for dynamic generation is provided in module docstring.

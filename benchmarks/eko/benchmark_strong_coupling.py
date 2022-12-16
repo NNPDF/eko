@@ -4,7 +4,7 @@ from ast import operator
 import numpy as np
 import pytest
 
-from eko import compatibility, thresholds
+from eko import thresholds
 from eko.beta import beta_qcd
 from eko.couplings import Couplings
 
