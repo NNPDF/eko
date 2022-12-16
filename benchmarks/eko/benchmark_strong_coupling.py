@@ -7,6 +7,7 @@ import pytest
 from eko import thresholds
 from eko.beta import beta_qcd
 from eko.couplings import Couplings
+from eko.io.runcards import TheoryCard
 
 # try to load LHAPDF - if not available, we'll use the cached values
 try:
@@ -796,44 +797,44 @@ class BenchmarkCouplings:
         # Max relative difference: 0.00013379
         np.testing.assert_allclose(lhapdf_vals, np.array(my_vals), rtol=1.5e-4)
 
-    def benchmark_APFEL_fact_to_ren_lha_settings(self):
+    def benchmark_APFEL_fact_to_ren_lha_settings(self, theory_card: TheoryCard):
+        theory = theory_card
+        theory.order = (3, 0)
+        theory.couplings.alphas.value = 0.35
+        theory.couplings.alphas.scale = float(np.sqrt(2))
+        theory.couplings.alphaem.value = 0.007496
+        theory.num_flavs_ref = 4
+        theory.num_flavs_init = 3
+        theory.xif = np.sqrt(2.0)
+        theory.quark_masses.c.value = np.sqrt(2.0)
+        theory.quark_masses.b.value = 4.5
+        theory.quark_masses.t.value = 175.0
+        qmasses = theory.quark_masses
 
-        theory_dict = {
-            "alphas": 0.35,
-            "alphaqed": 0.007496,
-            "Qref": np.sqrt(2.0),
-            "nfref": 4,
-            "nf0": 3,
-            "MaxNfPdf": 6,
-            "MaxNfAs": 6,
-            "Q0": np.sqrt(2.0),
-            "fact_to_ren_scale_ratio": np.sqrt(2.0),
-            "mc": np.sqrt(2.0),
-            "mb": 4.5,
-            "mt": 175.0,
-            "kcThr": 1.0,
-            "kbThr": 1.0,
-            "ktThr": 1.0,
-            "HQ": "POLE",
-            "Qmc": np.sqrt(2.0),
-            "Qmb": 4.5,
-            "Qmt": 175.0,
-            "PTO": 2,
-            "QED": 0,
-            "ModEv": "EXA",
-        }
-        new_theory = compatibility.update_theory(theory_dict)
+        mu0 = np.sqrt(2.0)
+        thresholds_ratios = list(iter(theory.matching))
+        masses = tuple(mq.value**2 for mq in theory.quark_masses)
+
         Q2s = [2.0]
-        sc = Couplings.from_dict(new_theory)
-        fact_to_ren = theory_dict["fact_to_ren_scale_ratio"] ** 2
+        sc = Couplings(
+            couplings_ref=np.array(theory.couplings.values),
+            scale_ref=theory.couplings.alphas.scale**2,
+            thresholds_ratios=thresholds_ratios,
+            masses=tuple(m2 / theory.xif**2 for m2 in masses),
+            order=theory.order,
+            method="exact",
+            nf_ref=theory.num_flavs_ref,
+            max_nf=theory.num_flavs_max_as,
+        )
+        xif2 = theory.xif**2
         for Q2 in Q2s:
 
-            my_val = sc.a(Q2 / fact_to_ren, Q2)[0]
-            path = sc.thresholds.path(Q2 / fact_to_ren)
-            my_val_4 = sc.a(Q2 / fact_to_ren, Q2, nf_to=4)[0]
-            path_4 = sc.thresholds.path(Q2 / fact_to_ren, 4)
-            my_val_3 = sc.a(Q2 / fact_to_ren, Q2, nf_to=3)[0]
-            path_3 = sc.thresholds.path(Q2 / fact_to_ren, 3)
+            my_val = sc.a(Q2 / xif2, Q2)[0]
+            path = sc.thresholds.path(Q2 / xif2)
+            my_val_4 = sc.a(Q2 / xif2, Q2, nf_to=4)[0]
+            path_4 = sc.thresholds.path(Q2 / xif2, 4)
+            my_val_3 = sc.a(Q2 / xif2, Q2, nf_to=3)[0]
+            path_3 = sc.thresholds.path(Q2 / xif2, 3)
 
             # path_4 it's not matched
             assert len(path_4) == 1
@@ -849,26 +850,20 @@ class BenchmarkCouplings:
                 # run apfel
                 apfel.CleanUp()
                 apfel.SetTheory("QCD")
-                apfel.SetPerturbativeOrder(theory_dict["PTO"])
+                apfel.SetPerturbativeOrder(theory.order[0])
                 apfel.SetAlphaEvolution("exact")
-                apfel.SetAlphaQCDRef(theory_dict["alphas"], theory_dict["Qref"])
+                apfel.SetAlphaQCDRef(
+                    theory.couplings.alphas.value, theory.couplings.alphas.scale
+                )
                 apfel.SetVFNS()
-                apfel.SetPoleMasses(
-                    theory_dict["mc"],
-                    theory_dict["mb"],
-                    theory_dict["mt"],
-                )
+                apfel.SetPoleMasses(qmasses.c.value, qmasses.b.value, qmasses.t.value)
                 apfel.SetMassMatchingScales(
-                    theory_dict["kcThr"],
-                    theory_dict["kbThr"],
-                    theory_dict["ktThr"],
+                    theory.matching.c, theory.matching.b, theory.matching.t
                 )
-                apfel.SetRenFacRatio(1.0 / theory_dict["fact_to_ren_scale_ratio"])
+                apfel.SetRenFacRatio(1.0 / theory.xif)
                 apfel.InitializeAPFEL()
                 # collect a_s
-                apfel_val = apfel.AlphaQCD(
-                    np.sqrt(Q2) / theory_dict["fact_to_ren_scale_ratio"]
-                ) / (4.0 * np.pi)
+                apfel_val = apfel.AlphaQCD(np.sqrt(Q2) / theory.xif) / (4.0 * np.pi)
                 # check APFEL cached value
                 np.testing.assert_allclose(apfel_val_ref, apfel_val)
 
