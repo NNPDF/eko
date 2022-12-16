@@ -342,6 +342,8 @@ class AccessConfigs:
     """The path to the permanent object."""
     readonly: bool
     "Read-only flag"
+    open: bool
+    "EKO status"
 
 
 @dataclass
@@ -783,7 +785,7 @@ class EKO:
     def open(cls, path: os.PathLike, mode="r"):
         """Open EKO object in the specified mode."""
         path = pathlib.Path(path)
-        access = AccessConfigs(path, readonly=False)
+        access = AccessConfigs(path, readonly=False, open=True)
         load = False
         if mode == "r":
             load = True
@@ -889,6 +891,7 @@ class EKO:
             self.access.path.unlink(missing_ok=True)
             self.dump()
 
+        self.access.open = False
         shutil.rmtree(self.metadata.path)
 
     def __exit__(self, exc_type: type, _exc_value, _traceback):
@@ -969,6 +972,7 @@ class Builder:
         assert self.theory is not None
         assert self.operator is not None
 
+        self.access.open = True
         metadata = Metadata(
             _path=self.path,
             mu20=self.operator.mu20,
