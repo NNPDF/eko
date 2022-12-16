@@ -66,10 +66,11 @@ class TestManipulate:
             chk_keys(o1.raw, oi.raw)
         oiipath = tmp_path / "oii.tar"
         o1.deepcopy(oiipath)
-        with EKO.read(oiipath) as oii, pytest.warns(Warning):
-            manipulate.xgrid_reshape(oii, inputgrid=xg)
-            chk_keys(o1.raw, oii.raw)
-            np.testing.assert_allclose(oii[10].operator, o1[10].operator)
+        with EKO.read(oiipath) as oii:
+            with pytest.warns(Warning):
+                manipulate.xgrid_reshape(oii, inputgrid=xg)
+                chk_keys(o1.raw, oii.raw)
+                np.testing.assert_allclose(oii[10].operator, o1[10].operator)
 
         # both
         oitpath = tmp_path / "oit.tar"
@@ -196,26 +197,32 @@ class TestManipulate:
             manipulate.to_evol(o11, True, True)
             chk_keys(o00.raw, o11.raw)
 
-        with (
-            EKO.read(o01_path) as o01,
-            EKO.read(o10_path) as o10,
-            EKO.read(o11_path) as o11,
-        ):
-            # check the input rotated one
-            np.testing.assert_allclose(
-                o01.rotations.inputpids, br.rotate_flavor_to_evolution
-            )
-            np.testing.assert_allclose(o01.rotations.targetpids, br.flavor_basis_pids)
-            # rotate also target
-            manipulate.to_evol(o01, False, True)
-            np.testing.assert_allclose(o01[mu2_out].operator, o11[mu2_out].operator)
-            chk_keys(o00.raw, o01.raw)
-            # check the target rotated one
-            np.testing.assert_allclose(o10.rotations.inputpids, br.flavor_basis_pids)
-            np.testing.assert_allclose(
-                o10.rotations.targetpids, br.rotate_flavor_to_evolution
-            )
-            # rotate also input
-            manipulate.to_evol(o10)
-            np.testing.assert_allclose(o10[mu2_out].operator, o11[mu2_out].operator)
-            chk_keys(o00.raw, o10.raw)
+        with EKO.read(o01_path) as o01:
+            with EKO.read(o10_path) as o10:
+                with EKO.read(o11_path) as o11:
+                    # check the input rotated one
+                    np.testing.assert_allclose(
+                        o01.rotations.inputpids, br.rotate_flavor_to_evolution
+                    )
+                    np.testing.assert_allclose(
+                        o01.rotations.targetpids, br.flavor_basis_pids
+                    )
+                    # rotate also target
+                    manipulate.to_evol(o01, False, True)
+                    np.testing.assert_allclose(
+                        o01[mu2_out].operator, o11[mu2_out].operator
+                    )
+                    chk_keys(o00.raw, o01.raw)
+                    # check the target rotated one
+                    np.testing.assert_allclose(
+                        o10.rotations.inputpids, br.flavor_basis_pids
+                    )
+                    np.testing.assert_allclose(
+                        o10.rotations.targetpids, br.rotate_flavor_to_evolution
+                    )
+                    # rotate also input
+                    manipulate.to_evol(o10)
+                    np.testing.assert_allclose(
+                        o10[mu2_out].operator, o11[mu2_out].operator
+                    )
+                    chk_keys(o00.raw, o10.raw)
