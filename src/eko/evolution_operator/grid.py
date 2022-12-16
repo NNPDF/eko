@@ -76,7 +76,7 @@ class OperatorGrid(sv.ModeMixin):
         config = {}
         config["order"] = order
         config["intrinsic_range"] = intrinsic_flavors
-        config["xif"] = xif**2
+        config["xif2"] = xif**2
         config["HQ"] = mass_scheme
         config["ModSV"] = configs.scvar_method
 
@@ -199,7 +199,7 @@ class OperatorGrid(sv.ModeMixin):
         for q2 in q2grid:
             # shift path for expanded scheme
             q2_gen = (
-                q2 * self.config["xif"] if self.sv_mode == sv.Modes.expanded else q2
+                q2 * self.config["xif2"] if self.sv_mode == sv.Modes.expanded else q2
             )
             grid_return[q2] = self.generate(q2_gen)
         return grid_return

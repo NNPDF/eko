@@ -279,7 +279,7 @@ class Operator(sv.ModeMixin):
     @property
     def xif2(self):
         r"""Return scale variation factor :math:`(\mu_F/\mu_R)^2`."""
-        return self.config["xif"]
+        return self.config["xif2"]
 
     @property
     def int_disp(self):
