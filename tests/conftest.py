@@ -50,7 +50,8 @@ def theory_card():
 @pytest.fixture()
 def theory_ffns(theory_card):
     def set_(flavors: int) -> TheoryCard:
-        for q in "cbt"[flavors - 3 :]:
+        i = flavors - 3
+        for q in "cbt"[i:]:
             setattr(theory_card.matching, q, np.inf)
         return theory_card
 
