@@ -1,4 +1,5 @@
 """Define output representation structures."""
+import base64
 import contextlib
 import copy
 import io
@@ -207,7 +208,8 @@ class InternalPaths:
     @staticmethod
     def opname(mu2: float) -> str:
         r"""Operator file name from :math:`\mu^2` value."""
-        return np.float64(mu2).hex()
+        decoded = np.float64(mu2).tobytes()
+        return base64.b64encode(decoded).decode()
 
     def oppath(self, mu2: float) -> pathlib.Path:
         r"""Retrieve operator file path from :math:`\mu^2` value.
@@ -291,7 +293,9 @@ class InternalPaths:
         if self.operators not in path.parents:
             raise exceptions.OperatorLocationError(path)
 
-        return float.fromhex(".".join(path.stem.split(".")[:2]))
+        encoded = path.stem.split(".")[0]
+        decoded = base64.b64decode(encoded)
+        return float(np.frombuffer(decoded, dtype=np.float64)[0])
 
     def opnewpath(
         self, mu2: float, compress: bool = True, without_err: bool = True
