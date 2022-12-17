@@ -84,23 +84,27 @@ def xgrid_reshape(
         ops = elem.operator
         errs = elem.error
         if targetgrid is not None and inputgrid is None:
-            ops = np.einsum(TARGETGRID_ROTATION, target_rot, ops)
+            ops = np.einsum(TARGETGRID_ROTATION, target_rot, ops, optimize="optimal")
             errs = (
-                np.einsum(TARGETGRID_ROTATION, target_rot, errs)
+                np.einsum(TARGETGRID_ROTATION, target_rot, errs, optimize="optimal")
                 if errs is not None
                 else None
             )
         elif inputgrid is not None and targetgrid is None:
-            ops = np.einsum(INPUTGRID_ROTATION, ops, input_rot)
+            ops = np.einsum(INPUTGRID_ROTATION, ops, input_rot, optimize="optimal")
             errs = (
-                np.einsum(INPUTGRID_ROTATION, errs, input_rot)
+                np.einsum(INPUTGRID_ROTATION, errs, input_rot, optimize="optimal")
                 if errs is not None
                 else None
             )
         else:
-            ops = np.einsum(SIMGRID_ROTATION, target_rot, ops, input_rot)
+            ops = np.einsum(
+                SIMGRID_ROTATION, target_rot, ops, input_rot, optimize="optimal"
+            )
             errs = (
-                np.einsum(SIMGRID_ROTATION, target_rot, errs, input_rot)
+                np.einsum(
+                    SIMGRID_ROTATION, target_rot, errs, input_rot, optimize="optimal"
+                )
                 if errs is not None
                 else None
             )
@@ -170,23 +174,31 @@ def flavor_reshape(
         ops = elem.operator
         errs = elem.error
         if targetpids is not None and inputpids is None:
-            ops = np.einsum(TARGETPIDS_ROTATION, targetpids, ops)
+            ops = np.einsum(TARGETPIDS_ROTATION, targetpids, ops, optimize="optimal")
             errs = (
-                np.einsum(TARGETPIDS_ROTATION, targetpids, errs)
+                np.einsum(TARGETPIDS_ROTATION, targetpids, errs, optimize="optimal")
                 if errs is not None
                 else None
             )
         elif inputpids is not None and targetpids is None:
-            ops = np.einsum(INPUTPIDS_ROTATION, ops, inv_inputpids)
+            ops = np.einsum(INPUTPIDS_ROTATION, ops, inv_inputpids, optimize="optimal")
             errs = (
-                np.einsum(INPUTPIDS_ROTATION, errs, inv_inputpids)
+                np.einsum(INPUTPIDS_ROTATION, errs, inv_inputpids, optimize="optimal")
                 if errs is not None
                 else None
             )
         else:
-            ops = np.einsum(SIMPIDS_ROTATION, targetpids, ops, inv_inputpids)
+            ops = np.einsum(
+                SIMPIDS_ROTATION, targetpids, ops, inv_inputpids, optimize="optimal"
+            )
             errs = (
-                np.einsum(SIMPIDS_ROTATION, targetpids, errs, inv_inputpids)
+                np.einsum(
+                    SIMPIDS_ROTATION,
+                    targetpids,
+                    errs,
+                    inv_inputpids,
+                    optimize="optimal",
+                )
                 if errs is not None
                 else None
             )
