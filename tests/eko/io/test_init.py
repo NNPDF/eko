@@ -43,27 +43,28 @@ class TestManipulate:
         # only target
         otpath = tmp_path / "ot.tar"
         o1.deepcopy(otpath)
-        with EKO.read(otpath) as ot:
+        with EKO.edit(otpath) as ot:
             manipulate.xgrid_reshape(ot, xgp)
             chk_keys(o1.raw, ot.raw)
             assert ot[10].operator.shape == (2, len(xgp), 2, len(xg))
         ottpath = tmp_path / "ott.tar"
         o1.deepcopy(ottpath)
-        with EKO.read(ottpath) as ott, pytest.warns(Warning):
-            manipulate.xgrid_reshape(ott, xg)
-            chk_keys(o1.raw, ott.raw)
-            np.testing.assert_allclose(ott[10].operator, o1[10].operator)
+        with EKO.edit(ottpath) as ott:
+            with pytest.warns(Warning):
+                manipulate.xgrid_reshape(ott, xg)
+                chk_keys(o1.raw, ott.raw)
+                np.testing.assert_allclose(ott[10].operator, o1[10].operator)
 
         # only input
         oipath = tmp_path / "oi.tar"
         o1.deepcopy(oipath)
-        with EKO.read(oipath) as oi:
+        with EKO.edit(oipath) as oi:
             manipulate.xgrid_reshape(oi, inputgrid=xgp)
             assert oi[10].operator.shape == (2, len(xg), 2, len(xgp))
             chk_keys(o1.raw, oi.raw)
         oiipath = tmp_path / "oii.tar"
         o1.deepcopy(oiipath)
-        with EKO.read(oiipath) as oii:
+        with EKO.edit(oiipath) as oii:
             with pytest.warns(Warning):
                 manipulate.xgrid_reshape(oii, inputgrid=xg)
                 chk_keys(o1.raw, oii.raw)
@@ -72,7 +73,7 @@ class TestManipulate:
         # both
         oitpath = tmp_path / "oit.tar"
         o1.deepcopy(oitpath)
-        with EKO.read(oitpath) as oit:
+        with EKO.edit(oitpath) as oit:
             manipulate.xgrid_reshape(oit, xgp, xgp)
             chk_keys(o1.raw, oit.raw)
             op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
@@ -194,8 +195,8 @@ class TestManipulate:
             manipulate.to_evol(o11, True, True)
             chk_keys(o00.raw, o11.raw)
 
-        with EKO.read(o01_path) as o01:
-            with EKO.read(o10_path) as o10:
+        with EKO.edit(o01_path) as o01:
+            with EKO.edit(o10_path) as o10:
                 with EKO.read(o11_path) as o11:
                     # check the input rotated one
                     np.testing.assert_allclose(

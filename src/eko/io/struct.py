@@ -827,6 +827,8 @@ class EKO:
 
         new = copy.deepcopy(self)
         new.access.path = pathlib.Path(path)
+        new.access.readonly = False
+        new.access.open = True
 
         tmpdir = pathlib.Path(tempfile.mkdtemp())
         new.metadata.path = tmpdir

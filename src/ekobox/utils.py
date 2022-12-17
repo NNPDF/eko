@@ -1,5 +1,6 @@
 """Generic utilities to work with EKOs."""
-import copy
+import os
+from typing import Optional
 
 import numpy as np
 
@@ -7,32 +8,34 @@ from eko.io.struct import EKO, Operator
 
 CONTRACTION = "ajbk,bkcl -> ajcl"
 
-# TODO: add a control on the theory (but before we need to implement another
-# kind of output which includes the theory and operator runcards)
+
 def ekos_product(
-    eko_ini: EKO, eko_fin: EKO, rtol: float = 1e-6, atol: float = 1e-10, in_place=True
-) -> EKO:
-    """Return the product of two ekos.
+    eko_ini: EKO,
+    eko_fin: EKO,
+    rtol: float = 1e-6,
+    atol: float = 1e-10,
+    path: Optional[os.PathLike] = None,
+):
+    """Compute the product of two ekos.
 
     Parameters
     ----------
-    eko_ini : eko.output.Output
+    eko_ini :
         initial eko operator
-    eko_fin : eko.output.Output
+    eko_fin :
         final eko operator
-    rtol : float
+    rtol :
         relative tolerance on Q2, used to check compatibility
-    atol : float
+    atol :
         absolute tolerance on Q2, used to check compatibility
-    in_place : bool
-        do operation in place, modifying input arrays
-
-    Returns
-    -------
-    eko.output.Output
-        eko operator
+    path :
+        if not provided, the operation is done in-place, otherwie a new
+        operator is written at the given path
 
     """
+    # TODO: add a control on the theory (but before we need to implement
+    # another kind of output which includes the theory and operator runcards)
+
     q2match = eko_ini.approx(eko_fin.operator_card.mu0**2, rtol=rtol, atol=atol)
     if q2match is None:
         raise ValueError(
@@ -69,10 +72,11 @@ def ekos_product(
             "error": final_op_error_dict[q2],
         }
 
-    if in_place is False:
-        final_eko = copy.deepcopy(eko_ini)
-    else:
+    if path is None:
         final_eko = eko_ini
+    else:
+        eko_ini.deepcopy(path)
+        final_eko = EKO.edit(path)
 
     for q2, op2 in eko_fin.items():
         if q2 in eko_ini:
@@ -89,4 +93,5 @@ def ekos_product(
 
         final_eko[q2] = Operator(operator=op, error=error)
 
-    return final_eko
+    if path is not None:
+        final_eko.close()

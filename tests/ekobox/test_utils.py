@@ -42,25 +42,26 @@ def test_ekos_product(tmp_path):
     # Test_error
     fin_err_path = tmp_path / "fin_err.tar"
     eko_fin_err = eko.solve(theory, op_err, path=fin_err_path)
-    with EKO.read(ini_path) as eko_ini:
+    with EKO.edit(ini_path) as eko_ini:
         with EKO.read(fin_path) as eko_fin:
             with EKO.read(fin_err_path) as eko_fin_err:
                 with pytest.raises(ValueError):
                     _ = utils.ekos_product(eko_ini, eko_fin_err)
                 # product is copied
-                eko_res = utils.ekos_product(eko_ini, eko_fin, in_place=False)
+                res_path = tmp_path / "eko_res.tar"
+                utils.ekos_product(eko_ini, eko_fin, path=res_path)
 
-                assert eko_res.operator_card.mu20 == eko_ini.operator_card.mu20
-                np.testing.assert_allclose(eko_res.mu2grid[1:], eko_fin.mu2grid)
-                np.testing.assert_allclose(
-                    eko_ini[80.0].operator, eko_res[80.0].operator
-                )
+                with EKO.read(res_path) as eko_res:
+                    assert eko_res.operator_card.mu20 == eko_ini.operator_card.mu20
+                    np.testing.assert_allclose(eko_res.mu2grid[1:], eko_fin.mu2grid)
+                    np.testing.assert_allclose(
+                        eko_ini[80.0].operator, eko_res[80.0].operator
+                    )
 
-                # product overwrites initial
-                eko_res2 = utils.ekos_product(eko_ini, eko_fin)
+                    # product overwrites initial
+                    utils.ekos_product(eko_ini, eko_fin)
 
-                assert eko_res2.operator_card.mu20 == eko_ini.operator_card.mu20
-                np.testing.assert_allclose(eko_res2.mu2grid[1:], eko_fin.mu2grid)
-                np.testing.assert_allclose(
-                    eko_res[80.0].operator, eko_res2[80.0].operator
-                )
+                    np.testing.assert_allclose(eko_ini.mu2grid[1:], eko_fin.mu2grid)
+                    np.testing.assert_allclose(
+                        eko_res[80.0].operator, eko_ini[80.0].operator
+                    )
