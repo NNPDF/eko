@@ -4,7 +4,7 @@ Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
 import numpy as np
 from banana import register
 
-from eko.interpolation import make_lambert_grid
+from eko.interpolation import lambertgrid
 from ekomark.benchmark.runner import Runner
 
 register(__file__)
@@ -112,7 +112,7 @@ class LHABenchmark(Runner):
                 {
                     "Q2grid": [1e4],
                     "ev_op_iterations": 10,
-                    "interpolation_xgrid": make_lambert_grid(60).tolist(),
+                    "interpolation_xgrid": lambertgrid(60).tolist(),
                 }
             ],
             ["ToyLH"],
