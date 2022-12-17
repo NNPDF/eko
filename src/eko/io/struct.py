@@ -345,6 +345,50 @@ class AccessConfigs:
     open: bool
     "EKO status"
 
+    def assert_open(self):
+        """Assert operator is open.
+
+        Raises
+        ------
+        exceptions.ClosedOperator
+            if operator is closed
+
+        """
+        if not self.open:
+            raise exceptions.ClosedOperator
+
+    def assert_writeable(self, msg: Optional[str] = None):
+        """Assert operator is writeable.
+
+        Raises
+        ------
+        exceptions.ClosedOperator
+            see :meth:`assert_open`
+        exceptions.ReadOnlyOperator
+            if operators has been declared read-only
+
+        """
+        if msg is None:
+            msg = ""
+
+        self.assert_open()
+        if self.readonly:
+            raise exceptions.ReadOnlyOperator(msg)
+
+    @property
+    def read(self):
+        """Check reading permission.
+
+        Reading access is always granted on open operator.
+
+        """
+        return self.open
+
+    @property
+    def write(self):
+        """Check writing permission."""
+        return self.open and not self.readonly
+
 
 @dataclass
 class Metadata(DictLike):
@@ -503,7 +547,7 @@ class EKO:
     def xgrid(self, value: interpolation.XGrid):
         """Set `xgrid` value."""
         self.rotations.xgrid = value
-        self.metadata.update()
+        self.update()
 
     @property
     def mu20(self) -> float:
@@ -518,7 +562,6 @@ class EKO:
     @property
     def theory_card(self):
         """Provide theory card, retrieving from the dump."""
-        # TODO: return `eko.io.runcards.TheoryCard`
         return TheoryCard.from_dict(
             yaml.safe_load(self.paths.theory_card.read_text(encoding="utf-8"))
         )
@@ -529,6 +572,26 @@ class EKO:
         return OperatorCard.from_dict(
             yaml.safe_load(self.paths.operator_card.read_text(encoding="utf-8"))
         )
+
+    # persistency control
+    # -------------------
+
+    def update(self):
+        """Write updates to structure for persistency."""
+        self.access.assert_writeable()
+        self.metadata.update()
+
+    def assert_permissions(self, read=True, write=False):
+        """Assert permissions on current operator."""
+        if read:
+            self.access.assert_open()
+        if write:
+            self.access.assert_writeable()
+
+    @property
+    def permissions(self):
+        """Provide permissions information."""
+        return dict(read=self.access.read, write=self.access.write)
 
     # operator management
     # -------------------
@@ -549,6 +612,8 @@ class EKO:
             the retrieved operator
 
         """
+        self.access.assert_open()
+
         if mu2 in self._operators:
             op = self._operators[mu2]
             if op is not None:
@@ -578,6 +643,8 @@ class EKO:
             whether to save the operator compressed or not (default: `True`)
 
         """
+        self.access.assert_writeable()
+
         if not isinstance(op, Operator):
             raise ValueError("Only an Operator can be added to an EKO")
 
@@ -739,7 +806,7 @@ class EKO:
 
         Parameters
         ----------
-        path : os.PathLike
+        path :
             path to the permanent location of the new object (not the temporary
             directory)
 
@@ -749,6 +816,11 @@ class EKO:
             the copy created
 
         """
+        # deepcopy is tuned to copy an open operator into a closed one, since
+        # operators are always created closed (to avoid delegating the user to
+        # close an object he never opened), then let's assert this assumption
+        self.access.assert_open()
+
         # return the object fully on disk, in order to avoid expensive copies
         # also in memory (they would be copied on-disk in any case)
         self.unload()
@@ -870,10 +942,9 @@ class EKO:
 
         """
         if archive is None:
-            if self.access.readonly:
-                raise ValueError(
-                    "Not possible to dump on default archive in read-only mode"
-                )
+            self.access.assert_writeable(
+                "Not possible to dump on default archive in read-only mode"
+            )
             archive = self.access.path
 
         with tarfile.open(archive, "w") as tar:

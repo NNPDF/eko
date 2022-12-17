@@ -28,12 +28,16 @@ def xgrid_reshape(
 
     Parameters
     ----------
-    targetgrid : None or list
+    eko :
+        the operator to be rotated
+    targetgrid :
         xgrid for the target (output PDF)
-    inputgrid : None or list
+    inputgrid :
         xgrid for the input (input PDF)
 
     """
+    eko.assert_permissions(write=True)
+
     # calling with no arguments is an error
     if targetgrid is None and inputgrid is None:
         raise ValueError("Nor inputgrid nor targetgrid was given")
@@ -105,6 +109,8 @@ def xgrid_reshape(
 
         eko[q2] = elem
 
+    eko.update()
+
 
 TARGETPIDS_ROTATION = "ca,ajbk->cjbk"
 INPUTPIDS_ROTATION = "ajbk,bd->ajdk"
@@ -116,6 +122,7 @@ def flavor_reshape(
     eko: EKO,
     targetpids: Optional[np.ndarray] = None,
     inputpids: Optional[np.ndarray] = None,
+    update: bool = True,
 ):
     """Change the operators to have in the output targetpids and/or in the input inputpids.
 
@@ -123,12 +130,18 @@ def flavor_reshape(
 
     Parameters
     ----------
-    targetpids : numpy.ndarray
+    eko :
+        the operator to be rotated
+    targetpids :
         target rotation specified in the flavor basis
-    inputpids : None or list
+    inputpids :
         input rotation specified in the flavor basis
+    update :
+        update :cls:`EKO` metadata after writing
 
     """
+    eko.assert_permissions(write=True)
+
     # calling with no arguments is an error
     if targetpids is None and inputpids is None:
         raise ValueError("Nor inputpids nor targetpids was given")
@@ -189,6 +202,9 @@ def flavor_reshape(
     if targetpids is not None:
         eko.rotations.targetpids = np.array([0] * len(eko.rotations.targetpids))
 
+    if update:
+        eko.update()
+
 
 def to_evol(eko: EKO, source: bool = True, target: bool = False):
     """Rotate the operator into evolution basis.
@@ -197,20 +213,25 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False):
 
     Parameters
     ----------
-        source : bool
-            rotate on the input tensor
-        target : bool
-            rotate on the output tensor
+    eko :
+        the operator to be rotated
+    source :
+        rotate on the input tensor
+    target :
+        rotate on the output tensor
 
     """
     # rotate
     inputpids = br.rotate_flavor_to_evolution if source else None
     targetpids = br.rotate_flavor_to_evolution if target else None
-    flavor_reshape(eko, inputpids=inputpids, targetpids=targetpids)
+    # prevent metadata update, since flavor_reshape ha not enough information
+    # to determine inpupids and targetpids, and they will be updated after the
+    # call
+    flavor_reshape(eko, inputpids=inputpids, targetpids=targetpids, update=False)
     # assign pids
     if source:
         eko.rotations.inputpids = inputpids
     if target:
         eko.rotations.targetpids = targetpids
 
-    eko.metadata.update()
+    eko.update()
