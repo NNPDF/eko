@@ -282,11 +282,12 @@ class Legacy:
         new["order"] = [old["PTO"] + 1, old["QED"]]
         alphaem = self.fallback(old.get("alphaqed"), old.get("alphaem"), default=0.0)
         new["couplings"] = dict(
-            alphas=(old["alphas"], old["Qref"]), alphaem=(alphaem, nan)
+            alphas=(old["alphas"], old["Qref"]),
+            alphaem=(alphaem, nan),
+            num_flavs_ref=old["nfref"],
+            num_flavs_max_as=old["MaxNfAs"],
         )
-        new["num_flavs_ref"] = old["nfref"]
         new["num_flavs_init"] = old["nf0"]
-        new["num_flavs_max_as"] = old["MaxNfAs"]
         new["num_flavs_max_pdf"] = old["MaxNfPdf"]
         intrinsic = []
         for idx, q in enumerate(self.HEAVY):
