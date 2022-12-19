@@ -290,21 +290,16 @@ def gamma_ns_qed(order, mode, n, nf):
     sx_new = harmonics.compute_additional_sx_cache(n, False, True, sx)
     # now combine
     gamma_ns = np.zeros((order[0] + 1, order[1] + 1), np.complex_)
-    if order[0] >= 1:
-        gamma_ns[1, 0] = as1.gamma_ns(n, sx[0])
-    if order[1] >= 1:
-        gamma_ns[0, 1] = choose_ns_ad_aem1(mode, n, sx)
-    if order[0] >= 1 and order[1] >= 1:
-        gamma_ns[1, 1] = choose_ns_ad_as1aem1(mode, n, sx, sx_new)
+    gamma_ns[1, 0] = as1.gamma_ns(n, sx[0])
+    gamma_ns[0, 1] = choose_ns_ad_aem1(mode, n, sx)
+    gamma_ns[1, 1] = choose_ns_ad_as1aem1(mode, n, sx, sx_new)
     # NLO and beyond
     if order[0] >= 2:
         if mode in [10102, 10103]:
             gamma_ns[2, 0] = as2.gamma_nsp(n, nf, sx, sx_new)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
-        elif mode in [10202, 10203]:
-            gamma_ns[2, 0] = as2.gamma_nsm(n, nf, sx, sx_new)
         else:
-            raise NotImplementedError("Non-singlet sector is not implemented")
+            gamma_ns[2, 0] = as2.gamma_nsm(n, nf, sx, sx_new)
     if order[1] >= 2:
         gamma_ns[0, 2] = choose_ns_ad_aem2(mode, n, nf, sx, sx_new)
     # NNLO and beyond
@@ -337,8 +332,10 @@ def choose_ns_ad_aem1(mode, n, sx):
     """
     if mode in [10102, 10202]:
         return constants.eu2 * aem1.gamma_ns(n, sx)
-    if mode in [10103, 10203]:
+    elif mode in [10103, 10203]:
         return constants.ed2 * aem1.gamma_ns(n, sx)
+    else:
+        raise NotImplementedError("Non-singlet sector is not implemented")
 
 
 @nb.njit(cache=True)
@@ -436,12 +433,9 @@ def gamma_singlet_qed(order, n, nf):
         sx = harmonics.sx(n, max_weight=3)
     sx_new = harmonics.compute_additional_sx_cache(n, False, True, sx)
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
-    if order[0] >= 1:
-        gamma_s[1, 0] = as1.gamma_singlet_qed(n, sx[0], nf)
-    if order[1] >= 1:
-        gamma_s[0, 1] = aem1.gamma_singlet(n, nf, sx)
-    if order[0] >= 1 and order[1] >= 1:
-        gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, sx, sx_new)
+    gamma_s[1, 0] = as1.gamma_singlet_qed(n, sx[0], nf)
+    gamma_s[0, 1] = aem1.gamma_singlet(n, nf, sx)
+    gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, sx, sx_new)
     if order[0] >= 2:
         gamma_s[2, 0] = as2.gamma_singlet_qed(n, nf, sx, sx_new)
     if order[1] >= 2:
@@ -488,12 +482,9 @@ def gamma_valence_qed(order, n, nf):
         sx = harmonics.sx(n, max_weight=3)
     sx_new = harmonics.compute_additional_sx_cache(n, False, True, sx)
     gamma_v = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
-    if order[0] >= 1:
-        gamma_v[1, 0] = as1.gamma_valence_qed(n, sx[0])
-    if order[1] >= 1:
-        gamma_v[0, 1] = aem1.gamma_valence(n, nf, sx)
-    if order[0] >= 1 and order[1] >= 1:
-        gamma_v[1, 1] = as1aem1.gamma_valence(n, nf, sx, sx_new)
+    gamma_v[1, 0] = as1.gamma_valence_qed(n, sx[0])
+    gamma_v[0, 1] = aem1.gamma_valence(n, nf, sx)
+    gamma_v[1, 1] = as1aem1.gamma_valence(n, nf, sx, sx_new)
     if order[0] >= 2:
         gamma_v[2, 0] = as2.gamma_valence_qed(n, nf, sx, sx_new)
     if order[1] >= 2:
