@@ -61,7 +61,14 @@ class Runner:
         # setup the Threshold path, compute masses if necessary
         masses = None
         if new_theory.quark_masses_scheme is QuarkMassSchemes.MSBAR:
-            masses = msbar_masses.compute(new_theory)
+            masses = msbar_masses.compute(
+                new_theory.quark_masses,
+                new_theory.couplings,
+                new_theory.order,
+                couplings_mod_ev(new_operator.configs.evolution_method),
+                new_theory.matching,
+                xif2=new_theory.xif**2,
+            )
         elif new_theory.quark_masses_scheme is QuarkMassSchemes.POLE:
             masses = tuple(mq.value**2 for mq in new_theory.quark_masses)
         else:
