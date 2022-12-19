@@ -28,7 +28,7 @@ def theory_card(theory_card: TheoryCard):
     return th
 
 
-class TestMsbarMasses:
+class TestMSbarMasses:
     @pytest.mark.skip
     def test_compute_msbar_mass(self, theory_card: TheoryCard):
         th = theory_card
@@ -118,7 +118,7 @@ class TestMsbarMasses:
             )
 
         # test mass ordering
-        with pytest.raises(ValueError, match="Msbar masses are not to be sorted"):
+        with pytest.raises(ValueError, match="MSbar masses are not to be sorted"):
             th.quark_masses.c.value = 1.1
             th.quark_masses.c.scale = 1.2
             th.quark_masses.b.value = 1.0

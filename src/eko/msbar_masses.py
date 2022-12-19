@@ -373,7 +373,7 @@ def compute(
 
     """
     # TODO: sketch in the docs how the MSbar computation works with a figure.
-    mu2_ref = couplings.alphas.scale
+    mu2_ref = couplings.alphas.scale**2
     nf_ref: int = couplings.num_flavs_ref
     masses = np.concatenate((np.zeros(nf_ref - 3), np.full(6 - nf_ref, np.inf)))
     massesobj = HeavyQuarkMasses.from_dict(
@@ -415,21 +415,21 @@ def compute(
         # check that alphas is given with a consistent number of flavors
         if q_idx + 4 == nf_ref and q2m_ref > mu2_ref:
             raise ValueError(
-                f"In MSBAR scheme, Qm{hq} should be lower than Qref, \
-                if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
+                f"In MSbar scheme, Qm{hq} should be lower than Qref, "
+                "if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
             )
         if q_idx + 4 == nf_ref + 1 and q2m_ref < mu2_ref:
             raise ValueError(
-                f"In MSBAR scheme, Qm{hq} should be greater than Qref, \
-                if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
+                f"In MSbar scheme, Qm{hq} should be greater than Qref, "
+                "if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
             )
 
         # check that for higher patches you do forward running
         # with consistent conditions
         if q_idx + 3 >= nf_ref and q2m_ref >= m2_ref:
             raise ValueError(
-                f"In MSBAR scheme, Qm{hq} should be lower than m{hq} \
-                        if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
+                f"In MSbar scheme, Qm{hq} should be lower than m{hq} "
+                "if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
             )
 
         # check that for lower patches you do backward running
@@ -437,8 +437,8 @@ def compute(
         if q_idx + 3 < nf_ref:
             if q2m_ref < m2_ref:
                 raise ValueError(
-                    f"In MSBAR scheme, Qm{hq} should be greater than m{hq} \
-                        if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
+                    f"In MSbar scheme, Qm{hq} should be greater than m{hq}"
+                    "if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
                 )
             nf_target += 1
             shift = 1
@@ -472,5 +472,5 @@ def compute(
 
     # Check the msbar ordering
     if not (masses == np.sort(masses)).all():
-        raise ValueError("Msbar masses are not to be sorted")
+        raise ValueError("MSbar masses are not to be sorted")
     return masses
