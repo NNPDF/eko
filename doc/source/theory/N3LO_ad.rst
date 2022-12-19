@@ -326,7 +326,7 @@ The following tables list all the considered input functions.
         *   - :math:`f_2(N)`
             - :math:`\frac{S_1^3(N)}{N}`
         *   - :math:`f_3(N)`
-            - :math:`\frac{1}{N-1},\ \mathcal{M}[\ln^3(1-x)]`
+            - :math:`\frac{1}{N^4},\ \mathcal{M}[\ln^3(1-x)]`
         *   - :math:`f_4(N)`
             - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1^2(N)}{N},\ \frac{S_1(N-2)}{N},\ \frac{S_1(N)}{N},\ \mathcal{M}[\ln^2(1-x)],\ \mathcal{M}[\ln^3(1-x)]`
 
