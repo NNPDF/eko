@@ -13,13 +13,23 @@ import numba as nb
 import numpy as np
 import scipy
 
+from eko.io.types import (
+    CouplingEvolutionMethod,
+    CouplingsRef,
+    EvolutionMethod,
+    HeavyQuarkMasses,
+    MatchingScales,
+    Order,
+    QuarkMassSchemes,
+)
+
 from . import constants, thresholds
 from .beta import b_qcd, b_qed, beta_qcd, beta_qed
 
 logger = logging.getLogger(__name__)
 
 
-def couplings_mod_ev(mod_ev):
+def couplings_mod_ev(mod_ev: EvolutionMethod) -> CouplingEvolutionMethod:
     """Map ModEv key to the available strong coupling evolution methods.
 
     Parameters
@@ -32,9 +42,14 @@ def couplings_mod_ev(mod_ev):
     str
         coupling mode
     """
-    if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
-        return "exact"
-    if mod_ev in [
+    if mod_ev.value in [
+        "EXA",
+        "iterate-exact",
+        "decompose-exact",
+        "perturbative-exact",
+    ]:
+        return CouplingEvolutionMethod.EXACT
+    if mod_ev.value in [
         "TRN",
         "truncated",
         "ordered-truncated",
@@ -43,7 +58,7 @@ def couplings_mod_ev(mod_ev):
         "decompose-expanded",
         "perturbative-expanded",
     ]:
-        return "expanded"
+        return CouplingEvolutionMethod.EXPANDED
     raise ValueError(f"Unknown evolution mode {mod_ev}")
 
 
@@ -362,39 +377,42 @@ class Couplings:
 
     def __init__(
         self,
-        couplings_ref,
-        scale_ref,
-        masses,
-        thresholds_ratios,
-        order=(1, 0),
-        method="exact",
-        nf_ref=None,
-        max_nf=None,
-        hqm_scheme="POLE",
+        couplings: CouplingsRef,
+        order: Order,
+        method: CouplingEvolutionMethod,
+        masses: HeavyQuarkMasses,
+        hqm_scheme: QuarkMassSchemes = QuarkMassSchemes.POLE,
+        thresholds_ratios: MatchingScales = MatchingScales(c=1.0, b=1.0, t=1.0),
     ):
         # Sanity checks
-        if couplings_ref[0] <= 0:
-            raise ValueError(f"alpha_s_ref has to be positive - got {couplings_ref[0]}")
-        if couplings_ref[1] <= 0:
-            raise ValueError(
-                f"alpha_em_ref has to be positive - got {couplings_ref[1]}"
-            )
-        if scale_ref <= 0:
-            raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
+        def positive(name, var):
+            if var <= 0:
+                raise ValueError(f"{name} has to be positive - got: {var}")
+
+        positive("alpha_s_ref", couplings.alphas.value)
+        positive("alpha_em_ref", couplings.alphaem.value)
+        positive("scale_ref", couplings.alphas.scale)
         if order[0] not in [0, 1, 2, 3, 4]:
             raise NotImplementedError("a_s beyond N3LO is not implemented")
         if order[1] not in [0, 1, 2]:
             raise NotImplementedError("a_em beyond NLO is not implemented")
         self.order = tuple(order)
+        method = method.value
         if method not in ["expanded", "exact"]:
             raise ValueError(f"Unknown method {method}")
         self.method = method
 
+        nf_ref = couplings.num_flavs_ref
+        max_nf = couplings.num_flavs_max_as
+        masses = [m.value for m in masses]
+        thresholds_ratios = list(thresholds_ratios)
+        hqm_scheme = hqm_scheme.name
+
         # create new threshold object
-        self.a_ref = couplings_ref.copy() / 4.0 / np.pi  # convert to a_s and a_em
+        self.a_ref = np.array(couplings.values) / 4.0 / np.pi  # convert to a_s and a_em
         self.thresholds = thresholds.ThresholdsAtlas(
             masses,
-            scale_ref,
+            couplings.alphas.scale**2,
             nf_ref,
             thresholds_ratios=thresholds_ratios,
             max_nf=max_nf,
@@ -419,57 +437,6 @@ class Couplings:
     def q2_ref(self):
         """Return reference scale."""
         return self.thresholds.q2_ref
-
-    @classmethod
-    def from_dict(cls, theory_card, masses=None):
-        r"""Create object from theory dictionary.
-
-        Parameters
-        ----------
-        theory_card : dict
-            theory dictionary
-        masses : list
-            list of |MSbar| masses squared or None if POLE masses are used
-
-        Returns
-        -------
-        Couplings
-            created object
-        """
-        # read my values
-        # TODO cast to a_s here
-        alphas_ref = theory_card["alphas"]
-        alphaem_ref = theory_card["alphaem"]
-        couplings_ref = np.array([alphas_ref, alphaem_ref])
-        nf_ref = theory_card["nfref"]
-        q2_alpha = pow(theory_card["Qref"], 2)
-        order = theory_card["order"]
-        method = couplings_mod_ev(theory_card["ModEv"])
-        hqm_scheme = theory_card["HQ"]
-        if hqm_scheme not in ["MSBAR", "POLE"]:
-            raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
-        # adjust factorization scale / renormalization scale
-        xif = theory_card["fact_to_ren_scale_ratio"]
-        heavy_flavors = "cbt"
-        if masses is None:
-            masses = np.power([theory_card[f"m{q}"] / xif for q in heavy_flavors], 2)
-        else:
-            masses = masses / xif**2
-        thresholds_ratios = np.power(
-            [theory_card[f"k{q}Thr"] for q in heavy_flavors], 2
-        )
-        max_nf = theory_card["MaxNfAs"]
-        return cls(
-            couplings_ref,
-            q2_alpha,
-            masses,
-            thresholds_ratios,
-            order,
-            method,
-            nf_ref,
-            max_nf,
-            hqm_scheme,
-        )
 
     def compute_exact(self, a_ref, nf, scale_from, scale_to):
         """Compute couplings via |RGE|.
@@ -563,6 +530,7 @@ class Couplings:
         if self.order[1] >= 2:
             beta_qcd_mix = beta_qcd((2, 1), nf)
             beta_qed_vec.append(beta_qed((0, 3), nf))
+
         # integration kernel
         def rge(_t, a, beta_qcd_vec, beta_qed_vec):
             rge_qcd = -(a[0] ** 2) * (

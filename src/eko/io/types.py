@@ -150,6 +150,13 @@ class EvolutionMethod(enum.Enum):
     DECOMPOSE_EXPANDED = "decompose-expanded"
 
 
+class CouplingEvolutionMethod(enum.Enum):
+    """Beta functions solution method."""
+
+    EXACT = "exact"
+    EXPANDED = "expanded"
+
+
 class ScaleVariationsMethod(enum.Enum):
     """Method used to account for factorization scale variation."""
 

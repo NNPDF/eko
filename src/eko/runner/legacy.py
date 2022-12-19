@@ -3,8 +3,6 @@ import logging
 import os
 from typing import Union
 
-import numpy as np
-
 from .. import interpolation, msbar_masses
 from ..couplings import Couplings, couplings_mod_ev
 from ..evolution_operator.grid import OperatorGrid
@@ -82,14 +80,12 @@ class Runner:
 
         # strong coupling
         sc = Couplings(
-            couplings_ref=np.array(new_theory.couplings.values),
-            scale_ref=new_theory.couplings.alphas.scale**2,
-            thresholds_ratios=thresholds_ratios,
-            masses=tuple(m2 / new_theory.xif**2 for m2 in masses),
+            couplings=new_theory.couplings,
             order=new_theory.order,
-            method=couplings_mod_ev(new_operator.configs.evolution_method.value),
-            nf_ref=new_theory.couplings.num_flavs_ref,
-            max_nf=new_theory.couplings.num_flavs_max_as,
+            method=couplings_mod_ev(new_operator.configs.evolution_method),
+            masses=new_theory.quark_masses,
+            hqm_scheme=new_theory.quark_masses_scheme,
+            thresholds_ratios=new_theory.matching,
         )
         # setup operator grid
         self.op_grid = OperatorGrid(
