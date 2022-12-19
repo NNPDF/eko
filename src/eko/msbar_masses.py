@@ -1,20 +1,23 @@
 r"""|RGE| for the |MSbar| masses."""
+from math import nan
+
 import numba as nb
 import numpy as np
 from scipy import integrate, optimize
 
 from eko.io.types import (
+    CouplingEvolutionMethod,
     CouplingsRef,
-    EvolutionMethod,
     HeavyQuarkMasses,
     MatchingScales,
     Order,
     QuarkMassRef,
+    QuarkMassSchemes,
 )
 
 from .basis_rotation import quark_names
 from .beta import b_qcd, beta_qcd
-from .couplings import Couplings, couplings_mod_ev, invert_matching_coeffs
+from .couplings import Couplings, invert_matching_coeffs
 from .gamma import gamma
 from .thresholds import ThresholdsAtlas, flavor_shift, is_downward_path
 
@@ -345,7 +348,7 @@ def compute(
     masses_ref: HeavyQuarkMasses,
     couplings: CouplingsRef,
     order: Order,
-    evmeth: EvolutionMethod,
+    evmeth: CouplingEvolutionMethod,
     matching: MatchingScales,
     xif2: float = 1.0,
 ):
@@ -371,20 +374,20 @@ def compute(
     """
     # TODO: sketch in the docs how the MSbar computation works with a figure.
     mu2_ref = couplings.alphas.scale
-    nf_ref = couplings.num_flavs_ref
+    nf_ref: int = couplings.num_flavs_ref
     masses = np.concatenate((np.zeros(nf_ref - 3), np.full(6 - nf_ref, np.inf)))
-    thresholds_ratios = list(iter(matching))
+    massesobj = HeavyQuarkMasses.from_dict(
+        {q: [mq, nan] for mq, q in zip(masses, "cbt")}
+    )
 
     def sc(thr_masses):
         return Couplings(
-            couplings_ref=np.array(couplings.values),
-            scale_ref=couplings.alphas.scale**2,
-            thresholds_ratios=thresholds_ratios,
-            masses=[m / xif2 for m in thr_masses],
+            couplings,
             order=order,
-            method=couplings_mod_ev(evmeth),
-            nf_ref=nf_ref,
-            max_nf=couplings.num_flavs_max_as,
+            method=evmeth,
+            thresholds_ratios=matching,
+            masses=massesobj,
+            hqm_scheme=QuarkMassSchemes.MSBAR,
         )
 
     # First you need to look for the thr around the given as_ref
