@@ -6,6 +6,7 @@ import numba as nb
 import numpy as np
 
 from . import g_functions, polygamma
+from .constants import log2, zeta2, zeta3
 from .w1 import S1, Sm1
 from .w2 import S2, Sm2
 from .w3 import S3, S21, S2m1, Sm2m1, Sm3, Sm21
@@ -219,12 +220,21 @@ def compute_cache(n, max_weight, is_singlet, additional=False, qed=False):
     # return list of list keeping the non zero values
     tmp = [[el for el in sx_list if el != 0] for sx_list in sx]
     if additional:
-        tmp.append(compute_additional_sx_cache(n, is_singlet, qed, sx[:, 0], sx[:, -1]))
+        tmp.append(
+            compute_additional_sx_cache(
+                n,
+                is_singlet,
+                qed,
+                sx[:, 0],
+                sx[:, -1],
+                sx[2, 1 if max_weight == 3 else 3],
+            )
+        )
     return tmp
 
 
 @nb.njit(cache=True)
-def compute_additional_sx_cache(n, is_singlet, qed, sx, sminus=None):
+def compute_additional_sx_cache(n, is_singlet, qed, sx, sminus=None, sm21=None):
     r"""Get the harmonics sums cache needed for the qed non singlet AD.
 
     We have three cases :
@@ -240,12 +250,16 @@ def compute_additional_sx_cache(n, is_singlet, qed, sx, sminus=None):
     ----------
     n : complex
         Mellin moment
-    s1 : float
-        harmonic sum :math:`S_1(N)`
     qcd_singlet : bool
         True if singlet for pure QCD evolution
     qed : bool
         True if QED evolution activated
+    s1 : list
+        harmonic sum :math:`S_i(N)`
+    s1 : list
+        harmonic sum :math:`S_{-i}(N)`
+    sm21 : complex
+        harmonic sum :math:`S_{-2,1}(N)`
 
     Returns
     -------
@@ -267,47 +281,79 @@ def compute_additional_sx_cache(n, is_singlet, qed, sx, sminus=None):
 
     """
     if sminus is None:
+        sm1 = None  # needed later
         s1h = S1(n / 2.0)
-        sx_new = [s1h]
         s2h = S2(n / 2.0)
-        sx_new.append(s2h)
         s3h = S3(n / 2.0)
-        sx_new.append(s3h)
         g3N = g_functions.mellin_g3(n, sx[0])
-        sx_new.append(g3N)
+        sx_new = [s1h, s2h, s3h, g3N]
         if not is_singlet:
             s1_nm1_h = S1((n - 1.0) / 2.0)
-            sx_new.append(s1_nm1_h)
             s2_nm1_h = S2((n - 1.0) / 2.0)
-            sx_new.append(s2_nm1_h)
             s3_nm1_h = S3((n - 1.0) / 2.0)
-            sx_new.append(s3_nm1_h)
+            sx_new.extend([s1_nm1_h, s2_nm1_h, s3_nm1_h])
     else:
+        sm1 = sminus[0]  # needed later
         if is_singlet:
             s1h = sminus[0] + sx[0]
-            sx_new = [s1h]
             s2h = 2 * (sminus[1] + sx[1])
-            sx_new.append(s2h)
             s3h = 4 * (sminus[2] + sx[2])
-            sx_new.append(s3h)
-            g3N = g_functions.mellin_g3(n, sx[0])
-            sx_new.append(g3N)
+            g3N = -(
+                zeta2 * (sminus[0] - 1 / n)
+                - 5.0 / 8 * zeta3
+                + zeta2 * log2
+                - (sm21 - 1 / n**2 * sx[0])
+            )
+            sx_new = [s1h, s2h, s3h, g3N]
         else:
-            sx_new = compute_additional_sx_cache(n, True, False, sx, None)
+            s1h = S1(n / 2.0)
+            s2h = S2(n / 2.0)
+            s3h = S3(n / 2.0)
+            g3N = (
+                zeta2 * (sminus[0] + 1 / n)
+                - 5.0 / 8 * zeta3
+                + zeta2 * log2
+                - (sm21 + 1 / n**2 * sx[0])
+            )
             s1_nm1_h = sminus[0] + sx[0]
-            sx_new.append(s1_nm1_h)
             s2_nm1_h = 2 * (sminus[1] + sx[1])
-            sx_new.append(s2_nm1_h)
             s3_nm1_h = 4 * (sminus[2] + sx[2])
-            sx_new.append(s3_nm1_h)
+            sx_new = [s1h, s2h, s3h, g3N, s1_nm1_h, s2_nm1_h, s3_nm1_h]
     if qed:
-        S1p2 = polygamma.recursive_harmonic_sum(sx[0], n, 2, 1)
-        g3Np2 = g_functions.mellin_g3(n + 2.0, S1p2)
-        sx_new.append(g3Np2)
+        g3Np2 = g3np2(n, is_singlet, sx[0], sm21, sm1)
         s1_np1_h = polygamma.recursive_harmonic_sum(s1_nm1_h, (n - 1.0) / 2.0, 1, 1)
-        sx_new.append(s1_np1_h)
         s2_np1_h = polygamma.recursive_harmonic_sum(s2_nm1_h, (n - 1.0) / 2.0, 1, 2)
-        sx_new.append(s2_np1_h)
         s3_np1_h = polygamma.recursive_harmonic_sum(s3_nm1_h, (n - 1.0) / 2.0, 1, 3)
-        sx_new.append(s3_np1_h)
+        sx_new.extend([g3Np2, s1_np1_h, s2_np1_h, s3_np1_h])
     return sx_new
+
+
+@nb.njit(cache=True)
+def g3np2(n, is_singlet, s1, sm21=None, sm1=None):
+    """
+    Compute g3(n+2).
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    is_singlet : bool
+        True if singlet for pure QCD evolution
+    qed : bool
+        True if QED evolution activated
+    s1 : complex
+        harmonic sum :math:`S_1(N)`
+
+    Returns
+    -------
+    g3(n+2) : complex
+    """
+    eta = 1 if is_singlet else -1
+    if sm21 is None:
+        s1_np2 = polygamma.recursive_harmonic_sum(s1, n, 2, 1)
+        return g_functions.mellin_g3(n + 2.0, s1_np2)
+    else:
+        s1_np1 = polygamma.recursive_harmonic_sum(s1, n, 1, 1)
+        sm1_np1 = sm1 - eta / (n + 1)
+        sm21_np1 = sm21 - eta / (n + 1) ** 2 * s1_np1
+        return -1 / eta * (zeta2 * sm1_np1 - 5.0 / 8 * zeta3 + zeta2 * log2 - sm21_np1)
