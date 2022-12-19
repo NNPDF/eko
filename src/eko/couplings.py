@@ -1,6 +1,10 @@
-r"""Contains the QCD beta function coefficients and the handling of the running coupling :math:`\alpha_s`.
+r"""Manage running (and non) couplings.
+
+Contains the QCD beta function coefficients and the handling of the running
+coupling :math:`\alpha_s`.
 
 See :doc:`pQCD ingredients </theory/pQCD>`.
+
 """
 
 import logging
@@ -69,7 +73,8 @@ def exact_lo(ref, beta0, lmu):
 def expanded_nlo(ref, beta0, b1, lmu):
     r"""Compute expanded solution at |NLO|.
 
-    Implement the default expression for |NLO| expanded solution, e.g. the one implemented in |APFEL|
+    Implement the default expression for |NLO| expanded solution, e.g. the one
+    implemented in |APFEL|.
 
     Parameters
     ----------
@@ -396,7 +401,8 @@ class Couplings:
         )
         self.hqm_scheme = hqm_scheme
         logger.info(
-            "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)\nElectromagnetic Coupling: a_em(µ_R^2=%f)%s=%f=%f/(4π)",
+            "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)\n"
+            "Electromagnetic Coupling: a_em(µ_R^2=%f)%s=%f=%f/(4π)",
             self.q2_ref,
             f"^(nf={nf_ref})" if nf_ref else "",
             self.a_ref[0],

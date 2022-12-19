@@ -7,38 +7,39 @@ import pytest
 from eko import msbar_masses
 from eko.basis_rotation import quark_names
 from eko.couplings import Couplings
+from eko.io import types
+from eko.io.runcards import TheoryCard
 
 theory_dict = {
-    "alphas": 0.1180,
-    "alphaem": 0.00781,
-    "Qref": 91,
-    "nfref": 5,
-    "MaxNfPdf": 6,
-    "MaxNfAs": 6,
     "Q0": 1,
-    "fact_to_ren_scale_ratio": 1.0,
-    "mc": 2.0,
-    "mb": 4.0,
-    "mt": 175.0,
-    "kcThr": 1.0,
-    "kbThr": 1.0,
-    "ktThr": 1.0,
-    "HQ": "MSBAR",
-    "Qmc": 2.1,
-    "Qmb": 4.1,
-    "Qmt": 174.9,
-    "order": (3, 0),
     "ModEv": "TRN",
-    "ModSV": None,
 }
 
 
+@pytest.fixture()
+def theory_card(theory_card: TheoryCard):
+    th = theory_card
+    th.order = (3, 0)
+    th.couplings.alphas.value = 0.1180
+    th.couplings.alphas.scale = 91.0
+    th.couplings.alphaem.value = 0.00781
+    th.num_flavs_ref = 5
+    for qname, qmass in zip("cbt", [(2.0, 2.1), (4.0, 4.1), (175.0, 174.9)]):
+        q = getattr(th.quark_masses, qname)
+        q.value, q.scale = qmass
+    th.quark_masses_scheme = types.QuarkMassSchemes.MSBAR
+
+    return th
+
+
 class TestMsbarMasses:
-    def test_compute_msbar_mass(self):
+    def test_compute_msbar_mass(self, theory_card):
+        EvMod = types.EvolutionMethod
+
         # Test solution of msbar(m) = m
-        for method in ["EXA", "EXP"]:
+        for method in [EvMod.ITERATE_EXACT, EvMod.ITERATE_EXPANDED]:
             for order in [2, 3, 4]:
-                theory_dict.update({"ModEv": method, "order": (order, 0)})
+                theory_card.order = (order, 0)
 
                 # compute the scale such msbar(m) = m
                 m2_computed = msbar_masses.compute(theory_dict)

@@ -28,7 +28,7 @@ import dataclasses
 import enum
 import typing
 from math import isnan
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from .dictlike import DictLike
 
@@ -54,6 +54,9 @@ IntRef = reference_running(int)
 FloatRef = reference_running(float)
 
 Order = typing.Tuple[int, int]
+FlavorsNumber = int
+FlavorIndex = int
+IntrinsicFlavors = typing.List[FlavorIndex]
 
 
 @dataclasses.dataclass
@@ -62,6 +65,14 @@ class CouplingsRef(DictLike):
 
     alphas: FloatRef
     alphaem: FloatRef
+    num_flavs_ref: Optional[FlavorsNumber]
+    r"""Number of active flavors at strong coupling reference scale.
+
+    I.e. :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`, formerly called
+    ``nfref``.
+
+    """
+    num_flavs_max_as: FlavorsNumber
 
     def __post_init__(self):
         """Validate couplings.
@@ -77,11 +88,6 @@ class CouplingsRef(DictLike):
     def values(self):
         """Collect only couplings values."""
         return (self.alphas.value, self.alphaem.value)
-
-
-FlavorsNumber = int
-FlavorIndex = int
-IntrinsicFlavors = typing.List[FlavorIndex]
 
 
 def heavy_quark(quarkattr):

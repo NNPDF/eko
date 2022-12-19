@@ -40,21 +40,12 @@ class TheoryCard(DictLike):
     """Perturbatiive order tuple, ``(QCD, QED)``."""
     couplings: CouplingsRef
     """"""
-    num_flavs_ref: Optional[FlavorsNumber]
-    r"""Number of active flavors at strong coupling reference scale.
-
-    I.e. :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`, formerly called
-    ``nfref``.
-
-    """
     num_flavs_init: Optional[FlavorsNumber]
     r"""Number of active flavors at fitting scale.
 
     I.e. :math:`n_{f,\text{ref}}(\mu^2_0)`, formerly called ``nf0``.
 
     """
-    num_flavs_max_as: FlavorsNumber
-    """"""
     num_flavs_max_pdf: FlavorsNumber
     """"""
     intrinsic_flavors: IntrinsicFlavors

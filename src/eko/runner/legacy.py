@@ -88,8 +88,8 @@ class Runner:
             masses=tuple(m2 / new_theory.xif**2 for m2 in masses),
             order=new_theory.order,
             method=couplings_mod_ev(new_operator.configs.evolution_method.value),
-            nf_ref=new_theory.num_flavs_ref,
-            max_nf=new_theory.num_flavs_max_as,
+            nf_ref=new_theory.couplings.num_flavs_ref,
+            max_nf=new_theory.couplings.num_flavs_max_as,
         )
         # setup operator grid
         self.op_grid = OperatorGrid(

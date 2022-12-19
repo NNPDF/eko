@@ -11,10 +11,13 @@ from eko.io.types import RawCard
 
 _theory = dict(
     order=[1, 0],
-    couplings=dict(alphas=[0.118, 91.2], alphaem=[0.007496252, nan]),
-    num_flavs_ref=None,
+    couplings=dict(
+        alphas=[0.118, 91.2],
+        alphaem=[0.007496252, nan],
+        num_flavs_ref=None,
+        num_flavs_max_as=6,
+    ),
     num_flavs_init=None,
-    num_flavs_max_as=6,
     num_flavs_max_pdf=6,
     intrinsic_flavors=[4],
     quark_masses={q: [mq, nan] for mq, q in zip((2.0, 4.5, 173.07), "cbt")},

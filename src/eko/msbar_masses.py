@@ -3,9 +3,18 @@ import numba as nb
 import numpy as np
 from scipy import integrate, optimize
 
+from eko.io.types import (
+    CouplingsRef,
+    EvolutionMethod,
+    HeavyQuarkMasses,
+    MatchingScales,
+    Order,
+    QuarkMassRef,
+)
+
 from .basis_rotation import quark_names
 from .beta import b_qcd, beta_qcd
-from .couplings import Couplings, invert_matching_coeffs
+from .couplings import Couplings, couplings_mod_ev, invert_matching_coeffs
 from .gamma import gamma
 from .thresholds import ThresholdsAtlas, flavor_shift, is_downward_path
 
@@ -332,7 +341,14 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
     return m2_ref * ev_mass
 
 
-def compute(theory_card):
+def compute(
+    masses_ref: HeavyQuarkMasses,
+    couplings: CouplingsRef,
+    order: Order,
+    evmeth: EvolutionMethod,
+    matching: MatchingScales,
+    xif2: float = 1.0,
+):
     r"""Compute the |MSbar| masses.
 
     Computation is performed solving the equation :math:`m_{\bar{MS}}(\mu) =
@@ -340,8 +356,12 @@ def compute(theory_card):
 
     Parameters
     ----------
-    theory_card : dict
-        theory run card
+    nf_ref :
+        number of active flavor at reference scale
+    mu2_ref :
+        reference scale squared (a.k.a. :math:`Q^2_{ref}`)
+    xif2 :
+        squared ratio of factorization to central scale
 
     Returns
     -------
@@ -350,26 +370,35 @@ def compute(theory_card):
 
     """
     # TODO: sketch in the docs how the MSbar computation works with a figure.
-    nfa_ref = theory_card["nfref"]
-
-    q2_ref = np.power(theory_card["Qref"], 2)
-    masses = np.concatenate((np.zeros(nfa_ref - 3), np.full(6 - nfa_ref, np.inf)))
-    xif2 = theory_card["fact_to_ren_scale_ratio"] ** 2
+    mu2_ref = couplings.alphas.scale
+    nf_ref = couplings.num_flavs_ref
+    masses = np.concatenate((np.zeros(nf_ref - 3), np.full(6 - nf_ref, np.inf)))
+    thresholds_ratios = list(iter(matching))
 
     def sc(thr_masses):
-        return Couplings.from_dict(theory_card, masses=thr_masses)
+        return Couplings(
+            couplings_ref=np.array(couplings.values),
+            scale_ref=couplings.alphas.scale**2,
+            thresholds_ratios=thresholds_ratios,
+            masses=[m / xif2 for m in thr_masses],
+            order=order,
+            method=couplings_mod_ev(evmeth),
+            nf_ref=nf_ref,
+            max_nf=couplings.num_flavs_max_as,
+        )
 
     # First you need to look for the thr around the given as_ref
     heavy_quarks = quark_names[3:]
     hq_idxs = np.arange(0, 3)
-    if nfa_ref > 4:
+    if nf_ref > 4:
         heavy_quarks = reversed(heavy_quarks)
         hq_idxs = reversed(hq_idxs)
 
     # loop on heavy quarks and compute the msbar masses
     for q_idx, hq in zip(hq_idxs, heavy_quarks):
-        q2m_ref = np.power(theory_card[f"Qm{hq}"], 2)
-        m2_ref = np.power(theory_card[f"m{hq}"], 2)
+        mhq: QuarkMassRef = getattr(masses_ref, hq)
+        q2m_ref = mhq.scale**2
+        m2_ref = mhq.value**2
 
         # check if mass is already given at the pole -> done
         if q2m_ref == m2_ref:
@@ -381,32 +410,32 @@ def compute(theory_card):
         shift = -1
 
         # check that alphas is given with a consistent number of flavors
-        if q_idx + 4 == nfa_ref and q2m_ref > q2_ref:
+        if q_idx + 4 == nf_ref and q2m_ref > mu2_ref:
             raise ValueError(
                 f"In MSBAR scheme, Qm{hq} should be lower than Qref, \
-                if alpha_s is given with nfref={nfa_ref} at scale Qref={q2_ref}"
+                if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
             )
-        if q_idx + 4 == nfa_ref + 1 and q2m_ref < q2_ref:
+        if q_idx + 4 == nf_ref + 1 and q2m_ref < mu2_ref:
             raise ValueError(
                 f"In MSBAR scheme, Qm{hq} should be greater than Qref, \
-                if alpha_s is given with nfref={nfa_ref} at scale Qref={q2_ref}"
+                if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
             )
 
         # check that for higher patches you do forward running
         # with consistent conditions
-        if q_idx + 3 >= nfa_ref and q2m_ref >= m2_ref:
+        if q_idx + 3 >= nf_ref and q2m_ref >= m2_ref:
             raise ValueError(
                 f"In MSBAR scheme, Qm{hq} should be lower than m{hq} \
-                        if alpha_s is given with nfref={nfa_ref} at scale Qref={q2_ref}"
+                        if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
             )
 
         # check that for lower patches you do backward running
         # with consistent conditions
-        if q_idx + 3 < nfa_ref:
+        if q_idx + 3 < nf_ref:
             if q2m_ref < m2_ref:
                 raise ValueError(
                     f"In MSBAR scheme, Qm{hq} should be greater than m{hq} \
-                        if alpha_s is given with nfref={nfa_ref} at scale Qref={q2_ref}"
+                        if alpha_s is given with nfref={nf_ref} at scale Qref={mu2_ref}"
                 )
             nf_target += 1
             shift = 1
@@ -415,8 +444,8 @@ def compute(theory_card):
         # you need to evolve it until nf_target patch wall is reached:
         #   for backward you reach the higher, for forward the lower.
         # len(masses[q2m_ref > masses]) + 3 is the nf at the given reference scale
-        nf_ref = len(masses[q2m_ref > masses]) + 3
-        if nf_target != nf_ref:
+        nf_ref_cur = len(masses[q2m_ref > masses]) + 3
+        if nf_target != nf_ref_cur:
             q2_to = masses[q_idx + shift]
             m2_ref = evolve(
                 m2_ref,
@@ -424,7 +453,7 @@ def compute(theory_card):
                 sc(masses),
                 xif2,
                 q2_to,
-                nf_ref=nf_ref,
+                nf_ref=nf_ref_cur,
                 nf_to=nf_target,
             )
             q2m_ref = q2_to
