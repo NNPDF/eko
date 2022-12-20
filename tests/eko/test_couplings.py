@@ -9,12 +9,9 @@ import numpy as np
 import pytest
 
 from eko.couplings import Couplings
-from eko.io.types import (
-    CouplingEvolutionMethod,
-    CouplingsRef,
-    HeavyQuarkMasses,
-    MatchingScales,
-)
+from eko.io.types import CouplingEvolutionMethod, CouplingsRef, MatchingScales
+
+masses = [m**2 for m in (2.0, 4.5, 175.0)]
 
 
 class TestCouplings:
@@ -31,9 +28,6 @@ class TestCouplings:
         )
         order = (1, 0)
         evmod = CouplingEvolutionMethod.EXACT
-        masses = HeavyQuarkMasses.from_dict(
-            {q: [mq, nan] for mq, q in zip((2.0, 4.5, 175.0), "cbt")}
-        )
         # create
         sc = Couplings(couplings, order, evmod, masses)
         assert sc.q2_ref == muref**2
@@ -76,9 +70,6 @@ class TestCouplings:
                 num_flavs_max_as=6,
             )
         )
-        masses = HeavyQuarkMasses.from_dict(
-            {q: [mq, nan] for mq, q in zip((2.0, 4.5, 175.0), "cbt")}
-        )
         for thresh_setup in thresh_setups:
             threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
             for order_s in [0, 1, 2, 3, 4]:
@@ -114,9 +105,6 @@ class TestCouplings:
                 num_flavs_max_as=6,
             )
         )
-        masses = HeavyQuarkMasses.from_dict(
-            {q: [mq, nan] for mq, q in zip((2.0, 4.5, 175.0), "cbt")}
-        )
         threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
         sc = Couplings(
             couplings,
@@ -147,9 +135,6 @@ class TestCouplings:
                 num_flavs_ref=None,
                 num_flavs_max_as=6,
             )
-        )
-        masses = HeavyQuarkMasses.from_dict(
-            {q: [mq, nan] for mq, q in zip((2.0, 4.5, 175.0), "cbt")}
         )
         for thresh_setup in thresh_setups:
             threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
@@ -192,9 +177,6 @@ class TestCouplings:
                 num_flavs_ref=None,
                 num_flavs_max_as=6,
             )
-        )
-        masses = HeavyQuarkMasses.from_dict(
-            {q: [mq, nan] for mq, q in zip((2.0, 4.5, 175.0), "cbt")}
         )
         for PTOs in range(1, 4 + 1):
             for thresh_setup in thresh_setups:
@@ -239,9 +221,6 @@ class TestCouplings:
                 num_flavs_max_as=6,
             )
         )
-        masses = HeavyQuarkMasses.from_dict(
-            {q: [mq, nan] for mq, q in zip((2.0, 4.5, 175.0), "cbt")}
-        )
         for thresh_setup in thresh_setups:
             threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
             sc_expanded = Couplings(
@@ -282,9 +261,6 @@ class TestCouplings:
                 num_flavs_ref=None,
                 num_flavs_max_as=6,
             )
-        )
-        masses = HeavyQuarkMasses.from_dict(
-            {q: [mq, nan] for mq, q in zip((2.0, 4.5, 175.0), "cbt")}
         )
         for thresh_setup in thresh_setups:
             threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
@@ -327,9 +303,6 @@ class TestCouplings:
                 num_flavs_max_as=6,
             )
         )
-        masses = HeavyQuarkMasses.from_dict(
-            {q: [mq, nan] for mq, q in zip((2.0, 4.5, 175.0), "cbt")}
-        )
         for thresh_setup in thresh_setups:
             threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
             # in LO expanded  = exact
@@ -371,9 +344,6 @@ class TestCouplings:
                 num_flavs_ref=None,
                 num_flavs_max_as=6,
             )
-        )
-        masses = HeavyQuarkMasses.from_dict(
-            {q: [mq, nan] for mq, q in zip((2.0, 4.5, 175.0), "cbt")}
         )
         for thresh_setup in thresh_setups:
             threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
@@ -419,9 +389,6 @@ class TestCouplings:
         m2t = 30625
         threshold_list = [m2c, m2b, m2t]
         threshs = MatchingScales.from_dict(dict(zip("cbt", threshold_list)))
-        masses = HeavyQuarkMasses.from_dict(
-            {q: [mq, nan] for mq, q in zip((2.0, 4.5, 175.0), "cbt")}
-        )
         mathematica_val = -0.000169117
         # collect my values
         as_NNLO = Couplings(
