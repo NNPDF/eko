@@ -334,11 +334,11 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
             )
             matching = 1.0
             for pto in range(1, strong_coupling.order[0]):
-                for l in range(pto + 1):
+                for logpow in range(pto + 1):
                     as_thr = strong_coupling.a(
                         seg.q2_to / xif2, seg.q2_to, seg.nf - shift + 4
                     )[0]
-                    matching += as_thr**pto * L**l * m_coeffs[pto, l]
+                    matching += as_thr**pto * L**logpow * m_coeffs[pto, logpow]
             ker_evol *= matching
         ev_mass *= ker_evol
     return m2_ref * ev_mass
@@ -376,17 +376,14 @@ def compute(
     mu2_ref = couplings.alphas.scale**2
     nf_ref: int = couplings.num_flavs_ref
     masses = np.concatenate((np.zeros(nf_ref - 3), np.full(6 - nf_ref, np.inf)))
-    massesobj = HeavyQuarkMasses.from_dict(
-        {q: [mq, nan] for mq, q in zip(masses, "cbt")}
-    )
 
     def sc(thr_masses):
         return Couplings(
             couplings,
             order=order,
             method=evmeth,
+            masses=thr_masses,
             thresholds_ratios=matching,
-            masses=massesobj,
             hqm_scheme=QuarkMassSchemes.MSBAR,
         )
 

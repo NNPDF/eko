@@ -68,9 +68,9 @@ class Runner:
                 couplings_mod_ev(new_operator.configs.evolution_method),
                 new_theory.matching,
                 xif2=new_theory.xif**2,
-            )
+            ).tolist()
         elif new_theory.quark_masses_scheme is QuarkMassSchemes.POLE:
-            masses = tuple(mq.value**2 for mq in new_theory.quark_masses)
+            masses = [mq.value**2 for mq in new_theory.quark_masses]
         else:
             raise ValueError(f"Unknown mass scheme '{new_theory.quark_masses_scheme}'")
 
@@ -90,7 +90,7 @@ class Runner:
             couplings=new_theory.couplings,
             order=new_theory.order,
             method=couplings_mod_ev(new_operator.configs.evolution_method),
-            masses=new_theory.quark_masses,
+            masses=masses,
             hqm_scheme=new_theory.quark_masses_scheme,
             thresholds_ratios=new_theory.matching,
         )

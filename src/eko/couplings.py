@@ -6,8 +6,8 @@ coupling :math:`\alpha_s`.
 See :doc:`pQCD ingredients </theory/pQCD>`.
 
 """
-
 import logging
+from typing import List
 
 import numba as nb
 import numpy as np
@@ -380,7 +380,7 @@ class Couplings:
         couplings: CouplingsRef,
         order: Order,
         method: CouplingEvolutionMethod,
-        masses: HeavyQuarkMasses,
+        masses: List[float],
         hqm_scheme: QuarkMassSchemes = QuarkMassSchemes.POLE,
         thresholds_ratios: MatchingScales = MatchingScales(c=1.0, b=1.0, t=1.0),
     ):
@@ -404,9 +404,8 @@ class Couplings:
 
         nf_ref = couplings.num_flavs_ref
         max_nf = couplings.num_flavs_max_as
-        masses = [m.value for m in masses]
-        thresholds_ratios = list(thresholds_ratios)
-        hqm_scheme = hqm_scheme.name
+        matchings = list(thresholds_ratios)
+        scheme_name = hqm_scheme.name
 
         # create new threshold object
         self.a_ref = np.array(couplings.values) / 4.0 / np.pi  # convert to a_s and a_em
@@ -414,10 +413,10 @@ class Couplings:
             masses,
             couplings.alphas.scale**2,
             nf_ref,
-            thresholds_ratios=thresholds_ratios,
+            thresholds_ratios=matchings,
             max_nf=max_nf,
         )
-        self.hqm_scheme = hqm_scheme
+        self.hqm_scheme = scheme_name
         logger.info(
             "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)\n"
             "Electromagnetic Coupling: a_em(µ_R^2=%f)%s=%f=%f/(4π)",

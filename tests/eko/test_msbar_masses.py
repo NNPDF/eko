@@ -1,8 +1,6 @@
 """
     Tests for the threshold class
 """
-from math import nan
-
 import numpy as np
 import pytest
 
@@ -29,11 +27,11 @@ def theory_card(theory_card: TheoryCard):
 
 
 class TestMSbarMasses:
-    @pytest.mark.skip
     def test_compute_msbar_mass(self, theory_card: TheoryCard):
         th = theory_card
 
         # Test solution of msbar(m) = m
+        #  __import__("pdb").set_trace()
         for method in list(types.CouplingEvolutionMethod):
             for order in [2, 3, 4]:
                 theory_card.order = (order, 0)
@@ -42,10 +40,9 @@ class TestMSbarMasses:
                 m2_computed = msbar_masses.compute(
                     th.quark_masses, th.couplings, th.order, method, th.matching
                 )
-                massesobj = types.HeavyQuarkMasses.from_dict(
-                    {q: [np.sqrt(m2q), nan] for m2q, q in zip(m2_computed, "cbt")}
+                strong_coupling = Couplings(
+                    th.couplings, th.order, method, masses=m2_computed.tolist()
                 )
-                strong_coupling = Couplings(th.couplings, th.order, method, massesobj)
                 m2_test = []
                 for nf in [3, 4, 5]:
                     hq = "cbt"[nf - 3]
@@ -81,11 +78,12 @@ class TestMSbarMasses:
             types.CouplingEvolutionMethod.EXPANDED,
             th.matching,
         )
-        massesobj = types.HeavyQuarkMasses.from_dict(
-            {q: [np.sqrt(m2q), nan] for m2q, q in zip(m2_computed, "cbt")}
-        )
         strong_coupling = Couplings(
-            th.couplings, th.order, types.CouplingEvolutionMethod.EXPANDED, massesobj
+            th.couplings,
+            th.order,
+            types.CouplingEvolutionMethod.EXPANDED,
+            m2_computed.tolist(),
+            hqm_scheme=types.QuarkMassSchemes.MSBAR,
         )
         m2_test = []
         for nf in [3, 4, 5]:
@@ -132,7 +130,7 @@ class TestMSbarMasses:
 
         # test backward conditions on alphas_ref
         with pytest.raises(ValueError, match="should be greater than"):
-            th.quark_masses.b.scale = 89.9999
+            th.quark_masses.t.scale = 89.9999
             compute(th)
 
         th.quark_masses.b.scale = 4.0
