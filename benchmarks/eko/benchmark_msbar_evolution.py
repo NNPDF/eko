@@ -200,7 +200,7 @@ class BenchmarkMSbar:
             )
             # get APFEL numbers - if available else use cache
             apfel_vals = apfel_vals_dict[
-                couplings_mod_ev(operator.configs.evolution_method).value[:3]
+                couplings_mod_ev(operator.configs.evolution_method).value[:3].upper()
             ][order]
             if use_APFEL:
                 # run apfel
