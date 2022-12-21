@@ -1,5 +1,5 @@
 """This module benchmarks alpha_s against LHAPDF and APFEL."""
-from ast import operator
+from math import nan
 
 import numpy as np
 import pytest
@@ -7,6 +7,7 @@ import pytest
 from eko import thresholds
 from eko.beta import beta_qcd
 from eko.couplings import Couplings
+from eko.io import types
 from eko.io.runcards import TheoryCard
 
 # try to load LHAPDF - if not available, we'll use the cached values
@@ -34,6 +35,17 @@ except ImportError:
     use_PEGASUS = False
 
 
+def ref_couplings(
+    ref_values,
+    ref_scale: float,
+) -> types.CouplingsRef:
+
+    return types.CouplingsRef(
+        alphas=types.FloatRef(value=ref_values[0], scale=ref_scale),
+        alphaem=types.FloatRef(value=ref_values[1], scale=nan),
+    )
+
+
 @pytest.mark.isolated
 class BenchmarkCouplings:
     def test_a_s(self):
@@ -42,11 +54,13 @@ class BenchmarkCouplings:
         """
         # TODO @JCM: we need a source for this!
         known_val = 0.0091807954
-        ref_couplings = np.array([0.1181, 0.007496])
         ref_mu2 = 90
         ask_q2 = 125
         as_FFNS_LO = Couplings(
-            ref_couplings, ref_mu2, [0, 0, np.inf], (1.0, 1.0, 1.0), order=(1, 0)
+            couplings=ref_couplings([0.1181, 0.007496], ref_mu2),
+            order=(1, 0),
+            method=types.CouplingEvolutionMethod.EXACT,
+            masses=[0, 0, np.inf],
         )
         # check local
         np.testing.assert_approx_equal(
@@ -61,9 +75,12 @@ class BenchmarkCouplings:
         # LO - FFNS
         # note that the LO-FFNS value reported in :cite:`Giele:2002hx`
         # was corrected in :cite:`Dittmar:2005ed`
-        coupling_ref = np.array([0.35, 0.007496])
+        ref = ref_couplings([0.35, 0.007496], 2)
         as_FFNS_LO = Couplings(
-            coupling_ref, 2, (0, np.inf, np.inf), (1.0, 1.0, 1.0), order=(1, 0)
+            couplings=ref,
+            order=(1, 0),
+            method=types.CouplingEvolutionMethod.EXACT,
+            masses=[0, np.inf, np.inf],
         )
         me = as_FFNS_LO.a(1e4)[0] * 4 * np.pi
         ref = 0.117574
@@ -71,7 +88,10 @@ class BenchmarkCouplings:
         # LO - VFNS
         threshold_list = [2, pow(4.5, 2), pow(175, 2)]
         as_VFNS_LO = Couplings(
-            coupling_ref, 2, threshold_list, (1.0, 1.0, 1.0), order=(1, 0)
+            couplings=ref,
+            order=(1, 0),
+            method=types.CouplingEvolutionMethod.EXACT,
+            masses=threshold_list,
         )
         me = as_VFNS_LO.a(1e4)[0] * 4 * np.pi
         ref = 0.122306
@@ -112,12 +132,10 @@ class BenchmarkCouplings:
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         for order in [1, 2, 3]:
             as_FFNS = Couplings(
-                coupling_ref,
-                scale_ref,
-                threshold_holder.area_walls[1:-1],
-                (1.0, 1.0, 1.0),
+                couplings=ref_couplings(coupling_ref, scale_ref),
                 order=(order, 0),
-                method="expanded",
+                method=types.CouplingEvolutionMethod.EXPANDED,
+                masses=threshold_holder.area_walls[1:-1],
             )
             my_vals = []
             for Q2 in Q2s:
@@ -185,12 +203,10 @@ class BenchmarkCouplings:
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         for order in [1, 2, 3, 4]:
             as_FFNS = Couplings(
-                coupling_ref,
-                scale_ref,
-                threshold_holder.area_walls[1:-1],
-                (1.0, 1.0, 1.0),
+                couplings=ref_couplings(coupling_ref, scale_ref),
                 order=(order, 0),
-                method="exact",
+                method=types.CouplingEvolutionMethod.EXACT,
+                masses=threshold_holder.area_walls[1:-1],
             )
             my_vals = []
             for Q2 in Q2s:
@@ -261,12 +277,10 @@ class BenchmarkCouplings:
         # collect my values
         for order in [1, 2, 3]:
             as_VFNS = Couplings(
-                coupling_ref,
-                scale_ref,
-                threshold_list,
-                (1.0, 1.0, 1.0),
+                couplings=ref_couplings(coupling_ref, scale_ref),
                 order=(order, 0),
-                method="expanded",
+                method=types.CouplingEvolutionMethod.EXPANDED,
+                masses=threshold_list,
             )
             my_vals = []
             for Q2 in Q2s:
@@ -406,12 +420,10 @@ class BenchmarkCouplings:
             # collect my values
             for order in [1, 2, 3]:
                 as_VFNS = Couplings(
-                    coupling_ref,
-                    scale_ref,
-                    1 / fact_to_ren_lin**2 * threshold_list,
-                    (1.0, 1.0, 1.0),
+                    couplings=ref_couplings(coupling_ref, scale_ref),
                     order=(order, 0),
-                    method="exact",
+                    method=types.CouplingEvolutionMethod.EXACT,
+                    masses=(threshold_list / fact_to_ren_lin**2).tolist(),
                 )
                 my_vals = []
                 for Q2 in Q2s:
@@ -444,7 +456,7 @@ class BenchmarkCouplings:
         coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 91.0**2
         threshold_list = np.power([30, 95, 240], 2)
-        thresholds_ratios = np.power((2.34, 1.0, 0.5), 2)
+        thresholds_ratios = types.MatchingScales(c=2.34**2, b=1.0**2, t=0.5**2)
         apfel_vals_dict = {
             2: np.array(
                 [0.011543349125207046, 0.00930916017456183, 0.008683622955304702]
@@ -456,12 +468,11 @@ class BenchmarkCouplings:
         # collect my values
         for order in [2, 3]:
             as_VFNS = Couplings(
-                coupling_ref,
-                scale_ref,
-                threshold_list,
-                thresholds_ratios,
+                couplings=ref_couplings(coupling_ref, scale_ref),
                 order=(order, 0),
-                method="expanded",
+                method=types.CouplingEvolutionMethod.EXPANDED,
+                masses=threshold_list.tolist(),
+                thresholds_ratios=thresholds_ratios,
             )
             my_vals = []
             for Q2 in Q2s:
@@ -494,9 +505,8 @@ class BenchmarkCouplings:
         Q2s = np.power([3, 96, 150], 2)
         coupling_ref = np.array([0.118, 0.007496])
         scale_ref = 91.0**2
-        thresholds_ratios = np.power((1.0, 1.0, 1.0), 2)
         Q2m = np.power([2.0, 4.0, 175], 2)
-        m2 = np.power((1.4, 4.0, 175), 2)
+        m2s = np.power((1.4, 4.0, 175), 2)
         apfel_vals_dict = {
             2: np.array(
                 [0.01985110421500437, 0.009315017128518715, 0.00873290495922747]
@@ -508,13 +518,11 @@ class BenchmarkCouplings:
         # collect my values
         for order in [2, 3]:
             as_VFNS = Couplings(
-                coupling_ref,
-                scale_ref,
-                m2,
-                thresholds_ratios,
+                couplings=ref_couplings(coupling_ref, scale_ref),
                 order=(order, 0),
-                method="expanded",
-                hqm_scheme="MSBAR",
+                method=types.CouplingEvolutionMethod.EXPANDED,
+                masses=m2s.tolist(),
+                hqm_scheme=types.QuarkMassSchemes.MSBAR,
             )
             my_vals = []
             for Q2 in Q2s:
@@ -530,7 +538,7 @@ class BenchmarkCouplings:
                 apfel.SetAlphaEvolution("expanded")
                 apfel.SetAlphaQCDRef(coupling_ref[0], np.sqrt(scale_ref))
                 apfel.SetVFNS()
-                apfel.SetMSbarMasses(*np.sqrt(m2))
+                apfel.SetMSbarMasses(*np.sqrt(m2s))
                 apfel.SetMassScaleReference(*np.sqrt(Q2m))
                 apfel.SetRenFacRatio(1)
                 apfel.InitializeAPFEL()
@@ -557,11 +565,10 @@ class BenchmarkCouplings:
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
         as_FFNS_LO = Couplings(
-            coupling_ref,
-            scale_ref,
-            threshold_holder.area_walls[1:-1],
-            (1.0, 1.0, 1.0),
+            couplings=ref_couplings(coupling_ref, scale_ref),
             order=(1, 0),
+            method=types.CouplingEvolutionMethod.EXACT,
+            masses=threshold_holder.area_walls[1:-1],
         )
         my_vals = []
         for Q2 in Q2s:
@@ -630,12 +637,10 @@ class BenchmarkCouplings:
         }
         for order in range(1, 3 + 1):
             sc = Couplings(
-                coupling_ref,
-                scale_ref,
-                threshold_holder.area_walls[1:-1],
-                (1.0, 1.0, 1.0),
+                couplings=ref_couplings(coupling_ref, scale_ref),
                 order=(order, 0),
-                method="exact",
+                method=types.CouplingEvolutionMethod.EXACT,
+                masses=threshold_holder.area_walls[1:-1],
             )
             my_vals = []
             for Q2 in Q2s:
@@ -705,12 +710,10 @@ class BenchmarkCouplings:
         }
         for order in range(1, 4 + 1):
             sc = Couplings(
-                coupling_ref,
-                scale_ref,
-                threshold_holder.area_walls[1:-1],
-                (1.0, 1.0, 1.0),
+                couplings=ref_couplings(coupling_ref, scale_ref),
                 order=(order, 0),
-                method="exact",
+                method=types.CouplingEvolutionMethod.EXACT,
+                masses=threshold_holder.area_walls[1:-1],
             )
             my_vals = []
             for Q2 in Q2s:
@@ -755,7 +758,10 @@ class BenchmarkCouplings:
 
         # collect my values
         as_VFNS_LO = Couplings(
-            coupling_ref, scale_ref, threshold_list, (1.0, 1.0, 1.0), order=(1, 0)
+            couplings=ref_couplings(coupling_ref, scale_ref),
+            order=(1, 0),
+            method=types.CouplingEvolutionMethod.EXACT,
+            masses=threshold_list,
         )
         my_vals = []
         for Q2 in Q2s:
@@ -803,7 +809,7 @@ class BenchmarkCouplings:
         theory.couplings.alphas.value = 0.35
         theory.couplings.alphas.scale = float(np.sqrt(2))
         theory.couplings.alphaem.value = 0.007496
-        theory.num_flavs_ref = 4
+        theory.couplings.num_flavs_ref = 4
         theory.num_flavs_init = 3
         theory.xif = np.sqrt(2.0)
         theory.quark_masses.c.value = np.sqrt(2.0)
@@ -811,30 +817,25 @@ class BenchmarkCouplings:
         theory.quark_masses.t.value = 175.0
         qmasses = theory.quark_masses
 
-        mu0 = np.sqrt(2.0)
-        thresholds_ratios = list(iter(theory.matching))
         masses = tuple(mq.value**2 for mq in theory.quark_masses)
 
-        Q2s = [2.0]
+        mu2s = [2.0]
         sc = Couplings(
-            couplings_ref=np.array(theory.couplings.values),
-            scale_ref=theory.couplings.alphas.scale**2,
-            thresholds_ratios=thresholds_ratios,
-            masses=tuple(m2 / theory.xif**2 for m2 in masses),
+            couplings=theory.couplings,
             order=theory.order,
-            method="exact",
-            nf_ref=theory.num_flavs_ref,
-            max_nf=theory.num_flavs_max_as,
+            method=types.CouplingEvolutionMethod.EXACT,
+            masses=[m2 / theory.xif**2 for m2 in masses],
+            thresholds_ratios=theory.matching,
         )
         xif2 = theory.xif**2
-        for Q2 in Q2s:
+        for mu2 in mu2s:
 
-            my_val = sc.a(Q2 / xif2, Q2)[0]
-            path = sc.thresholds.path(Q2 / xif2)
-            my_val_4 = sc.a(Q2 / xif2, Q2, nf_to=4)[0]
-            path_4 = sc.thresholds.path(Q2 / xif2, 4)
-            my_val_3 = sc.a(Q2 / xif2, Q2, nf_to=3)[0]
-            path_3 = sc.thresholds.path(Q2 / xif2, 3)
+            my_val = sc.a(mu2 / xif2, mu2)[0]
+            path = sc.thresholds.path(mu2 / xif2)
+            my_val_4 = sc.a(mu2 / xif2, mu2, nf_to=4)[0]
+            path_4 = sc.thresholds.path(mu2 / xif2, 4)
+            my_val_3 = sc.a(mu2 / xif2, mu2, nf_to=3)[0]
+            path_3 = sc.thresholds.path(mu2 / xif2, 3)
 
             # path_4 it's not matched
             assert len(path_4) == 1
@@ -863,7 +864,7 @@ class BenchmarkCouplings:
                 apfel.SetRenFacRatio(1.0 / theory.xif)
                 apfel.InitializeAPFEL()
                 # collect a_s
-                apfel_val = apfel.AlphaQCD(np.sqrt(Q2) / theory.xif) / (4.0 * np.pi)
+                apfel_val = apfel.AlphaQCD(np.sqrt(mu2) / theory.xif) / (4.0 * np.pi)
                 # check APFEL cached value
                 np.testing.assert_allclose(apfel_val_ref, apfel_val)
 

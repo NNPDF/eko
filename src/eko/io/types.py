@@ -65,14 +65,14 @@ class CouplingsRef(DictLike):
 
     alphas: FloatRef
     alphaem: FloatRef
-    num_flavs_ref: Optional[FlavorsNumber]
+    num_flavs_ref: Optional[FlavorsNumber] = None
     r"""Number of active flavors at strong coupling reference scale.
 
     I.e. :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`, formerly called
     ``nfref``.
 
     """
-    num_flavs_max_as: FlavorsNumber
+    num_flavs_max_as: FlavorsNumber = 6
 
     def __post_init__(self):
         """Validate couplings.
