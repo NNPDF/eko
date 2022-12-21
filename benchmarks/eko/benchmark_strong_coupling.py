@@ -64,7 +64,9 @@ class BenchmarkCouplings:
             masses=[0, 0, np.inf],
         )
         # check local
-        np.testing.assert_approx_equal(as_FFNS_LO.a(ref_mu2)[0], ref[0] / 4.0 / np.pi)
+        np.testing.assert_approx_equal(
+            as_FFNS_LO.a(ref_mu2)[0], ref.alphas.value / 4.0 / np.pi
+        )
         # check high
         result = as_FFNS_LO.a(ask_q2)[0]
         np.testing.assert_approx_equal(result, known_val, significant=7)
