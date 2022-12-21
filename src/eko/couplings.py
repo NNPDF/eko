@@ -17,7 +17,6 @@ from eko.io.types import (
     CouplingEvolutionMethod,
     CouplingsRef,
     EvolutionMethod,
-    HeavyQuarkMasses,
     MatchingScales,
     Order,
     QuarkMassSchemes,

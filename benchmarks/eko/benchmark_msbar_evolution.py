@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 
 from eko import msbar_masses
-from eko.couplings import Couplings
+from eko.couplings import Couplings, couplings_mod_ev
 from eko.io import types
 from eko.io.runcards import OperatorCard, TheoryCard
 
@@ -127,7 +127,7 @@ class BenchmarkMSbar:
                                 strong_coupling=as_VFNS,
                                 xif2=1.0,
                                 q2_to=Q2,
-                                nf_ref=n,
+                                nf_ref=n + 3,
                                 nf_to=nf_to,
                             )
                         )
@@ -199,7 +199,9 @@ class BenchmarkMSbar:
                 xif2=theory_card.xif**2,
             )
             # get APFEL numbers - if available else use cache
-            apfel_vals = apfel_vals_dict[operator.configs.evolution_method.value][order]
+            apfel_vals = apfel_vals_dict[
+                couplings_mod_ev(operator.configs.evolution_method).value[:3]
+            ][order]
             if use_APFEL:
                 # run apfel
                 apfel.CleanUp()

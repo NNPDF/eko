@@ -56,16 +56,15 @@ class BenchmarkCouplings:
         known_val = 0.0091807954
         ref_mu2 = 90
         ask_q2 = 125
+        ref = ref_couplings([0.1181, 0.007496], ref_mu2)
         as_FFNS_LO = Couplings(
-            couplings=ref_couplings([0.1181, 0.007496], ref_mu2),
+            couplings=ref,
             order=(1, 0),
             method=types.CouplingEvolutionMethod.EXACT,
             masses=[0, 0, np.inf],
         )
         # check local
-        np.testing.assert_approx_equal(
-            as_FFNS_LO.a(ref_mu2)[0], ref_couplings[0] / 4.0 / np.pi
-        )
+        np.testing.assert_approx_equal(as_FFNS_LO.a(ref_mu2)[0], ref[0] / 4.0 / np.pi)
         # check high
         result = as_FFNS_LO.a(ask_q2)[0]
         np.testing.assert_approx_equal(result, known_val, significant=7)
