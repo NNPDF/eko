@@ -37,9 +37,9 @@ class TheoryCard(DictLike):
     """Represent theory card content."""
 
     order: Order
-    """Perturbatiive order tuple, ``(QCD, QED)``."""
+    """Perturbative order tuple, ``(QCD, QED)``."""
     couplings: CouplingsRef
-    """"""
+    """Couplings configuration."""
     num_flavs_init: Optional[FlavorsNumber]
     r"""Number of active flavors at fitting scale.
 
@@ -47,18 +47,17 @@ class TheoryCard(DictLike):
 
     """
     num_flavs_max_pdf: FlavorsNumber
-    """"""
+    """Maximum number of quark PDFs."""
     intrinsic_flavors: IntrinsicFlavors
-    """"""
+    """List of intrinsic quark PDFs."""
     quark_masses: HeavyQuarkMasses
-    """"""
+    """List of heavy quark masses."""
     quark_masses_scheme: QuarkMassSchemes
     """Scheme used to specify heavy quark masses."""
     matching: MatchingScales
-    """"""
-    # TODO: drop this
+    """Matching scale of heavy quark masses"""
     xif: float
-    """"""
+    """Ratio between factorization scale and process scale."""
 
     def validate(self) -> bool:
         """Validate attributes compatibility."""
