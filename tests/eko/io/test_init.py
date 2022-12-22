@@ -91,14 +91,24 @@ class TestManipulate:
         o1 = eko_factory.get()
         path_copy = tmp_path / "eko_copy.tar"
         o1.deepcopy(path_copy)
+        newxgrid = interpolation.XGrid([0.1, 1.0])
+        inputpids = np.array([[1, -1], [1, 1]])
         with EKO.edit(path_copy) as o2:
-            manipulate.xgrid_reshape(
-                o2, interpolation.XGrid([0.1, 1.0]), interpolation.XGrid([0.1, 1.0])
-            )
-            manipulate.flavor_reshape(o2, inputpids=np.array([[1, -1], [1, 1]]))
+            manipulate.xgrid_reshape(o2, newxgrid, newxgrid)
+            manipulate.flavor_reshape(o2, inputpids=inputpids)
         # reload
         with EKO.read(path_copy) as o3:
             chk_keys(o1.raw, o3.raw)
+            np.testing.assert_allclose(o3.rotations.inputgrid.raw, newxgrid.raw)
+            np.testing.assert_allclose(o3.rotations.targetgrid.raw, newxgrid.raw)
+            # since we use a general rotation, the inputpids are erased,
+            # leaving just as many zeros as PIDs, as placeholders for missing
+            # values
+            np.testing.assert_allclose(
+                o3.rotations.inputpids, [0] * len(o3.rotations.pids)
+            )
+            # these has to be unchanged
+            np.testing.assert_allclose(o3.rotations.targetpids, o3.rotations.pids)
 
     def test_flavor_reshape(self, eko_factory: EKOFactory, tmp_path: pathlib.Path):
         # create object
