@@ -286,7 +286,7 @@ class BasisFunction:
     mode_log: bool
         use logarithmic interpolation?
     mode_N: bool
-        if true compiles the function on N, otherwise compiles x
+        if true compiles the function on N, otherwise compiles on x
 
     """
 
