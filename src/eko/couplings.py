@@ -1,6 +1,8 @@
 r"""Manage running (and fixed) couplings.
 
-coupling :math:`\alpha_s`.
+Manage QCD coupling :math:`\alpha_s` and QED coupling :math:`\alpha`.
+We provide an interface to access them simultaneously and provide several
+strategies to solve the associated |RGE|.
 
 See :doc:`pQCD ingredients </theory/pQCD>`.
 
