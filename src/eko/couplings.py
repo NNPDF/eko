@@ -385,13 +385,13 @@ class Couplings:
         thresholds_ratios: MatchingScales = MatchingScales(c=1.0, b=1.0, t=1.0),
     ):
         # Sanity checks
-        def positive(name, var):
+        def assert_positive(name, var):
             if var <= 0:
                 raise ValueError(f"{name} has to be positive - got: {var}")
 
-        positive("alpha_s_ref", couplings.alphas.value)
-        positive("alpha_em_ref", couplings.alphaem.value)
-        positive("scale_ref", couplings.alphas.scale)
+        assert_positive("alpha_s_ref", couplings.alphas.value)
+        assert_positive("alpha_em_ref", couplings.alphaem.value)
+        assert_positive("scale_ref", couplings.alphas.scale)
         if order[0] not in [0, 1, 2, 3, 4]:
             raise NotImplementedError("a_s beyond N3LO is not implemented")
         if order[1] not in [0, 1, 2]:
