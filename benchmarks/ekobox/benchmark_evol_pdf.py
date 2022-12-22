@@ -76,7 +76,7 @@ def benchmark_evolve_more_members(
     theory = theory_card
     theory.order = (1, 0)
     op = operator_card
-    operator_card.mu0 = 1.0
+    op.mu0 = 1.0
     operator_card.mu2grid = [10, 100]
     operator_card.rotations.xgrid = XGrid([1e-7, 0.01, 0.1, 0.2, 0.3])
     with lhapdf_path(test_pdf):
