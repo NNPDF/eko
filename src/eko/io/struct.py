@@ -631,7 +631,7 @@ class EKO:
     def __setitem__(self, mu2: float, op: Operator, compress: bool = True):
         """Set operator for given :math:`Q^2`.
 
-        The operator is automatically dumped on disk, .
+        The operator is automatically dumped on disk.
 
         Parameters
         ----------
