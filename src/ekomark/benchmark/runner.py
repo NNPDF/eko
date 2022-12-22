@@ -84,6 +84,7 @@ class Runner(BenchmarkRunner):
                     rerun = True
 
             if rerun:
+                path.unlink(missing_ok=True)
                 eko.solve(theory, ocard, path)
                 print(f"Operator written to {path}")
             else:
@@ -115,7 +116,10 @@ class Runner(BenchmarkRunner):
                         change_lab,
                     )
         else:
+            # else we always rerun
+            path.unlink(missing_ok=True)
             eko.solve(theory, ocard, path)
+        return path
 
     def run_external(self, theory, ocard, pdf):
         # pylint:disable=import-error,import-outside-toplevel
@@ -181,12 +185,13 @@ class Runner(BenchmarkRunner):
             ):
                 rotate_to_evolution[3, :] = [0, 0, 0, 0, 0, -1, -1, 0, 1, 1, 0, 0, 0, 0]
 
-        pdf_grid = apply.apply_pdf_flavor(
-            me,
-            pdf,
-            xgrid,
-            flavor_rotation=rotate_to_evolution,
-        )
+        with EKO.open(me) as eko:
+            pdf_grid = apply.apply_pdf_flavor(
+                eko,
+                pdf,
+                xgrid,
+                flavor_rotation=rotate_to_evolution,
+            )
         for q2 in q2s:
 
             log_tab = dfdict.DFdict()
