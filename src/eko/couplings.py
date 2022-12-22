@@ -1,6 +1,5 @@
-r"""Manage running (and non) couplings.
+r"""Manage running (and fixed) couplings.
 
-Contains the QCD beta function coefficients and the handling of the running
 coupling :math:`\alpha_s`.
 
 See :doc:`pQCD ingredients </theory/pQCD>`.

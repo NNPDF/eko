@@ -236,7 +236,7 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False):
     # rotate
     inputpids = br.rotate_flavor_to_evolution if source else None
     targetpids = br.rotate_flavor_to_evolution if target else None
-    # prevent metadata update, since flavor_reshape ha not enough information
+    # prevent metadata update, since flavor_reshape has not enough information
     # to determine inpupids and targetpids, and they will be updated after the
     # call
     flavor_reshape(eko, inputpids=inputpids, targetpids=targetpids, update=False)

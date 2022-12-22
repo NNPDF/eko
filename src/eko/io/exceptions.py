@@ -45,7 +45,7 @@ class ClosedOperator(RuntimeError, OutputError):
 
     Instead, it will look like you can access some properties, but the operator
     is actually closed, so it should not be used any longer in general.
-    However, for extremely simple properties, like thos available in memory
+    However, for extremely simple properties, like those available in memory
     from :cls:`eko.struct.Metadata` or :cls:`eko.struct.AccessConfigs`, there
     is no need to raise on read, since those properties are actually available,
     but they should always raise on writing, since there is no persistence for
