@@ -490,7 +490,7 @@ class BenchmarkCouplings:
                 apfel.SetAlphaQCDRef(coupling_ref[0], scale_ref)
                 apfel.SetVFNS()
                 apfel.SetPoleMasses(*np.sqrt(threshold_list))
-                apfel.SetMassMatchingScales(*np.sqrt(thresholds_ratios))
+                apfel.SetMassMatchingScales(*np.sqrt(list(thresholds_ratios)))
                 apfel.SetRenFacRatio(1)
                 apfel.InitializeAPFEL()
                 # collect a_s
