@@ -334,6 +334,7 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
             )
             matching = 1.0
             for pto in range(1, strong_coupling.order[0]):
+                # 0**0=1, from NNLO there is a matching also in this case
                 for logpow in range(pto + 1):
                     as_thr = strong_coupling.a(
                         seg.q2_to / xif2, seg.q2_to, seg.nf - shift + 4
