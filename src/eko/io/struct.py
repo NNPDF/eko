@@ -20,7 +20,7 @@ import yaml
 
 from .. import interpolation
 from .. import version as vmod
-from . import exceptions
+from . import exceptions, raw
 from .dictlike import DictLike
 from .runcards import OperatorCard, Rotations, TheoryCard
 
@@ -851,7 +851,7 @@ class EKO:
         """
         try:
             with tarfile.open(tarpath) as tar:
-                tar.extractall(dest)
+                raw.safe_extractall(tar, dest)
         except tarfile.ReadError:
             raise exceptions.OutputNotTar(f"Not a valid tar archive: '{tarpath}'")
 

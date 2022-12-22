@@ -19,6 +19,7 @@ from .. import basis_rotation as br
 from .dictlike import DictLike
 from .struct import EKO, Operator
 from .types import RawCard
+from . import raw
 
 
 def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
@@ -40,7 +41,7 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
         tmpdir = pathlib.Path(tmpdir)
 
         with tarfile.open(source, "r") as tar:
-            tar.extractall(tmpdir)
+            raw.safe_extractall(tar, tmpdir)
 
         # load metadata
         innerdir = list(tmpdir.glob("*"))[0]
