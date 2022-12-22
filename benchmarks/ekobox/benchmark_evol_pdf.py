@@ -23,7 +23,7 @@ def benchmark_evolve_single_member(
     theory.couplings.alphas.value = 0.118000
     theory.couplings.alphas.scale = 91.1876
     theory.couplings.alphaem.value = 0.007496
-    theory.num_flavs_max_as = 3
+    theory.couplings.num_flavs_max_as = 3
     theory.num_flavs_max_pdf = 3
     theory.quark_masses.c.value = 1.3
     theory.quark_masses.b.value = 4.75
@@ -41,6 +41,7 @@ def benchmark_evolve_single_member(
             op,
             name="EvPDF",
             info_update={"SetDesc": "MyEvolvedPDF", "MZ": 0.2, "Debug": "Debug"},
+            store_path=tmp_path / "eko.tar",
         )
     with lhapdf_path(tmp_path):
         all_blocks = (load.load_blocks_from_file("EvPDF", 0))[1]
@@ -84,7 +85,14 @@ def benchmark_evolve_more_members(
     d.mkdir()
     with lhapdf_path(d):
         with cd(tmp_path):
-            ev_p.evolve_pdfs(pdfs, theory, op, install=True, name="Debug")
+            ev_p.evolve_pdfs(
+                pdfs,
+                theory,
+                op,
+                install=True,
+                name="Debug",
+                store_path=tmp_path / "eko.tar",
+            )
         # ev_pdfs
         new_pdfs = lhapdf.mkPDFs("Debug")
         new_pdf_1 = lhapdf.mkPDF("Debug", 0)
