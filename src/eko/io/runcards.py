@@ -205,7 +205,7 @@ class OperatorCard(DictLike):
 
     # optional
     eko_version: str = vmod.__version__
-    """Perturbative order of the QCD and QED couplings."""
+    """Version of EKO package first used for generation."""
 
     # a few properties, for ease of use and compatibility
     @property
