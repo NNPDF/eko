@@ -270,7 +270,7 @@ class BasisFunction:
     """Represent an element of the polynomial basis.
 
     It contains a list of areas for a given polynomial number defined by
-    (xmin-xmax) and containing a list of coefficients.
+    (xmin-xmax) which in turn contain a list of coefficients.
 
     Upon construction will generate all areas and generate and compile a
     function to evaluate in N (or x) the interpolator
