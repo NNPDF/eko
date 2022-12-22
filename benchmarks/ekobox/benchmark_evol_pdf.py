@@ -77,8 +77,8 @@ def benchmark_evolve_more_members(
     theory.order = (1, 0)
     op = operator_card
     op.mu0 = 1.0
-    operator_card.mu2grid = [10, 100]
-    operator_card.rotations.xgrid = XGrid([1e-7, 0.01, 0.1, 0.2, 0.3])
+    op.mu2grid = [10, 100]
+    op.rotations.xgrid = XGrid([1e-7, 0.01, 0.1, 0.2, 0.3])
     with lhapdf_path(test_pdf):
         pdfs = lhapdf.mkPDFs("myMSTW2008nlo90cl")
     d = tmp_path / "sub"
