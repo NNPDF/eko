@@ -71,9 +71,9 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
 
 @dataclasses.dataclass
 class PseudoTheory(DictLike):
-    """Fake theory, mocking :cls:`eko.io.runcards.TheoryCard`.
+    """Fake theory, mocking :class:`eko.io.runcards.TheoryCard`.
 
-    Used to provide a theory for the :cls:`EKO` builder, even when the theory
+    Used to provide a theory for the :class:`~eko.io.struct.EKO` builder, even when the theory
     information is not available.
 
     """
@@ -88,9 +88,9 @@ class PseudoTheory(DictLike):
 
 @dataclasses.dataclass
 class PseudoOperator(DictLike):
-    """Fake operator, mocking :cls:`eko.io.runcards.OperatorCard`.
+    """Fake operator, mocking :class:`eko.io.runcards.OperatorCard`.
 
-    Used to provide a theory for the :cls:`EKO` builder, even when the operator
+    Used to provide a theory for the :class:`~eko.io.struct.EKO` builder, even when the operator
     information is not fully available.
 
     """

@@ -354,7 +354,7 @@ def update(theory: Union[RawCard, TheoryCard], operator: Union[RawCard, Operator
     """Update legacy runcards.
 
     This function is mainly defined for compatibility with the old interface.
-    Prefer direct usage of :cls:`Legacy` in new code.
+    Prefer direct usage of :class:`Legacy` in new code.
 
     Consecutive applications of this function yield identical results::
 

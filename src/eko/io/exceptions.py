@@ -40,13 +40,13 @@ class ReadOnlyOperator(RuntimeError, OutputError):
 class ClosedOperator(RuntimeError, OutputError):
     """It is not possible to write on nor to read from a closed operator.
 
-    This is milder issue than :cls:`ReadOnlyOperator`, since in this case not
+    This is milder issue than :class:`ReadOnlyOperator`, since in this case not
     even the writing on the temporary folder would be possible.
 
     Instead, it will look like you can access some properties, but the operator
     is actually closed, so it should not be used any longer in general.
     However, for extremely simple properties, like those available in memory
-    from :cls:`eko.struct.Metadata` or :cls:`eko.struct.AccessConfigs`, there
+    from :class:`eko.io.struct.Metadata` or :class:`eko.io.struct.AccessConfigs`, there
     is no need to raise on read, since those properties are actually available,
     but they should always raise on writing, since there is no persistence for
     the content written, and it can be deceitful.

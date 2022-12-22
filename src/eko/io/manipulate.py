@@ -141,7 +141,7 @@ def flavor_reshape(
     inputpids :
         input rotation specified in the flavor basis
     update :
-        update :cls:`EKO` metadata after writing
+        update :class:`~eko.io.struct.EKO` metadata after writing
 
     """
     eko.assert_permissions(write=True)
