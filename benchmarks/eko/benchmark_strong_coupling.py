@@ -852,7 +852,7 @@ class BenchmarkCouplings:
                 # run apfel
                 apfel.CleanUp()
                 apfel.SetTheory("QCD")
-                apfel.SetPerturbativeOrder(theory.order[0])
+                apfel.SetPerturbativeOrder(theory.order[0] - 1)
                 apfel.SetAlphaEvolution("exact")
                 apfel.SetAlphaQCDRef(
                     theory.couplings.alphas.value, theory.couplings.alphas.scale
