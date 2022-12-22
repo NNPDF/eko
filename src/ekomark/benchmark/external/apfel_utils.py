@@ -1,6 +1,4 @@
-"""
-APFEL interface
-"""
+"""|APFEL| interface."""
 import time
 
 import numpy as np
@@ -12,30 +10,28 @@ from eko import basis_rotation as br
 def compute_apfel_data(
     theory, operators, pdf, skip_pdfs, rotate_to_evolution_basis=False
 ):
-
     """
     Run APFEL to compute operators.
 
     Parameters
     ----------
-        theory : dict
-            theory card
-        operators : dict
-            operators card
-        pdf : lhapdf_type
-            pdf
-        skip_pdfs : list
-            list of pdfs (pid or name) to skip
-        rotate_to_evolution_basis: bool
-            rotate to evolution basis
+    theory : dict
+        theory card
+    operators : dict
+        operators card
+    pdf : lhapdf_type
+        pdf
+    skip_pdfs : list
+        list of pdfs (pid or name) to skip
+    rotate_to_evolution_basis: bool
+        rotate to evolution basis
 
     Returns
     -------
-        ref : dict
-            output containing: target_xgrid, values
+    ref : dict
+        output containing: target_xgrid, values
     """
-
-    target_xgrid = operators["xgrid"]
+    target_xgrid = operators["interpolation_xgrid"]
     pdf_name = pdf.set().name
 
     # Load apfel
