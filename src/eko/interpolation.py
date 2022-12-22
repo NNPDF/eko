@@ -272,7 +272,7 @@ class BasisFunction:
     It contains a list of areas for a given polynomial number defined by
     (xmin-xmax) which in turn contain a list of coefficients.
 
-    Upon construction will generate all areas and generate and compile a
+    Upon construction it will generate all areas and generate and compile a
     function to evaluate in N (or x) the interpolator
 
     Parameters
