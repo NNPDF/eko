@@ -31,7 +31,6 @@ class TestMSbarMasses:
         th = theory_card
 
         # Test solution of msbar(m) = m
-        #  __import__("pdb").set_trace()
         for method in list(types.CouplingEvolutionMethod):
             for order in [2, 3, 4]:
                 theory_card.order = (order, 0)
