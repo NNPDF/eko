@@ -267,7 +267,7 @@ def log_evaluate_x(x, area_list):
 
 
 class BasisFunction:
-    """Represent an element of polynomial basis.
+    """Represent an element of the polynomial basis.
 
     It contains a list of areas for a given polynomial number defined by
     (xmin-xmax) and containing a list of coefficients.
