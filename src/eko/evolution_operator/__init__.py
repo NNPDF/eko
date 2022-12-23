@@ -83,7 +83,7 @@ class QuadKerBase:
 
     @property
     def n(self):
-        """Returns the Mellin moment :math:`N`."""
+        """Return the Mellin moment :math:`N`."""
         return self.path.n
 
     def integrand(
