@@ -119,7 +119,7 @@ class TestCouplings:
         # of course the object should not have changed!
         np.testing.assert_allclose(sc.a_ref, np.array(alpharef) / (4.0 * np.pi))
 
-    def test_exact_LO(self):
+    def test_exact(self):
         # prepare
         thresh_setups = [
             (np.inf, np.inf, np.inf),
@@ -131,244 +131,42 @@ class TestCouplings:
         couplings = CouplingsRef.from_dict(
             dict(
                 alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
+                alphaem=[alpharef[1], muref],
                 num_flavs_ref=None,
                 num_flavs_max_as=6,
             )
         )
         for thresh_setup in thresh_setups:
-            threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
-            # in LO expanded  = exact
-            sc_expanded = Couplings(
-                couplings,
-                (1, 0),
-                method=CouplingEvolutionMethod.EXPANDED,
-                masses=masses,
-                thresholds_ratios=threshs,
-            )
-            sc_exact = Couplings(
-                couplings,
-                (1, 0),
-                method=CouplingEvolutionMethod.EXACT,
-                masses=masses,
-                thresholds_ratios=threshs,
-            )
-            for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[0], sc_exact.a(q2)[0], rtol=5e-4
-                )
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[1], sc_exact.a(q2)[1], rtol=5e-4
-                )
-
-    def test_exact_LO_QED(self):
-        # prepare
-        thresh_setups = [
-            (np.inf, np.inf, np.inf),
-            (0, np.inf, np.inf),
-            (2, 4, 175),
-        ]
-        alpharef = np.array([0.118, 0.00781])
-        muref = 91.0
-        couplings = CouplingsRef.from_dict(
-            dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
-                num_flavs_ref=None,
-                num_flavs_max_as=6,
-            )
-        )
-        for PTOs in range(1, 4 + 1):
-            for thresh_setup in thresh_setups:
-                threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
-                # in LO expanded  = exact
-                sc_expanded = Couplings(
-                    couplings,
-                    (PTOs, 1),
-                    method=CouplingEvolutionMethod.EXPANDED,
-                    masses=masses,
-                    thresholds_ratios=threshs,
-                )
-                sc_exact = Couplings(
-                    couplings,
-                    (PTOs, 1),
-                    method=CouplingEvolutionMethod.EXACT,
-                    masses=masses,
-                    thresholds_ratios=threshs,
-                )
-                for q2 in [1e2, 1e3, 1e4]:
-                    np.testing.assert_allclose(
-                        sc_expanded.a(q2)[0], sc_exact.a(q2)[0], atol=1e-4
+            for qcd in range(1, 4 + 1):
+                for qed in range(2 + 1):
+                    pto = (qcd, qed)
+                    threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
+                    sc_expanded = Couplings(
+                        couplings,
+                        pto,
+                        method=CouplingEvolutionMethod.EXPANDED,
+                        masses=masses,
+                        thresholds_ratios=threshs,
                     )
-                    np.testing.assert_allclose(
-                        sc_expanded.a(q2)[1], sc_exact.a(q2)[1], atol=5e-4
+                    sc_exact = Couplings(
+                        couplings,
+                        pto,
+                        method=CouplingEvolutionMethod.EXACT,
+                        masses=masses,
+                        thresholds_ratios=threshs,
                     )
-
-    def test_exact_NLO_QED(self):
-        # prepare
-        thresh_setups = [
-            (np.inf, np.inf, np.inf),
-            (0, np.inf, np.inf),
-            (2, 4, 175),
-        ]
-        alpharef = np.array([0.118, 0.00781])
-        muref = 91.0
-        couplings = CouplingsRef.from_dict(
-            dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
-                num_flavs_ref=None,
-                num_flavs_max_as=6,
-            )
-        )
-        for thresh_setup in thresh_setups:
-            threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
-            sc_expanded = Couplings(
-                couplings,
-                (0, 2),
-                method=CouplingEvolutionMethod.EXPANDED,
-                masses=masses,
-                thresholds_ratios=threshs,
-            )
-            sc_exact = Couplings(
-                couplings,
-                (0, 2),
-                method=CouplingEvolutionMethod.EXACT,
-                masses=masses,
-                thresholds_ratios=threshs,
-            )
-            for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[0], sc_exact.a(q2)[0], rtol=5e-4
-                )
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[1], sc_exact.a(q2)[1], rtol=5e-4
-                )
-
-    def test_exact_NLO_mix(self):
-        # prepare
-        thresh_setups = [
-            (np.inf, np.inf, np.inf),
-            (0, np.inf, np.inf),
-            (2, 4, 175),
-        ]
-        alpharef = np.array([0.118, 0.00781])
-        muref = 91.0
-        couplings = CouplingsRef.from_dict(
-            dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
-                num_flavs_ref=None,
-                num_flavs_max_as=6,
-            )
-        )
-        for thresh_setup in thresh_setups:
-            threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
-            sc_expanded = Couplings(
-                couplings,
-                (2, 2),
-                method=CouplingEvolutionMethod.EXPANDED,
-                masses=masses,
-                thresholds_ratios=threshs,
-            )
-            sc_exact = Couplings(
-                couplings,
-                (2, 2),
-                method=CouplingEvolutionMethod.EXACT,
-                masses=masses,
-                thresholds_ratios=threshs,
-            )
-            for q2 in [1e2, 1e3, 1e4]:
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[0], sc_exact.a(q2)[0], atol=5e-4
-                )
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[1], sc_exact.a(q2)[1], atol=5e-4
-                )
-
-    def test_exact_N2LO_mix(self):
-        # prepare
-        thresh_setups = [
-            (np.inf, np.inf, np.inf),
-            (0, np.inf, np.inf),
-            (2, 4, 175),
-        ]
-        alpharef = np.array([0.118, 0.00781])
-        muref = 91.0
-        couplings = CouplingsRef.from_dict(
-            dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
-                num_flavs_ref=None,
-                num_flavs_max_as=6,
-            )
-        )
-        for thresh_setup in thresh_setups:
-            threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
-            # in LO expanded  = exact
-            sc_expanded = Couplings(
-                couplings,
-                (3, 2),
-                method=CouplingEvolutionMethod.EXPANDED,
-                masses=masses,
-                thresholds_ratios=threshs,
-            )
-            sc_exact = Couplings(
-                couplings,
-                (3, 2),
-                method=CouplingEvolutionMethod.EXACT,
-                masses=masses,
-                thresholds_ratios=threshs,
-            )
-            for q2 in [1e1, 1e2, 1e3, 1e4]:
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[0], sc_exact.a(q2)[0], atol=5e-4
-                )
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[1], sc_exact.a(q2)[1], atol=5e-4
-                )
-
-    def test_exact_N3LO_mix(self):
-        # prepare
-        thresh_setups = [
-            (np.inf, np.inf, np.inf),
-            (0, np.inf, np.inf),
-            (2, 4, 175),
-        ]
-        alpharef = np.array([0.118, 0.00781])
-        muref = 91.0
-        couplings = CouplingsRef.from_dict(
-            dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
-                num_flavs_ref=None,
-                num_flavs_max_as=6,
-            )
-        )
-        for thresh_setup in thresh_setups:
-            threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
-            # in LO expanded  = exact
-            sc_expanded = Couplings(
-                couplings,
-                (4, 2),
-                method=CouplingEvolutionMethod.EXPANDED,
-                masses=masses,
-                thresholds_ratios=threshs,
-            )
-            sc_exact = Couplings(
-                couplings,
-                (4, 2),
-                method=CouplingEvolutionMethod.EXACT,
-                masses=masses,
-                thresholds_ratios=threshs,
-            )
-            for q2 in [1e1, 1e2, 1e3, 1e4]:
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[0], sc_exact.a(q2)[0], atol=5e-3
-                )
-                np.testing.assert_allclose(
-                    sc_expanded.a(q2)[1], sc_exact.a(q2)[1], atol=5e-4
-                )
+                    for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
+                        # At LO (either QCD or QED LO) the exact and expanded
+                        # solutions coincide, while beyond LO they don't.
+                        # Therefore if the path is too long they start being different.
+                        if q2 in [1, 1e1] and pto not in [(1, 0), (0, 1)]:
+                            continue
+                        np.testing.assert_allclose(
+                            sc_expanded.a(q2)[0], sc_exact.a(q2)[0], rtol=5e-3
+                        )
+                        np.testing.assert_allclose(
+                            sc_expanded.a(q2)[1], sc_exact.a(q2)[1], rtol=5e-4
+                        )
 
     def benchmark_expanded_n3lo(self):
         """test N3LO - NNLO expansion with some reference value from Mathematica"""
