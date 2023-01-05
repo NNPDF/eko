@@ -155,6 +155,10 @@ class TestCouplings:
                         masses=masses,
                         thresholds_ratios=threshs,
                     )
+                    if pto in [(1, 0), (1, 1)]:
+                        precisions = (5e-4, 5e-5)
+                    else:
+                        precisions = (5e-3, 5e-4)
                     for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
                         # At LO (either QCD or QED LO) the exact and expanded
                         # solutions coincide, while beyond LO they don't.
@@ -162,10 +166,10 @@ class TestCouplings:
                         if q2 in [1, 1e1] and pto not in [(1, 0), (0, 1)]:
                             continue
                         np.testing.assert_allclose(
-                            sc_expanded.a(q2)[0], sc_exact.a(q2)[0], rtol=5e-3
+                            sc_expanded.a(q2)[0], sc_exact.a(q2)[0], rtol=precisions[0]
                         )
                         np.testing.assert_allclose(
-                            sc_expanded.a(q2)[1], sc_exact.a(q2)[1], rtol=5e-4
+                            sc_expanded.a(q2)[1], sc_exact.a(q2)[1], rtol=precisions[1]
                         )
 
     def benchmark_expanded_n3lo(self):
