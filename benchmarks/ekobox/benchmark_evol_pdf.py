@@ -23,7 +23,7 @@ def benchmark_evolve_single_member(
     theory.couplings.alphas.value = 0.118000
     theory.couplings.alphas.scale = 91.1876
     theory.couplings.alphaem.value = 0.007496
-    theory.couplings.num_flavs_max_as = 3
+    theory.couplings.max_num_flavs = 3
     theory.num_flavs_max_pdf = 3
     theory.quark_masses.c.value = 1.3
     theory.quark_masses.b.value = 4.75

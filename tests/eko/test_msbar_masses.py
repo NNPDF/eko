@@ -40,7 +40,12 @@ class TestMSbarMasses:
                     th.quark_masses, th.couplings, th.order, method, th.matching
                 )
                 strong_coupling = Couplings(
-                    th.couplings, th.order, method, masses=m2_computed.tolist()
+                    th.couplings,
+                    th.order,
+                    method,
+                    masses=m2_computed.tolist(),
+                    hqm_scheme=types.QuarkMassSchemes.POLE,
+                    thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
                 )
                 m2_test = []
                 for nf in [3, 4, 5]:
@@ -83,6 +88,7 @@ class TestMSbarMasses:
             types.CouplingEvolutionMethod.EXPANDED,
             m2_computed.tolist(),
             hqm_scheme=types.QuarkMassSchemes.MSBAR,
+            thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
         )
         m2_test = []
         for nf in [3, 4, 5]:

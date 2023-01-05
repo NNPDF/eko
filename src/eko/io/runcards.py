@@ -284,7 +284,7 @@ class Legacy:
             alphas=(old["alphas"], old["Qref"]),
             alphaem=(alphaem, nan),
             num_flavs_ref=old["nfref"],
-            num_flavs_max_as=old["MaxNfAs"],
+            max_num_flavs=old["MaxNfAs"],
         )
         new["num_flavs_init"] = old["nf0"]
         new["num_flavs_max_pdf"] = old["MaxNfPdf"]

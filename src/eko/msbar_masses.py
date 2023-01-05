@@ -360,10 +360,16 @@ def compute(
 
     Parameters
     ----------
-    nf_ref :
-        number of active flavor at reference scale
-    mu2_ref :
-        reference scale squared (a.k.a. :math:`Q^2_{ref}`)
+    masses_ref :
+        reference scale squared (a.k.a. :math:`Q_{ref}`)
+    couplings :
+        couplings configuration
+    order :
+        perturbative order
+    evmeth :
+        evolution method
+    matching :
+        threshold matching scale ratios
     xif2 :
         squared ratio of factorization to central scale
 
