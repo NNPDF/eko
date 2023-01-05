@@ -66,7 +66,7 @@ class CouplingsRef(DictLike):
     alphas: FloatRef
     alphaem: FloatRef
     max_num_flavs: FlavorsNumber
-    num_flavs_ref: Optional[FlavorsNumber] = None
+    num_flavs_ref: Optional[FlavorsNumber]
     r"""Number of active flavors at strong coupling reference scale.
 
     I.e. :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`, formerly called

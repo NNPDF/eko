@@ -19,6 +19,7 @@ def update_cards(theory: TheoryCard, operator: OperatorCard):
         alphas=types.FloatRef(value=0.35, scale=float(np.sqrt(2))),
         alphaem=types.FloatRef(value=0.007496, scale=nan),
         max_num_flavs=6,
+        num_flavs_ref=None,
     )
     theory.num_flavs_init = 4
     theory.intrinsic_flavors = [4, 5]
