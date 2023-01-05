@@ -269,7 +269,7 @@ Uncertainties estimation
 Since the available constrains on the singlet anomalous dimension are not sufficient
 to determine their behavior exactly, for instance the poles at :math:`N=1` and :math:`N=0` are not fully known,
 we need to account for a possible source of uncertainties arising during the approximation.
-On contrary this uncertainty is neglected in the non-singlet case.
+This uncertainty is neglected in the non-singlet case.
 
 The procedure is performed in two steps for each different anomalous dimension separately.
 First, we solve the system associated to the 4 known moments, 
