@@ -180,7 +180,7 @@ class TestCouplings:
         couplings = CouplingsRef.from_dict(
             dict(
                 alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], muref],
+                alphaem=[alpharef[1], nan],
                 num_flavs_ref=None,
                 max_num_flavs=6,
             )
