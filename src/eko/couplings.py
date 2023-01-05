@@ -336,8 +336,6 @@ class Couplings:
 
     Note that
 
-    - all scale parameters (``scale_ref`` and ``scale_to``),
-      have to be given as squared values, i.e. in units of :math:`\text{GeV}^2`
     - although, we only provide methods for
       :math:`a_i = \frac{\alpha_i(\mu^2)}{4\pi}` the reference value has to be
       given in terms of :math:`\alpha_i(\mu_0^2)` due to legacy reasons
@@ -357,22 +355,18 @@ class Couplings:
 
     Parameters
     ----------
-    couplings_ref : numpy.ndarray
-        alpha_s and \alpha(!) at the reference scale :math:`\alpha_s(\mu_0^2),\alpha(\mu_0^2)`
-    scale_ref : float
-        reference scale :math:`\mu_0^2`
-    masses : list(float)
-        list with quark masses squared
-    thresholds_ratios : list(float)
-        list with ratios between the matching scales and the mass squared
-    order: tuple(int,int)
+    couplings :
+        reference configuration
+    order :
         Evaluated order of the beta function: ``0`` = LO, ...
-    method : ["expanded", "exact"]
+    method :
         Applied method to solve the beta function
-    nf_ref : int
-        if given, the number of flavors at the reference scale
-    max_nf : int
-        if given, the maximum number of flavors
+    masses :
+        list with quark masses squared
+    hqm_scheme :
+        heavy quark mass scheme
+    thresholds_ratios :
+        list with ratios between the matching scales and the mass squared
     """
 
     def __init__(
@@ -381,8 +375,8 @@ class Couplings:
         order: Order,
         method: CouplingEvolutionMethod,
         masses: List[float],
-        hqm_scheme: QuarkMassSchemes = QuarkMassSchemes.POLE,
-        thresholds_ratios: MatchingScales = MatchingScales(c=1.0, b=1.0, t=1.0),
+        hqm_scheme: QuarkMassSchemes,
+        thresholds_ratios: MatchingScales,
     ):
         # Sanity checks
         def assert_positive(name, var):
