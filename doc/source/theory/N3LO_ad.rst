@@ -292,7 +292,7 @@ In the second stage we apply some "post fit" selection criteria to reduce the nu
 candidates (to :math:`\approx 20`) selecting the most representative elements and discarding clearly unwanted
 solutions. This way we can achieve a smoother result and improve the speed of the calculation.
 
-    * Among the functions selected at point 3. we cherry pick candidates
+    * Among the functions selected at point 3 we cherry pick candidates
       containing at least one of the leading sub-leading small-N (poles `N=0,1`) 
       or large-N unknown contributions, such that the spread of the reduced ensemble is 
       not smaller than the full one.
