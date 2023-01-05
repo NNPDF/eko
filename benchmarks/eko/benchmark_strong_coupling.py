@@ -43,6 +43,7 @@ def ref_couplings(
     return types.CouplingsRef(
         alphas=types.FloatRef(value=ref_values[0], scale=ref_scale),
         alphaem=types.FloatRef(value=ref_values[1], scale=nan),
+        max_num_flavs=6,
     )
 
 
@@ -62,6 +63,8 @@ class BenchmarkCouplings:
             order=(1, 0),
             method=types.CouplingEvolutionMethod.EXACT,
             masses=[0, 0, np.inf],
+            hqm_scheme=types.QuarkMassSchemes.POLE,
+            thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
         )
         # check local
         np.testing.assert_approx_equal(
@@ -82,6 +85,8 @@ class BenchmarkCouplings:
             order=(1, 0),
             method=types.CouplingEvolutionMethod.EXACT,
             masses=[0, np.inf, np.inf],
+            hqm_scheme=types.QuarkMassSchemes.POLE,
+            thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
         )
         me = as_FFNS_LO.a(1e4)[0] * 4 * np.pi
         ref = 0.117574
@@ -93,6 +98,8 @@ class BenchmarkCouplings:
             order=(1, 0),
             method=types.CouplingEvolutionMethod.EXACT,
             masses=threshold_list,
+            hqm_scheme=types.QuarkMassSchemes.POLE,
+            thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
         )
         me = as_VFNS_LO.a(1e4)[0] * 4 * np.pi
         ref = 0.122306
@@ -137,6 +144,8 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXPANDED,
                 masses=threshold_holder.area_walls[1:-1],
+                hqm_scheme=types.QuarkMassSchemes.POLE,
+                thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
             )
             my_vals = []
             for Q2 in Q2s:
@@ -202,12 +211,16 @@ class BenchmarkCouplings:
         }
         # collect my values
         threshold_holder = thresholds.ThresholdsAtlas.ffns(nf)
+        couplings = ref_couplings(coupling_ref, scale_ref)
+        couplings.max_num_flavs = 4
         for order in [1, 2, 3, 4]:
             as_FFNS = Couplings(
-                couplings=ref_couplings(coupling_ref, scale_ref),
+                couplings=couplings,
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXACT,
                 masses=threshold_holder.area_walls[1:-1],
+                hqm_scheme=types.QuarkMassSchemes.POLE,
+                thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
             )
             my_vals = []
             for Q2 in Q2s:
@@ -282,6 +295,8 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXPANDED,
                 masses=threshold_list,
+                hqm_scheme=types.QuarkMassSchemes.POLE,
+                thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
             )
             my_vals = []
             for Q2 in Q2s:
@@ -425,6 +440,8 @@ class BenchmarkCouplings:
                     order=(order, 0),
                     method=types.CouplingEvolutionMethod.EXACT,
                     masses=(threshold_list / fact_to_ren_lin**2).tolist(),
+                    hqm_scheme=types.QuarkMassSchemes.POLE,
+                    thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
                 )
                 my_vals = []
                 for Q2 in Q2s:
@@ -473,6 +490,7 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXPANDED,
                 masses=threshold_list.tolist(),
+                hqm_scheme=types.QuarkMassSchemes.POLE,
                 thresholds_ratios=thresholds_ratios,
             )
             my_vals = []
@@ -523,6 +541,7 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXPANDED,
                 masses=m2s.tolist(),
+                thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
                 hqm_scheme=types.QuarkMassSchemes.MSBAR,
             )
             my_vals = []
@@ -570,6 +589,8 @@ class BenchmarkCouplings:
             order=(1, 0),
             method=types.CouplingEvolutionMethod.EXACT,
             masses=threshold_holder.area_walls[1:-1],
+            hqm_scheme=types.QuarkMassSchemes.POLE,
+            thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
         )
         my_vals = []
         for Q2 in Q2s:
@@ -642,6 +663,8 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXACT,
                 masses=threshold_holder.area_walls[1:-1],
+                hqm_scheme=types.QuarkMassSchemes.POLE,
+                thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
             )
             my_vals = []
             for Q2 in Q2s:
@@ -715,6 +738,8 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXACT,
                 masses=threshold_holder.area_walls[1:-1],
+                hqm_scheme=types.QuarkMassSchemes.POLE,
+                thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
             )
             my_vals = []
             for Q2 in Q2s:
@@ -763,6 +788,8 @@ class BenchmarkCouplings:
             order=(1, 0),
             method=types.CouplingEvolutionMethod.EXACT,
             masses=threshold_list,
+            hqm_scheme=types.QuarkMassSchemes.POLE,
+            thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
         )
         my_vals = []
         for Q2 in Q2s:
@@ -826,6 +853,7 @@ class BenchmarkCouplings:
             order=theory.order,
             method=types.CouplingEvolutionMethod.EXACT,
             masses=[m2 / theory.xif**2 for m2 in masses],
+            hqm_scheme=types.QuarkMassSchemes.POLE,
             thresholds_ratios=theory.matching,
         )
         xif2 = theory.xif**2
