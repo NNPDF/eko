@@ -72,7 +72,7 @@ class CouplingsRef(DictLike):
     ``nfref``.
 
     """
-    num_flavs_max_as: FlavorsNumber = 6
+    max_num_flavs: FlavorsNumber = 6
 
     def __post_init__(self):
         """Validate couplings.

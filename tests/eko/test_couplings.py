@@ -23,7 +23,7 @@ class TestCouplings:
                 alphas=[alpharef[0], muref],
                 alphaem=[alpharef[1], nan],
                 num_flavs_ref=None,
-                num_flavs_max_as=6,
+                max_num_flavs=6,
             )
         )
         order = (1, 0)
@@ -67,7 +67,7 @@ class TestCouplings:
                 alphas=[alpharef[0], muref],
                 alphaem=[alpharef[1], nan],
                 num_flavs_ref=None,
-                num_flavs_max_as=6,
+                max_num_flavs=6,
             )
         )
         for thresh_setup in thresh_setups:
@@ -102,7 +102,7 @@ class TestCouplings:
                 alphas=[alpharef[0], muref],
                 alphaem=[alpharef[1], nan],
                 num_flavs_ref=3,  # reference nf is needed to force the matching
-                num_flavs_max_as=6,
+                max_num_flavs=6,
             )
         )
         threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
@@ -133,7 +133,7 @@ class TestCouplings:
                 alphas=[alpharef[0], muref],
                 alphaem=[alpharef[1], nan],
                 num_flavs_ref=None,
-                num_flavs_max_as=6,
+                max_num_flavs=6,
             )
         )
         for thresh_setup in thresh_setups:
@@ -175,7 +175,7 @@ class TestCouplings:
                 alphas=[alpharef[0], muref],
                 alphaem=[alpharef[1], nan],
                 num_flavs_ref=None,
-                num_flavs_max_as=6,
+                max_num_flavs=6,
             )
         )
         for PTOs in range(1, 4 + 1):
@@ -218,7 +218,7 @@ class TestCouplings:
                 alphas=[alpharef[0], muref],
                 alphaem=[alpharef[1], nan],
                 num_flavs_ref=None,
-                num_flavs_max_as=6,
+                max_num_flavs=6,
             )
         )
         for thresh_setup in thresh_setups:
@@ -259,7 +259,7 @@ class TestCouplings:
                 alphas=[alpharef[0], muref],
                 alphaem=[alpharef[1], nan],
                 num_flavs_ref=None,
-                num_flavs_max_as=6,
+                max_num_flavs=6,
             )
         )
         for thresh_setup in thresh_setups:
@@ -300,7 +300,7 @@ class TestCouplings:
                 alphas=[alpharef[0], muref],
                 alphaem=[alpharef[1], nan],
                 num_flavs_ref=None,
-                num_flavs_max_as=6,
+                max_num_flavs=6,
             )
         )
         for thresh_setup in thresh_setups:
@@ -342,7 +342,7 @@ class TestCouplings:
                 alphas=[alpharef[0], muref],
                 alphaem=[alpharef[1], nan],
                 num_flavs_ref=None,
-                num_flavs_max_as=6,
+                max_num_flavs=6,
             )
         )
         for thresh_setup in thresh_setups:
@@ -381,7 +381,7 @@ class TestCouplings:
                 alphas=[alpharef[0], muref],
                 alphaem=[alpharef[1], nan],
                 num_flavs_ref=None,
-                num_flavs_max_as=6,
+                max_num_flavs=6,
             )
         )
         m2c = 2

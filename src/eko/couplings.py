@@ -403,7 +403,7 @@ class Couplings:
         self.method = method
 
         nf_ref = couplings.num_flavs_ref
-        max_nf = couplings.num_flavs_max_as
+        max_nf = couplings.max_num_flavs
         matchings = list(thresholds_ratios)
         scheme_name = hqm_scheme.name
 
