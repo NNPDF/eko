@@ -391,10 +391,9 @@ class Couplings:
         if order[1] not in [0, 1, 2]:
             raise NotImplementedError("a_em beyond NLO is not implemented")
         self.order = tuple(order)
-        method = method.value
-        if method not in ["expanded", "exact"]:
-            raise ValueError(f"Unknown method {method}")
-        self.method = method
+        if method.value not in ["expanded", "exact"]:
+            raise ValueError(f"Unknown method {method.value}")
+        self.method = method.value
 
         nf_ref = couplings.num_flavs_ref
         max_nf = couplings.max_num_flavs
