@@ -59,10 +59,6 @@ class TheoryCard(DictLike):
     xif: float
     """Ratio between factorization scale and process scale."""
 
-    def validate(self) -> bool:
-        """Validate attributes compatibility."""
-        return True
-
 
 @dataclass
 class Debug(DictLike):
