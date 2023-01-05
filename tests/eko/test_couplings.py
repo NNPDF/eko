@@ -3,20 +3,37 @@
     of alpha_s for different orders.
 """
 import copy
+import enum
 from math import nan
 
 import numpy as np
 import pytest
 
-from eko.couplings import Couplings
+from eko.couplings import Couplings, couplings_mod_ev
 from eko.io.types import (
     CouplingEvolutionMethod,
     CouplingsRef,
+    EvolutionMethod,
     MatchingScales,
     QuarkMassSchemes,
 )
 
 masses = [m**2 for m in (2.0, 4.5, 175.0)]
+
+
+def test_couplings_mod_ev():
+    assert (
+        couplings_mod_ev(EvolutionMethod.ITERATE_EXACT) == CouplingEvolutionMethod.EXACT
+    )
+    assert (
+        couplings_mod_ev(EvolutionMethod.TRUNCATED) == CouplingEvolutionMethod.EXPANDED
+    )
+
+    class FakeEM(enum.Enum):
+        BLUB = "blub"
+
+    with pytest.raises(ValueError, match="BLUB"):
+        couplings_mod_ev(FakeEM.BLUB)
 
 
 class TestCouplings:
