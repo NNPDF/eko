@@ -272,7 +272,7 @@ we need to account for a possible source of uncertainties arising during the app
 On contrary this uncertainty is neglected in the non-singlet case.
 
 The procedure is performed in two steps for each different anomalous dimension separately.
-Firstly we solve the system associated to the 4 known moments, 
+First, we solve the system associated to the 4 known moments, 
 minus the known limits, using different functional bases.
 Any possible candidate contains 4 elements and is obtained with the following prescription:
     
