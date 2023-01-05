@@ -155,7 +155,7 @@ class TestCouplings:
                         masses=masses,
                         thresholds_ratios=threshs,
                     )
-                    if pto in [(1, 0), (1, 1)]:
+                    if pto in [(1, 0), (1, 1), (1, 2)]:
                         precisions = (5e-4, 5e-5)
                     else:
                         precisions = (5e-3, 5e-4)
