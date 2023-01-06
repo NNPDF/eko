@@ -1006,9 +1006,9 @@ class Builder:
     def __post_init__(self):
         """Validate paths."""
         if self.access.path.suffix != ".tar":
-            raise exceptions.OutputNotTar(self.path)
+            raise exceptions.OutputNotTar(self.access.path)
         if self.access.path.exists():
-            raise exceptions.OutputExistsError(self.path)
+            raise exceptions.OutputExistsError(self.access.path)
 
     def load_cards(self, theory: TheoryCard, operator: OperatorCard):
         """Load both theory and operator card."""

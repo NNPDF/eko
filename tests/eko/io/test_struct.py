@@ -133,13 +133,13 @@ class TestEKO:
         # try to write to a file different from bla
         no_tar_path = tmp_path / "Blub.bla"
         no_tar_path.touch()
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError, match="Blub.bla"):
             struct.EKO.create(no_tar_path)
         # try to overwrite an existing file
         exists_path = tmp_path / "Blub.tar"
         with tarfile.open(exists_path, "w") as tar:
             tar.add(no_tar_path)
-        with pytest.raises(FileExistsError):
+        with pytest.raises(FileExistsError, match="Blub.tar"):
             struct.EKO.create(exists_path)
 
     def test_load_error(self, tmp_path):
