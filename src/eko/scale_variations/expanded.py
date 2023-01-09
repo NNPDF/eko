@@ -51,7 +51,8 @@ def variation_as2(gamma, L, beta0, g0e2):
     complex
         variation at |NNLO|
     """
-    return -gamma[1] * L + 1.0 / 2.0 * (beta0 * gamma[0] + g0e2) * L**2
+    return -gamma[1] * L - 1.0 / 2.0 * (beta0 * gamma[0] + g0e2) * L**2
+    # changing alpha will change the sign of beta*gamma0
 
 
 @nb.njit(cache=True)

@@ -64,12 +64,17 @@ def test_scale_variation_a_vs_b():
         the accuracy of singlet quantities is slightly worse.
         """
         if pto[0] >= 2:
-            diff = g[0] * k * a0
+            diff = g[0] * k * a0 - 2 * a1 * k * g[0]
         if pto[0] >= 3:
             b0 = beta_qcd_as2(nf)
             g02 = g[0] @ g[0] if is_singlet else g[0] ** 2
-            diff += a0**2 * g[1] * k - k**2 * (
-                1 / 2 * a0**2 * b0 * g[0] + a1 * a0 * g02 - 1 / 2 * a0**2 * g02
+            diff += (
+                -2 * a1**2 * g[1] * k
+                + a0**2 * g[1] * k
+                + a1**2 * b0 * g[0] * k**2
+                - 0.5 * a0**2 * b0 * g[0] * k**2
+                - a1 * a0 * g02 * k**2
+                + 0.5 * a0**2 * g02 * k**2
             )
         return diff
 
