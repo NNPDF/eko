@@ -75,25 +75,6 @@ class TestThresholdsAtlas:
         with pytest.raises(ValueError):
             ThresholdsAtlas.build_area_walls([1, 2], [1, 2], 4)
 
-    def test_from_dict(self):
-        tc = ThresholdsAtlas.from_dict(
-            {
-                "mc": 1.0,
-                "mb": 4.0,
-                "mt": 100.0,
-                "kcThr": 1,
-                "kbThr": 2.0,
-                "ktThr": np.inf,
-                "Q0": 1.0,
-                "nf0": 4,
-                "MaxNfPdf": 6,
-                "HQ": "POLE",
-                "alphas": 0.35,
-            }
-        )
-        assert tc.area_walls[1:-1] == [1.0, 64.0, np.inf]
-        assert tc.q2_ref == 1.0
-
     def test_ffns(self):
         tc3 = ThresholdsAtlas.ffns(3)
         assert tc3.area_walls == [0] + [np.inf] * 4
@@ -180,22 +161,6 @@ class TestThresholdsAtlas:
         ta = ThresholdsAtlas([1, 2, 3], 0.5)
         assert ta.nf(0.9) == 3
         assert ta.nf(1.1) == 4
-
-    def test_errors(self):
-        with pytest.raises(ValueError):
-            ThresholdsAtlas.from_dict(
-                dict(
-                    Q0=np.sqrt(2.2),
-                    mc=1.0,
-                    mb=2.0,
-                    mt=3.0,
-                    kcThr=1.0,
-                    kbThr=2.0,
-                    ktThr=3.0,
-                    MaxNfPdf=6,
-                    HQ="FAIL",
-                ),
-            )
 
 
 def test_downward_path():
