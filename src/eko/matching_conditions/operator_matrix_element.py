@@ -33,7 +33,7 @@ def A_singlet(matching_order, n, sx, nf, L, is_msbar, sx_ns=None):
         nf: int
             number of active flavor below threshold
         L : float
-            :math:`log(q^2/m_h^2)`
+            :math:``\ln(\mu_F^2 / m_h^2)``
         is_msbar: bool
             add the |MSbar| contribution
         sx_ns : list
@@ -77,7 +77,7 @@ def A_non_singlet(matching_order, n, sx, nf, L):
         nf: int
             number of active flavor below threshold
         L : float
-            :math:`log(q^2/m_h^2)`
+            :math:``\ln(\mu_F^2 / m_h^2)``
 
     Returns
     -------
@@ -179,7 +179,7 @@ def quad_ker(
         nf: int
             number of active flavor below threshold
         L : float
-            :math:`log(q^2/m_h^2)`
+            :math:``\ln(\mu_F^2 / m_h^2)``
         backward_method : ["exact", "expanded" or ""]
             empty or method for inverting the matching condition (exact or expanded)
         is_msbar: bool
@@ -253,7 +253,7 @@ class OperatorMatrixElement(Operator):
     is_backward: bool
         True for backward evolution
     L: float
-        :math:`\ln(q^2 / m_h^2)`
+        :math:`\ln(\mu_F^2 / m_h^2)`
     is_msbar: bool
         add the |MSbar| contribution
     """

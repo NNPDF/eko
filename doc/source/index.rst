@@ -24,6 +24,7 @@ EKO is ...
 
     overview/features
     overview/tutorials/index
+    CLI <overview/cli/index>
     overview/indices
 
 .. toctree::

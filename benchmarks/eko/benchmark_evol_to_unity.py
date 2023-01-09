@@ -1,94 +1,57 @@
+import pathlib
+from math import nan
+
 import numpy as np
 import pytest
 
 from eko import basis_rotation as br
-from eko import compatibility
-from eko.couplings import Couplings
 from eko.evolution_operator import Operator
-from eko.evolution_operator.grid import OperatorGrid
-from eko.interpolation import InterpolatorDispatcher, XGrid
-from eko.thresholds import ThresholdsAtlas
+from eko.interpolation import XGrid
+from eko.io import types
+from eko.io.runcards import OperatorCard, TheoryCard
+from eko.runner.legacy import Runner
 
 # from eko.matching_conditions.operator_matrix_element import OperatorMatrixElement
 
 
+def update_cards(theory: TheoryCard, operator: OperatorCard):
+    theory.couplings = types.CouplingsRef(
+        alphas=types.FloatRef(value=0.35, scale=float(np.sqrt(2))),
+        alphaem=types.FloatRef(value=0.007496, scale=nan),
+        max_num_flavs=6,
+        num_flavs_ref=None,
+    )
+    theory.num_flavs_init = 4
+    theory.intrinsic_flavors = [4, 5]
+    theory.quark_masses.c.value = 1.0
+    theory.quark_masses.b.value = 4.75
+    theory.quark_masses.t.value = 173.0
+    operator.mu0 = float(np.sqrt(2))
+    operator.mu2grid = [10]
+    operator.rotations.xgrid = XGrid(np.linspace(1e-1, 1, 30))
+    operator.configs.interpolation_polynomial_degree = 1
+    operator.configs.ev_op_max_order = (2, 0)
+    operator.configs.ev_op_iterations = 1
+    operator.configs.inversion_method = types.InversionMethod.EXACT
+    operator.configs.n_integration_cores = 1
+
+
 @pytest.mark.isolated
 class BenchmarkBackwardForward:
-    # setup objs
-    theory_card = {
-        "alphas": 0.35,
-        "alphaqed": 0.007496,
-        "PTO": 0,
-        "QED": 0,
-        "ModEv": "EXA",
-        "fact_to_ren_scale_ratio": 1.0,
-        "Qref": np.sqrt(2),
-        "nfref": None,
-        "Q0": np.sqrt(2),
-        "nf0": 4,
-        "IC": 1,
-        "IB": 1,
-        "mc": 1.0,
-        "mb": 4.75,
-        "mt": 173.0,
-        "kcThr": 1.0,
-        "kbThr": 1.0,
-        "ktThr": 1.0,
-        "MaxNfPdf": 6,
-        "MaxNfAs": 6,
-        "HQ": "POLE",
-        "ModSV": None,
-    }
-    operators_card = {
-        "Q2grid": [10],
-        # here you need a very dense grid
-        "xgrid": np.linspace(1e-1, 1, 30),
-        # "xgrid": make_grid(30,30, x_min=1e-3),
-        "configs": {
-            "interpolation_polynomial_degree": 1,
-            "interpolation_is_log": True,
-            "ev_op_max_order": (2, 0),
-            "ev_op_iterations": 1,
-            "backward_inversion": "exact",
-            "n_integration_cores": 1,
-        },
-        "debug": {
-            "skip_singlet": False,
-            "skip_non_singlet": False,
-        },
-    }
-    new_theory, new_operators = compatibility.update(theory_card, operators_card)
-    g = OperatorGrid.from_dict(
-        new_theory,
-        new_operators,
-        ThresholdsAtlas.from_dict(new_theory),
-        Couplings.from_dict(new_theory),
-        InterpolatorDispatcher(
-            XGrid(
-                new_operators["xgrid"],
-                log=new_operators["configs"]["interpolation_is_log"],
-            ),
-            new_operators["configs"]["interpolation_polynomial_degree"],
-        ),
-    )
-
     def test_operator_grid(
-        # test that eko_forward @ eko_backward gives ID matrix or zeros
         self,
+        theory_card: TheoryCard,
+        operator_card: OperatorCard,
+        tmp_path: pathlib.Path,
     ):
-        g = OperatorGrid.from_dict(
-            self.new_theory,
-            self.new_operators,
-            ThresholdsAtlas.from_dict(self.new_theory),
-            Couplings.from_dict(self.new_theory),
-            InterpolatorDispatcher(
-                XGrid(
-                    self.new_operators["xgrid"],
-                    log=self.new_operators["configs"]["interpolation_is_log"],
-                ),
-                self.new_operators["configs"]["interpolation_polynomial_degree"],
-            ),
-        )
+        """Test that eko_forward @ eko_backward gives ID matrix or zeros."""
+        update_cards(theory_card, operator_card)
+        g = Runner(
+            theory_card=theory_card,
+            operators_card=operator_card,
+            path=tmp_path / "eko.tar",
+        ).op_grid
+
         q20 = 30
         q21 = 50
         nf = 4
