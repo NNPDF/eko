@@ -1,13 +1,27 @@
-r"""Contains the QCD beta function coefficients and the handling of the running coupling :math:`\alpha_s`.
+r"""Manage running (and fixed) couplings.
+
+Manage QCD coupling :math:`\alpha_s` and QED coupling :math:`\alpha`.
+We provide an interface to access them simultaneously and provide several
+strategies to solve the associated |RGE|.
 
 See :doc:`pQCD ingredients </theory/pQCD>`.
-"""
 
+"""
 import logging
+from typing import List
 
 import numba as nb
 import numpy as np
 import scipy
+
+from eko.io.types import (
+    CouplingEvolutionMethod,
+    CouplingsRef,
+    EvolutionMethod,
+    MatchingScales,
+    Order,
+    QuarkMassSchemes,
+)
 
 from . import constants, thresholds
 from .beta import b_qcd, b_qed, beta_qcd, beta_qed
@@ -15,7 +29,7 @@ from .beta import b_qcd, b_qed, beta_qcd, beta_qed
 logger = logging.getLogger(__name__)
 
 
-def couplings_mod_ev(mod_ev):
+def couplings_mod_ev(mod_ev: EvolutionMethod) -> CouplingEvolutionMethod:
     """Map ModEv key to the available strong coupling evolution methods.
 
     Parameters
@@ -28,9 +42,14 @@ def couplings_mod_ev(mod_ev):
     str
         coupling mode
     """
-    if mod_ev in ["EXA", "iterate-exact", "decompose-exact", "perturbative-exact"]:
-        return "exact"
-    if mod_ev in [
+    if mod_ev.value in [
+        "EXA",
+        "iterate-exact",
+        "decompose-exact",
+        "perturbative-exact",
+    ]:
+        return CouplingEvolutionMethod.EXACT
+    if mod_ev.value in [
         "TRN",
         "truncated",
         "ordered-truncated",
@@ -39,7 +58,7 @@ def couplings_mod_ev(mod_ev):
         "decompose-expanded",
         "perturbative-expanded",
     ]:
-        return "expanded"
+        return CouplingEvolutionMethod.EXPANDED
     raise ValueError(f"Unknown evolution mode {mod_ev}")
 
 
@@ -69,7 +88,8 @@ def exact_lo(ref, beta0, lmu):
 def expanded_nlo(ref, beta0, b1, lmu):
     r"""Compute expanded solution at |NLO|.
 
-    Implement the default expression for |NLO| expanded solution, e.g. the one implemented in |APFEL|
+    Implement the default expression for |NLO| expanded solution, e.g. the one
+    implemented in |APFEL|.
 
     Parameters
     ----------
@@ -316,8 +336,6 @@ class Couplings:
 
     Note that
 
-    - all scale parameters (``scale_ref`` and ``scale_to``),
-      have to be given as squared values, i.e. in units of :math:`\text{GeV}^2`
     - although, we only provide methods for
       :math:`a_i = \frac{\alpha_i(\mu^2)}{4\pi}` the reference value has to be
       given in terms of :math:`\alpha_i(\mu_0^2)` due to legacy reasons
@@ -337,66 +355,64 @@ class Couplings:
 
     Parameters
     ----------
-    couplings_ref : numpy.ndarray
-        alpha_s and \alpha(!) at the reference scale :math:`\alpha_s(\mu_0^2),\alpha(\mu_0^2)`
-    scale_ref : float
-        reference scale :math:`\mu_0^2`
-    masses : list(float)
-        list with quark masses squared
-    thresholds_ratios : list(float)
-        list with ratios between the matching scales and the mass squared
-    order: tuple(int,int)
+    couplings :
+        reference configuration
+    order :
         Evaluated order of the beta function: ``0`` = LO, ...
-    method : ["expanded", "exact"]
+    method :
         Applied method to solve the beta function
-    nf_ref : int
-        if given, the number of flavors at the reference scale
-    max_nf : int
-        if given, the maximum number of flavors
+    masses :
+        list with quark masses squared
+    hqm_scheme :
+        heavy quark mass scheme
+    thresholds_ratios :
+        list with ratios between the matching scales and the mass squared
     """
 
     def __init__(
         self,
-        couplings_ref,
-        scale_ref,
-        masses,
-        thresholds_ratios,
-        order=(1, 0),
-        method="exact",
-        nf_ref=None,
-        max_nf=None,
-        hqm_scheme="POLE",
+        couplings: CouplingsRef,
+        order: Order,
+        method: CouplingEvolutionMethod,
+        masses: List[float],
+        hqm_scheme: QuarkMassSchemes,
+        thresholds_ratios: MatchingScales,
     ):
         # Sanity checks
-        if couplings_ref[0] <= 0:
-            raise ValueError(f"alpha_s_ref has to be positive - got {couplings_ref[0]}")
-        if couplings_ref[1] <= 0:
-            raise ValueError(
-                f"alpha_em_ref has to be positive - got {couplings_ref[1]}"
-            )
-        if scale_ref <= 0:
-            raise ValueError(f"scale_ref has to be positive - got {scale_ref}")
+        def assert_positive(name, var):
+            if var <= 0:
+                raise ValueError(f"{name} has to be positive - got: {var}")
+
+        assert_positive("alpha_s_ref", couplings.alphas.value)
+        assert_positive("alpha_em_ref", couplings.alphaem.value)
+        assert_positive("scale_ref", couplings.alphas.scale)
         if order[0] not in [0, 1, 2, 3, 4]:
             raise NotImplementedError("a_s beyond N3LO is not implemented")
         if order[1] not in [0, 1, 2]:
             raise NotImplementedError("a_em beyond NLO is not implemented")
         self.order = tuple(order)
-        if method not in ["expanded", "exact"]:
-            raise ValueError(f"Unknown method {method}")
-        self.method = method
+        if method.value not in ["expanded", "exact"]:
+            raise ValueError(f"Unknown method {method.value}")
+        self.method = method.value
+
+        nf_ref = couplings.num_flavs_ref
+        max_nf = couplings.max_num_flavs
+        matchings = list(thresholds_ratios)
+        scheme_name = hqm_scheme.name
 
         # create new threshold object
-        self.a_ref = couplings_ref.copy() / 4.0 / np.pi  # convert to a_s and a_em
+        self.a_ref = np.array(couplings.values) / 4.0 / np.pi  # convert to a_s and a_em
         self.thresholds = thresholds.ThresholdsAtlas(
             masses,
-            scale_ref,
+            couplings.alphas.scale**2,
             nf_ref,
-            thresholds_ratios=thresholds_ratios,
+            thresholds_ratios=matchings,
             max_nf=max_nf,
         )
-        self.hqm_scheme = hqm_scheme
+        self.hqm_scheme = scheme_name
         logger.info(
-            "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)\nElectromagnetic Coupling: a_em(µ_R^2=%f)%s=%f=%f/(4π)",
+            "Strong Coupling: a_s(µ_R^2=%f)%s=%f=%f/(4π)\n"
+            "Electromagnetic Coupling: a_em(µ_R^2=%f)%s=%f=%f/(4π)",
             self.q2_ref,
             f"^(nf={nf_ref})" if nf_ref else "",
             self.a_ref[0],
@@ -413,59 +429,6 @@ class Couplings:
     def q2_ref(self):
         """Return reference scale."""
         return self.thresholds.q2_ref
-
-    @classmethod
-    def from_dict(cls, theory_card, masses=None):
-        r"""Create object from theory dictionary.
-
-        Parameters
-        ----------
-        theory_card : dict
-            theory dictionary
-        masses : list
-            list of |MSbar| masses squared or None if POLE masses are used
-
-        Returns
-        -------
-        Couplings
-            created object
-        """
-        # read my values
-        # TODO cast to a_s here
-        alphas_ref = theory_card["alphas"]
-        alphaem_ref = theory_card["alphaem"]
-        couplings_ref = np.array([alphas_ref, alphaem_ref])
-        nf_ref = theory_card["nfref"]
-        q2_alpha = pow(theory_card["Qref"], 2)
-        order = theory_card["order"]
-        method = couplings_mod_ev(theory_card["ModEv"])
-        hqm_scheme = theory_card["HQ"]
-        if hqm_scheme not in ["MSBAR", "POLE"]:
-            raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
-        # adjust factorization scale / renormalization scale
-        fact_to_ren = theory_card["fact_to_ren_scale_ratio"]
-        heavy_flavors = "cbt"
-        if masses is None:
-            masses = np.power(
-                [theory_card[f"m{q}"] / fact_to_ren for q in heavy_flavors], 2
-            )
-        else:
-            masses = masses / fact_to_ren**2
-        thresholds_ratios = np.power(
-            [theory_card[f"k{q}Thr"] for q in heavy_flavors], 2
-        )
-        max_nf = theory_card["MaxNfAs"]
-        return cls(
-            couplings_ref,
-            q2_alpha,
-            masses,
-            thresholds_ratios,
-            order,
-            method,
-            nf_ref,
-            max_nf,
-            hqm_scheme,
-        )
 
     def compute_exact(self, a_ref, nf, scale_from, scale_to):
         """Compute couplings via |RGE|.
@@ -559,6 +522,7 @@ class Couplings:
         if self.order[1] >= 2:
             beta_qcd_mix = beta_qcd((2, 1), nf)
             beta_qed_vec.append(beta_qed((0, 3), nf))
+
         # integration kernel
         def rge(_t, a, beta_qcd_vec, beta_qed_vec):
             rge_qcd = -(a[0] ** 2) * (

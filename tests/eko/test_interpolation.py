@@ -334,8 +334,8 @@ class TestXGrid:
         np.testing.assert_array_almost_equal(b.raw, bb)
 
         cargs = (10,)
-        cc = interpolation.make_lambert_grid(*cargs)
-        c = interpolation.XGrid.fromcard(["make_lambert_grid", *cargs], False)
+        cc = interpolation.lambertgrid(*cargs)
+        c = interpolation.XGrid.fromcard(["lambertgrid", *cargs], False)
         np.testing.assert_array_almost_equal(c.raw, cc)
 
         with pytest.raises(ValueError):
@@ -353,12 +353,12 @@ def test_make_grid():
     np.testing.assert_array_almost_equal(xg, np.array([1e-2, 1e-1, 1.0]))
 
 
-def test_make_lambert_grid():
+def test_lambertgrid():
     # test random grid
     n_pts = 11
     x_min = 1e-4
     x_max = 0.5
-    xg = interpolation.make_lambert_grid(n_pts, x_min, x_max)
+    xg = interpolation.lambertgrid(n_pts, x_min, x_max)
     assert len(xg) == n_pts
     np.testing.assert_allclose(xg[0], x_min)
     np.testing.assert_allclose(xg[-1], x_max)
@@ -368,7 +368,7 @@ def test_make_lambert_grid():
 
     # test default
     n_pts = 12
-    xg = interpolation.make_lambert_grid(n_pts)
+    xg = interpolation.lambertgrid(n_pts)
     assert len(xg) == n_pts
     np.testing.assert_allclose(xg[0], 1e-7)
     np.testing.assert_allclose(xg[-1], 1)
