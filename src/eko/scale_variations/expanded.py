@@ -1,4 +1,4 @@
-r"""Contains the scale variation operator for the expanded scheme (``ModSV=expanded``).
+r"""Scale variation operator for the expanded scheme (``ModSV=expanded``).
 
 The expressions can be obtained using Eqs. (3.33) and (3.38) of :cite:`AbdulKhalek:2019ihb`.
 Be aware that corresponding the signs of the ingredients there are a number of differences.
