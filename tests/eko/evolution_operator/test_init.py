@@ -37,7 +37,6 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
-            as_raw=1,
             nf=3,
             L=0,
             ev_op_iterations=0,
@@ -57,7 +56,6 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
-            as_raw=1,
             nf=3,
             L=0,
             ev_op_iterations=0,
@@ -77,7 +75,6 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
-            as_raw=1,
             nf=3,
             L=0,
             ev_op_iterations=0,
@@ -99,7 +96,6 @@ def test_quad_ker(monkeypatch):
                 areas=np.zeros(3),
                 as1=1,
                 as0=2,
-                as_raw=1,
                 nf=3,
                 L=0,
                 ev_op_iterations=0,
@@ -121,7 +117,6 @@ def test_quad_ker(monkeypatch):
         areas=np.zeros(3),
         as1=1,
         as0=2,
-        as_raw=1,
         nf=3,
         L=0,
         ev_op_iterations=0,
@@ -314,7 +309,7 @@ def test_pegasus_path():
     mode1 = 0
     method = ""
     logxs = np.log(int_disp.xgrid.raw)
-    as_raw = a1 = 1
+    a1 = 1
     a0 = 2
     nf = 3
     L = 0
@@ -335,7 +330,6 @@ def test_pegasus_path():
                     bf.areas_representation,
                     a1,
                     a0,
-                    as_raw,
                     nf,
                     L,
                     ev_op_iterations,
