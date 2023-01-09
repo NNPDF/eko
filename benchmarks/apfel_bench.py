@@ -192,6 +192,7 @@ class BenchmarkFFNS_qed(ApfelBenchmark):
 
     ffns_theory = {
         "Qref": 91.1870,
+        "QrefQED": 91.1870,
         "mc": 1.3,
         "mb": 4.75,
         "mt": 172.0,
@@ -208,7 +209,6 @@ class BenchmarkFFNS_qed(ApfelBenchmark):
         "Q0": 5.0,
         "alphas": 0.118000,
         "alphaqed": 0.007496,
-        "alphaem_running": True,
     }
     ffns_theory = tolist(ffns_theory)
 
@@ -271,6 +271,7 @@ class BenchmarkVFNS_qed(ApfelBenchmark):
 
     vfns_theory = {
         "Qref": 91.1870,
+        "QrefQED": 91.1870,
         "mc": 1.3,
         "mb": 4.75,
         "mt": 172.0,
@@ -286,7 +287,6 @@ class BenchmarkVFNS_qed(ApfelBenchmark):
         "Q0": 1.25,
         "alphas": 0.118000,
         "alphaqed": 0.007496,
-        "alphaem_running": True,
     }
     vfns_theory = tolist(vfns_theory)
 

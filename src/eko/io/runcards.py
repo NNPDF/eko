@@ -276,10 +276,10 @@ class Legacy:
 
         new["order"] = [old["PTO"] + 1, old["QED"]]
         alphaem = self.fallback(old.get("alphaqed"), old.get("alphaem"), default=0.0)
-        if "Qedref" not in old:
+        if "QrefQED" not in old:
             qedref = nan
         else:
-            qedref = old["Qedref"]
+            qedref = old["QrefQED"]
         new["couplings"] = dict(
             alphas=(old["alphas"], old["Qref"]),
             alphaem=(alphaem, qedref),

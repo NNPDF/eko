@@ -8,7 +8,7 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 """
 import logging
-from math import nan
+from math import isnan
 from typing import List
 
 import numba as nb
@@ -456,7 +456,7 @@ class Couplings:
         max_nf = couplings.max_num_flavs
         matchings = list(thresholds_ratios)
         scheme_name = hqm_scheme.name
-        self.alphaem_running = False if couplings.alphaem.scale is nan else True
+        self.alphaem_running = False if isnan(couplings.alphaem.scale) else True
 
         # create new threshold object
         self.a_ref = np.array(couplings.values) / 4.0 / np.pi  # convert to a_s and a_em
