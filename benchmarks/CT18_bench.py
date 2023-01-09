@@ -12,6 +12,7 @@ register(__file__)
 
 base_theory = {
     "Qref": 91.1870,
+    "QrefQED": 91.1870,
     "mc": 1.3,
     "mb": 4.75,
     "mt": 172.0,
@@ -64,7 +65,6 @@ class BenchmarkCT18(Runner):
                 "Q0": Q0,
                 "MaxNfPdf": 5,
                 "MaxNfAs": 5,
-                "alphaem_running": True,
             }
         )
         operator_card = {"Q2grid": list(Q2grid)}
