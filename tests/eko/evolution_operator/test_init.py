@@ -160,7 +160,7 @@ fake_managers = {"couplings": FakeCoupling()}
 
 
 class TestOperator:
-    def test_labels(self, theory_ffns, operator_card, tmp_path):
+    def test_labels(self):
         o = Operator(
             dict(
                 order=(3, 0),
@@ -190,7 +190,7 @@ class TestOperator:
         )
         assert sorted(o.labels) == []
 
-    def test_labels_qed(self, theory_ffns, operator_card, tmp_path):
+    def test_labels_qed(self):
         o = Operator(
             dict(
                 order=(3, 1),
@@ -222,7 +222,7 @@ class TestOperator:
         )
         assert sorted(o.labels) == []
 
-    def test_n_pools(self, theory_ffns, operator_card, tmp_path):
+    def test_n_pools(self):
         excluded_cores = 3
         # make sure we actually have more the those cores (e.g. on github we don't)
         if os.cpu_count() <= excluded_cores:
