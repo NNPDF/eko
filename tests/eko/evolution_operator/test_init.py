@@ -287,14 +287,23 @@ def test_quad_ker(monkeypatch):
     np.testing.assert_allclose(res_ns, 0.0)
 
 
+class FakeCoupling:
+    def __init__(self):
+        self.alphaem_running = None
+        self.q2_ref = 0.0
+
+    def a(self, scale_to=None, fact_scale=None, nf_to=None):
+        return (0.1, 0.01)
+
+    def compute_aem_as(self, aem_ref, as_from, as_to, nf):
+        return aem_ref
+
+
+fake_managers = {"couplings": FakeCoupling()}
+
+
 class TestOperator:
     def test_labels(self, theory_ffns, operator_card, tmp_path):
-        tcard: TheoryCard = theory_ffns(3)
-        tcard.xif = 2.0
-        ocard: OperatorCard = operator_card
-        ocard.configs.scvar_method = ScaleVariationsMethod.EXPONENTIATED
-        r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
-        g = r.op_grid
         o = Operator(
             dict(
                 order=(3, 0),
@@ -303,7 +312,7 @@ class TestOperator:
                 n_integration_cores=1,
                 ModSV=None,
             ),
-            g.managers,
+            fake_managers,
             3,
             1,
             2,
@@ -317,7 +326,7 @@ class TestOperator:
                 n_integration_cores=1,
                 ModSV=None,
             ),
-            g.managers,
+            fake_managers,
             3,
             1,
             2,
@@ -325,12 +334,6 @@ class TestOperator:
         assert sorted(o.labels) == []
 
     def test_labels_qed(self, theory_ffns, operator_card, tmp_path):
-        tcard: TheoryCard = theory_ffns(3)
-        tcard.xif = 2.0
-        ocard: OperatorCard = operator_card
-        ocard.configs.scvar_method = ScaleVariationsMethod.EXPONENTIATED
-        r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
-        g = r.op_grid
         o = Operator(
             dict(
                 order=(3, 1),
@@ -340,7 +343,7 @@ class TestOperator:
                 ModSV=None,
                 ev_op_iterations=1,
             ),
-            g.managers,
+            fake_managers,
             3,
             1,
             2,
@@ -355,7 +358,7 @@ class TestOperator:
                 ModSV=None,
                 ev_op_iterations=1,
             ),
-            g.managers,
+            fake_managers,
             3,
             1,
             2,
@@ -367,12 +370,6 @@ class TestOperator:
         # make sure we actually have more the those cores (e.g. on github we don't)
         if os.cpu_count() <= excluded_cores:
             return
-        tcard: TheoryCard = theory_ffns(3)
-        tcard.xif = 2.0
-        ocard: OperatorCard = operator_card
-        ocard.configs.scvar_method = ScaleVariationsMethod.EXPONENTIATED
-        r = eko.runner.legacy.Runner(tcard, ocard, path=tmp_path / "eko.tar")
-        g = r.op_grid
         o = Operator(
             dict(
                 order=(2, 0),
@@ -381,7 +378,7 @@ class TestOperator:
                 n_integration_cores=-excluded_cores,
                 ModSV=None,
             ),
-            g.managers,
+            fake_managers,
             3,
             1,
             10,
