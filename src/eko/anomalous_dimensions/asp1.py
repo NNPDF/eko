@@ -36,7 +36,7 @@ def gamma_pqg(N, nf):
         Leading-order polarised quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
     gamma = -(N - 1) / N / (N + 1)
-    result = 2.0 * 4.0 * constants.CF * constants.TR * 2.0 * nf * gamma
+    result = 2.0 * constants.TR * 2.0 * nf * gamma
     return result
 
 
@@ -81,8 +81,8 @@ def gamma_pgg(N, s1, nf):
       gamma_gg : complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    gamma = - s1 + 2 / N / (N + 1)
-    result = constants.CA * (- 4.0 * gamma - 11.0 / 3.0) + 4.0 / 3.0 * constants.TR * nf
+    gamma = -s1 + 2 / N / (N + 1)
+    result = constants.CA * (-4.0 * gamma - 11.0 / 3.0) + 4.0 / 3.0 * constants.TR * nf
     return result
 
 

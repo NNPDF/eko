@@ -266,12 +266,10 @@ class Operator(sv.ModeMixin):
         q2_to,
         mellin_cut=5e-2,
         is_threshold=False,
-        p=False,
     ):
         self.config = config
         self.managers = managers
         self.nf = nf
-        self.p = p
         self.q2_from = q2_from
         self.q2_to = q2_to
         # TODO make 'cut' external parameter?
@@ -390,7 +388,7 @@ class Operator(sv.ModeMixin):
             as0=self.a_s[0],
             as_raw=self.a_s[2],
             nf=self.nf,
-            p=self.p,
+            p=self.config["p"],
             L=np.log(self.fact_to_ren),
             ev_op_iterations=self.config["ev_op_iterations"],
             ev_op_max_order=tuple(self.config["ev_op_max_order"]),

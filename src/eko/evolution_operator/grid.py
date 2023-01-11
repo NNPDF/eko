@@ -6,7 +6,6 @@ previously instantiated information and does the actual computation of the Q2s.
 
 import logging
 import numbers
-
 import numpy as np
 
 from .. import basis_rotation as br
@@ -66,6 +65,7 @@ class OperatorGrid(sv.ModeMixin):
         """
         # check
         order = config["order"]
+        p = config["p"]
         method = config["method"]
         if method not in [
             "iterate-exact",
@@ -121,6 +121,7 @@ class OperatorGrid(sv.ModeMixin):
         """
         config = {}
         config["order"] = tuple(int(o) for o in theory_card["order"])
+        config["p"] = bool(theory_card["p"])
         method = theory_card["ModEv"]
         mod_ev2method = {
             "EXA": "iterate-exact",
@@ -262,7 +263,11 @@ class OperatorGrid(sv.ModeMixin):
         thr_ops = self.get_threshold_operators(path)
         # we start composing with the highest operator ...
         operator = Operator(
-            self.config, self.managers, path[-1].nf, path[-1].q2_from, path[-1].q2_to
+            self.config,
+            self.managers,
+            path[-1].nf,
+            path[-1].q2_from,
+            path[-1].q2_to,
         )
         operator.compute()
         intrinsic_range = self.config["intrinsic_range"]
