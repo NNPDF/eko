@@ -1,7 +1,7 @@
 import numpy as np
 
 from eko import basis_rotation as br
-from eko.anomalous_dimensions import gamma_ns, gamma_singlet
+from ekore.anomalous_dimensions import gamma_ns, gamma_singlet
 from eko.beta import beta_qcd_as2
 from eko.kernels import non_singlet, singlet
 from eko.scale_variations import Modes, expanded, exponentiated

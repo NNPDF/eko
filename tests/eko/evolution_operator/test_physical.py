@@ -4,7 +4,7 @@ import pytest
 from eko import basis_rotation as br
 from eko import member
 from eko.evolution_operator.physical import PhysicalOperator
-from eko.matching_conditions import MatchingCondition
+from ekore.matching_conditions import MatchingCondition
 
 
 def mkOM(shape):

@@ -11,10 +11,11 @@ import numbers
 import numpy as np
 import numpy.typing as npt
 
-from .. import matching_conditions, member
+from ekore import matching_conditions
+from .. import member
 from .. import scale_variations as sv
 from ..io.runcards import Configs, Debug
-from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
+from ekore.matching_conditions.operator_matrix_element import OperatorMatrixElement
 from ..thresholds import flavor_shift, is_downward_path
 from . import Operator, flavors, physical
 
