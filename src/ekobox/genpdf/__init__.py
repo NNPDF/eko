@@ -220,11 +220,11 @@ def install_pdf(name):
     print(f"install_pdf {name}")
     target = pathlib.Path(lhapdf.paths()[0])
     src = pathlib.Path(name)
+    if (target / src.stem).exists():
+        logger.warning("Overwriting old PDF installation")
+        shutil.rmtree(target / src.stem)
     # shutil.move only accepts paths since 3.9 so we need to cast
     # https://docs.python.org/3/library/shutil.html?highlight=shutil#shutil.move
-    if (target / src).exists():
-        logger.warning("Overwriting old PDF installation")
-        shutil.rmtree(target / src)
     shutil.move(str(src), str(target))
 
 
