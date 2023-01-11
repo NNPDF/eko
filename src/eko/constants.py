@@ -70,8 +70,9 @@ def uplike_flavors(nf):
 
 
 @nb.njit(cache=True)
-def e2avg(nf):
-    """Compute the charge squared average.
+def charge_combinations(nf):
+    """
+    Compute the combination of charges.
 
     Parameters
     ----------
@@ -81,44 +82,13 @@ def e2avg(nf):
     Returns
     -------
     e2avg : float
+    vue2m : float
+    vde2m : float
 
     """
     nu = uplike_flavors(nf)
     nd = nf - nu
-    return (nu * eu2 + nd * ed2) / nf
-
-
-@nb.njit(cache=True)
-def vue2m(nf):
-    """Compute the product nu / nf * (e2u - e2d).
-
-    Parameters
-    ----------
-    nf : int
-        Number of active flavors
-
-    Returns
-    -------
-    vu * e2m : float
-
-    """
-    nu = uplike_flavors(nf)
-    return nu / nf * (eu2 - ed2)
-
-
-@nb.njit(cache=True)
-def vde2m(nf):
-    """Compute the product nd / nf * (e2u - e2d).
-
-    Parameters
-    ----------
-    nf : int
-        Number of active flavors
-
-    Returns
-    -------
-    vd * e2m : float
-
-    """
-    nd = nf - uplike_flavors(nf)
-    return nd / nf * (eu2 - ed2)
+    e2avg = (nu * eu2 + nd * ed2) / nf
+    vue2m = nu / nf * (eu2 - ed2)
+    vde2m = nd / nf * (eu2 - ed2)
+    return e2avg, vue2m, vde2m

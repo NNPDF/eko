@@ -357,7 +357,8 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
     nd = nf - nu
     vu = nu / nf
     vd = nd / nf
-    e2avg = constants.e2avg(nf)
+    e2m = constants.eu2 - constants.ed2
+    e2avg = (nu * constants.eu2 + nd * constants.ed2) / nf
     e2m = constants.eu2 - constants.ed2
     gamma_ph_u = gamma_phu(N, nf, sx)
     gamma_ph_d = gamma_phd(N, nf, sx)

@@ -272,7 +272,7 @@ def gamma_singlet(n, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_singlet_qed(N, nf, sx):
-    r"""Compute the leading-order singlet anomalous dimension matrix.
+    r"""Compute the leading-order singlet anomalous dimension matrix for the unified evolution basis.
 
     .. math::
         \\gamma_S^{(2,0)} = \\left(\begin{array}{cccc}
@@ -319,7 +319,7 @@ def gamma_singlet_qed(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_valence_qed(N, nf, sx):
-    r"""Compute the leading-order valence anomalous dimension matrix.
+    r"""Compute the leading-order valence anomalous dimension matrix for the unified evolution basis.
 
     .. math::
         \\gamma_V^{(2,0)} = \\left(\begin{array}{cc}

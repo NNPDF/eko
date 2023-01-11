@@ -35,7 +35,7 @@ def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations):
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     e = np.identity(4, np.complex_)
-    betaQCD = np.zeros((order[0] + 1, 2))
+    betaQCD = np.zeros((order[0] + 1, order[1] + 1))
     for i in range(1, order[0] + 1):
         betaQCD[i, 0] = beta.beta_qcd((i + 1, 0), nf)
     betaQCD[1, 1] = beta.beta_qcd((2, 1), nf)
