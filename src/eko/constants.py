@@ -91,4 +91,5 @@ def charge_combinations(nf):
     e2avg = (nu * eu2 + nd * ed2) / nf
     vue2m = nu / nf * (eu2 - ed2)
     vde2m = nd / nf * (eu2 - ed2)
-    return e2avg, vue2m, vde2m
+    e2delta = vde2m - vue2m + e2avg
+    return e2avg, vue2m, vde2m, e2delta

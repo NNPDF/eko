@@ -388,8 +388,7 @@ def gamma_singlet(N, nf, sx, sx_ns_qed):
     gamma_singlet : numpy.ndarray
         :math:`O(a_s^1a_{em}^1)` singlet anomalous dimension :math:`\\gamma_{S}^{(1,1)}(N,nf,sx)`
     """
-    e2avg, vue2m, vde2m = constants.charge_combinations(nf)
-    e2delta = vde2m - vue2m + e2avg
+    e2avg, vue2m, vde2m, e2delta = constants.charge_combinations(nf)
     e2_tot = nf * e2avg
     gamma_g_q = gamma_gq(N, sx)
     gamma_ph_q = gamma_phq(N, sx)
@@ -446,8 +445,7 @@ def gamma_valence(N, nf, sx, sx_ns_qed):
     gamma_singlet : numpy.ndarray
         :math:`O(a_s^1a_{em}^1)` valence anomalous dimension :math:`\\gamma_{V}^{(1,1)}(N,nf,sx)`
     """
-    e2avg, vue2m, vde2m = constants.charge_combinations(nf)
-    e2delta = vde2m - vue2m + e2avg
+    e2avg, vue2m, vde2m, e2delta = constants.charge_combinations(nf)
     gamma_V_11 = np.array(
         [
             [e2avg, vue2m],

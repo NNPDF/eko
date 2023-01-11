@@ -125,8 +125,7 @@ def gamma_singlet(N, nf, sx):
     gamma_gq : :math:`\\gamma_{gq}^{(0)}`
     gamma_gg : :math:`\\gamma_{gg}^{(0)}`
     """
-    e2avg, vue2m, vde2m = constants.charge_combinations(nf)
-    e2delta = vde2m - vue2m + e2avg
+    e2avg, vue2m, vde2m, e2delta = constants.charge_combinations(nf)
     gamma_ph_q = gamma_phq(N)
     gamma_q_ph = gamma_qph(N, nf)
     gamma_nonsinglet = gamma_ns(N, sx)
@@ -186,8 +185,7 @@ def gamma_valence(N, nf, sx):
     gamma_gq : :math:`\\gamma_{gq}^{(0)}`
     gamma_gg : :math:`\\gamma_{gg}^{(0)}`
     """
-    e2avg, vue2m, vde2m = constants.charge_combinations(nf)
-    e2delta = vde2m - vue2m + e2avg
+    e2avg, vue2m, vde2m, e2delta = constants.charge_combinations(nf)
     gamma_V_01 = np.array(
         [
             [e2avg, vue2m],
