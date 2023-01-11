@@ -6,7 +6,6 @@ import numba as nb
 
 from .. import constants
 from . import as1
-from . import asp1
 
 
 @nb.njit(cache=True)
