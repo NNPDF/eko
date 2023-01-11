@@ -68,10 +68,20 @@ def test_scale_variation_a_vs_b():
         if pto[0] >= 3:
             b0 = beta_qcd_as2(nf)
             g02 = g[0] @ g[0] if is_singlet else g[0] ** 2
+            # This would be the difference if scheme B was expanded in terms
+            # of alpha(Q). However, it is expanded in terms of alpha(xi_F*Q)
+            # so one of the terms gets canceled by the change of alpha.
+            # diff += (
+            #    -2 * a1**2 * g[1] * k
+            #    + a0**2 * g[1] * k
+            #    + a1**2 * b0 * g[0] * k**2
+            #    - 0.5 * a0**2 * b0 * g[0] * k**2
+            #    - a1 * a0 * g02 * k**2
+            #    + 0.5 * a0**2 * g02 * k**2
+            # )
             diff += (
                 -2 * a1**2 * g[1] * k
                 + a0**2 * g[1] * k
-                + a1**2 * b0 * g[0] * k**2
                 - 0.5 * a0**2 * b0 * g[0] * k**2
                 - a1 * a0 * g02 * k**2
                 + 0.5 * a0**2 * g02 * k**2
