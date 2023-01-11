@@ -37,6 +37,7 @@ class TestOperatorGrid:
             "MaxNfAs": 6,
             "HQ": "POLE",
             "ModSV": None,
+            "p": False
         }
         operators_card = {
             "Q2grid": [1, 100**2],
@@ -110,7 +111,7 @@ class TestOperatorGrid:
                 threshold_holder,
                 a_s,
                 basis_function_dispatcher,
-            )
+            )          
 
     def test_compute_q2grid(self):
         opgrid = self._get_operator_grid()
