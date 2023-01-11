@@ -94,7 +94,7 @@ def gamma_ns(N, sx):
 
 @nb.njit(cache=True)
 def gamma_singlet(N, nf, sx):
-    r"""Compute the leading-order singlet anomalous dimension matrix.
+    r"""Compute the QED leading-order singlet anomalous dimension matrix.
 
     .. math::
         \\gamma_S^{(0)} = \\left(\begin{array}{cc}
@@ -159,7 +159,7 @@ def gamma_singlet(N, nf, sx):
 
 @nb.njit(cache=True)
 def gamma_valence(N, nf, sx):
-    r"""Compute the leading-order valence anomalous dimension matrix.
+    r"""Compute the QED leading-order valence anomalous dimension matrix.
 
     .. math::
         \\gamma_V^{(0,1)} = \\left(\begin{array}{cc}

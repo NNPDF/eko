@@ -6,7 +6,7 @@ import numpy as np
 from .. import anomalous_dimensions as ad
 from .. import beta
 from . import as4_evolution_integrals as as4_ei
-from . import evolution_integrals as ei
+from . import evolution_integrals_qcd as ei
 from . import utils
 
 

@@ -1,47 +1,12 @@
-r"""Compute evolution integrals.
-
-Integrals needed for the exact evolutions are given by:
-
-.. math::
-    j^{(n,m)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{(a_s')^{1+n}}{-\beta^{(m)}(a_s')}
-
-The expanded integrals are obtained from the exact results by Taylor expanding in the limit
-:math:`a_s,a_s^{0} \to 0` until :math:`\mathcal{O}( a_s^{m+1})` for :math:`N^{m}LO` computations.
-"""
-
+r"""Compute evolution integrals needed for QED."""
 import numba as nb
-import numpy as np
+
+from .. import beta
+from . import evolution_integrals as ei
 
 
 @nb.njit(cache=True)
-def jm10(a1, a0, beta0):
-    r"""LO-LO QED exact evolution integral.
-
-    .. math::
-        j^{(-1,0)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2}
-           = \frac{1.0 / a0 - 1.0 / as}{\beta_0 + aem \beta_{0,1}}
-
-    Parameters
-    ----------
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    j00 : float
-        integral
-    """
-    return (1.0 / a0 - 1.0 / a1) / beta0
-
-
-@nb.njit(cache=True)
-def j00(a1, a0, beta0):
+def j00(a1, a0, nf):
     r"""
     LO-LO exact evolution integral.
 
@@ -63,11 +28,12 @@ def j00(a1, a0, beta0):
         j00 : float
             integral
     """
-    return np.log(a1 / a0) / beta0
+    beta0 = beta.beta_qcd((2, 0), nf)
+    return ei.j00(a1, a0, beta0)
 
 
 @nb.njit(cache=True)
-def j11_exact(a1, a0, beta0, beta1):
+def j11_exact(a1, a0, nf):
     r"""
     NLO-NLO exact evolution integral.
 
@@ -90,12 +56,13 @@ def j11_exact(a1, a0, beta0, beta1):
         j11 : float
             integral
     """
-    b1 = beta1 / beta0
-    return (1.0 / beta1) * np.log((1.0 + a1 * b1) / (1.0 + a0 * b1))
+    beta0 = beta.beta_qcd((2, 0), nf)
+    beta1 = beta.beta_qcd((3, 0), nf)
+    return ei.j11_exact(a1, a0, beta0, beta1)
 
 
 @nb.njit(cache=True)
-def j11_expanded(a1, a0, beta0):
+def j11_expanded(a1, a0, nf):
     r"""
     NLO-NLO expanded evolution integral.
 
@@ -116,11 +83,12 @@ def j11_expanded(a1, a0, beta0):
         j11_exp : float
             integral
     """
-    return 1.0 / beta0 * (a1 - a0)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    return ei.j11_expanded(a1, a0, beta0)
 
 
 @nb.njit(cache=True)
-def j01_exact(a1, a0, beta0, beta1):
+def j01_exact(a1, a0, nf):
     r"""
     LO-NLO exact evolution integral.
 
@@ -143,12 +111,13 @@ def j01_exact(a1, a0, beta0, beta1):
         j11 : float
             integral
     """
-    b1 = beta1 / beta0
-    return j00(a1, a0, beta0) - b1 * j11_exact(a1, a0, beta0, beta1)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    beta1 = beta.beta_qcd((3, 0), nf)
+    return ei.j01_exact(a1, a0, beta0, beta1)
 
 
 @nb.njit(cache=True)
-def j01_expanded(a1, a0, beta0, beta1):
+def j01_expanded(a1, a0, nf):
     r"""
     LO-NLO expanded evolution integral.
 
@@ -169,40 +138,13 @@ def j01_expanded(a1, a0, beta0, beta1):
         j01_exp : float
             integral
     """
-    b1 = beta1 / beta0
-    return j00(a1, a0, beta0) - b1 * j11_expanded(a1, a0, beta0)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    beta1 = beta.beta_qcd((3, 0), nf)
+    return ei.j01_expanded(a1, a0, beta0, beta1)
 
 
 @nb.njit(cache=True)
-def jm11_exact(a1, a0, beta0, beta1):
-    r"""LO-NLO exact evolution integral.
-
-    .. math::
-        j^{(-1,1)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3}
-            = \frac{1.0 / a0 - 1.0 / as}{\beta_0 + aem \beta_{0,1}} + \frac{b_1}{(\beta_0 + aem \beta_{0,1}}  \left(\log(1 + 1 / (as b_1)) - \log(1 + 1 / (a0 b_1)\right)
-
-    Parameters
-    ----------
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    j11 : float
-        integral
-    """
-    b1 = beta1 / beta0
-    return -(1.0 / a1 - 1.0 / a0) / beta0 + b1 / beta0 * (
-        np.log(1.0 + 1.0 / (a1 * b1)) - np.log(1.0 + 1.0 / (a0 * b1))
-    )
-
-
-@nb.njit(cache=True)
-def j22_exact(a1, a0, beta0, beta1, beta2):
+def j22_exact(a1, a0, nf):
     r"""
     NNLO-NNLO exact evolution integral.
 
@@ -231,19 +173,14 @@ def j22_exact(a1, a0, beta0, beta1, beta2):
         j22 : complex
             integral
     """
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
-    # allow Delta to be complex for nf = 6, the final result will be real
-    Delta = np.sqrt(complex(4 * b2 - b1**2))
-    delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
-        (b1 + 2 * a0 * b2) / Delta
-    )
-    log = np.log((1 + a1 * (b1 + b2 * a1)) / (1 + a0 * (b1 + b2 * a0)))
-    return 1 / (2 * beta2) * log - b1 / (beta2) * np.real(delta / Delta)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    beta1 = beta.beta_qcd((3, 0), nf)
+    beta2 = beta.beta_qcd((4, 0), nf)
+    return ei.j22_exact(a1, a0, beta0, beta1, beta2)
 
 
 @nb.njit(cache=True)
-def j12_exact(a1, a0, beta0, beta1, beta2):
+def j12_exact(a1, a0, nf):
     r"""
     NLO-NNLO exact evolution integral.
 
@@ -267,18 +204,14 @@ def j12_exact(a1, a0, beta0, beta1, beta2):
         j12 : complex
             integral
     """  # pylint: disable=line-too-long
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
-    # allow Delta to be complex for nf = 6, the final result will be real
-    Delta = np.sqrt(complex(4 * b2 - b1**2))
-    delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
-        (b1 + 2 * a0 * b2) / Delta
-    )
-    return 2.0 / (beta0) * np.real(delta / Delta)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    beta1 = beta.beta_qcd((3, 0), nf)
+    beta2 = beta.beta_qcd((4, 0), nf)
+    return ei.j12_exact(a1, a0, beta0, beta1, beta2)
 
 
 @nb.njit(cache=True)
-def j02_exact(a1, a0, beta0, beta1, beta2):
+def j02_exact(a1, a0, nf):
     r"""
     LO-NNLO exact evolution integral.
 
@@ -301,17 +234,14 @@ def j02_exact(a1, a0, beta0, beta1, beta2):
         j02 : complex
             integral
     """
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
-    return (
-        j00(a1, a0, beta0)
-        - b1 * j12_exact(a1, a0, beta0, beta1, beta2)
-        - b2 * j22_exact(a1, a0, beta0, beta1, beta2)
-    )
+    beta0 = beta.beta_qcd((2, 0), nf)
+    beta1 = beta.beta_qcd((3, 0), nf)
+    beta2 = beta.beta_qcd((4, 0), nf)
+    return ei.j02_exact(a1, a0, beta0, beta1, beta2)
 
 
 @nb.njit(cache=True)
-def j22_expanded(a1, a0, beta0):
+def j22_expanded(a1, a0, nf):
     r"""
     NNLO-NNLO expanded evolution integral.
 
@@ -332,11 +262,12 @@ def j22_expanded(a1, a0, beta0):
         j22_exp : float
             integral
     """
-    return 1 / (2 * beta0) * (a1**2 - a0**2)
+    beta0 = beta.beta_qcd((2, 0), nf)
+    return ei.j22_expanded(a1, a0, beta0)
 
 
 @nb.njit(cache=True)
-def j12_expanded(a1, a0, beta0, beta1):
+def j12_expanded(a1, a0, nf):
     r"""
     NLO-NNLO expanded evolution integral.
 
@@ -358,12 +289,14 @@ def j12_expanded(a1, a0, beta0, beta1):
         j12_exp : float
             integral
     """
-    b1 = beta1 / beta0
-    return 1 / beta0 * (a1 - a0 - b1 / 2 * (a1**2 - a0**2))
+    beta0 = beta.beta_qcd((2, 0), nf)
+    beta1 = beta.beta_qcd((3, 0), nf)
+    beta2 = beta.beta_qcd((4, 0), nf)
+    return ei.j12_exact(a1, a0, beta0, beta1, beta2)
 
 
 @nb.njit(cache=True)
-def j02_expanded(a1, a0, beta0, beta1, beta2):
+def j02_expanded(a1, a0, nf):
     r"""
     LO-NNLO expanded evolution integral.
 
@@ -385,42 +318,7 @@ def j02_expanded(a1, a0, beta0, beta1, beta2):
         j02_exp : float
             integral
     """
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
-    return (
-        j00(a1, a0, beta0)
-        - b1 * j12_expanded(a1, a0, beta0, beta1)
-        - b2 * j22_expanded(a1, a0, beta0)
-    )
-
-
-@nb.njit(cache=True)
-def jm12_exact(a1, a0, beta0, beta1, beta2):
-    r"""LO-NNLO exact evolution integral.
-
-    .. math::
-        j^{(-1,2)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
-            \frac{1}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
-            &= j^{(-1,0)}(a_s,a_s^0,aem) - b_1 j^{(0,2)}(a_s,a_s^0) - b_2 j^{(1,2)}(a_s,a_s^0)
-
-    Parameters
-    ----------
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    j02 : complex
-        integral
-    """
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
-    return (
-        jm10(a1, a0, beta0)
-        - b1 * j02_exact(a1, a0, beta0, beta1, beta2)
-        - b2 * j12_exact(a1, a0, beta0, beta1, beta2)
-    )
+    beta0 = beta.beta_qcd((2, 0), nf)
+    beta1 = beta.beta_qcd((3, 0), nf)
+    beta2 = beta.beta_qcd((4, 0), nf)
+    return ei.j02_expanded(a1, a0, beta0, beta1, beta2)

@@ -1,13 +1,11 @@
-"""
-Collection of non-singlet EKOs.
-"""
+"""Collection of non-singlet EKOs."""
 
 import numba as nb
 import numpy as np
 
 from .. import beta
 from . import as4_evolution_integrals as as4_ei
-from . import evolution_integrals as ei
+from . import evolution_integrals_qcd as ei
 from . import utils
 
 
@@ -51,8 +49,7 @@ def U_vec(gamma_ns, nf, order):
 
 @nb.njit(cache=True)
 def lo_exact(gamma_ns, a1, a0, nf):
-    """
-    |LO| non-singlet exact EKO
+    """|LO| non-singlet exact EKO.
 
     Parameters
     ----------
@@ -75,8 +72,7 @@ def lo_exact(gamma_ns, a1, a0, nf):
 
 @nb.njit(cache=True)
 def nlo_exact(gamma_ns, a1, a0, nf):
-    """
-    |NLO| non-singlet exact EKO
+    """|NLO| non-singlet exact EKO.
 
     Parameters
     ----------
@@ -101,8 +97,7 @@ def nlo_exact(gamma_ns, a1, a0, nf):
 
 @nb.njit(cache=True)
 def nlo_expanded(gamma_ns, a1, a0, nf):
-    """
-    |NLO| non-singlet expanded EKO
+    """|NLO| non-singlet expanded EKO.
 
     Parameters
     ----------
@@ -128,8 +123,7 @@ def nlo_expanded(gamma_ns, a1, a0, nf):
 
 @nb.njit(cache=True)
 def nnlo_exact(gamma_ns, a1, a0, nf):
-    """
-    |NNLO| non-singlet exact EKO
+    """|NNLO| non-singlet exact EKO.
 
     Parameters
     ----------
@@ -156,8 +150,7 @@ def nnlo_exact(gamma_ns, a1, a0, nf):
 
 @nb.njit(cache=True)
 def nnlo_expanded(gamma_ns, a1, a0, nf):
-    """
-    |NNLO| non-singlet expanded EKO
+    """|NNLO| non-singlet expanded EKO.
 
     Parameters
     ----------
@@ -184,7 +177,7 @@ def nnlo_expanded(gamma_ns, a1, a0, nf):
 
 @nb.njit(cache=True)
 def n3lo_expanded(gamma_ns, a1, a0, nf):
-    """|N3LO| non-singlet expanded EKO
+    """|N3LO| non-singlet expanded EKO.
 
     Parameters
     ----------
@@ -223,7 +216,7 @@ def n3lo_expanded(gamma_ns, a1, a0, nf):
 
 @nb.njit(cache=True)
 def n3lo_exact(gamma_ns, a1, a0, nf):
-    """|N3LO| non-singlet exact EKO
+    """|N3LO| non-singlet exact EKO.
 
     Parameters
     ----------
@@ -263,7 +256,7 @@ def n3lo_exact(gamma_ns, a1, a0, nf):
 
 @nb.njit(cache=True)
 def eko_ordered_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations):
-    """|NLO|, |NNLO| or |N3LO| non-singlet ordered truncated EKO
+    """|NLO|, |NNLO| or |N3LO| non-singlet ordered truncated EKO.
 
     Parameters
     ----------
@@ -303,7 +296,7 @@ def eko_ordered_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations):
 
 @nb.njit(cache=True)
 def eko_truncated(gamma_ns, a1, a0, nf, order, ev_op_iterations):
-    """|NLO|, |NNLO| or |N3LO| non-singlet truncated EKO
+    """|NLO|, |NNLO| or |N3LO| non-singlet truncated EKO.
 
     Parameters
     ----------

@@ -159,8 +159,8 @@ def gamma_singlet_qed(N, s1, nf):
 
     Returns
     -------
-    gamma_S_0 : numpy.ndarray
-        Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(0)}(N)`
+    gamma_S : numpy.ndarray
+        Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(1,0)}(N)`
 
     See Also
     --------
@@ -201,8 +201,8 @@ def gamma_valence_qed(N, s1):
 
     Returns
     -------
-    gamma_S_0 : numpy.ndarray
-        Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(0)}(N)`
+    gamma_V : numpy.ndarray
+        Leading-order singlet anomalous dimension matrix :math:`\\gamma_{V}^{(1,0)}(N)`
 
     See Also
     --------

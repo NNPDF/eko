@@ -1,7 +1,7 @@
 import numpy as np
 
 from eko import beta
-from eko.kernels import evolution_integrals as ei
+from eko.kernels import evolution_integrals_qcd as ei
 from eko.kernels import evolution_integrals_qed as ei_qed
 
 
@@ -28,14 +28,14 @@ def test_zero_qed():
     """No evolution results in exp(0)"""
     nf = 3
     for fnc in [
-        ei_qed.j00_qed,
+        ei_qed.j00,
         ei_qed.jm10,
-        ei_qed.j11_exact_qed,
-        ei_qed.j01_exact_qed,
+        ei_qed.j11_exact,
+        ei_qed.j01_exact,
         ei_qed.jm11_exact,
-        ei_qed.j22_exact_qed,
-        ei_qed.j12_exact_qed,
-        ei_qed.j02_exact_qed,
+        ei_qed.j22_exact,
+        ei_qed.j12_exact,
+        ei_qed.j02_exact,
         ei_qed.jm12_exact,
     ]:
         np.testing.assert_allclose(fnc(1, 1, 0.00058, nf), 0)

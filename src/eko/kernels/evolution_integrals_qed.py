@@ -1,13 +1,12 @@
 r"""Compute evolution integrals needed for QED."""
 import numba as nb
-import numpy as np
 
 from .. import beta
 from . import evolution_integrals as ei
 
 
 @nb.njit(cache=True)
-def j00_qed(a1, a0, aem, nf):
+def j00(a1, a0, aem, nf):
     r"""LO-LO QED exact evolution integral.
 
     .. math::
@@ -31,7 +30,7 @@ def j00_qed(a1, a0, aem, nf):
         integral
     """
     beta0 = beta.beta_qcd((2, 0), nf) + aem * beta.beta_qcd((2, 1), nf)
-    return np.log(a1 / a0) / beta0
+    return ei.j00(a1, a0, beta0)
 
 
 @nb.njit(cache=True)
@@ -59,11 +58,11 @@ def jm10(a1, a0, aem, nf):
         integral
     """
     beta0 = beta.beta_qcd((2, 0), nf) + aem * beta.beta_qcd((2, 1), nf)
-    return (1.0 / a0 - 1.0 / a1) / beta0
+    return ei.jm10(a1, a0, beta0)
 
 
 @nb.njit(cache=True)
-def j11_exact_qed(a1, a0, aem, nf):
+def j11_exact(a1, a0, aem, nf):
     r"""NLO-NLO exact evolution integral.
 
     .. math::
@@ -89,12 +88,11 @@ def j11_exact_qed(a1, a0, aem, nf):
     """
     beta1 = beta.beta_qcd((3, 0), nf)
     beta0 = beta.beta_qcd((2, 0), nf) + aem * beta.beta_qcd((2, 1), nf)
-    b1 = beta1 / beta0
-    return (1.0 / beta1) * np.log((1.0 + a1 * b1) / (1.0 + a0 * b1))
+    return ei.j11_exact(a1, a0, beta0, beta1)
 
 
 @nb.njit(cache=True)
-def j01_exact_qed(a1, a0, aem, nf):
+def j01_exact(a1, a0, aem, nf):
     r"""LO-NLO QED exact evolution integral.
 
     .. math::
@@ -120,8 +118,7 @@ def j01_exact_qed(a1, a0, aem, nf):
     """
     beta1 = beta.beta_qcd((3, 0), nf)
     beta0 = beta.beta_qcd((2, 0), nf) + aem * beta.beta_qcd((2, 1), nf)
-    b1 = beta1 / beta0
-    return j00_qed(a1, a0, aem, nf) - b1 * j11_exact_qed(a1, a0, aem, nf)
+    return ei.j01_exact(a1, a0, beta0, beta1)
 
 
 @nb.njit(cache=True)
@@ -147,14 +144,12 @@ def jm11_exact(a1, a0, aem, nf):
         integral
     """
     beta0 = beta.beta_qcd((2, 0), nf) + aem * beta.beta_qcd((2, 1), nf)
-    b1 = beta.beta_qcd((3, 0), nf) / beta0
-    return -(1.0 / a1 - 1.0 / a0) / beta0 + b1 / beta0 * (
-        np.log(1.0 + 1.0 / (a1 * b1)) - np.log(1.0 + 1.0 / (a0 * b1))
-    )
+    beta1 = beta.beta_qcd((3, 0), nf)
+    return ei.jm11_exact(a1, a0, beta0, beta1)
 
 
 @nb.njit(cache=True)
-def j22_exact_qed(a1, a0, aem, nf):
+def j22_exact(a1, a0, aem, nf):
     r"""NNLO-NNLO exact evolution integral.
 
     .. math::
@@ -185,21 +180,13 @@ def j22_exact_qed(a1, a0, aem, nf):
         integral
     """
     beta0 = beta.beta_qcd((2, 0), nf) + aem * beta.beta_qcd((2, 1), nf)
-    b1 = beta.beta_qcd((3, 0), nf) / beta0
-    b2 = beta.beta_qcd((4, 0), nf) / beta0
-    # allow Delta to be complex for nf = 6, the final result will be real
-    Delta = np.sqrt(complex(4 * b2 - b1**2))
-    delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
-        (b1 + 2 * a0 * b2) / Delta
-    )
-    log = np.log((1 + a1 * (b1 + b2 * a1)) / (1 + a0 * (b1 + b2 * a0)))
-    return 1 / (2 * beta.beta_qcd((4, 0), nf)) * log - b1 / (
-        beta.beta_qcd((4, 0), nf)
-    ) * np.real(delta / Delta)
+    beta1 = beta.beta_qcd((3, 0), nf)
+    beta2 = beta.beta_qcd((4, 0), nf)
+    return ei.j22_exact(a1, a0, beta0, beta1, beta2)
 
 
 @nb.njit(cache=True)
-def j12_exact_qed(a1, a0, aem, nf):
+def j12_exact(a1, a0, aem, nf):
     r"""NLO-NNLO exact evolution integral.
 
     .. math::
@@ -225,18 +212,13 @@ def j12_exact_qed(a1, a0, aem, nf):
         integral
     """  # pylint: disable=line-too-long
     beta0 = beta.beta_qcd((2, 0), nf) + aem * beta.beta_qcd((2, 1), nf)
-    b1 = beta.beta_qcd((3, 0), nf) / beta0
-    b2 = beta.beta_qcd((4, 0), nf) / beta0
-    # allow Delta to be complex for nf = 6, the final result will be real
-    Delta = np.sqrt(complex(4 * b2 - b1**2))
-    delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
-        (b1 + 2 * a0 * b2) / Delta
-    )
-    return 2.0 / (beta0) * np.real(delta / Delta)
+    beta1 = beta.beta_qcd((3, 0), nf)
+    beta2 = beta.beta_qcd((4, 0), nf)
+    return ei.j12_exact(a1, a0, beta0, beta1, beta2)
 
 
 @nb.njit(cache=True)
-def j02_exact_qed(a1, a0, aem, nf):
+def j02_exact(a1, a0, aem, nf):
     r"""LO-NNLO exact evolution integral.
 
     .. math::
@@ -261,13 +243,9 @@ def j02_exact_qed(a1, a0, aem, nf):
         integral
     """
     beta0 = beta.beta_qcd((2, 0), nf) + aem * beta.beta_qcd((2, 1), nf)
-    b1 = beta.beta_qcd((3, 0), nf) / beta0
-    b2 = beta.beta_qcd((4, 0), nf) / beta0
-    return (
-        j00_qed(a1, a0, aem, nf)
-        - b1 * j12_exact_qed(a1, a0, aem, nf)
-        - b2 * j22_exact_qed(a1, a0, aem, nf)
-    )
+    beta1 = beta.beta_qcd((3, 0), nf)
+    beta2 = beta.beta_qcd((4, 0), nf)
+    return ei.j02_exact(a1, a0, beta0, beta1, beta2)
 
 
 @nb.njit(cache=True)
@@ -294,10 +272,6 @@ def jm12_exact(a1, a0, aem, nf):
         integral
     """
     beta0 = beta.beta_qcd((2, 0), nf) + aem * beta.beta_qcd((2, 1), nf)
-    b1 = beta.beta_qcd((3, 0), nf) / beta0
-    b2 = beta.beta_qcd((4, 0), nf) / beta0
-    return (
-        jm10(a1, a0, aem, nf)
-        - b1 * j02_exact_qed(a1, a0, aem, nf)
-        - b2 * j12_exact_qed(a1, a0, aem, nf)
-    )
+    beta1 = beta.beta_qcd((3, 0), nf)
+    beta2 = beta.beta_qcd((4, 0), nf)
+    return ei.jm12_exact(a1, a0, beta0, beta1, beta2)

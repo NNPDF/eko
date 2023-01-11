@@ -2,7 +2,7 @@ import numpy as np
 
 from eko import beta
 from eko.kernels import as4_evolution_integrals as as4_ei
-from eko.kernels.evolution_integrals import j00
+from eko.kernels.evolution_integrals_qcd import j00
 
 
 def test_zero():
