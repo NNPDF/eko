@@ -96,7 +96,12 @@ unified_evol_basis_pids = tuple(
     + [108 + 2, 208 + 2]
     + [108 + 1, 208 + 1]
 )
-"""|pid| representation of :data:`unified_evol_basis`."""
+r"""
+|pid| representation of :data:`unified_evol_basis`.
+
+The notation used for the non singlet compunents is the following:
+pid_ns(u) = pid_ns + 1, pid_ns(d) = pid_ns + 2.
+"""
 
 non_singlet_pids_map = {
     "ns-": 10201,
