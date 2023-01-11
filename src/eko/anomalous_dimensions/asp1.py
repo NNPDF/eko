@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""This file contains the leading-order Altarelli-Parisi splitting kernels."""
+"""This file contains the leading-order polarised  Altarelli-Parisi splitting kernels."""
 
 import numba as nb
 import numpy as np
@@ -81,12 +81,10 @@ def gamma_pgg(N, s1, nf):
       gamma_gg : complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    gamma = -s1 + 2 / N / (N + 1)
-    result = constants.CA * (-4.0 * gamma - 11.0 / 3.0) + 4.0 / 3.0 * constants.TR * nf
+    gamma = s1 - 2 / N / (N + 1)
+    result = constants.CA * (4.0 * gamma - 11.0 / 3.0) + 4.0 / 3.0 * constants.TR * nf
     return result
 
-
-# I think that there is a problem with the sign here (maybe the constants have the opp. sign)
 
 
 @nb.njit(cache=True)

@@ -1,2 +1,3 @@
-from . import run
-from ._base import command
+"""EKO CLI definition."""
+from . import convert, inspect, log, run, runcards
+from .base import command

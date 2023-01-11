@@ -83,7 +83,7 @@ class QuadKerBase:
 
     @property
     def n(self):
-        """Returns the Mellin moment :math:`N`."""
+        """Return the Mellin moment :math:`N`."""
         return self.path.n
 
     def integrand(
@@ -241,8 +241,6 @@ class Operator(sv.ModeMixin):
         managers
     nf : int
         number of active flavors
-    p : Boolean
-        Polarised (True) or un-Polarised (False)
     q2_from : float
         evolution source
     q2_to : float
@@ -288,9 +286,9 @@ class Operator(sv.ModeMixin):
         return max(os.cpu_count() + n_pools, 1)
 
     @property
-    def fact_to_ren(self):
+    def xif2(self):
         r"""Return scale variation factor :math:`(\mu_F/\mu_R)^2`."""
-        return self.config["fact_to_ren"]
+        return self.config["xif2"]
 
     @property
     def int_disp(self):
@@ -316,7 +314,7 @@ class Operator(sv.ModeMixin):
             renormalization scale
         """
         if self.sv_mode == sv.Modes.exponentiated:
-            return q2 / self.fact_to_ren
+            return q2 / self.xif2
         return q2
 
     @property
@@ -467,8 +465,7 @@ class Operator(sv.ModeMixin):
             # unless we have to do some scale variation
             # TODO remove if K is factored out of here
             if not (
-                self.sv_mode == sv.Modes.expanded
-                and not np.isclose(self.fact_to_ren, 1.0)
+                self.sv_mode == sv.Modes.expanded and not np.isclose(self.xif2, 1.0)
             ):
                 logger.info(
                     "%s: skipping unity operator at %e", self.log_label, self.q2_from
@@ -492,7 +489,7 @@ class Operator(sv.ModeMixin):
         if self.sv_mode != sv.Modes.unvaried:
             logger.info(
                 "Scale Variation: (µ_F/µ_R)^2 = %e, mode: %s",
-                self.fact_to_ren,
+                self.xif2,
                 self.sv_mode.name,
             )
         logger.info(
