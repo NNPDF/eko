@@ -1,7 +1,7 @@
 import numpy as np
 
 from eko import basis_rotation as br
-from eko.anomalous_dimensions import gamma_ns, gamma_singlet
+from ekore.anomalous_dimensions import gamma_ns, gamma_singlet
 from eko.beta import beta_qcd_as2, beta_qcd_as3
 from eko.kernels import non_singlet, singlet
 from eko.scale_variations import Modes, expanded, exponentiated
@@ -86,7 +86,7 @@ def test_scale_variation_a_vs_b():
                 - 1 / 2 * a0**3 * b1 * g[0] * k**2
                 + a1**3 * b1 * g[0] * k**2
                 - a0**3 * b0 * g[1] * k**2
-                + 2 * a1**3 *b0 * g[1] * k**2
+                + 2 * a1**3 * b0 * g[1] * k**2
                 + a0**3 * g0g1 * k**2
                 - a0**2 * a1 * g0g1 * k**2
                 - a0 * a1**2 * g0g1 * k**2
@@ -104,9 +104,8 @@ def test_scale_variation_a_vs_b():
             )
         return diff
 
-
     for L in [np.log(0.5), np.log(2)]:
-        for order in [(2, 0), (3, 0), (4,0)]:
+        for order in [(2, 0), (3, 0), (4, 0)]:
             # Non singlet kernels
             gns = gamma_ns(order, br.non_singlet_pids_map["ns+"], n, nf)
             ker = non_singlet.dispatcher(

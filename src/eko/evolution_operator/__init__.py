@@ -13,7 +13,7 @@ import numba as nb
 import numpy as np
 from scipy import integrate
 
-from .. import anomalous_dimensions as ad
+from ekore import anomalous_dimensions as ad
 from .. import basis_rotation as br
 from .. import interpolation, mellin
 from .. import scale_variations as sv

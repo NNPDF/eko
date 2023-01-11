@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from eko import beta
-from eko.harmonics.constants import zeta3
+from ekore.harmonics.constants import zeta3
 
 
 def _flav_test(function):

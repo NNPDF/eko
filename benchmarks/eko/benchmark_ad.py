@@ -2,8 +2,8 @@
 import numpy as np
 import pytest
 
-import eko.anomalous_dimensions.as2 as ad_as2
-import eko.harmonics as h
+import ekore.anomalous_dimensions.as2 as ad_as2
+import ekore.harmonics as h
 from eko.constants import CA, CF, TR
 
 

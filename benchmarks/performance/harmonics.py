@@ -1,6 +1,6 @@
 import numpy as np
 
-from eko import anomalous_dimensions as ad
+from ekore import anomalous_dimensions as ad
 from eko.mellin import Path
 
 NF = 5

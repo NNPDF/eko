@@ -3,7 +3,7 @@ import warnings
 import numpy as np
 import pytest
 
-from eko import anomalous_dimensions as ad
+from ekore import anomalous_dimensions as ad
 from eko import beta
 from eko.kernels import non_singlet as ns
 

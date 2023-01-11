@@ -4,7 +4,7 @@ import numpy as np
 import scipy.integrate
 
 import eko.runner.legacy
-from eko import anomalous_dimensions as ad
+from ekore import anomalous_dimensions as ad
 from eko import basis_rotation as br
 from eko import interpolation, mellin
 from eko.evolution_operator import Operator, quad_ker

@@ -124,7 +124,7 @@ the Mellin inverse.
     S_m(N) = \sum\limits_{j=1}^N \frac 1 {j^m} = \frac{(-1)^{m-1}}{(m-1)!} \psi_{m-1}(N+1)+c_m \quad
     \text{with},\quad c_m = \left\{\begin{array}{ll} \gamma_E, & m=1\\ \zeta(m), & m>1\end{array} \right.
 
-  where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`~eko.harmonics.polygamma.cern_polygamma`)
+  where :math:`\psi_k(N)` is the :math:`k`-th polygamma function (implemented as :meth:`~ekore.harmonics.polygamma.cern_polygamma`)
   and :math:`\zeta` the Riemann zeta function (using :func:`scipy.special.zeta`).
 
 - for the sums :math:`S_{-m}(N)` and m > 0 we use :cite:`Gluck:1989ze`:
@@ -149,7 +149,7 @@ the Mellin inverse.
   which express higher weight sums in terms of simple one :math:`S_{m}, S_{-m}` and some irreducible integrals.
   The above prescription on the analytical continuation of :math:`\eta` is applied.
 
-The complete list of harmonics sums available in :mod:`eko.harmonics` is:
+The complete list of harmonics sums available in :mod:`ekore.harmonics` is:
 
     - weight 1:
 
@@ -166,20 +166,20 @@ The complete list of harmonics sums available in :mod:`eko.harmonics` is:
         .. math::
             S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}
 
-        these sums relies on the integrals :mod:`eko.harmonics.g_functions` :cite:`MuselliPhD,Blumlein:1998if`
+        these sums relies on the integrals :mod:`ekore.harmonics.g_functions` :cite:`MuselliPhD,Blumlein:1998if`
 
     - weight 4:
 
         .. math ::
             S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}
 
-        these sums relies on the integrals :mod:`eko.harmonics.g_functions` :cite:`MuselliPhD,Blumlein:1998if`
+        these sums relies on the integrals :mod:`ekore.harmonics.g_functions` :cite:`MuselliPhD,Blumlein:1998if`
 
     - weight 5:
 
         .. math ::
             S_{5}, S_{4,1}, S_{3,1,1}, S_{2,3}, S_{2,2,1}, S_{2,1,1,1}, S_{2,1,-2}, S_{2,-3}, S_{-2,3}, S_{-2,2,1}, S_{-2,1,1,1}, S_{-5}
 
-        these sums relies on the integrals :mod:`eko.harmonics.f_functions` :cite:`Blumlein:2009ta`
+        these sums relies on the integrals :mod:`ekore.harmonics.f_functions` :cite:`Blumlein:2009ta`
 
-We have also implemented a recursive computation of simple harmonics (single index), see :func:`eko.harmonics.polygamma.recursive_harmonic_sum`
+We have also implemented a recursive computation of simple harmonics (single index), see :func:`ekore.harmonics.polygamma.recursive_harmonic_sum`
