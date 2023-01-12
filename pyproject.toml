@@ -133,6 +133,7 @@ python_functions = ['test_*', 'benchmark_*']
 addopts = [
   '--cov=eko',
   '--cov=ekobox',
+  '--cov=ekore',
   '--cov-report=html',
   '--cov-report=xml',
   '--strict-markers',
