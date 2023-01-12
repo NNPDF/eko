@@ -3,7 +3,7 @@ r"""This module contains the anomalous dimension :math:`\gamma_{gq}^{(3)}`
 import numba as nb
 import numpy as np
 
-from ...harmonics.log_functions import lm13, lm13m1, lm14, lm15
+from .....harmonics.log_functions import lm13, lm13m1, lm14, lm15
 
 
 @nb.njit(cache=True)

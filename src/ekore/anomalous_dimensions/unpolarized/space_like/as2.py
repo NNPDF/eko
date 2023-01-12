@@ -10,8 +10,8 @@ import numba as nb
 import numpy as np
 
 from eko import constants
-from .. import harmonics
-from ..harmonics.constants import log2, zeta2, zeta3
+from .... import harmonics
+from ....harmonics.constants import log2, zeta2, zeta3
 
 
 @nb.njit(cache=True)

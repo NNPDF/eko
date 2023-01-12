@@ -1,7 +1,7 @@
 # Test N3LO anomalous dimensions
 import numpy as np
 
-from ekore.anomalous_dimensions.as4 import (
+from ekore.anomalous_dimensions.unpolarized.space_like.as4 import (
     gamma_singlet,
     ggg,
     ggq,

@@ -1,8 +1,7 @@
 # Test LO splitting functions
 import numpy as np
 
-import ekore.anomalous_dimensions.aem1 as ad_aem1
-import ekore.anomalous_dimensions.as1 as ad_as1
+import ekore.anomalous_dimensions.unpolarized.space_like.as1 as ad_as1
 from ekore import harmonics
 
 NF = 5

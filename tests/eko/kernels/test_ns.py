@@ -3,7 +3,7 @@ import warnings
 import numpy as np
 import pytest
 
-from ekore import anomalous_dimensions as ad
+import ekore.anomalous_dimensions.unpolarized.space_like as ad
 from eko import beta
 from eko.kernels import non_singlet as ns
 
