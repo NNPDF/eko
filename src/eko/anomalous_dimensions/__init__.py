@@ -326,8 +326,7 @@ def choose_ns_ad_aem1(mode, n, sx):
         return constants.eu2 * aem1.gamma_ns(n, sx)
     elif mode in [10103, 10203]:
         return constants.ed2 * aem1.gamma_ns(n, sx)
-    else:
-        raise NotImplementedError("Non-singlet sector is not implemented")
+    raise NotImplementedError("Non-singlet sector is not implemented")
 
 
 @nb.njit(cache=True)
@@ -357,6 +356,7 @@ def choose_ns_ad_as1aem1(mode, n, sx, sx_ns_qed):
         return constants.eu2 * as1aem1.gamma_nsm(n, sx, sx_ns_qed)
     elif mode == 10203:
         return constants.ed2 * as1aem1.gamma_nsm(n, sx, sx_ns_qed)
+    raise NotImplementedError("Non-singlet sector is not implemented")
 
 
 @nb.njit(cache=True)
@@ -386,6 +386,7 @@ def choose_ns_ad_aem2(mode, n, nf, sx, sx_ns_qed):
         return constants.eu2 * aem2.gamma_nsmu(n, nf, sx, sx_ns_qed)
     elif mode == 10203:
         return constants.ed2 * aem2.gamma_nsmd(n, nf, sx, sx_ns_qed)
+    raise NotImplementedError("Non-singlet sector is not implemented")
 
 
 @nb.njit(cache=True)
