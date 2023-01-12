@@ -5,8 +5,8 @@ This file contains the O(as1aem1) Altarelli-Parisi splitting kernels.
 import numba as nb
 
 from eko import constants
-from .. import harmonics
-from ..harmonics.constants import zeta2, zeta3
+from .... import harmonics
+from ....harmonics.constants import zeta2, zeta3
 
 
 @nb.njit(cache=True)

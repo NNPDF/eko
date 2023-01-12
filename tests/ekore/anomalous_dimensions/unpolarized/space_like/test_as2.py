@@ -1,7 +1,7 @@
 # Test NLO anomalous dims
 import numpy as np
 
-import ekore.anomalous_dimensions.as2 as ad_as2
+import ekore.anomalous_dimensions.unpolarized.space_like.as2 as ad_as2
 import ekore.harmonics as h
 from eko import constants as const
 

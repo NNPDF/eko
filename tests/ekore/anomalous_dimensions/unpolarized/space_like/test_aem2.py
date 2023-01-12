@@ -1,7 +1,7 @@
 # Test O(as1aem1) splitting functions
 import numpy as np
 
-from ekore import anomalous_dimensions as ad
+import ekore.anomalous_dimensions.unpolarized.space_like as ad
 from eko import constants
 from ekore import harmonics as h
 

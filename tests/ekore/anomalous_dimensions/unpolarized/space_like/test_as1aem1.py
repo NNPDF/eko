@@ -2,7 +2,7 @@
 import numpy as np
 import pytest
 
-from ekore import anomalous_dimensions as ad
+import ekore.anomalous_dimensions.unpolarized.space_like as ad
 from eko import constants
 from ekore import harmonics as h
 

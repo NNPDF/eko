@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from ekore.anomalous_dimensions import harmonics as h
+from ekore import harmonics as h
 
 zeta3 = h.constants.zeta3
 log2 = h.constants.log2

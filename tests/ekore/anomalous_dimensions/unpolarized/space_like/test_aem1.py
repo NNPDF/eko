@@ -1,22 +1,23 @@
 # Test LO splitting functions
 import numpy as np
 
-from ekore import anomalous_dimensions as ad
+import ekore.harmonics as h
+import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
 
 
 def test_number_conservation():
     # number
     N = complex(1.0, 0.0)
-    s1 = ad.harmonics.S1(N)
-    np.testing.assert_almost_equal(ad.aem1.gamma_ns(N, s1), 0)
+    s1 = h.S1(N)
+    np.testing.assert_almost_equal(ad_us.aem1.gamma_ns(N, s1), 0)
 
 
 def test_quark_momentum_conservation():
     # quark momentum
     N = complex(2.0, 0.0)
-    s1 = ad.harmonics.S1(N)
+    s1 = h.S1(N)
     np.testing.assert_almost_equal(
-        ad.aem1.gamma_ns(N, s1) + ad.aem1.gamma_phq(N),
+        ad_us.aem1.gamma_ns(N, s1) + ad_us.aem1.gamma_phq(N),
         0,
     )
 
@@ -26,5 +27,5 @@ def test_photon_momentum_conservation():
     N = complex(2.0, 0.0)
     for NF in range(2, 6 + 1):
         np.testing.assert_almost_equal(
-            ad.aem1.gamma_qph(N, NF) + ad.aem1.gamma_phph(NF), 0
+            ad_us.aem1.gamma_qph(N, NF) + ad_us.aem1.gamma_phph(NF), 0
         )

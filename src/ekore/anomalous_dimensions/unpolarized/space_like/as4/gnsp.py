@@ -3,7 +3,7 @@
 """
 import numba as nb
 
-from ...harmonics.log_functions import lm11m1, lm12m1, lm13m1
+from .....harmonics.log_functions import lm11m1, lm12m1, lm13m1
 from .gnsm import gamma_ns_nf3
 
 
