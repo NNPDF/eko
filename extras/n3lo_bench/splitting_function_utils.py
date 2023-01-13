@@ -1,6 +1,7 @@
 import numpy as np
 from click import progressbar
 from eko.anomalous_dimensions import gamma_ns, gamma_singlet
+from eko import scale_variations as sv
 from eko.couplings import Couplings
 from eko.mellin import Path
 from scipy import integrate
@@ -20,7 +21,7 @@ def compute_ad(nf, n_grid, ns_mode=None, n3lo_variation="best"):
     return np.array(gs_list)
 
 
-def non_singlet_ad(entry, n_grid, nf=4, full_ad=False):
+def non_singlet_ad(entry, n_grid, nf, full_ad=False):
     ns_mode = entry[-1]
     gamma = compute_ad(nf=nf, n_grid=n_grid, ns_mode=ns_mode)
     if full_ad:
@@ -28,7 +29,7 @@ def non_singlet_ad(entry, n_grid, nf=4, full_ad=False):
     return gamma[:, 1], gamma[:, 2], gamma[:, 3]
 
 
-def singlet_ad(entry, n_grid, nf=4, full_ad=False):
+def singlet_ad(entry, n_grid, nf, full_ad=False):
     idx1, idx2 = map_singlet_entries[entry]
     gamma = compute_ad(nf, n_grid)
     if full_ad:
@@ -36,7 +37,7 @@ def singlet_ad(entry, n_grid, nf=4, full_ad=False):
     return gamma[:, 1, idx1, idx2], gamma[:, 2, idx1, idx2], gamma[:, 3, idx1, idx2]
 
 
-def integrand(u, x, order, entry, nf, ns_mode, n3lo_variation):
+def integrand(u, x, order, entry, nf, ns_mode, n3lo_variation, L):
     is_singlet = ns_mode is None
     path = Path(u, np.log(x), is_singlet)
     integrand = path.prefactor * x ** (-path.n) * path.jac
@@ -45,16 +46,23 @@ def integrand(u, x, order, entry, nf, ns_mode, n3lo_variation):
 
     if is_singlet:
         gamma = gamma_singlet((order + 1, 0), path.n, nf, n3lo_variation)
+        if L != 0:
+            gamma = sv.exponentiated.gamma_variation(gamma, (order + 1, 0), nf, L)
         idx1, idx2 = map_singlet_entries[entry]
         gamma = gamma[order, idx1, idx2]
     else:
-        gamma = gamma_ns((order + 1, 0), ns_mode, path.n, nf)[order]
+        gamma = gamma_ns((order + 1, 0), ns_mode, path.n, nf)
+        if L != 0:
+            gamma = sv.exponentiated.gamma_variation(gamma, (order + 1, 0), nf, L)
+        gamma = gamma[order]
 
     # recombine everything
     return np.real(gamma * integrand)
 
 
-def splitting_function(entry, x_grid, nf, n3lo_variation=(0,0,0,0), orders=None):
+def splitting_function(
+    entry, x_grid, nf, n3lo_variation=(0, 0, 0, 0), orders=None, L=0
+):
     """Compute the x-space splitting function, returns x P(x)"""
     mellin_cut = 5e-2
     ns_mode = map_non_singlet_modes.get(entry, None)
@@ -74,7 +82,7 @@ def splitting_function(entry, x_grid, nf, n3lo_variation=(0,0,0,0), orders=None)
                     continue
                 res = integrate.quad(
                     lambda u: integrand(
-                        u, x, order, entry, nf, ns_mode, n3lo_variation
+                        u, x, order, entry, nf, ns_mode, n3lo_variation, L
                     ),
                     0.5,
                     1.0 - mellin_cut,
@@ -83,20 +91,23 @@ def splitting_function(entry, x_grid, nf, n3lo_variation=(0,0,0,0), orders=None)
                     limit=200,
                     full_output=1,
                 )[0]
-                tot_res.append(- x * res)
+                tot_res.append(-x * res)
             gamma_x.append(tot_res)
     return np.array(gamma_x).T
 
 
-def compute_a_s(q2=None, nf=None):
+def compute_a_s(q2=None, fact_scale=None, nf=None, order=(4, 0)):
     if q2 is not None:
+        fact_scale = q2 if fact_scale is None else fact_scale
         sc = Couplings(
             scale_ref=91.00**2,
             couplings_ref=np.array([0.118, 0.1]),
             masses=[1.51, 4.92, 172.5],
             thresholds_ratios=[1, 1, 1],
             nf_ref=5,
-            order=(4, 0),
+            order=order,
+            method="expanded",
         )
-        return sc.a_s(scale_to=q2, nf_to=nf)
+        return sc.a_s(scale_to=q2, fact_scale=fact_scale, nf_to=nf)
+
     return 0.2 / (4 * np.pi)

@@ -76,7 +76,7 @@ def plot_ad(entry, q2=None, nf=4, logscale=True, show_candidates=False, plot_sca
     g = splitting_function(entry, grid, nf)
     small_x = singlet_to_0(entry, grid, nf)
 
-    a_s = compute_a_s(q2)
+    a_s = compute_a_s(q2, nf=nf)
     g_lo = g[:, 0] * a_s
     g_nlo = g_lo + g[:, 1] * a_s**2
     g_nnlo = g_nlo + g[:, 2] * a_s**3
@@ -189,4 +189,4 @@ if __name__ == "__main__":
 
         # log plots
         x_grid = make_lambert_grid(60, x_min=1e-7)
-        plot_ad(k,plot_scaling=True)
+        plot_ad(k,plot_scaling=True, q2=38.5, nf=5)
