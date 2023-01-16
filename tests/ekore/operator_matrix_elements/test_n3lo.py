@@ -2,8 +2,8 @@
 import numpy as np
 
 from ekore.harmonics import compute_cache
-from ekore.matching_conditions import as3
-from ekore.matching_conditions.as3 import A_ns, A_qqNS, A_singlet
+from ekore.operator_matrix_elements import as3
+from ekore.operator_matrix_elements.as3 import A_ns, A_qqNS, A_singlet
 
 
 def test_A_3():
