@@ -12,7 +12,7 @@ from ...unpolarized.space_like.as1 import gamma_ns
 def gamma_qg(N, nf):
     """
     Computes the leading-order polarised quark-gluon anomalous dimension
-    #require citation
+    :cite:`Gluck:1995yr` (eq A.1)
 
     Parameters
     ----------
@@ -35,7 +35,7 @@ def gamma_qg(N, nf):
 def gamma_gq(N):
     """
     Computes the leading-order polarised gluon-quark anomalous dimension
-
+    :cite:`Gluck:1995yr` (eq A.1)
 
     Parameters
     ----------
@@ -56,7 +56,7 @@ def gamma_gq(N):
 def gamma_gg(N, s1, nf):
     """
     Computes the leading-order polarised gluon-gluon anomalous dimension
-
+    :cite:`Gluck:1995yr` (eq A.1)
 
     Parameters
     ----------

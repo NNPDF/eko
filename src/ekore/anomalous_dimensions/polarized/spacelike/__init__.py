@@ -17,20 +17,15 @@ from . import as1
 
 
 @nb.njit(cache=True)
-def gamma_ns(order, mode, n, nf):
+def gamma_ns(order, n):
     r"""Computes the tower of the non-singlet anomalous dimensions
 
     Parameters
     ----------
     order : tuple(int,int)
         perturbative orders
-    mode : 10201 | 10101 | 10200
-        sector identifier
     n : complex
         Mellin variable
-    nf : int
-        Number of active flavors
-
     Returns
     -------
     numpy.ndarray
