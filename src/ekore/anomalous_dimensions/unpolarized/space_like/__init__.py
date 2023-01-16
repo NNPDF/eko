@@ -1,5 +1,4 @@
-r"""
-This module contains the Altarelli-Parisi splitting kernels.
+r"""The unpolarized, space-like Altarelli-Parisi splitting kernels.
 
 Normalization is given by
 
@@ -20,7 +19,8 @@ import numba as nb
 import numpy as np
 
 from .... import harmonics
-from . import as1, as2, as3, as4, aem1, aem2
+from . import aem1, aem2, as1, as2, as3, as4
+
 
 @nb.njit(cache=True)
 def gamma_ns(order, mode, n, nf):
