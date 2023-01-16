@@ -89,6 +89,8 @@ class OperatorGrid(sv.ModeMixin):
         config["n_integration_cores"] = configs.n_integration_cores
         config["debug_skip_singlet"] = debug.skip_singlet
         config["debug_skip_non_singlet"] = debug.skip_non_singlet
+        config["polarized"] = configs.polarized
+        config["time_like"] = configs.time_like
 
         if method not in [
             "iterate-exact",
