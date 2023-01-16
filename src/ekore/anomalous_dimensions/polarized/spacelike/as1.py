@@ -4,12 +4,12 @@
 import numba as nb
 import numpy as np
 
-from .....eko import constants
+from eko import constants
 from ...unpolarized.space_like.as1 import gamma_ns
 
 
 @nb.njit(cache=True)
-def gamma_pqg(N, nf):
+def gamma_qg(N, nf):
     """
     Computes the leading-order polarised quark-gluon anomalous dimension
     #require citation
@@ -32,7 +32,7 @@ def gamma_pqg(N, nf):
 
 
 @nb.njit(cache=True)
-def gamma_pgq(N):
+def gamma_gq(N):
     """
     Computes the leading-order polarised gluon-quark anomalous dimension
 
@@ -53,7 +53,7 @@ def gamma_pgq(N):
 
 
 @nb.njit(cache=True)
-def gamma_pgg(N, s1, nf):
+def gamma_gg(N, s1, nf):
     """
     Computes the leading-order polarised gluon-gluon anomalous dimension
 
@@ -78,7 +78,7 @@ def gamma_pgg(N, s1, nf):
 
 
 @nb.njit(cache=True)
-def gamma_psinglet(N, s1, nf):
+def gamma_singlet(N, s1, nf):
     r"""
       Computes the leading-order polarised singlet anomalous dimension matrix
 
@@ -101,17 +101,10 @@ def gamma_psinglet(N, s1, nf):
       -------
         gamma_S_0 : numpy.ndarray
           Leading-order singlet anomalous dimension matrix :math:`\gamma_{S}^{(0)}(N)`
-
-      See Also
-      --------
-        gamma_ns : :math:`\gamma_{qq}^{(0)}`
-        gamma_qg : :math:`\gamma_{qg}^{(0)}`
-        gamma_gq : :math:`\gamma_{gq}^{(0)}`
-        gamma_gg : :math:`\gamma_{gg}^{(0)}`
     """
-    gamma_pqq = gamma_ns(N, s1)
-    gamma_pS_0 = np.array(
-        [[gamma_pqq, gamma_pqg(N, nf)], [gamma_pgq(N), gamma_pgg(N, s1, nf)]],
+    gamma_qq = gamma_ns(N, s1)
+    gamma_S_0 = np.array(
+        [[gamma_qq, gamma_qg(N, nf)], [gamma_gq(N), gamma_gg(N, s1, nf)]],
         np.complex_,
     )
-    return gamma_pS_0
+    return gamma_S_0
