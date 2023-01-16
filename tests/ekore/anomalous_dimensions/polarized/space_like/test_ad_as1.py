@@ -1,6 +1,6 @@
 # Test LO Polarised splitting functions
 import numpy as np
-import ekore.anomalous_dimensions.polarized.spacelike.as1 as as1
+import ekore.anomalous_dimensions.polarized.space_like.as1 as as1
 from ekore import harmonics
 
 NF = 5

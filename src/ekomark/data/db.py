@@ -22,3 +22,4 @@ class Operator(Base):  # pylint: disable=too-few-public-methods
     ev_op_iterations = Column(Integer)
     Q2grid = Column(Text)
     backward_inversion = Column(Text)
+    polarized=Column(Boolean)

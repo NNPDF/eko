@@ -81,6 +81,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
         obj["iters"] = op["ev_op_iterations"]
         obj["skip_ns"] = op["debug_skip_non_singlet"]
         obj["skip_s"] = op["debug_skip_singlet"]
+        obj["polarized"] = op["polarized"]
 
     def fill_cache(self, cac, obj):
         """

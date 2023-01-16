@@ -22,6 +22,7 @@ default_card = dict(
             targetgrid=None,
             inputpids=None,
             targetpids=None,
+            polarized=False,
         ).items()
     )
 )
