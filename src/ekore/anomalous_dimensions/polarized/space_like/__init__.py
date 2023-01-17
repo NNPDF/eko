@@ -1,4 +1,4 @@
-r"""The unpolarized, time-like Altarelli-Parisi splitting kernels.
+r"""The polarized, space-like Altarelli-Parisi splitting kernels.
 
 Normalization is given by
 
@@ -13,9 +13,9 @@ import numba as nb
 
 @nb.njit(cache=True)
 def gamma_ns(_order, _mode, _n, _nf):
-    raise NotImplementedError("Polarised is not yet implemented")
+    raise NotImplementedError("Polarised, space-like is not yet implemented")
 
 
 @nb.njit(cache=True)
 def gamma_singlet(_order, _n, _nf):
-    raise NotImplementedError("Polarised is not yet implemented")
+    raise NotImplementedError("Polarised, space-like is not yet implemented")

@@ -13,7 +13,11 @@ import numba as nb
 import numpy as np
 from scipy import integrate
 
-import ekore.anomalous_dimensions.unpolarized.space_like as ad
+import ekore.anomalous_dimensions.polarized.space_like as ad_ps
+import ekore.anomalous_dimensions.polarized.time_like as ad_pt
+import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
+import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
+
 from .. import basis_rotation as br
 from .. import interpolation, mellin
 from .. import scale_variations as sv
@@ -130,6 +134,8 @@ def quad_ker(
     ev_op_max_order,
     sv_mode,
     is_threshold,
+    is_polarized,
+    is_time_like,
 ):
     """Raw evolution kernel inside quad.
 
@@ -168,7 +174,11 @@ def quad_ker(
     sv_mode: int, `enum.IntEnum`
         scale variation mode, see `eko.scale_variations.Modes`
     is_threshold : boolean
-        is this an itermediate threshold operator?
+        is this an intermediate threshold operator?
+    is_polarized : boolean
+        is polarized evolution ?
+    is_time_like : boolean
+        is time-like evolution ?
 
     Returns
     -------
@@ -182,7 +192,16 @@ def quad_ker(
 
     # compute the actual evolution kernel
     if ker_base.is_singlet:
-        gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf)
+        if is_polarized:
+            if is_time_like:
+                gamma_singlet = ad_pt.gamma_singlet(order, ker_base.n, nf)
+            else:
+                gamma_singlet = ad_ps.gamma_singlet(order, ker_base.n, nf)
+        else:
+            if is_time_like:
+                gamma_singlet = ad_ut.gamma_singlet(order, ker_base.n, nf)
+            else:
+                gamma_singlet = ad_us.gamma_singlet(order, ker_base.n, nf)
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_singlet = sv.exponentiated.gamma_variation(
@@ -205,7 +224,16 @@ def quad_ker(
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
-        gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
+        if is_polarized:
+            if is_time_like:
+                gamma_ns = ad_pt.gamma_ns(order, mode0, ker_base.n, nf)
+            else:
+                gamma_ns = ad_ps.gamma_ns(order, mode0, ker_base.n, nf)
+        else:
+            if is_time_like:
+                gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
+            else:
+                gamma_ns = ad_us.gamma_ns(order, mode0, ker_base.n, nf)
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
@@ -382,6 +410,8 @@ class Operator(sv.ModeMixin):
             ev_op_max_order=tuple(self.config["ev_op_max_order"]),
             sv_mode=self.sv_mode,
             is_threshold=self.is_threshold,
+            is_polarized=self.config["polarized"],
+            is_time_like=self.config["time_like"],
         )
 
     def initialize_op_members(self):

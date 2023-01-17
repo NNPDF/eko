@@ -2,8 +2,8 @@
 This module defines the matching conditions for the |VFNS| evolution.
 """
 
-from eko import basis_rotation as br
-from eko import member
+from .. import basis_rotation as br
+from .. import member
 
 
 class MatchingCondition(member.OperatorBase):
