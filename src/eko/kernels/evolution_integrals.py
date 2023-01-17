@@ -28,7 +28,7 @@ def jm10(a1, a0, beta0):
     a0 : float
         initial coupling value
     beta0 : float
-        LO beta function
+        LO beta function coefficient
 
     Returns
     -------
@@ -54,7 +54,7 @@ def j00(a1, a0, beta0):
         a0 : float
             initial coupling value
         beta0 : float
-            LO beta function
+            LO beta function coefficient
 
     Returns
     -------
@@ -81,9 +81,9 @@ def j11_exact(a1, a0, beta0, beta1):
         a0 : float
             initial coupling value
         beta0 : float
-            LO beta function
+            LO beta function coefficient
         beta1 : float
-            NLO beta function
+            NLO beta function coefficient
 
     Returns
     -------
@@ -109,7 +109,7 @@ def j11_expanded(a1, a0, beta0):
         a0 : float
             initial coupling value
         beta0 : float
-            LO beta function
+            LO beta function coefficient
 
     Returns
     -------
@@ -136,9 +136,9 @@ def j01_exact(a1, a0, beta0, beta1):
         a0 : float
             initial coupling value
         beta0 : float
-            LO beta function
+            LO beta function coefficient
         beta1 : float
-            NLO beta function
+            NLO beta function coefficient
 
     Returns
     -------
@@ -164,9 +164,9 @@ def j01_expanded(a1, a0, beta0, beta1):
         a0 : float
             initial coupling value
         beta0 : float
-            LO beta function
+            LO beta function coefficient
         beta1 : float
-            NLO beta function
+            NLO beta function coefficient
 
     Returns
     -------
@@ -192,9 +192,9 @@ def jm11_exact(a1, a0, beta0, beta1):
     a0 : float
         initial coupling value
     beta0 : float
-        LO beta function
+        LO beta function coefficient
     beta1 : float
-        NLO beta function
+        NLO beta function coefficient
 
     Returns
     -------
@@ -230,11 +230,11 @@ def j22_exact(a1, a0, beta0, beta1, beta2):
         a0 : float
             initial coupling value
         beta0 : float
-            LO beta function
+            LO beta function coefficient
         beta1 : float
-            NLO beta function
+            NLO beta function coefficient
         beta2 : float
-            NNLO beta function
+            NNLO beta function coefficient
 
     Returns
     -------
@@ -270,11 +270,11 @@ def j12_exact(a1, a0, beta0, beta1, beta2):
         a0 : float
             initial coupling value
         beta0 : float
-            LO beta function
+            LO beta function coefficient
         beta1 : float
-            NLO beta function
+            NLO beta function coefficient
         beta2 : float
-            NNLO beta function
+            NNLO beta function coefficient
 
     Returns
     -------
@@ -308,11 +308,11 @@ def j02_exact(a1, a0, beta0, beta1, beta2):
         a0 : float
             initial coupling value
         beta0 : float
-            LO beta function
+            LO beta function coefficient
         beta1 : float
-            NLO beta function
+            NLO beta function coefficient
         beta2 : float
-            NNLO beta function
+            NNLO beta function coefficient
 
     Returns
     -------
@@ -343,7 +343,7 @@ def j22_expanded(a1, a0, beta0):
         a0 : float
             initial coupling value
         beta0 : float
-            LO beta function
+            LO beta function coefficient
 
     Returns
     -------
@@ -369,9 +369,9 @@ def j12_expanded(a1, a0, beta0, beta1):
         a0 : float
             initial coupling value
         beta0 : float
-            LO beta function
+            LO beta function coefficient
         beta1 : float
-            NLO beta function
+            NLO beta function coefficient
 
     Returns
     -------
@@ -398,11 +398,11 @@ def j02_expanded(a1, a0, beta0, beta1, beta2):
         a0 : float
             initial coupling value
         beta0 : float
-            LO beta function
+            LO beta function coefficient
         beta1 : float
-            NLO beta function
+            NLO beta function coefficient
         beta2 : float
-            NNLO beta function
+            NNLO beta function coefficient
 
     Returns
     -------
@@ -434,11 +434,11 @@ def jm12_exact(a1, a0, beta0, beta1, beta2):
     a0 : float
         initial coupling value
     beta0 : float
-            LO beta function
+            LO beta function coefficient
     beta1 : float
-        NLO beta function
+        NLO beta function coefficient
     beta2 : float
-        NNLO beta function
+        NNLO beta function coefficient
 
     Returns
     -------
