@@ -14,7 +14,7 @@ from eko.io.runcards import OperatorCard, TheoryCard
 from eko.io.types import InversionMethod
 from eko.runner import legacy
 from ekore.harmonics import compute_cache
-from ekore.operator_matrix_elements import A_non_singlet, A_singlet
+from ekore.operator_matrix_elements.unpolarized.space_like import A_non_singlet, A_singlet
 
 max_weight_dict = {1: 2, 2: 3, 3: 5}
 
@@ -87,12 +87,12 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
     zeros = np.zeros((2, 2))
     monkeypatch.setattr(
-        "ekore.operator_matrix_elements.A_non_singlet",
+        "ekore.operator_matrix_elements.unpolarized.space_like.A_non_singlet",
         lambda *args: np.array([zeros, zeros, zeros]),
     )
     zeros = np.zeros((3, 3))
     monkeypatch.setattr(
-        "ekore.operator_matrix_elements.A_singlet",
+        "ekore.operator_matrix_elements.unpolarized.space_like.A_singlet",
         lambda *args: np.array([zeros, zeros, zeros]),
     )
     for is_log in [True, False]:

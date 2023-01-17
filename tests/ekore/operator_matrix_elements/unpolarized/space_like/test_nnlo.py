@@ -3,7 +3,7 @@
 import numpy as np
 
 from ekore.harmonics import compute_cache, constants
-from ekore.operator_matrix_elements.as2 import A_ns, A_qq_ns, A_singlet
+from ekore.operator_matrix_elements.unpolarized.space_like.as2 import A_ns, A_qq_ns, A_singlet
 
 
 def test_A_2():

@@ -13,7 +13,7 @@ import numpy as np
 
 from eko import constants
 
-from ..harmonics.constants import zeta2, zeta3
+from ....harmonics.constants import zeta2, zeta3
 from .as1 import A_gg as A_gg_1
 from .as1 import A_hg as A_hg_1
 

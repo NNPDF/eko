@@ -3,16 +3,10 @@ This module defines the |OME| for the non-trivial matching conditions in the
 |VFNS| evolution.
 """
 
-import functools
-import logging
-
 import numba as nb
 import numpy as np
 
-from .. import harmonics
 from . import as1, as2, as3
-
-logger = logging.getLogger(__name__)
 
 
 @nb.njit(cache=True)
