@@ -8,7 +8,7 @@ from . import evolution_integrals as ei
 @nb.njit(cache=True)
 def j12(a1, a0, nf):
     r"""
-    j^{(1,2)} exact evolution integral.
+    :math:`j^{(1,2)}` exact evolution integral.
 
     .. math::
         j^{(1,2)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'}
@@ -35,7 +35,7 @@ def j12(a1, a0, nf):
 @nb.njit(cache=True)
 def j23_exact(a1, a0, nf):
     r"""
-    j^{(2,3)} exact evolution integral.
+    :math:`j^{(2,3)}` exact evolution integral.
 
     .. math::
         j^{(2,3)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
@@ -64,7 +64,7 @@ def j23_exact(a1, a0, nf):
 @nb.njit(cache=True)
 def j23_expanded(a1, a0, nf):
     r"""
-    j^{(2,3)} expanded evolution integral.
+    :math:`j^{(2,3)}` expanded evolution integral.
 
     .. math::
         j^{(2,3)}_{exp}(a_s,a_s^0) = \frac 1 {\beta_0}(a_s - a_s^0)
@@ -90,7 +90,7 @@ def j23_expanded(a1, a0, nf):
 @nb.njit(cache=True)
 def j13_exact(a1, a0, nf):
     r"""
-    j^{(1,3)} exact evolution integral.
+    :math:`j^{(1,3)}` exact evolution integral.
 
     .. math::
         j^{(1,3)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
@@ -119,7 +119,7 @@ def j13_exact(a1, a0, nf):
 @nb.njit(cache=True)
 def j13_expanded(a1, a0, nf):
     r"""
-    j^{(1,3)} expanded evolution integral.
+    :math:`j^{(1,3)}` expanded evolution integral.
 
     .. math::
         j^{(1,3)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}_{exp}(a_s,a_s^0)
@@ -146,7 +146,7 @@ def j13_expanded(a1, a0, nf):
 @nb.njit(cache=True)
 def j34_exact(a1, a0, nf):
     r"""
-    j^{(3,4)} exact evolution integral.
+    :math:`j^{(3,4)}` exact evolution integral.
 
     .. math::
         j^{(3,4)}(a_s,a_s^0) &=
@@ -182,7 +182,7 @@ def j34_exact(a1, a0, nf):
 @nb.njit(cache=True)
 def j24_exact(a1, a0, nf):
     r"""
-    j^{(2,4)} exact evolution integral.
+    :math:`j^{(2,4)}` exact evolution integral.
 
     .. math::
         j^{(2,4)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
@@ -213,7 +213,7 @@ def j24_exact(a1, a0, nf):
 @nb.njit(cache=True)
 def j14_exact(a1, a0, nf):
     r"""
-    j^{(1,4)} exact evolution integral.
+    :math:`j^{(1,4)}` exact evolution integral.
 
     .. math::
         j^{(1,4)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
@@ -243,7 +243,7 @@ def j14_exact(a1, a0, nf):
 @nb.njit(cache=True)
 def j34_expanded(a1, a0, nf):
     r"""
-    j^{(3,4)} expanded evolution integral.
+    :math:`j^{(3,4)}` expanded evolution integral.
 
     .. math::
         j^{(3,4)}_{exp}(a_s,a_s^0) = \frac{1}{2 \beta_0} \left( a_s^2 -  (a_s^0)^{2} \right)
@@ -269,7 +269,7 @@ def j34_expanded(a1, a0, nf):
 @nb.njit(cache=True)
 def j24_expanded(a1, a0, nf):
     r"""
-    j^{(2,4)} expanded evolution integral.
+    :math:`j^{(2,4)}` expanded evolution integral.
 
     .. math::
         j^{(2,4)}_{exp}(a_s,a_s^0) = \frac{1}{\beta_0}\left[ a_s - a_s^0 -
@@ -298,7 +298,7 @@ def j24_expanded(a1, a0, nf):
 @nb.njit(cache=True)
 def j14_expanded(a1, a0, nf):
     r"""
-    j^{(1,4)} expanded evolution integral.
+    :math:`j^{(1,4)}` expanded evolution integral.
 
     .. math::
         j^{(1,4)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(2,4)}_{exp}(a_s,a_s^0)

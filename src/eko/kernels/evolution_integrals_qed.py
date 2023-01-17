@@ -7,7 +7,7 @@ from . import evolution_integrals as ei
 
 @nb.njit(cache=True)
 def j12(a1, a0, aem, nf):
-    r"""j^{(1,2)} exact evolution integral with QED effects on beta0.
+    r""":math:`j^{(1,2)}` exact evolution integral with QED effects on beta0.
 
     .. math::
         j^{(1,2)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'}
@@ -35,7 +35,7 @@ def j12(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j02(a1, a0, aem, nf):
-    r"""j^{(0,2)} exact evolution integral with QED effects on beta0.
+    r""":math:`j^{(0,2)}` exact evolution integral with QED effects on beta0.
 
     .. math::
         j^{(0,2)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2}
@@ -63,7 +63,7 @@ def j02(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j23_exact(a1, a0, aem, nf):
-    r"""j^{(2,3)} exact evolution integral with QED effects on beta0.
+    r""":math:`j^{(2,3)}` exact evolution integral with QED effects on beta0.
 
     .. math::
         j^{(2,3)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
@@ -93,7 +93,7 @@ def j23_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j13_exact(a1, a0, aem, nf):
-    r"""j^{(1,3)} exact evolution integral with QED effects on beta0.
+    r""":math:`j^{(1,3)}` exact evolution integral with QED effects on beta0.
 
     .. math::
         j^{(1,3)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
@@ -123,7 +123,7 @@ def j13_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j03_exact(a1, a0, aem, nf):
-    r"""j^{(0,3)} exact evolution integral with QED effects on beta0.
+    r""":math:`j^{(0,3)}` exact evolution integral with QED effects on beta0.
 
     .. math::
         j^{(0,3)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3}
@@ -150,7 +150,7 @@ def j03_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j34_exact(a1, a0, aem, nf):
-    r"""j^{(3,4)} exact evolution integral with QED effects on beta0.
+    r""":math:`j^{(3,4)}` exact evolution integral with QED effects on beta0.
 
     .. math::
         j^{(3,4)}(a_s,a_s^0,aem) &=
@@ -187,7 +187,7 @@ def j34_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j24_exact(a1, a0, aem, nf):
-    r"""j^{(2,4)} exact evolution integral with QED effects on beta0.
+    r""":math:`j^{(2,4)}` exact evolution integral with QED effects on beta0.
 
     .. math::
         j^{(2,4)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
@@ -219,7 +219,7 @@ def j24_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j14_exact(a1, a0, aem, nf):
-    r"""j^{(1,4)} exact evolution integral with QED effects on beta0.
+    r""":math:`j^{(1,4)}` exact evolution integral with QED effects on beta0.
 
     .. math::
         j^{(1,4)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
@@ -250,7 +250,7 @@ def j14_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j04_exact(a1, a0, aem, nf):
-    r"""j^{(0,4)} exact evolution integral with QED effects on beta0.
+    r""":math:`j^{(0,4)}` exact evolution integral with QED effects on beta0.
 
     .. math::
         j^{(0,4)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
