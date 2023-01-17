@@ -194,26 +194,27 @@ def plot_ad_ratio(entry, q2=None, nf=4, plot_totu=False):
         g_n3lo_var = np.array(g_n3lo_var)
         ihou_n3lo = g_n3lo_var.std(axis=0) * a_s_n3lo**4
 
+    mhou_nlo = compute_mhou(g_low, g_hig, g_nnlo, q2, xif2_low, xif2_hig, 1, nf)
     mhou_nnlo = compute_mhou(g_low, g_hig, g_nnlo, q2, xif2_low, xif2_hig, 2, nf)
     mhou_n3lo = compute_mhou(g_low, g_hig, g_n3lo, q2, xif2_low, xif2_hig, 3, nf)
 
     ax.plot(
         grid,
-        g_n3lo / g_nnlo,
+        g_n3lo / g_nlo,
         label="N3LO ((MHOU) + IHOU)" if plot_totu else "N3LO (MHOU)",
     )
     ax.fill_between(
         grid,
-        (g_n3lo - mhou_n3lo) / g_nnlo,
-        (g_n3lo + mhou_n3lo) / g_nnlo,
+        (g_n3lo - mhou_n3lo) / g_nlo,
+        (g_n3lo + mhou_n3lo) / g_nlo,
         alpha=0.2,
     )
     if plot_totu:
         n3lo_totu = np.sqrt(ihou_n3lo**2 + mhou_n3lo**2)
         ax.fill_between(
             grid,
-            (g_n3lo - n3lo_totu) / g_nnlo,
-            (g_n3lo + n3lo_totu) / g_nnlo,
+            (g_n3lo - n3lo_totu) / g_nlo,
+            (g_n3lo + n3lo_totu) / g_nlo,
             alpha=0.4,
             color=cm.get_cmap("tab20c")(2),
         )
@@ -225,14 +226,20 @@ def plot_ad_ratio(entry, q2=None, nf=4, plot_totu=False):
         (g_nnlo + mhou_nnlo) / g_nlo,
         alpha=0.2,
     )
+    ax.fill_between(
+        grid,
+        1 - mhou_nlo / g_nlo,
+        1 + mhou_nlo / g_nlo,
+        alpha=0.2,
+    )
 
     grid_min, grid_max = grid.min(), grid.max()
     ax.set_xlim(grid_min, grid_max)
     if entry in ["gg", "gq"]:
-        ax.set_ylim(0.7, 1.2)
+        ax.set_ylim(0.8, 1.1)
     variable = "x"
     ax.set_xlabel(f"${variable}$")
-    ax.set_ylabel(r"$\rm Ratio\ to\ previous\ order$")
+    ax.set_ylabel(r"$\rm Ratio\ to\ NLO$")
     title = (
         "$x P_{"
         + entry
@@ -272,9 +279,9 @@ if __name__ == "__main__":
         nf = 5
         plot_totu = True
         x_grid = make_lambert_grid(80, x_min=1e-2)
-        plot_ad(k, q2=q2, nf=nf, logscale=False, plot_totu=plot_totu)
+        # plot_ad(k, q2=q2, nf=nf, logscale=False, plot_totu=plot_totu)
         plot_ad_ratio(k, q2=q2, nf=nf, plot_totu=plot_totu)
 
         # log plots
         x_grid = make_lambert_grid(80, x_min=1e-7)
-        plot_ad(k, q2=q2, nf=nf, plot_scaling=True, plot_totu=plot_totu)
+        # plot_ad(k, q2=q2, nf=nf, plot_scaling=True, plot_totu=plot_totu)

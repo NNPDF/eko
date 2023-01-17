@@ -18,7 +18,7 @@ def plot_ad_ratio(entry, q2=None, nf=4):
     grid = x_grid[:-1] if entry != "qq" else x_grid[:-3]
     g = splitting_function(entry, grid, nf)
 
-    a_s = compute_a_s(q2)
+    a_s = compute_a_s(q2, nf=nf)
     g_lo = g[:, 0] * a_s
     g_nlo = g_lo + g[:, 1] * a_s**2
     g_nnlo = g_nlo + g[:, 2] * a_s**3
