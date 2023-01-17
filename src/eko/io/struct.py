@@ -209,7 +209,7 @@ class InternalPaths:
     def opname(mu2: float) -> str:
         r"""Operator file name from :math:`\mu^2` value."""
         decoded = np.float64(mu2).tobytes()
-        return base64.b64encode(decoded).decode()
+        return base64.urlsafe_b64encode(decoded).decode()
 
     def oppath(self, mu2: float) -> pathlib.Path:
         r"""Retrieve operator file path from :math:`\mu^2` value.
@@ -294,7 +294,7 @@ class InternalPaths:
             raise exceptions.OperatorLocationError(path)
 
         encoded = path.stem.split(".")[0]
-        decoded = base64.b64decode(encoded)
+        decoded = base64.urlsafe_b64decode(encoded)
         return float(np.frombuffer(decoded, dtype=np.float64)[0])
 
     def opnewpath(
