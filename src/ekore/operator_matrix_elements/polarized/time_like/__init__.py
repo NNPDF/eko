@@ -9,5 +9,5 @@ def A_non_singlet(_matching_order, _n, _sx, _nf, _L):
 
 
 @nb.njit(cache=True)
-def A_non_singlet(_order, _n, _sx, _nf, _L):
+def A_singlet(_matching_order, _n, _sx, _nf, _L, _is_msbar, _sx_ns=None):
     raise NotImplementedError("Polarised, time-like is not yet implemented")
