@@ -27,14 +27,12 @@ def jm10(a1, a0, beta0):
         target coupling value
     a0 : float
         initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
+    beta0 : float
+        LO beta function
 
     Returns
     -------
-    j00 : float
+    jm10 : float
         integral
     """
     return (1.0 / a0 - 1.0 / a1) / beta0
@@ -55,8 +53,8 @@ def j00(a1, a0, beta0):
             target coupling value
         a0 : float
             initial coupling value
-        nf : int
-            number of active flavors
+        beta0 : float
+            LO beta function
 
     Returns
     -------
@@ -82,8 +80,10 @@ def j11_exact(a1, a0, beta0, beta1):
             target coupling value
         a0 : float
             initial coupling value
-        nf : int
-            number of active flavors
+        beta0 : float
+            LO beta function
+        beta1 : float
+            NLO beta function
 
     Returns
     -------
@@ -108,8 +108,8 @@ def j11_expanded(a1, a0, beta0):
             target coupling value
         a0 : float
             initial coupling value
-        nf : int
-            number of active flavors
+        beta0 : float
+            LO beta function
 
     Returns
     -------
@@ -135,12 +135,14 @@ def j01_exact(a1, a0, beta0, beta1):
             target coupling value
         a0 : float
             initial coupling value
-        nf : int
-            number of active flavors
+        beta0 : float
+            LO beta function
+        beta1 : float
+            NLO beta function
 
     Returns
     -------
-        j11 : float
+        j01 : float
             integral
     """
     b1 = beta1 / beta0
@@ -161,8 +163,10 @@ def j01_expanded(a1, a0, beta0, beta1):
             target coupling value
         a0 : float
             initial coupling value
-        nf : int
-            number of active flavors
+        beta0 : float
+            LO beta function
+        beta1 : float
+            NLO beta function
 
     Returns
     -------
@@ -187,12 +191,14 @@ def jm11_exact(a1, a0, beta0, beta1):
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta0 : float
+        LO beta function
+    beta1 : float
+        NLO beta function
 
     Returns
     -------
-    j11 : float
+    jm11 : float
         integral
     """
     b1 = beta1 / beta0
@@ -223,8 +229,12 @@ def j22_exact(a1, a0, beta0, beta1, beta2):
             target coupling value
         a0 : float
             initial coupling value
-        nf : int
-            number of active flavors
+        beta0 : float
+            LO beta function
+        beta1 : float
+            NLO beta function
+        beta2 : float
+            NNLO beta function
 
     Returns
     -------
@@ -259,8 +269,12 @@ def j12_exact(a1, a0, beta0, beta1, beta2):
             target coupling value
         a0 : float
             initial coupling value
-        nf : int
-            number of active flavors
+        beta0 : float
+            LO beta function
+        beta1 : float
+            NLO beta function
+        beta2 : float
+            NNLO beta function
 
     Returns
     -------
@@ -293,8 +307,12 @@ def j02_exact(a1, a0, beta0, beta1, beta2):
             target coupling value
         a0 : float
             initial coupling value
-        nf : int
-            number of active flavors
+        beta0 : float
+            LO beta function
+        beta1 : float
+            NLO beta function
+        beta2 : float
+            NNLO beta function
 
     Returns
     -------
@@ -324,8 +342,8 @@ def j22_expanded(a1, a0, beta0):
             target coupling value
         a0 : float
             initial coupling value
-        nf : int
-            number of active flavors
+        beta0 : float
+            LO beta function
 
     Returns
     -------
@@ -350,8 +368,10 @@ def j12_expanded(a1, a0, beta0, beta1):
             target coupling value
         a0 : float
             initial coupling value
-        nf : int
-            number of active flavors
+        beta0 : float
+            LO beta function
+        beta1 : float
+            NLO beta function
 
     Returns
     -------
@@ -377,8 +397,12 @@ def j02_expanded(a1, a0, beta0, beta1, beta2):
             target coupling value
         a0 : float
             initial coupling value
-        nf : int
-            number of active flavors
+        beta0 : float
+            LO beta function
+        beta1 : float
+            NLO beta function
+        beta2 : float
+            NNLO beta function
 
     Returns
     -------
@@ -409,12 +433,16 @@ def jm12_exact(a1, a0, beta0, beta1, beta2):
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta0 : float
+            LO beta function
+    beta1 : float
+        NLO beta function
+    beta2 : float
+        NNLO beta function
 
     Returns
     -------
-    j02 : complex
+    jm12 : complex
         integral
     """
     b1 = beta1 / beta0
