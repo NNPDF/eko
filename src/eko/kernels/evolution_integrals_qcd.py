@@ -8,10 +8,10 @@ from . import evolution_integrals as ei
 @nb.njit(cache=True)
 def j12(a1, a0, nf):
     r"""
-    LO-LO exact evolution integral.
+    j^{(1,2)} exact evolution integral.
 
     .. math::
-        j^{(0,0)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'}
+        j^{(1,2)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'}
            = \frac{\ln(a_s/a_s^0)}{\beta_0}
 
     Parameters
@@ -35,10 +35,10 @@ def j12(a1, a0, nf):
 @nb.njit(cache=True)
 def j23_exact(a1, a0, nf):
     r"""
-    NLO-NLO exact evolution integral.
+    j^{(2,3)} exact evolution integral.
 
     .. math::
-        j^{(1,1)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
+        j^{(2,3)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
                                 \frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3}
             = \frac{1}{\beta_1}\ln\left(\frac{1+b_1 a_s}{1+b_1 a_s^0}\right)
 
@@ -64,10 +64,10 @@ def j23_exact(a1, a0, nf):
 @nb.njit(cache=True)
 def j23_expanded(a1, a0, nf):
     r"""
-    NLO-NLO expanded evolution integral.
+    j^{(2,3)} expanded evolution integral.
 
     .. math::
-        j^{(1,1)}_{exp}(a_s,a_s^0) = \frac 1 {\beta_0}(a_s - a_s^0)
+        j^{(2,3)}_{exp}(a_s,a_s^0) = \frac 1 {\beta_0}(a_s - a_s^0)
 
     Parameters
     ----------
@@ -90,10 +90,10 @@ def j23_expanded(a1, a0, nf):
 @nb.njit(cache=True)
 def j13_exact(a1, a0, nf):
     r"""
-    LO-NLO exact evolution integral.
+    j^{(1,3)} exact evolution integral.
 
     .. math::
-        j^{(0,1)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
+        j^{(1,3)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
                             \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3}
                = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}(a_s,a_s^0)
 
@@ -119,10 +119,10 @@ def j13_exact(a1, a0, nf):
 @nb.njit(cache=True)
 def j13_expanded(a1, a0, nf):
     r"""
-    LO-NLO expanded evolution integral.
+    j^{(1,3)} expanded evolution integral.
 
     .. math::
-        j^{(0,1)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}_{exp}(a_s,a_s^0)
+        j^{(1,3)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,1)}_{exp}(a_s,a_s^0)
 
     Parameters
     ----------
@@ -146,10 +146,10 @@ def j13_expanded(a1, a0, nf):
 @nb.njit(cache=True)
 def j34_exact(a1, a0, nf):
     r"""
-    NNLO-NNLO exact evolution integral.
+    j^{(3,4)} exact evolution integral.
 
     .. math::
-        j^{(2,2)}(a_s,a_s^0) &=
+        j^{(3,4)}(a_s,a_s^0) &=
             \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}
                         {\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}
             = \frac{1}{\beta_2}\ln\left(
@@ -182,10 +182,10 @@ def j34_exact(a1, a0, nf):
 @nb.njit(cache=True)
 def j24_exact(a1, a0, nf):
     r"""
-    NLO-NNLO exact evolution integral.
+    j^{(2,4)} exact evolution integral.
 
     .. math::
-        j^{(1,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
+        j^{(2,4)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
                &= \frac{2 \delta}{\beta_0 \Delta}  \\
         \delta &= \atan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - \atan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
         \Delta &= \sqrt{4 b_2 - b_1^2}
@@ -213,10 +213,10 @@ def j24_exact(a1, a0, nf):
 @nb.njit(cache=True)
 def j14_exact(a1, a0, nf):
     r"""
-    LO-NNLO exact evolution integral.
+    j^{(1,4)} exact evolution integral.
 
     .. math::
-        j^{(0,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
+        j^{(1,4)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
               \frac{a_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
             &= j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}(a_s,a_s^0) - b_2 j^{(2,2)}(a_s,a_s^0)
 
@@ -243,10 +243,10 @@ def j14_exact(a1, a0, nf):
 @nb.njit(cache=True)
 def j34_expanded(a1, a0, nf):
     r"""
-    NNLO-NNLO expanded evolution integral.
+    j^{(3,4)} expanded evolution integral.
 
     .. math::
-        j^{(2,2)}_{exp}(a_s,a_s^0) = \frac{1}{2 \beta_0} \left( a_s^2 -  (a_s^0)^{2} \right)
+        j^{(3,4)}_{exp}(a_s,a_s^0) = \frac{1}{2 \beta_0} \left( a_s^2 -  (a_s^0)^{2} \right)
 
     Parameters
     ----------
@@ -269,10 +269,10 @@ def j34_expanded(a1, a0, nf):
 @nb.njit(cache=True)
 def j24_expanded(a1, a0, nf):
     r"""
-    NLO-NNLO expanded evolution integral.
+    j^{(2,4)} expanded evolution integral.
 
     .. math::
-        j^{(1,2)}_{exp}(a_s,a_s^0) = \frac{1}{\beta_0}\left[ a_s - a_s^0 -
+        j^{(2,4)}_{exp}(a_s,a_s^0) = \frac{1}{\beta_0}\left[ a_s - a_s^0 -
                       \frac{b_1}{2} \left( a_s^2 - (a_s^0)^{2} \right)\right]
 
     Parameters
@@ -298,11 +298,11 @@ def j24_expanded(a1, a0, nf):
 @nb.njit(cache=True)
 def j14_expanded(a1, a0, nf):
     r"""
-    LO-NNLO expanded evolution integral.
+    j^{(1,4)} expanded evolution integral.
 
     .. math::
-        j^{(0,2)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}_{exp}(a_s,a_s^0)
-                                      - b_2 j^{(2,2)}_{exp}(a_s,a_s^0)
+        j^{(1,4)}_{exp}(a_s,a_s^0) = j^{(0,0)}(a_s,a_s^0) - b_1 j^{(2,4)}_{exp}(a_s,a_s^0)
+                                      - b_2 j^{(3,4)}_{exp}(a_s,a_s^0)
 
     Parameters
     ----------

@@ -7,10 +7,10 @@ from . import evolution_integrals as ei
 
 @nb.njit(cache=True)
 def j12(a1, a0, aem, nf):
-    r"""LO-LO QED exact evolution integral.
+    r"""j^{(1,2)} exact evolution integral with QED effects on beta0.
 
     .. math::
-        j^{(0,0)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'}
+        j^{(1,2)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'}
            = \frac{\ln(a_s/a_s^0)}{\beta_0 + aem \beta_{0,1}}
 
     Parameters
@@ -35,10 +35,10 @@ def j12(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j02(a1, a0, aem, nf):
-    r"""LO-LO QED exact evolution integral.
+    r"""j^{(0,2)} exact evolution integral with QED effects on beta0.
 
     .. math::
-        j^{(-1,0)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2}
+        j^{(0,2)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2}
            = \frac{1.0 / a0 - 1.0 / as}{\beta_0 + aem \beta_{0,1}}
 
     Parameters
@@ -63,10 +63,10 @@ def j02(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j23_exact(a1, a0, aem, nf):
-    r"""NLO-NLO exact evolution integral.
+    r"""j^{(2,3)} exact evolution integral with QED effects on beta0.
 
     .. math::
-        j^{(1,1)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
+        j^{(2,3)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
                                 \frac{a_s'^2}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3}
             = \frac{1}{\beta_1}\ln\left(\frac{1+b_1 a_s}{1+b_1 a_s^0}\right)
 
@@ -93,10 +93,10 @@ def j23_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j13_exact(a1, a0, aem, nf):
-    r"""LO-NLO QED exact evolution integral.
+    r"""j^{(1,3)} exact evolution integral with QED effects on beta0.
 
     .. math::
-        j^{(0,1)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
+        j^{(1,3)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s}\!da_s'\,
                             \frac{a_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3}
                = j^{(0,0)}(a_s,a_s^0,aem) - b_1 j^{(1,1)}(a_s,a_s^0,aem)
 
@@ -123,10 +123,10 @@ def j13_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j03_exact(a1, a0, aem, nf):
-    r"""LO-NLO exact evolution integral.
+    r"""j^{(0,3)} exact evolution integral with QED effects on beta0.
 
     .. math::
-        j^{(-1,1)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3}
+        j^{(0,3)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3}
             = \frac{1.0 / a0 - 1.0 / as}{\beta_0 + aem \beta_{0,1}} + \frac{b_1}{(\beta_0 + aem \beta_{0,1}}  \left(\log(1 + 1 / (as b_1)) - \log(1 + 1 / (a0 b_1)\right)
 
     Parameters
@@ -150,10 +150,10 @@ def j03_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j34_exact(a1, a0, aem, nf):
-    r"""NNLO-NNLO exact evolution integral.
+    r"""j^{(3,4)} exact evolution integral with QED effects on beta0.
 
     .. math::
-        j^{(2,2)}(a_s,a_s^0,aem) &=
+        j^{(3,4)}(a_s,a_s^0,aem) &=
             \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^3}
                         {(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}
             = \frac{1}{\beta_2}\ln\left(
@@ -187,10 +187,10 @@ def j34_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j24_exact(a1, a0, aem, nf):
-    r"""NLO-NNLO exact evolution integral.
+    r"""j^{(2,4)} exact evolution integral with QED effects on beta0.
 
     .. math::
-        j^{(1,2)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
+        j^{(2,4)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,\frac{a_s'^2}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
                &= \frac{2 \delta}{\beta_0 \Delta}  \\
         \delta &= \atan \left( \frac{b_1 + 2 a_s b_2 }{ \Delta} \right) - \atan \left( \frac{b_1 + 2 a_s^0 b_2 }{ \Delta} \right) \\
         \Delta &= \sqrt{4 b_2 - b_1^2}
@@ -219,10 +219,10 @@ def j24_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j14_exact(a1, a0, aem, nf):
-    r"""LO-NNLO exact evolution integral.
+    r"""j^{(1,4)} exact evolution integral with QED effects on beta0.
 
     .. math::
-        j^{(0,2)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
+        j^{(1,4)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
               \frac{a_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
             &= j^{(0,0)}(a_s,a_s^0) - b_1 j^{(1,2)}(a_s,a_s^0) - b_2 j^{(2,2)}(a_s,a_s^0)
 
@@ -250,10 +250,10 @@ def j14_exact(a1, a0, aem, nf):
 
 @nb.njit(cache=True)
 def j04_exact(a1, a0, aem, nf):
-    r"""LO-NNLO exact evolution integral.
+    r"""j^{(0,4)} exact evolution integral with QED effects on beta0.
 
     .. math::
-        j^{(-1,2)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
+        j^{(0,4)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
             \frac{1}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
             &= j^{(-1,0)}(a_s,a_s^0,aem) - b_1 j^{(0,2)}(a_s,a_s^0) - b_2 j^{(1,2)}(a_s,a_s^0)
 
