@@ -18,8 +18,8 @@ def j02(a1, a0, beta0):
     r"""LO-LO QED exact evolution integral.
 
     .. math::
-        j^{(-1,0)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2}
-           = \frac{1.0 / a0 - 1.0 / as}{\beta_0 + aem \beta_{0,1}}
+        j^{(-1,0)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'^2}
+           = \frac{1.0 / a0 - 1.0 / as}{\beta_0}
 
     Parameters
     ----------
@@ -182,8 +182,8 @@ def j03_exact(a1, a0, beta0, beta1):
     r"""LO-NLO exact evolution integral.
 
     .. math::
-        j^{(-1,1)}(a_s,a_s^0,aem) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3}
-            = \frac{1.0 / a0 - 1.0 / as}{\beta_0 + aem \beta_{0,1}} + \frac{b_1}{(\beta_0 + aem \beta_{0,1}}  \left(\log(1 + 1 / (as b_1)) - \log(1 + 1 / (a0 b_1)\right)
+        j^{(-1,1)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3}
+            = \frac{1.0 / a0 - 1.0 / as}{\beta_0 + \frac{b_1}{\beta_0}  \left(\log(1 + 1 / (as b_1)) - \log(1 + 1 / (a0 b_1)\right)
 
     Parameters
     ----------
@@ -423,9 +423,9 @@ def j04_exact(a1, a0, beta0, beta1, beta2):
     r"""LO-NNLO exact evolution integral.
 
     .. math::
-        j^{(-1,2)}(a_s,a_s^0,aem) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
-            \frac{1}{(\beta_0 + aem \beta_{0,1}) a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
-            &= j^{(-1,0)}(a_s,a_s^0,aem) - b_1 j^{(0,2)}(a_s,a_s^0) - b_2 j^{(1,2)}(a_s,a_s^0)
+        j^{(-1,2)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
+            \frac{1}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
+            &= j^{(-1,0)}(a_s,a_s^0) - b_1 j^{(0,2)}(a_s,a_s^0) - b_2 j^{(1,2)}(a_s,a_s^0)
 
     Parameters
     ----------
