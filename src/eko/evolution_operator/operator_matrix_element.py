@@ -1,7 +1,4 @@
-"""
-This module defines the |OME| for the non-trivial matching conditions in the
-|VFNS| evolution.
-"""
+"""The |OME| for the non-trivial matching conditions in the |VFNS| evolution."""
 
 import functools
 import logging
@@ -9,8 +6,11 @@ import logging
 import numba as nb
 import numpy as np
 
-from ekore import harmonics
+import ekore.operator_matrix_elements.polarized.space_like as ome_ps
+import ekore.operator_matrix_elements.polarized.time_like as ome_pt
 import ekore.operator_matrix_elements.unpolarized.space_like as ome_us
+import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
+from ekore import harmonics
 
 from .. import basis_rotation as br
 from . import Operator, QuadKerBase
@@ -20,24 +20,23 @@ logger = logging.getLogger(__name__)
 
 @nb.njit(cache=True)
 def build_ome(A, matching_order, a_s, backward_method):
-    r"""
-    Construct the matching expansion in :math:`a_s` with the appropriate method.
+    r"""Construct the matching expansion in :math:`a_s` with the appropriate method.
 
     Parameters
     ----------
-        A : numpy.ndarray
-            list of |OME|
-        matching_order : tuple(int,int)
-            perturbation matching order
-        a_s : float
-            strong coupling, needed only for the exact inverse
-        backward_method : ["exact", "expanded" or ""]
-            empty or method for inverting the matching condition (exact or expanded)
+    A : numpy.ndarray
+        list of |OME|
+    matching_order : tuple(int,int)
+        perturbation matching order
+    a_s : float
+        strong coupling, needed only for the exact inverse
+    backward_method : ["exact", "expanded" or ""]
+        empty or method for inverting the matching condition (exact or expanded)
 
     Returns
     -------
-        ome : numpy.ndarray
-            matching operator matrix
+    ome : numpy.ndarray
+        matching operator matrix
     """
     # to get the inverse one can use this FORM snippet
     # Symbol a;
@@ -72,41 +71,58 @@ def build_ome(A, matching_order, a_s, backward_method):
 
 @nb.njit(cache=True)
 def quad_ker(
-    u, order, mode0, mode1, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
+    u,
+    order,
+    mode0,
+    mode1,
+    is_log,
+    logx,
+    areas,
+    a_s,
+    nf,
+    L,
+    backward_method,
+    is_msbar,
+    is_polarized,
+    is_time_like,
 ):
-    r"""
-    Raw kernel inside quad
+    r"""Raw kernel inside quad.
 
     Parameters
     ----------
-        u : float
-            quad argument
-        order : tuple(int,int)
-            perturbation matching order
-        mode0 : int
-            pid for first element in the singlet sector
-        mode1 : int
-            pid for second element in the singlet sector
-        is_log : boolean
-            logarithmic interpolation
-        logx : float
-            Mellin inversion point
-        areas : tuple
-            basis function configuration
-        a_s : float
-            strong coupling, needed only for the exact inverse
-        nf: int
-            number of active flavor below threshold
-        L : float
-            :math:``\ln(\mu_F^2 / m_h^2)``
-        backward_method : ["exact", "expanded" or ""]
-            empty or method for inverting the matching condition (exact or expanded)
-        is_msbar: bool
-            add the |MSbar| contribution
+    u : float
+        quad argument
+    order : tuple(int,int)
+        perturbation matching order
+    mode0 : int
+        pid for first element in the singlet sector
+    mode1 : int
+        pid for second element in the singlet sector
+    is_log : boolean
+        logarithmic interpolation
+    logx : float
+        Mellin inversion point
+    areas : tuple
+        basis function configuration
+    a_s : float
+        strong coupling, needed only for the exact inverse
+    nf: int
+        number of active flavor below threshold
+    L : float
+        :math:``\ln(\mu_F^2 / m_h^2)``
+    backward_method : ["exact", "expanded" or ""]
+        empty or method for inverting the matching condition (exact or expanded)
+    is_msbar: bool
+        add the |MSbar| contribution
+    is_polarized : boolean
+        is polarized evolution ?
+    is_time_like : boolean
+        is time-like evolution ?
+
     Returns
     -------
-        ker : float
-            evaluated integration kernel
+    ker : float
+        evaluated integration kernel
     """
     ker_base = QuadKerBase(u, is_log, logx, mode0)
     integrand = ker_base.integrand(areas)
@@ -139,10 +155,28 @@ def quad_ker(
     # compute the ome
     if ker_base.is_singlet:
         indices = {21: 0, 100: 1, 90: 2}
-        A = ome_us.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+        if is_polarized:
+            if is_time_like:
+                A = ome_pt.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+            else:
+                A = ome_ps.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+        else:
+            if is_time_like:
+                A = ome_ut.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+            else:
+                A = ome_us.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
     else:
         indices = {200: 0, 91: 1}
-        A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+        if is_polarized:
+            if is_time_like:
+                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+            else:
+                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+        else:
+            if is_time_like:
+                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+            else:
+                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, a_s, backward_method)
@@ -206,14 +240,13 @@ class OperatorMatrixElement(Operator):
 
     @property
     def labels(self):
-        """Computes the necessary sector labels to compute.
+        """Necessary sector labels to compute.
 
         Returns
         -------
         list(str)
             sector labels
         """
-
         labels = []
         # non-singlet labels
         if self.config["debug_skip_non_singlet"]:
@@ -247,7 +280,7 @@ class OperatorMatrixElement(Operator):
         return labels
 
     def quad_ker(self, label, logx, areas):
-        """Partially initialized integrand function.
+        """Return partially initialized integrand function.
 
         Parameters
         ----------
@@ -276,11 +309,13 @@ class OperatorMatrixElement(Operator):
             L=self.L,
             backward_method=self.backward_method,
             is_msbar=self.is_msbar,
+            is_polarized=self.config["polarized"],
+            is_time_like=self.config["time_like"],
         )
 
     @property
     def a_s(self):
-        """Returns the computed values for :math:`a_s`.
+        """Compute values for :math:`a_s`.
 
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
@@ -288,7 +323,7 @@ class OperatorMatrixElement(Operator):
         return sc.a_s(self.mur2_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1)
 
     def compute(self):
-        """Compute the actual operators (i.e. run the integrations)"""
+        """Compute the actual operators (i.e. run the integrations)."""
         self.initialize_op_members()
 
         # At LO you don't need anything else
