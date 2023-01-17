@@ -67,7 +67,7 @@ def lo_exact(gamma_ns, a1, a0, nf):
         e_ns^0 : complex
             |LO| non-singlet exact EKO
     """
-    return np.exp(gamma_ns[0] * ei.j00(a1, a0, nf))
+    return np.exp(gamma_ns[0] * ei.j12(a1, a0, nf))
 
 
 @nb.njit(cache=True)
@@ -91,7 +91,7 @@ def nlo_exact(gamma_ns, a1, a0, nf):
             |NLO| non-singlet exact EKO
     """
     return np.exp(
-        gamma_ns[0] * ei.j01_exact(a1, a0, nf) + gamma_ns[1] * ei.j11_exact(a1, a0, nf)
+        gamma_ns[0] * ei.j13_exact(a1, a0, nf) + gamma_ns[1] * ei.j23_exact(a1, a0, nf)
     )
 
 
@@ -116,8 +116,8 @@ def nlo_expanded(gamma_ns, a1, a0, nf):
             |NLO| non-singlet expanded EKO
     """
     return np.exp(
-        gamma_ns[0] * ei.j01_expanded(a1, a0, nf)
-        + gamma_ns[1] * ei.j11_expanded(a1, a0, nf)
+        gamma_ns[0] * ei.j13_expanded(a1, a0, nf)
+        + gamma_ns[1] * ei.j23_expanded(a1, a0, nf)
     )
 
 
@@ -142,9 +142,9 @@ def nnlo_exact(gamma_ns, a1, a0, nf):
             |NNLO| non-singlet exact EKO
     """
     return np.exp(
-        gamma_ns[0] * ei.j02_exact(a1, a0, nf)
-        + gamma_ns[1] * ei.j12_exact(a1, a0, nf)
-        + gamma_ns[2] * ei.j22_exact(a1, a0, nf)
+        gamma_ns[0] * ei.j14_exact(a1, a0, nf)
+        + gamma_ns[1] * ei.j24_exact(a1, a0, nf)
+        + gamma_ns[2] * ei.j34_exact(a1, a0, nf)
     )
 
 
@@ -169,9 +169,9 @@ def nnlo_expanded(gamma_ns, a1, a0, nf):
             |NNLO| non-singlet expanded EKO
     """
     return np.exp(
-        gamma_ns[0] * ei.j02_expanded(a1, a0, nf)
-        + gamma_ns[1] * ei.j12_expanded(a1, a0, nf)
-        + gamma_ns[2] * ei.j22_expanded(a1, a0, nf)
+        gamma_ns[0] * ei.j14_expanded(a1, a0, nf)
+        + gamma_ns[1] * ei.j24_expanded(a1, a0, nf)
+        + gamma_ns[2] * ei.j34_expanded(a1, a0, nf)
     )
 
 
@@ -202,12 +202,12 @@ def n3lo_expanded(gamma_ns, a1, a0, nf):
         beta.b_qcd((4, 0), nf),
         beta.b_qcd((5, 0), nf),
     ]
-    j00 = ei.j00(a1, a0, nf)
+    j12 = ei.j12(a1, a0, nf)
     j13 = as4_ei.j13_expanded(a1, a0, beta0, b_list)
     j23 = as4_ei.j23_expanded(a1, a0, beta0, b_list)
     j33 = as4_ei.j33_expanded(a1, a0, beta0)
     return np.exp(
-        gamma_ns[0] * as4_ei.j03_expanded(j00, j13, j23, j33, b_list)
+        gamma_ns[0] * as4_ei.j03_expanded(j12, j13, j23, j33, b_list)
         + gamma_ns[1] * j13
         + gamma_ns[2] * j23
         + gamma_ns[3] * j33
@@ -242,12 +242,12 @@ def n3lo_exact(gamma_ns, a1, a0, nf):
         beta.b_qcd((5, 0), nf),
     ]
     roots = as4_ei.roots(b_list)
-    j00 = ei.j00(a1, a0, nf)
+    j12 = ei.j12(a1, a0, nf)
     j13 = as4_ei.j13_exact(a1, a0, beta0, b_list, roots)
     j23 = as4_ei.j23_exact(a1, a0, beta0, b_list, roots)
     j33 = as4_ei.j33_exact(a1, a0, beta0, b_list, roots)
     return np.exp(
-        gamma_ns[0] * as4_ei.j03_exact(j00, j13, j23, j33, b_list)
+        gamma_ns[0] * as4_ei.j03_exact(j12, j13, j23, j33, b_list)
         + gamma_ns[1] * j13
         + gamma_ns[2] * j23
         + gamma_ns[3] * j33

@@ -30,7 +30,7 @@ def lo_exact(gamma_singlet, a1, a0, nf):
     numpy.ndarray
         singlet leading order exact EKO
     """
-    return ad.exp_matrix_2D(gamma_singlet[0] * ei.j00(a1, a0, nf))[0]
+    return ad.exp_matrix_2D(gamma_singlet[0] * ei.j12(a1, a0, nf))[0]
 
 
 @nb.njit(cache=True)
@@ -81,7 +81,7 @@ def nlo_decompose_exact(gamma_singlet, a1, a0, nf):
         singlet next-to-leading order decompose-exact EKO
     """
     return nlo_decompose(
-        gamma_singlet, ei.j01_exact(a1, a0, nf), ei.j11_exact(a1, a0, nf)
+        gamma_singlet, ei.j13_exact(a1, a0, nf), ei.j23_exact(a1, a0, nf)
     )
 
 
@@ -106,7 +106,7 @@ def nlo_decompose_expanded(gamma_singlet, a1, a0, nf):
         singlet next-to-leading order decompose-expanded EKO
     """
     return nlo_decompose(
-        gamma_singlet, ei.j01_expanded(a1, a0, nf), ei.j11_expanded(a1, a0, nf)
+        gamma_singlet, ei.j13_expanded(a1, a0, nf), ei.j23_expanded(a1, a0, nf)
     )
 
 
@@ -163,9 +163,9 @@ def nnlo_decompose_exact(gamma_singlet, a1, a0, nf):
     """
     return nnlo_decompose(
         gamma_singlet,
-        ei.j02_exact(a1, a0, nf),
-        ei.j12_exact(a1, a0, nf),
-        ei.j22_exact(a1, a0, nf),
+        ei.j14_exact(a1, a0, nf),
+        ei.j24_exact(a1, a0, nf),
+        ei.j34_exact(a1, a0, nf),
     )
 
 
@@ -191,9 +191,9 @@ def nnlo_decompose_expanded(gamma_singlet, a1, a0, nf):
     """
     return nnlo_decompose(
         gamma_singlet,
-        ei.j02_expanded(a1, a0, nf),
-        ei.j12_expanded(a1, a0, nf),
-        ei.j22_expanded(a1, a0, nf),
+        ei.j14_expanded(a1, a0, nf),
+        ei.j24_expanded(a1, a0, nf),
+        ei.j34_expanded(a1, a0, nf),
     )
 
 
@@ -260,12 +260,12 @@ def n3lo_decompose_exact(gamma_singlet, a1, a0, nf):
         beta.b_qcd((5, 0), nf),
     ]
     roots = as4_ei.roots(b_list)
-    j00 = ei.j00(a1, a0, nf)
+    j12 = ei.j12(a1, a0, nf)
     j13 = as4_ei.j13_exact(a1, a0, beta0, b_list, roots)
     j23 = as4_ei.j23_exact(a1, a0, beta0, b_list, roots)
     j33 = as4_ei.j33_exact(a1, a0, beta0, b_list, roots)
     return n3lo_decompose(
-        gamma_singlet, as4_ei.j03_exact(j00, j13, j23, j33, b_list), j13, j23, j33
+        gamma_singlet, as4_ei.j03_exact(j12, j13, j23, j33, b_list), j13, j23, j33
     )
 
 
@@ -295,12 +295,12 @@ def n3lo_decompose_expanded(gamma_singlet, a1, a0, nf):
         beta.b_qcd((4, 0), nf),
         beta.b_qcd((5, 0), nf),
     ]
-    j00 = ei.j00(a1, a0, nf)
+    j12 = ei.j12(a1, a0, nf)
     j13 = as4_ei.j13_expanded(a1, a0, beta0, b_list)
     j23 = as4_ei.j23_expanded(a1, a0, beta0, b_list)
     j33 = as4_ei.j33_expanded(a1, a0, beta0)
     return n3lo_decompose(
-        gamma_singlet, as4_ei.j03_expanded(j00, j13, j23, j33, b_list), j13, j23, j33
+        gamma_singlet, as4_ei.j03_expanded(j12, j13, j23, j33, b_list), j13, j23, j33
     )
 
 

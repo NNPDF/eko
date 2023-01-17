@@ -6,7 +6,7 @@ from . import evolution_integrals as ei
 
 
 @nb.njit(cache=True)
-def j00(a1, a0, nf):
+def j12(a1, a0, nf):
     r"""
     LO-LO exact evolution integral.
 
@@ -25,15 +25,15 @@ def j00(a1, a0, nf):
 
     Returns
     -------
-        j00 : float
+        j12 : float
             integral
     """
     beta0 = beta.beta_qcd((2, 0), nf)
-    return ei.j00(a1, a0, beta0)
+    return ei.j12(a1, a0, beta0)
 
 
 @nb.njit(cache=True)
-def j11_exact(a1, a0, nf):
+def j23_exact(a1, a0, nf):
     r"""
     NLO-NLO exact evolution integral.
 
@@ -58,11 +58,11 @@ def j11_exact(a1, a0, nf):
     """
     beta0 = beta.beta_qcd((2, 0), nf)
     beta1 = beta.beta_qcd((3, 0), nf)
-    return ei.j11_exact(a1, a0, beta0, beta1)
+    return ei.j23_exact(a1, a0, beta0, beta1)
 
 
 @nb.njit(cache=True)
-def j11_expanded(a1, a0, nf):
+def j23_expanded(a1, a0, nf):
     r"""
     NLO-NLO expanded evolution integral.
 
@@ -84,11 +84,11 @@ def j11_expanded(a1, a0, nf):
             integral
     """
     beta0 = beta.beta_qcd((2, 0), nf)
-    return ei.j11_expanded(a1, a0, beta0)
+    return ei.j23_expanded(a1, a0, beta0)
 
 
 @nb.njit(cache=True)
-def j01_exact(a1, a0, nf):
+def j13_exact(a1, a0, nf):
     r"""
     LO-NLO exact evolution integral.
 
@@ -113,11 +113,11 @@ def j01_exact(a1, a0, nf):
     """
     beta0 = beta.beta_qcd((2, 0), nf)
     beta1 = beta.beta_qcd((3, 0), nf)
-    return ei.j01_exact(a1, a0, beta0, beta1)
+    return ei.j13_exact(a1, a0, beta0, beta1)
 
 
 @nb.njit(cache=True)
-def j01_expanded(a1, a0, nf):
+def j13_expanded(a1, a0, nf):
     r"""
     LO-NLO expanded evolution integral.
 
@@ -140,11 +140,11 @@ def j01_expanded(a1, a0, nf):
     """
     beta0 = beta.beta_qcd((2, 0), nf)
     beta1 = beta.beta_qcd((3, 0), nf)
-    return ei.j01_expanded(a1, a0, beta0, beta1)
+    return ei.j13_expanded(a1, a0, beta0, beta1)
 
 
 @nb.njit(cache=True)
-def j22_exact(a1, a0, nf):
+def j34_exact(a1, a0, nf):
     r"""
     NNLO-NNLO exact evolution integral.
 
@@ -176,11 +176,11 @@ def j22_exact(a1, a0, nf):
     beta0 = beta.beta_qcd((2, 0), nf)
     beta1 = beta.beta_qcd((3, 0), nf)
     beta2 = beta.beta_qcd((4, 0), nf)
-    return ei.j22_exact(a1, a0, beta0, beta1, beta2)
+    return ei.j34_exact(a1, a0, beta0, beta1, beta2)
 
 
 @nb.njit(cache=True)
-def j12_exact(a1, a0, nf):
+def j24_exact(a1, a0, nf):
     r"""
     NLO-NNLO exact evolution integral.
 
@@ -207,11 +207,11 @@ def j12_exact(a1, a0, nf):
     beta0 = beta.beta_qcd((2, 0), nf)
     beta1 = beta.beta_qcd((3, 0), nf)
     beta2 = beta.beta_qcd((4, 0), nf)
-    return ei.j12_exact(a1, a0, beta0, beta1, beta2)
+    return ei.j24_exact(a1, a0, beta0, beta1, beta2)
 
 
 @nb.njit(cache=True)
-def j02_exact(a1, a0, nf):
+def j14_exact(a1, a0, nf):
     r"""
     LO-NNLO exact evolution integral.
 
@@ -237,11 +237,11 @@ def j02_exact(a1, a0, nf):
     beta0 = beta.beta_qcd((2, 0), nf)
     beta1 = beta.beta_qcd((3, 0), nf)
     beta2 = beta.beta_qcd((4, 0), nf)
-    return ei.j02_exact(a1, a0, beta0, beta1, beta2)
+    return ei.j14_exact(a1, a0, beta0, beta1, beta2)
 
 
 @nb.njit(cache=True)
-def j22_expanded(a1, a0, nf):
+def j34_expanded(a1, a0, nf):
     r"""
     NNLO-NNLO expanded evolution integral.
 
@@ -263,11 +263,11 @@ def j22_expanded(a1, a0, nf):
             integral
     """
     beta0 = beta.beta_qcd((2, 0), nf)
-    return ei.j22_expanded(a1, a0, beta0)
+    return ei.j34_expanded(a1, a0, beta0)
 
 
 @nb.njit(cache=True)
-def j12_expanded(a1, a0, nf):
+def j24_expanded(a1, a0, nf):
     r"""
     NLO-NNLO expanded evolution integral.
 
@@ -292,11 +292,11 @@ def j12_expanded(a1, a0, nf):
     beta0 = beta.beta_qcd((2, 0), nf)
     beta1 = beta.beta_qcd((3, 0), nf)
     beta2 = beta.beta_qcd((4, 0), nf)
-    return ei.j12_exact(a1, a0, beta0, beta1, beta2)
+    return ei.j24_exact(a1, a0, beta0, beta1, beta2)
 
 
 @nb.njit(cache=True)
-def j02_expanded(a1, a0, nf):
+def j14_expanded(a1, a0, nf):
     r"""
     LO-NNLO expanded evolution integral.
 
@@ -321,4 +321,4 @@ def j02_expanded(a1, a0, nf):
     beta0 = beta.beta_qcd((2, 0), nf)
     beta1 = beta.beta_qcd((3, 0), nf)
     beta2 = beta.beta_qcd((4, 0), nf)
-    return ei.j02_expanded(a1, a0, beta0, beta1, beta2)
+    return ei.j14_expanded(a1, a0, beta0, beta1, beta2)

@@ -1,4 +1,4 @@
-"""This file implements the |N3LO| evolution integrals"""
+"""Implement the |N3LO| evolution integrals."""
 
 import numba as nb
 import numpy as np
@@ -6,7 +6,9 @@ import numpy as np
 
 @nb.njit(cache=True)
 def roots(b_list):
-    """Returns the roots of:
+    """Return the roots of a third grade polynomial.
+
+    Return the roots of:
 
     .. math ::
         1 + b_1 a_s + b_2 a_s^2 + b_3 a_s^3 = 0
@@ -41,7 +43,7 @@ def roots(b_list):
 
 @nb.njit(cache=True)
 def derivative(r, b_list):
-    r"""Returns the derivative:
+    r"""Return the derivative of a third grade polynomial.
 
     .. math ::
         \frac{d}{d a_s}(1 + b_1 a_s + b_2 a_s^2 + b_3 a_s^3) = b_1 + 2 b_2 r + 3 b_3 r^2
@@ -65,8 +67,9 @@ def derivative(r, b_list):
 
 @nb.njit(cache=True)
 def j33_exact(a1, a0, beta0, b_list, roots):
-    r"""|N3LO|-|N3LO| exact evolution definite integral
-    evaluated at :math:`a_s-a_s^0`.
+    r"""|N3LO|-|N3LO| exact evolution definite integral.
+
+    Evaluated at :math:`a_s-a_s^0`.
 
     .. math::
 
@@ -99,8 +102,9 @@ def j33_exact(a1, a0, beta0, b_list, roots):
 
 @nb.njit(cache=True)
 def j23_exact(a1, a0, beta0, b_list, roots):
-    r"""|NNLO|-|N3LO| exact evolution definite integral
-    evaluated at :math:`a_s-a_s^0`.
+    r"""|NNLO|-|N3LO| exact evolution definite integral.
+
+    Evaluated at :math:`a_s-a_s^0`.
 
     .. math::
 
@@ -133,8 +137,9 @@ def j23_exact(a1, a0, beta0, b_list, roots):
 
 @nb.njit(cache=True)
 def j13_exact(a1, a0, beta0, b_list, roots):
-    r"""|NLO|-|N3LO| exact evolution definite integral
-    evaluated at :math:`a_s-a_s^0`.
+    r"""|NLO|-|N3LO| exact evolution definite integral.
+
+    Evaluated at :math:`a_s-a_s^0`.
 
     .. math::
 
@@ -166,9 +171,10 @@ def j13_exact(a1, a0, beta0, b_list, roots):
 
 
 @nb.njit(cache=True)
-def j03_exact(j00, j13, j23, j33, b_list):
-    r"""|LO|-|N3LO| exact evolution definite integral
-    evaluated at :math:`a_s-a_s^0`.
+def j03_exact(j12, j13, j23, j33, b_list):
+    r"""|LO|-|N3LO| exact evolution definite integral.
+
+    Evaluated at :math:`a_s-a_s^0`.
 
     .. math::
 
@@ -176,7 +182,7 @@ def j03_exact(j00, j13, j23, j33, b_list):
 
     Parameters
     ----------
-    j00: float
+    j12: float
         |LO|-|LO| evolution integral
     j13: float
         |NLO|-|N3LO| evolution integral
@@ -194,13 +200,14 @@ def j03_exact(j00, j13, j23, j33, b_list):
 
     """
     b1, b2, b3 = b_list
-    return j00 - b1 * j13 - b2 * j23 - b3 * j33
+    return j12 - b1 * j13 - b2 * j23 - b3 * j33
 
 
 @nb.njit(cache=True)
 def j33_expanded(a1, a0, beta0):
-    r"""|N3LO|-|N3LO| expanded evolution definite integral
-    evaluated at :math:`a_s-a_s^0`.
+    r"""|N3LO|-|N3LO| expanded evolution definite integral.
+
+    Evaluated at :math:`a_s-a_s^0`.
 
     .. math::
         j^{(3,3)}_{exp}(a_s) = \frac{1}{3 \beta_0} a_s^3
@@ -225,8 +232,9 @@ def j33_expanded(a1, a0, beta0):
 
 @nb.njit(cache=True)
 def j23_expanded(a1, a0, beta0, b_list):
-    r"""|NNLO|-|N3LO| expanded evolution definite integral
-    evaluated at :math:`a_s-a_s^0`.
+    r"""|NNLO|-|N3LO| expanded evolution definite integral.
+
+    Evaluated at :math:`a_s-a_s^0`.
 
     .. math::
         j^{(2,3)}_{exp}(a_s) = \frac{1}{\beta_0} ( \frac{1}{2} a_s^2 - \frac{b_1}{3} as^3)
@@ -254,8 +262,9 @@ def j23_expanded(a1, a0, beta0, b_list):
 
 @nb.njit(cache=True)
 def j13_expanded(a1, a0, beta0, b_list):
-    r"""|NLO|-|N3LO| expanded evolution definite integral
-    evaluated at :math:`a_s-a_s^0`.
+    r"""|NLO|-|N3LO| expanded evolution definite integral.
+
+    Evaluated at :math:`a_s-a_s^0`.
 
     .. math::
         j^{(1,3)}_{exp}(a_s) = \frac{1}{\beta_0} ( a_s - \frac{b_1}{2} a_s^2 + \frac{b_1^2-b_2}{3} as^3)
@@ -286,16 +295,17 @@ def j13_expanded(a1, a0, beta0, b_list):
 
 
 @nb.njit(cache=True)
-def j03_expanded(j00, j13, j23, j33, b_list):
-    r"""|LO|-|N3LO| expanded evolution definite integral
-    evaluated at :math:`a_s-a_s^0`.
+def j03_expanded(j12, j13, j23, j33, b_list):
+    r"""|LO|-|N3LO| expanded evolution definite integral.
+
+    Evaluated at :math:`a_s-a_s^0`.
 
     .. math::
         j^{(0,3)}_{exp}(a_s) = j^{(0,0)} - b_1 j^{(1,3)}_{exp}(a_s) - b_2 j^{(2,3)}_{exp}(a_s) - b_3 j^{(3,3)}_{exp}(a_s)
 
     Parameters
     ----------
-    j00: float
+    j12: float
         |LO|-|LO| evolution integral
     j13: float
         |NLO|-|N3LO| expanded evolution integral
@@ -316,4 +326,4 @@ def j03_expanded(j00, j13, j23, j33, b_list):
     j03_exact
 
     """
-    return j03_exact(j00, j13, j23, j33, b_list)
+    return j03_exact(j12, j13, j23, j33, b_list)

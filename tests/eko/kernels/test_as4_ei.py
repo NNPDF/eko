@@ -2,7 +2,7 @@ import numpy as np
 
 from eko import beta
 from eko.kernels import as4_evolution_integrals as as4_ei
-from eko.kernels.evolution_integrals_qcd import j00
+from eko.kernels.evolution_integrals_qcd import j12
 
 
 def test_zero():
@@ -81,8 +81,8 @@ def test_der_n3lo_exa():
 
     # 03
     rhs = 1.0 / (a1 * den)
-    j00p = j00(a1 + 0.5 * delta_a, a0, nf)
-    j00m = j00(a1 - 0.5 * delta_a, a0, nf)
+    j00p = j12(a1 + 0.5 * delta_a, a0, nf)
+    j00m = j12(a1 - 0.5 * delta_a, a0, nf)
     lhs = (
         as4_ei.j03_exact(j00p, j13p, j23p, j33p, b_list)
         - as4_ei.j03_exact(j00m, j13m, j23m, j33m, b_list)
@@ -129,8 +129,8 @@ def test_der_n3lo_exp():
 
     # 03
     rhs = 1.0 / (a1 * den)
-    j00p = j00(a1 + 0.5 * delta_a, a0, nf)
-    j00m = j00(a1 - 0.5 * delta_a, a0, nf)
+    j00p = j12(a1 + 0.5 * delta_a, a0, nf)
+    j00m = j12(a1 - 0.5 * delta_a, a0, nf)
     lhs = (
         as4_ei.j03_expanded(j00p, j13p, j23p, j33p, b_list)
         - as4_ei.j03_expanded(j00m, j13m, j23m, j33m, b_list)
