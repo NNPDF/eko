@@ -10,7 +10,7 @@ import numba as nb
 import numpy as np
 
 from ekore import harmonics
-from ekore import operator_matrix_elements as ome
+import ekore.operator_matrix_elements.unpolarized.space_like as ome_us
 
 from .. import basis_rotation as br
 from . import Operator, QuadKerBase
@@ -139,10 +139,10 @@ def quad_ker(
     # compute the ome
     if ker_base.is_singlet:
         indices = {21: 0, 100: 1, 90: 2}
-        A = ome.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+        A = ome_us.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
     else:
         indices = {200: 0, 91: 1}
-        A = ome.A_non_singlet(order, ker_base.n, sx, nf, L)
+        A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, a_s, backward_method)
