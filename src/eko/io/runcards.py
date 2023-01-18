@@ -300,6 +300,8 @@ class Legacy:
         else:
             raise ValueError()
 
+        new["xif"] = old["XIF"]
+
         return TheoryCard.from_dict(new)
 
     @property
