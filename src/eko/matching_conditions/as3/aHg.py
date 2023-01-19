@@ -35,6 +35,39 @@ def A_Hg(n, sx, nf, L):
         Incomplete part of the |OME|  :math:`a_{Hg}^{S,(3)}(N)`.
 
     """
+    l0 = a_Hg_l0(n, sx, nf)
+    l1 = a_Hg_l1(n, sx, nf)
+    l2 = a_Hg_l2(n, sx, nf)
+    l3 = a_Hg_l3(n, sx, nf)
+    return l0 + l1 * L + l2 * L**2 + l3 * L**3
+
+
+@nb.njit(cache=True)
+def a_Hg_l0(n, sx, nf):
+    r"""Part of :math:`A_{Hg}^{S,(3)}(N)` proportional to :math:`L^0`.
+
+    The part `a_Hg3(n, sx, nf)` is not fully known, but is parametrized.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+
+    Returns
+    -------
+    complex
+        :math:`A_{Hg}^{S,(3)}(N)|_{L^0}`
+
+    See Also
+    --------
+    a_Hg3: eko.matching_conditions.as3.aHg_param.a_Hg3
+        Incomplete part of the |OME|  :math:`a_{Hg}^{S,(3)}(N)`.
+
+    """
     S1, _ = sx[0]
     S2, Sm2 = sx[1]
     S3, S21, _, Sm21, _, Sm3 = sx[2]
@@ -2136,6 +2169,29 @@ def A_Hg(n, sx, nf, L):
             / (n * (1.0 + n) * (2.0 + n))
         )
     )
+    return a_Hg_l0
+
+
+@nb.njit(cache=True)
+def a_Hg_l3(n, sx, nf):
+    r"""Part of :math:`A_{Hg}^{S,(3)}(N)` proportional to :math:`L^3`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+
+    Returns
+    -------
+    complex
+        :math:`A_{Hg}^{S,(3)}(N)|_{L^3}`
+
+    """
+    S1, _ = sx[0]
     a_Hg_l3 = (
         (0.8888888888888888 * (2.0 + n + np.power(n, 2))) / (n * (1.0 + n) * (2.0 + n))
         - 0.3333333333333333
@@ -2316,6 +2372,31 @@ def A_Hg(n, sx, nf, L):
             / (n * (1.0 + n) * (2.0 + n))
         )
     )
+    return a_Hg_l3
+
+
+@nb.njit(cache=True)
+def a_Hg_l2(n, sx, nf):
+    r"""Part of :math:`A_{Hg}^{S,(3)}(N)` proportional to :math:`L^2`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+
+    Returns
+    -------
+    complex
+        :math:`A_{Hg}^{S,(3)}(N)|_{L^2}`
+
+    """
+    S1, _ = sx[0]
+    S2, Sm2 = sx[1]
+    S3, _, _, Sm21, _, Sm3 = sx[2]
     a_Hg_l2 = (
         0.3333333333333333
         * (
@@ -2760,6 +2841,32 @@ def A_Hg(n, sx, nf, L):
             / (n * (1.0 + n) * (2.0 + n))
         )
     )
+    return a_Hg_l2
+
+
+@nb.njit(cache=True)
+def a_Hg_l1(n, sx, nf):
+    r"""Part of :math:`A_{Hg}^{S,(3)}(N)` proportional to :math:`L^1`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+
+    Returns
+    -------
+    complex
+        :math:`A_{Hg}^{S,(3)}(N)|_{L^1}`
+
+    """
+    S1, _ = sx[0]
+    S2, Sm2 = sx[1]
+    S3, S21, _, Sm21, _, Sm3 = sx[2]
+    S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
     a_Hg_l1 = (
         0.3333333333333333
         * (
@@ -3802,4 +3909,4 @@ def A_Hg(n, sx, nf, L):
             / (n * (1.0 + n) * (2.0 + n))
         )
     )
-    return a_Hg_l0 + a_Hg_l1 * L + a_Hg_l2 * L**2 + a_Hg_l3 * L**3
+    return a_Hg_l1

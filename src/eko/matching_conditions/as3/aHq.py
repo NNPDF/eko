@@ -4,7 +4,7 @@ import numpy as np
 
 
 @nb.njit(cache=True)
-def A_Hq(n, sx, nf, L):  # pylint: disable=too-many-locals
+def A_Hq(n, sx, nf, L):
     r"""Computes the |N3LO| singlet |OME| :math:`A_{Hq}^{S,(3)}(N)`.
     The expression is presented in :cite:`Ablinger_2015` (eq 5.1)
     and :cite:`Blumlein:2017wxd` (eq 3.1).
@@ -35,12 +35,37 @@ def A_Hq(n, sx, nf, L):  # pylint: disable=too-many-locals
         :math:`A_{Hq}^{S,(3)}(N)`
 
     """
+    l0 = a_Hq_l0(n, sx, nf)
+    l1 = a_Hq_l1(n, sx, nf)
+    l2 = a_Hq_l2(n, sx, nf)
+    l3 = a_Hq_l3(n, sx, nf)
+    return l0 + l1 * L + l2 * L**2 + l3 * L**3
+
+
+@nb.njit(cache=True)
+def a_Hq_l0(n, sx, nf):  # pylint: disable=too-many-locals
+    r"""Part of :math:`A_{Hq}^{S,(3)}(N)` proportional to :math:`L^0`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+
+    Returns
+    -------
+    complex
+        :math:`A_{Hq}^{S,(3)}(N)|_{L^0}`
+
+    """
     S1, _ = sx[0]
     S2, Sm2 = sx[1]
     S3, S21, _, Sm21, _, Sm3 = sx[2]
     S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
     S5, _ = sx[4]
-
     # fit of:
     #  2^-N * ( H1 + 8.41439832211716)
     # with_
@@ -1600,6 +1625,28 @@ def A_Hq(n, sx, nf, L):  # pylint: disable=too-many-locals
             / ((-1.0 + n) * np.power(n, 2) * np.power(1.0 + n, 2) * (2.0 + n))
         )
     )
+    return a_Hq_l0
+
+
+def a_Hq_l3(n, sx, nf):
+    r"""Part of :math:`A_{Hq}^{S,(3)}(N)` proportional to :math:`L^3`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+
+    Returns
+    -------
+    complex
+        :math:`A_{Hq}^{S,(3)}(N)|_{L^3}`
+
+    """
+    S1, _ = sx[0]
     a_Hq_l3 = (
         (4.7407407407407405 * np.power(2.0 + n + np.power(n, 2), 2))
         / ((-1.0 + n) * np.power(n, 2) * np.power(1.0 + n, 2) * (2.0 + n))
@@ -1639,6 +1686,29 @@ def A_Hq(n, sx, nf, L):  # pylint: disable=too-many-locals
             / ((-1.0 + n) * np.power(n, 2) * np.power(1.0 + n, 2) * (2.0 + n))
         )
     )
+    return a_Hq_l3
+
+
+def a_Hq_l2(n, sx, nf):
+    r"""Part of :math:`A_{Hq}^{S,(3)}(N)` proportional to :math:`L^2`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+
+    Returns
+    -------
+    complex
+        :math:`A_{Hq}^{S,(3)}(N)|_{L^2}`
+
+    """
+    S1, _ = sx[0]
+    S2, Sm2 = sx[1]
     a_Hq_l2 = (
         0.3333333333333333
         * nf
@@ -1763,6 +1833,30 @@ def A_Hq(n, sx, nf, L):  # pylint: disable=too-many-locals
             / ((-1.0 + n) * np.power(n, 2) * np.power(1.0 + n, 2) * (2.0 + n))
         )
     )
+    return a_Hq_l2
+
+
+def a_Hq_l1(n, sx, nf):
+    r"""Part of :math:`A_{Hq}^{S,(3)}(N)` proportional to :math:`L^1`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
+
+    Returns
+    -------
+    complex
+        :math:`A_{Hq}^{S,(3)}(N)|_{L^1}`
+
+    """
+    S1, _ = sx[0]
+    S2, Sm2 = sx[1]
+    S3, S21, _, Sm21, _, Sm3 = sx[2]
     a_Hq_l1 = (
         0.3333333333333333
         * (
@@ -2100,4 +2194,4 @@ def A_Hq(n, sx, nf, L):  # pylint: disable=too-many-locals
             / ((-1.0 + n) * np.power(n, 2) * np.power(1.0 + n, 2) * (2.0 + n))
         )
     )
-    return a_Hq_l0 + a_Hq_l1 * L + a_Hq_l2 * L**2 + a_Hq_l3 * L**3
+    return a_Hq_l1
