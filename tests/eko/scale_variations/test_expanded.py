@@ -47,7 +47,7 @@ def test_scale_variation_a_vs_b():
 
     Note this is NOT the real difference between scheme expanded
     and exponentiated since here we don't take into account the
-    shifts in path length and :math:`\alpha_s` values-.
+    shifts in path length and :math:`\alpha_s` values.
     The real difference is always higher order.
     """
     nf = 5
