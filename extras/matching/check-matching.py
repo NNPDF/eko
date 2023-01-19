@@ -3,8 +3,12 @@ import logging
 import pathlib
 import sys
 
+import matplotlib.colors as clr
+import matplotlib.gridspec
 import matplotlib.pyplot as plt
+import matplotlib.ticker
 import numpy as np
+import utils
 from banana import toy
 
 import eko
@@ -119,72 +123,149 @@ def collect_data():
     pdf = toy.mkPDF("", 0)
     for id in th_updates.keys():
         with eko.EKO.open(f"./eko_{id}.tar") as evolution_operator:
+            x = evolution_operator.metadata.rotations.targetgrid.raw
             data[id] = {
                 q2: el["pdfs"] for q2, el in apply_pdf(evolution_operator, pdf).items()
             }
     return data
 
 
-def log_minor_ticks(min, max, base=10.0, scale=1.0, n=10, majors=None):
-    if majors is None:
-        lmin = np.ceil(np.log(min / scale) / np.log(base))
-        lmax = np.floor(np.log(max / scale) / np.log(base))
+plt.style.use(utils.load_style("./style.yaml"))
+hatches = ["////", "\\\\", "..", "+++", "OO"]
+colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
 
-        majors = scale * base ** np.arange(lmin - 1.0, lmax + 2.0)
-    else:
-        majors = list(np.unique(majors))
-        while np.min(majors) > min:
-            majors.insert(0, majors[0] / (majors[1] / majors[0]))
-        while np.max(majors) < max:
-            majors.append(majors[-1] / (majors[-2] / majors[-1]))
 
-    ranges = []
-    x1 = majors[0]
-    for x2 in majors[1:]:
-        ranges.append(
-            np.array(
-                list(filter(lambda x: min < x < max, np.linspace(x1, x2, n)[1:-1]))
-            )
+def plot(data, plots, fn, title):
+    ptos = data.keys()
+    Q2s = plots["Q2s"]
+    major_q2s = (plots["ks"] * plots["scale"]) ** 2
+    minor_q2s = utils.log_minor_ticks(np.min(Q2s), np.max(Q2s), majors=major_q2s)
+
+    fig = plt.figure(figsize=(10, 5))
+    fig.suptitle(title)
+
+    gs = matplotlib.gridspec.GridSpec(3, 2, width_ratios=[2, 3], figure=fig)
+
+    ax0 = fig.add_subplot(gs[:, 0])
+    ax0plots = {}
+    for pto, hatch, color in zip(ptos, hatches, colors):
+        p = {}
+        p["line"] = ax0.semilogx(Q2s, data[pto][1], color=color)
+        # ax.plot(Q2s, data[pto][0],"x")
+        # ax.plot(Q2s, data[pto][2],"v")
+        p["fill"] = ax0.fill_between(
+            Q2s,
+            data[pto][0],
+            data[pto][2],
+            facecolor=clr.to_rgba(color, alpha=0.1),
+            label=pto,
+            hatch=hatch,
+            edgecolor=clr.to_rgba(color, alpha=0.4),
         )
-        x1 = x2
+        ax0plots[pto] = p
 
-    return np.concatenate(ranges)
+    ax0.set_xlim([np.min(Q2s), np.max(Q2s)])
+    ax0.xaxis.set_ticks(major_q2s)
+    ax0.xaxis.set_ticks(minor_q2s, minor=True)
+    ax0.xaxis.set_ticklabels(("$m_b^2/4$", "$m_b^2$", "$4 m_b^2$"))
+    ax0.tick_params(which="minor", bottom=True, labelbottom=False)
+    ax0.grid(which="minor", axis="both", color=".9", linewidth=0.6, linestyle="--")
+    ax0.legend([(p["line"][0], p["fill"]) for p in ax0plots.values()], ax0plots.keys())
+    ax0.set_ylabel(plots["ylabel"])
+    fig.supxlabel(plots["xlabel"])
+
+    ptoaxes = []
+    for i, (pto, hatch, color) in enumerate(zip(ptos, hatches, colors)):
+        ax = fig.add_subplot(gs[i, 1])
+        ptoaxes.append(ax)
+
+        ax.plot(Q2s, data[pto][1] / data[pto][1] - 1.0, color=color)
+        ax.fill_between(
+            Q2s,
+            data[pto][0] / data[pto][1] - 1.0,
+            data[pto][2] / data[pto][1] - 1.0,
+            facecolor=clr.to_rgba(color, alpha=0.1),
+            label=pto,
+            hatch=hatch,
+            edgecolor=clr.to_rgba(color, alpha=0.4),
+        )
+        ax.set_xscale("log")
+        ax.set_xlim([np.min(Q2s), np.max(Q2s)])
+        if "ylim" in plots["breakout"]:
+            ax.set_ylim(plots["breakout"]["ylim"])
+        ax.yaxis.tick_right()
+        ax.tick_params(
+            which="both",
+            bottom=True,
+            top=True,
+            left=True,
+            right=True,
+            labelbottom=False,
+        )
+        ax.xaxis.set_ticks(major_q2s)
+        ax.xaxis.set_ticks(minor_q2s, minor=True)
+        ax.xaxis.set_ticklabels(("$m_b^2/4$", "$m_b^2$", "$4 m_b^2$"))
+        ax.grid(which="minor", axis="both", color=".9", linewidth=0.6, linestyle="--")
+
+    ptoaxes[-1].tick_params(labelbottom=True, which="major")
+
+    fig.tight_layout(pad=0.8)
+    fig.savefig(fn)
 
 
-def plot(select_pid, pid_label: str, xidx: int):
+def dump(select_pid, pid_label: str, xidx: int):
     data = collect_data()
     x = o["interpolation_xgrid"][xidx]
     q2s = list(data[0].keys())
-    # ks = np.array([get_theory(tid)["kbThr"] for tid in [0, 1,2]])
-    # scale = get_theory(0)["mb"]
-    # major_q2s = (ks * scale) ** 2
-    # minor_q2s = log_minor_ticks(np.min(q2s), np.max(q2s), majors=major_q2s)
-
-    fig = plt.figure()
-    fig.suptitle(f"LHA, toy, pid={pid_label}, x = {x}")
-    ax = fig.add_subplot(111)
-    ax.hlines(0.0, np.min(q2s), np.max(q2s), colors="#bbbbbb", linestyles="dashed")
-
+    scale = get_theory(0)["mb"]
+    ks = np.array([get_theory(tid)["kbThr"] for tid in [1, 0, 2]])
     baseline = np.array([select_pid(el)[xidx] for el in data[0].values()])
-    for tid in [1, 2]:
-        kbThr = get_theory(tid)["kbThr"]
-        dat = np.array([select_pid(el)[xidx] for el in data[tid].values()])
-        ax.plot(q2s, dat / baseline - 1.0, label=kbThr)
-
-    ax.set_ylabel("rel. distance to µ=1")
-    ax.set_xscale("log")
-    # ax.set_xlim([np.min(q2s), np.max(q2s)])
-    # ax.xaxis.set_ticks(major_q2s, labels=("$m_b^2/2$", "$m_b^2$", "$2 m_b^2$"))
-    # ax.xaxis.set_ticks(minor_q2s, minor=True)
-    # # ax.xaxis.set_ticklabels(("$m_b^2/2$", "$m_b^2$", "$2 m_b^2$"))
-    # ax.grid(which="minor", axis="both", color=".9", linewidth=0.6, linestyle="--")
-    # ax.tick_params(labelbottom=True, which="major")
-    ax.set_xlabel(r"$\mu^2$ [GeV²]")
-
-    ax.legend()
-    fig.savefig(f"check-matching-pid_{pid_label}-xidx_{xidx}.pdf")
-    plt.close(fig)
+    plot_data = {}
+    for pto, tids in [
+        ("LO", [1, 0, 2]),
+        # ("NLO", [4, 3, 5]), ("NNLO", [7, 6, 8])
+    ]:
+        lo = []
+        for tid in tids:
+            kbThr = get_theory(tid)["kbThr"]
+            lo.append(np.array([x * select_pid(el)[xidx] for el in data[tid].values()]))
+        plot_data[pto] = lo
+    plot_cfg = dict(
+        ks=ks,
+        Q2s=q2s,
+        scale=scale,
+        xlabel=r"$\mu^2$",
+        ylabel=f"x{pid_label}(x={x:.3e})",
+        breakout={},
+    )
+    plot(
+        plot_data,
+        plot_cfg,
+        f"check-matching-pid_{pid_label}-xidx_{xidx}.pdf",
+        f"LHA, toy, x{pid_label}(x={x:.3e},$\\mu^2$)",
+    )
 
 
 # compute()
-plot(lambda s: s[21], 21, 10)
+
+
+def select_g(s):
+    return s[21]
+
+
+def select_u(s):
+    return s[2]
+
+
+def select_b(s):
+    return s[5]
+
+
+def select_t3(s):
+    return s[2] + s[-2] - (s[1] + s[-1])  # T3 = u+ - d+
+
+
+for lab, fnc in [("g", select_g), ("u", select_u), ("b", select_b), ("T3", select_t3)]:
+    dump(fnc, lab, 10)
+    dump(fnc, lab, 20)
+    dump(fnc, lab, 40)
