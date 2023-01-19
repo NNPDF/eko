@@ -286,7 +286,7 @@ class Operator(sv.ModeMixin):
         """Return the grid size."""
         return self.int_disp.xgrid.size
 
-    def scheme_exponentiated_shift(self, q2):
+    def sv_exponentiated_shift(self, q2):
         """Compute shifted renormalization scale.
 
         Parameters
@@ -308,9 +308,15 @@ class Operator(sv.ModeMixin):
         """Return the computed values for :math:`a_s`."""
         sc = self.managers["strong_coupling"]
         a0 = sc.a_s(
-            self.scheme_exponentiated_shift(self.q2_from), fact_scale=self.q2_from, nf_to=self.nf
+            self.sv_exponentiated_shift(self.q2_from),
+            fact_scale=self.q2_from,
+            nf_to=self.nf,
         )
-        a1 = sc.a_s(self.scheme_exponentiated_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf)
+        a1 = sc.a_s(
+            self.sv_exponentiated_shift(self.q2_to),
+            fact_scale=self.q2_to,
+            nf_to=self.nf,
+        )
         return (a0, a1)
 
     @property
@@ -466,8 +472,8 @@ class Operator(sv.ModeMixin):
         logger.info(
             "%s: µ_R^2 distance: %e -> %e",
             self.log_label,
-            self.scheme_exponentiated_shift(self.q2_from),
-            self.scheme_exponentiated_shift(self.q2_to),
+            self.sv_exponentiated_shift(self.q2_from),
+            self.sv_exponentiated_shift(self.q2_to),
         )
         if self.sv_mode != sv.Modes.unvaried:
             logger.info(
