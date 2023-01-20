@@ -8,8 +8,8 @@ from eko import constants
 
 @nb.njit(cache=True)
 def gamma_qq(N, s1):
-    """Computes the LO quark-quark anomalous dimension
-    Implements Eqn. (B.3) from hep-ph/0604160
+    """Computes the LO quark-quark anomalous dimension.
+    Implements Eqn. (B.3) from hep-ph/0604160.
 
     Parameters
     ----------
@@ -28,8 +28,8 @@ def gamma_qq(N, s1):
 
 @nb.njit(cache=True)
 def gamma_qg(N):
-    """Computes the LO quark-gluon anomalous dimension
-    Implements Eqn. (B.4) from hep-ph/0604160 and Eqn. (A1) from PhysRevD.48.116
+    """Computes the LO quark-gluon anomalous dimension.
+    Implements Eqn. (B.4) from hep-ph/0604160 and Eqn. (A1) from PhysRevD.48.116.
 
     Parameters
     ----------
@@ -46,8 +46,8 @@ def gamma_qg(N):
 
 @nb.njit(cache=True)
 def gamma_gq(N, nf):
-    """Computes the LO gluon-quark anomalous dimension
-    Implements Eqn. (B.5) from hep-ph/0604160 and Eqn. (A1) from PhysRevD.48.116
+    """Computes the LO gluon-quark anomalous dimension.
+    Implements Eqn. (B.5) from hep-ph/0604160 and Eqn. (A1) from PhysRevD.48.116.
 
     Parameters
     ----------
@@ -66,8 +66,8 @@ def gamma_gq(N, nf):
 
 @nb.njit(cache=True)
 def gamma_gg(N, s1, nf):
-    """Computes the LO gluon-gluon anomalous dimension
-    Implements Eqn. (B.6) from hep-ph/0604160
+    """Computes the LO gluon-gluon anomalous dimension.
+    Implements Eqn. (B.6) from hep-ph/0604160.
 
     Parameters
     ----------
@@ -88,8 +88,8 @@ def gamma_gg(N, s1, nf):
 
 @nb.njit(cache=True)
 def gamma_ns(N, s1):
-    """Computes the LO non-singlet anomalous dimension
-    At LO, $\gamma_{ns}^{(0)} = \gamma_{qq}^{(0)}$
+    """Computes the LO non-singlet anomalous dimension.
+    At LO, $\gamma_{ns}^{(0)} = \gamma_{qq}^{(0)}$.
 	
     Parameters
     ----------
@@ -108,8 +108,8 @@ def gamma_ns(N, s1):
 
 @nb.njit(cache=True)
 def gamma_singlet(N, s1, nf):
-    """Computes the LO singlet anomalous dimension matrix
-    Implements Eqn. (2.13) from PhysRevD.48.116
+    """Computes the LO singlet anomalous dimension matrix.
+    Implements Eqn. (2.13) from PhysRevD.48.116.
 
     Parameters
     ----------
