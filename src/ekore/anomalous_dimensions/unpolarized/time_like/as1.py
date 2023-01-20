@@ -113,5 +113,5 @@ def gamma_singlet(N, s1, nf):
     -------
     gamma_singlet : LO singlet anomalous dimension matrix $\gamma_{s}^{(0)}$ (type: numpy.array)
     """
-    result = np.array([[gamma_qq(N, s1), gamma_gq(N, nf)],[gamma_qg(N), gamma_gg]], np.complex_)
+    result = np.array([[gamma_qq(N, s1), gamma_gq(N, nf)],[gamma_qg(N), gamma_gg(N, s1, nf)]], np.complex_)
     return result
