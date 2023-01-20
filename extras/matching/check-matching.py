@@ -89,12 +89,12 @@ th_updates = {
     0: {"kbThr": 1.0, "PTO": 0},
     1: {"kbThr": 0.5, "PTO": 0},
     2: {"kbThr": 2.0, "PTO": 0},
-    # 3: {"kbThr": 1.0, "PTO": 1},
-    # 4: {"kbThr": 0.5, "PTO": 1},
-    # 5: {"kbThr": 2.0, "PTO": 1},
-    # 6: {"kbThr": 1.0, "PTO": 2},
-    # 7: {"kbThr": 0.5, "PTO": 2},
-    # 8: {"kbThr": 2.0, "PTO": 2},
+    3: {"kbThr": 1.0, "PTO": 1},
+    4: {"kbThr": 0.5, "PTO": 1},
+    5: {"kbThr": 2.0, "PTO": 1},
+    6: {"kbThr": 1.0, "PTO": 2},
+    7: {"kbThr": 0.5, "PTO": 2},
+    8: {"kbThr": 2.0, "PTO": 2},
 }
 
 
@@ -221,10 +221,7 @@ def dump(select_pid, pid_label: str, xidx: int):
     ks = np.array([get_theory(tid)["kbThr"] for tid in [1, 0, 2]])
     baseline = np.array([select_pid(el)[xidx] for el in data[0].values()])
     plot_data = {}
-    for pto, tids in [
-        ("LO", [1, 0, 2]),
-        # ("NLO", [4, 3, 5]), ("NNLO", [7, 6, 8])
-    ]:
+    for pto, tids in [("LO", [1, 0, 2]), ("NLO", [4, 3, 5]), ("NNLO", [7, 6, 8])]:
         lo = []
         for tid in tids:
             kbThr = get_theory(tid)["kbThr"]
@@ -261,11 +258,21 @@ def select_b(s):
     return s[5]
 
 
-def select_t3(s):
-    return s[2] + s[-2] - (s[1] + s[-1])  # T3 = u+ - d+
+def select_t3(s):  # T3 = u+ - d+
+    return s[2] + s[-2] - (s[1] + s[-1])
 
 
-for lab, fnc in [("g", select_g), ("u", select_u), ("b", select_b), ("T3", select_t3)]:
+def select_v3(s):  # V3 = u- - d-
+    return s[2] - s[-2] - (s[1] - s[-1])
+
+
+for lab, fnc in [
+    ("g", select_g),
+    ("u", select_u),
+    ("b", select_b),
+    ("T3", select_t3),
+    ("V3", select_v3),
+]:
     dump(fnc, lab, 10)
     dump(fnc, lab, 20)
     dump(fnc, lab, 40)
