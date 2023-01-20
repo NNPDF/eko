@@ -350,7 +350,7 @@ def compute(
     couplings: CouplingsRef,
     order: Order,
     evmeth: CouplingEvolutionMethod,
-    matching: MatchingScales,
+    matching,
     xif2: float = 1.0,
 ):
     r"""Compute the |MSbar| masses.
