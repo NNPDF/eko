@@ -1,0 +1,1 @@
+"""The following are the unpolarized time-like next-to-leading-order (NLO) Altarelli-Parisi splitting kernels."""
