@@ -35,6 +35,10 @@ def variation_as1(gamma, L):
 def variation_as2(gamma, L, beta0, g0e2):
     r"""Compute the |NNLO| anomalous dimension variation.
 
+    These kernels are meant to be used with alpha_s evaluated at the
+    factorization scale. If one expresses everything in terms of
+    alpha_s evaluated at the process scale, the sign of beta*gamma0 flips.
+
     Parameters
     ----------
     gamma : numpy.ndarray
@@ -52,9 +56,6 @@ def variation_as2(gamma, L, beta0, g0e2):
         variation at |NNLO|
     """
     return -gamma[1] * L + 1.0 / 2.0 * (beta0 * gamma[0] + g0e2) * L**2
-    # All this kernels are meant to be used with alpha_s evaluated at the
-    # factorization scale. If one expresses everything in terms of
-    # alpha_s evaluated at the process scale, the sign of beta*gamma0 flips.
 
 
 @nb.njit(cache=True)
