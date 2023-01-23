@@ -155,7 +155,7 @@ def build_ome(A, matching_order, a_s, backward_method):
 def quad_ker(
     u, order, mode0, mode1, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
 ):
-    """
+    r"""
     Raw kernel inside quad
 
     Parameters
@@ -366,7 +366,9 @@ class OperatorMatrixElement(Operator):
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
         sc = self.managers["strong_coupling"]
-        return sc.a_s(self.mur2_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1)
+        return sc.a_s(
+            self.sv_exponentiated_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1
+        )
 
     def compute(self):
         """Compute the actual operators (i.e. run the integrations)"""

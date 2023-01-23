@@ -123,7 +123,6 @@ def quad_ker(
     areas,
     as1,
     as0,
-    as_raw,
     nf,
     L,
     ev_op_iterations,
@@ -155,8 +154,6 @@ def quad_ker(
         target coupling value
     as0 : float
         initial coupling value
-    as_raw : float
-        coupling value at the process scale
     nf : int
         number of active flavors
     L : float
@@ -201,7 +198,7 @@ def quad_ker(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, as_raw, order, nf, L)
+                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -218,9 +215,7 @@ def quad_ker(
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = (
-                sv.expanded.non_singlet_variation(gamma_ns, as_raw, order, nf, L) * ker
-            )
+            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
 
     # recombine everything
     return np.real(ker * integrand)
@@ -291,7 +286,7 @@ class Operator(sv.ModeMixin):
         """Return the grid size."""
         return self.int_disp.xgrid.size
 
-    def mur2_shift(self, q2):
+    def sv_exponentiated_shift(self, q2):
         """Compute shifted renormalization scale.
 
         Parameters
@@ -313,11 +308,16 @@ class Operator(sv.ModeMixin):
         """Return the computed values for :math:`a_s`."""
         sc = self.managers["strong_coupling"]
         a0 = sc.a_s(
-            self.mur2_shift(self.q2_from), fact_scale=self.q2_from, nf_to=self.nf
+            self.sv_exponentiated_shift(self.q2_from),
+            fact_scale=self.q2_from,
+            nf_to=self.nf,
         )
-        a1 = sc.a_s(self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf)
-        a_raw = sc.a_s(self.q2_to, fact_scale=self.q2_to, nf_to=self.nf)
-        return (a0, a1, a_raw)
+        a1 = sc.a_s(
+            self.sv_exponentiated_shift(self.q2_to),
+            fact_scale=self.q2_to,
+            nf_to=self.nf,
+        )
+        return (a0, a1)
 
     @property
     def labels(self):
@@ -375,7 +375,6 @@ class Operator(sv.ModeMixin):
             areas=areas,
             as1=self.a_s[1],
             as0=self.a_s[0],
-            as_raw=self.a_s[2],
             nf=self.nf,
             L=np.log(self.xif2),
             ev_op_iterations=self.config["ev_op_iterations"],
@@ -473,8 +472,8 @@ class Operator(sv.ModeMixin):
         logger.info(
             "%s: µ_R^2 distance: %e -> %e",
             self.log_label,
-            self.mur2_shift(self.q2_from),
-            self.mur2_shift(self.q2_to),
+            self.sv_exponentiated_shift(self.q2_from),
+            self.sv_exponentiated_shift(self.q2_to),
         )
         if self.sv_mode != sv.Modes.unvaried:
             logger.info(
