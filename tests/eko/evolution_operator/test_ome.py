@@ -5,17 +5,19 @@ import numpy as np
 
 from eko import basis_rotation as br
 from eko import interpolation, mellin
-from ekore.harmonics import compute_cache
-from eko.io.runcards import OperatorCard, TheoryCard
-from eko.io.types import InversionMethod
-from ekore.matching_conditions.operator_matrix_element import (
-    A_non_singlet,
-    A_singlet,
+from eko.evolution_operator.operator_matrix_element import (
     OperatorMatrixElement,
     build_ome,
     quad_ker,
 )
+from eko.io.runcards import OperatorCard, TheoryCard
+from eko.io.types import InversionMethod
 from eko.runner import legacy
+from ekore.harmonics import compute_cache
+from ekore.operator_matrix_elements.unpolarized.space_like import (
+    A_non_singlet,
+    A_singlet,
+)
 
 max_weight_dict = {1: 2, 2: 3, 3: 5}
 
@@ -88,12 +90,12 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
     zeros = np.zeros((2, 2))
     monkeypatch.setattr(
-        "ekore.matching_conditions.operator_matrix_element.A_non_singlet",
+        "ekore.operator_matrix_elements.unpolarized.space_like.A_non_singlet",
         lambda *args: np.array([zeros, zeros, zeros]),
     )
     zeros = np.zeros((3, 3))
     monkeypatch.setattr(
-        "ekore.matching_conditions.operator_matrix_element.A_singlet",
+        "ekore.operator_matrix_elements.unpolarized.space_like.A_singlet",
         lambda *args: np.array([zeros, zeros, zeros]),
     )
     for is_log in [True, False]:
@@ -110,6 +112,8 @@ def test_quad_ker(monkeypatch):
             nf=3,
             L=0.0,
             is_msbar=False,
+            is_polarized=False,
+            is_time_like=False,
         )
         np.testing.assert_allclose(res_ns, 1.0)
         res_s = quad_ker(
@@ -125,6 +129,8 @@ def test_quad_ker(monkeypatch):
             nf=3,
             L=0.0,
             is_msbar=False,
+            is_polarized=False,
+            is_time_like=False,
         )
         np.testing.assert_allclose(res_s, 1.0)
         res_s = quad_ker(
@@ -140,6 +146,8 @@ def test_quad_ker(monkeypatch):
             nf=3,
             L=0.0,
             is_msbar=False,
+            is_polarized=False,
+            is_time_like=False,
         )
         np.testing.assert_allclose(res_s, 0.0)
 
@@ -159,6 +167,8 @@ def test_quad_ker(monkeypatch):
             nf=3,
             L=0.0,
             is_msbar=False,
+            is_polarized=False,
+            is_time_like=False,
         )
         if label[-1] == label[-2]:
             np.testing.assert_allclose(res_ns, 1.0)
@@ -192,6 +202,8 @@ def test_quad_ker(monkeypatch):
             nf=3,
             L=0.0,
             is_msbar=False,
+            is_polarized=False,
+            is_time_like=False,
         )
         if label[-1] == label[-2]:
             np.testing.assert_allclose(res_ns, 1.0)
@@ -212,6 +224,8 @@ def test_quad_ker(monkeypatch):
         nf=3,
         L=0.0,
         is_msbar=False,
+        is_polarized=False,
+        is_time_like=False,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 

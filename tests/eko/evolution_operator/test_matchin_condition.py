@@ -3,7 +3,7 @@ from numpy.testing import assert_almost_equal
 
 from eko import basis_rotation as br
 from eko import member
-from ekore.matching_conditions import MatchingCondition
+from eko.evolution_operator.matching_condition import MatchingCondition
 
 
 def mkOM(shape):

@@ -90,6 +90,8 @@ class Configs(DictLike):
     """
     polarized: bool
     """If `true` do polarized evolution."""
+    time_like: bool
+    """If `true` do time-like evolution."""
     scvar_method: Optional[ScaleVariationsMethod]
     """"""
     inversion_method: Optional[InversionMethod]

@@ -23,6 +23,7 @@ default_card = dict(
             inputpids=None,
             targetpids=None,
             polarized=False,
+            time_like=False,
         ).items()
     )
 )
