@@ -109,10 +109,10 @@ class BenchmarkMSbar:
                         couplings=theory_card.couplings,
                         order=theory_card.order,
                         evmeth=couplevmeth,
-                        matching=theory_card.matching,
+                        matching=np.power(list(iter(theory_card.matching)), 2.0),
                         xif2=theory_card.xif**2,
                     ).tolist(),
-                    thresholds_ratios=theory_card.matching,
+                    thresholds_ratios=np.power(list(iter(theory_card.matching)), 2.0),
                     method=couplevmeth,
                     hqm_scheme=theory_card.quark_masses_scheme,
                 )
@@ -195,7 +195,7 @@ class BenchmarkMSbar:
                 couplings=theory_card.couplings,
                 order=theory_card.order,
                 evmeth=types.CouplingEvolutionMethod.EXACT,
-                matching=theory_card.matching,
+                matching=np.power(list(iter(theory_card.matching)), 2.0),
                 xif2=theory_card.xif**2,
             )
             # get APFEL numbers - if available else use cache
@@ -238,7 +238,7 @@ class BenchmarkMSbar:
             couplings=theory_card.couplings,
             order=theory_card.order,
             evmeth=types.CouplingEvolutionMethod.EXACT,
-            matching=theory_card.matching,
+            matching=np.power(list(iter(theory_card.matching)), 2.0),
             xif2=theory_card.xif**2,
         )
         apfel_masses_thr = [1.9891, 4.5102, 175.0000]
@@ -249,7 +249,7 @@ class BenchmarkMSbar:
             couplings=theory_card.couplings,
             order=theory_card.order,
             evmeth=types.CouplingEvolutionMethod.EXACT,
-            matching=theory_card.matching,
+            matching=np.power(list(iter(theory_card.matching)), 2.0),
             xif2=theory_card.xif**2,
         )
 

@@ -542,7 +542,7 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXPANDED,
                 masses=m2s.tolist(),
-                thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
+                thresholds_ratios=[1.0, 1.0, 1.0],
                 hqm_scheme=types.QuarkMassSchemes.MSBAR,
             )
             my_vals = []
