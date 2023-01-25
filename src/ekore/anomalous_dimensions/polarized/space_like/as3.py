@@ -343,7 +343,7 @@ def gamma_nss(N, nf, sx):
     S1 = sx[0]
     S3 = sx[2]
     Sm1, Sm2, Sm3 = harmonics.smx(N, sx, True)
-    Sm21 = harmonics.Sm3(N, S1, Sm1, True)
+    Sm21 = harmonics.Sm21(N, S1, Sm1, True)
     nss_nf1 = (
         40
         / 9
