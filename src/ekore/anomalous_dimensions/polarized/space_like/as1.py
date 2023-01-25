@@ -11,7 +11,7 @@ from ...unpolarized.space_like.as1 import gamma_ns
 @nb.njit(cache=True)
 def gamma_qg(N, nf):
     """
-    Computes the leading-order polarised quark-gluon anomalous dimension
+    Computes the leading-order polarized quark-gluon anomalous dimension
     :cite:`Gluck:1995yr` (eq A.1)
 
     Parameters
@@ -24,7 +24,7 @@ def gamma_qg(N, nf):
     Returns
     -------
       gamma_qg : complex
-        Leading-order polarised quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
+        Leading-order polarized quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(0)}(N)`
     """
     gamma = -(N - 1) / N / (N + 1)
     result = 2.0 * constants.TR * 2.0 * nf * gamma
@@ -34,7 +34,7 @@ def gamma_qg(N, nf):
 @nb.njit(cache=True)
 def gamma_gq(N):
     """
-    Computes the leading-order polarised gluon-quark anomalous dimension
+    Computes the leading-order polarized gluon-quark anomalous dimension
     :cite:`Gluck:1995yr` (eq A.1)
 
     Parameters
@@ -55,7 +55,7 @@ def gamma_gq(N):
 @nb.njit(cache=True)
 def gamma_gg(N, s1, nf):
     """
-    Computes the leading-order polarised gluon-gluon anomalous dimension
+    Computes the leading-order polarized gluon-gluon anomalous dimension
     :cite:`Gluck:1995yr` (eq A.1)
 
     Parameters
@@ -80,7 +80,7 @@ def gamma_gg(N, s1, nf):
 @nb.njit(cache=True)
 def gamma_singlet(N, s1, nf):
     r"""
-      Computes the leading-order polarised singlet anomalous dimension matrix
+      Computes the leading-order polarized singlet anomalous dimension matrix
 
       .. math::
           \gamma_S^{(0)} = \left(\begin{array}{cc}

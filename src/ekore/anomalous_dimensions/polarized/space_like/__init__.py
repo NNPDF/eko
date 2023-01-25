@@ -13,19 +13,24 @@ import numba as nb
 import numpy as np
 
 from .... import harmonics
-from . import as1
+from . import as1, as2
 
 
 @nb.njit(cache=True)
-def gamma_ns(order, n):
+def gamma_ns(order,mode, n, nf):
     r"""Computes the tower of the non-singlet anomalous dimensions
 
     Parameters
     ----------
     order : tuple(int,int)
         perturbative orders
+    mode : 10201 | 10101 | 10200
+        sector identifier
     n : complex
         Mellin variable
+    nf : int
+        Number of active flavors
+
     Returns
     -------
     numpy.ndarray
@@ -39,7 +44,16 @@ def gamma_ns(order, n):
     gamma_ns[0] = as1.gamma_ns(n, sx[0])
     # NLO and beyond
     if order[0] >= 2:
-        raise NotImplementedError("Polarised beyond LO is not yet implemented")
+        if mode == 10101:
+            gamma_ns_1 = as2.gamma_nsp(n, nf, sx)
+        # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
+        elif mode in [10201, 10200]:
+            gamma_ns_1 = as2.gamma_nsm(n, nf, sx)
+        else:
+            raise NotImplementedError("Non-singlet sector is not implemented")
+        gamma_ns[1] = gamma_ns_1
+    if order[0] >= 3:
+        raise NotImplementedError("Polarised beyond NLO is not yet implemented")
     return gamma_ns
 
 
@@ -67,6 +81,8 @@ def gamma_singlet(order, n, nf):
 
     gamma_s = np.zeros((order[0], 2, 2), np.complex_)
     gamma_s[0] = as1.gamma_singlet(n, sx[0], nf)
-    if order[0] >= 2:
-        raise NotImplementedError("Polarised beyond LO is not yet implemented")
+    if order[0] >=2:
+        gamma_s[1] = as2.gamma_singlet(n, sx, nf)
+    if order[0] >= 3:
+        raise NotImplementedError("Polarised beyond NLO is not yet implemented")
     return gamma_s
