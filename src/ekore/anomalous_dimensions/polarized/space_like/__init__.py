@@ -1,5 +1,4 @@
-r"""
-This module contains the polarized spacelike Altarelli-Parisi splitting kernels.
+r"""This module contains the polarized spacelike Altarelli-Parisi splitting kernels.
 
 Normalization is given by
 
@@ -35,7 +34,7 @@ def compute_cache(n, pto, is_singlet):
 
     """
     max_weight = pto if pto != 3 else 4
-    cache = harmonics.sx(n, max_weight, is_singlet)
+    cache = harmonics.sx(n, max_weight)
     # TODO: fix this cache to contain all the harmonics needed
     # if pto == 1:
     #     return [harmonics.S1(n)]
