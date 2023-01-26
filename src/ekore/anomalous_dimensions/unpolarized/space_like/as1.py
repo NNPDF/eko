@@ -5,9 +5,11 @@ import numpy as np
 
 from eko import constants
 
+from ....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def gamma_ns(N, s1):
+def gamma_ns(N, cache):
     """
     Computes the leading-order non-singlet anomalous dimension.
 
@@ -17,15 +19,13 @@ def gamma_ns(N, s1):
     ----------
       N : complex
         Mellin moment
-      s1 : complex
-        harmonic sum :math:`S_{1}`
 
     Returns
     -------
       gamma_ns : complex
         Leading-order non-singlet anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    gamma = -(3.0 - 4.0 * s1 + 2.0 / N / (N + 1.0))
+    gamma = -(3.0 - 4.0 * c.get(c.S1, cache, N) + 2.0 / N / (N + 1.0))
     result = constants.CF * gamma
     return result
 
@@ -77,7 +77,7 @@ def gamma_gq(N):
 
 
 @nb.njit(cache=True)
-def gamma_gg(N, s1, nf):
+def gamma_gg(N, nf, cache):
     """
     Computes the leading-order gluon-gluon anomalous dimension
 
@@ -87,8 +87,6 @@ def gamma_gg(N, s1, nf):
     ----------
       N : complex
         Mellin moment
-      s1 : complex
-        harmonic sum :math:`S_{1}`
       nf : int
         Number of active flavors
 
@@ -97,13 +95,13 @@ def gamma_gg(N, s1, nf):
       gamma_gg : complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    gamma = s1 - 1.0 / N / (N - 1.0) - 1.0 / (N + 1.0) / (N + 2.0)
+    gamma = c.get(c.S1, cache, N) - 1.0 / N / (N - 1.0) - 1.0 / (N + 1.0) / (N + 2.0)
     result = constants.CA * (4.0 * gamma - 11.0 / 3.0) + 4.0 / 3.0 * constants.TR * nf
     return result
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, s1, nf):
+def gamma_singlet(N, nf, cache):
     r"""
       Computes the leading-order singlet anomalous dimension matrix
 
@@ -134,8 +132,9 @@ def gamma_singlet(N, s1, nf):
         gamma_gq : :math:`\gamma_{gq}^{(0)}`
         gamma_gg : :math:`\gamma_{gg}^{(0)}`
     """
-    gamma_qq = gamma_ns(N, s1)
+    gamma_qq = gamma_ns(N, cache)
     gamma_S_0 = np.array(
-        [[gamma_qq, gamma_qg(N, nf)], [gamma_gq(N), gamma_gg(N, s1, nf)]], np.complex_
+        [[gamma_qq, gamma_qg(N, nf)], [gamma_gq(N), gamma_gg(N, nf, cache)]],
+        np.complex_,
     )
     return gamma_S_0
