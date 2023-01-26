@@ -106,6 +106,8 @@ class OperatorGrid(sv.ModeMixin):
         if order == (1, 0) and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")
 
+        logger.info(("P" if configs.polarized else "Unp") + "olarized evolution")
+
         self.config = config
         self.q2_grid = mu2grid
         self.managers = dict(

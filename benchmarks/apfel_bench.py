@@ -158,6 +158,16 @@ class BenchmarkFFNS(ApfelBenchmark):
             cartesian_product(th), operators.build(operators.apfel_config), ["ToyLH"]
         )
 
+    def benchmark_plain_pol(self, pto):
+        """Plain configuration"""
+
+        th = self.ffns_theory.copy()
+        th.update({"PTO": [pto]})
+        th["ModEv"] = ["EXA"]  # TODO for the time one is sufficient
+        op = operators.apfel_config.copy()
+        op["polarized"] = [True]
+        self.run(cartesian_product(th), operators.build(op), ["ToyLH"])
+
     def benchmark_sv(self, pto, svmode):
         """Scale Variation"""
 
@@ -189,10 +199,11 @@ class BenchmarkFFNS(ApfelBenchmark):
 
 if __name__ == "__main__":
 
-    obj = BenchmarkVFNS()
-    # obj = BenchmarkFFNS()
+    # obj = BenchmarkVFNS()
+    obj = BenchmarkFFNS()
 
+    obj.benchmark_plain_pol(0)
     # obj.benchmark_plain(2)
-    obj.benchmark_sv(2, "exponentiated")
+    # obj.benchmark_sv(2, "exponentiated")
     # obj.benchmark_kthr(2)
     # obj.benchmark_msbar(2)
