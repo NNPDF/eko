@@ -331,6 +331,7 @@ class Legacy:
             "ev_op_iterations",
             "n_integration_cores",
             "polarized",
+            "time_like",
         ):
             new["configs"][k] = old[k]
         max_order = old["ev_op_max_order"]
