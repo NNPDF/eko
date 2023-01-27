@@ -85,7 +85,7 @@ def gamma_gg(N, nf, sx):
         + (16 * S1) / 9
         + (0.21 * S1) / N
     )
-    return gg_nf0 + gg_nf1 * nf + gg_nf2 * nf**2
+    return -(gg_nf0 + gg_nf1 * nf + gg_nf2 * nf**2)
 
 
 @nb.njit(cache=True)
@@ -148,7 +148,7 @@ def gamma_qg(N, nf, sx):
         + (7.32 * S1**2) / N
         + (7.32 * S2) / N
     )
-    return qg_nf1 * nf + qg_nf2 * nf**2
+    return -(qg_nf1 * nf + qg_nf2 * nf**2)
 
 
 @nb.njit(cache=True)
@@ -224,7 +224,7 @@ def gamma_gq(N, nf, sx):
         + (32 * S2) / (9 * N)
         - (16 * S2) / (9 * (1 + N))
     )
-    return gq_nf0 + gq_nf1 * nf + gq_nf2 * nf**2
+    return -(gq_nf0 + gq_nf1 * nf + gq_nf2 * nf**2)
 
 
 @nb.njit(cache=True)
@@ -315,7 +315,7 @@ def gamma_ps(N, nf, sx):
             - (16.0245 * S2) / (1 + N)
         )
     )
-    return ps_nf1 * nf + ps_nf2 * nf**2
+    return -(ps_nf1 * nf + ps_nf2 * nf**2)
 
 
 @nb.njit(cache=True)
@@ -371,7 +371,7 @@ def gamma_nss(N, nf, sx):
             * (S1 * Sm2 - Sm21 + Sm3)
         )
     )
-    return nss_nf1 * nf
+    return -(nss_nf1 * nf)
 
 
 @nb.njit(cache=True)
