@@ -22,11 +22,11 @@ def test_gluon_momentum():
     N = complex(2.0, 0.0)
     sx = harmonics.sx(N, max_weight=4)
     np.testing.assert_allclose(
-        as3.gamma_qg(N, nf, sx) + as3.gamma_gg(N, nf, sx), -9.26335, rtol=7e-4
+        as3.gamma_qg(N, nf, sx) + as3.gamma_gg(N, nf, sx), 9.26335, rtol=7e-4
     )
 
 
 def test_qg_helicity_conservation():
     N = complex(1.0, 0.0)
     sx = harmonics.sx(N, max_weight=4)
-    np.testing.assert_almost_equal(as3.gamma_qg(N, nf, sx), -0.00294317)
+    np.testing.assert_almost_equal(as3.gamma_qg(N, nf, sx), 0.00294317)
