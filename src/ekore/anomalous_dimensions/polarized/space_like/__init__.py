@@ -15,6 +15,7 @@ from .... import harmonics
 from . import as1, as2, as3
 
 
+@nb.njit(cache=True)
 def compute_cache(n, pto, is_singlet):
     """Compute the harmonic cache for polarized anomalous dimension.
 
@@ -35,31 +36,6 @@ def compute_cache(n, pto, is_singlet):
     """
     max_weight = pto if pto != 3 else 4
     cache = harmonics.sx(n, max_weight)
-    # TODO: fix this cache to contain all the harmonics needed
-    # if pto == 1:
-    #     return [harmonics.S1(n)]
-    # if pto == 2:
-    #     sx = harmonics.sx(n, max_weight=2)
-    #     cache = [sx[0], [sx[1]]]
-    #     if is_singlet:
-    #         # S1, S2, Sm21
-    #         Sm1 = harmonics.Sm1(n, cache[0], is_singlet)
-    #         Sm21 = harmonics.Sm21(n, cache[0], Sm1, is_singlet)
-    #         cache.append([0, Sm21])
-    # if pto == 3:
-    #     if is_singlet:
-    #         # S1, S2, S3, Sm21, S4
-    #         sx = harmonics.sx(n, max_weight=4)
-    #         Sm1 = harmonics.Sm1(n, sx[0], is_singlet)
-    #         Sm21 = harmonics.Sm21(n, sx[0], Sm1, is_singlet)
-    #         cache = [sx[0], [sx[1], 0], [sx[2], Sm21], sx[3]]
-    #     else:
-    #         # TODO: this ordering will not be good when calling nsm,nsp...
-    #         # S1, S2,Sm2, S3, Sm21, Sm3
-    #         sx = harmonics.sx(n, max_weight=3)
-    #         smx = harmonics.smx(n, 3, is_singlet)
-    #         Sm21 = harmonics.Sm21(n, sx[0], smx[0], is_singlet)
-    #         cache = [sx[0], [sx[1], smx[1]], [sx[2], Sm21, smx[2]]]
     return cache
 
 
