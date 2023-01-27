@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This module contains the definitions of the
 :doc:`Flavor Basis and Evolution Basis </theory/FlavorSpace>`.

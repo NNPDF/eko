@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """This files sets the physical constants."""
 
 import numba as nb

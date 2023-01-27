@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""This module defines the matching conditions for the N3LO |VFNS| evolution.
 
 The expressions are based on:

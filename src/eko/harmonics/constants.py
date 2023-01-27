@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Zeta function values and other constants."""
 
 import numpy as np

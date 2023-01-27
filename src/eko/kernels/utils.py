@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Some utility functions"""
 
 import numba as nb

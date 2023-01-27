@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Collection of singlet EKOs."""
 
 import numba as nb

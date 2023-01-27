@@ -1,15 +1,17 @@
-# -*- coding: utf-8 -*-
 import os
 import pathlib
 import shutil
 import sys
 from contextlib import contextmanager
+from typing import Iterable, Optional, Tuple
 
 import numpy as np
 import pytest
 
-from eko import output
-from eko.output import legacy
+from eko import interpolation
+from eko.io.runcards import OperatorCard, TheoryCard
+from eko.io.struct import EKO, Operator
+from ekobox import cards
 
 
 @pytest.fixture
@@ -40,94 +42,92 @@ def fake_pdf():
     return FakePDF()
 
 
-class FakeOutput:
-    shape = (2, 2)
+@pytest.fixture
+def theory_card():
+    return cards.example.theory()
 
-    def mkO(self):
-        ma, mae = np.random.rand(2, *self.shape)
-        return ma, mae
 
-    def mk_g(self, q2s, lpids, lx):
-        Q2grid = {}
-        for q2 in q2s:
-            Q2grid[q2] = {
-                "operator": np.random.rand(lpids, lx, lpids, lx),
-                "error": np.random.rand(lpids, lx, lpids, lx),
-            }
-        return Q2grid
+@pytest.fixture()
+def theory_ffns(theory_card):
+    def set_(flavors: int) -> TheoryCard:
+        i = flavors - 3
+        for q in "cbt"[i:]:
+            setattr(theory_card.matching, q, np.inf)
+        return theory_card
 
-    def mk_dump(self) -> dict:
-        xgrid = np.array([0.5, 1.0])
-        interpolation_polynomial_degree = 1
-        interpolation_is_log = False
-        pids = [0, 1]
-        q2_ref = 1
-        q2_out = 2
-        Q2grid = self.mk_g([q2_out], len(pids), len(xgrid))
-        return dict(
-            rotations=dict(
-                xgrid=xgrid,
-                pids=pids,
-                targetgrid=xgrid,
-                inputgrid=xgrid,
-                inputpids=pids,
-                targetpids=pids,
-            ),
-            Q0=np.sqrt(q2_ref),
-            couplings=dict(),
-            configs=dict(
-                ev_op_max_order=1,
-                ev_op_iterations=1,
-                interpolation_polynomial_degree=interpolation_polynomial_degree,
-                interpolation_is_log=interpolation_is_log,
-                backward_inversion="exact",
-            ),
-            Q2grid=Q2grid,
+    return set_
+
+
+@pytest.fixture
+def operator_card():
+    card = cards.example.operator()
+    card.rotations.xgrid = interpolation.XGrid([0.1, 0.3, 0.5, 1.0])
+    card.configs.interpolation_polynomial_degree = 2
+
+    return card
+
+
+@pytest.fixture
+def out_v0():
+    return pathlib.Path(__file__).parent / "data" / "v0.8.5-obf24af_t8e1305.tar"
+
+
+class EKOFactory:
+    def __init__(self, theory: TheoryCard, operator: OperatorCard, path: os.PathLike):
+        self.path = path
+        self.theory = theory
+        self.operator = operator
+        self.cache: Optional[EKO] = None
+
+    @staticmethod
+    def _operators(mugrid: Iterable[float], shape: Tuple[int, int]):
+        ops = {}
+        for mu in mugrid:
+            ops[mu] = Operator(np.random.rand(*shape, *shape))
+
+        return ops
+
+    def _create(self):
+        self.cache = (
+            EKO.create(self.path).load_cards(self.theory, self.operator).build()
         )
+        lx = len(self.operator.rotations.xgrid)
+        lpids = len(self.operator.rotations.pids)
+        for q2, op in self._operators(
+            mugrid=self.operator.mu2grid, shape=(lpids, lx)
+        ).items():
+            self.cache[q2] = op
 
-    def fake_output(self):
-        d = self.mk_dump()
-        # build data
-        obj = output.EKO.new(theory={}, operator=d)
-        for q2, op in d["Q2grid"].items():
-            obj[q2] = output.struct.Operator.from_dict(op)
-        return obj, d
+        return self.cache
 
-    def fake_legacy(self):
-        d = self.mk_dump()
-        bases = d["rotations"].copy()
+    def _clean(self):
+        if self.cache is not None:
+            self.cache.close()
+            self.cache.access.path.unlink()
+        self.cache = None
 
-        # build data
-        obj = output.EKO.new(theory={}, operator=d)
-        for q2, op in d["Q2grid"].items():
-            obj[q2] = output.struct.Operator.from_dict(op)
+    def get(self, update: Optional[dict] = None):
+        """Get a fake output.
 
-        d["inputgrid"] = bases["inputgrid"]
-        d["targetgrid"] = bases["targetgrid"]
-        d["inputpids"] = bases["inputpids"]
-        d["targetpids"] = bases["targetpids"]
+        To force a new output, keeping all the defaults, just pass an empty
+        dictionary::
 
-        d["interpolation_xgrid"] = bases["xgrid"]
-        d["pids"] = bases["pids"]
+            factory.get({})
 
-        del d["rotations"]
+        """
+        if self.cache is None or update is not None:
+            self.cache = self._create()
 
-        return obj, d
-
-
-@pytest.fixture
-def fake_factory():
-    return FakeOutput()
+        return self.cache
 
 
 @pytest.fixture
-def fake_output():
-    return FakeOutput().fake_output()
-
-
-@pytest.fixture
-def fake_legacy():
-    return FakeOutput().fake_legacy()
+def eko_factory(theory_ffns, operator_card, tmp_path: pathlib.Path):
+    factory = EKOFactory(
+        theory=theory_ffns(3), operator=operator_card, path=tmp_path / "eko.tar"
+    )
+    yield factory
+    factory._clean()
 
 
 @pytest.fixture

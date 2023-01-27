@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""Implementation of Mellin transformation of logarithms.
 
 We provide transforms of:

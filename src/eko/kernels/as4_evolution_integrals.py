@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """This file implements the |N3LO| evolution integrals"""
 
 import numba as nb

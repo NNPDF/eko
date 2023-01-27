@@ -1,7 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Pegasus interface
-"""
+"""|Pegasus| interface."""
 import numpy as np
 
 from eko import basis_rotation as br
@@ -13,23 +10,23 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
 
     Parameters
     ----------
-        theory : dict
-            theory card
-        operators : dict
-            operators card
-        skip_pdfs : list
-            list of pdfs (pid or name) to skip
-        rotate_to_evolution_basis: bool
-            rotate to evolution basis
+    theory : dict
+        theory card
+    operators : dict
+        operators card
+    skip_pdfs : list
+        list of pdfs (pid or name) to skip
+    rotate_to_evolution_basis: bool
+        rotate to evolution basis
 
     Returns
     -------
-        ref : dict
-            output containing: target_xgrid, values
+    ref : dict
+        output containing: target_xgrid, values
     """
     import pegasus  # pylint:disable=import-error,import-outside-toplevel
 
-    target_xgrid = operators["xgrid"]
+    target_xgrid = operators["interpolation_xgrid"]
 
     # init pegasus
     nf = theory["NfFF"]

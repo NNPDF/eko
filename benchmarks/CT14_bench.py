@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Benchmark CT14 pdf family
 

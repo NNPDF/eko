@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""This module contains the anomalous dimension :math:`\gamma_{qg}^{(3)}`
 """
 import numba as nb

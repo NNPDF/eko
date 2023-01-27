@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This module defines the |OME| for the non-trivial matching conditions in the
 |VFNS| evolution.
@@ -34,7 +33,7 @@ def A_singlet(matching_order, n, sx, nf, L, is_msbar, sx_ns=None):
         nf: int
             number of active flavor below threshold
         L : float
-            :math:`log(q^2/m_h^2)`
+            :math:``\ln(\mu_F^2 / m_h^2)``
         is_msbar: bool
             add the |MSbar| contribution
         sx_ns : list
@@ -78,7 +77,7 @@ def A_non_singlet(matching_order, n, sx, nf, L):
         nf: int
             number of active flavor below threshold
         L : float
-            :math:`log(q^2/m_h^2)`
+            :math:``\ln(\mu_F^2 / m_h^2)``
 
     Returns
     -------
@@ -156,7 +155,7 @@ def build_ome(A, matching_order, a_s, backward_method):
 def quad_ker(
     u, order, mode0, mode1, is_log, logx, areas, a_s, nf, L, backward_method, is_msbar
 ):
-    """
+    r"""
     Raw kernel inside quad
 
     Parameters
@@ -180,7 +179,7 @@ def quad_ker(
         nf: int
             number of active flavor below threshold
         L : float
-            :math:`log(q^2/m_h^2)`
+            :math:``\ln(\mu_F^2 / m_h^2)``
         backward_method : ["exact", "expanded" or ""]
             empty or method for inverting the matching condition (exact or expanded)
         is_msbar: bool
@@ -237,7 +236,7 @@ def quad_ker(
 
 
 class OperatorMatrixElement(Operator):
-    """Internal representation of a single |OME|.
+    r"""Internal representation of a single |OME|.
 
     The actual matrices are computed upon calling :meth:`compute`.
 
@@ -254,7 +253,7 @@ class OperatorMatrixElement(Operator):
     is_backward: bool
         True for backward evolution
     L: float
-        log of K threshold squared
+        :math:`\ln(\mu_F^2 / m_h^2)`
     is_msbar: bool
         add the |MSbar| contribution
     """
@@ -367,7 +366,9 @@ class OperatorMatrixElement(Operator):
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
         sc = self.managers["strong_coupling"]
-        return sc.a_s(self.mur2_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1)
+        return sc.a_s(
+            self.sv_exponentiated_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1
+        )
 
     def compute(self):
         """Compute the actual operators (i.e. run the integrations)"""

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import numpy as np
 import yaml
 
@@ -32,7 +31,7 @@ def test_dump_info(tmp_path):
     assert p.exists()
     assert f.exists()
     # the files might not be perfect yaml, but should be yaml compatible
-    with open(f, "r", encoding="utf-8") as o:
+    with open(f, encoding="utf-8") as o:
         ii = yaml.safe_load(o)
     for k, v in i.items():
         assert k in ii

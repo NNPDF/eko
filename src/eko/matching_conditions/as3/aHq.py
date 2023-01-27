@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=too-many-lines
 import numba as nb
 import numpy as np

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO)
 """
@@ -140,17 +139,17 @@ def compute_LHA_data(
 
     fns = theory["FNS"]
     order = theory["PTO"]
-    fact_to_ren = (theory["fact_to_ren_scale_ratio"]) ** 2
-    if order == 0 and fact_to_ren != 1.0:
+    xif = (theory["fact_to_ren_scale_ratio"]) ** 2
+    if order == 0 and xif != 1.0:
         raise ValueError("LO LHA tables with scale variations are not available")
     table = None
     part = None
     is_ffns_nnlo = False
 
     # Switching at the intermediate point.
-    if fact_to_ren > np.sqrt(2):
+    if xif > np.sqrt(2):
         part = 3
-    elif fact_to_ren < np.sqrt(1.0 / 2.0):
+    elif xif < np.sqrt(1.0 / 2.0):
         part = 2
     else:
         part = 1

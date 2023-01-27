@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 This file contains the O(as1aem1) Altarelli-Parisi splitting kernels.
 """

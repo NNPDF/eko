@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
 """This module benchmarks MSbar mass evolution against APFEL."""
-import copy
-
 import numpy as np
 import pytest
 
-from eko import compatibility, msbar_masses
-from eko.basis_rotation import quark_names
-from eko.couplings import Couplings
+from eko import msbar_masses
+from eko.couplings import Couplings, couplings_mod_ev
+from eko.io import types
+from eko.io.runcards import OperatorCard, TheoryCard
 
 # try to load APFEL - if not available, we'll use the cached values
 try:
@@ -17,46 +15,30 @@ try:
 except ImportError:
     use_APFEL = False
 
-theory_dict = {
-    "alphas": 0.1180,
-    "alphaqed": 0.007496,
-    "Qref": 91,
-    "nfref": 5,
-    "MaxNfPdf": 6,
-    "MaxNfAs": 6,
-    "Q0": 1,
-    "fact_to_ren_scale_ratio": 1.0,
-    "mc": 1.5,
-    "mb": 4.1,
-    "mt": 175.0,
-    "kcThr": 1.0,
-    "kbThr": 1.0,
-    "ktThr": 1.0,
-    "HQ": "MSBAR",
-    "Qmc": 18,
-    "Qmb": 20,
-    "Qmt": 175.0,
-    "PTO": 2,
-    "QED": 0,
-    "ModEv": "EXA",
-}
+
+def update_theory(theory: TheoryCard):
+    theory.order = (3, 0)
+    theory.couplings.alphas.scale = 91
+    theory.couplings.alphaem.value = 0.007496
+    theory.couplings.num_flavs_ref = 5
+    theory.quark_masses_scheme = types.QuarkMassSchemes.MSBAR
+    theory.quark_masses.c = types.QuarkMassRef(value=1.5, scale=18)
+    theory.quark_masses.b = types.QuarkMassRef(value=4.1, scale=20)
+    theory.quark_masses.t = types.QuarkMassRef(value=175.0, scale=175.0)
 
 
 @pytest.mark.isolated
 class BenchmarkMSbar:
-    def benchmark_APFEL_msbar_evolution(self):
-        theory = compatibility.update_theory(theory_dict)
+    def benchmark_APFEL_msbar_evolution(
+        self, theory_card: TheoryCard, operator_card: OperatorCard
+    ):
+        update_theory(theory_card)
         bench_values = dict(zip(np.power([1, 96, 150], 2), [3, 5, 5]))
-        theory.update(
-            {
-                "mc": 1.4,
-                "mb": 4.5,
-                "mt": 175.0,
-                "Qmc": 2.0,
-                "Qmb": 4.5,
-                "Qmt": 175.0,
-            }
-        )
+        theory_card.quark_masses.c = types.QuarkMassRef(value=1.4, scale=2.0)
+        theory_card.quark_masses.b = types.QuarkMassRef(value=4.5, scale=4.5)
+        coupl = theory_card.couplings
+        qmasses = theory_card.quark_masses
+
         apfel_vals_dict = {
             "exact": {
                 1: np.array(
@@ -107,31 +89,45 @@ class BenchmarkMSbar:
         }
         # collect my values
         for method in ["exact", "expanded"]:
-            theory["ModEv"] = "EXP" if method == "expanded" else "EXA"
+            operator_card.configs.evolution_method = (
+                types.EvolutionMethod.ITERATE_EXPANDED
+                if method == "expanded"
+                else types.EvolutionMethod.ITERATE_EXACT
+            )
+            couplevmeth = (
+                types.CouplingEvolutionMethod.EXPANDED
+                if method == "expanded"
+                else types.CouplingEvolutionMethod.EXACT
+            )
             for order in [1, 2, 3]:
-                theory["order"] = (order, 0)
+                theory_card.order = (order, 0)
                 as_VFNS = Couplings(
-                    np.array([theory["alphas"], theory["alphaem"]]),
-                    theory["Qref"] ** 2,
-                    msbar_masses.compute(theory),
-                    np.power([theory["kcThr"], theory["kbThr"], theory["ktThr"]], 2),
-                    order=theory["order"],
-                    method=method,
-                    nf_ref=theory["nfref"],
-                    hqm_scheme=theory["HQ"],
+                    couplings=theory_card.couplings,
+                    order=theory_card.order,
+                    masses=msbar_masses.compute(
+                        theory_card.quark_masses,
+                        couplings=theory_card.couplings,
+                        order=theory_card.order,
+                        evmeth=couplevmeth,
+                        matching=theory_card.matching,
+                        xif2=theory_card.xif**2,
+                    ).tolist(),
+                    thresholds_ratios=theory_card.matching,
+                    method=couplevmeth,
+                    hqm_scheme=theory_card.quark_masses_scheme,
                 )
                 my_vals = []
                 for Q2, nf_to in bench_values.items():
                     my_masses = []
-                    for n in [3, 4, 5]:
+                    for n in range(3):
                         my_masses.append(
                             msbar_masses.evolve(
-                                theory[f"m{quark_names[n]}"] ** 2,
-                                theory[f"Qm{quark_names[n]}"] ** 2,
+                                qmasses[n].value ** 2,
+                                qmasses[n].scale ** 2,
                                 strong_coupling=as_VFNS,
-                                fact_to_ren=1.0,
+                                xif2=1.0,
                                 q2_to=Q2,
-                                nf_ref=n,
+                                nf_ref=n + 3,
                                 nf_to=nf_to,
                             )
                         )
@@ -144,11 +140,13 @@ class BenchmarkMSbar:
                     apfel.SetTheory("QCD")
                     apfel.SetPerturbativeOrder(order - 1)
                     apfel.SetAlphaEvolution(method)
-                    apfel.SetAlphaQCDRef(theory["alphas"], theory["Qref"])
+                    apfel.SetAlphaQCDRef(coupl.alphas.value, coupl.alphas.scale)
                     apfel.SetVFNS()
-                    apfel.SetMSbarMasses(theory["mc"], theory["mb"], theory["mt"])
+                    apfel.SetMSbarMasses(
+                        qmasses.c.value, qmasses.b.value, qmasses.t.value
+                    )
                     apfel.SetMassScaleReference(
-                        theory["Qmc"], theory["Qmb"], theory["Qmt"]
+                        qmasses.c.scale, qmasses.b.scale, qmasses.t.scale
                     )
                     apfel.SetRenFacRatio(1.0)
                     apfel.InitializeAPFEL()
@@ -170,7 +168,10 @@ class BenchmarkMSbar:
                     apfel_vals, np.sqrt(np.array(my_vals)), rtol=2.3e-3
                 )
 
-    def benchmark_APFEL_msbar_solution(self):
+    def benchmark_APFEL_msbar_solution(
+        self, theory_card: TheoryCard, operator_card: OperatorCard
+    ):
+        update_theory(theory_card)
         apfel_vals_dict = {
             "EXA": {
                 1: np.array(
@@ -183,64 +184,75 @@ class BenchmarkMSbar:
             },
         }
         # collect my values
-        theory = compatibility.update_theory(theory_dict)
+        theory = theory_card
+        operator = operator_card
+        coupl = theory_card.couplings
+        qmasses = theory_card.quark_masses
         for order in [1, 2, 3]:
-            theory["order"] = (order, 0)
-            my_masses = msbar_masses.compute(theory)
+            theory.order = (order, 0)
+            my_masses = msbar_masses.compute(
+                theory.quark_masses,
+                couplings=theory_card.couplings,
+                order=theory_card.order,
+                evmeth=types.CouplingEvolutionMethod.EXACT,
+                matching=theory_card.matching,
+                xif2=theory_card.xif**2,
+            )
             # get APFEL numbers - if available else use cache
-            apfel_vals = apfel_vals_dict[theory_dict["ModEv"]][order]
+            apfel_vals = apfel_vals_dict[
+                couplings_mod_ev(operator.configs.evolution_method).value[:3].upper()
+            ][order]
             if use_APFEL:
                 # run apfel
                 apfel.CleanUp()
                 apfel.SetTheory("QCD")
                 apfel.SetPerturbativeOrder(order - 1)
                 apfel.SetAlphaEvolution("exact")
-                apfel.SetAlphaQCDRef(theory_dict["alphas"], theory_dict["Qref"])
+                apfel.SetAlphaQCDRef(coupl.alphas.value, coupl.alphas.scale)
                 apfel.SetVFNS()
-                apfel.SetMSbarMasses(
-                    theory_dict["mc"], theory_dict["mb"], theory_dict["mt"]
-                )
+                apfel.SetMSbarMasses(qmasses.c.value, qmasses.b.value, qmasses.t.value)
                 apfel.SetMassScaleReference(
-                    theory_dict["Qmc"], theory_dict["Qmb"], theory_dict["Qmt"]
+                    qmasses.c.scale, qmasses.b.scale, qmasses.t.scale
                 )
-                apfel.SetRenFacRatio(theory_dict["fact_to_ren_scale_ratio"])
+                apfel.SetRenFacRatio(theory.xif**2)
                 apfel.InitializeAPFEL()
             # check myself to APFEL
             np.testing.assert_allclose(
                 apfel_vals, np.sqrt(np.array(my_masses)), rtol=4e-4
             )
 
-    def benchmark_msbar_solution_kthr(self):
+    def benchmark_msbar_solution_kthr(self, theory_card: TheoryCard):
         """
         With this test you can see that in EKO
         the solution value of mb is not affected by "kbThr",
         since mb is searched with an Nf=5 larger range.
         While in Apfel this doesn't happen.
         """
-        theory_dict.update(
-            {
-                "mc": 1.5,
-                "mb": 4.1,
-                "mt": 175.0,
-                "kcThr": 1.2,
-                "kbThr": 1.8,
-                "ktThr": 1.0,
-                "Qmc": 18,
-                "Qmb": 20,
-                "Qmt": 175.0,
-                "PTO": 0,
-            }
+        update_theory(theory_card)
+        theory_card.order = (1, 0)
+        theory_card.matching.c = 1.2
+        theory_card.matching.b = 1.8
+        theory_card.matching.t = 1.0
+        my_masses_thr = msbar_masses.compute(
+            theory_card.quark_masses,
+            couplings=theory_card.couplings,
+            order=theory_card.order,
+            evmeth=types.CouplingEvolutionMethod.EXACT,
+            matching=theory_card.matching,
+            xif2=theory_card.xif**2,
         )
-        theory = compatibility.update_theory(theory_dict)
-        my_masses_thr = msbar_masses.compute(theory)
         apfel_masses_thr = [1.9891, 4.5102, 175.0000]
-        theory.update(
-            {
-                "kcThr": 1.0,
-                "kbThr": 1.0,
-            }
+        theory_card.matching.c = 1.0
+        theory_card.matching.b = 1.0
+        my_masses_plain = msbar_masses.compute(
+            theory_card.quark_masses,
+            couplings=theory_card.couplings,
+            order=theory_card.order,
+            evmeth=types.CouplingEvolutionMethod.EXACT,
+            matching=theory_card.matching,
+            xif2=theory_card.xif**2,
         )
-        my_masses_plain = msbar_masses.compute(theory)
+
         apfel_masses_plain = ([1.9855, 4.8062, 175.0000],)
 
         # Eko bottom mass is the same

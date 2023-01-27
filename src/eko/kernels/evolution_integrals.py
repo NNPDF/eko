@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""
 Integrals needed for the exact evolutions are given by:
 

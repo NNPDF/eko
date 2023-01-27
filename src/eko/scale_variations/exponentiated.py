@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""Contains the scale variation for ``ModSV=exponentiated``."""
 import numba as nb
 

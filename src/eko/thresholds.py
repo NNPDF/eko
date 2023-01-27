@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 r"""Holds the classes that define the |FNS|."""
 import logging
 
@@ -50,7 +49,12 @@ class PathSegment:
 
 
 class ThresholdsAtlas:
-    r"""Holds information about the matching scales that any :math:`Q^2` has to pass in order to get there from a given :math:`Q^2_{ref}`."""
+    r"""Holds information about the matching scales.
+
+    These scales are the :math:`Q^2` has to pass in order to get there from a
+    given :math:`Q^2_{ref}`.
+
+    """
 
     def __init__(
         self,
@@ -71,7 +75,7 @@ class ThresholdsAtlas:
         nf_ref : int
             number of active flavors at the reference scale
         thresholds_ratios : list(float)
-            list of ratios between masses and matching scales squared
+            list of ratios between matching scales and masses squared
         max_nf : int
             maximum number of active flavors
         """
@@ -142,7 +146,7 @@ class ThresholdsAtlas:
         masses : list(float)
             heavy quark masses squared
         thresholds_ratios : list(float)
-            list of ratios between masses and matching scales squared
+            list of ratios between matching scales and masses squared
         max_nf : int
             maximum number of flavors
 
@@ -166,47 +170,6 @@ class ThresholdsAtlas:
         # cut array = simply reduce some thresholds
         thresholds = thresholds[: max_nf - 3]
         return thresholds
-
-    @classmethod
-    def from_dict(cls, theory_card, prefix="k", max_nf_name="MaxNfPdf", masses=None):
-        r"""Create the atlas from the run card.
-
-        The thresholds are computed by :math:`(m_q \cdot k_q^{Thr})`.
-
-        Parameters
-        ----------
-        theory_card : dict
-            run card with the keys given at the head of the :mod:`module <eko.thresholds>`
-        prefix : str
-            prefix for the ratio parameters
-        masses : list
-            list of |MSbar| masses squared or None if POLE masses are used
-
-        Returns
-        -------
-        ThresholdsAtlas
-            created atlas
-        """
-        heavy_flavors = "cbt"
-        if masses is None:
-            masses = np.power([theory_card[f"m{q}"] for q in heavy_flavors], 2)
-        thresholds_ratios = [theory_card[f"{prefix}{q}Thr"] for q in heavy_flavors]
-        max_nf = theory_card[max_nf_name]
-        # preset ref scale
-        q2_ref = pow(theory_card["Q0"], 2)
-
-        # MSbar or Pole masses
-        hqm_scheme = theory_card["HQ"]
-        if hqm_scheme not in ["MSBAR", "POLE"]:
-            raise ValueError(f"{hqm_scheme} is not implemented, choose POLE or MSBAR")
-        nf_ref = theory_card["nf0"]
-        return cls(
-            masses,
-            q2_ref,
-            nf_ref,
-            thresholds_ratios=np.power(thresholds_ratios, 2),
-            max_nf=max_nf,
-        )
 
     def path(self, q2_to, nf_to=None, q2_from=None, nf_from=None):
         """Get path from ``q2_from`` to ``q2_to``.
@@ -275,8 +238,9 @@ def is_downward_path(path):
 
     Criterias are:
 
-    - in the number of active flavors when the path list contains more than one :class:`PathSegment`,
-      note this can be different from each :attr:`PathSegment.is_downward_q2`
+    - in the number of active flavors when the path list contains more than one
+      :class:`PathSegment`, note this can be different from each
+      :attr:`PathSegment.is_downward_q2`
     - in :math:`Q^2` when just one single :class:`PathSegment` is given
 
     Parameters
