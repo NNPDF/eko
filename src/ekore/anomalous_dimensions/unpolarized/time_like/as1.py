@@ -1,4 +1,8 @@
-"""The unpolarized time-like leading-order (LO) Altarelli-Parisi splitting kernels."""
+"""
+The unpolarized time-like leading-order 
+(LO) Altarelli-Parisi splitting kernels.
+
+"""
 
 import numba as nb
 import numpy as np
@@ -21,7 +25,8 @@ def gamma_qq(N, s1):
     Returns
     -------
     gamma_qq : complex
-        LO quark-quark anomalous dimension $\gamma_{qq}^{(0)}(N)$ 
+        LO quark-quark anomalous dimension 
+        :math:`\gamma_{qq}^{(0)}(N)` 
 
     """
     return constants.CF * (-3.0 + (4.0 * s1) - 2.0 / (N * (N + 1.0)))
@@ -29,7 +34,8 @@ def gamma_qq(N, s1):
 @nb.njit(cache=True)
 def gamma_qg(N):
     """Computes the LO quark-gluon anomalous dimension.
-    Implements Eqn. (B.4) from :cite:`Mitov:2006wy` and Eqn. (A1) from :cite:`Gluck:1992zx`.
+    Implements Eqn. (B.4) from :cite:`Mitov:2006wy` 
+    and Eqn. (A1) from :cite:`Gluck:1992zx`.
 
     Parameters
     ----------
@@ -39,7 +45,8 @@ def gamma_qg(N):
     Returns
     -------
     gamma_qg : complex
-        LO quark-gluon anomalous dimension $\gamma_{qg}^{(0)}(N)$ 
+        LO quark-gluon anomalous dimension 
+        :math:`\gamma_{qg}^{(0)}(N)` 
 
     """
     return - (N**2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
@@ -47,7 +54,8 @@ def gamma_qg(N):
 @nb.njit(cache=True)
 def gamma_gq(N, nf):
     """Computes the LO gluon-quark anomalous dimension.
-    Implements Eqn. (B.5) from :cite:`Mitov:2006wy` and Eqn. (A1) from :cite:`Gluck:1992zx`.
+    Implements Eqn. (B.5) from :cite:`Mitov:2006wy` 
+    and Eqn. (A1) from :cite:`Gluck:1992zx`.
 
     Parameters
     ----------
@@ -59,7 +67,8 @@ def gamma_gq(N, nf):
     Returns
     -------
     gamma_qg : complex
-        LO quark-gluon anomalous dimension $\gamma_{gq}^{(0)}(N)$ 
+        LO quark-gluon anomalous dimension 
+        :math:`\gamma_{gq}^{(0)}(N)`
 
     """
     return -4.0 * nf * constants.CF * (N**2 + N + 2.0) / (N * (N - 1.0) * (N + 1.0))
@@ -81,15 +90,17 @@ def gamma_gg(N, s1, nf):
     Returns
     -------
     gamma_qq : complex
-        LO quark-quark anomalous dimension $\gamma_{gg}^{(0)}(N)$ 
+        LO quark-quark anomalous dimension 
+        :math:`\gamma_{gg}^{(0)}(N)`
 
     """
-    return (2.0 * nf - 11.0 * constants.CA) / 3.0 + 4.0 * constants.CA * (s1 - 1.0 / (N * (N - 1.0)) - 1.0 / ((N + 1.0) * (N + 2.0)))
+    return ((2.0 * nf - 11.0 * constants.CA) / 3.0 + 4.0 * constants.CA 
+    * (s1 - 1.0 / (N * (N - 1.0)) - 1.0 / ((N + 1.0) * (N + 2.0))))
 
 @nb.njit(cache=True)
 def gamma_ns(N, s1):
     """Computes the LO non-singlet anomalous dimension.
-    At LO, $\gamma_{ns}^{(0)} = \gamma_{qq}^{(0)}$.
+    At LO, :math:`\gamma_{ns}^{(0)} = \gamma_{qq}^{(0)}`.
 	
     Parameters
     ----------
@@ -101,7 +112,8 @@ def gamma_ns(N, s1):
     Returns
     -------
     gamma_ns : complex
-        LO quark-quark anomalous dimension $\gamma_{ns}^{(0)}(N)$ 
+        LO quark-quark anomalous dimension 
+        :math:`\gamma_{ns}^{(0)}(N)`
 
     """
     return gamma_qq(N, s1)
@@ -123,7 +135,9 @@ def gamma_singlet(N, s1, nf):
     Returns
     -------
     gamma_singlet : numpy.ndarray
-        LO singlet anomalous dimension matrix $\gamma_{s}^{(0)}$ 
+        LO singlet anomalous dimension matrix 
+        :math:`\gamma_{s}^{(0)}`
 
     """
-    return np.array([[gamma_qq(N, s1), gamma_gq(N, nf)], [gamma_qg(N), gamma_gg(N, s1, nf)]], np.complex_)
+    return np.array([[gamma_qq(N, s1), gamma_gq(N, nf)], 
+    [gamma_qg(N), gamma_gg(N, s1, nf)]], np.complex_)
