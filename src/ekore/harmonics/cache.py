@@ -21,7 +21,7 @@ def reset():
 
 @nb.njit(cache=True)
 def get(key: int, cache: npt.ArrayLike, n: complex) -> complex:
-    """Retrieve a element of the cache.
+    """Retrieve an element of the cache.
 
     Parameters
     ----------
