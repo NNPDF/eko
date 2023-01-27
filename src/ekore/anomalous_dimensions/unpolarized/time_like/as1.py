@@ -1,4 +1,4 @@
-"""The following are the unpolarized time-like leading-order (LO) Altarelli-Parisi splitting kernels."""
+"""The unpolarized time-like leading-order (LO) Altarelli-Parisi splitting kernels."""
 
 import numba as nb
 import numpy as np
@@ -9,7 +9,7 @@ from eko import constants
 @nb.njit(cache=True)
 def gamma_qq(N, s1):
     """Computes the LO quark-quark anomalous dimension.
-    Implements Eqn. (B.3) from hep-ph/0604160.
+    Implements Eqn. (B.3) from :cite:`Mitov:2006wy`.
 
     Parameters
     ----------
@@ -29,7 +29,7 @@ def gamma_qq(N, s1):
 @nb.njit(cache=True)
 def gamma_qg(N):
     """Computes the LO quark-gluon anomalous dimension.
-    Implements Eqn. (B.4) from hep-ph/0604160 and Eqn. (A1) from PhysRevD.48.116.
+    Implements Eqn. (B.4) from :cite:`Mitov:2006wy` and Eqn. (A1) from :cite:`Gluck:1992zx`.
 
     Parameters
     ----------
@@ -47,7 +47,7 @@ def gamma_qg(N):
 @nb.njit(cache=True)
 def gamma_gq(N, nf):
     """Computes the LO gluon-quark anomalous dimension.
-    Implements Eqn. (B.5) from hep-ph/0604160 and Eqn. (A1) from PhysRevD.48.116.
+    Implements Eqn. (B.5) from :cite:`Mitov:2006wy` and Eqn. (A1) from :cite:`Gluck:1992zx`.
 
     Parameters
     ----------
@@ -67,7 +67,7 @@ def gamma_gq(N, nf):
 @nb.njit(cache=True)
 def gamma_gg(N, s1, nf):
     """Computes the LO gluon-gluon anomalous dimension.
-    Implements Eqn. (B.6) from hep-ph/0604160.
+    Implements Eqn. (B.6) from :cite:`Mitov:2006wy`.
 
     Parameters
     ----------
@@ -109,7 +109,7 @@ def gamma_ns(N, s1):
 @nb.njit(cache=True)
 def gamma_singlet(N, s1, nf):
     """Computes the LO singlet anomalous dimension matrix.
-    Implements Eqn. (2.13) from PhysRevD.48.116.
+    Implements Eqn. (2.13) from :cite:`Gluck:1992zx`.
 
     Parameters
     ----------
@@ -122,7 +122,7 @@ def gamma_singlet(N, s1, nf):
 
     Returns
     -------
-    gamma_singlet : numpy.array
+    gamma_singlet : numpy.ndarray
         LO singlet anomalous dimension matrix $\gamma_{s}^{(0)}$ 
 
     """
