@@ -29,7 +29,8 @@ def gamma_qq(N, s1):
         :math:`\gamma_{qq}^{(0)}(N)` 
 
     """
-    return constants.CF * (-3.0 + (4.0 * s1) - 2.0 / (N * (N + 1.0)))
+    result = constants.CF * (-3.0 + (4.0 * s1) - 2.0 / (N * (N + 1.0)))
+    return result
 
 @nb.njit(cache=True)
 def gamma_qg(N):
@@ -49,7 +50,8 @@ def gamma_qg(N):
         :math:`\gamma_{qg}^{(0)}(N)` 
 
     """
-    return - (N**2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
+    result = - (N**2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
+    return result
 
 @nb.njit(cache=True)
 def gamma_gq(N, nf):
@@ -71,7 +73,9 @@ def gamma_gq(N, nf):
         :math:`\gamma_{gq}^{(0)}(N)`
 
     """
-    return -4.0 * nf * constants.CF * (N**2 + N + 2.0) / (N * (N - 1.0) * (N + 1.0))
+    result = (-4.0 * nf * constants.CF * (N**2 + N + 2.0) 
+    / (N * (N - 1.0) * (N + 1.0)))
+    return result
 
 @nb.njit(cache=True)
 def gamma_gg(N, s1, nf):
@@ -94,8 +98,9 @@ def gamma_gg(N, s1, nf):
         :math:`\gamma_{gg}^{(0)}(N)`
 
     """
-    return ((2.0 * nf - 11.0 * constants.CA) / 3.0 + 4.0 * constants.CA 
+    result = ((2.0 * nf - 11.0 * constants.CA) / 3.0 + 4.0 * constants.CA 
     * (s1 - 1.0 / (N * (N - 1.0)) - 1.0 / ((N + 1.0) * (N + 2.0))))
+    return result
 
 @nb.njit(cache=True)
 def gamma_ns(N, s1):
@@ -139,5 +144,6 @@ def gamma_singlet(N, s1, nf):
         :math:`\gamma_{s}^{(0)}`
 
     """
-    return np.array([[gamma_qq(N, s1), gamma_gq(N, nf)], 
+    result = np.array([[gamma_qq(N, s1), gamma_gq(N, nf)], 
     [gamma_qg(N), gamma_gg(N, s1, nf)]], np.complex_)
+    return result

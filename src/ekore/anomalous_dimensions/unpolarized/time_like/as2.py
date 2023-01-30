@@ -66,7 +66,8 @@ def gamma_nsp(N, nf, sx):
         -(40/9)*s1
         +(8/3)*s2
     )
-    return nsp1 + nsp2 + nsp3
+    result = nsp1 + nsp2 + nsp3
+    return result
 
 @nb.njit(cache=True)
 def gamma_nsm(N, nf, sx):
@@ -124,7 +125,8 @@ def gamma_nsm(N, nf, sx):
         -(40/9)*s1
         +(8/3)*s2
     )
-    return nsm1 + nsm2 + nsm3
+    result = nsm1 + nsm2 + nsm3
+    return result
 
 @nb.njit(cache=True)
 def gamma_qqs(N, nf, sx):
@@ -207,7 +209,8 @@ def gamma_qg(N, nf, sx):
         /(9*npp(N,2)*npp(1+N,2)*npp(2+N,2))
         -(8*(2+N+npp(N,2))*s1)/(3*N*(1+N)*(2+N))
     )
-    return (1 / (2 * nf)) * (qg1 + qg2 + qg3)
+    result = (1 / (2 * nf)) * (qg1 + qg2 + qg3)
+    return result
 
 @nb.njit(cache=True)
 def gamma_gq(N, nf, sx):
@@ -259,7 +262,8 @@ def gamma_gq(N, nf, sx):
         +(4*(2+N+npp(N,2))*npp(s1,2))/((-1+N)*N*(1+N))
         -(20*(2+N+npp(N,2))*s2)/((-1+N)*N*(1+N))
     )
-    return (2 * nf) * (gq1 + gq2)
+    result = (2 * nf) * (gq1 + gq2)
+    return result
 
 @nb.njit(cache=True)
 def gamma_gg(N, nf, sx):
@@ -327,7 +331,8 @@ def gamma_gg(N, nf, sx):
         -(40/9)*s1
         +(16/3)*s2
     )
-    return gg1 + gg2 + gg3
+    result = gg1 + gg2 + gg3
+    return result
 
 @nb.njit(cache=True)
 def gamma_singlet(N, nf, sx):
@@ -351,5 +356,7 @@ def gamma_singlet(N, nf, sx):
         
     """
     gamma_qq = gamma_nsp(N, nf, sx) + gamma_qqs(N, nf, sx)
-    return np.array([[gamma_qq, gamma_gq(N, nf, sx)], 
+
+    result = np.array([[gamma_qq, gamma_gq(N, nf, sx)], 
     [gamma_qg(N, nf, sx), gamma_gg(N, nf, sx)]], np.complex_)
+    return result
