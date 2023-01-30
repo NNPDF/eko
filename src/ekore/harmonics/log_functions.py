@@ -10,7 +10,6 @@ import numba as nb
 
 from eko.constants import zeta3
 
-
 @nb.njit(cache=True)
 def lm11m1(n, S1):
     r"""Mellin transform of :math:`(1-x)\ln(1-x)`.

@@ -3,8 +3,7 @@
 """
 import numba as nb
 
-from eko.constants import CF
-from .....harmonics.constants import zeta3
+from eko.constants import CF, zeta3
 from .....harmonics.log_functions import lm11m1, lm12m1, lm13m1
 
 

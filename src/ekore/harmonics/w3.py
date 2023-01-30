@@ -2,8 +2,8 @@
 
 import numba as nb
 
-from . import g_functions as gf
 from eko.constants import log2, zeta2, zeta3
+from . import g_functions as gf
 from .polygamma import cern_polygamma, symmetry_factor
 
 
