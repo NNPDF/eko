@@ -38,7 +38,8 @@ def reset():
 
 
 @nb.njit(cache=True)
-def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet: bool) -> complex:
+def get(key: int, cache: npt.ArrayLike, 
+        n: complex, is_singlet: bool) -> complex:
     """Retrieve an element of the cache.
 
     Parameters
@@ -50,8 +51,10 @@ def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet: bool) -> complex
     n :
         complex evaluation point
     is_singlet :
-        symmetry factor: True for singlet like quantities (:math:`\eta=(-1)^N = 1`),
-        False for non-singlet like quantities (:math:`\eta=(-1)^N=-1`)
+        symmetry factor: True for singlet like quantities 
+        (:math:`\eta=(-1)^N = 1`),
+        False for non-singlet like quantities 
+        (:math:`\eta=(-1)^N=-1`)
 
     Returns
     -------
