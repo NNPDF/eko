@@ -7,7 +7,6 @@ import numba as nb
 import numpy as np
 
 import ekore.operator_matrix_elements.polarized.space_like as ome_ps
-import ekore.operator_matrix_elements.polarized.time_like as ome_pt
 import ekore.operator_matrix_elements.unpolarized.space_like as ome_us
 import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
 from ekore import harmonics

@@ -14,7 +14,6 @@ import numpy as np
 from scipy import integrate
 
 import ekore.anomalous_dimensions.polarized.space_like as ad_ps
-import ekore.anomalous_dimensions.polarized.time_like as ad_pt
 import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
 import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
 
