@@ -191,7 +191,7 @@ def quad_ker(
     if ker_base.is_singlet:
         if is_polarized:
             if is_time_like:
-                gamma_singlet = ad_pt.gamma_singlet(order, ker_base.n, nf)
+                raise NotImplementedError("Polarized, time-like is not implemented")
             else:
                 gamma_singlet = ad_ps.gamma_singlet(order, ker_base.n, nf)
         else:
@@ -223,7 +223,7 @@ def quad_ker(
     else:
         if is_polarized:
             if is_time_like:
-                gamma_ns = ad_pt.gamma_ns(order, mode0, ker_base.n, nf)
+                raise NotImplementedError("Polarized, time-like is not implemented")
             else:
                 gamma_ns = ad_ps.gamma_ns(order, mode0, ker_base.n, nf)
         else:

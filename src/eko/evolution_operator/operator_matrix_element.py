@@ -157,7 +157,7 @@ def quad_ker(
         indices = {21: 0, 100: 1, 90: 2}
         if is_polarized:
             if is_time_like:
-                A = ome_pt.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+                raise NotImplementedError("Polarized, time-like is not implemented")
             else:
                 A = ome_ps.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
         else:
@@ -169,7 +169,7 @@ def quad_ker(
         indices = {200: 0, 91: 1}
         if is_polarized:
             if is_time_like:
-                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+                raise NotImplementedError("Polarized, time-like is not implemented")
             else:
                 A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
         else:
