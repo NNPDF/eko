@@ -6,7 +6,7 @@ import numba as nb
 import numpy as np
 
 from . import w1
-from .constants import log2, zeta2, zeta3
+from eko.constants import log2, zeta2, zeta3
 from .polygamma import recursive_harmonic_sum as s
 
 a1 = np.array(

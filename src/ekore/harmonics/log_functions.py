@@ -8,7 +8,7 @@ We provide transforms of:
 """
 import numba as nb
 
-from .constants import zeta3
+from eko.constants import zeta3
 
 
 @nb.njit(cache=True)

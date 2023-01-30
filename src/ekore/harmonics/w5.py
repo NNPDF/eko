@@ -3,7 +3,7 @@
 import numba as nb
 
 from . import f_functions as f
-from .constants import log2, zeta2, zeta3, zeta4, zeta5
+from eko.constants import log2, zeta2, zeta3, zeta4, zeta5
 from .polygamma import cern_polygamma, symmetry_factor
 
 

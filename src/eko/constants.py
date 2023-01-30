@@ -1,6 +1,8 @@
 """This files sets the physical constants."""
 
 import numba as nb
+import numpy as np
+from scipy.special import zeta
 
 NC = 3
 """The number of colors."""
@@ -29,6 +31,23 @@ eu2 = 4.0 / 9
 ed2 = 1.0 / 9
 """Down quarks charge squared."""
 
+zeta2 = zeta(2)
+r""":math:`\zeta(2)`"""
+
+zeta3 = zeta(3)
+r""":math:`\zeta(3)`"""
+
+zeta4 = zeta(4)
+r""":math:`\zeta(4)`"""
+
+zeta5 = zeta(5)
+r""":math:`\zeta(5)`"""
+
+log2 = np.log(2)
+r""":math:`\ln(2)`"""
+
+li4half = 0.517479
+""":math:`Li_{4}(1/2)`"""
 
 def update_colors(nc):
     """Updates the number of colors to :math:`NC = nc`.

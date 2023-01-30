@@ -2,7 +2,7 @@
 
 import numba as nb
 
-from .constants import zeta2
+from eko.constants import zeta2
 from .polygamma import cern_polygamma
 
 
