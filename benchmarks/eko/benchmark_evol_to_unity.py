@@ -11,7 +11,7 @@ from eko.io import types
 from eko.io.runcards import OperatorCard, TheoryCard
 from eko.runner.legacy import Runner
 
-# from eko.matching_conditions.operator_matrix_element import OperatorMatrixElement
+# from ekore.matching_conditions.operator_matrix_element import OperatorMatrixElement
 
 
 def update_cards(theory: TheoryCard, operator: OperatorCard):

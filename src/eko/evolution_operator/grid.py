@@ -11,12 +11,12 @@ import numbers
 import numpy as np
 import numpy.typing as npt
 
-from .. import matching_conditions, member
+from .. import member
 from .. import scale_variations as sv
 from ..io.runcards import Configs, Debug
-from ..matching_conditions.operator_matrix_element import OperatorMatrixElement
 from ..thresholds import flavor_shift, is_downward_path
-from . import Operator, flavors, physical
+from . import Operator, flavors, matching_condition, physical
+from .operator_matrix_element import OperatorMatrixElement
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +89,8 @@ class OperatorGrid(sv.ModeMixin):
         config["n_integration_cores"] = configs.n_integration_cores
         config["debug_skip_singlet"] = debug.skip_singlet
         config["debug_skip_non_singlet"] = debug.skip_non_singlet
+        config["polarized"] = configs.polarized
+        config["time_like"] = configs.time_like
 
         if method not in [
             "iterate-exact",
@@ -244,7 +246,7 @@ class OperatorGrid(sv.ModeMixin):
 
             # join with the basis rotation, since matching requires c+ (or likewise)
             if is_downward:
-                matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
+                matching = matching_condition.MatchingCondition.split_ad_to_evol_map(
                     self._matching_operators[op.q2_to],
                     op.nf - 1,
                     op.q2_to,
@@ -255,7 +257,7 @@ class OperatorGrid(sv.ModeMixin):
                 )
                 final_op = final_op @ matching @ invrot @ phys_op
             else:
-                matching = matching_conditions.MatchingCondition.split_ad_to_evol_map(
+                matching = matching_condition.MatchingCondition.split_ad_to_evol_map(
                     self._matching_operators[op.q2_to],
                     op.nf,
                     op.q2_to,
