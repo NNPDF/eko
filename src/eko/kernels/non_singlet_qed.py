@@ -356,7 +356,9 @@ def dispatcher(
             "decompose-expanded",
             "perturbative-expanded",
         ]:
-            return running_alphaem_expanded(order, gamma_ns, a1, a0, aem, nf)
+            return running_alphaem_expanded(
+                order, gamma_ns, a1, a0, aem, nf, ev_op_iterations
+            )
         return running_alphaem_exact(
             order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
         )
