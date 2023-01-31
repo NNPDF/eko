@@ -291,8 +291,7 @@ def j24_expanded(a1, a0, nf):
     """
     beta0 = beta.beta_qcd((2, 0), nf)
     beta1 = beta.beta_qcd((3, 0), nf)
-    beta2 = beta.beta_qcd((4, 0), nf)
-    return ei.j24_exact(a1, a0, beta0, beta1, beta2)
+    return ei.j24_expanded(a1, a0, beta0, beta1)
 
 
 @nb.njit(cache=True)
