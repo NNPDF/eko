@@ -6,9 +6,9 @@ The unpolarized time-like next-to-leading-order
 
 import numba as nb
 import numpy as np
-from numpy import power as npp
 from eko import constants
-from ....harmonics.constants import zeta2
+from eko.constants import zeta2
+from numpy import power as npp
 
 @nb.njit(cache=True)
 def gamma_nsp(N, nf, sx):
