@@ -4,6 +4,7 @@ import numpy as np
 import numpy.typing as npt
 
 from . import w1, w2, w3, w4, w5
+from .g_functions import mellin_g3
 
 # here a register of all possible functions
 S1 = 0  # = S_1(N)
@@ -25,6 +26,18 @@ Sm31 = 15
 Sm22 = 16
 S211 = 17
 Sm211 = 18
+S1h = 19
+S2h = 20
+S3h = 21
+S1mh = 22
+S2mh = 23
+S3mh = 24
+S1ph = 25
+S2ph = 26
+S3ph = 27
+g3 = 28
+S1p2 = 29
+g3p2 = 30
 
 # this could also be S1h = S1(N/2)
 # the only requirement is that they are insubsequent order
@@ -34,7 +47,7 @@ Sm211 = 18
 @nb.njit(cache=True)
 def reset():
     """Return the cache placeholder array."""
-    return np.full(19, np.nan, np.complex_)
+    return np.full(31, np.nan, np.complex_)
 
 
 @nb.njit(cache=True)
@@ -117,6 +130,30 @@ def get(key: int, cache: npt.ArrayLike,
     elif key == Sm211:
         s = Sm211(n, get(S1, cache, n), get(S2, cache, n), 
             get(Sm1, cache, n), is_singlet)
+    elif key == S1h:
+        s = w1.S1(n/2)
+    elif key == S2h:
+        s = w2.S2(n/2)
+    elif key == S3h:
+        s = w3.S3(n/2)
+    elif key == S1mh:
+        s = w1.S1((n-1)/2)
+    elif key == S2mh:
+        s = w2.S2((n-1)/2)
+    elif key == S3mh:
+        s = w3.s3((n-1)/2)
+    elif key == S1ph:
+        s = w1.S1((n+1)/2)
+    elif key == S2ph:
+        s = w2.S2((n+1)/2)
+    elif key == S3ph:
+        s = w3.S3((n+1)/2)
+    elif key == g3:
+        s = mellin_g3(n, get(S1, cache, n))
+    elif key == S1p2:
+        s = w1.S1(n+2)
+    elif key == g3p2:
+        s = mellin_g3(n+2, get(S1p2, cache, n))
     # store and return
     cache[key] = s
     return s
