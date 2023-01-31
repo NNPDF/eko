@@ -133,12 +133,18 @@ def compute_LHA_data(
     Q2grid = operators["Q2grid"]
     if not np.allclose(Q2grid, [1e4]):
         raise ValueError("Q2grid has to be [1e4]")
-    # load data
-    with open(here / "LHA.yaml", encoding="utf-8") as o:
-        data = yaml.safe_load(o)
-
-    fns = theory["FNS"]
     order = theory["PTO"]
+    # select which data
+    if operators["polarized"] == True and order <= 1:
+        yaml_file = "LHA_polarized.yaml"
+    elif operators["polarized"] == True and order > 1:
+        raise ValueError("LHA tables beyond NLO do not exist")
+    elif operators["polarized"] == False:
+        yaml_file = "LHA.yaml"
+    # load data
+    with open(here / yaml_file, encoding="utf-8") as o:
+        data = yaml.safe_load(o)
+    fns = theory["FNS"]
     xif = (theory["fact_to_ren_scale_ratio"]) ** 2
     if order == 0 and xif != 1.0:
         raise ValueError("LO LHA tables with scale variations are not available")
@@ -153,7 +159,7 @@ def compute_LHA_data(
         part = 2
     else:
         part = 1
-
+    # Not adding  if polarised and  if order NNLO restriction here since above returns exception already
     if fns == "FFNS":
         if order == 0:
             table = 2
@@ -185,9 +191,10 @@ def compute_LHA_data(
     return ref
 
 
-def save_initial_scale_plots_to_pdf(path):
+# used pol as argument since what the rest of the operator card says wouldn't matter for the purpose of making figures
+def save_initial_scale_plots_to_pdf(path, is_pol):
     """
-    Plots all PDFs at the inital scale.
+    Plots all PDFs at the inital scale .
 
     The reference values are given in Table 2 part 1 of :cite:`Giele:2002hx`.
 
@@ -198,9 +205,15 @@ def save_initial_scale_plots_to_pdf(path):
     ----------
         path : str
         output path
+        is_pol : bool
+        polarized pdf data
     """
     # load data
-    with open(here / "LHA.yaml", encoding="utf-8") as o:
+    if bool(is_pol) == False:
+        yaml_file = "LHA.yaml"
+    else:
+        yaml_file = "LHA_polarized.yaml"
+    with open(here / yaml_file, encoding="utf-8") as o:
         data = yaml.safe_load(o)
     LHA_init_grid_ref = data["table2"]["part1"]
     with PdfPages(path) as pp:
