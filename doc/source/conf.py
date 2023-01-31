@@ -27,8 +27,8 @@ here = pathlib.Path(__file__).absolute().parent
 # -- Project information -----------------------------------------------------
 
 project = "EKO"
-copyright = "2019-2022, the N3PDF team"  # pylint: disable=redefined-builtin
-author = "N3PDF team"
+copyright = "2019-2023, the NNPDF team"  # pylint: disable=redefined-builtin
+author = "NNPDF team"
 
 # The short X.Y version
 version = eko.version.__version__
@@ -328,6 +328,7 @@ def run_apidoc(_):
         eko=here / "modules" / "eko",
         ekomark=here / "development" / "ekomark",
         ekobox=here / "code" / "ekobox",
+        ekore=here / "modules" / "ekore",
     ).items():
         package = here.parents[1] / "src" / pkg
         main(["--module-first", "-o", str(docs_dest), str(package)])
