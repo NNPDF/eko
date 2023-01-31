@@ -9,8 +9,8 @@ from .... import harmonics
 from ....harmonics.constants import zeta2, zeta3
 
 # Non Singlet sector is swapped
-from ...unpolarized.space_like.as3 import gamma_nsm as gamma_nsp
-from ...unpolarized.space_like.as3 import gamma_nsp as gamma_nsm
+from ...unpolarized.space_like.as2 import gamma_nsm as gamma_nsp
+from ...unpolarized.space_like.as2 import gamma_nsp as gamma_nsm
 
 
 @nb.njit(cache=True)
