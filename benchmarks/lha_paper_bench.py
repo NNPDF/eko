@@ -3,9 +3,11 @@ Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
 """
 import numpy as np
 from banana import register
+from banana.data import cartesian_product
 
 from eko.interpolation import lambertgrid
 from ekomark.benchmark.runner import Runner
+from ekomark.data import operators
 
 register(__file__)
 
@@ -58,6 +60,15 @@ class LHABenchmark(Runner):
         th = self.theory.copy()
         th.update({"PTO": pto})
         return [th]
+
+    def plain_pol_theory(self, pto):
+        """Generate plain polarized theories at given PTO"""
+
+        th = self.theory.copy()
+        th.update({"PTO": [pto]})
+        op = operators.lhapdf_config.copy()
+        op["polarized"] = [True]
+        self.run(cartesian_product(th), operators.build(op), ["ToyLH_polarized"])
 
     def sv_theories(self, pto):
         """Generate scale variation theories.
@@ -121,6 +132,10 @@ class LHABenchmark(Runner):
     def benchmark_plain(self, pto):
         """Run plain configuration."""
         self.run_lha(self.plain_theory(pto))
+
+    def benchmark_pol(self, pto):
+        """Run plain configuration."""
+        self.run_lha(self.plain_pol_theory(pto))
 
     def benchmark_sv(self, pto):
         """Run scale variations."""
@@ -223,7 +238,7 @@ if __name__ == "__main__":
     obj = BenchmarkVFNS()
     # obj = BenchmarkFFNS()
 
-    obj.benchmark_plain(0)
+    obj.benchmark_pol(1)
     # obj.benchmark_sv(2)
 
     # # VFNS benchmarks with LHA settings
