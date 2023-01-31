@@ -3,6 +3,8 @@ import logging
 import os
 from typing import Union
 
+import numpy as np
+
 from .. import interpolation, msbar_masses
 from ..couplings import Couplings, couplings_mod_ev
 from ..evolution_operator.grid import OperatorGrid
@@ -76,7 +78,7 @@ class Runner:
 
         # call explicitly iter to explain the static analyzer that is an
         # iterable
-        thresholds_ratios = list(iter(new_theory.matching))
+        thresholds_ratios = np.power(list(iter(new_theory.matching)), 2.0)
         tc = ThresholdsAtlas(
             masses=masses,
             q2_ref=new_operator.mu20,
@@ -92,7 +94,7 @@ class Runner:
             method=couplings_mod_ev(new_operator.configs.evolution_method),
             masses=masses,
             hqm_scheme=new_theory.quark_masses_scheme,
-            thresholds_ratios=new_theory.matching,
+            thresholds_ratios=thresholds_ratios,
         )
         # setup operator grid
         self.op_grid = OperatorGrid(
