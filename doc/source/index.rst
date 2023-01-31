@@ -50,6 +50,7 @@ EKO is ...
     code/IO
     code/interface
     API <modules/eko/eko>
+    Math <modules/ekore/ekore>
     code/Operators
     code/Utilities
     code/Dependency

@@ -37,7 +37,6 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
-            as_raw=1,
             nf=3,
             L=0,
             ev_op_iterations=0,
@@ -59,7 +58,6 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
-            as_raw=1,
             nf=3,
             L=0,
             ev_op_iterations=0,
@@ -81,7 +79,6 @@ def test_quad_ker(monkeypatch):
             areas=np.zeros(3),
             as1=1,
             as0=2,
-            as_raw=1,
             nf=3,
             L=0,
             ev_op_iterations=0,
@@ -105,7 +102,6 @@ def test_quad_ker(monkeypatch):
                 areas=np.zeros(3),
                 as1=1,
                 as0=2,
-                as_raw=1,
                 nf=3,
                 L=0,
                 ev_op_iterations=0,
@@ -129,7 +125,6 @@ def test_quad_ker(monkeypatch):
         areas=np.zeros(3),
         as1=1,
         as0=2,
-        as_raw=1,
         nf=3,
         L=0,
         ev_op_iterations=0,
@@ -199,7 +194,7 @@ class TestOperator:
         g = r.op_grid
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 10.0)
-        np.testing.assert_allclose(o.mur2_shift(40.0), 10.0)
+        np.testing.assert_allclose(o.sv_exponentiated_shift(40.0), 10.0)
         o.compute()
         self.check_lo(o)
 
@@ -324,7 +319,7 @@ def test_pegasus_path():
     mode1 = 0
     method = ""
     logxs = np.log(int_disp.xgrid.raw)
-    as_raw = a1 = 1
+    a1 = 1
     a0 = 2
     nf = 3
     L = 0
@@ -345,7 +340,6 @@ def test_pegasus_path():
                     bf.areas_representation,
                     a1,
                     a0,
-                    as_raw,
                     nf,
                     L,
                     ev_op_iterations,

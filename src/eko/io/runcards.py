@@ -304,7 +304,7 @@ class Legacy:
         else:
             raise ValueError()
 
-        new["xif"] = old["fact_to_ren_scale_ratio"]
+        new["xif"] = old["XIF"]
 
         return TheoryCard.from_dict(new)
 

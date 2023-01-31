@@ -37,7 +37,11 @@ class TestMSbarMasses:
 
                 # compute the scale such msbar(m) = m
                 m2_computed = msbar_masses.compute(
-                    th.quark_masses, th.couplings, th.order, method, th.matching
+                    th.quark_masses,
+                    th.couplings,
+                    th.order,
+                    method,
+                    np.power(list(iter(th.matching)), 2.0),
                 )
                 strong_coupling = Couplings(
                     th.couplings,
@@ -45,7 +49,7 @@ class TestMSbarMasses:
                     method,
                     masses=m2_computed.tolist(),
                     hqm_scheme=types.QuarkMassSchemes.POLE,
-                    thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
+                    thresholds_ratios=[1.0, 1.0, 1.0],
                 )
                 m2_test = []
                 for nf in [3, 4, 5]:
@@ -80,7 +84,7 @@ class TestMSbarMasses:
             th.couplings,
             th.order,
             types.CouplingEvolutionMethod.EXPANDED,
-            th.matching,
+            np.power(list(iter(th.matching)), 2.0),
         )
         strong_coupling = Couplings(
             th.couplings,
@@ -88,7 +92,7 @@ class TestMSbarMasses:
             types.CouplingEvolutionMethod.EXPANDED,
             m2_computed.tolist(),
             hqm_scheme=types.QuarkMassSchemes.MSBAR,
-            thresholds_ratios=types.MatchingScales(c=1.0, b=1.0, t=1.0),
+            thresholds_ratios=[1.0, 1.0, 1.0],
         )
         m2_test = []
         for nf in [3, 4, 5]:
@@ -117,7 +121,7 @@ class TestMSbarMasses:
                 theory.couplings,
                 theory.order,
                 types.CouplingEvolutionMethod.EXPANDED,
-                theory.matching,
+                np.power(list(iter(theory.matching)), 2.0),
             )
 
         # test mass ordering
