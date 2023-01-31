@@ -376,7 +376,7 @@ class Couplings:
         method: CouplingEvolutionMethod,
         masses: List[float],
         hqm_scheme: QuarkMassSchemes,
-        thresholds_ratios: MatchingScales,
+        thresholds_ratios: List[float],
     ):
         # Sanity checks
         def assert_positive(name, var):
@@ -397,7 +397,6 @@ class Couplings:
 
         nf_ref = couplings.num_flavs_ref
         max_nf = couplings.max_num_flavs
-        matchings = list(thresholds_ratios)
         scheme_name = hqm_scheme.name
 
         # create new threshold object
@@ -406,7 +405,7 @@ class Couplings:
             masses,
             couplings.alphas.scale**2,
             nf_ref,
-            thresholds_ratios=matchings,
+            thresholds_ratios=thresholds_ratios,
             max_nf=max_nf,
         )
         self.hqm_scheme = scheme_name
