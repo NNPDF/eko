@@ -102,15 +102,20 @@ def get(key: int, cache: npt.ArrayLike,
     elif key == S5:
         s = w5.S5(n)
     elif key == Sm1:
-        s = w1.Sm1(n, get(S1, cache, n), cache, is_singlet)
+        s = w1.Sm1(n, get(S1, cache, n), get(S1mh, cache, n), 
+        get(S1h, cache, n), is_singlet)
     elif key == Sm2:
-        s = w2.Sm2(n, get(S2, cache, n), cache, is_singlet)
+        s = w2.Sm2(n, get(S2, cache, n), get(S2mh, cache, n), 
+        get(S2h, cache, n), is_singlet)
     elif key == Sm3:
-        s = w3.Sm3(n, get(S3, cache, n), cache, is_singlet)
+        s = w3.Sm3(n, get(S3, cache, n), get(S3mh, cache, n), 
+        get(S3h, cache, n), is_singlet)
     elif key == Sm4:
-        s = w4.Sm4(n, get(S4, cache, n), cache, is_singlet)
+        s = w4.Sm4(n, get(S4, cache, n), get(S4mh, cache, n), 
+        get(S4h, cache, n), is_singlet)
     elif key == Sm5:
-        s = w5.Sm5(n, get(S5, cache, n), cache, is_singlet)
+        s = w5.Sm5(n, get(S5, cache, n), get(S5mh, cache, n), 
+        get(S5h, cache, n), is_singlet)
     elif key == S21:
         s = w3.S21(n, get(S1, cache, n), get(S2, cache, n))
     elif key == S2m1:

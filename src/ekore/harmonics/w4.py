@@ -37,7 +37,7 @@ def S4(N):
 
 
 @nb.njit(cache=True)
-def Sm4(N, hS4, cache, is_singlet=None):
+def Sm4(N, hS4, hS4mh, hS4h, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-4}(N)`.
 
     .. math::
@@ -67,13 +67,13 @@ def Sm4(N, hS4, cache, is_singlet=None):
         return (
             1
             / 2**3
-            * ((1 - (-1) ** N) / 2 * c.get(c.S4mh, cache, N, is_singlet) 
-            + ((-1) ** N + 1) / 2 * c.get(c.S4h, cache, N, is_singlet))
+            * ((1 - (-1) ** N) / 2 * hS4mh 
+            + ((-1) ** N + 1) / 2 * hS4h)
             - hS4
         )
     if is_singlet:
-        return 1 / 2**3 * c.get(c.S4h, cache, N, is_singlet) - hS4
-    return 1 / 2**3 * c.get(c.S4mh, cache, N, is_singlet) - hS4
+        return 1 / 2**3 * hS4h - hS4
+    return 1 / 2**3 * hS4mh - hS4
 
 
 @nb.njit(cache=True)

@@ -3,7 +3,6 @@
 import numba as nb
 import numpy as np
 
-from . import cache as c
 from .polygamma import cern_polygamma
 
 
@@ -35,7 +34,7 @@ def S1(N):
 
 
 @nb.njit(cache=True)
-def Sm1(N, hS1, cache, is_singlet=None):
+def Sm1(N, hS1, hS1mh, hS1h, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-1}(N)`.
 
     .. math::
@@ -61,10 +60,10 @@ def Sm1(N, hS1, cache, is_singlet=None):
     """
     if is_singlet is None:
         return (
-            (1 - (-1) ** N) / 2 * c.get(c.S1mh, cache, N, is_singlet)
-            + ((-1) ** N + 1) / 2 * c.get(c.S1h, cache, N, is_singlet)
+            (1 - (-1) ** N) / 2 * hS1mh
+            + ((-1) ** N + 1) / 2 * hS1h
             - hS1
         )
     if is_singlet:
-        return c.get(c.S1h, cache, N, is_singlet) - hS1
-    return c.get(c.S1mh, cache, N, is_singlet) - hS1
+        return hS1h - hS1
+    return hS1mh - hS1
