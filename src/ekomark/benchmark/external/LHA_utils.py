@@ -129,17 +129,17 @@ def compute_LHA_data(
         ref : dict
             output containing: target_xgrid, values
     """
-
+    Polarized= operators["polarized"]
     Q2grid = operators["Q2grid"]
     if not np.allclose(Q2grid, [1e4]):
         raise ValueError("Q2grid has to be [1e4]")
     order = theory["PTO"]
     # select which data
-    if operators["polarized"] == True and order <= 1:
+    if Polarized == True and order <= 1:
         yaml_file = "LHA_polarized.yaml"
-    elif operators["polarized"] == True and order > 1:
-        raise ValueError("LHA tables beyond NLO do not exist")
-    elif operators["polarized"] == False:
+    elif Polarized == True and order > 1:
+        raise ValueError("LHA tables beyond NLO do not exist for Polarized Case")
+    elif Polarized == False:
         yaml_file = "LHA.yaml"
     # load data
     with open(here / yaml_file, encoding="utf-8") as o:
@@ -159,22 +159,33 @@ def compute_LHA_data(
         part = 2
     else:
         part = 1
-    # Not adding  if polarised and  if order NNLO restriction here since above returns exception already
     if fns == "FFNS":
         if order == 0:
-            table = 2
             part = 2
+            if Polarized == False: 
+                table = 2
+            else:
+                table = 16
         elif order == 1:
-            table = 3
+            if Polarized == False: 
+                table = 3
+            else: 
+                table = 17
         elif order == 2:
             is_ffns_nnlo = True
             table = 14
     elif fns == "ZM-VFNS":
         if order == 0:
-            table = 2
             part = 3
+            if Polarized == False: 
+                table = 2
+            else:
+                table = 16
         elif order == 1:
-            table = 4
+            if Polarized == False: 
+                table = 4
+            else:
+                table = 18
         elif order == 2:
             table = 15
 
@@ -211,11 +222,13 @@ def save_initial_scale_plots_to_pdf(path, is_pol):
     # load data
     if bool(is_pol) == False:
         yaml_file = "LHA.yaml"
+        table= "table2"
     else:
         yaml_file = "LHA_polarized.yaml"
+        table= "table16"
     with open(here / yaml_file, encoding="utf-8") as o:
         data = yaml.safe_load(o)
-    LHA_init_grid_ref = data["table2"]["part1"]
+    LHA_init_grid_ref = data[table]["part1"]
     with PdfPages(path) as pp:
         # iterate all raw labels
         for j, label in enumerate(raw_label_list):
