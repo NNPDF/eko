@@ -3,6 +3,7 @@
 import numba as nb
 
 from eko.constants import zeta2
+from . import cache as c
 from .polygamma import cern_polygamma
 
 
@@ -34,7 +35,7 @@ def S2(N):
 
 
 @nb.njit(cache=True)
-def Sm2(N, hS2, is_singlet=None):
+def Sm2(N, hS2, cache, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-2}(N)`.
 
     .. math::
@@ -64,9 +65,10 @@ def Sm2(N, hS2, is_singlet=None):
         return (
             1
             / 2
-            * ((1 - (-1) ** N) / 2 * S2((N - 1) / 2) + ((-1) ** N + 1) / 2 * S2(N / 2))
+            * ((1 - (-1) ** N) / 2 * c.get(c.S2mh, cache, N, is_singlet) 
+            + ((-1) ** N + 1) / 2 * c.get(c.S2h, cache, N, is_singlet))
             - hS2
         )
     if is_singlet:
-        return 1 / 2 * S2(N / 2) - hS2
-    return 1 / 2 * S2((N - 1) / 2) - hS2
+        return 1 / 2 * c.get(c.S2h, cache, N, is_singlet) - hS2
+    return 1 / 2 * c.get(c.S2mh, cache, N, is_singlet) - hS2

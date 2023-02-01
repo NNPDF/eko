@@ -3,6 +3,7 @@
 import numba as nb
 
 from eko.constants import log2, zeta2, zeta3
+from . import cache as c
 from . import g_functions as gf
 from .polygamma import cern_polygamma, symmetry_factor
 
@@ -36,7 +37,7 @@ def S3(N):
 
 
 @nb.njit(cache=True)
-def Sm3(N, hS3, is_singlet=None):
+def Sm3(N, hS3, cache, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-3}(N)`.
 
     .. math::
@@ -66,12 +67,13 @@ def Sm3(N, hS3, is_singlet=None):
         return (
             1
             / 2**2
-            * ((1 - (-1) ** N) / 2 * S3((N - 1) / 2) + ((-1) ** N + 1) / 2 * S3(N / 2))
+            * ((1 - (-1) ** N) / 2 * c.get(c.S3mh, cache, N, is_singlet) 
+            + ((-1) ** N + 1) / 2 * c.get(c.S3h, cache, N, is_singlet))
             - hS3
         )
     if is_singlet:
-        return 1 / 2**2 * S3(N / 2) - hS3
-    return 1 / 2**2 * S3((N - 1) / 2) - hS3
+        return 1 / 2**2 * c.get(c.S3h, cache, N, is_singlet) - hS3
+    return 1 / 2**2 * c.get(c.S3mh, cache, N, is_singlet) - hS3
 
 
 @nb.njit(cache=True)

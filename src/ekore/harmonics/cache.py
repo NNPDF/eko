@@ -2,6 +2,7 @@
 import numba as nb
 import numpy as np
 import numpy.typing as npt
+import polygamma
 
 from . import w1, w2, w3, w4, w5
 from .g_functions import mellin_g3
@@ -29,15 +30,21 @@ Sm211 = 18
 S1h = 19
 S2h = 20
 S3h = 21
-S1mh = 22
-S2mh = 23
-S3mh = 24
-S1ph = 25
-S2ph = 26
-S3ph = 27
-g3 = 28
-S1p2 = 29
-g3p2 = 30
+S4h = 22
+S5h = 23
+S1mh = 24
+S2mh = 25
+S3mh = 26
+S4mh = 27
+S5mh = 28
+S1ph = 29
+S2ph = 30
+S3ph = 31
+S4ph = 32
+S5ph = 33
+g3 = 34
+S1p2 = 35
+g3p2 = 36
 
 # this could also be S1h = S1(N/2)
 # the only requirement is that they are insubsequent order
@@ -47,7 +54,7 @@ g3p2 = 30
 @nb.njit(cache=True)
 def reset():
     """Return the cache placeholder array."""
-    return np.full(31, np.nan, np.complex_)
+    return np.full(37, np.nan, np.complex_)
 
 
 @nb.njit(cache=True)
@@ -95,15 +102,15 @@ def get(key: int, cache: npt.ArrayLike,
     elif key == S5:
         s = w5.S5(n)
     elif key == Sm1:
-        s = w1.Sm1(n, get(S1, cache, n), is_singlet)
+        s = w1.Sm1(n, get(S1, cache, n), cache, is_singlet)
     elif key == Sm2:
-        s = w2.Sm2(n, get(S2, cache, n), is_singlet)
+        s = w2.Sm2(n, get(S2, cache, n), cache, is_singlet)
     elif key == Sm3:
-        s = w3.Sm3(n, get(S3, cache, n), is_singlet)
+        s = w3.Sm3(n, get(S3, cache, n), cache, is_singlet)
     elif key == Sm4:
-        s = w4.Sm4(n, get(S4, cache, n), is_singlet)
+        s = w4.Sm4(n, get(S4, cache, n), cache, is_singlet)
     elif key == Sm5:
-        s = w5.Sm5(n, get(S5, cache, n), is_singlet)
+        s = w5.Sm5(n, get(S5, cache, n), cache, is_singlet)
     elif key == S21:
         s = w3.S21(n, get(S1, cache, n), get(S2, cache, n))
     elif key == S2m1:
@@ -136,22 +143,34 @@ def get(key: int, cache: npt.ArrayLike,
         s = w2.S2(n/2)
     elif key == S3h:
         s = w3.S3(n/2)
+    elif key == S4h:
+        s = w4.S4(n/2)
+    elif key == S5h:
+        s = w5.S5(n/2)    
     elif key == S1mh:
         s = w1.S1((n-1)/2)
     elif key == S2mh:
         s = w2.S2((n-1)/2)
     elif key == S3mh:
         s = w3.s3((n-1)/2)
+    elif key == S4mh:
+        s = w4.S4((n-1)/2)
+    elif key == S5mh:
+        s = w5.s5((n-1)/2)
     elif key == S1ph:
-        s = w1.S1((n+1)/2)
+        s = polygamma.recursive_harmonic_sum(get(S1mh, cache, n), n, 1, 1)
     elif key == S2ph:
-        s = w2.S2((n+1)/2)
+        s = polygamma.recursive_harmonic_sum(get(S2mh, cache, n), n, 1, 2)
     elif key == S3ph:
-        s = w3.S3((n+1)/2)
+        s = polygamma.recursive_harmonic_sum(get(S3mh, cache, n), n, 1, 3)
+    elif key == S4ph:
+        s = polygamma.recursive_harmonic_sum(get(S4mh, cache, n), n, 1, 4)
+    elif key == S5ph:
+        s = polygamma.recursive_harmonic_sum(get(S5mh, cache, n), n, 1, 5)
     elif key == g3:
         s = mellin_g3(n, get(S1, cache, n))
     elif key == S1p2:
-        s = w1.S1(n+2)
+        s = polygamma.recursive_harmonic_sum(get(S1, cache, n), n, 2, 1)
     elif key == g3p2:
         s = mellin_g3(n+2, get(S1p2, cache, n))
     # store and return
