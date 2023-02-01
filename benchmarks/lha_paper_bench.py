@@ -238,7 +238,7 @@ if __name__ == "__main__":
     obj = BenchmarkVFNS()
     # obj = BenchmarkFFNS()
 
-    obj.benchmark_pol(1)
+    obj.benchmark_pol(0)
     # obj.benchmark_sv(2)
 
     # # VFNS benchmarks with LHA settings
