@@ -7,11 +7,12 @@ The unpolarized time-like leading-order
 import numba as nb
 import numpy as np
 from eko import constants
+from ....harmonics import cache as c
 
 
 
 @nb.njit(cache=True)
-def gamma_qq(N, s1):
+def gamma_qq(N, cache, is_singlet=None):
     """Computes the LO quark-quark anomalous dimension.
     Implements Eqn. (B.3) from :cite:`Mitov:2006wy`.
 
@@ -19,8 +20,10 @@ def gamma_qq(N, s1):
     ----------
     N : complex
         Mellin moment 
-    s1 : complex
-        Harmonic sum $S_{1}$ 
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -29,6 +32,7 @@ def gamma_qq(N, s1):
         :math:`\gamma_{qq}^{(0)}(N)` 
 
     """
+    s1 = c.get(c.S1, cache, N, is_singlet)
     result = constants.CF * (-3.0 + (4.0 * s1) - 2.0 / (N * (N + 1.0)))
     return result
 
@@ -78,7 +82,7 @@ def gamma_gq(N, nf):
     return result
 
 @nb.njit(cache=True)
-def gamma_gg(N, s1, nf):
+def gamma_gg(N, nf, cache, is_singlet=None):
     """Computes the LO gluon-gluon anomalous dimension.
     Implements Eqn. (B.6) from :cite:`Mitov:2006wy`.
 
@@ -86,10 +90,12 @@ def gamma_gg(N, s1, nf):
     ----------
     N : complex
         Mellin moment 
-    s1 : complex
-        Harmonic sum $S_{1}$ 
     nf : int
-        No. of active flavors 
+        No. of active flavors
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -98,12 +104,13 @@ def gamma_gg(N, s1, nf):
         :math:`\gamma_{gg}^{(0)}(N)`
 
     """
+    s1 = c.get(c.S1, cache, N, is_singlet)
     result = ((2.0 * nf - 11.0 * constants.CA) / 3.0 + 4.0 * constants.CA 
     * (s1 - 1.0 / (N * (N - 1.0)) - 1.0 / ((N + 1.0) * (N + 2.0))))
     return result
 
 @nb.njit(cache=True)
-def gamma_ns(N, s1):
+def gamma_ns(N, cache, is_singlet=False):
     """Computes the LO non-singlet anomalous dimension.
     At LO, :math:`\gamma_{ns}^{(0)} = \gamma_{qq}^{(0)}`.
 	
@@ -111,8 +118,10 @@ def gamma_ns(N, s1):
     ----------
     N : complex
         Mellin moment 
-    s1 : complex
-        Harmonic sum $S_{1}$ 
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -121,10 +130,10 @@ def gamma_ns(N, s1):
         :math:`\gamma_{ns}^{(0)}(N)`
 
     """
-    return gamma_qq(N, s1)
+    return gamma_qq(N, cache, is_singlet)
 
 @nb.njit(cache=True)
-def gamma_singlet(N, s1, nf):
+def gamma_singlet(N, nf, cache, is_singlet=True):
     """Computes the LO singlet anomalous dimension matrix.
     Implements Eqn. (2.13) from :cite:`Gluck:1992zx`.
 
@@ -132,10 +141,12 @@ def gamma_singlet(N, s1, nf):
     ----------
     N : complex
         Mellin moment 
-    s1 : complex
-        Harmonic sum $S_{1}$ 
     nf : int
-        No. of active flavors 
+        No. of active flavors
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -144,6 +155,6 @@ def gamma_singlet(N, s1, nf):
         :math:`\gamma_{s}^{(0)}`
 
     """
-    result = np.array([[gamma_qq(N, s1), gamma_gq(N, nf)], 
-    [gamma_qg(N), gamma_gg(N, s1, nf)]], np.complex_)
+    result = np.array([[gamma_qq(N, cache, is_singlet), gamma_gq(N, nf)], 
+    [gamma_qg(N), gamma_gg(N, nf, cache, is_singlet)]], np.complex_)
     return result
