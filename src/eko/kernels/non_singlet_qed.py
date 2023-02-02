@@ -416,16 +416,17 @@ def dispatcher(
             gamma_ns, a1, a0, nf, order, ev_op_iterations, aem_list, mu2_to, mu2_from
         )
     if not alphaem_running:
-        aem = aem_list[0]
         if method in [
             "iterate-expanded",
             "decompose-expanded",
             "perturbative-expanded",
         ]:
             return fixed_alphaem_expanded(
-                order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from
+                order, gamma_ns, a1, a0, aem_list[0], nf, mu2_to, mu2_from
             )
-        return fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
+        return fixed_alphaem_exact(
+            order, gamma_ns, a1, a0, aem_list[0], nf, mu2_to, mu2_from
+        )
     else:
         if method in [
             "iterate-expanded",
@@ -433,7 +434,15 @@ def dispatcher(
             "perturbative-expanded",
         ]:
             return running_alphaem_expanded(
-                order, gamma_ns, a1, a0, aem, nf, ev_op_iterations, mu2_to, mu2_from
+                order,
+                gamma_ns,
+                a1,
+                a0,
+                aem_list,
+                nf,
+                ev_op_iterations,
+                mu2_to,
+                mu2_from,
             )
         return running_alphaem_exact(
             order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from
