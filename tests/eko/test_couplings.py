@@ -9,7 +9,7 @@ from math import nan
 import numpy as np
 import pytest
 
-from eko.couplings import Couplings, couplings_mod_ev
+from eko.couplings import Couplings, compute_matching_coeffs_up, couplings_mod_ev
 from eko.io.types import (
     CouplingEvolutionMethod,
     CouplingsRef,
@@ -21,6 +21,10 @@ from eko.io.types import (
 masses = [m**2 for m in (2.0, 4.5, 175.0)]
 
 
+class FakeEM(enum.Enum):
+    BLUB = "blub"
+
+
 def test_couplings_mod_ev():
     assert (
         couplings_mod_ev(EvolutionMethod.ITERATE_EXACT) == CouplingEvolutionMethod.EXACT
@@ -28,12 +32,22 @@ def test_couplings_mod_ev():
     assert (
         couplings_mod_ev(EvolutionMethod.TRUNCATED) == CouplingEvolutionMethod.EXPANDED
     )
-
-    class FakeEM(enum.Enum):
-        BLUB = "blub"
-
     with pytest.raises(ValueError, match="BLUB"):
         couplings_mod_ev(FakeEM.BLUB)
+
+
+def test_compute_matching_coeffs_up():
+    for mass_scheme in ["MSBAR", "POLE"]:
+        for nf in [3, 4, 5]:
+            c = compute_matching_coeffs_up(mass_scheme, nf)
+            # has to be quasi triangular
+            np.testing.assert_allclose(c[0, :], 0.0)
+            for k in range(1, 3 + 1):
+                np.testing.assert_allclose(
+                    c[k, (k + 1) :],
+                    0.0,
+                    err_msg=f"mass_scheme={mass_scheme},nf={nf},k={k}",
+                )
 
 
 class TestCouplings:
@@ -112,6 +126,15 @@ class TestCouplings:
                 couplings,
                 (1, 3),
                 evmod,
+                masses,
+                hqm_scheme=QuarkMassSchemes.POLE,
+                thresholds_ratios=[1.0, 1.0, 1.0],
+            )
+        with pytest.raises(ValueError):
+            Couplings(
+                couplings,
+                (2, 0),
+                FakeEM.BLUB,
                 masses,
                 hqm_scheme=QuarkMassSchemes.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
