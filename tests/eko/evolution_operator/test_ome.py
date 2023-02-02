@@ -2,6 +2,7 @@
 import pathlib
 
 import numpy as np
+import pytest
 
 from eko import basis_rotation as br
 from eko import interpolation, mellin
@@ -76,6 +77,28 @@ def test_build_ome_nlo():
     # check gh for singlet
     assert aSi[0, 0, -1] != 0.0
     assert ome[0, -1] != 0.0
+
+
+def test_quad_ker_errors():
+    for p, t in [(True, False), (False, True), (True, True)]:
+        for mode0 in [br.matching_hplus_pid, 21]:
+            with pytest.raises(NotImplementedError):
+                quad_ker(
+                    u=0.3,
+                    order=(1, 0),
+                    mode0=mode0,
+                    mode1=0,
+                    is_log=True,
+                    logx=0.123,
+                    areas=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
+                    backward_method=None,
+                    a_s=0.0,
+                    nf=3,
+                    L=0.0,
+                    is_msbar=False,
+                    is_polarized=p,
+                    is_time_like=t,
+                )
 
 
 # Test OME integration
