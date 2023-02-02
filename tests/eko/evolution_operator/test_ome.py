@@ -81,13 +81,16 @@ def test_build_ome_nlo():
 
 def test_quad_ker_errors():
     for p, t in [(True, False), (False, True), (True, True)]:
-        for mode0 in [br.matching_hplus_pid, 21]:
+        for mode0, mode1 in [
+            (21, br.matching_hplus_pid),
+            (200, br.matching_hminus_pid),
+        ]:
             with pytest.raises(NotImplementedError):
                 quad_ker(
                     u=0.3,
                     order=(1, 0),
                     mode0=mode0,
-                    mode1=0,
+                    mode1=mode1,
                     is_log=True,
                     logx=0.123,
                     areas=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],

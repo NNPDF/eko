@@ -36,6 +36,7 @@ def build_ome(A, matching_order, a_s, backward_method):
     -------
     ome : numpy.ndarray
         matching operator matrix
+
     """
     # to get the inverse one can use this FORM snippet
     # Symbol a;
@@ -122,6 +123,7 @@ def quad_ker(
     -------
     ker : float
         evaluated integration kernel
+
     """
     ker_base = QuadKerBase(u, is_log, logx, mode0)
     integrand = ker_base.integrand(areas)
@@ -170,10 +172,10 @@ def quad_ker(
             if is_time_like:
                 raise NotImplementedError("Polarized, time-like is not implemented")
             else:
-                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+                A = ome_ps.A_non_singlet(order, ker_base.n, sx, nf, L)
         else:
             if is_time_like:
-                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+                A = ome_ut.A_non_singlet(order, ker_base.n, sx, nf, L)
             else:
                 A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
 
@@ -188,7 +190,8 @@ def quad_ker(
 
 
 class OperatorMatrixElement(Operator):
-    r"""Internal representation of a single |OME|.
+    r"""
+    Internal representation of a single |OME|.
 
     The actual matrices are computed upon calling :meth:`compute`.
 
