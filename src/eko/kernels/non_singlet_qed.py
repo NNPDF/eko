@@ -1,10 +1,10 @@
 """Collection of QED non-singlet EKOs."""
 import numba as nb
 import numpy as np
-from non_singlet import U_vec, lo_exact
 
 from . import evolution_integrals_qed as ei
 from . import utils
+from .non_singlet import U_vec, lo_exact
 
 
 @nb.njit(cache=True)
