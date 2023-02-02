@@ -348,7 +348,7 @@ def eko_truncated(
         aem = aem_list[step - 1]
         gamma_qed = 0.0
         for j in range(order[1] + 1):
-            gamma_qed += aem**j * gamma_qcd[0, j]
+            gamma_qed += aem**j * gamma_ns[0, j]
         e0 = lo_exact(gamma_qcd, ah, al, nf)
         if order[0] >= 2:
             fact += U[1] * (ah - al)
