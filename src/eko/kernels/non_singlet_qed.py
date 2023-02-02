@@ -1,11 +1,10 @@
 """Collection of QED non-singlet EKOs."""
 import numba as nb
 import numpy as np
+from non_singlet import U_vec, lo_exact
 
 from . import evolution_integrals_qed as ei
 from . import utils
-
-# At O(as1) there is no exact or expanded
 
 
 @nb.njit(cache=True)
@@ -304,6 +303,71 @@ def as3aem2_expanded(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
 
 
 @nb.njit(cache=True)
+def eko_truncated(
+    gamma_ns,
+    a1,
+    a0,
+    nf,
+    order,
+    ev_op_iterations,
+    aem_list,
+    mu2_to,
+    mu2_from,
+):
+    """|NLO|, |NNLO| or |N3LO| non-singlet truncated EKO.
+
+    Parameters
+    ----------
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
+    order : tuple(int,int)
+        perturbative order
+    ev_op_iterations : int
+        number of evolution steps
+
+    Returns
+    -------
+    complex
+        non-singlet truncated EKO
+
+    """
+    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    gamma_qcd = gamma_ns[1:, 0]
+    U = U_vec(gamma_qcd, nf, order)
+    e = 1.0
+    al = a_steps[0]
+    fact = U[0]
+    for step in range(1, ev_op_iterations + 1):
+        ah = a_steps[step]
+        aem = aem_list[step - 1]
+        gamma_qed = 0.0
+        for j in range(order[1] + 1):
+            gamma_qed += aem**j * gamma_qcd[0, j]
+        e0 = lo_exact(gamma_qcd, ah, al, nf)
+        if order[0] >= 2:
+            fact += U[1] * (ah - al)
+        if order[0] >= 3:
+            fact += +U[2] * ah**2 - ah * al * U[1] ** 2 + al**2 * (U[1] ** 2 - U[2])
+        if order[0] >= 4:
+            fact += (
+                +(ah**3) * U[3]
+                - ah**2 * al * U[2] * U[1]
+                + ah * al**2 * U[1] * (U[1] ** 2 - U[2])
+                - al**3 * (U[1] ** 3 - 2 * U[1] * U[2] + U[3])
+            )
+        fact += gamma_qed * np.log(mu2_from / mu2_to)
+        e *= e0 * fact
+        al = ah
+    return e
+
+
+@nb.njit(cache=True)
 def dispatcher(
     order,
     method,
@@ -347,6 +411,10 @@ def dispatcher(
     e_ns : complex
         non-singlet EKO
     """
+    if method == "truncated":
+        return eko_truncated(
+            gamma_ns, a1, a0, nf, order, ev_op_iterations, aem_list, mu2_to, mu2_from
+        )
     if not alphaem_running:
         aem = aem_list[0]
         if method in [
