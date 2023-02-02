@@ -482,7 +482,7 @@ def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
 
 
 @nb.njit(cache=True)
-def fixed_alphaem_expanded(order, gamma_ns, a1, a0, aem, nf):
+def fixed_alphaem_expanded(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     """Compute exact solution for fixed alphaem.
 
     Parameters
@@ -507,18 +507,18 @@ def fixed_alphaem_expanded(order, gamma_ns, a1, a0, aem, nf):
     """
     if order[1] == 1:
         if order[0] == 1:
-            return as1aem1(gamma_ns, a1, a0, aem, nf)
+            return as1aem1(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
         if order[0] == 2:
-            return as2aem1_expanded(gamma_ns, a1, a0, aem, nf)
+            return as2aem1_expanded(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
         if order[0] == 3:
-            return as3aem1_expanded(gamma_ns, a1, a0, aem, nf)
+            return as3aem1_expanded(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
     if order[1] == 2:
         if order[0] == 1:
-            return as1aem2(gamma_ns, a1, a0, aem, nf)
+            return as1aem2(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
         if order[0] == 2:
-            return as2aem2_expanded(gamma_ns, a1, a0, aem, nf)
+            return as2aem2_expanded(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
         if order[0] == 3:
-            return as3aem2_expanded(gamma_ns, a1, a0, aem, nf)
+            return as3aem2_expanded(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
     raise NotImplementedError("Selected order is not implemented")
 
 
@@ -632,7 +632,9 @@ def running_alphaem_exact(
 
 
 @nb.njit(cache=True)
-def running_alphaem_expanded(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations):
+def running_alphaem_expanded(
+    order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from
+):
     """Compute exact solution for running alphaem.
 
     Parameters
@@ -665,38 +667,74 @@ def running_alphaem_expanded(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterat
         if order[0] == 1:
             for step in range(1, ev_op_iterations + 1):
                 res *= as1aem1(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
         if order[0] == 2:
             for step in range(1, ev_op_iterations + 1):
                 res *= as2aem1_expanded(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
         if order[0] == 3:
             for step in range(1, ev_op_iterations + 1):
                 res *= as3aem1_expanded(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
     if order[1] == 2:
         if order[0] == 1:
             for step in range(1, ev_op_iterations + 1):
                 res *= as1aem2(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
         if order[0] == 2:
             for step in range(1, ev_op_iterations + 1):
                 res *= as2aem2_expanded(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
         if order[0] == 3:
             for step in range(1, ev_op_iterations + 1):
                 res *= as3aem2_expanded(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
     raise NotImplementedError("Selected order is not implemented")
