@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+import pytest
 import scipy.integrate
 
 import eko.runner.legacy
@@ -12,6 +13,32 @@ from eko.interpolation import InterpolatorDispatcher
 from eko.io.runcards import OperatorCard, ScaleVariationsMethod, TheoryCard
 from eko.kernels import non_singlet as ns
 from eko.kernels import singlet as s
+
+
+def test_quad_ker_errors():
+    for p, t in [(True, False), (False, True), (True, True)]:
+        for mode0 in [br.non_singlet_pids_map["ns+"], 21]:
+            with pytest.raises(NotImplementedError):
+                quad_ker(
+                    u=0.3,
+                    order=(1, 0),
+                    mode0=mode0,
+                    mode1=0,
+                    method="",
+                    is_log=True,
+                    logx=0.1,
+                    areas=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
+                    as1=1,
+                    as0=2,
+                    nf=3,
+                    L=0,
+                    ev_op_iterations=1,
+                    ev_op_max_order=(1, 0),
+                    sv_mode=1,
+                    is_threshold=False,
+                    is_polarized=p,
+                    is_time_like=t,
+                )
 
 
 def test_quad_ker(monkeypatch):
