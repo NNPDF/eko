@@ -1,9 +1,12 @@
 import copy
+import enum
 
 import numpy as np
+import pytest
 
 import eko
 from eko import EKO
+from eko.io.types import QuarkMassSchemes
 
 
 def test_raw(theory_card, operator_card, tmp_path):
@@ -15,6 +18,27 @@ def test_raw(theory_card, operator_card, tmp_path):
     r.compute()
     with EKO.read(path) as eko_:
         check_shapes(eko_, eko_.xgrid, eko_.xgrid, tc, oc)
+
+
+def test_mass_scheme(theory_card, operator_card, tmp_path):
+    """we don't check the content here, but only the shape"""
+
+    # wrong mass scheme
+    class FakeEM(enum.Enum):
+        BLUB = "blub"
+
+    path = tmp_path / "eko.tar"
+    theory_card.quark_masses_scheme = FakeEM.BLUB
+    with pytest.raises(ValueError, match="BLUB"):
+        eko.runner.legacy.Runner(theory_card, operator_card, path=path)
+    # MSbar scheme
+    # TODO make test passing
+    # theory_card.quark_masses_scheme = QuarkMassSchemes.MSBAR
+    # theory_card.couplings.num_flavs_ref = 5
+    # r = eko.runner.legacy.Runner(theory_card, operator_card, path=path)
+    # r.compute()
+    # with EKO.read(path) as eko_:
+    #     check_shapes(eko_, eko_.xgrid, eko_.xgrid, theory_card, operator_card)
 
 
 def check_shapes(o, txs, ixs, theory_card, operators_card):

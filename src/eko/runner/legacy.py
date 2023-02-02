@@ -68,7 +68,7 @@ class Runner:
                 new_theory.couplings,
                 new_theory.order,
                 couplings_mod_ev(new_operator.configs.evolution_method),
-                new_theory.matching,
+                np.power(list(iter(new_theory.matching)), 2.0),
                 xif2=new_theory.xif**2,
             ).tolist()
         elif new_theory.quark_masses_scheme is QuarkMassSchemes.POLE:
