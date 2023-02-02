@@ -7,7 +7,7 @@ from . import utils
 
 
 @nb.njit(cache=True)
-def as1aem1_exact(gamma_ns, a1, a0, aem, nf):
+def as1aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     """O(as1aem1) non-singlet exact EKO.
 
     Parameters
@@ -30,12 +30,12 @@ def as1aem1_exact(gamma_ns, a1, a0, aem, nf):
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j12(a1, a0, aem, nf)
-        + aem * gamma_ns[0, 1] * ei.j02(a1, a0, aem, nf)
+        + aem * gamma_ns[0, 1] * np.log(mu2_from / mu2_to)
     )
 
 
 @nb.njit(cache=True)
-def as1aem2_exact(gamma_ns, a1, a0, aem, nf):
+def as1aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     """
     O(as1aem2) non-singlet exact EKO.
 
@@ -59,12 +59,12 @@ def as1aem2_exact(gamma_ns, a1, a0, aem, nf):
     """
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j12(a1, a0, aem, nf)
-        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * ei.j02(a1, a0, aem, nf)
+        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * np.log(mu2_from / mu2_to)
     )
 
 
 @nb.njit(cache=True)
-def as2aem1_exact(gamma_ns, a1, a0, aem, nf):
+def as2aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     """O(as2aem1) non-singlet exact EKO.
 
     Parameters
@@ -88,12 +88,12 @@ def as2aem1_exact(gamma_ns, a1, a0, aem, nf):
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j13_exact(a1, a0, aem, nf)
         + gamma_ns[2, 0] * ei.j23_exact(a1, a0, aem, nf)
-        + aem * gamma_ns[0, 1] * ei.j03_exact(a1, a0, aem, nf)
+        + aem * gamma_ns[0, 1] * np.log(mu2_from / mu2_to)
     )
 
 
 @nb.njit(cache=True)
-def as2aem2_exact(gamma_ns, a1, a0, aem, nf):
+def as2aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     """O(as2aem2) non-singlet exact EKO.
 
     Parameters
@@ -117,13 +117,12 @@ def as2aem2_exact(gamma_ns, a1, a0, aem, nf):
     return np.exp(
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j13_exact(a1, a0, aem, nf)
         + gamma_ns[2, 0] * ei.j23_exact(a1, a0, aem, nf)
-        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2])
-        * ei.j03_exact(a1, a0, aem, nf)
+        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * np.log(mu2_from / mu2_to)
     )
 
 
 @nb.njit(cache=True)
-def as3aem1_exact(gamma_ns, a1, a0, aem, nf):
+def as3aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     """O(as3aem1) non-singlet exact EKO.
 
     Parameters
@@ -148,12 +147,12 @@ def as3aem1_exact(gamma_ns, a1, a0, aem, nf):
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j14_exact(a1, a0, aem, nf)
         + gamma_ns[2, 0] * ei.j24_exact(a1, a0, aem, nf)
         + gamma_ns[3, 0] * ei.j34_exact(a1, a0, aem, nf)
-        + aem * gamma_ns[0, 1] * ei.j04_exact(a1, a0, aem, nf)
+        + aem * gamma_ns[0, 1] * np.log(mu2_from / mu2_to)
     )
 
 
 @nb.njit(cache=True)
-def as3aem2_exact(gamma_ns, a1, a0, aem, nf):
+def as3aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     """
     O(as3aem2) non-singlet exact EKO.
 
@@ -179,14 +178,23 @@ def as3aem2_exact(gamma_ns, a1, a0, aem, nf):
         (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j14_exact(a1, a0, aem, nf)
         + gamma_ns[2, 0] * ei.j24_exact(a1, a0, aem, nf)
         + gamma_ns[3, 0] * ei.j34_exact(a1, a0, aem, nf)
-        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2])
-        * ei.j04_exact(a1, a0, aem, nf)
+        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * np.log(mu2_from / mu2_to)
     )
 
 
 @nb.njit(cache=True)
 def dispatcher(
-    order, method, gamma_ns, a1, a0, aem_list, alphaem_running, nf, ev_op_iterations
+    order,
+    method,
+    gamma_ns,
+    a1,
+    a0,
+    aem_list,
+    alphaem_running,
+    nf,
+    ev_op_iterations,
+    mu2_to,
+    mu2_from,
 ):
     r"""Determine used kernel and call it.
 
@@ -220,15 +228,15 @@ def dispatcher(
     """
     if not alphaem_running:
         aem = aem_list[0]
-        return fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf)
+        return fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
     else:
         return running_alphaem_exact(
-            order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations
+            order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from
         )
 
 
 @nb.njit(cache=True)
-def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf):
+def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     """Compute exact solution for fixed alphaem.
 
     Parameters
@@ -253,23 +261,25 @@ def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf):
     """
     if order[1] == 1:
         if order[0] == 1:
-            return as1aem1_exact(gamma_ns, a1, a0, aem, nf)
+            return as1aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
         if order[0] == 2:
-            return as2aem1_exact(gamma_ns, a1, a0, aem, nf)
+            return as2aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
         if order[0] == 3:
-            return as3aem1_exact(gamma_ns, a1, a0, aem, nf)
+            return as3aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
     if order[1] == 2:
         if order[0] == 1:
-            return as1aem2_exact(gamma_ns, a1, a0, aem, nf)
+            return as1aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
         if order[0] == 2:
-            return as2aem2_exact(gamma_ns, a1, a0, aem, nf)
+            return as2aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
         if order[0] == 3:
-            return as3aem2_exact(gamma_ns, a1, a0, aem, nf)
+            return as3aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
     raise NotImplementedError("Selected order is not implemented")
 
 
 @nb.njit(cache=True)
-def running_alphaem_exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations):
+def running_alphaem_exact(
+    order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from
+):
     """Compute exact solution for running alphaem.
 
     Parameters
@@ -302,38 +312,74 @@ def running_alphaem_exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iteration
         if order[0] == 1:
             for step in range(1, ev_op_iterations + 1):
                 res *= as1aem1_exact(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
         if order[0] == 2:
             for step in range(1, ev_op_iterations + 1):
                 res *= as2aem1_exact(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
         if order[0] == 3:
             for step in range(1, ev_op_iterations + 1):
                 res *= as3aem1_exact(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
     if order[1] == 2:
         if order[0] == 1:
             for step in range(1, ev_op_iterations + 1):
                 res *= as1aem2_exact(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
         if order[0] == 2:
             for step in range(1, ev_op_iterations + 1):
                 res *= as2aem2_exact(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
         if order[0] == 3:
             for step in range(1, ev_op_iterations + 1):
                 res *= as3aem2_exact(
-                    gamma_ns, a_steps[step], a_steps[step - 1], aem_list[step - 1], nf
+                    gamma_ns,
+                    a_steps[step],
+                    a_steps[step - 1],
+                    aem_list[step - 1],
+                    nf,
+                    mu2_to,
+                    mu2_from,
                 )
             return res
     raise NotImplementedError("Selected order is not implemented")
