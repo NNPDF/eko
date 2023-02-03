@@ -1,7 +1,4 @@
-"""
-Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO)
-"""
-from functools import partialmethod
+"""Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO and polarized)."""
 import pathlib
 
 import numpy as np
@@ -55,23 +52,22 @@ LHA_rotate_to_flavor = np.array(
 
 # rotate basis
 def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
-    """
-    Rotate data either to flavor space or evolution space (from LHA space)
-    which is yet an other basis.
+    """Rotate data either to flavor space or evolution space (from LHA space) which is yet an other basis.
 
     Parameters
     ----------
-        raw : dict
-            data
-        is_ffns_nnlo : bool
-            special table for NNLO FFNS
-        rotate_to_evolution_basis : bool
-            to evolution basis?
+    raw : dict
+        data
+    is_ffns_nnlo : bool
+        special table for NNLO FFNS
+    rotate_to_evolution_basis : bool
+        to evolution basis?
 
     Returns
     -------
-        dict
-            rotated data
+    dict
+        rotated data
+
     """
     inp = []
     label_list = raw_label_list
@@ -96,13 +92,6 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
         # s_v = c_v count twice
         to_evolution[3, 4] = -2
         to_evolution[3, -4] = 2
-    # if is_pol_nlo:
-    #     label_list = np.delete(label_list, -2)
-    #     to_flavor= np.array(to_flavor)
-    #    # change the rotation matrix
-    #     b_line = ([0, 0, 0, 0, 0, 0, 1 / 2, 0])
-    #     indices = np.where(np.all(to_flavor == b_line, axis=1))[0]
-    #     to_flavor = np.delete(to_flavor, indices, axis=0)
     for l in label_list:
         inp.append(raw[l])
     inp = np.array(inp)
@@ -115,37 +104,35 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
     return dict(zip(br.flavor_basis_pids, flav_pdfs))
 
 
-def compute_LHA_data(
-    theory, operators, rotate_to_evolution_basis=False
-):  # pylint: disable=too-many-statements disable=too-many-branches
-    """
-    Setup LHA benchmark :cite:`Giele:2002hx`
+def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
+    """Implement LHA benchmark :cite:`Giele:2002hx`.
 
     Parameters
     ----------
-        theory : dict
-            theory card
-        operators : dict
-            operators card
-        rotate_to_evolution_basis : bool
-            rotate to evolution basis
+    theory : dict
+        theory card
+    operators : dict
+        operators card
+    rotate_to_evolution_basis : bool
+        rotate to evolution basis
 
     Returns
     -------
-        ref : dict
-            output containing: target_xgrid, values
+    dict
+        output containing: target_xgrid, values
+
     """
-    Polarized = operators["polarized"]
+    polarized = operators["polarized"]
     Q2grid = operators["Q2grid"]
     if not np.allclose(Q2grid, [1e4]):
         raise ValueError("Q2grid has to be [1e4]")
     order = theory["PTO"]
     # select which data
-    if Polarized and order <= 1:
+    if polarized and order <= 1:
         yaml_file = "LHA_polarized.yaml"
-    elif Polarized and order > 1:
-        raise ValueError("LHA tables beyond NLO do not exist for Polarized Case")
-    elif Polarized == False:
+    elif polarized and order > 1:
+        raise ValueError("LHA tables beyond NLO do not exist for polarized Case")
+    else:
         yaml_file = "LHA.yaml"
     # load data
     with open(here / yaml_file, encoding="utf-8") as o:
@@ -157,7 +144,6 @@ def compute_LHA_data(
     table = None
     part = None
     is_ffns_nnlo = False
-    # is_pol_nlo= False
 
     # Switching at the intermediate point.
     if xif > np.sqrt(2):
@@ -169,31 +155,18 @@ def compute_LHA_data(
     if fns == "FFNS":
         if order == 0:
             part = 2
-            if Polarized == False:
-                table = 2
-            else:
-                table = 16
+            table = 16 if polarized else 2
         elif order == 1:
-            if Polarized == False:
-                table = 3
-            else:
-                # is_pol_nlo=True
-                table = 17
+            table = 17 if polarized else 3
         elif order == 2:
             is_ffns_nnlo = True
             table = 14
     elif fns == "ZM-VFNS":
         if order == 0:
             part = 3
-            if Polarized == False:
-                table = 2
-            else:
-                table = 16
+            table = 16 if polarized else 2
         elif order == 1:
-            if Polarized == False:
-                table = 4
-            else:
-                table = 18
+            table = 18 if polarized else 4
         elif order == 2:
             table = 15
 
@@ -211,23 +184,24 @@ def compute_LHA_data(
 
 
 def save_initial_scale_plots_to_pdf(path, is_pol):
-    """
-    Plots all PDFs at the inital scale .
+    r"""Plot all PDFs at the initial scale.
 
-    The reference values are given in Table 2 part 1 or Table 16 part 1 (Polarized) :cite:`Giele:2002hx`.
+    The reference values are given in Table 2 part 1 :cite:`Giele:2002hx`
+    or Table 16 part 1 (polarized) :cite:`Dittmar:2005ed` .
 
-    This excercise was usfull in order to detect the missing 2 in the definition of
+    This exercise was useful in order to detect the missing 2 in the definition of
     :math:`L_+ = 2(\\bar u + \\bar d)`
 
     Parameters
     ----------
-        path : str
+    path : str
         output path
-        is_pol : bool
+    is_pol : bool
         polarized pdf data
+
     """
     # load data
-    if bool(is_pol) == False:
+    if not is_pol:
         yaml_file = "LHA.yaml"
         table = "table2"
     else:
