@@ -242,29 +242,6 @@ class BenchmarkFFNS_polarized(BenchmarkFFNS):
         )
 
 
-class BenchmarkVFNS_polarized(BenchmarkVFNS):
-    def run_lha(self, theory_updates):
-        """Enforce operator grid and PDF.
-
-        Parameters
-        ----------
-        theory_updates : list(dict)
-            theory updates
-        """
-        self.run(
-            theory_updates,
-            [
-                {
-                    "Q2grid": [1e4],
-                    "ev_op_iterations": 10,
-                    "interpolation_xgrid": lambertgrid(60).tolist(),
-                    "polarized": True,
-                }
-            ],
-            ["ToyLH_polarized"],
-        )
-
-
 if __name__ == "__main__":
 
     # Benchmark to LHA
