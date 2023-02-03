@@ -16,7 +16,7 @@ from . import as1, as2, as3
 
 
 @nb.njit(cache=True)
-def compute_cache(n, pto, is_singlet):
+def compute_cache(n, pto):
     """Compute the harmonic cache for polarized anomalous dimension.
 
     Parameters
@@ -25,8 +25,6 @@ def compute_cache(n, pto, is_singlet):
         Mellin variable
     pto : int
         perturbative order
-    is_singlet: bool
-        True for singlet like quantities
 
     Returns
     -------

@@ -1,4 +1,4 @@
-"""The next-leading-order Altarelli-Parisi splitting kernels."""
+"""The |NLO| Altarelli-Parisi splitting kernels."""
 
 import numba as nb
 import numpy as np

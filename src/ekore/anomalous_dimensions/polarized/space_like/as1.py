@@ -1,4 +1,4 @@
-"""This file contains the |LO| Altarelli-Parisi splitting kernels."""
+"""The |LO| Altarelli-Parisi splitting kernels."""
 
 import numba as nb
 import numpy as np
@@ -10,7 +10,7 @@ from ...unpolarized.space_like.as1 import gamma_ns
 
 @nb.njit(cache=True)
 def gamma_qg(N, nf):
-    """Compute the |LO| polarized quark-gluon anomalous dimension :cite:`Gluck:1995yr` (eq A.1).
+    r"""Compute the |LO| polarized quark-gluon anomalous dimension :cite:`Gluck:1995yr` (eq A.1).
 
     Parameters
     ----------
@@ -32,7 +32,7 @@ def gamma_qg(N, nf):
 
 @nb.njit(cache=True)
 def gamma_gq(N):
-    """Compute the |LO| polarized gluon-quark anomalous dimension :cite:`Gluck:1995yr` (eq A.1).
+    r"""Compute the |LO| polarized gluon-quark anomalous dimension :cite:`Gluck:1995yr` (eq A.1).
 
     Parameters
     ----------
@@ -52,7 +52,7 @@ def gamma_gq(N):
 
 @nb.njit(cache=True)
 def gamma_gg(N, s1, nf):
-    """Compute the |LO| polarized gluon-gluon anomalous dimension :cite:`Gluck:1995yr` (eq A.1).
+    r"""Compute the |LO| polarized gluon-gluon anomalous dimension :cite:`Gluck:1995yr` (eq A.1).
 
     Parameters
     ----------
