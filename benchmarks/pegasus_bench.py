@@ -61,12 +61,12 @@ class BenchmarkVFNS(PegasusBenchmark):
         "nfref": 3,
         "nf0": 3,
     }
-    zm_theory = tolist(zm_theory)
+    vfns_theory = tolist(zm_theory)
 
     def benchmark_plain(self, pto):
         """Plain configuration"""
 
-        th = self.zm_theory.copy()
+        th = self.vfns_theory.copy()
         th.update(
             {
                 "PTO": [pto],
@@ -79,7 +79,7 @@ class BenchmarkVFNS(PegasusBenchmark):
     def benchmark_sv(self, pto, svmode):
         """Scale Variation"""
 
-        th = self.zm_theory.copy()
+        th = self.vfns_theory.copy()
         th.update(
             {
                 "PTO": [pto],
@@ -154,7 +154,7 @@ if __name__ == "__main__":
 
     # obj = BenchmarkVFNS()
     obj = BenchmarkFFNS()
-    obj.benchmark_plain_pol(0)
+    obj.benchmark_plain_pol(1)
     # obj.benchmark_plain(1)
 
     # obj.benchmark_sv(2, "exponentiated")

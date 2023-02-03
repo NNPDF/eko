@@ -202,7 +202,7 @@ if __name__ == "__main__":
     # obj = BenchmarkVFNS()
     obj = BenchmarkFFNS()
 
-    obj.benchmark_plain_pol(0)
+    obj.benchmark_plain_pol(2)
     # obj.benchmark_plain(2)
     # obj.benchmark_sv(2, "exponentiated")
     # obj.benchmark_kthr(2)
