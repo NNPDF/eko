@@ -32,13 +32,15 @@ def test_mass_scheme(theory_card, operator_card, tmp_path):
     with pytest.raises(ValueError, match="BLUB"):
         eko.runner.legacy.Runner(theory_card, operator_card, path=path)
     # MSbar scheme
-    # TODO make test passing
-    # theory_card.quark_masses_scheme = QuarkMassSchemes.MSBAR
-    # theory_card.couplings.num_flavs_ref = 5
-    # r = eko.runner.legacy.Runner(theory_card, operator_card, path=path)
-    # r.compute()
-    # with EKO.read(path) as eko_:
-    #     check_shapes(eko_, eko_.xgrid, eko_.xgrid, theory_card, operator_card)
+    theory_card.quark_masses_scheme = QuarkMassSchemes.MSBAR
+    theory_card.couplings.num_flavs_ref = 5
+    theory_card.quark_masses.c.scale = 2
+    theory_card.quark_masses.b.scale = 4.5
+    theory_card.quark_masses.t.scale = 173.07
+    r = eko.runner.legacy.Runner(theory_card, operator_card, path=path)
+    r.compute()
+    with EKO.read(path) as eko_:
+        check_shapes(eko_, eko_.xgrid, eko_.xgrid, theory_card, operator_card)
 
 
 def check_shapes(o, txs, ixs, theory_card, operators_card):
