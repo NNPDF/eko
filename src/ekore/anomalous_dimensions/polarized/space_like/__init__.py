@@ -59,7 +59,7 @@ def gamma_ns(order, mode, n, nf):
 
     """
     # cache the s-es
-    sx = compute_cache(n, order[0] + 1, False)
+    sx = compute_cache(n, order[0] + 1)
     # now combine
     gamma_ns = np.zeros(order[0], np.complex_)
     gamma_ns[0] = as1.gamma_ns(n, sx[0])
@@ -106,7 +106,7 @@ def gamma_singlet(order, n, nf):
 
     """
     # cache the s-es
-    sx = compute_cache(n, order[0] + 1, True)
+    sx = compute_cache(n, order[0] + 1)
 
     gamma_s = np.zeros((order[0], 2, 2), np.complex_)
     gamma_s[0] = as1.gamma_singlet(n, sx[0], nf)
