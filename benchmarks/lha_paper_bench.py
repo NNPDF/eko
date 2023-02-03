@@ -61,15 +61,6 @@ class LHABenchmark(Runner):
         th.update({"PTO": pto})
         return [th]
 
-    def plain_pol_theory(self, pto):
-        """Generate plain polarized theories at given PTO"""
-
-        th = self.theory.copy()
-        th.update({"PTO": [pto]})
-        op = operators.lhapdf_config.copy()
-        op["polarized"] = [True]
-        self.run(cartesian_product(th), operators.build(op), ["ToyLH_polarized"])
-
     def sv_theories(self, pto):
         """Generate scale variation theories.
 
@@ -132,10 +123,6 @@ class LHABenchmark(Runner):
     def benchmark_plain(self, pto):
         """Run plain configuration."""
         self.run_lha(self.plain_theory(pto))
-
-    def benchmark_pol(self, pto):
-        """Run plain configuration."""
-        self.run_lha(self.plain_pol_theory(pto))
 
     def benchmark_sv(self, pto):
         """Run scale variations."""
@@ -232,13 +219,58 @@ class BenchmarkRunner(BenchmarkVFNS):
         self.run_lha([low, high])
 
 
+class BenchmarkFFNS_polarized(BenchmarkFFNS):
+    def run_lha(self, theory_updates):
+        """Enforce operator grid and PDF.
+
+        Parameters
+        ----------
+        theory_updates : list(dict)
+            theory updates
+        """
+        self.run(
+            theory_updates,
+            [
+                {
+                    "Q2grid": [1e4],
+                    "ev_op_iterations": 10,
+                    "interpolation_xgrid": lambertgrid(60).tolist(),
+                    "polarized": True,
+                }
+            ],
+            ["ToyLH_polarized"],
+        )
+
+
+class BenchmarkVFNS_polarized(BenchmarkVFNS):
+    def run_lha(self, theory_updates):
+        """Enforce operator grid and PDF.
+
+        Parameters
+        ----------
+        theory_updates : list(dict)
+            theory updates
+        """
+        self.run(
+            theory_updates,
+            [
+                {
+                    "Q2grid": [1e4],
+                    "ev_op_iterations": 10,
+                    "interpolation_xgrid": lambertgrid(60).tolist(),
+                    "polarized": True,
+                }
+            ],
+            ["ToyLH_polarized"],
+        )
+
+
 if __name__ == "__main__":
 
     # Benchmark to LHA
-    obj = BenchmarkVFNS()
+    obj = BenchmarkFFNS_polarized()
     # obj = BenchmarkFFNS()
-
-    obj.benchmark_pol(0)
+    obj.benchmark_plain(0)
     # obj.benchmark_sv(2)
 
     # # VFNS benchmarks with LHA settings

@@ -1,6 +1,7 @@
 """
 Implementation of :cite:`Giele:2002hx` and  :cite:`Dittmar:2005ed` (NNLO)
 """
+from functools import partialmethod
 import pathlib
 
 import numpy as np
@@ -95,11 +96,16 @@ def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
         # s_v = c_v count twice
         to_evolution[3, 4] = -2
         to_evolution[3, -4] = 2
-
+    # if is_pol_nlo:
+    #     label_list = np.delete(label_list, -2)
+    #     to_flavor= np.array(to_flavor)
+    #    # change the rotation matrix
+    #     b_line = ([0, 0, 0, 0, 0, 0, 1 / 2, 0])
+    #     indices = np.where(np.all(to_flavor == b_line, axis=1))[0]
+    #     to_flavor = np.delete(to_flavor, indices, axis=0)
     for l in label_list:
         inp.append(raw[l])
     inp = np.array(inp)
-
     flav_pdfs = np.dot(to_flavor, inp)
 
     # additional rotation to evolution basis if necessary
@@ -129,15 +135,15 @@ def compute_LHA_data(
         ref : dict
             output containing: target_xgrid, values
     """
-    Polarized= operators["polarized"]
+    Polarized = operators["polarized"]
     Q2grid = operators["Q2grid"]
     if not np.allclose(Q2grid, [1e4]):
         raise ValueError("Q2grid has to be [1e4]")
     order = theory["PTO"]
     # select which data
-    if Polarized == True and order <= 1:
+    if Polarized and order <= 1:
         yaml_file = "LHA_polarized.yaml"
-    elif Polarized == True and order > 1:
+    elif Polarized and order > 1:
         raise ValueError("LHA tables beyond NLO do not exist for Polarized Case")
     elif Polarized == False:
         yaml_file = "LHA.yaml"
@@ -151,6 +157,7 @@ def compute_LHA_data(
     table = None
     part = None
     is_ffns_nnlo = False
+    # is_pol_nlo= False
 
     # Switching at the intermediate point.
     if xif > np.sqrt(2):
@@ -162,14 +169,15 @@ def compute_LHA_data(
     if fns == "FFNS":
         if order == 0:
             part = 2
-            if Polarized == False: 
+            if Polarized == False:
                 table = 2
             else:
                 table = 16
         elif order == 1:
-            if Polarized == False: 
+            if Polarized == False:
                 table = 3
-            else: 
+            else:
+                # is_pol_nlo=True
                 table = 17
         elif order == 2:
             is_ffns_nnlo = True
@@ -177,12 +185,12 @@ def compute_LHA_data(
     elif fns == "ZM-VFNS":
         if order == 0:
             part = 3
-            if Polarized == False: 
+            if Polarized == False:
                 table = 2
             else:
                 table = 16
         elif order == 1:
-            if Polarized == False: 
+            if Polarized == False:
                 table = 4
             else:
                 table = 18
@@ -202,12 +210,11 @@ def compute_LHA_data(
     return ref
 
 
-# used pol as argument since what the rest of the operator card says wouldn't matter for the purpose of making figures
 def save_initial_scale_plots_to_pdf(path, is_pol):
     """
     Plots all PDFs at the inital scale .
 
-    The reference values are given in Table 2 part 1 of :cite:`Giele:2002hx`.
+    The reference values are given in Table 2 part 1 or Table 16 part 1 (Polarized) :cite:`Giele:2002hx`.
 
     This excercise was usfull in order to detect the missing 2 in the definition of
     :math:`L_+ = 2(\\bar u + \\bar d)`
@@ -222,10 +229,10 @@ def save_initial_scale_plots_to_pdf(path, is_pol):
     # load data
     if bool(is_pol) == False:
         yaml_file = "LHA.yaml"
-        table= "table2"
+        table = "table2"
     else:
         yaml_file = "LHA_polarized.yaml"
-        table= "table16"
+        table = "table16"
     with open(here / yaml_file, encoding="utf-8") as o:
         data = yaml.safe_load(o)
     LHA_init_grid_ref = data[table]["part1"]
