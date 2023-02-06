@@ -5,7 +5,7 @@ import numpy.typing as npt
 import polygamma
 
 from . import w1, w2, w3, w4, w5
-from .g_functions import mellin_g3
+from .g_functions import mellin_g3, mellin_g3p1, mellin_g3p2
 
 # here a register of all possible functions
 S1 = 0  # = S_1(N)
@@ -44,7 +44,8 @@ S4ph = 32
 S5ph = 33
 g3 = 34
 S1p2 = 35
-g3p2 = 36
+g3p1 = 36
+g3p2 = 37
 
 # this could also be S1h = S1(N/2)
 # the only requirement is that they are insubsequent order
@@ -54,7 +55,7 @@ g3p2 = 36
 @nb.njit(cache=True)
 def reset():
     """Return the cache placeholder array."""
-    return np.full(37, np.nan, np.complex_)
+    return np.full(38, np.nan, np.complex_)
 
 
 @nb.njit(cache=True)
@@ -176,8 +177,10 @@ def get(key: int, cache: npt.ArrayLike,
         s = mellin_g3(n, get(S1, cache, n))
     elif key == S1p2:
         s = polygamma.recursive_harmonic_sum(get(S1, cache, n), n, 2, 1)
+    elif key == g3p1:
+        s = mellin_g3p1(n, get(S1, cache, n), get(g3, cache, n))
     elif key == g3p2:
-        s = mellin_g3(n+2, get(S1p2, cache, n))
+        s = mellin_g3p2(n, get(S1, cache, n), get(g3, cache, n))
     # store and return
     cache[key] = s
     return s

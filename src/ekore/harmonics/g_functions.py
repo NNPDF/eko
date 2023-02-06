@@ -96,6 +96,54 @@ def mellin_g3(N, S1):
 
 
 @nb.njit(cache=True)
+def mellin_g3p1(N, s1, g3):
+    """
+    Computes :math:`g_{3}(N+1)`
+
+    Parameters
+    ----------
+    N : complex
+        Mellin moment
+    s1 : complex
+        Harmonic sum :math:`S_{1}(N)`
+    mellin_g3 : complex
+        :math:`g_{3}(N)`
+
+    Returns
+    -------
+    mellin_g3p1 : complex
+        :math:`g_{3}(N+1)`
+
+    """
+    g3p1 = - s1/np.power(N, 2) - g3 + zeta2/N
+    return g3p1
+
+@nb.njit(cache=True)
+def mellin_g3p2(N, s1, g3):
+    """
+    Computes :math:`g_{3}(N+2)`
+
+    Parameters
+    ----------
+    N : complex
+        Mellin moment
+    s1 : complex
+        Harmonic sum :math:`S_{1}(N)`
+    mellin_g3 : complex
+        :math:`g_{3}(N)`
+
+    Returns
+    -------
+    mellin_g3p2 : complex
+        :math:`g_{3}(N+2)`
+
+    """
+    g3p2 = (s1/np.power(N, 2) + g3 - zeta2/N + zeta2/(N + 1) 
+        - s1/np.power(N + 1, 2) - 1/np.power(N + 1, 3))
+    return g3p2
+
+
+@nb.njit(cache=True)
 def mellin_g4(N):
     r"""
     Computes the Mellin transform of :math:`\text{Li}_2(-x)/(1+x)`.
