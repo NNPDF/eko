@@ -13,7 +13,10 @@ import numba as nb
 import numpy as np
 from scipy import integrate
 
-from .. import anomalous_dimensions as ad
+import ekore.anomalous_dimensions.polarized.space_like as ad_ps
+import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
+import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
+
 from .. import basis_rotation as br
 from .. import interpolation, mellin
 from .. import scale_variations as sv
@@ -123,7 +126,6 @@ def quad_ker(
     areas,
     as1,
     as0,
-    as_raw,
     nf,
     L,
     ev_op_iterations,
@@ -131,6 +133,8 @@ def quad_ker(
     sv_mode,
     is_threshold,
     n3lo_ad_variation,
+    is_polarized,
+    is_time_like,
 ):
     """Raw evolution kernel inside quad.
 
@@ -156,8 +160,6 @@ def quad_ker(
         target coupling value
     as0 : float
         initial coupling value
-    as_raw : float
-        coupling value at the process scale
     nf : int
         number of active flavors
     L : float
@@ -172,6 +174,10 @@ def quad_ker(
         is this an intermediate threshold operator?
     n3lo_ad_variation : tuple
         |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
+    is_polarized : boolean
+        is polarized evolution ?
+    is_time_like : boolean
+        is time-like evolution ?
 
     Returns
     -------
@@ -185,7 +191,18 @@ def quad_ker(
 
     # compute the actual evolution kernel
     if ker_base.is_singlet:
-        gamma_singlet = ad.gamma_singlet(order, ker_base.n, nf, n3lo_ad_variation)
+        if is_polarized:
+            if is_time_like:
+                raise NotImplementedError("Polarized, time-like is not implemented")
+            else:
+                gamma_singlet = ad_ps.gamma_singlet(order, ker_base.n, nf)
+        else:
+            if is_time_like:
+                gamma_singlet = ad_ut.gamma_singlet(order, ker_base.n, nf)
+            else:
+                gamma_singlet = ad_us.gamma_singlet(
+                    order, ker_base.n, nf, n3lo_ad_variation
+                )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_singlet = sv.exponentiated.gamma_variation(
@@ -204,11 +221,20 @@ def quad_ker(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, as_raw, order, nf, L)
+                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
-        gamma_ns = ad.gamma_ns(order, mode0, ker_base.n, nf)
+        if is_polarized:
+            if is_time_like:
+                raise NotImplementedError("Polarized, time-like is not implemented")
+            else:
+                gamma_ns = ad_ps.gamma_ns(order, mode0, ker_base.n, nf)
+        else:
+            if is_time_like:
+                gamma_ns = ad_ut.gamma_ns(order, mode0, ker_base.n, nf)
+            else:
+                gamma_ns = ad_us.gamma_ns(order, mode0, ker_base.n, nf)
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation(gamma_ns, order, nf, L)
         ker = ns.dispatcher(
@@ -221,9 +247,7 @@ def quad_ker(
             ev_op_iterations,
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = (
-                sv.expanded.non_singlet_variation(gamma_ns, as_raw, order, nf, L) * ker
-            )
+            ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
 
     # recombine everything
     return np.real(ker * integrand)
@@ -280,9 +304,9 @@ class Operator(sv.ModeMixin):
         return max(os.cpu_count() + n_pools, 1)
 
     @property
-    def fact_to_ren(self):
+    def xif2(self):
         r"""Return scale variation factor :math:`(\mu_F/\mu_R)^2`."""
-        return self.config["fact_to_ren"]
+        return self.config["xif2"]
 
     @property
     def int_disp(self):
@@ -294,7 +318,7 @@ class Operator(sv.ModeMixin):
         """Return the grid size."""
         return self.int_disp.xgrid.size
 
-    def mur2_shift(self, q2):
+    def sv_exponentiated_shift(self, q2):
         """Compute shifted renormalization scale.
 
         Parameters
@@ -308,7 +332,7 @@ class Operator(sv.ModeMixin):
             renormalization scale
         """
         if self.sv_mode == sv.Modes.exponentiated:
-            return q2 / self.fact_to_ren
+            return q2 / self.xif2
         return q2
 
     @property
@@ -316,11 +340,16 @@ class Operator(sv.ModeMixin):
         """Return the computed values for :math:`a_s`."""
         sc = self.managers["strong_coupling"]
         a0 = sc.a_s(
-            self.mur2_shift(self.q2_from), fact_scale=self.q2_from, nf_to=self.nf
+            self.sv_exponentiated_shift(self.q2_from),
+            fact_scale=self.q2_from,
+            nf_to=self.nf,
         )
-        a1 = sc.a_s(self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf)
-        a_raw = sc.a_s(self.q2_to, fact_scale=self.q2_to, nf_to=self.nf)
-        return (a0, a1, a_raw)
+        a1 = sc.a_s(
+            self.sv_exponentiated_shift(self.q2_to),
+            fact_scale=self.q2_to,
+            nf_to=self.nf,
+        )
+        return (a0, a1)
 
     @property
     def labels(self):
@@ -383,14 +412,15 @@ class Operator(sv.ModeMixin):
             areas=areas,
             as1=self.a_s[1],
             as0=self.a_s[0],
-            as_raw=self.a_s[2],
             nf=self.nf,
-            L=np.log(self.fact_to_ren),
+            L=np.log(self.xif2),
             ev_op_iterations=self.config["ev_op_iterations"],
             ev_op_max_order=tuple(self.config["ev_op_max_order"]),
             sv_mode=self.sv_mode,
             is_threshold=self.is_threshold,
             n3lo_ad_variation=n3lo_var,
+            is_polarized=self.config["polarized"],
+            is_time_like=self.config["time_like"],
         )
 
     def initialize_op_members(self):
@@ -464,8 +494,7 @@ class Operator(sv.ModeMixin):
             # unless we have to do some scale variation
             # TODO remove if K is factored out of here
             if not (
-                self.sv_mode == sv.Modes.expanded
-                and not np.isclose(self.fact_to_ren, 1.0)
+                self.sv_mode == sv.Modes.expanded and not np.isclose(self.xif2, 1.0)
             ):
                 logger.info(
                     "%s: skipping unity operator at %e", self.log_label, self.q2_from
@@ -483,13 +512,13 @@ class Operator(sv.ModeMixin):
         logger.info(
             "%s: µ_R^2 distance: %e -> %e",
             self.log_label,
-            self.mur2_shift(self.q2_from),
-            self.mur2_shift(self.q2_to),
+            self.sv_exponentiated_shift(self.q2_from),
+            self.sv_exponentiated_shift(self.q2_to),
         )
         if self.sv_mode != sv.Modes.unvaried:
             logger.info(
                 "Scale Variation: (µ_F/µ_R)^2 = %e, mode: %s",
-                self.fact_to_ren,
+                self.xif2,
                 self.sv_mode.name,
             )
         logger.info(

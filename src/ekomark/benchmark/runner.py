@@ -1,6 +1,4 @@
-"""
-Abstract layer for running the benchmarks
-"""
+"""Abstract layer for running the benchmarks."""
 import functools
 import logging
 import os
@@ -12,17 +10,16 @@ from banana.benchmark.runner import BenchmarkRunner
 from banana.data import dfdict
 
 import eko
+from eko import EKO
 from eko import basis_rotation as br
-from eko import compatibility
+from eko.io import manipulate
 
 from .. import apply, pdfname
 from ..data import db, operators
 
 
 class Runner(BenchmarkRunner):
-    """
-    EKO specialization of the banana runner.
-    """
+    """EKO specialization of the banana runner."""
 
     db_base_cls = db.Base
     rotate_to_evolution_basis = False
@@ -34,31 +31,32 @@ class Runner(BenchmarkRunner):
 
     @staticmethod
     def load_ocards(session, ocard_updates):
+        """Load oparator cards."""
         return operators.load(session, ocard_updates)
 
     @staticmethod
     def skip_pdfs(_theory):
+        """Skip PDFs."""
         return []
 
     def run_me(self, theory, ocard, _pdf):
-        """
-        Run eko
+        """Run eko.
 
         Parameters
         ----------
-            theory : dict
-                theory card
-            ocard : dict
-                operator card
-            pdf : lhapdf_type
-                pdf
+        theory : dict
+            theory card
+        ocard : dict
+            operator card
+        pdf : lhapdf_type
+            pdf
 
         Returns
         -------
-            out :  dict
-                DGLAP result
-        """
+        dict
+            DGLAP result
 
+        """
         # activate logging
         logStdout = logging.StreamHandler(sys.stdout)
         logStdout.setLevel(logging.INFO)
@@ -67,13 +65,14 @@ class Runner(BenchmarkRunner):
         logging.getLogger("eko").addHandler(logStdout)
         logging.getLogger("eko").setLevel(logging.INFO)
 
+        ops_id = f"o{ocard['hash'][:6]}_t{theory['hash'][:6]}"
+        root = banana_cfg.cfg["paths"]["database"].parents[0]
+        path = root / f"{ops_id}.tar"
+
         # if sandbox check for cache, dump eko to yaml
         # and plot the operators
         if self.sandbox:
             rerun = True
-            ops_id = f"o{ocard['hash'][:6]}_t{theory['hash'][:6]}"
-            root = banana_cfg.cfg["paths"]["database"].parents[0]
-            path = f"{root}/{ops_id}.tar"
 
             if os.path.exists(path):
                 rerun = False
@@ -82,17 +81,14 @@ class Runner(BenchmarkRunner):
                     rerun = True
 
             if rerun:
-                new_theory, new_operators = compatibility.update(theory, ocard)
-                out = eko.run_dglap(new_theory, new_operators)
-                print(f"Writing operator to {path}")
-                eko.output.legacy.dump_tar(out, path)
+                path.unlink(missing_ok=True)
+                eko.solve(theory, ocard, path)
+                print(f"Operator written to {path}")
             else:
                 # load
                 print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
-                out = eko.output.legacy.load_tar(path)
 
             if self.plot_operator:
-
                 from ekomark.plots import (  # pylint:disable=import-error,import-outside-toplevel
                     save_operators_to_pdf,
                 )
@@ -101,27 +97,28 @@ class Runner(BenchmarkRunner):
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
                 # rotating to evolution basis if requested
-                out_copy = eko.output.legacy.load_tar(path)
-                change_lab = False
-                if self.rotate_to_evolution_basis:
-                    out_copy.to_evol(source=True, target=True)
-                    change_lab = True
+                with EKO.read(path) as out_copy:
+                    change_lab = False
+                    if self.rotate_to_evolution_basis:
+                        manipulate.to_evol(out_copy, source=True, target=True)
+                        change_lab = True
 
-                save_operators_to_pdf(
-                    output_path,
-                    theory,
-                    ocard,
-                    out_copy,
-                    self.skip_pdfs(theory),
-                    change_lab,
-                )
+                    save_operators_to_pdf(
+                        output_path,
+                        theory,
+                        ocard,
+                        out_copy,
+                        self.skip_pdfs(theory),
+                        change_lab,
+                    )
         else:
-            out = eko.run_dglap(theory, ocard)
-
-        return out
+            # else we always rerun
+            path.unlink(missing_ok=True)
+            eko.solve(theory, ocard, path)
+        return path
 
     def run_external(self, theory, ocard, pdf):
-        # pylint:disable=import-error,import-outside-toplevel
+        """Run the external program."""
         if self.external.lower() == "lha":
             from .external import LHA_utils
 
@@ -167,7 +164,7 @@ class Runner(BenchmarkRunner):
         )
 
     def log(self, theory, _, pdf, me, ext):
-        # return a proper log table
+        """Return proper log table."""
         log_tabs = {}
         xgrid = ext["target_xgrid"]
         q2s = list(ext["values"].keys())
@@ -184,14 +181,14 @@ class Runner(BenchmarkRunner):
             ):
                 rotate_to_evolution[3, :] = [0, 0, 0, 0, 0, -1, -1, 0, 1, 1, 0, 0, 0, 0]
 
-        pdf_grid = apply.apply_pdf_flavor(
-            me,
-            pdf,
-            xgrid,
-            flavor_rotation=rotate_to_evolution,
-        )
+        with EKO.open(me) as eko:
+            pdf_grid = apply.apply_pdf_flavor(
+                eko,
+                pdf,
+                xgrid,
+                flavor_rotation=rotate_to_evolution,
+            )
         for q2 in q2s:
-
             log_tab = dfdict.DFdict()
             ref_pdfs = ext["values"][q2]
             res = pdf_grid[q2]
@@ -199,7 +196,6 @@ class Runner(BenchmarkRunner):
             my_pdf_errs = res["errors"]
 
             for key in my_pdfs:
-
                 if key in self.skip_pdfs(theory):
                     continue
 

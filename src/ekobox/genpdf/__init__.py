@@ -1,4 +1,6 @@
+"""Create fake PDF sets for debugging."""
 import copy
+import logging
 import pathlib
 import shutil
 
@@ -8,6 +10,8 @@ from banana import toy
 from eko import basis_rotation as br
 
 from . import export, flavors, load
+
+logger = logging.getLogger(__name__)
 
 
 def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
@@ -201,45 +205,48 @@ def generate_pdf(
 
 
 def install_pdf(name):
-    """
-    Install set into LHAPDF.
+    """Install set into LHAPDF.
 
     The set to be installed has to be in the current directory.
 
     Parameters
     ----------
-        name : str
-            source pdf name
+    name : str
+        source pdf name
+
     """
     import lhapdf  # pylint: disable=import-error, import-outside-toplevel
 
     print(f"install_pdf {name}")
     target = pathlib.Path(lhapdf.paths()[0])
     src = pathlib.Path(name)
+    if (target / src.stem).exists():
+        logger.warning("Overwriting old PDF installation")
+        shutil.rmtree(target / src.stem)
     # shutil.move only accepts paths since 3.9 so we need to cast
     # https://docs.python.org/3/library/shutil.html?highlight=shutil#shutil.move
     shutil.move(str(src), str(target))
 
 
 def generate_block(xfxQ2, xgrid, Q2grid, pids):
-    """
-    Generate an LHAPDF data block from a callable
+    """Generate an LHAPDF data block from a callable.
 
     Parameters
     ----------
-        xfxQ2 : callable
-            LHAPDF like callable
-        Q2grid : list(float)
-            Q grid
-        pids : list(int)
-            Flavors list
-        xgrid : list(float)
-            x grid
+    xfxQ2 : callable
+        LHAPDF like callable
+    Q2grid : list(float)
+        Q grid
+    pids : list(int)
+        Flavors list
+    xgrid : list(float)
+        x grid
 
     Returns
     -------
-        dict
-            PDF block
+    dict
+        PDF block
+
     """
     block = dict(Q2grid=Q2grid, pids=pids, xgrid=xgrid)
     data = []

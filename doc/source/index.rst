@@ -24,6 +24,7 @@ EKO is ...
 
     overview/features
     overview/tutorials/index
+    CLI <overview/cli/index>
     overview/indices
 
 .. toctree::
@@ -49,6 +50,7 @@ EKO is ...
     code/IO
     code/interface
     API <modules/eko/eko>
+    Math <modules/ekore/ekore>
     code/Operators
     code/Utilities
     code/Dependency

@@ -1,11 +1,11 @@
-"""This module contain the possible scale variations schemes."""
+"""Define possible scale variations schemes."""
 import enum
 
 from . import expanded, exponentiated
 
 
 class Modes(enum.IntEnum):
-    """Scale Variation modes"""
+    """Enumerate scale Variation modes."""
 
     unvaried = enum.auto()
     exponentiated = enum.auto()
@@ -13,7 +13,7 @@ class Modes(enum.IntEnum):
 
 
 def sv_mode(s):
-    """Returns the scale variation mode.
+    """Return the scale variation mode.
 
     Parameters
     ----------
@@ -24,9 +24,10 @@ def sv_mode(s):
     -------
     enum.IntEnum
         enum representation
+
     """
     if s is not None:
-        return Modes[s]
+        return Modes[s.value]
     return Modes.unvaried
 
 
@@ -35,5 +36,5 @@ class ModeMixin:
 
     @property
     def sv_mode(self):
-        """Returns the scale variation mode"""
+        """Return the scale variation mode."""
         return sv_mode(self.config["ModSV"])
