@@ -203,7 +203,7 @@ def test_ode_n3lo():
 
 
 def test_error():
-    with pytest.raises(NotImplementedError):
+    with pytest.raises(ValueError):
         ns.dispatcher((5, 0), "iterate-exact", np.random.rand(3) + 0j, 0.2, 0.1, 3, 10)
     with pytest.raises(NotImplementedError):
         ad.gamma_ns((2, 0), 10202, 1, 3)

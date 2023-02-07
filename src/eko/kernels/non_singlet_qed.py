@@ -2,12 +2,55 @@
 import numba as nb
 import numpy as np
 
-from . import evolution_integrals_qed as ei
+from .. import beta
+from . import non_singlet as ns
 from . import utils
 
 
 @nb.njit(cache=True)
-def as1aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
+def contract_gammas(gamma_ns, aem):
+    """Contract anomalous dimension along the QED axis.
+
+    Parameters
+    ----------
+    gamma_ns : 2D numpy.ndarray
+        non-singlet anomalous dimensions
+    aem : float
+        electromagnetic coupling value
+
+    Returns
+    -------
+    gamma_ns : 1D numpy.ndarray
+        non-singlet anomalous dimensions
+    """
+    alphas = np.array([aem**i for i in range(gamma_ns.shape[1])])
+    return gamma_ns @ alphas
+
+
+@nb.njit(cache=True)
+def apply_qed(gamma_pure_qed, mu2_from, mu2_to):
+    """Apply pure QED evolution to QCD kernel.
+
+    Parameters
+    ----------
+    gamma_ns : float
+        pure QED part of the AD
+    mu2_from : float
+        initial value of mu2
+    mu2_from : float
+        final value of mu2
+
+    Returns
+    -------
+    exp : float
+        pure QED evolution kernel
+
+    """
+    return np.exp(gamma_pure_qed * np.log(mu2_from / mu2_to))
+
+
+@nb.njit(cache=True)
+def as1_exact(gamma_ns, a1, a0, beta):
     """O(as1aem1) non-singlet exact EKO.
 
     Parameters
@@ -28,43 +71,11 @@ def as1aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     e_ns^0 : complex
         O(as1aem1) non-singlet exact EKO
     """
-    return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j12(a1, a0, aem, nf)
-        + aem * gamma_ns[0, 1] * np.log(mu2_from / mu2_to)
-    )
+    return ns.lo_exact(gamma_ns, a1, a0, beta)
 
 
 @nb.njit(cache=True)
-def as1aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
-    """
-    O(as1aem2) non-singlet exact EKO.
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    e_ns^0 : complex
-        O(as1aem2) non-singlet exact EKO
-    """
-    return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j12(a1, a0, aem, nf)
-        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * np.log(mu2_from / mu2_to)
-    )
-
-
-@nb.njit(cache=True)
-def as2aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
+def as2_exact(gamma_ns, a1, a0, beta):
     """O(as2aem1) non-singlet exact EKO.
 
     Parameters
@@ -85,44 +96,11 @@ def as2aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     e_ns^1 : complex
         O(as2aem1) non-singlet exact EKO
     """
-    return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j13_exact(a1, a0, aem, nf)
-        + gamma_ns[2, 0] * ei.j23_exact(a1, a0, aem, nf)
-        + aem * gamma_ns[0, 1] * np.log(mu2_from / mu2_to)
-    )
+    return ns.nlo_exact(gamma_ns, a1, a0, beta)
 
 
 @nb.njit(cache=True)
-def as2aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
-    """O(as2aem2) non-singlet exact EKO.
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    e_ns^1 : complex
-        O(as2aem2) non-singlet exact EKO
-    """
-    return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j13_exact(a1, a0, aem, nf)
-        + gamma_ns[2, 0] * ei.j23_exact(a1, a0, aem, nf)
-        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * np.log(mu2_from / mu2_to)
-    )
-
-
-@nb.njit(cache=True)
-def as3aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
+def as3_exact(gamma_ns, a1, a0, beta):
     """O(as3aem1) non-singlet exact EKO.
 
     Parameters
@@ -143,43 +121,7 @@ def as3aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     e_ns^2 : complex
         O(as3aem1) non-singlet exact EKO
     """
-    return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j14_exact(a1, a0, aem, nf)
-        + gamma_ns[2, 0] * ei.j24_exact(a1, a0, aem, nf)
-        + gamma_ns[3, 0] * ei.j34_exact(a1, a0, aem, nf)
-        + aem * gamma_ns[0, 1] * np.log(mu2_from / mu2_to)
-    )
-
-
-@nb.njit(cache=True)
-def as3aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
-    """
-    O(as3aem2) non-singlet exact EKO.
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    e_ns^2 : complex
-        O(as3aem2) non-singlet exact EKO
-    """
-    return np.exp(
-        (gamma_ns[1, 0] + aem * gamma_ns[1, 1]) * ei.j14_exact(a1, a0, aem, nf)
-        + gamma_ns[2, 0] * ei.j24_exact(a1, a0, aem, nf)
-        + gamma_ns[3, 0] * ei.j34_exact(a1, a0, aem, nf)
-        + (aem * gamma_ns[0, 1] + aem**2 * gamma_ns[0, 2]) * np.log(mu2_from / mu2_to)
-    )
+    return ns.nnlo_exact(gamma_ns, a1, a0, beta)
 
 
 @nb.njit(cache=True)
@@ -259,21 +201,18 @@ def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
     e_ns : complex
         non-singlet EKO
     """
-    if order[1] == 1:
-        if order[0] == 1:
-            return as1aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
-        if order[0] == 2:
-            return as2aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
-        if order[0] == 3:
-            return as3aem1_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
-    if order[1] == 2:
-        if order[0] == 1:
-            return as1aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
-        if order[0] == 2:
-            return as2aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
-        if order[0] == 3:
-            return as3aem2_exact(gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
-    raise NotImplementedError("Selected order is not implemented")
+    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
+    betalist[0] += aem * beta.beta_qcd((2, 1), nf)
+    gamma_ns_list = contract_gammas(gamma_ns, aem)
+    if order[0] == 1:
+        qcd_only = as1_exact(gamma_ns_list[1:], a1, a0, betalist)
+    elif order[0] == 2:
+        qcd_only = as2_exact(gamma_ns_list[1:], a1, a0, betalist)
+    elif order[0] == 3:
+        qcd_only = as3_exact(gamma_ns_list[1:], a1, a0, betalist)
+    else:
+        raise NotImplementedError("Selected order is not implemented")
+    return qcd_only * apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
 
 
 @nb.njit(cache=True)
@@ -306,80 +245,22 @@ def running_alphaem_exact(
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     res = 1.0
+    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
     # For the moment implemented in this way to make numba compile it
     # TODO : implement it with np.prod in a way that numba compiles it
-    if order[1] == 1:
+    for step in range(1, ev_op_iterations + 1):
+        aem = aem_list[step - 1]
+        a1 = a_steps[step]
+        a0 = a_steps[step - 1]
+        betalist[0] += aem * beta.beta_qcd((2, 1), nf)
+        gamma_ns_list = contract_gammas(gamma_ns, aem)
         if order[0] == 1:
-            for step in range(1, ev_op_iterations + 1):
-                res *= as1aem1_exact(
-                    gamma_ns,
-                    a_steps[step],
-                    a_steps[step - 1],
-                    aem_list[step - 1],
-                    nf,
-                    mu2_to,
-                    mu2_from,
-                )
-            return res
-        if order[0] == 2:
-            for step in range(1, ev_op_iterations + 1):
-                res *= as2aem1_exact(
-                    gamma_ns,
-                    a_steps[step],
-                    a_steps[step - 1],
-                    aem_list[step - 1],
-                    nf,
-                    mu2_to,
-                    mu2_from,
-                )
-            return res
-        if order[0] == 3:
-            for step in range(1, ev_op_iterations + 1):
-                res *= as3aem1_exact(
-                    gamma_ns,
-                    a_steps[step],
-                    a_steps[step - 1],
-                    aem_list[step - 1],
-                    nf,
-                    mu2_to,
-                    mu2_from,
-                )
-            return res
-    if order[1] == 2:
-        if order[0] == 1:
-            for step in range(1, ev_op_iterations + 1):
-                res *= as1aem2_exact(
-                    gamma_ns,
-                    a_steps[step],
-                    a_steps[step - 1],
-                    aem_list[step - 1],
-                    nf,
-                    mu2_to,
-                    mu2_from,
-                )
-            return res
-        if order[0] == 2:
-            for step in range(1, ev_op_iterations + 1):
-                res *= as2aem2_exact(
-                    gamma_ns,
-                    a_steps[step],
-                    a_steps[step - 1],
-                    aem_list[step - 1],
-                    nf,
-                    mu2_to,
-                    mu2_from,
-                )
-            return res
-        if order[0] == 3:
-            for step in range(1, ev_op_iterations + 1):
-                res *= as3aem2_exact(
-                    gamma_ns,
-                    a_steps[step],
-                    a_steps[step - 1],
-                    aem_list[step - 1],
-                    nf,
-                    mu2_to,
-                    mu2_from,
-                )
-            return res
-    raise NotImplementedError("Selected order is not implemented")
+            res *= as1_exact(gamma_ns_list[1:], a1, a0, betalist)
+        elif order[0] == 2:
+            res *= as2_exact(gamma_ns_list[1:], a1, a0, betalist)
+        elif order[0] == 3:
+            res *= as3_exact(gamma_ns_list[1:], a1, a0, betalist)
+        else:
+            raise NotImplementedError("Selected order is not implemented")
+        res *= apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
+    return res
