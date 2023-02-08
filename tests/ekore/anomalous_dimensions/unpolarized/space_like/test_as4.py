@@ -17,9 +17,9 @@ from ekore.harmonics import compute_cache
 NF = 5
 
 n3lo_vars_dict = {
-    "gg": 22,
+    "gg": 18,
     "gq": 24,
-    "qg": 20,
+    "qg": 21,
     "qq": 17,
 }
 
