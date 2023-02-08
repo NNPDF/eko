@@ -1,7 +1,7 @@
 !    -*- f90 -*-
 ! Note: the context of this file is case sensitive.
 
-python module msht_n3lo ! in 
+python module msht_n3lo ! in
     interface  ! in :msht_n3lo
         function p3nsa(y,ans,ipm,flavor) ! in :msht_n3lo:split.F
             double precision intent(in) :: y
@@ -60,7 +60,31 @@ python module msht_n3lo ! in
             double precision intent(in) :: x
             double precision intent(out) :: Pgq3exactA
         end function Pgq3exactA
-    end interface 
+        function ahg3a(x,a) result (ahg3a_res) ! in :msht_n3lo:trans_mat_elems.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: ahg3a_res
+        end function ahg3a
+        function ahq3a(y) result (ahq3a_res) ! in :msht_n3lo:trans_mat_elems.F
+            double precision intent(in) :: y
+            double precision intent(out) :: ahq3a_res
+        end function ahq3a
+        subroutine aqqh3ab(x,a, aqqh3a, aqqh3b) ! in :msht_n3lo:trans_mat_elems.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: aqqh3a
+            double precision intent(out) :: aqqh3b
+        end subroutine aqqh3ab
+        function agqh3a(y) result (agqh3a_res) ! in :msht_n3lo:trans_mat_elems.F
+            double precision intent(in) :: y
+            double precision intent(out) :: agqh3a_res
+        end function agqh3a
+        function aggh3a(x,a) result (aggh3a_res) ! in :msht_n3lo:trans_mat_elems.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: aggh3a_res
+        end function aggh3a
+    end interface
 end python module msht_n3lo
 
 ! This file was auto-generated with f2py (version:1.22.4).
