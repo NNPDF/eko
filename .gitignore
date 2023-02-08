@@ -162,4 +162,4 @@ validation-report.json
 node_modules
 
 backward_paper/
-n3lo_bench/
+extras/n3lo_bench/pdf_plots

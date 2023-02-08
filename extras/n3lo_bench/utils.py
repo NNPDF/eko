@@ -1,11 +1,12 @@
-import pathlib
-import yaml
 import itertools
-import cycler
-import matplotlib as mpl
 import pathlib
 
+import cycler
+import matplotlib as mpl
+import yaml
+
 here = pathlib.Path(__file__).parent
+
 
 def flatten(d):
     newd = {}
@@ -16,6 +17,7 @@ def flatten(d):
         else:
             newd[k] = v
     return newd
+
 
 def load_style():
     path = here / "style.yaml"
@@ -28,7 +30,7 @@ def load_style():
         style[capstyle] = mpl._enums.CapStyle(style[capstyle])
     pcd = {k: v for k, v in style.items() if prop_cycle in k}
     if len(pcd) > 0:
-        length = max((len(l) for l in pcd.values()))
+        length = max(len(l) for l in pcd.values())
         for k, v in pcd.items():
             del style[k]
             cyc = cycler.cycler(

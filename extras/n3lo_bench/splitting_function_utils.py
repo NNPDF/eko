@@ -1,10 +1,12 @@
 import numpy as np
 from click import progressbar
-from eko.anomalous_dimensions import gamma_ns, gamma_singlet
+from scipy import integrate
+
 from eko import scale_variations as sv
 from eko.couplings import Couplings
+from eko.io import types
 from eko.mellin import Path
-from scipy import integrate
+from ekore.anomalous_dimensions.unpolarized.space_like import gamma_ns, gamma_singlet
 
 map_singlet_entries = {"gg": (1, 1), "gq": (1, 0), "qg": (0, 1), "qq": (0, 0)}
 map_non_singlet_modes = {"+": 10101, "-": 10201, "v": 10200}
@@ -99,14 +101,19 @@ def splitting_function(
 def compute_a_s(q2=None, fact_scale=None, nf=None, order=(4, 0)):
     if q2 is not None:
         fact_scale = q2 if fact_scale is None else fact_scale
+        ref = types.CouplingsRef(
+            alphas=types.FloatRef(value=0.1181, scale=91.00),
+            alphaem=types.FloatRef(value=0.007496, scale=np.nan),
+            max_num_flavs=6,
+            num_flavs_ref=5,
+        )
         sc = Couplings(
-            scale_ref=91.00**2,
-            couplings_ref=np.array([0.118, 0.1]),
-            masses=[1.51, 4.92, 172.5],
-            thresholds_ratios=[1, 1, 1],
-            nf_ref=5,
+            couplings=ref,
             order=order,
-            method="expanded",
+            method=types.CouplingEvolutionMethod.EXPANDED,
+            masses=[1.51, 4.92, 172.5],
+            hqm_scheme=types.QuarkMassSchemes.POLE,
+            thresholds_ratios=[1.0, 1.0, 1.0],
         )
         return sc.a_s(scale_to=q2, fact_scale=fact_scale, nf_to=nf)
 

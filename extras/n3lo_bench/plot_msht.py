@@ -1,13 +1,14 @@
 import pathlib
+
 import matplotlib.pyplot as plt
 import msht_n3lo as msht
 import numpy as np
-from eko.interpolation import make_lambert_grid
-from eko.constants import CA, CF
-
-from splitting_function_utils import compute_a_s, splitting_function
-from small_x_limit import singlet_to_0
 import utils
+from small_x_limit import singlet_to_0
+from splitting_function_utils import compute_a_s, splitting_function
+
+from eko.constants import CA, CF
+from eko.interpolation import lambertgrid
 
 plt.style.use(utils.load_style())
 
@@ -33,7 +34,6 @@ def build_n3lo_var(entry, idx):
 
 
 def msht_splitting(entry, x, nf):
-
     if entry == "gg":
         a1, a2 = -5, 15
         return msht.pgg3a(x, a1), msht.pgg3a(x, a2)
@@ -67,7 +67,9 @@ def msht_splitting_xpx(entry, grid, nf):
     return np.array(msht_grid_min), np.array(msht_grid_max)
 
 
-def plot_ad(entry, q2=None, nf=4, logscale=True, show_candidates=False, plot_scaling=False):
+def plot_ad(
+    entry, q2=None, nf=4, logscale=True, show_candidates=False, plot_scaling=False
+):
     fig = plt.figure(figsize=(7, 5))
     gs = fig.add_gridspec(5, 1)
     ax = plt.subplot(gs[:, 0])
@@ -109,9 +111,7 @@ def plot_ad(entry, q2=None, nf=4, logscale=True, show_candidates=False, plot_sca
     ax.plot(grid, g_n3lo, label="N3LO")
     if show_candidates:
         for var in g_n3lo_var:
-            ax.plot(
-                grid, g_nnlo + var * a_s**4, alpha=0.5, color="#D62828"
-            )
+            ax.plot(grid, g_nnlo + var * a_s**4, alpha=0.5, color="#D62828")
     else:
         ax.fill_between(
             grid,
@@ -123,21 +123,35 @@ def plot_ad(entry, q2=None, nf=4, logscale=True, show_candidates=False, plot_sca
     ax.plot(grid, g_nlo, linestyle="dashdot", label="NLO")
     ax.plot(grid, g_lo, linestyle="dotted", label="LO")
 
-    if plot_scaling :
+    if plot_scaling:
         if entry == "gq":
-            gg = splitting_function('gg', grid, nf, (0,0,0,0))
+            gg = splitting_function("gg", grid, nf, (0, 0, 0, 0))
             gg_lo = gg[:, 0] * a_s
             gg_nlo = gg_lo + gg[:, 1] * a_s**2
             gg_nnlo = gg_nlo + gg[:, 2] * a_s**3
             gg_n3lo = gg_nnlo + gg[:, 3] * a_s**4
-            ax.plot(grid[:10], gg_n3lo[:10] * CF/CA, linestyle="dashdot", color="black", label=r"$C_f/C_A P_{gg}$", alpha=0.5)
+            ax.plot(
+                grid[:10],
+                gg_n3lo[:10] * CF / CA,
+                linestyle="dashdot",
+                color="black",
+                label=r"$C_f/C_A P_{gg}$",
+                alpha=0.5,
+            )
         elif entry == "qg":
-            qq = splitting_function('qq', grid, nf, (0,0,0,0))
+            qq = splitting_function("qq", grid, nf, (0, 0, 0, 0))
             qq_lo = qq[:, 0] * a_s
             qq_nlo = qq_lo + qq[:, 1] * a_s**2
             qq_nnlo = qq_nlo + qq[:, 2] * a_s**3
             qq_n3lo = qq_nnlo + qq[:, 3] * a_s**4
-            ax.plot(grid[:10], qq_n3lo[:10] * CA/CF, linestyle="dashdot", color="black", label=r"$C_A/C_f P_{qq}$", alpha=0.5)            
+            ax.plot(
+                grid[:10],
+                qq_n3lo[:10] * CA / CF,
+                linestyle="dashdot",
+                color="black",
+                label=r"$C_A/C_f P_{qq}$",
+                alpha=0.5,
+            )
 
     grid_min, grid_max = grid.min(), grid.max()
     if logscale:
@@ -180,13 +194,11 @@ def plot_ad(entry, q2=None, nf=4, logscale=True, show_candidates=False, plot_sca
 
 
 if __name__ == "__main__":
-
     for k in ["qg", "gq", "gg", "qq"]:
-
         # linear plots
-        x_grid = make_lambert_grid(60, x_min=1e-2)
+        x_grid = lambertgrid(60, x_min=1e-2)
         # plot_ad(k, logscale=False)
 
         # log plots
-        x_grid = make_lambert_grid(60, x_min=1e-7)
-        plot_ad(k,plot_scaling=True, q2=38.5, nf=5)
+        x_grid = lambertgrid(60, x_min=1e-7)
+        plot_ad(k, plot_scaling=True, q2=38.5, nf=5)

@@ -1,5 +1,5 @@
-import numpy as np
 import msht_n3lo as msht
+import numpy as np
 
 pifact = (4 * np.pi) ** 4
 
@@ -13,11 +13,11 @@ def xpgg_to_0(x, nf):
 
 
 def xpqg_to_0(x, nf):
-    return - x * (-(3935.7613271019272 * nf * np.log(x) ** 2) / x)
+    return -x * (-(3935.7613271019272 * nf * np.log(x) ** 2) / x)
 
 
 def xpgq_to_0(x):
-    return - x * (3692.7188065062737 * np.log(x) ** 3) / x
+    return -x * (3692.7188065062737 * np.log(x) ** 3) / x
 
 
 def xpqq_ps_to_0(x, nf):

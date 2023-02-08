@@ -1,13 +1,15 @@
-# -*- coding: utf-8 -*-
+import pathlib
 
 import matplotlib.pyplot as plt
 import numpy as np
-
-from splitting_function_utils import (compute_a_s, non_singlet_ad, singlet_ad,
-                                      splitting_function)
-
 import utils
-import pathlib
+from splitting_function_utils import (
+    compute_a_s,
+    non_singlet_ad,
+    singlet_ad,
+    splitting_function,
+)
+
 plt.style.use(utils.load_style())
 
 
@@ -78,7 +80,7 @@ def plot_ad_expansion(entry, nf=4, plot_xspace=False, logscale=False):
 
     # save
     plt.tight_layout()
-    pathlib.Path(utils.here/"gamma_plots").mkdir(parents=True, exist_ok=True)
+    pathlib.Path(utils.here / "gamma_plots").mkdir(parents=True, exist_ok=True)
     plt.savefig(f"gamma_plots/gamma_{entry}_expansion.pdf")
 
 
@@ -98,7 +100,7 @@ def plot_ad(entry, q2=None, nf=4, plot_xspace=False, plot_ratio=False, logscale=
         else:
             g = singlet_ad(entry, grid, nf=nf, full_ad=True)
 
-    a_s = compute_a_s(q2,nf=nf)
+    a_s = compute_a_s(q2, nf=nf)
     g_lo = g[:, 0] * a_s
     g_nlo = g_lo + g[:, 1] * a_s**2
     g_nnlo = g_nlo + g[:, 2] * a_s**3
@@ -150,12 +152,11 @@ def plot_ad(entry, q2=None, nf=4, plot_xspace=False, plot_ratio=False, logscale=
 
     # save
     plt.tight_layout()
-    pathlib.Path(utils.here/"gamma_plots").mkdir(parents=True, exist_ok=True)
+    pathlib.Path(utils.here / "gamma_plots").mkdir(parents=True, exist_ok=True)
     plt.savefig(f"gamma_plots/gamma_{entry}.pdf")
 
 
 if __name__ == "__main__":
-
     for k in ["gg", "qq", "gq", "qg"]:
         # plot_ad_expansion(k, plot_xspace=True, logscale=True)
         plot_ad(k, plot_xspace=True, plot_ratio=False, logscale=True, q2=10)

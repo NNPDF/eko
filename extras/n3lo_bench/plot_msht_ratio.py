@@ -1,11 +1,12 @@
-import matplotlib.pyplot as plt
 import pathlib
-import numpy as np
-from eko.interpolation import make_lambert_grid
 
-from plot_msht import msht_splitting_xpx, build_n3lo_var, n3lo_vars_dict
-from splitting_function_utils import compute_a_s, splitting_function
+import matplotlib.pyplot as plt
+import numpy as np
 import utils
+from plot_msht import build_n3lo_var, msht_splitting_xpx, n3lo_vars_dict
+from splitting_function_utils import compute_a_s, splitting_function
+
+from eko.interpolation import lambertgrid
 
 plt.style.use(utils.load_style())
 
@@ -94,9 +95,7 @@ def plot_ad_ratio(entry, q2=None, nf=4):
 
 
 if __name__ == "__main__":
-
     for k in ["gq", "gg", "qg", "qq"]:
-
         # linear plots
-        x_grid = make_lambert_grid(60, x_min=1e-1)
+        x_grid = lambertgrid(60, x_min=1e-1)
         plot_ad_ratio(k)

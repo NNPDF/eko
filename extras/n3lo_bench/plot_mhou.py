@@ -1,13 +1,14 @@
 import pathlib
-import matplotlib.pyplot as plt
-from matplotlib import cm
-import numpy as np
-from eko.interpolation import make_lambert_grid
-from eko.constants import CA, CF
 
-from splitting_function_utils import compute_a_s, splitting_function
-from plot_msht import build_n3lo_var, n3lo_vars_dict
+import matplotlib.pyplot as plt
+import numpy as np
 import utils
+from matplotlib import cm
+from plot_msht import build_n3lo_var, n3lo_vars_dict
+from splitting_function_utils import compute_a_s, splitting_function
+
+from eko.constants import CA, CF
+from eko.interpolation import lambertgrid
 
 plt.style.use(utils.load_style())
 
@@ -21,7 +22,6 @@ def build_gamma(g, order, q2, fact_sale, nf):
 
 
 def compute_mhou(g_min, g_max, g_central, q2, xif2_low, xif2_hig, order, nf):
-
     gamma_low = build_gamma(g_min, order, q2 / xif2_low, q2, nf)
     gamma_hig = build_gamma(g_max, order, q2 / xif2_hig, q2, nf)
     delta_low = gamma_low - g_central
@@ -271,17 +271,15 @@ def plot_ad_ratio(entry, q2=None, nf=4, plot_totu=False):
 
 
 if __name__ == "__main__":
-
     for k in ["qg", "gq", "gg", "qq"]:
-
         # linear plots
         q2 = 38.5  # chosen such that a_s(Q2) \approx 0.2
         nf = 5
         plot_totu = True
-        x_grid = make_lambert_grid(80, x_min=1e-2)
+        x_grid = lambertgrid(80, x_min=1e-2)
         # plot_ad(k, q2=q2, nf=nf, logscale=False, plot_totu=plot_totu)
         plot_ad_ratio(k, q2=q2, nf=nf, plot_totu=plot_totu)
 
         # log plots
-        x_grid = make_lambert_grid(80, x_min=1e-7)
+        x_grid = lambertgrid(80, x_min=1e-7)
         # plot_ad(k, q2=q2, nf=nf, plot_scaling=True, plot_totu=plot_totu)

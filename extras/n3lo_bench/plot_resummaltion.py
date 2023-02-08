@@ -1,21 +1,22 @@
-import pathlib
 import matplotlib.pyplot as plt
 import numpy as np
-from eko.constants import CA, CF
-from matplotlib import cm
-
-from splitting_function_utils import splitting_function, compute_a_s
 import utils
+from matplotlib import cm
+from splitting_function_utils import compute_a_s, splitting_function
+
+from eko.constants import CA, CF
 
 plt.style.use(utils.load_style())
 
 nf = 4
+
 
 def load_xgrid():
     with open("small-x/P_as020_nf4.dat", encoding="utf-8") as file:
         raw_data = np.loadtxt(file)
     xgrid = raw_data[:, 1]
     return xgrid
+
 
 def check_resummed_splitting(g_lo, g_nlo, g_nnlo, entry):
     with open("small-x/P_as020_nf4.dat", encoding="utf-8") as file:
@@ -91,7 +92,6 @@ def p3_resummed(entry):
 
 
 def plot_ad(entry):
-
     fig = plt.figure(figsize=(7, 5))
     gs = fig.add_gridspec(5, 1)
     ax = plt.subplot(gs[:, 0])
@@ -177,7 +177,6 @@ def plot_ad(entry):
 
 
 def plot_ad_check(entry):
-
     fig = plt.figure(figsize=(7, 5))
     gs = fig.add_gridspec(5, 1)
     ax = plt.subplot(gs[:, 0])
@@ -246,7 +245,6 @@ def plot_ad_check(entry):
 
 
 if __name__ == "__main__":
-
     for k in ["gq"]:  # ["gg", "qg", "qq", "gq", "qg"]:
         x_grid = load_xgrid()
         # plot_ad(k)
