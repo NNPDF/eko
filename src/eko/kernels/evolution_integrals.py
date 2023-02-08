@@ -482,7 +482,7 @@ def j04_exact(a1, a0, beta0, b_vec):
 
 
 @nb.njit(cache=True)
-def j04_expanded(a1, a0, beta0, beta1, beta2):
+def j04_expanded(a1, a0, beta0, b_vec):
     r""":math:`j^{(0,4)}` exact evolution integral.
 
     .. math::
@@ -508,10 +508,10 @@ def j04_expanded(a1, a0, beta0, beta1, beta2):
     jm12 : complex
         integral
     """
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
+    b1 = b_vec[1]
+    b2 = b_vec[2]
     return (
         j02(a1, a0, beta0)
-        - b1 * j14_expanded(a1, a0, beta0, beta1, beta2)
-        - b2 * j24_expanded(a1, a0, beta0, beta1)
+        - b1 * j14_expanded(a1, a0, beta0, b_vec)
+        - b2 * j24_expanded(a1, a0, beta0, b_vec)
     )
