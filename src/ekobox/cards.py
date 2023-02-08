@@ -24,6 +24,7 @@ _theory = dict(
     quark_masses_scheme="POLE",
     matching=[1.0, 1.0, 1.0],
     xif=1.0,
+    n3lo_ad_variation=(0, 0, 0, 0),
 )
 
 _operator = dict(

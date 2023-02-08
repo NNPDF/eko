@@ -24,6 +24,7 @@ from .types import (
     IntrinsicFlavors,
     InversionMethod,
     MatchingScales,
+    N3LOAdVariation,
     Order,
     QuarkMassSchemes,
     RawCard,
@@ -58,6 +59,8 @@ class TheoryCard(DictLike):
     """Matching scale of heavy quark masses"""
     xif: float
     """Ratio between factorization scale and process scale."""
+    n3lo_ad_variation: N3LOAdVariation
+    """|N3LO| anomalous dimension variation."""
 
 
 @dataclass
@@ -305,6 +308,7 @@ class Legacy:
             raise ValueError()
 
         new["xif"] = old["XIF"]
+        new["n3lo_ad_variation"] = old.get("n3lo_ad_variation", (0, 0, 0, 0))
 
         return TheoryCard.from_dict(new)
 

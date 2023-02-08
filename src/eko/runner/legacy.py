@@ -109,6 +109,7 @@ class Runner:
             thresholds_config=tc,
             strong_coupling=sc,
             interpol_dispatcher=bfd,
+            n3lo_ad_variation=new_theory.n3lo_ad_variation,
         )
 
         with EKO.create(path) as builder:

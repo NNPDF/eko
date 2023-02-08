@@ -396,11 +396,6 @@ class Operator(sv.ModeMixin):
             partially initialized integration kernel
 
         """
-        n3lo_var = (
-            self.config["n3lo_ad_variation"]
-            if self.config["n3lo_ad_variation"] is not None
-            else (0, 0, 0, 0)
-        )
         return functools.partial(
             quad_ker,
             order=self.order,
@@ -418,7 +413,7 @@ class Operator(sv.ModeMixin):
             ev_op_max_order=tuple(self.config["ev_op_max_order"]),
             sv_mode=self.sv_mode,
             is_threshold=self.is_threshold,
-            n3lo_ad_variation=n3lo_var,
+            n3lo_ad_variation=self.config["n3lo_ad_variation"],
             is_polarized=self.config["polarized"],
             is_time_like=self.config["time_like"],
         )
