@@ -65,7 +65,7 @@ def j12(a1, a0, beta0):
 
 
 @nb.njit(cache=True)
-def j23_exact(a1, a0, beta0, beta1):
+def j23_exact(a1, a0, beta0, b_vec):
     r"""
     :math:`j^{(2,3)}` exact evolution integral.
 
@@ -90,8 +90,8 @@ def j23_exact(a1, a0, beta0, beta1):
         j11 : float
             integral
     """
-    b1 = beta1 / beta0
-    return (1.0 / beta1) * np.log((1.0 + a1 * b1) / (1.0 + a0 * b1))
+    b1 = b_vec[1]
+    return (1.0 / (b1 * beta0)) * np.log((1.0 + a1 * b1) / (1.0 + a0 * b1))
 
 
 @nb.njit(cache=True)
@@ -120,7 +120,7 @@ def j23_expanded(a1, a0, beta0):
 
 
 @nb.njit(cache=True)
-def j13_exact(a1, a0, beta0, beta1):
+def j13_exact(a1, a0, beta0, b_vec):
     r"""
     :math:`j^{(1,3)}` exact evolution integral.
 
@@ -145,12 +145,12 @@ def j13_exact(a1, a0, beta0, beta1):
         j01 : float
             integral
     """
-    b1 = beta1 / beta0
-    return j12(a1, a0, beta0) - b1 * j23_exact(a1, a0, beta0, beta1)
+    b1 = b_vec[1]
+    return j12(a1, a0, beta0) - b1 * j23_exact(a1, a0, beta0, b_vec)
 
 
 @nb.njit(cache=True)
-def j13_expanded(a1, a0, beta0, beta1):
+def j13_expanded(a1, a0, beta0, b_vec):
     r"""
     :math:`j^{(1,3)}` expanded evolution integral.
 
@@ -173,12 +173,12 @@ def j13_expanded(a1, a0, beta0, beta1):
         j01_exp : float
             integral
     """
-    b1 = beta1 / beta0
+    b1 = b_vec[1]
     return j12(a1, a0, beta0) - b1 * j23_expanded(a1, a0, beta0)
 
 
 @nb.njit(cache=True)
-def j03_exact(a1, a0, beta0, beta1):
+def j03_exact(a1, a0, beta0, b_vec):
     r""":math:`j^{(0,3)}` exact evolution integral.
 
     .. math::
@@ -201,12 +201,12 @@ def j03_exact(a1, a0, beta0, beta1):
     jm11 : float
         integral
     """
-    b1 = beta1 / beta0
-    return j02(a1, a0, beta0) - b1 * j13_exact(a1, a0, beta0, beta1)
+    b1 = b_vec[1]
+    return j02(a1, a0, beta0) - b1 * j13_exact(a1, a0, beta0, b_vec)
 
 
 @nb.njit(cache=True)
-def j03_expanded(a1, a0, beta0, beta1):
+def j03_expanded(a1, a0, beta0, b_vec):
     r""":math:`j^{(0,3)}` exact evolution integral.
 
     .. math::
@@ -229,12 +229,12 @@ def j03_expanded(a1, a0, beta0, beta1):
     jm11 : float
         integral
     """
-    b1 = beta1 / beta0
-    return j02(a1, a0, beta0) - b1 * j13_expanded(a1, a0, beta0, beta1)
+    b1 = b_vec[1]
+    return j02(a1, a0, beta0) - b1 * j13_expanded(a1, a0, beta0, b_vec)
 
 
 @nb.njit(cache=True)
-def j34_exact(a1, a0, beta0, beta1, beta2):
+def j34_exact(a1, a0, beta0, b_vec):
     r"""
     :math:`j^{(3,4)}` exact evolution integral.
 
@@ -267,8 +267,9 @@ def j34_exact(a1, a0, beta0, beta1, beta2):
         j22 : complex
             integral
     """
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
+    b1 = b_vec[1]
+    b2 = b_vec[2]
+    beta2 = b2 * beta0
     # allow Delta to be complex for nf = 6, the final result will be real
     Delta = np.sqrt(complex(4 * b2 - b1**2))
     delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
@@ -279,7 +280,7 @@ def j34_exact(a1, a0, beta0, beta1, beta2):
 
 
 @nb.njit(cache=True)
-def j24_exact(a1, a0, beta0, beta1, beta2):
+def j24_exact(a1, a0, beta0, b_vec):
     r"""
     :math:`j^{(2,4)}` exact evolution integral.
 
@@ -307,8 +308,8 @@ def j24_exact(a1, a0, beta0, beta1, beta2):
         j12 : complex
             integral
     """  # pylint: disable=line-too-long
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
+    b1 = b_vec[1]
+    b2 = b_vec[2]
     # allow Delta to be complex for nf = 6, the final result will be real
     Delta = np.sqrt(complex(4 * b2 - b1**2))
     delta = np.arctan((b1 + 2 * a1 * b2) / Delta) - np.arctan(
@@ -318,7 +319,7 @@ def j24_exact(a1, a0, beta0, beta1, beta2):
 
 
 @nb.njit(cache=True)
-def j14_exact(a1, a0, beta0, beta1, beta2):
+def j14_exact(a1, a0, beta0, b_vec):
     r"""
     :math:`j^{(1,4)}` exact evolution integral.
 
@@ -345,12 +346,12 @@ def j14_exact(a1, a0, beta0, beta1, beta2):
         j02 : complex
             integral
     """
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
+    b1 = b_vec[1]
+    b2 = b_vec[2]
     return (
         j12(a1, a0, beta0)
-        - b1 * j24_exact(a1, a0, beta0, beta1, beta2)
-        - b2 * j34_exact(a1, a0, beta0, beta1, beta2)
+        - b1 * j24_exact(a1, a0, beta0, b_vec)
+        - b2 * j34_exact(a1, a0, beta0, b_vec)
     )
 
 
@@ -380,7 +381,7 @@ def j34_expanded(a1, a0, beta0):
 
 
 @nb.njit(cache=True)
-def j24_expanded(a1, a0, beta0, beta1):
+def j24_expanded(a1, a0, beta0, b_vec):
     r"""
     :math:`j^{(2,4)}` expanded evolution integral.
 
@@ -404,12 +405,12 @@ def j24_expanded(a1, a0, beta0, beta1):
         j12_exp : float
             integral
     """
-    b1 = beta1 / beta0
+    b1 = b_vec[1]
     return 1 / beta0 * (a1 - a0 - b1 / 2 * (a1**2 - a0**2))
 
 
 @nb.njit(cache=True)
-def j14_expanded(a1, a0, beta0, beta1, beta2):
+def j14_expanded(a1, a0, beta0, b_vec):
     r"""
     :math:`j^{(1,4)}` expanded evolution integral.
 
@@ -435,17 +436,17 @@ def j14_expanded(a1, a0, beta0, beta1, beta2):
         j02_exp : float
             integral
     """
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
+    b1 = b_vec[1]
+    b2 = b_vec[2]
     return (
         j12(a1, a0, beta0)
-        - b1 * j24_expanded(a1, a0, beta0, beta1)
+        - b1 * j24_expanded(a1, a0, beta0, b_vec)
         - b2 * j34_expanded(a1, a0, beta0)
     )
 
 
 @nb.njit(cache=True)
-def j04_exact(a1, a0, beta0, beta1, beta2):
+def j04_exact(a1, a0, beta0, b_vec):
     r""":math:`j^{(0,4)}` exact evolution integral.
 
     .. math::
@@ -471,12 +472,12 @@ def j04_exact(a1, a0, beta0, beta1, beta2):
     jm12 : complex
         integral
     """
-    b1 = beta1 / beta0
-    b2 = beta2 / beta0
+    b1 = b_vec[1]
+    b2 = b_vec[2]
     return (
         j02(a1, a0, beta0)
-        - b1 * j14_exact(a1, a0, beta0, beta1, beta2)
-        - b2 * j24_exact(a1, a0, beta0, beta1, beta2)
+        - b1 * j14_exact(a1, a0, beta0, b_vec)
+        - b2 * j24_exact(a1, a0, beta0, b_vec)
     )
 
 
