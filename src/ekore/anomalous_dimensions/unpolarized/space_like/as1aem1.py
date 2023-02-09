@@ -6,6 +6,7 @@ import numba as nb
 
 from eko import constants
 from eko.constants import zeta2, zeta3
+
 from .... import harmonics
 
 
