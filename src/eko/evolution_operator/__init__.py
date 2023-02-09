@@ -14,12 +14,6 @@ import numpy as np
 from scipy import integrate
 
 import ekore.anomalous_dimensions.polarized.space_like as ad_ps
-
-<<<<<<< HEAD
-import ekore.anomalous_dimensions.polarized.time_like as ad_pt
-
-=======
->>>>>>> master
 import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
 import ekore.anomalous_dimensions.unpolarized.time_like as ad_ut
 
@@ -228,11 +222,7 @@ def quad_ker(
     else:
         if is_polarized:
             if is_time_like:
-<<<<<<< HEAD
-                gamma_ns = ad_pt.gamma_ns(order, mode0, ker_base.n, nf)
-=======
                 raise NotImplementedError("Polarized, time-like is not implemented")
->>>>>>> master
             else:
                 gamma_ns = ad_ps.gamma_ns(order, mode0, ker_base.n, nf)
         else:

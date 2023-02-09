@@ -21,25 +21,25 @@ logger = logging.getLogger(__name__)
 def build_ome(A, matching_order, a_s, backward_method):
     r"""Construct the matching expansion in :math:`a_s` with the appropriate method.
 
-    Parameters
-    ----------
-    A : numpy.ndarray
-        list of |OME|
-    matching_order : tuple(int,int)
-        perturbation matching order
-    a_s : float
-        strong coupling, needed only for the exact inverse
-    backward_method : ["exact", "expanded" or ""]
-        empty or method for inverting the matching condition (exact or expanded)
+        Parameters
+        ----------
+        A : numpy.ndarray
+            list of |OME|
+        matching_order : tuple(int,int)
+            perturbation matching order
+        a_s : float
+            strong coupling, needed only for the exact inverse
+        backward_method : ["exact", "expanded" or ""]
+            empty or method for inverting the matching condition (exact or expanded)
 
-    Returns
-    -------
-    ome : numpy.ndarray
-        matching operator matrix
-<<<<<<< HEAD:src/eko/evolution_operator/operator_matrix_element.py
-=======
+        Returns
+        -------
+        ome : numpy.ndarray
+            matching operator matrix
+    <<<<<<< HEAD:src/eko/evolution_operator/operator_matrix_element.py
+    =======
 
->>>>>>> master:src/eko/matching_conditions/operator_matrix_element.py
+    >>>>>>> master:src/eko/matching_conditions/operator_matrix_element.py
     """
     # to get the inverse one can use this FORM snippet
     # Symbol a;
@@ -91,45 +91,45 @@ def quad_ker(
 ):
     r"""Raw kernel inside quad.
 
-    Parameters
-    ----------
-    u : float
-        quad argument
-    order : tuple(int,int)
-        perturbation matching order
-    mode0 : int
-        pid for first element in the singlet sector
-    mode1 : int
-        pid for second element in the singlet sector
-    is_log : boolean
-        logarithmic interpolation
-    logx : float
-        Mellin inversion point
-    areas : tuple
-        basis function configuration
-    a_s : float
-        strong coupling, needed only for the exact inverse
-    nf: int
-        number of active flavor below threshold
-    L : float
-        :math:``\ln(\mu_F^2 / m_h^2)``
-    backward_method : ["exact", "expanded" or ""]
-        empty or method for inverting the matching condition (exact or expanded)
-    is_msbar: bool
-        add the |MSbar| contribution
-    is_polarized : boolean
-        is polarized evolution ?
-    is_time_like : boolean
-        is time-like evolution ?
+        Parameters
+        ----------
+        u : float
+            quad argument
+        order : tuple(int,int)
+            perturbation matching order
+        mode0 : int
+            pid for first element in the singlet sector
+        mode1 : int
+            pid for second element in the singlet sector
+        is_log : boolean
+            logarithmic interpolation
+        logx : float
+            Mellin inversion point
+        areas : tuple
+            basis function configuration
+        a_s : float
+            strong coupling, needed only for the exact inverse
+        nf: int
+            number of active flavor below threshold
+        L : float
+            :math:``\ln(\mu_F^2 / m_h^2)``
+        backward_method : ["exact", "expanded" or ""]
+            empty or method for inverting the matching condition (exact or expanded)
+        is_msbar: bool
+            add the |MSbar| contribution
+        is_polarized : boolean
+            is polarized evolution ?
+        is_time_like : boolean
+            is time-like evolution ?
 
-    Returns
-    -------
-    ker : float
-        evaluated integration kernel
-<<<<<<< HEAD:src/eko/evolution_operator/operator_matrix_element.py
-=======
+        Returns
+        -------
+        ker : float
+            evaluated integration kernel
+    <<<<<<< HEAD:src/eko/evolution_operator/operator_matrix_element.py
+    =======
 
->>>>>>> master:src/eko/matching_conditions/operator_matrix_element.py
+    >>>>>>> master:src/eko/matching_conditions/operator_matrix_element.py
     """
     ker_base = QuadKerBase(u, is_log, logx, mode0)
     integrand = ker_base.integrand(areas)
@@ -164,11 +164,7 @@ def quad_ker(
         indices = {21: 0, 100: 1, 90: 2}
         if is_polarized:
             if is_time_like:
-<<<<<<< HEAD:src/eko/evolution_operator/operator_matrix_element.py
-                A = ome_pt.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
-=======
                 raise NotImplementedError("Polarized, time-like is not implemented")
->>>>>>> master:src/eko/matching_conditions/operator_matrix_element.py
             else:
                 A = ome_ps.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
         else:
@@ -180,21 +176,12 @@ def quad_ker(
         indices = {200: 0, 91: 1}
         if is_polarized:
             if is_time_like:
-<<<<<<< HEAD:src/eko/evolution_operator/operator_matrix_element.py
-                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
-            else:
-                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
-        else:
-            if is_time_like:
-                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
-=======
                 raise NotImplementedError("Polarized, time-like is not implemented")
             else:
                 A = ome_ps.A_non_singlet(order, ker_base.n, sx, nf, L)
         else:
             if is_time_like:
                 A = ome_ut.A_non_singlet(order, ker_base.n, sx, nf, L)
->>>>>>> master:src/eko/matching_conditions/operator_matrix_element.py
             else:
                 A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
 

@@ -25,7 +25,7 @@ def gamma_ns(N, cache):
       gamma_ns : complex
         Leading-order non-singlet anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    gamma = -(3.0 - 4.0 * c.get(c.S1, cache, N) + 2.0 / N / (N + 1.0))
+    gamma = -(3.0 - 4.0 * c.get(c.S1, cache, N, False) + 2.0 / N / (N + 1.0))
     result = constants.CF * gamma
     return result
 
@@ -95,7 +95,9 @@ def gamma_gg(N, nf, cache):
       gamma_gg : complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    gamma = c.get(c.S1, cache, N) - 1.0 / N / (N - 1.0) - 1.0 / (N + 1.0) / (N + 2.0)
+    gamma = (
+        c.get(c.S1, cache, N, True) - 1.0 / N / (N - 1.0) - 1.0 / (N + 1.0) / (N + 2.0)
+    )
     result = constants.CA * (4.0 * gamma - 11.0 / 3.0) + 4.0 / 3.0 * constants.TR * nf
     return result
 
