@@ -1,9 +1,9 @@
 # Test F functions implementing w5 harmonics sums
 
+import harmonics_w5 as w5
 import numpy as np
 
 from ekore import harmonics
-from ekore.harmonics import w5
 
 zeta2 = harmonics.constants.zeta2
 zeta3 = harmonics.constants.zeta3

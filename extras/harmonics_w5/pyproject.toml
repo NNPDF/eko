@@ -1,0 +1,102 @@
+[build-system]
+requires = ["poetry-core>=1.0.0", "poetry-dynamic-versioning"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "harmonics_w5"
+version = "0.0.0"
+description = "Weight 5 harmonics"
+readme = "README.md"
+authors = [
+  "A. Barontini <andrea.barontini@mi.infn.it>",
+  "A. Candido <alessandro.candido@mi.infn.it>",
+  "F. Hekhorn <felix.hekhorn@mi.infn.it>",
+  "N. Laurenti <niccolo.laurenti@mi.infn.it>",
+  "G. Magni <gmagni@nikhef.nl>",
+]
+classifiers = [
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering :: Physics",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+]
+repository = "https://github.com/N3PDF/eko"
+packages = [
+  { include = "harmonics_w5", from = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.8,<3.11"
+eko ="^0.12.0"
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.1.3"
+pytest-cov = "4.0.0"
+pytest-env = "^0.6.2"
+pylint = "^2.12.2"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+pdbpp = "^0.10.3"
+ipython = "^8.0"
+# benchmark
+asv = "^0.4.2"
+virtualenv = "^20.13.2"
+devtools = "^0.10.0"
+
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "semver"
+dirty = true
+
+[tool.poetry-dynamic-versioning.substitution]
+files = ["src/harmonics_w5/version.py"]
+
+
+[tool.poe.tasks]
+test = "pytest tests"
+coverage = "$BROWSER htmlcov/index.html"
+test-cov = ["test", "coverage"]
+lint = "pylint src/**/*.py -E"
+lint-warnings = "pylint src/**/*.py --exit-zero"
+
+[tool.pytest.ini_options]
+testpaths = ['tests/']
+python_files = ['test_*.py', 'benchmark_*.py', 'regression.py']
+python_classes = ['Test*', 'Benchmark*']
+python_functions = ['test_*', 'benchmark_*']
+addopts = [
+  '--cov=harmonics_w5',
+  '--cov-report=html',
+  '--cov-report=xml',
+]
+env = ["D:NUMBA_DISABLE_JIT=1"]
+
+[tool.pylint.master]
+# extensions not to check
+extension-pkg-whitelist = ["numpy", "numba"]
+ignore-paths = ["benchmarks/", "doc/", "tests/"]
+# has to be 1 as pylint is NOT threadsafe
+jobs = 1
+[tool.pylint.messages_control]
+disable = ["invalid-name", "fixme"]
+[tool.pylint.reports]
+# Available formats are:
+# text, parseable, colorized, json and msvs (visual studio).
+output-format = "colorized"
+[tool.pylint.format]
+# Maximum number of characters on a single line.
+max-line-length = 100
+[tool.pylint.design]
+# Maximum number of arguments for function / method
+max-args = 10
+
+[tool.pydocstyle]
+convention = "numpy"
