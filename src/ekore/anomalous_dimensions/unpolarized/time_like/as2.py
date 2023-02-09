@@ -197,7 +197,8 @@ def gamma_nsm(N, nf, cache, is_singlet=None):
             - 16 * sm3
             + sm2 * (16 / (N * (1 + N)) - 32 * s1)
             - (4 * (2 + 3 * N + 3 * npp(N, 3) * s2)) / (N * (1 + N))
-            + s1(
+            + s1
+            * (
                 -(
                     8
                     * (
@@ -208,7 +209,7 @@ def gamma_nsm(N, nf, cache, is_singlet=None):
                         + 4 * zeta2 * npp(N, 4)
                     )
                 )
-                / (npp(N, 2) * (1 + N, 2))
+                / (npp(N, 2) * npp(1 + N, 2))
                 + 16 * s2
             )
             - 16 * s3
@@ -370,7 +371,7 @@ def gamma_qg(N, nf, cache, is_singlet=None):
         constants.CA
         * nf
         * (
-            (1 / (9 * (-1 + N) * npp(N, 3) * npp(1 + N, 3) * (2 + N, 3)))
+            (1 / (9 * (-1 + N) * npp(N, 3) * npp(1 + N, 3) * npp(2 + N, 3)))
             * (
                 4
                 * (
