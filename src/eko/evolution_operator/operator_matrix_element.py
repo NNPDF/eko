@@ -7,7 +7,6 @@ import numba as nb
 import numpy as np
 
 import ekore.operator_matrix_elements.polarized.space_like as ome_ps
-import ekore.operator_matrix_elements.polarized.time_like as ome_pt
 import ekore.operator_matrix_elements.unpolarized.space_like as ome_us
 import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
 from ekore import harmonics
@@ -157,7 +156,7 @@ def quad_ker(
         indices = {21: 0, 100: 1, 90: 2}
         if is_polarized:
             if is_time_like:
-                A = ome_pt.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+                raise NotImplementedError("Polarized, time-like is not implemented")
             else:
                 A = ome_ps.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
         else:
@@ -169,12 +168,12 @@ def quad_ker(
         indices = {200: 0, 91: 1}
         if is_polarized:
             if is_time_like:
-                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+                raise NotImplementedError("Polarized, time-like is not implemented")
             else:
-                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+                A = ome_ps.A_non_singlet(order, ker_base.n, sx, nf, L)
         else:
             if is_time_like:
-                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+                A = ome_ut.A_non_singlet(order, ker_base.n, sx, nf, L)
             else:
                 A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
 
@@ -189,7 +188,8 @@ def quad_ker(
 
 
 class OperatorMatrixElement(Operator):
-    r"""Internal representation of a single |OME|.
+    r"""
+    Internal representation of a single |OME|.
 
     The actual matrices are computed upon calling :meth:`compute`.
 
@@ -320,7 +320,9 @@ class OperatorMatrixElement(Operator):
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
         sc = self.managers["strong_coupling"]
-        return sc.a_s(self.mur2_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1)
+        return sc.a_s(
+            self.sv_exponentiated_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1
+        )
 
     def compute(self):
         """Compute the actual operators (i.e. run the integrations)."""

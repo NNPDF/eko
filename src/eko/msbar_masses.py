@@ -1,5 +1,6 @@
 r"""|RGE| for the |MSbar| masses."""
 from math import nan
+from typing import List
 
 import numba as nb
 import numpy as np
@@ -350,7 +351,7 @@ def compute(
     couplings: CouplingsRef,
     order: Order,
     evmeth: CouplingEvolutionMethod,
-    matching: MatchingScales,
+    matching: List[float],
     xif2: float = 1.0,
 ):
     r"""Compute the |MSbar| masses.
