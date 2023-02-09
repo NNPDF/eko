@@ -105,7 +105,7 @@ def S21(N, S1, S2):
 
 
 @nb.njit(cache=True)
-def Sm21(N, S1, Sm1, is_singlet=None):
+def Sm21(N, S1, Sm1, g3p1, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-2,1}(N)`.
 
     As implemented in eq B.5.75 of :cite:`MuselliPhD` and eq 22 of
@@ -136,7 +136,7 @@ def Sm21(N, S1, Sm1, is_singlet=None):
     # Note mellin g3 was integrated following x^(N-1) convention.
     eta = symmetry_factor(N, is_singlet)
     return (
-        -eta * gf.mellin_g3(N + 1, S1 + 1 / (N + 1))
+        -eta * g3p1
         + zeta2 * Sm1
         - 5 / 8 * zeta3
         + zeta2 * log2
