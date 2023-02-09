@@ -178,8 +178,14 @@ The complete list of harmonics sums available in :mod:`ekore.harmonics` is:
     - weight 5:
 
         .. math ::
-            S_{5}, S_{4,1}, S_{3,1,1}, S_{2,3}, S_{2,2,1}, S_{2,1,1,1}, S_{2,1,-2}, S_{2,-3}, S_{-2,3}, S_{-2,2,1}, S_{-2,1,1,1}, S_{-5}
-
-        these sums relies on the integrals :mod:`ekore.harmonics.f_functions` :cite:`Blumlein:2009ta`
+            S_{5}, S_{-5}
 
 We have also implemented a recursive computation of simple harmonics (single index), see :func:`ekore.harmonics.polygamma.recursive_harmonic_sum`
+
+In the extra folder we provide and additional package :mod:`harmonics_w5` which compute analytical continuation of
+weight 5 harmonics, currently not used in :mod:`ekore`:
+
+    .. math ::
+        S_{4,1}, S_{3,1,1}, S_{2,3}, S_{2,2,1}, S_{2,1,1,1}, S_{2,1,-2}, S_{2,-3}, S_{-2,3}, S_{-2,2,1}, S_{-2,1,1,1}
+
+where these sums relies on the integrals :mod:`harmonics_w5.f_functions` :cite:`Blumlein:2009ta`
