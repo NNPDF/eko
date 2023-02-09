@@ -1,25 +1,25 @@
-"""
-The unpolarized time-like leading-order 
-(LO) Altarelli-Parisi splitting kernels.
-
-"""
+"""The unpolarized LO Altarelli-Parisi splitting kernels."""
 
 import numba as nb
 import numpy as np
-from eko import constants
-from ....harmonics import cache as c
 
+from eko import constants
+
+from ....harmonics import w1
+
+# from ....harmonics import cache as c
 
 
 @nb.njit(cache=True)
 def gamma_qq(N, cache, is_singlet=None):
-    """Computes the LO quark-quark anomalous dimension.
+    r"""Compute the LO quark-quark anomalous dimension.
+
     Implements Eqn. (B.3) from :cite:`Mitov:2006wy`.
 
     Parameters
     ----------
     N : complex
-        Mellin moment 
+        Mellin moment
     cache : numpy.ndarray
         Harmonic sum cache
     is_singlet : boolean
@@ -28,68 +28,73 @@ def gamma_qq(N, cache, is_singlet=None):
     Returns
     -------
     gamma_qq : complex
-        LO quark-quark anomalous dimension 
-        :math:`\gamma_{qq}^{(0)}(N)` 
+        LO quark-quark anomalous dimension
+        :math:`\gamma_{qq}^{(0)}(N)`
 
     """
-    s1 = c.get(c.S1, cache, N, is_singlet)
+    s1 = w1.S1(N)  # c.get(c.S1, cache, N, is_singlet)
     result = constants.CF * (-3.0 + (4.0 * s1) - 2.0 / (N * (N + 1.0)))
     return result
 
+
 @nb.njit(cache=True)
 def gamma_qg(N):
-    """Computes the LO quark-gluon anomalous dimension.
-    Implements Eqn. (B.4) from :cite:`Mitov:2006wy` 
+    r"""Compute the LO quark-gluon anomalous dimension.
+
+    Implements Eqn. (B.4) from :cite:`Mitov:2006wy`
     and Eqn. (A1) from :cite:`Gluck:1992zx`.
 
     Parameters
     ----------
     N : complex
-        Mellin moment 
+        Mellin moment
 
     Returns
     -------
     gamma_qg : complex
-        LO quark-gluon anomalous dimension 
-        :math:`\gamma_{qg}^{(0)}(N)` 
+        LO quark-gluon anomalous dimension
+        :math:`\gamma_{qg}^{(0)}(N)`
 
     """
-    result = - (N**2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
+    result = -(N**2 + N + 2.0) / (N * (N + 1.0) * (N + 2.0))
     return result
+
 
 @nb.njit(cache=True)
 def gamma_gq(N, nf):
-    """Computes the LO gluon-quark anomalous dimension.
-    Implements Eqn. (B.5) from :cite:`Mitov:2006wy` 
+    r"""Compute the LO gluon-quark anomalous dimension.
+
+    Implements Eqn. (B.5) from :cite:`Mitov:2006wy`
     and Eqn. (A1) from :cite:`Gluck:1992zx`.
 
     Parameters
     ----------
     N : complex
-        Mellin moment 
+        Mellin moment
     nf : int
-        No. of active flavors 
+        No. of active flavors
 
     Returns
     -------
     gamma_qg : complex
-        LO quark-gluon anomalous dimension 
+        LO quark-gluon anomalous dimension
         :math:`\gamma_{gq}^{(0)}(N)`
 
     """
-    result = (-4.0 * nf * constants.CF * (N**2 + N + 2.0) 
-    / (N * (N - 1.0) * (N + 1.0)))
+    result = -4.0 * nf * constants.CF * (N**2 + N + 2.0) / (N * (N - 1.0) * (N + 1.0))
     return result
+
 
 @nb.njit(cache=True)
 def gamma_gg(N, nf, cache, is_singlet=None):
-    """Computes the LO gluon-gluon anomalous dimension.
+    r"""Compute the LO gluon-gluon anomalous dimension.
+
     Implements Eqn. (B.6) from :cite:`Mitov:2006wy`.
 
     Parameters
     ----------
     N : complex
-        Mellin moment 
+        Mellin moment
     nf : int
         No. of active flavors
     cache : numpy.ndarray
@@ -100,24 +105,27 @@ def gamma_gg(N, nf, cache, is_singlet=None):
     Returns
     -------
     gamma_qq : complex
-        LO quark-quark anomalous dimension 
+        LO quark-quark anomalous dimension
         :math:`\gamma_{gg}^{(0)}(N)`
 
     """
-    s1 = c.get(c.S1, cache, N, is_singlet)
-    result = ((2.0 * nf - 11.0 * constants.CA) / 3.0 + 4.0 * constants.CA 
-    * (s1 - 1.0 / (N * (N - 1.0)) - 1.0 / ((N + 1.0) * (N + 2.0))))
+    s1 = w1.S1(N)  # c.get(c.S1, cache, N, is_singlet)
+    result = (2.0 * nf - 11.0 * constants.CA) / 3.0 + 4.0 * constants.CA * (
+        s1 - 1.0 / (N * (N - 1.0)) - 1.0 / ((N + 1.0) * (N + 2.0))
+    )
     return result
+
 
 @nb.njit(cache=True)
 def gamma_ns(N, cache, is_singlet=False):
-    """Computes the LO non-singlet anomalous dimension.
+    r"""Compute the LO non-singlet anomalous dimension.
+
     At LO, :math:`\gamma_{ns}^{(0)} = \gamma_{qq}^{(0)}`.
-	
+
     Parameters
     ----------
     N : complex
-        Mellin moment 
+        Mellin moment
     cache : numpy.ndarray
         Harmonic sum cache
     is_singlet : boolean
@@ -126,21 +134,23 @@ def gamma_ns(N, cache, is_singlet=False):
     Returns
     -------
     gamma_ns : complex
-        LO quark-quark anomalous dimension 
+        LO quark-quark anomalous dimension
         :math:`\gamma_{ns}^{(0)}(N)`
 
     """
     return gamma_qq(N, cache, is_singlet)
 
+
 @nb.njit(cache=True)
 def gamma_singlet(N, nf, cache, is_singlet=True):
-    """Computes the LO singlet anomalous dimension matrix.
+    r"""Compute the LO singlet anomalous dimension matrix.
+
     Implements Eqn. (2.13) from :cite:`Gluck:1992zx`.
 
     Parameters
     ----------
     N : complex
-        Mellin moment 
+        Mellin moment
     nf : int
         No. of active flavors
     cache : numpy.ndarray
@@ -151,10 +161,15 @@ def gamma_singlet(N, nf, cache, is_singlet=True):
     Returns
     -------
     gamma_singlet : numpy.ndarray
-        LO singlet anomalous dimension matrix 
+        LO singlet anomalous dimension matrix
         :math:`\gamma_{s}^{(0)}`
 
     """
-    result = np.array([[gamma_qq(N, cache, is_singlet), gamma_gq(N, nf)], 
-    [gamma_qg(N), gamma_gg(N, nf, cache, is_singlet)]], np.complex_)
+    result = np.array(
+        [
+            [gamma_qq(N, cache, is_singlet), gamma_gq(N, nf)],
+            [gamma_qg(N), gamma_gg(N, nf, cache, is_singlet)],
+        ],
+        np.complex_,
+    )
     return result
