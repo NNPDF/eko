@@ -3,7 +3,12 @@
 """
 import numba as nb
 
+<<<<<<< HEAD:src/ekore/anomalous_dimensions/unpolarized/space_like/as4/gnsm.py
 from eko.constants import CF, zeta3
+=======
+from eko.constants import CF
+from .....harmonics.constants import zeta3
+>>>>>>> master:src/eko/anomalous_dimensions/as4/gnsm.py
 from .....harmonics.log_functions import lm11m1, lm12m1, lm13m1
 
 
