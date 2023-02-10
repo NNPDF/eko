@@ -96,232 +96,131 @@ def dispatcher(
         non-singlet EKO
     """
     aem_steps = 1 if not alphaem_running else ev_op_iterations
+    a_steps = utils.geomspace(a0, a1, 1 + aem_steps)
+    res = 1.0
+    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
+    for step in range(1, aem_steps + 1):
+        aem = aem_list[step - 1]
+        a1 = a_steps[step]
+        a0 = a_steps[step - 1]
+        betalist[0] += aem * beta.beta_qcd((2, 1), nf)
+        gamma_ns_list = contract_gammas(gamma_ns, aem)
+        res *= choose_method_qcd(
+            gamma_ns[1:], a1, a0, beta, order, ev_op_iterations, method
+        )
+    # TODO : we should divide also the mu_integral in steps in order to attach the
+    # QED solution with aem running. For the moment we use the last value of aem.
+    # For aem fixed nothing changes.
+    res *= as0_exact(gamma_ns_list[0], mu2_from, mu2_to)
+    return res
+
+
+@nb.njit(cache=True)
+def exact(order, gamma_ns, a1, a0, beta):
+    """Compute exact solution for running alphaem.
+
+    Parameters
+    ----------
+    order : tuple(int,int)
+        perturbation order
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem_list : numpy.ndarray
+        electromagnetic coupling values
+    nf : int
+        number of active flavors
+    ev_op_iterations : int
+        number of evolution steps
+
+    Returns
+    -------
+    e_ns : complex
+        non-singlet EKO
+    """
+    if order[0] == 1:
+        return ns.lo_exact(gamma_ns, a1, a0, beta)
+    elif order[0] == 2:
+        return ns.nlo_exact(gamma_ns, a1, a0, beta)
+    elif order[0] == 3:
+        return ns.nnlo_exact(gamma_ns, a1, a0, beta)
+    else:
+        raise NotImplementedError("Selected order is not implemented")
+
+
+@nb.njit(cache=True)
+def expanded(order, gamma_ns, a1, a0, beta):
+    """Compute exact solution for running alphaem.
+
+    Parameters
+    ----------
+    order : tuple(int,int)
+        perturbation order
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem_list : numpy.ndarray
+        electromagnetic coupling values
+    nf : int
+        number of active flavors
+    ev_op_iterations : int
+        number of evolution steps
+
+    Returns
+    -------
+    e_ns : complex
+        non-singlet EKO
+    """
+    if order[0] == 1:
+        return ns.lo_exact(gamma_ns, a1, a0, beta)
+    elif order[0] == 2:
+        return ns.nlo_expanded(gamma_ns, a1, a0, beta)
+    elif order[0] == 3:
+        return ns.nnlo_expanded(gamma_ns, a1, a0, beta)
+    else:
+        raise NotImplementedError("Selected order is not implemented")
+
+
+@nb.njit(cache=True)
+def choose_method_qcd(gamma_ns, a1, a0, beta, order, ev_op_iterations, method):
+    """Select method to compute the QCD part.
+
+    Parameters
+    ----------
+    order : tuple(int,int)
+        perturbation order
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    aem_list : numpy.ndarray
+        electromagnetic coupling values
+    nf : int
+        number of active flavors
+    ev_op_iterations : int
+        number of evolution steps
+
+    Returns
+    -------
+    e_ns : complex
+        non-singlet EKO
+    """
     if method == "ordered-truncated":
-        return ordered_truncated(
-            gamma_ns,
-            a1,
-            a0,
-            aem_list,
-            nf,
-            order,
-            mu2_to,
-            mu2_from,
-            ev_op_iterations,
-        )
+        return ns.eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations)
     if method == "truncated":
-        return truncated(
-            gamma_ns,
-            a1,
-            a0,
-            aem_list,
-            nf,
-            order,
-            mu2_to,
-            mu2_from,
-            ev_op_iterations,
-        )
+        return ns.eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations)
     if method in [
         "iterate-expanded",
         "decompose-expanded",
         "perturbative-expanded",
     ]:
-        return expanded(
-            order,
-            gamma_ns,
-            a1,
-            a0,
-            aem_list,
-            nf,
-            aem_steps,
-            mu2_to,
-            mu2_from,
-        )
-    return exact(order, gamma_ns, a1, a0, aem_list, nf, aem_steps, mu2_to, mu2_from)
-
-
-@nb.njit(cache=True)
-def exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from):
-    """Compute exact solution for running alphaem.
-
-    Parameters
-    ----------
-    order : tuple(int,int)
-        perturbation order
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem_list : numpy.ndarray
-        electromagnetic coupling values
-    nf : int
-        number of active flavors
-    ev_op_iterations : int
-        number of evolution steps
-
-    Returns
-    -------
-    e_ns : complex
-        non-singlet EKO
-    """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    res = 1.0
-    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
-    # For the moment implemented in this way to make numba compile it
-    # TODO : implement it with np.prod in a way that numba compiles it
-    for step in range(1, ev_op_iterations + 1):
-        aem = aem_list[step - 1]
-        a1 = a_steps[step]
-        a0 = a_steps[step - 1]
-        betalist[0] += aem * beta.beta_qcd((2, 1), nf)
-        gamma_ns_list = contract_gammas(gamma_ns, aem)
-        if order[0] == 1:
-            res *= ns.lo_exact(gamma_ns_list[1:], a1, a0, betalist)
-        elif order[0] == 2:
-            res *= ns.nlo_exact(gamma_ns_list[1:], a1, a0, betalist)
-        elif order[0] == 3:
-            res *= ns.nnlo_exact(gamma_ns_list[1:], a1, a0, betalist)
-        else:
-            raise NotImplementedError("Selected order is not implemented")
-        res *= as0_exact(gamma_ns_list[0], mu2_from, mu2_to)
-    return res
-
-
-@nb.njit(cache=True)
-def expanded(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from):
-    """Compute exact solution for running alphaem.
-
-    Parameters
-    ----------
-    order : tuple(int,int)
-        perturbation order
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem_list : numpy.ndarray
-        electromagnetic coupling values
-    nf : int
-        number of active flavors
-    ev_op_iterations : int
-        number of evolution steps
-
-    Returns
-    -------
-    e_ns : complex
-        non-singlet EKO
-    """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    res = 1.0
-    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
-    # For the moment implemented in this way to make numba compile it
-    # TODO : implement it with np.prod in a way that numba compiles it
-    for step in range(1, ev_op_iterations + 1):
-        aem = aem_list[step - 1]
-        a1 = a_steps[step]
-        a0 = a_steps[step - 1]
-        betalist[0] += aem * beta.beta_qcd((2, 1), nf)
-        gamma_ns_list = contract_gammas(gamma_ns, aem)
-        if order[0] == 1:
-            res *= ns.lo_exact(gamma_ns_list[1:], a1, a0, betalist)
-        elif order[0] == 2:
-            res *= ns.nlo_expanded(gamma_ns_list[1:], a1, a0, betalist)
-        elif order[0] == 3:
-            res *= ns.nnlo_expanded(gamma_ns_list[1:], a1, a0, betalist)
-        else:
-            raise NotImplementedError("Selected order is not implemented")
-        res *= as0_exact(gamma_ns_list[0], mu2_from, mu2_to)
-    return res
-
-
-@nb.njit(cache=True)
-def truncated(
-    gamma_ns, a1, a0, aem_list, nf, order, mu2_to, mu2_from, ev_op_iterations
-):
-    """Compute truncated solution for running alphaem.
-
-    Parameters
-    ----------
-    order : tuple(int,int)
-        perturbation order
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem_list : numpy.ndarray
-        electromagnetic coupling values
-    nf : int
-        number of active flavors
-    ev_op_iterations : int
-        number of evolution steps
-
-    Returns
-    -------
-    e_ns : complex
-        non-singlet EKO
-    """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    res = 1.0
-    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
-    # For the moment implemented in this way to make numba compile it
-    # TODO : implement it with np.prod in a way that numba compiles it
-    for step in range(1, ev_op_iterations + 1):
-        aem = aem_list[step - 1]
-        a1 = a_steps[step]
-        a0 = a_steps[step - 1]
-        betalist[0] += aem * beta.beta_qcd((2, 1), nf)
-        gamma_ns_list = contract_gammas(gamma_ns, aem)
-        res *= ns.eko_truncated(gamma_ns[1:], a1, a0, betalist, order, ev_op_iterations)
-        res *= as0_exact(gamma_ns_list[0], mu2_from, mu2_to)
-    return res
-
-
-@nb.njit(cache=True)
-def ordered_truncated(
-    gamma_ns, a1, a0, aem_list, nf, order, mu2_to, mu2_from, ev_op_iterations
-):
-    """Compute ordered-truncated solution for running alphaem.
-
-    Parameters
-    ----------
-    order : tuple(int,int)
-        perturbation order
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem_list : numpy.ndarray
-        electromagnetic coupling values
-    nf : int
-        number of active flavors
-    ev_op_iterations : int
-        number of evolution steps
-
-    Returns
-    -------
-    e_ns : complex
-        non-singlet EKO
-    """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    res = 1.0
-    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
-    # For the moment implemented in this way to make numba compile it
-    # TODO : implement it with np.prod in a way that numba compiles it
-    for step in range(1, ev_op_iterations + 1):
-        aem = aem_list[step - 1]
-        a1 = a_steps[step]
-        a0 = a_steps[step - 1]
-        betalist[0] += aem * beta.beta_qcd((2, 1), nf)
-        gamma_ns_list = contract_gammas(gamma_ns, aem)
-        res *= ns.eko_ordered_truncated(
-            gamma_ns[1:], a1, a0, betalist, order, ev_op_iterations
-        )
-        res *= as0_exact(gamma_ns_list[0], mu2_from, mu2_to)
-    return res
+        return expanded(order, gamma_ns, a1, a0, beta)
+    return exact(order, gamma_ns, a1, a0, beta)
