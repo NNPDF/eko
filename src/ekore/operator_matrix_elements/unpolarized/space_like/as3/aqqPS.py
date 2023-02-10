@@ -1,9 +1,11 @@
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def A_qqPS(n, sx, nf, L):
+def A_qqPS(n, nf, L, cache, is_singlet):
     r"""Computes the |N3LO| singlet |OME| :math:`A_{qq}^{PS,(3)}(N)`.
     The expression is presented in :cite:`Bierenbaum:2009mv`.
 
@@ -14,12 +16,14 @@ def A_qqPS(n, sx, nf, L):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
     nf : int
         number of active flavor below the threshold
     L : float
         :math:`\ln(\mu_F^2 / m_h^2)`
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -27,9 +31,9 @@ def A_qqPS(n, sx, nf, L):
         :math:`A_{qq}^{PS,(3)}(N)`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
 
     a_qqPS_l0 = (
         0.3333333333333333

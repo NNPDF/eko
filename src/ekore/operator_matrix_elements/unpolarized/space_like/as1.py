@@ -11,9 +11,11 @@ import numpy as np
 
 from eko.constants import CF
 
+from ....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def A_hh(n, sx, L):
+def A_hh(n, L, cache, is_singlet):
     r"""
     |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}` defined as the
     mellin transform of :math:`K_{hh}` given in Eq. (20a) of :cite:`Ball_2016`.
@@ -22,18 +24,20 @@ def A_hh(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : list
-            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
         A_hh : complex
             |NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}`
     """
-    S1m = sx[0][0] - 1 / n  # harmonics.S1(n - 1)
-    S2m = sx[1][0] - 1 / n**2  # harmonics.S2(n - 1)
+    S1m = c.get(c.S1, cache, n, is_singlet) - 1 / n  # harmonics.S1(n - 1)
+    S2m = c.get(c.S2, cache, n, is_singlet) - 1 / n**2  # harmonics.S2(n - 1)
     ahh_l = (2 + n - 3 * n**2) / (n * (1 + n)) + 4 * S1m
     ahh = 2 * (
         2
@@ -115,7 +119,7 @@ def A_gg(L):
 
 
 @nb.njit(cache=True)
-def A_singlet(n, sx, L):
+def A_singlet(n, L, cache, is_singlet):
     r"""
       Computes the |NLO| singlet |OME|.
 
@@ -130,10 +134,12 @@ def A_singlet(n, sx, L):
       ----------
         n : complex
             Mellin moment
-        sx : list
-            harmonic sums cache containing: [[:math:`S_1`][:math:`S_2`]]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
       Returns
       -------
@@ -151,7 +157,7 @@ def A_singlet(n, sx, L):
         [
             [A_gg(L), 0.0, A_gh(n, L)],
             [0 + 0j, 0 + 0j, 0 + 0j],
-            [A_hg(n, L), 0.0, A_hh(n, sx, L)],
+            [A_hg(n, L), 0.0, A_hh(n, L, cache, is_singlet)],
         ],
         np.complex_,
     )
@@ -159,7 +165,7 @@ def A_singlet(n, sx, L):
 
 
 @nb.njit(cache=True)
-def A_ns(n, sx, L):
+def A_ns(n, L, cache, is_singlet):
     r"""
       Computes the |NLO| non-singlet |OME| with intrinsic contributions.
 
@@ -173,10 +179,12 @@ def A_ns(n, sx, L):
       ----------
         n : complex
             Mellin moment
-        sx : list
-            harmonic sums cache containing: [[:math:`S_1`][:math:`S_2`]]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
       Returns
       -------
         A_NS : numpy.ndarray
@@ -186,4 +194,6 @@ def A_ns(n, sx, L):
       --------
         A_hh : :math:`A_{HH}^{(1)}`
     """
-    return np.array([[0 + 0j, 0 + 0j], [0 + 0j, A_hh(n, sx, L)]], np.complex_)
+    return np.array(
+        [[0 + 0j, 0 + 0j], [0 + 0j, A_hh(n, L, cache, is_singlet)]], np.complex_
+    )

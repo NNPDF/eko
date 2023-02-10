@@ -3,9 +3,11 @@ r"""This module contains the anomalous dimension :math:`\gamma_{ps}^{(3)}`
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def gamma_ps_nf3(n, sx):
+def gamma_ps_nf3(n, cache, is_singlet):
     r"""Implements the part proportional to :math:`nf^3` of :math:`\gamma_{ps}^{(3)}`,
     the expression is copied exact from Eq. 3.10 of :cite:`Davies:2016jie`.
 
@@ -13,8 +15,10 @@ def gamma_ps_nf3(n, sx):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -22,9 +26,9 @@ def gamma_ps_nf3(n, sx):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{ps}^{(3)}|_{nf^3}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
     return 1.3333333333333333 * (
         16.305796943701882 / (-1.0 + n)
         + 3.5555555555555554 / np.power(n, 5)
@@ -77,23 +81,24 @@ def gamma_ps_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_ps_nf1(n, sx):
+def gamma_ps_nf1(n, cache, is_singlet):
     r"""Implements the part proportional to :math:`nf^1` of :math:`\gamma_{ps}^{(3)}`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
-
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
     Returns
     -------
     complex
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{ps}^{(3)}|_{nf^1}`
 
     """
-    S1 = sx[0][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
     return (
         -10185.956311680911 * (1 / (-1.0 + n) - 1.0 / n)
         - 3498.454512979491 / np.power(-1.0 + n, 3)
@@ -107,15 +112,17 @@ def gamma_ps_nf1(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_ps_nf2(n, sx):
+def gamma_ps_nf2(n, cache, is_singlet):
     r"""Implements the part proportional to :math:`nf^2` of :math:`\gamma_{ps}^{(3)}`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -123,7 +130,7 @@ def gamma_ps_nf2(n, sx):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{ps}^{(3)}|_{nf^2}`
 
     """
-    S1 = sx[0][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
     return (
         -547.9815124741111 * (1 / (-1.0 + n) - 1.0 / n)
         + 383.72024118761027 / np.power(-1.0 + n, 2)
@@ -136,7 +143,7 @@ def gamma_ps_nf2(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_ps(n, nf, sx):
+def gamma_ps(n, nf, cache, is_singlet):
     r"""Computes the |N3LO| pure singlet quark-quark anomalous dimension.
 
     Parameters
@@ -145,8 +152,10 @@ def gamma_ps(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -162,7 +171,7 @@ def gamma_ps(n, nf, sx):
 
     """
     return (
-        +nf * gamma_ps_nf1(n, sx)
-        + nf**2 * gamma_ps_nf2(n, sx)
-        + nf**3 * gamma_ps_nf3(n, sx)
+        +nf * gamma_ps_nf1(n, cache, is_singlet)
+        + nf**2 * gamma_ps_nf2(n, cache, is_singlet)
+        + nf**3 * gamma_ps_nf3(n, cache, is_singlet)
     )

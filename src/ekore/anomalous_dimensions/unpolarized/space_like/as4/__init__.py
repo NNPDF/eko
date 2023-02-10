@@ -16,7 +16,7 @@ from .gqg import gamma_qg
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf, sx):
+def gamma_singlet(N, nf, cache, is_singlet):
     r"""Computes the |N3LO| singlet anomalous dimension matrix
 
       .. math::
@@ -31,9 +31,10 @@ def gamma_singlet(N, nf, sx):
       Mellin moment
     nf : int
       Number of active flavors
-    sx : list
-      harmonic sums cache
-
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
     Returns
     -------
     numpy.ndarray
@@ -49,9 +50,12 @@ def gamma_singlet(N, nf, sx):
     gamma_gg : :math:`\gamma_{gg}^{(3)}`
 
     """
-    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx)
+    gamma_qq = gamma_nsp(N, nf, cache, is_singlet) + gamma_ps(N, nf, cache, is_singlet)
     gamma_S_0 = np.array(
-        [[gamma_qq, gamma_qg(N, nf, sx)], [gamma_gq(N, nf, sx), gamma_gg(N, nf, sx)]],
+        [
+            [gamma_qq, gamma_qg(N, nf, cache, is_singlet)],
+            [gamma_gq(N, nf, cache, is_singlet), gamma_gg(N, nf, cache, is_singlet)],
+        ],
         np.complex_,
     )
     return gamma_S_0

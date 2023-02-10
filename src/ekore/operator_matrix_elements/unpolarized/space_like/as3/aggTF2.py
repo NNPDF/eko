@@ -1,9 +1,11 @@
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def A_ggTF2(n, sx):
+def A_ggTF2(n, cache, is_singlet):
     r"""Computes the approximate incomplete part of :math:`A_{gg}^{S,(3)}(N)`
     proportional to :math:`T_{F}^2`.
     The expression is presented in  :cite:`Ablinger:2014uka` (eq 4.2).
@@ -16,8 +18,10 @@ def A_ggTF2(n, sx):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -25,12 +29,12 @@ def A_ggTF2(n, sx):
         :math:`A_{gg,T_{F}^2}^{S,(3)}(N)`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
-    S5 = sx[4][0]
-    S21 = sx[2][1]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
+    S4 = c.get(c.S4, cache, n, is_singlet)
+    S5 = c.get(c.S5, cache, n, is_singlet)
+    S21 = c.get(c.S21, cache, n, is_singlet)
     # Parametrization of:
     #   4^(1-n) Binomial[2 n,n] (
     #       -7 Zeta[3]+ Sum[(4^x(x!)^2(S[1,x] x-1))/((2x)! x^3),{x,1,n}]

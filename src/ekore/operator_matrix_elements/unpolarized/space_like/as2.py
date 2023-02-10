@@ -14,12 +14,13 @@ import numpy as np
 from eko import constants
 from eko.constants import zeta2, zeta3
 
+from ....harmonics import cache as c
 from .as1 import A_gg as A_gg_1
 from .as1 import A_hg as A_hg_1
 
 
 @nb.njit(cache=True)
-def A_qq_ns(n, sx, L):
+def A_qq_ns(n, L, cache, is_singlet):
     r"""
     |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}` given in
     Eq. (B.4) of :cite:`Buza_1998`.
@@ -28,19 +29,21 @@ def A_qq_ns(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : list
-            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
         A_qq_ns : complex
             |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
     S1m = S1 - 1 / n  # harmonic_S1(n - 1)
     S2m = S2 - 1 / n**2  # harmonic_S2(n - 1)
 
@@ -74,7 +77,7 @@ def A_qq_ns(n, sx, L):
 
 
 @nb.njit(cache=True)
-def A_hq_ps(n, sx, L):
+def A_hq_ps(n, L, cache, is_singlet):
     r"""
     |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}` given in
     Eq. (B.1) of :cite:`Buza_1998`.
@@ -83,17 +86,19 @@ def A_hq_ps(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : list
-            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
         A_hq_ps : complex
             |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`
     """
-    S2 = sx[1][0]
+    S2 = c.get(c.S2, cache, n, is_singlet)
 
     F1M = 1.0 / (n - 1.0) * (zeta2 - (S2 - 1.0 / n**2))
     F11 = 1.0 / (n + 1.0) * (zeta2 - (S2 + 1.0 / (n + 1.0) ** 2))
@@ -137,7 +142,7 @@ def A_hq_ps(n, sx, L):
 
 
 @nb.njit(cache=True)
-def A_hg(n, sx, L):
+def A_hg(n, L, cache, is_singlet):
     r"""
     |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}` given in
     Eq. (B.3) of :cite:`Buza_1998`.
@@ -147,22 +152,24 @@ def A_hg(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : list
-            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
         A_hg : complex
             |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`
     """
-    S1 = sx[0][0]
-    S2, Sm2 = sx[1]
-    if len(sx[2]) == 3:
-        S3, Sm21, Sm3 = sx[2]
-    else:
-        S3, _, _, Sm21, _, Sm3 = sx[2]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    Sm2 = c.get(c.Sm2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
+    Sm21 = c.get(c.Sm21, cache, n, is_singlet)
+    Sm3 = c.get(c.Sm3, cache, n, is_singlet)
     S1m = S1 - 1 / n
     S2m = S2 - 1 / n**2
 
@@ -277,7 +284,7 @@ def A_hg(n, sx, L):
 
 
 @nb.njit(cache=True)
-def A_gq(n, sx, L):
+def A_gq(n, L, cache, is_singlet):
     r"""
     |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}` given in
     Eq. (B.5) of :cite:`Buza_1998`.
@@ -286,18 +293,20 @@ def A_gq(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : list
-            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
         A_gq : complex
             |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
     S1m = S1 - 1 / n  # harmonic_S1(n - 1)
 
     B2M = ((S1 - 1.0 / n) ** 2 + S2 - 1.0 / n**2) / (n - 1.0)
@@ -327,7 +336,7 @@ def A_gq(n, sx, L):
 
 
 @nb.njit(cache=True)
-def A_gg(n, sx, L):
+def A_gg(n, L, cache, is_singlet):
     r"""
     |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)} ` given in
     Eq. (B.7) of :cite:`Buza_1998`.
@@ -336,17 +345,19 @@ def A_gg(n, sx, L):
     ----------
         n : complex
             Mellin moment
-        sx : list
-            harmonic sums cache
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
         A_gg : complex
             |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
     """
-    S1 = sx[0][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
     S1m = S1 - 1 / n  # harmonic_S1(n - 1)
 
     D1 = -1.0 / n**2
@@ -414,7 +425,7 @@ def A_gg(n, sx, L):
 
 
 @nb.njit(cache=True)
-def A_singlet(n, sx, L, is_msbar=False):
+def A_singlet(n, L, cache, is_singlet, is_msbar=False):
     r"""
       Computes the |NNLO| singlet |OME|.
 
@@ -429,11 +440,12 @@ def A_singlet(n, sx, L, is_msbar=False):
       ----------
         n : complex
             Mellin moment
-        sx : list
-            harmonic sums cache containing:
-                [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
         is_msbar: bool
             add the |MSbar| contribution
 
@@ -450,11 +462,11 @@ def A_singlet(n, sx, L, is_msbar=False):
         A_gq : :math:`A_{gq, H}^{S,(2)}`
         A_gg : :math:`A_{gg, H}^{S,(2)}`
     """
-    A_hq_2 = A_hq_ps(n, sx, L)
-    A_qq_2 = A_qq_ns(n, sx, L)
-    A_hg_2 = A_hg(n, sx, L)
-    A_gq_2 = A_gq(n, sx, L)
-    A_gg_2 = A_gg(n, sx, L)
+    A_hq_2 = A_hq_ps(n, L, cache, is_singlet)
+    A_qq_2 = A_qq_ns(n, L, cache, is_singlet)
+    A_hg_2 = A_hg(n, L, cache, is_singlet)
+    A_gq_2 = A_gq(n, L, cache, is_singlet)
+    A_gg_2 = A_gg(n, L, cache, is_singlet)
     if is_msbar:
         A_hg_2 -= 2.0 * 4.0 * constants.CF * A_hg_1(n, L=1.0)
         A_gg_2 -= 2.0 * 4.0 * constants.CF * A_gg_1(L=1.0)
@@ -465,7 +477,7 @@ def A_singlet(n, sx, L, is_msbar=False):
 
 
 @nb.njit(cache=True)
-def A_ns(n, sx, L):
+def A_ns(n, L, cache, is_singlet):
     r"""
       Computes the |NNLO| non-singlet |OME|.
 
@@ -479,11 +491,12 @@ def A_ns(n, sx, L):
       ----------
         n : complex
             Mellin moment
-        sx : list
-            harmonic sums cache containing:
-                [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
         L : float
             :math:`\ln(\mu_F^2 / m_h^2)`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
       Returns
       -------
@@ -494,4 +507,6 @@ def A_ns(n, sx, L):
       --------
         A_qq_ns : :math:`A_{qq,H}^{NS,(2)}`
     """
-    return np.array([[A_qq_ns(n, sx, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)
+    return np.array(
+        [[A_qq_ns(n, L, cache, is_singlet), 0.0], [0 + 0j, 0 + 0j]], np.complex_
+    )

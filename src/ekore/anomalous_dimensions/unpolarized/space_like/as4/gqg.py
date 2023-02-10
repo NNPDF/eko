@@ -3,11 +3,12 @@ r"""This module contains the anomalous dimension :math:`\gamma_{qg}^{(3)}`
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
 from .....harmonics.log_functions import lm13, lm13m1, lm14, lm15
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf3(n, sx):
+def gamma_qg_nf3(n, cache, is_singlet):
     r"""Implements the part proportional to :math:`nf^3` of :math:`\gamma_{qg}^{(3)}`,
     the expression is copied exact from Eq. 3.12 of :cite:`Davies:2016jie`.
 
@@ -15,8 +16,10 @@ def gamma_qg_nf3(n, sx):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -24,10 +27,16 @@ def gamma_qg_nf3(n, sx):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^3}`
 
     """
-    S1 = sx[0][0]
-    S2, Sm2 = sx[1]
-    S3, S21, _, _, _, Sm3 = sx[2]
-    S4, S31, S211, _, _, _, Sm4 = sx[3]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    Sm2 = c.get(c.Sm2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
+    S21 = c.get(c.S21, cache, n, is_singlet)
+    Sm3 = c.get(c.Sm3, cache, n, is_singlet)
+    S4 = c.get(c.S4, cache, n, is_singlet)
+    S31 = c.get(c.S31, cache, n, is_singlet)
+    S211 = c.get(c.S211, cache, n, is_singlet)
+    Sm4 = c.get(c.Sm4, cache, n, is_singlet)
     return 1.3333333333333333 * (
         44.56685134331718 / (-1.0 + n)
         - 82.37037037037037 / np.power(n, 5)
@@ -329,15 +338,17 @@ def gamma_qg_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf1(n, sx):
+def gamma_qg_nf1(n, cache, is_singlet):
     r"""Implements the part proportional to :math:`nf^1` of :math:`\gamma_{qg}^{(3)}`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -345,11 +356,11 @@ def gamma_qg_nf1(n, sx):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^1}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
-    S5 = sx[4][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
+    S4 = c.get(c.S4, cache, n, is_singlet)
+    S5 = c.get(c.S5, cache, n, is_singlet)
     return (
         -7871.5226542038545 / np.power(-1.0 + n, 3)
         + 13490.08729769531 / np.power(-1.0 + n, 2)
@@ -365,15 +376,17 @@ def gamma_qg_nf1(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf2(n, sx):
+def gamma_qg_nf2(n, cache, is_singlet):
     r"""Implements the part proportional to :math:`nf^2` of :math:`\gamma_{qg}^{(3)}`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -381,11 +394,11 @@ def gamma_qg_nf2(n, sx):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^2}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
-    S5 = sx[4][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
+    S4 = c.get(c.S4, cache, n, is_singlet)
+    S5 = c.get(c.S5, cache, n, is_singlet)
     return (
         237.02932710506118 / np.power(-1.0 + n, 2)
         + 447.1862550338544 / (-1.0 + n)
@@ -400,7 +413,7 @@ def gamma_qg_nf2(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_qg(n, nf, sx):
+def gamma_qg(n, nf, cache, is_singlet):
     r"""Computes the |N3LO| quark-gluon singlet anomalous dimension.
 
     Parameters
@@ -409,8 +422,10 @@ def gamma_qg(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -426,7 +441,7 @@ def gamma_qg(n, nf, sx):
 
     """
     return (
-        +nf * gamma_qg_nf1(n, sx)
-        + nf**2 * gamma_qg_nf2(n, sx)
-        + nf**3 * gamma_qg_nf3(n, sx)
+        +nf * gamma_qg_nf1(n, cache, is_singlet)
+        + nf**2 * gamma_qg_nf2(n, cache, is_singlet)
+        + nf**3 * gamma_qg_nf3(n, cache, is_singlet)
     )

@@ -10,9 +10,11 @@ import numpy as np
 
 from eko.constants import zeta2, zeta3
 
+from ....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def gamma_nsm(n, nf, sx):
+def gamma_nsm(n, nf, cache, is_singlet):
     """
     Computes the |NNLO| valence-like non-singlet anomalous dimension.
 
@@ -24,8 +26,10 @@ def gamma_nsm(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np.ndarray
-            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -33,9 +37,9 @@ def gamma_nsm(n, nf, sx):
             |NNLO| valence-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,-}^{(2)}(N)`
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E2 = 2.0 * (-S1 / n**3 + (zeta2 - S2) / n**2 - (S3 - zeta3) / n)
@@ -89,7 +93,7 @@ def gamma_nsm(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsp(n, nf, sx):
+def gamma_nsp(n, nf, cache, is_singlet):
     """
     Computes the |NNLO| singlet-like non-singlet anomalous dimension.
 
@@ -101,8 +105,10 @@ def gamma_nsp(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np.ndarray
-            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -110,9 +116,9 @@ def gamma_nsp(n, nf, sx):
             |NNLO| singlet-like non-singlet anomalous dimension
             :math:`\\gamma_{ns,+}^{(2)}(N)`
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E2 = 2.0 * (-S1 / n**3 + (zeta2 - S2) / n**2 - (S3 - zeta3) / n)
@@ -166,7 +172,7 @@ def gamma_nsp(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsv(n, nf, sx):
+def gamma_nsv(n, nf, cache, is_singlet):
     """
     Computes the |NNLO| valence non-singlet anomalous dimension.
 
@@ -178,8 +184,10 @@ def gamma_nsv(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np.ndarray
-            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -187,9 +195,9 @@ def gamma_nsv(n, nf, sx):
             |NNLO| valence non-singlet anomalous dimension
             :math:`\\gamma_{ns,v}^{(2)}(N)`
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E2 = 2.0 * (-S1 / n**3 + (zeta2 - S2) / n**2 - (S3 - zeta3) / n)
@@ -216,12 +224,12 @@ def gamma_nsv(n, nf, sx):
         + 46.18 * E2
     )
 
-    result = gamma_nsm(n, nf, sx) + nf * ps2
+    result = gamma_nsm(n, nf, cache, is_singlet) + nf * ps2
     return result
 
 
 @nb.njit(cache=True)
-def gamma_ps(n, nf, sx):
+def gamma_ps(n, nf, cache, is_singlet):
     """
     Computes the |NNLO| pure-singlet quark-quark anomalous dimension.
 
@@ -233,8 +241,10 @@ def gamma_ps(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np.ndarray
-            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -242,9 +252,9 @@ def gamma_ps(n, nf, sx):
             |NNLO| pure-singlet quark-quark anomalous dimension
             :math:`\\gamma_{ps}^{(2)}(N)`
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E11 = (S1 + 1.0 / (n + 1.0)) / (n + 1.0) ** 2 + (
@@ -293,7 +303,7 @@ def gamma_ps(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_qg(n, nf, sx):
+def gamma_qg(n, nf, cache, is_singlet):
     """
     Computes the |NNLO| quark-gluon singlet anomalous dimension.
 
@@ -305,8 +315,10 @@ def gamma_qg(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np.ndarray
-            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -314,10 +326,10 @@ def gamma_qg(n, nf, sx):
             |NNLO| quark-gluon singlet anomalous dimension
             :math:`\\gamma_{qg}^{(2)}(N)`
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
-    S4 = sx[3]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
+    S4 = c.get(c.S4, cache, n, is_singlet)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E2 = 2.0 * (-S1 / n**3 + (zeta2 - S2) / n**2 - (S3 - zeta3) / n)
@@ -367,7 +379,7 @@ def gamma_qg(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_gq(n, nf, sx):
+def gamma_gq(n, nf, cache, is_singlet):
     """
     Computes the |NNLO| gluon-quark singlet anomalous dimension.
 
@@ -379,8 +391,10 @@ def gamma_gq(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np.ndarray
-            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -388,10 +402,10 @@ def gamma_gq(n, nf, sx):
             |NNLO| gluon-quark singlet anomalous dimension
             :math:`\\gamma_{gq}^{(2)}(N)`
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
-    S4 = sx[3]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
+    S4 = c.get(c.S4, cache, n, is_singlet)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E2 = 2.0 * (-S1 / n**3 + (zeta2 - S2) / n**2 - (S3 - zeta3) / n)
@@ -457,7 +471,7 @@ def gamma_gq(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_gg(n, nf, sx):
+def gamma_gg(n, nf, cache, is_singlet):
     """
     Computes the |NNLO| gluon-gluon singlet anomalous dimension.
 
@@ -469,8 +483,10 @@ def gamma_gg(n, nf, sx):
             Mellin moment
         nf : int
             Number of active flavors
-        sx : np.ndarray
-            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -478,9 +494,9 @@ def gamma_gg(n, nf, sx):
             |NNLO| gluon-gluon singlet anomalous dimension
             :math:`\\gamma_{gg}^{(2)}(N)`
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E11 = (S1 + 1.0 / (n + 1.0)) / (n + 1.0) ** 2 + (
@@ -545,7 +561,7 @@ def gamma_gg(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf, sx):
+def gamma_singlet(N, nf, cache, is_singlet):
     r"""
       Computes the |NNLO| singlet anomalous dimension matrix
 
@@ -561,8 +577,10 @@ def gamma_singlet(N, nf, sx):
           Mellin moment
         nf : int
           Number of active flavors
-        sx : np.ndarray
-            List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+        cache : numpy.ndarray
+            Harmonic sum cache
+        is_singlet : boolean
+            True for singlet, False for non-singlet, None otherwise
 
 
       Returns
@@ -579,9 +597,12 @@ def gamma_singlet(N, nf, sx):
         gamma_gq : :math:`\gamma_{gq}^{(2)}`
         gamma_gg : :math:`\gamma_{gg}^{(2)}`
     """
-    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx)
+    gamma_qq = gamma_nsp(N, nf, cache, is_singlet) + gamma_ps(N, nf, cache, is_singlet)
     gamma_S_0 = np.array(
-        [[gamma_qq, gamma_qg(N, nf, sx)], [gamma_gq(N, nf, sx), gamma_gg(N, nf, sx)]],
+        [
+            [gamma_qq, gamma_qg(N, nf, cache, is_singlet)],
+            [gamma_gq(N, nf, cache, is_singlet), gamma_gg(N, nf, cache, is_singlet)],
+        ],
         np.complex_,
     )
     return gamma_S_0

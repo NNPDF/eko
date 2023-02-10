@@ -5,6 +5,7 @@ This file contains the O(aem1) Altarelli-Parisi splitting kernels.
 import numba as nb
 
 from eko import constants
+
 from . import as1
 
 
@@ -75,7 +76,7 @@ def gamma_phph(nf):
 
 
 @nb.njit(cache=True)
-def gamma_ns(N, s1):
+def gamma_ns(N, cache):
     """
     Computes the leading-order non-singlet QED anomalous dimension.
 
@@ -85,12 +86,12 @@ def gamma_ns(N, s1):
     ----------
       N : complex
         Mellin moment
-      s1 : complex
-        S1(N)
+      cache : numpy.ndarray
+            Harmonic sum cache
 
     Returns
     -------
       gamma_ns : complex
         Leading-order non-singlet QED anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    return as1.gamma_ns(N, s1) / constants.CF
+    return as1.gamma_ns(N, cache) / constants.CF

@@ -2,9 +2,11 @@
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def A_Hgstfac(n, sx, nf):
+def A_Hgstfac(n, nf, cache, is_singlet):
     r"""Computes the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)`
     proportional to :math:`T_{F}`.
     The expression is presented in :cite:`Blumlein:2017wxd` (eq 3.1).
@@ -23,18 +25,30 @@ def A_Hgstfac(n, sx, nf):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
     complex
 
     """
-    S1, _ = sx[0]
-    S2, Sm2 = sx[1]
-    S3, S21, _, Sm21, _, Sm3 = sx[2]
-    S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    Sm2 = c.get(c.Sm2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
+    S21 = c.get(c.S21, cache, n, is_singlet)
+    Sm21 = c.get(c.Sm21, cache, n, is_singlet)
+    Sm3 = c.get(c.Sm3, cache, n, is_singlet)
+    S4 = c.get(c.S4, cache, n, is_singlet)
+    S31 = c.get(c.S31, cache, n, is_singlet)
+    S211 = c.get(c.S211, cache, n, is_singlet)
+    Sm22 = c.get(c.Sm22, cache, n, is_singlet)
+    Sm211 = c.get(c.Sm211, cache, n, is_singlet)
+    Sm31 = c.get(c.Sm31, cache, n, is_singlet)
+    Sm4 = c.get(c.Sm4, cache, n, is_singlet)
     momentum_conservation_shift = (
         -136.47358087568801 / n**3 * nf - 375.88217393160176 / n**2
     )

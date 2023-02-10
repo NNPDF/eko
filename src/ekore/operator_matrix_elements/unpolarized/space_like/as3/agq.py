@@ -1,9 +1,11 @@
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def A_gq(n, sx, nf, L):  # pylint: disable=too-many-locals
+def A_gq(n, nf, L, cache, is_singlet):  # pylint: disable=too-many-locals
     r"""Computes the |N3LO| singlet |OME| :math:`A_{gq}^{S,(3)}(N)`.
     The expression is presented in :cite:`Ablinger_2014` (eq 6.3).
 
@@ -14,12 +16,14 @@ def A_gq(n, sx, nf, L):  # pylint: disable=too-many-locals
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
     nf : int
         number of active flavor below the threshold
     L : float
         :math:`\ln(\mu_F^2 / m_h^2)`
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -27,10 +31,23 @@ def A_gq(n, sx, nf, L):  # pylint: disable=too-many-locals
         :math:`A_{gq}^{S,(3)}(N)`
 
     """
-    S1, Sm1 = sx[0]
-    S2, Sm2 = sx[1]
-    S3, S21, S2m1, Sm21, Sm2m1, Sm3 = sx[2]
-    S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    Sm1 = c.get(c.Sm1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    Sm2 = c.get(c.Sm2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
+    S21 = c.get(c.S21, cache, n, is_singlet)
+    S2m1 = c.get(c.S2m1, cache, n, is_singlet)
+    Sm21 = c.get(c.Sm21, cache, n, is_singlet)
+    Sm2m1 = c.get(c.Sm2m1, cache, n, is_singlet)
+    Sm3 = c.get(c.Sm3, cache, n, is_singlet)
+    S4 = c.get(c.S4, cache, n, is_singlet)
+    S31 = c.get(c.S31, cache, n, is_singlet)
+    S211 = c.get(c.S211, cache, n, is_singlet)
+    Sm22 = c.get(c.Sm22, cache, n, is_singlet)
+    Sm211 = c.get(c.Sm211, cache, n, is_singlet)
+    Sm31 = c.get(c.Sm31, cache, n, is_singlet)
+    Sm4 = c.get(c.Sm4, cache, n, is_singlet)
     a_gq_l0 = (
         0.3333333333333333
         * (

@@ -3,20 +3,23 @@
 """
 import numba as nb
 
+from .....harmonics import cache as c
 from .....harmonics.log_functions import lm11m1, lm12m1, lm13m1
 from .gnsm import gamma_ns_nf3
 
 
 @nb.njit(cache=True)
-def gamma_nsp_nf2(n, sx):
+def gamma_nsp_nf2(n, cache, is_singlet):
     """Implements the parametrized singlet-like non-singlet part proportional to :math:`nf^2`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -24,10 +27,12 @@ def gamma_nsp_nf2(n, sx):
         |N3LO| singlet-like non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^2}`
 
     """
-    S1 = sx[0][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
     Lm11m1 = lm11m1(n, S1)
-    Lm12m1 = lm12m1(n, S1, sx[1][0])
-    Lm13m1 = lm13m1(n, S1, sx[1][0], sx[2][0])
+    Lm12m1 = lm12m1(n, S1, S2)
+    Lm13m1 = lm13m1(n, S1, S2, S3)
     return (
         -193.85479604848626
         - 18.962962962962962 / n**5
@@ -48,15 +53,17 @@ def gamma_nsp_nf2(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsp_nf1(n, sx):
+def gamma_nsp_nf1(n, cache, is_singlet):
     """Implements the parametrized singlet-like non-singlet part proportional to :math:`nf^1`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -64,10 +71,12 @@ def gamma_nsp_nf1(n, sx):
         |N3LO| singlet-like non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^1}`
 
     """
-    S1 = sx[0][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
     Lm11m1 = lm11m1(n, S1)
-    Lm12m1 = lm12m1(n, S1, sx[1][0])
-    Lm13m1 = lm13m1(n, S1, sx[1][0], sx[2][0])
+    Lm12m1 = lm12m1(n, S1, S2)
+    Lm13m1 = lm13m1(n, S1, S2, S3)
     return (
         5550.063827367692
         - 126.41975308641975 / n**6
@@ -89,15 +98,17 @@ def gamma_nsp_nf1(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsp_nf0(n, sx):
+def gamma_nsp_nf0(n, cache, is_singlet):
     """Implements the parametrized singlet-like non-singlet part proportional to :math:`nf^0`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -105,10 +116,12 @@ def gamma_nsp_nf0(n, sx):
         |N3LO| singlet-like non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^0}`
 
     """
-    S1 = sx[0][0]
+    S1 = c.get(c.S1, cache, n, is_singlet)
+    S2 = c.get(c.S2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n, is_singlet)
     Lm11m1 = lm11m1(n, S1)
-    Lm12m1 = lm12m1(n, S1, sx[1][0])
-    Lm13m1 = lm13m1(n, S1, sx[1][0], sx[2][0])
+    Lm12m1 = lm12m1(n, S1, S2)
+    Lm13m1 = lm13m1(n, S1, S2, S3)
     return (
         -23391.854890259732
         - 252.8395061728395 / n**7
@@ -131,7 +144,7 @@ def gamma_nsp_nf0(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsp(n, nf, sx):
+def gamma_nsp(n, nf, cache, is_singlet):
     """Computes the |N3LO| singlet-like non-singlet anomalous dimension.
 
     Parameters
@@ -140,8 +153,10 @@ def gamma_nsp(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : list
-        harmonic sums cache
+    cache : numpy.ndarray
+        Harmonic sum cache
+    is_singlet : boolean
+        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -158,8 +173,8 @@ def gamma_nsp(n, nf, sx):
 
     """
     return (
-        gamma_nsp_nf0(n, sx)
-        + nf * gamma_nsp_nf1(n, sx)
-        + nf**2 * gamma_nsp_nf2(n, sx)
-        + nf**3 * gamma_ns_nf3(n, sx)
+        gamma_nsp_nf0(n, cache, is_singlet)
+        + nf * gamma_nsp_nf1(n, cache, is_singlet)
+        + nf**2 * gamma_nsp_nf2(n, cache, is_singlet)
+        + nf**3 * gamma_ns_nf3(n, cache, is_singlet)
     )
