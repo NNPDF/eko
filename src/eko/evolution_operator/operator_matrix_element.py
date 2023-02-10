@@ -166,24 +166,24 @@ def quad_ker(
             if is_time_like:
                 raise NotImplementedError("Polarized, time-like is not implemented")
             else:
-                A = ome_ps.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+                A = ome_ps.A_singlet(order, ker_base.n, nf, L, is_msbar)
         else:
             if is_time_like:
-                A = ome_ut.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+                A = ome_ut.A_singlet(order, ker_base.n, nf, L, is_msbar)
             else:
-                A = ome_us.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+                A = ome_us.A_singlet(order, ker_base.n, nf, L, is_msbar)
     else:
         indices = {200: 0, 91: 1}
         if is_polarized:
             if is_time_like:
                 raise NotImplementedError("Polarized, time-like is not implemented")
             else:
-                A = ome_ps.A_non_singlet(order, ker_base.n, sx, nf, L)
+                A = ome_ps.A_non_singlet(order, ker_base.n, nf, L)
         else:
             if is_time_like:
-                A = ome_ut.A_non_singlet(order, ker_base.n, sx, nf, L)
+                A = ome_ut.A_non_singlet(order, ker_base.n, nf, L)
             else:
-                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+                A = ome_us.A_non_singlet(order, ker_base.n, nf, L)
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, a_s, backward_method)
