@@ -5,7 +5,6 @@ import numpy as np
 from .. import beta
 from . import non_singlet as ns
 from . import utils
-from .non_singlet import U_vec, lo_exact
 
 
 @nb.njit(cache=True)
@@ -31,7 +30,7 @@ def contract_gammas(gamma_ns, aem):
 
 
 @nb.njit(cache=True)
-def apply_qed(gamma_pure_qed, mu2_from, mu2_to):
+def as0_exact(gamma_pure_qed, mu2_from, mu2_to):
     """Apply pure QED evolution to QCD kernel.
 
     Parameters
@@ -50,191 +49,6 @@ def apply_qed(gamma_pure_qed, mu2_from, mu2_to):
 
     """
     return np.exp(gamma_pure_qed * np.log(mu2_from / mu2_to))
-
-
-@nb.njit(cache=True)
-def as1_exact(gamma_ns, a1, a0, beta):
-    """O(as1aem1) non-singlet exact EKO.
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    e_ns^0 : complex
-        O(as1aem1) non-singlet exact EKO
-    """
-    return ns.lo_exact(gamma_ns, a1, a0, beta)
-
-
-@nb.njit(cache=True)
-def as2_exact(gamma_ns, a1, a0, beta):
-    """O(as2aem1) non-singlet exact EKO.
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    e_ns^1 : complex
-        O(as2aem1) non-singlet exact EKO
-    """
-    return ns.nlo_exact(gamma_ns, a1, a0, beta)
-
-
-@nb.njit(cache=True)
-def as3_exact(gamma_ns, a1, a0, beta):
-    """O(as3aem1) non-singlet exact EKO.
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem : float
-            electromagnetic coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    e_ns^2 : complex
-        O(as3aem1) non-singlet exact EKO
-    """
-    return ns.nnlo_exact(gamma_ns, a1, a0, beta)
-
-
-@nb.njit(cache=True)
-def as2_expanded(gamma_ns, a1, a0, beta):
-    """O(as2aem1) non-singlet exact EKO.
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    e_ns^1 : complex
-        O(as2aem1) non-singlet exact EKO
-    """
-    return ns.nlo_expanded(gamma_ns, a1, a0, beta)
-
-
-@nb.njit(cache=True)
-def as3_expanded(gamma_ns, a1, a0, beta):
-    """O(as3aem1) non-singlet exact EKO.
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem : float
-            electromagnetic coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    e_ns^2 : complex
-        O(as3aem1) non-singlet exact EKO
-    """
-    return ns.nnlo_expanded(gamma_ns, a1, a0, beta)
-
-
-# For eko_truncated and eko_ordered_truncated is not sufficient
-# to call the non_singlet ones with the new gamma, but they have to be reimplemented
-@nb.njit(cache=True)
-def eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
-    """|NLO|, |NNLO| or |N3LO| non-singlet truncated EKO.
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    nf : int
-        number of active flavors
-    order : tuple(int,int)
-        perturbative order
-    ev_op_iterations : int
-        number of evolution steps
-
-    Returns
-    -------
-    complex
-        non-singlet truncated EKO
-
-    """
-    raise NotImplementedError("eko_truncated for qed is not implemented yet")
-    # return ns.eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations)
-
-
-@nb.njit(cache=True)
-def eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
-    """|NLO|, |NNLO| or |N3LO| non-singlet truncated EKO.
-
-    Parameters
-    ----------
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    nf : int
-        number of active flavors
-    order : tuple(int,int)
-        perturbative order
-    ev_op_iterations : int
-        number of evolution steps
-
-    Returns
-    -------
-    complex
-        non-singlet truncated EKO
-
-    """
-    raise NotImplementedError("eko_ordered_truncated for qed is not implemented yet")
-    # return ns.eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations)
 
 
 @nb.njit(cache=True)
@@ -281,151 +95,52 @@ def dispatcher(
     e_ns : complex
         non-singlet EKO
     """
-    if not alphaem_running:
-        aem = aem_list[0]
-        if method == "ordered-truncated":
-            return fixed_alphaem_ordered_truncated(
-                gamma_ns, a1, a0, aem, nf, order, mu2_to, mu2_from, ev_op_iterations
-            )
-        if method == "truncated":
-            return fixed_alphaem_truncated(
-                gamma_ns, a1, a0, aem, nf, order, mu2_to, mu2_from, ev_op_iterations
-            )
-        if method in [
-            "iterate-expanded",
-            "decompose-expanded",
-            "perturbative-expanded",
-        ]:
-            return fixed_alphaem_expanded(
-                order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from
-            )
-        return fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
-    else:
-        if method == "ordered-truncated":
-            return running_alphaem_ordered_truncated(
-                gamma_ns,
-                a1,
-                a0,
-                aem_list,
-                nf,
-                order,
-                mu2_to,
-                mu2_from,
-                ev_op_iterations,
-            )
-        if method == "truncated":
-            return running_alphaem_truncated(
-                gamma_ns,
-                a1,
-                a0,
-                aem_list,
-                nf,
-                order,
-                mu2_to,
-                mu2_from,
-                ev_op_iterations,
-            )
-        if method in [
-            "iterate-expanded",
-            "decompose-expanded",
-            "perturbative-expanded",
-        ]:
-            return running_alphaem_expanded(
-                order,
-                gamma_ns,
-                a1,
-                a0,
-                aem_list,
-                nf,
-                ev_op_iterations,
-                mu2_to,
-                mu2_from,
-            )
-        return running_alphaem_exact(
-            order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from
+    aem_steps = 1 if not alphaem_running else ev_op_iterations
+    if method == "ordered-truncated":
+        return ordered_truncated(
+            gamma_ns,
+            a1,
+            a0,
+            aem_list,
+            nf,
+            order,
+            mu2_to,
+            mu2_from,
+            ev_op_iterations,
         )
+    if method == "truncated":
+        return truncated(
+            gamma_ns,
+            a1,
+            a0,
+            aem_list,
+            nf,
+            order,
+            mu2_to,
+            mu2_from,
+            ev_op_iterations,
+        )
+    if method in [
+        "iterate-expanded",
+        "decompose-expanded",
+        "perturbative-expanded",
+    ]:
+        return expanded(
+            order,
+            gamma_ns,
+            a1,
+            a0,
+            aem_list,
+            nf,
+            aem_steps,
+            mu2_to,
+            mu2_from,
+        )
+    return exact(order, gamma_ns, a1, a0, aem_list, nf, aem_steps, mu2_to, mu2_from)
 
 
 @nb.njit(cache=True)
-def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
-    """Compute exact solution for fixed alphaem.
-
-    Parameters
-    ----------
-    order : tuple(int,int)
-        perturbation order
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    e_ns : complex
-        non-singlet EKO
-    """
-    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
-    betalist[0] += aem * beta.beta_qcd((2, 1), nf)
-    gamma_ns_list = contract_gammas(gamma_ns, aem)
-    if order[0] == 1:
-        qcd_only = as1_exact(gamma_ns_list[1:], a1, a0, betalist)
-    elif order[0] == 2:
-        qcd_only = as2_exact(gamma_ns_list[1:], a1, a0, betalist)
-    elif order[0] == 3:
-        qcd_only = as3_exact(gamma_ns_list[1:], a1, a0, betalist)
-    else:
-        raise NotImplementedError("Selected order is not implemented")
-    return qcd_only * apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
-
-
-@nb.njit(cache=True)
-def fixed_alphaem_expanded(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
-    """Compute exact solution for fixed alphaem.
-
-    Parameters
-    ----------
-    order : tuple(int,int)
-        perturbation order
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
-
-    Returns
-    -------
-    e_ns : complex
-        non-singlet EKO
-    """
-    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
-    betalist[0] += aem * beta.beta_qcd((2, 1), nf)
-    gamma_ns_list = contract_gammas(gamma_ns, aem)
-    if order[0] == 1:
-        qcd_only = as1_exact(gamma_ns_list[1:], a1, a0, betalist)
-    elif order[0] == 2:
-        qcd_only = as2_expanded(gamma_ns_list[1:], a1, a0, betalist)
-    elif order[0] == 3:
-        qcd_only = as3_expanded(gamma_ns_list[1:], a1, a0, betalist)
-    else:
-        raise NotImplementedError("Selected order is not implemented")
-    return qcd_only * apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
-
-
-@nb.njit(cache=True)
-def running_alphaem_exact(
-    order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from
-):
+def exact(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from):
     """Compute exact solution for running alphaem.
 
     Parameters
@@ -462,21 +177,19 @@ def running_alphaem_exact(
         betalist[0] += aem * beta.beta_qcd((2, 1), nf)
         gamma_ns_list = contract_gammas(gamma_ns, aem)
         if order[0] == 1:
-            res *= as1_exact(gamma_ns_list[1:], a1, a0, betalist)
+            res *= ns.lo_exact(gamma_ns_list[1:], a1, a0, betalist)
         elif order[0] == 2:
-            res *= as2_exact(gamma_ns_list[1:], a1, a0, betalist)
+            res *= ns.nlo_exact(gamma_ns_list[1:], a1, a0, betalist)
         elif order[0] == 3:
-            res *= as3_exact(gamma_ns_list[1:], a1, a0, betalist)
+            res *= ns.nnlo_exact(gamma_ns_list[1:], a1, a0, betalist)
         else:
             raise NotImplementedError("Selected order is not implemented")
-        res *= apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
+        res *= as0_exact(gamma_ns_list[0], mu2_from, mu2_to)
     return res
 
 
 @nb.njit(cache=True)
-def running_alphaem_expanded(
-    order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from
-):
+def expanded(order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from):
     """Compute exact solution for running alphaem.
 
     Parameters
@@ -513,54 +226,19 @@ def running_alphaem_expanded(
         betalist[0] += aem * beta.beta_qcd((2, 1), nf)
         gamma_ns_list = contract_gammas(gamma_ns, aem)
         if order[0] == 1:
-            res *= as1_exact(gamma_ns_list[1:], a1, a0, betalist)
+            res *= ns.lo_exact(gamma_ns_list[1:], a1, a0, betalist)
         elif order[0] == 2:
-            res *= as2_expanded(gamma_ns_list[1:], a1, a0, betalist)
+            res *= ns.nlo_expanded(gamma_ns_list[1:], a1, a0, betalist)
         elif order[0] == 3:
-            res *= as3_expanded(gamma_ns_list[1:], a1, a0, betalist)
+            res *= ns.nnlo_expanded(gamma_ns_list[1:], a1, a0, betalist)
         else:
             raise NotImplementedError("Selected order is not implemented")
-        res *= apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
+        res *= as0_exact(gamma_ns_list[0], mu2_from, mu2_to)
     return res
 
 
 @nb.njit(cache=True)
-def fixed_alphaem_truncated(
-    gamma_ns, a1, a0, aem, nf, order, mu2_to, mu2_from, ev_op_iterations
-):
-    """Compute truncated solution for fixed alphaem.
-
-    Parameters
-    ----------
-    order : tuple(int,int)
-        perturbation order
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem_list : numpy.ndarray
-        electromagnetic coupling values
-    nf : int
-        number of active flavors
-    ev_op_iterations : int
-        number of evolution steps
-
-    Returns
-    -------
-    e_ns : complex
-        non-singlet EKO
-    """
-    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
-    betalist[0] += aem * beta.beta_qcd((2, 1), nf)
-    gamma_ns_list = contract_gammas(gamma_ns, aem)
-    qcd_only = eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations)
-    return qcd_only * apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
-
-
-@nb.njit(cache=True)
-def running_alphaem_truncated(
+def truncated(
     gamma_ns, a1, a0, aem_list, nf, order, mu2_to, mu2_from, ev_op_iterations
 ):
     """Compute truncated solution for running alphaem.
@@ -598,48 +276,13 @@ def running_alphaem_truncated(
         a0 = a_steps[step - 1]
         betalist[0] += aem * beta.beta_qcd((2, 1), nf)
         gamma_ns_list = contract_gammas(gamma_ns, aem)
-        res *= eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations)
-        res *= apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
+        res *= ns.eko_truncated(gamma_ns[1:], a1, a0, betalist, order, ev_op_iterations)
+        res *= as0_exact(gamma_ns_list[0], mu2_from, mu2_to)
     return res
 
 
 @nb.njit(cache=True)
-def fixed_alphaem_ordered_truncated(
-    gamma_ns, a1, a0, aem, nf, order, mu2_to, mu2_from, ev_op_iterations
-):
-    """Compute ordered-truncated solution for fixed alphaem.
-
-    Parameters
-    ----------
-    order : tuple(int,int)
-        perturbation order
-    gamma_ns : numpy.ndarray
-        non-singlet anomalous dimensions
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    aem_list : numpy.ndarray
-        electromagnetic coupling values
-    nf : int
-        number of active flavors
-    ev_op_iterations : int
-        number of evolution steps
-
-    Returns
-    -------
-    e_ns : complex
-        non-singlet EKO
-    """
-    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
-    betalist[0] += aem * beta.beta_qcd((2, 1), nf)
-    gamma_ns_list = contract_gammas(gamma_ns, aem)
-    qcd_only = eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations)
-    return qcd_only * apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
-
-
-@nb.njit(cache=True)
-def running_alphaem_ordered_truncated(
+def ordered_truncated(
     gamma_ns, a1, a0, aem_list, nf, order, mu2_to, mu2_from, ev_op_iterations
 ):
     """Compute ordered-truncated solution for running alphaem.
@@ -677,6 +320,8 @@ def running_alphaem_ordered_truncated(
         a0 = a_steps[step - 1]
         betalist[0] += aem * beta.beta_qcd((2, 1), nf)
         gamma_ns_list = contract_gammas(gamma_ns, aem)
-        res *= eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations)
-        res *= apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
+        res *= ns.eko_ordered_truncated(
+            gamma_ns[1:], a1, a0, betalist, order, ev_op_iterations
+        )
+        res *= as0_exact(gamma_ns_list[0], mu2_from, mu2_to)
     return res
