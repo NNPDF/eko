@@ -1,9 +1,8 @@
 # Test F functions implementing w5 harmonics sums
 
+import harmonics_w5 as w5
 import numpy as np
 
-from eko.constants import zeta2, zeta3, zeta4, zeta5
-from ekore.harmonics import w5
 from ekore.harmonics import cache as c
 
 log2 = np.log(2)
@@ -52,7 +51,7 @@ refvals = {
 }
 
 
-# copare the exact values of some harmonics
+# compare the exact values of some harmonics
 # All the harmonics definition are coming from :cite`:Bl_mlein_2009` section 9.
 # F19, F20,F21 are not present in that paper.
 def test_F9():
