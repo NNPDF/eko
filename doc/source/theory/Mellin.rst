@@ -188,4 +188,4 @@ weight 5 harmonics, currently not used in :mod:`ekore`:
     .. math ::
         S_{4,1}, S_{3,1,1}, S_{2,3}, S_{2,2,1}, S_{2,1,1,1}, S_{2,1,-2}, S_{2,-3}, S_{-2,3}, S_{-2,2,1}, S_{-2,1,1,1}
 
-where these sums relies on the integrals :mod:`harmonics_w5.f_functions` :cite:`Blumlein:2009ta`
+where these sums rely on the integrals :mod:`harmonics_w5.f_functions` :cite:`Blumlein:2009ta`

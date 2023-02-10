@@ -44,10 +44,6 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 pdbpp = "^0.10.3"
 ipython = "^8.0"
-# benchmark
-asv = "^0.4.2"
-virtualenv = "^20.13.2"
-devtools = "^0.10.0"
 
 
 [tool.poetry-dynamic-versioning]
@@ -62,27 +58,19 @@ files = ["src/harmonics_w5/version.py"]
 
 [tool.poe.tasks]
 test = "pytest tests"
-coverage = "$BROWSER htmlcov/index.html"
-test-cov = ["test", "coverage"]
 lint = "pylint src/**/*.py -E"
-lint-warnings = "pylint src/**/*.py --exit-zero"
 
 [tool.pytest.ini_options]
 testpaths = ['tests/']
 python_files = ['test_*.py', 'benchmark_*.py', 'regression.py']
 python_classes = ['Test*', 'Benchmark*']
 python_functions = ['test_*', 'benchmark_*']
-addopts = [
-  '--cov=harmonics_w5',
-  '--cov-report=html',
-  '--cov-report=xml',
-]
 env = ["D:NUMBA_DISABLE_JIT=1"]
 
 [tool.pylint.master]
 # extensions not to check
 extension-pkg-whitelist = ["numpy", "numba"]
-ignore-paths = ["benchmarks/", "doc/", "tests/"]
+ignore-paths = ["tests/"]
 # has to be 1 as pylint is NOT threadsafe
 jobs = 1
 [tool.pylint.messages_control]
