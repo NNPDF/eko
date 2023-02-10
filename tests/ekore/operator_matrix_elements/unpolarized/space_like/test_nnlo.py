@@ -2,8 +2,9 @@
 
 import numpy as np
 
-from ekore.harmonics import compute_cache, constants
+from eko import constants
 from ekore.operator_matrix_elements.unpolarized.space_like.as2 import A_ns, A_qq_ns, A_singlet
+from ekore.harmonics import cache as c
 
 
 def test_A_2():
@@ -11,21 +12,20 @@ def test_A_2():
 
     for L in logs:
         N = 1
-        sx = compute_cache(N, 3, False)
-        aNSqq2 = A_qq_ns(N, sx, L)
+        cache = c.reset()
+        aNSqq2 = A_qq_ns(N, L, cache, None)
         # quark number conservation
         np.testing.assert_allclose(aNSqq2, 0.0, atol=2e-11)
 
         N = 2
-        sx = compute_cache(N, 3, True)
-        aS2 = A_singlet(N, sx, L)
+        aS2 = A_singlet(N, L, cache, None)
 
         # gluon momentum conservation
         np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0] + aS2[2, 0], 0.0, atol=2e-6)
         # quark momentum conservation
         np.testing.assert_allclose(aS2[0, 1] + aS2[1, 1] + aS2[2, 1], 0.0, atol=1e-11)
 
-    aNS2 = A_ns(N, sx, L)
+    aNS2 = A_ns(N, L, cache, False)
     assert aNS2.shape == (2, 2)
     assert aS2.shape == (3, 3)
 
@@ -37,9 +37,9 @@ def test_A_2():
 def test_A_2_shape():
     N = np.random.rand()
     L = 3
-    sx = compute_cache(N, 3, (-1) ** N == 1)
-    aNS2 = A_ns(N, sx, L)
-    aS2 = A_singlet(N, sx, L)
+    cache = c.reset()
+    aNS2 = A_ns(N, L, cache, False)
+    aS2 = A_singlet(N, L, cache, None)
 
     assert aNS2.shape == (2, 2)
     assert aS2.shape == (3, 3)
@@ -53,9 +53,9 @@ def test_pegasus_sign():
     # reference value come from Pegasus code transalted Mathematica
     ref_val = -21133.9
     N = 2
-    sx = compute_cache(N, 3, True)
     L = 100.0
-    aS2 = A_singlet(N, sx, L)
+    cache = c.reset()
+    aS2 = A_singlet(N, L, cache, None)
 
     np.testing.assert_allclose(aS2[0, 0], ref_val, rtol=4e-5)
 
@@ -117,9 +117,9 @@ def test_Blumlein_2():
         ],
     }
     for N in range(2, 11):
+        cache = c.reset()
         for L, ref_Hg in ref_val_Hg.items():
-            sx = compute_cache(N, 3, True)
-            aS2 = A_singlet(N, sx, L)
+            aS2 = A_singlet(N, L, cache, None)
             if N % 2 == 0:
                 idx = int(N / 2 - 1)
                 np.testing.assert_allclose(aS2[0, 0], ref_val_gg[L][idx], rtol=2e-6)
@@ -136,11 +136,11 @@ def test_Hg2_pegasus():
     L = 0
 
     for N in range(3, 20):
-        sx = compute_cache(N, 3, True)
-        S1 = sx[0][0]
-        S2 = sx[1][0]
-        S3 = sx[2][0]
-        aS2 = A_singlet(N, sx, L)
+        cache = c.reset()
+        S1 = c.get(c.S1, cache, N, None)
+        S2 = c.get(c.S2, cache, N, None)
+        S3 = c.get(c.S3, cache, N, None)
+        aS2 = A_singlet(N, L, cache, None)
 
         E2 = (
             2.0 / N * (constants.zeta3 - S3 + 1.0 / N * (constants.zeta2 - S2 - S1 / N))
@@ -168,7 +168,7 @@ def test_msbar_matching():
 
     for L in logs:
         N = 2
-        sx = compute_cache(N, 3, True)
-        aS2 = A_singlet(N, sx, L, True)
+        cache = c.reset()
+        aS2 = A_singlet(N, L, cache, None, True)
         # gluon momentum conservation
         np.testing.assert_allclose(aS2[0, 0] + aS2[1, 0] + aS2[2, 0], 0.0, atol=2e-6)

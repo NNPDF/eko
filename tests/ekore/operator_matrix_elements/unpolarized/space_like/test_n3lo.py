@@ -1,9 +1,9 @@
 # Test N3LO OME
 import numpy as np
 
-from ekore.harmonics import compute_cache
 from ekore.operator_matrix_elements.unpolarized.space_like import as3
 from ekore.operator_matrix_elements.unpolarized.space_like.as3 import A_ns, A_qqNS, A_singlet
+from ekore.harmonics import cache as c
 
 
 def test_A_3():
@@ -12,15 +12,15 @@ def test_A_3():
 
     for L in logs:
         N = 1.0
-        sx_cache = compute_cache(N, 5, False)
-        aNSqq3 = A_qqNS(N, sx_cache, nf, L)
+        cache = c.reset()
+        aNSqq3 = A_qqNS(N, nf, L, cache, None)
         # quark number conservation
         # the accuracy of this test depends directly on the precision of the
         # fitted part of aNSqq3
         np.testing.assert_allclose(aNSqq3, 0.0, atol=5e-5)
 
         N = 2.0
-        sx_cache = compute_cache(N, 5, True)
+        cache = c.reset()
         # reference value comes form Mathematica, Hg is not fully complete
         # thus the reference value is not 0.0 but 145.14813631128334.
         # Here we have imposed a small shift in A_Hgstfac such that
@@ -28,9 +28,9 @@ def test_A_3():
         # The accuracy of this test depends on the approximation of AggTF2.
         atol = 2e-4 if L == 0 else 2e-3
         np.testing.assert_allclose(
-            as3.A_gg(N, sx_cache, nf, L)
-            + as3.A_qg(N, sx_cache, nf, L)
-            + as3.A_Hg(N, sx_cache, nf, L),
+            as3.A_gg(N, nf, L, cache, None)
+            + as3.A_qg(N, nf, L, cache, None)
+            + as3.A_Hg(N, nf, L, cache, None),
             0,
             atol=atol,
         )
@@ -45,27 +45,26 @@ def test_A_3():
             eps = 1e-6
             atol = 2e-5
             N = 2.0 + eps
-            sx_cache = compute_cache(N, 5, True)
+            cache = c.reset()
             np.testing.assert_allclose(
-                as3.A_gq(N, sx_cache, nf, L)
-                + as3.A_qqNS(N, sx_cache, nf, L)
-                + as3.A_qqPS(N, sx_cache, nf, L)
-                + as3.A_Hq(N, sx_cache, nf, L),
+                as3.A_gq(N, nf, L, cache, None)
+                + as3.A_qqNS(N, nf, L, cache, None)
+                + as3.A_qqPS(N, nf, L, cache, None)
+                + as3.A_Hq(N, nf, L, cache, None),
                 0,
                 atol=atol,
             )
 
     N = 3 + 2j
-    sx_cache = compute_cache(np.random.rand(), 5, True)
-    ns_sx_cache = compute_cache(np.random.rand(), 5, False)
-    aS3 = A_singlet(N, sx_cache, ns_sx_cache, nf, L)
-    aNS3 = A_ns(N, ns_sx_cache, nf, L)
+    cache = c.reset()
+    aS3 = A_singlet(N, nf, L, cache)
+    aNS3 = A_ns(N, nf, L, cache, None)
     assert aNS3.shape == (2, 2)
     assert aS3.shape == (3, 3)
 
     np.testing.assert_allclose(aS3[:, 2], np.zeros(3))
     np.testing.assert_allclose(aNS3[1, 1], 0)
-    np.testing.assert_allclose(aNS3[0, 0], as3.A_qqNS(N, ns_sx_cache, nf, L))
+    np.testing.assert_allclose(aNS3[0, 0], as3.A_qqNS(N, nf, L, cache, None))
 
 
 def test_Blumlein_3():
@@ -151,9 +150,8 @@ def test_Blumlein_3():
     for i, N in enumerate([4.0, 6.0, 10.0, 100.0]):
         idx = i + 1
         for L in [0, 10]:
-            sx_cache = compute_cache(N, 5, True)
-            ns_sx_cache = compute_cache(N, 5, False)
-            aS3 = A_singlet(N, sx_cache, ns_sx_cache, nf, L)
+            cache = c.reset()
+            aS3 = A_singlet(N, nf, L, cache)
 
             np.testing.assert_allclose(
                 aS3[0, 0], ref_val_gg[L][idx] + ref_val_ggTF2[L][idx], rtol=3e-6
@@ -179,11 +177,11 @@ def test_Blumlein_3():
 
     # Here we test the critical parts
     for idx, N in enumerate([2.0, 4.0, 6.0, 10.0, 100.0]):
-        sx_cache = compute_cache(N, 5, True)
-        Aggtf2 = as3.aggTF2.A_ggTF2(N, sx_cache)
+        cache = c.reset()
+        Aggtf2 = as3.aggTF2.A_ggTF2(N, cache, None)
         np.testing.assert_allclose(Aggtf2, ref_val_ggTF2[0][idx], rtol=3e-6)
         np.testing.assert_allclose(
-            as3.agg.A_gg(N, sx_cache, nf, L=0) - Aggtf2,
+            as3.agg.A_gg(N, nf, 0, cache, None) - Aggtf2,
             ref_val_gg[0][idx],
             rtol=3e-6,
         )
@@ -191,9 +189,9 @@ def test_Blumlein_3():
     # odd numbers of qqNS
     ref_qqNS_odd = [-40.94998646588999, -21.598793547423504, 6.966325573931755]
     for N, ref in zip([3.0, 15.0, 101.0], ref_qqNS_odd):
-        sx_cache = compute_cache(N, 5, False)
+        cache = c.reset()
         np.testing.assert_allclose(
-            as3.aqqNS.A_qqNS(N, sx_cache, nf, L=0), ref, rtol=1e-4
+            as3.aqqNS.A_qqNS(N, nf, 0, cache, None), ref, rtol=1e-4
         )
 
 
@@ -245,7 +243,7 @@ def test_AHq_asymptotic():
     # Ns = [31.,32.,33.,34.,35.,36.,37.,38.,39.]
     nf = 3
     for N, r in zip(Ns, refs):
-        sx_cache = compute_cache(N, 5, True)
+        cache = c.reset()
         np.testing.assert_allclose(
-            as3.aHq.A_Hq(N, sx_cache, nf, L=0), r, rtol=7e-6, atol=1e-5
+            as3.aHq.A_Hq(N, nf, 0, cache, None), r, rtol=7e-6, atol=1e-5
         )

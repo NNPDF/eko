@@ -12,14 +12,16 @@ from ekore.anomalous_dimensions.unpolarized.space_like.as4 import (
     gqg,
 )
 from eko.constants import CA, CF
-from ekore.harmonics import compute_cache
+
+from ekore.harmonics import cache as c
 
 NF = 5
 
 
 def test_quark_number_conservation():
     N = 1
-    sx_cache = compute_cache(N, 5, False)
+    
+    cache = c.reset()
 
     # (ns,s)
     # the exact expression (nf^2 part) has an nonphysical pole at N=1,
@@ -29,90 +31,90 @@ def test_quark_number_conservation():
     # np.testing.assert_allclose(gamma_nsv(N, NF, sx_cache), 0, rtol=3e-7)
 
     # nf^1 part
-    np.testing.assert_allclose(gnsv.gamma_nss_nf1(N, sx_cache), 0.000400625, atol=2e-6)
+    np.testing.assert_allclose(gnsv.gamma_nss_nf1(N, cache, None), 0.000400625, atol=2e-6)
 
     # (ns,-)
     # nf^3 part
-    np.testing.assert_allclose(gnsp.gamma_ns_nf3(N, sx_cache), 0, atol=3e-15)
+    np.testing.assert_allclose(gnsp.gamma_ns_nf3(N, cache, None), 0, atol=3e-15)
     # nf^2 part
-    np.testing.assert_allclose(gnsm.gamma_nsm_nf2(N, sx_cache), 0, atol=3e-13)
+    np.testing.assert_allclose(gnsm.gamma_nsm_nf2(N, cache, None), 0, atol=3e-13)
     # nf^1 part
-    np.testing.assert_allclose(gnsm.gamma_nsm_nf1(N, sx_cache), 0, atol=2e-11)
+    np.testing.assert_allclose(gnsm.gamma_nsm_nf1(N, cache, None), 0, atol=2e-11)
     # nf^0 part
-    np.testing.assert_allclose(gnsm.gamma_nsm_nf0(N, sx_cache), 0, atol=2e-10)
+    np.testing.assert_allclose(gnsm.gamma_nsm_nf0(N, cache, None), 0, atol=2e-10)
     # total
-    np.testing.assert_allclose(gnsm.gamma_nsm(N, NF, sx_cache), 0, atol=1e-10)
+    np.testing.assert_allclose(gnsm.gamma_nsm(N, NF, cache, None), 0, atol=1e-10)
 
 
 def test_momentum_conservation():
     N = 2
-    sx_cache = compute_cache(N, 5, True)
+    cache = c.reset()
 
     # nf^3 part
     np.testing.assert_allclose(
-        gnsp.gamma_ns_nf3(N, sx_cache)
-        + gps.gamma_ps_nf3(N, sx_cache)
-        + ggq.gamma_gq_nf3(N, sx_cache),
+        gnsp.gamma_ns_nf3(N, cache, None)
+        + gps.gamma_ps_nf3(N, cache, None)
+        + ggq.gamma_gq_nf3(N, cache, None),
         0,
         atol=3e-15,
     )
     np.testing.assert_allclose(
-        ggg.gamma_gg_nf3(N, sx_cache) + gqg.gamma_qg_nf3(N, sx_cache), 0, atol=2e-7
+        ggg.gamma_gg_nf3(N, cache, None) + gqg.gamma_qg_nf3(N, cache, None), 0, atol=2e-7
     )
 
     # nf^3 part
     np.testing.assert_allclose(
-        gnsp.gamma_ns_nf3(N, sx_cache)
-        + gps.gamma_ps_nf3(N, sx_cache)
-        + ggq.gamma_gq_nf3(N, sx_cache),
+        gnsp.gamma_ns_nf3(N, cache, None)
+        + gps.gamma_ps_nf3(N, cache, None)
+        + ggq.gamma_gq_nf3(N, cache, None),
         0,
         atol=3e-15,
     )
     np.testing.assert_allclose(
-        ggg.gamma_gg_nf3(N, sx_cache) + gqg.gamma_qg_nf3(N, sx_cache), 0, atol=2e-7
+        ggg.gamma_gg_nf3(N, cache, None) + gqg.gamma_qg_nf3(N, cache, None), 0, atol=2e-7
     )
 
     # nf^2 part
     np.testing.assert_allclose(
-        gnsp.gamma_nsp_nf2(N, sx_cache)
-        + gps.gamma_ps_nf2(N, sx_cache)
-        + ggq.gamma_gq_nf2(N, sx_cache),
+        gnsp.gamma_nsp_nf2(N, cache, None)
+        + gps.gamma_ps_nf2(N, cache, None)
+        + ggq.gamma_gq_nf2(N, cache, None),
         0,
         atol=3e-13,
     )
     np.testing.assert_allclose(
-        ggg.gamma_gg_nf2(N, sx_cache) + gqg.gamma_qg_nf2(N, sx_cache),
+        ggg.gamma_gg_nf2(N, cache, None) + gqg.gamma_qg_nf2(N, cache, None),
         0,
         atol=4e-13,
     )
 
     # nf^1 part
     np.testing.assert_allclose(
-        gnsp.gamma_nsp_nf1(N, sx_cache)
-        + gps.gamma_ps_nf1(N, sx_cache)
-        + ggq.gamma_gq_nf1(N, sx_cache),
+        gnsp.gamma_nsp_nf1(N, cache, None)
+        + gps.gamma_ps_nf1(N, cache, None)
+        + ggq.gamma_gq_nf1(N, cache, None),
         0,
     )
     np.testing.assert_allclose(
-        ggg.gamma_gg_nf1(N, sx_cache) + gqg.gamma_qg_nf1(N, sx_cache),
+        ggg.gamma_gg_nf1(N, cache, None) + gqg.gamma_qg_nf1(N, cache, None),
         0,
         atol=5e-11,
     )
 
     # nf^0 part
     np.testing.assert_allclose(
-        gnsp.gamma_nsp_nf0(N, sx_cache) + ggq.gamma_gq_nf0(N, sx_cache),
+        gnsp.gamma_nsp_nf0(N, cache, None) + ggq.gamma_gq_nf0(N, cache, None),
         0,
         atol=3e-11,
     )
     np.testing.assert_allclose(
-        ggg.gamma_gg_nf0(N, sx_cache),
+        ggg.gamma_gg_nf0(N, cache, None),
         0,
         atol=4e-11,
     )
 
     # total
-    g_singlet = gamma_singlet(N, NF, sx_cache)
+    g_singlet = gamma_singlet(N, NF, cache, None)
     np.testing.assert_allclose(
         g_singlet[0, 0] + g_singlet[1, 0],
         0,
@@ -148,18 +150,18 @@ def test_non_singlet_reference_moments():
         2.90857799,
     ]
     for N in [3.0, 5.0, 7.0, 9.0, 11.0, 13.0, 15.0, 17.0]:
-        sx_cache = compute_cache(N, 5, False)
+        cache = c.reset()
         idx = int((N - 3) / 2)
         if N != 17:
             np.testing.assert_allclose(
-                gnsm.gamma_nsm(N, NF, sx_cache), nsm_nf4_refs[idx]
+                gnsm.gamma_nsm(N, NF, cache, None), nsm_nf4_refs[idx]
             )
             np.testing.assert_allclose(
-                gnsv.gamma_nsv(N, NF, sx_cache), nss_nf4_refs[idx] + nsm_nf4_refs[idx]
+                gnsv.gamma_nsv(N, NF, cache, None), nss_nf4_refs[idx] + nsm_nf4_refs[idx]
             )
         gamma_nss = (
-            gnsv.gamma_nss_nf1(N, sx_cache) * NF
-            + gnsv.gamma_nss_nf2(N, sx_cache) * NF**2
+            gnsv.gamma_nss_nf1(N, cache, None) * NF
+            + gnsv.gamma_nss_nf2(N, cache, None) * NF**2
         )
         np.testing.assert_allclose(gamma_nss, nss_nf4_refs[idx], atol=4e-4)
 
@@ -177,9 +179,9 @@ def test_singlet_reference_moments():
         8119.044600816003,
     ]
     for N in [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0]:
-        sx_cache = compute_cache(N, 5, True)
+        cache = c.reset()
         np.testing.assert_allclose(
-            gnsp.gamma_nsp(N, NF, sx_cache), nsp_nf4_refs[int((N - 2) / 2)]
+            gnsp.gamma_nsp(N, NF, cache, None), nsp_nf4_refs[int((N - 2) / 2)]
         )
 
 
@@ -249,15 +251,15 @@ def test_diff_pm_nf2():
     diff = []
     ref_vals = []
     for N in range(10, 51):
-        sx_cache = compute_cache(N, 5, not bool(N % 2))
-        diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
-        ref_vals.append(deltaB3(N, sx_cache))
+        cache = c.reset()
+        diff.append(gnsp.gamma_nsp_nf2(N, cache, None) - gnsm.gamma_nsm_nf2(N, cache, None))
+        ref_vals.append(deltaB3(N, cache, None))
     np.testing.assert_allclose(diff, ref_vals, atol=5e-4)
 
     diff = []
     ref_vals = []
     for N in range(4, 10):
-        sx_cache = compute_cache(N, 5, not bool(N % 2))
-        diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
-        ref_vals.append(deltaB3(N, sx_cache))
+        cache = c.reset()
+        diff.append(gnsp.gamma_nsp_nf2(N, cache, None) - gnsm.gamma_nsm_nf2(N, cache, None))
+        ref_vals.append(deltaB3(N, cache, None))
     np.testing.assert_allclose(diff, ref_vals, atol=2e-2)

@@ -14,7 +14,6 @@ from eko.evolution_operator.operator_matrix_element import (
 from eko.io.runcards import OperatorCard, TheoryCard
 from eko.io.types import InversionMethod
 from eko.runner import legacy
-from ekore.harmonics import compute_cache
 from ekore.operator_matrix_elements.unpolarized.space_like import (
     A_non_singlet,
     A_singlet,
@@ -31,13 +30,9 @@ def test_build_ome_as():
     nf = 3
     is_msbar = False
     for o in [1, 2, 3]:
-        sx_singlet = compute_cache(N, max_weight_dict[o], True)
-        sx_ns = sx_singlet
-        if o == 3:
-            sx_ns = compute_cache(N, max_weight_dict[o], False)
-
-        aNS = A_non_singlet((o, 0), N, sx_ns, nf, L)
-        aS = A_singlet((o, 0), N, sx_singlet, nf, L, is_msbar, sx_ns)
+        
+        aNS = A_non_singlet((o, 0), N, nf, L)
+        aS = A_singlet((o, 0), N, nf, L, is_msbar)
 
         for a in [aNS, aS]:
             for method in ["", "expanded", "exact"]:
@@ -58,8 +53,8 @@ def test_build_ome_nlo():
     is_msbar = False
     sx = [[1], [1], [1]]
     nf = 4
-    aNSi = A_non_singlet((1, 0), N, sx, nf, L)
-    aSi = A_singlet((1, 0), N, sx, nf, L, is_msbar)
+    aNSi = A_non_singlet((1, 0), N, nf, L)
+    aSi = A_singlet((1, 0), N, nf, L, is_msbar)
     for a in [aNSi, aSi]:
         for method in ["", "expanded", "exact"]:
             dim = len(a[0])

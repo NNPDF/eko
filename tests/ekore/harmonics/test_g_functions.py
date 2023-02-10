@@ -4,8 +4,6 @@ import numpy as np
 
 from ekore import harmonics as h
 
-zeta3 = h.constants.zeta3
-log2 = h.constants.log2
 
 
 # Reference values comes form Mathematica, and are

@@ -2,13 +2,10 @@
 
 import numpy as np
 
-from ekore import harmonics
+from eko.constants import zeta2, zeta3, zeta4, zeta5
 from ekore.harmonics import w5
+from ekore.harmonics import cache as c
 
-zeta2 = harmonics.constants.zeta2
-zeta3 = harmonics.constants.zeta3
-zeta4 = harmonics.constants.zeta4
-zeta5 = harmonics.constants.zeta5
 log2 = np.log(2)
 
 # reference values coming fom Mathematica:
@@ -60,26 +57,29 @@ refvals = {
 # F19, F20,F21 are not present in that paper.
 def test_F9():
     for N, vals in zip(testN, refvals["S41"]):
-        S1 = harmonics.S1(N)
-        S2 = harmonics.S2(N)
-        S3 = harmonics.S3(N)
+        cache = c.reset()
+        S1 = c.get(c.S1, cache, N, None)
+        S2 = c.get(c.S2, cache, N, None)
+        S3 = c.get(c.S3, cache, N, None)
         S41 = w5.S41(N, S1, S2, S3)
         np.testing.assert_allclose(S41, vals, atol=1e-05)
 
 
 def test_F11():
     for N, vals in zip(testN, refvals["S311"]):
-        S1 = harmonics.S1(N)
-        S2 = harmonics.S2(N)
+        cache = c.reset()
+        S1 = c.get(c.S1, cache, N, None)
+        S2 = c.get(c.S2, cache, N, None)
         S311 = w5.S311(N, S1, S2)
         np.testing.assert_allclose(S311, vals, atol=1e-05)
 
 
 def test_F13():
     for N, vals in zip(testN, refvals["S221"]):
-        S1 = harmonics.S1(N)
-        S2 = harmonics.S2(N)
-        S21 = harmonics.S21(N, S1, S2)
+        cache = c.reset()
+        S1 = c.get(c.S1, cache, N, None)
+        S2 = c.get(c.S2, cache, N, None)
+        S21 = c.get(c.S21, cache, N, None)
         S221 = w5.S221(N, S1, S2, S21)
         np.testing.assert_allclose(S221, vals, atol=1e-05)
 
@@ -87,45 +87,49 @@ def test_F13():
 def test_F12_F14():
     # here there is a typo in eq (9.25) of Bl_mlein_2009
     for N, vals in zip(testN, refvals["Sm221"]):
-        S1 = harmonics.S1(N)
-        S2 = harmonics.S2(N)
-        Sm1 = harmonics.Sm1(N, S1)
-        S21 = harmonics.S21(N, S1, S2)
-        Sm21 = harmonics.Sm21(N, S1, Sm1)
+        cache = c.reset()
+        S1 = c.get(c.S1, cache, N, None)
+        S2 = c.get(c.S2, cache, N, None)
+        Sm1 = c.get(c.Sm1, cache, N, None)
+        S21 = c.get(c.S21, cache, N, None)
+        Sm21 = c.get(c.Sm21, cache, N, None)
         Sm221 = w5.Sm221(N, S1, Sm1, S21, Sm21)
         np.testing.assert_allclose(Sm221, vals, atol=1e-05)
 
 
 def test_F16():
     for N, vals in zip(testN, refvals["S21m2"]):
-        S1 = harmonics.S1(N)
-        S2 = harmonics.S2(N)
-        S3 = harmonics.S3(N)
-        Sm1 = harmonics.Sm1(N, S1)
-        Sm2 = harmonics.Sm2(N, S2)
-        Sm3 = harmonics.Sm3(N, S3)
-        S21 = harmonics.S21(N, S1, S2)
-        S2m1 = harmonics.S2m1(N, S2, Sm1, Sm2)
-        Sm21 = harmonics.Sm21(N, S1, Sm1)
+        cache = c.reset()
+        S1 = c.get(c.S1, cache, N, None)
+        S2 = c.get(c.S2, cache, N, None)
+        S3 = c.get(c.S3, cache, N, None)
+        Sm1 = c.get(c.Sm1, cache, N, None)
+        Sm2 = c.get(c.Sm2, cache, N, None)
+        Sm3 = c.get(c.Sm3, cache, N, None)
+        S21 = c.get(c.S21, cache, N, None)
+        S2m1 = c.get(c.S2m1, cache, N, None)
+        Sm21 = c.get(c.Sm21, cache, N, None)
         S21m2 = w5.S21m2(N, S1, S2, Sm1, Sm2, Sm3, S21, Sm21, S2m1)
         np.testing.assert_allclose(S21m2, vals, atol=1e-04)
 
 
 def test_F17():
     for N, vals in zip(testN, refvals["S2111"]):
-        S1 = harmonics.S1(N)
-        S2 = harmonics.S2(N)
-        S3 = harmonics.S3(N)
+        cache = c.reset()
+        S1 = c.get(c.S1, cache, N, None)
+        S2 = c.get(c.S2, cache, N, None)
+        S3 = c.get(c.S3, cache, N, None)
         S2111 = w5.S2111(N, S1, S2, S3)
         np.testing.assert_allclose(S2111, vals, atol=1e-05)
 
 
 def test_F18():
     for N, vals in zip(testN, refvals["Sm2111"]):
-        S1 = harmonics.S1(N)
-        S2 = harmonics.S2(N)
-        S3 = harmonics.S3(N)
-        Sm1 = harmonics.Sm1(N, S1)
+        cache = c.reset()
+        S1 = c.get(c.S1, cache, N, None)
+        S2 = c.get(c.S2, cache, N, None)
+        S3 = c.get(c.S3, cache, N, None)
+        Sm1 = c.get(c.Sm1, cache, N, None)
         Sm2111 = w5.Sm2111(N, S1, S2, S3, Sm1)
         np.testing.assert_allclose(Sm2111, vals, atol=1e-05)
 
@@ -133,9 +137,10 @@ def test_F18():
 # different parametrization, less accurate
 def test_F19():
     for N, vals in zip(testN, refvals["S23"]):
-        S1 = harmonics.S1(N)
-        S2 = harmonics.S2(N)
-        S3 = harmonics.S3(N)
+        cache = c.reset()
+        S1 = c.get(c.S1, cache, N, None)
+        S2 = c.get(c.S2, cache, N, None)
+        S3 = c.get(c.S3, cache, N, None)
         S23 = w5.S23(N, S1, S2, S3)
         np.testing.assert_allclose(S23, vals, rtol=2e-03)
 
@@ -143,12 +148,13 @@ def test_F19():
 # different parametrization, less accurate
 def test_F20():
     for N, vals in zip(testN, refvals["Sm23"]):
-        S1 = harmonics.S1(N)
-        S2 = harmonics.S2(N)
-        S3 = harmonics.S3(N)
-        Sm3 = harmonics.Sm3(N, S3)
-        Sm2 = harmonics.Sm2(N, S2)
-        Sm1 = harmonics.Sm1(N, S1)
+        cache = c.reset()
+        S1 = c.get(c.S1, cache, N, None)
+        S2 = c.get(c.S2, cache, N, None)
+        S3 = c.get(c.S3, cache, N, None)
+        Sm3 = c.get(c.Sm3, cache, N, None)
+        Sm2 = c.get(c.Sm2, cache, N, None)
+        Sm1 = c.get(c.Sm1, cache, N, None)
         Sm23 = w5.Sm23(N, Sm1, Sm2, Sm3)
         np.testing.assert_allclose(Sm23, vals, rtol=1e-03)
 
@@ -156,11 +162,12 @@ def test_F20():
 # different parametrization, less accurate
 def test_F21():
     for N, vals in zip(testN, refvals["S2m3"]):
-        S1 = harmonics.S1(N)
-        S2 = harmonics.S2(N)
-        S3 = harmonics.S3(N)
-        Sm3 = harmonics.Sm3(N, S3)
-        Sm2 = harmonics.Sm2(N, S2)
-        Sm1 = harmonics.Sm1(N, S1)
+        cache = c.reset()
+        S1 = c.get(c.S1, cache, N, None)
+        S2 = c.get(c.S2, cache, N, None)
+        S3 = c.get(c.S3, cache, N, None)
+        Sm3 = c.get(c.Sm3, cache, N, None)
+        Sm2 = c.get(c.Sm2, cache, N, None)
+        Sm1 = c.get(c.Sm1, cache, N, None)
         S2m3 = w5.S2m3(N, S2, Sm1, Sm2, Sm3)
         np.testing.assert_allclose(S2m3, vals, rtol=1e-03)

@@ -3,13 +3,8 @@ import numpy as np
 from eko import basis_rotation as br
 from ekore.anomalous_dimensions.unpolarized.space_like import gamma_ns, gamma_singlet
 
-<<<<<<< HEAD
-from eko.beta import beta_qcd_as2
-
-=======
 from eko.beta import beta_qcd_as2, beta_qcd_as3
 
->>>>>>> master
 from eko.kernels import non_singlet, singlet
 from eko.scale_variations import Modes, expanded, exponentiated
 
