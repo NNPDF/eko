@@ -137,27 +137,7 @@ def quad_ker(
         return 0.0
 
     max_weight_dict = {1: 2, 2: 3, 3: 5}
-    sx = harmonics.compute_cache(
-        ker_base.n, max_weight_dict[order[0]], ker_base.is_singlet
-    )
-    sx_ns = sx.copy()
-    if order[0] == 3 and (
-        (backward_method != "" and ker_base.is_singlet)
-        or (mode0 == 100 and mode1 == 100)
-    ):
-        # At N3LO for A_qq singlet or backward you need to compute
-        # both the singlet and non-singlet like harmonics
-        # avoiding recomputing all of them ...
-        smx_ns = harmonics.smx(ker_base.n, np.array([s[0] for s in sx]), False)
-        for w, sm in enumerate(smx_ns):
-            sx_ns[w][-1] = sm
-        sx_ns[2][2] = harmonics.S2m1(ker_base.n, sx[0][1], smx_ns[0], smx_ns[1], False)
-        sx_ns[2][3] = harmonics.Sm21(ker_base.n, sx[0][0], smx_ns[0], False)
-        sx_ns[3][5] = harmonics.Sm31(ker_base.n, sx[0][0], smx_ns[0], smx_ns[1], False)
-        sx_ns[3][4] = harmonics.Sm211(ker_base.n, sx[0][0], sx[0][1], smx_ns[0], False)
-        sx_ns[3][3] = harmonics.Sm22(
-            ker_base.n, sx[0][0], sx[0][1], smx_ns[1], sx_ns[3][5], False
-        )
+    
 
     # compute the ome
     if ker_base.is_singlet:
