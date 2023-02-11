@@ -16,10 +16,10 @@ from eko.interpolation import XGrid
 from eko.io.runcards import Rotations
 
 from .. import basis_rotation as br
+from . import raw
 from .dictlike import DictLike
 from .struct import EKO, Operator
 from .types import RawCard
-from . import raw
 
 
 def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
@@ -141,8 +141,7 @@ def load_arrays(dir: pathlib.Path) -> dict:
         with lz4.frame.open(fp, "rb") as fd:
             # static analyzer can not guarantee the content to be bytes
             content = fd.read()
-            if isinstance(content, str):
-                raise RuntimeError("Bytes expected")
+            assert not isinstance(content, str), "Bytes expected"
 
             stream = io.BytesIO(content)
             stream.seek(0)
