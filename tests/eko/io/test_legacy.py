@@ -15,5 +15,5 @@ def test_op5to4():
     assert op4s[mu2].operator == op
     assert op4s[mu2].error == err
 
-    op4s_noerr = legacy.op5to4([mu2], {legacy.OPERATOR: [op], legacy.ERROR: [None]})
+    op4s_noerr = legacy.op5to4([mu2], {legacy.OPERATOR: [op], legacy.ERROR: None})
     assert op4s_noerr[mu2].error is None
