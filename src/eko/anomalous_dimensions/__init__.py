@@ -89,9 +89,12 @@ def exp_matrix(gamma):
         e : numpy.ndarray
             projectors on the eigenspaces of the matrix gamma :math:`\gamma(N)`
     """
+    dim = gamma.shape[0]
+    if dim == 2:
+        exp, lambda_p, lambda_m, e_p, e_m = exp_matrix_2D(gamma)
+        return np.array([lambda_p, lambda_m]), np.array([e_p, e_m]), exp
     w, v = np.linalg.eig(gamma)
     v_inv = np.linalg.inv(v)
-    dim = gamma.shape[0]
     e = np.zeros((dim, dim, dim), np.complex_)
     exp = np.zeros((dim, dim), np.complex_)
     for i in range(dim):

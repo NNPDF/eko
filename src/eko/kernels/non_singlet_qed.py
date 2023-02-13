@@ -110,7 +110,7 @@ def dispatcher(
         # way w.r.t. the commented function in singlet_qed (the reason is that they involve an iteration
         # on an object that is aem dependent)
         res *= choose_method_qcd(
-            gamma_ns[1:], a1, a0, beta, order, ev_op_iterations, method
+            gamma_ns_list[1:], a1, a0, betalist, order, ev_op_iterations, method
         )
     # TODO : we should divide also the mu_integral in steps in order to attach the
     # QED solution with aem running. For the moment we use the last value of aem.

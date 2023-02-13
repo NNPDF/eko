@@ -359,7 +359,7 @@ def eko_iterate(gamma_singlet, a1, a0, beta_vec, order, ev_op_iterations):
 
 
 @nb.njit(cache=True)
-def r_vec(gamma_singlet, beta, ev_op_max_order, order, is_exact):
+def r_vec(gamma_singlet, beta, ev_op_max_order, order, is_exact, dim=2):
     r"""Compute singlet R vector for perturbative mode.
 
     .. math::
@@ -385,7 +385,7 @@ def r_vec(gamma_singlet, beta, ev_op_max_order, order, is_exact):
         R vector
     """
     r = np.zeros(
-        (ev_op_max_order[0] + 1, 2, 2), dtype=np.complex_
+        (ev_op_max_order[0] + 1, dim, dim), dtype=np.complex_
     )  # k = 0 .. max_order
     beta0 = beta[0]
     # fill explicit elements
@@ -454,7 +454,7 @@ def u_vec(r, ev_op_max_order):
 
 
 @nb.njit(cache=True)
-def sum_u(uvec, a):
+def sum_u(uvec, a, dim=2):
     r"""Sum up the actual U operator.
 
     .. math::
@@ -473,7 +473,7 @@ def sum_u(uvec, a):
         sum
     """
     p = 1.0
-    res = np.zeros((2, 2), dtype=np.complex_)
+    res = np.zeros((dim, dim), dtype=np.complex_)
     for uk in uvec:
         res += p * uk
         p *= a
