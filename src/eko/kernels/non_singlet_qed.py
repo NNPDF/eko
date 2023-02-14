@@ -107,7 +107,7 @@ def dispatcher(
         gamma_ns_list = contract_gammas(gamma_ns, aem)
         # Observe that in this way ordered_truncated and truncated are correct only in the case of
         # aem fixed. In order to handle also aem running, they have to be reimplemented in a similar
-        # way w.r.t. the commented function in singlet_qed (the reason is that they involve an iteration
+        # way w.r.t. the function eko_iterate in singlet_qed (the reason is that they involve an iteration
         # on an object that is aem dependent)
         res *= choose_method_qcd(
             gamma_ns_list[1:], a1, a0, betalist, order, ev_op_iterations, method

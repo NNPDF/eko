@@ -2,9 +2,6 @@
 import numba as nb
 import numpy as np
 
-from .. import anomalous_dimensions as ad
-from .. import beta
-from . import utils
 from .singlet_qed import eko_iterate, eko_perturbative, eko_truncated
 
 

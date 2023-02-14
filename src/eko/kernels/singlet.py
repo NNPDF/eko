@@ -359,7 +359,7 @@ def eko_iterate(gamma_singlet, a1, a0, beta_vec, order, ev_op_iterations):
 
 
 @nb.njit(cache=True)
-def r_vec(gamma_singlet, beta, ev_op_max_order, order, is_exact, dim=2):
+def r_vec(gamma_singlet, beta, ev_op_max_order, order, is_exact, dim):
     r"""Compute singlet R vector for perturbative mode.
 
     .. math::
@@ -454,7 +454,7 @@ def u_vec(r, ev_op_max_order):
 
 
 @nb.njit(cache=True)
-def sum_u(uvec, a, dim=2):
+def sum_u(uvec, a, dim):
     r"""Sum up the actual U operator.
 
     .. math::
@@ -513,7 +513,7 @@ def eko_perturbative(
     numpy.ndarray
         singlet perturbative EKO
     """
-    r = r_vec(gamma_singlet, beta, ev_op_max_order, order, is_exact)
+    r = r_vec(gamma_singlet, beta, ev_op_max_order, order, is_exact, dim=2)
     uk = u_vec(r, ev_op_max_order)
     e = np.identity(2, np.complex_)
     # iterate elements
@@ -521,8 +521,8 @@ def eko_perturbative(
     al = a_steps[0]
     for ah in a_steps[1:]:
         e0 = lo_exact(gamma_singlet, ah, al, beta)
-        uh = sum_u(uk, ah)
-        ul = sum_u(uk, al)
+        uh = sum_u(uk, ah, dim=2)
+        ul = sum_u(uk, al, dim=2)
         # join elements
         ek = np.ascontiguousarray(uh) @ np.ascontiguousarray(e0) @ np.linalg.inv(ul)
         e = ek @ e
@@ -554,7 +554,7 @@ def eko_truncated(gamma_singlet, a1, a0, beta, order, ev_op_iterations):
     numpy.ndarray
         singlet truncated EKO
     """
-    r = r_vec(gamma_singlet, beta, order, order, False)
+    r = r_vec(gamma_singlet, beta, order, order, False, dim=2)
     u = u_vec(r, order)
     u1 = np.ascontiguousarray(u[1])
     e = np.identity(2, np.complex_)
