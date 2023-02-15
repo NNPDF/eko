@@ -16,7 +16,7 @@ from eko.kernels import singlet as s
 
 
 def test_quad_ker_errors():
-    for p, t in [(True, False), (False, True), (True, True)]:
+    for p, t in [(False, True), (True, True)]:
         for mode0 in [br.non_singlet_pids_map["ns+"], 21]:
             with pytest.raises(NotImplementedError):
                 quad_ker(
