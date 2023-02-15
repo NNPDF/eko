@@ -27,6 +27,7 @@ packages = [
   { include = "eko", from = "src" },
   { include = "ekomark", from = "src" },
   { include = "ekobox", from = "src" },
+  { include = "ekore", from = "src" },
 ]
 
 [tool.poetry.dependencies]

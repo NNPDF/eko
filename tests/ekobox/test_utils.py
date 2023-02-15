@@ -43,12 +43,13 @@ def test_ekos_product(tmp_path):
     fin_err_path = tmp_path / "fin_err.tar"
     eko_fin_err = eko.solve(theory, op_err, path=fin_err_path)
     with EKO.edit(ini_path) as eko_ini:
-        with EKO.read(fin_path) as eko_fin:
+        with EKO.edit(fin_path) as eko_fin:
             with EKO.read(fin_err_path) as eko_fin_err:
                 with pytest.raises(ValueError):
                     _ = utils.ekos_product(eko_ini, eko_fin_err)
                 # product is copied
                 res_path = tmp_path / "eko_res.tar"
+                eko_fin[120.0].error = None  # drop one set of errors
                 utils.ekos_product(eko_ini, eko_fin, path=res_path)
 
                 with EKO.read(res_path) as eko_res:
@@ -65,3 +66,6 @@ def test_ekos_product(tmp_path):
                     np.testing.assert_allclose(
                         eko_res[80.0].operator, eko_ini[80.0].operator
                     )
+                    utils.ekos_product(eko_ini, eko_fin)
+
+                    assert eko_res[120.0].error is None

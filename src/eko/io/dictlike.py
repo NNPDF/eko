@@ -100,7 +100,6 @@ class DictLike:
         dictionary = {}
 
         for field in dataclasses.fields(self):
-
             dictionary[field.name] = raw_field(getattr(self, field.name))
 
         return dictionary
@@ -184,5 +183,8 @@ def raw_field(value):
         return value.value
     if isinstance(value, DictLike):
         return value.raw
+    if dataclasses.is_dataclass(value):
+        # not supporting nested DictLike inside nested plain dataclasses
+        return dataclasses.asdict(value)
 
     return value
