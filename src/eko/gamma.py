@@ -5,7 +5,7 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 """
 import numba as nb
 
-from .harmonics.constants import zeta3, zeta4, zeta5
+from ekore.harmonics.constants import zeta3, zeta4, zeta5
 
 
 @nb.njit(cache=True)

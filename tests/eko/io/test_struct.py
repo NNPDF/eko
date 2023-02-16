@@ -1,47 +1,14 @@
 import io
 import pathlib
 import tarfile
-from dataclasses import dataclass
 
 import numpy as np
-import numpy.typing as npt
 import pytest
 import yaml
 
 from eko import EKO, interpolation
-from eko.io import dictlike, struct
+from eko.io import struct
 from tests.conftest import EKOFactory
-
-
-@dataclass
-class MyDictLike(dictlike.DictLike):
-    l: npt.NDArray
-    f: float
-    x: interpolation.XGrid
-    t: tuple
-    s: str
-
-
-def test_DictLike():
-    d = MyDictLike.from_dict(
-        dict(
-            l=np.arange(5.0),
-            f=np.arange(5.0)[-1],
-            x=[0.1, 1.0],
-            t=(1.0, 2.0),
-            s="s",
-        )
-    )
-    assert d.f == 4.0
-    dd = MyDictLike.from_dict(d.raw)
-    assert dd.f == 4.0
-    # check we can dump and reload
-    stream = io.StringIO()
-    yaml.safe_dump(d.raw, stream)
-    stream.seek(0)
-    ddd = yaml.safe_load(stream)
-    assert "l" in ddd
-    np.testing.assert_allclose(ddd["l"], np.arange(5.0))
 
 
 class TestOperator:

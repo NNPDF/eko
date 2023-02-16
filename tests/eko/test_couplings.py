@@ -9,7 +9,7 @@ from math import nan
 import numpy as np
 import pytest
 
-from eko.couplings import Couplings, couplings_mod_ev
+from eko.couplings import Couplings, compute_matching_coeffs_up, couplings_mod_ev
 from eko.io.types import (
     CouplingEvolutionMethod,
     CouplingsRef,
@@ -21,6 +21,10 @@ from eko.io.types import (
 masses = [m**2 for m in (2.0, 4.5, 175.0)]
 
 
+class FakeEM(enum.Enum):
+    BLUB = "blub"
+
+
 def test_couplings_mod_ev():
     assert (
         couplings_mod_ev(EvolutionMethod.ITERATE_EXACT) == CouplingEvolutionMethod.EXACT
@@ -28,12 +32,22 @@ def test_couplings_mod_ev():
     assert (
         couplings_mod_ev(EvolutionMethod.TRUNCATED) == CouplingEvolutionMethod.EXPANDED
     )
-
-    class FakeEM(enum.Enum):
-        BLUB = "blub"
-
     with pytest.raises(ValueError, match="BLUB"):
         couplings_mod_ev(FakeEM.BLUB)
+
+
+def test_compute_matching_coeffs_up():
+    for mass_scheme in ["MSBAR", "POLE"]:
+        for nf in [3, 4, 5]:
+            c = compute_matching_coeffs_up(mass_scheme, nf)
+            # has to be quasi triangular
+            np.testing.assert_allclose(c[0, :], 0.0)
+            for k in range(1, 3 + 1):
+                np.testing.assert_allclose(
+                    c[k, (k + 1) :],
+                    0.0,
+                    err_msg=f"mass_scheme={mass_scheme},nf={nf},k={k}",
+                )
 
 
 class TestCouplings:
@@ -57,7 +71,7 @@ class TestCouplings:
             evmod,
             masses,
             hqm_scheme=QuarkMassSchemes.POLE,
-            thresholds_ratios=MatchingScales(c=1.0, b=1.0, t=1.0),
+            thresholds_ratios=[1.0, 1.0, 1.0],
         )
         assert sc.q2_ref == muref**2
         assert sc.a_ref[0] == alpharef[0] / 4.0 / np.pi
@@ -74,7 +88,7 @@ class TestCouplings:
                 evmod,
                 masses,
                 hqm_scheme=QuarkMassSchemes.POLE,
-                thresholds_ratios=MatchingScales(c=1.0, b=1.0, t=1.0),
+                thresholds_ratios=[1.0, 1.0, 1.0],
             )
         with pytest.raises(NotImplementedError):
             Couplings(
@@ -94,7 +108,7 @@ class TestCouplings:
                 evmod,
                 masses,
                 hqm_scheme=QuarkMassSchemes.POLE,
-                thresholds_ratios=MatchingScales(c=1.0, b=1.0, t=1.0),
+                thresholds_ratios=[1.0, 1.0, 1.0],
             )
         with pytest.raises(ValueError):
             coup3 = copy.deepcopy(couplings)
@@ -105,7 +119,7 @@ class TestCouplings:
                 evmod,
                 masses,
                 hqm_scheme=QuarkMassSchemes.POLE,
-                thresholds_ratios=MatchingScales(c=1.0, b=1.0, t=1.0),
+                thresholds_ratios=[1.0, 1.0, 1.0],
             )
         with pytest.raises(NotImplementedError):
             Couplings(
@@ -114,7 +128,7 @@ class TestCouplings:
                 evmod,
                 masses,
                 hqm_scheme=QuarkMassSchemes.POLE,
-                thresholds_ratios=MatchingScales(c=1.0, b=1.0, t=1.0),
+                thresholds_ratios=[1.0, 1.0, 1.0],
             )
         with pytest.raises(NotImplementedError):
             Couplings(
@@ -123,7 +137,16 @@ class TestCouplings:
                 evmod,
                 masses,
                 hqm_scheme=QuarkMassSchemes.POLE,
-                thresholds_ratios=MatchingScales(c=1.0, b=1.0, t=1.0),
+                thresholds_ratios=[1.0, 1.0, 1.0],
+            )
+        with pytest.raises(ValueError):
+            Couplings(
+                couplings,
+                (2, 0),
+                FakeEM.BLUB,
+                masses,
+                hqm_scheme=QuarkMassSchemes.POLE,
+                thresholds_ratios=[1.0, 1.0, 1.0],
             )
 
     def test_ref(self):
@@ -144,8 +167,7 @@ class TestCouplings:
             )
         )
         for thresh_setup in thresh_setups:
-            threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
-            for order_s in [1, 2, 3, 4]:
+            for order_s in [0, 1, 2, 3, 4]:
                 for order_em in [0, 1, 2]:
                     for evmod in CouplingEvolutionMethod:
                         # if order_em == 1 and method == "expanded" and order_s != 0:
@@ -157,7 +179,7 @@ class TestCouplings:
                             evmod,
                             masses,
                             hqm_scheme=QuarkMassSchemes.POLE,
-                            thresholds_ratios=threshs,
+                            thresholds_ratios=thresh_setup,
                         )
                         np.testing.assert_approx_equal(
                             sc.a(muref**2)[0], alpharef[0] / 4.0 / np.pi
@@ -179,14 +201,13 @@ class TestCouplings:
                 max_num_flavs=6,
             )
         )
-        threshs = MatchingScales.from_dict(dict(zip("cbt", thresh_setup)))
         sc = Couplings(
             couplings,
             (4, 0),
             method=CouplingEvolutionMethod.EXACT,
             masses=masses,
             hqm_scheme=QuarkMassSchemes.POLE,
-            thresholds_ratios=threshs,
+            thresholds_ratios=thresh_setup,
         )
         np.testing.assert_allclose(sc.a_ref, np.array(alpharef) / (4.0 * np.pi))
         # force matching
@@ -284,8 +305,7 @@ class TestCouplings:
         m2c = 2
         m2b = 25
         m2t = 30625
-        threshold_list = [m2c, m2b, m2t]
-        threshs = MatchingScales.from_dict(dict(zip("cbt", threshold_list)))
+        threshold_list = [m2c / masses[0], m2b / masses[1], m2t / masses[2]]
         mathematica_val = -0.000169117
         # collect my values
         as_NNLO = Couplings(
@@ -294,7 +314,7 @@ class TestCouplings:
             method=CouplingEvolutionMethod.EXPANDED,
             masses=masses,
             hqm_scheme=QuarkMassSchemes.POLE,
-            thresholds_ratios=threshs,
+            thresholds_ratios=threshold_list,
         )
         as_N3LO = Couplings(
             couplings,
@@ -302,10 +322,10 @@ class TestCouplings:
             method=CouplingEvolutionMethod.EXPANDED,
             masses=masses,
             hqm_scheme=QuarkMassSchemes.POLE,
-            thresholds_ratios=threshs,
+            thresholds_ratios=threshold_list,
         )
         np.testing.assert_allclose(
-            mathematica_val, as_N3LO.a(Q2)[0] - as_NNLO.a(Q2)[0], rtol=3e-6
+            mathematica_val, as_N3LO.a(Q2)[0] - as_NNLO.a(Q2)[0], rtol=5e-7
         )
 
     # def test_compute_aem_as(self):

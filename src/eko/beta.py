@@ -6,8 +6,9 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 import numba as nb
 
+from ekore.harmonics.constants import zeta3
+
 from . import constants
-from .harmonics.constants import zeta3
 
 
 @nb.njit(cache=True)

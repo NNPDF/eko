@@ -433,7 +433,7 @@ class Couplings:
         method: CouplingEvolutionMethod,
         masses: List[float],
         hqm_scheme: QuarkMassSchemes,
-        thresholds_ratios: MatchingScales,
+        thresholds_ratios: List[float],
     ):
         # Sanity checks
         def assert_positive(name, var):
@@ -454,7 +454,6 @@ class Couplings:
 
         nf_ref = couplings.num_flavs_ref
         max_nf = couplings.max_num_flavs
-        matchings = list(thresholds_ratios)
         scheme_name = hqm_scheme.name
         self.alphaem_running = False if isnan(couplings.alphaem.scale) else True
 
@@ -464,7 +463,7 @@ class Couplings:
             masses,
             couplings.alphas.scale**2,
             nf_ref,
-            thresholds_ratios=matchings,
+            thresholds_ratios=thresholds_ratios,
             max_nf=max_nf,
         )
         self.hqm_scheme = scheme_name
@@ -584,6 +583,7 @@ class Couplings:
             beta_qed_mix = beta_qed((1, 2), nf)  # order[0] is always at least 1
             if self.order[1] >= 2:
                 beta_qed_vec.append(beta_qed((0, 3), nf))
+
         # integration kernel
         def rge(_t, a, beta_qcd_vec, beta_qcd_mix, beta_qed_vec, beta_qed_mix):
             rge_qcd = -(a[0] ** 2) * (
@@ -947,7 +947,9 @@ class Couplings:
         return final_a
 
     def a_s(self, scale_to, fact_scale=None, nf_to=None):
-        r"""Compute coupling :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
+        r"""Compute strong coupling.
+
+        The strong oupling uses the normalization :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
 
         Parameters
         ----------
@@ -964,7 +966,9 @@ class Couplings:
         return self.a(scale_to, fact_scale, nf_to)[0]
 
     def a_em(self, scale_to, fact_scale=None, nf_to=None):
-        r"""Compute coupling :math:`a_em(\mu_R^2) = \frac{\alpha_em(\mu_R^2)}{4\pi}`.
+        r"""Compute electromagnetic coupling.
+
+        The electromagnetic oupling uses the normalization :math:`a_em(\mu_R^2) = \frac{\alpha_em(\mu_R^2)}{4\pi}`.
 
         Parameters
         ----------

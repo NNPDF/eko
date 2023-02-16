@@ -1,6 +1,6 @@
 import numpy as np
 
-from eko import anomalous_dimensions as ad
+import ekore.anomalous_dimensions.unpolarized.space_like as ad
 from eko.mellin import Path
 
 NF = 5

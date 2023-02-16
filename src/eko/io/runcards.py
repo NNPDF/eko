@@ -88,6 +88,10 @@ class Configs(DictLike):
     r"""Whether to use polynomials in :math:`\log(x)`.
     If `false`, polynomials are in :math:`x`.
     """
+    polarized: bool
+    """If `true` do polarized evolution."""
+    time_like: bool
+    """If `true` do time-like evolution."""
     scvar_method: Optional[ScaleVariationsMethod]
     """"""
     inversion_method: Optional[InversionMethod]
@@ -304,7 +308,7 @@ class Legacy:
         else:
             raise ValueError()
 
-        new["xif"] = old["fact_to_ren_scale_ratio"]
+        new["xif"] = old["XIF"]
 
         return TheoryCard.from_dict(new)
 
@@ -330,6 +334,8 @@ class Legacy:
             "interpolation_is_log",
             "ev_op_iterations",
             "n_integration_cores",
+            "polarized",
+            "time_like",
         ):
             new["configs"][k] = old[k]
         max_order = old["ev_op_max_order"]
