@@ -52,7 +52,9 @@ LHA_rotate_to_flavor = np.array(
 
 # rotate basis
 def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
-    """Rotate data either to flavor space or evolution space (from LHA space) which is yet an other basis.
+    """Rotate data in flavor space.
+    
+    Rotate either to flavor basis  or evolution basis from the LHA basis, which is yet an other basis.
 
     Parameters
     ----------
