@@ -132,4 +132,4 @@ if __name__ == "__main__":
     # # nn40.benchmark_nnlo(Q2grid=[100])
     # nn40.benchmark_nnlo(Q0=np.sqrt(high2), Q2grid=[low2])
     nnpol = BenchmarkNNPDFpol11()
-    nnpol.benchmark(Q0=np.sqrt(high2), Q2grid=[low2])
+    nnpol.benchmark(Q0=np.sqrt(low2), Q2grid=[high2])
