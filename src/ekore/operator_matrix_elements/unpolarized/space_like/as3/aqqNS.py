@@ -8,7 +8,7 @@ from .....harmonics.log_functions import lm11, lm12, lm13
 
 @nb.njit(cache=True)
 def A_qqNS(n, sx, nf, L, eta):
-    r"""Compute the |N3LO| singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.
+    r"""Compute the |N3LO| non singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.
 
     The expression is presented in :cite:`Bierenbaum:2009mv` and
     :cite:`Ablinger:2014vwa`. It contains some weight 5 harmonics sums.

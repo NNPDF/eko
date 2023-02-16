@@ -111,7 +111,7 @@ def compute_a_s(q2=None, fact_scale=None, nf=None, order=(4, 0)):
             couplings=ref,
             order=order,
             method=types.CouplingEvolutionMethod.EXPANDED,
-            masses=[1.51, 4.92, 172.5],
+            masses=np.array([1.51, 4.92, 172.5]) ** 2,
             hqm_scheme=types.QuarkMassSchemes.POLE,
             thresholds_ratios=[1.0, 1.0, 1.0],
         )

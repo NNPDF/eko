@@ -38,7 +38,7 @@ def test_quad_ker_errors():
                     is_threshold=False,
                     is_polarized=p,
                     is_time_like=t,
-                    n3lo_ad_variation="best",
+                    n3lo_ad_variation=(0, 0, 0, 0),
                 )
 
 
@@ -379,7 +379,7 @@ def test_pegasus_path():
                     10,
                     0,
                     False,
-                    "best",
+                    (0, 0, 0, 0),
                     False,
                     False,
                 ),

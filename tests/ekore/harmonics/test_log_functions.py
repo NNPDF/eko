@@ -20,7 +20,7 @@ def test_lm1pm1():
             4: h.log_functions.lm14m1(N, sx[0], sx[1], sx[2], sx[3]),
         }
 
-        for k in [1, 2, 3]:
+        for k in [1, 2, 3, 4]:
             test_value = quad(mellin_lm1pm1, 0, 1, args=(k))[0]
             np.testing.assert_allclose(test_value, ref_values[k])
 
