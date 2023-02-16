@@ -75,10 +75,12 @@ class LHABenchmark(Runner):
         low = self.theory.copy()
         low["PTO"] = pto
         low["fact_to_ren_scale_ratio"] = np.sqrt(1.0 / 2.0)
+        low["XIF"] = np.sqrt(1.0 / 2.0)
         low["ModSV"] = "exponentiated"
         high = self.theory.copy()
         high["PTO"] = pto
         high["fact_to_ren_scale_ratio"] = np.sqrt(2.0)
+        high["XIF"] = np.sqrt(2.0)
         high["ModSV"] = "exponentiated"
         return [high, low]
 
@@ -218,13 +220,12 @@ class BenchmarkRunner(BenchmarkVFNS):
 
 
 if __name__ == "__main__":
-
     # Benchmark to LHA
     obj = BenchmarkVFNS()
     # obj = BenchmarkFFNS()
 
-    obj.benchmark_plain(0)
-    # obj.benchmark_sv(2)
+    # obj.benchmark_plain(0)
+    obj.benchmark_sv(1)
 
     # # VFNS benchmarks with LHA settings
     # programs = ["LHA", "pegasus", "apfel"]
