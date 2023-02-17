@@ -43,5 +43,5 @@ def test_ns():
     np.testing.assert_allclose(
         as3.gamma_nsv(N, nf, sx), as3.gamma_nsm(N, nf, sx) + as3.gamma_nss(N, nf, sx)
     )
-    np.testing.assert_allclose(as3_unpol.gamma_nsp(N, nf, sx), as3.gamma_nsp(N, nf, sx))
+    np.testing.assert_allclose(as3_unpol.gamma_nsm(N, nf, sx), as3.gamma_nsp(N, nf, sx))
     np.testing.assert_allclose(as3_unpol.gamma_nsp(N, nf, sx), as3.gamma_nsm(N, nf, sx))
