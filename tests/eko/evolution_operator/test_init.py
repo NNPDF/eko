@@ -53,69 +53,70 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(ns, "dispatcher", lambda *args: 1.0)
     monkeypatch.setattr(s, "dispatcher", lambda *args: np.identity(2))
     for is_log in [True, False]:
-        res_ns = quad_ker(
-            u=0,
-            order=(1, 0),
-            mode0=br.non_singlet_pids_map["ns+"],
-            mode1=0,
-            method="",
-            is_log=is_log,
-            logx=0.0,
-            areas=np.zeros(3),
-            as1=1,
-            as0=2,
-            nf=3,
-            L=0,
-            ev_op_iterations=0,
-            ev_op_max_order=(0, 0),
-            sv_mode=1,
-            is_threshold=False,
-            is_polarized=False,
-            is_time_like=False,
-        )
-        np.testing.assert_allclose(res_ns, 0.0)
-        res_s = quad_ker(
-            u=0,
-            order=(1, 0),
-            mode0=100,
-            mode1=100,
-            method="",
-            is_log=is_log,
-            logx=0.123,
-            areas=np.zeros(3),
-            as1=1,
-            as0=2,
-            nf=3,
-            L=0,
-            ev_op_iterations=0,
-            ev_op_max_order=(0, 0),
-            sv_mode=1,
-            is_threshold=False,
-            is_polarized=False,
-            is_time_like=False,
-        )
-        np.testing.assert_allclose(res_s, 1.0)
-        res_s = quad_ker(
-            u=0,
-            order=(1, 0),
-            mode0=100,
-            mode1=21,
-            method="",
-            is_log=is_log,
-            logx=0.0,
-            areas=np.zeros(3),
-            as1=1,
-            as0=2,
-            nf=3,
-            L=0,
-            ev_op_iterations=0,
-            ev_op_max_order=(0, 0),
-            sv_mode=1,
-            is_threshold=False,
-            is_polarized=False,
-            is_time_like=False,
-        )
-        np.testing.assert_allclose(res_s, 0.0)
+        for polarized in [True, False]:
+            res_ns = quad_ker(
+                u=0,
+                order=(1, 0),
+                mode0=br.non_singlet_pids_map["ns+"],
+                mode1=0,
+                method="",
+                is_log=is_log,
+                logx=0.0,
+                areas=np.zeros(3),
+                as1=1,
+                as0=2,
+                nf=3,
+                L=0,
+                ev_op_iterations=0,
+                ev_op_max_order=(0, 0),
+                sv_mode=1,
+                is_threshold=False,
+                is_polarized=polarized,
+                is_time_like=False,
+            )
+            np.testing.assert_allclose(res_ns, 0.0)
+            res_s = quad_ker(
+                u=0,
+                order=(1, 0),
+                mode0=100,
+                mode1=100,
+                method="",
+                is_log=is_log,
+                logx=0.123,
+                areas=np.zeros(3),
+                as1=1,
+                as0=2,
+                nf=3,
+                L=0,
+                ev_op_iterations=0,
+                ev_op_max_order=(0, 0),
+                sv_mode=1,
+                is_threshold=False,
+                is_polarized=polarized,
+                is_time_like=False,
+            )
+            np.testing.assert_allclose(res_s, 1.0)
+            res_s = quad_ker(
+                u=0,
+                order=(1, 0),
+                mode0=100,
+                mode1=21,
+                method="",
+                is_log=is_log,
+                logx=0.0,
+                areas=np.zeros(3),
+                as1=1,
+                as0=2,
+                nf=3,
+                L=0,
+                ev_op_iterations=0,
+                ev_op_max_order=(0, 0),
+                sv_mode=1,
+                is_threshold=False,
+                is_polarized=polarized,
+                is_time_like=False,
+            )
+            np.testing.assert_allclose(res_s, 0.0)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
         for sv in [2, 3]:
             res_sv = quad_ker(

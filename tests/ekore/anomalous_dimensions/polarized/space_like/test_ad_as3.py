@@ -2,6 +2,7 @@
 import numpy as np
 
 import ekore.anomalous_dimensions.polarized.space_like.as3 as as3
+import ekore.anomalous_dimensions.unpolarized.space_like.as3 as as3_unpol
 from ekore import harmonics
 
 nf = 5
@@ -34,3 +35,13 @@ def test_ns_sea():
         N = 1 + 2 * i
         sx = harmonics.sx(N, max_weight=4)
         np.testing.assert_allclose(-as3.gamma_nss(N, nf, sx), mom * nf, rtol=7e-7)
+
+
+def test_ns():
+    N = complex(3.45, 0.0)
+    sx = harmonics.sx(N, max_weight=4)
+    np.testing.assert_allclose(
+        as3.gamma_nsv(N, nf, sx), as3.gamma_nsm(N, nf, sx) + as3.gamma_nss(N, nf, sx)
+    )
+    np.testing.assert_allclose(as3_unpol.gamma_nsp(N, nf, sx), as3.gamma_nsp(N, nf, sx))
+    np.testing.assert_allclose(as3_unpol.gamma_nsp(N, nf, sx), as3.gamma_nsm(N, nf, sx))
