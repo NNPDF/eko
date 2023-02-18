@@ -198,7 +198,6 @@ def quad_ker(
     as0,
     mu2_from,
     mu2_to,
-    as_raw,
     aem_list,
     alphaem_running,
     nf,
@@ -273,13 +272,14 @@ def quad_ker(
             method,
             as1,
             as0,
-            as_raw,
             nf,
             L,
             ev_op_iterations,
             ev_op_max_order,
             sv_mode,
             is_threshold,
+            is_polarized,
+            is_time_like,
         )
     else:
         ker = quad_ker_qed(
@@ -292,7 +292,6 @@ def quad_ker(
             as0,
             mu2_from,
             mu2_to,
-            as_raw,
             aem_list,
             alphaem_running,
             nf,
@@ -316,13 +315,14 @@ def quad_ker_qcd(
     method,
     as1,
     as0,
-    as_raw,
     nf,
     L,
     ev_op_iterations,
     ev_op_max_order,
     sv_mode,
     is_threshold,
+    is_polarized,
+    is_time_like,
 ):
     """Raw evolution kernel inside quad.
 
@@ -419,6 +419,7 @@ def quad_ker_qcd(
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+    return ker
 
 
 @nb.njit(cache=True)
@@ -432,7 +433,6 @@ def quad_ker_qed(
     as0,
     mu2_from,
     mu2_to,
-    as_raw,
     aem_list,
     alphaem_running,
     nf,
@@ -484,7 +484,7 @@ def quad_ker_qed(
     """
     # compute the actual evolution kernel for QEDxQCD
     if ker_base.is_QEDsinglet:
-        gamma_s = ad.gamma_singlet_qed(order, ker_base.n, nf)
+        gamma_s = ad_us.gamma_singlet_qed(order, ker_base.n, nf)
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_s = sv.exponentiated.gamma_variation_qed(
@@ -502,16 +502,15 @@ def quad_ker_qed(
             ev_op_max_order,
         )
         # scale var expanded is applied on the kernel
-        # TODO : check as_raw and a_em in expanded scale variations
-        if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
-                sv.expanded.singlet_variation_qed(
-                    gamma_s, as_raw, aem_list[-1], alphaem_running, order, nf, L
-                )
-            )
+        # if sv_mode == sv.Modes.expanded and not is_threshold:
+        #     ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
+        #         sv.expanded.singlet_variation_qed(
+        #             gamma_s, as_raw, aem_list[-1], alphaem_running, order, nf, L
+        #         )
+        #     )
         ker = select_QEDsinglet_element(ker, mode0, mode1)
     elif ker_base.is_QEDvalence:
-        gamma_v = ad.gamma_valence_qed(order, ker_base.n, nf)
+        gamma_v = ad_us.gamma_valence_qed(order, ker_base.n, nf)
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_v = sv.exponentiated.gamma_variation_qed(
@@ -529,15 +528,15 @@ def quad_ker_qed(
             ev_op_max_order,
         )
         # scale var expanded is applied on the kernel
-        if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = np.ascontiguousarray(
-                sv.expanded.valence_variation_qed(
-                    gamma_v, as_raw, aem_list[-1], alphaem_running, order, nf, L
-                )
-            ) @ np.ascontiguousarray(ker)
+        # if sv_mode == sv.Modes.expanded and not is_threshold:
+        #     ker = np.ascontiguousarray(
+        #         sv.expanded.valence_variation_qed(
+        #             gamma_v, as_raw, aem_list[-1], alphaem_running, order, nf, L
+        #         )
+        #     ) @ np.ascontiguousarray(ker)
         ker = select_QEDvalence_element(ker, mode0, mode1)
     else:
-        gamma_ns = ad.gamma_ns_qed(order, mode0, ker_base.n, nf)
+        gamma_ns = ad_us.gamma_ns_qed(order, mode0, ker_base.n, nf)
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_ns = sv.exponentiated.gamma_variation_qed(
@@ -556,13 +555,13 @@ def quad_ker_qed(
             mu2_from,
             mu2_to,
         )
-        if sv_mode == sv.Modes.expanded and not is_threshold:
-            ker = (
-                sv.expanded.non_singlet_variation_qed(
-                    gamma_ns, as_raw, aem_list[-1], alphaem_running, order, nf, L
-                )
-                * ker
-            )
+        # if sv_mode == sv.Modes.expanded and not is_threshold:
+        #     ker = (
+        #         sv.expanded.non_singlet_variation_qed(
+        #             gamma_ns, as_raw, aem_list[-1], alphaem_running, order, nf, L
+        #         )
+        #         * ker
+        #     )
     return ker
 
 
@@ -657,23 +656,26 @@ class Operator(sv.ModeMixin):
         """Return the computed values for :math:`a_s` and :math:`a_{em}`."""
         coupling = self.managers["couplings"]
         a0 = coupling.a(
-            self.mur2_shift(self.q2_from), fact_scale=self.q2_from, nf_to=self.nf
+            self.sv_exponentiated_shift(self.q2_from),
+            fact_scale=self.q2_from,
+            nf_to=self.nf,
         )
         a1 = coupling.a(
-            self.mur2_shift(self.q2_to), fact_scale=self.q2_to, nf_to=self.nf
+            self.sv_exponentiated_shift(self.q2_to),
+            fact_scale=self.q2_to,
+            nf_to=self.nf,
         )
-        a_raw = coupling.a(self.q2_to, fact_scale=self.q2_to, nf_to=self.nf)
-        return (a0, a1, a_raw)
+        return (a0, a1)
 
     @property
     def a_s(self):
         """Return the computed values for :math:`a_s`."""
-        return (self.a[0][0], self.a[1][0], self.a[2][0])
+        return (self.a[0][0], self.a[1][0])
 
     @property
     def a_em(self):
         """Return the computed values for :math:`a_{em}`."""
-        return (self.a[0][1], self.a[1][1], self.a[2][1])
+        return (self.a[0][1], self.a[1][1])
 
     def compute_aem_list_as(self):
         """Return the list of the couplings for the different values of :math:`a_s`."""
@@ -784,7 +786,6 @@ class Operator(sv.ModeMixin):
             as0=self.a_s[0],
             mu2_from=self.q2_from,
             mu2_to=self.q2_to,
-            as_raw=self.a_s[2],
             aem_list=self.aem_list_as,
             alphaem_running=self.alphaem_running,
             nf=self.nf,

@@ -325,7 +325,9 @@ class OperatorMatrixElement(Operator):
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
         sc = self.managers["couplings"]
-        return sc.a_s(self.mur2_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1)
+        return sc.a_s(
+            self.sv_exponentiated_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1
+        )
 
     def compute(self):
         """Compute the actual operators (i.e. run the integrations)."""

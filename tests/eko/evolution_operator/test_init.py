@@ -31,6 +31,10 @@ def test_quad_ker_errors():
                     areas=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
                     as1=1,
                     as0=2,
+                    mu2_from=1.0,
+                    mu2_to=2.0,
+                    aem_list=[0.01],
+                    alphaem_running=False,
                     nf=3,
                     L=0,
                     ev_op_iterations=1,
@@ -79,7 +83,6 @@ def test_quad_ker(monkeypatch):
                 as0=2,
                 mu2_from=1,
                 mu2_to=2,
-                as_raw=1,
                 aem_list=[0.00058],
                 alphaem_running=False,
                 nf=3,
@@ -88,6 +91,8 @@ def test_quad_ker(monkeypatch):
                 ev_op_max_order=(0, 0),
                 sv_mode=1,
                 is_threshold=False,
+                is_polarized=False,
+                is_time_like=False,
             )
             np.testing.assert_allclose(res_ns, res)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
@@ -105,7 +110,6 @@ def test_quad_ker(monkeypatch):
                 as0=2,
                 mu2_from=1,
                 mu2_to=2,
-                as_raw=1,
                 aem_list=[0.00058],
                 alphaem_running=False,
                 nf=3,
@@ -114,6 +118,8 @@ def test_quad_ker(monkeypatch):
                 ev_op_max_order=(1, 0),
                 sv_mode=sv,
                 is_threshold=False,
+                is_polarized=False,
+                is_time_like=False,
             )
             np.testing.assert_allclose(res_sv, 1.0)
     for label in [
@@ -139,7 +145,6 @@ def test_quad_ker(monkeypatch):
                 as0=2,
                 mu2_from=1,
                 mu2_to=2,
-                as_raw=1,
                 aem_list=[0.00058],
                 alphaem_running=False,
                 nf=3,
@@ -167,7 +172,6 @@ def test_quad_ker(monkeypatch):
         as0=2,
         mu2_from=1,
         mu2_to=2,
-        as_raw=1,
         aem_list=[0.00058],
         alphaem_running=False,
         nf=3,
@@ -451,7 +455,6 @@ def test_pegasus_path():
                     a0,
                     mu2_from,
                     mu2_to,
-                    as_raw,
                     [0.00058],
                     False,
                     nf,

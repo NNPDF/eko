@@ -2,7 +2,8 @@
 import numba as nb
 import numpy as np
 
-from .. import anomalous_dimensions as ad
+from ekore import anomalous_dimensions as ad
+
 from .. import beta
 from . import utils
 

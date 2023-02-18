@@ -3,10 +3,10 @@ import warnings
 import numpy as np
 import pytest
 
-from eko import anomalous_dimensions as ad
 from eko import basis_rotation as br
 from eko import beta
 from eko.kernels import non_singlet_qed as ns
+from ekore.anomalous_dimensions.unpolarized import space_like as ad
 
 methods = [
     # "iterate-expanded",

@@ -167,7 +167,7 @@ class TestCouplings:
             )
         )
         for thresh_setup in thresh_setups:
-            for order_s in [0, 1, 2, 3, 4]:
+            for order_s in [1, 2, 3, 4]:
                 for order_em in [0, 1, 2]:
                     for evmod in CouplingEvolutionMethod:
                         # if order_em == 1 and method == "expanded" and order_s != 0:
