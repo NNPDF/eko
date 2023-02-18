@@ -61,8 +61,8 @@ def test_quad_ker(monkeypatch):
                 mode1=0,
                 method="",
                 is_log=is_log,
-                logx=0.0,
-                areas=np.zeros(3),
+                logx=0.1,
+                areas=[0.1, 0.2, 0.3],
                 as1=1,
                 as0=2,
                 nf=3,
@@ -74,7 +74,7 @@ def test_quad_ker(monkeypatch):
                 is_polarized=polarized,
                 is_time_like=False,
             )
-            np.testing.assert_allclose(res_ns, 0.0)
+            np.testing.assert_allclose(res_ns, 1.0)
             res_s = quad_ker(
                 u=0,
                 order=(1, 0),
