@@ -10,7 +10,6 @@ import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
 from eko import basis_rotation as br
 from ekore import anomalous_dimensions as ad
 from ekore import harmonics
-from ekore.anomalous_dimensions.unpolarized.space_like import as1 as ad_as1
 
 NF = 5
 
@@ -18,7 +17,7 @@ NF = 5
 def test_eigensystem_gamma_singlet_0_values():
     n = 3
     s1 = harmonics.S1(n)
-    gamma_S_0 = as1.gamma_singlet(3, s1, NF)
+    gamma_S_0 = ad_us.as1.gamma_singlet(3, s1, NF)
     res = ad.exp_matrix_2D(gamma_S_0)
     lambda_p = complex(12.273612971466964, 0)
     lambda_m = complex(5.015275917421917, 0)
@@ -40,15 +39,15 @@ def test_eigensystem_gamma_singlet_0_values():
 def test_exp_matrix():
     n = 3
     s1 = harmonics.S1(n)
-    gamma_S_0 = as1.gamma_singlet(3, s1, NF)
+    gamma_S_0 = ad_us.as1.gamma_singlet(3, s1, NF)
     res = ad.exp_matrix_2D(gamma_S_0)[0]
     res2 = ad.exp_matrix(gamma_S_0)[0]
     assert_allclose(res, res2)
-    gamma_S_0_qed = as1.gamma_singlet_qed(3, s1, NF)
+    gamma_S_0_qed = ad_us.as1.gamma_singlet_qed(3, s1, NF)
     res = expm(gamma_S_0_qed)
     res2 = ad.exp_matrix(gamma_S_0_qed)[0]
     assert_allclose(res, res2)
-    gamma_v_0_qed = as1.gamma_valence_qed(3, s1)
+    gamma_v_0_qed = ad_us.as1.gamma_valence_qed(3, s1)
     res = expm(gamma_v_0_qed)
     res2 = ad.exp_matrix(gamma_v_0_qed)[0]
     assert_allclose(res, res2)
@@ -83,17 +82,17 @@ def test_eigensystem_gamma_singlet_projectors_EV():
 
 def test_gamma_ns():
     nf = 3
-    # as1
+    # ad_us.as1
     assert_almost_equal(
         ad_us.gamma_ns((3, 0), br.non_singlet_pids_map["ns+"], 1, nf)[0], 0.0
     )
-    # as2
+    # ad_us.as2
     assert_allclose(
         ad_us.gamma_ns((2, 0), br.non_singlet_pids_map["ns-"], 1, nf),
         np.zeros(2),
         atol=2e-6,
     )
-    # as3
+    # ad_us.as3
     assert_allclose(
         ad_us.gamma_ns((3, 0), br.non_singlet_pids_map["ns-"], 1, nf),
         np.zeros(3),
@@ -128,66 +127,66 @@ def test_gamma_ns_qed():
     nf = 3
     # aem1
     assert_almost_equal(
-        ad.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
         np.zeros((2, 2)),
         decimal=5,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
         np.zeros((2, 2)),
         decimal=5,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns+u"], 1, nf)[0, 1],
+        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns+u"], 1, nf)[0, 1],
         0,
         decimal=5,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns+d"], 1, nf)[0, 1],
+        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns+d"], 1, nf)[0, 1],
         0,
         decimal=5,
     )
     # as1aem1
     assert_almost_equal(
-        ad.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
+        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
         np.zeros((2, 3)),
         decimal=5,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
+        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
         np.zeros((2, 3)),
         decimal=5,
     )
     # aem2
     assert_almost_equal(
-        ad.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
+        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
         np.zeros((2, 3)),
         decimal=5,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
+        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
         np.zeros((2, 3)),
         decimal=5,
     )
-    # as2
+    # ad_us.as2
     assert_almost_equal(
-        ad.gamma_ns_qed((2, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        ad_us.gamma_ns_qed((2, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
         np.zeros((3, 2)),
         decimal=5,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((2, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        ad_us.gamma_ns_qed((2, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
         np.zeros((3, 2)),
         decimal=5,
     )
-    # as3
+    # ad_us.as3
     assert_almost_equal(
-        ad.gamma_ns_qed((3, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        ad_us.gamma_ns_qed((3, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
         np.zeros((4, 2)),
         decimal=3,
     )
     assert_almost_equal(
-        ad.gamma_ns_qed((3, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        ad_us.gamma_ns_qed((3, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
         np.zeros((4, 2)),
         decimal=3,
     )
@@ -197,13 +196,13 @@ def test_dim_singlet():
     nf = 3
     N = 2
     sx = harmonics.sx(N, max_weight=3 + 1)
-    gamma_singlet = ad.gamma_singlet_qed((3, 2), N, nf)
+    gamma_singlet = ad_us.gamma_singlet_qed((3, 2), N, nf)
     assert gamma_singlet.shape == (4, 3, 4, 4)
-    gamma_singlet_as1 = as1.gamma_singlet_qed(N, sx[0], nf)
+    gamma_singlet_as1 = ad_us.as1.gamma_singlet_qed(N, sx[0], nf)
     assert gamma_singlet_as1.shape == (4, 4)
-    gamma_singlet_as2 = as2.gamma_singlet_qed(N, nf, sx)
+    gamma_singlet_as2 = ad_us.as2.gamma_singlet_qed(N, nf, sx)
     assert gamma_singlet_as2.shape == (4, 4)
-    gamma_singlet_as3 = as3.gamma_singlet_qed(N, nf, sx)
+    gamma_singlet_as3 = ad_us.as3.gamma_singlet_qed(N, nf, sx)
     assert gamma_singlet_as3.shape == (4, 4)
 
 
@@ -211,13 +210,13 @@ def test_dim_valence():
     nf = 3
     N = 2
     sx = harmonics.sx(N, max_weight=3 + 1)
-    gamma_valence = ad.gamma_valence_qed((3, 2), N, nf)
+    gamma_valence = ad_us.gamma_valence_qed((3, 2), N, nf)
     assert gamma_valence.shape == (4, 3, 2, 2)
-    gamma_valence_as1 = as1.gamma_valence_qed(N, sx[0])
+    gamma_valence_as1 = ad_us.as1.gamma_valence_qed(N, sx[0])
     assert gamma_valence_as1.shape == (2, 2)
-    gamma_valence_as2 = as2.gamma_valence_qed(N, nf, sx)
+    gamma_valence_as2 = ad_us.as2.gamma_valence_qed(N, nf, sx)
     assert gamma_valence_as2.shape == (2, 2)
-    gamma_valence_as3 = as3.gamma_valence_qed(N, nf, sx)
+    gamma_valence_as3 = ad_us.as3.gamma_valence_qed(N, nf, sx)
     assert gamma_valence_as3.shape == (2, 2)
 
 
@@ -225,9 +224,9 @@ def test_dim_nsp():
     nf = 3
     N = 2
     sx = harmonics.sx(N, max_weight=3 + 1)
-    gamma_nsup = ad.gamma_ns_qed((3, 2), 10102, N, nf)
+    gamma_nsup = ad_us.gamma_ns_qed((3, 2), 10102, N, nf)
     assert gamma_nsup.shape == (4, 3)
-    gamma_nsdp = ad.gamma_ns_qed((3, 2), 10103, N, nf)
+    gamma_nsdp = ad_us.gamma_ns_qed((3, 2), 10103, N, nf)
     assert gamma_nsdp.shape == (4, 3)
     with pytest.raises(NotImplementedError):
-        gamma_ns = ad.gamma_ns_qed((2, 0), 10106, N, nf)
+        gamma_ns = ad_us.gamma_ns_qed((2, 0), 10106, N, nf)
