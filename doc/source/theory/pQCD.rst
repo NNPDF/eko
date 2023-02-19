@@ -83,6 +83,33 @@ where :math:`a = \alpha/(4\pi)`.
 The expression of the pure |QED| and of the mixed |QED| :math:`\otimes` |QCD| splitting kernels are given in
 :cite:`deFlorian:2015ujt,deFlorian:2016gvk`
 
+Polarised Splitting Functions
+-----------------------------
+Polarised Altarelli-Parisi splitting kernels are implemented up to |NNLO| and expanded in powers of the strong coupling as in the previous section. They are used to evolve longitudinally polarized parton distribution functions. Unlike in unpolarized splitting functions, where the probability of the splitting describes the momentum of parent and daughter partons with averaged spins, the polarized splitting functions describe the parent and daughter momentums along with their spins and thus take into account positive or negative helicties. Throughout, the anomalous dimensions are defined as above and are represented with :math:`\gamma` and not :math:`\Delta\gamma` just like in the unpolarized case.
+
+The |LO| and |NLO| kernels are given in :cite:`Gluck:1995yr` and the |NNLO| in :cite:`Moch:2015usa` and :cite:`Moch:2015usa`.
+
+At |LO|, the non-singlet is the same in both the polarized and unpolarized case. Due to helicity conservation, the first moment of the anomalous dimension is :math:`\gamma_{qq} (N=1) = \gamma_{qg} (N=1) = 0`.
+
+At |NLO|, the singlet entry of the quark-quark anomalous dimension can be decomposed into the pure singlet (consisting of the flavour independent quark-quark and quark-antiquark anomalous dimensions) and the plus flavour asymmetry non-singlet:
+
+.. math ::
+    \gamma_{qq} =\gamma_{ps} + \gamma_{ns}^- \\
+
+The non-singlet sector in the polarized case swaps the plus and minus non-singlet relative to the unpolarized case. This is because the polarized non-singlet splitting functions are defined as the difference between the probability of the polarised parton splitting into daughter partons of the same flavour and daughters splitting into a different flavours and opposite helictites. The first moments of the anomalous dimensions are:
+
+.. math ::
+    \gamma_{ns}^+ (N=1) = 0 \\
+    \gamma_{qq} (N=1) = 24 C_F T_R \\
+    \gamma_{qg} (N=1) = 0  \\
+
+At |NNLO| the non-singlet is further decomposed into the helicity difference quark-antiquark anomalous dimension called the valence polarized non-singlet and defined as:
+
+.. math ::
+    \gamma_{nsv} =\gamma_{ns}^- + \gamma_{nss}
+
+where :math:`\gamma_{ns}^+` is the minus flavour asymmetry non-singlet and :math:`\gamma_{nss}` the sea-like polarized non-singlet. The singlet entry :math:`\gamma_qq` is defined as above in the |NLO| case.
+
 Order specification
 -------------------
 
