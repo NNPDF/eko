@@ -237,16 +237,13 @@ class TestCouplings:
                                 max_num_flavs=6,
                             )
                         )
-                        threshs = MatchingScales.from_dict(
-                            dict(zip("cbt", thresh_setup))
-                        )
                         sc_expanded = Couplings(
                             couplings,
                             pto,
                             method=CouplingEvolutionMethod.EXPANDED,
                             masses=masses,
                             hqm_scheme=QuarkMassSchemes.POLE,
-                            thresholds_ratios=threshs,
+                            thresholds_ratios=thresh_setup,
                         )
                         sc_exact = Couplings(
                             couplings,
@@ -254,7 +251,7 @@ class TestCouplings:
                             method=CouplingEvolutionMethod.EXACT,
                             masses=masses,
                             hqm_scheme=QuarkMassSchemes.POLE,
-                            thresholds_ratios=threshs,
+                            thresholds_ratios=thresh_setup,
                         )
                         if pto in [(1, 0), (1, 1), (1, 2)]:
                             precisions = (5e-4, 5e-4)
