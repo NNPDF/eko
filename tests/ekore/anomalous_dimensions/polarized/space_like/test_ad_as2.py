@@ -14,6 +14,14 @@ def test_qg_helicity_conservation():
     np.testing.assert_almost_equal(as2.gamma_qg(N, nf, sx), 0)
 
 
+def test_qq_momentum():
+    N = complex(1.0, 0.0)
+    sx = harmonics.sx(N, max_weight=2)
+    np.testing.assert_almost_equal(
+        as2.gamma_singlet(N, nf, sx)[0, 0], 12 * TR * nf * CF, decimal=5
+    )
+
+
 def test_ps_momentum():
     N = complex(2.0, 0.0)
     np.testing.assert_allclose(-as2.gamma_ps(N, nf), -4.0 * TR * nf * CF * 13 / 27)
