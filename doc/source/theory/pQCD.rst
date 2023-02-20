@@ -85,7 +85,7 @@ The expression of the pure |QED| and of the mixed |QED| :math:`\otimes` |QCD| sp
 
 Polarized Splitting Functions
 -----------------------------
-Polarized Altarelli-Parisi splitting kernels are implemented up to |NNLO| and expanded in powers of the strong coupling as in the previous section. They are used to evolve longitudinally polarized parton distribution functions. Unlike in unpolarized splitting functions, where the probability of the splitting describes the momentum of parent and daughter partons with averaged spins, the polarized splitting functions describe the parent and daughter momentums along with their spins and thus take into account positive or negative helicities. Throughout, the anomalous dimensions are defined as above and are represented with :math:`\gamma` and not :math:`\Delta\gamma` just like in the unpolarized case.
+Polarized Altarelli-Parisi splitting kernels are implemented up to |NNLO| and expanded in powers of the strong coupling as in the previous section. They are used to evolve longitudinally polarized parton distribution functions. Unlike in unpolarized splitting functions, where the probability of the splitting describes the momentum of parent and daughter partons with averaged spins, the polarized splitting functions describe the parent and daughter momentums along with their spins and thus take into account positive or negative helicties. Throughout, the anomalous dimensions are defined as above and are represented with :math:`\gamma` and not :math:`\Delta\gamma` just like in the unpolarized case.
 
 The |LO| and |NLO| kernels are given in :cite:`Gluck:1995yr` and the |NNLO| in :cite:`Moch:2015usa` and :cite:`Moch:2015usa`.
 
@@ -96,7 +96,7 @@ At |NLO|, the singlet entry of the quark-quark anomalous dimension can be decomp
 .. math ::
     \gamma_{qq} =\gamma_{ps} + \gamma_{ns}^- \\
 
-The non-singlet sector in the polarized case swaps the plus and minus non-singlet relative to the unpolarized case. This is because the polarized non-singlet splitting functions are defined as the difference between the probability of the polarized parton splitting into daughter partons of the same flavour and daughters splitting into a different flavours and opposite helicities. The first moments of the anomalous dimensions are:
+The non-singlet sector in the polarized case swaps the plus and minus non-singlet relative to the unpolarized case. This is because the polarized non-singlet splitting functions are defined as the difference between the probability of the polarized parton splitting into daughter partons of the same flavour and daughters splitting into a different flavours and opposite helictites. The first moments of the anomalous dimensions are:
 
 .. math ::
     \gamma_{ns}^+ (N=1) = 0 \\
@@ -108,7 +108,7 @@ At |NNLO| the non-singlet is further decomposed into the helicity difference qua
 .. math ::
     \gamma_{nsv} =\gamma_{ns}^- + \gamma_{nss}
 
-where :math:`\gamma_{ns}^+` is the minus flavour asymmetry non-singlet and :math:`\gamma_{nss}` the sea-like polarized non-singlet. The singlet entry :math:`\gamma_{qq}` is defined as above in the |NLO| case.
+where :math:`\gamma_{ns}^+` is the minus flavour asymmetry non-singlet and :math:`\gamma_{nss}` the sea-like polarized non-singlet. The singlet entry :math:`\gamma_qq` is defined as above in the |NLO| case.
 
 
 Order specification
