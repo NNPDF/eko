@@ -392,7 +392,7 @@ def quad_ker_qcd(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
+                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -502,12 +502,12 @@ def quad_ker_qed(
             ev_op_max_order,
         )
         # scale var expanded is applied on the kernel
-        # if sv_mode == sv.Modes.expanded and not is_threshold:
-        #     ker = np.ascontiguousarray(ker) @ np.ascontiguousarray(
-        #         sv.expanded.singlet_variation_qed(
-        #             gamma_s, as_raw, aem_list[-1], alphaem_running, order, nf, L
-        #         )
-        #     )
+        if sv_mode == sv.Modes.expanded and not is_threshold:
+            ker = np.ascontiguousarray(
+                sv.expanded.singlet_variation_qed(
+                    gamma_s, as1, aem_list[-1], alphaem_running, order, nf, L
+                )
+            ) @ np.ascontiguousarray(ker)
         ker = select_QEDsinglet_element(ker, mode0, mode1)
     elif ker_base.is_QEDvalence:
         gamma_v = ad_us.gamma_valence_qed(order, ker_base.n, nf)
@@ -528,12 +528,12 @@ def quad_ker_qed(
             ev_op_max_order,
         )
         # scale var expanded is applied on the kernel
-        # if sv_mode == sv.Modes.expanded and not is_threshold:
-        #     ker = np.ascontiguousarray(
-        #         sv.expanded.valence_variation_qed(
-        #             gamma_v, as_raw, aem_list[-1], alphaem_running, order, nf, L
-        #         )
-        #     ) @ np.ascontiguousarray(ker)
+        if sv_mode == sv.Modes.expanded and not is_threshold:
+            ker = np.ascontiguousarray(
+                sv.expanded.valence_variation_qed(
+                    gamma_s, as1, aem_list[-1], alphaem_running, order, nf, L
+                )
+            ) @ np.ascontiguousarray(ker)
         ker = select_QEDvalence_element(ker, mode0, mode1)
     else:
         gamma_ns = ad_us.gamma_ns_qed(order, mode0, ker_base.n, nf)
@@ -555,13 +555,13 @@ def quad_ker_qed(
             mu2_from,
             mu2_to,
         )
-        # if sv_mode == sv.Modes.expanded and not is_threshold:
-        #     ker = (
-        #         sv.expanded.non_singlet_variation_qed(
-        #             gamma_ns, as_raw, aem_list[-1], alphaem_running, order, nf, L
-        #         )
-        #         * ker
-        #     )
+        if sv_mode == sv.Modes.expanded and not is_threshold:
+            ker = (
+                sv.expanded.non_singlet_variation_qed(
+                    gamma_ns, as1, aem_list[-1], alphaem_running, order, nf, L
+                )
+                * ker
+            )
     return ker
 
 

@@ -53,7 +53,7 @@ def test_singlet_sv_dispacher():
     nf = 5
     a_s = 0.35
     np.testing.assert_allclose(
-        expanded.singlet_variation(gamma_singlet, a_s, order, nf, L), np.eye(2)
+        expanded.singlet_variation(gamma_singlet, a_s, order, nf, L, 2), np.eye(2)
     )
 
 
@@ -184,7 +184,7 @@ def test_scale_variation_a_vs_b():
             ker_a = singlet.dispatcher(
                 order, method, gs_a, a1, a0, nf, ev_op_iterations=1, ev_op_max_order=1
             )
-            ker_b = ker @ expanded.singlet_variation(gs, a1, order, nf, L)
+            ker_b = ker @ expanded.singlet_variation(gs, a1, order, nf, L, 2)
             s_diff = scheme_diff(gs, L, order, True)
             np.testing.assert_allclose(
                 (ker_a - ker_b) @ np.linalg.inv(ker),
