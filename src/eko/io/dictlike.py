@@ -110,6 +110,12 @@ def load_field(type_, value):
     # TODO: nice place for a match statement...
     if type(type_) is typing.NewType:
         return load_field(type_.__supertype__, value)
+    try:
+        # before py3.10 typing.NewType was just a function, so the check above
+        # would  fail
+        return load_field(type_.__supertype__, value)
+    except AttributeError:
+        pass
 
     if typing.get_origin(type_) is not None:
         # this has to go first since for followin ones I will assume they are
