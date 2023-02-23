@@ -108,6 +108,9 @@ class DictLike:
 def load_field(type_, value):
     """Deserialize dataclass field."""
     # TODO: nice place for a match statement...
+    if type(type_) is typing.NewType:
+        return load_field(type_.__supertype__, value)
+
     if typing.get_origin(type_) is not None:
         # this has to go first since for followin ones I will assume they are
         # valid classes, cf. the module docstring

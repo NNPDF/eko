@@ -13,7 +13,7 @@ E.g. before it was implemented::
 but in this way it is not possible to determine that ``RunningReference`` is
 subclassing ``DictLike``, indeed::
 
-    inspec.isclass(RunningReference)  # False
+    inspect.isclass(RunningReference)       # False
     issubclass(RunningReference, DictLike)  # raise an error, since
                                             # RunningReference is not a class
 
@@ -28,11 +28,35 @@ import dataclasses
 import enum
 import typing
 from math import isnan
-from typing import Any, Dict, Optional
+from typing import Any, Dict, NewType, Optional
 
 from .dictlike import DictLike
 
 T = typing.TypeVar("T")
+
+# Energy scales
+# -------------
+
+Scale = NewType("Scale", float)
+
+LinearScale = NewType("LinearScale", Scale)
+SquaredScale = NewType("SquaredScale", Scale)
+# TODO: replace with (requires py>=3.9)
+#  LinearScale = Annotated[Scale, 1]
+#  SquaredScale = Annotated[Scale, 2]
+
+
+# Flavors
+# -------
+
+Order = NewType("Order", typing.Tuple[int, int])
+FlavorsNumber = NewType("FlavorsNumber", int)
+FlavorIndex = NewType("FlavorIndex", int)
+IntrinsicFlavors = NewType("IntrinsicFlavors", typing.List[FlavorIndex])
+
+
+# Scale functions
+# ---------------
 
 
 def reference_running(quantity: typing.Type[typing.Union[int, float]]):
@@ -45,7 +69,7 @@ def reference_running(quantity: typing.Type[typing.Union[int, float]]):
     @dataclasses.dataclass
     class ReferenceRunning(DictLike):
         value: quantity
-        scale: float
+        scale: Scale
 
     return ReferenceRunning
 
@@ -53,41 +77,9 @@ def reference_running(quantity: typing.Type[typing.Union[int, float]]):
 IntRef = reference_running(int)
 FloatRef = reference_running(float)
 
-Order = typing.Tuple[int, int]
-FlavorsNumber = int
-FlavorIndex = int
-IntrinsicFlavors = typing.List[FlavorIndex]
 
-
-@dataclasses.dataclass
-class CouplingsRef(DictLike):
-    """Reference values for coupling constants."""
-
-    alphas: FloatRef
-    alphaem: FloatRef
-    max_num_flavs: FlavorsNumber
-    num_flavs_ref: Optional[FlavorsNumber]
-    r"""Number of active flavors at strong coupling reference scale.
-
-    I.e. :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`, formerly called
-    ``nfref``.
-
-    """
-
-    def __post_init__(self):
-        """Validate couplings.
-
-        If they are both running, they have to be defined at the same scale.
-
-        Usually :attr:`alphaem` is not running, thus its scale is set to nan.
-
-        """
-        assert self.alphas.scale == self.alphaem.scale or isnan(self.alphaem.scale)
-
-    @property
-    def values(self):
-        """Collect only couplings values."""
-        return (self.alphas.value, self.alphaem.value)
+# Heavy quarks
+# ------------
 
 
 def heavy_quark(quarkattr):
@@ -119,13 +111,14 @@ def heavy_quark(quarkattr):
     return HeavyQuarks
 
 
-QuarkMassRef = FloatRef
+QuarkMass = NewType("QuarkMass", LinearScale)
+QuarkMassRef = reference_running(QuarkMass)
 HeavyQuarkMasses = heavy_quark(QuarkMassRef)
-MatchingScale = float
+MatchingScale = NewType("MatchingScale", LinearScale)
 MatchingScales = heavy_quark(MatchingScale)
 
 
-# TODO: upgrade all the following to StrEnum, new in py3.11
+# TODO: upgrade all the following to StrEnum (requires py>=3.11)
 # with that, it is possible to replace all non-alias right sides with calls to
 # enum.auto()
 
@@ -135,6 +128,10 @@ class QuarkMassSchemes(enum.Enum):
 
     MSBAR = "msbar"
     POLE = "pole"
+
+
+# Numerical methods
+# -----------------
 
 
 class EvolutionMethod(enum.Enum):
@@ -171,4 +168,39 @@ class InversionMethod(enum.Enum):
     EXPANDED = "expanded"
 
 
-RawCard = Dict[str, Any]
+RawCard = NewType("RawCard", Dict[str, Any])
+
+
+# Couplings
+# ---------
+
+
+@dataclasses.dataclass
+class CouplingsRef(DictLike):
+    """Reference values for coupling constants."""
+
+    alphas: FloatRef
+    alphaem: FloatRef
+    max_num_flavs: FlavorsNumber
+    num_flavs_ref: Optional[FlavorsNumber]
+    r"""Number of active flavors at strong coupling reference scale.
+
+    I.e. :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`, formerly called
+    ``nfref``.
+
+    """
+
+    def __post_init__(self):
+        """Validate couplings.
+
+        If they are both running, they have to be defined at the same scale.
+
+        Usually :attr:`alphaem` is not running, thus its scale is set to nan.
+
+        """
+        assert self.alphas.scale == self.alphaem.scale or isnan(self.alphaem.scale)
+
+    @property
+    def values(self):
+        """Collect only couplings values."""
+        return (self.alphas.value, self.alphaem.value)

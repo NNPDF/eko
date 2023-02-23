@@ -1,5 +1,4 @@
 r"""|RGE| for the |MSbar| masses."""
-from math import nan
 from typing import List
 
 import numba as nb
@@ -10,7 +9,6 @@ from eko.io.types import (
     CouplingEvolutionMethod,
     CouplingsRef,
     HeavyQuarkMasses,
-    MatchingScales,
     Order,
     QuarkMassRef,
     QuarkMassSchemes,
