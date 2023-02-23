@@ -531,7 +531,7 @@ def quad_ker_qed(
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
                 sv.expanded.valence_variation_qed(
-                    gamma_s, as1, aem_list[-1], alphaem_running, order, nf, L
+                    gamma_v, as1, aem_list[-1], alphaem_running, order, nf, L
                 )
             ) @ np.ascontiguousarray(ker)
         ker = select_QEDvalence_element(ker, mode0, mode1)
