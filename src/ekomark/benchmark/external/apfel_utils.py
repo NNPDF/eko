@@ -66,19 +66,18 @@ def compute_apfel_data(
     # apfel.SetGridParameters(3, 50, 3, 8e-1)
 
     # init evolution
+    apfel.SetPolarizedEvolution(operators["polarized"])
     apfel.InitializeAPFEL()
     print(f"Loading APFEL took {(time.perf_counter() - apf_start)} s")
 
     # Run
     apf_tabs = {}
     for q2 in operators["Q2grid"]:
-
         apfel.EvolveAPFEL(theory["Q0"], np.sqrt(q2))
         print(f"Executing APFEL took {(time.perf_counter() - apf_start)} s")
 
         tab = {}
         for pid in br.flavor_basis_pids:
-
             if pid in skip_pdfs:
                 continue
 

@@ -17,7 +17,7 @@ from eko.kernels import singlet as s
 
 
 def test_quad_ker_errors():
-    for p, t in [(True, False), (False, True), (True, True)]:
+    for p, t in [(False, True), (True, True)]:
         for mode0 in [br.non_singlet_pids_map["ns+"], 21]:
             with pytest.raises(NotImplementedError):
                 quad_ker(
@@ -70,58 +70,60 @@ def test_quad_ker(monkeypatch):
     ]
     for order, mode0, mode1, method, logx, res in params:
         for is_log in [True, False]:
-            res_ns = quad_ker(
-                u=0,
-                order=order,
-                mode0=mode0,
-                mode1=mode1,
-                method=method,
-                is_log=is_log,
-                logx=logx,
-                areas=np.zeros(3),
-                as1=1,
-                as0=2,
-                mu2_from=1,
-                mu2_to=2,
-                aem_list=[0.00058],
-                alphaem_running=False,
-                nf=3,
-                L=0,
-                ev_op_iterations=0,
-                ev_op_max_order=(0, 0),
-                sv_mode=1,
-                is_threshold=False,
-                is_polarized=False,
-                is_time_like=False,
-            )
-            np.testing.assert_allclose(res_ns, res)
+            for polarized in [True, False]:
+                res_ns = quad_ker(
+                    u=0,
+                    order=order,
+                    mode0=mode0,
+                    mode1=mode1,
+                    method=method,
+                    is_log=is_log,
+                    logx=logx,
+                    areas=np.zeros(3),
+                    as1=1,
+                    as0=2,
+                    mu2_from=1,
+                    mu2_to=2,
+                    aem_list=[0.00058],
+                    alphaem_running=False,
+                    nf=3,
+                    L=0,
+                    ev_op_iterations=0,
+                    ev_op_max_order=(0, 0),
+                    sv_mode=1,
+                    is_threshold=False,
+                    is_polarized=polarized,
+                    is_time_like=False,
+                )
+                np.testing.assert_allclose(res_ns, res)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
         for sv in [2, 3]:
-            res_sv = quad_ker(
-                u=0,
-                order=(1, 0),
-                mode0=label[0],
-                mode1=label[1],
-                method="",
-                is_log=True,
-                logx=0.123,
-                areas=np.zeros(3),
-                as1=1,
-                as0=2,
-                mu2_from=1,
-                mu2_to=2,
-                aem_list=[0.00058],
-                alphaem_running=False,
-                nf=3,
-                L=0,
-                ev_op_iterations=0,
-                ev_op_max_order=(1, 0),
-                sv_mode=sv,
-                is_threshold=False,
-                is_polarized=False,
-                is_time_like=False,
-            )
-            np.testing.assert_allclose(res_sv, 1.0)
+            for polarized in [True, False]:
+                res_sv = quad_ker(
+                    u=0,
+                    order=(1, 0),
+                    mode0=label[0],
+                    mode1=label[1],
+                    method="",
+                    is_log=True,
+                    logx=0.123,
+                    areas=np.zeros(3),
+                    as1=1,
+                    as0=2,
+                    mu2_from=1,
+                    mu2_to=2,
+                    aem_list=[0.00058],
+                    alphaem_running=False,
+                    nf=3,
+                    L=0,
+                    ev_op_iterations=0,
+                    ev_op_max_order=(1, 0),
+                    sv_mode=sv,
+                    is_threshold=False,
+                    is_polarized=polarized,
+                    is_time_like=False,
+                )
+                np.testing.assert_allclose(res_sv, 1.0)
     for label in [
         (100, 100),
         (21, 21),
