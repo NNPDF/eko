@@ -159,7 +159,7 @@ def test_ode():
                     evmod,
                     masses,
                     hqm_scheme=QuarkMassSchemes.POLE,
-                    thresholds_ratios=None,
+                    thresholds_ratios=[1.0, 1.0, 1.0],
                 )
                 a0 = sc.a_s(mu2_0)
                 for mu2_to in [10**2, 15**2]:
@@ -244,7 +244,7 @@ def test_ode_true_gamma():
                     evmod,
                     masses,
                     hqm_scheme=QuarkMassSchemes.POLE,
-                    thresholds_ratios=None,
+                    thresholds_ratios=[1.0, 1.0, 1.0],
                 )
                 a0 = sc.a_s(mu2_0)
                 for mu2_to in [10**2, 15**2]:

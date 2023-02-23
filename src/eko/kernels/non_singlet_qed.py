@@ -246,23 +246,13 @@ def running_alphaem_exact(
         non-singlet EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
+    mu2_steps = np.linspace(mu2_from, mu2_to, 1 + ev_op_iterations)
     res = 1.0
-    betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
-    # For the moment implemented in this way to make numba compile it
-    # TODO : implement it with np.prod in a way that numba compiles it
     for step in range(1, ev_op_iterations + 1):
         aem = aem_list[step - 1]
         a1 = a_steps[step]
         a0 = a_steps[step - 1]
-        betalist[0] += aem * beta.beta_qcd((2, 1), nf)
-        gamma_ns_list = contract_gammas(gamma_ns, aem)
-        if order[0] == 1:
-            res *= as1_exact(gamma_ns_list[1:], a1, a0, betalist)
-        elif order[0] == 2:
-            res *= as2_exact(gamma_ns_list[1:], a1, a0, betalist)
-        elif order[0] == 3:
-            res *= as3_exact(gamma_ns_list[1:], a1, a0, betalist)
-        else:
-            raise NotImplementedError("Selected order is not implemented")
-        res *= apply_qed(gamma_ns_list[0], mu2_from, mu2_to)
+        mu2_from = mu2_steps[step - 1]
+        mu2_to = mu2_steps[step]
+        res *= fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
     return res
