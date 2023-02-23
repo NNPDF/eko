@@ -609,7 +609,7 @@ class Operator(sv.ModeMixin):
         self.alphaem_running = self.managers["couplings"].alphaem_running
         if self.log_label == "Evolution":
             self.a = self.compute_a()
-            self.aem_list_as = self.compute_aem_list_as()
+            self.aem_list = self.compute_aem_list()
 
     @property
     def n_pools(self):
@@ -677,7 +677,7 @@ class Operator(sv.ModeMixin):
         """Return the computed values for :math:`a_{em}`."""
         return (self.a[0][1], self.a[1][1])
 
-    def compute_aem_list_as(self):
+    def compute_aem_list(self):
         """Return the list of the couplings for the different values of :math:`a_s`."""
         if self.order[1] == 0:
             return np.array([])
@@ -688,27 +688,27 @@ class Operator(sv.ModeMixin):
         q2ref = self.managers["couplings"].q2_ref
         delta_from = abs(self.q2_from - q2ref)
         delta_to = abs(self.q2_to - q2ref)
-        # I compute the values in aem_list_as starting from the as
-        # that is closer to as_ref.
+        # I compute the values in aem_list starting from the mu2
+        # that is closer to mu_ref.
         if delta_from > delta_to:
-            as_start = as1
-            aem_start = aem1
+            a_start = np.array([as1, aem1])
+            mu2_start = self.q2_to
         else:
-            as_start = as0
-            aem_start = aem0
+            a_start = np.array([as0, aem0])
+            mu2_start = self.q2_from
         sc = self.managers["couplings"]
         ev_op_iterations = self.config["ev_op_iterations"]
-        as_steps = utils.geomspace(as0, as1, 1 + ev_op_iterations)
-        as_l = as_steps[0]
+        mu2_steps = np.linspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
+        mu2_l = mu2_steps[0]
         aem_list = []
-        for as_h in as_steps[1:]:
-            as_half = (as_h + as_l) / 2.0
+        for mu2_h in mu2_steps[1:]:
+            mu2_half = (mu2_h + mu2_l) / 2.0
             aem_list.append(
-                sc.compute_aem_as(
-                    aem_ref=aem_start, as_from=as_start, as_to=as_half, nf=self.nf
-                )
+                sc.compute(
+                    a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2_half
+                )[1]
             )
-            as_l = as_h
+            mu2_l = mu2_h
         return np.array(aem_list)
 
     @property
@@ -786,7 +786,7 @@ class Operator(sv.ModeMixin):
             as0=self.a_s[0],
             mu2_from=self.q2_from,
             mu2_to=self.q2_to,
-            aem_list=self.aem_list_as,
+            aem_list=self.aem_list,
             alphaem_running=self.alphaem_running,
             nf=self.nf,
             L=np.log(self.xif2),
@@ -909,11 +909,10 @@ class Operator(sv.ModeMixin):
         )
         if self.order[1] > 0:
             logger.info(
-                "%s: a_em distance: %e -> %e, running alphaem: %r",
+                "%s: a_em distance: %e -> %e",
                 self.log_label,
                 self.a_em[0],
                 self.a_em[1],
-                self.managers["couplings"].alphaem_running,
             )
         logger.info(
             "%s: order: (%d, %d), solution strategy: %s",
