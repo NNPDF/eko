@@ -47,10 +47,10 @@ def test_exp_matrix():
     res = expm(gamma_S_0_qed)
     res2 = ad.exp_matrix(gamma_S_0_qed)[0]
     assert_allclose(res, res2)
-    # gamma_v_0_qed = ad_us.as1.gamma_valence_qed(3, s1)
-    # res = expm(gamma_v_0_qed)
-    # res2 = ad.exp_matrix(gamma_v_0_qed)[0]
-    # assert_allclose(res, res2)
+    gamma_2D = np.random.rand(2, 2) + np.random.rand(2, 2) * 1j
+    res1 = expm(gamma_2D)
+    res2 = ad.exp_matrix(gamma_2D)[0]
+    assert_almost_equal(res1, res2)
     diag = np.diag([1, 2, 3, 4])
     assert_allclose(np.diag(np.exp([1, 2, 3, 4])), ad.exp_matrix(diag)[0])
     id_ = np.identity(4, np.complex_)

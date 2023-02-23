@@ -4,8 +4,6 @@ import numpy as np
 import pytest
 
 from eko.kernels import valence_qed as val
-
-# from ekore.anomalous_dimensions.unpolarized import space_like as ad
 from ekore import anomalous_dimensions
 
 methods = [
