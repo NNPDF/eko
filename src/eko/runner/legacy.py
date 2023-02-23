@@ -9,7 +9,8 @@ from .. import interpolation, msbar_masses
 from ..couplings import Couplings, couplings_mod_ev
 from ..evolution_operator.grid import OperatorGrid
 from ..io import EKO, Operator, runcards
-from ..io.types import QuarkMassSchemes, RawCard, ScaleVariationsMethod
+from ..io.types import RawCard, ScaleVariationsMethod
+from ..quantities.heavy_quarks import QuarkMassScheme
 from ..thresholds import ThresholdsAtlas
 from . import commons
 
@@ -62,7 +63,7 @@ class Runner:
 
         # setup the Threshold path, compute masses if necessary
         masses = None
-        if new_theory.quark_masses_scheme is QuarkMassSchemes.MSBAR:
+        if new_theory.quark_masses_scheme is QuarkMassScheme.MSBAR:
             masses = msbar_masses.compute(
                 new_theory.quark_masses,
                 new_theory.couplings,
@@ -71,7 +72,7 @@ class Runner:
                 np.power(list(iter(new_theory.matching)), 2.0),
                 xif2=new_theory.xif**2,
             ).tolist()
-        elif new_theory.quark_masses_scheme is QuarkMassSchemes.POLE:
+        elif new_theory.quark_masses_scheme is QuarkMassScheme.POLE:
             masses = [mq.value**2 for mq in new_theory.quark_masses]
         else:
             raise ValueError(f"Unknown mass scheme '{new_theory.quark_masses_scheme}'")

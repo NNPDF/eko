@@ -1,6 +1,4 @@
-"""
-    Tests for the threshold class
-"""
+"""Tests for the threshold class."""
 import numpy as np
 import pytest
 
@@ -8,6 +6,7 @@ from eko import msbar_masses
 from eko.couplings import Couplings
 from eko.io import types
 from eko.io.runcards import TheoryCard
+from eko.quantities.heavy_quarks import QuarkMassScheme
 
 
 @pytest.fixture()
@@ -21,7 +20,7 @@ def theory_card(theory_card: TheoryCard):
     for qname, qmass in zip("cbt", [(2.0, 2.1), (4.0, 4.1), (175.0, 174.9)]):
         q = getattr(th.quark_masses, qname)
         q.value, q.scale = qmass
-    th.quark_masses_scheme = types.QuarkMassSchemes.MSBAR
+    th.quark_masses_scheme = QuarkMassScheme.MSBAR
 
     return th
 
@@ -48,7 +47,7 @@ class TestMSbarMasses:
                     th.order,
                     method,
                     masses=m2_computed.tolist(),
-                    hqm_scheme=types.QuarkMassSchemes.POLE,
+                    hqm_scheme=QuarkMassScheme.POLE,
                     thresholds_ratios=[1.0, 1.0, 1.0],
                 )
                 m2_test = []
@@ -91,7 +90,7 @@ class TestMSbarMasses:
             th.order,
             types.CouplingEvolutionMethod.EXPANDED,
             m2_computed.tolist(),
-            hqm_scheme=types.QuarkMassSchemes.MSBAR,
+            hqm_scheme=QuarkMassScheme.MSBAR,
             thresholds_ratios=[1.0, 1.0, 1.0],
         )
         m2_test = []

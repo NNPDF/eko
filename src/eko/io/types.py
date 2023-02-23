@@ -1,34 +1,9 @@
-"""Common type definitions, only used for static analysis.
-
-Unfortunately, Python has still some discrepancies between runtime classes and
-type hints, so it is better not to mix dataclasses and generics.
-
-E.g. before it was implemented::
-
-    @dataclasses.dataclass
-    class RunningReference(DictLike, Generic[Quantity]):
-        value: Quantity
-        scale: float
-
-but in this way it is not possible to determine that ``RunningReference`` is
-subclassing ``DictLike``, indeed::
-
-    inspect.isclass(RunningReference)       # False
-    issubclass(RunningReference, DictLike)  # raise an error, since
-                                            # RunningReference is not a class
-
-Essentially classes can be used for type hints, but types are not all classes,
-especially when they involve generics.
-
-For this reason I prefer the less elegant dynamic generation, that seems to
-preserve type hints.
-
-"""
+"""Common type definitions, only used for static analysis."""
 import dataclasses
 import enum
 import typing
 from math import isnan
-from typing import Any, Dict, NewType, Optional
+from typing import Any, Dict, Optional
 
 from .dictlike import DictLike
 
@@ -37,10 +12,10 @@ T = typing.TypeVar("T")
 # Energy scales
 # -------------
 
-Scale = NewType("Scale", float)
+Scale = float
 
-LinearScale = NewType("LinearScale", Scale)
-SquaredScale = NewType("SquaredScale", Scale)
+LinearScale = Scale
+SquaredScale = Scale
 # TODO: replace with (requires py>=3.9)
 #  LinearScale = Annotated[Scale, 1]
 #  SquaredScale = Annotated[Scale, 2]
@@ -49,10 +24,10 @@ SquaredScale = NewType("SquaredScale", Scale)
 # Flavors
 # -------
 
-Order = NewType("Order", typing.Tuple[int, int])
-FlavorsNumber = NewType("FlavorsNumber", int)
-FlavorIndex = NewType("FlavorIndex", int)
-IntrinsicFlavors = NewType("IntrinsicFlavors", typing.List[FlavorIndex])
+Order = typing.Tuple[int, int]
+FlavorsNumber = int
+FlavorIndex = int
+IntrinsicFlavors = typing.List[FlavorIndex]
 
 
 # Scale functions
@@ -76,58 +51,6 @@ def reference_running(quantity: typing.Type[typing.Union[int, float]]):
 
 IntRef = reference_running(int)
 FloatRef = reference_running(float)
-
-
-# Heavy quarks
-# ------------
-
-
-def heavy_quark(quarkattr):
-    """Generate heavy quark properties container classes.
-
-    The motivation for dynamic generation is provided in module docstring.
-
-    """
-
-    @dataclasses.dataclass
-    class HeavyQuarks(DictLike):
-        """Access heavy quarks attributes by name."""
-
-        c: quarkattr
-        """Charm quark."""
-        b: quarkattr
-        """Bottom quark."""
-        t: quarkattr
-        """Top quark."""
-
-        def __getitem__(self, key: int):
-            """Allow access by index.
-
-            Consequently it allows iteration and containing check.
-
-            """
-            return getattr(self, "cbt"[key])
-
-    return HeavyQuarks
-
-
-QuarkMass = NewType("QuarkMass", LinearScale)
-QuarkMassRef = reference_running(QuarkMass)
-HeavyQuarkMasses = heavy_quark(QuarkMassRef)
-MatchingScale = NewType("MatchingScale", LinearScale)
-MatchingScales = heavy_quark(MatchingScale)
-
-
-# TODO: upgrade all the following to StrEnum (requires py>=3.11)
-# with that, it is possible to replace all non-alias right sides with calls to
-# enum.auto()
-
-
-class QuarkMassSchemes(enum.Enum):
-    """Scheme to define heavy quark masses."""
-
-    MSBAR = "msbar"
-    POLE = "pole"
 
 
 # Numerical methods
@@ -168,7 +91,7 @@ class InversionMethod(enum.Enum):
     EXPANDED = "expanded"
 
 
-RawCard = NewType("RawCard", Dict[str, Any])
+RawCard = Dict[str, Any]
 
 
 # Couplings

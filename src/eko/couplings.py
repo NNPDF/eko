@@ -16,17 +16,10 @@ import numba as nb
 import numpy as np
 import scipy
 
-from eko.io.types import (
-    CouplingEvolutionMethod,
-    CouplingsRef,
-    EvolutionMethod,
-    MatchingScales,
-    Order,
-    QuarkMassSchemes,
-)
-
 from . import constants, thresholds
 from .beta import b_qcd, b_qed, beta_qcd, beta_qed
+from .io.types import CouplingEvolutionMethod, CouplingsRef, EvolutionMethod, Order
+from .quantities.heavy_quarks import QuarkMassScheme
 
 logger = logging.getLogger(__name__)
 
@@ -432,7 +425,7 @@ class Couplings:
         order: Order,
         method: CouplingEvolutionMethod,
         masses: List[float],
-        hqm_scheme: QuarkMassSchemes,
+        hqm_scheme: QuarkMassScheme,
         thresholds_ratios: List[float],
     ):
         # Sanity checks
@@ -798,6 +791,7 @@ class Couplings:
         -------
         a_s : float
             couplings :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
+
         """
         return self.a(scale_to, fact_scale, nf_to)[0]
 

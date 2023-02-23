@@ -15,17 +15,15 @@ import numpy.typing as npt
 from .. import basis_rotation as br
 from .. import interpolation
 from .. import version as vmod
+from ..quantities.heavy_quarks import HeavyQuarkMasses, MatchingScales, QuarkMassScheme
 from .dictlike import DictLike
 from .types import (
     CouplingsRef,
     EvolutionMethod,
     FlavorsNumber,
-    HeavyQuarkMasses,
     IntrinsicFlavors,
     InversionMethod,
-    MatchingScales,
     Order,
-    QuarkMassSchemes,
     RawCard,
     ScaleVariationsMethod,
     T,
@@ -52,7 +50,7 @@ class TheoryCard(DictLike):
     """List of intrinsic quark PDFs."""
     quark_masses: HeavyQuarkMasses
     """List of heavy quark masses."""
-    quark_masses_scheme: QuarkMassSchemes
+    quark_masses_scheme: QuarkMassScheme
     """Scheme used to specify heavy quark masses."""
     matching: MatchingScales
     """Matching scale of heavy quark masses"""

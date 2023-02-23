@@ -6,7 +6,7 @@ import pytest
 
 import eko
 from eko import EKO
-from eko.io.types import QuarkMassSchemes
+from eko.quantities.heavy_quarks import QuarkMassScheme
 
 
 def test_raw(theory_card, operator_card, tmp_path):
@@ -32,7 +32,7 @@ def test_mass_scheme(theory_card, operator_card, tmp_path):
     with pytest.raises(ValueError, match="BLUB"):
         eko.runner.legacy.Runner(theory_card, operator_card, path=path)
     # MSbar scheme
-    theory_card.quark_masses_scheme = QuarkMassSchemes.MSBAR
+    theory_card.quark_masses_scheme = QuarkMassScheme.MSBAR
     theory_card.couplings.num_flavs_ref = 5
     theory_card.quark_masses.c.scale = 2
     theory_card.quark_masses.b.scale = 4.5

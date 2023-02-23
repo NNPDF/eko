@@ -5,19 +5,12 @@ import numba as nb
 import numpy as np
 from scipy import integrate, optimize
 
-from eko.io.types import (
-    CouplingEvolutionMethod,
-    CouplingsRef,
-    HeavyQuarkMasses,
-    Order,
-    QuarkMassRef,
-    QuarkMassSchemes,
-)
-
 from .basis_rotation import quark_names
 from .beta import b_qcd, beta_qcd
 from .couplings import Couplings, invert_matching_coeffs
 from .gamma import gamma
+from .io.types import CouplingEvolutionMethod, CouplingsRef, FlavorsNumber, Order
+from .quantities.heavy_quarks import HeavyQuarkMasses, QuarkMassRef, QuarkMassScheme
 from .thresholds import ThresholdsAtlas, flavor_shift, is_downward_path
 
 
@@ -380,7 +373,7 @@ def compute(
     """
     # TODO: sketch in the docs how the MSbar computation works with a figure.
     mu2_ref = couplings.alphas.scale**2
-    nf_ref: int = couplings.num_flavs_ref
+    nf_ref: FlavorsNumber = couplings.num_flavs_ref
     masses = np.concatenate((np.zeros(nf_ref - 3), np.full(6 - nf_ref, np.inf)))
 
     def sc(thr_masses):
@@ -390,7 +383,7 @@ def compute(
             method=evmeth,
             masses=thr_masses,
             thresholds_ratios=matching,
-            hqm_scheme=QuarkMassSchemes.MSBAR,
+            hqm_scheme=QuarkMassScheme.MSBAR,
         )
 
     # First you need to look for the thr around the given as_ref

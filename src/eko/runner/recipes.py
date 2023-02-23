@@ -32,4 +32,4 @@ class MatchingRecipe(Recipe):
 
 def create(eko: EKO):
     """Create all associated recipes."""
-    pass
+    matching = eko.theory_card.matching
