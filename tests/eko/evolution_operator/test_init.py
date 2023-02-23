@@ -196,8 +196,8 @@ class FakeCoupling:
     def a(self, scale_to=None, fact_scale=None, nf_to=None):
         return (0.1, 0.01)
 
-    def compute_aem_as(self, aem_ref, as_from, as_to, nf):
-        return aem_ref
+    def compute(self, a_ref, nf, scale_from, scale_to):
+        return a_ref
 
 
 fake_managers = {"couplings": FakeCoupling()}
