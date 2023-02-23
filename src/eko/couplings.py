@@ -206,7 +206,7 @@ def expanded_n3lo(ref, beta0, b1, b2, b3, lmu):
 
 
 @nb.njit(cache=True)
-def expanded_qcd(ref, order, nf, lmu):
+def expanded_qcd(ref, order, beta0, b_vec, lmu):
     r"""Compute QCD expanded solution at a given order.
 
     Parameters
@@ -226,33 +226,30 @@ def expanded_qcd(ref, order, nf, lmu):
         strong coupling at target scale :math:`a_s(\mu_R^2)`
     """
     res_as = ref
-    beta_vec = [beta_qcd((2, 0), nf)]
-    for i in range(2, order + 1):
-        beta_vec.append(b_qcd((i + 1, 0), nf))
     # LO
     if order == 1:
-        res_as = exact_lo(ref, beta_vec[0], lmu)
+        res_as = exact_lo(ref, beta0, lmu)
     # NLO
     if order == 2:
-        res_as = expanded_nlo(ref, beta_vec[0], beta_vec[1], lmu)
+        res_as = expanded_nlo(ref, beta0, b_vec[1], lmu)
     # NNLO
     if order == 3:
-        res_as = expanded_nnlo(ref, beta_vec[0], beta_vec[1], beta_vec[2], lmu)
+        res_as = expanded_nnlo(ref, beta0, b_vec[1], b_vec[2], lmu)
     # N3LO
     if order == 4:
         res_as = expanded_n3lo(
             ref,
-            beta_vec[0],
-            beta_vec[1],
-            beta_vec[2],
-            beta_vec[3],
+            beta0,
+            b_vec[1],
+            b_vec[2],
+            b_vec[3],
             lmu,
         )
     return res_as
 
 
 @nb.njit(cache=True)
-def expanded_qed(ref, order, nf, lmu):
+def expanded_qed(ref, order, beta0, b_vec, lmu):
     r"""Compute QED expanded solution at a given order.
 
     Parameters
@@ -272,15 +269,12 @@ def expanded_qed(ref, order, nf, lmu):
         QED coupling at target scale :math:`a_em(\mu_R^2)`
     """
     res_aem = ref
-    beta_vec = [beta_qed((0, 2), nf)]
-    for i in range(2, order + 1):
-        beta_vec.append(b_qed((0, i + 1), nf))
     # LO
     if order == 1:
-        res_aem = exact_lo(ref, beta_vec[0], lmu)
+        res_aem = exact_lo(ref, beta0, lmu)
     # NLO
     if order == 2:
-        res_aem = expanded_nlo(ref, beta_vec[0], beta_vec[1], lmu)
+        res_aem = expanded_nlo(ref, beta0, b_vec[1], lmu)
     return res_aem
 
 
@@ -312,23 +306,25 @@ def couplings_expanded_alphaem_running(
     """
     # common vars
     lmu = np.log(scale_to / scale_from)
-    res_as = expanded_qcd(couplings_ref[0], order[0], nf, lmu)
-    res_aem = expanded_qed(couplings_ref[1], order[1], nf, lmu)
+    beta0_qcd = beta_qcd((2, 0), nf)
+    b_vec_qcd = [b_qcd((i + 2, 0), nf) for i in range(order[0])]
+    res_as = expanded_qcd(couplings_ref[0], order[0], beta0_qcd, b_vec_qcd, lmu)
+    beta0_qed = beta_qed((0, 2), nf)
+    b_vec_qed = [b_qed((0, i + 2), nf) for i in range(order[1])]
+    res_aem = expanded_qed(couplings_ref[1], order[1], beta0_qed, b_vec_qed, lmu)
     # if order[0] >= 1 and order[1] >= 1:
     # order[0] is always >=1
     if not decoupled_running:
         if order[1] >= 1:
-            beta_qcd0 = beta_qcd((2, 0), nf)
-            beta_qed0 = beta_qed((0, 2), nf)
             res_as += (
                 -couplings_ref[0] ** 2
                 * b_qcd((2, 1), nf)
-                * np.log(1 + beta_qcd0 * couplings_ref[1] * lmu)
+                * np.log(1 + beta0_qcd * couplings_ref[1] * lmu)
             )
             res_aem += (
                 -couplings_ref[1] ** 2
                 * b_qed((1, 2), nf)
-                * np.log(1 + beta_qed0 * couplings_ref[0] * lmu)
+                * np.log(1 + beta0_qed * couplings_ref[0] * lmu)
             )
     return np.array([res_as, res_aem])
 
@@ -362,28 +358,24 @@ def couplings_expanded_fixed_alphaem(order, couplings_ref, nf, scale_from, scale
     beta_qcd0 = beta_qcd((2, 0), nf)
     if order[1] >= 1:
         beta_qcd0 += aem * beta_qcd((2, 1), nf)
-    beta_vec = [beta_qcd0]
-    for i in range(2, order[0] + 1):
-        beta_vec.append(beta_qcd((i + 1, 0), nf) / beta_qcd0)
+    b_vec = [beta_qcd((i + 2, 0), nf) / beta_qcd0 for i in range(order[0])]
     # LO
     if order[0] == 1:
-        res_as = exact_lo(couplings_ref[0], beta_vec[0], lmu)
+        res_as = exact_lo(couplings_ref[0], beta_qcd0, lmu)
     # NLO
     if order[0] == 2:
-        res_as = expanded_nlo(couplings_ref[0], beta_vec[0], beta_vec[1], lmu)
+        res_as = expanded_nlo(couplings_ref[0], beta_qcd0, b_vec[1], lmu)
     # NNLO
     if order[0] == 3:
-        res_as = expanded_nnlo(
-            couplings_ref[0], beta_vec[0], beta_vec[1], beta_vec[2], lmu
-        )
+        res_as = expanded_nnlo(couplings_ref[0], beta_qcd0, b_vec[1], b_vec[2], lmu)
     # N3LO
     if order[0] == 4:
         res_as = expanded_n3lo(
             couplings_ref[0],
-            beta_vec[0],
-            beta_vec[1],
-            beta_vec[2],
-            beta_vec[3],
+            beta_qcd0,
+            b_vec[1],
+            b_vec[2],
+            b_vec[3],
             lmu,
         )
     return np.array([res_as, aem])
