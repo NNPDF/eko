@@ -92,7 +92,7 @@ class Runner:
             couplings=new_theory.couplings,
             order=new_theory.order,
             method=couplings_mod_ev(new_operator.configs.evolution_method),
-            masses=masses,
+            masses=np.array(masses) / new_theory.xif**2,
             hqm_scheme=new_theory.quark_masses_scheme,
             thresholds_ratios=thresholds_ratios,
         )

@@ -246,8 +246,9 @@ class BenchmarkFFNS_polarized(BenchmarkFFNS):
 
 if __name__ == "__main__":
     # Benchmark to LHA
-    obj = BenchmarkFFNS_polarized()
+    # obj = BenchmarkFFNS_polarized()
     # obj = BenchmarkFFNS()
+    obj = BenchmarkVFNS()
     # obj.benchmark_plain(1)
     obj.benchmark_sv(1)
 
