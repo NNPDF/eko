@@ -9,7 +9,7 @@ from . import utils
 
 
 @nb.njit(cache=True)
-def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations):
+def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations, dim):
     """Singlet QEDxQCD iterated (exact) EKO.
 
     Parameters
@@ -20,8 +20,8 @@ def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations):
         target strong coupling value
     a0 : float
         initial strong coupling value
-    aem : float
-        electromagnetic coupling value
+    aem_list : float
+        electromagnetic coupling values
     nf : int
         number of active flavors
     order : tuple(int,int)
@@ -35,7 +35,7 @@ def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations):
         singlet QEDxQCD iterated (exact) EKO
     """
     a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    e = np.identity(4, np.complex_)
+    e = np.identity(dim, np.complex_)
     betaQCD = np.zeros((order[0] + 1, order[1] + 1))
     for i in range(1, order[0] + 1):
         betaQCD[i, 0] = beta.beta_qcd((i + 1, 0), nf)
@@ -45,7 +45,7 @@ def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations):
         al = a_steps[step - 1]
         a_half = (ah + al) / 2.0
         delta_a = ah - al
-        gamma = np.zeros((4, 4), np.complex_)
+        gamma = np.zeros((dim, dim), np.complex_)
         betatot = 0
         for i in range(0, order[0] + 1):
             for j in range(0, order[1] + 1):
@@ -83,8 +83,8 @@ def dispatcher(
         target coupling value
     a0 : float
         initial coupling value
-    aem : float
-        electromagnetic coupling value
+    aem_list : numpy.ndarray
+        electromagnetic coupling values
     nf : int
         number of active flavors
     ev_op_iterations : int
@@ -98,5 +98,7 @@ def dispatcher(
         singlet EKO
     """
     if method in ["iterate-exact", "iterate-expanded"]:
-        return eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations)
+        return eko_iterate(
+            gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations, 4
+        )
     raise NotImplementedError('Only "iterate-exact" is implemented with QED')

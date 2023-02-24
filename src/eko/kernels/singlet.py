@@ -23,8 +23,8 @@ def lo_exact(gamma_singlet, a1, a0, beta):
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
@@ -42,12 +42,6 @@ def nlo_decompose(gamma_singlet, j01, j11):
     ----------
     gamma_singlet : numpy.ndarray
         singlet anomalous dimensions matrices
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    nf : int
-        number of active flavors
     j01 : float
         |LO|-|NLO| evolution integral
     j11 : float
@@ -73,8 +67,8 @@ def nlo_decompose_exact(gamma_singlet, a1, a0, beta):
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
@@ -102,8 +96,8 @@ def nlo_decompose_expanded(gamma_singlet, a1, a0, beta):
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
@@ -127,12 +121,6 @@ def nnlo_decompose(gamma_singlet, j02, j12, j22):
     ----------
     gamma_singlet : numpy.ndarray
         singlet anomalous dimensions matrices
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    nf : int
-        number of active flavors
     j02 : float
         LO-NNLO evolution integral
     j12 : float
@@ -162,8 +150,8 @@ def nnlo_decompose_exact(gamma_singlet, a1, a0, beta):
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
@@ -192,8 +180,8 @@ def nnlo_decompose_expanded(gamma_singlet, a1, a0, beta):
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
@@ -218,12 +206,6 @@ def n3lo_decompose(gamma_singlet, j03, j13, j23, j33):
     ----------
     gamma_singlet : numpy.ndarray
         singlet anomalous dimensions matrices
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    nf : int
-        number of active flavors
     j03 : float
         |LO|-|N3LO| evolution integral
     j13 : float
@@ -329,8 +311,8 @@ def eko_iterate(gamma_singlet, a1, a0, beta_vec, order, ev_op_iterations):
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta_vec : list
+        list of the values of the beta functions
     order : tuple(int,int)
         perturbative order
     ev_op_iterations : int
@@ -371,8 +353,8 @@ def r_vec(gamma_singlet, beta, ev_op_max_order, order, is_exact):
     ----------
     gamma_singlet : numpy.ndarray
         singlet anomalous dimensions matrices
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
     ev_op_max_order : tuple(int,int)
         perturbative expansion order of U
     order : tuple(int,int)
@@ -498,8 +480,8 @@ def eko_perturbative(
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
     order : tuple(int,int)
         perturbative order
     ev_op_iterations : int
@@ -543,8 +525,8 @@ def eko_truncated(gamma_singlet, a1, a0, beta, order, ev_op_iterations):
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
     order : tuple(int,int)
         perturbative order
     ev_op_iterations : int
