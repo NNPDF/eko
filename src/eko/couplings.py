@@ -215,8 +215,10 @@ def expanded_qcd(ref, order, beta0, b_vec, lmu):
         reference value of the strong coupling
     order : int
         QCD order
-    nf : int
-        number of flavors
+    beta0 : float
+        first coefficient of the beta function
+    b_vec : list
+        list of b function coefficients (including b0)
     lmu : float
         logarithm of the ratio between target and reference scales
 
@@ -258,8 +260,10 @@ def expanded_qed(ref, order, beta0, b_vec, lmu):
         reference value of the QED coupling
     order : int
         QED order
-    nf : int
-        number of flavors
+    beta0 : float
+        first coefficient of the beta function
+    b_vec : list
+        list of b function coefficients (including b0)
     lmu : float
             logarithm of the ratio between target and reference scales
 
@@ -298,6 +302,8 @@ def couplings_expanded_alphaem_running(
         reference scale
     scale_to : float
         target scale
+    decoupled_running : bool
+        whether the running of the couplings is decoupled or not
 
     Returns
     -------
@@ -491,14 +497,18 @@ class Couplings:
 
         Parameters
         ----------
-        as_ref : float
+        beta0 : float
+            first coefficient of the beta function
+        b_vec : list
+            list of b function coefficients (including b0)
+        u : float
+            :math:`log(scale_to / scale_from)`
+        a_ref : float
             reference alpha_s or alpha
-        nf : int
-            value of nf for computing alpha_i
-        scale_from : float
-            reference scale
-        scale_to : float
-            target scale
+        method : string
+            method for solving the RGE
+        rtol : float
+            relative acuracy of the solution
 
         Returns
         -------
@@ -724,6 +734,8 @@ class Couplings:
             final scale to evolve to :math:`\mu_R^2`
         fact_scale : float
             factorization scale (if different from final scale)
+        nf_to : int
+            final nf value
 
         Returns
         -------
@@ -777,6 +789,8 @@ class Couplings:
             final scale to evolve to :math:`\mu_R^2`
         fact_scale : float
             factorization scale (if different from final scale)
+        nf_to : int
+            final nf value
 
         Returns
         -------
@@ -796,6 +810,8 @@ class Couplings:
             final scale to evolve to :math:`\mu_R^2`
         fact_scale : float
             factorization scale (if different from final scale)
+        nf_to : int
+            final nf value
 
         Returns
         -------

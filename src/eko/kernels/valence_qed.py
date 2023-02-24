@@ -1,8 +1,5 @@
 """Collection of QED valence EKOs."""
 import numba as nb
-import numpy as np
-
-from ekore import anomalous_dimensions as ad
 
 from .singlet_qed import eko_iterate
 
