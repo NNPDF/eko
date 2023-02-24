@@ -696,7 +696,7 @@ class Operator(sv.ModeMixin):
         else:
             a_start = np.array([as0, aem0])
             mu2_start = self.q2_from
-        sc = self.managers["couplings"]
+        couplings = self.managers["couplings"]
         ev_op_iterations = self.config["ev_op_iterations"]
         mu2_steps = np.linspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
         mu2_l = mu2_steps[0]
@@ -704,7 +704,7 @@ class Operator(sv.ModeMixin):
         for mu2_h in mu2_steps[1:]:
             mu2_half = (mu2_h + mu2_l) / 2.0
             aem_list.append(
-                sc.compute(
+                couplings.compute(
                     a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2_half
                 )[1]
             )

@@ -63,10 +63,8 @@ def as1_exact(gamma_ns, a1, a0, beta):
         target coupling value
     a0 : float
         initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
@@ -88,10 +86,8 @@ def as2_exact(gamma_ns, a1, a0, beta):
         target coupling value
     a0 : float
         initial coupling value
-    aem : float
-        electromagnetic coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
@@ -113,10 +109,8 @@ def as3_exact(gamma_ns, a1, a0, beta):
         target coupling value
     a0 : float
         initial coupling value
-    aem : float
-            electromagnetic coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
@@ -164,6 +158,10 @@ def dispatcher(
         number of active flavors
     ev_op_iterations : int
         number of evolution steps
+    mu2_from : float
+        initial value of mu2
+    mu2_from : float
+        final value of mu2
 
     Returns
     -------
@@ -197,6 +195,10 @@ def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
         electromagnetic coupling value
     nf : int
         number of active flavors
+    mu2_from : float
+        initial value of mu2
+    mu2_from : float
+        final value of mu2
 
     Returns
     -------
@@ -239,6 +241,10 @@ def running_alphaem_exact(
         number of active flavors
     ev_op_iterations : int
         number of evolution steps
+    mu2_from : float
+        initial value of mu2
+    mu2_from : float
+        final value of mu2
 
     Returns
     -------
