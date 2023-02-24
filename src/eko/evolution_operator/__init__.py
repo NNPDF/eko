@@ -233,10 +233,14 @@ def quad_ker(
         target coupling value
     as0 : float
         initial coupling value
-    as_raw : float
-        coupling value at the process scale
-    aem : float
-        electromagnetic coupling value
+    mu2_from : float
+        initial value of mu2
+    mu2_from : float
+        final value of mu2
+    aem_list : list
+        list of electromagnetic coupling values
+    alphaem_running : bool
+        whether alphaem is running or not
     nf : int
         number of active flavors
     L : float
@@ -342,8 +346,6 @@ def quad_ker_qcd(
         target coupling value
     as0 : float
         initial coupling value
-    as_raw : float
-        coupling value at the process scale
     nf : int
         number of active flavors
     L : float
@@ -460,10 +462,14 @@ def quad_ker_qed(
         target coupling value
     as0 : float
         initial coupling value
-    as_raw : float
-        coupling value at the process scale
-    aem : float
-        electromagnetic coupling value
+    mu2_from : float
+        initial value of mu2
+    mu2_from : float
+        final value of mu2
+    aem_list : list
+        list of electromagnetic coupling values
+    alphaem_running : bool
+        whether alphaem is running or not
     nf : int
         number of active flavors
     L : float
