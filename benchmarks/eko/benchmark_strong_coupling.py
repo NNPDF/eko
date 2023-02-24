@@ -9,6 +9,7 @@ from eko.beta import beta_qcd
 from eko.couplings import Couplings
 from eko.io import types
 from eko.io.runcards import TheoryCard
+from eko.quantities.heavy_quarks import QuarkMassScheme
 
 # try to load LHAPDF - if not available, we'll use the cached values
 try:
@@ -63,7 +64,7 @@ class BenchmarkCouplings:
             order=(1, 0),
             method=types.CouplingEvolutionMethod.EXACT,
             masses=[0, 0, np.inf],
-            hqm_scheme=types.QuarkMassSchemes.POLE,
+            hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=[1.0, 1.0, 1.0],
         )
         # check local
@@ -85,7 +86,7 @@ class BenchmarkCouplings:
             order=(1, 0),
             method=types.CouplingEvolutionMethod.EXACT,
             masses=[0, np.inf, np.inf],
-            hqm_scheme=types.QuarkMassSchemes.POLE,
+            hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=[1.0, 1.0, 1.0],
         )
         me = as_FFNS_LO.a(1e4)[0] * 4 * np.pi
@@ -98,7 +99,7 @@ class BenchmarkCouplings:
             order=(1, 0),
             method=types.CouplingEvolutionMethod.EXACT,
             masses=threshold_list,
-            hqm_scheme=types.QuarkMassSchemes.POLE,
+            hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=[1.0, 1.0, 1.0],
         )
         me = as_VFNS_LO.a(1e4)[0] * 4 * np.pi
@@ -144,7 +145,7 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXPANDED,
                 masses=threshold_holder.area_walls[1:-1],
-                hqm_scheme=types.QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
             my_vals = []
@@ -219,7 +220,7 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXACT,
                 masses=threshold_holder.area_walls[1:-1],
-                hqm_scheme=types.QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
             my_vals = []
@@ -295,7 +296,7 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXPANDED,
                 masses=threshold_list,
-                hqm_scheme=types.QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
             my_vals = []
@@ -440,7 +441,7 @@ class BenchmarkCouplings:
                     order=(order, 0),
                     method=types.CouplingEvolutionMethod.EXACT,
                     masses=threshold_list.tolist(),
-                    hqm_scheme=types.QuarkMassSchemes.POLE,
+                    hqm_scheme=QuarkMassScheme.POLE,
                     thresholds_ratios=np.array([1.0, 1.0, 1.0]) / fact_to_ren_lin**2,
                 )
                 my_vals = []
@@ -490,7 +491,7 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXPANDED,
                 masses=threshold_list.tolist(),
-                hqm_scheme=types.QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=thresholds_ratios,
             )
             my_vals = []
@@ -542,7 +543,7 @@ class BenchmarkCouplings:
                 method=types.CouplingEvolutionMethod.EXPANDED,
                 masses=m2s.tolist(),
                 thresholds_ratios=[1.0, 1.0, 1.0],
-                hqm_scheme=types.QuarkMassSchemes.MSBAR,
+                hqm_scheme=QuarkMassScheme.MSBAR,
             )
             my_vals = []
             for Q2 in Q2s:
@@ -589,7 +590,7 @@ class BenchmarkCouplings:
             order=(1, 0),
             method=types.CouplingEvolutionMethod.EXACT,
             masses=threshold_holder.area_walls[1:-1],
-            hqm_scheme=types.QuarkMassSchemes.POLE,
+            hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=[1.0, 1.0, 1.0],
         )
         my_vals = []
@@ -663,7 +664,7 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXACT,
                 masses=threshold_holder.area_walls[1:-1],
-                hqm_scheme=types.QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
             my_vals = []
@@ -738,7 +739,7 @@ class BenchmarkCouplings:
                 order=(order, 0),
                 method=types.CouplingEvolutionMethod.EXACT,
                 masses=threshold_holder.area_walls[1:-1],
-                hqm_scheme=types.QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
             my_vals = []
@@ -788,7 +789,7 @@ class BenchmarkCouplings:
             order=(1, 0),
             method=types.CouplingEvolutionMethod.EXACT,
             masses=threshold_list,
-            hqm_scheme=types.QuarkMassSchemes.POLE,
+            hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=[1.0, 1.0, 1.0],
         )
         my_vals = []
@@ -853,7 +854,7 @@ class BenchmarkCouplings:
             order=theory.order,
             method=types.CouplingEvolutionMethod.EXACT,
             masses=[m2 / theory.xif**2 for m2 in masses],
-            hqm_scheme=types.QuarkMassSchemes.POLE,
+            hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=np.power(list(iter(theory.matching)), 2.0),
         )
         xif2 = theory.xif**2
