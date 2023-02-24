@@ -4,6 +4,26 @@ from scipy.integrate import quad
 from ekore import harmonics as h
 
 
+def test_lm1pm2():
+    def mellin_lm1pm2(x, k):
+        return x ** (N - 1) * (1 - x) ** 2 * np.log(1 - x) ** k
+
+    Ns = 100 * np.random.rand(3)
+    for N in Ns:
+        sx = h.sx(N, 4)
+
+        ref_values = {
+            1: h.log_functions.lm11m2(N, sx[0]),
+            2: h.log_functions.lm12m2(N, sx[0], sx[1]),
+            3: h.log_functions.lm13m2(N, sx[0], sx[1], sx[2]),
+            4: h.log_functions.lm14m2(N, sx[0], sx[1], sx[2], sx[3]),
+        }
+
+        for k, ref in ref_values.items():
+            test_value = quad(mellin_lm1pm2, 0, 1, args=(k))[0]
+            np.testing.assert_allclose(test_value, ref)
+
+
 def test_lm1pm1():
     # test mellin transformation with some random N values
     def mellin_lm1pm1(x, k):

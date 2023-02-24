@@ -262,3 +262,141 @@ def lm15(n, S1, S2, S3, S4, S5):
         )
         / n
     )
+
+
+@nb.njit(cache=True)
+def lm11m2(n, S1):
+    r"""Mellin transform of :math:`(1-x)2\ln(1-x)`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    S1 : complex
+        Harmonic sum :math:`S_{1}(N)`
+
+    Returns
+    -------
+    complex
+        :math:`\mathcal{M}[(1-x)^2\ln(1-x)](N)`
+
+    """
+    return (5 + 3 * n - (2 * (1 + n) * (2 + n) * S1) / n) / (
+        (1 + n) ** 2 * (2 + n) ** 2
+    )
+
+
+@nb.njit(cache=True)
+def lm12m2(n, S1, S2):
+    r"""Mellin transform of :math:`(1-x)^2\ln^2(1-x)`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    S1 : complex
+        Harmonic sum :math:`S_{1}(N)`
+    S2 : complex
+        Harmonic sum :math:`S_{2}(N)`
+
+    Returns
+    -------
+    complex
+        :math:`\mathcal{M}[(1-x)^2\ln^2(1-x)](N)`
+
+    """
+    return (
+        2
+        * (
+            n * (-9 - 8 * n + n**3)
+            - n * (10 + 21 * n + 14 * n**2 + 3 * n**3) * S1
+            + (2 + 3 * n + n**2) ** 2 * S1**2
+            + (2 + 3 * n + n**2) ** 2 * S2
+        )
+    ) / (n * (1 + n) ** 3 * (2 + n) ** 3)
+
+
+@nb.njit(cache=True)
+def lm13m2(n, S1, S2, S3):
+    r"""Mellin transform of :math:`(1-x)^2\ln^3(1-x)`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    S1 : complex
+        Harmonic sum :math:`S_{1}(N)`
+    S2 : complex
+        Harmonic sum :math:`S_{2}(N)`
+    S3 : complex
+        Harmonic sum :math:`S_{3}(N)`
+
+    Returns
+    -------
+    complex
+        :math:`\mathcal{M}[(1-x)^2\ln^3(1-x)](N)`
+
+    """
+    return (
+        -6 * n * (-17 - 21 * n - 2 * n**2 + 6 * n**3 + 2 * n**4)
+        + 3 * n * (5 + 3 * n) * (2 + 3 * n + n**2) ** 2 * S1**2
+        - 2 * (2 + 3 * n + n**2) ** 3 * S1**3
+        + 3 * n * (5 + 3 * n) * (2 + 3 * n + n**2) ** 2 * S2
+        - 6
+        * (2 + 3 * n + n**2)
+        * S1
+        * (n * (-9 - 8 * n + n**3) + (2 + 3 * n + n**2) ** 2 * S2)
+        - 4 * (2 + 3 * n + n**2) ** 3 * S3
+    ) / (n * (1 + n) ** 4 * (2 + n) ** 4)
+
+
+@nb.njit(cache=True)
+def lm14m2(n, S1, S2, S3, S4):
+    r"""Mellin transform of :math:`(1-x)^2\ln^4(1-x)`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    S1 : complex
+        Harmonic sum :math:`S_{1}(N)`
+    S2 : complex
+        Harmonic sum :math:`S_{2}(N)`
+    S3 : complex
+        Harmonic sum :math:`S_{3}(N)`
+    S4 : complex
+        Harmonic sum :math:`S_{4}(N)`
+
+    Returns
+    -------
+    complex
+        :math:`\mathcal{M}[(1-x)^2\ln^4(1-x)](N)`
+
+    """
+    return (
+        2
+        / (n * (1 + n) ** 5 * (2 + n) ** 5)
+        * (
+            +12 * n * (-33 + n * (-54 + n * (-15 + n * (20 + 3 * n * (5 + n)))))
+            - 2 * n * (1 + n) ** 3 * (2 + n) ** 3 * (5 + 3 * n) * S1**3
+            + (1 + n) ** 4 * (2 + n) ** 4 * S1**4
+            + 6 * n * (1 + n) ** 2 * (2 + n) ** 2 * (-9 - 8 * n + n**3) * S2
+            + 3 * (1 + n) ** 4 * (2 + n) ** 4 * S2**2
+            + 6
+            * (1 + n) ** 2
+            * (2 + n) ** 2
+            * S1**2
+            * (n * (-9 - 8 * n + n**3) + (1 + n) ** 2 * (2 + n) ** 2 * S2)
+            - 4 * n * (1 + n) ** 3 * (2 + n) ** 3 * (5 + 3 * n) * S3
+            + 2
+            * (1 + n)
+            * (2 + n)
+            * S1
+            * (
+                6 * n * (-17 + n * (-21 + 2 * n * (-1 + n * (3 + n))))
+                - 3 * n * (1 + n) ** 2 * (2 + n) ** 2 * (5 + 3 * n) * S2
+                + 4 * (1 + n) ** 3 * (2 + n) ** 3 * S3
+            )
+            + 6 * (1 + n) ** 4 * (2 + n) ** 4 * S4
+        )
+    )

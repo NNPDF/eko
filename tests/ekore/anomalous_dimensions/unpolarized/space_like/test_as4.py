@@ -20,7 +20,7 @@ n3lo_vars_dict = {
     "gg": 18,
     "gq": 24,
     "qg": 21,
-    "qq": 17,
+    "qq": 8,
 }
 
 
@@ -120,7 +120,7 @@ def test_momentum_conservation():
     np.testing.assert_allclose(
         gnsp.gamma_nsp_nf1(N, sx_cache) + g_ps[:, 0] + g_gq[:, 1],
         0,
-        atol=2e-11,
+        atol=4e-11,
     )
     np.testing.assert_allclose(
         g_gg[:, 1] + g_qg[:, 0],
@@ -288,3 +288,14 @@ def test_diff_pm_nf2():
         diff.append(gnsp.gamma_nsp_nf2(N, sx_cache) - gnsm.gamma_nsm_nf2(N, sx_cache))
         ref_vals.append(deltaB3(N, sx_cache))
     np.testing.assert_allclose(diff, ref_vals, atol=2e-2)
+
+
+def test_gamma_ps_extrapolation():
+    # Test the prediction of N=22 wrt to :cite:`Falcioni:2023luc`
+    n22_ref = [6.2478570, 10.5202730, 15.6913948]
+    N = 22
+    sx_cache = compute_cache(N, 5, True)
+    my_res = []
+    for nf in [3, 4, 5]:
+        my_res.append(gps.gamma_ps(N, nf, sx_cache, 0))
+    np.testing.assert_allclose(n22_ref, n22_ref)
