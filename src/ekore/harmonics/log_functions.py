@@ -266,7 +266,7 @@ def lm15(n, S1, S2, S3, S4, S5):
 
 @nb.njit(cache=True)
 def lm11m2(n, S1):
-    r"""Mellin transform of :math:`(1-x)2\ln(1-x)`.
+    r"""Mellin transform of :math:`(1-x)^2\ln(1-x)`.
 
     Parameters
     ----------
