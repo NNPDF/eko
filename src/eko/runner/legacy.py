@@ -5,12 +5,11 @@ from typing import Union
 
 import numpy as np
 
-from .. import interpolation, msbar_masses
+from .. import interpolation
 from ..couplings import Couplings, couplings_mod_ev
 from ..evolution_operator.grid import OperatorGrid
 from ..io import EKO, Operator, runcards
 from ..io.types import RawCard, ScaleVariationsMethod
-from ..quantities.heavy_quarks import QuarkMassScheme
 from ..thresholds import ThresholdsAtlas
 from . import commons
 
@@ -62,20 +61,7 @@ class Runner:
         )
 
         # setup the Threshold path, compute masses if necessary
-        masses = None
-        if new_theory.quark_masses_scheme is QuarkMassScheme.MSBAR:
-            masses = msbar_masses.compute(
-                new_theory.quark_masses,
-                new_theory.couplings,
-                new_theory.order,
-                couplings_mod_ev(new_operator.configs.evolution_method),
-                np.power(list(iter(new_theory.matching)), 2.0),
-                xif2=new_theory.xif**2,
-            ).tolist()
-        elif new_theory.quark_masses_scheme is QuarkMassScheme.POLE:
-            masses = [mq.value**2 for mq in new_theory.quark_masses]
-        else:
-            raise ValueError(f"Unknown mass scheme '{new_theory.quark_masses_scheme}'")
+        masses = runcards.masses(new_theory, new_operator.configs.evolution_method)
 
         # call explicitly iter to explain the static analyzer that is an
         # iterable

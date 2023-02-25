@@ -13,9 +13,15 @@ import numpy as np
 import numpy.typing as npt
 
 from .. import basis_rotation as br
-from .. import interpolation
+from .. import interpolation, msbar_masses
 from .. import version as vmod
-from ..quantities.heavy_quarks import HeavyQuarkMasses, MatchingScales, QuarkMassScheme
+from ..couplings import couplings_mod_ev
+from ..quantities.heavy_quarks import (
+    HeavyQuarkMasses,
+    MatchingRatios,
+    MatchingScales,
+    QuarkMassScheme,
+)
 from .dictlike import DictLike
 from .types import (
     CouplingsRef,
@@ -52,10 +58,34 @@ class TheoryCard(DictLike):
     """List of heavy quark masses."""
     quark_masses_scheme: QuarkMassScheme
     """Scheme used to specify heavy quark masses."""
-    matching: MatchingScales
+    matching: MatchingRatios
     """Matching scale of heavy quark masses"""
     xif: float
     """Ratio between factorization scale and process scale."""
+
+    @property
+    def matching_scales(self) -> MatchingScales:
+        """Compute matching scales."""
+        return np.power(list(iter(self.matching)), 2.0) * np.power(
+            list(iter(self.quark_masses)), 2.0
+        )
+
+
+def masses(theory: TheoryCard, evmeth: EvolutionMethod):
+    """Compute masses in the chosen scheme."""
+    if theory.quark_masses_scheme is QuarkMassScheme.MSBAR:
+        return msbar_masses.compute(
+            theory.quark_masses,
+            theory.couplings,
+            theory.order,
+            couplings_mod_ev(evmeth),
+            np.power(list(iter(theory.matching)), 2.0),
+            xif2=theory.xif**2,
+        ).tolist()
+    if theory.quark_masses_scheme is QuarkMassScheme.POLE:
+        return [mq.value**2 for mq in theory.quark_masses]
+
+    raise ValueError(f"Unknown mass scheme '{theory.quark_masses_scheme}'")
 
 
 @dataclass
@@ -80,6 +110,10 @@ class Configs(DictLike):
     """
     ev_op_iterations: int
     """Number of intervals in which to break the global path."""
+    scvar_method: Optional[ScaleVariationsMethod]
+    """"""
+    inversion_method: Optional[InversionMethod]
+    """Which method to use for backward matching conditions."""
     interpolation_polynomial_degree: int
     """Degree of elements of the intepolation polynomial basis."""
     interpolation_is_log: bool
@@ -90,10 +124,6 @@ class Configs(DictLike):
     """If `true` do polarized evolution."""
     time_like: bool
     """If `true` do time-like evolution."""
-    scvar_method: Optional[ScaleVariationsMethod]
-    """"""
-    inversion_method: Optional[InversionMethod]
-    """Which method to use for backward matching conditions."""
     n_integration_cores: int = 1
     """Number of cores used to parallelize integration."""
 

@@ -3,7 +3,7 @@ import dataclasses
 import enum
 
 from ..io.dictlike import DictLike
-from ..io.types import LinearScale, reference_running
+from ..io.types import LinearScale, SquaredScale, reference_running
 
 FLAVORS = "cbt"
 
@@ -40,7 +40,7 @@ def _heavy_quark(quarkattr):
 QuarkMass = LinearScale
 QuarkMassRef = reference_running(QuarkMass)
 HeavyQuarkMasses = _heavy_quark(QuarkMassRef)
-MatchingScale = LinearScale
+MatchingScale = SquaredScale
 MatchingScales = _heavy_quark(MatchingScale)
 MatchingRatio = float
 MatchingRatios = _heavy_quark(MatchingRatio)
