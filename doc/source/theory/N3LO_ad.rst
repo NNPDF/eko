@@ -4,7 +4,7 @@ N3LO Anomalous Dimensions
 The |N3LO| |QCD| anomalous dimensions :math:`\gamma^{(3)}` are not yet fully known,
 since they rely on the calculation of 4-loop |DIS| integrals.
 Moreover, the analytical structure of these function is already known to be complicated
-since in Mellin space it will included harmonics sum up to weight 7, for which an
+since in Mellin space it include harmonics sum up to weight 7, for which an
 analytical expression is not available.
 
 Here, we describe the various assumptions and limits used in order to reconstruct a parametrization
@@ -331,21 +331,28 @@ final reduced sets of candidates.
         *   - :math:`f_4(N)`
             - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N-2)}{N},\ \mathcal{M}[\ln^3(1-x)],\ \mathcal{M}[\ln^2(1-x)], \frac{S_1(N)}{N},\ \frac{S_1^2(N)}{N}`
 
-    Note that this table refers only to the :math:`n_f^0` part where we have assumed no violation of the scaling with :math:`\gamma_{gg}`
+    Note that this table refers only to the :math:`n_f^0` part where we assume no violation of the scaling with :math:`\gamma_{gg}`
     also for the |NLL| term, to help the convergence. We expect that any possible deviation can be parametrized as a shift in he |NNLL| terms
     and in the |NLL| :math:`n_f^1` which are free to vary independently.
+    Furthermore for the part :math:`\propto n_f^2` we adopt a slightly different
+    basis to account fot the fact that the leading
+    contribution for the pole at :math:`N=1` is :math:`\frac{1}{(N-1)^2}`.
 
     .. list-table::  :math:`\gamma_{qg}^{(3)}` parametrization basis
         :align: center
 
         *   - :math:`f_1(N)`
-            - :math:`\frac{1}{(N-1)^2}`
+            - :math:`\frac{1}{(N-1)}`
         *   - :math:`f_2(N)`
             - :math:`\frac{S_1^3(N)}{N}`
         *   - :math:`f_3(N)`
-            - :math:`\frac{1}{N^4},\ \mathcal{M}[\ln^3(1-x)]`
+            - :math:`\frac{1}{N^3},\ \mathcal{M}[\ln^3(1-x)]`
         *   - :math:`f_4(N)`
-            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1^2(N)}{N},\ \frac{S_1(N-2)}{N},\ \frac{S_1(N)}{N},\ \mathcal{M}[\ln^2(1-x)],\ \mathcal{M}[\ln^3(1-x)]`
+            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1^2(N)}{N},\ \frac{S_1(N-2)}{N},\ \frac{S_1(N)}{N},\ \mathcal{M}[\ln^2(1-x)],\ \mathcal{M}[\ln^3(1-x)]`
+
+    Also in this case we assume no violation of the scaling with :math:`\gamma_{qq}`
+    for the |NLL| term, which is extracted from using 10 moments :cite:`Falcioni:2023luc`
+    thus is known more precisely. We expect that any possible deviation can be parametrized as a shift in he |NNLL| terms.
 
 Slightly different choices are performed for :math:`\gamma_{qq,ps}^{(3)}` where 10 moments
 are known. In this case we can select a larger number of functions in group 3
@@ -366,6 +373,3 @@ and following :cite:`Falcioni:2023luc` we use:
 
 Note that for :math:`\gamma_{qq,ps},\gamma_{qg}` the parts proportional
 to :math:`n_f^0` are not present.
-Furthermore for the part :math:`\propto n_f^2` in :math:`\gamma_{gq}^{(3)}`
-we adopt a slightly different basis to account fot the fact that the leading
-contribution for the pole at :math:`N=1` is :math:`\frac{1}{(N-1)^2}`.

@@ -14,10 +14,10 @@ plt.style.use(utils.load_style())
 
 
 n3lo_vars_dict = {
-    "qq": 17,
+    "qq": 8,
     "gg": 18,
     "gq": 24,
-    "qg": 21,
+    "qg": 20,
 }
 
 
@@ -201,4 +201,4 @@ if __name__ == "__main__":
 
         # log plots
         x_grid = lambertgrid(60, x_min=1e-7)
-        plot_ad(k, plot_scaling=True, q2=38.5, nf=5)
+        plot_ad(k, plot_scaling=True)
