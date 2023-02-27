@@ -88,6 +88,7 @@ class Runner:
         )
 
         # strong coupling
+        new_theory.couplings.alphas.scale *= new_theory.xif
         sc = Couplings(
             couplings=new_theory.couplings,
             order=new_theory.order,
