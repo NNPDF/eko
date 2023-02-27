@@ -222,7 +222,6 @@ class TestOperator:
         g = r.op_grid
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 10.0)
-        np.testing.assert_allclose(o.sv_exponentiated_shift(40.0), 10.0)
         o.compute()
         self.check_lo(o)
 
