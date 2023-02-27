@@ -24,7 +24,6 @@ from ..kernels import non_singlet as ns
 from ..kernels import non_singlet_qed as qed_ns
 from ..kernels import singlet as s
 from ..kernels import singlet_qed as qed_s
-from ..kernels import utils
 from ..kernels import valence_qed as qed_v
 from ..member import OpMember
 
