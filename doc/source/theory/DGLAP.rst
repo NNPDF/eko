@@ -522,3 +522,36 @@ evolution is simply an identity operation: e.g. for an intrinsic charm distribut
 After :doc:`crossing the mass threshold </theory/Matching>` (charm in this example) the |PDF| can not be considered intrinsic
 any longer and hence, they have to be rejoined with their evolution basis elements and take then again
 part in the ordinary collinear evolution.
+
+Mixed |QCD| :math:`\otimes` |QED| evolution
+-----------------------------------------
+
+For the moment in this case only the `exact` evolution is implemented.
+
+Singlet
+^^^^^^^
+
+The evolution is obtained in the same way of the pure |QCD| case, with the only difference that
+now both :math:`\gamma` and :math:`\beta_{qcd}` contain the |QED| corrections.
+
+In the case in which :math:`\alpha_{em}` is running, at every step of the iteration the corresponding value
+of :math:`a_{em}(a_s)` is used.
+
+Non singlet
+^^^^^^^^^^^
+
+For the non singlet, being it diagonal, the solution is straightforward.
+When :math:`\alpha_{em}` is fixed, the terms proportional to it are just a constant in the splitting functions, and therefore
+they can be integrated directly. For example at ``order=(1,1)`` we have
+
+.. math::
+    \tilde E^{(1,1)}_{ns}(a_s \leftarrow a_s^0) &= \exp \Bigl( -\int_{\log \mu_0^2}^{\log \mu^2}d\log\mu^2 \gamma_{ns}^{(1,0)} a_s(\log\mu^2) + \gamma_{ns}^{(1,1)} a_s(\log\mu^2) a_{em} + \gamma_{ns}^{(0,1)} a_em \Bigr) \\
+    & = \exp \Bigl( \int_{a_s^0}^{a_s}da_s\frac{\gamma_{ns}^{(1,0)} a_s + \gamma_{ns}^{(1,1)} a_s a_{em} + \gamma_{ns}^{(0,1)} a_em}{a_s^2(\beta_0 + \beta_0^{mix} a_{em})}  -\int_{\log \mu_0^2}^{\log \mu^2}d\log\mu^2 \gamma_{ns}^{(0,1)} a_em\Bigr)
+
+In the last expression, the first term can be integrated with the :math:`j^{(n,m)` functions, while the second term is trivial.
+
+In the case of :math:`\alpha_{em}` running, the :math:`a_s` integration integral is divided in steps, such that in every step
+:math:`\alpha_{em}` is considered constant. In this way the solution will be the product of the solutions of every integration step:
+
+.. math::
+    \tilde E^{(1,1)}_{ns}(a_s \leftarrow a_s^0) = \prod\limits_{k=n}^{0} E^{(1,1)}_{ns}(a_s^{k+1} \leftarrow a_s^k, a_{em}^k)
