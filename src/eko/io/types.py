@@ -3,7 +3,7 @@ import dataclasses
 import enum
 import typing
 from math import isnan
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Generic, Optional, TypeVar
 
 from .dictlike import DictLike
 
@@ -33,28 +33,45 @@ IntrinsicFlavors = typing.List[FlavorIndex]
 # Scale functions
 # ---------------
 
+T = TypeVar("T")
 
-def reference_running(quantity: typing.Type[typing.Union[int, float]]):
-    """Generate running quantities reference point classes.
 
-    The motivation for dynamic generation is provided in module docstring.
+class ReferenceRunning(list, Generic[T]):
+    """Running quantities reference point.
+
+    To simplify serialization, the class is just storing the content as a list,
+    but:
+
+    - it is constructed with a ``Running(T, Scale)`` signature
+    - it should always be used through the property accessors, rather then
+      using the list itself
 
     """
 
-    @dataclasses.dataclass
-    class ReferenceRunning(DictLike):
-        value: quantity
-        scale: Scale
+    def __init__(self, value: T, scale: Scale):
+        self.extend([value, scale])
 
-    return ReferenceRunning
+    @property
+    def value(self) -> T:
+        """Reference value, given at a specified scale."""
+        return self[0]
+
+    @property
+    def scale(self) -> Scale:
+        """Reference scale, at which the value of the function is given."""
+        return self[1]
 
 
-IntRef = reference_running(int)
-FloatRef = reference_running(float)
+FlavNumRef = ReferenceRunning[FlavorsNumber]
+LinearScaleRef = ReferenceRunning[LinearScale]
 
 
 # Numerical methods
 # -----------------
+
+# TODO: upgrade all the following to StrEnum (requires py>=3.11)
+# with that, it is possible to replace all non-alias right sides with calls to
+# enum.auto()
 
 
 class EvolutionMethod(enum.Enum):
@@ -102,8 +119,8 @@ RawCard = Dict[str, Any]
 class CouplingsRef(DictLike):
     """Reference values for coupling constants."""
 
-    alphas: FloatRef
-    alphaem: FloatRef
+    alphas: LinearScaleRef
+    alphaem: LinearScaleRef
     max_num_flavs: FlavorsNumber
     num_flavs_ref: Optional[FlavorsNumber]
     r"""Number of active flavors at strong coupling reference scale.

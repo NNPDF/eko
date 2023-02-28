@@ -21,6 +21,7 @@ from ..quantities.heavy_quarks import (
     MatchingRatios,
     MatchingScales,
     QuarkMassScheme,
+    scales_from_ratios,
 )
 from .dictlike import DictLike
 from .types import (
@@ -66,9 +67,7 @@ class TheoryCard(DictLike):
     @property
     def matching_scales(self) -> MatchingScales:
         """Compute matching scales."""
-        return np.power(list(iter(self.matching)), 2.0) * np.power(
-            list(iter(self.quark_masses)), 2.0
-        )
+        return scales_from_ratios(self.matching, self.quark_masses)
 
 
 def masses(theory: TheoryCard, evmeth: EvolutionMethod):

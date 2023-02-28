@@ -1,62 +1,61 @@
 """Heavy quarks related quantities."""
-import dataclasses
 import enum
+from typing import Generic, TypeVar
 
-from ..io.dictlike import DictLike
-from ..io.types import LinearScale, SquaredScale, reference_running
+import numpy as np
+
+from ..io.types import LinearScale, ReferenceRunning, SquaredScale
 
 FLAVORS = "cbt"
 
+T = TypeVar("T")
 
-def _heavy_quark(quarkattr):
-    """Generate heavy quark properties container classes.
 
-    The motivation for dynamic generation is provided in module docstring.
+class HeavyQuarks(list, Generic[T]):
+    """Access heavy quarks attributes by name."""
 
-    """
+    def __init__(self, *args: T):
+        if len(args) != 3:
+            raise ValueError("Pass values for exactly three quarks.")
 
-    @dataclasses.dataclass
-    class HeavyQuarks(DictLike):
-        """Access heavy quarks attributes by name."""
+        self.extend(args)
 
-        c: quarkattr
+    @property
+    def c(self) -> T:
         """Charm quark."""
-        b: quarkattr
+        return self[0]
+
+    @property
+    def b(self) -> T:
         """Bottom quark."""
-        t: quarkattr
+        return self[0]
+
+    @property
+    def t(self) -> T:
         """Top quark."""
-
-        def __getitem__(self, key: int):
-            """Allow access by index.
-
-            Consequently it allows iteration and containing check.
-
-            """
-            return getattr(self, FLAVORS[key])
-
-    return HeavyQuarks
+        return self[2]
 
 
 QuarkMass = LinearScale
-QuarkMassRef = reference_running(QuarkMass)
-HeavyQuarkMasses = _heavy_quark(QuarkMassRef)
-MatchingScale = SquaredScale
-MatchingScales = _heavy_quark(MatchingScale)
+QuarkMassRef = ReferenceRunning[QuarkMass]
+HeavyQuarkMasses = HeavyQuarks[QuarkMassRef]
 MatchingRatio = float
-MatchingRatios = _heavy_quark(MatchingRatio)
+MatchingRatios = HeavyQuarks[MatchingRatio]
+MatchingScale = SquaredScale
+MatchingScales = HeavyQuarks[MatchingScale]
 
 
 def scales_from_ratios(
     ratios: MatchingRatios, masses: HeavyQuarkMasses
 ) -> MatchingScales:
-    """Convert ratios to linear scales.
+    """Convert ratios to squared scales.
 
     .. todo::
 
         make this a method
 
     """
-    return masses
+    return MatchingScales(*(np.power(ratios, 2.0) * np.power(masses, 2.0)).tolist())
 
 
 # TODO: upgrade all the following to StrEnum (requires py>=3.11)
