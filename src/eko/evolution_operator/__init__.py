@@ -684,7 +684,7 @@ class Operator(sv.ModeMixin):
         """Return the list of the couplings for the different values of :math:`a_s`."""
         if self.order[1] == 0:
             self.as_list = np.array([self.a_s[0], self.a_s[1]])
-            self.a_half_list = np.array([])
+            self.a_half_list = np.zeros((ev_op_iterations, 2))
         else:
             as0 = self.a_s[0]
             as1 = self.a_s[1]
