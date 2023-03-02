@@ -207,6 +207,7 @@ class TestOperator:
                 debug_skip_singlet=False,
                 n_integration_cores=1,
                 ModSV=None,
+                ev_op_iterations=1
             ),
             fake_managers,
             3,
@@ -221,6 +222,7 @@ class TestOperator:
                 debug_skip_singlet=True,
                 n_integration_cores=1,
                 ModSV=None,
+                ev_op_iterations=1
             ),
             fake_managers,
             3,
@@ -273,6 +275,7 @@ class TestOperator:
                 debug_skip_singlet=True,
                 n_integration_cores=-excluded_cores,
                 ModSV=None,
+                ev_op_iterations=1
             ),
             fake_managers,
             3,
