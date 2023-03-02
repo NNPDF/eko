@@ -682,6 +682,7 @@ class Operator(sv.ModeMixin):
 
     def compute_aem_list(self):
         """Return the list of the couplings for the different values of :math:`a_s`."""
+        ev_op_iterations = self.config["ev_op_iterations"]
         if self.order[1] == 0:
             self.as_list = np.array([self.a_s[0], self.a_s[1]])
             self.a_half_list = np.zeros((ev_op_iterations, 2))
@@ -702,7 +703,6 @@ class Operator(sv.ModeMixin):
                 a_start = np.array([as0, aem0])
                 mu2_start = self.q2_from
             couplings = self.managers["couplings"]
-            ev_op_iterations = self.config["ev_op_iterations"]
             mu2_steps = utils.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
             mu2_l = mu2_steps[0]
             self.as_list = np.array(
