@@ -38,8 +38,7 @@ def test_zero():
                             order,
                             method,
                             gamma_ns,
-                            1.0,
-                            1.0,
+                            [1.0, 1.0, 1.0],
                             [1.0, 1.0],
                             running,
                             nf,
@@ -54,8 +53,7 @@ def test_zero():
                             order,
                             method,
                             np.zeros((qcd + 1, qed + 1), dtype=complex),
-                            2.0,
-                            1.0,
+                            [1.0, 1.5, 2.0],
                             [1.0, 1.0],
                             running,
                             nf,
@@ -87,8 +85,7 @@ def test_zero_true_gamma():
                                 order,
                                 method,
                                 gamma_ns,
-                                1.0,
-                                1.0,
+                                [1.0, 1.0, 1.0],
                                 [1.0, 1.0],
                                 running,
                                 nf,
@@ -103,8 +100,7 @@ def test_zero_true_gamma():
                                 order,
                                 method,
                                 np.zeros((qcd + 1, qed + 1), dtype=complex),
-                                2.0,
-                                1.0,
+                                [1.0, 1.5, 2.0],
                                 [1.0, 1.0],
                                 running,
                                 nf,
@@ -142,7 +138,7 @@ evmod = CouplingEvolutionMethod.EXACT
 
 
 def test_ode():
-    ev_op_iterations = 10
+    ev_op_iterations = 1
     aem_list = [0.00781] * ev_op_iterations
     nf = 5
     delta_mu2 = 1e-6
@@ -186,8 +182,7 @@ def test_ode():
                             order,
                             method,
                             gamma_ns,
-                            a1,
-                            a0,
+                            np.geomspace(a0, a1, ev_op_iterations + 1),
                             aem_list,
                             False,
                             nf,
@@ -200,8 +195,11 @@ def test_ode():
                                 order,
                                 method,
                                 gamma_ns,
-                                sc.a_s(mu2_to + 0.5 * delta_mu2),
-                                a0,
+                                np.geomspace(
+                                    a0,
+                                    sc.a_s(mu2_to + 0.5 * delta_mu2),
+                                    ev_op_iterations + 1,
+                                ),
                                 aem_list,
                                 False,
                                 nf,
@@ -213,8 +211,11 @@ def test_ode():
                                 order,
                                 method,
                                 gamma_ns,
-                                sc.a_s(mu2_to - 0.5 * delta_mu2),
-                                a0,
+                                np.geomspace(
+                                    a0,
+                                    sc.a_s(mu2_to - 0.5 * delta_mu2),
+                                    ev_op_iterations + 1,
+                                ),
                                 aem_list,
                                 False,
                                 nf,
@@ -227,7 +228,7 @@ def test_ode():
 
 
 def test_ode_true_gamma():
-    ev_op_iterations = 10
+    ev_op_iterations = 1
     aem_list = [0.00781] * ev_op_iterations
     nf = 5
     delta_mu2 = 1e-6
@@ -264,8 +265,7 @@ def test_ode_true_gamma():
                             order,
                             method,
                             gamma_ns,
-                            a1,
-                            a0,
+                            np.geomspace(a0, a1, ev_op_iterations + 1),
                             aem_list,
                             False,
                             nf,
@@ -278,8 +278,11 @@ def test_ode_true_gamma():
                                 order,
                                 method,
                                 gamma_ns,
-                                sc.a_s(mu2_to + 0.5 * delta_mu2),
-                                a0,
+                                np.geomspace(
+                                    a0,
+                                    sc.a_s(mu2_to + 0.5 * delta_mu2),
+                                    ev_op_iterations + 1,
+                                ),
                                 aem_list,
                                 False,
                                 nf,
@@ -291,8 +294,11 @@ def test_ode_true_gamma():
                                 order,
                                 method,
                                 gamma_ns,
-                                sc.a_s(mu2_to - 0.5 * delta_mu2),
-                                a0,
+                                np.geomspace(
+                                    a0,
+                                    sc.a_s(mu2_to - 0.5 * delta_mu2),
+                                    ev_op_iterations + 1,
+                                ),
                                 aem_list,
                                 False,
                                 nf,
@@ -311,8 +317,7 @@ def test_error():
                 (4, 2),
                 "iterate-exact",
                 np.random.rand(4, 3),
-                0.2,
-                0.1,
+                [0.1, 0.2],
                 [0.01],
                 running,
                 3,

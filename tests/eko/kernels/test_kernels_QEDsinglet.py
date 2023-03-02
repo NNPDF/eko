@@ -49,9 +49,8 @@ def test_zero(monkeypatch):
                         order,
                         method,
                         gamma_s,
-                        1,
-                        1,
-                        [1, 1],
+                        [1, 1, 1],
+                        np.array([[1, 1], [1, 1]]),
                         nf,
                         ev_op_iterations,
                         ev_op_max_order,
@@ -63,9 +62,8 @@ def test_zero(monkeypatch):
                         order,
                         method,
                         np.zeros((qcd + 1, qed + 1, 4, 4), dtype=complex),
-                        2,
-                        1,
-                        [1, 1],
+                        [1, 1.5, 2],
+                        np.array([[1, 1], [1, 1]]),
                         nf,
                         ev_op_iterations,
                         ev_op_max_order,
@@ -103,9 +101,8 @@ def test_zero_true_gamma(monkeypatch):
                         order,
                         method,
                         gamma_s,
-                        1,
-                        1,
-                        [1, 1],
+                        [1, 1, 1],
+                        np.array([[1, 1], [1, 1]]),
                         nf,
                         ev_op_iterations,
                         ev_op_max_order,
@@ -117,9 +114,8 @@ def test_zero_true_gamma(monkeypatch):
                         order,
                         method,
                         np.zeros((qcd + 1, qed + 1, 4, 4), dtype=complex),
-                        2,
-                        1,
-                        [1, 1],
+                        [1.0, 1.5, 2.0],
+                        np.array([[1.25, 1], [1.75, 1]]),
                         nf,
                         ev_op_iterations,
                         ev_op_max_order,
@@ -131,5 +127,5 @@ def test_zero_true_gamma(monkeypatch):
 def test_error():
     with pytest.raises(NotImplementedError):
         s.dispatcher(
-            (3, 2), "AAA", np.random.rand(4, 3, 2, 2), 0.2, 0.1, 0.01, 3, 10, 10
+            (3, 2), "AAA", np.random.rand(4, 3, 2, 2), [0.2, 0.1], [0.01], 3, 10, 10
         )

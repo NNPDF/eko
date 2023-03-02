@@ -125,9 +125,8 @@ def dispatcher(
     order,
     method,
     gamma_ns,
-    a1,
-    a0,
-    aem_list,
+    as_list,
+    aem_half,
     alphaem_running,
     nf,
     ev_op_iterations,
@@ -168,13 +167,16 @@ def dispatcher(
     e_ns : complex
         non-singlet EKO
     """
-    if not alphaem_running:
-        aem = aem_list[0]
-        return fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)
-    else:
-        return running_alphaem_exact(
-            order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from
-        )
+    return exact(
+        order,
+        gamma_ns,
+        as_list,
+        aem_half,
+        nf,
+        1 if not alphaem_running else ev_op_iterations,
+        mu2_to,
+        mu2_from,
+    )
 
 
 @nb.njit(cache=True)
@@ -220,9 +222,7 @@ def fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from):
 
 
 @nb.njit(cache=True)
-def running_alphaem_exact(
-    order, gamma_ns, a1, a0, aem_list, nf, ev_op_iterations, mu2_to, mu2_from
-):
+def exact(order, gamma_ns, as_list, aem_half, nf, ev_op_iterations, mu2_to, mu2_from):
     """Compute exact solution for running alphaem.
 
     Parameters
@@ -251,13 +251,12 @@ def running_alphaem_exact(
     e_ns : complex
         non-singlet EKO
     """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    mu2_steps = np.linspace(mu2_from, mu2_to, 1 + ev_op_iterations)
+    mu2_steps = utils.geomspace(mu2_from, mu2_to, 1 + ev_op_iterations)
     res = 1.0
     for step in range(1, ev_op_iterations + 1):
-        aem = aem_list[step - 1]
-        a1 = a_steps[step]
-        a0 = a_steps[step - 1]
+        aem = aem_half[step - 1]
+        a1 = as_list[step]
+        a0 = as_list[step - 1]
         mu2_from = mu2_steps[step - 1]
         mu2_to = mu2_steps[step]
         res *= fixed_alphaem_exact(order, gamma_ns, a1, a0, aem, nf, mu2_to, mu2_from)

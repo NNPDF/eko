@@ -24,6 +24,7 @@ from ..kernels import non_singlet as ns
 from ..kernels import non_singlet_qed as qed_ns
 from ..kernels import singlet as s
 from ..kernels import singlet_qed as qed_s
+from ..kernels import utils
 from ..kernels import valence_qed as qed_v
 from ..member import OpMember
 
@@ -193,11 +194,10 @@ def quad_ker(
     is_log,
     logx,
     areas,
-    as1,
-    as0,
+    as_list,
     mu2_from,
     mu2_to,
-    aem_list,
+    a_half,
     alphaem_running,
     nf,
     L,
@@ -273,8 +273,8 @@ def quad_ker(
             mode0,
             mode1,
             method,
-            as1,
-            as0,
+            as_list[-1],
+            as_list[0],
             nf,
             L,
             ev_op_iterations,
@@ -291,11 +291,10 @@ def quad_ker(
             mode0,
             mode1,
             method,
-            as1,
-            as0,
+            as_list,
             mu2_from,
             mu2_to,
-            aem_list,
+            a_half,
             alphaem_running,
             nf,
             L,
@@ -430,11 +429,10 @@ def quad_ker_qed(
     mode0,
     mode1,
     method,
-    as1,
-    as0,
+    as_list,
     mu2_from,
     mu2_to,
-    aem_list,
+    a_half,
     alphaem_running,
     nf,
     L,
@@ -499,18 +497,20 @@ def quad_ker_qed(
             order,
             method,
             gamma_s,
-            as1,
-            as0,
-            aem_list,
+            as_list,
+            a_half,
             nf,
             ev_op_iterations,
             ev_op_max_order,
         )
         # scale var expanded is applied on the kernel
+        # TODO : in this way a_half[-1][1] is the aem value computed in
+        # the middle point of the last step. Instead we want aem computed in mu2_final.
+        # However the distance between the two is very small and affects only the running aem
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
                 sv.expanded.singlet_variation_qed(
-                    gamma_s, as1, aem_list[-1], alphaem_running, order, nf, L
+                    gamma_s, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
                 )
             ) @ np.ascontiguousarray(ker)
         ker = select_QEDsinglet_element(ker, mode0, mode1)
@@ -525,9 +525,8 @@ def quad_ker_qed(
             order,
             method,
             gamma_v,
-            as1,
-            as0,
-            aem_list,
+            as_list,
+            a_half,
             nf,
             ev_op_iterations,
             ev_op_max_order,
@@ -536,7 +535,7 @@ def quad_ker_qed(
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
                 sv.expanded.valence_variation_qed(
-                    gamma_v, as1, aem_list[-1], alphaem_running, order, nf, L
+                    gamma_v, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
                 )
             ) @ np.ascontiguousarray(ker)
         ker = select_QEDvalence_element(ker, mode0, mode1)
@@ -551,9 +550,8 @@ def quad_ker_qed(
             order,
             method,
             gamma_ns,
-            as1,
-            as0,
-            aem_list,
+            as_list,
+            a_half[:, 1],
             alphaem_running,
             nf,
             ev_op_iterations,
@@ -563,7 +561,7 @@ def quad_ker_qed(
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = (
                 sv.expanded.non_singlet_variation_qed(
-                    gamma_ns, as1, aem_list[-1], alphaem_running, order, nf, L
+                    gamma_ns, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
                 )
                 * ker
             )
@@ -614,7 +612,7 @@ class Operator(sv.ModeMixin):
         self.alphaem_running = self.managers["couplings"].alphaem_running
         if self.log_label == "Evolution":
             self.a = self.compute_a()
-            self.aem_list = self.compute_aem_list()
+            self.compute_aem_list()
 
     @property
     def n_pools(self):
@@ -685,36 +683,45 @@ class Operator(sv.ModeMixin):
     def compute_aem_list(self):
         """Return the list of the couplings for the different values of :math:`a_s`."""
         if self.order[1] == 0:
-            return np.array([])
-        as0 = self.a_s[0]
-        as1 = self.a_s[1]
-        aem0 = self.a_em[0]
-        aem1 = self.a_em[1]
-        q2ref = self.managers["couplings"].q2_ref
-        delta_from = abs(self.q2_from - q2ref)
-        delta_to = abs(self.q2_to - q2ref)
-        # I compute the values in aem_list starting from the mu2
-        # that is closer to mu_ref.
-        if delta_from > delta_to:
-            a_start = np.array([as1, aem1])
-            mu2_start = self.q2_to
+            self.as_list = np.array([self.a_s[0], self.a_s[1]])
+            self.a_half_list = np.array([])
         else:
-            a_start = np.array([as0, aem0])
-            mu2_start = self.q2_from
-        couplings = self.managers["couplings"]
-        ev_op_iterations = self.config["ev_op_iterations"]
-        mu2_steps = np.linspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
-        mu2_l = mu2_steps[0]
-        aem_list = []
-        for mu2_h in mu2_steps[1:]:
-            mu2_half = (mu2_h + mu2_l) / 2.0
-            aem_list.append(
-                couplings.compute(
-                    a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2_half
-                )[1]
+            as0 = self.a_s[0]
+            as1 = self.a_s[1]
+            aem0 = self.a_em[0]
+            aem1 = self.a_em[1]
+            q2ref = self.managers["couplings"].q2_ref
+            delta_from = abs(self.q2_from - q2ref)
+            delta_to = abs(self.q2_to - q2ref)
+            # I compute the values in aem_list starting from the mu2
+            # that is closer to mu_ref.
+            if delta_from > delta_to:
+                a_start = np.array([as1, aem1])
+                mu2_start = self.q2_to
+            else:
+                a_start = np.array([as0, aem0])
+                mu2_start = self.q2_from
+            couplings = self.managers["couplings"]
+            ev_op_iterations = self.config["ev_op_iterations"]
+            mu2_steps = utils.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
+            mu2_l = mu2_steps[0]
+            self.as_list = np.array(
+                [
+                    couplings.compute(
+                        a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2
+                    )[0]
+                    for mu2 in mu2_steps
+                ]
             )
-            mu2_l = mu2_h
-        return np.array(aem_list)
+            a_half = np.zeros((ev_op_iterations, 2))
+            for step, mu2_h in enumerate(mu2_steps[1:]):
+                mu2_half = (mu2_h + mu2_l) / 2.0
+                a_s, aem = couplings.compute(
+                    a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2_half
+                )
+                a_half[step] = [a_s, aem]
+                mu2_l = mu2_h
+            self.a_half_list = a_half
 
     @property
     def labels(self):
@@ -787,11 +794,10 @@ class Operator(sv.ModeMixin):
             is_log=self.int_disp.log,
             logx=logx,
             areas=areas,
-            as1=self.a_s[1],
-            as0=self.a_s[0],
+            as_list=self.as_list,
             mu2_from=self.q2_from,
             mu2_to=self.q2_to,
-            aem_list=self.aem_list,
+            a_half=self.a_half_list,
             alphaem_running=self.alphaem_running,
             nf=self.nf,
             L=np.log(self.xif2),

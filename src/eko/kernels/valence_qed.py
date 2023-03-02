@@ -9,9 +9,8 @@ def dispatcher(
     order,
     method,
     gamma_valence,
-    a1,
-    a0,
-    aem_list,
+    as_list,
+    a_half,
     nf,
     ev_op_iterations,
     ev_op_max_order,
@@ -47,6 +46,6 @@ def dispatcher(
     """
     if method in ["iterate-exact", "iterate-expanded"]:
         return eko_iterate(
-            gamma_valence, a1, a0, aem_list, nf, order, ev_op_iterations, 2
+            gamma_valence, as_list, a_half, nf, order, ev_op_iterations, 2
         )
     raise NotImplementedError('Only "iterate-exact" is implemented with QED')
