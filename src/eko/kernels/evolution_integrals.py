@@ -14,31 +14,6 @@ import numpy as np
 
 
 @nb.njit(cache=True)
-def j02(a1, a0, beta0):
-    r""":math:`j^{(0,2)}` exact evolution integral.
-
-    .. math::
-        j^{(0,2)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'^2}
-           = \frac{1.0 / a0 - 1.0 / as}{\beta_0}
-
-    Parameters
-    ----------
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    beta0 : float
-        LO beta function coefficient
-
-    Returns
-    -------
-    j02 : float
-        integral
-    """
-    return (1.0 / a0 - 1.0 / a1) / beta0
-
-
-@nb.njit(cache=True)
 def j12(a1, a0, beta0):
     r"""
     :math:`j^{(1,2)}` exact evolution integral.
@@ -87,7 +62,7 @@ def j23_exact(a1, a0, beta0, b_vec):
 
     Returns
     -------
-        j11 : float
+        j23_exact : float
             integral
     """
     b1 = b_vec[1]
@@ -113,7 +88,7 @@ def j23_expanded(a1, a0, beta0):
 
     Returns
     -------
-        j11_exp : float
+        j23_expanded : float
             integral
     """
     return 1.0 / beta0 * (a1 - a0)
@@ -142,7 +117,7 @@ def j13_exact(a1, a0, beta0, b_vec):
 
     Returns
     -------
-        j01 : float
+        j13_exact : float
             integral
     """
     b1 = b_vec[1]
@@ -170,41 +145,11 @@ def j13_expanded(a1, a0, beta0, b_vec):
 
     Returns
     -------
-        j01_exp : float
+        j13_expanded : float
             integral
     """
     b1 = b_vec[1]
     return j12(a1, a0, beta0) - b1 * j23_expanded(a1, a0, beta0)
-
-
-@nb.njit(cache=True)
-def j03_exact(a1, a0, beta0, b_vec):
-    r""":math:`j^{(0,3)}` exact evolution integral.
-
-    .. math::
-        j^{(0,3)}(a_s,a_s^0) = \int\limits_{a_s^0}^{a_s} \frac{da_s'}{\beta_0 a_s'^2 + \beta_1 a_s'^3}
-            = \frac{1.0 / a0 - 1.0 / as}{\beta_0 + \frac{b_1}{\beta_0}  \left(\log(1 + 1 / (as b_1)) - \log(1 + 1 / (a0 b_1)\right)
-
-    Parameters
-    ----------
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    beta0 : float
-        LO beta function coefficient
-    beta1 : float
-        NLO beta function coefficient
-
-    Returns
-    -------
-    jm11 : float
-        integral
-    """
-    b1 = b_vec[1]
-    return -(1.0 / a1 - 1.0 / a0) / beta0 + b1 / beta0 * (
-        np.log(1.0 + 1.0 / (a1 * b1)) - np.log(1.0 + 1.0 / (a0 * b1))
-    )
 
 
 @nb.njit(cache=True)
@@ -238,7 +183,7 @@ def j34_exact(a1, a0, beta0, b_vec):
 
     Returns
     -------
-        j22 : complex
+        j34_exact : complex
             integral
     """
     b1 = b_vec[1]
@@ -279,7 +224,7 @@ def j24_exact(a1, a0, beta0, b_vec):
 
     Returns
     -------
-        j12 : complex
+        j24_exact : complex
             integral
     """  # pylint: disable=line-too-long
     b1 = b_vec[1]
@@ -317,7 +262,7 @@ def j14_exact(a1, a0, beta0, b_vec):
 
     Returns
     -------
-        j02 : complex
+        j14_exact : complex
             integral
     """
     b1 = b_vec[1]
@@ -348,7 +293,7 @@ def j34_expanded(a1, a0, beta0):
 
     Returns
     -------
-        j22_exp : float
+        j34_expanded : float
             integral
     """
     return 1 / (2 * beta0) * (a1**2 - a0**2)
@@ -376,7 +321,7 @@ def j24_expanded(a1, a0, beta0, b_vec):
 
     Returns
     -------
-        j12_exp : float
+        j24_expanded : float
             integral
     """
     b1 = b_vec[1]
@@ -407,7 +352,7 @@ def j14_expanded(a1, a0, beta0, b_vec):
 
     Returns
     -------
-        j02_exp : float
+        j14_expanded : float
             integral
     """
     b1 = b_vec[1]
@@ -416,40 +361,4 @@ def j14_expanded(a1, a0, beta0, b_vec):
         j12(a1, a0, beta0)
         - b1 * j24_expanded(a1, a0, beta0, b_vec)
         - b2 * j34_expanded(a1, a0, beta0)
-    )
-
-
-@nb.njit(cache=True)
-def j04_exact(a1, a0, beta0, b_vec):
-    r""":math:`j^{(0,4)}` exact evolution integral.
-
-    .. math::
-        j^{(0,4)}(a_s,a_s^0) &= \int\limits_{a_s^0}^{a_s}\!da_s'\,
-            \frac{1}{\beta_0 a_s'^2 + \beta_1 a_s'^3 + \beta_2 a_s'^4}\\
-            &= j^{(-1,0)}(a_s,a_s^0) - b_1 j^{(1,4)}(a_s,a_s^0) - b_2 j^{(2,4)}(a_s,a_s^0)
-
-    Parameters
-    ----------
-    a1 : float
-        target coupling value
-    a0 : float
-        initial coupling value
-    beta0 : float
-            LO beta function coefficient
-    beta1 : float
-        NLO beta function coefficient
-    beta2 : float
-        NNLO beta function coefficient
-
-    Returns
-    -------
-    jm12 : complex
-        integral
-    """
-    b1 = b_vec[1]
-    b2 = b_vec[2]
-    return (
-        j02(a1, a0, beta0)
-        - b1 * j14_exact(a1, a0, beta0, b_vec)
-        - b2 * j24_exact(a1, a0, beta0, b_vec)
     )
