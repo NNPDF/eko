@@ -1,4 +1,4 @@
-r"""Contains the scale variation operator for the expanded scheme (``ModSV=expanded``).
+r"""Scale variation operator for the expanded scheme (``ModSV=expanded``).
 
 The expressions can be obtained using Eqs. (3.33) and (3.38) of :cite:`AbdulKhalek:2019ihb`.
 Be aware that corresponding the signs of the ingredients there are a number of differences.
@@ -34,6 +34,10 @@ def variation_as1(gamma, L):
 @nb.njit(cache=True)
 def variation_as2(gamma, L, beta0, g0e2):
     r"""Compute the |NNLO| anomalous dimension variation.
+
+    These kernels are meant to be used with alpha_s evaluated at the
+    factorization scale. If one expresses everything in terms of
+    alpha_s evaluated at the process scale, the sign of beta*gamma0 flips.
 
     Parameters
     ----------
@@ -117,21 +121,21 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
     """
     sv_ker = 1.0
     if order[0] >= 2:
-        sv_ker += a_s * variation_as1(gamma, L)
+        sv_ker -= a_s * variation_as1(gamma, L)
     if order[0] >= 3:
         beta0 = beta.beta_qcd_as2(nf)
-        sv_ker += a_s**2 * variation_as2(gamma, L, beta0, gamma[0] ** 2)
+        sv_ker -= a_s**2 * variation_as2(gamma, L, beta0, gamma[0] ** 2)
     if order[0] >= 4:
         beta1 = beta.beta_qcd((3, 0), nf)
         g0g1 = gamma[0] * gamma[1]
-        sv_ker += a_s**3 * variation_as3(
+        sv_ker -= a_s**3 * variation_as3(
             gamma, L, beta0, beta1, gamma[0] ** 2, gamma[0] ** 3, g0g1, g0g1
         )
     return sv_ker
 
 
 @nb.njit(cache=True)
-def singlet_variation(gamma, a_s, order, nf, L):
+def singlet_variation(gamma, a_s, order, nf, L, dim):
     """Singlet scale variation dispatcher.
 
     Parameters
@@ -152,21 +156,21 @@ def singlet_variation(gamma, a_s, order, nf, L):
     numpy.ndarray
         scale variation kernel
     """
-    sv_ker = np.eye(2, dtype=np.complex_)
+    sv_ker = np.eye(dim, dtype=np.complex_)
     gamma = np.ascontiguousarray(gamma)
     if order[0] >= 2:
-        sv_ker += a_s * variation_as1(gamma, L)
+        sv_ker -= a_s * variation_as1(gamma, L)
     if order[0] >= 3:
         beta0 = beta.beta_qcd_as2(nf)
         gamma0e2 = gamma[0] @ gamma[0]
-        sv_ker += a_s**2 * variation_as2(gamma, L, beta0, gamma0e2)
+        sv_ker -= a_s**2 * variation_as2(gamma, L, beta0, gamma0e2)
     if order[0] >= 4:
         beta1 = beta.beta_qcd((3, 0), nf)
         gamma0e3 = gamma0e2 @ gamma[0]
         # here the product is not commutative
         g1g0 = gamma[1] @ gamma[0]
         g0g1 = gamma[0] @ gamma[1]
-        sv_ker += a_s**3 * variation_as3(
+        sv_ker -= a_s**3 * variation_as3(
             gamma, L, beta0, beta1, gamma0e2, gamma0e3, g1g0, g0g1
         )
     return sv_ker
@@ -197,7 +201,7 @@ def non_singlet_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
     sv_ker = non_singlet_variation(gamma[1:, 0], a_s, order, nf, L)
     if alphaem_running:
         if order[1] >= 2:
-            sv_ker += a_em * variation_as1(gamma[0, 1:], L)
+            sv_ker -= a_em * variation_as1(gamma[0, 1:], L)
     return sv_ker
 
 
@@ -223,26 +227,10 @@ def singlet_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
     numpy.ndarray
         scale variation kernel
     """
-    sv_ker = np.eye(4, dtype=np.complex_)
-    gamma = np.ascontiguousarray(gamma)
-    if order[0] >= 2:
-        sv_ker += a_s * variation_as1(gamma[1:, 0], L)
-    if order[0] >= 3:
-        beta0 = beta.beta_qcd_as2(nf)
-        gamma10e2 = gamma[1, 0] @ gamma[1, 0]
-        sv_ker += a_s**2 * variation_as2(gamma[1:, 0], L, beta0, gamma10e2)
-    if order[0] >= 4:
-        beta1 = beta.beta_qcd((3, 0), nf)
-        gamma10e3 = gamma10e2 @ gamma[1, 0]
-        # here the product is not commutative
-        g20g10 = gamma[2, 0] @ gamma[1, 0]
-        g10g20 = gamma[1, 0] @ gamma[2, 0]
-        sv_ker += a_s**3 * variation_as3(
-            gamma[1:, 0], L, beta0, beta1, gamma10e2, gamma10e3, g20g10, g10g20
-        )
+    sv_ker = singlet_variation(gamma[1:, 0], a_s, order, nf, L, 4)
     if alphaem_running:
         if order[1] >= 2:
-            sv_ker += a_em * variation_as1(gamma[0, 1:], L)
+            sv_ker -= a_em * variation_as1(gamma[0, 1:], L)
     return sv_ker
 
 
@@ -268,24 +256,8 @@ def valence_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
     numpy.ndarray
         scale variation kernel
     """
-    sv_ker = np.eye(2, dtype=np.complex_)
-    gamma = np.ascontiguousarray(gamma)
-    if order[0] >= 2:
-        sv_ker += a_s * variation_as1(gamma[1:, 0], L)
-    if order[0] >= 3:
-        beta0 = beta.beta_qcd_as2(nf)
-        gamma10e2 = gamma[1, 0] @ gamma[1, 0]
-        sv_ker += a_s**2 * variation_as2(gamma[1:, 0], L, beta0, gamma10e2)
-    if order[0] >= 4:
-        beta1 = beta.beta_qcd((3, 0), nf)
-        gamma10e3 = gamma10e2 @ gamma[1, 0]
-        # here the product is not commutative
-        g20g10 = gamma[2, 0] @ gamma[1, 0]
-        g10g20 = gamma[1, 0] @ gamma[2, 0]
-        sv_ker += a_s**3 * variation_as3(
-            gamma[1:, 0], L, beta0, beta1, gamma10e2, gamma10e3, g20g10, g10g20
-        )
+    sv_ker = singlet_variation(gamma[1:, 0], a_s, order, nf, L, 2)
     if alphaem_running:
         if order[1] >= 2:
-            sv_ker += a_em * variation_as1(gamma[0, 1:], L)
+            sv_ker -= a_em * variation_as1(gamma[0, 1:], L)
     return sv_ker

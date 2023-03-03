@@ -64,6 +64,45 @@ coupling :math:`a_s(\mu^2)` and are given by :cite:`Moch:2004pa,Vogt:2004mw`
 
 Note the additional minus in the definition of :math:`\gamma`.
 
+Polarized Splitting Functions
+-----------------------------
+
+Polarized Altarelli-Parisi splitting kernels are implemented up to |NNLO| and expanded in powers of the strong coupling as in the previous section.
+They are used to evolve longitudinally polarized parton distribution functions.
+Unlike in the unpolarized case, where the probability of the splitting describes the momentum of parent and daughter partons with averaged spins,
+the polarized splitting functions describe the parent and daughter momentums along with their spins
+and thus take into account positive or negative helicities.
+Throughout, the anomalous dimensions are defined as above and are represented with :math:`\gamma` and not :math:`\Delta\gamma` just like in the unpolarized case.
+
+The |LO| and |NLO| kernels are given in :cite:`Gluck:1995yr` and the |NNLO| in :cite:`Moch:2014sna` and :cite:`Moch:2015usa`.
+
+At |LO|, the non-singlet is the same in both the polarized and unpolarized case.
+Due to helicity conservation, the first moment of the anomalous dimension is :math:`\gamma^{(0)}_{qq} (N=1) = \gamma^{(0)}_{qg} (N=1) = 0`.
+
+At |NLO|, the singlet entry of the quark-quark anomalous dimension can be decomposed into the pure singlet
+(consisting of the flavour independent quark-quark and quark-antiquark anomalous dimensions) and the plus flavour asymmetry non-singlet:
+
+.. math ::
+    \gamma^{(1)}_{qq} =\gamma^{(1)}_{ps} + \gamma^{(1)}_{ns,+}
+
+The non-singlet sector in the polarized case swaps the plus and minus non-singlet relative to the unpolarized case.
+This is because the polarized non-singlet splitting functions are defined as the difference between the probability of the polarized parton splitting into daughter partons of the same flavour
+and daughters splitting into a different flavours and opposite helicity. The first moments of the anomalous dimensions are:
+
+.. math ::
+    \gamma^{(1)}_{ns,+} (N=1) &= 0 \\
+    \gamma^{(1)}_{qq} (N=1) &= 24 C_F T_R \\
+    \gamma^{(1)}_{qg} (N=1) &= 0  \\
+
+At |NNLO| the non-singlet is further decomposed into the helicity difference quark-antiquark anomalous dimension called the valence polarized non-singlet and defined as:
+
+.. math ::
+    \gamma^{(2)}_{ns,v} =\gamma^{(2)}_{ns,-} + \gamma^{(2)}_{ns,s}
+
+where :math:`\gamma^{(2)}_{ns,-}` is the minus flavour asymmetry non-singlet and :math:`\gamma^{(2)}_{ns,s}` the sea-like polarized non-singlet.
+The singlet entry :math:`\gamma^{(2)}_{qq}` is defined as above in the |NLO| case.
+
+
 Unified Splitting Functions
 ---------------------------
 
@@ -83,15 +122,17 @@ where :math:`a = \alpha/(4\pi)`.
 The expression of the pure |QED| and of the mixed |QED| :math:`\otimes` |QCD| splitting kernels are given in
 :cite:`deFlorian:2015ujt,deFlorian:2016gvk`
 
+
 Order specification
 -------------------
 
 In the code ``order=tuple(int,int)`` specifies the |QCD| and |QED| perturbative orders of the splitting functions in terms
 of :math:`a_s = \alpha_s/(4\pi)` and :math:`a_{em} = \alpha_{em}/(4\pi)`. The available perturbative expansions are the following:
 
-- ``order=(0,0)``: it is the non evolution case in which :math:`a_s` and :math:`a_{em}` are kept fixed and the splitting functions are null.
 - ``order=(n,0)``: with :math:`n=1,2,3,4` correspond to the pure |QCD| evolution at |LO|, |NLO|, |NNLO| and |N3LO| in which the |QCD| splitting functions are expanded up to :math:`\mathcal{O}(a_s^n)` and the strong coupling is evolved using the n-th coefficient of the beta function, i.e. :math:`\beta_{n-1}`.
 - ``order=(n,m)``; with :math:`n=1,2,3,4` and :math:`m=1,2` corresponds to the mixed |QED| :math:`\otimes` |QCD| evolution in which the splitting functions are expanded up to :math:`\mathcal{O}(a_s^na_{em}^m)`, the stromg coupling is evolved using up to the n-th coefficient of the beta function and the electromagnetic coupling is kept fixed.
+
+Observe that the case :math:`n=0` is not allowed, since it would correspond to the pure |QED| evolution or (if :math:`m > 0`) no evolution at all.
 
 Sum Rules
 ---------

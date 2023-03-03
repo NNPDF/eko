@@ -37,16 +37,13 @@ def test_zero_qed():
     for fnc in [
         ei.j23_exact,
         ei.j13_exact,
-        ei.j03_exact,
         ei.j34_exact,
         ei.j24_exact,
         ei.j14_exact,
-        ei.j04_exact,
     ]:
         np.testing.assert_allclose(fnc(1, 1, beta0, b_vec), 0)
     for fnc in [
         ei.j12,
-        ei.j02,
         ei.j23_expanded,
         ei.j34_expanded,
     ]:

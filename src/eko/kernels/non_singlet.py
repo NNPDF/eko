@@ -17,8 +17,8 @@ def U_vec(gamma_ns, beta, order):
     ----------
     gamma_ns : numpy.ndarray
         non-singlet anomalous dimension
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
     order : int
         perturbative order
 
@@ -53,19 +53,19 @@ def lo_exact(gamma_ns, a1, a0, beta):
 
     Parameters
     ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
-        e_ns^0 : complex
-            |LO| non-singlet exact EKO
+    e_ns^0 : complex
+        |LO| non-singlet exact EKO
     """
     beta0 = beta[0]
     return np.exp(gamma_ns[0] * ei.j12(a1, a0, beta0))
@@ -77,19 +77,19 @@ def nlo_exact(gamma_ns, a1, a0, beta):
 
     Parameters
     ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
-        e_ns^1 : complex
-            |NLO| non-singlet exact EKO
+    e_ns^1 : complex
+        |NLO| non-singlet exact EKO
     """
     beta0 = beta[0]
     b_vec = [betas / beta0 for betas in beta]
@@ -105,19 +105,19 @@ def nlo_expanded(gamma_ns, a1, a0, beta):
 
     Parameters
     ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
-        e_ns^1 : complex
-            |NLO| non-singlet expanded EKO
+    e_ns^1 : complex
+        |NLO| non-singlet expanded EKO
     """
     beta0 = beta[0]
     b_vec = [betas / beta0 for betas in beta]
@@ -133,19 +133,19 @@ def nnlo_exact(gamma_ns, a1, a0, beta):
 
     Parameters
     ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
-        e_ns^2 : complex
-            |NNLO| non-singlet exact EKO
+    e_ns^2 : complex
+        |NNLO| non-singlet exact EKO
     """
     beta0 = beta[0]
     b_vec = [betas / beta0 for betas in beta]
@@ -162,19 +162,19 @@ def nnlo_expanded(gamma_ns, a1, a0, beta):
 
     Parameters
     ----------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
-        a1 : float
-            target coupling value
-        a0 : float
-            initial coupling value
-        nf : int
-            number of active flavors
+    gamma_ns : numpy.ndarray
+        non-singlet anomalous dimensions
+    a1 : float
+        target coupling value
+    a0 : float
+        initial coupling value
+    beta : list
+        list of the values of the beta functions
 
     Returns
     -------
-        e_ns^2 : complex
-            |NNLO| non-singlet expanded EKO
+    e_ns^2 : complex
+        |NNLO| non-singlet expanded EKO
     """
     beta0 = beta[0]
     b_vec = [betas / beta0 for betas in beta]
@@ -276,8 +276,8 @@ def eko_ordered_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
     order : tuple(int,int)
         perturbative order
     ev_op_iterations : int
@@ -316,8 +316,8 @@ def eko_truncated(gamma_ns, a1, a0, beta, order, ev_op_iterations):
         target coupling value
     a0 : float
         initial coupling value
-    nf : int
-        number of active flavors
+    beta : list
+        list of the values of the beta functions
     order : tuple(int,int)
         perturbative order
     ev_op_iterations : int

@@ -1,5 +1,6 @@
 """Create fake PDF sets for debugging."""
 import copy
+import logging
 import pathlib
 import shutil
 
@@ -9,6 +10,8 @@ from banana import toy
 from eko import basis_rotation as br
 
 from . import export, flavors, load
+
+logger = logging.getLogger(__name__)
 
 
 def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
@@ -217,6 +220,9 @@ def install_pdf(name):
     print(f"install_pdf {name}")
     target = pathlib.Path(lhapdf.paths()[0])
     src = pathlib.Path(name)
+    if (target / src.stem).exists():
+        logger.warning("Overwriting old PDF installation")
+        shutil.rmtree(target / src.stem)
     # shutil.move only accepts paths since 3.9 so we need to cast
     # https://docs.python.org/3/library/shutil.html?highlight=shutil#shutil.move
     shutil.move(str(src), str(target))

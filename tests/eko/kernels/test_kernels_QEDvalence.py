@@ -3,8 +3,8 @@ import warnings
 import numpy as np
 import pytest
 
-from eko import anomalous_dimensions as ad
 from eko.kernels import valence_qed as val
+from ekore import anomalous_dimensions
 
 methods = [
     # "iterate-expanded",
@@ -31,7 +31,7 @@ def test_zero(monkeypatch):
                 + np.random.rand(qcd + 1, qed + 1, 2, 2) * 1j
             )
             monkeypatch.setattr(
-                ad,
+                anomalous_dimensions,
                 "exp_matrix_2D",
                 lambda gamma_v: (
                     gamma_v,
@@ -47,9 +47,8 @@ def test_zero(monkeypatch):
                         order,
                         method,
                         gamma_v,
-                        1,
-                        1,
-                        [1, 1],
+                        [1, 1, 1],
+                        np.array([[1, 1], [1, 1]]),
                         nf,
                         ev_op_iterations,
                         ev_op_max_order,
@@ -61,9 +60,8 @@ def test_zero(monkeypatch):
                         order,
                         method,
                         np.zeros((qcd + 1, qed + 1, 2, 2), dtype=complex),
-                        2,
-                        1,
-                        [1, 1],
+                        [1.0, 1.5, 2.0],
+                        np.array([[1.25, 1], [1.75, 1]]),
                         nf,
                         ev_op_iterations,
                         ev_op_max_order,
@@ -81,9 +79,11 @@ def test_zero_true_gamma(monkeypatch):
         for qed in range(1, 2 + 1):
             order = (qcd, qed)
             n = np.random.rand()
-            gamma_v = ad.gamma_valence_qed(order, n, nf)
+            gamma_v = anomalous_dimensions.unpolarized.space_like.gamma_valence_qed(
+                order, n, nf
+            )
             monkeypatch.setattr(
-                ad,
+                anomalous_dimensions,
                 "exp_matrix_2D",
                 lambda gamma_v: (
                     gamma_v,
@@ -99,9 +99,8 @@ def test_zero_true_gamma(monkeypatch):
                         order,
                         method,
                         gamma_v,
-                        1,
-                        1,
-                        [1, 1],
+                        [1, 1, 1],
+                        np.array([[1, 1], [1, 1]]),
                         nf,
                         ev_op_iterations,
                         ev_op_max_order,
@@ -113,9 +112,8 @@ def test_zero_true_gamma(monkeypatch):
                         order,
                         method,
                         np.zeros((qcd + 1, qed + 1, 2, 2), dtype=complex),
-                        2,
-                        1,
-                        [1, 1],
+                        [1.0, 1.5, 2.0],
+                        np.array([[1.25, 1], [1.75, 1]]),
                         nf,
                         ev_op_iterations,
                         ev_op_max_order,
@@ -127,5 +125,5 @@ def test_zero_true_gamma(monkeypatch):
 def test_error():
     with pytest.raises(NotImplementedError):
         val.dispatcher(
-            (3, 2), "AAA", np.random.rand(4, 3, 2, 2), 0.2, 0.1, 0.01, 3, 10, 10
+            (3, 2), "AAA", np.random.rand(4, 3, 2, 2), [0.2, 0.1], [0.01], 3, 10, 10
         )

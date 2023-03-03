@@ -4,6 +4,7 @@ Benchmark NNPDF pdf family
 import numpy as np
 from banana import register
 
+from eko import interpolation
 from ekomark.benchmark.runner import Runner
 
 register(__file__)
@@ -117,16 +118,47 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
         self.run([theory_card], [operator_card], ["NNPDF40_nnlo_as_01180"])
 
 
+class BenchmarkNNPDFpol11(BenchmarkNNPDF):
+    """Benchmark NNPDFpol11"""
+
+    def benchmark(self, Q0=1.65, Q2grid=(100,)):
+        theory_card = {
+            "Qref": 91.2,
+            "mc": 1.41421,
+            "mb": 4.75,
+            "mt": 175,
+            "kcThr": 1.0,
+            "kbThr": 1.0,
+            "ktThr": 1.0,
+            "alphas": 0.119002,
+            "alphaqed": 0.007496,
+            "FNS": "ZM-VFNS",
+            "ModEv": "TRN",
+            "Q0": Q0,
+            "PTO": 1,
+        }
+
+        operator_card = {
+            **base_operator,
+            "Q2grid": list(Q2grid),
+            "polarized": [True],
+            "interpolation_xgrid": interpolation.lambertgrid(50, 1e-5),
+        }
+        self.run([theory_card], [operator_card], ["NNPDFpol11_100"])
+
+
 if __name__ == "__main__":
-    low2 = 4**2
+    low2 = 5**2
     high2 = 30**2
     # nn31 = BenchmarkNNPDF31()
     # # test forward
     # nn31.benchmark_nlo(Q0=np.sqrt(low2), Q2grid=[10])
     # # test backward
     # #nn31.benchmark_nlo(Q0=np.sqrt(high2), Q2grid=[low2])
-    nn31qed = BenchmarkNNPDF31_luxqed()
-    nn31qed.benchmark_nnlo()
     # nn40 = BenchmarkNNPDF40()
-    # nn40.benchmark_nnlo(Q2grid=[100])
+    # # nn40.benchmark_nnlo(Q2grid=[100])
     # nn40.benchmark_nnlo(Q0=np.sqrt(high2), Q2grid=[low2])
+    # nnpol = BenchmarkNNPDFpol11()
+    # nnpol.benchmark(Q0=np.sqrt(low2), Q2grid=[high2])
+    obj = BenchmarkNNPDF31_luxqed()
+    obj.benchmark_nnlo(Q0=5.0)

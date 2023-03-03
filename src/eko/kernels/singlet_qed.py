@@ -2,7 +2,8 @@
 import numba as nb
 import numpy as np
 
-from .. import anomalous_dimensions as ad
+from ekore import anomalous_dimensions as ad
+
 from .. import beta
 from . import singlet as s
 from . import utils
@@ -39,7 +40,7 @@ def contract_gammas(gamma_singlet, aem):
 
 
 @nb.njit(cache=True)
-def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations, dim):
+def eko_iterate(gamma_singlet, as_list, a_half, nf, order, ev_op_iterations, dim):
     """Singlet QEDxQCD iterated (exact) EKO.
 
     Parameters
@@ -50,8 +51,8 @@ def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations, di
         target strong coupling value
     a0 : float
         initial strong coupling value
-    aem : float
-        electromagnetic coupling value
+    aem_list : float
+        electromagnetic coupling values
     nf : int
         number of active flavors
     order : tuple(int,int)
@@ -64,23 +65,23 @@ def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations, di
     e_s^{order} : numpy.ndarray
         singlet QEDxQCD iterated (exact) EKO
     """
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
     e = np.identity(dim, np.complex_)
     betaQCD = np.zeros((order[0] + 1, order[1] + 1))
     for i in range(1, order[0] + 1):
         betaQCD[i, 0] = beta.beta_qcd((i + 1, 0), nf)
     betaQCD[1, 1] = beta.beta_qcd((2, 1), nf)
     for step in range(1, ev_op_iterations + 1):
-        ah = a_steps[step]
-        al = a_steps[step - 1]
-        a_half = (ah + al) / 2.0
+        ah = as_list[step]
+        al = as_list[step - 1]
+        as_half = a_half[step - 1, 0]
+        aem = a_half[step - 1, 1]
         delta_a = ah - al
         gamma = np.zeros((dim, dim), np.complex_)
         betatot = 0
         for i in range(0, order[0] + 1):
             for j in range(0, order[1] + 1):
-                betatot += betaQCD[i, j] * a_half ** (i + 1) * aem_list[step - 1] ** j
-                gamma += gamma_singlet[i, j] * a_half**i * aem_list[step - 1] ** j
+                betatot += betaQCD[i, j] * as_half ** (i + 1) * aem**j
+                gamma += gamma_singlet[i, j] * as_half**i * aem**j
         ln = gamma / betatot * delta_a
         ek = np.ascontiguousarray(ad.exp_matrix(ln)[0])
         e = ek @ e
@@ -88,7 +89,7 @@ def eko_iterate(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations, di
 
 
 @nb.njit(cache=True)
-def qed_lo(gamma_singlet, a1, a0, aem_list, nf, ev_op_iterations, dim):
+def qed_lo(gamma_singlet, as_list, a_half, nf, ev_op_iterations, dim):
     """Compute the QED leading order 'exact' evolution.
 
     Parameters
@@ -114,7 +115,7 @@ def qed_lo(gamma_singlet, a1, a0, aem_list, nf, ev_op_iterations, dim):
         singlet QEDxQCD iterated (exact) EKO
     """
     return eko_iterate(
-        gamma_singlet, a1, a0, aem_list, nf, (1, 2), ev_op_iterations, dim
+        gamma_singlet, as_list, a_half, nf, (1, 2), ev_op_iterations, dim
     )
 
 
@@ -162,9 +163,8 @@ def u_vec(r, ev_op_max_order, dim):
 @nb.njit(cache=True)
 def eko_perturbative(
     gamma_singlet,
-    a1,
-    a0,
-    aem_list,
+    as_list,
+    a_half,
     nf,
     order,
     ev_op_iterations,
@@ -201,12 +201,12 @@ def eko_perturbative(
     betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
     e = np.identity(dim, np.complex_)
     # iterate elements
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    al = a_steps[0]
-    for step, ah in enumerate(a_steps[1:]):
-        betalist[0] += aem_list[step] * beta.beta_qcd((2, 1), nf)
+    al = as_list[0]
+    for step, ah in enumerate(as_list[1:]):
+        aem = a_half[step, 1]
+        betalist[0] += aem * beta.beta_qcd((2, 1), nf)
         r = s.r_vec(
-            contract_gammas(gamma_singlet, aem_list[step])[1:],
+            contract_gammas(gamma_singlet, aem)[1:],
             betalist,
             ev_op_max_order,
             order,
@@ -214,7 +214,14 @@ def eko_perturbative(
             dim,
         )
         uk = u_vec(r, ev_op_max_order, dim)
-        e0 = qed_lo(gamma_singlet, ah, al, aem_list, nf, ev_op_iterations=1, dim=dim)
+        e0 = qed_lo(
+            gamma_singlet,
+            as_list[step : step + 2],
+            a_half[step : step + 1],
+            nf,
+            ev_op_iterations=1,
+            dim=dim,
+        )
         uh = s.sum_u(uk, ah, dim)
         ul = s.sum_u(uk, al, dim)
         # join elements
@@ -225,7 +232,7 @@ def eko_perturbative(
 
 
 @nb.njit(cache=True)
-def eko_truncated(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations, dim):
+def eko_truncated(gamma_singlet, as_list, a_half, nf, order, dim):
     """Singlet |NLO|, |NNLO| or |N3LO| truncated EKO.
 
     Parameters
@@ -251,12 +258,12 @@ def eko_truncated(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations, 
     betalist = [beta.beta_qcd((2 + i, 0), nf) for i in range(order[0])]
     e = np.identity(dim, np.complex_)
     # iterate elements
-    a_steps = utils.geomspace(a0, a1, 1 + ev_op_iterations)
-    al = a_steps[0]
-    for step, ah in enumerate(a_steps[1:]):
-        betalist[0] += aem_list[step] * beta.beta_qcd((2, 1), nf)
+    al = as_list[0]
+    for step, ah in enumerate(as_list[1:]):
+        aem = a_half[step, 1]
+        betalist[0] += aem * beta.beta_qcd((2, 1), nf)
         r = s.r_vec(
-            contract_gammas(gamma_singlet, aem_list[step])[1:],
+            contract_gammas(gamma_singlet, aem)[1:],
             betalist,
             order,
             order,
@@ -266,7 +273,14 @@ def eko_truncated(gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations, 
         u = u_vec(r, order, dim)
         u1 = np.ascontiguousarray(u[1])
         e0 = np.ascontiguousarray(
-            qed_lo(gamma_singlet, ah, al, aem_list, nf, ev_op_iterations=1, dim=dim)
+            qed_lo(
+                gamma_singlet,
+                as_list[step : step + 2],
+                a_half[step : step + 1],
+                nf,
+                ev_op_iterations=1,
+                dim=dim,
+            )
         )
         if order[0] >= 2:
             ek = e0 + ah * u1 @ e0 - al * e0 @ u1
@@ -295,9 +309,8 @@ def dispatcher(
     order,
     method,
     gamma_singlet,
-    a1,
-    a0,
-    aem_list,
+    as_list,
+    a_half,
     nf,
     ev_op_iterations,
     ev_op_max_order,
@@ -316,8 +329,8 @@ def dispatcher(
         target coupling value
     a0 : float
         initial coupling value
-    aem : float
-        electromagnetic coupling value
+    aem_list : numpy.ndarray
+        electromagnetic coupling values
     nf : int
         number of active flavors
     ev_op_iterations : int
@@ -332,14 +345,13 @@ def dispatcher(
     """
     if method in ["iterate-exact", "iterate-expanded"]:
         return eko_iterate(
-            gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations, dim=4
+            gamma_singlet, as_list, a_half, nf, order, ev_op_iterations, 4
         )
     if method == "perturbative-exact":
         return eko_perturbative(
             gamma_singlet,
-            a1,
-            a0,
-            aem_list,
+            as_list,
+            a_half,
             nf,
             order,
             ev_op_iterations,
@@ -350,9 +362,8 @@ def dispatcher(
     if method == "perturbative-expanded":
         return eko_perturbative(
             gamma_singlet,
-            a1,
-            a0,
-            aem_list,
+            as_list,
+            a_half,
             nf,
             order,
             ev_op_iterations,
@@ -361,7 +372,5 @@ def dispatcher(
             dim=4,
         )
     if method in ["truncated", "ordered-truncated"]:
-        return eko_truncated(
-            gamma_singlet, a1, a0, aem_list, nf, order, ev_op_iterations, dim=4
-        )
+        return eko_truncated(gamma_singlet, as_list, a_half, nf, order, dim=4)
     raise NotImplementedError("selected method is not implemented")

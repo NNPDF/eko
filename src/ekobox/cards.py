@@ -38,6 +38,8 @@ _operator = dict(
         scvar_method=None,
         inversion_method=None,
         n_integration_cores=0,
+        polarized=False,
+        time_like=False,
     ),
     debug=dict(
         skip_singlet=False,

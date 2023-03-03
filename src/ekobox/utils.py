@@ -47,31 +47,6 @@ def ekos_product(
     if ope1_error is not None:
         ope1_error = ope1_error.copy()
 
-    ope2_dict = {}
-    ope2_error_dict = {}
-    for q2, op in eko_fin.items():
-        ope2_dict[q2] = op.operator
-        ope2_error_dict[q2] = op.error
-
-    final_op_dict = {}
-    final_op_error_dict = {}
-    final_dict = {}
-    for q2, op2 in ope2_dict.items():
-        final_op_dict[q2] = np.einsum(CONTRACTION, ope1, op2)
-
-        ope2_error = ope2_error_dict[q2]
-        if ope1_error is not None and ope2_error is not None:
-            final_op_error_dict[q2] = np.einsum(
-                CONTRACTION, ope1, ope2_error
-            ) + np.einsum(CONTRACTION, ope1_error, op2)
-        else:
-            final_op_error_dict[q2] = None
-
-        final_dict[q2] = {
-            "operator": final_op_dict[q2],
-            "error": final_op_error_dict[q2],
-        }
-
     if path is None:
         final_eko = eko_ini
     else:

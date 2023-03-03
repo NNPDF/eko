@@ -5,7 +5,7 @@ import pytest
 import scipy.integrate
 
 import eko.runner.legacy
-from eko import anomalous_dimensions as ad
+import ekore.anomalous_dimensions.unpolarized.space_like as ad
 from eko import basis_rotation as br
 from eko import interpolation, mellin
 from eko.evolution_operator import Operator, quad_ker
@@ -14,6 +14,35 @@ from eko.io.runcards import OperatorCard, ScaleVariationsMethod, TheoryCard
 from eko.kernels import non_singlet as ns
 from eko.kernels import non_singlet_qed as qed_ns
 from eko.kernels import singlet as s
+
+
+def test_quad_ker_errors():
+    for p, t in [(False, True), (True, True)]:
+        for mode0 in [br.non_singlet_pids_map["ns+"], 21]:
+            with pytest.raises(NotImplementedError):
+                quad_ker(
+                    u=0.3,
+                    order=(1, 0),
+                    mode0=mode0,
+                    mode1=0,
+                    method="",
+                    is_log=True,
+                    logx=0.1,
+                    areas=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
+                    as_list=[2.0, 1.0],
+                    mu2_from=1.0,
+                    mu2_to=2.0,
+                    a_half=np.array([[1.5, 0.01]]),
+                    alphaem_running=False,
+                    nf=3,
+                    L=0,
+                    ev_op_iterations=1,
+                    ev_op_max_order=(1, 0),
+                    sv_mode=1,
+                    is_threshold=False,
+                    is_polarized=p,
+                    is_time_like=t,
+                )
 
 
 def test_quad_ker(monkeypatch):
@@ -38,58 +67,60 @@ def test_quad_ker(monkeypatch):
         ((1, 1), 10200, 10200, "iterate-exact", 0.123, 1.0),
         ((1, 1), 10200, 10204, "iterate-exact", 0.123, 0.0),
     ]
-    for (order, mode0, mode1, method, logx, res) in params:
+    for order, mode0, mode1, method, logx, res in params:
         for is_log in [True, False]:
-            res_ns = quad_ker(
-                u=0,
-                order=order,
-                mode0=mode0,
-                mode1=mode1,
-                method=method,
-                is_log=is_log,
-                logx=logx,
-                areas=np.zeros(3),
-                as1=1,
-                as0=2,
-                mu2_from=1,
-                mu2_to=2,
-                as_raw=1,
-                aem_list=[0.00058],
-                alphaem_running=False,
-                nf=3,
-                L=0,
-                ev_op_iterations=0,
-                ev_op_max_order=(0, 0),
-                sv_mode=1,
-                is_threshold=False,
-            )
-            np.testing.assert_allclose(res_ns, res)
+            for polarized in [True, False]:
+                res_ns = quad_ker(
+                    u=0,
+                    order=order,
+                    mode0=mode0,
+                    mode1=mode1,
+                    method=method,
+                    is_log=is_log,
+                    logx=logx,
+                    areas=np.zeros(3),
+                    as_list=[2.0, 1.0],
+                    mu2_from=1,
+                    mu2_to=2,
+                    a_half=np.array([[1.5, 0.01]]),
+                    alphaem_running=False,
+                    nf=3,
+                    L=0,
+                    ev_op_iterations=0,
+                    ev_op_max_order=(0, 0),
+                    sv_mode=1,
+                    is_threshold=False,
+                    is_polarized=polarized,
+                    is_time_like=False,
+                )
+                np.testing.assert_allclose(res_ns, res)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
         for sv in [2, 3]:
-            res_sv = quad_ker(
-                u=0,
-                order=(1, 0),
-                mode0=label[0],
-                mode1=label[1],
-                method="",
-                is_log=True,
-                logx=0.123,
-                areas=np.zeros(3),
-                as1=1,
-                as0=2,
-                mu2_from=1,
-                mu2_to=2,
-                as_raw=1,
-                aem_list=[0.00058],
-                alphaem_running=False,
-                nf=3,
-                L=0,
-                ev_op_iterations=0,
-                ev_op_max_order=(1, 0),
-                sv_mode=sv,
-                is_threshold=False,
-            )
-            np.testing.assert_allclose(res_sv, 1.0)
+            for polarized in [True, False]:
+                res_sv = quad_ker(
+                    u=0,
+                    order=(1, 0),
+                    mode0=label[0],
+                    mode1=label[1],
+                    method="",
+                    is_log=True,
+                    logx=0.123,
+                    areas=np.zeros(3),
+                    as_list=[2.0, 1.0],
+                    mu2_from=1,
+                    mu2_to=2,
+                    a_half=np.array([[1.5, 0.01]]),
+                    alphaem_running=False,
+                    nf=3,
+                    L=0,
+                    ev_op_iterations=0,
+                    ev_op_max_order=(1, 0),
+                    sv_mode=sv,
+                    is_threshold=False,
+                    is_polarized=polarized,
+                    is_time_like=False,
+                )
+                np.testing.assert_allclose(res_sv, 1.0)
     for label in [
         (100, 100),
         (21, 21),
@@ -109,12 +140,10 @@ def test_quad_ker(monkeypatch):
                 is_log=True,
                 logx=0.123,
                 areas=np.zeros(3),
-                as1=1,
-                as0=2,
+                as_list=[2.0, 1.0],
                 mu2_from=1,
                 mu2_to=2,
-                as_raw=1,
-                aem_list=[0.00058],
+                a_half=np.array([[1.5, 0.01]]),
                 alphaem_running=False,
                 nf=3,
                 L=0,
@@ -122,6 +151,8 @@ def test_quad_ker(monkeypatch):
                 ev_op_max_order=(1, 0),
                 sv_mode=sv,
                 is_threshold=False,
+                is_polarized=False,
+                is_time_like=False,
             )
             np.testing.assert_allclose(res_sv, 1.0)
 
@@ -135,12 +166,10 @@ def test_quad_ker(monkeypatch):
         is_log=True,
         logx=0.0,
         areas=np.zeros(3),
-        as1=1,
-        as0=2,
+        as_list=[2.0, 1.0],
         mu2_from=1,
         mu2_to=2,
-        as_raw=1,
-        aem_list=[0.00058],
+        a_half=np.array([[1.5, 0.01]]),
         alphaem_running=False,
         nf=3,
         L=0,
@@ -148,6 +177,8 @@ def test_quad_ker(monkeypatch):
         ev_op_max_order=(0, 0),
         sv_mode=1,
         is_threshold=False,
+        is_polarized=False,
+        is_time_like=False,
     )
     np.testing.assert_allclose(res_ns, 0.0)
 
@@ -160,8 +191,8 @@ class FakeCoupling:
     def a(self, scale_to=None, fact_scale=None, nf_to=None):
         return (0.1, 0.01)
 
-    def compute_aem_as(self, aem_ref, as_from, as_to, nf):
-        return aem_ref
+    def compute(self, a_ref, nf, scale_from, scale_to):
+        return a_ref
 
 
 fake_managers = {"couplings": FakeCoupling()}
@@ -259,7 +290,7 @@ class TestOperator:
         g = r.op_grid
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 10.0)
-        np.testing.assert_allclose(o.mur2_shift(40.0), 10.0)
+        np.testing.assert_allclose(o.sv_exponentiated_shift(40.0), 10.0)
         o.compute()
         self.check_lo(o)
 
@@ -396,7 +427,7 @@ def test_pegasus_path():
     mode1 = 0
     method = ""
     logxs = np.log(int_disp.xgrid.raw)
-    as_raw = a1 = 1
+    a1 = 1
     a0 = 2
     mu2_from = 1
     mu2_to = 2**2
@@ -417,18 +448,18 @@ def test_pegasus_path():
                     int_disp.log,
                     logx,
                     bf.areas_representation,
-                    a1,
-                    a0,
+                    [a0, a1],
                     mu2_from,
                     mu2_to,
-                    as_raw,
-                    [0.00058],
+                    [[(a1 + a0) / 2, 0.00058]],
                     False,
                     nf,
                     L,
                     ev_op_iterations,
                     10,
                     0,
+                    False,
+                    False,
                     False,
                 ),
                 epsabs=1e-12,
