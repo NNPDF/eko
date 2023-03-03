@@ -173,7 +173,7 @@ def dispatcher(
         as_list,
         aem_half,
         nf,
-        1 if not alphaem_running else ev_op_iterations,
+        ev_op_iterations,
         mu2_to,
         mu2_from,
     )
