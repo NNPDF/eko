@@ -66,6 +66,7 @@ def compute_apfel_data(
     # apfel.SetGridParameters(3, 50, 3, 8e-1)
 
     # init evolution
+    apfel.SetPolarizedEvolution(operators["polarized"])
     apfel.InitializeAPFEL()
     print(f"Loading APFEL took {(time.perf_counter() - apf_start)} s")
 
