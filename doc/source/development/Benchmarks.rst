@@ -45,6 +45,13 @@ List of bugs in :cite:`Dittmar:2005ed`
 - in table 15, part 1: :math:`xd_v(x=10^{-4}, \mu_F^2 = 10^4~\mathrm{GeV}^2) = 1.0699\cdot 10^{-4}` (wrong exponent) and
   :math:`xg(x=10^{-4}, \mu_F^2 = 10^4~\mathrm{GeV}^2) = 9.9694\cdot 10^{2}` (wrong exponent)
 
+- in table 16: the distribution :math:`L_{m}` is not vanishing despite the benchmark table being produced with the
+  toy PDF, defined in :eqref:`4.57`, that has :math:`\bar{u} = \bar{d}`. This means that :math:`T_3`
+  is not correct. The whole column of :math:`L_{m}` should be set to 0, sine at |LO| it is not possible
+  to generate a difference between :math:`\bar{u}` and :math:`\bar{d}`
+
+- in table 17: same as before :math:`L_{m}` is bugged.
+
 LHAPDF
 ------
 

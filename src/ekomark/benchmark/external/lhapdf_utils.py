@@ -1,6 +1,4 @@
-"""
-LHAPDF interface
-"""
+"""LHAPDF interface."""
 import numpy as np
 
 from eko import basis_rotation as br
@@ -12,29 +10,27 @@ def compute_LHAPDF_data(operators, pdf, skip_pdfs, rotate_to_evolution_basis=Fal
 
     Parameters
     ----------
-        operators : dict
-            operators card
-        pdf : lhapdf_type
-            pdf
-        skip_pdfs : list
-            list of pdfs (pid or name) to skip
-        rotate_to_evolution_basis: bool
-            rotate to evolution basis
+    operators : dict
+        operators card
+    pdf : lhapdf_type
+        pdf
+    skip_pdfs : list
+        list of pdfs (pid or name) to skip
+    rotate_to_evolution_basis: bool
+        rotate to evolution basis
 
     Returns
     -------
-        ref : dict
-            output containing: target_xgrid, values
-    """
+    ref : dict
+        output containing: target_xgrid, values
 
-    target_xgrid = operators["xgrid"]
+    """
+    target_xgrid = operators["interpolation_xgrid"]
 
     out_tabs = {}
     for q2 in operators["Q2grid"]:
-
         tab = {}
         for pid in br.flavor_basis_pids:
-
             if pid in skip_pdfs:
                 continue
 
