@@ -73,7 +73,5 @@ def dispatcher(
             dim=2,
         )
     if method in ["truncated", "ordered-truncated"]:
-        return eko_truncated(
-            gamma_valence, as_list, a_half, nf, order, ev_op_iterations, dim=2
-        )
+        return eko_truncated(gamma_valence, as_list, a_half, nf, order, dim=2)
     raise NotImplementedError("Selected method is not implemented")
