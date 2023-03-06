@@ -98,11 +98,11 @@ def splitting_function(
     return np.array(gamma_x).T
 
 
-def compute_a_s(q2=None, fact_scale=None, nf=None, order=(4, 0)):
+def compute_a_s(q2=None, xif2=1.0, nf=None, order=(4, 0)):
     if q2 is not None:
-        fact_scale = q2 if fact_scale is None else fact_scale
+        fact_scale = q2 * xif2
         ref = types.CouplingsRef(
-            alphas=types.FloatRef(value=0.1181, scale=91.00),
+            alphas=types.FloatRef(value=0.1181, scale=91.00 * np.sqrt(xif2)),
             alphaem=types.FloatRef(value=0.007496, scale=np.nan),
             max_num_flavs=6,
             num_flavs_ref=5,
