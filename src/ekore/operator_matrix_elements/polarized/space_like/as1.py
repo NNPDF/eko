@@ -14,7 +14,7 @@ from eko.constants import TR
 @nb.njit(cache=True)
 def A_hg(n, L):  # method 1 -> Following the un-polarized format in eko
     r"""
-     |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}` as defined in Eq. 104 of :cite:`Bierenbaum_2023`.
+     |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}` given in Eq. (104) of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -38,7 +38,7 @@ def A_hg(
     n, L
 ):  # method 2 -> following the Blumlein format without the - (method 3-> direct insertion of splitting funct from eko)
     r"""
-    |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}` as defined in Eq. 104 of :cite:`Bierenbaum_2023`.
+    |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}` given in Eq. (104) of :cite:`Bierenbaum_2023`.
     Parameters
     ----------
         n : complex
@@ -58,7 +58,7 @@ def A_hg(
 @nb.njit(cache=True)
 def A_gg(L):  # method 1
     r"""
-    |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}` as defined in Eq. 186 of :cite:`Bierenbaum_2023`.
+    |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}` given in Eq. (186) of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -76,7 +76,7 @@ def A_gg(L):  # method 1
 @nb.njit(cache=True)
 def A_gg(L):  # method 2
     r"""
-    |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}` as defined in Eq. 186 of :cite:`Bierenbaum_2023`.
+    |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}` given in Eq. (186) of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
