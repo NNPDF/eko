@@ -262,7 +262,7 @@ def test_quad_ker(monkeypatch):
 #         "alphas": 0.35,
 #         "PTO": 2,
 #         "ModEv": "TRN",
-#         "fact_to_ren_scale_ratio": 1.0,
+#         "XIF": 1.0,
 #         "Qref": np.sqrt(2),
 #         "nfref": None,
 #         "Q0": np.sqrt(2),

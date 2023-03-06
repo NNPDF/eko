@@ -75,7 +75,7 @@ class BenchmarkVFNS(ApfelBenchmark):
             {
                 "PTO": [pto],
                 "XIR": [1 / np.sqrt(2.0)],
-                "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
+                "XIF": [np.sqrt(2.0)],
                 "ModSV": [svmode],
                 "EScaleVar": [0],
                 "nfref": [4],
@@ -177,7 +177,7 @@ class BenchmarkFFNS(ApfelBenchmark):
             {
                 "PTO": [pto],
                 "XIR": [np.sqrt(0.5)],
-                "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
+                "XIF": [np.sqrt(2.0)],
                 "ModSV": [svmode],
                 "EScaleVar": [0],
             }
@@ -188,7 +188,7 @@ class BenchmarkFFNS(ApfelBenchmark):
             {
                 "PTO": [pto],
                 "XIR": [np.sqrt(2.0)],
-                "fact_to_ren_scale_ratio": [np.sqrt(0.5)],
+                "XIF": [np.sqrt(0.5)],
                 "ModSV": [svmode],
                 "EScaleVar": [0],
             }
@@ -198,7 +198,6 @@ class BenchmarkFFNS(ApfelBenchmark):
 
 
 if __name__ == "__main__":
-
     # obj = BenchmarkVFNS()
     obj = BenchmarkFFNS()
 

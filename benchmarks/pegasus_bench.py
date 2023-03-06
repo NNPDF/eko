@@ -83,7 +83,7 @@ class BenchmarkVFNS(PegasusBenchmark):
         th.update(
             {
                 "PTO": [pto],
-                "fact_to_ren_scale_ratio": [np.sqrt(0.5), np.sqrt(2.0)],
+                "XIF": [np.sqrt(0.5), np.sqrt(2.0)],
                 "ModSV": [svmode],
             }
         )
@@ -141,7 +141,7 @@ class BenchmarkFFNS(PegasusBenchmark):
         th.update(
             {
                 "PTO": [pto],
-                "fact_to_ren_scale_ratio": [np.sqrt(0.5), np.sqrt(2.0)],
+                "XIF": [np.sqrt(0.5), np.sqrt(2.0)],
                 "ModSV": [svmode],
             }
         )
@@ -151,7 +151,6 @@ class BenchmarkFFNS(PegasusBenchmark):
 
 
 if __name__ == "__main__":
-
     # obj = BenchmarkVFNS()
     obj = BenchmarkFFNS()
     obj.benchmark_plain_pol(1)
