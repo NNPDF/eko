@@ -13,8 +13,8 @@ from eko.interpolation import lambertgrid
 plt.style.use(utils.load_style())
 
 
-def build_gamma(g, order, q2, fact_sale, nf):
-    a_s = compute_a_s(q2, fact_scale=fact_sale, order=(order + 1, 0), nf=nf)
+def build_gamma(g, order, q2, xif2, nf):
+    a_s = compute_a_s(q2, xif2=xif2, order=(order + 1, 0), nf=nf)
     gamma = 0
     for pto in range(order + 1):
         gamma += g[:, pto] * a_s ** (pto + 1)
@@ -22,8 +22,9 @@ def build_gamma(g, order, q2, fact_sale, nf):
 
 
 def compute_mhou(g_min, g_max, g_central, q2, xif2_low, xif2_hig, order, nf):
-    gamma_low = build_gamma(g_min, order, q2 / xif2_low, q2, nf)
-    gamma_hig = build_gamma(g_max, order, q2 / xif2_hig, q2, nf)
+    # TODO: here you need two different instances of strong coupling
+    gamma_low = build_gamma(g_min, order, q2, xif2_low, nf)
+    gamma_hig = build_gamma(g_max, order, q2, xif2_hig, nf)
     delta_low = gamma_low - g_central
     delta_hig = gamma_hig - g_central
     mhou = 0.5 * np.sqrt(delta_low**2 + delta_hig**2)
@@ -43,11 +44,11 @@ def plot_ad(entry, q2=None, nf=4, logscale=True, plot_totu=True, plot_scaling=Fa
     g_low = splitting_function(entry, grid, nf, L=np.log(xif2_low))
     g_hig = splitting_function(entry, grid, nf, L=np.log(xif2_hig))
 
-    a_s_n3lo = compute_a_s(q2, fact_scale=q2, order=(4, 0), nf=nf)
-    g_lo = build_gamma(g, 0, q2, q2, nf)
-    g_nlo = build_gamma(g, 1, q2, q2, nf)
-    g_nnlo = build_gamma(g, 2, q2, q2, nf)
-    g_n3lo = build_gamma(g, 3, q2, q2, nf)
+    a_s_n3lo = compute_a_s(q2, xif2=1, order=(4, 0), nf=nf)
+    g_lo = build_gamma(g, 0, q2, 1, nf)
+    g_nlo = build_gamma(g, 1, q2, 1, nf)
+    g_nnlo = build_gamma(g, 2, q2, 1, nf)
+    g_n3lo = build_gamma(g, 3, q2, 1, nf)
 
     g_n3lo_var = []
     if plot_totu:
@@ -181,10 +182,10 @@ def plot_ad_ratio(entry, q2=None, nf=4, plot_totu=False):
     g_low = splitting_function(entry, grid, nf, L=np.log(xif2_low))
     g_hig = splitting_function(entry, grid, nf, L=np.log(xif2_hig))
 
-    a_s_n3lo = compute_a_s(q2, fact_scale=q2, order=(4, 0), nf=nf)
-    g_nlo = build_gamma(g, 1, q2, q2, nf)
-    g_nnlo = build_gamma(g, 2, q2, q2, nf)
-    g_n3lo = build_gamma(g, 3, q2, q2, nf)
+    a_s_n3lo = compute_a_s(q2, xif2=1, order=(4, 0), nf=nf)
+    g_nlo = build_gamma(g, 1, q2, 1, nf)
+    g_nnlo = build_gamma(g, 2, q2, 1, nf)
+    g_n3lo = build_gamma(g, 3, q2, 1, nf)
 
     g_n3lo_var = []
     if plot_totu:
@@ -282,4 +283,4 @@ if __name__ == "__main__":
 
         # log plots
         x_grid = lambertgrid(80, x_min=1e-7)
-        # plot_ad(k, q2=q2, nf=nf, plot_scaling=True, plot_totu=plot_totu)
+        plot_ad(k, q2=q2, nf=nf, plot_scaling=True, plot_totu=plot_totu)
