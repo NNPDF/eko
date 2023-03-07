@@ -1,6 +1,6 @@
 """Heavy quarks related quantities."""
 import enum
-from typing import Generic, TypeVar
+from typing import Generic, Sequence, TypeVar
 
 import numpy as np
 
@@ -14,7 +14,7 @@ T = TypeVar("T")
 class HeavyQuarks(list, Generic[T]):
     """Access heavy quarks attributes by name."""
 
-    def __init__(self, *args: T):
+    def __init__(self, args: Sequence[T]):
         if len(args) != 3:
             raise ValueError("Pass values for exactly three quarks.")
 
@@ -25,15 +25,27 @@ class HeavyQuarks(list, Generic[T]):
         """Charm quark."""
         return self[0]
 
+    @c.setter
+    def c(self, value: T):
+        self[0] = value
+
     @property
     def b(self) -> T:
         """Bottom quark."""
         return self[0]
 
+    @b.setter
+    def b(self, value: T):
+        self[1] = value
+
     @property
     def t(self) -> T:
         """Top quark."""
         return self[2]
+
+    @t.setter
+    def t(self, value: T):
+        self[2] = value
 
 
 QuarkMass = LinearScale

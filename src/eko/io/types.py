@@ -48,18 +48,27 @@ class ReferenceRunning(list, Generic[T]):
 
     """
 
-    def __init__(self, value: T, scale: Scale):
-        self.extend([value, scale])
+    @classmethod
+    def typed(cls, value: T, scale: Scale):
+        return cls([value, scale])
 
     @property
     def value(self) -> T:
         """Reference value, given at a specified scale."""
         return self[0]
 
+    @value.setter
+    def value(self, value: T):
+        self[0] = value
+
     @property
     def scale(self) -> Scale:
         """Reference scale, at which the value of the function is given."""
         return self[1]
+
+    @scale.setter
+    def scale(self, value: Scale):
+        self[1] = value
 
 
 FlavNumRef = ReferenceRunning[FlavorsNumber]
