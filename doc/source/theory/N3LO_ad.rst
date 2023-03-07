@@ -4,7 +4,7 @@ N3LO Anomalous Dimensions
 The |N3LO| |QCD| anomalous dimensions :math:`\gamma^{(3)}` are not yet fully known,
 since they rely on the calculation of 4-loop |DIS| integrals.
 Moreover, the analytical structure of these function is already known to be complicated
-since in Mellin space it include harmonics sum up to weight 7, for which an
+since in Mellin space they include harmonics sum up to weight 7, for which an
 analytical expression is not available.
 
 Here, we describe the various assumptions and limits used in order to reconstruct a parametrization
