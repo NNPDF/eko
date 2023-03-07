@@ -6,7 +6,7 @@ from eko import msbar_masses
 from eko.couplings import Couplings
 from eko.io import types
 from eko.io.runcards import TheoryCard
-from eko.quantities.heavy_quarks import QuarkMassScheme
+from eko.quantities.heavy_quarks import HeavyQuarkMasses, QuarkMassRef, QuarkMassScheme
 
 
 @pytest.fixture()
@@ -17,9 +17,10 @@ def theory_card(theory_card: TheoryCard):
     th.couplings.alphas.scale = 91.0
     th.couplings.alphaem.value = 0.00781
     th.couplings.num_flavs_ref = 5
-    for qname, qmass in zip("cbt", [(2.0, 2.1), (4.0, 4.1), (175.0, 174.9)]):
-        q = getattr(th.quark_masses, qname)
-        q.value, q.scale = qmass
+    th.quark_masses = HeavyQuarkMasses(
+        [QuarkMassRef(val) for val in [(2.0, 2.1), (4.0, 4.1), (175.0, 174.9)]]
+    )
+
     th.quark_masses_scheme = QuarkMassScheme.MSBAR
 
     return th
@@ -40,7 +41,7 @@ class TestMSbarMasses:
                     th.couplings,
                     th.order,
                     method,
-                    np.power(list(iter(th.matching)), 2.0),
+                    np.power(th.matching, 2.0),
                 )
                 strong_coupling = Couplings(
                     th.couplings,
@@ -83,7 +84,7 @@ class TestMSbarMasses:
             th.couplings,
             th.order,
             types.CouplingEvolutionMethod.EXPANDED,
-            np.power(list(iter(th.matching)), 2.0),
+            np.power(th.matching, 2.0),
         )
         strong_coupling = Couplings(
             th.couplings,
@@ -120,7 +121,7 @@ class TestMSbarMasses:
                 theory.couplings,
                 theory.order,
                 types.CouplingEvolutionMethod.EXPANDED,
-                np.power(list(iter(theory.matching)), 2.0),
+                np.power(theory.matching, 2.0),
             )
 
         # test mass ordering

@@ -195,5 +195,7 @@ def raw_field(value):
     if dataclasses.is_dataclass(value):
         # not supporting nested DictLike inside nested plain dataclasses
         return dataclasses.asdict(value)
+    if isinstance(value, list):
+        return [raw_field(el) for el in value]
 
     return value

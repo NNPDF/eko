@@ -7,7 +7,7 @@ import yaml
 
 from eko import basis_rotation as br
 from eko.io import runcards
-from eko.io.types import RawCard
+from eko.io.types import RawCard, ReferenceRunning
 
 _theory = dict(
     order=[1, 0],
@@ -20,7 +20,7 @@ _theory = dict(
     num_flavs_init=None,
     num_flavs_max_pdf=6,
     intrinsic_flavors=[4],
-    quark_masses=[[mq, nan] for mq in (2.0, 4.5, 173.07)],
+    quark_masses=[ReferenceRunning([mq, nan]) for mq in (2.0, 4.5, 173.07)],
     quark_masses_scheme="POLE",
     matching=[1.0, 1.0, 1.0],
     xif=1.0,
