@@ -151,10 +151,10 @@ class BenchmarkFFNS(PegasusBenchmark):
 
 
 if __name__ == "__main__":
-    # obj = BenchmarkVFNS()
-    obj = BenchmarkFFNS()
-    obj.benchmark_plain_pol(1)
+    obj = BenchmarkVFNS()
+    # obj = BenchmarkFFNS()
+    # obj.benchmark_plain_pol(1)
     # obj.benchmark_plain(1)
 
-    # obj.benchmark_sv(2, "exponentiated")
+    obj.benchmark_sv(1, "exponentiated")
     # vfns.benchmark_sv()

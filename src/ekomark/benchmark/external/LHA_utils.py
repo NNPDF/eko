@@ -150,9 +150,9 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
 
     # Switching at the intermediate point.
     if xif > np.sqrt(2):
-        part = 3
-    elif xif < np.sqrt(1.0 / 2.0):
         part = 2
+    elif xif < np.sqrt(1.0 / 2.0):
+        part = 3
     else:
         part = 1
     if fns == "FFNS":
@@ -172,7 +172,6 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
             table = 18 if polarized else 4
         elif order == 2:
             table = 15
-
     else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
     ref_values = rotate_data(

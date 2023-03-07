@@ -88,14 +88,13 @@ class Runner:
         )
 
         # strong coupling
-        new_theory.couplings.alphas.scale *= new_theory.xif
         sc = Couplings(
             couplings=new_theory.couplings,
             order=new_theory.order,
             method=couplings_mod_ev(new_operator.configs.evolution_method),
             masses=masses,
             hqm_scheme=new_theory.quark_masses_scheme,
-            thresholds_ratios=thresholds_ratios,
+            thresholds_ratios=thresholds_ratios * new_theory.xif**2,
         )
         # setup operator grid
         self.op_grid = OperatorGrid(

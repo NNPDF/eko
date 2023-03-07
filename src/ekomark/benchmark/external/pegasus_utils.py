@@ -48,7 +48,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
         raise ValueError("Initial scale Q0 must be equal to Qref in Pegasus.")
 
     if operators["polarized"]:
-        pegasus.initpol(imodev, theory["PTO"], ivfns, nf, theory["XIF"] ** 2)
+        pegasus.initpol(imodev, theory["PTO"], ivfns, nf, 1.0 / theory["XIF"] ** 2)
         pegasus.initpinp(
             theory["alphas"],
             theory["Qref"] ** 2,
@@ -57,7 +57,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
             (theory["ktThr"] * theory["mt"]) ** 2,
         )
     else:
-        pegasus.initevol(imodev, theory["PTO"], ivfns, nf, theory["XIF"] ** 2)
+        pegasus.initevol(imodev, theory["PTO"], ivfns, nf, 1.0 / theory["XIF"] ** 2)
         pegasus.initinp(
             theory["alphas"],
             theory["Qref"] ** 2,

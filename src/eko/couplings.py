@@ -8,6 +8,7 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 """
 import logging
+import warnings
 from typing import List
 
 import numba as nb
@@ -610,9 +611,12 @@ class Couplings:
         is_downward = thresholds.is_downward_path(path)
         shift = thresholds.flavor_shift(is_downward)
 
-        # as a default assume mu_F^2 = mu_R^2
-        if fact_scale is None:
-            fact_scale = scale_to
+        # TODO remove in 0.13
+        if fact_scale is not None:
+            warnings.warn(
+                "The `fact_scale` argument is deprecated - use the ThresholdAtlas instead!",
+                DeprecationWarning,
+            )
         for k, seg in enumerate(path):
             # skip a very short segment, but keep the matching
             if not np.isclose(seg.q2_from, seg.q2_to):
@@ -623,9 +627,7 @@ class Couplings:
             # - if there is yet a step to go
             if k < len(path) - 1:
                 # q2_to is the threshold value
-                L = np.log(scale_to / fact_scale) + np.log(
-                    self.thresholds.thresholds_ratios[seg.nf - shift]
-                )
+                L = np.log(self.thresholds.thresholds_ratios[seg.nf - shift])
                 m_coeffs = (
                     compute_matching_coeffs_down(self.hqm_scheme, seg.nf - 1)
                     if is_downward

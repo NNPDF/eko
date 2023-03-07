@@ -318,18 +318,18 @@ class Operator(sv.ModeMixin):
         """Return the computed values for :math:`a_s`."""
         sc = self.managers["strong_coupling"]
         a0 = sc.a_s(
-            self.q2_from,
-            fact_scale=self.q2_from * self.xif2,
+            self.q2_from * self.xif2,
+            fact_scale=self.q2_from,
             nf_to=self.nf,
         )
         a1 = sc.a_s(
-            self.q2_to
-            * (
-                self.xif2
-                if not self.is_threshold and self.sv_mode == sv.Modes.expanded
-                else 1.0
-            ),
-            fact_scale=self.q2_to * self.xif2,
+            self.q2_to * self.xif2,
+            # * (
+            #     self.xif2
+            #     if not self.is_threshold and self.sv_mode == sv.Modes.expanded
+            #     else 1.0
+            # ),
+            fact_scale=self.q2_to,
             nf_to=self.nf,
         )
         return (a0, a1)
@@ -391,7 +391,7 @@ class Operator(sv.ModeMixin):
             as1=self.a_s[1],
             as0=self.a_s[0],
             nf=self.nf,
-            L=np.log(self.xif2),
+            L=-np.log(self.xif2),
             ev_op_iterations=self.config["ev_op_iterations"],
             ev_op_max_order=tuple(self.config["ev_op_max_order"]),
             sv_mode=self.sv_mode,
@@ -491,8 +491,8 @@ class Operator(sv.ModeMixin):
         logger.info(
             "%s: µ_R^2 distance: %e -> %e",
             self.log_label,
-            self.q2_from,
-            self.q2_to,
+            self.q2_from * self.xif2,
+            self.q2_to * self.xif2,
         )
         if self.sv_mode != sv.Modes.unvaried:
             logger.info(
