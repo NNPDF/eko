@@ -352,7 +352,7 @@ final reduced sets of candidates.
 
     Also in this case we assume no violation of the scaling with :math:`\gamma_{qq}`
     for the |NLL| term, which is extracted from using 10 moments :cite:`Falcioni:2023luc`
-    thus is known more precisely. We expect that any possible deviation can be parametrized as a shift in he |NNLL| terms.
+    thus is known more precisely. We expect that any possible deviation can be parametrized as a shift in the |NNLL| terms.
 
 Slightly different choices are performed for :math:`\gamma_{qq,ps}^{(3)}` where 10 moments
 are known. In this case we can select a larger number of functions in group 3
