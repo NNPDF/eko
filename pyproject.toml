@@ -104,7 +104,8 @@ genpdf = "ekobox.genpdf.cli:cli"
 eko = "ekobox.cli:command"
 
 [tool.poe.tasks]
-test = "pytest tests"
+test = "pytest"
+tests = "pytest tests"
 coverage = "$BROWSER htmlcov/index.html"
 test-cov = ["test", "coverage"]
 bench = ["bench-iso", "bench-run"]
