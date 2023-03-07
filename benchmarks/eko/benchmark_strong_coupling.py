@@ -41,8 +41,8 @@ def ref_couplings(
     ref_scale: float,
 ) -> types.CouplingsRef:
     return types.CouplingsRef(
-        alphas=types.FloatRef(value=ref_values[0], scale=ref_scale),
-        alphaem=types.FloatRef(value=ref_values[1], scale=nan),
+        alphas=types.ScalarRef([ref_values[0], ref_scale]),
+        alphaem=types.ScalarRef([ref_values[1], nan]),
         max_num_flavs=6,
         num_flavs_ref=None,
     )
