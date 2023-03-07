@@ -72,6 +72,7 @@ class ReferenceRunning(list, Generic[T]):
 
 
 FlavNumRef = ReferenceRunning[FlavorsNumber]
+ScalarRef = ReferenceRunning[float]
 LinearScaleRef = ReferenceRunning[LinearScale]
 
 
@@ -128,8 +129,8 @@ RawCard = Dict[str, Any]
 class CouplingsRef(DictLike):
     """Reference values for coupling constants."""
 
-    alphas: LinearScaleRef
-    alphaem: LinearScaleRef
+    alphas: ScalarRef
+    alphaem: ScalarRef
     max_num_flavs: FlavorsNumber
     num_flavs_ref: Optional[FlavorsNumber]
     r"""Number of active flavors at strong coupling reference scale.
