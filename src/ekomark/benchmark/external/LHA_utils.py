@@ -141,17 +141,17 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
     with open(here / yaml_file, encoding="utf-8") as o:
         data = yaml.safe_load(o)
     fns = theory["FNS"]
-    xif = (theory["XIF"]) ** 2
-    if order == 0 and xif != 1.0:
+    xif2 = (theory["XIF"]) ** 2
+    if order == 0 and xif2 != 1.0:
         raise ValueError("LO LHA tables with scale variations are not available")
     table = None
     part = None
     is_ffns_nnlo = False
 
     # Switching at the intermediate point.
-    if xif > np.sqrt(2):
+    if xif2 > np.sqrt(2):
         part = 2
-    elif xif < np.sqrt(1.0 / 2.0):
+    elif xif2 < np.sqrt(1.0 / 2.0):
         part = 3
     else:
         part = 1
