@@ -681,7 +681,15 @@ class Operator(sv.ModeMixin):
         return (self.a[0][1], self.a[1][1])
 
     def compute_aem_list(self):
-        """Return the list of the couplings for the different values of :math:`a_s`."""
+        """
+        Return the list of the couplings for the different values of :math:`a_s`.
+
+        This functions is needed in order to compute the values of :math:`a_s`
+        and :math:`a_em` in the middle point of the :math:`mu^2` interval, and
+        the values of :math:`a_s` at the borders of every intervals.
+        This is needed in the running_alphaem solution.
+
+        """
         ev_op_iterations = self.config["ev_op_iterations"]
         if self.order[1] == 0:
             self.as_list = np.array([self.a_s[0], self.a_s[1]])
