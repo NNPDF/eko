@@ -30,17 +30,6 @@ def test_zero(monkeypatch):
                 np.random.rand(qcd + 1, qed + 1, 2, 2)
                 + np.random.rand(qcd + 1, qed + 1, 2, 2) * 1j
             )
-            monkeypatch.setattr(
-                anomalous_dimensions,
-                "exp_matrix_2D",
-                lambda gamma_v: (
-                    gamma_v,
-                    1,
-                    1,
-                    np.array([[1, 0], [0, 0]]),
-                    np.array([[0, 0], [0, 1]]),
-                ),
-            )
             for method in methods:
                 np.testing.assert_allclose(
                     val.dispatcher(
@@ -53,7 +42,7 @@ def test_zero(monkeypatch):
                         ev_op_iterations,
                         ev_op_max_order,
                     ),
-                    np.zeros((2, 2)),
+                    np.identity(2),
                 )
                 np.testing.assert_allclose(
                     val.dispatcher(
@@ -66,7 +55,7 @@ def test_zero(monkeypatch):
                         ev_op_iterations,
                         ev_op_max_order,
                     ),
-                    np.zeros((2, 2)),
+                    np.identity(2),
                 )
 
 
@@ -82,17 +71,6 @@ def test_zero_true_gamma(monkeypatch):
             gamma_v = anomalous_dimensions.unpolarized.space_like.gamma_valence_qed(
                 order, n, nf
             )
-            monkeypatch.setattr(
-                anomalous_dimensions,
-                "exp_matrix_2D",
-                lambda gamma_v: (
-                    gamma_v,
-                    1,
-                    1,
-                    np.array([[1, 0], [0, 0]]),
-                    np.array([[0, 0], [0, 1]]),
-                ),
-            )
             for method in methods:
                 np.testing.assert_allclose(
                     val.dispatcher(
@@ -105,7 +83,7 @@ def test_zero_true_gamma(monkeypatch):
                         ev_op_iterations,
                         ev_op_max_order,
                     ),
-                    np.zeros((2, 2)),
+                    np.identity(2),
                 )
                 np.testing.assert_allclose(
                     val.dispatcher(
@@ -118,7 +96,7 @@ def test_zero_true_gamma(monkeypatch):
                         ev_op_iterations,
                         ev_op_max_order,
                     ),
-                    np.zeros((2, 2)),
+                    np.identity(2),
                 )
 
 
