@@ -104,4 +104,4 @@ class BenchmarkCT18(Runner):
 
 if __name__ == "__main__":
     b = BenchmarkCT18()
-    b.benchmark_nnlo_qed()
+    b.benchmark_nnlo()

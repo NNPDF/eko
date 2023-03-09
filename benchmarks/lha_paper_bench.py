@@ -1,6 +1,8 @@
 """
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
 """
+from math import nan
+
 import numpy as np
 from banana import register
 from banana.data import cartesian_product
@@ -27,6 +29,7 @@ base_theory = {
     "alphas": 0.35,  # Eq. (4.55) :cite:`Dittmar:2005ed`
     "alphaqed": 0.007496,
     "QED": 0,
+    "QrefQED": nan,
 }
 """Global theory settings"""
 
