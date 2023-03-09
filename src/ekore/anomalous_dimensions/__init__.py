@@ -83,6 +83,11 @@ def exp_matrix(gamma):
     """
     dim = gamma.shape[0]
     e = np.zeros((dim, dim, dim), np.complex_)
+    if dim == 2:
+        exp, lambda_p, lambda_m, e_p, e_m = exp_matrix_2D(gamma)
+        e[0] = e_p
+        e[1] = e_m
+        return exp, np.array([lambda_p, lambda_m]), e
     w, v = np.linalg.eig(gamma)
     v_inv = np.linalg.inv(v)
     exp = np.zeros((dim, dim), np.complex_)
