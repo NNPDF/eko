@@ -467,6 +467,6 @@ def compute(
         )
 
     # Check the msbar ordering
-    if not (masses == np.sort(masses)).all():
+    if not np.allclose(masses, np.sort(masses)):
         raise ValueError("MSbar masses are not to be sorted")
-    return masses
+    return np.sort(masses)

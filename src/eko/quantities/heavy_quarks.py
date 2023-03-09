@@ -32,7 +32,7 @@ class HeavyQuarks(list, Generic[T]):
     @property
     def b(self) -> T:
         """Bottom quark."""
-        return self[0]
+        return self[1]
 
     @b.setter
     def b(self, value: T):

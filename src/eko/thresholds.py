@@ -80,8 +80,9 @@ class ThresholdsAtlas:
             maximum number of active flavors
         """
         masses = list(masses)
-        if masses != sorted(masses):
+        if not np.allclose(masses, sorted(masses)):
             raise ValueError("masses need to be sorted")
+        masses = sorted(masses)
         # combine them
         thresholds = self.build_area_walls(masses, thresholds_ratios, max_nf)
         self.area_walls = [0] + thresholds + [np.inf]
