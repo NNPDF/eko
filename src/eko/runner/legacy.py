@@ -9,7 +9,7 @@ from .. import interpolation, msbar_masses
 from ..couplings import Couplings, couplings_mod_ev
 from ..evolution_operator.grid import OperatorGrid
 from ..io import EKO, Operator, runcards
-from ..io.types import QuarkMassSchemes, RawCard
+from ..io.types import QuarkMassSchemes, RawCard, ScaleVariationsMethod
 from ..thresholds import ThresholdsAtlas
 from . import commons
 
@@ -94,7 +94,13 @@ class Runner:
             method=couplings_mod_ev(new_operator.configs.evolution_method),
             masses=masses,
             hqm_scheme=new_theory.quark_masses_scheme,
-            thresholds_ratios=thresholds_ratios * new_theory.xif**2,
+            thresholds_ratios=thresholds_ratios
+            * (
+                new_theory.xif**2
+                if new_operator.configs.scvar_method
+                == ScaleVariationsMethod.EXPONENTIATED
+                else 1.0
+            ),
         )
         # setup operator grid
         self.op_grid = OperatorGrid(

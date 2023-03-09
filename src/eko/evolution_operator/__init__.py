@@ -314,22 +314,29 @@ class Operator(sv.ModeMixin):
         return self.int_disp.xgrid.size
 
     @property
+    def mu2(self):
+        """Return the arguments to the :math:`a_s` function."""
+        mu0 = self.q2_from * (
+            self.xif2 if self.sv_mode == sv.Modes.exponentiated else 1.0
+        )
+        mu1 = self.q2_to * (
+            self.xif2
+            if (not self.is_threshold and self.sv_mode == sv.Modes.expanded)
+            or self.sv_mode == sv.Modes.exponentiated
+            else 1.0
+        )
+        return (mu0, mu1)
+
+    @property
     def a_s(self):
         """Return the computed values for :math:`a_s`."""
         sc = self.managers["strong_coupling"]
         a0 = sc.a_s(
-            self.q2_from * self.xif2,
-            fact_scale=self.q2_from,
+            self.mu2[0],
             nf_to=self.nf,
         )
         a1 = sc.a_s(
-            self.q2_to * self.xif2,
-            # * (
-            #     self.xif2
-            #     if not self.is_threshold and self.sv_mode == sv.Modes.expanded
-            #     else 1.0
-            # ),
-            fact_scale=self.q2_to,
+            self.mu2[1],
             nf_to=self.nf,
         )
         return (a0, a1)
@@ -491,8 +498,8 @@ class Operator(sv.ModeMixin):
         logger.info(
             "%s: µ_R^2 distance: %e -> %e",
             self.log_label,
-            self.q2_from * self.xif2,
-            self.q2_to * self.xif2,
+            self.mu2[0],
+            self.mu2[1],
         )
         if self.sv_mode != sv.Modes.unvaried:
             logger.info(

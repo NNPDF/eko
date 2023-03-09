@@ -12,6 +12,7 @@ import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
 from ekore import harmonics
 
 from .. import basis_rotation as br
+from .. import scale_variations as sv
 from . import Operator, QuadKerBase
 
 logger = logging.getLogger(__name__)
@@ -322,7 +323,11 @@ class OperatorMatrixElement(Operator):
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
         sc = self.managers["strong_coupling"]
-        return sc.a_s(self.q2_from * self.xif2, self.q2_from, nf_to=self.nf + 1)
+        return sc.a_s(
+            self.q2_from
+            * (self.xif2 if self.sv_mode == sv.Modes.exponentiated else 1.0),
+            nf_to=self.nf + 1,
+        )
 
     def compute(self):
         """Compute the actual operators (i.e. run the integrations)."""
