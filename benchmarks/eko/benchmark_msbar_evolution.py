@@ -23,9 +23,9 @@ def update_theory(theory: TheoryCard):
     theory.couplings.alphaem.value = 0.007496
     theory.couplings.num_flavs_ref = 5
     theory.quark_masses_scheme = QuarkMassScheme.MSBAR
-    theory.quark_masses.c = QuarkMassRef(value=1.5, scale=18)
-    theory.quark_masses.b = QuarkMassRef(value=4.1, scale=20)
-    theory.quark_masses.t = QuarkMassRef(value=175.0, scale=175.0)
+    theory.quark_masses.c = QuarkMassRef([1.5, 18])
+    theory.quark_masses.b = QuarkMassRef([4.1, 20])
+    theory.quark_masses.t = QuarkMassRef([175.0, 175.0])
 
 
 @pytest.mark.isolated
@@ -35,8 +35,8 @@ class BenchmarkMSbar:
     ):
         update_theory(theory_card)
         bench_values = dict(zip(np.power([1, 96, 150], 2), [3, 5, 5]))
-        theory_card.quark_masses.c = QuarkMassRef(value=1.4, scale=2.0)
-        theory_card.quark_masses.b = QuarkMassRef(value=4.5, scale=4.5)
+        theory_card.quark_masses.c = QuarkMassRef([1.4, 2.0])
+        theory_card.quark_masses.b = QuarkMassRef([4.5, 4.5])
         coupl = theory_card.couplings
         qmasses = theory_card.quark_masses
 
