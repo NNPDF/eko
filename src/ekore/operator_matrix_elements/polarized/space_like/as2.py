@@ -9,8 +9,23 @@ from eko import constants
 
 from ....harmonics.constants import zeta2, zeta3
 from ....harmonics.polygamma import cern_polygamma
+from....anomalous_dimensions.unpolarized.space_like.as1 import gamma_ns as gamma0_qq 
+from....anomalous_dimensions.polarized.space_like.as1 import gamma_gq as gamma0_gq
+from....anomalous_dimensions.polarized.space_like.as1 import gamma_qg as  gamma0_qg
+from....anomalous_dimensions.polarized.space_like.as1 import gamma_gg as  gamma0_gg
+
+Beta_0Q = -4 / 3 * constants.TR
+
+@nb.njit(cache=True)
+def Beta_0(nf):
+    return(11 / 3 * constants.CA - 4 / 3 * nf * constants.TR)
+
+@nb.njit(cache=True)
+def gamma0_qghat(n, nf):
+    return(2* gamma0_qg(n,nf)/nf)
 
 
+print(gamma0_qghat(1,3))
 @nb.njit(cache=True)
 def A_qq_ns(n, sx, L):
     r"""
@@ -35,9 +50,6 @@ def A_qq_ns(n, sx, L):
     S2 = sx[1][0]
     S3 = sx[2][0]
 
-    gamma0_qq = (
-        -2 * constants.CF * (3 - 4 * S1 + 2 / (n * (n + 1)))
-    )  # relative to the paper theres a factor -1 (anomalous = -splitting)
     gamma1_qqNS = (
         -constants.CF
         * constants.TR
@@ -49,7 +61,6 @@ def A_qq_ns(n, sx, L):
             / (3 * n**2 * (n + 1) ** 2)
         )
     )  # relative to the paper theres a factor -1
-    beta_0Q = -4 / 3 * constants.TR
     aqqns = (
         constants.TR
         * constants.CF
@@ -72,9 +83,9 @@ def A_qq_ns(n, sx, L):
         )
     )
 
-    a_qq_l0 = aqqns - (1 / 4) * beta_0Q * gamma0_qq * zeta2
+    a_qq_l0 = aqqns - (1 / 4) * Beta_0Q * gamma0_qq(n,S1) * zeta2
     a_qq_l1 = (1 / 2) * gamma1_qqNS
-    a_qq_l2 = (1 / 4) * beta_0Q * gamma0_qq
+    a_qq_l2 = (1 / 4) * Beta_0Q * 2* gamma0_qq(n,S1)
     return a_qq_l2 * L**2 + a_qq_l1 * (-L) + a_qq_l0
 
 
@@ -115,15 +126,13 @@ def A_hq_ps(n, sx, L, nf):
         * ((8 * (2 + n) * (n**2 - n - 1)) / (n**3 * (n + 1) ** 3))
     )  # term that differentiates between M scheme and Larin scheme, we are computing in M scheme hence the addition of this term
 
-    gamma0_qghat = -(8 * constants.TR * (-1 + n)) / (n * (1 + n))
-    gamma0_gq = -(2 * constants.CF * (2 * (n + 2) / (n * (n + 1))))
     gamma1_ps_qqhat = (
         16 * constants.CF * (2 + n) * (1 + 2 * n + n**3) * constants.TR
     ) / (n**3 * ((1 + n) ** 3))
 
-    a_hq_l0 = a_hq_ps_l + z_qq_ps + (zeta2 / 8) * (gamma0_qghat) * (gamma0_gq)
+    a_hq_l0 = a_hq_ps_l + z_qq_ps + (zeta2 / 8) * (gamma0_qghat(n,nf)) * (2*gamma0_gq(n))
     a_hq_l1 = (1 / 2) * gamma1_ps_qqhat
-    a_hq_l2 = -(1 / 8) * (gamma0_qghat) * (gamma0_gq)
+    a_hq_l2 = -(1 / 8) * (gamma0_qghat(n,nf)) * (2*gamma0_gq(n))
     return a_hq_l2 * L**2 + a_hq_l1 * (-L) + a_hq_l0
 
 
@@ -233,16 +242,6 @@ def A_hg(n, sx, L, nf):
         )
         / (n**4 * (n + 1) * (n + 2))
     )
-    gamma0_qg = -(8 * constants.TR * (-1 + n)) / (
-        n * (1 + n)
-    )  # relative to the paper theres a factor -1
-    gamma0_qq = (
-        -2 * constants.CF * (3 - 4 * S1 + 2 / (n * (n + 1)))
-    )  # relative to the paper theres a factor -1
-    gamma0_gg = -2 * (
-        constants.CA * (11 / 3 - 4 * S1 + 8 / (n * (n + 1)))
-        - constants.TR * nf * (4 / 3)
-    )  # relative to the paper theres a factor -1
     gamma1_qg_hat = -constants.CF * constants.TR * (
         (8 * (n - 1) * (2 - n + 10 * n**3 + 5 * n**4)) / ((n**3) * (1 + n) ** 3)
         - (32 * (-1 + n) * S1) / (n**2 * (1 + n))
@@ -254,12 +253,10 @@ def A_hg(n, sx, L, nf):
         - (16 * (-1 + n) * (2 * Sm2 + S1**2 + S2)) / (n * (1 + n))
     )  # relative to the paper theres a factor -1
 
-    beta_0 = 11 / 3 * constants.CA - 4 / 3 * nf * constants.TR
-    beta_0Q = -4 / 3 * constants.TR
 
-    a_hg_l0 = a_hg + (1 / 8) * gamma0_qg * (gamma0_gg - gamma0_qq + 2 * beta_0)
+    a_hg_l0 = a_hg + (1 / 8) * 2*gamma0_qg(n, nf) * (2*gamma0_gg(n,S1,nf) - 2*gamma0_qq(n,S1) + 2 * Beta_0(nf))
     a_hg_l1 = gamma1_qg_hat * (1 / 2)
-    a_hg_l2 = (1 / 8) * (gamma0_qq - gamma0_gg - 2 * beta_0 - 4 * beta_0Q)
+    a_hg_l2 = (1 / 8) * (2*gamma0_qq(n,S1) - 2*gamma0_gg(n,S1,nf) - 2 * Beta_0(nf) - 4 * Beta_0Q)
 
     return a_hg_l2 * L**2 + a_hg_l1 * (-L) + a_hg_l0
 
@@ -287,8 +284,6 @@ def A_gq(n, sx, L):
     S1 = sx[0][0]
     S2 = sx[1][0]
 
-    beta_0Q = -4 / 3 * constants.TR
-
     gamma1_gq_hat = -2 * (
         16
         * constants.CF
@@ -298,7 +293,6 @@ def A_gq(n, sx, L):
         )
         * constants.TR
     )
-    gamma0_gq = -2 * constants.CF * (2 * (n + 2) / (n * (n + 1)))  # -1 factor
 
     a_gq_l0 = (
         constants.CF
@@ -313,7 +307,7 @@ def A_gq(n, sx, L):
         )
     )
     a_gq_l1 = -(1 / 2) * gamma1_gq_hat
-    a_gq_l2 = -(beta_0Q / 2) * (gamma0_gq)
+    a_gq_l2 = -(Beta_0Q / 2) * (2*gamma0_gq(n))
 
     return a_gq_l2 * L**2 + a_gq_l1 * (-L) + a_gq_l0
 
@@ -339,15 +333,6 @@ def A_gg(n, sx, L, nf):
             |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
     """
     S1 = sx[0][0]
-    beta_0Q = -4 / 3 * constants.TR
-    beta_0 = 11 / 3 * constants.CA - 4 / 3 * nf * constants.TR
-
-    gamma0_gg = -2 * (
-        constants.CA * (11 / 3 - 4 * S1 + 8 / (n * (n + 1)))
-        - constants.TR * nf * (4 / 3)
-    )
-    gamma0_gq = -2 * constants.CF * (2 * (n + 2) / (n * (n + 1)))
-    gamma0_qg_hat = -8 * constants.TR * ((-1 + n) / (n * (1 + n)))
     gamma1_gg_hat = 8 * constants.TR(
         -(
             (
@@ -392,9 +377,9 @@ def A_gg(n, sx, L, nf):
     a_gg_l0 = constants.TR * (constants.CF * a_gg_f + constants.CA * a_gg_a)
     a_gg_l1 = (1 / 2) * gamma1_gg_hat
     a_gg_l2 = (1 / 8) * (
-        2 * beta_0Q * (-gamma0_gg + 2 * beta_0)
-        + gamma0_gq * gamma0_qg_hat
-        + 8 * (beta_0Q) ** 2
+        2 * Beta_0Q * (-2* gamma0_gg(n,S1,nf) + 2 * Beta_0(nf))
+        + 2*gamma0_gq(n) * gamma0_qghat(n,nf)
+        + 8 * Beta_0Q ** 2
     )
 
     return a_gg_l2 * L**2 + a_gg_l1 * (-L) + a_gg_l0

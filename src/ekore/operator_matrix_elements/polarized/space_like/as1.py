@@ -9,6 +9,7 @@ import numba as nb
 import numpy as np
 
 from eko.constants import TR
+from ...unpolarized.space_like.as1 import A_gg
 
 
 @nb.njit(cache=True)
@@ -53,24 +54,6 @@ def A_hg(
     """
     DPqg0hat = (8 * TR * (n - 1)) / (n * (1 + n))
     return 1 / 2 * DPqg0hat * L
-
-
-@nb.njit(cache=True)
-def A_gg(L):  # method 1
-    r"""
-    |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}` given in Eq. (186) of :cite:`Bierenbaum_2023`.
-
-    Parameters
-    ----------
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
-
-    Returns
-    -------
-        A_gg : complex
-            |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`
-    """
-    return -4.0 / 3.0 * L * TR
 
 
 @nb.njit(cache=True)
