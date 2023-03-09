@@ -21,7 +21,11 @@ from .. import basis_rotation as br
 from .. import interpolation, mellin
 from .. import scale_variations as sv
 from ..kernels import non_singlet as ns
+from ..kernels import non_singlet_qed as qed_ns
 from ..kernels import singlet as s
+from ..kernels import singlet_qed as qed_s
+from ..kernels import utils
+from ..kernels import valence_qed as qed_v
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)
@@ -50,8 +54,69 @@ def select_singlet_element(ker, mode0, mode1):
     return ker[k, l]
 
 
+@nb.njit(cache=True)
+def select_QEDsinglet_element(ker, mode0, mode1):
+    """Select element of the QEDsinglet matrix.
+
+    Parameters
+    ----------
+    ker : numpy.ndarray
+        QEDsinglet integration kernel
+    mode0 : int
+        id for first sector element
+    mode1 : int
+        id for second sector element
+    Returns
+    -------
+    ker : complex
+        QEDsinglet integration kernel element
+    """
+    if mode0 == 21:
+        index1 = 0
+    elif mode0 == 22:
+        index1 = 1
+    elif mode0 == 100:
+        index1 = 2
+    else:
+        index1 = 3
+    if mode1 == 21:
+        index2 = 0
+    elif mode1 == 22:
+        index2 = 1
+    elif mode1 == 100:
+        index2 = 2
+    else:
+        index2 = 3
+    return ker[index1, index2]
+
+
+@nb.njit(cache=True)
+def select_QEDvalence_element(ker, mode0, mode1):
+    """
+    Select element of the QEDvalence matrix.
+
+    Parameters
+    ----------
+    ker : numpy.ndarray
+        QEDvalence integration kernel
+    mode0 : int
+        id for first sector element
+    mode1 : int
+        id for second sector element
+    Returns
+    -------
+    ker : complex
+        QEDvalence integration kernel element
+    """
+    index1 = 0 if mode0 == 10200 else 1
+    index2 = 0 if mode1 == 10200 else 1
+    return ker[index1, index2]
+
+
 spec = [
     ("is_singlet", nb.boolean),
+    ("is_QEDsinglet", nb.boolean),
+    ("is_QEDvalence", nb.boolean),
     ("is_log", nb.boolean),
     ("logx", nb.float64),
     ("u", nb.float64),
@@ -76,6 +141,8 @@ class QuadKerBase:
 
     def __init__(self, u, is_log, logx, mode0):
         self.is_singlet = mode0 in [100, 21, 90]
+        self.is_QEDsinglet = mode0 in [21, 22, 100, 101, 90]
+        self.is_QEDvalence = mode0 in [10200, 10204]
         self.is_log = is_log
         self.u = u
         self.logx = logx
@@ -83,7 +150,10 @@ class QuadKerBase:
     @property
     def path(self):
         """Return the associated instance of :class:`eko.mellin.Path`."""
-        return mellin.Path(self.u, self.logx, self.is_singlet)
+        if self.is_singlet or self.is_QEDsinglet:
+            return mellin.Path(self.u, self.logx, True)
+        else:
+            return mellin.Path(self.u, self.logx, False)
 
     @property
     def n(self):
@@ -124,8 +194,11 @@ def quad_ker(
     is_log,
     logx,
     areas,
-    as1,
-    as0,
+    as_list,
+    mu2_from,
+    mu2_to,
+    a_half,
+    alphaem_running,
     nf,
     L,
     ev_op_iterations,
@@ -159,6 +232,14 @@ def quad_ker(
         target coupling value
     as0 : float
         initial coupling value
+    mu2_from : float
+        initial value of mu2
+    mu2_from : float
+        final value of mu2
+    aem_list : list
+        list of electromagnetic coupling values
+    alphaem_running : bool
+        whether alphaem is running or not
     nf : int
         number of active flavors
     L : float
@@ -185,8 +266,103 @@ def quad_ker(
     integrand = ker_base.integrand(areas)
     if integrand == 0.0:
         return 0.0
+    if order[1] == 0:
+        ker = quad_ker_qcd(
+            ker_base,
+            order,
+            mode0,
+            mode1,
+            method,
+            as_list[-1],
+            as_list[0],
+            nf,
+            L,
+            ev_op_iterations,
+            ev_op_max_order,
+            sv_mode,
+            is_threshold,
+            is_polarized,
+            is_time_like,
+        )
+    else:
+        ker = quad_ker_qed(
+            ker_base,
+            order,
+            mode0,
+            mode1,
+            method,
+            as_list,
+            mu2_from,
+            mu2_to,
+            a_half,
+            alphaem_running,
+            nf,
+            L,
+            ev_op_iterations,
+            ev_op_max_order,
+            sv_mode,
+            is_threshold,
+        )
 
-    # compute the actual evolution kernel
+    # recombine everything
+    return np.real(ker * integrand)
+
+
+@nb.njit(cache=True)
+def quad_ker_qcd(
+    ker_base,
+    order,
+    mode0,
+    mode1,
+    method,
+    as1,
+    as0,
+    nf,
+    L,
+    ev_op_iterations,
+    ev_op_max_order,
+    sv_mode,
+    is_threshold,
+    is_polarized,
+    is_time_like,
+):
+    """Raw evolution kernel inside quad.
+
+    Parameters
+    ----------
+    quad_ker : float
+        quad argument
+    order : int
+        perturbation order
+    mode0: int
+        pid for first sector element
+    mode1 : int
+        pid for second sector element
+    method : str
+        method
+    as1 : float
+        target coupling value
+    as0 : float
+        initial coupling value
+    nf : int
+        number of active flavors
+    L : float
+        logarithm of the squared ratio of factorization and renormalization scale
+    ev_op_iterations : int
+        number of evolution steps
+    ev_op_max_order : int
+        perturbative expansion order of U
+    sv_mode: int, `enum.IntEnum`
+        scale variation mode, see `eko.scale_variations.Modes`
+    is_threshold : boolean
+        is this an itermediate threshold operator?
+
+    Returns
+    -------
+    float
+        evaluated integration kernel
+    """
+    # compute the actual evolution kernel for pure QCD
     if ker_base.is_singlet:
         if is_polarized:
             if is_time_like:
@@ -216,7 +392,7 @@ def quad_ker(
         # scale var expanded is applied on the kernel
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = np.ascontiguousarray(
-                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L)
+                sv.expanded.singlet_variation(gamma_singlet, as1, order, nf, L, dim=2)
             ) @ np.ascontiguousarray(ker)
         ker = select_singlet_element(ker, mode0, mode1)
     else:
@@ -243,9 +419,153 @@ def quad_ker(
         )
         if sv_mode == sv.Modes.expanded and not is_threshold:
             ker = sv.expanded.non_singlet_variation(gamma_ns, as1, order, nf, L) * ker
+    return ker
 
-    # recombine everything
-    return np.real(ker * integrand)
+
+@nb.njit(cache=True)
+def quad_ker_qed(
+    ker_base,
+    order,
+    mode0,
+    mode1,
+    method,
+    as_list,
+    mu2_from,
+    mu2_to,
+    a_half,
+    alphaem_running,
+    nf,
+    L,
+    ev_op_iterations,
+    ev_op_max_order,
+    sv_mode,
+    is_threshold,
+):
+    """Raw evolution kernel inside quad.
+
+    Parameters
+    ----------
+    ker_base : QuadKerBase
+        quad argument
+    order : int
+        perturbation order
+    mode0: int
+        pid for first sector element
+    mode1 : int
+        pid for second sector element
+    method : str
+        method
+    as1 : float
+        target coupling value
+    as0 : float
+        initial coupling value
+    mu2_from : float
+        initial value of mu2
+    mu2_from : float
+        final value of mu2
+    aem_list : list
+        list of electromagnetic coupling values
+    alphaem_running : bool
+        whether alphaem is running or not
+    nf : int
+        number of active flavors
+    L : float
+        logarithm of the squared ratio of factorization and renormalization scale
+    ev_op_iterations : int
+        number of evolution steps
+    ev_op_max_order : int
+        perturbative expansion order of U
+    sv_mode: int, `enum.IntEnum`
+        scale variation mode, see `eko.scale_variations.Modes`
+    is_threshold : boolean
+        is this an itermediate threshold operator?
+
+    Returns
+    -------
+    float
+        evaluated integration kernel
+    """
+    # compute the actual evolution kernel for QEDxQCD
+    if ker_base.is_QEDsinglet:
+        gamma_s = ad_us.gamma_singlet_qed(order, ker_base.n, nf)
+        # scale var exponentiated is directly applied on gamma
+        if sv_mode == sv.Modes.exponentiated:
+            gamma_s = sv.exponentiated.gamma_variation_qed(
+                gamma_s, order, nf, L, alphaem_running
+            )
+        ker = qed_s.dispatcher(
+            order,
+            method,
+            gamma_s,
+            as_list,
+            a_half,
+            nf,
+            ev_op_iterations,
+            ev_op_max_order,
+        )
+        # scale var expanded is applied on the kernel
+        # TODO : in this way a_half[-1][1] is the aem value computed in
+        # the middle point of the last step. Instead we want aem computed in mu2_final.
+        # However the distance between the two is very small and affects only the running aem
+        if sv_mode == sv.Modes.expanded and not is_threshold:
+            ker = np.ascontiguousarray(
+                sv.expanded.singlet_variation_qed(
+                    gamma_s, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
+                )
+            ) @ np.ascontiguousarray(ker)
+        ker = select_QEDsinglet_element(ker, mode0, mode1)
+    elif ker_base.is_QEDvalence:
+        gamma_v = ad_us.gamma_valence_qed(order, ker_base.n, nf)
+        # scale var exponentiated is directly applied on gamma
+        if sv_mode == sv.Modes.exponentiated:
+            gamma_v = sv.exponentiated.gamma_variation_qed(
+                gamma_v, order, nf, L, alphaem_running
+            )
+        ker = qed_v.dispatcher(
+            order,
+            method,
+            gamma_v,
+            as_list,
+            a_half,
+            nf,
+            ev_op_iterations,
+            ev_op_max_order,
+        )
+        # scale var expanded is applied on the kernel
+        if sv_mode == sv.Modes.expanded and not is_threshold:
+            ker = np.ascontiguousarray(
+                sv.expanded.valence_variation_qed(
+                    gamma_v, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
+                )
+            ) @ np.ascontiguousarray(ker)
+        ker = select_QEDvalence_element(ker, mode0, mode1)
+    else:
+        gamma_ns = ad_us.gamma_ns_qed(order, mode0, ker_base.n, nf)
+        # scale var exponentiated is directly applied on gamma
+        if sv_mode == sv.Modes.exponentiated:
+            gamma_ns = sv.exponentiated.gamma_variation_qed(
+                gamma_ns, order, nf, L, alphaem_running
+            )
+        ker = qed_ns.dispatcher(
+            order,
+            method,
+            gamma_ns,
+            as_list,
+            a_half[:, 1],
+            alphaem_running,
+            nf,
+            ev_op_iterations,
+            mu2_from,
+            mu2_to,
+        )
+        if sv_mode == sv.Modes.expanded and not is_threshold:
+            ker = (
+                sv.expanded.non_singlet_variation_qed(
+                    gamma_ns, as_list[-1], a_half[-1][1], alphaem_running, order, nf, L
+                )
+                * ker
+            )
+    return ker
 
 
 class Operator(sv.ModeMixin):
@@ -274,6 +594,7 @@ class Operator(sv.ModeMixin):
     log_label = "Evolution"
     # complete list of possible evolution operators labels
     full_labels = br.full_labels
+    full_labels_qed = br.full_unified_labels
 
     def __init__(
         self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2, is_threshold=False
@@ -288,6 +609,10 @@ class Operator(sv.ModeMixin):
         self.is_threshold = is_threshold
         self.op_members = {}
         self.order = tuple(config["order"])
+        self.alphaem_running = self.managers["couplings"].alphaem_running
+        if self.log_label == "Evolution":
+            self.a = self.compute_a()
+            self.compute_aem_list()
 
     @property
     def n_pools(self):
@@ -327,19 +652,79 @@ class Operator(sv.ModeMixin):
         )
         return (mu0, mu1)
 
-    @property
-    def a_s(self):
-        """Return the computed values for :math:`a_s`."""
-        sc = self.managers["strong_coupling"]
-        a0 = sc.a_s(
+    def compute_a(self):
+        """Return the computed values for :math:`a_s` and :math:`a_{em}`."""
+        coupling = self.managers["couplings"]
+        a0 = coupling.a(
             self.mu2[0],
             nf_to=self.nf,
         )
-        a1 = sc.a_s(
+        a1 = coupling.a(
             self.mu2[1],
             nf_to=self.nf,
         )
         return (a0, a1)
+
+    @property
+    def a_s(self):
+        """Return the computed values for :math:`a_s`."""
+        return (self.a[0][0], self.a[1][0])
+
+    @property
+    def a_em(self):
+        """Return the computed values for :math:`a_{em}`."""
+        return (self.a[0][1], self.a[1][1])
+
+    def compute_aem_list(self):
+        """
+        Return the list of the couplings for the different values of :math:`a_s`.
+
+        This functions is needed in order to compute the values of :math:`a_s`
+        and :math:`a_em` in the middle point of the :math:`mu^2` interval, and
+        the values of :math:`a_s` at the borders of every intervals.
+        This is needed in the running_alphaem solution.
+
+        """
+        ev_op_iterations = self.config["ev_op_iterations"]
+        if self.order[1] == 0:
+            self.as_list = np.array([self.a_s[0], self.a_s[1]])
+            self.a_half_list = np.zeros((ev_op_iterations, 2))
+        else:
+            as0 = self.a_s[0]
+            as1 = self.a_s[1]
+            aem0 = self.a_em[0]
+            aem1 = self.a_em[1]
+            q2ref = self.managers["couplings"].q2_ref
+            delta_from = abs(self.q2_from - q2ref)
+            delta_to = abs(self.q2_to - q2ref)
+            # I compute the values in aem_list starting from the mu2
+            # that is closer to mu_ref.
+            if delta_from > delta_to:
+                a_start = np.array([as1, aem1])
+                mu2_start = self.q2_to
+            else:
+                a_start = np.array([as0, aem0])
+                mu2_start = self.q2_from
+            couplings = self.managers["couplings"]
+            mu2_steps = utils.geomspace(self.q2_from, self.q2_to, 1 + ev_op_iterations)
+            mu2_l = mu2_steps[0]
+            self.as_list = np.array(
+                [
+                    couplings.compute(
+                        a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2
+                    )[0]
+                    for mu2 in mu2_steps
+                ]
+            )
+            a_half = np.zeros((ev_op_iterations, 2))
+            for step, mu2_h in enumerate(mu2_steps[1:]):
+                mu2_half = (mu2_h + mu2_l) / 2.0
+                a_s, aem = couplings.compute(
+                    a_ref=a_start, nf=self.nf, scale_from=mu2_start, scale_to=mu2_half
+                )
+                a_half[step] = [a_s, aem]
+                mu2_l = mu2_h
+            self.a_half_list = a_half
 
     @property
     def labels(self):
@@ -352,20 +737,37 @@ class Operator(sv.ModeMixin):
         """
         labels = []
         # the NS sector is dynamic
-        if self.config["debug_skip_non_singlet"]:
-            logger.warning("%s: skipping non-singlet sector", self.log_label)
+        if self.order[1] == 0:
+            if self.config["debug_skip_non_singlet"]:
+                logger.warning("%s: skipping non-singlet sector", self.log_label)
+            else:
+                # add + as default
+                labels.append(br.non_singlet_labels[1])
+                if self.order[0] >= 2:  # - becomes different starting from NLO
+                    labels.append(br.non_singlet_labels[0])
+                if self.order[0] >= 3:  # v also becomes different starting from NNLO
+                    labels.append(br.non_singlet_labels[2])
+            # singlet sector is fixed
+            if self.config["debug_skip_singlet"]:
+                logger.warning("%s: skipping singlet sector", self.log_label)
+            else:
+                labels.extend(br.singlet_labels)
         else:
-            # add + as default
-            labels.append(br.non_singlet_labels[1])
-            if self.order[0] >= 2:  # - becomes different starting from NLO
-                labels.append(br.non_singlet_labels[0])
-            if self.order[0] >= 3:  # v also becomes different starting from NNLO
-                labels.append(br.non_singlet_labels[2])
-        # singlet sector is fixed
-        if self.config["debug_skip_singlet"]:
-            logger.warning("%s: skipping singlet sector", self.log_label)
-        else:
-            labels.extend(br.singlet_labels)
+            if self.config["debug_skip_non_singlet"]:
+                logger.warning("%s: skipping non-singlet sector", self.log_label)
+            else:
+                # add +u and +d as default
+                labels.append(br.non_singlet_unified_labels[0])
+                labels.append(br.non_singlet_unified_labels[2])
+                # -u and -d become different starting from O(as1aem1) or O(aem2)
+                if self.order[1] >= 2 or self.order[0] >= 1:
+                    labels.append(br.non_singlet_unified_labels[1])
+                    labels.append(br.non_singlet_unified_labels[3])
+                labels.extend(br.valence_unified_labels)
+            if self.config["debug_skip_singlet"]:
+                logger.warning("%s: skipping singlet sector", self.log_label)
+            else:
+                labels.extend(br.singlet_unified_labels)
         return labels
 
     def quad_ker(self, label, logx, areas):
@@ -395,8 +797,11 @@ class Operator(sv.ModeMixin):
             is_log=self.int_disp.log,
             logx=logx,
             areas=areas,
-            as1=self.a_s[1],
-            as0=self.a_s[0],
+            as_list=self.as_list,
+            mu2_from=self.q2_from,
+            mu2_to=self.q2_to,
+            a_half=self.a_half_list,
+            alphaem_running=self.alphaem_running,
             nf=self.nf,
             L=-np.log(self.xif2),
             ev_op_iterations=self.config["ev_op_iterations"],
@@ -413,10 +818,16 @@ class Operator(sv.ModeMixin):
             np.eye(self.grid_size), np.zeros((self.grid_size, self.grid_size))
         )
         zero = OpMember(*[np.zeros((self.grid_size, self.grid_size))] * 2)
-        for n in self.full_labels:
+        if self.order[1] == 0:
+            full_labels = self.full_labels
+            non_singlet_labels = br.non_singlet_labels
+        else:
+            full_labels = self.full_labels_qed
+            non_singlet_labels = br.non_singlet_unified_labels
+        for n in full_labels:
             if n in self.labels:
                 # non-singlet evolution and diagonal op are identities
-                if n in br.non_singlet_labels or n[0] == n[1]:
+                if n in non_singlet_labels or n[0] == n[1]:
                     self.op_members[n] = eye.copy()
                 else:
                     self.op_members[n] = zero.copy()
@@ -450,7 +861,9 @@ class Operator(sv.ModeMixin):
             # iterate sectors
             for label in self.labels:
                 res = integrate.quad(
-                    self.quad_ker(label, logx, bf.areas_representation),
+                    self.quad_ker(
+                        label=label, logx=logx, areas=bf.areas_representation
+                    ),
                     0.5,
                     1.0 - self._mellin_cut,
                     epsabs=1e-12,
@@ -510,6 +923,13 @@ class Operator(sv.ModeMixin):
         logger.info(
             "%s: a_s distance: %e -> %e", self.log_label, self.a_s[0], self.a_s[1]
         )
+        if self.order[1] > 0:
+            logger.info(
+                "%s: a_em distance: %e -> %e",
+                self.log_label,
+                self.a_em[0],
+                self.a_em[1],
+            )
         logger.info(
             "%s: order: (%d, %d), solution strategy: %s",
             self.log_label,
@@ -553,22 +973,44 @@ class Operator(sv.ModeMixin):
 
     def copy_ns_ops(self):
         """Copy non-singlet kernels, if necessary."""
-        if self.order[0] == 1:  # in LO +=-=v
-            for label in ["nsV", "ns-"]:
+        if self.order[1] == 0:
+            if self.order[0] == 1:  # in LO +=-=v
+                for label in ["nsV", "ns-"]:
+                    self.op_members[
+                        (br.non_singlet_pids_map[label], 0)
+                    ].value = self.op_members[
+                        (br.non_singlet_pids_map["ns+"], 0)
+                    ].value.copy()
+                    self.op_members[
+                        (br.non_singlet_pids_map[label], 0)
+                    ].error = self.op_members[
+                        (br.non_singlet_pids_map["ns+"], 0)
+                    ].error.copy()
+            elif self.order[0] == 2:  # in NLO -=v
                 self.op_members[
-                    (br.non_singlet_pids_map[label], 0)
+                    (br.non_singlet_pids_map["nsV"], 0)
                 ].value = self.op_members[
-                    (br.non_singlet_pids_map["ns+"], 0)
+                    (br.non_singlet_pids_map["ns-"], 0)
                 ].value.copy()
                 self.op_members[
-                    (br.non_singlet_pids_map[label], 0)
+                    (br.non_singlet_pids_map["nsV"], 0)
                 ].error = self.op_members[
-                    (br.non_singlet_pids_map["ns+"], 0)
+                    (br.non_singlet_pids_map["ns-"], 0)
                 ].error.copy()
-        elif self.order[0] == 2:  # in NLO -=v
-            self.op_members[
-                (br.non_singlet_pids_map["nsV"], 0)
-            ].value = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].value.copy()
-            self.op_members[
-                (br.non_singlet_pids_map["nsV"], 0)
-            ].error = self.op_members[(br.non_singlet_pids_map["ns-"], 0)].error.copy()
+        # at O(as0aem1) u-=u+, d-=d+
+        # starting from O(as1aem1) P+ != P-
+        # However the solution with pure QED is not implemented in EKO
+        # so the ns anomalous dimensions are always different
+        # elif self.order[1] == 1 and self.order[0] == 0:
+        #     self.op_members[
+        #         (br.non_singlet_pids_map["ns-u"], 0)
+        #     ].value = self.op_members[(br.non_singlet_pids_map["ns+u"], 0)].value.copy()
+        #     self.op_members[
+        #         (br.non_singlet_pids_map["ns-u"], 0)
+        #     ].error = self.op_members[(br.non_singlet_pids_map["ns+u"], 0)].error.copy()
+        #     self.op_members[
+        #         (br.non_singlet_pids_map["ns-d"], 0)
+        #     ].value = self.op_members[(br.non_singlet_pids_map["ns+d"], 0)].value.copy()
+        #     self.op_members[
+        #         (br.non_singlet_pids_map["ns-d"], 0)
+        #     ].error = self.op_members[(br.non_singlet_pids_map["ns+d"], 0)].error.copy()

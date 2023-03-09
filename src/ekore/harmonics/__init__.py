@@ -5,6 +5,7 @@ Definitions are coming from :cite:`MuselliPhD,Bl_mlein_2000,Blumlein:2009ta`.
 import numba as nb
 import numpy as np
 
+from . import g_functions, polygamma
 from .w1 import S1, Sm1
 from .w2 import S2, Sm2
 from .w3 import S3, S21, S2m1, Sm2m1, Sm3, Sm21
@@ -217,3 +218,50 @@ def compute_cache(n, max_weight, is_singlet):
         sx[3, 1:-1] = s4x(n, sx[:, 0], sx[:, -1], is_singlet)
     # return list of list keeping the non zero values
     return [[el for el in sx_list if el != 0] for sx_list in sx]
+
+
+@nb.njit(cache=True)
+def compute_qed_ns_cache(n, s1):
+    r"""Get the harmonics sums cache needed for the qed non singlet AD.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    s1 : float
+        harmonic sum :math:`S_1(N)`
+
+    Returns
+    -------
+    list
+        harmonic sums cache. It contains:
+
+        .. math ::
+            [S_1(n/2),
+            S_2(n/2),
+            S_{3}(n/2),
+            S_1((n+1)/2),
+            S_2((n+1)/2),
+            S_{3}((n+1)/2),
+            g_3(n),
+            g_3(n+2)]
+
+    """
+    s1h = S1(n / 2.0)
+    sx_qed_ns = [s1h]
+    S2h = S2(n / 2.0)
+    sx_qed_ns.append(S2h)
+    S3h = S3(n / 2.0)
+    sx_qed_ns.append(S3h)
+    S1p1h = S1((n + 1.0) / 2.0)
+    sx_qed_ns.append(S1p1h)
+    S2p1h = S2((n + 1.0) / 2.0)
+    sx_qed_ns.append(S2p1h)
+    S3p1h = S3((n + 1.0) / 2.0)
+    sx_qed_ns.append(S3p1h)
+    g3N = g_functions.mellin_g3(n, s1)
+    sx_qed_ns.append(g3N)
+    S1p2 = polygamma.recursive_harmonic_sum(s1, n, 2, 1)
+    g3Np2 = g_functions.mellin_g3(n + 2.0, S1p2)
+    sx_qed_ns.append(g3Np2)
+    return sx_qed_ns

@@ -247,3 +247,34 @@ def to_evol(eko: EKO, source: bool = True, target: bool = False):
         eko.rotations.targetpids = targetpids
 
     eko.update()
+
+
+def to_uni_evol(eko: EKO, source: bool = True, target: bool = False):
+    """Rotate the operator into evolution basis.
+
+    This also assigns also the pids. The operation is in-place.
+
+    Parameters
+    ----------
+    eko :
+        the operator to be rotated
+    source :
+        rotate on the input tensor
+    target :
+        rotate on the output tensor
+
+    """
+    # rotate
+    inputpids = br.rotate_flavor_to_unified_evolution if source else None
+    targetpids = br.rotate_flavor_to_unified_evolution if target else None
+    # prevent metadata update, since flavor_reshape has not enough information
+    # to determine inpupids and targetpids, and they will be updated after the
+    # call
+    flavor_reshape(eko, inputpids=inputpids, targetpids=targetpids, update=False)
+    # assign pids
+    if source:
+        eko.rotations.inputpids = inputpids
+    if target:
+        eko.rotations.targetpids = targetpids
+
+    eko.update()
