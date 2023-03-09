@@ -7,8 +7,6 @@ from typing import Any, Dict, Generic, Optional, TypeVar
 
 from .dictlike import DictLike
 
-T = typing.TypeVar("T")
-
 # Energy scales
 # -------------
 
