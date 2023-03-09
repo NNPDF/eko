@@ -90,6 +90,15 @@ class TestCouplings:
                 hqm_scheme=QuarkMassSchemes.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
+        with pytest.raises(NotImplementedError):
+            Couplings(
+                couplings,
+                (0, 2),
+                evmod,
+                masses,
+                hqm_scheme=QuarkMassSchemes.POLE,
+                thresholds_ratios=MatchingScales(c=1.0, b=1.0, t=1.0),
+            )
         with pytest.raises(ValueError):
             coup2 = copy.deepcopy(couplings)
             coup2.alphaem.value = 0
@@ -158,7 +167,7 @@ class TestCouplings:
             )
         )
         for thresh_setup in thresh_setups:
-            for order_s in [0, 1, 2, 3, 4]:
+            for order_s in [1, 2, 3, 4]:
                 for order_em in [0, 1, 2]:
                     for evmod in CouplingEvolutionMethod:
                         # if order_em == 1 and method == "expanded" and order_s != 0:
@@ -215,50 +224,66 @@ class TestCouplings:
         ]
         alpharef = np.array([0.118, 0.00781])
         muref = 91.0
-        couplings = CouplingsRef.from_dict(
-            dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
-                num_flavs_ref=None,
-                max_num_flavs=6,
-            )
-        )
         for thresh_setup in thresh_setups:
             for qcd in range(1, 4 + 1):
                 for qed in range(2 + 1):
-                    pto = (qcd, qed)
-                    sc_expanded = Couplings(
-                        couplings,
-                        pto,
-                        method=CouplingEvolutionMethod.EXPANDED,
-                        masses=masses,
-                        hqm_scheme=QuarkMassSchemes.POLE,
-                        thresholds_ratios=thresh_setup,
-                    )
-                    sc_exact = Couplings(
-                        couplings,
-                        pto,
-                        method=CouplingEvolutionMethod.EXACT,
-                        masses=masses,
-                        hqm_scheme=QuarkMassSchemes.POLE,
-                        thresholds_ratios=thresh_setup,
-                    )
-                    if pto in [(1, 0), (1, 1), (1, 2)]:
-                        precisions = (5e-4, 5e-5)
-                    else:
-                        precisions = (5e-3, 5e-4)
-                    for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
-                        # At LO (either QCD or QED LO) the exact and expanded
-                        # solutions coincide, while beyond LO they don't.
-                        # Therefore if the path is too long they start being different.
-                        if q2 in [1, 1e1] and pto not in [(1, 0), (0, 1)]:
-                            continue
-                        np.testing.assert_allclose(
-                            sc_expanded.a(q2)[0], sc_exact.a(q2)[0], rtol=precisions[0]
+                    for qedref in [muref, nan]:  # testing both running and fixed alpha
+                        pto = (qcd, qed)
+                        couplings = CouplingsRef.from_dict(
+                            dict(
+                                alphas=[alpharef[0], muref],
+                                alphaem=[alpharef[1], qedref],
+                                num_flavs_ref=None,
+                                max_num_flavs=6,
+                            )
                         )
-                        np.testing.assert_allclose(
-                            sc_expanded.a(q2)[1], sc_exact.a(q2)[1], rtol=precisions[1]
+                        sc_expanded = Couplings(
+                            couplings,
+                            pto,
+                            method=CouplingEvolutionMethod.EXPANDED,
+                            masses=masses,
+                            hqm_scheme=QuarkMassSchemes.POLE,
+                            thresholds_ratios=thresh_setup,
                         )
+                        sc_exact = Couplings(
+                            couplings,
+                            pto,
+                            method=CouplingEvolutionMethod.EXACT,
+                            masses=masses,
+                            hqm_scheme=QuarkMassSchemes.POLE,
+                            thresholds_ratios=thresh_setup,
+                        )
+                        if pto in [(1, 0), (1, 1), (1, 2)]:
+                            precisions = (5e-4, 5e-4)
+                        else:
+                            precisions = (5e-3, 5e-4)
+                        for q2 in [1, 1e1, 1e2, 1e3, 1e4]:
+                            # At LO (either QCD or QED LO) the exact and expanded
+                            # solutions coincide, while beyond LO they don't.
+                            # Therefore if the path is too long they start being different.
+                            if q2 in [1, 1e1] and pto not in [(1, 0)]:
+                                continue
+                            np.testing.assert_allclose(
+                                sc_expanded.a(q2)[0],
+                                sc_exact.a(q2)[0],
+                                rtol=precisions[0],
+                            )
+                            np.testing.assert_allclose(
+                                sc_expanded.a(q2)[1],
+                                sc_exact.a(q2)[1],
+                                rtol=precisions[1],
+                            )
+                            if qedref is nan or qed == 0:
+                                np.testing.assert_allclose(
+                                    sc_expanded.a(q2)[1],
+                                    alpharef[1] / (4 * np.pi),
+                                    rtol=1e-10,
+                                )
+                                np.testing.assert_allclose(
+                                    sc_exact.a(q2)[1],
+                                    alpharef[1] / (4 * np.pi),
+                                    rtol=1e-10,
+                                )
 
     def benchmark_expanded_n3lo(self):
         """test N3LO - NNLO expansion with some reference value from Mathematica"""

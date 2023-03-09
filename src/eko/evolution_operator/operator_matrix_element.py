@@ -1,5 +1,6 @@
 """The |OME| for the non-trivial matching conditions in the |VFNS| evolution."""
 
+import copy
 import functools
 import logging
 
@@ -154,7 +155,7 @@ def quad_ker(
         )
 
     # compute the ome
-    if ker_base.is_singlet:
+    if ker_base.is_singlet or ker_base.is_QEDsinglet:
         indices = {21: 0, 100: 1, 90: 2}
         if is_polarized:
             if is_time_like:
@@ -227,6 +228,8 @@ class OperatorMatrixElement(Operator):
         (br.matching_hminus_pid, 200),
         (br.matching_hminus_pid, br.matching_hminus_pid),
     ]
+    # still valid in QED since Sdelta and Vdelta matchings are diagonal
+    full_labels_qed = copy.deepcopy(full_labels)
 
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
         super().__init__(config, managers, nf, q2, None)
@@ -317,11 +320,11 @@ class OperatorMatrixElement(Operator):
 
     @property
     def a_s(self):
-        """Compute values for :math:`a_s`.
+        """Return the computed values for :math:`a_s`.
 
         Note that here you need to use :math:`a_s^{n_f+1}`
         """
-        sc = self.managers["strong_coupling"]
+        sc = self.managers["couplings"]
         return sc.a_s(
             self.sv_exponentiated_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1
         )

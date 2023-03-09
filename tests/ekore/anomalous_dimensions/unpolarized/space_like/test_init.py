@@ -2,12 +2,13 @@
 import warnings
 
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose, assert_almost_equal, assert_raises
+from scipy.linalg import expm
 
-from ekore import anomalous_dimensions as ad
-from eko import basis_rotation as br
 import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
-from ekore.anomalous_dimensions.unpolarized.space_like import as1 as ad_as1
+from eko import basis_rotation as br
+from ekore import anomalous_dimensions as ad
 from ekore import harmonics
 
 NF = 5
@@ -16,8 +17,8 @@ NF = 5
 def test_eigensystem_gamma_singlet_0_values():
     n = 3
     s1 = harmonics.S1(n)
-    gamma_S_0 = ad_as1.gamma_singlet(3, s1, NF)
-    res = ad.exp_singlet(gamma_S_0)
+    gamma_S_0 = ad_us.as1.gamma_singlet(3, s1, NF)
+    res = ad.exp_matrix_2D(gamma_S_0)
     lambda_p = complex(12.273612971466964, 0)
     lambda_m = complex(5.015275917421917, 0)
     e_p = np.array(
@@ -35,6 +36,32 @@ def test_eigensystem_gamma_singlet_0_values():
     assert_allclose(e_m, res[4])
 
 
+def test_exp_matrix():
+    n = 3
+    s1 = harmonics.S1(n)
+    gamma_S_0 = ad_us.as1.gamma_singlet(3, s1, NF)
+    res = ad.exp_matrix_2D(gamma_S_0)[0]
+    res2 = ad.exp_matrix(gamma_S_0)[0]
+    assert_allclose(res, res2)
+    gamma_S_0_qed = ad_us.as1.gamma_singlet_qed(3, s1, NF)
+    res = expm(gamma_S_0_qed)
+    res2 = ad.exp_matrix(gamma_S_0_qed)[0]
+    assert_allclose(res, res2)
+    gamma_2D = np.random.rand(2, 2) + np.random.rand(2, 2) * 1j
+    res1 = expm(gamma_2D)
+    res2 = ad.exp_matrix(gamma_2D)[0]
+    assert_almost_equal(res1, res2)
+    diag = np.diag([1, 2, 3, 4])
+    assert_allclose(np.diag(np.exp([1, 2, 3, 4])), ad.exp_matrix(diag)[0])
+    id_ = np.identity(4, np.complex_)
+    zero = np.zeros((4, 4), np.complex_)
+    assert_allclose(id_, ad.exp_matrix(zero)[0])
+    sigma2 = np.array([[0.0, -1.0j], [1.0j, 0.0]])
+    exp = ad.exp_matrix(sigma2)[0]
+    exp_m = ad.exp_matrix(-sigma2)[0]
+    assert_almost_equal(np.identity(2, np.complex_), exp @ exp_m)
+
+
 def test_eigensystem_gamma_singlet_projectors_EV():
     nf = 3
     for N in [3, 4]:  # N=2 seems close to 0, so test fails
@@ -43,7 +70,7 @@ def test_eigensystem_gamma_singlet_projectors_EV():
             # ignore Runtime Warnings
             warnings.simplefilter("ignore", RuntimeWarning)
             for gamma_S in ad_us.gamma_singlet(o, N, nf):
-                _exp, l_p, l_m, e_p, e_m = ad.exp_singlet(gamma_S)
+                _exp, l_p, l_m, e_p, e_m = ad.exp_matrix_2D(gamma_S)
                 # projectors behave as P_a . P_b = delta_ab P_a
                 assert_allclose(np.dot(e_p, e_p), e_p)
                 assert_almost_equal(np.dot(e_p, e_m), np.zeros((2, 2)))
@@ -55,17 +82,17 @@ def test_eigensystem_gamma_singlet_projectors_EV():
 
 def test_gamma_ns():
     nf = 3
-    # LO
+    # ad_us.as1
     assert_almost_equal(
         ad_us.gamma_ns((3, 0), br.non_singlet_pids_map["ns+"], 1, nf)[0], 0.0
     )
-    # NLO
+    # ad_us.as2
     assert_allclose(
         ad_us.gamma_ns((2, 0), br.non_singlet_pids_map["ns-"], 1, nf),
         np.zeros(2),
         atol=2e-6,
     )
-    # NNLO
+    # ad_us.as3
     assert_allclose(
         ad_us.gamma_ns((3, 0), br.non_singlet_pids_map["ns-"], 1, nf),
         np.zeros(3),
@@ -76,7 +103,7 @@ def test_gamma_ns():
         np.zeros(3),
         atol=8e-4,
     )
-    # N3LO
+    # as4
     assert_allclose(
         ad_us.gamma_ns((4, 0), br.non_singlet_pids_map["ns-"], 1, nf),
         np.zeros(4),
@@ -94,3 +121,112 @@ def test_gamma_ns():
         ad_us.gamma_ns((4, 0), br.non_singlet_pids_map["ns+"], 1, nf),
         np.zeros(4),
     )
+
+
+def test_gamma_ns_qed():
+    nf = 3
+    # aem1
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((2, 2)),
+        decimal=5,
+    )
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((2, 2)),
+        decimal=5,
+    )
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns+u"], 1, nf)[0, 1],
+        0,
+        decimal=5,
+    )
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((1, 1), br.non_singlet_pids_map["ns+d"], 1, nf)[0, 1],
+        0,
+        decimal=5,
+    )
+    # as1aem1
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((2, 3)),
+        decimal=5,
+    )
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((2, 3)),
+        decimal=5,
+    )
+    # aem2
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((2, 3)),
+        decimal=5,
+    )
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((1, 2), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((2, 3)),
+        decimal=5,
+    )
+    # ad_us.as2
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((2, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((3, 2)),
+        decimal=5,
+    )
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((2, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((3, 2)),
+        decimal=5,
+    )
+    # ad_us.as3
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((3, 1), br.non_singlet_pids_map["ns-u"], 1, nf),
+        np.zeros((4, 2)),
+        decimal=3,
+    )
+    assert_almost_equal(
+        ad_us.gamma_ns_qed((3, 1), br.non_singlet_pids_map["ns-d"], 1, nf),
+        np.zeros((4, 2)),
+        decimal=3,
+    )
+
+
+def test_dim_singlet():
+    nf = 3
+    N = 2
+    sx = harmonics.sx(N, max_weight=3 + 1)
+    gamma_singlet = ad_us.gamma_singlet_qed((3, 2), N, nf)
+    assert gamma_singlet.shape == (4, 3, 4, 4)
+    gamma_singlet_as1 = ad_us.as1.gamma_singlet_qed(N, sx[0], nf)
+    assert gamma_singlet_as1.shape == (4, 4)
+    gamma_singlet_as2 = ad_us.as2.gamma_singlet_qed(N, nf, sx)
+    assert gamma_singlet_as2.shape == (4, 4)
+    gamma_singlet_as3 = ad_us.as3.gamma_singlet_qed(N, nf, sx)
+    assert gamma_singlet_as3.shape == (4, 4)
+
+
+def test_dim_valence():
+    nf = 3
+    N = 2
+    sx = harmonics.sx(N, max_weight=3 + 1)
+    gamma_valence = ad_us.gamma_valence_qed((3, 2), N, nf)
+    assert gamma_valence.shape == (4, 3, 2, 2)
+    gamma_valence_as1 = ad_us.as1.gamma_valence_qed(N, sx[0])
+    assert gamma_valence_as1.shape == (2, 2)
+    gamma_valence_as2 = ad_us.as2.gamma_valence_qed(N, nf, sx)
+    assert gamma_valence_as2.shape == (2, 2)
+    gamma_valence_as3 = ad_us.as3.gamma_valence_qed(N, nf, sx)
+    assert gamma_valence_as3.shape == (2, 2)
+
+
+def test_dim_nsp():
+    nf = 3
+    N = 2
+    sx = harmonics.sx(N, max_weight=3 + 1)
+    gamma_nsup = ad_us.gamma_ns_qed((3, 2), 10102, N, nf)
+    assert gamma_nsup.shape == (4, 3)
+    gamma_nsdp = ad_us.gamma_ns_qed((3, 2), 10103, N, nf)
+    assert gamma_nsdp.shape == (4, 3)
+    with pytest.raises(NotImplementedError):
+        gamma_ns = ad_us.gamma_ns_qed((2, 0), 10106, N, nf)

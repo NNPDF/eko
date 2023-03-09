@@ -73,20 +73,21 @@ def compute_apfel_data(
     # Run
     apf_tabs = {}
     for q2 in operators["Q2grid"]:
-
         apfel.EvolveAPFEL(theory["Q0"], np.sqrt(q2))
         print(f"Executing APFEL took {(time.perf_counter() - apf_start)} s")
 
         tab = {}
         for pid in br.flavor_basis_pids:
-
             if pid in skip_pdfs:
                 continue
 
             # collect APFEL
             apf = []
             for x in target_xgrid:
-                xf = apfel.xPDF(pid if pid != 21 else 0, x)
+                if pid != 22:
+                    xf = apfel.xPDF(pid if pid != 21 else 0, x)
+                else:
+                    xf = apfel.xgamma(x)
                 # if pid == 4:
                 #     print(pid,x,xf)
                 apf.append(xf)
@@ -94,14 +95,21 @@ def compute_apfel_data(
 
         # rotate if needed
         if rotate_to_evolution_basis:
+            qed = theory["QED"] > 0
+            if not qed:
+                evol_basis = br.evol_basis
+                rotate_flavor_to_evolution = br.rotate_flavor_to_evolution
+            else:
+                evol_basis = br.unified_evol_basis
+                rotate_flavor_to_evolution = br.rotate_flavor_to_unified_evolution
             pdfs = np.array(
                 [
                     tab[pid] if pid in tab else np.zeros(len(target_xgrid))
                     for pid in br.flavor_basis_pids
                 ]
             )
-            evol_pdf = br.rotate_flavor_to_evolution @ pdfs
-            tab = dict(zip(br.evol_basis, evol_pdf))
+            evol_pdf = rotate_flavor_to_evolution @ pdfs
+            tab = dict(zip(evol_basis, evol_pdf))
 
         apf_tabs[q2] = tab
 
