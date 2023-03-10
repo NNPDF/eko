@@ -1,5 +1,6 @@
 import math
 
+import numpy as np
 import pytest
 
 from ekobox import cards
@@ -7,19 +8,20 @@ from ekobox import cards
 
 def test_generate_ocard():
     mu0 = 1.65
-    mu2grid = [10.0, 100.0]
+    mugrid = np.array([10.0, 100.0])
     op = cards.example.operator()
     op.mu0 = mu0
-    op.mu2grid = mu2grid
-    assert pytest.approx(op.mu2grid) == mu2grid
+    op.mugrid = mugrid
+    assert pytest.approx(op.mugrid) == mugrid
+    assert pytest.approx(op.mu2grid) == mugrid**2
     assert op.configs.interpolation_polynomial_degree == 4
-    mu2grid1 = [100.0]
+    mugrid1 = np.array([100.0])
     op = cards.example.operator()
     op.mu0 = mu0
-    op.mu2grid = mu2grid1
+    op.mugrid = mugrid1
     op.configs.interpolation_polynomial_degree = 2
     op.configs.interpolation_is_log = False
-    assert op.mu2grid == mu2grid1
+    assert op.mugrid == mugrid1
     assert op.configs.interpolation_polynomial_degree == 2
     assert op.configs.interpolation_is_log is False
 

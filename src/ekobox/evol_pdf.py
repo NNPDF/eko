@@ -65,7 +65,7 @@ def evolve_pdfs(
             )
 
     if targetgrid is None:
-        targetgrid = operators_card.rotations.xgrid
+        targetgrid = operators_card.xgrid
     if info_update is None:
         info_update = {}
     info_update["XMin"] = targetgrid.raw[0]

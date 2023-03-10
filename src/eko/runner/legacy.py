@@ -56,7 +56,7 @@ class Runner:
 
         # setup basis grid
         bfd = interpolation.InterpolatorDispatcher(
-            xgrid=new_operator.rotations.xgrid,
+            xgrid=new_operator.xgrid,
             polynomial_degree=new_operator.configs.interpolation_polynomial_degree,
         )
 

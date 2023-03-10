@@ -42,8 +42,8 @@ def build(
     template_info["NumFlavors"] = 14
     template_info["Flavors"] = [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21, 22]
     # TODO actually point to input grid
-    template_info["XMin"] = float(operators_card.rotations.xgrid.raw[0])
-    template_info["XMax"] = float(operators_card.rotations.xgrid.raw[-1])
+    template_info["XMin"] = float(operators_card.xgrid.raw[0])
+    template_info["XMax"] = float(operators_card.xgrid.raw[-1])
     template_info["NumMembers"] = num_members
     template_info["OrderQCD"] = theory_card.order[0] - 1
     template_info["QMin"] = round(math.sqrt(operators_card.mu2grid[0]), 4)

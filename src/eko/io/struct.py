@@ -1049,7 +1049,7 @@ class Builder:
         metadata = Metadata(
             _path=self.path,
             mu20=self.operator.mu20,
-            rotations=copy.deepcopy(self.operator.rotations),
+            rotations=Rotations(xgrid=self.operator.xgrid),
         )
         InternalPaths(self.path).bootstrap(
             theory=self.theory.raw,

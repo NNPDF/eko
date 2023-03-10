@@ -98,7 +98,7 @@ class PseudoOperator(DictLike):
 
     mu20: float
     mu2grid: npt.NDArray
-    rotations: Rotations
+    xgrid: XGrid
     configs: dict
 
     @classmethod
@@ -108,17 +108,16 @@ class PseudoOperator(DictLike):
         mu2grid = np.array(old["Q2grid"])
 
         xgrid = XGrid(old["interpolation_xgrid"])
-        pids = old.get("pids", np.array(br.flavor_basis_pids))
 
-        rotations = Rotations(xgrid=xgrid, pids=pids)
+        rotations = Rotations(xgrid=xgrid)
 
         def set_if_different(name: str, default: npt.NDArray):
             basis = old.get(name)
             if basis is not None and not np.allclose(basis, default):
                 setattr(rotations, name, basis)
 
-        set_if_different("inputpids", pids)
-        set_if_different("targetpids", pids)
+        set_if_different("inputpids", np.array(br.flavor_basis_pids))
+        set_if_different("targetpids", np.array(br.flavor_basis_pids))
         set_if_different("inputgrid", xgrid.raw)
         set_if_different("targetgrid", xgrid.raw)
 
@@ -127,7 +126,7 @@ class PseudoOperator(DictLike):
             interpolation_is_log=old.get("interpolation_is_log"),
         )
 
-        return cls(mu20=mu20, mu2grid=mu2grid, rotations=rotations, configs=configs)
+        return cls(mu20=mu20, mu2grid=mu2grid, xgrid=xgrid, configs=configs)
 
 
 ARRAY_SUFFIX = ".npy.lz4"

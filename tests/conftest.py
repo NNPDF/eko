@@ -61,7 +61,7 @@ def theory_ffns(theory_card):
 @pytest.fixture
 def operator_card():
     card = cards.example.operator()
-    card.rotations.xgrid = interpolation.XGrid([0.1, 0.3, 0.5, 1.0])
+    card.xgrid = interpolation.XGrid([0.1, 0.3, 0.5, 1.0])
     card.configs.interpolation_polynomial_degree = 2
 
     return card
@@ -91,8 +91,8 @@ class EKOFactory:
         self.cache = (
             EKO.create(self.path).load_cards(self.theory, self.operator).build()
         )
-        lx = len(self.operator.rotations.xgrid)
-        lpids = len(self.operator.rotations.pids)
+        lx = len(self.operator.xgrid)
+        lpids = len(self.operator.pids)
         for q2, op in self._operators(
             mugrid=self.operator.mu2grid, shape=(lpids, lx)
         ).items():

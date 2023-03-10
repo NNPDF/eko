@@ -5,7 +5,6 @@ from math import nan
 import numpy as np
 import yaml
 
-from eko import basis_rotation as br
 from eko.io import runcards
 from eko.io.types import RawCard, ReferenceRunning
 
@@ -28,7 +27,8 @@ _theory = dict(
 
 _operator = dict(
     mu0=1.65,
-    _mugrid=[100.0],
+    mugrid=[100.0],
+    xgrid=np.geomspace(1e-7, 1.0, 50).tolist(),
     configs=dict(
         evolution_method="iterate-exact",
         ev_op_max_order=[10, 0],
@@ -44,10 +44,6 @@ _operator = dict(
     debug=dict(
         skip_singlet=False,
         skip_non_singlet=False,
-    ),
-    rotations=dict(
-        xgrid=np.geomspace(1e-7, 1.0, 50).tolist(),
-        pids=list(br.flavor_basis_pids),
     ),
 )
 

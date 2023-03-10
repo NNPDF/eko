@@ -49,7 +49,7 @@ def check_shapes(o, txs, ixs, theory_card, operators_card):
     op_shape = (tpids, len(txs), ipids, len(ixs))
 
     # check output = input
-    np.testing.assert_allclose(o.xgrid.raw, operators_card.rotations.xgrid.raw)
+    np.testing.assert_allclose(o.xgrid.raw, operators_card.xgrid.raw)
     # targetgrid and inputgrid in the opcard are now ignored, we are testing this
     np.testing.assert_allclose(
         o.rotations.targetgrid.raw,

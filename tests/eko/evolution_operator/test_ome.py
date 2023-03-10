@@ -464,8 +464,8 @@ class TestOperatorMatrixElement:
         theory_card.matching.c = 1.0
         theory_card.matching.b = 1.0
         theory_card.order = (2, 0)
-        operator_card.mu2grid = np.array([20.0])
-        operator_card.rotations.xgrid = interpolation.XGrid([0.001, 0.01, 0.1, 1.0])
+        operator_card.mugrid = np.array([20.0])
+        operator_card.xgrid = interpolation.XGrid([0.001, 0.01, 0.1, 1.0])
         operator_card.configs.interpolation_polynomial_degree = 1
         operator_card.configs.interpolation_is_log = True
         operator_card.configs.ev_op_max_order = (2, 0)
@@ -486,7 +486,7 @@ class TestOperatorMatrixElement:
         )
         o.compute()
 
-        dim = len(operator_card.rotations.xgrid)
+        dim = len(operator_card.xgrid)
         shape = (dim, dim)
         for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
             assert o.op_members[(indices[0], indices[0])].value.shape == shape

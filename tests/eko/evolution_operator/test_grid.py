@@ -6,7 +6,6 @@ It does *not* test whether the result is correct, it can just test that it is sa
 """
 
 import enum
-import logging
 import pathlib
 
 import numpy as np
@@ -37,10 +36,9 @@ def test_init_errors(monkeypatch, theory_ffns, operator_card, tmp_path, caplog):
     assert "exact" in caplog.text
 
 
-def test_compute_q2grid(theory_ffns, operator_card, tmp_path):
+def test_compute_mu2grid(theory_ffns, operator_card, tmp_path):
     mugrid = np.array([10.0, 100.0])
-    operator_card._mugrid = mugrid
-    operator_card._mu2grid = None
+    operator_card.mugrid = mugrid
     opgrid = legacy.Runner(
         theory_ffns(3), operator_card, path=tmp_path / "eko.tar"
     ).op_grid

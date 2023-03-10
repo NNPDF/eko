@@ -141,8 +141,6 @@ class Rotations(DictLike):
 
     xgrid: interpolation.XGrid
     """Momentum fraction internal grid."""
-    pids: npt.NDArray
-    """Array of integers, corresponding to internal PIDs."""
     _targetgrid: Optional[interpolation.XGrid] = None
     _inputgrid: Optional[interpolation.XGrid] = None
     _targetpids: Optional[npt.NDArray] = None
@@ -158,6 +156,10 @@ class Rotations(DictLike):
                 setattr(self, attr, interpolation.XGrid(value))
             elif not isinstance(value, interpolation.XGrid):
                 setattr(self, attr, interpolation.XGrid.load(value))
+
+    @property
+    def pids(self):
+        return np.array(br.flavor_basis_pids)
 
     @property
     def inputpids(self) -> npt.NDArray:
@@ -210,25 +212,16 @@ class OperatorCard(DictLike):
 
     mu0: float
     """Initial scale."""
+    xgrid: interpolation.XGrid
+    """Momentum fraction internal grid."""
 
     # collections
     configs: Configs
     """Specific configuration to be used during the calculation of these operators."""
     debug: Debug
     """Debug configurations."""
-    rotations: Rotations
-    """Rotations configurations.
 
-    The operator card will only contain the interpolation xgrid and the pids.
-
-    """
-
-    # TODO: drop legacy compatibility, only linear scales in runcards, such
-    # that we will always avoid taking square roots, and we are consistent with
-    # the other scales
-    _mugrid: Optional[npt.NDArray] = None
-    _mu2grid: Optional[npt.NDArray] = None
-    """Array of final scales."""
+    mugrid: npt.NDArray
 
     # optional
     eko_version: str = vmod.__version__
@@ -241,31 +234,15 @@ class OperatorCard(DictLike):
         return self.mu0**2
 
     @property
-    def mugrid(self):
-        """Only setter enabled, access only to :attr:`mu2grid`."""
-        raise ValueError("Use mu2grid")
-
-    @mugrid.setter
-    def mugrid(self, value):
-        """Set scale grid with linear values."""
-        self._mugrid = value
-        self._mu2grid = None
-
-    @property
     def mu2grid(self):
         """Grid of squared final scales."""
-        if self._mugrid is not None:
-            return self._mugrid**2
-        if self._mu2grid is not None:
-            return self._mu2grid
+        return self.mugrid**2
 
         raise RuntimeError("Mu2 grid has not been initialized")
 
-    @mu2grid.setter
-    def mu2grid(self, value):
-        """Set scale grid with quadratic values."""
-        self._mugrid = None
-        self._mu2grid = value
+    @property
+    def pids(self):
+        return np.array(br.flavor_basis_pids)
 
 
 Card = Union[TheoryCard, OperatorCard]

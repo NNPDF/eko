@@ -18,6 +18,7 @@ from .. import interpolation
 # classes are supposed to be dataclasses
 
 
+@dataclasses.dataclass
 class DictLike:
     """Dictionary compatibility base class, for dataclasses.
 
@@ -29,11 +30,8 @@ class DictLike:
 
     """
 
-    def __init__(self, **kwargs):
-        """Empty initializer."""
-
     @classmethod
-    def from_dict(cls, dictionary):
+    def _from_dict(cls, dictionary):
         """Initialize dataclass object from raw dictionary.
 
         Parameters
@@ -80,8 +78,11 @@ class DictLike:
         # finally construct the class, just passing the arguments by name
         return cls(**dictionary)
 
-    @property
-    def raw(self):
+    @classmethod
+    def from_dict(cls, dictionary):
+        return cls._from_dict(dictionary)
+
+    def _raw(self):
         """Convert dataclass object to raw dictionary.
 
         Normalize:
@@ -103,6 +104,14 @@ class DictLike:
             dictionary[field.name] = raw_field(getattr(self, field.name))
 
         return dictionary
+
+    @property
+    def raw(self):
+        return self._raw()
+
+    @property
+    def public_raw(self):
+        return {k: v for k, v in self._raw().items() if not k.startswith("_")}
 
 
 def load_field(type_, value):

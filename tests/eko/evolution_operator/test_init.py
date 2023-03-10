@@ -340,7 +340,7 @@ class TestOperator:
             scipy.integrate, "quad", lambda *args, v=v, **kwargs: (v, 0.56)
         )
         o.compute()
-        lx = len(ocard.rotations.xgrid.raw)
+        lx = len(ocard.xgrid.raw)
         res = np.full((lx, lx), v)
         res[-1, -1] = 1.0
         # ns are all diagonal, so they start from an identity matrix
@@ -382,7 +382,7 @@ class TestOperator:
                 assert k in o1.op_members
                 np.testing.assert_allclose(
                     o1.op_members[k].value,
-                    np.eye(len(ocard.rotations.xgrid.raw)),
+                    np.eye(len(ocard.xgrid.raw)),
                     err_msg=k,
                 )
 

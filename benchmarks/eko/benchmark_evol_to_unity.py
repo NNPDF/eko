@@ -27,8 +27,8 @@ def update_cards(theory: TheoryCard, operator: OperatorCard):
     theory.quark_masses.b.value = 4.75
     theory.quark_masses.t.value = 173.0
     operator.mu0 = float(np.sqrt(2))
-    operator.mu2grid = [10]
-    operator.rotations.xgrid = XGrid(np.linspace(1e-1, 1, 30))
+    operator.mugrid = np.array([10])
+    operator.xgrid = XGrid(np.linspace(1e-1, 1, 30))
     operator.configs.interpolation_polynomial_degree = 1
     operator.configs.ev_op_max_order = (2, 0)
     operator.configs.ev_op_iterations = 1
