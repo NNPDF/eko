@@ -28,6 +28,23 @@ def test_ns_sv_dispacher():
     )
 
 
+def test_ns_sv_dispacher_qed():
+    """Test to identity"""
+    order = (4, 2)
+    gamma_ns = np.random.rand(order[0], order[1])
+    L = 0
+    nf = 5
+    a_s = 0.35
+    a_em = 0.01
+    for alphaem_running in [True, False]:
+        np.testing.assert_allclose(
+            expanded.non_singlet_variation_qed(
+                gamma_ns, a_s, a_em, alphaem_running, order, nf, L
+            ),
+            1.0,
+        )
+
+
 def test_singlet_sv_dispacher():
     """Test to identity"""
     order = (4, 0)
@@ -36,8 +53,42 @@ def test_singlet_sv_dispacher():
     nf = 5
     a_s = 0.35
     np.testing.assert_allclose(
-        expanded.singlet_variation(gamma_singlet, a_s, order, nf, L), np.eye(2)
+        expanded.singlet_variation(gamma_singlet, a_s, order, nf, L, 2), np.eye(2)
     )
+
+
+def test_singlet_sv_dispacher_qed():
+    """Test to identity"""
+    order = (4, 2)
+    gamma_singlet = np.random.rand(order[0], order[1], 4, 4)
+    L = 0
+    nf = 5
+    a_s = 0.35
+    a_em = 0.01
+    for alphaem_running in [True, False]:
+        np.testing.assert_allclose(
+            expanded.singlet_variation_qed(
+                gamma_singlet, a_s, a_em, alphaem_running, order, nf, L
+            ),
+            np.eye(4),
+        )
+
+
+def test_valence_sv_dispacher_qed():
+    """Test to identity"""
+    order = (4, 2)
+    gamma_valence = np.random.rand(order[0], order[1], 2, 2)
+    L = 0
+    nf = 5
+    a_s = 0.35
+    a_em = 0.01
+    for alphaem_running in [True, False]:
+        np.testing.assert_allclose(
+            expanded.valence_variation_qed(
+                gamma_valence, a_s, a_em, alphaem_running, order, nf, L
+            ),
+            np.eye(2),
+        )
 
 
 def test_scale_variation_a_vs_b():
@@ -133,7 +184,7 @@ def test_scale_variation_a_vs_b():
             ker_a = singlet.dispatcher(
                 order, method, gs_a, a1, a0, nf, ev_op_iterations=1, ev_op_max_order=1
             )
-            ker_b = ker @ expanded.singlet_variation(gs, a1, order, nf, L)
+            ker_b = ker @ expanded.singlet_variation(gs, a1, order, nf, L, 2)
             s_diff = scheme_diff(gs, L, order, True)
             np.testing.assert_allclose(
                 (ker_a - ker_b) @ np.linalg.inv(ker),

@@ -12,6 +12,7 @@ from eko.evolution_operator import Operator, quad_ker
 from eko.interpolation import InterpolatorDispatcher
 from eko.io.runcards import OperatorCard, ScaleVariationsMethod, TheoryCard
 from eko.kernels import non_singlet as ns
+from eko.kernels import non_singlet_qed as qed_ns
 from eko.kernels import singlet as s
 
 
@@ -28,8 +29,11 @@ def test_quad_ker_errors():
                     is_log=True,
                     logx=0.1,
                     areas=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
-                    as1=1,
-                    as0=2,
+                    as_list=[2.0, 1.0],
+                    mu2_from=1.0,
+                    mu2_to=2.0,
+                    a_half=np.array([[1.5, 0.01]]),
+                    alphaem_running=False,
                     nf=3,
                     L=0,
                     ev_op_iterations=1,
@@ -52,88 +56,98 @@ def test_quad_ker(monkeypatch):
     monkeypatch.setattr(interpolation, "log_evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(interpolation, "evaluate_Nx", lambda *args: 1)
     monkeypatch.setattr(ns, "dispatcher", lambda *args: 1.0)
+    monkeypatch.setattr(qed_ns, "dispatcher", lambda *args: 1.0)
     monkeypatch.setattr(s, "dispatcher", lambda *args: np.identity(2))
-    for is_log in [True, False]:
-        for polarized in [True, False]:
-            res_ns = quad_ker(
-                u=0,
-                order=(1, 0),
-                mode0=br.non_singlet_pids_map["ns+"],
-                mode1=0,
-                method="",
-                is_log=is_log,
-                logx=0.1,
-                areas=[0.1, 0.2, 0.3],
-                as1=1,
-                as0=2,
-                nf=3,
-                L=0,
-                ev_op_iterations=0,
-                ev_op_max_order=(0, 0),
-                sv_mode=1,
-                is_threshold=False,
-                is_polarized=polarized,
-                is_time_like=False,
-                n3lo_ad_variation=(0, 0, 0, 0),
-            )
-            np.testing.assert_allclose(res_ns, 1.0)
-            res_s = quad_ker(
-                u=0,
-                order=(1, 0),
-                mode0=100,
-                mode1=100,
-                method="",
-                is_log=is_log,
-                logx=0.123,
-                areas=np.zeros(3),
-                as1=1,
-                as0=2,
-                nf=3,
-                L=0,
-                ev_op_iterations=0,
-                ev_op_max_order=(0, 0),
-                sv_mode=1,
-                is_threshold=False,
-                is_polarized=polarized,
-                is_time_like=False,
-                n3lo_ad_variation=(0, 0, 0, 0),
-            )
-            np.testing.assert_allclose(res_s, 1.0)
-            res_s = quad_ker(
-                u=0,
-                order=(1, 0),
-                mode0=100,
-                mode1=21,
-                method="",
-                is_log=is_log,
-                logx=0.0,
-                areas=np.zeros(3),
-                as1=1,
-                as0=2,
-                nf=3,
-                L=0,
-                ev_op_iterations=0,
-                ev_op_max_order=(0, 0),
-                sv_mode=1,
-                is_threshold=False,
-                is_polarized=polarized,
-                is_time_like=False,
-                n3lo_ad_variation=(0, 0, 0, 0),
-            )
-            np.testing.assert_allclose(res_s, 0.0)
+    params = [
+        ((1, 0), br.non_singlet_pids_map["ns+"], 0, "", 0.0, 0.0),
+        ((3, 1), br.non_singlet_pids_map["ns+u"], 0, "", 0.0, 0.0),
+        ((1, 0), 100, 100, "", 0.123, 1.0),
+        ((1, 0), 100, 21, "", 0.0, 0.0),
+        ((1, 1), 100, 100, "iterate-exact", 0.123, 1.0),
+        ((1, 1), 100, 21, "iterate-exact", 0.123, 0.0),
+        ((1, 1), 10200, 10200, "iterate-exact", 0.123, 1.0),
+        ((1, 1), 10200, 10204, "iterate-exact", 0.123, 0.0),
+    ]
+    for order, mode0, mode1, method, logx, res in params:
+        for is_log in [True, False]:
+            for polarized in [True, False]:
+                res_ns = quad_ker(
+                    u=0,
+                    order=order,
+                    mode0=mode0,
+                    mode1=mode1,
+                    method=method,
+                    is_log=is_log,
+                    logx=logx,
+                    areas=np.zeros(3),
+                    as_list=[2.0, 1.0],
+                    mu2_from=1,
+                    mu2_to=2,
+                    a_half=np.array([[1.5, 0.01]]),
+                    alphaem_running=False,
+                    nf=3,
+                    L=0,
+                    ev_op_iterations=0,
+                    ev_op_max_order=(0, 0),
+                    sv_mode=1,
+                    is_threshold=False,
+                    is_polarized=polarized,
+                    is_time_like=False,
+                    n3lo_ad_variation=(0, 0, 0, 0),
+                )
+                np.testing.assert_allclose(res_ns, res)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
+        for sv in [2, 3]:
+            for polarized in [True, False]:
+                res_sv = quad_ker(
+                    u=0,
+                    order=(1, 0),
+                    mode0=label[0],
+                    mode1=label[1],
+                    method="",
+                    is_log=True,
+                    logx=0.123,
+                    areas=np.zeros(3),
+                    as_list=[2.0, 1.0],
+                    mu2_from=1,
+                    mu2_to=2,
+                    a_half=np.array([[1.5, 0.01]]),
+                    alphaem_running=False,
+                    nf=3,
+                    L=0,
+                    ev_op_iterations=0,
+                    ev_op_max_order=(1, 0),
+                    sv_mode=sv,
+                    is_threshold=False,
+                    is_polarized=polarized,
+                    is_time_like=False,
+                    n3lo_ad_variation=(0, 0, 0, 0),
+                )
+                np.testing.assert_allclose(res_sv, 1.0)
+    for label in [
+        (100, 100),
+        (21, 21),
+        (22, 22),
+        (101, 101),
+        (10200, 10200),
+        (10204, 10204),
+        (10202, 0),
+    ]:
         for sv in [2, 3]:
             res_sv = quad_ker(
                 u=0,
-                order=(1, 0),
+                order=(1, 1),
                 mode0=label[0],
                 mode1=label[1],
-                method="",
+                method="iterate-exact",
                 is_log=True,
                 logx=0.123,
                 areas=np.zeros(3),
-                as1=1,
-                as0=2,
+                as_list=[2.0, 1.0],
+                mu2_from=1,
+                mu2_to=2,
+                a_half=np.array([[1.5, 0.01]]),
+                alphaem_running=False,
                 nf=3,
                 L=0,
                 ev_op_iterations=0,
@@ -156,8 +170,11 @@ def test_quad_ker(monkeypatch):
         is_log=True,
         logx=0.0,
         areas=np.zeros(3),
-        as1=1,
-        as0=2,
+        as_list=[2.0, 1.0],
+        mu2_from=1,
+        mu2_to=2,
+        a_half=np.array([[1.5, 0.01]]),
+        alphaem_running=False,
         nf=3,
         L=0,
         ev_op_iterations=0,
@@ -171,6 +188,21 @@ def test_quad_ker(monkeypatch):
     np.testing.assert_allclose(res_ns, 0.0)
 
 
+class FakeCoupling:
+    def __init__(self):
+        self.alphaem_running = None
+        self.q2_ref = 0.0
+
+    def a(self, scale_to=None, fact_scale=None, nf_to=None):
+        return (0.1, 0.01)
+
+    def compute(self, a_ref, nf, scale_from, scale_to):
+        return a_ref
+
+
+fake_managers = {"couplings": FakeCoupling()}
+
+
 class TestOperator:
     def test_labels(self):
         o = Operator(
@@ -179,8 +211,10 @@ class TestOperator:
                 debug_skip_non_singlet=False,
                 debug_skip_singlet=False,
                 n_integration_cores=1,
+                ModSV=None,
+                ev_op_iterations=1,
             ),
-            {},
+            fake_managers,
             3,
             1,
             2,
@@ -192,8 +226,42 @@ class TestOperator:
                 debug_skip_non_singlet=True,
                 debug_skip_singlet=True,
                 n_integration_cores=1,
+                ModSV=None,
+                ev_op_iterations=1,
             ),
-            {},
+            fake_managers,
+            3,
+            1,
+            2,
+        )
+        assert sorted(o.labels) == []
+
+    def test_labels_qed(self):
+        o = Operator(
+            dict(
+                order=(3, 1),
+                debug_skip_non_singlet=False,
+                debug_skip_singlet=False,
+                n_integration_cores=1,
+                ModSV=None,
+                ev_op_iterations=1,
+            ),
+            fake_managers,
+            3,
+            1,
+            2,
+        )
+        assert sorted(o.labels) == sorted(br.full_unified_labels)
+        o = Operator(
+            dict(
+                order=(2, 1),
+                debug_skip_non_singlet=True,
+                debug_skip_singlet=True,
+                n_integration_cores=1,
+                ModSV=None,
+                ev_op_iterations=1,
+            ),
+            fake_managers,
             3,
             1,
             2,
@@ -211,8 +279,10 @@ class TestOperator:
                 debug_skip_non_singlet=True,
                 debug_skip_singlet=True,
                 n_integration_cores=-excluded_cores,
+                ModSV=None,
+                ev_op_iterations=1,
             ),
-            {},
+            fake_managers,
             3,
             1,
             10,
@@ -322,6 +392,18 @@ class TestOperator:
                     err_msg=k,
                 )
 
+        for n in range(1, 3 + 1):
+            for qed in range(1, 2 + 1):
+                g.config["order"] = (n, qed)
+                o1 = Operator(g.config, g.managers, 3, 2.0, 2.0)
+                # o1.config["order"] = (n, qed)
+                o1.compute()
+                for k in br.non_singlet_unified_labels:
+                    assert k in o1.op_members
+                    np.testing.assert_allclose(
+                        o1.op_members[k].value, np.eye(4), err_msg=k
+                    )
+
 
 def test_pegasus_path():
     def quad_ker_pegasus(
@@ -355,6 +437,8 @@ def test_pegasus_path():
     logxs = np.log(int_disp.xgrid.raw)
     a1 = 1
     a0 = 2
+    mu2_from = 1
+    mu2_to = 2**2
     nf = 3
     L = 0
     ev_op_iterations = 10
@@ -372,8 +456,11 @@ def test_pegasus_path():
                     int_disp.log,
                     logx,
                     bf.areas_representation,
-                    a1,
-                    a0,
+                    [a0, a1],
+                    mu2_from,
+                    mu2_to,
+                    [[(a1 + a0) / 2, 0.00058]],
+                    False,
                     nf,
                     L,
                     ev_op_iterations,

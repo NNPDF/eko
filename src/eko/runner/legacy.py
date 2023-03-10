@@ -107,7 +107,7 @@ class Runner:
             configs=new_operator.configs,
             debug=new_operator.debug,
             thresholds_config=tc,
-            strong_coupling=sc,
+            couplings=sc,
             interpol_dispatcher=bfd,
             n3lo_ad_variation=new_theory.n3lo_ad_variation,
         )

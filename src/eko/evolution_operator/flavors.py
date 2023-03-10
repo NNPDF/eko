@@ -1,40 +1,37 @@
-r"""
-The write-up of the matching conditions is given in
-:doc:`Matching Conditions </theory/Matching>`.
-
-"""
+r"""The write-up of the matching conditions is given in :doc:`Matching Conditions </theory/Matching>`."""
 
 import numpy as np
 
 from .. import basis_rotation as br
+from .. import constants
 
 
 def pids_from_intrinsic_evol(label, nf, normalize):
-    r"""
-    Obtain the list of pids with their corresponding weight, that are contributing to ``evol``
+    r"""Obtain the list of pids with their corresponding weight, that are contributing to ``evol``.
 
     The normalization of the weights is only needed for the output rotation:
 
     - if we want to build e.g. the singlet in the initial state we simply have to sum
-      to obtain :math:`S = u + \bar u + d + \bar d + \ldots`
+      to obtain :math:`\Sigma = u + \bar u + d + \bar d + \ldots`
     - if we want to rotate back in the output we have to *normalize* the weights:
-      e.g. in nf=3 :math:`u = \frac 1 6 S + \frac 1 6 V + \ldots`
+      e.g. in nf=3 :math:`u = \frac 1 6 \Sigma + \frac 1 6 V + \ldots`
 
     The normalization can only happen here since we're actively cutting out some
     flavor (according to ``nf``).
 
     Parameters
     ----------
-        evol : str
-            evolution label
-        nf : int
-            maximum number of light flavors
-        normalize : bool
-            normalize output
+    label : str
+        evolution label
+    nf : int
+        maximum number of light flavors
+    normalize : bool
+        normalize output
 
     Returns
     -------
-        m : list
+    list(float)
+        list of weights
     """
     try:
         evol_idx = br.evol_basis.index(label)
@@ -55,49 +52,64 @@ def pids_from_intrinsic_evol(label, nf, normalize):
     return weights
 
 
-def get_range(evol_labels):
-    """
-    Determine the number of light and heavy flavors participating in the input and output.
+def get_range(evol_labels, qed=False):
+    """Determine the number of light and heavy flavors participating in the input and output.
 
     Here, we assume that the T distributions (e.g. T15) appears *always*
     before the corresponding V distribution (e.g. V15).
 
+    Parameters
+    ----------
+    qed : bool
+        activate qed
+
     Returns
     -------
-        nf_in : int
-            number of light flavors in the input
-        nf_out : int
-            number of light flavors in the output
+    nf_in : int
+        number of light flavors in the input
+    nf_out : int
+        number of light flavors in the output
     """
     nf_in = 3
     nf_out = 3
 
-    def update(label):
+    def update(label, qed=False):
         nf = 3
         if label[0] == "T":
-            nf = round(np.sqrt(int(label[1:]) + 1))
+            if not qed:
+                nf = round(np.sqrt(int(label[1:]) + 1))
+            else:
+                if label[1:] == "d3":
+                    nf = 3
+                elif label[1:] == "u3":
+                    nf = 4
+                elif label[1:] == "d8":
+                    nf = 5
+                elif label[1:] == "u8":
+                    nf = 6
+                else:
+                    raise ValueError(f"{label[1:]} is not possible")
         return nf
 
     for op in evol_labels:
-        nf_in = max(update(op.input), nf_in)
-        nf_out = max(update(op.target), nf_out)
+        nf_in = max(update(op.input, qed), nf_in)
+        nf_out = max(update(op.target, qed), nf_out)
 
     return nf_in, nf_out
 
 
 def rotate_pm_to_flavor(label):
-    """
-    Rotate from +- basis to flavor basis.
+    """Rotate from +- basis to flavor basis.
 
     Parameters
     ----------
-        label : str
-            label
+    label : str
+        label
 
     Returns
     -------
-        l : list(float)
-            list of weights
+    list(float)
+        list of weights
     """
     # g and ph are unaltered
     if label in ["g", "ph"]:
@@ -117,44 +129,75 @@ def rotate_pm_to_flavor(label):
     return l
 
 
-def rotate_matching(nf, inverse=False):
-    """
-    Rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis
-    (with S,g,...V8,T15,V15).
+def rotate_matching(nf, qed=False, inverse=False):
+    """Rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis (with S,g,...V8,T15,V15).
 
     Parameters
     ----------
-        nf : int
-            number of active flavors in the higher patch: to activate T15, nf=4
-        inverse : bool
-            use inverse conditions?
+    nf : int
+        number of active flavors in the higher patch: to activate T15, nf=4
+    qed : bool
+        use QED?
+    inverse : bool
+        use inverse conditions?
 
     Returns
     -------
-        l : dict
-            mapping in dot notation between the bases
+    dict
+        mapping in dot notation between the bases
     """
     # the gluon and the photon do not care about new quarks
     l = {"g.g": 1.0, "ph.ph": 1.0}
     # already active distributions
-    for k in range(2, nf):  # nf is the upper, so excluded
-        n = k**2 - 1
-        l[f"V{n}.V{n}"] = 1.0
-        l[f"T{n}.T{n}"] = 1.0
-    # the new contributions
-    n = nf**2 - 1  # nf is pointing upwards
     q = br.quark_names[nf - 1]
-    for (tot, oth, qpm) in (("S", f"T{n}", f"{q}+"), ("V", f"V{n}", f"{q}-")):
-        if inverse:
-            l[f"{tot}.{tot}"] = (nf - 1.0) / nf
-            l[f"{tot}.{oth}"] = 1.0 / nf
-            l[f"{qpm}.{tot}"] = 1.0 / nf
-            l[f"{qpm}.{oth}"] = -1.0 / nf
-        else:
-            l[f"{tot}.{tot}"] = 1.0
-            l[f"{tot}.{qpm}"] = 1.0
-            l[f"{oth}.{tot}"] = 1.0
-            l[f"{oth}.{qpm}"] = -(nf - 1.0)
+    if not qed:
+        for k in range(2, nf):  # nf is the upper, so excluded
+            n = k**2 - 1
+            l[f"V{n}.V{n}"] = 1.0
+            l[f"T{n}.T{n}"] = 1.0
+        # the new contributions
+        n = nf**2 - 1  # nf is pointing upwards
+        for (tot, oth, qpm) in (("S", f"T{n}", f"{q}+"), ("V", f"V{n}", f"{q}-")):
+            if inverse:
+                l[f"{tot}.{tot}"] = (nf - 1.0) / nf
+                l[f"{tot}.{oth}"] = 1.0 / nf
+                l[f"{qpm}.{tot}"] = 1.0 / nf
+                l[f"{qpm}.{oth}"] = -1.0 / nf
+            else:
+                l[f"{tot}.{tot}"] = 1.0
+                l[f"{tot}.{qpm}"] = 1.0
+                l[f"{oth}.{tot}"] = 1.0
+                l[f"{oth}.{qpm}"] = -(nf - 1.0)
+    else:
+        names = {3: "d3", 4: "u3", 5: "d8", 6: "u8"}
+        for k in range(3, nf):
+            l[f"V{names[k]}.V{names[k]}"] = 1.0
+            l[f"T{names[k]}.T{names[k]}"] = 1.0
+        for (tot, totdelta, oth, qpm) in (
+            ("S", "Sdelta", f"T{names[nf]}", f"{q}+"),
+            ("V", "Vdelta", f"V{names[nf]}", f"{q}-"),
+        ):
+            a, b, c, d, e, f = qed_rotation_parameters(nf)
+            if inverse:
+                den = -b * d + a * e - c * e + b * f
+                l[f"{tot}.{tot}"] = -(c * e - b * f) / den
+                l[f"{tot}.{totdelta}"] = e / den
+                l[f"{tot}.{oth}"] = -b / den
+                l[f"{totdelta}.{tot}"] = (c * d - a * f) / den
+                l[f"{totdelta}.{totdelta}"] = (f - d) / den
+                l[f"{totdelta}.{oth}"] = (a - c) / den
+                l[f"{qpm}.{tot}"] = (-b * d + a * e) / den
+                l[f"{qpm}.{totdelta}"] = -e / den
+                l[f"{qpm}.{oth}"] = b / den
+            else:
+                l[f"{tot}.{tot}"] = 1.0
+                l[f"{tot}.{qpm}"] = 1.0
+                l[f"{totdelta}.{tot}"] = a
+                l[f"{totdelta}.{totdelta}"] = b
+                l[f"{totdelta}.{qpm}"] = c
+                l[f"{oth}.{tot}"] = d
+                l[f"{oth}.{totdelta}"] = e
+                l[f"{oth}.{qpm}"] = f
     # also higher quarks do not care
     for k in range(nf + 1, 6 + 1):
         q = br.quark_names[k - 1]
@@ -163,27 +206,77 @@ def rotate_matching(nf, inverse=False):
     return l
 
 
-def rotate_matching_inverse(nf):
-    return rotate_matching(nf, True)
-
-
-def pids_from_intrinsic_unified_evol(label, nf, normalize):
-    r"""
-    Obtain the list of pids with their corresponding weight, that are contributing to intrinsic
-    unified evolution.
+def rotate_matching_inverse(nf, qed=False):
+    """Inverse rotation between matching basis (with e.g. S,g,...V8 and c+,c-) and new true evolution basis (with S,g,...V8,T15,V15).
 
     Parameters
     ----------
-        evol : str
-            evolution label
-        nf : int
-            maximum number of light flavors
-        normalize : bool
-            normalize output
+    nf : int
+        number of active flavors in the higher patch: to activate T15, nf=4
+    qed : bool
+        use QED?
 
     Returns
     -------
-        m : list
+    dict
+        mapping in dot notation between the bases
+    """
+    return rotate_matching(nf, qed, True)
+
+
+def qed_rotation_parameters(nf):
+    r"""Parameters of the QED basis rotation.
+
+    From :math:`(\Sigma, \Sigma_{\Delta}, h_+)` into :math:`(\Sigma, \Sigma_{\Delta}, T_i^j)`,
+    or equivalentely for :math:`V, V_{\Delta}, V_i^j, h_-`.
+
+    Parameters
+    ----------
+    nf : int
+        number of active flavors in the higher patch: e.g. to activate :math:`T_3^u` or :math:`V_3^u` choose ``nf=4``
+
+    Returns
+    -------
+    a,b,c,d,e,f : float
+        Parameters of the rotation: :math:`\Sigma_{\Delta} = a*\Sigma + b*\Sigma_{\Delta} + c*h_+, T_i = d*\Sigma + e*\Sigma_{\Delta} + f*h_+`
+    """
+    nu_l = constants.uplike_flavors(nf - 1)
+    nd_l = (nf - 1) - nu_l
+    nu_h = constants.uplike_flavors(nf)
+    nd_h = nf - nu_h
+    a = (nd_h / nu_h * nu_l - nd_l) / (nf - 1)
+    b = nf / nu_h * nu_l / (nf - 1)
+    if nf in [4, 6]:  # heavy flavor is up-like
+        c = nd_h / nu_h
+        d = nu_l / (nf - 1)
+        e = nu_l / (nf - 1)
+    elif nf in [3, 5]:  # heavy flavor is down-like
+        c = -1
+        d = nd_l / (nf - 1)
+        e = -nu_l / (nf - 1)
+    if nf in [3, 4]:  # s and c unlock T3d, T3u that have -h+
+        f = -1
+    elif nf in [5, 6]:  # b and t unlock T8d, T8u that have -2h+
+        f = -2
+    return a, b, c, d, e, f
+
+
+def pids_from_intrinsic_unified_evol(label, nf, normalize):
+    r"""Obtain the list of pids with their corresponding weight, that are contributing to intrinsic unified evolution.
+
+    Parameters
+    ----------
+    evol : str
+        evolution label
+    nf : int
+        maximum number of light flavors
+    normalize : bool
+        normalize output
+
+    Returns
+    -------
+    list(float)
+        list of weights
     """
     if label in ["ph", "g", "S", "V"]:
         return pids_from_intrinsic_evol(label, nf, normalize)

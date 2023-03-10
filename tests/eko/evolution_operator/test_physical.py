@@ -166,19 +166,64 @@ class TestPhysicalOperator:
         np.testing.assert_allclose(vt[7, :, :7, :], 0)
         np.testing.assert_allclose(vt[8:, :, 7, :], 0)
 
+    shape = (4, 4)
 
-def mk_op_members(shape=(2, 2)):
-    m = np.random.rand(len(br.full_labels), *shape)
-    e = np.random.rand(len(br.full_labels), *shape)
+    def test_to_flavor_basis_tensor_ss_qed(self):
+        (SS,) = self._mkOM(1)
+        a = PhysicalOperator(
+            dict(
+                zip(
+                    self._mkNames(("S.S",)),
+                    (SS,),
+                )
+            ),
+            1,
+        )
+        vt, _ = a.to_flavor_basis_tensor(qed=True)
+        np.testing.assert_allclose(vt[6, :, 6, :], vt[6, :, 5, :])
+        np.testing.assert_allclose(vt[6, :, 6, :], vt[5, :, 6, :])
+        np.testing.assert_allclose(vt[6, :, 6, :], SS.value[:, :] / (2 * 3))
+        np.testing.assert_allclose(vt[1, :, :, :], 0)
+        np.testing.assert_allclose(vt[:, :, 1, :], 0)
+        np.testing.assert_allclose(vt[7, :, :, :], 0)
+        np.testing.assert_allclose(vt[:, :, 7, :], 0)
+
+    def test_to_flavor_basis_tensor_gg_qed(self):
+        (gg,) = self._mkOM(1)
+        a = PhysicalOperator(
+            dict(
+                zip(
+                    self._mkNames(("g.g",)),
+                    (gg,),
+                )
+            ),
+            1,
+        )
+        vt, _ = a.to_flavor_basis_tensor()
+        np.testing.assert_allclose(vt[6, :, 6, :], 0)
+        np.testing.assert_allclose(vt[7, :, 7, :], gg.value[:, :])
+        np.testing.assert_allclose(vt[1, :, :, :], 0)
+        np.testing.assert_allclose(vt[:, :, 1, :], 0)
+        np.testing.assert_allclose(vt[7, :, :7, :], 0)
+        np.testing.assert_allclose(vt[8:, :, 7, :], 0)
+
+
+def mk_op_members(shape=(2, 2), qed=False):
+    if not qed:
+        full_labels = br.full_labels
+    else:
+        full_labels = br.full_unified_labels
+    m = np.random.rand(len(full_labels), *shape)
+    e = np.random.rand(len(full_labels), *shape)
     om = {}
-    for j, l in enumerate(br.full_labels):
+    for j, l in enumerate(full_labels):
         om[l] = member.OpMember(m[j], e[j])
     return om
 
 
-def get_ad_to_evol_map(nf, intrinsic_range=None):
-    oms = mk_op_members()
-    m = PhysicalOperator.ad_to_evol_map(oms, nf, 1, intrinsic_range)
+def get_ad_to_evol_map(nf, intrinsic_range=None, qed=False):
+    oms = mk_op_members(qed=qed)
+    m = PhysicalOperator.ad_to_evol_map(oms, nf, 1, intrinsic_range, qed)
     return sorted(map(str, m.op_members.keys()))
 
 
@@ -201,3 +246,47 @@ def test_ad_to_evol_map():
     assert sorted(
         [*triv_ops, "T15.T15", "V15.V15", "T24.T24", "V24.V24", "T35.T35", "V35.V35"]
     ) == get_ad_to_evol_map(6)
+
+
+def test_ad_to_evol_map_qed():
+    triv_ops = (
+        "g.g",
+        "g.ph",
+        "g.S",
+        "g.Sdelta",
+        "ph.g",
+        "ph.ph",
+        "ph.S",
+        "ph.Sdelta",
+        "S.g",
+        "S.ph",
+        "S.S",
+        "S.Sdelta",
+        "Sdelta.g",
+        "Sdelta.ph",
+        "Sdelta.S",
+        "Sdelta.Sdelta",
+        "V.V",
+        "V.Vdelta",
+        "Vdelta.V",
+        "Vdelta.Vdelta",
+        "Vd3.Vd3",
+        "Td3.Td3",
+    )
+    # nf=3
+    assert sorted(triv_ops) == get_ad_to_evol_map(3, qed=True)
+    # nf=3 + IC
+    assert sorted([*triv_ops, "c+.c+", "c-.c-"]) == get_ad_to_evol_map(3, [4], qed=True)
+    # nf=3 + IC + IB
+    assert sorted(
+        [*triv_ops, "c+.c+", "c-.c-", "b+.b+", "b-.b-"]
+    ) == get_ad_to_evol_map(3, [4, 5], qed=True)
+    # nf=4 + IC(non-existant) + IB
+    ks = sorted([*triv_ops, "Vu3.Vu3", "Tu3.Tu3", "b+.b+", "b-.b-"])
+    assert ks == get_ad_to_evol_map(4, [4, 5], qed=True)
+    # nf=4 + IB
+    assert ks == get_ad_to_evol_map(4, [5], qed=True)
+    # nf=6
+    assert sorted(
+        [*triv_ops, "Tu3.Tu3", "Vu3.Vu3", "Td8.Td8", "Vd8.Vd8", "Tu8.Tu8", "Vu8.Vu8"]
+    ) == get_ad_to_evol_map(6, qed=True)

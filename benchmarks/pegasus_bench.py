@@ -1,6 +1,8 @@
 """
 Benchmark to Pegasus :cite:`Vogt:2004ns`
 """
+from math import nan
+
 import numpy as np
 from banana import register
 from banana.data import cartesian_product
@@ -54,6 +56,7 @@ class BenchmarkVFNS(PegasusBenchmark):
         "kbThr": 1.0,
         "ktThr": 1.0,
         "Qref": np.sqrt(2.0),
+        "QrefQED": nan,
         "alphas": 0.35,
         "alphaqed": 0.007496,
         "QED": 0,
@@ -107,7 +110,9 @@ class BenchmarkFFNS(PegasusBenchmark):
         "kbThr": np.inf,
         "ktThr": np.inf,
         "Qref": np.sqrt(2.0),
+        "QrefQED": nan,
         "alphas": 0.35,
+        "alphaqed": 0.007496,
         "Q0": np.sqrt(2.0),
     }
     ffns_theory = tolist(ffns_theory)
@@ -151,7 +156,6 @@ class BenchmarkFFNS(PegasusBenchmark):
 
 
 if __name__ == "__main__":
-
     # obj = BenchmarkVFNS()
     obj = BenchmarkFFNS()
     obj.benchmark_plain_pol(1)

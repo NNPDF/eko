@@ -138,3 +138,34 @@ EKO implements two different strategies to perform this operation, that can be s
 We emphasize that in the backward evolution, below the threshold, the remaining high quark PDFs are always intrinsic and do not evolve anymore.
 In fact, if the initial PDFs (above threshold) do contain an intrinsic contribution, this has to be evolved below the threshold otherwise momentum sum rules
 can be violated.
+
+QED Matching
+------------
+
+In the QED case the matching is changed only because of the change of the evolution basis, therefore the only different part will be the basis rotation.
+In fact, the |OME| :math:`\mathbf{A}^{(n_f)}(\mu_{h}^2)` don't have |QED| corrections. The matching of the singlet sector is unchanged since it
+remains the same with respect to the |QCD| case. The same happens for the matching of the valence component. All the elements :math:`V_i` and :math:`T_i`
+are non-singlet components, therefore they are matched with :math:`A_{ns}`. In the end, the new components :math:`\Sigma_\Delta` and :math:`V_\Delta` are matched
+with :math:`A_{ns}` since they are both non-singlets.
+
+QED basis rotation
+------------------
+
+For the basis rotation we have to consider that we are using the intrinsic unified evolution basis. Here it will be discussed only the rotation to be applied
+to the sector :math:`(\Sigma, \Sigma_\Delta, T_i)`, being the rotation of the sector :math:`(V, V_\Delta, V_i)` completely equivalent.
+The rotation matrix is given by:
+
+.. math ::
+    \begin{pmatrix} \Sigma_{(n_f)} \\ \Sigma_{\Delta,(n_f)} \\ T_{i,(nf)} \end{pmatrix}^{(n_f+1)} =
+    \begin{pmatrix} 1 & 0 & 1 \\ a(n_f) & b(n_f) & c(n_f) \\ d(n_f) & e(n_f) & f(n_f) \end{pmatrix}
+    \begin{pmatrix} \Sigma_{(n_f)} \\ \Sigma_{\Delta,(n_f)} \\ h^+ \end{pmatrix}^{(n_f)}
+
+where
+
+.. math ::
+    a(n_f) & = \frac{1}{n_f}\Bigl(\frac{n_d(n_f+1)}{n_u(n_f+1)}n_u(n_f)-n_d(n_f)\Bigr) \\
+    b(n_f) & = \frac{n_f+1}{n_u(n_f+1)}\frac{n_u(n_f)}{n_f} \\
+    c(n_f) & = \begin{cases} \frac{n_d(n_f+1)}{n_u(n_f+1)} \quad \text{if $h$ is up-like}\\-1  \quad \text{if $h$ is down-like}\end{cases} \\
+    d(n_f) & = \begin{cases} &\frac{n_u(n_f)}{n_f} \quad \text{if $h$ is up-like ($n_f$=3,5)} \\ &\frac{n_d(n_f)}{n_f} \quad \text{if $h$ is down-like ($n_f$=2,4)} \end{cases} \\
+    e(n_f) & = \begin{cases} &\frac{n_u(n_f)}{n_f} \quad \text{if $h$ is up-like} \\ &-\frac{n_u(n_f)}{n_f} \quad \text{if $h$ is down-like} \end{cases} \\
+    f(n_f) & = \begin{cases} &-1\quad \text{if $h$ is $s$, $c$  ($n_f$=2,3)} \\ &-2 \quad \text{if $h$ is $b$, $t$  ($n_f$=4,5)} \end{cases}

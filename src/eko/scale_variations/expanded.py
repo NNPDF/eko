@@ -135,7 +135,7 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
 
 
 @nb.njit(cache=True)
-def singlet_variation(gamma, a_s, order, nf, L):
+def singlet_variation(gamma, a_s, order, nf, L, dim):
     """Singlet scale variation dispatcher.
 
     Parameters
@@ -156,7 +156,7 @@ def singlet_variation(gamma, a_s, order, nf, L):
     numpy.ndarray
         scale variation kernel
     """
-    sv_ker = np.eye(2, dtype=np.complex_)
+    sv_ker = np.eye(dim, dtype=np.complex_)
     gamma = np.ascontiguousarray(gamma)
     if order[0] >= 2:
         sv_ker -= a_s * variation_as1(gamma, L)
@@ -173,4 +173,91 @@ def singlet_variation(gamma, a_s, order, nf, L):
         sv_ker -= a_s**3 * variation_as3(
             gamma, L, beta0, beta1, gamma0e2, gamma0e3, g1g0, g0g1
         )
+    return sv_ker
+
+
+@nb.njit(cache=True)
+def non_singlet_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
+    """Non-singlet scale variation dispatcher.
+
+    Parameters
+    ----------
+    gamma : numpy.ndarray
+        anomalous dimensions
+    a_s :  float
+        target coupling value
+    order : int
+        perturbation order
+    nf : int
+        number of active flavors
+    L : float
+        logarithmic ratio of factorization and renormalization scale
+
+    Returns
+    -------
+    complex
+        scale variation kernel
+    """
+    sv_ker = non_singlet_variation(gamma[1:, 0], a_s, order, nf, L)
+    if alphaem_running:
+        if order[1] >= 2:
+            sv_ker -= a_em * variation_as1(gamma[0, 1:], L)
+    return sv_ker
+
+
+@nb.njit(cache=True)
+def singlet_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
+    """Singlet scale variation dispatcher.
+
+    Parameters
+    ----------
+    gamma : numpy.ndarray
+        anomalous dimensions
+    a_s :  float
+        target coupling value
+    order : int
+        perturbation order
+    nf : int
+        number of active flavors
+    L : float
+        logarithmic ratio of factorization and renormalization scale
+
+    Returns
+    -------
+    numpy.ndarray
+        scale variation kernel
+    """
+    sv_ker = singlet_variation(gamma[1:, 0], a_s, order, nf, L, 4)
+    if alphaem_running:
+        if order[1] >= 2:
+            sv_ker -= a_em * variation_as1(gamma[0, 1:], L)
+    return sv_ker
+
+
+@nb.njit(cache=True)
+def valence_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
+    """Singlet scale variation dispatcher.
+
+    Parameters
+    ----------
+    gamma : numpy.ndarray
+        anomalous dimensions
+    a_s :  float
+        target coupling value
+    order : int
+        perturbation order
+    nf : int
+        number of active flavors
+    L : float
+        logarithmic ratio of factorization and renormalization scale
+
+    Returns
+    -------
+    numpy.ndarray
+        scale variation kernel
+    """
+    sv_ker = singlet_variation(gamma[1:, 0], a_s, order, nf, L, 2)
+    if alphaem_running:
+        if order[1] >= 2:
+            sv_ker -= a_em * variation_as1(gamma[0, 1:], L)
     return sv_ker

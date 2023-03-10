@@ -31,16 +31,31 @@ class Runner(BenchmarkRunner):
 
     @staticmethod
     def load_ocards(session, ocard_updates):
-        """Load oparator cards."""
+        """
+        Load operator cards.
+
+        Parameters
+        ----------
+        session : sqlalchemy.session.Session
+            DB ORM session
+        updates : dict
+            modifiers
+
+        Returns
+        -------
+        cards : list(dict)
+            list of records
+        """
         return operators.load(session, ocard_updates)
 
     @staticmethod
     def skip_pdfs(_theory):
-        """Skip PDFs."""
+        """Specify PDFs to skip."""
         return []
 
     def run_me(self, theory, ocard, _pdf):
-        """Run eko.
+        """
+        Run eko.
 
         Parameters
         ----------
@@ -53,9 +68,8 @@ class Runner(BenchmarkRunner):
 
         Returns
         -------
-        dict
-            DGLAP result
-
+            out :  dict
+                DGLAP result
         """
         # activate logging
         logStdout = logging.StreamHandler(sys.stdout)
@@ -100,7 +114,11 @@ class Runner(BenchmarkRunner):
                 with EKO.read(path) as out_copy:
                     change_lab = False
                     if self.rotate_to_evolution_basis:
-                        manipulate.to_evol(out_copy, source=True, target=True)
+                        qed = theory["order"][1] > 0
+                        if not qed:
+                            manipulate.to_evol(out_copy, source=True, target=True)
+                        else:
+                            manipulate.to_uni_evol(out_copy, source=True, target=True)
                         change_lab = True
 
                     save_operators_to_pdf(
@@ -118,7 +136,24 @@ class Runner(BenchmarkRunner):
         return path
 
     def run_external(self, theory, ocard, pdf):
-        """Run the external program."""
+        """
+        Run external library.
+
+        Parameters
+        ----------
+            theory : dict
+                theory card
+            ocard : dict
+                operator card
+            pdf : lhapdf_type
+                pdf
+
+        Returns
+        -------
+            out :  dict
+                DGLAP result
+        """
+        # pylint:disable=import-error,import-outside-toplevel
         if self.external.lower() == "lha":
             from .external import LHA_utils
 
@@ -133,6 +168,7 @@ class Runner(BenchmarkRunner):
 
             # here theory card is not needed
             return lhapdf_utils.compute_LHAPDF_data(
+                theory,
                 ocard,
                 pdf,
                 self.skip_pdfs(theory),
@@ -164,7 +200,20 @@ class Runner(BenchmarkRunner):
         )
 
     def log(self, theory, _, pdf, me, ext):
-        """Return proper log table."""
+        """
+        Return a proper log table.
+
+        Parameters
+        ----------
+            theory : dict
+                theory card
+            pdf : lhapdf_type
+                pdf
+            me : eko.output.Output
+                eko output object containing all informations
+
+        """
+        # return a proper log table
         log_tabs = {}
         xgrid = ext["target_xgrid"]
         q2s = list(ext["values"].keys())
@@ -172,8 +221,12 @@ class Runner(BenchmarkRunner):
         # LHA NNLO VFNS needs a special treatment
         # Valence contains only u and d
         rotate_to_evolution = None
+        qed = theory["QED"] > 0
         if self.rotate_to_evolution_basis:
-            rotate_to_evolution = br.rotate_flavor_to_evolution.copy()
+            if not qed:
+                rotate_to_evolution = br.rotate_flavor_to_evolution.copy()
+            else:
+                rotate_to_evolution = br.rotate_flavor_to_unified_evolution.copy()
             if (
                 self.external == "LHA"
                 and theory["PTO"] == 2
@@ -187,6 +240,7 @@ class Runner(BenchmarkRunner):
                 pdf,
                 xgrid,
                 flavor_rotation=rotate_to_evolution,
+                qed=qed,
             )
         for q2 in q2s:
             log_tab = dfdict.DFdict()

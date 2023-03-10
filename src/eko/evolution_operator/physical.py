@@ -1,3 +1,5 @@
+"""Contains the :class:`PhysicalOperator` class."""
+
 import numpy as np
 
 from .. import basis_rotation as br
@@ -7,7 +9,7 @@ from . import flavors
 
 class PhysicalOperator(member.OperatorBase):
     """
-    This joins several fixed flavor scheme operators together.
+    Join several fixed flavor scheme operators together.
 
     - provides the connection between the 7-dimensional anomalous dimension
       basis and the 15-dimensional evolution basis
@@ -24,10 +26,9 @@ class PhysicalOperator(member.OperatorBase):
     """
 
     @classmethod
-    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range):
+    def ad_to_evol_map(cls, op_members, nf, q2_final, intrinsic_range, qed=False):
         """
-        Obtain map between the 3-dimensional anomalous dimension basis and the
-        4-dimensional evolution basis.
+        Obtain map between the 3-dimensional anomalous dimension basis and the 4-dimensional evolution basis.
 
         .. todo:: in VFNS sometimes IC is irrelevant if nf>=4
 
@@ -39,6 +40,8 @@ class PhysicalOperator(member.OperatorBase):
                 number of active light flavors
             intrinsic_range : sequence
                 intrinsic heavy flavors
+            qed : bool
+                activate qed
 
         Returns
         -------
@@ -51,19 +54,52 @@ class PhysicalOperator(member.OperatorBase):
             "S.g": op_members[(100, 21)],
             "g.g": op_members[(21, 21)],
             "g.S": op_members[(21, 100)],
-            "V.V": op_members[(br.non_singlet_pids_map["nsV"], 0)],
         }
-        # add elements which are already active
-        for f in range(2, nf + 1):
-            n = f**2 - 1
-            m[f"V{n}.V{n}"] = op_members[(br.non_singlet_pids_map["ns-"], 0)]
-            m[f"T{n}.T{n}"] = op_members[(br.non_singlet_pids_map["ns+"], 0)]
+        if not qed:
+            m.update({"V.V": op_members[(br.non_singlet_pids_map["nsV"], 0)]})
+            # add elements which are already active
+            for f in range(2, nf + 1):
+                n = f**2 - 1
+                m[f"V{n}.V{n}"] = op_members[(br.non_singlet_pids_map["ns-"], 0)]
+                m[f"T{n}.T{n}"] = op_members[(br.non_singlet_pids_map["ns+"], 0)]
+        else:
+            m.update(
+                {
+                    "g.ph": op_members[(21, 22)],
+                    "g.Sdelta": op_members[(21, 101)],
+                    "ph.g": op_members[(22, 21)],
+                    "ph.ph": op_members[(22, 22)],
+                    "ph.S": op_members[(22, 100)],
+                    "ph.Sdelta": op_members[(22, 101)],
+                    "S.ph": op_members[(100, 22)],
+                    "S.Sdelta": op_members[(100, 101)],
+                    "Sdelta.g": op_members[(101, 21)],
+                    "Sdelta.ph": op_members[(101, 22)],
+                    "Sdelta.S": op_members[(101, 100)],
+                    "Sdelta.Sdelta": op_members[(101, 101)],
+                    "V.V": op_members[(10200, 10200)],
+                    "V.Vdelta": op_members[(10200, 10204)],
+                    "Vdelta.V": op_members[(10204, 10200)],
+                    "Vdelta.Vdelta": op_members[(10204, 10204)],
+                }
+            )
+            # add elements which are already active
+            if nf >= 3:
+                m["Td3.Td3"] = op_members[(br.non_singlet_pids_map["ns+d"], 0)]
+                m["Vd3.Vd3"] = op_members[(br.non_singlet_pids_map["ns-d"], 0)]
+            if nf >= 4:
+                m["Tu3.Tu3"] = op_members[(br.non_singlet_pids_map["ns+u"], 0)]
+                m["Vu3.Vu3"] = op_members[(br.non_singlet_pids_map["ns-u"], 0)]
+            if nf >= 5:
+                m["Td8.Td8"] = op_members[(br.non_singlet_pids_map["ns+d"], 0)]
+                m["Vd8.Vd8"] = op_members[(br.non_singlet_pids_map["ns-d"], 0)]
+            if nf >= 6:
+                m["Tu8.Tu8"] = op_members[(br.non_singlet_pids_map["ns+u"], 0)]
+                m["Vu8.Vu8"] = op_members[(br.non_singlet_pids_map["ns-u"], 0)]
         # deal with intrinsic heavy quark PDFs
         if intrinsic_range is not None:
             hqfl = "cbt"
-            op_id = member.OpMember.id_like(
-                op_members[(br.non_singlet_pids_map["nsV"], 0)]
-            )
+            op_id = member.OpMember.id_like(op_members[(21, 21)])
             for intr_fl in intrinsic_range:
                 if intr_fl <= nf:  # light quarks are not intrinsic
                     continue
@@ -74,25 +110,37 @@ class PhysicalOperator(member.OperatorBase):
         # map key to MemberName
         return cls.promote_names(m, q2_final)
 
-    def to_flavor_basis_tensor(self):
+    def to_flavor_basis_tensor(self, qed=False):
         """
-        Convert the computations into an rank 4 tensor over flavor operator space and
-        momentum fraction operator space.
+        Convert the computations into an rank 4 tensor over flavor operator space and momentum fraction operator space.
+
+        Parameters
+        ----------
+            qed : bool
+                activate qed
 
         Returns
         -------
             tensor : numpy.ndarray
                 EKO
         """
-        nf_in, nf_out = flavors.get_range(self.op_members.keys())
+        nf_in, nf_out = flavors.get_range(self.op_members.keys(), qed)
         len_pids = len(br.flavor_basis_pids)
         len_xgrid = list(self.op_members.values())[0].value.shape[0]
         # dimension will be pids^2 * xgrid^2
         value_tensor = np.zeros((len_pids, len_xgrid, len_pids, len_xgrid))
         error_tensor = value_tensor.copy()
         for name, op in self.op_members.items():
-            in_pids = flavors.pids_from_intrinsic_evol(name.input, nf_in, False)
-            out_pids = flavors.pids_from_intrinsic_evol(name.target, nf_out, True)
+            if not qed:
+                in_pids = flavors.pids_from_intrinsic_evol(name.input, nf_in, False)
+                out_pids = flavors.pids_from_intrinsic_evol(name.target, nf_out, True)
+            else:
+                in_pids = flavors.pids_from_intrinsic_unified_evol(
+                    name.input, nf_in, False
+                )
+                out_pids = flavors.pids_from_intrinsic_unified_evol(
+                    name.target, nf_out, True
+                )
             for out_idx, out_weight in enumerate(out_pids):
                 for in_idx, in_weight in enumerate(in_pids):
                     # keep the outer index to the left as we're multiplying from the right

@@ -49,7 +49,7 @@ class OperatorGrid(sv.ModeMixin):
         configs: Configs,
         debug: Debug,
         thresholds_config,
-        strong_coupling,
+        couplings,
         interpol_dispatcher,
     ):
         """Initialize `OperatorGrid`.
@@ -65,8 +65,8 @@ class OperatorGrid(sv.ModeMixin):
         thresholds_config: eko.thresholds.ThresholdsAtlas
             Instance of :class:`~eko.thresholds.Threshold` containing information about the
             thresholds
-        strong_coupling: eko.strong_coupling.StrongCoupling
-            Instance of :class:`~eko.strong_coupling.StrongCoupling` able to generate a_s for
+        couplings: eko.couplings.StrongCoupling
+            Instance of :class:`~eko.couplings.StrongCoupling` able to generate a_s for
             any q
         kernel_dispatcher: eko.kernel_generation.KernelDispatcher
             Instance of the :class:`~eko.kernel_generation.KernelDispatcher` with the
@@ -114,7 +114,7 @@ class OperatorGrid(sv.ModeMixin):
         self.q2_grid = mu2grid
         self.managers = dict(
             thresholds_config=thresholds_config,
-            strong_coupling=strong_coupling,
+            couplings=couplings,
             interpol_dispatcher=interpol_dispatcher,
         )
         self._threshold_operators = {}
@@ -236,16 +236,14 @@ class OperatorGrid(sv.ModeMixin):
         is_downward = is_downward_path(path)
         if is_downward:
             intrinsic_range = [4, 5, 6]
+        qed = self.config["order"][1] > 0
         final_op = physical.PhysicalOperator.ad_to_evol_map(
-            operator.op_members,
-            operator.nf,
-            operator.q2_to,
-            intrinsic_range,
+            operator.op_members, operator.nf, operator.q2_to, intrinsic_range, qed
         )
         # and multiply the lower ones from the right
         for op in reversed(list(thr_ops)):
             phys_op = physical.PhysicalOperator.ad_to_evol_map(
-                op.op_members, op.nf, op.q2_to, intrinsic_range
+                op.op_members, op.nf, op.q2_to, intrinsic_range, qed
             )
 
             # join with the basis rotation, since matching requires c+ (or likewise)
@@ -255,9 +253,10 @@ class OperatorGrid(sv.ModeMixin):
                     op.nf - 1,
                     op.q2_to,
                     intrinsic_range=intrinsic_range,
+                    qed=qed,
                 )
                 invrot = member.ScalarOperator.promote_names(
-                    flavors.rotate_matching_inverse(op.nf), op.q2_to
+                    flavors.rotate_matching_inverse(op.nf, qed), op.q2_to
                 )
                 final_op = final_op @ matching @ invrot @ phys_op
             else:
@@ -266,13 +265,13 @@ class OperatorGrid(sv.ModeMixin):
                     op.nf,
                     op.q2_to,
                     intrinsic_range=intrinsic_range,
+                    qed=qed,
                 )
                 rot = member.ScalarOperator.promote_names(
-                    flavors.rotate_matching(op.nf + 1), op.q2_to
+                    flavors.rotate_matching(op.nf + 1, qed), op.q2_to
                 )
                 final_op = final_op @ rot @ matching @ phys_op
-
-        values, errors = final_op.to_flavor_basis_tensor()
+        values, errors = final_op.to_flavor_basis_tensor(qed)
         return {
             "operator": values,
             "error": errors,

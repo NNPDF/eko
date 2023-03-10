@@ -21,9 +21,9 @@ import numpy as np
 
 
 @nb.njit(cache=True)
-def exp_singlet(gamma_S):
+def exp_matrix_2D(gamma_S):
     r"""
-    Computes the exponential and the eigensystem of the singlet anomalous dimension matrix
+    Compute the exponential and the eigensystem of the singlet anomalous dimension matrix.
 
     Parameters
     ----------
@@ -60,3 +60,38 @@ def exp_singlet(gamma_S):
     e_m = -c * (gamma_S - lambda_p * identity)
     exp = e_m * np.exp(lambda_m) + e_p * np.exp(lambda_p)
     return exp, lambda_p, lambda_m, e_p, e_m
+
+
+@nb.njit(cache=True)
+def exp_matrix(gamma):
+    r"""
+    Compute the exponential and the eigensystem of a matrix.
+
+    Parameters
+    ----------
+        gamma : numpy.ndarray
+            input matrix
+
+    Returns
+    -------
+        exp : numpy.ndarray
+            exponential of the matrix gamma :math:`\gamma(N)`
+        w : numpy.ndarray
+            array of the eigenvalues of the matrix lambda
+        e : numpy.ndarray
+            projectors on the eigenspaces of the matrix gamma :math:`\gamma(N)`
+    """
+    dim = gamma.shape[0]
+    e = np.zeros((dim, dim, dim), np.complex_)
+    # if dim == 2:
+    #     exp, lambda_p, lambda_m, e_p, e_m = exp_matrix_2D(gamma)
+    #     e[0] = e_p
+    #     e[1] = e_m
+    #     return exp, np.array([lambda_p, lambda_m]), e
+    w, v = np.linalg.eig(gamma)
+    v_inv = np.linalg.inv(v)
+    exp = np.zeros((dim, dim), np.complex_)
+    for i in range(dim):
+        e[i] = np.outer(v[:, i], v_inv[i])
+        exp += e[i] * np.exp(w[i])
+    return exp, w, e

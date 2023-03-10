@@ -3,8 +3,8 @@ import warnings
 import numpy as np
 import pytest
 
-from ekore import anomalous_dimensions as ad
 from eko.kernels import singlet as s
+from ekore import anomalous_dimensions as ad
 
 methods = [
     "iterate-expanded",
@@ -26,7 +26,7 @@ def test_zero_lo(monkeypatch):
     gamma_s = np.random.rand(1, 2, 2) + np.random.rand(1, 2, 2) * 1j
     monkeypatch.setattr(
         ad,
-        "exp_singlet",
+        "exp_matrix_2D",
         lambda gamma_S: (
             gamma_S,
             1,
@@ -65,7 +65,7 @@ def test_zero_nlo_decompose(monkeypatch):
     gamma_s = np.random.rand(2, 2, 2) + np.random.rand(2, 2, 2) * 1j
     monkeypatch.setattr(
         ad,
-        "exp_singlet",
+        "exp_matrix_2D",
         lambda gamma_S: (
             gamma_S,
             1,
@@ -107,7 +107,7 @@ def test_zero_nnlo_decompose(monkeypatch):
     gamma_s = np.random.rand(3, 2, 2) + np.random.rand(3, 2, 2) * 1j
     monkeypatch.setattr(
         ad,
-        "exp_singlet",
+        "exp_matrix_2D",
         lambda gamma_S: (
             gamma_S,
             1,
@@ -149,7 +149,7 @@ def test_zero_n3lo_decompose(monkeypatch):
     gamma_s = np.random.rand(4, 2, 2) + np.random.rand(4, 2, 2) * 1j
     monkeypatch.setattr(
         ad,
-        "exp_singlet",
+        "exp_matrix_2D",
         lambda gamma_S: (
             gamma_S,
             1,
