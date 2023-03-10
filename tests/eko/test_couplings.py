@@ -92,7 +92,7 @@ class TestCouplings:
                 evmod,
                 masses,
                 hqm_scheme=QuarkMassScheme.POLE,
-                thresholds_ratios=MatchingScales(c=1.0, b=1.0, t=1.0),
+                thresholds_ratios=MatchingScales([1.0, 1.0, 1.0]),
             )
         with pytest.raises(ValueError):
             coup2 = copy.deepcopy(couplings)
