@@ -40,7 +40,7 @@ class ReferenceRunning(list, Generic[T]):
     To simplify serialization, the class is just storing the content as a list,
     but:
 
-    - it is constructed with a ``Running(T, Scale)`` signature
+    - it is constructed with a ``Running.typed(T, Scale)`` signature
     - it should always be used through the property accessors, rather then
       using the list itself
 
