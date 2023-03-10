@@ -17,7 +17,7 @@ lhapdf = pytest.importorskip("lhapdf")
 def benchmark_evolve_single_member(
     tmp_path, cd, lhapdf_path, theory_card: TheoryCard, operator_card: OperatorCard
 ):
-    mu2grid = [20.0, 100.0, 10000.0]
+    mugrid = np.array([20.0, 10.0, 100.0])
     theory = theory_card
     theory.order = (1, 0)
     theory.couplings.alphas.value = 0.118000
@@ -30,7 +30,7 @@ def benchmark_evolve_single_member(
     theory.quark_masses.t.value = 172
     op = operator_card
     op.mu0 = 5.0
-    op.mu2grid = mu2grid
+    op.mugrid = mugrid
     # lhapdf import (maybe i have to dump with a x*), do plots)
     with lhapdf_path(test_pdf):
         pdf = lhapdf.mkPDF("myCT14llo_NF3", 0)
@@ -47,24 +47,24 @@ def benchmark_evolve_single_member(
         all_blocks = (load.load_blocks_from_file("EvPDF", 0))[1]
         info = load.load_info_from_file("EvPDF")
         ev_pdf = lhapdf.mkPDF("EvPDF", 0)
-    assert info["XMin"] == op.rotations.xgrid.raw[0]
+    assert info["XMin"] == op.xgrid.raw[0]
     assert info["SetDesc"] == "MyEvolvedPDF"
     assert info["MZ"] == theory.couplings.alphas.scale
     assert info["Debug"] == "Debug"
-    xgrid = op.rotations.xgrid.raw
-    for Q2 in [20.0, 100.0, 10000.0]:
+    xgrid = op.xgrid.raw
+    for idx, mu2 in enumerate(mugrid**2):
         for x in xgrid[10:40]:
             for pid in [21, 1, -1, 2, -2, 3, -3]:
                 np.testing.assert_allclose(
-                    pdf.xfxQ2(pid, x, Q2),
-                    all_blocks[0]["data"][
-                        mu2grid.index(Q2) + xgrid.tolist().index(x) * len(mu2grid)
-                    ][br.flavor_basis_pids.index(pid)],
+                    pdf.xfxQ2(pid, x, mu2),
+                    all_blocks[0]["data"][idx + xgrid.tolist().index(x) * len(mugrid)][
+                        br.flavor_basis_pids.index(pid)
+                    ],
                     rtol=1e-2,
                 )
                 np.testing.assert_allclose(
-                    pdf.xfxQ2(pid, x, Q2),
-                    ev_pdf.xfxQ2(pid, x, Q2),
+                    pdf.xfxQ2(pid, x, mu2),
+                    ev_pdf.xfxQ2(pid, x, mu2),
                     rtol=1e-2,
                 )
 
@@ -77,8 +77,8 @@ def benchmark_evolve_more_members(
     theory.order = (1, 0)
     op = operator_card
     op.mu0 = 1.0
-    op.mu2grid = [10, 100]
-    op.rotations.xgrid = XGrid([1e-7, 0.01, 0.1, 0.2, 0.3])
+    op.mugrid = np.array([10, 100])
+    op.xgrid = XGrid([1e-7, 0.01, 0.1, 0.2, 0.3])
     with lhapdf_path(test_pdf):
         pdfs = lhapdf.mkPDFs("myMSTW2008nlo90cl")
     d = tmp_path / "sub"
@@ -98,9 +98,9 @@ def benchmark_evolve_more_members(
         new_pdf_1 = lhapdf.mkPDF("Debug", 0)
         new_pdf_2 = lhapdf.mkPDF("Debug", 1)
         info = load.load_info_from_file("Debug")
-    assert info["XMin"] == op.rotations.xgrid.raw[0]
+    assert info["XMin"] == op.xgrid.raw[0]
     assert len(pdfs) == len(new_pdfs)
-    for Q2 in [10, 100]:
+    for mu2 in [10, 100]:
         for x in [1e-7, 0.01, 0.1, 0.2, 0.3]:
             for pid in [21, 1, 2]:
-                assert new_pdf_1.xfxQ2(pid, x, Q2) != new_pdf_2.xfxQ2(pid, x, Q2)
+                assert new_pdf_1.xfxQ2(pid, x, mu2) != new_pdf_2.xfxQ2(pid, x, mu2)
