@@ -70,7 +70,7 @@ class example:
     @classmethod
     def raw_operator(cls):
         """Provide example operator card unstructured."""
-        return _theory.copy()
+        return _operator.copy()
 
 
 def dump(card: RawCard, path: os.PathLike):
