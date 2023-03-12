@@ -5,7 +5,7 @@ value, for consistency.
 Squares are consistenly taken inside.
 
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from math import nan
 from typing import List, Optional, Union
 
@@ -207,6 +207,33 @@ class Rotations(DictLike):
     @targetgrid.setter
     def targetgrid(self, value: interpolation.XGrid):
         self._targetgrid = value
+
+    @classmethod
+    def from_dict(cls, dictionary: dict):
+        """Deserialize rotation.
+
+        Load from full state, but with public names.
+
+        """
+        d = dictionary.copy()
+        for f in fields(cls):
+            if f.name.startswith("_"):
+                d[f.name] = d.pop(f.name[1:])
+        return cls._from_dict(d)
+
+    @property
+    def raw(self):
+        """Serialize rotation.
+
+        Pass through interfaces, access internal values but with a public name.
+
+        """
+        d = self._raw()
+        for key in d.copy():
+            if key.startswith("_"):
+                d[key[1:]] = d.pop(key)
+
+        return d
 
 
 @dataclass
