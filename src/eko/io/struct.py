@@ -474,13 +474,7 @@ class Metadata(DictLike):
     @property
     def raw(self):
         """Override default :meth:`DictLike.raw` representation to exclude path."""
-        raw = super().raw
-
-        for key in raw.copy():
-            if key.startswith("_"):
-                del raw[key]
-
-        return raw
+        return self.public_raw
 
 
 @dataclass

@@ -80,6 +80,13 @@ class DictLike:
 
     @classmethod
     def from_dict(cls, dictionary):
+        """Deserialize, overwritable interface.
+
+        The default implementation is just :meth:`DictLike._from_dict`, but it
+        can be safely overwritten (usually transforming the input before a call
+        to :meth:`DictLike._from_dict` itself).
+
+        """
         return cls._from_dict(dictionary)
 
     def _raw(self):
@@ -107,10 +114,18 @@ class DictLike:
 
     @property
     def raw(self):
+        """Overwritable serialization.
+
+        The default implementation is just :meth:`DictLike._raw`, but it can be
+        safely overwritten (usually starting from :meth:`DictLike._raw`
+        itself).
+
+        """
         return self._raw()
 
     @property
     def public_raw(self):
+        """Serialize only public attributes."""
         return {k: v for k, v in self._raw().items() if not k.startswith("_")}
 
 
