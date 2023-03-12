@@ -1,6 +1,6 @@
 import io
 from dataclasses import dataclass
-from typing import Sequence, Union
+from typing import NewType, Sequence, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -95,3 +95,18 @@ def test_dictlike_list():
     assert isinstance(lslike, ListLike)
     assert lslike.a == ls[0]
     assert lslike.c == ls[2]
+
+
+newint = NewType("newint", int)
+
+
+@dataclass
+class WithNewType(dictlike.DictLike):
+    nt: newint
+
+
+def test_newtype():
+    val = 42
+    wnt = WithNewType.from_dict(dict(nt=val))
+
+    assert wnt.nt == val
