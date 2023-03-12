@@ -18,7 +18,7 @@ def benchmark_load_data_ct14():
         assert len(blocks) == 1
         b0 = blocks[0]
         assert isinstance(b0, dict)
-        assert sorted(b0.keys()) == sorted(["pids", "xgrid", "mugrid", "data"])
+        assert sorted(b0.keys()) == sorted(["pids", "xgrid", "mu2grid", "data"])
         assert sorted(b0["pids"]) == sorted([-3, -2, -1, 21, 1, 2, 3])
         assert len(b0["data"].T) == 7
         np.testing.assert_allclose(b0["xgrid"][0], 1e-9)
@@ -31,7 +31,7 @@ def benchmark_load_data_mstw():
         assert len(blocks) == 3
         b0 = blocks[0]
         assert isinstance(b0, dict)
-        assert sorted(b0.keys()) == sorted(["pids", "xgrid", "mugrid", "data"])
+        assert sorted(b0.keys()) == sorted(["pids", "xgrid", "mu2grid", "data"])
         assert sorted(b0["pids"]) == sorted([-5, -4, -3, -2, -1, 21, 1, 2, 3, 4, 5])
         np.testing.assert_allclose(b0["xgrid"][0], 1e-6)
 

@@ -17,7 +17,7 @@ lhapdf = pytest.importorskip("lhapdf")
 def benchmark_evolve_single_member(
     tmp_path, cd, lhapdf_path, theory_card: TheoryCard, operator_card: OperatorCard
 ):
-    mugrid = np.array([20.0, 10.0, 100.0])
+    mugrid = [(3.0, 4), (10.0, 5), (100.0, 5)]
     theory = theory_card
     theory.order = (1, 0)
     theory.couplings.alphas.value = 0.118000
@@ -52,7 +52,7 @@ def benchmark_evolve_single_member(
     assert info["MZ"] == theory.couplings.alphas.scale
     assert info["Debug"] == "Debug"
     xgrid = op.xgrid.raw
-    for idx, mu2 in enumerate(mugrid**2):
+    for idx, mu2 in enumerate(op.mu2grid):
         for x in xgrid[10:40]:
             for pid in [21, 1, -1, 2, -2, 3, -3]:
                 np.testing.assert_allclose(
@@ -77,7 +77,7 @@ def benchmark_evolve_more_members(
     theory.order = (1, 0)
     op = operator_card
     op.mu0 = 1.0
-    op.mugrid = np.array([10, 100])
+    op.mugrid = [(10.0, 5), (100.0, 5)]
     op.xgrid = XGrid([1e-7, 0.01, 0.1, 0.2, 0.3])
     with lhapdf_path(test_pdf):
         pdfs = lhapdf.mkPDFs("myMSTW2008nlo90cl")
