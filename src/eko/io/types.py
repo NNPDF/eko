@@ -3,7 +3,7 @@ import dataclasses
 import enum
 import typing
 from math import isnan
-from typing import Any, Dict, Generic, Optional, TypeVar
+from typing import Any, Dict, Generic, Optional, Tuple, TypeVar
 
 from .dictlike import DictLike
 
@@ -22,10 +22,15 @@ SquaredScale = Scale
 # Flavors
 # -------
 
-Order = typing.Tuple[int, int]
+Order = Tuple[int, int]
 FlavorsNumber = int
 FlavorIndex = int
 IntrinsicFlavors = typing.List[FlavorIndex]
+
+# Targets
+# -------
+
+Target = Tuple[LinearScale, FlavorsNumber]
 
 
 # Scale functions
@@ -48,6 +53,13 @@ class ReferenceRunning(list, Generic[T]):
 
     @classmethod
     def typed(cls, value: T, scale: Scale):
+        """Define constructor from individual values.
+
+        This is the preferred constructor for references, since respects the
+        intended types of the values.
+        It is not the default one only to simplify (de)serialization.
+
+        """
         return cls([value, scale])
 
     @property

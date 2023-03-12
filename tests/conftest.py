@@ -33,7 +33,7 @@ class FakePDF:
     def hasFlavor(self, pid):
         return pid == 1
 
-    def xfxQ2(self, _pid, x, _q2):
+    def xfxQ2(self, _pid, x, _mu2):
         return x
 
 
@@ -93,10 +93,10 @@ class EKOFactory:
         )
         lx = len(self.operator.xgrid)
         lpids = len(self.operator.pids)
-        for q2, op in self._operators(
+        for mu2, op in self._operators(
             mugrid=self.operator.mu2grid, shape=(lpids, lx)
         ).items():
-            self.cache[q2] = op
+            self.cache[mu2] = op
 
         return self.cache
 

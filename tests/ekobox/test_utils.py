@@ -11,7 +11,7 @@ from ekobox import cards, utils
 def test_ekos_product(tmp_path):
     # Generating two ekos
     mu01 = 5.0
-    mugrid1 = np.array([0.0, 8.0, 10.0])
+    mugrid1 = [(1.0, 3), (8.0, 5), (10.0, 5)]
     xgrid = interpolation.XGrid([0.1, 0.5, 1.0])
 
     theory = cards.example.theory()
@@ -19,24 +19,24 @@ def test_ekos_product(tmp_path):
 
     op1 = cards.example.operator()
     op1.mu0 = mu01
-    op1.mugrid = np.array(mugrid1)
+    op1.mugrid = mugrid1
     op1.xgrid = xgrid
     op1.configs.interpolation_polynomial_degree = 1
 
     mu0 = 10.0
-    mugrid2 = np.array([8.0, 10.0, 12.0])
+    mugrid2 = [(8.0, 5), (10.0, 5), (12.0, 5)]
 
     op2 = cards.example.operator()
     op2.mu0 = mu0
-    op2.mugrid = np.array(mugrid2)
+    op2.mugrid = mugrid2
     op2.xgrid = xgrid
     op2.configs.interpolation_polynomial_degree = 1
 
     op_err = copy.deepcopy(op2)
     op_err.mu0 = mu01
 
-    mu2first = mugrid2[0] ** 2
-    mu2last = mugrid2[-1] ** 2
+    mu2first = mugrid2[0][0] ** 2
+    mu2last = mugrid2[-1][0] ** 2
 
     ini_path = tmp_path / "ini.tar"
     eko.solve(theory, op1, path=ini_path)

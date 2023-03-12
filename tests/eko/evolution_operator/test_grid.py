@@ -37,7 +37,7 @@ def test_init_errors(monkeypatch, theory_ffns, operator_card, tmp_path, caplog):
 
 
 def test_compute_mu2grid(theory_ffns, operator_card, tmp_path):
-    mugrid = np.array([10.0, 100.0])
+    mugrid = [(10.0, 5), (100.0, 5)]
     operator_card.mugrid = mugrid
     opgrid = legacy.Runner(
         theory_ffns(3), operator_card, path=tmp_path / "eko.tar"

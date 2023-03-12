@@ -128,7 +128,7 @@ class BenchmarkVFNS(ApfelBenchmark):
                 "HQ": ["MSBAR"],
             }
         )
-        self.run(cartesian_product(th), operators.build({"Q2grid": [[100]]}), ["ToyLH"])
+        self.run(cartesian_product(th), operators.build({"mugrid": [[10]]}), ["ToyLH"])
 
 
 class BenchmarkFFNS(ApfelBenchmark):

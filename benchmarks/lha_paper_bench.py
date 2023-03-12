@@ -5,11 +5,9 @@ from math import nan
 
 import numpy as np
 from banana import register
-from banana.data import cartesian_product
 
 from eko.interpolation import lambertgrid
 from ekomark.benchmark.runner import Runner
-from ekomark.data import operators
 
 register(__file__)
 
@@ -115,7 +113,7 @@ class LHABenchmark(Runner):
             theory_updates,
             [
                 {
-                    "Q2grid": [1e4],
+                    "mugrid": [100],
                     "ev_op_iterations": 10,
                     "interpolation_xgrid": lambertgrid(60).tolist(),
                 }
@@ -235,7 +233,7 @@ class BenchmarkFFNS_polarized(BenchmarkFFNS):
             theory_updates,
             [
                 {
-                    "Q2grid": [1e4],
+                    "mugrid": [100],
                     "ev_op_iterations": 10,
                     "interpolation_xgrid": lambertgrid(60).tolist(),
                     "polarized": True,

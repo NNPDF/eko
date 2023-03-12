@@ -126,9 +126,9 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
 
     """
     polarized = operators["polarized"]
-    Q2grid = operators["Q2grid"]
-    if not np.allclose(Q2grid, [1e4]):
-        raise ValueError("Q2grid has to be [1e4]")
+    mu2grid = operators["mu2grid"]
+    if not np.allclose(mu2grid, [1e4]):
+        raise ValueError("mu2grid has to be [1e4]")
     order = theory["PTO"]
     # select which data
     if polarized and order <= 1:

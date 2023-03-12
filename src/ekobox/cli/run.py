@@ -1,4 +1,4 @@
-"""Launch EKO calculations, with legacy Q2grid mode."""
+"""Launch EKO calculations, with legacy mu2grid mode."""
 import pathlib
 from typing import Sequence
 

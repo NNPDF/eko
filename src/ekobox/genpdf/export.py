@@ -1,3 +1,4 @@
+"""PDF set writer."""
 import io
 import pathlib
 import re
@@ -7,37 +8,37 @@ import yaml
 
 
 def list_to_str(ls, fmt="%.6e"):
-    """
-    Convert a list of numbers to a string
+    """Convert a list of numbers to a string.
 
     Parameters
     ----------
-        ls : list(float)
-            list
-        fmt : str
-            format string
+    ls : list(float)
+        list
+    fmt : str
+        format string
 
     Returns
     -------
-        str :
-            final string
+    str :
+        final string
+
     """
     return " ".join([fmt % x for x in ls])
 
 
 def array_to_str(ar):
-    """
-    Convert an array of numbers to a string
+    """Convert an array of numbers to a string.
 
     Parameters
     ----------
-        ar : list(list(float))
-            array
+    ar : list(list(float))
+        array
 
     Returns
     -------
-        str :
-            final string
+    str :
+        final string
+
     """
     table = ""
     for line in ar:
@@ -46,19 +47,19 @@ def array_to_str(ar):
 
 
 def dump_blocks(name, member, blocks, pdf_type=None):
-    """
-    Write LHAPDF data file.
+    """Write LHAPDF data file.
 
     Parameters
     ----------
-        name : str or os.PathLike
-            target name or path
-        member : int
-            PDF member
-        blocks : list(dict)
-            pdf blocks of data
-        inherit : str
-            str to be copied in the head of member files
+    name : str or os.PathLike
+        target name or path
+    member : int
+        PDF member
+    blocks : list(dict)
+        pdf blocks of data
+    inherit : str
+        str to be copied in the head of member files
+
     """
     path_name = pathlib.Path(name)
     target = path_name / f"{path_name.stem}_{member:04d}.dat"
@@ -74,15 +75,14 @@ def dump_blocks(name, member, blocks, pdf_type=None):
         o.write("Format: lhagrid1\n---\n")
         for b in blocks:
             o.write(list_to_str(b["xgrid"]) + "\n")
-            o.write(list_to_str(list(np.sqrt(b["Q2grid"]))) + "\n")
+            o.write(list_to_str(list(np.sqrt(b["mu2grid"]))) + "\n")
             o.write(list_to_str(b["pids"], "%d") + "\n")
             o.write(array_to_str(b["data"]))
             o.write("---\n")
 
 
 def dump_info(name, info):
-    """
-    Write LHAPDF info file.
+    """Write LHAPDF info file.
 
     NOTE: Since LHAPDF info files are not truely yaml files,
     we have to use a slightly more complicated function to
@@ -90,10 +90,11 @@ def dump_info(name, info):
 
     Parameters
     ----------
-        name : str or os.Pathlike
-            target name or path
-        info : dict
-            info dictionary
+    name : str or os.Pathlike
+        target name or path
+    info : dict
+        info dictionary
+
     """
     path_name = pathlib.Path(name)
     target = path_name / f"{path_name.stem}.info"
@@ -109,19 +110,19 @@ def dump_info(name, info):
 
 
 def dump_set(name, info, member_blocks, pdf_type_list=None):
-    """
-    Dump a whole set.
+    """Dump a whole set.
 
     Parameters
     ----------
-        name : str
-            target name
-        info : dict
-            info dictionary
-        member_blocks : list(list(dict))
-            blocks for all members
-        pdf_type : list(str)
-            list of strings to be copied in the head of member files
+    name : str
+        target name
+    info : dict
+        info dictionary
+    member_blocks : list(list(dict))
+        blocks for all members
+    pdf_type : list(str)
+        list of strings to be copied in the head of member files
+
     """
     dump_info(name, info)
     for mem, blocks in enumerate(member_blocks):

@@ -27,7 +27,7 @@ _theory = dict(
 
 _operator = dict(
     mu0=1.65,
-    mugrid=[100.0],
+    mugrid=[(100.0, 5)],
     xgrid=np.geomspace(1e-7, 1.0, 50).tolist(),
     configs=dict(
         evolution_method="iterate-exact",

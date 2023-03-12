@@ -8,14 +8,14 @@ from ekobox import cards
 
 def test_generate_ocard():
     mu0 = 1.65
-    mugrid = np.array([10.0, 100.0])
+    mugrid = [(10.0, 6), (100.0, 5)]
     op = cards.example.operator()
     op.mu0 = mu0
     op.mugrid = mugrid
     assert pytest.approx(op.mugrid) == mugrid
-    assert pytest.approx(op.mu2grid) == mugrid**2
+    assert pytest.approx(op.mu2grid) == np.array([mu**2 for mu, _ in mugrid])
     assert op.configs.interpolation_polynomial_degree == 4
-    mugrid1 = np.array([100.0])
+    mugrid1 = [100.0, 5]
     op = cards.example.operator()
     op.mu0 = mu0
     op.mugrid = mugrid1

@@ -298,7 +298,7 @@ def test_quad_ker(monkeypatch):
 #     }
 
 #     operators_card = {
-#         "Q2grid": [1, 10],
+#         "mugrid": [(1, 3), (10, 5)],
 #         "interpolation_xgrid": [0.1, 1.0],
 #         "interpolation_polynomial_degree": 1,
 #         "interpolation_is_log": True,
@@ -464,7 +464,7 @@ class TestOperatorMatrixElement:
         theory_card.matching.c = 1.0
         theory_card.matching.b = 1.0
         theory_card.order = (2, 0)
-        operator_card.mugrid = np.array([20.0])
+        operator_card.mugrid = [(20.0, 5)]
         operator_card.xgrid = interpolation.XGrid([0.001, 0.01, 0.1, 1.0])
         operator_card.configs.interpolation_polynomial_degree = 1
         operator_card.configs.interpolation_is_log = True

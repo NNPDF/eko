@@ -17,7 +17,7 @@ default_card = dict(
             n_integration_cores=0,
             debug_skip_non_singlet=False,
             debug_skip_singlet=False,
-            Q2grid=[100],
+            mugrid=[100],
             inputgrid=None,
             targetgrid=None,
             inputpids=None,
@@ -32,25 +32,25 @@ default_card = dict(
 lhapdf_config = {
     # "ev_op_max_order": [10],
     # "ev_op_iterations": [2, 10, 30],
-    "Q2grid": [[20, 1.0e2, 1.0e3, 1.0e4]],
+    "mugrid": [[4.4, 10, 31, 100]],
 }
 
 apfel_config = {
     # "ev_op_max_order": [10],
     # "ev_op_iterations": [2, 10, 30],
-    "Q2grid": [[1.0e3, 1.0e4]],
+    "mugrid": [[31, 100]],
 }
 
 pegasus_config = {
     "ev_op_max_order": [10],
     "ev_op_iterations": [10],
-    "Q2grid": [[1.0e3]],
+    "mugrid": [[31]],
 }
 
 pegasus_exact_config = {
     "ev_op_max_order": [15],
     "ev_op_iterations": [20],
-    "Q2grid": [[1.0e3]],
+    "mugrid": [[31]],
 }
 
 

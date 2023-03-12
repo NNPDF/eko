@@ -35,7 +35,7 @@ class TestManipulate:
         muout = 10.0
         mu2out = muout**2
         xg = interpolation.XGrid(np.geomspace(1e-5, 1.0, 21))
-        eko_factory.operator.mugrid = np.array([muout])
+        eko_factory.operator.mugrid = [(muout, 5)]
         eko_factory.operator.xgrid = xg
         o1 = eko_factory.get()
         lpids = 2
@@ -120,7 +120,7 @@ class TestManipulate:
         muout = 10.0
         mu2out = muout**2
         eko_factory.operator.xgrid = xg
-        eko_factory.operator.mugrid = np.array([muout])
+        eko_factory.operator.mugrid = [(muout, 5)]
         o1 = eko_factory.get()
         lpids = len(o1.rotations.pids)
         lx = len(xg)
@@ -186,7 +186,7 @@ class TestManipulate:
         mu_out = 2.0
         mu2_out = mu_out**2
         eko_factory.operator.mu0 = float(np.sqrt(1.0))
-        eko_factory.operator.mugrid = np.array([mu_out])
+        eko_factory.operator.mugrid = [(mu_out, 4)]
         eko_factory.operator.xgrid = xgrid
         eko_factory.operator.configs.interpolation_polynomial_degree = 1
         eko_factory.operator.configs.interpolation_is_log = False

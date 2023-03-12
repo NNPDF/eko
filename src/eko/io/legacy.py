@@ -54,7 +54,10 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
         # get actual grids
         arrays = load_arrays(innerdir)
 
-    grid = op5to4(metaold["Q2grid"], arrays)
+    op5 = metaold.get("Q2grid")
+    if op5 is None:
+        op5 = metaold["mu2grid"]
+    grid = op5to4(op5, arrays)
 
     with EKO.create(dest) as builder:
         # here I'm plainly ignoring the static analyzer, the types are faking
@@ -105,7 +108,10 @@ class PseudoOperator(DictLike):
     def from_old(cls, old: RawCard):
         """Load from old metadata."""
         mu20 = float(old["q2_ref"])
-        mu2grid = np.array(old["Q2grid"])
+        mu2list = old.get("Q2grid")
+        if mu2list is None:
+            mu2list = old["mu2grid"]
+        mu2grid = np.array(mu2list)
 
         xgrid = XGrid(old["interpolation_xgrid"])
 

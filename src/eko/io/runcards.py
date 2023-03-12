@@ -7,7 +7,7 @@ Squares are consistenly taken inside.
 """
 from dataclasses import dataclass
 from math import nan
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -17,6 +17,7 @@ from .. import interpolation, msbar_masses
 from .. import version as vmod
 from ..couplings import couplings_mod_ev
 from ..quantities.heavy_quarks import (
+    FLAVORS,
     HeavyQuarkMasses,
     MatchingRatios,
     MatchingScales,
@@ -34,6 +35,7 @@ from .types import (
     RawCard,
     ScaleVariationsMethod,
     T,
+    Target,
 )
 
 
@@ -159,6 +161,7 @@ class Rotations(DictLike):
 
     @property
     def pids(self):
+        """Internal flavor basis, used for computation."""
         return np.array(br.flavor_basis_pids)
 
     @property
@@ -212,6 +215,7 @@ class OperatorCard(DictLike):
 
     mu0: float
     """Initial scale."""
+    mugrid: List[Target]
     xgrid: interpolation.XGrid
     """Momentum fraction internal grid."""
 
@@ -220,8 +224,6 @@ class OperatorCard(DictLike):
     """Specific configuration to be used during the calculation of these operators."""
     debug: Debug
     """Debug configurations."""
-
-    mugrid: npt.NDArray
 
     # optional
     eko_version: str = vmod.__version__
@@ -234,14 +236,13 @@ class OperatorCard(DictLike):
         return self.mu0**2
 
     @property
-    def mu2grid(self):
+    def mu2grid(self) -> npt.NDArray:
         """Grid of squared final scales."""
-        return self.mugrid**2
-
-        raise RuntimeError("Mu2 grid has not been initialized")
+        return np.array([mu for mu, _ in self.mugrid]) ** 2
 
     @property
     def pids(self):
+        """Internal flavor basis, used for computation."""
         return np.array(br.flavor_basis_pids)
 
 
@@ -260,7 +261,11 @@ class Legacy:
         "EXP": "iterate-expanded",
         "TRN": "truncated",
     }
-    HEAVY = "cbt"
+
+    @staticmethod
+    def heavies(pattern: str, old_th: dict):
+        """Retrieve a set of values for all heavy flavors."""
+        return {q: old_th[pattern % q] for q in FLAVORS}
 
     @staticmethod
     def fallback(*args: T, default: Optional[T] = None) -> T:
@@ -279,9 +284,6 @@ class Legacy:
         old = self.theory
         new = {}
 
-        def heavies(pattern: str):
-            return {q: old[pattern % q] for q in self.HEAVY}
-
         new["order"] = [old["PTO"] + 1, old["QED"]]
         alphaem = self.fallback(old.get("alphaqed"), old.get("alphaem"), default=0.0)
         if "QrefQED" not in old:
@@ -297,18 +299,18 @@ class Legacy:
         new["num_flavs_init"] = old["nf0"]
         new["num_flavs_max_pdf"] = old["MaxNfPdf"]
         intrinsic = []
-        for idx, q in enumerate(self.HEAVY):
+        for idx, q in enumerate(FLAVORS):
             if old.get(f"i{q}".upper()) == 1:
                 intrinsic.append(idx + 4)
         new["intrinsic_flavors"] = intrinsic
-        new["matching"] = heavies("k%sThr")
+        new["matching"] = self.heavies("k%sThr", old)
         new["quark_masses_scheme"] = old["HQ"]
-        ms = heavies("m%s")
-        mus = heavies("Qm%s")
+        ms = self.heavies("m%s", old)
+        mus = self.heavies("Qm%s", old)
         if old["HQ"] == "POLE":
-            new["quark_masses"] = {q: (ms[q], nan) for q in self.HEAVY}
+            new["quark_masses"] = {q: (ms[q], nan) for q in FLAVORS}
         elif old["HQ"] == "MSBAR":
-            new["quark_masses"] = {q: (ms[q], mus[q]) for q in self.HEAVY}
+            new["quark_masses"] = {q: (ms[q], mus[q]) for q in FLAVORS}
         else:
             raise ValueError()
 
@@ -324,7 +326,13 @@ class Legacy:
         new = {}
 
         new["mu0"] = old_th["Q0"]
-        new["_mu2grid"] = old["Q2grid"]
+        mu2grid = old.get("Q2grid")
+        mugrid = np.sqrt(mu2grid if mu2grid is not None else old["mu2grid"])
+        new["mugrid"] = flavored_mu2grid(
+            mugrid,
+            list(self.heavies("m%s", old_th).values()),
+            list(self.heavies("k%sThr", old_th).values()),
+        )
 
         new["configs"] = {}
         evmod = old_th["ModEv"]
@@ -380,3 +388,24 @@ def update(theory: Union[RawCard, TheoryCard], operator: Union[RawCard, Operator
 
     cards = Legacy(theory, operator)
     return cards.new_theory, cards.new_operator
+
+
+def flavored_mu2grid(mu2grid: list, masses: list, matching_ratios: list):
+    r"""Upgrade :math:`\mu^2` grid to contain also target number flavors.
+
+    It determines the number of flavors for the PDF set at the target scale,
+    inferring it according to the specified scales.
+
+    This method should not be used to write new runcards, but rather to have a
+    consistent default for comparison with other softwares and existing PDF
+    sets.
+    There is no one-to-one relation between number of running flavors and final
+    scales, unless matchings are all applied. But this is a custom choice,
+    since it is possible to have PDFs in different |FNS| at the same scales.
+
+    .. todo::
+
+        To be actually implemented
+
+    """
+    return [(np.sqrt(mu2), 0) for mu2 in mu2grid]

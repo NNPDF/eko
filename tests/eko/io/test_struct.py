@@ -6,8 +6,9 @@ import numpy as np
 import pytest
 import yaml
 
-from eko import EKO, interpolation
+from eko import EKO
 from eko import basis_rotation as br
+from eko import interpolation
 from eko.io import struct
 from tests.conftest import EKOFactory
 
@@ -112,13 +113,14 @@ class TestEKO:
             struct.EKO.read(no_tar_path)
 
     def test_properties(self, eko_factory: EKOFactory):
-        mugrid = np.array([10.0])
+        mu = 10.0
+        mugrid = [(mu, 5)]
         eko_factory.operator.mugrid = mugrid
         eko = eko_factory.get()
         assert hasattr(eko.theory_card, "quark_masses")
         assert hasattr(eko.operator_card, "debug")
-        np.testing.assert_allclose(eko.mu2grid, mugrid**2)
-        assert mugrid[0] ** 2 in eko
+        np.testing.assert_allclose(eko.mu2grid, [mu**2])
+        assert mu**2 in eko
         default_grid = eko.operator_card.xgrid
         assert eko.xgrid == default_grid
         xg = interpolation.XGrid([0.1, 1.0])
@@ -135,7 +137,7 @@ class TestEKO:
     def test_ops(self, eko_factory: EKOFactory):
         mu = 10.0
         mu2 = mu**2
-        mugrid = np.array([mu])
+        mugrid = [(mu, 5)]
         eko_factory.operator.mugrid = mugrid
         eko = eko_factory.get()
         v = np.random.rand(2, 2)
@@ -171,7 +173,7 @@ class TestEKO:
     def test_copy(self, eko_factory: EKOFactory, tmp_path: pathlib.Path):
         mu = 10.0
         mu2 = mu**2
-        mugrid = np.array([mu])
+        mugrid = [(mu, 5)]
         eko_factory.operator.mugrid = mugrid
         eko1 = eko_factory.get()
         v = np.random.rand(2, 2)
@@ -220,7 +222,7 @@ class TestLegacy:
 
     def test_iter(self, eko_factory):
         """Test managed iteration."""
-        eko_factory.operator.mugrid = np.array([5.0, 20.0, 100.0])
+        eko_factory.operator.mugrid = [(3.0, 4), (20.0, 5), (300.0, 6)]
         eko = eko_factory.get()
 
         mu2prev = None

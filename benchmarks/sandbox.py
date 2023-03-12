@@ -58,7 +58,7 @@ class Sandbox(Runner):
         ops = {
             "ev_op_iterations": [1],
             # "ev_op_max_order": [20],
-            "Q2grid": [[100]],
+            "mugrid": [[10]],
             # "debug_skip_singlet": [True],
         }
         return ops
@@ -140,7 +140,7 @@ class Sandbox(Runner):
         ]
         self.run(
             [theory_updates],
-            [{"Q2grid": [1e4], "debug_skip_singlet": True}],
+            [{"mugrid": [100], "debug_skip_singlet": True}],
             ["ToyLH"],
         )
 

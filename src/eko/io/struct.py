@@ -985,7 +985,7 @@ class EKO:
             operators themselves
 
         """
-        return dict(Q2grid=self.mu2grid.tolist(), metadata=self.metadata.raw)
+        return dict(mu2grid=self.mu2grid.tolist(), metadata=self.metadata.raw)
 
 
 @dataclass
