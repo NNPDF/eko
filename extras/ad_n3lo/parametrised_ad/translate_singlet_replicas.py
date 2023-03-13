@@ -1,17 +1,18 @@
 import pathlib
-import eko
 from unicodedata import name
+
+import ekore
 
 fps = pathlib.Path(__file__).parent.glob("*3*nf*.c")
 
-eko_path=eko.__path__
+ekore_path = ekore.__path__
 
 for fp in fps:
     with open(fp, encoding="utf-8") as oi:
         nls = []
         # translate
         for l in oi:
-            l = l.replace("Sigma_Summation_Objects_Private_MyPower","np.power")
+            l = l.replace("Sigma_Summation_Objects_Private_MyPower", "np.power")
             l = l.replace("Power", "np.power")
             l = l.replace("Log", "np.log")
             l = l.replace("ln2", "np.log(2)")
@@ -22,13 +23,15 @@ for fp in fps:
             nls.append(l)
 
     # output
-    gamma_name, nf = str(fp).split('/')[-1].split('3')
+    gamma_name, nf = str(fp).split("/")[-1].split("3")
     nf = nf[:-2]
     if "ps" in nf:
         nf = nf[2:]
-    if gamma_name =="gqq":
+    if gamma_name == "gqq":
         gamma_name = "gqqPS"
-    eko_path = pathlib.Path(f"{eko_path}/anomalous_dimensions/as4/tmp")
+    eko_path = pathlib.Path(
+        f"{ekore_path}/anomalous_dimensions/unpolarized/space_like/as4/tmp"
+    )
     eko_path.mkdir(exist_ok=True)
     with open(f"{eko_path}/{gamma_name}.py", "a", encoding="utf-8") as oo:
         # oo.write(
@@ -37,10 +40,10 @@ for fp in fps:
         # oo.write("import numba as nb\n")
         # oo.write("import numpy as np\n")
         oo.write("\n\n")
-        oo.write('@nb.njit(cache=True)\n')
+        oo.write("@nb.njit(cache=True)\n")
         name = gamma_name[1:]
         if "PS" in name:
-           name = "ps"
+            name = "ps"
         oo.write(f"def gamma_{name}_{nf}(n, sx, variation):\n")
         if "S1" in nls[0]:
             oo.write("    S1 = sx[0][0]\n")
@@ -53,9 +56,13 @@ for fp in fps:
         if "S5" in nls[0]:
             oo.write("    S5 = sx[4][0]\n")
         if "S3m2" in nls[1]:
-            oo.write("    S3m2 = (-(((-1 + 2 * n) * (1 - n + n**2))/((-1 + n)**3 * n**3)) + S3)/n\n")
+            oo.write(
+                "    S3m2 = (-(((-1 + 2 * n) * (1 - n + n**2))/((-1 + n)**3 * n**3)) + S3)/n\n"
+            )
         if "S2m2" in nls[1]:
-            oo.write("    S2m2 = ((-1 + 2 * n - 2 * n**2)/((-1 + n)**2 * n**2) + S2)/n\n")
+            oo.write(
+                "    S2m2 = ((-1 + 2 * n - 2 * n**2)/((-1 + n)**2 * n**2) + S2)/n\n"
+            )
         if "S2m2" in nls[1]:
             oo.write("    S1m2 = ((1 - 2 * n)/((-1 + n) * n) + S1)/n\n")
         oo.write(f"    common = {nls[0]}")
