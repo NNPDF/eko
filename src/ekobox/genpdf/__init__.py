@@ -55,7 +55,7 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
     if isinstance(parent_pdf_set, str):
         if parent_pdf_set in ["toy_pol", "toy"]:
             # import banana only here to avoid
-            # explict dependecy
+            # explict dependency
             from banana import toy
 
             info = copy.deepcopy(load.Toy_info)
