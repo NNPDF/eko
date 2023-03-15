@@ -87,7 +87,6 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
     # run pegaus
     out_tabs = {}
     for q2 in operators["Q2grid"]:
-
         tab = {}
         for x in target_xgrid:
             # last two numbers are the min and max pid to calculate,
@@ -103,14 +102,21 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
 
         # rotate if needed
         if rotate_to_evolution_basis:
+            qed = theory["QED"] > 0
+            if not qed:
+                evol_basis = br.evol_basis
+                rotate_flavor_to_evolution = br.rotate_flavor_to_evolution
+            else:
+                evol_basis = br.unified_evol_basis
+                rotate_flavor_to_evolution = br.rotate_flavor_to_unified_evolution
             pdfs = np.array(
                 [
                     tab[pid] if pid in tab else np.zeros(len(target_xgrid))
                     for pid in br.flavor_basis_pids
                 ]
             )
-            evol_pdf = br.rotate_flavor_to_evolution @ pdfs
-            tab = dict(zip(br.evol_basis, evol_pdf))
+            evol_pdf = rotate_flavor_to_evolution @ pdfs
+            tab = dict(zip(evol_basis, evol_pdf))
 
         out_tabs[q2] = tab
 

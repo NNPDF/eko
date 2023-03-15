@@ -11,7 +11,8 @@ def test_number_conservation():
     # number
     N = complex(1.0, 0.0)
     sx = h.sx(N, 3)
-    np.testing.assert_almost_equal(ad.as1aem1.gamma_nsm(N, sx), 0, decimal=4)
+    sx_ns_qed = h.compute_qed_ns_cache(N, sx[0])
+    np.testing.assert_almost_equal(ad.as1aem1.gamma_nsm(N, sx, sx_ns_qed), 0, decimal=4)
 
 
 def test_gluon_momentum_conservation():
@@ -52,8 +53,9 @@ def test_quark_momentum_conservation():
     # quark momentum
     N = complex(2.0, 0.0)
     sx = h.sx(N, 3)
+    sx_ns_qed = h.compute_qed_ns_cache(N, sx[0])
     np.testing.assert_almost_equal(
-        ad.as1aem1.gamma_nsp(N, sx)
+        ad.as1aem1.gamma_nsp(N, sx, sx_ns_qed)
         + ad.as1aem1.gamma_gq(N, sx)
         + ad.as1aem1.gamma_phq(N, sx),
         0,

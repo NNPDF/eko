@@ -69,6 +69,33 @@ def test_get_range():
     assert (4, 4) == flavors.get_range(
         [member.MemberName(n) for n in ["S.S", "V3.V3", "T15.T15"]]
     )
+    assert (3, 3) == flavors.get_range(
+        [member.MemberName(n) for n in ["S.S", "Td3.Td3"]], True
+    )
+    assert (3, 4) == flavors.get_range(
+        [member.MemberName(n) for n in ["S.S", "Td3.Td3", "Tu3.S"]], True
+    )
+    assert (4, 4) == flavors.get_range(
+        [member.MemberName(n) for n in ["S.S", "Td3.Td3", "Tu3.Tu3"]], True
+    )
+    assert (5, 5) == flavors.get_range(
+        [member.MemberName(n) for n in ["S.S", "Td3.Td3", "Tu3.Tu3", "Td8.Td8"]], True
+    )
+    assert (6, 6) == flavors.get_range(
+        [
+            member.MemberName(n)
+            for n in ["S.S", "Td3.Td3", "Tu3.Tu3", "Td8.Td8", "Tu8.Tu8"]
+        ],
+        True,
+    )
+    with pytest.raises(ValueError):
+        flavors.get_range(
+            [
+                member.MemberName(n)
+                for n in ["S.S", "Td3.Td3", "Tu3.Tu3", "Td8.Td8", "T35.T35"]
+            ],
+            True,
+        )
 
 
 def test_rotate_pm_to_flavor():
@@ -91,6 +118,27 @@ def test_rotate_matching():
     assert len(list(filter(lambda e: "b-" in e, m.keys()))) == 1
 
 
+def test_rotate_matching_qed():
+    m = flavors.rotate_matching(4, True)
+    assert len(list(filter(lambda e: "c+" in e, m.keys()))) == 3
+    assert len(list(filter(lambda e: "b-" in e, m.keys()))) == 1
+    # S' = S + c+
+    np.testing.assert_allclose(m["S.S"], 1.0)
+    np.testing.assert_allclose(m["S.c+"], 1.0)
+    # T3u' = u+ - c+ = 1/3(S + Sdelta) - c+
+    np.testing.assert_allclose(m["Tu3.S"], 1.0 / 3.0)
+    np.testing.assert_allclose(m["Tu3.Sdelta"], 1.0 / 3.0)
+    np.testing.assert_allclose(m["Tu3.c+"], -1.0)
+    # Sdelta' = u+ + c+ - d+ - s+ = 1/3(2 Sdelta - S) + c+
+    np.testing.assert_allclose(m["Sdelta.Sdelta"], 2.0 / 3.0)
+    np.testing.assert_allclose(m["Sdelta.S"], -1.0 / 3.0)
+    np.testing.assert_allclose(m["Sdelta.c+"], +1.0)
+
+    m = flavors.rotate_matching(5, True)
+    assert len(list(filter(lambda e: "b-" in e, m.keys()))) == 3
+    assert len(list(filter(lambda e: "t+" in e, m.keys()))) == 1
+
+
 def test_rotate_matching_is_inv():
     def replace_names(k):
         for q in range(4, 6 + 1):
@@ -111,6 +159,34 @@ def test_rotate_matching_is_inv():
         m = load(flavors.rotate_matching(nf))
         minv = load(flavors.rotate_matching_inverse(nf))
         np.testing.assert_allclose(m @ minv, np.eye(len(br.evol_basis)), atol=1e-10)
+
+
+def test_rotate_matching_is_inv_qed():
+    def replace_names(k):
+        names = {3: "d3", 4: "u3", 5: "d8", 6: "u8"}
+        for q in range(4, 6 + 1):
+            k = k.replace(br.quark_names[q - 1] + "+", f"T{names[q]}").replace(
+                br.quark_names[q - 1] + "-", f"V{names[q]}"
+            )
+        return k
+
+    def load(m):
+        mm = np.zeros((len(br.unified_evol_basis), len(br.unified_evol_basis)))
+        for k, v in m.items():
+            k = replace_names(k)
+            kk = k.split(".")
+            mm[
+                br.unified_evol_basis.index(kk[0]), br.unified_evol_basis.index(kk[1])
+            ] = v
+        return mm
+
+    for nf in range(4, 6 + 1):
+        m = load(flavors.rotate_matching(nf, True))
+        minv = load(flavors.rotate_matching_inverse(nf, True))
+        print(m @ minv)
+        np.testing.assert_allclose(
+            m @ minv, np.eye(len(br.unified_evol_basis)), atol=1e-10
+        )
 
 
 def test_pids_from_intrinsic_unified_evol():
