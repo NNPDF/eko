@@ -1,15 +1,14 @@
 r"""
-This module contains the |NNLO| OME's in the polarized case for the matching conditions in the |VFNS|.
-The equations are given in :cite:`Bierenbaum_2023`. As in the |NLO| OME's, in the paper, an additional factor 2 can be found in front of the anomalous dimensions and factor (-1) for odd powers of L. The anomalous dimensions and beta function with the addition 'hat' are defined as in the |NLO| case.
+This module contains the |NNLO| |OME| in the polarized case for the matching conditions in the |VFNS|.
 
-
+The equations are given in :cite:`Bierenbaum_2023`. As in the |NLO| |OME|, in the paper, an additional factor 2 can be found in front of the anomalous dimensions and factor (-1) for odd powers of L. The anomalous dimensions and beta function with the addition 'hat' are defined as in the |NLO| case.
 """
 import numba as nb
 import numpy as np
 
 from eko import constants
-
 from eko.beta import beta_qcd_as2 as beta_0
+
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_gg as gamma0_gg
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_gq as gamma0_gq
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_qg as gamma0_qg
@@ -25,9 +24,9 @@ beta_0hat = (
 
 @nb.njit(cache=True)
 def A_qq_ns(n, sx, L):
-    r"""
-    |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}` given in
-    Eq. (133) in :cite:`Bierenbaum_2023`.
+    r"""Compute |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`.
+
+    Implements Eq. (133) of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -88,9 +87,9 @@ def A_qq_ns(n, sx, L):
 
 @nb.njit(cache=True)
 def A_hq_ps(n, sx, L, nf):
-    r"""
-    |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}` given in
-    Eq. (138) in :cite:`Bierenbaum_2023`.
+    r"""Compute |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`.
+
+    Implements Eq. (138) of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -130,19 +129,17 @@ def A_hq_ps(n, sx, L, nf):
         16 * constants.CF * (2 + n) * (1 + 2 * n + n**3) * constants.TR
     ) / (n**3 * ((1 + n) ** 3))
 
-    a_hq_l0 = (
-        a_hq_ps_l + z_qq_ps + (zeta2 / 8) * (gamma0_qghat(n, nf)) * (2 * gamma0_gq(n))
-    )
+    a_hq_l0 = a_hq_ps_l + z_qq_ps + (zeta2 / 8) * (gamma0_qghat(n)) * (2 * gamma0_gq(n))
     a_hq_l1 = (1 / 2) * gamma1_ps_qqhat
-    a_hq_l2 = -(1 / 8) * (gamma0_qghat(n, nf)) * (2 * gamma0_gq(n))
+    a_hq_l2 = -(1 / 8) * (gamma0_qghat(n)) * (2 * gamma0_gq(n))
     return a_hq_l2 * L**2 + a_hq_l1 * (-L) + a_hq_l0
 
 
 @nb.njit(cache=True)
 def A_hg(n, sx, L, nf):
-    r"""
-    |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}` given in
-    Eq. (111) in :cite:`Bierenbaum_2023`.
+    r"""Compute |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`.
+
+    Implements Eq. (111) of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -272,9 +269,9 @@ def A_hg(n, sx, L, nf):
 
 @nb.njit(cache=True)
 def A_gq(n, sx, L):
-    r"""
-    |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}` given in
-    Eq. (174) in :cite:`Bierenbaum_2023`.
+    r"""Compute |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`.
+
+    Implements Eq. (174) of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -323,9 +320,9 @@ def A_gq(n, sx, L):
 
 @nb.njit(cache=True)
 def A_gg(n, sx, L, nf):
-    r"""
-    |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)} ` given in
-    Eq. (187) in :cite:`Bierenbaum_2023`.
+    r"""Compute |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`.
+
+    Implements Eq. (187) of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -389,7 +386,7 @@ def A_gg(n, sx, L, nf):
     a_gg_l1 = (1 / 2) * gamma1_gg_hat
     a_gg_l2 = (1 / 8) * (
         2 * beta_0hat * (-2 * gamma0_gg(n, S1, nf) + 2 * beta_0(nf))
-        + 2 * gamma0_gq(n) * gamma0_qghat(n, nf)
+        + 2 * gamma0_gq(n) * gamma0_qghat(n)
         + 8 * beta_0hat**2
     )
 
@@ -400,15 +397,14 @@ def A_gg(n, sx, L, nf):
 def A_singlet(
     n, sx, L, nf
 ):  # for future larin constant contribution could be a chosen parameter if useful distinction in some way
-    r"""
-      Computes the |NNLO| singlet |OME|.
+    r"""Compute the |NNLO| singlet |OME|.
 
-      .. math::
-          A^{S,(2)} = \left(\begin{array}{cc}
-            A_{gg, H}^{S,(2)} & A_{gq, H}^{S,(2)} & 0 \\
-            0 & A_{qq,H}^{NS,(2)} & 0\\
-            A_{hg}^{S,(2)} & A_{hq}^{PS,(2)} & 0\\
-          \end{array}\right)
+    .. math::
+        A^{S,(2)} = \left(\begin{array}{cc}
+        A_{gg, H}^{S,(2)} & A_{gq, H}^{S,(2)} & 0 \\
+        0 & A_{qq,H}^{NS,(2)} & 0\\
+        A_{hg}^{S,(2)} & A_{hq}^{PS,(2)} & 0\\
+        \end{array}\right)
 
       Parameters
       ----------
@@ -439,13 +435,13 @@ def A_singlet(
 
 @nb.njit(cache=True)
 def A_ns(n, sx, L):
-    r"""
-    Computes the |NNLO| non-singlet |OME|.
-      .. math::
-          A^{NS,(2)} = \left(\begin{array}{cc}
-            A_{qq,H}^{NS,(2)} & 0 \\
-            0 & 0 \\
-          \end{array}\right)
+    r"""Compute the |NNLO| non-singlet |OME|.
+
+    .. math::
+        A^{NS,(2)} = \left(\begin{array}{cc}
+        A_{qq,H}^{NS,(2)} & 0 \\
+        0 & 0 \\
+        \end{array}\right)
 
       Parameters
       ----------

@@ -14,12 +14,14 @@ from ...unpolarized.space_like.as1 import A_gg as A_gg_unpol
 
 
 @nb.njit(cache=True)
-def gamma0_qghat(n, nf):
-    r"""Compute the |LO| polarized quark-gluon anomalous dimension with the addition 'hat' and thus, discarding the part proportional 'nf'. The factor 2 is included due to convention mentioned above.
+def gamma0_qghat(n, nf=1):
+    r"""Compute the |LO| polarized quark-gluon anomalous dimension with the addition 'hat' and thus, discarding the part proportional 'nf'.
+
+    The factor 2 is included due to convention mentioned above.
 
     Parameters
     ----------
-    N : complex
+    n : complex
       Mellin moment
     nf : int
       Number of active flavors
@@ -30,13 +32,15 @@ def gamma0_qghat(n, nf):
       |LO| polarized quark-gluon anomalous dimension (hat) :math:`\\\hat{gamma_{qg}}^{(0)}(N)`
 
     """
-    return 2 * gamma0_qg(n, nf) / nf
+    return 2 * gamma0_qg(n, nf)
 
 
 @nb.njit(cache=True)
-def A_hg(n, L, nf):
-    r"""
-    |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}` given in Eq. (104) of :cite:`Bierenbaum_2023`.
+def A_hg(n, L):
+    r"""Compute the |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}`.
+
+    Implements Eq. (104) of :cite:`Bierenbaum_2023`.
+
     Parameters
     ----------
         n : complex
@@ -51,13 +55,14 @@ def A_hg(n, L, nf):
         A_hg : complex
             |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}`
     """
-    return (1 / 2) * gamma0_qghat(n, nf) * (-L)
+    return (1 / 2) * gamma0_qghat(n) * (-L)
 
 
 @nb.njit(cache=True)
 def A_gg(L):
-    r"""
-    |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}` given in Eq. (186) of :cite:`Bierenbaum_2023`.
+    r"""Compute the |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`.
+
+    Implements Eq. (186) of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -74,8 +79,8 @@ def A_gg(L):
 
 @nb.njit(cache=True)
 def A_singlet(n, L, nf):
-    r"""
-    Computes the |NLO| singlet |OME|.
+    r"""Compute the |NLO| singlet |OME|.
+
     .. math::
         A^{S,(1)} = \left(\begin{array}{cc}
         A_{gg,H}^{S,(1)} & 0 & 0\\
@@ -106,7 +111,7 @@ def A_singlet(n, L, nf):
         [
             [A_gg(L), 0.0, 0.0],
             [0 + 0j, 0 + 0j, 0 + 0j],
-            [A_hg(n, L, nf), 0.0, 0.0],
+            [A_hg(n, L), 0.0, 0.0],
         ],
         np.complex_,
     )

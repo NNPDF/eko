@@ -3,13 +3,12 @@ r"""The polarized, space-like |OME|."""
 import numba as nb
 import numpy as np
 
-from . import as1
+from . import as1, as2
 
 
 @nb.njit(cache=True)
-def A_singlet(matching_order, n, sx, nf, L, is_msbar, sx_ns=None):
-    r"""
-    Computes the tower of the singlet |OME|.
+def A_singlet(matching_order, n, sx, nf, L):
+    r"""Compute the tower of the singlet |OME|.
 
     Parameters
     ----------
@@ -41,15 +40,47 @@ def A_singlet(matching_order, n, sx, nf, L, is_msbar, sx_ns=None):
         ekore.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
     """
     A_s = np.zeros((matching_order[0], 3, 3), np.complex_)
-    if matching_order[0] == 1:
+    if matching_order[0] >= 1:
         A_s[0] = as1.A_singlet(n, L)
+    if matching_order[0] == 2:
+        A_s[1] = as2.A_singlet(n, sx, L, nf)
     else:
         raise NotImplementedError(
-            "Polarised, space-like is not yet implemented at this order"
+            "Polarized, space-like is not yet implemented at this order"
         )
     return A_s
 
 
 @nb.njit(cache=True)
-def A_non_singlet(_matching_order, _n, _sx, _nf, _L, _is_msbar, _sx_ns=None):
-    raise NotImplementedError("Polarised, space-like is not yet implemented")
+def A_non_singlet(matching_order, n, sx, L):
+    r"""Compute the tower of the non-singlet |OME|.
+
+    Parameters
+    ----------
+        matching_order : tuple(int,int)
+            perturbative matching_order
+        n : complex
+            Mellin variable
+        sx : list
+            harmonic sums cache
+        L : float
+            :math:``\ln(\mu_F^2 / m_h^2)``
+
+    Returns
+    -------
+        A_non_singlet : numpy.ndarray
+            non-singlet |OME|
+
+     See Also
+    --------
+        ekore.matching_conditions.nlo.A_hh_1 : :math:`A_{HH}^{(1)}(N)`
+        ekore.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
+    """
+    A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)
+    if matching_order[0] == 2:
+        A_ns[1] = as2.A_ns(n, sx, L)
+    else:
+        raise NotImplementedError(
+            "Polarized, space-like is not yet implemented at this order"
+        )
+    return A_ns
