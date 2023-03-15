@@ -1,5 +1,5 @@
 r"""
-This module contains the |NLO| |OME| (OMEs) in the polarized case for the matching conditions in the |VFNS|.
+This module contains the |NLO| |OME| in the polarized case for the matching conditions in the |VFNS|.
 Heavy quark contribution for intrinsic evolution are not considered for the polarized case.
 The matching conditions for the |VFNS| at :math:`\mu_F^2 \neq m_H^2` are provided in :cite:`Bierenbaum_2023`. In the paper, the fraction :math:`\mu_F^2 / m_H^2` inside the log is inverted, yielding an additional factor of (-1) wherever L has an odd power. Additionally, a different convention for the anomalous dimensions is used, yielding a factor 2 in the |OME|'s wherever they are present. The anomalous dimensions and beta function with the addition 'hat', have the form :math:`\gamma_hat = gamma(nf+1) - gamma(nf)`.
 """
