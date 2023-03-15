@@ -115,7 +115,7 @@ def gamma_nsp(N, nf, cache, is_singlet=None):
     )
 
     result = PP2 + npp(nf, 2) * PF2
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -227,7 +227,7 @@ def gamma_nsm(N, nf, cache, is_singlet=None):
     )
 
     result = PM2 + npp(nf, 2) * PF2
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -305,7 +305,7 @@ def gamma_nsv(N, nf, cache, is_singlet=None):
     )
 
     result = gamma_nsm(N, nf, cache, is_singlet) + nf * PS2
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -407,7 +407,7 @@ def gamma_qq(N, nf, cache, is_singlet=None):
     )
 
     result = nf * (PS1 + nf * PS2)
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -545,7 +545,7 @@ def gamma_qg(N, nf, cache, is_singlet=None):
     )
 
     result = (QG1 + nf * (QG2 + nf * QG3)) / 2
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -661,7 +661,7 @@ def gamma_gq(N, nf, cache, is_singlet=None):
     )
 
     result = 2 * nf * (GQ0 + nf * GQ1)
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -797,7 +797,7 @@ def gamma_gg(N, nf, cache, is_singlet=None):
     )
 
     result = GG0 + nf * (GG1 + nf * GG2)
-    return result
+    return -result
 
 
 @nb.njit(cache=True)

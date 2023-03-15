@@ -26,15 +26,14 @@ def compute_LHAPDF_data(operators, pdf, skip_pdfs, rotate_to_evolution_basis=Fal
         ref : dict
             output containing: target_xgrid, values
     """
+    # import pdb; pdb.set_trace()
 
-    target_xgrid = operators["xgrid"]
+    target_xgrid = operators["interpolation_xgrid"]
 
     out_tabs = {}
     for q2 in operators["Q2grid"]:
-
         tab = {}
         for pid in br.flavor_basis_pids:
-
             if pid in skip_pdfs:
                 continue
 

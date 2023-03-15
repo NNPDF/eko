@@ -43,7 +43,7 @@ def gamma_ns(order, mode, n, nf):
             gamma_ns_1 = as2.gamma_nsp(n, nf, None, False)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
         elif mode in [10201, 10200]:
-            gamma_ns_1 = as2.gamma_nsm(n, nf, None, False)
+            gamma_ns_1 = as2.gamma_nsm(n, nf)
         else:
             raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
@@ -86,7 +86,7 @@ def gamma_singlet(order, n, nf):
     gamma_s = np.zeros((order[0], 2, 2), np.complex_)
     gamma_s[0] = as1.gamma_singlet(n, nf, None, True)
     if order[0] >= 2:
-        gamma_s[1] = as2.gamma_singlet(n, nf, None, True)
+        gamma_s[1] = as2.gamma_singlet(n, nf, None)
     if order[0] >= 3:
         gamma_s[2] = as3.gamma_singlet(n, nf, None, True)
     return gamma_s

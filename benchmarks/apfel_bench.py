@@ -205,4 +205,4 @@ if __name__ == "__main__":
     # obj.benchmark_sv(2, "exponentiated")
     # obj.benchmark_kthr(2)
     # obj.benchmark_msbar(2)
-    obj.benchmark_plain_tl(0)
+    obj.benchmark_plain_tl(1)
