@@ -9,7 +9,7 @@ import numpy as np
 
 from eko import constants
 
-from .....eko.beta import beta_qcd_as2 as beta_0
+from eko.beta import beta_qcd_as2 as beta_0
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_gg as gamma0_gg
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_gq as gamma0_gq
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_qg as gamma0_qg
