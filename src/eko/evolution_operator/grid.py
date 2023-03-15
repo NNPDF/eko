@@ -107,6 +107,7 @@ class OperatorGrid(sv.ModeMixin):
             logger.warning("Evolution: In LO we use the exact solution always!")
 
         logger.info(dict(polarized=configs.polarized))
+        logger.info(dict(time_like=configs.time_like))
 
         self.config = config
         self.q2_grid = mu2grid
