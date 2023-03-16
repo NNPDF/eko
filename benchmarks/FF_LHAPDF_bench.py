@@ -84,7 +84,7 @@ class BenchmarkFF(Runner):
             "V35",
         ]
 
-    def benchmark_lo(self, Q0=10, Q2grid=(10000, 1000000)):
+    def benchmark_lo(self, Q0=10, Q2grid=(10000,)):
         theory_card = {
             **base_theory,
             "PTO": 0,
@@ -103,7 +103,7 @@ class BenchmarkFF(Runner):
 
         self.run([theory_card], [operator_card], [FF_sets_lo[7]])
 
-    def benchmark_nlo(self, Q0=1.65, Q2grid=(10000,)):
+    def benchmark_nlo(self, Q0=10, Q2grid=(10000,)):
         theory_card = {
             **base_theory,
             "PTO": 1,
@@ -117,10 +117,10 @@ class BenchmarkFF(Runner):
             **base_operator,
             "Q2grid": list(Q2grid),
             "time_like": [True],
-            "interpolation_xgrid": interpolation.lambertgrid(5, 0.01),
+            "interpolation_xgrid": interpolation.lambertgrid(100, 0.01),
         }
 
-        self.run([theory_card], [operator_card], [FF_sets_nlo[11]])
+        self.run([theory_card], [operator_card], [FF_sets_nlo[10]])
 
     def benchmark_nnlo(self, Q0=10, Q2grid=(10000,)):
         theory_card = {
@@ -143,4 +143,6 @@ class BenchmarkFF(Runner):
 
 
 if __name__ == "__main__":
-    BenchmarkFF().benchmark_nlo()
+    BenchmarkFF().benchmark_lo()
+#    BenchmarkFF().benchmark_nlo()
+#    BenchmarkFF().benchmark_nnlo()
