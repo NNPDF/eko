@@ -803,7 +803,7 @@ class Operator(sv.ModeMixin):
             a_half=self.a_half_list,
             alphaem_running=self.alphaem_running,
             nf=self.nf,
-            L=-np.log(self.xif2),
+            L=np.log(self.xif2),
             ev_op_iterations=self.config["ev_op_iterations"],
             ev_op_max_order=tuple(self.config["ev_op_max_order"]),
             sv_mode=self.sv_mode,
