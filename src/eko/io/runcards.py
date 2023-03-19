@@ -12,6 +12,8 @@ from typing import List, Optional, Union
 import numpy as np
 import numpy.typing as npt
 
+from eko.thresholds import ThresholdsAtlas
+
 from .. import basis_rotation as br
 from .. import interpolation, msbar_masses
 from .. import version as vmod
@@ -355,7 +357,7 @@ class Legacy:
         new["mu0"] = old_th["Q0"]
         mu2grid = old.get("Q2grid")
         mugrid = np.sqrt(mu2grid if mu2grid is not None else old["mu2grid"])
-        new["mugrid"] = flavored_mu2grid(
+        new["mugrid"] = flavored_mugrid(
             mugrid,
             list(self.heavies("m%s", old_th).values()),
             list(self.heavies("k%sThr", old_th).values()),
@@ -417,7 +419,7 @@ def update(theory: Union[RawCard, TheoryCard], operator: Union[RawCard, Operator
     return cards.new_theory, cards.new_operator
 
 
-def flavored_mu2grid(mu2grid: list, masses: list, matching_ratios: list):
+def flavored_mugrid(mugrid: list, masses: list, matching_ratios: list):
     r"""Upgrade :math:`\mu^2` grid to contain also target number flavors.
 
     It determines the number of flavors for the PDF set at the target scale,
@@ -430,9 +432,9 @@ def flavored_mu2grid(mu2grid: list, masses: list, matching_ratios: list):
     scales, unless matchings are all applied. But this is a custom choice,
     since it is possible to have PDFs in different |FNS| at the same scales.
 
-    .. todo::
-
-        To be actually implemented
-
     """
-    return [(np.sqrt(mu2), 0) for mu2 in mu2grid]
+    tc = ThresholdsAtlas(
+        masses=(np.array(masses) ** 2).tolist(),
+        thresholds_ratios=(np.array(matching_ratios) ** 2).tolist(),
+    )
+    return [(mu, tc.nf(mu**2)) for mu in mugrid]

@@ -10,30 +10,14 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class PathSegment:
-    """Oriented path in the threshold landscape.
-
-    Attributes
-    ----------
-    q2_from : float
-        starting point
-    q2_to : float
-        final point
-    nf : int
-        number of active flavors
-
-    Parameters
-    ----------
-    q2_from : float
-        starting point
-    q2_to : float
-        final point
-    nf : int
-        number of active flavors
-    """
+    """Oriented path in the threshold landscape."""
 
     q2_from: float
+    """Starting point."""
     q2_to: float
+    """Final point."""
     nf: int
+    """Number of active flavors."""
 
     @property
     def is_downward_q2(self) -> bool:

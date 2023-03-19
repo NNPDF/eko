@@ -1,6 +1,7 @@
 from dataclasses import fields
 
 import numpy as np
+import pytest
 
 from eko import interpolation
 from eko.io import runcards as rc
@@ -40,3 +41,12 @@ class TestRotations:
         assert len(rot.xgrid) == len(self.XGRID_TEST)
         # and fallback implemented for unset external grids
         assert np.all(rot.targetgrid == rot.xgrid)
+
+
+def test_flavored_mu2grid():
+    mugrid = list(range(0, 40, 5))
+    masses = [10, 20, 30]
+    ratios = [1, 1, 1]
+
+    flavored = rc.flavored_mugrid(mugrid, masses, ratios)
+    assert pytest.approx([flav for _, flav in flavored]) == [3, 3, 4, 4, 5, 5, 6, 6]
