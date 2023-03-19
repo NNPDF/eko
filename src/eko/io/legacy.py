@@ -13,9 +13,7 @@ import numpy.typing as npt
 import yaml
 
 from eko.interpolation import XGrid
-from eko.io.runcards import Rotations
 
-from .. import basis_rotation as br
 from . import raw
 from .dictlike import DictLike
 from .struct import EKO, Operator
@@ -114,18 +112,6 @@ class PseudoOperator(DictLike):
         mu2grid = np.array(mu2list)
 
         xgrid = XGrid(old["interpolation_xgrid"])
-
-        rotations = Rotations(xgrid=xgrid)
-
-        def set_if_different(name: str, default: npt.NDArray):
-            basis = old.get(name)
-            if basis is not None and not np.allclose(basis, default):
-                setattr(rotations, name, basis)
-
-        set_if_different("inputpids", np.array(br.flavor_basis_pids))
-        set_if_different("targetpids", np.array(br.flavor_basis_pids))
-        set_if_different("inputgrid", xgrid.raw)
-        set_if_different("targetgrid", xgrid.raw)
 
         configs = dict(
             interpolation_polynomial_degree=old.get("interpolation_polynomial_degree"),
