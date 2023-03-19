@@ -18,8 +18,8 @@ from .. import basis_rotation as br
 from .. import interpolation, msbar_masses
 from .. import version as vmod
 from ..couplings import couplings_mod_ev
+from ..quantities import heavy_quarks as hq
 from ..quantities.heavy_quarks import (
-    FLAVORS,
     HeavyQuarkMasses,
     MatchingRatios,
     MatchingScales,
@@ -294,7 +294,7 @@ class Legacy:
     @staticmethod
     def heavies(pattern: str, old_th: dict):
         """Retrieve a set of values for all heavy flavors."""
-        return {q: old_th[pattern % q] for q in FLAVORS}
+        return {q: old_th[pattern % q] for q in hq.FLAVORS}
 
     @staticmethod
     def fallback(*args: T, default: Optional[T] = None) -> T:
@@ -328,7 +328,7 @@ class Legacy:
         new["num_flavs_init"] = old["nf0"]
         new["num_flavs_max_pdf"] = old["MaxNfPdf"]
         intrinsic = []
-        for idx, q in enumerate(FLAVORS):
+        for idx, q in enumerate(hq.FLAVORS):
             if old.get(f"i{q}".upper()) == 1:
                 intrinsic.append(idx + 4)
         new["intrinsic_flavors"] = intrinsic
@@ -337,9 +337,9 @@ class Legacy:
         ms = self.heavies("m%s", old)
         mus = self.heavies("Qm%s", old)
         if old["HQ"] == "POLE":
-            new["quark_masses"] = {q: (ms[q], nan) for q in FLAVORS}
+            new["quark_masses"] = {q: (ms[q], nan) for q in hq.FLAVORS}
         elif old["HQ"] == "MSBAR":
-            new["quark_masses"] = {q: (ms[q], mus[q]) for q in FLAVORS}
+            new["quark_masses"] = {q: (ms[q], mus[q]) for q in hq.FLAVORS}
         else:
             raise ValueError()
 
