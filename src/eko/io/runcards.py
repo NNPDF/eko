@@ -114,7 +114,7 @@ class Configs(DictLike):
     ev_op_iterations: int
     """Number of intervals in which to break the global path."""
     scvar_method: Optional[ScaleVariationsMethod]
-    """"""
+    """Scale variation method."""
     inversion_method: Optional[InversionMethod]
     """Which method to use for backward matching conditions."""
     interpolation_polynomial_degree: int
@@ -144,7 +144,7 @@ class Rotations(DictLike):
     """
 
     xgrid: interpolation.XGrid
-    """Momentum fraction internal grid."""
+    """Internal momentum fraction grid."""
     _targetgrid: Optional[interpolation.XGrid] = None
     _inputgrid: Optional[interpolation.XGrid] = None
     _targetpids: Optional[npt.NDArray] = None
