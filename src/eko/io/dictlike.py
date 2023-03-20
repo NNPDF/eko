@@ -197,6 +197,10 @@ def load_typing(type_, value):
             return None
         raise TypeError
 
+    if issubclass(origin, (list, typing.Generic)):
+        T = typing.get_args(type_)[0]
+        return origin([load_field(T, x) for x in value])
+
     return load_field(origin, value)
 
 
