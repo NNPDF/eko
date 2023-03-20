@@ -9,6 +9,7 @@ from matplotlib.cm import get_cmap
 from matplotlib.colors import LogNorm
 
 from eko import basis_rotation as br
+from eko.io.struct import EKO
 
 
 def input_figure(theory, ops, pdf_name=None):
@@ -208,7 +209,7 @@ def plot_operator(var_name, op, op_err, log_operator=True, abs_operator=True):
     return fig
 
 
-def save_operators_to_pdf(path, theory, ops, me, skip_pdfs, change_lab=False):
+def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=False):
     """
         Output all operator heatmaps to PDF.
 
@@ -227,7 +228,7 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs, change_lab=False):
         change_lab : bool
             set whether to rename the labels
     """
-    ops_names = list(me["targetpids"])
+    ops_names = list(me.rotations.targetpids)
     ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
     path = f"{path}/{ops_id}.pdf"
     print(f"Plotting operators plots to {path}")
@@ -239,9 +240,9 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs, change_lab=False):
 
         # plot the operators
         # it's necessary to reshuffle the eko output
-        for q2 in me["Q2grid"]:
-            results = me["Q2grid"][q2]["operators"]
-            errors = me["Q2grid"][q2]["errors"]
+        for mu2 in me.mu2grid:
+            results = me[mu2].operator
+            errors = me[mu2].error
 
             # loop on pids
             for label_out, res, res_err in zip(ops_names, results, errors):
@@ -250,7 +251,7 @@ def save_operators_to_pdf(path, theory, ops, me, skip_pdfs, change_lab=False):
                 new_op = {}
                 new_op_err = {}
                 # loop on xgrid point
-                for j in range(len(me["xgrid"])):
+                for j in range(len(me.xgrid)):
                     # loop on pid in
                     for label_in, val, val_err in zip(ops_names, res[j], res_err[j]):
                         if label_in in skip_pdfs:
