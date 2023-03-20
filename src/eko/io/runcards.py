@@ -294,7 +294,7 @@ class Legacy:
     @staticmethod
     def heavies(pattern: str, old_th: dict):
         """Retrieve a set of values for all heavy flavors."""
-        return {q: old_th[pattern % q] for q in hq.FLAVORS}
+        return [old_th[pattern % q] for q in hq.FLAVORS]
 
     @staticmethod
     def fallback(*args: T, default: Optional[T] = None) -> T:
@@ -337,9 +337,9 @@ class Legacy:
         ms = self.heavies("m%s", old)
         mus = self.heavies("Qm%s", old)
         if old["HQ"] == "POLE":
-            new["quark_masses"] = {q: (ms[q], nan) for q in hq.FLAVORS}
+            new["quark_masses"] = [[m, nan] for m in ms]
         elif old["HQ"] == "MSBAR":
-            new["quark_masses"] = {q: (ms[q], mus[q]) for q in hq.FLAVORS}
+            new["quark_masses"] = [[m, mu] for m, mu in zip(ms, mus)]
         else:
             raise ValueError()
 
@@ -355,12 +355,15 @@ class Legacy:
         new = {}
 
         new["mu0"] = old_th["Q0"]
-        mu2grid = old.get("Q2grid")
-        mugrid = np.sqrt(mu2grid if mu2grid is not None else old["mu2grid"])
+        if "mugrid" in old:
+            mugrid = old["mugrid"]
+        else:
+            mu2grid = old["Q2grid"] if "Q2grid" in old else old["mu2grid"]
+            mugrid = np.sqrt(mu2grid)
         new["mugrid"] = flavored_mugrid(
             mugrid,
-            list(self.heavies("m%s", old_th).values()),
-            list(self.heavies("k%sThr", old_th).values()),
+            list(self.heavies("m%s", old_th)),
+            list(self.heavies("k%sThr", old_th)),
         )
 
         new["configs"] = {}
@@ -388,11 +391,7 @@ class Legacy:
         for k in ("debug_skip_non_singlet", "debug_skip_singlet"):
             new["debug"][k[lpref:]] = old[k]
 
-        new["rotations"] = {}
-        new["rotations"]["pids"] = old.get("pids", br.flavor_basis_pids)
-        new["rotations"]["xgrid"] = old["interpolation_xgrid"]
-        for basis in ("inputgrid", "targetgrid", "inputpids", "targetpids"):
-            new["rotations"][f"_{basis}"] = old[basis]
+        new["xgrid"] = old["interpolation_xgrid"]
 
         return OperatorCard.from_dict(new)
 
