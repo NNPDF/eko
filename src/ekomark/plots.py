@@ -229,6 +229,10 @@ def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=Fals
             set whether to rename the labels
     """
     ops_names = list(me.rotations.targetpids)
+    if np.allclose(ops_names, br.rotate_flavor_to_evolution):
+        ops_names = br.evol_basis_pids
+    else:
+        raise ValueError("Can not reconstruct PDF names")
     ops_id = f"o{ops['hash'][:6]}_t{theory['hash'][:6]}"
     path = f"{path}/{ops_id}.pdf"
     print(f"Plotting operators plots to {path}")
@@ -272,9 +276,10 @@ def save_operators_to_pdf(path, theory, ops, me: EKO, skip_pdfs, change_lab=Fals
                         index_out = br.evol_basis_pids.index(label_out)
                         lab_in = br.evol_basis[index_in]
                         lab_out = br.evol_basis[index_out]
+                    fig = None
                     try:
                         fig = plot_operator(
-                            f"Operator ({lab_in};{lab_out}) µ_F^2 = {q2} GeV^2",
+                            f"Operator ({lab_in};{lab_out}) µ_F^2 = {mu2} GeV^2",
                             new_op[label_in],
                             new_op_err[label_in],
                         )
