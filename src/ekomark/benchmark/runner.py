@@ -14,8 +14,9 @@ import eko
 from eko import EKO
 from eko import basis_rotation as br
 from eko.io import manipulate
+from ekobox import apply
 
-from .. import apply, pdfname
+from .. import pdfname
 from ..data import db, operators
 
 
@@ -104,7 +105,6 @@ class Runner(BenchmarkRunner):
                 print(f"Using cached eko data: {os.path.relpath(path,os.getcwd())}")
 
             if self.plot_operator:
-
                 from ekomark.plots import (  # pylint:disable=import-error,import-outside-toplevel
                     save_operators_to_pdf,
                 )
@@ -245,7 +245,6 @@ class Runner(BenchmarkRunner):
                 qed=qed,
             )
         for q2 in q2s:
-
             log_tab = dfdict.DFdict()
             ref_pdfs = ext["values"][q2]
             res = pdf_grid[q2]
@@ -253,7 +252,6 @@ class Runner(BenchmarkRunner):
             my_pdf_errs = res["errors"]
 
             for key in my_pdfs:
-
                 if key in self.skip_pdfs(theory):
                     continue
 

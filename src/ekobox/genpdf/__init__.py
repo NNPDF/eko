@@ -5,7 +5,6 @@ import pathlib
 import shutil
 
 import numpy as np
-from banana import toy
 
 from eko import basis_rotation as br
 
@@ -55,6 +54,9 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
         }
     if isinstance(parent_pdf_set, str):
         if parent_pdf_set in ["toy_pol", "toy"]:
+            # delay import to ease nnpdf integration
+            from banana import toy  # pylint: disable=import-outside-toplevel
+
             info = copy.deepcopy(load.Toy_info)
             if "pol" in parent_pdf_set:
                 toylh = toy.mkPDF("ToyLH_polarized", 0)
