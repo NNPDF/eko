@@ -19,7 +19,7 @@ jobs:
     name: LHA paper Benchmarks
     runs-on: ubuntu-latest
     container:
-      image: docker://ghcr.io/nnpdf/bench-evol:latest
+      image: ghcr.io/n3pdf/bench-evol:v2
       credentials:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
