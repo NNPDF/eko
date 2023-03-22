@@ -1,11 +1,11 @@
 """
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
 """
+import argparse
 from math import nan
 
 import numpy as np
 from banana import register
-from banana.data import cartesian_product
 
 from eko.interpolation import lambertgrid
 from ekomark.benchmark.runner import Runner
@@ -248,15 +248,40 @@ class BenchmarkFFNS_polarized(BenchmarkFFNS):
 
 
 if __name__ == "__main__":
-    # Benchmark to LHA
-    obj = BenchmarkFFNS_polarized()
-    # obj = BenchmarkFFNS()
-    # obj.benchmark_plain(1)
-    obj.benchmark_sv(1)
+    parser = argparse.ArgumentParser(
+        prog="LHA_benchmark",
+        description="EKO benchmark with LHA settings",
+    )
+    parser.add_argument(
+        "-o", "--pto", help="QCD perturbative order 0=LO, ... ", type=int, default=2
+    )
+    parser.add_argument(
+        "-e",
+        "--external",
+        help="External program to benchmark against (only for VFNS)",
+        default="LHA",
+    )
+    parser.add_argument(
+        "-s",
+        "--use_sv",
+        help="Run Scale Variations (only for VFNS)",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-f", "--use_ffns", help="Run FFNS evolution", action="store_true"
+    )
+    parser.add_argument(
+        "-p", "--use_pol", help="Run Polarized evolution", action="store_true"
+    )
+    args = parser.parse_args()
 
-    # # VFNS benchmarks with LHA settings
-    # programs = ["LHA", "pegasus", "apfel"]
-    # for p in programs:
-    #     obj = BenchmarkRunner(p)
-    #     # obj.benchmark_plain(2)
-    #     obj.benchmark_sv(2)
+    if args.use_ffns:
+        obj = BenchmarkFFNS()
+    elif args.use_pol:
+        obj = BenchmarkFFNS_polarized()
+    else:
+        obj = BenchmarkRunner(args.external)
+    if args.use_sv:
+        obj.benchmark_sv(args.pto)
+    else:
+        obj.benchmark_plain(args.pto)

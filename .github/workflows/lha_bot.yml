@@ -1,0 +1,44 @@
+# A single CI script with github workflow.
+name: LHA Benchmarks
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types:
+      - closed
+      - ready_for_review
+      - review_requested
+  pull_request_review:
+    types:
+      - submitted
+
+jobs:
+  lhabench:
+    name: LHA paper Benchmarks
+    runs-on: ubuntu-latest
+    container:
+      image: docker://ghcr.io/nnpdf/bench-evol:latest
+      credentials:
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          # tags needed for dynamic versioning
+          fetch-depth: 0
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: false
+          installer-parallel: true
+      - name: Install project
+        run: |
+          poetry install --no-interaction --with test -E mark -E box
+      - name: Install task runner
+        run: pip install poethepoet
+      - name: Run benchmark
+        run: |
+          poe lha_sv
