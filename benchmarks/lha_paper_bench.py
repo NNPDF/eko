@@ -136,6 +136,23 @@ class LHA(Runner):
         self.run_lha(self.sv_theories(pto))
 
 
+class BaseBenchmark:
+    def runner(self):
+        raise NotImplementedError("runner method has to be overwritten!")
+
+    @pytest.mark.lo
+    def benchmark_plain_lo(self):
+        self.runner().run_plain(0)
+
+    @pytest.mark.nlo
+    def benchmark_plain_nlo(self):
+        self.runner().run_plain(1)
+
+    @pytest.mark.nnlo
+    def benchmark_plain_nnlo(self):
+        self.runner().run_plain(2)
+
+
 class VFNS(LHA):
     """Provide |VFNS| settings."""
 
@@ -152,6 +169,12 @@ class VFNS(LHA):
                 "nfref": 3,
             }
         )
+
+
+@pytest.mark.vfns
+class BenchmarkVFNS(BaseBenchmark):
+    def runner(self):
+        return VFNS()
 
 
 class FFNS(LHA):
@@ -195,10 +218,9 @@ class FFNS(LHA):
 
 
 @pytest.mark.ffns
-class BenchmarkFFNS:
-    @pytest.mark.lo
-    def benchmark_plain_lo(self):
-        FFNS().run_plain(0)
+class BenchmarkFFNS(BaseBenchmark):
+    def runner(self):
+        return FFNS()
 
 
 class CommonRunner(VFNS):

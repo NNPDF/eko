@@ -146,7 +146,14 @@ addopts = [
   '--strict-markers',
 ]
 env = ["D:NUMBA_DISABLE_JIT=1"]
-markers = ["isolated: marks benchmarks as isolated", "ffns: Fixed flavor configuration", "lo: leading order"]
+markers = [
+  "isolated: marks benchmarks as isolated",
+  "ffns: Fixed flavor configuration",
+  "vfns: Variable flavor configuration",
+  "lo: Leading order",
+  "nlo: Next-to-leading order",
+  "nnlo: Next-to-next-to-leading order",
+]
 
 [tool.pylint.master]
 # extensions not to check
