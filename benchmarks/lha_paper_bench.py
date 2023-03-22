@@ -141,17 +141,14 @@ class BaseBenchmark:
         raise NotImplementedError("runner method has to be overwritten!")
 
     @pytest.mark.lo
-    @pytest.mark.nosv
     def benchmark_plain_lo(self):
         self.runner().run_plain(0)
 
     @pytest.mark.nlo
-    @pytest.mark.nosv
     def benchmark_plain_nlo(self):
         self.runner().run_plain(1)
 
     @pytest.mark.nnlo
-    @pytest.mark.nosv
     def benchmark_plain_nnlo(self):
         self.runner().run_plain(2)
 
