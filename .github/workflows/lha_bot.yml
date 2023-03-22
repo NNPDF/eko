@@ -19,7 +19,7 @@ jobs:
     name: LHA paper Benchmarks
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/n3pdf/bench-evol:v2
+      image: ghcr.io/nnpdf/bench-evol:v2
       credentials:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -41,4 +41,4 @@ jobs:
         run: pip install poethepoet
       - name: Run benchmark
         run: |
-          poe lha_sv
+          poe lha_bot
