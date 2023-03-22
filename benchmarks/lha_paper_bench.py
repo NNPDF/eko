@@ -261,6 +261,15 @@ class BenchmarkFFNS_polarized(BaseBenchmark):
     def runner(self):
         return FFNS_polarized()
 
+    @pytest.mark.nnlo
+    def benchmark_plain_nnlo(self):
+        pass
+
+    @pytest.mark.nnlo
+    @pytest.mark.sv
+    def benchmark_sv_nnlo(self):
+        pass
+
 
 class CommonRunner(VFNS):
     """Generic benchmark runner using the LHA |VFNS| settings."""
