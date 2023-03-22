@@ -5,7 +5,9 @@ import argparse
 from math import nan
 
 import numpy as np
+import pytest
 from banana import register
+from banana.data import cartesian_product
 
 from eko.interpolation import lambertgrid
 from ekomark.benchmark.runner import Runner
@@ -38,7 +40,7 @@ default_skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
 # ffns_skip_pdfs.extend([-5, 5, "T24"])
 
 
-class LHABenchmark(Runner):
+class LHA(Runner):
     """Globally set the external program to LHA."""
 
     def __init__(self):
@@ -125,16 +127,16 @@ class LHABenchmark(Runner):
             ["ToyLH"],
         )
 
-    def benchmark_plain(self, pto):
+    def run_plain(self, pto):
         """Run plain configuration."""
         self.run_lha(self.plain_theory(pto))
 
-    def benchmark_sv(self, pto):
+    def run_sv(self, pto):
         """Run scale variations."""
         self.run_lha(self.sv_theories(pto))
 
 
-class BenchmarkVFNS(LHABenchmark):
+class VFNS(LHA):
     """Provide |VFNS| settings."""
 
     def __init__(self):
@@ -152,7 +154,7 @@ class BenchmarkVFNS(LHABenchmark):
         )
 
 
-class BenchmarkFFNS(LHABenchmark):
+class FFNS(LHA):
     """Provide |FFNS| settings."""
 
     def __init__(self):
@@ -192,7 +194,14 @@ class BenchmarkFFNS(LHABenchmark):
         return ffns_skip_pdfs
 
 
-class BenchmarkRunner(BenchmarkVFNS):
+@pytest.mark.ffns
+class BenchmarkFFNS:
+    @pytest.mark.lo
+    def benchmark_plain_lo(self):
+        FFNS().run_plain(0)
+
+
+class CommonRunner(VFNS):
     """Generic benchmark runner using the LHA |VFNS| settings."""
 
     def __init__(self, external):
@@ -224,7 +233,7 @@ class BenchmarkRunner(BenchmarkVFNS):
         self.run_lha([low, high])
 
 
-class BenchmarkFFNS_polarized(BenchmarkFFNS):
+class FFNS_polarized(FFNS):
     def run_lha(self, theory_updates):
         """Enforce operator grid and PDF.
 
