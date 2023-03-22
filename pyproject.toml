@@ -149,10 +149,13 @@ env = ["D:NUMBA_DISABLE_JIT=1"]
 markers = [
   "isolated: marks benchmarks as isolated",
   "ffns: Fixed flavor configuration",
+  "ffns_pol: Polarized fixed flavor configuration",
   "vfns: Variable flavor configuration",
   "lo: Leading order",
   "nlo: Next-to-leading order",
   "nnlo: Next-to-next-to-leading order",
+  "nosv: Without scale variations",
+  "sv: Scale variations",
 ]
 
 [tool.pylint.master]

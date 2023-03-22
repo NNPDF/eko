@@ -141,16 +141,29 @@ class BaseBenchmark:
         raise NotImplementedError("runner method has to be overwritten!")
 
     @pytest.mark.lo
+    @pytest.mark.nosv
     def benchmark_plain_lo(self):
         self.runner().run_plain(0)
 
     @pytest.mark.nlo
+    @pytest.mark.nosv
     def benchmark_plain_nlo(self):
         self.runner().run_plain(1)
 
     @pytest.mark.nnlo
+    @pytest.mark.nosv
     def benchmark_plain_nnlo(self):
         self.runner().run_plain(2)
+
+    @pytest.mark.nlo
+    @pytest.mark.sv
+    def benchmark_sv_nlo(self):
+        self.runner().run_sv(1)
+
+    @pytest.mark.nnlo
+    @pytest.mark.sv
+    def benchmark_sv_nnlo(self):
+        self.runner().run_sv(2)
 
 
 class VFNS(LHA):
@@ -223,6 +236,35 @@ class BenchmarkFFNS(BaseBenchmark):
         return FFNS()
 
 
+class FFNS_polarized(FFNS):
+    def run_lha(self, theory_updates):
+        """Enforce operator grid and PDF.
+
+        Parameters
+        ----------
+        theory_updates : list(dict)
+            theory updates
+        """
+        self.run(
+            theory_updates,
+            [
+                {
+                    "Q2grid": [1e4],
+                    "ev_op_iterations": 10,
+                    "interpolation_xgrid": lambertgrid(60).tolist(),
+                    "polarized": True,
+                }
+            ],
+            ["ToyLH_polarized"],
+        )
+
+
+@pytest.mark.ffns_pol
+class BenchmarkFFNS_polarized(BaseBenchmark):
+    def runner(self):
+        return FFNS_polarized()
+
+
 class CommonRunner(VFNS):
     """Generic benchmark runner using the LHA |VFNS| settings."""
 
@@ -253,29 +295,6 @@ class CommonRunner(VFNS):
         high["XIR"] = np.sqrt(0.5)
 
         self.run_lha([low, high])
-
-
-class FFNS_polarized(FFNS):
-    def run_lha(self, theory_updates):
-        """Enforce operator grid and PDF.
-
-        Parameters
-        ----------
-        theory_updates : list(dict)
-            theory updates
-        """
-        self.run(
-            theory_updates,
-            [
-                {
-                    "Q2grid": [1e4],
-                    "ev_op_iterations": 10,
-                    "interpolation_xgrid": lambertgrid(60).tolist(),
-                    "polarized": True,
-                }
-            ],
-            ["ToyLH_polarized"],
-        )
 
 
 if __name__ == "__main__":
