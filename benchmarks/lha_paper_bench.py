@@ -2,6 +2,7 @@
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
 """
 import argparse
+import os
 from math import nan
 
 import numpy as np
@@ -137,30 +138,39 @@ class LHA(Runner):
 
 
 class BaseBenchmark:
-    def runner(self):
+    """Abstract common benchmark tasks."""
+
+    def runner(self) -> LHA:
+        """Runner to run."""
         raise NotImplementedError("runner method has to be overwritten!")
+
+    def transformed_runner(self):
+        """Prepare runner for benchmark setup"""
+        r = self.runner()
+        r.log_to_stdout = os.environ.get("EKO_LOG_STDOUT", False)
+        return r
 
     @pytest.mark.lo
     def benchmark_plain_lo(self):
-        self.runner().run_plain(0)
+        self.transformed_runner().run_plain(0)
 
     @pytest.mark.nlo
     def benchmark_plain_nlo(self):
-        self.runner().run_plain(1)
+        self.transformed_runner().run_plain(1)
 
     @pytest.mark.nnlo
     def benchmark_plain_nnlo(self):
-        self.runner().run_plain(2)
+        self.transformed_runner().run_plain(2)
 
     @pytest.mark.nlo
     @pytest.mark.sv
     def benchmark_sv_nlo(self):
-        self.runner().run_sv(1)
+        self.transformed_runner().run_sv(1)
 
     @pytest.mark.nnlo
     @pytest.mark.sv
     def benchmark_sv_nnlo(self):
-        self.runner().run_sv(2)
+        self.transformed_runner().run_sv(2)
 
 
 class VFNS(LHA):
