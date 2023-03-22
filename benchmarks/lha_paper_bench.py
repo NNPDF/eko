@@ -285,11 +285,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.use_ffns:
-        obj = BenchmarkFFNS()
+        obj = FFNS()
     elif args.use_pol:
-        obj = BenchmarkFFNS_polarized()
+        obj = FFNS_polarized()
     else:
-        obj = BenchmarkRunner(args.external)
+        obj = CommonRunner(args.external)
     if args.use_sv:
         obj.benchmark_sv(args.pto)
     else:

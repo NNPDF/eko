@@ -41,4 +41,4 @@ jobs:
         run: pip install poethepoet
       - name: Run benchmark
         run: |
-          poe lha_bot
+          NUMBA_DISABLE_JIT=0 poe lha_bot
