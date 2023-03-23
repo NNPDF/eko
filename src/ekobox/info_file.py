@@ -67,14 +67,17 @@ def build(
         hqm_scheme=theory_card.quark_masses_scheme,
         thresholds_ratios=np.power(list(iter(theory_card.matching)), 2.0),
     )
-    alphas_values = [
-        4.0
-        * np.pi
-        * sc.a_s(
-            muf2,
-        )
-        for muf2 in operators_card.mu2grid
-    ]
-    template_info["AlphaS_Vals"] = alphas_values
-    template_info["AlphaS_Qs"] = list(operators_card.mu2grid)
+    alphas_values = np.array(
+        [
+            4.0
+            * np.pi
+            * sc.a_s(
+                muf2,
+            )
+            for muf2 in operators_card.mu2grid
+        ],
+        dtype=float,
+    )
+    template_info["AlphaS_Vals"] = alphas_values.tolist()
+    template_info["AlphaS_Qs"] = operators_card.mu2grid.tolist()
     return template_info
