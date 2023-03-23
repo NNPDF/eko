@@ -2,6 +2,9 @@
 import copy
 import math
 
+import numpy as np
+
+from eko import couplings
 from eko.io.runcards import OperatorCard, TheoryCard
 
 from .genpdf import load
@@ -54,5 +57,24 @@ def build(
     template_info["MTop"] = theory_card.quark_masses.t.value
     template_info["AlphaS_MZ"] = theory_card.couplings.alphas.value
     template_info["AlphaS_OrderQCD"] = theory_card.order[0]
-    # NB: Maybe I need the actual operator to obtain AlphaS_Qs
+    evmod = couplings.couplings_mod_ev(operators_card.configs.evolution_method)
+    quark_masses = [(x.value) ** 2 for x in theory_card.quark_masses]
+    sc = couplings.Couplings(
+        theory_card.couplings,
+        theory_card.order,
+        evmod,
+        quark_masses,
+        hqm_scheme=theory_card.quark_masses_scheme,
+        thresholds_ratios=np.power(list(iter(theory_card.matching)), 2.0),
+    )
+    alphas_values = [
+        4.0
+        * np.pi
+        * sc.a_s(
+            muf2,
+        )
+        for muf2 in operators_card.mu2grid()
+    ]
+    template_info["AlphaS_Vals"] = alphas_values
+    template_info["AlphaS_Qs"] = operators_card.mu2grid()
     return template_info
