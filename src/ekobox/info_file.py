@@ -73,8 +73,8 @@ def build(
         * sc.a_s(
             muf2,
         )
-        for muf2 in operators_card.mu2grid()
+        for muf2 in operators_card.mu2grid
     ]
     template_info["AlphaS_Vals"] = alphas_values
-    template_info["AlphaS_Qs"] = operators_card.mu2grid()
+    template_info["AlphaS_Qs"] = list(operators_card.mu2grid)
     return template_info
