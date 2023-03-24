@@ -97,7 +97,7 @@ class BenchmarkFF(Runner):
         operator_card = {
             **base_operator,
             "Q2grid": list(Q2grid),
-            "time_like": [True],
+            "time_like": True,
             "interpolation_xgrid": interpolation.lambertgrid(100, 0.01),
         }
 
@@ -116,7 +116,7 @@ class BenchmarkFF(Runner):
         operator_card = {
             **base_operator,
             "Q2grid": list(Q2grid),
-            "time_like": [True],
+            "time_like": True,
             "interpolation_xgrid": interpolation.lambertgrid(100, 0.01),
         }
 
@@ -135,7 +135,7 @@ class BenchmarkFF(Runner):
         operator_card = {
             **base_operator,
             "Q2grid": list(Q2grid),
-            "time_like": [True],
+            "time_like": True,
             "interpolation_xgrid": interpolation.lambertgrid(100, 0.01),
         }
 
