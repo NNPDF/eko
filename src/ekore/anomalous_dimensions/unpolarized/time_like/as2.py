@@ -37,7 +37,6 @@ def gamma_nsp(N, nf):
     NFI = NFO * N
     NSI = NFI * N
     NSE = NSI * N
-    NE = NSE * N
 
     N1 = N + 1
     N2 = N + 2
@@ -140,7 +139,6 @@ def gamma_nsm(N, nf):
     s1 = w1.S1(N)
     s2 = w2.S2(N)
     s3 = w3.S3(N)
-    sm1 = w1.Sm1(N, s1, False)
     sm2 = w2.Sm2(N, s2, False)
     sm3 = w3.Sm3(N, s3, False)
     sm21 = w3.Sm21(N, s1, False)
