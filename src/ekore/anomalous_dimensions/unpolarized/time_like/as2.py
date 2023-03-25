@@ -686,7 +686,7 @@ def gamma_singlet(N, nf):
         :math:`\gamma_{s}^{(1)}`
 
     """
-    gamma_qq = gamma_nsp(N, nf, True) + gamma_qqs(N, nf)
+    gamma_qq = gamma_nsp(N, nf) + gamma_qqs(N, nf)
 
     result = np.array(
         [
