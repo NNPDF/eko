@@ -36,7 +36,6 @@ def gamma_nsp(N, nf):
     NFO = NT * N
     NFI = NFO * N
     NSI = NFI * N
-    NSE = NSI * N
 
     N1 = N + 1
     N2 = N + 2
