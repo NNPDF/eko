@@ -31,7 +31,7 @@ def gamma_ns(order, mode, n, nf):
     gamma_ns[0] = as1.gamma_ns(n)
     if order[0] >= 2:
         if mode == 10101:
-            gamma_ns_1 = as2.gamma_nsp(n, nf, False)
+            gamma_ns_1 = as2.gamma_nsp(n, nf)
         elif mode in [10201, 10200]:
             gamma_ns_1 = as2.gamma_nsm(n, nf)
         gamma_ns[1] = gamma_ns_1

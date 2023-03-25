@@ -7,11 +7,12 @@ from numpy import power as npp
 from eko import constants
 
 from ....harmonics import w1, w2, w3
-from ....harmonics.constants import zeta2
+from ....harmonics.constants import zeta2, zeta3
+from ....harmonics.polygamma import cern_polygamma as polygamma
 
 
 @nb.njit(cache=True)
-def gamma_nsp(N, nf, is_singlet=None):
+def gamma_nsp(N, nf):
     r"""Compute the NLO non-singlet positive anomalous dimension.
 
     Implements :eqref:`B.7` from :cite:`Mitov:2006wy`.
@@ -22,8 +23,6 @@ def gamma_nsp(N, nf, is_singlet=None):
         Mellin moment
     nf : int
         No. of active flavors
-    is_singlet : boolean
-        True for singlet, False for non-singlet, None otherwise
 
     Returns
     -------
@@ -32,97 +31,90 @@ def gamma_nsp(N, nf, is_singlet=None):
         :math:`\gamma_{ns}^{(1)+}(N)`
 
     """
-    s1 = w1.S1(N)
-    s2 = w2.S2(N)
-    s3 = w3.S3(N)
-    sm1 = w1.Sm1(N, s1, is_singlet)
-    sm2 = w2.Sm2(N, s2, is_singlet)
-    sm3 = w3.Sm3(N, s3, is_singlet)
-    sm21 = w3.Sm21(N, s1, sm1, is_singlet)
+    NS = N * N
+    NT = NS * N
+    NFO = NT * N
+    NFI = NFO * N
+    NSI = NFI * N
+    NSE = NSI * N
+    NE = NSE * N
 
-    if is_singlet == True:
-        m1tpN = 1
-    elif is_singlet == False:
-        m1tpN = -1
-    else:
-        m1tpN = npp(-1, N)
+    N1 = N + 1
+    N2 = N + 2
+    N1S = N1 * N1
+    N1T = N1S * N1
 
-    nsp1 = (
+    S1 = w1.S1(N)
+    S2 = w2.S2(N)
+
+    N3 = N + 3
+    N4 = N + 4
+    N5 = N + 5
+    N6 = N + 6
+
+    S11 = S1 + 1 / N1
+    S12 = S11 + 1 / N2
+    S13 = S12 + 1 / N3
+    S14 = S13 + 1 / N4
+    S15 = S14 + 1 / N5
+    S16 = S15 + 1 / N6
+
+    ZETA2 = zeta2
+    ZETA3 = zeta3
+
+    SPMOM = (
+        1.0000 * (ZETA2 - S1 / N) / N
+        - 0.9992 * (ZETA2 - S11 / N1) / N1
+        + 0.9851 * (ZETA2 - S12 / N2) / N2
+        - 0.9005 * (ZETA2 - S13 / N3) / N3
+        + 0.6621 * (ZETA2 - S14 / N4) / N4
+        - 0.3174 * (ZETA2 - S15 / N5) / N5
+        + 0.0699 * (ZETA2 - S16 / N6) / N6
+    )
+
+    SLC = -5 / 8 * ZETA3
+    SLV = -ZETA2 / 2 * (polygamma(N1 / 2, 0) - polygamma(N / 2, 0)) + S1 / NS + SPMOM
+
+    SSCHLP = SLC + SLV
+    SSTR2P = ZETA2 - polygamma(N2 / 2, 1)
+    SSTR3P = 0.5 * polygamma(N2 / 2, 2) + ZETA3
+
+    PNPA = (
+        16 * S1 * (2 * N + 1) / (NS * N1S)
+        + 16 * (2 * S1 - 1 / (N * N1)) * (S2 - SSTR2P)
+        + 64 * SSCHLP
+        + 24 * S2
+        - 3
+        - 8 * SSTR3P
+        - 8 * (3 * NT + NS - 1) / (NT * N1T)
+        - 16 * (2 * NS + 2 * N + 1) / (NT * N1T)
+    ) * (-0.5)
+    PNSB = (
+        S1 * (536 / 9 + 8 * (2 * N + 1) / (NS * N1S))
+        - (16 * S1 + 52 / 3 - 8 / (N * N1)) * S2
+        - 43 / 6
+        - (151 * NFO + 263 * NT + 97 * NS + 3 * N + 9) * 4 / (9 * NT * N1T)
+    ) * (-0.5)
+    PNSC = (
+        -160 / 9 * S1
+        + 32 / 3.0 * S2
+        + 4 / 3
+        + 16 * (11 * NS + 5 * N - 3) / (9 * NS * N1S)
+    ) * (-0.5)
+    PNSTL = (-4 * S1 + 3 + 2 / (N * N1)) * (
+        2 * S2 - 2 * ZETA2 - (2 * N + 1) / (NS * N1S)
+    )
+
+    result = (
         constants.CF
-        * constants.CF
         * (
-            (
-                8
-                + 24 * N
-                + 32 * npp(N, 2)
-                - 11 * npp(N, 3)
-                - 9 * npp(N, 4)
-                - 9 * npp(N, 5)
-                - 3 * npp(N, 6)
-                + 32 * zeta2 * npp(N, 2)
-                + 112 * zeta2 * npp(N, 3)
-                + 176 * zeta2 * npp(N, 4)
-                + 144 * zeta2 * npp(N, 5)
-                + 48 * zeta2 * npp(N, 6)
-                + 32 * npp(N, 3) * m1tpN
-            )
-            / (2 * npp(N, 3) * npp(1 + N, 3))
-            - 16 * sm3
-            + sm2 * ((16) / (N * (1 + N)) - 32 * s1)
-            - (4 * (2 + 3 * N + 3 * npp(N, 2)) * s2) / (N * (1 + N))
-            + s1
-            * (
-                16 * s2
-                - (
-                    8
-                    * (
-                        1
-                        + 2 * N
-                        + 4 * zeta2 * npp(N, 2)
-                        + 8 * zeta2 * npp(N, 3)
-                        + 4 * zeta2 * npp(N, 4)
-                    )
-                )
-                / (npp(N, 2) * npp(1 + N, 2))
-            )
-            - 16 * s3
-            + 32 * sm21
+            (constants.CF - constants.CA / 2) * PNPA
+            + constants.CA * PNSB
+            + (1 / 2) * nf * PNSC
         )
+        + constants.CF**2 * PNSTL * 4
     )
-    nsp2 = (
-        constants.CF
-        * constants.CA
-        * (
-            (
-                132
-                - 208 * N
-                - 851 * npp(N, 2)
-                - 757 * npp(N, 3)
-                - 153 * npp(N, 4)
-                - 51 * npp(N, 5)
-                - 144 * npp(N, 2) * m1tpN
-            )
-            / (18 * npp(N, 2) * npp(1 + N, 3))
-            + 8 * sm3
-            + s1 * (268 / 9)
-            + sm2 * (16 * s1 - 8 / (N * (1 + N)))
-            - s2 * (44 / 3)
-            + 8 * s3
-            - 16 * sm21
-        )
-    )
-    nsp3 = (
-        nf
-        * constants.CF
-        * (
-            (-12 + 20 * N + 47 * npp(N, 2) + 6 * npp(N, 3) + 3 * npp(N, 4))
-            / (9 * npp(N, 2) * npp(1 + N, 2))
-            - s1 * (40 / 9)
-            + s2 * (8 / 3)
-        )
-    )
-    result = nsp1 + nsp2 + nsp3
-    return result
+    return -result
 
 
 @nb.njit(cache=True)
@@ -153,8 +145,6 @@ def gamma_nsm(N, nf):
     sm3 = w3.Sm3(N, s3, False)
     sm21 = w3.Sm21(N, s1, False)
 
-    m1tpN = -1
-
     nsm1 = (
         constants.CF
         * constants.CF
@@ -172,7 +162,7 @@ def gamma_nsm(N, nf):
                 + 176 * zeta2 * npp(N, 4)
                 + 144 * zeta2 * npp(N, 5)
                 + 48 * zeta2 * npp(N, 6)
-                + 32 * npp(N, 3) * m1tpN
+                + 32 * npp(N, 3) * (-1)
             )
             / (2 * npp(N, 3) * npp(1 + N, 3))
             - 16 * sm3
@@ -211,7 +201,7 @@ def gamma_nsm(N, nf):
                 - 757 * npp(N, 4)
                 - 153 * npp(N, 5)
                 - 51 * npp(N, 6)
-                - 144 * npp(N, 3) * m1tpN
+                - 144 * npp(N, 3) * (-1)
             )
             / (18 * npp(N, 3) * npp(1 + N, 3))
             + 8 * sm3
@@ -304,8 +294,6 @@ def gamma_qg(N, nf):
     s2 = w2.S2(N)
     sm2 = w2.Sm2(N, s2, True)
 
-    m1tpN = 1
-
     qg1 = (
         nf
         * constants.CF
@@ -366,11 +354,11 @@ def gamma_qg(N, nf):
                     + 504 * zeta2 * npp(N, 7)
                     + 216 * zeta2 * npp(N, 8)
                     + 36 * zeta2 * npp(N, 9)
-                    - 180 * m1tpN * npp(N, 3)
-                    - 72 * m1tpN * npp(N, 4)
-                    + 108 * m1tpN * npp(N, 5)
-                    + 108 * m1tpN * npp(N, 6)
-                    + 36 * m1tpN * npp(N, 7)
+                    - 180 * npp(N, 3)
+                    - 72 * npp(N, 4)
+                    + 108 * npp(N, 5)
+                    + 108 * npp(N, 6)
+                    + 36 * npp(N, 7)
                 )
             )
             / (9 * (-1 + N) * npp(N, 3) * npp(1 + N, 3) * npp(2 + N, 3))
@@ -440,8 +428,6 @@ def gamma_gq(N, nf):
     s2 = w2.S2(N)
     sm2 = w2.Sm2(N, s2, True)
 
-    m1tpN = 1
-
     gq1 = (
         constants.CF
         * constants.CF
@@ -492,14 +478,14 @@ def gamma_gq(N, nf):
                     - npp(N, 8)
                     + 5 * npp(N, 9)
                     + npp(N, 10)
-                    + 16 * N * m1tpN
-                    + 32 * npp(N, 2) * m1tpN
-                    - 20 * npp(N, 3) * m1tpN
-                    - 44 * npp(N, 4) * m1tpN
-                    - 26 * npp(N, 5) * m1tpN
-                    + 14 * npp(N, 6) * m1tpN
-                    + 22 * npp(N, 7) * m1tpN
-                    + 6 * npp(N, 8) * m1tpN
+                    + 16 * N
+                    + 32 * npp(N, 2)
+                    - 20 * npp(N, 3)
+                    - 44 * npp(N, 4)
+                    - 26 * npp(N, 5)
+                    + 14 * npp(N, 6)
+                    + 22 * npp(N, 7)
+                    + 6 * npp(N, 8)
                 )
             )
             / (npp(-1 + N, 3) * npp(N, 3) * npp(1 + N, 3) * npp(2 + N, 2))
@@ -541,8 +527,6 @@ def gamma_gg(N, nf):
     sm2 = w2.Sm2(N, s2, True)
     sm3 = w3.Sm3(N, s3, True)
     sm21 = w3.Sm21(N, s1, sm1, True)
-
-    m1tpN = 1
 
     gg1 = (
         nf
@@ -598,15 +582,15 @@ def gamma_gg(N, nf):
                     + 1476 * zeta2 * npp(N, 10)
                     + 792 * zeta2 * npp(N, 11)
                     + 132 * zeta2 * npp(N, 12)
-                    - 576 * m1tpN * N
-                    - 1440 * m1tpN * npp(N, 2)
-                    + 216 * m1tpN * npp(N, 3)
-                    + 1800 * m1tpN * npp(N, 4)
-                    + 1800 * m1tpN * npp(N, 5)
-                    - 72 * m1tpN * npp(N, 6)
-                    - 1008 * m1tpN * npp(N, 7)
-                    - 576 * m1tpN * npp(N, 8)
-                    - 144 * m1tpN * npp(N, 9)
+                    - 576 * N
+                    - 1440 * npp(N, 2)
+                    + 216 * npp(N, 3)
+                    + 1800 * npp(N, 4)
+                    + 1800 * npp(N, 5)
+                    - 72 * npp(N, 6)
+                    - 1008 * npp(N, 7)
+                    - 576 * npp(N, 8)
+                    - 144 * npp(N, 9)
                 )
             )
             / (9 * npp(-1 + N, 3) * npp(N, 3) * npp(1 + N, 3) * npp(2 + N, 3))
