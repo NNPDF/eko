@@ -16,12 +16,14 @@ _theory = dict(
         num_flavs_ref=None,
         max_num_flavs=6,
     ),
-    num_flavs_init=None,
-    num_flavs_max_pdf=6,
-    intrinsic_flavors=[4],
-    quark_masses=[ReferenceRunning([mq, nan]) for mq in (2.0, 4.5, 173.07)],
-    quark_masses_scheme="POLE",
-    matching=[1.0, 1.0, 1.0],
+    heavy=dict(
+        num_flavs_init=None,
+        num_flavs_max_pdf=6,
+        intrinsic_flavors=[4],
+        masses=[ReferenceRunning([mq, nan]) for mq in (2.0, 4.5, 173.07)],
+        masses_scheme="POLE",
+        matching_ratios=[1.0, 1.0, 1.0],
+    ),
     xif=1.0,
 )
 

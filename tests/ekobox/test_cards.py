@@ -47,12 +47,12 @@ def test_dump_load_op_card(tmp_path, cd):
 def test_generate_theory_card():
     theory = cards.example.theory()
     assert hasattr(theory, "order")
-    assert theory.quark_masses.t.value == 173.07
+    assert theory.heavy.masses.t.value == 173.07
     theory.order = (2, 0)
     assert theory.order[0] == 2
     rawt = cards.example.raw_theory()
     assert isinstance(rawt, dict)
-    assert theory.num_flavs_init == rawt["num_flavs_init"]
+    assert theory.heavy.num_flavs_init == rawt["heavy"]["num_flavs_init"]
 
 
 def containsnan(obj) -> bool:

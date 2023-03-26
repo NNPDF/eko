@@ -386,8 +386,8 @@ class TestOperatorMatrixElement:
 
     def test_compute_n3lo(self, theory_ffns, operator_card, tmp_path):
         theory_card: TheoryCard = theory_ffns(5)
-        theory_card.matching.c = 1.0
-        theory_card.matching.b = 1.0
+        theory_card.heavy.matching_ratios.c = 1.0
+        theory_card.heavy.matching_ratios.b = 1.0
         theory_card.order = (4, 0)
         operator_card.debug.skip_singlet = True
         g = legacy.Runner(theory_card, operator_card, path=tmp_path / "eko.tar").op_grid
@@ -395,7 +395,7 @@ class TestOperatorMatrixElement:
             g.config,
             g.managers,
             is_backward=True,
-            q2=theory_card.quark_masses.b.value**2,
+            q2=theory_card.heavy.masses.b.value**2,
             nf=4,
             L=0,
             is_msbar=False,
@@ -417,8 +417,8 @@ class TestOperatorMatrixElement:
 
     def test_compute_lo(self, theory_ffns, operator_card, tmp_path):
         theory_card = theory_ffns(5)
-        theory_card.matching.c = 1.0
-        theory_card.matching.b = 1.0
+        theory_card.heavy.matching_ratios.c = 1.0
+        theory_card.heavy.matching_ratios.b = 1.0
         theory_card.order = (1, 0)
         operator_card.debug.skip_singlet = False
         operator_card.debug.skip_non_singlet = False
@@ -427,7 +427,7 @@ class TestOperatorMatrixElement:
             g.config,
             g.managers,
             is_backward=False,
-            q2=theory_card.quark_masses.b.value**2,
+            q2=theory_card.heavy.masses.b.value**2,
             nf=4,
             L=0,
             is_msbar=False,
@@ -460,9 +460,9 @@ class TestOperatorMatrixElement:
         )
 
     def test_compute_nlo(self, theory_ffns, operator_card: OperatorCard, tmp_path):
-        theory_card = theory_ffns(5)
-        theory_card.matching.c = 1.0
-        theory_card.matching.b = 1.0
+        theory_card: TheoryCard = theory_ffns(5)
+        theory_card.heavy.matching_ratios.c = 1.0
+        theory_card.heavy.matching_ratios.b = 1.0
         theory_card.order = (2, 0)
         operator_card.mugrid = [(20.0, 5)]
         operator_card.xgrid = interpolation.XGrid([0.001, 0.01, 0.1, 1.0])
@@ -479,7 +479,7 @@ class TestOperatorMatrixElement:
             g.config,
             g.managers,
             is_backward=False,
-            q2=theory_card.quark_masses.b.value**2,
+            q2=theory_card.heavy.masses.b.value**2,
             nf=4,
             L=0,
             is_msbar=False,

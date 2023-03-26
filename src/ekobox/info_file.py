@@ -52,9 +52,9 @@ def build(
     template_info["MUp"] = 0.0
     template_info["MDown"] = 0.0
     template_info["MStrange"] = 0.0
-    template_info["MCharm"] = theory_card.quark_masses.c.value
-    template_info["MBottom"] = theory_card.quark_masses.b.value
-    template_info["MTop"] = theory_card.quark_masses.t.value
+    template_info["MCharm"] = theory_card.heavy.masses.c.value
+    template_info["MBottom"] = theory_card.heavy.masses.b.value
+    template_info["MTop"] = theory_card.heavy.masses.t.value
     template_info["AlphaS_MZ"] = theory_card.couplings.alphas.value
     template_info["AlphaS_OrderQCD"] = theory_card.order[0] - 1
     evmod = couplings.couplings_mod_ev(operators_card.configs.evolution_method)

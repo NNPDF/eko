@@ -19,19 +19,11 @@ from .. import interpolation, msbar_masses
 from .. import version as vmod
 from ..couplings import couplings_mod_ev
 from ..quantities import heavy_quarks as hq
-from ..quantities.heavy_quarks import (
-    HeavyQuarkMasses,
-    MatchingRatios,
-    MatchingScales,
-    QuarkMassScheme,
-    scales_from_ratios,
-)
+from ..quantities.heavy_quarks import HeavyInfo, QuarkMassScheme
 from .dictlike import DictLike
 from .types import (
     CouplingsRef,
     EvolutionMethod,
-    FlavorsNumber,
-    IntrinsicFlavors,
     InversionMethod,
     Order,
     RawCard,
@@ -49,46 +41,27 @@ class TheoryCard(DictLike):
     """Perturbative order tuple, ``(QCD, QED)``."""
     couplings: CouplingsRef
     """Couplings configuration."""
-    num_flavs_init: Optional[FlavorsNumber]
-    r"""Number of active flavors at fitting scale.
-
-    I.e. :math:`n_{f,\text{ref}}(\mu^2_0)`, formerly called ``nf0``.
-
-    """
-    num_flavs_max_pdf: FlavorsNumber
-    """Maximum number of quark PDFs."""
-    intrinsic_flavors: IntrinsicFlavors
-    """List of intrinsic quark PDFs."""
-    quark_masses: HeavyQuarkMasses
-    """List of heavy quark masses."""
-    quark_masses_scheme: QuarkMassScheme
-    """Scheme used to specify heavy quark masses."""
-    matching: MatchingRatios
-    """Matching scale of heavy quark masses"""
+    heavy: HeavyInfo
+    """Heavy quarks related information."""
     xif: float
     """Ratio between factorization scale and process scale."""
-
-    @property
-    def matching_scales(self) -> MatchingScales:
-        """Compute matching scales."""
-        return scales_from_ratios(self.matching, self.quark_masses)
 
 
 def masses(theory: TheoryCard, evmeth: EvolutionMethod):
     """Compute masses in the chosen scheme."""
-    if theory.quark_masses_scheme is QuarkMassScheme.MSBAR:
+    if theory.heavy.masses_scheme is QuarkMassScheme.MSBAR:
         return msbar_masses.compute(
-            theory.quark_masses,
+            theory.heavy.masses,
             theory.couplings,
             theory.order,
             couplings_mod_ev(evmeth),
-            np.power(theory.matching, 2.0),
+            np.power(theory.heavy.matching_ratios, 2.0),
             xif2=theory.xif**2,
         ).tolist()
-    if theory.quark_masses_scheme is QuarkMassScheme.POLE:
-        return [mq.value**2 for mq in theory.quark_masses]
+    if theory.heavy.masses_scheme is QuarkMassScheme.POLE:
+        return [mq.value**2 for mq in theory.heavy.masses]
 
-    raise ValueError(f"Unknown mass scheme '{theory.quark_masses_scheme}'")
+    raise ValueError(f"Unknown mass scheme '{theory.heavy.masses_scheme}'")
 
 
 @dataclass

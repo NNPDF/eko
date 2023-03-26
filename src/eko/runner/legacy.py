@@ -65,13 +65,13 @@ class Runner:
 
         # call explicitly iter to explain the static analyzer that is an
         # iterable
-        thresholds_ratios = np.power(list(iter(new_theory.matching)), 2.0)
+        thresholds_ratios = np.power(list(iter(new_theory.heavy.matching_ratios)), 2.0)
         tc = ThresholdsAtlas(
             masses=masses,
             q2_ref=new_operator.mu20,
-            nf_ref=new_theory.num_flavs_init,
+            nf_ref=new_theory.heavy.num_flavs_init,
             thresholds_ratios=thresholds_ratios,
-            max_nf=new_theory.num_flavs_max_pdf,
+            max_nf=new_theory.heavy.num_flavs_max_pdf,
         )
 
         # strong coupling
@@ -80,7 +80,7 @@ class Runner:
             order=new_theory.order,
             method=couplings_mod_ev(new_operator.configs.evolution_method),
             masses=masses,
-            hqm_scheme=new_theory.quark_masses_scheme,
+            hqm_scheme=new_theory.heavy.masses_scheme,
             thresholds_ratios=thresholds_ratios
             * (
                 new_theory.xif**2
@@ -94,8 +94,8 @@ class Runner:
             mu2grid=new_operator.mu2grid,
             order=new_theory.order,
             masses=masses,
-            mass_scheme=new_theory.quark_masses_scheme.value,
-            intrinsic_flavors=new_theory.intrinsic_flavors,
+            mass_scheme=new_theory.heavy.masses_scheme.value,
+            intrinsic_flavors=new_theory.heavy.intrinsic_flavors,
             xif=new_theory.xif,
             configs=new_operator.configs,
             debug=new_operator.debug,

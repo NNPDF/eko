@@ -1,10 +1,18 @@
 """Heavy quarks related quantities."""
 import enum
-from typing import Generic, Sequence, TypeVar
+from dataclasses import dataclass
+from typing import Generic, Optional, Sequence, TypeVar
 
 import numpy as np
 
-from ..io.types import LinearScale, ReferenceRunning, SquaredScale
+from ..io.dictlike import DictLike
+from ..io.types import (
+    FlavorsNumber,
+    IntrinsicFlavors,
+    LinearScale,
+    ReferenceRunning,
+    SquaredScale,
+)
 
 FLAVORS = "cbt"
 
@@ -70,9 +78,8 @@ def scales_from_ratios(
     return MatchingScales(*(np.power(ratios, 2.0) * np.power(masses, 2.0)).tolist())
 
 
-# TODO: upgrade all the following to StrEnum (requires py>=3.11)
-# with that, it is possible to replace all non-alias right sides with calls to
-# enum.auto()
+# TODO: upgrade the following to StrEnum (requires py>=3.11) with that, it is
+# possible to replace all non-alias right sides with calls to enum.auto()
 
 
 class QuarkMassScheme(enum.Enum):
@@ -80,3 +87,35 @@ class QuarkMassScheme(enum.Enum):
 
     MSBAR = "msbar"
     POLE = "pole"
+
+
+@dataclass
+class HeavyInfo(DictLike):
+    """Collect information about heavy quarks.
+
+    This is meant to be used mainly as a theory card section, and to be passed
+    around when all or a large part of this information is required.
+
+    """
+
+    num_flavs_init: Optional[FlavorsNumber]
+    r"""Number of active flavors at fitting scale.
+
+    I.e. :math:`n_{f,\text{ref}}(\mu^2_0)`, formerly called ``nf0``.
+
+    """
+    num_flavs_max_pdf: FlavorsNumber
+    """Maximum number of quark PDFs."""
+    intrinsic_flavors: IntrinsicFlavors
+    """List of intrinsic quark PDFs."""
+    masses: HeavyQuarkMasses
+    """List of heavy quark masses."""
+    masses_scheme: QuarkMassScheme
+    """Scheme used to specify heavy quark masses."""
+    matching_ratios: MatchingRatios
+    """Matching scale of heavy quark masses"""
+
+    @property
+    def matching_scales(self) -> MatchingScales:
+        """Compute matching scales."""
+        return scales_from_ratios(self.matching_ratios, self.masses)

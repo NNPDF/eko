@@ -17,11 +17,11 @@ def theory_card(theory_card: TheoryCard):
     th.couplings.alphas.scale = 91.0
     th.couplings.alphaem.value = 0.00781
     th.couplings.num_flavs_ref = 5
-    th.quark_masses = HeavyQuarkMasses(
+    th.heavy.masses = HeavyQuarkMasses(
         [QuarkMassRef(val) for val in [(2.0, 2.1), (4.0, 4.1), (175.0, 174.9)]]
     )
 
-    th.quark_masses_scheme = QuarkMassScheme.MSBAR
+    th.heavy.masses_scheme = QuarkMassScheme.MSBAR
 
     return th
 
@@ -37,11 +37,11 @@ class TestMSbarMasses:
 
                 # compute the scale such msbar(m) = m
                 m2_computed = msbar_masses.compute(
-                    th.quark_masses,
+                    th.heavy.masses,
                     th.couplings,
                     th.order,
                     method,
-                    np.power(th.matching, 2.0),
+                    np.power(th.heavy.matching_ratios, 2.0),
                 )
                 strong_coupling = Couplings(
                     th.couplings,
@@ -54,7 +54,7 @@ class TestMSbarMasses:
                 m2_test = []
                 for nf in [3, 4, 5]:
                     hq = "cbt"[nf - 3]
-                    mass = getattr(th.quark_masses, hq)
+                    mass = getattr(th.heavy.masses, hq)
                     # compute msbar( m )
                     m2_ref = mass.value**2
                     Q2m_ref = mass.scale**2
@@ -74,17 +74,17 @@ class TestMSbarMasses:
         # not given in the target patch (Qmc, mc are in NF=5)
         th = theory_card
         th.order = (4, 0)
-        th.quark_masses.c.value = 2.0
-        th.quark_masses.c.scale = 80.0
-        th.quark_masses.b.value = 4.0
-        th.quark_masses.b.scale = 85.0
+        th.heavy.masses.c.value = 2.0
+        th.heavy.masses.c.scale = 80.0
+        th.heavy.masses.b.value = 4.0
+        th.heavy.masses.b.scale = 85.0
         # compute the scale such msbar(m) = m
         m2_computed = msbar_masses.compute(
-            th.quark_masses,
+            th.heavy.masses,
             th.couplings,
             th.order,
             types.CouplingEvolutionMethod.EXPANDED,
-            np.power(th.matching, 2.0),
+            np.power(th.heavy.matching_ratios, 2.0),
         )
         strong_coupling = Couplings(
             th.couplings,
@@ -97,7 +97,7 @@ class TestMSbarMasses:
         m2_test = []
         for nf in [3, 4, 5]:
             hq = "cbt"[nf - 3]
-            mass = getattr(th.quark_masses, hq)
+            mass = getattr(th.heavy.masses, hq)
             # compute msbar( m )
             m2_ref = mass.value**2
             Q2m_ref = mass.scale**2
@@ -117,41 +117,41 @@ class TestMSbarMasses:
 
         def compute(theory: TheoryCard):
             msbar_masses.compute(
-                theory.quark_masses,
+                theory.heavy.masses,
                 theory.couplings,
                 theory.order,
                 types.CouplingEvolutionMethod.EXPANDED,
-                np.power(theory.matching, 2.0),
+                np.power(theory.heavy.matching_ratios, 2.0),
             )
 
         # test mass ordering
         with pytest.raises(ValueError, match="MSbar masses are not to be sorted"):
-            th.quark_masses.c.value = 1.1
-            th.quark_masses.c.scale = 1.2
-            th.quark_masses.b.value = 1.0
-            th.quark_masses.b.scale = 1.0
+            th.heavy.masses.c.value = 1.1
+            th.heavy.masses.c.scale = 1.2
+            th.heavy.masses.b.value = 1.0
+            th.heavy.masses.b.scale = 1.0
             compute(th)
 
         # test forward conditions on alphas_ref
         with pytest.raises(ValueError, match="should be lower than"):
-            th.quark_masses.b.scale = 91.0001
+            th.heavy.masses.b.scale = 91.0001
             compute(th)
 
         # test backward conditions on alphas_ref
         with pytest.raises(ValueError, match="should be greater than"):
-            th.quark_masses.t.scale = 89.9999
+            th.heavy.masses.t.scale = 89.9999
             compute(th)
 
-        th.quark_masses.b.scale = 4.0
-        th.quark_masses.t.scale = 175.0
+        th.heavy.masses.b.scale = 4.0
+        th.heavy.masses.t.scale = 175.0
 
         # test forward conditions on masses
         with pytest.raises(ValueError, match="should be lower than m"):
-            th.quark_masses.t.value = 174.0
+            th.heavy.masses.t.value = 174.0
             compute(th)
 
         # test backward conditions on masses
         with pytest.raises(ValueError, match="should be greater than m"):
-            th.quark_masses.b.value = 4.1
-            th.quark_masses.t.value = 176.0
+            th.heavy.masses.b.value = 4.1
+            th.heavy.masses.t.value = 176.0
             compute(th)

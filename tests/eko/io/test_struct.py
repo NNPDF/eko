@@ -117,7 +117,7 @@ class TestEKO:
         mugrid = [(mu, 5)]
         eko_factory.operator.mugrid = mugrid
         eko = eko_factory.get()
-        assert hasattr(eko.theory_card, "quark_masses")
+        assert hasattr(eko.theory_card.heavy, "masses")
         assert hasattr(eko.operator_card, "debug")
         np.testing.assert_allclose(eko.mu2grid, [mu**2])
         assert mu**2 in eko

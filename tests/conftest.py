@@ -52,7 +52,7 @@ def theory_ffns(theory_card):
     def set_(flavors: int) -> TheoryCard:
         i = flavors - 3
         for q in "cbt"[i:]:
-            setattr(theory_card.matching, q, np.inf)
+            setattr(theory_card.heavy.matching_ratios, q, np.inf)
         return theory_card
 
     return set_
