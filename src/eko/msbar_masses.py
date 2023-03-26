@@ -9,7 +9,8 @@ from .basis_rotation import quark_names
 from .beta import b_qcd, beta_qcd
 from .couplings import Couplings, invert_matching_coeffs
 from .gamma import gamma
-from .io.types import CouplingEvolutionMethod, CouplingsRef, FlavorsNumber, Order
+from .io.types import FlavorsNumber, Order
+from .quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
 from .quantities.heavy_quarks import HeavyQuarkMasses, QuarkMassRef, QuarkMassScheme
 from .thresholds import ThresholdsAtlas, flavor_shift, is_downward_path
 
@@ -339,7 +340,7 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
 
 def compute(
     masses_ref: HeavyQuarkMasses,
-    couplings: CouplingsRef,
+    couplings: CouplingsInfo,
     order: Order,
     evmeth: CouplingEvolutionMethod,
     matching: List[float],
@@ -372,7 +373,7 @@ def compute(
 
     """
     # TODO: sketch in the docs how the MSbar computation works with a figure.
-    mu2_ref = couplings.alphas.scale**2
+    mu2_ref = couplings.scale**2
     nf_ref: FlavorsNumber = couplings.num_flavs_ref
     masses = np.concatenate((np.zeros(nf_ref - 3), np.full(6 - nf_ref, np.inf)))
 

@@ -10,7 +10,8 @@ import numpy as np
 import pytest
 
 from eko.couplings import Couplings, compute_matching_coeffs_up, couplings_mod_ev
-from eko.io.types import CouplingEvolutionMethod, CouplingsRef, EvolutionMethod
+from eko.io.types import EvolutionMethod
+from eko.quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
 from eko.quantities.heavy_quarks import MatchingScales, QuarkMassScheme
 
 masses = [m**2 for m in (2.0, 4.5, 175.0)]
@@ -49,10 +50,11 @@ class TestCouplings:
     def test_init(self):
         alpharef = (0.118, 0.00781)
         muref = 91.0
-        couplings = CouplingsRef.from_dict(
+        couplings = CouplingsInfo.from_dict(
             dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
+                alphas=alpharef[0],
+                alphaem=alpharef[1],
+                scale=muref,
                 num_flavs_ref=None,
                 max_num_flavs=6,
             )
@@ -153,10 +155,11 @@ class TestCouplings:
         ]
         alpharef = (0.118, 0.00781)
         muref = 91.0
-        couplings = CouplingsRef.from_dict(
+        couplings = CouplingsInfo.from_dict(
             dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
+                alphas=alpharef[0],
+                alphaem=alpharef[1],
+                scale=muref,
                 num_flavs_ref=None,
                 max_num_flavs=6,
             )
@@ -188,10 +191,11 @@ class TestCouplings:
         thresh_setup = (1.51, 4.75, 175.0)
         alpharef = np.array([0.35, 0.00781])
         muref = 2.0
-        couplings = CouplingsRef.from_dict(
+        couplings = CouplingsInfo.from_dict(
             dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
+                alphas=alpharef[0],
+                alphaem=alpharef[1],
+                scale=muref,
                 num_flavs_ref=3,  # reference nf is needed to force the matching
                 max_num_flavs=6,
             )
@@ -224,10 +228,11 @@ class TestCouplings:
                 for qed in range(2 + 1):
                     for qedref in [muref, nan]:  # testing both running and fixed alpha
                         pto = (qcd, qed)
-                        couplings = CouplingsRef.from_dict(
+                        couplings = CouplingsInfo.from_dict(
                             dict(
-                                alphas=[alpharef[0], muref],
-                                alphaem=[alpharef[1], qedref],
+                                alphas=alpharef[0],
+                                alphaem=alpharef[1],
+                                scale=muref,
                                 num_flavs_ref=None,
                                 max_num_flavs=6,
                             )
@@ -286,13 +291,12 @@ class TestCouplings:
         # use a big alpha_s to enlarge the difference
         alpharef = np.array([0.9, 0.00781])
         muref = 90.0
-        couplings = CouplingsRef.from_dict(
-            dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
-                num_flavs_ref=None,
-                max_num_flavs=6,
-            )
+        couplings = CouplingsInfo(
+            alphas=alpharef[0],
+            alphaem=alpharef[1],
+            scale=muref,
+            num_flavs_ref=None,
+            max_num_flavs=6,
         )
         m2c = 2
         m2b = 25

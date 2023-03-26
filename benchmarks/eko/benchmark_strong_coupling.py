@@ -9,6 +9,7 @@ from eko.beta import beta_qcd
 from eko.couplings import Couplings
 from eko.io import types
 from eko.io.runcards import TheoryCard
+from eko.quantities.couplings import CouplingsInfo
 from eko.quantities.heavy_quarks import QuarkMassScheme
 
 # try to load LHAPDF - if not available, we'll use the cached values
@@ -39,10 +40,11 @@ except ImportError:
 def ref_couplings(
     ref_values,
     ref_scale: float,
-) -> types.CouplingsRef:
-    return types.CouplingsRef(
-        alphas=types.ScalarRef([ref_values[0], ref_scale]),
-        alphaem=types.ScalarRef([ref_values[1], nan]),
+) -> CouplingsInfo:
+    return CouplingsInfo(
+        alphas=ref_values[0],
+        alphaem=ref_values[1],
+        scale=ref_scale,
         max_num_flavs=6,
         num_flavs_ref=None,
     )

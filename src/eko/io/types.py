@@ -1,15 +1,12 @@
 """Common type definitions, only used for static analysis."""
-import dataclasses
 import enum
 import typing
-from math import isnan
-from typing import Any, Dict, Generic, Optional, Tuple, TypeVar
-
-from .dictlike import DictLike
+from typing import Any, Dict, Generic, Tuple, TypeVar
 
 # Energy scales
 # -------------
 
+Scalar = float
 Scale = float
 
 LinearScale = Scale
@@ -82,7 +79,6 @@ class ReferenceRunning(list, Generic[T]):
 
 
 FlavNumRef = ReferenceRunning[FlavorsNumber]
-ScalarRef = ReferenceRunning[float]
 LinearScaleRef = ReferenceRunning[LinearScale]
 
 
@@ -107,13 +103,6 @@ class EvolutionMethod(enum.Enum):
     DECOMPOSE_EXPANDED = "decompose-expanded"
 
 
-class CouplingEvolutionMethod(enum.Enum):
-    """Beta functions solution method."""
-
-    EXACT = "exact"
-    EXPANDED = "expanded"
-
-
 class ScaleVariationsMethod(enum.Enum):
     """Method used to account for factorization scale variation."""
 
@@ -129,38 +118,3 @@ class InversionMethod(enum.Enum):
 
 
 RawCard = Dict[str, Any]
-
-
-# Couplings
-# ---------
-
-
-@dataclasses.dataclass
-class CouplingsRef(DictLike):
-    """Reference values for coupling constants."""
-
-    alphas: ScalarRef
-    alphaem: ScalarRef
-    max_num_flavs: FlavorsNumber
-    num_flavs_ref: Optional[FlavorsNumber]
-    r"""Number of active flavors at strong coupling reference scale.
-
-    I.e. :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`, formerly called
-    ``nfref``.
-
-    """
-
-    def __post_init__(self):
-        """Validate couplings.
-
-        If they are both running, they have to be defined at the same scale.
-
-        Usually :attr:`alphaem` is not running, thus its scale is set to nan.
-
-        """
-        assert self.alphas.scale == self.alphaem.scale or isnan(self.alphaem.scale)
-
-    @property
-    def values(self):
-        """Collect only couplings values."""
-        return (self.alphas.value, self.alphaem.value)

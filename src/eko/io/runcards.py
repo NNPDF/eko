@@ -19,10 +19,10 @@ from .. import interpolation, msbar_masses
 from .. import version as vmod
 from ..couplings import couplings_mod_ev
 from ..quantities import heavy_quarks as hq
+from ..quantities.couplings import CouplingsInfo
 from ..quantities.heavy_quarks import HeavyInfo, QuarkMassScheme
 from .dictlike import DictLike
 from .types import (
-    CouplingsRef,
     EvolutionMethod,
     InversionMethod,
     Order,
@@ -39,7 +39,7 @@ class TheoryCard(DictLike):
 
     order: Order
     """Perturbative order tuple, ``(QCD, QED)``."""
-    couplings: CouplingsRef
+    couplings: CouplingsInfo
     """Couplings configuration."""
     heavy: HeavyInfo
     """Heavy quarks related information."""
