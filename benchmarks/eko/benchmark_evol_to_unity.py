@@ -21,11 +21,11 @@ def update_cards(theory: TheoryCard, operator: OperatorCard):
         max_num_flavs=6,
         num_flavs_ref=None,
     )
-    theory.num_flavs_init = 4
-    theory.intrinsic_flavors = [4, 5]
-    theory.quark_masses.c.value = 1.0
-    theory.quark_masses.b.value = 4.75
-    theory.quark_masses.t.value = 173.0
+    theory.heavy.num_flavs_init = 4
+    theory.heavy.intrinsic_flavors = [4, 5]
+    theory.heavy.masses.c.value = 1.0
+    theory.heavy.masses.b.value = 4.75
+    theory.heavy.masses.t.value = 173.0
     operator.mu0 = float(np.sqrt(2))
     operator.mugrid = [(10, 5)]
     operator.xgrid = XGrid(np.linspace(1e-1, 1, 30))

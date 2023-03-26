@@ -22,10 +22,10 @@ def update_theory(theory: TheoryCard):
     theory.couplings.alphas.scale = 91
     theory.couplings.alphaem.value = 0.007496
     theory.couplings.num_flavs_ref = 5
-    theory.quark_masses_scheme = QuarkMassScheme.MSBAR
-    theory.quark_masses.c = QuarkMassRef([1.5, 18])
-    theory.quark_masses.b = QuarkMassRef([4.1, 20])
-    theory.quark_masses.t = QuarkMassRef([175.0, 175.0])
+    theory.heavy.masses_scheme = QuarkMassScheme.MSBAR
+    theory.heavy.masses.c = QuarkMassRef([1.5, 18])
+    theory.heavy.masses.b = QuarkMassRef([4.1, 20])
+    theory.heavy.masses.t = QuarkMassRef([175.0, 175.0])
 
 
 @pytest.mark.isolated
@@ -35,10 +35,10 @@ class BenchmarkMSbar:
     ):
         update_theory(theory_card)
         bench_values = dict(zip(np.power([1, 96, 150], 2), [3, 5, 5]))
-        theory_card.quark_masses.c = QuarkMassRef([1.4, 2.0])
-        theory_card.quark_masses.b = QuarkMassRef([4.5, 4.5])
+        theory_card.heavy.masses.c = QuarkMassRef([1.4, 2.0])
+        theory_card.heavy.masses.b = QuarkMassRef([4.5, 4.5])
         coupl = theory_card.couplings
-        qmasses = theory_card.quark_masses
+        qmasses = theory_card.heavy.masses
 
         apfel_vals_dict = {
             "exact": {
@@ -106,16 +106,20 @@ class BenchmarkMSbar:
                     couplings=theory_card.couplings,
                     order=theory_card.order,
                     masses=msbar_masses.compute(
-                        theory_card.quark_masses,
+                        theory_card.heavy.masses,
                         couplings=theory_card.couplings,
                         order=theory_card.order,
                         evmeth=couplevmeth,
-                        matching=np.power(list(iter(theory_card.matching)), 2.0),
+                        matching=np.power(
+                            list(iter(theory_card.heavy.matching_ratios)), 2.0
+                        ),
                         xif2=theory_card.xif**2,
                     ).tolist(),
-                    thresholds_ratios=np.power(list(iter(theory_card.matching)), 2.0),
+                    thresholds_ratios=np.power(
+                        list(iter(theory_card.heavy.matching_ratios)), 2.0
+                    ),
                     method=couplevmeth,
-                    hqm_scheme=theory_card.quark_masses_scheme,
+                    hqm_scheme=theory_card.heavy.masses_scheme,
                 )
                 my_vals = []
                 for Q2, nf_to in bench_values.items():
@@ -188,15 +192,15 @@ class BenchmarkMSbar:
         theory = theory_card
         operator = operator_card
         coupl = theory_card.couplings
-        qmasses = theory_card.quark_masses
+        qmasses = theory_card.heavy.masses
         for order in [1, 2, 3]:
             theory.order = (order, 0)
             my_masses = msbar_masses.compute(
-                theory.quark_masses,
+                theory.heavy.masses,
                 couplings=theory_card.couplings,
                 order=theory_card.order,
                 evmeth=types.CouplingEvolutionMethod.EXACT,
-                matching=np.power(list(iter(theory_card.matching)), 2.0),
+                matching=np.power(list(iter(theory_card.heavy.matching_ratios)), 2.0),
                 xif2=theory_card.xif**2,
             )
             # get APFEL numbers - if available else use cache
@@ -231,26 +235,26 @@ class BenchmarkMSbar:
         """
         update_theory(theory_card)
         theory_card.order = (1, 0)
-        theory_card.matching.c = 1.2
-        theory_card.matching.b = 1.8
-        theory_card.matching.t = 1.0
+        theory_card.heavy.matching_ratios.c = 1.2
+        theory_card.heavy.matching_ratios.b = 1.8
+        theory_card.heavy.matching_ratios.t = 1.0
         my_masses_thr = msbar_masses.compute(
-            theory_card.quark_masses,
+            theory_card.heavy.masses,
             couplings=theory_card.couplings,
             order=theory_card.order,
             evmeth=types.CouplingEvolutionMethod.EXACT,
-            matching=np.power(list(iter(theory_card.matching)), 2.0),
+            matching=np.power(list(iter(theory_card.heavy.matching_ratios)), 2.0),
             xif2=theory_card.xif**2,
         )
         apfel_masses_thr = [1.9891, 4.5102, 175.0000]
-        theory_card.matching.c = 1.0
-        theory_card.matching.b = 1.0
+        theory_card.heavy.matching_ratios.c = 1.0
+        theory_card.heavy.matching_ratios.b = 1.0
         my_masses_plain = msbar_masses.compute(
-            theory_card.quark_masses,
+            theory_card.heavy.masses,
             couplings=theory_card.couplings,
             order=theory_card.order,
             evmeth=types.CouplingEvolutionMethod.EXACT,
-            matching=np.power(list(iter(theory_card.matching)), 2.0),
+            matching=np.power(list(iter(theory_card.heavy.matching_ratios)), 2.0),
             xif2=theory_card.xif**2,
         )
 

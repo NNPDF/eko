@@ -839,14 +839,14 @@ class BenchmarkCouplings:
         theory.couplings.alphas.scale = float(np.sqrt(2))
         theory.couplings.alphaem.value = 0.007496
         theory.couplings.num_flavs_ref = 4
-        theory.num_flavs_init = 3
+        theory.heavy.num_flavs_init = 3
         theory.xif = np.sqrt(2.0)
-        theory.quark_masses.c.value = np.sqrt(2.0)
-        theory.quark_masses.b.value = 4.5
-        theory.quark_masses.t.value = 175.0
-        qmasses = theory.quark_masses
+        theory.heavy.masses.c.value = np.sqrt(2.0)
+        theory.heavy.masses.b.value = 4.5
+        theory.heavy.masses.t.value = 175.0
+        qmasses = theory.heavy.masses
 
-        masses = tuple(mq.value**2 for mq in theory.quark_masses)
+        masses = tuple(mq.value**2 for mq in theory.heavy.masses)
 
         mu2s = [2.0]
         sc = Couplings(
@@ -855,7 +855,7 @@ class BenchmarkCouplings:
             method=types.CouplingEvolutionMethod.EXACT,
             masses=[m2 / theory.xif**2 for m2 in masses],
             hqm_scheme=QuarkMassScheme.POLE,
-            thresholds_ratios=np.power(list(iter(theory.matching)), 2.0),
+            thresholds_ratios=np.power(list(iter(theory.heavy.matching_ratios)), 2.0),
         )
         xif2 = theory.xif**2
         for mu2 in mu2s:
@@ -888,7 +888,9 @@ class BenchmarkCouplings:
                 apfel.SetVFNS()
                 apfel.SetPoleMasses(qmasses.c.value, qmasses.b.value, qmasses.t.value)
                 apfel.SetMassMatchingScales(
-                    theory.matching.c, theory.matching.b, theory.matching.t
+                    theory.heavy.matching_ratios.c,
+                    theory.heavy.matching_ratios.b,
+                    theory.heavy.matching_ratios.t,
                 )
                 apfel.SetRenFacRatio(1.0 / theory.xif)
                 apfel.InitializeAPFEL()

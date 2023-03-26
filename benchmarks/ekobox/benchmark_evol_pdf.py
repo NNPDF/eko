@@ -24,10 +24,10 @@ def benchmark_evolve_single_member(
     theory.couplings.alphas.scale = 91.1876
     theory.couplings.alphaem.value = 0.007496
     theory.couplings.max_num_flavs = 3
-    theory.num_flavs_max_pdf = 3
-    theory.quark_masses.c.value = 1.3
-    theory.quark_masses.b.value = 4.75
-    theory.quark_masses.t.value = 172
+    theory.heavy.num_flavs_max_pdf = 3
+    theory.heavy.masses.c.value = 1.3
+    theory.heavy.masses.b.value = 4.75
+    theory.heavy.masses.t.value = 172
     op = operator_card
     op.mu0 = 5.0
     op.mugrid = mugrid

@@ -19,7 +19,7 @@ def test_build():
     assert info["SetDesc"] == "Prova"
     assert info["NewArg"] == 15.3
     assert info["NumMembers"] == 4
-    assert info["MTop"] == theory.quark_masses.t.value
+    assert info["MTop"] == theory.heavy.masses.t.value
     np.testing.assert_allclose(info["QMin"], math.sqrt(op.mu2grid[0]), rtol=1e-5)
     assert info["XMin"] == op.xgrid.raw[0]
     assert info["XMax"] == op.xgrid.raw[-1] == 1.0
