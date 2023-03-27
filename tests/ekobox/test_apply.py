@@ -1,6 +1,6 @@
 import numpy as np
 
-from ekomark import apply
+from ekobox import apply
 from tests.conftest import EKOFactory
 
 
