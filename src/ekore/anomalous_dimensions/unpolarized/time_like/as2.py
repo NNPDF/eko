@@ -133,92 +133,86 @@ def gamma_nsm(N, nf):
         :math:`\gamma_{ns}^{(1)-}(N)`
 
     """
-    s1 = w1.S1(N)
-    s2 = w2.S2(N)
-    s3 = w3.S3(N)
-    sm2 = w2.Sm2(N, s2, False)
-    sm3 = w3.Sm3(N, s3, False)
-    sm21 = w3.Sm21(N, s1, False)
+    NS = N * N
+    NT = NS * N
+    NFO = NT * N
 
-    nsm1 = (
+    N1 = N + 1
+    N2 = N + 2
+    N1S = N1 * N1
+    N1T = N1S * N1
+
+    S1 = w1.S1(N)
+    S2 = w2.S2(N)
+
+    N3 = N + 3
+    N4 = N + 4
+    N5 = N + 5
+    N6 = N + 6
+
+    S11 = S1 + 1 / N1
+    S12 = S11 + 1 / N2
+    S13 = S12 + 1 / N3
+    S14 = S13 + 1 / N4
+    S15 = S14 + 1 / N5
+    S16 = S15 + 1 / N6
+
+    ZETA2 = zeta2
+    ZETA3 = zeta3
+
+    SPMOM = (
+        1.0000 * (ZETA2 - S1 / N) / N
+        - 0.9992 * (ZETA2 - S11 / N1) / N1
+        + 0.9851 * (ZETA2 - S12 / N2) / N2
+        - 0.9005 * (ZETA2 - S13 / N3) / N3
+        + 0.6621 * (ZETA2 - S14 / N4) / N4
+        - 0.3174 * (ZETA2 - S15 / N5) / N5
+        + 0.0699 * (ZETA2 - S16 / N6) / N6
+    )
+
+    SLC = -5 / 8 * ZETA3
+    SLV = -ZETA2 / 2 * (polygamma(N1 / 2, 0) - polygamma(N / 2, 0)) + S1 / NS + SPMOM
+    SSCHLM = SLC - SLV
+    SSTR2M = ZETA2 - polygamma(N1 / 2, 1)
+    SSTR3M = 0.5 * polygamma(N1 / 2, 2) + ZETA3
+
+
+    PNMA = (
+        16 * S1 * (2 * N + 1) / (NS * N1S)
+        + 16 * (2 * S1 - 1 / (N * N1)) * (S2 - SSTR2M)
+        + 64 * SSCHLM
+        + 24 * S2
+        - 3
+        - 8 * SSTR3M
+        - 8 * (3 * NT + NS - 1) / (NT * N1T)
+        + 16 * (2 * NS + 2 * N + 1) / (NT * N1T)
+    ) * (-0.5)
+    PNSB = (
+        S1 * (536 / 9 + 8 * (2 * N + 1) / (NS * N1S))
+        - (16 * S1 + 52 / 3 - 8 / (N * N1)) * S2
+        - 43 / 6
+        - (151 * NFO + 263 * NT + 97 * NS + 3 * N + 9) * 4 / (9 * NT * N1T)
+    ) * (-0.5)
+    PNSC = (
+        -160 / 9 * S1
+        + 32 / 3.0 * S2
+        + 4 / 3
+        + 16 * (11 * NS + 5 * N - 3) / (9 * NS * N1S)
+    ) * (-0.5)
+    PNSTL = (-4 * S1 + 3 + 2 / (N * N1)) * (
+        2 * S2 - 2 * ZETA2 - (2 * N + 1) / (NS * N1S)
+    )
+
+    result = (
         constants.CF
-        * constants.CF
         * (
-            (
-                40
-                + 88 * N
-                + 96 * npp(N, 2)
-                + 53 * npp(N, 3)
-                - 9 * npp(N, 4)
-                - 9 * npp(N, 5)
-                - 3 * npp(N, 6)
-                + 32 * zeta2 * npp(N, 2)
-                + 112 * zeta2 * npp(N, 3)
-                + 176 * zeta2 * npp(N, 4)
-                + 144 * zeta2 * npp(N, 5)
-                + 48 * zeta2 * npp(N, 6)
-                + 32 * npp(N, 3) * (-1)
-            )
-            / (2 * npp(N, 3) * npp(1 + N, 3))
-            - 16 * sm3
-            + sm2 * (16 / (N * (1 + N)) - 32 * s1)
-            - (4 * (2 + 3 * N + 3 * npp(N, 2)) * s2) / (N * (1 + N))
-            + s1
-            * (
-                -(
-                    (
-                        8
-                        * (
-                            1
-                            + 2 * N
-                            + 4 * zeta2 * npp(N, 2)
-                            + 8 * zeta2 * npp(N, 3)
-                            + 4 * zeta2 * npp(N, 4)
-                        )
-                    )
-                    / (npp(N, 2) * npp(1 + N, 2))
-                )
-                + 16 * s2
-            )
-            - 16 * s3
-            + 32 * sm21
+            (constants.CF - constants.CA / 2) * PNMA
+            + constants.CA * PNSB
+            + (1 / 2) * nf * PNSC
         )
+        + constants.CF**2 * PNSTL * 4
     )
-    nsm2 = (
-        constants.CF
-        * constants.CA
-        * (
-            (
-                -144
-                - 156 * N
-                - 496 * npp(N, 2)
-                - 1139 * npp(N, 3)
-                - 757 * npp(N, 4)
-                - 153 * npp(N, 5)
-                - 51 * npp(N, 6)
-                - 144 * npp(N, 3) * (-1)
-            )
-            / (18 * npp(N, 3) * npp(1 + N, 3))
-            + 8 * sm3
-            + s1 * (268 / 9)
-            + sm2 * (16 * s1 - 8 / (N * (1 + N)))
-            - s2 * (44 / 3)
-            + 8 * s3
-            - 16 * sm21
-        )
-    )
-    nsm3 = (
-        nf
-        * constants.CF
-        * (
-            (-12 + 20 * N + 47 * npp(N, 2) + 6 * npp(N, 3) + 3 * npp(N, 4))
-            / (9 * npp(N, 2) * npp(1 + N, 2))
-            - s1 * (40 / 9)
-            + s2 * (8 / 3)
-        )
-    )
-    result = nsm1 + nsm2 + nsm3
-    return result
+    return -result
 
 
 @nb.njit(cache=True)

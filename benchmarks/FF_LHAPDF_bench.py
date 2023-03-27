@@ -7,10 +7,10 @@ from ekomark.benchmark.runner import Runner
 
 register(__file__)
 
-base_operator = {"ev_op_iterations": 1, "backward_inversion": "exact"}
+base_operator = {"ev_op_iterations": 50, "backward_inversion": "exact"}
 
 base_theory = {
-    "Qref": 91.2,
+    "Qref": 91.1876,
     "mc": 1.51,
     "mb": 4.92,
     "mt": 172.5,
@@ -20,7 +20,8 @@ base_theory = {
     "alphas": 0.118000,
     "alphaqed": 0.007496,
     "FNS": "ZM-VFNS",
-    "ModEv": "TRN",
+    "ModEv": "EXA",
+#    "ModEv": "TRN",
 }
 
 FF_sets_lo = [
@@ -84,7 +85,7 @@ class BenchmarkFF(Runner):
             "V35",
         ]
 
-    def benchmark_lo(self, Q0=10, Q2grid=(10000, 1000000)):
+    def benchmark_lo(self, Q0=10, Q2grid=(10000,)):
         theory_card = {
             **base_theory,
             "PTO": 0,
@@ -103,7 +104,7 @@ class BenchmarkFF(Runner):
 
         self.run([theory_card], [operator_card], [FF_sets_lo[7]])
 
-    def benchmark_nlo(self, Q0=10, Q2grid=(10000, 1000000)):
+    def benchmark_nlo(self, Q0=10, Q2grid=(10000,)):
         theory_card = {
             **base_theory,
             "PTO": 1,
@@ -120,9 +121,9 @@ class BenchmarkFF(Runner):
             "interpolation_xgrid": interpolation.lambertgrid(100, 0.01),
         }
 
-        self.run([theory_card], [operator_card], [FF_sets_nlo[9]])
+        self.run([theory_card], [operator_card], [FF_sets_nlo[10]])
 
-    def benchmark_nnlo(self, Q0=10, Q2grid=(10000, 1000000)):
+    def benchmark_nnlo(self, Q0=10, Q2grid=(10000,)):
         theory_card = {
             **base_theory,
             "PTO": 2,
@@ -143,6 +144,6 @@ class BenchmarkFF(Runner):
 
 
 if __name__ == "__main__":
-    #    BenchmarkFF().benchmark_lo()
-    BenchmarkFF().benchmark_nlo()
-#    BenchmarkFF().benchmark_nnlo()
+#    BenchmarkFF().benchmark_lo()
+#    BenchmarkFF().benchmark_nlo()
+    BenchmarkFF().benchmark_nnlo()
