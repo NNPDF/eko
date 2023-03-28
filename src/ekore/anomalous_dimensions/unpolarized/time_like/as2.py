@@ -13,7 +13,7 @@ from ....harmonics.polygamma import cern_polygamma as polygamma
 
 @nb.njit(cache=True)
 def gamma_nsp(N, nf):
-    r"""Compute the NLO non-singlet positive anomalous dimension.
+    r"""Compute the |NLO| non-singlet positive anomalous dimension.
 
     Implements :eqref:`B.7` from :cite:`Mitov:2006wy`.
 
@@ -115,7 +115,7 @@ def gamma_nsp(N, nf):
 
 @nb.njit(cache=True)
 def gamma_nsm(N, nf):
-    r"""Compute the NLO non-singlet negative anomalous dimension.
+    r"""Compute the |NLO| non-singlet negative anomalous dimension.
 
     Implements :eqref:`B.8` from :cite:`Mitov:2006wy`.
 
@@ -217,7 +217,7 @@ def gamma_nsm(N, nf):
 
 @nb.njit(cache=True)
 def gamma_qqs(N, nf):
-    r"""Compute the NLO quark-quark singlet anomalous dimension.
+    r"""Compute the |NLO| quark-quark singlet anomalous dimension.
 
     Implements :eqref:`B.9` from :cite:`Mitov:2006wy`.
 
@@ -260,7 +260,7 @@ def gamma_qqs(N, nf):
 
 @nb.njit(cache=True)
 def gamma_qg(N, nf):
-    r"""Compute the NLO quark-gluon anomalous dimension.
+    r"""Compute the |NLO| quark-gluon anomalous dimension.
 
     Implements :eqref:`B.10` from :cite:`Mitov:2006wy`
     and :eqref:`A1` from :cite:`Gluck:1992zx`.
@@ -394,7 +394,7 @@ def gamma_qg(N, nf):
 
 @nb.njit(cache=True)
 def gamma_gq(N, nf):
-    r"""Compute the NLO gluon-quark anomalous dimension.
+    r"""Compute the |NLO| gluon-quark anomalous dimension.
 
     Implements :eqref:`B.11` from :cite:`Mitov:2006wy`
     and :eqref:`A1` from :cite:`Gluck:1992zx`.
@@ -491,7 +491,7 @@ def gamma_gq(N, nf):
 
 @nb.njit(cache=True)
 def gamma_gg(N, nf):
-    r"""Compute the NLO gluon-gluon anomalous dimension.
+    r"""Compute the |NLO| gluon-gluon anomalous dimension.
 
     Implements :eqref:`B.12` from :cite:`Mitov:2006wy`.
 
@@ -657,7 +657,7 @@ def gamma_gg(N, nf):
 
 @nb.njit(cache=True)
 def gamma_singlet(N, nf):
-    r"""Compute the NLO singlet anomalous dimension matrix.
+    r"""Compute the |NLO| singlet anomalous dimension matrix.
 
     Implements :eqref:`2.13` from :cite:`Gluck:1992zx`.
 
