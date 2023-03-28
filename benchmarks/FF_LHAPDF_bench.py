@@ -7,7 +7,7 @@ from ekomark.benchmark.runner import Runner
 
 register(__file__)
 
-base_operator = {"ev_op_iterations": 50, "backward_inversion": "exact"}
+base_operator = {"ev_op_iterations": 10, "backward_inversion": "exact"}
 
 base_theory = {
     "Qref": 91.1876,
@@ -145,5 +145,5 @@ class BenchmarkFF(Runner):
 
 if __name__ == "__main__":
 #    BenchmarkFF().benchmark_lo()
-#    BenchmarkFF().benchmark_nlo()
-    BenchmarkFF().benchmark_nnlo()
+    BenchmarkFF().benchmark_nlo()
+#    BenchmarkFF().benchmark_nnlo()
