@@ -404,7 +404,7 @@ def gamma_qq(N, nf):
 def gamma_qg(N, nf):
     r"""Compute the |NNLO| quark-gluon anomalous dimension.
 
-    Based on :cite:Almasy:2011eq``.
+    Based on :cite:`Almasy:2011eq`.
 
     Parameters
     ----------
