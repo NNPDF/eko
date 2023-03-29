@@ -45,7 +45,7 @@ def build(
     template_info["XMin"] = float(operators_card.rotations.xgrid.raw[0])
     template_info["XMax"] = float(operators_card.rotations.xgrid.raw[-1])
     template_info["NumMembers"] = num_members
-    template_info["OrderQCD"] = theory_card.order[0]
+    template_info["OrderQCD"] = theory_card.order[0] - 1
     template_info["QMin"] = round(math.sqrt(operators_card.mu2grid[0]), 4)
     template_info["QMax"] = round(math.sqrt(operators_card.mu2grid[-1]), 4)
     template_info["MZ"] = theory_card.couplings.alphas.scale
@@ -56,7 +56,7 @@ def build(
     template_info["MBottom"] = theory_card.quark_masses.b.value
     template_info["MTop"] = theory_card.quark_masses.t.value
     template_info["AlphaS_MZ"] = theory_card.couplings.alphas.value
-    template_info["AlphaS_OrderQCD"] = theory_card.order[0]
+    template_info["AlphaS_OrderQCD"] = theory_card.order[0] - 1
     evmod = couplings.couplings_mod_ev(operators_card.configs.evolution_method)
     quark_masses = [(x.value) ** 2 for x in theory_card.quark_masses]
     sc = couplings.Couplings(
