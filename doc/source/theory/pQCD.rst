@@ -185,8 +185,7 @@ Scale Variations
 The usual procedure in solving |DGLAP| applied :doc:`here
 </theory/DGLAP>` is to rewrite the equations in term of the running coupling
 :math:`a_s` assuming the factorization scale :math:`\mu_F^2` (the inherit scale
-of the |PDF|) and the renormalization scale :math:`\mu_R^2` (the inherit scale
-for the strong coupling) to be equal.
+of the |PDF|) and the central scale :math:`Q^2` to be equal.
 This constraint, however, can be lifted in order to provide an estimation of the
 missing higher order uncertainties (|MHOU|) coming from |DGLAP| evolution :cite:`AbdulKhalek:2019ihb`.
 Since scale-dependent contributions to a perturbative prediction are fixed by |RGE| invariance,
@@ -200,45 +199,45 @@ This method provides many advantages:
       since the scale dependence of the strong coupling :math:`a_s(\mu^2)` and of |PDF| are universal;
 
 However, there is no unique prescription to determine the specific range of the scale variation,
-the most common prescription specify to vary the factor :math:`\mu_F/\mu_R` in the range:
-:math:`1/2 \le \mu_F/\mu_R \le 2`. In the following we express this additional dependency as a function
-of :math:`k = \ln(\mu_F^2/\mu_R^2)`
+the most common prescription specify to vary the factor :math:`\mu_F/Q` in the range:
+:math:`1/2 \le \mu_F/Q \le 2`. In the following we express this additional dependency as a function
+of :math:`k = \ln(\mu_F^2/Q^2)`
 
 This variation can be performed at least at two different levels during the |PDF|
-evolution, always evaluating the strong coupling at :math:`\mu_R^2`.
+evolution, always evaluating the strong coupling at :math:`\mu_F^2`.
 
     * For ``ModSV='exponentiated'`` the variation is applied directly to the splitting functions
-      and the anomalous dimension are then modified using :cite:`Vogt:2004ns`:
+      and the anomalous dimension are then modified using :cite:`Vogt:2004ns` (note that here the log
+      is defined with the factorization scale in the numerator in contrast with what is done in
+      :cite:`Vogt:2004ns` ):
 
         .. math ::
-            \gamma^{(1)}(N) &\to \gamma^{(1)}(N) - \beta_0 k \gamma^{(0)} \\
-            \gamma^{(2)}(N) &\to \gamma^{(2)}(N) - 2 \beta_0 k \gamma^{(1)} - ( \beta_1 k - \beta_0^2 k^2) \gamma^{(0)} \\
-            \gamma^{(3)}(N) &\to \gamma^{(3)}(N) - 3 \beta_0 k \gamma^{(2)} - ( 2 \beta_1 k - 3 \beta_0^2 k^2) \gamma^{(1)} - (\beta_2 k - \frac{5}{2} \beta_1 \beta_0 k^2 + \beta_0^3 k^3) \gamma^{(0)}
+            \gamma^{(1)}(N) &\to \gamma^{(1)}(N) + \beta_0 k \gamma^{(0)} \\
+            \gamma^{(2)}(N) &\to \gamma^{(2)}(N) + 2 \beta_0 k \gamma^{(1)} + ( \beta_1 k + \beta_0^2 k^2) \gamma^{(0)} \\
+            \gamma^{(3)}(N) &\to \gamma^{(3)}(N) + 3 \beta_0 k \gamma^{(2)} + ( 2 \beta_1 k + 3 \beta_0^2 k^2) \gamma^{(1)} + (\beta_2 k + \frac{5}{2} \beta_1 \beta_0 k^2 + \beta_0^3 k^3) \gamma^{(0)}
 
-      This procedure corresponds to Eq. (3.32) of :cite:`AbdulKhalek:2019ihb`, and we recommend to use it along with
-      ``ModEv='iterate-exact'`` in order to be in agreement with the treatment of the evolution integral expansion.
+      This procedure corresponds to Eq. (3.32) of :cite:`AbdulKhalek:2019ihb`.
 
 
     * In ``ModSV='expanded'`` the full |EKO| is multiplied by an additional kernel:
 
         .. math ::
             \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) & = \tilde{\mathbf{K}}(a_s) \tilde{\mathbf{E}}(a_s \leftarrow a_s^0) \\
-            \tilde{\mathbf{K}}(a_s) & = 1 - k \gamma + \frac{1}{2} k^2 \left ( \gamma^{2} - \beta \frac{\partial \gamma}{\partial a_s} \right ) \\
-            & \hspace{10pt} + \frac{1}{6} k^3 \left [ - \beta \frac{\partial}{\partial a_s} \left( \beta \frac{\partial \gamma}{\partial a_s} \right) + 3 \beta \frac{\partial \gamma}{\partial a_s} \gamma - \gamma^3 \right ] + \mathcal{O}(k^4)
+            \tilde{\mathbf{K}}(a_s) & = 1 + k \gamma + \frac{1}{2} k^2 \left ( \gamma^{2} - \beta \frac{\partial \gamma}{\partial a_s} \right ) \\
+            & \hspace{10pt} - \frac{1}{6} k^3 \left [ - \beta \frac{\partial}{\partial a_s} \left( \beta \frac{\partial \gamma}{\partial a_s} \right) + 3 \beta \frac{\partial \gamma}{\partial a_s} \gamma - \gamma^3 \right ] + \mathcal{O}(k^4)
 
-      where the scale variation kernel :math:`\tilde{\mathbf{K}}` is expanded consistently order by order in :math:`a_s`,
+      where the scale variation kernel :math:`\tilde{\mathbf{K}}` is expanded consistently order by order in :math:`a_s(\mu_F^2)`,
       leading to:
 
         .. math ::
-            \tilde{\mathbf{K}}(a_s) &\approx 1 - a_s k \gamma^{(0)} + a_s^2 \left [ - k \gamma^{(1)} + \frac{1}{2} k^2 \gamma^{(0)} (\beta_0 + \gamma^{(0)}) \right ] \\
-            & \hspace{10pt} + a_s^3 \left [ -k \gamma^{(2)} + \frac{1}{2} k^2 \left(\beta_1 \gamma^{(0)} + 2 \beta_0\gamma^{(1)}  + \gamma^{(1)}\gamma^{(0)} + \gamma^{(0)}\gamma^{(1)} \right) \right. \\
-            & \hspace{35pt} \left. - \frac{1}{6} k^3 \gamma^{(0)} \left(2 \beta_0^2 + 3 \beta_0 \gamma^{(0)} + \left(\gamma^{(0)}\right)^2 \right) \right] + \mathcal{O}(a_s^4)
+            \tilde{\mathbf{K}}(a_s) &\approx 1 + a_s k \gamma^{(0)} + a_s^2 \left [  k \gamma^{(1)} + \frac{1}{2} k^2 \gamma^{(0)} (\beta_0 + \gamma^{(0)}) \right ] \\
+            & \hspace{10pt} + a_s^3 \left [ k \gamma^{(2)} + \frac{1}{2} k^2 \left(\beta_1 \gamma^{(0)} + 2 \beta_0\gamma^{(1)}  + \gamma^{(1)}\gamma^{(0)} + \gamma^{(0)}\gamma^{(1)} \right) \right. \\
+            & \hspace{35pt} \left. + \frac{1}{6} k^3 \gamma^{(0)} \left(2 \beta_0^2 + 3 \beta_0 \gamma^{(0)} + \left(\gamma^{(0)}\right)^2 \right) \right] + \mathcal{O}(a_s^4)
 
 
       In this way the dependence of the |EKO| on :math:`k` is factorized outside the unvaried evolution kernel.
       This procedure is repeated for each different flavor patch present in the evolution path.
-      It corresponds to Eq. (3.35) of :cite:`AbdulKhalek:2019ihb`, and we recommend to use it along with
-      ``ModEv='truncated'`` in order to keep consistency with the evolution integral expansion.
+      It corresponds to Eq. (3.35) of :cite:`AbdulKhalek:2019ihb`.
 
       By construction, the corrections of the order :math:`\mathcal{O}(k^n)` will appear
       at the order :math:`n` in the expansion :math:`a_s`.
