@@ -2,6 +2,9 @@
 import copy
 import math
 
+import numpy as np
+
+from eko import couplings
 from eko.io.runcards import OperatorCard, TheoryCard
 
 from .genpdf import load
@@ -42,7 +45,7 @@ def build(
     template_info["XMin"] = float(operators_card.rotations.xgrid.raw[0])
     template_info["XMax"] = float(operators_card.rotations.xgrid.raw[-1])
     template_info["NumMembers"] = num_members
-    template_info["OrderQCD"] = theory_card.order[0]
+    template_info["OrderQCD"] = theory_card.order[0] - 1
     template_info["QMin"] = round(math.sqrt(operators_card.mu2grid[0]), 4)
     template_info["QMax"] = round(math.sqrt(operators_card.mu2grid[-1]), 4)
     template_info["MZ"] = theory_card.couplings.alphas.scale
@@ -53,6 +56,28 @@ def build(
     template_info["MBottom"] = theory_card.quark_masses.b.value
     template_info["MTop"] = theory_card.quark_masses.t.value
     template_info["AlphaS_MZ"] = theory_card.couplings.alphas.value
-    template_info["AlphaS_OrderQCD"] = theory_card.order[0]
-    # NB: Maybe I need the actual operator to obtain AlphaS_Qs
+    template_info["AlphaS_OrderQCD"] = theory_card.order[0] - 1
+    evmod = couplings.couplings_mod_ev(operators_card.configs.evolution_method)
+    quark_masses = [(x.value) ** 2 for x in theory_card.quark_masses]
+    sc = couplings.Couplings(
+        theory_card.couplings,
+        theory_card.order,
+        evmod,
+        quark_masses,
+        hqm_scheme=theory_card.quark_masses_scheme,
+        thresholds_ratios=np.power(list(iter(theory_card.matching)), 2.0),
+    )
+    alphas_values = np.array(
+        [
+            4.0
+            * np.pi
+            * sc.a_s(
+                muf2,
+            )
+            for muf2 in operators_card.mu2grid
+        ],
+        dtype=float,
+    )
+    template_info["AlphaS_Vals"] = alphas_values.tolist()
+    template_info["AlphaS_Qs"] = np.array(operators_card.mu2grid).tolist()
     return template_info

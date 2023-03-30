@@ -21,8 +21,13 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Physics",
   "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 ]
-repository = "https://github.com/N3PDF/eko"
-include = ["src/ekomark/benchmark/external/LHA.yaml", "doc/source/img/Logo.png"]
+repository = "https://github.com/NNPDF/eko"
+include = [
+  "doc/source/img/Logo.png",
+  "src/ekobox/genpdf/templatePDF.info",
+  "src/ekobox/genpdf/Toy.info",
+  "src/ekomark/benchmark/external/LHA.yaml",
+]
 packages = [
   { include = "eko", from = "src" },
   { include = "ekomark", from = "src" },
@@ -82,7 +87,7 @@ devtools = "^0.10.0"
 [tool.poetry.extras]
 docs = ["sphinx", "sphinx-rtd-theme", "sphinxcontrib-bibtex", "nbsphinx"]
 mark = ["banana-hep", "sqlalchemy", "pandas", "matplotlib"]
-box = ["banana-hep", "sqlalchemy", "pandas", "matplotlib", "rich"]
+box = ["rich"]
 
 [tool.poetry-dynamic-versioning]
 enable = true

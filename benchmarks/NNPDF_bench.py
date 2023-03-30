@@ -141,7 +141,7 @@ class BenchmarkNNPDFpol11(BenchmarkNNPDF):
         operator_card = {
             **base_operator,
             "Q2grid": list(Q2grid),
-            "polarized": [True],
+            "polarized": True,
             "interpolation_xgrid": interpolation.lambertgrid(50, 1e-5),
         }
         self.run([theory_card], [operator_card], ["NNPDFpol11_100"])
