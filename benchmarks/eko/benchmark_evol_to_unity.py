@@ -1,5 +1,4 @@
 import pathlib
-from math import nan
 
 import numpy as np
 import pytest
@@ -10,14 +9,16 @@ from eko.interpolation import XGrid
 from eko.io import types
 from eko.io.runcards import OperatorCard, TheoryCard
 from eko.runner.legacy import Runner
+from eko.quantities.couplings import CouplingsInfo
 
 # from ekore.matching_conditions.operator_matrix_element import OperatorMatrixElement
 
 
 def update_cards(theory: TheoryCard, operator: OperatorCard):
-    theory.couplings = types.CouplingsRef(
-        alphas=types.ScalarRef([0.35, float(np.sqrt(2))]),
-        alphaem=types.ScalarRef([0.007496, nan]),
+    theory.couplings = CouplingsInfo(
+        alphas=0.35,
+        alphaem=0.007496,
+        scale=float(np.sqrt(2)),
         max_num_flavs=6,
         num_flavs_ref=None,
     )
