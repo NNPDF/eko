@@ -18,9 +18,6 @@ from ....anomalous_dimensions.polarized.space_like.as1 import gamma_qg as gamma0
 from ....anomalous_dimensions.unpolarized.space_like.as1 import gamma_ns as gamma0_qq
 from ....harmonics.constants import zeta2, zeta3
 
-# TODO: here we should not call the polygamma explictly
-from ....harmonics.polygamma import cern_polygamma
-
 beta_0hat = (-4 / 3) * TR
 """This is the lowest order beta function with the addition 'hat' defined as above."""
 
@@ -163,90 +160,108 @@ def A_hg(n, L, nf):
     S3 = harmonics.S3(n)
     Sm21 = harmonics.Sm21(n, S1, Sm1, True)
 
+    # method 1 using relations (1/(2^m))*(S[m,n/2]-S[m,(n-1)/2])-((2^(m-1)-1)/(2^(m-1)))*Zeta[m] -> S[-m,n] did not get rid of the half n harmonic sums
+    _, S2halfn, S3halfn, _, S2halfn1, S3halfn1, _, _ = harmonics.compute_qed_ns_cache(
+        n, S1
+    )
+
+    # method2 (in case its not good that I import QED related things)
+    S2halfn = harmonics.S2(n / 2)
+    S3halfn = harmonics.S3(n / 2)
+    S2halfn1 = harmonics.S2((n + 1) / 2)
+    S3halfn1 = harmonics.S3((n + 1) / 2)
+
     a_hg = CF * TR * (
-        4
-        * (n - 1)
-        / (3 * n * (n + 1))(-4 * S3 + S1**3 + 3 * S1 * S2 + 6 * S1 * zeta2)
-        - 4
-        * (n**4 + 17 * n**3 + 43 * n**2 + 33 * n + 2)
-        / ((n**2) * ((n + 1) ** 2) * (n + 2))
-        * S2
-        - 4 * (3 * n**2 + 3 * n - 2) / ((n**2) * (n + 1) * (n + 2)) * (S1**2)
-        - 2
-        * (n - 1)
-        * (3 * (n**3) + 3 * n + 2)
-        / (
-            (n**2) * ((n + 1) ** 2) * zeta2
-            - 4
-            * ((n**3) - 2 * (n**2) - 22 * n - 36)
-            / ((n**2) * (n + 1) * (n + 2))
-            * S1
-            - (
-                12 * (n**8)
-                + 52 * (n**7)
-                + 60 * (n**6)
-                - 25 * (n**4)
-                - 2 * (n**3)
-                + 3 * (n**2)
+        -(
+            (
+                4
                 + 8 * n
-                + 4
+                + 3 * n**2
+                - 2 * n**3
+                - 25 * n**4
+                + 60 * n**6
+                + 52 * n**7
+                + 12 * n**8
             )
-            / ((n**4) * ((n + 1) ** 4) * (n + 2))
+            / ((n**4) * (1 + n) ** 4 * (2 + n))
+        )
+        - (
+            ((-1 + n) * (2 + 3 * n + 3 * n**3) * (np.pi) ** 2)
+            / ((3 * n**2) * (1 + n) ** 2)
+        )
+        - (
+            (4 * (-36 - 22 * n - 2 * n**2 + n**3) * S1)
+            / ((n**2) * (1 + n) * (2 + n))
+        )
+        - ((4 * (-2 + 3 * n + 3 * n**2) * S1**2) / ((n**2) * (1 + n) * (2 + n)))
+        - (
+            (4 * (2 + 33 * n + 43 * n**2 + 17 * n**3 + n**4) * S2)
+            / ((n**2) * (1 + n) ** 2 * (2 + n))
+        )
+        + (
+            (4 * (-1 + n) * (((np.pi) ** 2) * S1 + (S1**3) + 3 * S1 * S2 - 4 * S3))
+            / (3 * n * (1 + n))
         )
     ) + TR * CA * (
-        (4 * (n - 1) / (3 * n(n + 1)))
-        * (
+        -(
             (
-                12 * (-1) ** (n + 1) * (Sm21 + 5 / 8 * zeta3)
-            )  # regarding Felix's comment here i can either make it a function for possibilities of (-1) ** (n + 1) or write it as a seperate variable
-            + 3
-            * (1 / 2)
-            * (
-                (-1 / 4) * cern_polygamma(n / 2, 2)
-                + (1 / 4) * cern_polygamma((1 + n) / 2, 2)
+                4
+                * (
+                    4
+                    + 12 * n
+                    + 33 * n**2
+                    + 4 * n**3
+                    + 29 * n**4
+                    + 36 * n**5
+                    + 22 * n**6
+                    + 10 * n**7
+                    + 2 * n**8
+                )
             )
-            - 8 * S3
-            - S1**3
-            - 9 * S1 * S2
-            - 12
+            / ((n**4) * (1 + n) * (2 + n))
+        )
+        + (4 * (-1 + n) * (2 + n) * ((np.pi) ** 2) / ((3 * n**2) * (1 + n) ** 2))
+        + (
+            (4 * (2 - 10 * n - n**2 + 4 * n**3 + n**4) * S1)
+            / (n * ((1 + n) ** 3) * (2 + n))
+        )
+        + ((4 * (5 + 4 * n + n**2) * (S1**2)) / (n * ((1 + n) ** 2) * (2 + n)))
+        - (
+            (
+                8
+                * (-1 + n)
+                * (
+                    (1 / 2) * (-(4 / (1 + n) ** 2) - ((np.pi) ** 2) / 6 + S2halfn1)
+                    + 1 / 2 * ((((np.pi) ** 2) / 6) - S2halfn)
+                )
+            )
+            / (n * (1 + n) ** 2)
+        )
+        + (
+            (4 * (-16 + 15 * n + 24 * (n**2) + (7 * (n**3))) * S2)
+            / ((n**2) * ((1 + n) ** 2) * (2 + n))
+        )
+        + (4 * (-1 + n) / (3 * n * (1 + n)))
+        * (
+            -(S1**3)
+            - 6
             * S1
-            * (1 / 2)
             * (
-                (-1 / 2) * cern_polygamma(n / 2, 1)
-                + (1 / 2) * cern_polygamma((1 + n) / 2, 1)
+                1 / 2 * ((-4 / (1 + n) ** 2) - ((np.pi) ** 2) / 6 + S2halfn1)
+                + (1 / 2) * ((((np.pi) ** 2) / 6) - S2halfn)
             )
+            - 9 * S1 * S2
+            - 8 * S3
+            - 12 * (Sm21 + (5 * zeta3) / 8)
             - 3 * zeta3
+            + (3 / 2)
+            * (
+                (1 / 4) * (2 * S3halfn - 2 * zeta3)
+                + (1 / 4) * (-2 * (-(8 / (1 + n) ** 3) + S3halfn1) + 2 * zeta3)
+            )
         )
-        - 16
-        * (1 / 2)
-        * (
-            (-1 / 2) * cern_polygamma(n / 2, 1)
-            + (1 / 2) * cern_polygamma((1 + n) / 2, 1)
-        )((n - 1) / (n * (n + 1) ** 2))
-        + (4 * (n**2 + 4 * n + 5) * S1**2) / (n * (n + 1) ** 2 * (n + 2))
-        + 4
-        * S2
-        * (7 * n**3 + 24 * n**2 + 15 * n - 16)
-        / (n**2 * (n + 1) ** 2 * (n + 2))
-        + 8 * (n - 1) * (n + 2) * zeta2 / (n**2 * (n + 1) ** 2) * zeta2
-        + 4
-        * S1
-        * (n**4 + 4 * n**3 - n**2 - 10 * n + 2)
-        / (n * (n + 1) ** 3 * (n + 2))
-        - 4
-        * (
-            2 * n**8
-            + 10 * n**7
-            + 22 * n**6
-            + 36 * n**5
-            + 29 * n**4
-            + 4 * n**3
-            + 33 * n**2
-            + 12 * n
-            + 4
-        )
-        / (n**4 * (n + 1) * (n + 2))
     )
+
     gamma1_qg_hat = -CF * TR * (
         (8 * (n - 1) * (2 - n + 10 * n**3 + 5 * n**4)) / ((n**3) * (1 + n) ** 3)
         - (32 * (-1 + n) * S1) / (n**2 * (1 + n))
