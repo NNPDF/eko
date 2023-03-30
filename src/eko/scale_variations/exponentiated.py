@@ -3,26 +3,6 @@ import numba as nb
 
 from .. import beta
 
-# Mathematica snippet to compute the gamma variation
-# (* define beta fnc - note: convention is different from AB, but matches with EKO *)
-# \[Beta]f[k_][a_]:=Sum[-\[Beta][n]*a^(2+n),{n,0,k}]
-# (* spell out the all order expansion with taylor + diff eq. *)
-# aExpanded[m_,k_]:=Module[{v},
-# v=Sum[1/n!t^n (D[a[t],{t,n}]/.{t->0}),{n,0,m}];
-# v=v//.{Derivative[n_][a][u_]:>(D[\[Beta]f[k][a[t]],{t,n-1}]/.{t->u})};
-# Collect[v,{a0,t},FullSimplify]
-# ]
-# (* We need to invert the series as we express everything at the modified scale *)
-# Module[{s,ss,gg},
-# (* get alphas series *)
-# s=Series[aExpanded[4,4],{a[0],0,4+1}];
-# (*Print@s;*)
-# (* we can use this to get the gamma series. *)
-# ss=s/.{t->-tt};
-# gg=Series[Sum[(ss)^k  g[k-1],{k,1,4}],{a[0],0,4}];
-# Print@Collect[gg,{a[0],tt}];
-# ]
-
 
 @nb.njit(cache=True)
 def gamma_variation(gamma, order, nf, L):
