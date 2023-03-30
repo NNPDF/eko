@@ -13,7 +13,7 @@ from banana import toy
 
 import eko
 from eko.interpolation import lambertgrid
-from ekomark.apply import apply_pdf
+from ekobox.apply import apply_pdf
 
 t = {
     "ID": 0,

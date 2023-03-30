@@ -5,7 +5,6 @@ import pathlib
 import shutil
 
 import numpy as np
-from banana import toy
 
 from eko import basis_rotation as br
 
@@ -54,12 +53,19 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
             pid: lambda x, _Q2: x * (1 - x) for pid in br.flavor_basis_pids
         }
     if isinstance(parent_pdf_set, str):
-        if parent_pdf_set in ["toylh", "toy"]:
+        if parent_pdf_set in ["toy_pol", "toy"]:
+            # delay import to ease nnpdf integration
+            from banana import toy  # pylint: disable=import-outside-toplevel
+
             info = copy.deepcopy(load.Toy_info)
-            toylh = toy.mkPDF("", 0)
+            if "pol" in parent_pdf_set:
+                toylh = toy.mkPDF("ToyLH_polarized", 0)
+            else:
+                toylh = toy.mkPDF("", 0)
             all_blocks.append(
                 [generate_block(toylh.xfxQ2, xgrid, Q2grid, br.flavor_basis_pids)]
             )
+
         else:
             info = load.load_info_from_file(parent_pdf_set)
             # iterate on members
@@ -103,7 +109,9 @@ def generate_pdf(
 
     If `parent_pdf_set` is the name of an available PDF set,
     it will be used as parent. In order to use the toy PDF
-    as parent, it is enough to set `parent_pdf_set` to "toy" or "toylh".
+    as parent, it is enough to set `parent_pdf_set` to "toy".
+    In order to use the toy Polarized PDF
+    as parent, it is enough to set `parent_pdf_set` to "toy_pol".
     If `parent_pdf_set` is not specified, a debug PDF constructed as
     x * (1-x) for every flavor will be used as parent.
     It is also possible to provide custom functions for each flavor
@@ -114,7 +122,7 @@ def generate_pdf(
     on custom combinations of PIDs, it is also possible to pass a list
     containing the desired factors for each flavor.
 
-    The default behaviour is to generate only one member for a PDF set
+    The default behavior is to generate only one member for a PDF set
     (the zero member) but it can be changed setting to True the `members` flag.
 
     The `info_update` argument is a dictionary and provide to the user as a way

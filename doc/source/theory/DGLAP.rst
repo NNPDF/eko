@@ -523,7 +523,7 @@ any longer and hence, they have to be rejoined with their evolution basis elemen
 part in the ordinary collinear evolution.
 
 Mixed |QCD| :math:`\otimes` |QED| evolution
------------------------------------------
+-------------------------------------------
 
 For the moment in this case only the `exact` evolution is implemented.
 

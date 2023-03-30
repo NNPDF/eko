@@ -1,4 +1,4 @@
-"""EKO Navigator."""
+"""EKO implementation of navigator."""
 import os
 import webbrowser
 
@@ -70,7 +70,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             to be updated pandas record
 
         """
-        xgrid = op["xgrid"]
+        xgrid = op["interpolation_xgrid"]
         obj["xgrid"] = (
             f"{len(xgrid)}pts: "
             + f"{'log' if op['interpolation_is_log'] else 'x'}"
@@ -229,19 +229,17 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
 
     @staticmethod
     def is_valid_physical_object(name):
-        """Identify physical objects.
-
-        Used to test names, in order to distinguish physical quantities from metadata.
+        """Check if is actual name.
 
         Parameters
         ----------
-        name: str
-            name to test
+        name : str
+            name
 
         Returns
         -------
-        bool
-            test response
+        bool :
+            is actual name?
 
         """
         return name in br.evol_basis or name in br.flavor_basis_names
