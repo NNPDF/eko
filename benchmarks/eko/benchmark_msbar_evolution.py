@@ -6,6 +6,7 @@ from eko import msbar_masses
 from eko.couplings import Couplings, couplings_mod_ev
 from eko.io import types
 from eko.io.runcards import OperatorCard, TheoryCard
+from eko.quantities.couplings import CouplingEvolutionMethod
 from eko.quantities.heavy_quarks import QuarkMassRef, QuarkMassScheme
 
 # try to load APFEL - if not available, we'll use the cached values
@@ -19,8 +20,8 @@ except ImportError:
 
 def update_theory(theory: TheoryCard):
     theory.order = (3, 0)
-    theory.couplings.alphas.scale = 91
-    theory.couplings.alphaem.value = 0.007496
+    theory.couplings.scale = 91
+    theory.couplings.alphaem = 0.007496
     theory.couplings.num_flavs_ref = 5
     theory.heavy.masses_scheme = QuarkMassScheme.MSBAR
     theory.heavy.masses.c = QuarkMassRef([1.5, 18])
@@ -96,9 +97,9 @@ class BenchmarkMSbar:
                 else types.EvolutionMethod.ITERATE_EXACT
             )
             couplevmeth = (
-                types.CouplingEvolutionMethod.EXPANDED
+                CouplingEvolutionMethod.EXPANDED
                 if method == "expanded"
-                else types.CouplingEvolutionMethod.EXACT
+                else CouplingEvolutionMethod.EXACT
             )
             for order in [1, 2, 3]:
                 theory_card.order = (order, 0)
@@ -145,7 +146,7 @@ class BenchmarkMSbar:
                     apfel.SetTheory("QCD")
                     apfel.SetPerturbativeOrder(order - 1)
                     apfel.SetAlphaEvolution(method)
-                    apfel.SetAlphaQCDRef(coupl.alphas.value, coupl.alphas.scale)
+                    apfel.SetAlphaQCDRef(coupl.alphas, coupl.scale)
                     apfel.SetVFNS()
                     apfel.SetMSbarMasses(
                         qmasses.c.value, qmasses.b.value, qmasses.t.value
@@ -199,7 +200,7 @@ class BenchmarkMSbar:
                 theory.heavy.masses,
                 couplings=theory_card.couplings,
                 order=theory_card.order,
-                evmeth=types.CouplingEvolutionMethod.EXACT,
+                evmeth=CouplingEvolutionMethod.EXACT,
                 matching=np.power(list(iter(theory_card.heavy.matching_ratios)), 2.0),
                 xif2=theory_card.xif**2,
             )
@@ -213,7 +214,7 @@ class BenchmarkMSbar:
                 apfel.SetTheory("QCD")
                 apfel.SetPerturbativeOrder(order - 1)
                 apfel.SetAlphaEvolution("exact")
-                apfel.SetAlphaQCDRef(coupl.alphas.value, coupl.alphas.scale)
+                apfel.SetAlphaQCDRef(coupl.alphas, coupl.scale)
                 apfel.SetVFNS()
                 apfel.SetMSbarMasses(qmasses.c.value, qmasses.b.value, qmasses.t.value)
                 apfel.SetMassScaleReference(
@@ -242,7 +243,7 @@ class BenchmarkMSbar:
             theory_card.heavy.masses,
             couplings=theory_card.couplings,
             order=theory_card.order,
-            evmeth=types.CouplingEvolutionMethod.EXACT,
+            evmeth=CouplingEvolutionMethod.EXACT,
             matching=np.power(list(iter(theory_card.heavy.matching_ratios)), 2.0),
             xif2=theory_card.xif**2,
         )
@@ -253,7 +254,7 @@ class BenchmarkMSbar:
             theory_card.heavy.masses,
             couplings=theory_card.couplings,
             order=theory_card.order,
-            evmeth=types.CouplingEvolutionMethod.EXACT,
+            evmeth=CouplingEvolutionMethod.EXACT,
             matching=np.power(list(iter(theory_card.heavy.matching_ratios)), 2.0),
             xif2=theory_card.xif**2,
         )
