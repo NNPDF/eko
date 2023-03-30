@@ -6,6 +6,7 @@ from eko import msbar_masses
 from eko.couplings import Couplings
 from eko.io import types
 from eko.io.runcards import TheoryCard
+from eko.quantities.couplings import CouplingEvolutionMethod
 from eko.quantities.heavy_quarks import HeavyQuarkMasses, QuarkMassRef, QuarkMassScheme
 
 
@@ -13,9 +14,9 @@ from eko.quantities.heavy_quarks import HeavyQuarkMasses, QuarkMassRef, QuarkMas
 def theory_card(theory_card: TheoryCard):
     th = theory_card
     th.order = (3, 0)
-    th.couplings.alphas.value = 0.1180
-    th.couplings.alphas.scale = 91.0
-    th.couplings.alphaem.value = 0.00781
+    th.couplings.alphas = 0.1180
+    th.couplings.scale = 91.0
+    th.couplings.alphaem = 0.00781
     th.couplings.num_flavs_ref = 5
     th.heavy.masses = HeavyQuarkMasses(
         [QuarkMassRef(val) for val in [(2.0, 2.1), (4.0, 4.1), (175.0, 174.9)]]
@@ -31,7 +32,7 @@ class TestMSbarMasses:
         th = theory_card
 
         # Test solution of msbar(m) = m
-        for method in list(types.CouplingEvolutionMethod):
+        for method in list(CouplingEvolutionMethod):
             for order in [2, 3, 4]:
                 theory_card.order = (order, 0)
 
@@ -83,13 +84,13 @@ class TestMSbarMasses:
             th.heavy.masses,
             th.couplings,
             th.order,
-            types.CouplingEvolutionMethod.EXPANDED,
+            CouplingEvolutionMethod.EXPANDED,
             np.power(th.heavy.matching_ratios, 2.0),
         )
         strong_coupling = Couplings(
             th.couplings,
             th.order,
-            types.CouplingEvolutionMethod.EXPANDED,
+            CouplingEvolutionMethod.EXPANDED,
             m2_computed.tolist(),
             hqm_scheme=QuarkMassScheme.MSBAR,
             thresholds_ratios=[1.0, 1.0, 1.0],
@@ -120,7 +121,7 @@ class TestMSbarMasses:
                 theory.heavy.masses,
                 theory.couplings,
                 theory.order,
-                types.CouplingEvolutionMethod.EXPANDED,
+                CouplingEvolutionMethod.EXPANDED,
                 np.power(theory.heavy.matching_ratios, 2.0),
             )
 

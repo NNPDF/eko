@@ -8,7 +8,7 @@ from ekobox import cards, info_file
 def test_build():
     theory = cards.example.theory()
     theory.order = (2, 0)
-    theory.couplings.alphas.value = 0.2
+    theory.couplings.alphas = 0.2
     op = cards.example.operator()
     op.mu0 = 1.0
     op.mugrid = [(10.0, 5), (100.0, 5)]

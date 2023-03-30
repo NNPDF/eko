@@ -78,7 +78,7 @@ class TestCouplings:
         # errors
         with pytest.raises(ValueError):
             coup1 = copy.deepcopy(couplings)
-            coup1.alphas.value = 0
+            coup1.alphas = 0
             Couplings(
                 coup1,
                 order,
@@ -98,7 +98,7 @@ class TestCouplings:
             )
         with pytest.raises(ValueError):
             coup2 = copy.deepcopy(couplings)
-            coup2.alphaem.value = 0
+            coup2.alphaem = 0
             Couplings(
                 coup2,
                 order,
@@ -109,7 +109,7 @@ class TestCouplings:
             )
         with pytest.raises(ValueError):
             coup3 = copy.deepcopy(couplings)
-            coup3.alphas.scale = 0
+            coup3.scale = 0
             Couplings(
                 coup3,
                 order,

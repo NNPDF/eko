@@ -11,8 +11,9 @@ from eko.io.types import RawCard, ReferenceRunning
 _theory = dict(
     order=[1, 0],
     couplings=dict(
-        alphas=[0.118, 91.2],
-        alphaem=[0.007496252, nan],
+        alphas=0.118,
+        alphaem=0.007496252,
+        scale=91.2,
         num_flavs_ref=None,
         max_num_flavs=6,
     ),

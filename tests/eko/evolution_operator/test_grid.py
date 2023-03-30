@@ -13,6 +13,7 @@ import pytest
 
 import eko.io.types
 from eko.runner import legacy
+from eko.quantities.couplings import CouplingEvolutionMethod
 
 
 def test_init_errors(monkeypatch, theory_ffns, operator_card, tmp_path, caplog):
@@ -23,7 +24,7 @@ def test_init_errors(monkeypatch, theory_ffns, operator_card, tmp_path, caplog):
     monkeypatch.setattr(
         legacy,
         "couplings_mod_ev",
-        lambda *args: eko.io.types.CouplingEvolutionMethod.EXACT,
+        lambda *args: CouplingEvolutionMethod.EXACT,
     )
     operator_card.configs.evolution_method = FakeEM.BLUB
     with pytest.raises(ValueError, match="blub"):
