@@ -38,4 +38,5 @@ jobs:
         run: pip install poethepoet
       - name: Run benchmark
         run: |
-          poe lha
+          poe lha -m "nnlo and sv"
+          poe lha -m "ffns_pol and sv"
