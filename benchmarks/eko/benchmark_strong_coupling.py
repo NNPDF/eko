@@ -240,7 +240,7 @@ class BenchmarkCouplings:
                 for Q2 in Q2s:
                     pegasus_vals_cur.append(
                         pegasus.__getattribute__("as")(
-                            Q2, np.sqrt(scale_ref), coupling_ref[0] / (4.0 * np.pi), nf
+                            Q2, scale_ref**2.0, coupling_ref[0] / (4.0 * np.pi), nf
                         )
                     )
                 # print(pegasus_vals_cur)
