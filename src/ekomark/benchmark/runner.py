@@ -13,8 +13,9 @@ import eko
 from eko import EKO
 from eko import basis_rotation as br
 from eko.io import manipulate
+from ekobox import apply
 
-from .. import apply, pdfname
+from .. import pdfname
 from ..data import db, operators
 
 
@@ -111,10 +112,10 @@ class Runner(BenchmarkRunner):
                 if not os.path.exists(output_path):
                     os.makedirs(output_path)
                 # rotating to evolution basis if requested
-                with EKO.read(path) as out_copy:
+                with EKO.edit(path) as out_copy:
                     change_lab = False
                     if self.rotate_to_evolution_basis:
-                        qed = theory["order"][1] > 0
+                        qed = theory["QED"] > 0
                         if not qed:
                             manipulate.to_evol(out_copy, source=True, target=True)
                         else:

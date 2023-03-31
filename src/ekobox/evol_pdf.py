@@ -6,9 +6,8 @@ import numpy as np
 import eko
 from eko import basis_rotation as br
 from eko.io import EKO
-from ekomark import apply
 
-from . import genpdf, info_file
+from . import apply, genpdf, info_file
 
 DEFAULT_NAME = "eko.tar"
 
