@@ -1,12 +1,18 @@
 """Manage steps to DGLAP solution, and operator creation."""
 import os
+from pathlib import Path
 from typing import Union
 
+from ..io import runcards
 from ..io.runcards import OperatorCard, TheoryCard
 from ..io.types import RawCard
-from . import legacy
+from . import managed
 
 
+# TODO: drop this altogether, replacing just with managed.solve
+# it is currently kept not to break the interface, but the runcards upgrade and
+# path conversion should be done by the caller, here we just clearly declare
+# which types we expect
 def solve(
     theory_card: Union[RawCard, TheoryCard],
     operators_card: Union[RawCard, OperatorCard],
@@ -26,18 +32,13 @@ def solve(
     to the solution of the |DGLAP| equation itself, and determine the resulting
     operator features.
 
-    Parameters
-    ----------
-    theory_card :
-        theory parameters and related settings
-    operator_card :
-        solution configurations, and further EKO options
-    path :
-        path where to store the computed operator
-
     Note
     ----
     For further information about EKO inputs and output see :doc:`/code/IO`
 
     """
-    legacy.Runner(theory_card, operators_card, path).compute()
+    # TODO: drop this
+    #  legacy.Runner(theory_card, operators_card, path).compute()
+
+    new_theory, new_operator = runcards.update(theory_card, operators_card)
+    managed.solve(new_theory, new_operator, Path(path))
