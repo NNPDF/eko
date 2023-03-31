@@ -9,7 +9,7 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 """
 import logging
 import warnings
-from typing import List
+from typing import Iterable, List
 
 import numba as nb
 import numpy as np
@@ -426,7 +426,7 @@ class Couplings:
         method: CouplingEvolutionMethod,
         masses: List[float],
         hqm_scheme: QuarkMassScheme,
-        thresholds_ratios: List[float],
+        thresholds_ratios: Iterable[float],
     ):
         # Sanity checks
         def assert_positive(name, var):
