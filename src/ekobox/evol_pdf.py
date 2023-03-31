@@ -65,7 +65,7 @@ def evolve_pdfs(
             )
 
     if targetgrid is None:
-        targetgrid = operators_card.rotations.xgrid
+        targetgrid = operators_card.xgrid
     if info_update is None:
         info_update = {}
     info_update["XMin"] = targetgrid.raw[0]
@@ -84,7 +84,7 @@ def evolve_pdfs(
             lambda pid, x, Q2, evolved_PDF=evolved_PDF: targetlist[targetlist.index(x)]
             * evolved_PDF[Q2]["pdfs"][pid][targetlist.index(x)],
             xgrid=targetlist,
-            Q2grid=operators_card.mu2grid,
+            mu2grid=operators_card.mu2grid,
             pids=np.array(br.flavor_basis_pids),
         )
         # all_blocks will be useful in case there will be necessity to dump many blocks

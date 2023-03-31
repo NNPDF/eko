@@ -66,7 +66,7 @@ The minimal setup of the input cards must contain:
   * - ``interpolation_is_log``
     - :py:obj:`bool`
     - use logarithmic interpolation?
-  * - ``Q2grid``
+  * - ``mu2grid``
     - :py:obj:`dict`
     - all operators at the requested values of :math:`Q^2` represented by the key
 

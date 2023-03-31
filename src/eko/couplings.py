@@ -9,24 +9,17 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 """
 import logging
 import warnings
-from math import isnan
 from typing import List
 
 import numba as nb
 import numpy as np
 import scipy
 
-from eko.io.types import (
-    CouplingEvolutionMethod,
-    CouplingsRef,
-    EvolutionMethod,
-    MatchingScales,
-    Order,
-    QuarkMassSchemes,
-)
-
 from . import constants, thresholds
 from .beta import b_qcd, b_qed, beta_qcd, beta_qed
+from .io.types import EvolutionMethod, Order
+from .quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
+from .quantities.heavy_quarks import QuarkMassScheme
 
 logger = logging.getLogger(__name__)
 
@@ -428,11 +421,11 @@ class Couplings:
 
     def __init__(
         self,
-        couplings: CouplingsRef,
+        couplings: CouplingsInfo,
         order: Order,
         method: CouplingEvolutionMethod,
         masses: List[float],
-        hqm_scheme: QuarkMassSchemes,
+        hqm_scheme: QuarkMassScheme,
         thresholds_ratios: List[float],
     ):
         # Sanity checks
@@ -440,9 +433,9 @@ class Couplings:
             if var <= 0:
                 raise ValueError(f"{name} has to be positive - got: {var}")
 
-        assert_positive("alpha_s_ref", couplings.alphas.value)
-        assert_positive("alpha_em_ref", couplings.alphaem.value)
-        assert_positive("scale_ref", couplings.alphas.scale)
+        assert_positive("alpha_s_ref", couplings.alphas)
+        assert_positive("alpha_em_ref", couplings.alphaem)
+        assert_positive("scale_ref", couplings.scale)
         if order[0] not in [1, 2, 3, 4]:
             raise NotImplementedError("a_s beyond N3LO is not implemented")
         if order[1] not in [0, 1, 2]:
@@ -455,14 +448,14 @@ class Couplings:
         nf_ref = couplings.num_flavs_ref
         max_nf = couplings.max_num_flavs
         scheme_name = hqm_scheme.name
-        self.alphaem_running = False if isnan(couplings.alphaem.scale) else True
+        self.alphaem_running = couplings.em_running
         self.decoupled_running = False
 
         # create new threshold object
         self.a_ref = np.array(couplings.values) / 4.0 / np.pi  # convert to a_s and a_em
         self.thresholds = thresholds.ThresholdsAtlas(
             masses,
-            couplings.alphas.scale**2,
+            couplings.scale**2,
             nf_ref,
             thresholds_ratios=thresholds_ratios,
             max_nf=max_nf,
@@ -477,7 +470,8 @@ class Couplings:
         )
         if self.order[1] > 0:
             logger.info(
-                "Electromagnetic Coupling: a_em(µ_R^2=%f)%s=%f=%f/(4π)\nalphaem running: %r\ndecoupled running: %r",
+                "Electromagnetic Coupling: a_em(µ_R^2=%f)%s=%f=%f/(4π)\nalphaem"
+                " running: %r\ndecoupled running: %r",
                 self.q2_ref,
                 f"^(nf={nf_ref})" if nf_ref else "",
                 self.a_ref[1],
@@ -783,7 +777,8 @@ class Couplings:
     def a_s(self, scale_to, fact_scale=None, nf_to=None):
         r"""Compute strong coupling.
 
-        The strong oupling uses the normalization :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`.
+        The strong oupling uses the normalization :math:`a_s(\mu_R^2) =
+        \frac{\alpha_s(\mu_R^2)}{4\pi}`.
 
         Parameters
         ----------
@@ -798,13 +793,15 @@ class Couplings:
         -------
         a_s : float
             couplings :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
+
         """
         return self.a(scale_to, fact_scale, nf_to)[0]
 
     def a_em(self, scale_to, fact_scale=None, nf_to=None):
         r"""Compute electromagnetic coupling.
 
-        The electromagnetic oupling uses the normalization :math:`a_em(\mu_R^2) = \frac{\alpha_em(\mu_R^2)}{4\pi}`.
+        The electromagnetic oupling uses the normalization :math:`a_em(\mu_R^2)
+        = \frac{\alpha_em(\mu_R^2)}{4\pi}`.
 
         Parameters
         ----------

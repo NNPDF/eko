@@ -1,11 +1,11 @@
-import warnings
-
 import numpy as np
 import pytest
 
 from eko import basis_rotation as br
-from eko import beta
+from eko.couplings import Couplings
 from eko.kernels import non_singlet_qed as ns
+from eko.quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
+from eko.quantities.heavy_quarks import QuarkMassScheme
 from ekore.anomalous_dimensions.unpolarized import space_like as ad
 
 methods = [
@@ -112,24 +112,14 @@ def test_zero_true_gamma():
                         )
 
 
-from math import nan
-
-from eko.couplings import Couplings, couplings_mod_ev
-from eko.io.types import (
-    CouplingEvolutionMethod,
-    CouplingsRef,
-    EvolutionMethod,
-    MatchingScales,
-    QuarkMassSchemes,
-)
-
 alpharef = (0.118, 0.00781)
 masses = [m**2 for m in (2.0, 4.5, 175.0)]
 muref = 91.0
-couplings = CouplingsRef.from_dict(
+couplings = CouplingsInfo.from_dict(
     dict(
-        alphas=[alpharef[0], muref],
-        alphaem=[alpharef[1], nan],
+        alphas=alpharef[0],
+        alphaem=alpharef[1],
+        scale=muref,
         num_flavs_ref=5,
         max_num_flavs=6,
     )
@@ -154,7 +144,7 @@ def test_ode():
                     order,
                     evmod,
                     masses,
-                    hqm_scheme=QuarkMassSchemes.POLE,
+                    hqm_scheme=QuarkMassScheme.POLE,
                     thresholds_ratios=[1.0, 1.0, 1.0],
                 )
                 a0 = sc.a_s(mu2_0)
@@ -244,7 +234,7 @@ def test_ode_true_gamma():
                     order,
                     evmod,
                     masses,
-                    hqm_scheme=QuarkMassSchemes.POLE,
+                    hqm_scheme=QuarkMassScheme.POLE,
                     thresholds_ratios=[1.0, 1.0, 1.0],
                 )
                 a0 = sc.a_s(mu2_0)

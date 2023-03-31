@@ -6,7 +6,8 @@ import pytest
 
 import eko
 from eko import EKO
-from eko.io.types import QuarkMassSchemes
+from eko.io.runcards import TheoryCard
+from eko.quantities.heavy_quarks import QuarkMassScheme
 
 
 def test_raw(theory_card, operator_card, tmp_path):
@@ -28,15 +29,15 @@ def test_mass_scheme(theory_card, operator_card, tmp_path):
         BLUB = "blub"
 
     path = tmp_path / "eko.tar"
-    theory_card.quark_masses_scheme = FakeEM.BLUB
+    theory_card.heavy.masses_scheme = FakeEM.BLUB
     with pytest.raises(ValueError, match="BLUB"):
         eko.runner.legacy.Runner(theory_card, operator_card, path=path)
     # MSbar scheme
-    theory_card.quark_masses_scheme = QuarkMassSchemes.MSBAR
+    theory_card.heavy.masses_scheme = QuarkMassScheme.MSBAR
     theory_card.couplings.num_flavs_ref = 5
-    theory_card.quark_masses.c.scale = 2
-    theory_card.quark_masses.b.scale = 4.5
-    theory_card.quark_masses.t.scale = 173.07
+    theory_card.heavy.masses.c.scale = 2
+    theory_card.heavy.masses.b.scale = 4.5
+    theory_card.heavy.masses.t.scale = 173.07
     r = eko.runner.legacy.Runner(theory_card, operator_card, path=path)
     r.compute()
     with EKO.read(path) as eko_:
@@ -49,7 +50,7 @@ def check_shapes(o, txs, ixs, theory_card, operators_card):
     op_shape = (tpids, len(txs), ipids, len(ixs))
 
     # check output = input
-    np.testing.assert_allclose(o.xgrid.raw, operators_card.rotations.xgrid.raw)
+    np.testing.assert_allclose(o.xgrid.raw, operators_card.xgrid.raw)
     # targetgrid and inputgrid in the opcard are now ignored, we are testing this
     np.testing.assert_allclose(
         o.rotations.targetgrid.raw,
@@ -68,10 +69,10 @@ def check_shapes(o, txs, ixs, theory_card, operators_card):
 def test_vfns(theory_ffns, operator_card, tmp_path):
     # change targetpids
     path = tmp_path / "eko.tar"
-    tc = theory_ffns(3)
+    tc: TheoryCard = theory_ffns(3)
     oc = copy.deepcopy(operator_card)
-    tc.matching.c = 1.0
-    tc.matching.b = 1.0
+    tc.heavy.matching_ratios.c = 1.0
+    tc.heavy.matching_ratios.b = 1.0
     tc.order = (2, 0)
     oc.debug.skip_non_singlet = False
     r = eko.runner.legacy.Runner(tc, oc, path=path)

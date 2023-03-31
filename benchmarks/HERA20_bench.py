@@ -35,7 +35,7 @@ class BenchmarkHERA20(Runner):
     # Rotate to evolution basis
     rotate_to_evolution_basis = True
 
-    def benchmark_nnlo(self, Q0=1.3, Q2grid=(1e4,)):
+    def benchmark_nnlo(self, Q0=1.3, mugrid=(100,)):
         theory_card = base_theory.copy()
         theory_card.update(
             {
@@ -47,7 +47,7 @@ class BenchmarkHERA20(Runner):
             }
         )
         operator_card = base_op.copy()
-        operator_card.update({"Q2grid": list(Q2grid)})
+        operator_card.update({"mugrid": list(mugrid)})
         self.skip_pdfs = lambda _theory: [
             -6,
             6,

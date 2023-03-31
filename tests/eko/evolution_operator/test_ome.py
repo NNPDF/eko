@@ -298,7 +298,7 @@ def test_quad_ker(monkeypatch):
 #     }
 
 #     operators_card = {
-#         "Q2grid": [1, 10],
+#         "mugrid": [(1, 3), (10, 5)],
 #         "interpolation_xgrid": [0.1, 1.0],
 #         "interpolation_polynomial_degree": 1,
 #         "interpolation_is_log": True,
@@ -386,8 +386,8 @@ class TestOperatorMatrixElement:
 
     def test_compute_n3lo(self, theory_ffns, operator_card, tmp_path):
         theory_card: TheoryCard = theory_ffns(5)
-        theory_card.matching.c = 1.0
-        theory_card.matching.b = 1.0
+        theory_card.heavy.matching_ratios.c = 1.0
+        theory_card.heavy.matching_ratios.b = 1.0
         theory_card.order = (4, 0)
         operator_card.debug.skip_singlet = True
         g = legacy.Runner(theory_card, operator_card, path=tmp_path / "eko.tar").op_grid
@@ -395,7 +395,7 @@ class TestOperatorMatrixElement:
             g.config,
             g.managers,
             is_backward=True,
-            q2=theory_card.quark_masses.b.value**2,
+            q2=theory_card.heavy.masses.b.value**2,
             nf=4,
             L=0,
             is_msbar=False,
@@ -417,8 +417,8 @@ class TestOperatorMatrixElement:
 
     def test_compute_lo(self, theory_ffns, operator_card, tmp_path):
         theory_card = theory_ffns(5)
-        theory_card.matching.c = 1.0
-        theory_card.matching.b = 1.0
+        theory_card.heavy.matching_ratios.c = 1.0
+        theory_card.heavy.matching_ratios.b = 1.0
         theory_card.order = (1, 0)
         operator_card.debug.skip_singlet = False
         operator_card.debug.skip_non_singlet = False
@@ -427,7 +427,7 @@ class TestOperatorMatrixElement:
             g.config,
             g.managers,
             is_backward=False,
-            q2=theory_card.quark_masses.b.value**2,
+            q2=theory_card.heavy.masses.b.value**2,
             nf=4,
             L=0,
             is_msbar=False,
@@ -460,12 +460,12 @@ class TestOperatorMatrixElement:
         )
 
     def test_compute_nlo(self, theory_ffns, operator_card: OperatorCard, tmp_path):
-        theory_card = theory_ffns(5)
-        theory_card.matching.c = 1.0
-        theory_card.matching.b = 1.0
+        theory_card: TheoryCard = theory_ffns(5)
+        theory_card.heavy.matching_ratios.c = 1.0
+        theory_card.heavy.matching_ratios.b = 1.0
         theory_card.order = (2, 0)
-        operator_card.mu2grid = np.array([20.0])
-        operator_card.rotations.xgrid = interpolation.XGrid([0.001, 0.01, 0.1, 1.0])
+        operator_card.mugrid = [(20.0, 5)]
+        operator_card.xgrid = interpolation.XGrid([0.001, 0.01, 0.1, 1.0])
         operator_card.configs.interpolation_polynomial_degree = 1
         operator_card.configs.interpolation_is_log = True
         operator_card.configs.ev_op_max_order = (2, 0)
@@ -479,14 +479,14 @@ class TestOperatorMatrixElement:
             g.config,
             g.managers,
             is_backward=False,
-            q2=theory_card.quark_masses.b.value**2,
+            q2=theory_card.heavy.masses.b.value**2,
             nf=4,
             L=0,
             is_msbar=False,
         )
         o.compute()
 
-        dim = len(operator_card.rotations.xgrid)
+        dim = len(operator_card.xgrid)
         shape = (dim, dim)
         for indices in [(100, br.matching_hplus_pid), (200, br.matching_hminus_pid)]:
             assert o.op_members[(indices[0], indices[0])].value.shape == shape

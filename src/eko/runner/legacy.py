@@ -5,11 +5,11 @@ from typing import Union
 
 import numpy as np
 
-from .. import interpolation, msbar_masses
+from .. import interpolation
 from ..couplings import Couplings, couplings_mod_ev
 from ..evolution_operator.grid import OperatorGrid
 from ..io import EKO, Operator, runcards
-from ..io.types import QuarkMassSchemes, RawCard, ScaleVariationsMethod
+from ..io.types import RawCard, ScaleVariationsMethod
 from ..thresholds import ThresholdsAtlas
 from . import commons
 
@@ -56,35 +56,22 @@ class Runner:
 
         # setup basis grid
         bfd = interpolation.InterpolatorDispatcher(
-            xgrid=new_operator.rotations.xgrid,
+            xgrid=new_operator.xgrid,
             polynomial_degree=new_operator.configs.interpolation_polynomial_degree,
         )
 
         # setup the Threshold path, compute masses if necessary
-        masses = None
-        if new_theory.quark_masses_scheme is QuarkMassSchemes.MSBAR:
-            masses = msbar_masses.compute(
-                new_theory.quark_masses,
-                new_theory.couplings,
-                new_theory.order,
-                couplings_mod_ev(new_operator.configs.evolution_method),
-                np.power(list(iter(new_theory.matching)), 2.0),
-                xif2=new_theory.xif**2,
-            ).tolist()
-        elif new_theory.quark_masses_scheme is QuarkMassSchemes.POLE:
-            masses = [mq.value**2 for mq in new_theory.quark_masses]
-        else:
-            raise ValueError(f"Unknown mass scheme '{new_theory.quark_masses_scheme}'")
+        masses = runcards.masses(new_theory, new_operator.configs.evolution_method)
 
         # call explicitly iter to explain the static analyzer that is an
         # iterable
-        thresholds_ratios = np.power(list(iter(new_theory.matching)), 2.0)
+        thresholds_ratios = np.power(list(iter(new_theory.heavy.matching_ratios)), 2.0)
         tc = ThresholdsAtlas(
             masses=masses,
             q2_ref=new_operator.mu20,
-            nf_ref=new_theory.num_flavs_init,
+            nf_ref=new_theory.heavy.num_flavs_init,
             thresholds_ratios=thresholds_ratios,
-            max_nf=new_theory.num_flavs_max_pdf,
+            max_nf=new_theory.heavy.num_flavs_max_pdf,
         )
 
         # strong coupling
@@ -93,7 +80,7 @@ class Runner:
             order=new_theory.order,
             method=couplings_mod_ev(new_operator.configs.evolution_method),
             masses=masses,
-            hqm_scheme=new_theory.quark_masses_scheme,
+            hqm_scheme=new_theory.heavy.masses_scheme,
             thresholds_ratios=thresholds_ratios
             * (
                 new_theory.xif**2
@@ -107,8 +94,8 @@ class Runner:
             mu2grid=new_operator.mu2grid,
             order=new_theory.order,
             masses=masses,
-            mass_scheme=new_theory.quark_masses_scheme.value,
-            intrinsic_flavors=new_theory.intrinsic_flavors,
+            mass_scheme=new_theory.heavy.masses_scheme.value,
+            intrinsic_flavors=new_theory.heavy.intrinsic_flavors,
             xif=new_theory.xif,
             configs=new_operator.configs,
             debug=new_operator.debug,

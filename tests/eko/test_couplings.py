@@ -10,13 +10,9 @@ import numpy as np
 import pytest
 
 from eko.couplings import Couplings, compute_matching_coeffs_up, couplings_mod_ev
-from eko.io.types import (
-    CouplingEvolutionMethod,
-    CouplingsRef,
-    EvolutionMethod,
-    MatchingScales,
-    QuarkMassSchemes,
-)
+from eko.io.types import EvolutionMethod
+from eko.quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
+from eko.quantities.heavy_quarks import MatchingScales, QuarkMassScheme
 
 masses = [m**2 for m in (2.0, 4.5, 175.0)]
 
@@ -54,10 +50,11 @@ class TestCouplings:
     def test_init(self):
         alpharef = (0.118, 0.00781)
         muref = 91.0
-        couplings = CouplingsRef.from_dict(
+        couplings = CouplingsInfo.from_dict(
             dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
+                alphas=alpharef[0],
+                alphaem=alpharef[1],
+                scale=muref,
                 num_flavs_ref=None,
                 max_num_flavs=6,
             )
@@ -70,7 +67,7 @@ class TestCouplings:
             order,
             evmod,
             masses,
-            hqm_scheme=QuarkMassSchemes.POLE,
+            hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=[1.0, 1.0, 1.0],
         )
         assert sc.q2_ref == muref**2
@@ -81,13 +78,13 @@ class TestCouplings:
         # errors
         with pytest.raises(ValueError):
             coup1 = copy.deepcopy(couplings)
-            coup1.alphas.value = 0
+            coup1.alphas = 0
             Couplings(
                 coup1,
                 order,
                 evmod,
                 masses,
-                hqm_scheme=QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
         with pytest.raises(NotImplementedError):
@@ -96,29 +93,29 @@ class TestCouplings:
                 (0, 2),
                 evmod,
                 masses,
-                hqm_scheme=QuarkMassSchemes.POLE,
-                thresholds_ratios=MatchingScales(c=1.0, b=1.0, t=1.0),
+                hqm_scheme=QuarkMassScheme.POLE,
+                thresholds_ratios=MatchingScales([1.0, 1.0, 1.0]),
             )
         with pytest.raises(ValueError):
             coup2 = copy.deepcopy(couplings)
-            coup2.alphaem.value = 0
+            coup2.alphaem = 0
             Couplings(
                 coup2,
                 order,
                 evmod,
                 masses,
-                hqm_scheme=QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
         with pytest.raises(ValueError):
             coup3 = copy.deepcopy(couplings)
-            coup3.alphas.scale = 0
+            coup3.scale = 0
             Couplings(
                 coup3,
                 order,
                 evmod,
                 masses,
-                hqm_scheme=QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
         with pytest.raises(NotImplementedError):
@@ -127,7 +124,7 @@ class TestCouplings:
                 (6, 0),
                 evmod,
                 masses,
-                hqm_scheme=QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
         with pytest.raises(NotImplementedError):
@@ -136,7 +133,7 @@ class TestCouplings:
                 (1, 3),
                 evmod,
                 masses,
-                hqm_scheme=QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
         with pytest.raises(ValueError):
@@ -145,7 +142,7 @@ class TestCouplings:
                 (2, 0),
                 FakeEM.BLUB,
                 masses,
-                hqm_scheme=QuarkMassSchemes.POLE,
+                hqm_scheme=QuarkMassScheme.POLE,
                 thresholds_ratios=[1.0, 1.0, 1.0],
             )
 
@@ -158,10 +155,11 @@ class TestCouplings:
         ]
         alpharef = (0.118, 0.00781)
         muref = 91.0
-        couplings = CouplingsRef.from_dict(
+        couplings = CouplingsInfo.from_dict(
             dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
+                alphas=alpharef[0],
+                alphaem=alpharef[1],
+                scale=muref,
                 num_flavs_ref=None,
                 max_num_flavs=6,
             )
@@ -178,7 +176,7 @@ class TestCouplings:
                             (order_s, order_em),
                             evmod,
                             masses,
-                            hqm_scheme=QuarkMassSchemes.POLE,
+                            hqm_scheme=QuarkMassScheme.POLE,
                             thresholds_ratios=thresh_setup,
                         )
                         np.testing.assert_approx_equal(
@@ -193,10 +191,11 @@ class TestCouplings:
         thresh_setup = (1.51, 4.75, 175.0)
         alpharef = np.array([0.35, 0.00781])
         muref = 2.0
-        couplings = CouplingsRef.from_dict(
+        couplings = CouplingsInfo.from_dict(
             dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
+                alphas=alpharef[0],
+                alphaem=alpharef[1],
+                scale=muref,
                 num_flavs_ref=3,  # reference nf is needed to force the matching
                 max_num_flavs=6,
             )
@@ -206,7 +205,7 @@ class TestCouplings:
             (4, 0),
             method=CouplingEvolutionMethod.EXACT,
             masses=masses,
-            hqm_scheme=QuarkMassSchemes.POLE,
+            hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=thresh_setup,
         )
         np.testing.assert_allclose(sc.a_ref, np.array(alpharef) / (4.0 * np.pi))
@@ -229,10 +228,11 @@ class TestCouplings:
                 for qed in range(2 + 1):
                     for qedref in [muref, nan]:  # testing both running and fixed alpha
                         pto = (qcd, qed)
-                        couplings = CouplingsRef.from_dict(
+                        couplings = CouplingsInfo.from_dict(
                             dict(
-                                alphas=[alpharef[0], muref],
-                                alphaem=[alpharef[1], qedref],
+                                alphas=alpharef[0],
+                                alphaem=alpharef[1],
+                                scale=muref,
                                 num_flavs_ref=None,
                                 max_num_flavs=6,
                             )
@@ -242,7 +242,7 @@ class TestCouplings:
                             pto,
                             method=CouplingEvolutionMethod.EXPANDED,
                             masses=masses,
-                            hqm_scheme=QuarkMassSchemes.POLE,
+                            hqm_scheme=QuarkMassScheme.POLE,
                             thresholds_ratios=thresh_setup,
                         )
                         sc_exact = Couplings(
@@ -250,7 +250,7 @@ class TestCouplings:
                             pto,
                             method=CouplingEvolutionMethod.EXACT,
                             masses=masses,
-                            hqm_scheme=QuarkMassSchemes.POLE,
+                            hqm_scheme=QuarkMassScheme.POLE,
                             thresholds_ratios=thresh_setup,
                         )
                         if pto in [(1, 0), (1, 1), (1, 2)]:
@@ -261,7 +261,7 @@ class TestCouplings:
                             # At LO (either QCD or QED LO) the exact and expanded
                             # solutions coincide, while beyond LO they don't.
                             # Therefore if the path is too long they start being different.
-                            if q2 in [1, 1e1] and pto not in [(1, 0)]:
+                            if q2 in [1, 1e1] and pto not in [(1, 0), (0, 1)]:
                                 continue
                             np.testing.assert_allclose(
                                 sc_expanded.a(q2)[0],
@@ -291,13 +291,12 @@ class TestCouplings:
         # use a big alpha_s to enlarge the difference
         alpharef = np.array([0.9, 0.00781])
         muref = 90.0
-        couplings = CouplingsRef.from_dict(
-            dict(
-                alphas=[alpharef[0], muref],
-                alphaem=[alpharef[1], nan],
-                num_flavs_ref=None,
-                max_num_flavs=6,
-            )
+        couplings = CouplingsInfo(
+            alphas=alpharef[0],
+            alphaem=alpharef[1],
+            scale=muref,
+            num_flavs_ref=None,
+            max_num_flavs=6,
         )
         m2c = 2
         m2b = 25
@@ -310,7 +309,7 @@ class TestCouplings:
             order=(3, 0),
             method=CouplingEvolutionMethod.EXPANDED,
             masses=masses,
-            hqm_scheme=QuarkMassSchemes.POLE,
+            hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=threshold_list,
         )
         as_N3LO = Couplings(
@@ -318,7 +317,7 @@ class TestCouplings:
             order=(4, 0),
             method=CouplingEvolutionMethod.EXPANDED,
             masses=masses,
-            hqm_scheme=QuarkMassSchemes.POLE,
+            hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=threshold_list,
         )
         np.testing.assert_allclose(
