@@ -3,8 +3,7 @@ name: LHA Benchmarks
 
 on:
   push:
-    branches:
-      - master
+    tags:
   pull_request:
     types:
       - closed
