@@ -4,10 +4,9 @@ from dataclasses import dataclass
 
 from .. import EKO
 from .. import scale_variations as sv
-from ..io import runcards
 from ..io.dictlike import DictLike
 from ..io.types import SquaredScale
-from ..thresholds import ThresholdsAtlas
+from . import commons
 
 
 @dataclass
@@ -35,19 +34,7 @@ class MatchingRecipe(Recipe):
 
 def create(eko: EKO):
     """Create all associated recipes."""
-    _ = eko.theory_card.matching
-
-    masses = runcards.masses(
-        eko.theory_card, eko.operator_card.configs.evolution_method
-    )
-
-    tc = ThresholdsAtlas(
-        masses=masses,
-        q2_ref=eko.operator_card.mu20,
-        nf_ref=eko.theory_card.num_flavs_init,
-        thresholds_ratios=None,
-        max_nf=eko.theory_card.num_flavs_max_pdf,
-    )
+    tc = commons.threshold_atlas(eko.theory_card, eko.operator_card)
 
     for mu2 in eko.mu2grid:
         expanded = eko.operator_card.configs.scvar_method is sv.Modes.expanded
