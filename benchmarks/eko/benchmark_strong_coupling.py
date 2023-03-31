@@ -39,7 +39,6 @@ def ref_couplings(
     ref_values,
     ref_scale: float,
 ) -> types.CouplingsRef:
-
     return types.CouplingsRef(
         alphas=types.FloatRef(value=ref_values[0], scale=ref_scale),
         alphaem=types.FloatRef(value=ref_values[1], scale=nan),
@@ -440,13 +439,13 @@ class BenchmarkCouplings:
                     couplings=ref_couplings(coupling_ref, scale_ref),
                     order=(order, 0),
                     method=types.CouplingEvolutionMethod.EXACT,
-                    masses=(threshold_list / fact_to_ren_lin**2).tolist(),
+                    masses=threshold_list.tolist(),
                     hqm_scheme=types.QuarkMassSchemes.POLE,
-                    thresholds_ratios=[1.0, 1.0, 1.0],
+                    thresholds_ratios=np.array([1.0, 1.0, 1.0]) / fact_to_ren_lin**2,
                 )
                 my_vals = []
                 for Q2 in Q2s:
-                    my_vals.append(as_VFNS.a(Q2, fact_to_ren_lin**2 * Q2)[0])
+                    my_vals.append(as_VFNS.a(Q2)[0])
                 # get APFEL numbers - if available else use cache
                 apfel_vals = apfel_vals_dict[order]
                 if use_APFEL:
@@ -859,7 +858,6 @@ class BenchmarkCouplings:
         )
         xif2 = theory.xif**2
         for mu2 in mu2s:
-
             my_val = sc.a(mu2 / xif2, mu2)[0]
             path = sc.thresholds.path(mu2 / xif2)
             my_val_4 = sc.a(mu2 / xif2, mu2, nf_to=4)[0]
