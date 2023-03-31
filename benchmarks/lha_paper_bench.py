@@ -1,9 +1,12 @@
 """
 Benchmark to :cite:`Giele:2002hx` (LO + NLO) and :cite:`Dittmar:2005ed` (NNLO).
 """
+import argparse
+import os
 from math import nan
 
 import numpy as np
+import pytest
 from banana import register
 
 from eko.interpolation import lambertgrid
@@ -36,7 +39,7 @@ default_skip_pdfs = [22, -6, 6, "ph", "V35", "V24", "V15", "V8", "T35"]
 # ffns_skip_pdfs.extend([-5, 5, "T24"])
 
 
-class LHABenchmark(Runner):
+class LHA(Runner):
     """Globally set the external program to LHA."""
 
     def __init__(self):
@@ -121,16 +124,52 @@ class LHABenchmark(Runner):
             ["ToyLH"],
         )
 
-    def benchmark_plain(self, pto):
+    def run_plain(self, pto):
         """Run plain configuration."""
         self.run_lha(self.plain_theory(pto))
 
-    def benchmark_sv(self, pto):
+    def run_sv(self, pto):
         """Run scale variations."""
         self.run_lha(self.sv_theories(pto))
 
 
-class BenchmarkVFNS(LHABenchmark):
+class BaseBenchmark:
+    """Abstract common benchmark tasks."""
+
+    def runner(self) -> LHA:
+        """Runner to run."""
+        raise NotImplementedError("runner method has to be overwritten!")
+
+    def transformed_runner(self):
+        """Prepare runner for benchmark setup"""
+        r = self.runner()
+        r.log_to_stdout = os.environ.get("EKO_LOG_STDOUT", False)
+        return r
+
+    @pytest.mark.lo
+    def benchmark_plain_lo(self):
+        self.transformed_runner().run_plain(0)
+
+    @pytest.mark.nlo
+    def benchmark_plain_nlo(self):
+        self.transformed_runner().run_plain(1)
+
+    @pytest.mark.nnlo
+    def benchmark_plain_nnlo(self):
+        self.transformed_runner().run_plain(2)
+
+    @pytest.mark.nlo
+    @pytest.mark.sv
+    def benchmark_sv_nlo(self):
+        self.transformed_runner().run_sv(1)
+
+    @pytest.mark.nnlo
+    @pytest.mark.sv
+    def benchmark_sv_nnlo(self):
+        self.transformed_runner().run_sv(2)
+
+
+class VFNS(LHA):
     """Provide |VFNS| settings."""
 
     def __init__(self):
@@ -148,7 +187,13 @@ class BenchmarkVFNS(LHABenchmark):
         )
 
 
-class BenchmarkFFNS(LHABenchmark):
+@pytest.mark.vfns
+class BenchmarkVFNS(BaseBenchmark):
+    def runner(self):
+        return VFNS()
+
+
+class FFNS(LHA):
     """Provide |FFNS| settings."""
 
     def __init__(self):
@@ -188,7 +233,51 @@ class BenchmarkFFNS(LHABenchmark):
         return ffns_skip_pdfs
 
 
-class BenchmarkRunner(BenchmarkVFNS):
+@pytest.mark.ffns
+class BenchmarkFFNS(BaseBenchmark):
+    def runner(self):
+        return FFNS()
+
+
+class FFNS_polarized(FFNS):
+    def run_lha(self, theory_updates):
+        """Enforce operator grid and PDF.
+
+        Parameters
+        ----------
+        theory_updates : list(dict)
+            theory updates
+        """
+        self.run(
+            theory_updates,
+            [
+                {
+                    "Q2grid": [1e4],
+                    "ev_op_iterations": 10,
+                    "interpolation_xgrid": lambertgrid(60).tolist(),
+                    "polarized": True,
+                }
+            ],
+            ["ToyLH_polarized"],
+        )
+
+
+@pytest.mark.ffns_pol
+class BenchmarkFFNS_polarized(BaseBenchmark):
+    def runner(self):
+        return FFNS_polarized()
+
+    @pytest.mark.nnlo
+    def benchmark_plain_nnlo(self):
+        pass
+
+    @pytest.mark.nnlo
+    @pytest.mark.sv
+    def benchmark_sv_nnlo(self):
+        pass
+
+
+class CommonRunner(VFNS):
     """Generic benchmark runner using the LHA |VFNS| settings."""
 
     def __init__(self, external):
@@ -218,42 +307,3 @@ class BenchmarkRunner(BenchmarkVFNS):
         high["XIR"] = np.sqrt(0.5)
 
         self.run_lha([low, high])
-
-
-class BenchmarkFFNS_polarized(BenchmarkFFNS):
-    def run_lha(self, theory_updates):
-        """Enforce operator grid and PDF.
-
-        Parameters
-        ----------
-        theory_updates : list(dict)
-            theory updates
-        """
-        self.run(
-            theory_updates,
-            [
-                {
-                    "mugrid": [100],
-                    "ev_op_iterations": 10,
-                    "interpolation_xgrid": lambertgrid(60).tolist(),
-                    "polarized": True,
-                }
-            ],
-            ["ToyLH_polarized"],
-        )
-
-
-if __name__ == "__main__":
-    # Benchmark to LHA
-    # obj = BenchmarkFFNS_polarized()
-    # obj = BenchmarkFFNS()
-    obj = BenchmarkVFNS()
-    # obj.benchmark_plain(1)
-    obj.benchmark_sv(2)
-
-    # # VFNS benchmarks with LHA settings
-    # programs = ["LHA", "pegasus", "apfel"]
-    # for p in programs:
-    #     obj = BenchmarkRunner(p)
-    #     # obj.benchmark_plain(2)
-    #     obj.benchmark_sv(2)
