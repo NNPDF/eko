@@ -207,7 +207,7 @@ class TestOperator:
                 debug_skip_singlet=False,
                 n_integration_cores=1,
                 ModSV=None,
-                ev_op_iterations=1
+                ev_op_iterations=1,
             ),
             fake_managers,
             3,
@@ -222,7 +222,7 @@ class TestOperator:
                 debug_skip_singlet=True,
                 n_integration_cores=1,
                 ModSV=None,
-                ev_op_iterations=1
+                ev_op_iterations=1,
             ),
             fake_managers,
             3,
@@ -275,7 +275,7 @@ class TestOperator:
                 debug_skip_singlet=True,
                 n_integration_cores=-excluded_cores,
                 ModSV=None,
-                ev_op_iterations=1
+                ev_op_iterations=1,
             ),
             fake_managers,
             3,
@@ -293,7 +293,6 @@ class TestOperator:
         g = r.op_grid
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 10.0)
-        np.testing.assert_allclose(o.sv_exponentiated_shift(40.0), 10.0)
         o.compute()
         self.check_lo(o)
 

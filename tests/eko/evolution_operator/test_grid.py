@@ -81,12 +81,10 @@ def test_mod_expanded(theory_card, theory_ffns, operator_card, tmp_path: pathlib
         theory.order = (1, 0)
         theory.num_flavs_init = nf0
         theory.matching
-        theory.fact_to_ren = 1.0
         path.unlink(missing_ok=True)
         opgrid = legacy.Runner(theory, operator_card, path=path).op_grid
         opg = opgrid.compute(3)
-        theory.fact_to_ren = 1.0 + epsilon
-        theory_update["fact_to_ren_scale_ratio"] = 1.0 + epsilon
+        theory_update["XIF"] = 1.0 + epsilon
         path.unlink(missing_ok=True)
         sv_opgrid = legacy.Runner(theory, operator_card, path=path).op_grid
         sv_opg = sv_opgrid.compute(3)

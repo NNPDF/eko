@@ -50,10 +50,11 @@ LHA_rotate_to_flavor = np.array(
     ]
 )
 
+
 # rotate basis
 def rotate_data(raw, is_ffns_nnlo=False, rotate_to_evolution_basis=False):
     """Rotate data in flavor space.
-    
+
     Rotate either to flavor basis  or evolution basis from the LHA basis, which is yet an other basis.
 
     Parameters
@@ -140,18 +141,18 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
     with open(here / yaml_file, encoding="utf-8") as o:
         data = yaml.safe_load(o)
     fns = theory["FNS"]
-    xif = (theory["fact_to_ren_scale_ratio"]) ** 2
-    if order == 0 and xif != 1.0:
+    xif2 = (theory["XIF"]) ** 2
+    if order == 0 and xif2 != 1.0:
         raise ValueError("LO LHA tables with scale variations are not available")
     table = None
     part = None
     is_ffns_nnlo = False
 
     # Switching at the intermediate point.
-    if xif > np.sqrt(2):
-        part = 3
-    elif xif < np.sqrt(1.0 / 2.0):
+    if xif2 > np.sqrt(2):
         part = 2
+    elif xif2 < np.sqrt(1.0 / 2.0):
+        part = 3
     else:
         part = 1
     if fns == "FFNS":
@@ -171,7 +172,6 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
             table = 18 if polarized else 4
         elif order == 2:
             table = 15
-
     else:
         raise ValueError(f"unknown FNS {fns} or order {order}")
     ref_values = rotate_data(

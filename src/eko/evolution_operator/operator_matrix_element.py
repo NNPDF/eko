@@ -13,6 +13,7 @@ import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
 from ekore import harmonics
 
 from .. import basis_rotation as br
+from .. import scale_variations as sv
 from . import Operator, QuadKerBase
 
 logger = logging.getLogger(__name__)
@@ -82,6 +83,8 @@ def quad_ker(
     a_s,
     nf,
     L,
+    sv_mode,
+    Lsv,
     backward_method,
     is_msbar,
     is_polarized,
@@ -179,6 +182,10 @@ def quad_ker(
                 A = ome_ut.A_non_singlet(order, ker_base.n, sx, nf, L)
             else:
                 A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+
+    # correct for scale variations
+    if sv_mode == sv.Modes.exponentiated:
+        A = sv.exponentiated.gamma_variation(A, order, nf, Lsv)
 
     # build the expansion in alpha_s depending on the strategy
     ker = build_ome(A, order, a_s, backward_method)
@@ -312,6 +319,8 @@ class OperatorMatrixElement(Operator):
             a_s=self.a_s,
             nf=self.nf,
             L=self.L,
+            sv_mode=self.sv_mode,
+            Lsv=np.log(self.xif2),
             backward_method=self.backward_method,
             is_msbar=self.is_msbar,
             is_polarized=self.config["polarized"],
@@ -326,7 +335,9 @@ class OperatorMatrixElement(Operator):
         """
         sc = self.managers["couplings"]
         return sc.a_s(
-            self.sv_exponentiated_shift(self.q2_from), self.q2_from, nf_to=self.nf + 1
+            self.q2_from
+            * (self.xif2 if self.sv_mode == sv.Modes.exponentiated else 1.0),
+            nf_to=self.nf + 1,
         )
 
     def compute(self):

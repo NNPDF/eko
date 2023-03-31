@@ -52,10 +52,9 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             "Qref",
             "alphas",
             "XIF",
-            "XIR",
         ]:
             obj[f] = theo[f]
-        obj["F/R"] = theo["fact_to_ren_scale_ratio"]
+        obj["XIF"] = theo["XIF"]
         obj["mcThr"] = theo["mc"] * theo["kcThr"]
         obj["mbThr"] = theo["mb"] * theo["kbThr"]
         obj["mtThr"] = theo["mt"] * theo["ktThr"]
