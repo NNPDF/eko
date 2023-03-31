@@ -55,7 +55,7 @@ def A_gg(L):
         |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`
 
     """
-    return 2 * A_gg_unpol(L)
+    return A_gg_unpol(L)
 
 
 @nb.njit(cache=True)

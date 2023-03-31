@@ -8,17 +8,16 @@ The anomalous dimensions and beta function with the addition 'hat' are defined a
 import numba as nb
 import numpy as np
 
-from eko.beta import beta_qcd_as2 as beta_0
 from eko.constants import CA, CF, TR
 
 from .... import harmonics
-from ....anomalous_dimensions.polarized.space_like.as1 import gamma_gg as gamma0_gg
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_gq as gamma0_gq
+from ....anomalous_dimensions.polarized.space_like.as1 import gamma_ns as gamma0_qq
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_qg as gamma0_qg
-from ....anomalous_dimensions.unpolarized.space_like.as1 import gamma_ns as gamma0_qq
+from ....anomalous_dimensions.polarized.space_like.as2 import gamma_qg as gamma1_qg
 from ....harmonics.constants import zeta2, zeta3
 
-beta_0hat = (-4 / 3) * TR
+beta_0hat = -4 / 3 * TR
 """This is the lowest order beta function with the addition 'hat' defined as above."""
 
 
@@ -55,7 +54,7 @@ def A_qq_ns(n, L):
             - (3 * n**4 + 6 * n**3 + 47 * n**2 + 20 * n - 12)
             / (3 * n**2 * (n + 1) ** 2)
         )
-    )  # relative to the paper there is a factor -1
+    )
     aqqns = (
         TR
         * CF
@@ -78,7 +77,7 @@ def A_qq_ns(n, L):
         )
     )
 
-    a_qq_l0 = aqqns - (1 / 4) * beta_0hat * gamma0_qq(n, S1) * zeta2
+    a_qq_l0 = aqqns - 1 / 4 * 2 * beta_0hat * gamma0_qq(n, S1) * zeta2
     a_qq_l1 = (1 / 2) * gamma1_qqNS
     a_qq_l2 = (1 / 4) * beta_0hat * 2 * gamma0_qq(n, S1)
     return a_qq_l2 * L**2 + a_qq_l1 * (-L) + a_qq_l0
@@ -111,29 +110,32 @@ def A_hq_ps(n, L, nf):
         -4
         * TR
         * CF
-        * ((n + 2) / (n**2 * (n + 1) ** 2))(
+        * ((n + 2) / (n**2 * (n + 1) ** 2))
+        * (
             (n - 1) * (2 * S2 + zeta2)
             - ((4 * n**3 - 4 * n**2 - 3 * n - 1) / (n**2 * (n + 1) ** 2))
         )
     )
+    # term that differentiates between M scheme and Larin scheme,
+    # we are computing in M scheme hence the addition of this term
     z_qq_ps = (
         -CF * TR * nf * ((8 * (2 + n) * (n**2 - n - 1)) / (n**3 * (n + 1) ** 3))
-    )  # term that differentiates between M scheme and Larin scheme, we are computing in M scheme hence the addition of this term
-
+    )
     gamma1_ps_qqhat = (16 * CF * (2 + n) * (1 + 2 * n + n**3) * TR) / (
         n**3 * ((1 + n) ** 3)
     )
-
     a_hq_l0 = (
-        a_hq_ps_l + z_qq_ps + (zeta2 / 8) * (gamma0_qg(n, nf=1)) * (2 * gamma0_gq(n))
+        a_hq_ps_l
+        + z_qq_ps
+        + (zeta2 / 8) * (2 * gamma0_qg(n, nf=1)) * (2 * gamma0_gq(n))
     )
     a_hq_l1 = (1 / 2) * gamma1_ps_qqhat
-    a_hq_l2 = -(1 / 8) * (gamma0_qg(n, nf=1)) * (2 * gamma0_gq(n))
+    a_hq_l2 = -(1 / 8) * (2 * gamma0_qg(n, nf=1)) * (2 * gamma0_gq(n))
     return a_hq_l2 * L**2 + a_hq_l1 * (-L) + a_hq_l0
 
 
 @nb.njit(cache=True)
-def A_hg(n, L, nf):
+def A_hg(n, L):
     r"""Compute |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`.
 
     Implements Eq. (111) of :cite:`Bierenbaum_2023`.
@@ -144,8 +146,6 @@ def A_hg(n, L, nf):
         Mellin moment
     L : float
         :math:`\ln(\mu_F^2 / m_h^2)`
-    nf : int
-        Number of active flavors
 
     Returns
     -------
@@ -156,56 +156,55 @@ def A_hg(n, L, nf):
     S1 = harmonics.S1(n)
     Sm1 = harmonics.Sm1(n, S1, True)
     S2 = harmonics.S2(n)
-    Sm2 = harmonics.Sm2(n, S2, True)
     S3 = harmonics.S3(n)
     Sm21 = harmonics.Sm21(n, S1, Sm1, True)
-
-    # method 1 using relations (1/(2^m))*(S[m,n/2]-S[m,(n-1)/2])-((2^(m-1)-1)/(2^(m-1)))*Zeta[m] -> S[-m,n] did not get rid of the half n harmonic sums
-    _, S2halfn, S3halfn, _, S2halfn1, S3halfn1, _, _ = harmonics.compute_qed_ns_cache(
-        n, S1
-    )
-
-    # method2 (in case its not good that I import QED related things)
     S2halfn = harmonics.S2(n / 2)
     S3halfn = harmonics.S3(n / 2)
     S2halfn1 = harmonics.S2((n + 1) / 2)
     S3halfn1 = harmonics.S3((n + 1) / 2)
 
-    a_hg = CF * TR * (
-        -(
-            (
-                4
-                + 8 * n
-                + 3 * n**2
-                - 2 * n**3
-                - 25 * n**4
-                + 60 * n**6
-                + 52 * n**7
-                + 12 * n**8
+    a_hg = (
+        (1 / (6 * n**4 * (1 + n) ** 4 * (2 + n)))
+        * TR
+        * (
+            -2
+            * CF
+            * (
+                3
+                * (
+                    4
+                    + 8 * n
+                    + 3 * n**2
+                    - 2 * n**3
+                    - 25 * n**4
+                    + 60 * n**6
+                    + 52 * n**7
+                    + 12 * n**8
+                )
+                + (-1 + n)
+                * n**2
+                * (1 + n) ** 2
+                * (2 + n)
+                * (2 + 3 * n + 3 * n**3)
+                * np.pi**2
+                + 12 * n**2 * (1 + n) ** 3 * (-36 - 22 * n - 2 * n**2 + n**3) * S1
+                + 12 * n**2 * (1 + n) ** 3 * (-2 + 3 * n + 3 * n**2) * S1**2
+                + 12
+                * n**2
+                * (1 + n) ** 2
+                * (2 + 33 * n + 43 * n**2 + 17 * n**3 + n**4)
+                * S2
+                - 4
+                * (-1 + n)
+                * n**3
+                * (1 + n) ** 3
+                * (2 + n)
+                * (S1**3 + S1 * (np.pi**2 + 3 * S2) - 4 * S3)
             )
-            / ((n**4) * (1 + n) ** 4 * (2 + n))
-        )
-        - (
-            ((-1 + n) * (2 + 3 * n + 3 * n**3) * (np.pi) ** 2)
-            / ((3 * n**2) * (1 + n) ** 2)
-        )
-        - (
-            (4 * (-36 - 22 * n - 2 * n**2 + n**3) * S1)
-            / ((n**2) * (1 + n) * (2 + n))
-        )
-        - ((4 * (-2 + 3 * n + 3 * n**2) * S1**2) / ((n**2) * (1 + n) * (2 + n)))
-        - (
-            (4 * (2 + 33 * n + 43 * n**2 + 17 * n**3 + n**4) * S2)
-            / ((n**2) * (1 + n) ** 2 * (2 + n))
-        )
-        + (
-            (4 * (-1 + n) * (((np.pi) ** 2) * S1 + (S1**3) + 3 * S1 * S2 - 4 * S3))
-            / (3 * n * (1 + n))
-        )
-    ) + TR * CA * (
-        -(
-            (
-                4
+            + CA
+            * (
+                -24
+                * (1 + n) ** 3
                 * (
                     4
                     + 12 * n
@@ -217,70 +216,57 @@ def A_hg(n, L, nf):
                     + 10 * n**7
                     + 2 * n**8
                 )
-            )
-            / ((n**4) * (1 + n) * (2 + n))
-        )
-        + (4 * (-1 + n) * (2 + n) * ((np.pi) ** 2) / ((3 * n**2) * (1 + n) ** 2))
-        + (
-            (4 * (2 - 10 * n - n**2 + 4 * n**3 + n**4) * S1)
-            / (n * ((1 + n) ** 3) * (2 + n))
-        )
-        + ((4 * (5 + 4 * n + n**2) * (S1**2)) / (n * ((1 + n) ** 2) * (2 + n)))
-        - (
-            (
-                8
-                * (-1 + n)
+                + 8 * (-1 + n) * n**2 * (1 + n) ** 2 * (2 + n) ** 2 * np.pi**2
+                + 24
+                * n**3
+                * (1 + n)
+                * (2 - 10 * n - n**2 + 4 * n**3 + n**4)
+                * S1
+                + 24 * n**3 * (1 + n) ** 2 * (5 + 4 * n + n**2) * S1**2
+                + 24
+                * n**2
+                * (1 + n) ** 2
+                * (-16 + 15 * n + 24 * n**2 + 7 * n**3)
+                * S2
+                - 24
+                * (1 - n)
+                * n**3
+                * (2 + n)
+                * (4 + (1 + n) ** 2 * S2halfn - (1 + n) ** 2 * S2halfn1)
+                + (1 - n)
+                * n**3
+                * (2 + n)
                 * (
-                    (1 / 2) * (-(4 / (1 + n) ** 2) - ((np.pi) ** 2) / 6 + S2halfn1)
-                    + 1 / 2 * ((((np.pi) ** 2) / 6) - S2halfn)
+                    -48
+                    + 8 * (1 + n) ** 3 * S1**3
+                    + 72 * (1 + n) ** 3 * S1 * S2
+                    - 24
+                    * (1 + n)
+                    * S1
+                    * (4 + (1 + n) ** 2 * S2halfn - (1 + n) ** 2 * S2halfn1)
+                    + 64 * (1 + n) ** 3 * S3
+                    + 6 * (1 + n) ** 3 * S3halfn1
+                    - 6 * (1 + n) ** 3 * (S3halfn - zeta3)
+                    + 18 * (1 + n) ** 3 * zeta3
+                    + 12 * (1 + n) ** 3 * (8 * Sm21 + 5 * zeta3)
                 )
             )
-            / (n * (1 + n) ** 2)
-        )
-        + (
-            (4 * (-16 + 15 * n + 24 * (n**2) + (7 * (n**3))) * S2)
-            / ((n**2) * ((1 + n) ** 2) * (2 + n))
-        )
-        + (4 * (-1 + n) / (3 * n * (1 + n)))
-        * (
-            -(S1**3)
-            - 6
-            * S1
-            * (
-                1 / 2 * ((-4 / (1 + n) ** 2) - ((np.pi) ** 2) / 6 + S2halfn1)
-                + (1 / 2) * ((((np.pi) ** 2) / 6) - S2halfn)
-            )
-            - 9 * S1 * S2
-            - 8 * S3
-            - 12 * (Sm21 + (5 * zeta3) / 8)
-            - 3 * zeta3
-            + (3 / 2)
-            * (
-                (1 / 4) * (2 * S3halfn - 2 * zeta3)
-                + (1 / 4) * (-2 * (-(8 / (1 + n) ** 3) + S3halfn1) + 2 * zeta3)
-            )
         )
     )
 
-    gamma1_qg_hat = -CF * TR * (
-        (8 * (n - 1) * (2 - n + 10 * n**3 + 5 * n**4)) / ((n**3) * (1 + n) ** 3)
-        - (32 * (-1 + n) * S1) / (n**2 * (1 + n))
-        + (16 * (-1 + n)(S1**2 - S2)) / (n * (1 + n))
-    ) - CA * TR * (
-        (16 * (-2 - 7 * n + 3 * n**2 - 4 * n**3 + n**4 + n**5))
-        / (n**3 * (1 + n) ** 3)
-        + (64 * S1) / (n * (1 + n) ** 2)
-        - (16 * (-1 + n) * (2 * Sm2 + S1**2 + S2)) / (n * (1 + n))
-    )  # relative to the paper there is a factor -1
-
-    a_hg_l0 = a_hg + (1 / 8) * 2 * gamma0_qg(n, nf) * (
-        2 * gamma0_gg(n, S1, nf) - 2 * gamma0_qq(n, S1) + 2 * beta_0(nf)
+    # remove the nf dependence from
+    # (2 * gamma0_gg(n, S1, nf) + 2 * beta_0(nf))
+    pgg0_beta0 = 8 * CA * (-(2 / (n + n**2)) + S1)
+    a_hg_l0 = a_hg + (1 / 8) * 2 * gamma0_qg(n, nf=1) * (
+        pgg0_beta0 - 2 * gamma0_qq(n, S1)
     )
-    a_hg_l1 = gamma1_qg_hat * (1 / 2)
-    a_hg_l2 = (1 / 8) * (
-        2 * gamma0_qq(n, S1) - 2 * gamma0_gg(n, S1, nf) - 2 * beta_0(nf) - 4 * beta_0hat
+    a_hg_l1 = 2 * gamma1_qg(n, nf=1, sx=[S1, S2])
+    a_hg_l2 = (
+        (1 / 8)
+        * 2
+        * gamma0_qg(n, nf=1)
+        * (2 * gamma0_qq(n, S1) - pgg0_beta0 - 4 * beta_0hat)
     )
-
     return a_hg_l2 * L**2 + a_hg_l1 * (-L) + a_hg_l0
 
 
@@ -306,16 +292,13 @@ def A_gq(n, L):
     S1 = harmonics.S1(n)
     S2 = harmonics.S2(n)
 
-    gamma1_gq_hat = -2 * (
+    gamma1_gq_hat = 2 * (
         16
         * CF
-        * (
-            ((2 + n) * (2 + 5 * n)) / (9 * n * (1 + n) ** 2)
-            - ((2 + n) * S1) / (3 * n * (1 + n))
-        )
         * TR
+        * (2 + n)
+        * ((2 + 5 * n) / (9 * n * (1 + n) ** 2) - S1 / (3 * n * (1 + n)))
     )
-
     a_gq_l0 = (
         CF
         * TR
@@ -328,14 +311,16 @@ def A_gq(n, L):
             )
         )
     )
-    a_gq_l1 = -(1 / 2) * gamma1_gq_hat
-    a_gq_l2 = -(beta_0hat / 2) * (2 * gamma0_gq(n))
+    # here there is minus sing missing in the paper,
+    # passing from eq 172 to 174
+    a_gq_l1 = gamma1_gq_hat / 2
+    a_gq_l2 = beta_0hat * gamma0_gq(n)
 
     return a_gq_l2 * L**2 + a_gq_l1 * (-L) + a_gq_l0
 
 
 @nb.njit(cache=True)
-def A_gg(n, L, nf):
+def A_gg(n, L):
     r"""Compute |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`.
 
     Implements Eq. (187) of :cite:`Bierenbaum_2023`.
@@ -346,8 +331,6 @@ def A_gg(n, L, nf):
         Mellin moment
     L : float
         :math:`\ln(\mu_F^2 / m_h^2)`
-    nf : int
-        Number of active flavors
 
     Returns
     -------
@@ -356,45 +339,26 @@ def A_gg(n, L, nf):
 
     """
     S1 = harmonics.S1(n)
-    gamma1_gg_hat = (
-        8
-        * TR
-        * (
-            -(
-                (
-                    CF
-                    * (
-                        4
-                        + 2 * n
-                        - 8 * n**2
-                        + n**3
-                        + 5 * n**4
-                        + 3 * n**5
-                        + n**6
-                    )
-                )
-                / ((n**3) * (1 + n) ** 3)
-            )
-            - 4
-            * CA
-            * (
-                (-3 + 13 * n + 16 * (n**2) + 6 * (n**3) + 3 * (n**4))
-                / (9 * (n**2) * (1 + n) ** 2)
-                - (5 * S1) / 9
-            )
-        )
+    ggg1_canf = (
+        -5 * S1 / 9
+        + (-3 + 13 * n + 16 * n**2 + 6 * n**3 + 3 * n**4)
+        / (9 * n**2 * (1 + n) ** 2)
+    ) * 4
+    ggg1_cfnf = (4 + 2 * n - 8 * n**2 + n**3 + 5 * n**4 + 3 * n**5 + n**6) / (
+        n**3 * (1 + n) ** 3
     )
+    gamma1_gg_hat = 8 * TR * (CA * ggg1_canf + CF * ggg1_cfnf)
 
     a_gg_f = (
-        -15 * (n**8)
-        - 60 * (n**7)
-        - 82 * (n**6)
-        - 44 * (n**5)
-        - 15 * (n**4)
-        - 4 * (n**2)
+        -15 * n**8
+        - 60 * n**7
+        - 82 * n**6
+        - 44 * n**5
+        - 15 * n**4
+        - 4 * n**2
         - 12 * n
         - 8
-    ) / ((n**4) * (1 + n) ** 4)
+    ) / (n**4 * (1 + n) ** 4)
     a_gg_a = (
         2
         * (
@@ -406,21 +370,24 @@ def A_gg(n, L, nf):
             - 24 * n
             + 36
         )
-    ) / (27 * (n**3) * ((1 + n) ** 3)) - (4 * S1 * (47 + 56 * n) / (27 * (1 + n)))
-
+    ) / (27 * n**3 * (1 + n) ** 3) - (4 * S1 * (47 + 56 * n) / (27 * (1 + n)))
     a_gg_l0 = TR * (CF * a_gg_f + CA * a_gg_a)
-    a_gg_l1 = (1 / 2) * gamma1_gg_hat
+
+    # here there is minus sing missing in the paper,
+    # passing from eq 177 to 185
+    a_gg_l1 = gamma1_gg_hat / 2
+
+    # remove the nf dependence from
+    # (2 * gamma0_gg(n, S1, nf) + 2 * beta_0(nf))
+    pgg0_beta0 = 8 * CA * (-(2 / (n + n**2)) + S1)
     a_gg_l2 = (1 / 8) * (
-        2 * beta_0hat * (-2 * gamma0_gg(n, S1, nf) + 2 * beta_0(nf))
-        + 2 * gamma0_gq(n) * gamma0_qg(n, nf=1)
+        2 * beta_0hat * pgg0_beta0
+        + 2 * gamma0_gq(n) * 2 * gamma0_qg(n, nf=1)
         + 8 * beta_0hat**2
     )
-
     return a_gg_l2 * L**2 + a_gg_l1 * (-L) + a_gg_l0
 
 
-# TODO: Larin constant contribution could be a chosen parameter
-# if useful distinction in some way
 @nb.njit(cache=True)
 def A_singlet(n, L, nf):
     r"""Compute the |NNLO| singlet |OME|.
@@ -449,9 +416,9 @@ def A_singlet(n, L, nf):
     """
     return np.array(
         [
-            [A_gg(n, L, nf), A_gq(n, L), 0.0],
+            [A_gg(n, L), A_gq(n, L), 0.0],
             [0.0, A_qq_ns(n, L), 0.0],
-            [A_hg(n, L, nf), A_hq_ps(n, L, nf), 0.0],
+            [A_hg(n, L), A_hq_ps(n, L, nf), 0.0],
         ],
         np.complex_,
     )

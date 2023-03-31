@@ -32,7 +32,7 @@ def A_singlet(matching_order, n, nf, L):
         A_s[0] = as1.A_singlet(n, L)
     if matching_order[0] == 2:
         A_s[1] = as2.A_singlet(n, L, nf)
-    else:
+    if matching_order[0] > 2:
         raise NotImplementedError(
             "Polarized, space-like beyond NNLO is not implemented yet."
         )
@@ -61,7 +61,7 @@ def A_non_singlet(matching_order, n, L):
     A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)
     if matching_order[0] == 2:
         A_ns[1] = as2.A_ns(n, L)
-    else:
+    if matching_order[0] > 2:
         raise NotImplementedError(
             "Polarized, space-like beyond NNLO is not implemented yet."
         )
