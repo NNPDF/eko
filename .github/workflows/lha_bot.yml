@@ -10,9 +10,7 @@ on:
       - closed
       - ready_for_review
       - review_requested
-  pull_request_review:
-    types:
-      - submitted
+  workflow_dispatch:
 
 jobs:
   lhabench:
