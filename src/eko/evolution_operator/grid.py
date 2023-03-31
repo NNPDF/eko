@@ -7,6 +7,7 @@ previously instantiated information and does the actual computation of the Q2s.
 
 import logging
 import numbers
+from typing import List
 
 import numpy as np
 import numpy.typing as npt
@@ -41,7 +42,7 @@ class OperatorGrid(sv.ModeMixin):
         self,
         mu2grid: npt.NDArray,
         order: tuple,
-        masses: tuple,
+        masses: List[float],
         mass_scheme,
         intrinsic_flavors: list,
         xif: float,

@@ -1,7 +1,7 @@
 r"""Holds the classes that define the |FNS|."""
 import logging
 from dataclasses import astuple, dataclass
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
 import numpy as np
 
@@ -47,7 +47,7 @@ class ThresholdsAtlas:
         masses: List[float],
         q2_ref: Optional[float] = None,
         nf_ref: Optional[int] = None,
-        thresholds_ratios: Optional[List[float]] = None,
+        thresholds_ratios: Optional[Iterable[float]] = None,
         max_nf: Optional[int] = None,
     ):
         """Create basic atlas.
@@ -69,6 +69,12 @@ class ThresholdsAtlas:
         sorted_masses = sorted(masses)
         if not np.allclose(masses, sorted_masses):
             raise ValueError("masses need to be sorted")
+
+        if thresholds_ratios is None:
+            thresholds_ratios = [1.0, 1.0, 1.0]
+        else:
+            thresholds_ratios = list(thresholds_ratios)
+
         # combine them
         thresholds = self.build_area_walls(sorted_masses, thresholds_ratios, max_nf)
         self.area_walls = [0] + thresholds + [np.inf]
@@ -126,7 +132,7 @@ class ThresholdsAtlas:
     @staticmethod
     def build_area_walls(
         masses: List[float],
-        thresholds_ratios: Optional[List[float]] = None,
+        thresholds_ratios: List[float],
         max_nf: Optional[int] = None,
     ):
         r"""Create the object from the informations on the run card.
@@ -150,8 +156,6 @@ class ThresholdsAtlas:
         """
         if len(masses) != 3:
             raise ValueError("There have to be 3 quark masses")
-        if thresholds_ratios is None:
-            thresholds_ratios = [1.0, 1.0, 1.0]
         if len(thresholds_ratios) != 3:
             raise ValueError("There have to be 3 quark threshold ratios")
         if max_nf is None:

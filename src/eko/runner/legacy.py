@@ -3,14 +3,9 @@ import logging
 import os
 from typing import Union
 
-import numpy as np
-
-from .. import interpolation
-from ..couplings import Couplings, couplings_mod_ev
 from ..evolution_operator.grid import OperatorGrid
 from ..io import EKO, Operator, runcards
-from ..io.types import RawCard, ScaleVariationsMethod
-from ..thresholds import ThresholdsAtlas
+from ..io.types import RawCard
 from . import commons
 
 logger = logging.getLogger(__name__)
@@ -55,41 +50,18 @@ class Runner:
         self._theory = new_theory
 
         # setup basis grid
-        bfd = interpolation.InterpolatorDispatcher(
-            xgrid=new_operator.xgrid,
-            polynomial_degree=new_operator.configs.interpolation_polynomial_degree,
-        )
-
-        # setup the Threshold path, compute masses if necessary
-        masses = runcards.masses(new_theory, new_operator.configs.evolution_method)
+        bfd = commons.interpolator(new_operator)
 
         # call explicitly iter to explain the static analyzer that is an
         # iterable
-        thresholds_ratios = np.power(list(iter(new_theory.heavy.matching_ratios)), 2.0)
-        tc = ThresholdsAtlas(
-            masses=masses,
-            q2_ref=new_operator.mu20,
-            nf_ref=new_theory.heavy.num_flavs_init,
-            thresholds_ratios=thresholds_ratios,
-            max_nf=new_theory.heavy.num_flavs_max_pdf,
-        )
+        tc = commons.threshold_atlas(new_theory, new_operator)
 
         # strong coupling
-        sc = Couplings(
-            couplings=new_theory.couplings,
-            order=new_theory.order,
-            method=couplings_mod_ev(new_operator.configs.evolution_method),
-            masses=masses,
-            hqm_scheme=new_theory.heavy.masses_scheme,
-            thresholds_ratios=thresholds_ratios
-            * (
-                new_theory.xif**2
-                if new_operator.configs.scvar_method
-                == ScaleVariationsMethod.EXPONENTIATED
-                else 1.0
-            ),
-        )
-        # setup operator grid
+        cs = commons.couplings(new_theory, new_operator)  # setup operator grid
+
+        # compute masses if required
+        masses = runcards.masses(new_theory, new_operator.configs.evolution_method)
+
         self.op_grid = OperatorGrid(
             mu2grid=new_operator.mu2grid,
             order=new_theory.order,
@@ -100,7 +72,7 @@ class Runner:
             configs=new_operator.configs,
             debug=new_operator.debug,
             thresholds_config=tc,
-            couplings=sc,
+            couplings=cs,
             interpol_dispatcher=bfd,
         )
 

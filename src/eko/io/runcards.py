@@ -55,7 +55,7 @@ def masses(theory: TheoryCard, evmeth: EvolutionMethod):
             theory.couplings,
             theory.order,
             couplings_mod_ev(evmeth),
-            np.power(theory.heavy.matching_ratios, 2.0),
+            np.power(theory.heavy.matching_ratios, 2.0).tolist(),
             xif2=theory.xif**2,
         ).tolist()
     if theory.heavy.masses_scheme is QuarkMassScheme.POLE:
