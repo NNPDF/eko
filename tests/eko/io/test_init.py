@@ -32,13 +32,15 @@ class TestLegacy:
 class TestManipulate:
     def test_xgrid_reshape(self, eko_factory: EKOFactory, tmp_path: pathlib.Path):
         # create object
-        mu2out = 10.0
+        muout = 10.0
+        mu2out = muout**2
         xg = interpolation.XGrid(np.geomspace(1e-5, 1.0, 21))
-        eko_factory.operator.mu2grid = [mu2out]
-        eko_factory.operator.rotations.xgrid = xg
+        eko_factory.operator.mugrid = [(muout, 5)]
+        eko_factory.operator.xgrid = xg
         o1 = eko_factory.get()
+        lpids = 2
         o1[mu2out] = eko.io.Operator(
-            operator=eko_identity([1, 2, len(xg), 2, len(xg)])[0]
+            operator=eko_identity([1, lpids, len(xg), lpids, len(xg)])[0]
         )
         xgp = interpolation.XGrid(np.geomspace(1e-5, 1.0, 11))
         # only target
@@ -47,21 +49,21 @@ class TestManipulate:
         with EKO.edit(otpath) as ot:
             manipulate.xgrid_reshape(ot, xgp)
             chk_keys(o1.raw, ot.raw)
-            assert ot[10].operator.shape == (2, len(xgp), 2, len(xg))
+            assert ot[mu2out].operator.shape == (lpids, len(xgp), lpids, len(xg))
         ottpath = tmp_path / "ott.tar"
         o1.deepcopy(ottpath)
         with EKO.edit(ottpath) as ott:
             with pytest.warns(Warning):
                 manipulate.xgrid_reshape(ott, xg)
                 chk_keys(o1.raw, ott.raw)
-                np.testing.assert_allclose(ott[10].operator, o1[10].operator)
+                np.testing.assert_allclose(ott[mu2out].operator, o1[mu2out].operator)
 
         # only input
         oipath = tmp_path / "oi.tar"
         o1.deepcopy(oipath)
         with EKO.edit(oipath) as oi:
             manipulate.xgrid_reshape(oi, inputgrid=xgp)
-            assert oi[10].operator.shape == (2, len(xg), 2, len(xgp))
+            assert oi[mu2out].operator.shape == (lpids, len(xg), lpids, len(xgp))
             chk_keys(o1.raw, oi.raw)
         oiipath = tmp_path / "oii.tar"
         o1.deepcopy(oiipath)
@@ -69,7 +71,7 @@ class TestManipulate:
             with pytest.warns(Warning):
                 manipulate.xgrid_reshape(oii, inputgrid=xg)
                 chk_keys(o1.raw, oii.raw)
-                np.testing.assert_allclose(oii[10].operator, o1[10].operator)
+                np.testing.assert_allclose(oii[mu2out].operator, o1[mu2out].operator)
 
         # both
         oitpath = tmp_path / "oit.tar"
@@ -78,7 +80,7 @@ class TestManipulate:
             manipulate.xgrid_reshape(oit, xgp, xgp)
             chk_keys(o1.raw, oit.raw)
             op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
-            np.testing.assert_allclose(oit[10].operator, op[0], atol=1e-10)
+            np.testing.assert_allclose(oit[mu2out].operator, op[0], atol=1e-10)
 
         # error
         with pytest.raises(ValueError):
@@ -86,14 +88,15 @@ class TestManipulate:
 
     def test_reshape_io(self, eko_factory: EKOFactory, tmp_path):
         eko_factory.path = tmp_path / "eko.tar"
-        eko_factory.operator.rotations.pids = np.array([0, 1])
         eko_factory.operator.configs.interpolation_polynomial_degree = 1
         # create object
         o1 = eko_factory.get()
+        lpids = len(o1.rotations.pids)
         path_copy = tmp_path / "eko_copy.tar"
         o1.deepcopy(path_copy)
         newxgrid = interpolation.XGrid([0.1, 1.0])
-        inputpids = np.array([[1, -1], [1, 1]])
+        inputpids = np.eye(lpids)
+        inputpids[:2, :2] = np.array([[1, -1], [1, 1]])
         with EKO.edit(path_copy) as o2:
             manipulate.xgrid_reshape(o2, newxgrid, newxgrid)
             manipulate.flavor_reshape(o2, inputpids=inputpids)
@@ -114,51 +117,52 @@ class TestManipulate:
     def test_flavor_reshape(self, eko_factory: EKOFactory, tmp_path: pathlib.Path):
         # create object
         xg = interpolation.XGrid(np.geomspace(1e-5, 1.0, 21))
-        pids = np.array([0, 1])
-        mu2out = 10.0
-        eko_factory.operator.rotations.xgrid = xg
-        eko_factory.operator.rotations.pids = pids
-        eko_factory.operator.mu2grid = np.array([mu2out])
+        muout = 10.0
+        mu2out = muout**2
+        eko_factory.operator.xgrid = xg
+        eko_factory.operator.mugrid = [(muout, 5)]
         o1 = eko_factory.get()
-        lpids = len(pids)
+        lpids = len(o1.rotations.pids)
         lx = len(xg)
         o1[mu2out] = eko.io.Operator(
             operator=eko_identity([1, lpids, lx, lpids, lx])[0],
             error=None,
         )
         # only target
-        target_r = np.array([[1, -1], [1, 1]])
+        target_r = np.eye(lpids)
+        target_r[:2, :2] = np.array([[1, -1], [1, 1]])
         tpath = tmp_path / "ot.tar"
         ttpath = tmp_path / "ott.tar"
         o1.deepcopy(tpath)
         with EKO.edit(tpath) as ot:
             manipulate.flavor_reshape(ot, target_r)
             chk_keys(o1.raw, ot.raw)
-            assert ot[mu2out].operator.shape == (2, len(xg), 2, len(xg))
+            assert ot[mu2out].operator.shape == (lpids, len(xg), lpids, len(xg))
             ot.deepcopy(ttpath)
         with EKO.edit(ttpath) as ott:
             manipulate.flavor_reshape(ott, np.linalg.inv(target_r))
             np.testing.assert_allclose(ott[mu2out].operator, o1[mu2out].operator)
             with pytest.warns(Warning):
-                manipulate.flavor_reshape(ott, np.eye(2))
+                manipulate.flavor_reshape(ott, np.eye(lpids))
                 chk_keys(o1.raw, ott.raw)
                 np.testing.assert_allclose(ott[mu2out].operator, o1[mu2out].operator)
 
         # only input
-        input_r = np.array([[1, -1], [1, 1]])
+        input_r = np.eye(lpids)
+        input_r[:2, :2] = np.array([[1, -1], [1, 1]])
         ipath = tmp_path / "oi.tar"
         iipath = tmp_path / "oii.tar"
         o1.deepcopy(ipath)
         with EKO.edit(ipath) as oi:
             manipulate.flavor_reshape(oi, inputpids=input_r)
             chk_keys(o1.raw, oi.raw)
-            assert oi[mu2out].operator.shape == (2, len(xg), 2, len(xg))
+            assert oi[mu2out].operator.shape == (lpids, len(xg), lpids, len(xg))
             oi.deepcopy(iipath)
         with EKO.edit(iipath) as oii:
             manipulate.flavor_reshape(oii, inputpids=np.linalg.inv(input_r))
             np.testing.assert_allclose(oii[mu2out].operator, o1[mu2out].operator)
             with pytest.warns(Warning):
-                manipulate.flavor_reshape(oii, inputpids=np.eye(2))
+                manipulate.flavor_reshape(oii, inputpids=np.eye(lpids))
                 chk_keys(o1.raw, oii.raw)
                 np.testing.assert_allclose(oii[mu2out].operator, o1[mu2out].operator)
 
@@ -166,11 +170,9 @@ class TestManipulate:
         itpath = tmp_path / "oit.tar"
         o1.deepcopy(itpath)
         with EKO.edit(itpath) as oit:
-            manipulate.flavor_reshape(
-                oit, np.array([[1, -1], [1, 1]]), np.array([[1, -1], [1, 1]])
-            )
+            manipulate.flavor_reshape(oit, target_r, input_r)
             chk_keys(o1.raw, oit.raw)
-            op = eko_identity([1, 2, len(xg), 2, len(xg)]).copy()
+            op = eko_identity([1, lpids, len(xg), lpids, len(xg)]).copy()
             np.testing.assert_allclose(oit[mu2out].operator, op[0], atol=1e-10)
         # error
         fpath = tmp_path / "fail.tar"
@@ -181,11 +183,11 @@ class TestManipulate:
 
     def test_to_evol(self, eko_factory: EKOFactory, tmp_path):
         xgrid = interpolation.XGrid([0.5, 1.0])
-        mu2_out = 2.0
+        mu_out = 2.0
+        mu2_out = mu_out**2
         eko_factory.operator.mu0 = float(np.sqrt(1.0))
-        eko_factory.operator.mu2grid = np.array([mu2_out])
-        eko_factory.operator.rotations.xgrid = xgrid
-        eko_factory.operator.rotations.pids = np.array(br.flavor_basis_pids)
+        eko_factory.operator.mugrid = [(mu_out, 4)]
+        eko_factory.operator.xgrid = xgrid
         eko_factory.operator.configs.interpolation_polynomial_degree = 1
         eko_factory.operator.configs.interpolation_is_log = False
         eko_factory.operator.configs.ev_op_max_order = (2, 0)

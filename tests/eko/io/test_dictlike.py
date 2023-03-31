@@ -1,6 +1,6 @@
 import io
 from dataclasses import dataclass
-from typing import Sequence, Union
+from typing import NewType, Sequence, Union
 
 import numpy as np
 import numpy.typing as npt
@@ -79,3 +79,34 @@ def test_unsupported():
         UnsupportedDictLike.from_dict(dict(sf=[3.14]))
     with pytest.raises(TypeError):
         UnsupportedUnionDictLike.from_dict(dict(uisf=[3.14]))
+
+
+@dataclass
+class ListLike(dictlike.DictLike):
+    a: int
+    b: int
+    c: int
+
+
+def test_dictlike_list():
+    ls = [1, 2, 3]
+    lslike = ListLike.from_dict(ls)
+
+    assert isinstance(lslike, ListLike)
+    assert lslike.a == ls[0]
+    assert lslike.c == ls[2]
+
+
+newint = NewType("newint", int)
+
+
+@dataclass
+class WithNewType(dictlike.DictLike):
+    nt: newint
+
+
+def test_newtype():
+    val = 42
+    wnt = WithNewType.from_dict(dict(nt=val))
+
+    assert wnt.nt == val

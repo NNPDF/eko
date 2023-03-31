@@ -1,7 +1,6 @@
 """
 Benchmark NNPDF pdf family
 """
-import numpy as np
 from banana import register
 
 from eko import interpolation
@@ -51,7 +50,7 @@ base_theory = {
 class BenchmarkNNPDF31(BenchmarkNNPDF):
     """Benchmark NNPDF3.1"""
 
-    def benchmark_nlo(self, Q0=1.65, Q2grid=(100,)):
+    def benchmark_nlo(self, Q0=1.65, mugrid=(10,)):
         theory_card = {
             **base_theory,
             "PTO": 1,
@@ -59,14 +58,14 @@ class BenchmarkNNPDF31(BenchmarkNNPDF):
             "Q0": Q0,
         }
 
-        operator_card = {**base_operator, "Q2grid": list(Q2grid)}
+        operator_card = {**base_operator, "mugrid": list(mugrid)}
         self.run([theory_card], [operator_card], ["NNPDF31_nlo_as_0118"])
 
 
 class BenchmarkNNPDF31_luxqed(BenchmarkNNPDF):
     """Benchmark NNPDF3.1_luxqed"""
 
-    def benchmark_nnlo(self, Q0=1.65, Q2grid=(100,)):
+    def benchmark_nnlo(self, Q0=1.65, mugrid=(10,)):
         theory_card = {
             **base_theory,
             "PTO": 2,
@@ -84,7 +83,7 @@ class BenchmarkNNPDF31_luxqed(BenchmarkNNPDF):
 
         operator_card = {
             **base_operator,
-            "Q2grid": list(Q2grid),
+            "mugrid": list(mugrid),
             "ev_op_iterations": 10,
         }
         self.run([theory_card], [operator_card], ["NNPDF31_nnlo_as_0118_luxqed"])
@@ -93,7 +92,7 @@ class BenchmarkNNPDF31_luxqed(BenchmarkNNPDF):
 class BenchmarkNNPDF40(BenchmarkNNPDF):
     """Benchmark NNPDF4.0"""
 
-    def benchmark_nlo(self, Q0=1.65, Q2grid=(100,)):
+    def benchmark_nlo(self, Q0=1.65, mugrid=(10,)):
         theory_card = {
             **base_theory,
             "PTO": 1,
@@ -101,10 +100,10 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
             "Q0": Q0,
         }
 
-        operator_card = {**base_operator, "Q2grid": list(Q2grid)}
+        operator_card = {**base_operator, "mugrid": list(mugrid)}
         self.run([theory_card], [operator_card], ["NNPDF40_nlo_as_01180"])
 
-    def benchmark_nnlo(self, Q0=1.65, Q2grid=(100,)):
+    def benchmark_nnlo(self, Q0=1.65, mugrid=(10,)):
         theory_card = {
             **base_theory,
             "PTO": 2,
@@ -114,14 +113,14 @@ class BenchmarkNNPDF40(BenchmarkNNPDF):
             "Q0": Q0,
         }
 
-        operator_card = {**base_operator, "Q2grid": list(Q2grid)}
+        operator_card = {**base_operator, "mugrid": list(mugrid)}
         self.run([theory_card], [operator_card], ["NNPDF40_nnlo_as_01180"])
 
 
 class BenchmarkNNPDFpol11(BenchmarkNNPDF):
     """Benchmark NNPDFpol11"""
 
-    def benchmark(self, Q0=1.65, Q2grid=(100,)):
+    def benchmark(self, Q0=1.65, mugrid=(10,)):
         theory_card = {
             "Qref": 91.2,
             "mc": 1.41421,
@@ -140,25 +139,25 @@ class BenchmarkNNPDFpol11(BenchmarkNNPDF):
 
         operator_card = {
             **base_operator,
-            "Q2grid": list(Q2grid),
-            "polarized": [True],
+            "mugrid": list(mugrid),
+            "polarized": True,
             "interpolation_xgrid": interpolation.lambertgrid(50, 1e-5),
         }
         self.run([theory_card], [operator_card], ["NNPDFpol11_100"])
 
 
 if __name__ == "__main__":
-    low2 = 5**2
-    high2 = 30**2
+    low = 5
+    high = 30
     # nn31 = BenchmarkNNPDF31()
     # # test forward
-    # nn31.benchmark_nlo(Q0=np.sqrt(low2), Q2grid=[10])
+    # nn31.benchmark_nlo(Q0=low, mugrid=[10])
     # # test backward
-    # #nn31.benchmark_nlo(Q0=np.sqrt(high2), Q2grid=[low2])
+    # #nn31.benchmark_nlo(Q0=high, mugrid=[low])
     nn40 = BenchmarkNNPDF40()
-    nn40.benchmark_nnlo(Q2grid=[100])
-    # nn40.benchmark_nnlo(Q0=np.sqrt(high2), Q2grid=[low2])
+    nn40.benchmark_nnlo(mugrid=[10])
+    # nn40.benchmark_nnlo(Q0=high, mugrid=[low])
     # nnpol = BenchmarkNNPDFpol11()
-    # nnpol.benchmark(Q0=np.sqrt(low2), Q2grid=[high2])
+    # nnpol.benchmark(Q0=low, mugrid=[high])
     # obj = BenchmarkNNPDF31_luxqed()
     # obj.benchmark_nnlo(Q0=5.0)

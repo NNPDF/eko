@@ -638,34 +638,29 @@ class Operator(sv.ModeMixin):
         """Return the grid size."""
         return self.int_disp.xgrid.size
 
-    def sv_exponentiated_shift(self, q2):
-        """Compute shifted renormalization scale.
-
-        Parameters
-        ----------
-        q2 : float
-            factorization scale
-
-        Returns
-        -------
-        float
-            renormalization scale
-        """
-        if self.sv_mode == sv.Modes.exponentiated:
-            return q2 / self.xif2
-        return q2
+    @property
+    def mu2(self):
+        """Return the arguments to the :math:`a_s` function."""
+        mu0 = self.q2_from * (
+            self.xif2 if self.sv_mode == sv.Modes.exponentiated else 1.0
+        )
+        mu1 = self.q2_to * (
+            self.xif2
+            if (not self.is_threshold and self.sv_mode == sv.Modes.expanded)
+            or self.sv_mode == sv.Modes.exponentiated
+            else 1.0
+        )
+        return (mu0, mu1)
 
     def compute_a(self):
         """Return the computed values for :math:`a_s` and :math:`a_{em}`."""
         coupling = self.managers["couplings"]
         a0 = coupling.a(
-            self.sv_exponentiated_shift(self.q2_from),
-            fact_scale=self.q2_from,
+            self.mu2[0],
             nf_to=self.nf,
         )
         a1 = coupling.a(
-            self.sv_exponentiated_shift(self.q2_to),
-            fact_scale=self.q2_to,
+            self.mu2[1],
             nf_to=self.nf,
         )
         return (a0, a1)
@@ -896,7 +891,9 @@ class Operator(sv.ModeMixin):
             # unless we have to do some scale variation
             # TODO remove if K is factored out of here
             if not (
-                self.sv_mode == sv.Modes.expanded and not np.isclose(self.xif2, 1.0)
+                self.sv_mode == sv.Modes.expanded
+                and not np.isclose(self.xif2, 1.0)
+                and not self.is_threshold
             ):
                 logger.info(
                     "%s: skipping unity operator at %e", self.log_label, self.q2_from
@@ -914,8 +911,8 @@ class Operator(sv.ModeMixin):
         logger.info(
             "%s: µ_R^2 distance: %e -> %e",
             self.log_label,
-            self.sv_exponentiated_shift(self.q2_from),
-            self.sv_exponentiated_shift(self.q2_to),
+            self.mu2[0],
+            self.mu2[1],
         )
         if self.sv_mode != sv.Modes.unvaried:
             logger.info(

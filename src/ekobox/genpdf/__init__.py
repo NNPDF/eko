@@ -13,7 +13,7 @@ from . import export, flavors, load
 logger = logging.getLogger(__name__)
 
 
-def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
+def take_data(parent_pdf_set=None, members=False, xgrid=None, mu2grid=None):
     """
     Auxiliary function for `generate_pdf`.
 
@@ -28,7 +28,7 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
             if true every member of the parent is loaded
         xgrid : list(float)
             produced x grid if given
-        Q2grid : list(float)
+        mu2grid : list(float)
             produced Q2 grid if given
 
     Returns
@@ -42,8 +42,8 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
     """
     if xgrid is None:
         xgrid = np.geomspace(1e-9, 1, 240)
-    if Q2grid is None:
-        Q2grid = np.geomspace(1.3, 1e5, 35)
+    if mu2grid is None:
+        mu2grid = np.geomspace(1.3, 1e5, 35)
     # collect blocks
     all_blocks = []
     info = None
@@ -63,7 +63,7 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
             else:
                 toylh = toy.mkPDF("", 0)
             all_blocks.append(
-                [generate_block(toylh.xfxQ2, xgrid, Q2grid, br.flavor_basis_pids)]
+                [generate_block(toylh.xfxQ2, xgrid, mu2grid, br.flavor_basis_pids)]
             )
 
         else:
@@ -84,7 +84,7 @@ def take_data(parent_pdf_set=None, members=False, xgrid=None, Q2grid=None):
                     if pid not in parent_pdf_set
                     else parent_pdf_set[pid](x, Q2),
                     xgrid,
-                    Q2grid,
+                    mu2grid,
                     br.flavor_basis_pids,
                 )
             ]
@@ -102,7 +102,7 @@ def generate_pdf(
     info_update=None,
     install=False,
     xgrid=None,
-    Q2grid=None,
+    mu2grid=None,
 ):
     """
     Generate a new PDF from a parent PDF with a set of flavors.
@@ -147,7 +147,7 @@ def generate_pdf(
             install on LHAPDF path
         xgrid : list(float)
             produced x grid if given
-        Q2grid : list(float)
+        mu2grid : list(float)
             produced Q2 grid if given
 
     Examples
@@ -187,7 +187,7 @@ def generate_pdf(
 
     # labels = verify_labels(args.labels)
     info, heads, all_blocks = take_data(
-        parent_pdf_set, members, xgrid=xgrid, Q2grid=Q2grid
+        parent_pdf_set, members, xgrid=xgrid, mu2grid=mu2grid
     )
 
     # filter the PDF
@@ -236,14 +236,14 @@ def install_pdf(name):
     shutil.move(str(src), str(target))
 
 
-def generate_block(xfxQ2, xgrid, Q2grid, pids):
+def generate_block(xfxQ2, xgrid, mu2grid, pids):
     """Generate an LHAPDF data block from a callable.
 
     Parameters
     ----------
     xfxQ2 : callable
         LHAPDF like callable
-    Q2grid : list(float)
+    mu2grid : list(float)
         Q grid
     pids : list(int)
         Flavors list
@@ -256,10 +256,10 @@ def generate_block(xfxQ2, xgrid, Q2grid, pids):
         PDF block
 
     """
-    block = dict(Q2grid=Q2grid, pids=pids, xgrid=xgrid)
+    block = dict(mu2grid=mu2grid, pids=pids, xgrid=xgrid)
     data = []
     for x in xgrid:
-        for Q2 in Q2grid:
+        for Q2 in mu2grid:
             data.append(np.array([xfxQ2(pid, x, Q2) for pid in pids]))
     block["data"] = np.array(data)
     return block

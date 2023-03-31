@@ -8,11 +8,9 @@ from math import nan
 import numpy as np
 import pytest
 from banana import register
-from banana.data import cartesian_product
 
 from eko.interpolation import lambertgrid
 from ekomark.benchmark.runner import Runner
-from ekomark.data import operators
 
 register(__file__)
 
@@ -82,12 +80,10 @@ class LHA(Runner):
         """
         low = self.theory.copy()
         low["PTO"] = pto
-        low["fact_to_ren_scale_ratio"] = np.sqrt(1.0 / 2.0)
         low["XIF"] = np.sqrt(1.0 / 2.0)
         low["ModSV"] = "exponentiated"
         high = self.theory.copy()
         high["PTO"] = pto
-        high["fact_to_ren_scale_ratio"] = np.sqrt(2.0)
         high["XIF"] = np.sqrt(2.0)
         high["ModSV"] = "exponentiated"
         return [high, low]
@@ -120,7 +116,7 @@ class LHA(Runner):
             theory_updates,
             [
                 {
-                    "Q2grid": [1e4],
+                    "mugrid": [100],
                     "ev_op_iterations": 10,
                     "interpolation_xgrid": lambertgrid(60).tolist(),
                 }

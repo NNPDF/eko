@@ -55,11 +55,11 @@ def benchmark_dump_blocks(tmp_path, cd):
                 np.testing.assert_allclose(v, blocks2[0][k])
             _pdf = lhapdf.mkPDF("new_pdf", 0)
         for x in new_blocks[0]["xgrid"][1:-1]:
-            for q2 in new_blocks[0]["Q2grid"]:
+            for mu2 in new_blocks[0]["mu2grid"]:
                 data_from_block = new_blocks[0]["data"][
-                    new_blocks[0]["Q2grid"].index(q2)
-                    + len(new_blocks[0]["Q2grid"])
+                    new_blocks[0]["mu2grid"].index(mu2)
+                    + len(new_blocks[0]["mu2grid"])
                     * list(new_blocks[0]["xgrid"]).index(x)
                 ][6]
-                data_from_pdf = _pdf.xfxQ2(21, x, q2)
+                data_from_pdf = _pdf.xfxQ2(21, x, mu2)
                 np.testing.assert_allclose(data_from_block, data_from_pdf)

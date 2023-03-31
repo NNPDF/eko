@@ -11,7 +11,7 @@ from ekobox import cards, utils
 def test_ekos_product(tmp_path):
     # Generating two ekos
     mu01 = 5.0
-    mu2grid1 = np.array([60.0, 80.0, 100.0])
+    mugrid1 = [(1.0, 3), (8.0, 5), (10.0, 5)]
     xgrid = interpolation.XGrid([0.1, 0.5, 1.0])
 
     theory = cards.example.theory()
@@ -19,21 +19,24 @@ def test_ekos_product(tmp_path):
 
     op1 = cards.example.operator()
     op1.mu0 = mu01
-    op1.mu2grid = mu2grid1
-    op1.rotations.xgrid = xgrid
+    op1.mugrid = mugrid1
+    op1.xgrid = xgrid
     op1.configs.interpolation_polynomial_degree = 1
 
-    mu02 = 10.0
-    mu2grid2 = np.array([80.0, 100.0, 120.0])
+    mu0 = 10.0
+    mugrid2 = [(8.0, 5), (10.0, 5), (12.0, 5)]
 
     op2 = cards.example.operator()
-    op2.mu0 = mu02
-    op2.mu2grid = mu2grid2
-    op2.rotations.xgrid = xgrid
+    op2.mu0 = mu0
+    op2.mugrid = mugrid2
+    op2.xgrid = xgrid
     op2.configs.interpolation_polynomial_degree = 1
 
     op_err = copy.deepcopy(op2)
     op_err.mu0 = mu01
+
+    mu2first = mugrid2[0][0] ** 2
+    mu2last = mugrid2[-1][0] ** 2
 
     ini_path = tmp_path / "ini.tar"
     eko.solve(theory, op1, path=ini_path)
@@ -49,14 +52,14 @@ def test_ekos_product(tmp_path):
                     _ = utils.ekos_product(eko_ini, eko_fin_err)
                 # product is copied
                 res_path = tmp_path / "eko_res.tar"
-                eko_fin[120.0].error = None  # drop one set of errors
+                eko_fin[mu2last].error = None  # drop one set of errors
                 utils.ekos_product(eko_ini, eko_fin, path=res_path)
 
                 with EKO.read(res_path) as eko_res:
                     assert eko_res.operator_card.mu20 == eko_ini.operator_card.mu20
                     np.testing.assert_allclose(eko_res.mu2grid[1:], eko_fin.mu2grid)
                     np.testing.assert_allclose(
-                        eko_ini[80.0].operator, eko_res[80.0].operator
+                        eko_ini[mu2first].operator, eko_res[mu2first].operator
                     )
 
                     # product overwrites initial
@@ -64,8 +67,8 @@ def test_ekos_product(tmp_path):
 
                     np.testing.assert_allclose(eko_ini.mu2grid[1:], eko_fin.mu2grid)
                     np.testing.assert_allclose(
-                        eko_res[80.0].operator, eko_ini[80.0].operator
+                        eko_res[mu2first].operator, eko_ini[mu2first].operator
                     )
                     utils.ekos_product(eko_ini, eko_fin)
 
-                    assert eko_res[120.0].error is None
+                    assert eko_res[mu2last].error is None
