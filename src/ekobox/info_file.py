@@ -48,7 +48,7 @@ def build(
     template_info["OrderQCD"] = theory_card.order[0] - 1
     template_info["QMin"] = round(math.sqrt(operators_card.mu2grid[0]), 4)
     template_info["QMax"] = round(math.sqrt(operators_card.mu2grid[-1]), 4)
-    template_info["MZ"] = theory_card.couplings.alphas
+    template_info["MZ"] = theory_card.couplings.scale
     template_info["MUp"] = 0.0
     template_info["MDown"] = 0.0
     template_info["MStrange"] = 0.0

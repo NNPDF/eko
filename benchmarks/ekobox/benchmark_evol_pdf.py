@@ -20,9 +20,9 @@ def benchmark_evolve_single_member(
     mugrid = [(3.0, 4), (10.0, 5), (100.0, 5)]
     theory = theory_card
     theory.order = (1, 0)
-    theory.couplings.alphas.value = 0.118000
-    theory.couplings.alphas.scale = 91.1876
-    theory.couplings.alphaem.value = 0.007496
+    theory.couplings.alphas = 0.118000
+    theory.couplings.scale = 91.1876
+    theory.couplings.alphaem = 0.007496
     theory.couplings.max_num_flavs = 3
     theory.heavy.num_flavs_max_pdf = 3
     theory.heavy.masses.c.value = 1.3
@@ -49,7 +49,7 @@ def benchmark_evolve_single_member(
         ev_pdf = lhapdf.mkPDF("EvPDF", 0)
     assert info["XMin"] == op.xgrid.raw[0]
     assert info["SetDesc"] == "MyEvolvedPDF"
-    assert info["MZ"] == theory.couplings.alphas.scale
+    assert info["MZ"] == theory.couplings.scale
     assert info["Debug"] == "Debug"
     xgrid = op.xgrid.raw
     for idx, mu2 in enumerate(op.mu2grid):
