@@ -4,6 +4,9 @@
 .. |PDF| replace::
    :abbr:`PDF (Parton Distribution Function(s))`
 
+.. |FF| replace::
+   :abbr:`FF (Fragmentation Function(s))`
+
 .. FNS
 
 .. |FNS| replace::
