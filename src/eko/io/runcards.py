@@ -313,7 +313,7 @@ class Legacy:
         elif old["HQ"] == "MSBAR":
             new["heavy"]["masses"] = [[m, mu] for m, mu in zip(ms, mus)]
         else:
-            raise ValueError(f"Unkown quark mass sceme '{old['HQ']}'")
+            raise ValueError(f"Unknown mass scheme '{old['HQ']}'")
 
         new["xif"] = old["XIF"]
 
