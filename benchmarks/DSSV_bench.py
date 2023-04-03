@@ -3,7 +3,6 @@
 Note that the PDF set is private, but can be obtained from the
 authors upon request.
 """
-import numpy as np
 from banana import register
 
 from eko import interpolation
@@ -23,7 +22,7 @@ class BenchmarkDSSV(Runner):
     def skip_pdfs(self, _theory):
         return [-6, 6, 5, -5, 4, -4, 22, "ph", "T35", "V35", "T24", "V24", "T15", "V15"]
 
-    def benchmark(self, Q0=1.65, Q2grid=(100,)):
+    def benchmark(self, Q0=1.65, mugrid=(100,)):
         theory_card = {
             "Qref": 1.0,
             "mc": 1.4,
@@ -42,7 +41,7 @@ class BenchmarkDSSV(Runner):
         }
 
         operator_card = {
-            "Q2grid": list(Q2grid),
+            "mugrid": list(mugrid),
             "polarized": [True],
             "interpolation_xgrid": interpolation.lambertgrid(50, 1e-5),
         }
@@ -50,7 +49,7 @@ class BenchmarkDSSV(Runner):
 
 
 if __name__ == "__main__":
-    low2 = 5**2
-    high2 = 30**2
+    low = 5
+    high = 30
     dssv = BenchmarkDSSV()
-    dssv.benchmark(Q0=np.sqrt(low2), Q2grid=[high2])
+    dssv.benchmark(Q0=low, mugrid=[high])

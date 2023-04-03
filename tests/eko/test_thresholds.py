@@ -16,7 +16,7 @@ class TestPathSegment:
         d[p.tuple] = 1
         assert d[p.tuple] == 1
 
-    def test_repr(self):
+    def test_str(self):
         p = PathSegment(0, 1, 3)
         s = str(p)
         assert s.index("0") > 0
@@ -56,7 +56,7 @@ class TestThresholdsAtlas:
         assert p[1].q2_to == 1.5
         assert p[1].nf == 4
 
-    def test_repr(self):
+    def test_str(self):
         walls = [1.23, 9.87, 14.54]
         stc3 = str(ThresholdsAtlas(walls))
 

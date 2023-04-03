@@ -18,6 +18,7 @@ from .. import interpolation
 # classes are supposed to be dataclasses
 
 
+@dataclasses.dataclass
 class DictLike:
     """Dictionary compatibility base class, for dataclasses.
 
@@ -29,11 +30,8 @@ class DictLike:
 
     """
 
-    def __init__(self, **kwargs):
-        """Empty initializer."""
-
     @classmethod
-    def from_dict(cls, dictionary):
+    def _from_dict(cls, dictionary):
         """Initialize dataclass object from raw dictionary.
 
         Parameters
@@ -80,8 +78,18 @@ class DictLike:
         # finally construct the class, just passing the arguments by name
         return cls(**dictionary)
 
-    @property
-    def raw(self):
+    @classmethod
+    def from_dict(cls, dictionary):
+        """Deserialize, overwritable interface.
+
+        The default implementation is just :meth:`DictLike._from_dict`, but it
+        can be safely overwritten (usually transforming the input before a call
+        to :meth:`DictLike._from_dict` itself).
+
+        """
+        return cls._from_dict(dictionary)
+
+    def _raw(self):
         """Convert dataclass object to raw dictionary.
 
         Normalize:
@@ -104,10 +112,35 @@ class DictLike:
 
         return dictionary
 
+    @property
+    def raw(self):
+        """Overwritable serialization.
+
+        The default implementation is just :meth:`DictLike._raw`, but it can be
+        safely overwritten (usually starting from :meth:`DictLike._raw`
+        itself).
+
+        """
+        return self._raw()
+
+    @property
+    def public_raw(self):
+        """Serialize only public attributes."""
+        return {k: v for k, v in self._raw().items() if not k.startswith("_")}
+
 
 def load_field(type_, value):
     """Deserialize dataclass field."""
     # TODO: nice place for a match statement...
+    if type(type_) is typing.NewType:
+        return load_field(type_.__supertype__, value)
+    try:
+        # before py3.10 typing.NewType was just a function, so the check above
+        # would  fail
+        return load_field(type_.__supertype__, value)
+    except AttributeError:
+        pass
+
     if typing.get_origin(type_) is not None:
         # this has to go first since for followin ones I will assume they are
         # valid classes, cf. the module docstring
@@ -164,6 +197,10 @@ def load_typing(type_, value):
             return None
         raise TypeError
 
+    if issubclass(origin, (list, typing.Generic)):
+        T = typing.get_args(type_)[0]
+        return origin([load_field(T, x) for x in value])
+
     return load_field(origin, value)
 
 
@@ -186,5 +223,7 @@ def raw_field(value):
     if dataclasses.is_dataclass(value):
         # not supporting nested DictLike inside nested plain dataclasses
         return dataclasses.asdict(value)
+    if isinstance(value, list):
+        return [raw_field(el) for el in value]
 
     return value

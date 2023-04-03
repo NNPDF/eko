@@ -1,5 +1,4 @@
 import pathlib
-from math import nan
 
 import numpy as np
 import pytest
@@ -10,25 +9,27 @@ from eko.interpolation import XGrid
 from eko.io import types
 from eko.io.runcards import OperatorCard, TheoryCard
 from eko.runner.legacy import Runner
+from eko.quantities.couplings import CouplingsInfo
 
 # from ekore.matching_conditions.operator_matrix_element import OperatorMatrixElement
 
 
 def update_cards(theory: TheoryCard, operator: OperatorCard):
-    theory.couplings = types.CouplingsRef(
-        alphas=types.FloatRef(value=0.35, scale=float(np.sqrt(2))),
-        alphaem=types.FloatRef(value=0.007496, scale=nan),
+    theory.couplings = CouplingsInfo(
+        alphas=0.35,
+        alphaem=0.007496,
+        scale=float(np.sqrt(2)),
         max_num_flavs=6,
         num_flavs_ref=None,
     )
-    theory.num_flavs_init = 4
-    theory.intrinsic_flavors = [4, 5]
-    theory.quark_masses.c.value = 1.0
-    theory.quark_masses.b.value = 4.75
-    theory.quark_masses.t.value = 173.0
+    theory.heavy.num_flavs_init = 4
+    theory.heavy.intrinsic_flavors = [4, 5]
+    theory.heavy.masses.c.value = 1.0
+    theory.heavy.masses.b.value = 4.75
+    theory.heavy.masses.t.value = 173.0
     operator.mu0 = float(np.sqrt(2))
-    operator.mu2grid = [10]
-    operator.rotations.xgrid = XGrid(np.linspace(1e-1, 1, 30))
+    operator.mugrid = [(10, 5)]
+    operator.xgrid = XGrid(np.linspace(1e-1, 1, 30))
     operator.configs.interpolation_polynomial_degree = 1
     operator.configs.ev_op_max_order = (2, 0)
     operator.configs.ev_op_iterations = 1

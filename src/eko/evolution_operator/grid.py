@@ -202,11 +202,7 @@ class OperatorGrid(sv.ModeMixin):
         # And now return the grid
         grid_return = {}
         for q2 in q2grid:
-            # shift path for expanded scheme
-            q2_gen = (
-                q2 * self.config["xif2"] if self.sv_mode == sv.Modes.expanded else q2
-            )
-            grid_return[q2] = self.generate(q2_gen)
+            grid_return[q2] = self.generate(q2)
         return grid_return
 
     def generate(self, q2):

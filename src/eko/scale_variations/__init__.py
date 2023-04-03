@@ -1,4 +1,8 @@
-"""Define possible scale variations schemes."""
+"""Define possible scale variations schemes.
+
+A Mathematica snippet to check the formulas is available in the
+extras folder.
+"""
 import enum
 
 from . import expanded, exponentiated

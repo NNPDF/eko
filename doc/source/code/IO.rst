@@ -32,12 +32,12 @@ and environment. The benchmark settings are available at :mod:`banana.data.theor
       ``iterate-exact`` abbreviated with ``EXA``, ``decompose-exact``, ``perturbative-exact``,
       ``iterate-expanded`` abbreviated with ``EXP``, ``decompose-expanded``, ``perturbative-expanded``,
       ``truncated`` abbreviated with ``TRN``, ``ordered-truncated``.
-  * - ``fact_to_ren_scale_ratio``
+  * - ``XIF``
     - :py:obj:`float`
     - Factorization to renormalization scale ratio. ``1`` means no scale variation.
   * - ``ModSV``
     - :py:obj:`str`
-    - Scale variation method, used only if ``fact_to_ren_scale_ratio!=1``. Possible options are:
+    - Scale variation method, used only if ``XIF!=1``. Possible options are:
       ``expanded`` or ``exponentiated``.
   * - ``Q0``
     - :py:obj:`float`

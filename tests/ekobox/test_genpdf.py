@@ -37,7 +37,7 @@ def test_generate_block():
     pids = np.arange(3)
     b = genpdf.generate_block(lambda pid, x, q2: pid * x * q2, xg, q2s, pids)
     assert isinstance(b, dict)
-    assert sorted(b.keys()) == sorted(["data", "Q2grid", "xgrid", "pids"])
+    assert sorted(b.keys()) == sorted(["data", "mu2grid", "xgrid", "pids"])
     assert isinstance(b["data"], np.ndarray)
     assert b["data"].shape == (len(xg) * len(q2s), len(pids))
 
@@ -79,7 +79,7 @@ def test_generate_pdf_debug_pid(fake_lhapdf, cd):
             info_update={"Debug": "debug"},
             install=True,
             xgrid=xg,
-            Q2grid=q2s,
+            mu2grid=q2s,
         )
     pp = fake_lhapdf / n
     assert not p.exists()
@@ -105,8 +105,8 @@ def test_generate_pdf_debug_pid(fake_lhapdf, cd):
             # the gluon is non-zero in the bulk - x=0 is included here
             if (
                 pid == 21
-                and k > len(b["Q2grid"]) - 1
-                and k < len(b["data"]) - len(b["Q2grid"])
+                and k > len(b["mu2grid"]) - 1
+                and k < len(b["data"]) - len(b["mu2grid"])
             ):
                 assert not f == 0.0
             else:
@@ -146,14 +146,14 @@ def test_generate_pdf_pdf_evol(fake_lhapdf, fake_nn31, fake_mstw, fake_ct14, cd)
                     for pid, f in zip(b["pids"], line):
                         # the singlet is non-zero in the bulk - x >= 0
                         if abs(pid) in range(1, 6 + 1) and k < len(b["data"]) - len(
-                            b["Q2grid"]
+                            b["mu2grid"]
                         ):
                             assert not f == 0.0
                             assert not np.isclose(f, 0.0, atol=1e-15)
                         else:
                             # MSTW is not 0 at the end, but only almost
                             if err_type == "error" and k >= len(b["data"]) - len(
-                                b["Q2grid"]
+                                b["mu2grid"]
                             ):
                                 np.testing.assert_allclose(f, 0.0, atol=1e-15)
                             else:
@@ -179,7 +179,7 @@ def test_generate_pdf_toy_antiqed(fake_lhapdf, cd):
             [anti_qed_singlet],
             "toy",
             xgrid=xg,
-            Q2grid=q2s,
+            mu2grid=q2s,
         )
     assert p.exists()
     # check info file
@@ -195,7 +195,7 @@ def test_generate_pdf_toy_antiqed(fake_lhapdf, cd):
     for k, line in enumerate(b["data"]):
         for pid, f in zip(b["pids"], line):
             # the u and d are non-zero in the bulk - x=0 is not included here
-            if abs(pid) in [1, 2] and k < len(b["data"]) - len(b["Q2grid"]):
+            if abs(pid) in [1, 2] and k < len(b["data"]) - len(b["mu2grid"]):
                 assert not f == 0.0
             else:
                 assert f == 0.0

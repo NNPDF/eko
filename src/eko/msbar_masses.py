@@ -1,25 +1,17 @@
 r"""|RGE| for the |MSbar| masses."""
-from math import nan
 from typing import List
 
 import numba as nb
 import numpy as np
 from scipy import integrate, optimize
 
-from eko.io.types import (
-    CouplingEvolutionMethod,
-    CouplingsRef,
-    HeavyQuarkMasses,
-    MatchingScales,
-    Order,
-    QuarkMassRef,
-    QuarkMassSchemes,
-)
-
 from .basis_rotation import quark_names
 from .beta import b_qcd, beta_qcd
 from .couplings import Couplings, invert_matching_coeffs
 from .gamma import gamma
+from .io.types import FlavorsNumber, Order
+from .quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
+from .quantities.heavy_quarks import HeavyQuarkMasses, QuarkMassRef, QuarkMassScheme
 from .thresholds import ThresholdsAtlas, flavor_shift, is_downward_path
 
 
@@ -348,7 +340,7 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
 
 def compute(
     masses_ref: HeavyQuarkMasses,
-    couplings: CouplingsRef,
+    couplings: CouplingsInfo,
     order: Order,
     evmeth: CouplingEvolutionMethod,
     matching: List[float],
@@ -381,8 +373,8 @@ def compute(
 
     """
     # TODO: sketch in the docs how the MSbar computation works with a figure.
-    mu2_ref = couplings.alphas.scale**2
-    nf_ref: int = couplings.num_flavs_ref
+    mu2_ref = couplings.scale**2
+    nf_ref: FlavorsNumber = couplings.num_flavs_ref
     masses = np.concatenate((np.zeros(nf_ref - 3), np.full(6 - nf_ref, np.inf)))
 
     def sc(thr_masses):
@@ -392,7 +384,7 @@ def compute(
             method=evmeth,
             masses=thr_masses,
             thresholds_ratios=matching,
-            hqm_scheme=QuarkMassSchemes.MSBAR,
+            hqm_scheme=QuarkMassScheme.MSBAR,
         )
 
     # First you need to look for the thr around the given as_ref
@@ -476,6 +468,6 @@ def compute(
         )
 
     # Check the msbar ordering
-    if not (masses == np.sort(masses)).all():
+    if not np.allclose(masses, np.sort(masses)):
         raise ValueError("MSbar masses are not to be sorted")
-    return masses
+    return np.sort(masses)

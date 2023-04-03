@@ -25,7 +25,7 @@ def theory_ffns(theory_card):
 @pytest.fixture
 def operator_card():
     card = cards.example.operator()
-    card.rotations.xgrid = interpolation.XGrid([0.1, 0.3, 0.5, 1.0])
+    card.xgrid = interpolation.XGrid([0.1, 0.3, 0.5, 1.0])
     card.configs.interpolation_polynomial_degree = 2
 
     return card
