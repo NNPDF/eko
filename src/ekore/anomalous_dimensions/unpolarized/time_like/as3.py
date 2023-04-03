@@ -12,7 +12,8 @@ from ....harmonics.constants import zeta2, zeta3
 def gamma_nsp(N, nf):
     r"""Compute the |NNLO| non-singlet positive anomalous dimension.
 
-    Based on :cite:`Mitov:2006ic`.
+    Implements :eqref:`15` from  :cite:`Mitov:2006ic` via the 
+    N-space translation from A. Vogt.
 
     Parameters
     ----------
@@ -115,7 +116,8 @@ def gamma_nsp(N, nf):
 def gamma_nsm(N, nf):
     r"""Compute the |NNLO| non-singlet negative anomalous dimension.
 
-    Based on :cite:`Mitov:2006ic`.
+    Implements :eqref:`16` from  :cite:`Mitov:2006ic` via the 
+    N-space translation from A. Vogt.
 
     Parameters
     ----------
@@ -223,7 +225,8 @@ def gamma_nsm(N, nf):
 def gamma_nsv(N, nf):
     r"""Compute the |NNLO| non-singlet valence anomalous dimension.
 
-    Based on :cite:`Mitov:2006ic`.
+    Implements :eqref:`16` from  :cite:`Mitov:2006ic` via the 
+    N-space translation from A. Vogt.
 
     Parameters
     ----------
@@ -295,7 +298,8 @@ def gamma_nsv(N, nf):
 def gamma_qq(N, nf):
     r"""Compute the |NNLO| quark-quark anomalous dimension.
 
-    Based on :cite:`Moch:2007tx`.
+    Implements :eqref:`11` from  :cite:`Moch:2007tx` via the 
+    N-space translation from A. Vogt.
 
     Parameters
     ----------
@@ -404,7 +408,8 @@ def gamma_qq(N, nf):
 def gamma_qg(N, nf):
     r"""Compute the |NNLO| quark-gluon anomalous dimension.
 
-    Based on :cite:`Almasy:2011eq`.
+    Implements :eqref:`18` from  :cite:`Almasy:2011eq` via the 
+    N-space translation from A. Vogt.
 
     Parameters
     ----------
@@ -537,7 +542,8 @@ def gamma_qg(N, nf):
 def gamma_gq(N, nf):
     r"""Compute the |NNLO| gluon-quark anomalous dimension.
 
-    Based on :cite:`Almasy:2011eq`.
+    Implements :eqref:`19` from  :cite:`Almasy:2011eq` via the 
+    N-space translation from A. Vogt.
 
     Parameters
     ----------
@@ -641,7 +647,8 @@ def gamma_gq(N, nf):
 def gamma_gg(N, nf):
     r"""Compute the |NNLO| gluon-gluon anomalous dimension.
 
-    Based on :cite:`Moch:2007tx`.
+    Implements :eqref:`12` from  :cite:`Moch:2007tx` via the 
+    N-space translation from A. Vogt.
 
     Parameters
     ----------

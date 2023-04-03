@@ -15,7 +15,7 @@ from ....harmonics.polygamma import cern_polygamma as polygamma
 def gamma_nsp(N, nf):
     r"""Compute the |NLO| non-singlet positive anomalous dimension.
 
-    Implements :eqref:`B.7` from :cite:`Mitov:2006wy`.
+    Implements :eqref:`A6` from :cite:`Gluck:1992zx`.
 
     Parameters
     ----------
@@ -117,7 +117,7 @@ def gamma_nsp(N, nf):
 def gamma_nsm(N, nf):
     r"""Compute the |NLO| non-singlet negative anomalous dimension.
 
-    Implements :eqref:`B.8` from :cite:`Mitov:2006wy`.
+    Based on :cite:`Gluck:1992zx`.
 
     Parameters
     ----------
