@@ -126,7 +126,7 @@ def compute_LHA_data(theory, operators, rotate_to_evolution_basis=False):
 
     """
     polarized = operators["polarized"]
-    mu2grid = operators["mu2grid"]
+    mu2grid = np.power(operators["mugrid"], 2.0)
     if not np.allclose(mu2grid, [1e4]):
         raise ValueError("mu2grid has to be [1e4]")
     order = theory["PTO"]

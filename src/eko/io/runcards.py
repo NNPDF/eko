@@ -288,33 +288,32 @@ class Legacy:
 
         new["order"] = [old["PTO"] + 1, old["QED"]]
         alphaem = self.fallback(old.get("alphaqed"), old.get("alphaem"), default=0.0)
-        if "QrefQED" not in old:
-            qedref = nan
-        else:
-            qedref = old["QrefQED"]
         new["couplings"] = dict(
-            alphas=(old["alphas"], old["Qref"]),
-            alphaem=(alphaem, qedref),
+            alphas=old["alphas"],
+            alphaem=alphaem,
+            scale=old["Qref"],
             num_flavs_ref=old["nfref"],
             max_num_flavs=old["MaxNfAs"],
         )
-        new["num_flavs_init"] = old["nf0"]
-        new["num_flavs_max_pdf"] = old["MaxNfPdf"]
+        new["heavy"] = {
+            "num_flavs_init": old["nf0"],
+            "num_flavs_max_pdf": old["MaxNfPdf"],
+            "matching_ratios": self.heavies("k%sThr", old),
+            "masses_scheme": old["HQ"],
+        }
         intrinsic = []
         for idx, q in enumerate(hq.FLAVORS):
             if old.get(f"i{q}".upper()) == 1:
                 intrinsic.append(idx + 4)
-        new["intrinsic_flavors"] = intrinsic
-        new["matching"] = self.heavies("k%sThr", old)
-        new["quark_masses_scheme"] = old["HQ"]
+        new["heavy"]["intrinsic_flavors"] = intrinsic
         ms = self.heavies("m%s", old)
         mus = self.heavies("Qm%s", old)
         if old["HQ"] == "POLE":
-            new["quark_masses"] = [[m, nan] for m in ms]
+            new["heavy"]["masses"] = [[m, nan] for m in ms]
         elif old["HQ"] == "MSBAR":
-            new["quark_masses"] = [[m, mu] for m, mu in zip(ms, mus)]
+            new["heavy"]["masses"] = [[m, mu] for m, mu in zip(ms, mus)]
         else:
-            raise ValueError()
+            raise ValueError(f"Unkown quark mass sceme '{old['HQ']}'")
 
         new["xif"] = old["XIF"]
 
@@ -409,4 +408,4 @@ def flavored_mugrid(mugrid: list, masses: list, matching_ratios: list):
         masses=(np.array(masses) ** 2).tolist(),
         thresholds_ratios=(np.array(matching_ratios) ** 2).tolist(),
     )
-    return [(mu, tc.nf(mu**2)) for mu in mugrid]
+    return [(mu, int(tc.nf(mu**2))) for mu in mugrid]
