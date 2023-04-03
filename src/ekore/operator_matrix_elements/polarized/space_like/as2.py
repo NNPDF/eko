@@ -1,5 +1,4 @@
-r"""
-This module contains the |NNLO| |OME| in the polarized case for the matching conditions in the |VFNS|.
+r"""Contains the |NNLO| |OME| in the polarized case for the matching conditions in the |VFNS|.
 
 The equations are given in :cite:`Bierenbaum_2023`.
 As in the |NLO| |OME|, in the paper, an additional factor 2 can be found in front of the anomalous dimensions and factor (-1) for odd powers of L.
@@ -25,7 +24,7 @@ beta_0hat = -4 / 3 * TR
 def A_qq_ns(n, L):
     r"""Compute |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`.
 
-    Implements Eq. (133) of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`133` of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -87,7 +86,7 @@ def A_qq_ns(n, L):
 def A_hq_ps(n, L, nf):
     r"""Compute |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`.
 
-    Implements Eq. (138) of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`138` of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -138,7 +137,7 @@ def A_hq_ps(n, L, nf):
 def A_hg(n, L):
     r"""Compute |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`.
 
-    Implements Eq. (111) of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`111` of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -274,7 +273,7 @@ def A_hg(n, L):
 def A_gq(n, L):
     r"""Compute |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`.
 
-    Implements Eq. (174) of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`174` of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -323,7 +322,7 @@ def A_gq(n, L):
 def A_gg(n, L):
     r"""Compute |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`.
 
-    Implements Eq. (187) of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`187` of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------

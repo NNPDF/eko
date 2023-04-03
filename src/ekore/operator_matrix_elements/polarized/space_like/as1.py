@@ -2,9 +2,9 @@ r"""The |NLO| |OME| in the polarized case for the matching conditions in the |VF
 
 Heavy quark contribution for intrinsic evolution are not considered for the polarized case.
 The matching conditions for the |VFNS| at :math:`\mu_F^2 \neq m_H^2` are provided in :cite:`Bierenbaum_2023`.
-In the paper, the fraction :math:`\mu_F^2 / m_H^2` inside the log is inverted, yielding an additional factor of (-1) wherever L has an odd power.
+In the paper, the fraction :math:`\mu_F^2 / m_H^2` inside the log is inverted, yielding an additional factor of (-1) wherever ``L`` has an odd power.
 Additionally, a different convention for the anomalous dimensions is used, yielding a factor 2 in the |OME|'s wherever they are present.
-The anomalous dimensions and beta function with the addition 'hat', have the form :math:`\gamma_hat = gamma(nf+1) - gamma(nf)`.
+The anomalous dimensions and beta function with the addition 'hat' have the form :math:`\hat\gamma = \gamma^{(nf+1)} - \gamma^{(nf)}`.
 """
 import numba as nb
 import numpy as np
@@ -17,7 +17,7 @@ from ...unpolarized.space_like.as1 import A_gg as A_gg_unpol
 def A_hg(n, L):
     r"""Compute the |NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}`.
 
-    Implements Eq. (104) of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`104` of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
@@ -42,7 +42,7 @@ def A_hg(n, L):
 def A_gg(L):
     r"""Compute the |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`.
 
-    Implements Eq. (186) of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`186` of :cite:`Bierenbaum_2023`.
 
     Parameters
     ----------
