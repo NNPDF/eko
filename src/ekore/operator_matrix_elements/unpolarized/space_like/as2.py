@@ -1,11 +1,11 @@
-r"""This module contains the |NNLO| |OME| for the matching conditions in the |VFNS| (see, :cite:`Buza_1998` appendix B).
+r"""Contains the |NNLO| |OME| for the matching conditions in the |VFNS| (see, :cite:`Buza_1998` appendix B).
 
 The expression for :math:`\mu_F^2 = m_H^2` are taken from :cite:`Vogt:2004ns` directly in N space.
 While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes |QCDNUM|
 (https://github.com/N3PDF/external/blob/master/qcdnum/qcdnum/pij/ome.f)
 and Mellin transformed with Mathematica.
 
-The expression for A_Hg_l0 comes form :cite:`Bierenbaum:2009zt`
+The expression for ``A_Hg_l0`` comes form :cite:`Bierenbaum:2009zt`
 """
 import numba as nb
 import numpy as np
@@ -21,7 +21,7 @@ from .as1 import A_hg as A_hg_1
 def A_qq_ns(n, sx, L):
     r"""Compute |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`.
 
-    Implements Eq. (B.4) of :cite:`Buza_1998`.
+    Implements :eqref:`B.4` of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -76,7 +76,7 @@ def A_qq_ns(n, sx, L):
 def A_hq_ps(n, sx, L):
     r"""Compute |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`.
 
-    Implements Eq. (B.1) of :cite:`Buza_1998`.
+    Implements :eqref:`B.1` of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -139,9 +139,9 @@ def A_hq_ps(n, sx, L):
 def A_hg(n, sx, L):
     r"""Compute |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`.
 
-    Implements Eq. (B.3) of :cite:`Buza_1998`.
+    Implements :eqref:`B.3` of :cite:`Buza_1998`.
 
-    The expression for A_Hg_l0 comes form :cite:`Bierenbaum:2009zt`.
+    The expression for ``A_Hg_l0`` comes form :cite:`Bierenbaum:2009zt`.
 
     Parameters
     ----------
@@ -280,7 +280,7 @@ def A_hg(n, sx, L):
 def A_gq(n, sx, L):
     r"""Compute |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`.
 
-    Implements Eq. (B.5) of :cite:`Buza_1998`.
+    Implements :eqref:`B.5` of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -328,9 +328,9 @@ def A_gq(n, sx, L):
 
 @nb.njit(cache=True)
 def A_gg(n, sx, L):
-    r"""Compute |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)} `.
+    r"""Compute |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`.
 
-    Implements Eq. (B.7) of :cite:`Buza_1998`.
+    Implements :eqref:`B.7` of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -418,36 +418,29 @@ def A_singlet(n, sx, L, is_msbar=False):
     r"""Compute the |NNLO| singlet |OME|.
 
     .. math::
+
         A^{S,(2)} = \left(\begin{array}{cc}
         A_{gg, H}^{S,(2)} & A_{gq, H}^{S,(2)} & 0 \\
         0 & A_{qq,H}^{NS,(2)} & 0\\
         A_{hg}^{S,(2)} & A_{hq}^{PS,(2)} & 0\\
         \end{array}\right)
 
-      Parameters
-      ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache containing:
-                [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
-        is_msbar: bool
-            add the |MSbar| contribution
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache containing:
+            [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
+    is_msbar: bool
+        add the |MSbar| contribution
 
-      Returns
-      -------
-        A_S : numpy.ndarray
-            |NNLO| singlet |OME| :math:`A^{S,(2)}(N)`
-
-      See Also
-      --------
-        A_ns : :math:`A_{qq,H}^{NS,(2)}`
-        A_hq : :math:`A_{hq}^{PS,(2)}`
-        A_hg : :math:`A_{hg}^{S,(2)}`
-        A_gq : :math:`A_{gq, H}^{S,(2)}`
-        A_gg : :math:`A_{gg, H}^{S,(2)}`
+    Returns
+    -------
+    A_S : numpy.ndarray
+        |NNLO| singlet |OME| :math:`A^{S,(2)}(N)`
     """
     A_hq_2 = A_hq_ps(n, sx, L)
     A_qq_2 = A_qq_ns(n, sx, L)
@@ -468,28 +461,25 @@ def A_ns(n, sx, L):
     r"""Compute the |NNLO| non-singlet |OME|.
 
     .. math::
+
         A^{NS,(2)} = \left(\begin{array}{cc}
         A_{qq,H}^{NS,(2)} & 0 \\
         0 & 0 \\
         \end{array}\right)
 
-      Parameters
-      ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache containing:
-                [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache containing:
+            [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
-      Returns
-      -------
-        A_NS : numpy.ndarray
-            |NNLO| non-singlet |OME| :math:`A^{NS,(2)}`
-
-      See Also
-      --------
-        A_qq_ns : :math:`A_{qq,H}^{NS,(2)}`
+    Returns
+    -------
+    A_NS : numpy.ndarray
+        |NNLO| non-singlet |OME| :math:`A^{NS,(2)}`
     """
     return np.array([[A_qq_ns(n, sx, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)
