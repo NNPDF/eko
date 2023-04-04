@@ -252,7 +252,7 @@ class FFNS_polarized(FFNS):
             theory_updates,
             [
                 {
-                    "Q2grid": [1e4],
+                    "mugrid": [1e2],
                     "ev_op_iterations": 10,
                     "interpolation_xgrid": lambertgrid(60).tolist(),
                     "polarized": True,

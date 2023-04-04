@@ -126,9 +126,9 @@ The benchmark settings are available at :mod:`ekomark.data.operators`.
   * - ``interpolation_xgrid``
     - :py:obj:`list(float)`
     - x-grid at which the |EKO| is computed.
-  * - ``Q2grid``
+  * - ``mugrid``
     - :py:obj:`list(float)`
-    - Q2-grid at which the |EKO| is computed (in GeV^2).
+    - target grid at which the |EKO| is computed (in GeV).
   * - ``interpolation_is_log``
     - :py:obj:`bool`
     - If ``True`` use logarithmic interpolation.
