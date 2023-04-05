@@ -12,8 +12,8 @@ import numpy as np
 import pytest
 
 import eko.io.types
-from eko.runner import legacy
 from eko.quantities.couplings import CouplingEvolutionMethod
+from eko.runner import legacy
 
 
 def test_init_errors(monkeypatch, theory_ffns, operator_card, tmp_path, caplog):

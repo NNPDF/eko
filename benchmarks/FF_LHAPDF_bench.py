@@ -21,7 +21,7 @@ base_theory = {
     "alphaqed": 0.007496,
     "FNS": "ZM-VFNS",
     "ModEv": "EXA",
-#    "ModEv": "TRN",
+    #    "ModEv": "TRN",
 }
 
 FF_sets_lo = [
@@ -144,6 +144,7 @@ class BenchmarkFF(Runner):
 
 
 if __name__ == "__main__":
-#    BenchmarkFF().benchmark_lo(7)
+    #    BenchmarkFF().benchmark_lo(7)
     BenchmarkFF().benchmark_nlo(10)
+
 #    BenchmarkFF().benchmark_nnlo(10)
