@@ -76,7 +76,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             + f"{'log' if op['interpolation_is_log'] else 'x'}"
             + f"^{op['interpolation_polynomial_degree']}"
         )
-        obj["Q2grid"] = op["Q2grid"]
+        obj["mugrid"] = op["mugrid"]
         obj["max_ord"] = op["ev_op_max_order"]
         obj["iters"] = op["ev_op_iterations"]
         obj["skip_ns"] = op["debug_skip_non_singlet"]
