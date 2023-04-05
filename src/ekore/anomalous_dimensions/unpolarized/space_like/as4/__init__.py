@@ -1,4 +1,4 @@
-"""This subpackage contains the |N3LO| Altarelli-Parisi splitting kernels.
+"""Contains the |N3LO| Altarelli-Parisi splitting kernels.
 
 For further documentation see :doc:`N3LO anomalous dimensions <../../../theory/N3LO_ad>`
 
@@ -17,7 +17,7 @@ from .gqg import gamma_qg
 
 @nb.njit(cache=True)
 def gamma_singlet(N, nf, sx):
-    r"""Computes the |N3LO| singlet anomalous dimension matrix
+    r"""Compute the |N3LO| singlet anomalous dimension matrix.
 
       .. math::
           \gamma_S^{(3)} = \left(\begin{array}{cc}
@@ -39,14 +39,6 @@ def gamma_singlet(N, nf, sx):
     numpy.ndarray
         |N3LO| singlet anomalous dimension matrix
         :math:`\gamma_{S}^{(3)}(N)`
-
-    See Also
-    --------
-    gamma_nsp : :math:`\gamma_{ns,+}^{(3)}`
-    gamma_ps : :math:`\gamma_{ps}^{(3)}`
-    gamma_qg : :math:`\gamma_{qg}^{(3)}`
-    gamma_gq : :math:`\gamma_{gq}^{(3)}`
-    gamma_gg : :math:`\gamma_{gg}^{(3)}`
 
     """
     gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx)

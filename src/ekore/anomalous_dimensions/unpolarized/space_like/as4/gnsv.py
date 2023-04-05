@@ -1,6 +1,4 @@
-"""This module contains the anomalous dimension :math:`\\gamma_{ns,v}^{(3)}`
-
-"""
+r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ns,v}^{(3)}`."""
 import numba as nb
 
 from .gnsm import gamma_nsm
@@ -8,8 +6,9 @@ from .gnsm import gamma_nsm
 
 @nb.njit(cache=True)
 def gamma_nss_nf2(n, sx):
-    """Implements the sea non-singlet part proportional to :math:`nf^2`
-    as in Eq. 3.5 of :cite:`Davies:2016jie`.
+    r"""Return the sea non-singlet part proportional to :math:`nf^2`.
+
+    Implements :eqref:`3.5` of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
@@ -21,7 +20,7 @@ def gamma_nss_nf2(n, sx):
     Returns
     -------
     g_nss_nf2 : complex
-        |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,s}^{(3)}|_{nf^2}`
+        |N3LO| sea non-singlet anomalous dimension :math:`\gamma_{ns,s}^{(3)}|_{nf^2}`
 
     """
     S1, _ = sx[0]
@@ -164,9 +163,10 @@ def gamma_nss_nf2(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nss_nf1(n, sx):
-    """Implements the sea non-singlet part proportional to :math:`nf^1`.
+    r"""Return the sea non-singlet part proportional to :math:`nf^1`.
+
     The expression is the average of the Mellin transform
-    of Eq. 4.19, 4.20 of :cite:`Moch:2017uml`
+    of :eqref:`4.19` and :eqref:`4.20` of :cite:`Moch:2017uml`.
 
     Parameters
     ----------
@@ -178,7 +178,7 @@ def gamma_nss_nf1(n, sx):
     Returns
     -------
     g_nss_nf1 : complex
-        |N3LO| sea non-singlet anomalous dimension :math:`\\gamma_{ns,s}^{(3)}|_{nf^1}`
+        |N3LO| sea non-singlet anomalous dimension :math:`\gamma_{ns,s}^{(3)}|_{nf^1}`
 
     """
     S1 = sx[0][0]
@@ -219,7 +219,7 @@ def gamma_nss_nf1(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsv(n, nf, sx):
-    """Computes the |N3LO| valence non-singlet anomalous dimension.
+    r"""Compute the |N3LO| valence non-singlet anomalous dimension.
 
     Parameters
     ----------
@@ -234,13 +234,7 @@ def gamma_nsv(n, nf, sx):
     -------
         gamma_nsv : complex
             |N3LO| valence non-singlet anomalous dimension
-            :math:`\\gamma_{ns,v}^{(3)}(N)`
-
-    See Also
-    --------
-    gamma_nsm: :math:`\\gamma_{ns,-}^{(3)}`
-    gamma_nss_nf1: :math:`\\gamma_{ns,s}^{(3)}|_{nf^1}`
-    gamma_nss_nf2: :math:`\\gamma_{ns,s}^{(3)}|_{nf^2}`
+            :math:`\gamma_{ns,v}^{(3)}(N)`
 
     """
     return (

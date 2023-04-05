@@ -1,4 +1,4 @@
-r"""This module defines the matching conditions for the N3LO |VFNS| evolution.
+r"""The unpolarized, space-like |N3LO| |OME|.
 
 The expressions are based on:
 
@@ -70,7 +70,7 @@ from .aqqPS import A_qqPS
 
 @nb.njit(cache=True)
 def A_singlet(n, sx_singlet, sx_non_singlet, nf, L):
-    r"""Computes the |N3LO| singlet |OME|.
+    r"""Compute the |N3LO| singlet |OME|.
 
     .. math::
         A^{S,(3)} = \left(\begin{array}{cc}
@@ -131,7 +131,7 @@ def A_singlet(n, sx_singlet, sx_non_singlet, nf, L):
 
 @nb.njit(cache=True)
 def A_ns(n, sx_all, nf, L):
-    r"""Computes the |N3LO| non-singlet |OME|.
+    r"""Compute the |N3LO| non-singlet |OME|.
 
     .. math::
         A^{NS,(3)} = \left(\begin{array}{cc}
@@ -165,10 +165,6 @@ def A_ns(n, sx_all, nf, L):
     -------
     A_NS : numpy.ndarray
         |N3LO| non-singlet |OME| :math:`A^{NS,(3)}`
-
-    See Also
-    --------
-    A_qqNS_3 : :math:`A_{qq,H}^{NS,(3))}`
 
     """
     return np.array([[A_qqNS(n, sx_all, nf, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)

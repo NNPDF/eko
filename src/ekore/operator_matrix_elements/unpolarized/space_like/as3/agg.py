@@ -1,3 +1,4 @@
+"""The unpolarized, space-like |N3LO| gluon-gluon |OME|."""
 # pylint: skip-file
 import numba as nb
 import numpy as np
@@ -7,7 +8,8 @@ from .aggTF2 import A_ggTF2
 
 @nb.njit(cache=True)
 def A_gg(n, sx, nf, L):  # pylint: disable=too-many-locals
-    r"""Computes the |N3LO| singlet |OME| :math:`A_{gg}^{S,(3)}(N)`.
+    r"""Compute the |N3LO| singlet |OME| :math:`A_{gg}^{S,(3)}(N)`.
+
     The expression is presented in :cite:`Bierenbaum:2009mv`.
 
     When using the code, please cite the complete list of references
@@ -28,11 +30,6 @@ def A_gg(n, sx, nf, L):  # pylint: disable=too-many-locals
     -------
     complex
         :math:`A_{gg}^{S,(3)}(N)`
-
-    See Also
-    --------
-    A_ggTF2: ekore.matching_conditions.as3.aggTF2.A_ggTF2
-        Incomplete part proportional to :math:`T_{F}^2`.
 
     """
     S1, _ = sx[0]

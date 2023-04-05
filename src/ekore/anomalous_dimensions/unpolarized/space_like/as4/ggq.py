@@ -1,5 +1,4 @@
-r"""This module contains the anomalous dimension :math:`\gamma_{gq}^{(3)}`
-"""
+r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{gq}^{(3)}`."""
 import numba as nb
 import numpy as np
 
@@ -8,8 +7,9 @@ from .....harmonics.log_functions import lm13, lm13m1, lm14, lm15
 
 @nb.njit(cache=True)
 def gamma_gq_nf3(n, sx):
-    r"""Implements the part proportional to :math:`nf^3` of :math:`\gamma_{gq}^{(3)}`,
-    the expression is copied exact from Eq. 3.13 of :cite:`Davies:2016jie`.
+    r"""Return the part proportional to :math:`nf^3` of :math:`\gamma_{gq}^{(3)}`.
+
+    The expression is copied exact from :eqref:`3.13` of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
@@ -53,7 +53,7 @@ def gamma_gq_nf3(n, sx):
 
 @nb.njit(cache=True)
 def gamma_gq_nf0(n, sx):
-    r"""Implements the part proportional to :math:`nf^0` of :math:`\gamma_{gq}^{(3)}`.
+    r"""Return the part proportional to :math:`nf^0` of :math:`\gamma_{gq}^{(3)}`.
 
     Parameters
     ----------
@@ -89,7 +89,7 @@ def gamma_gq_nf0(n, sx):
 
 @nb.njit(cache=True)
 def gamma_gq_nf1(n, sx):
-    r"""Implements the part proportional to :math:`nf^1` of :math:`\gamma_{gq}^{(3)}`.
+    r"""Return the part proportional to :math:`nf^1` of :math:`\gamma_{gq}^{(3)}`.
 
     Parameters
     ----------
@@ -124,7 +124,7 @@ def gamma_gq_nf1(n, sx):
 
 @nb.njit(cache=True)
 def gamma_gq_nf2(n, sx):
-    r"""Implements the part proportional to :math:`nf^2` of :math:`\gamma_{gq}^{(3)}`.
+    r"""Return the part proportional to :math:`nf^2` of :math:`\gamma_{gq}^{(3)}`.
 
     Parameters
     ----------
@@ -155,7 +155,7 @@ def gamma_gq_nf2(n, sx):
 
 @nb.njit(cache=True)
 def gamma_gq(n, nf, sx):
-    r"""Computes the |N3LO| gluon-quark singlet anomalous dimension.
+    r"""Compute the |N3LO| gluon-quark singlet anomalous dimension.
 
     Parameters
     ----------
@@ -171,13 +171,6 @@ def gamma_gq(n, nf, sx):
     complex
         |N3LO| gluon-quark singlet anomalous dimension
         :math:`\gamma_{gq}^{(3)}(N)`
-
-    See Also
-    --------
-    gamma_gq_nf0: :math:`\gamma_{gq}^{(3)}|_{nf^0}`
-    gamma_gq_nf1: :math:`\gamma_{gq}^{(3)}|_{nf^1}`
-    gamma_gq_nf2: :math:`\gamma_{gq}^{(3)}|_{nf^2}`
-    gamma_gq_nf3: :math:`\gamma_{gq}^{(3)}|_{nf^3}`
 
     """
     return (

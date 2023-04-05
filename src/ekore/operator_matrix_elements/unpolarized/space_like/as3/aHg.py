@@ -1,3 +1,4 @@
+"""The unpolarized, space-like |N3LO| heavy-gluon |OME|."""
 # pylint: skip-file
 import numba as nb
 import numpy as np
@@ -7,7 +8,8 @@ from .aHgstfac import A_Hgstfac
 
 @nb.njit(cache=True)
 def A_Hg(n, sx, nf, L):  # pylint: disable=too-many-locals
-    r"""Computes the |N3LO| singlet |OME| :math:`A_{Hg}^{S,(3)}(N)`.
+    r"""Compute the |N3LO| singlet |OME| :math:`A_{Hg}^{S,(3)}(N)`.
+
     The expression is presented in :cite:`Bierenbaum:2009mv`.
 
     When using the code, please cite the complete list of references
@@ -28,11 +30,6 @@ def A_Hg(n, sx, nf, L):  # pylint: disable=too-many-locals
     -------
     complex
         :math:`A_{Hg}^{S,(3)}(N)`
-
-    See Also
-    --------
-    A_Hgstfac: ekore.matching_conditions.as3.aHgstfac.A_Hgstfac
-        Incomplete part of the |OME|.
 
     """
     S1, _ = sx[0]

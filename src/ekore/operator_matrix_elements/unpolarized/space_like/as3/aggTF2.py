@@ -1,12 +1,13 @@
+"""The approximate incomplete part of unpolarized, space-like |N3LO| gluon-gluon |OME|."""
 import numba as nb
 import numpy as np
 
 
 @nb.njit(cache=True)
 def A_ggTF2(n, sx):
-    r"""Computes the approximate incomplete part of :math:`A_{gg}^{S,(3)}(N)`
-    proportional to :math:`T_{F}^2`.
-    The expression is presented in  :cite:`Ablinger:2014uka` (eq 4.2).
+    r"""Compute the approximate incomplete part of :math:`A_{gg}^{S,(3)}(N)` proportional to :math:`T_{F}^2`.
+
+    The expression is presented in  :cite:`Ablinger:2014uka` :eqref:`4.2`.
     It contains a binomial factor which is given approximated.
 
     When using the code, please cite the complete list of references
