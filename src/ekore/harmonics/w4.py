@@ -78,7 +78,7 @@ def Sm4(N, hS4, is_singlet=None):
 def Sm31(N, S1, Sm1, Sm2, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-3,1}(N)`.
 
-    As implemented in :eq:`B.5.93` of :cite:`MuselliPhD` and :eq:`25` of
+    As implemented in :eqref:`B.5.93` of :cite:`MuselliPhD` and :eqref:`25` of
     cite:`Bl_mlein_2000`.
 
     Parameters

@@ -95,10 +95,6 @@ def S21(N, S1, S2):
     S21 : complex
         Harmonic sum :math:`S_{2,1}(N)`
 
-    See Also
-    --------
-    ekore.harmonics.g_functions.mellin_g18 : :math:`g_18(N)`
-
     """
     return -gf.mellin_g18(N, S1, S2) + 2 * zeta3
 
@@ -107,7 +103,7 @@ def S21(N, S1, S2):
 def Sm21(N, S1, Sm1, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-2,1}(N)`.
 
-    As implemented in :eqref:`B.5.75` of :cite:`MuselliPhD` and :eq:`22` of
+    As implemented in :eqref:`B.5.75` of :cite:`MuselliPhD` and :eqref:`22` of
     :cite:`Bl_mlein_2000`.
 
     Parameters
@@ -126,10 +122,6 @@ def Sm21(N, S1, Sm1, is_singlet=None):
     -------
     Sm21 : complex
         Harmonic sum :math:`S_{-2,1}(N)`
-
-    See Also
-    --------
-    ekore.harmonics.g_functions : :math:`g_3(N)`
 
     """
     # Note mellin g3 was integrated following x^(N-1) convention.
@@ -168,10 +160,6 @@ def S2m1(N, S2, Sm1, Sm2, is_singlet=None):
     S2m1 : complex
         Harmonic sum :math:`S_{2,-1}(N)`
 
-    See Also
-    --------
-    ekore.harmonics.g_functions.mellin_g4 : :math:`g_4(N)`
-
     """
     eta = symmetry_factor(N, is_singlet)
     return (
@@ -205,10 +193,6 @@ def Sm2m1(N, S1, S2, Sm2):
     -------
     Sm2m1 : complex
         Harmonic sum :math:`S_{-2,-1}(N)`
-
-    See Also
-    --------
-    ekore.harmonics.g_functions.mellin_g19 : :math:`g_19(N)`
 
     """
     return -gf.mellin_g19(N, S1) + log2 * (S2 - Sm2) - 5 / 8 * zeta3
