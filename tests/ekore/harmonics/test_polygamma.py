@@ -10,6 +10,7 @@ from ekore import harmonics
 def test_cern_polygamma():
     zs = [1.0, 2.0, 3.0, 0 + 1j, -1 + 1j, -2 + 1j, -1 + 2j, -2 + 2j, -3 + 2j]
     ks = range(5)
+
     fortran_ref = [
         [
             (-0.5772156649015332 + 0j),
@@ -80,7 +81,6 @@ def test_cern_polygamma():
 
 
 def test_recursive_harmonic_sum():
-
     n = np.random.rand()
     iterations = 1
     sx_base = harmonics.sx(n)

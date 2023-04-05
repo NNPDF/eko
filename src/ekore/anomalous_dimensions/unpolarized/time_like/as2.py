@@ -176,7 +176,6 @@ def gamma_nsm(N, nf):
     SSTR2M = ZETA2 - polygamma(N1 / 2, 1)
     SSTR3M = 0.5 * polygamma(N1 / 2, 2) + ZETA3
 
-
     PNMA = (
         16 * S1 * (2 * N + 1) / (NS * N1S)
         + 16 * (2 * S1 - 1 / (N * N1)) * (S2 - SSTR2M)

@@ -5,6 +5,7 @@ import numpy as np
 from ekore import harmonics as h
 
 zeta3 = h.constants.zeta3
+
 log2 = h.constants.log2
 
 
@@ -12,6 +13,7 @@ log2 = h.constants.log2
 # obtained using the function S of HarmonicSums package
 
 testN = [1, 10, 100]
+
 
 # compare the exact values of some harmonics with Muselli parametrization
 def test_g3():

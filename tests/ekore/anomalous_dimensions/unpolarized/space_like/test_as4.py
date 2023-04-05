@@ -1,6 +1,7 @@
 # Test N3LO anomalous dimensions
 import numpy as np
 
+from eko.constants import CA, CF
 from ekore.anomalous_dimensions.unpolarized.space_like.as4 import (
     gamma_singlet,
     ggg,
@@ -11,7 +12,6 @@ from ekore.anomalous_dimensions.unpolarized.space_like.as4 import (
     gps,
     gqg,
 )
-from eko.constants import CA, CF
 from ekore.harmonics import compute_cache
 
 NF = 5
@@ -126,7 +126,6 @@ def test_momentum_conservation():
 
 
 def test_non_singlet_reference_moments():
-
     NF = 4
     nsm_nf4_refs = [
         4322.890485339998,

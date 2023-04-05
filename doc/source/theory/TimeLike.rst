@@ -22,5 +22,6 @@ the |NNLO| splitting functions is based on :cite:`Mitov:2006ic, Moch:2007tx, Alm
 Supplying new anomalous dimensions and new matching conditions is the only change required for the eko program (e.g. the
 solution strategies are unaffected).
 
-The time-like evolution has been benchmarked using selected |FF| sets from |lhapdf|. In addition, the splitting functions have been tested 
+
+The time-like evolution has been benchmarked using selected |FF| sets from |lhapdf|. In addition, the splitting functions have been tested
 against functions from |MELA|, which is an alternative Mellin Space evolution code.
