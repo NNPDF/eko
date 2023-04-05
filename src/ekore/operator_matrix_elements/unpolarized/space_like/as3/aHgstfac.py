@@ -1,3 +1,4 @@
+"""The approximate incomplete part of the unpolarized, space-like |N3LO| heavy-gluon |OME|."""
 # pylint: skip-file
 import numba as nb
 import numpy as np
@@ -5,9 +6,9 @@ import numpy as np
 
 @nb.njit(cache=True)
 def A_Hgstfac(n, sx, nf):
-    r"""Computes the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)`
-    proportional to :math:`T_{F}`.
-    The expression is presented in :cite:`Blumlein:2017wxd` (eq 3.1).
+    r"""Compute the approximate incomplete part of :math:`A_{Hg}^{S,(3)}(N)` proportional to :math:`T_{F}`.
+
+    The expression is presented in :cite:`Blumlein:2017wxd` :eqref:`3.1`.
 
     When using the code, please cite the complete list of references
     available in :mod:`ekore.matching_conditions.as3`.
@@ -29,6 +30,7 @@ def A_Hgstfac(n, sx, nf):
     Returns
     -------
     complex
+        :math:`A_{Hg}^{S,(3)}(N)`
 
     """
     S1, _ = sx[0]

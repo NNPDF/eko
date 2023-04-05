@@ -1,12 +1,12 @@
-r"""
-This module contains the |NNLO| |OME| for the matching conditions in the |VFNS|
-(see, :cite:`Buza_1998` appendix B).
+r"""The unpolarized, spacelike |NNLO| |OME|.
+
+See, :cite:`Buza_1998` appendix B.
 The expession for :math:`\mu_F^2 = m_H^2` are taken from :cite:`Vogt:2004ns` directly in N space.
 While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes |QCDNUM|
 (https://github.com/N3PDF/external/blob/master/qcdnum/qcdnum/pij/ome.f)
 and Mellin transformed with Mathematica.
 
-The expession for A_Hg_l0 comes form :cite:`Bierenbaum:2009zt`
+The expession for ``A_Hg_l0`` comes form :cite:`Bierenbaum:2009zt`.
 """
 import numba as nb
 import numpy as np
@@ -20,23 +20,24 @@ from .as1 import A_hg as A_hg_1
 
 @nb.njit(cache=True)
 def A_qq_ns(n, sx, L):
-    r"""
-    |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}` given in
-    Eq. (B.4) of :cite:`Buza_1998`.
+    r"""|NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`.
+
+    It is given in :eqref:`B.4` of :cite:`Buza_1998`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
-        A_qq_ns : complex
-            |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`
+    A_qq_ns : complex
+        |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`
+
     """
     S1 = sx[0][0]
     S2 = sx[1][0]
@@ -75,23 +76,24 @@ def A_qq_ns(n, sx, L):
 
 @nb.njit(cache=True)
 def A_hq_ps(n, sx, L):
-    r"""
-    |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}` given in
-    Eq. (B.1) of :cite:`Buza_1998`.
+    r"""|NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`.
+
+    It is given in :eqref:`B.1` of :cite:`Buza_1998`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
-        A_hq_ps : complex
-            |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`
+    A_hq_ps : complex
+        |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`
+
     """
     S2 = sx[1][0]
 
@@ -138,24 +140,25 @@ def A_hq_ps(n, sx, L):
 
 @nb.njit(cache=True)
 def A_hg(n, sx, L):
-    r"""
-    |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}` given in
-    Eq. (B.3) of :cite:`Buza_1998`.
-    The expession for A_Hg_l0 comes form :cite:`Bierenbaum:2009zt`.
+    r"""|NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`.
+
+    It is given in :eqref:`B.3` of :cite:`Buza_1998`.
+    The expession for ``A_Hg_l0`` comes form :cite:`Bierenbaum:2009zt`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
-        A_hg : complex
-            |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`
+    A_hg : complex
+        |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`
+
     """
     S1 = sx[0][0]
     S2, Sm2 = sx[1]
@@ -278,23 +281,24 @@ def A_hg(n, sx, L):
 
 @nb.njit(cache=True)
 def A_gq(n, sx, L):
-    r"""
-    |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}` given in
-    Eq. (B.5) of :cite:`Buza_1998`.
+    r"""|NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`.
+
+    It is given in :eqref:`B.5` of :cite:`Buza_1998`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
-        A_gq : complex
-            |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`
+    A_gq : complex
+        |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`
+
     """
     S1 = sx[0][0]
     S2 = sx[1][0]
@@ -328,23 +332,24 @@ def A_gq(n, sx, L):
 
 @nb.njit(cache=True)
 def A_gg(n, sx, L):
-    r"""
-    |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)} ` given in
-    Eq. (B.7) of :cite:`Buza_1998`.
+    r"""|NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`.
+
+    It is given in :eqref:`B.7` of :cite:`Buza_1998`.
 
     Parameters
     ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
-        A_gg : complex
-            |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
+    A_gg : complex
+        |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
+
     """
     S1 = sx[0][0]
     S1m = S1 - 1 / n  # harmonic_S1(n - 1)
@@ -415,40 +420,32 @@ def A_gg(n, sx, L):
 
 @nb.njit(cache=True)
 def A_singlet(n, sx, L, is_msbar=False):
-    r"""
-      Computes the |NNLO| singlet |OME|.
+    r"""Compute the |NNLO| singlet |OME|.
 
-      .. math::
-          A^{S,(2)} = \left(\begin{array}{cc}
-            A_{gg, H}^{S,(2)} & A_{gq, H}^{S,(2)} & 0 \\
-            0 & A_{qq,H}^{NS,(2)} & 0\\
-            A_{hg}^{S,(2)} & A_{hq}^{PS,(2)} & 0\\
-          \end{array}\right)
+    .. math::
+        A^{S,(2)} = \left(\begin{array}{cc}
+        A_{gg, H}^{S,(2)} & A_{gq, H}^{S,(2)} & 0 \\
+        0 & A_{qq,H}^{NS,(2)} & 0\\
+        A_{hg}^{S,(2)} & A_{hq}^{PS,(2)} & 0\\
+        \end{array}\right)
 
-      Parameters
-      ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache containing:
-                [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
-        is_msbar: bool
-            add the |MSbar| contribution
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache containing:
+            [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
+    is_msbar: bool
+        add the |MSbar| contribution
 
-      Returns
-      -------
-        A_S : numpy.ndarray
-            |NNLO| singlet |OME| :math:`A^{S,(2)}(N)`
+    Returns
+    -------
+    A_S : numpy.ndarray
+        |NNLO| singlet |OME| :math:`A^{S,(2)}(N)`
 
-      See Also
-      --------
-        A_ns : :math:`A_{qq,H}^{NS,(2)}`
-        A_hq : :math:`A_{hq}^{PS,(2)}`
-        A_hg : :math:`A_{hg}^{S,(2)}`
-        A_gq : :math:`A_{gq, H}^{S,(2)}`
-        A_gg : :math:`A_{gg, H}^{S,(2)}`
     """
     A_hq_2 = A_hq_ps(n, sx, L)
     A_qq_2 = A_qq_ns(n, sx, L)
@@ -466,32 +463,28 @@ def A_singlet(n, sx, L, is_msbar=False):
 
 @nb.njit(cache=True)
 def A_ns(n, sx, L):
-    r"""
-      Computes the |NNLO| non-singlet |OME|.
+    r"""Compute the |NNLO| non-singlet |OME|.
 
-      .. math::
-          A^{NS,(2)} = \left(\begin{array}{cc}
-            A_{qq,H}^{NS,(2)} & 0 \\
-            0 & 0 \\
-          \end{array}\right)
+    .. math::
+        A^{NS,(2)} = \left(\begin{array}{cc}
+        A_{qq,H}^{NS,(2)} & 0 \\
+        0 & 0 \\
+        \end{array}\right)
 
-      Parameters
-      ----------
-        n : complex
-            Mellin moment
-        sx : list
-            harmonic sums cache containing:
-                [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
-        L : float
-            :math:`\ln(\mu_F^2 / m_h^2)`
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    sx : list
+        harmonic sums cache containing:
+            [[:math:`S_1,S_{-1}`],[:math:`S_2,S_{-2}`],[:math:`S_3,S_{-2,1},S_{-3}`]]
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
-      Returns
-      -------
-        A_NS : numpy.ndarray
-            |NNLO| non-singlet |OME| :math:`A^{NS,(2)}`
+    Returns
+    -------
+    A_NS : numpy.ndarray
+        |NNLO| non-singlet |OME| :math:`A^{NS,(2)}`
 
-      See Also
-      --------
-        A_qq_ns : :math:`A_{qq,H}^{NS,(2)}`
     """
     return np.array([[A_qq_ns(n, sx, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)
