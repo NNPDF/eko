@@ -23,4 +23,4 @@ Supplying new anomalous dimensions and new matching conditions is the only chang
 solution strategies are unaffected).
 
 The time-like splitting functions have been benchmarked using select |FF| sets from |LHAPDF|. In addition, they have been tested 
-against routines from |MELA|, which is an alternative Mellin Space evolution code, available at https://github.com/vbertone/MELA.
+against functions from |MELA|, which is an alternative Mellin Space evolution code, available at https://github.com/vbertone/MELA.
