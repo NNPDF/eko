@@ -9,7 +9,7 @@ from .polygamma import cern_polygamma, symmetry_factor
 
 @nb.njit(cache=True)
 def S4(N):
-    r"""Computes the harmonic sum :math:`S_4(N)`.
+    r"""Compute the harmonic sum :math:`S_4(N)`.
 
     .. math::
       S_4(N) = \sum\limits_{j=1}^N \frac 1 {j^4} = - \frac 1 6 \psi_3(N+1)+\zeta(4)
@@ -78,7 +78,7 @@ def Sm4(N, hS4, is_singlet=None):
 def Sm31(N, S1, Sm1, Sm2, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-3,1}(N)`.
 
-    As implemented in eq B.5.93 of :cite:`MuselliPhD` and eq 25 of
+    As implemented in :eq:`B.5.93` of :cite:`MuselliPhD` and :eq:`25` of
     cite:`Bl_mlein_2000`.
 
     Parameters
@@ -122,7 +122,7 @@ def Sm31(N, S1, Sm1, Sm2, is_singlet=None):
 def Sm22(N, S1, S2, Sm2, Sm31, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-2,2}(N)`.
 
-    As implemented in eq B.5.94 of :cite:`MuselliPhD` and eq 24 of
+    As implemented in :eqref:`B.5.94` of :cite:`MuselliPhD` and :eqref:`24` of
     cite:`Bl_mlein_2000`.
 
     Parameters
@@ -161,7 +161,7 @@ def Sm22(N, S1, S2, Sm2, Sm31, is_singlet=None):
 def Sm211(N, S1, S2, Sm1, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-2,1,1}(N)`.
 
-    As implemented in eq B.5.104 of :cite:`MuselliPhD` and eq 27 of
+    As implemented in :eqref:`B.5.104` of :cite:`MuselliPhD` and :eqref:`27` of
     cite:`Bl_mlein_2000`.
 
     Parameters
@@ -204,7 +204,7 @@ def Sm211(N, S1, S2, Sm1, is_singlet=None):
 def S211(N, S1, S2, S3):
     r"""Analytic continuation of harmonic sum :math:`S_{2,1,1}(N)`.
 
-    As implemented in eq B.5.115 of :cite:`MuselliPhD` and eq 40 of
+    As implemented in :eqref:`B.5.115` of :cite:`MuselliPhD` and :eqref:`40` of
     cite:`Bl_mlein_2000`.
 
     Parameters
@@ -235,7 +235,7 @@ def S211(N, S1, S2, S3):
 def S31(N, S1, S2, S3, S4):
     r"""Analytic continuation of harmonic sum :math:`S_{3,1}(N)`.
 
-    As implemented in eq B.5.99 of :cite:`MuselliPhD` and eq 41 of
+    As implemented in :eqref:`B.5.99` of :cite:`MuselliPhD` and :eqref:`41` of
     cite:`Bl_mlein_2000`.
 
     Parameters

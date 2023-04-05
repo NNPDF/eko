@@ -9,7 +9,7 @@ from .polygamma import cern_polygamma, symmetry_factor
 
 @nb.njit(cache=True)
 def S3(N):
-    r"""Computes the harmonic sum :math:`S_3(N)`.
+    r"""Compute the harmonic sum :math:`S_3(N)`.
 
     .. math::
       S_3(N) = \sum\limits_{j=1}^N \frac 1 {j^3} = \frac 1 2 \psi_2(N+1)+\zeta(3)
@@ -78,7 +78,7 @@ def Sm3(N, hS3, is_singlet=None):
 def S21(N, S1, S2):
     r"""Analytic continuation of harmonic sum :math:`S_{2,1}(N)`.
 
-    As implemented in eq B.5.77 of :cite:`MuselliPhD` and eq 37 of
+    As implemented in :eqref:`B.5.77` of :cite:`MuselliPhD` and :eqref:`37` of
     :cite:`Bl_mlein_2000`.
 
     Parameters
@@ -107,7 +107,7 @@ def S21(N, S1, S2):
 def Sm21(N, S1, Sm1, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{-2,1}(N)`.
 
-    As implemented in eq B.5.75 of :cite:`MuselliPhD` and eq 22 of
+    As implemented in :eqref:`B.5.75` of :cite:`MuselliPhD` and :eq:`22` of
     :cite:`Bl_mlein_2000`.
 
     Parameters
@@ -146,7 +146,7 @@ def Sm21(N, S1, Sm1, is_singlet=None):
 def S2m1(N, S2, Sm1, Sm2, is_singlet=None):
     r"""Analytic continuation of harmonic sum :math:`S_{2,-1}(N)`.
 
-    As implemented in eq B.5.76 of :cite:`MuselliPhD` and eq 23 of
+    As implemented in :eqref:`B.5.76` of :cite:`MuselliPhD` and :eqref:`23` of
     :cite:`Bl_mlein_2000`.
 
     Parameters
@@ -187,7 +187,7 @@ def S2m1(N, S2, Sm1, Sm2, is_singlet=None):
 def Sm2m1(N, S1, S2, Sm2):
     r"""Analytic continuation of harmonic sum :math:`S_{-2,-1}(N)`.
 
-    As implemented in eq B.5.74 of :cite:`MuselliPhD` and eq 38 of
+    As implemented in :eqref:`B.5.74` of :cite:`MuselliPhD` and :eqref:`38` of
     :cite:`Bl_mlein_2000`.
 
     Parameters
