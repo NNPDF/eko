@@ -1,5 +1,3 @@
-# it is possible to obtain result values for testing from vbertone/MELA repo
-
 import numpy as np
 
 import ekore.anomalous_dimensions.unpolarized.time_like.as2 as ad_as2

@@ -21,3 +21,6 @@ The implementation for the |LO| and |NLO| splitting functions is based on :cite:
 the |NNLO| splitting functions is based on :cite:`Mitov:2006ic, Moch:2007tx, Almasy:2011eq`.
 Supplying new anomalous dimensions and new matching conditions is the only change required for the eko program (e.g. the
 solution strategies are unaffected).
+
+The time-like splitting functions have been benchmarked using select |FF| sets from |LHAPDF|. In addition, they have been tested 
+against routines from |MELA|, which is an alternative Mellin Space evolution code, available at https://github.com/vbertone/MELA.
