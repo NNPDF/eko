@@ -13,6 +13,7 @@ authors = [
   "F. Hekhorn <felix.hekhorn@mi.infn.it>",
   "N. Laurenti <niccolo.laurenti@mi.infn.it>",
   "G. Magni <gmagni@nikhef.nl>",
+  "T. Sharma <tanishq.sharma@alumni.cern>"
 ]
 classifiers = [
   "Programming Language :: Python",
