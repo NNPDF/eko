@@ -1,4 +1,4 @@
-# Testing values obtained from |MELA| routines
+"""Testing values obtained from |MELA| routines."""
 
 import numpy as np
 
