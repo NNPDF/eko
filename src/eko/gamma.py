@@ -1,5 +1,4 @@
-r"""
-This module contains the QCD gamma function coefficients.
+r"""The |QCD| gamma function coefficients.
 
 See :doc:`pQCD ingredients </theory/pQCD>`.
 """
@@ -10,75 +9,75 @@ from ekore.harmonics.constants import zeta3, zeta4, zeta5
 
 @nb.njit(cache=True)
 def gamma_qcd_as1():
-    """
-    Computes the first coefficient of the QCD gamma function.
+    r"""Compute the first coefficient of the |QCD| gamma function.
 
-    Implements Eq. (15) of :cite:`Vermaseren:1997fq`.
+    Implements :eqref:`15` of :cite:`Vermaseren:1997fq`.
 
     Returns
     -------
-        gamma_0 : float
-            first coefficient of the QCD gamma function :math:`\\gamma_{m,0}^{n_f}`
+    gamma_0 : float
+        first coefficient of the |QCD| gamma function :math:`\gamma_{m,0}^{n_f}`
+
     """
     return 4.0
 
 
 @nb.njit(cache=True)
 def gamma_qcd_as2(nf):
-    """
-    Computes the second coefficient of the QCD gamma function.
+    r"""Compute the second coefficient of the |QCD| gamma function.
 
-    Implements Eq. (15) of :cite:`Vermaseren:1997fq`.
+    Implements :eqref:`15` of :cite:`Vermaseren:1997fq`.
 
     Parameters
     ----------
-        nf : int
-            number of active flavors
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        gamma_1 : float
-            second coefficient of the QCD gamma function :math:`\\gamma_{m,1}^{n_f}`
+    gamma_1 : float
+        second coefficient of the |QCD| gamma function :math:`\gamma_{m,1}^{n_f}`
+
     """
     return 202.0 / 3.0 - 20.0 / 9.0 * nf
 
 
 @nb.njit(cache=True)
 def gamma_qcd_as3(nf):
-    """
-    Computes the third coefficient of the QCD gamma function.
+    r"""Compute the third coefficient of the |QCD| gamma function.
 
-    Implements Eq. (15) of :cite:`Vermaseren:1997fq`.
+    Implements :eqref:`15` of :cite:`Vermaseren:1997fq`.
 
     Parameters
     ----------
-        nf : int
-            number of active flavors
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        gamma_2 : float
-            third coefficient of the QCD gamma function :math:`\\gamma_{m,2}^{n_f}`
+    gamma_2 : float
+        third coefficient of the |QCD| gamma function :math:`\gamma_{m,2}^{n_f}`
+
     """
     return 1249.0 - (2216.0 / 27.0 + 160.0 / 3.0 * zeta3) * nf - 140.0 / 81.0 * nf**2
 
 
 @nb.njit(cache=True)
 def gamma_qcd_as4(nf):
-    """
-    Computes the fourth coefficient of the QCD gamma function.
+    r"""Compute the fourth coefficient of the |QCD| gamma function.
 
-    Implements Eq. (15) of :cite:`Vermaseren:1997fq`.
+    Implements :eqref:`15` of :cite:`Vermaseren:1997fq`.
 
     Parameters
     ----------
-        nf : int
-            number of active flavors
+    nf : int
+        number of active flavors
 
     Returns
     -------
-        gamma_3 : float
-            fourth coefficient of the QCD gamma function :math:`\\gamma_{m,3}^{n_f}`
+    gamma_3 : float
+        fourth coefficient of the |QCD| gamma function :math:`\gamma_{m,3}^{n_f}`
+
     """
     return (
         4603055.0 / 162.0
@@ -98,20 +97,20 @@ def gamma_qcd_as4(nf):
 
 @nb.njit(cache=True)
 def gamma(order, nf):
-    """
-    Compute the value of a gamma coefficient
+    """Compute the value of a |QCD| gamma coefficient.
 
     Parameters
     ----------
-        order: int
-            perturbative order
-        nf : int
-            number of active flavors
+    order: int
+        perturbative order
+    nf : int
+        number of active flavors
 
-    returns
+    Returns
     -------
-        gamma: float
-            QCD gamma function coefficient
+    gamma : float
+        |QCD| gamma function coefficient
+
     """
     _gamma = 0.0
 
@@ -124,5 +123,5 @@ def gamma(order, nf):
     elif order == 4:
         _gamma = gamma_qcd_as4(nf)
     else:
-        raise ValueError("QCD Gamma coefficients beyond N3LO are not implemented!")
+        raise ValueError("QCD gamma coefficients beyond N3LO are not implemented!")
     return _gamma

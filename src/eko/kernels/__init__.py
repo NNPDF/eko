@@ -1,3 +1,1 @@
-"""
-This module defines all anomalous dimensions in all sectors and at all orders.
-"""
+"""The solutions to the |DGLAP| equations."""

@@ -1,3 +1,4 @@
+"""Atomic operator member."""
 import copy
 import operator
 from numbers import Number
@@ -16,10 +17,11 @@ class OpMember:
 
     Parameters
     ----------
-        value : np.array
-            operator matrix
-        error : np.array
-            operator error matrix
+    value : np.array
+        operator matrix
+    error : np.array
+        operator error matrix
+
     """
 
     def __init__(self, value, error):
@@ -27,22 +29,23 @@ class OpMember:
         self.error = np.array(error)
 
     def copy(self):
+        """Copy implementation."""
         return self.__class__(self.value.copy(), self.error.copy())
 
     @classmethod
     def id_like(cls, other):
-        """
-        Creates an identity operator.
+        """Create an identity operator.
 
         Parameters
         ----------
-            other : OpMember
-                reference member
+        other : OpMember
+            reference member
 
         Returns
         -------
-            cls :
-                1
+        cls :
+            1 all spaces
+
         """
         len_xgrid = other.value.shape[0]
         return cls(np.eye(len_xgrid), np.zeros((len_xgrid, len_xgrid)))
@@ -100,13 +103,13 @@ class OpMember:
 
 
 class MemberName:
-    """
-    Operator member name in operator evolution space
+    """Operator member name in operator evolution space.
 
     Parameters
     ----------
-        name : str
-            operator name
+    name : str
+        operator name
+
     """
 
     def __init__(self, name):
@@ -122,7 +125,7 @@ class MemberName:
         return hash(str(self))
 
     def _split_name(self):
-        """Splits the name according to target.input"""
+        """Split the name according to target.input."""
         # we need to do this late, as in raw mode the name to not follow this principle
         name_spl = self.name.split(".")
         if len(name_spl) != 2:
@@ -135,25 +138,25 @@ class MemberName:
 
     @property
     def target(self):
-        """Returns target flavor name (given by the first part of the name)"""
+        """Returns target flavor name (given by the first part of the name)."""
         return self._split_name()[0]
 
     @property
     def input(self):
-        """Returns input flavor name (given by the second part of the name)"""
+        """Returns input flavor name (given by the second part of the name)."""
         return self._split_name()[1]
 
 
 class OperatorBase:
-    """
-    Abstract base class to hold a dictionary of interpolation matrices.
+    """Abstract base class to hold a dictionary of interpolation matrices.
 
     Parameters
     ----------
-        op_members : dict
-            mapping of :class:`MemberName` onto :class:`OpMember`
-        q2_final : float
-            final scale
+    op_members : dict
+        mapping of :class:`MemberName` onto :class:`OpMember`
+    q2_final : float
+        final scale
+
     """
 
     def __init__(self, op_members, q2_final):
@@ -167,15 +170,15 @@ class OperatorBase:
 
     @classmethod
     def promote_names(cls, op_members, q2_final):
-        """
-        Promote string keys to MemberName.
+        """Promote string keys to MemberName.
 
         Parameters
         ----------
-            op_members : dict
-                mapping of :data:`str` onto :class:`OpMember`
-            q2_final : float
-                final scale
+        op_members : dict
+            mapping of :data:`str` onto :class:`OpMember`
+        q2_final : float
+            final scale
+
         """
         # map key to MemberName
         opms = {}
@@ -184,18 +187,18 @@ class OperatorBase:
         return cls(opms, q2_final)
 
     def __matmul__(self, other):
-        """
-        Multiply ``other`` to self.
+        """Multiply ``other`` to self.
 
         Parameters
         ----------
-            other : OperatorBase
-                second factor with a lower initial scale
+        other : OperatorBase
+            second factor with a lower initial scale
 
         Returns
         -------
-            p : PhysicalOperator
-                self @ other
+        p : PhysicalOperator
+            self @ other
+
         """
         if not isinstance(other, OperatorBase):
             raise ValueError("Can only multiply with another OperatorBase")
@@ -209,18 +212,18 @@ class OperatorBase:
         )
 
     def operation(self, other):
-        """
-        Choose mathematical operation by rank
+        """Choose mathematical operation by rank.
 
         Parameters
         ----------
-            other : OperatorBase
-                operand
+        other : OperatorBase
+            operand
 
         Returns
         -------
-            callable :
-                operation to perform (np.matmul or np.multiply)
+        callable :
+            operation to perform (np.matmul or np.multiply)
+
         """
         if isinstance(self, ScalarOperator) or isinstance(other, ScalarOperator):
             return operator.mul
@@ -228,22 +231,22 @@ class OperatorBase:
 
     @staticmethod
     def operator_multiply(left, right, operation):
-        """
-        Multiply two operators.
+        """Multiply two operators.
 
         Parameters
         ----------
-            left : OperatorBase
-                left operand
-            right : OperatorBase
-                right operand
-            operation : callable
-                operation to perform (np.matmul or np.multiply)
+        left : OperatorBase
+            left operand
+        right : OperatorBase
+            right operand
+        operation : callable
+            operation to perform (np.matmul or np.multiply)
 
         Returns
         -------
-            dict
-                new operator members dictionary
+        dict
+            new operator members dictionary
+
         """
         # prepare paths
         new_oms = {}
@@ -262,4 +265,4 @@ class OperatorBase:
 
 
 class ScalarOperator(OperatorBase):
-    pass
+    """Operator above space of real numbers."""
