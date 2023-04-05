@@ -6,7 +6,6 @@ from ekore.operator_matrix_elements.unpolarized.space_like.as1 import A_ns, A_si
 
 
 def test_A_1_intrinsic():
-
     L = 100.0
     N = 2
     sx = compute_cache(N, 2, True)
@@ -19,7 +18,6 @@ def test_A_1_intrinsic():
 
 
 def test_A_1_shape():
-
     N = 2
     L = 3.0
     sx = compute_cache(N, 2, (-1) ** N == 1)

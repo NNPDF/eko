@@ -8,8 +8,8 @@ from eko.evolution_operator import Operator
 from eko.interpolation import XGrid
 from eko.io import types
 from eko.io.runcards import OperatorCard, TheoryCard
-from eko.runner.legacy import Runner
 from eko.quantities.couplings import CouplingsInfo
+from eko.runner.legacy import Runner
 
 # from ekore.matching_conditions.operator_matrix_element import OperatorMatrixElement
 

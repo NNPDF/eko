@@ -13,6 +13,7 @@ log2 = h.constants.log2
 
 testN = [1, 10, 100]
 
+
 # compare the exact values of some harmonics with Muselli parametrization
 def test_g3():
     ns = [1.0, 2.0, 1 + 1j]

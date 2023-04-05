@@ -30,7 +30,7 @@ def compute_LHAPDF_data(
     target_xgrid = operators["interpolation_xgrid"]
 
     out_tabs = {}
-    for mu2 in operators["mu2grid"]:
+    for mu2 in np.array(operators["mugrid"]) ** 2:
         tab = {}
         for pid in br.flavor_basis_pids:
             if pid in skip_pdfs:
