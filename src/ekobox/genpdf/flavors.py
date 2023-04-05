@@ -1,3 +1,4 @@
+"""Collection of flavor tools."""
 import copy
 
 import numpy as np
@@ -6,18 +7,18 @@ from eko import basis_rotation as br
 
 
 def pid_to_flavor(pids):
-    """
-    Create flavor representations from PIDs.
+    """Create flavor representations from PIDs.
 
     Parameters
     ----------
-        pids : list(int)
-            active PIDs
+    pids : list(int)
+        active PIDs
 
     Returns
     -------
-        numpy.ndarray
-            list of reprentations for each PID
+    numpy.ndarray
+        list of reprentations for each PID
+
     """
     ps = []
     zeros = np.zeros(len(br.flavor_basis_pids))
@@ -30,18 +31,18 @@ def pid_to_flavor(pids):
 
 
 def evol_to_flavor(labels):
-    """
-    Create flavor representations from evolution members.
+    """Create flavor representations from evolution members.
 
     Parameters
     ----------
-        labels : list(str)
-            active evolution distributions
+    labels : list(str)
+        active evolution distributions
 
     Returns
     -------
-        numpy.ndarray
-            list of reprentations for each distribution
+    numpy.ndarray
+        list of reprentations for each distribution
+
     """
     ps = []
     for label in labels:
@@ -51,20 +52,20 @@ def evol_to_flavor(labels):
 
 
 def project(blocks, reprs):
-    """
-    Project some combination of flavors defined by reprs from the blocks.
+    """Project some combination of flavors defined by reprs from the blocks.
 
     Parameters
     ----------
-        blocks : list(dict)
-            PDF blocks
-        reprs : list(int)
-            active distributions in flavor representation
+    blocks : list(dict)
+        PDF blocks
+    reprs : list(int)
+        active distributions in flavor representation
 
     Returns
     -------
-        list(dict) :
-            filtered blocks
+    list(dict) :
+        filtered blocks
+
     """
     new_blocks = copy.deepcopy(blocks)
     for block in new_blocks:
@@ -88,18 +89,18 @@ def project(blocks, reprs):
 
 
 def is_evolution_labels(labels):
-    """
-    Check whether the labels are provided in evolution basis
+    """Check whether the labels are provided in evolution basis.
 
     Parameters
     ----------
-        labels : list()
-            list of labels
+    labels : list()
+        list of labels
 
     Returns
     -------
-        bool :
-            is evolution basis
+    bool :
+        is evolution basis
+
     """
     for label in labels:
         if not isinstance(label, str):
@@ -110,18 +111,18 @@ def is_evolution_labels(labels):
 
 
 def is_pid_labels(labels):
-    """
-    Check whether the labels are provided in flavor basis
+    """Check whether the labels are provided in flavor basis.
 
     Parameters
     ----------
-        labels : list()
-            list of labels
+    labels : list()
+        list of labels
 
     Returns
     -------
-        bool :
-            is flavor basis
+    bool :
+        is flavor basis
+
     """
     try:
         labels = np.array(labels, dtype=np.int_)
