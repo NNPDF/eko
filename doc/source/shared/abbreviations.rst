@@ -111,6 +111,7 @@
 .. |T| raw:: html
 
    <span class="green">✓</span>
+
 .. |MELA| raw:: html
 
    <a href="https://github.com/vbertone/mela"><abbr title="a Mellin Evolution LibrAry">MELA</abbr></a>
