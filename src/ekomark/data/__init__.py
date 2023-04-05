@@ -1,0 +1,1 @@
+"""EKO database configuration."""
