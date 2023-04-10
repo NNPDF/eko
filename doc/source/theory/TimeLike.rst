@@ -19,6 +19,9 @@ The relevant setting in the operator card is thus called ``time_like = True``.
 We implement the time-like |DGLAP| anomalous dimensions up to |NNLO| in :class:`~ekore.anomalous_dimensions.unpolarized.time_like`.
 The implementation for the |LO| and |NLO| splitting functions is based on :cite:`Mitov:2006wy, Gluck:1992zx` and the implementation for
 the |NNLO| splitting functions is based on :cite:`Mitov:2006ic, Moch:2007tx, Almasy:2011eq`.
+We also implement the time-like matching conditions up to |NLO| in :class:`~ekore.operator_matrix_elements.unpolarized.time_like` which
+are based on :cite:`Cacciari:2005ry`. The time-like matching conditions for |NNLO| are not known.
+
 Supplying new anomalous dimensions and new matching conditions is the only change required for the eko program (e.g. the
 solution strategies are unaffected).
 
