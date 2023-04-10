@@ -3,7 +3,8 @@
 import numba as nb
 import numpy as np
 
-from eko.constants import CF
+# from eko.constants import CF
+CF = 4 / 3
 
 
 @nb.njit(cache=True)
@@ -57,7 +58,7 @@ def A_singlet(N, L):
         :math:`A^{S,(1)}`
 
     """
-    result = np.array([[0, 0, 0], [0, 0, 0], [A_hg(N, L), 0, 0]], np.complex_)
+    result = np.array([[0 + 0j, 0, 0], [0 + 0j, 0, 0], [A_hg(N, L), 0, 0]], np.complex_)
     return result
 
 

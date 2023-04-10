@@ -52,9 +52,9 @@ def A_singlet(matching_order, N, L):
         singlet |OME|
 
     """
-    A_singlet = np.zeros((matching_order[0], 3, 3), np.complex_)
     if matching_order[0] > 1:
         raise Exception("Time-like matching conditions are only known upto NLO")
     else:
-        A_singlet[0] = as1.A_singlet(N, L)
+        A_singlet = np.zeros((matching_order[0], 3, 3), np.complex_)
+    #        A_singlet[0] = as1.A_singlet(N, L)
     return A_singlet
