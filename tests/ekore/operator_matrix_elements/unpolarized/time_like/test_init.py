@@ -1,3 +1,5 @@
+r"""Test |OME|."""
+
 import ekore.operator_matrix_elements.unpolarized.time_like as ome
 
 
