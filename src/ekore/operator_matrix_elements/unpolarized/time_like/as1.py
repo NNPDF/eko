@@ -17,13 +17,13 @@ def A_hg(N, L):
     N : complex
         Mellin moment
     L : float
-        :math:`\ln(\mu_F^2 / m_h^2)
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
     A_hg : complex
         |NLO| heavy-gluon |OME|
-        :math:`A_{Hg}^{S,(1)}
+        :math:`A_{hg}^{S,(1)}`
 
     """
     result = (
@@ -48,7 +48,7 @@ def A_singlet(N, L):
     N : complex
         Mellin moment
     L : float
-        :math:`\ln(\mu_F^2 / m_h^2)
+        :math:`\ln(\mu_F^2 / m_h^2)`
 
     Returns
     -------
@@ -69,7 +69,7 @@ def A_ns():
     -------
     A_ns : numpy.ndarray
         |NLO| non-singlet |OME|
-        :math:`A^{S,(1)}
+        :math:`A^{S,(1)}`
 
     """
     result = np.array([[0, 0], [0, 0]], np.complex_)
