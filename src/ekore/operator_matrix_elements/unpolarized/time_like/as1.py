@@ -1,4 +1,4 @@
-"""The unpolarized |NLO| matching conditions."""
+"""The unpolarized time-like |NLO| matching conditions."""
 
 import numba as nb
 import numpy as np
