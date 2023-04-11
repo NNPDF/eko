@@ -3,8 +3,7 @@
 import numba as nb
 import numpy as np
 
-# from eko.constants import CF
-CF = 4 / 3
+from eko.constants import CF
 
 
 @nb.njit(cache=True)
