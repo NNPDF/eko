@@ -27,9 +27,8 @@ def A_non_singlet(matching_order, N, L):
     """
     if matching_order[0] > 1:
         raise Exception("Time-like matching conditions are only known upto NLO")
-    else:
-        A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)
-        A_ns[0] = as1.A_ns()
+    A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)
+    A_ns[0] = as1.A_ns()
     return A_ns
 
 
@@ -54,7 +53,6 @@ def A_singlet(matching_order, N, L):
     """
     if matching_order[0] > 1:
         raise Exception("Time-like matching conditions are only known upto NLO")
-    else:
-        A_singlet = np.zeros((matching_order[0], 3, 3), np.complex_)
-        A_singlet[0] = as1.A_singlet(N, L)
+    A_singlet = np.zeros((matching_order[0], 3, 3), np.complex_)
+    A_singlet[0] = as1.A_singlet(N, L)
     return A_singlet
