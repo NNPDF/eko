@@ -1,4 +1,4 @@
-r"""The polarized, time-like |OME|."""
+r"""The unpolarized, time-like |OME|."""
 
 import numba as nb
 import numpy as np

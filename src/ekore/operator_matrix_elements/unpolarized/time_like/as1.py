@@ -1,4 +1,4 @@
-"""The unpolarized time-like |NLO| matching conditions."""
+"""The unpolarized, time-like |NLO| matching conditions."""
 
 import numba as nb
 import numpy as np
@@ -11,7 +11,7 @@ CF = 4 / 3
 def A_hg(N, L):
     r"""Compute the |NLO| heavy-gluon |OME|.
 
-    Implements :eqref:`27` from :cite:`Cacciari:2005ry`
+    Implements :eqref:`27` from :cite:`Cacciari:2005ry`.
 
     Parameters
     ----------
