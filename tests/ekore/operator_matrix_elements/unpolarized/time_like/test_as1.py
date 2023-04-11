@@ -1,4 +1,4 @@
-r"""Test NLO |OME|."""
+"""Testing values obtained from Mathematica."""
 
 import numpy as np
 
