@@ -43,7 +43,7 @@ def A_hg(N, L):
 def A_gg(L):
     r"""Compute the |NLO| gluon-gluon |OME|.
 
-    They are defined as the Mellin transform of :eqref:`B.6` from :cite:`Buza_1998`.
+    Implements the Mellin transform of :eqref:`24` from :cite:`Cacciari:2005ry`.
 
     Parameters
     ----------
