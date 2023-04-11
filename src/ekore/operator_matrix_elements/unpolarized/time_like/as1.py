@@ -41,6 +41,26 @@ def A_hg(N, L):
 
 
 @nb.njit(cache=True)
+def A_gg(L):
+    r"""Compute the |NLO| gluon-gluon |OME|.
+
+    They are defined as the Mellin transform of :eqref:`B.6` from :cite:`Buza_1998`.
+
+    Parameters
+    ----------
+    L : float
+        :math:`\ln(\mu_F^2 / m_h^2)`
+
+    Returns
+    -------
+    A_gg : complex
+        |NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`
+
+    """
+    return -2.0 / 3.0 * L
+
+
+@nb.njit(cache=True)
 def A_singlet(N, L):
     r"""Compute the |NLO| singlet |OME|.
 
@@ -58,7 +78,9 @@ def A_singlet(N, L):
         :math:`A^{S,(1)}`
 
     """
-    result = np.array([[0 + 0j, 0, 0], [0 + 0j, 0, 0], [A_hg(N, L), 0, 0]], np.complex_)
+    result = np.array(
+        [[A_gg(L), 0, 0], [0 + 0j, 0, 0], [A_hg(N, L), 0, 0]], np.complex_
+    )
     return result
 
 
