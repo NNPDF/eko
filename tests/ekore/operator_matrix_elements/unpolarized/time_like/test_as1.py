@@ -17,3 +17,9 @@ def test_A_hg():
         (2, complex(3, 3), 3),
     ]:
         np.testing.assert_almost_equal(ome_as1.A_hg(N, L), res[i])
+
+
+def test_A_gg():
+    res = [-2 / 3, -4 / 3, -2]
+    for L in [1, 2, 3]:
+        np.testing.assert_equal(ome_as1.A_gg(L), res[L - 1])
