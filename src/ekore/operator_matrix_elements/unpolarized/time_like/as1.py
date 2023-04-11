@@ -78,7 +78,7 @@ def A_singlet(N, L):
 
     """
     result = np.array(
-        [[A_gg(L), 0, 0], [0 + 0j, 0, 0], [A_hg(N, L), 0, 0]], np.complex_
+        [[A_gg(L), 0 + 0j, 0], [0 + 0j, 0, 0], [A_hg(N, L), 0, 0]], np.complex_
     )
     return result
 
