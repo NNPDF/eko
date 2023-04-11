@@ -44,6 +44,7 @@ def A_gg(L):
     r"""Compute the |NLO| gluon-gluon |OME|.
 
     Implements the Mellin transform of :eqref:`24` from :cite:`Cacciari:2005ry`.
+    It is identical to the one in :class:`~ekore.operator_matrix_elements.unpolarized.space_like.as1`.
 
     Parameters
     ----------
