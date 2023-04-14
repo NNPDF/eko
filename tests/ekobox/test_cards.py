@@ -1,5 +1,6 @@
 import math
 
+import numpy as np
 import pytest
 
 from ekobox import cards
@@ -7,21 +8,25 @@ from ekobox import cards
 
 def test_generate_ocard():
     mu0 = 1.65
-    mu2grid = [10.0, 100.0]
+    mugrid = [(10.0, 6), (100.0, 5)]
     op = cards.example.operator()
     op.mu0 = mu0
-    op.mu2grid = mu2grid
-    assert pytest.approx(op.mu2grid) == mu2grid
+    op.mugrid = mugrid
+    assert pytest.approx(op.mugrid) == mugrid
+    assert pytest.approx(op.mu2grid) == np.array([mu**2 for mu, _ in mugrid])
     assert op.configs.interpolation_polynomial_degree == 4
-    mu2grid1 = [100.0]
+    mugrid1 = [100.0, 5]
     op = cards.example.operator()
     op.mu0 = mu0
-    op.mu2grid = mu2grid1
+    op.mugrid = mugrid1
     op.configs.interpolation_polynomial_degree = 2
     op.configs.interpolation_is_log = False
-    assert op.mu2grid == mu2grid1
+    assert op.mugrid == mugrid1
     assert op.configs.interpolation_polynomial_degree == 2
     assert op.configs.interpolation_is_log is False
+    rawo = cards.example.raw_operator()
+    assert isinstance(rawo, dict)
+    assert op.debug.skip_non_singlet == rawo["debug"]["skip_non_singlet"]
 
 
 def test_dump_load_op_card(tmp_path, cd):
@@ -42,9 +47,12 @@ def test_dump_load_op_card(tmp_path, cd):
 def test_generate_theory_card():
     theory = cards.example.theory()
     assert hasattr(theory, "order")
-    assert theory.quark_masses.t.value == 173.07
+    assert theory.heavy.masses.t.value == 173.07
     theory.order = (2, 0)
     assert theory.order[0] == 2
+    rawt = cards.example.raw_theory()
+    assert isinstance(rawt, dict)
+    assert theory.heavy.num_flavs_init == rawt["heavy"]["num_flavs_init"]
 
 
 def containsnan(obj) -> bool:

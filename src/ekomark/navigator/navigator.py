@@ -52,10 +52,9 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             "Qref",
             "alphas",
             "XIF",
-            "XIR",
         ]:
             obj[f] = theo[f]
-        obj["F/R"] = theo["fact_to_ren_scale_ratio"]
+        obj["XIF"] = theo["XIF"]
         obj["mcThr"] = theo["mc"] * theo["kcThr"]
         obj["mbThr"] = theo["mb"] * theo["kbThr"]
         obj["mtThr"] = theo["mt"] * theo["ktThr"]
@@ -77,7 +76,7 @@ class NavigatorApp(bnav.navigator.NavigatorApp):
             + f"{'log' if op['interpolation_is_log'] else 'x'}"
             + f"^{op['interpolation_polynomial_degree']}"
         )
-        obj["Q2grid"] = op["Q2grid"]
+        obj["mugrid"] = op["mugrid"]
         obj["max_ord"] = op["ev_op_max_order"]
         obj["iters"] = op["ev_op_iterations"]
         obj["skip_ns"] = op["debug_skip_non_singlet"]

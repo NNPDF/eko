@@ -1,4 +1,4 @@
-r"""This module defines the matching conditions for the N3LO |VFNS| evolution.
+r"""The unpolarized, space-like |N3LO| |OME|.
 
 The expressions are based on:
 
@@ -169,10 +169,6 @@ def A_ns(n, sx_all, nf, L):
     -------
     A_NS : numpy.ndarray
         |N3LO| non-singlet |OME| :math:`A^{NS,(3)}`
-
-    See Also
-    --------
-    A_qqNS_3 : :math:`A_{qq,H}^{NS,(3))}`
 
     """
     return np.array(

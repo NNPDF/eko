@@ -28,7 +28,7 @@ def variation_as1(gamma, L):
     complex
         variation at |NLO|
     """
-    return -L * gamma[0]
+    return L * gamma[0]
 
 
 @nb.njit(cache=True)
@@ -55,7 +55,7 @@ def variation_as2(gamma, L, beta0, g0e2):
     complex
         variation at |NNLO|
     """
-    return -gamma[1] * L + 1.0 / 2.0 * (beta0 * gamma[0] + g0e2) * L**2
+    return gamma[1] * L + 1.0 / 2.0 * (beta0 * gamma[0] + g0e2) * L**2
 
 
 @nb.njit(cache=True)
@@ -87,11 +87,11 @@ def variation_as3(gamma, L, beta0, beta1, g0e2, g0e3, g1g0, g0g1):
         variation at |N3LO|
     """
     return (
-        -gamma[2] * L
+        gamma[2] * L
         + (1.0 / 2.0)
         * (beta1 * gamma[0] + 2.0 * beta0 * gamma[1] + g1g0 + g0g1)
         * L**2
-        - (1.0 / 6.0)
+        + (1.0 / 6.0)
         * (2.0 * beta0**2 * gamma[0] + 3.0 * beta0 * g0e2 + g0e3)
         * L**3
     )
@@ -121,14 +121,14 @@ def non_singlet_variation(gamma, a_s, order, nf, L):
     """
     sv_ker = 1.0
     if order[0] >= 2:
-        sv_ker -= a_s * variation_as1(gamma, L)
+        sv_ker += a_s * variation_as1(gamma, L)
     if order[0] >= 3:
         beta0 = beta.beta_qcd_as2(nf)
-        sv_ker -= a_s**2 * variation_as2(gamma, L, beta0, gamma[0] ** 2)
+        sv_ker += a_s**2 * variation_as2(gamma, L, beta0, gamma[0] ** 2)
     if order[0] >= 4:
         beta1 = beta.beta_qcd((3, 0), nf)
         g0g1 = gamma[0] * gamma[1]
-        sv_ker -= a_s**3 * variation_as3(
+        sv_ker += a_s**3 * variation_as3(
             gamma, L, beta0, beta1, gamma[0] ** 2, gamma[0] ** 3, g0g1, g0g1
         )
     return sv_ker
@@ -159,18 +159,18 @@ def singlet_variation(gamma, a_s, order, nf, L, dim):
     sv_ker = np.eye(dim, dtype=np.complex_)
     gamma = np.ascontiguousarray(gamma)
     if order[0] >= 2:
-        sv_ker -= a_s * variation_as1(gamma, L)
+        sv_ker += a_s * variation_as1(gamma, L)
     if order[0] >= 3:
         beta0 = beta.beta_qcd_as2(nf)
         gamma0e2 = gamma[0] @ gamma[0]
-        sv_ker -= a_s**2 * variation_as2(gamma, L, beta0, gamma0e2)
+        sv_ker += a_s**2 * variation_as2(gamma, L, beta0, gamma0e2)
     if order[0] >= 4:
         beta1 = beta.beta_qcd((3, 0), nf)
         gamma0e3 = gamma0e2 @ gamma[0]
         # here the product is not commutative
         g1g0 = gamma[1] @ gamma[0]
         g0g1 = gamma[0] @ gamma[1]
-        sv_ker -= a_s**3 * variation_as3(
+        sv_ker += a_s**3 * variation_as3(
             gamma, L, beta0, beta1, gamma0e2, gamma0e3, g1g0, g0g1
         )
     return sv_ker
@@ -201,7 +201,7 @@ def non_singlet_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
     sv_ker = non_singlet_variation(gamma[1:, 0], a_s, order, nf, L)
     if alphaem_running:
         if order[1] >= 2:
-            sv_ker -= a_em * variation_as1(gamma[0, 1:], L)
+            sv_ker += a_em * variation_as1(gamma[0, 1:], L)
     return sv_ker
 
 
@@ -230,7 +230,7 @@ def singlet_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
     sv_ker = singlet_variation(gamma[1:, 0], a_s, order, nf, L, 4)
     if alphaem_running:
         if order[1] >= 2:
-            sv_ker -= a_em * variation_as1(gamma[0, 1:], L)
+            sv_ker += a_em * variation_as1(gamma[0, 1:], L)
     return sv_ker
 
 
@@ -259,5 +259,5 @@ def valence_variation_qed(gamma, a_s, a_em, alphaem_running, order, nf, L):
     sv_ker = singlet_variation(gamma[1:, 0], a_s, order, nf, L, 2)
     if alphaem_running:
         if order[1] >= 2:
-            sv_ker -= a_em * variation_as1(gamma[0, 1:], L)
+            sv_ker += a_em * variation_as1(gamma[0, 1:], L)
     return sv_ker

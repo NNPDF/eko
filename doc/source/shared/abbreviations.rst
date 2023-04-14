@@ -4,6 +4,9 @@
 .. |PDF| replace::
    :abbr:`PDF (Parton Distribution Function(s))`
 
+.. |FF| replace::
+   :abbr:`FF (Fragmentation Function(s))`
+
 .. FNS
 
 .. |FNS| replace::
@@ -109,6 +112,9 @@
 
    <span class="green">✓</span>
 
+.. |MELA| raw:: html
+
+   <a href="https://github.com/vbertone/mela"><abbr title="a Mellin Evolution LibrAry">MELA</abbr></a>
 
 .. |API| replace::
    :abbr:`API (Application Program Interface)`

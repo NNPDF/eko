@@ -1,4 +1,4 @@
-"""The |N3LO| |OME| :math:`a_{gq}^{S,(3)}`."""
+"""The unpolarized, space-like |N3LO| gluon-quark |OME|."""
 import numba as nb
 import numpy as np
 
@@ -7,7 +7,7 @@ import numpy as np
 def A_gq(n, sx, nf, L):  # pylint: disable=too-many-locals
     r"""Compute the |N3LO| singlet |OME| :math:`A_{gq}^{S,(3)}(N)`.
 
-    The expression is presented in :cite:`Ablinger_2014` (eq 6.3).
+    The expression is presented in :cite:`Ablinger_2014` :eqref:`6.3`.
 
     When using the code, please cite the complete list of references
     available in :mod:`ekore.matching_conditions.as3`.

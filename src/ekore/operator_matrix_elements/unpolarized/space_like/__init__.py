@@ -1,4 +1,4 @@
-"""Definition of the |OME| for the non-trivial matching conditions in the |VFNS| evolution."""
+"""The unpolarized, space-like |OME|."""
 
 import numba as nb
 import numpy as np
@@ -27,15 +27,8 @@ def A_singlet(matching_order, n, sx, nf, L, is_msbar):
 
     Returns
     -------
-    numpy.ndarray
+    A_singlet : numpy.ndarray
         singlet |OME|
-
-    See Also
-    --------
-    ekore.matching_conditions.nlo.A_singlet_1 : :math:`A^{S,(1)}(N)`
-    ekore.matching_conditions.nlo.A_hh_1 : :math:`A_{HH}^{(1)}(N)`
-    ekore.matching_conditions.nlo.A_gh_1 : :math:`A_{gH}^{(1)}(N)`
-    ekore.matching_conditions.nnlo.A_singlet_2 : :math:`A_{S,(2)}(N)`
 
     """
     A_s = np.zeros((matching_order[0], 3, 3), np.complex_)
@@ -67,13 +60,8 @@ def A_non_singlet(matching_order, n, sx, nf, L):
 
     Returns
     -------
-    numpy.ndarray
+    A_non_singlet : numpy.ndarray
         non-singlet |OME|
-
-    See Also
-    --------
-    ekore.matching_conditions.nlo.A_hh_1 : :math:`A_{HH}^{(1)}(N)`
-    ekore.matching_conditions.nnlo.A_ns_2 : :math:`A_{qq,H}^{NS,(2)}`
 
     """
     A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)

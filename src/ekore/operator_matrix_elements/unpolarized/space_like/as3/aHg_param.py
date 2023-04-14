@@ -1,4 +1,4 @@
-"""The approximated renormalization constant part :math:`a_{Hg}^{S,(3)}(N)`."""
+"""The approximated incomplete part of renormalization constant :math:`a_{Hg}^{S,(3)}(N)`."""
 # pylint: skip-file
 import numba as nb
 import numpy as np
@@ -6,23 +6,20 @@ import numpy as np
 
 @nb.njit(cache=True)
 def a_Hg3(n, sx, nf):
-    r"""Compute the approximate part of :math:`a_{Hg}^{S,(3)}(N)`.
+    r"""Compute the approximate incomplete part of :math:`a_{Hg}^{S,(3)}(N)`.
 
     This is composed by two different part:
         1. the known part proportional to :math:`T_{F}` and
-        presented in :cite:`Blumlein:2017wxd` (eq 3.1).
+        presented in :cite:`Blumlein:2017wxd` :eqref:`3.1`.
 
         2. A parametrized part for the unknown factors,
         which is constructed from the 5 lowest moments
-        presented in :cite:`Bierenbaum:2009mv` (eq 8.50-8.54) and the
-        |LL| small-x contribution from :math:`Kawamura:2012cr` (eq 3.47)
+        presented in :cite:`Bierenbaum:2009mv` :eqref:`8.50-8.54` and the
+        |LL| small-x contribution from :math:`Kawamura:2012cr` :eqref:`3.47`
 
     The parametrized part has been tested to be in reasonable agreement
-    with the one provided in :math:`Kawamura:2012cr` (eq 3.49, 3.50).
+    with the one provided in :math:`Kawamura:2012cr` :eqref:`3.49`, :eqref:`3.50`.
     The :math:`n_f` part is exact.
-
-    When using the code, please cite the complete list of references
-    available in :mod:`ekore.matching_conditions.as3`.
 
     Parameters
     ----------
@@ -30,10 +27,13 @@ def a_Hg3(n, sx, nf):
         Mellin moment
     sx : list
         harmonic sums cache
+    nf : int
+        number of active flavor below the threshold
 
     Returns
     -------
     complex
+        :math:`A_{Hg}^{S,(3)}(N)`
 
     """
     S1, _ = sx[0]

@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 import eko.io.types
+from eko.quantities.couplings import CouplingEvolutionMethod
 from eko.runner import legacy
 
 
@@ -23,7 +24,7 @@ def test_init_errors(monkeypatch, theory_ffns, operator_card, tmp_path, caplog):
     monkeypatch.setattr(
         legacy,
         "couplings_mod_ev",
-        lambda *args: eko.io.types.CouplingEvolutionMethod.EXACT,
+        lambda *args: CouplingEvolutionMethod.EXACT,
     )
     operator_card.configs.evolution_method = FakeEM.BLUB
     with pytest.raises(ValueError, match="blub"):
@@ -36,10 +37,9 @@ def test_init_errors(monkeypatch, theory_ffns, operator_card, tmp_path, caplog):
     assert "exact" in caplog.text
 
 
-def test_compute_q2grid(theory_ffns, operator_card, tmp_path):
-    mugrid = np.array([10.0, 100.0])
-    operator_card._mugrid = mugrid
-    operator_card._mu2grid = None
+def test_compute_mu2grid(theory_ffns, operator_card, tmp_path):
+    mugrid = [(10.0, 5), (100.0, 5)]
+    operator_card.mugrid = mugrid
     opgrid = legacy.Runner(
         theory_ffns(3), operator_card, path=tmp_path / "eko.tar"
     ).op_grid
@@ -78,14 +78,11 @@ def test_mod_expanded(theory_card, theory_ffns, operator_card, tmp_path: pathlib
         else:
             theory = theory_card
         theory.order = (1, 0)
-        theory.num_flavs_init = nf0
-        theory.matching
-        theory.fact_to_ren = 1.0
+        theory.heavy.num_flavs_init = nf0
         path.unlink(missing_ok=True)
         opgrid = legacy.Runner(theory, operator_card, path=path).op_grid
         opg = opgrid.compute(3)
-        theory.fact_to_ren = 1.0 + epsilon
-        theory_update["fact_to_ren_scale_ratio"] = 1.0 + epsilon
+        theory_update["XIF"] = 1.0 + epsilon
         path.unlink(missing_ok=True)
         sv_opgrid = legacy.Runner(theory, operator_card, path=path).op_grid
         sv_opg = sv_opgrid.compute(3)

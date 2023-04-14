@@ -5,31 +5,34 @@ from math import nan
 import numpy as np
 import yaml
 
-from eko import basis_rotation as br
 from eko.io import runcards
-from eko.io.types import RawCard
+from eko.io.types import RawCard, ReferenceRunning
 
 _theory = dict(
     order=[1, 0],
     couplings=dict(
-        alphas=[0.118, 91.2],
-        alphaem=[0.007496252, nan],
+        alphas=0.118,
+        alphaem=0.007496252,
+        scale=91.2,
         num_flavs_ref=None,
         max_num_flavs=6,
     ),
-    num_flavs_init=None,
-    num_flavs_max_pdf=6,
-    intrinsic_flavors=[4],
-    quark_masses={q: [mq, nan] for mq, q in zip((2.0, 4.5, 173.07), "cbt")},
-    quark_masses_scheme="POLE",
-    matching=[1.0, 1.0, 1.0],
+    heavy=dict(
+        num_flavs_init=None,
+        num_flavs_max_pdf=6,
+        intrinsic_flavors=[4],
+        masses=[ReferenceRunning([mq, nan]) for mq in (2.0, 4.5, 173.07)],
+        masses_scheme="POLE",
+        matching_ratios=[1.0, 1.0, 1.0],
+    ),
     xif=1.0,
     n3lo_ad_variation=(0, 0, 0, 0),
 )
 
 _operator = dict(
     mu0=1.65,
-    _mugrid=[100.0],
+    mugrid=[(100.0, 5)],
+    xgrid=np.geomspace(1e-7, 1.0, 50).tolist(),
     configs=dict(
         evolution_method="iterate-exact",
         ev_op_max_order=[10, 0],
@@ -45,10 +48,6 @@ _operator = dict(
     debug=dict(
         skip_singlet=False,
         skip_non_singlet=False,
-    ),
-    rotations=dict(
-        xgrid=np.geomspace(1e-7, 1.0, 50).tolist(),
-        pids=list(br.flavor_basis_pids),
     ),
 )
 
@@ -75,7 +74,7 @@ class example:
     @classmethod
     def raw_operator(cls):
         """Provide example operator card unstructured."""
-        return _theory.copy()
+        return _operator.copy()
 
 
 def dump(card: RawCard, path: os.PathLike):

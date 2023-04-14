@@ -26,6 +26,7 @@ class Runner(BenchmarkRunner):
     rotate_to_evolution_basis = False
     sandbox = False
     plot_operator = False
+    log_to_stdout = True
 
     def __init__(self):
         self.banana_cfg = banana_cfg.cfg
@@ -73,12 +74,13 @@ class Runner(BenchmarkRunner):
                 DGLAP result
         """
         # activate logging
-        logStdout = logging.StreamHandler(sys.stdout)
-        logStdout.setLevel(logging.INFO)
-        logStdout.setFormatter(logging.Formatter("%(message)s"))
-        logging.getLogger("eko").handlers = []
-        logging.getLogger("eko").addHandler(logStdout)
-        logging.getLogger("eko").setLevel(logging.INFO)
+        if self.log_to_stdout:
+            logStdout = logging.StreamHandler(sys.stdout)
+            logStdout.setLevel(logging.INFO)
+            logStdout.setFormatter(logging.Formatter("%(message)s"))
+            logging.getLogger("eko").handlers = []
+            logging.getLogger("eko").addHandler(logStdout)
+            logging.getLogger("eko").setLevel(logging.INFO)
 
         ops_id = f"o{ocard['hash'][:6]}_t{theory['hash'][:6]}"
         root = banana_cfg.cfg["paths"]["database"].parents[0]

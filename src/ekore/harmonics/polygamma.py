@@ -1,5 +1,4 @@
-"""
-Implements higher mathematical functions.
+"""Polygamma and harmonic sums implementation.
 
 The functions are described in :doc:`Mellin space </theory/Mellin>`.
 """
@@ -10,8 +9,7 @@ import numpy as np
 
 @nb.njit(cache=True)
 def cern_polygamma(Z, K):  # pylint: disable=all
-    """
-    Computes the polygamma functions :math:`\\psi_k(z)`.
+    r"""Compute the polygamma functions :math:`\psi_k(z)`.
 
     Reimplementation of ``WPSIPG`` (C317) in `CERNlib <http://cernlib.web.cern.ch/cernlib/>`_
     :cite:`KOLBIG1972221`.
@@ -21,15 +19,16 @@ def cern_polygamma(Z, K):  # pylint: disable=all
 
     Parameters
     ----------
-        Z : complex
-            argument of polygamma function
-        K : int
-            order of polygamma function
+    Z : complex
+        argument of polygamma function
+    K : int
+        order of polygamma function
 
     Returns
     -------
-        H : complex
-            k-th polygamma function :math:`\\psi_k(z)`
+    H : complex
+        k-th polygamma function :math:`\psi_k(z)`
+
     """
     # fmt: off
     DELTA = 5e-13
@@ -127,25 +126,27 @@ def cern_polygamma(Z, K):  # pylint: disable=all
 
 @nb.njit(cache=True)
 def recursive_harmonic_sum(base_value, n, iterations, weight):
-    """
+    """Recursive computation of harmonic sums.
+
     Compute the harmonic sum :math:`S_{w}(N+k)` stating from the value
     :math:`S_{w}(N)` via the recurrence relations.
 
     Parameters
     ----------
-        base_value: complex
-            starting value :math:`S_{w}(N)`
-        n: complex
-            starting point
-        iterations: int
-            number of iterations
-        weight: int
-            harmonic sum weight
+    base_value: complex
+        starting value :math:`S_{w}(N)`
+    n: complex
+        starting point
+    iterations: int
+        number of iterations
+    weight: int
+        harmonic sum weight
 
     Returns
     -------
-        sni : complex
-            :math:`S_{w}(N+k)`
+    sni : complex
+        :math:`S_{w}(N+k)`
+
     """
     fact = 0.0
     for i in range(1, iterations + 1):
@@ -155,24 +156,24 @@ def recursive_harmonic_sum(base_value, n, iterations, weight):
 
 @nb.njit(cache=True)
 def symmetry_factor(N, is_singlet=None):
-    """
-    Compute the analytical continuation of :math:`(-1)^N`
+    """Compute the analytical continuation of :math:`(-1)^N`.
 
     Parameters
     ----------
-        N: complex
-            Mellin moment
-        is_singlet: bool, None
-            True for singlet like quantities
-            False for non-singlet like quantities
-            None for generic complex N value
+    N: complex
+        Mellin moment
+    is_singlet: bool, None
+        True for singlet like quantities
+        False for non-singlet like quantities
+        None for generic complex N value
 
     Returns
     -------
-        eta: complex
-            1 for singlet like quantities,
-            -1 for non-singlet like quantities,
-            :math:`(-1)^N` elsewise
+    eta: complex
+        1 for singlet like quantities,
+        -1 for non-singlet like quantities,
+        :math:`(-1)^N` elsewise
+
     """
     if is_singlet is None:
         return (-1) ** N

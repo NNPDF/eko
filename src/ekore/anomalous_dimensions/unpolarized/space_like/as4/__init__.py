@@ -42,14 +42,6 @@ def gamma_singlet(N, nf, sx, variation):
         |N3LO| singlet anomalous dimension matrix
         :math:`\gamma_{S}^{(3)}(N)`
 
-    See Also
-    --------
-    gamma_nsp : :math:`\gamma_{ns,+}^{(3)}`
-    gamma_ps : :math:`\gamma_{ps}^{(3)}`
-    gamma_qg : :math:`\gamma_{qg}^{(3)}`
-    gamma_gq : :math:`\gamma_{gq}^{(3)}`
-    gamma_gg : :math:`\gamma_{gg}^{(3)}`
-
     """
     gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx, variation[3])
     gamma_S_0 = np.array(

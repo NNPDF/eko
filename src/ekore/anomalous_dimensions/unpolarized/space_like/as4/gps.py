@@ -1,6 +1,6 @@
 # pylint: skip-file
 # fmt: off
-r"""The anomalous dimension :math:`\gamma_{ps}^{(3)}`."""
+r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ps}^{(3)}`."""
 import numba as nb
 import numpy as np
 
@@ -18,9 +18,9 @@ from .....harmonics.log_functions import (
 
 @nb.njit(cache=True)
 def gamma_ps_nf3(n, sx):
-    r"""Implement the part proportional to :math:`nf^3` of :math:`\gamma_{ps}^{(3)}`.
+    r"""Return the part proportional to :math:`nf^3` of :math:`\gamma_{ps}^{(3)}`.
 
-    The expression is copied exact from Eq. 3.10 of :cite:`Davies:2016jie`.
+    The expression is copied exact from :eqref:`3.10` of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
@@ -91,7 +91,7 @@ def gamma_ps_nf3(n, sx):
 
 @nb.njit(cache=True)
 def gamma_ps_nf1(n, sx, variation):
-    r"""Implement the part proportional to :math:`nf^1` of :math:`\gamma_{ps}^{(3)}`.
+    r"""Return the part proportional to :math:`nf^1` of :math:`\gamma_{ps}^{(3)}`.
 
     Parameters
     ----------
@@ -136,7 +136,7 @@ def gamma_ps_nf1(n, sx, variation):
 
 @nb.njit(cache=True)
 def gamma_ps_nf2(n, sx, variation):
-    r"""Implement the part proportional to :math:`nf^2` of :math:`\gamma_{ps}^{(3)}`.
+    r"""Return the part proportional to :math:`nf^2` of :math:`\gamma_{ps}^{(3)}`.
 
     Parameters
     ----------
@@ -199,12 +199,6 @@ def gamma_ps(n, nf, sx, variation):
     complex
         |N3LO| pure singlet quark-quark anomalous dimension
         :math:`\gamma_{ps}^{(3)}(N)`
-
-    See Also
-    --------
-    gamma_ps_nf1: :math:`\gamma_{ps}^{(3)}|_{nf^1}`
-    gamma_ps_nf2: :math:`\gamma_{ps}^{(3)}|_{nf^2}`
-    gamma_ps_nf3: :math:`\gamma_{ps}^{(3)}|_{nf^3}`
 
     """
     return (

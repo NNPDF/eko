@@ -1,5 +1,4 @@
-"""The |N3LO| |OME| :math:`A_{qq}^{NS,(3)}`."""
-
+"""The unpolarized, space-like |N3LO| quark-quark non-singlet |OME|."""
 import numba as nb
 import numpy as np
 

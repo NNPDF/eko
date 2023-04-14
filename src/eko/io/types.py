@@ -1,141 +1,94 @@
-"""Common type definitions, only used for static analysis.
-
-Unfortunately, Python has still some discrepancies between runtime classes and
-type hints, so it is better not to mix dataclasses and generics.
-
-E.g. before it was implemented::
-
-    @dataclasses.dataclass
-    class RunningReference(DictLike, Generic[Quantity]):
-        value: Quantity
-        scale: float
-
-but in this way it is not possible to determine that ``RunningReference`` is
-subclassing ``DictLike``, indeed::
-
-    inspec.isclass(RunningReference)  # False
-    issubclass(RunningReference, DictLike)  # raise an error, since
-                                            # RunningReference is not a class
-
-Essentially classes can be used for type hints, but types are not all classes,
-especially when they involve generics.
-
-For this reason I prefer the less elegant dynamic generation, that seems to
-preserve type hints.
-
-"""
-import dataclasses
+"""Common type definitions, only used for static analysis."""
 import enum
 import typing
-from math import isnan
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Generic, Tuple, TypeVar
 
-from .dictlike import DictLike
+# Energy scales
+# -------------
 
-T = typing.TypeVar("T")
+Scalar = float
+Scale = float
 
-
-def reference_running(quantity: typing.Type[typing.Union[int, float]]):
-    """Generate running quantities reference point classes.
-
-    The motivation for dynamic generation is provided in module docstring.
-
-    """
-
-    @dataclasses.dataclass
-    class ReferenceRunning(DictLike):
-        value: quantity
-        scale: float
-
-    return ReferenceRunning
+LinearScale = Scale
+SquaredScale = Scale
+# TODO: replace with (requires py>=3.9)
+#  LinearScale = Annotated[Scale, 1]
+#  SquaredScale = Annotated[Scale, 2]
 
 
-IntRef = reference_running(int)
-FloatRef = reference_running(float)
+# Flavors
+# -------
 
-Order = typing.Tuple[int, int]
+Order = Tuple[int, int]
 FlavorsNumber = int
 FlavorIndex = int
 IntrinsicFlavors = typing.List[FlavorIndex]
 N3LOAdVariation = typing.Tuple[int, int, int, int]
 
+# Targets
+# -------
 
-@dataclasses.dataclass
-class CouplingsRef(DictLike):
-    """Reference values for coupling constants."""
+Target = Tuple[LinearScale, FlavorsNumber]
 
-    alphas: FloatRef
-    alphaem: FloatRef
-    max_num_flavs: FlavorsNumber
-    num_flavs_ref: Optional[FlavorsNumber]
-    r"""Number of active flavors at strong coupling reference scale.
 
-    I.e. :math:`n_{f,\text{ref}}(\mu^2_{\text{ref}})`, formerly called
-    ``nfref``.
+# Scale functions
+# ---------------
+
+T = TypeVar("T")
+
+
+class ReferenceRunning(list, Generic[T]):
+    """Running quantities reference point.
+
+    To simplify serialization, the class is just storing the content as a list,
+    but:
+
+    - it is constructed with a ``Running.typed(T, Scale)`` signature
+    - it should always be used through the property accessors, rather then
+      using the list itself
 
     """
 
-    def __post_init__(self):
-        """Validate couplings.
+    @classmethod
+    def typed(cls, value: T, scale: Scale):
+        """Define constructor from individual values.
 
-        If they are both running, they have to be defined at the same scale.
-
-        Usually :attr:`alphaem` is not running, thus its scale is set to nan.
+        This is the preferred constructor for references, since respects the
+        intended types of the values.
+        It is not the default one only to simplify (de)serialization.
 
         """
-        assert self.alphas.scale == self.alphaem.scale or isnan(self.alphaem.scale)
+        return cls([value, scale])
 
     @property
-    def values(self):
-        """Collect only couplings values."""
-        return (self.alphas.value, self.alphaem.value)
+    def value(self) -> T:
+        """Reference value, given at a specified scale."""
+        return self[0]
+
+    @value.setter
+    def value(self, value: T):
+        self[0] = value
+
+    @property
+    def scale(self) -> Scale:
+        """Reference scale, at which the value of the function is given."""
+        return self[1]
+
+    @scale.setter
+    def scale(self, value: Scale):
+        self[1] = value
 
 
-def heavy_quark(quarkattr):
-    """Generate heavy quark properties container classes.
-
-    The motivation for dynamic generation is provided in module docstring.
-
-    """
-
-    @dataclasses.dataclass
-    class HeavyQuarks(DictLike):
-        """Access heavy quarks attributes by name."""
-
-        c: quarkattr
-        """Charm quark."""
-        b: quarkattr
-        """Bottom quark."""
-        t: quarkattr
-        """Top quark."""
-
-        def __getitem__(self, key: int):
-            """Allow access by index.
-
-            Consequently it allows iteration and containing check.
-
-            """
-            return getattr(self, "cbt"[key])
-
-    return HeavyQuarks
+FlavNumRef = ReferenceRunning[FlavorsNumber]
+LinearScaleRef = ReferenceRunning[LinearScale]
 
 
-QuarkMassRef = FloatRef
-HeavyQuarkMasses = heavy_quark(QuarkMassRef)
-MatchingScale = float
-MatchingScales = heavy_quark(MatchingScale)
+# Numerical methods
+# -----------------
 
-
-# TODO: upgrade all the following to StrEnum, new in py3.11
+# TODO: upgrade all the following to StrEnum (requires py>=3.11)
 # with that, it is possible to replace all non-alias right sides with calls to
 # enum.auto()
-
-
-class QuarkMassSchemes(enum.Enum):
-    """Scheme to define heavy quark masses."""
-
-    MSBAR = "msbar"
-    POLE = "pole"
 
 
 class EvolutionMethod(enum.Enum):
@@ -149,13 +102,6 @@ class EvolutionMethod(enum.Enum):
     ORDERED_TRUNCATED = "ordered-truncated"
     DECOMPOSE_EXACT = "decompose-exact"
     DECOMPOSE_EXPANDED = "decompose-expanded"
-
-
-class CouplingEvolutionMethod(enum.Enum):
-    """Beta functions solution method."""
-
-    EXACT = "exact"
-    EXPANDED = "expanded"
 
 
 class ScaleVariationsMethod(enum.Enum):

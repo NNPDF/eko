@@ -1,4 +1,4 @@
-"""The |N3LO| |OME| :math:`A_{Hq}^{S,(3)}`."""
+"""The unpolarized, space-like |N3LO| heavy-quark |OME|."""
 # pylint: disable=too-many-lines
 import numba as nb
 import numpy as np
@@ -8,8 +8,8 @@ import numpy as np
 def A_Hq(n, sx, nf, L):  # pylint: disable=too-many-locals
     r"""Compute the |N3LO| singlet |OME| :math:`A_{Hq}^{S,(3)}(N)`.
 
-    The expression is presented in :cite:`Ablinger_2015` (eq 5.1)
-    and :cite:`Blumlein:2017wxd` (eq 3.1).
+    The expression is presented in :cite:`Ablinger_2015` :eqref:`5.1`
+    and :cite:`Blumlein:2017wxd` :eqref:`3.1`.
 
     When using the code, please cite the complete list of references
     available in :mod:`ekore.matching_conditions.as3`.

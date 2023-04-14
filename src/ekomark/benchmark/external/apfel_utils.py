@@ -72,7 +72,7 @@ def compute_apfel_data(
 
     # Run
     apf_tabs = {}
-    for q2 in operators["Q2grid"]:
+    for q2 in operators["mu2grid"]:
         apfel.EvolveAPFEL(theory["Q0"], np.sqrt(q2))
         print(f"Executing APFEL took {(time.perf_counter() - apf_start)} s")
 

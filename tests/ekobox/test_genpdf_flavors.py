@@ -36,7 +36,7 @@ def test_flavors_evol_to_flavor():
 def test_flavors_evol_raw():
     blocks = [
         {
-            "Q2grid": np.array([1, 2]),
+            "mu2grid": np.array([1, 2]),
             "xgrid": np.array([0.1, 1.0]),
             "pids": np.array([-1, 21, 1]),
             "data": np.array([[0.1, 0.2, 0.1]] * 4),
@@ -65,13 +65,13 @@ def test_flavors_evol_nodata():
     # try with a block without data
     blocks = [
         {
-            "Q2grid": np.array([1, 2]),
+            "mu2grid": np.array([1, 2]),
             "xgrid": np.array([0.1, 1.0]),
             "pids": np.array([-1, 21, 1]),
             "data": np.array([]),
         },
         {
-            "Q2grid": np.array([1, 2]),
+            "mu2grid": np.array([1, 2]),
             "xgrid": np.array([0.1, 1.0]),
             "pids": np.array([-1, 21, 1]),
             "data": np.array([[0.1, 0.2, 0.1]] * 4),

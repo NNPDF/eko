@@ -1,4 +1,4 @@
-"""The |N3LO| |OME| :math:`a_{gg}^{S,(3)}`."""
+"""The unpolarized, space-like |N3LO| gluon-gluon |OME|."""
 # pylint: skip-file
 import numba as nb
 import numpy as np
@@ -268,11 +268,6 @@ def A_gg(n, sx, nf, L):
     -------
     complex
         :math:`A_{gg}^{S,(3)}(N)`
-
-    See Also
-    --------
-    a_gg3: eko.matching_conditions.as3.agg.a_gg3
-        :math:`a_{gg}^{S,(3)}(N)`.
 
     """
     S1, _ = sx[0]

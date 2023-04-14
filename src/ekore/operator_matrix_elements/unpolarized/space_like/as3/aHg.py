@@ -1,4 +1,4 @@
-"""The |N3LO| |OME| :math:`A_{Hg}^{S,(3)}`."""
+"""The unpolarized, space-like |N3LO| heavy-gluon |OME|."""
 # pylint: skip-file
 import numba as nb
 import numpy as np
@@ -30,11 +30,6 @@ def A_Hg(n, sx, nf, L):
     -------
     complex
         :math:`A_{Hg}^{S,(3)}(N)`
-
-    See Also
-    --------
-    a_Hg3: eko.matching_conditions.as3.aHg_param.a_Hg3
-        Incomplete part of the |OME|  :math:`a_{Hg}^{S,(3)}(N)`.
 
     """
     S1, _ = sx[0]

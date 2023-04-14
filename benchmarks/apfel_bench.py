@@ -75,7 +75,7 @@ class BenchmarkVFNS(ApfelBenchmark):
             {
                 "PTO": [pto],
                 "XIR": [1 / np.sqrt(2.0)],
-                "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
+                "XIF": [np.sqrt(2.0)],
                 "ModSV": [svmode],
                 "EScaleVar": [0],
                 "nfref": [4],
@@ -128,7 +128,7 @@ class BenchmarkVFNS(ApfelBenchmark):
                 "HQ": ["MSBAR"],
             }
         )
-        self.run(cartesian_product(th), operators.build({"Q2grid": [[100]]}), ["ToyLH"])
+        self.run(cartesian_product(th), operators.build({"mugrid": [[10]]}), ["ToyLH"])
 
 
 class BenchmarkFFNS(ApfelBenchmark):
@@ -177,7 +177,7 @@ class BenchmarkFFNS(ApfelBenchmark):
             {
                 "PTO": [pto],
                 "XIR": [np.sqrt(0.5)],
-                "fact_to_ren_scale_ratio": [np.sqrt(2.0)],
+                "XIF": [np.sqrt(2.0)],
                 "ModSV": [svmode],
                 "EScaleVar": [0],
             }
@@ -188,7 +188,7 @@ class BenchmarkFFNS(ApfelBenchmark):
             {
                 "PTO": [pto],
                 "XIR": [np.sqrt(2.0)],
-                "fact_to_ren_scale_ratio": [np.sqrt(0.5)],
+                "XIF": [np.sqrt(0.5)],
                 "ModSV": [svmode],
                 "EScaleVar": [0],
             }

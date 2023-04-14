@@ -25,23 +25,23 @@ def gamma_variation(gamma, order, nf, L):
         adjusted anomalous dimensions
     """
     # since we are modifying *in-place* be careful, that the order matters!
-    # and indeed, we need to adjust the high elements first
+    # and indeed, we need to adjust the highest elements first
     beta0 = beta.beta_qcd((2, 0), nf)
     beta1 = beta.beta_qcd((3, 0), nf)
     beta2 = beta.beta_qcd((4, 0), nf)
     if order[0] >= 4:
-        gamma[3] -= (
+        gamma[3] += (
             3.0 * beta0 * L * gamma[2]
-            + (2.0 * beta1 * L - 3.0 * beta0**2 * L**2) * gamma[1]
-            + (beta2 * L - 5.0 / 2.0 * beta1 * beta0 * L**2 + beta0**3 * L**3)
+            + (2.0 * beta1 * L + 3.0 * beta0**2 * L**2) * gamma[1]
+            + (beta2 * L + 5.0 / 2.0 * beta1 * beta0 * L**2 + beta0**3 * L**3)
             * gamma[0]
         )
     if order[0] >= 3:
-        gamma[2] -= (
-            2.0 * beta0 * gamma[1] * L + (beta1 * L - beta0**2 * L**2) * gamma[0]
+        gamma[2] += (
+            2.0 * beta0 * gamma[1] * L + (beta1 * L + beta0**2 * L**2) * gamma[0]
         )
     if order[0] >= 2:
-        gamma[1] -= beta0 * gamma[0] * L
+        gamma[1] += beta0 * gamma[0] * L
     return gamma
 
 
@@ -72,5 +72,5 @@ def gamma_variation_qed(gamma, order, nf, L, alphaem_running):
     if alphaem_running:
         if order[1] >= 2:
             beta0qed = beta.beta_qed((0, 2), nf)
-            gamma[0, 2] -= beta0qed * gamma[0, 1] * L
+            gamma[0, 2] += beta0qed * gamma[0, 1] * L
         return gamma

@@ -13,9 +13,7 @@ import numpy.typing as npt
 import yaml
 
 from eko.interpolation import XGrid
-from eko.io.runcards import Rotations
 
-from .. import basis_rotation as br
 from . import raw
 from .dictlike import DictLike
 from .struct import EKO, Operator
@@ -54,7 +52,10 @@ def load_tar(source: os.PathLike, dest: os.PathLike, errors: bool = False):
         # get actual grids
         arrays = load_arrays(innerdir)
 
-    grid = op5to4(metaold["Q2grid"], arrays)
+    op5 = metaold.get("Q2grid")
+    if op5 is None:
+        op5 = metaold["mu2grid"]
+    grid = op5to4(op5, arrays)
 
     with EKO.create(dest) as builder:
         # here I'm plainly ignoring the static analyzer, the types are faking
@@ -98,36 +99,26 @@ class PseudoOperator(DictLike):
 
     mu20: float
     mu2grid: npt.NDArray
-    rotations: Rotations
+    xgrid: XGrid
     configs: dict
 
     @classmethod
     def from_old(cls, old: RawCard):
         """Load from old metadata."""
         mu20 = float(old["q2_ref"])
-        mu2grid = np.array(old["Q2grid"])
+        mu2list = old.get("Q2grid")
+        if mu2list is None:
+            mu2list = old["mu2grid"]
+        mu2grid = np.array(mu2list)
 
         xgrid = XGrid(old["interpolation_xgrid"])
-        pids = old.get("pids", np.array(br.flavor_basis_pids))
-
-        rotations = Rotations(xgrid=xgrid, pids=pids)
-
-        def set_if_different(name: str, default: npt.NDArray):
-            basis = old.get(name)
-            if basis is not None and not np.allclose(basis, default):
-                setattr(rotations, name, basis)
-
-        set_if_different("inputpids", pids)
-        set_if_different("targetpids", pids)
-        set_if_different("inputgrid", xgrid.raw)
-        set_if_different("targetgrid", xgrid.raw)
 
         configs = dict(
             interpolation_polynomial_degree=old.get("interpolation_polynomial_degree"),
             interpolation_is_log=old.get("interpolation_is_log"),
         )
 
-        return cls(mu20=mu20, mu2grid=mu2grid, rotations=rotations, configs=configs)
+        return cls(mu20=mu20, mu2grid=mu2grid, xgrid=xgrid, configs=configs)
 
 
 ARRAY_SUFFIX = ".npy.lz4"

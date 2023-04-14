@@ -1,4 +1,4 @@
-r"""The anomalous dimension :math:`\\gamma_{ns,+}^{(3)}`."""
+r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ns,+}^{(3)}`."""
 import numba as nb
 
 from .....harmonics.log_functions import lm11m1, lm12m1, lm13m1
@@ -7,7 +7,7 @@ from .gnsm import gamma_ns_nf3
 
 @nb.njit(cache=True)
 def gamma_nsp_nf2(n, sx):
-    r"""Implement the parametrized singlet-like non-singlet part proportional to :math:`nf^2`.
+    r"""Return the parametrized singlet-like non-singlet part proportional to :math:`nf^2`.
 
     Parameters
     ----------
@@ -19,7 +19,7 @@ def gamma_nsp_nf2(n, sx):
     Returns
     -------
     g_nsp_nf2 : complex
-        |N3LO| singlet-like non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^2}`
+        |N3LO| singlet-like non-singlet anomalous dimension :math:`\gamma_{ns,+}^{(3)}|_{nf^2}`
 
     """
     S1 = sx[0][0]
@@ -47,7 +47,7 @@ def gamma_nsp_nf2(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsp_nf1(n, sx):
-    r"""Implement the parametrized singlet-like non-singlet part proportional to :math:`nf^1`.
+    r"""Return the parametrized singlet-like non-singlet part proportional to :math:`nf^1`.
 
     Parameters
     ----------
@@ -59,7 +59,7 @@ def gamma_nsp_nf1(n, sx):
     Returns
     -------
     g_nsp_nf1 : complex
-        |N3LO| singlet-like non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^1}`
+        |N3LO| singlet-like non-singlet anomalous dimension :math:`\gamma_{ns,+}^{(3)}|_{nf^1}`
 
     """
     S1 = sx[0][0]
@@ -88,7 +88,7 @@ def gamma_nsp_nf1(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsp_nf0(n, sx):
-    r"""Implement the parametrized singlet-like non-singlet part proportional to :math:`nf^0`.
+    r"""Return the parametrized singlet-like non-singlet part proportional to :math:`nf^0`.
 
     Parameters
     ----------
@@ -100,7 +100,7 @@ def gamma_nsp_nf0(n, sx):
     Returns
     -------
     g_nsp_nf0 : complex
-        |N3LO| singlet-like non-singlet anomalous dimension :math:`\\gamma_{ns,+}^{(3)}|_{nf^0}`
+        |N3LO| singlet-like non-singlet anomalous dimension :math:`\gamma_{ns,+}^{(3)}|_{nf^0}`
 
     """
     S1 = sx[0][0]
@@ -145,14 +145,7 @@ def gamma_nsp(n, nf, sx):
     -------
     gamma_nsp : complex
         |N3LO| singlet-like non-singlet anomalous dimension
-        :math:`\\gamma_{ns,+}^{(3)}(N)`
-
-    See Also
-    --------
-    gamma_nsp_nf0: :math:`\\gamma_{ns,+}^{(3)}|_{nf^0}`
-    gamma_nsp_nf1: :math:`\\gamma_{ns,+}^{(3)}|_{nf^1}`
-    gamma_nsp_nf2: :math:`\\gamma_{ns,+}^{(3)}|_{nf^2}`
-    gamma_ns_nf3: :math:`\\gamma_{ns}^{(3)}|_{nf^3}`
+        :math:`\gamma_{ns,+}^{(3)}(N)`
 
     """
     return (
