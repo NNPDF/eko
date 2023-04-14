@@ -6,9 +6,21 @@ The functions are described in :doc:`Mellin space </theory/Mellin>`.
 import numba as nb
 import numpy as np
 
+from ..cffilib import c_cern_polygamma, c_getdouble, im_y_address, re_y_address
+
+
+@nb.njit()
+def cern_polygamma(z, k):
+    """Compute polygamma from C."""
+    # bypass complex and pointers
+    res = c_cern_polygamma(np.real(z), np.imag(z), k, re_y_address, im_y_address)
+    re_y = c_getdouble(re_y_address)
+    im_y = c_getdouble(im_y_address)
+    return re_y + im_y * 1j
+
 
 @nb.njit(cache=True)
-def cern_polygamma(Z, K):  # pylint: disable=all
+def _cern_polygamma(Z, K):  # pylint: disable=all
     r"""Compute the polygamma functions :math:`\psi_k(z)`.
 
     Reimplementation of ``WPSIPG`` (C317) in `CERNlib <http://cernlib.web.cern.ch/cernlib/>`_
