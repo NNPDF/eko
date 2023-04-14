@@ -1,3 +1,4 @@
+"""PDF set elements loaders."""
 import pathlib
 
 import numpy as np
@@ -12,18 +13,18 @@ with open(here / "Toy.info", encoding="utf-8") as t:
 
 
 def load_info_from_file(pdfset_name):
-    """
-    Load the info file from a parent pdf.
+    """Load the info file from a parent pdf.
 
     Parameters
     ----------
-        pdfset_name : str
-            parent pdf name
+    pdfset_name : str
+        parent pdf name
 
     Returns
     -------
-        dict
-            info dictionary
+    dict
+        info dictionary
+
     """
     import lhapdf  # pylint: disable=import-error, import-outside-toplevel
 
@@ -34,22 +35,21 @@ def load_info_from_file(pdfset_name):
 
 
 def load_blocks_from_file(pdfset_name, member):
-    """
-    Load a pdf from a parent pdf.
+    """Load a pdf from a parent pdf.
 
     Parameters
     ----------
-        pdfset_name : str
-            parent pdf name
-        member : int
-            pdf member
+    pdfset_name : str
+        parent pdf name
+    member : int
+        pdf member
 
     Returns
     -------
-        str :
-            head of member file
-        list(dict) :
-            pdf blocks of data
+    str :
+        head of member file
+    list(dict) :
+        pdf blocks of data
 
     """
     import lhapdf  # pylint: disable=import-error, import-outside-toplevel
@@ -75,8 +75,10 @@ def load_blocks_from_file(pdfset_name, member):
         for line in cnt[head_section + 4 : next_head_section]:
             elems = np.fromstring(line.strip(), sep=" ")
             data.append(elems)
-        Q2grid = [el * el for el in Qgrid]
-        blocks.append(dict(xgrid=xgrid, Q2grid=Q2grid, pids=pids, data=np.array(data)))
+        mu2grid = [el * el for el in Qgrid]
+        blocks.append(
+            dict(xgrid=xgrid, mu2grid=mu2grid, pids=pids, data=np.array(data))
+        )
         # iterate
         head_section = next_head_section
     return head, blocks

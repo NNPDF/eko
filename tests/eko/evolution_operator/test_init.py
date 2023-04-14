@@ -17,32 +17,31 @@ from eko.kernels import singlet as s
 
 
 def test_quad_ker_errors():
-    for p, t in [(False, True), (True, True)]:
-        for mode0 in [br.non_singlet_pids_map["ns+"], 21]:
-            with pytest.raises(NotImplementedError):
-                quad_ker(
-                    u=0.3,
-                    order=(1, 0),
-                    mode0=mode0,
-                    mode1=0,
-                    method="",
-                    is_log=True,
-                    logx=0.1,
-                    areas=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
-                    as_list=[2.0, 1.0],
-                    mu2_from=1.0,
-                    mu2_to=2.0,
-                    a_half=np.array([[1.5, 0.01]]),
-                    alphaem_running=False,
-                    nf=3,
-                    L=0,
-                    ev_op_iterations=1,
-                    ev_op_max_order=(1, 0),
-                    sv_mode=1,
-                    is_threshold=False,
-                    is_polarized=p,
-                    is_time_like=t,
-                )
+    for mode0 in [br.non_singlet_pids_map["ns+"], 21]:
+        with pytest.raises(NotImplementedError):
+            quad_ker(
+                u=0.3,
+                order=(1, 0),
+                mode0=mode0,
+                mode1=0,
+                method="",
+                is_log=True,
+                logx=0.1,
+                areas=[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
+                as_list=[2.0, 1.0],
+                mu2_from=1.0,
+                mu2_to=2.0,
+                a_half=np.array([[1.5, 0.01]]),
+                alphaem_running=False,
+                nf=3,
+                L=0,
+                ev_op_iterations=1,
+                ev_op_max_order=(1, 0),
+                sv_mode=1,
+                is_threshold=False,
+                is_polarized=True,
+                is_time_like=True,
+            )
 
 
 def test_quad_ker(monkeypatch):
@@ -69,7 +68,7 @@ def test_quad_ker(monkeypatch):
     ]
     for order, mode0, mode1, method, logx, res in params:
         for is_log in [True, False]:
-            for polarized in [True, False]:
+            for t, p in [(False, False), (False, True), (True, False)]:
                 res_ns = quad_ker(
                     u=0,
                     order=order,
@@ -90,8 +89,8 @@ def test_quad_ker(monkeypatch):
                     ev_op_max_order=(0, 0),
                     sv_mode=1,
                     is_threshold=False,
-                    is_polarized=polarized,
-                    is_time_like=False,
+                    is_polarized=p,
+                    is_time_like=t,
                 )
                 np.testing.assert_allclose(res_ns, res)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
@@ -207,7 +206,7 @@ class TestOperator:
                 debug_skip_singlet=False,
                 n_integration_cores=1,
                 ModSV=None,
-                ev_op_iterations=1
+                ev_op_iterations=1,
             ),
             fake_managers,
             3,
@@ -222,7 +221,7 @@ class TestOperator:
                 debug_skip_singlet=True,
                 n_integration_cores=1,
                 ModSV=None,
-                ev_op_iterations=1
+                ev_op_iterations=1,
             ),
             fake_managers,
             3,
@@ -275,7 +274,7 @@ class TestOperator:
                 debug_skip_singlet=True,
                 n_integration_cores=-excluded_cores,
                 ModSV=None,
-                ev_op_iterations=1
+                ev_op_iterations=1,
             ),
             fake_managers,
             3,
@@ -293,7 +292,6 @@ class TestOperator:
         g = r.op_grid
         # setup objs
         o = Operator(g.config, g.managers, 3, 2.0, 10.0)
-        np.testing.assert_allclose(o.sv_exponentiated_shift(40.0), 10.0)
         o.compute()
         self.check_lo(o)
 
@@ -341,7 +339,7 @@ class TestOperator:
             scipy.integrate, "quad", lambda *args, v=v, **kwargs: (v, 0.56)
         )
         o.compute()
-        lx = len(ocard.rotations.xgrid.raw)
+        lx = len(ocard.xgrid.raw)
         res = np.full((lx, lx), v)
         res[-1, -1] = 1.0
         # ns are all diagonal, so they start from an identity matrix
@@ -383,7 +381,7 @@ class TestOperator:
                 assert k in o1.op_members
                 np.testing.assert_allclose(
                     o1.op_members[k].value,
-                    np.eye(len(ocard.rotations.xgrid.raw)),
+                    np.eye(len(ocard.xgrid.raw)),
                     err_msg=k,
                 )
 

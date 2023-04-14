@@ -13,6 +13,7 @@ authors = [
   "F. Hekhorn <felix.hekhorn@mi.infn.it>",
   "N. Laurenti <niccolo.laurenti@mi.infn.it>",
   "G. Magni <gmagni@nikhef.nl>",
+  "T. Sharma <tanishq.sharma@alumni.cern>"
 ]
 classifiers = [
   "Programming Language :: Python",
@@ -115,7 +116,8 @@ bench-run.env.NUMBA_DISABLE_JIT.default = "0"
 lint = "pylint src/**/*.py -E"
 lint-warnings = "pylint src/**/*.py --exit-zero"
 sandbox = "python benchmarks/sandbox.py"
-lha = "python benchmarks/lha_paper_bench.py"
+lha.cmd = "pytest benchmarks/lha_paper_bench.py -s"
+lha.env.NUMBA_DISABLE_JIT.default = "0"
 nav = "ekonav --config benchmarks/banana.yaml"
 navigator = "ekonav --config benchmarks/banana.yaml"
 docs = { "shell" = "cd doc; make html" }
@@ -145,7 +147,16 @@ addopts = [
   '--strict-markers',
 ]
 env = ["D:NUMBA_DISABLE_JIT=1"]
-markers = ["isolated: marks benchmarks as isolated"]
+markers = [
+  "isolated: marks benchmarks as isolated",
+  "ffns: Fixed flavor configuration",
+  "ffns_pol: Polarized fixed flavor configuration",
+  "vfns: Variable flavor configuration",
+  "lo: Leading order",
+  "nlo: Next-to-leading order",
+  "nnlo: Next-to-next-to-leading order",
+  "sv: Scale variations",
+]
 
 [tool.pylint.master]
 # extensions not to check

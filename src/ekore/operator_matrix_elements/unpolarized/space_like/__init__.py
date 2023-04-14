@@ -1,4 +1,4 @@
-"""Defines the |OME| for the non-trivial matching conditions in the |VFNS| evolution."""
+"""The unpolarized, space-like |OME|."""
 
 import numba as nb
 import numpy as np
@@ -50,7 +50,7 @@ def A_non_singlet(matching_order, n, sx, nf, L):
     Parameters
     ----------
     matching_order : tuple(int,int)
-        perturbative matching_order
+        perturbative matching order
     n : complex
         Mellin variable
     sx : list

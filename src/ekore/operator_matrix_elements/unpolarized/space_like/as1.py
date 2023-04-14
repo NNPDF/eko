@@ -1,4 +1,4 @@
-r"""Contains the |NLO| |OME| (OMEs) for the matching conditions in the |VFNS|.
+r"""The unpolarized, spacelike |NLO| |OME|.
 
 Heavy quark contribution for intrinsic evolution are taken from :cite:`Ball_2016`
 and Mellin transformed with Mathematica.
@@ -13,10 +13,10 @@ from eko.constants import CF
 
 @nb.njit(cache=True)
 def A_hh(n, sx, L):
-    r"""|NLO| heavy-heavy |OME|.
+    r"""|NLO| heavy-heavy |OME| :math:`A_{HH}^{(1)}`.
 
-    :math:`A_{HH}^{(1)}` is defined as the
-    mellin transform of :math:`K_{hh}` given in :eqref:`20a` of :cite:`Ball_2016`.
+    They are defined as the Mellin transform of :math:`K_{hh}`
+    given in :eqref:`20a` of :cite:`Ball_2016`.
 
     Parameters
     ----------
@@ -49,10 +49,10 @@ def A_hh(n, sx, L):
 
 @nb.njit(cache=True)
 def A_gh(n, L):
-    r"""|NLO| gluon-heavy |OME|.
+    r"""|NLO| gluon-heavy |OME| :math:`A_{gH}^{(1)}`.
 
-    :math:`A_{gH}^{(1)}` is defined as the
-    Mellin transform of :math:`K_{gh}` given in :eqref:`20b` of :cite:`Ball_2016`.
+    They are defined as the Mellin transform of :math:`K_{gh}`
+    given in :eqref:`20b` of :cite:`Ball_2016`.
 
     Parameters
     ----------
@@ -76,10 +76,9 @@ def A_gh(n, L):
 
 @nb.njit(cache=True)
 def A_hg(n, L):
-    r"""|NLO| heavy-gluon |OME|.
+    r"""|NLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(1)}`.
 
-    :math:`A_{Hg}^{S,(1)}` is defined as the
-    Mellin transform of :eqref:`B.2` from :cite:`Buza_1998`.
+    They are defined as the Mellin transform of:eqref:`B.2` from :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -101,10 +100,9 @@ def A_hg(n, L):
 
 @nb.njit(cache=True)
 def A_gg(L):
-    r"""|NLO| gluon-gluon |OME|.
+    r"""|NLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(1)}`.
 
-    :math:`A_{gg,H}^{S,(1)}` is defined as the
-    Mellin transform of :eqref:`B.6` from :cite:`Buza_1998`.
+    They are defined as the Mellin transform of :eqref:`B.6` from :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -161,11 +159,11 @@ def A_singlet(n, sx, L):
 def A_ns(n, sx, L):
     r"""Compute the |NLO| non-singlet |OME| with intrinsic contributions.
 
-      .. math::
-          A^{NS,(1)} = \left(\begin{array}{cc}
-            0 & 0 \\
-            0 & A_{HH}^{(1)}
-          \end{array}\right)
+    .. math::
+        A^{NS,(1)} = \left(\begin{array}{cc}
+        0 & 0 \\
+        0 & A_{HH}^{(1)}
+        \end{array}\right)
 
     Parameters
     ----------

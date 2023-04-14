@@ -1,6 +1,4 @@
-"""
-ekomark specialization of the navigator
-"""
+"""ekomark specialization of the navigator."""
 import argparse
 import pathlib
 
@@ -11,9 +9,7 @@ from . import glob, navigator
 
 
 def yelp(*args):
-    """
-    Help function (renamed to avoid clash of names) - short cut: h.
-    """
+    """Help function (renamed to avoid clash of names) - short cut: h."""
     if len(args) == 0:
         print(
             f"""Welcome to ekomark navigator - the eko benchmark skript!
@@ -38,6 +34,7 @@ Available functions:
 
 
 def register_globals(configpath):
+    """Expose global variables."""
     app = navigator.NavigatorApp(configpath, "sandbox")
     glob.app = app
 
@@ -54,7 +51,7 @@ def register_globals(configpath):
 
 
 def launch_navigator():
-    """CLI Entry point"""
+    """CLI Entry point."""
     parser = argparse.ArgumentParser()
 
     parser.add_argument(

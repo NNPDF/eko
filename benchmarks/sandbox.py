@@ -58,7 +58,7 @@ class Sandbox(Runner):
         ops = {
             "ev_op_iterations": [1],
             # "ev_op_max_order": [20],
-            "Q2grid": [[100]],
+            "mugrid": [[10]],
             # "debug_skip_singlet": [True],
         }
         return ops
@@ -70,7 +70,7 @@ class Sandbox(Runner):
             "QED": 0,
             # "ModEv": "EXA",
             # "XIR": 0.5,
-            # "fact_to_ren_scale_ratio": 2.0,
+            # "XIF": 2.0,
             "Q0": 1.65,  # np.sqrt(10),
             # "Qref": 1.5,
             # "alphas": 0.35,
@@ -119,7 +119,7 @@ class Sandbox(Runner):
             "FNS": "FFNS",
             "NfFF": 4,
             "ModEv": "EXA",
-            "fact_to_ren_scale_ratio": np.sqrt(2),
+            "XIF": np.sqrt(2),
             "Q0": np.sqrt(2),
             "kcThr": 0.0,
             "kbThr": np.inf,
@@ -140,7 +140,7 @@ class Sandbox(Runner):
         ]
         self.run(
             [theory_updates],
-            [{"Q2grid": [1e4], "debug_skip_singlet": True}],
+            [{"mugrid": [100], "debug_skip_singlet": True}],
             ["ToyLH"],
         )
 

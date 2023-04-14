@@ -2,7 +2,6 @@
 # See https://pre-commit.com/hooks.html for more hooks
 ci:
   autofix_prs: false
-  autoupdate_branch: develop
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
@@ -14,7 +13,7 @@ repos:
       - id: check-merge-conflict
       - id: debug-statements
   - repo: https://github.com/psf/black
-    rev: 23.1.0
+    rev: 23.3.0
     hooks:
       - id: black
   - repo: https://github.com/asottile/blacken-docs
@@ -35,10 +34,10 @@ repos:
     hooks:
       - id: pydocstyle
         files: ^src/
-        args: ["--add-ignore=D107"]
+        args: ["--add-ignore=D107,D105"]
         additional_dependencies:
           - toml
   - repo: https://github.com/pre-commit/pre-commit
-    rev: v3.0.2
+    rev: v3.2.2
     hooks:
       - id: validate_manifest

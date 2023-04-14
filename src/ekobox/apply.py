@@ -32,7 +32,7 @@ def apply_pdf(
     Returns
     -------
         out_grid : dict
-            output PDFs and their associated errors for the computed Q2grid
+            output PDFs and their associated errors for the computed mu2grid
     """
     if rotate_to_evolution_basis:
         if not qed:
@@ -71,7 +71,7 @@ def apply_pdf_flavor(
     Returns
     -------
         out_grid : dict
-            output PDFs and their associated errors for the computed Q2grid
+            output PDFs and their associated errors for the computed mu2grid
     """
     # create pdfs
     pdfs = np.zeros((len(eko.rotations.inputpids), len(eko.rotations.inputgrid)))

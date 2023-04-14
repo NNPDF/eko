@@ -48,9 +48,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
         raise ValueError("Initial scale Q0 must be equal to Qref in Pegasus.")
 
     if operators["polarized"]:
-        pegasus.initpol(
-            imodev, theory["PTO"], ivfns, nf, theory["fact_to_ren_scale_ratio"] ** 2
-        )
+        pegasus.initpol(imodev, theory["PTO"], ivfns, nf, 1.0 / theory["XIF"] ** 2)
         pegasus.initpinp(
             theory["alphas"],
             theory["Qref"] ** 2,
@@ -59,9 +57,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
             (theory["ktThr"] * theory["mt"]) ** 2,
         )
     else:
-        pegasus.initevol(
-            imodev, theory["PTO"], ivfns, nf, theory["fact_to_ren_scale_ratio"] ** 2
-        )
+        pegasus.initevol(imodev, theory["PTO"], ivfns, nf, 1.0 / theory["XIF"] ** 2)
         pegasus.initinp(
             theory["alphas"],
             theory["Qref"] ** 2,
@@ -86,12 +82,12 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
 
     # run pegaus
     out_tabs = {}
-    for q2 in operators["Q2grid"]:
+    for mu2 in operators["mu2grid"]:
         tab = {}
         for x in target_xgrid:
             # last two numbers are the min and max pid to calculate,
             # keep everthing for simplicity.
-            xf, _ = pegasus.xparton(x, q2, -6, 6)
+            xf, _ = pegasus.xparton(x, mu2, -6, 6)
             temp = dict(zip(labels, xf))
             for pid in labels:
                 if pid in skip_pdfs:
@@ -118,7 +114,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
             evol_pdf = rotate_flavor_to_evolution @ pdfs
             tab = dict(zip(evol_basis, evol_pdf))
 
-        out_tabs[q2] = tab
+        out_tabs[mu2] = tab
 
     ref = {"target_xgrid": target_xgrid, "values": out_tabs}
 

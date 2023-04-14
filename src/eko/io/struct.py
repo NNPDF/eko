@@ -474,13 +474,7 @@ class Metadata(DictLike):
     @property
     def raw(self):
         """Override default :meth:`DictLike.raw` representation to exclude path."""
-        raw = super().raw
-
-        for key in raw.copy():
-            if key.startswith("_"):
-                del raw[key]
-
-        return raw
+        return self.public_raw
 
 
 @dataclass
@@ -985,7 +979,7 @@ class EKO:
             operators themselves
 
         """
-        return dict(Q2grid=self.mu2grid.tolist(), metadata=self.metadata.raw)
+        return dict(mu2grid=self.mu2grid.tolist(), metadata=self.metadata.raw)
 
 
 @dataclass
@@ -1049,7 +1043,7 @@ class Builder:
         metadata = Metadata(
             _path=self.path,
             mu20=self.operator.mu20,
-            rotations=copy.deepcopy(self.operator.rotations),
+            rotations=Rotations(xgrid=self.operator.xgrid),
         )
         InternalPaths(self.path).bootstrap(
             theory=self.theory.raw,

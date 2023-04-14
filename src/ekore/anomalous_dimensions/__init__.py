@@ -1,5 +1,4 @@
-r"""
-This module contains the Altarelli-Parisi splitting kernels.
+r"""The Altarelli-Parisi splitting kernels.
 
 Normalization is given by
 
@@ -22,30 +21,30 @@ import numpy as np
 
 @nb.njit(cache=True)
 def exp_matrix_2D(gamma_S):
-    r"""
-    Compute the exponential and the eigensystem of the singlet anomalous dimension matrix.
+    r"""Compute the exponential and the eigensystem of the singlet anomalous dimension matrix.
 
     Parameters
     ----------
-        gamma_S : numpy.ndarray
-            singlet anomalous dimension matrix
+    gamma_S : numpy.ndarray
+        singlet anomalous dimension matrix
 
     Returns
     -------
-        exp : numpy.ndarray
-            exponential of the singlet anomalous dimension matrix :math:`\gamma_{S}(N)`
-        lambda_p : complex
-            positive eigenvalue of the singlet anomalous dimension matrix
-            :math:`\gamma_{S}(N)`
-        lambda_m : complex
-            negative eigenvalue of the singlet anomalous dimension matrix
-            :math:`\gamma_{S}(N)`
-        e_p : numpy.ndarray
-            projector for the positive eigenvalue of the singlet anomalous
-            dimension matrix :math:`\gamma_{S}(N)`
-        e_m : numpy.ndarray
-            projector for the negative eigenvalue of the singlet anomalous
-            dimension matrix :math:`\gamma_{S}(N)`
+    exp : numpy.ndarray
+        exponential of the singlet anomalous dimension matrix :math:`\gamma_{S}(N)`
+    lambda_p : complex
+        positive eigenvalue of the singlet anomalous dimension matrix
+        :math:`\gamma_{S}(N)`
+    lambda_m : complex
+        negative eigenvalue of the singlet anomalous dimension matrix
+        :math:`\gamma_{S}(N)`
+    e_p : numpy.ndarray
+        projector for the positive eigenvalue of the singlet anomalous
+        dimension matrix :math:`\gamma_{S}(N)`
+    e_m : numpy.ndarray
+        projector for the negative eigenvalue of the singlet anomalous
+        dimension matrix :math:`\gamma_{S}(N)`
+
     """
     # compute eigenvalues
     det = np.sqrt(
@@ -64,22 +63,22 @@ def exp_matrix_2D(gamma_S):
 
 @nb.njit(cache=True)
 def exp_matrix(gamma):
-    r"""
-    Compute the exponential and the eigensystem of a matrix.
+    r"""Compute the exponential and the eigensystem of a matrix.
 
     Parameters
     ----------
-        gamma : numpy.ndarray
-            input matrix
+    gamma : numpy.ndarray
+        input matrix
 
     Returns
     -------
-        exp : numpy.ndarray
-            exponential of the matrix gamma :math:`\gamma(N)`
-        w : numpy.ndarray
-            array of the eigenvalues of the matrix lambda
-        e : numpy.ndarray
-            projectors on the eigenspaces of the matrix gamma :math:`\gamma(N)`
+    exp : numpy.ndarray
+        exponential of the matrix gamma :math:`\gamma(N)`
+    w : numpy.ndarray
+        array of the eigenvalues of the matrix lambda
+    e : numpy.ndarray
+        projectors on the eigenspaces of the matrix gamma :math:`\gamma(N)`
+
     """
     dim = gamma.shape[0]
     e = np.zeros((dim, dim, dim), np.complex_)

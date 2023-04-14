@@ -1,18 +1,18 @@
-"""This module contains the anomalous dimension :math:`\\gamma_{ns,-}^{(3)}`
-
-"""
+r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ns,-}^{(3)}`."""
 import numba as nb
 
 from eko.constants import CF
+
 from .....harmonics.constants import zeta3
 from .....harmonics.log_functions import lm11m1, lm12m1, lm13m1
 
 
 @nb.njit(cache=True)
 def gamma_ns_nf3(n, sx):
-    """Implements the common part proportional to :math:`nf^3`,
-    of :math:`\\gamma_{ns,+}^{(3)},\\gamma_{ns,-}^{(3)},\\gamma_{ns,v}^{(3)}`.
-    The expression is copied exact from Eq. 3.6. of :cite:`Davies:2016jie`.
+    r"""Return the common part proportional to :math:`nf^3`.
+
+    Holds for :math:`\gamma_{ns,+}^{(3)},\gamma_{ns,-}^{(3)},\gamma_{ns,v}^{(3)}`.
+    The expression is copied exact from :eqref:`3.6` of :cite:`Davies:2016jie`.
 
     Parameters
     ----------
@@ -24,7 +24,7 @@ def gamma_ns_nf3(n, sx):
     Returns
     -------
     g_ns_nf3 : complex
-        |N3LO| non-singlet anomalous dimension :math:`\\gamma_{ns}^{(3)}|_{nf^3}`
+        |N3LO| non-singlet anomalous dimension :math:`\gamma_{ns}^{(3)}|_{nf^3}`
 
     """
     S1 = sx[0][0]
@@ -53,7 +53,7 @@ def gamma_ns_nf3(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsm_nf2(n, sx):
-    """Implements the parametrized valence-like non-singlet part proportional to :math:`nf^2`.
+    r"""Return the parametrized valence-like non-singlet part proportional to :math:`nf^2`.
 
     Parameters
     ----------
@@ -66,7 +66,7 @@ def gamma_nsm_nf2(n, sx):
     -------
     g_ns_nf2 : complex
         |N3LO| valence-like non-singlet anomalous dimension
-        :math:`\\gamma_{ns,-}^{(3)}|_{nf^2}`
+        :math:`\gamma_{ns,-}^{(3)}|_{nf^2}`
 
     """
     S1 = sx[0][0]
@@ -94,7 +94,7 @@ def gamma_nsm_nf2(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsm_nf1(n, sx):
-    """Implements the parametrized valence-like non-singlet part proportional to :math:`nf^1`.
+    r"""Return the parametrized valence-like non-singlet part proportional to :math:`nf^1`.
 
     Parameters
     ----------
@@ -107,7 +107,7 @@ def gamma_nsm_nf1(n, sx):
     -------
     g_ns_nf1 : complex
         |N3LO| valence-like non-singlet anomalous dimension
-        :math:`\\gamma_{ns,-}^{(3)}|_{nf^1}`
+        :math:`\gamma_{ns,-}^{(3)}|_{nf^1}`
 
     """
     S1 = sx[0][0]
@@ -136,7 +136,7 @@ def gamma_nsm_nf1(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsm_nf0(n, sx):
-    """Implements the parametrized valence-like non-singlet part proportional to :math:`nf^0`.
+    r"""Return the parametrized valence-like non-singlet part proportional to :math:`nf^0`.
 
     Parameters
     ----------
@@ -147,9 +147,10 @@ def gamma_nsm_nf0(n, sx):
 
     Returns
     -------
-        g_ns_nf0 : complex
-            |N3LO| valence-like non-singlet anomalous dimension
-            :math:`\\gamma_{ns,-}^{(3)}|_{nf^0}`
+    g_ns_nf0 : complex
+        |N3LO| valence-like non-singlet anomalous dimension
+        :math:`\gamma_{ns,-}^{(3)}|_{nf^0}`
+
     """
     S1 = sx[0][0]
     Lm11m1 = lm11m1(n, S1)
@@ -178,7 +179,7 @@ def gamma_nsm_nf0(n, sx):
 
 @nb.njit(cache=True)
 def gamma_nsm(n, nf, sx):
-    """Computes the |N3LO| valence-like non-singlet anomalous dimension.
+    r"""Compute the |N3LO| valence-like non-singlet anomalous dimension.
 
     Parameters
     ----------
@@ -193,14 +194,7 @@ def gamma_nsm(n, nf, sx):
     -------
     gamma_nsp : complex
         |N3LO| valence-like non-singlet anomalous dimension
-        :math:`\\gamma_{ns,-}^{(3)}(N)`
-
-    See Also
-    --------
-    gamma_nsm_nf0: :math:`\\gamma_{ns,-}^{(3)}|_{nf^0}`
-    gamma_nsm_nf1: :math:`\\gamma_{ns,-}^{(3)}|_{nf^1}`
-    gamma_nsm_nf2: :math:`\\gamma_{ns,-}^{(3)}|_{nf^2}`
-    gamma_ns_nf3: :math:`\\gamma_{ns}^{(3)}|_{nf^3}`
+        :math:`\gamma_{ns,-}^{(3)}(N)`
 
     """
     return (

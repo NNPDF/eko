@@ -1,10 +1,12 @@
+"""The unpolarized, space-like |N3LO| quark-gluon |OME|."""
 import numba as nb
 import numpy as np
 
 
 @nb.njit(cache=True)
 def A_qg(n, sx, nf, L):
-    r"""Computes the |N3LO| singlet |OME| :math:`A_{qg}^{S,(3)}(N)`.
+    r"""Compute the |N3LO| singlet |OME| :math:`A_{qg}^{S,(3)}(N)`.
+
     The expression is presented in :cite:`Bierenbaum:2009mv`.
 
     When using the code, please cite the complete list of references

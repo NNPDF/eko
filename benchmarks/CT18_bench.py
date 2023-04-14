@@ -30,7 +30,7 @@ class BenchmarkCT18(Runner):
     # Rotate to evolution basis
     rotate_to_evolution_basis = True
 
-    def benchmark_nnlo(self, Q0=1.295, Q2grid=(1e4,)):
+    def benchmark_nnlo(self, Q0=1.295, mugrid=(1e4,)):
         theory_card = base_theory.copy()
         theory_card.update(
             {
@@ -43,7 +43,7 @@ class BenchmarkCT18(Runner):
                 "MaxNfAs": 5,
             }
         )
-        operator_card = {"Q2grid": list(Q2grid)}
+        operator_card = {"mugrid": list(mugrid)}
         self.skip_pdfs = lambda _theory: [
             -6,
             6,
@@ -54,7 +54,7 @@ class BenchmarkCT18(Runner):
         ]
         self.run([theory_card], [operator_card], ["CT18NNLO"])
 
-    def benchmark_nnlo_qed(self, Q0=1.295, Q2grid=(1e4,)):
+    def benchmark_nnlo_qed(self, Q0=1.295, mugrid=(1e4,)):
         theory_card = base_theory.copy()
         theory_card.update(
             {
@@ -67,7 +67,7 @@ class BenchmarkCT18(Runner):
                 "MaxNfAs": 5,
             }
         )
-        operator_card = {"Q2grid": list(Q2grid)}
+        operator_card = {"mugrid": list(mugrid)}
         self.skip_pdfs = lambda _theory: [
             -6,
             6,
@@ -76,7 +76,7 @@ class BenchmarkCT18(Runner):
         ]
         self.run([theory_card], [operator_card], ["CT18qed"])
 
-    def benchmark_znnlo(self, Q0=1.3, Q2grid=(1e4,)):
+    def benchmark_znnlo(self, Q0=1.3, mugrid=(1e4,)):
         theory_card = base_theory.copy()
         theory_card.update(
             {
@@ -90,7 +90,7 @@ class BenchmarkCT18(Runner):
                 "mc": 1.4,
             }
         )
-        operator_card = {"Q2grid": list(Q2grid)}
+        operator_card = {"mugrid": list(mugrid)}
         self.skip_pdfs = lambda _theory: [
             -6,
             6,

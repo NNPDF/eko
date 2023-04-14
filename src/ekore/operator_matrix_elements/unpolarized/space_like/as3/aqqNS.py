@@ -1,10 +1,12 @@
+"""The unpolarized, space-like |N3LO| quark-quark non-singlet |OME|."""
 import numba as nb
 import numpy as np
 
 
 @nb.njit(cache=True)
 def A_qqNS(n, sx, nf, L):
-    r"""Computes the |N3LO| singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.
+    r"""Compute the |N3LO| singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.
+
     The expression is presented in :cite:`Bierenbaum:2009mv` and
     :cite:`Ablinger:2014vwa`. It contains some weight 5 harmonics sums.
 

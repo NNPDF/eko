@@ -42,30 +42,30 @@ def build(
     template_info["NumFlavors"] = 14
     template_info["Flavors"] = [-6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 21, 22]
     # TODO actually point to input grid
-    template_info["XMin"] = float(operators_card.rotations.xgrid.raw[0])
-    template_info["XMax"] = float(operators_card.rotations.xgrid.raw[-1])
+    template_info["XMin"] = float(operators_card.xgrid.raw[0])
+    template_info["XMax"] = float(operators_card.xgrid.raw[-1])
     template_info["NumMembers"] = num_members
     template_info["OrderQCD"] = theory_card.order[0] - 1
     template_info["QMin"] = round(math.sqrt(operators_card.mu2grid[0]), 4)
     template_info["QMax"] = round(math.sqrt(operators_card.mu2grid[-1]), 4)
-    template_info["MZ"] = theory_card.couplings.alphas.scale
+    template_info["MZ"] = theory_card.couplings.scale
     template_info["MUp"] = 0.0
     template_info["MDown"] = 0.0
     template_info["MStrange"] = 0.0
-    template_info["MCharm"] = theory_card.quark_masses.c.value
-    template_info["MBottom"] = theory_card.quark_masses.b.value
-    template_info["MTop"] = theory_card.quark_masses.t.value
-    template_info["AlphaS_MZ"] = theory_card.couplings.alphas.value
+    template_info["MCharm"] = theory_card.heavy.masses.c.value
+    template_info["MBottom"] = theory_card.heavy.masses.b.value
+    template_info["MTop"] = theory_card.heavy.masses.t.value
+    template_info["AlphaS_MZ"] = theory_card.couplings.alphas
     template_info["AlphaS_OrderQCD"] = theory_card.order[0] - 1
     evmod = couplings.couplings_mod_ev(operators_card.configs.evolution_method)
-    quark_masses = [(x.value) ** 2 for x in theory_card.quark_masses]
+    quark_masses = [(x.value) ** 2 for x in theory_card.heavy.masses]
     sc = couplings.Couplings(
         theory_card.couplings,
         theory_card.order,
         evmod,
         quark_masses,
-        hqm_scheme=theory_card.quark_masses_scheme,
-        thresholds_ratios=np.power(list(iter(theory_card.matching)), 2.0),
+        hqm_scheme=theory_card.heavy.masses_scheme,
+        thresholds_ratios=np.power(list(iter(theory_card.heavy.matching_ratios)), 2.0),
     )
     alphas_values = np.array(
         [

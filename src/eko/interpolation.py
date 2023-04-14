@@ -1,5 +1,4 @@
-"""
-Library providing all necessary tools for PDF interpolation.
+"""Library providing all necessary tools for PDF interpolation.
 
 This library also provides a class to generate the interpolator :class:`InterpolatorDispatcher`.
 Upon construction the dispatcher generates a number of functions
@@ -409,6 +408,7 @@ class BasisFunction:
         yield from self.areas
 
     def __call__(self, *args, **kwargs):
+        """Evaluate function."""
         args = list(args)
         args.append(self.areas_representation)
         return self.callable(*args, **kwargs)
@@ -450,24 +450,34 @@ class XGrid:
 
     @property
     def raw(self) -> np.ndarray:
+        """Untransformed grid."""
         return self.grid if not self.log else self._raw
 
     @property
     def size(self) -> int:
+        """Number of pointrs."""
         return self.grid.size
 
     def tolist(self) -> list:
+        """Raw grid as Python list."""
         return self.raw.tolist()
 
     def dump(self) -> dict:
+        """Representation as dictionary."""
         return dict(grid=self.tolist(), log=self.log)
 
     @classmethod
     def load(cls, doc: dict):
+        """Create object from dictinary."""
         return cls(doc["grid"], log=doc["log"])
 
     @classmethod
     def fromcard(cls, value: list, log: bool):
+        """Create object from theory card config.
+
+        The config can invoke other grid generation methods.
+
+        """
         if len(value) == 0:
             raise ValueError("Empty xgrid!")
 

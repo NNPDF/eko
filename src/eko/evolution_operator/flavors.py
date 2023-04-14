@@ -157,7 +157,7 @@ def rotate_matching(nf, qed=False, inverse=False):
             l[f"T{n}.T{n}"] = 1.0
         # the new contributions
         n = nf**2 - 1  # nf is pointing upwards
-        for (tot, oth, qpm) in (("S", f"T{n}", f"{q}+"), ("V", f"V{n}", f"{q}-")):
+        for tot, oth, qpm in (("S", f"T{n}", f"{q}+"), ("V", f"V{n}", f"{q}-")):
             if inverse:
                 l[f"{tot}.{tot}"] = (nf - 1.0) / nf
                 l[f"{tot}.{oth}"] = 1.0 / nf
@@ -173,7 +173,7 @@ def rotate_matching(nf, qed=False, inverse=False):
         for k in range(3, nf):
             l[f"V{names[k]}.V{names[k]}"] = 1.0
             l[f"T{names[k]}.T{names[k]}"] = 1.0
-        for (tot, totdelta, oth, qpm) in (
+        for tot, totdelta, oth, qpm in (
             ("S", "Sdelta", f"T{names[nf]}", f"{q}+"),
             ("V", "Vdelta", f"V{names[nf]}", f"{q}-"),
         ):

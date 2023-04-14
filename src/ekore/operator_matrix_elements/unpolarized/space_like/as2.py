@@ -1,11 +1,12 @@
-r"""Contains the |NNLO| |OME| for the matching conditions in the |VFNS| (see, :cite:`Buza_1998` appendix B).
+r"""The unpolarized, spacelike |NNLO| |OME|.
 
-The expression for :math:`\mu_F^2 = m_H^2` are taken from :cite:`Vogt:2004ns` directly in N space.
-While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes from |QCDNUM|
+See, :cite:`Buza_1998` appendix B.
+The expession for :math:`\mu_F^2 = m_H^2` are taken from :cite:`Vogt:2004ns` directly in N space.
+While the parts proportional to :math:`\ln(\mu_F^2 / m_h^2)` comes |QCDNUM|
 (https://github.com/N3PDF/external/blob/master/qcdnum/qcdnum/pij/ome.f)
-and was Mellin transformed with Mathematica.
+and Mellin transformed with Mathematica.
 
-The expression for ``A_Hg_l0`` comes form :cite:`Bierenbaum:2009zt`
+The expession for ``A_Hg_l0`` comes form :cite:`Bierenbaum:2009zt`.
 """
 import numba as nb
 import numpy as np
@@ -19,9 +20,9 @@ from .as1 import A_hg as A_hg_1
 
 @nb.njit(cache=True)
 def A_qq_ns(n, sx, L):
-    r"""Compute |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`.
+    r"""|NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`.
 
-    Implements :eqref:`B.4` of :cite:`Buza_1998`.
+    It is given in :eqref:`B.4` of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -75,9 +76,9 @@ def A_qq_ns(n, sx, L):
 
 @nb.njit(cache=True)
 def A_hq_ps(n, sx, L):
-    r"""Compute |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`.
+    r"""|NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`.
 
-    Implements :eqref:`B.1` of :cite:`Buza_1998`.
+    It is given in :eqref:`B.1` of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -139,11 +140,10 @@ def A_hq_ps(n, sx, L):
 
 @nb.njit(cache=True)
 def A_hg(n, sx, L):
-    r"""Compute |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`.
+    r"""|NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`.
 
-    Implements :eqref:`B.3` of :cite:`Buza_1998`.
-
-    The expression for ``A_Hg_l0`` comes form :cite:`Bierenbaum:2009zt`.
+    It is given in :eqref:`B.3` of :cite:`Buza_1998`.
+    The expession for ``A_Hg_l0`` comes form :cite:`Bierenbaum:2009zt`.
 
     Parameters
     ----------
@@ -281,9 +281,9 @@ def A_hg(n, sx, L):
 
 @nb.njit(cache=True)
 def A_gq(n, sx, L):
-    r"""Compute |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`.
+    r"""|NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`.
 
-    Implements :eqref:`B.5` of :cite:`Buza_1998`.
+    It is given in :eqref:`B.5` of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -332,9 +332,9 @@ def A_gq(n, sx, L):
 
 @nb.njit(cache=True)
 def A_gg(n, sx, L):
-    r"""Compute |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`.
+    r"""|NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`.
 
-    Implements :eqref:`B.7` of :cite:`Buza_1998`.
+    It is given in :eqref:`B.7` of :cite:`Buza_1998`.
 
     Parameters
     ----------
@@ -423,7 +423,6 @@ def A_singlet(n, sx, L, is_msbar=False):
     r"""Compute the |NNLO| singlet |OME|.
 
     .. math::
-
         A^{S,(2)} = \left(\begin{array}{cc}
         A_{gg, H}^{S,(2)} & A_{gq, H}^{S,(2)} & 0 \\
         0 & A_{qq,H}^{NS,(2)} & 0\\
@@ -467,7 +466,6 @@ def A_ns(n, sx, L):
     r"""Compute the |NNLO| non-singlet |OME|.
 
     .. math::
-
         A^{NS,(2)} = \left(\begin{array}{cc}
         A_{qq,H}^{NS,(2)} & 0 \\
         0 & 0 \\

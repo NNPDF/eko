@@ -6,7 +6,9 @@ import numpy as np
 import pytest
 import yaml
 
-from eko import EKO, interpolation
+from eko import EKO
+from eko import basis_rotation as br
+from eko import interpolation
 from eko.io import struct
 from tests.conftest import EKOFactory
 
@@ -49,32 +51,27 @@ class TestOperator:
 
 class TestRotations:
     def test_fallback(self):
-        pids = np.array([1, 2])
         xg = interpolation.XGrid([0.1, 1.0])
-        r = struct.Rotations(xgrid=xg, pids=pids)
-        np.testing.assert_allclose(r.pids, pids)
-        np.testing.assert_allclose(r.targetpids, pids)
-        np.testing.assert_allclose(r.inputpids, pids)
+        r = struct.Rotations(xgrid=xg)
+        np.testing.assert_allclose(r.targetpids, r.pids)
+        np.testing.assert_allclose(r.inputpids, r.pids)
         assert r.xgrid == xg
         assert r.targetgrid == xg
         assert r.inputgrid == xg
 
     def test_overwrite(self):
-        pids = np.array([1, 2])
-        tpids = np.array([3, 4])
-        ipids = np.array([5, 6])
+        tpids = np.array([3, 4] + list(br.flavor_basis_pids[2:]))
+        ipids = np.array([5, 6] + list(br.flavor_basis_pids[2:]))
         xg = interpolation.XGrid([0.1, 1.0])
         txg = interpolation.XGrid([0.2, 1.0])
         ixg = interpolation.XGrid([0.3, 1.0])
         r = struct.Rotations(
             xgrid=xg,
-            pids=pids,
             _targetgrid=txg,
             _inputgrid=ixg,
             _targetpids=tpids,
             _inputpids=ipids,
         )
-        np.testing.assert_allclose(r.pids, pids)
         np.testing.assert_allclose(r.targetpids, tpids)
         np.testing.assert_allclose(r.inputpids, ipids)
         assert r.xgrid == xg
@@ -82,11 +79,10 @@ class TestRotations:
         assert r.inputgrid == ixg
 
     def test_init(self):
-        pids = np.array([1, 2])
         xg = interpolation.XGrid([0.1, 1.0])
         txg = np.array([0.2, 1.0])
         ixg = {"grid": [0.3, 1.0], "log": True}
-        r = struct.Rotations(xgrid=xg, pids=pids, _targetgrid=txg, _inputgrid=ixg)
+        r = struct.Rotations(xgrid=xg, _targetgrid=txg, _inputgrid=ixg)
         assert isinstance(r.xgrid, interpolation.XGrid)
         assert isinstance(r.targetgrid, interpolation.XGrid)
         assert isinstance(r.inputgrid, interpolation.XGrid)
@@ -117,14 +113,15 @@ class TestEKO:
             struct.EKO.read(no_tar_path)
 
     def test_properties(self, eko_factory: EKOFactory):
-        mugrid = np.array([10.0])
+        mu = 10.0
+        mugrid = [(mu, 5)]
         eko_factory.operator.mugrid = mugrid
         eko = eko_factory.get()
-        assert hasattr(eko.theory_card, "quark_masses")
+        assert hasattr(eko.theory_card.heavy, "masses")
         assert hasattr(eko.operator_card, "debug")
-        np.testing.assert_allclose(eko.mu2grid, mugrid**2)
-        assert mugrid[0] ** 2 in eko
-        default_grid = eko.operator_card.rotations.xgrid
+        np.testing.assert_allclose(eko.mu2grid, [mu**2])
+        assert mu**2 in eko
+        default_grid = eko.operator_card.xgrid
         assert eko.xgrid == default_grid
         xg = interpolation.XGrid([0.1, 1.0])
         eko.xgrid = xg
@@ -140,7 +137,7 @@ class TestEKO:
     def test_ops(self, eko_factory: EKOFactory):
         mu = 10.0
         mu2 = mu**2
-        mugrid = np.array([mu])
+        mugrid = [(mu, 5)]
         eko_factory.operator.mugrid = mugrid
         eko = eko_factory.get()
         v = np.random.rand(2, 2)
@@ -176,7 +173,7 @@ class TestEKO:
     def test_copy(self, eko_factory: EKOFactory, tmp_path: pathlib.Path):
         mu = 10.0
         mu2 = mu**2
-        mugrid = np.array([mu])
+        mugrid = [(mu, 5)]
         eko_factory.operator.mugrid = mugrid
         eko1 = eko_factory.get()
         v = np.random.rand(2, 2)
@@ -225,7 +222,7 @@ class TestLegacy:
 
     def test_iter(self, eko_factory):
         """Test managed iteration."""
-        eko_factory.operator.mugrid = np.array([5.0, 20.0, 100.0])
+        eko_factory.operator.mugrid = [(3.0, 4), (20.0, 5), (300.0, 6)]
         eko = eko_factory.get()
 
         mu2prev = None

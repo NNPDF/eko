@@ -107,6 +107,7 @@ class OperatorGrid(sv.ModeMixin):
             logger.warning("Evolution: In LO we use the exact solution always!")
 
         logger.info(dict(polarized=configs.polarized))
+        logger.info(dict(time_like=configs.time_like))
 
         self.config = config
         self.q2_grid = mu2grid
@@ -201,11 +202,7 @@ class OperatorGrid(sv.ModeMixin):
         # And now return the grid
         grid_return = {}
         for q2 in q2grid:
-            # shift path for expanded scheme
-            q2_gen = (
-                q2 * self.config["xif2"] if self.sv_mode == sv.Modes.expanded else q2
-            )
-            grid_return[q2] = self.generate(q2_gen)
+            grid_return[q2] = self.generate(q2)
         return grid_return
 
     def generate(self, q2):

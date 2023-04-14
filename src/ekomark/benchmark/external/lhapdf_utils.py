@@ -30,7 +30,7 @@ def compute_LHAPDF_data(
     target_xgrid = operators["interpolation_xgrid"]
 
     out_tabs = {}
-    for q2 in operators["Q2grid"]:
+    for mu2 in np.array(operators["mugrid"]) ** 2:
         tab = {}
         for pid in br.flavor_basis_pids:
             if pid in skip_pdfs:
@@ -39,7 +39,7 @@ def compute_LHAPDF_data(
             # collect lhapdf
             me = []
             for x in target_xgrid:
-                xf = pdf.xfxQ2(pid, x, q2)
+                xf = pdf.xfxQ2(pid, x, mu2)
                 me.append(xf)
             tab[pid] = np.array(me)
 
@@ -61,7 +61,7 @@ def compute_LHAPDF_data(
             evol_pdf = rotate_flavor_to_evolution @ pdfs
             tab = dict(zip(evol_basis, evol_pdf))
 
-        out_tabs[q2] = tab
+        out_tabs[mu2] = tab
 
     ref = {
         "target_xgrid": target_xgrid,

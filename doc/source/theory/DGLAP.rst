@@ -24,8 +24,7 @@ and the equations to solve become
         = -\frac{\gamma(a_s)}{\beta(a_s)} \cdot \tilde{\mathbf{f}}(a_s)
 
 This assumes the factorization scale :math:`\mu_F^2` (the inherit scale of the |PDF|) and the
-renormalization scale :math:`\mu_R^2` (the inherit scale for the strong coupling) to be equal,
-but this constraint can however be lifted (see :ref:`theory/pQCD:scale variations`).
+renormalization scale :math:`\mu_R^2` (the inherit scale for the strong coupling) to be equal.
 
 The (formal) solution can then be written in terms of an |EKO| :math:`\mathbf E` :cite:`Bonvini:2012sh`
 

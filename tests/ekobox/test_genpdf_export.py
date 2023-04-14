@@ -44,7 +44,7 @@ def fake_blocks(n_blocks, n_x, n_q2, n_pids):
         bs.append(
             {
                 "xgrid": np.linspace(0.0, 1.0, n_x),
-                "Q2grid": np.geomspace(1.0, 1e3, n_q2),
+                "mu2grid": np.geomspace(1.0, 1e3, n_q2),
                 "pids": np.arange(n_pids),
                 "data": np.random.rand(n_x * n_q2, n_pids),
             }
