@@ -47,7 +47,7 @@ class TheoryCard(DictLike):
     xif: float
     """Ratio between factorization scale and process scale."""
     n3lo_ad_variation: N3LOAdVariation
-    """|N3LO| anomalous dimension variation."""
+    """|N3LO| anomalous dimension variation: ``(gg_var, gq_var, qg_var, qq_var)``."""
 
 
 def masses(theory: TheoryCard, evmeth: EvolutionMethod):
