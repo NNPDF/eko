@@ -34,6 +34,7 @@ from .types import (
 )
 
 
+# TODO: add frozen
 @dataclass
 class TheoryCard(DictLike):
     """Represent theory card content."""

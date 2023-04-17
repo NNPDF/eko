@@ -10,7 +10,7 @@ import shutil
 import tarfile
 import tempfile
 from dataclasses import dataclass
-from typing import BinaryIO, Dict, Optional
+from typing import BinaryIO, Dict, List, Optional
 
 import lz4.frame
 import numpy as np
@@ -23,6 +23,7 @@ from .. import version as vmod
 from . import exceptions, raw
 from .dictlike import DictLike
 from .runcards import OperatorCard, Rotations, TheoryCard
+from .types import Target
 
 logger = logging.getLogger(__name__)
 
@@ -206,25 +207,18 @@ class InternalPaths:
         self.operators.mkdir()
 
     @staticmethod
-    def opname(mu2: float) -> str:
-        r"""Operator file name from :math:`\mu^2` value."""
+    def opname(target: Target) -> str:
+        r"""Operator file name from :math:`(\mu^2, n_f)` value."""
+        mu2 = target[0]
+        nf = target[1]
         decoded = np.float64(mu2).tobytes()
-        return base64.urlsafe_b64encode(decoded).decode()
+        mu2bytes = base64.urlsafe_b64encode(decoded).decode()
+        return f"{mu2bytes}_{nf}"
 
-    def oppath(self, mu2: float) -> pathlib.Path:
+    def oppath(self, target: Target) -> pathlib.Path:
         r"""Retrieve operator file path from :math:`\mu^2` value.
 
         This method looks for an existing path matching.
-
-        Parameters
-        ----------
-        mu2: float
-            :math:`\mu2` scale specified
-
-        Returns
-        -------
-        pathlib.Path
-            the path retrieved, guaranteed to exist
 
         Raises
         ------
@@ -233,30 +227,20 @@ class InternalPaths:
             specified value of :math:`\mu2`
 
         """
-        name = self.opname(mu2)
+        name = self.opname(target)
         oppaths = list(
             filter(lambda path: path.name.startswith(name), self.operators.iterdir())
         )
 
         if len(oppaths) == 0:
-            raise ValueError(f"mu2 value '{mu2}' not available.")
+            raise ValueError(f"Target value '{target}' not available.")
         elif len(oppaths) > 1:
-            raise ValueError(f"Too many operators associated to '{mu2}':\n{oppaths}")
+            raise ValueError(f"Too many operators associated to '{target}':\n{oppaths}")
 
         return oppaths[0]
 
     def opcompressed(self, path: os.PathLike) -> bool:
         """Check if the operator at the path specified is compressed.
-
-        Parameters
-        ----------
-        path: os.PathLike
-            the path to the operator to check
-
-        Returns
-        -------
-        bool
-            whether it is compressed
 
         Raises
         ------
@@ -270,18 +254,8 @@ class InternalPaths:
 
         return path.suffix == COMPRESSED_SUFFIX
 
-    def opmu2(self, path: os.PathLike) -> float:
+    def optarget(self, path: os.PathLike) -> Target:
         r"""Extract :math:`\mu2` value from operator path.
-
-        Parameters
-        ----------
-        path: os.PathLike
-            the path to the operator
-
-        Returns
-        -------
-        bool
-            the :math:`\mu2` value associated to the operator
 
         Raises
         ------
@@ -293,41 +267,32 @@ class InternalPaths:
         if self.operators not in path.parents:
             raise exceptions.OperatorLocationError(path)
 
-        encoded = path.stem.split(".")[0]
+        name = path.stem.split(".")[0]
+        encoded, nfseg = name.split("_")
         decoded = base64.urlsafe_b64decode(encoded)
-        return float(np.frombuffer(decoded, dtype=np.float64)[0])
+        mu2 = float(np.frombuffer(decoded, dtype=np.float64)[0])
+        nf = int(nfseg)
+        return (mu2, nf)
 
     def opnewpath(
-        self, mu2: float, compress: bool = True, without_err: bool = True
+        self, target: Target, compress: bool = True, without_err: bool = True
     ) -> pathlib.Path:
-        r"""Compute the path associated to :math:`\mu^2` value.
-
-        Parameters
-        ----------
-        mu2: float
-            :math:`\mu2` scale specified
-
-        Returns
-        -------
-        pathlib.Path
-            the path computed, it might already exists
-
-        """
+        r"""Compute the path associated to :math:`(\mu^2, n_f)` value."""
         suffix = ".npy" if without_err else ".npz"
         if compress:
             suffix += COMPRESSED_SUFFIX
-        return self.operators / (self.opname(mu2) + suffix)
+        return self.operators / (self.opname(target) + suffix)
 
     @property
-    def mu2grid(self) -> npt.NDArray[np.float64]:
-        r"""Provide the array of :math:`\mu2` values of existing operators."""
+    def grid(self) -> List[Target]:
+        r"""Provide the array of :math:`(\mu^2, n_f)` values of existing operators."""
         if self.root is None:
             raise RuntimeError()
 
-        return np.array(
+        return list(
             sorted(
                 map(
-                    lambda p: self.opmu2(p),
+                    lambda p: self.optarget(p),
                     InternalPaths(self.root).operators.iterdir(),
                 )
             )
@@ -511,7 +476,7 @@ class EKO:
     """
 
     # operators cache, contains the Q2 grid information
-    _operators: Dict[float, Optional[Operator]]
+    _operators: Dict[Target, Optional[Operator]]
 
     # public containers
     # -----------------
@@ -549,9 +514,9 @@ class EKO:
         return self.metadata.mu20
 
     @property
-    def mu2grid(self) -> npt.NDArray:
+    def mu2grid(self) -> List[Target]:
         """Provide the list of :math:`Q^2` as an array."""
-        return np.array(list(self._operators))
+        return list(self._operators)
 
     @property
     def theory_card(self):
