@@ -1,6 +1,7 @@
 """Operator components."""
 from abc import ABC
 from dataclasses import dataclass
+from typing import Optional
 
 import numpy.typing as npt
 
@@ -20,6 +21,7 @@ class Part(DictLike, ABC):
     """
 
     operator: npt.NDArray
+    error: Optional[npt.NDArray]
 
 
 @dataclass
@@ -27,8 +29,18 @@ class Evolution(Part):
     """Evolution in a fixed number of flavors."""
 
     final: bool
+    """Whether the operator is the terminal segment of evolution.
+
+    If it is not final, then the operator is an intermediate one.
+    Intermediate ones always have final scales :attr:`mu2` corresponding to
+    matching scales, and initial scales :attr:`mu20` corresponding to either
+    matching scales or the global initial scale of the EKO.
+
+    """
     mu20: SquaredScale
+    """Initial scale."""
     mu2: SquaredScale
+    """Final scale."""
 
 
 @dataclass
@@ -36,3 +48,4 @@ class Matching(Part):
     """Matching conditions between two different flavor schemes, at a given scale."""
 
     mu2: SquaredScale
+    """Matching scale."""
