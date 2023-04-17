@@ -23,7 +23,8 @@ from .. import version as vmod
 from . import exceptions, raw
 from .dictlike import DictLike
 from .runcards import OperatorCard, Rotations, TheoryCard
-from .types import Target
+from .types import EvolutionPoint as EPoint
+from .types import SquaredScale
 
 logger = logging.getLogger(__name__)
 
@@ -207,15 +208,15 @@ class InternalPaths:
         self.operators.mkdir()
 
     @staticmethod
-    def opname(target: Target) -> str:
+    def opname(ep: EPoint) -> str:
         r"""Operator file name from :math:`(\mu^2, n_f)` value."""
-        mu2 = target[0]
-        nf = target[1]
+        mu2 = ep[0]
+        nf = ep[1]
         decoded = np.float64(mu2).tobytes()
         mu2bytes = base64.urlsafe_b64encode(decoded).decode()
         return f"{mu2bytes}_{nf}"
 
-    def oppath(self, target: Target) -> pathlib.Path:
+    def oppath(self, ep: EPoint) -> pathlib.Path:
         r"""Retrieve operator file path from :math:`\mu^2` value.
 
         This method looks for an existing path matching.
@@ -227,15 +228,15 @@ class InternalPaths:
             specified value of :math:`\mu2`
 
         """
-        name = self.opname(target)
+        name = self.opname(ep)
         oppaths = list(
             filter(lambda path: path.name.startswith(name), self.operators.iterdir())
         )
 
         if len(oppaths) == 0:
-            raise ValueError(f"Target value '{target}' not available.")
+            raise ValueError(f"Target value '{ep}' not available.")
         elif len(oppaths) > 1:
-            raise ValueError(f"Too many operators associated to '{target}':\n{oppaths}")
+            raise ValueError(f"Too many operators associated to '{ep}':\n{oppaths}")
 
         return oppaths[0]
 
@@ -254,7 +255,7 @@ class InternalPaths:
 
         return path.suffix == COMPRESSED_SUFFIX
 
-    def optarget(self, path: os.PathLike) -> Target:
+    def optarget(self, path: os.PathLike) -> EPoint:
         r"""Extract :math:`\mu2` value from operator path.
 
         Raises
@@ -275,16 +276,16 @@ class InternalPaths:
         return (mu2, nf)
 
     def opnewpath(
-        self, target: Target, compress: bool = True, without_err: bool = True
+        self, ep: EPoint, compress: bool = True, without_err: bool = True
     ) -> pathlib.Path:
         r"""Compute the path associated to :math:`(\mu^2, n_f)` value."""
         suffix = ".npy" if without_err else ".npz"
         if compress:
             suffix += COMPRESSED_SUFFIX
-        return self.operators / (self.opname(target) + suffix)
+        return self.operators / (self.opname(ep) + suffix)
 
     @property
-    def grid(self) -> List[Target]:
+    def grid(self) -> List[EPoint]:
         r"""Provide the array of :math:`(\mu^2, n_f)` values of existing operators."""
         if self.root is None:
             raise RuntimeError()
@@ -371,7 +372,7 @@ class Metadata(DictLike):
 
     """
 
-    mu20: float
+    mu20: EPoint
     """Inital scale."""
     rotations: Rotations
     """Manipulation information, describing the current status of the EKO (e.g.
@@ -476,7 +477,7 @@ class EKO:
     """
 
     # operators cache, contains the Q2 grid information
-    _operators: Dict[Target, Optional[Operator]]
+    _operators: Dict[EPoint, Optional[Operator]]
 
     # public containers
     # -----------------
@@ -509,14 +510,14 @@ class EKO:
         self.update()
 
     @property
-    def mu20(self) -> float:
+    def mu20(self) -> SquaredScale:
         """Provide squared initial scale."""
-        return self.metadata.mu20
+        return self.metadata.mu20[0]
 
     @property
-    def mu2grid(self) -> List[Target]:
+    def mu2grid(self) -> List[SquaredScale]:
         """Provide the list of :math:`Q^2` as an array."""
-        return list(self._operators)
+        return [mu2 for mu2, _ in self._operators]
 
     @property
     def theory_card(self):
@@ -554,7 +555,7 @@ class EKO:
 
     # operator management
     # -------------------
-    def __getitem__(self, mu2: float) -> Operator:
+    def __getitem__(self, ep: EPoint) -> Operator:
         r"""Retrieve operator for given :math:`\mu^2`.
 
         If the operator is not already in memory, it will be automatically
@@ -573,33 +574,26 @@ class EKO:
         """
         self.access.assert_open()
 
-        if mu2 in self._operators:
-            op = self._operators[mu2]
+        if ep in self._operators:
+            op = self._operators[ep]
             if op is not None:
                 return op
 
-        oppath = self.paths.oppath(mu2)
+        oppath = self.paths.oppath(ep)
         compressed = self.paths.opcompressed(oppath)
 
         with open(oppath, "rb") as fd:
             op = Operator.load(fd, compressed=compressed)
 
-        self._operators[mu2] = op
+        self._operators[ep] = op
         return op
 
-    def __setitem__(self, mu2: float, op: Operator, compress: bool = True):
-        """Set operator for given :math:`Q^2`.
+    def __setitem__(self, ep: EPoint, op: Operator, compress: bool = True):
+        """Set operator for given :math:`mu^2`.
 
         The operator is automatically dumped on disk.
 
-        Parameters
-        ----------
-        q2 : float
-            :math:`Q^2` value labeling the operator to be set
-        op : Operator
-            the retrieved operator
-        compress : bool
-            whether to save the operator compressed or not (default: `True`)
+        If ``compress``, the output array is compressed.
 
         """
         self.access.assert_writeable()
@@ -608,15 +602,15 @@ class EKO:
             raise ValueError("Only an Operator can be added to an EKO")
 
         without_err = op.error is None
-        oppath = self.paths.opnewpath(mu2, compress=compress, without_err=without_err)
+        oppath = self.paths.opnewpath(ep, compress=compress, without_err=without_err)
 
         with open(oppath, "wb") as fd:
             without_err2 = op.save(fd, compress)
         assert without_err == without_err2
 
-        self._operators[mu2] = op
+        self._operators[ep] = op
 
-    def __delitem__(self, q2: float):
+    def __delitem__(self, ep: EPoint):
         """Drop operator from memory.
 
         This method only drops the operator from memory, and it's not expected
@@ -627,50 +621,31 @@ class EKO:
 
         If a further explicit save is required, repeat explicit assignment::
 
-            eko[q2] = eko[q2]
+            eko[ep] = eko[ep]
 
         This is only useful if the operator has been mutated in place, that in
         general should be avoided, since the operator should only be the result
         of a full computation or a library manipulation.
 
-
-        Parameters
-        ----------
-        q2 : float
-            the value of :math:`Q^2` for which the corresponding operator
-            should be dropped
-
         """
-        self._operators[q2] = None
+        self._operators[ep] = None
 
     @contextlib.contextmanager
-    def operator(self, q2: float):
+    def operator(self, ep: EPoint):
         """Retrieve an operator and discard it afterwards.
 
         To be used as a contextmanager: the operator is automatically loaded as
         usual, but on the closing of the context manager it is dropped from
         memory.
 
-        Parameters
-        ----------
-        q2 : float
-            :math:`Q^2` value labeling the operator to be retrieved
-
         """
         try:
-            yield self[q2]
+            yield self[ep]
         finally:
-            del self[q2]
+            del self[ep]
 
     def __iter__(self):
-        """Iterate over keys (i.e. Q2 values).
-
-        Yields
-        ------
-        float
-            q2 values
-
-        """
+        """Iterate over keys (i.e. evolution points)."""
         yield from self._operators
 
     def items(self):
@@ -690,9 +665,9 @@ class EKO:
             immediately after
 
         """
-        for q2 in self.mu2grid:
-            yield q2, self[q2]
-            del self[q2]
+        for ep, op in self._operators.items():
+            yield ep, op
+            del self[ep]
 
     def __contains__(self, q2: float) -> bool:
         """Check whether :math:`Q^2` operators are present.
@@ -710,23 +685,9 @@ class EKO:
         return q2 in self._operators
 
     def approx(
-        self, q2: float, rtol: float = 1e-6, atol: float = 1e-10
+        self, ep: EPoint, rtol: float = 1e-6, atol: float = 1e-10
     ) -> Optional[float]:
-        """Look for close enough :math:`Q^2` value in the :class:`EKO`.
-
-        Parameters
-        ----------
-        q2 : float
-            value of :math:`Q2` in which neighbourhood to look
-        rtol : float
-            relative tolerance
-        atol : float
-            absolute tolerance
-
-        Returns
-        -------
-        float or None
-            retrieved value of :math:`Q^2`, if a single one is found
+        """Look for close enough :math:`mu^2` value in the :class:`EKO`.
 
         Raises
         ------
@@ -734,19 +695,19 @@ class EKO:
             if multiple values are find in the neighbourhood
 
         """
-        q2s = self.mu2grid
-        close = q2s[np.isclose(q2, q2s, rtol=rtol, atol=atol)]
+        mu2s = np.array([mu2 for mu2, nf in self if nf == ep[1]])
+        close = mu2s[np.isclose(ep[0], mu2s, rtol=rtol, atol=atol)]
 
         if close.size == 1:
             return close[0]
         if close.size == 0:
             return None
-        raise ValueError(f"Multiple values of Q2 have been found close to {q2}")
+        raise ValueError(f"Multiple values of Q2 have been found close to {ep[0]}")
 
     def unload(self):
         """Fully unload the operators in memory."""
-        for q2 in self:
-            del self[q2]
+        for ep in self:
+            del self[ep]
 
     # operator management
     # -------------------
@@ -835,7 +796,9 @@ class EKO:
             cls.load(path, tmpdir)
             metadata = Metadata.load(tmpdir)
             opened = cls(
-                _operators={mu2: None for mu2 in InternalPaths(metadata.path).mu2grid},
+                _operators={
+                    target: None for target in InternalPaths(metadata.path).grid
+                },
                 metadata=metadata,
                 access=access,
             )

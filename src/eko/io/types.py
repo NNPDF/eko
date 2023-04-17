@@ -25,10 +25,10 @@ FlavorIndex = int
 IntrinsicFlavors = typing.List[FlavorIndex]
 N3LOAdVariation = typing.Tuple[int, int, int, int]
 
-# Targets
-# -------
+# Evolution coordinates
+# ---------------------
 
-Target = Tuple[LinearScale, FlavorsNumber]
+EvolutionPoint = Tuple[Scale, FlavorsNumber]
 
 
 # Scale functions

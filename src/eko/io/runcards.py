@@ -22,15 +22,15 @@ from ..quantities import heavy_quarks as hq
 from ..quantities.couplings import CouplingsInfo
 from ..quantities.heavy_quarks import HeavyInfo, QuarkMassScheme
 from .dictlike import DictLike
+from .types import EvolutionMethod
+from .types import EvolutionPoint as EPoint
 from .types import (
-    EvolutionMethod,
     InversionMethod,
     N3LOAdVariation,
     Order,
     RawCard,
     ScaleVariationsMethod,
     T,
-    Target,
 )
 
 
@@ -221,7 +221,7 @@ class OperatorCard(DictLike):
 
     mu0: float
     """Initial scale."""
-    mugrid: List[Target]
+    mugrid: List[EPoint]
     xgrid: interpolation.XGrid
     """Momentum fraction internal grid."""
 
