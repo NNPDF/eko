@@ -1,7 +1,7 @@
 """Heavy quarks related quantities."""
 import enum
 from dataclasses import dataclass
-from typing import Generic, Optional, Sequence, TypeVar
+from typing import Generic, Sequence, TypeVar
 
 import numpy as np
 
@@ -98,7 +98,7 @@ class HeavyInfo(DictLike):
 
     """
 
-    num_flavs_init: Optional[FlavorsNumber]
+    num_flavs_init: FlavorsNumber
     r"""Number of active flavors at fitting scale.
 
     I.e. :math:`n_{f,\text{ref}}(\mu^2_0)`, formerly called ``nf0``.

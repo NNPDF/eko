@@ -970,7 +970,7 @@ class Builder:
         self.access.open = True
         metadata = Metadata(
             _path=self.path,
-            mu20=self.operator.mu20,
+            mu20=(self.operator.mu20, self.theory.heavy.num_flavs_init),
             rotations=Rotations(xgrid=self.operator.xgrid),
         )
         InternalPaths(self.path).bootstrap(
@@ -980,7 +980,7 @@ class Builder:
         )
 
         self.eko = EKO(
-            _operators={mu2: None for mu2 in self.operator.mu2grid},
+            _operators={ep: None for ep in self.operator.evolgrid},
             metadata=metadata,
             access=self.access,
         )

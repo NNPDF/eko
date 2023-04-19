@@ -247,6 +247,11 @@ class OperatorCard(DictLike):
         return np.array([mu for mu, _ in self.mugrid]) ** 2
 
     @property
+    def evolgrid(self) -> List[EPoint]:
+        """Grid of squared final scales."""
+        return [(mu**2, nf) for mu, nf in self.mugrid]
+
+    @property
     def pids(self):
         """Internal flavor basis, used for computation."""
         return np.array(br.flavor_basis_pids)
