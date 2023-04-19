@@ -28,7 +28,7 @@ def A_non_singlet(matching_order, N, L):
     A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)
     if matching_order[0] >= 1:
         A_ns[0] = as1.A_ns()
-    if matching_order[0] == 2:
+    if matching_order[0] >= 2:
         A_ns[1] = as1.A_ns()
     return A_ns
 
@@ -56,5 +56,5 @@ def A_singlet(matching_order, N, L):
     if matching_order[0] >= 1:
         A_singlet[0] = as1.A_singlet(N, L)
     if matching_order[0] >= 2:
-        A_singlet[0] = as1.A_singlet(N, L)
+        A_singlet[1] = as1.A_singlet(N, L)
     return A_singlet
