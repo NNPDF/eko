@@ -14,6 +14,7 @@ from ekore import harmonics
 
 from .. import basis_rotation as br
 from .. import scale_variations as sv
+from ..io.types import InversionMethod
 from . import Operator, QuadKerBase
 
 logger = logging.getLogger(__name__)
@@ -49,7 +50,7 @@ def build_ome(A, matching_order, a_s, backward_method):
     # .end
     ome = np.eye(len(A[0]), dtype=np.complex_)
     A = np.ascontiguousarray(A)
-    if backward_method.value == "expanded":
+    if backward_method is InversionMethod.EXPANDED:
         # expended inverse
         if matching_order[0] >= 1:
             ome -= a_s * A[0]
@@ -66,7 +67,7 @@ def build_ome(A, matching_order, a_s, backward_method):
         if matching_order[0] >= 3:
             ome += a_s**3 * A[2]
         # need inverse exact ?  so add the missing pieces
-        if backward_method.value == "exact":
+        if backward_method is InversionMethod.EXACT:
             ome = np.linalg.inv(ome)
     return ome
 
