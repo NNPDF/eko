@@ -49,7 +49,7 @@ def build_ome(A, matching_order, a_s, backward_method):
     # .end
     ome = np.eye(len(A[0]), dtype=np.complex_)
     A = np.ascontiguousarray(A)
-    if backward_method == "expanded":
+    if backward_method.value == "expanded":
         # expended inverse
         if matching_order[0] >= 1:
             ome -= a_s * A[0]
@@ -66,7 +66,7 @@ def build_ome(A, matching_order, a_s, backward_method):
         if matching_order[0] >= 3:
             ome += a_s**3 * A[2]
         # need inverse exact ?  so add the missing pieces
-        if backward_method == "exact":
+        if backward_method.value == "exact":
             ome = np.linalg.inv(ome)
     return ome
 
