@@ -36,8 +36,10 @@ def create(eko: EKO):
     """Create all associated recipes."""
     tc = commons.threshold_atlas(eko.theory_card, eko.operator_card)
 
-    #  __import__("pdb").set_trace()
+    terminal = []
+    for ep in eko:
+        #  expanded = eko.operator_card.configs.scvar_method is sv.Modes.expanded
+        #  mu2f = mu2 * eko.theory_card.xif**2 if expanded else mu2
 
-    for mu2 in eko.mu2grid:
-        expanded = eko.operator_card.configs.scvar_method is sv.Modes.expanded
-        mu2f = mu2 * eko.theory_card.xif**2 if expanded else mu2
+        blocks = tc.path(*ep)
+        terminal.append(blocks.pop())

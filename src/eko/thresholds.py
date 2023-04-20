@@ -5,6 +5,8 @@ from typing import Iterable, List, Optional
 
 import numpy as np
 
+from .io.types import EvolutionPoint as EPoint
+
 logger = logging.getLogger(__name__)
 
 
@@ -170,10 +172,7 @@ class ThresholdsAtlas:
 
     def path(
         self,
-        q2_to: float,
-        nf_to: Optional[int] = None,
-        q2_from: Optional[float] = None,
-        nf_from: Optional[int] = None,
+        target: EPoint,
     ):
         """Get path from ``q2_from`` to ``q2_to``.
 
@@ -181,8 +180,6 @@ class ThresholdsAtlas:
         ----------
         q2_to:
             target value of q2
-        q2_from:
-            starting value of q2
 
         Returns
         -------
@@ -191,31 +188,24 @@ class ThresholdsAtlas:
             to ``q2_to``
 
         """
-        # fallback to init config
-        if q2_from is None:
-            q2_from = self.q2_ref
-        if nf_from is None:
-            nf_from = self.nf_ref
-        # determine reference thresholds
-        if nf_from is None:
-            nf_from = 2 + np.digitize(q2_from, self.area_walls)
-        if nf_to is None:
-            nf_to = 2 + np.digitize(q2_to, self.area_walls)
+        origin: EPoint = (self.q2_ref, self.nf_ref)
+
         # determine direction and python slice modifier
-        if nf_to < nf_from:
+        if target[1] < origin[1]:
             rc = -1
             shift = -3
         else:
             rc = 1
             shift = -2
+
         # join all necessary points in one list
         boundaries = (
-            [q2_from]
-            + self.area_walls[nf_from + shift : int(nf_to) + shift : rc]
-            + [q2_to]
+            [origin[0]]
+            + self.area_walls[origin[1] + shift : int(target[1]) + shift : rc]
+            + [target[0]]
         )
         segs = [
-            PathSegment(boundaries[i], q2, nf_from + i * rc)
+            PathSegment(boundaries[i], q2, origin[1] + i * rc)
             for i, q2 in enumerate(boundaries[1:])
         ]
         return segs
