@@ -32,7 +32,7 @@ def build_ome(A, matching_order, a_s, backward_method):
         perturbation matching order
     a_s : float
         strong coupling, needed only for the exact inverse
-    backward_method : [InversionMethod.EXACT, InversionMethod.EXPANDED or ""]
+    backward_method : InversionMethod or None
         empty or method for inverting the matching condition (exact or expanded)
 
     Returns
