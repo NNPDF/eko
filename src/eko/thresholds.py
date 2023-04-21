@@ -1,42 +1,42 @@
 r"""Holds the classes that define the |FNS|."""
 import logging
-from dataclasses import astuple, dataclass
-from typing import Iterable, List, Optional
+from dataclasses import dataclass
+from typing import List
 
 import numpy as np
 
 from .io.types import EvolutionPoint as EPoint
+from .io.types import FlavorsNumber, SquaredScale
+from .quantities.heavy_quarks import MatchingScales
 
 logger = logging.getLogger(__name__)
 
 
 @dataclass
-class PathSegment:
+class Segment:
     """Oriented path in the threshold landscape."""
 
-    q2_from: float
+    origin: SquaredScale
     """Starting point."""
-    q2_to: float
+    target: SquaredScale
     """Final point."""
-    nf: int
+    nf: FlavorsNumber
     """Number of active flavors."""
 
     @property
-    def is_downward_q2(self) -> bool:
-        """Return True if ``q2_from`` is bigger than ``q2_to``."""
-        return self.q2_from > self.q2_to
-
-    @property
-    def tuple(self):
-        """Deprecated: use directly `dataclasses.astuple`."""
-        return astuple(self)
+    def is_downward(self) -> bool:
+        """Return True if ``origin`` is bigger than ``target``."""
+        return self.origin > self.target
 
     def __str__(self):
         """Textual representation, mainly for logging purpose."""
-        return f"PathSegment({self.q2_from} -> {self.q2_to}, nf={self.nf})"
+        return f"PathSegment({self.origin} -> {self.target}, nf={self.nf})"
 
 
-class ThresholdsAtlas:
+Path = List[Segment]
+
+
+class Atlas:
     r"""Holds information about the matching scales.
 
     These scales are the :math:`Q^2` has to pass in order to get there from a
@@ -44,191 +44,109 @@ class ThresholdsAtlas:
 
     """
 
-    def __init__(
-        self,
-        masses: List[float],
-        q2_ref: Optional[float] = None,
-        nf_ref: Optional[int] = None,
-        thresholds_ratios: Optional[Iterable[float]] = None,
-        max_nf: Optional[int] = None,
-    ):
-        """Create basic atlas.
+    def __init__(self, matching_scales: MatchingScales, origin: EPoint):
+        """Create basic atlas."""
+        self.walls = [0] + matching_scales + [np.inf]
+        self.origin = origin
 
-        Parameters
-        ----------
-        masses :
-            list of quark masses squared
-        q2_ref :
-            reference scale
-        nf_ref :
-            number of active flavors at the reference scale
-        thresholds_ratios :
-            list of ratios between matching scales and masses squared
-        max_nf :
-            maximum number of active flavors, if `None` no maximum is set
-
-        """
-        sorted_masses = sorted(masses)
-        if not np.allclose(masses, sorted_masses):
-            raise ValueError("masses need to be sorted")
-
-        if thresholds_ratios is None:
-            thresholds_ratios = [1.0, 1.0, 1.0]
-        else:
-            thresholds_ratios = list(thresholds_ratios)
-
-        # combine them
-        thresholds = self.build_area_walls(sorted_masses, thresholds_ratios, max_nf)
-        self.area_walls = [0] + thresholds + [np.inf]
-
-        # check nf_ref
-        if nf_ref is not None:
-            if q2_ref is None:
-                raise ValueError(
-                    "Without a reference Q2 value a reference number of flavors "
-                    "does not make sense!"
-                )
-            # else self.q2_ref is not None
-            nf_init = 2 + len(list(filter(lambda x: np.isclose(0, x), self.area_walls)))
-            if nf_ref < nf_init:
-                raise ValueError(
-                    f"The reference number of flavors is set to {nf_ref}, "
-                    f"but the atlas starts at {nf_init}"
-                )
-            nf_final = 2 + len(list(filter(lambda x: x < np.inf, self.area_walls)))
-            if nf_ref > nf_final:
-                raise ValueError(
-                    f"The reference number of flavors is set to {nf_ref}, "
-                    f"but the atlas stops at {nf_final}"
-                )
-
-        # Init values
-        self.q2_ref = q2_ref
-        self.nf_ref = nf_ref
-        self.thresholds_ratios = thresholds_ratios
         logger.info(str(self))
 
     def __str__(self):
         """Textual representation, mainly for logging purpose."""
-        walls = " - ".join([f"{w:.2e}" for w in self.area_walls])
-        return f"ThresholdsAtlas [{walls}], ref={self.q2_ref} @ {self.nf_ref}"
+        walls = " - ".join([f"{w:.2e}" for w in self.walls])
+        return f"ThresholdsAtlas [{walls}], ref={self.origin[0]} @ {self.origin[1]}"
 
     @classmethod
-    def ffns(cls, nf: int, q2_ref: Optional[float] = None):
+    def ffns(cls, nf: int, mu2: SquaredScale):
         """Create a |FFNS| setup.
 
         The function creates simply sufficient thresholds at ``0`` (in the
         beginning), since the number of flavors is determined by counting
         from below.
 
-        Parameters
-        ----------
-        nf :
-            number of light flavors
-        q2_ref :
-            reference scale
+        The origin is set with that number of flavors.
 
         """
-        return cls([0] * (nf - 3) + [np.inf] * (6 - nf), q2_ref)
+        matching_scales = MatchingScales([0] * (nf - 3) + [np.inf] * (6 - nf))
+        origin = (mu2, nf)
+        return cls(matching_scales, origin)
 
-    @staticmethod
-    def build_area_walls(
-        masses: List[float],
-        thresholds_ratios: List[float],
-        max_nf: Optional[int] = None,
-    ):
-        r"""Create the object from the informations on the run card.
+    def path(self, target: EPoint) -> Path:
+        """Determine the path to the target evolution point.
 
-        The thresholds are computed by :math:`(m_q \cdot k_q^{Thr})`.
+        Essentially, the path is always monotonic in the number of flavors,
+        increasing or decreasing the active flavors by one unit every time a
+        matching happens at the suitable scale.
 
-        Parameters
-        ----------
-        masses :
-            heavy quark masses squared
-        thresholds_ratios :
-            list of ratios between matching scales and masses squared
-        max_nf :
-            maximum number of flavors
+        Examples
+        --------
+        Since this can result in a counter-intuitive behavior, let's walk through some examples.
 
-        Returns
-        -------
-        list
-            threshold list
+        Starting with the intuitive one:
+        >>> Atlas([10, 20, 30], (5, 3)).path((25, 5))
+        [Segment(5, 10, 3), Segment(10, 20, 4), Segment(20, 25, 5)]
 
-        """
-        if len(masses) != 3:
-            raise ValueError("There have to be 3 quark masses")
-        if len(thresholds_ratios) != 3:
-            raise ValueError("There have to be 3 quark threshold ratios")
-        if max_nf is None:
-            max_nf = 6
+        If the number of flavor has been reached, it will continue walking
+        without matchin again.
+        >>> Atlas([10, 20, 30], (5, 3)).path((25, 4))
+        [Segment(5, 10, 3), Segment(10, 25, 4)]
 
-        thresholds = []
-        for m, k in zip(masses, thresholds_ratios):
-            thresholds.append(m * k)
-        # cut array = simply reduce some thresholds
-        thresholds = thresholds[: max_nf - 3]
-        return thresholds
+        It is irrelevant the scale you start from, to step from 3 to 4 you have
+        to cross the charm matching scale, whether this means walking upward or
+        downward.
+        >>> Atlas([10, 20, 30], (15, 3)).path((25, 5))
+        [Segment(15, 10, 3), Segment(10, 20, 4), Segment(20, 25, 5)]
 
-    def path(
-        self,
-        target: EPoint,
-    ):
-        """Get path from ``q2_from`` to ``q2_to``.
+        An actual backward evolution is defined by lowering the number of
+        flavors going from origin to target.
+        >>> Atlas([10, 20, 30], (25, 5)).path((5, 3))
+        [Segment(25, 20, 5), Segment(20, 10, 4), Segment(10, 5, 3)]
 
-        Parameters
-        ----------
-        q2_to:
-            target value of q2
+        But the only difference is in the matching between two segments, since
+        a single segment is always happening in a fixed number of flavors, and
+        it is completely analogue for upward or downward evolution.
 
-        Returns
-        -------
-        list(PathSegment)
-            List of :class:`PathSegment` to go through in order to get from ``q2_from``
-            to ``q2_to``
+        Note
+        ----
+
+        Since the only task required to determine a path is interleaving the
+        correct matching scales, this is done by slicing the walls.
 
         """
-        origin: EPoint = (self.q2_ref, self.nf_ref)
+        mu20, nf0 = self.origin
+        mu2f, nff = target
 
         # determine direction and python slice modifier
-        if target[1] < origin[1]:
-            rc = -1
-            shift = -3
-        else:
-            rc = 1
-            shift = -2
+        rc, shift = (-1, -3) if nff < nf0 else (1, -2)
 
         # join all necessary points in one list
-        boundaries = (
-            [origin[0]]
-            + self.area_walls[origin[1] + shift : int(target[1]) + shift : rc]
-            + [target[0]]
-        )
-        segs = [
-            PathSegment(boundaries[i], q2, origin[1] + i * rc)
-            for i, q2 in enumerate(boundaries[1:])
+        boundaries = [mu20] + self.walls[nf0 + shift : nff + shift : rc] + [mu2f]
+
+        return [
+            Segment(boundaries[i], mu2, nf0 + i * rc)
+            for i, mu2 in enumerate(boundaries[1:])
         ]
-        return segs
-
-    def nf(self, q2):
-        """Find the number of flavors active at the given scale.
-
-        Parameters
-        ----------
-        q2 : float
-            reference scale
-
-        Returns
-        -------
-        int
-            number of active flavors
-
-        """
-        ref_idx = np.digitize(q2, self.area_walls)
-        return 2 + ref_idx
 
 
-def is_downward_path(path: List[PathSegment]) -> bool:
+def nf_default(mu2: SquaredScale, atlas: Atlas) -> FlavorsNumber:
+    r"""Determine the number of active flavors in the *default flow*.
+
+    Default flow is defined by the natural sorting of the matching scales:
+
+    .. math::
+
+        \mu_c < \mu_b < \mu_t
+
+    So, the flow is defined starting with 3 flavors below the charm matching,
+    and increasing by one every time a matching scale is passed while
+    increasing the scale.
+
+    """
+    ref_idx = np.digitize(mu2, atlas.walls)
+    return int(2 + ref_idx)
+
+
+def is_downward_path(path: Path) -> bool:
     """Determine if a path is downward.
 
     Criterias are:
@@ -238,34 +156,12 @@ def is_downward_path(path: List[PathSegment]) -> bool:
       :attr:`PathSegment.is_downward_q2`
     - in :math:`Q^2` when just one single :class:`PathSegment` is given
 
-    Parameters
-    ----------
-    path :
-        path
-
-    Returns
-    -------
-    bool
-        True for a downward path
-
     """
     if len(path) == 1:
-        return path[0].is_downward_q2
+        return path[0].is_downward
     return path[1].nf < path[0].nf
 
 
 def flavor_shift(is_downward: bool) -> int:
-    """Determine the shift to number of light flavors.
-
-    Parameters
-    ----------
-    is_downward : bool
-        True for a downward path
-
-    Returns
-    -------
-    int
-        shift to number of light flavors which can be 3 or 4
-
-    """
+    """Determine the shift to number of light flavors."""
     return 4 if is_downward else 3
