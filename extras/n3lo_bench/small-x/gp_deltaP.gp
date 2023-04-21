@@ -632,7 +632,7 @@ plot file  using 2:6            ls 11 with l title 'LO', \
 # set ytics auto right offset 0
 # set xtics offset 0
 # set xlabel 'x'
-# 
+#
 
 
 
@@ -908,4 +908,3 @@ plot file  using 2:($7/$7)           ls 1 with l title 'LO', \
 
 
 quit
-

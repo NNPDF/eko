@@ -10,9 +10,9 @@
 #include <cmath>
 #include <ctime>
 #include <cstdlib>
-#include <sys/time.h> 
-#include <getopt.h> 
-//#include <gsl/gsl_sf.h> 
+#include <sys/time.h>
+#include <getopt.h>
+//#include <gsl/gsl_sf.h>
 
 #include "hell.hh"
 #include "hell-x.hh"
@@ -49,7 +49,7 @@ double Pqg1(double x, double nf) {
     2*CF*( 4+4*ln1mx + (10-4*(ln1mx-lnx) + 2*pow(-ln1mx+lnx,2) - 4*ZETA2) * pqg
 	   - lnx * (1-4*x) - lnx*lnx * (1-2*x) - 9*x )
     + 2*CA* ( 182./9. -4*ln1mx
-	      + ( - 218./9. + 4*ln1mx - 2*ln1mx*ln1mx + (44*lnx)/3. - lnx*lnx + 2*ZETA2 ) * pqg 
+	      + ( - 218./9. + 4*ln1mx - 2*ln1mx*ln1mx + (44*lnx)/3. - lnx*lnx + 2*ZETA2 ) * pqg
 	      + 2*pqgmx*S2x + 40./(9*x) + 14*x/9. - lnx*lnx*(2+8*x)
 	      + lnx * (-38./3. + 136.*x/3.) );
   return nf * X1QGA /pow(4*M_PI,2);
@@ -62,35 +62,35 @@ dcomplex DeltaGammaDot(dcomplex Delta_gamma, dcomplex Delta_gammadot, dcomplex N
   return Delta_gammadot;
 }
 dcomplex GammaNLOgg(dcomplex Delta_gamma, dcomplex Delta_gammadot, dcomplex N, double as, double nf, dcomplex Delta_gammaNLO, void *p) {
-  N += 1; 
+  N += 1;
   return as*gamma0gg(N, nf) + as*as*gamma1SGgg(N, nf);
 }
 dcomplex GammaNLOqg(dcomplex Delta_gamma, dcomplex Delta_gammadot, dcomplex N, double as, double nf, dcomplex Delta_gammaNLO, void *p) {
-  N += 1; 
+  N += 1;
   return as*gamma0qg(N, nf) + as*as*gamma1SGqg(N, nf);
 }
 dcomplex GammaNLOgq(dcomplex Delta_gamma, dcomplex Delta_gammadot, dcomplex N, double as, double nf, dcomplex Delta_gammaNLO, void *p) {
-  N += 1; 
+  N += 1;
   return as*gamma0gq(N) + as*as*gamma1SGgq(N, nf);
 }
 dcomplex GammaNLOqq(dcomplex Delta_gamma, dcomplex Delta_gammadot, dcomplex N, double as, double nf, dcomplex Delta_gammaNLO, void *p) {
-  N += 1; 
+  N += 1;
   return as*gamma0qq(N) + as*as*gamma1SGqq(N, nf);
 }
 dcomplex GammaNNLOgg(dcomplex Delta_gamma, dcomplex Delta_gammadot, dcomplex N, double as, double nf, dcomplex Delta_gammaNLO, void *p) {
-  N += 1; 
+  N += 1;
   return as*gamma0gg(N, nf) + as*as*gamma1SGgg(N, nf) + as*as*as*gamma2SGgg(N, nf);
 }
 dcomplex GammaNNLOqg(dcomplex Delta_gamma, dcomplex Delta_gammadot, dcomplex N, double as, double nf, dcomplex Delta_gammaNLO, void *p) {
-  N += 1; 
+  N += 1;
   return as*gamma0qg(N, nf) + as*as*gamma1SGqg(N, nf) + as*as*as*gamma2SGqg(N, nf);
 }
 dcomplex GammaNNLOgq(dcomplex Delta_gamma, dcomplex Delta_gammadot, dcomplex N, double as, double nf, dcomplex Delta_gammaNLO, void *p) {
-  N += 1; 
+  N += 1;
   return as*gamma0gq(N) + as*as*gamma1SGgq(N, nf) + as*as*as*gamma2SGgq(N, nf);
 }
 dcomplex GammaNNLOqq(dcomplex Delta_gamma, dcomplex Delta_gammadot, dcomplex N, double as, double nf, dcomplex Delta_gammaNLO, void *p) {
-  N += 1; 
+  N += 1;
   return as*gamma0qq(N) + as*as*gamma1SGqq(N, nf) + as*as*as*gamma2SGqq(N, nf);
 }
 
@@ -166,7 +166,7 @@ double CCSS(double x, string chan, string var) {
 
 
 string sas(double as) {
-  ostringstream os;   
+  ostringstream os;
   if     (as<0.01) os << "000" << int(1000*as);
   else if(as<0.1 ) os << "00"  << int(1000*as);
   else if(as<1.  ) os << "0"   << int(1000*as);
@@ -176,8 +176,8 @@ string sas(double as) {
 
 
 
-void print_usage() {  	   
-  cout << endl	      	   
+void print_usage() {
+  cout << endl
        << "Usage:" << endl
        << " -a  --alphas <as>      set alpha_s" << endl
        << " -n  --nf <nf>          set the number of active flavours" << endl
@@ -194,36 +194,36 @@ void read_arguments(int argc, char* argv[], double &as, int &nf, bool &useLLp) {
 		      			 { "nf", 1, NULL, 'n' },
 		      			 { "useLLp", 0, NULL, 'L' },
 		      			 { NULL, 0, NULL, 0 } };
-  int next_option;    
-  ostringstream sset; 
-  do {		      
+  int next_option;
+  ostringstream sset;
+  do {
     next_option = getopt_long (argc, argv, short_options, long_options, NULL);
     switch (next_option) {
-    case 'h':	      
-      print_usage();  
-    case 'a':	      
+    case 'h':
+      print_usage();
+    case 'a':
       as = strtod(optarg, NULL);
-      break;	      
-    case 'n':	      
+      break;
+    case 'n':
       nf = int(strtod(optarg, NULL));
-      break;	      
-    case 'L':	      
+      break;
+    case 'L':
       useLLp = true;
-      break;	      
-    case '?':	      
-      print_usage();  
-    case -1: break;   
-    default: abort(); 
-    }		      
-  }		      
+      break;
+    case '?':
+      print_usage();
+    case -1: break;
+    default: abort();
+    }
+  }
   while (next_option != -1);
-  return;	      
-}		      
-		      
+  return;
+}
+
 
 
 int main (int argc, char* argv[]) {
-		      
+
   struct timeval t0, t1;
   gettimeofday(&t0,NULL);
 
@@ -232,10 +232,10 @@ int main (int argc, char* argv[]) {
   bool useLLp = false;
 
   read_arguments(argc,argv,as,nf,useLLp);
-		      
+
   cout << "nf = " << nf << endl
        << "as = " << as << endl;
-		      
+
   HELLx::HELLxnf sxDLL (nf, HELLx::LL,  "../hell-x/data/");
   HELLx::HELLxnf sxD   (nf, HELLx::NLL, "../hell-x/data/");
 
@@ -249,7 +249,7 @@ int main (int argc, char* argv[]) {
     HELL::SetLLpMode(true);
   }
 
-  int Npoints = 9;    
+  int Npoints = 9;
   double x = 1e-9;
 
 
@@ -276,7 +276,7 @@ int main (int argc, char* argv[]) {
   //htpqg.setMellinFunction(GammaNLOqg);
   htpgq.setMellinFunction(GammaNLOgq);
   htpqq.setMellinFunction(GammaNLOqq);
-  //		      
+  //
   htpggNNLO.readTable(filename.str());
   htpqgNNLO.readTable(filename.str());
   htpgqNNLO.readTable(filename.str());
@@ -401,4 +401,3 @@ int main (int argc, char* argv[]) {
   return 0;
 
 }
-  
