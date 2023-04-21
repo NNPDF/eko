@@ -32,7 +32,7 @@ def build_ome(A, matching_order, a_s, backward_method):
         perturbation matching order
     a_s : float
         strong coupling, needed only for the exact inverse
-    backward_method : ["exact", "expanded" or ""]
+    backward_method : [InversionMethod.EXACT, InversionMethod.EXPANDED or ""]
         empty or method for inverting the matching condition (exact or expanded)
 
     Returns
@@ -115,7 +115,7 @@ def quad_ker(
         number of active flavor below threshold
     L : float
         :math:``\ln(\mu_F^2 / m_h^2)``
-    backward_method : ["exact", "expanded" or ""]
+    backward_method : [InversionMethod.EXACT, InversionMethod.EXPANDED or ""]
         empty or method for inverting the matching condition (exact or expanded)
     is_msbar: bool
         add the |MSbar| contribution
