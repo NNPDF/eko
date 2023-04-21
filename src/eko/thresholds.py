@@ -1,18 +1,18 @@
 r"""Holds the classes that define the |FNS|."""
 import logging
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union
 
 import numpy as np
 
 from .io.types import EvolutionPoint as EPoint
-from .io.types import FlavorsNumber, SquaredScale
+from .io.types import FlavorIndex, FlavorsNumber, SquaredScale
 from .quantities.heavy_quarks import MatchingScales
 
 logger = logging.getLogger(__name__)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Segment:
     """Oriented path in the threshold landscape."""
 
@@ -34,6 +34,21 @@ class Segment:
 
 
 Path = List[Segment]
+
+
+@dataclass(frozen=True)
+class Matching:
+    """Matching between two different segments.
+
+    The meaning of the flavor index is the PID of the corresponding heavy quark.
+
+    """
+
+    scale: SquaredScale
+    hq: FlavorIndex
+
+
+MatchedPath = List[Union[Segment, Matching]]
 
 
 class Atlas:
@@ -126,6 +141,25 @@ class Atlas:
             Segment(boundaries[i], mu2, nf0 + i * rc)
             for i, mu2 in enumerate(boundaries[1:])
         ]
+
+    def matched_path(self, target: EPoint) -> MatchedPath:
+        """Determine the path to the target, including matchings.
+
+        In practice, just a wrapper around :meth:`path` adding the intermediate
+        matchings.
+
+        """
+        path = self.path(target)
+
+        prev = path[0]
+        matched: MatchedPath = [prev]
+        for seq in path[1:]:
+            matching = Matching(prev.target, max(prev.nf, seq.nf))
+
+            matched.append(matching)
+            matched.append(seq)
+
+        return matched
 
 
 def nf_default(mu2: SquaredScale, atlas: Atlas) -> FlavorsNumber:
