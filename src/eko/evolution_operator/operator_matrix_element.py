@@ -168,7 +168,7 @@ def quad_ker(
                 A = ome_ps.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
         else:
             if is_time_like:
-                A = ome_ut.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
+                A = ome_ut.A_singlet(order, ker_base.n, L)
             else:
                 A = ome_us.A_singlet(order, ker_base.n, sx, nf, L, is_msbar, sx_ns)
     else:
@@ -180,7 +180,7 @@ def quad_ker(
                 A = ome_ps.A_non_singlet(order, ker_base.n, sx, nf, L)
         else:
             if is_time_like:
-                A = ome_ut.A_non_singlet(order, ker_base.n, sx, nf, L)
+                A = ome_ut.A_non_singlet(order, ker_base.n, L)
             else:
                 A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
 

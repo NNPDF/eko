@@ -1,4 +1,4 @@
-"""The unpolarized time-like Altarelli-Parisi splitting kernels."""
+"""The unpolarized, time-like Altarelli-Parisi splitting kernels."""
 
 import numba as nb
 import numpy as np

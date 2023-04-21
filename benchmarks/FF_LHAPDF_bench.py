@@ -104,7 +104,7 @@ class BenchmarkFF(Runner):
 
         self.run([theory_card], [operator_card], [FF_sets_lo[ff_index]])
 
-    def benchmark_nlo(self, ff_index, Q0=10, mugrid=(100,)):
+    def benchmark_nlo(self, ff_index, Q0=10, mugrid=(1.65,)):
         theory_card = {
             **base_theory,
             "PTO": 1,

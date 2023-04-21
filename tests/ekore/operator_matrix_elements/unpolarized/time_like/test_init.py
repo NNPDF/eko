@@ -1,10 +1,10 @@
-import pytest
+r"""Test |OME|."""
 
-import ekore.operator_matrix_elements.unpolarized.time_like as ome_ut
+import ekore.operator_matrix_elements.unpolarized.time_like as ome
 
 
-def test_init():
-    with pytest.raises(NotImplementedError):
-        ome_ut.A_non_singlet((1, 0), 1.0, [], 4, 0.0)
-    with pytest.raises(NotImplementedError):
-        ome_ut.A_singlet((1, 0), 1.0, [], 4, 0.0, False)
+def test_shapes():
+    assert ome.A_singlet((1, 0), complex(0, 1), 0).shape == (1, 3, 3)
+    assert ome.A_non_singlet((1, 0), complex(0, 1), 0).shape == (1, 2, 2)
+    assert ome.A_singlet((2, 0), complex(0, 1), 0).shape == (2, 3, 3)
+    assert ome.A_non_singlet((2, 0), complex(0, 1), 0).shape == (2, 2, 2)
