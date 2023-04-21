@@ -29,6 +29,7 @@ from .types import (
     Order,
     RawCard,
     ScaleVariationsMethod,
+    SquaredScale,
     T,
 )
 
@@ -295,7 +296,7 @@ def flavored_mugrid(mugrid: list, masses: list, matching_ratios: list):
 
 
 # TODO: move to a more suitable place
-def masses(theory: TheoryCard, evmeth: EvolutionMethod):
+def masses(theory: TheoryCard, evmeth: EvolutionMethod) -> List[SquaredScale]:
     """Compute masses in the chosen scheme."""
     if theory.heavy.masses_scheme is QuarkMassScheme.MSBAR:
         return msbar_masses.compute(

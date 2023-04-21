@@ -6,7 +6,7 @@ from ..interpolation import InterpolatorDispatcher
 from ..io import runcards
 from ..io.runcards import OperatorCard, TheoryCard
 from ..io.types import ScaleVariationsMethod
-from ..thresholds import ThresholdsAtlas
+from ..matchings import Atlas
 
 BANNER = r"""
 oooooooooooo oooo    oooo  \\ .oooooo.
@@ -27,18 +27,12 @@ def interpolator(operator: OperatorCard) -> InterpolatorDispatcher:
     )
 
 
-def threshold_atlas(theory: TheoryCard, operator: OperatorCard) -> ThresholdsAtlas:
+def threshold_atlas(theory: TheoryCard, operator: OperatorCard) -> Atlas:
     """Create thresholds atlas from runcards."""
-    thresholds_ratios = np.power(theory.heavy.matching_ratios, 2.0)
     # TODO: cache result
     masses = runcards.masses(theory, operator.configs.evolution_method)
-    return ThresholdsAtlas(
-        masses=masses,
-        q2_ref=operator.mu20,
-        nf_ref=theory.heavy.num_flavs_init,
-        thresholds_ratios=thresholds_ratios,
-        max_nf=theory.heavy.num_flavs_max_pdf,
-    )
+    matching_scales = np.power(theory.heavy.matching_ratios, 2.0) * np.array(masses)
+    return Atlas(matching_scales.tolist(), (operator.mu20, theory.heavy.num_flavs_init))
 
 
 def couplings(theory: TheoryCard, operator: OperatorCard) -> Couplings:

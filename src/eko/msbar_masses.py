@@ -10,9 +10,9 @@ from .beta import b_qcd, beta_qcd
 from .couplings import Couplings, invert_matching_coeffs
 from .gamma import gamma
 from .io.types import FlavorsNumber, Order
+from .matchings import Atlas, flavor_shift, is_downward_path
 from .quantities.couplings import CouplingEvolutionMethod, CouplingsInfo
 from .quantities.heavy_quarks import HeavyQuarkMasses, QuarkMassRef, QuarkMassScheme
-from .thresholds import ThresholdsAtlas, flavor_shift, is_downward_path
 
 
 def ker_exact(a0, a1, order, nf):
@@ -297,13 +297,11 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
         :math:`m_{\overline{MS}}(\mu_2)^2`
 
     """
-    thr_atlas = ThresholdsAtlas(
-        np.array(strong_coupling.thresholds.area_walls)[1:-1],
-        q2m_ref,
-        nf_ref,
-        strong_coupling.thresholds.thresholds_ratios,
+    matching_scales = np.array(strong_coupling.atlas.walls)[1:-1] * np.array(
+        strong_coupling.thresholds.thresholds_ratios
     )
-    path = thr_atlas.path(q2_to, nf_to)
+    atlas = Atlas(matching_scales.tolist(), (q2m_ref, nf_ref))
+    path = atlas.path((q2_to, nf_to))
     is_downward = is_downward_path(path)
     shift = flavor_shift(is_downward)
 
@@ -311,14 +309,14 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
     for k, seg in enumerate(path):
         # skip a very short segment, but keep the matching
         ker_evol = 1.0
-        if not np.isclose(seg.q2_from, seg.q2_to):
+        if not np.isclose(seg.origin, seg.target):
             ker_evol = (
-                ker_dispatcher(seg.q2_to, seg.q2_from, strong_coupling, xif2, seg.nf)
+                ker_dispatcher(seg.target, seg.origin, strong_coupling, xif2, seg.nf)
                 ** 2
             )
         # apply matching condition
         if k < len(path) - 1:
-            L = np.log(thr_atlas.thresholds_ratios[seg.nf - shift])
+            L = np.log(atlas.walls[seg.nf - shift + 1])
             m_coeffs = (
                 compute_matching_coeffs_down(seg.nf - 1)
                 if is_downward
@@ -328,7 +326,7 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
             for pto in range(1, strong_coupling.order[0]):
                 # 0**0=1, from NNLO there is a matching also in this case
                 for logpow in range(pto + 1):
-                    as_thr = strong_coupling.a(seg.q2_to * xif2, seg.nf - shift + 4)[0]
+                    as_thr = strong_coupling.a(seg.target * xif2, seg.nf - shift + 4)[0]
                     matching += as_thr**pto * L**logpow * m_coeffs[pto, logpow]
             ker_evol *= matching
         ev_mass *= ker_evol
