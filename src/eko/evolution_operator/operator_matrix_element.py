@@ -14,6 +14,7 @@ from ekore import harmonics
 
 from .. import basis_rotation as br
 from .. import scale_variations as sv
+from ..io.types import InversionMethod
 from . import Operator, QuadKerBase
 
 logger = logging.getLogger(__name__)
@@ -31,7 +32,7 @@ def build_ome(A, matching_order, a_s, backward_method):
         perturbation matching order
     a_s : float
         strong coupling, needed only for the exact inverse
-    backward_method : ["exact", "expanded" or ""]
+    backward_method : InversionMethod or None
         empty or method for inverting the matching condition (exact or expanded)
 
     Returns
@@ -49,7 +50,7 @@ def build_ome(A, matching_order, a_s, backward_method):
     # .end
     ome = np.eye(len(A[0]), dtype=np.complex_)
     A = np.ascontiguousarray(A)
-    if backward_method == "expanded":
+    if backward_method is InversionMethod.EXPANDED:
         # expended inverse
         if matching_order[0] >= 1:
             ome -= a_s * A[0]
@@ -66,7 +67,7 @@ def build_ome(A, matching_order, a_s, backward_method):
         if matching_order[0] >= 3:
             ome += a_s**3 * A[2]
         # need inverse exact ?  so add the missing pieces
-        if backward_method == "exact":
+        if backward_method is InversionMethod.EXACT:
             ome = np.linalg.inv(ome)
     return ome
 
@@ -114,7 +115,7 @@ def quad_ker(
         number of active flavor below threshold
     L : float
         :math:``\ln(\mu_F^2 / m_h^2)``
-    backward_method : ["exact", "expanded" or ""]
+    backward_method : InversionMethod or None
         empty or method for inverting the matching condition (exact or expanded)
     is_msbar: bool
         add the |MSbar| contribution
@@ -140,7 +141,7 @@ def quad_ker(
     )
     sx_ns = sx.copy()
     if order[0] == 3 and (
-        (backward_method != "" and ker_base.is_singlet)
+        (backward_method is not None and ker_base.is_singlet)
         or (mode0 == 100 and mode1 == 100)
     ):
         # At N3LO for A_qq singlet or backward you need to compute
@@ -240,7 +241,7 @@ class OperatorMatrixElement(Operator):
 
     def __init__(self, config, managers, nf, q2, is_backward, L, is_msbar):
         super().__init__(config, managers, nf, q2, None)
-        self.backward_method = config["backward_inversion"] if is_backward else ""
+        self.backward_method = config["backward_inversion"] if is_backward else None
         if is_backward:
             self.is_intrinsic = True
         else:
@@ -265,7 +266,7 @@ class OperatorMatrixElement(Operator):
             logger.warning("%s: skipping non-singlet sector", self.log_label)
         else:
             labels.append((200, 200))
-            if self.is_intrinsic or self.backward_method != "":
+            if self.is_intrinsic or self.backward_method is not None:
                 # intrinsic labels, which are not zero at NLO
                 labels.append((br.matching_hminus_pid, br.matching_hminus_pid))
                 # These contributions are always 0 for the moment
@@ -281,7 +282,7 @@ class OperatorMatrixElement(Operator):
                     (br.matching_hplus_pid, 100),
                 ]
             )
-            if self.is_intrinsic or self.backward_method != "":
+            if self.is_intrinsic or self.backward_method is not None:
                 labels.extend(
                     [
                         (21, br.matching_hplus_pid),
