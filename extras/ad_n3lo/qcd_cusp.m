@@ -4,12 +4,12 @@
 (*
 Notation:
 *)
-GluonConstants ={ 
+GluonConstants ={
 	CR -> ca,
 	C4A ->d4AA/na,
 	C4F-> d4RA/na
 };
-QuarkConstants ={ 
+QuarkConstants ={
 	CR -> cf,
 	C4A ->d4RA/nr,
 	C4F-> d4RR/nr

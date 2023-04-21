@@ -1,14 +1,14 @@
 (* ::Package:: *)
 
-(* 
+(*
 Coefficient of the delta function Delta[1-x] for Pgg ang Pqq from 2205.04493
-From equations 5.22 and 5.25 you can get:  gamma_f = gamma_j - gamma_thr 
+From equations 5.22 and 5.25 you can get:  gamma_f = gamma_j - gamma_thr
 *)
 
 (* color factors see appendix C *)
 AdditionalQCDcostantsRules = {
   CA -> ca,
-  CF -> cf, 
+  CF -> cf,
   C3FF -> 1/16 (nc^2 - 4)/nc (nc^2-1),
   C3AF -> 0,
   C3AA -> 0,

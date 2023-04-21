@@ -1,6 +1,6 @@
 (* ::Package:: *)
 
-(* 
+(*
 Non Singlet asymptotic limit, valid both for nsm, nsp, nsv
 see 1707.08315, euqations: 2.17, 3.11, 3.10, 3.9
 *)
@@ -19,9 +19,9 @@ B1= 3 cf;
 (* B2, coefficient of delta(1-x) in eq 4.6 of 0403192 *)
 B2 = 4 ca cf (17/24+ 11/3 z2 - 3 z3 ) - 4 cf nf (1/12 + 2/3 z2) + 4 cf^2 (3/8 - 3z2 +6 z3);
 
-(* 
-B3, coefficient of delta(1-x) in eq 4.9 of 0403192, 
-this is copied form https://www.nikhef.nl/~avogt/xpns2e.f, 
+(*
+B3, coefficient of delta(1-x) in eq 4.9 of 0403192,
+this is copied form https://www.nikhef.nl/~avogt/xpns2e.f,
 see P2DELT
 *)
 B3 = (
@@ -61,7 +61,7 @@ B4 = (cf nc^3 (
 		+ 16/3 z3^2 + 135 z6 - 80 z2 z5 + 32 z3 z4 - 560 z7
 		)
 	+ cf nc^2 nf ( 353/3 \[Minus] 85175/162 z2 \[Minus] 137/9 z3 + 16186/27 z4 \[Minus] 584/9 z2 z3 \[Minus] 248/3 z5 \[Minus] 16/3 z3^2 \[Minus] 144 z6)
-	- cf nc nf^2 ( 127/18 \[Minus] 5036/81 z2 + 932/27 z3 + 1292/27 z4 \[Minus] 160/9 z2 z3 \[Minus] 32/3 z5)	
+	- cf nc nf^2 ( 127/18 \[Minus] 5036/81 z2 + 932/27 z3 + 1292/27 z4 \[Minus] 160/9 z2 z3 \[Minus] 32/3 z5)
 	\[Minus] cf nf^3 ( 131/81 \[Minus] 32/81 z2 \[Minus] 304/81 z3 + 32/27 z4)
 );
 

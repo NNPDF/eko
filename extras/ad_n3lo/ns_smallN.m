@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
-(* 
-Small-x from 2202.10362. 
+(*
+Small-x from 2202.10362.
 This is valid in the large n_c limit so all the
 constanst are to be replaced by LargeNcQCDConstantsRules.
 With these assumptions NS,+ = NS,- = NS,v.
@@ -90,7 +90,7 @@ p35p =(
     - 48*z2*z3*cf*nc^3
 );
 
-(* NS,+ *)     
+(* NS,+ *)
 (* Now use eq  2.22 to reconstrict the limit *)
 gqq3nspN0asy = -(Pns3R + 1/n^4 p33p + 1/n^3 p34p + 1/n^2 p35p);
 

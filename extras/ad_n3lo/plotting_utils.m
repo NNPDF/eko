@@ -1,6 +1,6 @@
 (* ::Package:: *)
 
-PlotFittedTable[DataTable_, f_, min_,max_, title_]:=Module[{g1, g2}, 
+PlotFittedTable[DataTable_, f_, min_,max_, title_]:=Module[{g1, g2},
 	(*plot fit and exact series *)
 	g1 = ListPlot[DataTable, PlotMarkers->{Automatic, 10}];
 	g2 = Plot[f, {n,min,max}, PlotStyle->Red];
@@ -53,9 +53,9 @@ PlotRatioToBest[v1_, v2_, t1_, t2_, NF_, title_, Nmin_: 1.01, Nmax_: 10, Nstep_:
 	l4 = MapThread[{#, t2 / ref /. nf -> NF /. n -> # // N} &, {Nlist}];
 	l0 = MapThread[{#,  1 /. n -> # // N} &, {Nlist}];
 	ListPlot[
-		{l1,l2,l3,l4, l0}, 
-		AxesLabel->{"N", "Ratio to best"}, 
-		PlotLegends->{"Small-x", "Large-x", "Test1", "Test2"}, 
+		{l1,l2,l3,l4, l0},
+		AxesLabel->{"N", "Ratio to best"},
+		PlotLegends->{"Small-x", "Large-x", "Test1", "Test2"},
 		PlotLabel->title,
 		PlotStyle->{ColorData[97,"ColorList"][[1]], ColorData[97,"ColorList"][[2]], ColorData[97,"ColorList"][[3]], ColorData[97,"ColorList"][[4]],Gray},
 		ImageSize->Large
@@ -67,10 +67,10 @@ PlotInterpolation[moments_, newN_, NF_]:=Module[{nvals, momentsInterpolator, gin
 	nvals = {2, 4, 6, 8};
 	momentsInterpolator = MomentListInterpolator[moments,nvals, NF];
 	gintmom = ListPlot[
-		MapThread[{#, Coefficient[ BuildNewMoment[moments, nvals, #], nf, NF]} &, 
+		MapThread[{#, Coefficient[ BuildNewMoment[moments, nvals, #], nf, NF]} &,
 			{newN}], PlotStyle -> Blue, PlotMarkers -> {"*", Medium}];
 	gmom = ListPlot[
-		MapThread[{#1, Coefficient[#2/. n -> #1 //. QCDConstantsRules /. ZetaRules, nf, NF] } &, 
+		MapThread[{#1, Coefficient[#2/. n -> #1 //. QCDConstantsRules /. ZetaRules, nf, NF] } &,
 		{nvals, moments}], PlotStyle -> Red, PlotMarkers -> {Automatic, Small}];
 	gint = Plot[momentsInterpolator, {n,1.5,9}];
 	Show[gint, gintmom, gmom, PlotLabel->StringForm["Prop to nf^``.",NF], ImageSize->Full]
@@ -85,7 +85,7 @@ pifact = -x /(4 Pi)^4 0.2^4;
 
 PlotList[fitted_, fasy_, NF_, color_]:=Module[{},
 	Parallelize[MapThread[
-		Plot[ pifact (# + fasy) /. nf -> NF , {x, 0, 1}, PlotStyle->clist[[color]]] &, 
+		Plot[ pifact (# + fasy) /. nf -> NF , {x, 0, 1}, PlotStyle->clist[[color]]] &,
 	 {fitted}]]
 ];
 
@@ -98,7 +98,7 @@ PlotListLegend[flist_, fasy_, NF_, color_, legend_] := Module[{plot, legendplot}
 LogPlotList[fitted_, fasy_, NF_, color_]:=Module[{},
 	Parallelize[
 		MapThread[
-			LogLinearPlot[ pifact (# + fasy) /. nf -> NF , {x, 10^-7, 1}, PlotStyle->clist[[color]]] &, 
+			LogLinearPlot[ pifact (# + fasy) /. nf -> NF , {x, 10^-7, 1}, PlotStyle->clist[[color]]] &,
 		{fitted}
 	]]
 ];
@@ -121,13 +121,13 @@ ShowLegends[plotlist_, plot_, legends_, colors_]:=Module[{fakelegend},
 
 LinearPlotErrorBand[fasy_,  avg_, sigma_, NF_, color_ ]:=Module[{ftot},
 	ftot = fasy + avg ;
-	Plot[{ pifact (ftot - sigma) /. nf -> NF, pifact (ftot + sigma)  /. nf -> NF , pifact (ftot)  /. nf -> NF}, {x, 0, 1}, 
+	Plot[{ pifact (ftot - sigma) /. nf -> NF, pifact (ftot + sigma)  /. nf -> NF , pifact (ftot)  /. nf -> NF}, {x, 0, 1},
 		Filling -> {1 -> {2}}, PlotStyle -> myStyle[color]]
 ];
 
 LogPlotErrorBand[fasy_,  avg_, sigma_, NF_, color_ ]:=Module[{ftot},
 	ftot = fasy + avg ;
-	LogLinearPlot[{ pifact (ftot - sigma) /. nf -> NF, pifact (ftot + sigma)  /. nf -> NF , pifact (ftot)  /. nf -> NF}, {x, 10^-7, 1}, 
+	LogLinearPlot[{ pifact (ftot - sigma) /. nf -> NF, pifact (ftot + sigma)  /. nf -> NF , pifact (ftot)  /. nf -> NF}, {x, 10^-7, 1},
 		Filling -> {1 -> {2}}, PlotStyle -> myStyle[color]]
 ];
 
@@ -165,7 +165,7 @@ PlotListN[common_, fitlist_, NF_, fmin_, fmax_]:=Module[{commoncoeff, coefflist,
     avg = Mean[coefflist];
     plot = Plot[
        {avg + commoncoeff/. InverselargeNrules /. InverseHarmonicRules, commoncoeff /. InverseHarmonicRules},{n,1,6},
-       PlotRange-> {All,{fmin,fmax}},  
+       PlotRange-> {All,{fmin,fmax}},
        PlotStyle->{Red,Orange}
     ];
     Join[{{plot}, plotlist}]// Flatten
