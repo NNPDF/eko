@@ -190,7 +190,7 @@ def test_quad_ker(monkeypatch):
 class FakeCoupling:
     def __init__(self):
         self.alphaem_running = None
-        self.q2_ref = 0.0
+        self.mu2_ref = 10.0
 
     def a(self, scale_to=None, nf_to=None):
         return (0.1, 0.01)

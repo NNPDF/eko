@@ -703,7 +703,7 @@ class Operator(sv.ModeMixin):
             as1 = self.a_s[1]
             aem0 = self.a_em[0]
             aem1 = self.a_em[1]
-            q2ref = self.managers["couplings"].q2_ref
+            q2ref = self.managers["couplings"].mu2_ref
             delta_from = abs(self.q2_from - q2ref)
             delta_to = abs(self.q2_to - q2ref)
             # I compute the values in aem_list starting from the mu2
