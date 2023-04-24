@@ -64,7 +64,7 @@ class TestAtlas:
         tc = Atlas(MatchingScales([1, 2, 3]), (0.5, 3))
         p1 = tc.path((0.7, 3))
         assert len(p1) == 1
-        assert p1[0] == (0.5, 0.7, 3)
+        assert astuple(p1[0]) == (0.5, 0.7, 3)
 
     def test_path_3thr_backward(self):
         tc = Atlas(MatchingScales([1, 2, 3]), (2.5, 5))
