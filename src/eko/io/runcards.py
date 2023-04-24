@@ -173,6 +173,8 @@ class Legacy:
 
         new["order"] = [old["PTO"] + 1, old["QED"]]
         alphaem = self.fallback(old.get("alphaqed"), old.get("alphaem"), default=0.0)
+        ms = self.heavies("m%s", old)
+        mus = self.heavies("Qm%s", old)
         new["couplings"] = dict(
             alphas=old["alphas"],
             alphaem=alphaem,
@@ -181,7 +183,9 @@ class Legacy:
             max_num_flavs=old["MaxNfAs"],
         )
         new["heavy"] = {
-            "num_flavs_init": old["nf0"],
+            "num_flavs_init": nf_default(old["Qref"] ** 2.0, default_atlas(ms, mus))
+            if old["nf0"] is None
+            else old["nf0"],
             "num_flavs_max_pdf": old["MaxNfPdf"],
             "matching_ratios": self.heavies("k%sThr", old),
             "masses_scheme": old["HQ"],
@@ -191,8 +195,6 @@ class Legacy:
             if old.get(f"i{q}".upper()) == 1:
                 intrinsic.append(idx + 4)
         new["heavy"]["intrinsic_flavors"] = intrinsic
-        ms = self.heavies("m%s", old)
-        mus = self.heavies("Qm%s", old)
         if old["HQ"] == "POLE":
             new["heavy"]["masses"] = [[m, nan] for m in ms]
         elif old["HQ"] == "MSBAR":
@@ -276,6 +278,21 @@ def update(theory: Union[RawCard, TheoryCard], operator: Union[RawCard, Operator
     return cards.new_theory, cards.new_operator
 
 
+def default_atlas(masses: list, matching_ratios: list):
+    r"""Create default landscape.
+
+    This method should not be used to write new runcards, but rather to have a
+    consistent default for comparison with other softwares and existing PDF
+    sets.
+    There is no one-to-one relation between number of running flavors and final
+    scales, unless matchings are all applied. But this is a custom choice,
+    since it is possible to have PDFs in different |FNS| at the same scales.
+
+    """
+    matchings = (np.array(masses) * np.array(matching_ratios)) ** 2
+    return Atlas(matchings.tolist(), (0.0, 0))
+
+
 def flavored_mugrid(mugrid: list, masses: list, matching_ratios: list):
     r"""Upgrade :math:`\mu^2` grid to contain also target number flavors.
 
@@ -290,8 +307,7 @@ def flavored_mugrid(mugrid: list, masses: list, matching_ratios: list):
     since it is possible to have PDFs in different |FNS| at the same scales.
 
     """
-    matchings = (np.array(masses) * np.array(matching_ratios)) ** 2
-    atlas = Atlas(matchings.tolist(), (0.0, 0))
+    atlas = default_atlas(masses, matching_ratios)
     return [(mu, nf_default(mu**2, atlas)) for mu in mugrid]
 
 
