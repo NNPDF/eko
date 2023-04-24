@@ -62,9 +62,15 @@ class Atlas:
     def __init__(self, matching_scales: MatchingScales, origin: EPoint):
         """Create basic atlas."""
         self.walls = [0] + matching_scales + [np.inf]
-        self.origin = origin
+        self.origin = self.normalize(origin)
 
         logger.info(str(self))
+
+    def normalize(self, target: EPoint) -> EPoint:
+        """Fill number of flavors if needed."""
+        if target[1] is not None:
+            return target
+        return (target[0], nf_default(target[0], self))
 
     def __str__(self):
         """Textual representation, mainly for logging purpose."""
@@ -129,7 +135,7 @@ class Atlas:
 
         """
         mu20, nf0 = self.origin
-        mu2f, nff = target
+        mu2f, nff = self.normalize(target)
 
         # determine direction and python slice modifier
         rc, shift = (-1, -3) if nff < nf0 else (1, -2)

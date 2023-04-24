@@ -70,7 +70,7 @@ class TestCouplings:
             hqm_scheme=QuarkMassScheme.POLE,
             thresholds_ratios=[1.0, 1.0, 1.0],
         )
-        assert sc.q2_ref == muref**2
+        assert sc.mu2_ref == muref**2
         assert sc.a_ref[0] == alpharef[0] / 4.0 / np.pi
         assert sc.a(muref**2)[0] == alpharef[0] / (4.0 * np.pi)
         assert sc.a_ref[1] == alpharef[1] / 4.0 / np.pi
