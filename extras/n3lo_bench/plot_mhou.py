@@ -22,7 +22,7 @@ def build_gamma(g, order, q2, xif2, nf):
 
 
 def compute_mhou(g_min, g_max, g_central, q2, xif2_low, xif2_hig, order, nf):
-    # TODO: here you need two different instances of strong coupling
+    # here you need two different instances of strong coupling
     gamma_low = build_gamma(g_min, order, q2, xif2_low, nf)
     gamma_hig = build_gamma(g_max, order, q2, xif2_hig, nf)
     delta_low = gamma_low - g_central
@@ -274,13 +274,13 @@ def plot_ad_ratio(entry, q2=None, nf=4, plot_totu=False):
 if __name__ == "__main__":
     for k in ["qg", "gq", "gg", "qq"]:
         # linear plots
-        q2 = 38.5  # chosen such that a_s(Q2) \approx 0.2
-        nf = 5
+        q2_ref = 38.5  # chosen such that a_s(Q2) \approx 0.2
+        nf_ref = 5
         plot_totu = True
         x_grid = lambertgrid(80, x_min=1e-2)
-        # plot_ad(k, q2=q2, nf=nf, logscale=False, plot_totu=plot_totu)
-        plot_ad_ratio(k, q2=q2, nf=nf, plot_totu=plot_totu)
+        # plot_ad(k, q2=q2_ref, nf=nf_ref, logscale=False, plot_totu=plot_totu)
+        plot_ad_ratio(k, q2=q2_ref, nf=nf_ref, plot_totu=plot_totu)
 
         # log plots
         x_grid = lambertgrid(80, x_min=1e-7)
-        plot_ad(k, q2=q2, nf=nf, plot_scaling=True, plot_totu=plot_totu)
+        plot_ad(k, q2=q2_ref, nf=nf_ref, plot_scaling=True, plot_totu=plot_totu)

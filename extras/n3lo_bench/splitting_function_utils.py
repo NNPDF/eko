@@ -3,9 +3,9 @@ from click import progressbar
 from scipy import integrate
 
 from eko import scale_variations as sv
-from eko.couplings import Couplings
-from eko.io import types
+from eko.couplings import CouplingEvolutionMethod, Couplings, CouplingsInfo
 from eko.mellin import Path
+from eko.quantities.heavy_quarks import QuarkMassScheme
 from ekore.anomalous_dimensions.unpolarized.space_like import gamma_ns, gamma_singlet
 
 map_singlet_entries = {"gg": (1, 1), "gq": (1, 0), "qg": (0, 1), "qq": (0, 0)}
@@ -100,21 +100,20 @@ def splitting_function(
 
 def compute_a_s(q2=None, xif2=1.0, nf=None, order=(4, 0)):
     if q2 is not None:
-        fact_scale = q2 * xif2
-        ref = types.CouplingsRef(
-            alphas=types.FloatRef(value=0.1181, scale=91.00 * np.sqrt(xif2)),
-            alphaem=types.FloatRef(value=0.007496, scale=np.nan),
+        ref = CouplingsInfo(
+            alphas=0.1181,
+            alphaem=0.007496,
+            scale=91.00,
             max_num_flavs=6,
             num_flavs_ref=5,
         )
         sc = Couplings(
             couplings=ref,
             order=order,
-            method=types.CouplingEvolutionMethod.EXPANDED,
+            method=CouplingEvolutionMethod.EXPANDED,
             masses=np.array([1.51, 4.92, 172.5]) ** 2,
-            hqm_scheme=types.QuarkMassSchemes.POLE,
-            thresholds_ratios=[1.0, 1.0, 1.0],
+            hqm_scheme=QuarkMassScheme.POLE,
+            thresholds_ratios=np.array([1.0, 1.0, 1.0]) ** 2 * xif2,
         )
-        return sc.a_s(scale_to=q2, fact_scale=fact_scale, nf_to=nf)
-
+        return sc.a_s(scale_to=q2 * xif2, nf_to=nf)
     return 0.2 / (4 * np.pi)
