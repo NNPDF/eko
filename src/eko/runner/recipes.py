@@ -41,5 +41,5 @@ def create(eko: EKO):
         #  expanded = eko.operator_card.configs.scvar_method is sv.Modes.expanded
         #  mu2f = mu2 * eko.theory_card.xif**2 if expanded else mu2
 
-        blocks = tc.path(*ep)
+        blocks = tc.path(ep)
         terminal.append(blocks.pop())
