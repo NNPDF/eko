@@ -15,7 +15,7 @@ import numpy.typing as npt
 from .. import member
 from .. import scale_variations as sv
 from ..io.runcards import Configs, Debug
-from ..thresholds import flavor_shift, is_downward_path
+from ..matchings import flavor_shift, is_downward_path
 from . import Operator, flavors, matching_condition, physical
 from .operator_matrix_element import OperatorMatrixElement
 
