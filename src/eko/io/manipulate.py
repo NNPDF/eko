@@ -103,8 +103,8 @@ def xgrid_reshape(
     # if no rotation is done, the grids are not modified
     if targetrot is not None:
         eko.rotations.targetgrid = newtarget
-    if targetrot is not None:
-        eko.rotations.targetgrid = newinput
+    if inputrot is not None:
+        eko.rotations.inputgrid = newinput
 
     # build new grid
     for ep, elem in eko.items():
