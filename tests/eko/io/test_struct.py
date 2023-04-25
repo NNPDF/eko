@@ -114,13 +114,14 @@ class TestEKO:
 
     def test_properties(self, eko_factory: EKOFactory):
         mu = 10.0
-        mugrid = [(mu, 5)]
+        nf = 5
+        mugrid = [(mu, nf)]
         eko_factory.operator.mugrid = mugrid
         eko = eko_factory.get()
         assert hasattr(eko.theory_card.heavy, "masses")
         assert hasattr(eko.operator_card, "debug")
         np.testing.assert_allclose(eko.mu2grid, [mu**2])
-        assert mu**2 in eko
+        assert (mu**2, nf) in eko
         default_grid = eko.operator_card.xgrid
         assert eko.xgrid == default_grid
         xg = interpolation.XGrid([0.1, 1.0])
@@ -137,59 +138,63 @@ class TestEKO:
     def test_ops(self, eko_factory: EKOFactory):
         mu = 10.0
         mu2 = mu**2
-        mugrid = [(mu, 5)]
+        nf = 5
+        ep = (mu2, nf)
+        mugrid = [(mu, nf)]
         eko_factory.operator.mugrid = mugrid
         eko = eko_factory.get()
         v = np.random.rand(2, 2)
         opv = struct.Operator(operator=v)
         # try setting not an operator
         with pytest.raises(ValueError):
-            eko[mu2] = "bla"
+            eko[ep] = "bla"
         # approx
-        eko[mu2] = opv
-        assert eko.approx(2 * mu2) is None
-        assert eko.approx(mu2 + 1.0, atol=2) == mu2
-        eko[mu2 + 1.0] = opv
+        eko[ep] = opv
+        assert eko.approx((2 * mu2, nf)) is None
+        assert eko.approx((mu2 + 1.0, nf), atol=2) == mu2
+        eko[(mu2 + 1.0, nf)] = opv
         with pytest.raises(ValueError):
-            eko.approx(mu2 + 0.5, atol=2)
+            eko.approx((mu2 + 0.5, nf), atol=2)
         # iterate
-        for q2, q2eko in zip((mu2, mu2 + 1.0), eko):
-            assert q2 == q2eko
-            np.testing.assert_allclose(v, eko[q2].operator)
-        for q2, (q2eko, op) in zip((mu2, mu2 + 1.0), eko.items()):
-            assert q2 == q2eko
+        for mu2_, ep in zip((mu2, mu2 + 1.0), eko):
+            assert mu2_ == ep[0]
+            np.testing.assert_allclose(v, eko[(mu2, nf)].operator)
+        for mu2_, (mu2eko, op) in zip((mu2, mu2 + 1.0), eko.items()):
+            assert mu2_ == mu2eko[0]
             np.testing.assert_allclose(v, op.operator)
         # getter
         with pytest.raises(ValueError):
-            eko[mu2 + 2.0]
-        with eko.operator(mu2) as op:
+            eko[mu2 + 2.0, nf]
+        with eko.operator(ep) as op:
             np.testing.assert_allclose(v, op.operator)
         # overwrite
         vv = np.random.rand(2, 2)
         opvv = struct.Operator(operator=vv)
-        eko[mu2 + 1.0] = opvv
-        np.testing.assert_allclose(vv, eko[mu2 + 1.0].operator)
+        eko[mu2 + 1.0, nf] = opvv
+        np.testing.assert_allclose(vv, eko[mu2 + 1.0, nf].operator)
 
     def test_copy(self, eko_factory: EKOFactory, tmp_path: pathlib.Path):
         mu = 10.0
         mu2 = mu**2
-        mugrid = [(mu, 5)]
+        nf = 5
+        ep = (mu2, nf)
+        mugrid = [(mu, nf)]
         eko_factory.operator.mugrid = mugrid
         eko1 = eko_factory.get()
         v = np.random.rand(2, 2)
         opv = struct.Operator(operator=v)
-        eko1[mu2] = opv
-        np.testing.assert_allclose(eko1[mu2].operator, v)
+        eko1[ep] = opv
+        np.testing.assert_allclose(eko1[ep].operator, v)
         p = tmp_path / "eko2.tar"
         eko1.deepcopy(p)
         with EKO.edit(p) as eko2:
-            np.testing.assert_allclose(eko1[mu2].operator, v)
-            np.testing.assert_allclose(eko2[mu2].operator, v)
+            np.testing.assert_allclose(eko1[ep].operator, v)
+            np.testing.assert_allclose(eko2[ep].operator, v)
             vv = np.random.rand(2, 2)
             opvv = struct.Operator(operator=vv)
-            eko2[mu2] = opvv
-            np.testing.assert_allclose(eko1[mu2].operator, v)
-            np.testing.assert_allclose(eko2[mu2].operator, vv)
+            eko2[ep] = opvv
+            np.testing.assert_allclose(eko1[ep].operator, v)
+            np.testing.assert_allclose(eko2[ep].operator, vv)
             # dump does not happen before closing, unless explicitly called, and
             # without a dump the path would be empty
             eko2.dump()
@@ -205,39 +210,39 @@ class TestLegacy:
         eko = eko_factory.get()
         v = np.random.rand(2, 2)
         opv = struct.Operator(operator=v)
-        for mu2 in eko.operator_card.mu2grid:
-            eko[mu2] = opv
+        for ep in eko.operator_card.evolgrid:
+            eko[ep] = opv
 
-        mu2 = next(iter(eko.mu2grid))
+        ep = next(iter(eko))
 
         # unload
-        eko._operators[mu2] = None
+        eko._operators[ep] = None
         # test autoloading
-        assert isinstance(eko[mu2], struct.Operator)
-        assert isinstance(eko._operators[mu2], struct.Operator)
+        assert isinstance(eko[ep], struct.Operator)
+        assert isinstance(eko._operators[ep], struct.Operator)
 
-        del eko[mu2]
+        del eko[ep]
 
-        assert eko._operators[mu2] is None
+        assert eko._operators[ep] is None
 
-    def test_iter(self, eko_factory):
+    def test_iter(self, eko_factory: EKOFactory):
         """Test managed iteration."""
         eko_factory.operator.mugrid = [(3.0, 4), (20.0, 5), (300.0, 6)]
         eko = eko_factory.get()
 
-        mu2prev = None
-        for mu2, op in eko.items():
-            if mu2prev is not None:
-                assert eko._operators[mu2prev] is None
+        epprev = None
+        for ep, op in eko.items():
+            if epprev is not None:
+                assert eko._operators[epprev] is None
             assert isinstance(op, struct.Operator)
-            mu2prev = mu2
+            epprev = ep
 
-    def test_context_operator(self, eko_factory):
+    def test_context_operator(self, eko_factory: EKOFactory):
         """Test automated handling through context."""
         eko = eko_factory.get()
-        mu2 = eko.mu2grid[0]
+        ep = next(iter(eko))
 
-        with eko.operator(mu2) as op:
+        with eko.operator(ep) as op:
             assert isinstance(op, struct.Operator)
 
-        assert eko._operators[mu2] is None
+        assert eko._operators[ep] is None
