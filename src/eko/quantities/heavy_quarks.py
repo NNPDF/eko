@@ -1,7 +1,7 @@
 """Heavy quarks related quantities."""
 import enum
 from dataclasses import dataclass
-from typing import Generic, Sequence, TypeVar
+from typing import Generic, Sequence, TypeVar, Union
 
 import numpy as np
 
@@ -58,7 +58,7 @@ class HeavyQuarks(list, Generic[T]):
 
 QuarkMass = LinearScale
 QuarkMassRef = ReferenceRunning[QuarkMass]
-HeavyQuarkMasses = HeavyQuarks[QuarkMassRef]
+HeavyQuarkMasses = HeavyQuarks[Union[QuarkMass, QuarkMassRef]]
 MatchingRatio = float
 MatchingRatios = HeavyQuarks[MatchingRatio]
 MatchingScale = SquaredScale

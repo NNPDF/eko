@@ -34,12 +34,13 @@ class TestManipulate:
         # create object
         muout = 10.0
         mu2out = muout**2
+        epout = (mu2out, 5)
         xg = interpolation.XGrid(np.geomspace(1e-5, 1.0, 21))
         eko_factory.operator.mugrid = [(muout, 5)]
         eko_factory.operator.xgrid = xg
         o1 = eko_factory.get()
         lpids = 2
-        o1[mu2out] = eko.io.Operator(
+        o1[epout] = eko.io.Operator(
             operator=eko_identity([1, lpids, len(xg), lpids, len(xg)])[0]
         )
         xgp = interpolation.XGrid(np.geomspace(1e-5, 1.0, 11))
@@ -49,21 +50,21 @@ class TestManipulate:
         with EKO.edit(otpath) as ot:
             manipulate.xgrid_reshape(ot, xgp)
             chk_keys(o1.raw, ot.raw)
-            assert ot[mu2out].operator.shape == (lpids, len(xgp), lpids, len(xg))
+            assert ot[epout].operator.shape == (lpids, len(xgp), lpids, len(xg))
         ottpath = tmp_path / "ott.tar"
         o1.deepcopy(ottpath)
         with EKO.edit(ottpath) as ott:
             with pytest.warns(Warning):
                 manipulate.xgrid_reshape(ott, xg)
                 chk_keys(o1.raw, ott.raw)
-                np.testing.assert_allclose(ott[mu2out].operator, o1[mu2out].operator)
+                np.testing.assert_allclose(ott[epout].operator, o1[epout].operator)
 
         # only input
         oipath = tmp_path / "oi.tar"
         o1.deepcopy(oipath)
         with EKO.edit(oipath) as oi:
             manipulate.xgrid_reshape(oi, inputgrid=xgp)
-            assert oi[mu2out].operator.shape == (lpids, len(xg), lpids, len(xgp))
+            assert oi[epout].operator.shape == (lpids, len(xg), lpids, len(xgp))
             chk_keys(o1.raw, oi.raw)
         oiipath = tmp_path / "oii.tar"
         o1.deepcopy(oiipath)
@@ -71,7 +72,7 @@ class TestManipulate:
             with pytest.warns(Warning):
                 manipulate.xgrid_reshape(oii, inputgrid=xg)
                 chk_keys(o1.raw, oii.raw)
-                np.testing.assert_allclose(oii[mu2out].operator, o1[mu2out].operator)
+                np.testing.assert_allclose(oii[epout].operator, o1[epout].operator)
 
         # both
         oitpath = tmp_path / "oit.tar"
@@ -80,7 +81,7 @@ class TestManipulate:
             manipulate.xgrid_reshape(oit, xgp, xgp)
             chk_keys(o1.raw, oit.raw)
             op = eko_identity([1, 2, len(xgp), 2, len(xgp)])
-            np.testing.assert_allclose(oit[mu2out].operator, op[0], atol=1e-10)
+            np.testing.assert_allclose(oit[epout].operator, op[0], atol=1e-10)
 
         # error
         with pytest.raises(ValueError):
