@@ -773,8 +773,8 @@ class EKO:
             immediately after
 
         """
-        for ep, op in self._operators.items():
-            yield ep, op
+        for ep in self._operators:
+            yield ep, self[ep]
             del self[ep]
 
     def __contains__(self, q2: float) -> bool:
@@ -1015,7 +1015,7 @@ class EKO:
             operators themselves
 
         """
-        return dict(mu2grid=self.mu2grid.tolist(), metadata=self.metadata.raw)
+        return dict(mu2grid=self.mu2grid, metadata=self.metadata.raw)
 
 
 @dataclass
