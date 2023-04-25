@@ -120,12 +120,13 @@ class TestManipulate:
         xg = interpolation.XGrid(np.geomspace(1e-5, 1.0, 21))
         muout = 10.0
         mu2out = muout**2
+        epout = (mu2out, 5)
         eko_factory.operator.xgrid = xg
         eko_factory.operator.mugrid = [(muout, 5)]
         o1 = eko_factory.get()
         lpids = len(o1.rotations.pids)
         lx = len(xg)
-        o1[mu2out] = eko.io.Operator(
+        o1[epout] = eko.io.Operator(
             operator=eko_identity([1, lpids, lx, lpids, lx])[0],
             error=None,
         )
@@ -138,15 +139,15 @@ class TestManipulate:
         with EKO.edit(tpath) as ot:
             manipulate.flavor_reshape(ot, target_r)
             chk_keys(o1.raw, ot.raw)
-            assert ot[mu2out].operator.shape == (lpids, len(xg), lpids, len(xg))
+            assert ot[epout].operator.shape == (lpids, len(xg), lpids, len(xg))
             ot.deepcopy(ttpath)
         with EKO.edit(ttpath) as ott:
             manipulate.flavor_reshape(ott, np.linalg.inv(target_r))
-            np.testing.assert_allclose(ott[mu2out].operator, o1[mu2out].operator)
+            np.testing.assert_allclose(ott[epout].operator, o1[epout].operator)
             with pytest.warns(Warning):
                 manipulate.flavor_reshape(ott, np.eye(lpids))
                 chk_keys(o1.raw, ott.raw)
-                np.testing.assert_allclose(ott[mu2out].operator, o1[mu2out].operator)
+                np.testing.assert_allclose(ott[epout].operator, o1[epout].operator)
 
         # only input
         input_r = np.eye(lpids)
@@ -157,15 +158,15 @@ class TestManipulate:
         with EKO.edit(ipath) as oi:
             manipulate.flavor_reshape(oi, inputpids=input_r)
             chk_keys(o1.raw, oi.raw)
-            assert oi[mu2out].operator.shape == (lpids, len(xg), lpids, len(xg))
+            assert oi[epout].operator.shape == (lpids, len(xg), lpids, len(xg))
             oi.deepcopy(iipath)
         with EKO.edit(iipath) as oii:
             manipulate.flavor_reshape(oii, inputpids=np.linalg.inv(input_r))
-            np.testing.assert_allclose(oii[mu2out].operator, o1[mu2out].operator)
+            np.testing.assert_allclose(oii[epout].operator, o1[epout].operator)
             with pytest.warns(Warning):
                 manipulate.flavor_reshape(oii, inputpids=np.eye(lpids))
                 chk_keys(o1.raw, oii.raw)
-                np.testing.assert_allclose(oii[mu2out].operator, o1[mu2out].operator)
+                np.testing.assert_allclose(oii[epout].operator, o1[epout].operator)
 
         # both
         itpath = tmp_path / "oit.tar"
@@ -174,7 +175,7 @@ class TestManipulate:
             manipulate.flavor_reshape(oit, target_r, input_r)
             chk_keys(o1.raw, oit.raw)
             op = eko_identity([1, lpids, len(xg), lpids, len(xg)]).copy()
-            np.testing.assert_allclose(oit[mu2out].operator, op[0], atol=1e-10)
+            np.testing.assert_allclose(oit[epout].operator, op[0], atol=1e-10)
         # error
         fpath = tmp_path / "fail.tar"
         o1.deepcopy(fpath)
@@ -186,8 +187,10 @@ class TestManipulate:
         xgrid = interpolation.XGrid([0.5, 1.0])
         mu_out = 2.0
         mu2_out = mu_out**2
+        nfout = 4
+        epout = (mu2_out, nfout)
         eko_factory.operator.mu0 = float(np.sqrt(1.0))
-        eko_factory.operator.mugrid = [(mu_out, 4)]
+        eko_factory.operator.mugrid = [(mu_out, nfout)]
         eko_factory.operator.xgrid = xgrid
         eko_factory.operator.configs.interpolation_polynomial_degree = 1
         eko_factory.operator.configs.interpolation_is_log = False
@@ -221,9 +224,7 @@ class TestManipulate:
                     )
                     # rotate also target
                     manipulate.to_evol(o01, False, True)
-                    np.testing.assert_allclose(
-                        o01[mu2_out].operator, o11[mu2_out].operator
-                    )
+                    np.testing.assert_allclose(o01[epout].operator, o11[epout].operator)
                     chk_keys(o00.raw, o01.raw)
                     # check the target rotated one
                     np.testing.assert_allclose(
@@ -234,7 +235,5 @@ class TestManipulate:
                     )
                     # rotate also input
                     manipulate.to_evol(o10)
-                    np.testing.assert_allclose(
-                        o10[mu2_out].operator, o11[mu2_out].operator
-                    )
+                    np.testing.assert_allclose(o10[epout].operator, o11[epout].operator)
                     chk_keys(o00.raw, o10.raw)
