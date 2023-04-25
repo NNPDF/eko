@@ -128,7 +128,7 @@ def test_quad_ker(monkeypatch):
         lambda *args: np.array([zeros, zeros, zeros]),
     )
     for is_log in [True, False]:
-        for order, p, t in [((3, 0), False, False), ((1, 0), False, True)]:
+        for order, p, t in [((3, 0), False, False), ((2, 0), False, True)]:
             res_ns = quad_ker(
                 u=0,
                 order=order,
