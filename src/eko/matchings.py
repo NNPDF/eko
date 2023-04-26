@@ -75,7 +75,7 @@ class Atlas:
     def __str__(self):
         """Textual representation, mainly for logging purpose."""
         walls = " - ".join([f"{w:.2e}" for w in self.walls])
-        return f"ThresholdsAtlas [{walls}], ref={self.origin[0]} @ {self.origin[1]}"
+        return f"Atlas [{walls}], ref={self.origin[0]} @ {self.origin[1]}"
 
     @classmethod
     def ffns(cls, nf: int, mu2: SquaredScale):
