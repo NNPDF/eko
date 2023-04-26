@@ -628,9 +628,9 @@ class EKO:
         return [mu2 for mu2, _ in self._operators]
 
     @property
-    def epgrid(self) -> List[EPoint]:
+    def evolgrid(self) -> List[EPoint]:
         """Provide the list of evolution points as an array."""
-        return list(self._operators.keys())
+        return list(self)
 
     @property
     def theory_card(self):
