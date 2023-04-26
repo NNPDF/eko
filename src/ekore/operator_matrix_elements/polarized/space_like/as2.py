@@ -153,10 +153,10 @@ def A_hg(n, L):
 
     """
     S1 = harmonics.S1(n)
-    Sm1 = harmonics.Sm1(n, S1, True)
+    Sm1 = harmonics.Sm1(n, S1, False)
     S2 = harmonics.S2(n)
     S3 = harmonics.S3(n)
-    Sm21 = harmonics.Sm21(n, S1, Sm1, True)
+    Sm21 = harmonics.Sm21(n, S1, Sm1, False)
     S2halfn = harmonics.S2(n / 2)
     S3halfn = harmonics.S3(n / 2)
     S2halfn1 = harmonics.S2((n + 1) / 2)
@@ -247,7 +247,7 @@ def A_hg(n, L):
                     + 6 * (1 + n) ** 3 * S3halfn1
                     - 6 * (1 + n) ** 3 * (S3halfn - zeta3)
                     + 18 * (1 + n) ** 3 * zeta3
-                    + 12 * (1 + n) ** 3 * (8 * Sm21 + 5 * zeta3)
+                    - 12 * (1 + n) ** 3 * (8 * Sm21 + 5 * zeta3)
                 )
             )
         )

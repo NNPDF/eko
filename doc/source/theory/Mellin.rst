@@ -136,7 +136,7 @@ the Mellin inverse.
     S_{-m}(N) = \frac{1}{2^{m-1}} \left [ \frac{1+\eta}{2} S_m\left(\frac{N}{2}\right) + \frac{1-\eta}{2}S_m\left(\frac{N-1}{2}\right)\right ] - S_m(N)
 
   where formally :math:`\eta = (-1)^N` but in all singlet-like quantities it has to be analytically continued with 1
-  and with -1 elsewise. In case the symmetry condition is not given the formal definition of :math:`\eta` is used.
+  and with -1 elsewise for unpolarized quantities, while the opposite holds for polarized ones. In case the symmetry condition is not given the formal definition of :math:`\eta` is used.
   This relation is equivalent to the standard analytical continuation :cite:`Blumlein:2009ta,MuselliPhD`:
 
   .. math ::
