@@ -1,9 +1,8 @@
 """Operator components."""
 from abc import ABC
 from dataclasses import dataclass
-from typing import Optional
 
-import numpy.typing as npt
+from eko.io.struct import Operator
 
 from ..io.dictlike import DictLike
 from ..io.types import SquaredScale
@@ -20,21 +19,40 @@ class Part(DictLike, ABC):
 
     """
 
-    operator: npt.NDArray
-    error: Optional[npt.NDArray]
+    operator: Operator
 
 
 @dataclass
 class Evolution(Part):
     """Evolution in a fixed number of flavors."""
 
-    final: bool
-    """Whether the operator is the terminal segment of evolution.
+    cliff: bool
+    """Whether the operator is reaching a matching scale.
 
-    If it is not final, then the operator is an intermediate one.
+    Cliff operators are the only ones allowed to be intermediate, even though
+    they can also be final segments of an evolution path (see
+    :meth:`eko.matchings.Atlas.path`).
+
     Intermediate ones always have final scales :attr:`mu2` corresponding to
     matching scales, and initial scales :attr:`mu20` corresponding to either
     matching scales or the global initial scale of the EKO.
+
+    Note
+    ----
+
+    The name of *cliff* operators stems from the following diagram::
+
+        nf = 3 --------------------------------------------------------
+                        |
+        nf = 4 --------------------------------------------------------
+                                |
+        nf = 5 --------------------------------------------------------
+                                                            |
+        nf = 6 --------------------------------------------------------
+
+    where each lane corresponds to DGLAP evolution with the relative number of
+    running flavors, and the vertical bridges are the perturbative matchings
+    between two different "adjacent" schemes.
 
     """
     mu20: SquaredScale
