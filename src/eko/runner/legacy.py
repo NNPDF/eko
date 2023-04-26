@@ -54,7 +54,7 @@ class Runner:
 
         # call explicitly iter to explain the static analyzer that is an
         # iterable
-        tc = commons.threshold_atlas(new_theory, new_operator)
+        tc = commons.atlas(new_theory, new_operator)
 
         # strong coupling
         cs = commons.couplings(new_theory, new_operator)  # setup operator grid
@@ -63,7 +63,7 @@ class Runner:
         masses = runcards.masses(new_theory, new_operator.configs.evolution_method)
 
         self.op_grid = OperatorGrid(
-            mu2grid=new_operator.mu2grid,
+            mu2grid=new_operator.evolgrid,
             order=new_theory.order,
             masses=masses,
             mass_scheme=new_theory.heavy.masses_scheme.value,
@@ -94,5 +94,5 @@ class Runner:
         """
         with EKO.edit(self.path) as eko:
             # add all operators
-            for final_scale, op in self.op_grid.compute().items():
-                eko[float(final_scale)] = Operator.from_dict(op)
+            for ep, op in self.op_grid.compute().items():
+                eko[ep] = Operator.from_dict(op)

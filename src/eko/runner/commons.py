@@ -27,7 +27,7 @@ def interpolator(operator: OperatorCard) -> InterpolatorDispatcher:
     )
 
 
-def threshold_atlas(theory: TheoryCard, operator: OperatorCard) -> Atlas:
+def atlas(theory: TheoryCard, operator: OperatorCard) -> Atlas:
     """Create thresholds atlas from runcards."""
     # TODO: cache result
     masses = runcards.masses(theory, operator.configs.evolution_method)

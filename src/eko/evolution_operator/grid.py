@@ -7,6 +7,7 @@ previously instantiated information and does the actual computation of the Q2s.
 
 import logging
 import numbers
+from dataclasses import astuple
 from typing import List
 
 import numpy as np
@@ -150,7 +151,7 @@ class OperatorGrid(sv.ModeMixin):
         is_downward = is_downward_path(path)
         shift = flavor_shift(is_downward)
         for seg in path[:-1]:
-            new_op_key = seg.tuple
+            new_op_key = astuple(seg)
             thr_config = self.managers["thresholds_config"]
             kthr = thr_config.thresholds_ratios[seg.nf - shift]
             ome = OperatorMatrixElement(

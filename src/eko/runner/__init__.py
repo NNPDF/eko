@@ -6,7 +6,7 @@ from typing import Union
 from ..io import runcards
 from ..io.runcards import OperatorCard, TheoryCard
 from ..io.types import RawCard
-from . import managed
+from . import legacy, managed
 
 
 # TODO: drop this altogether, replacing just with managed.solve
@@ -38,7 +38,17 @@ def solve(
 
     """
     # TODO: drop this
-    #  legacy.Runner(theory_card, operators_card, path).compute()
+    legacy.Runner(theory_card, operators_card, path).compute()
 
+
+def solve_jets(
+    theory_card: Union[RawCard, TheoryCard],
+    operators_card: Union[RawCard, OperatorCard],
+    path: os.PathLike,
+):
+    """Implement solve for new output."""
     new_theory, new_operator = runcards.update(theory_card, operators_card)
     managed.solve(new_theory, new_operator, Path(path))
+
+
+#  solve = solve_jets
