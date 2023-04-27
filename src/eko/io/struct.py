@@ -2,7 +2,6 @@
 import base64
 import contextlib
 import copy
-import io
 import logging
 import os
 import pathlib
@@ -10,11 +9,9 @@ import shutil
 import tarfile
 import tempfile
 from dataclasses import dataclass, fields
-from typing import BinaryIO, Dict, List, Optional
+from typing import Dict, List, Optional
 
-import lz4.frame
 import numpy as np
-import numpy.lib.npyio as npyio
 import numpy.typing as npt
 import yaml
 
@@ -23,6 +20,7 @@ from .. import interpolation
 from .. import version as vmod
 from . import exceptions, raw
 from .dictlike import DictLike
+from .items import Operator
 from .runcards import OperatorCard, TheoryCard
 from .types import EvolutionPoint as EPoint
 from .types import SquaredScale
@@ -37,101 +35,6 @@ PARTSDIR = "parts"
 OPERATORSDIR = "operators"
 
 COMPRESSED_SUFFIX = ".lz4"
-
-
-@dataclass
-class Operator(DictLike):
-    """Operator representation.
-
-    To be used to hold the result of a computed 4-dim operator (from a given
-    scale to another given one).
-
-    Note
-    ----
-    IO works with streams in memory, in order to avoid intermediate write on
-    disk (keep read from and write to tar file only).
-
-    """
-
-    operator: npt.NDArray
-    """Content of the evolution operator."""
-    error: Optional[npt.NDArray] = None
-    """Errors on individual operator elements (mainly used for integration
-    error, but it can host any kind of error).
-    """
-
-    def save(self, stream: BinaryIO, compress: bool = True) -> bool:
-        """Save content of operator to bytes.
-
-        Parameters
-        ----------
-        stream : BinaryIO
-            a stream where to save the operator content (in order to be able to
-            perform the operation both on disk and in memory)
-        compress : bool
-            flag to control optional compression (default: `True`)
-
-        Returns
-        -------
-        bool
-            whether the operator saved contained or not the error (this control
-            even the format, ``npz`` with errors, ``npy`` otherwise)
-
-        """
-        aux = io.BytesIO()
-        if self.error is None:
-            np.save(aux, self.operator)
-        else:
-            np.savez(aux, operator=self.operator, error=self.error)
-        aux.seek(0)
-
-        # compress if requested
-        if compress:
-            content = lz4.frame.compress(aux.read())
-        else:
-            content = aux.read()
-
-        # write compressed data
-        stream.write(content)
-        stream.seek(0)
-
-        # return the type of array dumped (i.e. 'npy' or 'npz')
-        return self.error is None
-
-    @classmethod
-    def load(cls, stream: BinaryIO, compressed: bool = True):
-        """Load operator from bytes.
-
-        Parameters
-        ----------
-        stream : BinaryIO
-            a stream to load the operator from (to support the operation both on
-            disk and in memory)
-        compressed : bool
-            declare whether the stream is or is not compressed (default: `True`)
-
-        Returns
-        -------
-        Operator
-            the loaded instance
-
-        """
-        if compressed:
-            stream = io.BytesIO(lz4.frame.decompress(stream.read()))
-        content = np.load(stream)
-
-        if isinstance(content, np.ndarray):
-            op = content
-            err = None
-        elif isinstance(content, npyio.NpzFile):
-            op = content["operator"]
-            err = content["error"]
-        else:
-            raise exceptions.OperatorLoadingError(
-                "Not possible to load operator, content format not recognized"
-            )
-
-        return cls(operator=op, error=err)
 
 
 @dataclass
