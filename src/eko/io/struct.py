@@ -8,7 +8,7 @@ import shutil
 import tarfile
 import tempfile
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import numpy as np
 import yaml
@@ -17,7 +17,8 @@ from .. import interpolation
 from . import exceptions, raw
 from .access import AccessConfigs
 from .bases import Bases
-from .items import Operator
+from .inventory import Inventory
+from .items import Operator, Recipe, Target
 from .metadata import Metadata
 from .paths import InternalPaths
 from .runcards import OperatorCard, TheoryCard
@@ -60,8 +61,11 @@ class EKO:
 
     """
 
-    # operators cache, contains the Q2 grid information
-    _operators: Dict[EPoint, Optional[Operator]]
+    recipes: Inventory
+    recipes_matching: Inventory
+    parts: Inventory
+    parts_matching: Inventory
+    operators: Inventory
 
     # public containers
     # -----------------
@@ -78,19 +82,19 @@ class EKO:
         return InternalPaths(self.metadata.path)
 
     @property
-    def rotations(self) -> Bases:
-        """Rotations information."""
+    def bases(self) -> Bases:
+        """Bases information."""
         return self.metadata.bases
 
     @property
     def xgrid(self) -> interpolation.XGrid:
         """Momentum fraction internal grid."""
-        return self.rotations.xgrid
+        return self.bases.xgrid
 
     @xgrid.setter
     def xgrid(self, value: interpolation.XGrid):
         """Set `xgrid` value."""
-        self.rotations.xgrid = value
+        self.bases.xgrid = value
         self.update()
 
     @property
@@ -101,7 +105,7 @@ class EKO:
     @property
     def mu2grid(self) -> List[SquaredScale]:
         """Provide the list of :math:`Q^2` as an array."""
-        return [mu2 for mu2, _ in self._operators]
+        return [ep.scale for ep in self.operators]
 
     @property
     def evolgrid(self) -> List[EPoint]:
@@ -142,6 +146,16 @@ class EKO:
         """Provide permissions information."""
         return dict(read=self.access.read, write=self.access.write)
 
+    # recipes management
+    # -------------------
+
+    def load_recipes(self, recipes: List[Recipe]):
+        """Load recipes in bulk."""
+
+    def __ilshift__(self, recipes: List[Recipe]):
+        """Shortcut for :meth:`load_recipes`."""
+        self.load_recipes(recipes)
+
     # operator management
     # -------------------
     def __getitem__(self, ep: EPoint) -> Optional[Operator]:
@@ -170,7 +184,10 @@ class EKO:
 
     def __iter__(self):
         """Iterate over keys (i.e. evolution points)."""
-        yield from self._operators
+        self.operators.sync()
+        for target in self.operators:
+            assert isinstance(target, Target)
+            yield target.ep
 
     def items(self):
         """Iterate operators, with minimal load.
@@ -189,7 +206,7 @@ class EKO:
             immediately after
 
         """
-        for ep in self._operators:
+        for ep in self.operators:
             yield ep, self[ep]
             del self[ep]
 

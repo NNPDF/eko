@@ -2,7 +2,7 @@
 import base64
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Type
 
 import yaml
 
@@ -50,6 +50,7 @@ class Inventory:
     """
 
     access: AccessConfigs
+    header_type: Type[Header]
     cache: Dict[Header, Optional[Operator]] = field(default_factory=dict)
     contentful: bool = True
 
@@ -138,3 +139,37 @@ class Inventory:
 
         """
         self.cache[header] = None
+
+    def __iter__(self):
+        """Iterate over loaded content.
+
+        This iteration is only over cache, so it might not be faithful with
+        respect to the real content on disk.
+        To iterate the full content of the disk, just call right before
+        :meth:`sync`.
+
+        """
+        yield from self.cache
+
+    def sync(self):
+        """Sync the headers in the cache with the content on disk.
+
+        In particular, headers on disk that are missing in the :attr:`cache`
+        are added to it, without loading actual operators in memory.
+
+        Despite the name, the operation is non-destructive, so, even if cache
+        has been abused, nothing will be deleted nor unloaded.
+
+        """
+        for path in self.access.path.iterdir():
+            if path.suffix != HEADER_EXT:
+                continue
+
+            header = self.header_type(
+                **yaml.safe_load(path.read_text(encoding="utf-8"))
+            )
+            self.cache[header] = None
+
+    def __invert__(self):
+        """Alias for :meth:`sync`."""
+        self.sync()

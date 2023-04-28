@@ -100,8 +100,13 @@ class Target(Header):
 
     @classmethod
     def from_ep(cls, ep: EPoint):
-        """Create instance from the :class:`eko.io.types.EvolutionPoint` analogue."""
+        """Create instance from the :class:`EPoint` analogue."""
         return cls(*ep)
+
+    @property
+    def ep(self) -> EPoint:
+        """Cast to :class:`EPoint`."""
+        return (self.scale, self.nf)
 
 
 @dataclass(frozen=True)
