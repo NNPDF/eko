@@ -80,7 +80,7 @@ class EKO:
     @property
     def rotations(self) -> Bases:
         """Rotations information."""
-        return self.metadata.rotations
+        return self.metadata.bases
 
     @property
     def xgrid(self) -> interpolation.XGrid:
@@ -96,7 +96,7 @@ class EKO:
     @property
     def mu20(self) -> SquaredScale:
         """Provide squared initial scale."""
-        return self.metadata.mu20[0]
+        return self.metadata.origin[0]
 
     @property
     def mu2grid(self) -> List[SquaredScale]:
@@ -148,7 +148,7 @@ class EKO:
         r"""Retrieve operator for given evolution point."""
         return None
 
-    def __setitem__(self, ep: EPoint, op: Operator, compress: bool = True):
+    def __setitem__(self, ep: EPoint, op: Operator):
         """Set operator associated to an evolution point."""
 
     def __delitem__(self, ep: EPoint):
