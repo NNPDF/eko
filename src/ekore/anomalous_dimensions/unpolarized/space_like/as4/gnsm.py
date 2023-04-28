@@ -1,9 +1,8 @@
 r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ns,-}^{(3)}`."""
 import numba as nb
 
-from eko.constants import CF
+from eko.constants import CF, zeta3
 
-from .....harmonics.constants import zeta3
 from .....harmonics.log_functions import lm11m1, lm12m1, lm13m1
 
 

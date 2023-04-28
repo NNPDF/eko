@@ -5,9 +5,9 @@ import numpy as np
 from numpy import power as npp
 
 from eko import constants
+from eko.constants import zeta2, zeta3
 
 from ....harmonics import w1, w2, w3
-from ....harmonics.constants import zeta2, zeta3
 from ....harmonics.polygamma import cern_polygamma as polygamma
 
 

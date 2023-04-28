@@ -1,5 +1,6 @@
 import numpy as np
 
+from eko.constants import log2, zeta2, zeta3, zeta4, zeta5
 from ekore import harmonics as h
 
 
@@ -130,13 +131,13 @@ def test_smx_continuation():
 
     def dm(m):
         zeta_list = [
-            h.constants.zeta2,
-            h.constants.zeta3,
-            h.constants.zeta4,
-            h.constants.zeta5,
+            zeta2,
+            zeta3,
+            zeta4,
+            zeta5,
         ]
         if m == 1:
-            return h.constants.log2
+            return log2
         return (2 ** (m - 1) - 1) / (2 ** (m - 1)) * zeta_list[m - 2]
 
     def sm_complex(m, N):

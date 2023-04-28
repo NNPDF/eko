@@ -2,7 +2,8 @@
 
 import numpy as np
 
-from ekore.harmonics import compute_cache, constants
+from eko import constants
+from ekore.harmonics import compute_cache
 from ekore.operator_matrix_elements.unpolarized.space_like.as2 import (
     A_ns,
     A_qq_ns,

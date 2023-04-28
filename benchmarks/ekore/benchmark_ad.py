@@ -4,7 +4,7 @@ import pytest
 
 import ekore.anomalous_dimensions.unpolarized.space_like.as2 as ad_as2
 import ekore.harmonics as h
-from eko.constants import CA, CF, TR
+from eko.constants import CA, CF, TR, zeta2, zeta3
 
 
 @pytest.mark.isolated
@@ -27,7 +27,6 @@ def check_melling_g3_pegasus(N):
     S14 = S13 + 1.0 / N4
     S15 = S14 + 1.0 / N5
     S16 = S15 + 1.0 / N6
-    zeta2 = h.constants.zeta2
 
     SPMOM = (
         1.0000 * (zeta2 - S1 / N) / N
@@ -51,8 +50,8 @@ def benchmark_gamma_ns_1_pegasus():
 
 def check_gamma_1_pegasus(N, NF):
     # Test against pegasus implementation
-    ZETA2 = h.constants.zeta2
-    ZETA3 = h.constants.zeta3
+    ZETA2 = zeta2
+    ZETA3 = zeta3
 
     # N = np.random.rand(1) + np.random.rand(1) * 1j
     S1 = h.S1(N)

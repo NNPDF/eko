@@ -3,10 +3,9 @@
 import numba as nb
 import numpy as np
 
-from eko.constants import CA, CF, TR
+from eko.constants import CA, CF, TR, zeta2, zeta3
 
 from .... import harmonics
-from ....harmonics.constants import zeta2, zeta3
 
 # Non Singlet sector is swapped
 from ...unpolarized.space_like.as2 import gamma_nsm as gamma_nsp

@@ -2,8 +2,8 @@
 
 import numba as nb
 
+from eko.constants import log2, zeta2, zeta3, zeta4, zeta5
 from ekore.harmonics import S5, Sm5
-from ekore.harmonics.constants import log2, zeta2, zeta3, zeta4, zeta5
 from ekore.harmonics.polygamma import cern_polygamma, symmetry_factor
 
 from . import f_functions as f
