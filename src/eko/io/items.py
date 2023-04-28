@@ -11,6 +11,7 @@ import numpy.typing as npt
 from eko import matchings
 
 from . import exceptions
+from .types import EvolutionPoint as EPoint
 from .types import FlavorIndex, FlavorsNumber, SquaredScale
 
 
@@ -85,6 +86,19 @@ class Matching(Header):
     def from_atlas(cls, matching: matchings.Matching):
         """Create instance from analogous Atlas object."""
         return cls(**asdict(matching))
+
+
+@dataclass(frozen=True)
+class Target(Header):
+    """Target evolution point, labeling evolution from origin to there."""
+
+    scale: SquaredScale
+    nf: FlavorsNumber
+
+    @classmethod
+    def from_ep(cls, ep: EPoint):
+        """Create instance from the :cls:`EPoint` analogue."""
+        return cls(*ep)
 
 
 @dataclass(frozen=True)
