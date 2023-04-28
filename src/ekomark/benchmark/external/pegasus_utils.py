@@ -82,7 +82,7 @@ def compute_pegasus_data(theory, operators, skip_pdfs, rotate_to_evolution_basis
 
     # run pegaus
     out_tabs = {}
-    for mu2 in operators["mu2grid"]:
+    for mu2 in np.array(operators["mugrid"]) ** 2:
         tab = {}
         for x in target_xgrid:
             # last two numbers are the min and max pid to calculate,
