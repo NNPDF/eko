@@ -1,6 +1,6 @@
 """Inventory items definition."""
 import io
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import BinaryIO, Optional
 
 import lz4.frame
@@ -8,12 +8,83 @@ import numpy as np
 import numpy.lib.npyio as npyio
 import numpy.typing as npt
 
+from eko import matchings
+
 from . import exceptions
+from .types import FlavorIndex, FlavorsNumber, SquaredScale
 
 
 @dataclass(frozen=True)
 class Header:
     """Item header, containing metadata."""
+
+
+@dataclass(frozen=True)
+class Evolution(Header):
+    """Information to compute an evolution operator.
+
+    Describe evolution with a fixed number of light flavors.
+
+    """
+
+    origin: SquaredScale
+    """Starting point."""
+    target: SquaredScale
+    """Final point."""
+    nf: FlavorsNumber
+    """Number of active flavors."""
+
+    cliff: bool = False
+    """Whether the operator is reaching a matching scale.
+
+    Cliff operators are the only ones allowed to be intermediate, even though
+    they can also be final segments of an evolution path (see
+    :meth:`eko.matchings.Atlas.path`).
+
+    Intermediate ones always have final scales :attr:`mu2` corresponding to
+    matching scales, and initial scales :attr:`mu20` corresponding to either
+    matching scales or the global initial scale of the EKO.
+
+    Note
+    ----
+
+    The name of *cliff* operators stems from the following diagram::
+
+        nf = 3 --------------------------------------------------------
+                        |
+        nf = 4 --------------------------------------------------------
+                                |
+        nf = 5 --------------------------------------------------------
+                                                            |
+        nf = 6 --------------------------------------------------------
+
+    where each lane corresponds to DGLAP evolution with the relative number of
+    running flavors, and the vertical bridges are the perturbative matchings
+    between two different "adjacent" schemes.
+
+    """
+
+    @classmethod
+    def from_atlas(cls, segment: matchings.Segment, cliff: bool = False):
+        """Create instance from analogous Atlas object."""
+        return cls(**asdict(segment), cliff=cliff)
+
+
+@dataclass(frozen=True)
+class Matching(Header):
+    """Information to compute a matching operator.
+
+    Describe the matching between two different flavor number schemes.
+
+    """
+
+    scale: SquaredScale
+    hq: FlavorIndex
+
+    @classmethod
+    def from_atlas(cls, matching: matchings.Matching):
+        """Create instance from analogous Atlas object."""
+        return cls(**asdict(matching))
 
 
 @dataclass(frozen=True)
@@ -88,34 +159,6 @@ class Operator:
             )
 
         return cls(operator=op, error=err)
-
-
-@dataclass(frozen=True)
-class Recipe(Header):
-    """Information to compute an evolution operator."""
-
-    matching: bool
-
-
-@dataclass(frozen=True)
-class RecipeMatching(Header):
-    """Information to compute a matching operator."""
-
-    matching: bool
-
-
-@dataclass(frozen=True)
-class Part(Header):
-    """Evolution operator."""
-
-    matching: bool
-
-
-@dataclass(frozen=True)
-class PartMatching(Header):
-    """Matching operator."""
-
-    matching: bool
 
 
 @dataclass(frozen=True)
