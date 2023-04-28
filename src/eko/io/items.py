@@ -1,7 +1,7 @@
 """Inventory items definition."""
 import io
 from dataclasses import asdict, dataclass
-from typing import BinaryIO, Optional
+from typing import BinaryIO, Optional, Union
 
 import lz4.frame
 import numpy as np
@@ -86,6 +86,9 @@ class Matching(Header):
     def from_atlas(cls, matching: matchings.Matching):
         """Create instance from analogous Atlas object."""
         return cls(**asdict(matching))
+
+
+Recipe = Union[Evolution, Matching]
 
 
 @dataclass(frozen=True)
