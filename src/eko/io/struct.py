@@ -1,5 +1,4 @@
 """Define output representation structures."""
-import base64
 import contextlib
 import copy
 import logging
@@ -8,394 +7,25 @@ import pathlib
 import shutil
 import tarfile
 import tempfile
-from dataclasses import dataclass, fields
+from dataclasses import dataclass
 from typing import Dict, List, Optional
 
 import numpy as np
-import numpy.typing as npt
 import yaml
 
-from .. import basis_rotation as br
 from .. import interpolation
-from .. import version as vmod
 from . import exceptions, raw
-from .dictlike import DictLike
+from .access import AccessConfigs
+from .bases import Bases
+from .builder import Builder
 from .items import Operator
+from .metadata import Metadata
+from .paths import InternalPaths
 from .runcards import OperatorCard, TheoryCard
 from .types import EvolutionPoint as EPoint
 from .types import SquaredScale
 
 logger = logging.getLogger(__name__)
-
-THEORYFILE = "theory.yaml"
-OPERATORFILE = "operator.yaml"
-METADATAFILE = "metadata.yaml"
-RECIPESDIR = "recipes"
-PARTSDIR = "parts"
-OPERATORSDIR = "operators"
-
-COMPRESSED_SUFFIX = ".lz4"
-
-
-@dataclass
-class InternalPaths:
-    """Paths inside an EKO folder.
-
-    This structure exists to locate in a single place the internal structure of
-    an EKO folder.
-
-    The only value required is the root path, everything else is computed
-    relative to this root.
-    In case only the relative paths are required, just create this structure
-    with :attr:`root` equal to emtpty string or ``"."``.
-
-    """
-
-    root: pathlib.Path
-    "The root of the EKO folder (use placeholder if not relevant)"
-
-    @property
-    def metadata(self):
-        """Metadata file."""
-        return self.root / METADATAFILE
-
-    @property
-    def recipes(self):
-        """Recipes folder."""
-        return self.root / RECIPESDIR
-
-    @property
-    def parts(self):
-        """Parts folder."""
-        return self.root / PARTSDIR
-
-    @property
-    def operators(self):
-        """Operators folder.
-
-        This is the one containing the actual EKO components, after
-        computation has been performed.
-
-        """
-        return self.root / OPERATORSDIR
-
-    @property
-    def theory_card(self):
-        """Theory card dump."""
-        return self.root / THEORYFILE
-
-    @property
-    def operator_card(self):
-        """Operator card dump."""
-        return self.root / OPERATORFILE
-
-    def bootstrap(self, theory: dict, operator: dict, metadata: dict):
-        """Create directory structure.
-
-        Parameters
-        ----------
-        dirpath : os.PathLike
-            path to create the directory into
-        theory : dict
-            theory card to be dumped
-        operator : dict
-            operator card to be dumped
-        metadata : dict
-            metadata of the operator
-
-        """
-        self.metadata.write_text(yaml.dump(metadata), encoding="utf-8")
-        self.theory_card.write_text(yaml.dump(theory), encoding="utf-8")
-        self.operator_card.write_text(yaml.dump(operator), encoding="utf-8")
-        self.recipes.mkdir()
-        self.parts.mkdir()
-        self.operators.mkdir()
-
-    @staticmethod
-    def opname(ep: EPoint) -> str:
-        r"""Operator file name from :math:`(\mu^2, n_f)` value."""
-        mu2 = ep[0]
-        nf = ep[1]
-        decoded = np.float64(mu2).tobytes()
-        mu2bytes = base64.urlsafe_b64encode(decoded).decode()
-        return f"{mu2bytes}_{nf}"
-
-    def oppath(self, ep: EPoint) -> pathlib.Path:
-        r"""Retrieve operator file path from :math:`\mu^2` value.
-
-        This method looks for an existing path matching.
-
-        Raises
-        ------
-        ValueError
-            if the path is not found, or more than one are matching the
-            specified value of :math:`\mu2`
-
-        """
-        name = self.opname(ep)
-        oppaths = list(
-            filter(lambda path: path.name.startswith(name), self.operators.iterdir())
-        )
-
-        if len(oppaths) == 0:
-            raise ValueError(f"Target value '{ep}' not available.")
-        elif len(oppaths) > 1:
-            raise ValueError(f"Too many operators associated to '{ep}':\n{oppaths}")
-
-        return oppaths[0]
-
-    def opcompressed(self, path: os.PathLike) -> bool:
-        """Check if the operator at the path specified is compressed.
-
-        Raises
-        ------
-        OperatorLocationError
-            if the path is not inside the operators folder
-
-        """
-        path = pathlib.Path(path)
-        if self.operators not in path.parents:
-            raise exceptions.OperatorLocationError(path)
-
-        return path.suffix == COMPRESSED_SUFFIX
-
-    def optarget(self, path: os.PathLike) -> EPoint:
-        r"""Extract :math:`\mu2` value from operator path.
-
-        Raises
-        ------
-        OperatorLocationError
-            if the path is not inside the operators folder
-
-        """
-        path = pathlib.Path(path)
-        if self.operators not in path.parents:
-            raise exceptions.OperatorLocationError(path)
-
-        name = path.stem.split(".")[0]
-        encoded, nfseg = name.split("_")
-        decoded = base64.urlsafe_b64decode(encoded)
-        mu2 = float(np.frombuffer(decoded, dtype=np.float64)[0])
-        nf = int(nfseg)
-        return (mu2, nf)
-
-    def opnewpath(
-        self, ep: EPoint, compress: bool = True, without_err: bool = True
-    ) -> pathlib.Path:
-        r"""Compute the path associated to :math:`(\mu^2, n_f)` value."""
-        suffix = ".npy" if without_err else ".npz"
-        if compress:
-            suffix += COMPRESSED_SUFFIX
-        return self.operators / (self.opname(ep) + suffix)
-
-    @property
-    def grid(self) -> List[EPoint]:
-        r"""Provide the array of :math:`(\mu^2, n_f)` values of existing operators."""
-        if self.root is None:
-            raise RuntimeError()
-
-        return list(
-            sorted(
-                map(
-                    lambda p: self.optarget(p),
-                    InternalPaths(self.root).operators.iterdir(),
-                )
-            )
-        )
-
-
-@dataclass
-class Rotations(DictLike):
-    """Rotations related configurations.
-
-    Here "Rotation" is intended in a broad sense: it includes both rotations in
-    flavor space (labeled with suffix `pids`) and in :math:`x`-space (labeled
-    with suffix `grid`).
-    Rotations in :math:`x`-space correspond to reinterpolate the result on a
-    different basis of polynomials.
-
-    """
-
-    xgrid: interpolation.XGrid
-    """Internal momentum fraction grid."""
-    _targetgrid: Optional[interpolation.XGrid] = None
-    _inputgrid: Optional[interpolation.XGrid] = None
-    _targetpids: Optional[npt.NDArray] = None
-    _inputpids: Optional[npt.NDArray] = None
-
-    def __post_init__(self):
-        """Adjust types when loaded from serialized object."""
-        for attr in ("xgrid", "_inputgrid", "_targetgrid"):
-            value = getattr(self, attr)
-            if value is None:
-                continue
-            if isinstance(value, (np.ndarray, list)):
-                setattr(self, attr, interpolation.XGrid(value))
-            elif not isinstance(value, interpolation.XGrid):
-                setattr(self, attr, interpolation.XGrid.load(value))
-
-    @property
-    def pids(self):
-        """Internal flavor basis, used for computation."""
-        return np.array(br.flavor_basis_pids)
-
-    @property
-    def inputpids(self) -> npt.NDArray:
-        """Provide pids expected on the input PDF."""
-        if self._inputpids is None:
-            return self.pids
-        return self._inputpids
-
-    @inputpids.setter
-    def inputpids(self, value):
-        self._inputpids = value
-
-    @property
-    def targetpids(self) -> npt.NDArray:
-        """Provide pids corresponding to the output PDF."""
-        if self._targetpids is None:
-            return self.pids
-        return self._targetpids
-
-    @targetpids.setter
-    def targetpids(self, value):
-        self._targetpids = value
-
-    @property
-    def inputgrid(self) -> interpolation.XGrid:
-        """Provide :math:`x`-grid expected on the input PDF."""
-        if self._inputgrid is None:
-            return self.xgrid
-        return self._inputgrid
-
-    @inputgrid.setter
-    def inputgrid(self, value: interpolation.XGrid):
-        self._inputgrid = value
-
-    @property
-    def targetgrid(self) -> interpolation.XGrid:
-        """Provide :math:`x`-grid corresponding to the output PDF."""
-        if self._targetgrid is None:
-            return self.xgrid
-        return self._targetgrid
-
-    @targetgrid.setter
-    def targetgrid(self, value: interpolation.XGrid):
-        self._targetgrid = value
-
-    @classmethod
-    def from_dict(cls, dictionary: dict):
-        """Deserialize rotation.
-
-        Load from full state, but with public names.
-
-        """
-        d = dictionary.copy()
-        for f in fields(cls):
-            if f.name.startswith("_"):
-                d[f.name] = d.pop(f.name[1:])
-        return cls._from_dict(d)
-
-    @property
-    def raw(self):
-        """Serialize rotation.
-
-        Pass through interfaces, access internal values but with a public name.
-
-        """
-        d = self._raw()
-        for key in d.copy():
-            if key.startswith("_"):
-                d[key[1:]] = d.pop(key)
-
-        return d
-
-
-@dataclass
-class Metadata(DictLike):
-    """Manage metadata, and keep them synced on disk.
-
-    It is possible to have a metadata view, in which the path is not actually
-    connected (i.e. it is set to ``None``). In this case, no update will be
-    possible, of course.
-
-    Note
-    ----
-    Unfortunately, for nested structures it is not possible to detect a change
-    in their attributes, so a call to :meth:`update` has to be performed
-    manually.
-
-    """
-
-    mu20: EPoint
-    """Inital scale."""
-    rotations: Rotations
-    """Manipulation information, describing the current status of the EKO (e.g.
-    `inputgrid` and `targetgrid`).
-    """
-    # tagging information
-    _path: Optional[pathlib.Path] = None
-    """Path to temporary dir."""
-    version: str = vmod.__version__
-    """Library version used to create the corresponding file."""
-    data_version: int = vmod.__data_version__
-    """Specs version, to which the file adheres."""
-
-    @classmethod
-    def load(cls, path: os.PathLike):
-        """Load metadata from open folder.
-
-        Parameters
-        ----------
-        path: os.PathLike
-            the path to the open EKO folder
-
-        Returns
-        -------
-        bool
-            loaded metadata
-
-        """
-        path = pathlib.Path(path)
-        content = cls.from_dict(
-            yaml.safe_load(InternalPaths(path).metadata.read_text(encoding="utf-8"))
-        )
-        content._path = path
-        return content
-
-    def update(self):
-        """Update the disk copy of metadata."""
-        if self._path is None:
-            logger.info("Impossible to set metadata, no file attached.")
-        else:
-            with open(InternalPaths(self._path).metadata, "w") as fd:
-                yaml.safe_dump(self.raw, fd)
-
-    @property
-    def path(self):
-        """Access temporary dir path.
-
-        Raises
-        ------
-        RuntimeError
-            if path has not been initialized before
-
-        """
-        if self._path is None:
-            raise RuntimeError(
-                "Access to EKO directory attempted, but not dir has been set."
-            )
-        return self._path
-
-    @path.setter
-    def path(self, value: pathlib.Path):
-        """Set temporary dir path."""
-        self._path = value
-
-    @property
-    def raw(self):
-        """Override default :meth:`DictLike.raw` representation to exclude path."""
-        return self.public_raw
 
 
 @dataclass
@@ -449,7 +79,7 @@ class EKO:
         return InternalPaths(self.metadata.path)
 
     @property
-    def rotations(self) -> Rotations:
+    def rotations(self) -> Bases:
         """Rotations information."""
         return self.metadata.rotations
 
@@ -515,70 +145,15 @@ class EKO:
 
     # operator management
     # -------------------
-    def __getitem__(self, ep: EPoint) -> Operator:
-        r"""Retrieve operator for given :math:`\mu^2`.
-
-        If the operator is not already in memory, it will be automatically
-        loaded.
-
-        """
-        self.access.assert_open()
-
-        if ep in self._operators:
-            op = self._operators[ep]
-            if op is not None:
-                return op
-
-        oppath = self.paths.oppath(ep)
-        compressed = self.paths.opcompressed(oppath)
-
-        with open(oppath, "rb") as fd:
-            op = Operator.load(fd, compressed=compressed)
-
-        self._operators[ep] = op
-        return op
+    def __getitem__(self, ep: EPoint) -> Optional[Operator]:
+        r"""Retrieve operator for given evolution point."""
+        return None
 
     def __setitem__(self, ep: EPoint, op: Operator, compress: bool = True):
-        """Set operator for given :math:`mu^2`.
-
-        The operator is automatically dumped on disk.
-
-        If ``compress``, the output array is compressed.
-
-        """
-        self.access.assert_writeable()
-
-        if not isinstance(op, Operator):
-            raise ValueError("Only an Operator can be added to an EKO")
-
-        without_err = op.error is None
-        oppath = self.paths.opnewpath(ep, compress=compress, without_err=without_err)
-
-        with open(oppath, "wb") as fd:
-            without_err2 = op.save(fd, compress)
-        assert without_err == without_err2
-
-        self._operators[ep] = op
+        """Set operator associated to an evolution point."""
 
     def __delitem__(self, ep: EPoint):
-        """Drop operator from memory.
-
-        This method only drops the operator from memory, and it's not expected
-        to do anything else.
-
-        Autosave is done on set, and explicit saves are performed by the
-        computation functions.
-
-        If a further explicit save is required, repeat explicit assignment::
-
-            eko[ep] = eko[ep]
-
-        This is only useful if the operator has been mutated in place, that in
-        general should be avoided, since the operator should only be the result
-        of a full computation or a library manipulation.
-
-        """
-        self._operators[ep] = None
+        """Drop operator from memory."""
 
     @contextlib.contextmanager
     def operator(self, ep: EPoint):
@@ -858,96 +433,3 @@ class EKO:
 
         """
         return dict(mu2grid=self.mu2grid, metadata=self.metadata.raw)
-
-
-@dataclass
-class Builder:
-    """Build EKO instances."""
-
-    path: pathlib.Path
-    """Path on disk to ."""
-    access: AccessConfigs
-    """Access related configurations."""
-
-    # optional arguments, required at build time
-    theory: Optional[TheoryCard] = None
-    operator: Optional[OperatorCard] = None
-
-    eko: Optional[EKO] = None
-
-    def __post_init__(self):
-        """Validate paths."""
-        if self.access.path.suffix != ".tar":
-            raise exceptions.OutputNotTar(self.access.path)
-        if self.access.path.exists():
-            raise exceptions.OutputExistsError(self.access.path)
-
-    def load_cards(self, theory: TheoryCard, operator: OperatorCard):
-        """Load both theory and operator card."""
-        self.theory = theory
-        self.operator = operator
-
-        return self
-
-    def build(self) -> EKO:
-        """Build EKO instance.
-
-        Returns
-        -------
-        EKO
-            the constructed instance
-
-        Raises
-        ------
-        RuntimeError
-            if not enough information is available (at least one card missing)
-
-        """
-        missing = []
-        for card in ["theory", "operator"]:
-            if getattr(self, card) is None:
-                missing.append(card)
-
-        if len(missing) > 0:
-            raise RuntimeError(
-                f"Can not build an EKO, since following cards are missing: {missing}"
-            )
-
-        # tell the static analyzer as well
-        assert self.theory is not None
-        assert self.operator is not None
-
-        self.access.open = True
-        metadata = Metadata(
-            _path=self.path,
-            mu20=(self.operator.mu20, self.theory.heavy.num_flavs_init),
-            rotations=Rotations(xgrid=self.operator.xgrid),
-        )
-        InternalPaths(self.path).bootstrap(
-            theory=self.theory.raw,
-            operator=self.operator.raw,
-            metadata=metadata.raw,
-        )
-
-        self.eko = EKO(
-            _operators={ep: None for ep in self.operator.evolgrid},
-            metadata=metadata,
-            access=self.access,
-        )
-
-        return self.eko
-
-    def __enter__(self):
-        """Allow Builder to be used in :obj:`with` statements."""
-        return self
-
-    def __exit__(self, exc_type: type, _exc_value, _traceback):
-        """Ensure EKO to be closed properly."""
-        if exc_type is not None:
-            return
-
-        # assign to variable to help type checker, otherwise self.eko might be
-        # a property, and its type can change at every evaluation
-        eko = self.eko
-        if eko is not None:
-            eko.close()

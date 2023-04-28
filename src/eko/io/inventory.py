@@ -13,7 +13,9 @@ NBYTES = 8
 ENDIANNES = "little"
 
 HEADER_EXT = ".yaml"
-OPERATOR_EXT = [".npy", ".npz"]
+ARRAY_EXT = [".npy", ".npz"]
+COMPRESSED_EXT = ".lz4"
+OPERATOR_EXT = [ext + COMPRESSED_EXT for ext in ARRAY_EXT]
 
 
 class LookupError(ValueError):
@@ -57,7 +59,7 @@ class Inventory:
             path
             for path in self.access.path.iterdir()
             if path.name.startswith(stem)
-            if path.suffix in OPERATOR_EXT
+            if "".join(path.suffixes) in OPERATOR_EXT
         ]
 
         if len(found) == 0:
