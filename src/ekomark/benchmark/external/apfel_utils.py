@@ -72,8 +72,8 @@ def compute_apfel_data(
 
     # Run
     apf_tabs = {}
-    for q2 in operators["mu2grid"]:
-        apfel.EvolveAPFEL(theory["Q0"], np.sqrt(q2))
+    for mu2 in np.array(operators["mugrid"]) ** 2:
+        apfel.EvolveAPFEL(theory["Q0"], np.sqrt(mu2))
         print(f"Executing APFEL took {(time.perf_counter() - apf_start)} s")
 
         tab = {}
@@ -111,7 +111,7 @@ def compute_apfel_data(
             evol_pdf = rotate_flavor_to_evolution @ pdfs
             tab = dict(zip(evol_basis, evol_pdf))
 
-        apf_tabs[q2] = tab
+        apf_tabs[mu2] = tab
 
     ref = {
         "target_xgrid": target_xgrid,
