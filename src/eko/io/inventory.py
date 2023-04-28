@@ -45,7 +45,7 @@ def operator_name(header: Header, err: bool):
 class Inventory:
     """Assets manager.
 
-    In particular, manaage autosave, autoload, and memory caching.
+    In particular, manage autosave, autoload, and memory caching.
 
     """
 
