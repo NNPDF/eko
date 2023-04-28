@@ -1,4 +1,4 @@
-"""Contains the |N3LO| Altarelli-Parisi splitting kernels.
+"""The |N3LO| Altarelli-Parisi splitting kernels.
 
 For further documentation see :doc:`N3LO anomalous dimensions <../../../theory/N3LO_ad>`
 
@@ -16,7 +16,7 @@ from .gqg import gamma_qg
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf, sx):
+def gamma_singlet(N, nf, sx, variation):
     r"""Compute the |N3LO| singlet anomalous dimension matrix.
 
       .. math::
@@ -33,6 +33,8 @@ def gamma_singlet(N, nf, sx):
       Number of active flavors
     sx : list
       harmonic sums cache
+    variation : tuple
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
 
     Returns
     -------
@@ -41,9 +43,12 @@ def gamma_singlet(N, nf, sx):
         :math:`\gamma_{S}^{(3)}(N)`
 
     """
-    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx)
+    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx, variation[3])
     gamma_S_0 = np.array(
-        [[gamma_qq, gamma_qg(N, nf, sx)], [gamma_gq(N, nf, sx), gamma_gg(N, nf, sx)]],
+        [
+            [gamma_qq, gamma_qg(N, nf, sx, variation[2])],
+            [gamma_gq(N, nf, sx, variation[1]), gamma_gg(N, nf, sx, variation[0])],
+        ],
         np.complex_,
     )
     return gamma_S_0

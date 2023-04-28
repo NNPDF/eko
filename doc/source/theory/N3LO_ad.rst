@@ -4,21 +4,21 @@ N3LO Anomalous Dimensions
 The |N3LO| |QCD| anomalous dimensions :math:`\gamma^{(3)}` are not yet fully known,
 since they rely on the calculation of 4-loop |DIS| integrals.
 Moreover, the analytical structure of these function is already known to be complicated
-since in Mellin space it will included harmonics sum up to weight 7, for which an
+since in Mellin space they include harmonics sum up to weight 7, for which an
 analytical expression is not available.
 
 Here, we describe the various assumptions and limits used in order to reconstruct a parametrization
 that can approximate their contribution.
-In particular we will take advantage of some known physical constrain,
-such as large-x limit, small-x limit, and sum rules, in order to make our reconstruction reasonable.
+In particular we take advantage of some known physical constrains,
+such as the large-x limit, the small-x limit, and sum rules, in order to make our reconstruction reasonable.
 
 Generally, we remark that the large-x limit correspond to large-N in Mellin space
 where the leading contribution comes from the harmonics :math:`S_1(N)`,
 while the small-x region corresponds to poles at :math:`N=0,1` depending on the type of
 divergence.
 
-In any case |N3LO| |DGLAP| evolution at small-x, especially for singlet-like PDFs, will not be reliable
-until the splitting function resummation will not be available up to |NNLL|.
+In any case |N3LO| |DGLAP| evolution at small-x, especially for singlet-like PDFs, is not reliable
+until the splitting function resummation is available up to |NNLL|.
 
 Non-singlet sector
 ------------------
@@ -81,7 +81,8 @@ In |EKO| they are implemented as follows:
             This part contains the so called double logarithms:
 
             .. math ::
-                \ln^k(x), \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}, \quad k=1,..,6
+                \gamma_{ns} \approx \sum_{k=1}^{6} c^{(k)} \ln^k(x) \quad \text{with:}  \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}
+
 
             Note the expressions are evaluated with the exact values of the |QCD|
             Casimir invariants, to better agree with the :cite:`Moch:2017uml` parametrization.
@@ -89,12 +90,15 @@ In |EKO| they are implemented as follows:
         -   The large-N limit :cite:`Moch:2017uml`, which reads (Eq. 2.17):
 
             .. math ::
-                \gamma_{ns} \approx A_4 S_1(N) - B_4 + C_4 \frac{S_1(N)}{N} - (D_4 + \frac{1}{2} A_4) \frac{1}{N} + \mathcal{O}(\frac{\ln^k(N)}{N^2})
+                \gamma_{ns} \approx A^{(f)}_4 S_1(N) - B_4 + C_4 \frac{S_1(N)}{N} - (D_4 + \frac{1}{2} A^{(f)}_4) \frac{1}{N} + \mathcal{O}(\frac{\ln^k(N)}{N^2})
 
             This limit is common for all :math:`\gamma_{ns,+}^{(3)},\gamma_{ns,-}^{(3)},\gamma_{ns,v}^{(3)}`.
-            The coefficient :math:`A_4`, being related to the twist-2 spin-N operators,
+            The coefficient :math:`A^{(f)}_4`, being related to the twist-2 spin-N operators,
             can be obtained from the |QCD| cusp calculation
-            :cite:`Henn:2019swt`, while the :math:`B_4` is fixed by the integral of the 4-loop splitting function.
+            :cite:`Henn:2019swt`, while the :math:`B_4` is fixed by the integral of the 4-loop splitting function
+            and has been firstly computed in :cite:`Moch:2017uml` in the large :math:`n_c` limit.
+            More recently :cite:`Duhr:2022cob`, it has been determined  in the full color expansion
+            by computing various |N3LO| cross sections in the soft limit.
             :math:`C_4,D_4` instead can be computed directly from lower order splitting functions.
             From large-x resummation :cite:`Davies:2016jie`, it is possible to infer further constrains
             on sub-leading terms :math:`\frac{\ln^k(N)}{N^2}`, since the non-singlet splitting
@@ -193,22 +197,20 @@ Only the parts proportional to :math:`n_f^3` are known analytically
 :cite:`Davies:2016jie` and have been included so far.
 The other parts are approximated using some known limits:
 
-* The remaining contributions include the following constrains.
-
     *   The small-x limit, given in the large :math:`N_c` approximation by
         :cite:`Davies:2022ofz` (see Eq. 5.9, 5.10, 5.11, 5.12) and coming
         from small-x resummation of double-logarithms which fix the leading terms
         for the pole at :math:`N=0`:
 
             .. math ::
-                \ln^k(x), \quad \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}, \quad k=4,5,6
+                \gamma_{ij} \approx c^{(6)}_{ij} \ln^6(x) + c^{(5)}_{ij} \ln^5(x) + c^{(4)}_{ij} \ln^5(x) + \dots \quad \text{with:}  \quad  \mathcal{M}[\ln^k(x)] = \frac{1}{N^{k+1}}
 
     *   The small-x limit, coming from |BFKL| resummation
         :cite:`Bonvini:2018xvt` (see Eq. 2.32, 2.20b, 2.21a, 2.21b)
         which fix the leading terms (|LL|, |NLL|) for the pole at :math:`N=1`:
 
             .. math ::
-                \frac{\ln^k(x)}{x}, \quad \mathcal{M}[\frac{\ln^k(x)}{x}] = \frac{1}{(N-1)^{k+1}}, \quad k=4,5
+                \gamma_{ij} \approx d^{(3)}_{ij} \frac{\ln^3(x)}{x} + d^{(2)}_{ij} \frac{\ln^2(x)}{x} + \dots \quad \text{with:}  \quad  \mathcal{M}[\frac{\ln^k(x)}{x}] = \frac{1}{(N-1)^{k+1}}
 
         Note that in principle also the term :math:`\frac{\ln^6(x)}{x}` could be present at |N3LO|,
         but they are vanishing.
@@ -227,10 +229,11 @@ The other parts are approximated using some known limits:
         It is known that :cite:`Albino:2000cp,Moch:2021qrk` the diagonal terms diverge in N-space as:
 
             .. math ::
-                \gamma_{kk} \approx A_4 S_1(N)  + \mathcal{O}(1)
+                \gamma_{kk} \approx A^{(r)}_4 S_1(N)  + B^{(r)}_4 \delta(1-x) + \mathcal{O}(1)
 
-        Where again the coefficient :math:`A_4` is the |QCD| cusp anomalous dimension. However, :math:`\gamma_{qq,ps}^{(3)}`
-        do not constrain any divergence at large-x or constant term so its expansion will start as
+        Where again the coefficient :math:`A^{(r)}_4` is the |QCD| cusp anomalous dimension for the adjoint or fundamental representation.
+        Again the coefficient :math:`B^{(r)}_4` has been extracted from soft anomalous dimensions :cite:`Duhr:2022cob`.
+        However, :math:`\gamma_{qq,ps}^{(3)}` do not constrain any divergence at large-x or constant term so its expansion starts as
         :math:`\mathcal{O}(\frac{1}{N^2})`.
         The off-diagonal do not contain any +-distributions or delta distributions but can include divergent logarithms
         of the type :cite:`Soar:2009yh`:
@@ -240,7 +243,12 @@ The other parts are approximated using some known limits:
 
         where also in this case the term :math:`k=6` vanish. The values of the coefficient for :math:`k=4,5`
         can be guessed from the lower order splitting functions. These logarithms are not present in the diagonal
-        splitting function, which can include at most term :math:`(1-x)\ln^4(1-x)`.
+        splitting function, which can include at most terms :math:`(1-x)\ln^4(1-x)`. While for :math:`\gamma_{gg}`
+        these contributions are beyond the accuracy of our implementation, they are relevant for :math:`\gamma_{qq,ps}`.
+        At large-x we have :cite:`Soar:2009yh`:
+
+            .. math ::
+                \gamma_{qq,ps} \approx (1-x)[c_{4} \ln^4(1-x) + c_{3} \ln^3(1-x)] + \mathcal{O}((1-x)\ln^2(1-x))
 
 
     *   The 4 lowest even N moments provided in :cite:`Moch:2021qrk`, where we can use momentum conservation
@@ -250,45 +258,118 @@ The other parts are approximated using some known limits:
                 & \gamma_{qg}(2) + \gamma_{gg}(2) = 0 \\
                 & \gamma_{qq}(2) + \gamma_{gq}(2) = 0 \\
 
-    *   Finally difference between the known moments and the known limits is parametrized
-        in Mellin space. The basis used in this approximation is different for each splitting
-        function as listed in the following tables.
+        For :math:`\gamma_{qq,ps}` other 6 additional moments are available :cite:`Falcioni:2023luc`,
+        making the parametrization of this splitting function much more accurate.
+
+The difference between the known moments and the known limits is parametrized
+in Mellin space using different basis, in order to estimate the uncertainties of
+our determination.
 
 
-        .. list-table::  :math:`\gamma_{gg}^{(3)}` parametrization basis
-            :align: center
+Uncertainties estimation
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-            *   - :math:`\frac{1}{(N-1)^2}`
-                - :math:`\frac{1}{(N-1)}`
-                - :math:`1`
-                - :math:`\mathcal{M}[\ln(1-x)](N)`
+Since the available constrains on the singlet anomalous dimension are not sufficient
+to determine their behavior exactly, for instance the poles at :math:`N=1` and :math:`N=0` are not fully known,
+we need to account for a possible source of uncertainties arising during the approximation.
+This uncertainty is neglected in the non-singlet case.
 
-        .. list-table::  :math:`\gamma_{gq}^{(3)}` parametrization basis
-            :align: center
+The procedure is performed in two steps for each different anomalous dimension separately.
+First, we solve the system associated to the 4 known moments,
+minus the known limits, using different functional bases.
+Any possible candidate contains 4 elements and is obtained with the following prescription:
 
-            *   - :math:`\frac{1}{(N-1)^3}`
-                - :math:`\frac{1}{(N-1)^2}`
-                - :math:`\mathcal{M}[\ln^3(1-x)](N)`
-                - :math:`\mathcal{M}[(1-x)\ln^3(1-x)](N)`
+    1. one function is the leading large-N unknown contribution,
 
-        .. list-table::  :math:`\gamma_{qg}^{(3)}` parametrization basis
-            :align: center
+    2. one function is leading small-N unknown contribution, which correspond to the highest power unknown for the pole at :math:`N=1`,
 
-            *   - :math:`\frac{1}{(N-1)^2}`
-                - :math:`\frac{1}{(N-1)}`
-                - :math:`\mathcal{M}[\ln^3(1-x)](N)`
-                - :math:`\mathcal{M}[(1-x)\ln^3(1-x)](N)`
+    3. the remaining functions are chosen from of a batch of functions describing sub-leading unknown terms both for the small-N and large-N limit.
 
-        .. list-table::  :math:`\gamma_{qq,ps}^{(3)}` parametrization basis
-            :align: center
+This way we generate a large set of independent candidates, roughly 70 for each anomalous dimension,
+and by taking the spread of the solutions we get as an estimate of the parametrization uncertainties.
+When looking at the x-space results we must invert/perform the evolution with each solution
+and then compute the statical estimators on the final ensemble.
+The "best" result is always taken as the average on all the possible variations.
 
-            *   - :math:`\frac{1}{(N-1)^2} - \frac{1}{N^2}`
-                - :math:`\frac{1}{(N-1)} - \frac{1}{N}`
-                - :math:`\frac{S_1^3(N)}{N^2}`
-                - :math:`\frac{S_1^2(N)}{N^2}`
+In the second stage we apply some "post fit" selection criteria to reduce the number of
+candidates (to :math:`\approx 20`) selecting the most representative elements and discarding clearly unwanted
+solutions. This way we can achieve a smoother result and improve the speed of the calculation.
 
-        Note that for :math:`\gamma_{qq,ps},\gamma_{qg}` the parts proportional
-        to :math:`n_f^0` are not present.
-        Furthermore for the part :math:`\propto n_f^2` in :math:`\gamma_{gq}^{(3)}`
-        we adopt a slightly different basis to account fot the fact that the leading
-        contribution for the pole at :math:`N=1` is :math:`\frac{1}{(N-1)^2}`.
+    * Among the functions selected at point 3 we cherry pick candidates
+      containing at least one of the leading sub-leading small-N (poles `N=0,1`)
+      or large-N unknown contributions, such that the spread of the reduced ensemble is
+      not smaller than the full one.
+
+    * By looking at the x-space line integral, we discard any possible outlier
+      that can be generated by numerical cancellations.
+
+
+The following tables summarize all the considered input functions in the
+final reduced sets of candidates.
+
+    .. list-table::  :math:`\gamma_{gg}^{(3)}` parametrization basis
+        :align: center
+
+        *   - :math:`f_1(N)`
+            - :math:`\frac{S_2(N-2)}{N}`
+        *   - :math:`f_2(N)`
+            - :math:`\frac{S_1(N)}{N}`
+        *   - :math:`f_3(N)`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N}`
+        *   - :math:`f_4(N)`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N)}{N},\ \mathcal{M}[(1-x)\ln(1-x)],\ \frac{S_1(N)}{N^2}`
+
+    .. list-table::  :math:`\gamma_{gq}^{(3)}` parametrization basis
+        :align: center
+
+        *   - :math:`f_1(N)`
+            - :math:`\frac{S_2(N-2)}{N}`
+        *   - :math:`f_2(N)`
+            - :math:`\frac{S_1^3(N)}{N}`
+        *   - :math:`f_3(N)`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N^4}`
+        *   - :math:`f_4(N)`
+            - :math:`\frac{1}{N-1},\ \frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1(N-2)}{N},\ \mathcal{M}[\ln^3(1-x)],\ \mathcal{M}[\ln^2(1-x)], \frac{S_1(N)}{N},\ \frac{S_1^2(N)}{N}`
+
+    Note that this table refers only to the :math:`n_f^0` part where we assume no violation of the scaling with :math:`\gamma_{gg}`
+    also for the |NLL| term, to help the convergence. We expect that any possible deviation can be parametrized as a shift in he |NNLL| terms
+    and in the |NLL| :math:`n_f^1` which are free to vary independently.
+    Furthermore for the part :math:`\propto n_f^2` we adopt a slightly different
+    basis to account fot the fact that the leading
+    contribution for the pole at :math:`N=1` is :math:`\frac{1}{(N-1)^2}`.
+
+    .. list-table::  :math:`\gamma_{qg}^{(3)}` parametrization basis
+        :align: center
+
+        *   - :math:`f_1(N)`
+            - :math:`\frac{1}{(N-1)}`
+        *   - :math:`f_2(N)`
+            - :math:`\frac{S_1^3(N)}{N}`
+        *   - :math:`f_3(N)`
+            - :math:`\frac{1}{N^3},\ \mathcal{M}[\ln^3(1-x)]`
+        *   - :math:`f_4(N)`
+            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \frac{1}{N^2},\ \frac{1}{N},\ \frac{1}{(N+1)^3},\ \frac{1}{(N+1)^2},\ \frac{1}{N+1},\ \frac{1}{N+2},\ \frac{S_1^2(N)}{N},\ \frac{S_1(N-2)}{N},\ \frac{S_1(N)}{N},\ \mathcal{M}[\ln^2(1-x)],\ \mathcal{M}[\ln^3(1-x)]`
+
+    Also in this case we assume no violation of the scaling with :math:`\gamma_{qq}`
+    for the |NLL| term, which is extracted from using 10 moments :cite:`Falcioni:2023luc`
+    thus is known more precisely. We expect that any possible deviation can be parametrized as a shift in the |NNLL| terms.
+
+Slightly different choices are performed for :math:`\gamma_{qq,ps}^{(3)}` where 10 moments
+are known. In this case we can select a larger number of functions in group 3
+and following :cite:`Falcioni:2023luc` we use:
+
+    .. list-table::  :math:`\gamma_{qq,ps}^{(3)}` parametrization basis
+        :align: center
+
+        *   - :math:`f_1(N)`
+            - :math:`\frac{1}{(N-1)^2}`
+        *   - :math:`f_2(N)`
+            - :math:`\mathcal{M}[(1-x)\ln^2(1-x)]`
+        *   - :math:`f_3(N)`
+            - :math:`\frac{1}{N^4},\ \frac{1}{N^3},\ \mathcal{M}[(1-x)\ln(1-x)],\ \mathcal{M}[(1-x)^2\ln^2(1-x)],\ \mathcal{M}[(1-x)^2\ln(1-x)],\ \frac{1}{N-1}-\frac{1}{N}`
+        *   - :math:`f_4(N)`
+            - :math:`\mathcal{M}[(1-x)\ln(x)],\ \mathcal{M}[(1-x)\(1+2x)],\ \mathcal{M}[(1-x)x^2],\ \mathcal{M}[(1-x)x (1+x)],\ \mathcal{M}[(1-x)]`
+
+
+Note that for :math:`\gamma_{qq,ps},\gamma_{qg}` the parts proportional
+to :math:`n_f^0` are not present.

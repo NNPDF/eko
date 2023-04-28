@@ -7,7 +7,7 @@ from . import as1, as2, as3
 
 
 @nb.njit(cache=True)
-def A_singlet(matching_order, n, sx, nf, L, is_msbar, sx_ns=None):
+def A_singlet(matching_order, n, sx, nf, L, is_msbar):
     r"""Compute the tower of the singlet |OME|.
 
     Parameters
@@ -24,8 +24,6 @@ def A_singlet(matching_order, n, sx, nf, L, is_msbar, sx_ns=None):
         :math:``\ln(\mu_F^2 / m_h^2)``
     is_msbar: bool
         add the |MSbar| contribution
-    sx_ns : list
-        non-singlet like harmonic sums cache
 
     Returns
     -------
@@ -39,7 +37,7 @@ def A_singlet(matching_order, n, sx, nf, L, is_msbar, sx_ns=None):
     if matching_order[0] >= 2:
         A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
     if matching_order[0] >= 3:
-        A_s[2] = as3.A_singlet(n, sx, sx_ns, nf, L)
+        A_s[2] = as3.A_singlet(n, sx, nf, L)
     return A_s
 
 

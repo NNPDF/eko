@@ -205,6 +205,7 @@ def quad_ker(
     ev_op_max_order,
     sv_mode,
     is_threshold,
+    n3lo_ad_variation,
     is_polarized,
     is_time_like,
 ):
@@ -252,6 +253,8 @@ def quad_ker(
         scale variation mode, see `eko.scale_variations.Modes`
     is_threshold : boolean
         is this an intermediate threshold operator?
+    n3lo_ad_variation : tuple
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
     is_polarized : boolean
         is polarized evolution ?
     is_time_like : boolean
@@ -283,6 +286,7 @@ def quad_ker(
             is_threshold,
             is_polarized,
             is_time_like,
+            n3lo_ad_variation,
         )
     else:
         ker = quad_ker_qed(
@@ -325,6 +329,7 @@ def quad_ker_qcd(
     is_threshold,
     is_polarized,
     is_time_like,
+    n3lo_ad_variation,
 ):
     """Raw evolution kernel inside quad.
 
@@ -356,6 +361,8 @@ def quad_ker_qcd(
         scale variation mode, see `eko.scale_variations.Modes`
     is_threshold : boolean
         is this an itermediate threshold operator?
+    n3lo_ad_variation : tuple
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
 
     Returns
     -------
@@ -373,7 +380,9 @@ def quad_ker_qcd(
             if is_time_like:
                 gamma_singlet = ad_ut.gamma_singlet(order, ker_base.n, nf)
             else:
-                gamma_singlet = ad_us.gamma_singlet(order, ker_base.n, nf)
+                gamma_singlet = ad_us.gamma_singlet(
+                    order, ker_base.n, nf, n3lo_ad_variation
+                )
         # scale var exponentiated is directly applied on gamma
         if sv_mode == sv.Modes.exponentiated:
             gamma_singlet = sv.exponentiated.gamma_variation(
@@ -808,6 +817,7 @@ class Operator(sv.ModeMixin):
             ev_op_max_order=tuple(self.config["ev_op_max_order"]),
             sv_mode=self.sv_mode,
             is_threshold=self.is_threshold,
+            n3lo_ad_variation=self.config["n3lo_ad_variation"],
             is_polarized=self.config["polarized"],
             is_time_like=self.config["time_like"],
         )

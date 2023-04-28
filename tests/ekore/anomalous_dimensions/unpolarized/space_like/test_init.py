@@ -69,7 +69,9 @@ def test_eigensystem_gamma_singlet_projectors_EV():
             # NNLO and N3LO too big numbers,
             # ignore Runtime Warnings
             warnings.simplefilter("ignore", RuntimeWarning)
-            for gamma_S in ad_us.gamma_singlet(o, N, nf):
+            for gamma_S in ad_us.gamma_singlet(
+                o, N, nf, n3lo_ad_variation=(0, 0, 0, 0)
+            ):
                 _exp, l_p, l_m, e_p, e_m = ad.exp_matrix_2D(gamma_S)
                 # projectors behave as P_a . P_b = delta_ab P_a
                 assert_allclose(np.dot(e_p, e_p), e_p)
@@ -223,10 +225,9 @@ def test_dim_valence():
 def test_dim_nsp():
     nf = 3
     N = 2
-    sx = harmonics.sx(N, max_weight=3 + 1)
     gamma_nsup = ad_us.gamma_ns_qed((3, 2), 10102, N, nf)
     assert gamma_nsup.shape == (4, 3)
     gamma_nsdp = ad_us.gamma_ns_qed((3, 2), 10103, N, nf)
     assert gamma_nsdp.shape == (4, 3)
     with pytest.raises(NotImplementedError):
-        gamma_ns = ad_us.gamma_ns_qed((2, 0), 10106, N, nf)
+        ad_us.gamma_ns_qed((2, 0), 10106, N, nf)

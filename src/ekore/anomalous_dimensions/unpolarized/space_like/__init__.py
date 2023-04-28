@@ -105,7 +105,7 @@ def gamma_ns(order, mode, n, nf):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(order, n, nf):
+def gamma_singlet(order, n, nf, n3lo_ad_variation):
     r"""Compute the tower of the singlet anomalous dimensions matrices.
 
     Parameters
@@ -116,6 +116,8 @@ def gamma_singlet(order, n, nf):
         Mellin variable
     nf : int
         Number of active flavors
+    n3lo_ad_variation : tuple
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
 
     Returns
     -------
@@ -154,7 +156,7 @@ def gamma_singlet(order, n, nf):
     if order[0] >= 3:
         gamma_s[2] = as3.gamma_singlet(n, nf, sx)
     if order[0] >= 4:
-        gamma_s[3] = as4.gamma_singlet(n, nf, full_sx_cache)
+        gamma_s[3] = as4.gamma_singlet(n, nf, full_sx_cache, n3lo_ad_variation)
     return gamma_s
 
 

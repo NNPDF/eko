@@ -23,6 +23,7 @@ Order = Tuple[int, int]
 FlavorsNumber = int
 FlavorIndex = int
 IntrinsicFlavors = typing.List[FlavorIndex]
+N3LOAdVariation = typing.Tuple[int, int, int, int]
 
 # Targets
 # -------

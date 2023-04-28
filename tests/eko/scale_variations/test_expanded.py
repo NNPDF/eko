@@ -177,7 +177,7 @@ def test_scale_variation_a_vs_b():
             )
 
             # Singlet kernels
-            gs = gamma_singlet(order, n, nf)
+            gs = gamma_singlet(order, n, nf, n3lo_ad_variation=(0, 0, 0, 0))
             ker = singlet.dispatcher(
                 order, method, gs, a1, a0, nf, ev_op_iterations=1, ev_op_max_order=1
             )
