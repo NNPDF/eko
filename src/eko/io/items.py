@@ -1,3 +1,4 @@
+"""Inventory items definition."""
 import io
 from dataclasses import dataclass
 from typing import BinaryIO, Optional
@@ -10,27 +11,12 @@ import numpy.typing as npt
 from . import exceptions
 
 
-@dataclass
-class Recipe:
-    matching: bool
+@dataclass(frozen=True)
+class Header:
+    """Item header, containing metadata."""
 
 
-@dataclass
-class RecipeMatching:
-    matching: bool
-
-
-@dataclass
-class Part:
-    matching: bool
-
-
-@dataclass
-class PartMatching:
-    matching: bool
-
-
-@dataclass
+@dataclass(frozen=True)
 class Operator:
     """Operator representation.
 
@@ -102,3 +88,39 @@ class Operator:
             )
 
         return cls(operator=op, error=err)
+
+
+@dataclass(frozen=True)
+class Recipe(Header):
+    """Information to compute an evolution operator."""
+
+    matching: bool
+
+
+@dataclass(frozen=True)
+class RecipeMatching(Header):
+    """Information to compute a matching operator."""
+
+    matching: bool
+
+
+@dataclass(frozen=True)
+class Part(Header):
+    """Evolution operator."""
+
+    matching: bool
+
+
+@dataclass(frozen=True)
+class PartMatching(Header):
+    """Matching operator."""
+
+    matching: bool
+
+
+@dataclass(frozen=True)
+class Item:
+    """Inventory item."""
+
+    header: Header
+    content: Operator
