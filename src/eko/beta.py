@@ -6,7 +6,7 @@ See :doc:`pQCD ingredients </theory/pQCD>`.
 
 import numba as nb
 
-from ekore.harmonics.constants import zeta3
+from eko.constants import zeta3
 
 from . import constants
 

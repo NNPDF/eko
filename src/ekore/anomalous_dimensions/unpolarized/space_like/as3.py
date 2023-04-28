@@ -8,7 +8,7 @@ Note that the QCD colour factors have been hard-wired in the parametrizations.
 import numba as nb
 import numpy as np
 
-from ....harmonics.constants import zeta2, zeta3
+from eko.constants import zeta2, zeta3
 
 
 @nb.njit(cache=True)

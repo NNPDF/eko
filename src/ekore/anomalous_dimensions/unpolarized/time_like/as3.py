@@ -4,8 +4,9 @@ import numba as nb
 import numpy as np
 from numpy import power as npp
 
+from eko.constants import zeta2, zeta3
+
 from ....harmonics import w1, w2, w3, w4
-from ....harmonics.constants import zeta2, zeta3
 
 
 @nb.njit(cache=True)

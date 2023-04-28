@@ -42,10 +42,8 @@ def test_gamma_1():
     np.testing.assert_allclose(
         ad_as2.gamma_nsm(2, NF, sx_n2),
         (
-            (34.0 / 27.0 * (-47.0 + 6 * np.pi**2) - 16.0 * h.constants.zeta3)
-            * const.CF
-            + (373.0 / 9.0 - 34.0 * np.pi**2 / 9.0 + 8.0 * h.constants.zeta3)
-            * const.CA
+            (34.0 / 27.0 * (-47.0 + 6 * np.pi**2) - 16.0 * const.zeta3) * const.CF
+            + (373.0 / 9.0 - 34.0 * np.pi**2 / 9.0 + 8.0 * const.zeta3) * const.CA
             - 64.0 * NF / 27.0
         )
         * const.CF,
@@ -55,10 +53,8 @@ def test_gamma_1():
     np.testing.assert_allclose(
         ad_as2.gamma_nsp(3, NF, sx_n3),
         (
-            (-34487.0 / 432.0 + 86.0 * np.pi**2 / 9.0 - 16.0 * h.constants.zeta3)
-            * const.CF
-            + (459.0 / 8.0 - 43.0 * np.pi**2 / 9.0 + 8.0 * h.constants.zeta3)
-            * const.CA
+            (-34487.0 / 432.0 + 86.0 * np.pi**2 / 9.0 - 16.0 * const.zeta3) * const.CF
+            + (459.0 / 8.0 - 43.0 * np.pi**2 / 9.0 + 8.0 * const.zeta3) * const.CA
             - 415.0 * NF / 108.0
         )
         * const.CF,
@@ -77,7 +73,7 @@ def test_gamma_1():
     np.testing.assert_allclose(
         gS1[1, 1],
         (
-            (-79909.0 / 3375.0 + 194.0 * np.pi**2 / 45.0 - 8.0 * h.constants.zeta3)
+            (-79909.0 / 3375.0 + 194.0 * np.pi**2 / 45.0 - 8.0 * const.zeta3)
             * const.CA**2
             - 967.0 / 270.0 * const.CA * NF
             + 541.0 / 216.0 * const.CF * NF
@@ -105,7 +101,7 @@ def test_gamma_1():
     np.testing.assert_allclose(
         gS1[1, 1],
         (
-            (-79909.0 / 3375.0 + 194.0 * np.pi**2 / 45.0 - 8.0 * h.constants.zeta3)
+            (-79909.0 / 3375.0 + 194.0 * np.pi**2 / 45.0 - 8.0 * const.zeta3)
             * const.CA**2
             - 967.0 / 270.0 * const.CA * NF
             + 541.0 / 216.0 * const.CF * NF
