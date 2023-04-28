@@ -97,7 +97,7 @@ class Target(Header):
 
     @classmethod
     def from_ep(cls, ep: EPoint):
-        """Create instance from the :cls:`EPoint` analogue."""
+        """Create instance from the :class:`eko.io.types.EvolutionPoint` analogue."""
         return cls(*ep)
 
 

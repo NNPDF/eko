@@ -1,6 +1,6 @@
 """Manage assets used during computation."""
 import base64
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -50,7 +50,7 @@ class Inventory:
     """
 
     access: AccessConfigs
-    cache: Dict[Header, Optional[Operator]] = {}
+    cache: Dict[Header, Optional[Operator]] = field(default_factory=dict)
     contentful: bool = True
 
     def lookup(self, stem: str) -> Path:
