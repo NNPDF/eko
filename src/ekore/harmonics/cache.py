@@ -44,14 +44,13 @@ S4ph = 32
 S5ph = 33
 g3 = 34
 S1p2 = 35
-g3p1 = 36
-g3p2 = 37
+g3p2 = 36
 
 
 @nb.njit(cache=True)
 def reset():
     """Return the cache placeholder array."""
-    return np.full(38, np.nan, np.complex_)
+    return np.full(37, np.nan, np.complex_)
 
 
 @nb.njit(cache=True)
@@ -219,15 +218,15 @@ def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet: bool) -> complex
     elif key == S5mh:
         s = w5.S5((n - 1) / 2)
     elif key == S1ph:
-        s = recursive_harmonic_sum(get(S1mh, cache, n, is_singlet), n, 1, 1)
+        s = recursive_harmonic_sum(get(S1mh, cache, n, is_singlet), (n - 1) / 2, 1, 1)
     elif key == S2ph:
-        s = recursive_harmonic_sum(get(S2mh, cache, n, is_singlet), n, 1, 2)
+        s = recursive_harmonic_sum(get(S2mh, cache, n, is_singlet), (n - 1) / 2, 1, 2)
     elif key == S3ph:
-        s = recursive_harmonic_sum(get(S3mh, cache, n, is_singlet), n, 1, 3)
+        s = recursive_harmonic_sum(get(S3mh, cache, n, is_singlet), (n - 1) / 2, 1, 3)
     elif key == S4ph:
-        s = recursive_harmonic_sum(get(S4mh, cache, n, is_singlet), n, 1, 4)
+        s = recursive_harmonic_sum(get(S4mh, cache, n, is_singlet), (n - 1) / 2, 1, 4)
     elif key == S5ph:
-        s = recursive_harmonic_sum(get(S5mh, cache, n, is_singlet), n, 1, 5)
+        s = recursive_harmonic_sum(get(S5mh, cache, n, is_singlet), (n - 1) / 2, 1, 5)
     elif key == g3:
         s = mellin_g3(n, get(S1, cache, n, is_singlet))
     elif key == S1p2:

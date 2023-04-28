@@ -3,6 +3,8 @@ import pytest
 
 from ekore import harmonics
 
+from . import sx as hsx
+
 # until https://github.com/numba/numba/pull/5660 is confirmed
 # we need to deactivate numba prior running
 
@@ -83,8 +85,8 @@ def test_cern_polygamma():
 def test_recursive_harmonic_sum():
     n = np.random.rand()
     iterations = 1
-    sx_base = harmonics.sx(n)
-    sx_test = harmonics.sx(n + iterations)
+    sx_base = hsx(n)
+    sx_test = hsx(n + iterations)
 
     sx_final = []
     for w in range(1, 6):

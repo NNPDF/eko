@@ -2,7 +2,6 @@
 
 import numpy as np
 
-from eko.constants import log2, zeta3
 from ekore import harmonics as h
 
 # Reference values comes form Mathematica, and are
@@ -26,9 +25,13 @@ def test_g4():
     for N, vals in zip(testN, refvals):
         is_singlet = (-1) ** N == 1
         S1 = h.S1(N)
+        S1mh = h.S1((N - 1) / 2)
+        S1h = h.S1(N / 2)
         S2 = h.S2(N)
-        Sm1 = h.Sm1(N, S1, is_singlet)
-        Sm2 = h.Sm2(N, S2, is_singlet)
+        S2mh = h.S2((N - 1) / 2)
+        S2h = h.S2(N / 2)
+        Sm1 = h.Sm1(N, S1, S1mh, S1h, is_singlet)
+        Sm2 = h.Sm2(N, S2, S2mh, S2h, is_singlet)
         S2m1 = h.S2m1(N, S2, Sm1, Sm2, is_singlet)
         np.testing.assert_allclose(S2m1, vals, atol=1e-05)
 
@@ -38,9 +41,13 @@ def test_g6():
     for N, vals in zip(testN, refvals):
         is_singlet = (-1) ** N == 1
         S1 = h.S1(N)
+        S1mh = h.S1((N - 1) / 2)
+        S1h = h.S1(N / 2)
         S2 = h.S2(N)
-        Sm1 = h.Sm1(N, S1, is_singlet)
-        Sm2 = h.Sm2(N, S2, is_singlet)
+        S2mh = h.S2((N - 1) / 2)
+        S2h = h.S2(N / 2)
+        Sm1 = h.Sm1(N, S1, S1mh, S1h, is_singlet)
+        Sm2 = h.Sm2(N, S2, S2mh, S2h, is_singlet)
         Sm31 = h.Sm31(N, S1, Sm1, Sm2, is_singlet)
         np.testing.assert_allclose(Sm31, vals, atol=1e-05)
 
@@ -50,9 +57,13 @@ def test_g5():
     for N, vals in zip(testN, refvals):
         is_singlet = (-1) ** N == 1
         S1 = h.S1(N)
+        S1mh = h.S1((N - 1) / 2)
+        S1h = h.S1(N / 2)
         S2 = h.S2(N)
-        Sm1 = h.Sm1(N, S1, is_singlet)
-        Sm2 = h.Sm2(N, S2, is_singlet)
+        S2mh = h.S2((N - 1) / 2)
+        S2h = h.S2(N / 2)
+        Sm1 = h.Sm1(N, S1, S1mh, S1h, is_singlet)
+        Sm2 = h.Sm2(N, S2, S2mh, S2h, is_singlet)
         Sm31 = h.Sm31(N, S1, Sm1, Sm2, is_singlet)
         Sm22 = h.Sm22(N, S1, S2, Sm2, Sm31, is_singlet)
         np.testing.assert_allclose(Sm22, vals, atol=1e-05)
@@ -63,8 +74,10 @@ def test_g8():
     for N, vals in zip(testN, refvals):
         is_singlet = (-1) ** N == 1
         S1 = h.S1(N)
+        S1mh = h.S1((N - 1) / 2)
+        S1h = h.S1(N / 2)
         S2 = h.S2(N)
-        Sm1 = h.Sm1(N, S1, is_singlet)
+        Sm1 = h.Sm1(N, S1, S1mh, S1h, is_singlet)
         Sm211 = h.Sm211(N, S1, S2, Sm1, is_singlet)
         np.testing.assert_allclose(Sm211, vals, atol=1e-05)
 
@@ -85,7 +98,9 @@ def test_g19():
         is_singlet = (-1) ** N == 1
         S1 = h.S1(N)
         S2 = h.S2(N)
-        Sm2 = h.Sm2(N, S2, is_singlet)
+        S2mh = h.S2((N - 1) / 2)
+        S2h = h.S2(N / 2)
+        Sm2 = h.Sm2(N, S2, S2mh, S2h, is_singlet)
         Sm2m1 = h.Sm2m1(N, S1, S2, Sm2)
         np.testing.assert_allclose(Sm2m1, vals, atol=1e-05)
 
