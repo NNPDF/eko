@@ -111,9 +111,9 @@ def gamma_qg(N, nf, cache):
 
     """
     S1 = c.get(c.S1, cache, N)
-    S2 = c.get(c.S1, cache, N)
-    S3 = c.get(c.S1, cache, N)
-    S4 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S2, cache, N)
+    S3 = c.get(c.S3, cache, N)
+    S4 = c.get(c.S4, cache, N)
     B3 = (-(S1**3) - 3 * S1 * S2 - 2 * S3) / N
     B4 = (S1**4 + 6 * S1**2 * S2 + 3 * S2**2 + 8 * S1 * S3 + 6 * S4) / N
     E1 = S1 / N**2 + (-zeta2 + S2) / N
