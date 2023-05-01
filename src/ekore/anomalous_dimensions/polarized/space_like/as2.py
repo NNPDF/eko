@@ -44,8 +44,8 @@ def gamma_qg(n, nf, cache):
         Mellin moment
     nf : int
         number of active flavors
-    sx : numpy.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -83,8 +83,8 @@ def gamma_gq(n, nf, cache):
         Mellin moment
     nf : int
         number of active flavors
-    sx : numpy.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -125,8 +125,8 @@ def gamma_gg(n, nf, cache):
         Mellin moment
     nf : int
         number of active flavors
-    sx : numpy.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -189,8 +189,8 @@ def gamma_singlet(n, nf, cache):
         Mellin moment
     nf : int
         Number of active flavors
-    sx: list
-        harmonics cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------

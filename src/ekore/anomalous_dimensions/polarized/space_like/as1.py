@@ -59,8 +59,8 @@ def gamma_gg(N, cache, nf):
     ----------
     N : complex
       Mellin moment
-    s1 : complex
-      harmonic sum :math:`S_{1}`
+    cache: numpy.ndarray
+        Harmonic sum cache
     nf : int
       Number of active flavors
 
@@ -90,8 +90,8 @@ def gamma_singlet(N, cache, nf):
     ----------
     N : complex
       Mellin moment
-    s1 : complex
-      harmonic sum :math:`S_{1}`
+    cache: numpy.ndarray
+        Harmonic sum cache
     nf : int
       Number of active flavors
 
