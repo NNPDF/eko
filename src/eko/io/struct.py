@@ -160,13 +160,15 @@ class EKO:
     # -------------------
     def __getitem__(self, ep: EPoint) -> Optional[Operator]:
         r"""Retrieve operator for given evolution point."""
-        return None
+        return self.operators[Target.from_ep(ep)]
 
     def __setitem__(self, ep: EPoint, op: Operator):
         """Set operator associated to an evolution point."""
+        self.operators[Target.from_ep(ep)] = op
 
     def __delitem__(self, ep: EPoint):
         """Drop operator from memory."""
+        del self.operators[Target.from_ep(ep)]
 
     @contextlib.contextmanager
     def operator(self, ep: EPoint):
@@ -206,29 +208,33 @@ class EKO:
             immediately after
 
         """
-        for ep in self.operators:
+        for target in self.operators:
+            # recast to evolution point
+            assert isinstance(target, Target)
+            ep = target.ep
+
+            # auto-load
             yield ep, self[ep]
+            # auto-unload
             del self[ep]
 
-    def __contains__(self, q2: float) -> bool:
-        """Check whether :math:`Q^2` operators are present.
+    def __contains__(self, ep: EPoint) -> bool:
+        """Check whether the operator related to the evolution point is present.
 
-        'Present' means, in this case, they are conceptually part of the
-        :class:`EKO`. But it is telling nothing about being loaded in memory or
-        not.
-
-        Returns
-        -------
-        bool
-            the result of checked condition
+        'Present' means, in this case, they are available in the :class:`EKO`.
+        But it is telling nothing about being loaded in memory or not.
 
         """
-        return q2 in self._operators
+        return Target.from_ep(ep) in self.operators
 
     def approx(
         self, ep: EPoint, rtol: float = 1e-6, atol: float = 1e-10
-    ) -> Optional[float]:
-        """Look for close enough :math:`mu^2` value in the :class:`EKO`.
+    ) -> Optional[EPoint]:
+        r"""Look for close enough evolution point in the :class:`EKO`.
+
+        The distance is mostly evaluated along the :math:`\mu^2` dimension,
+        while :math:`n_f` is considered with a discrete distance: if two points
+        have not the same, they are classified as far.
 
         Raises
         ------
@@ -236,14 +242,15 @@ class EKO:
             if multiple values are find in the neighbourhood
 
         """
-        mu2s = np.array([mu2 for mu2, nf in self if nf == ep[1]])
-        close = mu2s[np.isclose(ep[0], mu2s, rtol=rtol, atol=atol)]
+        eps = np.array([ep_ for ep_ in self if ep_[1] == ep[1]])
+        mu2s = np.array([mu2 for mu2, _ in eps])
+        close = eps[np.isclose(ep[0], mu2s, rtol=rtol, atol=atol)]
 
         if close.size == 1:
             return close[0]
         if close.size == 0:
             return None
-        raise ValueError(f"Multiple values of Q2 have been found close to {ep[0]}")
+        raise ValueError(f"Multiple values of Q2 have been found close to {ep}")
 
     def unload(self):
         """Fully unload the operators in memory."""
