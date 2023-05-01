@@ -10,15 +10,15 @@ nf = 5
 
 def test_qg_helicity_conservation():
     N = complex(1.0, 0.0)
-    sx = harmonics.sx(N, max_weight=4)
-    np.testing.assert_almost_equal(as2.gamma_qg(N, nf, sx), 0)
+    cache = harmonics.cache.reset()
+    np.testing.assert_almost_equal(as2.gamma_qg(N, nf, cache), 0)
 
 
 def test_qq_momentum():
     N = complex(1.0, 0.0)
-    sx = harmonics.sx(N, max_weight=2)
+    cache = harmonics.cache.reset()
     np.testing.assert_almost_equal(
-        as2.gamma_singlet(N, nf, sx)[0, 0], 12 * TR * nf * CF, decimal=5
+        as2.gamma_singlet(N, nf, cache)[0, 0], 12 * TR * nf * CF, decimal=5
     )
 
 
@@ -29,9 +29,9 @@ def test_ps_momentum():
 
 def test_qg_momentum():
     N = complex(2.0, 0.0)
-    sx = harmonics.sx(N, 2)
+    cache = harmonics.cache.reset()
     np.testing.assert_allclose(
-        -as2.gamma_qg(N, nf, sx),
+        -as2.gamma_qg(N, nf, cache),
         4
         * nf
         * (0.574074 * CF - 2 * CA * (-7 / 18 + 1 / 6 * (5 - np.pi**2 / 3)))
@@ -41,9 +41,9 @@ def test_qg_momentum():
 
 def test_gq_momentum():
     N = complex(2.0, 0.0)
-    sx = harmonics.sx(N, 2)
+    cache = harmonics.cache.reset()
     np.testing.assert_allclose(
-        -as2.gamma_gq(N, nf, sx),
+        -as2.gamma_gq(N, nf, cache),
         4
         * (
             -2.074074074074074 * CF**2
@@ -55,9 +55,9 @@ def test_gq_momentum():
 
 def test_gg_momentum():
     N = complex(2.0, 0.0)
-    sx = harmonics.sx(N, 2)
+    cache = harmonics.cache.reset()
     np.testing.assert_almost_equal(
-        -as2.gamma_gg(N, nf, sx),
+        -as2.gamma_gg(N, nf, cache),
         4
         * (-1.7537256813471833 * CA**2 + ((29 * CA) / 27 - (28 * CF) / 27) * nf * TR),
     )

@@ -5,9 +5,11 @@ import numpy as np
 
 from eko import constants
 
+from ....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def gamma_ns(N, s1):
+def gamma_ns(N, cache):
     r"""Compute the leading-order non-singlet anomalous dimension.
 
     Implements Eq. (3.4) of :cite:`Moch:2004pa`.
@@ -24,7 +26,8 @@ def gamma_ns(N, s1):
     gamma_ns : complex
         Leading-order non-singlet anomalous dimension :math:`\\gamma_{ns}^{(0)}(N)`
     """
-    gamma = -(3.0 - 4.0 * s1 + 2.0 / N / (N + 1.0))
+    S1 = c.get(c.S1, cache, N)
+    gamma = -(3.0 - 4.0 * S1 + 2.0 / N / (N + 1.0))
     result = constants.CF * gamma
     return result
 
@@ -74,7 +77,7 @@ def gamma_gq(N):
 
 
 @nb.njit(cache=True)
-def gamma_gg(N, s1, nf):
+def gamma_gg(N, cache, nf):
     r"""Compute the leading-order gluon-gluon anomalous dimension.
 
     Implements Eq. (3.5) of :cite:`Vogt:2004mw`.
@@ -93,13 +96,14 @@ def gamma_gg(N, s1, nf):
     gamma_gg : complex
         Leading-order gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(0)}(N)`
     """
-    gamma = s1 - 1.0 / N / (N - 1.0) - 1.0 / (N + 1.0) / (N + 2.0)
+    S1 = c.get(c.S1, cache, N)
+    gamma = S1 - 1.0 / N / (N - 1.0) - 1.0 / (N + 1.0) / (N + 2.0)
     result = constants.CA * (4.0 * gamma - 11.0 / 3.0) + 4.0 / 3.0 * constants.TR * nf
     return result
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, s1, nf):
+def gamma_singlet(N, cache, nf):
     r"""Compute the leading-order singlet anomalous dimension matrix.
 
     .. math::
@@ -129,15 +133,16 @@ def gamma_singlet(N, s1, nf):
     gamma_gq : :math:`\\gamma_{gq}^{(0)}`
     gamma_gg : :math:`\\gamma_{gg}^{(0)}`
     """
-    gamma_qq = gamma_ns(N, s1)
+    gamma_qq = gamma_ns(N, cache)
     gamma_S_0 = np.array(
-        [[gamma_qq, gamma_qg(N, nf)], [gamma_gq(N), gamma_gg(N, s1, nf)]], np.complex_
+        [[gamma_qq, gamma_qg(N, nf)], [gamma_gq(N), gamma_gg(N, cache, nf)]],
+        np.complex_,
     )
     return gamma_S_0
 
 
 @nb.njit(cache=True)
-def gamma_singlet_qed(N, s1, nf):
+def gamma_singlet_qed(N, cache, nf):
     r"""Compute the leading-order singlet anomalous dimension matrix for the unified evolution basis.
 
     .. math::
@@ -169,10 +174,10 @@ def gamma_singlet_qed(N, s1, nf):
     gamma_gq : :math:`\\gamma_{gq}^{(0)}`
     gamma_gg : :math:`\\gamma_{gg}^{(0)}`
     """
-    gamma_qq = gamma_ns(N, s1)
+    gamma_qq = gamma_ns(N, cache)
     gamma_S = np.array(
         [
-            [gamma_gg(N, s1, nf), 0.0 + 0.0j, gamma_gq(N), 0.0 + 0.0j],
+            [gamma_gg(N, cache, nf), 0.0 + 0.0j, gamma_gq(N), 0.0 + 0.0j],
             [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
             [gamma_qg(N, nf), 0.0 + 0.0j, gamma_qq, 0.0 + 0.0j],
             [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, gamma_qq],
@@ -183,7 +188,7 @@ def gamma_singlet_qed(N, s1, nf):
 
 
 @nb.njit(cache=True)
-def gamma_valence_qed(N, s1):
+def gamma_valence_qed(N, cache):
     r"""Compute the leading-order valence anomalous dimension matrix for the unified evolution basis.
 
     .. math::
@@ -218,4 +223,4 @@ def gamma_valence_qed(N, s1):
         ],
         np.complex_,
     )
-    return gamma_V * gamma_ns(N, s1)
+    return gamma_V * gamma_ns(N, cache)

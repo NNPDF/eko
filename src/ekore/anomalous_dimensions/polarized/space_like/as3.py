@@ -5,7 +5,7 @@ import numpy as np
 
 from eko.constants import zeta2
 
-from .... import harmonics
+from ....harmonics import cache as c
 
 # Non Singlet sector is swapped
 from ...unpolarized.space_like.as3 import gamma_nsm as gamma_nsp
@@ -13,14 +13,14 @@ from ...unpolarized.space_like.as3 import gamma_nsp as gamma_nsm
 
 
 @nb.njit(cache=True)
-def gamma_gg(N, nf, sx):
+def gamma_gg(N, nf, cache):
     r"""Compute the parametrized |NNLO| gluon-gluon polarized anomalous dimension.
 
     Implement Eq. (4.12) of :cite:`Moch:2014sna`.
 
     Parameters
     ----------
-    n : complex
+    N : complex
         Mellin moment
     nf : int
         Number of active flavors
@@ -33,8 +33,8 @@ def gamma_gg(N, nf, sx):
         |NNLO| gluon-gluon anomalous dimension :math:`\\gamma_{gg}^{(2)}(N)`
 
     """
-    S1 = sx[0]
-    S2 = sx[1]
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S2, cache, N)
     E1 = S1 / N**2 + (-zeta2 + S2) / N
     gg_nf0 = (
         +4427.76
@@ -90,7 +90,7 @@ def gamma_gg(N, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_qg(N, nf, sx):
+def gamma_qg(N, nf, cache):
     r"""Compute the parametrized |NNLO| quark-gluon polarized anomalous dimension.
 
     Implement Eq. (4.10) of :cite:`Moch:2014sna`.
@@ -110,7 +110,10 @@ def gamma_qg(N, nf, sx):
         |NNLO| quark-gluon anomalous dimension :math:`\\gamma_{qg}^{(2)}(N)`
 
     """
-    S1, S2, S3, S4 = sx
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S1, cache, N)
+    S3 = c.get(c.S1, cache, N)
+    S4 = c.get(c.S1, cache, N)
     B3 = (-(S1**3) - 3 * S1 * S2 - 2 * S3) / N
     B4 = (S1**4 + 6 * S1**2 * S2 + 3 * S2**2 + 8 * S1 * S3 + 6 * S4) / N
     E1 = S1 / N**2 + (-zeta2 + S2) / N
@@ -153,7 +156,7 @@ def gamma_qg(N, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_gq(N, nf, sx):
+def gamma_gq(N, nf, cache):
     r"""Compute the parametrized |NNLO| gluon-quark polarized anomalous dimension.
 
     Implement Eq. (4.11) of :cite:`Moch:2014sna`.
@@ -173,7 +176,10 @@ def gamma_gq(N, nf, sx):
         |NNLO| gluon-quark anomalous dimension :math:`\\gamma_{gq}^{(2)}(N)`
 
     """
-    S1, S2, S3, S4 = sx
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S1, cache, N)
+    S3 = c.get(c.S1, cache, N)
+    S4 = c.get(c.S1, cache, N)
     B3 = (-(S1**3) - 3 * S1 * S2 - 2 * S3) / N
     B4 = (S1**4 + 6 * S1**2 * S2 + 3 * S2**2 + 8 * S1 * S3 + 6 * S4) / N
     E1 = S1 / N**2 + (-zeta2 + S2) / N
@@ -229,7 +235,7 @@ def gamma_gq(N, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_ps(N, nf, sx):
+def gamma_ps(N, nf, cache):
     r"""Compute the parametrized |NNLO| pure-singlet quark-quark polarized anomalous dimension.
 
     Implement Eq. (4.9) of :cite:`Moch:2014sna`.
@@ -249,7 +255,9 @@ def gamma_ps(N, nf, sx):
         |NNLO| pure-singlet quark-quark anomalous dimension :math:`\\gamma_{ps}^{(2)}(N)`
 
     """
-    S1, S2, S3, _ = sx
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S1, cache, N)
+    S3 = c.get(c.S1, cache, N)
     B3 = (-(S1**3) - 3 * S1 * S2 - 2 * S3) / N
     B31 = (
         -((1 / (1 + N) + S1) ** 3)
@@ -320,7 +328,7 @@ def gamma_ps(N, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nss(N, nf, sx):
+def gamma_nss(N, nf, cache):
     r"""Compute the |NNLO| sea-like polarized non-singlet anomalous dimension.
 
     Implement Eq. (24) of :cite:`Moch:2015usa`.
@@ -341,10 +349,11 @@ def gamma_nss(N, nf, sx):
         :math:`\\gamma_{ns,s}^{(2)}(N)`
 
     """
-    S1 = sx[0]
-    S3 = sx[2]
-    Sm1, Sm2, Sm3, _ = harmonics.smx(N, sx, False)
-    Sm21 = harmonics.Sm21(N, S1, Sm1, False)
+    # TODO: CHECK is this true or false ??
+    S1 = c.get(c.S1, cache, N)
+    Sm2 = c.get(c.Sm2, cache, N, is_singlet=False)
+    Sm3 = c.get(c.Sm3, cache, N, is_singlet=False)
+    Sm21 = c.get(c.Sm21, cache, N, is_singlet=False)
     nss_nf1 = (
         40
         / 9
@@ -376,7 +385,7 @@ def gamma_nss(N, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsv(N, nf, sx):
+def gamma_nsv(N, nf, cache):
     r"""Compute the |NNLO| valence polarized non-singlet anomalous dimension.
 
     Implement Eq. (23) of :cite:`Moch:2015usa`.
@@ -397,11 +406,11 @@ def gamma_nsv(N, nf, sx):
         :math:`\\gamma_{ns,v}^{(2)}(N)`
 
     """
-    return gamma_nsm(N, nf, sx) + gamma_nss(N, nf, sx)
+    return gamma_nsm(N, nf, cache) + gamma_nss(N, nf, cache)
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf, sx):
+def gamma_singlet(N, nf, cache):
     r"""Compute the |NNLO| polarized singlet anomalous dimension matrix.
 
         .. math::
@@ -425,9 +434,12 @@ def gamma_singlet(N, nf, sx):
         |NNLO| singlet anomalous dimension matrix :math:`\gamma_{S}^{(2)}(N)`
 
     """
-    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx)
+    gamma_qq = gamma_nsp(N, nf, cache) + gamma_ps(N, nf, cache)
     gamma_S_0 = np.array(
-        [[gamma_qq, gamma_qg(N, nf, sx)], [gamma_gq(N, nf, sx), gamma_gg(N, nf, sx)]],
+        [
+            [gamma_qq, gamma_qg(N, nf, cache)],
+            [gamma_gq(N, nf, cache), gamma_gg(N, nf, cache)],
+        ],
         np.complex_,
     )
     return gamma_S_0

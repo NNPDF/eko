@@ -11,9 +11,9 @@ NF = 5
 def test_quark_momentum():
     # quark momentum
     N = complex(2.0, 0.0)
-    s1 = harmonics.S1(N)
+    cache = harmonics.cache.reset()
     np.testing.assert_almost_equal(
-        as1.gamma_ns(N, s1) + as1.gamma_gq(N),
+        as1.gamma_ns(N, cache) + as1.gamma_gq(N),
         (4 * constants.CF) / 3,
     )
 
@@ -21,9 +21,9 @@ def test_quark_momentum():
 def test_gluon_momentum():
     # gluon momentum
     N = complex(2.0, 0.0)
-    s1 = harmonics.S1(N)
+    cache = harmonics.cache.reset()
     np.testing.assert_almost_equal(
-        as1.gamma_qg(N, NF) + as1.gamma_gg(N, s1, NF), 3 + NF / 3
+        as1.gamma_qg(N, NF) + as1.gamma_gg(N, cache, NF), 3 + NF / 3
     )
 
 
