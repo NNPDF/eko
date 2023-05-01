@@ -274,12 +274,11 @@ def gamma_nsp(N, cache):
     S1h = c.get(c.S1h, cache, N)
     S2h = c.get(c.S2h, cache, N)
     S3h = c.get(c.S3h, cache, N)
-    S1p1h = c.get(c.S1mh, cache, N)
-    S2p1h = c.get(c.S2mh, cache, N)
-    S3p1h = c.get(c.S3mh, cache, N)
-    # TODO: CHECK is this True or False??
-    g3N = c.get(c.g3, cache, N, is_singlet=False)
-    g3Np2 = c.get(c.g3p2, cache, N, is_singlet=False)
+    S1p1h = c.get(c.S1ph, cache, N)
+    S2p1h = c.get(c.S2ph, cache, N)
+    S3p1h = c.get(c.S3ph, cache, N)
+    g3N = c.get(c.g3, cache, N)
+    g3Np2 = c.get(c.g3p2, cache, N)
     result = (
         +32.0 * zeta2 * S1h
         - 32.0 * zeta2 * S1p1h
@@ -331,7 +330,7 @@ def gamma_nsm(N, cache):
 
     Returns
     -------
-    gamma_nsm : complex
+    complex
         :math:`O(a_s^1a_{em}^1)` singlet-like non-singlet anomalous dimension
         :math:`\\gamma_{ns,-}^{(1,1)}(N)`
 
@@ -342,11 +341,11 @@ def gamma_nsm(N, cache):
     S1h = c.get(c.S1h, cache, N)
     S2h = c.get(c.S2h, cache, N)
     S3h = c.get(c.S3h, cache, N)
-    S1p1h = c.get(c.S1mh, cache, N)
-    S2p1h = c.get(c.S2mh, cache, N)
-    S3p1h = c.get(c.S3mh, cache, N)
-    g3N = c.get(c.g3, cache, N, is_singlet=False)
-    g3Np2 = c.get(c.g3p2, cache, N, is_singlet=False)
+    S1p1h = c.get(c.S1ph, cache, N)
+    S2p1h = c.get(c.S2ph, cache, N)
+    S3p1h = c.get(c.S3ph, cache, N)
+    g3N = c.get(c.g3, cache, N)
+    g3Np2 = c.get(c.g3p2, cache, N)
     result = (
         -32.0 * zeta2 * S1h
         - 8.0 / (N + N**2) * S2h
@@ -394,8 +393,9 @@ def gamma_singlet(N, nf, cache):
 
     Returns
     -------
-    gamma_singlet : numpy.ndarray
+    numpy.ndarray
         :math:`O(a_s^1a_{em}^1)` singlet anomalous dimension :math:`\\gamma_{S}^{(1,1)}(N,nf,cache)`
+
     """
     e2avg, vue2m, vde2m, e2delta = constants.charge_combinations(nf)
     e2_tot = nf * e2avg
@@ -451,8 +451,9 @@ def gamma_valence(N, nf, cache):
 
     Returns
     -------
-    gamma_singlet : numpy.ndarray
+    numpy.ndarray
         :math:`O(a_s^1a_{em}^1)` valence anomalous dimension :math:`\\gamma_{V}^{(1,1)}(N,nf,cache)`
+
     """
     e2avg, vue2m, vde2m, e2delta = constants.charge_combinations(nf)
     gamma_V_11 = np.array(

@@ -99,76 +99,74 @@ def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet=None) -> complex:
     elif key == Sm1:
         s = w1.Sm1(
             n,
-            get(S1, cache, n, is_singlet),
-            get(S1mh, cache, n, is_singlet),
-            get(S1h, cache, n, is_singlet),
+            get(S1, cache, n),
+            get(S1mh, cache, n),
+            get(S1h, cache, n),
             is_singlet,
         )
     elif key == Sm2:
         s = w2.Sm2(
             n,
-            get(S2, cache, n, is_singlet),
-            get(S2mh, cache, n, is_singlet),
-            get(S2h, cache, n, is_singlet),
+            get(S2, cache, n),
+            get(S2mh, cache, n),
+            get(S2h, cache, n),
             is_singlet,
         )
     elif key == Sm3:
         s = w3.Sm3(
             n,
-            get(S3, cache, n, is_singlet),
-            get(S3mh, cache, n, is_singlet),
-            get(S3h, cache, n, is_singlet),
+            get(S3, cache, n),
+            get(S3mh, cache, n),
+            get(S3h, cache, n),
             is_singlet,
         )
     elif key == Sm4:
         s = w4.Sm4(
             n,
-            get(S4, cache, n, is_singlet),
-            get(S4mh, cache, n, is_singlet),
-            get(S4h, cache, n, is_singlet),
+            get(S4, cache, n),
+            get(S4mh, cache, n),
+            get(S4h, cache, n),
             is_singlet,
         )
     elif key == Sm5:
         s = w5.Sm5(
             n,
-            get(S5, cache, n, is_singlet),
-            get(S5mh, cache, n, is_singlet),
-            get(S5h, cache, n, is_singlet),
+            get(S5, cache, n),
+            get(S5mh, cache, n),
+            get(S5h, cache, n),
             is_singlet,
         )
     elif key == S21:
-        s = w3.S21(n, get(S1, cache, n, is_singlet), get(S2, cache, n, is_singlet))
+        s = w3.S21(n, get(S1, cache, n), get(S2, cache, n))
     elif key == S2m1:
         s = w3.S2m1(
             n,
-            get(S2, cache, n, is_singlet),
+            get(S2, cache, n),
             get(Sm1, cache, n, is_singlet),
             get(Sm2, cache, n, is_singlet),
             is_singlet,
         )
     elif key == Sm21:
-        s = w3.Sm21(
-            n, get(S1, cache, n, is_singlet), get(Sm1, cache, n, is_singlet), is_singlet
-        )
+        s = w3.Sm21(n, get(S1, cache, n), get(Sm1, cache, n, is_singlet), is_singlet)
     elif key == Sm2m1:
         s = w3.Sm2m1(
             n,
-            get(S1, cache, n, is_singlet),
-            get(S2, cache, n, is_singlet),
+            get(S1, cache, n),
+            get(S2, cache, n),
             get(Sm2, cache, n, is_singlet),
         )
     elif key == S31:
         s = w4.S31(
             n,
-            get(S1, cache, n, is_singlet),
-            get(S2, cache, n, is_singlet),
-            get(S3, cache, n, is_singlet),
-            get(S4, cache, n, is_singlet),
+            get(S1, cache, n),
+            get(S2, cache, n),
+            get(S3, cache, n),
+            get(S4, cache, n),
         )
     elif key == Sm31:
         s = w4.Sm31(
             n,
-            get(S1, cache, n, is_singlet),
+            get(S1, cache, n),
             get(Sm1, cache, n, is_singlet),
             get(Sm2, cache, n, is_singlet),
             is_singlet,
@@ -176,8 +174,8 @@ def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet=None) -> complex:
     elif key == Sm22:
         s = w4.Sm22(
             n,
-            get(S1, cache, n, is_singlet),
-            get(S2, cache, n, is_singlet),
+            get(S1, cache, n),
+            get(S2, cache, n),
             get(Sm2, cache, n, is_singlet),
             get(Sm31, cache, n, is_singlet),
             is_singlet,
@@ -185,16 +183,16 @@ def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet=None) -> complex:
     elif key == S211:
         s = w4.S211(
             n,
-            get(S1, cache, n, is_singlet),
-            get(S2, cache, n, is_singlet),
-            get(S3, cache, n, is_singlet),
+            get(S1, cache, n),
+            get(S2, cache, n),
+            get(S3, cache, n),
         )
     elif key == Sm211:
         s = w4.Sm211(
             n,
-            get(S1, cache, n, is_singlet),
-            get(S2, cache, n, is_singlet),
-            get(Sm1, cache, n, is_singlet),
+            get(S1, cache, n),
+            get(S2, cache, n),
+            get(Sm1, cache, n),
             is_singlet,
         )
     elif key == S1h:
@@ -218,21 +216,21 @@ def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet=None) -> complex:
     elif key == S5mh:
         s = w5.S5((n - 1) / 2)
     elif key == S1ph:
-        s = recursive_harmonic_sum(get(S1mh, cache, n, is_singlet), (n - 1) / 2, 1, 1)
+        s = recursive_harmonic_sum(get(S1mh, cache, n), (n - 1) / 2, 1, 1)
     elif key == S2ph:
-        s = recursive_harmonic_sum(get(S2mh, cache, n, is_singlet), (n - 1) / 2, 1, 2)
+        s = recursive_harmonic_sum(get(S2mh, cache, n), (n - 1) / 2, 1, 2)
     elif key == S3ph:
-        s = recursive_harmonic_sum(get(S3mh, cache, n, is_singlet), (n - 1) / 2, 1, 3)
+        s = recursive_harmonic_sum(get(S3mh, cache, n), (n - 1) / 2, 1, 3)
     elif key == S4ph:
-        s = recursive_harmonic_sum(get(S4mh, cache, n, is_singlet), (n - 1) / 2, 1, 4)
+        s = recursive_harmonic_sum(get(S4mh, cache, n), (n - 1) / 2, 1, 4)
     elif key == S5ph:
-        s = recursive_harmonic_sum(get(S5mh, cache, n, is_singlet), (n - 1) / 2, 1, 5)
+        s = recursive_harmonic_sum(get(S5mh, cache, n), (n - 1) / 2, 1, 5)
     elif key == g3:
-        s = mellin_g3(n, get(S1, cache, n, is_singlet))
+        s = mellin_g3(n, get(S1, cache, n))
     elif key == S1p2:
-        s = recursive_harmonic_sum(get(S1, cache, n, is_singlet), n, 2, 1)
+        s = recursive_harmonic_sum(get(S1, cache, n), n, 2, 1)
     elif key == g3p2:
-        s = mellin_g3(n + 2, get(S1p2, cache, n, is_singlet))
-    # # store and return
+        s = mellin_g3(n + 2, get(S1p2, cache, n))
+    # store and return
     cache[key] = s
     return s

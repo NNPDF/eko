@@ -94,8 +94,7 @@ def gamma_ns(N, cache):
         Leading-order non-singlet QED anomalous dimension :math:`\\gamma_{ns}^{(0,1)}(N)`
 
     """
-    S1 = c.get(c.S1, N, cache)
-    return as1.gamma_ns(N, S1) / constants.CF
+    return as1.gamma_ns(N, cache) / constants.CF
 
 
 @nb.njit(cache=True)

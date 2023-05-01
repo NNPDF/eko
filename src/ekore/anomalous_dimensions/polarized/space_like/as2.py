@@ -139,7 +139,7 @@ def gamma_gg(n, nf, cache):
     Sp2m = c.get(c.S2mh, cache, n)
     Sp3m = c.get(c.S3mh, cache, n)
     S1h = c.get(c.S1h, cache, n)
-    g3 = c.get(c.g3, cache, n, is_singlet=True)
+    g3 = c.get(c.g3, cache, n)
     SSCHLM = zeta2 / 2 * (+Sp1m - S1h + 2 / n) - S1 / n**2 - g3 - 5 * zeta3 / 8
     ggg1_caca = (
         -4 * S1 * Sp2m
