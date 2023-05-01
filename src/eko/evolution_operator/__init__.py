@@ -26,6 +26,7 @@ from ..kernels import singlet as s
 from ..kernels import singlet_qed as qed_s
 from ..kernels import utils
 from ..kernels import valence_qed as qed_v
+from ..matchings import Segment
 from ..member import OpMember
 
 logger = logging.getLogger(__name__)
@@ -606,13 +607,13 @@ class Operator(sv.ModeMixin):
     full_labels_qed = br.full_unified_labels
 
     def __init__(
-        self, config, managers, nf, q2_from, q2_to, mellin_cut=5e-2, is_threshold=False
+        self, config, managers, segment: Segment, mellin_cut=5e-2, is_threshold=False
     ):
         self.config = config
         self.managers = managers
-        self.nf = nf
-        self.q2_from = q2_from
-        self.q2_to = q2_to
+        self.nf = segment.nf
+        self.q2_from = segment.origin
+        self.q2_to = segment.target
         # TODO make 'cut' external parameter?
         self._mellin_cut = mellin_cut
         self.is_threshold = is_threshold

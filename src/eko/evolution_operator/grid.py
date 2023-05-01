@@ -4,7 +4,6 @@ The first is the driver class of eko as it is the one that collects all the
 previously instantiated information and does the actual computation of the Q2s.
 
 """
-
 import logging
 from dataclasses import astuple
 from typing import Dict, List, Optional
@@ -47,16 +46,17 @@ class OperatorGrid(sv.ModeMixin):
 
     def __init__(
         self,
-        mu2grid: npt.NDArray,
+        mu2grid: List[EPoint],
         order: Order,
         masses: List[float],
         mass_scheme,
+        thresholds_ratios: List[float],
         intrinsic_flavors: list,
         xif: float,
         n3lo_ad_variation: tuple,
         configs: Configs,
         debug: Debug,
-        thresholds_config: Atlas,
+        atlas: Atlas,
         couplings: Couplings,
         interpol_dispatcher: InterpolatorDispatcher,
     ):
@@ -71,6 +71,7 @@ class OperatorGrid(sv.ModeMixin):
 
         for i, q in enumerate("cbt"):
             config[f"m{q}"] = masses[i]
+        config["thresholds_ratios"] = thresholds_ratios
         method = config["method"] = configs.evolution_method.value
         config["backward_inversion"] = configs.inversion_method
         config["ev_op_max_order"] = configs.ev_op_max_order
@@ -101,7 +102,7 @@ class OperatorGrid(sv.ModeMixin):
         self.config = config
         self.q2_grid = mu2grid
         self.managers = dict(
-            thresholds_config=thresholds_config,
+            thresholds_config=atlas,
             couplings=couplings,
             interpol_dispatcher=interpol_dispatcher,
         )
@@ -129,13 +130,12 @@ class OperatorGrid(sv.ModeMixin):
         shift = flavor_shift(is_downward)
         for seg in path[:-1]:
             new_op_key = astuple(seg)
-            thr_config = self.managers["thresholds_config"]
-            kthr = thr_config.thresholds_ratios[seg.nf - shift]
+            kthr = self.config["thresholds_ratios"][seg.nf - shift]
             ome = OperatorMatrixElement(
                 self.config,
                 self.managers,
                 seg.nf - shift + 3,
-                seg.q2_to,
+                seg.target,
                 is_downward,
                 np.log(kthr),
                 self.config["HQ"] == "MSBAR",
@@ -143,22 +143,15 @@ class OperatorGrid(sv.ModeMixin):
             if new_op_key not in self._threshold_operators:
                 # Compute the operator and store it
                 logger.info("Prepare threshold operator")
-                op_th = Operator(
-                    self.config,
-                    self.managers,
-                    seg.nf,
-                    seg.q2_from,
-                    seg.q2_to,
-                    is_threshold=True,
-                )
+                op_th = Operator(self.config, self.managers, seg, is_threshold=True)
                 op_th.compute()
                 self._threshold_operators[new_op_key] = op_th
             thr_ops.append(self._threshold_operators[new_op_key])
 
             # Compute the matching conditions and store it
-            if seg.q2_to not in self._matching_operators:
+            if seg.target not in self._matching_operators:
                 ome.compute()
-                self._matching_operators[seg.q2_to] = ome.op_members
+                self._matching_operators[seg.target] = ome.op_members
         return thr_ops
 
     def compute(self) -> Dict[EPoint, dict]:
@@ -176,15 +169,13 @@ class OperatorGrid(sv.ModeMixin):
         # Prepare the path for the composition of the operator
         thr_ops = self.get_threshold_operators(path)
         # we start composing with the highest operator ...
-        operator = Operator(
-            self.config, self.managers, path[-1].nf, path[-1].q2_from, path[-1].q2_to
-        )
+        operator = Operator(self.config, self.managers, path[-1])
         operator.compute()
-        intrinsic_range = self.config["intrinsic_range"]
+
         is_downward = is_downward_path(path)
-        if is_downward:
-            intrinsic_range = [4, 5, 6]
+        intrinsic_range = [4, 5, 6] if is_downward else self.config["intrinsic_range"]
         qed = self.config["order"][1] > 0
+
         final_op = physical.PhysicalOperator.ad_to_evol_map(
             operator.op_members, operator.nf, operator.q2_to, intrinsic_range, qed
         )
@@ -195,26 +186,20 @@ class OperatorGrid(sv.ModeMixin):
             )
 
             # join with the basis rotation, since matching requires c+ (or likewise)
+            nf_match = op.nf - 1 if is_downward else op.nf
+            matching = matching_condition.MatchingCondition.split_ad_to_evol_map(
+                self._matching_operators[op.q2_to],
+                nf_match,
+                op.q2_to,
+                intrinsic_range=intrinsic_range,
+                qed=qed,
+            )
             if is_downward:
-                matching = matching_condition.MatchingCondition.split_ad_to_evol_map(
-                    self._matching_operators[op.q2_to],
-                    op.nf - 1,
-                    op.q2_to,
-                    intrinsic_range=intrinsic_range,
-                    qed=qed,
-                )
                 invrot = member.ScalarOperator.promote_names(
                     flavors.rotate_matching_inverse(op.nf, qed), op.q2_to
                 )
                 final_op = final_op @ matching @ invrot @ phys_op
             else:
-                matching = matching_condition.MatchingCondition.split_ad_to_evol_map(
-                    self._matching_operators[op.q2_to],
-                    op.nf,
-                    op.q2_to,
-                    intrinsic_range=intrinsic_range,
-                    qed=qed,
-                )
                 rot = member.ScalarOperator.promote_names(
                     flavors.rotate_matching(op.nf + 1, qed), op.q2_to
                 )
