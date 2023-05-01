@@ -54,7 +54,7 @@ def reset():
 
 
 @nb.njit(cache=True)
-def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet: bool) -> complex:
+def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet=None) -> complex:
     r"""Retrieve an element of the cache.
 
     Parameters

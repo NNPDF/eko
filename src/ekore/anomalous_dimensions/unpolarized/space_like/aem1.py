@@ -5,6 +5,7 @@ import numpy as np
 
 from eko import constants
 
+from ....harmonics import cache as c
 from . import as1
 
 
@@ -21,8 +22,9 @@ def gamma_phq(N):
 
     Returns
     -------
-    gamma_phq : complex
+    complex
         Leading-order photon-quark anomalous dimension :math:`\\gamma_{\\gamma q}^{(0,1)}(N)`
+
     """
     return as1.gamma_gq(N) / constants.CF
 
@@ -44,8 +46,9 @@ def gamma_qph(N, nf):
 
     Returns
     -------
-    gamma_qph : complex
+    complex
         Leading-order quark-photon anomalous dimension :math:`\\gamma_{q \\gamma}^{(0,1)}(N)`
+
     """
     return as1.gamma_qg(N, nf) / constants.TR * constants.NC
 
@@ -63,8 +66,9 @@ def gamma_phph(nf):
 
     Returns
     -------
-    gamma_phph : complex
+    complex
         Leading-order phton-photon anomalous dimension :math:`\\gamma_{\\gamma \\gamma}^{(0,1)}(N)`
+
     """
     nu = constants.uplike_flavors(nf)
     nd = nf - nu
@@ -72,7 +76,7 @@ def gamma_phph(nf):
 
 
 @nb.njit(cache=True)
-def gamma_ns(N, sx):
+def gamma_ns(N, cache):
     r"""Compute the leading-order non-singlet QED anomalous dimension.
 
     Implements Eq. (2.5) of :cite:`Carrazza:2015dea`.
@@ -81,20 +85,21 @@ def gamma_ns(N, sx):
     ----------
     N : complex
         Mellin moment
-    s1 : complex
-        S1(N)
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_ns : complex
+    complex
         Leading-order non-singlet QED anomalous dimension :math:`\\gamma_{ns}^{(0,1)}(N)`
+
     """
-    s1 = sx[0]
-    return as1.gamma_ns(N, s1) / constants.CF
+    S1 = c.get(c.S1, N, cache)
+    return as1.gamma_ns(N, S1) / constants.CF
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf, sx):
+def gamma_singlet(N, nf, cache):
     r"""Compute the QED leading-order singlet anomalous dimension matrix.
 
     .. math::
@@ -109,27 +114,21 @@ def gamma_singlet(N, nf, sx):
     ----------
     N : complex
         Mellin moment
-    s1 : complex
-        harmonic sum :math:`S_{1}`
     nf : int
         Number of active flavors
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_S_0 : numpy.ndarray
+    numpy.ndarray
         Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(0)}(N)`
 
-    See Also
-    --------
-    gamma_ns : :math:`\\gamma_{qq}^{(0)}`
-    gamma_qg : :math:`\\gamma_{qg}^{(0)}`
-    gamma_gq : :math:`\\gamma_{gq}^{(0)}`
-    gamma_gg : :math:`\\gamma_{gg}^{(0)}`
     """
     e2avg, vue2m, vde2m, e2delta = constants.charge_combinations(nf)
     gamma_ph_q = gamma_phq(N)
     gamma_q_ph = gamma_qph(N, nf)
-    gamma_nonsinglet = gamma_ns(N, sx)
+    gamma_nonsinglet = gamma_ns(N, cache)
     gamma_S_01 = np.array(
         [
             [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
@@ -158,7 +157,7 @@ def gamma_singlet(N, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_valence(N, nf, sx):
+def gamma_valence(N, nf, cache):
     r"""Compute the QED leading-order valence anomalous dimension matrix.
 
     .. math::
@@ -171,20 +170,16 @@ def gamma_valence(N, nf, sx):
     ----------
     N : complex
         Mellin moment
-    s1 : complex
-        harmonic sum :math:`S_{1}`
+    nf : int
+        Number of active flavors
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_S_0 : numpy.ndarray
+    numpy.ndarray
         Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(0)}(N)`
 
-    See Also
-    --------
-    gamma_ns : :math:`\\gamma_{qq}^{(0)}`
-    gamma_qg : :math:`\\gamma_{qg}^{(0)}`
-    gamma_gq : :math:`\\gamma_{gq}^{(0)}`
-    gamma_gg : :math:`\\gamma_{gg}^{(0)}`
     """
     e2avg, vue2m, vde2m, e2delta = constants.charge_combinations(nf)
     gamma_V_01 = np.array(
@@ -194,4 +189,4 @@ def gamma_valence(N, nf, sx):
         ],
         np.complex_,
     )
-    return gamma_V_01 * gamma_ns(N, sx)
+    return gamma_V_01 * gamma_ns(N, cache)
