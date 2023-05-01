@@ -67,11 +67,12 @@ class Runner:
             order=new_theory.order,
             masses=masses,
             mass_scheme=new_theory.heavy.masses_scheme.value,
+            thresholds_ratios=new_theory.heavy.squared_ratios,
             intrinsic_flavors=new_theory.heavy.intrinsic_flavors,
             xif=new_theory.xif,
             configs=new_operator.configs,
             debug=new_operator.debug,
-            thresholds_config=tc,
+            atlas=tc,
             couplings=cs,
             interpol_dispatcher=bfd,
             n3lo_ad_variation=new_theory.n3lo_ad_variation,
@@ -95,4 +96,4 @@ class Runner:
         with EKO.edit(self.path) as eko:
             # add all operators
             for ep, op in self.op_grid.compute().items():
-                eko[ep] = Operator.from_dict(op)
+                eko[ep] = Operator(**op)
