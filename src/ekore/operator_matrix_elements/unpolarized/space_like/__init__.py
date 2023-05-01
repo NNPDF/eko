@@ -3,11 +3,12 @@
 import numba as nb
 import numpy as np
 
+from ....harmonics import cache as c
 from . import as1, as2, as3
 
 
 @nb.njit(cache=True)
-def A_singlet(matching_order, n, sx, nf, L, is_msbar):
+def A_singlet(matching_order, n, nf, L, is_msbar):
     r"""Compute the tower of the singlet |OME|.
 
     Parameters
@@ -16,8 +17,6 @@ def A_singlet(matching_order, n, sx, nf, L, is_msbar):
         perturbative matching_order
     n : complex
         Mellin variable
-    sx : list
-        singlet like harmonic sums cache
     nf: int
         number of active flavor below threshold
     L : float
@@ -27,22 +26,23 @@ def A_singlet(matching_order, n, sx, nf, L, is_msbar):
 
     Returns
     -------
-    A_singlet : numpy.ndarray
+    numpy.ndarray
         singlet |OME|
 
     """
+    cache = c.reset()
     A_s = np.zeros((matching_order[0], 3, 3), np.complex_)
     if matching_order[0] >= 1:
-        A_s[0] = as1.A_singlet(n, sx, L)
+        A_s[0] = as1.A_singlet(n, cache, L)
     if matching_order[0] >= 2:
-        A_s[1] = as2.A_singlet(n, sx, L, is_msbar)
+        A_s[1] = as2.A_singlet(n, cache, L, is_msbar)
     if matching_order[0] >= 3:
-        A_s[2] = as3.A_singlet(n, sx, nf, L)
+        A_s[2] = as3.A_singlet(n, cache, nf, L)
     return A_s
 
 
 @nb.njit(cache=True)
-def A_non_singlet(matching_order, n, sx, nf, L):
+def A_non_singlet(matching_order, n, nf, L):
     r"""Compute the tower of the non-singlet |OME|.
 
     Parameters
@@ -51,8 +51,6 @@ def A_non_singlet(matching_order, n, sx, nf, L):
         perturbative matching_order
     n : complex
         Mellin variable
-    sx : list
-        harmonic sums cache
     nf: int
         number of active flavor below threshold
     L : float
@@ -60,15 +58,16 @@ def A_non_singlet(matching_order, n, sx, nf, L):
 
     Returns
     -------
-    A_non_singlet : numpy.ndarray
+    numpy.ndarray
         non-singlet |OME|
 
     """
+    cache = c.reset()
     A_ns = np.zeros((matching_order[0], 2, 2), np.complex_)
     if matching_order[0] >= 1:
-        A_ns[0] = as1.A_ns(n, sx, L)
+        A_ns[0] = as1.A_ns(n, cache, L)
     if matching_order[0] >= 2:
-        A_ns[1] = as2.A_ns(n, sx, L)
+        A_ns[1] = as2.A_ns(n, cache, L)
     if matching_order[0] >= 3:
-        A_ns[2] = as3.A_ns(n, sx, nf, L)
+        A_ns[2] = as3.A_ns(n, cache, nf, L)
     return A_ns

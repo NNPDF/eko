@@ -192,7 +192,7 @@ def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet=None) -> complex:
             n,
             get(S1, cache, n),
             get(S2, cache, n),
-            get(Sm1, cache, n),
+            get(Sm1, cache, n, is_singlet),
             is_singlet,
         )
     elif key == S1h:

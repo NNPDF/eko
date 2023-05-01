@@ -75,7 +75,7 @@ from .aqqPS import A_qqPS
 
 
 @nb.njit(cache=True)
-def A_singlet(n, sx_singlet, nf, L):
+def A_singlet(n, cache, nf, L):
     r"""Compute the |N3LO| singlet |OME|.
 
     .. math::
@@ -92,15 +92,8 @@ def A_singlet(n, sx_singlet, nf, L):
     ----------
     n : complex
         Mellin moment
-    sx_singlet : list
-        singlet like harmonic sums cache containing:
-
-        .. math ::
-            [[S_1,S_{-1}],
-            [S_2,S_{-2}],
-            [S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}],
-            [S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}],]
-
+    cache: numpy.ndarray
+        Harmonic sum cache
     nf : int
         number of active flavor below the threshold
     L : float
@@ -112,15 +105,15 @@ def A_singlet(n, sx_singlet, nf, L):
         |NNLO| singlet |OME| :math:`A^{S,(3)}(N)`
 
     """
-    A_hq_3 = A_Hq(n, sx_singlet, nf, L)
-    A_hg_3 = A_Hg(n, sx_singlet, nf, L)
+    A_hq_3 = A_Hq(n, cache, nf, L)
+    A_hg_3 = A_Hg(n, cache, nf, L)
 
-    A_gq_3 = A_gq(n, sx_singlet, nf, L)
-    A_gg_3 = A_gg(n, sx_singlet, nf, L)
+    A_gq_3 = A_gq(n, cache, nf, L)
+    A_gg_3 = A_gg(n, cache, nf, L)
 
-    A_qq_ps_3 = A_qqPS(n, sx_singlet, nf, L)
-    A_qq_ns_3 = A_qqNS(n, sx_singlet, nf, L, 1)
-    A_qg_3 = A_qg(n, sx_singlet, nf, L)
+    A_qq_ps_3 = A_qqPS(n, cache, nf, L)
+    A_qq_ns_3 = A_qqNS(n, cache, nf, L, 1)
+    A_qg_3 = A_qg(n, cache, nf, L)
 
     A_S = np.array(
         [
@@ -134,7 +127,7 @@ def A_singlet(n, sx_singlet, nf, L):
 
 
 @nb.njit(cache=True)
-def A_ns(n, sx_all, nf, L):
+def A_ns(n, cache, nf, L):
     r"""Compute the |N3LO| non-singlet |OME|.
 
     .. math::
@@ -150,16 +143,8 @@ def A_ns(n, sx_all, nf, L):
     ----------
     n : complex
         Mellin moment
-    sx_all : list
-        harmonic sums cache containing:
-
-        .. math ::
-            [[S_1,S_{-1}],
-            [S_2,S_{-2}],
-            [S_{3}, S_{2,1}, S_{2,-1}, S_{-2,1}, S_{-2,-1}, S_{-3}],
-            [S_{4}, S_{3,1}, S_{2,1,1}, S_{-2,-2}, S_{-3, 1}, S_{-4}],],
-            [S_{5}, S_{-5}]
-
+    cache: numpy.ndarray
+        Harmonic sum cache
     nf : int
         number of active flavor below the threshold
     L : float
@@ -171,6 +156,4 @@ def A_ns(n, sx_all, nf, L):
         |N3LO| non-singlet |OME| :math:`A^{NS,(3)}`
 
     """
-    return np.array(
-        [[A_qqNS(n, sx_all, nf, L, -1), 0.0], [0 + 0j, 0 + 0j]], np.complex_
-    )
+    return np.array([[A_qqNS(n, cache, nf, L, -1), 0.0], [0 + 0j, 0 + 0j]], np.complex_)
