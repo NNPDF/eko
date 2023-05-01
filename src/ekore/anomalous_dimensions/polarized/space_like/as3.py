@@ -351,6 +351,7 @@ def gamma_nss(N, nf, cache):
     """
     # TODO: CHECK is this true or false ??
     S1 = c.get(c.S1, cache, N)
+    S3 = c.get(c.S3, cache, N)
     Sm2 = c.get(c.Sm2, cache, N, is_singlet=False)
     Sm3 = c.get(c.Sm3, cache, N, is_singlet=False)
     Sm21 = c.get(c.Sm21, cache, N, is_singlet=False)
