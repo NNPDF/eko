@@ -16,50 +16,6 @@ def test_harmonic_definition():
             np.testing.assert_allclose(g, sm(power, k, (-1) ** k == 1))
 
 
-# TODO: CLEAN
-# def test_harmonics_cache():
-#     N = np.random.randint(1, high=100)
-#     is_singlet = (-1) ** N == 1
-#     S1 = h.S1(N)
-#     S2 = h.S2(N)
-#     S3 = h.S3(N)
-#     S4 = h.S4(N)
-#     S5 = h.S5(N)
-#     Sm1 = h.Sm1(N, S1, is_singlet)
-#     Sm2 = h.Sm2(N, S2, is_singlet)
-#     sx = np.array([S1, S2, S3, S4, S5])
-#     smx_test = np.array(
-#         [
-#             Sm1,
-#             Sm2,
-#             h.Sm3(N, S3, is_singlet),
-#             h.Sm4(N, S4, is_singlet),
-#             h.Sm5(N, S5, is_singlet),
-#         ]
-#     )
-#     np.testing.assert_allclose(h.smx(N, sx, is_singlet), smx_test)
-#     s3x_test = np.array(
-#         [
-#             h.S21(N, S1, S2),
-#             h.S2m1(N, S2, Sm1, Sm2, is_singlet),
-#             h.Sm21(N, S1, Sm1, is_singlet),
-#             h.Sm2m1(N, S1, S2, Sm2),
-#         ]
-#     )
-#     np.testing.assert_allclose(h.s3x(N, sx, smx_test, is_singlet), s3x_test)
-#     Sm31 = h.Sm31(N, S1, Sm1, Sm2, is_singlet)
-#     s4x_test = np.array(
-#         [
-#             h.S31(N, S1, S2, S3, S4),
-#             h.S211(N, S1, S2, S3),
-#             h.Sm22(N, S1, S2, Sm2, Sm31, is_singlet),
-#             h.Sm211(N, S1, S2, Sm1, is_singlet),
-#             Sm31,
-#         ]
-#     )
-#     np.testing.assert_allclose(h.s4x(N, sx, smx_test, is_singlet), s4x_test)
-
-
 # reference values coming fom mathematica
 # and are computed doing an inverse mellin
 # transformation
@@ -105,21 +61,6 @@ def test_Sm21():
         S1h = h.S1(N / 2)
         Sm1 = h.Sm1(N, S1, S1mh, S1h)
         np.testing.assert_allclose(h.Sm21(N, S1, Sm1), vals, atol=1e-06)
-
-
-# TODO: CLEAN
-# def test_Smx():
-#     for j, N in enumerate(testN):
-#         sx = h.sx(N)
-#         smx = [
-#             h.Sm1(N, sx[0]),
-#             h.Sm2(N, sx[1]),
-#             h.Sm3(N, sx[2]),
-#             h.Sm4(N, sx[3]),
-#             h.Sm5(N, sx[4]),
-#         ]
-#         for i, sm in enumerate(smx):
-#             np.testing.assert_allclose(sm, refvals[f"Sm{i+1}"][j], atol=1e-06)
 
 
 def test_smx_continuation():
