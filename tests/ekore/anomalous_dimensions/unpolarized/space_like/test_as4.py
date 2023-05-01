@@ -214,7 +214,7 @@ def test_diff_pm_nf2():
     # Test deltaB3: diff g_{ns,-} - g_{ns,+} prop to nf^2
     # Note that discrepancy for low moments is higher due to
     # oscillating behavior which is not captured by our parametrization
-    def deltaB3(n, sx):
+    def deltaB3(n, sx_cache):
         """
         Implementation of Eq. 3.4 of :cite:`Davies:2016jie`.
 
@@ -231,8 +231,9 @@ def test_diff_pm_nf2():
                 |N3LO| valence-like non-singlet anomalous dimension part
                 proportional to :math:`C_F (C_A - 2 C_F) nf^2`
         """
-        S1, _ = sx[0]
-        S2, Sm2 = sx[1]
+        S1 = h.cache.get(h.cache.S1, sx_cache, n)
+        S2 = h.cache.get(h.cache.S2, sx_cache, n)
+        Sm2 = h.cache.get(h.cache.Sm2, sx_cache, n)
         deltaB = (
             -(1 / (729 * n**5 * (1 + n) ** 5))
             * CF

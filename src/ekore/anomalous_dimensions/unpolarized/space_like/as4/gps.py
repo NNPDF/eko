@@ -4,6 +4,7 @@ r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ps}^{(3)}`.""
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
 from .....harmonics.log_functions import (
     lm11m1,
     lm11m2,
@@ -17,7 +18,7 @@ from .....harmonics.log_functions import (
 
 
 @nb.njit(cache=True)
-def gamma_ps_nf3(n, sx):
+def gamma_ps_nf3(n, cache):
     r"""Return the part proportional to :math:`nf^3` of :math:`\gamma_{ps}^{(3)}`.
 
     The expression is copied exact from :eqref:`3.10` of :cite:`Davies:2016jie`.
@@ -26,8 +27,8 @@ def gamma_ps_nf3(n, sx):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -35,9 +36,9 @@ def gamma_ps_nf3(n, sx):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{ps}^{(3)}|_{nf^3}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
     return 1.3333333333333333 * (
         16.305796943701882 / (-1.0 + n)
         + 3.5555555555555554 / np.power(n, 5)
@@ -90,7 +91,7 @@ def gamma_ps_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_ps_nf1(n, sx, variation):
+def gamma_ps_nf1(n, cache, variation):
     r"""Return the part proportional to :math:`nf^1` of :math:`\gamma_{ps}^{(3)}`.
 
     Parameters
@@ -108,10 +109,10 @@ def gamma_ps_nf1(n, sx, variation):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{ps}^{(3)}|_{nf^1}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
     common = -3498.454512979491/np.power(-1. + n,3) + 5404.444444444444/np.power(n,7) + 3425.9753086419755/np.power(n,6) + 20515.223982421852/np.power(n,5) + 247.55054124312667*lm13m1(n,S1,S2,S3) + 199.11111*lm13m2(n,S1,S2,S3) + 56.46090534979424*lm14m1(n,S1,S2,S3,S4) + 13.168724000000001*lm14m2(n,S1,S2,S3,S4)
     if variation == 1:
         fit = 17114.440372984987*(1/(n-1)**2 +1/n**2) - 56482.37473713895*(1/(-1. + n) - 1./n) - 9247.158633468189/np.power(n,4) + 51758.36314422693/np.power(n,3) - 27774.710120695992/(6. + 5.*n + np.power(n,2)) + 12609.163387951978*(1/n - (1.*n)/(2. + 3.*n + np.power(n,2))) - 218.72209329346168*lm11m1(n,S1) + 6520.842881982454*lm11m2(n,S1) + 1003.6502844579335*lm12m1(n,S1,S2) + 8612.716120193661*lm12m2(n,S1,S2)
@@ -135,7 +136,7 @@ def gamma_ps_nf1(n, sx, variation):
 
 
 @nb.njit(cache=True)
-def gamma_ps_nf2(n, sx, variation):
+def gamma_ps_nf2(n, cache, variation):
     r"""Return the part proportional to :math:`nf^2` of :math:`\gamma_{ps}^{(3)}`.
 
     Parameters
@@ -153,10 +154,10 @@ def gamma_ps_nf2(n, sx, variation):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{ps}^{(3)}|_{nf^2}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
     common = -568.8888888888889/np.power(n,7) + 455.1111111111111/np.power(n,6) - 1856.79012345679/np.power(n,5) - 40.559670781893004*lm13m1(n,S1,S2,S3) - 13.695473*lm13m2(n,S1,S2,S3) - 3.6213991769547325*lm14m1(n,S1,S2,S3,S4)
     if variation == 1:
         fit = 129.36670007880312*(1/(n-1)**2 +1/n**2) + 281.1298772185047*(1/(-1. + n) - 1./n) + 1461.3249956305358/np.power(n,4) - 1416.6957822207867/np.power(n,3) + 1032.901485734173/(6. + 5.*n + np.power(n,2)) - 538.5144723158696*(1/n - (1.*n)/(2. + 3.*n + np.power(n,2))) - 540.9977294644839*lm11m1(n,S1) - 301.9365856452302*lm11m2(n,S1) - 206.40218795098986*lm12m1(n,S1,S2) - 293.5852282113812*lm12m2(n,S1,S2)
@@ -180,7 +181,7 @@ def gamma_ps_nf2(n, sx, variation):
 
 
 @nb.njit(cache=True)
-def gamma_ps(n, nf, sx, variation):
+def gamma_ps(n, nf, cache, variation):
     r"""Compute the |N3LO| pure singlet quark-quark anomalous dimension.
 
     Parameters
@@ -202,7 +203,7 @@ def gamma_ps(n, nf, sx, variation):
 
     """
     return (
-        +nf * gamma_ps_nf1(n, sx, variation)
-        + nf**2 * gamma_ps_nf2(n, sx, variation)
-        + nf**3 * gamma_ps_nf3(n, sx)
+        +nf * gamma_ps_nf1(n, cache, variation)
+        + nf**2 * gamma_ps_nf2(n, cache, variation)
+        + nf**3 * gamma_ps_nf3(n, cache)
     )

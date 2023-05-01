@@ -3,11 +3,12 @@ import numba as nb
 
 from eko.constants import CF, zeta3
 
+from .....harmonics import cache as c
 from .....harmonics.log_functions import lm11m1, lm12m1, lm13m1
 
 
 @nb.njit(cache=True)
-def gamma_ns_nf3(n, sx):
+def gamma_ns_nf3(n, cache):
     r"""Return the common part proportional to :math:`nf^3`.
 
     Holds for :math:`\gamma_{ns,+}^{(3)},\gamma_{ns,-}^{(3)},\gamma_{ns,v}^{(3)}`.
@@ -17,19 +18,19 @@ def gamma_ns_nf3(n, sx):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    g_ns_nf3 : complex
+    complex
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{ns}^{(3)}|_{nf^3}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
     eta = 1 / n * 1 / (n + 1)
     g_ns_nf3 = CF * (
         -32 / 27 * zeta3 * eta
@@ -51,27 +52,29 @@ def gamma_ns_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsm_nf2(n, sx):
+def gamma_nsm_nf2(n, cache):
     r"""Return the parametrized valence-like non-singlet part proportional to :math:`nf^2`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    g_ns_nf2 : complex
+    complex
         |N3LO| valence-like non-singlet anomalous dimension
         :math:`\gamma_{ns,-}^{(3)}|_{nf^2}`
 
     """
-    S1 = sx[0][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
     Lm11m1 = lm11m1(n, S1)
-    Lm12m1 = lm12m1(n, S1, sx[1][0])
-    Lm13m1 = lm13m1(n, S1, sx[1][0], sx[2][0])
+    Lm12m1 = lm12m1(n, S1, S2)
+    Lm13m1 = lm13m1(n, S1, S2, S3)
     return (
         -193.89011158240442
         - 18.962962962962962 / n**5
@@ -92,27 +95,29 @@ def gamma_nsm_nf2(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsm_nf1(n, sx):
+def gamma_nsm_nf1(n, cache):
     r"""Return the parametrized valence-like non-singlet part proportional to :math:`nf^1`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    g_ns_nf1 : complex
+    complex
         |N3LO| valence-like non-singlet anomalous dimension
         :math:`\gamma_{ns,-}^{(3)}|_{nf^1}`
 
     """
-    S1 = sx[0][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
     Lm11m1 = lm11m1(n, S1)
-    Lm12m1 = lm12m1(n, S1, sx[1][0])
-    Lm13m1 = lm13m1(n, S1, sx[1][0], sx[2][0])
+    Lm12m1 = lm12m1(n, S1, S2)
+    Lm13m1 = lm13m1(n, S1, S2, S3)
     return (
         5550.182834015097
         - 126.41975308641975 / n**6
@@ -134,27 +139,29 @@ def gamma_nsm_nf1(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsm_nf0(n, sx):
+def gamma_nsm_nf0(n, cache):
     r"""Return the parametrized valence-like non-singlet part proportional to :math:`nf^0`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    g_ns_nf0 : complex
+    complex
         |N3LO| valence-like non-singlet anomalous dimension
         :math:`\gamma_{ns,-}^{(3)}|_{nf^0}`
 
     """
-    S1 = sx[0][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
     Lm11m1 = lm11m1(n, S1)
-    Lm12m1 = lm12m1(n, S1, sx[1][0])
-    Lm13m1 = lm13m1(n, S1, sx[1][0], sx[2][0])
+    Lm12m1 = lm12m1(n, S1, S2)
+    Lm13m1 = lm13m1(n, S1, S2, S3)
     return (
         -23372.01191013195
         - 252.8395061728395 / n**7
@@ -177,7 +184,7 @@ def gamma_nsm_nf0(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsm(n, nf, sx):
+def gamma_nsm(n, nf, cache):
     r"""Compute the |N3LO| valence-like non-singlet anomalous dimension.
 
     Parameters
@@ -186,19 +193,19 @@ def gamma_nsm(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_nsp : complex
+    complex
         |N3LO| valence-like non-singlet anomalous dimension
         :math:`\gamma_{ns,-}^{(3)}(N)`
 
     """
     return (
-        gamma_nsm_nf0(n, sx)
-        + nf * gamma_nsm_nf1(n, sx)
-        + nf**2 * gamma_nsm_nf2(n, sx)
-        + nf**3 * gamma_ns_nf3(n, sx)
+        gamma_nsm_nf0(n, cache)
+        + nf * gamma_nsm_nf1(n, cache)
+        + nf**2 * gamma_nsm_nf2(n, cache)
+        + nf**3 * gamma_ns_nf3(n, cache)
     )
