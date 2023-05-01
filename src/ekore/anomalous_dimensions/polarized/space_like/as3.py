@@ -396,8 +396,8 @@ def gamma_nsv(N, nf, cache):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : list
-        harmonics cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -425,8 +425,8 @@ def gamma_singlet(N, nf, cache):
         Mellin moment
     nf : int
         Number of active flavors
-    sx: list
-        harmonics cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------

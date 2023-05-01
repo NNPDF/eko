@@ -18,8 +18,8 @@ def gamma_qg_nf3(n, cache):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -345,8 +345,8 @@ def gamma_qg_nf1(n, cache, variation):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     variation : int
         |N3LO| anomalous dimension variation
 
@@ -416,8 +416,8 @@ def gamma_qg_nf2(n, cache, variation):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     variation : int
         |N3LO| anomalous dimension variation
 
@@ -488,8 +488,8 @@ def gamma_qg(n, nf, cache, variation):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     variation : int
         |N3LO| anomalous dimension variation
 
