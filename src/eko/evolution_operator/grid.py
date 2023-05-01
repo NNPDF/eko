@@ -6,21 +6,27 @@ previously instantiated information and does the actual computation of the Q2s.
 """
 
 import logging
-import numbers
 from dataclasses import astuple
-from typing import List
+from typing import Dict, List, Optional
 
 import numpy as np
 import numpy.typing as npt
 
 from .. import member
 from .. import scale_variations as sv
+from ..couplings import Couplings
+from ..interpolation import InterpolatorDispatcher
 from ..io.runcards import Configs, Debug
-from ..matchings import flavor_shift, is_downward_path
+from ..io.types import EvolutionPoint as EPoint
+from ..io.types import Order
+from ..matchings import Atlas, Segment, flavor_shift, is_downward_path
 from . import Operator, flavors, matching_condition, physical
 from .operator_matrix_element import OperatorMatrixElement
 
 logger = logging.getLogger(__name__)
+
+OpDict = Dict[str, Optional[npt.NDArray]]
+"""In particular, only the ``operator`` and ``error`` fields are expected."""
 
 
 class OperatorGrid(sv.ModeMixin):
@@ -42,7 +48,7 @@ class OperatorGrid(sv.ModeMixin):
     def __init__(
         self,
         mu2grid: npt.NDArray,
-        order: tuple,
+        order: Order,
         masses: List[float],
         mass_scheme,
         intrinsic_flavors: list,
@@ -50,31 +56,10 @@ class OperatorGrid(sv.ModeMixin):
         n3lo_ad_variation: tuple,
         configs: Configs,
         debug: Debug,
-        thresholds_config,
-        couplings,
-        interpol_dispatcher,
+        thresholds_config: Atlas,
+        couplings: Couplings,
+        interpol_dispatcher: InterpolatorDispatcher,
     ):
-        """Initialize `OperatorGrid`.
-
-        Parameters
-        ----------
-        config: dict
-            configuration dictionary
-        q2_grid: array
-            Grid in Q2 on where to to compute the operators
-        order: tuple(int,int)
-            orders in perturbation theory
-        thresholds_config: eko.thresholds.ThresholdsAtlas
-            Instance of :class:`~eko.thresholds.Threshold` containing information about the
-            thresholds
-        couplings: eko.couplings.StrongCoupling
-            Instance of :class:`~eko.couplings.StrongCoupling` able to generate a_s for
-            any q
-        kernel_dispatcher: eko.kernel_generation.KernelDispatcher
-            Instance of the :class:`~eko.kernel_generation.KernelDispatcher` with the
-            information about the kernels
-
-        """
         # check
         config = {}
         config["order"] = order
@@ -123,9 +108,8 @@ class OperatorGrid(sv.ModeMixin):
         self._threshold_operators = {}
         self._matching_operators = {}
 
-    def get_threshold_operators(self, path):
-        """
-        Generate the threshold operators.
+    def get_threshold_operators(self, path: List[Segment]) -> List[Operator]:
+        """Generate the threshold operators.
 
         This method is called everytime the OperatorGrid is asked for a grid on Q^2
         with a list of the relevant areas.
@@ -135,15 +119,8 @@ class OperatorGrid(sv.ModeMixin):
         The internal dictionary is self._threshold_operators and its structure is:
         (q2_from, q2_to) -> eko.operators.Operator
 
-        It computes and stores the necessary macthing operators
-        Parameters
-        ----------
-            path: list(`eko.thresholds.PathSegment`)
-                thresholds path
+        It computes and stores the necessary macthing operators.
 
-        Returns
-        -------
-            thr_ops: list(eko.evolution_operator.Operator)
         """
         # The base area is always that of the reference q
         thr_ops = []
@@ -184,43 +161,15 @@ class OperatorGrid(sv.ModeMixin):
                 self._matching_operators[seg.q2_to] = ome.op_members
         return thr_ops
 
-    def compute(self, q2grid=None):
-        """Compute all ekos for the `q2grid`.
+    def compute(self) -> Dict[EPoint, dict]:
+        """Compute all ekos for the `q2grid`."""
+        return {q2: self.generate(q2) for q2 in self.q2_grid}
 
-        Parameters
-        ----------
-        q2grid: list(float)
-            List of :math:`Q^2`
-
-        Returns
-        -------
-        list(dict)
-            List of ekos for each value of :math:`Q^2`
-        """
-        # use input?
-        if q2grid is None:
-            q2grid = self.q2_grid
-        # normalize input
-        if isinstance(q2grid, numbers.Number):
-            q2grid = [q2grid]
-        # And now return the grid
-        grid_return = {}
-        for q2 in q2grid:
-            grid_return[q2] = self.generate(q2)
-        return grid_return
-
-    def generate(self, q2):
+    def generate(self, q2: EPoint) -> OpDict:
         r"""Compute a single EKO.
 
-        Parameters
-        ----------
-        q2: float
-            Target value of :math:`Q^2`
+        eko :math:`\mathbf E(Q^2 \leftarrow Q_0^2)` in flavor basis as numpy array.
 
-        Returns
-        -------
-        dict
-            eko :math:`\mathbf E(Q^2 \leftarrow Q_0^2)` in flavor basis as numpy array
         """
         # The lists of areas as produced by the thresholds
         path = self.managers["thresholds_config"].path(q2)
@@ -271,7 +220,4 @@ class OperatorGrid(sv.ModeMixin):
                 )
                 final_op = final_op @ rot @ matching @ phys_op
         values, errors = final_op.to_flavor_basis_tensor(qed)
-        return {
-            "operator": values,
-            "error": errors,
-        }
+        return {"operator": values, "error": errors}
