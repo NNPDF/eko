@@ -134,36 +134,27 @@ def quad_ker(
     integrand = ker_base.integrand(areas)
     if integrand == 0.0:
         return 0.0
-
-    max_weight_dict = {1: 2, 2: 3, 3: 5}
-    sx = harmonics.compute_cache(
-        ker_base.n, max_weight_dict[order[0]], ker_base.is_singlet
-    )
     # compute the ome
     if ker_base.is_singlet or ker_base.is_QEDsinglet:
         indices = {21: 0, 100: 1, 90: 2}
         if is_polarized:
             if is_time_like:
                 raise NotImplementedError("Polarized, time-like is not implemented")
-            else:
-                A = ome_ps.A_singlet(order, ker_base.n, sx, nf, L, is_msbar)
+            A = ome_ps.A_singlet(order, ker_base.n, nf, L, is_msbar)
         else:
             if is_time_like:
                 A = ome_ut.A_singlet(order, ker_base.n, L)
-            else:
-                A = ome_us.A_singlet(order, ker_base.n, sx, nf, L, is_msbar)
+            A = ome_us.A_singlet(order, ker_base.n, nf, L, is_msbar)
     else:
         indices = {200: 0, 91: 1}
         if is_polarized:
             if is_time_like:
                 raise NotImplementedError("Polarized, time-like is not implemented")
-            else:
-                A = ome_ps.A_non_singlet(order, ker_base.n, sx, nf, L)
+            A = ome_ps.A_non_singlet(order, ker_base.n, nf, L)
         else:
             if is_time_like:
                 A = ome_ut.A_non_singlet(order, ker_base.n, L)
-            else:
-                A = ome_us.A_non_singlet(order, ker_base.n, sx, nf, L)
+            A = ome_us.A_non_singlet(order, ker_base.n, nf, L)
 
     # correct for scale variations
     if sv_mode == sv.Modes.exponentiated:

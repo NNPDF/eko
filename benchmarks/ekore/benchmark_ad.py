@@ -136,9 +136,9 @@ def check_gamma_1_pegasus(N, NF):
     P1NSP = CF * ((CF - CA / 2.0) * PNPA + CA * PNSB + TR * NF * PNSC)
     P1NSM = CF * ((CF - CA / 2.0) * PNMA + CA * PNSB + TR * NF * PNSC)
 
-    sx = h.sx(N, 2)
-    np.testing.assert_allclose(ad_as2.gamma_nsp(N, NF, sx), -P1NSP)
-    np.testing.assert_allclose(ad_as2.gamma_nsm(N, NF, sx), -P1NSM)
+    cache = h.cache.reset()
+    np.testing.assert_allclose(ad_as2.gamma_nsp(N, NF, cache), -P1NSP)
+    np.testing.assert_allclose(ad_as2.gamma_nsm(N, NF, cache), -P1NSM)
 
     NS = N * N
     NT = NS * N
@@ -255,7 +255,7 @@ def check_gamma_1_pegasus(N, NF):
     P1Sgq = (CF * CF * PGQA + CF * CA * PGQB + TR * NF * CF * PGQC) * 4.0
     P1Sgg = (CA * CA * PGGA + TR * NF * (CA * PGGB + CF * PGGC)) * 4.0
 
-    gS1 = ad_as2.gamma_singlet(N, NF, sx)
+    gS1 = ad_as2.gamma_singlet(N, NF, cache)
     np.testing.assert_allclose(gS1[0, 0], -P1Sqq)
     np.testing.assert_allclose(gS1[0, 1], -P1Sqg)
     np.testing.assert_allclose(gS1[1, 0], -P1Sgq)

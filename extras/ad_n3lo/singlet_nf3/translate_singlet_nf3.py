@@ -36,9 +36,10 @@ for fp in fps:
         oo.write('"""\n')
         oo.write("import numba as nb\n")
         oo.write("import numpy as np\n")
+        oo.write("from .....harmonics import cache as c\n")
         oo.write("\n\n")
         oo.write("@nb.njit(cache=True)\n")
-        oo.write(f"def gamma_{gamma_name[1:]}_nf3(n, sx):\n")
+        oo.write(f"def gamma_{gamma_name[1:]}_nf3(n, cache):\n")
         oo.write("\treturn ")
         for l in nls:
             oo.write(l)
