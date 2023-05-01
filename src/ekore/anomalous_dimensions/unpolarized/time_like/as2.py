@@ -1,5 +1,7 @@
 """The unpolarized, time-like |NLO| Altarelli-Parisi splitting kernels."""
 
+import math
+
 import numba as nb
 import numpy as np
 from numpy import power as npp
@@ -46,6 +48,8 @@ def gamma_nsp(N, nf, cache):
 
     S1 = c.get(c.S1, cache, N)
     S2 = c.get(c.S2, cache, N)
+    S2ph = c.get(c.S2ph, cache, N)
+    S3ph = c.get(c.S3ph, cache, N)
 
     N3 = N + 3
     N4 = N + 4
@@ -62,22 +66,25 @@ def gamma_nsp(N, nf, cache):
     ZETA2 = zeta2
     ZETA3 = zeta3
 
-    SPMOM = (
-        1.0000 * (ZETA2 - S1 / N) / N
-        - 0.9992 * (ZETA2 - S11 / N1) / N1
-        + 0.9851 * (ZETA2 - S12 / N2) / N2
-        - 0.9005 * (ZETA2 - S13 / N3) / N3
-        + 0.6621 * (ZETA2 - S14 / N4) / N4
-        - 0.3174 * (ZETA2 - S15 / N5) / N5
-        + 0.0699 * (ZETA2 - S16 / N6) / N6
-    )
+#    SPMOM = (
+#        1.0000 * (ZETA2 - S1 / N) / N
+#        - 0.9992 * (ZETA2 - S11 / N1) / N1
+#        + 0.9851 * (ZETA2 - S12 / N2) / N2
+#        - 0.9005 * (ZETA2 - S13 / N3) / N3
+#        + 0.6621 * (ZETA2 - S14 / N4) / N4
+#        - 0.3174 * (ZETA2 - S15 / N5) / N5
+#        + 0.0699 * (ZETA2 - S16 / N6) / N6
+#    )
 
+    g3 = c.get(c.g3, cache, N)
+    
     SLC = -5 / 8 * ZETA3
-    SLV = -ZETA2 / 2 * (polygamma(N1 / 2, 0) - polygamma(N / 2, 0)) + S1 / NS + SPMOM
+    SLV = -ZETA2 / 2 * (polygamma(N1 / 2, 0) - polygamma(N / 2, 0)) + S1 / NS + g3
 
     SSCHLP = SLC + SLV
-    SSTR2P = ZETA2 - polygamma(N2 / 2, 1)
-    SSTR3P = 0.5 * polygamma(N2 / 2, 2) + ZETA3
+ 
+    SSTR2P = S2ph #ZETA2 - polygamma(N2 / 2, 1)
+    SSTR3P = S3ph #0.5 * polygamma(N2 / 2, 2) + ZETA3
 
     PNPA = (
         16 * S1 * (2 * N + 1) / (NS * N1S)
@@ -150,6 +157,8 @@ def gamma_nsm(N, nf, cache):
 
     S1 = c.get(c.S1, cache, N)
     S2 = c.get(c.S2, cache, N)
+    S2ph = c.get(c.S2ph, cache, N)
+    S3ph = c.get(c.S3ph, cache, N)
 
     N3 = N + 3
     N4 = N + 4
@@ -166,21 +175,23 @@ def gamma_nsm(N, nf, cache):
     ZETA2 = zeta2
     ZETA3 = zeta3
 
-    SPMOM = (
-        1.0000 * (ZETA2 - S1 / N) / N
-        - 0.9992 * (ZETA2 - S11 / N1) / N1
-        + 0.9851 * (ZETA2 - S12 / N2) / N2
-        - 0.9005 * (ZETA2 - S13 / N3) / N3
-        + 0.6621 * (ZETA2 - S14 / N4) / N4
-        - 0.3174 * (ZETA2 - S15 / N5) / N5
-        + 0.0699 * (ZETA2 - S16 / N6) / N6
-    )
+    g3 = c.get(c.g3, cache, N)
+    
+#    SPMOM = (
+#        1.0000 * (ZETA2 - S1 / N) / N
+#        - 0.9992 * (ZETA2 - S11 / N1) / N1
+#        + 0.9851 * (ZETA2 - S12 / N2) / N2
+#        - 0.9005 * (ZETA2 - S13 / N3) / N3
+#        + 0.6621 * (ZETA2 - S14 / N4) / N4
+#        - 0.3174 * (ZETA2 - S15 / N5) / N5
+#        + 0.0699 * (ZETA2 - S16 / N6) / N6
+#    )
 
     SLC = -5 / 8 * ZETA3
-    SLV = -ZETA2 / 2 * (polygamma(N1 / 2, 0) - polygamma(N / 2, 0)) + S1 / NS + SPMOM
+    SLV = -ZETA2 / 2 * (polygamma(N1 / 2, 0) - polygamma(N / 2, 0)) + S1 / NS + g3
     SSCHLM = SLC - SLV
-    SSTR2M = ZETA2 - polygamma(N1 / 2, 1)
-    SSTR3M = 0.5 * polygamma(N1 / 2, 2) + ZETA3
+    SSTR2M = S2ph #ZETA2 - polygamma(N1 / 2, 1)
+    SSTR3M = S3ph #0.5 * polygamma(N1 / 2, 2) + ZETA3
 
     PNMA = (
         16 * S1 * (2 * N + 1) / (NS * N1S)
