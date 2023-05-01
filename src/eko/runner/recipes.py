@@ -1,11 +1,9 @@
 """Recipes containing instructions for atomic computations."""
 from typing import List
 
-from .. import EKO
 from ..io.items import Evolution, Matching, Recipe
 from ..io.types import EvolutionPoint as EPoint
 from ..matchings import Atlas, Segment
-from . import commons
 
 
 def elements(ep: EPoint, atlas: Atlas) -> List[Recipe]:
@@ -28,12 +26,10 @@ def elements(ep: EPoint, atlas: Atlas) -> List[Recipe]:
     return recipes
 
 
-def create(eko: EKO) -> List[Recipe]:
+def create(evolgrid: List[EPoint], atlas: Atlas) -> List[Recipe]:
     """Create all associated recipes."""
-    atlas = commons.atlas(eko.theory_card, eko.operator_card)
-
     recipes = []
-    for ep in eko:
+    for ep in evolgrid:
         recipes.extend(elements(ep, atlas))
 
     return recipes
