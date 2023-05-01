@@ -8,8 +8,7 @@ import numpy as np
 import numpy.lib.npyio as npyio
 import numpy.typing as npt
 
-from eko import matchings
-
+from .. import matchings
 from . import exceptions
 from .types import EvolutionPoint as EPoint
 from .types import FlavorIndex, FlavorsNumber, SquaredScale
@@ -70,6 +69,11 @@ class Evolution(Header):
         """Create instance from analogous Atlas object."""
         return cls(**asdict(segment), cliff=cliff)
 
+    @property
+    def as_atlas(self) -> matchings.Segment:
+        """The associated segment."""
+        return matchings.Segment(self.origin, self.target, self.nf)
+
 
 @dataclass(frozen=True)
 class Matching(Header):
@@ -81,11 +85,17 @@ class Matching(Header):
 
     scale: SquaredScale
     hq: FlavorIndex
+    inverse: bool = False
 
     @classmethod
-    def from_atlas(cls, matching: matchings.Matching):
+    def from_atlas(cls, matching: matchings.Matching, inverse: bool = False):
         """Create instance from analogous Atlas object."""
-        return cls(**asdict(matching))
+        return cls(**asdict(matching), inverse=inverse)
+
+    @property
+    def as_atlas(self) -> matchings.Matching:
+        """The associated segment."""
+        return matchings.Matching(self.scale, self.hq)
 
 
 Recipe = Union[Evolution, Matching]
