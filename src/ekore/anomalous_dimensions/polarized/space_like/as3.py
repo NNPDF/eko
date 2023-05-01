@@ -349,12 +349,11 @@ def gamma_nss(N, nf, cache):
         :math:`\\gamma_{ns,s}^{(2)}(N)`
 
     """
-    # TODO: CHECK is this true or false ??
     S1 = c.get(c.S1, cache, N)
     S3 = c.get(c.S3, cache, N)
-    Sm2 = c.get(c.Sm2, cache, N, is_singlet=False)
-    Sm3 = c.get(c.Sm3, cache, N, is_singlet=False)
-    Sm21 = c.get(c.Sm21, cache, N, is_singlet=False)
+    Sm2 = c.get(c.Sm2, cache, N, is_singlet=True)
+    Sm3 = c.get(c.Sm3, cache, N, is_singlet=True)
+    Sm21 = c.get(c.Sm21, cache, N, is_singlet=True)
     nss_nf1 = (
         40
         / 9

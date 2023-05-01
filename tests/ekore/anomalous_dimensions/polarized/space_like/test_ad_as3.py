@@ -3,6 +3,7 @@ import numpy as np
 
 import ekore.anomalous_dimensions.polarized.space_like.as3 as as3
 import ekore.anomalous_dimensions.unpolarized.space_like.as3 as as3_unpol
+from eko.constants import zeta2, zeta3
 from ekore import harmonics
 
 nf = 5
@@ -25,16 +26,19 @@ def test_qg_helicity_conservation():
 
 def test_ns_sea():
     ref_moments = [
-        -220 / 3,
-        -103175 / 34992,
-        -4653353 / 5467500,
-        -7063530941 / 17425497600,
-        -218695344199 / 911421315000,
+        (20 / 9)
+        * (
+            23 - 12 * zeta2 - 16 * zeta3
+        ),  # reference value from eq 27 of :cite:`Moch:2015usa`
+        -0.0004286694101508916 * (-12139.872394862155 - 21888 * -0.6738675265146354),
+        0.5486968449931413 * (3.844116190831125 + 6.624 * -0.712742410330442),
+        1.1187158441230356 + 1.927437641723356 * -0.7278824381560618,
+        0.6893728427287487 + 1.1939643347050755 * -0.7354233751216146,
     ]
     for i, mom in enumerate(ref_moments):
         N = 1 + 2 * i
         cache = harmonics.cache.reset()
-        np.testing.assert_allclose(-as3.gamma_nss(N, nf, cache), mom * nf, rtol=7e-7)
+        np.testing.assert_allclose(-as3.gamma_nss(N, nf, cache), mom * nf, rtol=5e-7)
 
 
 def test_ns():
