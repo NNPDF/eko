@@ -18,7 +18,7 @@ from . import exceptions, raw
 from .access import AccessConfigs
 from .bases import Bases
 from .inventory import Inventory
-from .items import Operator, Recipe, Target
+from .items import Evolution, Operator, Recipe, Target
 from .metadata import Metadata
 from .paths import InternalPaths
 from .runcards import OperatorCard, TheoryCard
@@ -151,6 +151,12 @@ class EKO:
 
     def load_recipes(self, recipes: List[Recipe]):
         """Load recipes in bulk."""
+        for recipe in recipes:
+            # leverage auto-save
+            if isinstance(recipe, Evolution):
+                self.recipes[recipe] = None
+            else:
+                self.recipes_matching[recipe] = None
 
     def __ilshift__(self, recipes: List[Recipe]):
         """Shortcut for :meth:`load_recipes`."""
