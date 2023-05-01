@@ -52,21 +52,29 @@ class Inventory:
     access: AccessConfigs
     header_type: Type[Header]
     cache: Dict[Header, Optional[Operator]] = field(default_factory=dict)
-    contentful: bool = True
+    contentless: bool = False
+    name: Optional[str] = None
+    """Only for logging purpose."""
 
-    def lookup(self, stem: str) -> Path:
+    def __str__(self) -> str:
+        return f"Inventory '{self.name}'"
+
+    def lookup(self, stem: str, header: bool = False) -> Path:
         """Look up for content path in inventory."""
+        EXT = OPERATOR_EXT if not header else [HEADER_EXT]
         found = [
             path
             for path in self.access.path.iterdir()
             if path.name.startswith(stem)
-            if "".join(path.suffixes) in OPERATOR_EXT
+            if "".join(path.suffixes) in EXT
         ]
 
         if len(found) == 0:
-            raise LookupError(f"Target value '{stem}' not available.")
+            raise LookupError(f"Item '{stem}' not available in {self}.")
         elif len(found) > 1:
-            raise LookupError(f"Too many operators associated to '{stem}':\n{found}")
+            raise LookupError(
+                f"Too many items associated to '{stem}' in {self}:\n{found}"
+            )
 
         return found[0]
 
@@ -79,12 +87,23 @@ class Inventory:
         """
         self.access.assert_open()
 
-        if header in self.cache:
+        try:
             op = self.cache[header]
-            if op is not None or not self.contentful:
+            if op is not None or self.contentless:
                 return op
+        except KeyError:
+            pass
 
         stem = encode(header)
+
+        # in case of contentless, check header availability instead
+        if self.contentless:
+            if self.lookup(stem, header=True):
+                self.cache[header] = None
+                return None
+            raise LookupError(f"Impossible to retrieve {header} from {self}.")
+
+        # for contentful inventories, check operator availability
         oppath = self.lookup(stem)
 
         with open(oppath, "rb") as fd:
@@ -101,16 +120,21 @@ class Inventory:
         """
         self.access.assert_writeable()
 
-        if not self.contentful:
-            self.cache[header] = None
+        # always save the header on disk
+        headpath = self.access.path / header_name(header)
+        headpath.write_text(yaml.dump(asdict(header)), encoding="utf-8")
 
+        # in case of contentless, set empty cache and exit
+        if self.contentless:
+            self.cache[header] = None
+            return
+
+        # otherwise save also the operator, and add to the cache
         assert operator is not None
 
-        headpath = self.access.path / header_name(header)
         with_err = operator.error is not None
         oppath = self.access.path / operator_name(header, err=with_err)
 
-        headpath.write_text(yaml.dump(asdict(header)))
         with open(oppath, "wb") as fd:
             operator.save(fd)
 
