@@ -3,8 +3,29 @@ from typing import List
 
 from .. import EKO
 from ..io.items import Evolution, Matching, Recipe
-from ..matchings import Segment
+from ..io.types import EvolutionPoint as EPoint
+from ..matchings import Atlas, Segment
 from . import commons
+
+
+def elements(ep: EPoint, atlas: Atlas) -> List[Recipe]:
+    """Determine recipes to compute a given operator."""
+    recipes = []
+
+    #  expanded = eko.operator_card.configs.scvar_method is sv.Modes.expanded
+    #  mu2f = mu2 * eko.theory_card.xif**2 if expanded else mu2
+
+    blocks = atlas.matched_path(ep)
+    for block in blocks:
+        if isinstance(block, Segment):
+            cliff = block.target in atlas.walls
+            recipe = Evolution.from_atlas(block, cliff=cliff)
+        else:
+            recipe = Matching.from_atlas(block)
+
+        recipes.append(recipe)
+
+    return recipes
 
 
 def create(eko: EKO) -> List[Recipe]:
@@ -13,17 +34,6 @@ def create(eko: EKO) -> List[Recipe]:
 
     recipes = []
     for ep in eko:
-        #  expanded = eko.operator_card.configs.scvar_method is sv.Modes.expanded
-        #  mu2f = mu2 * eko.theory_card.xif**2 if expanded else mu2
-
-        blocks = atlas.matched_path(ep)
-        for block in blocks:
-            if isinstance(block, Segment):
-                cliff = block.target in atlas.walls
-                recipe = Evolution.from_atlas(block, cliff=cliff)
-            else:
-                recipe = Matching.from_atlas(block)
-
-            recipes.append(recipe)
+        recipes.extend(elements(ep, atlas))
 
     return recipes

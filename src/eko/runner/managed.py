@@ -10,12 +10,13 @@ Thus, parallelization and multi-node execution is possible using EKO primitives,
 but not automatically performed.
 
 """
-
+from itertools import chain
 from pathlib import Path
 
+from ..io.items import Target
 from ..io.runcards import OperatorCard, TheoryCard
 from ..io.struct import EKO
-from . import recipes
+from . import commons, operators, parts, recipes
 
 
 def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
@@ -23,7 +24,15 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
     with EKO.create(path) as builder:
         eko = builder.load_cards(theory, operator).build()
 
-        recipes.create(eko)
+        recs = recipes.create(eko)
+        eko.load_recipes(recs)
 
-        #  for recipe in eko.recipes:
-        #  pass
+        for recipe in chain(eko.recipes, eko.recipes_matching):
+            parts.compute(eko, recipe)
+
+        atlas = commons.atlas(eko.theory_card, eko.operator_card)
+
+        for ep in operator.evolgrid:
+            headers = recipes.elements(ep, atlas)
+            parts_ = operators.retrieve(eko, headers)
+            eko.operators[Target.from_ep(ep)] = operators.join(eko, parts_)
