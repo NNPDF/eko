@@ -1,7 +1,7 @@
 """Heavy quarks related quantities."""
 import enum
 from dataclasses import dataclass
-from typing import Generic, Sequence, TypeVar, Union
+from typing import Generic, List, Sequence, TypeVar, Union
 
 import numpy as np
 
@@ -96,6 +96,11 @@ class HeavyInfo(DictLike):
     This is meant to be used mainly as a theory card section, and to be passed
     around when all or a large part of this information is required.
 
+    Note
+    ----
+    All scales and ratios in this structure are linear, so you can consider
+    them as quantities in :math:`GeV` or ratios of them.
+
     """
 
     num_flavs_init: FlavorsNumber
@@ -119,3 +124,8 @@ class HeavyInfo(DictLike):
     def matching_scales(self) -> MatchingScales:
         """Compute matching scales."""
         return scales_from_ratios(self.matching_ratios, self.masses)
+
+    @property
+    def squared_ratios(self) -> List[float]:
+        """Squared ratios of matching scales."""
+        return np.power(self.matching_ratios, 2.0).tolist()
