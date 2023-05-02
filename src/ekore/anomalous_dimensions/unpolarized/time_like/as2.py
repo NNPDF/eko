@@ -48,8 +48,8 @@ def gamma_nsp(N, nf, cache):
 
     S1 = c.get(c.S1, cache, N)
     S2 = c.get(c.S2, cache, N)
-    S2ph = c.get(c.S2ph, cache, N)
-    S3ph = c.get(c.S3ph, cache, N)
+    S2h = c.get(c.S2h, cache, N)
+    S3h = c.get(c.S3h, cache, N)
 
     N3 = N + 3
     N4 = N + 4
@@ -83,8 +83,8 @@ def gamma_nsp(N, nf, cache):
 
     SSCHLP = SLC + SLV
  
-    SSTR2P = S2ph #ZETA2 - polygamma(N2 / 2, 1)
-    SSTR3P = S3ph #0.5 * polygamma(N2 / 2, 2) + ZETA3
+    SSTR2P = S2h #ZETA2 - polygamma(N2 / 2, 1)
+    SSTR3P = S3h #0.5 * polygamma(N2 / 2, 2) + ZETA3
 
     PNPA = (
         16 * S1 * (2 * N + 1) / (NS * N1S)
@@ -157,8 +157,8 @@ def gamma_nsm(N, nf, cache):
 
     S1 = c.get(c.S1, cache, N)
     S2 = c.get(c.S2, cache, N)
-    S2ph = c.get(c.S2ph, cache, N)
-    S3ph = c.get(c.S3ph, cache, N)
+    S2mh = c.get(c.S2mh, cache, N)
+    S3mh = c.get(c.S3mh, cache, N)
 
     N3 = N + 3
     N4 = N + 4
@@ -190,8 +190,8 @@ def gamma_nsm(N, nf, cache):
     SLC = -5 / 8 * ZETA3
     SLV = -ZETA2 / 2 * (polygamma(N1 / 2, 0) - polygamma(N / 2, 0)) + S1 / NS + g3
     SSCHLM = SLC - SLV
-    SSTR2M = S2ph #ZETA2 - polygamma(N1 / 2, 1)
-    SSTR3M = S3ph #0.5 * polygamma(N1 / 2, 2) + ZETA3
+    SSTR2M = S2mh #ZETA2 - polygamma(N1 / 2, 1)
+    SSTR3M = S3mh #0.5 * polygamma(N1 / 2, 2) + ZETA3
 
     PNMA = (
         16 * S1 * (2 * N + 1) / (NS * N1S)
