@@ -1,4 +1,6 @@
 """Caching harmonic sums across :mod:`ekore`."""
+from typing import Optional
+
 import numba as nb
 import numpy as np
 import numpy.typing as npt
@@ -8,7 +10,7 @@ from .g_functions import mellin_g3
 from .polygamma import recursive_harmonic_sum
 
 # here a register of all possible functions
-CACHE_SIZE = 37
+CACHE_SIZE = 31
 _index = iter(range(CACHE_SIZE))
 S1 = next(_index)  # = S_1(N)
 S2 = next(_index)
@@ -32,18 +34,12 @@ Sm211 = next(_index)
 S1h = next(_index)
 S2h = next(_index)
 S3h = next(_index)
-S4h = next(_index)
-S5h = next(_index)
 S1mh = next(_index)
 S2mh = next(_index)
 S3mh = next(_index)
-S4mh = next(_index)
-S5mh = next(_index)
 S1ph = next(_index)
 S2ph = next(_index)
 S3ph = next(_index)
-S4ph = next(_index)
-S5ph = next(_index)
 g3 = next(_index)
 S1p2 = next(_index)
 g3p2 = next(_index)
@@ -56,7 +52,39 @@ def reset():
 
 
 @nb.njit(cache=True)
-def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet=None) -> complex:
+def update(func, key, cache, n):
+    """Compute simple harmonics if not yet in cache."""
+    if np.isnan(cache[key]):
+        cache[key] = func(n)
+    return cache
+
+
+@nb.njit(cache=True)
+def update_Sm1(cache, n, is_singlet):
+    """Compute Sm1 if not yet in cache."""
+    if np.isnan(cache[Sm1]):
+        cache = update(w1.S1, S1, cache, n)
+        cache = update(w1.S1, S1mh, cache, (n - 1) / 2)
+        cache = update(w1.S1, S1h, cache, n / 2)
+        cache[Sm1] = w1.Sm1(n, cache[S1], cache[S1mh], cache[S1h], is_singlet)
+    return cache
+
+
+@nb.njit(cache=True)
+def update_Sm2(cache, n, is_singlet):
+    """Compute Sm2 if not yet in cache."""
+    if np.isnan(cache[Sm2]):
+        cache = update(w2.S2, S2, cache, n)
+        cache = update(w2.S2, S2mh, cache, (n - 1) / 2)
+        cache = update(w2.S2, S2h, cache, n / 2)
+        cache[Sm2] = w2.Sm2(n, cache[S2], cache[S2mh], cache[S2h], is_singlet)
+    return cache
+
+
+@nb.njit(cache=True)
+def get(
+    key: int, cache: npt.ArrayLike, n: complex, is_singlet: Optional[bool] = None
+) -> complex:
     r"""Retrieve an element of the cache.
 
     Parameters
@@ -88,151 +116,114 @@ def get(key: int, cache: npt.ArrayLike, n: complex, is_singlet=None) -> complex:
     if not np.isnan(s):
         return s
     # compute it now ...
+    # weight 1
     if key == S1:
         s = w1.S1(n)
-    elif key == S2:
-        s = w2.S2(n)
-    elif key == S3:
-        s = w3.S3(n)
-    elif key == S4:
-        s = w4.S4(n)
-    elif key == S5:
-        s = w5.S5(n)
-    elif key == Sm1:
-        s = w1.Sm1(
-            n,
-            get(S1, cache, n),
-            get(S1mh, cache, n),
-            get(S1h, cache, n),
-            is_singlet,
-        )
-    elif key == Sm2:
-        s = w2.Sm2(
-            n,
-            get(S2, cache, n),
-            get(S2mh, cache, n),
-            get(S2h, cache, n),
-            is_singlet,
-        )
-    elif key == Sm3:
-        s = w3.Sm3(
-            n,
-            get(S3, cache, n),
-            get(S3mh, cache, n),
-            get(S3h, cache, n),
-            is_singlet,
-        )
-    elif key == Sm4:
-        s = w4.Sm4(
-            n,
-            get(S4, cache, n),
-            get(S4mh, cache, n),
-            get(S4h, cache, n),
-            is_singlet,
-        )
-    elif key == Sm5:
-        s = w5.Sm5(
-            n,
-            get(S5, cache, n),
-            get(S5mh, cache, n),
-            get(S5h, cache, n),
-            is_singlet,
-        )
-    elif key == S21:
-        s = w3.S21(n, get(S1, cache, n), get(S2, cache, n))
-    elif key == S2m1:
-        s = w3.S2m1(
-            n,
-            get(S2, cache, n),
-            get(Sm1, cache, n, is_singlet),
-            get(Sm2, cache, n, is_singlet),
-            is_singlet,
-        )
-    elif key == Sm21:
-        s = w3.Sm21(n, get(S1, cache, n), get(Sm1, cache, n, is_singlet), is_singlet)
-    elif key == Sm2m1:
-        s = w3.Sm2m1(
-            n,
-            get(S1, cache, n),
-            get(S2, cache, n),
-            get(Sm2, cache, n, is_singlet),
-        )
-    elif key == S31:
-        s = w4.S31(
-            n,
-            get(S1, cache, n),
-            get(S2, cache, n),
-            get(S3, cache, n),
-            get(S4, cache, n),
-        )
-    elif key == Sm31:
-        s = w4.Sm31(
-            n,
-            get(S1, cache, n),
-            get(Sm1, cache, n, is_singlet),
-            get(Sm2, cache, n, is_singlet),
-            is_singlet,
-        )
-    elif key == Sm22:
-        s = w4.Sm22(
-            n,
-            get(S1, cache, n),
-            get(S2, cache, n),
-            get(Sm2, cache, n, is_singlet),
-            get(Sm31, cache, n, is_singlet),
-            is_singlet,
-        )
-    elif key == S211:
-        s = w4.S211(
-            n,
-            get(S1, cache, n),
-            get(S2, cache, n),
-            get(S3, cache, n),
-        )
-    elif key == Sm211:
-        s = w4.Sm211(
-            n,
-            get(S1, cache, n),
-            get(S2, cache, n),
-            get(Sm1, cache, n, is_singlet),
-            is_singlet,
-        )
     elif key == S1h:
         s = w1.S1(n / 2)
-    elif key == S2h:
-        s = w2.S2(n / 2)
-    elif key == S3h:
-        s = w3.S3(n / 2)
-    elif key == S4h:
-        s = w4.S4(n / 2)
-    elif key == S5h:
-        s = w5.S5(n / 2)
     elif key == S1mh:
         s = w1.S1((n - 1) / 2)
+    elif key == S1ph:
+        cache = update(w1.S1, S1mh, cache, (n - 1) / 2)
+        s = recursive_harmonic_sum(cache[S1mh], (n - 1) / 2, 1, 1)
+    elif key == Sm1:
+        cache = update(w1.S1, S1, cache, n)
+        cache = update(w1.S1, S1mh, cache, (n - 1) / 2)
+        cache = update(w1.S1, S1h, cache, n / 2)
+        s = w1.Sm1(n, cache[S1], cache[S1mh], cache[S1h], is_singlet)
+    elif key == S1p2:
+        cache = update(w1.S1, S1, cache, n)
+        s = recursive_harmonic_sum(cache[S1], n, 2, 1)
+    # weight 2
+    elif key == S2:
+        s = w2.S2(n)
+    elif key == S2h:
+        s = w2.S2(n / 2)
     elif key == S2mh:
         s = w2.S2((n - 1) / 2)
+    elif key == S2ph:
+        cache = update(w2.S2, S2mh, cache, (n - 1) / 2)
+        s = recursive_harmonic_sum(cache[S2mh], (n - 1) / 2, 1, 2)
+    elif key == Sm2:
+        cache = update(w2.S2, S2, cache, n)
+        cache = update(w2.S2, S2mh, cache, (n - 1) / 2)
+        cache = update(w2.S2, S2h, cache, n / 2)
+        s = w2.Sm2(n, cache[S2], cache[S2mh], cache[S2h], is_singlet)
+    # weight 3
+    elif key == S3:
+        s = w3.S3(n)
+    elif key == S3h:
+        s = w3.S3(n / 2)
     elif key == S3mh:
         s = w3.S3((n - 1) / 2)
-    elif key == S4mh:
-        s = w4.S4((n - 1) / 2)
-    elif key == S5mh:
-        s = w5.S5((n - 1) / 2)
-    elif key == S1ph:
-        s = recursive_harmonic_sum(get(S1mh, cache, n), (n - 1) / 2, 1, 1)
-    elif key == S2ph:
-        s = recursive_harmonic_sum(get(S2mh, cache, n), (n - 1) / 2, 1, 2)
     elif key == S3ph:
-        s = recursive_harmonic_sum(get(S3mh, cache, n), (n - 1) / 2, 1, 3)
-    elif key == S4ph:
-        s = recursive_harmonic_sum(get(S4mh, cache, n), (n - 1) / 2, 1, 4)
-    elif key == S5ph:
-        s = recursive_harmonic_sum(get(S5mh, cache, n), (n - 1) / 2, 1, 5)
+        cache = update(w3.S3, S3mh, cache, (n - 1) / 2)
+        s = recursive_harmonic_sum(cache[S3mh], (n - 1) / 2, 1, 3)
+    elif key == Sm3:
+        cache = update(w3.S3, S3, cache, n)
+        cache = update(w3.S3, S3mh, cache, (n - 1) / 2)
+        cache = update(w3.S3, S3h, cache, n / 2)
+        s = w3.Sm3(n, cache[S3], cache[S3mh], cache[S3h], is_singlet)
+    # weight 4
+    elif key == S4:
+        s = w4.S4(n)
+    elif key == Sm4:
+        cache = update(w4.S4, S4, cache, n)
+        S4mh = w4.S4((n - 1) / 2)
+        S4h = w4.S4(n / 2)
+        s = w4.Sm4(n, cache[S4], S4mh, S4h, is_singlet)
+    # weight 5
+    elif key == S5:
+        s = w5.S5(n)
+    elif key == Sm5:
+        cache = update(w5.S5, S5, cache, n)
+        S5mh = w5.S5((n - 1) / 2)
+        S5h = w5.S5(n / 2)
+        s = w5.Sm5(n, cache[S5], S5mh, S5h, is_singlet)
+    # mellin g3 and related
     elif key == g3:
-        s = mellin_g3(n, get(S1, cache, n))
-    elif key == S1p2:
-        s = recursive_harmonic_sum(get(S1, cache, n), n, 2, 1)
+        cache = update(w1.S1, S1, cache, n)
+        s = mellin_g3(n, cache[S1])
     elif key == g3p2:
-        s = mellin_g3(n + 2, get(S1p2, cache, n))
+        cache = update(w1.S1, S1p2, cache, n + 2)
+        s = mellin_g3(n + 2, cache[S1p2])
+    else:
+        # Multi index harmonics which do not require Sxm
+        cache = update(w1.S1, S1, cache, n)
+        cache = update(w2.S2, S2, cache, n)
+        if key == S21:
+            s = w3.S21(n, cache[S1], cache[S2])
+        elif key == S31:
+            cache = update(w3.S3, S3, cache, n)
+            cache = update(w4.S4, S4, cache, n)
+            s = w4.S31(n, cache[S1], cache[S2], cache[S3], cache[S4])
+        elif key == S211:
+            cache = update(w3.S3, S3, cache, n)
+            s = w4.S211(n, cache[S1], cache[S2], cache[S3])
+        else:
+            # Multi index harmonics which require Sm1
+            cache = update_Sm1(cache, n, is_singlet)
+            if key == Sm21:
+                s = w3.Sm21(n, cache[S1], cache[Sm1], is_singlet)
+            elif key == Sm211:
+                s = w4.Sm211(n, cache[S1], cache[S2], cache[Sm1], is_singlet)
+            else:
+                #  Multi index harmonics which require also Sm2
+                cache = update_Sm2(cache, n, is_singlet)
+                if key == S2m1:
+                    s = w3.S2m1(n, cache[S2], cache[Sm1], cache[Sm2], is_singlet)
+                elif key == Sm2m1:
+                    s = w3.Sm2m1(n, cache[S1], cache[S2], cache[Sm2])
+                elif key == Sm31:
+                    s = w4.Sm31(n, cache[S1], cache[Sm1], cache[Sm2], is_singlet)
+                elif key == Sm22:
+                    if np.isnan(cache[Sm31]):
+                        cache[Sm31] = w4.Sm31(
+                            n, cache[S1], cache[Sm1], cache[Sm2], is_singlet
+                        )
+                    s = w4.Sm22(
+                        n, cache[S1], cache[S2], cache[Sm2], cache[Sm31], is_singlet
+                    )
     # store and return
     cache[key] = s
     return s
