@@ -11,9 +11,6 @@ from eko.constants import zeta2, zeta3
 
 from ....harmonics import cache as c
 
-# TODO: CLEAN: all the calls to polygamma could be reduced to some harmonics...
-from ....harmonics.polygamma import cern_polygamma as polygamma
-
 
 @nb.njit(cache=True)
 def gamma_nsp(N, nf, cache):
@@ -42,7 +39,6 @@ def gamma_nsp(N, nf, cache):
     NFO = NT * N
 
     N1 = N + 1
-    N2 = N + 2
     N1S = N1 * N1
     N1T = N1S * N1
 
@@ -52,49 +48,23 @@ def gamma_nsp(N, nf, cache):
     S2h = c.get(c.S2h, cache, N)
     S3h = c.get(c.S3h, cache, N)
     S1ph = c.get(c.S1ph, cache, N)
-
-    N3 = N + 3
-    N4 = N + 4
-    N5 = N + 5
-    N6 = N + 6
-
-    S11 = S1 + 1 / N1
-    S12 = S11 + 1 / N2
-    S13 = S12 + 1 / N3
-    S14 = S13 + 1 / N4
-    S15 = S14 + 1 / N5
-    S16 = S15 + 1 / N6
+    g3 = c.get(c.g3, cache, N)
 
     ZETA2 = zeta2
     ZETA3 = zeta3
 
-#    SPMOM = (
-#        1.0000 * (ZETA2 - S1 / N) / N
-#        - 0.9992 * (ZETA2 - S11 / N1) / N1
-#        + 0.9851 * (ZETA2 - S12 / N2) / N2
-#        - 0.9005 * (ZETA2 - S13 / N3) / N3
-#        + 0.6621 * (ZETA2 - S14 / N4) / N4
-#        - 0.3174 * (ZETA2 - S15 / N5) / N5
-#        + 0.0699 * (ZETA2 - S16 / N6) / N6
-#    )
-
-    g3 = c.get(c.g3, cache, N)
-    
     SLC = -5 / 8 * ZETA3
-    SLV = g3 + S1/N**2 - (ZETA2/2)*(-2/(1 + N) + 2/N + S1ph - S1h) #-ZETA2 / 2 * (polygamma(N1 / 2, 0) - polygamma(N / 2, 0)) + S1 / NS + g3
+    SLV = g3 + S1 / N**2 - (ZETA2 / 2) * (-2 / (1 + N) + 2 / N + S1ph - S1h)
 
     SSCHLP = SLC + SLV
- 
-    SSTR2P = S2h #ZETA2 - polygamma(N2 / 2, 1)
-    SSTR3P = S3h #0.5 * polygamma(N2 / 2, 2) + ZETA3
 
     PNPA = (
         16 * S1 * (2 * N + 1) / (NS * N1S)
-        + 16 * (2 * S1 - 1 / (N * N1)) * (S2 - SSTR2P)
+        + 16 * (2 * S1 - 1 / (N * N1)) * (S2 - S2h)
         + 64 * SSCHLP
         + 24 * S2
         - 3
-        - 8 * SSTR3P
+        - 8 * S3h
         - 8 * (3 * NT + NS - 1) / (NT * N1T)
         - 16 * (2 * NS + 2 * N + 1) / (NT * N1T)
     ) * (-0.5)
@@ -153,7 +123,6 @@ def gamma_nsm(N, nf, cache):
     NFO = NT * N
 
     N1 = N + 1
-    N2 = N + 2
     N1S = N1 * N1
     N1T = N1S * N1
 
@@ -163,47 +132,22 @@ def gamma_nsm(N, nf, cache):
     S2mh = c.get(c.S2mh, cache, N)
     S3mh = c.get(c.S3mh, cache, N)
     S1ph = c.get(c.S1ph, cache, N)
-
-    N3 = N + 3
-    N4 = N + 4
-    N5 = N + 5
-    N6 = N + 6
-
-    S11 = S1 + 1 / N1
-    S12 = S11 + 1 / N2
-    S13 = S12 + 1 / N3
-    S14 = S13 + 1 / N4
-    S15 = S14 + 1 / N5
-    S16 = S15 + 1 / N6
+    g3 = c.get(c.g3, cache, N)
 
     ZETA2 = zeta2
     ZETA3 = zeta3
 
-    g3 = c.get(c.g3, cache, N)
-    
-#    SPMOM = (
-#        1.0000 * (ZETA2 - S1 / N) / N
-#        - 0.9992 * (ZETA2 - S11 / N1) / N1
-#        + 0.9851 * (ZETA2 - S12 / N2) / N2
-#        - 0.9005 * (ZETA2 - S13 / N3) / N3
-#        + 0.6621 * (ZETA2 - S14 / N4) / N4
-#        - 0.3174 * (ZETA2 - S15 / N5) / N5
-#        + 0.0699 * (ZETA2 - S16 / N6) / N6
-#    )
-
     SLC = -5 / 8 * ZETA3
-    SLV = g3 + S1/N**2 - (ZETA2/2)*(-2/(1 + N) + 2/N + S1ph - S1h) #-ZETA2 / 2 * (polygamma(N1 / 2, 0) - polygamma(N / 2, 0)) + S1 / NS + g3
+    SLV = g3 + S1 / N**2 - (ZETA2 / 2) * (-2 / (1 + N) + 2 / N + S1ph - S1h)
     SSCHLM = SLC - SLV
-    SSTR2M = S2mh #ZETA2 - polygamma(N1 / 2, 1)
-    SSTR3M = S3mh #0.5 * polygamma(N1 / 2, 2) + ZETA3
 
     PNMA = (
         16 * S1 * (2 * N + 1) / (NS * N1S)
-        + 16 * (2 * S1 - 1 / (N * N1)) * (S2 - SSTR2M)
+        + 16 * (2 * S1 - 1 / (N * N1)) * (S2 - S2mh)
         + 64 * SSCHLM
         + 24 * S2
         - 3
-        - 8 * SSTR3M
+        - 8 * S3mh
         - 8 * (3 * NT + NS - 1) / (NT * N1T)
         + 16 * (2 * NS + 2 * N + 1) / (NT * N1T)
     ) * (-0.5)
