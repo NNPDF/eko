@@ -82,17 +82,6 @@ class OperatorGrid(sv.ModeMixin):
         config["polarized"] = configs.polarized
         config["time_like"] = configs.time_like
 
-        if method not in [
-            "iterate-exact",
-            "iterate-expanded",
-            "truncated",
-            "ordered-truncated",
-            "decompose-exact",
-            "decompose-expanded",
-            "perturbative-exact",
-            "perturbative-expanded",
-        ]:
-            raise ValueError(f"Unknown evolution mode {method}")
         if order == (1, 0) and method != "iterate-exact":
             logger.warning("Evolution: In LO we use the exact solution always!")
 
