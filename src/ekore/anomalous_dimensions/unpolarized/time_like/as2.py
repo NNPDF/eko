@@ -1,7 +1,5 @@
 """The unpolarized, time-like |NLO| Altarelli-Parisi splitting kernels."""
 
-import math
-
 import numba as nb
 import numpy as np
 from numpy import power as npp
