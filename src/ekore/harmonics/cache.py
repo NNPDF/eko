@@ -8,49 +8,51 @@ from .g_functions import mellin_g3
 from .polygamma import recursive_harmonic_sum
 
 # here a register of all possible functions
-S1 = 0  # = S_1(N)
-S2 = 1
-S3 = 2
-S4 = 3
-S5 = 4
-Sm1 = 5
-Sm2 = 6
-Sm3 = 7
-Sm4 = 8
-Sm5 = 9
-S21 = 10
-S2m1 = 11
-Sm21 = 12
-Sm2m1 = 13
-S31 = 14
-Sm31 = 15
-Sm22 = 16
-S211 = 17
-Sm211 = 18
-S1h = 19
-S2h = 20
-S3h = 21
-S4h = 22
-S5h = 23
-S1mh = 24
-S2mh = 25
-S3mh = 26
-S4mh = 27
-S5mh = 28
-S1ph = 29
-S2ph = 30
-S3ph = 31
-S4ph = 32
-S5ph = 33
-g3 = 34
-S1p2 = 35
-g3p2 = 36
+CACHE_SIZE = 37
+_index = iter(range(CACHE_SIZE))
+S1 = next(_index)  # = S_1(N)
+S2 = next(_index)
+S3 = next(_index)
+S4 = next(_index)
+S5 = next(_index)
+Sm1 = next(_index)
+Sm2 = next(_index)
+Sm3 = next(_index)
+Sm4 = next(_index)
+Sm5 = next(_index)
+S21 = next(_index)
+S2m1 = next(_index)
+Sm21 = next(_index)
+Sm2m1 = next(_index)
+S31 = next(_index)
+Sm31 = next(_index)
+Sm22 = next(_index)
+S211 = next(_index)
+Sm211 = next(_index)
+S1h = next(_index)
+S2h = next(_index)
+S3h = next(_index)
+S4h = next(_index)
+S5h = next(_index)
+S1mh = next(_index)
+S2mh = next(_index)
+S3mh = next(_index)
+S4mh = next(_index)
+S5mh = next(_index)
+S1ph = next(_index)
+S2ph = next(_index)
+S3ph = next(_index)
+S4ph = next(_index)
+S5ph = next(_index)
+g3 = next(_index)
+S1p2 = next(_index)
+g3p2 = next(_index)
 
 
 @nb.njit(cache=True)
 def reset():
     """Return the cache placeholder array."""
-    return np.full(37, np.nan, np.complex_)
+    return np.full(CACHE_SIZE, np.nan, np.complex_)
 
 
 @nb.njit(cache=True)

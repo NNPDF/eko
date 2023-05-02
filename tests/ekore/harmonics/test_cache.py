@@ -8,8 +8,8 @@ from . import get_harmonic
 def test_reset():
     c = h.cache.reset()
     np.testing.assert_allclose(c, np.full(c.shape, np.nan))
-    available_items = np.sum(
-        [isinstance(val, int) for val in h.cache.__dict__.values()]
+    available_items = (
+        np.sum([isinstance(val, int) for val in h.cache.__dict__.values()]) - 1
     )
     assert c.shape == (available_items,)
 
@@ -21,7 +21,7 @@ def test_get():
         c = h.cache.reset()
         # loop on cached names
         for idx_name, idx in h.cache.__dict__.items():
-            if not isinstance(idx, int):
+            if not isinstance(idx, int) or idx_name == "CACHE_SIZE":
                 continue
             h.cache.get(idx, c, N, is_singlet)
             # Sx((N-1)/2)
