@@ -48,11 +48,8 @@ def gamma_nsp(N, nf, cache):
     S1ph = c.get(c.S1ph, cache, N)
     g3 = c.get(c.g3, cache, N)
 
-    ZETA2 = zeta2
-    ZETA3 = zeta3
-
-    SLC = -5 / 8 * ZETA3
-    SLV = g3 + S1 / N**2 - (ZETA2 / 2) * (-2 / (1 + N) + 2 / N + S1ph - S1h)
+    SLC = -5 / 8 * zeta3
+    SLV = g3 + S1 / N**2 - (zeta2 / 2) * (-2 / (1 + N) + 2 / N + S1ph - S1h)
 
     SSCHLP = SLC + SLV
 
@@ -79,7 +76,7 @@ def gamma_nsp(N, nf, cache):
         + 16 * (11 * NS + 5 * N - 3) / (9 * NS * N1S)
     ) * (-0.5)
     PNSTL = (-4 * S1 + 3 + 2 / (N * N1)) * (
-        2 * S2 - 2 * ZETA2 - (2 * N + 1) / (NS * N1S)
+        2 * S2 - 2 * zeta2 - (2 * N + 1) / (NS * N1S)
     )
 
     result = (
@@ -132,11 +129,8 @@ def gamma_nsm(N, nf, cache):
     S1ph = c.get(c.S1ph, cache, N)
     g3 = c.get(c.g3, cache, N)
 
-    ZETA2 = zeta2
-    ZETA3 = zeta3
-
-    SLC = -5 / 8 * ZETA3
-    SLV = g3 + S1 / N**2 - (ZETA2 / 2) * (-2 / (1 + N) + 2 / N + S1ph - S1h)
+    SLC = -5 / 8 * zeta3
+    SLV = g3 + S1 / N**2 - (zeta2 / 2) * (-2 / (1 + N) + 2 / N + S1ph - S1h)
     SSCHLM = SLC - SLV
 
     PNMA = (
@@ -162,7 +156,7 @@ def gamma_nsm(N, nf, cache):
         + 16 * (11 * NS + 5 * N - 3) / (9 * NS * N1S)
     ) * (-0.5)
     PNSTL = (-4 * S1 + 3 + 2 / (N * N1)) * (
-        2 * S2 - 2 * ZETA2 - (2 * N + 1) / (NS * N1S)
+        2 * S2 - 2 * zeta2 - (2 * N + 1) / (NS * N1S)
     )
 
     result = (
