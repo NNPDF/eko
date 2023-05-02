@@ -17,6 +17,7 @@ from .. import evolution_operator as evop
 from ..evolution_operator import operator_matrix_element as ome
 from ..io.items import Evolution, Matching, Operator
 from ..quantities.heavy_quarks import QuarkMassScheme
+from . import commons
 
 
 def managers(eko: EKO) -> dict:
@@ -27,7 +28,13 @@ def managers(eko: EKO) -> dict:
         Legacy interface, avoid managers usage.
 
     """
-    return {}
+    tcard = eko.theory_card
+    ocard = eko.operator_card
+    return dict(
+        thresholds_config=commons.atlas(tcard, ocard),
+        couplings=commons.couplings(tcard, ocard),
+        interpol_dispatcher=commons.interpolator(ocard),
+    )
 
 
 def evolve_configs(eko: EKO) -> dict:
@@ -39,6 +46,7 @@ def evolve_configs(eko: EKO) -> dict:
 
     """
     # self.config:
+    # - order
     # - n_integration_cores
     # - xif2
     # - ev_op_iterations
@@ -48,9 +56,11 @@ def evolve_configs(eko: EKO) -> dict:
     # - ev_op_max_order
     # - polarized
     # - time_like
+    tcard = eko.theory_card
     ocard = eko.operator_card
     return dict(
-        xif2=eko.theory_card.xif**2,
+        order=tcard.order,
+        xif2=tcard.xif**2,
         method=ocard.configs.evolution_method,
         ev_op_iterations=ocard.configs.ev_op_iterations,
         ev_op_max_order=ocard.configs.ev_op_max_order,
@@ -80,8 +90,34 @@ def matching_configs(eko: EKO) -> dict:
 
     """
     # self.config:
-    # -
-    return dict()
+    # - order
+    # - n_integration_cores
+    # - xif2
+    # - ev_op_iterations
+    # - debug_skip_non_singlet
+    # - debug_skip_singlet
+    # - method
+    # - ev_op_max_order
+    # - polarized
+    # - time_like
+    # - backward_inversion
+    # - intrinsic_range
+    tcard = eko.theory_card
+    ocard = eko.operator_card
+    return dict(
+        order=tcard.order,
+        xif2=tcard.xif**2,
+        method=ocard.configs.evolution_method,
+        ev_op_iterations=ocard.configs.ev_op_iterations,
+        ev_op_max_order=ocard.configs.ev_op_max_order,
+        polarized=ocard.configs.polarized,
+        time_like=ocard.configs.time_like,
+        debug_skip_singlet=ocard.debug.skip_singlet,
+        debug_skip_non_singlet=ocard.debug.skip_non_singlet,
+        n_integration_cores=ocard.configs.n_integration_cores,
+        backward_inversion=ocard.configs.inversion_method,
+        intrinsic_range=tcard.heavy.intrinsic_flavors,
+    )
 
 
 def match(eko: EKO, recipe: Matching) -> Operator:
