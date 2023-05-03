@@ -4,11 +4,12 @@ r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{qg}^{(3)}`.""
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
 from .....harmonics.log_functions import lm11, lm12, lm13, lm14, lm15
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf3(n, sx):
+def gamma_qg_nf3(n, cache):
     r"""Return the part proportional to :math:`nf^3` of :math:`\gamma_{qg}^{(3)}`.
 
     The expression is copied exact from :eqref:`3.12` of :cite:`Davies:2016jie`.
@@ -17,8 +18,8 @@ def gamma_qg_nf3(n, sx):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -26,10 +27,16 @@ def gamma_qg_nf3(n, sx):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^3}`
 
     """
-    S1 = sx[0][0]
-    S2, Sm2 = sx[1]
-    S3, S21, _, _, _, Sm3 = sx[2]
-    S4, S31, S211, _, _, _, Sm4 = sx[3]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    Sm2 = c.get(c.Sm2, cache, n, is_singlet=True)
+    S3 = c.get(c.S3, cache, n)
+    S21 = c.get(c.S21, cache, n)
+    Sm3 = c.get(c.Sm3, cache, n, is_singlet=True)
+    S4 = c.get(c.S4, cache, n)
+    Sm4 = c.get(c.Sm4, cache, n, is_singlet=True)
+    S31 = c.get(c.S31, cache, n)
+    S211 = c.get(c.S211, cache, n)
     return 1.3333333333333333 * (
         44.56685134331718 / (-1.0 + n)
         - 82.37037037037037 / np.power(n, 5)
@@ -331,15 +338,15 @@ def gamma_qg_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf1(n, sx, variation):
+def gamma_qg_nf1(n, cache, variation):
     r"""Return the part proportional to :math:`nf^1` of :math:`\gamma_{qg}^{(3)}`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     variation : int
         |N3LO| anomalous dimension variation
 
@@ -349,11 +356,11 @@ def gamma_qg_nf1(n, sx, variation):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^1}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
-    S5 = sx[4][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
+    S5 = c.get(c.S5, cache, n)
     S1m2 = ((1 - 2 * n)/((-1 + n) * n) + S1)/n
     common = -7871.5226542038545/np.power(-1. + n,3) + 41639.78057369606/np.power(-1. + n,2) + 14103.703703703704/np.power(n,7) + 2588.8395061728397/np.power(n,6) + 68802.34242841466/np.power(n,5) - 35.68779444531073*lm14(n,S1,S2,S3,S4) - 1.8518518518518519*lm15(n,S1,S2,S3,S4,S5)
     if variation == 1:
@@ -402,15 +409,15 @@ def gamma_qg_nf1(n, sx, variation):
 
 
 @nb.njit(cache=True)
-def gamma_qg_nf2(n, sx, variation):
+def gamma_qg_nf2(n, cache, variation):
     r"""Return the part proportional to :math:`nf^2` of :math:`\gamma_{qg}^{(3)}`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     variation : int
         |N3LO| anomalous dimension variation
 
@@ -420,11 +427,11 @@ def gamma_qg_nf2(n, sx, variation):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{qg}^{(3)}|_{nf^2}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
-    S5 = sx[4][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
+    S5 = c.get(c.S5, cache, n)
     S1m2 = ((1 - 2 * n)/((-1 + n) * n) + S1)/n
     common = 175.35644829905792/np.power(-1. + n,2) - 1991.111111111111/np.power(n,7) + 2069.3333333333335/np.power(n,6) - 7229.376633440217/np.power(n,5) + 3.511659807956104*lm14(n,S1,S2,S3,S4) + 0.411522633744856*lm15(n,S1,S2,S3,S4,S5)
     if variation == 1:
@@ -472,7 +479,7 @@ def gamma_qg_nf2(n, sx, variation):
     return common + fit
 
 @nb.njit(cache=True)
-def gamma_qg(n, nf, sx, variation):
+def gamma_qg(n, nf, cache, variation):
     r"""Compute the |N3LO| quark-gluon singlet anomalous dimension.
 
     Parameters
@@ -481,8 +488,8 @@ def gamma_qg(n, nf, sx, variation):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     variation : int
         |N3LO| anomalous dimension variation
 
@@ -494,7 +501,7 @@ def gamma_qg(n, nf, sx, variation):
 
     """
     return (
-        +nf * gamma_qg_nf1(n, sx, variation)
-        + nf**2 * gamma_qg_nf2(n, sx, variation)
-        + nf**3 * gamma_qg_nf3(n, sx)
+        +nf * gamma_qg_nf1(n, cache, variation)
+        + nf**2 * gamma_qg_nf2(n, cache, variation)
+        + nf**3 * gamma_qg_nf3(n, cache)
     )

@@ -9,16 +9,16 @@ from eko import constants
 def test_number_conservation():
     # number
     N = complex(1.0, 0.0)
-    sx = h.sx(N, max_weight=1)
-    np.testing.assert_almost_equal(ad_us.aem1.gamma_ns(N, sx), 0)
+    cache = h.cache.reset()
+    np.testing.assert_almost_equal(ad_us.aem1.gamma_ns(N, cache), 0)
 
 
 def test_quark_momentum_conservation():
     # quark momentum
     N = complex(2.0, 0.0)
-    sx = h.sx(N, max_weight=1)
+    cache = h.cache.reset()
     np.testing.assert_almost_equal(
-        ad_us.aem1.gamma_ns(N, sx) + ad_us.aem1.gamma_phq(N),
+        ad_us.aem1.gamma_ns(N, cache) + ad_us.aem1.gamma_phq(N),
         0,
     )
 

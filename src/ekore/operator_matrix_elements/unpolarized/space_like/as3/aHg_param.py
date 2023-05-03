@@ -3,9 +3,11 @@
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def a_Hg3(n, sx, nf):
+def a_Hg3(n, cache, nf):
     r"""Compute the approximate incomplete part of :math:`a_{Hg}^{S,(3)}(N)`.
 
     This is composed by two different part:
@@ -25,8 +27,8 @@ def a_Hg3(n, sx, nf):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     nf : int
         number of active flavor below the threshold
 
@@ -36,10 +38,20 @@ def a_Hg3(n, sx, nf):
         :math:`A_{Hg}^{S,(3)}(N)`
 
     """
-    S1, _ = sx[0]
-    S2, Sm2 = sx[1]
-    S3, S21, _, Sm21, _, Sm3 = sx[2]
-    S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    Sm2 = c.get(c.Sm2, cache, n, is_singlet=True)
+    S3 = c.get(c.S3, cache, n)
+    S21 = c.get(c.S21, cache, n)
+    Sm21 = c.get(c.Sm21, cache, n, is_singlet=True)
+    Sm3 = c.get(c.Sm3, cache, n, is_singlet=True)
+    S4 = c.get(c.S4, cache, n)
+    S31 = c.get(c.S31, cache, n)
+    S211 = c.get(c.S211, cache, n)
+    Sm22 = c.get(c.Sm22, cache, n, is_singlet=True)
+    Sm211 = c.get(c.Sm211, cache, n, is_singlet=True)
+    Sm31 = c.get(c.Sm31, cache, n, is_singlet=True)
+    Sm4 = c.get(c.Sm4, cache, n, is_singlet=True)
     parametrized_part = (
         -(6649.4461758486095 / n**2)
         + (-7592.941358147846 + 6307.239141492633 * n) / (-1.0 + n) ** 2

@@ -1,11 +1,12 @@
 r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{ns,v}^{(3)}`."""
 import numba as nb
 
+from .....harmonics import cache as c
 from .gnsm import gamma_nsm
 
 
 @nb.njit(cache=True)
-def gamma_nss_nf2(n, sx):
+def gamma_nss_nf2(n, cache):
     r"""Return the sea non-singlet part proportional to :math:`nf^2`.
 
     Implements :eqref:`3.5` of :cite:`Davies:2016jie`.
@@ -14,19 +15,27 @@ def gamma_nss_nf2(n, sx):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    g_nss_nf2 : complex
+    complex
         |N3LO| sea non-singlet anomalous dimension :math:`\gamma_{ns,s}^{(3)}|_{nf^2}`
 
     """
-    S1, _ = sx[0]
-    S2, Sm2 = sx[1]
-    S3, _, _, Sm21, _, Sm3 = sx[2]
-    S4, S31, _, Sm22, Sm211, Sm31, Sm4 = sx[3]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    Sm2 = c.get(c.Sm2, cache, n, is_singlet=False)
+    S3 = c.get(c.S3, cache, n)
+    Sm21 = c.get(c.Sm21, cache, n, is_singlet=False)
+    Sm3 = c.get(c.Sm3, cache, n, is_singlet=False)
+    S4 = c.get(c.S4, cache, n)
+    Sm4 = c.get(c.Sm4, cache, n, is_singlet=False)
+    S31 = c.get(c.S31, cache, n)
+    Sm22 = c.get(c.Sm22, cache, n, is_singlet=False)
+    Sm31 = c.get(c.Sm31, cache, n, is_singlet=False)
+    Sm211 = c.get(c.Sm211, cache, n, is_singlet=False)
     return (
         160
         / 27
@@ -162,7 +171,7 @@ def gamma_nss_nf2(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nss_nf1(n, sx):
+def gamma_nss_nf1(n, cache):
     r"""Return the sea non-singlet part proportional to :math:`nf^1`.
 
     The expression is the average of the Mellin transform
@@ -172,18 +181,18 @@ def gamma_nss_nf1(n, sx):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    g_nss_nf1 : complex
+    complex
         |N3LO| sea non-singlet anomalous dimension :math:`\gamma_{ns,s}^{(3)}|_{nf^1}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
     return (
         3803.04 / n**6
         - 3560.16 / n**5
@@ -218,7 +227,7 @@ def gamma_nss_nf1(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsv(n, nf, sx):
+def gamma_nsv(n, nf, cache):
     r"""Compute the |N3LO| valence non-singlet anomalous dimension.
 
     Parameters
@@ -227,18 +236,18 @@ def gamma_nsv(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-        gamma_nsv : complex
-            |N3LO| valence non-singlet anomalous dimension
-            :math:`\gamma_{ns,v}^{(3)}(N)`
+    complex
+        |N3LO| valence non-singlet anomalous dimension
+        :math:`\gamma_{ns,v}^{(3)}(N)`
 
     """
     return (
-        gamma_nsm(n, nf, sx)
-        + nf * gamma_nss_nf1(n, sx)
-        + nf**2 * gamma_nss_nf2(n, sx)
+        gamma_nsm(n, nf, cache)
+        + nf * gamma_nss_nf1(n, cache)
+        + nf**2 * gamma_nss_nf2(n, cache)
     )

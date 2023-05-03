@@ -5,7 +5,7 @@ import numpy as np
 
 from eko.constants import CA, CF, TR, zeta2, zeta3
 
-from .... import harmonics
+from ....harmonics import cache as c
 
 # Non Singlet sector is swapped
 from ...unpolarized.space_like.as2 import gamma_nsm as gamma_nsp
@@ -35,7 +35,7 @@ def gamma_ps(n, nf):
 
 
 @nb.njit(cache=True)
-def gamma_qg(n, nf, sx):
+def gamma_qg(n, nf, cache):
     r"""Compute the |NLO| polarized quark-gluon singlet anomalous dimension :cite:`Gluck:1995yr` (eq A.4).
 
     Parameters
@@ -44,8 +44,8 @@ def gamma_qg(n, nf, sx):
         Mellin moment
     nf : int
         number of active flavors
-    sx : numpy.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -53,9 +53,9 @@ def gamma_qg(n, nf, sx):
         |NLO| quark-gluon singlet anomalous dimension :math:`\\gamma_{qg}^{(1)}(n)`
 
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    Sp2m = harmonics.S2((n - 1) / 2)
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    Sp2m = c.get(c.S2mh, cache, n)
     gqg1_nfca = (
         (S1**2 - S2 + Sp2m) * (n - 1) / (n * (n + 1))
         - 4 * S1 / (n * (1 + n) ** 2)
@@ -74,7 +74,7 @@ def gamma_qg(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_gq(n, nf, sx):
+def gamma_gq(n, nf, cache):
     r"""Compute the |NLO| polarized gluon-quark singlet anomalous dimension :cite:`Gluck:1995yr` (eq A.5).
 
     Parameters
@@ -83,8 +83,8 @@ def gamma_gq(n, nf, sx):
         Mellin moment
     nf : int
         number of active flavors
-    sx : numpy.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -92,9 +92,9 @@ def gamma_gq(n, nf, sx):
         |NLO| gluon-quark singlet anomalous dimension :math:`\\gamma_{gq}^{(1)}(n)`
 
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    Sp2m = harmonics.S2((n - 1) / 2)
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    Sp2m = c.get(c.S2mh, cache, n)
     ggq1_cfcf = (
         (2 * (S1**2 + S2) * (n + 2)) / (n * (n + 1))
         - (2 * S1 * (n + 2) * (1 + 3 * n)) / (n * (1 + n) ** 2)
@@ -116,7 +116,7 @@ def gamma_gq(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_gg(n, nf, sx):
+def gamma_gg(n, nf, cache):
     r"""Compute the |NLO| polarized gluon-gluon singlet anomalous dimension :cite:`Gluck:1995yr` (eq A.6).
 
     Parameters
@@ -125,8 +125,8 @@ def gamma_gg(n, nf, sx):
         Mellin moment
     nf : int
         number of active flavors
-    sx : numpy.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -134,17 +134,13 @@ def gamma_gg(n, nf, sx):
         |NLO| gluon-quark singlet anomalous dimension :math:`\\gamma_{gq}^{(1)}(n)`
 
     """
-    S1 = sx[0]
-    Sp1m = harmonics.S1((n - 1) / 2)
-    Sp2m = harmonics.S2((n - 1) / 2)
-    Sp3m = harmonics.S3((n - 1) / 2)
-    S1h = harmonics.S1(n / 2)
-    SSCHLM = (
-        zeta2 / 2 * (+Sp1m - S1h + 2 / n)
-        - S1 / n**2
-        - harmonics.g_functions.mellin_g3(n, S1)
-        - 5 * zeta3 / 8
-    )
+    S1 = c.get(c.S1, cache, n)
+    Sp1m = c.get(c.S1mh, cache, n)
+    Sp2m = c.get(c.S2mh, cache, n)
+    Sp3m = c.get(c.S3mh, cache, n)
+    S1h = c.get(c.S1h, cache, n)
+    g3 = c.get(c.g3, cache, n)
+    SSCHLM = zeta2 / 2 * (+Sp1m - S1h + 2 / n) - S1 / n**2 - g3 - 5 * zeta3 / 8
     ggg1_caca = (
         -4 * S1 * Sp2m
         - Sp3m
@@ -178,7 +174,7 @@ def gamma_gg(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(n, nf, sx):
+def gamma_singlet(n, nf, cache):
     r"""Compute the |NLO| polarized singlet anomalous dimension matrix.
 
         .. math::
@@ -193,8 +189,8 @@ def gamma_singlet(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx: list
-        harmonics cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -202,9 +198,12 @@ def gamma_singlet(n, nf, sx):
         |NLO| singlet anomalous dimension matrix :math:`\gamma_{S}^{(1)}(N)`
 
     """
-    gamma_qq = gamma_nsp(n, nf, sx) + gamma_ps(n, nf)
+    gamma_qq = gamma_nsp(n, nf, cache) + gamma_ps(n, nf)
     gamma_S_0 = np.array(
-        [[gamma_qq, gamma_qg(n, nf, sx)], [gamma_gq(n, nf, sx), gamma_gg(n, nf, sx)]],
+        [
+            [gamma_qq, gamma_qg(n, nf, cache)],
+            [gamma_gq(n, nf, cache), gamma_gg(n, nf, cache)],
+        ],
         np.complex_,
     )
     return gamma_S_0

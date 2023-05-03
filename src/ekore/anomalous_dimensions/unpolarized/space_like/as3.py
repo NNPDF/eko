@@ -10,9 +10,11 @@ import numpy as np
 
 from eko.constants import zeta2, zeta3
 
+from ....harmonics import cache as c
+
 
 @nb.njit(cache=True)
-def gamma_nsm(n, nf, sx):
+def gamma_nsm(n, nf, cache):
     r"""Compute the |NNLO| valence-like non-singlet anomalous dimension.
 
     Implements Eq. (3.8) of :cite:`Moch:2004pa`.
@@ -23,18 +25,19 @@ def gamma_nsm(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_nsm : complex
+    complex
         |NNLO| valence-like non-singlet anomalous dimension
         :math:`\\gamma_{ns,-}^{(2)}(N)`
+
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E2 = 2.0 * (-S1 / n**3 + (zeta2 - S2) / n**2 - (S3 - zeta3) / n)
@@ -88,7 +91,7 @@ def gamma_nsm(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsp(n, nf, sx):
+def gamma_nsp(n, nf, cache):
     r"""Compute the |NNLO| singlet-like non-singlet anomalous dimension.
 
     Implements Eq. (3.7) of :cite:`Moch:2004pa`.
@@ -99,18 +102,18 @@ def gamma_nsp(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_nsp : complex
+    complex
         |NNLO| singlet-like non-singlet anomalous dimension
         :math:`\\gamma_{ns,+}^{(2)}(N)`
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E2 = 2.0 * (-S1 / n**3 + (zeta2 - S2) / n**2 - (S3 - zeta3) / n)
@@ -164,7 +167,7 @@ def gamma_nsp(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_nsv(n, nf, sx):
+def gamma_nsv(n, nf, cache):
     r"""Compute the |NNLO| valence non-singlet anomalous dimension.
 
     Implements Eq. (3.9) of :cite:`Moch:2004pa`.
@@ -175,18 +178,18 @@ def gamma_nsv(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_nsv : complex
+    complex
         |NNLO| valence non-singlet anomalous dimension
         :math:`\\gamma_{ns,v}^{(2)}(N)`
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E2 = 2.0 * (-S1 / n**3 + (zeta2 - S2) / n**2 - (S3 - zeta3) / n)
@@ -213,12 +216,12 @@ def gamma_nsv(n, nf, sx):
         + 46.18 * E2
     )
 
-    result = gamma_nsm(n, nf, sx) + nf * ps2
+    result = gamma_nsm(n, nf, cache) + nf * ps2
     return result
 
 
 @nb.njit(cache=True)
-def gamma_ps(n, nf, sx):
+def gamma_ps(n, nf, cache):
     r"""Compute the |NNLO| pure-singlet quark-quark anomalous dimension.
 
     Implements Eq. (3.10) of :cite:`Vogt:2004mw`.
@@ -229,18 +232,19 @@ def gamma_ps(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_ps : complex
+    complex
         |NNLO| pure-singlet quark-quark anomalous dimension
         :math:`\\gamma_{ps}^{(2)}(N)`
+
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E11 = (S1 + 1.0 / (n + 1.0)) / (n + 1.0) ** 2 + (
@@ -289,7 +293,7 @@ def gamma_ps(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_qg(n, nf, sx):
+def gamma_qg(n, nf, cache):
     r"""Compute the |NNLO| quark-gluon singlet anomalous dimension.
 
     Implements Eq. (3.11) of :cite:`Vogt:2004mw`.
@@ -300,19 +304,20 @@ def gamma_qg(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_qg : complex
+    complex
         |NNLO| quark-gluon singlet anomalous dimension
         :math:`\\gamma_{qg}^{(2)}(N)`
+
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
-    S4 = sx[3]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E2 = 2.0 * (-S1 / n**3 + (zeta2 - S2) / n**2 - (S3 - zeta3) / n)
@@ -362,7 +367,7 @@ def gamma_qg(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_gq(n, nf, sx):
+def gamma_gq(n, nf, cache):
     r"""Compute the |NNLO| gluon-quark singlet anomalous dimension.
 
     Implements Eq. (3.12) of :cite:`Vogt:2004mw`.
@@ -373,19 +378,20 @@ def gamma_gq(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_gq : complex
+    complex
         |NNLO| gluon-quark singlet anomalous dimension
         :math:`\\gamma_{gq}^{(2)}(N)`
+
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
-    S4 = sx[3]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E2 = 2.0 * (-S1 / n**3 + (zeta2 - S2) / n**2 - (S3 - zeta3) / n)
@@ -451,7 +457,7 @@ def gamma_gq(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_gg(n, nf, sx):
+def gamma_gg(n, nf, cache):
     r"""Compute the |NNLO| gluon-gluon singlet anomalous dimension.
 
     Implements Eq. (3.13) of :cite:`Vogt:2004mw`.
@@ -462,18 +468,19 @@ def gamma_gg(n, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_gg : complex
+    complex
         |NNLO| gluon-gluon singlet anomalous dimension
         :math:`\\gamma_{gg}^{(2)}(N)`
+
     """
-    S1 = sx[0]
-    S2 = sx[1]
-    S3 = sx[2]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
 
     E1 = S1 / n**2 + (S2 - zeta2) / n
     E11 = (S1 + 1.0 / (n + 1.0)) / (n + 1.0) ** 2 + (
@@ -538,7 +545,7 @@ def gamma_gg(n, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf, sx):
+def gamma_singlet(N, nf, cache):
     r"""Compute the |NNLO| singlet anomalous dimension matrix.
 
     .. math::
@@ -553,34 +560,30 @@ def gamma_singlet(N, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : np.ndarray
-        List of harmonic sums: :math:`S_{1},S_{2},S_{3}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
 
     Returns
     -------
-    gamma_S_2 : numpy.ndarray
+    numpy.ndarray
         |NNLO| singlet anomalous dimension matrix
         :math:`\\gamma_{S}^{(2)}(N)`
 
-    See Also
-    --------
-    gamma_nsp : :math:`\\gamma_{ns,+}^{(2)}`
-    gamma_ps : :math:`\\gamma_{ps}^{(2)}`
-    gamma_qg : :math:`\\gamma_{qg}^{(2)}`
-    gamma_gq : :math:`\\gamma_{gq}^{(2)}`
-    gamma_gg : :math:`\\gamma_{gg}^{(2)}`
     """
-    gamma_qq = gamma_nsp(N, nf, sx) + gamma_ps(N, nf, sx)
+    gamma_qq = gamma_nsp(N, nf, cache) + gamma_ps(N, nf, cache)
     gamma_S_0 = np.array(
-        [[gamma_qq, gamma_qg(N, nf, sx)], [gamma_gq(N, nf, sx), gamma_gg(N, nf, sx)]],
+        [
+            [gamma_qq, gamma_qg(N, nf, cache)],
+            [gamma_gq(N, nf, cache), gamma_gg(N, nf, cache)],
+        ],
         np.complex_,
     )
     return gamma_S_0
 
 
 @nb.njit(cache=True)
-def gamma_singlet_qed(N, nf, sx):
+def gamma_singlet_qed(N, nf, cache):
     r"""Compute the leading-order singlet anomalous dimension matrix for the unified evolution basis.
 
     .. math::
@@ -597,28 +600,22 @@ def gamma_singlet_qed(N, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    s1 : complex
-        harmonic sum :math:`S_{1}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_S : numpy.ndarray
+    numpy.ndarray
         Leading-order singlet anomalous dimension matrix :math:`\\gamma_{S}^{(3,0)}(N)`
 
-    See Also
-    --------
-    gamma_ns : :math:`\\gamma_{qq}^{(0)}`
-    gamma_qg : :math:`\\gamma_{qg}^{(0)}`
-    gamma_gq : :math:`\\gamma_{gq}^{(0)}`
-    gamma_gg : :math:`\\gamma_{gg}^{(0)}`
     """
-    gamma_np_p = gamma_nsp(N, nf, sx)
-    gamma_qq = gamma_np_p + gamma_ps(N, nf, sx)
+    gamma_np_p = gamma_nsp(N, nf, cache)
+    gamma_qq = gamma_np_p + gamma_ps(N, nf, cache)
     gamma_S = np.array(
         [
-            [gamma_gg(N, nf, sx), 0.0 + 0.0j, gamma_gq(N, nf, sx), 0.0 + 0.0j],
+            [gamma_gg(N, nf, cache), 0.0 + 0.0j, gamma_gq(N, nf, cache), 0.0 + 0.0j],
             [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j],
-            [gamma_qg(N, nf, sx), 0.0 + 0.0j, gamma_qq, 0.0 + 0.0j],
+            [gamma_qg(N, nf, cache), 0.0 + 0.0j, gamma_qq, 0.0 + 0.0j],
             [0.0 + 0.0j, 0.0 + 0.0j, 0.0 + 0.0j, gamma_np_p],
         ],
         np.complex_,
@@ -627,7 +624,7 @@ def gamma_singlet_qed(N, nf, sx):
 
 
 @nb.njit(cache=True)
-def gamma_valence_qed(N, nf, sx):
+def gamma_valence_qed(N, nf, cache):
     r"""Compute the leading-order valence anomalous dimension matrix for the unified evolution basis.
 
     .. math::
@@ -642,25 +639,19 @@ def gamma_valence_qed(N, nf, sx):
         Mellin moment
     nf : int
         Number of active flavors
-    s1 : complex
-        harmonic sum :math:`S_{1}`
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_V : numpy.ndarray
+    numpy.ndarray
         Leading-order singlet anomalous dimension matrix :math:`\\gamma_{V}^{(3,0)}(N)`
 
-    See Also
-    --------
-    gamma_ns : :math:`\\gamma_{qq}^{(0)}`
-    gamma_qg : :math:`\\gamma_{qg}^{(0)}`
-    gamma_gq : :math:`\\gamma_{gq}^{(0)}`
-    gamma_gg : :math:`\\gamma_{gg}^{(0)}`
     """
     gamma_V = np.array(
         [
-            [gamma_nsv(N, nf, sx), 0.0],
-            [0.0, gamma_nsm(N, nf, sx)],
+            [gamma_nsv(N, nf, cache), 0.0],
+            [0.0, gamma_nsm(N, nf, cache)],
         ],
         np.complex_,
     )

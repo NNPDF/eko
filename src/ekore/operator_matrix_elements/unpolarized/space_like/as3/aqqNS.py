@@ -2,11 +2,12 @@
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
 from .....harmonics.log_functions import lm11, lm12, lm13
 
 
 @nb.njit(cache=True)
-def A_qqNS(n, sx, nf, L, eta):
+def A_qqNS(n, cache, nf, L, eta):
     r"""Compute the |N3LO| non singlet |OME| :math:`A_{qq}^{NS,(3)}(N)`.
 
     The expression is presented in :cite:`Bierenbaum:2009mv` and
@@ -25,8 +26,8 @@ def A_qqNS(n, sx, nf, L, eta):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     nf : int
         number of active flavor below the threshold
     L : float
@@ -40,11 +41,23 @@ def A_qqNS(n, sx, nf, L, eta):
         :math:`A_{qq}^{NS,(3)}(N)`
 
     """
-    S1, _ = sx[0]
-    S2, Sm2 = sx[1]
-    S3, S21, _, Sm21, _, Sm3 = sx[2]
-    S4, S31, S211, Sm22, Sm211, _, Sm4 = sx[3]
-    S5, Sm5 = sx[4]
+    is_singlet = eta == 1
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    Sm2 = c.get(c.Sm2, cache, n, is_singlet)
+    S3 = c.get(c.S3, cache, n)
+    S21 = c.get(c.S21, cache, n)
+    Sm21 = c.get(c.Sm21, cache, n, is_singlet)
+    Sm3 = c.get(c.Sm3, cache, n, is_singlet)
+    S4 = c.get(c.S4, cache, n)
+    S31 = c.get(c.S31, cache, n)
+    S211 = c.get(c.S211, cache, n)
+    Sm22 = c.get(c.Sm22, cache, n, is_singlet)
+    Sm211 = c.get(c.Sm211, cache, n, is_singlet)
+    Sm4 = c.get(c.Sm4, cache, n, is_singlet)
+    S5 = c.get(c.S5, cache, n)
+    Sm5 = c.get(c.Sm5, cache, n, is_singlet)
+
     a_qqNS_l0_nf1 = (
         9.972841687007257 / np.power(1.0 + n, 5)
         + 0.7901234567901235 / (np.power(n, 4) * np.power(1.0 + n, 5))

@@ -3,6 +3,8 @@ from scipy.integrate import quad
 
 from ekore import harmonics as h
 
+from . import sx as hsx
+
 
 def test_lm1pm2():
     def mellin_lm1pm2(x, k):
@@ -10,7 +12,7 @@ def test_lm1pm2():
 
     Ns = 100 * np.random.rand(3)
     for N in Ns:
-        sx = h.sx(N, 4)
+        sx = hsx(N, 4)
 
         ref_values = {
             1: h.log_functions.lm11m2(N, sx[0]),
@@ -31,7 +33,7 @@ def test_lm1pm1():
 
     Ns = 100 * np.random.rand(3)
     for N in Ns:
-        sx = h.sx(N, 4)
+        sx = hsx(N, 4)
 
         ref_values = {
             1: h.log_functions.lm11m1(N, sx[0]),
@@ -52,7 +54,7 @@ def test_lm1p():
 
     Ns = 100 * np.random.rand(3)
     for N in Ns:
-        sx = h.sx(N, 5)
+        sx = hsx(N, 5)
 
         ref_values = {
             1: h.log_functions.lm11(N, sx[0]),

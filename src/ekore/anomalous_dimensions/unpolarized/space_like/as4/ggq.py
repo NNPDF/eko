@@ -4,11 +4,12 @@ r"""The unpolarized, space-like anomalous dimension :math:`\gamma_{gq}^{(3)}`.""
 import numba as nb
 import numpy as np
 
+from .....harmonics import cache as c
 from .....harmonics.log_functions import lm11, lm12, lm13, lm14, lm15
 
 
 @nb.njit(cache=True)
-def gamma_gq_nf3(n, sx):
+def gamma_gq_nf3(n, cache):
     r"""Return the part proportional to :math:`nf^3` of :math:`\gamma_{gq}^{(3)}`.
 
     The expression is copied exact from :eqref:`3.13` of :cite:`Davies:2016jie`.
@@ -17,8 +18,8 @@ def gamma_gq_nf3(n, sx):
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
@@ -26,9 +27,9 @@ def gamma_gq_nf3(n, sx):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{gq}^{(3)}|_{nf^3}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
     return 1.3333333333333333 * (
         -11.39728026699467 / (-1.0 + n)
         + 11.39728026699467 / n
@@ -54,15 +55,15 @@ def gamma_gq_nf3(n, sx):
 
 
 @nb.njit(cache=True)
-def gamma_gq_nf0(n, sx, variation):
+def gamma_gq_nf0(n, cache, variation):
     r"""Return the part proportional to :math:`nf^0` of :math:`\gamma_{gq}^{(3)}`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     variation : int
         |N3LO| anomalous dimension variation
 
@@ -72,11 +73,11 @@ def gamma_gq_nf0(n, sx, variation):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{gq}^{(3)}|_{nf^0}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
-    S5 = sx[4][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
+    S5 = c.get(c.S5, cache, n)
     S2m2 = ((-1 + 2 * n - 2 * n**2)/((-1 + n)**2 * n**2) + S2)/n
     S1m2 = ((1 - 2 * n)/((-1 + n) * n) + S1)/n
     common = -22156.31283903764/np.power(-1. + n,4) + 95032.88047770769/np.power(-1. + n,3) - 37609.87654320987/np.power(n,7) - 35065.67901234568/np.power(n,6) - 175454.58483973087/np.power(n,5) - 375.3983146907502*lm14(n,S1,S2,S3,S4) - 13.443072702331962*lm15(n,S1,S2,S3,S4,S5)
@@ -134,15 +135,15 @@ def gamma_gq_nf0(n, sx, variation):
 
 
 @nb.njit(cache=True)
-def gamma_gq_nf1(n, sx, variation):
+def gamma_gq_nf1(n, cache, variation):
     r"""Return the part proportional to :math:`nf^1` of :math:`\gamma_{gq}^{(3)}`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     variation : int
         |N3LO| anomalous dimension variation
 
@@ -152,11 +153,11 @@ def gamma_gq_nf1(n, sx, variation):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{gq}^{(3)}|_{nf^1}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
-    S5 = sx[4][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
+    S5 = c.get(c.S5, cache, n)
     S3m2 = (-(((-1 + 2 * n) * (1 - n + n**2))/((-1 + n)**3 * n**3)) + S3)/n
     S2m2 = ((-1 + 2 * n - 2 * n**2)/((-1 + n)**2 * n**2) + S2)/n
     S1m2 = ((1 - 2 * n)/((-1 + n) * n) + S1)/n
@@ -216,15 +217,15 @@ def gamma_gq_nf1(n, sx, variation):
 
 
 @nb.njit(cache=True)
-def gamma_gq_nf2(n, sx, variation):
+def gamma_gq_nf2(n, cache, variation):
     r"""Return the part proportional to :math:`nf^2` of :math:`\gamma_{gq}^{(3)}`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     variation : int
         |N3LO| anomalous dimension variation
 
@@ -234,10 +235,11 @@ def gamma_gq_nf2(n, sx, variation):
         |N3LO| non-singlet anomalous dimension :math:`\gamma_{gq}^{(3)}|_{nf^2}`
 
     """
-    S1 = sx[0][0]
-    S2 = sx[1][0]
-    S3 = sx[2][0]
-    S4 = sx[3][0]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
+    S5 = c.get(c.S5, cache, n)
     S2m2 = ((-1 + 2 * n - 2 * n**2)/((-1 + n)**2 * n**2) + S2)/n
     S1m2 = ((1 - 2 * n)/((-1 + n) * n) + S1)/n
     common = 778.5349794238683/np.power(n,5) - 0.877914951989026*lm14(n,S1,S2,S3,S4)
@@ -295,7 +297,7 @@ def gamma_gq_nf2(n, sx, variation):
 
 
 @nb.njit(cache=True)
-def gamma_gq(n, nf, sx, variation):
+def gamma_gq(n, nf, cache, variation):
     r"""Compute the |N3LO| gluon-quark singlet anomalous dimension.
 
     Parameters
@@ -304,8 +306,8 @@ def gamma_gq(n, nf, sx, variation):
         Mellin moment
     nf : int
         Number of active flavors
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     variation : int
         |N3LO| anomalous dimension variation
 
@@ -317,8 +319,8 @@ def gamma_gq(n, nf, sx, variation):
 
     """
     return (
-        gamma_gq_nf0(n, sx, variation)
-        + nf * gamma_gq_nf1(n, sx, variation)
-        + nf**2 * gamma_gq_nf2(n, sx, variation)
-        + nf**3 * gamma_gq_nf3(n, sx)
+        gamma_gq_nf0(n, cache, variation)
+        + nf * gamma_gq_nf1(n, cache, variation)
+        + nf**2 * gamma_gq_nf2(n, cache, variation)
+        + nf**3 * gamma_gq_nf3(n, cache)
     )

@@ -44,17 +44,17 @@ for fp in fps:
         name = gamma_name[1:]
         if "PS" in name:
             name = "ps"
-        oo.write(f"def gamma_{name}_{nf}(n, sx, variation):\n")
+        oo.write(f"def gamma_{name}_{nf}(n, cache, variation):\n")
         if "S1" in nls[0]:
-            oo.write("    S1 = sx[0][0]\n")
+            oo.write("    S1 = c.get(c.S1, cache, n)\n")
         if "S2" in nls[0]:
-            oo.write("    S2 = sx[1][0]\n")
+            oo.write("    S2 = c.get(c.S2, cache, n)\n")
         if "S3" in nls[0]:
-            oo.write("    S3 = sx[2][0]\n")
+            oo.write("    S3 = c.get(c.S3, cache, n)\n")
         if "S4" in nls[0]:
-            oo.write("    S4 = sx[3][0]\n")
+            oo.write("    S4 = c.get(c.S4, cache, n)\n")
         if "S5" in nls[0]:
-            oo.write("    S5 = sx[4][0]\n")
+            oo.write("    S5 = c.get(c.S5, cache, n)\n")
         if "S3m2" in nls[1]:
             oo.write(
                 "    S3m2 = (-(((-1 + 2 * n) * (1 - n + n**2))/((-1 + n)**3 * n**3)) + S3)/n\n"

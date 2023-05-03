@@ -7,12 +7,11 @@ from numpy import power as npp
 from eko import constants
 from eko.constants import zeta2, zeta3
 
-from ....harmonics import w1, w2, w3
-from ....harmonics.polygamma import cern_polygamma as polygamma
+from ....harmonics import cache as c
 
 
 @nb.njit(cache=True)
-def gamma_nsp(N, nf):
+def gamma_nsp(N, nf, cache):
     r"""Compute the |NLO| non-singlet positive anomalous dimension.
 
     Implements :eqref:`A6` from :cite:`Gluck:1992zx`.
@@ -23,10 +22,12 @@ def gamma_nsp(N, nf):
         Mellin moment
     nf : int
         No. of active flavors
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_nsp : complex
+    complex
         NLO non-singlet positive anomalous dimension
         :math:`\gamma_{ns}^{(1)+}(N)`
 
@@ -36,52 +37,29 @@ def gamma_nsp(N, nf):
     NFO = NT * N
 
     N1 = N + 1
-    N2 = N + 2
     N1S = N1 * N1
     N1T = N1S * N1
 
-    S1 = w1.S1(N)
-    S2 = w2.S2(N)
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S2, cache, N)
+    S1h = c.get(c.S1h, cache, N)
+    S2h = c.get(c.S2h, cache, N)
+    S3h = c.get(c.S3h, cache, N)
+    S1ph = c.get(c.S1ph, cache, N)
+    g3 = c.get(c.g3, cache, N)
 
-    N3 = N + 3
-    N4 = N + 4
-    N5 = N + 5
-    N6 = N + 6
-
-    S11 = S1 + 1 / N1
-    S12 = S11 + 1 / N2
-    S13 = S12 + 1 / N3
-    S14 = S13 + 1 / N4
-    S15 = S14 + 1 / N5
-    S16 = S15 + 1 / N6
-
-    ZETA2 = zeta2
-    ZETA3 = zeta3
-
-    SPMOM = (
-        1.0000 * (ZETA2 - S1 / N) / N
-        - 0.9992 * (ZETA2 - S11 / N1) / N1
-        + 0.9851 * (ZETA2 - S12 / N2) / N2
-        - 0.9005 * (ZETA2 - S13 / N3) / N3
-        + 0.6621 * (ZETA2 - S14 / N4) / N4
-        - 0.3174 * (ZETA2 - S15 / N5) / N5
-        + 0.0699 * (ZETA2 - S16 / N6) / N6
-    )
-
-    SLC = -5 / 8 * ZETA3
-    SLV = -ZETA2 / 2 * (polygamma(N1 / 2, 0) - polygamma(N / 2, 0)) + S1 / NS + SPMOM
+    SLC = -5 / 8 * zeta3
+    SLV = g3 + S1 / N**2 - (zeta2 / 2) * (-2 / (1 + N) + 2 / N + S1ph - S1h)
 
     SSCHLP = SLC + SLV
-    SSTR2P = ZETA2 - polygamma(N2 / 2, 1)
-    SSTR3P = 0.5 * polygamma(N2 / 2, 2) + ZETA3
 
     PNPA = (
         16 * S1 * (2 * N + 1) / (NS * N1S)
-        + 16 * (2 * S1 - 1 / (N * N1)) * (S2 - SSTR2P)
+        + 16 * (2 * S1 - 1 / (N * N1)) * (S2 - S2h)
         + 64 * SSCHLP
         + 24 * S2
         - 3
-        - 8 * SSTR3P
+        - 8 * S3h
         - 8 * (3 * NT + NS - 1) / (NT * N1T)
         - 16 * (2 * NS + 2 * N + 1) / (NT * N1T)
     ) * (-0.5)
@@ -98,7 +76,7 @@ def gamma_nsp(N, nf):
         + 16 * (11 * NS + 5 * N - 3) / (9 * NS * N1S)
     ) * (-0.5)
     PNSTL = (-4 * S1 + 3 + 2 / (N * N1)) * (
-        2 * S2 - 2 * ZETA2 - (2 * N + 1) / (NS * N1S)
+        2 * S2 - 2 * zeta2 - (2 * N + 1) / (NS * N1S)
     )
 
     result = (
@@ -114,7 +92,7 @@ def gamma_nsp(N, nf):
 
 
 @nb.njit(cache=True)
-def gamma_nsm(N, nf):
+def gamma_nsm(N, nf, cache):
     r"""Compute the |NLO| non-singlet negative anomalous dimension.
 
     Based on :cite:`Gluck:1992zx`.
@@ -125,10 +103,12 @@ def gamma_nsm(N, nf):
         Mellin moment
     nf : int
         No. of active flavors
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_nsm : complex
+    complex
         NLO non-singlet negative anomalous dimension
         :math:`\gamma_{ns}^{(1)-}(N)`
 
@@ -138,51 +118,28 @@ def gamma_nsm(N, nf):
     NFO = NT * N
 
     N1 = N + 1
-    N2 = N + 2
     N1S = N1 * N1
     N1T = N1S * N1
 
-    S1 = w1.S1(N)
-    S2 = w2.S2(N)
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S2, cache, N)
+    S1h = c.get(c.S1h, cache, N)
+    S2mh = c.get(c.S2mh, cache, N)
+    S3mh = c.get(c.S3mh, cache, N)
+    S1ph = c.get(c.S1ph, cache, N)
+    g3 = c.get(c.g3, cache, N)
 
-    N3 = N + 3
-    N4 = N + 4
-    N5 = N + 5
-    N6 = N + 6
-
-    S11 = S1 + 1 / N1
-    S12 = S11 + 1 / N2
-    S13 = S12 + 1 / N3
-    S14 = S13 + 1 / N4
-    S15 = S14 + 1 / N5
-    S16 = S15 + 1 / N6
-
-    ZETA2 = zeta2
-    ZETA3 = zeta3
-
-    SPMOM = (
-        1.0000 * (ZETA2 - S1 / N) / N
-        - 0.9992 * (ZETA2 - S11 / N1) / N1
-        + 0.9851 * (ZETA2 - S12 / N2) / N2
-        - 0.9005 * (ZETA2 - S13 / N3) / N3
-        + 0.6621 * (ZETA2 - S14 / N4) / N4
-        - 0.3174 * (ZETA2 - S15 / N5) / N5
-        + 0.0699 * (ZETA2 - S16 / N6) / N6
-    )
-
-    SLC = -5 / 8 * ZETA3
-    SLV = -ZETA2 / 2 * (polygamma(N1 / 2, 0) - polygamma(N / 2, 0)) + S1 / NS + SPMOM
+    SLC = -5 / 8 * zeta3
+    SLV = g3 + S1 / N**2 - (zeta2 / 2) * (-2 / (1 + N) + 2 / N + S1ph - S1h)
     SSCHLM = SLC - SLV
-    SSTR2M = ZETA2 - polygamma(N1 / 2, 1)
-    SSTR3M = 0.5 * polygamma(N1 / 2, 2) + ZETA3
 
     PNMA = (
         16 * S1 * (2 * N + 1) / (NS * N1S)
-        + 16 * (2 * S1 - 1 / (N * N1)) * (S2 - SSTR2M)
+        + 16 * (2 * S1 - 1 / (N * N1)) * (S2 - S2mh)
         + 64 * SSCHLM
         + 24 * S2
         - 3
-        - 8 * SSTR3M
+        - 8 * S3mh
         - 8 * (3 * NT + NS - 1) / (NT * N1T)
         + 16 * (2 * NS + 2 * N + 1) / (NT * N1T)
     ) * (-0.5)
@@ -199,7 +156,7 @@ def gamma_nsm(N, nf):
         + 16 * (11 * NS + 5 * N - 3) / (9 * NS * N1S)
     ) * (-0.5)
     PNSTL = (-4 * S1 + 3 + 2 / (N * N1)) * (
-        2 * S2 - 2 * ZETA2 - (2 * N + 1) / (NS * N1S)
+        2 * S2 - 2 * zeta2 - (2 * N + 1) / (NS * N1S)
     )
 
     result = (
@@ -229,12 +186,12 @@ def gamma_qqs(N, nf):
 
     Returns
     -------
-    gamma_qqs : complex
+    complex
         NLO quark-quark singlet anomalous dimension
         :math:`\gamma_{qq}^{(1)s}(N)`
 
     """
-    qqs1 = (
+    qqS1 = (
         constants.CF
         * nf
         * (
@@ -254,11 +211,11 @@ def gamma_qqs(N, nf):
             / ((-1 + N) * npp(N, 3) * npp(1 + N, 3) * npp(2 + N, 2))
         )
     )
-    return qqs1
+    return qqS1
 
 
 @nb.njit(cache=True)
-def gamma_qg(N, nf):
+def gamma_qg(N, nf, cache):
     r"""Compute the |NLO| quark-gluon anomalous dimension.
 
     Implements :eqref:`B.10` from :cite:`Mitov:2006wy`
@@ -270,17 +227,19 @@ def gamma_qg(N, nf):
         Mellin moment
     nf : int
         No. of active flavors
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_qg : complex
+    complex
         NLO quark-gluon anomalous dimension
         :math:`\gamma_{qg}^{(1)}(N)`
 
     """
-    s1 = w1.S1(N)
-    s2 = w2.S2(N)
-    sm2 = w2.Sm2(N, s2, True)
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S2, cache, N)
+    Sm2 = c.get(c.Sm2, cache, N, is_singlet=True)
 
     qg1 = (
         nf
@@ -302,7 +261,7 @@ def gamma_qg(N, nf):
             / (npp(N, 3) * npp(1 + N, 3) * npp(2 + N, 2))
             - (
                 4
-                * s1
+                * S1
                 * (
                     -8
                     - 12 * N
@@ -313,8 +272,8 @@ def gamma_qg(N, nf):
                 )
             )
             / (npp(N, 2) * npp(1 + N, 2) * npp(2 + N, 2))
-            + (4 * npp(s1, 2) * (2 + N + npp(N, 2))) / (N * (1 + N) * (2 + N))
-            - (20 * s2 * (2 + N + npp(N, 2))) / (N * (1 + N) * (2 + N))
+            + (4 * npp(S1, 2) * (2 + N + npp(N, 2))) / (N * (1 + N) * (2 + N))
+            - (20 * S2 * (2 + N + npp(N, 2))) / (N * (1 + N) * (2 + N))
         )
     )
     qg2 = (
@@ -350,10 +309,10 @@ def gamma_qg(N, nf):
                 )
             )
             / (9 * (-1 + N) * npp(N, 3) * npp(1 + N, 3) * npp(2 + N, 3))
-            + (8 * sm2 * (2 + N + npp(N, 2))) / (N * (1 + N) * (2 + N))
+            + (8 * Sm2 * (2 + N + npp(N, 2))) / (N * (1 + N) * (2 + N))
             + (
                 4
-                * s1
+                * S1
                 * (
                     -48
                     - 100 * N
@@ -364,8 +323,8 @@ def gamma_qg(N, nf):
                 )
             )
             / (3 * npp(N, 2) * npp(1 + N, 2) * npp(2 + N, 2))
-            - (4 * npp(s1, 2) * (2 + N + npp(N, 2))) / (N * (1 + N) * (2 + N))
-            + (12 * s2 * (2 + N + npp(N, 2))) / (N * (1 + N) * (2 + N))
+            - (4 * npp(S1, 2) * (2 + N + npp(N, 2))) / (N * (1 + N) * (2 + N))
+            + (12 * S2 * (2 + N + npp(N, 2))) / (N * (1 + N) * (2 + N))
         )
     )
     qg3 = (
@@ -384,7 +343,7 @@ def gamma_qg(N, nf):
                 )
             )
             / (9 * npp(N, 2) * npp(1 + N, 2) * npp(2 + N, 2))
-            - (8 * s1 * (2 + N + npp(N, 2))) / (3 * N * (1 + N) * (2 + N))
+            - (8 * S1 * (2 + N + npp(N, 2))) / (3 * N * (1 + N) * (2 + N))
         )
     )
     result = (1 / (2 * nf)) * (qg1 + qg2 + qg3)
@@ -392,7 +351,7 @@ def gamma_qg(N, nf):
 
 
 @nb.njit(cache=True)
-def gamma_gq(N, nf):
+def gamma_gq(N, nf, cache):
     r"""Compute the |NLO| gluon-quark anomalous dimension.
 
     Implements :eqref:`B.11` from :cite:`Mitov:2006wy`
@@ -404,18 +363,19 @@ def gamma_gq(N, nf):
         Mellin moment
     nf : int
         No. of active flavors
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_gq : complex
+    complex
         NLO gluon-quark anomalous dimension
         :math:`\gamma_{gq}^{(1)}(N)`
 
     """
-    s1 = w1.S1(N)
-    s2 = w2.S2(N)
-    sm2 = w2.Sm2(N, s2, True)
-
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S2, cache, N)
+    Sm2 = c.get(c.Sm2, cache, N, is_singlet=True)
     gq1 = (
         constants.CF
         * constants.CF
@@ -442,11 +402,11 @@ def gamma_gq(N, nf):
             + (
                 8
                 * (4 - 2 * N - 16 * npp(N, 2) - npp(N, 3) - 2 * npp(N, 4) + npp(N, 5))
-                * s1
+                * S1
             )
             / (npp(-1 + N, 2) * npp(N, 2) * npp(1 + N, 2))
-            - (4 * (2 + N + npp(N, 2)) * npp(s1, 2)) / ((-1 + N) * N * (1 + N))
-            + (12 * (2 + N + npp(N, 2)) * s2) / ((-1 + N) * N * (1 + N))
+            - (4 * (2 + N + npp(N, 2)) * npp(S1, 2)) / ((-1 + N) * N * (1 + N))
+            + (12 * (2 + N + npp(N, 2)) * S2) / ((-1 + N) * N * (1 + N))
         )
     )
     gq2 = (
@@ -477,11 +437,11 @@ def gamma_gq(N, nf):
                 )
             )
             / (npp(-1 + N, 3) * npp(N, 3) * npp(1 + N, 3) * npp(2 + N, 2))
-            + (8 * (2 + N + npp(N, 2)) * sm2) / ((-1 + N) * N * (1 + N))
-            - (8 * (2 - 2 * N - 9 * npp(N, 2) + npp(N, 3) - npp(N, 4) + npp(N, 5)) * s1)
+            + (8 * (2 + N + npp(N, 2)) * Sm2) / ((-1 + N) * N * (1 + N))
+            - (8 * (2 - 2 * N - 9 * npp(N, 2) + npp(N, 3) - npp(N, 4) + npp(N, 5)) * S1)
             / (npp(-1 + N, 2) * npp(N, 2) * npp(1 + N, 2))
-            + (4 * (2 + N + npp(N, 2)) * npp(s1, 2)) / ((-1 + N) * N * (1 + N))
-            - (20 * (2 + N + npp(N, 2)) * s2) / ((-1 + N) * N * (1 + N))
+            + (4 * (2 + N + npp(N, 2)) * npp(S1, 2)) / ((-1 + N) * N * (1 + N))
+            - (20 * (2 + N + npp(N, 2)) * S2) / ((-1 + N) * N * (1 + N))
         )
     )
     result = (2 * nf) * (gq1 + gq2)
@@ -489,7 +449,7 @@ def gamma_gq(N, nf):
 
 
 @nb.njit(cache=True)
-def gamma_gg(N, nf):
+def gamma_gg(N, nf, cache):
     r"""Compute the |NLO| gluon-gluon anomalous dimension.
 
     Implements :eqref:`B.12` from :cite:`Mitov:2006wy`.
@@ -500,21 +460,22 @@ def gamma_gg(N, nf):
         Mellin moment
     nf : int
         No. of active flavors
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_gg : complex
+    complex
         NLO gluon-gluon anomalous dimension
         :math:`\gamma_{gg}^{(1)}(N)`
 
     """
-    s1 = w1.S1(N)
-    s2 = w2.S2(N)
-    s3 = w3.S3(N)
-    sm1 = w1.Sm1(N, s1, True)
-    sm2 = w2.Sm2(N, s2, True)
-    sm3 = w3.Sm3(N, s3, True)
-    sm21 = w3.Sm21(N, s1, sm1, True)
+    S1 = c.get(c.S1, cache, N)
+    S2 = c.get(c.S2, cache, N)
+    S3 = c.get(c.S3, cache, N)
+    Sm2 = c.get(c.Sm2, cache, N, is_singlet=True)
+    Sm3 = c.get(c.Sm3, cache, N, is_singlet=True)
+    Sm21 = c.get(c.Sm21, cache, N, is_singlet=True)
 
     gg1 = (
         nf
@@ -582,15 +543,15 @@ def gamma_gg(N, nf):
                 )
             )
             / (9 * npp(-1 + N, 3) * npp(N, 3) * npp(1 + N, 3) * npp(2 + N, 3))
-            - (8 * sm3)
-            + (sm2)
+            - (8 * Sm3)
+            + (Sm2)
             * (
                 (32 * (1 + N + npp(N, 2))) / ((-1 + N) * N * (1 + N) * (2 + N))
-                - 16 * s1
+                - 16 * S1
             )
-            - (8 * s2 * (12 - 10 * N + npp(N, 2) + 22 * npp(N, 3) + 11 * npp(N, 4)))
+            - (8 * S2 * (12 - 10 * N + npp(N, 2) + 22 * npp(N, 3) + 11 * npp(N, 4)))
             / (3 * (-1 + N) * N * (1 + N) * (2 + N))
-            + (s1)
+            + (S1)
             * (
                 -(
                     4
@@ -614,10 +575,10 @@ def gamma_gg(N, nf):
                     )
                 )
                 / (9 * npp(-1 + N, 2) * npp(N, 2) * npp(1 + N, 2) * npp(2 + N, 2))
-                + 16 * s2
+                + 16 * S2
             )
-            - (8 * s3)
-            + (16 * sm21)
+            - (8 * S3)
+            + (16 * Sm21)
         )
     )
     gg3 = (
@@ -646,8 +607,8 @@ def gamma_gg(N, nf):
                 )
             )
             / (9 * npp(-1 + N, 2) * npp(N, 2) * npp(1 + N, 2) * npp(2 + N, 2))
-            - (s1 * (40 / 9))
-            + (s2 * (16 / 3))
+            - (S1 * (40 / 9))
+            + (S2 * (16 / 3))
         )
     )
     result = gg1 + gg2 + gg3
@@ -655,7 +616,7 @@ def gamma_gg(N, nf):
 
 
 @nb.njit(cache=True)
-def gamma_singlet(N, nf):
+def gamma_singlet(N, nf, cache):
     r"""Compute the |NLO| singlet anomalous dimension matrix.
 
     Implements :eqref:`2.13` from :cite:`Gluck:1992zx`.
@@ -666,20 +627,22 @@ def gamma_singlet(N, nf):
         Mellin moment
     nf : int
         No. of active flavors
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-    gamma_singlet : numpy.ndarray
+    numpy.ndarray
         NLO singlet anomalous dimension matrix
         :math:`\gamma_{s}^{(1)}`
 
     """
-    gamma_qq = gamma_nsp(N, nf) + gamma_qqs(N, nf)
+    gamma_qq = gamma_nsp(N, nf, cache) + gamma_qqs(N, nf)
 
     result = np.array(
         [
-            [gamma_qq, gamma_gq(N, nf)],
-            [gamma_qg(N, nf), gamma_gg(N, nf)],
+            [gamma_qq, gamma_gq(N, nf, cache)],
+            [gamma_qg(N, nf, cache), gamma_gg(N, nf, cache)],
         ],
         np.complex_,
     )
