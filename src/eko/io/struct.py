@@ -207,7 +207,6 @@ class EKO:
         """Iterate over keys (i.e. evolution points)."""
         self.operators.sync()
         for target in self.operators:
-            assert isinstance(target, Target)
             yield target.ep
 
     def items(self):
@@ -229,7 +228,6 @@ class EKO:
         """
         for target in self.operators:
             # recast to evolution point
-            assert isinstance(target, Target)
             ep = target.ep
 
             # auto-load
