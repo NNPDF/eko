@@ -123,7 +123,8 @@ class OperatorGrid(sv.ModeMixin):
             ome = OperatorMatrixElement(
                 self.config,
                 self.managers,
-                seg,
+                seg.nf - shift + 3,
+                seg.target,
                 is_downward,
                 np.log(kthr),
                 self.config["HQ"] == "MSBAR",
