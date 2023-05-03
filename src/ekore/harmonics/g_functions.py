@@ -6,8 +6,9 @@ appearing in the analytic continuation of harmonics sums of weight = 3,4.
 import numba as nb
 import numpy as np
 
+from eko.constants import log2, zeta2, zeta3
+
 from . import w1
-from .constants import log2, zeta2, zeta3
 from .polygamma import recursive_harmonic_sum as s
 
 a1 = np.array(

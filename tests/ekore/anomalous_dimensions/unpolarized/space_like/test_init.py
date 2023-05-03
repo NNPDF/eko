@@ -9,15 +9,15 @@ from scipy.linalg import expm
 import ekore.anomalous_dimensions.unpolarized.space_like as ad_us
 from eko import basis_rotation as br
 from ekore import anomalous_dimensions as ad
-from ekore import harmonics
+from ekore import harmonics as h
 
 NF = 5
 
 
 def test_eigensystem_gamma_singlet_0_values():
-    n = 3
-    s1 = harmonics.S1(n)
-    gamma_S_0 = ad_us.as1.gamma_singlet(3, s1, NF)
+    N = 3
+    cache = h.cache.reset()
+    gamma_S_0 = ad_us.as1.gamma_singlet(N, cache, NF)
     res = ad.exp_matrix_2D(gamma_S_0)
     lambda_p = complex(12.273612971466964, 0)
     lambda_m = complex(5.015275917421917, 0)
@@ -37,13 +37,13 @@ def test_eigensystem_gamma_singlet_0_values():
 
 
 def test_exp_matrix():
-    n = 3
-    s1 = harmonics.S1(n)
-    gamma_S_0 = ad_us.as1.gamma_singlet(3, s1, NF)
+    N = 3
+    cache = h.cache.reset()
+    gamma_S_0 = ad_us.as1.gamma_singlet(N, cache, NF)
     res = ad.exp_matrix_2D(gamma_S_0)[0]
     res2 = ad.exp_matrix(gamma_S_0)[0]
     assert_allclose(res, res2)
-    gamma_S_0_qed = ad_us.as1.gamma_singlet_qed(3, s1, NF)
+    gamma_S_0_qed = ad_us.as1.gamma_singlet_qed(3, cache, NF)
     res = expm(gamma_S_0_qed)
     res2 = ad.exp_matrix(gamma_S_0_qed)[0]
     assert_allclose(res, res2)
@@ -69,7 +69,9 @@ def test_eigensystem_gamma_singlet_projectors_EV():
             # NNLO and N3LO too big numbers,
             # ignore Runtime Warnings
             warnings.simplefilter("ignore", RuntimeWarning)
-            for gamma_S in ad_us.gamma_singlet(o, N, nf):
+            for gamma_S in ad_us.gamma_singlet(
+                o, N, nf, n3lo_ad_variation=(0, 0, 0, 0)
+            ):
                 _exp, l_p, l_m, e_p, e_m = ad.exp_matrix_2D(gamma_S)
                 # projectors behave as P_a . P_b = delta_ab P_a
                 assert_allclose(np.dot(e_p, e_p), e_p)
@@ -195,38 +197,37 @@ def test_gamma_ns_qed():
 def test_dim_singlet():
     nf = 3
     N = 2
-    sx = harmonics.sx(N, max_weight=3 + 1)
+    cache = h.cache.reset()
     gamma_singlet = ad_us.gamma_singlet_qed((3, 2), N, nf)
     assert gamma_singlet.shape == (4, 3, 4, 4)
-    gamma_singlet_as1 = ad_us.as1.gamma_singlet_qed(N, sx[0], nf)
+    gamma_singlet_as1 = ad_us.as1.gamma_singlet_qed(N, cache, nf)
     assert gamma_singlet_as1.shape == (4, 4)
-    gamma_singlet_as2 = ad_us.as2.gamma_singlet_qed(N, nf, sx)
+    gamma_singlet_as2 = ad_us.as2.gamma_singlet_qed(N, nf, cache)
     assert gamma_singlet_as2.shape == (4, 4)
-    gamma_singlet_as3 = ad_us.as3.gamma_singlet_qed(N, nf, sx)
+    gamma_singlet_as3 = ad_us.as3.gamma_singlet_qed(N, nf, cache)
     assert gamma_singlet_as3.shape == (4, 4)
 
 
 def test_dim_valence():
     nf = 3
     N = 2
-    sx = harmonics.sx(N, max_weight=3 + 1)
+    cache = h.cache.reset()
     gamma_valence = ad_us.gamma_valence_qed((3, 2), N, nf)
     assert gamma_valence.shape == (4, 3, 2, 2)
-    gamma_valence_as1 = ad_us.as1.gamma_valence_qed(N, sx[0])
+    gamma_valence_as1 = ad_us.as1.gamma_valence_qed(N, cache)
     assert gamma_valence_as1.shape == (2, 2)
-    gamma_valence_as2 = ad_us.as2.gamma_valence_qed(N, nf, sx)
+    gamma_valence_as2 = ad_us.as2.gamma_valence_qed(N, nf, cache)
     assert gamma_valence_as2.shape == (2, 2)
-    gamma_valence_as3 = ad_us.as3.gamma_valence_qed(N, nf, sx)
+    gamma_valence_as3 = ad_us.as3.gamma_valence_qed(N, nf, cache)
     assert gamma_valence_as3.shape == (2, 2)
 
 
 def test_dim_nsp():
     nf = 3
     N = 2
-    sx = harmonics.sx(N, max_weight=3 + 1)
     gamma_nsup = ad_us.gamma_ns_qed((3, 2), 10102, N, nf)
     assert gamma_nsup.shape == (4, 3)
     gamma_nsdp = ad_us.gamma_ns_qed((3, 2), 10103, N, nf)
     assert gamma_nsdp.shape == (4, 3)
     with pytest.raises(NotImplementedError):
-        gamma_ns = ad_us.gamma_ns_qed((2, 0), 10106, N, nf)
+        ad_us.gamma_ns_qed((2, 0), 10106, N, nf)

@@ -1,5 +1,4 @@
 """Abstract layer for running the benchmarks."""
-
 import functools
 import logging
 import os
@@ -62,12 +61,12 @@ class Runner(BenchmarkRunner):
 
         Parameters
         ----------
-            theory : dict
-                theory card
-            ocard : dict
-                operator card
-            pdf : lhapdf_type
-                pdf
+        theory : dict
+            theory card
+        ocard : dict
+            operator card
+        pdf : lhapdf_type
+            pdf
 
         Returns
         -------

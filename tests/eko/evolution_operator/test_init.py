@@ -41,6 +41,7 @@ def test_quad_ker_errors():
                 is_threshold=False,
                 is_polarized=True,
                 is_time_like=True,
+                n3lo_ad_variation=(0, 0, 0, 0),
             )
 
 
@@ -91,6 +92,7 @@ def test_quad_ker(monkeypatch):
                     is_threshold=False,
                     is_polarized=p,
                     is_time_like=t,
+                    n3lo_ad_variation=(0, 0, 0, 0),
                 )
                 np.testing.assert_allclose(res_ns, res)
     for label in [(br.non_singlet_pids_map["ns+"], 0), (100, 100)]:
@@ -118,6 +120,7 @@ def test_quad_ker(monkeypatch):
                     is_threshold=False,
                     is_polarized=polarized,
                     is_time_like=False,
+                    n3lo_ad_variation=(0, 0, 0, 0),
                 )
                 np.testing.assert_allclose(res_sv, 1.0)
     for label in [
@@ -150,6 +153,7 @@ def test_quad_ker(monkeypatch):
                 ev_op_max_order=(1, 0),
                 sv_mode=sv,
                 is_threshold=False,
+                n3lo_ad_variation=(0, 0, 0, 0),
                 is_polarized=False,
                 is_time_like=False,
             )
@@ -176,6 +180,7 @@ def test_quad_ker(monkeypatch):
         ev_op_max_order=(0, 0),
         sv_mode=1,
         is_threshold=False,
+        n3lo_ad_variation=(0, 0, 0, 0),
         is_polarized=False,
         is_time_like=False,
     )
@@ -460,6 +465,7 @@ def test_pegasus_path():
                     10,
                     0,
                     False,
+                    (0, 0, 0, 0),
                     False,
                     False,
                 ),

@@ -88,11 +88,14 @@ During the matching we use :math:`a_s^{(n_f+1)}`: in fact the :math:`a_s` decoup
 :math:`\ln(\mu_{h}^2/m_{h}^2)`, which are cancelled by the OME's :math:`A_{kl,H}`.
 
 |N3LO| matrix elements have been presented in :cite:`Bierenbaum:2009mv` and following publications
-:cite:`Ablinger:2010ty,Ablinger:2014vwa,Ablinger:2014uka,Behring:2014eya,Blumlein:2017wxd,Ablinger_2014,Ablinger_2015`.
-We have included at |N3LO| also parts proportional to :math:`\ln(\mu_{h}^2/m_{h}^2)`.
+:cite:`Ablinger:2010ty,Ablinger:2014vwa,Ablinger:2014uka,Behring:2014eya,Blumlein:2017wxd,Ablinger_2014,Ablinger_2015,Ablinger:2022wbb`.
+Parts proportional to :math:`\ln(\mu_{h}^2/m_{h}^2)` are also included up to |N3LO|.
 
-We remark that contributions of the higher quark at |NNLO| and |N3LO| have not been computed yet, thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}`
-are not encoded in EKO despite of being present.
+The contribution of :math:`A_{Hg}^{(3)}` is not yet fully known analytically and has been parameterized using the first 5 known
+moments :cite:`Bierenbaum:2009mv` and the |LL| small-x contribution :cite:`Kawamura:2012cr`
+
+We remark that contributions of the heavy quark initiated diagrams at |NNLO| and |N3LO| have not been computed yet,
+thus the elements :math:`A_{qH}^{(2)},A_{gH}^{(2)}A_{HH}^{(2)}` are not encoded in EKO despite of being present.
 On the other hand the elements :math:`A_{qq,H}^{ps},A_{qg,H}` are known to start at |N3LO|.
 
 Additional contributions due to |MSbar| masses are included only up to |NNLO|.
@@ -129,7 +132,7 @@ EKO implements two different strategies to perform this operation, that can be s
 .. math ::
     \mathbf{A}_{exp}^{-1}(\mu_{h}^2) &= \mathbf{I} \\
     & - a_s(\mu_{h}^2) \mathbf{A}^{(1)} \\
-    & + a_s^2(\mu_{h}^2) \left [ \mathbf{A}^{(2)} - \left(\mathbf{A}^{(1)}\right)^2 \right ] \\
+    & + a_s^2(\mu_{h}^2) \left [ - \mathbf{A}^{(2)} + \left(\mathbf{A}^{(1)}\right)^2 \right ] \\
     & + a_s^3(\mu_{h}^2) \left [ - \mathbf{A}^{(3)} + \mathbf{A}^{(1)} \mathbf{A}^{(2)} + \mathbf{A}^{(2)} \mathbf{A}^{(1)} - \left( \mathbf{A}^{(1)} \right )^3 \right ] \\
 
 We emphasize that in the backward evolution, below the threshold, the remaining high quark PDFs are always intrinsic and do not evolve anymore.

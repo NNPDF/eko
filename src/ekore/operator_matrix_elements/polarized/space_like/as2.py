@@ -1,35 +1,36 @@
 r"""Contains the |NNLO| |OME| in the polarized case for the matching conditions in the |VFNS|.
 
-The equations are given in :cite:`Bierenbaum_2023`.
+The equations are given in :cite:`Bierenbaum:2022biv`.
 As in the |NLO| |OME|, in the paper, an additional factor 2 can be found in front of the anomalous dimensions and factor (-1) for odd powers of L.
 The anomalous dimensions and beta function with the addition 'hat' are defined as in the |NLO| case.
 """
 import numba as nb
 import numpy as np
 
-from eko.constants import CA, CF, TR
+from eko.constants import CA, CF, TR, zeta2, zeta3
 
-from .... import harmonics
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_gq as gamma0_gq
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_ns as gamma0_qq
 from ....anomalous_dimensions.polarized.space_like.as1 import gamma_qg as gamma0_qg
 from ....anomalous_dimensions.polarized.space_like.as2 import gamma_qg as gamma1_qg
-from ....harmonics.constants import zeta2, zeta3
+from ....harmonics import cache as c
 
 beta_0hat = -4 / 3 * TR
 """This is the lowest order beta function with the addition 'hat' defined as above."""
 
 
 @nb.njit(cache=True)
-def A_qq_ns(n, L):
+def A_qq_ns(n, cache, L):
     r"""Compute |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`.
 
-    Implements :eqref:`133` of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`133` of :cite:`Bierenbaum:2022biv`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
+    cache: numpy.ndarray
+        Harmonic sum cache
     L : float
         :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -39,9 +40,9 @@ def A_qq_ns(n, L):
         |NNLO| light-light non-singlet |OME| :math:`A_{qq,H}^{NS,(2)}`
 
     """
-    S1 = harmonics.S1(n)
-    S2 = harmonics.S2(n)
-    S3 = harmonics.S3(n)
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
 
     gamma1_qqNS = (
         -CF
@@ -83,15 +84,17 @@ def A_qq_ns(n, L):
 
 
 @nb.njit(cache=True)
-def A_hq_ps(n, L, nf):
+def A_hq_ps(n, cache, L, nf):
     r"""Compute |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`.
 
-    Implements :eqref:`138` of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`138` of :cite:`Bierenbaum:2022biv`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
+    cache: numpy.ndarray
+        Harmonic sum cache
     L : float
         :math:`\ln(\mu_F^2 / m_h^2)`
     nf : int
@@ -103,7 +106,7 @@ def A_hq_ps(n, L, nf):
         |NNLO| heavy-light pure-singlet |OME| :math:`A_{Hq}^{PS,(2)}`
 
     """
-    S2 = harmonics.S2(n)
+    S2 = c.get(c.S2, cache, n)
 
     a_hq_ps_l = (
         -4
@@ -134,15 +137,17 @@ def A_hq_ps(n, L, nf):
 
 
 @nb.njit(cache=True)
-def A_hg(n, L):
+def A_hg(n, cache, L):
     r"""Compute |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`.
 
-    Implements :eqref:`111` of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`111` of :cite:`Bierenbaum:2022biv`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
+    cache: numpy.ndarray
+        Harmonic sum cache
     L : float
         :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -152,15 +157,14 @@ def A_hg(n, L):
         |NNLO| heavy-gluon |OME| :math:`A_{Hg}^{S,(2)}`
 
     """
-    S1 = harmonics.S1(n)
-    Sm1 = harmonics.Sm1(n, S1, False)
-    S2 = harmonics.S2(n)
-    S3 = harmonics.S3(n)
-    Sm21 = harmonics.Sm21(n, S1, Sm1, False)
-    S2halfn = harmonics.S2(n / 2)
-    S3halfn = harmonics.S3(n / 2)
-    S2halfn1 = harmonics.S2((n + 1) / 2)
-    S3halfn1 = harmonics.S3((n + 1) / 2)
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    Sm21 = c.get(c.Sm21, cache, n, is_singlet=False)
+    S2h = c.get(c.S2h, cache, n)
+    S3h = c.get(c.S3h, cache, n)
+    S2ph = c.get(c.S2ph, cache, n)
+    S3ph = c.get(c.S3ph, cache, n)
 
     a_hg = (
         (1 / (6 * n**4 * (1 + n) ** 4 * (2 + n)))
@@ -231,7 +235,7 @@ def A_hg(n, L):
                 * (1 - n)
                 * n**3
                 * (2 + n)
-                * (4 + (1 + n) ** 2 * S2halfn - (1 + n) ** 2 * S2halfn1)
+                * (4 + (1 + n) ** 2 * S2h - (1 + n) ** 2 * S2ph)
                 + (1 - n)
                 * n**3
                 * (2 + n)
@@ -239,13 +243,10 @@ def A_hg(n, L):
                     -48
                     + 8 * (1 + n) ** 3 * S1**3
                     + 72 * (1 + n) ** 3 * S1 * S2
-                    - 24
-                    * (1 + n)
-                    * S1
-                    * (4 + (1 + n) ** 2 * S2halfn - (1 + n) ** 2 * S2halfn1)
+                    - 24 * (1 + n) * S1 * (4 + (1 + n) ** 2 * S2h - (1 + n) ** 2 * S2ph)
                     + 64 * (1 + n) ** 3 * S3
-                    + 6 * (1 + n) ** 3 * S3halfn1
-                    - 6 * (1 + n) ** 3 * (S3halfn - zeta3)
+                    + 6 * (1 + n) ** 3 * S3ph
+                    - 6 * (1 + n) ** 3 * (S3h - zeta3)
                     + 18 * (1 + n) ** 3 * zeta3
                     - 12 * (1 + n) ** 3 * (8 * Sm21 + 5 * zeta3)
                 )
@@ -270,15 +271,17 @@ def A_hg(n, L):
 
 
 @nb.njit(cache=True)
-def A_gq(n, L):
+def A_gq(n, cache, L):
     r"""Compute |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`.
 
-    Implements :eqref:`174` of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`174` of :cite:`Bierenbaum:2022biv`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
+    cache: numpy.ndarray
+        Harmonic sum cache
     L : float
         :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -288,8 +291,8 @@ def A_gq(n, L):
         |NNLO| gluon-quark |OME| :math:`A_{gq,H}^{S,(2)}`
 
     """
-    S1 = harmonics.S1(n)
-    S2 = harmonics.S2(n)
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
 
     gamma1_gq_hat = 2 * (
         16
@@ -319,15 +322,17 @@ def A_gq(n, L):
 
 
 @nb.njit(cache=True)
-def A_gg(n, L):
+def A_gg(n, cache, L):
     r"""Compute |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`.
 
-    Implements :eqref:`187` of :cite:`Bierenbaum_2023`.
+    Implements :eqref:`187` of :cite:`Bierenbaum:2022biv`.
 
     Parameters
     ----------
     n : complex
         Mellin moment
+    cache: numpy.ndarray
+        Harmonic sum cache
     L : float
         :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -337,7 +342,7 @@ def A_gg(n, L):
         |NNLO| gluon-gluon |OME| :math:`A_{gg,H}^{S,(2)}`
 
     """
-    S1 = harmonics.S1(n)
+    S1 = c.get(c.S1, cache, n)
     ggg1_canf = (
         -5 * S1 / 9
         + (-3 + 13 * n + 16 * n**2 + 6 * n**3 + 3 * n**4)
@@ -388,7 +393,7 @@ def A_gg(n, L):
 
 
 @nb.njit(cache=True)
-def A_singlet(n, L, nf):
+def A_singlet(n, cache, L, nf):
     r"""Compute the |NNLO| singlet |OME|.
 
     .. math::
@@ -402,6 +407,8 @@ def A_singlet(n, L, nf):
     ----------
     n : complex
         Mellin moment
+    cache: numpy.ndarray
+        Harmonic sum cache
     L : float
         :math:`\ln(\mu_F^2 / m_h^2)`
     nf : int
@@ -415,16 +422,16 @@ def A_singlet(n, L, nf):
     """
     return np.array(
         [
-            [A_gg(n, L), A_gq(n, L), 0.0],
-            [0.0, A_qq_ns(n, L), 0.0],
-            [A_hg(n, L), A_hq_ps(n, L, nf), 0.0],
+            [A_gg(n, cache, L), A_gq(n, cache, L), 0.0],
+            [0.0, A_qq_ns(n, cache, L), 0.0],
+            [A_hg(n, cache, L), A_hq_ps(n, cache, L, nf), 0.0],
         ],
         np.complex_,
     )
 
 
 @nb.njit(cache=True)
-def A_ns(n, L):
+def A_ns(n, cache, L):
     r"""Compute the |NNLO| non-singlet |OME|.
 
     .. math::
@@ -437,6 +444,8 @@ def A_ns(n, L):
     ----------
     n : complex
         Mellin moment
+    cache: numpy.ndarray
+        Harmonic sum cache
     L : float
         :math:`\ln(\mu_F^2 / m_h^2)`
 
@@ -446,4 +455,4 @@ def A_ns(n, L):
         |NNLO| non-singlet |OME| :math:`A^{NS,(2)}`
 
     """
-    return np.array([[A_qq_ns(n, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)
+    return np.array([[A_qq_ns(n, cache, L), 0.0], [0 + 0j, 0 + 0j]], np.complex_)

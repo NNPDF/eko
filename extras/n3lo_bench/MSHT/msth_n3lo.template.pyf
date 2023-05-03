@@ -1,0 +1,92 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module msht_n3lo ! in
+    interface  ! in :msht_n3lo
+        function p3nsa(y,ans,ipm,flavor) ! in :msht_n3lo:split.F
+            double precision intent(in) :: y
+            double precision intent(in) :: ans
+            integer intent(in) :: ipm
+            double precision intent(in) :: flavor
+            double precision intent(out) :: p3nsa
+        end function p3nsa
+        function p3nsb(y,ans,ipm,flavor) ! in :msht_n3lo:split.F
+            double precision intent(in) :: y
+            double precision intent(in) :: ans
+            integer intent(in) :: ipm
+            double precision :: flavor
+            double precision intent(out) :: p3nsb
+        end function p3nsb
+        function p3nsc(y,ans,ipm,flavor) ! in :msht_n3lo:split.F
+            double precision intent(in) :: y
+            double precision intent(in) :: ans
+            integer intent(in) :: ipm
+            double precision intent(in) :: flavor
+            double precision intent(out) :: p3nsc
+        end function p3nsc
+        function pqqps3a(x,a) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: pqqps3a
+        end function pqqps3a
+        function pqg3a(x,a) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: pqg3a
+        end function pqg3a
+        function pgq3a(x,a) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: pgq3a
+        end function pgq3a
+        function pgg3a(x,a) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: pgg3a
+        end function pgg3a
+        function Pqqps3exactA(x) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(out) :: Pqqps3exactA
+        end function Pqqps3exactA
+        function Pgg3exactA(x) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(out) :: Pgg3exactA
+        end function Pgg3exactA
+        function Pqg3exactA(x) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(out) :: Pqg3exactA
+        end function Pqg3exactA
+        function Pgq3exactA(x) ! in :msht_n3lo:split.F
+            double precision intent(in) :: x
+            double precision intent(out) :: Pgq3exactA
+        end function Pgq3exactA
+        function ahg3a(x,a) result (ahg3a_res) ! in :msht_n3lo:trans_mat_elems.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: ahg3a_res
+        end function ahg3a
+        function ahq3a(y) result (ahq3a_res) ! in :msht_n3lo:trans_mat_elems.F
+            double precision intent(in) :: y
+            double precision intent(out) :: ahq3a_res
+        end function ahq3a
+        subroutine aqqh3ab(x,a, aqqh3a, aqqh3b) ! in :msht_n3lo:trans_mat_elems.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: aqqh3a
+            double precision intent(out) :: aqqh3b
+        end subroutine aqqh3ab
+        function agqh3a(y) result (agqh3a_res) ! in :msht_n3lo:trans_mat_elems.F
+            double precision intent(in) :: y
+            double precision intent(out) :: agqh3a_res
+        end function agqh3a
+        function aggh3a(x,a) result (aggh3a_res) ! in :msht_n3lo:trans_mat_elems.F
+            double precision intent(in) :: x
+            double precision intent(in) :: a
+            double precision intent(out) :: aggh3a_res
+        end function aggh3a
+    end interface
+end python module msht_n3lo
+
+! This file was auto-generated with f2py (version:1.22.4).
+! See:
+! https://web.archive.org/web/20140822061353/http://cens.ioc.ee/projects/f2py2e

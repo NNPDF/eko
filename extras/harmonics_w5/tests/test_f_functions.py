@@ -3,13 +3,8 @@
 import harmonics_w5 as w5
 import numpy as np
 
+from eko.constants import log2, zeta2, zeta3, zeta4, zeta5
 from ekore import harmonics
-
-zeta2 = harmonics.constants.zeta2
-zeta3 = harmonics.constants.zeta3
-zeta4 = harmonics.constants.zeta4
-zeta5 = harmonics.constants.zeta5
-log2 = np.log(2)
 
 # reference values coming fom Mathematica:
 # they are computed inverting the harmonics to x-space

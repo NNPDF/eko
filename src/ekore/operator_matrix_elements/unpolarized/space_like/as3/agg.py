@@ -3,11 +3,251 @@
 import numba as nb
 import numpy as np
 
-from .aggTF2 import A_ggTF2
+from .....harmonics import cache as c
 
 
 @nb.njit(cache=True)
-def A_gg(n, sx, nf, L):  # pylint: disable=too-many-locals
+def a_gg3(n, cache, nf):
+    r"""Compute the approximate part of :math:`a_{gg}^{S,(3)}(N)`.
+
+    This is the part of :math:`A_{gg}^{S,(3)}(N)` proportional to :math:`\mathcal{O}(\epsilon^0)`,
+    the expression is presented in  :cite:`Ablinger:2022wbb`.
+    It contains binomial factors which are approximated.
+
+    When using the code, please cite the complete list of references
+    available in :mod:`eko.matching_conditions.as3`.
+
+    Parameters
+    ----------
+    n : complex
+        Mellin moment
+    cache: numpy.ndarray
+        Harmonic sum cache
+    nf : int
+        number of active flavor below the threshold
+
+    Returns
+    -------
+    complex
+        :math:`a_{gg}^{S,(3)}(N)`
+
+    """
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    S3 = c.get(c.S3, cache, n)
+    S4 = c.get(c.S4, cache, n)
+    S5 = c.get(c.S5, cache, n)
+    # the nf^0 part is parametrized since it contains nasty binomial factors.
+    agg3_nf0_param = (
+        119.55586399490849
+        + 643.5919221725146 / (-1.0 + n) ** 2
+        - 4243.672748386901 / (-1.0 + n)
+        - 1097.3959566791473 / n**6
+        - 2166.223781401583 / n**5
+        + 5864.212793800409 / n**4
+        + 31055.955132702067 / n**3
+        + 5195.523226994994 / n**2
+        + 4052.670326185617 / n
+        + 723.5270116330819 * S1
+        - (24416.76276706736 * S1) / n**4
+        - (12798.647797499609 * S1) / n**3
+        - (1191.9103600256221 * S1) / n**2
+        - (411.7226853758584 * S1) / n
+        - 1.0287077597852439 * S1**2
+        + 0.055958522352878494 * S1**3
+        - 0.0011488227245772988 * S1**4
+        + 68.79337566373333 * S2
+        + 100.07538288542415 * S3
+        + 110.06866836903241 * S4
+        + 115.46020088075208 * S5
+    )
+    agg3_nf1 = 0.75 * (
+        -(
+            (
+                0.0027434842249657062
+                * (
+                    -12096.0
+                    - 25344 * n
+                    - 576 * n**2
+                    - 63040 * n**3
+                    - 388726 * n**4
+                    - 770095 * n**5
+                    - 794647 * n**6
+                    - 417598 * n**7
+                    - 52924 * n**8
+                    + 36045 * n**9
+                    + 7209 * n**10
+                )
+            )
+            / ((-1 + n) * n**4 * (1.0 + n) ** 4 * (2.0 + n))
+        )
+        + 1.6449340668482262
+        * (
+            (
+                0.14814814814814814
+                * (
+                    48.0
+                    + 224 * n
+                    + 358 * n**2
+                    + 277 * n**3
+                    + 161 * n**4
+                    + 27 * n**5
+                    + 9 * n**6
+                )
+            )
+            / ((-1.0 + n) * n**2 * (1.0 + n) ** 2 * (2.0 + n))
+            - 5.925925925925926 * S1
+        )
+        - (
+            0.010973936899862825
+            * (
+                864.0
+                - 2016 * n
+                - 11178 * n**2
+                - 27001 * n**3
+                - 39319 * n**4
+                - 15103 * n**5
+                + 23321 * n**6
+                + 26480 * n**7
+                + 6944 * n**8
+            )
+            * S1
+        )
+        / ((-1.0 + n) * n**3 * (1.0 + n) ** 3 * (2.0 + n))
+        - (
+            0.14814814814814814
+            * (32.0 + 70 * n + 47 * n**2 + 2 * n**3 + 41 * n**4 + 16 * n**5)
+            * S1**2
+        )
+        / ((-1.0 + n) * n**2 * (1.0 + n) ** 2 * (2.0 + n))
+        + 1.2020569031595942
+        * (
+            -(
+                (33.18518518518518 * (1.0 + n + n**2))
+                / ((-1.0 + n) * n * (1.0 + n) * (2.0 + n))
+            )
+            + 16.59259259259259 * S1
+        )
+        + (
+            0.14814814814814814
+            * (
+                -96.0
+                - 210 * n
+                - 301 * n**2
+                - 166 * n**3
+                - 3 * n**4
+                + 112 * n**5
+                + 40 * n**6
+            )
+            * S2
+        )
+        / ((-1.0 + n) * n**2 * (1.0 + n) ** 2 * (2.0 + n))
+    ) + 0.3333333333333333 * (
+        -(
+            (59.835721401722026 * (2.0 + n + n**2) ** 2)
+            / ((-1.0 + n) * n**2 * (1.0 + n) ** 2 * (2.0 + n))
+        )
+        - (
+            0.00823045267489712
+            * (
+                12096.0
+                + 45504 * n
+                + 67728 * n**2
+                - 110240 * n**3
+                - 563504 * n**4
+                - 867778 * n**5
+                - 829641 * n**6
+                - 664606 * n**7
+                - 399973 * n**8
+                - 121030 * n**9
+                + 6253 * n**10
+                + 17478 * n**11
+                + 2913 * n**12
+            )
+        )
+        / ((-1.0 + n) * n**5 * (1.0 + n) ** 5 * (2.0 + n))
+        + (
+            0.5925925925925926
+            * (
+                24.0
+                + 248 * n
+                + 520 * n**2
+                + 543 * n**3
+                + 386 * n**4
+                + 123 * n**5
+                + 44 * n**6
+            )
+            * S1**2
+        )
+        / ((-1.0 + n) * n**3 * (1.0 + n) ** 3 * (2.0 + n))
+        - (4.148148148148148 * (2.0 + n + n**2) ** 2 * S1**3)
+        / ((-1.0 + n) * n**2 * (1.0 + n) ** 2 * (2.0 + n))
+        + 1.6449340668482262
+        * (
+            -(
+                (
+                    0.4444444444444444
+                    * (
+                        48.0
+                        - 80 * n
+                        - 220 * n**2
+                        - 186 * n**3
+                        - 311 * n**4
+                        - 162 * n**5
+                        + 4 * n**6
+                        + 60 * n**7
+                        + 15 * n**8
+                    )
+                )
+                / ((-1.0 + n) * n**3 * (1.0 + n) ** 3 * (2.0 + n))
+            )
+            - (5.333333333333333 * (2.0 + n + n**2) ** 2 * S1)
+            / ((-1.0 + n) * n**2 * (1.0 + n) ** 2 * (2.0 + n))
+        )
+        - (
+            1.7777777777777777
+            * (
+                -24.0
+                - 56 * n
+                - 100 * n**2
+                - 129 * n**3
+                - 50 * n**4
+                + 3 * n**5
+                + 4 * n**6
+            )
+            * S2
+        )
+        / ((-1.0 + n) * n**3 * (1.0 + n) ** 3 * (2.0 + n))
+        + S1
+        * (
+            -(
+                (
+                    0.3950617283950617
+                    * (
+                        -72.0
+                        + 48 * n
+                        + 1534 * n**2
+                        + 4722 * n**3
+                        + 7310 * n**4
+                        + 6484 * n**5
+                        + 3169 * n**6
+                        + 856 * n**7
+                        + 205 * n**8
+                    )
+                )
+                / ((-1.0 + n) * n**4 * (1.0 + n) ** 4 * (2.0 + n))
+            )
+            - (5.333333333333333 * (2.0 + n + n**2) ** 2 * S2)
+            / ((-1.0 + n) * n**2 * (1.0 + n) ** 2 * (2.0 + n))
+        )
+        + (5.925925925925926 * (2.0 + n + n**2) ** 2 * S3)
+        / ((-1.0 + n) * n**2 * (1.0 + n) ** 2 * (2.0 + n))
+    )
+    return agg3_nf0_param + agg3_nf1 * nf
+
+
+@nb.njit(cache=True)
+def A_gg(n, cache, nf, L):
     r"""Compute the |N3LO| singlet |OME| :math:`A_{gg}^{S,(3)}(N)`.
 
     The expression is presented in :cite:`Bierenbaum:2009mv`.
@@ -19,8 +259,8 @@ def A_gg(n, sx, nf, L):  # pylint: disable=too-many-locals
     ----------
     n : complex
         Mellin moment
-    sx : list
-        harmonic sums cache
+    cache: numpy.ndarray
+        Harmonic sum cache
     nf : int
         number of active flavor below the threshold
     L : float
@@ -32,13 +272,23 @@ def A_gg(n, sx, nf, L):  # pylint: disable=too-many-locals
         :math:`A_{gg}^{S,(3)}(N)`
 
     """
-    S1, _ = sx[0]
-    S2, Sm2 = sx[1]
-    S3, S21, _, Sm21, _, Sm3 = sx[2]
-    S4, S31, S211, Sm22, Sm211, Sm31, Sm4 = sx[3]
+    S1 = c.get(c.S1, cache, n)
+    S2 = c.get(c.S2, cache, n)
+    Sm2 = c.get(c.Sm2, cache, n, is_singlet=True)
+    S3 = c.get(c.S3, cache, n)
+    S21 = c.get(c.S21, cache, n)
+    Sm21 = c.get(c.Sm21, cache, n, is_singlet=True)
+    Sm3 = c.get(c.Sm3, cache, n, is_singlet=True)
+    S4 = c.get(c.S4, cache, n)
+    S31 = c.get(c.S31, cache, n)
+    S211 = c.get(c.S211, cache, n)
+    Sm22 = c.get(c.Sm22, cache, n, is_singlet=True)
+    Sm211 = c.get(c.Sm211, cache, n, is_singlet=True)
+    Sm31 = c.get(c.Sm31, cache, n, is_singlet=True)
+    Sm4 = c.get(c.Sm4, cache, n, is_singlet=True)
     a_gg_l0 = (
         -0.35616500834358344
-        + A_ggTF2(n, sx)
+        + a_gg3(n, cache, nf)
         + 0.75
         * (
             (-19.945240467240673 * (1.0 + n + np.power(n, 2)))

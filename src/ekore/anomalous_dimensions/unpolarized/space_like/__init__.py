@@ -20,7 +20,7 @@ import numpy as np
 
 from eko import constants
 
-from .... import harmonics
+from ....harmonics import cache as c
 from . import aem1, aem2, as1, as1aem1, as2, as3, as4
 
 
@@ -44,68 +44,44 @@ def gamma_ns(order, mode, n, nf):
     numpy.ndarray
         non-singlet anomalous dimensions
 
-    See Also
-    --------
-    ekore.anomalous_dimensions.unpolarized.space_like.as1.gamma_ns : :math:`\gamma_{ns}^{(0)}(N)`
-    ekore.anomalous_dimensions.unpolarized.space_like.as2.gamma_nsp : :math:`\gamma_{ns,+}^{(1)}(N)`
-    ekore.anomalous_dimensions.unpolarized.space_like.as2.gamma_nsm : :math:`\gamma_{ns,-}^{(1)}(N)`
-    ekore.anomalous_dimensions.unpolarized.space_like.as3.gamma_nsp : :math:`\gamma_{ns,+}^{(2)}(N)`
-    ekore.anomalous_dimensions.unpolarized.space_like.as3.gamma_nsm : :math:`\gamma_{ns,-}^{(2)}(N)`
-    ekore.anomalous_dimensions.unpolarized.space_like.as3.gamma_nsv : :math:`\gamma_{ns,v}^{(2)}(N)`
-    ekore.anomalous_dimensions.unpolarized.space_like.as4.gamma_nsp : :math:`\gamma_{ns,+}^{(3)}(N)`
-    ekore.anomalous_dimensions.unpolarized.space_like.as4.gamma_nsm : :math:`\gamma_{ns,-}^{(3)}(N)`
-    ekore.anomalous_dimensions.unpolarized.space_like.as4.gamma_nsv : :math:`\gamma_{ns,v}^{(3)}(N)`
-
     """
-    # cache the s-es
-    if order[0] >= 4:
-        full_sx_cache = harmonics.compute_cache(n, 5, is_singlet=False)
-        sx = np.array(
-            [
-                full_sx_cache[0][0],
-                full_sx_cache[1][0],
-                full_sx_cache[2][0],
-                full_sx_cache[3][0],
-            ]
-        )
-    else:
-        sx = harmonics.sx(n, max_weight=order[0] + 1)
+    cache = c.reset()
     # now combine
     gamma_ns = np.zeros(order[0], np.complex_)
-    gamma_ns[0] = as1.gamma_ns(n, sx[0])
+    gamma_ns[0] = as1.gamma_ns(n, cache)
     # NLO and beyond
     if order[0] >= 2:
         if mode == 10101:
-            gamma_ns_1 = as2.gamma_nsp(n, nf, sx)
+            gamma_ns_1 = as2.gamma_nsp(n, nf, cache)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
         elif mode in [10201, 10200]:
-            gamma_ns_1 = as2.gamma_nsm(n, nf, sx)
+            gamma_ns_1 = as2.gamma_nsm(n, nf, cache)
         else:
             raise NotImplementedError("Non-singlet sector is not implemented")
         gamma_ns[1] = gamma_ns_1
     # NNLO and beyond
     if order[0] >= 3:
         if mode == 10101:
-            gamma_ns_2 = as3.gamma_nsp(n, nf, sx)
+            gamma_ns_2 = as3.gamma_nsp(n, nf, cache)
         elif mode == 10201:
-            gamma_ns_2 = as3.gamma_nsm(n, nf, sx)
+            gamma_ns_2 = as3.gamma_nsm(n, nf, cache)
         elif mode == 10200:
-            gamma_ns_2 = as3.gamma_nsv(n, nf, sx)
+            gamma_ns_2 = as3.gamma_nsv(n, nf, cache)
         gamma_ns[2] = gamma_ns_2
     # N3LO
     if order[0] >= 4:
         if mode == 10101:
-            gamma_ns_3 = as4.gamma_nsp(n, nf, full_sx_cache)
+            gamma_ns_3 = as4.gamma_nsp(n, nf, cache)
         elif mode == 10201:
-            gamma_ns_3 = as4.gamma_nsm(n, nf, full_sx_cache)
+            gamma_ns_3 = as4.gamma_nsm(n, nf, cache)
         elif mode == 10200:
-            gamma_ns_3 = as4.gamma_nsv(n, nf, full_sx_cache)
+            gamma_ns_3 = as4.gamma_nsv(n, nf, cache)
         gamma_ns[3] = gamma_ns_3
     return gamma_ns
 
 
 @nb.njit(cache=True)
-def gamma_singlet(order, n, nf):
+def gamma_singlet(order, n, nf, n3lo_ad_variation):
     r"""Compute the tower of the singlet anomalous dimensions matrices.
 
     Parameters
@@ -116,45 +92,24 @@ def gamma_singlet(order, n, nf):
         Mellin variable
     nf : int
         Number of active flavors
+    n3lo_ad_variation : tuple
+        |N3LO| anomalous dimension variation ``(gg_var, gq_var, qg_var, qq_var)``
 
     Returns
     -------
     numpy.ndarray
         singlet anomalous dimensions matrices
 
-    See Also
-    --------
-    ekore.anomalous_dimensions.unpolarized.space_like.as1.gamma_singlet : :math:`\gamma_{S}^{(0)}(N)`
-    ekore.anomalous_dimensions.unpolarized.space_like.as2.gamma_singlet : :math:`\gamma_{S}^{(1)}(N)`
-    ekore.anomalous_dimensions.unpolarized.space_like.as3.gamma_singlet : :math:`\gamma_{S}^{(2)}(N)`
-    ekore.anomalous_dimensions.unpolarized.space_like.as4.gamma_singlet : :math:`\gamma_{S}^{(3)}(N)`
-
     """
-    # cache the s-es
-    if order[0] >= 4:
-        full_sx_cache = harmonics.compute_cache(n, 5, is_singlet=False)
-        sx = np.array(
-            [
-                full_sx_cache[0][0],
-                full_sx_cache[1][0],
-                full_sx_cache[2][0],
-                full_sx_cache[3][0],
-            ]
-        )
-    elif order[0] >= 3:
-        # here we need only S1,S2,S3,S4
-        sx = harmonics.sx(n, max_weight=order[0] + 1)
-    else:
-        sx = harmonics.sx(n, max_weight=order[0])
-
+    cache = c.reset()
     gamma_s = np.zeros((order[0], 2, 2), np.complex_)
-    gamma_s[0] = as1.gamma_singlet(n, sx[0], nf)
+    gamma_s[0] = as1.gamma_singlet(n, cache, nf)
     if order[0] >= 2:
-        gamma_s[1] = as2.gamma_singlet(n, nf, sx)
+        gamma_s[1] = as2.gamma_singlet(n, nf, cache)
     if order[0] >= 3:
-        gamma_s[2] = as3.gamma_singlet(n, nf, sx)
+        gamma_s[2] = as3.gamma_singlet(n, nf, cache)
     if order[0] >= 4:
-        gamma_s[3] = as4.gamma_singlet(n, nf, full_sx_cache)
+        gamma_s[3] = as4.gamma_singlet(n, nf, cache, n3lo_ad_variation)
     return gamma_s
 
 
@@ -178,138 +133,119 @@ def gamma_ns_qed(order, mode, n, nf):
     -------
         gamma_ns : numpy.ndarray
             non-singlet QED anomalous dimensions
-
-    See Also
-    --------
-        eko.anomalous_dimensions.as1.gamma_ns : :math:`\gamma_{ns}^{(0)}(N)`
-        eko.anomalous_dimensions.as2.gamma_nsp : :math:`\gamma_{ns,+}^{(1)}(N)`
-        eko.anomalous_dimensions.as2.gamma_nsm : :math:`\gamma_{ns,-}^{(1)}(N)`
-        eko.anomalous_dimensions.as3.gamma_nsp : :math:`\gamma_{ns,+}^{(2)}(N)`
-        eko.anomalous_dimensions.as3.gamma_nsm : :math:`\gamma_{ns,-}^{(2)}(N)`
-        eko.anomalous_dimensions.as3.gamma_nsv : :math:`\gamma_{ns,v}^{(2)}(N)`
-        eko.anomalous_dimensions.aem1.gamma_ns : :math:`\gamma_{ns}^{(0,1)}(N)`
-        eko.anomalous_dimensions.aem1.gamma_ns : :math:`\gamma_{ns,v}^{(0,1)}(N)`
-        eko.anomalous_dimensions.as1aem1.gamma_nsp : :math:`\gamma_{ns,p}^{(1,1)}(N)`
-        eko.anomalous_dimensions.as1aem1.gamma_nsm : :math:`\gamma_{ns,m}^{(1,1)}(N)`
-        eko.anomalous_dimensions.aem2.gamma_nspu : :math:`\gamma_{ns,pu}^{(0,2)}(N)`
-        eko.anomalous_dimensions.aem2.gamma_nsmu : :math:`\gamma_{ns,mu}^{(0,2)}(N)`
-        eko.anomalous_dimensions.aem2.gamma_nspd : :math:`\gamma_{ns,pd}^{(0,2)}(N)`
-        eko.anomalous_dimensions.aem2.gamma_nsmd : :math:`\gamma_{ns,md}^{(0,2)}(N)`
     """
-    # cache the s-es
-    max_weight = max(order)
-    if max_weight >= 3:
-        # here we need only S1,S2,S3,S4
-        sx = harmonics.sx(n, max_weight=max_weight + 1)
-    else:
-        sx = harmonics.sx(n, max_weight=3)
-    sx_ns_qed = harmonics.compute_qed_ns_cache(n, sx[0])
+    cache = c.reset()
     # now combine
     gamma_ns = np.zeros((order[0] + 1, order[1] + 1), np.complex_)
-    gamma_ns[1, 0] = as1.gamma_ns(n, sx[0])
-    gamma_ns[0, 1] = choose_ns_ad_aem1(mode, n, sx)
-    gamma_ns[1, 1] = choose_ns_ad_as1aem1(mode, n, sx, sx_ns_qed)
+    gamma_ns[1, 0] = as1.gamma_ns(n, cache)
+    gamma_ns[0, 1] = choose_ns_ad_aem1(mode, n, cache)
+    gamma_ns[1, 1] = choose_ns_ad_as1aem1(mode, n, cache)
     # NLO and beyond
     if order[0] >= 2:
         if mode in [10102, 10103]:
-            gamma_ns[2, 0] = as2.gamma_nsp(n, nf, sx)
+            gamma_ns[2, 0] = as2.gamma_nsp(n, nf, cache)
         # To fill the full valence vector in NNLO we need to add gamma_ns^1 explicitly here
         else:
-            gamma_ns[2, 0] = as2.gamma_nsm(n, nf, sx)
+            gamma_ns[2, 0] = as2.gamma_nsm(n, nf, cache)
     if order[1] >= 2:
-        gamma_ns[0, 2] = choose_ns_ad_aem2(mode, n, nf, sx, sx_ns_qed)
+        gamma_ns[0, 2] = choose_ns_ad_aem2(mode, n, nf, cache)
     # NNLO and beyond
     if order[0] >= 3:
         if mode in [10102, 10103]:
-            gamma_ns[3, 0] = as3.gamma_nsp(n, nf, sx)
+            gamma_ns[3, 0] = as3.gamma_nsp(n, nf, cache)
         elif mode in [10202, 10203]:
-            gamma_ns[3, 0] = as3.gamma_nsm(n, nf, sx)
+            gamma_ns[3, 0] = as3.gamma_nsm(n, nf, cache)
     return gamma_ns
 
 
 @nb.njit(cache=True)
-def choose_ns_ad_aem1(mode, n, sx):
+def choose_ns_ad_aem1(mode, n, cache):
     r"""
     Select the non-singlet anomalous dimension at O(aem1) with the correct charge factor.
 
     Parameters
     ----------
-        mode : 10102 | 10202 | 10103 | 10203
-            sector identifier
-        n : complex
-            Mellin variable
-        nf : int
-            Number of active flavors
+    mode : 10102 | 10202 | 10103 | 10203
+        sector identifier
+    n : complex
+        Mellin variable
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
+    numpy.ndarray
+        non-singlet anomalous dimensions
+
     """
     if mode in [10102, 10202]:
-        return constants.eu2 * aem1.gamma_ns(n, sx)
+        return constants.eu2 * aem1.gamma_ns(n, cache)
     elif mode in [10103, 10203]:
-        return constants.ed2 * aem1.gamma_ns(n, sx)
+        return constants.ed2 * aem1.gamma_ns(n, cache)
     raise NotImplementedError("Non-singlet sector is not implemented")
 
 
 @nb.njit(cache=True)
-def choose_ns_ad_as1aem1(mode, n, sx, sx_ns_qed):
+def choose_ns_ad_as1aem1(mode, n, cache):
     r"""
     Select the non-singlet anomalous dimension at O(as1aem1) with the correct charge factor.
 
     Parameters
     ----------
-        mode : 10102 | 10202 | 10103 | 10203
-            sector identifier
-        n : complex
-            Mellin variable
-        nf : int
-            Number of active flavors
+    mode : 10102 | 10202 | 10103 | 10203
+        sector identifier
+    n : complex
+        Mellin variable
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
+    numpy.ndarray
+        non-singlet anomalous dimensions
+
     """
     if mode == 10102:
-        return constants.eu2 * as1aem1.gamma_nsp(n, sx, sx_ns_qed)
+        return constants.eu2 * as1aem1.gamma_nsp(n, cache)
     elif mode == 10103:
-        return constants.ed2 * as1aem1.gamma_nsp(n, sx, sx_ns_qed)
+        return constants.ed2 * as1aem1.gamma_nsp(n, cache)
     elif mode == 10202:
-        return constants.eu2 * as1aem1.gamma_nsm(n, sx, sx_ns_qed)
+        return constants.eu2 * as1aem1.gamma_nsm(n, cache)
     elif mode == 10203:
-        return constants.ed2 * as1aem1.gamma_nsm(n, sx, sx_ns_qed)
+        return constants.ed2 * as1aem1.gamma_nsm(n, cache)
     raise NotImplementedError("Non-singlet sector is not implemented")
 
 
 @nb.njit(cache=True)
-def choose_ns_ad_aem2(mode, n, nf, sx, sx_ns_qed):
+def choose_ns_ad_aem2(mode, n, nf, cache):
     r"""
     Select the non-singlet anomalous dimension at O(aem2) with the correct charge factor.
 
     Parameters
     ----------
-        mode : 10102 | 10202 | 10103 | 10203
-            sector identifier
-        n : complex
-            Mellin variable
-        nf : int
-            Number of active flavors
+    mode : 10102 | 10202 | 10103 | 10203
+        sector identifier
+    n : complex
+        Mellin variable
+    nf : int
+        Number of active flavors
+    cache: numpy.ndarray
+        Harmonic sum cache
 
     Returns
     -------
-        gamma_ns : numpy.ndarray
-            non-singlet anomalous dimensions
+    numpy.ndarray
+        non-singlet anomalous dimensions
+
     """
     if mode == 10102:
-        return constants.eu2 * aem2.gamma_nspu(n, nf, sx, sx_ns_qed)
+        return constants.eu2 * aem2.gamma_nspu(n, nf, cache)
     elif mode == 10103:
-        return constants.ed2 * aem2.gamma_nspd(n, nf, sx, sx_ns_qed)
+        return constants.ed2 * aem2.gamma_nspd(n, nf, cache)
     elif mode == 10202:
-        return constants.eu2 * aem2.gamma_nsmu(n, nf, sx, sx_ns_qed)
+        return constants.eu2 * aem2.gamma_nsmu(n, nf, cache)
     elif mode == 10203:
-        return constants.ed2 * aem2.gamma_nsmd(n, nf, sx, sx_ns_qed)
+        return constants.ed2 * aem2.gamma_nsmd(n, nf, cache)
     raise NotImplementedError("Non-singlet sector is not implemented")
 
 
@@ -320,45 +256,30 @@ def gamma_singlet_qed(order, n, nf):
 
     Parameters
     ----------
-        order : tuple(int,int)
-            perturbative orders
-        n : complex
-            Mellin variable
-        nf : int
-            Number of active flavors
+    order : tuple(int,int)
+        perturbative orders
+    n : complex
+        Mellin variable
+    nf : int
+        Number of active flavors
 
     Returns
     -------
-        gamma_singlet : numpy.ndarray
-            singlet anomalous dimensions matrices
+    numpy.ndarray
+        singlet anomalous dimensions matrices
 
-    See Also
-    --------
-        eko.anomalous_dimensions.as1.gamma_singlet_qed : :math:`\gamma_{S}^{(0)}(N)`
-        eko.anomalous_dimensions.as2.gamma_singlet_qed : :math:`\gamma_{S}^{(1)}(N)`
-        eko.anomalous_dimensions.as3.gamma_singlet_qed : :math:`\gamma_{S}^{(2)}(N)`
-        eko.anomalous_dimensions.aem1.gamma_singlet : :math:`\gamma_{S}^{(0,1)}(N)`
-        eko.anomalous_dimensions.as1aem1.gamma_singlet : :math:`\gamma_{S}^{(1,1)}(N)`
-        eko.anomalous_dimensions.aem2.gamma_singlet : :math:`\gamma_{S}^{(0,2)}(N)`
     """
-    # cache the s-es
-    max_weight = max(order)
-    if max_weight >= 3:
-        # here we need only S1,S2,S3,S4
-        sx = harmonics.sx(n, max_weight=max_weight + 1)
-    else:
-        sx = harmonics.sx(n, max_weight=3)
-    sx_ns_qed = harmonics.compute_qed_ns_cache(n, sx[0])
+    cache = c.reset()
     gamma_s = np.zeros((order[0] + 1, order[1] + 1, 4, 4), np.complex_)
-    gamma_s[1, 0] = as1.gamma_singlet_qed(n, sx[0], nf)
-    gamma_s[0, 1] = aem1.gamma_singlet(n, nf, sx)
-    gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, sx, sx_ns_qed)
+    gamma_s[1, 0] = as1.gamma_singlet_qed(n, cache, nf)
+    gamma_s[0, 1] = aem1.gamma_singlet(n, nf, cache)
+    gamma_s[1, 1] = as1aem1.gamma_singlet(n, nf, cache)
     if order[0] >= 2:
-        gamma_s[2, 0] = as2.gamma_singlet_qed(n, nf, sx)
+        gamma_s[2, 0] = as2.gamma_singlet_qed(n, nf, cache)
     if order[1] >= 2:
-        gamma_s[0, 2] = aem2.gamma_singlet(n, nf, sx, sx_ns_qed)
+        gamma_s[0, 2] = aem2.gamma_singlet(n, nf, cache)
     if order[0] >= 3:
-        gamma_s[3, 0] = as3.gamma_singlet_qed(n, nf, sx)
+        gamma_s[3, 0] = as3.gamma_singlet_qed(n, nf, cache)
     return gamma_s
 
 
@@ -369,43 +290,28 @@ def gamma_valence_qed(order, n, nf):
 
     Parameters
     ----------
-        order : tuple(int,int)
-            perturbative orders
-        n : complex
-            Mellin variable
-        nf : int
-            Number of active flavors
+    order : tuple(int,int)
+        perturbative orders
+    n : complex
+        Mellin variable
+    nf : int
+        Number of active flavors
 
     Returns
     -------
-        gamma_valence : numpy.ndarray
-            valence anomalous dimensions matrices
+    numpy.ndarray
+        valence anomalous dimensions matrices
 
-    See Also
-    --------
-        eko.anomalous_dimensions.as1.gamma_valence_qed : :math:`\gamma_{V}^{(0)}(N)`
-        eko.anomalous_dimensions.as2.gamma_valence_qed : :math:`\gamma_{V}^{(1)}(N)`
-        eko.anomalous_dimensions.as3.gamma_valence_qed : :math:`\gamma_{V}^{(2)}(N)`
-        eko.anomalous_dimensions.aem1.gamma_valence : :math:`\gamma_{V}^{(0,1)}(N)`
-        eko.anomalous_dimensions.as1aem1.gamma_valence : :math:`\gamma_{V}^{(1,1)}(N)`
-        eko.anomalous_dimensions.aem2.gamma_valence : :math:`\gamma_{V}^{(0,2)}(N)`
     """
-    # cache the s-es
-    max_weight = max(order)
-    if max_weight >= 3:
-        # here we need only S1,S2,S3,S4
-        sx = harmonics.sx(n, max_weight=max_weight + 1)
-    else:
-        sx = harmonics.sx(n, max_weight=3)
-    sx_ns_qed = harmonics.compute_qed_ns_cache(n, sx[0])
+    cache = c.reset()
     gamma_v = np.zeros((order[0] + 1, order[1] + 1, 2, 2), np.complex_)
-    gamma_v[1, 0] = as1.gamma_valence_qed(n, sx[0])
-    gamma_v[0, 1] = aem1.gamma_valence(n, nf, sx)
-    gamma_v[1, 1] = as1aem1.gamma_valence(n, nf, sx, sx_ns_qed)
+    gamma_v[1, 0] = as1.gamma_valence_qed(n, cache)
+    gamma_v[0, 1] = aem1.gamma_valence(n, nf, cache)
+    gamma_v[1, 1] = as1aem1.gamma_valence(n, nf, cache)
     if order[0] >= 2:
-        gamma_v[2, 0] = as2.gamma_valence_qed(n, nf, sx)
+        gamma_v[2, 0] = as2.gamma_valence_qed(n, nf, cache)
     if order[1] >= 2:
-        gamma_v[0, 2] = aem2.gamma_valence(n, nf, sx, sx_ns_qed)
+        gamma_v[0, 2] = aem2.gamma_valence(n, nf, cache)
     if order[0] >= 3:
-        gamma_v[3, 0] = as3.gamma_valence_qed(n, nf, sx)
+        gamma_v[3, 0] = as3.gamma_valence_qed(n, nf, cache)
     return gamma_v

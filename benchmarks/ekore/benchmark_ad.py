@@ -4,7 +4,7 @@ import pytest
 
 import ekore.anomalous_dimensions.unpolarized.space_like.as2 as ad_as2
 import ekore.harmonics as h
-from eko.constants import CA, CF, TR
+from eko.constants import CA, CF, TR, zeta2, zeta3
 
 
 @pytest.mark.isolated
@@ -27,7 +27,6 @@ def check_melling_g3_pegasus(N):
     S14 = S13 + 1.0 / N4
     S15 = S14 + 1.0 / N5
     S16 = S15 + 1.0 / N6
-    zeta2 = h.constants.zeta2
 
     SPMOM = (
         1.0000 * (zeta2 - S1 / N) / N
@@ -51,8 +50,8 @@ def benchmark_gamma_ns_1_pegasus():
 
 def check_gamma_1_pegasus(N, NF):
     # Test against pegasus implementation
-    ZETA2 = h.constants.zeta2
-    ZETA3 = h.constants.zeta3
+    ZETA2 = zeta2
+    ZETA3 = zeta3
 
     # N = np.random.rand(1) + np.random.rand(1) * 1j
     S1 = h.S1(N)
@@ -137,9 +136,9 @@ def check_gamma_1_pegasus(N, NF):
     P1NSP = CF * ((CF - CA / 2.0) * PNPA + CA * PNSB + TR * NF * PNSC)
     P1NSM = CF * ((CF - CA / 2.0) * PNMA + CA * PNSB + TR * NF * PNSC)
 
-    sx = h.sx(N, 2)
-    np.testing.assert_allclose(ad_as2.gamma_nsp(N, NF, sx), -P1NSP)
-    np.testing.assert_allclose(ad_as2.gamma_nsm(N, NF, sx), -P1NSM)
+    cache = h.cache.reset()
+    np.testing.assert_allclose(ad_as2.gamma_nsp(N, NF, cache), -P1NSP)
+    np.testing.assert_allclose(ad_as2.gamma_nsm(N, NF, cache), -P1NSM)
 
     NS = N * N
     NT = NS * N
@@ -256,7 +255,7 @@ def check_gamma_1_pegasus(N, NF):
     P1Sgq = (CF * CF * PGQA + CF * CA * PGQB + TR * NF * CF * PGQC) * 4.0
     P1Sgg = (CA * CA * PGGA + TR * NF * (CA * PGGB + CF * PGGC)) * 4.0
 
-    gS1 = ad_as2.gamma_singlet(N, NF, sx)
+    gS1 = ad_as2.gamma_singlet(N, NF, cache)
     np.testing.assert_allclose(gS1[0, 0], -P1Sqq)
     np.testing.assert_allclose(gS1[0, 1], -P1Sqg)
     np.testing.assert_allclose(gS1[1, 0], -P1Sgq)

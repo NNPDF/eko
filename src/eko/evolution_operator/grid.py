@@ -45,6 +45,7 @@ class OperatorGrid(sv.ModeMixin):
         mass_scheme,
         intrinsic_flavors: list,
         xif: float,
+        n3lo_ad_variation: tuple,
         configs: Configs,
         debug: Debug,
         thresholds_config,
@@ -79,6 +80,7 @@ class OperatorGrid(sv.ModeMixin):
         config["xif2"] = xif**2
         config["HQ"] = mass_scheme
         config["ModSV"] = configs.scvar_method
+        config["n3lo_ad_variation"] = n3lo_ad_variation
 
         for i, q in enumerate("cbt"):
             config[f"m{q}"] = masses[i]

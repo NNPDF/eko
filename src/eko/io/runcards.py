@@ -25,6 +25,7 @@ from .dictlike import DictLike
 from .types import (
     EvolutionMethod,
     InversionMethod,
+    N3LOAdVariation,
     Order,
     RawCard,
     ScaleVariationsMethod,
@@ -45,6 +46,8 @@ class TheoryCard(DictLike):
     """Heavy quarks related information."""
     xif: float
     """Ratio between factorization scale and process scale."""
+    n3lo_ad_variation: N3LOAdVariation
+    """|N3LO| anomalous dimension variation: ``(gg_var, gq_var, qg_var, qq_var)``."""
 
 
 def masses(theory: TheoryCard, evmeth: EvolutionMethod):
@@ -316,6 +319,7 @@ class Legacy:
             raise ValueError(f"Unknown mass scheme '{old['HQ']}'")
 
         new["xif"] = old["XIF"]
+        new["n3lo_ad_variation"] = old.get("n3lo_ad_variation", (0, 0, 0, 0))
 
         return TheoryCard.from_dict(new)
 
