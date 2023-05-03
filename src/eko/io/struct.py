@@ -18,7 +18,7 @@ from . import exceptions, raw
 from .access import AccessConfigs
 from .bases import Bases
 from .inventory import Inventory
-from .items import Evolution, Operator, Recipe, Target
+from .items import Evolution, Matching, Operator, Recipe, Target
 from .metadata import Metadata
 from .paths import InternalPaths
 from .runcards import OperatorCard, TheoryCard
@@ -26,6 +26,19 @@ from .types import EvolutionPoint as EPoint
 from .types import SquaredScale
 
 logger = logging.getLogger(__name__)
+
+
+def inventories(access: AccessConfigs) -> dict:
+    """Set up empty inventories for object initialization."""
+    return dict(
+        recipes=Inventory(access, Evolution, contentless=True, name="recipes"),
+        recipes_matching=Inventory(
+            access, Matching, contentless=True, name="matching-recipes"
+        ),
+        parts=Inventory(access, Evolution, name="parts"),
+        parts_matching=Inventory(access, Matching, name="matching-parts"),
+        operators=Inventory(access, Target, name="operators"),
+    )
 
 
 @dataclass
@@ -61,11 +74,11 @@ class EKO:
 
     """
 
-    recipes: Inventory
-    recipes_matching: Inventory
-    parts: Inventory
-    parts_matching: Inventory
-    operators: Inventory
+    recipes: Inventory[Evolution]
+    recipes_matching: Inventory[Matching]
+    parts: Inventory[Evolution]
+    parts_matching: Inventory[Matching]
+    operators: Inventory[Target]
 
     # public containers
     # -----------------
@@ -350,9 +363,7 @@ class EKO:
             cls.load(path, tmpdir)
             metadata = Metadata.load(tmpdir)
             opened = cls(
-                _operators={
-                    target: None for target in InternalPaths(metadata.path).grid
-                },
+                **inventories(access),
                 metadata=metadata,
                 access=access,
             )
@@ -534,7 +545,7 @@ class Builder:
         )
 
         self.eko = EKO(
-            _operators={ep: None for ep in self.operator.evolgrid},
+            **inventories(self.access),
             metadata=metadata,
             access=self.access,
         )

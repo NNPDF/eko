@@ -2,7 +2,7 @@
 import base64
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Dict, Optional, Type
+from typing import Dict, Generic, Optional, Type, TypeVar
 
 import yaml
 
@@ -41,8 +41,11 @@ def operator_name(header: Header, err: bool):
     return stem + OPERATOR_EXT[1 if err else 0]
 
 
+H = TypeVar("H", bound=Header)
+
+
 @dataclass(frozen=True)
-class Inventory:
+class Inventory(Generic[H]):
     """Assets manager.
 
     In particular, manage autosave, autoload, and memory caching.
@@ -51,7 +54,7 @@ class Inventory:
 
     access: AccessConfigs
     header_type: Type[Header]
-    cache: Dict[Header, Optional[Operator]] = field(default_factory=dict)
+    cache: Dict[H, Optional[Operator]] = field(default_factory=dict)
     contentless: bool = False
     name: Optional[str] = None
     """Only for logging purpose."""
@@ -78,7 +81,7 @@ class Inventory:
 
         return found[0]
 
-    def __getitem__(self, header: Header) -> Optional[Operator]:
+    def __getitem__(self, header: H) -> Optional[Operator]:
         r"""Retrieve operator for given header.
 
         If the operator is not already in memory, it will be automatically
@@ -112,7 +115,7 @@ class Inventory:
         self.cache[header] = op
         return op
 
-    def __setitem__(self, header: Header, operator: Optional[Operator]):
+    def __setitem__(self, header: H, operator: Optional[Operator]):
         """Set operator for given :math:`mu^2`.
 
         Header and operator are automatically dumped on disk.
@@ -140,7 +143,7 @@ class Inventory:
 
         self.cache[header] = operator
 
-    def __delitem__(self, header: Header):
+    def __delitem__(self, header: H):
         """Drop operator from memory.
 
         Irrelevant for contentless inventories.
