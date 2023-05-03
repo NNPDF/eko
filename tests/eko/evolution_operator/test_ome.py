@@ -14,7 +14,6 @@ from eko.evolution_operator.operator_matrix_element import (
 )
 from eko.io.runcards import OperatorCard, TheoryCard
 from eko.io.types import InversionMethod
-from eko.matchings import Segment
 from eko.runner import legacy
 from ekore.operator_matrix_elements.unpolarized.space_like import (
     A_non_singlet,
@@ -334,19 +333,19 @@ def test_quad_ker(monkeypatch):
 
 class TestOperatorMatrixElement:
     def test_labels(self, theory_ffns, operator_card, tmp_path: pathlib.Path):
-        theory_card = theory_ffns(3)
         path = tmp_path / "eko.tar"
         for skip_singlet in [True, False]:
             for skip_ns in [True, False]:
                 operator_card.debug.skip_singlet = skip_singlet
                 operator_card.debug.skip_non_singlet = skip_ns
                 path.unlink(missing_ok=True)
-                g = legacy.Runner(theory_card, operator_card, path=path).op_grid
+                g = legacy.Runner(theory_ffns(3), operator_card, path=path).op_grid
                 o = OperatorMatrixElement(
                     g.config,
                     g.managers,
                     is_backward=True,
-                    segment=Segment(theory_card.heavy.masses.b.value**2, None, 4),
+                    q2=None,
+                    nf=None,
                     L=None,
                     is_msbar=False,
                 )
@@ -388,7 +387,8 @@ class TestOperatorMatrixElement:
             g.config,
             g.managers,
             is_backward=True,
-            segment=Segment(theory_card.heavy.masses.b.value**2, None, 4),
+            q2=theory_card.heavy.masses.b.value**2,
+            nf=4,
             L=0,
             is_msbar=False,
         )
@@ -419,7 +419,8 @@ class TestOperatorMatrixElement:
             g.config,
             g.managers,
             is_backward=False,
-            segment=Segment(theory_card.heavy.masses.b.value**2, None, 4),
+            q2=theory_card.heavy.masses.b.value**2,
+            nf=4,
             L=0,
             is_msbar=False,
         )
@@ -470,7 +471,8 @@ class TestOperatorMatrixElement:
             g.config,
             g.managers,
             is_backward=False,
-            segment=Segment(theory_card.heavy.masses.b.value**2, None, 4),
+            q2=theory_card.heavy.masses.b.value**2,
+            nf=4,
             L=0,
             is_msbar=False,
         )
