@@ -268,7 +268,16 @@ def solve(m2_ref, q2m_ref, strong_coupling, nf_ref, xif2):
     return float(msbar_mass)
 
 
-def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=None):
+def evolve(
+    m2_ref,
+    q2m_ref,
+    strong_coupling,
+    thresholds_ratios,
+    xif2,
+    q2_to,
+    nf_ref=None,
+    nf_to=None,
+):
     r"""Perform the |MSbar| mass evolution up to given scale.
 
     It allows for different number of active flavors.
@@ -298,7 +307,7 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
 
     """
     matching_scales = np.array(strong_coupling.atlas.walls)[1:-1] * np.array(
-        strong_coupling.thresholds.thresholds_ratios
+        thresholds_ratios
     )
     atlas = Atlas(matching_scales.tolist(), (q2m_ref, nf_ref))
     path = atlas.path((q2_to, nf_to))
@@ -316,7 +325,7 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
             )
         # apply matching condition
         if k < len(path) - 1:
-            L = np.log(atlas.walls[seg.nf - shift + 1])
+            L = np.log(thresholds_ratios[seg.nf - shift])
             m_coeffs = (
                 compute_matching_coeffs_down(seg.nf - 1)
                 if is_downward
@@ -446,6 +455,7 @@ def compute(
                 m2_ref,
                 q2m_ref,
                 sc(masses),
+                matching,
                 xif2,
                 q2_to,
                 nf_ref=nf_ref_cur,
