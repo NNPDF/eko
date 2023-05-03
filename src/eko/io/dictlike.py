@@ -204,7 +204,10 @@ def load_typing(type_, value):
     return load_field(origin, value)
 
 
-def raw_field(value):
+YamlBasic = typing.Union[None, int, float, str, list, dict]
+
+
+def raw_field(value) -> YamlBasic:
     """Serialize DictLike field."""
     # replace numpy arrays with lists
     if isinstance(value, np.ndarray):
@@ -214,16 +217,19 @@ def raw_field(value):
         return float(value)
     if isinstance(value, interpolation.XGrid):
         return value.dump()["grid"]
-    if isinstance(value, tuple):
-        return list(value)
     if isinstance(value, enum.Enum):
         return value.value
+
+    # still nested -> recursion
     if isinstance(value, DictLike):
         return value.raw
+    if isinstance(value, tuple):
+        return [raw_field(v) for v in value]
     if dataclasses.is_dataclass(value):
-        # not supporting nested DictLike inside nested plain dataclasses
-        return dataclasses.asdict(value)
+        return {k: raw_field(v) for k, v in dataclasses.asdict(value).items()}
     if isinstance(value, list):
         return [raw_field(el) for el in value]
+    if isinstance(value, dict):
+        return {k: raw_field(v) for k, v in value}
 
     return value
