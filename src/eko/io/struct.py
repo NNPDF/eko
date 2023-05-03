@@ -28,16 +28,16 @@ from .types import SquaredScale
 logger = logging.getLogger(__name__)
 
 
-def inventories(access: AccessConfigs) -> dict:
+def inventories(path: pathlib.Path, access: AccessConfigs) -> dict:
     """Set up empty inventories for object initialization."""
     return dict(
-        recipes=Inventory(access, Evolution, contentless=True, name="recipes"),
+        recipes=Inventory(path, access, Evolution, contentless=True, name="recipes"),
         recipes_matching=Inventory(
-            access, Matching, contentless=True, name="matching-recipes"
+            path, access, Matching, contentless=True, name="matching-recipes"
         ),
-        parts=Inventory(access, Evolution, name="parts"),
-        parts_matching=Inventory(access, Matching, name="matching-parts"),
-        operators=Inventory(access, Target, name="operators"),
+        parts=Inventory(path, access, Evolution, name="parts"),
+        parts_matching=Inventory(path, access, Matching, name="matching-parts"),
+        operators=Inventory(path, access, Target, name="operators"),
     )
 
 
@@ -361,7 +361,7 @@ class EKO:
             cls.load(path, tmpdir)
             metadata = Metadata.load(tmpdir)
             opened = cls(
-                **inventories(access),
+                **inventories(tmpdir, access),
                 metadata=metadata,
                 access=access,
             )
@@ -543,7 +543,7 @@ class Builder:
         )
 
         self.eko = EKO(
-            **inventories(self.access),
+            **inventories(self.path, self.access),
             metadata=metadata,
             access=self.access,
         )

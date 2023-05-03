@@ -52,6 +52,7 @@ class Inventory(Generic[H]):
 
     """
 
+    path: Path
     access: AccessConfigs
     header_type: Type[Header]
     cache: Dict[H, Optional[Operator]] = field(default_factory=dict)
@@ -67,7 +68,7 @@ class Inventory(Generic[H]):
         EXT = OPERATOR_EXT if not header else [HEADER_EXT]
         found = [
             path
-            for path in self.access.path.iterdir()
+            for path in self.path.iterdir()
             if path.name.startswith(stem)
             if "".join(path.suffixes) in EXT
         ]
@@ -124,7 +125,7 @@ class Inventory(Generic[H]):
         self.access.assert_writeable()
 
         # always save the header on disk
-        headpath = self.access.path / header_name(header)
+        headpath = self.path / header_name(header)
         headpath.write_text(yaml.dump(asdict(header)), encoding="utf-8")
 
         # in case of contentless, set empty cache and exit
@@ -136,7 +137,7 @@ class Inventory(Generic[H]):
         assert operator is not None
 
         with_err = operator.error is not None
-        oppath = self.access.path / operator_name(header, err=with_err)
+        oppath = self.path / operator_name(header, err=with_err)
 
         with open(oppath, "wb") as fd:
             operator.save(fd)
@@ -188,7 +189,7 @@ class Inventory(Generic[H]):
         has been abused, nothing will be deleted nor unloaded.
 
         """
-        for path in self.access.path.iterdir():
+        for path in self.path.iterdir():
             if path.suffix != HEADER_EXT:
                 continue
 
