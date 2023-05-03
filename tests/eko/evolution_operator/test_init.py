@@ -192,7 +192,7 @@ class FakeCoupling:
         self.alphaem_running = None
         self.q2_ref = 0.0
 
-    def a(self, scale_to=None, fact_scale=None, nf_to=None):
+    def a(self, scale_to=None, nf_to=None):
         return (0.1, 0.01)
 
     def compute(self, a_ref, nf, scale_from, scale_to):

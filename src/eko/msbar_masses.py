@@ -166,8 +166,8 @@ def ker_dispatcher(q2_to, q2m_ref, strong_coupling, xif2, nf):
         Expanded or exact |MSbar| kernel
 
     """
-    a0 = strong_coupling.a(q2m_ref / xif2, q2m_ref, nf)[0]
-    a1 = strong_coupling.a(q2_to / xif2, q2_to, nf)[0]
+    a0 = strong_coupling.a(q2m_ref * xif2, nf)[0]
+    a1 = strong_coupling.a(q2_to * xif2, nf)[0]
     method = strong_coupling.method
     order = strong_coupling.order
     if method == "expanded":
@@ -318,7 +318,6 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
             )
         # apply matching condition
         if k < len(path) - 1:
-            # TODO: do we need to add np.log(fac_to_ren) here ???
             L = np.log(thr_atlas.thresholds_ratios[seg.nf - shift])
             m_coeffs = (
                 compute_matching_coeffs_down(seg.nf - 1)
@@ -329,9 +328,7 @@ def evolve(m2_ref, q2m_ref, strong_coupling, xif2, q2_to, nf_ref=None, nf_to=Non
             for pto in range(1, strong_coupling.order[0]):
                 # 0**0=1, from NNLO there is a matching also in this case
                 for logpow in range(pto + 1):
-                    as_thr = strong_coupling.a(
-                        seg.q2_to / xif2, seg.q2_to, seg.nf - shift + 4
-                    )[0]
+                    as_thr = strong_coupling.a(seg.q2_to * xif2, seg.nf - shift + 4)[0]
                     matching += as_thr**pto * L**logpow * m_coeffs[pto, logpow]
             ker_evol *= matching
         ev_mass *= ker_evol
@@ -383,7 +380,7 @@ def compute(
             order=order,
             method=evmeth,
             masses=thr_masses,
-            thresholds_ratios=matching,
+            thresholds_ratios=matching * xif2,
             hqm_scheme=QuarkMassScheme.MSBAR,
         )
 

@@ -849,21 +849,22 @@ class BenchmarkCouplings:
         masses = tuple(mq.value**2 for mq in theory.heavy.masses)
 
         mu2s = [2.0]
+        xif2 = theory.xif**2
         sc = Couplings(
             couplings=theory.couplings,
             order=theory.order,
             method=CouplingEvolutionMethod.EXACT,
-            masses=[m2 / theory.xif**2 for m2 in masses],
+            masses=masses,
             hqm_scheme=QuarkMassScheme.POLE,
-            thresholds_ratios=np.power(list(iter(theory.heavy.matching_ratios)), 2.0),
+            thresholds_ratios=np.power(list(iter(theory.heavy.matching_ratios)), 2.0)
+            / xif2,
         )
-        xif2 = theory.xif**2
         for mu2 in mu2s:
-            my_val = sc.a(mu2 / xif2, mu2)[0]
+            my_val = sc.a(mu2 / xif2)[0]
             path = sc.thresholds.path(mu2 / xif2)
-            my_val_4 = sc.a(mu2 / xif2, mu2, nf_to=4)[0]
+            my_val_4 = sc.a(mu2 / xif2, nf_to=4)[0]
             path_4 = sc.thresholds.path(mu2 / xif2, 4)
-            my_val_3 = sc.a(mu2 / xif2, mu2, nf_to=3)[0]
+            my_val_3 = sc.a(mu2 / xif2, nf_to=3)[0]
             path_3 = sc.thresholds.path(mu2 / xif2, 3)
 
             # path_4 it's not matched

@@ -718,7 +718,6 @@ class Couplings:
     def a(
         self,
         scale_to,
-        fact_scale=None,
         nf_to=None,
     ):
         r"""Compute couplings :math:`a_i(\mu_R^2) = \frac{\alpha_i(\mu_R^2)}{4\pi}`.
@@ -727,8 +726,6 @@ class Couplings:
         ----------
         scale_to : float
             final scale to evolve to :math:`\mu_R^2`
-        fact_scale : float
-            factorization scale (if different from final scale)
         nf_to : int
             final nf value
 
@@ -743,12 +740,6 @@ class Couplings:
         is_downward = thresholds.is_downward_path(path)
         shift = thresholds.flavor_shift(is_downward)
 
-        # TODO remove in 0.13
-        if fact_scale is not None:
-            warnings.warn(
-                "The `fact_scale` argument is deprecated - use the ThresholdAtlas instead!",
-                DeprecationWarning,
-            )
         for k, seg in enumerate(path):
             # skip a very short segment, but keep the matching
             if not np.isclose(seg.q2_from, seg.q2_to):
@@ -774,7 +765,7 @@ class Couplings:
             final_a = new_a
         return final_a
 
-    def a_s(self, scale_to, fact_scale=None, nf_to=None):
+    def a_s(self, scale_to, nf_to=None):
         r"""Compute strong coupling.
 
         The strong oupling uses the normalization :math:`a_s(\mu_R^2) =
@@ -784,8 +775,6 @@ class Couplings:
         ----------
         scale_to : float
             final scale to evolve to :math:`\mu_R^2`
-        fact_scale : float
-            factorization scale (if different from final scale)
         nf_to : int
             final nf value
 
@@ -795,9 +784,9 @@ class Couplings:
             couplings :math:`a_s(\mu_R^2) = \frac{\alpha_s(\mu_R^2)}{4\pi}`
 
         """
-        return self.a(scale_to, fact_scale, nf_to)[0]
+        return self.a(scale_to, nf_to)[0]
 
-    def a_em(self, scale_to, fact_scale=None, nf_to=None):
+    def a_em(self, scale_to, nf_to=None):
         r"""Compute electromagnetic coupling.
 
         The electromagnetic oupling uses the normalization :math:`a_em(\mu_R^2)
@@ -807,8 +796,6 @@ class Couplings:
         ----------
         scale_to : float
             final scale to evolve to :math:`\mu_R^2`
-        fact_scale : float
-            factorization scale (if different from final scale)
         nf_to : int
             final nf value
 
@@ -817,7 +804,7 @@ class Couplings:
         a_em : float
             couplings :math:`a_em(\mu_R^2) = \frac{\alpha_em(\mu_R^2)}{4\pi}`
         """
-        return self.a(scale_to, fact_scale, nf_to)[1]
+        return self.a(scale_to, nf_to)[1]
 
 
 def compute_matching_coeffs_up(mass_scheme, nf):
