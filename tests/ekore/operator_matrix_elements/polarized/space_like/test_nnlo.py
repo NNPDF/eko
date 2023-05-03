@@ -1,6 +1,7 @@
 # Test NNLO polarized OME
 import numpy as np
 
+from ekore.harmonics import cache as c
 from ekore.operator_matrix_elements.polarized.space_like import as2
 
 NF = 4
@@ -9,8 +10,9 @@ NF = 4
 def test_A_1_shape():
     N = 2
     L = 3.0
-    aS2i = as2.A_singlet(N, L, NF)
-    aS2nsi = as2.A_ns(N, L)
+    cache = c.reset()
+    aS2i = as2.A_singlet(N, cache, L, NF)
+    aS2nsi = as2.A_ns(N, cache, L)
     assert aS2i.shape == (3, 3)
     assert aS2nsi.shape == (2, 2)
 
@@ -18,7 +20,8 @@ def test_A_1_shape():
 def test_quark_number_conservation():
     L = 10
     N = 1.0
-    np.testing.assert_allclose(as2.A_qq_ns(N, L), 0.0, atol=1e-13)
+    cache = c.reset()
+    np.testing.assert_allclose(as2.A_qq_ns(N, cache, L), 0.0, atol=1e-13)
 
 
 def test_hg():
@@ -42,7 +45,8 @@ def test_hg():
         test_vals = []
         for i, _ in enumerate(vals):
             n = 2 * i + 3
-            test_vals.append(as2.A_hg(n, L))
+            cache = c.reset()
+            test_vals.append(as2.A_hg(n, cache, L))
         np.testing.assert_allclose(test_vals, vals)
 
 
@@ -74,7 +78,8 @@ def test_hq():
         test_vals = []
         for i, _ in enumerate(vals):
             n = 2 * i + 3
-            test_vals.append(as2.A_hq_ps(n, L, NF))
+            cache = c.reset()
+            test_vals.append(as2.A_hq_ps(n, cache, L, NF))
         np.testing.assert_allclose(test_vals, np.array(vals) + zqq_shift)
 
 
@@ -101,7 +106,8 @@ def test_gq():
         test_vals = []
         for i, _ in enumerate(vals):
             n = 2 * i + 3
-            test_vals.append(as2.A_gq(n, L))
+            cache = c.reset()
+            test_vals.append(as2.A_gq(n, cache, L))
         np.testing.assert_allclose(test_vals, np.array(vals))
 
 
@@ -128,7 +134,8 @@ def test_gg():
         test_vals = []
         for i, _ in enumerate(vals):
             n = 2 * i + 3
-            test_vals.append(as2.A_gg(n, L))
+            cache = c.reset()
+            test_vals.append(as2.A_gg(n, cache, L))
         np.testing.assert_allclose(test_vals, np.array(vals))
 
 
@@ -155,5 +162,6 @@ def test_qq():
         test_vals = []
         for i, _ in enumerate(vals):
             n = 2 * i + 3
-            test_vals.append(as2.A_qq_ns(n, L))
+            cache = c.reset()
+            test_vals.append(as2.A_qq_ns(n, cache, L))
         np.testing.assert_allclose(test_vals, np.array(vals))

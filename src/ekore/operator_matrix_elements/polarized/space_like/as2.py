@@ -77,9 +77,9 @@ def A_qq_ns(n, cache, L):
         )
     )
 
-    a_qq_l0 = aqqns - 1 / 4 * 2 * beta_0hat * gamma0_qq(n, S1) * zeta2
+    a_qq_l0 = aqqns - 1 / 4 * 2 * beta_0hat * gamma0_qq(n, cache) * zeta2
     a_qq_l1 = (1 / 2) * gamma1_qqNS
-    a_qq_l2 = (1 / 4) * beta_0hat * 2 * gamma0_qq(n, S1)
+    a_qq_l2 = (1 / 4) * beta_0hat * 2 * gamma0_qq(n, cache)
     return a_qq_l2 * L**2 + a_qq_l1 * (-L) + a_qq_l0
 
 
@@ -258,14 +258,14 @@ def A_hg(n, cache, L):
     # (2 * gamma0_gg(n, S1, nf) + 2 * beta_0(nf))
     pgg0_beta0 = 8 * CA * (-(2 / (n + n**2)) + S1)
     a_hg_l0 = a_hg + (1 / 8) * 2 * gamma0_qg(n, nf=1) * (
-        pgg0_beta0 - 2 * gamma0_qq(n, S1)
+        pgg0_beta0 - 2 * gamma0_qq(n, cache)
     )
-    a_hg_l1 = 2 * gamma1_qg(n, nf=1, sx=[S1, S2])
+    a_hg_l1 = 2 * gamma1_qg(n, nf=1, cache=cache)
     a_hg_l2 = (
         (1 / 8)
         * 2
         * gamma0_qg(n, nf=1)
-        * (2 * gamma0_qq(n, S1) - pgg0_beta0 - 4 * beta_0hat)
+        * (2 * gamma0_qq(n, cache) - pgg0_beta0 - 4 * beta_0hat)
     )
     return a_hg_l2 * L**2 + a_hg_l1 * (-L) + a_hg_l0
 
