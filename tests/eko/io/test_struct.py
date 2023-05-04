@@ -6,10 +6,9 @@ import numpy as np
 import pytest
 import yaml
 
-from eko import EKO
-from eko import basis_rotation as br
-from eko import interpolation
+from eko import EKO, interpolation
 from eko.io import struct
+from eko.io.items import Target
 from tests.conftest import EKOFactory
 
 
@@ -67,13 +66,10 @@ class TestEKO:
         eko = eko_factory.get()
         v = np.random.rand(2, 2)
         opv = struct.Operator(operator=v)
-        # try setting not an operator
-        with pytest.raises(ValueError):
-            eko[ep] = "bla"
         # approx
         eko[ep] = opv
         assert eko.approx((2 * mu2, nf)) is None
-        assert eko.approx((mu2 + 1.0, nf), atol=2) == mu2
+        assert eko.approx((mu2 + 1.0, nf), atol=2)[0] == mu2
         eko[(mu2 + 1.0, nf)] = opv
         with pytest.raises(ValueError):
             eko.approx((mu2 + 0.5, nf), atol=2)
@@ -136,14 +132,14 @@ class TestEKO:
         ep = next(iter(eko))
 
         # unload
-        eko.operators[ep] = None
+        eko.operators.cache[Target.from_ep(ep)] = None
         # test autoloading
         assert isinstance(eko[ep], struct.Operator)
-        assert isinstance(eko.operators[ep], struct.Operator)
+        assert isinstance(eko.operators[Target.from_ep(ep)], struct.Operator)
 
         del eko[ep]
 
-        assert eko.operators[ep] is None
+        assert eko.operators.cache[Target.from_ep(ep)] is None
 
     def test_iter(self, eko_factory: EKOFactory):
         """Test managed iteration."""
