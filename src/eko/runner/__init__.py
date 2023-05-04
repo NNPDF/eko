@@ -41,6 +41,7 @@ def solve(
     legacy.Runner(theory_card, operators_card, path).compute()
 
 
+# TODO: drop this, and directly re-export manaaged.solve
 def solve_jets(
     theory_card: Union[RawCard, TheoryCard],
     operators_card: Union[RawCard, OperatorCard],
@@ -51,4 +52,5 @@ def solve_jets(
     managed.solve(new_theory, new_operator, Path(path))
 
 
-#  solve = solve_jets
+# TODO: drop this before merging #242
+solve = solve_jets
