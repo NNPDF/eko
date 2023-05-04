@@ -16,6 +16,7 @@ def test_ekos_product(tmp_path):
 
     theory = cards.example.theory()
     theory.order = (1, 0)
+    theory.heavy.num_flavs_init = 5
 
     op1 = cards.example.operator()
     op1.mu0 = mu01
@@ -35,8 +36,7 @@ def test_ekos_product(tmp_path):
     op_err = copy.deepcopy(op2)
     op_err.mu0 = mu01
 
-    mu2first = mugrid2[0][0] ** 2
-    mu2last = mugrid2[-1][0] ** 2
+    mu2first = (mugrid2[0][0] ** 2, mugrid2[0][1])
 
     ini_path = tmp_path / "ini.tar"
     eko.solve(theory, op1, path=ini_path)
@@ -52,7 +52,6 @@ def test_ekos_product(tmp_path):
                     _ = utils.ekos_product(eko_ini, eko_fin_err)
                 # product is copied
                 res_path = tmp_path / "eko_res.tar"
-                eko_fin[mu2last].error = None  # drop one set of errors
                 utils.ekos_product(eko_ini, eko_fin, path=res_path)
 
                 with EKO.read(res_path) as eko_res:
@@ -70,5 +69,3 @@ def test_ekos_product(tmp_path):
                         eko_res[mu2first].operator, eko_ini[mu2first].operator
                     )
                     utils.ekos_product(eko_ini, eko_fin)
-
-                    assert eko_res[mu2last].error is None

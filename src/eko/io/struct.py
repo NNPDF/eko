@@ -275,9 +275,9 @@ class EKO:
         mu2s = np.array([mu2 for mu2, _ in eps])
         close = eps[np.isclose(ep[0], mu2s, rtol=rtol, atol=atol)]
 
-        if close.size == 1:
-            return close[0]
-        if close.size == 0:
+        if len(close) == 1:
+            return tuple(close[0])
+        if len(close) == 0:
             return None
         raise ValueError(f"Multiple values of Q2 have been found close to {ep}")
 

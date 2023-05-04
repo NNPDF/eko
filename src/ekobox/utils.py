@@ -36,14 +36,21 @@ def ekos_product(
     # TODO: add a control on the theory (but before we need to implement
     # another kind of output which includes the theory and operator runcards)
 
-    q2match = eko_ini.approx(eko_fin.operator_card.mu0**2, rtol=rtol, atol=atol)
-    if q2match is None:
+    ep_match = eko_ini.approx(
+        (eko_fin.operator_card.mu0**2, eko_fin.theory_card.heavy.num_flavs_init),
+        rtol=rtol,
+        atol=atol,
+    )
+    if ep_match is None:
         raise ValueError(
             "Initial Q2 of final eko operator does not match any final Q2 in"
             " the initial eko operator"
         )
-    ope1 = eko_ini[q2match].operator.copy()
-    ope1_error = eko_ini[q2match].error
+    ope1 = eko_ini[ep_match]
+    assert ope1 is not None
+
+    ope1_value = ope1.operator.copy()
+    ope1_error = ope1.error
     if ope1_error is not None:
         ope1_error = ope1_error.copy()
 
@@ -57,10 +64,10 @@ def ekos_product(
         if q2 in eko_ini:
             continue
 
-        op = np.einsum(CONTRACTION, ope1, op2.operator)
+        op = np.einsum(CONTRACTION, ope1_value, op2.operator)
 
         if ope1_error is not None and op2.error is not None:
-            error = np.einsum(CONTRACTION, ope1, op2.error) + np.einsum(
+            error = np.einsum(CONTRACTION, ope1_value, op2.error) + np.einsum(
                 CONTRACTION, ope1_error, op2.operator
             )
         else:
