@@ -33,9 +33,10 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
             eko.parts[recipe] = parts.evolve(eko, recipe)
         for recipe in eko.recipes_matching:
             assert isinstance(recipe, Matching)
-            eko.parts[recipe] = parts.match(eko, recipe)
+            eko.parts_matching[recipe] = parts.match(eko, recipe)
 
         for ep in operator.evolgrid:
             headers = recipes.elements(ep, atlas)
+            __import__("pdb").set_trace()
             parts_ = operators.retrieve(headers, eko.parts, eko.parts_matching)
             eko.operators[Target.from_ep(ep)] = operators.join(parts_)
