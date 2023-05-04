@@ -204,6 +204,7 @@ class FFNS(LHA):
                 "FNS": "FFNS",  # ignored by eko, but needed by LHA_utils
                 "NfFF": 4,
                 "nfref": 4,
+                "nf0": 4,
                 "kcThr": 0.0,
                 "kbThr": np.inf,
                 "ktThr": np.inf,
