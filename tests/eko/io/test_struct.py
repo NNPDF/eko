@@ -149,7 +149,7 @@ class TestEKO:
         epprev = None
         for ep, op in eko.items():
             if epprev is not None:
-                assert eko.operators[epprev] is None
+                assert eko.operators.cache[Target.from_ep(epprev)] is None
             assert isinstance(op, struct.Operator)
             epprev = ep
 
@@ -161,4 +161,4 @@ class TestEKO:
         with eko.operator(ep) as op:
             assert isinstance(op, struct.Operator)
 
-        assert eko.operators[ep] is None
+        assert eko.operators.cache[Target.from_ep(ep)] is None
