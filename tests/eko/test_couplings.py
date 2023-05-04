@@ -226,7 +226,10 @@ class TestCouplings:
         for thresh_setup in thresh_setups:
             for qcd in range(1, 4 + 1):
                 for qed in range(2 + 1):
-                    for qedref in [muref, nan]:  # testing both running and fixed alpha
+                    for em_running in [
+                        True,
+                        False,
+                    ]:  # testing both running and fixed alpha
                         pto = (qcd, qed)
                         couplings = CouplingsInfo.from_dict(
                             dict(
@@ -235,6 +238,7 @@ class TestCouplings:
                                 scale=muref,
                                 num_flavs_ref=None,
                                 max_num_flavs=6,
+                                em_running=em_running,
                             )
                         )
                         sc_expanded = Couplings(
@@ -273,7 +277,7 @@ class TestCouplings:
                                 sc_exact.a(q2)[1],
                                 rtol=precisions[1],
                             )
-                            if qedref is nan or qed == 0:
+                            if not em_running or qed == 0:
                                 np.testing.assert_allclose(
                                     sc_expanded.a(q2)[1],
                                     alpharef[1] / (4 * np.pi),
