@@ -73,17 +73,6 @@ def evolve_configs(eko: EKO) -> dict:
         Legacy interface, make use of a dedicated object.
 
     """
-    # self.config:
-    # - order
-    # - n_integration_cores
-    # - xif2
-    # - ev_op_iterations
-    # - debug_skip_non_singlet
-    # - debug_skip_singlet
-    # - method
-    # - ev_op_max_order
-    # - polarized
-    # - time_like
     tcard = eko.theory_card
     ocard = eko.operator_card
     return dict(
@@ -97,6 +86,8 @@ def evolve_configs(eko: EKO) -> dict:
         debug_skip_singlet=ocard.debug.skip_singlet,
         debug_skip_non_singlet=ocard.debug.skip_non_singlet,
         n_integration_cores=ocard.configs.n_integration_cores,
+        ModSV=ocard.configs.scvar_method,
+        n3lo_ad_variation=tcard.n3lo_ad_variation,
     )
 
 
@@ -123,32 +114,10 @@ def matching_configs(eko: EKO) -> dict:
         Legacy interface, make use of a dedicated object.
 
     """
-    # self.config:
-    # - order
-    # - n_integration_cores
-    # - xif2
-    # - ev_op_iterations
-    # - debug_skip_non_singlet
-    # - debug_skip_singlet
-    # - method
-    # - ev_op_max_order
-    # - polarized
-    # - time_like
-    # - backward_inversion
-    # - intrinsic_range
     tcard = eko.theory_card
     ocard = eko.operator_card
     return dict(
-        order=tcard.order,
-        xif2=tcard.xif**2,
-        method=ocard.configs.evolution_method,
-        ev_op_iterations=ocard.configs.ev_op_iterations,
-        ev_op_max_order=ocard.configs.ev_op_max_order,
-        polarized=ocard.configs.polarized,
-        time_like=ocard.configs.time_like,
-        debug_skip_singlet=ocard.debug.skip_singlet,
-        debug_skip_non_singlet=ocard.debug.skip_non_singlet,
-        n_integration_cores=ocard.configs.n_integration_cores,
+        **evolve_configs(eko),
         backward_inversion=ocard.configs.inversion_method,
         intrinsic_range=tcard.heavy.intrinsic_flavors,
     )

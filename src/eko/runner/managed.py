@@ -37,6 +37,5 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
 
         for ep in operator.evolgrid:
             headers = recipes.elements(ep, atlas)
-            __import__("pdb").set_trace()
             parts_ = operators.retrieve(headers, eko.parts, eko.parts_matching)
             eko.operators[Target.from_ep(ep)] = operators.join(parts_)
