@@ -186,6 +186,8 @@ class Operator:
             op = content["operator"]
             err = content["error"]
         else:
+            # TODO: We might consider dropping this exception since np.load will always
+            # return a array (or fail on it's own)
             raise exceptions.OperatorLoadingError(
                 "Not possible to load operator, content format not recognized"
             )
