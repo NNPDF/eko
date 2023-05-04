@@ -25,7 +25,7 @@ def solve(theory: TheoryCard, operator: OperatorCard, path: Path):
 
         atlas = commons.atlas(eko.theory_card, eko.operator_card)
 
-        recs = recipes.create(eko.evolgrid, atlas)
+        recs = recipes.create(eko.operator_card.evolgrid, atlas)
         eko.load_recipes(recs)
 
         for recipe in eko.recipes:
