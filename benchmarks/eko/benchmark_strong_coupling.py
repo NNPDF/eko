@@ -861,20 +861,18 @@ class BenchmarkCouplings:
         )
         for mu2 in mu2s:
             my_val = sc.a(mu2 * xif2)[0]
-            path = sc.thresholds.path(mu2 * xif2)
             my_val_4 = sc.a(mu2 * xif2, nf_to=4)[0]
-            path_4 = sc.thresholds.path(mu2 * xif2, 4)
+            path_4 = sc.atlas.path((mu2 * xif2, 4))
             my_val_3 = sc.a(mu2 * xif2, nf_to=3)[0]
-            path_3 = sc.thresholds.path(mu2 * xif2, 3)
+            path_3 = sc.atlas.path((mu2 * xif2, 3))
 
             # path_4 it's not matched
             assert len(path_4) == 1
 
             # path_3 is the same as path backward in nf and in q2.
             assert len(path_3) == 2
-            assert len(path) == 2
             assert path_3[1].nf < path_3[0].nf
-            assert path_3[1].q2_from < path_3[0].q2_from
+            assert path_3[1].origin < path_3[0].origin
 
             apfel_val_ref = 0.03478112968976964
             if use_APFEL:
